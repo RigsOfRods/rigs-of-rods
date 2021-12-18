@@ -588,7 +588,14 @@ void Parser::ParseDirectivePropCameraMode()
 {
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
-    this->_ParseCameraSettings(m_current_module->props.back().camera_settings, this->GetArgStr(1));
+    if (m_current_module->props.size() > 0)
+    {
+        m_current_module->props[m_current_module->props.size() - 1].camera_settings.mode = this->GetArgInt(1);
+    }
+    else
+    {
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, "This line must come after a prop!");
+    }
 }
 
 void Parser::ParseDirectiveSubmesh()
@@ -786,30 +793,18 @@ void Parser::ParseFusedrag()
     m_current_module->fusedrag.push_back(fusedrag);
 }
 
-void Parser::_ParseCameraSettings(CameraSettings & camera_settings, Ogre::String input_str)
-{
-    int input = PARSEINT(input_str);
-    if (input >= 0)
-    {
-        camera_settings.mode = CameraSettings::MODE_CINECAM;
-        camera_settings.cinecam_index = input;
-    }
-    else if (input >= -2)
-    {
-        camera_settings.mode = CameraSettings::Mode(input);
-    }
-    else
-    {
-        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, fmt::format("invalid value ({}), skipping line", input));
-        return;
-    }
-}
-
 void Parser::ParseDirectiveFlexbodyCameraMode()
 {
     if (! this->CheckNumArguments(2)) { return; } // 2 items: keyword, arg
 
-    this->_ParseCameraSettings(m_current_module->flexbodies[m_current_module->flexbodies.size() - 1].camera_settings, this->GetArgStr(1));
+    if (m_current_module->flexbodies.size() > 0)
+    {
+        m_current_module->flexbodies[m_current_module->flexbodies.size() - 1].camera_settings.mode = this->GetArgInt(1);
+    }
+    else
+    {
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, "This line must come after a flexbody!");
+    }
 }
 
 void Parser::ParseCab()

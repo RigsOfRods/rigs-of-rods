@@ -725,22 +725,7 @@ struct CameraRail
 
 struct CameraSettings
 {
-    CameraSettings():
-        mode(MODE_ALWAYS),
-        cinecam_index(0)
-    {}
-
-    enum Mode
-    {
-        MODE_ALWAYS   = -2,
-        MODE_EXTERNAL = -1,
-        MODE_CINECAM  = 1,
-
-        MODE_INVALID  = 0xFFFFFFFF
-    };
-
-    Mode mode;
-    unsigned int cinecam_index;
+    int mode = -2; // {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
 };
 
 struct Cinecam
