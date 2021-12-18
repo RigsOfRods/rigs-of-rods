@@ -766,16 +766,16 @@ void Serializer::ProcessManagedMaterialsAndOptions(Document::Module* module)
         // Type
         switch (def.type)
         {
-        case ManagedMaterial::TYPE_FLEXMESH_STANDARD:
+        case ManagedMaterialType::FLEXMESH_STANDARD:
             m_stream << "flexmesh_standard ";
             break;
-        case ManagedMaterial::TYPE_FLEXMESH_TRANSPARENT:
+        case ManagedMaterialType::FLEXMESH_TRANSPARENT:
             m_stream << "flexmesh_transparent ";
             break;
-        case ManagedMaterial::TYPE_MESH_STANDARD:
+        case ManagedMaterialType::MESH_STANDARD:
             m_stream << "mesh_standard ";
             break;
-        case ManagedMaterial::TYPE_MESH_TRANSPARENT:
+        case ManagedMaterialType::MESH_TRANSPARENT:
             m_stream << "mesh_transparent ";
             break;
         default:
@@ -784,7 +784,7 @@ void Serializer::ProcessManagedMaterialsAndOptions(Document::Module* module)
         // Diffuse texture filename
         m_stream << def.diffuse_map << " ";
         // Diffuse damage-texture filename
-        if (def.type == ManagedMaterial::TYPE_FLEXMESH_STANDARD || def.type == ManagedMaterial::TYPE_FLEXMESH_TRANSPARENT)
+        if (def.type == ManagedMaterialType::FLEXMESH_STANDARD || def.type == ManagedMaterialType::FLEXMESH_TRANSPARENT)
         {
             m_stream << (def.damaged_diffuse_map.empty() ? "-" : def.damaged_diffuse_map) << " ";
         }

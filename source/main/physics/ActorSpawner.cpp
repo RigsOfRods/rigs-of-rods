@@ -2217,6 +2217,26 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         return;
     }
 
+    // Check all textures exist
+    Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
+    if (!rgm.resourceExists(m_custom_resource_group, def.diffuse_map))
+    {
+        this->AddMessage(Message::TYPE_WARNING, "Skipping managed material, missing texture file: " + def.diffuse_map);
+        return;
+    }
+    if (def.damaged_diffuse_map != "" &&
+        !rgm.resourceExists(m_custom_resource_group, def.damaged_diffuse_map))
+    {
+        this->AddMessage(Message::TYPE_WARNING, "Skipping managed material, missing texture file: " + def.damaged_diffuse_map);
+        return;
+    }
+    if (def.specular_map != "" &&
+        !rgm.resourceExists(m_custom_resource_group, def.specular_map))
+    {
+        this->AddMessage(Message::TYPE_WARNING, "Skipping managed material, missing texture file: " + def.specular_map);
+        return;
+    }
+
     // Create temporary placeholder
     // This is necessary to load meshes with original material names (= unchanged managed mat names)
     // - if not found, OGRE substitutes them with 'BaseWhite' which breaks subsequent processing.
@@ -2227,16 +2247,16 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 
     std::string custom_name = def.name + ACTOR_ID_TOKEN + TOSTRING(m_actor->ar_instance_id);
     Ogre::MaterialPtr material;
-    if (def.type == RigDef::ManagedMaterial::TYPE_FLEXMESH_STANDARD || def.type == RigDef::ManagedMaterial::TYPE_FLEXMESH_TRANSPARENT)
+    if (def.type == RigDef::ManagedMaterialType::FLEXMESH_STANDARD || def.type == RigDef::ManagedMaterialType::FLEXMESH_TRANSPARENT)
     {
         std::string mat_name_base
-            = (def.type == RigDef::ManagedMaterial::TYPE_FLEXMESH_STANDARD)
+            = (def.type == RigDef::ManagedMaterialType::FLEXMESH_STANDARD)
             ? "managed/flexmesh_standard"
             : "managed/flexmesh_transparent";
 
-        if (def.HasDamagedDiffuseMap())
+        if (def.damaged_diffuse_map != "")
         {
-            if (def.HasSpecularMap())
+            if (def.specular_map != "")
             {
                 /* FLEXMESH, damage, specular */
                 if (App::gfx_classic_shaders->getBool())
@@ -2279,7 +2299,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         }
         else
         {
-            if (def.HasSpecularMap())
+            if (def.specular_map != "")
             {
                 /* FLEXMESH, no_damage, specular */
                 if (App::gfx_classic_shaders->getBool())
@@ -2318,14 +2338,14 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             }
         }
     }
-    else if (def.type == RigDef::ManagedMaterial::TYPE_MESH_STANDARD || def.type == RigDef::ManagedMaterial::TYPE_MESH_TRANSPARENT)
+    else if (def.type == RigDef::ManagedMaterialType::MESH_STANDARD || def.type == RigDef::ManagedMaterialType::MESH_TRANSPARENT)
     {
         Ogre::String mat_name_base
-            = (def.type == RigDef::ManagedMaterial::TYPE_MESH_STANDARD)
+            = (def.type == RigDef::ManagedMaterialType::MESH_STANDARD)
             ? "managed/mesh_standard"
             : "managed/mesh_transparent";
 
-        if (def.HasSpecularMap())
+        if (def.specular_map != "")
         {
             /* MESH, specular */
             if (App::gfx_classic_shaders->getBool())
@@ -2365,12 +2385,12 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         }
     }
 
-    if (def.type != RigDef::ManagedMaterial::TYPE_INVALID)
+    if (def.type != RigDef::ManagedMaterialType::INVALID)
     {
         if (def.options.double_sided)
         {
             material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
-            if (def.HasSpecularMap())
+            if (def.specular_map != "")
             {
                 if (App::gfx_classic_shaders->getBool())
                 {
