@@ -177,7 +177,7 @@ void SimActorStats::Draw(RoR::GfxActor* actorx)
             ImGui::Text("%.0f feet (%.0f meters)", Round(altitude), Round(altitude * 0.30480));
 
             int engine_num = 1; // UI; count from 1
-            for (GfxActor::SimBuffer::AeroEngineSB& ae: actorx->GetSimDataBuffer().simbuf_aeroengines)
+            for (AeroEngineSB& ae: actorx->GetSimDataBuffer().simbuf_aeroengines)
             {
                 ImGui::TextColored(theme.value_blue_text_color, "%s #%d:", _LC("SimActorStats", "Engine "), engine_num);
                 ImGui::SameLine();
@@ -195,7 +195,7 @@ void SimActorStats::Draw(RoR::GfxActor* actorx)
         else if (actorx->GetAttributes().xa_driveable == BOAT)
         {
             int engine_num = 1; // UI; count from 1
-            for (GfxActor::SimBuffer::ScrewPropSB& screw: actorx->GetSimDataBuffer().simbuf_screwprops)
+            for (ScrewpropSB& screw: actorx->GetSimDataBuffer().simbuf_screwprops)
             {
                 ImGui::TextColored(theme.value_blue_text_color, "%s #%d:", _LC("SimActorStats", "Engine "), engine_num);
                 ImGui::SameLine();

@@ -28,6 +28,7 @@
 #include "CameraManager.h"
 #include "ForwardDeclarations.h"
 #include "EnvironmentMap.h" // RoR::GfxEnvmap
+#include "SimBuffers.h"
 #include "Skidmark.h"
 
 #include <map>
@@ -45,26 +46,6 @@ class GfxScene
 {
 public:
 
-    struct SimBuffer /// Buffered simulation state
-    {
-        Actor*         simbuf_player_actor           = nullptr;
-        Ogre::Vector3  simbuf_character_pos          = Ogre::Vector3::ZERO;
-        bool           simbuf_sim_paused             = false;
-        float          simbuf_sim_speed              = 1.f;
-        CameraManager::CameraBehaviors
-                       simbuf_camera_behavior        = CameraManager::CAMERA_BEHAVIOR_INVALID;
-
-        // Race system
-        float          simbuf_race_time              = 0.f;
-        float          simbuf_race_best_time         = 0.f;
-        float          simbuf_race_time_diff         = 0.f;
-        bool           simbuf_race_in_progress       = false;
-        bool           simbuf_race_in_progress_prev  = false;
-        Ogre::Vector3  simbuf_dir_arrow_target       = Ogre::Vector3::ZERO;
-        std::string    simbuf_dir_arrow_text;
-        bool           simbuf_dir_arrow_visible      = false;
-    };
-
     void           Init();
     void           CreateDustPools();
     DustPool*      GetDustPool(const char* name);
@@ -77,7 +58,7 @@ public:
     void           RegisterGfxCharacter(RoR::GfxCharacter* gfx_character);
     void           RemoveGfxCharacter(RoR::GfxCharacter* gfx_character);
     void           BufferSimulationData(); //!< Run this when simulation is halted
-    SimBuffer&     GetSimDataBuffer() { return m_simbuf; }
+    GameContextSB&     GetSimDataBuffer() { return m_simbuf; }
     GfxEnvmap&     GetEnvMap() { return m_envmap; }
     RoR::SkidmarkConfig* GetSkidmarkConf () { return &m_skidmark_conf; }
     Ogre::SceneManager* GetSceneManager() { return m_scene_manager; }
@@ -92,7 +73,7 @@ private:
     std::vector<GfxActor*>            m_live_gfx_actors;
     std::vector<GfxCharacter*>        m_all_gfx_characters;
     RoR::GfxEnvmap                    m_envmap;
-    SimBuffer                         m_simbuf;
+    GameContextSB                     m_simbuf;
     SkidmarkConfig                    m_skidmark_conf;
 };
 

@@ -882,7 +882,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         race_box = true;
 
         // Calculate distance
-        GfxScene::SimBuffer& data = App::GetGfxScene()->GetSimDataBuffer();
+        GameContextSB& data = App::GetGfxScene()->GetSimDataBuffer();
         GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
         float distance = 0.0f;
         Actor* player_actor = App::GetGfxScene()->GetSimDataBuffer().simbuf_player_actor;

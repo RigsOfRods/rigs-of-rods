@@ -72,7 +72,7 @@ FlexBody::FlexBody(
     Vector3 position = Vector3::ZERO;
     Quaternion orientation = Quaternion::ZERO;
 
-    RoR::GfxActor::SimBuffer::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
+    RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
 
     if (m_node_center != NODENUM_INVALID)
     {
@@ -612,7 +612,7 @@ void FlexBody::ComputeFlexbody()
 {
     if (m_has_texture_blend) updateBlend();
 
-    RoR::GfxActor::SimBuffer::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
+    RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
 
     // compute the local center
     Ogre::Vector3 flexit_normal;
@@ -707,10 +707,10 @@ void FlexBody::writeBlend()
 
 void FlexBody::updateBlend() //so easy!
 {
-    RoR::GfxActor::SimBuffer::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
+    RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
     for (int i=0; i<(int)m_vertex_count; i++)
     {
-        RoR::GfxActor::SimBuffer::NodeSB *nd = &nodes[m_locators[i].ref];
+        RoR::NodeSB *nd = &nodes[m_locators[i].ref];
         ARGB col = m_src_colors[i];
         if (nd->nd_has_contact && !(col&0xFF000000))
         {
