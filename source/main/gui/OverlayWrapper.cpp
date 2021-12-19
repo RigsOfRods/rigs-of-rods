@@ -740,9 +740,8 @@ void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
 
 void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
 {
-    RoR::GfxActor::SimBuffer& simbuf = gfx_actor->GetSimDataBuffer();
-    RoR::GfxActor::SimBuffer::NodeSB* nodes = gfx_actor->GetSimNodeBuffer();
-    RoR::GfxActor::Attributes& attr = gfx_actor->GetAttributes();
+    RoR::ActorSB& simbuf = gfx_actor->GetSimDataBuffer();
+    RoR::NodeSB* nodes = gfx_actor->GetSimNodeBuffer();
 
     auto const& simbuf_ae = simbuf.simbuf_aeroengines;
     int num_ae = static_cast<int>( simbuf_ae.size() );
@@ -815,7 +814,7 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
 
     //adi
     //roll
-    Vector3 rollv = nodes[attr.xa_camera0_pos_node].AbsPosition - nodes[attr.xa_camera0_roll_node].AbsPosition;
+    Vector3 rollv = nodes[simbuf.xa_camera0_pos_node].AbsPosition - nodes[simbuf.xa_camera0_roll_node].AbsPosition;
     rollv.normalise();
     float rollangle = asin(rollv.dotProduct(Vector3::UNIT_Y));
 

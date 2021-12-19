@@ -170,7 +170,7 @@ Turboprop::~Turboprop()
 
 void Turboprop::updateVisuals(RoR::GfxActor* gfx_m_actor)
 {
-    RoR::GfxActor::SimBuffer::NodeSB* node_buf = gfx_m_actor->GetSimNodeBuffer();
+    RoR::NodeSB* node_buf = gfx_m_actor->GetSimNodeBuffer();
 
     //smoke
     if (smokeNode)

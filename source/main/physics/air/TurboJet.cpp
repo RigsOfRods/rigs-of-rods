@@ -152,8 +152,8 @@ void Turbojet::setVisible(bool visible)
 
 void TurbojetVisual::UpdateVisuals(RoR::GfxActor* gfx_actor)
 {
-    RoR::GfxActor::SimBuffer::NodeSB* node_buf = gfx_actor->GetSimNodeBuffer();
-    RoR::GfxActor::SimBuffer::AeroEngineSB& ae_buf
+    RoR::NodeSB* node_buf = gfx_actor->GetSimNodeBuffer();
+    RoR::AeroEngineSB& ae_buf
         = gfx_actor->GetSimDataBuffer().simbuf_aeroengines.at(m_number);
 
     //nozzle

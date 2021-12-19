@@ -65,7 +65,7 @@ void GUI::DirectionArrow::CreateArrow()
 
 void GUI::DirectionArrow::Update(RoR::GfxActor* player_vehicle)
 {
-    GfxScene::SimBuffer& data = App::GetGfxScene()->GetSimDataBuffer();
+    GameContextSB& data = App::GetGfxScene()->GetSimDataBuffer();
 
     if (data.simbuf_dir_arrow_visible)
     {

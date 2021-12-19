@@ -79,28 +79,28 @@ RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_re
     m_particles_sparks = App::GetGfxScene()->GetDustPool("sparks");
     m_particles_clump  = App::GetGfxScene()->GetDustPool("clump");
 
-    m_simbuf.simbuf_nodes.reset(new SimBuffer::NodeSB[actor->ar_num_nodes]);
+    m_simbuf.simbuf_nodes.reset(new NodeSB[actor->ar_num_nodes]);
     m_simbuf.simbuf_aeroengines.resize(actor->ar_num_aeroengines);
     m_simbuf.simbuf_commandkey.resize(MAX_COMMANDS + 10);
     m_simbuf.simbuf_airbrakes.resize(spawner->GetMemoryRequirements().num_airbrakes);
 
     // Attributes
-    m_attr.xa_speedo_highest_kph = actor->ar_speedo_max_kph; // TODO: Remove the attribute from Actor altogether ~ only_a_ptr, 05/2018
-    m_attr.xa_speedo_use_engine_max_rpm = actor->ar_gui_use_engine_max_rpm; // TODO: ditto
-    m_attr.xa_camera0_pos_node  = 0;
-    m_attr.xa_camera0_roll_node = 0;
-    m_attr.xa_has_autopilot = (actor->ar_autopilot != nullptr);
-    m_attr.xa_has_engine = (actor->ar_engine != nullptr);
-    m_attr.xa_driveable = actor->ar_driveable;
+    m_simbuf.xa_speedo_highest_kph = actor->ar_speedo_max_kph; // TODO: Remove the attribute from Actor altogether ~ only_a_ptr, 05/2018
+    m_simbuf.xa_speedo_use_engine_max_rpm = actor->ar_gui_use_engine_max_rpm; // TODO: ditto
+    m_simbuf.xa_camera0_pos_node  = 0;
+    m_simbuf.xa_camera0_roll_node = 0;
+    m_simbuf.xa_has_autopilot = (actor->ar_autopilot != nullptr);
+    m_simbuf.xa_has_engine = (actor->ar_engine != nullptr);
+    m_simbuf.xa_driveable = actor->ar_driveable;
     if (actor->ar_num_cameras > 0)
     {
-        m_attr.xa_camera0_pos_node  = actor->ar_camera_node_pos[0];
-        m_attr.xa_camera0_roll_node = actor->ar_camera_node_roll[0];
+        m_simbuf.xa_camera0_pos_node  = actor->ar_camera_node_pos[0];
+        m_simbuf.xa_camera0_roll_node = actor->ar_camera_node_roll[0];
     }
-    if (m_attr.xa_has_engine)
+    if (m_simbuf.xa_has_engine)
     {
-        m_attr.xa_num_gears = actor->ar_engine->getNumGears();
-        m_attr.xa_engine_max_rpm = actor->ar_engine->getMaxRPM();
+        m_simbuf.xa_num_gears = actor->ar_engine->getNumGears();
+        m_simbuf.xa_engine_max_rpm = actor->ar_engine->getMaxRPM();
     }
 }
 
@@ -436,7 +436,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
             vidcam.vcam_render_window->update();
 
         // get the normal of the camera plane now
-        GfxActor::SimBuffer::NodeSB* node_buf = m_simbuf.simbuf_nodes.get();
+        NodeSB* node_buf = m_simbuf.simbuf_nodes.get();
         const Ogre::Vector3 abs_pos_center = node_buf[vidcam.vcam_node_center].AbsPosition;
         const Ogre::Vector3 abs_pos_z = node_buf[vidcam.vcam_node_dir_z].AbsPosition;
         const Ogre::Vector3 abs_pos_y = node_buf[vidcam.vcam_node_dir_y].AbsPosition;
@@ -1598,9 +1598,9 @@ void RoR::GfxActor::UpdateRods()
         if (!rod.rod_is_visible)
             continue;
 
-        SimBuffer::NodeSB* nodes1 = this->GetSimNodeBuffer();
+        NodeSB* nodes1 = this->GetSimNodeBuffer();
         Ogre::Vector3 pos1 = nodes1[rod.rod_node1].AbsPosition;
-        SimBuffer::NodeSB* nodes2 = rod.rod_target_actor->GetGfxActor()->GetSimNodeBuffer();
+        NodeSB* nodes2 = rod.rod_target_actor->GetGfxActor()->GetSimNodeBuffer();
         Ogre::Vector3 pos2 = nodes2[rod.rod_node2].AbsPosition;
 
         // Classic method
@@ -1812,7 +1812,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     for (int i = 0; i < m_actor->ar_num_aeroengines; ++i)
     {
         AeroEngine* src = m_actor->ar_aeroengines[i];
-        SimBuffer::AeroEngineSB& dst = m_simbuf.simbuf_aeroengines[i];
+        AeroEngineSB& dst = m_simbuf.simbuf_aeroengines[i];
 
         dst.simbuf_ae_type       = src->getType();
         dst.simbuf_ae_throttle   = src->getThrottle();
@@ -1848,7 +1848,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     }
 
     // Autopilot
-    if (m_attr.xa_has_autopilot)
+    if (m_simbuf.xa_has_autopilot)
     {
         m_simbuf.simbuf_ap_heading_mode  = m_actor->ar_autopilot->GetHeadingMode();
         m_simbuf.simbuf_ap_heading_value = m_actor->ar_autopilot->heading;
@@ -1994,7 +1994,7 @@ void RoR::GfxActor::RegisterProps(std::vector<Prop> const& props, int driverseat
 void RoR::GfxActor::UpdateAirbrakes()
 {
     const size_t num_airbrakes = m_gfx_airbrakes.size();
-    SimBuffer::NodeSB* nodes = m_simbuf.simbuf_nodes.get();
+    NodeSB* nodes = m_simbuf.simbuf_nodes.get();
     for (size_t i=0; i<num_airbrakes; ++i)
     {
         AirbrakeGfx abx = m_gfx_airbrakes[i];
@@ -2024,7 +2024,7 @@ void RoR::GfxActor::UpdateAirbrakes()
 void RoR::GfxActor::UpdateCParticles()
 {
     //update custom particle systems
-    SimBuffer::NodeSB* nodes = m_simbuf.simbuf_nodes.get();
+    NodeSB* nodes = m_simbuf.simbuf_nodes.get();
     for (int i = 0; i < m_actor->ar_num_custom_particles; i++)
     {
         Ogre::Vector3 pos = nodes[m_actor->ar_custom_particles[i].emitterNode].AbsPosition;
@@ -2071,7 +2071,7 @@ void RoR::GfxActor::CalculateDriverPos(Ogre::Vector3& out_pos, Ogre::Quaternion&
     ROR_ASSERT(m_driverseat_prop_index != -1);
     Prop* driverseat_prop = &m_props[m_driverseat_prop_index];
 
-    SimBuffer::NodeSB* nodes = this->GetSimNodeBuffer();
+    NodeSB* nodes = this->GetSimNodeBuffer();
 
     const Ogre::Vector3 x_pos = nodes[driverseat_prop->pp_node_x].AbsPosition;
     const Ogre::Vector3 y_pos = nodes[driverseat_prop->pp_node_y].AbsPosition;
@@ -2103,7 +2103,7 @@ void RoR::GfxActor::UpdateBeaconFlare(Prop & prop, float dt, bool is_player_acto
     using namespace Ogre;
 
     bool enableAll = !((App::gfx_flares_mode->getEnum<GfxFlaresMode>() == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !is_player_actor);
-    SimBuffer::NodeSB* nodes = this->GetSimNodeBuffer();
+    NodeSB* nodes = this->GetSimNodeBuffer();
 
     if (prop.pp_beacon_type == 'b')
     {
@@ -2262,7 +2262,7 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
 {
     using namespace Ogre;
 
-    SimBuffer::NodeSB* nodes = this->GetSimNodeBuffer();
+    NodeSB* nodes = this->GetSimNodeBuffer();
 
     // Update prop meshes
     for (Prop& prop: m_props)
@@ -2627,7 +2627,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     if (has_engine && (flag_state & PROP_ANIM_FLAG_SHIFTER) && option3 == 4.0f)
     {
         int shifter = m_simbuf.simbuf_gear;
-        int numgears = m_attr.xa_num_gears;
+        int numgears = m_simbuf.xa_num_gears;
         cstate -= (shifter + 2.0) / (numgears + 2.0);
         div++;
     }
@@ -2643,7 +2643,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     //speedo ( scales with speedomax )
     if (flag_state & PROP_ANIM_FLAG_SPEEDO)
     {
-        float speedo = m_simbuf.simbuf_wheel_speed / m_attr.xa_speedo_highest_kph;
+        float speedo = m_simbuf.simbuf_wheel_speed / m_simbuf.xa_speedo_highest_kph;
         cstate -= speedo * 3.0f;
         div++;
     }
@@ -2651,7 +2651,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     //engine tacho ( scales with maxrpm, default is 3500 )
     if (has_engine && flag_state & PROP_ANIM_FLAG_TACHO)
     {
-        float tacho = m_simbuf.simbuf_engine_rpm / m_attr.xa_engine_max_rpm;
+        float tacho = m_simbuf.simbuf_engine_rpm / m_simbuf.xa_engine_max_rpm;
         cstate -= tacho;
         div++;
     }
@@ -3180,7 +3180,7 @@ void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
     // == Flare states are determined in simulation, this function only applies them to OGRE objects ==
 
     bool enableAll = ((App::gfx_flares_mode->getEnum<GfxFlaresMode>() == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !is_player);
-    SimBuffer::NodeSB* nodes = this->GetSimNodeBuffer();
+    NodeSB* nodes = this->GetSimNodeBuffer();
 
     int num_flares = static_cast<int>(m_actor->ar_flares.size());
     for (int i=0; i<num_flares; ++i)

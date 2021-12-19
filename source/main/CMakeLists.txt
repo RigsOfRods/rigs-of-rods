@@ -42,6 +42,7 @@ set(SOURCE_FILES
         gfx/MovableText.{h,cpp}
         gfx/Renderdash.{h,cpp}
         gfx/ShadowManager.{h,cpp}
+        gfx/SimBuffers.h
         gfx/Skidmark.{h,cpp}
         gfx/SkyManager.{h,cpp}
         gfx/SkyXManager.{h,cpp}
