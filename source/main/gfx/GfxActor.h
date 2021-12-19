@@ -139,7 +139,7 @@ public:
     VideoCamState        GetVideoCamState() const { return m_vidcam_state; }
     DebugViewType        GetDebugView() const { return m_debug_view; }
     ActorSB&             GetSimDataBuffer() { return m_simbuf; }
-    NodeSB*              GetSimNodeBuffer() { return m_simbuf.simbuf_nodes.get(); }
+    NodeSB*              GetSimNodeBuffer() { return m_simbuf.simbuf_nodes.data(); }
     std::set<GfxActor*>  GetLinkedGfxActors() { return m_linked_gfx_actors; }
     Ogre::String         GetResourceGroup() { return m_custom_resource_group; }
     Actor*               GetActor() { return m_actor; } // Watch out for multithreading with this!

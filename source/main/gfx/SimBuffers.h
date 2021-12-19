@@ -134,7 +134,7 @@ struct ActorSB
     Ogre::AxisAlignedBox simbuf_aabb                  = Ogre::AxisAlignedBox::BOX_NULL;
 
     // Elements
-    std::unique_ptr<NodeSB>   simbuf_nodes;
+    std::vector<NodeSB>       simbuf_nodes;
     std::vector<ScrewpropSB>  simbuf_screwprops;
     std::vector<CommandKeySB> simbuf_commandkey;
     std::vector<AeroEngineSB> simbuf_aeroengines;

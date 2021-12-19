@@ -68,7 +68,7 @@ RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_re
     m_particles_sparks = App::GetGfxScene()->GetDustPool("sparks");
     m_particles_clump  = App::GetGfxScene()->GetDustPool("clump");
 
-    m_simbuf.simbuf_nodes.reset(new NodeSB[actor->ar_num_nodes]);
+    m_simbuf.simbuf_nodes.resize(m_actor->ar_num_nodes);
     m_simbuf.simbuf_aeroengines.resize(actor->ar_num_aeroengines);
     m_simbuf.simbuf_commandkey.resize(MAX_COMMANDS + 10);
     m_simbuf.simbuf_airbrakes.resize(spawner->GetMemoryRequirements().num_airbrakes);
@@ -425,15 +425,14 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
             vidcam.vcam_render_window->update();
 
         // get the normal of the camera plane now
-        NodeSB* node_buf = m_simbuf.simbuf_nodes.get();
-        const Ogre::Vector3 abs_pos_center = node_buf[vidcam.vcam_node_center].AbsPosition;
-        const Ogre::Vector3 abs_pos_z = node_buf[vidcam.vcam_node_dir_z].AbsPosition;
-        const Ogre::Vector3 abs_pos_y = node_buf[vidcam.vcam_node_dir_y].AbsPosition;
+        const Ogre::Vector3 abs_pos_center = m_simbuf.simbuf_nodes[vidcam.vcam_node_center].AbsPosition;
+        const Ogre::Vector3 abs_pos_z = m_simbuf.simbuf_nodes[vidcam.vcam_node_dir_z].AbsPosition;
+        const Ogre::Vector3 abs_pos_y = m_simbuf.simbuf_nodes[vidcam.vcam_node_dir_y].AbsPosition;
         Ogre::Vector3 normal = (-(abs_pos_center - abs_pos_z)).crossProduct(-(abs_pos_center - abs_pos_y));
         normal.normalise();
 
         // add user set offset
-        Ogre::Vector3 pos = node_buf[vidcam.vcam_node_alt_pos].AbsPosition +
+        Ogre::Vector3 pos = m_simbuf.simbuf_nodes[vidcam.vcam_node_alt_pos].AbsPosition +
             (vidcam.vcam_pos_offset.x * normal) +
             (vidcam.vcam_pos_offset.y * (abs_pos_center - abs_pos_y)) +
             (vidcam.vcam_pos_offset.z * (abs_pos_center - abs_pos_z));
@@ -464,7 +463,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
         }
         else if (vidcam.vcam_type == VCTYPE_TRACKING_VIDEOCAM)
         {
-            normal = node_buf[vidcam.vcam_node_lookat].AbsPosition - pos;
+            normal = m_simbuf.simbuf_nodes[vidcam.vcam_node_lookat].AbsPosition - pos;
             normal.normalise();
             Ogre::Vector3 refx = abs_pos_z - abs_pos_center;
             refx.normalise();
@@ -1743,13 +1742,13 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     for (int i = 0; i < num_nodes; ++i)
     {
         auto node = m_actor->ar_nodes[i];
-        m_simbuf.simbuf_nodes.get()[i].AbsPosition = node.AbsPosition;
-        m_simbuf.simbuf_nodes.get()[i].nd_has_contact = node.nd_has_ground_contact || node.nd_has_mesh_contact;
+        m_simbuf.simbuf_nodes[i].AbsPosition = node.AbsPosition;
+        m_simbuf.simbuf_nodes[i].nd_has_contact = node.nd_has_ground_contact || node.nd_has_mesh_contact;
     }
 
     for (NodeGfx& nx: m_gfx_nodes)
     {
-        m_simbuf.simbuf_nodes.get()[nx.nx_node_idx].nd_is_wet = (nx.nx_wet_time_sec != -1.f);
+        m_simbuf.simbuf_nodes[nx.nx_node_idx].nd_is_wet = (nx.nx_wet_time_sec != -1.f);
     }
 
     // beams
@@ -1983,15 +1982,14 @@ void RoR::GfxActor::RegisterProps(std::vector<Prop> const& props, int driverseat
 void RoR::GfxActor::UpdateAirbrakes()
 {
     const size_t num_airbrakes = m_gfx_airbrakes.size();
-    NodeSB* nodes = m_simbuf.simbuf_nodes.get();
     for (size_t i=0; i<num_airbrakes; ++i)
     {
         AirbrakeGfx abx = m_gfx_airbrakes[i];
         const float ratio = m_simbuf.simbuf_airbrakes[i].simbuf_ab_ratio;
         const float maxangle = m_actor->ar_airbrakes[i]->maxangle; // Friend access
-        Ogre::Vector3 ref_node_pos = nodes[m_gfx_airbrakes[i].abx_ref_node].AbsPosition;
-        Ogre::Vector3 x_node_pos   = nodes[m_gfx_airbrakes[i].abx_x_node].AbsPosition;
-        Ogre::Vector3 y_node_pos   = nodes[m_gfx_airbrakes[i].abx_y_node].AbsPosition;
+        Ogre::Vector3 ref_node_pos = m_simbuf.simbuf_nodes[m_gfx_airbrakes[i].abx_ref_node].AbsPosition;
+        Ogre::Vector3 x_node_pos   = m_simbuf.simbuf_nodes[m_gfx_airbrakes[i].abx_x_node].AbsPosition;
+        Ogre::Vector3 y_node_pos   = m_simbuf.simbuf_nodes[m_gfx_airbrakes[i].abx_y_node].AbsPosition;
 
         // -- Ported from `AirBrake::updatePosition()` --
         Ogre::Vector3 normal = (y_node_pos - ref_node_pos).crossProduct(x_node_pos - ref_node_pos);
@@ -2013,11 +2011,10 @@ void RoR::GfxActor::UpdateAirbrakes()
 void RoR::GfxActor::UpdateCParticles()
 {
     //update custom particle systems
-    NodeSB* nodes = m_simbuf.simbuf_nodes.get();
     for (int i = 0; i < m_actor->ar_num_custom_particles; i++)
     {
-        Ogre::Vector3 pos = nodes[m_actor->ar_custom_particles[i].emitterNode].AbsPosition;
-        Ogre::Vector3 dir = pos - nodes[m_actor->ar_custom_particles[i].directionNode].AbsPosition;
+        Ogre::Vector3 pos = m_simbuf.simbuf_nodes[m_actor->ar_custom_particles[i].emitterNode].AbsPosition;
+        Ogre::Vector3 dir = pos - m_simbuf.simbuf_nodes[m_actor->ar_custom_particles[i].directionNode].AbsPosition;
         dir = fast_normalise(dir);
         m_actor->ar_custom_particles[i].snode->setPosition(pos);
         for (int j = 0; j < m_actor->ar_custom_particles[i].psys->getNumEmitters(); j++)
