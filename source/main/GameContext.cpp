@@ -404,9 +404,9 @@ void GameContext::ChangePlayerActor(Actor* actor)
 
         if (prev_player_actor)
         {
-            if (prev_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE)
+            if (prev_player_actor->GetGfxActor()->GetVideoCamState() == VideoCamState::VCSTATE_ENABLED_ONLINE)
             {
-                prev_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE);
+                prev_player_actor->GetGfxActor()->SetVideoCamState(VideoCamState::VCSTATE_ENABLED_OFFLINE);
             }
 
             prev_player_actor->prepareInside(false);
@@ -446,9 +446,9 @@ void GameContext::ChangePlayerActor(Actor* actor)
             !App::GetGuiManager()->IsGuiHidden(), m_player_actor);
 
 
-        if (m_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_ENABLED_OFFLINE)
+        if (m_player_actor->GetGfxActor()->GetVideoCamState() == VideoCamState::VCSTATE_ENABLED_OFFLINE)
         {
-            m_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE);
+            m_player_actor->GetGfxActor()->SetVideoCamState(VideoCamState::VCSTATE_ENABLED_ONLINE);
         }
 
         m_player_actor->GetGfxActor()->SetRenderdashActive(true);
@@ -1169,13 +1169,13 @@ void GameContext::UpdateCommonInputEvents(float dt)
     // videocam
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_VIDEOCAMERA, 0.5f))
     {
-        if (m_player_actor->GetGfxActor()->GetVideoCamState() == GfxActor::VideoCamState::VCSTATE_DISABLED)
+        if (m_player_actor->GetGfxActor()->GetVideoCamState() == VideoCamState::VCSTATE_DISABLED)
         {
-            m_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_ENABLED_ONLINE);
+            m_player_actor->GetGfxActor()->SetVideoCamState(VideoCamState::VCSTATE_ENABLED_ONLINE);
         }
         else
         {
-            m_player_actor->GetGfxActor()->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_DISABLED);
+            m_player_actor->GetGfxActor()->SetVideoCamState(VideoCamState::VCSTATE_DISABLED);
         }
     }
 

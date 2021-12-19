@@ -6460,7 +6460,7 @@ void ActorSpawner::FinalizeGfxSetup()
 
     if (!App::gfx_enable_videocams->getBool())
     {
-        m_actor->m_gfx_actor->SetVideoCamState(GfxActor::VideoCamState::VCSTATE_DISABLED);
+        m_actor->m_gfx_actor->SetVideoCamState(VideoCamState::VCSTATE_DISABLED);
     }
 
     // Load dashboard layouts

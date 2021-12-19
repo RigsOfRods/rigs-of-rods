@@ -3351,18 +3351,18 @@ void Actor::tieToggle(int group)
                 {
                     if (this == player_actor)
                     {
-                        it->ti_locked_actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                        it->ti_locked_actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
                         for (auto actor : it->ti_locked_actor->getAllLinkedActors())
                         {
-                            actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
                         }
                     }
                     else if (it->ti_locked_actor == player_actor)
                     {
-                        m_gfx_actor->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                        m_gfx_actor->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
                         for (auto actor : this->getAllLinkedActors())
                         {
-                            actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
                         }
                     }
                 }
@@ -3490,18 +3490,18 @@ void Actor::ropeToggle(int group)
                 {
                     if (this == player_actor)
                     {
-                        it->rp_locked_actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                        it->rp_locked_actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
                         for (auto actor : it->rp_locked_actor->getAllLinkedActors())
                         {
-                            actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
                         }
                     }
                     else if (it->rp_locked_actor == player_actor)
                     {
-                        m_gfx_actor->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                        m_gfx_actor->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
                         for (auto actor : this->getAllLinkedActors())
                         {
-                            actor->GetGfxActor()->SetDebugView(GfxActor::DebugViewType::DEBUGVIEW_NONE);
+                            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
                         }
                     }
                 }

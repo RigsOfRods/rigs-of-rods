@@ -745,7 +745,7 @@ struct ActorSpawnRequest
     collision_box_t*    asr_spawnbox = nullptr;
     CacheEntry*         asr_skin_entry = nullptr;
     Origin              asr_origin = Origin::UNKNOWN;
-    int                 asr_debugview = 0; //(int)GfxActor::DebugViewType::DEBUGVIEW_NONE;
+    int                 asr_debugview = 0; //(int)DebugViewType::DEBUGVIEW_NONE;
     Ogre::UTFString     asr_net_username;
     int                 asr_net_color = 0;
     int                 net_source_id = 0;

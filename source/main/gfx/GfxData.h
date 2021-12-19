@@ -19,9 +19,11 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file
-/// @brief  Constants and data structures dedicated exclusively to visualization.
-///         For simulation-related data structures, see 'physics/SimData.h'
+/*
+    @file
+    @brief  Constants and data structures dedicated exclusively to visualization.
+            For simulation-related data structures, see 'physics/SimData.h'
+*/
 
 #pragma once
 
@@ -87,6 +89,27 @@ enum PropAnimMode
 
 inline PropAnimFlag operator|=(PropAnimFlag& dst, PropAnimFlag const& arg) { dst = static_cast<PropAnimFlag>(dst|arg); return dst; }
 inline PropAnimMode operator|=(PropAnimMode& dst, PropAnimMode const& arg) { dst = static_cast<PropAnimMode>(dst|arg); return dst; }
+
+enum class VideoCamState
+{
+    VCSTATE_INVALID,
+    VCSTATE_DISABLED,
+    VCSTATE_ENABLED_OFFLINE,
+    VCSTATE_ENABLED_ONLINE,
+};
+
+enum class DebugViewType
+{
+    DEBUGVIEW_NONE,
+    DEBUGVIEW_SKELETON,
+    DEBUGVIEW_NODES,
+    DEBUGVIEW_BEAMS,
+    DEBUGVIEW_WHEELS,
+    DEBUGVIEW_SHOCKS,
+    DEBUGVIEW_ROTATORS,
+    DEBUGVIEW_SLIDENODES,
+    DEBUGVIEW_SUBMESH,
+};
 
 struct PropAnim
 {

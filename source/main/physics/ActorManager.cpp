@@ -262,7 +262,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, RigDef::Docume
     // Initialize visuals
     actor->updateVisual();
     actor->lightsToggle();
-    actor->GetGfxActor()->SetDebugView((GfxActor::DebugViewType)rq.asr_debugview);
+    actor->GetGfxActor()->SetDebugView((DebugViewType)rq.asr_debugview);
 
     // perform full visual update only if the vehicle won't be immediately driven by player.
     if (actor->isPreloadedWithTerrain() ||                         // .tobj file - Spawned sleeping somewhere on terrain
