@@ -154,51 +154,56 @@ private:
 
     static Ogre::Quaternion SpecialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest);
 
-    Actor*                      m_actor;
-
+    // Static info
+    Actor*                      m_actor = nullptr;
     std::string                 m_custom_resource_group;
-    std::vector<FlareMaterial>  m_flare_materials;
-    VideoCamState               m_vidcam_state;
-    std::vector<VideoCamera>    m_videocameras;
-    DebugViewType               m_debug_view;
-    DebugViewType               m_last_debug_view;
+    int                         m_driverseat_prop_index = -1;
     Ogre::SceneNode*            m_gfx_beams_parent_scenenode = nullptr;
+
+    // Game state
+    std::set<GfxActor*>         m_linked_gfx_actors;
+    bool                        m_initialized = false;
+    VideoCamState               m_vidcam_state = VideoCamState::VCSTATE_ENABLED_ONLINE;
+    DebugViewType               m_debug_view = DebugViewType::DEBUGVIEW_NONE;
+    DebugViewType               m_last_debug_view = DebugViewType::DEBUGVIEW_SKELETON; // intentional
+    bool                        m_beaconlight_active = true; // 'true' will trigger SetBeaconsEnabled(false) on the first buffer update
+    float                       m_prop_anim_crankfactor_prev = 0.f;
+    float                       m_prop_anim_shift_timer = 0.f;
+    int                         m_prop_anim_prev_gear = 0;
+
+    // Threaded tasks
+    std::vector<std::shared_ptr<Task>> m_flexwheel_tasks;
+    std::vector<std::shared_ptr<Task>> m_flexbody_tasks;
+
+    // Elements
     std::vector<NodeGfx>        m_gfx_nodes;
     std::vector<BeamGfx>        m_gfx_beams;
     std::vector<AirbrakeGfx>    m_gfx_airbrakes;
     std::vector<Prop>           m_props;
     std::vector<FlexBody*>      m_flexbodies;
-    int                         m_driverseat_prop_index;
-    DustPool*                   m_particles_drip;
-    DustPool*                   m_particles_misc; // This is "dust" in RoR::GfxScene; handles dust, vapour and tyre smoke
-    DustPool*                   m_particles_splash;
-    DustPool*                   m_particles_ripple;
-    DustPool*                   m_particles_sparks;
-    DustPool*                   m_particles_clump;
     std::vector<WheelGfx>       m_wheels;
-    RoR::Renderdash*            m_renderdash;
-    std::vector<std::shared_ptr<Task>> m_flexwheel_tasks;
-    std::vector<std::shared_ptr<Task>> m_flexbody_tasks;
-    bool                        m_beaconlight_active;
-    float                       m_prop_anim_crankfactor_prev;
-    float                       m_prop_anim_shift_timer;
-    int                         m_prop_anim_prev_gear;
-    std::set<GfxActor*>         m_linked_gfx_actors;
+    std::vector<VideoCamera>    m_videocameras;
+    std::vector<FlareMaterial>  m_flare_materials;
+    RoR::Renderdash*            m_renderdash = nullptr;
+    
+    // Particles
+    DustPool*                   m_particles_drip = nullptr;
+    DustPool*                   m_particles_dust = nullptr; // dust, vapour and tyre smoke
+    DustPool*                   m_particles_splash = nullptr;
+    DustPool*                   m_particles_ripple = nullptr;
+    DustPool*                   m_particles_sparks = nullptr;
+    DustPool*                   m_particles_clump = nullptr;
 
-    bool                        m_initialized;
-
-    ActorSB                     m_simbuf;
-
-    // Old cab mesh
-    FlexObj*                    m_cab_mesh;
-    Ogre::SceneNode*            m_cab_scene_node;
-    Ogre::Entity*               m_cab_entity;
-
-    // Cab materials and their features
+    // Cab mesh ('submesh' in truck fileformat)
+    FlexObj*                    m_cab_mesh = nullptr;
+    Ogre::SceneNode*            m_cab_scene_node = nullptr;
+    Ogre::Entity*               m_cab_entity = nullptr;
     Ogre::MaterialPtr           m_cab_mat_visual; //!< Updated in-place from templates
     Ogre::MaterialPtr           m_cab_mat_visual_trans;
     Ogre::MaterialPtr           m_cab_mat_template_plain;
     Ogre::MaterialPtr           m_cab_mat_template_emissive;
+
+    ActorSB                     m_simbuf;
 };
 
 /// @} // addtogroup Gfx

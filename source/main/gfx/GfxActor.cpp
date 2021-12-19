@@ -57,22 +57,12 @@ RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_re
                         std::vector<NodeGfx>& gfx_nodes, RoR::Renderdash* renderdash):
     m_actor(actor),
     m_custom_resource_group(ogre_resource_group),
-    m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE),
-    m_debug_view(DebugViewType::DEBUGVIEW_NONE),
-    m_last_debug_view(DebugViewType::DEBUGVIEW_SKELETON),
     m_gfx_nodes(gfx_nodes),
-    m_cab_scene_node(nullptr),
-    m_cab_mesh(nullptr),
-    m_cab_entity(nullptr),
-    m_renderdash(renderdash),
-    m_prop_anim_crankfactor_prev(0.f),
-    m_prop_anim_shift_timer(0.f),
-    m_beaconlight_active(true), // 'true' will trigger SetBeaconsEnabled(false) on the first buffer update
-    m_initialized(false)
+    m_renderdash(renderdash)
 {
     // Setup particles
     m_particles_drip   = App::GetGfxScene()->GetDustPool("drip");
-    m_particles_misc   = App::GetGfxScene()->GetDustPool("dust"); // Dust, water vapour, tyre smoke
+    m_particles_dust   = App::GetGfxScene()->GetDustPool("dust"); // Dust, water vapour, tyre smoke
     m_particles_splash = App::GetGfxScene()->GetDustPool("splash");
     m_particles_ripple = App::GetGfxScene()->GetDustPool("ripple");
     m_particles_sparks = App::GetGfxScene()->GetDustPool("sparks");
@@ -532,9 +522,9 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
                     {
                         m_particles_drip->allocDrip(n.AbsPosition, n.Velocity, nfx.nx_wet_time_sec); // Dripping water particles
                     }
-                    if (nfx.nx_is_hot && m_particles_misc != nullptr)
+                    if (nfx.nx_is_hot && m_particles_dust != nullptr)
                     {
-                        m_particles_misc->allocVapour(n.AbsPosition, n.Velocity, nfx.nx_wet_time_sec); // Water vapour particles
+                        m_particles_dust->allocVapour(n.AbsPosition, n.Velocity, nfx.nx_wet_time_sec); // Water vapour particles
                     }
                 }
             }
@@ -562,9 +552,9 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
             switch (n.nd_last_collision_gm->fx_type)
             {
             case Collisions::FX_DUSTY:
-                if (m_particles_misc != nullptr)
+                if (m_particles_dust != nullptr)
                 {
-                    m_particles_misc->malloc(n.AbsPosition, n.Velocity / 2.0, n.nd_last_collision_gm->fx_colour);
+                    m_particles_dust->malloc(n.AbsPosition, n.Velocity / 2.0, n.nd_last_collision_gm->fx_colour);
                 }
                 break;
 
@@ -587,9 +577,9 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
                         SOUND_MODULATE(m_actor, SS_MOD_SCREETCH, screech / SCREECH_THRESHOLD);
                         SOUND_PLAY_ONCE(m_actor, SS_TRIG_SCREETCH);
                     }
-                    if (m_particles_misc != nullptr && n.nd_avg_collision_slip > SMOKE_THRESHOLD)
+                    if (m_particles_dust != nullptr && n.nd_avg_collision_slip > SMOKE_THRESHOLD)
                     {
-                        m_particles_misc->allocSmoke(n.AbsPosition, n.Velocity);
+                        m_particles_dust->allocSmoke(n.AbsPosition, n.Velocity);
                     }
                 }
                 else if (!nfx.nx_no_sparks) // Not a wheel => sparks
