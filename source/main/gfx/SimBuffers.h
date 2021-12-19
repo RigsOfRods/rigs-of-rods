@@ -52,7 +52,7 @@
         GameContext (gamecontext.h)  /  GameContextSB  /  GfxScene    (gfxscene.h)
         Actor       (actor.h)        /  ActorSB        /  GfxActor    (gfxactor.h)
         node_t      (simdata.h)      /  NodeSB         /  NodeGfx     (gfxdata.h)
-        beam_t      (simdata.h)      /  -              /  Rod         (gfxdata.h)
+        beam_t      (simdata.h)      /  -              /  BeamGfx         (gfxdata.h)
         command_t   (simdata.h)      /  CommandKeySB   /  -
         wheel_t     (simdata.h)      /  -              /  WheelGfx    (gfxdata.h)
         wing_t      (simdata.h)      /  -              /  -

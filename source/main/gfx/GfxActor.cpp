@@ -60,7 +60,6 @@ RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_re
     m_vidcam_state(VideoCamState::VCSTATE_ENABLED_ONLINE),
     m_debug_view(DebugViewType::DEBUGVIEW_NONE),
     m_last_debug_view(DebugViewType::DEBUGVIEW_SKELETON),
-    m_rods_parent_scenenode(nullptr),
     m_gfx_nodes(gfx_nodes),
     m_cab_scene_node(nullptr),
     m_cab_mesh(nullptr),
@@ -120,19 +119,19 @@ RoR::GfxActor::~GfxActor()
     }
 
     // Dispose rods
-    if (m_rods_parent_scenenode != nullptr)
+    if (m_gfx_beams_parent_scenenode != nullptr)
     {
-        for (Rod& rod: m_rods)
+        for (BeamGfx& rod: m_gfx_beams)
         {
             Ogre::MovableObject* ogre_object = rod.rod_scenenode->getAttachedObject(0);
             rod.rod_scenenode->detachAllObjects();
             App::GetGfxScene()->GetSceneManager()->destroyEntity(static_cast<Ogre::Entity*>(ogre_object));
         }
-        m_rods.clear();
+        m_gfx_beams.clear();
 
-        m_rods_parent_scenenode->removeAndDestroyAllChildren();
-        App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_rods_parent_scenenode);
-        m_rods_parent_scenenode = nullptr;
+        m_gfx_beams_parent_scenenode->removeAndDestroyAllChildren();
+        App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_gfx_beams_parent_scenenode);
+        m_gfx_beams_parent_scenenode = nullptr;
     }
 
     // delete meshwheels
@@ -1563,13 +1562,13 @@ void RoR::GfxActor::AddRod(int beam_index,  int node1_index, int node2_index, co
         Ogre::Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name.ToCStr(), "beam.mesh");
         entity->setMaterialName(material_name);
 
-        if (m_rods_parent_scenenode == nullptr)
+        if (m_gfx_beams_parent_scenenode == nullptr)
         {
-            m_rods_parent_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+            m_gfx_beams_parent_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         }
 
-        Rod rod;
-        rod.rod_scenenode = m_rods_parent_scenenode->createChildSceneNode();
+        BeamGfx rod;
+        rod.rod_scenenode = m_gfx_beams_parent_scenenode->createChildSceneNode();
         rod.rod_scenenode->attachObject(entity);
         rod.rod_scenenode->setVisible(visible, /*cascade=*/ false);
 
@@ -1582,7 +1581,7 @@ void RoR::GfxActor::AddRod(int beam_index,  int node1_index, int node2_index, co
         rod.rod_target_actor = m_actor;
         rod.rod_is_visible = false;
 
-        m_rods.push_back(rod);
+        m_gfx_beams.push_back(rod);
     }
     catch (Ogre::Exception& e)
     {
@@ -1592,7 +1591,7 @@ void RoR::GfxActor::AddRod(int beam_index,  int node1_index, int node2_index, co
 
 void RoR::GfxActor::UpdateRods()
 {
-    for (Rod& rod: m_rods)
+    for (BeamGfx& rod: m_gfx_beams)
     {
         rod.rod_scenenode->setVisible(rod.rod_is_visible);
         if (!rod.rod_is_visible)
@@ -1659,7 +1658,7 @@ Ogre::Quaternion RoR::GfxActor::SpecialGetRotationTo(const Ogre::Vector3& src, c
 
 void RoR::GfxActor::ScaleActor(Ogre::Vector3 relpos, float ratio)
 {
-    for (Rod& rod: m_rods)
+    for (BeamGfx& rod: m_gfx_beams)
     {
         float diameter2 = static_cast<float>(rod.rod_diameter_mm) * (ratio*1000.f);
         rod.rod_diameter_mm = static_cast<uint16_t>(diameter2);
@@ -1700,7 +1699,7 @@ void RoR::GfxActor::ScaleActor(Ogre::Vector3 relpos, float ratio)
 
 void RoR::GfxActor::SetRodsVisible(bool visible)
 {
-    if (m_rods_parent_scenenode == nullptr)
+    if (m_gfx_beams_parent_scenenode == nullptr)
     {
         return; // Vehicle has no visual softbody beams -> nothing to do.
     }
@@ -1709,13 +1708,13 @@ void RoR::GfxActor::SetRodsVisible(bool visible)
     //       1. That function traverses all attached Entities and updates their visibility - too much overhead
     //       2. For OGRE up to 1.9 (I don't know about 1.10+) OGRE developers recommended to detach rather than hide.
     //       ~ only_a_ptr, 12/2017
-    if (visible && !m_rods_parent_scenenode->isInSceneGraph())
+    if (visible && !m_gfx_beams_parent_scenenode->isInSceneGraph())
     {
-        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->addChild(m_rods_parent_scenenode);
+        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->addChild(m_gfx_beams_parent_scenenode);
     }
-    else if (!visible && m_rods_parent_scenenode->isInSceneGraph())
+    else if (!visible && m_gfx_beams_parent_scenenode->isInSceneGraph())
     {
-        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeChild(m_rods_parent_scenenode);
+        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeChild(m_gfx_beams_parent_scenenode);
     }
 }
 
@@ -1764,7 +1763,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     }
 
     // beams
-    for (Rod& rod: m_rods)
+    for (BeamGfx& rod: m_gfx_beams)
     {
         const beam_t& beam = m_actor->ar_beams[rod.rod_beam_index];
         rod.rod_node1 = static_cast<uint16_t>(beam.p1->pos);
@@ -3270,7 +3269,7 @@ void RoR::GfxActor::SetCastShadows(bool value)
     }
 
     // Softbody beams
-    for (Rod& rod: m_rods)
+    for (BeamGfx& rod: m_gfx_beams)
     {
         static_cast<Ogre::Entity*>(rod.rod_scenenode->getAttachedObject(0))->setCastShadows(value);
     }

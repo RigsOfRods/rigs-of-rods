@@ -222,7 +222,7 @@ struct NodeGfx
 };
 
 /// Visuals of softbody beam (`beam_t` struct); Partially updated along with SimBuffer
-struct Rod
+struct BeamGfx
 {
     // We don't keep pointer to the Ogre::Entity - we rely on the SceneNode keeping it attached all the time.
     Ogre::SceneNode* rod_scenenode       = nullptr;
