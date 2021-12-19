@@ -162,7 +162,9 @@ private:
     std::vector<VideoCamera>    m_videocameras;
     DebugViewType               m_debug_view;
     DebugViewType               m_last_debug_view;
+    Ogre::SceneNode*            m_gfx_beams_parent_scenenode = nullptr;
     std::vector<NodeGfx>        m_gfx_nodes;
+    std::vector<BeamGfx>        m_gfx_beams;
     std::vector<AirbrakeGfx>    m_gfx_airbrakes;
     std::vector<Prop>           m_props;
     std::vector<FlexBody*>      m_flexbodies;
@@ -173,9 +175,7 @@ private:
     DustPool*                   m_particles_ripple;
     DustPool*                   m_particles_sparks;
     DustPool*                   m_particles_clump;
-    std::vector<Rod>            m_rods;
     std::vector<WheelGfx>       m_wheels;
-    Ogre::SceneNode*            m_rods_parent_scenenode;
     RoR::Renderdash*            m_renderdash;
     std::vector<std::shared_ptr<Task>> m_flexwheel_tasks;
     std::vector<std::shared_ptr<Task>> m_flexbody_tasks;
