@@ -54,26 +54,6 @@ class GfxActor
 
 public:
 
-    enum class VideoCamState
-    {
-        VCSTATE_INVALID,
-        VCSTATE_DISABLED,
-        VCSTATE_ENABLED_OFFLINE,
-        VCSTATE_ENABLED_ONLINE,
-    };
-
-    enum class DebugViewType
-    {
-        DEBUGVIEW_NONE,
-        DEBUGVIEW_SKELETON,
-        DEBUGVIEW_NODES,
-        DEBUGVIEW_BEAMS,
-        DEBUGVIEW_WHEELS,
-        DEBUGVIEW_SHOCKS,
-        DEBUGVIEW_ROTATORS,
-        DEBUGVIEW_SLIDENODES,
-        DEBUGVIEW_SUBMESH,
-    };
 
     struct SimBuffer /// Buffered simulation data
     {
