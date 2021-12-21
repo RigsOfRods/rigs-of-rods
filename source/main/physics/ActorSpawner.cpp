@@ -755,7 +755,8 @@ void ActorSpawner::BuildAeroEngine(
     int aeroengine_index = m_actor->ar_num_aeroengines;
 
     Turboprop *turbo_prop = new Turboprop(
-        m_actor, 
+        m_actor,
+        this->ComposeName("Turboprop", aeroengine_index).c_str(),
         ref_node_index,
         back_node_index,
         blade_1_node_index,
