@@ -40,6 +40,7 @@ public:
 
     Turboprop(
         Actor* a,
+        const char* propname,
         NodeNum_t nr,
         NodeNum_t nb,
         NodeNum_t np1,

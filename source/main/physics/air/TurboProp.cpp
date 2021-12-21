@@ -36,6 +36,7 @@ using namespace RoR;
 
 Turboprop::Turboprop(
     Actor* a,
+    const char* propname,
     NodeNum_t nr,
     NodeNum_t nb,
     NodeNum_t np1,
@@ -133,9 +134,10 @@ Turboprop::Turboprop(
     }
     else
     {
+        char dename[256];
+        sprintf(dename, "%s-smoke", propname);
         smokeNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-        smokePS = App::GetGfxScene()->GetSceneManager()->createParticleSystem(
-            fmt::format("TurboPropSmoke {}", m_actor->ar_num_aeroengines), "tracks/TurbopropSmoke");
+        smokePS = App::GetGfxScene()->GetSceneManager()->createParticleSystem(dename, "tracks/TurbopropSmoke");
         if (smokePS)
         {
             smokePS->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
