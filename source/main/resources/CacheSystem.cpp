@@ -949,9 +949,9 @@ void CacheSystem::ParseZipArchives(String group)
     for (const auto& file : *files)
     {
         int progress = ((float)i++ / (float)count) * 100;
-        UTFString tmp = _L("Loading zips in group ") + ANSI_TO_UTF(group) + L"\n" +
-            ANSI_TO_UTF(file.filename) + L"\n" + ANSI_TO_UTF(TOSTRING(i)) + L"/" + ANSI_TO_UTF(TOSTRING(count));
-        RoR::App::GetGuiManager()->GetLoadingWindow()->SetProgress(progress, tmp);
+        std::string text = fmt::format("{}{}\n{}\n{}/{}",
+            _L("Loading zips in group "), group, file.filename, i, count);
+        RoR::App::GetGuiManager()->GetLoadingWindow()->SetProgress(progress, text);
 
         String path = PathCombine(file.archive->getName(), file.filename);
         this->ParseSingleZip(path);
