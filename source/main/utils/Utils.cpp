@@ -94,11 +94,6 @@ String getVersionString(bool multiline)
     return String(tmp);
 }
 
-UTFString ANSI_TO_UTF(const String source)
-{
-    return UTFString(RoR::Utils::SanitizeUtf8String(source));
-}
-
 void trimUTFString(UTFString& str, bool left, bool right)
 {
     static const String delims = " \t\r";
