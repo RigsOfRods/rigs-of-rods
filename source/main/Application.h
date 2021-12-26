@@ -159,8 +159,6 @@ enum class SimGearboxMode
     MANUAL_STICK,  //!< Fully manual: stick shift
     MANUAL_RANGES, //!< Fully manual: stick shift with ranges
 };
-SimGearboxMode ParseSimGearboxMode(std::string const & s);
-const char* SimGearboxModeToStr(SimGearboxMode v);
 
 /// @}
 /// @}
@@ -170,8 +168,6 @@ enum class GfxShadowType
     NONE,
     PSSM
 };
-GfxShadowType ParseGfxShadowType(std::string const & s);
-const char* GfxShadowTypeToStr(GfxShadowType v);
 
 enum class GfxExtCamMode
 {
@@ -179,8 +175,6 @@ enum class GfxExtCamMode
     STATIC,
     PITCHING,
 };
-GfxExtCamMode ParseGfxExtCamMode(std::string const & s);
-const char* GfxExtCamModeToStr(GfxExtCamMode v);
 
 enum class GfxTexFilter
 {
@@ -189,8 +183,6 @@ enum class GfxTexFilter
     TRILINEAR,
     ANISOTROPIC,
 };
-GfxTexFilter ParseGfxTexFilter(std::string const & s);
-const char* GfxTexFilterToStr(GfxTexFilter v);
 
 enum class GfxVegetation
 {
@@ -199,8 +191,6 @@ enum class GfxVegetation
     x50PERC,
     FULL,
 };
-GfxVegetation ParseGfxVegetation(std::string const & s);
-const char* GfxVegetationToStr(GfxVegetation v);
 
 enum class GfxFlaresMode
 {
@@ -210,8 +200,6 @@ enum class GfxFlaresMode
     ALL_VEHICLES_HEAD_ONLY,  //!< All vehicles, main lights
     ALL_VEHICLES_ALL_LIGHTS, //!< All vehicles, all lights
 };
-GfxFlaresMode ParseGfxFlaresMode(std::string const & s);
-const char* GfxFlaresModeToStr(GfxFlaresMode v);
 
 enum class GfxWaterMode
 {
@@ -222,8 +210,6 @@ enum class GfxWaterMode
     FULL_HQ,    //!< Reflection + refraction (quality optimized)
     HYDRAX,     //!< HydraX
 };
-GfxWaterMode ParseGfxWaterMode(std::string const & s);
-const char* GfxWaterModeToStr(GfxWaterMode v);
 
 enum class GfxSkyMode
 {
@@ -231,8 +217,6 @@ enum class GfxSkyMode
     CAELUM,     //!< Caelum (best looking, slower)
     SKYX,       //!< SkyX (best looking, slower)
 };
-GfxSkyMode ParseGfxSkyMode(std::string const & s);
-const char* GfxSkyModeToStr(GfxSkyMode v);
 
 enum class IoInputGrabMode
 {
@@ -240,8 +224,6 @@ enum class IoInputGrabMode
     ALL,
     DYNAMIC,
 };
-IoInputGrabMode ParseIoInputGrabMode(std::string const & s);
-const char* IoInputGrabModeToStr(IoInputGrabMode v);
 
 enum VisibilityMasks
 {
