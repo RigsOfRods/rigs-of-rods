@@ -154,11 +154,12 @@ enum class SimState
 enum class SimGearboxMode
 {
     AUTO,          //!< Automatic shift
-    SEMI_AUTO,     //!< Manual shift: auto clutch
+    SEMI_AUTO,     //!< Manual shift with auto clutch
     MANUAL,        //!< Fully manual: sequential shift
     MANUAL_STICK,  //!< Fully manual: stick shift
     MANUAL_RANGES, //!< Fully manual: stick shift with ranges
 };
+std::string ToLocalizedString(SimGearboxMode e);
 
 /// @}
 /// @}

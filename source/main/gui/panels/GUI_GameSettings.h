@@ -42,13 +42,18 @@ private:
     void DrawControlSettings();
     void DrawDiagSettings();
 
+    // GUI state
     bool m_is_visible = false;
 
+    // Buffers for text input boxes
     Str<1000> m_buf_diag_preset_terrain;
     Str<1000> m_buf_diag_preset_vehicle;
     Str<1000> m_buf_diag_preset_veh_config;
     Str<1000> m_buf_app_extra_mod_dir;
     Str<1000> m_buf_io_outgauge_ip;
+
+    // Pre-formatted combobox items
+    std::string m_combo_items_gearbox_mode;
 };
 
 } // namespace GUI

@@ -238,11 +238,7 @@ void GameSettings::DrawGameplaySettings()
     ImGui::TextDisabled("%s", _LC("GameSettings", "Simulation settings"));
 
     DrawGCombo(App::sim_gearbox_mode, _LC("GameSettings", "Gearbox mode"),
-        "Automatic shift\0"
-        "Manual shift: auto clutch\0"
-        "Fully manual: sequential shift\0"
-        "Fully manual: stick shift\0"
-        "Fully manual: stick shift with ranges\00");
+        m_combo_items_gearbox_mode.c_str());
 
     DrawGCheckbox(App::gfx_speedo_digital, _LC("GameSettings", "Digital speedometer"));
     DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial speedometer"));
@@ -267,7 +263,7 @@ void GameSettings::DrawGameplaySettings()
 
     DrawGCheckbox(App::io_discord_rpc, _LC("GameSettings", "Discord Rich Presence"));
 
-        DrawGCheckbox(App::sim_quickload_dialog, _LC("GameSettings", "Show confirm. UI dialog for quickload"));
+    DrawGCheckbox(App::sim_quickload_dialog, _LC("GameSettings", "Show confirm. UI dialog for quickload"));
 }
 
 void GameSettings::DrawAudioSettings()
@@ -474,5 +470,16 @@ void GameSettings::SetVisible(bool v)
     if (!v && App::app_state->getEnum<AppState>() == RoR::AppState::MAIN_MENU)
     {
         App::GetGuiManager()->SetVisible_GameMainMenu(true);
+    }
+
+    // Pre-format combobox strings.
+    if (m_combo_items_gearbox_mode == "")
+    {
+        ImAddItemToComboboxString(m_combo_items_gearbox_mode, ToLocalizedString(SimGearboxMode::AUTO));
+        ImAddItemToComboboxString(m_combo_items_gearbox_mode, ToLocalizedString(SimGearboxMode::SEMI_AUTO));
+        ImAddItemToComboboxString(m_combo_items_gearbox_mode, ToLocalizedString(SimGearboxMode::MANUAL));
+        ImAddItemToComboboxString(m_combo_items_gearbox_mode, ToLocalizedString(SimGearboxMode::MANUAL_STICK));
+        ImAddItemToComboboxString(m_combo_items_gearbox_mode, ToLocalizedString(SimGearboxMode::MANUAL_RANGES));
+        ImTerminateComboboxString(m_combo_items_gearbox_mode);
     }
 }

@@ -74,4 +74,8 @@ Ogre::TexturePtr FetchIcon(const char* name);
 
 ImDrawList* GetImDummyFullscreenWindow();
 
+// Helpers for coposing combobox item strings.
+void ImAddItemToComboboxString(std::string& target, std::string const& item);
+void ImTerminateComboboxString(std::string& target);
+
 } // namespace RoR
