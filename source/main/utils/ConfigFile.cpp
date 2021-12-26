@@ -26,6 +26,9 @@
 */
 
 #include "ConfigFile.h"
+
+#include "Application.h"
+#include "Console.h"
 #include "Utils.h"
 
 #include <OgreConfigFile.h>
@@ -41,7 +44,36 @@ float ConfigFile::getFloat(Ogre::String const& key, Ogre::String const& section,
 
 Ogre::ColourValue ConfigFile::GetColourValue(Ogre::String const& key, Ogre::String const& section, Ogre::ColourValue const& defaultValue)
 {
-    return Ogre::StringConverter::parseColourValue(Ogre::ConfigFile::getSetting(key, section), defaultValue);
+    Ogre::ColourValue result;
+    Ogre::String value = Ogre::ConfigFile::getSetting(key, section);
+    if (Ogre::StringConverter::parse(value, result))
+    {
+        return result;
+    }
+    else
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Could not parse '{}/{}' ({}) as color, format must be 'R G B A' or 'R G B', falling back to '{}'",
+                section, key, value, Ogre::StringConverter::toString(defaultValue)));
+        return defaultValue;
+    }
+}
+
+Ogre::Vector3 ConfigFile::GetVector3(Ogre::String const& key, Ogre::String const& section, Ogre::Vector3 const& defaultValue)
+{
+    Ogre::Vector3 result;
+    Ogre::String value = Ogre::ConfigFile::getSetting(key, section);
+    if (Ogre::StringConverter::parse(value, result))
+    {
+        return result;
+    }
+    else
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Could not parse '{}/{}' ({}) as vector3, format must be 'X Y Z', falling back to '{}'",
+                section, key, value, Ogre::StringConverter::toString(defaultValue)));
+        return defaultValue;
+    }
 }
 
 int ConfigFile::getInt(Ogre::String const& key, Ogre::String const& section, int defaultValue)
