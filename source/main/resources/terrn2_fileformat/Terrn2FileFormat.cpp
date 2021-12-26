@@ -41,7 +41,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
     file.load(ds, "\t:=", true);
 
     // read in the settings
-    def.name = file.GetStringEx("Name", "General");
+    def.name = file.getString("Name", "General");
     if (def.name.empty())
     {
         Str<500> msg; msg << "Error in file '" << ds->getName() << "': Terrain name is empty";
@@ -49,7 +49,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
         return false;
     }
 
-    def.ogre_ter_conf_filename = file.GetStringEx("GeometryConfig", "General");
+    def.ogre_ter_conf_filename = file.getString("GeometryConfig", "General");
     // otc = ogre terrain config
     if (!def.ogre_ter_conf_filename.empty() && def.ogre_ter_conf_filename.find(".otc") == String::npos)
     {
@@ -58,23 +58,23 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
         return false;
     }
 
-    def.ambient_color        = file.GetColourValue("AmbientColor",     "General", ColourValue::White);
+    def.ambient_color        = file.getColourValue("AmbientColor",     "General", ColourValue::White);
     def.category_id          = file.getInt        ("CategoryID",       "General", 129);
-    def.guid                 = file.GetStringEx   ("GUID",             "General");
+    def.guid                 = file.getString     ("GUID",             "General");
     def.version              = file.getInt        ("Version",          "General", 1);
     def.gravity              = file.getFloat      ("Gravity",          "General", -9.81);
-    def.caelum_config        = file.GetStringEx   ("CaelumConfigFile", "General");
-    def.cubemap_config       = file.GetStringEx   ("SandStormCubeMap", "General");
+    def.caelum_config        = file.getString     ("CaelumConfigFile", "General");
+    def.cubemap_config       = file.getString     ("SandStormCubeMap", "General");
     def.caelum_fog_start     = file.getInt        ("CaelumFogStart",   "General", -1);
     def.caelum_fog_end       = file.getInt        ("CaelumFogEnd",     "General", -1);
     def.has_water            = file.getBool       ("Water",            "General", false);
-    def.hydrax_conf_file     = file.GetStringEx   ("HydraxConfigFile", "General");
-    def.skyx_config          = file.GetStringEx   ("SkyXConfigFile",   "General");
-    def.traction_map_file    = file.GetStringEx   ("TractionMap",      "General");
+    def.hydrax_conf_file     = file.getString     ("HydraxConfigFile", "General");
+    def.skyx_config          = file.getString     ("SkyXConfigFile",   "General");
+    def.traction_map_file    = file.getString     ("TractionMap",      "General");
     def.water_height         = file.getFloat      ("WaterLine",        "General");
     def.water_bottom_height  = file.getFloat      ("WaterBottomLine",  "General");
-    def.custom_material_name = file.GetStringEx   ("CustomMaterial",   "General");
-    def.start_position       = file.GetVector3    ("StartPosition",    "General", Vector3(512.0f, 0.0f, 512.0f));
+    def.custom_material_name = file.getString     ("CustomMaterial",   "General");
+    def.start_position       = file.getVector3    ("StartPosition",    "General", Vector3(512.0f, 0.0f, 512.0f));
 
     if (file.HasSection("Authors"))
     {
@@ -118,7 +118,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
 
 void Terrn2Parser::ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file)
 {
-    def.teleport_map_image = file->GetStringEx("NavigationMapImage", "Teleport");
+    def.teleport_map_image = file->getString("NavigationMapImage", "Teleport");
 
     unsigned int telepoint_number = 1;
     for (;;)
@@ -129,7 +129,7 @@ void Terrn2Parser::ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file)
         snprintf(key_position,  50, "Telepoint%u/Position" , telepoint_number);
         snprintf(key_name,      50, "Telepoint%u/Name" ,     telepoint_number);
 
-        std::string pos_str = file->GetStringEx(key_position, "Teleport", VALUE_NOT_FOUND);
+        std::string pos_str = file->getString(key_position, "Teleport", VALUE_NOT_FOUND);
         if (pos_str == VALUE_NOT_FOUND)
         {
             break; // No more telepoints
@@ -146,7 +146,7 @@ void Terrn2Parser::ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file)
         }
         else
         {
-            t_point.name  = file->GetStringEx(key_name, "Teleport"); // Optional field
+            t_point.name  = file->getString(key_name, "Teleport"); // Optional field
             def.telepoints.push_back(t_point); // Persist the entry
         }
 

@@ -42,7 +42,7 @@ float ConfigFile::getFloat(Ogre::String const& key, Ogre::String const& section,
     return Ogre::StringConverter::parseReal(Ogre::ConfigFile::getSetting(key, section), defaultValue);
 }
 
-Ogre::ColourValue ConfigFile::GetColourValue(Ogre::String const& key, Ogre::String const& section, Ogre::ColourValue const& defaultValue)
+Ogre::ColourValue ConfigFile::getColourValue(Ogre::String const& key, Ogre::String const& section, Ogre::ColourValue const& defaultValue)
 {
     Ogre::ColourValue result;
     Ogre::String value = Ogre::ConfigFile::getSetting(key, section);
@@ -59,7 +59,7 @@ Ogre::ColourValue ConfigFile::GetColourValue(Ogre::String const& key, Ogre::Stri
     }
 }
 
-Ogre::Vector3 ConfigFile::GetVector3(Ogre::String const& key, Ogre::String const& section, Ogre::Vector3 const& defaultValue)
+Ogre::Vector3 ConfigFile::getVector3(Ogre::String const& key, Ogre::String const& section, Ogre::Vector3 const& defaultValue)
 {
     Ogre::Vector3 result;
     Ogre::String value = Ogre::ConfigFile::getSetting(key, section);
@@ -86,7 +86,7 @@ bool ConfigFile::getBool(Ogre::String const& key, Ogre::String const& section, b
     return Ogre::StringConverter::parseBool(Ogre::ConfigFile::getSetting(key, section), defaultValue);
 }
 
-Ogre::String ConfigFile::GetStringEx(Ogre::String const& key, Ogre::String const& section, Ogre::String const& defaultValue)
+Ogre::String ConfigFile::getString(Ogre::String const& key, Ogre::String const& section, Ogre::String const& defaultValue)
 {
     auto setting = Ogre::ConfigFile::getSetting(key, section);
     if (setting.empty())
