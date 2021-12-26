@@ -349,4 +349,21 @@ void LogFormat(const char* format, ...)
     RoR::Log(buffer);
 }
 
+// ------------------------------------------------------------------------------------------------
+// Global enums
+// ------------------------------------------------------------------------------------------------
+
+std::string ToLocalizedString(SimGearboxMode e)
+{
+    switch (e)
+    {
+    case SimGearboxMode::AUTO:          return _LC("SimGearboxMode", "Automatic shift");
+    case SimGearboxMode::SEMI_AUTO:     return _LC("SimGearboxMode", "Manual shift with auto clutch");
+    case SimGearboxMode::MANUAL:        return _LC("SimGearboxMode", "Fully manual: sequential shift");
+    case SimGearboxMode::MANUAL_STICK:  return _LC("SimGearboxMode", "Fully manual: stick shift");
+    case SimGearboxMode::MANUAL_RANGES: return _LC("SimGearboxMode", "Fully manual: stick shift with ranges");
+    default:                            return "";
+    }
+}
+
 } // namespace RoR

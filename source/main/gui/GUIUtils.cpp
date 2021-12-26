@@ -360,3 +360,37 @@ ImDrawList* RoR::GetImDummyFullscreenWindow()
 
     return drawlist;
 }
+
+void RoR::ImAddItemToComboboxString(std::string& target, std::string const& item)
+{
+    // Items must be separated by single NUL character ('\0').
+    // -------------------------------------------------------
+
+    if (target == "")
+    {
+        target += item;
+    }
+    else
+    {
+        // Get current size (not counting trailing NUL)
+        size_t prev_size = target.size();
+
+        // Make space for 1 separating NUL
+        target.resize(prev_size + 1, '\0');
+
+        // Insert new item after the separator
+        target.insert(target.begin() + prev_size + 1, item.begin(), item.end());
+    }
+}
+
+void RoR::ImTerminateComboboxString(std::string& target)
+{
+    // Items must be separated by double NUL character ("\0\0").
+    // ---------------------------------------------------------
+
+    // Get current size (not counting trailing NUL)
+    size_t prev_size = target.size();
+
+    // Make space for 2 trailing with NULs
+    target.resize(prev_size + 2, '\0');
+}
