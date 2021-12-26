@@ -81,7 +81,7 @@ int TorqueCurve::loadDefaultTorqueModels()
 
     while (!ds->eof())
     {
-        line = RoR::Utils::SanitizeUtf8String(ds->getLine());
+        line = SanitizeUtf8String(ds->getLine());
         StringUtil::trim(line);
 
         if (line.empty() || line[0] == ';')

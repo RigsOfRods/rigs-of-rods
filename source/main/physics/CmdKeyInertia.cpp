@@ -143,7 +143,7 @@ void RoR::CmdKeyInertiaConfig::LoadDefaultInertiaModels()
         std::string current_model;
         while (!ds->eof())
         {
-            std::string line = RoR::Utils::SanitizeUtf8String(ds->getLine());
+            std::string line = SanitizeUtf8String(ds->getLine());
             Ogre::StringUtil::trim(line);
 
             if (line.empty() || line[0] == ';')

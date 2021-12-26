@@ -42,15 +42,15 @@ void Console::forwardLogMessage(MessageArea area, std::string const& message, Og
     switch (lml)
     {
     case Ogre::LML_WARNING:
-        this->putMessage(area, CONSOLE_SYSTEM_WARNING, RoR::Utils::SanitizeUtf8String(message));
+        this->putMessage(area, CONSOLE_SYSTEM_WARNING, SanitizeUtf8String(message));
         break;
 
     case Ogre::LML_CRITICAL:
-        this->putMessage(area, CONSOLE_SYSTEM_ERROR, RoR::Utils::SanitizeUtf8String(message));
+        this->putMessage(area, CONSOLE_SYSTEM_ERROR, SanitizeUtf8String(message));
         break;
 
     default: // LML_NORMAL, LML_TRIVIAL
-        this->putMessage(area, CONSOLE_SYSTEM_NOTICE, RoR::Utils::SanitizeUtf8String(message));
+        this->putMessage(area, CONSOLE_SYSTEM_NOTICE, SanitizeUtf8String(message));
         break;
     }
 }

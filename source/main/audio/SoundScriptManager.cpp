@@ -413,7 +413,7 @@ void SoundScriptManager::parseScript(DataStreamPtr& stream, const String& groupN
 
     while (!stream->eof())
     {
-        line = RoR::Utils::SanitizeUtf8String(stream->getLine());
+        line = SanitizeUtf8String(stream->getLine());
         // ignore comments & blanks
         if (!(line.length() == 0 || line.substr(0, 2) == "//"))
         {

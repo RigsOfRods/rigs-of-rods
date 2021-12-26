@@ -49,7 +49,7 @@ void ReceiveStreamData(unsigned int type, int source, char* buffer)
     if (type != MSG2_UTF8_CHAT && type != MSG2_UTF8_PRIVCHAT)
         return;
 
-    std::string text = Utils::SanitizeUtf8CString(buffer);
+    std::string text = SanitizeUtf8CString(buffer);
     if (type == MSG2_UTF8_PRIVCHAT)
     {
         text = _L(" [whispered] ") + text;

@@ -115,7 +115,7 @@ void Console::loadConfig()
         Ogre::ConfigFile::SettingsIterator i = cfg.getSettingsIterator();
         while (i.hasMoreElements())
         {
-            std::string cvar_name = RoR::Utils::SanitizeUtf8String(i.peekNextKey());
+            std::string cvar_name = SanitizeUtf8String(i.peekNextKey());
             CVar* cvar = App::GetConsole()->cVarFind(cvar_name);
             if (cvar && !cvar->hasFlag(CVAR_ARCHIVE))
             {
@@ -129,7 +129,7 @@ void Console::loadConfig()
                 cvar = App::GetConsole()->cVarGet(cvar_name, CVAR_ARCHIVE);
             }
 
-            ParseHelper(cvar, RoR::Utils::SanitizeUtf8String(i.peekNextValue()));
+            ParseHelper(cvar, SanitizeUtf8String(i.peekNextValue()));
 
             i.moveNext();
         }

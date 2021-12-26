@@ -714,7 +714,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     if (player_actor == nullptr)
         return 1;
 
-    std::string hashtok = Utils::Sha1Hash(App::mp_player_name->getStr());
+    std::string hashtok = Sha1Hash(App::mp_player_name->getStr());
     std::string url = App::mp_api_url->getStr() + apiquery;
     std::string user = std::string("RoR-Api-User: ") + App::mp_player_name->getStr();
     std::string token = std::string("RoR-Api-User-Token: ") + hashtok;

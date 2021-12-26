@@ -95,7 +95,7 @@ bool ODefParser::ProcessCurrentLine()
 
     std::string line_str = m_cur_line;
     Ogre::StringUtil::trim(line_str);
-    line_str = RoR::Utils::SanitizeUtf8String(line_str);
+    line_str = SanitizeUtf8String(line_str);
     if ((line_str[0] == 0) || (line_str[0] == '/') || (line_str[0] == ';'))
     {
         return true;

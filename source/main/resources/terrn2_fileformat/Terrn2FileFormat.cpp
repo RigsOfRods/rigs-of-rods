@@ -81,8 +81,8 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
     {
         for (auto& author: file.getSettings("Authors"))
         {
-            String type = RoR::Utils::SanitizeUtf8String(author.first);  // e.g. terrain
-            String name = RoR::Utils::SanitizeUtf8String(author.second); // e.g. john doe
+            String type = SanitizeUtf8String(author.first);  // e.g. terrain
+            String name = SanitizeUtf8String(author.second); // e.g. john doe
 
             if (!name.empty())
             {
@@ -98,8 +98,8 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
     {
         for (auto& tobj: file.getSettings("Objects"))
         {
-            Ogre::String tobj_filename = RoR::Utils::SanitizeUtf8String(tobj.first);
-            def.tobj_files.push_back(RoR::Utils::TrimStr(tobj_filename));
+            Ogre::String tobj_filename = SanitizeUtf8String(tobj.first);
+            def.tobj_files.push_back(TrimStr(tobj_filename));
         }
     }
 
@@ -107,8 +107,8 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
     {
         for (auto& script: file.getSettings("Scripts"))
         {
-            Ogre::String as_filename = RoR::Utils::SanitizeUtf8String(script.first);
-            def.as_files.push_back(RoR::Utils::TrimStr(as_filename));
+            Ogre::String as_filename = SanitizeUtf8String(script.first);
+            def.as_files.push_back(TrimStr(as_filename));
         }
     }
 

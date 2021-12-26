@@ -61,7 +61,7 @@ Ogre::String ConfigFile::GetStringEx(Ogre::String const& key, Ogre::String const
     {
         return defaultValue;
     }
-    return RoR::Utils::SanitizeUtf8String(setting);
+    return SanitizeUtf8String(setting);
 }
 
 void ConfigFile::SetString(Ogre::String key, Ogre::String value, Ogre::String section /* = Ogre::StringUtil::BLANK */)
