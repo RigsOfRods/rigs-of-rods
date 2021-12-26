@@ -51,7 +51,7 @@ bool RoR::OTCParser::LoadMasterConfig(Ogre::DataStreamPtr &ds, const char* filen
         m_def->page_size               = cfg.getInt   ("PageSize",        1025);
         m_def->pages_max_x             = cfg.getInt   ("PagesX",          0);
         m_def->pages_max_z             = cfg.getInt   ("PagesZ",          0);
-        m_def->page_filename_format    = cfg.GetString("PageFileFormat",  file_basename + "-page-{X}-{Z}.otc");
+        m_def->page_filename_format    = cfg.getString("PageFileFormat",  /*section:*/Ogre::BLANKSTRING, /*defaultValue:*/file_basename + "-page-{X}-{Z}.otc");
         m_def->is_flat                 = cfg.getBool  ("Flat",            false);
         m_def->max_pixel_error         = cfg.getInt   ("MaxPixelError",   5);
         m_def->batch_size_min          = cfg.getInt   ("minBatchSize",    33);

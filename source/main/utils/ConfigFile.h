@@ -38,14 +38,14 @@ class ConfigFile: public Ogre::ConfigFile
 {
 public:
 
-    Ogre::ColourValue GetColourValue(Ogre::String const& key, Ogre::ColourValue const& defaultValue = Ogre::ColourValue())
+    Ogre::ColourValue getColourValue(Ogre::String const& key, Ogre::ColourValue const& defaultValue = Ogre::ColourValue())
     {
-        return this->GetColourValue(key, Ogre::StringUtil::BLANK, defaultValue);
+        return this->getColourValue(key, Ogre::StringUtil::BLANK, defaultValue);
     }
 
-    Ogre::ColourValue GetColourValue(Ogre::String const& key, Ogre::String const& section, Ogre::ColourValue const& defaultValue = Ogre::ColourValue());
+    Ogre::ColourValue getColourValue(Ogre::String const& key, Ogre::String const& section, Ogre::ColourValue const& defaultValue = Ogre::ColourValue());
 
-    Ogre::Vector3 GetVector3(Ogre::String const& key, Ogre::String const& section, Ogre::Vector3 const& defaultValue = Ogre::Vector3::ZERO);
+    Ogre::Vector3 getVector3(Ogre::String const& key, Ogre::String const& section, Ogre::Vector3 const& defaultValue = Ogre::Vector3::ZERO);
 
     float getFloat(Ogre::String const& key, float defaultValue = 0.f)
     {
@@ -68,12 +68,7 @@ public:
 
     int getInt(Ogre::String const& key, Ogre::String const& section, int defaultValue = 0);
 
-    Ogre::String GetString(Ogre::String const& key, Ogre::String const& defaultValue = "")
-    {
-        return this->GetStringEx(key, Ogre::StringUtil::BLANK, defaultValue);
-    }
-
-    Ogre::String GetStringEx(Ogre::String const& key, Ogre::String const& section, Ogre::String const& defaultValue = "");
+    Ogre::String getString(Ogre::String const& key, Ogre::String const& section, Ogre::String const& defaultValue = "");
 
     void SetString(Ogre::String key, Ogre::String value, Ogre::String section = Ogre::StringUtil::BLANK);
 
