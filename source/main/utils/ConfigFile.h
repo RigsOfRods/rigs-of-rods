@@ -40,7 +40,7 @@ public:
 
     Ogre::ColourValue getColourValue(Ogre::String const& key, Ogre::ColourValue const& defaultValue = Ogre::ColourValue())
     {
-        return this->getColourValue(key, Ogre::StringUtil::BLANK, defaultValue);
+        return this->getColourValue(key, Ogre::BLANKSTRING, defaultValue);
     }
 
     Ogre::ColourValue getColourValue(Ogre::String const& key, Ogre::String const& section, Ogre::ColourValue const& defaultValue = Ogre::ColourValue());
@@ -49,28 +49,28 @@ public:
 
     float getFloat(Ogre::String const& key, float defaultValue = 0.f)
     {
-        return this->getFloat(key, Ogre::StringUtil::BLANK, defaultValue);
+        return this->getFloat(key, Ogre::BLANKSTRING, defaultValue);
     }
 
     float getFloat(Ogre::String const& key, Ogre::String const& section, float defaultValue = 0.f);
 
     bool getBool(Ogre::String const& key, bool defaultValue = false)
     {
-        return this->getBool(key, Ogre::StringUtil::BLANK, defaultValue);
+        return this->getBool(key, Ogre::BLANKSTRING, defaultValue);
     }
 
     bool getBool(Ogre::String const& key, Ogre::String const& section, bool defaultValue = false);
 
     int getInt(Ogre::String const& key, int defaultValue = 0)
     {
-        return this->getInt(key, Ogre::StringUtil::BLANK, defaultValue);
+        return this->getInt(key, Ogre::BLANKSTRING, defaultValue);
     }
 
     int getInt(Ogre::String const& key, Ogre::String const& section, int defaultValue = 0);
 
     Ogre::String getString(Ogre::String const& key, Ogre::String const& section, Ogre::String const& defaultValue = "");
 
-    void SetString(Ogre::String key, Ogre::String value, Ogre::String section = Ogre::StringUtil::BLANK);
+    void SetString(Ogre::String key, Ogre::String value, Ogre::String section = Ogre::BLANKSTRING);
 
     bool HasSection(std::string const & name);
 
