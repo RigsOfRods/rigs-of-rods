@@ -38,7 +38,7 @@ std::vector<std::shared_ptr<RoR::SkinDef>> RoR::SkinParser::ParseSkins(Ogre::Dat
     {
         while(!stream->eof())
         {
-            std::string line = RoR::Utils::SanitizeUtf8String(stream->getLine());
+            std::string line = SanitizeUtf8String(stream->getLine());
 
             // Ignore blanks & comments
             if (!line.length() || line.substr(0, 2) == "//")

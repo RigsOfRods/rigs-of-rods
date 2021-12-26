@@ -40,7 +40,7 @@ void RoR::SkidmarkConfig::LoadDefaultSkidmarkDefs()
 
         while (!ds->eof())
         {
-            Ogre::String line = RoR::Utils::SanitizeUtf8String(ds->getLine());
+            Ogre::String line = SanitizeUtf8String(ds->getLine());
             Ogre::StringUtil::trim(line);
 
             if (line.empty() || line[0] == ';')

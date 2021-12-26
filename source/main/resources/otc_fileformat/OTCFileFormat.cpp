@@ -106,13 +106,13 @@ bool RoR::OTCParser::LoadPageConfig(Ogre::DataStreamPtr &ds, RoR::OTCPage& page,
     try
     {
         // NOTE: ds->getLine() trims the string on both sides.
-        page.heightmap_filename = RoR::Utils::SanitizeUtf8String(ds->getLine());
+        page.heightmap_filename = SanitizeUtf8String(ds->getLine());
 
         page.num_layers = PARSEINT(ds->getLine());
 
         while (!ds->eof())
         {
-            std::string line_sane = RoR::Utils::SanitizeUtf8String(ds->getLine());
+            std::string line_sane = SanitizeUtf8String(ds->getLine());
             if (line_sane.empty() || line_sane[0] == ';' || line_sane[0] == '/')
             {
                 continue;
@@ -129,19 +129,19 @@ bool RoR::OTCParser::LoadPageConfig(Ogre::DataStreamPtr &ds, RoR::OTCPage& page,
             layer.world_size = PARSEREAL(args[0]);
             if (args.size() > 2)
             {
-                layer.diffusespecular_filename = Utils::TrimStr(args[1]);
+                layer.diffusespecular_filename = TrimStr(args[1]);
             }
             if (args.size() > 1)
             {
-                layer.normalheight_filename = Utils::TrimStr(args[2]);
+                layer.normalheight_filename = TrimStr(args[2]);
             }
             if (args.size() > 3)
             {
-                layer.blendmap_filename = Utils::TrimStr(args[3]);
+                layer.blendmap_filename = TrimStr(args[3]);
             }
             if (args.size() > 4)
             {
-                layer.blend_mode = Utils::TrimStr(args[4])[0];
+                layer.blend_mode = TrimStr(args[4])[0];
             }
             if (args.size() > 5)
             {

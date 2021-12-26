@@ -378,7 +378,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
             if (reg->type == 0)
             {
                 reg->name[127] = 0;
-                std::string filename = Utils::SanitizeUtf8CString(reg->name);
+                std::string filename = SanitizeUtf8CString(reg->name);
 
                 RoRnet::UserInfo info;
                 if (!App::GetNetwork()->GetUserInfo(reg->origin_sourceid, info))
@@ -1243,7 +1243,7 @@ std::shared_ptr<RigDef::File> ActorManager::FetchActorDef(std::string filename, 
 
         validator.Validate(); // Sends messages to console
 
-        def->hash = Utils::Sha1Hash(stream->getAsString());
+        def->hash = Sha1Hash(stream->getAsString());
 
         cache_entry->actor_def = def;
         return def;

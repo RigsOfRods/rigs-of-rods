@@ -37,9 +37,8 @@
 #endif
 
 using namespace Ogre;
-using namespace RoR;
 
-String sha1sum(const char *key, int len)
+String RoR::sha1sum(const char *key, int len)
 {
     RoR::CSHA1 sha1;
     sha1.UpdateHash((uint8_t *)key, len);
@@ -47,20 +46,20 @@ String sha1sum(const char *key, int len)
     return sha1.ReportHash();
 }
 
-String HashData(const char *key, int len)
+String RoR::HashData(const char *key, int len)
 {
     std::stringstream result;
     result << std::hex << FastHash(key, len);
     return result.str();
 }
 
-UTFString tryConvertUTF(const char* buffer)
+UTFString RoR::tryConvertUTF(const char* buffer)
 {
     std::string str_in(buffer);
-    return UTFString(RoR::Utils::SanitizeUtf8String(str_in));
+    return UTFString(SanitizeUtf8String(str_in));
 }
 
-UTFString formatBytes(double bytes)
+UTFString RoR::formatBytes(double bytes)
 {
     wchar_t tmp[128] = L"";
     const wchar_t* si_prefix[] = {L"B", L"KB", L"MB", L"GB", L"TB", L"EB", L"ZB", L"YB"};
@@ -70,12 +69,12 @@ UTFString formatBytes(double bytes)
     return UTFString(tmp);
 }
 
-std::time_t getTimeStamp()
+std::time_t RoR::getTimeStamp()
 {
     return time(NULL); //this will overflow in 2038
 }
 
-String getVersionString(bool multiline)
+String RoR::getVersionString(bool multiline)
 {
     char tmp[1024] = "";
     if (multiline)
@@ -94,7 +93,7 @@ String getVersionString(bool multiline)
     return String(tmp);
 }
 
-void trimUTFString(UTFString& str, bool left, bool right)
+void RoR::trimUTFString(UTFString& str, bool left, bool right)
 {
     static const String delims = " \t\r";
     if (right)
@@ -103,7 +102,7 @@ void trimUTFString(UTFString& str, bool left, bool right)
         str.erase(0, str.find_first_not_of(delims)); // trim left
 }
 
-Real Round(Real value, unsigned short ndigits /* = 0 */)
+Real RoR::Round(Real value, unsigned short ndigits /* = 0 */)
 {
     Real f = 1.0f;
 
@@ -122,29 +121,7 @@ Real Round(Real value, unsigned short ndigits /* = 0 */)
     return value;
 }
 
-Real Round(Real value, int valueN, unsigned short ndigits /* = 0 */)
-{
-    Real f = 1.0f;
-
-    while (ndigits--)
-        f = f * 10.0f;
-
-    value *= f;
-
-    if (value >= 0.0f)
-        value = std::floor(value + valueN);
-    else
-        value = std::ceil(value - valueN);
-
-    value /= f;
-
-    return value;
-}
-
-namespace RoR {
-namespace Utils {
-
-std::string SanitizeUtf8String(std::string const& str_in)
+std::string RoR::SanitizeUtf8String(std::string const& str_in)
 {
     // Cloned from UTFCPP tutorial: http://utfcpp.sourceforge.net/#fixinvalid
     std::string str_out;
@@ -152,7 +129,7 @@ std::string SanitizeUtf8String(std::string const& str_in)
     return str_out;
 }
 
-std::string SanitizeUtf8CString(const char* start, const char* end /* = nullptr */)
+std::string RoR::SanitizeUtf8CString(const char* start, const char* end /* = nullptr */)
 {
     if (end == nullptr)
     {
@@ -165,7 +142,7 @@ std::string SanitizeUtf8CString(const char* start, const char* end /* = nullptr 
     return str_out;
 }
 
-std::string Sha1Hash(std::string const & input)
+std::string RoR::Sha1Hash(std::string const & input)
 {
     RoR::CSHA1 sha1;
     sha1.UpdateHash((uint8_t *)input.c_str(), (int)input.length());
@@ -173,5 +150,3 @@ std::string Sha1Hash(std::string const & input)
     return sha1.ReportHash();
 }
 
-} // namespace Utils
-} // namespace RoR
