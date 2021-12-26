@@ -74,8 +74,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
     def.water_height         = file.getFloat      ("WaterLine",        "General");
     def.water_bottom_height  = file.getFloat      ("WaterBottomLine",  "General");
     def.custom_material_name = file.GetStringEx   ("CustomMaterial",   "General");
-
-    def.start_position       = StringConverter::parseVector3(file.GetStringEx("StartPosition", "General"), Vector3(512.0f, 0.0f, 512.0f));
+    def.start_position       = file.GetVector3    ("StartPosition",    "General", Vector3(512.0f, 0.0f, 512.0f));
 
     if (file.HasSection("Authors"))
     {

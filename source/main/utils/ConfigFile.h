@@ -45,6 +45,8 @@ public:
 
     Ogre::ColourValue GetColourValue(Ogre::String const& key, Ogre::String const& section, Ogre::ColourValue const& defaultValue = Ogre::ColourValue());
 
+    Ogre::Vector3 GetVector3(Ogre::String const& key, Ogre::String const& section, Ogre::Vector3 const& defaultValue = Ogre::Vector3::ZERO);
+
     float getFloat(Ogre::String const& key, float defaultValue = 0.f)
     {
         return this->getFloat(key, Ogre::StringUtil::BLANK, defaultValue);
