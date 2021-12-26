@@ -96,7 +96,7 @@ Ogre::String ConfigFile::getString(Ogre::String const& key, Ogre::String const& 
     return SanitizeUtf8String(setting);
 }
 
-void ConfigFile::SetString(Ogre::String key, Ogre::String value, Ogre::String section /* = Ogre::StringUtil::BLANK */)
+void ConfigFile::SetString(Ogre::String key, Ogre::String value, Ogre::String section /* = Ogre::BLANKSTRING */)
 {
     SettingsMultiMap* set = mSettingsPtr[section];
     if (!set)
