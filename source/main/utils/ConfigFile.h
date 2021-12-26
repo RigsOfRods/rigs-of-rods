@@ -27,9 +27,9 @@
 
 #pragma once
 
-#include <OgreConfigFile.h>
-#include <OgreColourValue.h>
-#include <OgreString.h>
+#include "Console.h"
+
+#include <Ogre.h>
 
 namespace RoR {
 
@@ -74,10 +74,22 @@ public:
 
     bool HasSection(std::string const & name);
 
+    void setLoggingInfo(std::string const & filename, Console::MessageArea area)
+    {
+        m_log_filename = filename;
+        m_log_area = area;
+    }
+
 private:
     //Block access to Ogre::ConfigFile::getSetting() - not UTF8 safe!
     Ogre::String getSetting(Ogre::String, Ogre::String);
     Ogre::String getSetting(Ogre::String, Ogre::String, Ogre::String);
+
+    void logMessage(std::string const & msg);
+
+    // Logging info.
+    std::string m_log_filename;
+    Console::MessageArea m_log_area = Console::CONSOLE_MSGTYPE_INFO;
 };
 
 } // namespace RoR

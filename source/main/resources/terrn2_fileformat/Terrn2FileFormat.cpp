@@ -39,6 +39,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
 {
     RoR::ConfigFile file;
     file.load(ds, "\t:=", true);
+    file.setLoggingInfo(ds->getName(), Console::CONSOLE_MSGTYPE_TERRN);
 
     // read in the settings
     def.name = file.getString("Name", "General");

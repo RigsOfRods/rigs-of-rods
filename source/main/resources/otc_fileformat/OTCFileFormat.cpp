@@ -23,6 +23,7 @@
 #include "OTCFileFormat.h"
 
 #include "Application.h"
+#include "Console.h"
 #include "SimConstants.h"
 #include "ConfigFile.h"
 #include "Utils.h"
@@ -43,6 +44,7 @@ bool RoR::OTCParser::LoadMasterConfig(Ogre::DataStreamPtr &ds, const char* filen
     try
     {
         cfg.load(ds, "\t:=", false);
+        cfg.setLoggingInfo(ds->getName(), Console::CONSOLE_MSGTYPE_TERRN);
 
         m_def->disable_cache           = cfg.getBool  ("disableCaching",  false);
         m_def->world_size_x            = cfg.getInt   ("WorldSizeX",      1024);

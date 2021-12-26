@@ -52,7 +52,7 @@ Ogre::ColourValue ConfigFile::getColourValue(Ogre::String const& key, Ogre::Stri
     }
     else
     {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+        this->logMessage(
             fmt::format("Could not parse '{}/{}' ({}) as color, format must be 'R G B A' or 'R G B', falling back to '{}'",
                 section, key, value, Ogre::StringConverter::toString(defaultValue)));
         return defaultValue;
@@ -69,7 +69,7 @@ Ogre::Vector3 ConfigFile::getVector3(Ogre::String const& key, Ogre::String const
     }
     else
     {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+        this->logMessage(
             fmt::format("Could not parse '{}/{}' ({}) as vector3, format must be 'X Y Z', falling back to '{}'",
                 section, key, value, Ogre::StringConverter::toString(defaultValue)));
         return defaultValue;
@@ -119,4 +119,11 @@ bool ConfigFile::HasSection(std::string const & name)
     // This is the only way to check existence of section
     //  without either an OGRE exception being logged or using deprecated API.
     return this->getSettingsBySection().find(name) != this->getSettingsBySection().end();
+}
+
+void ConfigFile::logMessage(std::string const & msg)
+{
+    // If filename is specified, log "filename: message", otherwise just "message".
+    App::GetConsole()->putMessage(m_log_area, Console::CONSOLE_SYSTEM_WARNING,
+        fmt::format("{}{}{}", m_log_filename, (m_log_filename == "" ? "" : ": "), msg));
 }
