@@ -263,6 +263,7 @@ extern CVar* app_force_cache_purge;
 extern CVar* app_force_cache_update;
 extern CVar* app_disable_online_api;
 extern CVar* app_config_long_names;
+extern CVar* app_custom_scripts;
 
 // Simulation
 extern CVar* sim_state;
@@ -345,6 +346,7 @@ extern CVar* cli_preset_spawn_rot;
 extern CVar* cli_preset_veh_enter;
 extern CVar* cli_force_cache_update;
 extern CVar* cli_resume_autosave;
+extern CVar* cli_custom_scripts;
 
 // Input - Output
 extern CVar* io_analog_smoothing;
