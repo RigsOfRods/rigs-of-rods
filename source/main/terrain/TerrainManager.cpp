@@ -119,6 +119,11 @@ TerrainManager::~TerrainManager()
         delete(m_collisions);
         m_collisions = nullptr;
     }
+
+    for (std::string as_filename : m_def.as_files)
+    {
+        App::GetScriptEngine()->unloadScript(as_filename, ScriptCategory::TERRAIN);
+    }
 }
 
 TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry* entry)

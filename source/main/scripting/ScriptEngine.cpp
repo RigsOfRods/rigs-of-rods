@@ -56,8 +56,6 @@
 using namespace Ogre;
 using namespace RoR;
 
-const char *ScriptEngine::moduleName = "RoRScript";
-
 // some hacky functions
 
 void logString(const std::string &str)
@@ -69,14 +67,8 @@ void logString(const std::string &str)
 
 ScriptEngine::ScriptEngine() :
      context(0)
-    , defaultEventCallbackFunctionPtr(nullptr)
     , engine(0)
-    , eventCallbackFunctionPtr(nullptr)
-    , eventMask(0)
-    , frameStepFunctionPtr(nullptr)
-    , scriptHash()
     , scriptLog(0)
-    , scriptName()
 {
     scriptLog = LogManager::getSingleton().createLog(PathCombine(App::sys_logs_dir->getStr(), "Angelscript.log"), false);
     this->init();
@@ -396,6 +388,8 @@ void ScriptEngine::init()
 
 
     SLOG("Type registrations done. If you see no error above everything should be working");
+
+    context = engine->CreateContext();
 }
 
 void ScriptEngine::msgCallback(const AngelScript::asSMessageInfo *msg)
@@ -423,93 +417,103 @@ int ScriptEngine::framestep(Real dt)
     }
 
     // framestep stuff below
-    if (frameStepFunctionPtr==nullptr) return 1;
-    if (!engine) return 0;
-    if (!context) context = engine->CreateContext();
-    context->Prepare(frameStepFunctionPtr);
+    if (!engine || !context) return 0;
 
-    // Set the function arguments
-    context->SetArgFloat(0, dt);
-
-    int r = context->Execute();
-    if ( r == AngelScript::asEXECUTION_FINISHED )
+    for (size_t i = 0; i < m_script_units.size(); i++)
     {
-      // The return value is only valid if the execution finished successfully
-        AngelScript::asDWORD ret = context->GetReturnDWord();
+        if (!m_script_units[i].frameStepFunctionPtr)
+        {
+            continue;
+        }
+
+        context->Prepare(m_script_units[i].frameStepFunctionPtr);
+
+        // Set the function arguments
+        context->SetArgFloat(0, dt);
+
+        m_currently_executing_script_unit = (int)i;
+        int r = context->Execute();
+        m_currently_executing_script_unit = -1;
+        if ( r == AngelScript::asEXECUTION_FINISHED )
+        {
+            // The return value is only valid if the execution finished successfully
+            AngelScript::asDWORD ret = context->GetReturnDWord();
+        }
     }
     return 0;
 }
 
 int ScriptEngine::fireEvent(std::string instanceName, float intensity)
 {
-    if (!engine)
+    if (!engine || !context)
         return 0;
 
-    AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_CREATE_IF_NOT_EXISTS);
-    AngelScript::asIScriptFunction* func = mod->GetFunctionByDecl("void fireEvent(string, float)"); // TODO: this shouldn't be hard coded --neorej16
-    if (func == nullptr)
-        return 0; // TODO: This function returns 0 no matter what - WTF? ~ only_a_ptr, 08/2017
-
-    if (!context)
-        context = engine->CreateContext();
-
-    context->Prepare(func);
-
-    // Set the function arguments
-    std::string *instance_name = new std::string(instanceName);
-    context->SetArgObject(0, &instanceName);
-    context->SetArgFloat (1, intensity);
-
-    int r = context->Execute();
-    if ( r == AngelScript::asEXECUTION_FINISHED )
+    for (size_t i = 0; i < m_script_units.size(); i++)
     {
-      // The return value is only valid if the execution finished successfully
-        AngelScript::asDWORD ret = context->GetReturnDWord();
+        AngelScript::asIScriptFunction* func = m_script_units[i].scriptModule->GetFunctionByDecl(
+            "void fireEvent(string, float)"); // TODO: this shouldn't be hard coded --neorej16
+
+        context->Prepare(func);
+
+        // Set the function arguments
+        context->SetArgObject(0, &instanceName);
+        context->SetArgFloat (1, intensity);
+
+        m_currently_executing_script_unit = (int)i;
+        int r = context->Execute();
+        m_currently_executing_script_unit = -1;
+        if ( r == AngelScript::asEXECUTION_FINISHED )
+        {
+          // The return value is only valid if the execution finished successfully
+            AngelScript::asDWORD ret = context->GetReturnDWord();
+        }
     }
-    delete(instance_name);
 
     return 0;
 }
 
-int ScriptEngine::envokeCallback(int functionId, eventsource_t *source, node_t *node, int type)
+int ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, node_t *node, int type)
 {
-    if (!engine)
+    if (!engine || !context)
         return 0; // TODO: this function returns 0 no matter what - WTF? ~ only_a_ptr, 08/2017
 
-    if (functionId <= 0 && (defaultEventCallbackFunctionPtr != nullptr))
+    for (size_t i = 0; i < m_script_units.size(); i++)
     {
-        // use the default event handler instead then
-        functionId = defaultEventCallbackFunctionPtr->GetId();
-    }
-    else if (functionId <= 0)
-    {
-        // no default callback available, discard the event
-        return 0;
-    }
-    if (!context)
-        context = engine->CreateContext();
+        int functionId = _functionId;
+        if (functionId <= 0 && (m_script_units[i].defaultEventCallbackFunctionPtr != nullptr))
+        {
+            // use the default event handler instead then
+            functionId = m_script_units[i].defaultEventCallbackFunctionPtr->GetId();
+        }
+        else if (functionId <= 0)
+        {
+            // no default callback available, discard the event
+            return 0;
+        }
 
-    context->Prepare(engine->GetFunctionById(functionId));
+        context->Prepare(engine->GetFunctionById(functionId));
 
-    // Set the function arguments
-    std::string *instance_name = new std::string(source->instancename);
-    std::string *boxname = new std::string(source->boxname);
-    context->SetArgDWord (0, type);
-    context->SetArgObject(1, instance_name);
-    context->SetArgObject(2, boxname);
-    if (node)
-        context->SetArgDWord (3, node->pos);
-    else
-        context->SetArgDWord (3, -1); // conversion from 'int' to 'AngelScript::asDWORD', signed/unsigned mismatch!
+        // Set the function arguments
+        std::string instance_name(source->instancename);
+        std::string boxname = (source->boxname);
+        context->SetArgDWord (0, type);
+        context->SetArgObject(1, &instance_name);
+        context->SetArgObject(2, &boxname);
+        if (node)
+            context->SetArgDWord (3, static_cast<AngelScript::asDWORD>(node->pos));
+        else
+            context->SetArgDWord (3, static_cast<AngelScript::asDWORD>(-1));
 
-    int r = context->Execute();
-    if ( r == AngelScript::asEXECUTION_FINISHED )
-    {
-      // The return value is only valid if the execution finished successfully
-        AngelScript::asDWORD ret = context->GetReturnDWord();
+        m_currently_executing_script_unit = (int)i;
+        int r = context->Execute();
+        m_currently_executing_script_unit = -1;
+
+        if ( r == AngelScript::asEXECUTION_FINISHED )
+        {
+            // The return value is only valid if the execution finished successfully
+            AngelScript::asDWORD ret = context->GetReturnDWord();
+        }
     }
-    delete(instance_name);
-    delete(boxname);
 
     return 0;
 }
@@ -521,13 +525,14 @@ void ScriptEngine::queueStringForExecution(const String command)
 
 int ScriptEngine::executeString(String command)
 {
-    if (!engine)
+    if (!engine || !context)
         return 1;
 
-    if (!context)
-        context = engine->CreateContext();
+    // Only works with terrain script module (classic behavior)
+    if (m_terrain_script_unit < 0)
+        return 1;
 
-    AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_CREATE_IF_NOT_EXISTS);
+    AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
     int result = ExecuteString(engine, command.c_str(), mod, context);
     if (result < 0)
     {
@@ -538,13 +543,17 @@ int ScriptEngine::executeString(String command)
 
 int ScriptEngine::addFunction(const String &arg)
 {
-    if (!engine)
+    if (!engine || !context)
         return 1;
 
     if (!context)
-        context = engine->CreateContext();
+        
 
-    AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_CREATE_IF_NOT_EXISTS);
+    // Only works with terrain script module (classic behavior)
+    if (m_terrain_script_unit < 0)
+        return 1;
+
+    AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
 
     AngelScript::asIScriptFunction *func = 0;
     int r = mod->CompileFunction("addfunc", arg.c_str(), 0, AngelScript::asCOMP_ADD_TO_MODULE, &func);
@@ -552,7 +561,7 @@ int ScriptEngine::addFunction(const String &arg)
     if ( r < 0 )
     {
         char tmp[512] = "";
-        snprintf(tmp, 512, "An error occurred while trying to add a function ('%s') to script module '%s'.", arg.c_str(), moduleName);
+        snprintf(tmp, 512, "An error occurred while trying to add a function ('%s') to script module '%s'.", arg.c_str(), mod->GetName());
         SLOG(tmp);
     }
     else
@@ -561,18 +570,18 @@ int ScriptEngine::addFunction(const String &arg)
 
         if (func == mod->GetFunctionByDecl("void frameStep(float)"))
         {
-            if (frameStepFunctionPtr == nullptr)
-                frameStepFunctionPtr = func;
+            if (m_script_units[m_terrain_script_unit].frameStepFunctionPtr == nullptr)
+                m_script_units[m_terrain_script_unit].frameStepFunctionPtr = func;
         }
         else if (func == mod->GetFunctionByDecl("void eventCallback(int, int)"))
         {
-            if (eventCallbackFunctionPtr == nullptr)
-                eventCallbackFunctionPtr = func;
+            if (m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr == nullptr)
+                m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr = func;
         }
         else if (func == mod->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)"))
         {
-            if (defaultEventCallbackFunctionPtr == nullptr)
-                defaultEventCallbackFunctionPtr = func;
+            if (m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr == nullptr)
+                m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr = func;
         }
     }
 
@@ -585,13 +594,14 @@ int ScriptEngine::addFunction(const String &arg)
 
 int ScriptEngine::functionExists(const String &arg)
 {
-    if (!engine) // WTF? If the scripting engine failed to start, how would it invoke this function?
+    if (!engine || !context) // WTF? If the scripting engine failed to start, how would it invoke this function?
         return -1; // ... OK, I guess the author wanted the fn. to be usable both within script and C++, but IMO that's bad design (generally good, but bad for a game.. bad for RoR), really ~ only_a_ptr, 09/2017
 
-    if (!context)
-        context = engine->CreateContext(); // Same as above, I don't think this is a good design ~ only_a_ptr, 09/2017
+    // Only works with terrain script module (classic behavior)
+    if (m_terrain_script_unit < 0)
+        return -1;
 
-    AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+    AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
 
     if (mod == 0)
     {
@@ -609,18 +619,19 @@ int ScriptEngine::functionExists(const String &arg)
 
 int ScriptEngine::deleteFunction(const String &arg)
 {
-    if (!engine)
+    if (!engine || !context)
         return AngelScript::asERROR;
 
-    if (!context)
-        context = engine->CreateContext();
+    // Only works with terrain script module (classic behavior)
+    if (m_terrain_script_unit < 0)
+        return -1;
 
-    AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+    AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
 
-    if ( mod == 0 || mod->GetFunctionCount() == 0 )
+    if ( mod->GetFunctionCount() == 0 )
     {
         char tmp[512] = "";
-        sprintf(tmp, "An error occurred while trying to remove a function ('%s') from script module '%s': No functions have been added (and consequently: the function does not exist).", arg.c_str(), moduleName);
+        sprintf(tmp, "An error occurred while trying to remove a function ('%s') from script module '%s': No functions have been added (and consequently: the function does not exist).", arg.c_str(), mod->GetName());
         SLOG(tmp);
         return AngelScript::asNO_FUNCTION;
     }
@@ -637,21 +648,21 @@ int ScriptEngine::deleteFunction(const String &arg)
 
         // Check if we removed a "special" function
 
-        if ( frameStepFunctionPtr == func )
-            frameStepFunctionPtr = nullptr;
+        if ( m_script_units[m_terrain_script_unit].frameStepFunctionPtr == func )
+            m_script_units[m_terrain_script_unit].frameStepFunctionPtr = nullptr;
 
-        if ( eventCallbackFunctionPtr == func )
-            eventCallbackFunctionPtr = nullptr;
+        if ( m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr == func )
+            m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr = nullptr;
 
-        if ( defaultEventCallbackFunctionPtr == func )
-            defaultEventCallbackFunctionPtr = nullptr;
+        if ( m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr == func )
+            m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr = nullptr;
 
         return func->GetId();
     }
     else
     {
         char tmp[512] = "";
-        sprintf(tmp, "An error occurred while trying to remove a function ('%s') from script module '%s'.", arg.c_str(), moduleName);
+        sprintf(tmp, "An error occurred while trying to remove a function ('%s') from script module '%s'.", arg.c_str(), mod->GetName());
         SLOG(tmp);
         return AngelScript::asERROR;
     }
@@ -659,15 +670,18 @@ int ScriptEngine::deleteFunction(const String &arg)
 
 int ScriptEngine::addVariable(const String &arg)
 {
-    if (!engine) return 1;
-    if (!context) context = engine->CreateContext();
-    AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_CREATE_IF_NOT_EXISTS);
+    if (!engine || !context) return 1;
+    // Only works with terrain script module (classic behavior)
+    if (m_terrain_script_unit < 0)
+        return 1;
+
+    AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
 
     int r = mod->CompileGlobalVar("addvar", arg.c_str(), 0);
     if ( r < 0 )
     {
         char tmp[512] = "";
-        sprintf(tmp, "An error occurred while trying to add a variable ('%s') to script module '%s'.", arg.c_str(), moduleName);
+        sprintf(tmp, "An error occurred while trying to add a variable ('%s') to script module '%s'.", arg.c_str(), mod->GetName());
         SLOG(tmp);
     }
 
@@ -676,14 +690,16 @@ int ScriptEngine::addVariable(const String &arg)
 
 int ScriptEngine::deleteVariable(const String &arg)
 {
-    if (!engine) return 1;
-    if (!context) context = engine->CreateContext();
-    AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+    if (!engine || !context) return 1;
+    // Only works with terrain script module (classic behavior)
+    if (m_terrain_script_unit < 0)
+        return 1;
+    AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
 
     if ( mod == 0 || mod->GetGlobalVarCount() == 0 )
     {
         char tmp[512] = "";
-        sprintf(tmp, "An error occurred while trying to remove a variable ('%s') from script module '%s': No variables have been added (and consequently: the variable does not exist).", arg.c_str(), moduleName);
+        sprintf(tmp, "An error occurred while trying to remove a variable ('%s') from script module '%s': No variables have been added (and consequently: the variable does not exist).", arg.c_str(), mod->GetName());
         SLOG(tmp);
         return AngelScript::asNO_GLOBAL_VAR;
     }
@@ -696,7 +712,7 @@ int ScriptEngine::deleteVariable(const String &arg)
     else
     {
         char tmp[512] = "";
-        sprintf(tmp, "An error occurred while trying to remove a variable ('%s') from script module '%s'.", arg.c_str(), moduleName);
+        sprintf(tmp, "An error occurred while trying to remove a variable ('%s') from script module '%s'.", arg.c_str(), mod->GetName());
         SLOG(tmp);
     }
 
@@ -705,31 +721,50 @@ int ScriptEngine::deleteVariable(const String &arg)
 
 void ScriptEngine::triggerEvent(int eventnum, int value)
 {
-    if (!engine) return;
-    if (eventCallbackFunctionPtr==nullptr) return;
-    if (eventMask & eventnum)
+    if (!engine || !context) return;
+
+    for (size_t i = 0; i < m_script_units.size(); i++)
     {
-        // script registered for that event, so sent it
-        if (!context) context = engine->CreateContext();
-        context->Prepare(eventCallbackFunctionPtr);
-
-        // Set the function arguments
-        context->SetArgDWord(0, eventnum);
-        context->SetArgDWord(1, value);
-
-        int r = context->Execute();
-        if ( r == AngelScript::asEXECUTION_FINISHED )
+        if (m_script_units[i].eventCallbackFunctionPtr==nullptr)
+            continue;
+        if (m_script_units[i].eventMask & eventnum)
         {
-          // The return value is only valid if the execution finished successfully
-            AngelScript::asDWORD ret = context->GetReturnDWord();
+            // script registered for that event, so sent it
+            context->Prepare(m_script_units[i].eventCallbackFunctionPtr);
+
+            // Set the function arguments
+            context->SetArgDWord(0, eventnum);
+            context->SetArgDWord(1, value);
+
+            m_currently_executing_script_unit = (int)i;
+            int r = context->Execute();
+            m_currently_executing_script_unit = -1;
+            if ( r == AngelScript::asEXECUTION_FINISHED )
+            {
+                // The return value is only valid if the execution finished successfully
+                AngelScript::asDWORD ret = context->GetReturnDWord();
+            }
         }
-        return;
     }
 }
 
-int ScriptEngine::loadScript(String _scriptName)
+String ScriptEngine::composeModuleName(String const& scriptName, ScriptCategory origin)
 {
-    scriptName = _scriptName;
+    switch (origin)
+    {
+    case ScriptCategory::TERRAIN: return fmt::format("TERRAIN:{}", scriptName);
+
+    case ScriptCategory::CUSTOM: return fmt::format("CUSTOM:{}", scriptName);
+
+    default: return "";
+    }
+}
+
+int ScriptEngine::loadScript(String scriptName, ScriptCategory category/* = ScriptCategory::TERRAIN*/)
+{
+    String moduleName = this->composeModuleName(scriptName, category);
+    if (moduleName == "")
+        return -1;
 
     // Load the entire script file into the buffer
     int result=0;
@@ -739,52 +774,54 @@ int ScriptEngine::loadScript(String _scriptName)
     // well.
     OgreScriptBuilder builder;
 
-    AngelScript::asIScriptModule *mod = 0;
-
-    result = builder.StartNewModule(engine, moduleName);
+    result = builder.StartNewModule(engine, moduleName.c_str());
     if ( result < 0 )
     {
-        SLOG("Failed to start new module");
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not load script '{}' - failed to create module.", moduleName));
         return result;
     }
 
-    mod = engine->GetModule(moduleName, AngelScript::asGM_ONLY_IF_EXISTS);
+    ScriptUnit newUnit;
+
+    newUnit.scriptModule = engine->GetModule(moduleName.c_str(), AngelScript::asGM_ONLY_IF_EXISTS);
 
     result = builder.AddSectionFromFile(scriptName.c_str());
     if ( result < 0 )
     {
-        SLOG("Unkown error while loading script file: "+scriptName);
-        SLOG("Failed to add script file");
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not load script '{}' - failed to process file.", moduleName));
         return result;
     }
     result = builder.BuildModule();
     if ( result < 0 )
     {
-        SLOG("Failed to build the module");
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not load script '{}' - failed to build module.", moduleName));
         return result;
     }
 
-    scriptHash = builder.GetHash();
+    String scriptHash;
+    if (category == ScriptCategory::TERRAIN) // Classic behavior
+        scriptHash = builder.GetHash();
 
     // get some other optional functions
-    frameStepFunctionPtr = mod->GetFunctionByDecl("void frameStep(float)");
+    newUnit.frameStepFunctionPtr = newUnit.scriptModule->GetFunctionByDecl("void frameStep(float)");
 
-    eventCallbackFunctionPtr = mod->GetFunctionByDecl("void eventCallback(int, int)");
+    newUnit.eventCallbackFunctionPtr = newUnit.scriptModule->GetFunctionByDecl("void eventCallback(int, int)");
 
-    defaultEventCallbackFunctionPtr = mod->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)");
+    newUnit.defaultEventCallbackFunctionPtr = newUnit.scriptModule->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)");
 
     // Find the function that is to be called.
-    auto main_func = mod->GetFunctionByDecl("void main()");
+    auto main_func = newUnit.scriptModule->GetFunctionByDecl("void main()");
     if ( main_func == nullptr )
     {
         // The function couldn't be found. Instruct the script writer to include the
         // expected function in the script.
-        SLOG("The script should have the function 'void main()'.");
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not load script '{}' - there is no function `main()`", moduleName));
         return 0;
     }
-
-    // Create our context, prepare it, and then execute
-    context = engine->CreateContext();
 
     // Prepare the script context with the function we wish to execute. Prepare()
     // must be called on the context before each new script function that will be
@@ -794,13 +831,17 @@ int ScriptEngine::loadScript(String _scriptName)
     result = context->Prepare(main_func);
     if (result < 0)
     {
-        SLOG("Failed to prepare the context.");
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not load script '{}' - failed to build module.", moduleName));
         context->Release();
         return -1;
     }
 
     SLOG("Executing main()");
+    m_script_units.push_back(newUnit); // temporary, so we can set it as "currently executing"
+    m_currently_executing_script_unit = (int)m_script_units.size() - 1;
     result = context->Execute();
+    m_currently_executing_script_unit = -1;
     if ( result != AngelScript::asEXECUTION_FINISHED )
     {
         // The execution didn't complete as expected. Determine what happened.
@@ -825,70 +866,46 @@ int ScriptEngine::loadScript(String _scriptName)
         {
             SLOG("The script ended for some unforeseen reason " + TOSTRING(result));
         }
+
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not load script '{}' - error running function `main()`, check AngelScript.log", moduleName));
+
+        // Unregister
+        m_script_units.pop_back();
     }
     else
     {
         SLOG("The script finished successfully.");
+
+        // Complete registration
+        if (category == ScriptCategory::TERRAIN)
+        {
+            m_terrain_script_unit = (int)m_script_units.size() - 1;
+        }
     }
 
     return 0;
 }
 
-
-StringVector ScriptEngine::getAutoComplete(String command)
+void ScriptEngine::unloadScript(String scriptName, ScriptCategory category)
 {
-    StringVector result;
-    if (!engine) return result;
-    if (!context) context = engine->CreateContext();
-    AngelScript::asIScriptModule *mod = engine->GetModule(moduleName, AngelScript::asGM_CREATE_IF_NOT_EXISTS);
+    ROR_ASSERT(m_currently_executing_script_unit == -1);
 
-    for (unsigned int i = 0; i < mod->GetGlobalVarCount(); i++)
+    String module_name = this->composeModuleName(scriptName, category);
+    if (module_name == "")
+        return;
+
+    for (size_t i = 0; i < m_script_units.size(); i++)
     {
-        const char *name = mod->GetGlobalVarDeclaration(i);
-        result.push_back(String(name));
-    }
-
-    for (unsigned int i = 0; i < mod->GetFunctionCount(); i++)
-    {
-        AngelScript::asIScriptFunction *desc = mod->GetFunctionByIndex(i);
-        result.push_back(String(desc->GetName()));
-    }
-
-
-    for (unsigned int i = 0; i < engine->GetGlobalPropertyCount(); i++)
-    {
-        const char *name;
-
-        if (!engine->GetGlobalPropertyByIndex(i, &name))
+        if (m_script_units[i].scriptModule->GetName() == module_name)
         {
-            result.push_back(String(name));
-        }
-
-    }
-
-    if (!command.empty())
-    {
-        StringVector res2;
-        // now check if we hit anything
-        for (unsigned int i = 0; i < result.size(); i++)
-        {
-            if (result[i].substr(0, command.size()) == command)
+            m_script_units.erase(m_script_units.begin() + i);
+            if (i == (size_t)m_terrain_script_unit)
             {
-                res2.push_back(result[i]);
+                m_terrain_script_unit = -1;
             }
         }
-
-        if (command.find(".") != command.npos)
-        {
-            // oh, property of an object D:
-            // TODO
-        }
-
-        // give out filtered result
-        return res2;
     }
-
-    return result;
 }
 
 void ScriptEngine::activateLogging()
