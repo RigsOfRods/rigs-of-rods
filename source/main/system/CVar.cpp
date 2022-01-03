@@ -41,6 +41,7 @@ void Console::cVarSetupBuiltins()
     App::app_force_cache_update  = this->cVarCreate("app_force_cache_update",  "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::app_disable_online_api  = this->cVarCreate("app_disable_online_api",  "Disable Online API",         CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::app_config_long_names   = this->cVarCreate("app_config_long_names",   "Config uses long names",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
+    App::app_custom_scripts      = this->cVarCreate("app_custom_scripts",      "",                           CVAR_ARCHIVE,                     "");
 
     App::sim_state               = this->cVarCreate("sim_state",               "",                                          CVAR_TYPE_INT,     "0"/*(int)SimState::OFF*/);
     App::sim_terrain_name        = this->cVarCreate("sim_terrain_name",        "",                           0);
@@ -117,6 +118,7 @@ void Console::cVarSetupBuiltins()
     App::cli_preset_veh_enter    = this->cVarCreate("cli_preset_veh_enter",    "",                                          CVAR_TYPE_BOOL,    "false");
     App::cli_force_cache_update  = this->cVarCreate("cli_force_cache_update",  "",                                          CVAR_TYPE_BOOL,    "false");
     App::cli_resume_autosave     = this->cVarCreate("cli_resume_autosave",     "",                                          CVAR_TYPE_BOOL,    "false");
+    App::cli_custom_scripts      = this->cVarCreate("cli_custom_scripts",      "",                           0,                                "");
 
     App::io_analog_smoothing     = this->cVarCreate("io_analog_smoothing",     "Analog Input Smoothing",     CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
     App::io_analog_sensitivity   = this->cVarCreate("io_analog_sensitivity",   "Analog Input Sensitivity",   CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");

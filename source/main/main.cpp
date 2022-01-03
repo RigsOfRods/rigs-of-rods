@@ -168,6 +168,7 @@ int main(int argc, char *argv[])
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::WALLPAPERS);
+        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
 
 #ifndef NOLANG
         App::GetLanguageEngine()->setup();
@@ -214,6 +215,26 @@ int main(int argc, char *argv[])
         else
         {
             App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_LOAD_REQUESTED));
+        }
+
+        // Load startup scripts (console, then RoR.cfg)
+        if (App::cli_custom_scripts->getStr() != "")
+        {
+            Ogre::StringVector script_names = Ogre::StringUtil::split(App::cli_custom_scripts->getStr(), ",");
+            for (Ogre::String const& scriptname: script_names)
+            {
+                LOG(fmt::format("Loading startup script '{}' (from command line)", scriptname));
+                App::GetScriptEngine()->loadScript(scriptname); // errors are logged by OGRE + AngelScript
+            }
+        }
+        if (App::app_custom_scripts->getStr() != "")
+        {
+            Ogre::StringVector script_names = Ogre::StringUtil::split(App::app_custom_scripts->getStr(), ",");
+            for (Ogre::String const& scriptname: script_names)
+            {
+                LOG(fmt::format("Loading startup script '{}' (from config file)", scriptname));
+                App::GetScriptEngine()->loadScript(scriptname); // errors are logged by OGRE + AngelScript
+            }
         }
 
         // Handle game state presets
@@ -899,10 +920,7 @@ int main(int argc, char *argv[])
 #endif // USE_OPENAL
 
 #ifdef USE_ANGELSCRIPT
-            if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
-            {
-                App::GetScriptEngine()->framestep(dt);
-            }
+            App::GetScriptEngine()->framestep(dt);
 #endif // USE_ANGELSCRIPT
 
             if (App::io_ffb_enabled->getBool() &&

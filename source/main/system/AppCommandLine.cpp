@@ -44,6 +44,7 @@ enum {
     OPT_RESUME,
     OPT_CHECKCACHE,
     OPT_TRUCKCONFIG,
+    OPT_RUNSCRIPT,
     OPT_ENTERTRUCK,
     OPT_JOINMPSERVER
 };
@@ -56,6 +57,7 @@ CSimpleOpt::SOption cmdline_options[] = {
     { OPT_ROT,            ("-rot"),         SO_REQ_SEP },
     { OPT_TRUCK,          ("-truck"),       SO_REQ_SEP },
     { OPT_TRUCKCONFIG,    ("-truckconfig"), SO_REQ_SEP },
+    { OPT_RUNSCRIPT,      ("-runscript"),   SO_REQ_SEP },
     { OPT_ENTERTRUCK,     ("-enter"),       SO_NONE    },
     { OPT_HELP,           ("--help"),       SO_NONE    },
     { OPT_HELP,           ("-help"),        SO_NONE    },
@@ -94,6 +96,19 @@ void Console::processCommandLine(int argc, char *argv[])
         else if (args.OptionId() == OPT_TRUCKCONFIG)
         {
             App::cli_preset_veh_config->setStr(args.OptionArg());
+        }
+        else if (args.OptionId() == OPT_RUNSCRIPT)
+        {
+            // Append to startup script list cvar, separate by ','
+            if (App::cli_custom_scripts->getStr() == "")
+            {
+                App::cli_custom_scripts->setStr(args.OptionArg());
+            }
+            else
+            {
+                App::cli_custom_scripts->setStr(
+                    fmt::format("{},{}", App::cli_custom_scripts->getStr(), args.OptionArg()));
+            }
         }
         else if (args.OptionId() == OPT_MAP)
         {
@@ -159,6 +174,7 @@ void Console::showCommandLineUsage()
             "-checkcache forces cache update"                       "\n"
             "-version shows the version information"                "\n"
             "-joinserver=<server>:<port> (join multiplayer server)" "\n"
+            "-runscript <filename> (load script, can be repeated)"  "\n"
             "For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck -enter"));
 }
 

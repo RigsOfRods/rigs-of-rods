@@ -385,7 +385,6 @@ void ContentManager::LoadGameplayResources()
         this->AddResourcePack(ContentManager::ResourcePack::MESHES);
         this->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);
         this->AddResourcePack(ContentManager::ResourcePack::PARTICLES);
-        this->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
 
         m_base_resource_loaded = true;
     }
