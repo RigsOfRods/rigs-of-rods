@@ -7,6 +7,8 @@
     This program showcases all the various things you can do using scripting:
      * Use DearIMGUI to draw UI of any kind, including diagnostic views.
      * Collect and show stats (i.e. frame count, total time)
+     * Read/Write cvars (RoR.cfg values, cli args, game state...)
+     * View and update game state (current vehicle...)
      
     There are 3 ways of invoking a script:
      1. By defining it with terrain, see terrn2 fileformat, section '[Scripts]':
@@ -30,8 +32,11 @@
     ---------------------------------------------------------------------------
     Global variables
 */
-int   g_total_frames;
-float g_total_seconds;
+int         g_total_frames = 0;
+float       g_total_seconds = 0;
+CVarClass@  g_app_state = console.cVarFind("app_state"); // 0=bootstrap, 1=main menu, 2=simulation, see AppState in Application.h
+CVarClass@  g_sim_state = console.cVarFind("sim_state"); // 0=off, 1=running, 2=paused, 3=terrain editor, see SimState in Application.h
+CVarClass@  g_mp_state = console.cVarFind("mp_state"); // 0=disabled, 1=connecting, 2=connected, see MpState in Application.h
 
 /*
     ---------------------------------------------------------------------------
@@ -39,9 +44,7 @@ float g_total_seconds;
 */
 void main()
 {
-    log("demo_script: invoked `main()`");
-    g_total_frames = 0;
-    g_total_seconds = 0;
+    log("Hello Rigs of Rods!");
 }
 
 /*
@@ -52,14 +55,51 @@ void main()
 void frameStep(float dt)
 {
     // Open demo window
+    ImGui::SetNextWindowSize(vector2(300, 150));
     ImGui::Begin("Demo Script", /*open:*/true, /*flags:*/0);
     
     // show some stats
-    ImGui::TextDisabled("-- Example stats --");
     ImGui::Text("Total frames: " + g_total_frames);
-    int minutes = g_total_seconds / 60;
-    int seconds = g_total_seconds % 60;
-    ImGui::Text("Total time: " + minutes + "min, " + seconds + "sec");
+    ImGui::Text("Total time: " + int(g_total_seconds / 60) + "min, " 
+                               + int(g_total_seconds % 60) + "sec");
+    
+    // Show some game context
+    if (g_app_state.getInt() == 1)
+    {
+        ImGui::Text("Game state: main menu");
+    }
+    else
+    {
+        if (g_mp_state.getInt() == 2)
+        {
+            ImGui::Text("Game state: multiplayer");
+        }
+        else
+        {
+            ImGui::Text("Game state: single player");
+        }
+        
+        if (g_sim_state.getInt() == 2)
+        {
+            ImGui::SameLine();
+            ImGui::Text("(paused)");
+        }
+        else if (g_sim_state.getInt() == 3)
+        {
+            ImGui::SameLine();
+            ImGui::Text("(terrain edit)");
+        }
+        
+        BeamClass@ actor = game.getCurrentTruck();
+        if (actor != null)
+        {
+            ImGui::Text("You are driving " + actor.getTruckName());
+        }
+        else
+        {
+            ImGui::Text("You are on foot");
+        }        
+    }
     
     // End window
     ImGui::End();
