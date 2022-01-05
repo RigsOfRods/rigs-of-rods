@@ -208,6 +208,9 @@ void RegisterOgreObjects(AngelScript::asIScriptEngine* engine);
 
 void RegisterImGuiBindings(AngelScript::asIScriptEngine* engine);
 
+/// Registers RoR::InputEngine, defined in InputEngineAngelscript.cpp
+void registerInputEngine(AngelScript::asIScriptEngine* engine);
+
 } // namespace RoR
 
 #else // USE_ANGELSCRIPT

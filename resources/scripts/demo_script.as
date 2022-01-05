@@ -37,6 +37,7 @@ float       g_total_seconds = 0;
 CVarClass@  g_app_state = console.cVarFind("app_state"); // 0=bootstrap, 1=main menu, 2=simulation, see AppState in Application.h
 CVarClass@  g_sim_state = console.cVarFind("sim_state"); // 0=off, 1=running, 2=paused, 3=terrain editor, see SimState in Application.h
 CVarClass@  g_mp_state = console.cVarFind("mp_state"); // 0=disabled, 1=connecting, 2=connected, see MpState in Application.h
+CVarClass@  g_io_arcade_controls = console.cVarFind("io_arcade_controls"); // bool
 
 /*
     ---------------------------------------------------------------------------
@@ -55,7 +56,7 @@ void main()
 void frameStep(float dt)
 {
     // Open demo window
-    ImGui::SetNextWindowSize(vector2(300, 150));
+    ImGui::SetNextWindowSize(vector2(400, 320));
     ImGui::Begin("Demo Script", /*open:*/true, /*flags:*/0);
     
     // show some stats
@@ -64,11 +65,14 @@ void frameStep(float dt)
                                + int(g_total_seconds % 60) + "sec");
     
     // Show some game context
-    if (g_app_state.getInt() == 1)
+    if (g_app_state.getInt() == 1) // main menu
     {
         ImGui::Text("Game state: main menu");
+        ImGui::Text("Pro tip: Press '"
+            + inputs.getEventCommandTrimmed(EV_COMMON_CONSOLE_TOGGLE)
+            + "' to open console anytime.");
     }
-    else
+    else if (g_app_state.getInt() == 2) // simulation
     {
         if (g_mp_state.getInt() == 2)
         {
@@ -90,15 +94,61 @@ void frameStep(float dt)
             ImGui::Text("(terrain edit)");
         }
         
+        ImGui::TextDisabled("Camera controls:");
+        ImGui::Text("Change camera: " + inputs.getEventCommandTrimmed(EV_CAMERA_CHANGE));
+        ImGui::Text("Toggle free camera: " + inputs.getEventCommandTrimmed(EV_CAMERA_FREE_MODE));
+        ImGui::Text("Toggle fixed camera: " + inputs.getEventCommandTrimmed(EV_CAMERA_FREE_MODE_FIX));              
+        
         BeamClass@ actor = game.getCurrentTruck();
         if (actor != null)
         {
             ImGui::Text("You are driving " + actor.getTruckName());
+            ImGui::TextDisabled("Vehicle controls:");
+
+            ImGui::Text("Accelerate/Brake: "
+                + inputs.getEventCommandTrimmed(EV_TRUCK_ACCELERATE) + "/"
+                + inputs.getEventCommandTrimmed(EV_TRUCK_BRAKE));
+            if (g_io_arcade_controls.getBool() == true)
+            {
+                ImGui::Text("Arcade controls are enabled (?)");
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::BeginTooltip();
+                    ImGui::Text("'brake' key also accelerates in reverse.");
+                    ImGui::Text("You can change the setting in main menu / settings / gameplay.");
+                    ImGui::EndTooltip();
+                }
+            }
+            else
+            {
+                ImGui::Text("Arcade controls are disabled (?)");
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::BeginTooltip();
+                    ImGui::Text("'brake' key only brakes, to accelerate in reverse use 'accelerate' key.");
+                    ImGui::Text("You can change the setting in main menu / settings / gameplay.");
+                    ImGui::EndTooltip();
+                }
+            }
+            
+            ImGui::Text("Steer left/right: "
+                + inputs.getEventCommandTrimmed(EV_TRUCK_STEER_LEFT) + "/"
+                + inputs.getEventCommandTrimmed(EV_TRUCK_STEER_RIGHT));            
+            
         }
         else
         {
             ImGui::Text("You are on foot");
-        }        
+            ImGui::TextDisabled("Character controls:");
+            ImGui::Text("Forward/Backward: "
+                + inputs.getEventCommandTrimmed(EV_CHARACTER_FORWARD) + "/"
+                + inputs.getEventCommandTrimmed(EV_CHARACTER_BACKWARDS));
+            ImGui::Text("Turn left/right: "
+                + inputs.getEventCommandTrimmed(EV_CHARACTER_LEFT) + "/"
+                + inputs.getEventCommandTrimmed(EV_CHARACTER_RIGHT));
+            ImGui::Text("Run: " + inputs.getEventCommandTrimmed(EV_CHARACTER_RUN));
+        }
+        
     }
     
     // End window
