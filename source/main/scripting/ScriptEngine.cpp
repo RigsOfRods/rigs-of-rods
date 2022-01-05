@@ -53,6 +53,8 @@
 #include "ScriptEvents.h"
 #include "VehicleAI.h"
 
+#include "InputEngine.h"
+
 using namespace Ogre;
 using namespace RoR;
 
@@ -136,6 +138,8 @@ void ScriptEngine::init()
     // This needs to be done after the registration of the ogre objects!
     registerLocalStorage(engine);
 
+    registerInputEngine(engine);
+
     RegisterImGuiBindings(engine);
 
     // some useful global functions
@@ -167,10 +171,6 @@ void ScriptEngine::init()
     result = engine->RegisterObjectBehaviour("VehicleAIClass", AngelScript::asBEHAVE_ADDREF, "void f()", AngelScript::asMETHOD(VehicleAI, addRef), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectBehaviour("VehicleAIClass", AngelScript::asBEHAVE_RELEASE, "void f()", AngelScript::asMETHOD(VehicleAI, release), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
-
-
-    // Register everything
-
     // class CVar
     result = engine->RegisterObjectType("CVarClass", sizeof(Console), AngelScript::asOBJ_REF | AngelScript::asOBJ_NOCOUNT); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("CVarClass", "const string& getName()", AngelScript::asMETHOD(CVar,getName), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
@@ -194,7 +194,6 @@ void ScriptEngine::init()
     result = engine->RegisterObjectMethod("ConsoleClass", "CVarClass @cVarGet(const string &in, int)", AngelScript::asMETHOD(Console,cVarGet), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("ConsoleClass", "CVarClass @cVarSet(const string &in, const string &in)", AngelScript::asMETHOD(Console,cVarSet), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("ConsoleClass", "void cVarAssign(CVarClass@, const string &in)", AngelScript::asMETHOD(Console,cVarAssign), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
-
 
     // class Actor (historically Beam)
     result = engine->RegisterObjectType("BeamClass", sizeof(Actor), AngelScript::asOBJ_REF); ROR_ASSERT(result>=0);
@@ -385,7 +384,7 @@ void ScriptEngine::init()
     // now the global instances
     result = engine->RegisterGlobalProperty("GameScriptClass game", &m_game_script); ROR_ASSERT(result>=0);
     result = engine->RegisterGlobalProperty("ConsoleClass console", App::GetConsole()); ROR_ASSERT(result>=0);
-
+    result = engine->RegisterGlobalProperty("InputEngineClass inputs", App::GetInputEngine()); ROR_ASSERT(result>=0);
 
     SLOG("Type registrations done. If you see no error above everything should be working");
 

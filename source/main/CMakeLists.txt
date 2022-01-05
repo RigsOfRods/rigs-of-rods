@@ -227,6 +227,7 @@ if (USE_ANGELSCRIPT)
             scripting/LocalStorage.{h,cpp}
             scripting/OgreAngelscript.cpp
             scripting/ImGuiAngelscript.cpp
+            scripting/InputEngineAngelscript.cpp
             scripting/OgreScriptBuilder.{h,cpp}
             scripting/ScriptEngine.{h,cpp}
             )

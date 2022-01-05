@@ -187,11 +187,11 @@ int main(int argc, char *argv[])
 
         App::GetDiscordRpc()->Init();
 
+        App::GetAppContext()->SetUpInput();
+
 #ifdef USE_ANGELSCRIPT
         App::CreateScriptEngine();
 #endif
-
-        App::GetAppContext()->SetUpInput();
 
         App::GetGuiManager()->SetUpMenuWallpaper();
 
