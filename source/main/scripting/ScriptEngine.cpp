@@ -762,18 +762,52 @@ String ScriptEngine::composeModuleName(String const& scriptName, ScriptCategory 
 
 int ScriptEngine::loadScript(String scriptName, ScriptCategory category/* = ScriptCategory::TERRAIN*/)
 {
-    String moduleName = this->composeModuleName(scriptName, category);
+    // This function creates a new script unit, tries to set it up and removes it if setup fails.
+    // -----------------------------------------------------------------------------------------
+    // A script unit is how Rigs of Rods organizes scripts from various sources.
+    // Because the script is executed during loading, it's wrapping unit must
+    // be created early, and removed if setup fails.
+    int unit_id = (int)m_script_units.size();
+    m_script_units.resize(m_script_units.size() + 1);
+    m_script_units[unit_id].scriptName = scriptName;
+    m_script_units[unit_id].scriptCategory = category;
+    if (category == ScriptCategory::TERRAIN)
+    {
+        m_terrain_script_unit = (int)m_script_units.size() - 1;
+    }    
+
+    // Perform the actual script loading, building and running main().
+    int result = this->setupScriptUnit(unit_id);
+
+    // If setup failed, remove the unit.
+    if (result != 0)
+    {
+        m_script_units.pop_back();
+        if (category == ScriptCategory::TERRAIN)
+        {
+            m_terrain_script_unit = -1;
+        } 
+    }
+
+    return result;
+}
+
+int ScriptEngine::setupScriptUnit(int unit_id)
+{
+    int result=0;
+
+    String moduleName = this->composeModuleName(
+        m_script_units[unit_id].scriptName, m_script_units[unit_id].scriptCategory);
     if (moduleName == "")
         return -1;
-
-    // Load the entire script file into the buffer
-    int result=0;
 
     // The builder is a helper class that will load the script file,
     // search for #include directives, and load any included files as
     // well.
     OgreScriptBuilder builder;
 
+    // A script module is how AngelScript organizes scripts.
+    // It contains the script loaded by user plus all `#include`-d scripts.
     result = builder.StartNewModule(engine, moduleName.c_str());
     if ( result < 0 )
     {
@@ -781,19 +815,24 @@ int ScriptEngine::loadScript(String scriptName, ScriptCategory category/* = Scri
             fmt::format("Could not load script '{}' - failed to create module.", moduleName));
         return result;
     }
+    m_script_units[unit_id].scriptModule = engine->GetModule(moduleName.c_str(), AngelScript::asGM_ONLY_IF_EXISTS);
 
-    ScriptUnit newUnit;
-
-    newUnit.scriptModule = engine->GetModule(moduleName.c_str(), AngelScript::asGM_ONLY_IF_EXISTS);
-
-    result = builder.AddSectionFromFile(scriptName.c_str());
+    // Load the script from the file system.
+    result = builder.AddSectionFromFile(m_script_units[unit_id].scriptName.c_str());
     if ( result < 0 )
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
             fmt::format("Could not load script '{}' - failed to process file.", moduleName));
         return result;
     }
+
+    // Build the AngelScript module - this loads `#include`-d scripts
+    // and runs any global statements, for example constructors of
+    // global objects like raceManager in 'races.as'. For this reason,
+    // the game must already be aware of the script, but only temporarily.
+    m_currently_executing_script_unit = unit_id; // for `BuildModule()` below.
     result = builder.BuildModule();
+    m_currently_executing_script_unit = -1; // Tidy up.
     if ( result < 0 )
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
@@ -802,18 +841,18 @@ int ScriptEngine::loadScript(String scriptName, ScriptCategory category/* = Scri
     }
 
     String scriptHash;
-    if (category == ScriptCategory::TERRAIN) // Classic behavior
+    if (m_script_units[unit_id].scriptCategory == ScriptCategory::TERRAIN) // Classic behavior
         scriptHash = builder.GetHash();
 
     // get some other optional functions
-    newUnit.frameStepFunctionPtr = newUnit.scriptModule->GetFunctionByDecl("void frameStep(float)");
+    m_script_units[unit_id].frameStepFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void frameStep(float)");
 
-    newUnit.eventCallbackFunctionPtr = newUnit.scriptModule->GetFunctionByDecl("void eventCallback(int, int)");
+    m_script_units[unit_id].eventCallbackFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void eventCallback(int, int)");
 
-    newUnit.defaultEventCallbackFunctionPtr = newUnit.scriptModule->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)");
+    m_script_units[unit_id].defaultEventCallbackFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)");
 
     // Find the function that is to be called.
-    auto main_func = newUnit.scriptModule->GetFunctionByDecl("void main()");
+    auto main_func = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void main()");
     if ( main_func == nullptr )
     {
         // The function couldn't be found. Instruct the script writer to include the
@@ -837,11 +876,12 @@ int ScriptEngine::loadScript(String scriptName, ScriptCategory category/* = Scri
         return -1;
     }
 
-    SLOG("Executing main()");
-    m_script_units.push_back(newUnit); // temporary, so we can set it as "currently executing"
-    m_currently_executing_script_unit = (int)m_script_units.size() - 1;
+    // Execute the `main()` function in the script.
+    // The function must have full access to the game API.
+    SLOG(fmt::format("Executing main() in {}", moduleName));
+    m_currently_executing_script_unit = unit_id; // for `Execute()` below.
     result = context->Execute();
-    m_currently_executing_script_unit = -1;
+    m_currently_executing_script_unit = -1; // Tidy up.
     if ( result != AngelScript::asEXECUTION_FINISHED )
     {
         // The execution didn't complete as expected. Determine what happened.
@@ -852,7 +892,9 @@ int ScriptEngine::loadScript(String scriptName, ScriptCategory category/* = Scri
         else if ( result == AngelScript::asEXECUTION_EXCEPTION )
         {
             // An exception occurred, let the script writer know what happened so it can be corrected.
-            SLOG("An exception '" + String(context->GetExceptionString()) + "' occurred. Please correct the code in file '" + scriptName + "' and try again.");
+            SLOG("An exception '" + String(context->GetExceptionString()) 
+            + "' occurred. Please correct the code in file '" 
+            + m_script_units[unit_id].scriptName + "' and try again.");
 
             // Write some information about the script exception
             AngelScript::asIScriptFunction* func = context->GetExceptionFunction();
@@ -869,19 +911,10 @@ int ScriptEngine::loadScript(String scriptName, ScriptCategory category/* = Scri
 
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
             fmt::format("Could not load script '{}' - error running function `main()`, check AngelScript.log", moduleName));
-
-        // Unregister
-        m_script_units.pop_back();
     }
     else
     {
         SLOG("The script finished successfully.");
-
-        // Complete registration
-        if (category == ScriptCategory::TERRAIN)
-        {
-            m_terrain_script_unit = (int)m_script_units.size() - 1;
-        }
     }
 
     return 0;

@@ -180,6 +180,12 @@ protected:
 
     Ogre::String composeModuleName(Ogre::String const& scriptName, ScriptCategory origin);
 
+    /**
+    * Helper for `loadScript()`, does the actual building without worry about unit management.
+    * @return 0 on success, anything else on error.
+    */
+    int setupScriptUnit(int unit_id);
+
     AngelScript::asIScriptEngine* engine; //!< instance of the scripting engine
     AngelScript::asIScriptContext* context; //!< context in which all scripting happens
     Ogre::Log*      scriptLog;

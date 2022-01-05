@@ -224,7 +224,8 @@ int main(int argc, char *argv[])
             for (Ogre::String const& scriptname: script_names)
             {
                 LOG(fmt::format("Loading startup script '{}' (from command line)", scriptname));
-                App::GetScriptEngine()->loadScript(scriptname); // errors are logged by OGRE + AngelScript
+                App::GetScriptEngine()->loadScript(scriptname, ScriptCategory::CUSTOM);
+                // errors are logged by OGRE & AngelScript
             }
         }
         if (App::app_custom_scripts->getStr() != "")
@@ -233,7 +234,8 @@ int main(int argc, char *argv[])
             for (Ogre::String const& scriptname: script_names)
             {
                 LOG(fmt::format("Loading startup script '{}' (from config file)", scriptname));
-                App::GetScriptEngine()->loadScript(scriptname); // errors are logged by OGRE + AngelScript
+                App::GetScriptEngine()->loadScript(scriptname, ScriptCategory::CUSTOM);
+                // errors are logged by OGRE & AngelScript
             }
         }
 
