@@ -7,13 +7,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2022-01-17 08:53+0000\n"
+"Last-Translator: Olexii Ondrei <oleksiionoinen@gmail.com>\n"
+"Language-Team: Karelian <https://hosted.weblate.org/projects/rigs-of-rods/"
+"game/krl/>\n"
 "Language: krl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.10.1\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -54,7 +57,7 @@ msgstr ""
 
 #: GameContext.cpp:559
 msgid "Please clear the place first"
-msgstr ""
+msgstr "Ole hüvä, enzimäi puhassa tämä sija"
 
 #: GameContext.cpp:849
 msgid "Enabled hard reset mode"
@@ -66,7 +69,7 @@ msgstr ""
 
 #: GameContext.cpp:1006
 msgid "Time set to "
-msgstr ""
+msgstr "Aiga, azetettu "
 
 #: GameContext.cpp:1148
 msgid "No rescue truck found!"
@@ -118,11 +121,11 @@ msgstr ""
 
 #: gfx/camera/CameraManager.cpp:384
 msgid "Free camera"
-msgstr ""
+msgstr "Ilmaine kuvakoneh"
 
 #: gfx/camera/CameraManager.cpp:389
 msgid "Fixed camera"
-msgstr ""
+msgstr "Azetettu kuvakoneh"
 
 #: gfx/camera/CameraManager.cpp:863
 msgid "Limited camera movement enabled"
@@ -234,7 +237,7 @@ msgstr ""
 #: gui/panels/GUI_ConsoleView.cpp:242
 msgctxt "Console"
 msgid "Warnings"
-msgstr ""
+msgstr "Varotus"
 
 #: gui/panels/GUI_ConsoleView.cpp:243
 msgctxt "Console"
