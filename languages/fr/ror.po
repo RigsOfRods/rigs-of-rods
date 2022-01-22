@@ -6,13 +6,14 @@
 # Antoni A. <antoni.andric@gmail.com>, 2015-2016,2018-2019, 2021.
 # WillyB <superwillie911@hotmail.com>, 2021.
 # J. Lavoie <j.lavoie@net-c.ca>, 2021.
+# Maxime Leroy <lisacintosh@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
-"PO-Revision-Date: 2021-01-30 02:32+0000\n"
-"Last-Translator: Antoni A. <antoni.andric@gmail.com>\n"
+"PO-Revision-Date: 2022-01-23 11:52+0000\n"
+"Last-Translator: Maxime Leroy <lisacintosh@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
 "Language: fr\n"
@@ -20,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.5-dev\n"
+"X-Generator: Weblate 4.11-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -733,12 +734,12 @@ msgstr "utilisation : /whisper nom d'utilisateur message"
 #: gui/panels/GUI_GameControls.cpp:64
 msgctxt "GameControls"
 msgid "Press a new key"
-msgstr ""
+msgstr "Pressez une nouvelle touche"
 
 #: gui/panels/GUI_GameControls.cpp:73
 msgctxt "GameControls"
 msgid "EXPL"
-msgstr ""
+msgstr "EXPL"
 
 #: gui/panels/GUI_GameControls.cpp:82
 msgctxt "GameControls"
@@ -801,7 +802,7 @@ msgstr "Annuler"
 #: gui/panels/GUI_GameControls.cpp:268
 msgctxt "GameSettings"
 msgid "Delete"
-msgstr ""
+msgstr "Supprimer"
 
 #: gui/panels/GUI_GameControls.cpp:398
 msgctxt "GameSettings"
@@ -1670,7 +1671,7 @@ msgstr "Annuler"
 #: gui/panels/GUI_MessageBox.cpp:109
 msgctxt "MessageBox"
 msgid "Always ask"
-msgstr ""
+msgstr "Toujours demander"
 
 #. TextDisabled() are captions, Text() are values
 #: gui/panels/GUI_MultiplayerClientList.cpp:136
@@ -2497,12 +2498,12 @@ msgstr "Temps du jour"
 #: gui/panels/GUI_TopMenubar.cpp:483
 msgctxt "TopMenubar"
 msgid "Cycle"
-msgstr ""
+msgstr "Vélo"
 
 #: gui/panels/GUI_TopMenubar.cpp:486
 msgctxt "TopMenubar"
 msgid "Speed"
-msgstr ""
+msgstr "Vitesse"
 
 #: gui/panels/GUI_TopMenubar.cpp:495
 #, fuzzy
@@ -2763,7 +2764,7 @@ msgstr "Cacher les informations des roues"
 #: gui/panels/GUI_TopMenubar.cpp:798
 msgctxt "TopMenubar"
 msgid "None spawned yet"
-msgstr ""
+msgstr "Pas encore apparu"
 
 #: gui/panels/GUI_TopMenubar.cpp:799
 #, fuzzy
@@ -3281,9 +3282,10 @@ msgid "Other Land Vehicles"
 msgstr ""
 
 #: resources/CacheSystem.h:259
+#, fuzzy
 msgctxt "ModCategory"
 msgid "Street Cars"
-msgstr ""
+msgstr "Voitures de ville"
 
 #: resources/CacheSystem.h:260
 msgctxt "ModCategory"
@@ -3293,7 +3295,7 @@ msgstr ""
 #: resources/CacheSystem.h:261
 msgctxt "ModCategory"
 msgid "Offroad Cars"
-msgstr ""
+msgstr "Voitures tous terrains"
 
 #: resources/CacheSystem.h:262
 msgctxt "ModCategory"
@@ -3303,7 +3305,7 @@ msgstr ""
 #: resources/CacheSystem.h:263
 msgctxt "ModCategory"
 msgid "Bikes"
-msgstr ""
+msgstr "Vélos"
 
 #: resources/CacheSystem.h:264
 msgctxt "ModCategory"
@@ -3328,7 +3330,7 @@ msgstr ""
 #: resources/CacheSystem.h:270
 msgctxt "ModCategory"
 msgid "Buses"
-msgstr ""
+msgstr "Bus"
 
 #: resources/CacheSystem.h:271
 #, fuzzy
@@ -3351,7 +3353,7 @@ msgstr ""
 #: resources/CacheSystem.h:274
 msgctxt "ModCategory"
 msgid "Transport Trucks"
-msgstr ""
+msgstr "Camions de transport"
 
 #: resources/CacheSystem.h:275
 #, fuzzy
@@ -3378,7 +3380,7 @@ msgstr "Bateau"
 #: resources/CacheSystem.h:280
 msgctxt "ModCategory"
 msgid "Helicopters"
-msgstr ""
+msgstr "Hélicoptères"
 
 #: resources/CacheSystem.h:281
 msgctxt "ModCategory"
@@ -3407,12 +3409,12 @@ msgstr "Terrain"
 #: resources/CacheSystem.h:289
 msgctxt "ModCategory"
 msgid "Container"
-msgstr ""
+msgstr "Conteneur"
 
 #: resources/CacheSystem.h:291
 msgctxt "ModCategory"
 msgid "Submarine"
-msgstr ""
+msgstr "Sous-marin"
 
 #. note: these categories are NOT in the repository:
 #: resources/CacheSystem.h:294
@@ -3449,7 +3451,7 @@ msgstr ""
 #: resources/CacheSystem.h:301
 msgctxt "ModCategory"
 msgid "Hidden"
-msgstr ""
+msgstr "Masqué"
 
 #: scripting/GameScript.cpp:771
 msgid "using Online API..."
