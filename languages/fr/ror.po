@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
-"PO-Revision-Date: 2022-01-23 22:40+0000\n"
-"Last-Translator: Maxime Leroy <lisacintosh@gmail.com>\n"
+"PO-Revision-Date: 2022-01-23 22:41+0000\n"
+"Last-Translator: Xploder98 <xploder9825@yandex.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
 "Language: fr\n"
@@ -1945,12 +1945,9 @@ msgid "Continue searching"
 msgstr "Poursuivre la recherche"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
-#, fuzzy
-#| msgctxt "Network"
-#| msgid "Starting..."
 msgctxt "NodeBeamUtils"
 msgid "Start searching"
-msgstr "Démarrage..."
+msgstr "Commence à rechercher"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
