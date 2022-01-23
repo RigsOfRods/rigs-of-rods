@@ -8,13 +8,14 @@
 # J. Lavoie <j.lavoie@net-c.ca>, 2021.
 # Maxime Leroy <lisacintosh@gmail.com>, 2022.
 # MeblIkea <salulespotos@gmail.com>, 2022.
+# Xploder98 <xploder9825@yandex.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
 "PO-Revision-Date: 2022-01-23 22:39+0000\n"
-"Last-Translator: MeblIkea <salulespotos@gmail.com>\n"
+"Last-Translator: Xploder98 <xploder9825@yandex.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
 "Language: fr\n"
@@ -1068,11 +1069,9 @@ msgid "Video settings"
 msgstr "Paramètres vidéo"
 
 #: gui/panels/GUI_GameSettings.cpp:307
-#, fuzzy
-#| msgid "No light sources"
 msgctxt "GameSettings"
 msgid "Light sources"
-msgstr "Aucune sources de lumière"
+msgstr "Sources de lumière"
 
 #: gui/panels/GUI_GameSettings.cpp:314
 msgctxt "GameSettings"
