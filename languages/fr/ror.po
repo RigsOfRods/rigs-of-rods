@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
 "PO-Revision-Date: 2022-01-23 22:40+0000\n"
-"Last-Translator: Xploder98 <xploder9825@yandex.com>\n"
+"Last-Translator: Maxime Leroy <lisacintosh@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
 "Language: fr\n"
@@ -1894,21 +1894,17 @@ msgstr "Masse totale"
 #| msgid "Beams: "
 msgctxt "NodeBeamUtils"
 msgid "Beams:"
-msgstr "Poutres: "
+msgstr "Poutres :"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:66
-#, fuzzy
-#| msgid "Shocks: "
 msgctxt "NodeBeamUtils"
 msgid "Shocks:"
-msgstr "Suspensions: "
+msgstr "Suspensions :"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:76
-#, fuzzy
-#| msgid "Wheels: "
 msgctxt "NodeBeamUtils"
 msgid "Wheels:"
-msgstr "Roues: "
+msgstr "Roues :"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:87
 #, fuzzy
