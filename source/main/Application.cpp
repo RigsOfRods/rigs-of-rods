@@ -118,6 +118,7 @@ CVar* mp_server_password;
 CVar* mp_player_name;
 CVar* mp_player_token;
 CVar* mp_api_url;
+CVar* mp_truck_hash_check;
 
 // Diagnostic
 CVar* diag_auto_spawner_report;

@@ -28,7 +28,7 @@ namespace RoRnet {
 #define RORNET_LAN_BROADCAST_PORT   13000  //!< port used to send the broadcast announcement in LAN mode
 #define RORNET_MAX_USERNAME_LEN     40     //!< port used to send the broadcast announcement in LAN mode
 
-#define RORNET_VERSION              "RoRnet_2.43"
+#define RORNET_VERSION              "RoRnet_2.44"
 
 enum MessageType
 {
@@ -142,6 +142,7 @@ struct ActorStreamRegister
     int32_t origin_sourceid;       //!< origin sourceid
     int32_t origin_streamid;       //!< origin streamid
     char    name[128];             //!< filename
+    char    hash[21];              //!< SHA1 file checksum, for tampering detection
     int32_t bufferSize;            //!< initial stream status
     int32_t time;                  //!< initial time stamp
     char    skin[60];              //!< skin

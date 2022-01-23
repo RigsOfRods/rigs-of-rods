@@ -1870,6 +1870,7 @@ void Actor::sendStreamSetup()
     reg.type = 0;
     reg.time = App::GetGameContext()->GetActorManager()->GetNetTime();
     strncpy(reg.name, ar_filename.c_str(), 128);
+    strncpy(reg.hash, ar_filehash.c_str(), 20);
     if (m_used_skin_entry != nullptr)
     {
         strncpy(reg.skin, m_used_skin_entry->dname.c_str(), 60);

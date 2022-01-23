@@ -411,33 +411,60 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
                     }
                     else
                     {
+                        // We have the file in local mod cache, proceed.
                         auto actor_reg = reinterpret_cast<RoRnet::ActorStreamRegister*>(reg);
-                        if (m_stream_time_offsets.find(reg->origin_sourceid) == m_stream_time_offsets.end())
-                        {
-                            int offset = actor_reg->time - m_net_timer.getMilliseconds();
-                            m_stream_time_offsets[reg->origin_sourceid] = offset - 100;
-                        }
-                        ActorSpawnRequest* rq = new ActorSpawnRequest;
-                        rq->asr_origin = ActorSpawnRequest::Origin::NETWORK;
-                        // TODO: Look up cache entry early (eliminate asr_filename) and fetch skin by name+guid! ~ 03/2019
-                        rq->asr_filename = filename;
-                        if (strnlen(actor_reg->skin, 60) < 60 && actor_reg->skin[0] != '\0')
-                        {
-                            rq->asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin);
-                        }
-                        if (strnlen(actor_reg->sectionconfig, 60) < 60)
-                        {
-                            rq->asr_config = actor_reg->sectionconfig;
-                        }
-                        rq->asr_net_username = tryConvertUTF(info.username);
-                        rq->asr_net_color    = info.colournum;
-                        rq->net_source_id    = reg->origin_sourceid;
-                        rq->net_stream_id    = reg->origin_streamid;
+                        bool clear_for_spawn = true;
 
-                        App::GetGameContext()->PushMessage(Message(
-                            MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+                        // Perform optional tampering detection using file hash.
+                        if (App::mp_truck_hash_check->getBool())
+                        {
+                            // since hash is not stored in modcache, we must load the file early.
+                            // It's cached so `GameContext::SpawnActor()` will not re-load it.
+                            std::shared_ptr<RigDef::File> def = this->FetchActorDef(
+                                filename, /*predefined_on_terrain:*/false);
 
-                        reg->status = 1;
+                            if (def->hash != actor_reg->hash)
+                            {
+                                App::GetConsole()->putMessage(
+                                    Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                                    _L("Mod hash mismatch: ") + filename);
+                                RoR::LogFormat("[RoR] Cannot create remote actor (hash mismatch), filename: '%s'."
+                                               "You can disable the tampering check by setting 'mp_truck_hash_check=false' in RoR.cfg.", filename.c_str());
+                                AddStreamMismatch(reg->origin_sourceid, reg->origin_streamid);
+                                reg->status = -1;
+                                clear_for_spawn = false;
+                            }
+                        }
+                        
+                        if (clear_for_spawn)
+                        {
+                            if (m_stream_time_offsets.find(reg->origin_sourceid) == m_stream_time_offsets.end())
+                            {
+                                int offset = actor_reg->time - m_net_timer.getMilliseconds();
+                                m_stream_time_offsets[reg->origin_sourceid] = offset - 100;
+                            }
+                            ActorSpawnRequest* rq = new ActorSpawnRequest;
+                            rq->asr_origin = ActorSpawnRequest::Origin::NETWORK;
+                            // TODO: Look up cache entry early (eliminate asr_filename) and fetch skin by name+guid! ~ 03/2019
+                            rq->asr_filename = filename;
+                            if (strnlen(actor_reg->skin, 60) < 60 && actor_reg->skin[0] != '\0')
+                            {
+                                rq->asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin);
+                            }
+                            if (strnlen(actor_reg->sectionconfig, 60) < 60)
+                            {
+                                rq->asr_config = actor_reg->sectionconfig;
+                            }
+                            rq->asr_net_username = tryConvertUTF(info.username);
+                            rq->asr_net_color    = info.colournum;
+                            rq->net_source_id    = reg->origin_sourceid;
+                            rq->net_stream_id    = reg->origin_streamid;
+
+                            App::GetGameContext()->PushMessage(Message(
+                                MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+
+                            reg->status = 1;
+                        }
                     }
                 }
 

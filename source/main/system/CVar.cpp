@@ -70,6 +70,8 @@ void Console::cVarSetupBuiltins()
     App::mp_player_name          = this->cVarCreate("mp_player_name",          "Nickname",                   CVAR_ARCHIVE,                     "Player");
     App::mp_player_token         = this->cVarCreate("mp_player_token",         "User Token",                 CVAR_ARCHIVE | CVAR_NO_LOG);
     App::mp_api_url              = this->cVarCreate("mp_api_url",              "Online API URL",             CVAR_ARCHIVE,                     "http://api.rigsofrods.org");
+    App::mp_truck_hash_check     = this->cVarCreate("mp_truck_hash_check",     "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
+
 
     App::diag_auto_spawner_report= this->cVarCreate("diag_auto_spawner_report","AutoActorSpawnerReport",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_camera             = this->cVarCreate("diag_camera",             "Camera Debug",               CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");

@@ -294,6 +294,7 @@ extern CVar* mp_server_password;
 extern CVar* mp_player_name;
 extern CVar* mp_player_token;
 extern CVar* mp_api_url;
+extern CVar* mp_truck_hash_check;
 
 // Diagnostic
 extern CVar* diag_auto_spawner_report;
