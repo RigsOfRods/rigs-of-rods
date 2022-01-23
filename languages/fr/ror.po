@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
-"PO-Revision-Date: 2022-01-23 22:39+0000\n"
-"Last-Translator: Maxime Leroy <lisacintosh@gmail.com>\n"
+"PO-Revision-Date: 2022-01-23 22:40+0000\n"
+"Last-Translator: Xploder98 <xploder9825@yandex.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
 "Language: fr\n"
@@ -1885,11 +1885,9 @@ msgid "Node/Beam Utils"
 msgstr "Utilitaires nœuds/rayons"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:49
-#, fuzzy
-#| msgid "Total mass: "
 msgctxt "NodeBeamUtils"
 msgid "Total mass"
-msgstr "Masse totale: "
+msgstr "Masse totale"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:56
 #, fuzzy
@@ -1926,11 +1924,9 @@ msgstr "Mettre à jour les positions initiales des nœuds"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_NodeBeamUtils.cpp:103
-#, fuzzy
-#| msgid "Physics paused"
 msgctxt "NodeBeamUtils"
 msgid "Physics steps:"
-msgstr "Physiques en pause"
+msgstr "Étapes de physique:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:110
 msgctxt "NodeBeamUtils"
