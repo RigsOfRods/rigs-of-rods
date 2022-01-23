@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
-"PO-Revision-Date: 2022-01-23 22:45+0000\n"
-"Last-Translator: Xploder98 <xploder9825@yandex.com>\n"
+"PO-Revision-Date: 2022-01-23 23:21+0000\n"
+"Last-Translator: Maxime Leroy <lisacintosh@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
 "Language: fr\n"
@@ -2235,25 +2235,19 @@ msgid "Get new vehicle"
 msgstr "Nouveau véhicule"
 
 #: gui/panels/GUI_TopMenubar.cpp:187
-#, fuzzy
-#| msgid "Vehicle destruction: "
 msgctxt "TopMenubar"
 msgid "Show vehicle description"
-msgstr "Destruction du véhicule: "
+msgstr "Afficher la description du véhicule"
 
 #: gui/panels/GUI_TopMenubar.cpp:194
-#, fuzzy
-#| msgid "Only current vehicle, main lights"
 msgctxt "TopMenubar"
 msgid "Reload current vehicle"
-msgstr "Véhicule actuel uniquement, lumières principales"
+msgstr "Recharger le véhicule actuel"
 
 #: gui/panels/GUI_TopMenubar.cpp:202
-#, fuzzy
-#| msgid "remove current truck"
 msgctxt "TopMenubar"
 msgid "Remove current vehicle"
-msgstr "Enlever le véhicule actuel"
+msgstr "Retirer le véhicule actuel"
 
 #: gui/panels/GUI_TopMenubar.cpp:210
 #, fuzzy
@@ -2264,11 +2258,9 @@ msgid "Activate last spawned vehicle"
 msgstr "Activer tous les véhicules"
 
 #: gui/panels/GUI_TopMenubar.cpp:218
-#, fuzzy
-#| msgid "Only current vehicle, main lights"
 msgctxt "TopMenubar"
 msgid "Reload last spawned vehicle"
-msgstr "Véhicule actuel uniquement, lumières principales"
+msgstr "Recharger le dernier véhicule apparu"
 
 #: gui/panels/GUI_TopMenubar.cpp:226
 #, fuzzy
@@ -2776,8 +2768,6 @@ msgid "Description"
 msgstr "Description"
 
 #: gui/panels/GUI_VehicleDescription.cpp:74
-#, fuzzy
-#| msgid "Commands"
 msgctxt "VehicleDescription"
 msgid "Commands"
 msgstr "Commandes"
@@ -4820,14 +4810,12 @@ msgstr "Freins d'avion normaux"
 #: utils/InputEngine.cpp:201
 msgctxt "InputEvent"
 msgid "pull the elevator down in an aircraft."
-msgstr "Tirez l'élévateur en position basse dans un avion."
+msgstr "tirez l'élévateur en position basse dans un avion."
 
 #: utils/InputEngine.cpp:202
-#, fuzzy
-#| msgid "pull the elevator up in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator up in an aircraft."
-msgstr "Tirez l'élévateur en position haute dans un avion"
+msgstr "tirez l'élévateur en position haute dans un avion."
 
 #: utils/InputEngine.cpp:203
 #, fuzzy
@@ -5004,604 +4992,432 @@ msgid "steer right (analog value!)"
 msgstr "Tourner à droite (valeur analogique!)"
 
 #: utils/InputEngine.cpp:233
-#, fuzzy
-#| msgid "decrease throttle"
 msgctxt "InputEvent"
 msgid "decrease throttle"
-msgstr "Réduire les gaz"
+msgstr "réduire les gaz"
 
 #: utils/InputEngine.cpp:234
-#, fuzzy
-#| msgid "increase throttle"
 msgctxt "InputEvent"
 msgid "increase throttle"
-msgstr "Augmente les gaz"
+msgstr "augmente les gaz"
 
 #. Commands
 #: utils/InputEngine.cpp:237
-#, fuzzy
-#| msgid "Command 1"
 msgctxt "InputEvent"
 msgid "Command 1"
 msgstr "Commande 1"
 
 #: utils/InputEngine.cpp:238
-#, fuzzy
-#| msgid "Command 2"
 msgctxt "InputEvent"
 msgid "Command 2"
 msgstr "Commande 2"
 
 #: utils/InputEngine.cpp:239
-#, fuzzy
-#| msgid "Command 3"
 msgctxt "InputEvent"
 msgid "Command 3"
 msgstr "Commande 3"
 
 #: utils/InputEngine.cpp:240
-#, fuzzy
-#| msgid "Command 4"
 msgctxt "InputEvent"
 msgid "Command 4"
 msgstr "Commande 4"
 
 #: utils/InputEngine.cpp:241
-#, fuzzy
-#| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 5"
 msgstr "Commande 5"
 
 #: utils/InputEngine.cpp:242
-#, fuzzy
-#| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 6"
 msgstr "Commande 6"
 
 #: utils/InputEngine.cpp:243
-#, fuzzy
-#| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 7"
 msgstr "Commande 7"
 
 #: utils/InputEngine.cpp:244
-#, fuzzy
-#| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 8"
 msgstr "Commande 8"
 
 #: utils/InputEngine.cpp:245
-#, fuzzy
-#| msgid "Command 9"
 msgctxt "InputEvent"
 msgid "Command 9"
 msgstr "Commande 9"
 
 #: utils/InputEngine.cpp:246
-#, fuzzy
-#| msgid "Command 10"
 msgctxt "InputEvent"
 msgid "Command 10"
 msgstr "Commande 10"
 
 #: utils/InputEngine.cpp:247
-#, fuzzy
-#| msgid "Command 11"
 msgctxt "InputEvent"
 msgid "Command 11"
 msgstr "Commande 11"
 
 #: utils/InputEngine.cpp:248
-#, fuzzy
-#| msgid "Command 12"
 msgctxt "InputEvent"
 msgid "Command 12"
 msgstr "Commande 12"
 
 #: utils/InputEngine.cpp:249
-#, fuzzy
-#| msgid "Command 13"
 msgctxt "InputEvent"
 msgid "Command 13"
 msgstr "Commande 13"
 
 #: utils/InputEngine.cpp:250
-#, fuzzy
-#| msgid "Command 14"
 msgctxt "InputEvent"
 msgid "Command 14"
 msgstr "Commande 14"
 
 #: utils/InputEngine.cpp:251
-#, fuzzy
-#| msgid "Command 15"
 msgctxt "InputEvent"
 msgid "Command 15"
 msgstr "Commande 15"
 
 #: utils/InputEngine.cpp:252
-#, fuzzy
-#| msgid "Command 16"
 msgctxt "InputEvent"
 msgid "Command 16"
 msgstr "Commande 16"
 
 #: utils/InputEngine.cpp:253
-#, fuzzy
-#| msgid "Command 17"
 msgctxt "InputEvent"
 msgid "Command 17"
 msgstr "Commande 17"
 
 #: utils/InputEngine.cpp:254
-#, fuzzy
-#| msgid "Command 18"
 msgctxt "InputEvent"
 msgid "Command 18"
 msgstr "Commande 18"
 
 #: utils/InputEngine.cpp:255
-#, fuzzy
-#| msgid "Command 19"
 msgctxt "InputEvent"
 msgid "Command 19"
 msgstr "Commande 19"
 
 #: utils/InputEngine.cpp:256
-#, fuzzy
-#| msgid "Command 20"
 msgctxt "InputEvent"
 msgid "Command 20"
 msgstr "Commande 20"
 
 #: utils/InputEngine.cpp:257
-#, fuzzy
-#| msgid "Command 21"
 msgctxt "InputEvent"
 msgid "Command 21"
 msgstr "Commande 21"
 
 #: utils/InputEngine.cpp:258
-#, fuzzy
-#| msgid "Command 22"
 msgctxt "InputEvent"
 msgid "Command 22"
 msgstr "Commande 22"
 
 #: utils/InputEngine.cpp:259
-#, fuzzy
-#| msgid "Command 23"
 msgctxt "InputEvent"
 msgid "Command 23"
 msgstr "Commande 23"
 
 #: utils/InputEngine.cpp:260
-#, fuzzy
-#| msgid "Command 24"
 msgctxt "InputEvent"
 msgid "Command 24"
 msgstr "Commande 24"
 
 #: utils/InputEngine.cpp:261
-#, fuzzy
-#| msgid "Command 25"
 msgctxt "InputEvent"
 msgid "Command 25"
 msgstr "Commande 25"
 
 #: utils/InputEngine.cpp:262
-#, fuzzy
-#| msgid "Command 26"
 msgctxt "InputEvent"
 msgid "Command 26"
 msgstr "Commande 26"
 
 #: utils/InputEngine.cpp:263
-#, fuzzy
-#| msgid "Command 27"
 msgctxt "InputEvent"
 msgid "Command 27"
 msgstr "Commande 27"
 
 #: utils/InputEngine.cpp:264
-#, fuzzy
-#| msgid "Command 28"
 msgctxt "InputEvent"
 msgid "Command 28"
 msgstr "Commande 28"
 
 #: utils/InputEngine.cpp:265
-#, fuzzy
-#| msgid "Command 29"
 msgctxt "InputEvent"
 msgid "Command 29"
 msgstr "Commande 29"
 
 #: utils/InputEngine.cpp:266
-#, fuzzy
-#| msgid "Command 30"
 msgctxt "InputEvent"
 msgid "Command 30"
 msgstr "Commande 30"
 
 #: utils/InputEngine.cpp:267
-#, fuzzy
-#| msgid "Command 31"
 msgctxt "InputEvent"
 msgid "Command 31"
 msgstr "Commande 31"
 
 #: utils/InputEngine.cpp:268
-#, fuzzy
-#| msgid "Command 32"
 msgctxt "InputEvent"
 msgid "Command 32"
 msgstr "Commande 32"
 
 #: utils/InputEngine.cpp:269
-#, fuzzy
-#| msgid "Command 33"
 msgctxt "InputEvent"
 msgid "Command 33"
 msgstr "Commande 33"
 
 #: utils/InputEngine.cpp:270
-#, fuzzy
-#| msgid "Command 34"
 msgctxt "InputEvent"
 msgid "Command 34"
 msgstr "Commande 34"
 
 #: utils/InputEngine.cpp:271
-#, fuzzy
-#| msgid "Command 35"
 msgctxt "InputEvent"
 msgid "Command 35"
 msgstr "Commande 35"
 
 #: utils/InputEngine.cpp:272
-#, fuzzy
-#| msgid "Command 36"
 msgctxt "InputEvent"
 msgid "Command 36"
 msgstr "Commande 36"
 
 #: utils/InputEngine.cpp:273
-#, fuzzy
-#| msgid "Command 37"
 msgctxt "InputEvent"
 msgid "Command 37"
 msgstr "Commande 37"
 
 #: utils/InputEngine.cpp:274
-#, fuzzy
-#| msgid "Command 38"
 msgctxt "InputEvent"
 msgid "Command 38"
 msgstr "Commande 38"
 
 #: utils/InputEngine.cpp:275
-#, fuzzy
-#| msgid "Command 39"
 msgctxt "InputEvent"
 msgid "Command 39"
 msgstr "Commande 39"
 
 #: utils/InputEngine.cpp:276
-#, fuzzy
-#| msgid "Command 40"
 msgctxt "InputEvent"
 msgid "Command 40"
 msgstr "Commande 40"
 
 #: utils/InputEngine.cpp:277
-#, fuzzy
-#| msgid "Command 41"
 msgctxt "InputEvent"
 msgid "Command 41"
 msgstr "Commande 41"
 
 #: utils/InputEngine.cpp:278
-#, fuzzy
-#| msgid "Command 42"
 msgctxt "InputEvent"
 msgid "Command 42"
 msgstr "Commande 42"
 
 #: utils/InputEngine.cpp:279
-#, fuzzy
-#| msgid "Command 43"
 msgctxt "InputEvent"
 msgid "Command 43"
 msgstr "Commande 43"
 
 #: utils/InputEngine.cpp:280
-#, fuzzy
-#| msgid "Command 44"
 msgctxt "InputEvent"
 msgid "Command 44"
 msgstr "Commande 44"
 
 #: utils/InputEngine.cpp:281
-#, fuzzy
-#| msgid "Command 45"
 msgctxt "InputEvent"
 msgid "Command 45"
 msgstr "Commande 45"
 
 #: utils/InputEngine.cpp:282
-#, fuzzy
-#| msgid "Command 46"
 msgctxt "InputEvent"
 msgid "Command 46"
 msgstr "Commande 46"
 
 #: utils/InputEngine.cpp:283
-#, fuzzy
-#| msgid "Command 47"
 msgctxt "InputEvent"
 msgid "Command 47"
 msgstr "Commande 47"
 
 #: utils/InputEngine.cpp:284
-#, fuzzy
-#| msgid "Command 48"
 msgctxt "InputEvent"
 msgid "Command 48"
 msgstr "Commande 48"
 
 #: utils/InputEngine.cpp:285
-#, fuzzy
-#| msgid "Command 49"
 msgctxt "InputEvent"
 msgid "Command 49"
 msgstr "Commande 49"
 
 #: utils/InputEngine.cpp:286
-#, fuzzy
-#| msgid "Command 50"
 msgctxt "InputEvent"
 msgid "Command 50"
 msgstr "Commande 50"
 
 #: utils/InputEngine.cpp:287
-#, fuzzy
-#| msgid "Command 51"
 msgctxt "InputEvent"
 msgid "Command 51"
 msgstr "Commande 51"
 
 #: utils/InputEngine.cpp:288
-#, fuzzy
-#| msgid "Command 52"
 msgctxt "InputEvent"
 msgid "Command 52"
 msgstr "Commande 52"
 
 #: utils/InputEngine.cpp:289
-#, fuzzy
-#| msgid "Command 53"
 msgctxt "InputEvent"
 msgid "Command 53"
 msgstr "Commande 53"
 
 #: utils/InputEngine.cpp:290
-#, fuzzy
-#| msgid "Command 54"
 msgctxt "InputEvent"
 msgid "Command 54"
 msgstr "Commande 54"
 
 #: utils/InputEngine.cpp:291
-#, fuzzy
-#| msgid "Command 55"
 msgctxt "InputEvent"
 msgid "Command 55"
 msgstr "Commande 55"
 
 #: utils/InputEngine.cpp:292
-#, fuzzy
-#| msgid "Command 56"
 msgctxt "InputEvent"
 msgid "Command 56"
 msgstr "Commande 56"
 
 #: utils/InputEngine.cpp:293
-#, fuzzy
-#| msgid "Command 57"
 msgctxt "InputEvent"
 msgid "Command 57"
 msgstr "Commande 57"
 
 #: utils/InputEngine.cpp:294
-#, fuzzy
-#| msgid "Command 58"
 msgctxt "InputEvent"
 msgid "Command 58"
 msgstr "Commande 58"
 
 #: utils/InputEngine.cpp:295
-#, fuzzy
-#| msgid "Command 59"
 msgctxt "InputEvent"
 msgid "Command 59"
 msgstr "Commande 59"
 
 #: utils/InputEngine.cpp:296
-#, fuzzy
-#| msgid "Command 60"
 msgctxt "InputEvent"
 msgid "Command 60"
 msgstr "Commande 60"
 
 #: utils/InputEngine.cpp:297
-#, fuzzy
-#| msgid "Command 61"
 msgctxt "InputEvent"
 msgid "Command 61"
 msgstr "Commande 61"
 
 #: utils/InputEngine.cpp:298
-#, fuzzy
-#| msgid "Command 62"
 msgctxt "InputEvent"
 msgid "Command 62"
 msgstr "Commande 62"
 
 #: utils/InputEngine.cpp:299
-#, fuzzy
-#| msgid "Command 63"
 msgctxt "InputEvent"
 msgid "Command 63"
 msgstr "Commande 63"
 
 #: utils/InputEngine.cpp:300
-#, fuzzy
-#| msgid "Command 64"
 msgctxt "InputEvent"
 msgid "Command 64"
 msgstr "Commande 64"
 
 #: utils/InputEngine.cpp:301
-#, fuzzy
-#| msgid "Command 65"
 msgctxt "InputEvent"
 msgid "Command 65"
 msgstr "Commande 65"
 
 #: utils/InputEngine.cpp:302
-#, fuzzy
-#| msgid "Command 66"
 msgctxt "InputEvent"
 msgid "Command 66"
 msgstr "Commande 66"
 
 #: utils/InputEngine.cpp:303
-#, fuzzy
-#| msgid "Command 67"
 msgctxt "InputEvent"
 msgid "Command 67"
 msgstr "Commande 67"
 
 #: utils/InputEngine.cpp:304
-#, fuzzy
-#| msgid "Command 68"
 msgctxt "InputEvent"
 msgid "Command 68"
 msgstr "Commande 68"
 
 #: utils/InputEngine.cpp:305
-#, fuzzy
-#| msgid "Command 69"
 msgctxt "InputEvent"
 msgid "Command 69"
 msgstr "Commande 69"
 
 #: utils/InputEngine.cpp:306
-#, fuzzy
-#| msgid "Command 70"
 msgctxt "InputEvent"
 msgid "Command 70"
 msgstr "Commande 70"
 
 #: utils/InputEngine.cpp:307
-#, fuzzy
-#| msgid "Command 71"
 msgctxt "InputEvent"
 msgid "Command 71"
 msgstr "Commande 71"
 
 #: utils/InputEngine.cpp:308
-#, fuzzy
-#| msgid "Command 72"
 msgctxt "InputEvent"
 msgid "Command 72"
 msgstr "Commande 72"
 
 #: utils/InputEngine.cpp:309
-#, fuzzy
-#| msgid "Command 73"
 msgctxt "InputEvent"
 msgid "Command 73"
 msgstr "Commande 73"
 
 #: utils/InputEngine.cpp:310
-#, fuzzy
-#| msgid "Command 74"
 msgctxt "InputEvent"
 msgid "Command 74"
 msgstr "Commande 74"
 
 #: utils/InputEngine.cpp:311
-#, fuzzy
-#| msgid "Command 75"
 msgctxt "InputEvent"
 msgid "Command 75"
 msgstr "Commande 75"
 
 #: utils/InputEngine.cpp:312
-#, fuzzy
-#| msgid "Command 76"
 msgctxt "InputEvent"
 msgid "Command 76"
 msgstr "Commande 76"
 
 #: utils/InputEngine.cpp:313
-#, fuzzy
-#| msgid "Command 77"
 msgctxt "InputEvent"
 msgid "Command 77"
 msgstr "Commande 77"
 
 #: utils/InputEngine.cpp:314
-#, fuzzy
-#| msgid "Command 78"
 msgctxt "InputEvent"
 msgid "Command 78"
 msgstr "Commande 78"
 
 #: utils/InputEngine.cpp:315
-#, fuzzy
-#| msgid "Command 79"
 msgctxt "InputEvent"
 msgid "Command 79"
 msgstr "Commande 79"
 
 #: utils/InputEngine.cpp:316
-#, fuzzy
-#| msgid "Command 80"
 msgctxt "InputEvent"
 msgid "Command 80"
 msgstr "Commande 80"
 
 #: utils/InputEngine.cpp:317
-#, fuzzy
-#| msgid "Command 81"
 msgctxt "InputEvent"
 msgid "Command 81"
 msgstr "Commande 81"
 
 #: utils/InputEngine.cpp:318
-#, fuzzy
-#| msgid "Command 82"
 msgctxt "InputEvent"
 msgid "Command 82"
 msgstr "Commande 82"
 
 #: utils/InputEngine.cpp:319
-#, fuzzy
-#| msgid "Command 83"
 msgctxt "InputEvent"
 msgid "Command 83"
 msgstr "Commande 83"
 
 #: utils/InputEngine.cpp:320
-#, fuzzy
-#| msgid "Command 84"
 msgctxt "InputEvent"
 msgid "Command 84"
 msgstr "Commande 84"
@@ -5923,11 +5739,9 @@ msgstr "Sélectionnez l'élément précédent dans la catégorie actuelle"
 
 #. Truck editing
 #: utils/InputEngine.cpp:379
-#, fuzzy
-#| msgid "reload truck"
 msgctxt "InputEvent"
 msgid "reload truck"
-msgstr "Recharger le véhicule"
+msgstr "recharger le camion"
 
 #: utils/InputEngine.cpp:1717
 msgid "(Please press a key)"
