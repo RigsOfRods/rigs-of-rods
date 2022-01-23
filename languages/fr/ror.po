@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
 "PO-Revision-Date: 2022-01-23 22:45+0000\n"
-"Last-Translator: Maxime Leroy <lisacintosh@gmail.com>\n"
+"Last-Translator: Xploder98 <xploder9825@yandex.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
 "Language: fr\n"
@@ -3516,7 +3516,7 @@ msgstr "ver- affiche la version de Rigs of Rods"
 
 #: system/ConsoleCmd.cpp:235
 msgid "pos - outputs the current position"
-msgstr "pos - indication de la positon actuelle."
+msgstr "pos - indique la positon actuelle"
 
 #: system/ConsoleCmd.cpp:250
 msgid "Character position: "
@@ -3552,7 +3552,7 @@ msgstr "Les scripts sont désactivés dans cette version"
 
 #: system/ConsoleCmd.cpp:342
 msgid "quit - exit Rigs of Rods"
-msgstr "quit - quitter Rigs of Rods."
+msgstr "quit - quitte Rigs of Rods"
 
 #: system/ConsoleCmd.cpp:353
 msgid "help - information on commands (this)"
@@ -4818,11 +4818,9 @@ msgid "normal brake for an aircraft"
 msgstr "Freins d'avion normaux"
 
 #: utils/InputEngine.cpp:201
-#, fuzzy
-#| msgid "pull the elevator down in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator down in an aircraft."
-msgstr "Tirez l'élévateur en position basse dans un avion"
+msgstr "Tirez l'élévateur en position basse dans un avion."
 
 #: utils/InputEngine.cpp:202
 #, fuzzy
