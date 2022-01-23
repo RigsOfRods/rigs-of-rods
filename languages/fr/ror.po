@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
-"PO-Revision-Date: 2022-01-23 22:41+0000\n"
+"PO-Revision-Date: 2022-01-23 22:44+0000\n"
 "Last-Translator: Maxime Leroy <lisacintosh@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
@@ -1947,7 +1947,7 @@ msgstr "Poursuivre la recherche"
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
 msgid "Start searching"
-msgstr "Commence à rechercher"
+msgstr "Lancer la recherche"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
@@ -2145,11 +2145,9 @@ msgid "Triangle count: "
 msgstr "Nombre de triangles: "
 
 #: gui/panels/GUI_SimPerfStats.cpp:81
-#, fuzzy
-#| msgid "Batch count: "
 msgctxt "SimPerfStats"
 msgid "Batch count: "
-msgstr "Nombre de lots:"
+msgstr "Nombre de lots : "
 
 #: gui/panels/GUI_TextureToolWindow.cpp:41
 #, fuzzy
@@ -2381,26 +2379,19 @@ msgstr "Paramètres"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_TopMenubar.cpp:418
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Audio"
 msgctxt "TopMenubar"
 msgid "Audio:"
-msgstr "Audio"
+msgstr "Audio :"
 
 #: gui/panels/GUI_TopMenubar.cpp:419
-#, fuzzy
-#| msgid "Sound Volume:"
 msgctxt "TopMenubar"
 msgid "Volume"
-msgstr "Volume d'audio:"
+msgstr "Volume"
 
 #: gui/panels/GUI_TopMenubar.cpp:421
-#, fuzzy
-#| msgid "sets the maximum frames per second"
 msgctxt "TopMenubar"
 msgid "Frames per second:"
-msgstr "Définit le maximum d'images par secondes"
+msgstr "Images par secondes :"
 
 #: gui/panels/GUI_TopMenubar.cpp:424
 #, fuzzy
@@ -2415,12 +2406,9 @@ msgid "Game"
 msgstr "Jeu"
 
 #: gui/panels/GUI_TopMenubar.cpp:429
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Simulation settings"
 msgctxt "TopMenubar"
 msgid "Simulation:"
-msgstr "Paramètres de simulation"
+msgstr "Simulation :"
 
 #: gui/panels/GUI_TopMenubar.cpp:431
 msgctxt "TopMenubar"
@@ -2463,7 +2451,7 @@ msgstr "Suivi"
 #: gui/panels/GUI_TopMenubar.cpp:476
 msgctxt "TopMenubar"
 msgid "Time of day:"
-msgstr "Temps du jour"
+msgstr "Heure du jour :"
 
 #: gui/panels/GUI_TopMenubar.cpp:483
 msgctxt "TopMenubar"
@@ -2498,7 +2486,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:513
 msgctxt "TopMenubar"
 msgid "Multiplayer:"
-msgstr "Multijoueur"
+msgstr "Multijoueurs :"
 
 #: gui/panels/GUI_TopMenubar.cpp:514
 #, fuzzy
@@ -2685,11 +2673,9 @@ msgid "Submesh details"
 msgstr "Afficher les détails"
 
 #: gui/panels/GUI_TopMenubar.cpp:668
-#, fuzzy
-#| msgid "Settings"
 msgctxt "TopMenubar"
 msgid "Settings:"
-msgstr "Paramètres"
+msgstr "Paramètres :"
 
 #: gui/panels/GUI_TopMenubar.cpp:669
 #, fuzzy
@@ -3056,7 +3042,7 @@ msgstr "Utilisateur banni"
 
 #: physics/Actor.cpp:387
 msgid " content mismatch: "
-msgstr " contenu incompatible: "
+msgstr " contenu incompatible : "
 
 #: physics/Actor.cpp:1275
 msgid "No inter-axle differential installed on current vehicle!"
