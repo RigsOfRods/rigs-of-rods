@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
-"PO-Revision-Date: 2022-01-23 11:52+0000\n"
+"PO-Revision-Date: 2022-01-23 22:39+0000\n"
 "Last-Translator: Maxime Leroy <lisacintosh@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
@@ -33,10 +33,8 @@ msgid "No render system plugin available. Check your plugins.cfg"
 msgstr "Pas de système de rendu disponible. Vérifiez votre fichier plugins.cfg"
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgid "Screenshot:"
 msgid "Screenshot: "
-msgstr "Capture d'écran:"
+msgstr "Capture d'écran : "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
@@ -345,8 +343,6 @@ msgid "Static friction coef:"
 msgstr "Coefficient de friction statique :"
 
 #: gui/panels/GUI_FrictionSettings.cpp:70
-#, fuzzy
-#| msgid "Static friction coef"
 msgctxt "FrictionSettings"
 msgid "Static friction coef"
 msgstr "Coefficient de friction statique"
@@ -401,32 +397,23 @@ msgid "Dynamic friction coef"
 msgstr "Coefficient de friction dynamique"
 
 #: gui/panels/GUI_FrictionSettings.cpp:76
-#, fuzzy
-#| msgid ""
-#| "Or sliding friction coef. It should be smaller than static friction coef. "
-#| "This parameter defines how much friction you'll have when sliding. Try to "
-#| "find some values for it from the net."
 msgctxt "FrictionSettings"
 msgid ""
 "Or sliding friction coef. It should be smaller than static friction coef. "
 "This parameter defines how much friction you'll have when sliding. Try to "
 "find some values for it from the net."
 msgstr ""
-"Ou le coefficient de friction. Il doit être plus petit que la valeur de "
-"coefficient de friction statique. Ce paramètre définit combien de friction "
-"vous devriez avoir quand vous glissez. Essayez de trouver quelques valeurs "
-"sur Internet."
+"Ou le coefficient de frottement cinétique. Il doit être plus petit que le "
+"coefficient de frottement statique. Ce paramètre définit combien de "
+"frottement vous devriez avoir quand vous glissez. Essayez de trouver "
+"quelques valeurs sur Internet."
 
 #: gui/panels/GUI_FrictionSettings.cpp:78
-#, fuzzy
-#| msgid "Hydrodynamic friction coef:"
 msgctxt "FrictionSettings"
 msgid "Hydrodynamic friction coef:"
-msgstr "Coefficient de friction hydrodynamique:"
+msgstr "Coefficient de friction hydrodynamique :"
 
 #: gui/panels/GUI_FrictionSettings.cpp:79
-#, fuzzy
-#| msgid "Hydrodynamic friction coef"
 msgctxt "FrictionSettings"
 msgid "Hydrodynamic friction coef"
 msgstr "Coefficient de friction hydrodynamique"
@@ -488,7 +475,7 @@ msgstr ""
 #| msgid "alpha:"
 msgctxt "FrictionSettings"
 msgid "alpha:"
-msgstr "Opacité:"
+msgstr "Opacité :"
 
 #: gui/panels/GUI_FrictionSettings.cpp:85
 #, fuzzy
@@ -498,15 +485,11 @@ msgid "Alpha"
 msgstr "Opacité"
 
 #: gui/panels/GUI_FrictionSettings.cpp:85
-#, fuzzy
-#| msgid "Its usual value is 2. But you can try others."
 msgctxt "FrictionSettings"
 msgid "Its usual value is 2. But you can try others."
 msgstr "Sa valeur habituelle est 2. Mais vous pouvez essayer d'autres valeurs."
 
 #: gui/panels/GUI_FrictionSettings.cpp:87
-#, fuzzy
-#| msgid "Fluid Settings"
 msgctxt "FrictionSettings"
 msgid "Fluid Settings"
 msgstr "Paramètres des fluides"
@@ -807,7 +790,7 @@ msgstr "Supprimer"
 #: gui/panels/GUI_GameControls.cpp:398
 msgctxt "GameSettings"
 msgid "<All active values>"
-msgstr ""
+msgstr "<Tous les valeurs actives>"
 
 #: gui/panels/GUI_GameMainMenu.cpp:127
 msgctxt "MainMenu"
@@ -820,9 +803,6 @@ msgid "Resume game"
 msgstr "Résumer le jeu"
 
 #: gui/panels/GUI_GameMainMenu.cpp:155
-#, fuzzy
-#| msgctxt "MainMenu"
-#| msgid "Multi player"
 msgctxt "MainMenu"
 msgid "Multiplayer"
 msgstr "Mode multijoueurs"
@@ -1051,9 +1031,10 @@ msgid "Discord Rich Presence"
 msgstr "Présence sur Discord"
 
 #: gui/panels/GUI_GameSettings.cpp:270
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Show confirm. UI dialog for quickload"
-msgstr ""
+msgstr "Afficher confirmation. Le dialogue pour le chargement rapide"
 
 #: gui/panels/GUI_GameSettings.cpp:276
 msgctxt "GameSettings"
@@ -1241,12 +1222,12 @@ msgstr "Rapport de génération de l'acteur"
 #: gui/panels/GUI_GameSettings.cpp:409
 msgctxt "GameSettings"
 msgid "Log node import (spawn)"
-msgstr ""
+msgstr "Afficher l'importation des nœuds (apparition)"
 
 #: gui/panels/GUI_GameSettings.cpp:410
 msgctxt "GameSettings"
 msgid "Log node stats (spawn)"
-msgstr ""
+msgstr "Afficher les stats des nœuds (apparition)"
 
 #: gui/panels/GUI_GameSettings.cpp:411
 msgctxt "GameSettings"
@@ -1941,7 +1922,7 @@ msgstr "Restaurer les valeurs par défaut"
 #: gui/panels/GUI_NodeBeamUtils.cpp:96
 msgctxt "NodeBeamUtils"
 msgid "Update initial node positions"
-msgstr ""
+msgstr "Mettre à jour les positions initiales des nœuds"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_NodeBeamUtils.cpp:103
@@ -2328,7 +2309,7 @@ msgstr "Activer tous les véhicules"
 #: gui/panels/GUI_TopMenubar.cpp:263
 msgctxt "TopMenubar"
 msgid "Activated vehicles never sleep"
-msgstr ""
+msgstr "Les véhicules activés ne s'arrêtent pas"
 
 #: gui/panels/GUI_TopMenubar.cpp:268
 msgctxt "TopMenubar"
@@ -2488,7 +2469,7 @@ msgstr "Eclairage"
 #: gui/panels/GUI_TopMenubar.cpp:469
 msgctxt "TopMenubar"
 msgid "Tracking"
-msgstr ""
+msgstr "Suivi"
 
 #: gui/panels/GUI_TopMenubar.cpp:476
 msgctxt "TopMenubar"
@@ -2604,7 +2585,7 @@ msgstr "Rapporter le bris des poutres"
 #: gui/panels/GUI_TopMenubar.cpp:582 gui/panels/GUI_TopMenubar.cpp:594
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime"
-msgstr ""
+msgstr "Journalisation supplémentaire au lancement"
 
 #: gui/panels/GUI_TopMenubar.cpp:587
 #, fuzzy
@@ -2639,19 +2620,19 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:626
 msgctxt "TopMenubar"
 msgid "Live diagnostic views:"
-msgstr ""
+msgstr "Vues de diagnostic en direct :"
 
 #: gui/panels/GUI_TopMenubar.cpp:627
 #, c-format
 msgctxt "TopMenubar"
 msgid "(Toggle with %s)"
-msgstr ""
+msgstr "(Changer avec %s)"
 
 #: gui/panels/GUI_TopMenubar.cpp:628
 #, c-format
 msgctxt "TopMenubar"
 msgid "(Cycle with %s)"
-msgstr ""
+msgstr "(Dérouler avec %s)"
 
 #: gui/panels/GUI_TopMenubar.cpp:635
 msgctxt "TopMenubar"
@@ -2803,7 +2784,7 @@ msgstr "mètres"
 #: gui/panels/GUI_TopMenubar.cpp:920
 msgctxt "TopMenubar"
 msgid "Terrain editing mode, press {} to save and exit"
-msgstr ""
+msgstr "Mode d'édition de terrain, pressez {} pour enregistrer puis quitter"
 
 #: gui/panels/GUI_TopMenubar.cpp:960
 #, fuzzy
@@ -2894,7 +2875,7 @@ msgstr "Terrain entré en mode éditeur"
 
 #: main.cpp:707
 msgid "Press {} or middle mouse click to select an object"
-msgstr ""
+msgstr "Pressez {} ou le clic du milieu pour sélectionner un objet"
 
 #: main.cpp:719
 msgid "Left terrain editing mode"
@@ -3174,7 +3155,7 @@ msgstr "Chargeur"
 #: physics/Savegame.cpp:205
 msgctxt "QuickloadDialog"
 msgid "You will lose all unsaved progress!"
-msgstr ""
+msgstr "Vous allez perdre la progression non enregistrée !"
 
 #: physics/Savegame.cpp:209
 #, fuzzy
@@ -3268,7 +3249,7 @@ msgstr "Machine"
 #: resources/CacheSystem.cpp:457
 msgctxt "MainSelector"
 msgid "A.I."
-msgstr ""
+msgstr "I.A."
 
 #: resources/CacheSystem.cpp:952
 msgid "Loading zips in group "
@@ -3279,7 +3260,7 @@ msgstr "Chargement des archives dans le groupe "
 #: resources/CacheSystem.h:257
 msgctxt "ModCategory"
 msgid "Other Land Vehicles"
-msgstr ""
+msgstr "Other Land Vehicles"
 
 #: resources/CacheSystem.h:259
 #, fuzzy
@@ -3290,7 +3271,7 @@ msgstr "Voitures de ville"
 #: resources/CacheSystem.h:260
 msgctxt "ModCategory"
 msgid "Light Racing Cars"
-msgstr ""
+msgstr "Voitures de course légères"
 
 #: resources/CacheSystem.h:261
 msgctxt "ModCategory"
@@ -3300,7 +3281,7 @@ msgstr "Voitures tous terrains"
 #: resources/CacheSystem.h:262
 msgctxt "ModCategory"
 msgid "Fantasy Cars"
-msgstr ""
+msgstr "Voitures fantasmées"
 
 #: resources/CacheSystem.h:263
 msgctxt "ModCategory"
@@ -3343,12 +3324,12 @@ msgstr "Véhicules"
 #: resources/CacheSystem.h:272
 msgctxt "ModCategory"
 msgid "Forklifts"
-msgstr ""
+msgstr "Porte-charge"
 
 #: resources/CacheSystem.h:273
 msgctxt "ModCategory"
 msgid "Fantasy Trucks"
-msgstr ""
+msgstr "Camions fantasmés"
 
 #: resources/CacheSystem.h:274
 msgctxt "ModCategory"
@@ -3420,7 +3401,7 @@ msgstr "Sous-marin"
 #: resources/CacheSystem.h:294
 msgctxt "ModCategory"
 msgid "Official Terrains"
-msgstr ""
+msgstr "Terrains officiels"
 
 #: resources/CacheSystem.h:295
 #, fuzzy
@@ -3434,7 +3415,7 @@ msgstr "Terrain"
 #: resources/CacheSystem.h:298
 msgctxt "ModCategory"
 msgid "Unsorted"
-msgstr ""
+msgstr "Non trié"
 
 #: resources/CacheSystem.h:299
 #, fuzzy
@@ -3444,9 +3425,10 @@ msgid "All"
 msgstr "Tout"
 
 #: resources/CacheSystem.h:300
+#, fuzzy
 msgctxt "ModCategory"
 msgid "Fresh"
-msgstr ""
+msgstr "À jour"
 
 #: resources/CacheSystem.h:301
 msgctxt "ModCategory"
@@ -3597,7 +3579,7 @@ msgstr ""
 
 #: system/ConsoleCmd.cpp:333
 msgid "Scripting disabled in this build"
-msgstr ""
+msgstr "Les scripts sont désactivés dans cette version"
 
 #: system/ConsoleCmd.cpp:342
 msgid "quit - exit Rigs of Rods"
@@ -3655,7 +3637,7 @@ msgstr ""
 
 #: system/ConsoleCmd.cpp:573
 msgid "No such message type: {}"
-msgstr ""
+msgstr "Aucun type de message : {}"
 
 #: system/ConsoleCmd.cpp:621
 msgid ""
@@ -3675,7 +3657,7 @@ msgstr "Disponible uniquement lorsque la simulation est active"
 
 #: system/ConsoleCmd.cpp:664
 msgid "Not allowed in current app state"
-msgstr ""
+msgstr "Non autorisé dans l'état actuel du jeu"
 
 #: terrain/TerrainEditor.cpp:121 terrain/TerrainEditor.cpp:124
 msgid "ry"
@@ -5982,7 +5964,7 @@ msgstr "Recharger le véhicule"
 
 #: utils/InputEngine.cpp:1717
 msgid "(Please press a key)"
-msgstr ""
+msgstr "(Veuillez pressez une clé)"
 
 #~ msgctxt "ChatBox"
 #~ msgid "Welcome to Rigs of Rods!"
