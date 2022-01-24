@@ -696,9 +696,10 @@ void Actor::RecalculateNodeMasses(Real total)
         {
             if (App::diag_truck_mass->getBool())
             {
-                char buf[300];
-                snprintf(buf, 300, "Node '%d' mass (%f Kg) is too light. Resetting to 'minimass' (%f Kg)", i, ar_nodes[i].mass, ar_minimass[i]);
-                LOG(buf);
+                App::GetConsole()->putMessage(
+                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                    fmt::format("Node '{}' mass ({:.3} Kg) is too light. Resetting to 'minimass' ({:.3} Kg)",
+                                i, ar_nodes[i].mass, ar_minimass[i]));
             }
             ar_nodes[i].mass = ar_minimass[i];
         }
@@ -709,15 +710,16 @@ void Actor::RecalculateNodeMasses(Real total)
     {
         if (App::diag_truck_mass->getBool())
         {
-            String msg = "Node " + TOSTRING(i) + " : " + TOSTRING((int)ar_nodes[i].mass) + " kg";
+            std::string msg = fmt::format("Node {}: {:.3} Kg", i, ar_nodes[i].mass);
             if (ar_nodes[i].nd_loaded_mass)
             {
                 if (ar_nodes[i].nd_override_mass)
                     msg += " (overriden by node mass)";
                 else
-                    msg += " (normal load node: " + TOSTRING(m_load_mass) + " kg / " + TOSTRING(m_masscount) + " nodes)";
+                    msg += fmt::format(" (normal load node: {:.3} Kg / {} nodes)", m_load_mass, m_masscount);
             }
-            LOG(msg);
+            App::GetConsole()->putMessage(
+                Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE, msg);
         }
         m_total_mass += ar_nodes[i].mass;
     }
