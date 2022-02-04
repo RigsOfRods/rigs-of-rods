@@ -296,7 +296,6 @@ extern CVar* mp_player_token;
 extern CVar* mp_api_url;
 
 // Diagnostic
-extern CVar* diag_auto_spawner_report;
 extern CVar* diag_camera;
 extern CVar* diag_trace_globals;
 extern CVar* diag_rig_log_node_import;

@@ -71,7 +71,6 @@ void Console::cVarSetupBuiltins()
     App::mp_player_token         = this->cVarCreate("mp_player_token",         "User Token",                 CVAR_ARCHIVE | CVAR_NO_LOG);
     App::mp_api_url              = this->cVarCreate("mp_api_url",              "Online API URL",             CVAR_ARCHIVE,                     "http://api.rigsofrods.org");
 
-    App::diag_auto_spawner_report= this->cVarCreate("diag_auto_spawner_report","AutoActorSpawnerReport",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_camera             = this->cVarCreate("diag_camera",             "Camera Debug",               CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_rig_log_node_import= this->cVarCreate("diag_rig_log_node_import","RigImporter_LogAllNodes",    CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_rig_log_node_stats = this->cVarCreate("diag_rig_log_node_stats", "RigImporter_LogNodeStats",   CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");

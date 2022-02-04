@@ -405,7 +405,6 @@ void GameSettings::DrawDiagSettings()
     DrawGTextEdit(App::diag_preset_vehicle,      _LC("GameSettings", "Preselected vehicle"),         m_buf_diag_preset_vehicle);
     DrawGTextEdit(App::diag_preset_veh_config,   _LC("GameSettings", "Presel. veh. config"),         m_buf_diag_preset_veh_config);
     DrawGCheckbox(App::diag_preset_veh_enter,    _LC("GameSettings", "Enter preselected vehicle"));
-    DrawGCheckbox(App::diag_auto_spawner_report, _LC("GameSettings", "Auto actor spawner report"));
     DrawGCheckbox(App::diag_rig_log_node_import, _LC("GameSettings", "Log node import (spawn)"));
     DrawGCheckbox(App::diag_rig_log_node_stats,  _LC("GameSettings", "Log node stats (spawn)"));
     DrawGCheckbox(App::diag_camera,              _LC("GameSettings", "Debug camera (rails)"));

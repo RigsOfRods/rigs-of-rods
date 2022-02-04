@@ -120,7 +120,6 @@ CVar* mp_player_token;
 CVar* mp_api_url;
 
 // Diagnostic
-CVar* diag_auto_spawner_report;
 CVar* diag_camera;
 CVar* diag_rig_log_node_import;
 CVar* diag_rig_log_node_stats;
