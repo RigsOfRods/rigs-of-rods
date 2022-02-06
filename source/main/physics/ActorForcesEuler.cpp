@@ -1110,22 +1110,6 @@ bool Actor::CalcForcesEulerPrepare(bool doUpdate)
     return true;
 }
 
-template <size_t L>
-void LogNodeId(RoR::Str<L>& msg, node_t* node) // Internal helper
-{
-    msg << " (index: " << node->pos << ")";
-}
-
-template <size_t L>
-void LogBeamNodes(RoR::Str<L>& msg, beam_t& beam) // Internal helper
-{
-    msg << "It was between nodes ";
-    LogNodeId(msg, beam.p1);
-    msg << " and ";
-    LogNodeId(msg, beam.p2);
-    msg << ".";
-}
-
 void Actor::CalcBeams(bool trigger_hooks)
 {
     for (int i = 0; i < ar_num_beams; i++)
@@ -1206,13 +1190,12 @@ void Actor::CalcBeams(bool trigger_hooks)
                     {
                         ar_beams[i].bm_broken = true;
                         ar_beams[i].bm_disabled = true;
-                        if (m_beam_break_debug_enabled)
+                        if (App::diag_log_beam_break->getBool())
                         {
-                            RoR::Str<300> msg;
-                            msg << "[RoR|Diag] XXX Support-Beam " << i << " limit extended and broke. "
-                                << "Length: " << difftoBeamL << " / max. Length: " << (ar_beams[i].L*break_limit) << ". ";
-                            LogBeamNodes(msg, ar_beams[i]);
-                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr());
+                            App::GetConsole()->putMessage(
+                                Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                fmt::format("Support beam {} (between nodes {} and {}) just broke from over-extension (cur. length: {} / max. length: {})",
+                                    i, ar_beams[i].p1->pos, ar_beams[i].p2->pos, difftoBeamL, ar_beams[i].L*break_limit));
                         }
                     }
                 }
@@ -1261,13 +1244,12 @@ void Actor::CalcBeams(bool trigger_hooks)
                         // For the compression case we do not remove any of the beam's
                         // strength for structure stability reasons
                         //ar_beams[i].strength += deform * k * 0.5f;
-                        if (m_beam_deform_debug_enabled)
+                        if (App::diag_log_beam_deform->getBool())
                         {
-                            RoR::Str<300> msg;
-                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
-                                << len << " / " << ar_beams[i].strength << ". ";
-                            LogBeamNodes(msg, ar_beams[i]);
-                            RoR::Log(msg.ToCStr());
+                            App::GetConsole()->putMessage(
+                                Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                fmt::format("Beam {} (between nodes {} and {}) just deformed from over-compression (force: {} / strength: {})",
+                                    i, ar_beams[i].p1->pos, ar_beams[i].p2->pos, len, ar_beams[i].strength));
                         }
                     }
                     else if (slen < ar_beams[i].maxnegstress && difftoBeamL > 0.0f) // expansion
@@ -1285,13 +1267,12 @@ void Actor::CalcBeams(bool trigger_hooks)
                             ar_beams[i].minmaxposnegstress = std::min(ar_beams[i].minmaxposnegstress, ar_beams[i].strength);
                         }
                         ar_beams[i].strength -= deform * k;
-                        if (m_beam_deform_debug_enabled)
+                        if (App::diag_log_beam_deform->getBool())
                         {
-                            RoR::Str<300> msg;
-                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
-                                << len << " / " << ar_beams[i].strength << ". ";
-                            LogBeamNodes(msg, ar_beams[i]);
-                            RoR::Log(msg.ToCStr());
+                            App::GetConsole()->putMessage(
+                                Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                fmt::format("Beam {} (between nodes {} and {}) just deformed from over-extension (force: {} / strength: {})",
+                                    i, ar_beams[i].p1->pos, ar_beams[i].p2->pos, len, ar_beams[i].strength));
                         }
                     }
                 }
@@ -1313,12 +1294,12 @@ void Actor::CalcBeams(bool trigger_hooks)
                         ar_beams[i].bm_broken = true;
                         ar_beams[i].bm_disabled = true;
 
-                        if (m_beam_break_debug_enabled)
+                        if (App::diag_log_beam_break->getBool())
                         {
-                            RoR::Str<200> msg;
-                            msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / " << ar_beams[i].strength << ". ";
-                            LogBeamNodes(msg, ar_beams[i]);
-                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr());
+                            App::GetConsole()->putMessage(
+                                Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                fmt::format("Beam {} (between nodes {} and {}) just broke (force: {} / strength {}, detacher_group: {}).",
+                                    i, ar_beams[i].p1->pos, ar_beams[i].p2->pos, len, ar_beams[i].strength, ar_beams[i].detacher_group));
                         }
 
                         // detachergroup check: beam[i] is already broken, check detacher group# == 0/default skip the check ( performance bypass for beams with default setting )
@@ -1334,10 +1315,12 @@ void Actor::CalcBeams(bool trigger_hooks)
                                 {
                                     ar_beams[j].bm_broken = true;
                                     ar_beams[j].bm_disabled = true;
-                                    if (m_beam_break_debug_enabled)
+                                    if (App::diag_log_beam_break->getBool())
                                     {
-                                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
-                                            "Deleting Detacher BeamID: " + TOSTRING(j) + ", Detacher Group: " + TOSTRING(ar_beams[i].detacher_group)+ ", actor ID: " + TOSTRING(ar_instance_id));
+                                        App::GetConsole()->putMessage(
+                                            Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                            fmt::format("Beam {} (between nodes {} and {}) was broken by detacher_group {}",
+                                                i, ar_beams[i].p1->pos, ar_beams[i].p2->pos, ar_beams[j].detacher_group));
                                     }
                                 }
                             }
@@ -1347,10 +1330,15 @@ void Actor::CalcBeams(bool trigger_hooks)
                                 if (wheeldetacher.wd_detacher_group == ar_beams[i].detacher_group)
                                 {
                                     ar_wheels[wheeldetacher.wd_wheel_id].wh_is_detached = true;
-                                    if (m_beam_break_debug_enabled)
+                                    if (App::diag_log_beam_break->getBool())
                                     {
-                                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
-                                            "Detaching wheel ID: " + TOSTRING(wheeldetacher.wd_wheel_id) + ", Detacher Group: " + TOSTRING(ar_beams[i].detacher_group)+ ", actor ID: " + TOSTRING(ar_instance_id));
+                                        App::GetConsole()->putMessage(
+                                            Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                            fmt::format("Wheel {} (axis nodes {} and {}) was detached by detacher_group {}",
+                                                wheeldetacher.wd_wheel_id,
+                                                ar_wheels[wheeldetacher.wd_wheel_id].wh_axis_node_0->pos,
+                                                ar_wheels[wheeldetacher.wd_wheel_id].wh_axis_node_1->pos,
+                                                wheeldetacher.wd_detacher_group));
                                     }
                                 }
                             }
@@ -1442,13 +1430,12 @@ void Actor::CalcBeamsInterActor()
                         // For the compression case we do not remove any of the beam's
                         // strength for structure stability reasons
                         //ar_inter_beams[i]->strength += deform * k * 0.5f;
-                        if (m_beam_deform_debug_enabled)
+                        if (App::diag_log_beam_deform->getBool())
                         {
-                            RoR::Str<300> msg;
-                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
-                                << len << " / " << ar_inter_beams[i]->strength << ". ";
-                            LogBeamNodes(msg, (*ar_inter_beams[i]));
-                            RoR::Log(msg.ToCStr());
+                            App::GetConsole()->putMessage(
+                                Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                fmt::format("Inter-actor beam {} (between nodes {} and {}) just deformed from over-compression (force: {} / strength: {})",
+                                    i, ar_inter_beams[i]->p1->pos, ar_inter_beams[i]->p2->pos, len, ar_inter_beams[i]->strength));
                         }
                     }
                     else if (slen < ar_inter_beams[i]->maxnegstress && difftoBeamL > 0.0f) // expansion
@@ -1466,13 +1453,12 @@ void Actor::CalcBeamsInterActor()
                             ar_inter_beams[i]->minmaxposnegstress = std::min(ar_inter_beams[i]->minmaxposnegstress, ar_inter_beams[i]->strength);
                         }
                         ar_inter_beams[i]->strength -= deform * k;
-                        if (m_beam_deform_debug_enabled)
+                        if (App::diag_log_beam_deform->getBool())
                         {
-                            RoR::Str<300> msg;
-                            msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
-                                << len << " / " << ar_inter_beams[i]->strength << ". ";
-                            LogBeamNodes(msg, (*ar_inter_beams[i]));
-                            RoR::Log(msg.ToCStr());
+                            App::GetConsole()->putMessage(
+                                Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                fmt::format("Inter-actor beam {} (between nodes {} and {}) just deformed from over-extension (force: {} / strength: {})",
+                                    i, ar_inter_beams[i]->p1->pos, ar_inter_beams[i]->p2->pos, len, ar_inter_beams[i]->strength));
                         }
                     }
                 }
@@ -1494,12 +1480,12 @@ void Actor::CalcBeamsInterActor()
                         ar_inter_beams[i]->bm_broken = true;
                         ar_inter_beams[i]->bm_disabled = true;
 
-                        if (m_beam_break_debug_enabled)
+                        if (App::diag_log_beam_break->getBool())
                         {
-                            RoR::Str<200> msg;
-                            msg << "Beam " << i << " just broke with force " << len << " / " << ar_inter_beams[i]->strength << ". ";
-                            LogBeamNodes(msg, (*ar_inter_beams[i]));
-                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr());
+                            App::GetConsole()->putMessage(
+                                Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                fmt::format("Inter-actor beam {} (between nodes {} and {}) just broke (force: {} / strength {}).",
+                                    i, ar_inter_beams[i]->p1->pos, ar_inter_beams[i]->p2->pos, len, ar_inter_beams[i]->strength));
                         }
                     }
                     else
