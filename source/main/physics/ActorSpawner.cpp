@@ -265,7 +265,6 @@ void ActorSpawner::InitializeRig()
 
     m_actor->m_masscount=0;
     m_actor->m_disable_smoke = App::gfx_particles_mode->getInt() == 0;
-    m_actor->m_trigger_debug_enabled    = App::diag_log_beam_trigger->getBool();
     m_actor->ar_origin=Ogre::Vector3::ZERO;
     m_actor->m_slidenodes.clear();
     m_actor->ar_num_cinecams=0;
@@ -3142,9 +3141,9 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
     }
 
-    if (m_actor->m_trigger_debug_enabled)
+    if (App::diag_log_beam_trigger->getBool())
     {
-        LOG("Trigger added. BeamID " + TOSTRING(beam_index));
+        this->AddMessage(Message::TYPE_INFO, "Trigger added. BeamID " + TOSTRING(beam_index));
     }
 
     shock.beamid = beam_index;

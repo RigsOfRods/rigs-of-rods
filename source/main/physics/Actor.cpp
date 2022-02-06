@@ -2646,9 +2646,11 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                 {
                     if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
                     {
-                        if (m_trigger_debug_enabled && !ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 1)
+                        if (App::diag_log_beam_trigger->getBool() && !ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 1)
                         {
-                            LOG(" Trigger disabled. Blocker BeamID " + TOSTRING(i) + " enabled trigger " + TOSTRING(scount));
+                            App::GetConsole()->putMessage(
+                                Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                "Trigger disabled. Blocker BeamID " + TOSTRING(i) + " enabled trigger " + TOSTRING(scount));
                             ar_beams[i].shock->last_debug_state = 1;
                         }
                         ar_beams[scount].shock->trigger_enabled = false; // disable the trigger
@@ -2661,9 +2663,11 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                 {
                     if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
                     {
-                        if (m_trigger_debug_enabled && ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 9)
+                        if (App::diag_log_beam_trigger->getBool() && ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 9)
                         {
-                            LOG(" Trigger enabled. Inverted Blocker BeamID " + TOSTRING(i) + " disabled trigger " + TOSTRING(scount));
+                            App::GetConsole()->putMessage(
+                                Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                "Trigger enabled. Inverted Blocker BeamID " + TOSTRING(i) + " disabled trigger " + TOSTRING(scount));
                             ar_beams[i].shock->last_debug_state = 9;
                         }
                         ar_beams[scount].shock->trigger_enabled = true; // enable the triggers
@@ -2673,9 +2677,11 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
             else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_BLOCKER) // this an enabled cmd-key-blocker and past a boundary
             {
                 ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state = false; // Release the cmdKey
-                if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 2)
+                if (App::diag_log_beam_trigger->getBool() && ar_beams[i].shock->last_debug_state != 2)
                 {
-                    LOG(" F-key trigger block released. Blocker BeamID " + TOSTRING(i) + " Released F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
+                    App::GetConsole()->putMessage(
+                        Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                        "F-key trigger block released. Blocker BeamID " + TOSTRING(i) + " Released F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
                     ar_beams[i].shock->last_debug_state = 2;
                 }
             }
@@ -2696,9 +2702,11 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                             ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong = ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort;
                             ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort = tmpcmdkey;
                             ar_beams[i].shock->trigger_switch_state = ar_beams[i].shock->trigger_boundary_t; //prevent trigger switching again before leaving boundaries or timeout
-                            if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 3)
+                            if (App::diag_log_beam_trigger->getBool() && ar_beams[i].shock->last_debug_state != 3)
                             {
-                                LOG(" Trigger F-key commands switched. Switch BeamID " + TOSTRING(i)+ " switched commands of Trigger BeamID " + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->beamid) + " to cmdShort: F" + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort) + ", cmdlong: F" + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong));
+                                App::GetConsole()->putMessage(
+                                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                    "Trigger F-key commands switched. Switch BeamID " + TOSTRING(i)+ " switched commands of Trigger BeamID " + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->beamid) + " to cmdShort: F" + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdshort) + ", cmdlong: F" + TOSTRING(ar_beams[ar_shocks[scount].beamid].shock->trigger_cmdlong));
                                 ar_beams[i].shock->last_debug_state = 3;
                             }
                         }
@@ -2738,9 +2746,11 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                                 ar_command_key[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 1; // continuous trigger only operates on trigger_cmdshort
                             else
                                 ar_command_key[ar_beams[i].shock->trigger_cmdlong].triggerInputValue = 1;
-                            if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 4)
+                            if (App::diag_log_beam_trigger->getBool() && ar_beams[i].shock->last_debug_state != 4)
                             {
-                                LOG(" Trigger Longbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(ar_beams[i].shock->trigger_cmdlong));
+                                App::GetConsole()->putMessage(
+                                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                    "Trigger Longbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(ar_beams[i].shock->trigger_cmdlong));
                                 ar_beams[i].shock->last_debug_state = 4;
                             }
                         }
@@ -2780,9 +2790,11 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                             else
                                 ar_command_key[ar_beams[i].shock->trigger_cmdshort].triggerInputValue = 1;
 
-                            if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 5)
+                            if (App::diag_log_beam_trigger->getBool() && ar_beams[i].shock->last_debug_state != 5)
                             {
-                                LOG(" Trigger Shortbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
+                                App::GetConsole()->putMessage(
+                                    Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                    "Trigger Shortbound activated. Trigger BeamID " + TOSTRING(i) + " Triggered F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
                                 ar_beams[i].shock->last_debug_state = 5;
                             }
                         }
@@ -2820,9 +2832,11 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                 {
                     if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // don't mess anything up if the user set the number too big
                     {
-                        if (m_trigger_debug_enabled && ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 6)
+                        if (App::diag_log_beam_trigger->getBool() && ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 6)
                         {
-                            LOG(" Trigger enabled. Blocker BeamID " + TOSTRING(i) + " disabled trigger " + TOSTRING(scount));
+                            App::GetConsole()->putMessage(
+                                Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                "Trigger enabled. Blocker BeamID " + TOSTRING(i) + " disabled trigger " + TOSTRING(scount));
                             ar_beams[i].shock->last_debug_state = 6;
                         }
                         ar_beams[scount].shock->trigger_enabled = true; // enable the triggers
@@ -2835,9 +2849,11 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                 {
                     if (ar_beams[scount].shock && (ar_beams[scount].shock->flags & SHOCK_FLAG_ISTRIGGER)) // dont mess anything up if the user set the number too big
                     {
-                        if (m_trigger_debug_enabled && !ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 10)
+                        if (App::diag_log_beam_trigger->getBool() && !ar_beams[scount].shock->trigger_enabled && ar_beams[i].shock->last_debug_state != 10)
                         {
-                            LOG(" Trigger disabled. Inverted Blocker BeamID " + TOSTRING(i) + " enabled trigger " + TOSTRING(scount));
+                            App::GetConsole()->putMessage(
+                                Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                                "Trigger disabled. Inverted Blocker BeamID " + TOSTRING(i) + " enabled trigger " + TOSTRING(scount));
                             ar_beams[i].shock->last_debug_state = 10;
                         }
                         ar_beams[scount].shock->trigger_enabled = false; // disable the trigger
@@ -2847,18 +2863,22 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
             else if ((ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_SWITCH) && ar_beams[i].shock->trigger_switch_state) // this is a switch that was activated and is back inside boundaries again
             {
                 ar_beams[i].shock->trigger_switch_state = 0.0f; //trigger_switch reset
-                if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 7)
+                if (App::diag_log_beam_trigger->getBool() && ar_beams[i].shock->last_debug_state != 7)
                 {
-                    LOG(" Trigger switch reset. Switch BeamID " + TOSTRING(i));
+                    App::GetConsole()->putMessage(
+                        Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                        "Trigger switch reset. Switch BeamID " + TOSTRING(i));
                     ar_beams[i].shock->last_debug_state = 7;
                 }
             }
             else if ((ar_beams[i].shock->flags & SHOCK_FLAG_TRG_CMD_BLOCKER) && !ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state) // this cmdkeyblocker is inside boundaries and cmdkeystate is diabled
             {
                 ar_command_key[ar_beams[i].shock->trigger_cmdshort].trigger_cmdkeyblock_state = true; // activate trigger blocking
-                if (m_trigger_debug_enabled && ar_beams[i].shock->last_debug_state != 8)
+                if (App::diag_log_beam_trigger->getBool() && ar_beams[i].shock->last_debug_state != 8)
                 {
-                    LOG(" F-key trigger blocked. Blocker BeamID " + TOSTRING(i) + " Blocked F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
+                    App::GetConsole()->putMessage(
+                        Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE,
+                        "F-key trigger blocked. Blocker BeamID " + TOSTRING(i) + " Blocked F" + TOSTRING(ar_beams[i].shock->trigger_cmdshort));
                     ar_beams[i].shock->last_debug_state = 8;
                 }
             }
