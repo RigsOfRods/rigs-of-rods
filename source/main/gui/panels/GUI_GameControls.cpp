@@ -183,7 +183,7 @@ void GameControls::DrawEvent(RoR::events ev_code)
 
         ImGui::PushID(&trig);
 
-        if (ImGui::Button(App::GetInputEngine()->getTriggerCommand(trig).c_str()))
+        if (ImGui::Button(App::GetInputEngine()->getTriggerCommand(trig).c_str(), ImVec2(ImGui::GetColumnWidth() - 2*ImGui::GetStyle().ItemSpacing.x, 0)))
         {
             // Begin interactive keybind
             m_active_event = ev_code;
@@ -313,6 +313,7 @@ void GameControls::DrawControlsTabItem(const char* name, const char* prefix)
         ImGui::NextColumn();
         ImGui::TextColored(GRAY_HINT_TEXT, "Description");
         ImGui::NextColumn();
+        ImGui::Separator();
         ImGui::Columns(1); // Cannot cross with child window.
 
         // Scroll region
