@@ -1272,7 +1272,7 @@ void Actor::displayAxleDiffMode()
     if (m_num_axle_diffs == 0)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                _L("No inter-axle differential installed on current vehicle!"), "warning.png");
+                _L("No inter-axle differential installed on current vehicle!"), "error.png");
     }
     else
     {
@@ -1300,7 +1300,7 @@ void Actor::displayWheelDiffMode()
     if (m_num_wheel_diffs == 0)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                _L("No inter-wheel differential installed on current vehicle!"), "warning.png");
+                _L("No inter-wheel differential installed on current vehicle!"), "error.png");
     }
     else
     {
@@ -1331,7 +1331,7 @@ void Actor::displayTransferCaseMode()
     else
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                _L("No transfercase installed on current vehicle!"), "warning.png");
+                _L("No transfercase installed on current vehicle!"), "error.png");
     }
 }
 

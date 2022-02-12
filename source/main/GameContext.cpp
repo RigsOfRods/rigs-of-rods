@@ -1145,7 +1145,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
         }
         if (rescuer == nullptr)
         {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("No rescue truck found!"), "warning.png");
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("No rescue truck found!"), "error.png");
         }
         else
         {
