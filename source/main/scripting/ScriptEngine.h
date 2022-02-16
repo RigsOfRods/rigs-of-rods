@@ -29,6 +29,8 @@
 
 #define TRIGGER_EVENT(x, y) App::GetScriptEngine()->triggerEvent((x), (y))
 
+#define DEFAULT_TERRAIN_SCRIPT "default.as" // Used when map creator doesn't provide custom script.
+
 #include "Application.h"
 #include "GameScript.h"
 #include "InterThreadStoreVector.h"
