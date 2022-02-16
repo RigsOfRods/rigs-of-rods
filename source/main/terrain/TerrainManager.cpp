@@ -120,9 +120,16 @@ TerrainManager::~TerrainManager()
         m_collisions = nullptr;
     }
 
-    for (std::string as_filename : m_def.as_files)
+    if (m_def.as_files.size() != 0)
     {
-        App::GetScriptEngine()->unloadScript(as_filename, ScriptCategory::TERRAIN);
+        for (std::string as_filename : m_def.as_files)
+        {
+            App::GetScriptEngine()->unloadScript(as_filename, ScriptCategory::TERRAIN);
+        }
+    }
+    else
+    {
+        App::GetScriptEngine()->unloadScript(DEFAULT_TERRAIN_SCRIPT, ScriptCategory::TERRAIN);
     }
 }
 
@@ -474,7 +481,7 @@ void TerrainManager::initScripting()
     if (!loaded)
     {
         // load a default script that does the most basic things
-        App::GetScriptEngine()->loadScript("default.as");
+        App::GetScriptEngine()->loadScript(DEFAULT_TERRAIN_SCRIPT);
     }
     // finally activate AS logging, so we dont spam the users screen with initialization messages
     App::GetScriptEngine()->activateLogging();
