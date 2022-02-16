@@ -149,7 +149,7 @@ public:
 
     int fireEvent(std::string instanceName, float intensity);
 
-    int envokeCallback(int functionId, eventsource_t* source, node_t* node = 0, int type = 0);
+    void envokeCallback(int functionId, eventsource_t* source, node_t* node = 0, int type = 0);
 
     AngelScript::asIScriptEngine* getEngine() { return engine; };
 

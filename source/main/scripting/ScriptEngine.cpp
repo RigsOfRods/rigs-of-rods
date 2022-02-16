@@ -471,10 +471,10 @@ int ScriptEngine::fireEvent(std::string instanceName, float intensity)
     return 0;
 }
 
-int ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, node_t *node, int type)
+void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, node_t *node, int type)
 {
     if (!engine || !context)
-        return 0; // TODO: this function returns 0 no matter what - WTF? ~ only_a_ptr, 08/2017
+        return;
 
     for (size_t i = 0; i < m_script_units.size(); i++)
     {
@@ -487,7 +487,7 @@ int ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, node_t 
         else if (functionId <= 0)
         {
             // no default callback available, discard the event
-            return 0;
+            return;
         }
 
         context->Prepare(engine->GetFunctionById(functionId));
@@ -513,8 +513,6 @@ int ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, node_t 
             AngelScript::asDWORD ret = context->GetReturnDWord();
         }
     }
-
-    return 0;
 }
 
 void ScriptEngine::queueStringForExecution(const String command)
