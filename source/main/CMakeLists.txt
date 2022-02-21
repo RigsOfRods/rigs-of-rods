@@ -115,11 +115,6 @@ set(SOURCE_FILES
         gui/imgui/imstb_rectpack.h
         gui/imgui/imstb_textedit.h
         gui/imgui/imstb_truetype.h
-        gui/mygui/Attribute.h
-        gui/mygui/BaseLayout.h
-        gui/mygui/Dialog.{h,cpp}
-        gui/mygui/GuiPanelBase.h
-        gui/mygui/WrapsAttribute.h
         gui/panels/GUI_AngelScriptExamples.{h,cpp}
         gui/panels/GUI_ConsoleView.{h,cpp}
         gui/panels/GUI_ConsoleWindow.{h,cpp}
