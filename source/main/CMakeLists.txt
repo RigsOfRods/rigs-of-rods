@@ -207,7 +207,6 @@ set(SOURCE_FILES
         utils/CollisionTools.{h,cpp}
         utils/ConfigFile.{h,cpp}
         utils/ErrorUtils.{h,cpp}
-        utils/FileSystemInfo.h
         utils/ForceFeedback.{h,cpp}
         utils/ImprovedConfigFile.h
         utils/InputEngine.{h,cpp}
