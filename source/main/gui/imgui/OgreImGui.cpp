@@ -25,6 +25,7 @@
 
 #include "OgreImGui.h"
 
+#include "AppContext.h"
 #include "ContentManager.h"
 #include "OgreImGuiOverlay.h"
 
@@ -140,8 +141,15 @@ void OgreImGui::renderQueueStarted(Ogre::uint8 queueGroupId,
             Ogre::SceneManager* sceneMgr = vp->getCamera()->getSceneManager();
             if (vp->getOverlaysEnabled() && sceneMgr->_getCurrentRenderStage() != Ogre::SceneManager::IRS_RENDER_TO_TEXTURE)
             {
-                //ORIG//Ogre::OverlayManager::getSingleton()._queueOverlaysForRendering(vp->getCamera(), sceneMgr->getRenderQueue(), vp);
-                m_imgui_overlay->_findVisibleObjects(vp->getCamera(), sceneMgr->getRenderQueue(), vp);
+                // Checking `sceneMgr->_getCurrentRenderStage() == Ogre::SceneManager::IRS_RENDER_TO_TEXTURE`)
+                // doesn't do the trick if the RTT is updated by calling `Ogre::RenderTarget::update()` by hand,
+                // which we do frequently.
+                // To compensate, we also check if the active viewport matches our screen viewport.
+                Ogre::Viewport* vp_target = App::GetAppContext()->GetViewport();
+                if (vp == vp_target)
+                {
+                    m_imgui_overlay->_findVisibleObjects(vp->getCamera(), sceneMgr->getRenderQueue(), vp);
+                }
             }
         }
     }
