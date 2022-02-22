@@ -495,6 +495,7 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_SIM_LOAD_TERRN_REQUESTED:
+                    App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
                     App::GetGuiManager()->GetLoadingWindow()->SetProgress(5, _L("Loading resources"));
                     App::GetContentManager()->LoadGameplayResources();
 
@@ -520,6 +521,7 @@ int main(int argc, char *argv[])
                         App::GetGuiManager()->SetVisible_GameMainMenu(false);
                         App::GetGuiManager()->SetVisible_MenuWallpaper(false);
                         App::GetGuiManager()->SetVisible_LoadingWindow(false);
+                        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::VISIBLE);
                         App::gfx_fov_external->setVal(App::gfx_fov_external_default->getInt());
                         App::gfx_fov_internal->setVal(App::gfx_fov_internal_default->getInt());
 #ifdef USE_SOCKETW
