@@ -27,7 +27,7 @@
 
 #include <Ogre.h>
 
-using namespace RoR;
+namespace RoR {
 
 class Turboprop: public AeroEngine, public ZeroedMemoryAllocator
 {
@@ -131,3 +131,5 @@ private:
     NodeNum_t nodep[4];
     NodeNum_t torquenode;
 };
+
+} // namespace RoR
