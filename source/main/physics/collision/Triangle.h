@@ -21,6 +21,12 @@
 
 #include <OgreVector3.h>
 
+/// @addtogroup Physics
+/// @{
+
+/// @addtogroup Collisions
+/// @{
+
 /// Represents a triangle in three-dimensional space.
 ///
 /// Stores the three vertices #a, #b ,#c of the triangle and two
@@ -61,3 +67,6 @@ private:
     mutable bool m_initialized;
     mutable Ogre::Vector3 m_normal; //!< Cached normal vector
 };
+
+/// @} // addtogroup Collisions
+/// @} // addtogroup Physics

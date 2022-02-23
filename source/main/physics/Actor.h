@@ -34,6 +34,10 @@
 
 namespace RoR {
 
+/// @defgroup Physics
+/// Soft-body physics and associated simulations.
+/// @{
+
 /// Softbody object; can be anything from soda can to a space shuttle
 /// Former name: `Beam` (that's why scripting uses `BeamClass`)
 class Actor : public ZeroedMemoryAllocator
@@ -53,14 +57,16 @@ public:
 
     ~Actor();
 
-    //! @{ Network related functions
+    /// @name Networking
+    /// @{
     void              sendStreamSetup();
     void              sendStreamData();                    //!< Send outgoing data
     void              pushNetwork(char* data, int size);   //!< Process incoming data; fills actor's data buffers and flips them. Called by the network thread.//! 
     void              calcNetwork();
-    //!
+    /// @}
 
-    //! @{ Physic state functions
+    /// @name Physics state
+    /// @{
     void              reset(bool keep_position = false);   //!< call this one to reset a truck from any context
     void              resetPosition(Ogre::Vector3 translation, bool setInitPosition); //!< Moves the actor to given world coords.
     void              resetPosition(float px, float pz, bool setInitPosition, float miny); //!< Moves the actor to given world coords.
@@ -89,17 +95,19 @@ public:
     void              updateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces
     void              resetSlideNodePositions();           //!< Recalculate SlideNode positions
     void              resetSlideNodes();                   //!< Reset all the SlideNodes
-    //! @}
+    /// @}
 
-    //! @{ Physics editing functions
+    /// @name Physics editing
+    /// @{
     void              scaleTruck(float value);
     void              setMass(float m);
     void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
     void              searchBeamDefaults();                //!< Searches for more stable beam defaults
     void              updateInitPosition();
-    //! @}
+    /// @}
 
-    //! @{ User interaction functions
+    /// @name User interaction
+    /// @{
     void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
     void              lightsToggle();
     void              setLightsOff();
@@ -138,7 +146,8 @@ public:
     std::vector<Actor*> getAllLinkedActors() { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     //! @}
 
-    //! @{ Visual state updates
+    /// @name Visual state updates
+    /// @{
     void              updateSkidmarks();                   //!< Creates or updates skidmarks.
     void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
     void              updateFlareStates(float dt);
@@ -146,19 +155,22 @@ public:
     void              updateDashBoards(float dt);
     //! @}
 
-    //! @{ Audio related functions
+    /// @name Audio
+    /// @{
     void              updateSoundSources();
     void              muteAllSounds();
     void              unmuteAllSounds();
     //! @}
 
-    //! @{ Subsystems
+    /// @name Subsystems
+    /// @{
     Replay*           getReplay();
     TyrePressure&     getTyrePressure() { return m_tyre_pressure; }
     VehicleAI*        getVehicleAI() { return ar_vehicle_ai; }
     //! @}
 
-    //! @{ Organizational things
+    /// @name Organizational things
+    /// @{
     std::string       getTruckName() { return ar_design_name; }
     std::string       getTruckFileName() { return ar_filename; }
     int               getTruckType() { return ar_driveable; }
@@ -512,8 +524,8 @@ private:
     bool              m_has_axles_section;     //!< Temporary (legacy parsing helper) until central diffs are implemented
     TyrePressure      m_tyre_pressure;
 
-        // Light states
-
+    /// @name Light states
+    /// @{
     GfxFlaresMode     m_flares_mode = GfxFlaresMode::NONE;       //!< Snapshot of cvar 'gfx_flares_mode' on spawn.
     bool              m_headlight_on = true;                     //!< Headlights on/off state.
     bool              m_net_brake_light_on = false;
@@ -523,6 +535,7 @@ private:
     bool              m_custom_lights_on[MAX_CLIGHTS] = {false}; //!< 'u' flares control number on/off states.
     BlinkType         m_blink_type = BLINK_NONE;                 //!< Current turn/warn signal mode.
     bool              m_blinker_autoreset = false;               //!< When true, we're steering and blinker will turn off automatically.
+    /// @}
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
@@ -563,5 +576,7 @@ private:
 
     std::deque<NetUpdate> m_net_updates; //!< Incoming stream of NetUpdates
 };
+
+/// @} // defgroup Physics
 
 } // namespace RoR

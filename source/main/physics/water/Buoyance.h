@@ -24,6 +24,9 @@
 
 namespace RoR {
 
+/// @addtogroup Physics
+/// @{
+
 class Buoyance
 {
 public:
@@ -51,6 +54,8 @@ private:
     DustPool *splashp, *ripplep;
     bool update;
 };
+
+/// @} // addtogroup Physics
 
 } // namespace RoRs
 

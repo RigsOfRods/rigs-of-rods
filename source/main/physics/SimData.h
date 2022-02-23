@@ -57,12 +57,17 @@ enum HookAction
     MOUSE_HOOK_TOGGLE,
 };
 
+/// @addtogroup Physics
+/// @{
+
 enum BeamType: short
 {
     BEAM_NORMAL,
     BEAM_HYDRO,
     BEAM_VIRTUAL,         //!< Excluded from mass calculations, visuals permanently disabled
 };
+
+/// @} // addtogroup Physics
 
 enum HookState
 {
@@ -84,6 +89,9 @@ enum ActorType //!< Aka 'Driveable'
     AI             = 5,   //!< machine controlled by an Artificial Intelligence
 };
 
+/// @addtogroup Physics
+/// @{
+
 enum SpecialBeam: short
 {
     NOSHOCK,        //!< not a shock
@@ -94,6 +102,8 @@ enum SpecialBeam: short
     SUPPORTBEAM,    //!<
     ROPE            //!<
 };
+
+/// @} // addtogroup Physics
 
 enum BlinkType //!< Turn signal
 {
@@ -164,6 +174,9 @@ enum AnimModes
     ANIM_MODE_BOUNCE        = BITMASK(9),
 };
 
+/// @addtogroup Physics
+/// @{
+
 enum ShockFlags
 {
     SHOCK_FLAG_NORMAL           = BITMASK(1),
@@ -182,6 +195,8 @@ enum ShockFlags
     SHOCK_FLAG_TRG_CONTINUOUS   = BITMASK(15),
     SHOCK_FLAG_TRG_ENGINE       = BITMASK(16)
 };
+
+/// @} // addtogroup Physics
 
 enum EngineTriggerType
 {
@@ -213,6 +228,9 @@ enum LocalizerType
     LOCALIZER_VOR
 };
 
+/// @addtogroup Physics
+/// @{
+
 enum class ActorState
 {
     LOCAL_SIMULATED,  //!< simulated (local) actor
@@ -225,7 +243,7 @@ enum class ActorState
 // --------------------------------
 // Soft body physics
 
-typedef uint16_t NodeNum_t;
+typedef uint16_t NodeNum_t; //!< Node position within softbody; use RoR::NODENUM_INVALID as empty value.
 static const NodeNum_t NODENUM_INVALID = std::numeric_limits<NodeNum_t>::max();
 
 /// Physics: A vertex in the softbody structure
@@ -350,6 +368,8 @@ struct collcab_rate_t
     int rate;     // remaining amount of physics cycles to be skipped
     int distance; // distance (in physics cycles) to the previous collision check
 };
+
+/// @} // addtogroup Physics
 
 struct soundsource_t
 {
@@ -583,6 +603,12 @@ struct cparticle_t
 // --------------------------------
 // some non-actor structs
 
+/// @addtogroup Physics
+/// @{
+
+/// @addtogroup Collisions
+/// @{
+
 
 struct collision_box_t
 {
@@ -606,6 +632,7 @@ struct collision_box_t
     Ogre::Vector3 campos;       //!< camera position
 };
 
+/// Surface friction properties.
 struct ground_model_t
 {
     float va;                       //!< adhesion velocity
@@ -643,6 +670,9 @@ struct ground_model_t
     float fx_particle_velo_factor;  //!< velocity factor
     float fx_particle_ttl;
 };
+
+/// @} // addtogroup Collisions
+/// @} // addtogroup Physics
 
 struct authorinfo_t
 {
