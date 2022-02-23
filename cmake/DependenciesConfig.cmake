@@ -7,11 +7,11 @@ set(ROR_FEAT_TIMING OFF)
 
 add_external_lib(
         OGRE
-        ogre3d/1.11.6.1@anotherfoxguy/stable
+        ogre3d/13.3.1@anotherfoxguy/stable
         CONAN_PKG_NAME OGRE
         REQUIRED
         # PKG_CONFIG "OGRE = 1.11.6"
-        FIND_PACKAGE_OPTIONS 1.11 COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain
+        FIND_PACKAGE_OPTIONS 13 COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain
 )
 
 add_external_lib(
@@ -32,7 +32,7 @@ add_external_lib(
 
 add_external_lib(
         MyGUI
-        mygui/3.4.0@anotherfoxguy/stable
+        mygui/3.4.1@anotherfoxguy/stable
         REQUIRED
         # PKG_CONFIG "MYGUI = 3.4.0"
         FIND_PACKAGE
@@ -62,14 +62,14 @@ add_external_lib(
 add_external_lib(
         Caelum
         # Temporary switch back to the rigs of rods version, since the OGRE version is broken
-        ogre3d-caelum/0.6.3@rigs-of-rods/stable
+        ogre3d-caelum/0.6.4.1@anotherfoxguy/stable
         # PKG_CONFIG "Caelum >= 0.6.3"
         CONAN_PKG_NAME Caelum
         FIND_PACKAGE
 )
 add_external_lib(
         PagedGeometry
-        ogre3d-pagedgeometry/1.2.0@anotherfoxguy/stable
+        ogre3d-pagedgeometry/1.3.0.1@anotherfoxguy/stable
         # PKG_CONFIG "PagedGeometry >= 1.2"
         FIND_PACKAGE
         CONAN_PKG_NAME PagedGeometry
