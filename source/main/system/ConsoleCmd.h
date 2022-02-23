@@ -30,7 +30,11 @@
 
 namespace RoR {
 
-class ConsoleCmd // abstract
+/// @addtogroup Console
+/// @{
+
+/// Base (abstract) console command.
+class ConsoleCmd
 {
 public:
     ConsoleCmd(std::string const& name, std::string const& usage, std::string const& doc):
@@ -51,5 +55,7 @@ protected:
     std::string m_usage;
     std::string m_doc;
 };
+
+/// @} // addtogroup Console
 
 } // namespace RoR

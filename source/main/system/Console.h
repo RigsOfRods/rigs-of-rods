@@ -32,7 +32,12 @@
 
 namespace RoR {
 
-/// Global game console backend
+/// @defgroup Console
+/// Centerpiece of the application; parses command line & config, maintains cvars, logs messages.
+/// @{
+
+/// Global game console backend. Frontend is RoR::GUI::ConsoleView.
+/// @remarks Singleton; use `App::GetConsole()` to fetch instance.
 class Console : public Ogre::LogListener
 {
 public:
@@ -156,5 +161,7 @@ private:
     CVarPtrMap               m_cvars_longname;
     CommandPtrMap            m_commands;
 };
+
+/// @} // addtogroup Console
 
 } //namespace RoR
