@@ -35,13 +35,7 @@ THE SOFTWARE.
 namespace Ogre {
 class PSSMShadowCameraSetup;
 
-/** \addtogroup Optional Components
-*  @{
-*/
-/** \addtogroup Terrain
-*  Some details on the terrain component
-*  @{
-*/
+
 
 /** A TerrainMaterialGenerator which can cope with normal mapped, specular mapped
 terrain.
@@ -285,9 +279,6 @@ public:
         bool isShadowingEnabled(TechniqueType tt, const Terrain* terrain) const;
     };
 };
-
-/** @} */
-/** @} */
 
 }
 
