@@ -30,6 +30,9 @@
 
 namespace RoR {
 
+/// @addtogroup Console
+/// @{
+
 enum CVarFlags
 {
     CVAR_TYPE_BOOL    = BITMASK(1),
@@ -39,6 +42,7 @@ enum CVarFlags
     CVAR_NO_LOG       = BITMASK(5)     //!< Will not be written to RoR.log
 };
 
+/// Quake-style console variable, defined in RoR.cfg or crated via Console UI and scripts.
 /// Inspired by Quake II:
 ///   * Struct:     https://github.com/yquake2/yquake2/blob/master/src/common/header/shared.h#L332
 ///   * Functions:  https://github.com/yquake2/yquake2/blob/master/src/common/cvar.c
@@ -113,5 +117,7 @@ private:
     float              m_value_num;
     int                m_flags;
 };
+
+/// @} // addtogroup Console
 
 } // namespace RoR

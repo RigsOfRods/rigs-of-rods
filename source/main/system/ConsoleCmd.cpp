@@ -43,10 +43,16 @@
 #include <Ogre.h>
 #include <fmt/core.h>
 
+/// @file
+
 using namespace RoR;
 
+/// @addtogroup Console
+/// @{
+
 // -------------------------------------------------------------------------------------
-// Builtin console commmands
+/// @defgroup ConsoleCmd Console commmands
+/// @{
 
 class GravityCmd: public ConsoleCmd
 {
@@ -589,6 +595,9 @@ public:
     }
 };
 
+/// @} // defgroup Builtin console commands
+
+
 // -------------------------------------------------------------------------------------
 // Console integration
 
@@ -674,3 +683,5 @@ bool ConsoleCmd::CheckAppState(AppState state)
 }
 
      // Currently unused: _L("Please enter a correct value. ")
+
+/// @} // addtogroup Console
