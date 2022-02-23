@@ -26,6 +26,9 @@
 
 namespace RoR {
 
+/// @addtogroup Terrain
+/// @{
+
 // dynamic roads
 class Road2 : public ZeroedMemoryAllocator
 {
@@ -108,6 +111,8 @@ private:
     bool collision; //!< Register collision triangles?
     std::vector<int> registeredCollTris;
 };
+
+/// @} // addtogroup Terrain
 
 } // namespace RoR
 

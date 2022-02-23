@@ -26,6 +26,9 @@
 
 namespace RoR {
 
+/// @addtogroup Terrain
+/// @{
+
 struct ProceduralPoint
 {
     Ogre::Vector3 position = Ogre::Vector3::ZERO;
@@ -59,5 +62,7 @@ private:
 
     std::vector<ProceduralObject> pObjects;
 };
+
+/// @} // addtogroup Terrain
 
 } // namespace RoR

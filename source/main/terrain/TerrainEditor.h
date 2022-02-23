@@ -25,6 +25,9 @@
 
 namespace RoR {
 
+/// @addtogroup Terrain
+/// @{
+
 /// Minimalist editor mode; orig. code by Ulteq/2016
 /// * Enter/Exit from/to simulation by Ctrl+Y (see EV_COMMON_TOGGLE_TERRAIN_EDITOR)
 /// * Select object by middle mouse button or Enter key (closest to avatar)
@@ -43,5 +46,7 @@ private:
     std::string         m_last_object_name;
     int                 m_object_index = -1;
 };
+
+/// @} // addtogroup Terrain
 
 } // namespace RoR
