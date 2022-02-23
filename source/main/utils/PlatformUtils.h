@@ -32,6 +32,9 @@
 
 namespace RoR {
 
+/// @addtogroup Application
+/// @{
+
 extern char PATH_SLASH;
 
 bool FileExists(const char* path);   //!< Path must be UTF-8 encoded.
@@ -49,5 +52,7 @@ std::string GetExecutablePath(); //!< Returns UTF-8 path or empty string on erro
 std::string GetParentDirectory(const char* path); //!< Returns UTF-8 path without trailing slash.
 
 std::time_t GetFileLastModifiedTime(std::string const & path);
+
+/// @} // addtogroup Application
 
 } // namespace RoR

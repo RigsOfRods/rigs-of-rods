@@ -35,6 +35,10 @@
 
 namespace RoR {
 
+/// @defgroup Application
+/// Integration with host OS, hardware and drivers.
+/// @{
+
 /// Central setup and event handler for input/windowing/rendering.
 /// Inspired by OgreBites::ApplicationContext.
 class AppContext: public OgreBites::WindowEventListener,
@@ -99,5 +103,7 @@ private:
 
     RoR::ForceFeedback   m_force_feedback;
 };
+
+/// @} // defgroup Application
 
 } // namespace RoR
