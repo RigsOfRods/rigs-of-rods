@@ -24,6 +24,11 @@
 #include <OgreMatrix3.h>
 #include <OgreVector3.h>
 
+/// @addtogroup Physics
+/// @{
+
+/// @addtogroup Collisions
+/// @{
 
 /// Defines a linear transformation from cartesian coordinates to local (barycentric) coordinates of a specified triangle.
 /**
@@ -136,3 +141,6 @@ private:
     mutable bool m_initialized;
     mutable Ogre::Matrix3 m_matrix;  //!< Cached transformation matrix.
 };
+
+/// @} // addtogroup Collisions
+/// @} // addtogroup Physics

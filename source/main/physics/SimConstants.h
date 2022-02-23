@@ -37,6 +37,9 @@ static const float RAD_PER_SEC_TO_RPM         = 9.5492965855137f; //!< Convert r
 /* other global static definitions */
 static const int   TRUCKFILEFORMATVERSION     = 3;               //!< truck file format version number
 
+/// @addtogroup Physics
+/// @{
+
 /* physics defaults */
 static const float DEFAULT_RIGIDIFIER_SPRING    = 1000000.0f;
 static const float DEFAULT_RIGIDIFIER_DAMP      = 50000.0f;
@@ -74,3 +77,5 @@ static const int   NODE_LOCKGROUP_DEFAULT       = -1; // all hooks scan all node
 static const int   DEFAULT_DETACHER_GROUP       = 0; // default for detaching beam group
 
 static const float FLAP_ANGLES[6] = {0.f, -0.07f, -0.17f, -0.33f, -0.67f, -1.f};
+
+/// @} // addtogroup Physics

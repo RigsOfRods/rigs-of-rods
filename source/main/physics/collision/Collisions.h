@@ -41,6 +41,13 @@ struct eventsource_t
     bool enabled;
 };
 
+/// @addtogroup Physics
+/// @{
+
+/// @defgroup Collisions
+/// Static & dynamic collision detection systems.
+/// @{
+
 class Collisions : public ZeroedMemoryAllocator
 {
 public:
@@ -193,5 +200,8 @@ public:
 };
 
 Ogre::Vector3 primitiveCollision(node_t* node, Ogre::Vector3 velocity, float mass, Ogre::Vector3 normal, float dt, ground_model_t* gm, float penetration = 0);
+
+/// @} // defgroup Collisions
+/// @} // addtogroup Physics
 
 } // namespace RoR

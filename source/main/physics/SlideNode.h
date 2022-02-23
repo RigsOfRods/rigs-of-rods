@@ -33,7 +33,11 @@
 
 namespace RoR {
 
-struct RailSegment //!< A single beam in a chain
+/// @addtogroup Physics
+/// @{
+
+/// A single beam in a chain
+struct RailSegment
 {
     RailSegment(beam_t* beam): rs_prev(nullptr), rs_next(nullptr), rs_beam(beam) {}
 
@@ -45,7 +49,8 @@ struct RailSegment //!< A single beam in a chain
     beam_t*        rs_beam;
 };
 
-struct RailGroup //!< A series of RailSegment-s for SlideNode to slide along. Can be closed in a loop.
+/// A series of RailSegment-s for SlideNode to slide along. Can be closed in a loop.
+struct RailGroup
 {
     RailGroup(): rg_id(-1) {}
 
@@ -180,6 +185,8 @@ public:
      */
     Ogre::Real getLenTo( const beam_t* beam) const;
 };
+
+/// @} // addtogroup Physics
 
 } // namespace RoR
 

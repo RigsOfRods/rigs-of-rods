@@ -39,6 +39,9 @@
 
 namespace RoR {
 
+/// @addtogroup Physics
+/// @{
+
 /// Processes a RigDef::File data structure (result of parsing a "Truckfile" fileformat) into 'an Actor' - a simulated physical object.
 ///
 /// HISTORY:
@@ -1084,5 +1087,7 @@ private:
     std::list<std::shared_ptr<RigDef::File::Module>>  m_selected_modules;
 
 };
+
+/// @} // addtogroup Physics
 
 } // namespace RoR

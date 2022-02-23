@@ -26,6 +26,12 @@
 
 namespace RoR {
 
+/// @addtogroup Physics
+/// @{
+
+/// @addtogroup Collisions
+/// @{
+
 void ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
         const int free_collcab, int collcabs[], int cabs[],
         collcab_rate_t inter_collcabrate[], node_t nodes[],
@@ -37,5 +43,8 @@ void ResolveIntraActorCollisions(const float dt, PointColDetector &intraPointCD,
         collcab_rate_t intra_collcabrate[], node_t nodes[],
         const float collrange,
         ground_model_t &submesh_ground_model);
+
+/// @} // addtogroup Collisions
+/// @} // addtogroup Physics
 
 } // namespace RoRs

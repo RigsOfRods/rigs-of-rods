@@ -23,6 +23,12 @@
 
 namespace RoR {
 
+/// @addtogroup Physics
+/// @{
+
+/// @addtogroup Collisions
+/// @{
+
 class PointColDetector : public ZeroedMemoryAllocator
 {
 public:
@@ -74,5 +80,8 @@ private:
     void partintwo(const int start, const int median, const int end, const int axis, float& minex, float& maxex);
     void update_structures_for_contacters(bool ignoreinternal);
 };
+
+/// @} // addtogroup Collisions
+/// @} // addtogroup Physics
 
 } // namespace RoR

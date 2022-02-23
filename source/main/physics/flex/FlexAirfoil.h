@@ -27,6 +27,9 @@
 
 namespace RoR {
 
+/// @addtogroup Physics
+/// @{
+
 class FlexAirfoil : public ZeroedMemoryAllocator
 {
 public:
@@ -130,5 +133,7 @@ private:
     int washpropnum[MAX_AEROENGINES];
     float washpropratio[MAX_AEROENGINES];
 };
+
+/// @} // addtogroup Physics
 
 } // namespace RoRs

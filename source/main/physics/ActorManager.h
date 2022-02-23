@@ -39,6 +39,9 @@
 
 namespace RoR {
 
+/// @defgroup Physics
+/// @{
+
 /// Builds and manages softbody actors (physics on background thread, networking)
 class ActorManager
 {
@@ -136,5 +139,7 @@ private:
     std::shared_ptr<Task>       m_sim_task;
     RoR::CmdKeyInertiaConfig    m_inertia_config;
 };
+
+/// @} // addtogroup Physics
 
 } // namespace RoR
