@@ -25,6 +25,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
+/// @addtogroup Aerial
+/// @{
+
 class Autopilot : public ZeroedMemoryAllocator
 {
 public:
@@ -108,5 +114,8 @@ private:
 
     int m_actor_id;
 };
+
+/// @} // addtogroup Aerial
+/// @} // addtogroup Gameplay
 
 } // namespace RoR

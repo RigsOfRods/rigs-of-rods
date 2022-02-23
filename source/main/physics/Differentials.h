@@ -25,6 +25,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
+/// @addtogroup Trucks
+/// @{
+
 struct DifferentialData
 {
     float speed[2];
@@ -81,6 +87,9 @@ public:
 private:
     std::vector<DiffType> m_available_diffs;
 };
+
+/// @} // addtogroup Trucks
+/// @} // addtogroup Gameplay
 
 } // namespace RoR
 

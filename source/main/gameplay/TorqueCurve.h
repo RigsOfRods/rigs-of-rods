@@ -30,6 +30,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
+/// @addtogroup Trucks
+/// @{
+
 /**
  *  @brief This class loads and processes a torque curve for a vehicle.
  */
@@ -108,5 +114,8 @@ protected:
     Ogre::String usedModel; //!< name of the torque model used by the truck.
     std::map<Ogre::String, Ogre::SimpleSpline> splines; //!< container were all torque curve splines are stored in.
 };
+
+/// @} // addtogroup Trucks
+/// @} // addtogroup Gameplay
 
 } // namespace RoR

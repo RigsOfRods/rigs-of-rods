@@ -30,6 +30,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
+/// @addtogroup Character
+/// @{
+
 class Character
 {
 public:
@@ -85,6 +91,9 @@ private:
     unsigned long    m_net_last_update_time;
     GfxCharacter*    m_gfx_character;
 };
+
+/// @} // addtogroup Character
+/// @} // addtogroup Gameplay
 
 struct GfxCharacter
 {

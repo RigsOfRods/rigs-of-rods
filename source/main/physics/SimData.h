@@ -49,6 +49,9 @@ enum CollisionEventFilter: short
     EVENT_DELETE
 };
 
+/// @addtogroup Gameplay
+/// @{
+
 enum HookAction
 {
     HOOK_LOCK=0,
@@ -56,6 +59,8 @@ enum HookAction
     HOOK_TOGGLE,
     MOUSE_HOOK_TOGGLE,
 };
+
+/// @}
 
 /// @addtogroup Physics
 /// @{
@@ -68,6 +73,9 @@ enum BeamType: short
 };
 
 /// @} // addtogroup Physics
+
+/// @addtogroup Gameplay
+/// @{
 
 enum HookState
 {
@@ -89,6 +97,8 @@ enum ActorType //!< Aka 'Driveable'
     AI             = 5,   //!< machine controlled by an Artificial Intelligence
 };
 
+/// @}
+
 /// @addtogroup Physics
 /// @{
 
@@ -104,6 +114,9 @@ enum SpecialBeam: short
 };
 
 /// @} // addtogroup Physics
+
+/// @addtogroup Gameplay
+/// @{
 
 enum BlinkType //!< Turn signal
 {
@@ -174,6 +187,8 @@ enum AnimModes
     ANIM_MODE_BOUNCE        = BITMASK(9),
 };
 
+/// @}
+
 /// @addtogroup Physics
 /// @{
 
@@ -198,6 +213,9 @@ enum ShockFlags
 
 /// @} // addtogroup Physics
 
+/// @addtogroup Gameplay
+/// @{
+
 enum EngineTriggerType
 {
     TRG_ENGINE_CLUTCH    = 0,
@@ -220,6 +238,9 @@ enum class FlareType: char
     DASHBOARD      = 'd'
 };
 
+/// @addtogroup Aerial
+/// @{
+
 enum LocalizerType
 {
     LOCALIZER_VERTICAL,
@@ -227,6 +248,9 @@ enum LocalizerType
     LOCALIZER_NDB,
     LOCALIZER_VOR
 };
+
+/// @}
+/// @}
 
 /// @addtogroup Physics
 /// @{
@@ -428,6 +452,9 @@ struct wheeldetacher_t
     int wd_detacher_group;
 };
 
+/// @addtogroup Gameplay
+/// @{
+
 struct hook_t
 {
     HookState hk_locked;
@@ -599,6 +626,7 @@ struct cparticle_t
     Ogre::ParticleSystem* psys;
 };
 
+/// @}
 
 // --------------------------------
 // some non-actor structs

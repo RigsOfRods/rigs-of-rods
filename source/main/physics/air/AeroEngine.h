@@ -26,6 +26,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
+/// @addtogroup Aerial
+/// @{
+
 class AeroEngine
 {
 public:
@@ -69,5 +75,8 @@ public:
     virtual void updateVisuals(RoR::GfxActor* gfx_actor) = 0;
     virtual void setVisible(bool visible) = 0;
 };
+
+/// @} // addtogroup Aerial
+/// @} // addtogroup Gameplay
 
 } // namespace RoR

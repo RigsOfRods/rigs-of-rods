@@ -40,6 +40,18 @@
 
 namespace RoR {
 
+/// @defgroup Trucks Land vehicles
+/// Cars, trucks, rovers, ATVs, anything.
+
+/// @defgroup Aerial
+/// Airplanes and helicopters.
+
+/// @defgroup Character
+/// Wandering the terrain on foot.
+
+/// @defgroup Marine
+/// Ships and boats of any size and function.
+
 /// @defgroup GameState Game state
 /// Makes all gameplay features work together.
 /// @{

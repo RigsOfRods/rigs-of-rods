@@ -53,6 +53,12 @@ private:
     NodeNum_t m_node_ref                       = NODENUM_INVALID;
 };
 
+/// @addtogroup Gameplay
+/// @{
+
+/// @addtogroup Aerial
+/// @{
+
 class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
 {
 
@@ -127,5 +133,8 @@ private:
     NodeNum_t m_node_front;
     NodeNum_t m_node_ref;
 };
+
+/// @} // addtogroup Aerial
+/// @} // addtogroup Gameplay
 
 } // namespace RoR
