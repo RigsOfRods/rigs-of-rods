@@ -38,6 +38,9 @@
 
 namespace RoR {
 
+/// @addtogroup Audio
+/// @{
+
 class SoundManager : public ZeroedMemoryAllocator
 {
     friend class Sound;
@@ -93,6 +96,8 @@ private:
     ALCdevice*    audio_device;
     ALCcontext*   sound_context;
 };
+
+/// @}
 
 } // namespace RoR
 
