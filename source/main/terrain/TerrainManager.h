@@ -30,6 +30,9 @@
 
 namespace RoR {
 
+/// @addtogroup Terrain
+/// @{
+
 class TerrainManager : public ZeroedMemoryAllocator
 {
 public:
@@ -130,5 +133,7 @@ private:
     Ogre::Light*            m_main_light;
     float                   m_cur_gravity;
 };
+
+/// @} // addtogroup Terrain
 
 } // namespace RoR

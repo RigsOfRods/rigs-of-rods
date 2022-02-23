@@ -27,6 +27,9 @@
 
 namespace RoR {
 
+/// @addtogroup Terrain
+/// @{
+
 class Landusemap : public ZeroedMemoryAllocator
 {
 public:
@@ -44,5 +47,7 @@ protected:
 
     Ogre::Vector3 mapsize;
 };
+
+/// @} // addtogroup Terrain
 
 } // namespace RoR

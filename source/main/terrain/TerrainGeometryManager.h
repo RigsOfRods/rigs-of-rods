@@ -31,6 +31,9 @@
 
 namespace RoR {
 
+/// @addtogroup Terrain
+/// @{
+
 /// this class handles all interactions with the Ogre Terrain system
 class TerrainGeometryManager : public ZeroedMemoryAllocator
 {
@@ -82,5 +85,7 @@ private:
     float mMinHeight;
     float mMaxHeight;
 };
+
+/// @} // addtogroup Terrain
 
 } // namespace RoR

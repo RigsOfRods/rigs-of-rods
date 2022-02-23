@@ -43,6 +43,9 @@
 
 namespace RoR {
 
+/// @addtogroup Terrain
+/// @{
+
 class TerrainObjectManager : public ZeroedMemoryAllocator
 {
 public:
@@ -177,5 +180,7 @@ protected:
     std::vector<Forests::PagedGeometry*> m_paged_geometry;
 #endif //USE_PAGED
 };
+
+/// @} // addtogroup Terrain
 
 } // namespace RoR
