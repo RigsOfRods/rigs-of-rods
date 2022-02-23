@@ -32,6 +32,9 @@
 
 namespace RoR {
 
+/// @addtogroup Audio
+/// @{
+
 class Sound : public ZeroedMemoryAllocator
 {
     friend class SoundManager;
@@ -83,6 +86,8 @@ private:
     // must not be changed during the lifetime of this object
     int source_index;
 };
+
+/// @}
 
 } // namespace RoR
 

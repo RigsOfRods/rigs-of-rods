@@ -37,6 +37,9 @@
 
 namespace RoR {
 
+/// @addtogroup Audio
+/// @{
+
 enum {
     MAX_SOUNDS_PER_SCRIPT = 16,
     MAX_INSTANCES_PER_GROUP = 256
@@ -318,6 +321,8 @@ private:
 
     SoundManager* sound_manager;
 };
+
+/// @}
 
 } // namespace RoR
 
