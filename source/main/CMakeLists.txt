@@ -32,7 +32,6 @@ set(SOURCE_FILES
         gfx/AdvancedScreen.h
         gfx/ColoredTextAreaOverlayElement.{h,cpp}
         gfx/ColoredTextAreaOverlayElementFactory.h
-        gfx/DecalManager.{h,cpp}
         gfx/DustPool.{h,cpp}
         gfx/EnvironmentMap.{h,cpp}
         gfx/GfxActor.{h,cpp}
