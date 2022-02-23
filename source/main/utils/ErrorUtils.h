@@ -31,6 +31,9 @@
 
 #include <OgreUTFString.h>
 
+/// @addtogroup Application
+/// @{
+
 struct ErrorUtils
 {
     /**
@@ -58,3 +61,5 @@ struct ErrorUtils
      */
     static int ShowMsgBox(Ogre::UTFString title, Ogre::UTFString err, int type);
 };
+
+/// @} // addtogroup Application
