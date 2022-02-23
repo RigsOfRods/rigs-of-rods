@@ -54,7 +54,13 @@ namespace RoR {
 // Global definitions and enumerations
 // ------------------------------------------------------------------------------------------------
 
-/// Global gameplay message loop (work in progress), see `struct Message` in GameContext.h
+/// @addtogroup GameState Game state
+/// @{
+
+/// @addtogroup MsgQueue Message queue
+/// @{
+
+/// Global gameplay message loop, see `struct Message` in GameContext.h
 enum MsgType
 {
     MSG_INVALID,
@@ -110,6 +116,8 @@ enum MsgType
     MSG_EDI_RELOAD_BUNDLE_REQUESTED,       //!< Payload = RoR::CacheEntry* (weak)
 };
 
+/// @} // addtogroup MsgQueue
+
 enum class AppState
 {
     BOOTSTRAP,          //!< Initial state
@@ -134,6 +142,8 @@ enum class SimState
     PAUSED,
     EDITOR_MODE //!< Hacky, but whatever... added by Ulteq, 2016
 };
+
+/// @} // addtogroup GameState
 
 enum class SimGearboxMode
 {

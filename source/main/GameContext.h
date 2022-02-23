@@ -40,7 +40,15 @@
 
 namespace RoR {
 
-/// Unified game event system - all requests and state changes are reported using a message (work in progress)
+/// @defgroup GameState Game state
+/// Makes all gameplay features work together.
+/// @{
+
+/// @defgroup MsgQueue Message queue
+/// Ensures everything gets executed at right time & in right order.
+/// @{
+
+/// Unified game event system - all requests and state changes are reported using a message.
 struct Message
 {
     Message(MsgType _type): type(_type) {}
@@ -55,6 +63,9 @@ struct Message
 
 typedef std::queue < Message, std::list<Message>> GameMsgQueue;
 
+/// @} // defgroup MsgQueue
+
+/// Central game state manager.
 /// RoR's gameplay is quite simple in structure, it consists of:
 ///  - static terrain:  static elevation map, managed by `TerrainManager`.
 ///                     this includes static collision objects (or intrusion detection objects), managed by `TerrainObjectManager`.
@@ -86,22 +97,24 @@ class GameContext
 {
 public:
 
-    // ----------------------------
-    // Message queue
+    /// @name Message queue
+    /// @{
 
     void                PushMessage(Message m);  //!< Doesn't guarantee order! Use ChainMessage() if order matters.
     void                ChainMessage(Message m); //!< Add to last pushed message's chain
     bool                HasMessages();
     Message             PopMessage();
 
-    // ----------------------------
-    // Terrain
+    /// @}
+    /// @name Terrain
+    /// @{
 
     bool                LoadTerrain(std::string const& filename_part);
     void                UnloadTerrain();
 
-    // ----------------------------
-    // Actors
+    /// @}
+    /// @name Actors
+    /// @{
 
     Actor*              SpawnActor(ActorSpawnRequest& rq);
     void                ModifyActor(ActorModifyRequest& rq);
@@ -124,15 +137,18 @@ public:
     void                OnLoaderGuiCancel(); //!< GUI callback
     void                OnLoaderGuiApply(RoR::LoaderType type, CacheEntry* entry, std::string sectionconfig);  //!< GUI callback
 
-    // ----------------------------
-    // Characters
+    /// @}
+    /// @name Characters
+    /// @{ 
 
     void                CreatePlayerCharacter(); //!< Terrain must be loaded
     Character*          GetPlayerCharacter();
     CharacterFactory*   GetCharacterFactory() { return &m_character_factory; }
 
-    // ----------------------------
-    // Savegames (defined in Savegame.cpp)
+    /// @}
+    /// @name Savegames
+    /// @{
+    // (defined in Savegame.cpp)
 
     void                LoadScene(std::string const& filename); //!< Matching terrain must be already loaded
     void                SaveScene(std::string const& filename);
@@ -141,8 +157,9 @@ public:
     std::string         ExtractSceneTerrain(std::string const& filename); //!< Returns terrain filename
     void                HandleSavegameHotkeys();
 
-    // ----------------------------
-    // Gameplay feats (misc.)
+    /// @}
+    /// @name Gameplay feats (misc.)
+    /// @{
 
     RaceSystem&         GetRaceSystem() { return m_race_system; }
     RecoveryMode&       GetRecoveryMode() { return m_recovery_mode; }
@@ -155,6 +172,8 @@ public:
     void                UpdateAirplaneInputEvents(float dt);
     void                UpdateBoatInputEvents(float dt);
     void                UpdateTruckInputEvents(float dt);
+
+    /// @}
 
 private:
     // Message queue
@@ -181,5 +200,7 @@ private:
     RecoveryMode        m_recovery_mode;                     //!< Aka 'advanced repair' or 'interactive reset'
     SceneMouse          m_scene_mouse;                       //!< Mouse interaction with scene
 };
+
+/// @} // defgroup GameState
 
 } // namespace RoR
