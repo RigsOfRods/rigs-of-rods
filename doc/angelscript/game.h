@@ -17,22 +17,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created on 23th May 2011 by neorej16
 
-/*! @mainpage
-
-	This is the documentation for the scripting interface of Rigs of Rods.
-
-	If you're wondering what arguments to pass to a function or what a function does, then this is where you should be.
-
-	If you cannot find the answer here, then search the forum for your question.
-	If that didn't provide an answer either, then ask your question in the Scripting forum:
-	http://www.rigsofrods.org/forums/167-Scripting
-
-	Please note that the documentation is work in progress.
-*/
+namespace ScriptAPI {
+ 
+/** \addtogroup ScriptAPI 
+ *  @{
+ */ 
 
 /**
- * @brief A general class that will provide you with general functions
- * @note The game object is already created for you, you don't need to create it yourself.
+ * @brief Binding of RoR::GameScript; A general class that will provide you with general functions.
+ * @note Created automatically as global variable `game`.
  *       E.g.: you can log a message using game.log("Hi, I'm a message");
  */
 class game
@@ -460,3 +453,7 @@ public:
 	*/
 	void quitGame();
 };
+
+/** @}*/   //defgroup ScriptAPI
+
+} //namespace ScriptAPI

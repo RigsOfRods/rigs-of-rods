@@ -27,7 +27,11 @@
 	@date   03/2016
 */
 
-
+namespace ScriptAPI {
+    
+/** \addtogroup ScriptAPI 
+ *  @{
+ */    
 
 /**
 *	Enum with AI events
@@ -49,7 +53,9 @@ enum Ai_values
 	AI_POWER
 };
 
-
+/**
+ * @brief Binding of RoR::VehicleAI; Vehicle driving AI using waypoints.
+ */
 class VehicleAI 
 {
 public:
@@ -91,3 +97,7 @@ public:
 	void SetValueAtWaypoint(Ogre::String id, int value_id, float value);
 
 }
+
+/** @}*/   //addtogroup ScriptAPI
+
+} //namespace ScriptAPI

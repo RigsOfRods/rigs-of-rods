@@ -1,3 +1,12 @@
+namespace ScriptAPI {
+
+/** \addtogroup ScriptAPI 
+ *  @{
+ */
+
+/**
+ * @brief Binding of RoR::Actor; a softbody-physics gameplay object, can be anything from soda can to space shuttle.
+ */
 class BeamClass
 {
 public:
@@ -179,3 +188,7 @@ public:
 	*/	
 	Ogre::Vector3 getNodePosition(int nodeNumber);
 }
+
+/** @}*/   //addtogroup ScriptAPI
+
+} //namespace ScriptAPI

@@ -1,7 +1,20 @@
 /*!
- * @mainpage Rigs of Rods Source Code Documentation
+ * @mainpage Rigs of Rods Developer Manual
+ * 
+ * This page is a reference guide to Rigs of Rods internal mechanics and features, as well as exposed interfaces such as scripting.
+ * The target audience is everyone interested in the workings of the software - from developers, maintainers and contributors to script writers and advanced content creators.
  *
- * # Rigs of Rods 
+ * # AngelScript interface
+ *
+ * For the script-side interface reference, see \ref ScriptAPI pseudo-module
+ *
+ * For the game's scripting subsystem, see sources in directory 'source\main\scripting'.
+ *
+ * # The codebase
+ *
+ * Please read \ref @codebase_overview
+ *
+ * # About Rigs of Rods 
  * 
  * Rigs of Rods is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics. The soft-body physics system is based on mass-spring-damper theory.  
  * For a simple overview of the features Rigs of Rods provides please refer to [Things you can do in Rigs of Rods.pdf](https://github.com/RigsOfRods/rigs-of-rods/blob/master/doc/Things you can do in Rigs of Rods.pdf)  

@@ -1,7 +1,13 @@
 
 
+namespace ScriptAPI {
+    
+/** \addtogroup ScriptAPI 
+ *  @{
+ */
+
 /**
- * @brief Manages input devices, their configuration (input.map ...) and state.
+ * @brief Binding of RoR::InputEngine; Manages input devices, their configuration (input.map ...) and state.
  * @note This object is created automatically as global variable `inputs`.
  */
 class InputEngineClass
@@ -29,3 +35,9 @@ public:
     bool getEventBoolValueBounce(inputEvents ev, float time=0.2);    
 
 };
+
+/** @}*/   //addtogroup ScriptAPI
+
+} //namespace ScriptAPI
+
+

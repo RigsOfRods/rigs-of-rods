@@ -1,7 +1,11 @@
+namespace ScriptAPI {
 
+/** \addtogroup ScriptAPI 
+ *  @{
+ */
 
 /**
- * @brief A class that gives you access to console variables (cvars), usually defined in RoR.cfg file.
+ * @brief Binding of RoR::Console; provides console variables (cvars), usually defined in RoR.cfg file.
  * @note This object is created automatically as global variable `console`.
  */
 class ConsoleClass
@@ -33,3 +37,7 @@ public:
      */
     CVar* cVarGet(std::string const& input_name, int flags);
 };
+
+/** @}*/   //addtogroup ScriptAPI
+
+} //namespace ScriptAPI
