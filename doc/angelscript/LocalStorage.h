@@ -1,5 +1,14 @@
+
+
+namespace ScriptAPI {
+    
+/** \addtogroup ScriptAPI 
+ *  @{
+ */
+
 /**
- * @brief A class that allows your script to store data persistently.
+ * @brief Binding of LocalStorage; A class that allows your script to store data persistently.
+ *
  * The data will be stored on the hard disk of the user. The data will stay available until the user clears his cache.
  * Your data will be saved automatically if the object is destroyed or when you call the save() method.
  * To get your data, you'll have to use the correct get function, as that function will have to convert the data from a string to the correct datatype.
@@ -104,3 +113,7 @@ public:
 	 */
 	void changeSection(const string section);
 };
+
+/** @}*/   //addtogroup ScriptAPI
+
+} //namespace ScriptAPI

@@ -1,4 +1,11 @@
 
+
+namespace ScriptAPI {
+    
+/** \addtogroup ScriptAPI 
+ *  @{
+ */    
+    
 /**
  * @brief Types and special attributes of cvars.
  * @note Default cvar type is string - To create a string cvar, enter '0' as flags.
@@ -13,7 +20,7 @@ enum CVarFlags
 };
 
 /**
- * @brief A console variable, usually defined in RoR.cfg but also created by users or scripts.
+ * @brief Binding of RoR::CVar; A console variable, usually defined in RoR.cfg but also created by users or scripts.
  */
 class CVarClass
 {
@@ -32,3 +39,7 @@ public:
     
     std::string const&      getName() const       { return m_name; }
 };
+
+/** @}*/   //addtogroup ScriptAPI
+
+} //namespace ScriptAPI
