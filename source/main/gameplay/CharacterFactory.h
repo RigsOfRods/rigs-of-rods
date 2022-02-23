@@ -30,6 +30,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
+/// @addtogroup Character
+/// @{
+
 class CharacterFactory
 {
 public:
@@ -51,5 +57,8 @@ private:
     void createRemoteInstance(int sourceid, int streamid);
     void removeStreamSource(int sourceid);
 };
+
+/// @} // addtogroup Character
+/// @} // addtogroup Gameplay
 
 } // namespace RoR

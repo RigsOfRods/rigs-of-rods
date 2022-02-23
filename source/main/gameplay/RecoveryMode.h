@@ -29,6 +29,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
 /// Actor feat - interactive recovery and repair mode, operates on player vehicle
 ///              Aka 'advanced repair' or 'interactive reset'
 class RecoveryMode
@@ -40,5 +43,7 @@ private:
     bool                m_advanced_vehicle_repair = false;
     float               m_advanced_vehicle_repair_timer = 0.f;
 };
+
+/// @} // addtogroup Gameplay
 
 } // namespace RoR

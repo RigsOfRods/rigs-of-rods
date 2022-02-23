@@ -145,6 +145,12 @@ enum class SimState
 
 /// @} // addtogroup GameState
 
+/// @addtogroup Gameplay
+/// @{
+
+/// @addtogroup Trucks
+/// @{
+
 enum class SimGearboxMode
 {
     AUTO,          //!< Automatic shift
@@ -155,6 +161,9 @@ enum class SimGearboxMode
 };
 SimGearboxMode ParseSimGearboxMode(std::string const & s);
 const char* SimGearboxModeToStr(SimGearboxMode v);
+
+/// @}
+/// @}
 
 enum class GfxShadowType
 {

@@ -29,6 +29,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
+/// @addtogroup Trucks
+/// @{
+
 /// Land vehicle feat
 /// Simulates tyre pressurization by adjusting springness of in-wheel beams.
 class TyrePressure
@@ -50,5 +56,8 @@ private:
     float               m_pressure_pressed_timer = 0.f;
     float               m_ref_tyre_pressure = 50.f;
 };
+
+/// @} // addtogroup Trucks
+/// @} // addtogroup Gameplay
 
 } // namespace RoR

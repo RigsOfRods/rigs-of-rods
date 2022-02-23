@@ -26,6 +26,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
+/// @addtogroup Aerial
+/// @{
+
 class Airbrake : public ZeroedMemoryAllocator
 {
     friend class RoR::GfxActor; // Takes over the initialized OGRE objects
@@ -59,5 +65,8 @@ public:
     void updatePosition(float amount);
     void applyForce();
 };
+
+/// @} // addtogroup Aerial
+/// @} // addtogroup Gameplay
 
 } // namespace RoR

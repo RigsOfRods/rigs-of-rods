@@ -25,6 +25,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
 /// Loads and manages 'inertia_models.cfg'
 class CmdKeyInertiaConfig
 {
@@ -55,5 +58,7 @@ protected:
 
     float CalculateCmdOutput(float time, Ogre::SimpleSpline* spline);
 };
+
+/// @} // addtogroup Gameplay
 
 } // namespace RoR

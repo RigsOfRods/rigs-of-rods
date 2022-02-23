@@ -25,6 +25,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
+/// @addtogroup Trucks
+/// @{
+
 /// A land vehicle engine + transmission
 class EngineSim : public ZeroedMemoryAllocator
 {
@@ -236,5 +242,8 @@ private:
     float          m_antilag_rand_chance;
     float          m_antilag_power_factor;
 };
+
+/// @} // addtogroup Trucks
+/// @} // addtogroup Gameplay
 
 } // namespace RoR

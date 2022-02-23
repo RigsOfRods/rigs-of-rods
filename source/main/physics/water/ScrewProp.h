@@ -25,6 +25,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
+/// @addtogroup Marine
+/// @{
+
 class Screwprop : public ZeroedMemoryAllocator
 {
 public:
@@ -53,6 +59,9 @@ private:
     NodeNum_t noderef;
     NodeNum_t nodeup;
 };
+
+/// @} // addtogroup Marine
+/// @} // addtogroup Gameplay
 
 } // namespace RoR
 

@@ -29,6 +29,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
+/// @addtogroup Aerial
+/// @{
+
 class Turboprop: public AeroEngine, public ZeroedMemoryAllocator
 {
 public:
@@ -131,5 +137,8 @@ private:
     NodeNum_t nodep[4];
     NodeNum_t torquenode;
 };
+
+/// @} // addtogroup Aerial
+/// @} // addtogroup Gameplay
 
 } // namespace RoR
