@@ -200,7 +200,6 @@ set(SOURCE_FILES
         terrain/TerrainManager.{h,cpp}
         terrain/TerrainObjectManager.{h,cpp}
         threadpool/ThreadPool.h
-        utils/CollisionTools.{h,cpp}
         utils/ConfigFile.{h,cpp}
         utils/ErrorUtils.{h,cpp}
         utils/ForceFeedback.{h,cpp}
