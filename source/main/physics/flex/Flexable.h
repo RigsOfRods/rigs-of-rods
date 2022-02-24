@@ -24,6 +24,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Flex
+/// @{
+
 // NOTE: class FlexBody no longer uses this interface ~ only_a_ptr, 05/2018
 class Flexable
 {
@@ -36,5 +42,8 @@ public:
 
     virtual void setVisible(bool visible) = 0;
 };
+
+/// @} // addtogroup Flex
+/// @} // addtogroup Gfx
 
 } // namespace RoR

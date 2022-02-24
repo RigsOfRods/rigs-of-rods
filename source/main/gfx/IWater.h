@@ -26,6 +26,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
 class IWater //!< TODO: Mixed gfx+physics (waves) - must be separated ~ only_a_ptr, 02/2018
 {
 public:
@@ -56,5 +59,7 @@ public:
     virtual void           SetForcedCameraTransform(Ogre::Radian fovy, Ogre::Vector3 pos, Ogre::Quaternion rot) {};
     virtual void           ClearForcedCameraTransform() {};
 };
+
+/// @} // addtogroup Gfx
 
 } // namespace RoR

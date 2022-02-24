@@ -26,6 +26,9 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
 class SkyXManager : public ZeroedMemoryAllocator
 {
 public:
@@ -64,4 +67,6 @@ protected:
     int mLastHour = 0;
 };
 
-} // namespace RoRs
+/// @} // addtogroup Gfx
+
+} // namespace RoR

@@ -51,6 +51,12 @@ http://www.gnu.org/copyleft/lesser.txt.
     #define _HydraxGravity_ 9.81
 #endif
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Hydrax
+/// @{
+
 namespace Hydrax{ namespace Noise
 {
 
@@ -148,5 +154,8 @@ private:
 };
 
 }}  // Namespace
+
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
 
 #endif // PRESSUREPOINT_H_INCLUDED

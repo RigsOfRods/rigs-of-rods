@@ -29,6 +29,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Flex
+/// @{
+
 /// Consists of static mesh, representing the rim, and dynamic mesh, representing the tire.
 class FlexMeshWheel: public Flexable
 {
@@ -100,5 +106,8 @@ private:
     size_t           m_index_count;
     unsigned short*  m_indices;
 };
+
+/// @} // addtogroup Flex
+/// @} // addtogroup Gfx
 
 } // namespace RoR

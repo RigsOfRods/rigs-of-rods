@@ -27,6 +27,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "Prerequisites.h"
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Hydrax
+/// @{
+
 namespace Hydrax
 {
     /** Struct wich contains an especific width and height value
@@ -114,5 +120,8 @@ namespace Hydrax
 			                                        const Ogre::Vector2 &c, const Ogre::Vector2 &d);
 	};
 }
+
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
 
 #endif

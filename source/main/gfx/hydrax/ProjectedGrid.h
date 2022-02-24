@@ -37,6 +37,12 @@ http://www.cnblogs.com/ArenAK/archive/2007/11/07/951713.html
 #include "Mesh.h"
 #include "Module.h"
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Hydrax
+/// @{
+
 namespace Hydrax{ namespace Module
 {
 	/** Hydrax projected grid module
@@ -274,5 +280,8 @@ namespace Hydrax{ namespace Module
 		Hydrax* mHydrax;
 	};
 }}
+
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
 
 #endif

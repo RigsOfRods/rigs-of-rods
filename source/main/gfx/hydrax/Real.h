@@ -50,6 +50,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "Wave.h"
 #include "PressurePoint.h"
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Hydrax
+/// @{
+
 namespace Hydrax{ namespace Noise
 {
 
@@ -180,6 +186,8 @@ private:
     std::vector<PressurePoint> mPressurePoints;
 };
 
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
 
 }}  // Namespace
 

@@ -26,6 +26,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
 /// A dynamic environment probe; Creates a cubemap with realtime reflections around specified point.
 class GfxEnvmap
 {
@@ -48,5 +51,7 @@ private:
     Ogre::TexturePtr     m_rtt_texture;
     int                  m_update_round; /// Render targets are updated one-by-one; this is the index of next target to update.
 };
+
+/// @} // addtogroup Gfx
 
 } // namespace RoR

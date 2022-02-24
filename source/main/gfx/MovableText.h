@@ -33,6 +33,9 @@
 #include <OgreUTFString.h>
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
 class MovableText : public Ogre::MovableObject, public Ogre::Renderable
 {
     /******************************** MovableText data ****************************/
@@ -126,6 +129,8 @@ protected:
     const   Ogre::MaterialPtr       &getMaterial(void) const {ROR_ASSERT(!mpMaterial.isNull());return mpMaterial;};
     const   Ogre::LightList         &getLights(void) const {return mLList;};
 };
+
+/// @} // addtogroup Gfx
 
 } // namespace
 

@@ -29,6 +29,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "Enums.h"
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Hydrax
+/// @{
+
 namespace Hydrax
 {
 	class Hydrax;
@@ -376,5 +382,8 @@ namespace Hydrax
 		Hydrax *mHydrax;
 	};
 };
+
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
 
 #endif

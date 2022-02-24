@@ -34,6 +34,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Flex
+/// @{
+
 class FlexMesh: public Flexable
 {
 public:
@@ -92,5 +98,8 @@ private:
     unsigned short*   m_wheelface_indices;
     unsigned short*   m_tiretread_indices;
 };
+
+/// @} // addtogroup Flex
+/// @} // addtogroup Gfx
 
 } // namespace RoR

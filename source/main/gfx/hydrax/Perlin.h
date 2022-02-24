@@ -31,6 +31,12 @@ http://graphics.cs.lth.se/theses/projects/projgrid/
 
 #include "Noise.h"
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Hydrax
+/// @{
+
 #define n_bits				5
 #define n_size				(1<<(n_bits-1))
 #define n_size_m1			(n_size - 1)
@@ -277,5 +283,8 @@ namespace Hydrax{ namespace Noise
 		Options mOptions;
 	};
 }}
+
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
 
 #endif

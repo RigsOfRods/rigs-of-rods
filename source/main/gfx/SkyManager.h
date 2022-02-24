@@ -31,6 +31,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
 class SkyManager : public ZeroedMemoryAllocator
 {
 public:
@@ -54,6 +57,8 @@ private:
     Caelum::LongReal      m_last_clock;
     Caelum::CaelumSystem* m_caelum_system;
 };
+
+/// @} // addtogroup Gfx
 
 } // namespace RoR
 

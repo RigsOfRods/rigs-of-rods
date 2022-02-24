@@ -29,6 +29,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "Help.h"
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Hydrax
+/// @{
+
 namespace Hydrax
 {
 	/** Class for store variable channels of an image
@@ -264,5 +270,8 @@ namespace Hydrax
 		float *mData;
 	};
 }
+
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
 
 #endif

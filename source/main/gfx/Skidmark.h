@@ -52,6 +52,9 @@ private:
     std::map<Ogre::String, std::vector<SkidmarkDef>> m_models;
 };
 
+/// @addtogroup Gfx
+/// @{
+
 class Skidmark
 {
 public:
@@ -96,5 +99,7 @@ private:
     Ogre::SceneNode*     m_scene_node;  
     SkidmarkConfig*      m_config;
 };
+
+/// @} // addtogroup Gfx
 
 } // namespace RoR

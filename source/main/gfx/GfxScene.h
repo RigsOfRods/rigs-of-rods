@@ -36,6 +36,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
 /// Provides a 3D graphical representation of the simulation
 /// Idea: simulation runs at it's own constant rate, scene updates and rendering run asynchronously.
 class GfxScene
@@ -92,5 +95,7 @@ private:
     SimBuffer                         m_simbuf;
     SkidmarkConfig                    m_skidmark_conf;
 };
+
+/// @} // addtogroup Gfx
 
 } // namespace RoR

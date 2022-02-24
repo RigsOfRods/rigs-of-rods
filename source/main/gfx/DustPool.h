@@ -27,6 +27,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
 class DustPool : public ZeroedMemoryAllocator
 {
 public:
@@ -83,5 +86,7 @@ protected:
     int types[MAX_DUSTS];
     bool m_is_discarded;
 };
+
+/// @} // addtogroup Gfx
 
 } // namespace RoRs
