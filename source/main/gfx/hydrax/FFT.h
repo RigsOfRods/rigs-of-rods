@@ -31,6 +31,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include <complex>
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Hydrax
+/// @{
+
 namespace Hydrax{ namespace Noise
 {
 	/** FFT noise module class

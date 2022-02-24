@@ -44,6 +44,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 // ----------------------------------------------------------------------------
 #include "Perlin.h"
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Hydrax
+/// @{
+
 namespace Hydrax{ namespace Noise
 {
 
@@ -127,6 +133,9 @@ private:
     /// Dispersion factor
     float mK;
 };
+
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
 
 }}  // Namespace
 

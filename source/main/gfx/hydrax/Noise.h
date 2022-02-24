@@ -28,6 +28,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "Prerequisites.h"
 #include "GPUNormalMapManager.h"
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Hydrax
+/// @{
+
 namespace Hydrax{ namespace Noise
 {
 	/** Base noise class,
@@ -132,5 +138,8 @@ namespace Hydrax{ namespace Noise
 		bool mGPUNormalMapResourcesCreated;
 	};
 }}
+
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
 
 #endif

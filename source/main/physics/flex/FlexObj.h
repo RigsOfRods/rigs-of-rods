@@ -28,6 +28,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Flex
+/// @{
+
 /// Texture coordinates for old-style actor body (the "cab")
 struct CabTexcoord
 {
@@ -103,5 +109,8 @@ private:
     unsigned short*             m_indices;
     int                         m_triangle_count;	
 };
+
+/// @} // addtogroup Flex
+/// @} // addtogroup Gfx
 
 } // namespace RoRs

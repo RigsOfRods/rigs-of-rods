@@ -35,6 +35,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
 //Store datas using structs
 struct PSSM_Shadows_Data
 {
@@ -67,5 +70,7 @@ protected:
 
     PSSM_Shadows_Data PSSM_Shadows;
 };
+
+/// @} // addtogroup Gfx
 
 } // namespace RoR

@@ -31,6 +31,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "Mesh.h"
 #include "Module.h"
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Hydrax
+/// @{
+
 namespace Hydrax{ namespace Module
 {
 	/** Hydrax radial grid module
@@ -226,5 +232,8 @@ namespace Hydrax{ namespace Module
 		Hydrax* mHydrax;
 	};
 }}
+
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
 
 #endif

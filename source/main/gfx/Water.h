@@ -34,6 +34,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
 class Water : public IWater, public ZeroedMemoryAllocator
 {
 public:
@@ -135,5 +138,7 @@ private:
     Ogre::Vector3         m_cam_forced_position;
     Ogre::Quaternion      m_cam_forced_orientation;
 };
+
+/// @} // addtogroup Gfx
 
 } // namespace RoR

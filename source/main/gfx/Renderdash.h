@@ -27,6 +27,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
 /// 'renderdash' is a name of a classic Render-To-Texture animated material with gauges and other dashboard info.
 class Renderdash: public Ogre::RenderTargetListener
 {
@@ -50,5 +53,7 @@ private:
     Ogre::Overlay*         m_dash_overlay;
     Ogre::Overlay*         m_needles_overlay;
 };
+
+/// @} // addtogroup Gfx
 
 } // namespace RoR

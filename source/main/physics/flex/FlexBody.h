@@ -31,6 +31,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Flex
+/// @{
+
 /// Flexbody = A deformable mesh; updated on CPU every frame, then uploaded to video memory
 class FlexBody
 {
@@ -108,5 +114,8 @@ private:
     bool m_has_texture_blend;
     bool m_blend_changed;
 };
+
+/// @} // addtogroup Flex
+/// @} // addtogroup Gfx
 
 } // namespace RoR

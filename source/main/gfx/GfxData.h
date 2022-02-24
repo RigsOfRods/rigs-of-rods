@@ -33,6 +33,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
 enum PropAnimFlag
 {
     PROP_ANIM_FLAG_AIRSPEED      = BITMASK(1),
@@ -233,5 +236,7 @@ struct FlareMaterial // materialflares
     Ogre::MaterialPtr mat_instance;
     Ogre::ColourValue emissive_color;
 };
+
+/// @} // addtogroup Gfx
 
 } // namespace RoR

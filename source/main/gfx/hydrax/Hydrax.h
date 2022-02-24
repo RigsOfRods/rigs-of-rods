@@ -41,6 +41,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "CfgFileManager.h"
 #include "Module.h"
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Hydrax
+/// @{
+
 namespace Hydrax
 {
     /** Main Hydrax class.
@@ -755,5 +761,8 @@ namespace Hydrax
 		Ogre::Viewport *mViewport;
     };
 }
+
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
 
 #endif

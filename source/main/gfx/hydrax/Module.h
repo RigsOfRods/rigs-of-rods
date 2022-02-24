@@ -32,6 +32,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "MaterialManager.h"
 #include "GPUNormalMapManager.h"
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Hydrax
+/// @{
+
 namespace Hydrax{ namespace Module
 {
 	/** Base module class,
@@ -157,5 +163,8 @@ namespace Hydrax{ namespace Module
 		bool mCreated;
 	};
 }}
+
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
 
 #endif

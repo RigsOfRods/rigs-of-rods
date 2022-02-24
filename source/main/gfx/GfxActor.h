@@ -45,6 +45,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
 class GfxActor
 {
     friend class ActorSpawner; // The factory
@@ -330,5 +333,7 @@ private:
     Ogre::MaterialPtr           m_cab_mat_template_plain;
     Ogre::MaterialPtr           m_cab_mat_template_emissive;
 };
+
+/// @} // addtogroup Gfx
 
 } // Namespace RoR

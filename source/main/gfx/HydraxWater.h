@@ -28,6 +28,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
 class HydraxWater : public IWater
 {
 public:
@@ -58,5 +61,7 @@ protected:
     Hydrax::Module::ProjectedGrid* mModule;
     Ogre::String CurrentConfigFile;
 };
+
+/// @} // addtogroup Gfx
 
 } // namespace RoR

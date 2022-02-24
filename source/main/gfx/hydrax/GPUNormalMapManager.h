@@ -30,6 +30,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "Enums.h"
 #include "RttManager.h"
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Hydrax
+/// @{
+
 namespace Hydrax
 {
 	class Hydrax;
@@ -151,5 +157,8 @@ namespace Hydrax
 		std::vector<Ogre::TexturePtr> mTextures;
 	};
 }
+
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
 
 #endif

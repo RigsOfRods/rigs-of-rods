@@ -39,6 +39,12 @@
 namespace RoR
 {
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Flex
+/// @{
+
 struct FlexBodyRecordHeader
 {
     FlexBodyRecordHeader():
@@ -197,5 +203,8 @@ private:
     bool                    m_is_flexbody_cache_loaded;
     unsigned int            m_flexbody_cache_next_index;
 };
+
+/// @} // addtogroup Flex
+/// @} // addtogroup Gfx
 
 } // namespace RoR
