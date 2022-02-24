@@ -46,7 +46,7 @@ add_external_lib(
 
 add_external_lib(
         AngelScript
-        angelscript/2.32.0@anotherfoxguy/stable
+        angelscript/2.35.0
         # PKG_CONFIG "angelscript = 2.32.0"
         FIND_PACKAGE
 )
