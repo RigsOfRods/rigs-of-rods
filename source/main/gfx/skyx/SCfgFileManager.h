@@ -55,12 +55,7 @@ namespace SkyX
 		 */
 		const bool load(const Ogre::String& File) const;
 
-		/** Save current hydrax config to a file
-		    @param File Destination file name
-			@param Path File path
-			@return false if an error has been ocurred(Check the log file in this case).
-		 */
-		const bool save(const Ogre::String& File, const Ogre::String& Path = "") const;
+		// DEV NOTE: save() removed, it was just a stub and used fopen() which doesn't support UTF-8 paths on MS Windows.
 
 		/** <int> Get the cfg string
 		    @param Name Parameter name

@@ -124,34 +124,6 @@ namespace SkyX
 		return true;
 	}
 
-	const bool CfgFileManager::save(const Ogre::String& File, const Ogre::String& Path) const
-	{
-		Ogre::String Data =
-			"#SkyX cfg file.\n\n";
-
-		Data += "#SkyX version field\n";
-		Data += _getVersionCfgString();
-
-		return _saveToFile(Data, File, Path);
-	}
-
-	const bool CfgFileManager::_saveToFile(const Ogre::String& Data, const Ogre::String& File, const Ogre::String& Path) const
-	{
-		FILE *DestinationFile = fopen((Path+"/"+File).c_str(), "w");
-
-		if (!DestinationFile)
-		{
-			return false;
-		}
-
-		fprintf(DestinationFile, "%s", Data.c_str());
-		fclose(DestinationFile);
-
-		SkyXLOG(File + " saved in " + Path + " .");
-
-		return true;
-	}
-
 	const void CfgFileManager::_loadCfgFile(const Ogre::String& File, std::pair<bool,Ogre::ConfigFile> &Result) const
 	{
 		try
