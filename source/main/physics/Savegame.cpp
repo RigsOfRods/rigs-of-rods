@@ -41,7 +41,6 @@
 #include "TerrainManager.h"
 
 #include <rapidjson/rapidjson.h>
-#include <fstream>
 
 #define SAVEGAME_FILE_FORMAT 3
 

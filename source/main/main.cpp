@@ -57,7 +57,6 @@
 #include <ctime>
 #include <iomanip>
 #include <string>
-#include <fstream>
 
 #ifdef USE_CURL
 #   include <curl/curl.h>

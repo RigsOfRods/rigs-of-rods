@@ -36,7 +36,8 @@ int ExecuteString(asIScriptEngine *engine, const char *code, void *ret, int retT
 
 // Write the registered application interface to a file for an offline compiler.
 // The format is compatible with the offline compiler in /sdk/samples/asbuild/.
-int WriteConfigToFile(asIScriptEngine *engine, const char *filename);
+//RIGS OF RODS: Function removed - fstream doesn't support utf-8 paths on MS Windows.
+//int WriteConfigToFile(asIScriptEngine *engine, const char *filename);
 
 // Write the registered application interface to a text stream.
 int WriteConfigToStream(asIScriptEngine *engine, std::ostream &strm);
