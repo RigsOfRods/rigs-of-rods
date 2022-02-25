@@ -25,7 +25,7 @@
 #include "ConfigFile.h"
 #include "OTCFileFormat.h"
 
-#include <OgreVector3.h>
+#include <Ogre.h>
 #include <Terrain/OgreTerrain.h>
 #include <Terrain/OgreTerrainGroup.h>
 

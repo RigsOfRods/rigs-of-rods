@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 namespace RoR {
 

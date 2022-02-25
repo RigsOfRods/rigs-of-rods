@@ -24,8 +24,8 @@
 
 #include <OgreMaterial.h>
 #include <OgreString.h>
-#include <OgreVector2.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
+#include <Ogre.h>
 
 namespace RoR {
 
