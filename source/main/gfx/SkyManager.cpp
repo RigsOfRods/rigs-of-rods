@@ -143,8 +143,8 @@ void SkyManager::LoadCaelumScript(std::string script, int fogStart, int fogEnd)
     {
         RoR::LogFormat("[RoR] Exception while loading sky script: %s", e.getFullDescription().c_str());
     }
-    Ogre::Vector3 lightsrc = m_caelum_system->getSun()->getMainLight()->getDirection();
-    m_caelum_system->getSun()->getMainLight()->setDirection(lightsrc.normalisedCopy());
+    Ogre::Vector3 lightsrc = m_caelum_system->getSun()->getMainLight()->getDerivedDirection();
+    m_caelum_system->getSun()->getMainLight()->getParentSceneNode()->setDirection(lightsrc.normalisedCopy());
 }
 
 void SkyManager::SetSkyTimeFactor(float factor)

@@ -99,8 +99,8 @@ bool SkyXManager::UpdateSkyLight()
 	mLight0 = App::GetGfxScene()->GetSceneManager()->getLight("Light0");
 	mLight1 = App::GetGfxScene()->GetSceneManager()->getLight("Light1");
 
-	mLight0->setPosition(sunPos*0.02);
-	mLight1->setDirection(lightDir);
+	mLight0->getParentSceneNode()->setPosition(sunPos*0.02);
+	mLight1->getParentSceneNode()->setDirection(lightDir);
     if (App::GetSimTerrain()->getWater())
     {
         App::GetSimTerrain()->getWater()->WaterSetSunPosition(sunPos*0.1);
@@ -113,7 +113,7 @@ bool SkyXManager::UpdateSkyLight()
 	*/
 	Ogre::Vector3 ambientCol = mAmbientGradient.getColor(point);
 	mLight1->setDiffuseColour(ambientCol.x, ambientCol.y, ambientCol.z);
-	mLight1->setPosition(100,100,100);
+	mLight1->getParentSceneNode()->setPosition(100,100,100);
 
 	if (mBasicController->getTime().x > 12)
 	{
