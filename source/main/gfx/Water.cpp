@@ -23,6 +23,7 @@
 
 #include "AppContext.h"
 #include "CameraManager.h"
+#include "ContentManager.h" // RGN_CONFIG
 #include "GfxScene.h"
 #include "PlatformUtils.h" // PathCombine
 #include "TerrainManager.h"
@@ -58,18 +59,19 @@ Water::Water(Ogre::Vector3 terrn_size) :
     if (m_map_size.x < 1500 && m_map_size.z < 1500)
         m_waterplane_mesh_scale = 1.5f;
 
-    char line[1024] = {};
-    std::string filepath = PathCombine(RoR::App::sys_config_dir->getStr(), "wavefield.cfg");
-    FILE* fd = fopen(filepath.c_str(), "r");
-    if (fd)
+    const size_t LINE_MAX = 500;
+    char line[LINE_MAX] = {};
+    // stream closes automatically (smart pointer)
+    Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource("wavefield.cfg", RGN_CONFIG);
+    if (stream->isReadable())
     {
-        while (!feof(fd))
+        while (!stream->eof())
         {
-            int res = fscanf(fd, " %[^\n\r]", line);
+            stream->readLine(line, LINE_MAX);
             if (line[0] == ';')
                 continue;
             float wl, amp, mx, dir;
-            res = sscanf(line, "%f, %f, %f, %f", &wl, &amp, &mx, &dir);
+            int res = sscanf(line, "%f, %f, %f, %f", &wl, &amp, &mx, &dir);
             if (res < 4)
                 continue;
 
@@ -83,8 +85,8 @@ Water::Water(Ogre::Vector3 terrn_size) :
 
             m_wavetrain_defs.push_back(wavetrain);
         }
-        fclose(fd);
     }
+
     for (size_t i = 0; i < m_wavetrain_defs.size(); i++)
     {
         m_wavetrain_defs[i].wavespeed = 1.25 * sqrt(m_wavetrain_defs[i].wavelength);
