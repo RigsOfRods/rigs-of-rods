@@ -27,6 +27,8 @@
 #include <Ogre.h>
 #include <Ogre.h>
 
+#include <queue>
+
 namespace RoR {
 
 class SkidmarkConfig //!< Skidmark config file parser and data container
