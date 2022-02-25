@@ -834,9 +834,6 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         Ogre::Box box = Ogre::Box((size_t)x, (size_t)y, (size_t)(x+w), (size_t)(y+h));
         WriteToTexture(text_buf.ToCStr(), texture, box, font, color, tex_print.font_size, tex_print.font_dpi, tex_print.option);
 
-        // we can save it to disc for debug purposes:
-        //SaveImage(texture, "test.png");
-
         m->clone(tmpMatName);
         MaterialPtr mNew = MaterialManager::getSingleton().getByName(tmpMatName);
         mNew->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(tmpTextName);

@@ -29,14 +29,6 @@
 #include <Overlay/OgreFont.h>
 
 /**
- *  @brief Saves a texture to the disk.
- *  
- *  @param TextureToSave The texture to save.
- *  @param filename The file-name.
- */
-void SaveImage(Ogre::TexturePtr TextureToSave, Ogre::String filename);
-
-/**
  *  @brief Writes a string onto a texture.
  *  
  *  @param str The string to write onto the texture.

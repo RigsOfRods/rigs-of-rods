@@ -33,21 +33,6 @@
 // source: ogre wiki: http://www.ogre3d.org/tikiwiki/tiki-index.php?page=HowTo%3A+Write+text+on+texture
 using namespace Ogre;
 
-void SaveImage(TexturePtr TextureToSave, String filename)
-{
-    HardwarePixelBufferSharedPtr readbuffer;
-    readbuffer = TextureToSave->getBuffer(0, 0);
-    readbuffer->lock(HardwareBuffer::HBL_NORMAL);
-    const PixelBox& readrefpb = readbuffer->getCurrentLock();
-    uchar* readrefdata = static_cast<uchar*>(readrefpb.data);
-
-    Image img;
-    img = img.loadDynamicImage(readrefdata, TextureToSave->getWidth(),
-        TextureToSave->getHeight(), TextureToSave->getFormat());
-    img.save(filename);
-
-    readbuffer->unlock();
-}
 
 void WriteToTexture(const String& str, TexturePtr destTexture, Ogre::Box destRectangle, Ogre::Font* Reffont, const ColourValue& color, int fontSize, int fontDPI, char justify, bool wordwrap)
 {
