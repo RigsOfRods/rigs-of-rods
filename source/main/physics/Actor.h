@@ -492,7 +492,7 @@ private:
     Ogre::Vector3     m_mouse_grab_pos;
     float             m_mouse_grab_move_force;
     float             m_spawn_rotation;
-    Ogre::UTFString   m_net_username;
+    std::string   m_net_username;
     int               m_net_color_num;
     Ogre::Timer       m_reset_timer;
     Ogre::Vector3     m_rotation_request_center;
