@@ -420,9 +420,9 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
             Ogre::Plane plane = Ogre::Plane(normal, center);
             Ogre::Vector3 project = plane.projectVector(App::GetCameraManager()->GetCameraNode()->getPosition() - center);
 
-            vidcam.vcam_ogre_camera->setPosition(center);
-            vidcam.vcam_ogre_camera->lookAt(App::GetCameraManager()->GetCameraNode()->getPosition() - 2.0f * project);
-            vidcam.vcam_ogre_camera->roll(roll);
+            vidcam.vcam_ogre_camera->getParentSceneNode()->setPosition(center);
+            vidcam.vcam_ogre_camera->getParentSceneNode()->lookAt(App::GetCameraManager()->GetCameraNode()->getPosition() - 2.0f * project);
+            vidcam.vcam_ogre_camera->getParentSceneNode()->roll(roll);
 
             continue; // Done processing mirror prop.
         }
@@ -453,14 +453,14 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
         // could this be done faster&better with a plane setFrustumExtents ?
         Ogre::Vector3 frustumUP = abs_pos_center - abs_pos_y;
         frustumUP.normalise();
-        vidcam.vcam_ogre_camera->setFixedYawAxis(true, frustumUP);
+        vidcam.vcam_ogre_camera->getParentSceneNode()->setFixedYawAxis(true, frustumUP);
 
         if (vidcam.vcam_type == VCTYPE_MIRROR)
         {
             //rotate the normal of the mirror by user rotation setting so it reflects correct
             normal = vidcam.vcam_rotation * normal;
             // merge camera direction and reflect it on our plane
-            vidcam.vcam_ogre_camera->setDirection((pos - App::GetCameraManager()->GetCameraNode()->getPosition()).reflect(normal));
+            vidcam.vcam_ogre_camera->getParentSceneNode()->setDirection((pos - App::GetCameraManager()->GetCameraNode()->getPosition()).reflect(normal));
         }
         else if (vidcam.vcam_type == VCTYPE_VIDEOCAM)
         {
@@ -470,7 +470,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
             Ogre::Vector3 refy = abs_pos_center - abs_pos_y;
             refy.normalise();
             Ogre::Quaternion rot = Ogre::Quaternion(-refx, -refy, -normal);
-            vidcam.vcam_ogre_camera->setOrientation(rot * vidcam.vcam_rotation); // rotate the camera orientation towards the calculated cam direction plus user rotation
+            vidcam.vcam_ogre_camera->getParentSceneNode()->setOrientation(rot * vidcam.vcam_rotation); // rotate the camera orientation towards the calculated cam direction plus user rotation
         }
         else if (vidcam.vcam_type == VCTYPE_TRACKING_VIDEOCAM)
         {
@@ -483,17 +483,17 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
             Ogre::Vector3 refy = refx.crossProduct(normal);
             refy.normalise();
             Ogre::Quaternion rot = Ogre::Quaternion(-refx, -refy, -normal);
-            vidcam.vcam_ogre_camera->setOrientation(rot * vidcam.vcam_rotation); // rotate the camera orientation towards the calculated cam direction plus user rotation
+            vidcam.vcam_ogre_camera->getParentSceneNode()->setOrientation(rot * vidcam.vcam_rotation); // rotate the camera orientation towards the calculated cam direction plus user rotation
         }
 
         if (vidcam.vcam_debug_node != nullptr)
         {
             vidcam.vcam_debug_node->setPosition(pos);
-            vidcam.vcam_debug_node->setOrientation(vidcam.vcam_ogre_camera->getOrientation());
+            vidcam.vcam_debug_node->setOrientation(vidcam.vcam_ogre_camera->getParentSceneNode()->getOrientation());
         }
 
         // set the new position
-        vidcam.vcam_ogre_camera->setPosition(pos);
+        vidcam.vcam_ogre_camera->getParentSceneNode()->setPosition(pos);
     }
 }
 
