@@ -25,7 +25,10 @@
 #include "Language.h"
 
 #include "Application.h"
+#include "Console.h"
 #include "PlatformUtils.h"
+
+#include <OgreFileSystem.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -45,6 +48,32 @@ std::pair<std::string, std::string> extractLang(const std::string& info)
     return {lang_long, lang_short};
 }
 
+bool loadMoFile(std::string const& dir, std::string const& filename, bool ignoreMissing)
+{
+    try
+    {
+        Ogre::FileSystemArchiveFactory factory;
+        Ogre::Archive* archive = factory.createInstance(dir);
+        if (ignoreMissing && !archive->exists(filename))
+        {
+            return false;
+        }
+        Ogre::DataStreamPtr stream = archive->open(filename);
+        moFileLib::moFileReader::eErrorCode mo_result =
+            moFileLib::moFileReaderSingleton::GetInstance().ParseData(stream->getAsString());
+        stream->close();
+        factory.destroyInstance(archive);
+        return mo_result == moFileLib::moFileReader::EC_SUCCESS;
+    }
+    catch (Ogre::Exception& ex)
+    {
+        App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not load language file {}/{}, message: {}", dir, filename, ex.getFullDescription()));
+        return false;
+    }
+}
+
 void LanguageEngine::setup()
 {
     // load language, must happen after initializing Settings class and Ogre Root!
@@ -60,8 +89,7 @@ void LanguageEngine::setup()
         for (const auto& file : *fl)
         {
             String locale_path = PathCombine(base_path, file.filename);
-            String mo_path = PathCombine(locale_path, "ror.mo");
-            if (moFileReader.ReadFile(mo_path.c_str()) == moFileLib::moFileReader::EC_SUCCESS)
+            if (loadMoFile(locale_path, "ror.mo", /*ignoreMissing:*/true)) // Logs error to console.
             {
                 String info = moFileLib::moFileReaderSingleton::GetInstance().Lookup("");
                 languages.push_back(extractLang(info));
@@ -73,19 +101,11 @@ void LanguageEngine::setup()
     ResourceGroupManager::getSingleton().destroyResourceGroup("LngRG");
 
     String locale_path = PathCombine(base_path, App::app_language->getStr().substr(0, 2));
-    String mo_path = PathCombine(locale_path, "ror.mo");
 
-    if (moFileReader.ReadFile(mo_path.c_str()) == moFileLib::moFileReader::EC_SUCCESS)
+    if (loadMoFile(locale_path, "ror.mo", /*ignoreMissing:*/false)) // Logs error to console.
     {
         String info = moFileLib::moFileReaderSingleton::GetInstance().Lookup("");
         App::app_language->setStr(extractLang(info).second);
-        RoR::LogFormat("[RoR|App] Loading language file '%s'", mo_path.c_str());
+        RoR::LogFormat("[RoR|App] Language '%s' successfully loaded", App::app_language->getStr().c_str());
     }
-    else
-    {
-        RoR::LogFormat("[RoR|App] Error loading language file: '%s'", mo_path.c_str());
-        return;
-    }
-
-    RoR::Log("[RoR|App] Language successfully loaded");
 }
