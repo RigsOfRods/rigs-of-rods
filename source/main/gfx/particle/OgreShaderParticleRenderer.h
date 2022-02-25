@@ -4,7 +4,7 @@
 
 
 #include <OgreParticleSystemRenderer.h>
-#include <OgreVector2.h>
+#include <Ogre.h>
 
 namespace Ogre {
     /** Specialisation of ParticleSystemRenderer to render particles using

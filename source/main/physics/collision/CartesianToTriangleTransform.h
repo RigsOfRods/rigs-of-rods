@@ -22,7 +22,7 @@
 #include "Triangle.h"
 
 #include <OgreMatrix3.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 
 /// Defines a linear transformation from cartesian coordinates to local (barycentric) coordinates of a specified triangle.

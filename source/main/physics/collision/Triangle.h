@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 /// Represents a triangle in three-dimensional space.
 ///

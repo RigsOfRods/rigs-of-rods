@@ -39,7 +39,7 @@
 #include <OgreMaterial.h>
 #include <OgreQuaternion.h>
 #include <OgreTexture.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 #include <string>
 #include <vector>
 

@@ -21,7 +21,7 @@
 #pragma once
 
 #include <OgreParticleAffectorFactory.h>
-#include <OgreIteratorWrappers.h>
+#include <OgreIteratorWrapper.h>
 
 #include "ExtinguishableFireAffector.h"
 
