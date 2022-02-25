@@ -125,10 +125,9 @@ private:
         unsigned int   num_flexbodies;
     };
 
-    void        OpenFile(const char* fopen_mode);
+    std::string ComposeFileName();
     void        WriteToFile(void* source, size_t length);
     void        ReadFromFile(void* dest, size_t length);
-    inline void CloseFile()                                 { if (m_file != nullptr) { fclose(m_file); } }
                 
     void        WriteSignature();
     void         ReadAndCheckSignature();
@@ -153,7 +152,7 @@ private:
 
     std::vector<FlexBody*>          m_items_to_save;
     std::vector<FlexBodyCacheData>  m_loaded_items;
-    FILE*                           m_file;
+    Ogre::DataStreamPtr             m_file;
     unsigned int                    m_fileformat_version;
     int                             m_cache_entry_number;
 };

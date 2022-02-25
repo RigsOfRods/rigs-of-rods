@@ -26,6 +26,7 @@
 
 #include "Application.h"
 #include "Actor.h"
+#include "ContentManager.h" // RGN_CACHE
 #include "FlexBody.h"
 #include "FlexMeshWheel.h"
 #include "GfxScene.h"
@@ -138,8 +139,9 @@ FlexMeshWheel* FlexFactory::CreateFlexMeshWheel(
 
 void FlexBodyFileIO::WriteToFile(void* source, size_t length)
 {
-    size_t num_written = fwrite(source, length, 1, m_file);
-    if (num_written != 1)
+    
+    size_t num_written = m_file->write(source, length);
+    if (num_written != length)
     {
         FLEX_DEBUG_LOG(__FUNCTION__ " >> EXCEPTION!! ");
         throw RESULT_CODE_FWRITE_OUTPUT_INCOMPLETE;
@@ -148,8 +150,8 @@ void FlexBodyFileIO::WriteToFile(void* source, size_t length)
 
 void FlexBodyFileIO::ReadFromFile(void* dest, size_t length)
 {
-    size_t num_written = fread(dest, length, 1, m_file);
-    if (num_written != 1)
+    size_t num_read = m_file->read(dest, length);
+    if (num_read != length)
     {
         FLEX_DEBUG_LOG(__FUNCTION__ " >> EXCEPTION!! ");
         throw RESULT_CODE_FREAD_OUTPUT_INCOMPLETE;
@@ -286,7 +288,7 @@ void FlexBodyFileIO::ReadFlexbodyColorsBuffer(FlexBodyCacheData* data)
     this->ReadFromFile((void*)data->src_colors, sizeof(Ogre::ARGB) * vertex_count);
 }
 
-void FlexBodyFileIO::OpenFile(const char* fopen_mode)
+std::string FlexBodyFileIO::ComposeFileName()
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
     if (m_cache_entry_number == -1)
@@ -295,11 +297,7 @@ void FlexBodyFileIO::OpenFile(const char* fopen_mode)
     }
     char path[500];
     sprintf(path, "%s%cflexbodies_mod_%00d.dat", App::sys_cache_dir->getStr().c_str(), RoR::PATH_SLASH, m_cache_entry_number);
-    m_file = fopen(path, fopen_mode);
-    if (m_file == nullptr)
-    {
-        throw RESULT_CODE_ERR_FOPEN_FAILED;
-    }
+    return path;
 }
 
 FlexBodyFileIO::ResultCode FlexBodyFileIO::SaveFile()
@@ -310,9 +308,13 @@ FlexBodyFileIO::ResultCode FlexBodyFileIO::SaveFile()
         FLEX_DEBUG_LOG(__FUNCTION__ " >> No flexbodies to save >> EXIT");
         return RESULT_CODE_OK;
     }
+
+    ResultCode retval = RESULT_CODE_OK;
     try
     {
-        this->OpenFile("wb");
+        // do not overwrite existing file - indicates error, if there is one, it should have been loaded in the first place!
+        m_file = Ogre::ResourceGroupManager::getSingleton().createResource(
+            this->ComposeFileName(), RGN_CACHE, /*overwrite:*/false);
 
         this->WriteSignature();
         this->WriteMetadata();
@@ -329,24 +331,25 @@ FlexBodyFileIO::ResultCode FlexBodyFileIO::SaveFile()
             this->WriteFlexbodyNormalsBuffer  (flexbody);
             this->WriteFlexbodyColorsBuffer   (flexbody);
         }
-        this->CloseFile();
         FLEX_DEBUG_LOG(__FUNCTION__ " >> OK ");
-        return RESULT_CODE_OK;
     }
     catch (ResultCode result)
     {
-        this->CloseFile();
         FLEX_DEBUG_LOG(__FUNCTION__ " >> EXCEPTION!! ");
-        return result;
+        retval = result;
     }
+    m_file.reset(); // closes the file stream.
+    return retval;
 }
 
 FlexBodyFileIO::ResultCode FlexBodyFileIO::LoadFile()
 {
     FLEX_DEBUG_LOG(__FUNCTION__);
+    ResultCode retval = RESULT_CODE_OK;
     try 
     {
-        this->OpenFile("rb");
+        m_file = Ogre::ResourceGroupManager::getSingleton().openResource(
+            this->ComposeFileName(), RGN_CACHE, /*searchGroupsIfNotFound:*/false);
         this->ReadAndCheckSignature();
 
         FlexBodyFileMetadata meta;
@@ -370,21 +373,18 @@ FlexBodyFileIO::ResultCode FlexBodyFileIO::LoadFile()
                 this->ReadFlexbodyColorsBuffer   (data);
             }
         }
-
-        this->CloseFile();
         FLEX_DEBUG_LOG(__FUNCTION__ " >> OK ");
-        return RESULT_CODE_OK;
     }
-    catch (ResultCode ret)
+    catch (ResultCode except)
     {
-        this->CloseFile();
         FLEX_DEBUG_LOG(__FUNCTION__ " >> EXCEPTION!! ");
-        return ret;
+        retval = except;
     }
+    m_file.reset(); // closes the file stream.
+    return retval;
 }
 
 FlexBodyFileIO::FlexBodyFileIO():
-    m_file(nullptr),
     m_fileformat_version(0),
     m_cache_entry_number(-1) // flexbody cache disabled (shouldn't be based on the cache entry number ...) ~ ulteq 01/19
     {}
