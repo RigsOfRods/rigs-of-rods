@@ -30,7 +30,7 @@
 #include <Ogre.h>
 #include <Overlay/OgreFontManager.h>
 
-#include <OgreUTFString.h>
+
 namespace RoR {
 
 class MovableText : public Ogre::MovableObject, public Ogre::Renderable
@@ -41,10 +41,10 @@ public:
     enum VerticalAlignment      {V_BELOW, V_ABOVE};
 
 protected:
-    Ogre::UTFString			mFontName;
-    Ogre::UTFString			mType;
+    std::string			mFontName;
+    std::string			mType;
     Ogre::String			    mName;
-    Ogre::UTFString			mCaption;
+    std::string			mCaption;
     HorizontalAlignment	mHorizontalAlignment;
     VerticalAlignment	mVerticalAlignment;
 
@@ -72,8 +72,8 @@ protected:
 
     /******************************** public methods ******************************/
 public:
-    MovableText(const Ogre::UTFString &name, const Ogre::UTFString &caption, 
-                const Ogre::UTFString &fontName = "highcontrast_black",
+    MovableText(const std::string &name, const std::string &caption, 
+                const std::string &fontName = "highcontrast_black",
                 Ogre::Real charHeight = 1.0, const Ogre::ColourValue &color = Ogre::ColourValue::Black);
     virtual ~MovableText();
 
@@ -81,8 +81,8 @@ public:
     virtual void visitRenderables(Ogre::Renderable::Visitor* visitor, bool debugRenderables = false) {};
 
     // Set settings
-    void    setFontName(const Ogre::UTFString &fontName);
-    void    setCaption(const Ogre::UTFString &caption);
+    void    setFontName(const std::string &fontName);
+    void    setCaption(const std::string &caption);
     void    setColor(const Ogre::ColourValue &color);
     void    setCharacterHeight(Ogre::Real height);
     void    setSpaceWidth(Ogre::Real width);
@@ -91,8 +91,8 @@ public:
     void    showOnTop(bool show=true);
 
     // Get settings
-    const   Ogre::UTFString          &getFontName() const {return mFontName;}
-    const   Ogre::UTFString          &getCaption() const {return mCaption;}
+    const   std::string          &getFontName() const {return mFontName;}
+    const   std::string          &getCaption() const {return mCaption;}
     const   Ogre::ColourValue     &getColor() const {return mColor;}
 
     Ogre::uint    getCharacterHeight() const {return (Ogre::uint) mCharHeight;}

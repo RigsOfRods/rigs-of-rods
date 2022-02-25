@@ -46,7 +46,7 @@ void Differential::CalcAxleTorque(DifferentialData& diff_data)
     }
 }
 
-Ogre::UTFString Differential::GetDifferentialTypeName()
+std::string Differential::GetDifferentialTypeName()
 {
     if (m_available_diffs.empty())
         return _L("invalid");
