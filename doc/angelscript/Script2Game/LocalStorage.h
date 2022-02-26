@@ -1,10 +1,13 @@
 
-
-namespace ScriptAPI {
-    
-/** \addtogroup ScriptAPI 
+/** \addtogroup ScriptSideAPIs
  *  @{
- */
+ */    
+
+/** \addtogroup Script2Game
+ *  @{
+ */    
+
+namespace Script2Game {
 
 /**
  * @brief Binding of LocalStorage; A class that allows your script to store data persistently.
@@ -114,6 +117,7 @@ public:
 	void changeSection(const string section);
 };
 
-/** @}*/   //addtogroup ScriptAPI
+/** @}*/   //addtogroup Script2Game
+/** @}*/   //addtogroup ScriptSideAPIs
 
-} //namespace ScriptAPI
+} //namespace Script2Game
