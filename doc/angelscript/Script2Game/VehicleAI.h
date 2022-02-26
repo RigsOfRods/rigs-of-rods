@@ -27,11 +27,15 @@
 	@date   03/2016
 */
 
-namespace ScriptAPI {
-    
-/** \addtogroup ScriptAPI 
+/** \addtogroup ScriptSideAPIs
  *  @{
  */    
+
+/** \addtogroup Script2Game
+ *  @{
+ */    
+
+namespace Script2Game {
 
 /**
 *	Enum with AI events
@@ -98,6 +102,7 @@ public:
 
 }
 
-/** @}*/   //addtogroup ScriptAPI
+/** @}*/   //addtogroup Script2Game
+/** @}*/   //addtogroup ScriptSideAPIs
 
-} //namespace ScriptAPI
+} //namespace ScriptSideAPIs

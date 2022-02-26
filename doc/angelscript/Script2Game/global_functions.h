@@ -17,19 +17,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created on 25th May 2011.
 
-/** @defgroup ScriptAPI Script-side API
- *  @brief This pseudo-module documents features available to scripts.
- *  Unless otherwise noted, any script (terrain, custom, future enhancements) can access these features.
- *  @warning This is a pseudo-module; it doesn't exist in codebase, only in this documentation.
- */
- 
- /** \addtogroup ScriptAPI 
+/** \addtogroup ScriptSideAPIs
  *  @{
- */
+ */    
 
-/** @brief Pseudo-namespace; it doesn't exist in code or script runtime, only in this documentation.
- */ 
-namespace ScriptAPI {
+/** \addtogroup Script2Game
+ *  @{
+ */   
+
+namespace Script2Game {
 
 /**
  * This is an alias for game.log(string message).
@@ -420,6 +416,7 @@ enum truckStates {
 	TS_DELETED,        //!< special used when truck pointer is 0
 };
 
-} //namespace ScriptAPI
+} // namespace Script2Game
 
-/** @}*/   //addtogroup ScriptAPI
+/** @}*/   //addtogroup Script2Game
+/** @}*/   //addtogroup ScriptSideAPIs

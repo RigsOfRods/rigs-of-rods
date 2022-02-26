@@ -4,6 +4,16 @@
  * @author neorej16
  */
 
+namespace Script2Script { 
+
+/** \addtogroup ScriptSideAPIs
+ *  @{
+ */    
+
+/** \addtogroup Script2Script
+ *  @{
+ */
+
 /**
  * A function signature for the callback pointers.
  * When you need to use a RACE_EVENT_CALLBACK as parameter, then
@@ -560,3 +570,8 @@ public:
 	 */
 	void loadRace(int raceID);
 }
+
+/** @}*/   //addtogroup Script2Script
+/** @}*/   //addtogroup ScriptSideAPIs
+
+} // namespace Script2Script
