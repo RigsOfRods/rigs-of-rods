@@ -51,7 +51,9 @@ using namespace RoR;
 /// @{
 
 // -------------------------------------------------------------------------------------
-/// @defgroup ConsoleCmd Console commmands
+// Builtin console commands.
+
+/// @addtogroup ConsoleCmd
 /// @{
 
 class GravityCmd: public ConsoleCmd
@@ -595,8 +597,7 @@ public:
     }
 };
 
-/// @} // defgroup Builtin console commands
-
+/// @} // addtogroup ConsoleCmd
 
 // -------------------------------------------------------------------------------------
 // Console integration

@@ -35,8 +35,7 @@
 
 namespace RoR {
 
-/// @defgroup Application
-/// Integration with host OS, hardware and drivers.
+/// @addtogroup Application
 /// @{
 
 /// Central setup and event handler for input/windowing/rendering.
@@ -104,6 +103,6 @@ private:
     RoR::ForceFeedback   m_force_feedback;
 };
 
-/// @} // defgroup Application
+/// @} // addtogroup Application
 
 } // namespace RoR
