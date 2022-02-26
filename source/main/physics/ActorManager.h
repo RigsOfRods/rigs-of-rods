@@ -39,7 +39,7 @@
 
 namespace RoR {
 
-/// @defgroup Physics
+/// @addtogroup Physics
 /// @{
 
 /// Builds and manages softbody actors (physics on background thread, networking)

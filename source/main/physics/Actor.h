@@ -34,8 +34,7 @@
 
 namespace RoR {
 
-/// @defgroup Physics
-/// Soft-body physics and associated simulations.
+/// @addtogroup Physics
 /// @{
 
 /// Softbody object; can be anything from soda can to a space shuttle
@@ -577,6 +576,6 @@ private:
     std::deque<NetUpdate> m_net_updates; //!< Incoming stream of NetUpdates
 };
 
-/// @} // defgroup Physics
+/// @} // addtogroup Physics
 
 } // namespace RoR

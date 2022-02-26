@@ -40,24 +40,10 @@
 
 namespace RoR {
 
-/// @defgroup Trucks Land vehicles
-/// Cars, trucks, rovers, ATVs, anything.
-
-/// @defgroup Aerial
-/// Airplanes and helicopters.
-
-/// @defgroup Character
-/// Wandering the terrain on foot.
-
-/// @defgroup Marine
-/// Ships and boats of any size and function.
-
-/// @defgroup GameState Game state
-/// Makes all gameplay features work together.
+/// @addtogroup GameState
 /// @{
 
-/// @defgroup MsgQueue Message queue
-/// Ensures everything gets executed at right time & in right order.
+/// @addtogroup MsgQueue
 /// @{
 
 /// Unified game event system - all requests and state changes are reported using a message.
@@ -75,7 +61,7 @@ struct Message
 
 typedef std::queue < Message, std::list<Message>> GameMsgQueue;
 
-/// @} // defgroup MsgQueue
+/// @} // addtogroup MsgQueue
 
 /// Central game state manager.
 /// RoR's gameplay is quite simple in structure, it consists of:
@@ -213,6 +199,6 @@ private:
     SceneMouse          m_scene_mouse;                       //!< Mouse interaction with scene
 };
 
-/// @} // defgroup GameState
+/// @} // addtogroup GameState
 
 } // namespace RoR

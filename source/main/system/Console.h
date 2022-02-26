@@ -32,8 +32,7 @@
 
 namespace RoR {
 
-/// @defgroup Console
-/// Centerpiece of the application; parses command line & config, maintains cvars, logs messages.
+/// @addtogroup Console
 /// @{
 
 /// Global game console backend. Frontend is RoR::GUI::ConsoleView.
