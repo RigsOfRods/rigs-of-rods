@@ -176,7 +176,7 @@ namespace Ogre {
         /// @copydoc ParticleSystemRenderer::getType
         virtual const String& getType(void) const;
         /// @copydoc ParticleSystemRenderer::_updateRenderQueue
-        virtual void _updateRenderQueue(RenderQueue* queue, Ogre::list<Particle*>::type& currentParticles, bool cullIndividually);
+        virtual void _updateRenderQueue(RenderQueue* queue, std::vector<Particle*>& currentParticles, bool cullIndividually);
         /// @copydoc ParticleSystemRenderer::visitRenderables
         virtual void visitRenderables(Renderable::Visitor* visitor, bool debugRenderables = false);
         /// @copydoc ParticleSystemRenderer::_setMaterial
@@ -193,10 +193,6 @@ namespace Ogre {
         virtual void _notifyAttached(Node* parent, bool isTagPoint = false);
         /// @copydoc ParticleSystemRenderer::_notifyDefaultDimensions
         virtual void _notifyDefaultDimensions(Real width, Real height);
-        /// @copydoc ParticleSystemRenderer::_createVisualData
-        virtual ParticleVisualData* _createVisualData(void);
-        /// @copydoc ParticleSystemRenderer::_destroyVisualData
-        virtual void _destroyVisualData(ParticleVisualData* vis);
         /// @copydoc ParticleSystemRenderer::setRenderQueueGroup
         virtual void setRenderQueueGroup(uint8 queueID);
         /// @copydoc ParticleSystemRenderer::setKeepParticlesInLocalSpace
