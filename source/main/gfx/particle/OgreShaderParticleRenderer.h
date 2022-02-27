@@ -183,7 +183,7 @@ namespace Ogre {
         /// @{
         virtual const String& getType(void) const override;
         virtual void _updateRenderQueue(RenderQueue* queue, Ogre::list<Particle*>::type& currentParticles, bool cullIndividually) override;
-        virtual void visitRenderables(Renderable::Visitor* visitor, bool debugRenderables = false) override;
+        virtual void _updateRenderQueue(RenderQueue* queue, std::vector<Particle*>& currentParticles, bool cullIndividually);
         virtual void _setMaterial(MaterialPtr& mat) override;
         virtual void _notifyCurrentCamera(Camera* cam) override;
         virtual void _notifyParticleRotated(void) override;
