@@ -30,8 +30,6 @@ set(SOURCE_FILES
         gameplay/TyrePressure.{h,cpp}
         gameplay/VehicleAI.{h,cpp}
         gfx/AdvancedScreen.h
-        gfx/ColoredTextAreaOverlayElement.{h,cpp}
-        gfx/ColoredTextAreaOverlayElementFactory.h
         gfx/DecalManager.{h,cpp}
         gfx/DustPool.{h,cpp}
         gfx/EnvironmentMap.{h,cpp}
