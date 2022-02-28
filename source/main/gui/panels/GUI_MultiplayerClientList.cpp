@@ -138,6 +138,10 @@ void MpClientList::Draw()
             ImGui::TextColored(ImVec4(col.r, col.g, col.b, col.a), "%s", user.username);
             ImGui::Separator();
 
+            ImGui::TextDisabled("%s: ",_LC("MultiplayerClientList", "user uid"));
+            ImGui::SameLine();
+            ImGui::Text("%d", user.uniqueid);
+
             ImGui::TextDisabled("%s", _LC("MultiplayerClientList", "user language: "));
             ImGui::SameLine();
             ImGui::Text("%s", parts[0].c_str());
