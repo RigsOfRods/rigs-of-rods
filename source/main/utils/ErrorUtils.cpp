@@ -64,9 +64,9 @@ int ErrorUtils::ShowMsgBox(std::string title, std::string err, int type)
     std::wstring err_w = RoR::Utf8ToWideChar(err);
     MessageBoxW(NULL, title_w.c_str(), err_w.c_str(), MB_OK | mtype | MB_TOPMOST);
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-	printf("\n\n%s: %s\n\n", title.asUTF8_c_str(), err.asUTF8_c_str());
+	printf("\n\n%s: %s\n\n", title.c_str(), err.c_str());
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-	printf("\n\n%s: %s\n\n", title.asUTF8_c_str(), err.asUTF8_c_str());
+	printf("\n\n%s: %s\n\n", title.c_str(), err.c_str());
     //CFOptionFlags flgs;
     //CFUserNotificationDisplayAlert(0, kCFUserNotificationStopAlertLevel, NULL, NULL, NULL, T("A network error occured"), T("Bad server port."), NULL, NULL, NULL, &flgs);
 #endif
