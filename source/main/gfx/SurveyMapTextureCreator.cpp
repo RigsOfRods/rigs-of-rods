@@ -65,11 +65,14 @@ bool SurveyMapTextureCreator::init(int res, int fsaa)
     mRttTex->setAutoUpdated(false);
 
     mCamera = App::GetGfxScene()->GetSceneManager()->createCamera("MapRttCam-" + TOSTRING(counter));
-    mCamera->getParentSceneNode()->setFixedYawAxis(false);
-    mCamera->getParentSceneNode()->setDirection(-Vector3::UNIT_Y);
     mCamera->setProjectionType(PT_ORTHOGRAPHIC);
     mCamera->setNearClipDistance(1.0f);
     mCamera->setFarClipDistance(0);
+
+    Ogre::SceneNode* mCamera_snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    mCamera_snode->attachObject(mCamera);
+    mCamera_snode->setFixedYawAxis(false);
+    mCamera_snode->setDirection(-Vector3::UNIT_Y);
 
     auto mViewport = mRttTex->addViewport(mCamera);
     mViewport->setBackgroundColour(ColourValue::Black);
