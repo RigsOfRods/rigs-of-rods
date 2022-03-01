@@ -2173,6 +2173,9 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
         flare.light->setType(Ogre::Light::LT_SPOTLIGHT);
         flare.light->setSpotlightRange( Ogre::Degree(35), Ogre::Degree(45) );
         flare.light->setCastShadows(false);
+
+        Ogre::SceneNode* snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        snode->attachObject(flare.light);
     }
     m_actor->ar_flares.push_back(flare);
 }
