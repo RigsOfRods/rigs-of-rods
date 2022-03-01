@@ -7,6 +7,7 @@ in vec4 position;
 in vec4 uv0;
 in vec4 colour;
 uniform float YFlipScale;
+uniform mat4 worldViewProj;
 
 out vec4 outUV0;
 out vec4 outColor;
