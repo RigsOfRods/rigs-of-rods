@@ -7091,6 +7091,9 @@ void ActorSpawner::CreateMirrorPropVideoCam(
         vcam.vcam_ogre_camera->setAspectRatio(
             (App::GetCameraManager()->GetCamera()->getViewport()->getActualWidth() / App::GetCameraManager()->GetCamera()->getViewport()->getActualHeight()) / 2.0f);
 
+        Ogre::SceneNode* snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        snode->attachObject(vcam.vcam_ogre_camera);
+
         // Setup rendering
         vcam.vcam_render_target = vcam.vcam_render_tex->getBuffer()->getRenderTarget();
         vcam.vcam_render_target->setActive(true);
