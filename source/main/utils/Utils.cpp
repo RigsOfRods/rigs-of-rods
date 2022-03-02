@@ -147,9 +147,8 @@ std::string RoR::Sha1Hash(std::string const & input)
 std::wstring RoR::Utf8ToWideChar(std::string input_utf8)
 {
     // https://stackoverflow.com/a/14809553
-    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,char16_t> convert;
-    std::u16string temp_utf16 = convert.from_bytes(input_utf8);
-    assert(sizeof(wchar_t) == sizeof(char16_t));
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>,wchar_t> convert;
+    std::wstring temp_utf16 = convert.from_bytes(input_utf8);
     return std::wstring(reinterpret_cast<const wchar_t*>(temp_utf16.c_str()));
 }
 
