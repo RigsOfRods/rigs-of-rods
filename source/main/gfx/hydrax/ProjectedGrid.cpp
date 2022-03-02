@@ -28,6 +28,8 @@ http://www.cnblogs.com/ArenAK/archive/2007/11/07/951713.html
 --------------------------------------------------------------------------------
 */
 
+#include "GfxScene.h"
+
 #include <ProjectedGrid.h>
 
 #define _def_MaxFarClipDistance 99999
@@ -164,6 +166,12 @@ namespace Hydrax{namespace Module
 
 		mTmpRndrngCamera  = new Ogre::Camera("PG_TmpRndrngCamera", NULL);
 		mProjectingCamera = new Ogre::Camera("PG_ProjectingCamera", NULL);
+
+                Ogre::SceneNode* mTmpRndrngCamera_snode = RoR::App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+                mTmpRndrngCamera_snode->attachObject(mTmpRndrngCamera);
+
+                Ogre::SceneNode* mProjectingCamera_snode = RoR::App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+                mProjectingCamera_snode->attachObject(mProjectingCamera);
 
 		HydraxLOG(getName() + " created.");
 	}
