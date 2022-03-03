@@ -6991,6 +6991,9 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         // TODO: Eliminate gEnv
         vcam.vcam_ogre_camera = App::GetGfxScene()->GetSceneManager()->createCamera(vcam.vcam_material->getName() + "_camera");
 
+        Ogre::SceneNode* vcam_snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        vcam_snode->attachObject(vcam.vcam_ogre_camera);
+
         if (!App::gfx_window_videocams->getBool())
         {
             vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(
