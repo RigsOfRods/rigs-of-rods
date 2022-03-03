@@ -222,6 +222,9 @@ void Water::PrepareWater()
                     (Real)RoR::App::GetAppContext()->GetRenderWindow()->getViewport(0)->getActualWidth() /
                     (Real)RoR::App::GetAppContext()->GetRenderWindow()->getViewport(0)->getActualHeight());
 
+                Ogre::SceneNode* m_refract_cam_snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+                m_refract_cam_snode->attachObject(m_refract_cam);
+
                 m_refract_rtt_viewport = m_refract_rtt_target->addViewport(m_refract_cam);
                 m_refract_rtt_viewport->setClearEveryFrame(true);
                 m_refract_rtt_viewport->setBackgroundColour(App::GetGfxScene()->GetSceneManager()->getFogColour());
@@ -254,6 +257,9 @@ void Water::PrepareWater()
             m_reflect_cam->setAspectRatio(
                 (Real)RoR::App::GetAppContext()->GetRenderWindow()->getViewport(0)->getActualWidth() /
                 (Real)RoR::App::GetAppContext()->GetRenderWindow()->getViewport(0)->getActualHeight());
+
+            Ogre::SceneNode* m_reflect_cam_snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+            m_reflect_cam_snode->attachObject(m_reflect_cam);
 
             m_reflect_rtt_viewport = m_reflect_rtt_target->addViewport(m_reflect_cam);
             m_reflect_rtt_viewport->setClearEveryFrame(true);
