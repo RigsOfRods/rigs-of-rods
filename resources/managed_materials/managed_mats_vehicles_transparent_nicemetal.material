@@ -30,7 +30,7 @@ material managed/flexmesh_transparent/specularonly_nicemetal
             texture_unit Specular_Map
             {
                 // This pass will use this 2D texture as its input
-                texture_alias specular_tex
+                texture specular_tex
                 tex_coord_set 1
             }
         }
@@ -51,7 +51,7 @@ material managed/flexmesh_transparent/specularonly_nicemetal
               texture_unit Specular_Map
               {
                   // This pass will use this 2D texture as its input
-                  texture_alias specular_tex
+                  texture specular_tex
                   tex_coord_set 0
               }
               texture_unit envmaptex
@@ -95,7 +95,7 @@ material managed/flexmesh_transparent/speculardamage_nicemetal
             texture_unit Specular_Map
             {
                 // This pass will use this 2D texture as its input
-                texture_alias specular_tex
+                texture specular_tex
                 tex_coord_set 1
             }
             texture_unit Dmg_Diffuse_Map
@@ -122,7 +122,7 @@ material managed/flexmesh_transparent/speculardamage_nicemetal
               texture_unit Specular_Map
               {
                   // This pass will use this 2D texture as its input
-                  texture_alias specular_tex 2d
+                  texture specular_tex 2d
                   tex_coord_set 0
               }
               texture_unit envmaptex
@@ -163,7 +163,7 @@ material managed/mesh_transparent/specular_nicemetal
             texture_unit Specular_Map
             {
                 // This pass will use this 2D texture as its input
-                texture_alias specular_tex
+                texture specular_tex
                 tex_coord_set 1
             }
         }
@@ -183,7 +183,7 @@ material managed/mesh_transparent/specular_nicemetal
               texture_unit Specular_Map
               {
                   // This pass will use this 2D texture as its input
-                  texture_alias specular_tex
+                  texture specular_tex
                   tex_coord_set 0
               }
               texture_unit envmaptex
