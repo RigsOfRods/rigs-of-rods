@@ -32,7 +32,7 @@ add_external_lib(
 
 add_external_lib(
         MyGUI
-        mygui/3.4.1@anotherfoxguy/stable
+        mygui/3.4.0@anotherfoxguy/stable
         REQUIRED
         # PKG_CONFIG "MYGUI = 3.4.0"
         FIND_PACKAGE

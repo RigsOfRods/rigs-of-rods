@@ -6,15 +6,17 @@ precision highp float;
 in vec4 position;
 in vec4 uv0;
 in vec4 colour;
-uniform mat4 worldViewProj;
+uniform float YFlipScale;
 
 out vec4 outUV0;
 out vec4 outColor;
 
-// Texturing vertex program for GLSL
+// Texturing vertex program for GLSL ES
 void main()
 {
-	gl_Position = worldViewProj * position;
+	vec4 vpos = position;
+	vpos.y *= YFlipScale;
+	gl_Position = vpos;
 	outUV0 = uv0;
 	outColor = colour;
 }
