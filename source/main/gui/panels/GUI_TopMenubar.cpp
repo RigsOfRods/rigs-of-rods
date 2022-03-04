@@ -139,10 +139,6 @@ void TopMenubar::Update()
     if ((m_open_menu != TopMenu::TOPMENU_SETTINGS) && ImGui::IsItemHovered())
     {
         m_open_menu = TopMenu::TOPMENU_SETTINGS;
-#ifdef USE_CAELUM
-        if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
-            m_daytime = App::GetSimTerrain()->getSkyManager()->GetTime();
-#endif // USE_CAELUM
     }
 
     ImGui::SameLine();
@@ -474,10 +470,9 @@ void TopMenubar::Update()
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Time of day:"));
-                float time = App::GetSimTerrain()->getSkyManager()->GetTime();
-                if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
+                if (ImGui::SliderFloat("", &m_daytime, -0.5f, 0.5f, ""))
                 {
-                    App::GetSimTerrain()->getSkyManager()->SetTime(time);
+                    App::GetSimTerrain()->getSkyManager()->SetTime(m_daytime);
                 }
                 ImGui::SameLine();
                 DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
