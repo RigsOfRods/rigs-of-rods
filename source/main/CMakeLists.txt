@@ -474,7 +474,6 @@ else ()
 endif ()
 
 configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
-configure_file(plugins_d.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins_d.cfg)
 
 # Copy resources to bin directory
 # -----------------------
