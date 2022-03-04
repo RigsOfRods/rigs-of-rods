@@ -179,6 +179,12 @@ bool SkyXManager::InitLight()
 	mLight1 = App::GetGfxScene()->GetSceneManager()->createLight("Light1");
 	mLight1->setType(Ogre::Light::LT_DIRECTIONAL);
 
+        Ogre::SceneNode* mLight0_snode = RoR::App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        mLight0_snode->attachObject(mLight0);
+
+        Ogre::SceneNode* mLight1_snode = RoR::App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        mLight1_snode->attachObject(mLight1);
+
 	return true;
 }
 
