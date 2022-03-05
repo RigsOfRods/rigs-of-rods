@@ -7,7 +7,7 @@ set(ROR_FEAT_TIMING OFF)
 
 add_external_lib(
         OGRE
-        ogre3d/13.3.1@anotherfoxguy/stable
+        ogre3d/13.3.1@anotherfoxguy/patched
         CONAN_PKG_NAME OGRE
         REQUIRED
         # PKG_CONFIG "OGRE = 1.11.6"
