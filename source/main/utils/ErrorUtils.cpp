@@ -62,7 +62,7 @@ int ErrorUtils::ShowMsgBox(std::string title, std::string err, int type)
         mtype = MB_ICONINFORMATION;
     std::wstring title_w = RoR::Utf8ToWideChar(title);
     std::wstring err_w = RoR::Utf8ToWideChar(err);
-    MessageBoxW(NULL, title_w.c_str(), err_w.c_str(), MB_OK | mtype | MB_TOPMOST);
+    MessageBoxW(NULL, err_w.c_str(), title_w.c_str(), MB_OK | mtype | MB_TOPMOST);
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 	printf("\n\n%s: %s\n\n", title.c_str(), err.c_str());
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
