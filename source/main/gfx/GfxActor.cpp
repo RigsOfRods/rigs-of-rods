@@ -423,6 +423,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
             vidcam.vcam_ogre_camera->setPosition(center);
             vidcam.vcam_ogre_camera->lookAt(App::GetCameraManager()->GetCameraNode()->getPosition() - 2.0f * project);
             vidcam.vcam_ogre_camera->roll(roll);
+            vidcam.vcam_ogre_camera->setNearClipDistance(1); // fixes Caelum sky rendered black on mirrors
 
             continue; // Done processing mirror prop.
         }
