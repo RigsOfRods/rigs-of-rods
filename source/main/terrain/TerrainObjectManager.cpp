@@ -310,7 +310,13 @@ void TerrainObjectManager::ProcessTree(
     float max = maxDist * terrainManager->getPagedDetailFactor();
     if (max < 10)
         max = 10;
-    geom->addDetailLevel<ImpostorPage>(max, max / 10);
+
+    // Check if farther details level is greater than closer
+    if (max / 10 > min / 2)
+    {
+        geom->addDetailLevel<ImpostorPage>(max, max / 10);
+    }
+
     TreeLoader2D *treeLoader = new TreeLoader2D(geom, TBounds(0, 0, mapsizex, mapsizez));
     geom->setPageLoader(treeLoader);
     treeLoader->setHeightFunction(&getTerrainHeight);
