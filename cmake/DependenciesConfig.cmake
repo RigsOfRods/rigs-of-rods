@@ -7,7 +7,7 @@ set(ROR_FEAT_TIMING OFF)
 
 add_external_lib(
         OGRE
-        ogre3d/13.3.1@anotherfoxguy/patched
+        ogre3d/13.4.2@anotherfoxguy/stable
         CONAN_PKG_NAME OGRE
         REQUIRED
         # PKG_CONFIG "OGRE = 1.11.6"
@@ -24,7 +24,7 @@ add_external_lib(
 
 add_external_lib(
         OIS
-        ois/1.4@rigsofrods/custom
+        ois/1.5.1@anotherfoxguy/stable
         REQUIRED
         PKG_CONFIG "ois >= 1.4"
         FIND_PACKAGE
@@ -32,7 +32,7 @@ add_external_lib(
 
 add_external_lib(
         MyGUI
-        mygui/3.4.0@anotherfoxguy/patched
+        mygui/3.4.0@anotherfoxguy/stable
         REQUIRED
         # PKG_CONFIG "MYGUI = 3.4.0"
         FIND_PACKAGE
