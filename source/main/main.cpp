@@ -849,6 +849,8 @@ int main(int argc, char *argv[])
                         }
                         App::GetCameraManager()->UpdateInputEvents(dt);
                         App::GetOverlayWrapper()->update(dt);
+                        App::GetGameContext()->GetRecoveryMode().UpdateInputEvents(dt);
+                        App::GetGameContext()->GetActorManager()->UpdateInputEvents(dt);
                         if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
                         {
                             if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
@@ -881,8 +883,6 @@ int main(int argc, char *argv[])
                                 App::GetGameContext()->UpdateSkyInputEvents(dt);
                             }
                         }
-                        App::GetGameContext()->GetRecoveryMode().UpdateInputEvents(dt);
-                        App::GetGameContext()->GetActorManager()->UpdateInputEvents(dt);
                     } // app state SIMULATION
                 } // interactive key binding mode
             } // dt != 0
