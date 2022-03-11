@@ -796,6 +796,7 @@ void RepositorySelector::Draw()
             }
 
             // Draw table body
+            int num_drawn_items = 0;
             for (int i = 0; i < m_data.items.size(); i++)
             {
                 // Skip items from non mod categories
@@ -912,6 +913,24 @@ void RepositorySelector::Draw()
                     else if (m_view_mode == "Compact")
                     {
                         float orig_cursor_x = ImGui::GetCursorPos().x;
+
+                        // Calc box size: Draw 3 boxes per line, 2 for small resolutions
+                        float box_width = (ImGui::GetIO().DisplaySize.x / 1.4) / 3;
+                        if (ImGui::GetIO().DisplaySize.x <= 1280)
+                        {
+                            box_width = (ImGui::GetIO().DisplaySize.x / 1.4) / 2;
+                        }
+
+                        // Skip to new line if at least 50% of the box can't fit on current line.
+                        if (orig_cursor_x > ImGui::GetWindowContentRegionMax().x - (box_width * 0.5)) 
+                        {
+                            // Unless this is the 1st line... not much to do with such narrow window.
+                            if (num_drawn_items != 0)
+                            {
+                                ImGui::NewLine();
+                            }
+                        }
+
                         ImGui::BeginGroup();
 
                         ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.70f, 0.70f, 0.70f, 0.90f));
@@ -921,13 +940,6 @@ void RepositorySelector::Draw()
                         // Wrap a Selectable around images + text
                         float orig_cursor_y = ImGui::GetCursorPosY();
                         std::string item_id = "##" + std::to_string(i);
-
-                        // Draw 3 boxes per line, 2 for small resolutions
-                        float box_width = (ImGui::GetIO().DisplaySize.x / 1.4) / 3;
-                        if (ImGui::GetIO().DisplaySize.x <= 1280)
-                        {
-                            box_width = (ImGui::GetIO().DisplaySize.x / 1.4) / 2;
-                        }
 
                         if (ImGui::Selectable(item_id.c_str(), m_selected_item.resource_id == m_data.items[i].resource_id, 0, ImVec2(box_width - ImGui::GetStyle().ItemSpacing.x, 100)))
                         {
@@ -998,12 +1010,6 @@ void RepositorySelector::Draw()
 
                         ImGui::EndGroup();
                         ImGui::SameLine();
-
-                        // Add new line
-                        if ( orig_cursor_x > ImGui::GetWindowSize().x - box_width)
-                        {
-                            ImGui::NewLine();
-                        }
                     }
                     else if (m_view_mode == "Basic")
                     {
@@ -1068,6 +1074,7 @@ void RepositorySelector::Draw()
                         ImGui::Separator();
                     }
                     ImGui::PopID();
+                    num_drawn_items++;
                 }
             }
             ImGui::EndChild();
