@@ -308,12 +308,11 @@ void DownloadResourceFile(int resource_id, std::string filename, int id)
     RepoProgressContext progress_context;
     progress_context.filename = filename;
 
+    CURL *curl = curl_easy_init();
     try // We write using Ogre::DataStream which throws exceptions
     {
         // smart pointer - closes stream automatically
         Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(file, RGN_REPO);
-
-        CURL *curl = curl_easy_init();
 
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
@@ -326,9 +325,6 @@ void DownloadResourceFile(int resource_id, std::string filename, int id)
         curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, &progress_context);
         curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, CurlProgressFunc); // Use our progress window
         curl_easy_perform(curl);
-
-        curl_easy_cleanup(curl);
-        curl = nullptr;
     }
     catch (Ogre::Exception& oex)
     {
@@ -337,6 +333,8 @@ void DownloadResourceFile(int resource_id, std::string filename, int id)
             fmt::format("Repository UI: cannot download file '{}' - {}",
                 url, oex.getFullDescription()));
     }
+    curl_easy_cleanup(curl);
+    curl = nullptr;
 
     App::GetGameContext()->PushMessage(
             Message(MSG_GUI_DOWNLOAD_FINISHED));
