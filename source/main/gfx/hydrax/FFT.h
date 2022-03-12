@@ -276,4 +276,7 @@ namespace Hydrax{ namespace Noise
 	};
 }}
 
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
+
 #endif

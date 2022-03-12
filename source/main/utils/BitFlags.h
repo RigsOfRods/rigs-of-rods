@@ -2,7 +2,8 @@
 
 #include <cstdint>
 
-/** @file Bit operations */
+/// @file
+/// @brief Bit operations
 
 // BITMASK(1) = 0x00000001 = 0b00....0001
 // BITMASK(2) = 0x00000002 = 0b00....0010

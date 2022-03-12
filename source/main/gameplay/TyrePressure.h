@@ -21,7 +21,8 @@
 
 #pragma once
 
-/// @file Wheel 'pressure adjustment' logic (only for 'wheels2')
+/// @file
+/// @brief Wheel 'pressure adjustment' logic (only for 'wheels2')
 
 #include "Application.h"
 

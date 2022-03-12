@@ -19,8 +19,8 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file   Generic UI dialog (not modal). Invocable from scripting.
-///         Any number of buttons. Configurable to fire script events or post MQ messages.
+/// @file   
+/// @brief  Generic UI dialog (not modal). Invocable from scripting. Any number of buttons. Configurable to fire script events or post MQ messages.
 /// @author Moncef Ben Slimane, 2014
 /// @author Petr Ohlidal, 2021 - extended config.
 

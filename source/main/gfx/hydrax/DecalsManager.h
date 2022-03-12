@@ -295,4 +295,7 @@ namespace Hydrax
 	};
 };
 
+/// @} // addtogroup Hydrax
+/// @} // addtogroup Gfx
+
 #endif

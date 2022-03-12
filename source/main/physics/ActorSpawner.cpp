@@ -83,7 +83,7 @@ const char* ACTOR_ID_TOKEN = "@Actor_"; // Appended to material name, followed b
 using namespace RoR;
 
 /* -------------------------------------------------------------------------- */
-/* Prepare for loading
+// Prepare for loading
 /* -------------------------------------------------------------------------- */
 
 void ActorSpawner::Setup(
@@ -580,12 +580,7 @@ void ActorSpawner::FinalizeRig()
 }
 
 /* -------------------------------------------------------------------------- */
-/* Actual loading
-/* ~~~ Implemented in ActorSpawner_ProcessControl.cpp!
-/* -------------------------------------------------------------------------- */
-
-/* -------------------------------------------------------------------------- */
-/* Processing functions and utilities.
+// Processing functions and utilities.
 /* -------------------------------------------------------------------------- */
 
 void ActorSpawner::WashCalculator()
@@ -5831,7 +5826,7 @@ void ActorSpawner::ProcessGlobals(RigDef::Globals & def)
 }
 
 /* -------------------------------------------------------------------------- */
-/* Limits.
+// Limits.
 /* -------------------------------------------------------------------------- */
 
 bool ActorSpawner::CheckParticleLimit(unsigned int count)

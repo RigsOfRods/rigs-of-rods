@@ -39,9 +39,7 @@ public:
 
 };
 
-/** @}*/   //addtogroup Script2Game
-/** @}*/   //addtogroup ScriptSideAPIs
-
 } //namespace Script2Game
 
-
+/// @}    //addtogroup Script2Game
+/// @}    //addtogroup ScriptSideAPIs

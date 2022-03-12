@@ -21,7 +21,8 @@
 
 #pragma once
 
-/// @file Actor feat - interactive recovery and repair mode
+/// @file
+/// @brief Actor feat - interactive recovery and repair mode
 
 #include "Application.h"
 

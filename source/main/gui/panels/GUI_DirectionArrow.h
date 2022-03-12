@@ -19,7 +19,8 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file Race direction arrow and text info (using OGRE Overlay)
+/// @file
+/// @brief Race direction arrow and text info (using OGRE Overlay)
 
 #pragma once
 

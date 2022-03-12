@@ -19,7 +19,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file BeamSlideNode.cpp
+/// @file
 /// @author Christopher Ritchey
 /// @date 10/30/2009
 

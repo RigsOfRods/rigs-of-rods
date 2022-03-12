@@ -21,7 +21,8 @@
 
 #pragma once
 
-/// @file Counterpart to Neorej16's race system script
+/// @file
+/// @brief Counterpart to Neorej16's race system script
 
 #include <Ogre.h>
 
