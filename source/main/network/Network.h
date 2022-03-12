@@ -41,6 +41,9 @@
 
 namespace RoR {
 
+/// @addtogroup Network
+/// @{
+
 // ----------------------- Network messages (packed) -------------------------
 
 #pragma pack(push, 1)
@@ -173,6 +176,8 @@ private:
     std::vector<NetRecvPacket> m_recv_packet_buffer;
     std::deque <NetSendPacket> m_send_packet_buffer;
 };
+
+/// @}   //addtogroup Network
 
 } // namespace RoR
 

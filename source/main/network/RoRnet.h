@@ -21,6 +21,10 @@
 
 #include "BitFlags.h"
 
+/// @file
+/// @addtogroup Network
+/// @{
+
 namespace RoRnet {
 
 #define RORNET_MAX_PEERS            64     //!< maximum clients connected at the same time
@@ -199,5 +203,7 @@ struct LegacyServerInfo
 };
 
 } // namespace RoRnet
+
+/// @}   //addtogroup Network
 
 #pragma pack(pop)

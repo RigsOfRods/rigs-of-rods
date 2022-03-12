@@ -37,4 +37,5 @@
 /// @defgroup Scripting Scripting
 /// Game scripting subsystem using AngelScript.
 
-
+/// @defgroup Network Network
+/// Multiplayer and integration with remote services.

@@ -39,6 +39,9 @@
 
 namespace RoR {
 
+/// @addtogroup Network
+/// @{
+
 class OutGauge
 {
 public:
@@ -108,6 +111,8 @@ private:
         int            ID;           // optional - only if OutGauge ID is specified
     });
 };
+
+/// @}   //addtogroup Network
 
 } // namespace RoR
 
