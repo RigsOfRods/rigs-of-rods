@@ -23,6 +23,9 @@
 
 namespace RoR {
 
+/// @addtogroup Network
+/// @{
+
 /// Wrapper class, just for code consistency with other subsystems
 class DiscordRpc
 {
@@ -31,5 +34,7 @@ public:
     void UpdatePresence();
     void Shutdown();	
 };
+
+/// @}   //addtogroup Network
 
 } // namespace RoR
