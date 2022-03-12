@@ -67,45 +67,27 @@ static size_t CurlWriteFunc(void *ptr, size_t size, size_t nmemb, std::string* d
 
 struct RepoProgressContext
 {
-    double start = (double)(App::GetAppContext()->GetOgreRoot()->getTimer()->getMillisecondsCPU());
     std::string filename;
     double old_perc = 0;
 };
 
-static size_t CurlProgressFunc(void* ptr, double TotalToDownload, double NowDownloaded)
+static size_t CurlProgressFunc(void* ptr, double filesize_B, double downloaded_B)
 {
     // Ensure that the file to be downloaded is not empty because that would cause a division by zero error later on
-    if (TotalToDownload <= 0.0)
+    if (filesize_B <= 0.0)
     {
         return 0;
     }
 
     RepoProgressContext* context = (RepoProgressContext*)ptr;
 
-    double perc = (NowDownloaded / TotalToDownload) * 100;
+    double perc = (downloaded_B / filesize_B) * 100;
 
     if (perc > context->old_perc)
     {
-        double filesize = TotalToDownload / 1024;
-        double downloaded = NowDownloaded / 1024;
-        double speed = NowDownloaded / ((double)(App::GetAppContext()->GetOgreRoot()->getTimer()->getMillisecondsCPU()) - context->start) * 0.001;
-        double remain = ((TotalToDownload - NowDownloaded) / speed) / 100000; // seconds
-        std::string left = "sec";
-
-        if (remain > 3600)
-        {
-            remain = (remain / 60) / 60;
-            left = "hours";
-        }
-        else if (remain > 60 && remain < 3600)
-        {
-            remain = remain / 60;
-            left = "min";
-        }
-
         RoR::Message m(MSG_GUI_DOWNLOAD_PROGRESS);
         m.payload = reinterpret_cast<void*>(new int(perc));
-        m.description = fmt::format("{} {}\n{} {:.2f}{}\n{} {:.0f} {} ({:.2f}{} {:.2f}{})", "Downloading", context->filename, "Speed:", speed / 10, "MB/s", "Remaining time:", remain, left, downloaded / 1000, "MB of", filesize / 1000, "MB");
+        m.description = fmt::format("{} {}\n{}: {:.2f}{}\n{}: {:.2f}{}", "Downloading", context->filename, "File size", filesize_B/(1024 * 1024), "MB", "Downloaded", downloaded_B/(1024 * 1024), "MB");
         App::GetGameContext()->PushMessage(m);
     }
 
