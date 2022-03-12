@@ -34,4 +34,7 @@
 /// @defgroup ConsoleCmd Console commmands
 /// Built-in console commands.
 
+/// @defgroup Scripting Scripting
+/// Game scripting subsystem using AngelScript.
+
 

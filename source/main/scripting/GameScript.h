@@ -32,11 +32,8 @@
 
 namespace RoR {
 
-struct curlMemoryStruct
-{
-    char* memory;
-    size_t size;
-};
+/// @addtogroup Scripting
+/// @{
 
 /**
  *  @brief Proxy class that can be called by script functions
@@ -378,5 +375,7 @@ private:
     bool HavePlayerAvatar(const char* func_name); //!< Helper; Check if local Character instance exists, log warning if not.
     bool HaveMainCamera(const char* func_name); //!< Helper; Check if main camera exists, log warning if not.
 };
+
+/// @}   //addtogroup Scripting
 
 } // namespace RoR

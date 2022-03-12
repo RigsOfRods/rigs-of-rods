@@ -31,6 +31,9 @@
 
 #include <angelscript.h>
 
+/// @addtogroup Scripting
+/// @{
+
 // our own class that wraps the CScriptBuilder and just overwrites the file loading parts
 // to use the ogre resource system
 class OgreScriptBuilder : public AngelScript::CScriptBuilder, public ZeroedMemoryAllocator
@@ -42,3 +45,4 @@ protected:
     int LoadScriptSection(const char* filename);
 };
 
+/// @}   //addtogroup Scripting

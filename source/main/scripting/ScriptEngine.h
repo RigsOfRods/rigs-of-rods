@@ -42,6 +42,9 @@
 
 namespace RoR {
 
+/// @addtogroup Scripting
+/// @{
+
 enum class ScriptCategory
 {
     INVALID,
@@ -212,6 +215,8 @@ void RegisterImGuiBindings(AngelScript::asIScriptEngine* engine);
 
 /// Registers RoR::InputEngine, defined in InputEngineAngelscript.cpp
 void registerInputEngine(AngelScript::asIScriptEngine* engine);
+
+/// @}   //addtogroup Scripting
 
 } // namespace RoR
 

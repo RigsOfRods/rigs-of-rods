@@ -25,6 +25,9 @@
 #include <angelscript.h>
 #include "ImprovedConfigFile.h"
 
+/// @addtogroup Scripting
+/// @{
+
 void registerLocalStorage(AngelScript::asIScriptEngine* engine);
 void scriptLocalStorageFactory_Generic(AngelScript::asIScriptGeneric* gen);
 void scriptLocalStorageFactory2_Generic(AngelScript::asIScriptGeneric* gen);
@@ -108,3 +111,4 @@ protected:
     bool cgflag;
 };
 
+/// @}   //addtogroup Scripting
