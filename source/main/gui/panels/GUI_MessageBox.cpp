@@ -19,7 +19,8 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file   Generic UI dialog (not modal). Invocable from scripting.
+/// @file   
+/// @brief  Generic UI dialog (not modal). Invocable from scripting.
 /// @author Moncef Ben Slimane, 2014
 /// @author Petr Ohlidal, 2021 - extended config.
 

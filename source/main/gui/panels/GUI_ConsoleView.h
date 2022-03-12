@@ -19,7 +19,8 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file Generic console rendering
+/// @file
+/// @brief Generic console rendering
 
 #pragma once
 

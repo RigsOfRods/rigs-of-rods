@@ -19,7 +19,8 @@
 
 #pragma once
 
-/// @file   Parser and data structures for TOBJ (Terrain Objects) file format.
+/// @file   
+/// @brief  Parser and data structures for TOBJ (Terrain Objects) file format.
 /// @author Petr Ohlidal, 11/2016
 
 #include "Collisions.h"

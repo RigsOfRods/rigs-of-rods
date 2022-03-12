@@ -18,8 +18,8 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file This creates a billboarding object that displays a text.
-///
+/// @file 
+/// @brief This creates a billboarding object that displays a text.
 /// @author  2003 by cTh see gavocanov@rambler.ru
 /// @update  2006 by barraq see nospam@barraquand.com
 

@@ -20,7 +20,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file   VehicleAI.h
+/// @file
 /// @brief  Simple waypoint AI
 /// @author AnotherFoxGuy
 /// @date   03/2016

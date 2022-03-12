@@ -134,9 +134,9 @@ private:
     float mK;
 };
 
+}}  // Namespace
+
 /// @} // addtogroup Hydrax
 /// @} // addtogroup Gfx
-
-}}  // Namespace
 
 #endif // WAVE_H_INCLUDED

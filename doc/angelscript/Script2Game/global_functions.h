@@ -418,5 +418,5 @@ enum truckStates {
 
 } // namespace Script2Game
 
-/** @}*/   //addtogroup Script2Game
-/** @}*/   //addtogroup ScriptSideAPIs
+/// @}    //addtogroup Script2Game
+/// @}    //addtogroup ScriptSideAPIs

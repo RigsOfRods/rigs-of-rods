@@ -186,9 +186,9 @@ private:
     std::vector<PressurePoint> mPressurePoints;
 };
 
+}}  // Namespace
+
 /// @} // addtogroup Hydrax
 /// @} // addtogroup Gfx
-
-}}  // Namespace
 
 #endif // REAL_H_INCLUDED

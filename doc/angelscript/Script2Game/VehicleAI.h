@@ -21,7 +21,7 @@
 */
 
 /**
-	@file   VehicleAI.h
+	@file
 	@brief  Simple waypoint AI
 	@author AnotherFoxGuy
 	@date   03/2016
@@ -102,7 +102,7 @@ public:
 
 }
 
-/** @}*/   //addtogroup Script2Game
-/** @}*/   //addtogroup ScriptSideAPIs
-
 } //namespace ScriptSideAPIs
+
+/// @}    //addtogroup Script2Game
+/// @}    //addtogroup ScriptSideAPIs

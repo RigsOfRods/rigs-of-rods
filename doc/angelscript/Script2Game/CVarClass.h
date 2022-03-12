@@ -43,7 +43,7 @@ public:
     std::string const&      getName() const       { return m_name; }
 };
 
-/** @}*/   //addtogroup Script2Game
-/** @}*/   //addtogroup ScriptSideAPIs
-
 } //namespace Script2Game
+
+/// @}    //addtogroup Script2Game
+/// @}    //addtogroup ScriptSideAPIs
