@@ -139,6 +139,9 @@ std::vector<GUI::ResourceCategories> GetResourceCategories(std::string portal_ur
     CURL *curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL, repolist_url.c_str());
     curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+#ifdef _WIN32
+    curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif // _WIN32
     curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "gzip");
     curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteFunc);
@@ -183,6 +186,9 @@ void GetResources(std::string portal_url)
     CURL *curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL, repolist_url.c_str());
     curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+#ifdef _WIN32
+    curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif // _WIN32
     curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "gzip");
     curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteFunc);
@@ -259,6 +265,9 @@ void GetResourceFiles(std::string portal_url, int resource_id)
     CURL *curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL, resource_url.c_str());
     curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+#ifdef _WIN32
+    curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif // _WIN32
     curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "gzip");
     curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteFunc);
