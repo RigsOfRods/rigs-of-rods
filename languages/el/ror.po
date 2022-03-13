@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-05 16:27+0100\n"
+"POT-Creation-Date: 2022-03-13 10:58+0100\n"
 "PO-Revision-Date: 2021-12-13 10:52+0000\n"
 "Last-Translator: A.Panagiotou <tas750@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/rigs-of-rods/game/"
@@ -60,7 +60,7 @@ msgstr ""
 msgid "Terrain not found: "
 msgstr "Δεν βρέθηκε ο χάρτης"
 
-#: GameContext.cpp:106 terrain/TerrainManager.cpp:142
+#: GameContext.cpp:106 terrain/TerrainManager.cpp:154
 msgid "Terrain loading error"
 msgstr "Σφάλμα φόρτωσης χάρτη"
 
@@ -68,35 +68,35 @@ msgstr "Σφάλμα φόρτωσης χάρτη"
 msgid "Please clear the place first"
 msgstr "Παρακαλώ καθαρίστε τον χώρο πρώτα."
 
-#: GameContext.cpp:849
+#: GameContext.cpp:853
 msgid "Enabled hard reset mode"
 msgstr "Ενεργοποιημένη λειτουργία βίαιης επαναφοράς"
 
-#: GameContext.cpp:849
+#: GameContext.cpp:853
 msgid "Enabled soft reset mode"
 msgstr ""
 
-#: GameContext.cpp:1006
+#: GameContext.cpp:1010
 msgid "Time set to "
 msgstr "Ο χρόνος ρυθμίστηκε στις "
 
-#: GameContext.cpp:1148
+#: GameContext.cpp:1152
 msgid "No rescue truck found!"
 msgstr "Δεν βρέθηκε φορτηγό διάσωσης!"
 
-#: GameContext.cpp:1216
+#: GameContext.cpp:1220
 msgid "forwardcommands enabled"
 msgstr "Ενεργοποιημένες εντολές προώθησης"
 
-#: GameContext.cpp:1220
+#: GameContext.cpp:1224
 msgid "forwardcommands disabled"
 msgstr "Απενεργοποιημένες εντολές προώθησης"
 
-#: GameContext.cpp:1229
+#: GameContext.cpp:1233
 msgid "importcommands enabled"
 msgstr "Ενεργοποιημένες εντολές εισόδου"
 
-#: GameContext.cpp:1233
+#: GameContext.cpp:1237
 msgid "importcommands disabled"
 msgstr "Απενεργοποιημένες εντολές εισόδου"
 
@@ -208,73 +208,294 @@ msgstr "Σκελετοί: "
 msgid "Memory (Ogre): "
 msgstr "Μνήμη (Ogre): "
 
-#: gui/panels/GUI_ConsoleView.cpp:233
+#: gui/panels/GUI_AngelScriptExamples.cpp:24
+#, fuzzy
+#| msgid "accelerate the truck"
+msgctxt "AngelScript"
+msgid "Scales the truck"
+msgstr "Επιτάχυνε το όχημα"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:25
+#, fuzzy
+#| msgid "tie a load to the truck"
+msgctxt "AngelScript"
+msgid "Gets the name of the truck"
+msgstr "δέσε ενα φορτίο στο όχημα"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:26
+msgctxt "AngelScript"
+msgid "Gets the name of the truck file"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:27
+msgctxt "AngelScript"
+msgid "Gets the name of the loaded section for a truck"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:28
+#, fuzzy
+#| msgid "tie a load to the truck"
+msgctxt "AngelScript"
+msgid "Gets the type of the truck"
+msgstr "δέσε ενα φορτίο στο όχημα"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:29
+#, fuzzy
+#| msgid "accelerate the truck"
+msgctxt "AngelScript"
+msgid "Resets the truck"
+msgstr "Επιτάχυνε το όχημα"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:30
+#, fuzzy
+#| msgid "toggle parking brake"
+msgctxt "AngelScript"
+msgid "Toggles the parking brake"
+msgstr "χειρόφρενο"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:31
+#, fuzzy
+#| msgid "toggle traction control"
+msgctxt "AngelScript"
+msgid "Toggles the tracktion control"
+msgstr "εναλλαγή σύστημα ελέγχου πρόσφυσης"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:32
+#, fuzzy
+#| msgid "toggle antilock brake"
+msgctxt "AngelScript"
+msgid "Toggles the anti-lock brakes"
+msgstr "εναλλαγή φρένων τροχών"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:33
+#, fuzzy
+#| msgid "toggle truck beacons"
+msgctxt "AngelScript"
+msgid "Toggles the beacons"
+msgstr "εμφάνιση των ραδιοσημαντήρων του οχήματος"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:34
+#, fuzzy
+#| msgid "[uses custom particles]"
+msgctxt "AngelScript"
+msgid "Toggles the custom particles"
+msgstr "[χρησιμοποιεί έθιμο σωματίδια]"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:35
+msgctxt "AngelScript"
+msgid "Gets the total amount of nodes of the truck"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:36
+#, fuzzy
+#| msgid "tie a load to the truck"
+msgctxt "AngelScript"
+msgid "Gets the total mass of the truck"
+msgstr "δέσε ενα φορτίο στο όχημα"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:37
+msgctxt "AngelScript"
+msgid "Gets the total amount of nodes of the wheels of the truck"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:38
+#, fuzzy
+#| msgid "tie a load to the truck"
+msgctxt "AngelScript"
+msgid "Sets the mass of the truck"
+msgstr "δέσε ενα φορτίο στο όχημα"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:39
+msgctxt "AngelScript"
+msgid "Returns true if the brake light is enabled"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:40
+msgctxt "AngelScript"
+msgid "Returns true if the custom light with the number is enabled"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:41
+#, fuzzy
+#| msgid "enable or disable replay mode"
+msgctxt "AngelScript"
+msgid "Enables or disables the custom light"
+msgstr "ενεροποίησε ή απενεροποιησε το replay"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:42
+msgctxt "AngelScript"
+msgid "Gets the mode of the beacon"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:43
+msgctxt "AngelScript"
+msgid "Sets the blinking type"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:44
+msgctxt "AngelScript"
+msgid "Gets the blinking type"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:45
+#, fuzzy
+#| msgid "[uses custom particles]"
+msgctxt "AngelScript"
+msgid "Gets the custom particles mode"
+msgstr "[χρησιμοποιεί έθιμο σωματίδια]"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:46
+msgctxt "AngelScript"
+msgid "Returns true if the reverse lights are enabled"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:47
+msgctxt "AngelScript"
+msgid "Returns the angle in which the truck is heading"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:48
+msgctxt "AngelScript"
+msgid "Returns true if a hook of this truck is locked"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:49
+msgctxt "AngelScript"
+msgid "Gets the current wheel speed of the vehicle"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:50
+msgctxt "AngelScript"
+msgid "Gets the current speed of the vehicle"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:51
+msgctxt "AngelScript"
+msgid "Gets the G-forces that this truck is currently experiencing"
+msgstr ""
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:52
+#, fuzzy
+#| msgid "save the currently loaded terrain to a mesh file"
+msgctxt "AngelScript"
+msgid "Gets the current rotation of the vehicle"
+msgstr "αποθηκεύσετε το τρέχον terrain σε ενα αρχειο (mesh)"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:53
+#, fuzzy
+#| msgid "save the currently loaded terrain to a mesh file"
+msgctxt "AngelScript"
+msgid "Gets the current position of the vehicle"
+msgstr "αποθηκεύσετε το τρέχον terrain σε ενα αρχειο (mesh)"
+
+#: gui/panels/GUI_AngelScriptExamples.cpp:54
+#, fuzzy
+#| msgid "reset the camera position"
+msgctxt "AngelScript"
+msgid "Gets the node position"
+msgstr "μηδενισμός θέσης κάμερας"
+
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
+# f26dc946a3c9a97e25dfaeaf764d5aa3_11438aa <99f8d77593e2f043a4e5c72bc12e6d17_754573>, 2018
+# A.Panagiotou <tas750@gmail.com>, 2021.
+#: gui/panels/GUI_AngelScriptExamples.cpp:65
+#, fuzzy
+#| msgid ""
+msgctxt "Console"
+msgid ""
+msgstr ""
+"Project-Id-Version: Rigs of Rods\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-12-05 16:27+0100\n"
+"PO-Revision-Date: 2021-12-13 10:52+0000\n"
+"Last-Translator: A.Panagiotou <tas750@gmail.com>\n"
+"Language-Team: Greek <https://hosted.weblate.org/projects/rigs-of-rods/game/"
+"el/>\n"
+"Language: el\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.10-dev\n"
+
+#: gui/panels/GUI_ConsoleView.cpp:240
 msgctxt "Console"
 msgid "By area:"
 msgstr "Ανά περιοχή:"
 
-#: gui/panels/GUI_ConsoleView.cpp:234
+#: gui/panels/GUI_ConsoleView.cpp:241
 msgctxt "Console"
 msgid "Logfile echo"
 msgstr ""
 
-#: gui/panels/GUI_ConsoleView.cpp:235
+#: gui/panels/GUI_ConsoleView.cpp:242
 #, fuzzy
 #| msgid "Description: "
 msgctxt "Console"
 msgid "Scripting"
 msgstr "Περιγραφή: "
 
-#: gui/panels/GUI_ConsoleView.cpp:236
+#: gui/panels/GUI_ConsoleView.cpp:243
 msgctxt "Console"
 msgid "Actors"
 msgstr "Ηθοποιοί"
 
-#: gui/panels/GUI_ConsoleView.cpp:237
+#: gui/panels/GUI_ConsoleView.cpp:244
 msgctxt "Console"
 msgid "Terrain"
 msgstr "Ανάγλυφο"
 
-#: gui/panels/GUI_ConsoleView.cpp:240
+#: gui/panels/GUI_ConsoleView.cpp:247
 msgctxt "Console"
 msgid "By level:"
 msgstr "Ανά επίπεδο:"
 
-#: gui/panels/GUI_ConsoleView.cpp:241
+#: gui/panels/GUI_ConsoleView.cpp:248
 msgctxt "Console"
 msgid "Notices"
 msgstr "Παρατηρήσεις"
 
-#: gui/panels/GUI_ConsoleView.cpp:242
+#: gui/panels/GUI_ConsoleView.cpp:249
 msgctxt "Console"
 msgid "Warnings"
 msgstr "Προειδοποιήσεις"
 
-#: gui/panels/GUI_ConsoleView.cpp:243
+#: gui/panels/GUI_ConsoleView.cpp:250
 msgctxt "Console"
 msgid "Errors"
 msgstr "Σφάλματα"
 
-#: gui/panels/GUI_ConsoleView.cpp:244
+#: gui/panels/GUI_ConsoleView.cpp:251
 msgctxt "Console"
 msgid "Net chat"
 msgstr "Διαδικτυακή συνομιλία"
 
-#: gui/panels/GUI_ConsoleView.cpp:245 gui/panels/GUI_ConsoleWindow.cpp:52
+#: gui/panels/GUI_ConsoleView.cpp:252 gui/panels/GUI_ConsoleWindow.cpp:53
 #, fuzzy
 #| msgid "Commands: "
 msgctxt "Console"
 msgid "Commands"
 msgstr "Εντολές:"
 
-#: gui/panels/GUI_ConsoleWindow.cpp:47
+#: gui/panels/GUI_ConsoleWindow.cpp:48
 #, fuzzy
 #| msgid "Cockpit options:"
 msgctxt "Console"
 msgid "Filter options"
 msgstr "επιλογές θεσης του οδηγου"
 
-#: gui/panels/GUI_ConsoleWindow.cpp:86
+#: gui/panels/GUI_ConsoleWindow.cpp:79
+#, fuzzy
+#| msgid "Description: "
+msgctxt "Console"
+msgid "AngelScript"
+msgstr "Περιγραφή: "
+
+#: gui/panels/GUI_ConsoleWindow.cpp:104
 #, fuzzy
 #| msgid "Command 1"
 msgctxt "Console"
@@ -779,7 +1000,7 @@ msgctxt "GameSettings"
 msgid "Delete"
 msgstr ""
 
-#: gui/panels/GUI_GameControls.cpp:398
+#: gui/panels/GUI_GameControls.cpp:399
 msgctxt "GameSettings"
 msgid "<All active values>"
 msgstr ""
@@ -801,12 +1022,19 @@ msgstr ""
 
 #: gui/panels/GUI_GameMainMenu.cpp:161
 #, fuzzy
+#| msgid "Compositors: "
+msgctxt "MainMenu"
+msgid "Repository"
+msgstr "Στοιχειοθέτες: "
+
+#: gui/panels/GUI_GameMainMenu.cpp:167
+#, fuzzy
 #| msgid "Fluid Settings"
 msgctxt "MainMenu"
 msgid "Settings"
 msgstr "Fluid Ρυθμίσεις (ListenRead phonetically)"
 
-#: gui/panels/GUI_GameMainMenu.cpp:167 gui/panels/GUI_GameMainMenu.cpp:181
+#: gui/panels/GUI_GameMainMenu.cpp:173 gui/panels/GUI_GameMainMenu.cpp:187
 #, fuzzy
 #| msgctxt "GameSettings"
 #| msgid "Controls"
@@ -814,25 +1042,25 @@ msgctxt "MainMenu"
 msgid "Controls"
 msgstr "Χειρισμός"
 
-#: gui/panels/GUI_GameMainMenu.cpp:173
+#: gui/panels/GUI_GameMainMenu.cpp:179
 #, fuzzy
 #| msgid "About"
 msgctxt "MainMenu"
 msgid "About"
 msgstr "Περί"
 
-#: gui/panels/GUI_GameMainMenu.cpp:187
+#: gui/panels/GUI_GameMainMenu.cpp:193
 msgid "Return to menu"
 msgstr ""
 
-#: gui/panels/GUI_GameMainMenu.cpp:198
+#: gui/panels/GUI_GameMainMenu.cpp:204
 #, fuzzy
 #| msgid "exit the game"
 msgctxt "MainMenu"
 msgid "Exit game"
 msgstr "έξοδος απο το παιχνίδι"
 
-#: gui/panels/GUI_GameMainMenu.cpp:236 gui/panels/GUI_GameMainMenu.cpp:264
+#: gui/panels/GUI_GameMainMenu.cpp:242 gui/panels/GUI_GameMainMenu.cpp:270
 #, fuzzy
 #| msgid "Version: "
 msgctxt "MainMenu"
@@ -840,14 +1068,14 @@ msgid "Game version"
 msgstr "εκδοση"
 
 #. needed to align with VersionBox
-#: gui/panels/GUI_GameMainMenu.cpp:237 gui/panels/GUI_GameMainMenu.cpp:265
+#: gui/panels/GUI_GameMainMenu.cpp:243 gui/panels/GUI_GameMainMenu.cpp:271
 #, fuzzy
 #| msgid "Network error!"
 msgctxt "MainMenu"
 msgid "Net. protocol"
 msgstr "Σφάλμα δικτύου"
 
-#: gui/panels/GUI_GameMainMenu.cpp:250
+#: gui/panels/GUI_GameMainMenu.cpp:256
 #, fuzzy
 #| msgid "Version: "
 msgctxt "MainMenu"
@@ -855,12 +1083,12 @@ msgid "Version box"
 msgstr "εκδοση"
 
 #. needed to align with VersionBox
-#: gui/panels/GUI_GameMainMenu.cpp:266
+#: gui/panels/GUI_GameMainMenu.cpp:272
 msgctxt "MainMenu"
 msgid "Cache updated"
 msgstr ""
 
-#: gui/panels/GUI_GameMainMenu.cpp:279
+#: gui/panels/GUI_GameMainMenu.cpp:285
 msgctxt "MainMenu"
 msgid "Notice box"
 msgstr ""
@@ -1719,83 +1947,88 @@ msgid "user name"
 msgstr "όνομα χρήστη"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:141
+msgctxt "MultiplayerClientList"
+msgid "user uid"
+msgstr ""
+
+#: gui/panels/GUI_MultiplayerClientList.cpp:145
 #, fuzzy
 #| msgid "user language: "
 msgctxt "MultiplayerClientList"
 msgid "user language: "
 msgstr "γλάσσα του χρήστη"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:145
+#: gui/panels/GUI_MultiplayerClientList.cpp:149
 #, fuzzy
 #| msgid " user country: "
 msgctxt "MultiplayerClientList"
 msgid "user country: "
 msgstr "χωρα χρηστη"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:156
+#: gui/panels/GUI_MultiplayerClientList.cpp:160
 #, fuzzy
 #| msgid "user authentication level"
 msgctxt "MultiplayerClientList"
 msgid "user authentication level"
 msgstr "επίπεδο ελέγχου ταυτότητας χρήστη"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:171
+#: gui/panels/GUI_MultiplayerClientList.cpp:175
 #, fuzzy
 #| msgid "truck loading state"
 msgctxt "MultiplayerClientList"
 msgid "truck loading state"
 msgstr "κατασταση φορτωσης του οχηματος"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:180
+#: gui/panels/GUI_MultiplayerClientList.cpp:184
 #, fuzzy
 #| msgid "Truck loading errors"
 msgctxt "MultiplayerClientList"
 msgid "Truck loading errors"
 msgstr "σφαλμα φωρτοσης οχηματος"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:181
+#: gui/panels/GUI_MultiplayerClientList.cpp:185
 #, fuzzy
 #| msgid "Truck loaded correctly, no errors"
 msgctxt "MultiplayerClientList"
 msgid "Truck loaded correctly, no errors"
 msgstr "Το όχημα φόρτωσε σωστά, κανένα σφάλμα"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:182
+#: gui/panels/GUI_MultiplayerClientList.cpp:186
 #, fuzzy
 #| msgid "no truck loaded"
 msgctxt "MultiplayerClientList"
 msgid "no truck loaded"
 msgstr "δεν έχει φορτωθεί κανένα φορτηγό"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:186
+#: gui/panels/GUI_MultiplayerClientList.cpp:190
 #, fuzzy
 #| msgid "remote truck loading state"
 msgctxt "MultiplayerClientList"
 msgid "remote truck loading state"
 msgstr "απομάκρυνση κατάστασης φόρτωσης φορτηγού"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:195
+#: gui/panels/GUI_MultiplayerClientList.cpp:199
 #, fuzzy
 #| msgid "Truck loading errors"
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loading errors"
 msgstr "σφαλμα φωρτοσης οχηματος"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:196
+#: gui/panels/GUI_MultiplayerClientList.cpp:200
 #, fuzzy
 #| msgid "Truck loaded correctly, no errors"
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loaded correctly, no errors"
 msgstr "Το όχημα φόρτωσε σωστά, κανένα σφάλμα"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:197
+#: gui/panels/GUI_MultiplayerClientList.cpp:201
 #, fuzzy
 #| msgid "no truck loaded"
 msgctxt "MultiplayerClientList"
 msgid "No Trucks loaded"
 msgstr "δεν έχει φορτωθεί κανένα φορτηγό"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:209
+#: gui/panels/GUI_MultiplayerClientList.cpp:213
 #, fuzzy
 #| msgid "Slow  Network  Download"
 msgctxt "MultiplayerClientList"
@@ -2068,6 +2301,253 @@ msgstr ""
 #: gui/panels/GUI_NodeBeamUtils.cpp:165 gui/panels/GUI_NodeBeamUtils.cpp:169
 msgctxt "NodeBeamUtils"
 msgid "Yitter"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:191
+msgctxt "RepositorySelector"
+msgid "Connection error. Please check your connection."
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:202
+msgctxt "RepositorySelector"
+msgid "Received malformed data. Please try again."
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:361
+#, fuzzy
+#| msgid "Rigs of Rods version: %s"
+msgctxt "RepositorySelector"
+msgid "Rigs of Rods Repository"
+msgstr "Rigs of Rods Εκδοση %s"
+
+#: gui/panels/GUI_RepositorySelector.cpp:451
+msgctxt "RepositorySelector"
+msgid "Sort"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:453
+#: gui/panels/GUI_RepositorySelector.cpp:760
+#: gui/panels/GUI_RepositorySelector.cpp:882
+msgctxt "RepositorySelector"
+msgid "Last Update"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:458
+msgctxt "RepositorySelector"
+msgid "Date Added"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:463
+#: gui/panels/GUI_RepositorySelector.cpp:756
+msgctxt "RepositorySelector"
+msgid "Title"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:468
+#: gui/panels/GUI_RepositorySelector.cpp:762
+#: gui/panels/GUI_RepositorySelector.cpp:888
+msgctxt "RepositorySelector"
+msgid "Downloads"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:473
+#: gui/panels/GUI_RepositorySelector.cpp:764
+msgctxt "RepositorySelector"
+msgid "Rating"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:478
+#, fuzzy
+#| msgid "Triangle Count: "
+msgctxt "RepositorySelector"
+msgid "Rating Count"
+msgstr "Αριθμός τριγώνων:"
+
+#: gui/panels/GUI_RepositorySelector.cpp:490
+msgctxt "RepositorySelector"
+msgid "View"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:492
+msgctxt "RepositorySelector"
+msgid "List"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:496
+msgctxt "RepositorySelector"
+msgid "Compact"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:500
+msgctxt "RepositorySelector"
+msgid "Basic"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:512
+msgctxt "RepositorySelector"
+msgid "Search Title, Author"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:532
+msgctxt "RepositorySelector"
+msgid "Details:"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:535
+msgctxt "RepositorySelector"
+msgid "Title:"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:541
+msgctxt "RepositorySelector"
+msgid "Resource ID:"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:547
+msgctxt "RepositorySelector"
+msgid "Category:"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:561
+#, fuzzy
+#| msgid "Description: "
+msgctxt "RepositorySelector"
+msgid "Description:"
+msgstr "Περιγραφή: "
+
+#: gui/panels/GUI_RepositorySelector.cpp:567
+msgctxt "RepositorySelector"
+msgid "Downloads:"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:573
+#, fuzzy
+#| msgid "Triangle Count: "
+msgctxt "RepositorySelector"
+msgid "View Count:"
+msgstr "Αριθμός τριγώνων:"
+
+#: gui/panels/GUI_RepositorySelector.cpp:579
+#, fuzzy
+#| msgid "Fluid Settings"
+msgctxt "RepositorySelector"
+msgid "Rating:"
+msgstr "Fluid Ρυθμίσεις (ListenRead phonetically)"
+
+#: gui/panels/GUI_RepositorySelector.cpp:585
+#, fuzzy
+#| msgid "Triangle Count: "
+msgctxt "RepositorySelector"
+msgid "Rating Count:"
+msgstr "Αριθμός τριγώνων:"
+
+#: gui/panels/GUI_RepositorySelector.cpp:591
+msgctxt "RepositorySelector"
+msgid "Date Added:"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:598
+msgctxt "RepositorySelector"
+msgid "Last Update:"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:605
+#, fuzzy
+#| msgid "Version: "
+msgctxt "RepositorySelector"
+msgid "Version:"
+msgstr "εκδοση"
+
+#: gui/panels/GUI_RepositorySelector.cpp:611
+#, fuzzy
+#| msgid "Author(s): "
+msgctxt "RepositorySelector"
+msgid "Authors:"
+msgstr "Συγγραφέας (εις)"
+
+#: gui/panels/GUI_RepositorySelector.cpp:617
+msgctxt "RepositorySelector"
+msgid "View URL:"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:624
+#, fuzzy
+#| msgid "Filename: "
+msgctxt "RepositorySelector"
+msgid "Files:"
+msgstr "Όνομα αρχείου"
+
+#: gui/panels/GUI_RepositorySelector.cpp:653
+#, fuzzy
+#| msgid "Filename: "
+msgctxt "RepositorySelector"
+msgid "Filename:"
+msgstr "Όνομα αρχείου"
+
+#: gui/panels/GUI_RepositorySelector.cpp:702
+#, fuzzy
+#| msgid "Updates"
+msgctxt "RepositorySelector"
+msgid "Update"
+msgstr "Ενημερώσεις"
+
+#: gui/panels/GUI_RepositorySelector.cpp:706
+msgctxt "RepositorySelector"
+msgid "Reinstall"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:710
+msgctxt "RepositorySelector"
+msgid "Install"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:720
+#: gui/panels/GUI_RepositorySelector.cpp:730
+msgctxt "RepositorySelector"
+msgid "Remove"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:758
+#: gui/panels/GUI_RepositorySelector.cpp:987
+#, fuzzy
+#| msgid "Version: "
+msgctxt "RepositorySelector"
+msgid "Version"
+msgstr "εκδοση"
+
+#. Authors, rating count, last update, download count, description
+#: gui/panels/GUI_RepositorySelector.cpp:872
+#, fuzzy
+#| msgid "Author(s): "
+msgctxt "RepositorySelector"
+msgid "Authors"
+msgstr "Συγγραφέας (εις)"
+
+#: gui/panels/GUI_RepositorySelector.cpp:893
+#, fuzzy
+#| msgid "Description: "
+msgctxt "RepositorySelector"
+msgid "Description"
+msgstr "Περιγραφή: "
+
+#: gui/panels/GUI_RepositorySelector.cpp:994
+msgctxt "RepositorySelector"
+msgid "Downloaded"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:994
+msgctxt "RepositorySelector"
+msgid "times"
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:1119
+msgctxt "RepositorySelector"
+msgid "Sorry, the repository isn't available. Try again later."
+msgstr ""
+
+#: gui/panels/GUI_RepositorySelector.cpp:1135
+msgctxt "RepositorySelector"
+msgid "No files available :("
 msgstr ""
 
 #: gui/panels/GUI_SimActorStats.cpp:53
@@ -2808,66 +3288,66 @@ msgctxt "VehicleDescription"
 msgid "(no author information available) "
 msgstr "Δεν υπάρχουν πληροφορίες απο τον συντάκτη."
 
-#: main.cpp:330
+#: main.cpp:355
 msgid "Display mode changed to fullscreen"
 msgstr ""
 
-#: main.cpp:336
+#: main.cpp:361
 msgid "Display mode changed to windowed"
 msgstr ""
 
-#: main.cpp:388
+#: main.cpp:413
 msgctxt "Network"
 msgid "Network disconnected"
 msgstr ""
 
-#: main.cpp:396
+#: main.cpp:421
 msgid "Network fatal error: "
 msgstr "δεν βρισκει δικτιο. ειπαρχει σφαλμα"
 
-#: main.cpp:444
+#: main.cpp:469
 msgctxt "Network"
 msgid "Multiplayer: connection failed"
 msgstr ""
 
-#: main.cpp:475
+#: main.cpp:515
 msgid "Loading resources"
 msgstr ""
 
-#: main.cpp:506
+#: main.cpp:547
 msgctxt "ChatBox"
 msgid "Press {} to start chatting"
 msgstr ""
 
-#: main.cpp:560
+#: main.cpp:601
 #, fuzzy
 #| msgid "Could not write config file"
 msgid "Could not read savegame file"
 msgstr "Δεν μπόρεσε να γίνει εγγραφή στο αρχείο config"
 
-#: main.cpp:573 physics/Savegame.cpp:266
+#: main.cpp:614 physics/Savegame.cpp:266
 #, fuzzy
 #| msgid "Error while loading landuse config"
 msgid "Error while loading scene: Terrain mismatch"
 msgstr "Σφάλμα κατά τη φόρτωση ρυθμίσεων χρήσης έκτασης"
 
-#: main.cpp:705
+#: main.cpp:758
 msgid "Entered terrain editing mode"
 msgstr ""
 
-#: main.cpp:707
+#: main.cpp:760
 msgid "Press {} or middle mouse click to select an object"
 msgstr ""
 
-#: main.cpp:719
+#: main.cpp:772
 msgid "Left terrain editing mode"
 msgstr ""
 
-#: main.cpp:966
+#: main.cpp:1016
 msgid "An exception has occured!"
 msgstr "Μια εξαίρεση έχει συμβεί!"
 
-#: main.cpp:971
+#: main.cpp:1021
 msgid "An exception (std::runtime_error) has occured!"
 msgstr ""
 
@@ -3203,191 +3683,191 @@ msgstr ""
 "αντίγραφο / config / ground_models.cfg στα έγγραφά μου / Rigs of Rods / "
 "config"
 
-#: resources/CacheSystem.cpp:452
+#: resources/CacheSystem.cpp:466
 #, fuzzy
 #| msgid "Non-Driveable"
 msgctxt "MainSelector"
 msgid "Non-Driveable"
 msgstr "Μη-οδηγήσημο"
 
-#: resources/CacheSystem.cpp:453
+#: resources/CacheSystem.cpp:467
 #, fuzzy
 #| msgid "Truck"
 msgctxt "MainSelector"
 msgid "Truck"
 msgstr "Φορτηγό"
 
-#: resources/CacheSystem.cpp:454
+#: resources/CacheSystem.cpp:468
 #, fuzzy
 #| msgid "Airplane"
 msgctxt "MainSelector"
 msgid "Airplane"
 msgstr "Αεροπλάνο"
 
-#: resources/CacheSystem.cpp:455
+#: resources/CacheSystem.cpp:469
 #, fuzzy
 #| msgid "Boat"
 msgctxt "MainSelector"
 msgid "Boat"
 msgstr "Σκάφος"
 
-#: resources/CacheSystem.cpp:456
+#: resources/CacheSystem.cpp:470
 #, fuzzy
 #| msgid "Machine"
 msgctxt "MainSelector"
 msgid "Machine"
 msgstr "Μηχανή"
 
-#: resources/CacheSystem.cpp:457
+#: resources/CacheSystem.cpp:471
 msgctxt "MainSelector"
 msgid "A.I."
 msgstr ""
 
-#: resources/CacheSystem.cpp:952
+#: resources/CacheSystem.cpp:967
 msgid "Loading zips in group "
 msgstr "Φορτώνονται σε γκρούπ τα σιμπιεσμένα αρχεια "
 
 #. these are the category numbers from the repository. do not modify them!
 #. vehicles
-#: resources/CacheSystem.h:257
+#: resources/CacheSystem.h:258
 msgctxt "ModCategory"
 msgid "Other Land Vehicles"
 msgstr ""
 
-#: resources/CacheSystem.h:259
+#: resources/CacheSystem.h:260
 msgctxt "ModCategory"
 msgid "Street Cars"
 msgstr ""
 
-#: resources/CacheSystem.h:260
+#: resources/CacheSystem.h:261
 msgctxt "ModCategory"
 msgid "Light Racing Cars"
 msgstr ""
 
-#: resources/CacheSystem.h:261
+#: resources/CacheSystem.h:262
 msgctxt "ModCategory"
 msgid "Offroad Cars"
 msgstr ""
 
-#: resources/CacheSystem.h:262
+#: resources/CacheSystem.h:263
 msgctxt "ModCategory"
 msgid "Fantasy Cars"
 msgstr ""
 
-#: resources/CacheSystem.h:263
+#: resources/CacheSystem.h:264
 msgctxt "ModCategory"
 msgid "Bikes"
 msgstr ""
 
-#: resources/CacheSystem.h:264
+#: resources/CacheSystem.h:265
 msgctxt "ModCategory"
 msgid "Crawlers"
 msgstr ""
 
-#: resources/CacheSystem.h:266
+#: resources/CacheSystem.h:267
 msgctxt "ModCategory"
 msgid "Towercranes"
 msgstr ""
 
-#: resources/CacheSystem.h:267
+#: resources/CacheSystem.h:268
 msgctxt "ModCategory"
 msgid "Mobile Cranes"
 msgstr ""
 
-#: resources/CacheSystem.h:268
+#: resources/CacheSystem.h:269
 msgctxt "ModCategory"
 msgid "Other cranes"
 msgstr ""
 
-#: resources/CacheSystem.h:270
+#: resources/CacheSystem.h:271
 msgctxt "ModCategory"
 msgid "Buses"
 msgstr ""
 
-#: resources/CacheSystem.h:271
+#: resources/CacheSystem.h:272
 msgctxt "ModCategory"
 msgid "Tractors"
 msgstr ""
 
-#: resources/CacheSystem.h:272
+#: resources/CacheSystem.h:273
 msgctxt "ModCategory"
 msgid "Forklifts"
 msgstr ""
 
-#: resources/CacheSystem.h:273
+#: resources/CacheSystem.h:274
 msgctxt "ModCategory"
 msgid "Fantasy Trucks"
 msgstr ""
 
-#: resources/CacheSystem.h:274
+#: resources/CacheSystem.h:275
 msgctxt "ModCategory"
 msgid "Transport Trucks"
 msgstr ""
 
-#: resources/CacheSystem.h:275
+#: resources/CacheSystem.h:276
 msgctxt "ModCategory"
 msgid "Racing Trucks"
 msgstr ""
 
-#: resources/CacheSystem.h:276
+#: resources/CacheSystem.h:277
 #, fuzzy
 #| msgid "reload truck"
 msgctxt "ModCategory"
 msgid "Offroad Trucks"
 msgstr "επανακινιση θεσης αυτοκινιτου"
 
-#: resources/CacheSystem.h:278
+#: resources/CacheSystem.h:279
 #, fuzzy
 #| msgid "Boat"
 msgctxt "ModCategory"
 msgid "Boats"
 msgstr "Σκάφος"
 
-#: resources/CacheSystem.h:280
+#: resources/CacheSystem.h:281
 msgctxt "ModCategory"
 msgid "Helicopters"
 msgstr ""
 
-#: resources/CacheSystem.h:281
+#: resources/CacheSystem.h:282
 msgctxt "ModCategory"
 msgid "Aircraft"
 msgstr ""
 
-#: resources/CacheSystem.h:283
+#: resources/CacheSystem.h:284
 msgctxt "ModCategory"
 msgid "Trailers"
 msgstr ""
 
-#: resources/CacheSystem.h:284
+#: resources/CacheSystem.h:285
 msgctxt "ModCategory"
 msgid "Other Loads"
 msgstr ""
 
 #. terrains
-#: resources/CacheSystem.h:287
+#: resources/CacheSystem.h:288
 #, fuzzy
 #| msgid "Loading Terrain"
 msgctxt "ModCategory"
 msgid "Addon Terrains"
 msgstr "Φόρτωση του χώρου"
 
-#: resources/CacheSystem.h:289
+#: resources/CacheSystem.h:290
 msgctxt "ModCategory"
 msgid "Container"
 msgstr ""
 
-#: resources/CacheSystem.h:291
+#: resources/CacheSystem.h:292
 msgctxt "ModCategory"
 msgid "Submarine"
 msgstr ""
 
 #. note: these categories are NOT in the repository:
-#: resources/CacheSystem.h:294
+#: resources/CacheSystem.h:295
 msgctxt "ModCategory"
 msgid "Official Terrains"
 msgstr ""
 
-#: resources/CacheSystem.h:295
+#: resources/CacheSystem.h:296
 #, fuzzy
 #| msgid "Loading Terrain"
 msgctxt "ModCategory"
@@ -3395,37 +3875,37 @@ msgid "Night Terrains"
 msgstr "Φόρτωση του χώρου"
 
 #. do not use category numbers above 9000!
-#: resources/CacheSystem.h:298
+#: resources/CacheSystem.h:299
 msgctxt "ModCategory"
 msgid "Unsorted"
 msgstr ""
 
-#: resources/CacheSystem.h:299
+#: resources/CacheSystem.h:300
 #, fuzzy
 #| msgid "All"
 msgctxt "ModCategory"
 msgid "All"
 msgstr "Όλα"
 
-#: resources/CacheSystem.h:300
+#: resources/CacheSystem.h:301
 msgctxt "ModCategory"
 msgid "Fresh"
 msgstr ""
 
-#: resources/CacheSystem.h:301
+#: resources/CacheSystem.h:302
 msgctxt "ModCategory"
 msgid "Hidden"
 msgstr ""
 
-#: scripting/GameScript.cpp:771
+#: scripting/GameScript.cpp:789
 msgid "using Online API..."
 msgstr ""
 
-#: system/AppCommandLine.cpp:150
+#: system/AppCommandLine.cpp:165
 msgid "Command Line Arguments"
 msgstr "Εντολή Επιχειρήματα Line"
 
-#: system/AppCommandLine.cpp:151
+#: system/AppCommandLine.cpp:166
 msgid ""
 "--help (this)\n"
 "-map <map> (loads map on startup)\n"
@@ -3438,11 +3918,12 @@ msgid ""
 "-checkcache forces cache update\n"
 "-version shows the version information\n"
 "-joinserver=<server>:<port> (join multiplayer server)\n"
+"-runscript <filename> (load script, can be repeated)\n"
 "For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck "
 "-enter"
 msgstr ""
 
-#: system/AppCommandLine.cpp:167
+#: system/AppCommandLine.cpp:183
 msgid "Version Information"
 msgstr "Πληροφορίες έκδοσης"
 
@@ -3532,81 +4013,81 @@ msgstr ""
 msgid "Run AngelScript code snippet"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:333
+#: system/ConsoleCmd.cpp:339
 msgid "Scripting disabled in this build"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:342
+#: system/ConsoleCmd.cpp:348
 msgid "quit - exit Rigs of Rods"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:353
+#: system/ConsoleCmd.cpp:359
 msgid "help - information on commands (this)"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:358
+#: system/ConsoleCmd.cpp:364
 msgid "Available commands:"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:371
+#: system/ConsoleCmd.cpp:377
 msgid "Tips:"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:373
+#: system/ConsoleCmd.cpp:379
 msgid "- use Arrow Up/Down Keys in the InputBox to reuse old messages"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:383
+#: system/ConsoleCmd.cpp:389
 msgid "Print cvars with one of <expr> in name"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:422
+#: system/ConsoleCmd.cpp:428
 msgid "Get or set value of existing CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:450
+#: system/ConsoleCmd.cpp:456
 msgid "No such CVar: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:512
+#: system/ConsoleCmd.cpp:518
 msgid "Set or create string CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:518
+#: system/ConsoleCmd.cpp:524
 msgid "Set or create boolean CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:524
+#: system/ConsoleCmd.cpp:530
 msgid "Set or create integer CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:530
+#: system/ConsoleCmd.cpp:536
 msgid "Set or create real-number CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:536
+#: system/ConsoleCmd.cpp:542
 msgid "Clear console history. Types: all/info/net/chat/terrn/actor/script"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:573
+#: system/ConsoleCmd.cpp:579
 msgid "No such message type: {}"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:621
+#: system/ConsoleCmd.cpp:627
 msgid ""
 "Using slashes before commands are deprecated, you can now type command "
 "without any slashes"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:644
+#: system/ConsoleCmd.cpp:650
 msgid "unknown command: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:660
+#: system/ConsoleCmd.cpp:666
 msgid "Only allowed when simulation is running"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:664
+#: system/ConsoleCmd.cpp:670
 msgid "Not allowed in current app state"
 msgstr ""
 
@@ -3649,74 +4130,74 @@ msgstr "Φόρτωση του χώρου"
 msgid "Saving all terrain pages ..."
 msgstr ""
 
-#: terrain/TerrainManager.cpp:148
+#: terrain/TerrainManager.cpp:160
 msgid "Initializing Shadow Subsystem"
 msgstr ""
 
-#: terrain/TerrainManager.cpp:151
+#: terrain/TerrainManager.cpp:163
 msgid "Initializing Geometry Subsystem"
 msgstr ""
 
-#: terrain/TerrainManager.cpp:154
+#: terrain/TerrainManager.cpp:166
 msgid "Initializing Object Subsystem"
 msgstr ""
 
 #. *.odef files
-#: terrain/TerrainManager.cpp:157
+#: terrain/TerrainManager.cpp:169
 msgid "Initializing Camera Subsystem"
 msgstr ""
 
 #. sky, must come after camera due to m_sight_range
-#: terrain/TerrainManager.cpp:161
+#: terrain/TerrainManager.cpp:173
 msgid "Initializing Sky Subsystem"
 msgstr ""
 
-#: terrain/TerrainManager.cpp:164
+#: terrain/TerrainManager.cpp:176
 msgid "Initializing Light Subsystem"
 msgstr ""
 
-#: terrain/TerrainManager.cpp:169
+#: terrain/TerrainManager.cpp:181
 msgid "Initializing Fog Subsystem"
 msgstr ""
 
-#: terrain/TerrainManager.cpp:173
+#: terrain/TerrainManager.cpp:185
 msgid "Initializing Vegetation Subsystem"
 msgstr ""
 
-#: terrain/TerrainManager.cpp:178
+#: terrain/TerrainManager.cpp:190
 msgid "Loading Terrain Geometry"
 msgstr ""
 
-#: terrain/TerrainManager.cpp:184
+#: terrain/TerrainManager.cpp:196
 msgid "Initializing Collision Subsystem"
 msgstr ""
 
-#: terrain/TerrainManager.cpp:187
+#: terrain/TerrainManager.cpp:199
 msgid "Initializing Script Subsystem"
 msgstr ""
 
 #. END Hack for GameScript::spawnObject()
-#: terrain/TerrainManager.cpp:192
+#: terrain/TerrainManager.cpp:204
 msgid "Initializing Water Subsystem"
 msgstr ""
 
-#: terrain/TerrainManager.cpp:195
+#: terrain/TerrainManager.cpp:207
 msgid "Loading Terrain Objects"
 msgstr ""
 
 #. END Hack for the Landusemap
-#: terrain/TerrainManager.cpp:205
+#: terrain/TerrainManager.cpp:217
 msgid "Initializing terrain light properties"
 msgstr ""
 
 #. END Hack for the Collision debug visual
 #. *.terrn2 file feature
 #. Particle effects
-#: terrain/TerrainManager.cpp:215
+#: terrain/TerrainManager.cpp:227
 msgid "Initializing Overview Map Subsystem"
 msgstr ""
 
-#: terrain/TerrainManager.cpp:221
+#: terrain/TerrainManager.cpp:233
 #, fuzzy
 #| msgid "Loading Terrain"
 msgid "Loading Terrain Actors"
@@ -6302,9 +6783,6 @@ msgstr ""
 
 #~ msgid "Rigs of Rods version %s configuration"
 #~ msgstr "Rig  of Rods έκδοση% s διαμόρφωσης"
-
-#~ msgid "Rigs of Rods version: %s"
-#~ msgstr "Rigs of Rods Εκδοση %s"
 
 #~ msgid "Sandstorm (fastest)"
 #~ msgstr "αμμοθύελλα (γρηγορότερο)"
