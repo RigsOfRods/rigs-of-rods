@@ -174,7 +174,11 @@ ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
     {
         if (m.cm_icon != "")
         {
-            icon = Ogre::TextureManager::getSingleton().load(m.cm_icon, "IconsRG");
+            try
+            {
+                icon = Ogre::TextureManager::getSingleton().load(m.cm_icon, "IconsRG");
+            }
+            catch (...) {}
         }
         else if (m.cm_area == Console::MessageArea::CONSOLE_MSGTYPE_SCRIPT)
         {
