@@ -22,6 +22,7 @@
 #include "SkinFileFormat.h"
 
 #include "Application.h"
+#include "Console.h"
 #include "Utils.h"
 
 #include <OgreEntity.h>
@@ -67,11 +68,22 @@ std::vector<std::shared_ptr<RoR::SkinDef>> RoR::SkinParser::ParseSkins(Ogre::Dat
                 }
             }
         }
+
+        if (curr_skin)
+        {
+            App::GetConsole()->putMessage(
+                Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("Skin '{}' in file '{}' not properly closed with '}}'",
+                    curr_skin->name, stream->getName()));
+            result.push_back(std::shared_ptr<SkinDef>(curr_skin.release())); // Submit anyway
+        }
     }
     catch (Ogre::Exception& e)
     {
-        RoR::LogFormat("[RoR] Error parsing skin file '%s', message: %s",
-            stream->getName().c_str(), e.getFullDescription().c_str());
+        App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Error parsing skin file '{}', message: {}",
+                stream->getName(), e.getFullDescription()));
     }
     return result;
 }
