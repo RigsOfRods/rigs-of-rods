@@ -1174,7 +1174,6 @@ void CacheSystem::UnLoadResource(CacheEntry& t)
     }
 
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(resource_group);
-    this->LoadResource(t); // Will create the same resource group again
 }
 
 CacheEntry* CacheSystem::FetchSkinByName(std::string const & skin_name)
