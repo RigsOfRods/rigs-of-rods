@@ -1088,13 +1088,7 @@ void CacheSystem::LoadResource(CacheEntry& t)
         return;
     }
 
-    // Check if already loaded for different entry from the same bundle.
     Ogre::String group = "bundle " + t.resource_bundle_path; // Compose group name from full path.
-    if (Ogre::ResourceGroupManager::getSingleton().resourceGroupExists(group))
-    {
-        t.resource_group = group;
-        return;
-    }
 
     // Load now.
     try
@@ -1129,6 +1123,15 @@ void CacheSystem::LoadResource(CacheEntry& t)
         ResourceGroupManager::getSingleton().initialiseResourceGroup(group);
 
         t.resource_group = group;
+
+        // Inform other entries sharing this bundle (i.e. '.skin' entries in vehicle bundles)
+        for (CacheEntry& i_entry: m_entries)
+        {
+            if (i_entry.resource_bundle_path == t.resource_bundle_path)
+            {
+                i_entry.resource_group = group; // Mark as loaded
+            }
+        }
     }
     catch (Ogre::Exception& e)
     {
