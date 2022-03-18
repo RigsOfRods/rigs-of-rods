@@ -39,7 +39,7 @@ add_external_lib(
 )
 add_external_lib(
         SocketW
-        socketw/3.10.27@anotherfoxguy/stable
+        socketw/3.11.0@anotherfoxguy/stable
         PKG_CONFIG "socketw >= 3.10"
         FIND_PACKAGE
 )
