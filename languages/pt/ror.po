@@ -8,13 +8,14 @@
 # Bruno Dias Barros <brunodiasbarros09@gmail.com>, 2021.
 # ssantos <ssantos@web.de>, 2021.
 # Joaquin Gomez <joa97@hotmail.com.ar>, 2021.
+# JonnathanRiquelmo <jonnathan.riquelmo@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-03-13 10:58+0100\n"
-"PO-Revision-Date: 2021-09-30 03:37+0000\n"
-"Last-Translator: Bruno Dias Barros <brunodiasbarros09@gmail.com>\n"
+"PO-Revision-Date: 2022-03-18 15:59+0000\n"
+"Last-Translator: JonnathanRiquelmo <jonnathan.riquelmo@gmail.com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/pt/>\n"
 "Language: pt\n"
@@ -22,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.9-dev\n"
+"X-Generator: Weblate 4.12-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -218,173 +219,135 @@ msgid "Scales the truck"
 msgstr "acelerar o .Truck"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr "Engatar uma carga ao camião"
+msgstr "Obter o nome do caminhão"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "Obter o nome do arquivo do caminhão"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "Obter o nome da seção carregada para um caminhão"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr "Engatar uma carga ao camião"
+msgstr "Obter o tipo do caminhão"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "acelerar o .Truck"
+msgstr "Reiniciar o caminhão"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "toggle parking brake"
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
-msgstr "Travar/destravar o travão de mão"
+msgstr "Alternar o freio de estacionamento"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "toggle traction control"
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr "alternar controle de tração"
+msgstr "Alternar o controle de tração"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "toggle antilock brake"
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr "alternar freio antibloqueio"
+msgstr "Alternar o freio antibloqueio"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "toggle truck beacons"
 msgctxt "AngelScript"
 msgid "Toggles the beacons"
-msgstr "(Des)Ligar luzes de presença do camião"
+msgstr "Alternar a luz indicadora de direção"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr "[usa particulas personalizadas]"
+msgstr "Alternar as partículas personalizadas"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr ""
+msgstr "Obter a quantidade total de nós do caminhão"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr "Engatar uma carga ao camião"
+msgstr "Obter a massa total do caminhão"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the wheels of the truck"
-msgstr ""
+msgstr "Obter a quantidade total de nós das rodas do caminhão"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Sets the mass of the truck"
-msgstr "Engatar uma carga ao camião"
+msgstr "Definir a massa do caminhão"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
 msgid "Returns true if the brake light is enabled"
-msgstr ""
+msgstr "Retorna verdadeiro se a luz de freio estiver habilitada"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:40
 msgctxt "AngelScript"
 msgid "Returns true if the custom light with the number is enabled"
 msgstr ""
+"Retorna verdadeiro se a luz personalizada com o número estiver habilitada"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:41
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "enable or disable physics"
 msgctxt "AngelScript"
 msgid "Enables or disables the custom light"
-msgstr "habilitar ou desabilitar física"
+msgstr "Ativar ou desativar a luz personalizada"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:42
 msgctxt "AngelScript"
 msgid "Gets the mode of the beacon"
-msgstr ""
+msgstr "Obter o modo do farol (giroflex)"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:43
 msgctxt "AngelScript"
 msgid "Sets the blinking type"
-msgstr ""
+msgstr "Definir o tipo de piscar"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:44
 msgctxt "AngelScript"
 msgid "Gets the blinking type"
-msgstr ""
+msgstr "Obter o padrão de piscada"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:45
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Gets the custom particles mode"
-msgstr "[usa particulas personalizadas]"
+msgstr "Obter o modo de partículas personalizadas"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:46
 msgctxt "AngelScript"
 msgid "Returns true if the reverse lights are enabled"
-msgstr ""
+msgstr "Retorna verdadeiro se as luzes de ré estiverem habilitadas"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:47
 msgctxt "AngelScript"
 msgid "Returns the angle in which the truck is heading"
-msgstr ""
+msgstr "Retornar o ângulo em que o caminhão está indo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:48
 msgctxt "AngelScript"
 msgid "Returns true if a hook of this truck is locked"
-msgstr ""
+msgstr "Retornar verdadeiro se um gancho deste caminhão estiver travado"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:49
 msgctxt "AngelScript"
 msgid "Gets the current wheel speed of the vehicle"
-msgstr ""
+msgstr "Obter a velocidade atual da roda do veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:50
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Remove current vehicle"
 msgctxt "AngelScript"
 msgid "Gets the current speed of the vehicle"
-msgstr "Remover veiculo atual"
+msgstr "Obter a velocidade atual do veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:51
 msgctxt "AngelScript"
