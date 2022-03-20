@@ -203,7 +203,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
     }
 #endif //SOCKETW
 
-    Actor* fresh_actor = m_actor_manager.CreateActorInstance(rq, def);
+    Actor* fresh_actor = m_actor_manager.CreateNewActor(rq, def);
 
     // lock slide nodes after spawning the actor?
     if (def->slide_nodes_connect_instantly)

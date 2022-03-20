@@ -74,21 +74,17 @@ ActorManager::~ActorManager()
     this->SyncWithSimThread(); // Wait for sim task to finish
 }
 
-void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, RigDef::DocumentPtr def)
+Actor* ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr def)
 {
-    // ~~~~ Code ported from Actor::Actor()
+    Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
+    actor->setUsedSkin(rq.asr_skin_entry);
+
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
+    {
+        actor->sendStreamSetup();
+    }
 
     Ogre::SceneNode* parent_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-
-    // ~~~~ Code ported from Actor::LoadActor()
-    //      LoadActor(def, beams_parent, pos, rot, spawnbox, cache_entry_number)
-    //      bool Actor::LoadActor(
-    //          RigDef::DocumentPtr def,
-    //          Ogre::SceneNode* parent_scene_node,
-    //          Ogre::Vector3 const& spawn_position,
-    //          Ogre::Quaternion& spawn_rotation,
-    //          collision_box_t* spawn_box,
-    //          int cache_entry_number // = -1
 
     LOG(" == Spawning vehicle: " + def->name);
 
@@ -107,7 +103,7 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, RigDef::Docume
         actor->WriteDiagnosticDump(actor->ar_filename + "_dump_raw.txt"); // Saves file to 'logs'
     }
 
-    /* POST-PROCESSING (Old-spawn code from Actor::loadTruck2) */
+    /* POST-PROCESSING */
 
     actor->ar_initial_node_positions.resize(actor->ar_num_nodes);
     actor->ar_initial_beam_defaults.resize(actor->ar_num_beams);
@@ -236,8 +232,6 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, RigDef::Docume
 
     TRIGGER_EVENT(SE_GENERIC_NEW_TRUCK, actor->ar_instance_id);
 
-    // ~~~~~~~~~~~~~~~~ (continued)  code ported from Actor::Actor()
-
     actor->NotifyActorCameraChanged(); // setup sounds properly
 
     // calculate the number of wheel nodes
@@ -332,19 +326,6 @@ void ActorManager::SetupActor(Actor* actor, ActorSpawnRequest rq, RigDef::Docume
     {
         actor->WriteDiagnosticDump(actor->ar_filename + "_dump_recalc.txt"); // Saves file to 'logs'
     }
-}
-
-Actor* ActorManager::CreateActorInstance(ActorSpawnRequest rq, RigDef::DocumentPtr def)
-{
-    Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
-    actor->setUsedSkin(rq.asr_skin_entry);
-
-    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
-    {
-        actor->sendStreamSetup();
-    }
-
-    this->SetupActor(actor, rq, def);
 
     m_actors.push_back(actor);
 
