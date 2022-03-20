@@ -115,14 +115,7 @@ public:
 
     };
 
-    void Setup(
-        Actor *actor,
-        RigDef::DocumentPtr file,
-        Ogre::SceneNode *parent,
-        Ogre::Vector3 const & spawn_position
-        );
-
-    Actor *SpawnActor();
+    void ProcessNewActor(Actor *actor, ActorSpawnRequest rq, RigDef::DocumentPtr def);
 
     /**
     * Adds a vehicle module to the validated configuration.

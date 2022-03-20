@@ -29,6 +29,8 @@
 #include "ActorSpawner.h"
 
 #include "Actor.h"
+#include "CacheSystem.h"
+#include "GfxScene.h"
 #include "Renderdash.h"
 
 using namespace RoR;
@@ -52,9 +54,41 @@ using namespace RoR;
     this->SetCurrentKeyword(RigDef::Keyword::INVALID);                  \
 }
 
-Actor *ActorSpawner::SpawnActor()
+void ActorSpawner::ProcessNewActor(Actor* actor, ActorSpawnRequest rq, RigDef::DocumentPtr def)
 {
-    InitializeRig();
+    m_actor = actor;
+    m_file = def;
+
+    m_particles_parent_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    m_spawn_position = rq.asr_position;
+    m_current_keyword = RigDef::Keyword::INVALID;
+    m_wing_area = 0.f;
+    m_fuse_z_min = 1000.0f;
+    m_fuse_z_max = -1000.0f;
+    m_fuse_y_min = 1000.0f;
+    m_fuse_y_max = -1000.0f;
+    m_first_wing_index = -1;
+    m_driverseat_prop_index = -1;
+
+    m_generate_wing_position_lights = true;
+
+    if (m_file->root_module->engine.size() > 0) // Engine present => it's a land vehicle.
+    {
+        m_generate_wing_position_lights = false; // Disable aerial pos. lights for land vehicles.
+    }
+
+    // Get resource group name
+    App::GetCacheSystem()->CheckResourceLoaded(m_actor->ar_filename, m_custom_resource_group);
+
+    // Create the built-in "renderdash" material for use in meshes.
+    // Must be done before 'props' are processed because those traditionally use it.
+    // Must be always created, there is no mechanism to declare the need for it. It can be acessed from any mesh, not only dashboard-prop.
+    // Example content: https://github.com/RigsOfRods/rigs-of-rods/files/3044343/45fc291a9d2aa5faaa36cca6df9571cd6d1f1869_Actros_8x8-englisch.zip
+    // TODO: Move setup to GfxActor
+    m_oldstyle_renderdash = new RoR::Renderdash(
+        m_custom_resource_group, this->ComposeName("RenderdashTex", 0), this->ComposeName("RenderdashCam", 0));
+
+    this->InitializeRig();
 
     // Vehicle name
     m_actor->ar_design_name = m_file->name;
@@ -146,14 +180,6 @@ Actor *ActorSpawner::SpawnActor()
     PROCESS_ELEMENT(RigDef::Keyword::ANIMATORS, animators, ProcessAnimator);
     PROCESS_ELEMENT(RigDef::Keyword::FUSEDRAG, fusedrag, ProcessFusedrag);
     PROCESS_ELEMENT(RigDef::Keyword::TURBOJETS, turbojets, ProcessTurbojet);
-
-    // Create the built-in "renderdash" material for use in meshes.
-    // Must be done before 'props' are processed because those traditionally use it.
-    // Must be always created, there is no mechanism to declare the need for it. It can be acessed from any mesh, not only dashboard-prop. Example content: https://github.com/RigsOfRods/rigs-of-rods/files/3044343/45fc291a9d2aa5faaa36cca6df9571cd6d1f1869_Actros_8x8-englisch.zip
-    // TODO: Move setup to GfxActor
-    m_oldstyle_renderdash = new RoR::Renderdash(
-        m_custom_resource_group, this->ComposeName("RenderdashTex", 0), this->ComposeName("RenderdashCam", 0));
-
     PROCESS_ELEMENT(RigDef::Keyword::PROPS, props, ProcessProp);
     PROCESS_ELEMENT(RigDef::Keyword::TRACTIONCONTROL, tractioncontrol, ProcessTractionControl);
     PROCESS_ELEMENT(RigDef::Keyword::ROTATORS, rotators, ProcessRotator);
@@ -188,9 +214,4 @@ Actor *ActorSpawner::SpawnActor()
 
     this->FinalizeRig();
     this->FinalizeGfxSetup();
-
-    // Pass ownership
-    Actor *rig = m_actor;
-    m_actor = nullptr;
-    return rig;
 }
