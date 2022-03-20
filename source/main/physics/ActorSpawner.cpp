@@ -86,37 +86,6 @@ using namespace RoR;
 // Prepare for loading
 /* -------------------------------------------------------------------------- */
 
-void ActorSpawner::Setup(
-    Actor *rig,
-    RigDef::DocumentPtr file,
-    Ogre::SceneNode *parent,
-    Ogre::Vector3 const & spawn_position
-)
-{
-    m_actor = rig;
-    m_file = file;
-    m_particles_parent_scenenode = parent;
-    m_spawn_position = spawn_position;
-    m_current_keyword = RigDef::Keyword::INVALID;
-    m_wing_area = 0.f;
-    m_fuse_z_min = 1000.0f;
-    m_fuse_z_max = -1000.0f;
-    m_fuse_y_min = 1000.0f;
-    m_fuse_y_max = -1000.0f;
-    m_first_wing_index = -1;
-    m_driverseat_prop_index = -1;
-    m_oldstyle_renderdash = nullptr;
-
-    m_generate_wing_position_lights = true;
-    // TODO: Handle modules
-    if (file->root_module->engine.size() > 0) // Engine present => it's a land vehicle.
-    {
-        m_generate_wing_position_lights = false; // Disable aerial pos. lights for land vehicles.
-    }
-
-    App::GetCacheSystem()->CheckResourceLoaded(m_actor->ar_filename, m_custom_resource_group);
-}
-
 void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::Document::Module* module_def)
 {
     // 'nodes'

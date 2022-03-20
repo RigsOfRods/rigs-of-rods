@@ -83,19 +83,17 @@ Actor* ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr de
         actor->sendStreamSetup();
     }
 
-    Ogre::SceneNode* parent_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-
     LOG(" == Spawning vehicle: " + def->name);
 
     ActorSpawner spawner;
-    spawner.Setup(actor, def, parent_scene_node, rq.asr_position);
-    /* Setup modules */
+
+    /* Setup modules (sectionconfig) */
     spawner.AddModule(def->root_module);
     if (!actor->m_section_config.empty())
     {
         spawner.AddModule(actor->m_section_config);
     }
-    spawner.SpawnActor();
+    spawner.ProcessNewActor(actor, rq, def);
 
     if (App::diag_actor_dump->getBool())
     {
