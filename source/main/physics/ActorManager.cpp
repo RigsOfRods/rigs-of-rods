@@ -77,7 +77,6 @@ ActorManager::~ActorManager()
 Actor* ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr def)
 {
     Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
-    actor->setUsedSkin(rq.asr_skin_entry);
 
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {
