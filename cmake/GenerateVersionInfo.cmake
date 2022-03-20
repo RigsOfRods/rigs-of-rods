@@ -39,17 +39,24 @@
 # This implementation was inspired by
 # https://github.com/minetest/minetest/blob/master/cmake/Modules/GenerateVersion.cmake
 
+macro(version_str_to_ints version year month suffix)
+    string(REGEX REPLACE "([0-9]+).[0-9]+[^\n\r]+" "\\1" ${year} ${version})
+    string(REGEX REPLACE "[0-9]+.([0-9]+)[^\n\r]+" "\\1" ${month} ${version})
+    string(REGEX REPLACE "[0-9]+.[0-9]+([^\n\r]+)" "\\1" ${suffix} ${version})
+endmacro(version_str_to_ints)
 
-string(TIMESTAMP VERSION_YEAR "%Y" UTC)
-string(TIMESTAMP VERSION_MONTH "%m" UTC)
-string(TIMESTAMP BUILD_DATE "%Y-%m-%d" UTC) # more correct would be "%b %d %Y" but this is only supported from cmake >= 3.7
+# Default variables
+string(TIMESTAMP BUILD_DATE "%Y-%m-%d" UTC)
 string(TIMESTAMP BUILD_TIME "%H:%M" UTC)
 
 # Define a suffix to append to the version string in case of a development build (as opposed to
 # an official release). This suffix contains additional information gathered from the git VCS.
 if (BUILD_CUSTOM_VERSION)
-    set(VERSION_SUFFIX "-${CUSTOM_VERSION}")
+    version_str_to_ints(${CUSTOM_VERSION} VERSION_YEAR VERSION_MONTH VERSION_SUFFIX)
 elseif (BUILD_DEV_VERSION)
+    string(TIMESTAMP VERSION_YEAR "%Y" UTC)
+    string(TIMESTAMP VERSION_MONTH "%m" UTC)
+
     # Check if we are inside an actual git repository
     if (GIT_EXECUTABLE)
         execute_process(

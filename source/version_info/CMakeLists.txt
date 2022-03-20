@@ -14,7 +14,16 @@ find_package(Git)
 # generates the version_info.cpp and version_def.h files.
 set(VERSION_FLAGS -DBUILD_DEV_VERSION=${BUILD_DEV_VERSION})
 
-add_custom_target(generate_version
+if (DEFINED ${_PREFIX}CUSTOM_VERSION)
+    list(
+            APPEND VERSION_FLAGS
+            -DBUILD_CUSTOM_VERSION=TRUE
+            -DCUSTOM_VERSION=${${_PREFIX}CUSTOM_VERSION}
+    )
+endif ()
+
+add_custom_target(
+        generate_version
         COMMAND ${CMAKE_COMMAND} ${VERSION_FLAGS}
         -DGIT_EXECUTABLE=${GIT_EXECUTABLE}
         -DVERSION_FILE_INPUT=${CMAKE_CURRENT_SOURCE_DIR}/RoRVersion.cpp.in
@@ -28,16 +37,17 @@ add_custom_target(generate_version
         BYPRODUCTS ${VERSION_INFO_CPP} ${VERSION_DEF_H}
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         COMMENT "Generate files containing version information"
-        )
+)
 
 # The version_info library target
 # Other targets can make use of the version information with `target_link_libraries( <target> version_info )`
 add_library(version_info STATIC ${VERSION_INFO_CPP})
 add_dependencies(version_info generate_version)
-target_include_directories(version_info PUBLIC
+target_include_directories(
+        version_info PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
-        )
+)
 
 set_property(TARGET version_info PROPERTY FOLDER "Version Generation")
 set_property(TARGET generate_version PROPERTY FOLDER "Version Generation")
