@@ -50,7 +50,7 @@ public:
     ActorManager();
     ~ActorManager();
 
-    Actor*         CreateActorInstance(ActorSpawnRequest rq, RigDef::DocumentPtr def);
+    Actor*         CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr def);
     void           UpdateActors(Actor* player_actor);
     void           SyncWithSimThread();
     void           UpdatePhysicsSimulation();
@@ -110,7 +110,6 @@ public:
 
 private:
 
-    void           SetupActor(Actor* actor, ActorSpawnRequest rq, RigDef::DocumentPtr def);
     bool           CheckActorCollAabbIntersect(int a, int b);    //!< Returns whether or not the bounding boxes of truck a and truck b intersect. Based on the truck collision bounding boxes.
     bool           PredictActorCollAabbIntersect(int a, int b);  //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
     void           RemoveStreamSource(int sourceid);
