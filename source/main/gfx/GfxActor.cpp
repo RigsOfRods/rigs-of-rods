@@ -68,29 +68,11 @@ RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_re
     m_particles_sparks = App::GetGfxScene()->GetDustPool("sparks");
     m_particles_clump  = App::GetGfxScene()->GetDustPool("clump");
 
-    m_simbuf.simbuf_nodes.resize(m_actor->ar_num_nodes);
-    m_simbuf.simbuf_aeroengines.resize(actor->ar_num_aeroengines);
+
     m_simbuf.simbuf_commandkey.resize(MAX_COMMANDS + 10);
     m_simbuf.simbuf_airbrakes.resize(spawner->GetMemoryRequirements().num_airbrakes);
 
-    // Attributes
-    m_simbuf.xa_speedo_highest_kph = actor->ar_speedo_max_kph; // TODO: Remove the attribute from Actor altogether ~ only_a_ptr, 05/2018
-    m_simbuf.xa_speedo_use_engine_max_rpm = actor->ar_gui_use_engine_max_rpm; // TODO: ditto
-    m_simbuf.xa_camera0_pos_node  = 0;
-    m_simbuf.xa_camera0_roll_node = 0;
-    m_simbuf.xa_has_autopilot = (actor->ar_autopilot != nullptr);
-    m_simbuf.xa_has_engine = (actor->ar_engine != nullptr);
-    m_simbuf.xa_driveable = actor->ar_driveable;
-    if (actor->ar_num_cameras > 0)
-    {
-        m_simbuf.xa_camera0_pos_node  = actor->ar_camera_node_pos[0];
-        m_simbuf.xa_camera0_roll_node = actor->ar_camera_node_roll[0];
-    }
-    if (m_simbuf.xa_has_engine)
-    {
-        m_simbuf.xa_num_gears = actor->ar_engine->getNumGears();
-        m_simbuf.xa_engine_max_rpm = actor->ar_engine->getMaxRPM();
-    }
+
 }
 
 RoR::GfxActor::~GfxActor()
@@ -1705,6 +1687,32 @@ void RoR::GfxActor::SetRodsVisible(bool visible)
     {
         App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeChild(m_gfx_beams_parent_scenenode);
     }
+}
+
+void RoR::GfxActor::InitializeSimBuffers()
+{
+    // Elements
+    m_simbuf.simbuf_nodes.resize(m_actor->ar_num_nodes);
+    m_simbuf.simbuf_aeroengines.resize(m_actor->ar_num_aeroengines);
+
+    // Attributes (things that won't change during simulation)
+    m_simbuf.xa_speedo_highest_kph = m_actor->ar_speedo_max_kph;
+    m_simbuf.xa_speedo_use_engine_max_rpm = m_actor->ar_gui_use_engine_max_rpm;
+    m_simbuf.xa_camera0_pos_node  = 0;
+    m_simbuf.xa_camera0_roll_node = 0;
+    m_simbuf.xa_has_autopilot = (m_actor->ar_autopilot != nullptr);
+    m_simbuf.xa_has_engine = (m_actor->ar_engine != nullptr);
+    m_simbuf.xa_driveable = m_actor->ar_driveable;
+    if (m_actor->ar_num_cameras > 0)
+    {
+        m_simbuf.xa_camera0_pos_node  = m_actor->ar_camera_node_pos[0];
+        m_simbuf.xa_camera0_roll_node = m_actor->ar_camera_node_roll[0];
+    }
+    if (m_simbuf.xa_has_engine)
+    {
+        m_simbuf.xa_num_gears = m_actor->ar_engine->getNumGears();
+        m_simbuf.xa_engine_max_rpm = m_actor->ar_engine->getMaxRPM();
+    }    
 }
 
 void RoR::GfxActor::UpdateSimDataBuffer()
