@@ -199,7 +199,10 @@ void ActorSpawner::ProcessNewActor(Actor* actor, ActorSpawnRequest rq, RigDef::D
     PROCESS_ELEMENT(RigDef::Keyword::SCREWPROPS, screwprops, ProcessScrewprop);
     PROCESS_ELEMENT(RigDef::Keyword::FIXES, fixes, ProcessFixedNode);
 
-    this->CreateGfxActor(); // Required in elements below
+    m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
+        new RoR::GfxActor(m_actor, this, m_custom_resource_group, m_gfx_nodes, m_oldstyle_renderdash));
+
+    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill (to setup flexing meshes)
 
     PROCESS_ELEMENT(RigDef::Keyword::FLEXBODIES, flexbodies, ProcessFlexbody); // (needs GfxActor to exist)
     PROCESS_ELEMENT(RigDef::Keyword::WINGS, wings, ProcessWing); // (needs GfxActor to exist)

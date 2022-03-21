@@ -6392,15 +6392,6 @@ void ActorSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_co
     }
 }
 
-void ActorSpawner::CreateGfxActor()
-{
-    // Create the actor
-    m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
-        new RoR::GfxActor(m_actor, this, m_custom_resource_group, m_gfx_nodes, m_oldstyle_renderdash));
-
-    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill (to setup flexing meshes)
-}
-
 void ActorSpawner::FinalizeGfxSetup()
 {
     // Check and warn if there are unclaimed managed materials
