@@ -54,10 +54,9 @@
 #include <Ogre.h>
 
 RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
-                        std::vector<NodeGfx>& gfx_nodes, RoR::Renderdash* renderdash):
+                        RoR::Renderdash* renderdash):
     m_actor(actor),
     m_custom_resource_group(ogre_resource_group),
-    m_gfx_nodes(gfx_nodes),
     m_renderdash(renderdash)
 {
     // Setup particles
@@ -3323,3 +3322,14 @@ void RoR::GfxActor::UpdateWingMeshes()
 int           RoR::GfxActor::FetchNumBeams      () const                 { return m_actor->ar_num_beams; }
 int           RoR::GfxActor::FetchNumNodes      () const                 { return m_actor->ar_num_nodes; }
 int           RoR::GfxActor::FetchNumWheelNodes () const                 { return m_actor->getWheelNodeCount(); }
+
+void RoR::GfxActor::SetNodeHot(NodeNum_t nodenum, bool value)
+{
+    for (NodeGfx& nfx : m_gfx_nodes)
+    {
+        if (nfx.nx_node_idx == nodenum)
+        {
+            nfx.nx_is_hot = value;
+        }
+    }
+}

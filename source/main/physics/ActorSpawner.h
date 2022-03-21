@@ -60,12 +60,6 @@ namespace RoR {
 /// RoR is being refactored to get rid of the MAX_[BEAMS/NODES/***] limits. Static arrays in `rig_t` are replaced with pointers to dynamically allocated memory.
 /// Memory requirements are calculated upfront from `RigDef::Document`.
 ///
-/// FUTURE:
-///
-/// ActorSpawner will work in 2 steps:
-///  1. Physics/simulation data are fully prepared. This should be very fast (we can pre-calculate and cache things if needed).
-///  2. Graphics/sounds are set up, reading the completed physics/sim data. Graphics are fully managed by `GfxActor`. Similar utility will be added for sound.
-///
 /// CONVENTIONS:
 ///
 /// * Functions "Process*(Definition & def)"                 Transform elements of truckfile to rig structures.
@@ -760,7 +754,6 @@ private:
     std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;
     ActorMemoryRequirements   m_memory_requirements;
     RigDef::Keyword     m_current_keyword; //!< For error reports
-    std::vector<RoR::NodeGfx> m_gfx_nodes;
     CustomMaterial::MirrorPropType         m_curr_mirror_prop_type;
     RigDef::DocumentPtr          m_file; //!< The parsed input file.
     std::map<Ogre::String, unsigned int>   m_named_nodes;

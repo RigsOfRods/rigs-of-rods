@@ -128,6 +128,9 @@ void ActorSpawner::ProcessNewActor(Actor* actor, ActorSpawnRequest rq, RigDef::D
 
     // ---------------------------- User-defined nodes ----------------------------
 
+    m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
+        new RoR::GfxActor(m_actor, this, m_custom_resource_group, m_oldstyle_renderdash));
+
     PROCESS_ELEMENT(RigDef::Keyword::NODES, nodes, ProcessNode);
 
     // Old-format exhaust (defined by flags 'x/y' in section 'nodes', one per vehicle)
@@ -135,9 +138,6 @@ void ActorSpawner::ProcessNewActor(Actor* actor, ActorSpawnRequest rq, RigDef::D
     {
         AddExhaust(m_actor->ar_exhaust_pos_node, m_actor->ar_exhaust_dir_node);
     }
-
-    m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
-        new RoR::GfxActor(m_actor, this, m_custom_resource_group, m_gfx_nodes, m_oldstyle_renderdash));
 
     // ---------------------------- Node generating sections ----------------------------
 
