@@ -118,9 +118,13 @@ public:
     void                 UpdateFlares(float dt_sec, bool is_player);
     void                 UpdateRenderdashRTT ();
 
+    // SimBuffers
+
+    void                 InitializeSimBuffers();
+    void                 UpdateSimDataBuffer(); //!< Copies sim. data from `Actor` to `GfxActor` for later update
+
     // Internal updates
 
-    void                 UpdateSimDataBuffer(); //!< Copies sim. data from `Actor` to `GfxActor` for later update
     void                 FinishWheelUpdates();
     void                 FinishFlexbodyTasks();
 
