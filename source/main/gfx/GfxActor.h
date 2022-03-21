@@ -56,12 +56,13 @@ class GfxActor
 public:
 
     GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
-        std::vector<NodeGfx>& gfx_nodes, RoR::Renderdash* renderdash);
+        RoR::Renderdash* renderdash);
 
     ~GfxActor();
 
     // Adding elements
 
+    void                 AddNode(NodeGfx arg) { m_gfx_nodes.emplace_back(arg); }
     void                 AddMaterialFlare(int flare_index, Ogre::MaterialPtr mat);
     void                 RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
     void                 RegisterCabMesh(Ogre::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj);
@@ -84,6 +85,7 @@ public:
     void                 SetRenderdashActive(bool active);
     void                 SetBeaconsEnabled(bool beacon_light_is_active);
     void                 SetDebugView(DebugViewType dv);
+    void                 SetNodeHot(NodeNum_t nodenum, bool value);
 
     // Visibility
 
