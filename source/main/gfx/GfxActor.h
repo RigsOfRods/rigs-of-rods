@@ -63,10 +63,10 @@ public:
     // Adding elements
 
     void                 AddNode(NodeGfx arg) { m_gfx_nodes.emplace_back(arg); }
+    void                 AddBeam(BeamGfx arg) { m_gfx_beams.emplace_back(arg); }
     void                 AddMaterialFlare(int flare_index, Ogre::MaterialPtr mat);
     void                 RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
     void                 RegisterCabMesh(Ogre::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj);
-    void                 AddRod(int beam_index, int node1_index, int node2_index, const char* material_name, bool visible, float diameter_meters);
     void                 SetWheelVisuals(uint16_t index, WheelGfx wheel_gfx);
     void                 RegisterAirbrakes();
     void                 RegisterProps(std::vector<Prop> const& props, int driverseat_prop_idx);
@@ -86,6 +86,7 @@ public:
     void                 SetBeaconsEnabled(bool beacon_light_is_active);
     void                 SetDebugView(DebugViewType dv);
     void                 SetNodeHot(NodeNum_t nodenum, bool value);
+    void                 RemoveBeam(int beam_index);
 
     // Visibility
 
@@ -98,7 +99,6 @@ public:
     void                 SetFlexbodiesVisible(bool visible);
     void                 SetPropsVisible(bool visible);
     void                 SetAeroEnginesVisible(bool visible);
-
 
     // Visual updates
 

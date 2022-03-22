@@ -189,19 +189,6 @@ private:
     };
 
     // TODO: This "ticket system" is a joke - remove it until resource loading is actually async!
-    struct BeamVisualsTicket //!< Visuals are queued for processing using this struct
-    {
-        BeamVisualsTicket(int idx, float diam, const char* mtr=nullptr, bool vis=true):
-            beam_index(idx), diameter(diam), material_name(mtr), visible(vis)
-        {}
-
-        int beam_index;
-        std::string material_name; // TODO: how does std::string behave when parent struct is re-allocated within std::vector?  ;)
-        float diameter;
-        bool visible; // Some beams are spawned as hidden (ties, hooks) and displayed only when activated
-    };
-
-    // TODO: This "ticket system" is a joke - remove it until resource loading is actually async!
     struct WheelVisualsTicket //!< Wheel visuals are queued for processing using this struct
     {
         WheelVisualsTicket(uint16_t wheel_idx, uint16_t node_idx, RigDef::Wheel* def):
@@ -758,7 +745,6 @@ private:
     RigDef::DocumentPtr          m_file; //!< The parsed input file.
     std::map<Ogre::String, unsigned int>   m_named_nodes;
     std::map<std::string, CustomMaterial>  m_material_substitutions; //!< Maps original material names (shared) to their actor-specific substitutes; There's 1 substitute per 1 material, regardless of user count.
-    std::vector<BeamVisualsTicket>         m_beam_visuals_queue; //!< We want to spawn visuals asynchronously in the future
     std::vector<WheelVisualsTicket>        m_wheel_visuals_queue; //!< We want to spawn visuals asynchronously in the future
     std::map<std::string, Ogre::MaterialPtr>  m_managed_materials;
     std::list<std::shared_ptr<RigDef::Document::Module>>  m_selected_modules;
