@@ -86,13 +86,7 @@ Actor* ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr de
     LOG(" == Spawning vehicle: " + def->name);
 
     ActorSpawner spawner;
-
-    /* Setup modules (sectionconfig) */
-    spawner.AddModule(def->root_module);
-    if (!actor->m_section_config.empty())
-    {
-        spawner.AddModule(actor->m_section_config);
-    }
+    spawner.ConfigureSections(actor->m_section_config, def);
     spawner.ProcessNewActor(actor, rq, def);
 
     if (App::diag_actor_dump->getBool())

@@ -109,22 +109,10 @@ public:
 
     };
 
+    // Processing
+    
+    void ConfigureSections(Ogre::String const & sectionconfig, RigDef::DocumentPtr def);
     void ProcessNewActor(Actor *actor, ActorSpawnRequest rq, RigDef::DocumentPtr def);
-
-    /**
-    * Adds a vehicle module to the validated configuration.
-    * @param module_name A module from the validated rig-def file.
-    */
-    bool AddModule(Ogre::String const & module_name);
-
-    /**
-    * Adds a vehicle module to the validated configuration.
-    * @param module_name A module from the validated rig-def file.
-    */
-    void AddModule(std::shared_ptr<RigDef::Document::Module> module)
-    {
-        m_selected_modules.push_back(module);
-    }
 
     Actor *GetActor()
     {
