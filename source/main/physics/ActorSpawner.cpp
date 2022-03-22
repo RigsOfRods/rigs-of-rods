@@ -4156,8 +4156,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     int wheel_index = m_actor->ar_num_wheels;
     ++m_actor->ar_num_wheels;
 
-    // Create visuals
-    m_wheel_visuals_queue.push_back(WheelVisualsTicket(wheel_index, base_node_index, &def, axis_node_1->pos, axis_node_2->pos));
+    this->CreateFlexBodyWheelVisuals(wheel_index, base_node_index, axis_node_1->pos, axis_node_2->pos, def); 
 }
 
 wheel_t::BrakeCombo ActorSpawner::TranslateBrakingDef(RigDef::WheelBraking def)
@@ -4217,8 +4216,17 @@ void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
         meshwheel_def.rigidity_node
     );
 
-    m_wheel_visuals_queue.push_back(
-        WheelVisualsTicket(wheel_index, base_node_index, &meshwheel_def, axis_node_1->pos, axis_node_2->pos));
+    this->BuildMeshWheelVisuals(
+        wheel_index,
+        base_node_index,
+        axis_node_1->pos,
+        axis_node_2->pos,
+        meshwheel_def.num_rays,
+        meshwheel_def.mesh_name,
+        meshwheel_def.material_name,
+        meshwheel_def.rim_radius,
+        /*rim_reverse:*/meshwheel_def.side != RigDef::WheelSide::RIGHT
+    );
 
     CreateWheelSkidmarks(wheel_index);
 }
@@ -4281,8 +4289,17 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
         0.15 // max_extension
     );
 
-    m_wheel_visuals_queue.push_back(WheelVisualsTicket(
-        wheel_index, base_node_index, &def, axis_node_1->pos, axis_node_2->pos));
+    this->BuildMeshWheelVisuals(
+        wheel_index,
+        base_node_index,
+        axis_node_1->pos,
+        axis_node_2->pos,
+        def.num_rays,
+        def.mesh_name,
+        def.material_name,
+        def.rim_radius,
+        /*rim_reverse:*/def.side != RigDef::WheelSide::RIGHT
+    );
 
     CreateWheelSkidmarks(wheel_index);
 }
@@ -4299,6 +4316,9 @@ void ActorSpawner::BuildMeshWheelVisuals(
     bool rim_reverse
 )
 {
+    m_actor->GetGfxActor()->InitializeSimBuffers(); // resize arrays
+    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill node positions - needed to setup flexing meshes
+
     try
     {
         FlexMeshWheel* flexmesh_wheel = m_flex_factory.CreateFlexMeshWheel(
@@ -4318,7 +4338,7 @@ void ActorSpawner::BuildMeshWheelVisuals(
         visual_wheel.wx_is_meshwheel = false;
         visual_wheel.wx_flex_mesh = flexmesh_wheel;
         visual_wheel.wx_scenenode = scene_node;
-        m_actor->m_gfx_actor->SetWheelVisuals(wheel_index, visual_wheel);
+        m_actor->m_gfx_actor->AddWheel(visual_wheel);
     }
     catch (Ogre::Exception& e)
     {
@@ -4561,7 +4581,14 @@ unsigned int ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
         wheel_def.rigidity_node
     );
 
-    m_wheel_visuals_queue.push_back(WheelVisualsTicket(wheel_index, base_node_index, &wheel_def));
+    this->CreateWheelVisuals(
+        wheel_index,
+        base_node_index,
+        wheel_def.num_rays,
+        wheel_def.face_material_name,
+        wheel_def.band_material_name,
+        /*separate_rim:*/false
+        );
 
     CreateWheelSkidmarks(wheel_index);
 
@@ -4811,6 +4838,9 @@ void ActorSpawner::CreateWheelVisuals(
     float rim_ratio
 )
 {
+    m_actor->GetGfxActor()->InitializeSimBuffers(); // resize arrays
+    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill node positions - needed to setup flexing meshes
+
     wheel_t & wheel = m_actor->ar_wheels[wheel_index];
 
     try
@@ -4838,11 +4868,71 @@ void ActorSpawner::CreateWheelVisuals(
         visual_wheel.wx_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         m_actor->m_deletion_entities.emplace_back(ec);
         visual_wheel.wx_scenenode->attachObject(ec);
-        m_actor->m_gfx_actor->SetWheelVisuals(wheel_index, visual_wheel);
+        m_actor->m_gfx_actor->AddWheel(visual_wheel);
     }
     catch (Ogre::Exception& e)
     {
         AddMessage(Message::TYPE_ERROR, "Failed to create wheel visuals: " +  e.getFullDescription());
+    }
+}
+
+void ActorSpawner::CreateFlexBodyWheelVisuals(
+    unsigned int wheel_index, 
+    unsigned int node_base_index,
+    NodeNum_t axis_node_1,
+    NodeNum_t axis_node_2,
+    RigDef::FlexBodyWheel& def)
+{
+    m_actor->GetGfxActor()->InitializeSimBuffers(); // resize arrays
+    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill node positions - needed to setup flexing meshes
+
+    this->BuildMeshWheelVisuals(
+        wheel_index,
+        node_base_index,
+        axis_node_1,
+        axis_node_2,
+        def.num_rays,
+        def.rim_mesh_name,
+        "tracks/trans", // Rim material name. Original parser: was hardcoded in BTS_FLEXBODYWHEELS
+        def.rim_radius,
+        def.side != RigDef::WheelSide::RIGHT
+        );
+
+    int num_nodes = def.num_rays * 4;
+    std::vector<unsigned int> node_indices;
+    node_indices.reserve(num_nodes);
+    for (int i = 0; i < num_nodes; ++i)
+    {
+        node_indices.push_back( node_base_index + i );
+    }
+
+    RigDef::Flexbody flexbody_def;
+    flexbody_def.mesh_name = def.tyre_mesh_name;
+    flexbody_def.offset = Ogre::Vector3(0.5,0,0);
+
+    try
+    {
+        auto* flexbody = m_flex_factory.CreateFlexBody(
+            &flexbody_def,
+            axis_node_1,
+            axis_node_2,
+            static_cast<int>(node_base_index),
+            Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
+            node_indices,
+            m_custom_resource_group
+            );
+
+        if (flexbody == nullptr)
+            return; // Error already logged
+
+        this->CreateWheelSkidmarks(static_cast<unsigned>(wheel_index));
+
+        m_actor->GetGfxActor()->AddFlexbody(flexbody);
+    }
+    catch (Ogre::Exception& e)
+    {
+        this->AddMessage(Message::TYPE_ERROR, 
+            "Failed to create flexbodywheel visuals '" + def.tyre_mesh_name + "', reason:" + e.getFullDescription());
     }
 }
 
@@ -4909,7 +4999,15 @@ void ActorSpawner::ProcessWheel2(RigDef::Wheel2 & def)
 {
     unsigned int node_base_index = m_actor->ar_num_nodes;
     unsigned int wheel_index = AddWheel2(def);
-    m_wheel_visuals_queue.push_back(WheelVisualsTicket(wheel_index, node_base_index, &def));
+    this->CreateWheelVisuals(
+        wheel_index,
+        node_base_index,
+        def.num_rays,
+        def.face_material_name,
+        def.band_material_name,
+        /*separate_rim:*/true,
+        /*rim_ratio:*/def.rim_radius / def.tyre_radius
+        );
 };
 
 void ActorSpawner::ProcessWheel(RigDef::Wheel & def)
@@ -6626,114 +6724,6 @@ void ActorSpawner::FinalizeGfxSetup()
             // TODO: do not leak memory here! ~ 08/2018
         }
     };
-
-    // Process wheel visuals
-    for (WheelVisualsTicket& ticket: m_wheel_visuals_queue)
-    {
-        if (ticket.wheel_def != nullptr)
-        {
-            this->CreateWheelVisuals(
-                ticket.wheel_index,
-                ticket.base_node_index,
-                ticket.wheel_def->num_rays,
-                ticket.wheel_def->face_material_name,
-                ticket.wheel_def->band_material_name,
-                false
-                );
-        }
-        else if (ticket.wheel2_def != nullptr)
-        {
-            this->CreateWheelVisuals(
-                ticket.wheel_index,
-                ticket.base_node_index,
-                ticket.wheel2_def->num_rays,
-                ticket.wheel2_def->face_material_name,
-                ticket.wheel2_def->band_material_name,
-                true,
-                ticket.wheel2_def->rim_radius / ticket.wheel2_def->tyre_radius
-                );
-        }
-        else if (ticket.meshwheel_def != nullptr)
-        {
-            this->BuildMeshWheelVisuals(
-                ticket.wheel_index,
-                ticket.base_node_index,
-                ticket.axis_node_1,
-                ticket.axis_node_2,
-                ticket.meshwheel_def->num_rays,
-                ticket.meshwheel_def->mesh_name,
-                ticket.meshwheel_def->material_name,
-                ticket.meshwheel_def->rim_radius,
-                ticket.meshwheel_def->side != RigDef::WheelSide::RIGHT
-                );
-        }
-        else if (ticket.meshwheel2_def != nullptr)
-        {
-            this->BuildMeshWheelVisuals(
-                ticket.wheel_index,
-                ticket.base_node_index,
-                ticket.axis_node_1,
-                ticket.axis_node_2,
-                ticket.meshwheel2_def->num_rays,
-                ticket.meshwheel2_def->mesh_name,
-                ticket.meshwheel2_def->material_name,
-                ticket.meshwheel2_def->rim_radius,
-                ticket.meshwheel2_def->side != RigDef::WheelSide::RIGHT
-                );
-        }
-        else if (ticket.flexbodywheel_def != nullptr)
-        {
-            RigDef::FlexBodyWheel& def = *ticket.flexbodywheel_def;
-            this->BuildMeshWheelVisuals(
-                ticket.wheel_index,
-                ticket.base_node_index,
-                ticket.axis_node_1,
-                ticket.axis_node_2,
-                def.num_rays,
-                def.rim_mesh_name,
-                "tracks/trans", // Rim material name. Original parser: was hardcoded in BTS_FLEXBODYWHEELS
-                def.rim_radius,
-                def.side != RigDef::WheelSide::RIGHT
-                );
-
-            int num_nodes = def.num_rays * 4;
-            std::vector<unsigned int> node_indices;
-            node_indices.reserve(num_nodes);
-            for (int i = 0; i < num_nodes; ++i)
-            {
-                node_indices.push_back( ticket.base_node_index + i );
-            }
-
-            RigDef::Flexbody flexbody_def;
-            flexbody_def.mesh_name = def.tyre_mesh_name;
-            flexbody_def.offset = Ogre::Vector3(0.5,0,0);
-
-            try
-            {
-                auto* flexbody = m_flex_factory.CreateFlexBody(
-                    &flexbody_def,
-                    ticket.axis_node_1,
-                    ticket.axis_node_2,
-                    static_cast<int>(ticket.base_node_index),
-                    Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
-                    node_indices,
-                    m_custom_resource_group
-                    );
-
-                if (flexbody == nullptr)
-                    return; // Error already logged
-
-                this->CreateWheelSkidmarks(static_cast<unsigned>(ticket.wheel_index));
-
-                m_actor->GetGfxActor()->AddFlexbody(flexbody);
-            }
-            catch (Ogre::Exception& e)
-            {
-                this->AddMessage(Message::TYPE_ERROR, 
-                    "Failed to create flexbodywheel visuals '" + def.tyre_mesh_name + "', reason:" + e.getFullDescription());
-            }
-        }
-    }
 
     m_actor->GetGfxActor()->RegisterAirbrakes();
 

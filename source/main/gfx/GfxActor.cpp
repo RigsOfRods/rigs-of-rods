@@ -1843,15 +1843,6 @@ void RoR::GfxActor::UpdateCabMesh()
     }
 }
 
-void RoR::GfxActor::SetWheelVisuals(uint16_t index, WheelGfx wheel_gfx)
-{
-    if (m_wheels.size() <= index)
-    {
-        m_wheels.resize(index + 1);
-    }
-    m_wheels[index] = wheel_gfx;
-}
-
 void RoR::GfxActor::UpdateWheelVisuals()
 {
     m_flexwheel_tasks.clear();
