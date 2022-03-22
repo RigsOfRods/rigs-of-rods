@@ -86,62 +86,26 @@ public:
         // ... more to come ...
     };
 
-    struct Message  // TODO: remove, use console API directly
+    enum struct Message
     {
-        enum Type
-        {
-            TYPE_INFO,
-            TYPE_WARNING,
-            TYPE_ERROR,
-            TYPE_INTERNAL_ERROR,
-
-            TYPE_INVALID = 0xFFFFFFFF
-        };
+        TYPE_INFO,
+        TYPE_WARNING,
+        TYPE_ERROR,
     };
 
-    class Exception: public std::runtime_error
-    {
-    public:
+    /// @name Processing
+    /// @{
+    void                           ConfigureSections(Ogre::String const & sectionconfig, RigDef::DocumentPtr def);
+    void                           ProcessNewActor(Actor *actor, ActorSpawnRequest rq, RigDef::DocumentPtr def);
+    static void                    SetupDefaultSoundSources(Actor *actor);
+    /// @}
 
-        Exception(Ogre::String const & message):
-            runtime_error(message)
-        {}
-
-    };
-
-    // Processing
-    
-    void ConfigureSections(Ogre::String const & sectionconfig, RigDef::DocumentPtr def);
-    void ProcessNewActor(Actor *actor, ActorSpawnRequest rq, RigDef::DocumentPtr def);
-
-    Actor *GetActor()
-    {
-        return m_actor;
-    }
-
-    ActorMemoryRequirements const& GetMemoryRequirements()
-    {
-        return m_memory_requirements;
-    }
-
-    /**
-    * Finds and clones given material. Reports errors.
-    * @return NULL Ogre::MaterialPtr on error.
-    */
-    Ogre::MaterialPtr InstantiateManagedMaterial(Ogre::String const & source_name, Ogre::String const & clone_name);
-
-    /**
-    * Finds existing node by Node::Ref; throws an exception if the node doesn't exist.
-    * @return Index of existing node
-    * @throws Exception If the node isn't found.
-    */
-    NodeNum_t GetNodeIndexOrThrow(RigDef::Node::Ref const & id);
-
-    static void SetupDefaultSoundSources(Actor *vehicle);
-
-    static void ComposeName(RoR::Str<100>& str, const char* type, int number, int actor_id);
-
-    std::string GetSubmeshGroundmodelName();
+    /// @name Utility
+    /// @{
+    Actor*                         GetActor() { return m_actor; }
+    ActorMemoryRequirements const& GetMemoryRequirements() { return m_memory_requirements; }
+    std::string                    GetSubmeshGroundmodelName();
+    /// @}
 
 private:
 
@@ -176,11 +140,14 @@ private:
         Ogre::SceneNode*               mirror_prop_scenenode;
     };
 
-/* -------------------------------------------------------------------------- */
-/* Processing functions.                                                      */
-/* NOTE: Please maintain alphabetical order.                                  */
-/* -------------------------------------------------------------------------- */
+    struct Exception: public std::runtime_error
+    {
+        Exception(Ogre::String const & message):runtime_error(message) {}
+    };
 
+    /// @name Processing actor elements
+    /// @{
+    // PLEASE maintain alphabetical order
     void ProcessAirbrake(RigDef::Airbrake & def);
     void ProcessAnimator(RigDef::Animator & def);
     void ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def);
@@ -247,10 +214,10 @@ private:
     void ProcessWheel(RigDef::Wheel & def);
     void ProcessWheel2(RigDef::Wheel2 & def);
     void ProcessWing(RigDef::Wing & def);
+    /// @}
 
-/* -------------------------------------------------------------------------- */
-/* Partial processing functions.                                              */
-/* -------------------------------------------------------------------------- */
+    /// @name Actor building functions
+    /// @{
 
     void BuildAeroEngine(
         NodeNum_t ref_node_index,
@@ -263,229 +230,158 @@ private:
         bool is_turboprops,
         Ogre::String const & airfoil,
         float power,
-        float pitch
-    );
+        float pitch);
 
-    /**
-    * Fetches free beam and sets up defaults.
-    */
-    beam_t & AddBeam(
-        node_t & node_1, 
-        node_t & node_2, 
-        std::shared_ptr<RigDef::BeamDefaults> & defaults,
-        int detacher_group
-    );
+    void _ProcessKeyInertia(
+        RigDef::Inertia & inertia, 
+        RigDef::Inertia & inertia_defaults, 
+        RoR::CmdKeyInertia& contract_key, 
+        RoR::CmdKeyInertia& extend_key);
 
-    /**
-    * Adds complete wheel (section 'wheels') to the rig.
-    * @return wheel index in rig_t::wheels array.
-    */
-    unsigned int AddWheel(RigDef::Wheel & wheel);
+    /// 'wheels', 'meshwheels'
+    void BuildWheelBeams(
+        unsigned int num_rays,
+        unsigned int base_node_index,
+        node_t *axis_node_1,
+        node_t *axis_node_2,
+        float tyre_spring,
+        float tyre_damping,
+        float rim_spring,
+        float rim_damping,
+        std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
+        RigDef::Node::Ref const & rigidity_node_id,
+        float max_extension = 0.f);
 
-    /**
-    * Adds wheel from section 'wheels2'.
-    * @return wheel index.
-    */
-    unsigned int AddWheel2(RigDef::Wheel2 & wheel_2_def);
+    /// 'wheels', 'meshwheels', 'meshwheels2'
+    unsigned int AddWheelBeam(
+        node_t *node_1,
+        node_t *node_2,
+        float spring,
+        float damping,
+        std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
+        float max_contraction = -1.f,
+        float max_extension = -1.f,
+        BeamType type = BEAM_NORMAL);
 
-    void CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override="");
+    /// Sets up wheel and builds nodes for sections 'wheels', 'meshwheels' and 'meshwheels2'.
+    /// @param wheel_width Width of the wheel (used in section 'wheels'). Use negative value to calculate width from axis beam.
+    /// @return Wheel index.
+    unsigned int BuildWheelObjectAndNodes(
+        unsigned int num_rays,
+        node_t *axis_node_1,
+        node_t *axis_node_2,
+        node_t *reference_arm_node,
+        unsigned int reserve_nodes,
+        unsigned int reserve_beams,
+        float wheel_radius,
+        RigDef::WheelPropulsion propulsion,
+        RigDef::WheelBraking braking,
+        std::shared_ptr<RigDef::NodeDefaults> node_defaults,
+        float wheel_mass,
+        float wheel_width = -1.f);
 
-    RailGroup *CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
+    /// @return First: node index, second: True if the node was inserted, false if duplicate.
+    std::pair<unsigned int, bool> AddNode(RigDef::Node::Id & id);
+    void                          InitNode(node_t & node, Ogre::Vector3 const & position);
+    void                          InitNode(unsigned int node_index, Ogre::Vector3 const & position);
+    void                          InitNode(node_t & node, Ogre::Vector3 const & position, std::shared_ptr<RigDef::NodeDefaults> node_defaults);
+    beam_t&                       AddBeam(node_t & node_1, node_t & node_2, std::shared_ptr<RigDef::BeamDefaults> & defaults, int detacher_group);
+    unsigned int                  AddWheelRimBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
+    unsigned int                  AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
+    unsigned int                  _SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
+    unsigned int                  AddWheel(RigDef::Wheel & wheel);
+    unsigned int                  AddWheel2(RigDef::Wheel2 & wheel_2_def); // 'wheels2'
+    void                          AddExhaust(NodeNum_t emitter_node_idx, NodeNum_t direction_node_idx);
+    RailGroup*                    CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
+    void                          InitializeRig();
+    void                          FinalizeRig();
+    /// @}
 
-    static void AddSoundSource(Actor *vehicle, SoundScriptInstance *sound_script, NodeNum_t node_index, int type = -2);
+    /// @name Actor building utilities
+    /// @{
+    void                          CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::Document::Module* module_def);    
+    void                          UpdateCollcabContacterNodes();
+    wheel_t::BrakeCombo           TranslateBrakingDef(RigDef::WheelBraking def);
+    void                          WashCalculator();
+    void                          AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, std::shared_ptr<RigDef::NodeDefaults> defaults); //!< For user-defined nodes
+    void                          AdjustNodeBuoyancy(node_t & node, std::shared_ptr<RigDef::NodeDefaults> defaults); //!< For generated nodes
+    void                          InitBeam(beam_t & beam, node_t *node_1, node_t *node_2);
+    void                          CalculateBeamLength(beam_t & beam);
+    void                          SetBeamStrength(beam_t & beam, float strength);
+    void                          SetBeamSpring(beam_t & beam, float spring);
+    void                          SetBeamDamping(beam_t & beam, float damping);
+    void                          SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults);
+    void                          ValidateRotator(int id, int axis1, int axis2, NodeNum_t *nodes1, NodeNum_t *nodes2);
 
-    static void AddSoundSourceInstance(Actor *vehicle, Ogre::String const & sound_script_name, int node_index, int type = -2);
+    /// Creates name containing actor ID token, i.e. "Object_1@Actor_2"
+    std::string                   ComposeName(const char* base, int number);
 
-/* -------------------------------------------------------------------------- */
-/* Limits.                                                                    */
-/* -------------------------------------------------------------------------- */
+    /// Finds wheel with given axle nodes and returns it's index.
+    /// @param _out_axle_wheel Index of the found wheel.
+    /// @return True if wheel was found, false if not.
+    bool                          AssignWheelToAxle(int & _out_axle_wheel, node_t *axis_node_1, node_t *axis_node_2);
 
-    bool CheckParticleLimit(unsigned int count);
-    bool CheckAxleLimit(unsigned int count);
-    bool CheckSubmeshLimit(unsigned int count);
-    bool CheckTexcoordLimit(unsigned int count);
-    bool CheckCabLimit(unsigned int count);
-    bool CheckCameraRailLimit(unsigned int count);
-    static bool CheckSoundScriptLimit(Actor *vehicle, unsigned int count);
-    bool CheckAeroEngineLimit(unsigned int count);
-    bool CheckScrewpropLimit(unsigned int count);
-
-/* -------------------------------------------------------------------------- */
-/* Utility functions.                                                         */
-/* -------------------------------------------------------------------------- */
-
-    /**
-    * Seeks node.
-    * @return Pointer to node, or nullptr if not found.
-    */
-    node_t* GetBeamNodePointer(RigDef::Node::Ref const & node_ref);
-
-    /**
-    * Seeks node in both RigDef::Document definition and rig_t generated rig.
-    * @return Node index or -1 if the node was not found.
-    */
-    NodeNum_t FindNodeIndex(RigDef::Node::Ref & node_ref, bool silent = false);
-
-    /**
-    * Finds wheel with given axle nodes and returns it's index.
-    * @param _out_axle_wheel Index of the found wheel.
-    * @return True if wheel was found, false if not.
-    */
-    bool AssignWheelToAxle(int & _out_axle_wheel, node_t *axis_node_1, node_t *axis_node_2);
+    // GetFree*(): Gets a free slot; checks limits, sets it's array position and updates 'free_node' index.
+    node_t&                       GetFreeNode();
+    beam_t&                       GetFreeBeam();
+    node_t&                       GetAndInitFreeNode(Ogre::Vector3 const & position);
+    beam_t&                       GetAndInitFreeBeam(node_t & node_1, node_t & node_2);
+    shock_t&                      GetFreeShock();
 
     float ComputeWingArea(
         Ogre::Vector3 const & ref, 
         Ogre::Vector3 const & x, 
         Ogre::Vector3 const & y, 
-        Ogre::Vector3 const & aref
-    );
+        Ogre::Vector3 const & aref);
 
-    /**
-    * Adds a node to the rig.
-    * @return First: node index, second: True if the node was inserted, false if duplicate.
-    */
-    std::pair<unsigned int, bool> AddNode(RigDef::Node::Id & id);
-
-    /**
-    * Adds a message to internal log.
-    */
-    void AddMessage(Message::Type type, Ogre::String const & text);
-
-    void AddExhaust(
-        unsigned int emitter_node_idx,
-        unsigned int direction_node_idx
-    );
-
-    /**
-    * Finds existing node by Node::Ref. Returns NODENUM_INVALID if not found.
-    */
-    NodeNum_t ResolveNodeRef(RigDef::Node::Ref const & node_ref);
-
-    /**
-    * Finds existing node by Node::Ref
-    * @return Pointer to node or nullptr if not found.
-    */
-    node_t* GetNodePointer(RigDef::Node::Ref const & node_ref);
-
-    /**
-    * Finds existing node by Node::Ref
-    * @return Pointer to node
-    * @throws Exception If the node isn't found.
-    */
-    node_t* GetNodePointerOrThrow(RigDef::Node::Ref const & node_ref);
-
-    /**
-    * Sets up defaults & position of a node.
-    */
-    void InitNode(node_t & node, Ogre::Vector3 const & position);
-
-    /**
-    * Sets up defaults & position of a node.
-    */
-    void InitNode(unsigned int node_index, Ogre::Vector3 const & position);
-
-    /**
-    * Sets up defaults & position of a node.
-    */
-    void InitNode(
-        node_t & node, 
-        Ogre::Vector3 const & position,
-        std::shared_ptr<RigDef::NodeDefaults> node_defaults
-    );
-
-    /**
-    * Setter.
-    */
-    void SetCurrentKeyword(RigDef::Keyword keyword)
-    {
-        m_current_keyword = keyword;
-    }
-
-    beam_t & GetBeam(unsigned int index);
-
-    /**
-    * Parses list of node-ranges into list of individual nodes.
-    * @return False if some nodes could not be found and thus the lookup wasn't completed.
-    */
+    /// Parses list of node-ranges into list of individual nodes.
+    /// @return False if some nodes could not be found and thus the lookup wasn't completed.
     bool CollectNodesFromRanges(
         std::vector<RigDef::Node::Range> & node_ranges,
-        std::vector<NodeNum_t> & out_node_indices
-    );
+        std::vector<NodeNum_t> & out_node_indices);
+    /// @}
 
-    /**
-    * Gets a free node slot; checks limits, sets it's array position and updates 'free_node' index.
-    * @return A reference to node slot.
-    */
-    node_t & GetFreeNode();
+    /// @name Traversal
+    /// @{
+    node_t*                       GetBeamNodePointer(RigDef::Node::Ref const & node_ref);
+    NodeNum_t                     FindNodeIndex(RigDef::Node::Ref & node_ref, bool silent = false);
+    NodeNum_t                     ResolveNodeRef(RigDef::Node::Ref const & node_ref);
+    node_t*                       GetNodePointer(RigDef::Node::Ref const & node_ref);
+    node_t*                       GetNodePointerOrThrow(RigDef::Node::Ref const & node_ref);
+    beam_t&                       GetBeam(unsigned int index);
+    beam_t*                       FindBeamInRig(NodeNum_t node_a, NodeNum_t node_b);
+    NodeNum_t                     GetNodeIndexOrThrow(RigDef::Node::Ref const & id);
+    /// @}
 
-    /**
-    * Gets a free beam slot; checks limits, sets it's array position and updates 'free_beam' index.
-    * @return A reference to beam slot.
-    */
-    beam_t & GetFreeBeam();
+    /// @name Limit checks
+    /// @{
+    bool                          CheckParticleLimit(unsigned int count);
+    bool                          CheckAxleLimit(unsigned int count);
+    bool                          CheckSubmeshLimit(unsigned int count);
+    bool                          CheckTexcoordLimit(unsigned int count);
+    bool                          CheckCabLimit(unsigned int count);
+    bool                          CheckCameraRailLimit(unsigned int count);
+    static bool                   CheckSoundScriptLimit(Actor *vehicle, unsigned int count);
+    bool                          CheckAeroEngineLimit(unsigned int count);
+    bool                          CheckScrewpropLimit(unsigned int count);
+    /// @}
 
-    /**
-    * Gets a free beam slot; Sets up defaults & position of a node.
-    * @return A reference to node slot.
-    */
-    node_t & GetAndInitFreeNode(Ogre::Vector3 const & position);
+    /// @name Visual setup
+    /// @{
+    void                          CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override="");
+    void                          CreateWheelSkidmarks(unsigned int wheel_index);
+    void                          FinalizeGfxSetup();
+    Ogre::MaterialPtr             FindOrCreateCustomizedMaterial(std::string orig_name);
+    Ogre::MaterialPtr             CreateSimpleMaterial(Ogre::ColourValue color);
+    Ogre::ParticleSystem*         CreateParticleSystem(std::string const & name, std::string const & template_name);
+    RigDef::MaterialFlareBinding* FindFlareBindingForMaterial(std::string const & material_name); //!< Returns NULL if none found
+    RigDef::VideoCamera*          FindVideoCameraByMaterial(std::string const & material_name); //!< Returns NULL if none found
+    void                          CreateVideoCamera(RigDef::VideoCamera* def);
+    void                          CreateMirrorPropVideoCam(Ogre::MaterialPtr custom_mat, CustomMaterial::MirrorPropType type, Ogre::SceneNode* prop_scenenode);
+    void                          SetupNewEntity(Ogre::Entity* e, Ogre::ColourValue simple_color); //!< Full texture and material setup
+    Ogre::MaterialPtr             InstantiateManagedMaterial(Ogre::String const & source_name, Ogre::String const & clone_name);
 
-    /**
-    * Gets a free beam slot; checks limits, sets it's array position and updates 'rig_t::free_beam' index.
-    * @return A reference to beam slot.
-    */
-    beam_t & GetAndInitFreeBeam(node_t & node_1, node_t & node_2);
-
-    shock_t & GetFreeShock();
-
-    /**
-    * Sets up nodes & length of a beam.
-    */
-    void InitBeam(beam_t & beam, node_t *node_1, node_t *node_2);
-
-    void CalculateBeamLength(beam_t & beam);
-
-    void SetBeamStrength(beam_t & beam, float strength);
-
-    void SetBeamSpring(beam_t & beam, float spring);
-
-    void SetBeamDamping(beam_t & beam, float damping);
-
-    beam_t *FindBeamInRig(NodeNum_t node_a, NodeNum_t node_b);
-
-    void SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults);
-
-    void UpdateCollcabContacterNodes();
-
-    wheel_t::BrakeCombo TranslateBrakingDef(RigDef::WheelBraking def);
-
-    /**
-    * Checks a section only appears in one module and reports a warning if not.
-    */
-    void CheckSectionSingleModule(
-        Ogre::String const & section_name,
-        std::list<std::shared_ptr<RigDef::Document::Module>> & found_items	
-    );
-
-    /**
-    * Creates beam pre-configured for use as rim with section 'wheels2'.
-    */
-    unsigned int AddWheelRimBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
-
-    /**
-    * Creates beam pre-configured for use as tyre with section 'wheels2'.
-    */
-    unsigned int AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
-
-    /**
-    * Creates beam partially configured for use with section 'wheels2'.
-    */
-    unsigned int _SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
-
-    /**
-    * Builds complete wheel visuals (sections 'wheels', 'wheels2').
-    * @param rim_ratio Percentual size of the rim.
-    */
+    /// @param rim_ratio Percentual size of the rim.
     void CreateWheelVisuals(
         unsigned int wheel_index, 
         unsigned int node_base_index,
@@ -503,113 +399,6 @@ private:
         NodeNum_t axis_node_2,
         RigDef::FlexBodyWheel& def);
 
-    void CreateWheelSkidmarks(unsigned int wheel_index);
-
-    /**
-    * Performs full material setup for a new entity.
-    * RULE: Each actor must have it's own material instances (a lookup table is kept for OrigName->CustomName)
-    *
-    * Setup routine:
-    *
-    *   1. If "SimpleMaterials" (plain color surfaces denoting component type) are enabled in config file, 
-    *          material is generated (not saved to lookup table) and processing ends.
-    *   2. If the material name is 'mirror', it's a special prop - rear view mirror.
-    *          material is generated, added to lookup table under generated name (special case) and processing ends.
-    *   3. If the material is a 'videocamera' of any subtype, material is created, added to lookup table and processing ends.
-    *   4  'materialflarebindngs' are resolved -> binding is persisted in lookup table.
-    *   5  SkinZIP _material replacements_ are queried. If match is found, it's added to lookup table and processing ends.
-    *   6. ManagedMaterials are queried. If match is found, it's added to lookup table and processing ends.
-    *   7. Orig. material is cloned to create substitute.
-    *   8. SkinZIP _texture replacements_ are queried. If match is found, substitute material is updated.
-    *   9. Material is added to lookup table, processing ends.
-    */
-    void SetupNewEntity(Ogre::Entity* e, Ogre::ColourValue simple_color);
-
-    /**
-    * Factory of GfxActor; invoke after all gfx setup was done.
-    */
-    void FinalizeGfxSetup();
-
-    /**
-    * Validator for the rotator reference structure
-    */
-    void ValidateRotator(int id, int axis1, int axis2, NodeNum_t *nodes1, NodeNum_t *nodes2);
-
-    /**
-    * Helper for 'SetupNewEntity()' - see it's doc.
-    */
-    Ogre::MaterialPtr FindOrCreateCustomizedMaterial(std::string orig_name);
-
-    Ogre::MaterialPtr CreateSimpleMaterial(Ogre::ColourValue color);
-
-    Ogre::ParticleSystem* CreateParticleSystem(std::string const & name, std::string const & template_name);
-
-    RigDef::MaterialFlareBinding* FindFlareBindingForMaterial(std::string const & material_name); //!< Returns NULL if none found
-
-    RigDef::VideoCamera* FindVideoCameraByMaterial(std::string const & material_name); //!< Returns NULL if none found
-
-    void CreateVideoCamera(RigDef::VideoCamera* def);
-    void CreateMirrorPropVideoCam(Ogre::MaterialPtr custom_mat, CustomMaterial::MirrorPropType type, Ogre::SceneNode* prop_scenenode);
-
-    /**
-    * Creates name containing actor ID token, i.e. "Object_1@Actor_2"
-    */
-    std::string ComposeName(const char* base, int number);
-
-    /**
-    * Sets up wheel and builds nodes for sections 'wheels', 'meshwheels' and 'meshwheels2'.
-    * @param wheel_width Width of the wheel (used in section 'wheels'). Use negative value to calculate width from axis beam.
-    * @return Wheel index.
-    */
-    unsigned int BuildWheelObjectAndNodes(
-        unsigned int num_rays,
-        node_t *axis_node_1,
-        node_t *axis_node_2,
-        node_t *reference_arm_node,
-        unsigned int reserve_nodes,
-        unsigned int reserve_beams,
-        float wheel_radius,
-        RigDef::WheelPropulsion propulsion,
-        RigDef::WheelBraking braking,
-        std::shared_ptr<RigDef::NodeDefaults> node_defaults,
-        float wheel_mass,
-        float wheel_width = -1.f
-    );
-
-    /**
-    * Adds beams to wheels from 'wheels', 'meshwheels'
-    */
-    void BuildWheelBeams(
-        unsigned int num_rays,
-        unsigned int base_node_index,
-        node_t *axis_node_1,
-        node_t *axis_node_2,
-        float tyre_spring,
-        float tyre_damping,
-        float rim_spring,
-        float rim_damping,
-        std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
-        RigDef::Node::Ref const & rigidity_node_id,
-        float max_extension = 0.f
-    );
-
-    /**
-    * Creates beam for wheels 'wheels', 'meshwheels', 'meshwheels2'
-    */
-    unsigned int AddWheelBeam(
-        node_t *node_1,
-        node_t *node_2,
-        float spring,
-        float damping,
-        std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
-        float max_contraction = -1.f,
-        float max_extension = -1.f,
-        BeamType type = BEAM_NORMAL
-    );
-
-    /**
-    * Builds wheel visuals (sections 'meshwheels', 'meshwheels2').
-    */
     void BuildMeshWheelVisuals(
         unsigned int wheel_index,
         unsigned int base_node_index,
@@ -619,44 +408,21 @@ private:
         Ogre::String mesh_name,
         Ogre::String material_name,
         float rim_radius,
-        bool rim_reverse	
-    );
+        bool rim_reverse);
+    /// @}
 
-    /**
-    * From SerializedRig::wash_calculator()
-    */
-    void WashCalculator();
+    /// @name Audio setup
+    /// @{
+    static void                   AddSoundSource(Actor *vehicle, SoundScriptInstance *sound_script, NodeNum_t node_index, int type = -2);
+    static void                   AddSoundSourceInstance(Actor *vehicle, Ogre::String const & sound_script_name, int node_index, int type = -2);
+    /// @}
 
-    void _ProcessKeyInertia(
-        RigDef::Inertia & inertia, 
-        RigDef::Inertia & inertia_defaults, 
-        RoR::CmdKeyInertia& contract_key, 
-        RoR::CmdKeyInertia& extend_key
-    );
-
-    /** 
-    * For specified nodes
-    */
-    void AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, std::shared_ptr<RigDef::NodeDefaults> defaults);
-
-    /** 
-    * For generated nodes
-    */
-    void AdjustNodeBuoyancy(node_t & node, std::shared_ptr<RigDef::NodeDefaults> defaults);
-
-    /**
-    * Ported from SerializedRig::loadTruck() [v0.4.0.7]
-    */
-    void FinalizeRig();
-
-    /**
-    * Ported from SerializedRig::SerializedRig() [v0.4.0.7]
-    */
-    void InitializeRig();
-
-    void CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::Document::Module* module_def);
-
-    void HandleException();
+    /// Maintenance
+    /// @{
+    void                          AddMessage(Message type, Ogre::String const & text);
+    void                          SetCurrentKeyword(RigDef::Keyword keyword) { m_current_keyword = keyword; }
+    void                          HandleException();
+    /// @}  
 
     struct ActorSpawnState
     {
@@ -664,43 +430,53 @@ private:
         float       global_minimass = DEFAULT_MINIMASS;   //!< 'minimass' - used where 'set_default_minimass' is not applied.
     };
 
-    // Spawn
-    Actor*             m_actor; //!< The output actor.
-    ActorSpawnState    m_state;
-    Ogre::Vector3      m_spawn_position;
-    bool               m_apply_simple_materials;
-    std::string        m_cab_material_name; //!< Original name defined in truckfile/globals.
-    std::string        m_custom_resource_group;
-    std::string        m_help_material_name;
-    float              m_wing_area;
-    int                m_airplane_left_light;
-    int                m_airplane_right_light;
-    RoR::FlexFactory   m_flex_factory;
-    Ogre::MaterialPtr  m_placeholder_managedmat;
-    Ogre::SceneNode*   m_particles_parent_scenenode;
-    Ogre::MaterialPtr  m_cab_trans_material;
-    Ogre::MaterialPtr  m_simple_material_base;
-    RoR::Renderdash*   m_oldstyle_renderdash;
-    float              m_fuse_z_min;
-    float              m_fuse_z_max;
-    float              m_fuse_y_min;
-    float              m_fuse_y_max;
-    bool               m_generate_wing_position_lights;
-    int                m_first_wing_index;
-    Ogre::SceneNode*   m_curr_mirror_prop_scenenode;
-    std::vector<RoR::Prop>    m_props;
-    int                       m_driverseat_prop_index;
-    std::vector<CabTexcoord>  m_oldstyle_cab_texcoords;
-    std::vector<CabSubmesh>   m_oldstyle_cab_submeshes;
-    ActorMemoryRequirements   m_memory_requirements;
-    RigDef::Keyword     m_current_keyword; //!< For error reports
-    CustomMaterial::MirrorPropType         m_curr_mirror_prop_type;
-    RigDef::DocumentPtr          m_file; //!< The parsed input file.
-    std::map<Ogre::String, unsigned int>   m_named_nodes;
-    std::map<std::string, CustomMaterial>  m_material_substitutions; //!< Maps original material names (shared) to their actor-specific substitutes; There's 1 substitute per 1 material, regardless of user count.
-    std::map<std::string, Ogre::MaterialPtr>  m_managed_materials;
-    std::list<std::shared_ptr<RigDef::Document::Module>>  m_selected_modules;
+    /// @name Settings
+    /// @{
+    Actor*                   m_actor;
+    RigDef::DocumentPtr      m_file;
+    std::list<std::shared_ptr<RigDef::Document::Module>>
+                             m_selected_modules;
+    Ogre::Vector3            m_spawn_position;
+    bool                     m_apply_simple_materials;
+    std::string              m_custom_resource_group;
+    bool                     m_generate_wing_position_lights;
+    ActorMemoryRequirements  m_memory_requirements;
+    /// @}
 
+    /// @name State
+    /// @{
+    ActorSpawnState                m_state;
+    std::string                    m_cab_material_name; //!< Original name defined in truckfile/globals.    
+    std::string                    m_help_material_name;
+    float                          m_wing_area;
+    int                            m_airplane_left_light;
+    int                            m_airplane_right_light;
+    float                          m_fuse_z_min;
+    float                          m_fuse_z_max;
+    float                          m_fuse_y_min;
+    float                          m_fuse_y_max;    
+    int                            m_first_wing_index;
+    std::vector<RoR::Prop>         m_props;
+    int                            m_driverseat_prop_index;
+    std::vector<CabTexcoord>       m_oldstyle_cab_texcoords;
+    std::vector<CabSubmesh>        m_oldstyle_cab_submeshes;    
+    RigDef::Keyword                m_current_keyword; //!< For error reports    
+    std::map<Ogre::String, unsigned int> m_named_nodes;
+    /// @}
+
+    /// @name Visuals
+    /// @{
+    RoR::FlexFactory                          m_flex_factory;
+    std::map<std::string, CustomMaterial>     m_material_substitutions; //!< Maps original material names (shared) to their actor-specific substitutes; There's 1 substitute per 1 material, regardless of user count.
+    std::map<std::string, Ogre::MaterialPtr>  m_managed_materials;
+    Ogre::MaterialPtr                         m_placeholder_managedmat;
+    Ogre::SceneNode*                          m_particles_parent_scenenode;
+    Ogre::MaterialPtr                         m_cab_trans_material;
+    Ogre::MaterialPtr                         m_simple_material_base;
+    RoR::Renderdash*                          m_oldstyle_renderdash;
+    CustomMaterial::MirrorPropType            m_curr_mirror_prop_type;
+    Ogre::SceneNode*                          m_curr_mirror_prop_scenenode;
+    /// @}
 };
 
 /// @} // addtogroup Physics

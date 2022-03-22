@@ -664,13 +664,6 @@ std::string ActorSpawner::ComposeName(const char* type, int number)
     return buf;
 }
 
-// static
-void ActorSpawner::ComposeName(RoR::Str<100>& str, const char* type, int number, int actor_id)
-{
-    str.Clear();
-    str << type << "_" << number << ACTOR_ID_TOKEN << actor_id;
-}
-
 void ActorSpawner::ProcessScrewprop(RigDef::Screwprop & def)
 {
     if (! CheckScrewpropLimit(1))
@@ -5499,10 +5492,13 @@ void ActorSpawner::InitBeam(beam_t & beam, node_t *node_1, node_t *node_2)
     CalculateBeamLength(beam);
 }
 
-void ActorSpawner::AddMessage(ActorSpawner::Message::Type type,	Ogre::String const & text)
+void ActorSpawner::AddMessage(ActorSpawner::Message type,	Ogre::String const & text)
 {
     Str<4000> txt;
-    txt << m_file->name;
+    if (m_file)
+    {
+        txt << m_file->name;
+    }
     if (m_current_keyword != RigDef::Keyword::INVALID)
     {
         txt << " (" << RigDef::KeywordToString(m_current_keyword) << ")";
@@ -5512,7 +5508,6 @@ void ActorSpawner::AddMessage(ActorSpawner::Message::Type type,	Ogre::String con
     switch (type)
     {
     case Message::TYPE_ERROR:
-    case Message::TYPE_INTERNAL_ERROR:
         cm_type = RoR::Console::MessageType::CONSOLE_SYSTEM_ERROR;
         break;
 
@@ -5759,8 +5754,8 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
 }
 
 void ActorSpawner::AddExhaust(
-        unsigned int emitter_node_idx,
-        unsigned int direction_node_idx
+        NodeNum_t emitter_node_idx,
+        NodeNum_t direction_node_idx
     )
 {
     exhaust_t exhaust;
@@ -5774,7 +5769,7 @@ void ActorSpawner::AddExhaust(
 
     if (exhaust.smoker == nullptr)
     {
-        AddMessage(Message::TYPE_INTERNAL_ERROR, "Failed to create exhaust");
+        AddMessage(Message::TYPE_ERROR, "Failed to create exhaust");
         return;
     }
     exhaust.smoker->setVisibilityFlags(DEPTHMAP_DISABLED); // Disable particles in depthmap
@@ -6459,6 +6454,23 @@ Ogre::MaterialPtr ActorSpawner::CreateSimpleMaterial(Ogre::ColourValue color)
 
 void ActorSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_color)
 {
+    // RULE: Each actor must have it's own material instances (a lookup table is kept for OrigName->CustomName)
+    //
+    // Setup routine:
+    //
+    //   1. If "SimpleMaterials" (plain color surfaces denoting component type) are enabled in config file, 
+    //          material is generated (not saved to lookup table) and processing ends.
+    //   2. If the material name is 'mirror', it's a special prop - rear view mirror.
+    //          material is generated, added to lookup table under generated name (special case) and processing ends.
+    //   3. If the material is a 'videocamera' of any subtype, material is created, added to lookup table and processing ends.
+    //   4  'materialflarebindngs' are resolved -> binding is persisted in lookup table.
+    //   5  SkinZIP _material replacements_ are queried. If match is found, it's added to lookup table and processing ends.
+    //   6. ManagedMaterials are queried. If match is found, it's added to lookup table and processing ends.
+    //   7. Orig. material is cloned to create substitute.
+    //   8. SkinZIP _texture replacements_ are queried. If match is found, substitute material is updated.
+    //   9. Material is added to lookup table, processing ends.
+    // ==========================================================
+
     if (ent == nullptr)
     {
         // Dirty but I don't see any alternative ... ~ ulteq, 10/2018
