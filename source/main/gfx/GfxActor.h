@@ -64,10 +64,10 @@ public:
 
     void                 AddNode(NodeGfx arg) { m_gfx_nodes.emplace_back(arg); }
     void                 AddBeam(BeamGfx arg) { m_gfx_beams.emplace_back(arg); }
+    void                 AddWheel(WheelGfx arg) { m_wheels.emplace_back(arg); }
     void                 AddMaterialFlare(int flare_index, Ogre::MaterialPtr mat);
     void                 RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
     void                 RegisterCabMesh(Ogre::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj);
-    void                 SetWheelVisuals(uint16_t index, WheelGfx wheel_gfx);
     void                 RegisterAirbrakes();
     void                 RegisterProps(std::vector<Prop> const& props, int driverseat_prop_idx);
     void                 AddFlexbody(FlexBody* fb) { m_flexbodies.push_back(fb); }
