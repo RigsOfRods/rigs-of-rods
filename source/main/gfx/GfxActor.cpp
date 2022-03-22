@@ -67,11 +67,7 @@ RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_re
     m_particles_sparks = App::GetGfxScene()->GetDustPool("sparks");
     m_particles_clump  = App::GetGfxScene()->GetDustPool("clump");
 
-
     m_simbuf.simbuf_commandkey.resize(MAX_COMMANDS + 10);
-    m_simbuf.simbuf_airbrakes.resize(spawner->GetMemoryRequirements().num_airbrakes);
-
-
 }
 
 RoR::GfxActor::~GfxActor()
@@ -1652,34 +1648,28 @@ void RoR::GfxActor::SetRodsVisible(bool visible)
     }
 }
 
-void RoR::GfxActor::InitializeSimBuffers()
+void RoR::GfxActor::UpdateSimDataBuffer()
 {
-    // Elements
-    m_simbuf.simbuf_nodes.resize(m_actor->ar_num_nodes);
-    m_simbuf.simbuf_aeroengines.resize(m_actor->ar_num_aeroengines);
-
-    // Attributes (things that won't change during simulation)
     m_simbuf.xa_speedo_highest_kph = m_actor->ar_speedo_max_kph;
     m_simbuf.xa_speedo_use_engine_max_rpm = m_actor->ar_gui_use_engine_max_rpm;
+    m_simbuf.xa_has_autopilot = (m_actor->ar_autopilot != nullptr);
+    m_simbuf.xa_driveable = m_actor->ar_driveable;
+
     m_simbuf.xa_camera0_pos_node  = 0;
     m_simbuf.xa_camera0_roll_node = 0;
-    m_simbuf.xa_has_autopilot = (m_actor->ar_autopilot != nullptr);
-    m_simbuf.xa_has_engine = (m_actor->ar_engine != nullptr);
-    m_simbuf.xa_driveable = m_actor->ar_driveable;
     if (m_actor->ar_num_cameras > 0)
     {
         m_simbuf.xa_camera0_pos_node  = m_actor->ar_camera_node_pos[0];
         m_simbuf.xa_camera0_roll_node = m_actor->ar_camera_node_roll[0];
     }
+
+    m_simbuf.xa_has_engine = (m_actor->ar_engine != nullptr);
     if (m_simbuf.xa_has_engine)
     {
         m_simbuf.xa_num_gears = m_actor->ar_engine->getNumGears();
         m_simbuf.xa_engine_max_rpm = m_actor->ar_engine->getMaxRPM();
-    }    
-}
+    }
 
-void RoR::GfxActor::UpdateSimDataBuffer()
-{
     m_simbuf.simbuf_pos = m_actor->getRotationCenter();
     m_simbuf.simbuf_rotation = m_actor->getRotation();
     m_simbuf.simbuf_tyre_pressure = m_actor->getTyrePressure().GetCurPressure();
@@ -1709,8 +1699,8 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_physics_paused = m_actor->ar_physics_paused;
 
     // nodes
-    const int num_nodes = m_actor->ar_num_nodes;
-    for (int i = 0; i < num_nodes; ++i)
+    m_simbuf.simbuf_nodes.resize(m_actor->ar_num_nodes);
+    for (int i = 0; i < m_actor->ar_num_nodes; ++i)
     {
         auto node = m_actor->ar_nodes[i];
         m_simbuf.simbuf_nodes[i].AbsPosition = node.AbsPosition;
@@ -1736,8 +1726,8 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     }
 
     // airbrakes
-    const size_t num_airbrakes = m_actor->ar_airbrakes.size();
-    for (size_t i=0; i< num_airbrakes; ++i)
+    m_simbuf.simbuf_airbrakes.resize(m_actor->ar_airbrakes.size());
+    for (size_t i=0; i< m_actor->ar_airbrakes.size(); ++i)
     {
         m_simbuf.simbuf_airbrakes[i].simbuf_ab_ratio = m_actor->ar_airbrakes[i]->ratio;
     }
@@ -1768,6 +1758,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     }
 
     // Aeroengines
+    m_simbuf.simbuf_aeroengines.resize(m_actor->ar_num_aeroengines);
     for (int i = 0; i < m_actor->ar_num_aeroengines; ++i)
     {
         AeroEngine* src = m_actor->ar_aeroengines[i];
