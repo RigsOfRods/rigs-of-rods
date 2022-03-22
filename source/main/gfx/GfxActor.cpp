@@ -1922,12 +1922,6 @@ void RoR::GfxActor::RegisterAirbrakes()
     }
 }
 
-void RoR::GfxActor::RegisterProps(std::vector<Prop> const& props, int driverseat_prop_idx)
-{
-    m_props = props;
-    m_driverseat_prop_index = driverseat_prop_idx;
-}
-
 void RoR::GfxActor::UpdateAirbrakes()
 {
     const size_t num_airbrakes = m_gfx_airbrakes.size();

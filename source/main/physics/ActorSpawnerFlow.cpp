@@ -68,7 +68,6 @@ void ActorSpawner::ProcessNewActor(Actor* actor, ActorSpawnRequest rq, RigDef::D
     m_fuse_y_min = 1000.0f;
     m_fuse_y_max = -1000.0f;
     m_first_wing_index = -1;
-    m_driverseat_prop_index = -1;
 
     m_generate_wing_position_lights = true;
 
