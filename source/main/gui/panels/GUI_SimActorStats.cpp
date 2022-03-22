@@ -102,11 +102,11 @@ void SimActorStats::Draw(RoR::GfxActor* actorx)
     ImGui::NewLine();
 
     const float n0_velo_len   = actorx->GetSimDataBuffer().simbuf_node0_velo.length();
-    if ((actorx->GetAttributes().xa_has_engine) && (actorx->GetAttributes().xa_driveable == TRUCK))
+    if ((actorx->GetSimDataBuffer().simbuf_has_engine) && (actorx->GetSimDataBuffer().simbuf_driveable == TRUCK))
     {
         const double PI = 3.14159265358979323846;
 
-        const float max_rpm       = actorx->GetAttributes().xa_engine_max_rpm;
+        const float max_rpm       = actorx->GetSimDataBuffer().simbuf_engine_max_rpm;
         const float torque        = actorx->GetSimDataBuffer().simbuf_engine_torque;
         const float turbo_psi     = actorx->GetSimDataBuffer().simbuf_engine_turbo_psi;
         const float cur_rpm       = actorx->GetSimDataBuffer().simbuf_engine_rpm;
@@ -169,7 +169,7 @@ void SimActorStats::Draw(RoR::GfxActor* actorx)
         ImGui::SameLine();
         ImGui::Text("%.0f kn (%.0f Km/h; %.0f mph)", Round(speedKN), Round(speedKN * 1.852), Round(speedKN * 1.151));
 
-        if (actorx->GetAttributes().xa_driveable == AIRPLANE)
+        if (actorx->GetSimDataBuffer().simbuf_driveable == AIRPLANE)
         {
             const float altitude = actorx->GetSimNodeBuffer()[0].AbsPosition.y / 30.48 * 100;
             ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Altitude: "));
@@ -192,7 +192,7 @@ void SimActorStats::Draw(RoR::GfxActor* actorx)
                 ++engine_num;
             }
         }
-        else if (actorx->GetAttributes().xa_driveable == BOAT)
+        else if (actorx->GetSimDataBuffer().simbuf_driveable == BOAT)
         {
             int engine_num = 1; // UI; count from 1
             for (ScrewpropSB& screw: actorx->GetSimDataBuffer().simbuf_screwprops)

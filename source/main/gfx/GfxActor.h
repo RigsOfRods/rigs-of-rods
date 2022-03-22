@@ -123,6 +123,8 @@ public:
     // SimBuffers
 
     void                 UpdateSimDataBuffer(); //!< Copies sim. data from `Actor` to `GfxActor` for later update
+    ActorSB&             GetSimDataBuffer() { return m_simbuf; }
+    NodeSB*              GetSimNodeBuffer() { return m_simbuf.simbuf_nodes.data(); }
 
     // Internal updates
 
@@ -139,15 +141,14 @@ public:
     int                  GetActorState() const;
     int                  GetNumFlexbodies() const { return static_cast<int>(m_flexbodies.size()); }
     ActorType            GetActorDriveable() const;
-    ActorSB&             GetAttributes() { return m_simbuf; }
     Ogre::MaterialPtr&   GetCabTransMaterial() { return m_cab_mat_visual_trans; }
     VideoCamState        GetVideoCamState() const { return m_vidcam_state; }
     DebugViewType        GetDebugView() const { return m_debug_view; }
-    ActorSB&             GetSimDataBuffer() { return m_simbuf; }
-    NodeSB*              GetSimNodeBuffer() { return m_simbuf.simbuf_nodes.data(); }
     std::set<GfxActor*>  GetLinkedGfxActors() { return m_linked_gfx_actors; }
     Ogre::String         GetResourceGroup() { return m_custom_resource_group; }
     Actor*               GetActor() { return m_actor; } // Watch out for multithreading with this!
+    Ogre::TexturePtr     GetHelpTex() { return m_help_tex; }
+    Ogre::MaterialPtr    GetHelpMat() { return m_help_mat; }
     int                  FetchNumBeams() const ;
     int                  FetchNumNodes() const ;
     int                  FetchNumWheelNodes() const ;
@@ -207,6 +208,10 @@ private:
     Ogre::MaterialPtr           m_cab_mat_visual_trans;
     Ogre::MaterialPtr           m_cab_mat_template_plain;
     Ogre::MaterialPtr           m_cab_mat_template_emissive;
+
+    // GUI
+    Ogre::MaterialPtr           m_help_mat;
+    Ogre::TexturePtr            m_help_tex;
 
     ActorSB                     m_simbuf;
 };

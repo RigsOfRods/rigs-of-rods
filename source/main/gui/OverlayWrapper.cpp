@@ -403,9 +403,9 @@ void OverlayWrapper::showDashboardOverlays(bool show, Actor* actor)
         else if (mode == MACHINE)
         {
             Ogre::OverlayElement* help_elem = OverlayManager::getSingleton().getOverlayElement("tracks/machinehelppanel");
-            if (actor->GetGfxActor()->GetAttributes().xa_help_mat)
+            if (actor->GetGfxActor()->GetHelpMat())
             {
-                help_elem->setMaterial(actor->GetGfxActor()->GetAttributes().xa_help_mat);
+                help_elem->setMaterial(actor->GetGfxActor()->GetHelpMat());
             }
             else
             {
@@ -664,7 +664,7 @@ void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
     int vehicle_getgear = ga->GetSimDataBuffer().simbuf_gear;
     if (vehicle_getgear > 0)
     {
-        size_t numgears = ga->GetAttributes().xa_num_gears;
+        size_t numgears = ga->GetSimDataBuffer().simbuf_num_gears;
         String gearstr = TOSTRING(vehicle_getgear) + "/" + TOSTRING(numgears);
         guiGear->setCaption(gearstr);
         guiGear3D->setCaption(gearstr);
@@ -721,16 +721,16 @@ void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
     }
 
     // speedo / calculate speed
-    Real guiSpeedFactor = 7.0 * (140.0 / ga->GetAttributes().xa_speedo_highest_kph);
+    Real guiSpeedFactor = 7.0 * (140.0 / ga->GetSimDataBuffer().simbuf_speedo_highest_kph);
     Real angle = 140 - fabs(ga->GetSimDataBuffer().simbuf_wheel_speed * guiSpeedFactor);
     angle = std::max(-140.0f, angle);
     speedotexture->setTextureRotate(Degree(angle));
 
     // calculate tach stuff
     Real tachoFactor = 0.072;
-    if (ga->GetAttributes().xa_speedo_use_engine_max_rpm)
+    if (ga->GetSimDataBuffer().simbuf_speedo_use_engine_max_rpm)
     {
-        tachoFactor = 0.072 * (3500 / ga->GetAttributes().xa_engine_max_rpm);
+        tachoFactor = 0.072 * (3500 / ga->GetSimDataBuffer().simbuf_engine_max_rpm);
     }
     angle = 126.0 - fabs(ga->GetSimDataBuffer().simbuf_engine_rpm * tachoFactor);
     angle = std::max(-120.0f, angle);
@@ -814,7 +814,7 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
 
     //adi
     //roll
-    Vector3 rollv = nodes[simbuf.xa_camera0_pos_node].AbsPosition - nodes[simbuf.xa_camera0_roll_node].AbsPosition;
+    Vector3 rollv = nodes[simbuf.simbuf_camera0_pos_node].AbsPosition - nodes[simbuf.simbuf_camera0_roll_node].AbsPosition;
     rollv.normalise();
     float rollangle = asin(rollv.dotProduct(Vector3::UNIT_Y));
 

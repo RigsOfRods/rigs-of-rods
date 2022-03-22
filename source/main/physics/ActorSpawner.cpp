@@ -6733,14 +6733,14 @@ void ActorSpawner::FinalizeGfxSetup()
         try
         {
             Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(m_help_material_name, m_custom_resource_group);
-            m_actor->GetGfxActor()->GetAttributes().xa_help_mat = mat;
+            m_actor->m_gfx_actor->m_help_mat = mat;
             if (mat &&
                 mat->getNumTechniques() > 0 &&
                 mat->getTechnique(0)->getNumPasses() > 0 &&
                 mat->getTechnique(0)->getPass(0)->getNumTextureUnitStates() > 0 &&
                 mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getNumFrames() > 0)
             {
-                m_actor->GetGfxActor()->GetAttributes().xa_help_tex =
+                m_actor->m_gfx_actor->m_help_tex =
                     Ogre::TextureManager::getSingleton().getByName(
                         mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getFrameTextureName(0), m_custom_resource_group);
             }
