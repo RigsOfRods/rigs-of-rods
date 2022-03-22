@@ -69,7 +69,6 @@ public:
     void                 RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
     void                 RegisterCabMesh(Ogre::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj);
     void                 RegisterAirbrakes();
-    void                 RegisterProps(std::vector<Prop> const& props, int driverseat_prop_idx);
     void                 AddFlexbody(FlexBody* fb) { m_flexbodies.push_back(fb); }
     void                 SortFlexbodies();
 

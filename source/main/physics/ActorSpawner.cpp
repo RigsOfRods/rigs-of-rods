@@ -765,7 +765,7 @@ void ActorSpawner::BuildAeroEngine(
 
     /* Visuals */
     float scale = m_actor->ar_nodes[ref_node_index].RelPosition.distance(m_actor->ar_nodes[blade_1_node_index].RelPosition) / 2.25f;
-    for (RoR::Prop& prop: m_props)
+    for (RoR::Prop& prop: m_actor->m_gfx_actor->m_props)
     {
         if ((prop.pp_node_ref == ref_node_index) && (prop.pp_aero_propeller_blade || prop.pp_aero_propeller_spin))
         {
@@ -946,7 +946,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_green_prop.pp_beacon_light[0]=nullptr; //no light
                 //the flare billboard
                 left_green_prop.pp_beacon_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                left_green_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_props.size())+1),1);
+                left_green_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size())+1),1);
                 left_green_prop.pp_beacon_bbs[0]->createBillboard(0,0,0);
                 if (left_green_prop.pp_beacon_bbs[0])
                 {
@@ -956,7 +956,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 }
                 left_green_prop.pp_beacon_scene_node[0]->setVisible(false);
                 left_green_prop.pp_beacon_bbs[0]->setDefaultDimensions(0.5, 0.5);
-                m_props.push_back(left_green_prop);
+                m_actor->m_gfx_actor->m_props.push_back(left_green_prop);
                 
                 //Left flash
                 RoR::Prop left_flash_prop;
@@ -971,7 +971,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_flash_prop.pp_beacon_rot_rate[0]=1.0;
                 left_flash_prop.pp_beacon_type='w';
                 //light
-                std::string prop_name = this->ComposeName("Prop", static_cast<int>(m_props.size())+1);
+                std::string prop_name = this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size())+1);
                 left_flash_prop.pp_beacon_light[0]=App::GetGfxScene()->GetSceneManager()->createLight(prop_name);
                 left_flash_prop.pp_beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 left_flash_prop.pp_beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -991,7 +991,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 }
                 left_flash_prop.pp_beacon_scene_node[0]->setVisible(false);
                 left_flash_prop.pp_beacon_bbs[0]->setDefaultDimensions(1.0, 1.0);
-                m_props.push_back(left_flash_prop);
+                m_actor->m_gfx_actor->m_props.push_back(left_flash_prop);
                 
                 //Right red
                 m_airplane_right_light=previous_wing.fa->nfrd;
@@ -1010,7 +1010,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_red_prop.pp_beacon_light[0]=nullptr; /* No light */
                 //the flare billboard
                 right_red_prop.pp_beacon_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                right_red_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_props.size())+1),1);
+                right_red_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size())+1),1);
                 right_red_prop.pp_beacon_bbs[0]->createBillboard(0,0,0);
                 if (right_red_prop.pp_beacon_bbs[0])
                 {
@@ -1020,7 +1020,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 }
                 right_red_prop.pp_beacon_scene_node[0]->setVisible(false);
                 right_red_prop.pp_beacon_bbs[0]->setDefaultDimensions(0.5, 0.5);
-                m_props.push_back(right_red_prop);
+                m_actor->m_gfx_actor->m_props.push_back(right_red_prop);
                 
                 //Right flash
                 RoR::Prop right_flash_prop;
@@ -1035,7 +1035,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.pp_beacon_rot_rate[0]=1.0;
                 right_flash_prop.pp_beacon_type='w';
                 //light
-                prop_name = this->ComposeName("Prop", static_cast<int>(m_props.size())+1);
+                prop_name = this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size())+1);
                 right_flash_prop.pp_beacon_light[0]=App::GetGfxScene()->GetSceneManager()->createLight(prop_name);
                 right_flash_prop.pp_beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 right_flash_prop.pp_beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1055,7 +1055,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 }
                 right_flash_prop.pp_beacon_scene_node[0]->setVisible(false);
                 right_flash_prop.pp_beacon_bbs[0]->setDefaultDimensions(1.0, 1.0);
-                m_props.push_back(right_flash_prop);
+                m_actor->m_gfx_actor->m_props.push_back(right_flash_prop);
                 
                 m_generate_wing_position_lights = false; // Already done
             }
@@ -1498,7 +1498,7 @@ void ActorSpawner::ProcessMinimass(RigDef::Minimass & def)
 void ActorSpawner::ProcessProp(RigDef::Prop & def)
 {
     RoR::Prop prop;
-    int prop_index = static_cast<int>(m_props.size());
+    int prop_index = static_cast<int>(m_actor->m_gfx_actor->m_props.size());
 
     prop.pp_node_ref         = GetNodeIndexOrThrow(def.reference_node);
     prop.pp_node_x           = FindNodeIndex(def.x_axis_node);
@@ -1579,9 +1579,9 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     else if(def.special == RigDef::SpecialProp::DRIVER_SEAT)
     {
         //driver seat, used to position the driver and make the seat translucent at times
-        if (m_driverseat_prop_index == -1)
+        if (m_actor->m_gfx_actor->m_driverseat_prop_index == -1)
         {
-            m_driverseat_prop_index = prop_index;
+            m_actor->m_gfx_actor->m_driverseat_prop_index = prop_index;
             prop.pp_mesh_obj->setMaterialName("driversseat");
         }
         else
@@ -1592,9 +1592,9 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     else if(def.special == RigDef::SpecialProp::DRIVER_SEAT_2)
     {
         // Same as DRIVER_SEAT, except it doesn't force the "driversseat" material
-        if (m_driverseat_prop_index == -1)
+        if (m_actor->m_gfx_actor->m_driverseat_prop_index == -1)
         {
-            m_driverseat_prop_index = prop_index;
+            m_actor->m_gfx_actor->m_driverseat_prop_index = prop_index;
         }
         else
         {
@@ -1972,7 +1972,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         }
         prop.pp_animations.push_back(anim);
     }
-    m_props.push_back(prop);
+    m_actor->m_gfx_actor->m_props.push_back(prop);
 }
 
 void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
@@ -6631,8 +6631,6 @@ void ActorSpawner::FinalizeGfxSetup()
     m_actor->ar_dashboard->setVisible(false);
 
     m_actor->GetGfxActor()->RegisterAirbrakes();
-
-    m_actor->GetGfxActor()->RegisterProps(m_props, m_driverseat_prop_index);
 
     if (!m_help_material_name.empty())
     {

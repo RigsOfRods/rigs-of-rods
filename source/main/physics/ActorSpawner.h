@@ -457,8 +457,6 @@ private:
     float                          m_fuse_y_min;
     float                          m_fuse_y_max;    
     int                            m_first_wing_index;
-    std::vector<RoR::Prop>         m_props;
-    int                            m_driverseat_prop_index;
     std::vector<CabTexcoord>       m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>        m_oldstyle_cab_submeshes;    
     RigDef::Keyword                m_current_keyword; //!< For error reports    
