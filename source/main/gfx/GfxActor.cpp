@@ -1650,55 +1650,31 @@ void RoR::GfxActor::SetRodsVisible(bool visible)
 
 void RoR::GfxActor::UpdateSimDataBuffer()
 {
-    m_simbuf.xa_speedo_highest_kph = m_actor->ar_speedo_max_kph;
-    m_simbuf.xa_speedo_use_engine_max_rpm = m_actor->ar_gui_use_engine_max_rpm;
-    m_simbuf.xa_has_autopilot = (m_actor->ar_autopilot != nullptr);
-    m_simbuf.xa_driveable = m_actor->ar_driveable;
+    // PLEASE maintain the same order as in `struct ActorSB`
 
-    m_simbuf.xa_camera0_pos_node  = 0;
-    m_simbuf.xa_camera0_roll_node = 0;
-    if (m_actor->ar_num_cameras > 0)
-    {
-        m_simbuf.xa_camera0_pos_node  = m_actor->ar_camera_node_pos[0];
-        m_simbuf.xa_camera0_roll_node = m_actor->ar_camera_node_roll[0];
-    }
-
-    m_simbuf.xa_has_engine = (m_actor->ar_engine != nullptr);
-    if (m_simbuf.xa_has_engine)
-    {
-        m_simbuf.xa_num_gears = m_actor->ar_engine->getNumGears();
-        m_simbuf.xa_engine_max_rpm = m_actor->ar_engine->getMaxRPM();
-    }
-
-    m_simbuf.simbuf_pos = m_actor->getRotationCenter();
-    m_simbuf.simbuf_rotation = m_actor->getRotation();
-    m_simbuf.simbuf_tyre_pressure = m_actor->getTyrePressure().GetCurPressure();
-    m_simbuf.simbuf_tyre_pressurizing = m_actor->getTyrePressure().IsPressurizing();
-    m_simbuf.simbuf_aabb = m_actor->ar_bounding_box;
-    m_simbuf.simbuf_wheel_speed = m_actor->ar_wheel_speed;
-    m_simbuf.simbuf_beaconlight_active = m_actor->m_beacon_light_on;
-    m_simbuf.simbuf_cur_cinecam = m_actor->ar_current_cinecam;
-    m_simbuf.simbuf_parking_brake = m_actor->ar_parking_brake;
-    m_simbuf.simbuf_brake = m_actor->ar_brake;
-    m_simbuf.simbuf_hydro_dir_state = m_actor->ar_hydro_dir_state;
-    m_simbuf.simbuf_hydro_aileron_state = m_actor->ar_hydro_aileron_state;
-    m_simbuf.simbuf_hydro_elevator_state = m_actor->ar_hydro_elevator_state;
-    m_simbuf.simbuf_hydro_aero_rudder_state = m_actor->ar_hydro_rudder_state;
-    m_simbuf.simbuf_aero_flap_state = m_actor->ar_aerial_flap;
-    m_simbuf.simbuf_airbrake_state = m_actor->ar_airbrake_intensity;
-    m_simbuf.simbuf_headlight_on = m_actor->m_headlight_on;
-    m_simbuf.simbuf_direction = m_actor->getDirection();
-    m_simbuf.simbuf_top_speed = m_actor->ar_top_speed;
-    m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
-    m_simbuf.simbuf_net_username = m_actor->m_net_username;
-    m_simbuf.simbuf_net_colornum = m_actor->m_net_color_num;
-    m_simbuf.simbuf_smoke_enabled = m_actor->getSmokeEnabled();
-
-    // General info
+    // Gameplay state
     m_simbuf.simbuf_actor_state = m_actor->ar_state;
     m_simbuf.simbuf_physics_paused = m_actor->ar_physics_paused;
+    m_simbuf.simbuf_cur_cinecam = m_actor->ar_current_cinecam;
+    m_simbuf.simbuf_net_username = m_actor->m_net_username;
+    m_simbuf.simbuf_net_colornum = m_actor->m_net_color_num;
+    m_simbuf.simbuf_driveable = m_actor->ar_driveable;
 
-    // nodes
+    // Movement
+    m_simbuf.simbuf_pos = m_actor->getRotationCenter();
+    m_simbuf.simbuf_node0_velo = m_actor->ar_nodes[0].Velocity;
+    m_simbuf.simbuf_rotation = m_actor->getRotation();
+    m_simbuf.simbuf_direction = m_actor->getDirection();
+    m_simbuf.simbuf_wheel_speed = m_actor->ar_wheel_speed;
+    m_simbuf.simbuf_top_speed = m_actor->ar_top_speed;
+    m_simbuf.simbuf_aabb = m_actor->ar_bounding_box;
+    if (m_actor->ar_num_cameras > 0)
+    {
+        m_simbuf.simbuf_camera0_pos_node  = m_actor->ar_camera_node_pos[0];
+        m_simbuf.simbuf_camera0_roll_node = m_actor->ar_camera_node_roll[0];
+    }
+
+    // Elements: nodes
     m_simbuf.simbuf_nodes.resize(m_actor->ar_num_nodes);
     for (int i = 0; i < m_actor->ar_num_nodes; ++i)
     {
@@ -1712,7 +1688,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_nodes[nx.nx_node_idx].nd_is_wet = (nx.nx_wet_time_sec != -1.f);
     }
 
-    // beams
+    // Elements: beams
     for (BeamGfx& rod: m_gfx_beams)
     {
         const beam_t& beam = m_actor->ar_beams[rod.rod_beam_index];
@@ -1725,39 +1701,21 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         rod.rod_is_visible = !beam.bm_disabled && !beam.bm_broken;
     }
 
-    // airbrakes
+    // Elements: airbrakes
     m_simbuf.simbuf_airbrakes.resize(m_actor->ar_airbrakes.size());
     for (size_t i=0; i< m_actor->ar_airbrakes.size(); ++i)
     {
         m_simbuf.simbuf_airbrakes[i].simbuf_ab_ratio = m_actor->ar_airbrakes[i]->ratio;
     }
 
-    // Engine (+drivetrain)
-    if (m_actor->ar_engine != nullptr)
-    {
-        m_simbuf.simbuf_gear            = m_actor->ar_engine->GetGear();
-        m_simbuf.simbuf_autoshift       = m_actor->ar_engine->getAutoShift();
-        m_simbuf.simbuf_engine_rpm      = m_actor->ar_engine->GetEngineRpm();
-        m_simbuf.simbuf_engine_turbo_psi= m_actor->ar_engine->GetTurboPsi();
-        m_simbuf.simbuf_engine_accel    = m_actor->ar_engine->GetAcceleration();
-        m_simbuf.simbuf_engine_torque   = m_actor->ar_engine->GetEngineTorque();
-        m_simbuf.simbuf_inputshaft_rpm  = m_actor->ar_engine->GetInputShaftRpm();
-        m_simbuf.simbuf_drive_ratio     = m_actor->ar_engine->GetDriveRatio();
-        m_simbuf.simbuf_clutch          = m_actor->ar_engine->GetClutch();
-    }
-    if (m_actor->m_num_wheel_diffs > 0)
-    {
-        m_simbuf.simbuf_diff_type = m_actor->m_wheel_diffs[0]->GetActiveDiffType();
-    }
-
-    // Command keys
+    // Elements: Command keys
     const int num_commandkeys = MAX_COMMANDS + 10;
     for (int i = 0; i < num_commandkeys; ++i)
     {
         m_simbuf.simbuf_commandkey[i].simbuf_cmd_value = m_actor->ar_command_key[i].commandValue;
     }
 
-    // Aeroengines
+    // Elements: Aeroengines
     m_simbuf.simbuf_aeroengines.resize(m_actor->ar_num_aeroengines);
     for (int i = 0; i < m_actor->ar_num_aeroengines; ++i)
     {
@@ -1787,19 +1745,54 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         }
     }
 
-    // Wings
+    // Engine (+drivetrain)
+    m_simbuf.simbuf_hydro_dir_state = m_actor->ar_hydro_dir_state;
+    m_simbuf.simbuf_brake           = m_actor->ar_brake;
+    if (m_actor->ar_engine != nullptr)
+    {
+        m_simbuf.simbuf_has_engine      = true;
+        m_simbuf.simbuf_gear            = m_actor->ar_engine->GetGear();
+        m_simbuf.simbuf_autoshift       = m_actor->ar_engine->getAutoShift();
+        m_simbuf.simbuf_engine_rpm      = m_actor->ar_engine->GetEngineRpm();
+        m_simbuf.simbuf_engine_turbo_psi= m_actor->ar_engine->GetTurboPsi();
+        m_simbuf.simbuf_engine_accel    = m_actor->ar_engine->GetAcceleration();
+        m_simbuf.simbuf_engine_torque   = m_actor->ar_engine->GetEngineTorque();
+        m_simbuf.simbuf_inputshaft_rpm  = m_actor->ar_engine->GetInputShaftRpm();
+        m_simbuf.simbuf_drive_ratio     = m_actor->ar_engine->GetDriveRatio();
+        m_simbuf.simbuf_clutch          = m_actor->ar_engine->GetClutch();
+        m_simbuf.simbuf_num_gears       = m_actor->ar_engine->getNumGears();
+        m_simbuf.simbuf_engine_max_rpm  = m_actor->ar_engine->getMaxRPM();
+    }
+    if (m_actor->m_num_wheel_diffs > 0)
+    {
+        m_simbuf.simbuf_diff_type = m_actor->m_wheel_diffs[0]->GetActiveDiffType();
+    }
+
+    // Tyre pressure
+    m_simbuf.simbuf_tyre_pressure = m_actor->getTyrePressure().GetCurPressure();
+    m_simbuf.simbuf_tyre_pressurizing = m_actor->getTyrePressure().IsPressurizing();
+
+    // Effects
+    m_simbuf.simbuf_headlight_on = m_actor->m_headlight_on;
+    m_simbuf.simbuf_beaconlight_active = m_actor->m_beacon_light_on;
+    m_simbuf.simbuf_smoke_enabled = m_actor->getSmokeEnabled();
+    m_simbuf.simbuf_parking_brake = m_actor->ar_parking_brake;
+
+    // Aerial
+    m_simbuf.simbuf_hydro_aileron_state = m_actor->ar_hydro_aileron_state;
+    m_simbuf.simbuf_hydro_elevator_state = m_actor->ar_hydro_elevator_state;
+    m_simbuf.simbuf_hydro_aero_rudder_state = m_actor->ar_hydro_rudder_state;
+    m_simbuf.simbuf_aero_flap_state = m_actor->ar_aerial_flap;
+    m_simbuf.simbuf_airbrake_state = m_actor->ar_airbrake_intensity;
     if (m_actor->ar_num_wings > 4)
     {
         m_simbuf.simbuf_wing4_aoa = m_actor->ar_wings[4].fa->aoa;
     }
-    else
-    {
-        m_simbuf.simbuf_wing4_aoa = 0.f;
-    }
 
     // Autopilot
-    if (m_simbuf.xa_has_autopilot)
+    if (m_actor->ar_autopilot != nullptr)
     {
+        m_simbuf.simbuf_has_autopilot    = true;
         m_simbuf.simbuf_ap_heading_mode  = m_actor->ar_autopilot->GetHeadingMode();
         m_simbuf.simbuf_ap_heading_value = m_actor->ar_autopilot->heading;
         m_simbuf.simbuf_ap_alt_mode      = m_actor->ar_autopilot->GetAltMode();
@@ -1812,6 +1805,9 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_ap_ils_hdev      = m_actor->ar_autopilot->GetHorizontalApproachDeviation();
         m_simbuf.simbuf_ap_vs_value      = m_actor->ar_autopilot->GetVsValue();
     }
+
+    m_simbuf.simbuf_speedo_highest_kph = m_actor->ar_speedo_max_kph;
+    m_simbuf.simbuf_speedo_use_engine_max_rpm = m_actor->ar_gui_use_engine_max_rpm;
 
     // Linked Actors
     m_linked_gfx_actors.clear();
@@ -2566,7 +2562,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     if (has_engine && (flag_state & PROP_ANIM_FLAG_SHIFTER) && option3 == 4.0f)
     {
         int shifter = m_simbuf.simbuf_gear;
-        int numgears = m_simbuf.xa_num_gears;
+        int numgears = m_simbuf.simbuf_num_gears;
         cstate -= (shifter + 2.0) / (numgears + 2.0);
         div++;
     }
@@ -2582,7 +2578,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     //speedo ( scales with speedomax )
     if (flag_state & PROP_ANIM_FLAG_SPEEDO)
     {
-        float speedo = m_simbuf.simbuf_wheel_speed / m_simbuf.xa_speedo_highest_kph;
+        float speedo = m_simbuf.simbuf_wheel_speed / m_simbuf.simbuf_speedo_highest_kph;
         cstate -= speedo * 3.0f;
         div++;
     }
@@ -2590,7 +2586,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     //engine tacho ( scales with maxrpm, default is 3500 )
     if (has_engine && flag_state & PROP_ANIM_FLAG_TACHO)
     {
-        float tacho = m_simbuf.simbuf_engine_rpm / m_simbuf.xa_engine_max_rpm;
+        float tacho = m_simbuf.simbuf_engine_rpm / m_simbuf.simbuf_engine_max_rpm;
         cstate -= tacho;
         div++;
     }

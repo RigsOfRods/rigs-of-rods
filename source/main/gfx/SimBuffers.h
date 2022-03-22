@@ -104,18 +104,7 @@ struct AirbrakeSB
 
 struct ActorSB
 {
-    // Attributes (not changing during gameplay).
-    float             xa_speedo_highest_kph;
-    bool              xa_speedo_use_engine_max_rpm;
-    int               xa_num_gears; //!< Gearbox
-    float             xa_engine_max_rpm;
-    NodeNum_t         xa_camera0_pos_node;
-    NodeNum_t         xa_camera0_roll_node;
-    int               xa_driveable;
-    bool              xa_has_autopilot;
-    bool              xa_has_engine;
-    Ogre::MaterialPtr xa_help_mat;
-    Ogre::TexturePtr  xa_help_tex;
+    // PLEASE maintain the same order as in `GfxActor::UpdateSimDataBuffer()`
 
     // Gameplay state
     ActorState        simbuf_actor_state              = ActorState::LOCAL_SLEEPING;
@@ -123,6 +112,7 @@ struct ActorSB
     int               simbuf_cur_cinecam              = 0;
     std::string       simbuf_net_username;
     int               simbuf_net_colornum;
+    int               simbuf_driveable                = ActorType::NOT_DRIVEABLE;
 
     // Movement
     Ogre::Vector3     simbuf_pos                      = Ogre::Vector3::ZERO;
@@ -132,6 +122,8 @@ struct ActorSB
     float             simbuf_wheel_speed              = 0;
     float             simbuf_top_speed                = 0;
     Ogre::AxisAlignedBox simbuf_aabb                  = Ogre::AxisAlignedBox::BOX_NULL;
+    NodeNum_t         simbuf_camera0_pos_node         = 0; // Node#0
+    NodeNum_t         simbuf_camera0_roll_node        = 0; // Node#0
 
     // Elements
     std::vector<NodeSB>       simbuf_nodes;
@@ -141,6 +133,9 @@ struct ActorSB
     std::vector<AirbrakeSB>   simbuf_airbrakes;
 
     // Drivetrain
+    float             simbuf_hydro_dir_state          = 0;     // State of steering actuator ('hydro'), for steeringwheel display
+    float             simbuf_brake                    = 0;
+    bool              simbuf_has_engine               = false;
     int               simbuf_gear                     = 0;
     int               simbuf_autoshift                = 0;    
     float             simbuf_engine_rpm               = 0;
@@ -150,10 +145,10 @@ struct ActorSB
     float             simbuf_engine_torque            = 0;
     float             simbuf_inputshaft_rpm           = 0;     // Land vehicle only
     float             simbuf_drive_ratio              = 0;     // Land vehicle only
-    float             simbuf_hydro_dir_state          = 0;     // State of steering actuator ('hydro'), for steeringwheel display
     DiffType          simbuf_diff_type                = DiffType::SPLIT_DIFF;
-    float             simbuf_brake                    = 0;
     float             simbuf_clutch                   = 0;
+    int               simbuf_num_gears                = 0; //!< Gearbox
+    float             simbuf_engine_max_rpm           = 0;
 
     // Tyre pressure
     float             simbuf_tyre_pressure            = 0;
@@ -174,6 +169,7 @@ struct ActorSB
     float             simbuf_wing4_aoa                = 0;
 
     // Autopilot
+    bool              simbuf_has_autopilot            = false;
     int               simbuf_ap_heading_mode          = Autopilot::HEADING_NONE;
     int               simbuf_ap_heading_value         = 0;
     int               simbuf_ap_alt_mode              = Autopilot::ALT_NONE;
@@ -185,6 +181,10 @@ struct ActorSB
     float             simbuf_ap_ils_vdev              = 0;
     float             simbuf_ap_ils_hdev              = 0;
     int               simbuf_ap_vs_value              = 0;
+
+    // GUI
+    float             simbuf_speedo_highest_kph       = 0;
+    bool              simbuf_speedo_use_engine_max_rpm = false;
 };
 
 struct GameContextSB
