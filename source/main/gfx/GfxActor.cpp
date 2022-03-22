@@ -1523,42 +1523,6 @@ void RoR::GfxActor::CycleDebugViews()
     }
 }
 
-void RoR::GfxActor::AddRod(int beam_index,  int node1_index, int node2_index, const char* material_name, bool visible, float diameter_meters)
-{
-    try
-    {
-        Str<100> entity_name;
-        entity_name << "rod" << beam_index << "@actor" << m_actor->ar_instance_id;
-        Ogre::Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name.ToCStr(), "beam.mesh");
-        entity->setMaterialName(material_name);
-
-        if (m_gfx_beams_parent_scenenode == nullptr)
-        {
-            m_gfx_beams_parent_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-        }
-
-        BeamGfx rod;
-        rod.rod_scenenode = m_gfx_beams_parent_scenenode->createChildSceneNode();
-        rod.rod_scenenode->attachObject(entity);
-        rod.rod_scenenode->setVisible(visible, /*cascade=*/ false);
-
-        rod.rod_scenenode->setScale(diameter_meters, -1, diameter_meters);
-        rod.rod_diameter_mm = uint16_t(diameter_meters * 1000.f);
-
-        rod.rod_beam_index = static_cast<uint16_t>(beam_index);
-        rod.rod_node1 = static_cast<uint16_t>(node1_index);
-        rod.rod_node2 = static_cast<uint16_t>(node2_index);
-        rod.rod_target_actor = m_actor;
-        rod.rod_is_visible = false;
-
-        m_gfx_beams.push_back(rod);
-    }
-    catch (Ogre::Exception& e)
-    {
-        LogFormat("[RoR|Gfx] Failed to create visuals for beam %d, message: %s", beam_index, e.getFullDescription().c_str());
-    }
-}
-
 void RoR::GfxActor::UpdateRods()
 {
     for (BeamGfx& rod: m_gfx_beams)
@@ -3330,6 +3294,20 @@ void RoR::GfxActor::SetNodeHot(NodeNum_t nodenum, bool value)
         if (nfx.nx_node_idx == nodenum)
         {
             nfx.nx_is_hot = value;
+        }
+    }
+}
+
+void RoR::GfxActor::RemoveBeam(int beam_index)
+{
+    auto itor = m_gfx_beams.begin();
+    auto endi = m_gfx_beams.end();
+    while (itor != endi)
+    {
+        if (itor->rod_beam_index == beam_index)
+        {
+            m_gfx_beams.erase(itor);
+            return;
         }
     }
 }

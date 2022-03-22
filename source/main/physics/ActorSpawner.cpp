@@ -3018,18 +3018,8 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
             }
         }
 
-        // Find beam visuals in the queue (only exist if defined without 'invisible' flag - we don't know at this point)
-        auto itor = m_beam_visuals_queue.begin();
-        auto endi = m_beam_visuals_queue.end();
-        while (itor != endi)
-        {
-            if (itor->beam_index == beam_index)
-            {
-                m_beam_visuals_queue.erase(itor);
-                break;
-            }
-            ++itor;
-        }
+        // Erase beam visuals (only exist if defined without 'invisible' flag - we don't know at this point)
+        m_actor->m_gfx_actor->RemoveBeam(beam_index);
     }
 }
 
@@ -5348,7 +5338,36 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
         }
     }
 
-    m_beam_visuals_queue.emplace_back(beam_index, beam_defaults->visual_beam_diameter, material_name.c_str(), visible);
+    if (m_actor->m_gfx_actor->m_gfx_beams_parent_scenenode == nullptr)
+    {
+        m_actor->m_gfx_actor->m_gfx_beams_parent_scenenode
+            = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    }
+
+    try
+    {
+        Ogre::Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(this->ComposeName("beam", beam_index), "beam.mesh");
+        entity->setMaterialName(material_name);
+
+        BeamGfx beamx;
+        beamx.rod_diameter_mm = uint16_t(beam_defaults->visual_beam_diameter * 1000.f);
+        beamx.rod_beam_index = static_cast<uint16_t>(beam_index);
+        beamx.rod_node1 = beam.p1->pos;
+        beamx.rod_node2 = beam.p2->pos;
+        beamx.rod_target_actor = m_actor;
+        beamx.rod_is_visible = false;
+
+        beamx.rod_scenenode = m_actor->m_gfx_actor->m_gfx_beams_parent_scenenode->createChildSceneNode();
+        beamx.rod_scenenode->attachObject(entity);
+        beamx.rod_scenenode->setVisible(visible, /*cascade:*/ false);
+        beamx.rod_scenenode->setScale(beam_defaults->visual_beam_diameter, -1, beam_defaults->visual_beam_diameter);
+
+        m_actor->m_gfx_actor->AddBeam(beamx);
+    }
+    catch (Ogre::Exception& e)
+    {
+        this->AddMessage(Message::TYPE_WARNING, fmt::format("Could not create beam visuals: {}", e.getFullDescription()));
+    }
 }
 
 void ActorSpawner::CalculateBeamLength(beam_t & beam)
@@ -6499,14 +6518,6 @@ void ActorSpawner::FinalizeGfxSetup()
     }
 
     m_actor->ar_dashboard->setVisible(false);
-
-    // Process rods (beam visuals)
-    for (BeamVisualsTicket& bv: m_beam_visuals_queue)
-    {
-        int node1 = m_actor->ar_beams[bv.beam_index].p1->pos;
-        int node2 = m_actor->ar_beams[bv.beam_index].p2->pos;
-        m_actor->m_gfx_actor->AddRod(bv.beam_index, node1, node2, bv.material_name.c_str(), bv.visible, bv.diameter);
-    }
 
     //add the cab visual
     // TODO: The 'cab mesh' functionality is a legacy quagmire, 
