@@ -122,7 +122,6 @@ public:
 
     // SimBuffers
 
-    void                 InitializeSimBuffers();
     void                 UpdateSimDataBuffer(); //!< Copies sim. data from `Actor` to `GfxActor` for later update
 
     // Internal updates

@@ -1459,6 +1459,8 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
     rot=rot*Ogre::Quaternion(Ogre::Degree(def.rotation.y), Ogre::Vector3::UNIT_Y);
     rot=rot*Ogre::Quaternion(Ogre::Degree(def.rotation.x), Ogre::Vector3::UNIT_X);
 
+    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill all current nodes - needed to setup flexing meshes
+
     try
     {
         auto* flexbody = m_flex_factory.CreateFlexBody(
@@ -4316,8 +4318,7 @@ void ActorSpawner::BuildMeshWheelVisuals(
     bool rim_reverse
 )
 {
-    m_actor->GetGfxActor()->InitializeSimBuffers(); // resize arrays
-    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill node positions - needed to setup flexing meshes
+    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill all current nodes - needed to setup flexing meshes
 
     try
     {
@@ -4838,8 +4839,7 @@ void ActorSpawner::CreateWheelVisuals(
     float rim_ratio
 )
 {
-    m_actor->GetGfxActor()->InitializeSimBuffers(); // resize arrays
-    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill node positions - needed to setup flexing meshes
+    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill all current nodes - needed to setup flexing meshes
 
     wheel_t & wheel = m_actor->ar_wheels[wheel_index];
 
@@ -4883,8 +4883,7 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
     NodeNum_t axis_node_2,
     RigDef::FlexBodyWheel& def)
 {
-    m_actor->GetGfxActor()->InitializeSimBuffers(); // resize arrays
-    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill node positions - needed to setup flexing meshes
+    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill all current nodes - needed to setup flexing meshes
 
     this->BuildMeshWheelVisuals(
         wheel_index,

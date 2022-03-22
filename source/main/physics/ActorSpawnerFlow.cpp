@@ -201,10 +201,6 @@ void ActorSpawner::ProcessNewActor(Actor* actor, ActorSpawnRequest rq, RigDef::D
     PROCESS_ELEMENT(RigDef::Keyword::TURBOPROPS2, turboprops2, ProcessTurboprop2); // 'turboprops' are auto-imported as 'turboprops2'.
     PROCESS_ELEMENT(RigDef::Keyword::SCREWPROPS, screwprops, ProcessScrewprop);
     PROCESS_ELEMENT(RigDef::Keyword::FIXES, fixes, ProcessFixedNode);
-
-    m_actor->GetGfxActor()->InitializeSimBuffers();
-    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // Initial fill (to setup flexing meshes)
-
     PROCESS_ELEMENT(RigDef::Keyword::FLEXBODIES, flexbodies, ProcessFlexbody); // (needs GfxActor to exist)
     PROCESS_ELEMENT(RigDef::Keyword::WINGS, wings, ProcessWing); // (needs GfxActor to exist)
     PROCESS_ELEMENT(RigDef::Keyword::AIRBRAKES, airbrakes, ProcessAirbrake); // (needs GfxActor to exist)
