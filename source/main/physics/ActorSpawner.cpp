@@ -86,6 +86,22 @@ using namespace RoR;
 // Prepare for loading
 /* -------------------------------------------------------------------------- */
 
+void ActorSpawner::ConfigureSections(Ogre::String const & sectionconfig, RigDef::DocumentPtr def)
+{   
+    m_selected_modules.push_back(def->root_module);
+    auto result = def->user_modules.find(sectionconfig);
+
+    if (result != def->user_modules.end())
+    {
+        m_selected_modules.push_back(result->second);
+        LOG(" == ActorSpawner: Module added to configuration: " + sectionconfig);
+    }
+    else
+    {
+        this->AddMessage(Message::TYPE_WARNING, "Selected module not found: " + sectionconfig);
+    }
+}
+
 void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::Document::Module* module_def)
 {
     // 'nodes'
@@ -5774,20 +5790,6 @@ void ActorSpawner::AddExhaust(
     m_actor->m_gfx_actor->SetNodeHot(exhaust.directionNode, true);
 
     m_actor->exhausts.push_back(exhaust);
-}
-
-bool ActorSpawner::AddModule(Ogre::String const & module_name)
-{
-    auto result = m_file->user_modules.find(module_name);
-
-    if (result != m_file->user_modules.end())
-    {
-        m_selected_modules.push_back(result->second);
-        LOG(" == ActorSpawner: Module added to configuration: " + module_name);
-        return true;
-    }
-    this->AddMessage(Message::TYPE_WARNING, "Selected module not found: " + module_name);
-    return false;
 }
 
 void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
