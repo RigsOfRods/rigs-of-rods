@@ -20,10 +20,10 @@ set(SOURCE_FILES
         gameplay/EngineSim.{h,cpp}
         gameplay/Landusemap.{h,cpp}
         gameplay/ProceduralManager.{h,cpp}
+        gameplay/ProceduralRoad.{h,cpp}
         gameplay/RaceSystem.{h,cpp}
         gameplay/RecoveryMode.{h,cpp}
         gameplay/Replay.{h,cpp}
-        gameplay/Road2.{h,cpp}
         gameplay/SceneMouse.{h,cpp}
         gameplay/ScriptEvents.h
         gameplay/TorqueCurve.{h,cpp}

@@ -19,7 +19,7 @@
 
 #include "TObjFileFormat.h"
 
-#include "Road2.h"
+#include "ProceduralRoad.h"
 
 #define LOGSTREAM Ogre::LogManager::getSingleton().stream() << "[RoR|TObj fileformat] "
 
@@ -196,15 +196,15 @@ void TObjParser::ProcessProceduralLine()
 
     point.rotation = this->CalcRotation(rot);
 
-         if (obj_name == "flat"             ) { point.type = Road2::ROAD_FLAT;  }
-    else if (obj_name == "left"             ) { point.type = Road2::ROAD_LEFT;  }
-    else if (obj_name == "right"            ) { point.type = Road2::ROAD_RIGHT; }
-    else if (obj_name == "both"             ) { point.type = Road2::ROAD_BOTH;  }
-    else if (obj_name == "bridge"           ) { point.type = Road2::ROAD_BRIDGE;    point.pillartype = 1; }
-    else if (obj_name == "monorail"         ) { point.type = Road2::ROAD_MONORAIL;  point.pillartype = 2; }
-    else if (obj_name == "monorail2"        ) { point.type = Road2::ROAD_MONORAIL;  point.pillartype = 0; }
-    else if (obj_name == "bridge_no_pillars") { point.type = Road2::ROAD_BRIDGE;    point.pillartype = 0; }
-    else                                      { point.type = Road2::ROAD_AUTOMATIC; point.pillartype = 0; }
+         if (obj_name == "flat"             ) { point.type = ProceduralRoad::ROAD_FLAT;  }
+    else if (obj_name == "left"             ) { point.type = ProceduralRoad::ROAD_LEFT;  }
+    else if (obj_name == "right"            ) { point.type = ProceduralRoad::ROAD_RIGHT; }
+    else if (obj_name == "both"             ) { point.type = ProceduralRoad::ROAD_BOTH;  }
+    else if (obj_name == "bridge"           ) { point.type = ProceduralRoad::ROAD_BRIDGE;    point.pillartype = 1; }
+    else if (obj_name == "monorail"         ) { point.type = ProceduralRoad::ROAD_MONORAIL;  point.pillartype = 2; }
+    else if (obj_name == "monorail2"        ) { point.type = ProceduralRoad::ROAD_MONORAIL;  point.pillartype = 0; }
+    else if (obj_name == "bridge_no_pillars") { point.type = ProceduralRoad::ROAD_BRIDGE;    point.pillartype = 0; }
+    else                                      { point.type = ProceduralRoad::ROAD_AUTOMATIC; point.pillartype = 0; }
 
     m_cur_procedural_obj.points.push_back(point);
 }
@@ -320,7 +320,7 @@ void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 c
     pp.pillartype = (int)(special != TObj::SpecialObject::ROAD_BRIDGE_NO_PILLARS);
     pp.position   = pos;
     pp.rotation   = this->CalcRotation(rot);
-    pp.type       = (special == TObj::SpecialObject::ROAD) ? Road2::ROAD_FLAT : Road2::ROAD_AUTOMATIC;
+    pp.type       = (special == TObj::SpecialObject::ROAD) ? ProceduralRoad::ROAD_FLAT : ProceduralRoad::ROAD_AUTOMATIC;
     pp.width      = 8;
 
     m_cur_procedural_obj.points.push_back(pp);

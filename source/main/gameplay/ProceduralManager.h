@@ -22,7 +22,7 @@
 #pragma once
 
 #include "Application.h"
-#include "Road2.h"
+#include "ProceduralRoad.h"
 
 namespace RoR {
 
@@ -43,7 +43,7 @@ struct ProceduralPoint
 struct ProceduralObject
 {
     std::vector<ProceduralPoint> points;
-    Road2* road = nullptr;
+    ProceduralRoad* road = nullptr;
 };
 
 class ProceduralManager

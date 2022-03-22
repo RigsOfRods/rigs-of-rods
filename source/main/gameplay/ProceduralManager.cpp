@@ -21,7 +21,7 @@
 #include "ProceduralManager.h"
 
 #include "Application.h"
-#include "Road2.h"
+#include "ProceduralRoad.h"
 
 using namespace Ogre;
 using namespace RoR;
@@ -50,7 +50,7 @@ int ProceduralManager::updateObject(ProceduralObject& po)
     if (po.road)
         deleteObject(po);
     // create new road2 object
-    po.road = new Road2((int)pObjects.size());
+    po.road = new ProceduralRoad((int)pObjects.size());
     // In diagnostic mode, disable collisions (speeds up terrain loading)
     po.road->setCollisionEnabled(!App::diag_terrn_log_roads->getBool());
 

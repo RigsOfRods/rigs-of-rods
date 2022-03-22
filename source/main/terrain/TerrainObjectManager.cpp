@@ -36,7 +36,7 @@
 #include "ODefFileFormat.h"
 #include "PlatformUtils.h"
 #include "ProceduralManager.h"
-#include "Road2.h"
+#include "ProceduralRoad.h"
 #include "SoundScriptManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainManager.h"
