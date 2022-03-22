@@ -213,5 +213,11 @@ void ActorSpawner::ProcessNewActor(Actor* actor, ActorSpawnRequest rq, RigDef::D
 #endif // USE_OPENAL
 
     this->FinalizeRig();
+
+    if (m_oldstyle_cab_texcoords.size() > 0 && m_actor->ar_num_cabs > 0)
+    {
+        this->CreateCabVisual();
+    };
+
     this->FinalizeGfxSetup();
 }
