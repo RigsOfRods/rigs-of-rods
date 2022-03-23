@@ -193,27 +193,6 @@ RoR::GfxActor::~GfxActor()
     }
 }
 
-void RoR::GfxActor::AddMaterialFlare(int flareid, Ogre::MaterialPtr m)
-{
-    RoR::FlareMaterial binding;
-    binding.flare_index = flareid;
-    binding.mat_instance = m;
-
-    if (m.isNull())
-        return;
-    Ogre::Technique* tech = m->getTechnique(0);
-    if (!tech)
-        return;
-    Ogre::Pass* p = tech->getPass(0);
-    if (!p)
-        return;
-    // save emissive colour and then set to zero (light disabled by default)
-    binding.emissive_color = p->getSelfIllumination();
-    p->setSelfIllumination(Ogre::ColourValue::ZERO);
-
-    m_flare_materials.push_back(binding);
-}
-
 void RoR::GfxActor::SetMaterialFlareOn(int flare_index, bool state_on)
 {
     for (FlareMaterial& entry: m_flare_materials)
