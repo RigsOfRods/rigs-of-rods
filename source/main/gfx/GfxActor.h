@@ -68,7 +68,6 @@ public:
     void                 AddMaterialFlare(int flare_index, Ogre::MaterialPtr mat);
     void                 RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
     void                 RegisterCabMesh(Ogre::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj);
-    void                 RegisterAirbrakes();
     void                 AddFlexbody(FlexBody* fb) { m_flexbodies.push_back(fb); }
     void                 SortFlexbodies();
 

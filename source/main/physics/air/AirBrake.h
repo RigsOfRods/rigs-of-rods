@@ -34,7 +34,7 @@ namespace RoR {
 
 class Airbrake : public ZeroedMemoryAllocator
 {
-    friend class RoR::GfxActor; // Takes over the initialized OGRE objects
+    friend class RoR::ActorSpawner; // Creates AirbrakeGfx
 
 private:
 
@@ -64,6 +64,8 @@ public:
 
     void updatePosition(float amount);
     void applyForce();
+    float getRatio() const { return ratio; }
+    float getMaxAngle() const { return maxangle; }
 };
 
 /// @} // addtogroup Aerial
