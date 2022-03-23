@@ -6541,7 +6541,7 @@ void ActorSpawner::FinalizeGfxSetup()
     {
         if (entry.second.material_flare_def != nullptr) // 'materialflarebindings'
         {
-            m_actor->m_gfx_actor->AddMaterialFlare(
+            this->CreateMaterialFlare(
                 entry.second.material_flare_def->flare_number, entry.second.material);
         }
         else if (entry.second.mirror_prop_type != CustomMaterial::MirrorPropType::MPROP_NONE) // special 'prop' - rear view mirror
@@ -7126,4 +7126,25 @@ void ActorSpawner::CreateCabVisual()
             App::GetGfxScene()->GetSceneManager()->destroyEntity(ec);
         }
     }
+}
+
+void ActorSpawner::CreateMaterialFlare(int flareid, Ogre::MaterialPtr m)
+{
+    RoR::FlareMaterial binding;
+    binding.flare_index = flareid;
+    binding.mat_instance = m;
+
+    if (m.isNull())
+        return;
+    Ogre::Technique* tech = m->getTechnique(0);
+    if (!tech)
+        return;
+    Ogre::Pass* p = tech->getPass(0);
+    if (!p)
+        return;
+    // save emissive colour and then set to zero (light disabled by default)
+    binding.emissive_color = p->getSelfIllumination();
+    p->setSelfIllumination(Ogre::ColourValue::ZERO);
+
+    m_actor->m_gfx_actor->m_flare_materials.push_back(binding);
 }

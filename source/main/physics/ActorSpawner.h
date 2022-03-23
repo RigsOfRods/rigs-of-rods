@@ -381,6 +381,7 @@ private:
     void                          SetupNewEntity(Ogre::Entity* e, Ogre::ColourValue simple_color); //!< Full texture and material setup
     Ogre::MaterialPtr             InstantiateManagedMaterial(Ogre::String const & source_name, Ogre::String const & clone_name);
     void                          CreateCabVisual();
+    void                          CreateMaterialFlare(int flare_index, Ogre::MaterialPtr mat);
 
     /// @param rim_ratio Percentual size of the rim.
     void CreateWheelVisuals(
