@@ -1705,7 +1705,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_airbrakes.resize(m_actor->ar_airbrakes.size());
     for (size_t i=0; i< m_actor->ar_airbrakes.size(); ++i)
     {
-        m_simbuf.simbuf_airbrakes[i].simbuf_ab_ratio = m_actor->ar_airbrakes[i]->ratio;
+        m_simbuf.simbuf_airbrakes[i].simbuf_ab_ratio = m_actor->ar_airbrakes[i]->getRatio();
     }
 
     // Elements: Command keys
@@ -1895,33 +1895,6 @@ RoR::ActorType RoR::GfxActor::GetActorDriveable() const
     return m_actor->ar_driveable;
 }
 
-void RoR::GfxActor::RegisterAirbrakes()
-{
-    // TODO: Quick hacky setup with `friend` access - we rely on old init code in RigSpawner/Airbrake.
-    for (Airbrake* ab: m_actor->ar_airbrakes)
-    {
-        AirbrakeGfx abx;
-        // entity
-        abx.abx_entity = ab->ec;
-        ab->ec = nullptr;
-        // mesh
-        abx.abx_mesh = ab->msh;
-        ab->msh.setNull();
-        // scenenode
-        abx.abx_scenenode = ab->snode;
-        ab->snode = nullptr;
-        // offset
-        abx.abx_offset = ab->offset;
-        ab->offset = Ogre::Vector3::ZERO;
-        // Nodes - just copy
-        abx.abx_ref_node = ab->noderef->pos;
-        abx.abx_x_node = ab->nodex->pos;
-        abx.abx_y_node = ab->nodey->pos;
-
-        m_gfx_airbrakes.push_back(abx);
-    }
-}
-
 void RoR::GfxActor::UpdateAirbrakes()
 {
     const size_t num_airbrakes = m_gfx_airbrakes.size();
@@ -1929,7 +1902,7 @@ void RoR::GfxActor::UpdateAirbrakes()
     {
         AirbrakeGfx abx = m_gfx_airbrakes[i];
         const float ratio = m_simbuf.simbuf_airbrakes[i].simbuf_ab_ratio;
-        const float maxangle = m_actor->ar_airbrakes[i]->maxangle; // Friend access
+        const float maxangle = m_actor->ar_airbrakes[i]->getMaxAngle();
         Ogre::Vector3 ref_node_pos = m_simbuf.simbuf_nodes[m_gfx_airbrakes[i].abx_ref_node].AbsPosition;
         Ogre::Vector3 x_node_pos   = m_simbuf.simbuf_nodes[m_gfx_airbrakes[i].abx_x_node].AbsPosition;
         Ogre::Vector3 y_node_pos   = m_simbuf.simbuf_nodes[m_gfx_airbrakes[i].abx_y_node].AbsPosition;

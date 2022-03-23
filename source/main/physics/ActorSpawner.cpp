@@ -825,7 +825,7 @@ void ActorSpawner::ProcessPistonprop(RigDef::Pistonprop & def)
 void ActorSpawner::ProcessAirbrake(RigDef::Airbrake & def)
 {
     const int airbrake_idx = static_cast<int>(m_actor->ar_airbrakes.size());
-    m_actor->ar_airbrakes.push_back(new Airbrake(
+    Airbrake* ab = new Airbrake(
         m_actor,
         this->ComposeName("Airbrake", airbrake_idx).c_str(),
         airbrake_idx,
@@ -843,7 +843,28 @@ void ActorSpawner::ProcessAirbrake(RigDef::Airbrake & def)
         def.texcoord_x2,
         def.texcoord_y2,
         def.lift_coefficient
-    ));
+    );
+    m_actor->ar_airbrakes.push_back(ab);
+
+    AirbrakeGfx abx;
+    // entity
+    abx.abx_entity = ab->ec;
+    ab->ec = nullptr;
+    // mesh
+    abx.abx_mesh = ab->msh;
+    ab->msh.setNull();
+    // scenenode
+    abx.abx_scenenode = ab->snode;
+    ab->snode = nullptr;
+    // offset
+    abx.abx_offset = ab->offset;
+    ab->offset = Ogre::Vector3::ZERO;
+    // Nodes - just copy
+    abx.abx_ref_node = ab->noderef->pos;
+    abx.abx_x_node = ab->nodex->pos;
+    abx.abx_y_node = ab->nodey->pos;
+
+    m_actor->m_gfx_actor->m_gfx_airbrakes.push_back(abx);
 }
 
 void ActorSpawner::ProcessWing(RigDef::Wing & def)
@@ -6629,8 +6650,6 @@ void ActorSpawner::FinalizeGfxSetup()
     }
 
     m_actor->ar_dashboard->setVisible(false);
-
-    m_actor->GetGfxActor()->RegisterAirbrakes();
 
     if (!m_help_material_name.empty())
     {
