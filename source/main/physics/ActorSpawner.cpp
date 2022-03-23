@@ -1501,7 +1501,7 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
 
         flexbody->setCameraMode(def.camera_settings.mode);
 
-        m_actor->GetGfxActor()->AddFlexbody(flexbody);
+        m_actor->m_gfx_actor->m_flexbodies.emplace_back(flexbody);
     }
     catch (Ogre::Exception& e)
     {
@@ -3988,7 +3988,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         AdjustNodeBuoyancy(outer_node, def.node_defaults);
         m_actor->ar_minimass[outer_node.pos] = m_state.global_minimass;
 
-        m_actor->m_gfx_actor->AddNode(NodeGfx(outer_node.pos));
+        m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(outer_node.pos));
 
         // Inner ring
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
@@ -4003,7 +4003,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
         m_actor->ar_minimass[inner_node.pos] = m_state.global_minimass;
 
-        m_actor->m_gfx_actor->AddNode(NodeGfx(inner_node.pos));
+        m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(inner_node.pos));
 
         // Wheel object
         wheel.wh_rim_nodes[i * 2]       = & outer_node;
@@ -4032,7 +4032,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         outer_node.nd_tyre_node  = true;
         AdjustNodeBuoyancy(outer_node, def.node_defaults);
 
-        m_actor->m_gfx_actor->AddNode(NodeGfx(outer_node.pos));
+        m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(outer_node.pos));
 
         // Inner ring
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
@@ -4048,7 +4048,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         inner_node.nd_tyre_node  = true;
         AdjustNodeBuoyancy(inner_node, def.node_defaults);
 
-        m_actor->m_gfx_actor->AddNode(NodeGfx(inner_node.pos));
+        m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(inner_node.pos));
 
         // Wheel object
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -4369,7 +4369,7 @@ void ActorSpawner::BuildMeshWheelVisuals(
         visual_wheel.wx_is_meshwheel = false;
         visual_wheel.wx_flex_mesh = flexmesh_wheel;
         visual_wheel.wx_scenenode = scene_node;
-        m_actor->m_gfx_actor->AddWheel(visual_wheel);
+        m_actor->m_gfx_actor->m_wheels.push_back(visual_wheel);
     }
     catch (Ogre::Exception& e)
     {
@@ -4447,7 +4447,7 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         outer_node.nd_tyre_node  = true;
         AdjustNodeBuoyancy(outer_node, node_defaults);
 
-        m_actor->m_gfx_actor->AddNode(NodeGfx(outer_node.pos));
+        m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(outer_node.pos));
 
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + ray_vector;
@@ -4460,7 +4460,7 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         inner_node.nd_tyre_node  = true;
         AdjustNodeBuoyancy(inner_node, node_defaults);
 
-        m_actor->m_gfx_actor->AddNode(NodeGfx(inner_node.pos));
+        m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(inner_node.pos));
 
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -4696,7 +4696,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
         m_actor->ar_minimass[outer_node.pos] = m_state.global_minimass;
 
-        m_actor->m_gfx_actor->AddNode(NodeGfx(outer_node.pos));
+        m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(outer_node.pos));
 
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
@@ -4708,7 +4708,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
         m_actor->ar_minimass[inner_node.pos] = m_state.global_minimass;
 
-        m_actor->m_gfx_actor->AddNode(NodeGfx(inner_node.pos));
+        m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(inner_node.pos));
 
         /* Wheel object */
         wheel.wh_rim_nodes[i * 2] = & outer_node;
@@ -4736,7 +4736,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         outer_node.nd_contacter  = true;
         outer_node.nd_tyre_node  = true;
 
-        m_actor->m_gfx_actor->AddNode(NodeGfx(outer_node.pos));
+        m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(outer_node.pos));
 
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
@@ -4750,7 +4750,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         inner_node.nd_contacter  = true;
         inner_node.nd_tyre_node  = true;
 
-        m_actor->m_gfx_actor->AddNode(NodeGfx(inner_node.pos));
+        m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(inner_node.pos));
 
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -4898,7 +4898,7 @@ void ActorSpawner::CreateWheelVisuals(
         visual_wheel.wx_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         m_actor->m_deletion_entities.emplace_back(ec);
         visual_wheel.wx_scenenode->attachObject(ec);
-        m_actor->m_gfx_actor->AddWheel(visual_wheel);
+        m_actor->m_gfx_actor->m_wheels.push_back(visual_wheel);
     }
     catch (Ogre::Exception& e)
     {
@@ -4956,7 +4956,7 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
 
         this->CreateWheelSkidmarks(static_cast<unsigned>(wheel_index));
 
-        m_actor->GetGfxActor()->AddFlexbody(flexbody);
+        m_actor->m_gfx_actor->m_flexbodies.push_back(flexbody);
     }
     catch (Ogre::Exception& e)
     {
@@ -5489,7 +5489,7 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
         beamx.rod_scenenode->setVisible(visible, /*cascade:*/ false);
         beamx.rod_scenenode->setScale(beam_defaults->visual_beam_diameter, -1, beam_defaults->visual_beam_diameter);
 
-        m_actor->m_gfx_actor->AddBeam(beamx);
+        m_actor->m_gfx_actor->m_gfx_beams.push_back(beamx);
     }
     catch (Ogre::Exception& e)
     {
@@ -5771,7 +5771,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     nfx.nx_may_get_wet  = BITMASK_IS_0(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
     nfx.nx_no_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
     nfx.nx_no_sparks    = BITMASK_IS_1(options, RigDef::Node::OPTION_f_NO_SPARKS);
-    m_actor->m_gfx_actor->AddNode(nfx);
+    m_actor->m_gfx_actor->m_gfx_nodes.push_back(nfx);
 }
 
 void ActorSpawner::AddExhaust(

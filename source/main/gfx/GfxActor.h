@@ -62,13 +62,9 @@ public:
 
     // Adding elements
 
-    void                 AddNode(NodeGfx arg) { m_gfx_nodes.emplace_back(arg); }
-    void                 AddBeam(BeamGfx arg) { m_gfx_beams.emplace_back(arg); }
-    void                 AddWheel(WheelGfx arg) { m_wheels.emplace_back(arg); }
     void                 AddMaterialFlare(int flare_index, Ogre::MaterialPtr mat);
     void                 RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr mat_trans);
     void                 RegisterCabMesh(Ogre::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj);
-    void                 AddFlexbody(FlexBody* fb) { m_flexbodies.push_back(fb); }
     void                 SortFlexbodies();
 
     // Visual changes
