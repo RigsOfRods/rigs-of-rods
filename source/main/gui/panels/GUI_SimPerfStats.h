@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace RoR {
 namespace GUI {
 

@@ -27,8 +27,10 @@
 #pragma once
 
 #include "ForwardDeclarations.h"
+#include "Application.h"
 
 #include <string>
+#include <vector>
 
 namespace RoR {
 namespace GUI {
