@@ -43,6 +43,14 @@ SET(LIBRARY_OUTPUT_PATH ${RUNTIME_OUTPUT_DIRECTORY})
 
 set(CMAKE_DEBUG_POSTFIX _d)
 
+if (NOT USE_PHC)
+    find_program(SCCACHE_PROGRAM sccache)
+    if (SCCACHE_PROGRAM)
+        set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE_PROGRAM}")
+        message("Using ${SCCACHE_PROGRAM} for speeding up build")
+    endif ()
+endif ()
+
 # hide some settings
 mark_as_advanced(
         CMAKE_DEBUG_POSTFIX

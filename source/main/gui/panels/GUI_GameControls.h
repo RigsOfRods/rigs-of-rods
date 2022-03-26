@@ -20,6 +20,7 @@
 #pragma once
 
 #include "InputEngine.h"
+#include "imgui.h"
 
 namespace RoR {
 namespace GUI {

@@ -452,7 +452,7 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::generateVertexProgram(
     ret->setSource(sourceStr.str());
     ret->load();
     defaultVpParams(prof, terrain, tt, ret);
-#if OGRE_DEBUG_MODE
+#if 0
 			LogManager::getSingleton().stream(LML_TRIVIAL) << "*** Terrain Vertex Program: "
 				<< ret->getName() << " ***\n" << ret->getSource() << "\n***   ***";
 #endif
@@ -473,7 +473,7 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::generateFragmentProgram(
     ret->load();
     defaultFpParams(prof, terrain, tt, ret);
 
-#if OGRE_DEBUG_MODE
+#if 0
 			LogManager::getSingleton().stream(LML_TRIVIAL) << "*** Terrain Fragment Program: "
 				<< ret->getName() << " ***\n" << ret->getSource() << "\n***   ***";
 #endif

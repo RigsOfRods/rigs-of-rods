@@ -33,6 +33,7 @@
 #include <memory>
 #include <thread>
 #include <vector>
+#include <curl/curl.h>
 
 namespace RoR {
 namespace GUI {
