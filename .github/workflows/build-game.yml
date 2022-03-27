@@ -90,11 +90,16 @@ jobs:
           file(DOWNLOAD https://cdn.anotherfoxguy.com/build-tools.zip "$ENV{TMP}/build-tools.zip" SHOW_PROGRESS)
           execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "$ENV{TMP}/build-tools.zip" WORKING_DIRECTORY "$ENV{BUILD_TOOLS_PATH}")
 
-      - name: Cache conan packages
+      - name: Cache conan packages Part 1
         uses: actions/cache@v3
         with:
-          key: conan-${{ hashFiles('cmake/DependenciesConfig.cmake') }}
+          key: conan-user-${{ hashFiles('cmake/DependenciesConfig.cmake') }}
           path: ~/.conan
+      - name: Cache conan packages Part 2
+        uses: actions/cache@v3
+        with:
+          key: conan-root-${{ hashFiles('cmake/DependenciesConfig.cmake') }}
+          path: C:/.conan/
 
       - name: Enable Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1.10.0
