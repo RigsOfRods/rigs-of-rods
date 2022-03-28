@@ -140,7 +140,6 @@ void MainSelector::Draw()
     }
     if (ImGui::InputText("##SelectorSearch", m_search_input.GetBuffer(), m_search_input.GetCapacity()))
     {
-        m_selected_category = 0; // 'All'
         // `m_last_selected_category` intentionally not updated
         this->UpdateSearchParams();
         this->UpdateDisplayLists();
