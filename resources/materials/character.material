@@ -6,7 +6,6 @@ material tracks/character: RoR/Managed_Mats/Base
 	{
 		pass BaseRender
 		{
-			depth_bias -20
 			texture_unit Diffuse_Map 1
 			{
 				texture character.dds
