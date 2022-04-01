@@ -8,6 +8,7 @@ material managed/flexmesh_standard/simple
 	//Texture is rendred here
 		pass BaseRender
 		{
+			depth_bias -0.1 -0.1
 			texture_unit Diffuse_Map
 			{
 				texture_alias unknown.dds
@@ -23,6 +24,7 @@ material managed/flexmesh_standard/damageonly
 	//Texture is rendred here
 		pass BaseRender
 		{
+			depth_bias -0.1 -0.1
 			diffuse vertexcolour
 			texture_unit Diffuse_Map
 			{
@@ -46,6 +48,7 @@ material managed/flexmesh_standard/specularonly
 	//Texture is rendred here
 		pass BaseRender
 		{
+			depth_bias -0.1 -0.1
 			texture_unit Diffuse_Map
 			{
 				texture_alias unknown.dds
@@ -65,6 +68,7 @@ material managed/flexmesh_standard/speculardamage
 	//Texture is rendred here
 		pass BaseRender
 		{
+			depth_bias -0.1 -0.1
 			diffuse vertexcolour
 			texture_unit Diffuse_Map
 			{
@@ -91,6 +95,7 @@ material managed/mesh_standard/simple
 	//Texture is rendred here
 		pass BaseRender
 		{
+			depth_bias -0.1 -0.1
 			texture_unit Diffuse_Map
 			{
 				texture_alias unknown.dds
@@ -106,6 +111,7 @@ material managed/mesh_standard/specular
 	//Texture is rendred here
 		pass BaseRender
 		{
+			depth_bias -0.1 -0.1
 			texture_unit Diffuse_Map
 			{
 				texture_alias unknown.dds
