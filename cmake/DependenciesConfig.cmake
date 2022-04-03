@@ -106,3 +106,11 @@ add_external_lib(
         FIND_PACKAGE
         INTERFACE_NAME OpenSSL::SSL
 )
+
+# Update zlib to 1.2.12 due to https://github.com/advisories/GHSA-jc36-42cf-vqwj
+add_external_lib(
+        zlib
+        zlib/1.2.12
+        PKG_CONFIG "zlib >= 1.2.12"
+        FIND_PACKAGE
+)
