@@ -65,6 +65,7 @@ void MpClientList::Draw()
 
     int y = 20 + (ImGui::GetTextLineHeightWithSpacing() * m_users.size());
 
+    Ogre::TexturePtr warn_tex = FetchIcon("error.png");
     if (App::GetNetwork()->GetNetQuality() != 0)
     {
         y += 20;
@@ -215,7 +216,10 @@ void MpClientList::Draw()
     if (App::GetNetwork()->GetNetQuality() != 0)
     {
         ImGui::Separator();
-        ImGui::TextColored(App::GetGuiManager()->GetTheme().error_text_color, "<!> %s", _LC("MultiplayerClientList", "Slow  Network  Download"));
+        ImGui::Image(reinterpret_cast<ImTextureID>(warn_tex->getHandle()),
+            ImVec2(warn_tex->getWidth(), warn_tex->getHeight()));
+        ImGui::SameLine();
+        ImGui::TextColored(App::GetGuiManager()->GetTheme().error_text_color, "%s", _LC("MultiplayerClientList", "Slow  Network  Download"));
     }
 
     ImGui::End();
