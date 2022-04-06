@@ -590,6 +590,7 @@ void Network::Disconnect()
         m_socket.close_fd();
     }
 
+    SetNetQuality(0);
     m_users.clear();
     m_disconnected_users.clear();
     m_recv_packet_buffer.clear();
