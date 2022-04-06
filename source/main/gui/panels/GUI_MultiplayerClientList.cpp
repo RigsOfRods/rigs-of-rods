@@ -65,6 +65,11 @@ void MpClientList::Draw()
 
     int y = 20 + (ImGui::GetTextLineHeightWithSpacing() * m_users.size());
 
+    if (App::GetNetwork()->GetNetQuality() != 0)
+    {
+        y += 20;
+    }
+
     ImGui::SetNextWindowSize(ImVec2((content_width + (2*ImGui::GetStyle().WindowPadding.x)), y));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
     ImGui::Begin("Peers", nullptr, flags);
