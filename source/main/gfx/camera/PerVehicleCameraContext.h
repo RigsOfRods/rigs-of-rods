@@ -4,6 +4,12 @@
 namespace RoR
 {
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Camera
+/// @{
+
 struct PerVehicleCameraContext
 {
     enum CameraCtxBehavior
@@ -21,5 +27,8 @@ struct PerVehicleCameraContext
 
     CameraCtxBehavior  behavior;
 };
+
+/// @} // addtogroup Camera
+/// @} // addtogroup Gfx
 
 } // namespace RoR

@@ -28,6 +28,12 @@
 
 namespace RoR {
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Camera
+/// @{
+
 class CameraManager
 {
 public:
@@ -141,5 +147,8 @@ protected:
     std::deque<node_t*>  m_splinecam_spline_nodes;
     unsigned int         m_splinecam_num_linked_beams;
 };
+
+/// @} // addtogroup Camera
+/// @} // addtogroup Gfx
 
 } // namespace RoR
