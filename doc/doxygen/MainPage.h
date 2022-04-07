@@ -6,6 +6,8 @@
  *
  * # AngelScript interface
  *
+ * For reference manual, see module @ref ScriptSideAPIs.
+ *
  * Rigs of Rods supports scripting with <a href="http://angelcode.com/angelscript/">AngelScript</a>
  * and features an expanding @ref ScriptAPI "interface to the game". All developers are invited
  * to try archieve their goal via scripting if possible. This documentation intentionally displays
