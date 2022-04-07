@@ -59,3 +59,6 @@
     
     /// @defgroup Flex Flex
     /// Meshes deforming in real time: flexbodies, wings, wheels, cab mesh.
+    
+    /// @defgroup Camera Camera
+    /// Camera control and logic.
