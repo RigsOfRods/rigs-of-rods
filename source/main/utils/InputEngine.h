@@ -44,6 +44,9 @@
 
 namespace RoR {
 
+/// @addtogroup Input
+/// @{
+
 enum eventtypes
 {
     ET_NONE=0,
@@ -580,5 +583,7 @@ protected:
 
     event_trigger_t newEvent();
 };
+
+/// @} // @addtogroup Input
 
 } // namespace RoR

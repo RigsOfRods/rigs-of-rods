@@ -18,7 +18,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @file WriteTextToTexture.h
+/// @file
 /// @author Copied from the ogre wiki: http://www.ogre3d.org/tikiwiki/tiki-index.php?page=HowTo%3A+Write+text+on+texture
 
 #pragma once
@@ -27,6 +27,9 @@
 #include <OgreFont.h>
 
 #include <Overlay/OgreFont.h>
+
+/// @addtogroup Gfx
+/// @{
 
 /**
  *  @brief Saves a texture to the disk.
@@ -50,3 +53,5 @@ void SaveImage(Ogre::TexturePtr TextureToSave, Ogre::String filename);
  *  @param wordwrap if true the line will only be wrapped after a word.
  */
 void WriteToTexture(const Ogre::String& str, Ogre::TexturePtr destTexture, Ogre::Box destRectangle, Ogre::Font* font, const Ogre::ColourValue& color, int fontSize = 15, int fontDPI = 400, char justify = 'l', bool wordwrap = true);
+
+/// @} // @addtogroup Gfx

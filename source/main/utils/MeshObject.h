@@ -29,6 +29,9 @@
 
 #include "Application.h"
 
+/// @addtogroup Gfx
+/// @{
+
 class MeshObject : public Ogre::Resource::Listener, public ZeroedMemoryAllocator
 {
 public:
@@ -49,3 +52,5 @@ protected:
 
     void createEntity(Ogre::String meshName, Ogre::String entityRG, Ogre::String entityName);
 };
+
+/// @} // @addtogroup Gfx

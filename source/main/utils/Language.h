@@ -43,6 +43,9 @@
 
 namespace RoR {
 
+/// @addtogroup Application
+/// @{
+
 class LanguageEngine
 {
 public:
@@ -53,6 +56,8 @@ public:
 private:
     std::vector<std::pair<std::string, std::string>> languages;
 };
+
+/// @} // addtogroup Application
 
 } // namespace RoR
 
