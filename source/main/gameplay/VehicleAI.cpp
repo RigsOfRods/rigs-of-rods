@@ -54,7 +54,7 @@ bool VehicleAI::IsActive()
     return is_enabled;
 }
 
-void VehicleAI::AddWaypoint(String& id, Vector3& point)
+void VehicleAI::AddWaypoint(Ogre::String& id, Ogre::Vector3& point)
 {
     if (current_waypoint == Vector3::ZERO)
         current_waypoint = point;
@@ -76,14 +76,14 @@ void VehicleAI::AddWaypoints(AngelScript::CScriptDictionary& d)
     }
 }
 
-void VehicleAI::AddEvent(String& id, int& ev)
+void VehicleAI::AddEvent(Ogre::String& id, int& ev)
 {
     int waypointid = waypoint_ids[id];
     if (waypointid)
         waypoint_events.emplace(waypointid, ev);
 }
 
-void VehicleAI::SetValueAtWaypoint(String& id, int& value_id, float& value)
+void VehicleAI::SetValueAtWaypoint(Ogre::String& id, int& value_id, float& value)
 {
     int waypointid = waypoint_ids[id];
     if (waypointid)

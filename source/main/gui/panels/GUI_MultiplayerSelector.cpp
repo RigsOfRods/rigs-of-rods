@@ -138,10 +138,7 @@ MultiplayerSelector::MultiplayerSelector()
     snprintf(m_window_title, 100, "Multiplayer (Rigs of Rods %s | %s)", ROR_VERSION_STRING, RORNET_VERSION);
 }
 
-MultiplayerSelector::~MultiplayerSelector()
-{}
-
-void MultiplayerSelector::MultiplayerSelector::Draw()
+void MultiplayerSelector::Draw()
 {
     int window_flags = ImGuiWindowFlags_NoCollapse;
     ImGui::SetNextWindowSize(ImVec2(750.f, 400.f), ImGuiCond_FirstUseEver);

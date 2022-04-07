@@ -93,7 +93,7 @@ String RoR::getVersionString(bool multiline)
     return String(tmp);
 }
 
-Real RoR::Round(Real value, unsigned short ndigits /* = 0 */)
+Real RoR::Round(Ogre::Real value, unsigned short ndigits /* = 0 */)
 {
     Real f = 1.0f;
 

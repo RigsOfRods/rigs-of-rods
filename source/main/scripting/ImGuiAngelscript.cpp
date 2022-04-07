@@ -35,7 +35,7 @@ using namespace AngelScript;
 using namespace Ogre;
 using namespace std;
 
-void RoR::RegisterImGuiBindings(asIScriptEngine* engine)
+void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
 {
     engine->SetDefaultNamespace("ImGui");
         
