@@ -1247,14 +1247,14 @@ collision_box_t *Collisions::getBox(const Ogre::String &inst, const Ogre::String
     return NULL;
 }
 
-bool Collisions::isInside(Vector3 pos, const Ogre::String &inst, const Ogre::String &box, float border)
+bool Collisions::isInside(Ogre::Vector3 pos, const Ogre::String &inst, const Ogre::String &box, float border)
 {
     collision_box_t *cbox = getBox(inst, box);
 
     return isInside(pos, cbox, border);
 }
 
-bool Collisions::isInside(Vector3 pos, collision_box_t *cbox, float border)
+bool Collisions::isInside(Ogre::Vector3 pos, collision_box_t *cbox, float border)
 {
     if (!cbox) return false;
     
@@ -1306,7 +1306,7 @@ bool Collisions::groundCollision(node_t *node, float dt)
     return false;
 }
 
-Vector3 RoR::primitiveCollision(node_t *node, Vector3 velocity, float mass, Vector3 normal, float dt, ground_model_t* gm, float penetration)
+Vector3 RoR::primitiveCollision(node_t *node, Ogre::Vector3 velocity, float mass, Ogre::Vector3 normal, float dt, ground_model_t* gm, float penetration)
 {
     Vector3 force = Vector3::ZERO;
     float Vnormal = velocity.dotProduct(normal);
@@ -1569,10 +1569,9 @@ int Collisions::addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre:
     return 0;
 }
 
-void Collisions::getMeshInformation(Mesh* mesh,size_t &vertex_count,Vector3* &vertices,
-                                              size_t &index_count, unsigned* &indices,
-                                              const Vector3 &position,
-                                              const Quaternion &orient,const Vector3 &scale)
+void Collisions::getMeshInformation(Mesh* mesh,size_t &vertex_count,Ogre::Vector3* &vertices,
+    size_t &index_count, unsigned* &indices, const Ogre::Vector3 &position,
+    const Ogre::Quaternion &orient, const Ogre::Vector3 &scale)
 {
     vertex_count = index_count = 0;
 

@@ -58,7 +58,6 @@ public:
     const float TABLE_PADDING_LEFT = 4.f;
 
     MultiplayerSelector();
-    ~MultiplayerSelector();
 
     void                SetVisible(bool v);
     inline bool         IsVisible() const { return m_is_visible; }

@@ -986,7 +986,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
     return collision_offset;
 }
 
-void Actor::resolveCollisions(Vector3 direction)
+void Actor::resolveCollisions(Ogre::Vector3 direction)
 {
     if (m_intra_point_col_detector)
         m_intra_point_col_detector->UpdateIntraPoint(true);
@@ -1219,7 +1219,7 @@ void Actor::resetPosition(float px, float pz, bool setInitPosition, float miny)
     resetPosition(Vector3::ZERO, setInitPosition);
 }
 
-void Actor::resetPosition(Vector3 translation, bool setInitPosition)
+void Actor::resetPosition(Ogre::Vector3 translation, bool setInitPosition)
 {
     // total displacement
     if (translation != Vector3::ZERO)
