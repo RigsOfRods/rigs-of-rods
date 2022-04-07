@@ -7,6 +7,13 @@
 #include <OgreVector2.h>
 
 namespace Ogre {
+
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Particle
+/// @{
+
     /** Specialisation of ParticleSystemRenderer to render particles using
         a custom shaders.
     @remarks
@@ -172,52 +179,34 @@ namespace Ogre {
         bool getVertexFormatTimeFragmentInv() const { return mVertexFormatTimeFragmentInv; }
 
         //////////////////////////////////////////////////////////////////////////
-        // ParticleSystemRenderer interface
-        /// @copydoc ParticleSystemRenderer::getType
-        virtual const String& getType(void) const;
-        /// @copydoc ParticleSystemRenderer::_updateRenderQueue
-        virtual void _updateRenderQueue(RenderQueue* queue, Ogre::list<Particle*>::type& currentParticles, bool cullIndividually);
-        /// @copydoc ParticleSystemRenderer::visitRenderables
-        virtual void visitRenderables(Renderable::Visitor* visitor, bool debugRenderables = false);
-        /// @copydoc ParticleSystemRenderer::_setMaterial
-        virtual void _setMaterial(MaterialPtr& mat);
-        /// @copydoc ParticleSystemRenderer::_notifyCurrentCamera
-        virtual void _notifyCurrentCamera(Camera* cam);
-        /// @copydoc ParticleSystemRenderer::_notifyParticleRotated
-        virtual void _notifyParticleRotated(void);
-        /// @copydoc ParticleSystemRenderer::_notifyParticleResized
-        virtual void _notifyParticleResized(void);
-        /// @copydoc ParticleSystemRenderer::_notifyParticleQuota
-        virtual void _notifyParticleQuota(size_t quota);
-        /// @copydoc ParticleSystemRenderer::_notifyAttached
-        virtual void _notifyAttached(Node* parent, bool isTagPoint = false);
-        /// @copydoc ParticleSystemRenderer::_notifyDefaultDimensions
-        virtual void _notifyDefaultDimensions(Real width, Real height);
-        /// @copydoc ParticleSystemRenderer::_createVisualData
-        virtual ParticleVisualData* _createVisualData(void);
-        /// @copydoc ParticleSystemRenderer::_destroyVisualData
-        virtual void _destroyVisualData(ParticleVisualData* vis);
-        /// @copydoc ParticleSystemRenderer::setRenderQueueGroup
-        virtual void setRenderQueueGroup(uint8 queueID);
-        /// @copydoc ParticleSystemRenderer::setKeepParticlesInLocalSpace
-        virtual void setKeepParticlesInLocalSpace(bool keepLocal);
-        /// @copydoc ParticleSystemRenderer::_getSortMode
-        virtual SortMode _getSortMode(void) const;
+        /// @name Ogre::ParticleSystemRenderer interface
+        /// @{
+        virtual const String& getType(void) const override;
+        virtual void _updateRenderQueue(RenderQueue* queue, Ogre::list<Particle*>::type& currentParticles, bool cullIndividually) override;
+        virtual void visitRenderables(Renderable::Visitor* visitor, bool debugRenderables = false) override;
+        virtual void _setMaterial(MaterialPtr& mat) override;
+        virtual void _notifyCurrentCamera(Camera* cam) override;
+        virtual void _notifyParticleRotated(void) override;
+        virtual void _notifyParticleResized(void) override;
+        virtual void _notifyParticleQuota(size_t quota) override;
+        virtual void _notifyAttached(Node* parent, bool isTagPoint = false) override;
+        virtual void _notifyDefaultDimensions(Real width, Real height) override;
+        virtual ParticleVisualData* _createVisualData(void) override;
+        virtual void _destroyVisualData(ParticleVisualData* vis) override;
+        virtual void setRenderQueueGroup(uint8 queueID) override;
+        virtual void setKeepParticlesInLocalSpace(bool keepLocal) override;
+        virtual SortMode _getSortMode(void) const override;
+        /// @}
 
         //////////////////////////////////////////////////////////////////////////
-        // Ogre::Renderable interface
-        /// @copydoc Renderable::getMaterial
-        virtual const MaterialPtr& getMaterial(void) const;
-        /// @copydoc Renderable::getRenderOperation
-        virtual void getRenderOperation(RenderOperation& op);
-        /// @copydoc Renderable::getNumWorldTransforms
-        //virtual unsigned short getNumWorldTransforms(void) const;
-        /// @copydoc Renderable::getWorldTransforms
-        virtual void getWorldTransforms(Matrix4* xform) const;
-        /// @copydoc Renderable::getSquaredViewDepth
-        virtual Real getSquaredViewDepth(const Camera* cam) const;
-        /// @copydoc Renderable::getLights
-        virtual const LightList& getLights(void) const;
+        /// @name Ogre::Renderable interface
+        /// @{
+        virtual const MaterialPtr& getMaterial(void) const override;
+        virtual void getRenderOperation(RenderOperation& op) override;
+        virtual void getWorldTransforms(Matrix4* xform) const override;
+        virtual Real getSquaredViewDepth(const Camera* cam) const override;
+        virtual const LightList& getLights(void) const override;
+        /// @}
 
     private:
         const String rendererTypeName = "shader";
@@ -245,15 +234,16 @@ namespace Ogre {
     class ShaderParticleRendererFactory : public ParticleSystemRendererFactory
     {
     public:
-        /// @copydoc FactoryObj::getType
-        const String& getType() const;
-        /// @copydoc FactoryObj::createInstance
-        ParticleSystemRenderer* createInstance( const String& name );
-        /// @copydoc FactoryObj::destroyInstance
-        void destroyInstance( ParticleSystemRenderer* inst);
+        const String& getType() const override;
+        ParticleSystemRenderer* createInstance( const String& name ) override;
+        void destroyInstance( ParticleSystemRenderer* inst) override;
     private:
         const String rendererTypeName = "shader";
     };
-}
+
+/// @} // addtogroup Particle
+/// @} // addtogroup Gfx
+
+} // namespace Ogre
 
 #endif // __OGRE_SHADER_PARTICLE_RENDERER_H__
