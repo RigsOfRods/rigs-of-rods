@@ -1,7 +1,6 @@
 
-// Please maintain structure matching the HTML output
-// (alphabetical order and hierarchy).
-// ---------------------------------------------------
+// The order of items here defines order in the output HTML!
+// ---------------------------------------------------------
 
 /// @defgroup Application Application
 /// Integration with host OS, hardware and drivers
@@ -14,6 +13,9 @@
 
     /// @defgroup MsgQueue Message queue
     /// Ensures everything gets executed at right time & in right order.
+
+/// @defgroup Input Input handling
+/// Gameplay controls configuration and handling.
 
 /// @defgroup Physics Physics
 /// Soft-body physics and associated simulations.
