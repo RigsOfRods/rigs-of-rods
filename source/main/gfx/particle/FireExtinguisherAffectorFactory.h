@@ -26,6 +26,13 @@
 
 namespace Ogre {
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Particle
+/// @{
+
+
 /** Factory class for DeflectorPlaneAffector. */
 class FireExtinguisherAffectorFactory : public ParticleAffectorFactory
 {
@@ -40,5 +47,8 @@ class FireExtinguisherAffectorFactory : public ParticleAffectorFactory
         return p;
     }
 };
-} // namespace Ogre
 
+/// @} // addtogroup Particle
+/// @} // addtogroup Gfx
+
+} // namespace Ogre

@@ -27,6 +27,12 @@
 
 namespace Ogre {
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Particle
+/// @{
+
 /** Factory class for DeflectorPlaneAffector. */
 class ExtinguishableFireAffectorFactory : public ParticleAffectorFactory
 {
@@ -48,4 +54,8 @@ public:
     /** Allow external access to the mFactories iterator */
     affectorIterator getAffectorIterator() { return affectorIterator(mAffectors.begin(), mAffectors.end()); }
 };
+
+/// @} // addtogroup Particle
+/// @} // addtogroup Gfx
+
 } // namespace Ogre

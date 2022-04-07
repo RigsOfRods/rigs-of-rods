@@ -62,3 +62,6 @@
     
     /// @defgroup Camera Camera
     /// Camera control and logic.
+    
+    /// @defgroup Particle Particle
+    /// Customizations of OGRE particle system: visuals + game logic.

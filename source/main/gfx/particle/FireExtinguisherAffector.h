@@ -29,6 +29,12 @@
 
 namespace Ogre {
 
+/// @addtogroup Gfx
+/// @{
+
+/// @addtogroup Particle
+/// @{
+
 /** This class defines a ParticleAffector which deflects particles.
 @remarks
     This affector (see ParticleAffector) offers a simple (and inaccurate) physical deflection.
@@ -70,6 +76,9 @@ protected:
     /// effectiveness factor (1 means as effective as water, everything higher is more effective while anything lower is less effective)
     Real mEffectiveness;
 };
+
+/// @} // addtogroup Particle
+/// @} // addtogroup Gfx
 
 } // namespace Ogre
 
