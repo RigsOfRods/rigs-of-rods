@@ -49,8 +49,6 @@ std::time_t getTimeStamp();
 
 Ogre::String getVersionString(bool multiline = true);
 
-void trimUTFString(Ogre::UTFString& str, bool left = true, bool right = true);
-
 inline void replaceString(std::string& str, std::string searchString, std::string replaceString)
 {
     std::string::size_type pos = 0;
