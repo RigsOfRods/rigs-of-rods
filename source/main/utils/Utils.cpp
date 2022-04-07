@@ -93,15 +93,6 @@ String RoR::getVersionString(bool multiline)
     return String(tmp);
 }
 
-void RoR::trimUTFString(UTFString& str, bool left, bool right)
-{
-    static const String delims = " \t\r";
-    if (right)
-        str.erase(str.find_last_not_of(delims) + 1); // trim right
-    if (left)
-        str.erase(0, str.find_first_not_of(delims)); // trim left
-}
-
 Real RoR::Round(Real value, unsigned short ndigits /* = 0 */)
 {
     Real f = 1.0f;
