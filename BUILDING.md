@@ -10,7 +10,7 @@ Please refer to https://github.com/RigsOfRods/rigs-of-rods/wiki
 
 * OGRE:  1.11.6.1
 * OpenAL: >= 1.18
-* OIS: >= 1.4
+* OIS:  1.4
 * MyGUI:  3.4.0
 * fmt: >= 6
 * RapidJSON: >= 1.1
@@ -20,7 +20,7 @@ Please refer to https://github.com/RigsOfRods/rigs-of-rods/wiki
 * SocketW: >= 3.10
 * AngelScript:  2.32.0
 * CURL: >= 7.6
-* Caelum:  0.6.4
+* Caelum:  0.6.3
 * PagedGeometry:  1.2.1
 * discord_rpc:  3.4.0
 * OpenSSL: >= 1.1.1
