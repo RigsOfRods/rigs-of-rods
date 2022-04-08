@@ -78,6 +78,8 @@ void LoadingWindow::SetProgressNetConnect(const std::string& net_status)
 
 void LoadingWindow::Draw()
 {
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+
     // Height calc
     float text_h = ImGui::CalcTextSize("A").y;
     float statusbar_h = text_h + (ImGui::GetStyle().FramePadding.y * 2);
@@ -98,7 +100,8 @@ void LoadingWindow::Draw()
     
     if (m_percent == PERC_SHOW_SPINNER)
     {
-        DrawImGuiSpinner(m_spinner_counter, ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight()));
+        float spinner_size = 8.f;
+        LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
     }
     else if (m_percent == PERC_HIDE_PROGRESSBAR)
     {

@@ -43,9 +43,7 @@ struct ImTextFeeder /// Helper for drawing multiline wrapped & colored text.
 };
 
 /// Draws animated loading spinner
-void DrawImGuiSpinner(
-    float& counter, const ImVec2 size = ImVec2(16.f, 16.f),
-    const float spacing = 2.f, const float step_sec = 0.15f);
+void LoadingIndicatorCircle(const char* label, const float indicator_radius, const ImVec4& main_color, const ImVec4& backdrop_color, const int circle_count, const float speed);
 
 /// Add rotated textured quad to ImDrawList, source: https://github.com/ocornut/imgui/issues/1982#issuecomment-408834301
 void DrawImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float angle);
@@ -75,7 +73,5 @@ void DrawGCombo(CVar* cvar, const char* label, const char* values);
 Ogre::TexturePtr FetchIcon(const char* name);
 
 ImDrawList* GetImDummyFullscreenWindow();
-
-void LoadingIndicatorCircle(const char* label, const float indicator_radius, const ImVec4& main_color, const ImVec4& backdrop_color, const int circle_count, const float speed);
 
 } // namespace RoR
