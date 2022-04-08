@@ -159,19 +159,12 @@ namespace Hydrax
          */
         void setFullReflectionDistance(const Ogre::Real &FullReflectionDistance);
 
-        /** Set global transparency
-            @param GlobalTransparency Global transparency distance
-         */
-        void setGlobalTransparency(const Ogre::Real &GlobalTransparency);
+        void setGlobalTransparency(const Ogre::Real &GlobalTransparencyDistance);
 
-		/** Set water color
-            @param DepthColor Water color
-         */
         void setWaterColor(const Ogre::Vector3 &WaterColor);
 
         /** Set normal distortion
-            @param NormalDistortion Normal distortion
-            @remarks Value will bi very short, like 0.025
+            @param NormalDistortion use low value, like 0.025
          */
         void setNormalDistortion(const Ogre::Real &NormalDistortion);
 

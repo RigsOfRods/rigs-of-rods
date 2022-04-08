@@ -116,8 +116,7 @@ namespace SkyX
 			return mHeight;
 		}
 
-		/** Set autoupdate
-		    @Autoupdate true if you want to update volumetric clouds wind depending of the SkyX time multiplier
+		/** Autoupdate volumetric clouds wind depending of the SkyX time multiplier
 			@remarks You can use VClouds->setWindSpeed(..) for different winds speeds
 		 */
 		inline void setAutoupdate(const bool& Autoupdate) 

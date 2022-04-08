@@ -82,7 +82,6 @@ namespace Hydrax{ namespace Noise
 		virtual void saveCfg(Ogre::String &Data);
 
 		/** Load config
-		    @param CgfFile Ogre::ConfigFile reference
 			@return True if is the correct noise config
 		 */
 		virtual bool loadCfg(Ogre::ConfigFile &CfgFile);

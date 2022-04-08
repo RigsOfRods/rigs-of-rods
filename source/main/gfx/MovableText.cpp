@@ -21,7 +21,7 @@
 /// @file 
 /// @brief This creates a billboarding object that displays a text.
 /// @author  2003 by cTh see gavocanov@rambler.ru
-/// @update  2006 by barraq see nospam@barraquand.com
+/// @author  2006 by barraq see nospam@barraquand.com
 
 #include "MovableText.h"
 
