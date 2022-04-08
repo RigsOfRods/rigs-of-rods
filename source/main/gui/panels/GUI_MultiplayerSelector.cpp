@@ -230,6 +230,8 @@ void MultiplayerSelector::DrawDirectTab()
 
 void MultiplayerSelector::DrawServerlistTab()
 {
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+
     const char* draw_label_text = nullptr;
     ImVec4      draw_label_color;
 
@@ -250,6 +252,14 @@ void MultiplayerSelector::DrawServerlistTab()
     {
         draw_label_text = m_serverlist_msg.c_str();
         draw_label_color = m_serverlist_msg_color;
+    }
+
+    if (m_show_spinner)
+    {
+        float spinner_size = 25.f;
+        ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - spinner_size);
+        ImGui::SetCursorPosY((ImGui::GetWindowSize().y / 2.f) - spinner_size);
+        LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
     }
 
     // DRAW SERVERLIST TABLE
@@ -355,11 +365,11 @@ void MultiplayerSelector::DrawServerlistTab()
 void MultiplayerSelector::StartAsyncRefresh()
 {
 #if defined(USE_CURL)
+    m_show_spinner = true;
     m_draw_table = false;
     m_serverlist_data.clear();
     m_selected_item = -1;
-    m_serverlist_msg = _LC("MultiplayerSelector", "... refreshing ...");
-    m_serverlist_msg_color = App::GetGuiManager()->GetTheme().in_progress_text_color;
+    m_serverlist_msg = "";
     std::packaged_task<void(std::string)> task(FetchServerlist);
     std::thread(std::move(task), App::mp_api_url->getStr()).detach(); // launch on a thread
 #endif // defined(USE_CURL)
@@ -381,6 +391,7 @@ void MultiplayerSelector::SetVisible(bool visible)
 
 void MultiplayerSelector::DisplayRefreshFailed(std::string const& msg)
 {
+    m_show_spinner = false;
     m_serverlist_msg = msg;
     m_serverlist_msg_color = App::GetGuiManager()->GetTheme().error_text_color;
     m_draw_table = false;
@@ -388,6 +399,7 @@ void MultiplayerSelector::DisplayRefreshFailed(std::string const& msg)
 
 void MultiplayerSelector::UpdateServerlist(MpServerInfoVec* data)
 {
+    m_show_spinner = false;
     m_serverlist_data = *data;
     m_draw_table = true;
     if (m_serverlist_data.empty())
