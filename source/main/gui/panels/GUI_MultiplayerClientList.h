@@ -43,8 +43,22 @@ public:
 
 private:
     bool DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box); // Returns true if hovered
+    void CacheIcons();
 
     std::vector<RoRnet::UserInfo> m_users; // only updated on demand to reduce mutex locking and vector allocating overhead.
+
+    // Icon cache
+    bool             m_icons_cached = false;
+    Ogre::TexturePtr m_icon_arrow_down;
+    Ogre::TexturePtr m_icon_arrow_down_grey;
+    Ogre::TexturePtr m_icon_arrow_down_red;
+    Ogre::TexturePtr m_icon_arrow_up;
+    Ogre::TexturePtr m_icon_arrow_up_grey;
+    Ogre::TexturePtr m_icon_arrow_up_red;
+    Ogre::TexturePtr m_icon_flag_red;
+    Ogre::TexturePtr m_icon_flag_blue;
+    Ogre::TexturePtr m_icon_flag_green;
+    Ogre::TexturePtr m_icon_warn_triangle;
 };
 
 } // namespace GUI
