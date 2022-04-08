@@ -52,7 +52,8 @@ void raceCancelPointHandler(int trigger_type, string inst, string box, int nodei
  *          raceManager races()
  *		\endcode
  */
-class racesManager {
+class racesManager
+{
 public:
 	int raceCount;			//!< the raceID+1 of the last race.
 	int currentRace;		//!< the ID of the current race. (-1 is there's no race running at the moment)
@@ -569,7 +570,53 @@ public:
 	 * @param raceID the ID of the race
 	 */
 	void loadRace(int raceID);
-}
+};
+
+/** This class manages a race (singular!)
+* You should only use this directly if the racesManager doesn't suit your needs
+*/
+class raceBuilder
+{
+	string raceName;
+	double[][][] checkpoints;
+	array<array<string>> objNames;
+	int checkPointsCount;
+	int id;
+	double bestLapTime;
+	double bestRaceTime;
+	int laps;
+	double[] bestTimeTillPoint;
+	double[] lastTimeTillPoint;
+	int finishNum;
+	int startNum;
+	int[] chpInstances; // needed to be able to remove races
+	bool locked;
+	bool completed;
+	int penaltyTime;
+	string raceVersion;
+	bool isBuilt;
+	bool awaitingRecycling;
+	bool hidden;
+	string raceBuilderVersion;    
+    
+    raceBuilder(int id);
+    void setVersion(const string &in version);
+    void addChpCoordinates(double[][] checkpoints_in, const string &in objName_checkpoint, const string &in objName_start, const string &in objName_finish, uint startNumber);
+    int getNextCheckpointNum(int lastCheckpoint);
+    int getPreviousCheckpointNum(int lastCheckpoint);
+    void addCheckpoint(int number, const string &in objName, const double[] &in v);
+    void deleteCheckpoint(int number);
+    uint getRealInstanceCount(int chpNum);
+    bool checkpointExists(int chpNum, int instance);
+    void deleteCheckpoint(int number, int instance);
+    void destroy(); //!< this function removes all checkpoints again
+    void hide();
+    void unhide();
+    void setLaps(int laps_in);
+    bool isLocked();
+    void saveRace(Script2Game::LocalStorage@ d);
+    void loadRace(Script2Game::LocalStorage@ d);  
+};
 
 /** @}*/   //addtogroup Script2Script
 /** @}*/   //addtogroup ScriptSideAPIs
