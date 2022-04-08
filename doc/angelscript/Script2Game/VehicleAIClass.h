@@ -60,7 +60,7 @@ enum Ai_values
 /**
  * @brief Binding of RoR::VehicleAI; Vehicle driving AI using waypoints.
  */
-class VehicleAI 
+class VehicleAIClass
 {
 public:
 	/**

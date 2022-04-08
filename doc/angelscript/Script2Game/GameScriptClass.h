@@ -32,7 +32,7 @@ namespace Script2Game {
  * @note Created automatically as global variable `game`.
  *       E.g.: you can log a message using game.log("Hi, I'm a message");
  */
-class game
+class GameScriptClass
 {
 public:
 	/**
