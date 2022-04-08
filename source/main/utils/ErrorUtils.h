@@ -38,24 +38,18 @@ struct ErrorUtils
 {
     /**
      * shows a simple error message box
-     * @param title very short summar of the error
-     * @param msg error text
      * @return 0 on success, everything else on error
      */
     static int ShowError(Ogre::UTFString title, Ogre::UTFString message);
 
     /**
      * shows a simple info message box
-     * @param title very short summar of the error
-     * @param msg error text
      * @return 0 on success, everything else on error
      */
     static int ShowInfo(Ogre::UTFString title, Ogre::UTFString message);
 
     /**
      * shows a generic message box
-     * @param title very short summar of the error
-     * @param msg error text
      * @param type 0 for error, 1 for info
      * @return 0 on success, everything else on error
      */

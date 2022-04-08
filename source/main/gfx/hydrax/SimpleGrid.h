@@ -155,7 +155,6 @@ namespace Hydrax{ namespace Module
 		void saveCfg(Ogre::String &Data);
 
 		/** Load config
-		    @param CgfFile Ogre::ConfigFile reference
 			@return True if is the correct module config
 		 */
 		bool loadCfg(Ogre::ConfigFile &CfgFile);

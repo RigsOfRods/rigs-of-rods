@@ -351,14 +351,7 @@ namespace Hydrax
 		 */
 		bool _createUnderwaterCompositor(const HydraxComponent &Components, const Options &Options);
 
-		/** Create a simple color material
-		    @param Colour Material color
-			@param MT Material type
-			@param Name Material name
-			@param DepthCheck Depth check enabled
-			@param DepthWrite Depth write enabled
-		 */
-		bool _createSimpleColorMaterial(const Ogre::ColourValue& Color, const MaterialType& MT, const Ogre::String& Name, const bool& DepthCheck = true, const bool& DepthWrite = true);
+		bool _createSimpleColorMaterial(const Ogre::ColourValue& MaterialColor, const MaterialType& MT, const Ogre::String& MaterialName, const bool& DepthCheck = true, const bool& DepthWrite = true);
 
 		/// Is createMaterials() already called?
 		bool mCreated;

@@ -134,8 +134,6 @@ namespace Hydrax
 		void removeAll();
 
 		/** Get RTT texture name
-		    @param Rtt Rtt type
-		    @return Rtt texture name
 		 */
 		inline const Ogre::String& getRttName(RttType Rtt) const
 		{
@@ -143,42 +141,30 @@ namespace Hydrax
 		}
 
 		/** Get Rtt texture
-		    @param Rtt Rtt type
-			@return Rtt texture
 		 */
 		inline Ogre::TexturePtr getTexture(RttType Rtt)
 		{
 			return mTextures[static_cast<int>(Rtt)];
 		}
 
-		/** Get planes scene node
-		    @return Planes scene node
-		 */
 		inline Ogre::SceneNode* getPlanesSceneNode()
 		{
 			return mPlanesSceneNode;
 		}
 
 		/** Get Rtt plane
-		    @param Rtt Rtt type
-			@return Rtt plane
 		 */
 		inline Ogre::MovablePlane* getPlane(RttType Rtt)
 		{
 			return mPlanes[static_cast<int>(Rtt)];
 		}
 
-		/** Get Rtt texture size
-		    @param Rtt Rtt type
-		    @return Rtt texture size
-		 */
 		inline const Size& getTextureSize(const RttType& Rtt) const
 		{
 			return mRttOptions[static_cast<int>(Rtt)].Size_;
 		}
 
 		/** Set Rtt texture size
-		    @param Rtt Rtt type
 			@param S New texture size (0,0 -> get main viewport size)
 		 */
 		void setTextureSize(const RttType& Rtt, const Size& S);
@@ -188,16 +174,8 @@ namespace Hydrax
 		 */
 		void setTexturesSize(const Size& S);
 
-		/** Get pixel format
-		    @param Rtt Rtt type
-			@return Rtt pixel format
-		 */
 		const Ogre::PixelFormat getPixelFormat(const RttType& Rtt) const;
 
-		/** Set number of channels
-		    @Rtt Rtt type
-			@NOC Number of channels
-		 */
 		inline void setNumberOfChannels(const RttType& Rtt, const NumberOfChannels& NOC)
 		{
 			mRttOptions[Rtt].NumberOfChannels_ = NOC;
@@ -208,19 +186,11 @@ namespace Hydrax
 			}
 		}
 
-		/** Get number of channels
-		    @Rtt Rtt type
-			@return Number of channels
-		 */
 		inline const NumberOfChannels& getNumberOfChannels(const RttType& Rtt) const
 		{
 			return mRttOptions[Rtt].NumberOfChannels_;
 		}
 
-		/** Set bits per channel
-		    @Rtt Rtt type
-			@BPC Bits per channel
-		 */
 		inline void setBitsPerChannel(const RttType& Rtt, const BitsPerChannel& BPC)
 		{
 			mRttOptions[Rtt].BitsPerChannel_ = BPC;
@@ -231,74 +201,45 @@ namespace Hydrax
 			}
 		}
 
-		/** Get bits per channels
-		    @Rtt Rtt type
-			@return Bits per channel
-		 */
 		inline const BitsPerChannel& getBitsPerChannel(const RttType& Rtt) const
 		{
 			return mRttOptions[Rtt].BitsPerChannel_;
 		}
 
-		/** Get Rtt options
-		    @Rtt Rtt type
-			@return RttOptions
-		 */
 		inline const RttOptions& getRttOptions(const RttType& Rtt) const
 		{
 			return mRttOptions[Rtt];
 		}
 
-		/** Set reflection displacement error
-		    @param ReflectionDisplacementError Range [0.05, ~2], increase if you experiment
-			       reflection issues when the camera is near to the water.
+		/** Range [0.05, ~2], increase if you experience reflection issues when the camera is near to the water.
 	     */
 		void setReflectionDisplacementError(const Ogre::Real& ReflectionDisplacementError)
 		{
 			mReflectionDisplacementError = ReflectionDisplacementError;
 		}
 
-		/** Get reflection displacement error
-		    @return Reflection displacement error
-		 */
 		inline const Ogre::Real& getReflectionDisplacementError() const
 		{
 			return mReflectionDisplacementError;
 		}
 
-		/** Set disable reflection custom near clip plane render queues
-		    @param DisableReflectionCustomNearClipPlaneRenderQueues Disable reflection custom near clip plane render queues
-		 */
 		inline void setDisableReflectionCustomNearCliplPlaneRenderQueues(const std::vector<Ogre::RenderQueueGroupID>& DisableReflectionCustomNearClipPlaneRenderQueues)
 		{
 			mDisableReflectionCustomNearClipPlaneRenderQueues = DisableReflectionCustomNearClipPlaneRenderQueues;
 		}
 
-		/** Get disable reflection custom near clip plane render queues
-		    @return Disable reflection custom near clip plane render queues
-		 */
 		inline const std::vector<Ogre::RenderQueueGroupID>& getDisableReflectionCustomNearClipPlaneRenderQueues()
 		{
 			return mDisableReflectionCustomNearClipPlaneRenderQueues;
 		}
 
-		/** Add Rtt listener
-		    @param l Rtt listener
-		 */
 		inline void addRttListener(RttListener *l)
 		{
 			mRttListeners.push_back(l);
 		}
 
-		/** Remove Rtt listener
-		    @param l Rtt listener to be removed
-			@param releaseMemory delete Rtt listener pointer?
-		 */
 		void removeRttListener(RttListener *l, const bool& releaseMemory = true);
 
-		/** Remove all Rtt listeners
-			@param releaseMemory delete Rtt listeners pointers?
-		 */
 		void removeAllRttListeners(const bool& releaseMemory = true);
 
 	private:
@@ -313,17 +254,8 @@ namespace Hydrax
 			/// Camera.y - Plane.y difference
 			Ogre::Real mCameraPlaneDiff;
 
-			/** Funtion that is called before the Rtt will render
-			    @param evt Ogre RenderTargetEvent
-			    @remarks We've to override it
-			 */
-			void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
-
-			/** Funtion that is called after the Rtt will render
-			@param evt Ogre RenderTargetEvent
-			@remarks We've to override it
-			*/
-			void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
+			void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
+			void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
 		};
 
 		/** RttManager::CReflectionListener class
@@ -331,21 +263,14 @@ namespace Hydrax
 		class CReflectionListener : public Ogre::RenderTargetListener
 		{
 		public:
-			/** RttManager::CReflectionListener::CReflectionQueueListener class
-			    Used for avoid near clip plane clipping during the reflection Rtt
+			/** Used for avoid near clip plane clipping during the reflection Rtt
 			 */
 			class CReflectionQueueListener : public Ogre::RenderQueueListener
 			{
 			public:
-				/** Called at the start of the queue
-				 */
-				void renderQueueStarted(Ogre::uint8 queueGroupId, const Ogre::String &invocation, bool &skipThisInvocation);
+				void renderQueueStarted(Ogre::uint8 queueGroupId, const Ogre::String &invocation, bool &skipThisInvocation) override;
+				void renderQueueEnded(Ogre::uint8 queueGroupId, const Ogre::String &invocation, bool &skipThisInvocation) override;
 
-				/** Called on the end of the queue
-				 */
-				void renderQueueEnded(Ogre::uint8 queueGroupId, const Ogre::String &invocation, bool &skipThisInvocation) ;
-
-				/// Rtt manager pointer
 			    RttManager* mRttManager;
 				/// Is the reflection Rtt active?
 				bool mActive;
@@ -360,21 +285,10 @@ namespace Hydrax
 			/// Camera.y - Plane.y difference
 			Ogre::Real mCameraPlaneDiff;
 
-			/** Funtion that is called before the Rtt will render
-			    @param evt Ogre RenderTargetEvent
-			    @remarks We've to override it
-			 */
-			void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
-
-			/** Funtion that is called after the Rtt will render
-			    @param evt Ogre RenderTargetEvent
-			    @remarks We've to override it
-			 */
-			void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
+			void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
+			void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
 		};
 
-		/** RttManager::CDepthListener class
-		 */
 		class CDepthListener : public Ogre::RenderTargetListener
 		{
 		public:
@@ -387,21 +301,10 @@ namespace Hydrax
 			/// Camera.y - Plane.y difference
 			Ogre::Real mCameraPlaneDiff;
 
-			/** Funtion that is called before the Rtt will render
-			    @param evt Ogre RenderTargetEvent
-			    @remarks We've to override it
-			 */
-			void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
-
-			/** Funtion that is called after the Rtt will render
-			    @param evt Ogre RenderTargetEvent
-			    @remarks We've to override it
-			 */
-			void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
+			void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
+			void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
 		};
 
-		/** RttManager::CDepthReflectionListener class
-		 */
 		class CDepthReflectionListener : public Ogre::RenderTargetListener
 		{
 		public:
@@ -414,21 +317,10 @@ namespace Hydrax
 			/// Camera.y - Plane.y difference
 			Ogre::Real mCameraPlaneDiff;
 
-			/** Funtion that is called before the Rtt will render
-			    @param evt Ogre RenderTargetEvent
-			    @remarks We've to override it
-			 */
-			void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
-
-			/** Funtion that is called after the Rtt will render
-			    @param evt Ogre RenderTargetEvent
-			    @remarks We've to override it
-			 */
-			void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
+			void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
+			void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
 		};
 
-		/** RttManager::CGPUNormalMapListener class
-		 */
 		class CGPUNormalMapListener : public Ogre::RenderTargetListener
 		{
 		public:
@@ -438,38 +330,16 @@ namespace Hydrax
 			/// Old Hydrax mesh material name
 			Ogre::String mOldMaterialName;
 
-			/** Funtion that is called before the Rtt will render
-			    @param evt Ogre RenderTargetEvent
-			    @remarks We've to override it
-			 */
-			void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
-
-			/** Funtion that is called after the Rtt will render
-			    @param evt Ogre RenderTargetEvent
-			    @remarks We've to override it
-			 */
-			void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
+			void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
+			void postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt) override;
 		};
 
-		/** Initialize the Rtt
-		    @param Rtt Rtt type
-			@param PlaneNormal Rtt plane normal
-			@param BackgroundColour Background colour
-			@param RenderSky True for sky rendering and false for not
-			@param RTListener Render target listener
-			@param MaterialScheme Ogre::String("") for none
-			@param ShadowsEnabled Enable shadows in this RTT
-		 */
-		void _initializeRtt(const RttType& Rtt,                        const Ogre::Vector3& PlaneNormal,
+
+		void _initializeRtt(const RttType& Rtt,                        const Ogre::Vector3& RttPlaneNormal,
 			                const Ogre::ColourValue& BackgroundColour, const bool& RenderSky,
 							Ogre::RenderTargetListener* RTListener,    const Ogre::String& MaterialScheme = "",
 							const bool& ShadowsEnabled = true);
 
-		/** Find a render queue in a render queue list
-		    @param l Render queue list
-			@param rq Render queue to find
-		    @return true If the render queue to find is in the list, false if not
-		 */
 		inline const bool _isRenderQueueInList(const std::vector<Ogre::RenderQueueGroupID>& l, const Ogre::RenderQueueGroupID& rq)
 		{
 			for (std::vector<Ogre::RenderQueueGroupID>::const_iterator i = l.begin(); i != l.end(); i++)

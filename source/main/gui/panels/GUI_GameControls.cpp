@@ -394,11 +394,7 @@ void GameControls::ReloadMapFile()
 void GameControls::SetVisible(bool vis)
 {
     m_is_visible = vis;
-    if (vis)
-    {
-        m_text_all_active = _LC("GameSettings", "<All active values>");
-    }
-    else
+    if (!vis)
     {
         this->CancelChanges();
         App::GetGuiManager()->SetVisible_GameMainMenu(true);

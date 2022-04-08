@@ -62,81 +62,35 @@ namespace SkyX
 		 */
 		const bool save(const Ogre::String& File, const Ogre::String& Path = "") const;
 
-		/** <int> Get the cfg string
-		    @param Name Parameter name
-		    @param Value Parameter value
-			@return int cfg string
-		 */
 		static Ogre::String _getCfgString(const Ogre::String& Name, const int& Value);
-
-		/** <float> Get the cfg string
-		    @param Name Parameter name
-		    @param Value Parameter value
-			@return Ogre::Real cfg string
-		 */
 		static Ogre::String _getCfgString(const Ogre::String& Name, const Ogre::Real& Value);
-
-		/** <bool> Get the cfg string
-		    @param Name Parameter name
-		    @param Value Parameter value
-			@return bool cfg string
-		 */
 		static Ogre::String _getCfgString(const Ogre::String& Name, const bool& Value);
-
-		/** <vector2> Get the cfg string
-		    @param Name Parameter name
-		    @param Value Parameter value
-			@return Ogre::Vector2 cfg string
-		 */
 		static Ogre::String _getCfgString(const Ogre::String& Name, const Ogre::Vector2& Value);
-
-		/** <vector3> Get the cfg string
-		    @param Name Parameter name
-		    @param Value Parameter value
-			@return Ogre::Vector3 cfg string
-		 */
 		static Ogre::String _getCfgString(const Ogre::String& Name, const Ogre::Vector3& Value);
-
 		static Ogre::String _getCfgString(const Ogre::String &Name, const Ogre::Vector4 &Value);
-
 		static Ogre::String _getCfgString(const Ogre::String &Name, const Ogre::Degree &Value);
 
 		/** Get int value
-		    @param CfgFile Config file
-		    @param Name Parameter name
-			@return int value
 			@remarks if the parameter isn't found or the data type is not an int value, return 0 as default
 		 */
 		static int _getIntValue(Ogre::ConfigFile& CfgFile, const Ogre::String Name);
 
 		/** Get float value
-		    @param CfgFile Config file
-		    @param Name Parameter name
-			@return float value
 			@remarks if the parameter isn't found or the data type is not a float value, return 0 as default
 		 */
 		static Ogre::Real _getFloatValue(Ogre::ConfigFile& CfgFile, const Ogre::String Name);
 
 		/** Get bool value
-		    @param CfgFile Config file
-		    @param Name Parameter name
-			@return bool value
 			@remarks if the parameter isn't found or the data type is not a bool value, return false as default
 		 */
 		static bool _getBoolValue(Ogre::ConfigFile& CfgFile, const Ogre::String Name);
 
 		/** Get vector2 value
-		    @param CfgFile Config file
-		    @param Name Parameter name
-			@return vector2 value
 			@remarks if the parameter isn't found or the data type is not an int value, returns (0,0) as default
 		 */
 		static Ogre::Vector2 _getVector2Value(Ogre::ConfigFile& CfgFile, const Ogre::String Name);
 
 		/** Get vector3 value
-		    @param CfgFile Config file
-		    @param Name Parameter name
-			@return vector3 value
 			@remarks if the parameter isn't found or the data type is not an int value, returns (0,0,0) as default
 		 */
 		static Ogre::Vector3 _getVector3Value(Ogre::ConfigFile& CfgFile, const Ogre::String Name);
@@ -145,18 +99,10 @@ namespace SkyX
 
 		static Ogre::Degree _getDegreeValue(Ogre::ConfigFile& CfgFile, const Ogre::String Name);
 
-		/** Check is a std::vector<Ogre::String> contains a specified Ogre::String
-		    @param List String list
-			@param Find String to find
-			@return true if it's contained, false if not
-		 */
 		static bool _isStringInList(const Ogre::StringVector &List, const Ogre::String &Find);
 
 	private:
 		/** Save a string in file
-		    @param Data Data
-			@param File Destination file
-			@param Path File path
 			@return false if an error has ocurred
 		 */
 		const bool _saveToFile(const Ogre::String& Data, const Ogre::String& File, const Ogre::String& Path) const;
