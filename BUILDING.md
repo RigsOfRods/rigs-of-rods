@@ -18,7 +18,7 @@ Please refer to https://github.com/RigsOfRods/rigs-of-rods/wiki
 ### Optional dependencies
 
 * SocketW: >= 3.10
-* AngelScript:  2.32.0
+* AngelScript:  2.35.1
 * CURL: >= 7.6
 * Caelum:  0.6.3
 * PagedGeometry:  1.2.1
