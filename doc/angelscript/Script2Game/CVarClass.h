@@ -1,4 +1,6 @@
 
+namespace Script2Game {
+
 /** \addtogroup ScriptSideAPIs
  *  @{
  */    
@@ -6,8 +8,6 @@
 /** \addtogroup Script2Game
  *  @{
  */    
-
-namespace Script2Game {
     
 /**
  * @brief Types and special attributes of cvars.
@@ -43,7 +43,7 @@ public:
     std::string const&      getName() const  { return m_name; }
 };
 
-} //namespace Script2Game
-
 /// @}    //addtogroup Script2Game
 /// @}    //addtogroup ScriptSideAPIs
+
+} //namespace Script2Game

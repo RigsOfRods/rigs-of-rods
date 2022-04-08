@@ -1,4 +1,6 @@
 
+namespace Script2Game {
+
 /** \addtogroup ScriptSideAPIs
  *  @{
  */    
@@ -6,8 +8,6 @@
 /** \addtogroup Script2Game
  *  @{
  */    
-
-namespace Script2Game {
 
 /**
  * @brief Binding of RoR::Console; provides console variables (cvars), usually defined in RoR.cfg file.
@@ -43,7 +43,7 @@ public:
     CVar* cVarGet(std::string const& input_name, int flags);
 };
 
-} //namespace Script2Game
-
 /// @}    //addtogroup Script2Game
 /// @}    //addtogroup ScriptSideAPIs
+
+} //namespace Script2Game

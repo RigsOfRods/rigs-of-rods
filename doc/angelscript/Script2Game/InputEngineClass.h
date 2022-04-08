@@ -1,4 +1,6 @@
 
+namespace Script2Game {
+
 /** \addtogroup ScriptSideAPIs
  *  @{
  */    
@@ -6,8 +8,6 @@
 /** \addtogroup Script2Game
  *  @{
  */    
-
-namespace Script2Game {
 
 /**
  * @brief Binding of RoR::InputEngine; Manages input devices, their configuration (input.map ...) and state.
@@ -39,7 +39,7 @@ public:
 
 };
 
-} //namespace Script2Game
-
 /// @}    //addtogroup Script2Game
 /// @}    //addtogroup ScriptSideAPIs
+
+} //namespace Script2Game

@@ -1,4 +1,6 @@
 
+namespace Script2Game {
+
 /** \addtogroup ScriptSideAPIs
  *  @{
  */    
@@ -6,8 +8,6 @@
 /** \addtogroup Script2Game
  *  @{
  */    
-
-namespace Script2Game {
 
 /**
  * @brief Binding of RoR::Actor; a softbody-physics gameplay object, can be anything from soda can to space shuttle.
@@ -194,7 +194,8 @@ public:
 	Ogre::Vector3 getNodePosition(int nodeNumber);
 }
 
-} //namespace Script2Game
-
 /// @}    //addtogroup Script2Game
 /// @}    //addtogroup ScriptSideAPIs
+
+} //namespace Script2Game
+

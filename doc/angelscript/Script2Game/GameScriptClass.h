@@ -17,15 +17,15 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 */
 // created on 23th May 2011 by neorej16
 
+namespace Script2Game {
+
 /** \addtogroup ScriptSideAPIs
  *  @{
  */    
 
 /** \addtogroup Script2Game
  *  @{
- */   
-
-namespace Script2Game {
+ */    
 
 /**
  * @brief Binding of RoR::GameScript; A general class that will provide you with general functions.
@@ -458,7 +458,7 @@ public:
 	void quitGame();
 };
 
-} //namespace Script2Game
-
 /// @}    //addtogroup Script2Game
 /// @}    //addtogroup ScriptSideAPIs
+
+} //namespace Script2Game
