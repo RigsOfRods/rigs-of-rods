@@ -40,7 +40,7 @@ public:
     
     bool                    getBool() const  { return (bool)m_value_num; }
     
-    std::string const&      getName() const       { return m_name; }
+    std::string const&      getName() const  { return m_name; }
 };
 
 } //namespace Script2Game
