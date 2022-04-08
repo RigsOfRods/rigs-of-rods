@@ -177,7 +177,7 @@
  * CPU-based deforming meshes. Managed by RoR::FlexFactory. On each frame, they read associated node positons from simbuffer and generate deformed mesh which is uploaded to graphics card. It's a FPS-heavy process. There are 3 flavors:
  * * RoR::FlexBody - declared by 'flexbodies' in truck format. Built from a mesh file. Nodes are assigned by 'forset' keyword.
  * * RoR::FlexObj - declared by 'submesh' in truck format. Built and updated from nodes listed in 'cab' and material in 'globals'.
- * * RoR::FlexAiroil - declared by 'wings' in truck format. Built and updated form 8 assigned nodes.
+ * * RoR::FlexAirfoil - declared by 'wings' in truck format. Built and updated form 8 assigned nodes.
  *
  * ### Debug view
  *
