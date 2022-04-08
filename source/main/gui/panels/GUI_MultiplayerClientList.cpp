@@ -53,6 +53,11 @@ void MpClientList::Draw()
     if (m_users.empty())
         return; // UpdateClients() wasn't called yet.
 
+    if (!m_icons_cached)
+    {
+        this->CacheIcons();
+    }
+
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
@@ -65,7 +70,6 @@ void MpClientList::Draw()
 
     int y = 20 + (ImGui::GetTextLineHeightWithSpacing() * m_users.size());
 
-    Ogre::TexturePtr warn_tex = FetchIcon("error.png");
     if (App::GetNetwork()->GetNetQuality() != 0)
     {
         y += 20;
@@ -91,18 +95,18 @@ void MpClientList::Draw()
         {
             switch (App::GetGameContext()->GetActorManager()->CheckNetworkStreamsOk(user.uniqueid))
             {
-            case 0: down_tex = FetchIcon("arrow_down_red.png");  break;
-            case 1: down_tex = FetchIcon("arrow_down.png");      break;
-            case 2: down_tex = FetchIcon("arrow_down_grey.png"); break;
+            case 0: down_tex = m_icon_arrow_down_red;  break;
+            case 1: down_tex = m_icon_arrow_down;      break;
+            case 2: down_tex = m_icon_arrow_down_grey; break;
             default:;
             }
             
 
             switch (App::GetGameContext()->GetActorManager()->CheckNetRemoteStreamsOk(user.uniqueid))
             {
-            case 0: up_tex = FetchIcon("arrow_up_red.png");  break;
-            case 1: up_tex = FetchIcon("arrow_up.png");      break;
-            case 2: up_tex = FetchIcon("arrow_up_grey.png"); break;
+            case 0: up_tex = m_icon_arrow_up_red;  break;
+            case 1: up_tex = m_icon_arrow_up;      break;
+            case 2: up_tex = m_icon_arrow_up_grey; break;
             default:;
             }
         }
@@ -111,9 +115,9 @@ void MpClientList::Draw()
         hovered |= this->DrawIcon(up_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
 
         // Auth icon
-             if (user.authstatus & RoRnet::AUTH_ADMIN ) { auth_tex = FetchIcon("flag_red.png");   }
-        else if (user.authstatus & RoRnet::AUTH_MOD   ) { auth_tex = FetchIcon("flag_blue.png");  }
-        else if (user.authstatus & RoRnet::AUTH_RANKED) { auth_tex = FetchIcon("flag_green.png"); }
+             if (user.authstatus & RoRnet::AUTH_ADMIN ) { auth_tex = m_icon_flag_red;   }
+        else if (user.authstatus & RoRnet::AUTH_MOD   ) { auth_tex = m_icon_flag_blue;  }
+        else if (user.authstatus & RoRnet::AUTH_RANKED) { auth_tex = m_icon_flag_green; }
 
         hovered |= this->DrawIcon(auth_tex, ImVec2(14.f, ImGui::GetTextLineHeight()));
 
@@ -216,8 +220,8 @@ void MpClientList::Draw()
     if (App::GetNetwork()->GetNetQuality() != 0)
     {
         ImGui::Separator();
-        ImGui::Image(reinterpret_cast<ImTextureID>(warn_tex->getHandle()),
-            ImVec2(warn_tex->getWidth(), warn_tex->getHeight()));
+        ImGui::Image(reinterpret_cast<ImTextureID>(m_icon_warn_triangle->getHandle()),
+            ImVec2(m_icon_warn_triangle->getWidth(), m_icon_warn_triangle->getHeight()));
         ImGui::SameLine();
         ImGui::TextColored(App::GetGuiManager()->GetTheme().error_text_color, "%s", _LC("MultiplayerClientList", "Slow  Network  Download"));
     }
@@ -241,4 +245,20 @@ bool MpClientList::DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box)
     ImGui::SetCursorPosX(orig_pos.x + reference_box.x + ImGui::GetStyle().ItemSpacing.x);
     ImGui::SetCursorPosY(orig_pos.y);
     return hovered;
+}
+
+void MpClientList::CacheIcons()
+{
+    m_icon_arrow_down      = FetchIcon("arrow_down.png");
+    m_icon_arrow_down_grey = FetchIcon("arrow_down_grey.png");
+    m_icon_arrow_down_red  = FetchIcon("arrow_down_red.png");
+    m_icon_arrow_up        = FetchIcon("arrow_up.png");
+    m_icon_arrow_up_grey   = FetchIcon("arrow_up_grey.png");
+    m_icon_arrow_up_red    = FetchIcon("arrow_up_red.png");
+    m_icon_flag_red        = FetchIcon("flag_red.png");
+    m_icon_flag_blue       = FetchIcon("flag_blue.png");
+    m_icon_flag_green      = FetchIcon("flag_green.png");
+    m_icon_warn_triangle   = FetchIcon("error.png");
+
+    m_icons_cached = true;
 }
