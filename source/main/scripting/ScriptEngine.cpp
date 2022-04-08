@@ -146,11 +146,6 @@ void ScriptEngine::init()
     result = engine->RegisterGlobalFunction("void log(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT( result >= 0 );
     result = engine->RegisterGlobalFunction("void print(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT( result >= 0 );
 
-    result = engine->RegisterObjectType("BeamFactoryClass", sizeof(ActorManager), AngelScript::asOBJ_REF); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamFactoryClass", "void setSimulationSpeed(float)", AngelScript::asMETHOD(ActorManager,SetSimulationSpeed), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_ADDREF, "void f()", AngelScript::asMETHOD(ActorManager,AddRef), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectBehaviour("BeamFactoryClass", AngelScript::asBEHAVE_RELEASE, "void f()", AngelScript::asMETHOD(ActorManager,Release), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
-
     // enum aiEvents
     result = engine->RegisterEnum("aiEvents"); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("aiEvents", "AI_LIGHTSTOGGLE", AI_LIGHTSTOGGLE); ROR_ASSERT(result >= 0);
