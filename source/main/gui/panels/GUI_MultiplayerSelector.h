@@ -84,6 +84,7 @@ private:
     Str<1000>           m_password_buf;
     Str<1000>           m_server_host_buf;
     Ogre::TexturePtr    m_lock_icon;
+    bool                m_show_spinner = false;
 };
 
 } // namespace GUI
