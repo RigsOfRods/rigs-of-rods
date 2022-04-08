@@ -125,54 +125,47 @@ void RoR::ImTextFeeder::NextLine()
 // Internal helper
 inline void ColorToInts(ImVec4 v, int&r, int&g, int&b) { r=(int)(v.x*255); g=(int)(v.y*255); b=(int)(v.z*255); }
 
-void RoR::DrawImGuiSpinner(float& counter, const ImVec2 size, const float spacing, const float step_sec)
+// A nice spinner https://github.com/ocornut/imgui/issues/1901#issuecomment-444929973
+void RoR::LoadingIndicatorCircle(const char* label, const float indicator_radius, const ImVec4& main_color, const ImVec4& backdrop_color, const int circle_count, const float speed)
 {
-    // Hardcoded to 4 segments, counter is reset after full round (4 steps)
-    // --------------------------------------------------------------------
-
-    const ImU32 COLORS[] = { ImColor(255,255,255,255), ImColor(210,210,210,255), ImColor(120,120,120,255), ImColor(60,60,60,255) };
-
-    // Update counter, determine coloring
-    counter += ImGui::GetIO().DeltaTime;
-    int color_start = 0; // Index to GUI_SPINNER_COLORS array for the top middle segment (segment 0)
-    while (counter > (step_sec*4.f))
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (window->SkipItems)
     {
-        counter -= (step_sec*4.f);
+        return;
     }
 
-    if (counter > (step_sec*3.f))
+    ImGuiContext& g = *GImGui;
+    const ImGuiID id = window->GetID(label);
+
+    const ImVec2 pos = window->DC.CursorPos;
+    const float circle_radius = indicator_radius / 10.0f;
+    const ImRect bb(pos, ImVec2(pos.x + indicator_radius * 2.0f, pos.y + indicator_radius * 2.0f));
+    ImGui::ItemSize(bb, ImGui::GetStyle().FramePadding.y);
+    if (!ImGui::ItemAdd(bb, id))
     {
-        color_start = 3;
-    }
-    else if (counter > (step_sec*2.f))
-    {
-        color_start = 2;
-    }
-    else if (counter > (step_sec))
-    {
-        color_start = 1;
+        return;
     }
 
-    // Draw segments
-    ImDrawList* draw_list = ImGui::GetWindowDrawList();
-    const ImVec2 pos = ImGui::GetCursorScreenPos();
-    const float left = pos.x;
-    const float top = pos.y;
-    const float right = pos.x + size.x;
-    const float bottom = pos.y + size.y;
-    const float mid_x = pos.x + (size.x / 2.f);
-    const float mid_y = pos.y + (size.y / 2.f);
+    const float t = g.Time;
+    const auto degree_offset = 2.0f * IM_PI / circle_count;
 
-    // NOTE: Enter vertices in clockwise order, otherwise anti-aliasing doesn't work and polygon is rasterized larger! -- Observed under OpenGL2 / OGRE 1.9
+    for (int i = 0; i < circle_count; ++i)
+    {
+        const auto x = indicator_radius * std::sin(degree_offset * i);
+        const auto y = indicator_radius * std::cos(degree_offset * i);
+        const auto growth = std::max(0.0f, std::sin(t * speed - i * degree_offset));
+        ImVec4 color;
+        color.x = main_color.x * growth + backdrop_color.x * (1.0f - growth);
+        color.y = main_color.y * growth + backdrop_color.y * (1.0f - growth);
+        color.z = main_color.z * growth + backdrop_color.z * (1.0f - growth);
+        color.w = 1.0f;
 
-    // Top triangle, vertices: mid, left, right
-    draw_list->AddTriangleFilled(ImVec2(mid_x, mid_y-spacing),   ImVec2(left + spacing, top),     ImVec2(right - spacing, top),     COLORS[color_start]);
-    // Right triangle, vertices: mid, top, bottom
-    draw_list->AddTriangleFilled(ImVec2(mid_x+spacing, mid_y),   ImVec2(right, top + spacing),    ImVec2(right, bottom - spacing),  COLORS[(color_start+3)%4]);
-    // Bottom triangle, vertices: mid, right, left
-    draw_list->AddTriangleFilled(ImVec2(mid_x, mid_y+spacing),   ImVec2(right - spacing, bottom), ImVec2(left + spacing, bottom),   COLORS[(color_start+2)%4]);
-    // Left triangle, vertices: mid, bottom, top
-    draw_list->AddTriangleFilled(ImVec2(mid_x-spacing, mid_y),   ImVec2(left, bottom - spacing),  ImVec2(left, top + spacing),      COLORS[(color_start+1)%4]);
+        window->DrawList->AddCircleFilled(ImVec2(pos.x + indicator_radius + x,
+                                                         pos.y + indicator_radius - y),
+                                                         circle_radius + growth * circle_radius,
+                                                         ImGui::GetColorU32(color));
+
+    }
 }
 
 //source: https://github.com/ocornut/imgui/issues/1982#issuecomment-408834301
@@ -366,47 +359,4 @@ ImDrawList* RoR::GetImDummyFullscreenWindow()
     ImGui::PopStyleColor(1); // WindowBg
 
     return drawlist;
-}
-
-// A nice spinner https://github.com/ocornut/imgui/issues/1901#issuecomment-444929973
-void RoR::LoadingIndicatorCircle(const char* label, const float indicator_radius, const ImVec4& main_color, const ImVec4& backdrop_color, const int circle_count, const float speed)
-{
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems)
-    {
-        return;
-    }
-
-    ImGuiContext& g = *GImGui;
-    const ImGuiID id = window->GetID(label);
-
-    const ImVec2 pos = window->DC.CursorPos;
-    const float circle_radius = indicator_radius / 10.0f;
-    const ImRect bb(pos, ImVec2(pos.x + indicator_radius * 2.0f, pos.y + indicator_radius * 2.0f));
-    ImGui::ItemSize(bb, ImGui::GetStyle().FramePadding.y);
-    if (!ImGui::ItemAdd(bb, id))
-    {
-        return;
-    }
-
-    const float t = g.Time;
-    const auto degree_offset = 2.0f * IM_PI / circle_count;
-
-    for (int i = 0; i < circle_count; ++i)
-    {
-        const auto x = indicator_radius * std::sin(degree_offset * i);
-        const auto y = indicator_radius * std::cos(degree_offset * i);
-        const auto growth = std::max(0.0f, std::sin(t * speed - i * degree_offset));
-        ImVec4 color;
-        color.x = main_color.x * growth + backdrop_color.x * (1.0f - growth);
-        color.y = main_color.y * growth + backdrop_color.y * (1.0f - growth);
-        color.z = main_color.z * growth + backdrop_color.z * (1.0f - growth);
-        color.w = 1.0f;
-
-        window->DrawList->AddCircleFilled(ImVec2(pos.x + indicator_radius + x,
-                                                         pos.y + indicator_radius - y),
-                                                         circle_radius + growth * circle_radius,
-                                                         ImGui::GetColorU32(color));
-
-    }
 }
