@@ -59,7 +59,7 @@ namespace Hydrax
 			@param Path File path
 			@return false if an error has been ocurred(Check the log file in this case).
 		 */
-		const bool save(const Ogre::String& File, const Ogre::String& Path = "") const;
+		const bool save(const Ogre::String& File, const Ogre::String& ResourceGroup) const;
 
 		/** <int> Get the cfg string
 		    @param Name Parameter name
@@ -159,13 +159,6 @@ namespace Hydrax
 		static bool _isStringInList(const Ogre::StringVector &List, const Ogre::String &Find);
 
 	private:
-		/** Save a string in file
-		    @param Data Data
-			@param File Destination file
-			@param Path File path
-			@return false if an error has ocurred
-		 */
-		const bool _saveToFile(const Ogre::String& Data, const Ogre::String& File, const Ogre::String& Path) const;
 
 		/** Load a cfg file in an Ogre::ConfigFile
 		    @param File File name

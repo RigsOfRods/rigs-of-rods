@@ -2,7 +2,6 @@
 #include "scripthelper.h"
 #include <assert.h>
 #include <stdio.h>
-#include <fstream>
 #include <set>
 #include <stdlib.h>
 
@@ -206,14 +205,6 @@ int ExecuteString(asIScriptEngine *engine, const char *code, void *ref, int refT
 	if( !ctx ) engine->ReturnContext(execCtx);
 
 	return r;
-}
-
-int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
-{
-	ofstream strm;
-	strm.open(filename);
-
-	return WriteConfigToStream(engine, strm);
 }
 
 int WriteConfigToStream(asIScriptEngine *engine, ostream &strm)

@@ -25,6 +25,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <CfgFileManager.h>
 #include <Hydrax.h>
 
+// Rigs of Rods includes
+#include "Application.h"
+#include "Console.h"
+#include <fmt/format.h>
+
 namespace Hydrax
 {
 	CfgFileManager::CfgFileManager(Hydrax* h)
@@ -82,7 +87,7 @@ namespace Hydrax
 		return true;
 	}
 
-	const bool CfgFileManager::save(const Ogre::String& File, const Ogre::String& Path) const
+	const bool CfgFileManager::save(const Ogre::String& File, const Ogre::String& ResourceGroup) const
 	{
 		Ogre::String Data =
 			"#Hydrax cfg file.\n\n";
@@ -116,24 +121,27 @@ namespace Hydrax
 			}
 		}
 
-		return _saveToFile(Data, File, Path);
-	}
-
-	const bool CfgFileManager::_saveToFile(const Ogre::String& Data, const Ogre::String& File, const Ogre::String& Path) const
-	{
-		FILE *DestinationFile = fopen((Path+"/"+File).c_str(), "w");
-
-		if (!DestinationFile)
+		// save using OGRE filesystem
+		try
 		{
-			return false;
+			Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().createResource(
+				File, ResourceGroup, /*overwrite:*/false);
+
+			if (stream->isWriteable())
+			{
+				stream->write(Data.c_str(), Data.size());
+				// closes automatically
+				return true;
+			}
 		}
-
-		fprintf(DestinationFile, "%s", Data.c_str());
-		fclose(DestinationFile);
-
-		HydraxLOG(File + " saved in " + Path + " .");
-
-		return true;
+		catch (Ogre::Exception& ex)
+		{
+			RoR::App::GetConsole()->putMessage(
+				RoR::Console::CONSOLE_MSGTYPE_TERRN, RoR::Console::CONSOLE_SYSTEM_ERROR,
+				fmt::format("Failed to save hydrax config file {} to resource group {}, message: {}",
+					File, ResourceGroup, ex.getFullDescription()));
+		}
+		return false;
 	}
 
 	const void CfgFileManager::_loadCfgFile(const Ogre::String& File, std::pair<bool,Ogre::ConfigFile> &Result) const
