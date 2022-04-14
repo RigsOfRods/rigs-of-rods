@@ -4450,7 +4450,7 @@ std::vector<authorinfo_t> Actor::getAuthors()
 
 std::vector<std::string> Actor::getDescription()
 {
-    return description;
+    return m_description;
 }
 
 void Actor::setMass(float m)
