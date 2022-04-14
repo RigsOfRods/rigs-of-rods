@@ -234,6 +234,7 @@ void Parser::ProcessCurrentLine()
         case Keyword::COMMANDS2:            this->ParseCommandsUnified();         return;
         case Keyword::COLLISIONBOXES:       this->ParseCollisionBox();            return;
         case Keyword::CONTACTERS:           this->ParseContacter();               return;
+        case Keyword::DESCRIPTION:          this->ParseDescription();             return;
         case Keyword::ENGINE:               this->ParseEngine();                  return;
         case Keyword::ENGOPTION:            this->ParseEngoption();               return;
         case Keyword::ENGTURBO:             this->ParseEngturbo();                return;
