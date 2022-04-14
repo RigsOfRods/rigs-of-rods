@@ -89,11 +89,6 @@ public:
     void           HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet);
 #endif
 
-#ifdef USE_ANGELSCRIPT
-    void           AddRef() {};  // we have to add this to be able to use the class as reference inside scripts
-    void           Release() {};
-#endif
-
     // Savegames (defined in Savegame.cpp)
 
     bool           LoadScene(Ogre::String filename);
