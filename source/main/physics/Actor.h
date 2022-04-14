@@ -239,7 +239,6 @@ public:
     int                  ar_num_rotators;
     wing_t*              ar_wings;
     int                  ar_num_wings;
-    std::vector<std::string>  description;
     std::vector<authorinfo_t> authors;
     std::vector<exhaust_t>    exhausts;
     std::vector<rope_t>       ar_ropes;
@@ -530,6 +529,7 @@ private:
     bool              m_ongoing_reset;         //!< Hack to prevent position/rotation creep during interactive truck reset
     bool              m_has_axles_section;     //!< Temporary (legacy parsing helper) until central diffs are implemented
     TyrePressure      m_tyre_pressure;
+    std::vector<std::string>  m_description;
 
     /// @name Light states
     /// @{

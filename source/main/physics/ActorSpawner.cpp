@@ -251,7 +251,6 @@ void ActorSpawner::InitializeRig()
     m_actor->ar_num_buoycabs = 0;
     memset(m_actor->ar_buoycab_types, 0, sizeof(int) * MAX_CABS);
     memset(m_actor->m_skid_trails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
-    m_actor->description.clear();
 
     m_actor->authors.clear();
 
@@ -798,7 +797,7 @@ void ActorSpawner::ProcessTurboprop2(RigDef::Turboprop2 & def)
 
 void ActorSpawner::ProcessDescription(Ogre::String const& line)
 {
-    m_actor->description.push_back(line);
+    m_actor->m_description.push_back(line);
 }
 
 void ActorSpawner::ProcessPistonprop(RigDef::Pistonprop & def)
