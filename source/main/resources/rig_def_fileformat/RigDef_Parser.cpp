@@ -853,6 +853,12 @@ void Parser::ParseFlexbody()
 
 void Parser::ParseDirectiveForset()
 {
+    if (m_current_module->flexbodies.size() == 0)
+    {
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "ignoring 'forset': no matching flexbody!");
+        return;
+    }
+
     // Syntax: "forset", followed by space/comma, followed by ","-separated items.
     // Acceptable item forms:
     // * Single node number / node name
