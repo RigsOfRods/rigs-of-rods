@@ -6,15 +6,15 @@
 # Eugenio Martínez Seguín <eumase-04@hotmail.com>, 2016
 # Lepe City <lepecity@gmail.com>, 2017
 # Joaquín Lafuente <lafuente_45@hotmail.com>, 2021.
-# Joaquin Gomez <joa97@hotmail.com.ar>, 2021.
+# Joaquin Gomez <joa97@hotmail.com.ar>, 2021, 2022.
 # Mxt Apps <mxtapps@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-03-13 10:58+0100\n"
-"PO-Revision-Date: 2021-11-28 21:50+0000\n"
-"Last-Translator: Mxt Apps <mxtapps@gmail.com>\n"
+"PO-Revision-Date: 2022-04-19 04:12+0000\n"
+"Last-Translator: Joaquin Gomez <joa97@hotmail.com.ar>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/es/>\n"
 "Language: es\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.10-dev\n"
+"X-Generator: Weblate 4.12-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -212,209 +212,160 @@ msgid "Memory (Ogre): "
 msgstr "Memoria (Ogre): "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr "acelerar el vehículo"
+msgstr "Escala el camión"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr "atar una carga al vehículo"
+msgstr "Obtiene el nombre del vehiculo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "Obtiene el nombre del archivo del vehiculo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "Obtiene el nombre de la sección cargada para un vehiculo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr "atar una carga al vehículo"
+msgstr "Obtiene el tipo de vehiculo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "acelerar el vehículo"
+msgstr "Restablece el vehiculo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "toggle parking brake"
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
-msgstr "des/activar freno de mano"
+msgstr "Des/Activar freno de mano"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "toggle traction control"
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr "des/activar control de tracción"
+msgstr "Des/Activar control de tracción"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "toggle antilock brake"
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr "des/activa el ABS"
+msgstr "Des/Activa el ABS"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "toggle truck beacons"
 msgctxt "AngelScript"
 msgid "Toggles the beacons"
-msgstr "des/activar balizas en vehículo"
+msgstr "Des/Activa balizas en vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr "[utiliza partículas personalizadas]"
+msgstr "Des/Activa las partículas personalizadas"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr ""
+msgstr "Obtiene la cantidad total de nodos del vehiculo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr "atar una carga al vehículo"
+msgstr "Obtiene la masa total del vehiculo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the wheels of the truck"
-msgstr ""
+msgstr "Obtiene la cantidad total de nodos de las ruedas del vehiculo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Sets the mass of the truck"
-msgstr "atar una carga al vehículo"
+msgstr "Establece la masa del vehiculo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
 msgid "Returns true if the brake light is enabled"
-msgstr ""
+msgstr "Devuelve verdadero si la luz de freno está activada"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:40
 msgctxt "AngelScript"
 msgid "Returns true if the custom light with the number is enabled"
-msgstr ""
+msgstr "Devuelve verdadero si la luz personalizada con el número está activada"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:41
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "enable or disable physics"
 msgctxt "AngelScript"
 msgid "Enables or disables the custom light"
-msgstr "des/activar la física"
+msgstr "Activa o desactiva la luz personalizada"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:42
 msgctxt "AngelScript"
 msgid "Gets the mode of the beacon"
-msgstr ""
+msgstr "Obtiene el modo de la baliza"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:43
 msgctxt "AngelScript"
 msgid "Sets the blinking type"
-msgstr ""
+msgstr "Establece el tipo de parpadeo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:44
 msgctxt "AngelScript"
 msgid "Gets the blinking type"
-msgstr ""
+msgstr "Obtiene el tipo de parpadeo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:45
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Gets the custom particles mode"
-msgstr "[utiliza partículas personalizadas]"
+msgstr "Obtiene el modo de partículas personalizadas"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:46
 msgctxt "AngelScript"
 msgid "Returns true if the reverse lights are enabled"
-msgstr ""
+msgstr "Devuelve verdadero si las luces de marcha atrás están activadas"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:47
 msgctxt "AngelScript"
 msgid "Returns the angle in which the truck is heading"
-msgstr ""
+msgstr "Devuelve el ángulo al que se dirige el vehiculo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:48
 msgctxt "AngelScript"
 msgid "Returns true if a hook of this truck is locked"
-msgstr ""
+msgstr "Devuelve verdadero si un gancho de este vehiculo está bloqueado"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:49
 msgctxt "AngelScript"
 msgid "Gets the current wheel speed of the vehicle"
-msgstr ""
+msgstr "Obtiene la velocidad actual de las ruedas del vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:50
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Remove current vehicle"
 msgctxt "AngelScript"
 msgid "Gets the current speed of the vehicle"
-msgstr "Retirar vehículo actual"
+msgstr "Obtiene la velocidad actual del vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:51
 msgctxt "AngelScript"
 msgid "Gets the G-forces that this truck is currently experiencing"
 msgstr ""
+"Consigue las fuerzas G que este vehiculo está experimentando actualmente"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:52
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "save the currently loaded terrain to a mesh file"
 msgctxt "AngelScript"
 msgid "Gets the current rotation of the vehicle"
-msgstr "guardar terreno cargado actualmente en archivo de malla"
+msgstr "Obtiene la rotación actual del vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:53
-#, fuzzy
-#| msgid "pos - outputs the current position"
 msgctxt "AngelScript"
 msgid "Gets the current position of the vehicle"
-msgstr "pos - muestra la posición actual"
+msgstr "Obtiene la posición actual del vehículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:54
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "reset the camera position"
 msgctxt "AngelScript"
 msgid "Gets the node position"
-msgstr "restablecer la posición de la cámara"
+msgstr "Obtiene la posición del nodo"
 
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
@@ -507,12 +458,9 @@ msgid "Filter options"
 msgstr "Opciones de filtro"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:79
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Scripting"
 msgctxt "Console"
 msgid "AngelScript"
-msgstr "Scripting"
+msgstr "AngelScript"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:104
 msgctxt "Console"
@@ -888,12 +836,9 @@ msgid "Used Libs"
 msgstr "Librerías utilizadas"
 
 #: gui/panels/GUI_GameChatBox.cpp:80
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reload last spawned vehicle"
 msgctxt "ChatBox"
 msgid "Press {} to spawn a vehicle"
-msgstr "Recargar último vehículo aparecido"
+msgstr "Pulsa {} para hacer aparecer un vehículo"
 
 #: gui/panels/GUI_GameChatBox.cpp:142
 msgctxt "ChatBox"
@@ -918,12 +863,12 @@ msgstr "uso: /whisper nombreDeUsuario mensaje"
 #: gui/panels/GUI_GameControls.cpp:64
 msgctxt "GameControls"
 msgid "Press a new key"
-msgstr ""
+msgstr "Pulsa una nueva tecla"
 
 #: gui/panels/GUI_GameControls.cpp:73
 msgctxt "GameControls"
 msgid "EXPL"
-msgstr ""
+msgstr "EXPL"
 
 #: gui/panels/GUI_GameControls.cpp:82
 msgctxt "GameControls"
@@ -931,6 +876,9 @@ msgid ""
 "With EXPL tag, only exactly matching key combos will be triggered.\n"
 "Without it, partial matches will trigger, too."
 msgstr ""
+"Con la etiqueta EXPL, sólo se activarán las combinaciones de teclas que "
+"coincidan exactamente.\n"
+"Sin ella, también se activarán las coincidencias parciales."
 
 #: gui/panels/GUI_GameControls.cpp:86
 msgctxt "GameControls"
@@ -938,6 +886,8 @@ msgid ""
 "Example: Pressing CTRL+F1 will trigger COMMANDS_03 and COMMANDS_01\n"
 "but not COMMANDS_02 which has EXPL tag."
 msgstr ""
+"Ejemplo: Al pulsar CTRL+F1 se activarán COMMANDS_03 y COMMANDS_01 \n"
+"pero no COMMANDS_02 que tiene la etiqueta EXPL."
 
 #: gui/panels/GUI_GameControls.cpp:107
 msgctxt "GameControls"
@@ -945,41 +895,29 @@ msgid "Game Controls"
 msgstr "Controles del juego"
 
 #: gui/panels/GUI_GameControls.cpp:115
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Savegames"
 msgctxt "GameControls"
 msgid "Save changes"
-msgstr "Partidas guardadas"
+msgstr "Guardar los cambios"
 
 #: gui/panels/GUI_GameControls.cpp:120
-#, fuzzy
-#| msgctxt "NodeBeamUtils"
-#| msgid "Reset search"
 msgctxt "GameControls"
 msgid "Reset changes"
-msgstr "Restablecer búsqueda"
+msgstr "Reiniciar los cambios"
 
 #. Device type selector
 #. - General BeginCombo() API, you have full control over your selection data and display type.
 #: gui/panels/GUI_GameControls.cpp:213
 msgctxt "GameSettings"
 msgid "EventType"
-msgstr ""
+msgstr "Tipo de evento"
 
 #. Buttons
 #: gui/panels/GUI_GameControls.cpp:258
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "OK"
 msgctxt "GameSettings"
 msgid "OK"
 msgstr "OK"
 
 #: gui/panels/GUI_GameControls.cpp:263
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "Cancel"
 msgctxt "GameSettings"
 msgid "Cancel"
 msgstr "Cancelar"
@@ -987,12 +925,12 @@ msgstr "Cancelar"
 #: gui/panels/GUI_GameControls.cpp:268
 msgctxt "GameSettings"
 msgid "Delete"
-msgstr ""
+msgstr "Borrar"
 
 #: gui/panels/GUI_GameControls.cpp:399
 msgctxt "GameSettings"
 msgid "<All active values>"
-msgstr ""
+msgstr "<Todos los valores activos>"
 
 #: gui/panels/GUI_GameMainMenu.cpp:127
 msgctxt "MainMenu"
@@ -1010,11 +948,9 @@ msgid "Multiplayer"
 msgstr "Multijugador"
 
 #: gui/panels/GUI_GameMainMenu.cpp:161
-#, fuzzy
-#| msgid "Compositors: "
 msgctxt "MainMenu"
 msgid "Repository"
-msgstr "Compositores: "
+msgstr "Repositorio"
 
 #: gui/panels/GUI_GameMainMenu.cpp:167
 msgctxt "MainMenu"
@@ -1022,8 +958,6 @@ msgid "Settings"
 msgstr "Ajustes"
 
 #: gui/panels/GUI_GameMainMenu.cpp:173 gui/panels/GUI_GameMainMenu.cpp:187
-#, fuzzy
-#| msgid "Controls"
 msgctxt "MainMenu"
 msgid "Controls"
 msgstr "Controles"
@@ -1062,12 +996,12 @@ msgstr "Versión de caja"
 #: gui/panels/GUI_GameMainMenu.cpp:272
 msgctxt "MainMenu"
 msgid "Cache updated"
-msgstr "cache actualizada"
+msgstr "Caché actualizado"
 
 #: gui/panels/GUI_GameMainMenu.cpp:285
 msgctxt "MainMenu"
 msgid "Notice box"
-msgstr "Caja de notificaciones"
+msgstr "Notificaciones"
 
 #: gui/panels/GUI_GameSettings.cpp:41
 msgctxt "GameSettings"
@@ -1086,12 +1020,9 @@ msgid "General"
 msgstr "General"
 
 #: gui/panels/GUI_GameSettings.cpp:63
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Replay"
 msgctxt "GameSettings"
 msgid "Gameplay"
-msgstr "Repetición"
+msgstr "Jugabilidad"
 
 #: gui/panels/GUI_GameSettings.cpp:70
 msgctxt "GameSettings"
@@ -1267,11 +1198,9 @@ msgid "Video settings"
 msgstr "Configuración de video"
 
 #: gui/panels/GUI_GameSettings.cpp:307
-#, fuzzy
-#| msgid "No light sources"
 msgctxt "GameSettings"
 msgid "Light sources"
-msgstr "Ningún origen de luz"
+msgstr "Fuentes de luz"
 
 #: gui/panels/GUI_GameSettings.cpp:314
 msgctxt "GameSettings"
@@ -1828,7 +1757,7 @@ msgstr "nombre de usuario"
 #: gui/panels/GUI_MultiplayerClientList.cpp:141
 msgctxt "MultiplayerClientList"
 msgid "user uid"
-msgstr ""
+msgstr "ID de usuario"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:145
 msgctxt "MultiplayerClientList"
@@ -2131,195 +2060,165 @@ msgstr "Yitter"
 #: gui/panels/GUI_RepositorySelector.cpp:191
 msgctxt "RepositorySelector"
 msgid "Connection error. Please check your connection."
-msgstr ""
+msgstr "Error de conexión. Por favor, compruebe su conexión."
 
 #: gui/panels/GUI_RepositorySelector.cpp:202
 msgctxt "RepositorySelector"
 msgid "Received malformed data. Please try again."
-msgstr ""
+msgstr "Se han recibido datos mal formados. Por favor, inténtelo de nuevo."
 
 #: gui/panels/GUI_RepositorySelector.cpp:361
-#, fuzzy
-#| msgid "Rigs of Rods version: %s"
 msgctxt "RepositorySelector"
 msgid "Rigs of Rods Repository"
-msgstr "Versión de Rigs of Rods: %s"
+msgstr "Repositorio de Rigs of Rods"
 
 #: gui/panels/GUI_RepositorySelector.cpp:451
 msgctxt "RepositorySelector"
 msgid "Sort"
-msgstr ""
+msgstr "Ordenar"
 
 #: gui/panels/GUI_RepositorySelector.cpp:453
 #: gui/panels/GUI_RepositorySelector.cpp:760
 #: gui/panels/GUI_RepositorySelector.cpp:882
 msgctxt "RepositorySelector"
 msgid "Last Update"
-msgstr ""
+msgstr "Última actualización"
 
 #: gui/panels/GUI_RepositorySelector.cpp:458
 msgctxt "RepositorySelector"
 msgid "Date Added"
-msgstr ""
+msgstr "Fecha de adición"
 
 #: gui/panels/GUI_RepositorySelector.cpp:463
 #: gui/panels/GUI_RepositorySelector.cpp:756
 msgctxt "RepositorySelector"
 msgid "Title"
-msgstr ""
+msgstr "Título"
 
 #: gui/panels/GUI_RepositorySelector.cpp:468
 #: gui/panels/GUI_RepositorySelector.cpp:762
 #: gui/panels/GUI_RepositorySelector.cpp:888
 msgctxt "RepositorySelector"
 msgid "Downloads"
-msgstr ""
+msgstr "Descargas"
 
 #: gui/panels/GUI_RepositorySelector.cpp:473
 #: gui/panels/GUI_RepositorySelector.cpp:764
-#, fuzzy
-#| msgid "Rotating: "
 msgctxt "RepositorySelector"
 msgid "Rating"
-msgstr "Rotando: "
+msgstr "Calficación"
 
 #: gui/panels/GUI_RepositorySelector.cpp:478
-#, fuzzy
-#| msgid "Triangle Count: "
 msgctxt "RepositorySelector"
 msgid "Rating Count"
-msgstr "Número de Triángulos: "
+msgstr "Cantidad de valoraciones"
 
 #: gui/panels/GUI_RepositorySelector.cpp:490
 msgctxt "RepositorySelector"
 msgid "View"
-msgstr ""
+msgstr "Ver"
 
 #: gui/panels/GUI_RepositorySelector.cpp:492
 msgctxt "RepositorySelector"
 msgid "List"
-msgstr ""
+msgstr "Lista"
 
 #: gui/panels/GUI_RepositorySelector.cpp:496
 msgctxt "RepositorySelector"
 msgid "Compact"
-msgstr ""
+msgstr "Compacto"
 
 #: gui/panels/GUI_RepositorySelector.cpp:500
 msgctxt "RepositorySelector"
 msgid "Basic"
-msgstr ""
+msgstr "Básico"
 
 #: gui/panels/GUI_RepositorySelector.cpp:512
 msgctxt "RepositorySelector"
 msgid "Search Title, Author"
-msgstr ""
+msgstr "Buscar Título, Autor"
 
 #: gui/panels/GUI_RepositorySelector.cpp:532
 msgctxt "RepositorySelector"
 msgid "Details:"
-msgstr ""
+msgstr "Detalles:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:535
 msgctxt "RepositorySelector"
 msgid "Title:"
-msgstr ""
+msgstr "Título:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:541
 msgctxt "RepositorySelector"
 msgid "Resource ID:"
-msgstr ""
+msgstr "ID del recurso:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:547
 msgctxt "RepositorySelector"
 msgid "Category:"
-msgstr ""
+msgstr "Categoría:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:561
-#, fuzzy
-#| msgctxt "VehicleDescription"
-#| msgid "Description"
 msgctxt "RepositorySelector"
 msgid "Description:"
-msgstr "Descripción"
+msgstr "Descripción:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:567
 msgctxt "RepositorySelector"
 msgid "Downloads:"
-msgstr ""
+msgstr "Descargas:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:573
-#, fuzzy
-#| msgid "Triangle Count: "
 msgctxt "RepositorySelector"
 msgid "View Count:"
-msgstr "Número de Triángulos: "
+msgstr "Vistas:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:579
-#, fuzzy
-#| msgid "Rotating: "
 msgctxt "RepositorySelector"
 msgid "Rating:"
-msgstr "Rotando: "
+msgstr "Valoración:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:585
-#, fuzzy
-#| msgid "Triangle Count: "
 msgctxt "RepositorySelector"
 msgid "Rating Count:"
-msgstr "Número de Triángulos: "
+msgstr "Cantidad de calificaciones:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:591
 msgctxt "RepositorySelector"
 msgid "Date Added:"
-msgstr ""
+msgstr "Fecha de adición:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:598
 msgctxt "RepositorySelector"
 msgid "Last Update:"
-msgstr ""
+msgstr "Última actualización:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:605
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "Version: "
 msgctxt "RepositorySelector"
 msgid "Version:"
-msgstr "Versión: "
+msgstr "Versión:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:611
-#, fuzzy
-#| msgctxt "About"
-#| msgid "Authors"
 msgctxt "RepositorySelector"
 msgid "Authors:"
-msgstr "Autores"
+msgstr "Autores:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:617
 msgctxt "RepositorySelector"
 msgid "View URL:"
-msgstr ""
+msgstr "Ver URL:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:624
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "Filename: "
 msgctxt "RepositorySelector"
 msgid "Files:"
-msgstr "Nombre de archivo: "
+msgstr "Archivos:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:653
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "Filename: "
 msgctxt "RepositorySelector"
 msgid "Filename:"
-msgstr "Nombre de archivo: "
+msgstr "Nombre del archivo:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:702
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Update cache"
 msgctxt "RepositorySelector"
 msgid "Update"
 msgstr "Actualizar caché"
@@ -2327,66 +2226,56 @@ msgstr "Actualizar caché"
 #: gui/panels/GUI_RepositorySelector.cpp:706
 msgctxt "RepositorySelector"
 msgid "Reinstall"
-msgstr ""
+msgstr "Reinstalar"
 
 #: gui/panels/GUI_RepositorySelector.cpp:710
 msgctxt "RepositorySelector"
 msgid "Install"
-msgstr ""
+msgstr "Instalar"
 
 #: gui/panels/GUI_RepositorySelector.cpp:720
 #: gui/panels/GUI_RepositorySelector.cpp:730
 msgctxt "RepositorySelector"
 msgid "Remove"
-msgstr ""
+msgstr "Remover"
 
 #: gui/panels/GUI_RepositorySelector.cpp:758
 #: gui/panels/GUI_RepositorySelector.cpp:987
-#, fuzzy
-#| msgctxt "About"
-#| msgid "Version"
 msgctxt "RepositorySelector"
 msgid "Version"
 msgstr "Versión"
 
 #. Authors, rating count, last update, download count, description
 #: gui/panels/GUI_RepositorySelector.cpp:872
-#, fuzzy
-#| msgctxt "About"
-#| msgid "Authors"
 msgctxt "RepositorySelector"
 msgid "Authors"
 msgstr "Autores"
 
 #: gui/panels/GUI_RepositorySelector.cpp:893
-#, fuzzy
-#| msgctxt "VehicleDescription"
-#| msgid "Description"
 msgctxt "RepositorySelector"
 msgid "Description"
 msgstr "Descripción"
 
 #: gui/panels/GUI_RepositorySelector.cpp:994
-#, fuzzy
-#| msgid "Scene loaded"
 msgctxt "RepositorySelector"
 msgid "Downloaded"
-msgstr "Escena cargada"
+msgstr "Descargado"
 
 #: gui/panels/GUI_RepositorySelector.cpp:994
 msgctxt "RepositorySelector"
 msgid "times"
-msgstr ""
+msgstr "veces"
 
 #: gui/panels/GUI_RepositorySelector.cpp:1119
 msgctxt "RepositorySelector"
 msgid "Sorry, the repository isn't available. Try again later."
 msgstr ""
+"Lo sentimos, el repositorio no está disponible. Inténtelo de nuevo más tarde."
 
 #: gui/panels/GUI_RepositorySelector.cpp:1135
 msgctxt "RepositorySelector"
 msgid "No files available :("
-msgstr ""
+msgstr "No hay archivos disponibles :("
 
 #: gui/panels/GUI_SimActorStats.cpp:53
 msgctxt "SimActorStats"
@@ -2587,17 +2476,17 @@ msgstr "Retirar vehículo actual"
 #: gui/panels/GUI_TopMenubar.cpp:210
 msgctxt "TopMenubar"
 msgid "Activate last spawned vehicle"
-msgstr "Activar los últimos vehículos aparecidos"
+msgstr "Activar último vehículo utilizado"
 
 #: gui/panels/GUI_TopMenubar.cpp:218
 msgctxt "TopMenubar"
 msgid "Reload last spawned vehicle"
-msgstr "Recargar último vehículo aparecido"
+msgstr "Recargar último vehículo"
 
 #: gui/panels/GUI_TopMenubar.cpp:226
 msgctxt "TopMenubar"
 msgid "Remove last spawned vehicle"
-msgstr "Eliminar últimos vehículos aparecidos"
+msgstr "Eliminar último vehículo"
 
 #: gui/panels/GUI_TopMenubar.cpp:235
 msgctxt "TopMenubar"
@@ -2660,12 +2549,9 @@ msgid "Quickload"
 msgstr "Carga rápida"
 
 #: gui/panels/GUI_TopMenubar.cpp:370
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "(Save with 'CTRL+ALT+1..5')"
 msgctxt "TopMenubar"
 msgid "(Save with CTRL+ALT+1..5)"
-msgstr "(Guardar con 'CTRL+ALT+1..5')"
+msgstr "(Guardar con CTRL+ALT+1..5)"
 
 #: gui/panels/GUI_TopMenubar.cpp:373
 msgctxt "TopMenubar"
@@ -2673,12 +2559,9 @@ msgid "Empty Slot"
 msgstr "Ranura vacía"
 
 #: gui/panels/GUI_TopMenubar.cpp:387
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "(Load with 'ALT+1..5')"
 msgctxt "TopMenubar"
 msgid "(Load with ALT+1..5)"
-msgstr "(Cargar con 'ALT+1..5')"
+msgstr "(Carga con ALT+1..5)"
 
 #: gui/panels/GUI_TopMenubar.cpp:415
 msgctxt "TopMenubar"
@@ -2755,17 +2638,17 @@ msgstr "Hora del día:"
 #: gui/panels/GUI_TopMenubar.cpp:483
 msgctxt "TopMenubar"
 msgid "Cycle"
-msgstr ""
+msgstr "Ciclo"
 
 #: gui/panels/GUI_TopMenubar.cpp:486
 msgctxt "TopMenubar"
 msgid "Speed"
-msgstr ""
+msgstr "Velocidad"
 
 #: gui/panels/GUI_TopMenubar.cpp:495
 msgctxt "TopMenubar"
 msgid "Waves Height:"
-msgstr "Altura de las olas"
+msgstr "Altura de las olas:"
 
 #: gui/panels/GUI_TopMenubar.cpp:507
 msgctxt "TopMenubar"
@@ -2874,20 +2757,16 @@ msgid "Live diagnostic views:"
 msgstr "Vistas de diagnóstico en vivo:"
 
 #: gui/panels/GUI_TopMenubar.cpp:627
-#, fuzzy, c-format
-#| msgctxt "TopMenubar"
-#| msgid "(Toggle with '%s')"
+#, c-format
 msgctxt "TopMenubar"
 msgid "(Toggle with %s)"
-msgstr "(Alternar con '%s')"
+msgstr "(Alternar con %s)"
 
 #: gui/panels/GUI_TopMenubar.cpp:628
-#, fuzzy, c-format
-#| msgctxt "TopMenubar"
-#| msgid "(Cycle with '%s')"
+#, c-format
 msgctxt "TopMenubar"
 msgid "(Cycle with %s)"
-msgstr "(Ciclo con '%s')"
+msgstr "(Ciclo con %s)"
 
 #: gui/panels/GUI_TopMenubar.cpp:635
 msgctxt "TopMenubar"
@@ -2975,20 +2854,14 @@ msgid "Use [Simulation] menu"
 msgstr "Utilizar el menú [Simulación]"
 
 #: gui/panels/GUI_TopMenubar.cpp:860
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "All physics paused, press '{}' to resume"
 msgctxt "TopMenubar"
 msgid "All physics paused, press {} to resume"
-msgstr "Toda la física en pausa, pulse '{}' para reanudar"
+msgstr "Toda la física en pausa, pulse {} para reanudar"
 
 #: gui/panels/GUI_TopMenubar.cpp:869
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Vehicle physics paused, press '{}' to resume"
 msgctxt "TopMenubar"
 msgid "Vehicle physics paused, press {} to resume"
-msgstr "Física del vehículo en pausa, pulse '{}' para reanudar"
+msgstr "Física del vehículo en pausa, pulse {} para reanudar"
 
 #: gui/panels/GUI_TopMenubar.cpp:878
 msgctxt "TopMenubar"
@@ -3003,7 +2876,7 @@ msgstr "metro"
 #: gui/panels/GUI_TopMenubar.cpp:920
 msgctxt "TopMenubar"
 msgid "Terrain editing mode, press {} to save and exit"
-msgstr ""
+msgstr "Modo de edición del terreno, pulse {} para guardar y salir"
 
 #: gui/panels/GUI_TopMenubar.cpp:960
 msgctxt "TopMenubar"
@@ -3062,11 +2935,9 @@ msgid "Loading resources"
 msgstr "Cargando recursos"
 
 #: main.cpp:547
-#, fuzzy
-#| msgid "Press %s to start chatting"
 msgctxt "ChatBox"
 msgid "Press {} to start chatting"
-msgstr "Pulsar %s para empezar a chatear"
+msgstr "Pulsa {} para empezar a chatear"
 
 #: main.cpp:601
 msgid "Could not read savegame file"
@@ -3083,6 +2954,8 @@ msgstr "Entrando al modo de edición de terrenos"
 #: main.cpp:760
 msgid "Press {} or middle mouse click to select an object"
 msgstr ""
+"Pulse {} o haga clic con el botón central del ratón para seleccionar un "
+"objeto"
 
 #: main.cpp:772
 msgid "Left terrain editing mode"
@@ -3345,17 +3218,11 @@ msgid "You will lose all unsaved progress!"
 msgstr "Perderás todo el progreso sin guardar!"
 
 #: physics/Savegame.cpp:209
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "Loader"
 msgctxt "QuickloadDialog"
 msgid "Load"
-msgstr "Cargador"
+msgstr "Carga"
 
 #: physics/Savegame.cpp:215
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "Cancel"
 msgctxt "QuickloadDialog"
 msgid "Cancel"
 msgstr "Cancelar"
@@ -3609,21 +3476,6 @@ msgid "Command Line Arguments"
 msgstr "Argumentos del comando de línea"
 
 #: system/AppCommandLine.cpp:166
-#, fuzzy
-#| msgid ""
-#| "--help (this)\n"
-#| "-map <map> (loads map on startup)\n"
-#| "-pos <Vect> (overrides spawn position)\n"
-#| "-rot <float> (overrides spawn rotation)\n"
-#| "-truck <truck> (loads truck on startup)\n"
-#| "-truckconfig <section>\n"
-#| "-enter (player enters the selected truck)\n"
-#| "-resume loads previous autosave\n"
-#| "-checkcache forces cache update\n"
-#| "-version shows the version information\n"
-#| "-joinserver=<server>:<port> (join multiplayer server)\n"
-#| "For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi."
-#| "truck -enter"
 msgid ""
 "--help (this)\n"
 "-map <map> (loads map on startup)\n"
@@ -3642,15 +3494,16 @@ msgid ""
 msgstr ""
 "--help (esto)\n"
 "-map <map> (carga el mapa al iniciar)\n"
-"-pos <Vect> (anula la posición de aparición)\n"
+"-pos <Vect> (anula la posición de spawn)\n"
 "-rot <float> (anula la rotación del spawn)\n"
-"-truck <truck> (carga el camión al inicio)\n"
-"-truckconfig <sección> (carga el camión al inicio)\n"
+"-truck <truck> (carga el camión al iniciar)\n"
+"-truckconfig <sección>\n"
 "-enter (el jugador entra en el camión seleccionado)\n"
 "-resume carga el autoguardado anterior\n"
 "-checkcache fuerza la actualización de la caché\n"
 "-version muestra la información de la versión\n"
-"-joinserver=<servidor>:<puerto> (unirse al servidor multijugador)\n"
+"-joinserver=<servidor>:<puerto> (se une al servidor multijugador)\n"
+"-runscript <filename> (carga el script, puede repetirse)\n"
 "Por ejemplo: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck semi.truck "
 "-enter"
 
@@ -5518,7 +5371,7 @@ msgstr "recargar vehículo"
 
 #: utils/InputEngine.cpp:1717
 msgid "(Please press a key)"
-msgstr ""
+msgstr "(Por favor, pulse una tecla)"
 
 #~ msgctxt "ChatBox"
 #~ msgid "Welcome to Rigs of Rods!"
