@@ -695,6 +695,11 @@ void TopMenubar::Update()
 
 bool TopMenubar::ShouldDisplay(ImVec2 window_pos)
 {
+    if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FREE)
+    {
+        return false;
+    }
+
     ImVec2 box_min(0,0);
     ImVec2 box_max(ImGui::GetIO().DisplaySize.x, ImGui::GetStyle().WindowPadding.y + PANEL_HOVERBOX_HEIGHT);
     ImVec2 mouse_pos = ImGui::GetIO().MousePos;
