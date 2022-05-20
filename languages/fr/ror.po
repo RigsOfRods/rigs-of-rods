@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-03-13 10:58+0100\n"
 "PO-Revision-Date: 2022-05-21 16:18+0000\n"
-"Last-Translator: Maxime Leroy <lisacintosh@gmail.com>\n"
+"Last-Translator: Xploder98 <xploder9825@yandex.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
 "Language: fr\n"
@@ -3044,7 +3044,7 @@ msgid ""
 "'%s' and the server is using '%s'"
 msgstr ""
 "Établissement de la session en ligne: mauvaise version du serveur, vous "
-"utilisez la '%s' et le serveur utilise la '%s'."
+"utilisez la '%s' et le serveur utilise la '%s'"
 
 #: network/Network.cpp:464
 msgid "server uses a different protocol version"
@@ -3297,7 +3297,7 @@ msgid ""
 "ground_models.cfg to My Documents/Rigs of Rods/config"
 msgstr ""
 "La configuration du sol est trop ancienne, veuillez copier \"skeleton/config/"
-"ground_models.cfg\" dans \"Mes Documents/Rigs of Rods/config\"."
+"ground_models.cfg\" dans \"Mes Documents/Rigs of Rods/config\""
 
 #: resources/CacheSystem.cpp:466
 msgctxt "MainSelector"
@@ -3586,7 +3586,7 @@ msgstr "Objet généré à la position : "
 
 #: system/ConsoleCmd.cpp:195
 msgid "log - toggles log output on the console"
-msgstr "log - Permet de montrer la console."
+msgstr "log - Permet de montrer la console"
 
 #: system/ConsoleCmd.cpp:216
 msgid "ver - shows the Rigs of Rods version"
