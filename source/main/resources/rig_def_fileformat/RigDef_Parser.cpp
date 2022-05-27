@@ -812,6 +812,12 @@ void Parser::ParseCab()
 {
     if (! this->CheckNumArguments(3)) { return; }
 
+    if (!m_current_submesh)
+    {
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, "must come after 'submesh'");
+        return;
+    }
+
     Cab cab;
     cab.nodes[0] = this->GetArgNodeRef(0);
     cab.nodes[1] = this->GetArgNodeRef(1);
@@ -824,6 +830,12 @@ void Parser::ParseCab()
 void Parser::ParseTexcoords()
 {
     if (! this->CheckNumArguments(3)) { return; }
+
+    if (!m_current_submesh)
+    {
+        this->LogMessage(Console::CONSOLE_SYSTEM_ERROR, "must come after 'submesh'");
+        return;
+    }
 
     Texcoord texcoord;
     texcoord.node = this->GetArgNodeRef(0);
