@@ -365,9 +365,7 @@ void GameSettings::DrawGraphicsSettings()
     DrawGCheckbox(App::gfx_classic_shaders,      _LC("GameSettings", "Classic material shaders (experimental)"));
 
     DrawGCombo(App::gfx_extcam_mode, "Exterior camera mode",
-        "None\0"
-        "Static\0"
-        "Pitching\0\0");
+        m_combo_items_extcam_mode.c_str());
 
     DrawGIntSlider(App::gfx_camera_height, _LC("GameSettings", "Static camera height (meters)"), 1, 50);
     DrawGIntSlider(App::gfx_fov_external_default, _LC("GameSettings", "Exterior field of view"), 10, 120);
@@ -517,5 +515,13 @@ void GameSettings::SetVisible(bool v)
         ImAddItemToComboboxString(m_combo_items_water_mode, ToLocalizedString(GfxWaterMode::FULL_HQ));
         ImAddItemToComboboxString(m_combo_items_water_mode, ToLocalizedString(GfxWaterMode::HYDRAX));
         ImTerminateComboboxString(m_combo_items_water_mode);
+    }
+
+    if (m_combo_items_extcam_mode == "")
+    {
+        ImAddItemToComboboxString(m_combo_items_extcam_mode, ToLocalizedString(GfxExtCamMode::NONE));
+        ImAddItemToComboboxString(m_combo_items_extcam_mode, ToLocalizedString(GfxExtCamMode::STATIC));
+        ImAddItemToComboboxString(m_combo_items_extcam_mode, ToLocalizedString(GfxExtCamMode::PITCHING));
+        ImTerminateComboboxString(m_combo_items_extcam_mode);
     }
 }

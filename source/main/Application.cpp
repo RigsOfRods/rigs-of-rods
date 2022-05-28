@@ -438,4 +438,15 @@ std::string ToLocalizedString(GfxWaterMode e)
     }
 }
 
+std::string ToLocalizedString(GfxExtCamMode e)
+{
+    switch (e)
+    {
+    case GfxExtCamMode::NONE:      return _LC("GfxExtCamMode", "None");
+    case GfxExtCamMode::STATIC:    return _LC("GfxExtCamMode", "Static");
+    case GfxExtCamMode::PITCHING:  return _LC("GfxExtCamMode", "Pitching");
+    default:                       return "";
+    }
+}
+
 } // namespace RoR
