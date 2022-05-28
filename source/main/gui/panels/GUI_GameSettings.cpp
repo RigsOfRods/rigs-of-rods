@@ -411,9 +411,7 @@ void GameSettings::DrawControlSettings()
     ImGui::TextDisabled("%s", _LC("GameSettings", "Controller options"));
 
     DrawGCombo(App::io_input_grab_mode, _LC("GameSettings", "Input grab mode"),
-        "None\0"
-        "All\0"
-        "Dynamic\0\0");
+        m_combo_items_input_grab.c_str());
 
     DrawGFloatSlider(App::io_analog_smoothing,   _LC("GameSettings", "Analog Input Smoothing"),   0.5f, 2.0f);
     DrawGFloatSlider(App::io_analog_sensitivity, _LC("GameSettings", "Analog Input Sensitivity"), 0.5f, 2.0f);
@@ -523,5 +521,13 @@ void GameSettings::SetVisible(bool v)
         ImAddItemToComboboxString(m_combo_items_extcam_mode, ToLocalizedString(GfxExtCamMode::STATIC));
         ImAddItemToComboboxString(m_combo_items_extcam_mode, ToLocalizedString(GfxExtCamMode::PITCHING));
         ImTerminateComboboxString(m_combo_items_extcam_mode);
+    }
+
+    if (m_combo_items_input_grab == "")
+    {
+        ImAddItemToComboboxString(m_combo_items_input_grab, ToLocalizedString(IoInputGrabMode::NONE));
+        ImAddItemToComboboxString(m_combo_items_input_grab, ToLocalizedString(IoInputGrabMode::ALL));
+        ImAddItemToComboboxString(m_combo_items_input_grab, ToLocalizedString(IoInputGrabMode::DYNAMIC));
+        ImTerminateComboboxString(m_combo_items_input_grab);
     }
 }

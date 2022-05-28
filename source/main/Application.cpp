@@ -450,4 +450,15 @@ std::string ToLocalizedString(GfxExtCamMode e)
     }
 }
 
+std::string ToLocalizedString(IoInputGrabMode e)
+{
+    switch (e)
+    {
+    case IoInputGrabMode::NONE:      return _LC("IoInputGrabMode", "None");
+    case IoInputGrabMode::ALL:       return _LC("IoInputGrabMode", "All");
+    case IoInputGrabMode::DYNAMIC:   return _LC("IoInputGrabMode", "Dynamic");
+    default:                         return "";
+    }
+}
+
 } // namespace RoR

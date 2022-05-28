@@ -232,6 +232,7 @@ enum class IoInputGrabMode
     ALL,
     DYNAMIC,
 };
+std::string ToLocalizedString(IoInputGrabMode e);
 
 enum VisibilityMasks
 {
