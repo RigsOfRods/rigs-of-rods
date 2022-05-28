@@ -220,6 +220,7 @@ enum class GfxSkyMode
     CAELUM,     //!< Caelum (best looking, slower)
     SKYX,       //!< SkyX (best looking, slower)
 };
+std::string ToLocalizedString(GfxSkyMode e);
 
 enum class IoInputGrabMode
 {

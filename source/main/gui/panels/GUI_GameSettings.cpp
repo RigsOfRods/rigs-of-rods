@@ -315,10 +315,8 @@ void GameSettings::DrawGraphicsSettings()
         }
     }
 
-    DrawGCombo(App::gfx_sky_mode, "Sky gfx",
-        "Sandstorm (fastest)\0"
-        "Caelum (best looking, slower)\0"
-        "SkyX (best looking, slower)\0\0");
+    DrawGCombo(App::gfx_sky_mode, _LC("GameSettings", "Sky gfx"),
+        m_combo_items_sky_mode.c_str());
 
     if (App::gfx_sky_mode->getEnum<GfxSkyMode>() != GfxSkyMode::SKYX)
     {
@@ -493,5 +491,13 @@ void GameSettings::SetVisible(bool v)
         ImAddItemToComboboxString(m_combo_items_shadow_type, ToLocalizedString(GfxShadowType::NONE));
         ImAddItemToComboboxString(m_combo_items_shadow_type, ToLocalizedString(GfxShadowType::PSSM));
         ImTerminateComboboxString(m_combo_items_shadow_type);
+    }
+
+    if (m_combo_items_sky_mode == "")
+    {
+        ImAddItemToComboboxString(m_combo_items_sky_mode, ToLocalizedString(GfxSkyMode::SANDSTORM));
+        ImAddItemToComboboxString(m_combo_items_sky_mode, ToLocalizedString(GfxSkyMode::CAELUM));
+        ImAddItemToComboboxString(m_combo_items_sky_mode, ToLocalizedString(GfxSkyMode::SKYX));
+        ImTerminateComboboxString(m_combo_items_sky_mode);
     }
 }

@@ -390,4 +390,15 @@ std::string ToLocalizedString(GfxShadowType e)
     }
 }
 
+std::string ToLocalizedString(GfxSkyMode e)
+{
+    switch (e)
+    {
+    case GfxSkyMode::SANDSTORM: return _LC("GfxSkyMode", "Sandstorm (fastest)");
+    case GfxSkyMode::CAELUM:    return _LC("GfxSkyMode", "Caelum (best looking, slower)");
+    case GfxSkyMode::SKYX:      return _LC("GfxSkyMode", "SkyX (best looking, slower)");
+    default:                    return "";
+    }
+}
+
 } // namespace RoR
