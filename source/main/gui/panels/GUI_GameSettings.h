@@ -54,6 +54,7 @@ private:
 
     // Pre-formatted combobox items
     std::string m_combo_items_gearbox_mode;
+    std::string m_combo_items_light_sources;
 };
 
 } // namespace GUI

@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2022 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -201,6 +201,7 @@ enum class GfxFlaresMode
     ALL_VEHICLES_HEAD_ONLY,  //!< All vehicles, main lights
     ALL_VEHICLES_ALL_LIGHTS, //!< All vehicles, all lights
 };
+std::string ToLocalizedString(GfxFlaresMode e);
 
 enum class GfxWaterMode
 {
