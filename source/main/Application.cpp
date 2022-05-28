@@ -413,4 +413,16 @@ std::string ToLocalizedString(GfxTexFilter e)
     }
 }
 
+std::string ToLocalizedString(GfxVegetation e)
+{
+    switch (e)
+    {
+    case GfxVegetation::NONE:        return _LC("GfxVegetation", "None");
+    case GfxVegetation::x20PERC:     return _LC("GfxVegetation", "20%");
+    case GfxVegetation::x50PERC:     return _LC("GfxVegetation", "50%");
+    case GfxVegetation::FULL:        return _LC("GfxVegetation", "Full");
+    default:                         return "";
+    }
+}
+
 } // namespace RoR
