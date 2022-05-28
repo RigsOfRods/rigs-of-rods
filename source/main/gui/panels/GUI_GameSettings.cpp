@@ -340,12 +340,7 @@ void GameSettings::DrawGraphicsSettings()
         m_combo_items_vegetation.c_str());
 
     DrawGCombo(App::gfx_water_mode, _LC("GameSettings", "Water gfx"),
-        "None\0"
-        "Basic (fastest)\0"
-        "Reflection\0"
-        "Reflection + refraction (speed optimized)\0"
-        "Reflection + refraction (quality optimized)\0"
-        "HydraX\0\0");
+        m_combo_items_water_mode.c_str());
 
     DrawGIntSlider(App::gfx_fps_limit,       _LC("GameSettings", "FPS limit"), 0, 240);
 
@@ -511,5 +506,16 @@ void GameSettings::SetVisible(bool v)
         ImAddItemToComboboxString(m_combo_items_vegetation, ToLocalizedString(GfxVegetation::x50PERC));
         ImAddItemToComboboxString(m_combo_items_vegetation, ToLocalizedString(GfxVegetation::FULL));
         ImTerminateComboboxString(m_combo_items_vegetation);
+    }
+
+    if (m_combo_items_water_mode == "")
+    {
+        ImAddItemToComboboxString(m_combo_items_water_mode, ToLocalizedString(GfxWaterMode::NONE));
+        ImAddItemToComboboxString(m_combo_items_water_mode, ToLocalizedString(GfxWaterMode::BASIC));
+        ImAddItemToComboboxString(m_combo_items_water_mode, ToLocalizedString(GfxWaterMode::REFLECT));
+        ImAddItemToComboboxString(m_combo_items_water_mode, ToLocalizedString(GfxWaterMode::FULL_FAST));
+        ImAddItemToComboboxString(m_combo_items_water_mode, ToLocalizedString(GfxWaterMode::FULL_HQ));
+        ImAddItemToComboboxString(m_combo_items_water_mode, ToLocalizedString(GfxWaterMode::HYDRAX));
+        ImTerminateComboboxString(m_combo_items_water_mode);
     }
 }

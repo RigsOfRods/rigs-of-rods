@@ -59,6 +59,7 @@ private:
     std::string m_combo_items_sky_mode;
     std::string m_combo_items_tex_filter;
     std::string m_combo_items_vegetation;
+    std::string m_combo_items_water_mode;
 };
 
 } // namespace GUI
