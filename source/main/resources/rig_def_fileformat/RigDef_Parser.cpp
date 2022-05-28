@@ -1040,6 +1040,12 @@ void Parser::ParseDirectiveAddAnimation()
     m_num_args = (int)tokens.size();
     if (! this->CheckNumArguments(4)) { return; }
 
+    if (m_current_module->props.size() == 0)
+    {
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, "'add_animation' must come after prop, ignoring...");
+        return;
+    }
+
     Animation animation;
     animation.ratio       = this->ParseArgFloat(tokens[0].c_str());
     animation.lower_limit = this->ParseArgFloat(tokens[1].c_str());
