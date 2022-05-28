@@ -367,4 +367,17 @@ std::string ToLocalizedString(SimGearboxMode e)
     }
 }
 
+std::string ToLocalizedString(GfxFlaresMode e)
+{
+    switch (e)
+    {
+    case GfxFlaresMode::NONE:                    return _LC("GfxFlaresMode", "None (fastest)");
+    case GfxFlaresMode::NO_LIGHTSOURCES:         return _LC("GfxFlaresMode", "No light sources");
+    case GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY:  return _LC("GfxFlaresMode", "Only current vehicle, main lights");
+    case GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY:  return _LC("GfxFlaresMode", "All vehicles, main lights");
+    case GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS: return _LC("GfxFlaresMode", "All vehicles, all lights");
+    default:                                     return "";
+    }
+}
+
 } // namespace RoR

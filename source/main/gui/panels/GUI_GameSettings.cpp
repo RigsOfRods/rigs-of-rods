@@ -301,11 +301,7 @@ void GameSettings::DrawGraphicsSettings()
     ImGui::TextDisabled("%s", _LC("GameSettings", "Video settings"));
 
     DrawGCombo(App::gfx_flares_mode, _LC("GameSettings", "Light sources"),
-        "None (fastest)\0"
-        "No light sources\0"
-        "Only current vehicle, main lights\0"
-        "All vehicles, main lights\0"
-        "All vehicles, all lights\0\0");
+        m_combo_items_light_sources.c_str());
 
     DrawGCombo(App::gfx_shadow_type, _LC("GameSettings", "Shadow type (requires restart)"),
         "Disabled\0"
@@ -481,5 +477,15 @@ void GameSettings::SetVisible(bool v)
         ImAddItemToComboboxString(m_combo_items_gearbox_mode, ToLocalizedString(SimGearboxMode::MANUAL_STICK));
         ImAddItemToComboboxString(m_combo_items_gearbox_mode, ToLocalizedString(SimGearboxMode::MANUAL_RANGES));
         ImTerminateComboboxString(m_combo_items_gearbox_mode);
+    }
+
+    if (m_combo_items_light_sources == "")
+    {
+        ImAddItemToComboboxString(m_combo_items_light_sources, ToLocalizedString(GfxFlaresMode::NONE));
+        ImAddItemToComboboxString(m_combo_items_light_sources, ToLocalizedString(GfxFlaresMode::NO_LIGHTSOURCES));
+        ImAddItemToComboboxString(m_combo_items_light_sources, ToLocalizedString(GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY));
+        ImAddItemToComboboxString(m_combo_items_light_sources, ToLocalizedString(GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY));
+        ImAddItemToComboboxString(m_combo_items_light_sources, ToLocalizedString(GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS));
+        ImTerminateComboboxString(m_combo_items_light_sources);
     }
 }
