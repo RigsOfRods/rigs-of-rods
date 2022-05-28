@@ -215,6 +215,7 @@ enum class GfxWaterMode
     FULL_HQ,    //!< Reflection + refraction (quality optimized)
     HYDRAX,     //!< HydraX
 };
+std::string ToLocalizedString(GfxWaterMode e);
 
 enum class GfxSkyMode
 {

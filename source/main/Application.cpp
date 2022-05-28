@@ -424,4 +424,18 @@ std::string ToLocalizedString(GfxVegetation e)
     }
 }
 
+std::string ToLocalizedString(GfxWaterMode e)
+{
+    switch (e)
+    {
+    case GfxWaterMode::NONE:      return _LC("GfxWaterMode", "None");
+    case GfxWaterMode::BASIC:     return _LC("GfxWaterMode", "Basic (fastest)");
+    case GfxWaterMode::REFLECT:   return _LC("GfxWaterMode", "Reflection");
+    case GfxWaterMode::FULL_FAST: return _LC("GfxWaterMode", "Reflection + refraction (speed optimized)");
+    case GfxWaterMode::FULL_HQ:   return _LC("GfxWaterMode", "Reflection + refraction (quality optimized)");
+    case GfxWaterMode::HYDRAX:    return _LC("GfxWaterMode", "HydraX");
+    default:                      return "";
+    }
+}
+
 } // namespace RoR
