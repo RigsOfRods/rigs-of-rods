@@ -194,6 +194,7 @@ enum class GfxVegetation
     x50PERC,
     FULL,
 };
+std::string ToLocalizedString(GfxVegetation e);
 
 enum class GfxFlaresMode
 {

@@ -337,10 +337,7 @@ void GameSettings::DrawGraphicsSettings()
     }
 
     DrawGCombo(App::gfx_vegetation_mode, _LC("GameSettings", "Vegetation density"),
-        "None\0"
-        "20%\0"
-        "50%\0"
-        "Full\0\0");
+        m_combo_items_vegetation.c_str());
 
     DrawGCombo(App::gfx_water_mode, _LC("GameSettings", "Water gfx"),
         "None\0"
@@ -505,5 +502,14 @@ void GameSettings::SetVisible(bool v)
         ImAddItemToComboboxString(m_combo_items_tex_filter, ToLocalizedString(GfxTexFilter::TRILINEAR));
         ImAddItemToComboboxString(m_combo_items_tex_filter, ToLocalizedString(GfxTexFilter::ANISOTROPIC));
         ImTerminateComboboxString(m_combo_items_tex_filter);
+    }
+
+    if (m_combo_items_vegetation == "")
+    {
+        ImAddItemToComboboxString(m_combo_items_vegetation, ToLocalizedString(GfxVegetation::NONE));
+        ImAddItemToComboboxString(m_combo_items_vegetation, ToLocalizedString(GfxVegetation::x20PERC));
+        ImAddItemToComboboxString(m_combo_items_vegetation, ToLocalizedString(GfxVegetation::x50PERC));
+        ImAddItemToComboboxString(m_combo_items_vegetation, ToLocalizedString(GfxVegetation::FULL));
+        ImTerminateComboboxString(m_combo_items_vegetation);
     }
 }
