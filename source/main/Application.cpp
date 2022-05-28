@@ -380,4 +380,14 @@ std::string ToLocalizedString(GfxFlaresMode e)
     }
 }
 
+std::string ToLocalizedString(GfxShadowType e)
+{
+    switch (e)
+    {
+    case GfxShadowType::NONE:         return _LC("GfxShadowType", "Disabled");
+    case GfxShadowType::PSSM:         return _LC("GfxShadowType", "PSSM");
+    default:                          return "";
+    }
+}
+
 } // namespace RoR
