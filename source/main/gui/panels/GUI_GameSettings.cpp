@@ -324,10 +324,7 @@ void GameSettings::DrawGraphicsSettings()
     }
 
     DrawGCombo(App::gfx_texture_filter , _LC("GameSettings", "Texture filtering"),
-        "None\0"
-        "Bilinear\0"
-        "Trilinear\0"
-        "Anisotropic\0\0");
+        m_combo_items_tex_filter.c_str());
 
     if (App::gfx_texture_filter->getEnum<GfxTexFilter>() == GfxTexFilter::ANISOTROPIC)
     {
@@ -499,5 +496,14 @@ void GameSettings::SetVisible(bool v)
         ImAddItemToComboboxString(m_combo_items_sky_mode, ToLocalizedString(GfxSkyMode::CAELUM));
         ImAddItemToComboboxString(m_combo_items_sky_mode, ToLocalizedString(GfxSkyMode::SKYX));
         ImTerminateComboboxString(m_combo_items_sky_mode);
+    }
+
+    if (m_combo_items_tex_filter == "")
+    {
+        ImAddItemToComboboxString(m_combo_items_tex_filter, ToLocalizedString(GfxTexFilter::NONE));
+        ImAddItemToComboboxString(m_combo_items_tex_filter, ToLocalizedString(GfxTexFilter::BILINEAR));
+        ImAddItemToComboboxString(m_combo_items_tex_filter, ToLocalizedString(GfxTexFilter::TRILINEAR));
+        ImAddItemToComboboxString(m_combo_items_tex_filter, ToLocalizedString(GfxTexFilter::ANISOTROPIC));
+        ImTerminateComboboxString(m_combo_items_tex_filter);
     }
 }
