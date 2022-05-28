@@ -400,4 +400,16 @@ std::string ToLocalizedString(GfxSkyMode e)
     }
 }
 
+std::string ToLocalizedString(GfxTexFilter e)
+{
+    switch (e)
+    {
+    case GfxTexFilter::NONE:         return _LC("GfxTexFilter", "None");
+    case GfxTexFilter::BILINEAR:     return _LC("GfxTexFilter", "Bilinear");
+    case GfxTexFilter::TRILINEAR:    return _LC("GfxTexFilter", "Trilinear");
+    case GfxTexFilter::ANISOTROPIC:  return _LC("GfxTexFilter", "Anisotropic");
+    default:                         return "";
+    }
+}
+
 } // namespace RoR

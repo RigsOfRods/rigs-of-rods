@@ -185,6 +185,7 @@ enum class GfxTexFilter
     TRILINEAR,
     ANISOTROPIC,
 };
+std::string ToLocalizedString(GfxTexFilter e);
 
 enum class GfxVegetation
 {
