@@ -177,6 +177,7 @@ enum class GfxExtCamMode
     STATIC,
     PITCHING,
 };
+std::string ToLocalizedString(GfxExtCamMode e);
 
 enum class GfxTexFilter
 {
