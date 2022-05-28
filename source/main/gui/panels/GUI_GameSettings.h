@@ -61,6 +61,7 @@ private:
     std::string m_combo_items_vegetation;
     std::string m_combo_items_water_mode;
     std::string m_combo_items_extcam_mode;
+    std::string m_combo_items_input_grab;
 };
 
 } // namespace GUI
