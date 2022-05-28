@@ -169,6 +169,7 @@ enum class GfxShadowType
     NONE,
     PSSM
 };
+std::string ToLocalizedString(GfxShadowType e);
 
 enum class GfxExtCamMode
 {

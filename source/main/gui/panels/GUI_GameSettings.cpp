@@ -304,8 +304,7 @@ void GameSettings::DrawGraphicsSettings()
         m_combo_items_light_sources.c_str());
 
     DrawGCombo(App::gfx_shadow_type, _LC("GameSettings", "Shadow type (requires restart)"),
-        "Disabled\0"
-        "PSSM\0\0");
+        m_combo_items_shadow_type.c_str());
 
     if (App::gfx_shadow_type->getEnum<GfxShadowType>() != GfxShadowType::NONE)
     {
@@ -487,5 +486,12 @@ void GameSettings::SetVisible(bool v)
         ImAddItemToComboboxString(m_combo_items_light_sources, ToLocalizedString(GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY));
         ImAddItemToComboboxString(m_combo_items_light_sources, ToLocalizedString(GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS));
         ImTerminateComboboxString(m_combo_items_light_sources);
+    }
+
+    if (m_combo_items_shadow_type == "")
+    {
+        ImAddItemToComboboxString(m_combo_items_shadow_type, ToLocalizedString(GfxShadowType::NONE));
+        ImAddItemToComboboxString(m_combo_items_shadow_type, ToLocalizedString(GfxShadowType::PSSM));
+        ImTerminateComboboxString(m_combo_items_shadow_type);
     }
 }
