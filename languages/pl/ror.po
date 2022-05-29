@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-13 10:58+0100\n"
+"POT-Creation-Date: 2022-05-29 14:59+0200\n"
 "PO-Revision-Date: 2019-05-14 16:55+0000\n"
 "Last-Translator: Karol Bieńkowski <karlossss1996@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/rigsofrods/rigs-of-rods/"
@@ -53,6 +53,232 @@ msgstr ""
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
 msgstr "Wadliwy folder zasobów. Sprawdź, czy został zainstalowany poprawnie."
+
+#: Application.cpp:361
+#, fuzzy
+#| msgid "Automatic shift"
+msgctxt "SimGearboxMode"
+msgid "Automatic shift"
+msgstr "Automatyczna zmiana biegów"
+
+#: Application.cpp:362
+#, fuzzy
+#| msgid "Manual shift - Auto clutch"
+msgctxt "SimGearboxMode"
+msgid "Manual shift with auto clutch"
+msgstr "Ręczna: Automatyczne sprzęgło"
+
+#: Application.cpp:363
+#, fuzzy
+#| msgid "Fully Manual: sequential shift"
+msgctxt "SimGearboxMode"
+msgid "Fully manual: sequential shift"
+msgstr "Ręczna: sekwencyjna zmiana biegów"
+
+#: Application.cpp:364
+#, fuzzy
+#| msgid "Fully Manual: sequential shift"
+msgctxt "SimGearboxMode"
+msgid "Fully manual: stick shift"
+msgstr "Ręczna: sekwencyjna zmiana biegów"
+
+#: Application.cpp:365
+#, fuzzy
+#| msgid "Fully Manual: stick shift with ranges"
+msgctxt "SimGearboxMode"
+msgid "Fully manual: stick shift with ranges"
+msgstr "Ręczna: użycie drążka (z zakresami)"
+
+#: Application.cpp:374
+#, fuzzy
+#| msgid "None (fastest)"
+msgctxt "GfxFlaresMode"
+msgid "None (fastest)"
+msgstr "Brak (najszybsze)"
+
+#: Application.cpp:375
+#, fuzzy
+#| msgid "No light sources"
+msgctxt "GfxFlaresMode"
+msgid "No light sources"
+msgstr "Żadne źródła światła"
+
+#: Application.cpp:376
+#, fuzzy
+#| msgid "All vehicles, main lights"
+msgctxt "GfxFlaresMode"
+msgid "Only current vehicle, main lights"
+msgstr "Wszystkie pojazdy, główne światła"
+
+#: Application.cpp:377
+#, fuzzy
+#| msgid "All vehicles, main lights"
+msgctxt "GfxFlaresMode"
+msgid "All vehicles, main lights"
+msgstr "Wszystkie pojazdy, główne światła"
+
+#: Application.cpp:378
+#, fuzzy
+#| msgid "All vehicles, all lights"
+msgctxt "GfxFlaresMode"
+msgid "All vehicles, all lights"
+msgstr "Wszystkie pojazdy, wszystkie światła"
+
+#: Application.cpp:387
+msgctxt "GfxShadowType"
+msgid "Disabled"
+msgstr ""
+
+#: Application.cpp:388
+msgctxt "GfxShadowType"
+msgid "PSSM"
+msgstr ""
+
+#: Application.cpp:397
+#, fuzzy
+#| msgid "Sandstorm (fastest)"
+msgctxt "GfxSkyMode"
+msgid "Sandstorm (fastest)"
+msgstr "Sandstorm (najszybsze)"
+
+#: Application.cpp:398
+#, fuzzy
+#| msgid "Caelum (best looking, slower)"
+msgctxt "GfxSkyMode"
+msgid "Caelum (best looking, slower)"
+msgstr "Caelum (najlepszy wygląd)"
+
+#: Application.cpp:399
+#, fuzzy
+#| msgid "SkyX (best looking, slower)"
+msgctxt "GfxSkyMode"
+msgid "SkyX (best looking, slower)"
+msgstr "SkyX (najlepszy wygląd)"
+
+#: Application.cpp:408
+msgctxt "GfxTexFilter"
+msgid "None"
+msgstr ""
+
+#: Application.cpp:409
+#, fuzzy
+#| msgid "Bilinear"
+msgctxt "GfxTexFilter"
+msgid "Bilinear"
+msgstr "Dwuliniowe"
+
+#: Application.cpp:410
+#, fuzzy
+#| msgid "Trilinear"
+msgctxt "GfxTexFilter"
+msgid "Trilinear"
+msgstr "Trójliniowe"
+
+#: Application.cpp:411
+#, fuzzy
+#| msgctxt "GameSettings"
+#| msgid "Anisotropy"
+msgctxt "GfxTexFilter"
+msgid "Anisotropic"
+msgstr "Anizotropia"
+
+#: Application.cpp:420
+msgctxt "GfxVegetation"
+msgid "None"
+msgstr ""
+
+#: Application.cpp:421
+#, fuzzy
+#| msgid "20%"
+msgctxt "GfxVegetation"
+msgid "20%"
+msgstr "20%"
+
+#: Application.cpp:422
+#, fuzzy
+#| msgid "50%"
+msgctxt "GfxVegetation"
+msgid "50%"
+msgstr "50%"
+
+#: Application.cpp:423
+msgctxt "GfxVegetation"
+msgid "Full"
+msgstr ""
+
+#: Application.cpp:432
+msgctxt "GfxWaterMode"
+msgid "None"
+msgstr ""
+
+#: Application.cpp:433
+#, fuzzy
+#| msgid "Basic (fastest)"
+msgctxt "GfxWaterMode"
+msgid "Basic (fastest)"
+msgstr "Podstawowa (najszybsza)"
+
+#: Application.cpp:434
+#, fuzzy
+#| msgid "Reflection"
+msgctxt "GfxWaterMode"
+msgid "Reflection"
+msgstr "Odbijająca się"
+
+#: Application.cpp:435
+#, fuzzy
+#| msgid "Reflection + refraction (speed optimized)"
+msgctxt "GfxWaterMode"
+msgid "Reflection + refraction (speed optimized)"
+msgstr "Odbijająca się z refrakcją (prędkość)"
+
+#: Application.cpp:436
+#, fuzzy
+#| msgid "Reflection + refraction (quality optimized)"
+msgctxt "GfxWaterMode"
+msgid "Reflection + refraction (quality optimized)"
+msgstr "Odbijająca się z refrakcją (jakość)"
+
+#: Application.cpp:437
+#, fuzzy
+#| msgid "Hydrax"
+msgctxt "GfxWaterMode"
+msgid "HydraX"
+msgstr "Hydrax"
+
+#: Application.cpp:446
+msgctxt "GfxExtCamMode"
+msgid "None"
+msgstr ""
+
+#: Application.cpp:447
+msgctxt "GfxExtCamMode"
+msgid "Static"
+msgstr ""
+
+#: Application.cpp:448
+msgctxt "GfxExtCamMode"
+msgid "Pitching"
+msgstr ""
+
+#: Application.cpp:457
+msgctxt "IoInputGrabMode"
+msgid "None"
+msgstr ""
+
+#: Application.cpp:458
+#, fuzzy
+#| msgid "All"
+msgctxt "IoInputGrabMode"
+msgid "All"
+msgstr "Wszystko"
+
+#: Application.cpp:459
+#, fuzzy
+#| msgid "Dynamically"
+msgctxt "IoInputGrabMode"
+msgid "Dynamic"
+msgstr "Dynamicznie"
 
 #: GameContext.cpp:104
 msgid "Terrain not found: "
@@ -104,15 +330,15 @@ msgstr ""
 msgid " [whispered] "
 msgstr " [szepnął] "
 
-#: gameplay/EngineSim.cpp:1449
+#: gameplay/EngineSim.cpp:1437
 msgid "Low range selected"
 msgstr "Wybrano niski zakres przełożeń"
 
-#: gameplay/EngineSim.cpp:1455
+#: gameplay/EngineSim.cpp:1443
 msgid "Mid range selected"
 msgstr "Wybrano środkowy zakres przełożeń"
 
-#: gameplay/EngineSim.cpp:1461
+#: gameplay/EngineSim.cpp:1449
 msgid "High range selected"
 msgstr "Wybrano wysoki zakres przełożeń"
 
@@ -424,67 +650,67 @@ msgstr ""
 "%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n"
 "%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 
-#: gui/panels/GUI_ConsoleView.cpp:240
+#: gui/panels/GUI_ConsoleView.cpp:244
 msgctxt "Console"
 msgid "By area:"
 msgstr ""
 
-#: gui/panels/GUI_ConsoleView.cpp:241
+#: gui/panels/GUI_ConsoleView.cpp:245
 msgctxt "Console"
 msgid "Logfile echo"
 msgstr ""
 
-#: gui/panels/GUI_ConsoleView.cpp:242
+#: gui/panels/GUI_ConsoleView.cpp:246
 #, fuzzy
 #| msgid "Description: "
 msgctxt "Console"
 msgid "Scripting"
 msgstr "Opis: "
 
-#: gui/panels/GUI_ConsoleView.cpp:243
+#: gui/panels/GUI_ConsoleView.cpp:247
 msgctxt "Console"
 msgid "Actors"
 msgstr ""
 
-#: gui/panels/GUI_ConsoleView.cpp:244
+#: gui/panels/GUI_ConsoleView.cpp:248
 #, fuzzy
 #| msgid "Loading Terrain"
 msgctxt "Console"
 msgid "Terrain"
 msgstr "Ładowanie terenu"
 
-#: gui/panels/GUI_ConsoleView.cpp:247
+#: gui/panels/GUI_ConsoleView.cpp:251
 msgctxt "Console"
 msgid "By level:"
 msgstr ""
 
-#: gui/panels/GUI_ConsoleView.cpp:248
+#: gui/panels/GUI_ConsoleView.cpp:252
 msgctxt "Console"
 msgid "Notices"
 msgstr ""
 
-#: gui/panels/GUI_ConsoleView.cpp:249
+#: gui/panels/GUI_ConsoleView.cpp:253
 #, fuzzy
 #| msgid "Warning"
 msgctxt "Console"
 msgid "Warnings"
 msgstr "Ostrzeżenie"
 
-#: gui/panels/GUI_ConsoleView.cpp:250
+#: gui/panels/GUI_ConsoleView.cpp:254
 #, fuzzy
 #| msgid "Mirrors"
 msgctxt "Console"
 msgid "Errors"
 msgstr "Lusterka"
 
-#: gui/panels/GUI_ConsoleView.cpp:251
+#: gui/panels/GUI_ConsoleView.cpp:255
 #, fuzzy
 #| msgid "enter the chat"
 msgctxt "Console"
 msgid "Net chat"
 msgstr "przyłącz się do czatu"
 
-#: gui/panels/GUI_ConsoleView.cpp:252 gui/panels/GUI_ConsoleWindow.cpp:53
+#: gui/panels/GUI_ConsoleView.cpp:256 gui/panels/GUI_ConsoleWindow.cpp:53
 #, fuzzy
 #| msgid "Commands: "
 msgctxt "Console"
@@ -1131,11 +1357,6 @@ msgctxt "GameSettings"
 msgid "Delete"
 msgstr ""
 
-#: gui/panels/GUI_GameControls.cpp:399
-msgctxt "GameSettings"
-msgid "<All active values>"
-msgstr ""
-
 #: gui/panels/GUI_GameMainMenu.cpp:127
 msgctxt "MainMenu"
 msgid "Single player"
@@ -1340,420 +1561,425 @@ msgctxt "GameSettings"
 msgid "Gearbox mode"
 msgstr "Tryb skrzyni biegów"
 
-#: gui/panels/GUI_GameSettings.cpp:247
+#: gui/panels/GUI_GameSettings.cpp:243
 msgctxt "GameSettings"
 msgid "Digital speedometer"
 msgstr "Prędkościomierz cyfrowy"
 
-#: gui/panels/GUI_GameSettings.cpp:248
+#: gui/panels/GUI_GameSettings.cpp:244
 msgctxt "GameSettings"
 msgid "Imperial speedometer"
 msgstr "Prędkościomierz imperialny"
 
 #. DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
-#: gui/panels/GUI_GameSettings.cpp:252
+#: gui/panels/GUI_GameSettings.cpp:248
 msgctxt "GameSettings"
 msgid "Engines spawn running"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:254
+#: gui/panels/GUI_GameSettings.cpp:250
 msgctxt "GameSettings"
 msgid "Replay mode"
 msgstr "Tryb powtórek (replay)"
 
-#: gui/panels/GUI_GameSettings.cpp:257
+#: gui/panels/GUI_GameSettings.cpp:253
 msgctxt "GameSettings"
 msgid "Replay length"
 msgstr "Długość powtórki"
 
-#: gui/panels/GUI_GameSettings.cpp:258
+#: gui/panels/GUI_GameSettings.cpp:254
 msgctxt "GameSettings"
 msgid "Replay stepping"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:261
+#: gui/panels/GUI_GameSettings.cpp:257
 #, fuzzy
 #| msgid "[forwards commands]"
 msgctxt "GameSettings"
 msgid "Realistic forward commands"
 msgstr "[przekazuje komendy]"
 
-#: gui/panels/GUI_GameSettings.cpp:263
+#: gui/panels/GUI_GameSettings.cpp:259
 #, fuzzy
 #| msgid "Enable waves"
 msgctxt "GameSettings"
 msgid "Enable races"
 msgstr "Włącz fale"
 
-#: gui/panels/GUI_GameSettings.cpp:265
+#: gui/panels/GUI_GameSettings.cpp:261
 msgctxt "GameSettings"
 msgid "No intra truck collisions"
 msgstr "Brak kolizji wewnątrz pojazdu"
 
-#: gui/panels/GUI_GameSettings.cpp:266
+#: gui/panels/GUI_GameSettings.cpp:262
 msgctxt "GameSettings"
 msgid "No inter truck collisions"
 msgstr "Brak kolizji pomiędzy pojazdami"
 
-#: gui/panels/GUI_GameSettings.cpp:268
+#: gui/panels/GUI_GameSettings.cpp:264
 msgctxt "GameSettings"
 msgid "Discord Rich Presence"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:270
+#: gui/panels/GUI_GameSettings.cpp:266
 msgctxt "GameSettings"
 msgid "Show confirm. UI dialog for quickload"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:276
+#: gui/panels/GUI_GameSettings.cpp:272
 msgctxt "GameSettings"
 msgid "Audio settings"
 msgstr "Ustawienia dźwięku"
 
-#: gui/panels/GUI_GameSettings.cpp:292
+#: gui/panels/GUI_GameSettings.cpp:288
 msgctxt "GameSettings"
 msgid "Audio device"
 msgstr "Urządzenie dźwiękowe"
 
-#: gui/panels/GUI_GameSettings.cpp:297
+#: gui/panels/GUI_GameSettings.cpp:293
 msgctxt "GameSettings"
 msgid "Creak sound"
 msgstr "Skrzypienie"
 
-#: gui/panels/GUI_GameSettings.cpp:298
+#: gui/panels/GUI_GameSettings.cpp:294
 msgctxt "GameSettings"
 msgid "Main menu music"
 msgstr "Muzyka w menu głównym"
 
-#: gui/panels/GUI_GameSettings.cpp:299
+#: gui/panels/GUI_GameSettings.cpp:295
 msgctxt "GameSettings"
 msgid "Master volume"
 msgstr "Głośność"
 
-#: gui/panels/GUI_GameSettings.cpp:305
+#: gui/panels/GUI_GameSettings.cpp:301
 msgctxt "GameSettings"
 msgid "Video settings"
 msgstr "Ustawienia grafiki"
 
-#: gui/panels/GUI_GameSettings.cpp:307
+#: gui/panels/GUI_GameSettings.cpp:303
 #, fuzzy
 #| msgid "No light sources"
 msgctxt "GameSettings"
 msgid "Light sources"
 msgstr "Żadne źródła światła"
 
-#: gui/panels/GUI_GameSettings.cpp:314
+#: gui/panels/GUI_GameSettings.cpp:306
 msgctxt "GameSettings"
 msgid "Shadow type (requires restart)"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:320
+#: gui/panels/GUI_GameSettings.cpp:311
 msgctxt "GameSettings"
 msgid "Shadow optimizations"
 msgstr "Optymalizacja cieni"
 
-#: gui/panels/GUI_GameSettings.cpp:323
+#: gui/panels/GUI_GameSettings.cpp:314
 msgctxt "GameSettings"
 msgid "Shadow quality"
 msgstr "Jakość cieni"
 
-#: gui/panels/GUI_GameSettings.cpp:334
+#: gui/panels/GUI_GameSettings.cpp:318
+msgctxt "GameSettings"
+msgid "Sky gfx"
+msgstr ""
+
+#: gui/panels/GUI_GameSettings.cpp:323
 msgctxt "GameSettings"
 msgid "Sight range (meters)"
 msgstr "Zasięg widzenia (metry)"
 
-#: gui/panels/GUI_GameSettings.cpp:337
+#: gui/panels/GUI_GameSettings.cpp:326
 msgctxt "GameSettings"
 msgid "Texture filtering"
 msgstr "Filtrowanie tekstur"
 
-#: gui/panels/GUI_GameSettings.cpp:347
+#: gui/panels/GUI_GameSettings.cpp:333
 msgctxt "GameSettings"
 msgid "Anisotropy"
 msgstr "Anizotropia"
 
-#: gui/panels/GUI_GameSettings.cpp:353
+#: gui/panels/GUI_GameSettings.cpp:339
 msgctxt "GameSettings"
 msgid "Vegetation density"
 msgstr "Zagęszczenie roślinności"
 
-#: gui/panels/GUI_GameSettings.cpp:359
+#: gui/panels/GUI_GameSettings.cpp:342
 msgctxt "GameSettings"
 msgid "Water gfx"
 msgstr "Efekty wody"
 
-#: gui/panels/GUI_GameSettings.cpp:367
+#: gui/panels/GUI_GameSettings.cpp:345
 msgctxt "GameSettings"
 msgid "FPS limit"
 msgstr "Limit klatek na sekundę"
 
-#: gui/panels/GUI_GameSettings.cpp:369
+#: gui/panels/GUI_GameSettings.cpp:347
 msgctxt "GameSettings"
 msgid "Enable particle gfx"
 msgstr "Włącz efekty cząsteczkowe"
 
-#: gui/panels/GUI_GameSettings.cpp:370
+#: gui/panels/GUI_GameSettings.cpp:348
 msgctxt "GameSettings"
 msgid "Enable skidmarks"
 msgstr "Włącz ślady poślizgu opon"
 
-#: gui/panels/GUI_GameSettings.cpp:372
+#: gui/panels/GUI_GameSettings.cpp:350
 msgctxt "GameSettings"
 msgid "Realtime reflections"
 msgstr "Dynamiczne odbicia świetlne"
 
 #. Width includes [+/-] buttons
-#: gui/panels/GUI_GameSettings.cpp:376
+#: gui/panels/GUI_GameSettings.cpp:354
 msgctxt "GameSettings"
 msgid "Realtime refl. update rate"
 msgstr "częst. aktualizacji dyn. odbić"
 
-#: gui/panels/GUI_GameSettings.cpp:380
+#: gui/panels/GUI_GameSettings.cpp:358
 msgctxt "GameSettings"
 msgid "Render video cameras"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:381
+#: gui/panels/GUI_GameSettings.cpp:359
 msgctxt "GameSettings"
 msgid "Overview map icons"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:384
+#: gui/panels/GUI_GameSettings.cpp:362
 #, fuzzy
 #| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Declutter overview map"
 msgstr "Wyłącz mapę terenu"
 
-#: gui/panels/GUI_GameSettings.cpp:386
+#: gui/panels/GUI_GameSettings.cpp:364
 msgctxt "GameSettings"
 msgid "Waves on water"
 msgstr "Fale na wodzie"
 
-#: gui/panels/GUI_GameSettings.cpp:387
+#: gui/panels/GUI_GameSettings.cpp:365
 msgctxt "GameSettings"
 msgid "Classic material shaders (experimental)"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:394
+#: gui/panels/GUI_GameSettings.cpp:370
 #, fuzzy
 #| msgid "rotate camera right"
 msgctxt "GameSettings"
 msgid "Static camera height (meters)"
 msgstr "obróć kamerę w prawo"
 
-#: gui/panels/GUI_GameSettings.cpp:395
+#: gui/panels/GUI_GameSettings.cpp:371
 msgctxt "GameSettings"
 msgid "Exterior field of view"
 msgstr "Zewnętrzne pole widzenia"
 
-#: gui/panels/GUI_GameSettings.cpp:396
+#: gui/panels/GUI_GameSettings.cpp:372
 msgctxt "GameSettings"
 msgid "Interior field of view"
 msgstr "Wewnętrzne pole widzenia"
 
-#: gui/panels/GUI_GameSettings.cpp:401
+#: gui/panels/GUI_GameSettings.cpp:377
 msgctxt "GameSettings"
 msgid "Diagnostic options"
 msgstr "Opcje diagnostyczne"
 
-#: gui/panels/GUI_GameSettings.cpp:402
+#: gui/panels/GUI_GameSettings.cpp:378
 msgctxt "GameSettings"
 msgid ""
 "These settings are for advanced users only, you should only change these if "
 "you know what you're doing"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:404
+#: gui/panels/GUI_GameSettings.cpp:380
 msgctxt "GameSettings"
 msgid "Preselected terrain"
 msgstr "Wybrany rodzaj nawierzchni"
 
-#: gui/panels/GUI_GameSettings.cpp:405
+#: gui/panels/GUI_GameSettings.cpp:381
 msgctxt "GameSettings"
 msgid "Preselected vehicle"
 msgstr "Wybrany pojazd"
 
-#: gui/panels/GUI_GameSettings.cpp:406
+#: gui/panels/GUI_GameSettings.cpp:382
 msgctxt "GameSettings"
 msgid "Presel. veh. config"
 msgstr "Wymuś konf. pojazdu"
 
-#: gui/panels/GUI_GameSettings.cpp:407
+#: gui/panels/GUI_GameSettings.cpp:383
 msgctxt "GameSettings"
 msgid "Enter preselected vehicle"
 msgstr "Wejdź do wybranego wcześniej pojazdu"
 
-#: gui/panels/GUI_GameSettings.cpp:408
+#: gui/panels/GUI_GameSettings.cpp:384
 msgctxt "GameSettings"
 msgid "Auto actor spawner report"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:409
+#: gui/panels/GUI_GameSettings.cpp:385
 msgctxt "GameSettings"
 msgid "Log node import (spawn)"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:410
+#: gui/panels/GUI_GameSettings.cpp:386
 msgctxt "GameSettings"
 msgid "Log node stats (spawn)"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:411
+#: gui/panels/GUI_GameSettings.cpp:387
 msgctxt "GameSettings"
 msgid "Debug camera (rails)"
 msgstr "Debuguj kamerę (ścieżkę)"
 
-#: gui/panels/GUI_GameSettings.cpp:412
+#: gui/panels/GUI_GameSettings.cpp:388
 msgctxt "GameSettings"
 msgid "Debug collisions"
 msgstr "Debuguj kolizje"
 
-#: gui/panels/GUI_GameSettings.cpp:413
+#: gui/panels/GUI_GameSettings.cpp:389
 msgctxt "GameSettings"
 msgid "Debug actor mass"
 msgstr "Debuguj masę obiektu"
 
-#: gui/panels/GUI_GameSettings.cpp:414
+#: gui/panels/GUI_GameSettings.cpp:390
 msgctxt "GameSettings"
 msgid "Debug realtime reflections"
 msgstr "Debuguj dynamiczne odbicia świetlne"
 
-#: gui/panels/GUI_GameSettings.cpp:415
+#: gui/panels/GUI_GameSettings.cpp:391
 msgctxt "GameSettings"
 msgid "Debug videocameras"
 msgstr "Debuguj kamery"
 
-#: gui/panels/GUI_GameSettings.cpp:416
+#: gui/panels/GUI_GameSettings.cpp:392
 #, fuzzy
 #| msgid "saved texture as "
 msgctxt "GameSettings"
 msgid "Debug textures"
 msgstr "zapisano teksturę jako"
 
-#: gui/panels/GUI_GameSettings.cpp:417
+#: gui/panels/GUI_GameSettings.cpp:393
 msgctxt "GameSettings"
 msgid "Hide broken beams"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:418
+#: gui/panels/GUI_GameSettings.cpp:394
 msgctxt "GameSettings"
 msgid "Hide wheel info"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:419
+#: gui/panels/GUI_GameSettings.cpp:395
 msgctxt "GameSettings"
 msgid "Hide wheels"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:420
+#: gui/panels/GUI_GameSettings.cpp:396
 msgctxt "GameSettings"
 msgid "Hide nodes"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:421
+#: gui/panels/GUI_GameSettings.cpp:397
 msgctxt "GameSettings"
 msgid "Echo log to console"
 msgstr "Wypisuj zdarzenia dziennika do konsoli"
 
-#: gui/panels/GUI_GameSettings.cpp:422
+#: gui/panels/GUI_GameSettings.cpp:398
 msgctxt "GameSettings"
 msgid "Log beam breaking"
 msgstr "Loguj pękanie belek"
 
-#: gui/panels/GUI_GameSettings.cpp:423
+#: gui/panels/GUI_GameSettings.cpp:399
 msgctxt "GameSettings"
 msgid "Log beam deforming"
 msgstr "Loguj deformowanie belek"
 
-#: gui/panels/GUI_GameSettings.cpp:424
+#: gui/panels/GUI_GameSettings.cpp:400
 msgctxt "GameSettings"
 msgid "Log beam triggers"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:425
+#: gui/panels/GUI_GameSettings.cpp:401
 #, fuzzy
 #| msgid "Regen cache"
 msgctxt "GameSettings"
 msgid "Rebuild cache"
 msgstr "Odśwież pamięć cache"
 
-#: gui/panels/GUI_GameSettings.cpp:435
+#: gui/panels/GUI_GameSettings.cpp:411
 msgctxt "GameSettings"
 msgid "Controller options"
 msgstr "Opcje kontrolera"
 
-#: gui/panels/GUI_GameSettings.cpp:437
+#: gui/panels/GUI_GameSettings.cpp:413
 msgctxt "GameSettings"
 msgid "Input grab mode"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:442
+#: gui/panels/GUI_GameSettings.cpp:416
 msgctxt "GameSettings"
 msgid "Analog Input Smoothing"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:443
+#: gui/panels/GUI_GameSettings.cpp:417
 msgctxt "GameSettings"
 msgid "Analog Input Sensitivity"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:444
+#: gui/panels/GUI_GameSettings.cpp:418
 msgctxt "GameSettings"
 msgid "Blinker Lock Range"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:446
+#: gui/panels/GUI_GameSettings.cpp:420
 msgctxt "GameSettings"
 msgid "Use arcade controls"
 msgstr "Wybierz sterowanie zręcznościowe"
 
-#: gui/panels/GUI_GameSettings.cpp:448
+#: gui/panels/GUI_GameSettings.cpp:422
 msgctxt "GameSettings"
 msgid "Enable ForceFeedback"
 msgstr "Włącz ForceFeedback"
 
-#: gui/panels/GUI_GameSettings.cpp:452
+#: gui/panels/GUI_GameSettings.cpp:426
 msgctxt "GameSettings"
 msgid "FFB camera gain"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:453
+#: gui/panels/GUI_GameSettings.cpp:427
 msgctxt "GameSettings"
 msgid "FFB center gain"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:454
+#: gui/panels/GUI_GameSettings.cpp:428
 msgctxt "GameSettings"
 msgid "FFB master gain"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:455
+#: gui/panels/GUI_GameSettings.cpp:429
 msgctxt "GameSettings"
 msgid "FFB stress gain"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:459
+#: gui/panels/GUI_GameSettings.cpp:433
 msgctxt "GameSettings"
 msgid "Enable OutGauge protocol"
 msgstr "Włącz protokół OutGauge"
 
-#: gui/panels/GUI_GameSettings.cpp:462
+#: gui/panels/GUI_GameSettings.cpp:436
 msgctxt "GameSettings"
 msgid "OutGauge IP"
 msgstr "OutGauge IP"
 
-#: gui/panels/GUI_GameSettings.cpp:464
+#: gui/panels/GUI_GameSettings.cpp:438
 msgctxt "GameSettings"
 msgid "OutGauge port"
 msgstr "Port OutGauge"
 
-#: gui/panels/GUI_GameSettings.cpp:465
+#: gui/panels/GUI_GameSettings.cpp:439
 msgctxt "GameSettings"
 msgid "OutGauge ID"
 msgstr "OutGauge ID"
 
-#: gui/panels/GUI_GameSettings.cpp:466
+#: gui/panels/GUI_GameSettings.cpp:440
 msgctxt "GameSettings"
 msgid "OutGauge delay"
 msgstr "Opóźnienie OutGauge"
@@ -1763,7 +1989,7 @@ msgctxt "LoadingWindow"
 msgid "Joining"
 msgstr ""
 
-#: gui/panels/GUI_LoadingWindow.cpp:96
+#: gui/panels/GUI_LoadingWindow.cpp:98
 msgctxt "LoadingWindow"
 msgid "Please wait"
 msgstr ""
@@ -1775,236 +2001,236 @@ msgctxt "MainSelector"
 msgid "Loader"
 msgstr "Menu wyboru"
 
-#: gui/panels/GUI_MainSelector.cpp:270
+#: gui/panels/GUI_MainSelector.cpp:269
 #, fuzzy
 #| msgid "Author(s): "
 msgctxt "MainSelector"
 msgid "Author(s): "
 msgstr "Autorzy: "
 
-#: gui/panels/GUI_MainSelector.cpp:274
+#: gui/panels/GUI_MainSelector.cpp:273
 #, fuzzy
 #| msgid "Version: "
 msgctxt "MainSelector"
 msgid "Version: "
 msgstr "Wersja: "
 
-#: gui/panels/GUI_MainSelector.cpp:277
+#: gui/panels/GUI_MainSelector.cpp:276
 #, fuzzy
 #| msgid "Wheels: "
 msgctxt "MainSelector"
 msgid "Wheels: "
 msgstr "Koła: "
 
-#: gui/panels/GUI_MainSelector.cpp:283
+#: gui/panels/GUI_MainSelector.cpp:282
 #, fuzzy
 #| msgid "Mass: "
 msgctxt "MainSelector"
 msgid "Mass: "
 msgstr "Ciężar: "
 
-#: gui/panels/GUI_MainSelector.cpp:292
+#: gui/panels/GUI_MainSelector.cpp:291
 #, fuzzy
 #| msgid "Load Mass: "
 msgctxt "MainSelector"
 msgid "Load Mass: "
 msgstr "Masa ładunku: "
 
-#: gui/panels/GUI_MainSelector.cpp:296
+#: gui/panels/GUI_MainSelector.cpp:295
 #, fuzzy
 #| msgid "Nodes: "
 msgctxt "MainSelector"
 msgid "Nodes: "
 msgstr "Węzły: "
 
-#: gui/panels/GUI_MainSelector.cpp:297
+#: gui/panels/GUI_MainSelector.cpp:296
 #, fuzzy
 #| msgid "Beams: "
 msgctxt "MainSelector"
 msgid "Beams: "
 msgstr "Belki: "
 
-#: gui/panels/GUI_MainSelector.cpp:298
+#: gui/panels/GUI_MainSelector.cpp:297
 #, fuzzy
 #| msgid "Shocks: "
 msgctxt "MainSelector"
 msgid "Shocks: "
 msgstr "Amortyzatory: "
 
-#: gui/panels/GUI_MainSelector.cpp:299
+#: gui/panels/GUI_MainSelector.cpp:298
 #, fuzzy
 #| msgid "Hydros: "
 msgctxt "MainSelector"
 msgid "Hydros: "
 msgstr "Hydrosy: "
 
-#: gui/panels/GUI_MainSelector.cpp:300
+#: gui/panels/GUI_MainSelector.cpp:299
 #, fuzzy
 #| msgid "SoundSources: "
 msgctxt "MainSelector"
 msgid "SoundSources: "
 msgstr "Źródła dźwięku: "
 
-#: gui/panels/GUI_MainSelector.cpp:301
+#: gui/panels/GUI_MainSelector.cpp:300
 #, fuzzy
 #| msgid "Commands: "
 msgctxt "MainSelector"
 msgid "Commands: "
 msgstr "Komendy: "
 
-#: gui/panels/GUI_MainSelector.cpp:302
+#: gui/panels/GUI_MainSelector.cpp:301
 #, fuzzy
 #| msgid "Rotators: "
 msgctxt "MainSelector"
 msgid "Rotators: "
 msgstr "Rotatory: "
 
-#: gui/panels/GUI_MainSelector.cpp:303
+#: gui/panels/GUI_MainSelector.cpp:302
 #, fuzzy
 #| msgid "Exhausts: "
 msgctxt "MainSelector"
 msgid "Exhausts: "
 msgstr "Wydechy: "
 
-#: gui/panels/GUI_MainSelector.cpp:304
+#: gui/panels/GUI_MainSelector.cpp:303
 #, fuzzy
 #| msgid "Flares: "
 msgctxt "MainSelector"
 msgid "Flares: "
 msgstr "Flary: "
 
-#: gui/panels/GUI_MainSelector.cpp:305
+#: gui/panels/GUI_MainSelector.cpp:304
 #, fuzzy
 #| msgid "Flexbodies: "
 msgctxt "MainSelector"
 msgid "Flexbodies: "
 msgstr "Deformowalne ciała: "
 
-#: gui/panels/GUI_MainSelector.cpp:306
+#: gui/panels/GUI_MainSelector.cpp:305
 #, fuzzy
 #| msgid "Props: "
 msgctxt "MainSelector"
 msgid "Props: "
 msgstr "Rekwizyty: "
 
-#: gui/panels/GUI_MainSelector.cpp:307
+#: gui/panels/GUI_MainSelector.cpp:306
 #, fuzzy
 #| msgid "Wings: "
 msgctxt "MainSelector"
 msgid "Wings: "
 msgstr "Skrzydła: "
 
-#: gui/panels/GUI_MainSelector.cpp:310
+#: gui/panels/GUI_MainSelector.cpp:309
 #, fuzzy
 #| msgid "Using Submeshs: "
 msgctxt "MainSelector"
 msgid "Using Submeshs: "
 msgstr "Używanie submeshów: "
 
-#: gui/panels/GUI_MainSelector.cpp:312
+#: gui/panels/GUI_MainSelector.cpp:311
 #, fuzzy
 #| msgid "None"
 msgctxt "MainSelector"
 msgid "No"
 msgstr "Żaden"
 
-#: gui/panels/GUI_MainSelector.cpp:312
+#: gui/panels/GUI_MainSelector.cpp:311
 msgctxt "MainSelector"
 msgid "Yes"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:314
+#: gui/panels/GUI_MainSelector.cpp:313
 #, fuzzy
 #| msgid "Torque: "
 msgctxt "MainSelector"
 msgid "Torque: "
 msgstr "Moment obrotowy: "
 
-#: gui/panels/GUI_MainSelector.cpp:315
+#: gui/panels/GUI_MainSelector.cpp:314
 #, fuzzy
 #| msgid "Transmission Gear Count: "
 msgctxt "MainSelector"
 msgid "Transmission Gear Count: "
 msgstr "Liczba biegów: "
 
-#: gui/panels/GUI_MainSelector.cpp:318
+#: gui/panels/GUI_MainSelector.cpp:317
 #, fuzzy
 #| msgid "Engine RPM: "
 msgctxt "MainSelector"
 msgid "Engine RPM: "
 msgstr "Obroty na minutę (RPM) silnika: "
 
-#: gui/panels/GUI_MainSelector.cpp:322
+#: gui/panels/GUI_MainSelector.cpp:321
 #, fuzzy
 #| msgid "Unique ID: "
 msgctxt "MainSelector"
 msgid "Unique ID: "
 msgstr "Unikatowe ID: "
 
-#: gui/panels/GUI_MainSelector.cpp:323
+#: gui/panels/GUI_MainSelector.cpp:322
 #, fuzzy
 #| msgid "GUID: "
 msgctxt "MainSelector"
 msgid "GUID: "
 msgstr "GUID: "
 
-#: gui/panels/GUI_MainSelector.cpp:324
+#: gui/panels/GUI_MainSelector.cpp:323
 #, fuzzy
 #| msgid "Times used: "
 msgctxt "MainSelector"
 msgid "Times used: "
 msgstr "Ile razy był użyty: "
 
-#: gui/panels/GUI_MainSelector.cpp:325
+#: gui/panels/GUI_MainSelector.cpp:324
 #, fuzzy
 #| msgid "Date and Time installed: "
 msgctxt "MainSelector"
 msgid "Date and Time modified: "
 msgstr "Data i czas instalacji: "
 
-#: gui/panels/GUI_MainSelector.cpp:326
+#: gui/panels/GUI_MainSelector.cpp:325
 #, fuzzy
 #| msgid "Date and Time installed: "
 msgctxt "MainSelector"
 msgid "Date and Time installed: "
 msgstr "Data i czas instalacji: "
 
-#: gui/panels/GUI_MainSelector.cpp:329
+#: gui/panels/GUI_MainSelector.cpp:328
 #, fuzzy
 #| msgid "Vehicle Type: "
 msgctxt "MainSelector"
 msgid "Vehicle Type: "
 msgstr "Typ pojazdu: "
 
-#: gui/panels/GUI_MainSelector.cpp:332
+#: gui/panels/GUI_MainSelector.cpp:331
 #, fuzzy
 #| msgid "[forwards commands]"
 msgctxt "MainSelector"
 msgid "[forwards commands]"
 msgstr "[przekazuje komendy]"
 
-#: gui/panels/GUI_MainSelector.cpp:333
+#: gui/panels/GUI_MainSelector.cpp:332
 #, fuzzy
 #| msgid "[imports commands]"
 msgctxt "MainSelector"
 msgid "[imports commands]"
 msgstr "[importuje komendy]"
 
-#: gui/panels/GUI_MainSelector.cpp:334
+#: gui/panels/GUI_MainSelector.cpp:333
 #, fuzzy
 #| msgid "[is rescuer]"
 msgctxt "MainSelector"
 msgid "[is rescuer]"
 msgstr "[jest pojazdem ratunkowym]"
 
-#: gui/panels/GUI_MainSelector.cpp:335
+#: gui/panels/GUI_MainSelector.cpp:334
 #, fuzzy
 #| msgid "[uses custom particles]"
 msgctxt "MainSelector"
 msgid "[uses custom particles]"
 msgstr "[używa własnych cząsteczek]"
 
-#: gui/panels/GUI_MainSelector.cpp:336
+#: gui/panels/GUI_MainSelector.cpp:335
 #, fuzzy
 #| msgid "[has fixes]"
 msgctxt "MainSelector"
@@ -2012,163 +2238,163 @@ msgid "[has fixes]"
 msgstr "[ma części przytwierdzone do podłoża]"
 
 #. Engine type 't' (truck) is the default, do not display it
-#: gui/panels/GUI_MainSelector.cpp:338
+#: gui/panels/GUI_MainSelector.cpp:337
 #, fuzzy
 #| msgid "[car engine]"
 msgctxt "MainSelector"
 msgid "[car engine]"
 msgstr "[silnik samochodu]"
 
-#: gui/panels/GUI_MainSelector.cpp:339
+#: gui/panels/GUI_MainSelector.cpp:338
 #, fuzzy
 #| msgid "[zip archive]"
 msgctxt "MainSelector"
 msgid "[zip archive]"
 msgstr "[archiwum zip]"
 
-#: gui/panels/GUI_MainSelector.cpp:340
+#: gui/panels/GUI_MainSelector.cpp:339
 #, fuzzy
 #| msgid "[unpacked in directory]"
 msgctxt "MainSelector"
 msgid "[unpacked in directory]"
 msgstr "[niespakowane w katalogu]"
 
-#: gui/panels/GUI_MainSelector.cpp:344
+#: gui/panels/GUI_MainSelector.cpp:343
 #, fuzzy
 #| msgid "Source: "
 msgctxt "MainSelector"
 msgid "Source: "
 msgstr "Źródło: "
 
-#: gui/panels/GUI_MainSelector.cpp:351
+#: gui/panels/GUI_MainSelector.cpp:350
 #, fuzzy
 #| msgid "Filename: "
 msgctxt "MainSelector"
 msgid "Filename: "
 msgstr "Nazwa pliku: "
 
-#: gui/panels/GUI_MainSelector.cpp:357
+#: gui/panels/GUI_MainSelector.cpp:356
 msgctxt "MainSelector"
 msgid "Show details"
 msgstr ""
 
-#: gui/panels/GUI_MainSelector.cpp:368
+#: gui/panels/GUI_MainSelector.cpp:367
 #, fuzzy
 #| msgid "Configuration error"
 msgctxt "MainSelector"
 msgid "Configuration"
 msgstr "Błąd konfiguracji"
 
-#: gui/panels/GUI_MainSelector.cpp:374
+#: gui/panels/GUI_MainSelector.cpp:373
 #, fuzzy
 #| msgid "OK"
 msgctxt "MainSelector"
 msgid "OK"
 msgstr "OK"
 
-#: gui/panels/GUI_MainSelector.cpp:381
+#: gui/panels/GUI_MainSelector.cpp:380
 #, fuzzy
 #| msgid "Cancel"
 msgctxt "MainSelector"
 msgid "Cancel"
 msgstr "Anuluj"
 
-#: gui/panels/GUI_MessageBox.cpp:109
+#: gui/panels/GUI_MessageBox.cpp:110
 msgctxt "MessageBox"
 msgid "Always ask"
 msgstr ""
 
 #. TextDisabled() are captions, Text() are values
-#: gui/panels/GUI_MultiplayerClientList.cpp:136
+#: gui/panels/GUI_MultiplayerClientList.cpp:146
 #, fuzzy
 #| msgid "user name"
 msgctxt "MultiplayerClientList"
 msgid "user name"
 msgstr "nazwa użytkownika"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:141
+#: gui/panels/GUI_MultiplayerClientList.cpp:151
 msgctxt "MultiplayerClientList"
 msgid "user uid"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:145
+#: gui/panels/GUI_MultiplayerClientList.cpp:155
 #, fuzzy
 #| msgid "user language: "
 msgctxt "MultiplayerClientList"
 msgid "user language: "
 msgstr "język użytkownika:"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:149
+#: gui/panels/GUI_MultiplayerClientList.cpp:159
 #, fuzzy
 #| msgid " user country: "
 msgctxt "MultiplayerClientList"
 msgid "user country: "
 msgstr "kraj użytkownika:"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:160
+#: gui/panels/GUI_MultiplayerClientList.cpp:170
 #, fuzzy
 #| msgid "user authentication level"
 msgctxt "MultiplayerClientList"
 msgid "user authentication level"
 msgstr "poziom autoryzacji użytkownika"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:175
+#: gui/panels/GUI_MultiplayerClientList.cpp:185
 #, fuzzy
 #| msgid "truck loading state"
 msgctxt "MultiplayerClientList"
 msgid "truck loading state"
 msgstr "stan ładowania pojazdu"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:184
+#: gui/panels/GUI_MultiplayerClientList.cpp:194
 #, fuzzy
 #| msgid "Truck loading errors"
 msgctxt "MultiplayerClientList"
 msgid "Truck loading errors"
 msgstr "Błędy ładowania pojazdu"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:185
+#: gui/panels/GUI_MultiplayerClientList.cpp:195
 #, fuzzy
 #| msgid "Truck loaded correctly, no errors"
 msgctxt "MultiplayerClientList"
 msgid "Truck loaded correctly, no errors"
 msgstr "Pojazd załadowany prawidłowo, brak błędów"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:186
+#: gui/panels/GUI_MultiplayerClientList.cpp:196
 #, fuzzy
 #| msgid "no truck loaded"
 msgctxt "MultiplayerClientList"
 msgid "no truck loaded"
 msgstr "nie załadowano żadnego pojazdu"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:190
+#: gui/panels/GUI_MultiplayerClientList.cpp:200
 #, fuzzy
 #| msgid "remote truck loading state"
 msgctxt "MultiplayerClientList"
 msgid "remote truck loading state"
 msgstr "stan ładowania zdalnego pojazdu"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:199
+#: gui/panels/GUI_MultiplayerClientList.cpp:209
 #, fuzzy
 #| msgid "Remote Truck loading errors"
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loading errors"
 msgstr "błędy ładowania zdalnego pojazdu"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:200
+#: gui/panels/GUI_MultiplayerClientList.cpp:210
 #, fuzzy
 #| msgid "Remote Truck loaded correctly, no errors"
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loaded correctly, no errors"
 msgstr "Zdalny pojazd załadowany poprawnie, brak błędów"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:201
+#: gui/panels/GUI_MultiplayerClientList.cpp:211
 #, fuzzy
 #| msgid "No Trucks loaded"
 msgctxt "MultiplayerClientList"
 msgid "No Trucks loaded"
 msgstr "Nie załadowano żadnych pojazdów"
 
-#: gui/panels/GUI_MultiplayerClientList.cpp:213
+#: gui/panels/GUI_MultiplayerClientList.cpp:226
 #, fuzzy
 #| msgid "Slow  Network  Download"
 msgctxt "MultiplayerClientList"
@@ -2197,48 +2423,48 @@ msgctxt "MultiplayerSelector"
 msgid "Yes"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:154
+#: gui/panels/GUI_MultiplayerSelector.cpp:151
 msgctxt "MultiplayerSelector"
 msgid "Online (click to refresh)"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:163
+#: gui/panels/GUI_MultiplayerSelector.cpp:160
 msgctxt "MultiplayerSelector"
 msgid "Direct IP"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:168
+#: gui/panels/GUI_MultiplayerSelector.cpp:165
 #, fuzzy
 #| msgid "Settings"
 msgctxt "MultiplayerSelector"
 msgid "Settings"
 msgstr "Ustawienia"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:187
+#: gui/panels/GUI_MultiplayerSelector.cpp:184
 #, fuzzy
 #| msgid "Cancel (disconnect)"
 msgctxt "MultiplayerSelector"
 msgid "Auto connect"
 msgstr "Anuluj (rozłącz)"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:188
+#: gui/panels/GUI_MultiplayerSelector.cpp:185
 #, fuzzy
 #| msgid "enter the chat"
 msgctxt "MultiplayerSelector"
 msgid "Auto hide chat"
 msgstr "przyłącz się do czatu"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:189
+#: gui/panels/GUI_MultiplayerSelector.cpp:186
 msgctxt "MultiplayerSelector"
 msgid "Hide net labels"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:190
+#: gui/panels/GUI_MultiplayerSelector.cpp:187
 msgctxt "MultiplayerSelector"
 msgid "Hide own net label"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:191
+#: gui/panels/GUI_MultiplayerSelector.cpp:188
 #, fuzzy
 #| msgctxt "GameSettings"
 #| msgid "Debug collisions"
@@ -2246,86 +2472,81 @@ msgctxt "MultiplayerSelector"
 msgid "Multiplayer collisions"
 msgstr "Debuguj kolizje"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:198
+#: gui/panels/GUI_MultiplayerSelector.cpp:195
 #, fuzzy
 #| msgid "Player Information"
 msgctxt "MultiplayerSelector"
 msgid "Player nickname"
 msgstr "Informacje gracza"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:199
+#: gui/panels/GUI_MultiplayerSelector.cpp:196
 msgctxt "MultiplayerSelector"
 msgid "Default server password"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:204
+#: gui/panels/GUI_MultiplayerSelector.cpp:201
 msgctxt "MultiplayerSelector"
 msgid "User token"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:215
+#: gui/panels/GUI_MultiplayerSelector.cpp:212
 #, fuzzy
 #| msgid "Server Moderator"
 msgctxt "MultiplayerSelector"
 msgid "Server host"
 msgstr "Moderator serwera"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:216
+#: gui/panels/GUI_MultiplayerSelector.cpp:213
 #, fuzzy
 #| msgid "Server Moderator"
 msgctxt "MultiplayerSelector"
 msgid "Server port"
 msgstr "Moderator serwera"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:217
-#: gui/panels/GUI_MultiplayerSelector.cpp:339
+#: gui/panels/GUI_MultiplayerSelector.cpp:214
+#: gui/panels/GUI_MultiplayerSelector.cpp:346
 #, fuzzy
 #| msgid "Server Moderator"
 msgctxt "MultiplayerSelector"
 msgid "Server password"
 msgstr "Moderator serwera"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:221
-#: gui/panels/GUI_MultiplayerSelector.cpp:327
+#: gui/panels/GUI_MultiplayerSelector.cpp:218
+#: gui/panels/GUI_MultiplayerSelector.cpp:334
 msgctxt "MultiplayerSelector"
 msgid "Join"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:272
+#: gui/panels/GUI_MultiplayerSelector.cpp:279
 msgctxt "MultiplayerSelector"
 msgid "Name"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:273
+#: gui/panels/GUI_MultiplayerSelector.cpp:280
 #, fuzzy
 #| msgid "Loading Terrain"
 msgctxt "MultiplayerSelector"
 msgid "Terrain"
 msgstr "Ładowanie terenu"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:274
+#: gui/panels/GUI_MultiplayerSelector.cpp:281
 msgctxt "MultiplayerSelector"
 msgid "Users"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:275
+#: gui/panels/GUI_MultiplayerSelector.cpp:282
 #, fuzzy
 #| msgid "Version"
 msgctxt "MultiplayerSelector"
 msgid "Version"
 msgstr "Wersja"
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:276
+#: gui/panels/GUI_MultiplayerSelector.cpp:283
 msgctxt "MultiplayerSelector"
 msgid "Host/Port"
 msgstr ""
 
-#: gui/panels/GUI_MultiplayerSelector.cpp:361
-msgctxt "MultiplayerSelector"
-msgid "... refreshing ..."
-msgstr ""
-
-#: gui/panels/GUI_MultiplayerSelector.cpp:395
+#: gui/panels/GUI_MultiplayerSelector.cpp:404
 msgctxt "MultiplayerSelector"
 msgid "There are no available servers :/"
 msgstr ""
@@ -3660,126 +3881,126 @@ msgctxt "Network"
 msgid "Finishing..."
 msgstr ""
 
-#: network/Network.cpp:797
+#: network/Network.cpp:798
 msgctxt "NetUserAuth"
 msgid "Admin"
 msgstr ""
 
-#: network/Network.cpp:798
+#: network/Network.cpp:799
 msgctxt "NetUserAuth"
 msgid "Mod"
 msgstr ""
 
-#: network/Network.cpp:799 network/Network.cpp:809
+#: network/Network.cpp:800 network/Network.cpp:810
 #, fuzzy
 #| msgid "Boat"
 msgctxt "NetUserAuth"
 msgid "Bot"
 msgstr "Łódź"
 
-#: network/Network.cpp:800
+#: network/Network.cpp:801
 msgctxt "NetUserAuth"
 msgid "Ranked"
 msgstr ""
 
-#: network/Network.cpp:801
+#: network/Network.cpp:802
 msgctxt "NetUserAuth"
 msgid "Banned"
 msgstr ""
 
-#: network/Network.cpp:802 network/Network.cpp:812
+#: network/Network.cpp:803 network/Network.cpp:813
 msgctxt "NetUserAuth"
 msgid "Guest"
 msgstr ""
 
-#: network/Network.cpp:807
+#: network/Network.cpp:808
 #, fuzzy
 #| msgid "Server Administrator"
 msgctxt "NetUserAuth"
 msgid "Server Administrator"
 msgstr "Administrator serwera"
 
-#: network/Network.cpp:808
+#: network/Network.cpp:809
 #, fuzzy
 #| msgid "Server Moderator"
 msgctxt "NetUserAuth"
 msgid "Server Moderator"
 msgstr "Moderator serwera"
 
-#: network/Network.cpp:810
+#: network/Network.cpp:811
 #, fuzzy
 #| msgid "ranked user"
 msgctxt "NetUserAuth"
 msgid "Ranked user"
 msgstr "rankingowany użytkownik"
 
-#: network/Network.cpp:811
+#: network/Network.cpp:812
 #, fuzzy
 #| msgid "ranked user"
 msgctxt "NetUserAuth"
 msgid "Banned user"
 msgstr "rankingowany użytkownik"
 
-#: physics/Actor.cpp:387
+#: physics/Actor.cpp:390
 #, fuzzy
 #| msgid "No content installed"
 msgid " content mismatch: "
 msgstr "Brak zainstalowanej zawartości"
 
-#: physics/Actor.cpp:1275
+#: physics/Actor.cpp:1278
 msgid "No inter-axle differential installed on current vehicle!"
 msgstr ""
 
-#: physics/Actor.cpp:1289 physics/Actor.cpp:1315
+#: physics/Actor.cpp:1292 physics/Actor.cpp:1318
 msgid "Axle "
 msgstr "Oś"
 
-#: physics/Actor.cpp:1303
+#: physics/Actor.cpp:1306
 msgid "No inter-wheel differential installed on current vehicle!"
 msgstr ""
 
-#: physics/Actor.cpp:1329
+#: physics/Actor.cpp:1332
 msgid "Transfercase switched to: "
 msgstr ""
 
-#: physics/Actor.cpp:1334
+#: physics/Actor.cpp:1337
 msgid "No transfercase installed on current vehicle!"
 msgstr ""
 
-#: physics/Actor.cpp:1899
+#: physics/Actor.cpp:1902
 msgid "Actor is too big to be sent over the net."
 msgstr "Obiekt jest zbyt duży, by mógł zostać wysłany przez Internet."
 
-#: physics/Actor.cpp:1899
+#: physics/Actor.cpp:1902
 msgid "Network error!"
 msgstr "Błąd sieci!"
 
-#: physics/ActorManager.cpp:397
+#: physics/ActorManager.cpp:379
 #, fuzzy
 #| msgid " spawned a new vehicle: "
 msgid "spawned a new vehicle: "
 msgstr " stwórz nowy pojazd:"
 
-#: physics/ActorManager.cpp:407
+#: physics/ActorManager.cpp:389
 #, fuzzy
 #| msgid "No content installed"
 msgid "Mod not installed: "
 msgstr "Brak zainstalowanej zawartości"
 
-#: physics/ActorManager.cpp:1289 physics/ActorManager.cpp:1298
-#: physics/ActorManager.cpp:1316
+#: physics/ActorManager.cpp:1271 physics/ActorManager.cpp:1280
+#: physics/ActorManager.cpp:1298
 msgid "New simulation speed: "
 msgstr "Nowa prędkość symulacji: "
 
-#: physics/ActorManager.cpp:1310
+#: physics/ActorManager.cpp:1292
 msgid "Simulation speed reset."
 msgstr "Reset szybkości symulacji."
 
-#: physics/ActorManager.cpp:1336
+#: physics/ActorManager.cpp:1318
 msgid "Physics paused"
 msgstr ""
 
-#: physics/ActorManager.cpp:1341
+#: physics/ActorManager.cpp:1323
 msgid "Physics unpaused"
 msgstr ""
 
@@ -3923,7 +4144,7 @@ msgctxt "MainSelector"
 msgid "A.I."
 msgstr ""
 
-#: resources/CacheSystem.cpp:967
+#: resources/CacheSystem.cpp:981
 msgid "Loading zips in group "
 msgstr "Ładowanie archiwów w grupie"
 
@@ -4153,155 +4374,155 @@ msgstr ""
 msgid "Version Information"
 msgstr "Informacje o wersji"
 
-#: system/ConsoleCmd.cpp:54
+#: system/ConsoleCmd.cpp:62
 msgid "Get or set terrain gravity. Constants: earth/moon/mars/jupiter."
 msgstr ""
 
-#: system/ConsoleCmd.cpp:64
+#: system/ConsoleCmd.cpp:72
 msgid "Current gravity is: "
 msgstr "Aktualne ciążenie wynosi: "
 
-#: system/ConsoleCmd.cpp:74
+#: system/ConsoleCmd.cpp:82
 msgid "Gravity set to: "
 msgstr "Grawitacja ustawiona na: "
 
-#: system/ConsoleCmd.cpp:84
+#: system/ConsoleCmd.cpp:92
 msgid "Get or set water level."
 msgstr ""
 
-#: system/ConsoleCmd.cpp:97
+#: system/ConsoleCmd.cpp:105
 msgid "This terrain does not have water."
 msgstr ""
 
-#: system/ConsoleCmd.cpp:109
+#: system/ConsoleCmd.cpp:117
 msgid "Water level set to: "
 msgstr "Poziom wody ustawiony na: "
 
-#: system/ConsoleCmd.cpp:118
+#: system/ConsoleCmd.cpp:126
 msgid "Get elevation of terrain at current position"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:142
+#: system/ConsoleCmd.cpp:150
 msgid "Terrain height at position: "
 msgstr "Wysokość terenu w pozycji:"
 
-#: system/ConsoleCmd.cpp:152
+#: system/ConsoleCmd.cpp:160
 msgid "spawnobject  - spawn a object at the player position"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:171
+#: system/ConsoleCmd.cpp:179
 #, fuzzy
 #| msgid "Missing someone?"
 msgid "Missing parameter: "
 msgstr "Kogoś brakuje?"
 
-#: system/ConsoleCmd.cpp:180 terrain/TerrainEditor.cpp:102
+#: system/ConsoleCmd.cpp:188 terrain/TerrainEditor.cpp:102
 msgid "Spawned object at position: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:195
+#: system/ConsoleCmd.cpp:203
 msgid "log - toggles log output on the console"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:216
+#: system/ConsoleCmd.cpp:224
 msgid "ver - shows the Rigs of Rods version"
 msgstr "ver - pokazuje wersję Rigs of Rods"
 
-#: system/ConsoleCmd.cpp:235
+#: system/ConsoleCmd.cpp:243
 msgid "pos - outputs the current position"
 msgstr "pos - przedstawia aktualną pozycję"
 
-#: system/ConsoleCmd.cpp:250
+#: system/ConsoleCmd.cpp:258
 msgid "Character position: "
 msgstr "Pozycja postaci:"
 
-#: system/ConsoleCmd.cpp:255
+#: system/ConsoleCmd.cpp:263
 msgid "Vehicle position: "
 msgstr "Pozycja pojazdu: "
 
-#: system/ConsoleCmd.cpp:265
+#: system/ConsoleCmd.cpp:273
 msgid "goto <x> <y> <z> - jumps to the mentioned position"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:279
+#: system/ConsoleCmd.cpp:287
 msgid "usage: goto x y z"
 msgstr "użycie: goto x y z"
 
-#: system/ConsoleCmd.cpp:290
+#: system/ConsoleCmd.cpp:298
 msgid "Character position set to: "
 msgstr "Pozycja postaci ustawiona do:"
 
-#: system/ConsoleCmd.cpp:296
+#: system/ConsoleCmd.cpp:304
 msgid "Vehicle position set to: "
 msgstr "Pozycja pojazdu ustawiona do: "
 
-#: system/ConsoleCmd.cpp:308
+#: system/ConsoleCmd.cpp:316
 msgid "Run AngelScript code snippet"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:339
+#: system/ConsoleCmd.cpp:347
 msgid "Scripting disabled in this build"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:348
+#: system/ConsoleCmd.cpp:356
 msgid "quit - exit Rigs of Rods"
 msgstr "quit - opuszcza Rigs of Rods"
 
-#: system/ConsoleCmd.cpp:359
+#: system/ConsoleCmd.cpp:367
 msgid "help - information on commands (this)"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:364
+#: system/ConsoleCmd.cpp:372
 msgid "Available commands:"
 msgstr "Dostępne polecenia:"
 
-#: system/ConsoleCmd.cpp:377
+#: system/ConsoleCmd.cpp:385
 msgid "Tips:"
 msgstr "Porady:"
 
-#: system/ConsoleCmd.cpp:379
+#: system/ConsoleCmd.cpp:387
 msgid "- use Arrow Up/Down Keys in the InputBox to reuse old messages"
 msgstr ""
 "- użyj strzałek w górę i w dół w polu wprowadzania, aby ponownie wpisać "
 "stare wiadomości"
 
-#: system/ConsoleCmd.cpp:389
+#: system/ConsoleCmd.cpp:397
 msgid "Print cvars with one of <expr> in name"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:428
+#: system/ConsoleCmd.cpp:436
 msgid "Get or set value of existing CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:456
+#: system/ConsoleCmd.cpp:464
 msgid "No such CVar: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:518
+#: system/ConsoleCmd.cpp:526
 msgid "Set or create string CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:524
+#: system/ConsoleCmd.cpp:532
 msgid "Set or create boolean CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:530
+#: system/ConsoleCmd.cpp:538
 msgid "Set or create integer CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:536
+#: system/ConsoleCmd.cpp:544
 msgid "Set or create real-number CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:542
+#: system/ConsoleCmd.cpp:550
 msgid "Clear console history. Types: all/info/net/chat/terrn/actor/script"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:579
+#: system/ConsoleCmd.cpp:587
 msgid "No such message type: {}"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:627
+#: system/ConsoleCmd.cpp:637
 msgid ""
 "Using slashes before commands are deprecated, you can now type command "
 "without any slashes"
@@ -4309,15 +4530,15 @@ msgstr ""
 "Używanie ukośników przed komendami jest przestarzałe, możesz wpisać komendę "
 "bez żadnych ukośników"
 
-#: system/ConsoleCmd.cpp:650
+#: system/ConsoleCmd.cpp:660
 msgid "unknown command: "
 msgstr "nieznana komenda: "
 
-#: system/ConsoleCmd.cpp:666
+#: system/ConsoleCmd.cpp:676
 msgid "Only allowed when simulation is running"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:670
+#: system/ConsoleCmd.cpp:680
 msgid "Not allowed in current app state"
 msgstr ""
 
@@ -6744,12 +6965,6 @@ msgstr ""
 #~ msgid "100 %"
 #~ msgstr "100 %"
 
-#~ msgid "20%"
-#~ msgstr "20%"
-
-#~ msgid "50%"
-#~ msgstr "50%"
-
 #~ msgid ": "
 #~ msgstr ":"
 
@@ -6790,12 +7005,6 @@ msgstr ""
 #~ msgid "Advanced"
 #~ msgstr "Zaawansowane"
 
-#~ msgid "All vehicles, all lights"
-#~ msgstr "Wszystkie pojazdy, wszystkie światła"
-
-#~ msgid "All vehicles, main lights"
-#~ msgstr "Wszystkie pojazdy, główne światła"
-
 #~ msgid "Anisotropic (best looking)"
 #~ msgstr "Anizotropowe (najlepszy wygląd)"
 
@@ -6808,20 +7017,11 @@ msgstr ""
 #~ msgid "Authors: \n"
 #~ msgstr "Autorzy: \n"
 
-#~ msgid "Automatic shift"
-#~ msgstr "Automatyczna zmiana biegów"
-
-#~ msgid "Basic (fastest)"
-#~ msgstr "Podstawowa (najszybsza)"
-
 #~ msgid "Beam Break Debug"
 #~ msgstr "Debugowanie pękania belek"
 
 #~ msgid "Beam Deform Debug"
 #~ msgstr "Debugowanie deformacji belek"
-
-#~ msgid "Bilinear"
-#~ msgstr "Dwuliniowe"
 
 #~ msgid "Braking will switch into reverse gear and accelerate."
 #~ msgstr "Hamowanie przejdzie w cofanie z przyspieszeniem."
@@ -6840,9 +7040,6 @@ msgstr ""
 
 #~ msgid "Cache is already empty"
 #~ msgstr "Cache jest już puste"
-
-#~ msgid "Caelum (best looking, slower)"
-#~ msgstr "Caelum (najlepszy wygląd)"
 
 #~ msgid ""
 #~ "Caelum / SkyX sky is nice but quite slow unless you have a high-powered "
@@ -7041,12 +7238,6 @@ msgstr ""
 #~ msgid "Full (best looking, slower)"
 #~ msgstr "Pełna (najładniejsza, powolna)"
 
-#~ msgid "Fully Manual: sequential shift"
-#~ msgstr "Ręczna: sekwencyjna zmiana biegów"
-
-#~ msgid "Fully Manual: stick shift with ranges"
-#~ msgstr "Ręczna: użycie drążka (z zakresami)"
-
 #~ msgid "Graphics"
 #~ msgstr "Grafika"
 
@@ -7055,9 +7246,6 @@ msgstr ""
 
 #~ msgid "Hash: "
 #~ msgstr "Hash:"
-
-#~ msgid "Hydrax"
-#~ msgstr "Hydrax"
 
 #~ msgid ""
 #~ "If we are missing someone on this list, please drop us a line at:\n"
@@ -7120,9 +7308,6 @@ msgstr ""
 #~ msgstr ""
 #~ "Zapisuje informacje o belce do RoR.log w przypadku jej zdeformowania"
 
-#~ msgid "Manual shift - Auto clutch"
-#~ msgstr "Ręczna: Automatyczne sprzęgło"
-
 #~ msgid "Mod Number: "
 #~ msgstr "Numer moda: "
 
@@ -7140,9 +7325,6 @@ msgstr ""
 
 #~ msgid "No shadows (fastest)"
 #~ msgstr "Bez cieni (najszybsze)"
-
-#~ msgid "None (fastest)"
-#~ msgstr "Brak (najszybsze)"
 
 #~ msgid "Ogre config validation error"
 #~ msgstr "Błąd weryfikacji konfiguracji Ogre"
@@ -7203,12 +7385,6 @@ msgstr ""
 #~ msgid "Prints all node masses to the RoR.log"
 #~ msgstr "Zapisuje masy wszystkich węzłów do pliku RoR.log"
 
-#~ msgid "Reflection + refraction (quality optimized)"
-#~ msgstr "Odbijająca się z refrakcją (jakość)"
-
-#~ msgid "Reflection + refraction (speed optimized)"
-#~ msgstr "Odbijająca się z refrakcją (prędkość)"
-
 #~ msgid "Render System"
 #~ msgstr "System renderowania"
 
@@ -7240,9 +7416,6 @@ msgstr ""
 
 #~ msgid "Rigs of Rods version %s configuration"
 #~ msgstr "Konfigurator Rigs of Rods %s"
-
-#~ msgid "Sandstorm (fastest)"
-#~ msgstr "Sandstorm (najszybsze)"
 
 #~ msgid "Save and Exit"
 #~ msgstr "Zapisz i wyjdź"
@@ -7311,9 +7484,6 @@ msgstr ""
 #~ msgid "Sky type:"
 #~ msgstr "Typ nieba:"
 
-#~ msgid "SkyX (best looking, slower)"
-#~ msgstr "SkyX (najlepszy wygląd)"
-
 #~ msgid "Steering feedback level:"
 #~ msgstr "Sterowanie:"
 
@@ -7369,9 +7539,6 @@ msgstr ""
 #~ msgstr ""
 #~ "Zmiana domyślnego języka programu. Musisz zrestartować konfigurator, by "
 #~ "wprowadzić zmiany."
-
-#~ msgid "Trilinear"
-#~ msgstr "Trójliniowe"
 
 #~ msgid ""
 #~ "Unable to load the render systems. Please check if all required files are "
