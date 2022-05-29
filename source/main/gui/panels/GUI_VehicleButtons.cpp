@@ -1041,7 +1041,7 @@ void VehicleButtons::DrawCustomLightButton(RoR::GfxActor* actorx)
 
     for (int i = 0; i < actorx->GetActor()->ar_flares.size(); i++)
     {
-        if (actorx->GetActor()->usesFlareControlGroup(i))
+        if (actorx->GetActor()->getCustomLightPresent(i))
         {
             ImGui::PushID(i);
             num_custom_flares++;
