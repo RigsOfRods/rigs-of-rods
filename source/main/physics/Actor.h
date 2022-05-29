@@ -118,14 +118,18 @@ public:
     void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              toggleSlideNodeLock();
     void              parkingbrakeToggle();
+    bool              getParkingBrake() { return ar_parking_brake; }
     void              antilockbrakeToggle();
     void              tractioncontrolToggle();
     void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
     void              toggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
     void              displayAxleDiffMode();               //! Writes info to console/notify box
+    int               getAxleDiffMode() { return m_num_axle_diffs; }
     void              toggleWheelDiffMode();               //! Cycles through the available inter wheel diff modes
     void              displayWheelDiffMode();              //! Writes info to console/notify box
+    int               getWheelDiffMode() { return m_num_wheel_diffs; }
     void              toggleTransferCaseMode();            //! Toggles between 2WD and 4WD mode
+    TransferCase*     getTransferCaseMode() { return m_transfer_case; }
     void              toggleTransferCaseGearRatio();       //! Toggles between Hi and Lo mode
     Ogre::String      getTransferCaseName();               //! Gets the current transfer case mode name (4WD Hi, ...)
     void              displayTransferCaseMode();           //! Writes info to console/notify area
@@ -138,11 +142,20 @@ public:
     bool              getCustomLightVisible(int number);
     void              setCustomLightVisible(int number, bool visible);
     bool              getReverseLightVisible();            //!< Tells if the reverse-light is currently lit.
+    bool              getHeadLightVisible() { return m_headlight_on; }
     bool              getBeaconMode();
     void              toggleBlinkType(BlinkType blink);
     BlinkType         getBlinkType();
     void              setBlinkType(BlinkType blink);
     std::vector<Actor*> getAllLinkedActors() { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
+
+    bool usesFlareControlGroup(int arg)
+    {
+        assert(i > 0);
+        assert(i <= MAX_CLIGHTS);
+        for (int i = 0; i < ar_flares.size(); i++) { if (ar_flares[i].controlnumber == arg) return true; }
+        return false;
+    }
     //! @}
 
     /// @name Visual state updates
