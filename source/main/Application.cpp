@@ -236,7 +236,6 @@ CVar* gfx_speedo_imperial;
 CVar* gfx_flexbody_cache;
 CVar* gfx_reduce_shadows;
 CVar* gfx_enable_rtshaders;
-CVar* gfx_classic_shaders;
 
 // Instance management
 void SetSimTerrain     (TerrainManager* obj)          { g_sim_terrain = obj;}
