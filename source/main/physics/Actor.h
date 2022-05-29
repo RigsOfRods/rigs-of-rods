@@ -141,6 +141,7 @@ public:
     bool              getBrakeLightVisible();
     bool              getCustomLightVisible(int number);
     void              setCustomLightVisible(int number, bool visible);
+    bool              getCustomLightPresent(int number);
     bool              getReverseLightVisible();            //!< Tells if the reverse-light is currently lit.
     bool              getHeadLightVisible() { return m_headlight_on; }
     bool              getBeaconMode();
@@ -148,14 +149,6 @@ public:
     BlinkType         getBlinkType();
     void              setBlinkType(BlinkType blink);
     std::vector<Actor*> getAllLinkedActors() { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
-
-    bool usesFlareControlGroup(int arg)
-    {
-        assert(i > 0);
-        assert(i <= MAX_CLIGHTS);
-        for (int i = 0; i < ar_flares.size(); i++) { if (ar_flares[i].controlnumber == arg) return true; }
-        return false;
-    }
     //! @}
 
     /// @name Visual state updates

@@ -4470,7 +4470,7 @@ bool Actor::getCustomLightVisible(int number)
 {
     if (number < 0 || number >= MAX_CLIGHTS)
     {
-        LOG(fmt::format("AngelScript: invalid custom-light ID {}, allowed range is 0-{}", number, MAX_CLIGHTS-1));
+        LOG(fmt::format("invalid custom-light ID {}, allowed range is 0-{}", number, MAX_CLIGHTS-1));
         return false;
     }
 
@@ -4481,11 +4481,27 @@ void Actor::setCustomLightVisible(int number, bool visible)
 {
     if (number < 0 || number >= MAX_CLIGHTS)
     {
-        LOG(fmt::format("AngelScript: invalid Light ID {}, allowed range is 0-{}", number, MAX_CLIGHTS-1));
+        LOG(fmt::format("invalid Light ID {}, allowed range is 0-{}", number, MAX_CLIGHTS-1));
         return;
     }
 
     m_custom_lights_on[number] = visible;
+}
+
+bool Actor::getCustomLightPresent(int number)
+{
+    if (number < 0 || number >= MAX_CLIGHTS)
+    {
+        LOG(fmt::format("invalid custom-light ID {}, allowed range is 0-{}", number, MAX_CLIGHTS-1));
+        return false;
+    }
+
+    for (int i = 0; i < ar_flares.size(); i++)
+    {
+        if (ar_flares[i].controlnumber == number)
+            return true;
+    }
+    return false;
 }
 
 bool Actor::getBeaconMode() // Angelscript export
