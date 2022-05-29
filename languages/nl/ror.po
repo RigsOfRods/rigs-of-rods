@@ -4,15 +4,15 @@
 #
 # Translators:
 # Edgar <Edgar@AnotherFoxGuy.com>, 2016-2018
-# Edgar <Edgar@anotherfoxguy.com>, 2021.
+# Edgar <Edgar@anotherfoxguy.com>, 2021, 2022.
 # Quinten Steeland <quinten.steeland@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-03-13 10:58+0100\n"
-"PO-Revision-Date: 2021-09-01 12:05+0000\n"
-"Last-Translator: Quinten Steeland <quinten.steeland@gmail.com>\n"
+"PO-Revision-Date: 2022-05-29 14:53+0000\n"
+"Last-Translator: Edgar <Edgar@anotherfoxguy.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "nl/>\n"
 "Language: nl\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.8.1-dev\n"
+"X-Generator: Weblate 4.13-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -204,20 +204,14 @@ msgid "Memory (Ogre): "
 msgstr "Geheugen (Ogre): "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr "Accelereert de vrachtwagen"
+msgstr "Schaal de truck"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr "lading vastbinden aan truck"
+msgstr "Krijgt de naam van de vrachtwagen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
@@ -230,20 +224,14 @@ msgid "Gets the name of the loaded section for a truck"
 msgstr ""
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr "lading vastbinden aan truck"
+msgstr "Krijgt het type van de vrachtwagen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "Accelereert de vrachtwagen"
+msgstr "Reset de vrachtwagen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
 #, fuzzy
@@ -291,12 +279,9 @@ msgid "Gets the total amount of nodes of the truck"
 msgstr ""
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr "lading vastbinden aan truck"
+msgstr "Krijgt de totale massa van de truck"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
@@ -304,12 +289,9 @@ msgid "Gets the total amount of nodes of the wheels of the truck"
 msgstr ""
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Sets the mass of the truck"
-msgstr "lading vastbinden aan truck"
+msgstr "Stelt de massa van de truck in"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
@@ -917,7 +899,7 @@ msgstr "gebruik: /whisper gebruikersnaam bericht"
 #: gui/panels/GUI_GameControls.cpp:64
 msgctxt "GameControls"
 msgid "Press a new key"
-msgstr ""
+msgstr "Druk op een nieuwe toets"
 
 #: gui/panels/GUI_GameControls.cpp:73
 msgctxt "GameControls"
@@ -930,6 +912,9 @@ msgid ""
 "With EXPL tag, only exactly matching key combos will be triggered.\n"
 "Without it, partial matches will trigger, too."
 msgstr ""
+"Met EXPL-tag worden alleen exact overeenkomende toetscombinaties geactiveerd."
+"\n"
+"Zonder deze tag zullen ook gedeeltelijke overeenkomsten worden geactiveerd."
 
 #: gui/panels/GUI_GameControls.cpp:86
 msgctxt "GameControls"
@@ -986,7 +971,7 @@ msgstr "Annuleren"
 #: gui/panels/GUI_GameControls.cpp:268
 msgctxt "GameSettings"
 msgid "Delete"
-msgstr ""
+msgstr "Verwijderen"
 
 #: gui/panels/GUI_GameControls.cpp:399
 msgctxt "GameSettings"
@@ -1829,7 +1814,7 @@ msgstr "gebruikersnaam"
 #: gui/panels/GUI_MultiplayerClientList.cpp:141
 msgctxt "MultiplayerClientList"
 msgid "user uid"
-msgstr ""
+msgstr "gebruiker uid"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:145
 msgctxt "MultiplayerClientList"
@@ -2134,7 +2119,7 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:191
 msgctxt "RepositorySelector"
 msgid "Connection error. Please check your connection."
-msgstr ""
+msgstr "Verbindingsfout. Controleer uw verbinding."
 
 #: gui/panels/GUI_RepositorySelector.cpp:202
 msgctxt "RepositorySelector"
@@ -2151,19 +2136,19 @@ msgstr "Rigs of Rods versie: %s"
 #: gui/panels/GUI_RepositorySelector.cpp:451
 msgctxt "RepositorySelector"
 msgid "Sort"
-msgstr ""
+msgstr "Sorteren"
 
 #: gui/panels/GUI_RepositorySelector.cpp:453
 #: gui/panels/GUI_RepositorySelector.cpp:760
 #: gui/panels/GUI_RepositorySelector.cpp:882
 msgctxt "RepositorySelector"
 msgid "Last Update"
-msgstr ""
+msgstr "Laatste Update"
 
 #: gui/panels/GUI_RepositorySelector.cpp:458
 msgctxt "RepositorySelector"
 msgid "Date Added"
-msgstr ""
+msgstr "Datum toegevoegd"
 
 #: gui/panels/GUI_RepositorySelector.cpp:463
 #: gui/panels/GUI_RepositorySelector.cpp:756
@@ -2216,17 +2201,17 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:512
 msgctxt "RepositorySelector"
 msgid "Search Title, Author"
-msgstr ""
+msgstr "Zoeken op titel, auteur"
 
 #: gui/panels/GUI_RepositorySelector.cpp:532
 msgctxt "RepositorySelector"
 msgid "Details:"
-msgstr ""
+msgstr "Details:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:535
 msgctxt "RepositorySelector"
 msgid "Title:"
-msgstr ""
+msgstr "Titel:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:541
 msgctxt "RepositorySelector"
@@ -2236,7 +2221,7 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:547
 msgctxt "RepositorySelector"
 msgid "Category:"
-msgstr ""
+msgstr "Categorie:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:561
 #, fuzzy
@@ -2275,12 +2260,12 @@ msgstr "Aantal Driehoeken: "
 #: gui/panels/GUI_RepositorySelector.cpp:591
 msgctxt "RepositorySelector"
 msgid "Date Added:"
-msgstr ""
+msgstr "Datum toegevoegd:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:598
 msgctxt "RepositorySelector"
 msgid "Last Update:"
-msgstr ""
+msgstr "Laatste Update:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:605
 #, fuzzy
@@ -2330,18 +2315,18 @@ msgstr "Update cache"
 #: gui/panels/GUI_RepositorySelector.cpp:706
 msgctxt "RepositorySelector"
 msgid "Reinstall"
-msgstr ""
+msgstr "Opnieuw installeren"
 
 #: gui/panels/GUI_RepositorySelector.cpp:710
 msgctxt "RepositorySelector"
 msgid "Install"
-msgstr ""
+msgstr "Installeer"
 
 #: gui/panels/GUI_RepositorySelector.cpp:720
 #: gui/panels/GUI_RepositorySelector.cpp:730
 msgctxt "RepositorySelector"
 msgid "Remove"
-msgstr ""
+msgstr "Verwijder"
 
 #: gui/panels/GUI_RepositorySelector.cpp:758
 #: gui/panels/GUI_RepositorySelector.cpp:987
@@ -2384,12 +2369,12 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:1119
 msgctxt "RepositorySelector"
 msgid "Sorry, the repository isn't available. Try again later."
-msgstr ""
+msgstr "Sorry, de repository is niet beschikbaar. Probeer het later nog eens."
 
 #: gui/panels/GUI_RepositorySelector.cpp:1135
 msgctxt "RepositorySelector"
 msgid "No files available :("
-msgstr ""
+msgstr "Geen bestanden beschikbaar :("
 
 #: gui/panels/GUI_SimActorStats.cpp:53
 msgctxt "SimActorStats"
@@ -2766,7 +2751,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:486
 msgctxt "TopMenubar"
 msgid "Speed"
-msgstr ""
+msgstr "Snelheid"
 
 #: gui/panels/GUI_TopMenubar.cpp:495
 msgctxt "TopMenubar"
@@ -2781,7 +2766,7 @@ msgstr "Opties voor voertuigbesturing:"
 #: gui/panels/GUI_TopMenubar.cpp:508
 msgctxt "TopMenubar"
 msgid "Keyboard steering speed coupling"
-msgstr ""
+msgstr "Keyboard stuurt snelheid"
 
 #: gui/panels/GUI_TopMenubar.cpp:513
 msgctxt "TopMenubar"
@@ -3011,7 +2996,7 @@ msgstr "meter"
 #: gui/panels/GUI_TopMenubar.cpp:920
 msgctxt "TopMenubar"
 msgid "Terrain editing mode, press {} to save and exit"
-msgstr ""
+msgstr "Terreinbewerkingsmodus, druk op {} om op te slaan en af te sluiten"
 
 #: gui/panels/GUI_TopMenubar.cpp:960
 msgctxt "TopMenubar"
@@ -3091,6 +3076,7 @@ msgstr "Terrein bewerkingsmodus ingeschakeld"
 #: main.cpp:760
 msgid "Press {} or middle mouse click to select an object"
 msgstr ""
+"Druk op {} of klik met de middelste muisknop om een object te selecteren"
 
 #: main.cpp:772
 msgid "Left terrain editing mode"
@@ -5910,7 +5896,7 @@ msgstr "herlaad voertuig"
 
 #: utils/InputEngine.cpp:1717
 msgid "(Please press a key)"
-msgstr ""
+msgstr "(Druk alstublieft op een toets)"
 
 #~ msgctxt "ChatBox"
 #~ msgid "Welcome to Rigs of Rods!"
