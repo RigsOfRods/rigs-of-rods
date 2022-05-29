@@ -61,6 +61,7 @@
 #include "GUI_GameControls.h"
 #include "GUI_TopMenubar.h"
 #include "GUI_VehicleDescription.h"
+#include "GUI_VehicleButtons.h"
 
 #include <MyGUI.h>
 #include <MyGUI_OgrePlatform.h>
@@ -96,6 +97,7 @@ struct GuiManagerImpl
     GUI::ConsoleWindow          panel_ConsoleWindow;
     GUI::SurveyMap              panel_SurveyMap;
     GUI::DirectionArrow         panel_DirectionArrow;
+    GUI::VehicleButtons         panel_VehicleButtons;
     Ogre::Overlay*              overlay_Wallpaper = nullptr;
 
     MyGUI::Gui*                 mygui = nullptr;
@@ -159,6 +161,7 @@ GUI::SurveyMap*             GUIManager::GetSurveyMap()         { return &m_impl-
 GUI::SimActorStats*         GUIManager::GetSimActorStats()     { return &m_impl->panel_SimActorStats       ; }
 GUI::DirectionArrow*        GUIManager::GetDirectionArrow()    { return &m_impl->panel_DirectionArrow      ; }
 GUI::MpClientList*          GUIManager::GetMpClientList()      { return &m_impl->panel_MpClientList        ; }
+GUI::VehicleButtons*        GUIManager::GetVehicleButtons()    { return &m_impl->panel_VehicleButtons      ; }
 
 GUIManager::GUIManager()
 {
@@ -257,6 +260,12 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     if (player_gfx_actor && this->IsVisible_SimActorStats())
     {
         m_impl->panel_SimActorStats.Draw(player_gfx_actor);
+    }
+
+    if (player_gfx_actor && player_gfx_actor->GetActor()->ar_state == ActorState::LOCAL_SIMULATED && 
+        !this->IsVisible_SimActorStats() && !this->IsVisible_SimPerfStats() && !this->IsVisible_GameMainMenu())
+    {
+        m_impl->panel_VehicleButtons.Draw(player_gfx_actor);
     }
 
     if (!this->IsVisible_Console())

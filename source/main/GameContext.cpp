@@ -44,6 +44,7 @@
 #include "TerrainManager.h"
 #include "Utils.h"
 #include "VehicleAI.h"
+#include "GUI_VehicleButtons.h"
 
 using namespace RoR;
 
@@ -444,7 +445,6 @@ void GameContext::ChangePlayerActor(Actor* actor)
         // getting inside
         App::GetOverlayWrapper()->showDashboardOverlays(
             !App::GetGuiManager()->IsGuiHidden(), m_player_actor);
-
 
         if (m_player_actor->GetGfxActor()->GetVideoCamState() == VideoCamState::VCSTATE_ENABLED_OFFLINE)
         {
@@ -1210,6 +1210,14 @@ void GameContext::UpdateCommonInputEvents(float dt)
         int eventID = EV_COMMANDS_01 + (i - 1);
 
         m_player_actor->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
+
+        for (auto id: App::GetGuiManager()->GetVehicleButtons()->GetCommandEventID())
+        {
+            if (id == eventID)
+            {
+                m_player_actor->ar_command_key[i].playerInputValue = 1.f;
+            }
+        }
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_FORWARDCOMMANDS))
@@ -1590,7 +1598,7 @@ void GameContext::UpdateTruckInputEvents(float dt)
     }
     else
     {
-        if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN))
+        if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN) || App::GetGuiManager()->GetVehicleButtons()->GetHornButtonState())
         {
             SOUND_START(m_player_actor, SS_TRIG_HORN);
         }

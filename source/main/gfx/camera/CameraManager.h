@@ -76,14 +76,15 @@ public:
     void ResetAllBehaviors();
     void ReCreateCameraNode(); //!< Needed since we call `Ogre::SceneManager::ClearScene()` after end of sim. session
 
+    void switchToNextBehavior();
+    bool EvaluateSwitchBehavior();
+
 protected:
 
-    void switchToNextBehavior();
     void switchBehavior(CameraBehaviors new_behavior);
     void SwitchBehaviorOnVehicleChange(CameraBehaviors new_behavior, Actor* new_vehicle);
     void ToggleCameraBehavior(CameraBehaviors new_behavior); //!< Only accepts FREE and FREEFIX modes
     void ActivateNewBehavior(CameraBehaviors new_behavior, bool reset);
-    bool EvaluateSwitchBehavior();
     void UpdateCurrentBehavior();
     void ResetCurrentBehavior();
     void DeactivateCurrentBehavior();
