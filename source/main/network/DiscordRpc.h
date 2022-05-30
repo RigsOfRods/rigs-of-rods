@@ -29,6 +29,7 @@ namespace RoR {
 #ifdef USE_DISCORD_RPC
 struct DiscordState {
     discord::User currentUser;
+    std::string requestedServer;
     std::unique_ptr<discord::Core> core;
 };
 #endif

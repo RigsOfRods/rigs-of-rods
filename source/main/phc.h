@@ -52,10 +52,6 @@
 #include <discord.h>
 #endif// USE_DISCORD_RPC
 
-#ifdef USE_SOCKETW
-#include <SocketW.h>
-#endif// USE_SOCKETW
-
 #ifdef USE_ANGELSCRIPT
 #include <angelscript.h>
 #endif// USE_ANGELSCRIPT
@@ -63,10 +59,6 @@
 #ifdef USE_CURL
 #include <curl/curl.h>
 #endif// USE_CURL
-
-#ifdef USE_DISCORD_RPC
-#include <discord.h>
-#endif// USE_DISCORD_RPC
 
 #ifdef USE_CAELUM
 #include <CaelumPrerequisites.h>
