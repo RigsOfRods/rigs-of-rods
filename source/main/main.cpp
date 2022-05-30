@@ -1006,6 +1006,9 @@ int main(int argc, char *argv[])
 
             App::GetGuiManager()->ApplyGuiCaptureKeyboard();
 
+            // Update Discord integration
+            App::GetDiscordRpc()->RunCallbacks();
+
         } // End of main rendering/input loop
 
 #ifndef _DEBUG

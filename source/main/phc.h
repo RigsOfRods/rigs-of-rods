@@ -49,7 +49,7 @@
 #endif// USE_SOCKETW
 
 #ifdef USE_DISCORD_RPC
-#include <discord_rpc.h>
+#include <discord.h>
 #endif// USE_DISCORD_RPC
 
 #ifdef USE_SOCKETW
@@ -65,7 +65,7 @@
 #endif// USE_CURL
 
 #ifdef USE_DISCORD_RPC
-#include <discord_rpc.h>
+#include <discord.h>
 #endif// USE_DISCORD_RPC
 
 #ifdef USE_CAELUM

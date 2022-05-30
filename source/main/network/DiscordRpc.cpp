@@ -24,35 +24,37 @@
 #include "AppContext.h"
 
 #ifdef USE_DISCORD_RPC
-#include <discord_rpc.h>
+#include <discord.h>
+#include "Network.h"
 #endif
 
 using namespace RoR;
-
-#ifdef USE_DISCORD_RPC
-void DiscordErrorCallback(int, const char *error)
-{
-    RoR::LogFormat("Discord Error: %s", error);
-}
-
-void DiscordReadyCallback(const DiscordUser *user)
-{
-    RoR::LogFormat("Discord Ready: %s", user->username);
-}
-#endif
 
 void DiscordRpc::Init()
 {
 #ifdef USE_DISCORD_RPC
     if(App::io_discord_rpc->getBool())
     {
-        DiscordEventHandlers handlers;
-        memset(&handlers, 0, sizeof(handlers));
-        handlers.ready = DiscordReadyCallback;
-        handlers.errored = DiscordErrorCallback;
+        discord::Core* core{};
+        auto result = discord::Core::Create(492484203435393035, DiscordCreateFlags_Default, &core);
+        state.core.reset(core);
+        if (!state.core) {
+            LogFormat("[Discord] Failed to instantiate discord core! (err %i)", static_cast<int>(result));
+            return;
+        }
+        state.core->SetLogHook(
+            discord::LogLevel::Debug, [](discord::LogLevel level, const char* message) {
+              LogFormat("[Discord](%i): %s", static_cast<uint32_t>(level), message);
+            });
 
-        // Discord_Initialize(const char* applicationId, DiscordEventHandlers* handlers, int autoRegister, const char* optionalSteamId)
-        Discord_Initialize("492484203435393035", &handlers, 1, "1234");
+        state.core->ActivityManager().RegisterCommand("RoR -joinserver=");
+
+        state.core->ActivityManager().OnActivityInvite.Connect(
+            [](discord::ActivityActionType t, discord::User const& user, discord::Activity const& ac) {
+              LogFormat("[Discord]: Invite %i %s", static_cast<int>(t), user.GetUsername());
+            });
+        state.core->ActivityManager().OnActivityJoin.Connect(
+            [](const char* secret) {  LogFormat("[Discord]: %s", secret); });
     }
 #endif
 }
@@ -60,36 +62,54 @@ void DiscordRpc::Init()
 void DiscordRpc::UpdatePresence()
 {
 #ifdef USE_DISCORD_RPC
-    if(App::io_discord_rpc->getBool())
+    if(App::io_discord_rpc->getBool() && state.core)
     {
-        char buffer[256];
-        DiscordRichPresence discordPresence;
-        memset(&discordPresence, 0, sizeof(discordPresence));
+        discord::Activity activity{};
+        std::string details;
+
         if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
         {
-            discordPresence.state = "Playing online";
-            sprintf(buffer, "On server: %s:%d  on terrain: %s",
-                    RoR::App::mp_server_host->getStr().c_str(),
+            activity.SetState("Playing online");
+            details = fmt::format("On server: {}:{}  on terrain: {}",
+                    RoR::App::mp_server_host->getStr(),
                     RoR::App::mp_server_port->getInt(),
-                    RoR::App::sim_terrain_gui_name->getStr().c_str());
+                    RoR::App::sim_terrain_gui_name->getStr()
+            );
+            auto server = fmt::format("{}:{}",RoR::App::mp_server_host->getStr(), RoR::App::mp_server_port->getInt());
+
+            activity.GetParty().SetId(App::GetNetwork()->GetServerName().c_str());
+            activity.GetParty().GetSize().SetMaxSize(16);
+            activity.GetParty().GetSize().SetCurrentSize(2);
+            activity.GetSecrets().SetJoin(server.c_str());
+            activity.SetInstance(true);
         }
         else
         {
-            discordPresence.state = "Playing singleplayer";
-            sprintf(buffer, "On terrain: %s", RoR::App::sim_terrain_gui_name->getStr().c_str());
+            activity.SetState("Playing singleplayer");
+            details = fmt::format("On terrain: {}", RoR::App::sim_terrain_gui_name->getStr());
         }
-        discordPresence.details = buffer;
-        discordPresence.startTimestamp = time(0);
-        discordPresence.largeImageKey = "ror_logo_t";
-        discordPresence.largeImageText = "Rigs of Rods";
-        Discord_UpdatePresence(&discordPresence);
+        activity.SetDetails(details.c_str());
+        activity.GetAssets().SetLargeImage("ror_logo_t");
+        activity.GetAssets().SetLargeText("Rigs of Rods");
+        activity.SetType(discord::ActivityType::Playing);
+        state.core->ActivityManager().UpdateActivity(activity, [](discord::Result result) {
+          LogFormat("[Discord] %s updating activity! (%i)", ((result == discord::Result::Ok) ? "Succeeded" : "Failed"), static_cast<int>(result));
+        });
     }
+#endif
+}
+
+void DiscordRpc::RunCallbacks()
+{
+#ifdef USE_DISCORD_RPC
+  if (state.core)
+    state.core->RunCallbacks();
 #endif
 }
 
 void DiscordRpc::Shutdown()
 {
 #ifdef USE_DISCORD_RPC
-    Discord_Shutdown();
+    state.core.reset();
 #endif
 }
