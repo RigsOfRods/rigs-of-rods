@@ -1012,7 +1012,7 @@ void ActorManager::UpdateActors(Actor* player_actor)
         }
         if (App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
         {
-            if (actor->ar_state == ActorState::NETWORKED_OK)
+            if (actor->ar_state == ActorState::NETWORKED_OK || actor->ar_state == ActorState::NETWORKED_HIDDEN)
                 actor->calcNetwork();
             else
                 actor->sendStreamData();
