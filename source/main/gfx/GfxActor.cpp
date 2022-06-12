@@ -3233,5 +3233,6 @@ void RoR::GfxActor::RemoveBeam(int beam_index)
             m_gfx_beams.erase(itor);
             return;
         }
+        ++itor;
     }
 }
