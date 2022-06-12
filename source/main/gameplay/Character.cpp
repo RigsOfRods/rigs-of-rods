@@ -44,7 +44,7 @@ Character::Character(int source, unsigned int streamid, UTFString player_name, i
       m_actor_coupling(nullptr)
     , m_can_jump(false)
     , m_character_rotation(0.0f)
-    , m_character_h_speed(2.0f)
+    , m_character_h_speed(1.7f)
     , m_character_v_speed(0.0f)
     , m_color_number(color_number)
     , m_anim_time(0.f)
