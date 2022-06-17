@@ -8,13 +8,14 @@
 # Joaquín Lafuente <lafuente_45@hotmail.com>, 2021.
 # Joaquin Gomez <joa97@hotmail.com.ar>, 2021, 2022.
 # Mxt Apps <mxtapps@gmail.com>, 2021.
+# Jhaltzkers Jhaltzkers <jhaltzkers@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-05-29 14:59+0200\n"
-"PO-Revision-Date: 2022-04-19 04:12+0000\n"
-"Last-Translator: Joaquin Gomez <joa97@hotmail.com.ar>\n"
+"PO-Revision-Date: 2022-06-18 01:14+0000\n"
+"Last-Translator: Jhaltzkers Jhaltzkers <jhaltzkers@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/es/>\n"
 "Language: es\n"
@@ -22,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.12-dev\n"
+"X-Generator: Weblate 4.13-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -133,12 +134,12 @@ msgstr "Todos los vehículos, todas las luces"
 #: Application.cpp:387
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "Inhabilitado"
 
 #: Application.cpp:388
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "PSSM"
 
 #: Application.cpp:397
 #, fuzzy
@@ -164,7 +165,7 @@ msgstr "Todos (más bonito, más lento)"
 #: Application.cpp:408
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "Ninguno"
 
 #: Application.cpp:409
 #, fuzzy
@@ -191,7 +192,7 @@ msgstr "Anisotropía"
 #: Application.cpp:420
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "Ninguno"
 
 #: Application.cpp:421
 #, fuzzy
@@ -210,12 +211,12 @@ msgstr "50%"
 #: Application.cpp:423
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "Lleno"
 
 #: Application.cpp:432
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "Ninguno"
 
 #: Application.cpp:433
 #, fuzzy
@@ -256,22 +257,22 @@ msgstr "Hydrax"
 #: Application.cpp:446
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "Ninguno"
 
 #: Application.cpp:447
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "Estático"
 
 #: Application.cpp:448
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "Lanzamiento"
 
 #: Application.cpp:457
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "Ninguno"
 
 #: Application.cpp:458
 #, fuzzy
@@ -1445,7 +1446,7 @@ msgstr "Calidad de sombra"
 #: gui/panels/GUI_GameSettings.cpp:318
 msgctxt "GameSettings"
 msgid "Sky gfx"
-msgstr ""
+msgstr "gfx del cielo"
 
 #: gui/panels/GUI_GameSettings.cpp:323
 msgctxt "GameSettings"
