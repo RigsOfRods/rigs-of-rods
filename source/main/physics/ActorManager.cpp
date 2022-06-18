@@ -1283,7 +1283,7 @@ void ActorManager::UpdateInputEvents(float dt)
         }
 
         // EV_COMMON_RESET_SIMULATION_PACE
-        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_SIMULATION_PACE, 5.f))
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_SIMULATION_PACE))
         {
             float simulation_speed = this->GetSimulationSpeed();
             if (simulation_speed != 1.0f)
@@ -1337,7 +1337,7 @@ void ActorManager::UpdateInputEvents(float dt)
             // EV_COMMON_REPLAY_FAST_FORWARD - Advance simulation while pressed
             // EV_COMMON_REPLAY_FORWARD - Advanced simulation one step
             if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPLAY_FAST_FORWARD) ||
-                App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD, 0.25f))
+                App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_REPLAY_FORWARD))
             {
                 m_simulation_time = PHYSICS_DT / this->GetSimulationSpeed();
             }
