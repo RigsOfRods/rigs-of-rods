@@ -4606,3 +4606,30 @@ void Actor::WriteDiagnosticDump(std::string const& fileName)
     outStream->write(text.c_str(), text.length());
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(rgName);
 }
+
+float Actor::getShockSpringRate(int shock_number)
+{
+    if (shock_number >= 0 && shock_number < ar_num_shocks)
+    {
+        return ar_beams[ar_shocks[shock_number].beamid].debug_k;
+    }
+    return -1.f;
+}
+
+float Actor::getShockDamping(int shock_number)
+{
+    if (shock_number >= 0 && shock_number < ar_num_shocks)
+    {
+        return ar_beams[ar_shocks[shock_number].beamid].debug_d;
+    }
+    return -1.f;
+}
+
+float Actor::getShockVelocity(int shock_number)
+{
+    if (shock_number >= 0 && shock_number < ar_num_shocks)
+    {
+        return ar_beams[ar_shocks[shock_number].beamid].debug_v;
+    }
+    return -1.f;
+}
