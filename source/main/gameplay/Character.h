@@ -107,23 +107,7 @@ private:
 /// @} // addtogroup Gameplay
 
 struct GfxCharacter
-{
-    struct SimBuffer //!< Buffered simulation state for async gfx scene update
-    {
-        Ogre::Vector3      simbuf_character_pos;
-        Ogre::Radian       simbuf_character_rot; //!< When on foot
-        Ogre::UTFString    simbuf_net_username;
-        bool               simbuf_is_remote;
-        int                simbuf_color_number;
-        ActorPtr             simbuf_actor_coupling;
-
-        // anims
-        std::string        simbuf_anim_upper_name;
-        float              simbuf_anim_upper_time;
-        std::string        simbuf_anim_lower_name;
-        float              simbuf_anim_lower_time;
-    };
-    
+{    
     ~GfxCharacter();
     
     void            BufferSimulationData();
@@ -132,8 +116,8 @@ struct GfxCharacter
     void            EnableAnim(Ogre::AnimationState* anim_state, float time);
 
     Ogre::SceneNode*          xc_scenenode;
-    SimBuffer                 xc_simbuf;
-    SimBuffer                 xc_simbuf_prev;
+    CharacterSB               xc_simbuf;
+    CharacterSB               xc_simbuf_prev;
     Character*                xc_character;
     std::string               xc_instance_name; // TODO: Store MaterialPtr-s directly ~only_a_ptr, 05/2018
 };
