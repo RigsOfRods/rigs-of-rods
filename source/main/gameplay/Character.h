@@ -21,8 +21,9 @@
 
 #pragma once
 
-#include "Actor.h"
+
 #include "ForwardDeclarations.h"
+#include "SimBuffers.h"
 
 #include <OgreUTFString.h>
 #include <OgreMeshManager.h>
@@ -49,10 +50,8 @@ public:
     int            GetColorNum() const                  { return m_color_number; }
     bool           GetIsRemote() const                  { return m_is_remote; }
     Ogre::UTFString const& GetNetUsername()             { return m_net_username; }
-    std::string const &    GetAnimName() const          { return m_anim_name; }
-    float          GetAnimTime() const                  { return m_anim_time; }
     Ogre::Radian   getRotation() const                  { return m_character_rotation; }
-    ActorPtr       GetActorCoupling()                   { return m_actor_coupling; }
+    ActorPtr       GetActorCoupling();
     void           setColour(int color)                 { this->m_color_number = color; }
     Ogre::Vector3  getPosition();
     void           setPosition(Ogre::Vector3 position);
@@ -64,12 +63,19 @@ public:
     void           SetActorCoupling(bool enabled, ActorPtr actor);
     GfxCharacter*  SetupGfx();
 
+    // anims
+    std::string const & GetUpperAnimName() const        { return m_anim_upper_name; }
+    float          GetUpperAnimTime() const             { return m_anim_upper_time; }
+    std::string const & GetLowerAnimName() const        { return m_anim_lower_name; }
+    float          GetLowerAnimTime() const             { return m_anim_lower_time; }
+
 private:
 
     void           ReportError(const char* detail);
     void           SendStreamData();
     void           SendStreamSetup();
-    void           SetAnimState(std::string mode, float time = 0);
+    void           SetUpperAnimState(std::string mode, float time = 0);
+    void           SetLowerAnimState(std::string mode, float time = 0);
 
     ActorPtr         m_actor_coupling; //!< The vehicle or machine which the character occupies
     Ogre::Radian     m_character_rotation;
@@ -82,8 +88,6 @@ private:
     int              m_source_id;
     bool             m_can_jump;
     bool             m_is_remote;
-    std::string      m_anim_name;
-    float            m_anim_time;
     float            m_net_last_anim_time;
     float            m_driving_anim_length;
     std::string      m_instance_name;
@@ -91,6 +95,12 @@ private:
     Ogre::Timer      m_net_timer;
     unsigned long    m_net_last_update_time;
     GfxCharacter*    m_gfx_character;
+
+    // anims
+    std::string      m_anim_upper_name;
+    float            m_anim_upper_time;
+    std::string      m_anim_lower_name;
+    float            m_anim_lower_time;
 };
 
 /// @} // addtogroup Character
@@ -106,14 +116,20 @@ struct GfxCharacter
         bool               simbuf_is_remote;
         int                simbuf_color_number;
         ActorPtr             simbuf_actor_coupling;
-        std::string        simbuf_anim_name;
-        float              simbuf_anim_time; // Intentionally left empty = forces initial update.
+
+        // anims
+        std::string        simbuf_anim_upper_name;
+        float              simbuf_anim_upper_time;
+        std::string        simbuf_anim_lower_name;
+        float              simbuf_anim_lower_time;
     };
     
     ~GfxCharacter();
     
     void            BufferSimulationData();
     void            UpdateCharacterInScene();
+    void            DisableAnim(Ogre::AnimationState* anim_state);
+    void            EnableAnim(Ogre::AnimationState* anim_state, float time);
 
     Ogre::SceneNode*          xc_scenenode;
     SimBuffer                 xc_simbuf;

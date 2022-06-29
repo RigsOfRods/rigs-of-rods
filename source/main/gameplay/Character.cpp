@@ -47,7 +47,8 @@ Character::Character(int source, unsigned int streamid, UTFString player_name, i
     , m_character_h_speed(2.0f)
     , m_character_v_speed(0.0f)
     , m_color_number(color_number)
-    , m_anim_time(0.f)
+    , m_anim_upper_time(0.f)
+    , m_anim_lower_time(0.f)
     , m_net_last_anim_time(0.f)
     , m_net_last_update_time(0.f)
     , m_net_username(player_name)
@@ -56,7 +57,8 @@ Character::Character(int source, unsigned int streamid, UTFString player_name, i
     , m_stream_id(streamid)
     , m_gfx_character(nullptr)
     , m_driving_anim_length(0.f)
-    , m_anim_name("Idle_sway")
+    , m_anim_upper_name("") // unused
+    , m_anim_lower_name("Idle_sway")
 {
     static int id_counter = 0;
     m_instance_name = "Character" + TOSTRING(id_counter);
@@ -100,17 +102,30 @@ void Character::setRotation(Radian rotation)
     m_character_rotation = rotation;
 }
 
-void Character::SetAnimState(std::string mode, float time)
+void Character::SetUpperAnimState(std::string mode, float time)
 {
-    if (m_anim_name != mode)
+    if (m_anim_upper_name != mode)
     {
-        m_anim_name = mode;
-        m_anim_time = time;
+        m_anim_upper_name = mode;
+        m_anim_upper_time = time;
+    }
+    else
+    {
+        m_anim_upper_time += time;
+    }
+}
+
+void Character::SetLowerAnimState(std::string mode, float time)
+{
+    if (m_anim_lower_name != mode)
+    {
+        m_anim_lower_name = mode;
+        m_anim_lower_time = time;
         m_net_last_anim_time = 0.0f;
     }
     else
     {
-        m_anim_time += time;
+        m_anim_lower_time += time;
     }
 }
 
@@ -260,7 +275,7 @@ void Character::update(float dt)
             setRotation(m_character_rotation + dt * 2.0f * scale * Radian(tmpJoy));
             if (!isswimming && not_walking)
             {
-                this->SetAnimState("Turn", -dt);
+                this->SetLowerAnimState("TurnLeft", -dt);
                 idleanim = false;
             }
         }
@@ -272,7 +287,7 @@ void Character::update(float dt)
             setRotation(m_character_rotation - dt * scale * 2.0f * Radian(tmpJoy));
             if (!isswimming && not_walking)
             {
-                this->SetAnimState("Turn", dt);
+                this->SetLowerAnimState("TurnRight", dt);
                 idleanim = false;
             }
         }
@@ -289,7 +304,7 @@ void Character::update(float dt)
             position += dt * m_character_h_speed * 0.5f * accel * Vector3(cos(m_character_rotation.valueRadians() - Math::HALF_PI), 0.0f, sin(m_character_rotation.valueRadians() - Math::HALF_PI));
             if (!isswimming && not_walking)
             {
-                this->SetAnimState("Side_step", -dt);
+                this->SetLowerAnimState("Side_step", -dt);
                 idleanim = false;
             }
         }
@@ -303,7 +318,7 @@ void Character::update(float dt)
             position += dt * m_character_h_speed * 0.5f * accel * Vector3(cos(m_character_rotation.valueRadians() + Math::HALF_PI), 0.0f, sin(m_character_rotation.valueRadians() + Math::HALF_PI));
             if (!isswimming && not_walking)
             {
-                this->SetAnimState("Side_step", dt);
+                this->SetLowerAnimState("Side_step", dt);
                 idleanim = false;
             }
         }
@@ -323,19 +338,19 @@ void Character::update(float dt)
 
             if (isswimming)
             {
-                this->SetAnimState("Swim_loop", time);
+                this->SetLowerAnimState("Swim_loop", time);
                 idleanim = false;
             }
             else
             {
                 if (tmpRun > 0.0f)
                 {
-                    this->SetAnimState("Run", time);
+                    this->SetLowerAnimState("Run", time);
                     idleanim = false;
                 }
                 else
                 {
-                    this->SetAnimState("Walk", time);
+                    this->SetLowerAnimState("Walk", time);
                     idleanim = false;
                 }
             }
@@ -346,12 +361,12 @@ void Character::update(float dt)
             float time = -dt * m_character_h_speed;
             if (isswimming)
             {
-                this->SetAnimState("Spot_swim", time);
+                this->SetLowerAnimState("Spot_swim", time);
                 idleanim = false;
             }
             else
             {
-                this->SetAnimState("Walk", time);
+                this->SetLowerAnimState("Walk", time);
                 idleanim = false;
             }
             position -= dt * m_character_h_speed * tmpBack * Vector3(cos(m_character_rotation.valueRadians()), 0.0f, sin(m_character_rotation.valueRadians()));
@@ -361,11 +376,11 @@ void Character::update(float dt)
         {
             if (isswimming)
             {
-                this->SetAnimState("Spot_swim", dt * 2.0f);
+                this->SetLowerAnimState("Spot_swim", dt * 2.0f);
             }
             else
             {
-                this->SetAnimState("Idle_sway", dt * 1.0f);
+                this->SetLowerAnimState("Idle_sway", dt * 1.0f);
             }
         }
 
@@ -385,8 +400,8 @@ void Character::update(float dt)
         {
             anim_time_pos = m_driving_anim_length - 0.01f;
         }
-        m_anim_name = "Driving";
-        m_anim_time = anim_time_pos;
+        m_anim_lower_name = "Driving";
+        m_anim_lower_time = anim_time_pos;
         m_net_last_anim_time = 0.0f;
     }
 
@@ -461,10 +476,10 @@ void Character::SendStreamData()
     msg.pos_y = m_character_position.y;
     msg.pos_z = m_character_position.z;
     msg.rot_angle = m_character_rotation.valueRadians();
-    strncpy(msg.anim_name, m_anim_name.c_str(), CHARACTER_ANIM_NAME_LEN);
-    msg.anim_time = m_anim_time - m_net_last_anim_time;
+    strncpy(msg.anim_name, m_anim_lower_name.c_str(), CHARACTER_ANIM_NAME_LEN);
+    msg.anim_time = m_anim_lower_time - m_net_last_anim_time;
 
-    m_net_last_anim_time = m_anim_time;
+    m_net_last_anim_time = m_anim_lower_time;
 
     App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA_DISCARDABLE, sizeof(NetCharacterMsgPos), (char*)&msg);
 #endif // USE_SOCKETW
@@ -483,7 +498,7 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
             this->setRotation(Ogre::Radian(pos_msg->rot_angle));
             if (strnlen(pos_msg->anim_name, CHARACTER_ANIM_NAME_LEN) < CHARACTER_ANIM_NAME_LEN)
             {
-                this->SetAnimState(pos_msg->anim_name, pos_msg->anim_time);
+                this->SetUpperAnimState(pos_msg->anim_name, pos_msg->anim_time);
             }
         }
         else if (msg->command == CHARACTER_CMD_DETACH)
@@ -544,6 +559,8 @@ void Character::SetActorCoupling(bool enabled, ActorPtr actor)
 #endif // USE_SOCKETW
 }
 
+ActorPtr Character::GetActorCoupling() { return m_actor_coupling; }
+
 // --------------------------------
 // GfxCharacter
 
@@ -595,8 +612,10 @@ void RoR::GfxCharacter::BufferSimulationData()
     xc_simbuf.simbuf_net_username           = xc_character->GetNetUsername();
     xc_simbuf.simbuf_is_remote              = xc_character->GetIsRemote();
     xc_simbuf.simbuf_actor_coupling         = xc_character->GetActorCoupling();
-    xc_simbuf.simbuf_anim_name              = xc_character->GetAnimName();
-    xc_simbuf.simbuf_anim_time              = xc_character->GetAnimTime();
+    xc_simbuf.simbuf_anim_upper_name        = xc_character->GetUpperAnimName();
+    xc_simbuf.simbuf_anim_upper_time        = xc_character->GetUpperAnimTime();
+    xc_simbuf.simbuf_anim_lower_name        = xc_character->GetLowerAnimName();
+    xc_simbuf.simbuf_anim_lower_time        = xc_character->GetLowerAnimTime();
 }
 
 void RoR::GfxCharacter::UpdateCharacterInScene()
@@ -657,33 +676,24 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         xc_scenenode->setVisible(true);
     }
 
-    // Animation
-    if (xc_simbuf.simbuf_anim_name != xc_simbuf_prev.simbuf_anim_name)
+    // Animation: kill all first, then enable what's desired.
+    this->DisableAnim(entity->getAnimationState("Idle_sway"));
+    this->DisableAnim(entity->getAnimationState("TurnRight"));
+    this->DisableAnim(entity->getAnimationState("TurnLeft"));
+    this->DisableAnim(entity->getAnimationState("Side_step"));
+    this->DisableAnim(entity->getAnimationState("Swim_loop"));
+    this->DisableAnim(entity->getAnimationState("Run"));
+    this->DisableAnim(entity->getAnimationState("Walk"));
+    this->DisableAnim(entity->getAnimationState("Spot_swim"));
+
+    if (xc_simbuf.simbuf_anim_upper_name != "")
     {
-        // 'Classic' method - enable one anim, exterminate the others ~ only_a_ptr, 06/2018
-        AnimationStateIterator it = entity->getAllAnimationStates()->getAnimationStateIterator();
-
-        while (it.hasMoreElements())
-        {
-            AnimationState* as = it.getNext();
-
-            if (as->getAnimationName() == xc_simbuf.simbuf_anim_name)
-            {
-                as->setEnabled(true);
-                as->setWeight(1);
-                as->addTime(xc_simbuf.simbuf_anim_time);
-            }
-            else
-            {
-                as->setEnabled(false);
-                as->setWeight(0);
-            }
-        }
+        this->EnableAnim(entity->getAnimationState(xc_simbuf.simbuf_anim_upper_name), xc_simbuf.simbuf_anim_upper_time);
     }
-    else if (xc_simbuf.simbuf_anim_name != "") // Just do nothing if animation name is empty. May happen during networked play.
+
+    if (xc_simbuf.simbuf_anim_lower_name != "")
     {
-        auto* as_cur = entity->getAnimationState(xc_simbuf.simbuf_anim_name);
-        as_cur->setTimePosition(xc_simbuf.simbuf_anim_time);
+        this->EnableAnim(entity->getAnimationState(xc_simbuf.simbuf_anim_lower_name), xc_simbuf.simbuf_anim_lower_time);
     }
 
     // Multiplayer label
@@ -714,3 +724,17 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
     }
 #endif // USE_SOCKETW
 }
+
+void GfxCharacter::DisableAnim(Ogre::AnimationState* as)
+{
+    as->setEnabled(false);
+    as->setWeight(0);
+}
+
+void GfxCharacter::EnableAnim(Ogre::AnimationState* as, float time)
+{
+    as->setEnabled(true);
+    as->setWeight(1);
+    as->setTimePosition(time); // addTime() ?
+}
+
