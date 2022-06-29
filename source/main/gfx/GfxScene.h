@@ -60,8 +60,8 @@ public:
     void           RegisterGfxActor(RoR::GfxActor* gfx_actor);
     void           RemoveGfxActor(RoR::GfxActor* gfx_actor);
     void           ForceUpdateSingleGfxActor(RoR::GfxActor* gfx_actor);
-    void           RegisterGfxCharacter(RoR::GfxCharacter* gfx_character);
-    void           RemoveGfxCharacter(RoR::GfxCharacter* gfx_character);
+    void           RegisterGfxCharacter(RoR::Character* gfx_character);
+    void           RemoveGfxCharacter(RoR::Character* gfx_character);
     void           BufferSimulationData(); //!< Run this when simulation is halted
     GameContextSB&     GetSimDataBuffer() { return m_simbuf; }
     GfxEnvmap&     GetEnvMap() { return m_envmap; }

@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2017-2018 Petr Ohlidal
+    Copyright 2017-2022 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -21,7 +21,10 @@
 
 #pragma once
 
+#include "Actor.h"
+#include "CharacterDefFileFormat.h"
 #include "ForwardDeclarations.h"
+#include "SimBuffers.h"
 #include "SurveyMapEntity.h"
 
 #include <OgreUTFString.h>
@@ -36,92 +39,94 @@ namespace RoR {
 
 /// @addtogroup Character
 /// @{
+/// 
 
+/// Character uses simplified physics and occupies single point in space.
+/// Note on animations: 
+///     This object decides what animations are played and how fast, but doesn't apply it to visual scene.
+///     Visual 3D model and animations are loaded and updated by `RoR::GfxCharacter` using data from sim buffers (see file 'SimBuffers.h')
 class Character
 {
+    friend struct GfxCharacter; // visual counterpart.
+
 public:
 
-    Character(int source = -1, unsigned int streamid = 0, Ogre::UTFString playerName = "", int color_number = 0, bool is_remote = true);
+    // Action flags
+    static const BitMask_t ACTION_MOVE_FORWARD = BITMASK(1);
+    static const BitMask_t ACTION_MOVE_BACKWARD = BITMASK(2);
+    static const BitMask_t ACTION_TURN_RIGHT = BITMASK(3);
+    static const BitMask_t ACTION_TURN_LEFT = BITMASK(4);
+    static const BitMask_t ACTION_SIDESTEP_RIGHT = BITMASK(5);
+    static const BitMask_t ACTION_SIDESTEP_LEFT = BITMASK(6);
+    static const BitMask_t ACTION_RUN = BITMASK(7);
+    static const BitMask_t ACTION_JUMP = BITMASK(8);
+    static const BitMask_t ACTION_WAVE_HAND = BITMASK(9);
+    static const BitMask_t ACTION_SLOW_TURN = BITMASK(10);
+
+    // Situation flags
+    static const BitMask_t SITUATION_ON_SOLID_GROUND = BITMASK(1);
+    static const BitMask_t SITUATION_IN_SHALLOW_WATER = BITMASK(2);
+    static const BitMask_t SITUATION_IN_DEEP_WATER = BITMASK(3);
+    static const BitMask_t SITUATION_IN_AIR = BITMASK(4);
+    static const BitMask_t SITUATION_DRIVING = BITMASK(5);
+
+    Character(CharacterDefPtr def, int source = -1, unsigned int streamid = 0, Ogre::UTFString playerName = "", int color_number = 0, bool is_remote = true);
     ~Character();
        
-    int            getSourceID() const                  { return m_source_id; }
-    bool           isRemote() const                     { return m_is_remote; }
-    int            GetColorNum() const                  { return m_color_number; }
-    bool           GetIsRemote() const                  { return m_is_remote; }
-    Ogre::UTFString const& GetNetUsername()             { return m_net_username; }
-    std::string const &    GetAnimName() const          { return m_anim_name; }
-    float          GetAnimTime() const                  { return m_anim_time; }
+    // get state
+    Ogre::Vector3  getPosition();
     Ogre::Radian   getRotation() const                  { return m_character_rotation; }
     ActorPtr       GetActorCoupling();
-    void           setColour(int color)                 { this->m_color_number = color; }
-    Ogre::Vector3  getPosition();
+    
     void           setPosition(Ogre::Vector3 position);
     void           setRotation(Ogre::Radian rotation);
     void           move(Ogre::Vector3 offset);
-    void           update(float dt);
+    void           updateLocal(float dt);
     void           updateCharacterRotation();
-    void           receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer);
     void           SetActorCoupling(bool enabled, ActorPtr actor);
-    GfxCharacter*  SetupGfx();
+
+    // network
+    void           receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer);
+    void           SendStreamData();
+    int            getSourceID() const                  { return m_source_id; }
+    bool           isRemote() const                     { return m_is_remote; }
+    int            GetColorNum() const                  { return m_color_number; }
+    void           setColour(int color)                 { this->m_color_number = color; }
+    Ogre::UTFString const& GetNetUsername()             { return m_net_username; }
 
 private:
 
     void           ReportError(const char* detail);
-    void           SendStreamData();
     void           SendStreamSetup();
-    void           SetAnimState(std::string mode, float time = 0);
 
-    ActorPtr         m_actor_coupling; //!< The vehicle or machine which the character occupies
+    // attributes
+    CharacterDefPtr  m_character_def;
+    std::string      m_instance_name;
+
+    // transforms
+    Ogre::Vector3    m_character_position;
+    Ogre::Vector3    m_prev_position;
     Ogre::Radian     m_character_rotation;
     float            m_character_h_speed;
     float            m_character_v_speed;
-    Ogre::Vector3    m_character_position;
-    Ogre::Vector3    m_prev_position;
-    int              m_color_number;
-    int              m_stream_id;
-    int              m_source_id;
-    bool             m_can_jump;
+
+    // state
+    BitMask_t        m_action_flags = 0;
+    BitMask_t        m_situation_flags = 0;
+    ActorPtr         m_actor_coupling; //!< The vehicle or machine which the character occupies
+
+    // network
     bool             m_is_remote;
-    std::string      m_anim_name;
-    float            m_anim_time;
-    float            m_net_last_anim_time;
-    float            m_driving_anim_length;
-    std::string      m_instance_name;
+    int              m_color_number;
     Ogre::UTFString  m_net_username;
     Ogre::Timer      m_net_timer;
     unsigned long    m_net_last_update_time;
-    GfxCharacter*    m_gfx_character;
+    int              m_stream_id;
+    int              m_source_id;
 };
 
 /// @} // addtogroup Character
 /// @} // addtogroup Gameplay
-
-struct GfxCharacter
-{
-    struct SimBuffer //!< Buffered simulation state for async gfx scene update
-    {
-        Ogre::Vector3      simbuf_character_pos;
-        Ogre::Radian       simbuf_character_rot; //!< When on foot
-        Ogre::UTFString    simbuf_net_username;
-        bool               simbuf_is_remote;
-        int                simbuf_color_number;
-        ActorPtr             simbuf_actor_coupling;
-        std::string        simbuf_anim_name;
-        float              simbuf_anim_time; // Intentionally left empty = forces initial update.
-    };
-    
-    ~GfxCharacter();
-    
-    void            BufferSimulationData();
-    void            UpdateCharacterInScene();
-
-    Ogre::SceneNode*          xc_scenenode;
-    SimBuffer                 xc_simbuf;
-    SimBuffer                 xc_simbuf_prev;
-    Character*                xc_character;
-    std::string               xc_instance_name; // TODO: Store MaterialPtr-s directly ~only_a_ptr, 05/2018
-    SurveyMapEntity           xc_surveymap_entity;
-};
 
 } // namespace RoR
 

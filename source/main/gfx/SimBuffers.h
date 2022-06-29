@@ -50,6 +50,7 @@
     on main thread, but the goal is to do all on sim. thread.
 
         GameContext (gamecontext.h)  /  GameContextSB  /  GfxScene    (gfxscene.h)
+        Character   (character.h)    /  CharacterSB    /  GfxCharacter (character.h)
         Actor       (actor.h)        /  ActorSB        /  GfxActor    (gfxactor.h)
         node_t      (simdata.h)      /  NodeSB         /  NodeGfx     (gfxdata.h)
         beam_t      (simdata.h)      /  -              /  BeamGfx         (gfxdata.h)
@@ -63,6 +64,24 @@
 */
 
 namespace RoR {
+
+struct CharacterSB
+{
+    // Transforms
+    Ogre::Vector3      simbuf_character_pos;
+    Ogre::Radian       simbuf_character_rot; //!< When on foot
+    float              simbuf_character_h_speed; //!< When on foot
+
+    // State
+    BitMask_t          simbuf_action_flags;
+    BitMask_t          simbuf_situation_flags;
+    ActorPtr           simbuf_actor_coupling;
+
+    // Network
+    Ogre::UTFString    simbuf_net_username;
+    bool               simbuf_is_remote;
+    int                simbuf_color_number;
+};
 
 struct NodeSB
 {

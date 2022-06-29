@@ -29,6 +29,175 @@
 
 using namespace RoR;
 
+CharacterFactory::CharacterFactory()
+{
+    // set up definitions
+    // NOTE each anim is evaluated separately, there is no either-or relation,
+    // so you must set each anim's conditions to avoid conflicts.
+
+    CharacterDefPtr rorbot = std::make_shared<CharacterDef>();
+    rorbot->mesh_name = "character.mesh";
+    rorbot->name = "Classic RORBot";
+
+    { // driving
+        CharacterAnimDef def;
+        BITMASK_SET_1(def.for_situations, Character::SITUATION_DRIVING);
+        def.anim_name = "Driving";
+        def.playback_time_ratio = 0.f;
+        def.playback_steering_ratio = -1.f;
+        def.anim_continuous = false;
+        def.source_percentual = true;
+        def.anim_neutral_mid = true;
+        def.playback_trim = 0.01f;
+        rorbot->anims.push_back(def);
+    }
+
+    { // swimming
+        CharacterAnimDef def;
+        BITMASK_SET_1(def.for_situations, Character::SITUATION_IN_DEEP_WATER);
+        BITMASK_SET_1(def.for_actions, Character::ACTION_MOVE_FORWARD);
+        def.anim_name = "Swim_loop";
+        def.playback_h_speed_ratio = 1.f;
+        def.playback_time_ratio = 1.f;
+        rorbot->anims.push_back(def);
+    }
+
+    { // floating in water
+        CharacterAnimDef def;
+        BITMASK_SET_1(def.for_situations, Character::SITUATION_IN_DEEP_WATER);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_FORWARD);
+        def.anim_name = "Spot_swim";
+        def.playback_time_ratio = 1.f;
+        rorbot->anims.push_back(def);
+    }
+
+    { // running
+        CharacterAnimDef def;
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
+        BITMASK_SET_1(def.for_actions, Character::ACTION_MOVE_FORWARD);
+        BITMASK_SET_1(def.for_actions, Character::ACTION_RUN);
+        def.anim_name = "Run";
+        def.playback_time_ratio = 1.f;
+        def.playback_h_speed_ratio = 1.f;
+        rorbot->anims.push_back(def);
+    }
+
+    { // walking forward
+        CharacterAnimDef def;
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
+        BITMASK_SET_1(def.for_actions, Character::ACTION_MOVE_FORWARD);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_RUN);
+        def.anim_name = "Walk";
+        def.playback_time_ratio = 1.f;
+        def.playback_h_speed_ratio = 1.f;
+        rorbot->anims.push_back(def);
+    }
+
+    { // walking backward
+        CharacterAnimDef def;
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
+        BITMASK_SET_1(def.for_actions, Character::ACTION_MOVE_BACKWARD);
+        def.anim_name = "Walk";
+        def.playback_time_ratio = -1.f;
+        def.playback_h_speed_ratio = 1.f;
+        rorbot->anims.push_back(def);
+    }
+
+    { // side stepping left (-time)
+        CharacterAnimDef def;
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
+        BITMASK_SET_1(def.for_actions, Character::ACTION_TURN_LEFT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_FORWARD);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_BACKWARD);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_RUN);
+        def.anim_name = "Side_step";
+        def.playback_time_ratio = -1.f;
+        rorbot->anims.push_back(def);
+    }
+
+    { // side stepping right (+time)
+        CharacterAnimDef def;
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
+        BITMASK_SET_1(def.for_actions, Character::ACTION_SIDESTEP_RIGHT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_FORWARD);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_BACKWARD);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_TURN_RIGHT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_TURN_LEFT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_RUN);
+        def.anim_name = "Side_step";
+        def.playback_time_ratio = 1.f;
+        rorbot->anims.push_back(def);
+    }
+
+    { // side stepping left (-time)
+        CharacterAnimDef def;
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
+        BITMASK_SET_1(def.for_actions, Character::ACTION_SIDESTEP_LEFT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_FORWARD);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_BACKWARD);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_TURN_RIGHT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_TURN_LEFT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_RUN);
+        def.anim_name = "Side_step";
+        def.playback_time_ratio = -1.f;
+        rorbot->anims.push_back(def);
+    }
+
+    { // turning left (+time)
+        CharacterAnimDef def;
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
+        BITMASK_SET_1(def.for_actions, Character::ACTION_TURN_LEFT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_SIDESTEP_LEFT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_SIDESTEP_RIGHT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_FORWARD);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_BACKWARD);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_RUN);
+        def.anim_name = "Turn";
+        def.playback_time_ratio = 1.f;
+        rorbot->anims.push_back(def);
+    }
+
+    { // turning right (-time)
+        CharacterAnimDef def;
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
+        BITMASK_SET_1(def.for_actions, Character::ACTION_TURN_RIGHT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_SIDESTEP_LEFT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_SIDESTEP_RIGHT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_FORWARD);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_BACKWARD);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_RUN);
+        def.anim_name = "Turn";
+        def.playback_time_ratio = -1.f;
+        rorbot->anims.push_back(def);
+    }
+
+    { // idle
+        CharacterAnimDef def;
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
+        BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_TURN_RIGHT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_TURN_LEFT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_SIDESTEP_LEFT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_SIDESTEP_RIGHT);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_FORWARD);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_BACKWARD);
+        BITMASK_SET_1(def.except_actions, Character::ACTION_RUN);
+        def.anim_name = "Idle_sway";
+        def.playback_time_ratio = 1.f;
+        rorbot->anims.push_back(def);
+    }
+
+    m_character_defs.push_back(rorbot);
+}
+
 Character* CharacterFactory::CreateLocalCharacter()
 {
     int colourNum = -1;
@@ -43,8 +212,8 @@ Character* CharacterFactory::CreateLocalCharacter()
     }
 #endif // USE_SOCKETW
 
-    m_local_character = std::unique_ptr<Character>(new Character(-1, 0, playerName, colourNum, false));
-    App::GetGfxScene()->RegisterGfxCharacter(m_local_character->SetupGfx());
+    m_local_character = std::unique_ptr<Character>(new Character(m_character_defs[0], -1, 0, playerName, colourNum, false));
+    App::GetGfxScene()->RegisterGfxCharacter(m_local_character.get());
     return m_local_character.get();
 }
 
@@ -58,8 +227,8 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
 
     LOG(" new character for " + TOSTRING(sourceid) + ":" + TOSTRING(streamid) + ", colour: " + TOSTRING(colour));
 
-    Character* ch = new Character(sourceid, streamid, name, colour, true);
-    App::GetGfxScene()->RegisterGfxCharacter(ch->SetupGfx());
+    Character* ch = new Character(m_character_defs[0], sourceid, streamid, name, colour, true);
+    App::GetGfxScene()->RegisterGfxCharacter(ch);
     m_remote_characters.push_back(std::unique_ptr<Character>(ch));
 #endif // USE_SOCKETW
 }
@@ -79,12 +248,16 @@ void CharacterFactory::removeStreamSource(int sourceid)
 
 void CharacterFactory::Update(float dt)
 {
-    m_local_character->update(dt);
+    m_local_character->updateLocal(dt);
 
-    for (auto& c : m_remote_characters)
+#ifdef USE_SOCKETW
+    if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) && !m_local_character->isRemote())
     {
-        c->update(dt);
+        m_local_character->SendStreamData();
     }
+#endif // USE_SOCKETW
+
+
 }
 
 void CharacterFactory::UndoRemoteActorCoupling(ActorPtr actor)

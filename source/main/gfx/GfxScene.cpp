@@ -28,6 +28,7 @@
 #include "DustPool.h"
 #include "HydraxWater.h"
 #include "GameContext.h"
+#include "GfxCharacter.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
 #include "GUI_DirectionArrow.h"
@@ -207,7 +208,7 @@ void GfxScene::UpdateScene(float dt)
     // Player avatars
     for (GfxCharacter* a: m_all_gfx_characters)
     {
-        a->UpdateCharacterInScene();
+        a->UpdateCharacterInScene(dt);
     }
 
     // Actors - update misc visuals
@@ -350,14 +351,22 @@ void GfxScene::ForceUpdateSingleGfxActor(RoR::GfxActor* gfx_actor)
     gfx_actor->FinishFlexbodyTasks();
 }
 
-void GfxScene::RegisterGfxCharacter(RoR::GfxCharacter* gfx_character)
+void GfxScene::RegisterGfxCharacter(RoR::Character* character)
 {
-    m_all_gfx_characters.push_back(gfx_character);
+    try
+    {
+        m_all_gfx_characters.push_back(new GfxCharacter(character));
+    }
+    catch (Ogre::Exception& eeh) { 
+      App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+        fmt::format("error creating GfxCharacter, message:{}", eeh.getFullDescription())); 
+    }
 }
 
-void GfxScene::RemoveGfxCharacter(RoR::GfxCharacter* remove_me)
+void GfxScene::RemoveGfxCharacter(RoR::Character* remove_me)
 {
-    auto itor = std::remove(m_all_gfx_characters.begin(), m_all_gfx_characters.end(), remove_me);
+    auto itor = std::remove_if(m_all_gfx_characters.begin(), m_all_gfx_characters.end(),
+        [remove_me](GfxCharacter* xch) { return xch->xc_character == remove_me; });
     if (itor != m_all_gfx_characters.end())
     {
         m_all_gfx_characters.erase(itor, m_all_gfx_characters.end());

@@ -39,8 +39,6 @@
 
 #define ROR_ASSERT(_EXPR)  assert(_EXPR)
 
-#define CHARACTER_ANIM_NAME_LEN 10 // Restricted for networking
-
 // OGRE resource group names
 #define RGN_TEMP "Temp"
 #define RGN_CACHE "Cache"

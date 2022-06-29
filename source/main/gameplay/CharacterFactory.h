@@ -24,6 +24,7 @@
 #include "Application.h"
 
 #include "Character.h"
+#include "CharacterDefFileFormat.h"
 #include "Network.h"
 
 #include <memory>
@@ -39,7 +40,7 @@ namespace RoR {
 class CharacterFactory
 {
 public:
-    CharacterFactory() {}
+    CharacterFactory();
     Character* CreateLocalCharacter();
     Character* GetLocalCharacter() { return m_local_character.get(); }
     void DeleteAllCharacters();
@@ -50,6 +51,8 @@ public:
 #endif // USE_SOCKETW
 
 private:
+
+    std::vector<CharacterDefPtr>            m_character_defs;
 
     std::unique_ptr<Character>              m_local_character;
     std::vector<std::unique_ptr<Character>> m_remote_characters;

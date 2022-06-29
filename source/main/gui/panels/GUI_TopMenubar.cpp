@@ -702,6 +702,12 @@ void TopMenubar::Draw(float dt)
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
+            if (ImGui::Button(_LC("TopMenubar", "Character pose util")))
+            {
+                App::GetGuiManager()->CharacterPoseUtil.SetVisible(true);
+                m_open_menu = TopMenu::TOPMENU_NONE;
+            }
+
             if (ImGui::Button(_LC("TopMenubar", "Collisions debug")))
             {
                 App::GetGuiManager()->CollisionsDebug.SetVisible(true);

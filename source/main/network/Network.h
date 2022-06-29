@@ -73,8 +73,8 @@ struct NetCharacterMsgPos
     int32_t command;
     float   pos_x, pos_y, pos_z;
     float   rot_angle;
-    float   anim_time;
-    char    anim_name[CHARACTER_ANIM_NAME_LEN];
+    uint32_t action_flags;
+    uint32_t situation_flags;
 };
 
 struct NetCharacterMsgAttach

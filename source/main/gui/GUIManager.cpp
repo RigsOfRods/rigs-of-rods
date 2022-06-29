@@ -117,6 +117,7 @@ bool GUIManager::AreStaticMenusAllowed() //!< i.e. top menubar / vehicle UI butt
     return (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE &&
             !this->ConsoleWindow.IsHovered() &&
             !this->GameControls.IsHovered() &&
+            !this->CharacterPoseUtil.IsHovered() &&
             !this->FrictionSettings.IsHovered() &&
             !this->TextureToolWindow.IsHovered() &&
             !this->NodeBeamUtils.IsHovered() &&
@@ -184,6 +185,11 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     if (this->FrictionSettings.IsVisible())
     {
         this->FrictionSettings.Draw();
+    }
+
+    if (this->CharacterPoseUtil.IsVisible())
+    {
+        this->CharacterPoseUtil.Draw();
     }
 
     if (this->SimPerfStats.IsVisible())
