@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-05-29 14:59+0200\n"
-"PO-Revision-Date: 2022-05-21 16:18+0000\n"
-"Last-Translator: Xploder98 <xploder9825@yandex.com>\n"
+"PO-Revision-Date: 2022-07-06 17:19+0000\n"
+"Last-Translator: Maxime Leroy <lisacintosh@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
 "Language: fr\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.13-dev\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -93,26 +93,19 @@ msgid "Fully manual: stick shift with ranges"
 msgstr "Complètement manuel: passage avec levier de de vitesses et gammes"
 
 #: Application.cpp:374
-#, fuzzy
-#| msgid "None (fastest)"
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
-msgstr "Aucun (meilleures performances)"
+msgstr "Aucun (plus rapide)"
 
 #: Application.cpp:375
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Light sources"
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr "Sources de lumière"
+msgstr "Aucune source de lumière"
 
 #: Application.cpp:376
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr "Tous les véhicules, lumières principales"
+msgstr "Seulement le véhicule actuel, lumières principales"
 
 #: Application.cpp:377
 #, fuzzy
@@ -131,7 +124,7 @@ msgstr "Tous les véhicules, toutes les lumières"
 #: Application.cpp:387
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "Désactivé"
 
 #: Application.cpp:388
 msgctxt "GfxShadowType"
@@ -139,11 +132,9 @@ msgid "PSSM"
 msgstr ""
 
 #: Application.cpp:397
-#, fuzzy
-#| msgid "Sandstorm (fastest)"
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
-msgstr "Sandstorm (meilleures performances)"
+msgstr "Sandstorm (plus rapide)"
 
 #: Application.cpp:398
 #, fuzzy
@@ -153,8 +144,6 @@ msgid "Caelum (best looking, slower)"
 msgstr "Caelum (meilleur apparence, moins bonnes performances)"
 
 #: Application.cpp:399
-#, fuzzy
-#| msgid "SkyX (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
 msgstr "SkyX (plus joli, plus lent)"
@@ -162,18 +151,14 @@ msgstr "SkyX (plus joli, plus lent)"
 #: Application.cpp:408
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "Aucun"
 
 #: Application.cpp:409
-#, fuzzy
-#| msgid "Bilinear"
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
 msgstr "Bilinéaire"
 
 #: Application.cpp:410
-#, fuzzy
-#| msgid "Trilinear"
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
 msgstr "Trilinéaire"
@@ -189,18 +174,14 @@ msgstr "Anisotropie"
 #: Application.cpp:420
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "Aucun"
 
 #: Application.cpp:421
-#, fuzzy
-#| msgid "20%"
 msgctxt "GfxVegetation"
 msgid "20%"
 msgstr "20%"
 
 #: Application.cpp:422
-#, fuzzy
-#| msgid "50%"
 msgctxt "GfxVegetation"
 msgid "50%"
 msgstr "50%"
@@ -208,27 +189,22 @@ msgstr "50%"
 #: Application.cpp:423
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "Complet"
 
 #: Application.cpp:432
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "Aucune"
 
 #: Application.cpp:433
-#, fuzzy
-#| msgid "Basic (fastest)"
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
-msgstr "Basique (meilleur performances)"
+msgstr "Basique (plus rapide)"
 
 #: Application.cpp:434
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reflections"
 msgctxt "GfxWaterMode"
 msgid "Reflection"
-msgstr "Réflexions"
+msgstr "Réflexion"
 
 #: Application.cpp:435
 #, fuzzy
@@ -245,21 +221,19 @@ msgid "Reflection + refraction (quality optimized)"
 msgstr "Réflexion + réfraction (optimisé pour la qualité)"
 
 #: Application.cpp:437
-#, fuzzy
-#| msgid "Hydrax"
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr "Hydrax"
+msgstr "HydraX"
 
 #: Application.cpp:446
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "Aucune"
 
 #: Application.cpp:447
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "Statique"
 
 #: Application.cpp:448
 msgctxt "GfxExtCamMode"
@@ -269,7 +243,7 @@ msgstr ""
 #: Application.cpp:457
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "Aucun"
 
 #: Application.cpp:458
 #, fuzzy
@@ -280,12 +254,9 @@ msgid "All"
 msgstr "Tout"
 
 #: Application.cpp:459
-#, fuzzy
-#| msgctxt "TextureToolWindow"
-#| msgid "Dynamic only"
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr "Uniquement dynamique"
+msgstr "Dynamique"
 
 #: GameContext.cpp:104
 msgid "Terrain not found: "
@@ -1452,7 +1423,7 @@ msgstr "Qualité des ombres"
 #: gui/panels/GUI_GameSettings.cpp:318
 msgctxt "GameSettings"
 msgid "Sky gfx"
-msgstr ""
+msgstr "Effet du ciel"
 
 #: gui/panels/GUI_GameSettings.cpp:323
 msgctxt "GameSettings"
