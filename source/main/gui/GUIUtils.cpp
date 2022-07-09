@@ -193,6 +193,11 @@ void RoR::DrawImageRotated(ImTextureID tex_id, ImVec2 center, ImVec2 size, float
     draw_list->AddImageQuad(tex_id, pos[0], pos[1], pos[2], pos[3], uvs[0], uvs[1], uvs[2], uvs[3], IM_COL32_WHITE);
 }
 
+std::string RoR::StripColorMarksFromText(std::string const& text)
+{
+    return std::regex_replace(text, TEXT_COLOR_REGEX, "");
+}
+
 ImVec2 RoR::DrawColorMarkedText(ImDrawList* drawlist, ImVec2 text_cursor, ImVec4 default_color, float override_alpha, float wrap_width, std::string const& line)
 {
     ImTextFeeder feeder(drawlist, text_cursor);

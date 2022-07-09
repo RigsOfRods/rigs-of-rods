@@ -778,7 +778,7 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
             ImGui::PopID();
             ImGui::SameLine();
 
-            std::string actortext_buf = fmt::format("{} ({}) ##[{}:{}]", actor->ar_design_name.c_str(), actor->ar_filename.c_str(), i++, user.uniqueid);
+            std::string actortext_buf = fmt::format("{} ({}) ##[{}:{}]", StripColorMarksFromText(actor->ar_design_name).c_str(), actor->ar_filename.c_str(), i++, user.uniqueid);
             if (ImGui::Button(actortext_buf.c_str())) // Button clicked?
             {
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
@@ -819,7 +819,7 @@ void TopMenubar::DrawActorListSinglePlayer()
             ImGui::PopStyleColor();
             ImGui::SameLine();
 
-            std::string text_buf = fmt::format( "[{}] {}", i++, actor->ar_design_name.c_str());
+            std::string text_buf = fmt::format( "[{}] {}", i++, StripColorMarksFromText(actor->ar_design_name).c_str());
             auto linked_actors = actor->getAllLinkedActors();
             if (actor == player_actor)
             {
