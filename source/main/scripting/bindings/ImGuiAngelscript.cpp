@@ -36,6 +36,20 @@ using namespace AngelScript;
 using namespace Ogre;
 using namespace std;
 
+float ImGuiPlotLinesScriptValueGetterFunc(void* data, int index)
+{
+    CScriptArray* array_obj = static_cast<CScriptArray*>(data);
+    void* value_raw = array_obj->At(index);
+    if (value_raw == nullptr)
+    {
+        return 0.f; // out of bounds
+    }
+    else
+    {
+        return *static_cast<float*>(value_raw);
+    }
+}
+
 void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
 {
     // ENUMS (global namespace)
@@ -486,6 +500,13 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
 
     engine->RegisterGlobalFunction("string GetClipboardText()", asFUNCTIONPR([]() { return string(ImGui::GetClipboardText());  }, (), string), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetClipboardText(const string&in)", asFUNCTIONPR([](const string& a) {  ImGui::SetClipboardText(a.empty() ? a.c_str() : 0x0);  }, (const string&), void), asCALL_CDECL);
+
+    // Data plotting - we wrap the 'getter func' variant to resemble the 'float*' variant.
+    //                                   PlotLines(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0), int stride = sizeof(float));
+    engine->RegisterGlobalFunction("void PlotLines(const string&in label, array<float>&in values, int values_count, int values_offset = 0, const string&in overlay_text = string(), float scale_min = FLT_MAX, float scale_max = FLT_MAX, vector2 graph_size = vector2(0,0))",
+                                    asFUNCTIONPR([](const string& label, CScriptArray* values, int values_count, int values_offset, const string& overlay_text, float scale_min, float scale_max, Vector2 graph_size)
+                                        { ImGui::PlotLines(label.c_str(), &ImGuiPlotLinesScriptValueGetterFunc, values, values_count, values_offset, overlay_text.c_str(), scale_min, scale_max, ImVec2(graph_size.x, graph_size.y)); },
+                                            (const string&, CScriptArray*, int, int, const string&, float, float, Vector2), void), asCALL_CDECL);
 
     engine->SetDefaultNamespace("");
 }
