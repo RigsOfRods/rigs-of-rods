@@ -139,6 +139,8 @@ void ScriptEngine::init()
     AngelScript::RegisterStdString(engine);
     AngelScript::RegisterStdStringUtils(engine);
     AngelScript::RegisterScriptMath(engine);
+    static float SCRIPT_FLT_MAX = FLT_MAX;
+    result = engine->RegisterGlobalProperty("const float FLT_MAX", &SCRIPT_FLT_MAX); ROR_ASSERT( result >= 0 );
     AngelScript::RegisterScriptAny(engine);
     AngelScript::RegisterScriptDictionary(engine);
 
@@ -607,7 +609,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     if ( result < 0 )
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format("Could not load script '{}' - failed to build module.", moduleName));
+            fmt::format("Could not load script '{}' - failed to build module. See 'Angelscript.log' for more info.", moduleName));
         return result;
     }
 
