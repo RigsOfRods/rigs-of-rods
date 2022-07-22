@@ -136,7 +136,7 @@ TerrainManager::~TerrainManager()
 TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry* entry)
 {
     auto terrn_mgr = std::unique_ptr<TerrainManager>(new TerrainManager(entry));
-    auto loading_window = App::GetGuiManager()->GetLoadingWindow();
+    auto* loading_window = &App::GetGuiManager()->LoadingWindow;
 
     std::string const& filename = entry->fname;
     try
@@ -226,7 +226,7 @@ TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry* entry)
 
     loading_window->SetProgress(92, _L("Initializing Overview Map Subsystem"));
     App::SetSimTerrain(terrn_mgr.get()); // Hack for the SurveyMapTextureCreator
-    App::GetGuiManager()->GetSurveyMap()->CreateTerrainTextures(); // Should be done before actors are loaded, otherwise they'd show up in the static texture
+    App::GetGuiManager()->SurveyMap.CreateTerrainTextures(); // Should be done before actors are loaded, otherwise they'd show up in the static texture
     App::SetSimTerrain(nullptr); // END Hack for the SurveyMapTextureCreator
 
     LOG(" ===== LOADING TERRAIN ACTORS " + filename);

@@ -382,7 +382,7 @@ void MultiplayerSelector::SetVisible(bool visible)
     }
     else if (!visible && App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
     {
-        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        App::GetGuiManager()->GameMainMenu.SetVisible(true);
     }
 }
 

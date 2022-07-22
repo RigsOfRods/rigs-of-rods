@@ -94,7 +94,7 @@ void RoR::Renderdash::preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
 
     // Disable other overlays
     App::GetOverlayWrapper()->HideRacingOverlay();
-    App::GetGuiManager()->GetDirectionArrow()->SetVisible(false);
+    App::GetGuiManager()->DirectionArrow.SetVisible(false);
 
     //show overlay
     m_dash_overlay->show();

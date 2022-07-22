@@ -28,9 +28,36 @@
 #include "Application.h"
 #include "GUI_MessageBox.h"
 
+// GUI panels
+#include "GUI_ConsoleWindow.h"
+#include "GUI_FrictionSettings.h"
+#include "GUI_RepositorySelector.h"
+#include "GUI_GameMainMenu.h"
+#include "GUI_GameAbout.h"
+#include "GUI_GameChatBox.h"
+#include "GUI_GameSettings.h"
+#include "GUI_LoadingWindow.h"
+#include "GUI_MessageBox.h"
+#include "GUI_MultiplayerSelector.h"
+#include "GUI_MultiplayerClientList.h"
+#include "GUI_MainSelector.h"
+#include "GUI_NodeBeamUtils.h"
+#include "GUI_DirectionArrow.h"
+#include "GUI_SimActorStats.h"
+#include "GUI_SimPerfStats.h"
+#include "GUI_SurveyMap.h"
+#include "GUI_TextureToolWindow.h"
+#include "GUI_GameControls.h"
+#include "GUI_TopMenubar.h"
+#include "GUI_VehicleDescription.h"
+#include "GUI_VehicleButtons.h"
+
+// Deps
 #include <Bites/OgreWindowEventUtilities.h>
-#include <OgreFrameListener.h>
+#include <MyGUI.h>
+#include <MyGUI_OgrePlatform.h>
 #include <MyGUI_UString.h>
+#include <OgreOverlay.h>
 
 namespace RoR {
 
@@ -72,59 +99,30 @@ public:
     GUIManager();
     ~GUIManager();
 
-    // GUI SetVisible*()
-    void SetVisible_GameMainMenu        (bool visible);
-    void SetVisible_GameAbout           (bool visible);
-    void SetVisible_GameSettings        (bool visible);
-    void SetVisible_MultiplayerSelector (bool visible);
-    void SetVisible_ChatBox             (bool visible);
-    void SetVisible_VehicleDescription  (bool visible);
-    void SetVisible_FrictionSettings    (bool visible);
-    void SetVisible_TextureToolWindow   (bool visible);
-    void SetVisible_GameControls        (bool visible);
-    void SetVisible_RepositorySelector  (bool visible);
-    void SetVisible_NodeBeamUtils       (bool visible);
-    void SetVisible_LoadingWindow       (bool visible);
-    void SetVisible_Console             (bool visible);
-    void SetVisible_SimActorStats       (bool visible);
-    void SetVisible_SimPerfStats        (bool visible);
-    void SetVisible_MenuWallpaper       (bool visible);
 
-    // GUI IsVisible*()
-    bool IsVisible_GameMainMenu         ();
-    bool IsVisible_GameAbout            ();
-    bool IsVisible_GameSettings         ();
-    bool IsVisible_TopMenubar           ();
-    bool IsVisible_MultiplayerSelector  ();
-    bool IsVisible_MainSelector         ();
-    bool IsVisible_ChatBox              ();
-    bool IsVisible_VehicleDescription   ();
-    bool IsVisible_FrictionSettings     ();
-    bool IsVisible_TextureToolWindow    ();
-    bool IsVisible_GameControls         ();
-    bool IsVisible_RepositorySelector   ();
-    bool IsVisible_NodeBeamUtils        ();
-    bool IsVisible_LoadingWindow        ();
-    bool IsVisible_Console              ();
-    bool IsVisible_SimActorStats        ();
-    bool IsVisible_SimPerfStats         ();
-    bool IsVisible_SurveyMap            ();
-    bool IsVisible_DirectionArrow       ();
-
-    // GUI GetInstance*()
-    GUI::MainSelector* GetMainSelector();
-    GUI::GameMainMenu* GetMainMenu();
-    GUI::GameControls* GetControlsWindow();
-    GUI::LoadingWindow* GetLoadingWindow();
-    GUI::MultiplayerSelector* GetMpSelector();
-    GUI::RepositorySelector* GetRepoSelector();
-    GUI::FrictionSettings* GetFrictionSettings();
-    GUI::TopMenubar* GetTopMenubar();
-    GUI::SurveyMap* GetSurveyMap();
-    GUI::SimActorStats* GetSimActorStats();
-    GUI::DirectionArrow* GetDirectionArrow();
-    GUI::MpClientList* GetMpClientList();
-    GUI::VehicleButtons* GetVehicleButtons();
+    GUI::GameMainMenu           GameMainMenu;
+    GUI::GameAbout              GameAbout;
+    GUI::GameSettings           GameSettings;
+    GUI::SimActorStats          SimActorStats;
+    GUI::SimPerfStats           SimPerfStats;
+    GUI::MessageBoxDialog       MessageBoxDialog;
+    GUI::MultiplayerSelector    MultiplayerSelector;
+    GUI::MainSelector           MainSelector;
+    GUI::GameChatBox            ChatBox;
+    GUI::VehicleDescription     VehicleDescription;
+    GUI::MpClientList           MpClientList;
+    GUI::FrictionSettings       FrictionSettings;
+    GUI::TextureToolWindow      TextureToolWindow;
+    GUI::GameControls           GameControls;
+    GUI::RepositorySelector     RepositorySelector;
+    GUI::NodeBeamUtils          NodeBeamUtils;
+    GUI::LoadingWindow          LoadingWindow;
+    GUI::TopMenubar             TopMenubar;
+    GUI::ConsoleWindow          ConsoleWindow;
+    GUI::SurveyMap              SurveyMap;
+    GUI::DirectionArrow         DirectionArrow;
+    GUI::VehicleButtons         VehicleButtons;
+    Ogre::Overlay*              MenuWallpaper = nullptr;
 
     // GUI manipulation
     void ShowMessageBox(const char* title, const char* text, bool allow_close = true, const char* btn1_text = "OK", const char* btn2_text = nullptr);
@@ -163,14 +161,15 @@ private:
 
     void eventRequestTag(const MyGUI::UString& _tag, MyGUI::UString& _result);
 
-    GuiManagerImpl*    m_impl                     = nullptr;
-    bool               m_hide_gui                 = false;
-    OgreImGui          m_imgui;
-    GuiTheme           m_theme;
-    bool               m_gui_kb_capture_queued    = false; //!< Resets and accumulates every frame
-    bool               m_gui_kb_capture_requested = false; //!< Effective value, persistent
-    Ogre::Timer        m_last_mousemove_time;
-    bool               m_is_cursor_supressed      = false; //!< True if cursor was manually hidden.
+    MyGUI::Gui*          m_mygui                    = nullptr;
+    MyGUI::OgrePlatform* m_mygui_platform           = nullptr;
+    bool                 m_hide_gui                 = false;
+    OgreImGui            m_imgui;
+    GuiTheme             m_theme;
+    bool                 m_gui_kb_capture_queued    = false; //!< Resets and accumulates every frame
+    bool                 m_gui_kb_capture_requested = false; //!< Effective value, persistent
+    Ogre::Timer          m_last_mousemove_time;
+    bool                 m_is_cursor_supressed      = false; //!< True if cursor was manually hidden.
 };
 
 } // namespace RoR

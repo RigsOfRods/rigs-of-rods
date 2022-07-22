@@ -154,31 +154,31 @@ void GameMainMenu::DrawMenuPanel()
         {
             if (HighlightButton(_LC("MainMenu", "Multiplayer"), btn_size, button_index++))
             {
-                App::GetGuiManager()->SetVisible_MultiplayerSelector(true);
+                App::GetGuiManager()->MultiplayerSelector.SetVisible(true);
                 this->SetVisible(false);
             }
 
             if (HighlightButton(_LC("MainMenu", "Repository"), btn_size, button_index++))
             {
-                App::GetGuiManager()->SetVisible_RepositorySelector(true);
+                App::GetGuiManager()->RepositorySelector.SetVisible(true);
                 this->SetVisible(false);
             }
 
             if (HighlightButton(_LC("MainMenu", "Settings"), btn_size, button_index++))
             {
-                App::GetGuiManager()->SetVisible_GameSettings(true);
+                App::GetGuiManager()->GameSettings.SetVisible(true);
                 this->SetVisible(false);
             }
 
             if (HighlightButton(_LC("MainMenu", "Controls"), btn_size, button_index++))
             {
-                App::GetGuiManager()->SetVisible_GameControls(true);
+                App::GetGuiManager()->GameControls.SetVisible(true);
                 this->SetVisible(false);
             }
 
             if (HighlightButton(_LC("MainMenu", "About"), btn_size, button_index++))
             {
-                App::GetGuiManager()->SetVisible_GameAbout(true);
+                App::GetGuiManager()->GameAbout.SetVisible(true);
                 this->SetVisible(false);
             }
         }
@@ -186,7 +186,7 @@ void GameMainMenu::DrawMenuPanel()
         {
             if (HighlightButton(_LC("MainMenu", "Controls"), btn_size, button_index++))
             {
-                App::GetGuiManager()->SetVisible_GameControls(true);
+                App::GetGuiManager()->GameControls.SetVisible(true);
                 this->SetVisible(false);
             }
 

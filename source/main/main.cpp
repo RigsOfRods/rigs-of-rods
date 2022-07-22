@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
         }
 
         App::app_state->setVal((int)AppState::MAIN_MENU);
-        App::GetGuiManager()->SetVisible_MenuWallpaper(true);
+        App::GetGuiManager()->MenuWallpaper->show();
 
 #ifdef USE_OPENAL
         if (App::audio_menu_music->getBool())
@@ -298,8 +298,8 @@ int main(int argc, char *argv[])
 
         // Hack to properly init DearIMGUI integration - force rendering image
         //  Will be properly fixed under OGRE 2x
-        App::GetGuiManager()->GetLoadingWindow()->SetProgress(100, "Hack", /*renderFrame=*/true);
-        App::GetGuiManager()->SetVisible_LoadingWindow(false);
+        App::GetGuiManager()->LoadingWindow.SetProgress(100, "Hack", /*renderFrame=*/true);
+        App::GetGuiManager()->LoadingWindow.SetVisible(false);
 
         // --------------------------------------------------------------
         // Main rendering and event handling loop
@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
                         App::GetNetwork()->Disconnect();
                         if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
                         {
-                            App::GetGuiManager()->GetMainSelector()->Close(); // We may get disconnected while still in map selection
+                            App::GetGuiManager()->MainSelector.Close(); // We may get disconnected while still in map selection
                             App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                         }
                     }
@@ -422,17 +422,17 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_NET_CONNECT_STARTED:
-                    App::GetGuiManager()->GetLoadingWindow()->SetProgressNetConnect(m.description);
-                    App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
+                    App::GetGuiManager()->LoadingWindow.SetProgressNetConnect(m.description);
+                    App::GetGuiManager()->MultiplayerSelector.SetVisible(false);
                     App::GetGameContext()->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
                     break;
 
                 case MSG_NET_CONNECT_PROGRESS:
-                    App::GetGuiManager()->GetLoadingWindow()->SetProgressNetConnect(m.description);
+                    App::GetGuiManager()->LoadingWindow.SetProgressNetConnect(m.description);
                     break;
 
                 case MSG_NET_CONNECT_SUCCESS:
-                    App::GetGuiManager()->GetLoadingWindow()->SetVisible(false);
+                    App::GetGuiManager()->LoadingWindow.SetVisible(false);
                     App::GetNetwork()->StopConnecting();
                     App::mp_state->setVal((int)RoR::MpState::CONNECTED);
                     RoR::ChatSystem::SendStreamSetup();
@@ -461,7 +461,7 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_NET_CONNECT_FAILURE:
-                    App::GetGuiManager()->GetLoadingWindow()->SetVisible(false);
+                    App::GetGuiManager()->LoadingWindow.SetVisible(false);
                     App::GetNetwork()->StopConnecting();
                     App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
                     App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
@@ -470,26 +470,26 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_NET_REFRESH_SERVERLIST_SUCCESS:
-                    App::GetGuiManager()->GetMpSelector()->UpdateServerlist((GUI::MpServerInfoVec*)m.payload);
+                    App::GetGuiManager()->MultiplayerSelector.UpdateServerlist((GUI::MpServerInfoVec*)m.payload);
                     delete (GUI::MpServerInfoVec*)m.payload;
                     break;
 
                 case MSG_NET_REFRESH_SERVERLIST_FAILURE:
-                    App::GetGuiManager()->GetMpSelector()->DisplayRefreshFailed(m.description);
+                    App::GetGuiManager()->MultiplayerSelector.DisplayRefreshFailed(m.description);
                     break;
 
                 case MSG_NET_REFRESH_REPOLIST_SUCCESS:
-                    App::GetGuiManager()->GetRepoSelector()->UpdateResources((GUI::ResourcesCollection*)m.payload);
+                    App::GetGuiManager()->RepositorySelector.UpdateResources((GUI::ResourcesCollection*)m.payload);
                     delete (GUI::ResourcesCollection*)m.payload;
                     break;
 
                 case MSG_NET_OPEN_RESOURCE_SUCCESS:
-                    App::GetGuiManager()->GetRepoSelector()->UpdateFiles((GUI::ResourcesCollection*)m.payload);
+                    App::GetGuiManager()->RepositorySelector.UpdateFiles((GUI::ResourcesCollection*)m.payload);
                     delete (GUI::ResourcesCollection*)m.payload;
                     break;
 
                 case MSG_NET_REFRESH_REPOLIST_FAILURE:
-                    App::GetGuiManager()->GetRepoSelector()->ShowError(m.description);
+                    App::GetGuiManager()->RepositorySelector.ShowError(m.description);
                     break;
 
                 // -- Gameplay events --
@@ -512,7 +512,7 @@ int main(int argc, char *argv[])
 
                 case MSG_SIM_LOAD_TERRN_REQUESTED:
                     App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-                    App::GetGuiManager()->GetLoadingWindow()->SetProgress(5, _L("Loading resources"));
+                    App::GetGuiManager()->LoadingWindow.SetProgress(5, _L("Loading resources"));
                     App::GetContentManager()->LoadGameplayResources();
 
                     if (App::GetGameContext()->LoadTerrain(m.description))
@@ -525,7 +525,7 @@ int main(int argc, char *argv[])
                             App::GetGameContext()->SpawnPreselectedActor(App::diag_preset_vehicle->getStr(), App::diag_preset_veh_config->getStr()); // Needs character for position
                         App::GetGameContext()->GetSceneMouse().InitializeVisuals();
                         App::CreateOverlayWrapper();
-                        App::GetGuiManager()->GetDirectionArrow()->LoadOverlay();
+                        App::GetGuiManager()->DirectionArrow.LoadOverlay();
                         if (App::audio_menu_music->getBool())
                         {
                             SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
@@ -534,9 +534,9 @@ int main(int argc, char *argv[])
                         App::GetDiscordRpc()->UpdatePresence();
                         App::sim_state->setVal((int)SimState::RUNNING);
                         App::app_state->setVal((int)AppState::SIMULATION);
-                        App::GetGuiManager()->SetVisible_GameMainMenu(false);
-                        App::GetGuiManager()->SetVisible_MenuWallpaper(false);
-                        App::GetGuiManager()->SetVisible_LoadingWindow(false);
+                        App::GetGuiManager()->GameMainMenu .SetVisible(false);
+                        App::GetGuiManager()->MenuWallpaper->hide();
+                        App::GetGuiManager()->LoadingWindow.SetVisible(false);
                         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::VISIBLE);
                         App::gfx_fov_external->setVal(App::gfx_fov_external_default->getInt());
                         App::gfx_fov_internal->setVal(App::gfx_fov_internal_default->getInt());
@@ -563,7 +563,7 @@ int main(int argc, char *argv[])
                         {
                             App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                         }
-                        App::GetGuiManager()->SetVisible_LoadingWindow(false);
+                        App::GetGuiManager()->LoadingWindow.SetVisible(false);
                         failed_m = true;
                     }
                     break;
@@ -580,9 +580,9 @@ int main(int argc, char *argv[])
                     App::GetGameContext()->GetSceneMouse().DiscardVisuals();
                     App::DestroyOverlayWrapper();
                     App::GetCameraManager()->ResetAllBehaviors();
-                    App::GetGuiManager()->GetMainSelector()->Close();
-                    App::GetGuiManager()->SetVisible_LoadingWindow(false);
-                    App::GetGuiManager()->SetVisible_MenuWallpaper(true);
+                    App::GetGuiManager()->MainSelector.Close();
+                    App::GetGuiManager()->LoadingWindow.SetVisible(false);
+                    App::GetGuiManager()->MenuWallpaper->show();
                     App::sim_state->setVal((int)SimState::OFF);
                     App::app_state->setVal((int)AppState::MAIN_MENU);
                     delete App::GetSimTerrain();
@@ -703,24 +703,24 @@ int main(int argc, char *argv[])
                 // -- GUI events ---
 
                 case MSG_GUI_OPEN_MENU_REQUESTED:
-                    App::GetGuiManager()->SetVisible_GameMainMenu(true);
+                    App::GetGuiManager()->GameMainMenu.SetVisible(true);
                     break;
 
                 case MSG_GUI_CLOSE_MENU_REQUESTED:
-                    App::GetGuiManager()->SetVisible_GameMainMenu(false);
+                    App::GetGuiManager()->GameMainMenu.SetVisible(false);
                     break;
 
                 case MSG_GUI_OPEN_SELECTOR_REQUESTED:
-                    App::GetGuiManager()->GetMainSelector()->Show(*reinterpret_cast<LoaderType*>(m.payload), m.description);
+                    App::GetGuiManager()->MainSelector.Show(*reinterpret_cast<LoaderType*>(m.payload), m.description);
                     delete reinterpret_cast<LoaderType*>(m.payload);
                     break;
 
                 case MSG_GUI_CLOSE_SELECTOR_REQUESTED:
-                    App::GetGuiManager()->GetMainSelector()->Close();
+                    App::GetGuiManager()->MainSelector.Close();
                     break;
 
                 case MSG_GUI_MP_CLIENTS_REFRESH:
-                    App::GetGuiManager()->GetMpClientList()->UpdateClients();
+                    App::GetGuiManager()->MpClientList.UpdateClients();
                     break;
 
                 case MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED:
@@ -730,14 +730,14 @@ int main(int argc, char *argv[])
 
                 case MSG_GUI_DOWNLOAD_PROGRESS:
                     App::GetGameContext()->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
-                    App::GetGuiManager()->GetLoadingWindow()->SetProgress(*reinterpret_cast<int*>(m.payload), m.description, false);
+                    App::GetGuiManager()->LoadingWindow.SetProgress(*reinterpret_cast<int*>(m.payload), m.description, false);
                     delete reinterpret_cast<int*>(m.payload);
                     break;
 
                 case MSG_GUI_DOWNLOAD_FINISHED:
-                    App::GetGuiManager()->GetLoadingWindow()->SetVisible(false);
-                    App::GetGuiManager()->GetRepoSelector()->SetVisible(true);
-                    App::GetGuiManager()->GetRepoSelector()->DownloadFinished();
+                    App::GetGuiManager()->LoadingWindow.SetVisible(false);
+                    App::GetGuiManager()->RepositorySelector.SetVisible(true);
+                    App::GetGuiManager()->RepositorySelector.DownloadFinished();
                     break;
 
                 // -- Editing events --
@@ -853,11 +853,11 @@ int main(int argc, char *argv[])
                 App::GetInputEngine()->Capture();
                 App::GetInputEngine()->updateKeyBounces(dt);
 
-                if (!App::GetGuiManager()->GetControlsWindow()->IsInteractiveKeyBindingActive())
+                if (!App::GetGuiManager()->GameControls.IsInteractiveKeyBindingActive())
                 {
-                    if (!App::GetGuiManager()->IsVisible_MainSelector() && !App::GetGuiManager()->IsVisible_MultiplayerSelector() &&
-                        !App::GetGuiManager()->IsVisible_GameSettings() && !App::GetGuiManager()->IsVisible_GameControls() &&
-                        !App::GetGuiManager()->IsVisible_GameAbout() && !App::GetGuiManager()->IsVisible_RepositorySelector())
+                    if (!App::GetGuiManager()->MainSelector.IsVisible() && !App::GetGuiManager()->MultiplayerSelector.IsVisible() &&
+                        !App::GetGuiManager()->GameSettings.IsVisible() && !App::GetGuiManager()->GameControls.IsVisible() &&
+                        !App::GetGuiManager()->GameAbout.IsVisible() && !App::GetGuiManager()->RepositorySelector.IsVisible())
                     {
                         App::GetGameContext()->HandleSavegameHotkeys();
                     }
@@ -932,10 +932,10 @@ int main(int argc, char *argv[])
                 }
                 if (App::GetGameContext()->GetPlayerActor())
                 {
-                    App::GetGuiManager()->GetSimActorStats()->UpdateStats(dt, App::GetGameContext()->GetPlayerActor());
-                    if (App::GetGuiManager()->IsVisible_FrictionSettings())
+                    App::GetGuiManager()->SimActorStats.UpdateStats(dt, App::GetGameContext()->GetPlayerActor());
+                    if (App::GetGuiManager()->FrictionSettings.IsVisible())
                     {
-                        App::GetGuiManager()->GetFrictionSettings()->setActiveCol(App::GetGameContext()->GetPlayerActor()->ar_last_fuzzy_ground_model);
+                        App::GetGuiManager()->FrictionSettings.setActiveCol(App::GetGameContext()->GetPlayerActor()->ar_last_fuzzy_ground_model);
                     }
                 }
             }

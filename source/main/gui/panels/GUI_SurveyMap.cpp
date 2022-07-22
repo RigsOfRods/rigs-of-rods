@@ -47,7 +47,7 @@ void SurveyMap::Draw()
     // Check special cases
     if ((mMapMode == SurveyMapMode::BIG &&
         App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FREE) || 
-        App::GetGuiManager()->GetMainSelector()->IsVisible())
+        App::GetGuiManager()->MainSelector.IsVisible())
     {
         mMapMode = SurveyMapMode::NONE;
         return;

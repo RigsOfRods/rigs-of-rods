@@ -566,7 +566,7 @@ void MainSelector::Cancel()
         {
             App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
         }
-        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        App::GetGuiManager()->GameMainMenu.SetVisible(true);
     }
     else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
     {
