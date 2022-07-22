@@ -979,14 +979,14 @@ void CacheSystem::ParseZipArchives(String group)
         int progress = ((float)i++ / (float)count) * 100;
         std::string text = fmt::format("{}{}\n{}\n{}/{}",
             _L("Loading zips in group "), group, file.filename, i, count);
-        RoR::App::GetGuiManager()->GetLoadingWindow()->SetProgress(progress, text);
+        RoR::App::GetGuiManager()->LoadingWindow.SetProgress(progress, text);
 
         String path = PathCombine(file.archive->getName(), file.filename);
         this->ParseSingleZip(path);
     }
 
-    RoR::App::GetGuiManager()->SetVisible_LoadingWindow(false);
-    App::GetGuiManager()->GetMainMenu()->CacheUpdatedNotice();
+    RoR::App::GetGuiManager()->LoadingWindow.SetVisible(false);
+    App::GetGuiManager()->GameMainMenu.CacheUpdatedNotice();
 }
 
 void CacheSystem::ParseSingleZip(String path)

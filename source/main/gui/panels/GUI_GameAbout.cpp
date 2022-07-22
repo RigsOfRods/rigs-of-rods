@@ -157,7 +157,7 @@ void GameAbout::SetVisible(bool v)
     m_is_visible = v;
     if(!v && (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU))
     {
-        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        App::GetGuiManager()->GameMainMenu.SetVisible(true);
     }
 }
 

@@ -186,7 +186,7 @@ void TopMenubar::Update()
             {
                 if (ImGui::Button(_LC("TopMenubar", "Show vehicle description")))
                 {
-                    App::GetGuiManager()->SetVisible_VehicleDescription(true);
+                    App::GetGuiManager()->VehicleDescription.SetVisible(true);
                 }
 
                 if (current_actor->ar_state != ActorState::NETWORKED_OK)
@@ -531,19 +531,19 @@ void TopMenubar::Update()
         {
             if (ImGui::Button(_LC("TopMenubar", "Friction settings")))
             {
-                App::GetGuiManager()->SetVisible_FrictionSettings(true);
+                App::GetGuiManager()->FrictionSettings.SetVisible(true);
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
             if (ImGui::Button(_LC("TopMenubar", "Show console")))
             {
-                App::GetGuiManager()->SetVisible_Console(! App::GetGuiManager()->IsVisible_Console());
+                App::GetGuiManager()->ConsoleWindow.SetVisible(!App::GetGuiManager()->ConsoleWindow.IsVisible());
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
             if (ImGui::Button(_LC("TopMenubar", "Texture tool")))
             {
-                App::GetGuiManager()->SetVisible_TextureToolWindow(true);
+                App::GetGuiManager()->TextureToolWindow.SetVisible(true);
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
@@ -551,7 +551,7 @@ void TopMenubar::Update()
             {
                 if (ImGui::Button(_LC("TopMenubar", "Node / Beam utility")))
                 {
-                    App::GetGuiManager()->SetVisible_NodeBeamUtils(true);
+                    App::GetGuiManager()->NodeBeamUtils.SetVisible(true);
                     m_open_menu = TopMenu::TOPMENU_NONE;
                 }
             }

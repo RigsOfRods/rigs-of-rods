@@ -124,7 +124,7 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
     App::GetGfxScene()->GetEnvMap().UpdateEnvMap(center, /*gfx_actor:*/nullptr, /*full:*/true);
 
     // Scan groundmodels
-    App::GetGuiManager()->GetFrictionSettings()->AnalyzeTerrain();
+    App::GetGuiManager()->FrictionSettings.AnalyzeTerrain();
 
     return true;
 }
@@ -608,7 +608,7 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
             skin_query.cqy_filter_type = LT_Skin;
             if (App::GetCacheSystem()->Query(skin_query) > 0)
             {
-                App::GetGuiManager()->GetMainSelector()->Show(LT_Skin, entry->guid); // Intentionally not using MSG_
+                App::GetGuiManager()->MainSelector.Show(LT_Skin, entry->guid); // Intentionally not using MSG_
             }
             else
             {
@@ -741,29 +741,29 @@ void GameContext::UpdateGlobalInputEvents()
     {
         if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
         {
-            if (App::GetGuiManager()->IsVisible_GameAbout())
+            if (App::GetGuiManager()->GameAbout.IsVisible())
             {
-                App::GetGuiManager()->SetVisible_GameAbout(false);
+                App::GetGuiManager()->GameAbout.SetVisible(false);
             }
-            else if (App::GetGuiManager()->IsVisible_MainSelector())
+            else if (App::GetGuiManager()->MainSelector.IsVisible())
             {
-                App::GetGuiManager()->GetMainSelector()->Close();
+                App::GetGuiManager()->MainSelector.Close();
             }
-            else if (App::GetGuiManager()->IsVisible_GameSettings())
+            else if (App::GetGuiManager()->GameSettings.IsVisible())
             {
-                App::GetGuiManager()->SetVisible_GameSettings(false);
+                App::GetGuiManager()->GameSettings.SetVisible(false);
             }
-            else if (App::GetGuiManager()->IsVisible_GameControls())
+            else if (App::GetGuiManager()->GameControls.IsVisible())
             {
-                App::GetGuiManager()->SetVisible_GameControls(false);
+                App::GetGuiManager()->GameControls.SetVisible(false);
             }
-            else if (App::GetGuiManager()->IsVisible_MultiplayerSelector())
+            else if (App::GetGuiManager()->MultiplayerSelector.IsVisible())
             {
-                App::GetGuiManager()->SetVisible_MultiplayerSelector(false);
+                App::GetGuiManager()->MultiplayerSelector.SetVisible(false);
             }
-            else if (App::GetGuiManager()->IsVisible_RepositorySelector())
+            else if (App::GetGuiManager()->RepositorySelector.IsVisible())
             {
-                App::GetGuiManager()->SetVisible_RepositorySelector(false);
+                App::GetGuiManager()->RepositorySelector.SetVisible(false);
             }
             else
             {
@@ -772,13 +772,13 @@ void GameContext::UpdateGlobalInputEvents()
         }
         else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
         {
-            if (App::GetGuiManager()->IsVisible_MainSelector())
+            if (App::GetGuiManager()->MainSelector.IsVisible())
             {
-                App::GetGuiManager()->GetMainSelector()->Close();
+                App::GetGuiManager()->MainSelector.Close();
             }
-            else if (App::GetGuiManager()->IsVisible_GameControls())
+            else if (App::GetGuiManager()->GameControls.IsVisible())
             {
-                App::GetGuiManager()->SetVisible_GameControls(false);
+                App::GetGuiManager()->GameControls.SetVisible(false);
             }
             else if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
             {
@@ -1211,7 +1211,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
 
         m_player_actor->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
 
-        for (auto id: App::GetGuiManager()->GetVehicleButtons()->GetCommandEventID())
+        for (auto id: App::GetGuiManager()->VehicleButtons.GetCommandEventID())
         {
             if (id == eventID)
             {
@@ -1598,7 +1598,7 @@ void GameContext::UpdateTruckInputEvents(float dt)
     }
     else
     {
-        if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN) || App::GetGuiManager()->GetVehicleButtons()->GetHornButtonState())
+        if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN) || App::GetGuiManager()->VehicleButtons.GetHornButtonState())
         {
             SOUND_START(m_player_actor, SS_TRIG_HORN);
         }

@@ -227,7 +227,7 @@ void GameSettings::DrawGeneralSettings()
 
     if (ImGui::Button(_LC("GameSettings", "Update cache")))
     {
-        App::GetGuiManager()->SetVisible_GameSettings(false);
+        App::GetGuiManager()->GameSettings.SetVisible(false);
         App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_UPDATE_REQUESTED));
         App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
     }
@@ -399,7 +399,7 @@ void GameSettings::DrawDiagSettings()
     DrawGCheckbox(App::diag_log_beam_trigger,    _LC("GameSettings", "Log beam triggers"));
     if (ImGui::Button(_LC("GameSettings", "Rebuild cache")))
     {
-        App::GetGuiManager()->SetVisible_GameSettings(false);
+        App::GetGuiManager()->GameSettings.SetVisible(false);
         App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_PURGE_REQUESTED));
         App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
     }
@@ -446,7 +446,7 @@ void GameSettings::SetVisible(bool v)
     m_is_visible = v;
     if (!v && App::app_state->getEnum<AppState>() == RoR::AppState::MAIN_MENU)
     {
-        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        App::GetGuiManager()->GameMainMenu.SetVisible(true);
     }
 
     // Pre-format combobox strings.

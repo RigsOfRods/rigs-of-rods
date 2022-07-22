@@ -397,7 +397,7 @@ void GameControls::SetVisible(bool vis)
     if (!vis)
     {
         this->CancelChanges();
-        App::GetGuiManager()->SetVisible_GameMainMenu(true);
+        App::GetGuiManager()->GameMainMenu.SetVisible(true);
     }
 }
 

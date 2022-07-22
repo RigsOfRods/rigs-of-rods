@@ -23,6 +23,8 @@
 /// @author Moncef Ben Slimane
 /// @date   12/2014
 
+#pragma once
+
 #include <imgui.h>
 
 namespace RoR {
