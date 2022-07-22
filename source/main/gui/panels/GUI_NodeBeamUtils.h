@@ -30,11 +30,13 @@ class NodeBeamUtils
 public:
     void Draw();
 
+    void SetVisible(bool visible);
     bool IsVisible() const { return m_is_visible; }
-    void SetVisible(bool v);
+    bool IsHovered() const { return m_is_hovered; }
 
 private:
     bool m_is_visible = false;
+    bool m_is_hovered = false;
     bool m_is_searching = false;
 
     const ImVec4 GRAY_HINT_TEXT = ImVec4(0.62f, 0.62f, 0.61f, 1.f);

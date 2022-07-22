@@ -107,7 +107,9 @@ void ConsoleWindow::Draw()
         m_cmd_buffer.Clear();
     }
 
-    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
+    m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(m_is_hovered);
+
     ImGui::End();
 
     if (!keep_open)

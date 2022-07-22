@@ -42,8 +42,9 @@ public:
     static const size_t HISTORY_CAP = 100u;
 
     ConsoleWindow();
-    void SetVisible(bool visible) { m_is_visible = visible; }
+    void SetVisible(bool visible) { m_is_visible = visible; m_is_hovered = false; }
     bool IsVisible() const { return m_is_visible; }
+    bool IsHovered() const { return m_is_hovered; }
 
     void Draw();
     void doCommand(std::string msg);
@@ -60,6 +61,7 @@ private:
     std::vector<std::string> m_cmd_history;
     int                      m_cmd_history_cursor = -1;
     bool                     m_is_visible = false;
+    bool                     m_is_hovered = false;
 };
 
 } // namespace GUI

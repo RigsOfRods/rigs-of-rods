@@ -31,8 +31,10 @@ public:
     const ImVec4      GRAY_HINT_TEXT = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
     const int         MAPFILE_ID_DEFAULT = -1;
 
-    void SetVisible(bool vis);
+    void SetVisible(bool visible);
     bool IsVisible() const { return m_is_visible; }
+    bool IsHovered() const { return m_is_hovered; }
+
     bool IsInteractiveKeyBindingActive() { return m_interactive_keybinding_active; }
     void Draw();
 
@@ -52,6 +54,7 @@ private:
     bool               ShouldDisplay(event_trigger_t& trig);
 
     bool m_is_visible = false;
+    bool m_is_hovered = false;
     float m_colum_widths[3] = {}; //!< body->header width sync
 
     // Mode/config file selection

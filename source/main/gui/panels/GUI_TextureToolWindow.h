@@ -31,8 +31,9 @@ public:
     const float LEFT_PANE_WIDTH = 200.f;
     const float WINDOW_WIDTH = 600.f;
 
-    void SetVisible(bool vis) { m_is_visible = vis; }
+    void SetVisible(bool visible) { m_is_visible = visible; m_is_hovered = false; }
     bool IsVisible() const { return m_is_visible; }
+    bool IsHovered() const { return m_is_hovered; }
 
     void Draw();
 
@@ -40,6 +41,7 @@ private:
     void SaveTexture(std::string texName, bool usePNG);
 
     bool m_is_visible = false;
+    bool m_is_hovered = false;
     bool m_show_dynamic_only = true;
     Ogre::TexturePtr m_display_tex;
 };

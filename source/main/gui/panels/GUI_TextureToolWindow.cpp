@@ -145,7 +145,9 @@ void TextureToolWindow::Draw()
 
     ImGui::EndGroup(); // right
 
-    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
+    m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(m_is_hovered);
+
     ImGui::End();
 }
 
