@@ -385,6 +385,12 @@ void MainSelector::Draw()
 
     ImGui::EndGroup();
 
+    // Don't update hover if Close() was already called.
+    if (m_loader_type != LoaderType::LT_None)
+    {
+        m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
+    }
+
     ImGui::End();
     if (!keep_open)
     {
@@ -554,6 +560,7 @@ void MainSelector::Close()
     m_searchbox_was_active = false;
     m_loader_type = LT_None; // Hide window
     m_kb_focused = true;
+    m_is_hovered = false;
 }
 
 void MainSelector::Cancel()

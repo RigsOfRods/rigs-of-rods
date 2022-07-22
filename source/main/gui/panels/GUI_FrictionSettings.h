@@ -48,8 +48,9 @@ public:
         const ground_model_t* const live_data;
     };
 
+    void SetVisible(bool visible) { m_is_visible = visible; m_is_hovered = false; }
     bool IsVisible() const { return m_is_visible; }
-    void SetVisible(bool value) { m_is_visible = value; }
+    bool IsHovered() const { return m_is_hovered; }
 
     void AnalyzeTerrain();
     void setActiveCol(const ground_model_t* gm) { m_nearest_gm = gm; }
@@ -59,10 +60,11 @@ private:
     static bool GmComboItemGetter(void* data, int idx, const char** out_text);
     void DrawTooltip(const char* title, const char* text);
 
-    bool m_is_visible = false;
     std::vector<Entry> m_gm_entries;
     int m_selected_gm = 0;
     const ground_model_t* m_nearest_gm = nullptr;
+    bool m_is_visible = false;
+    bool m_is_hovered = false;
 };
 
 } // namespace GUI

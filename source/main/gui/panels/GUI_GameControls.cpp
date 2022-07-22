@@ -141,6 +141,8 @@ void GameControls::Draw()
 
         ImGui::EndTabBar(); // GameSettingsTabs
 
+        m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
+
         ImGui::End();
         if (!keep_open)
         {
@@ -394,6 +396,7 @@ void GameControls::ReloadMapFile()
 void GameControls::SetVisible(bool vis)
 {
     m_is_visible = vis;
+    m_is_hovered = false;
     if (!vis)
     {
         this->CancelChanges();

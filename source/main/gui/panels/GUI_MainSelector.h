@@ -43,6 +43,7 @@ public:
 
     void Show(LoaderType type, std::string const& filter_guid = "");
     bool IsVisible() { return m_loader_type != LT_None; };
+    bool IsHovered() { return m_is_hovered; }
     bool m_kb_focused = true;
     void Draw();
     void Close();
@@ -91,6 +92,7 @@ private:
     bool               m_show_details = false;
     bool               m_searchbox_was_active = false;
     CacheEntry         m_dummy_skin;
+    bool               m_is_hovered = false;
 
     int                m_selected_category = 0;    //!< Combobox position (uses display list)
     int                m_selected_cid = 0;         //!< Category ID

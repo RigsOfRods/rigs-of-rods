@@ -175,7 +175,9 @@ void NodeBeamUtils::Draw()
         actor->searchBeamDefaults();
     }
 
-    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
+    m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(m_is_hovered);
+
     ImGui::End();
     if (!keep_open)
     {
@@ -186,6 +188,7 @@ void NodeBeamUtils::Draw()
 void NodeBeamUtils::SetVisible(bool v)
 {
     m_is_visible = v;
+    m_is_hovered = false;
     if (!v)
     {
         m_is_searching = false;
