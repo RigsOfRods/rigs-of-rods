@@ -25,7 +25,7 @@
 
 #include "CacheSystem.h"
 
-#include <OgreException.h>
+#include "ActorSpawner.h"
 #include "Application.h"
 #include "SimData.h"
 #include "ContentManager.h"
@@ -38,12 +38,12 @@
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RigDef_Parser.h"
-
 #include "SkinFileFormat.h"
 #include "Terrain.h"
 #include "Terrn2FileFormat.h"
 #include "Utils.h"
 
+#include <OgreException.h>
 #include <OgreFileSystem.h>
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
@@ -53,49 +53,6 @@
 
 using namespace Ogre;
 using namespace RoR;
-
-CacheEntry::CacheEntry() :
-    addtimestamp(0),
-    beamcount(0),
-    categoryid(0),
-    commandscount(0),
-    custom_particles(false),
-    customtach(false),
-    deleted(false),
-    driveable(NOT_DRIVEABLE),
-    enginetype('t'), // enginetype = t = truck is default
-    exhaustscount(0),
-    fileformatversion(0),
-    filetime(0),
-    fixescount(0),
-    flarescount(0),
-    flexbodiescount(0),
-    forwardcommands(false),
-    hasSubmeshs(false),
-    hydroscount(0),
-    importcommands(false),
-    loadmass(0),
-    maxrpm(0),
-    minrpm(0),
-    nodecount(0),
-    number(0),
-    numgears(0),
-    propscount(0),
-    propwheelcount(0),
-    rescuer(false),
-    rotatorscount(0),
-    shockcount(0),
-    soundsourcescount(0),
-    torque(0),
-    truckmass(0),
-    turbojetcount(0),
-    turbopropscount(0),
-    usagecounter(0),
-    version(0),
-    wheelcount(0),
-    wingscount(0)
-{
-}
 
 CacheSystem::CacheSystem()
 {
@@ -229,6 +186,7 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
     out_entry.uniqueid =               j_entry["uniqueid"].GetString();
     out_entry.version =                j_entry["version"].GetInt();
     out_entry.filecachename =          j_entry["filecachename"].GetString();
+    out_entry.default_skin =           j_entry["default_skin"].GetString();
 
     out_entry.guid = j_entry["guid"].GetString();
     Ogre::StringUtil::trim(out_entry.guid);
@@ -256,47 +214,53 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
         out_entry.authors.push_back(author);
     }
 
-    // Vehicle details
-    out_entry.description =       j_entry["description"].GetString();
-    out_entry.tags =              j_entry["tags"].GetString();
-    out_entry.default_skin =      j_entry["default_skin"].GetString();
-    out_entry.fileformatversion = j_entry["fileformatversion"].GetInt();
-    out_entry.hasSubmeshs =       j_entry["hasSubmeshs"].GetBool();
-    out_entry.nodecount =         j_entry["nodecount"].GetInt();
-    out_entry.beamcount =         j_entry["beamcount"].GetInt();
-    out_entry.shockcount =        j_entry["shockcount"].GetInt();
-    out_entry.fixescount =        j_entry["fixescount"].GetInt();
-    out_entry.hydroscount =       j_entry["hydroscount"].GetInt();
-    out_entry.wheelcount =        j_entry["wheelcount"].GetInt();
-    out_entry.propwheelcount =    j_entry["propwheelcount"].GetInt();
-    out_entry.commandscount =     j_entry["commandscount"].GetInt();
-    out_entry.flarescount =       j_entry["flarescount"].GetInt();
-    out_entry.propscount =        j_entry["propscount"].GetInt();
-    out_entry.wingscount =        j_entry["wingscount"].GetInt();
-    out_entry.turbopropscount =   j_entry["turbopropscount"].GetInt();
-    out_entry.turbojetcount =     j_entry["turbojetcount"].GetInt();
-    out_entry.rotatorscount =     j_entry["rotatorscount"].GetInt();
-    out_entry.exhaustscount =     j_entry["exhaustscount"].GetInt();
-    out_entry.flexbodiescount =   j_entry["flexbodiescount"].GetInt();
-    out_entry.soundsourcescount = j_entry["soundsourcescount"].GetInt();
-    out_entry.truckmass =         j_entry["truckmass"].GetFloat();
-    out_entry.loadmass =          j_entry["loadmass"].GetFloat();
-    out_entry.minrpm =            j_entry["minrpm"].GetFloat();
-    out_entry.maxrpm =            j_entry["maxrpm"].GetFloat();
-    out_entry.torque =            j_entry["torque"].GetFloat();
-    out_entry.customtach =        j_entry["customtach"].GetBool();
-    out_entry.custom_particles =  j_entry["custom_particles"].GetBool();
-    out_entry.forwardcommands =   j_entry["forwardcommands"].GetBool();
-    out_entry.importcommands =    j_entry["importcommands"].GetBool();
-    out_entry.rescuer =           j_entry["rescuer"].GetBool();
-    out_entry.driveable =         ActorType(j_entry["driveable"].GetInt());
-    out_entry.numgears =          j_entry["numgears"].GetInt();
-    out_entry.enginetype =        static_cast<char>(j_entry["enginetype"].GetInt());
-
-    // Vehicle 'section-configs' (aka Modules in RigDef namespace)
-    for (rapidjson::Value& j_module_name: j_entry["sectionconfigs"].GetArray())
+    // Vehicle configurations
+    for (rapidjson::Value& j_config : j_entry["sectionconfigs"].GetArray())
     {
-        out_entry.sectionconfigs.push_back(j_module_name.GetString());
+        CacheActorConfigInfo out_config;
+
+        // Attributes
+        out_config.config_name       = j_config["config_name"].GetString();
+        out_config.truckmass         = j_config["truckmass"].GetFloat();
+        out_config.loadmass          = j_config["loadmass"].GetFloat();
+        out_config.customtach        = j_config["customtach"].GetBool();
+        out_config.custom_particles  = j_config["custom_particles"].GetBool();
+        out_config.forwardcommands   = j_config["forwardcommands"].GetBool();
+        out_config.importcommands    = j_config["importcommands"].GetBool();
+        out_config.rescuer           = j_config["rescuer"].GetBool();
+
+        // Element counts
+        out_config.nodecount         = j_config["nodecount"].GetInt();
+        out_config.beamcount         = j_config["beamcount"].GetInt();
+        out_config.shockcount        = j_config["shockcount"].GetInt();
+        out_config.fixescount        = j_config["fixescount"].GetInt();
+        out_config.hydroscount       = j_config["hydroscount"].GetInt();
+        out_config.tiecount          = j_config["tiecount"].GetInt();
+        out_config.ropecount         = j_config["ropecount"].GetInt();
+        out_config.wheelcount        = j_config["wheelcount"].GetInt();
+        out_config.propwheelcount    = j_config["propwheelcount"].GetInt();
+        out_config.commandscount     = j_config["commandscount"].GetInt();
+        out_config.flarescount       = j_config["flarescount"].GetInt();
+        out_config.propscount        = j_config["propscount"].GetInt();
+        out_config.wingscount        = j_config["wingscount"].GetInt();
+        out_config.turbopropscount   = j_config["turbopropscount"].GetInt();
+        out_config.turbojetcount     = j_config["turbojetcount"].GetInt();
+        out_config.rotatorscount     = j_config["rotatorscount"].GetInt();
+        out_config.exhaustscount     = j_config["exhaustscount"].GetInt();
+        out_config.flexbodiescount   = j_config["flexbodiescount"].GetInt();
+        out_config.soundsourcescount = j_config["soundsourcescount"].GetInt();
+        out_config.airbrakescount    = j_config["airbrakescount"].GetInt();
+        out_config.rotatorscount     = j_config["rotatorscount"].GetInt();
+        out_config.submeshescount    = j_config["submeshescount"].GetInt();
+        
+        // Engine
+        out_config.numgears          = j_config["numgears"].GetInt();
+        out_config.enginetype        = static_cast<char>(j_config["enginetype"].GetInt());
+        out_config.minrpm            = j_config["minrpm"].GetFloat();
+        out_config.maxrpm            = j_config["maxrpm"].GetFloat();
+        out_config.torque            = j_config["torque"].GetFloat();
+
+        out_entry.sectionconfigs.push_back(out_config);
     }
 }
 
@@ -516,49 +480,58 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
     }
     j_entry.AddMember("authors", j_authors, j_doc.GetAllocator());
 
-    // Vehicle details
-    j_entry.AddMember("description",         rapidjson::StringRef(entry.description.c_str()),       j_doc.GetAllocator());
-    j_entry.AddMember("tags",                rapidjson::StringRef(entry.tags.c_str()),              j_doc.GetAllocator());
+    // Vehicle configurations
     j_entry.AddMember("default_skin",        rapidjson::StringRef(entry.default_skin.c_str()),      j_doc.GetAllocator());
-    j_entry.AddMember("fileformatversion",   entry.fileformatversion, j_doc.GetAllocator());
-    j_entry.AddMember("hasSubmeshs",         entry.hasSubmeshs,       j_doc.GetAllocator());
-    j_entry.AddMember("nodecount",           entry.nodecount,         j_doc.GetAllocator());
-    j_entry.AddMember("beamcount",           entry.beamcount,         j_doc.GetAllocator());
-    j_entry.AddMember("shockcount",          entry.shockcount,        j_doc.GetAllocator());
-    j_entry.AddMember("fixescount",          entry.fixescount,        j_doc.GetAllocator());
-    j_entry.AddMember("hydroscount",         entry.hydroscount,       j_doc.GetAllocator());
-    j_entry.AddMember("wheelcount",          entry.wheelcount,        j_doc.GetAllocator());
-    j_entry.AddMember("propwheelcount",      entry.propwheelcount,    j_doc.GetAllocator());
-    j_entry.AddMember("commandscount",       entry.commandscount,     j_doc.GetAllocator());
-    j_entry.AddMember("flarescount",         entry.flarescount,       j_doc.GetAllocator());
-    j_entry.AddMember("propscount",          entry.propscount,        j_doc.GetAllocator());
-    j_entry.AddMember("wingscount",          entry.wingscount,        j_doc.GetAllocator());
-    j_entry.AddMember("turbopropscount",     entry.turbopropscount,   j_doc.GetAllocator());
-    j_entry.AddMember("turbojetcount",       entry.turbojetcount,     j_doc.GetAllocator());
-    j_entry.AddMember("rotatorscount",       entry.rotatorscount,     j_doc.GetAllocator());
-    j_entry.AddMember("exhaustscount",       entry.exhaustscount,     j_doc.GetAllocator());
-    j_entry.AddMember("flexbodiescount",     entry.flexbodiescount,   j_doc.GetAllocator());
-    j_entry.AddMember("soundsourcescount",   entry.soundsourcescount, j_doc.GetAllocator());
-    j_entry.AddMember("truckmass",           entry.truckmass,         j_doc.GetAllocator());
-    j_entry.AddMember("loadmass",            entry.loadmass,          j_doc.GetAllocator());
-    j_entry.AddMember("minrpm",              entry.minrpm,            j_doc.GetAllocator());
-    j_entry.AddMember("maxrpm",              entry.maxrpm,            j_doc.GetAllocator());
-    j_entry.AddMember("torque",              entry.torque,            j_doc.GetAllocator());
-    j_entry.AddMember("customtach",          entry.customtach,        j_doc.GetAllocator());
-    j_entry.AddMember("custom_particles",    entry.custom_particles,  j_doc.GetAllocator());
-    j_entry.AddMember("forwardcommands",     entry.forwardcommands,   j_doc.GetAllocator());
-    j_entry.AddMember("importcommands",      entry.importcommands,    j_doc.GetAllocator());
-    j_entry.AddMember("rescuer",             entry.rescuer,           j_doc.GetAllocator());
-    j_entry.AddMember("driveable",           entry.driveable,         j_doc.GetAllocator());
-    j_entry.AddMember("numgears",            entry.numgears,          j_doc.GetAllocator());
-    j_entry.AddMember("enginetype",          entry.enginetype,        j_doc.GetAllocator());
-
-    // Vehicle 'section-configs' (aka Modules in RigDef namespace)
     rapidjson::Value j_sectionconfigs(rapidjson::kArrayType);
-    for (std::string const & module_name: entry.sectionconfigs)
+    for (CacheActorConfigInfo const& config : entry.sectionconfigs)
     {
-        j_sectionconfigs.PushBack(rapidjson::StringRef(module_name.c_str()), j_doc.GetAllocator());
+        rapidjson::Value j_config(rapidjson::kObjectType);
+
+        // Attributes
+        j_config.AddMember("config_name",         rapidjson::StringRef(config.config_name.c_str()), j_doc.GetAllocator());
+        j_config.AddMember("truckmass",           config.truckmass,         j_doc.GetAllocator());
+        j_config.AddMember("loadmass",            config.loadmass,          j_doc.GetAllocator());
+        j_config.AddMember("customtach",          config.customtach,        j_doc.GetAllocator());
+        j_config.AddMember("custom_particles",    config.custom_particles,  j_doc.GetAllocator());
+        j_config.AddMember("forwardcommands",     config.forwardcommands,   j_doc.GetAllocator());
+        j_config.AddMember("importcommands",      config.importcommands,    j_doc.GetAllocator());
+        j_config.AddMember("rescuer",             config.rescuer,           j_doc.GetAllocator());
+        j_config.AddMember("driveable",           config.driveable,         j_doc.GetAllocator());
+
+        // Element counts
+        j_config.AddMember("nodecount",           config.nodecount,         j_doc.GetAllocator());
+        j_config.AddMember("beamcount",           config.beamcount,         j_doc.GetAllocator());
+        j_config.AddMember("shockcount",          config.shockcount,        j_doc.GetAllocator());
+        j_config.AddMember("fixescount",          config.fixescount,        j_doc.GetAllocator());
+        j_config.AddMember("hydroscount",         config.hydroscount,       j_doc.GetAllocator());
+        j_config.AddMember("tiecount",            config.tiecount,          j_doc.GetAllocator());
+        j_config.AddMember("ropecount",           config.ropecount,         j_doc.GetAllocator());
+        j_config.AddMember("wheelcount",          config.wheelcount,        j_doc.GetAllocator());
+        j_config.AddMember("propwheelcount",      config.propwheelcount,    j_doc.GetAllocator());
+        j_config.AddMember("commandscount",       config.commandscount,     j_doc.GetAllocator());
+        j_config.AddMember("flarescount",         config.flarescount,       j_doc.GetAllocator());
+        j_config.AddMember("propscount",          config.propscount,        j_doc.GetAllocator());
+        j_config.AddMember("wingscount",          config.wingscount,        j_doc.GetAllocator());
+        j_config.AddMember("turbopropscount",     config.turbopropscount,   j_doc.GetAllocator());
+        j_config.AddMember("turbojetcount",       config.turbojetcount,     j_doc.GetAllocator());
+        j_config.AddMember("rotatorscount",       config.rotatorscount,     j_doc.GetAllocator());
+        j_config.AddMember("exhaustscount",       config.exhaustscount,     j_doc.GetAllocator());
+        j_config.AddMember("flexbodiescount",     config.flexbodiescount,   j_doc.GetAllocator());
+        j_config.AddMember("soundsourcescount",   config.soundsourcescount, j_doc.GetAllocator());
+        j_config.AddMember("airbrakescount",      config.airbrakescount,    j_doc.GetAllocator());
+        j_config.AddMember("rotatorscount",       config.rotatorscount,     j_doc.GetAllocator());
+        j_config.AddMember("submeshescount",      config.submeshescount,    j_doc.GetAllocator());
+        
+        // Engine
+        j_config.AddMember("numgears",            config.numgears,          j_doc.GetAllocator());
+        j_config.AddMember("enginetype",          config.enginetype,        j_doc.GetAllocator());
+        j_config.AddMember("minrpm",              config.minrpm,            j_doc.GetAllocator());
+        j_config.AddMember("maxrpm",              config.maxrpm,            j_doc.GetAllocator());
+        j_config.AddMember("torque",              config.torque,            j_doc.GetAllocator());
+
+        j_sectionconfigs.PushBack(j_config, j_doc.GetAllocator());
     }
+
     j_entry.AddMember("sectionconfigs", j_sectionconfigs, j_doc.GetAllocator());
 
     // Add entry to list
@@ -706,37 +679,28 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
 
 void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr stream, String file_name, String group)
 {
-    /* LOAD AND PARSE THE VEHICLE */
+    // Load the document
     RigDef::Parser parser;
     parser.Prepare();
     parser.ProcessOgreStream(stream.getPointer(), group);
-    parser.GetSequentialImporter()->Disable();
     parser.Finalize();
+    RigDef::DocumentPtr document = parser.GetFile();
 
-    /* RETRIEVE DATA */
-
-    RigDef::DocumentPtr def = parser.GetFile();
-
-    /* Name */
-    if (!def->name.empty())
-    {
-        entry.dname = def->name; // Use retrieved name
-    }
-    else
-    {
-        entry.dname = "@" + file_name; // Fallback
-    }
-
-    /* Description */
-    std::vector<Ogre::String>::iterator desc_itor = def->root_module->description.begin();
-    for (; desc_itor != def->root_module->description.end(); desc_itor++)
+    // Fill info
+    entry.dname = document->name;
+    std::vector<Ogre::String>::iterator desc_itor = document->description.begin();
+    for (; desc_itor != document->description.end(); desc_itor++)
     {
         entry.description += *desc_itor + "\n";
     }
+    if (document->guid.size() > 0)
+    {
+        entry.guid = document->guid[document->guid.size() - 1].guid;
+    }
 
-    /* Authors */
-    std::vector<RigDef::Author>::iterator author_itor = def->root_module->author.begin();
-    for (; author_itor != def->root_module->author.end(); author_itor++)
+    // Fill authors
+    std::vector<RigDef::Author>::iterator author_itor = document->author.begin();
+    for (; author_itor != document->author.end(); author_itor++)
     {
         AuthorInfo author;
         author.email = author_itor->email;
@@ -748,163 +712,38 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     }
 
     /* Default skin */
-    if (def->root_module->default_skin.size() > 0)
+    if (document->default_skin.size() > 0)
     {
-        entry.default_skin = def->root_module->default_skin.back().skin_name;
+        entry.default_skin = document->default_skin.back().skin_name;
     }
 
-    /* Modules (previously called "sections") */
-    std::map<Ogre::String, std::shared_ptr<RigDef::Document::Module>>::iterator module_itor = def->user_modules.begin();
-    for (; module_itor != def->user_modules.end(); module_itor++)
+    // File info
+    if (document->fileinfo.size() > 0)
     {
-        entry.sectionconfigs.push_back(module_itor->second->name);
-    }
-
-    /* Engine */
-    /* TODO: Handle engines in modules */
-    if (def->root_module->engine.size() > 0)
-    {
-        RigDef::Engine& engine = def->root_module->engine[def->root_module->engine.size() - 1];
-        entry.numgears = static_cast<int>(engine.gear_ratios.size());
-        entry.minrpm = engine.shift_down_rpm;
-        entry.maxrpm = engine.shift_up_rpm;
-        entry.torque = engine.torque;
-        entry.enginetype = 't'; /* Truck (default) */
-        if (def->root_module->engoption.size() > 0)
-        {
-            entry.enginetype = (char)def->root_module->engoption[def->root_module->engoption.size() - 1].type;
-        }
-    }
-
-    /* File info */
-    if (def->root_module->fileinfo.size() > 0)
-    {
-        RigDef::Fileinfo& data = def->root_module->fileinfo[def->root_module->fileinfo.size() - 1];
+        RigDef::Fileinfo& data = document->fileinfo[document->fileinfo.size() - 1];
 
         entry.uniqueid = data.unique_id;
         entry.categoryid = static_cast<int>(data.category_id);
         entry.version = static_cast<int>(data.file_version);
     }
+
+    // Fill per-configuration data
+    ActorSpawner spawner;
+    if (document->sectionconfig.size() == 0)
+    {
+        CacheActorConfigInfo config_info;
+        spawner.FillCacheConfigInfo(document, "", config_info);
+        entry.sectionconfigs.push_back(config_info);
+    }
     else
     {
-        entry.uniqueid = "-1";
-        entry.categoryid = -1;
-        entry.version = -1;
-    }
-
-    /* Vehicle type */
-    /* NOTE: RigDef::Document allows modularization of vehicle type. Cache only supports single type.
-        This is a temporary solution which has undefined results for mixed-type vehicles.
-    */
-    ActorType vehicle_type = NOT_DRIVEABLE;
-    module_itor = def->user_modules.begin();
-    for (; module_itor != def->user_modules.end(); module_itor++)
-    {
-        if (module_itor->second->engine.size() > 0)
+        for (RigDef::SectionConfig& config : document->sectionconfig)
         {
-            vehicle_type = TRUCK;
-        }
-        else if (module_itor->second->screwprops.size() > 0)
-        {
-            vehicle_type = BOAT;
-        }
-        /* Note: Sections 'turboprops' and 'turboprops2' are unified in TruckParser2013 */
-        else if (module_itor->second->turbojets.size() > 0 || module_itor->second->pistonprops.size() > 0 || module_itor->second->turboprops2.size() > 0)
-        {
-            vehicle_type = AIRPLANE;
+            CacheActorConfigInfo config_info;
+            spawner.FillCacheConfigInfo(document, config.name, config_info);
+            entry.sectionconfigs.push_back(config_info);
         }
     }
-    /* Root module */
-    if (def->root_module->engine.size() > 0)
-    {
-        vehicle_type = TRUCK;
-    }
-    else if (def->root_module->screwprops.size() > 0)
-    {
-        vehicle_type = BOAT;
-    }
-    /* Note: Sections 'turboprops' and 'turboprops2' are unified in TruckParser2013 */
-    else if (def->root_module->turbojets.size() > 0 || def->root_module->pistonprops.size() > 0 || def->root_module->turboprops2.size() > 0)
-    {
-        vehicle_type = AIRPLANE;
-    }
-
-    if (def->root_module->globals.size() > 0)
-    {
-        entry.truckmass = def->root_module->globals[def->root_module->globals.size() - 1].dry_mass;
-        entry.loadmass = def->root_module->globals[def->root_module->globals.size() - 1].cargo_mass;
-    }
-    
-    entry.forwardcommands = def->forward_commands;
-    entry.importcommands = def->import_commands;
-    entry.rescuer = def->rescuer;
-    if (def->root_module->guid.size() > 0)
-    {
-        entry.guid = def->root_module->guid[def->root_module->guid.size() - 1].guid;
-    }
-    entry.fileformatversion = 0;
-    if (def->root_module->fileformatversion.size() > 0)
-    {
-        entry.fileformatversion = def->root_module->fileformatversion[def->root_module->fileformatversion.size() - 1].version;
-    }
-    entry.hasSubmeshs = static_cast<int>(def->root_module->submeshes.size() > 0);
-    entry.nodecount = static_cast<int>(def->root_module->nodes.size());
-    entry.beamcount = static_cast<int>(def->root_module->beams.size());
-    entry.shockcount = static_cast<int>(def->root_module->shocks.size() + def->root_module->shocks2.size());
-    entry.fixescount = static_cast<int>(def->root_module->fixes.size());
-    entry.hydroscount = static_cast<int>(def->root_module->hydros.size());
-    entry.driveable = vehicle_type;
-    entry.commandscount = static_cast<int>(def->root_module->commands2.size());
-    entry.flarescount = static_cast<int>(def->root_module->flares2.size());
-    entry.propscount = static_cast<int>(def->root_module->props.size());
-    entry.wingscount = static_cast<int>(def->root_module->wings.size());
-    entry.turbopropscount = static_cast<int>(def->root_module->turboprops2.size());
-    entry.rotatorscount = static_cast<int>(def->root_module->rotators.size() + def->root_module->rotators2.size());
-    entry.exhaustscount = static_cast<int>(def->root_module->exhausts.size());
-    entry.custom_particles = def->root_module->particles.size() > 0;
-    entry.turbojetcount = static_cast<int>(def->root_module->turbojets.size());
-    entry.flexbodiescount = static_cast<int>(def->root_module->flexbodies.size());
-    entry.soundsourcescount = static_cast<int>(def->root_module->soundsources.size() + def->root_module->soundsources.size());
-
-    entry.wheelcount = 0;
-    entry.propwheelcount = 0;
-    for (const auto& w : def->root_module->wheels)
-    {
-        entry.wheelcount++;
-        if (w.propulsion != RigDef::WheelPropulsion::NONE)
-            entry.propwheelcount++;
-    }
-    for (const auto& w : def->root_module->wheels2)
-    {
-        entry.wheelcount++;
-        if (w.propulsion != RigDef::WheelPropulsion::NONE)
-            entry.propwheelcount++;
-    }
-    for (const auto& w : def->root_module->meshwheels)
-    {
-        entry.wheelcount++;
-        if (w.propulsion != RigDef::WheelPropulsion::NONE)
-            entry.propwheelcount++;
-    }
-    for (const auto& w : def->root_module->meshwheels2)
-    {
-        entry.wheelcount++;
-        if (w.propulsion != RigDef::WheelPropulsion::NONE)
-            entry.propwheelcount++;
-    }
-    for (const auto& w : def->root_module->flexbodywheels)
-    {
-        entry.wheelcount++;
-        if (w.propulsion != RigDef::WheelPropulsion::NONE)
-            entry.propwheelcount++;
-    }
-
-    if (!def->root_module->axles.empty())
-    {
-        entry.propwheelcount = static_cast<int>(def->root_module->axles.size() * 2);
-    }
-
-    /* NOTE: std::shared_ptr cleans everything up. */
 }
 
 Ogre::String detectMiniType(String filename, String group)
@@ -1347,8 +1186,14 @@ size_t CacheSystem::Query(CacheQuery& query)
             break;
 
         case CacheSearchMethod::WHEELS:
-            wheels_str << entry.wheelcount << "x" << entry.propwheelcount;
-            match = this->Match(score, wheels_str.ToCStr(), query.cqy_search_string, 0);
+            for (CacheActorConfigInfo& info : entry.sectionconfigs)
+            {
+                if (!match)
+                {
+                    wheels_str << info.wheelcount << "x" << info.propwheelcount;
+                    match = match || this->Match(score, wheels_str.ToCStr(), query.cqy_search_string, 0);
+                }
+            }
             break;
 
         case CacheSearchMethod::FILENAME:

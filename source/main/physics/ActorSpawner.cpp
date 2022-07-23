@@ -58,6 +58,7 @@
 #include "MeshObject.h"
 #include "PointColDetector.h"
 #include "Renderdash.h"
+#include "RigDef_File.h"
 #include "ScrewProp.h"
 #include "Skidmark.h"
 #include "SkinFileFormat.h"
@@ -81,161 +82,624 @@
 const char* ACTOR_ID_TOKEN = "@Actor_"; // Appended to material name, followed by actor ID (aka 'trucknum')
 
 using namespace RoR;
+using namespace RigDef;
 
-/* -------------------------------------------------------------------------- */
-// Prepare for loading
-/* -------------------------------------------------------------------------- */
-
-void ActorSpawner::ConfigureSections(Ogre::String const & sectionconfig, RigDef::DocumentPtr def)
-{   
-    m_selected_modules.push_back(def->root_module);
-    auto result = def->user_modules.find(sectionconfig);
-
-    if (result != def->user_modules.end())
-    {
-        m_selected_modules.push_back(result->second);
-        LOG(" == ActorSpawner: Module added to configuration: " + sectionconfig);
-    }
-    else
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Selected module not found: " + sectionconfig);
-    }
-}
-
-void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::Document::Module* module_def)
+void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef::DocumentPtr def)
 {
-    // 'nodes'
-    req.num_nodes += module_def->nodes.size();
-    for (auto& def: module_def->nodes)
+    m_actor = actor;
+    m_document = def;
+    m_spawn_position = rq.asr_position;
+    m_selected_config = rq.asr_config;
+    m_current_keyword = RigDef::Keyword::INVALID;
+    m_wing_area = 0.f;
+    m_fuse_z_min = 1000.0f;
+    m_fuse_z_max = -1000.0f;
+    m_fuse_y_min = 1000.0f;
+    m_fuse_y_max = -1000.0f;
+    m_first_wing_index = -1;
+    m_particles_parent_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+
+    m_generate_wing_position_lights = true;
+
+    // FIXME: take sectionconfig to account!
+    if (m_document->engine.size() > 0) // Engine present => it's a land vehicle.
     {
-        if (BITMASK_IS_1(def.options, RigDef::Node::OPTION_h_HOOK_POINT))
+        m_generate_wing_position_lights = false; // Disable aerial pos. lights for land vehicles.
+    }
+
+    // Get resource group name
+    App::GetCacheSystem()->CheckResourceLoaded(m_actor->ar_filename, m_custom_resource_group);
+    
+    CacheEntry* cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, m_actor->ar_filename);
+    CacheActorConfigInfo config_info;
+    for (CacheActorConfigInfo& info : cache_entry->sectionconfigs)
+    {
+        if (info.config_name == rq.asr_config)
         {
-            req.num_beams += 1;
+            config_info = info;
         }
     }
+    this->InitializeRig(config_info);
 
-    // 'beams'
-    req.num_beams += module_def->beams.size();
+    // Create the built-in "renderdash" material for use with prop meshes.
+    // Must be done before 'props' are processed because those traditionally use it.
+    // Must be always created, there is no mechanism to declare the need for it.
+    // Typically it's used by built-in "dashboard" prop mesh, but some modders like to use it with their custom meshes.
+    // Example content: https://github.com/RigsOfRods/rigs-of-rods/files/3044343/45fc291a9d2aa5faaa36cca6df9571cd6d1f1869_Actros_8x8-englisch.zip
+    m_oldstyle_renderdash = new RoR::Renderdash(
+        m_custom_resource_group, this->ComposeName("RenderdashTex", 0), this->ComposeName("RenderdashCam", 0));
 
-    // 'ties'
-    req.num_beams += module_def->ties.size();
+    m_actor->m_gfx_actor = std::unique_ptr<RoR::GfxActor>(
+        new RoR::GfxActor(m_actor, this, m_custom_resource_group, m_oldstyle_renderdash));
 
-    // 'ropes'
-    req.num_beams += module_def->ropes.size();
+    m_actor->ar_design_name = m_document->name;
+    m_actor->ar_filehash = m_document->hash;
 
-    // 'hydros'
-    req.num_beams += module_def->hydros.size();
-
-    // 'triggers'
-    req.num_beams  += module_def->triggers.size();
-    req.num_shocks += module_def->triggers.size();
-
-    // 'animators'
-    req.num_beams += module_def->animators.size();
-
-    // 'cinecam'
-    req.num_nodes += module_def->cinecam.size();
-    req.num_beams += module_def->cinecam.size() * 8;
-
-    // 'shocks', 'shocks2', 'shocks3'
-    req.num_beams  += module_def->shocks.size();
-    req.num_shocks += module_def->shocks.size();
-    req.num_beams  += module_def->shocks2.size();
-    req.num_shocks += module_def->shocks2.size();
-    req.num_beams  += module_def->shocks3.size();
-    req.num_shocks += module_def->shocks3.size();
-
-    // 'commands' and 'commands2' (unified)
-    req.num_beams += module_def->commands2.size();
-
-    // 'rotators'
-    req.num_rotators += module_def->rotators.size();
-    req.num_rotators += module_def->rotators2.size();
-
-    // 'wings'
-    req.num_wings += module_def->wings.size();
-
-    // 'wheels'
-    for (RigDef::Wheel& wheel: module_def->wheels)
+    bool end = false;
+    auto cur_line = m_document->lines.begin();
+    while (!end && cur_line != m_document->lines.end())
     {
-        req.num_nodes += wheel.num_rays * 2; // BuildWheelObjectAndNodes()
-        req.num_beams += wheel.num_rays * ((wheel.rigidity_node.IsValidAnyState()) ? 9 : 8); // BuildWheelBeams()
+        if (cur_line->block_boundary ||
+            (m_skipping_section && cur_line->keyword != Keyword::END_SECTION))
+        {
+            cur_line++;
+            continue;
+        }
+
+        // Process block/directive data.
+        try
+        {
+            m_current_keyword = cur_line->keyword;
+            switch (cur_line->keyword)
+            {
+            case Keyword::ADD_ANIMATION:                 this->ProcessAddAnimation(cur_line->data_pos); break;
+            case Keyword::AIRBRAKES:                     this->ProcessAirbrake(cur_line->data_pos); break;
+            case Keyword::ANIMATORS:                     this->ProcessAnimator(cur_line->data_pos); break;
+            case Keyword::ANTILOCKBRAKES:                this->ProcessAntiLockBrakes(cur_line->data_pos); break;
+            case Keyword::AXLES:                         this->ProcessAxle(cur_line->data_pos); break;
+            case Keyword::AUTHOR:                        this->ProcessAuthor(cur_line->data_pos); break;
+            case Keyword::BACKMESH:                      this->ProcessBackmesh(); break;
+            case Keyword::BEAMS:                         this->ProcessBeam(cur_line->data_pos); break;
+            case Keyword::BRAKES:                        this->ProcessBrakes(cur_line->data_pos); break;
+            case Keyword::CAB:                           this->ProcessCab(cur_line->data_pos); break;
+            case Keyword::CAMERARAIL:                    this->ProcessCameraRail(cur_line->data_pos); break;
+            case Keyword::CAMERAS:                       this->ProcessCamera(cur_line->data_pos); break;
+            case Keyword::CINECAM:                       this->ProcessCinecam(cur_line->data_pos); break;
+            case Keyword::COLLISIONBOXES:                this->ProcessCollisionBox(cur_line->data_pos); break;
+            case Keyword::COMMANDS:                      this->ProcessCommand(cur_line->data_pos); break;
+            case Keyword::COMMANDS2:                     this->ProcessCommand2(cur_line->data_pos); break;
+            case Keyword::CONTACTERS:                    this->ProcessContacter(cur_line->data_pos); break;
+            case Keyword::CRUISECONTROL:                 this->ProcessCruiseControl(cur_line->data_pos); break;
+            case Keyword::DESCRIPTION:                   this->ProcessDescription(cur_line->data_pos); break;
+            case Keyword::DETACHER_GROUP:                this->ProcessDetacherGroup(cur_line->data_pos); break;
+            case Keyword::DISABLEDEFAULTSOUNDS:          m_actor->m_disable_default_sounds = true; break;
+            case Keyword::ENABLE_ADVANCED_DEFORMATION:   m_state.enable_advanced_deformation = true; break;
+            case Keyword::END:                           end = true; break;
+            case Keyword::END_SECTION:                   this->ProcessEndSection(); break;
+            case Keyword::ENGINE:                        this->ProcessEngine(cur_line->data_pos); break;
+            case Keyword::ENGOPTION:                     this->ProcessEngoption(cur_line->data_pos); break;
+            case Keyword::ENGTURBO:                      this->ProcessEngturbo(cur_line->data_pos); break;
+            case Keyword::ENVMAP:                        break; // Unused
+            case Keyword::EXHAUSTS:                      this->ProcessExhaust(cur_line->data_pos); break;
+            case Keyword::EXTCAMERA:                     this->ProcessExtCamera(cur_line->data_pos); break;
+            case Keyword::FILEFORMATVERSION:             break; // Reserved for future use
+            case Keyword::FILEINFO:                      break; // Unused for gameplay
+            case Keyword::FIXES:                         this->ProcessFixes(cur_line->data_pos); break;
+            case Keyword::FLARES:                        this->ProcessFlare(cur_line->data_pos); break;
+            case Keyword::FLARES2:                       this->ProcessFlare2(cur_line->data_pos); break;
+            case Keyword::FLARES3:                       this->ProcessFlare3(cur_line->data_pos); break;
+            case Keyword::FLEXBODIES:                    this->ProcessFlexbody(cur_line->data_pos); break;
+            case Keyword::FLEXBODY_CAMERA_MODE:          this->ProcessFlexbodyCameraMode(cur_line->data_pos); break;
+            case Keyword::FLEXBODYWHEELS:                this->ProcessFlexBodyWheel(cur_line->data_pos); break;
+            case Keyword::FORSET:                        this->ProcessForset(cur_line->data_pos); break;
+            case Keyword::FORWARDCOMMANDS:               m_actor->ar_forward_commands = true; break;
+            case Keyword::FUSEDRAG:                      this->ProcessFusedrag(cur_line->data_pos); break;
+            case Keyword::GLOBALS:                       this->ProcessGlobals(cur_line->data_pos); break;
+            case Keyword::GUID:                          break; // Not used for simulation, only by loader UI.
+            case Keyword::GUISETTINGS:                   this->ProcessGuiSettings(cur_line->data_pos); break;
+            case Keyword::HELP:                          this->ProcessHelp(cur_line->data_pos); break;
+            case Keyword::HIDEINCHOOSER:                 m_actor->ar_hide_in_actor_list = true; break;
+            case Keyword::HOOKGROUP:                     break; // Unused
+            case Keyword::HOOKS:                         this->ProcessHook(cur_line->data_pos); break;
+            case Keyword::HYDROS:                        this->ProcessHydro(cur_line->data_pos); break;
+            case Keyword::IMPORTCOMMANDS:                m_actor->ar_import_commands = true; break;
+            case Keyword::INTERAXLES:                    this->ProcessInterAxle(cur_line->data_pos); break;
+            case Keyword::LOCKGROUPS:                    this->ProcessLockgroup(cur_line->data_pos); break;
+            case Keyword::LOCKGROUP_DEFAULT_NOLOCK:      this->ProcessLockgroupDefaultNolock(); break;
+            case Keyword::MANAGEDMATERIALS:              this->ProcessManagedMaterial(cur_line->data_pos); break;
+            case Keyword::MATERIALFLAREBINDINGS:         break; // Processed on-demand when some mesh uses the defined material name.
+            case Keyword::MESHWHEELS:                    this->ProcessMeshWheel(cur_line->data_pos); break;
+            case Keyword::MESHWHEELS2:                   this->ProcessMeshWheel2(cur_line->data_pos); break;
+            case Keyword::MINIMASS:                      this->ProcessMinimass(cur_line->data_pos); break;
+            case Keyword::NODECOLLISION:                 break; // Obsolete
+            case Keyword::NODES:                         this->ProcessNode(cur_line->data_pos); break;
+            case Keyword::NODES2:                        this->ProcessNode2(cur_line->data_pos); break;
+            case Keyword::PARTICLES:                     this->ProcessParticle(cur_line->data_pos); break;
+            case Keyword::PISTONPROPS:                   this->ProcessPistonprop(cur_line->data_pos); break;
+            case Keyword::PROP_CAMERA_MODE:              this->ProcessPropCameraMode(cur_line->data_pos); break;
+            case Keyword::PROPS:                         this->ProcessProp(cur_line->data_pos); break;
+            case Keyword::RAILGROUPS:                    this->ProcessRailGroup(cur_line->data_pos); break;
+            case Keyword::RESCUER: this->AddMessage(Message::TYPE_WARNING,
+                "`rescuer` not supported by this game version"); break; break;
+            case Keyword::RIGIDIFIERS:                   break; // obsolete
+            case Keyword::ROLLON:                        break; // Seems to be always on now
+            case Keyword::ROPABLES:                      this->ProcessRopable(cur_line->data_pos); break;
+            case Keyword::ROPES:                         this->ProcessRope(cur_line->data_pos); break;
+            case Keyword::ROTATORS:                      this->ProcessRotator(cur_line->data_pos); break;
+            case Keyword::ROTATORS2:                     this->ProcessRotator2(cur_line->data_pos); break;
+            case Keyword::SCREWPROPS:                    this->ProcessScrewprop(cur_line->data_pos); break;
+            case Keyword::SECTION:                       this->ProcessSection(cur_line->data_pos); break;
+            case Keyword::SECTIONCONFIG:                 break; // Not used for simulation, only by loader UI.
+            case Keyword::SET_BEAM_DEFAULTS:             this->ProcessBeamDefaults(cur_line->data_pos); break;
+            case Keyword::SET_BEAM_DEFAULTS_SCALE:       this->ProcessBeamDefaultsScale(cur_line->data_pos); break;
+            case Keyword::SET_COLLISION_RANGE:           this->ProcessCollisionRange(cur_line->data_pos); break;
+            case Keyword::SET_DEFAULT_MINIMASS: this->AddMessage(Message::TYPE_WARNING,
+                "`set_default_minimass` not supported by this game version"); break;
+            case Keyword::SET_INERTIA_DEFAULTS:          this->ProcessInertiaDefaults(cur_line->data_pos); break;
+            case Keyword::SET_MANAGEDMATERIALS_OPTIONS:  this->ProcessManagedMatOptions(cur_line->data_pos); break;
+            case Keyword::SET_NODE_DEFAULTS:             this->ProcessNodeDefaults(cur_line->data_pos); break;
+            case Keyword::SET_SHADOWS: this->AddMessage(Message::TYPE_WARNING,
+                "`set_shadows` not supported by this game version"); break;
+            case Keyword::SET_SKELETON_SETTINGS:         this->ProcessSkeletonSettings(cur_line->data_pos); break;
+            case Keyword::SHOCKS:                        this->ProcessShock(cur_line->data_pos); break;
+            case Keyword::SHOCKS2:                       this->ProcessShock2(cur_line->data_pos); break;
+            case Keyword::SHOCKS3:                       this->ProcessShock3(cur_line->data_pos); break;
+            case Keyword::SLIDENODE_CONNECT_INSTANTLY:   this->ProcessSlidenodeConnectInstantly(); break;
+            case Keyword::SLIDENODES:                    this->ProcessSlidenode(cur_line->data_pos); break;
+            case Keyword::SLOPE_BRAKE:                   break; // obsolete
+            case Keyword::SOUNDSOURCES:                  this->ProcessSoundSource(cur_line->data_pos); break;
+            case Keyword::SOUNDSOURCES2:                 this->ProcessSoundSource2(cur_line->data_pos); break;
+            case Keyword::SPEEDLIMITER:                  this->ProcessSpeedLimiter(cur_line->data_pos); break;
+            case Keyword::SUBMESH:                       this->ProcessSubmesh(); break;
+            case Keyword::SUBMESH_GROUNDMODEL:           this->ProcessSubmeshGroundModel(cur_line->data_pos); break;
+            case Keyword::TEXCOORDS:                     this->ProcessTexcoord(cur_line->data_pos); break;
+            case Keyword::TIES:                          this->ProcessTie(cur_line->data_pos); break;
+            case Keyword::TORQUECURVE:                   this->ProcessTorqueCurve(cur_line->data_pos); break;
+            case Keyword::TRACTIONCONTROL:               this->ProcessTractionControl(cur_line->data_pos); break;
+            case Keyword::TRANSFERCASE:                  this->ProcessTransferCase(cur_line->data_pos); break;
+            case Keyword::TRIGGERS:                      this->ProcessTrigger(cur_line->data_pos); break;
+            case Keyword::TURBOJETS:                     this->ProcessTurbojet(cur_line->data_pos); break;
+            case Keyword::TURBOPROPS:                    this->ProcessTurboprop(cur_line->data_pos); break;
+            case Keyword::TURBOPROPS2:                   this->ProcessTurboprop2(cur_line->data_pos); break;
+            case Keyword::VIDEOCAMERA:                   break; // Processed on-demand when some mesh uses the defined material name.
+            case Keyword::WHEELDETACHERS:                this->ProcessWheelDetacher(cur_line->data_pos); break;
+            case Keyword::WHEELS:                        this->ProcessWheel(cur_line->data_pos); break;
+            case Keyword::WHEELS2:                       this->ProcessWheel2(cur_line->data_pos); break;
+            case Keyword::WINGS:                         this->ProcessWing(cur_line->data_pos); break;
+            }
+        }
+        catch (...)
+        {
+            this->HandleException();
+        }
+        cur_line++;
     }
 
-    // 'wheels2'
-    for (RigDef::Wheel2& wheel2: module_def->wheels2)
-    {
-        req.num_nodes += wheel2.num_rays * 4;
-        // Rim beams:  num_rays*10 (*11 with valid rigidity_node)
-        // Tyre beams: num_rays*14
-        req.num_beams += wheel2.num_rays * ((wheel2.rigidity_node.IsValidAnyState()) ? 25 : 24);
-    }
+    this->FinalizeRig();
 
-    // 'meshwheels' & 'meshwheels2'
-    for (RigDef::MeshWheel& meshwheel: module_def->meshwheels)
+    this->CloseCurrentSubmesh(CabSubmesh::BACKMESH_NONE);
+    if (m_oldstyle_cab_texcoords.size() > 0 && m_actor->ar_num_cabs > 0)
     {
-        req.num_nodes += meshwheel.num_rays * 2; // BuildWheelObjectAndNodes()
-        req.num_beams += meshwheel.num_rays * ((meshwheel.rigidity_node.IsValidAnyState()) ? 9 : 8); // BuildWheelBeams()
-    }
-    for (RigDef::MeshWheel2& meshwheel2: module_def->meshwheels2)
-    {
-        req.num_nodes += meshwheel2.num_rays * 2; // BuildWheelObjectAndNodes()
-        req.num_beams += meshwheel2.num_rays * ((meshwheel2.rigidity_node.IsValidAnyState()) ? 9 : 8); // BuildWheelBeams()
-    }
+        this->CreateCabVisual();
+    };
 
-    // 'flexbodywheels'
-    for (RigDef::FlexBodyWheel& flexwheel: module_def->flexbodywheels)
-    {
-        req.num_nodes += flexwheel.num_rays * 4;
-        // Rim beams:      num_rays*8
-        // Tyre beams:     num_rays*10 (num_rays*11 with valid rigidity_node)
-        // Support beams:  num_rays*2
-        req.num_beams += flexwheel.num_rays * ((flexwheel.rigidity_node.IsValidAnyState()) ? 21 : 20);
-    }
-
-    // 'airbrakes'
-    req.num_airbrakes += module_def->airbrakes.size();
-
-    // 'fixes'
-    req.num_fixes += module_def->fixes.size();
+    this->FinalizeGfxSetup();
 }
 
-void ActorSpawner::InitializeRig()
+void ActorSpawner::ProcessNodeDefaults(RigDef::DataPos_t pos)
 {
-    ActorMemoryRequirements & req = m_memory_requirements;
-    for (auto module: m_selected_modules) // _Root_ module is included
+    int n = m_document->set_node_defaults[pos]._num_args;
+
+    m_state.default_node_loadweight = m_document->set_node_defaults[pos].load_weight;
+    if (n > 2) m_state.default_node_friction = m_document->set_node_defaults[pos].friction;
+    if (n > 3) m_state.default_node_volume = m_document->set_node_defaults[pos].volume;
+    if (n > 4) m_state.default_node_surface = m_document->set_node_defaults[pos].surface;
+    if (n > 5) m_state.default_node_options = m_document->set_node_defaults[pos].options;
+
+    if (m_state.default_node_friction < 0)   m_state.default_node_friction = NODE_FRICTION_COEF_DEFAULT;
+    if (m_state.default_node_volume < 0)     m_state.default_node_volume = NODE_VOLUME_COEF_DEFAULT;
+    if (m_state.default_node_surface < 0)    m_state.default_node_surface = NODE_SURFACE_COEF_DEFAULT;
+    if (m_state.default_node_loadweight < 0) m_state.default_node_loadweight = NODE_LOADWEIGHT_DEFAULT;
+    if (n <= 4) m_state.default_node_options = 0;
+}
+
+void ActorSpawner::ProcessInertiaDefaults(RigDef::DataPos_t pos)
+{
+    int n = m_document->set_inertia_defaults[pos]._num_args;
+    m_state.inertia_startDelay = m_document->set_inertia_defaults[pos].start_delay_factor;
+    if (n > 2) m_state.inertia_stopDelay = m_document->set_inertia_defaults[pos].stop_delay_factor;
+    if (n > 3) m_state.inertia_default_startFunction = m_document->set_inertia_defaults[pos].start_function;
+    if (n > 4) m_state.inertia_default_stopFunction = m_document->set_inertia_defaults[pos].stop_function;
+
+    if (m_state.inertia_startDelay < 0 || m_state.inertia_stopDelay < 0)
     {
-        this->CalcMemoryRequirements(req, module.get());
+        // reset it
+        m_state.inertia_startDelay = -1;
+        m_state.inertia_stopDelay = -1;
+        m_state.inertia_default_startFunction = "";
+        m_state.inertia_default_stopFunction = "";
+    }
+}
+
+void ActorSpawner::ProcessBeamDefaults(RigDef::DataPos_t pos)
+{
+    int n = m_document->set_beam_defaults[pos]._num_args;
+    float tmpdefault_plastic_coef = -1.0f;
+
+    m_state.default_spring = m_document->set_beam_defaults[pos].springiness;
+    if (n > 2) m_state.default_damp = m_document->set_beam_defaults[pos].damping_constant;
+    if (n > 3) m_state.default_deform = m_document->set_beam_defaults[pos].deformation_threshold;
+    if (n > 4) m_state.default_break = m_document->set_beam_defaults[pos].breaking_threshold;
+    if (n > 5) m_state.default_beam_diameter = m_document->set_beam_defaults[pos].visual_beam_diameter;
+    if (n > 6) m_state.default_beam_material = m_document->set_beam_defaults[pos].beam_material_name;
+    if (n > 7) tmpdefault_plastic_coef = m_document->set_beam_defaults[pos].plastic_deform_coef;
+
+    if (m_state.default_spring < 0) m_state.default_spring = DEFAULT_SPRING;
+    if (m_state.default_damp < 0) m_state.default_damp = DEFAULT_DAMP;
+    if (m_state.default_deform < 0) m_state.default_deform = BEAM_DEFORM;
+    if (m_state.default_break < 0) m_state.default_break = BEAM_BREAK;
+    if (m_state.default_beam_diameter < 0) m_state.default_beam_diameter = DEFAULT_BEAM_DIAMETER;
+
+    // get the old 400k deformation limit for trucks with beams and set_beam_defaults based on old physics (pre beamv2)
+    if (!m_state.enable_advanced_deformation && m_state.default_deform < BEAM_DEFORM)
+    {
+        m_state.default_deform = BEAM_DEFORM;
     }
 
+    if (tmpdefault_plastic_coef >= 0.0f)
+    {
+        m_state.beam_creak = 0.0f;
+        m_state.default_plastic_coef = m_document->set_beam_defaults[pos].plastic_deform_coef;
+    }
+
+    if (m_state.default_deform < m_state.beam_creak)
+    {
+        m_state.default_deform = m_state.beam_creak;
+    }
+}
+
+void ActorSpawner::ProcessBeamDefaultsScale(RigDef::DataPos_t pos)
+{
+    int n = m_document->set_beam_defaults_scale[pos]._num_args;
+
+    m_state.default_spring_scale = m_document->set_beam_defaults_scale[pos].springiness;
+    if (n > 2) m_state.default_damp_scale = m_document->set_beam_defaults_scale[pos].damping_constant;
+    if (n > 3) m_state.default_deform_scale = m_document->set_beam_defaults_scale[pos].deformation_threshold_constant;
+    if (n > 4) m_state.default_break_scale = m_document->set_beam_defaults_scale[pos].breaking_threshold_constant;
+}
+
+void ActorSpawner::ProcessManagedMatOptions(RigDef::DataPos_t pos)
+{
+    m_state.managedmaterials_doublesided = m_document->set_managedmaterials_options[pos].double_sided;
+}
+
+void ActorSpawner::ProcessSkeletonSettings(RigDef::DataPos_t pos)
+{
+    // STUB
+}
+
+void ActorSpawner::ProcessLockgroupDefaultNolock()
+{
+    m_state.lockgroup_default = NODE_LOCKGROUP_NOLOCK;
+}
+
+void ActorSpawner::ProcessMinimass(DataPos_t pos)
+{
+    //sets the minimum node mass
+    //usefull for very light vehicles with lots of nodes (e.g. small airplanes)
+    m_state.global_minimass = m_document->minimass[pos].global_min_mass_Kg;
+    m_state.minimass_skip_loaded = m_document->minimass[pos].option == MinimassOption::l_SKIP_LOADED;
+}
+
+void ActorSpawner::ProcessSlidenodeConnectInstantly()
+{
+    m_actor->m_slidenodes_connect_instantly = true;
+}
+
+void ActorSpawner::ProcessSubmeshGroundModel(RigDef::DataPos_t pos)
+{
+    m_state.submesh_groundmodel = m_document->submesh_groundmodel[pos];
+}
+
+void ActorSpawner::ProcessDetacherGroup(RigDef::DataPos_t pos)
+{
+    RigDef::DetacherGroup& def = m_document->detacher_group[pos];
+
+    m_state.detacher_group_state = (def.end) ? DEFAULT_DETACHER_GROUP : def.number;
+}
+
+bool ActorSpawner::ShouldProcessSection(RigDef::DataPos_t pos)
+{
+    RigDef::Section& section = m_document->section[pos];
+
+    for (auto& config : section.configs)
+    {
+        if (config == m_selected_config)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void ActorSpawner::ProcessSection(RigDef::DataPos_t pos)
+{
+    m_skipping_section = !this->ShouldProcessSection(pos);
+}
+
+void ActorSpawner::ProcessEndSection()
+{
+    m_skipping_section = false;
+}
+
+void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string config, CacheActorConfigInfo& info)
+{
+    // Perform a simulated spawn, without context, just respecting section config.
+    // ---------------------------------------------------------------------------
+
+    m_document = document;
+    m_selected_config = config;
+    info.config_name = config;
+    bool skipping_section = false;
+    for (RigDef::Line& cur_line: m_document->lines)
+    {
+        if (cur_line.block_boundary 
+            || (skipping_section && cur_line.keyword != RigDef::Keyword::END_SECTION))
+        {
+            continue;
+        }
+
+        switch (cur_line.keyword)
+        {
+        case RigDef::Keyword::SECTION:
+            skipping_section = !this->ShouldProcessSection(cur_line.data_pos);
+            break;
+
+        case RigDef::Keyword::END_SECTION:
+            skipping_section = false;
+            break;
+
+        case RigDef::Keyword::NODES:
+            info.nodecount++;
+            if (BITMASK_IS_1(m_document->nodes[cur_line.data_pos].options, RigDef::Node::OPTION_h_HOOK_POINT))
+            {
+                info.beamcount++;
+            }
+            break;
+
+        case RigDef::Keyword::NODES2:
+            info.nodecount++;
+            if (BITMASK_IS_1(m_document->nodes2[cur_line.data_pos].options, RigDef::Node2::OPTION_h_HOOK_POINT))
+            {
+                info.beamcount++;
+            }
+            break;
+
+        case RigDef::Keyword::BEAMS:
+        case RigDef::Keyword::ANIMATORS:
+            info.beamcount++;
+            break;
+
+        case RigDef::Keyword::TIES:
+            info.tiecount++;
+            info.beamcount++;
+            break;
+
+        case RigDef::Keyword::ROPES:
+            info.ropecount++;
+            info.beamcount++;
+            break;
+
+        case RigDef::Keyword::HYDROS:
+            info.hydroscount++;
+            info.beamcount++;
+            break;
+
+        case RigDef::Keyword::CINECAM:
+            info.nodecount++;
+            info.beamcount += 8;
+            break;
+
+        case RigDef::Keyword::SHOCKS:
+        case RigDef::Keyword::SHOCKS2:
+        case RigDef::Keyword::SHOCKS3:
+        case RigDef::Keyword::TRIGGERS:
+            info.shockcount++;
+            info.beamcount++;
+            break;
+
+        case RigDef::Keyword::COMMANDS:
+        case RigDef::Keyword::COMMANDS2:
+            info.commandscount++;
+            info.beamcount++;
+            break;
+
+        case RigDef::Keyword::FLARES:
+        case RigDef::Keyword::FLARES2:
+            info.flarescount++;
+            break;
+
+        case RigDef::Keyword::PROPS:
+            info.propscount++;
+            break;
+
+        case RigDef::Keyword::ROTATORS:
+        case RigDef::Keyword::ROTATORS2:
+            info.rotatorscount++;
+            break;
+
+        case RigDef::Keyword::WINGS:
+            info.wingscount++;
+            break;
+
+        case RigDef::Keyword::TURBOPROPS:
+        case RigDef::Keyword::TURBOPROPS2:
+            info.turbopropscount++;
+            info.driveable = AIRPLANE;
+            break;
+
+        case RigDef::Keyword::TURBOJETS:
+            info.turbojetcount++;
+            info.driveable = AIRPLANE;
+            break;
+
+        case RigDef::Keyword::FLEXBODIES:
+            info.flexbodiescount++;
+            break;
+
+        case RigDef::Keyword::SOUNDSOURCES:
+        case RigDef::Keyword::SOUNDSOURCES2:
+            info.soundsourcescount++;
+            break;
+
+        case RigDef::Keyword::AIRBRAKES:
+            info.airbrakescount++;
+            break;
+
+        case RigDef::Keyword::FIXES:
+            info.fixescount++;
+            break;
+
+        case RigDef::Keyword::WHEELS:
+        {
+            RigDef::Wheel& wheel = m_document->wheels[cur_line.data_pos];
+            info.nodecount += wheel.num_rays * 2; // BuildWheelObjectAndNodes()
+            info.beamcount += wheel.num_rays * ((wheel.rigidity_node != NODEREF_INVALID) ? 9 : 8); // BuildWheelBeams()
+            info.wheelcount++;
+            if (wheel.propulsion != WheelPropulsion::NONE)
+                info.propwheelcount++;
+            break;
+        }
+
+        case RigDef::Keyword::WHEELS2:
+        {
+            RigDef::Wheel2& wheel2 = m_document->wheels2[cur_line.data_pos];
+            info.nodecount += wheel2.num_rays * 4;
+            // Rim beams:  num_rays*10 (*11 with valid rigidity_node)
+            // Tyre beams: num_rays*14
+            info.beamcount += wheel2.num_rays * ((wheel2.rigidity_node != NODEREF_INVALID) ? 25 : 24);
+            info.wheelcount++;
+            if (wheel2.propulsion != WheelPropulsion::NONE)
+                info.propwheelcount++;
+            break;
+        }
+
+        case RigDef::Keyword::MESHWHEELS:
+        {
+            RigDef::MeshWheel& meshwheel = m_document->meshwheels[cur_line.data_pos];
+            info.nodecount += meshwheel.num_rays * 2; // BuildWheelObjectAndNodes()
+            info.beamcount += meshwheel.num_rays * ((meshwheel.rigidity_node != NODEREF_INVALID) ? 9 : 8); // BuildWheelBeams()
+            info.wheelcount++;
+            if (meshwheel.propulsion != WheelPropulsion::NONE)
+                info.propwheelcount++;
+            break;
+        }
+
+        case RigDef::Keyword::MESHWHEELS2:
+        {
+            RigDef::MeshWheel2& meshwheel2 = m_document->meshwheels2[cur_line.data_pos];
+            info.nodecount += meshwheel2.num_rays * 2; // BuildWheelObjectAndNodes()
+            info.beamcount += meshwheel2.num_rays * ((meshwheel2.rigidity_node != NODEREF_INVALID) ? 9 : 8); // BuildWheelBeams()
+            info.wheelcount++;
+            if (meshwheel2.propulsion != WheelPropulsion::NONE)
+                info.propwheelcount++;
+            break;
+        }
+
+        case RigDef::Keyword::FLEXBODYWHEELS:
+        {
+            RigDef::FlexBodyWheel& fbwheel = m_document->flexbodywheels[cur_line.data_pos];
+            info.nodecount += fbwheel.num_rays * 4;
+            // Rim beams:      num_rays*8
+            // Tyre beams:     num_rays*10 (num_rays*11 with valid rigidity_node)
+            // Support beams:  num_rays*2
+            info.beamcount += fbwheel.num_rays * ((fbwheel.rigidity_node != NODEREF_INVALID) ? 21 : 20);
+            info.wheelcount++;
+            if (fbwheel.propulsion != WheelPropulsion::NONE)
+                info.propwheelcount++;
+            break;
+        }
+
+        case RigDef::Keyword::SUBMESH:
+            info.submeshescount++;
+            break;
+
+        case RigDef::Keyword::ENGINE:
+        {
+            info.driveable = TRUCK;
+            RigDef::Engine& engine = m_document->engine[cur_line.data_pos];
+            info.numgears = static_cast<int>(engine.gear_ratios.size());
+            info.minrpm = engine.shift_down_rpm;
+            info.maxrpm = engine.shift_up_rpm;
+            info.torque = engine.torque;
+            info.enginetype = 't'; // Truck (default)
+            break;
+        }
+
+        case RigDef::Keyword::ENGOPTION:
+            info.enginetype = 'c';
+            break;
+
+        case RigDef::Keyword::SCREWPROPS:
+            info.driveable = BOAT;
+            break;
+
+        case RigDef::Keyword::IMPORTCOMMANDS:
+            info.importcommands = true;
+            break;
+
+        case RigDef::Keyword::FORWARDCOMMANDS:
+            info.forwardcommands = true;
+            break;
+
+        case RigDef::Keyword::RESCUER:
+            info.rescuer = true;
+            break;
+
+        case RigDef::Keyword::GLOBALS:
+        {
+            RigDef::Globals& globals = m_document->globals[cur_line.data_pos];
+            info.truckmass = globals.dry_mass;
+            info.loadmass = globals.cargo_mass;
+            break;
+        }
+
+        default:;
+        }
+    }
+}
+
+void ActorSpawner::InitializeRig(CacheActorConfigInfo& info)
+{
     // Allocate memory as needed
-    m_actor->ar_beams = new beam_t[req.num_beams];
-    m_actor->ar_nodes = new node_t[req.num_nodes];
-    m_actor->ar_nodes_id = new int[req.num_nodes];
-    for (size_t i = 0; i < req.num_nodes; ++i)
+    m_actor->ar_beams = new beam_t[info.beamcount];
+    m_actor->ar_nodes = new node_t[info.nodecount];
+    m_actor->ar_nodes_id = new int[info.nodecount];
+    for (int i = 0; i < info.nodecount; ++i)
     {
         m_actor->ar_nodes_id[i] = -1;
     }
-    m_actor->ar_nodes_name = new std::string[req.num_nodes];
+    m_actor->ar_nodes_name = new std::string[info.nodecount];
 
-    if (req.num_shocks > 0)
-        m_actor->ar_shocks = new shock_t[req.num_shocks];
+    if (info.shockcount > 0)
+        m_actor->ar_shocks = new shock_t[info.shockcount];
 
-    if (req.num_rotators > 0)
-        m_actor->ar_rotators = new rotator_t[req.num_rotators];
+    if (info.rotatorscount > 0)
+        m_actor->ar_rotators = new rotator_t[info.rotatorscount];
 
-    if (req.num_wings > 0)
-        m_actor->ar_wings = new wing_t[req.num_wings];
+    if (info.wingscount > 0)
+        m_actor->ar_wings = new wing_t[info.wingscount];
 
-    m_actor->ar_minimass.resize(req.num_nodes);
+    // Values of 'set_default_minimass', or -1 where global minimass from 'minimass' should be filled later.
+    m_actor->ar_minimass.resize(info.nodecount, -1.f);
 
     // commands contain complex data structures, do not memset them ...
-    for (int i=0;i<MAX_COMMANDS+1;i++)
+    for (int i = 0; i < MAX_COMMANDS + 1; i++)
     {
-        m_actor->ar_command_key[i].commandValue=0;
+        m_actor->ar_command_key[i].commandValue = 0;
         m_actor->ar_command_key[i].beams.clear();
         m_actor->ar_command_key[i].rotators.clear();
-        m_actor->ar_command_key[i].description="";
+        m_actor->ar_command_key[i].description = "";
     }
 
     m_actor->exhausts.clear();
@@ -250,39 +714,45 @@ void ActorSpawner::InitializeRig()
     memset(m_actor->ar_buoycabs, 0, sizeof(int) * MAX_CABS);
     m_actor->ar_num_buoycabs = 0;
     memset(m_actor->ar_buoycab_types, 0, sizeof(int) * MAX_CABS);
-    memset(m_actor->m_skid_trails, 0, sizeof(Skidmark *) * (MAX_WHEELS*2));
+    memset(m_actor->m_skid_trails, 0, sizeof(Skidmark*) * (MAX_WHEELS * 2));
 
+    m_actor->ar_extern_camera_mode = ExtCameraMode::CLASSIC;
+    m_actor->ar_extern_camera_node = NODENUM_INVALID;
     m_actor->authors.clear();
 
     m_actor->m_odometer_total = 0;
-    m_actor->m_odometer_user  = 0;
+    m_actor->m_odometer_user = 0;
 
-    m_actor->m_masscount=0;
+    m_actor->m_masscount = 0;
     m_actor->m_disable_smoke = App::gfx_particles_mode->getInt() == 0;
-    m_actor->m_beam_break_debug_enabled  = App::diag_log_beam_break->getBool();
+    m_actor->ar_exhaust_pos_node = 0;
+    m_actor->ar_exhaust_dir_node = 0;
+    m_actor->m_beam_break_debug_enabled = App::diag_log_beam_break->getBool();
     m_actor->m_beam_deform_debug_enabled = App::diag_log_beam_deform->getBool();
-    m_actor->m_trigger_debug_enabled    = App::diag_log_beam_trigger->getBool();
-    m_actor->ar_origin=Ogre::Vector3::ZERO;
+    m_actor->m_trigger_debug_enabled = App::diag_log_beam_trigger->getBool();
+    m_actor->ar_origin = Ogre::Vector3::ZERO;
     m_actor->m_slidenodes.clear();
-    m_actor->ar_num_cinecams=0;
+
+    m_actor->ar_cinecam_node[0] = -1;
+    m_actor->ar_num_cinecams = 0;
     m_actor->m_deletion_scene_nodes.clear();
 
     m_actor->ar_state = ActorState::LOCAL_SLEEPING;
     m_actor->m_fusealge_airfoil = nullptr;
     m_actor->m_fusealge_front = nullptr;
     m_actor->m_fusealge_back = nullptr;
-    m_actor->m_fusealge_width=0;
-    m_actor->ar_brake_force=30000.0;
+    m_actor->m_fusealge_width = 0;
+    m_actor->ar_brake_force = 30000.0;
     m_actor->m_handbrake_force = 2 * m_actor->ar_brake_force;
 
-    m_actor->m_num_proped_wheels=0;
+    m_actor->m_num_proped_wheels = 0;
 
-    m_actor->ar_speedo_max_kph=140;
-    m_actor->ar_num_cameras=0;
+    m_actor->ar_speedo_max_kph = 140;
+    m_actor->ar_num_cameras = 0;
     for (int i = 0; i < MAX_CAMERAS; ++i)
     {
-        m_actor->ar_camera_node_pos [i] = NODENUM_INVALID;
-        m_actor->ar_camera_node_dir [i] = NODENUM_INVALID;
+        m_actor->ar_camera_node_pos[i] = NODENUM_INVALID;
+        m_actor->ar_camera_node_dir[i] = NODENUM_INVALID;
         m_actor->ar_camera_node_roll[i] = NODENUM_INVALID;
     }
 
@@ -343,7 +813,7 @@ void ActorSpawner::InitializeRig()
     // Lights mode
     m_actor->m_flares_mode = App::gfx_flares_mode->getEnum<GfxFlaresMode>();
 
-    m_actor->m_definition = m_file;
+    m_actor->m_definition = m_document;
 
     m_flex_factory = RoR::FlexFactory(this);
 
@@ -365,6 +835,14 @@ void ActorSpawner::InitializeRig()
 
     m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_NONE;
     m_curr_mirror_prop_scenenode = nullptr;
+
+    m_generate_wing_position_lights = true;
+    if (m_document->engine.size() > 0) // Engine present => it's a land vehicle.
+    {
+        m_generate_wing_position_lights = false;
+    }
+
+    m_actor->m_slidenodes_connect_instantly = false;
 }
 
 void ActorSpawner::FinalizeRig()
@@ -385,23 +863,23 @@ void ActorSpawner::FinalizeRig()
         //Gearbox
         m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
     }
-    
+
     // Sanitize trigger_cmdshort and trigger_cmdlong
-    for (int i=0; i<m_actor->ar_num_beams; i++)
+    for (int i = 0; i < m_actor->ar_num_beams; i++)
     {
         shock_t* shock = m_actor->ar_beams[i].shock;
         if (shock && ((shock->flags & SHOCK_FLAG_TRG_BLOCKER) || (shock->flags & SHOCK_FLAG_TRG_BLOCKER_A)))
         {
             shock->trigger_cmdshort = std::min(shock->trigger_cmdshort, m_actor->ar_num_beams - i - 1);
-            shock->trigger_cmdlong  = std::min(shock->trigger_cmdlong , m_actor->ar_num_beams - i - 1);
+            shock->trigger_cmdlong = std::min(shock->trigger_cmdlong, m_actor->ar_num_beams - i - 1);
         }
     }
 
     //calculate gwps height offset
     //get a starting value
-    m_actor->ar_posnode_spawn_height=m_actor->ar_nodes[0].RelPosition.y;
+    m_actor->ar_posnode_spawn_height = m_actor->ar_nodes[0].RelPosition.y;
     //start at 0 to avoid a crash whith a 1-node truck
-    for (int i=0; i<m_actor->ar_num_nodes; i++)
+    for (int i = 0; i < m_actor->ar_num_nodes; i++)
     {
         // scan and store the y-coord for the lowest node of the truck
         if (m_actor->ar_nodes[i].RelPosition.y <= m_actor->ar_posnode_spawn_height)
@@ -410,11 +888,21 @@ void ActorSpawner::FinalizeRig()
         }
     }
 
-    m_actor->ar_main_camera_node_pos  = (m_actor->ar_camera_node_pos[0] != NODENUM_INVALID) ? m_actor->ar_camera_node_pos[0]  : (NodeNum_t)0;
-    m_actor->ar_main_camera_node_dir  = (m_actor->ar_camera_node_dir[0] != NODENUM_INVALID) ? m_actor->ar_camera_node_dir[0]  : (NodeNum_t)0;
-    m_actor->ar_main_camera_node_roll = (m_actor->ar_camera_node_roll[0]!= NODENUM_INVALID) ? m_actor->ar_camera_node_roll[0] : (NodeNum_t)0;
-    
+    m_actor->ar_main_camera_node_pos = (m_actor->ar_camera_node_pos[0] != NODENUM_INVALID) ? m_actor->ar_camera_node_pos[0] : (NodeNum_t)0;
+    m_actor->ar_main_camera_node_dir = (m_actor->ar_camera_node_dir[0] != NODENUM_INVALID) ? m_actor->ar_camera_node_dir[0] : (NodeNum_t)0;
+    m_actor->ar_main_camera_node_roll = (m_actor->ar_camera_node_roll[0] != NODENUM_INVALID) ? m_actor->ar_camera_node_roll[0] : (NodeNum_t)0;
+
     m_actor->m_has_axles_section = m_actor->m_num_wheel_diffs > 0;
+
+    // Fill global 'minimass' value where 'set_default_minimass' value wasn't set.
+    for (int i = 0; i < m_actor->ar_num_nodes; i++)
+    {
+        if (m_actor->ar_minimass[i] == -1.f)
+            m_actor->ar_minimass[i] = m_state.global_minimass;
+    }
+
+    // Remember minimass 'l' flag
+    m_actor->ar_minimass_skip_loaded_nodes = m_state.minimass_skip_loaded;
 
     // Calculate mass of each wheel (without rim)
     for (int i = 0; i < m_actor->ar_num_wheels; i++)
@@ -446,7 +934,7 @@ void ActorSpawner::FinalizeRig()
         {
             if (i % 2)
             {
-                Differential *diff = new Differential();
+                Differential* diff = new Differential();
 
                 diff->di_idx_1 = m_actor->m_proped_wheel_pairs[i - 1];
                 diff->di_idx_2 = m_actor->m_proped_wheel_pairs[i - 0];
@@ -472,7 +960,7 @@ void ActorSpawner::FinalizeRig()
                     continue;
             }
 
-            Differential *diff = new Differential();
+            Differential* diff = new Differential();
 
             diff->di_idx_1 = i - 1;
             diff->di_idx_2 = i - 0;
@@ -490,7 +978,7 @@ void ActorSpawner::FinalizeRig()
     // Automatically build an additional interaxle differential for the transfer case
     if (m_actor->m_transfer_case && m_actor->m_transfer_case->tr_ax_2 >= 0)
     {
-        Differential *diff = new Differential();
+        Differential* diff = new Differential();
         diff->di_idx_1 = m_actor->m_transfer_case->tr_ax_1;
         diff->di_idx_2 = m_actor->m_transfer_case->tr_ax_2;
         diff->AddDifferentialType(LOCKED_DIFF);
@@ -523,7 +1011,7 @@ void ActorSpawner::FinalizeRig()
     {
         // store the y-difference between the trucks lowest node and the campos-node for the gwps system
         m_actor->ar_posnode_spawn_height = m_actor->ar_nodes[m_actor->ar_camera_node_pos[0]].RelPosition.y - m_actor->ar_posnode_spawn_height;
-    } 
+    }
     else
     {
         //this can not be an airplane, just set it to 0.
@@ -531,36 +1019,36 @@ void ActorSpawner::FinalizeRig()
     }
 
     //cameras workaround
-    for (int i=0; i<m_actor->ar_num_cameras; i++)
+    for (int i = 0; i < m_actor->ar_num_cameras; i++)
     {
         Ogre::Vector3 dir_node_offset = m_actor->ar_nodes[m_actor->ar_camera_node_dir[i]].RelPosition - m_actor->ar_nodes[m_actor->ar_camera_node_pos[i]].RelPosition;
         Ogre::Vector3 roll_node_offset = m_actor->ar_nodes[m_actor->ar_camera_node_roll[i]].RelPosition - m_actor->ar_nodes[m_actor->ar_camera_node_pos[i]].RelPosition;
         Ogre::Vector3 cross = dir_node_offset.crossProduct(roll_node_offset);
-        
-        m_actor->ar_camera_node_roll_inv[i]=cross.y > 0;
+
+        m_actor->ar_camera_node_roll_inv[i] = cross.y > 0;
         if (m_actor->ar_camera_node_roll_inv[i])
         {
             AddMessage(Message::TYPE_WARNING, "camera definition is probably invalid and has been corrected. It should be center, back, left");
         }
     }
-    
+
     //wing closure
-    if (m_first_wing_index!=-1)
+    if (m_first_wing_index != -1)
     {
-        if (m_actor->ar_autopilot != nullptr) 
+        if (m_actor->ar_autopilot != nullptr)
         {
             m_actor->ar_autopilot->setInertialReferences(
-                & m_actor->ar_nodes[m_airplane_left_light],
-                & m_actor->ar_nodes[m_airplane_right_light],
+                &m_actor->ar_nodes[m_airplane_left_light],
+                &m_actor->ar_nodes[m_airplane_right_light],
                 m_actor->m_fusealge_back,
-                & m_actor->ar_nodes[m_actor->ar_camera_node_pos[0]]
-                );
+                &m_actor->ar_nodes[m_actor->ar_camera_node_pos[0]]
+            );
         }
         //inform wing segments
-        float span=m_actor->ar_nodes[m_actor->ar_wings[m_first_wing_index].fa->nfrd].RelPosition.distance(m_actor->ar_nodes[m_actor->ar_wings[m_actor->ar_num_wings-1].fa->nfld].RelPosition);
-        
-        m_actor->ar_wings[m_first_wing_index].fa->enableInducedDrag(span,m_wing_area, false);
-        m_actor->ar_wings[m_actor->ar_num_wings-1].fa->enableInducedDrag(span,m_wing_area, true);
+        float span = m_actor->ar_nodes[m_actor->ar_wings[m_first_wing_index].fa->nfrd].RelPosition.distance(m_actor->ar_nodes[m_actor->ar_wings[m_actor->ar_num_wings - 1].fa->nfld].RelPosition);
+
+        m_actor->ar_wings[m_first_wing_index].fa->enableInducedDrag(span, m_wing_area, false);
+        m_actor->ar_wings[m_actor->ar_num_wings - 1].fa->enableInducedDrag(span, m_wing_area, true);
         //wash calculator
         WashCalculator();
     }
@@ -579,36 +1067,36 @@ void ActorSpawner::FinalizeRig()
 void ActorSpawner::WashCalculator()
 {
     //we will compute wash
-    int w,p;
-    for (p=0; p<m_actor->ar_num_aeroengines; p++)
+    int w, p;
+    for (p = 0; p < m_actor->ar_num_aeroengines; p++)
     {
-        Ogre::Vector3 prop=m_actor->ar_nodes[m_actor->ar_aeroengines[p]->getNoderef()].RelPosition;
-        float radius=m_actor->ar_aeroengines[p]->getRadius();
-        for (w=0; w<m_actor->ar_num_wings; w++)
+        Ogre::Vector3 prop = m_actor->ar_nodes[m_actor->ar_aeroengines[p]->getNoderef()].RelPosition;
+        float radius = m_actor->ar_aeroengines[p]->getRadius();
+        for (w = 0; w < m_actor->ar_num_wings; w++)
         {
             //left wash
-            Ogre::Vector3 wcent=((m_actor->ar_nodes[m_actor->ar_wings[w].fa->nfld].RelPosition+m_actor->ar_nodes[m_actor->ar_wings[w].fa->nfrd].RelPosition)/2.0);
+            Ogre::Vector3 wcent = ((m_actor->ar_nodes[m_actor->ar_wings[w].fa->nfld].RelPosition + m_actor->ar_nodes[m_actor->ar_wings[w].fa->nfrd].RelPosition) / 2.0);
             //check if wing is near enough along X (less than 15m back)
-            if (wcent.x>prop.x && wcent.x<prop.x+15.0)
+            if (wcent.x > prop.x && wcent.x < prop.x + 15.0)
             {
                 //check if it's okay vertically
-                if (wcent.y>prop.y-radius && wcent.y<prop.y+radius)
+                if (wcent.y > prop.y - radius && wcent.y < prop.y + radius)
                 {
                     //okay, compute wash coverage ratio along Z
-                    float wleft=(m_actor->ar_nodes[m_actor->ar_wings[w].fa->nfld].RelPosition).z;
-                    float wright=(m_actor->ar_nodes[m_actor->ar_wings[w].fa->nfrd].RelPosition).z;
-                    float pleft=prop.z+radius;
-                    float pright=prop.z-radius;
-                    float aleft=wleft;
-                    if (pleft<aleft) aleft=pleft;
-                    float aright=wright;
-                    if (pright>aright) aright=pright;
-                    if (aright<aleft)
+                    float wleft = (m_actor->ar_nodes[m_actor->ar_wings[w].fa->nfld].RelPosition).z;
+                    float wright = (m_actor->ar_nodes[m_actor->ar_wings[w].fa->nfrd].RelPosition).z;
+                    float pleft = prop.z + radius;
+                    float pright = prop.z - radius;
+                    float aleft = wleft;
+                    if (pleft < aleft) aleft = pleft;
+                    float aright = wright;
+                    if (pright > aright) aright = pright;
+                    if (aright < aleft)
                     {
                         //we have a wash
-                        float wratio=(aleft-aright)/(wleft-wright);
+                        float wratio = (aleft - aright) / (wleft - wright);
                         m_actor->ar_wings[w].fa->addwash(p, wratio);
-                        Ogre::String msg = "Wing "+TOSTRING(w)+" is washed by prop "+TOSTRING(p)+" at "+TOSTRING((float)(wratio*100.0))+"%";
+                        Ogre::String msg = "Wing " + TOSTRING(w) + " is washed by prop " + TOSTRING(p) + " at " + TOSTRING((float)(wratio * 100.0)) + "%";
                         AddMessage(Message::TYPE_INFO, msg);
                     }
                 }
@@ -617,14 +1105,16 @@ void ActorSpawner::WashCalculator()
     }
 }
 
-void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
+void ActorSpawner::ProcessTurbojet(DataPos_t pos)
 {
-    NodeNum_t front,back,ref;
-    front = GetNodeIndexOrThrow(def.front_node);
-    back  = GetNodeIndexOrThrow(def.back_node);
-    ref   = GetNodeIndexOrThrow(def.side_node);
+    RigDef::Turbojet& def = m_document->turbojets[pos];
 
-    Turbojet *tj = new Turbojet(m_actor, front, back, ref, def);
+    NodeNum_t front, back, ref;
+    front = GetNodeIndexOrThrow(def.front_node);
+    back = GetNodeIndexOrThrow(def.back_node);
+    ref = GetNodeIndexOrThrow(def.side_node);
+
+    Turbojet* tj = new Turbojet(m_actor, front, back, ref, def);
 
     // Visuals
     std::string nozzle_name = this->ComposeName("TurbojetNozzle", m_actor->ar_num_aeroengines);
@@ -646,11 +1136,11 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
         tj->tjet_visual.SetVisible(true);
     }
 
-    m_actor->ar_aeroengines[m_actor->ar_num_aeroengines]=tj;
-    m_actor->ar_driveable=AIRPLANE;
+    m_actor->ar_aeroengines[m_actor->ar_num_aeroengines] = tj;
+    m_actor->ar_driveable = AIRPLANE;
     if (m_actor->ar_autopilot == nullptr && m_actor->ar_state != ActorState::NETWORKED_OK)
     {
-        m_actor->ar_autopilot=new Autopilot(m_actor->ar_instance_id);
+        m_actor->ar_autopilot = new Autopilot(m_actor->ar_instance_id);
     }
 
     m_actor->ar_num_aeroengines++;
@@ -663,12 +1153,14 @@ std::string ActorSpawner::ComposeName(const char* type, int number)
     return buf;
 }
 
-void ActorSpawner::ProcessScrewprop(RigDef::Screwprop & def)
+void ActorSpawner::ProcessScrewprop(DataPos_t pos)
 {
-    if (! CheckScrewpropLimit(1))
+    if (!CheckScrewpropLimit(1))
     {
         return;
     }
+
+    RigDef::Screwprop& def = m_document->screwprops[pos];
 
     m_actor->ar_screwprops[m_actor->ar_num_screwprops] = new Screwprop(
         m_actor,
@@ -677,12 +1169,14 @@ void ActorSpawner::ProcessScrewprop(RigDef::Screwprop & def)
         GetNodeIndexOrThrow(def.top_node),
         def.power
     );
-    m_actor->ar_driveable=BOAT;
+    m_actor->ar_driveable = BOAT;
     m_actor->ar_num_screwprops++;
 }
 
-void ActorSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
+void ActorSpawner::ProcessFusedrag(DataPos_t pos)
 {
+    Fusedrag& def = m_document->fusedrag[pos];
+
     //parse fusedrag
     NodeNum_t front_node_idx = GetNodeIndexOrThrow(def.front_node);
     float width = 1.f;
@@ -696,26 +1190,26 @@ void ActorSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
 
         // calculate fusedrag by truck size
         factor = def.area_coefficient;
-        width  =  (m_fuse_z_max - m_fuse_z_min) * (m_fuse_y_max - m_fuse_y_min) * factor;
+        width = (m_fuse_z_max - m_fuse_z_min) * (m_fuse_y_max - m_fuse_y_min) * factor;
 
         m_actor->m_fusealge_airfoil = new Airfoil(fusefoil);
 
-        m_actor->m_fusealge_front   = & m_actor->ar_nodes[front_node_idx];
-        m_actor->m_fusealge_back    = & m_actor->ar_nodes[front_node_idx]; // This equals v0.38 / v0.4.0.7, but it's probably a bug
-        m_actor->m_fusealge_width   = width;
-        AddMessage(Message::TYPE_INFO, "Fusedrag autocalculation size: "+TOSTRING(width)+" m^2");
-    } 
+        m_actor->m_fusealge_front = &m_actor->ar_nodes[front_node_idx];
+        m_actor->m_fusealge_back = &m_actor->ar_nodes[front_node_idx]; // This equals v0.38 / v0.4.0.7, but it's probably a bug
+        m_actor->m_fusealge_width = width;
+        AddMessage(Message::TYPE_INFO, "Fusedrag autocalculation size: " + TOSTRING(width) + " m^2");
+    }
     else
     {
         // original fusedrag calculation
 
-        width  = def.approximate_width;
+        width = def.approximate_width;
 
         m_actor->m_fusealge_airfoil = new Airfoil(fusefoil);
 
-        m_actor->m_fusealge_front   = & m_actor->ar_nodes[front_node_idx];
-        m_actor->m_fusealge_back    = & m_actor->ar_nodes[front_node_idx]; // This equals v0.38 / v0.4.0.7, but it's probably a bug
-        m_actor->m_fusealge_width   = width;
+        m_actor->m_fusealge_front = &m_actor->ar_nodes[front_node_idx];
+        m_actor->m_fusealge_back = &m_actor->ar_nodes[front_node_idx]; // This equals v0.38 / v0.4.0.7, but it's probably a bug
+        m_actor->m_fusealge_width = width;
     }
 }
 
@@ -728,14 +1222,14 @@ void ActorSpawner::BuildAeroEngine(
     NodeNum_t blade_4_node_index,
     NodeNum_t couplenode_index,
     bool is_turboprops,
-    Ogre::String const & airfoil,
+    Ogre::String const& airfoil,
     float power,
     float pitch
-    )
+)
 {
     int aeroengine_index = m_actor->ar_num_aeroengines;
 
-    Turboprop *turbo_prop = new Turboprop(
+    Turboprop* turbo_prop = new Turboprop(
         m_actor,
         this->ComposeName("Turboprop", aeroengine_index).c_str(),
         ref_node_index,
@@ -748,7 +1242,7 @@ void ActorSpawner::BuildAeroEngine(
         power,
         airfoil,
         m_actor->m_disable_smoke,
-        ! is_turboprops,
+        !is_turboprops,
         pitch
     );
 
@@ -764,7 +1258,7 @@ void ActorSpawner::BuildAeroEngine(
 
     /* Visuals */
     float scale = m_actor->ar_nodes[ref_node_index].RelPosition.distance(m_actor->ar_nodes[blade_1_node_index].RelPosition) / 2.25f;
-    for (RoR::Prop& prop: m_actor->m_gfx_actor->m_props)
+    for (RoR::Prop& prop : m_actor->m_gfx_actor->m_props)
     {
         if ((prop.pp_node_ref == ref_node_index) && (prop.pp_aero_propeller_blade || prop.pp_aero_propeller_spin))
         {
@@ -774,20 +1268,21 @@ void ActorSpawner::BuildAeroEngine(
     }
 }
 
-void ActorSpawner::ProcessTurboprop2(RigDef::Turboprop2 & def)
+void ActorSpawner::ProcessTurboprop(DataPos_t pos)
 {
-    const NodeNum_t p3_node_index = (def.blade_tip_nodes[2].IsValidAnyState()) ? GetNodeIndexOrThrow(def.blade_tip_nodes[2]) : -1;
-    const NodeNum_t p4_node_index = (def.blade_tip_nodes[3].IsValidAnyState()) ? GetNodeIndexOrThrow(def.blade_tip_nodes[3]) : -1;
-    const NodeNum_t couple_node_index = (def.couple_node.IsValidAnyState()) ? GetNodeIndexOrThrow(def.couple_node) : -1;
+    RigDef::Turboprop2& def = m_document->turboprops[pos];
+
+    const NodeNum_t p3_node_index = (def.blade_tip_nodes[2] != NODEREF_INVALID) ? GetNodeIndexOrThrow(def.blade_tip_nodes[2]) : -1;
+    const NodeNum_t p4_node_index = (def.blade_tip_nodes[3] != NODEREF_INVALID) ? GetNodeIndexOrThrow(def.blade_tip_nodes[3]) : -1;
 
     BuildAeroEngine(
-        GetNodeIndexOrThrow(def.reference_node),
-        GetNodeIndexOrThrow(def.axis_node),
-        GetNodeIndexOrThrow(def.blade_tip_nodes[0]),
-        GetNodeIndexOrThrow(def.blade_tip_nodes[1]),
+        this->ResolveNodeRef(def.reference_node),
+        this->ResolveNodeRef(def.axis_node),
+        this->ResolveNodeRef(def.blade_tip_nodes[0]),
+        this->ResolveNodeRef(def.blade_tip_nodes[1]),
         p3_node_index,
         p4_node_index,
-        couple_node_index,
+        NODENUM_INVALID, // << only difference from 'turboprops2'
         true,
         def.airfoil,
         def.turbine_power_kW,
@@ -795,16 +1290,41 @@ void ActorSpawner::ProcessTurboprop2(RigDef::Turboprop2 & def)
     );
 }
 
-void ActorSpawner::ProcessDescription(Ogre::String const& line)
+void ActorSpawner::ProcessTurboprop2(DataPos_t pos)
 {
-    m_actor->m_description.push_back(line);
+    RigDef::Turboprop2& def = m_document->turboprops2[pos];
+
+    const NodeNum_t p3_node_index = (def.blade_tip_nodes[2] != NODEREF_INVALID) ? GetNodeIndexOrThrow(def.blade_tip_nodes[2]) : -1;
+    const NodeNum_t p4_node_index = (def.blade_tip_nodes[3] != NODEREF_INVALID) ? GetNodeIndexOrThrow(def.blade_tip_nodes[3]) : -1;
+    const NodeNum_t couple_node_index = (def.couple_node != NODEREF_INVALID) ? GetNodeIndexOrThrow(def.couple_node) : -1;
+
+    BuildAeroEngine(
+        this->ResolveNodeRef(def.reference_node),
+        this->ResolveNodeRef(def.axis_node),
+        this->ResolveNodeRef(def.blade_tip_nodes[0]),
+        this->ResolveNodeRef(def.blade_tip_nodes[1]),
+        p3_node_index,
+        p4_node_index,
+        couple_node_index,  // << only difference from 'turboprops'
+        true,
+        def.airfoil,
+        def.turbine_power_kW,
+        -10
+    );
 }
 
-void ActorSpawner::ProcessPistonprop(RigDef::Pistonprop & def)
+void ActorSpawner::ProcessDescription(RigDef::DataPos_t pos)
 {
-    const NodeNum_t p3_node_index = (def.blade_tip_nodes[2].IsValidAnyState()) ? GetNodeIndexOrThrow(def.blade_tip_nodes[2]) : -1;
-    const NodeNum_t p4_node_index = (def.blade_tip_nodes[3].IsValidAnyState()) ? GetNodeIndexOrThrow(def.blade_tip_nodes[3]) : -1;
-    const NodeNum_t couple_node_index = (def.couple_node.IsValidAnyState()) ? GetNodeIndexOrThrow(def.couple_node) : -1;
+    m_actor->m_description.push_back(m_document->description[pos]);
+}
+
+void ActorSpawner::ProcessPistonprop(DataPos_t pos)
+{
+    Pistonprop& def = m_document->pistonprops[pos];
+
+    const NodeNum_t p3_node_index = (def.blade_tip_nodes[2] != NODEREF_INVALID) ? GetNodeIndexOrThrow(def.blade_tip_nodes[2]) : -1;
+    const NodeNum_t p4_node_index = (def.blade_tip_nodes[3] != NODEREF_INVALID) ? GetNodeIndexOrThrow(def.blade_tip_nodes[3]) : -1;
+    const NodeNum_t couple_node_index = (def.couple_node != NODEREF_INVALID) ? GetNodeIndexOrThrow(def.couple_node) : -1;
 
     BuildAeroEngine(
         GetNodeIndexOrThrow(def.reference_node),
@@ -821,8 +1341,10 @@ void ActorSpawner::ProcessPistonprop(RigDef::Pistonprop & def)
     );
 }
 
-void ActorSpawner::ProcessAirbrake(RigDef::Airbrake & def)
+void ActorSpawner::ProcessAirbrake(DataPos_t pos)
 {
+    RigDef::Airbrake& def = m_document->airbrakes[pos];
+
     const int airbrake_idx = static_cast<int>(m_actor->ar_airbrakes.size());
     Airbrake* ab = new Airbrake(
         m_actor,
@@ -866,8 +1388,10 @@ void ActorSpawner::ProcessAirbrake(RigDef::Airbrake & def)
     m_actor->m_gfx_actor->m_gfx_airbrakes.push_back(abx);
 }
 
-void ActorSpawner::ProcessWing(RigDef::Wing & def)
+void ActorSpawner::ProcessWing(DataPos_t pos)
 {
+    Wing& def = m_document->wings[pos];
+
     if ((m_first_wing_index != -1) && (m_actor->ar_wings[m_actor->ar_num_wings - 1].fa == nullptr))
     {
         this->AddMessage(Message::TYPE_ERROR, "Unable to process wing, previous wing has no Airfoil");
@@ -880,22 +1404,26 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
         return;
     }
 
-    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill all current nodes - needed to setup flexing meshes
+    NodeNum_t nds[8];
+    for (int i = 0; i < 8; i++)
+    {
+        nds[i] = this->ResolveNodeRef(def.nodes[i]);
+    }
 
     NodeNum_t node1 = this->GetNodeIndexOrThrow(def.nodes[1]);
-
     const std::string wing_name = this->ComposeName("Wing", m_actor->ar_num_wings);
+    m_actor->m_gfx_actor->UpdateSimDataBuffer(); // FlexAirfoil always uses SimBuffer to query node positions.
     auto flex_airfoil = new FlexAirfoil(
         wing_name,
         m_actor,
-        this->GetNodeIndexOrThrow(def.nodes[0]),
-        node1,
-        this->GetNodeIndexOrThrow(def.nodes[2]),
-        this->GetNodeIndexOrThrow(def.nodes[3]),
-        this->GetNodeIndexOrThrow(def.nodes[4]),
-        this->GetNodeIndexOrThrow(def.nodes[5]),
-        this->GetNodeIndexOrThrow(def.nodes[6]),
-        this->GetNodeIndexOrThrow(def.nodes[7]),
+        nds[0],
+        nds[1],
+        nds[2],
+        nds[3],
+        nds[4],
+        nds[5],
+        nds[6],
+        nds[7],
         m_cab_material_name,
         Ogre::Vector2(def.tex_coords[0], def.tex_coords[1]),
         Ogre::Vector2(def.tex_coords[2], def.tex_coords[3]),
@@ -929,23 +1457,23 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
     if (m_first_wing_index == -1)
     {
         m_first_wing_index = m_actor->ar_num_wings;
-        m_wing_area=ComputeWingArea(
-            m_actor->ar_nodes[flex_airfoil->nfld].AbsPosition,    m_actor->ar_nodes[flex_airfoil->nfrd].AbsPosition,
-            m_actor->ar_nodes[flex_airfoil->nbld].AbsPosition,    m_actor->ar_nodes[flex_airfoil->nbrd].AbsPosition
+        m_wing_area = ComputeWingArea(
+            m_actor->ar_nodes[flex_airfoil->nfld].AbsPosition, m_actor->ar_nodes[flex_airfoil->nfrd].AbsPosition,
+            m_actor->ar_nodes[flex_airfoil->nbld].AbsPosition, m_actor->ar_nodes[flex_airfoil->nbrd].AbsPosition
         );
     }
     else
     {
-        wing_t & previous_wing = m_actor->ar_wings[m_actor->ar_num_wings - 1];
+        wing_t& previous_wing = m_actor->ar_wings[m_actor->ar_num_wings - 1];
 
-        if (node1 != previous_wing.fa->nfld)
+        if (nds[1] != previous_wing.fa->nfld)
         {
-            wing_t & start_wing    = m_actor->ar_wings[m_first_wing_index];
+            wing_t& start_wing = m_actor->ar_wings[m_first_wing_index];
 
             //discontinuity
             //inform wing segments
-            float span = m_actor->ar_nodes[start_wing.fa->nfrd].RelPosition.distance(m_actor->ar_nodes[previous_wing.fa->nfld].RelPosition );
-            
+            float span = m_actor->ar_nodes[start_wing.fa->nfrd].RelPosition.distance(m_actor->ar_nodes[previous_wing.fa->nfld].RelPosition);
+
             start_wing.fa->enableInducedDrag(span, m_wing_area, false);
             previous_wing.fa->enableInducedDrag(span, m_wing_area, true);
 
@@ -953,23 +1481,23 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
             if (m_generate_wing_position_lights && (m_actor->m_flares_mode != GfxFlaresMode::NONE))
             {
                 //Left green
-                m_airplane_left_light=previous_wing.fa->nfld;
+                m_airplane_left_light = previous_wing.fa->nfld;
                 RoR::Prop left_green_prop;
 
-                left_green_prop.pp_node_ref=previous_wing.fa->nfld;
-                left_green_prop.pp_node_x=previous_wing.fa->nflu;
-                left_green_prop.pp_node_y=previous_wing.fa->nfld; //ignored
-                left_green_prop.pp_offset.x=0.5;
-                left_green_prop.pp_offset.y=0.0;
-                left_green_prop.pp_offset.z=0.0;
-                left_green_prop.pp_beacon_rot_angle[0]=0.0;
-                left_green_prop.pp_beacon_rot_rate[0]=1.0;
-                left_green_prop.pp_beacon_type='L';
-                left_green_prop.pp_beacon_light[0]=nullptr; //no light
+                left_green_prop.pp_node_ref = previous_wing.fa->nfld;
+                left_green_prop.pp_node_x = previous_wing.fa->nflu;
+                left_green_prop.pp_node_y = previous_wing.fa->nfld; //ignored
+                left_green_prop.pp_offset.x = 0.5;
+                left_green_prop.pp_offset.y = 0.0;
+                left_green_prop.pp_offset.z = 0.0;
+                left_green_prop.pp_beacon_rot_angle[0] = 0.0;
+                left_green_prop.pp_beacon_rot_rate[0] = 1.0;
+                left_green_prop.pp_beacon_type = 'L';
+                left_green_prop.pp_beacon_light[0] = nullptr; //no light
                 //the flare billboard
                 left_green_prop.pp_beacon_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                left_green_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size())+1),1);
-                left_green_prop.pp_beacon_bbs[0]->createBillboard(0,0,0);
+                left_green_prop.pp_beacon_bbs[0] = App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size()) + 1), 1);
+                left_green_prop.pp_beacon_bbs[0]->createBillboard(0, 0, 0);
                 if (left_green_prop.pp_beacon_bbs[0])
                 {
                     left_green_prop.pp_beacon_bbs[0]->setVisibilityFlags(DEPTHMAP_DISABLED);
@@ -979,32 +1507,32 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_green_prop.pp_beacon_scene_node[0]->setVisible(false);
                 left_green_prop.pp_beacon_bbs[0]->setDefaultDimensions(0.5, 0.5);
                 m_actor->m_gfx_actor->m_props.push_back(left_green_prop);
-                
+
                 //Left flash
                 RoR::Prop left_flash_prop;
 
-                left_flash_prop.pp_node_ref=previous_wing.fa->nbld;
-                left_flash_prop.pp_node_x=previous_wing.fa->nblu;
-                left_flash_prop.pp_node_y=previous_wing.fa->nbld; //ignored
-                left_flash_prop.pp_offset.x=0.5;
-                left_flash_prop.pp_offset.y=0.0;
-                left_flash_prop.pp_offset.z=0.0;
-                left_flash_prop.pp_beacon_rot_angle[0]=0.5; //alt
-                left_flash_prop.pp_beacon_rot_rate[0]=1.0;
-                left_flash_prop.pp_beacon_type='w';
+                left_flash_prop.pp_node_ref = previous_wing.fa->nbld;
+                left_flash_prop.pp_node_x = previous_wing.fa->nblu;
+                left_flash_prop.pp_node_y = previous_wing.fa->nbld; //ignored
+                left_flash_prop.pp_offset.x = 0.5;
+                left_flash_prop.pp_offset.y = 0.0;
+                left_flash_prop.pp_offset.z = 0.0;
+                left_flash_prop.pp_beacon_rot_angle[0] = 0.5; //alt
+                left_flash_prop.pp_beacon_rot_rate[0] = 1.0;
+                left_flash_prop.pp_beacon_type = 'w';
                 //light
-                std::string prop_name = this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size())+1);
-                left_flash_prop.pp_beacon_light[0]=App::GetGfxScene()->GetSceneManager()->createLight(prop_name);
+                std::string prop_name = this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size()) + 1);
+                left_flash_prop.pp_beacon_light[0] = App::GetGfxScene()->GetSceneManager()->createLight(prop_name);
                 left_flash_prop.pp_beacon_light[0]->setType(Ogre::Light::LT_POINT);
-                left_flash_prop.pp_beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
-                left_flash_prop.pp_beacon_light[0]->setSpecularColour( Ogre::ColourValue(1.0, 1.0, 1.0));
+                left_flash_prop.pp_beacon_light[0]->setDiffuseColour(Ogre::ColourValue(1.0, 1.0, 1.0));
+                left_flash_prop.pp_beacon_light[0]->setSpecularColour(Ogre::ColourValue(1.0, 1.0, 1.0));
                 left_flash_prop.pp_beacon_light[0]->setAttenuation(50.0, 1.0, 0.3, 0.0);
                 left_flash_prop.pp_beacon_light[0]->setCastShadows(false);
                 left_flash_prop.pp_beacon_light[0]->setVisible(false);
                 //the flare billboard
                 left_flash_prop.pp_beacon_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                left_flash_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(prop_name,1);
-                left_flash_prop.pp_beacon_bbs[0]->createBillboard(0,0,0);
+                left_flash_prop.pp_beacon_bbs[0] = App::GetGfxScene()->GetSceneManager()->createBillboardSet(prop_name, 1);
+                left_flash_prop.pp_beacon_bbs[0]->createBillboard(0, 0, 0);
                 if (left_flash_prop.pp_beacon_bbs[0])
                 {
                     left_flash_prop.pp_beacon_bbs[0]->setVisibilityFlags(DEPTHMAP_DISABLED);
@@ -1014,26 +1542,26 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_flash_prop.pp_beacon_scene_node[0]->setVisible(false);
                 left_flash_prop.pp_beacon_bbs[0]->setDefaultDimensions(1.0, 1.0);
                 m_actor->m_gfx_actor->m_props.push_back(left_flash_prop);
-                
+
                 //Right red
-                m_airplane_right_light=previous_wing.fa->nfrd;
+                m_airplane_right_light = previous_wing.fa->nfrd;
                 RoR::Prop right_red_prop;
 
-                
-                right_red_prop.pp_node_ref=start_wing.fa->nfrd;
-                right_red_prop.pp_node_x=start_wing.fa->nfru;
-                right_red_prop.pp_node_y=start_wing.fa->nfrd; //ignored
-                right_red_prop.pp_offset.x=0.5;
-                right_red_prop.pp_offset.y=0.0;
-                right_red_prop.pp_offset.z=0.0;
-                right_red_prop.pp_beacon_rot_angle[0]=0.0;
-                right_red_prop.pp_beacon_rot_rate[0]=1.0;
-                right_red_prop.pp_beacon_type='R';
-                right_red_prop.pp_beacon_light[0]=nullptr; /* No light */
+
+                right_red_prop.pp_node_ref = start_wing.fa->nfrd;
+                right_red_prop.pp_node_x = start_wing.fa->nfru;
+                right_red_prop.pp_node_y = start_wing.fa->nfrd; //ignored
+                right_red_prop.pp_offset.x = 0.5;
+                right_red_prop.pp_offset.y = 0.0;
+                right_red_prop.pp_offset.z = 0.0;
+                right_red_prop.pp_beacon_rot_angle[0] = 0.0;
+                right_red_prop.pp_beacon_rot_rate[0] = 1.0;
+                right_red_prop.pp_beacon_type = 'R';
+                right_red_prop.pp_beacon_light[0] = nullptr; /* No light */
                 //the flare billboard
                 right_red_prop.pp_beacon_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                right_red_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size())+1),1);
-                right_red_prop.pp_beacon_bbs[0]->createBillboard(0,0,0);
+                right_red_prop.pp_beacon_bbs[0] = App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size()) + 1), 1);
+                right_red_prop.pp_beacon_bbs[0]->createBillboard(0, 0, 0);
                 if (right_red_prop.pp_beacon_bbs[0])
                 {
                     right_red_prop.pp_beacon_bbs[0]->setVisibilityFlags(DEPTHMAP_DISABLED);
@@ -1043,32 +1571,32 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_red_prop.pp_beacon_scene_node[0]->setVisible(false);
                 right_red_prop.pp_beacon_bbs[0]->setDefaultDimensions(0.5, 0.5);
                 m_actor->m_gfx_actor->m_props.push_back(right_red_prop);
-                
+
                 //Right flash
                 RoR::Prop right_flash_prop;
 
-                right_flash_prop.pp_node_ref=start_wing.fa->nbrd;
-                right_flash_prop.pp_node_x=start_wing.fa->nbru;
-                right_flash_prop.pp_node_y=start_wing.fa->nbrd; //ignored
-                right_flash_prop.pp_offset.x=0.5;
-                right_flash_prop.pp_offset.y=0.0;
-                right_flash_prop.pp_offset.z=0.0;
-                right_flash_prop.pp_beacon_rot_angle[0]=0.5; //alt
-                right_flash_prop.pp_beacon_rot_rate[0]=1.0;
-                right_flash_prop.pp_beacon_type='w';
+                right_flash_prop.pp_node_ref = start_wing.fa->nbrd;
+                right_flash_prop.pp_node_x = start_wing.fa->nbru;
+                right_flash_prop.pp_node_y = start_wing.fa->nbrd; //ignored
+                right_flash_prop.pp_offset.x = 0.5;
+                right_flash_prop.pp_offset.y = 0.0;
+                right_flash_prop.pp_offset.z = 0.0;
+                right_flash_prop.pp_beacon_rot_angle[0] = 0.5; //alt
+                right_flash_prop.pp_beacon_rot_rate[0] = 1.0;
+                right_flash_prop.pp_beacon_type = 'w';
                 //light
-                prop_name = this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size())+1);
-                right_flash_prop.pp_beacon_light[0]=App::GetGfxScene()->GetSceneManager()->createLight(prop_name);
+                prop_name = this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size()) + 1);
+                right_flash_prop.pp_beacon_light[0] = App::GetGfxScene()->GetSceneManager()->createLight(prop_name);
                 right_flash_prop.pp_beacon_light[0]->setType(Ogre::Light::LT_POINT);
-                right_flash_prop.pp_beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
-                right_flash_prop.pp_beacon_light[0]->setSpecularColour( Ogre::ColourValue(1.0, 1.0, 1.0));
+                right_flash_prop.pp_beacon_light[0]->setDiffuseColour(Ogre::ColourValue(1.0, 1.0, 1.0));
+                right_flash_prop.pp_beacon_light[0]->setSpecularColour(Ogre::ColourValue(1.0, 1.0, 1.0));
                 right_flash_prop.pp_beacon_light[0]->setAttenuation(50.0, 1.0, 0.3, 0.0);
                 right_flash_prop.pp_beacon_light[0]->setCastShadows(false);
                 right_flash_prop.pp_beacon_light[0]->setVisible(false);
                 //the flare billboard
                 right_flash_prop.pp_beacon_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                right_flash_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(prop_name,1);
-                right_flash_prop.pp_beacon_bbs[0]->createBillboard(0,0,0);
+                right_flash_prop.pp_beacon_bbs[0] = App::GetGfxScene()->GetSceneManager()->createBillboardSet(prop_name, 1);
+                right_flash_prop.pp_beacon_bbs[0]->createBillboard(0, 0, 0);
                 if (right_flash_prop.pp_beacon_bbs[0] != nullptr)
                 {
                     right_flash_prop.pp_beacon_bbs[0]->setVisibilityFlags(DEPTHMAP_DISABLED);
@@ -1078,21 +1606,21 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.pp_beacon_scene_node[0]->setVisible(false);
                 right_flash_prop.pp_beacon_bbs[0]->setDefaultDimensions(1.0, 1.0);
                 m_actor->m_gfx_actor->m_props.push_back(right_flash_prop);
-                
+
                 m_generate_wing_position_lights = false; // Already done
             }
 
             m_first_wing_index = m_actor->ar_num_wings;
-            m_wing_area=ComputeWingArea(
-                m_actor->ar_nodes[flex_airfoil->nfld].AbsPosition,    m_actor->ar_nodes[flex_airfoil->nfrd].AbsPosition,
-                m_actor->ar_nodes[flex_airfoil->nbld].AbsPosition,    m_actor->ar_nodes[flex_airfoil->nbrd].AbsPosition
+            m_wing_area = ComputeWingArea(
+                m_actor->ar_nodes[flex_airfoil->nfld].AbsPosition, m_actor->ar_nodes[flex_airfoil->nfrd].AbsPosition,
+                m_actor->ar_nodes[flex_airfoil->nbld].AbsPosition, m_actor->ar_nodes[flex_airfoil->nbrd].AbsPosition
             );
         }
-        else 
+        else
         {
-            m_wing_area+=ComputeWingArea(
-                m_actor->ar_nodes[flex_airfoil->nfld].AbsPosition,    m_actor->ar_nodes[flex_airfoil->nfrd].AbsPosition,
-                m_actor->ar_nodes[flex_airfoil->nbld].AbsPosition,    m_actor->ar_nodes[flex_airfoil->nbrd].AbsPosition
+            m_wing_area += ComputeWingArea(
+                m_actor->ar_nodes[flex_airfoil->nfld].AbsPosition, m_actor->ar_nodes[flex_airfoil->nfrd].AbsPosition,
+                m_actor->ar_nodes[flex_airfoil->nbld].AbsPosition, m_actor->ar_nodes[flex_airfoil->nbrd].AbsPosition
             );
         }
     }
@@ -1105,25 +1633,22 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
     ++m_actor->ar_num_wings;
 }
 
-float ActorSpawner::ComputeWingArea(Ogre::Vector3 const & ref, Ogre::Vector3 const & x, Ogre::Vector3 const & y, Ogre::Vector3 const & aref)
+float ActorSpawner::ComputeWingArea(Ogre::Vector3 const& ref, Ogre::Vector3 const& x, Ogre::Vector3 const& y, Ogre::Vector3 const& aref)
 {
-    return (((x-ref).crossProduct(y-ref)).length()+((x-aref).crossProduct(y-aref)).length())*0.5f;
+    return (((x - ref).crossProduct(y - ref)).length() + ((x - aref).crossProduct(y - aref)).length()) * 0.5f;
 }
 
-void ActorSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
+void ActorSpawner::ProcessSoundSource2(DataPos_t pos)
 {
 #ifdef USE_OPENAL
-    NodeNum_t node = ResolveNodeRef(def.node);
-    if (node == NODENUM_INVALID)
-    {
-        return;
-    }
+    SoundSource2& def = m_document->soundsources2[pos];
+
     AddSoundSource(
-            m_actor,
-            App::GetSoundScriptManager()->createInstance(def.sound_script_name, m_actor->ar_instance_id), 
-            node,
-            def.mode
-        );
+        m_actor,
+        App::GetSoundScriptManager()->createInstance(def.sound_script_name, m_actor->ar_instance_id),
+        GetNodeIndexOrThrow(def.node),
+        def.mode
+    );
 #endif // USE_OPENAL
 }
 
@@ -1136,7 +1661,7 @@ void ActorSpawner::AddSoundSourceInstance(ActorPtr const& vehicle, Ogre::String 
 
 void ActorSpawner::AddSoundSource(ActorPtr const& vehicle, SoundScriptInstance *sound_script, NodeNum_t node_index, int type)
 {
-    if (! CheckSoundScriptLimit(vehicle, 1))
+    if (!CheckSoundScriptLimit(vehicle, 1))
     {
         return;
     }
@@ -1146,91 +1671,101 @@ void ActorSpawner::AddSoundSource(ActorPtr const& vehicle, SoundScriptInstance *
         return;
     }
 
-    vehicle->ar_soundsources[vehicle->ar_num_soundsources].ssi=sound_script;
-    vehicle->ar_soundsources[vehicle->ar_num_soundsources].nodenum=node_index;
-    vehicle->ar_soundsources[vehicle->ar_num_soundsources].type=type;
+    vehicle->ar_soundsources[vehicle->ar_num_soundsources].ssi = sound_script;
+    vehicle->ar_soundsources[vehicle->ar_num_soundsources].nodenum = node_index;
+    vehicle->ar_soundsources[vehicle->ar_num_soundsources].type = type;
     vehicle->ar_num_soundsources++;
 }
 
-void ActorSpawner::ProcessSoundSource(RigDef::SoundSource & def)
+void ActorSpawner::ProcessSoundSource(DataPos_t pos)
 {
+    SoundSource& def = m_document->soundsources[pos];
+
 #ifdef USE_OPENAL
     AddSoundSource(
-            m_actor,
-            App::GetSoundScriptManager()->createInstance(def.sound_script_name, m_actor->ar_instance_id), 
-            GetNodeIndexOrThrow(def.node),
-            -2
-        );
+        m_actor,
+        App::GetSoundScriptManager()->createInstance(def.sound_script_name, m_actor->ar_instance_id),
+        GetNodeIndexOrThrow(def.node),
+        -2
+    );
 #endif // USE_OPENAL
 }
 
-void ActorSpawner::ProcessCameraRail(RigDef::CameraRail & def)
+void ActorSpawner::ProcessCameraRail(DataPos_t pos)
 {
-    auto itor = def.nodes.begin();
-    auto end  = def.nodes.end();
-    for(; itor != end; ++itor)
-    {
-        if (! CheckCameraRailLimit(1))
-        {
-            return;
-        }
-        m_actor->ar_camera_rail[m_actor->ar_num_camera_rails] = GetNodeIndexOrThrow(*itor);
-        m_actor->ar_num_camera_rails++;
-    }
+    if (!this->CheckCameraRailLimit(1))
+        return;
+
+    m_actor->ar_camera_rail[m_actor->ar_num_camera_rails] = this->ResolveNodeRef(m_document->camerarails[pos]);
+    m_actor->ar_num_camera_rails++;
 }
 
-void ActorSpawner::ProcessExtCamera(RigDef::ExtCamera & def)
+void ActorSpawner::ProcessExtCamera(DataPos_t pos)
 {
+    ExtCamera& def = m_document->extcamera[pos];
+
     m_actor->ar_extern_camera_mode = def.mode;
-    if (def.node.IsValidAnyState())
+    if (def.node != NODEREF_INVALID)
     {
         m_actor->ar_extern_camera_node = GetNodeIndexOrThrow(def.node);
     }
 }
 
-void ActorSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
+void ActorSpawner::ProcessGuiSettings(DataPos_t pos)
 {
-    if (def.key == "helpMaterial")
+    GuiSettings& def = m_document->guisettings[pos];
+
+    if (def.key == "debugBeams")
     {
-        m_help_material_name = (def.value != "") ? def.value : m_help_material_name;
+        // obsolete, ignore silently
+    }
+    else if (def.key == "tachoMaterial")
+    {
+        m_state.tachomat = def.value;
+    }
+    else if (def.key == "speedoMaterial")
+    {
+        m_state.speedomat = def.value;
+    }
+    else if (def.key == "helpMaterial")
+    {
+        m_help_material_name = def.value;
     }
     else if (def.key == "speedoMax")
     {
-        float maxKph = PARSEREAL(def.value);
-        if (maxKph > 10 && maxKph < 32000)
+        float speedo_max_kph = PARSEREAL(def.value);
+        if (speedo_max_kph > 10 && speedo_max_kph < 32000)
         {
-            m_actor->ar_speedo_max_kph = maxKph;
+            m_actor->ar_speedo_max_kph = speedo_max_kph;
         }
         else
         {
-            this->AddMessage(Message::TYPE_ERROR,
-                fmt::format("Invalid 'speedoMax' ({}), allowed range is <10 -32000>, using default ({})", maxKph, DEFAULT_SPEEDO_MAX_KPH));
-            m_actor->ar_speedo_max_kph = DEFAULT_SPEEDO_MAX_KPH;
+            AddMessage(Message::TYPE_ERROR, fmt::format("Invalid 'speedoMax' ({}), allowed range is <10 -32000>", speedo_max_kph));
         }
     }
     else if (def.key == "useMaxRPM")
     {
-        m_actor->ar_gui_use_engine_max_rpm = true;
+        m_actor->ar_gui_use_engine_max_rpm = (PARSEINT(def.value) == 1);
     }
-
-    // NOTE: Dashboard layouts are processed later
 }
 
-void ActorSpawner::ProcessFixedNode(RigDef::Node::Ref node_ref)
+void ActorSpawner::ProcessFixes(DataPos_t pos)
 {
-    NodeNum_t node = GetNodeIndexOrThrow(node_ref);
-    m_actor->ar_nodes[node].nd_immovable = true;
+    node_t* node = this->GetNodePointerOrThrow(m_document->fixes[pos]);
+    node->nd_immovable = true;
 }
 
-void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
+void ActorSpawner::ProcessExhaust(DataPos_t pos)
 {
+    Exhaust& def = m_document->exhausts[pos];
+
     if (m_actor->m_disable_smoke)
     {
         return;
     }
 
     exhaust_t exhaust;
-    exhaust.emitterNode   = this->GetNodeIndexOrThrow(def.reference_node);
+    exhaust.emitterNode = this->GetNodeIndexOrThrow(def.reference_node);
     exhaust.directionNode = this->GetNodeIndexOrThrow(def.direction_node);
 
     std::string template_name = def.particle_name;
@@ -1244,7 +1779,7 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
     if (exhaust.smoker == nullptr)
     {
         std::stringstream msg;
-        msg << "Failed to create particle system '" << name << "' (template: '" << template_name <<"')";
+        msg << "Failed to create particle system '" << name << "' (template: '" << template_name << "')";
         AddMessage(Message::TYPE_ERROR, msg.str());
         return;
     }
@@ -1261,283 +1796,294 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
 
 std::string ActorSpawner::GetSubmeshGroundmodelName()
 {
-    auto module_itor = m_selected_modules.begin();
-    auto module_end  = m_selected_modules.end();
-    for (; module_itor != module_end; ++module_itor)
+    // FIXME: respect sectionconfig!
+    if (m_document->submesh_groundmodel.size() > 0)
     {
-        if (! module_itor->get()->submesh_groundmodel.empty())
-        {
-            return module_itor->get()->submesh_groundmodel[0];
-        }
+        return m_document->submesh_groundmodel[m_document->submesh_groundmodel.size() - 1];
     }
-    return std::string();
+    else
+    {
+        return "";
+    }
 };
 
-void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
+void ActorSpawner::ProcessSubmesh()
 {
-    if (! CheckSubmeshLimit(1))
+    this->CloseCurrentSubmesh(CabSubmesh::BACKMESH_NONE);
+}
+
+void ActorSpawner::ProcessTexcoord(DataPos_t pos)
+{
+    if (!CheckTexcoordLimit(1))
     {
         return;
     }
+    RigDef::Texcoord& def = m_document->texcoords[pos];
 
-    /* TEXCOORDS */
+    CabTexcoord texcoord;
+    texcoord.node_id = GetNodeIndexOrThrow(def.node);
+    texcoord.texcoord_u = def.u;
+    texcoord.texcoord_v = def.v;
+    m_oldstyle_cab_texcoords.push_back(texcoord);
+}
 
-    std::vector<RigDef::Texcoord>::iterator texcoord_itor = def.texcoords.begin();
-    for ( ; texcoord_itor != def.texcoords.end(); texcoord_itor++)
+void ActorSpawner::ProcessCab(DataPos_t pos)
+{
+    if (!CheckCabLimit(1))
     {
-        if (! CheckTexcoordLimit(1))
-        {
-            break;
-        }
-
-        CabTexcoord texcoord;
-        texcoord.node_id    = GetNodeIndexOrThrow(texcoord_itor->node);
-        texcoord.texcoord_u = texcoord_itor->u;
-        texcoord.texcoord_v = texcoord_itor->v;
-        m_oldstyle_cab_texcoords.push_back(texcoord);
+        return;
+    }
+    else if (m_actor->ar_num_collcabs >= MAX_CABS)
+    {
+        std::stringstream msg;
+        msg << "Collcab limit (" << MAX_CABS << ") exceeded";
+        AddMessage(Message::TYPE_ERROR, msg.str());
+        return;
     }
 
-    /* CAB */
+    RigDef::Cab& def = m_document->cab[pos];
 
-    auto cab_itor = def.cab_triangles.begin();
-    auto cab_itor_end = def.cab_triangles.end();
-    for ( ; cab_itor != cab_itor_end; ++cab_itor)
+    bool mk_buoyance = false;
+
+    m_actor->ar_cabs[m_actor->ar_num_cabs * 3] = GetNodeIndexOrThrow(def.nodes[0]);
+    m_actor->ar_cabs[m_actor->ar_num_cabs * 3 + 1] = GetNodeIndexOrThrow(def.nodes[1]);
+    m_actor->ar_cabs[m_actor->ar_num_cabs * 3 + 2] = GetNodeIndexOrThrow(def.nodes[2]);
+
+    // TODO: Clean this up properly ~ ulteq 10/2018
+    if (BITMASK_IS_1(def.options, RigDef::Cab::OPTION_c_CONTACT) ||
+        BITMASK_IS_1(def.options, RigDef::Cab::OPTION_p_10xTOUGHER) ||
+        BITMASK_IS_1(def.options, RigDef::Cab::OPTION_u_INVULNERABLE))
     {
-        if (! CheckCabLimit(1))
-        {
-            return;
-        }
-        else if (m_actor->ar_num_collcabs >= MAX_CABS)
+        m_actor->ar_collcabs[m_actor->ar_num_collcabs] = m_actor->ar_num_cabs;
+        m_actor->ar_num_collcabs++;
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Cab::OPTION_b_BUOYANT))
+    {
+        m_actor->ar_buoycabs[m_actor->ar_num_buoycabs] = m_actor->ar_num_cabs;
+        m_actor->ar_buoycab_types[m_actor->ar_num_buoycabs] = Buoyance::BUOY_NORMAL;
+        m_actor->ar_num_buoycabs++;
+        mk_buoyance = true;
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Cab::OPTION_r_BUOYANT_ONLY_DRAG))
+    {
+        m_actor->ar_buoycabs[m_actor->ar_num_buoycabs] = m_actor->ar_num_cabs;
+        m_actor->ar_buoycab_types[m_actor->ar_num_buoycabs] = Buoyance::BUOY_DRAGONLY;
+        m_actor->ar_num_buoycabs++;
+        mk_buoyance = true;
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Cab::OPTION_s_BUOYANT_NO_DRAG))
+    {
+        m_actor->ar_buoycabs[m_actor->ar_num_buoycabs] = m_actor->ar_num_cabs;
+        m_actor->ar_buoycab_types[m_actor->ar_num_buoycabs] = Buoyance::BUOY_DRAGLESS;
+        m_actor->ar_num_buoycabs++;
+        mk_buoyance = true;
+    }
+
+    if (BITMASK_IS_1(def.options, RigDef::Cab::OPTION_D_CONTACT_BUOYANT) ||
+        BITMASK_IS_1(def.options, RigDef::Cab::OPTION_F_10xTOUGHER_BUOYANT) ||
+        BITMASK_IS_1(def.options, RigDef::Cab::OPTION_S_INVULNERABLE_BUOYANT))
+    {
+
+        if (m_actor->ar_num_collcabs >= MAX_CABS)
         {
             std::stringstream msg;
             msg << "Collcab limit (" << MAX_CABS << ") exceeded";
             AddMessage(Message::TYPE_ERROR, msg.str());
             return;
         }
-
-        bool mk_buoyance = false;
-
-        m_actor->ar_cabs[m_actor->ar_num_cabs*3]=GetNodeIndexOrThrow(cab_itor->nodes[0]);
-        m_actor->ar_cabs[m_actor->ar_num_cabs*3+1]=GetNodeIndexOrThrow(cab_itor->nodes[1]);
-        m_actor->ar_cabs[m_actor->ar_num_cabs*3+2]=GetNodeIndexOrThrow(cab_itor->nodes[2]);
-
-        // TODO: Clean this up properly ~ ulteq 10/2018
-        if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_c_CONTACT) ||
-            BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_p_10xTOUGHER) ||
-            BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_u_INVULNERABLE))
+        else if (m_actor->ar_num_buoycabs >= MAX_CABS)
         {
-            m_actor->ar_collcabs[m_actor->ar_num_collcabs]=m_actor->ar_num_cabs;
-            m_actor->ar_num_collcabs++;
-        }
-        if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_b_BUOYANT))
-        {
-            m_actor->ar_buoycabs[m_actor->ar_num_buoycabs]=m_actor->ar_num_cabs; 
-            m_actor->ar_buoycab_types[m_actor->ar_num_buoycabs]=Buoyance::BUOY_NORMAL; 
-            m_actor->ar_num_buoycabs++;   
-            mk_buoyance = true;
-        }
-        if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_r_BUOYANT_ONLY_DRAG))
-        {
-            m_actor->ar_buoycabs[m_actor->ar_num_buoycabs]=m_actor->ar_num_cabs; 
-            m_actor->ar_buoycab_types[m_actor->ar_num_buoycabs]=Buoyance::BUOY_DRAGONLY; 
-            m_actor->ar_num_buoycabs++; 
-            mk_buoyance = true;
-        }
-        if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_s_BUOYANT_NO_DRAG))
-        {
-            m_actor->ar_buoycabs[m_actor->ar_num_buoycabs]=m_actor->ar_num_cabs; 
-            m_actor->ar_buoycab_types[m_actor->ar_num_buoycabs]=Buoyance::BUOY_DRAGLESS; 
-            m_actor->ar_num_buoycabs++; 
-            mk_buoyance = true;
-        }
-
-        if (BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_D_CONTACT_BUOYANT) ||
-            BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_F_10xTOUGHER_BUOYANT) ||
-            BITMASK_IS_1(cab_itor->options, RigDef::Cab::OPTION_S_INVULNERABLE_BUOYANT))
-        {
-
-            if (m_actor->ar_num_collcabs >= MAX_CABS)
-            {
-                std::stringstream msg;
-                msg << "Collcab limit (" << MAX_CABS << ") exceeded";
-                AddMessage(Message::TYPE_ERROR, msg.str());
-                return;
-            }
-            else if (m_actor->ar_num_buoycabs >= MAX_CABS)
-            {
-                std::stringstream msg;
-                msg << "Buoycab limit (" << MAX_CABS << ") exceeded";
-                AddMessage(Message::TYPE_ERROR, msg.str());
-                return;
-            }
-
-            m_actor->ar_collcabs[m_actor->ar_num_collcabs]=m_actor->ar_num_cabs;
-            m_actor->ar_num_collcabs++;
-            m_actor->ar_buoycabs[m_actor->ar_num_buoycabs]=m_actor->ar_num_cabs; 
-            m_actor->ar_buoycab_types[m_actor->ar_num_buoycabs]=Buoyance::BUOY_NORMAL; 
-            m_actor->ar_num_buoycabs++; 
-            mk_buoyance = true;
-        }
-
-        if (mk_buoyance && (m_actor->m_buoyance == nullptr))
-        {
-            Buoyance* buoy = new Buoyance(App::GetGfxScene()->GetDustPool("splash"), App::GetGfxScene()->GetDustPool("ripple"));
-            m_actor->m_buoyance.reset(buoy);
-        }
-        m_actor->ar_num_cabs++;
-    }
-
-    //close the current mesh
-    CabSubmesh submesh;
-    submesh.texcoords_pos = m_oldstyle_cab_texcoords.size();
-    submesh.cabs_pos = static_cast<unsigned int>(m_actor->ar_num_cabs);
-    submesh.backmesh_type = CabSubmesh::BACKMESH_NONE;
-    m_oldstyle_cab_submeshes.push_back(submesh);
-
-    /* BACKMESH */
-
-    if (def.backmesh)
-    {
-
-        // Check limit
-        if (! CheckCabLimit(1))
-        {
+            std::stringstream msg;
+            msg << "Buoycab limit (" << MAX_CABS << ") exceeded";
+            AddMessage(Message::TYPE_ERROR, msg.str());
             return;
         }
 
-        // === add an extra front mesh ===
-        //texcoords
-        int uv_start = (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->texcoords_pos);
-        for (size_t i=uv_start; i<m_oldstyle_cab_submeshes.back().texcoords_pos; i++)
-        {
-            m_oldstyle_cab_texcoords.push_back(m_oldstyle_cab_texcoords[i]);
-        }
-        //cab
-        int cab_start =  (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->cabs_pos);
-        for (size_t i=cab_start; i<m_oldstyle_cab_submeshes.back().cabs_pos; i++)
-        {
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3]=m_actor->ar_cabs[i*3];
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3+1]=m_actor->ar_cabs[i*3+1];
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3+2]=m_actor->ar_cabs[i*3+2];
-            m_actor->ar_num_cabs++;
-        }
-        // Finalize
-        CabSubmesh submesh;
-        submesh.backmesh_type = CabSubmesh::BACKMESH_TRANSPARENT;
-        submesh.texcoords_pos = m_oldstyle_cab_texcoords.size();
-        submesh.cabs_pos      = static_cast<unsigned int>(m_actor->ar_num_cabs);
-        m_oldstyle_cab_submeshes.push_back(submesh);
-
-        // === add an extra back mesh ===
-        //texcoords
-        uv_start = (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->texcoords_pos);
-        for (size_t i=uv_start; i<m_oldstyle_cab_submeshes.back().texcoords_pos; i++)
-        {
-            m_oldstyle_cab_texcoords.push_back(m_oldstyle_cab_texcoords[i]);
-        }
-
-        //cab
-        cab_start =  (m_oldstyle_cab_submeshes.size()==1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin()+1)->cabs_pos);
-        for (size_t i=cab_start; i<m_oldstyle_cab_submeshes.back().cabs_pos; i++)
-        {
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3]=m_actor->ar_cabs[i*3+1];
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3+1]=m_actor->ar_cabs[i*3];
-            m_actor->ar_cabs[m_actor->ar_num_cabs*3+2]=m_actor->ar_cabs[i*3+2];
-            m_actor->ar_num_cabs++;
-        }
-    
-        //close the current mesh
-        CabSubmesh submesh2;
-        submesh2.texcoords_pos = m_oldstyle_cab_texcoords.size();
-        submesh2.cabs_pos = static_cast<unsigned int>(m_actor->ar_num_cabs);
-        submesh2.backmesh_type = CabSubmesh::BACKMESH_OPAQUE;
-        m_oldstyle_cab_submeshes.push_back(submesh2);
+        m_actor->ar_collcabs[m_actor->ar_num_collcabs] = m_actor->ar_num_cabs;
+        m_actor->ar_num_collcabs++;
+        m_actor->ar_buoycabs[m_actor->ar_num_buoycabs] = m_actor->ar_num_cabs;
+        m_actor->ar_buoycab_types[m_actor->ar_num_buoycabs] = Buoyance::BUOY_NORMAL;
+        m_actor->ar_num_buoycabs++;
+        mk_buoyance = true;
     }
+
+    if (mk_buoyance && (m_actor->m_buoyance == nullptr))
+    {
+        Buoyance* buoy = new Buoyance(App::GetGfxScene()->GetDustPool("splash"), App::GetGfxScene()->GetDustPool("ripple"));
+        m_actor->m_buoyance.reset(buoy);
+    }
+    m_actor->ar_num_cabs++;
 }
 
-void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
+void ActorSpawner::ProcessBackmesh()
 {
-    // Collect nodes
-    std::vector<unsigned int> node_indices;
-    bool nodes_found = true;
-    for (auto& node_def: def.node_list)
-    {
-        NodeNum_t node = this->ResolveNodeRef(node_def);
-        if (node == NODENUM_INVALID)
-        {
-            nodes_found = false;
-            break;
-        }
-        node_indices.push_back(node);
-    }
+    //close the current mesh
+    this->CloseCurrentSubmesh(CabSubmesh::BACKMESH_NONE);
 
-    if (! nodes_found)
+    // Check limit
+    if (!CheckCabLimit(1))
     {
-        this->AddMessage(Message::TYPE_ERROR, "Failed to collect nodes from node-ranges, skipping flexbody: " + def.mesh_name);
         return;
     }
 
-    const NodeNum_t reference_node = this->FindNodeIndex(def.reference_node);
-    const NodeNum_t x_axis_node    = this->FindNodeIndex(def.x_axis_node);
-    const NodeNum_t y_axis_node    = this->FindNodeIndex(def.y_axis_node);
+    // === add an extra front mesh ===
+    //texcoords
+    int uv_start = (m_oldstyle_cab_submeshes.size() == 1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin() + 1)->texcoords_pos);
+    for (size_t i = uv_start; i < m_oldstyle_cab_submeshes.back().texcoords_pos; i++)
+    {
+        m_oldstyle_cab_texcoords.push_back(m_oldstyle_cab_texcoords[i]);
+    }
+    //cab
+    int cab_start = (m_oldstyle_cab_submeshes.size() == 1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin() + 1)->cabs_pos);
+    for (size_t i = cab_start; i < m_oldstyle_cab_submeshes.back().cabs_pos; i++)
+    {
+        m_actor->ar_cabs[m_actor->ar_num_cabs * 3] = m_actor->ar_cabs[i * 3];
+        m_actor->ar_cabs[m_actor->ar_num_cabs * 3 + 1] = m_actor->ar_cabs[i * 3 + 1];
+        m_actor->ar_cabs[m_actor->ar_num_cabs * 3 + 2] = m_actor->ar_cabs[i * 3 + 2];
+        m_actor->ar_num_cabs++;
+    }
+
+    this->CloseCurrentSubmesh(CabSubmesh::BACKMESH_TRANSPARENT);
+
+    // === add an extra back mesh ===
+    //texcoords
+    uv_start = (m_oldstyle_cab_submeshes.size() == 1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin() + 1)->texcoords_pos);
+    for (size_t i = uv_start; i < m_oldstyle_cab_submeshes.back().texcoords_pos; i++)
+    {
+        m_oldstyle_cab_texcoords.push_back(m_oldstyle_cab_texcoords[i]);
+    }
+
+    //cab
+    cab_start = (m_oldstyle_cab_submeshes.size() == 1) ? 0 : static_cast<int>((m_oldstyle_cab_submeshes.rbegin() + 1)->cabs_pos);
+    for (size_t i = cab_start; i < m_oldstyle_cab_submeshes.back().cabs_pos; i++)
+    {
+        m_actor->ar_cabs[m_actor->ar_num_cabs * 3] = m_actor->ar_cabs[i * 3 + 1];
+        m_actor->ar_cabs[m_actor->ar_num_cabs * 3 + 1] = m_actor->ar_cabs[i * 3];
+        m_actor->ar_cabs[m_actor->ar_num_cabs * 3 + 2] = m_actor->ar_cabs[i * 3 + 2];
+        m_actor->ar_num_cabs++;
+    }
+
+    this->CloseCurrentSubmesh(CabSubmesh::BACKMESH_OPAQUE);
+}
+
+void ActorSpawner::CloseCurrentSubmesh(CabSubmesh::BackmeshType type)
+{
+    // Make sure we have new texcoords or cabs
+    size_t prev_cabs = (m_oldstyle_cab_submeshes.size() > 0) ? m_oldstyle_cab_submeshes.rbegin()->cabs_pos : 0;
+    size_t prev_texcoords = (m_oldstyle_cab_submeshes.size() > 0) ? m_oldstyle_cab_submeshes.rbegin()->texcoords_pos : 0;
+    if (m_actor->ar_num_cabs > prev_cabs || m_oldstyle_cab_texcoords.size() > prev_texcoords)
+    {
+        CabSubmesh submesh;
+        submesh.texcoords_pos = m_oldstyle_cab_texcoords.size();
+        submesh.cabs_pos = m_actor->ar_num_cabs;
+        submesh.backmesh_type = type;
+        m_oldstyle_cab_submeshes.push_back(submesh);
+    }
+}
+
+void ActorSpawner::ProcessFlexbody(DataPos_t pos)
+{
+    // Keep the definition around until corresponding 'forset' line arrives.
+    if (m_pending_flexbody != DATAPOS_INVALID)
+    {
+        this->AddMessage(Message::TYPE_WARNING, "Skipping flexbody; no corresponding 'forset' line.");
+    }
+    m_pending_flexbody = pos;
+}
+
+void ActorSpawner::ProcessFlexbodyCameraMode(DataPos_t pos)
+{
+    if (m_actor->m_gfx_actor->m_flexbodies.size() == 0)
+    {
+        this->AddMessage(Message::TYPE_WARNING, "Ignoring 'flexbody_camera_mode'; no corresponding flexbody.");
+        return;
+    }
+
+    FlexBody* flexbody = m_actor->m_gfx_actor->m_flexbodies[m_actor->m_gfx_actor->m_flexbodies.size() - 1];
+    flexbody->setCameraMode(m_document->flexbody_camera_mode[pos].mode);
+}
+
+void ActorSpawner::ProcessForset(DataPos_t pos)
+{
+    // Check if we have a flexbody with this 'forset'.
+    if (m_pending_flexbody == DATAPOS_INVALID)
+    {
+        this->AddMessage(Message::TYPE_WARNING, "Skipping forset; no corresponding flexbody.");
+        return;
+    }
+
+    this->BuildFlexbody(m_pending_flexbody, pos);
+    m_pending_flexbody = DATAPOS_INVALID;
+}
+
+void ActorSpawner::BuildFlexbody(DataPos_t flexbodies_data_pos, DataPos_t forset_data_pos)
+{
+    ROR_ASSERT(flexbodies_data_pos != DATAPOS_INVALID);
+    ROR_ASSERT(forset_data_pos != DATAPOS_INVALID);
+
+    RigDef::Flexbody& def = m_document->flexbodies[flexbodies_data_pos];
+    RigDef::Forset& forset_def = m_document->forset[forset_data_pos];
+
+    // Collect nodes from ranges
+    std::vector<NodeNum_t> nodes;
+    this->ResolveNodeRanges(nodes, forset_def.node_ranges);
+
+    // Gather flexbody parameters
+    NodeNum_t reference_node = this->ResolveNodeRef(def.reference_node);
+    NodeNum_t x_axis_node = this->ResolveNodeRef(def.x_axis_node);
+    NodeNum_t y_axis_node = this->ResolveNodeRef(def.y_axis_node);
     if (reference_node == -1 || x_axis_node == -1 || y_axis_node == -1)
     {
         this->AddMessage(Message::TYPE_ERROR, "Failed to find required nodes, skipping flexbody '" + def.mesh_name + "'");
         return;
     }
 
-    Ogre::Quaternion rot=Ogre::Quaternion(Ogre::Degree(def.rotation.z), Ogre::Vector3::UNIT_Z);
-    rot=rot*Ogre::Quaternion(Ogre::Degree(def.rotation.y), Ogre::Vector3::UNIT_Y);
-    rot=rot*Ogre::Quaternion(Ogre::Degree(def.rotation.x), Ogre::Vector3::UNIT_X);
+    Ogre::Quaternion rot = Ogre::Quaternion(Ogre::Degree(def.rotation.z), Ogre::Vector3::UNIT_Z);
+    rot = rot * Ogre::Quaternion(Ogre::Degree(def.rotation.y), Ogre::Vector3::UNIT_Y);
+    rot = rot * Ogre::Quaternion(Ogre::Degree(def.rotation.x), Ogre::Vector3::UNIT_X);
 
     m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill all current nodes - needed to setup flexing meshes
 
     try
     {
+        std::vector<unsigned int> nodes_uint; // FIXME: temp. workaround
+        for (NodeNum_t n : nodes) { nodes_uint.push_back(n); }
+
         auto* flexbody = m_flex_factory.CreateFlexBody(
-            &def, reference_node, x_axis_node, y_axis_node, rot, node_indices, m_custom_resource_group);
+            &def, reference_node, x_axis_node, y_axis_node, rot, nodes_uint, m_custom_resource_group);
 
         if (flexbody == nullptr)
             return; // Error already logged
-
-        flexbody->setCameraMode(def.camera_settings.mode);
 
         m_actor->m_gfx_actor->m_flexbodies.emplace_back(flexbody);
     }
     catch (Ogre::Exception& e)
     {
-        this->AddMessage(Message::TYPE_ERROR, 
+        this->AddMessage(Message::TYPE_ERROR,
             "Failed to create flexbody '" + def.mesh_name + "', reason:" + e.getFullDescription());
     }
 }
 
-void ActorSpawner::ProcessMinimass(RigDef::Minimass & def)
+void ActorSpawner::ProcessProp(DataPos_t pos)
 {
-    m_state.global_minimass = def.global_min_mass_Kg;
-    m_actor->ar_minimass_skip_loaded_nodes = (def.option == RigDef::MinimassOption::l_SKIP_LOADED);
-}
-
-void ActorSpawner::ProcessProp(RigDef::Prop & def)
-{
-    RoR::Prop prop;
     int prop_index = static_cast<int>(m_actor->m_gfx_actor->m_props.size());
+    RigDef::Prop& def = m_document->props[pos];
+    Prop prop;
 
-    prop.pp_node_ref         = GetNodeIndexOrThrow(def.reference_node);
-    prop.pp_node_x           = FindNodeIndex(def.x_axis_node);
-    prop.pp_node_y           = FindNodeIndex(def.y_axis_node);
+    prop.pp_node_ref = this->ResolveNodeRef(def.reference_node);
+    prop.pp_node_x = this->ResolveNodeRef(def.x_axis_node);
+    prop.pp_node_y = this->ResolveNodeRef(def.y_axis_node);
     if (prop.pp_node_x == NODENUM_INVALID || prop.pp_node_y == NODENUM_INVALID)
     {
         return; // Error alredy logged by `FindNodeIndex()`
     }
-    prop.pp_offset       = def.offset;
-    prop.pp_offset_orig  = def.offset;
-    prop.pp_rot          = Ogre::Quaternion(Ogre::Degree(def.rotation.z), Ogre::Vector3::UNIT_Z)
-                           * Ogre::Quaternion(Ogre::Degree(def.rotation.y), Ogre::Vector3::UNIT_Y)
-                           * Ogre::Quaternion(Ogre::Degree(def.rotation.x), Ogre::Vector3::UNIT_X);
-    prop.pp_rota         = def.rotation;
-    prop.pp_camera_mode_active = def.camera_settings.mode; /* Handles default value */
-    prop.pp_camera_mode_orig = def.camera_settings.mode; /* Handles default value */
-    prop.pp_wheel_rot_degree  = 160.f; // ??
+    prop.pp_offset = def.offset;
+    prop.pp_offset_orig = def.offset;
+    prop.pp_rot = Ogre::Quaternion(Ogre::Degree(def.rotation.z), Ogre::Vector3::UNIT_Z)
+        * Ogre::Quaternion(Ogre::Degree(def.rotation.y), Ogre::Vector3::UNIT_Y)
+        * Ogre::Quaternion(Ogre::Degree(def.rotation.x), Ogre::Vector3::UNIT_X);
+    prop.pp_rota = def.rotation;
+    prop.pp_wheel_rot_degree = 160.f; // ??
 
     /* SPECIAL PROPS */
 
@@ -1557,11 +2103,11 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     Ogre::Vector3 steering_wheel_offset = Ogre::Vector3::ZERO;
     if (def.special == RigDef::SpecialProp::DASHBOARD_LEFT)
     {
-        steering_wheel_offset = Ogre::Vector3(-0.67, -0.61,0.24);
+        steering_wheel_offset = Ogre::Vector3(-0.67, -0.61, 0.24);
     }
     if (def.special == RigDef::SpecialProp::DASHBOARD_RIGHT)
     {
-        steering_wheel_offset = Ogre::Vector3(0.67, -0.61,0.24);
+        steering_wheel_offset = Ogre::Vector3(0.67, -0.61, 0.24);
     }
     if (steering_wheel_offset != Ogre::Vector3::ZERO)
     {
@@ -1578,7 +2124,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             m_custom_resource_group,
             instance_name,
             prop.pp_wheel_scene_node
-            );
+        );
         this->SetupNewEntity(prop.pp_wheel_mesh_obj->getEntity(), Ogre::ColourValue(0, 0.5, 0.5));
     }
 
@@ -1596,16 +2142,16 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         prop.pp_mesh_obj->setCastShadows(false);
         prop.pp_scene_node->setVisible(false);
     }
-    else if(def.special == RigDef::SpecialProp::AERO_PROP_BLADE)
+    else if (def.special == RigDef::SpecialProp::AERO_PROP_BLADE)
     {
         prop.pp_aero_propeller_blade = true;
     }
-    else if(def.special == RigDef::SpecialProp::DRIVER_SEAT)
+    else if (def.special == RigDef::SpecialProp::DRIVER_SEAT)
     {
         //driver seat, used to position the driver and make the seat translucent at times
-        if (m_actor->m_gfx_actor->m_driverseat_prop_index == -1)
+        if (m_driverseat_prop_index == -1)
         {
-            m_actor->m_gfx_actor->m_driverseat_prop_index = prop_index;
+            m_driverseat_prop_index = prop_index;
             prop.pp_mesh_obj->setMaterialName("driversseat");
         }
         else
@@ -1613,12 +2159,12 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             this->AddMessage(Message::TYPE_INFO, "Found more than one 'seat[2]' special props. Only the first one will be the driver's seat.");
         }
     }
-    else if(def.special == RigDef::SpecialProp::DRIVER_SEAT_2)
+    else if (def.special == RigDef::SpecialProp::DRIVER_SEAT_2)
     {
         // Same as DRIVER_SEAT, except it doesn't force the "driversseat" material
-        if (m_actor->m_gfx_actor->m_driverseat_prop_index == -1)
+        if (m_driverseat_prop_index == -1)
         {
-            m_actor->m_gfx_actor->m_driverseat_prop_index = prop_index;
+            m_driverseat_prop_index = prop_index;
         }
         else
         {
@@ -1627,7 +2173,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     }
     else if (m_actor->m_flares_mode != GfxFlaresMode::NONE)
     {
-        if(def.special == RigDef::SpecialProp::BEACON)
+        if (def.special == RigDef::SpecialProp::BEACON)
         {
             prop.pp_beacon_type = 'b';
             prop.pp_beacon_rot_angle[0] = 2.0 * 3.14 * frand();
@@ -1638,7 +2184,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             pp_beacon_light->setDiffuseColour(def.special_prop_beacon.color);
             pp_beacon_light->setSpecularColour(def.special_prop_beacon.color);
             pp_beacon_light->setAttenuation(50.0, 1.0, 0.3, 0.0);
-            pp_beacon_light->setSpotlightRange( Ogre::Degree(35), Ogre::Degree(45) );
+            pp_beacon_light->setSpotlightRange(Ogre::Degree(35), Ogre::Degree(45));
             pp_beacon_light->setCastShadows(false);
             pp_beacon_light->setVisible(false);
             /* the flare billboard */
@@ -1646,7 +2192,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             auto flare_billboard_sys = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1); //(propname,1);
             if (flare_billboard_sys)
             {
-                flare_billboard_sys->createBillboard(0,0,0);
+                flare_billboard_sys->createBillboard(0, 0, 0);
                 flare_billboard_sys->setMaterialName(def.special_prop_beacon.flare_material_name);
                 flare_billboard_sys->setVisibilityFlags(DEPTHMAP_DISABLED);
                 flare_scene_node->attachObject(flare_billboard_sys);
@@ -1658,16 +2204,16 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             prop.pp_beacon_bbs[0] = flare_billboard_sys;
             prop.pp_beacon_light[0] = pp_beacon_light;
         }
-        else if(def.special == RigDef::SpecialProp::REDBEACON)
+        else if (def.special == RigDef::SpecialProp::REDBEACON)
         {
             prop.pp_beacon_rot_angle[0] = 0.f;
             prop.pp_beacon_rot_rate[0] = 1.0;
             prop.pp_beacon_type = 'r';
             //the light
-            auto pp_beacon_light=App::GetGfxScene()->GetSceneManager()->createLight();//propname);
+            auto pp_beacon_light = App::GetGfxScene()->GetSceneManager()->createLight();//propname);
             pp_beacon_light->setType(Ogre::Light::LT_POINT);
-            pp_beacon_light->setDiffuseColour( Ogre::ColourValue(1.0, 0.0, 0.0));
-            pp_beacon_light->setSpecularColour( Ogre::ColourValue(1.0, 0.0, 0.0));
+            pp_beacon_light->setDiffuseColour(Ogre::ColourValue(1.0, 0.0, 0.0));
+            pp_beacon_light->setSpecularColour(Ogre::ColourValue(1.0, 0.0, 0.0));
             pp_beacon_light->setAttenuation(50.0, 1.0, 0.3, 0.0);
             pp_beacon_light->setCastShadows(false);
             pp_beacon_light->setVisible(false);
@@ -1676,7 +2222,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             auto flare_billboard_sys = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1); //propname,1);
             if (flare_billboard_sys)
             {
-                flare_billboard_sys->createBillboard(0,0,0);
+                flare_billboard_sys->createBillboard(0, 0, 0);
                 flare_billboard_sys->setMaterialName("tracks/redbeaconflare");
                 flare_billboard_sys->setVisibilityFlags(DEPTHMAP_DISABLED);
                 flare_billboard_sys->setDefaultDimensions(1.0, 1.0);
@@ -1688,41 +2234,41 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             prop.pp_beacon_light[0] = pp_beacon_light;
             prop.pp_beacon_scene_node[0] = flare_scene_node;
             prop.pp_beacon_bbs[0] = flare_billboard_sys;
-            
+
         }
-        else if(def.special == RigDef::SpecialProp::LIGHTBAR)
+        else if (def.special == RigDef::SpecialProp::LIGHTBAR)
         {
             m_actor->ar_is_police = true;
-            prop.pp_beacon_type='p';
-            for (int k=0; k<4; k++)
+            prop.pp_beacon_type = 'p';
+            for (int k = 0; k < 4; k++)
             {
                 prop.pp_beacon_rot_angle[k] = 2.0 * 3.14 * frand();
                 prop.pp_beacon_rot_rate[k] = 4.0 * 3.14 + frand() - 0.5;
                 prop.pp_beacon_bbs[k] = nullptr;
                 //the light
-                prop.pp_beacon_light[k]=App::GetGfxScene()->GetSceneManager()->createLight();
+                prop.pp_beacon_light[k] = App::GetGfxScene()->GetSceneManager()->createLight();
                 prop.pp_beacon_light[k]->setType(Ogre::Light::LT_SPOTLIGHT);
-                if (k>1)
+                if (k > 1)
                 {
-                    prop.pp_beacon_light[k]->setDiffuseColour( Ogre::ColourValue(1.0, 0.0, 0.0));
-                    prop.pp_beacon_light[k]->setSpecularColour( Ogre::ColourValue(1.0, 0.0, 0.0));
+                    prop.pp_beacon_light[k]->setDiffuseColour(Ogre::ColourValue(1.0, 0.0, 0.0));
+                    prop.pp_beacon_light[k]->setSpecularColour(Ogre::ColourValue(1.0, 0.0, 0.0));
                 }
                 else
                 {
-                    prop.pp_beacon_light[k]->setDiffuseColour( Ogre::ColourValue(0.0, 0.5, 1.0));
-                    prop.pp_beacon_light[k]->setSpecularColour( Ogre::ColourValue(0.0, 0.5, 1.0));
+                    prop.pp_beacon_light[k]->setDiffuseColour(Ogre::ColourValue(0.0, 0.5, 1.0));
+                    prop.pp_beacon_light[k]->setSpecularColour(Ogre::ColourValue(0.0, 0.5, 1.0));
                 }
                 prop.pp_beacon_light[k]->setAttenuation(50.0, 1.0, 0.3, 0.0);
-                prop.pp_beacon_light[k]->setSpotlightRange( Ogre::Degree(35), Ogre::Degree(45) );
+                prop.pp_beacon_light[k]->setSpotlightRange(Ogre::Degree(35), Ogre::Degree(45));
                 prop.pp_beacon_light[k]->setCastShadows(false);
                 prop.pp_beacon_light[k]->setVisible(false);
                 //the flare billboard
                 prop.pp_beacon_scene_node[k] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                prop.pp_beacon_bbs[k]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
-                prop.pp_beacon_bbs[k]->createBillboard(0,0,0);
+                prop.pp_beacon_bbs[k] = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
+                prop.pp_beacon_bbs[k]->createBillboard(0, 0, 0);
                 if (prop.pp_beacon_bbs[k])
                 {
-                    if (k>1)
+                    if (k > 1)
                     {
                         prop.pp_beacon_bbs[k]->setMaterialName("tracks/brightredflare");
                     }
@@ -1749,263 +2295,295 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     m_curr_mirror_prop_scenenode = nullptr;
     m_curr_mirror_prop_type = CustomMaterial::MirrorPropType::MPROP_NONE;
 
-    /* PROCESS ANIMATIONS */
-
-    for (RigDef::Animation& anim_def: def.animations)
-    {
-        PropAnim anim;
-
-        /* Arg #1: ratio */
-        anim.animratio = anim_def.ratio;
-        if (anim_def.ratio == 0)
-        {
-            std::stringstream msg;
-            msg << "Prop (mesh: " << def.mesh_name << ") has invalid animation ratio (0), using it anyway (compatibility)...";
-            AddMessage(Message::TYPE_WARNING, msg.str());
-        }
-
-        /* Arg #2: option1 (lower limit) */
-        anim.lower_limit = anim_def.lower_limit; /* Handles default */
-
-        /* Arg #3: option2 (upper limit) */
-        anim.upper_limit = anim_def.upper_limit; /* Handles default */
-
-        /* Arg #4: source */
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_AIRSPEED)) { /* (NOTE: code formatting relaxed) */
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AIRSPEED);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_VERTICAL_VELOCITY)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_VVI);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ALTIMETER_100K)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ALTIMETER);
-            anim.animOpt3 = 1.f;
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ALTIMETER_10K)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ALTIMETER);
-            anim.animOpt3 = 2.f;
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ALTIMETER_1K)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ALTIMETER);
-            anim.animOpt3 = 3.f;
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ANGLE_OF_ATTACK)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AOA);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_FLAP)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_FLAP);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_AIR_BRAKE)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AIRBRAKE);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ROLL)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ROLL);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_PITCH)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_PITCH);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_BRAKES)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_BRAKE);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ACCEL)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ACCEL);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_CLUTCH)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_CLUTCH);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SPEEDO)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SPEEDO);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_TACHO)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_TACHO);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_TURBO)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_TURBO);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_PARKING)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_PBRAKE);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SHIFT_LEFT_RIGHT)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
-            anim.animOpt3 = 1.0f;
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SHIFT_BACK_FORTH)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
-            anim.animOpt3 = 2.0f;
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SEQUENTIAL_SHIFT)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
-            anim.animOpt3 = 3.0f;
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SHIFTERLIN)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
-            anim.animOpt3 = 4.0f;
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_TORQUE)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_TORQUE);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_HEADING)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_HEADING);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_DIFFLOCK)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_DIFFLOCK);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_STEERING_WHEEL)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_STEERING);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_AILERON)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AILERONS);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ELEVATOR)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ELEVATORS);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_AIR_RUDDER)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ARUDDER);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_BOAT_RUDDER)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_BRUDDER);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_BOAT_THROTTLE)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_BTHROTTLE);
-        }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_PERMANENT)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_PERMANENT);
-        }
-
-        /* Motor-indexed sources */
-        std::list<RigDef::Animation::MotorSource>::iterator source_itor = anim_def.motor_sources.begin();
-        for ( ; source_itor != anim_def.motor_sources.end(); source_itor++)
-        {
-            if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_THROTTLE)) {
-                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_THROTTLE);
-                anim.animOpt3 = static_cast<float>(source_itor->motor);
-            }
-            if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_RPM)) {
-                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_RPM);
-                anim.animOpt3 = static_cast<float>(source_itor->motor);
-            }
-            if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_TORQUE)) {
-                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AETORQUE);
-                anim.animOpt3 = static_cast<float>(source_itor->motor);
-            }
-            if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_PITCH)) {
-                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AEPITCH);
-                anim.animOpt3 = static_cast<float>(source_itor->motor);
-            }
-            if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_STATUS)) {
-                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AESTATUS);
-                anim.animOpt3 = static_cast<float>(source_itor->motor);
-            }
-        }
-        if (anim.animFlags == 0)
-        {
-            AddMessage(Message::TYPE_ERROR, "Failed to identify animation source");
-        }
-
-        /* Anim modes */
-        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_X)) {
-            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_ROTA_X);
-        }
-        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_Y)) {
-            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_ROTA_Y);
-        }
-        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_Z)) {
-            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_ROTA_Z);
-        }
-        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_X)) {
-            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_OFFSET_X);
-        }
-        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_Y)) {
-            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_OFFSET_Y);
-        }
-        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_Z)) {
-            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_OFFSET_Z);
-        }
-        if (anim.animMode == 0)
-        {
-            AddMessage(Message::TYPE_ERROR, "Failed to identify animation mode");
-        }
-
-        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_AUTO_ANIMATE)) 
-        {
-            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_AUTOANIMATE);
-
-            // Flag whether default lower and/or upper animation limit constraints are effective
-            const bool use_default_lower_limit = (anim_def.lower_limit == 0.f);
-            const bool use_default_upper_limit = (anim_def.upper_limit == 0.f);
-
-            if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_X)) {
-                anim.lower_limit = (use_default_lower_limit) ? (-180.f) : (anim_def.lower_limit + prop.pp_rota.x);
-                anim.upper_limit = (use_default_upper_limit) ? ( 180.f) : (anim_def.upper_limit + prop.pp_rota.x);
-            }
-            if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_Y)) {
-                anim.lower_limit = (use_default_lower_limit) ? (-180.f) : (anim_def.lower_limit + prop.pp_rota.y);
-                anim.upper_limit = (use_default_upper_limit) ? ( 180.f) : (anim_def.upper_limit + prop.pp_rota.y);
-            }
-            if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_Z)) {
-                anim.lower_limit = (use_default_lower_limit) ? (-180.f) : (anim_def.lower_limit + prop.pp_rota.z);
-                anim.upper_limit = (use_default_upper_limit) ? ( 180.f) : (anim_def.upper_limit + prop.pp_rota.z);
-            }
-            if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_X)) {
-                anim.lower_limit = (use_default_lower_limit) ? (-10.f) : (anim_def.lower_limit + prop.pp_offset_orig.x);
-                anim.upper_limit = (use_default_upper_limit) ? ( 10.f) : (anim_def.upper_limit + prop.pp_offset_orig.x);
-            }
-            if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_Y)) {
-                anim.lower_limit = (use_default_lower_limit) ? (-10.f) : (anim_def.lower_limit + prop.pp_offset_orig.y);
-                anim.upper_limit = (use_default_upper_limit) ? ( 10.f) : (anim_def.upper_limit + prop.pp_offset_orig.y);
-            }
-            if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_Z)) {
-                anim.lower_limit = (use_default_lower_limit) ? (-10.f) : (anim_def.lower_limit + prop.pp_offset_orig.z);
-                anim.upper_limit = (use_default_upper_limit) ? ( 10.f) : (anim_def.upper_limit + prop.pp_offset_orig.z);
-            }
-        }
-        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_NO_FLIP)) 
-        {
-            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_NOFLIP);
-        }
-        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_BOUNCE)) 
-        {
-            BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_BOUNCE);
-            anim.animOpt5 = 1.f;
-        }
-
-        // Parameter 'event:'
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_EVENT) &&
-            anim_def.event_name != "")
-        {
-            int event_id = RoR::App::GetInputEngine()->resolveEventName(anim_def.event_name);
-            if (event_id == -1)
-            {
-                AddMessage(Message::TYPE_ERROR, "Unknown animation event: " + anim_def.event_name);
-            }
-            else
-            {
-                PropAnimKeyState state;
-                state.eventlock_present = BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_EVENT_LOCK);
-                state.event_id = static_cast<events>(event_id);
-                m_actor->m_prop_anim_key_states.push_back(state);
-                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_EVENT);
-            }
-        }
-
-        prop.pp_animations.push_back(anim);
-    }
-
     m_actor->m_gfx_actor->m_props.push_back(prop);
 }
 
-void ActorSpawner::ProcessFlare3(RigDef::Flare3 & def)
+void ActorSpawner::ProcessPropCameraMode(RigDef::DataPos_t pos)
 {
-    // Do the common processing
-    this->ProcessFlare2(def);
+    if (m_actor->m_gfx_actor->m_props.size() == 0)
+    {
+        this->AddMessage(Message::TYPE_WARNING, "No prop to configure, ignoring");
+        return;
+    }
 
-    // Now setup the extra inertia feature
-    flare_t& f = m_actor->ar_flares.back();
-    f.uses_inertia = true;
-    this->_ProcessSimpleInertia(*def.inertia_defaults, f.inertia);
+    PropCameraMode const& def = m_document->prop_camera_mode[pos];
+
+    Prop& prop = m_actor->m_gfx_actor->m_props.back();
+    prop.pp_camera_mode_active = def.mode;
+    prop.pp_camera_mode_orig = def.mode;
 }
 
-void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
+void ActorSpawner::ProcessAddAnimation(DataPos_t pos)
+{
+    if (m_actor->m_gfx_actor->m_props.size() == 0)
+    {
+        this->AddMessage(Message::TYPE_WARNING, "No prop to animate, ignoring");
+        return;
+    }
+
+    Animation& anim_def = m_document->add_animation[pos];
+
+    Prop& prop = m_actor->m_gfx_actor->m_props.back();
+    PropAnim anim;
+
+    /* Arg #1: ratio */
+    anim.animratio = anim_def.ratio;
+    if (anim_def.ratio == 0)
+    {
+        this->AddMessage(Message::TYPE_WARNING, "Prop has invalid animation ratio (0), using it anyway (compatibility)...");
+    }
+
+    /* Arg #2: option1 (lower limit) */
+    anim.lower_limit = anim_def.lower_limit; /* Handles default */
+
+    /* Arg #3: option2 (upper limit) */
+    anim.upper_limit = anim_def.upper_limit; /* Handles default */
+
+    /* Arg #4: source */
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_AIRSPEED)) { /* (NOTE: code formatting relaxed) */
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AIRSPEED);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_VERTICAL_VELOCITY)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_VVI);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ALTIMETER_100K)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ALTIMETER);
+        anim.animOpt3 = 1.f;
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ALTIMETER_10K)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ALTIMETER);
+        anim.animOpt3 = 2.f;
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ALTIMETER_1K)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ALTIMETER);
+        anim.animOpt3 = 3.f;
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ANGLE_OF_ATTACK)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AOA);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_FLAP)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_FLAP);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_AIR_BRAKE)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AIRBRAKE);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ROLL)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ROLL);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_PITCH)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_PITCH);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_BRAKES)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_BRAKE);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ACCEL)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ACCEL);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_CLUTCH)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_CLUTCH);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SPEEDO)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SPEEDO);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_TACHO)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_TACHO);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_TURBO)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_TURBO);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_PARKING)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_PBRAKE);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SHIFT_LEFT_RIGHT)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
+        anim.animOpt3 = 1.0f;
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SHIFT_BACK_FORTH)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
+        anim.animOpt3 = 2.0f;
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SEQUENTIAL_SHIFT)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
+        anim.animOpt3 = 3.0f;
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SHIFTERLIN)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
+        anim.animOpt3 = 4.0f;
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_TORQUE)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_TORQUE);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_HEADING)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_HEADING);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_DIFFLOCK)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_DIFFLOCK);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_STEERING_WHEEL)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_STEERING);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_AILERON)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AILERONS);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_ELEVATOR)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ELEVATORS);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_AIR_RUDDER)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_ARUDDER);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_BOAT_RUDDER)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_BRUDDER);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_BOAT_THROTTLE)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_BTHROTTLE);
+    }
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_PERMANENT)) {
+        BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_PERMANENT);
+    }
+
+    /* Motor-indexed sources */
+    std::list<RigDef::Animation::MotorSource>::iterator source_itor = anim_def.motor_sources.begin();
+    for (; source_itor != anim_def.motor_sources.end(); source_itor++)
+    {
+        if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_THROTTLE)) {
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_THROTTLE);
+            anim.animOpt3 = static_cast<float>(source_itor->motor);
+        }
+        if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_RPM)) {
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_RPM);
+            anim.animOpt3 = static_cast<float>(source_itor->motor);
+        }
+        if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_TORQUE)) {
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AETORQUE);
+            anim.animOpt3 = static_cast<float>(source_itor->motor);
+        }
+        if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_PITCH)) {
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AEPITCH);
+            anim.animOpt3 = static_cast<float>(source_itor->motor);
+        }
+        if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_STATUS)) {
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AESTATUS);
+            anim.animOpt3 = static_cast<float>(source_itor->motor);
+        }
+    }
+    if (anim.animFlags == 0)
+    {
+        AddMessage(Message::TYPE_ERROR, "Failed to identify animation source");
+    }
+
+    /* Anim modes */
+    if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_X)) {
+        BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_ROTA_X);
+    }
+    if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_Y)) {
+        BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_ROTA_Y);
+    }
+    if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_Z)) {
+        BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_ROTA_Z);
+    }
+    if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_X)) {
+        BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_OFFSET_X);
+    }
+    if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_Y)) {
+        BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_OFFSET_Y);
+    }
+    if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_Z)) {
+        BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_OFFSET_Z);
+    }
+    if (anim.animMode == 0)
+    {
+        AddMessage(Message::TYPE_ERROR, "Failed to identify animation mode");
+    }
+
+    if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_AUTO_ANIMATE))
+    {
+        BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_AUTOANIMATE);
+
+        // Flag whether default lower and/or upper animation limit constraints are effective
+        const bool use_default_lower_limit = (anim_def.lower_limit == 0.f);
+        const bool use_default_upper_limit = (anim_def.upper_limit == 0.f);
+
+        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_X)) {
+            anim.lower_limit = (use_default_lower_limit) ? (-180.f) : (anim_def.lower_limit + prop.pp_rota.x);
+            anim.upper_limit = (use_default_upper_limit) ? (180.f) : (anim_def.upper_limit + prop.pp_rota.x);
+        }
+        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_Y)) {
+            anim.lower_limit = (use_default_lower_limit) ? (-180.f) : (anim_def.lower_limit + prop.pp_rota.y);
+            anim.upper_limit = (use_default_upper_limit) ? (180.f) : (anim_def.upper_limit + prop.pp_rota.y);
+        }
+        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_ROTATION_Z)) {
+            anim.lower_limit = (use_default_lower_limit) ? (-180.f) : (anim_def.lower_limit + prop.pp_rota.z);
+            anim.upper_limit = (use_default_upper_limit) ? (180.f) : (anim_def.upper_limit + prop.pp_rota.z);
+        }
+        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_X)) {
+            anim.lower_limit = (use_default_lower_limit) ? (-10.f) : (anim_def.lower_limit + prop.pp_offset_orig.x);
+            anim.upper_limit = (use_default_upper_limit) ? (10.f) : (anim_def.upper_limit + prop.pp_offset_orig.x);
+        }
+        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_Y)) {
+            anim.lower_limit = (use_default_lower_limit) ? (-10.f) : (anim_def.lower_limit + prop.pp_offset_orig.y);
+            anim.upper_limit = (use_default_upper_limit) ? (10.f) : (anim_def.upper_limit + prop.pp_offset_orig.y);
+        }
+        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_OFFSET_Z)) {
+            anim.lower_limit = (use_default_lower_limit) ? (-10.f) : (anim_def.lower_limit + prop.pp_offset_orig.z);
+            anim.upper_limit = (use_default_upper_limit) ? (10.f) : (anim_def.upper_limit + prop.pp_offset_orig.z);
+        }
+    }
+    if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_NO_FLIP))
+    {
+        BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_NOFLIP);
+    }
+    if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_BOUNCE))
+    {
+        BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_BOUNCE);
+        anim.animOpt5 = 1.f;
+    }
+
+    // Parameter 'event:'
+    if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_EVENT) &&
+        anim_def.event_name != "")
+    {
+        int event_id = RoR::App::GetInputEngine()->resolveEventName(anim_def.event_name);
+        if (event_id == -1)
+        {
+            AddMessage(Message::TYPE_ERROR, "Unknown animation event: " + anim_def.event_name);
+        }
+        else
+        {
+            PropAnimKeyState state;
+            state.eventlock_present = BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_EVENT_LOCK);
+            state.event_id = static_cast<events>(event_id);
+            m_actor->m_prop_anim_key_states.push_back(state);
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_EVENT);
+        }
+    }
+
+    prop.pp_animations.push_back(anim);
+}
+
+void ActorSpawner::ProcessFlare(DataPos_t pos)
+{
+    Flare2& def = m_document->flares[pos];
+    this->ProcessFlareCommon(def);
+}
+
+void ActorSpawner::ProcessFlare2(DataPos_t pos)
+{
+    Flare2& def = m_document->flares2[pos];
+    this->ProcessFlareCommon(def);
+}
+
+void ActorSpawner::ProcessFlare3(DataPos_t pos)
+{
+    Flare3& def = m_document->flares3[pos];
+    this->ProcessFlareCommon(def);
+
+    // setup the extra inertia feature
+    flare_t& f = m_actor->ar_flares.back();
+    f.uses_inertia = true;
+    this->_ProcessSimpleInertia(f.inertia);
+}
+
+void ActorSpawner::ProcessFlareCommon(Flare2& def)
 {
     if (m_actor->m_flares_mode == GfxFlaresMode::NONE) { return; }
 
@@ -2013,7 +2591,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     float size = def.size;
 
     /* Backwards compatibility */
-    if (blink_delay == -2) 
+    if (blink_delay == -2)
     {
         if (def.type == FlareType::BLINKER_LEFT || def.type == FlareType::BLINKER_RIGHT)
         {
@@ -2024,7 +2602,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             blink_delay = 0; /* Default no blink */
         }
     }
-    
+
     if (size == -2.f && def.type == FlareType::HEADLIGHT)
     {
         size = 1.f;
@@ -2035,18 +2613,18 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     }
 
     flare_t flare;
-    flare.fl_type              = def.type;
-    flare.controlnumber        = -1;
-    flare.blinkdelay           = (blink_delay == -1) ? 0.5f : blink_delay / 1000.f;
-    flare.blinkdelay_curr      = 0.f;
-    flare.blinkdelay_state     = false;
-    flare.noderef              = GetNodeIndexOrThrow(def.reference_node);
-    flare.nodex                = GetNodeIndexOrThrow(def.node_axis_x);
-    flare.nodey                = GetNodeIndexOrThrow(def.node_axis_y);
-    flare.offsetx              = def.offset.x;
-    flare.offsety              = def.offset.y;
-    flare.offsetz              = def.offset.z;
-    flare.size                 = size;
+    flare.fl_type = static_cast<FlareType>(def.type);
+    flare.controlnumber = def.control_number;
+    flare.blinkdelay = (blink_delay == -1) ? 0.5f : blink_delay / 1000.f;
+    flare.blinkdelay_curr = 0.f;
+    flare.blinkdelay_state = false;
+    flare.noderef = GetNodeIndexOrThrow(def.reference_node);
+    flare.nodex = GetNodeIndexOrThrow(def.node_axis_x);
+    flare.nodey = GetNodeIndexOrThrow(def.node_axis_y);
+    flare.offsetx = def.offset.x;
+    flare.offsety = def.offset.y;
+    flare.offsetz = def.offset.z;
+    flare.size = size;
 
     if (def.type == FlareType::USER)
     {
@@ -2106,7 +2684,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     }
     else
     {
-        flare.bbs->createBillboard(0,0,0);
+        flare.bbs->createBillboard(0, 0, 0);
         flare.bbs->setVisibilityFlags(DEPTHMAP_DISABLED);
         std::string material_name = def.material_name;
         if (using_default_material)
@@ -2180,37 +2758,38 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     {
         if (flare.fl_type == FlareType::TAIL_LIGHT)
         {
-            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
-            flare.light->setDiffuseColour( Ogre::ColourValue(1.0, 0, 0));
-            flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
+            flare.light = App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
+            flare.light->setDiffuseColour(Ogre::ColourValue(1.0, 0, 0));
+            flare.light->setSpecularColour(Ogre::ColourValue(1.0, 0, 0));
             flare.light->setAttenuation(10.0, 1.0, 0, 0);
         }
         else if (flare.fl_type == FlareType::REVERSE_LIGHT)
         {
-            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
+            flare.light = App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour(Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour(Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(20.0, 1, 0, 0);
         }
         else if (flare.fl_type == FlareType::BRAKE_LIGHT)
         {
-            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
-            flare.light->setDiffuseColour( Ogre::ColourValue(1.0, 0, 0));
-            flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
+            flare.light = App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
+            flare.light->setDiffuseColour(Ogre::ColourValue(1.0, 0, 0));
+            flare.light->setSpecularColour(Ogre::ColourValue(1.0, 0, 0));
             flare.light->setAttenuation(10.0, 1.0, 0, 0);
         }
         else if (flare.fl_type == FlareType::BLINKER_LEFT || (flare.fl_type == FlareType::BLINKER_RIGHT))
         {
-            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
-            flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 0));
-            flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 0));
+            flare.light = App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
+            flare.light->setDiffuseColour(Ogre::ColourValue(1, 1, 0));
+            flare.light->setSpecularColour(Ogre::ColourValue(1, 1, 0));
             flare.light->setAttenuation(10.0, 1, 1, 0);
         }
         else if (flare.fl_type == FlareType::USER)
         {
-            flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
-            flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));
-            flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 1));
+            /* user light always white (TODO: improve this) */
+            flare.light = App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
+            flare.light->setDiffuseColour(Ogre::ColourValue(1, 1, 1));
+            flare.light->setSpecularColour(Ogre::ColourValue(1, 1, 1));
             flare.light->setAttenuation(1.0, 1.0, 1, 0.2);
         }
         else if (flare.fl_type == FlareType::SIDELIGHT)
@@ -2226,13 +2805,13 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     if (flare.light != nullptr)
     {
         flare.light->setType(Ogre::Light::LT_SPOTLIGHT);
-        flare.light->setSpotlightRange( Ogre::Degree(35), Ogre::Degree(45) );
+        flare.light->setSpotlightRange(Ogre::Degree(35), Ogre::Degree(45));
         flare.light->setCastShadows(false);
     }
     m_actor->ar_flares.push_back(flare);
 }
 
-Ogre::MaterialPtr ActorSpawner::InstantiateManagedMaterial(Ogre::String const & source_name, Ogre::String const & clone_name)
+Ogre::MaterialPtr ActorSpawner::InstantiateManagedMaterial(Ogre::String const& source_name, Ogre::String const& clone_name)
 {
     Ogre::MaterialPtr src_mat = Ogre::MaterialManager::getSingleton().getByName(source_name);
     if (src_mat.isNull())
@@ -2246,8 +2825,10 @@ Ogre::MaterialPtr ActorSpawner::InstantiateManagedMaterial(Ogre::String const & 
     return src_mat->clone(clone_name, true, m_custom_resource_group);
 }
 
-void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
+void ActorSpawner::ProcessManagedMaterial(DataPos_t pos)
 {
+    ManagedMaterial def = m_document->managedmaterials[pos]; // Intentionally copying so that the resource checks below don't overwrite the document
+
     if (m_managed_materials.find(def.name) != m_managed_materials.end())
     {
         this->AddMessage(Message::TYPE_ERROR, "Duplicate managed material name: '" + def.name + "'. Ignoring definition...");
@@ -2432,7 +3013,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 
     if (def.type != RigDef::ManagedMaterialType::INVALID)
     {
-        if (def.options.double_sided)
+        if (m_state.managedmaterials_doublesided)
         {
             material->getTechnique("BaseTechnique")->getPass("BaseRender")->setCullingMode(Ogre::CULL_NONE);
             if (def.specular_map != "")
@@ -2455,22 +3036,23 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
     m_managed_materials.insert(std::make_pair(def.name, material));
 }
 
-void ActorSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
+void ActorSpawner::ProcessCollisionBox(DataPos_t pos)
 {
+    CollisionBox& def = m_document->collisionboxes[pos];
     int8_t bbox_id = static_cast<int8_t>(m_actor->ar_collision_bounding_boxes.size());
-    for (RigDef::Node::Ref& node_ref: def.nodes)
+    for (RigDef::NodeRef_t& node_ref : def.nodes)
     {
         NodeNum_t node = this->ResolveNodeRef(node_ref);
         if (node == NODENUM_INVALID)
         {
-            RoR::LogFormat("[RoR|Spawner] Collision box: skipping invalid node '%s'", node_ref.ToString().c_str());
+            RoR::LogFormat("[RoR|Spawner] Collision box: skipping invalid node '%s'", node_ref.c_str());
             continue;
         }
         if (m_actor->ar_nodes[node].nd_coll_bbox_id != node_t::INVALID_BBOX)
         {
             RoR::LogFormat("[RoR|Spawner] Collision box: re-assigning node '%s' from box ID '%d' to '%d'",
-                node_ref.ToString().c_str(),
                 m_actor->ar_nodes[node].nd_coll_bbox_id,
+                node_ref.c_str(),
                 bbox_id);
         }
         m_actor->ar_nodes[node].nd_coll_bbox_id = bbox_id;
@@ -2480,21 +3062,23 @@ void ActorSpawner::ProcessCollisionBox(RigDef::CollisionBox & def)
     m_actor->ar_predicted_coll_bounding_boxes.push_back(Ogre::AxisAlignedBox());
 }
 
-void ActorSpawner::ProcessCollisionRange(RigDef::CollisionRange & def)
+void ActorSpawner::ProcessCollisionRange(DataPos_t pos)
 {
+    RigDef::CollisionRange& def = m_document->set_collision_range[pos];
+
     if (def.node_collision_range >= 0.f)
         m_actor->ar_collision_range = def.node_collision_range;
     else
         m_actor->ar_collision_range = DEFAULT_COLLISION_RANGE;
 }
 
-bool ActorSpawner::AssignWheelToAxle(int & _out_axle_wheel, node_t *axis_node_1, node_t *axis_node_2)
+bool ActorSpawner::AssignWheelToAxle(int& _out_axle_wheel, node_t* axis_node_1, node_t* axis_node_2)
 {
     for (int i = 0; i < m_actor->ar_num_wheels; i++)
     {
-        wheel_t & wheel = m_actor->ar_wheels[i];
-        if	(	(wheel.wh_axis_node_0 == axis_node_1 && wheel.wh_axis_node_1 == axis_node_2)
-            ||	(wheel.wh_axis_node_0 == axis_node_2 && wheel.wh_axis_node_1 == axis_node_1)
+        wheel_t& wheel = m_actor->ar_wheels[i];
+        if ((wheel.wh_axis_node_0 == axis_node_1 && wheel.wh_axis_node_1 == axis_node_2)
+            || (wheel.wh_axis_node_0 == axis_node_2 && wheel.wh_axis_node_1 == axis_node_1)
             )
         {
             _out_axle_wheel = i;
@@ -2504,33 +3088,35 @@ bool ActorSpawner::AssignWheelToAxle(int & _out_axle_wheel, node_t *axis_node_1,
     return false;
 }
 
-void ActorSpawner::ProcessAxle(RigDef::Axle & def)
+void ActorSpawner::ProcessAxle(DataPos_t pos)
 {
-    if (! CheckAxleLimit(1))
+    Axle& def = m_document->axles[pos];
+
+    if (!CheckAxleLimit(1))
     {
         return;
     }
 
-    node_t *wheel_1_node_1 = GetNodePointerOrThrow(def.wheels[0][0]);
-    node_t *wheel_1_node_2 = GetNodePointerOrThrow(def.wheels[0][1]);
-    node_t *wheel_2_node_1 = GetNodePointerOrThrow(def.wheels[1][0]);
-    node_t *wheel_2_node_2 = GetNodePointerOrThrow(def.wheels[1][1]);
+    node_t* wheel_1_node_1 = GetNodePointerOrThrow(def.wheels[0][0]);
+    node_t* wheel_1_node_2 = GetNodePointerOrThrow(def.wheels[0][1]);
+    node_t* wheel_2_node_1 = GetNodePointerOrThrow(def.wheels[1][0]);
+    node_t* wheel_2_node_2 = GetNodePointerOrThrow(def.wheels[1][1]);
 
-    Differential *diff = new Differential();
+    Differential* diff = new Differential();
 
-    if (! AssignWheelToAxle(diff->di_idx_1, wheel_1_node_1, wheel_1_node_2))
+    if (!AssignWheelToAxle(diff->di_idx_1, wheel_1_node_1, wheel_1_node_2))
     {
         std::stringstream msg;
-        msg << "Couldn't find wheel with axis nodes '" << def.wheels[0][0].ToString()
-            << "' and '" << def.wheels[0][1].ToString() << "'";
+        msg << "Couldn't find wheel with axis nodes '" << def.wheels[0][0]
+            << "' and '" << def.wheels[0][1] << "'";
         AddMessage(Message::TYPE_WARNING, msg.str());
     }
 
-    if (! AssignWheelToAxle(diff->di_idx_2, wheel_2_node_1, wheel_2_node_2))
+    if (!AssignWheelToAxle(diff->di_idx_2, wheel_2_node_1, wheel_2_node_2))
     {
         std::stringstream msg;
-        msg << "Couldn't find wheel with axis nodes '" << def.wheels[1][0].ToString()
-            << "' and '" << def.wheels[1][1].ToString() << "'";
+        msg << "Couldn't find wheel with axis nodes '" << def.wheels[1][0]
+            << "' and '" << def.wheels[1][1] << "'";
         AddMessage(Message::TYPE_WARNING, msg.str());
     }
 
@@ -2570,9 +3156,11 @@ void ActorSpawner::ProcessAxle(RigDef::Axle & def)
     m_actor->m_num_wheel_diffs++;
 }
 
-void ActorSpawner::ProcessInterAxle(RigDef::InterAxle & def)
+void ActorSpawner::ProcessInterAxle(DataPos_t pos)
 {
-    if (def.a1 == def.a2 || std::min(def.a1, def.a2) < 0 || std::max(def.a1 , def.a2) >= m_actor->m_num_wheel_diffs)
+    InterAxle& def = m_document->interaxles[pos];
+
+    if (def.a1 == def.a2 || std::min(def.a1, def.a2) < 0 || std::max(def.a1, def.a2) >= m_actor->m_num_wheel_diffs)
     {
         AddMessage(Message::TYPE_ERROR, "Invalid 'interaxle' axle ids, skipping...");
         return;
@@ -2588,7 +3176,7 @@ void ActorSpawner::ProcessInterAxle(RigDef::InterAxle & def)
         }
     }
 
-    Differential *diff = new Differential();
+    Differential* diff = new Differential();
 
     diff->di_idx_1 = def.a1;
     diff->di_idx_2 = def.a2;
@@ -2600,7 +3188,7 @@ void ActorSpawner::ProcessInterAxle(RigDef::InterAxle & def)
     }
     else
     {
-        for (RigDef::DifferentialType val: def.options)
+        for (RigDef::DifferentialType val : def.options)
         {
             switch (val)
             {
@@ -2627,9 +3215,11 @@ void ActorSpawner::ProcessInterAxle(RigDef::InterAxle & def)
     m_actor->m_num_axle_diffs++;
 }
 
-void ActorSpawner::ProcessTransferCase(RigDef::TransferCase & def)
+void ActorSpawner::ProcessTransferCase(DataPos_t pos)
 {
-    if (def.a1 == def.a2 || def.a1 < 0 || std::max(def.a1 , def.a2) >= m_actor->m_num_wheel_diffs)
+    RigDef::TransferCase& def = m_document->transfercase[pos];
+
+    if (def.a1 == def.a2 || def.a1 < 0 || std::max(def.a1, def.a2) >= m_actor->m_num_wheel_diffs)
     {
         AddMessage(Message::TYPE_ERROR, "Invalid 'transfercase' axle ids, skipping...");
         return;
@@ -2665,33 +3255,38 @@ void ActorSpawner::ProcessTransferCase(RigDef::TransferCase & def)
     }
 }
 
-void ActorSpawner::ProcessCruiseControl(RigDef::CruiseControl & def)
+void ActorSpawner::ProcessCruiseControl(DataPos_t pos)
 {
+    CruiseControl& def = m_document->cruisecontrol[pos];
+
     m_actor->cc_target_speed_lower_limit = def.min_speed;
     if (m_actor->cc_target_speed_lower_limit <= 0.f)
     {
         std::stringstream msg;
-        msg << "Invalid parameter 'lower_limit' (" << m_actor->cc_target_speed_lower_limit 
+        msg << "Invalid parameter 'lower_limit' (" << m_actor->cc_target_speed_lower_limit
             << ") must be positive nonzero number. Using it anyway (compatibility)";
     }
     m_actor->cc_can_brake = def.autobrake != 0;
 }
 
-void ActorSpawner::ProcessSpeedLimiter(RigDef::SpeedLimiter& def)
+void ActorSpawner::ProcessSpeedLimiter(DataPos_t pos)
 {
-    m_actor->sl_enabled = true;
+    SpeedLimiter& def = m_document->speedlimiter[pos];
+
     m_actor->sl_speed_limit = def.max_speed;
 }
 
-void ActorSpawner::ProcessTorqueCurve(RigDef::TorqueCurve & def)
+void ActorSpawner::ProcessTorqueCurve(DataPos_t pos)
 {
+    RigDef::TorqueCurve& def = m_document->torquecurve[pos];
+
     if (m_actor->ar_engine == nullptr)
     {
         AddMessage(Message::TYPE_WARNING, "Section 'torquecurve' found but no 'engine' defined, skipping...");
         return;
     }
 
-    TorqueCurve *target_torque_curve = m_actor->ar_engine->getTorqueCurve();
+    TorqueCurve* target_torque_curve = m_actor->ar_engine->getTorqueCurve();
 
     if (def.predefined_func_name.length() != 0)
     {
@@ -2700,23 +3295,23 @@ void ActorSpawner::ProcessTorqueCurve(RigDef::TorqueCurve & def)
     else
     {
         target_torque_curve->CreateNewCurve(); /* Use default name for custom curve */
-        std::vector<RigDef::TorqueCurve::Sample>::iterator itor = def.samples.begin();
-        for ( ; itor != def.samples.end(); itor++)
-        {
-            target_torque_curve->AddCurveSample(itor->power, itor->torque_percent);
-        }
+
+        target_torque_curve->AddCurveSample(def.sample.power, def.sample.torque_percent);
+
     }
 }
 
-void ActorSpawner::ProcessParticle(RigDef::Particle & def)
+void ActorSpawner::ProcessParticle(DataPos_t pos)
 {
+    Particle& def = m_document->particles[pos];
+
     if (App::gfx_particles_mode->getInt() != 1)
     {
         return;
     }
 
     int particle_index = m_actor->ar_num_custom_particles;
-    cparticle_t & particle = m_actor->ar_custom_particles[particle_index];
+    cparticle_t& particle = m_actor->ar_custom_particles[particle_index];
 
     particle.emitterNode = GetNodeIndexOrThrow(def.emitter_node);
     particle.directionNode = GetNodeIndexOrThrow(def.reference_node);
@@ -2726,7 +3321,7 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
     if (particle.psys == nullptr)
     {
         std::stringstream msg;
-        msg << "Failed to create particle system '" << name << "' (template: '" << def.particle_system_name <<"')";
+        msg << "Failed to create particle system '" << name << "' (template: '" << def.particle_system_name << "')";
         AddMessage(Message::TYPE_ERROR, msg.str());
         return;
     }
@@ -2736,7 +3331,7 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
     particle.snode->setPosition(m_actor->ar_nodes[particle.emitterNode].AbsPosition);
 
     /* Shut down the emitters */
-    particle.active = false; 
+    particle.active = false;
     for (unsigned int i = 0; i < particle.psys->getNumEmitters(); i++)
     {
         particle.psys->getEmitter(i)->setEnabled(false);
@@ -2745,8 +3340,10 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
     ++m_actor->ar_num_custom_particles;
 }
 
-void ActorSpawner::ProcessRopable(RigDef::Ropable & def)
+void ActorSpawner::ProcessRopable(DataPos_t pos)
 {
+    Ropable& def = m_document->ropables[pos];
+
     ropable_t ropable;
     ropable.node = GetNodePointerOrThrow(def.node);
     ropable.pos = static_cast<int>(m_actor->ar_ropables.size());
@@ -2757,16 +3354,17 @@ void ActorSpawner::ProcessRopable(RigDef::Ropable & def)
     m_actor->ar_ropables.push_back(ropable);
 }
 
-void ActorSpawner::ProcessTie(RigDef::Tie & def)
+void ActorSpawner::ProcessTie(DataPos_t pos)
 {
-    node_t & node_1 = m_actor->ar_nodes[GetNodeIndexOrThrow(def.root_node)];
-    node_t & node_2 = m_actor->ar_nodes[( (node_1.pos == 0) ? 1 : 0 )];
+    Tie& def = m_document->ties[pos];
+    node_t& node_1 = m_actor->ar_nodes[GetNodeIndexOrThrow(def.root_node)];
+    node_t& node_2 = m_actor->ar_nodes[((node_1.pos == 0) ? 1 : 0)];
 
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
-    beam.k = def.beam_defaults->GetScaledSpringiness();
-    beam.d = def.beam_defaults->GetScaledDamping();
+    beam_t& beam = AddBeam(node_1, node_2);
+    beam.strength = m_state.default_break * m_state.default_break_scale;
+    beam.k = m_state.default_spring * m_state.default_spring_scale;
+    beam.d = m_state.default_damp * m_state.default_damp_scale;
     beam.bm_type = BEAM_HYDRO;
     beam.L = def.max_reach_length;
     beam.refL = def.max_reach_length;
@@ -2775,7 +3373,7 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
 
     if (BITMASK_IS_0(def.options, RigDef::Tie::OPTION_i_INVISIBLE))
     {
-        this->CreateBeamVisuals(beam, beam_index, false, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, false);
     }
 
     /* Register tie */
@@ -2783,8 +3381,8 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     tie.ti_group = def.group;
     tie.ti_tying = false;
     tie.ti_tied = false;
-    tie.ti_beam = & beam;
-    tie.ti_locked_actor   = nullptr;
+    tie.ti_beam = &beam;
+    tie.ti_locked_actor = nullptr;
     tie.ti_locked_ropable = nullptr;
     tie.ti_contract_speed = def.auto_shorten_rate;
     tie.ti_max_stress = def.max_stress;
@@ -2795,51 +3393,57 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     m_actor->m_has_command_beams = true;
 }
 
-void ActorSpawner::ProcessRope(RigDef::Rope & def)
+void ActorSpawner::ProcessRope(DataPos_t pos)
 {
-    node_t & root_node = m_actor->ar_nodes[GetNodeIndexOrThrow(def.root_node)];
-    node_t & end_node = m_actor->ar_nodes[GetNodeIndexOrThrow(def.end_node)];
+    Rope& def = m_document->ropes[pos];
+
+    node_t& root_node = m_actor->ar_nodes[GetNodeIndexOrThrow(def.root_node)];
+    node_t& end_node = m_actor->ar_nodes[GetNodeIndexOrThrow(def.end_node)];
 
     /* Add beam */
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(root_node, end_node, def.beam_defaults, def.detacher_group);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
-    beam.k = def.beam_defaults->GetScaledSpringiness();
-    beam.d = def.beam_defaults->GetScaledDamping();
+    beam_t& beam = AddBeam(root_node, end_node);
+    beam.strength = m_state.default_break * m_state.default_break_scale;
+    beam.k = m_state.default_spring * m_state.default_spring_scale;
+    beam.d = m_state.default_damp * m_state.default_damp_scale;
     beam.bounded = ROPE;
     beam.bm_type = BEAM_HYDRO;
     beam.L = root_node.AbsPosition.distance(end_node.AbsPosition);
     beam.refL = beam.L;
 
-    this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults, "tracks/beam");
+    this->CreateBeamVisuals(beam, beam_index, true, "tracks/beam");
 
     /* Register rope */
     rope_t rope;
-    rope.rp_beam = & beam;
+    rope.rp_beam = &beam;
     rope.rp_locked = UNLOCKED;
     rope.rp_locked_ropable = nullptr;
     rope.rp_group = 0; // Orig: hardcoded in BTS_ROPES. TODO: To be used.
     m_actor->ar_ropes.push_back(rope);
 }
 
-void ActorSpawner::ProcessRailGroup(RigDef::RailGroup & def)
+void ActorSpawner::ProcessRailGroup(DataPos_t pos)
 {
+    RigDef::RailGroup& def = m_document->railgroups[pos];
+
     RailGroup* rail_group = this->CreateRail(def.node_list);
     rail_group->rg_id = def.id;
     m_actor->m_railgroups.push_back(rail_group);
 }
 
-void ActorSpawner::ProcessSlidenode(RigDef::SlideNode & def)
+void ActorSpawner::ProcessSlidenode(DataPos_t pos)
 {
-    node_t & node = m_actor->ar_nodes[GetNodeIndexOrThrow(def.slide_node)];
-    SlideNode slide_node(& node, nullptr);
+    RigDef::SlideNode& def = m_document->slidenodes[pos];
+
+    node_t& node = m_actor->ar_nodes[GetNodeIndexOrThrow(def.slide_node)];
+    SlideNode slide_node(&node, nullptr);
 
     // Optional args
-    if (def._spring_rate_set)      { slide_node.SetSpringRate(def.spring_rate); }
-    if (def._break_force_set)      { slide_node.SetBreakForce(def.break_force); }
-    if (def._tolerance_set)        { slide_node.SetCorThreshold(def.tolerance); }
-    if (def._attachment_rate_set)  { slide_node.SetAttachmentRate(def.attachment_rate); }
-    if (def._max_attach_dist_set)  { slide_node.SetAttachmentDistance(def.max_attach_dist); }
+    if (def._spring_rate_set) { slide_node.SetSpringRate(def.spring_rate); }
+    if (def._break_force_set) { slide_node.SetBreakForce(def.break_force); }
+    if (def._tolerance_set) { slide_node.SetCorThreshold(def.tolerance); }
+    if (def._attachment_rate_set) { slide_node.SetAttachmentRate(def.attachment_rate); }
+    if (def._max_attach_dist_set) { slide_node.SetAttachmentDistance(def.max_attach_dist); }
 
     // Constraints
     if (BITMASK_IS_1(def.constraint_flags, RigDef::SlideNode::CONSTRAINT_ATTACH_ALL))
@@ -2864,11 +3468,11 @@ void ActorSpawner::ProcessSlidenode(RigDef::SlideNode & def)
     }
 
     // RailGroup
-    RailGroup *rail_group = nullptr;
+    RailGroup* rail_group = nullptr;
     if (def._railgroup_id_set)
     {
         std::vector<RailGroup*>::iterator itor = m_actor->m_railgroups.begin();
-        for ( ; itor != m_actor->m_railgroups.end(); itor++)
+        for (; itor != m_actor->m_railgroups.end(); itor++)
         {
             if ((*itor)->rg_id == def.railgroup_id)
             {
@@ -2902,89 +3506,56 @@ void ActorSpawner::ProcessSlidenode(RigDef::SlideNode & def)
     m_actor->m_slidenodes.push_back(slide_node);
 }
 
-NodeNum_t ActorSpawner::FindNodeIndex(RigDef::Node::Ref & node_ref, bool silent /* = false */)
+void ActorSpawner::ResolveNodeRanges(
+    std::vector<NodeNum_t>& out_nodes,
+    std::vector<RigDef::NodeRange>& in_ranges)
 {
-    NodeNum_t node = ResolveNodeRef(node_ref);
-    if (node == NODENUM_INVALID && !silent)
+    for (NodeRange& range : in_ranges)
     {
-        std::stringstream msg;
-        msg << "Failed to find node by reference: " << node_ref.ToString();
-        AddMessage(Message::TYPE_ERROR, msg.str());
-    }
-    return node;
-}
+        NodeNum_t first = this->ResolveNodeRef(range.start);
+        NodeNum_t last = this->ResolveNodeRef(range.end);
 
-bool ActorSpawner::CollectNodesFromRanges(
-    std::vector<RigDef::Node::Range> & node_ranges,
-    std::vector<NodeNum_t> & out_node_indices
-    )
-{
-    std::vector<RigDef::Node::Range>::iterator itor = node_ranges.begin();
-    for ( ; itor != node_ranges.end(); itor++)
-    {
-        if (itor->IsRange())
+        if (first == NODENUM_INVALID)
         {
-
-            NodeNum_t start = FindNodeIndex(itor->start, /* silent= */ false);
-            if (start == NODENUM_INVALID)
-            {
-                AddMessage(Message::TYPE_WARNING, fmt::format("Invalid start node in range: {}", itor->start.ToString()));
-                return false;
-            }
-
-            NodeNum_t end = FindNodeIndex(itor->end,   /* silent= */ true);
-
-            if (end == NODENUM_INVALID)
-            {
-                std::stringstream msg;
-                msg << "Encountered non-existent node '" << itor->end.ToString() << "' in range [" << itor->start.ToString() << " - " << itor->end.ToString() << "], "
-                    << "highest node index is '" << m_actor->ar_num_nodes - 1 << "'.";
-
-                if (itor->end.Str().empty()) /* If the node is numeric... */
-                {
-                    msg << " However, this node must be accepted anyway for backwards compatibility."
-                        << " Please fix this as soon as possible.";
-                    end = itor->end.Num();
-                    AddMessage(Message::TYPE_ERROR, msg.str());
-                }
-                else
-                {
-                    AddMessage(Message::TYPE_ERROR, msg.str());
-                    return false;
-                }
-            }
-
-            if (end < start)
-            {
-                NodeNum_t swap = start;
-                start = end;
-                end = swap;
-            }
-
-            for (NodeNum_t i = start; i <= end; i++)
-            {
-                out_node_indices.push_back(i);
-            }
+            this->AddMessage(Message::TYPE_ERROR, 
+                fmt::format("Bad node range <{} - {}>, the start node '{}' doesn't exist (highest existing number: {}). Ignoring whole range.",
+                    range.start, range.start, range.end, m_actor->ar_num_nodes-1));
+            continue;
         }
-        else
+
+        if (last == NODENUM_INVALID)
         {
-            out_node_indices.push_back(GetNodeIndexOrThrow(itor->start));
+            this->AddMessage(Message::TYPE_WARNING,
+                fmt::format("Bad node range <{} - {}>, the end node '{}' doesn't exist (highest existing number: {}). Accepting range anyway for backwards compatibility, please fix.",
+                    range.start, range.end, range.end, m_actor->ar_num_nodes - 1));
+            last = static_cast<NodeNum_t>(PARSEINT(range.end));
+        }
+
+        if (first > last)
+        {
+            NodeNum_t swap = first;
+            first = last;
+            last = swap;
+        }
+
+        for (NodeNum_t num = first; num <= last; num++)
+        {
+            out_nodes.push_back(num);
         }
     }
-    return true;
 }
 
-RailGroup *ActorSpawner::CreateRail(std::vector<RigDef::Node::Range> & node_ranges)
+RoR::RailGroup* ActorSpawner::CreateRail(std::vector<RigDef::NodeRange>& node_ranges)
 {
     // Collect nodes
     std::vector<NodeNum_t> node_indices;
-    this->CollectNodesFromRanges(node_ranges, node_indices);
+    this->ResolveNodeRanges(node_indices, node_ranges);
 
     // Build the rail
     RailGroup* rg = new RailGroup();
     for (unsigned int i = 0; i < node_indices.size() - 1; i++)
     {
-        beam_t *beam = FindBeamInRig(node_indices[i], node_indices[i + 1]);
+        beam_t* beam = FindBeamInRig(node_indices[i], node_indices[i + 1]);
         if (beam == nullptr)
         {
             std::stringstream msg;
@@ -3020,35 +3591,37 @@ RailGroup *ActorSpawner::CreateRail(std::vector<RigDef::Node::Range> & node_rang
     return rg; // Transfers memory ownership
 }
 
-beam_t *ActorSpawner::FindBeamInRig(NodeNum_t node_a_index, NodeNum_t node_b_index)
+beam_t* ActorSpawner::FindBeamInRig(NodeNum_t node_a_index, NodeNum_t node_b_index)
 {
-    node_t *node_a = & m_actor->ar_nodes[node_a_index];
-    node_t *node_b = & m_actor->ar_nodes[node_b_index];
+    node_t* node_a = &m_actor->ar_nodes[node_a_index];
+    node_t* node_b = &m_actor->ar_nodes[node_b_index];
 
     for (unsigned int i = 0; i < static_cast<unsigned int>(m_actor->ar_num_beams); i++)
     {
-        if	(
-                (GetBeam(i).p1 == node_a && GetBeam(i).p2 == node_b)
-            ||	(GetBeam(i).p2 == node_a && GetBeam(i).p1 == node_b)
+        if (
+            (GetBeam(i).p1 == node_a && GetBeam(i).p2 == node_b)
+            || (GetBeam(i).p2 == node_a && GetBeam(i).p1 == node_b)
             )
         {
-            return & GetBeam(i);
+            return &GetBeam(i);
         }
     }
     return nullptr;
 }
 
-void ActorSpawner::ProcessHook(RigDef::Hook & def)
+void ActorSpawner::ProcessHook(DataPos_t pos)
 {
+    Hook& def = m_document->hooks[pos];
+
     /* Find the node */
-    node_t *node = GetNodePointer(def.node);
-    if (node ==  nullptr)
+    node_t* node = GetNodePointer(def.node);
+    if (node == nullptr)
     {
         return;
     }
 
     /* Find the hook */
-    hook_t *hook = nullptr;
+    hook_t* hook = nullptr;
     std::vector <hook_t>::iterator itor = m_actor->ar_hooks.begin();
     for (; itor != m_actor->ar_hooks.end(); itor++)
     {
@@ -3062,7 +3635,7 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
     if (hook == nullptr)
     {
         std::stringstream msg;
-        msg << "Node '" << def.node.ToString() << "' is not a hook-node (not marked with flag 'h'), ignoring...";
+        msg << "Node '" << def.node << "' is not a hook-node (not marked with flag 'h'), ignoring...";
         AddMessage(Message::TYPE_ERROR, msg.str());
         return;
     }
@@ -3070,14 +3643,14 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
     /* Process options */
     hook->hk_lockrange = def.option_hook_range;
     hook->hk_lockspeed = def.option_speed_coef * HOOK_SPEED_DEFAULT;
-    hook->hk_maxforce  = def.option_max_force;
-    hook->hk_group     = def.option_hookgroup;
+    hook->hk_maxforce = def.option_max_force;
+    hook->hk_group = def.option_hookgroup;
     hook->hk_lockgroup = def.option_lockgroup;
-    hook->hk_timer     = 0.f; // Hardcoded in BTS_HOOKS
+    hook->hk_timer = 0.f; // Hardcoded in BTS_HOOKS
     hook->hk_timer_preset = def.option_timer;
     hook->hk_min_length = def.option_min_range_meters;
-    hook->hk_selflock   = def.flag_self_lock;
-    hook->hk_nodisable  = def.flag_no_disable;
+    hook->hk_selflock = def.flag_self_lock;
+    hook->hk_nodisable = def.flag_no_disable;
     if (def.flag_auto_lock)
     {
         hook->hk_autolock = true;
@@ -3088,7 +3661,7 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
     }
     if (def.flag_no_rope)
     {
-        hook->hk_beam->bounded = NOSHOCK;
+        hook->hk_beam->bounded = SpecialBeam::NOSHOCK; // regular beam.
     }
     if (!def.flag_visible) // NOTE: This flag can only hide a visible beam - it won't show a beam defined with 'invisible' flag.
     {
@@ -3108,20 +3681,28 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
     }
 }
 
-void ActorSpawner::ProcessLockgroup(RigDef::Lockgroup & lockgroup)
+void ActorSpawner::ProcessLockgroup(DataPos_t pos)
 {
-    auto itor = lockgroup.nodes.begin();
-    auto end  = lockgroup.nodes.end();
+    Lockgroup& def = m_document->lockgroups[pos];
+
+    auto itor = def.nodes.begin();
+    auto end = def.nodes.end();
     for (; itor != end; ++itor)
     {
         NodeNum_t node = this->GetNodeIndexOrThrow(*itor);
-        m_actor->ar_nodes[node].nd_lockgroup = lockgroup.number;
+        m_actor->ar_nodes[node].nd_lockgroup = def.number;
     }
 }
 
-void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
+void ActorSpawner::ProcessTrigger(DataPos_t pos)
 {
-    shock_t & shock = this->GetFreeShock();
+    Trigger& def = m_document->triggers[pos];
+    if (!this->ValidateTrigger(def))
+    {
+        return;
+    }
+
+    shock_t& shock = this->GetFreeShock();
 
     // Disable trigger on startup? (default enabled)
     shock.trigger_enabled = BITMASK_IS_0(def.options, RigDef::Trigger::OPTION_x_START_DISABLED);
@@ -3176,7 +3757,7 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
         if (def.shortbound_trigger_action < 1 || def.shortbound_trigger_action > MAX_COMMANDS)
         {
             std::stringstream msg;
-            msg << "Invalid value of 'shortbound_trigger_action': '" << def.shortbound_trigger_action << "'. Must be between 1 and "<<MAX_COMMANDS<<". Ignoring trigger.";
+            msg << "Invalid value of 'shortbound_trigger_action': '" << def.shortbound_trigger_action << "'. Must be between 1 and " << MAX_COMMANDS << ". Ignoring trigger.";
             AddMessage(Message::TYPE_ERROR, msg.str());
             return;
         }
@@ -3199,17 +3780,17 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
         }
     }
 
-    const NodeNum_t node_1_index = FindNodeIndex(def.nodes[0]);
-    const NodeNum_t node_2_index = FindNodeIndex(def.nodes[1]);
+    const NodeNum_t node_1_index = this->ResolveNodeRef(def.nodes[0]);
+    const NodeNum_t node_2_index = this->ResolveNodeRef(def.nodes[1]);
     if (node_1_index == NODENUM_INVALID || node_2_index == NODENUM_INVALID)
     {
         this->AddMessage(Message::TYPE_WARNING, "Skipping trigger, some nodes not found");
         return;
     }
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(m_actor->ar_nodes[node_1_index], m_actor->ar_nodes[node_2_index], def.beam_defaults, def.detacher_group);
+    beam_t& beam = this->AddBeam(m_actor->ar_nodes[node_1_index], m_actor->ar_nodes[node_2_index]);
     beam.bm_type = BEAM_HYDRO;
-    SetBeamStrength(beam, def.beam_defaults->breaking_threshold);
+    beam.strength = m_state.default_break * m_state.default_break_scale;
     SetBeamSpring(beam, 0.f);
     SetBeamDamping(beam, 0.f);
     CalculateBeamLength(beam);
@@ -3220,7 +3801,7 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
 
     if (BITMASK_IS_0(def.options, RigDef::Trigger::OPTION_i_INVISIBLE))
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 
     if (m_actor->m_trigger_debug_enabled)
@@ -3244,8 +3825,8 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
             // this is a commandkeyblocker
             shock_flags |= SHOCK_FLAG_TRG_CMD_BLOCKER;
         }
-    } 
-    else 
+    }
+    else
     {
         // this is a trigger_blocker
         if (!BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_A_INV_TRIGGER_BLOCKER))
@@ -3253,14 +3834,14 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
             //normal BLOCKER
             shock_flags |= SHOCK_FLAG_TRG_BLOCKER;
             shock.trigger_cmdshort = def.shortbound_trigger_action;
-            shock.trigger_cmdlong  = def.longbound_trigger_action;
-        } 
+            shock.trigger_cmdlong = def.longbound_trigger_action;
+        }
         else
         {
             //inverted BLOCKER
             shock_flags |= SHOCK_FLAG_TRG_BLOCKER_A;
             shock.trigger_cmdshort = def.shortbound_trigger_action;
-            shock.trigger_cmdlong  = def.longbound_trigger_action;
+            shock.trigger_cmdlong = def.longbound_trigger_action;
         }
     }
 
@@ -3274,28 +3855,29 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     }
 
     shock.trigger_boundary_t = def.boundary_timer;
-    shock.flags              = shock_flags;
-    shock.sbd_spring         = def.beam_defaults->springiness;
-    shock.sbd_damp           = def.beam_defaults->damping_constant;
-    shock.last_debug_state   = 0;
-    
+    shock.flags = shock_flags;
+    shock.sbd_spring = m_state.default_spring;
+    shock.sbd_damp = m_state.default_damp;
+    shock.last_debug_state = 0;
+
 }
 
-void ActorSpawner::ProcessContacter(RigDef::Node::Ref & node_ref)
+void ActorSpawner::ProcessContacter(DataPos_t pos)
 {
-    unsigned int node_index = GetNodeIndexOrThrow(node_ref);
+    unsigned int node_index = GetNodeIndexOrThrow(m_document->contacters[pos]);
     m_actor->ar_nodes[node_index].nd_contacter = true;
 };
 
-void ActorSpawner::ProcessRotator(RigDef::Rotator & def)
+void ActorSpawner::ProcessRotator(DataPos_t pos)
 {
-    rotator_t & rotator = m_actor->ar_rotators[m_actor->ar_num_rotators];
+    Rotator& def = m_document->rotators[pos];
+    rotator_t& rotator = m_actor->ar_rotators[m_actor->ar_num_rotators];
 
-    rotator.angle     = 0;
-    rotator.rate      = def.rate;
-    rotator.axis1     = GetNodeIndexOrThrow(def.axis_nodes[0]);
-    rotator.axis2     = GetNodeIndexOrThrow(def.axis_nodes[1]);
-    rotator.force     = ROTATOR_FORCE_DEFAULT;
+    rotator.angle = 0;
+    rotator.rate = def.rate;
+    rotator.axis1 = GetNodeIndexOrThrow(def.axis_nodes[0]);
+    rotator.axis2 = GetNodeIndexOrThrow(def.axis_nodes[1]);
+    rotator.force = ROTATOR_FORCE_DEFAULT;
     rotator.tolerance = ROTATOR_TOLERANCE_DEFAULT;
     rotator.engine_coupling = def.engine_coupling;
     rotator.needs_engine = def.needs_engine;
@@ -3309,29 +3891,31 @@ void ActorSpawner::ProcessRotator(RigDef::Rotator & def)
     this->ValidateRotator(m_actor->ar_num_rotators + 1, rotator.axis1, rotator.axis2, rotator.nodes1, rotator.nodes2);
 
     // Rotate left key
-    m_actor->ar_command_key[def.spin_left_key].rotators.push_back(- (m_actor->ar_num_rotators + 1));
+    m_actor->ar_command_key[def.spin_left_key].rotators.push_back(-(m_actor->ar_num_rotators + 1));
     m_actor->ar_command_key[def.spin_left_key].description = "Rotate_Left/Right";
 
     // Rotate right key
     m_actor->ar_command_key[def.spin_right_key].rotators.push_back(m_actor->ar_num_rotators + 1);
 
-    this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults,
-                             m_actor->ar_command_key[def.spin_left_key].rotator_inertia,
-                             m_actor->ar_command_key[def.spin_right_key].rotator_inertia);
+    this->_ProcessKeyInertia(def.inertia,
+        m_actor->ar_command_key[def.spin_left_key].rotator_inertia,
+        m_actor->ar_command_key[def.spin_right_key].rotator_inertia);
 
     m_actor->ar_num_rotators++;
     m_actor->m_has_command_beams = true;
 }
 
-void ActorSpawner::ProcessRotator2(RigDef::Rotator2 & def)
+void ActorSpawner::ProcessRotator2(DataPos_t pos)
 {
-    rotator_t & rotator = m_actor->ar_rotators[m_actor->ar_num_rotators];
+    Rotator2& def = m_document->rotators2[pos];
+
+    rotator_t& rotator = m_actor->ar_rotators[m_actor->ar_num_rotators];
 
     rotator.angle = 0;
     rotator.rate = def.rate;
     rotator.axis1 = GetNodeIndexOrThrow(def.axis_nodes[0]);
-    rotator.axis2     = GetNodeIndexOrThrow(def.axis_nodes[1]);
-    rotator.force     = def.rotating_force; // Default value is set in constructor
+    rotator.axis2 = GetNodeIndexOrThrow(def.axis_nodes[1]);
+    rotator.force = def.rotating_force; // Default value is set in constructor
     rotator.tolerance = def.tolerance; // Default value is set in constructor
     rotator.engine_coupling = def.engine_coupling;
     rotator.needs_engine = def.needs_engine;
@@ -3345,8 +3929,8 @@ void ActorSpawner::ProcessRotator2(RigDef::Rotator2 & def)
     this->ValidateRotator(m_actor->ar_num_rotators + 1, rotator.axis1, rotator.axis2, rotator.nodes1, rotator.nodes2);
 
     // Rotate left key
-    m_actor->ar_command_key[def.spin_left_key].rotators.push_back(- (m_actor->ar_num_rotators + 1));
-    if (! def.description.empty())
+    m_actor->ar_command_key[def.spin_left_key].rotators.push_back(-(m_actor->ar_num_rotators + 1));
+    if (!def.description.empty())
     {
         m_actor->ar_command_key[def.spin_left_key].description = def.description;
     }
@@ -3358,42 +3942,27 @@ void ActorSpawner::ProcessRotator2(RigDef::Rotator2 & def)
     // Rotate right key
     m_actor->ar_command_key[def.spin_right_key].rotators.push_back(m_actor->ar_num_rotators + 1);
 
-    this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults,
-                             m_actor->ar_command_key[def.spin_left_key].rotator_inertia,
-                             m_actor->ar_command_key[def.spin_right_key].rotator_inertia);
+    this->_ProcessKeyInertia(def.inertia,
+        m_actor->ar_command_key[def.spin_left_key].rotator_inertia,
+        m_actor->ar_command_key[def.spin_right_key].rotator_inertia);
 
     m_actor->ar_num_rotators++;
     m_actor->m_has_command_beams = true;
 }
 
-void ActorSpawner::_ProcessSimpleInertia(RigDef::Inertia & inertia, RoR::SimpleInertia& obj)
+void ActorSpawner::_ProcessSimpleInertia(RoR::SimpleInertia& obj)
 {
-    // TODO: refactor _ProcessKeyInertia() to use this.
-
-    // Handle placeholders
-    std::string start_function;
-    std::string stop_function;
-    if (inertia.start_function != "" && inertia.start_function != "/" && inertia.start_function != "-")
-    {
-        start_function = inertia.start_function;
-    }
-    if (inertia.stop_function != "" && inertia.stop_function != "/" && inertia.stop_function != "-")
-    {
-        stop_function = inertia.stop_function;
-    }
-
     obj.SetSimpleDelay(
         App::GetGameContext()->GetActorManager()->GetInertiaConfig(),
-        inertia.start_delay_factor,
-        inertia.stop_delay_factor,
-        start_function,
-        stop_function
+        m_state.inertia_startDelay,
+        m_state.inertia_stopDelay,
+        m_state.inertia_default_startFunction,
+        m_state.inertia_default_stopFunction
     );
 }
 
 void ActorSpawner::_ProcessKeyInertia(
-    RigDef::Inertia & inertia,
-    RigDef::Inertia & inertia_defaults,
+    RigDef::Inertia& inertia,
     RoR::CmdKeyInertia& contract_cmd,
     RoR::CmdKeyInertia& extend_cmd
 )
@@ -3401,11 +3970,11 @@ void ActorSpawner::_ProcessKeyInertia(
     /* Handle placeholders */
     Ogre::String start_function;
     Ogre::String stop_function;
-    if (! inertia.start_function.empty() && inertia.start_function != "/" && inertia.start_function != "-")
+    if (!inertia.start_function.empty() && inertia.start_function != "/" && inertia.start_function != "-")
     {
         start_function = inertia.start_function;
     }
-    if (! inertia.stop_function.empty() && inertia.stop_function != "/" && inertia.stop_function != "-")
+    if (!inertia.stop_function.empty() && inertia.stop_function != "/" && inertia.stop_function != "-")
     {
         stop_function = inertia.stop_function;
     }
@@ -3427,45 +3996,39 @@ void ActorSpawner::_ProcessKeyInertia(
             stop_function
         );
     }
-    else if (inertia_defaults.start_delay_factor > 0 || inertia_defaults.stop_delay_factor > 0)
+    else if (m_state.inertia_startDelay > 0 || m_state.inertia_stopDelay > 0)
     {
         contract_cmd.SetCmdKeyDelay(
             App::GetGameContext()->GetActorManager()->GetInertiaConfig(),
-            inertia_defaults.start_delay_factor,
-            inertia_defaults.stop_delay_factor,
-            inertia_defaults.start_function,
-            inertia_defaults.stop_function
+            m_state.inertia_startDelay,
+            m_state.inertia_stopDelay,
+            m_state.inertia_default_startFunction,
+            m_state.inertia_default_stopFunction
         );
 
         extend_cmd.SetCmdKeyDelay(
             App::GetGameContext()->GetActorManager()->GetInertiaConfig(),
-            inertia_defaults.start_delay_factor,
-            inertia_defaults.stop_delay_factor,
-            inertia_defaults.start_function,
-            inertia_defaults.stop_function
+            m_state.inertia_startDelay,
+            m_state.inertia_stopDelay,
+            m_state.inertia_default_startFunction,
+            m_state.inertia_default_stopFunction
         );
     }
 }
 
-void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
+void ActorSpawner::AddCommand(RigDef::CommandCommon& def, float shorten_rate, float lenghten_rate)
 {
-    const NodeNum_t beam_index = m_actor->ar_num_beams;
-    const NodeNum_t node_1_index = FindNodeIndex(def.nodes[0]);
-    const NodeNum_t node_2_index = FindNodeIndex(def.nodes[1]);
-    if (node_1_index == NODENUM_INVALID || node_2_index == NODENUM_INVALID)
-    {
-        AddMessage(Message::TYPE_ERROR, "Failed to fetch node");
-        return;
-    }
-    beam_t & beam = AddBeam(m_actor->ar_nodes[node_1_index], m_actor->ar_nodes[node_2_index], def.beam_defaults, def.detacher_group);
+    // Set up beam
+    int beam_index = m_actor->ar_num_beams;
+    beam_t& beam = AddBeam(def.nodes[0], def.nodes[1]);
     CalculateBeamLength(beam);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold()); /* Override settings from AddBeam() */
-    SetBeamSpring(beam, def.beam_defaults->GetScaledSpringiness());
-    SetBeamDamping(beam, def.beam_defaults->GetScaledDamping());
+    beam.strength = m_state.default_break * m_state.default_break_scale;
+    beam.k = m_state.default_spring * m_state.default_spring_scale;
+    beam.d = m_state.default_damp * m_state.default_damp_scale;
     beam.bm_type = BEAM_HYDRO;
 
     /* Options */
-    if (def.option_r_rope)          { beam.bounded = ROPE; }
+    if (def.option_r_rope) { beam.bounded = ROPE; }
 
     /* set the middle of the command, so its not required to recalculate this everytime ... */
     float center_length = 0.f;
@@ -3483,12 +4046,12 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     commandbeam_t cmd_beam;
     cmd_beam.cmb_beam_index = static_cast<uint16_t>(beam_index);
     cmd_beam.cmb_is_contraction = true;
-    cmd_beam.cmb_speed = def.shorten_rate;
+    cmd_beam.cmb_speed = shorten_rate;
     cmd_beam.cmb_boundary_length = def.max_contraction;
     cmd_beam.cmb_is_force_restricted = def.option_f_not_faster;
     cmd_beam.cmb_is_autocentering = def.option_c_auto_center;
     cmd_beam.cmb_needs_engine = def.needs_engine;
-    cmd_beam.cmb_is_1press = def.option_p_1press;      
+    cmd_beam.cmb_is_1press = def.option_p_1press;
     cmd_beam.cmb_is_1press_center = def.option_o_1press_center;
     cmd_beam.cmb_plays_sound = def.plays_sound;
     cmd_beam.cmb_engine_coupling = def.affect_engine;
@@ -3502,7 +4065,7 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
 
     command_t* extend_command = &m_actor->ar_command_key[def.extend_key];
     cmd_beam.cmb_is_contraction = false;
-    cmd_beam.cmb_speed = def.lengthen_rate;
+    cmd_beam.cmb_speed = lenghten_rate;
     cmd_beam.cmb_boundary_length = def.max_extension;
     extend_command->beams.push_back(cmd_beam);
     if (extend_command->description.empty())
@@ -3510,21 +4073,35 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
         extend_command->description = def.description;
     }
 
-    this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults,
-                             contract_command->command_inertia,
-                             extend_command->command_inertia);
+    this->_ProcessKeyInertia(def.inertia,
+        contract_command->command_inertia,
+        extend_command->command_inertia);
 
-    if (! def.option_i_invisible)
+    if (!def.option_i_invisible)
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 
     m_actor->m_num_command_beams++;
     m_actor->m_has_command_beams = true;
 }
 
-void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
+void ActorSpawner::ProcessCommand(DataPos_t pos)
 {
+    Command& def = m_document->commands[pos];
+    this->AddCommand(def, def.rate, def.rate);
+}
+
+void ActorSpawner::ProcessCommand2(DataPos_t pos)
+{
+    Command2& def = m_document->commands2[pos];
+    this->AddCommand(def, def.shorten_rate, def.lengthen_rate);
+}
+
+void ActorSpawner::ProcessAnimator(DataPos_t pos)
+{
+    Animator& def = m_document->animators[pos];
+
     int anim_flags = 0;
     float anim_option = 0;
 
@@ -3545,7 +4122,7 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
     if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_AIR_BRAKE)) {
         BITMASK_SET_1(anim_flags, ANIM_FLAG_AIRBRAKE);
     }
-    if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_ROLL))	{
+    if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_ROLL)) {
         BITMASK_SET_1(anim_flags, ANIM_FLAG_ROLL);
     }
     if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_PITCH)) {
@@ -3585,7 +4162,7 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
         BITMASK_SET_1(anim_flags, ANIM_FLAG_SHIFTER);
         anim_option = 1.f;
     }
-    if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_SHIFT_BACK_FORTH))	{
+    if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_SHIFT_BACK_FORTH)) {
         BITMASK_SET_1(anim_flags, ANIM_FLAG_SHIFTER);
         anim_option = 2.f;
     }
@@ -3609,7 +4186,7 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
         BITMASK_SET_1(anim_flags, ANIM_FLAG_ALTIMETER);
         anim_option = 3.f;
     }
-    
+
     /* Aerial */
     if (BITMASK_IS_1(def.aero_animator.flags, RigDef::AeroAnimator::OPTION_THROTTLE)) {
         BITMASK_SET_1(anim_flags, ANIM_FLAG_THROTTLE);
@@ -3632,29 +4209,29 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
         anim_option = static_cast<float>(def.aero_animator.engine_idx);
     }
 
+
+    // Set up beam
     unsigned int beam_index = m_actor->ar_num_beams;
-    NodeNum_t n1 = this->GetNodeIndexOrThrow(def.nodes[0]);
-    NodeNum_t n2 = this->GetNodeIndexOrThrow(def.nodes[1]);
-    beam_t & beam = AddBeam(m_actor->ar_nodes[n1], m_actor->ar_nodes[n2], def.beam_defaults, def.detacher_group);
+    beam_t& beam = AddBeam(def.nodes[0], def.nodes[1]);
     /* set the limits to something with sense by default */
     beam.shortbound = 0.99999f;
     beam.longbound = 1000000.0f;
     beam.bm_type = BEAM_HYDRO;
     CalculateBeamLength(beam);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
-    SetBeamSpring(beam, def.beam_defaults->GetScaledSpringiness());
-    SetBeamDamping(beam, def.beam_defaults->GetScaledDamping());
+    beam.strength = m_state.default_break * m_state.default_break_scale;
+    beam.k = m_state.default_spring * m_state.default_spring_scale;
+    beam.d = m_state.default_damp * m_state.default_damp_scale;
 
     if (BITMASK_IS_0(def.flags, RigDef::Animator::OPTION_INVISIBLE))
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 
-    if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_SHORT_LIMIT)) 
+    if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_SHORT_LIMIT))
     {
         beam.shortbound = def.short_limit;
     }
-    if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_LONG_LIMIT)) 
+    if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_LONG_LIMIT))
     {
         beam.longbound = def.long_limit;
     }
@@ -3667,52 +4244,50 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
     hb.hb_anim_flags = anim_flags;
     hb.hb_anim_param = anim_option;
 
-    if (def.inertia_defaults->start_delay_factor > 0 && def.inertia_defaults->stop_delay_factor > 0)
+
+    if (m_state.inertia_startDelay > 0 && m_state.inertia_stopDelay > 0)
     {
         hb.hb_inertia.SetCmdKeyDelay(
             App::GetGameContext()->GetActorManager()->GetInertiaConfig(),
-            def.inertia_defaults->start_delay_factor,
-            def.inertia_defaults->stop_delay_factor,
-            def.inertia_defaults->start_function,
-            def.inertia_defaults->stop_function
+            m_state.inertia_startDelay,
+            m_state.inertia_stopDelay,
+            m_state.inertia_default_startFunction,
+            m_state.inertia_default_stopFunction
         );
     }
 
     m_actor->ar_hydros.push_back(hb);
 }
 
-beam_t & ActorSpawner::AddBeam(
-    node_t & node_1, 
-    node_t & node_2, 
-    std::shared_ptr<RigDef::BeamDefaults> & beam_defaults,
-    int detacher_group
-)
+beam_t& ActorSpawner::AddBeam(node_t& node_1, node_t& node_2)
 {
-    /* Init */
-    beam_t & beam = GetAndInitFreeBeam(node_1, node_2);
-    beam.detacher_group = detacher_group;
+    beam_t& beam = GetAndInitFreeBeam(node_1, node_2);
+    beam.detacher_group = m_state.detacher_group_state;
     beam.bm_disabled = false;
 
-    /* Breaking threshold (strength) */
-    float strength = beam_defaults->breaking_threshold;
-    beam.strength = strength;
+    beam.strength = m_state.default_break;
 
-    /* Deformation */
-    SetBeamDeformationThreshold(beam, beam_defaults);
+    beam.default_beam_deform = m_state.default_deform * m_state.default_deform_scale;
+    beam.minmaxposnegstress = beam.default_beam_deform;
+    beam.maxposstress = beam.default_beam_deform;
+    beam.maxnegstress = -beam.default_beam_deform;
 
-    float plastic_coef = beam_defaults->plastic_deform_coef;
-    beam.plastic_coef = plastic_coef;
+    beam.plastic_coef = m_state.default_plastic_coef;
 
     return beam;
 }
 
-void ActorSpawner::SetBeamStrength(beam_t & beam, float strength)
+beam_t& ActorSpawner::AddBeam(RigDef::NodeRef_t n1, RigDef::NodeRef_t n2)
 {
-    beam.strength = strength;
+    return this->AddBeam(
+        m_actor->ar_nodes[this->ResolveNodeRef(n1)],
+        m_actor->ar_nodes[this->ResolveNodeRef(n2)]);
 }
 
-void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
+void ActorSpawner::ProcessHydro(DataPos_t pos)
 {
+    Hydro& def = m_document->hydros[pos];
+
     bool invisible = false;
     unsigned int hydro_flags = 0;
 
@@ -3765,20 +4340,21 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
         hydro_flags |= HYDRO_FLAG_DIR;
     }
 
-    node_t & node_1 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[0])];
-    node_t & node_2 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[1])];
+    node_t& node_1 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[0])];
+    node_t& node_2 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[1])];
 
+    // Set up beam
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
-    SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
+    beam_t& beam = AddBeam(def.nodes[0], def.nodes[1]);
     CalculateBeamLength(beam);
-    beam.bm_type              = BEAM_HYDRO;
-    beam.k                    = def.beam_defaults->GetScaledSpringiness();
-    beam.d                    = def.beam_defaults->GetScaledDamping();
+    beam.bm_type = BEAM_HYDRO;
+    beam.strength = m_state.default_break * m_state.default_break_scale;
+    beam.k = m_state.default_spring * m_state.default_spring_scale;
+    beam.d = m_state.default_damp * m_state.default_damp_scale;
 
     if (!invisible)
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 
     hydrobeam_t hb;
@@ -3788,15 +4364,17 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
     hb.hb_ref_length = beam.L;
     hb.hb_anim_flags = 0;
     hb.hb_anim_param = 0.f;
-    this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults, hb.hb_inertia, hb.hb_inertia);
+    this->_ProcessKeyInertia(def.inertia, hb.hb_inertia, hb.hb_inertia);
 
     m_actor->ar_hydros.push_back(hb);
 }
 
-void ActorSpawner::ProcessShock3(RigDef::Shock3 & def)
+void ActorSpawner::ProcessShock3(DataPos_t pos)
 {
-    node_t & node_1 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[0])];
-    node_t & node_2 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[1])];
+    Shock3& def = m_document->shocks3[pos];
+
+    node_t& node_1 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[0])];
+    node_t& node_2 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[1])];
     float short_bound = def.short_bound;
     float long_bound = def.long_bound;
     unsigned int shock_flags = SHOCK_FLAG_NORMAL | SHOCK_FLAG_ISSHOCK3;
@@ -3816,7 +4394,7 @@ void ActorSpawner::ProcessShock3(RigDef::Shock3 & def)
         if (long_bound < 0.f)
         {
             AddMessage(
-                Message::TYPE_WARNING, 
+                Message::TYPE_WARNING,
                 "Metric shock length calculation failed, 'short_bound' less than beams spawn length. Resetting to beam's spawn length (short_bound = 0)"
             );
             long_bound = 0.f;
@@ -3825,56 +4403,59 @@ void ActorSpawner::ProcessShock3(RigDef::Shock3 & def)
         if (short_bound > 1.f)
         {
             AddMessage(
-                Message::TYPE_WARNING, 
+                Message::TYPE_WARNING,
                 "Metric shock length calculation failed, 'short_bound' less than 0 meters. Resetting to 0 meters (short_bound = 1)"
             );
             short_bound = 1.f;
         }
     }
-    
+
+
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
-    SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
-    beam.bm_type              = BEAM_HYDRO;
-    beam.bounded              = SHOCK3;
-    beam.k                    = def.spring_in;
-    beam.d                    = def.damp_in;
-    beam.shortbound           = short_bound;
-    beam.longbound            = long_bound;
+    beam_t& beam = AddBeam(node_1, node_2);
+    beam.strength = m_state.default_break * 4.f;
+    beam.bm_type = BEAM_HYDRO;
+    beam.bounded = SHOCK3;
+    beam.k = def.spring_in;
+    beam.d = def.damp_in;
+    beam.shortbound = short_bound;
+    beam.longbound = long_bound;
 
     /* Length + pre-compression */
     CalculateBeamLength(beam);
-    beam.L          *= def.precompression;
-    beam.refL       *= def.precompression;
+    beam.L *= def.precompression;
+    beam.refL *= def.precompression;
 
     if (BITMASK_IS_0(def.options, RigDef::Shock3::OPTION_i_INVISIBLE))
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 
-    shock_t & shock  = GetFreeShock();
-    shock.flags      = shock_flags;
-    shock.sbd_spring = def.beam_defaults->springiness;
-    shock.sbd_damp   = def.beam_defaults->damping_constant;
-    shock.springin   = def.spring_in;
-    shock.dampin     = def.damp_in;
-    shock.springout  = def.spring_out;
-    shock.dampout    = def.damp_out;
-    shock.splitin    = def.split_vel_in;
-    shock.dslowin    = def.damp_in_slow;
-    shock.dfastin    = def.damp_in_fast;
-    shock.splitout   = def.split_vel_out;
-    shock.dslowout   = def.damp_out_slow;
-    shock.dfastout   = def.damp_out_fast;
+    shock_t& shock = GetFreeShock();
+    shock.flags = shock_flags;
+    shock.sbd_spring = m_state.default_spring;
+    shock.sbd_damp = m_state.default_damp;
+    shock.springin = def.spring_in;
+    shock.dampin = def.damp_in;
+    shock.springout = def.spring_out;
+    shock.dampout = def.damp_out;
+    shock.splitin = def.split_vel_in;
+    shock.dslowin = def.damp_in_slow;
+    shock.dfastin = def.damp_in_fast;
+    shock.splitout = def.split_vel_out;
+    shock.dslowout = def.damp_out_slow;
+    shock.dfastout = def.damp_out_fast;
 
-    beam.shock = & shock;
+    beam.shock = &shock;
     shock.beamid = beam_index;
 }
 
-void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
+void ActorSpawner::ProcessShock2(DataPos_t pos)
 {
-    node_t & node_1 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[0])];
-    node_t & node_2 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[1])];
+    Shock2& def = m_document->shocks2[pos];
+
+    node_t& node_1 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[0])];
+    node_t& node_2 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[1])];
     float short_bound = def.short_bound;
     float long_bound = def.long_bound;
     unsigned int shock_flags = SHOCK_FLAG_NORMAL | SHOCK_FLAG_ISSHOCK2;
@@ -3899,7 +4480,7 @@ void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
         if (long_bound < 0.f)
         {
             AddMessage(
-                Message::TYPE_WARNING, 
+                Message::TYPE_WARNING,
                 "Metric shock length calculation failed, 'short_bound' less than beams spawn length. Resetting to beam's spawn length (short_bound = 0)"
             );
             long_bound = 0.f;
@@ -3908,54 +4489,61 @@ void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
         if (short_bound > 1.f)
         {
             AddMessage(
-                Message::TYPE_WARNING, 
+                Message::TYPE_WARNING,
                 "Metric shock length calculation failed, 'short_bound' less than 0 meters. Resetting to 0 meters (short_bound = 1)"
             );
             short_bound = 1.f;
         }
     }
-    
+
+
+    // Set up beam
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
-    SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
-    beam.bm_type              = BEAM_HYDRO;
-    beam.bounded              = SHOCK2;
-    beam.k                    = def.spring_in;
-    beam.d                    = def.damp_in;
-    beam.shortbound           = short_bound;
-    beam.longbound            = long_bound;
+    beam_t& beam = AddBeam(node_1, node_2);
+    beam.strength = m_state.default_break * 4.f;
+    beam.bm_type = BEAM_HYDRO;
+    beam.bounded = SHOCK2;
+    beam.k = def.spring_in;
+    beam.d = def.damp_in;
+    beam.shortbound = short_bound;
+    beam.longbound = long_bound;
 
     /* Length + pre-compression */
     CalculateBeamLength(beam);
-    beam.L          *= def.precompression;
-    beam.refL       *= def.precompression;
+    beam.L *= def.precompression;
+    beam.refL *= def.precompression;
 
     if (BITMASK_IS_0(def.options, RigDef::Shock2::OPTION_i_INVISIBLE))
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 
-    shock_t & shock  = GetFreeShock();
-    shock.flags      = shock_flags;
-    shock.sbd_spring = def.beam_defaults->springiness;
-    shock.sbd_damp   = def.beam_defaults->damping_constant;
-    shock.springin   = def.spring_in;
-    shock.dampin     = def.damp_in;
-    shock.springout  = def.spring_out;
-    shock.dampout    = def.damp_out;
-    shock.sprogin    = def.progress_factor_spring_in;
-    shock.dprogin    = def.progress_factor_damp_in;
-    shock.sprogout   = def.progress_factor_spring_out;
-    shock.dprogout   = def.progress_factor_damp_out;
+    shock_t& shock = GetFreeShock();
+    shock.flags = shock_flags;
+    shock.sbd_spring = m_state.default_spring;
+    shock.sbd_damp = m_state.default_damp;
+    shock.springin = def.spring_in;
+    shock.dampin = def.damp_in;
+    shock.springout = def.spring_out;
+    shock.dampout = def.damp_out;
+    shock.sprogin = def.progress_factor_spring_in;
+    shock.dprogin = def.progress_factor_damp_in;
+    shock.sprogout = def.progress_factor_spring_out;
+    shock.dprogout = def.progress_factor_damp_out;
 
-    beam.shock = & shock;
+    beam.shock = &shock;
     shock.beamid = beam_index;
 }
 
-void ActorSpawner::ProcessShock(RigDef::Shock & def)
+void ActorSpawner::ProcessShock(DataPos_t pos)
 {
-    node_t & node_1 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[0])];
-    node_t & node_2 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[1])];
+    Shock& def = m_document->shocks[pos];
+
+    // Set up beam
+    int beam_index = m_actor->ar_num_beams;
+    beam_t& beam = AddBeam(def.nodes[0], def.nodes[1]);
+
+    // Resolve options
     float short_bound = def.short_bound;
     float long_bound = def.long_bound;
     unsigned int shock_flags = SHOCK_FLAG_NORMAL;
@@ -3974,59 +4562,75 @@ void ActorSpawner::ProcessShock(RigDef::Shock & def)
     }
     if (BITMASK_IS_1(def.options, RigDef::Shock::OPTION_m_METRIC))
     {
-        float beam_length = node_1.AbsPosition.distance(node_2.AbsPosition);
+        float beam_length = beam.p1->AbsPosition.distance(beam.p2->AbsPosition);
         short_bound /= beam_length;
         long_bound /= beam_length;
     }
-    
-    int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
+
     beam.shortbound = short_bound;
-    beam.longbound  = long_bound;
-    beam.bounded    = SHOCK1;
-    beam.bm_type    = BEAM_HYDRO;
-    beam.k          = def.spring_rate;
-    beam.d          = def.damping;
-    SetBeamStrength(beam, def.beam_defaults->breaking_threshold * 4.f);
+    beam.longbound = long_bound;
+    beam.bounded = SHOCK1;
+    beam.bm_type = BEAM_HYDRO;
+    beam.k = def.spring_rate;
+    beam.d = def.damping;
+    beam.strength = m_state.default_break * 4.f;
 
     /* Length + pre-compression */
     CalculateBeamLength(beam);
-    beam.L          *= def.precompression;
-    beam.refL       *= def.precompression;
+    beam.L *= def.precompression;
+    beam.refL *= def.precompression;
 
-    shock_t & shock  = GetFreeShock();
-    shock.flags      = shock_flags;
-    shock.sbd_spring = def.beam_defaults->springiness;
-    shock.sbd_damp   = def.beam_defaults->damping_constant;
+    shock_t& shock = GetFreeShock();
+    shock.flags = shock_flags;
+    shock.sbd_spring = m_state.default_spring;
+    shock.sbd_damp = m_state.default_damp;
 
     if (BITMASK_IS_0(def.options, RigDef::Shock::OPTION_i_INVISIBLE))
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 
-    beam.shock = & shock;
+    beam.shock = &shock;
     shock.beamid = beam_index;
 }
 
-void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
+void ActorSpawner::FetchAxisNodes(
+    node_t*& axis_node_1,
+    node_t*& axis_node_2,
+    RigDef::NodeRef_t const& axis_node_1_id,
+    RigDef::NodeRef_t const& axis_node_2_id
+)
 {
-    unsigned int base_node_index = m_actor->ar_num_nodes;
-    wheel_t & wheel = m_actor->ar_wheels[m_actor->ar_num_wheels];
+    axis_node_1 = GetNodePointer(axis_node_1_id);
+    axis_node_2 = GetNodePointer(axis_node_2_id);
 
-    node_t *axis_node_1 = &m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[0])];
-    node_t *axis_node_2 = &m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[1])];
-    // Enforce the "second node must have a larger Z coordinate than the first" constraint
-    if (axis_node_1->AbsPosition.z > axis_node_2->AbsPosition.z)
+    Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
+    Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
+
+    /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
+    if (pos_1.z > pos_2.z)
     {
         node_t* swap = axis_node_1;
         axis_node_1 = axis_node_2;
         axis_node_2 = swap;
     }
+}
+
+void ActorSpawner::ProcessFlexBodyWheel(DataPos_t pos)
+{
+    FlexBodyWheel& def = m_document->flexbodywheels[pos];
+
+    unsigned int base_node_index = m_actor->ar_num_nodes;
+    wheel_t& wheel = m_actor->ar_wheels[m_actor->ar_num_wheels];
+
+    node_t* axis_node_1 = nullptr;
+    node_t* axis_node_2 = nullptr;
+    FetchAxisNodes(axis_node_1, axis_node_2, def.nodes[0], def.nodes[1]);
 
     // Rigidity node
-    node_t *rigidity_node = nullptr;
-    node_t *axis_node_closest_to_rigidity_node = nullptr;
-    if (def.rigidity_node.IsValidAnyState())
+    node_t* rigidity_node = nullptr;
+    node_t* axis_node_closest_to_rigidity_node = nullptr;
+    if (def.rigidity_node != NODEREF_INVALID)
     {
         rigidity_node = GetNodePointer(def.rigidity_node);
         Ogre::Real distance_1 = (rigidity_node->RelPosition - axis_node_1->RelPosition).length();
@@ -4050,14 +4654,14 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + rim_ray_vector;
         rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 
-        node_t & outer_node      = GetFreeNode();
-        InitNode(outer_node, ray_point, def.node_defaults);
+        node_t& outer_node = GetFreeNode();
+        InitNode(outer_node, ray_point);
 
-        outer_node.mass          = node_mass;
-        outer_node.friction_coef = def.node_defaults->friction;
-        outer_node.nd_rim_node   = true;
-        AdjustNodeBuoyancy(outer_node, def.node_defaults);
-        m_actor->ar_minimass[outer_node.pos] = m_state.global_minimass;
+        outer_node.mass = node_mass;
+        outer_node.friction_coef = m_state.default_node_friction;
+        outer_node.nd_rim_node = true;
+        AdjustNodeBuoyancy(outer_node);
+        m_actor->ar_minimass[outer_node.pos] = m_state.default_minimass;
 
         m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(outer_node.pos));
 
@@ -4065,20 +4669,20 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
         rim_ray_vector = rim_ray_rotator * rim_ray_vector;
 
-        node_t & inner_node      = GetFreeNode();
-        InitNode(inner_node, ray_point, def.node_defaults);
+        node_t& inner_node = GetFreeNode();
+        InitNode(inner_node, ray_point);
 
-        inner_node.mass          = node_mass;
-        inner_node.friction_coef = def.node_defaults->friction;
-        inner_node.nd_rim_node   = true;
-        AdjustNodeBuoyancy(inner_node, def.node_defaults);
-        m_actor->ar_minimass[inner_node.pos] = m_state.global_minimass;
+        inner_node.mass = node_mass;
+        inner_node.friction_coef = m_state.default_node_friction;
+        inner_node.nd_rim_node = true;
+        AdjustNodeBuoyancy(inner_node);
+        m_actor->ar_minimass[inner_node.pos] = m_state.default_minimass;
 
         m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(inner_node.pos));
 
         // Wheel object
-        wheel.wh_rim_nodes[i * 2]       = & outer_node;
-        wheel.wh_rim_nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_rim_nodes[i * 2] = &outer_node;
+        wheel.wh_rim_nodes[(i * 2) + 1] = &inner_node;
     }
 
     Ogre::Vector3 tyre_ray_vector = axis_vector.perpendicular() * def.tyre_radius;
@@ -4093,15 +4697,15 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + tyre_ray_vector;
         tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
-        node_t & outer_node = GetFreeNode();
+        node_t& outer_node = GetFreeNode();
         InitNode(outer_node, ray_point);
-        outer_node.mass          = node_mass;
-        outer_node.friction_coef = def.node_defaults->friction;
-        outer_node.volume_coef   = def.node_defaults->volume;
-        outer_node.surface_coef  = def.node_defaults->surface;
-        outer_node.nd_contacter  = true;
-        outer_node.nd_tyre_node  = true;
-        AdjustNodeBuoyancy(outer_node, def.node_defaults);
+        outer_node.mass = node_mass;
+        outer_node.friction_coef = m_state.default_node_friction;
+        outer_node.volume_coef = m_state.default_node_volume;
+        outer_node.surface_coef = m_state.default_node_surface;
+        outer_node.nd_contacter = true;
+        outer_node.nd_tyre_node = true;
+        AdjustNodeBuoyancy(outer_node);
 
         m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(outer_node.pos));
 
@@ -4109,21 +4713,21 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
         tyre_ray_vector = tyre_ray_rotator * tyre_ray_vector;
 
-        node_t & inner_node = GetFreeNode();
+        node_t& inner_node = GetFreeNode();
         InitNode(inner_node, ray_point);
-        inner_node.mass          = node_mass;
-        inner_node.friction_coef = def.node_defaults->friction;
-        inner_node.volume_coef   = def.node_defaults->volume;
-        inner_node.surface_coef  = def.node_defaults->surface;
-        inner_node.nd_contacter  = true;
-        inner_node.nd_tyre_node  = true;
-        AdjustNodeBuoyancy(inner_node, def.node_defaults);
+        inner_node.mass = node_mass;
+        inner_node.friction_coef = m_state.default_node_friction;
+        inner_node.volume_coef = m_state.default_node_surface;
+        inner_node.surface_coef = m_state.default_node_surface;
+        inner_node.nd_contacter = true;
+        inner_node.nd_tyre_node = true;
+        AdjustNodeBuoyancy(inner_node);
 
         m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(inner_node.pos));
 
         // Wheel object
-        wheel.wh_nodes[i * 2] = & outer_node;
-        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_nodes[i * 2] = &outer_node;
+        wheel.wh_nodes[(i * 2) + 1] = &inner_node;
     }
 
     // Beams
@@ -4131,8 +4735,8 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     float rim_damp = def.rim_damping;
     float tyre_spring = def.tyre_springiness;
     float tyre_damp = def.tyre_damping;
-    float tread_spring = def.beam_defaults->springiness;
-    float tread_damp = def.beam_defaults->damping_constant;
+    float tread_spring = m_state.default_spring;
+    float tread_damp = m_state.default_damp;
 
     for (unsigned int i = 0; i < def.num_rays; i++)
     {
@@ -4140,47 +4744,47 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
         // Rim axis to rim ring
         unsigned int rim_outer_node_index = base_node_index + (i * 2);
-        node_t *rim_outer_node = & m_actor->ar_nodes[rim_outer_node_index];
-        node_t *rim_inner_node = & m_actor->ar_nodes[rim_outer_node_index + 1];
+        node_t* rim_outer_node = &m_actor->ar_nodes[rim_outer_node_index];
+        node_t* rim_inner_node = &m_actor->ar_nodes[rim_outer_node_index + 1];
 
-        AddWheelBeam(axis_node_1, rim_outer_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(axis_node_2, rim_inner_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(axis_node_2, rim_outer_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(axis_node_1, rim_inner_node, rim_spring, rim_damp, def.beam_defaults);
+        AddWheelBeam(axis_node_1, rim_outer_node, rim_spring, rim_damp);
+        AddWheelBeam(axis_node_2, rim_inner_node, rim_spring, rim_damp);
+        AddWheelBeam(axis_node_2, rim_outer_node, rim_spring, rim_damp);
+        AddWheelBeam(axis_node_1, rim_inner_node, rim_spring, rim_damp);
 
         // Reinforcement rim ring
         unsigned int rim_next_outer_node_index = base_node_index + (((i + 1) % def.num_rays) * 2);
-        node_t *rim_next_outer_node = & m_actor->ar_nodes[rim_next_outer_node_index];
-        node_t *rim_next_inner_node = & m_actor->ar_nodes[rim_next_outer_node_index + 1];
+        node_t* rim_next_outer_node = &m_actor->ar_nodes[rim_next_outer_node_index];
+        node_t* rim_next_inner_node = &m_actor->ar_nodes[rim_next_outer_node_index + 1];
 
-        AddWheelBeam(rim_outer_node, rim_inner_node,      rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(rim_outer_node, rim_next_outer_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(rim_inner_node, rim_next_inner_node, rim_spring, rim_damp, def.beam_defaults);
-        AddWheelBeam(rim_inner_node, rim_next_outer_node, rim_spring, rim_damp, def.beam_defaults);
+        AddWheelBeam(rim_outer_node, rim_inner_node, rim_spring, rim_damp);
+        AddWheelBeam(rim_outer_node, rim_next_outer_node, rim_spring, rim_damp);
+        AddWheelBeam(rim_inner_node, rim_next_inner_node, rim_spring, rim_damp);
+        AddWheelBeam(rim_inner_node, rim_next_outer_node, rim_spring, rim_damp);
     }
 
     // Tyre beams
     // Quick&dirty port from original SerializedRig::addWheel3()
     for (unsigned int i = 0; i < def.num_rays; i++)
     {
-        int rim_node_index    = base_node_index + i*2;
-        int tyre_node_index   = base_node_index + i*2 + def.num_rays*2;
-        node_t * rim_node     = & m_actor->ar_nodes[rim_node_index];
+        int rim_node_index = base_node_index + i * 2;
+        int tyre_node_index = base_node_index + i * 2 + def.num_rays * 2;
+        node_t* rim_node = &m_actor->ar_nodes[rim_node_index];
 
-        AddWheelBeam(rim_node, & m_actor->ar_nodes[tyre_node_index], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        AddWheelBeam(rim_node, &m_actor->ar_nodes[tyre_node_index], tyre_spring / 2.f, tyre_damp);
 
         int tyre_base_index = (i == 0) ? tyre_node_index + (def.num_rays * 2) : tyre_node_index;
-        AddWheelBeam(rim_node, & m_actor->ar_nodes[tyre_base_index - 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
-        AddWheelBeam(rim_node, & m_actor->ar_nodes[tyre_base_index - 2], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        AddWheelBeam(rim_node, &m_actor->ar_nodes[tyre_base_index - 1], tyre_spring / 2.f, tyre_damp);
+        AddWheelBeam(rim_node, &m_actor->ar_nodes[tyre_base_index - 2], tyre_spring / 2.f, tyre_damp);
 
-        node_t * next_rim_node = & m_actor->ar_nodes[rim_node_index + 1];
-        AddWheelBeam(next_rim_node, & m_actor->ar_nodes[tyre_node_index],     tyre_spring/2.f, tyre_damp, def.beam_defaults);
-        AddWheelBeam(next_rim_node, & m_actor->ar_nodes[tyre_node_index + 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        node_t* next_rim_node = &m_actor->ar_nodes[rim_node_index + 1];
+        AddWheelBeam(next_rim_node, &m_actor->ar_nodes[tyre_node_index], tyre_spring / 2.f, tyre_damp);
+        AddWheelBeam(next_rim_node, &m_actor->ar_nodes[tyre_node_index + 1], tyre_spring / 2.f, tyre_damp);
 
         {
             int index = (i == 0) ? tyre_node_index + (def.num_rays * 2) - 1 : tyre_node_index - 1;
-            node_t * tyre_node = & m_actor->ar_nodes[index];
-            AddWheelBeam(next_rim_node, tyre_node, tyre_spring/2.f, tyre_damp, def.beam_defaults);
+            node_t* tyre_node = &m_actor->ar_nodes[index];
+            AddWheelBeam(next_rim_node, tyre_node, tyre_spring / 2.f, tyre_damp);
         }
 
         //reinforcement (tire tread)
@@ -4190,21 +4794,22 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
             int rimnode = rim_node_index;
             int rays = def.num_rays;
 
-            AddWheelBeam(&m_actor->ar_nodes[rimnode+rays*2], &m_actor->ar_nodes[base_node_index+i*2+1+rays*2], tread_spring, tread_damp, def.beam_defaults);
-            AddWheelBeam(&m_actor->ar_nodes[rimnode+rays*2], &m_actor->ar_nodes[base_node_index+((i+1)%rays)*2+rays*2], tread_spring, tread_damp, def.beam_defaults);
-            AddWheelBeam(&m_actor->ar_nodes[base_node_index+i*2+1+rays*2], &m_actor->ar_nodes[base_node_index+((i+1)%rays)*2+1+rays*2], tread_spring, tread_damp, def.beam_defaults);
-            AddWheelBeam(&m_actor->ar_nodes[rimnode+1+rays*2], &m_actor->ar_nodes[base_node_index+((i+1)%rays)*2+rays*2], tread_spring, tread_damp, def.beam_defaults);
+            AddWheelBeam(&m_actor->ar_nodes[rimnode + rays * 2], &m_actor->ar_nodes[base_node_index + i * 2 + 1 + rays * 2], tread_spring, tread_damp);
+            AddWheelBeam(&m_actor->ar_nodes[rimnode + rays * 2], &m_actor->ar_nodes[base_node_index + ((i + 1) % rays) * 2 + rays * 2], tread_spring, tread_damp);
+            AddWheelBeam(&m_actor->ar_nodes[base_node_index + i * 2 + 1 + rays * 2], &m_actor->ar_nodes[base_node_index + ((i + 1) % rays) * 2 + 1 + rays * 2], tread_spring, tread_damp);
+            AddWheelBeam(&m_actor->ar_nodes[rimnode + 1 + rays * 2], &m_actor->ar_nodes[base_node_index + ((i + 1) % rays) * 2 + rays * 2], tread_spring, tread_damp);
 
             if (rigidity_node != nullptr)
             {
                 if (axis_node_closest_to_rigidity_node == axis_node_1)
                 {
-                    axis_node_closest_to_rigidity_node = & m_actor->ar_nodes[base_node_index+i*2+rays*2];
-                } else
+                    axis_node_closest_to_rigidity_node = &m_actor->ar_nodes[base_node_index + i * 2 + rays * 2];
+                }
+                else
                 {
-                    axis_node_closest_to_rigidity_node = & m_actor->ar_nodes[base_node_index+i*2+1+rays*2];
+                    axis_node_closest_to_rigidity_node = &m_actor->ar_nodes[base_node_index + i * 2 + 1 + rays * 2];
                 };
-                unsigned int beam_index = AddWheelBeam(rigidity_node, axis_node_closest_to_rigidity_node, tyre_spring, tyre_damp, def.beam_defaults);
+                unsigned int beam_index = AddWheelBeam(rigidity_node, axis_node_closest_to_rigidity_node, tyre_spring, tyre_damp);
                 GetBeam(beam_index).bm_type = BEAM_VIRTUAL;
             }
         }
@@ -4215,20 +4820,20 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
     float support_beams_short_bound = 1.0f - ((def.rim_radius / def.tyre_radius) * 0.95f);
 
-    for (unsigned int i=0; i<def.num_rays; i++)
+    for (unsigned int i = 0; i < def.num_rays; i++)
     {
         // tiretread anti collapse reinforcements, using precalced support beams
-        unsigned int tirenode = base_node_index + i*2 + def.num_rays*2;
+        unsigned int tirenode = base_node_index + i * 2 + def.num_rays * 2;
         unsigned int beam_index;
 
-        beam_index = AddWheelBeam(axis_node_1, &m_actor->ar_nodes[tirenode],     tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        beam_index = AddWheelBeam(axis_node_1, &m_actor->ar_nodes[tirenode], tyre_spring / 2.f, tyre_damp);
         GetBeam(beam_index).shortbound = support_beams_short_bound;
-        GetBeam(beam_index).longbound  = 0.f;
+        GetBeam(beam_index).longbound = 0.f;
         GetBeam(beam_index).bounded = SHOCK1;
 
-        beam_index = AddWheelBeam(axis_node_2, &m_actor->ar_nodes[tirenode + 1], tyre_spring/2.f, tyre_damp, def.beam_defaults);
+        beam_index = AddWheelBeam(axis_node_2, &m_actor->ar_nodes[tirenode + 1], tyre_spring / 2.f, tyre_damp);
         GetBeam(beam_index).shortbound = support_beams_short_bound;
-        GetBeam(beam_index).longbound  = 0.f;
+        GetBeam(beam_index).longbound = 0.f;
         GetBeam(beam_index).bounded = SHOCK1;
     }
 
@@ -4259,7 +4864,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     int wheel_index = m_actor->ar_num_wheels;
     ++m_actor->ar_num_wheels;
 
-    this->CreateFlexBodyWheelVisuals(wheel_index, base_node_index, axis_node_1->pos, axis_node_2->pos, def); 
+    this->CreateFlexBodyWheelVisuals(wheel_index, base_node_index, axis_node_1->pos, axis_node_2->pos, def);
 }
 
 wheel_t::BrakeCombo ActorSpawner::TranslateBrakingDef(RigDef::WheelBraking def)
@@ -4271,15 +4876,17 @@ wheel_t::BrakeCombo ActorSpawner::TranslateBrakingDef(RigDef::WheelBraking def)
     case RigDef::WheelBraking::FOOT_HAND_SKID_LEFT:  return wheel_t::BrakeCombo::FOOT_HAND_SKID_LEFT;
     case RigDef::WheelBraking::FOOT_HAND_SKID_RIGHT: return wheel_t::BrakeCombo::FOOT_HAND_SKID_RIGHT;
     case RigDef::WheelBraking::FOOT_ONLY:            return wheel_t::BrakeCombo::FOOT_ONLY;
-    default:                                         return wheel_t::BrakeCombo::NONE;
+    default:                                                 return wheel_t::BrakeCombo::NONE;
     }
 }
 
-void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
+void ActorSpawner::ProcessMeshWheel(DataPos_t pos)
 {
+    MeshWheel& meshwheel_def = m_document->meshwheels[pos];
+
     unsigned int base_node_index = m_actor->ar_num_nodes;
-    node_t *axis_node_1 = GetNodePointer(meshwheel_def.nodes[0]);
-    node_t *axis_node_2 = GetNodePointer(meshwheel_def.nodes[1]);
+    node_t* axis_node_1 = GetNodePointer(meshwheel_def.nodes[0]);
+    node_t* axis_node_2 = GetNodePointer(meshwheel_def.nodes[1]);
 
     Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
     Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
@@ -4287,7 +4894,7 @@ void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
     /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
     if (pos_1.z > pos_2.z)
     {
-        node_t *swap = axis_node_1;
+        node_t* swap = axis_node_1;
         axis_node_1 = axis_node_2;
         axis_node_2 = swap;
     }
@@ -4302,7 +4909,6 @@ void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
         meshwheel_def.tyre_radius,
         meshwheel_def.propulsion,
         meshwheel_def.braking,
-        meshwheel_def.node_defaults,
         meshwheel_def.mass
     );
 
@@ -4315,7 +4921,6 @@ void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
         meshwheel_def.damping,     /* Tyre */
         meshwheel_def.spring,      /* Rim */
         meshwheel_def.damping,     /* Rim */
-        meshwheel_def.beam_defaults,
         meshwheel_def.rigidity_node
     );
 
@@ -4334,11 +4939,13 @@ void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
     CreateWheelSkidmarks(wheel_index);
 }
 
-void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
+void ActorSpawner::ProcessMeshWheel2(DataPos_t pos)
 {
+    MeshWheel2& def = m_document->meshwheels2[pos];
+
     unsigned int base_node_index = m_actor->ar_num_nodes;
-    node_t *axis_node_1 = GetNodePointer(def.nodes[0]);
-    node_t *axis_node_2 = GetNodePointer(def.nodes[1]);
+    node_t* axis_node_1 = GetNodePointer(def.nodes[0]);
+    node_t* axis_node_2 = GetNodePointer(def.nodes[1]);
 
     if (axis_node_1 == nullptr || axis_node_2 == nullptr)
     {
@@ -4352,10 +4959,10 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
     /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
     if (pos_1.z > pos_2.z)
     {
-        node_t *swap = axis_node_1;
+        node_t* swap = axis_node_1;
         axis_node_1 = axis_node_2;
         axis_node_2 = swap;
-    }	
+    }
 
     unsigned int wheel_index = BuildWheelObjectAndNodes(
         def.num_rays,
@@ -4367,7 +4974,6 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
         def.tyre_radius,
         def.propulsion,
         def.braking,
-        def.node_defaults,
         def.mass
     );
 
@@ -4375,8 +4981,8 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
     /* Use data from directive 'set_beam_defaults' for the tiretread beams */
     float tyre_spring = def.spring;
     float tyre_damp = def.damping;
-    float rim_spring = def.beam_defaults->springiness;
-    float rim_damp = def.beam_defaults->damping_constant;
+    float rim_spring = m_state.default_spring;
+    float rim_damp = m_state.default_damp;
 
     BuildWheelBeams(
         def.num_rays,
@@ -4387,9 +4993,8 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
         tyre_damp,
         rim_spring,
         rim_damp,
-        def.beam_defaults,
         def.rigidity_node,
-        0.15 // max_extension
+        /*max_extension:*/0.15
     );
 
     this->BuildMeshWheelVisuals(
@@ -4424,7 +5029,7 @@ void ActorSpawner::BuildMeshWheelVisuals(
     try
     {
         FlexMeshWheel* flexmesh_wheel = m_flex_factory.CreateFlexMeshWheel(
-            wheel_index, 
+            wheel_index,
             axis_node_1_index,
             axis_node_2_index,
             base_node_index,
@@ -4449,22 +5054,21 @@ void ActorSpawner::BuildMeshWheelVisuals(
     }
 }
 
-unsigned int ActorSpawner::BuildWheelObjectAndNodes( 
+unsigned int ActorSpawner::BuildWheelObjectAndNodes(
     unsigned int num_rays,
-    node_t *axis_node_1,
-    node_t *axis_node_2,
-    node_t *reference_arm_node,
+    node_t* axis_node_1,
+    node_t* axis_node_2,
+    node_t* reference_arm_node,
     unsigned int reserve_nodes,
     unsigned int reserve_beams,
     float wheel_radius,
     RigDef::WheelPropulsion propulsion,
     RigDef::WheelBraking braking,
-    std::shared_ptr<RigDef::NodeDefaults> node_defaults,
     float wheel_mass,
     float wheel_width       /* Default: -1.f */
 )
 {
-    wheel_t & wheel = m_actor->ar_wheels[m_actor->ar_num_wheels];
+    wheel_t& wheel = m_actor->ar_wheels[m_actor->ar_num_wheels];
 
     /* Axis */
     Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
@@ -4472,14 +5076,14 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
     axis_vector.normalise();
 
     /* Wheel object */
-    wheel.wh_braking      = this->TranslateBrakingDef(braking);
-    wheel.wh_propulsed    = (int)propulsion;
-    wheel.wh_num_nodes    = 2 * num_rays;
-    wheel.wh_axis_node_0  = axis_node_1;
-    wheel.wh_axis_node_1  = axis_node_2;
-    wheel.wh_radius       = wheel_radius;
-    wheel.wh_width        = (wheel_width < 0) ? axis_length : wheel_width;
-    wheel.wh_arm_node     = reference_arm_node;
+    wheel.wh_braking = this->TranslateBrakingDef(braking);
+    wheel.wh_propulsed = (int)propulsion;
+    wheel.wh_num_nodes = 2 * num_rays;
+    wheel.wh_axis_node_0 = axis_node_1;
+    wheel.wh_axis_node_1 = axis_node_2;
+    wheel.wh_radius = wheel_radius;
+    wheel.wh_width = (wheel_width < 0) ? axis_length : wheel_width;
+    wheel.wh_arm_node = reference_arm_node;
 
     /* Find near attach */
     Ogre::Real length_1 = (axis_node_1->RelPosition - wheel.wh_arm_node->RelPosition).length();
@@ -4492,7 +5096,7 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         m_actor->m_proped_wheel_pairs[m_actor->m_num_proped_wheels] = m_actor->ar_num_wheels;
         m_actor->m_num_proped_wheels++;
     }
-    
+
     /* Nodes */
     Ogre::Vector3 ray_vector = axis_vector.perpendicular() * wheel_radius;
     Ogre::Quaternion ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.0 / (num_rays * 2)), axis_vector);
@@ -4500,7 +5104,7 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
 #ifdef DEBUG_TRUCKPARSER2013
     // TRUCK PARSER 2013 DEBUG
     std::stringstream msg;
-    msg << "\nDBG ActorSpawner::BuildWheelObjectAndNodes()\nDBG nodebase:" << m_actor->ar_num_nodes <<", axis-node-0:"<<axis_node_1->pos <<", axis-node-1:"<<axis_node_2->pos<<"\n";
+    msg << "\nDBG ActorSpawner::BuildWheelObjectAndNodes()\nDBG nodebase:" << m_actor->ar_num_nodes << ", axis-node-0:" << axis_node_1->pos << ", axis-node-1:" << axis_node_2->pos << "\n";
     msg << "DBG ==== Adding nodes ====";
     // END
 #endif
@@ -4511,12 +5115,12 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + ray_vector;
         ray_vector = ray_rotator * ray_vector;
 
-        node_t & outer_node = GetFreeNode();
-        InitNode(outer_node, ray_point, node_defaults);
-        outer_node.mass          = wheel_mass / (2.f * num_rays);
-        outer_node.nd_contacter  = true;
-        outer_node.nd_tyre_node  = true;
-        AdjustNodeBuoyancy(outer_node, node_defaults);
+        node_t& outer_node = GetFreeNode();
+        InitNode(outer_node, ray_point);
+        outer_node.mass = wheel_mass / (2.f * num_rays);
+        outer_node.nd_contacter = true;
+        outer_node.nd_tyre_node = true;
+        AdjustNodeBuoyancy(outer_node);
 
         m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(outer_node.pos));
 
@@ -4524,26 +5128,26 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         ray_point = axis_node_2->RelPosition + ray_vector;
         ray_vector = ray_rotator * ray_vector;
 
-        node_t & inner_node = GetFreeNode();
-        InitNode(inner_node, ray_point, node_defaults);
-        inner_node.mass          = wheel_mass / (2.f * num_rays);
-        inner_node.nd_contacter  = true;
-        inner_node.nd_tyre_node  = true;
-        AdjustNodeBuoyancy(inner_node, node_defaults);
+        node_t& inner_node = GetFreeNode();
+        InitNode(inner_node, ray_point);
+        inner_node.mass = wheel_mass / (2.f * num_rays);
+        inner_node.nd_contacter = true;
+        inner_node.nd_tyre_node = true;
+        AdjustNodeBuoyancy(inner_node);
 
         m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(inner_node.pos));
 
         /* Wheel object */
-        wheel.wh_nodes[i * 2] = & outer_node;
-        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_nodes[i * 2] = &outer_node;
+        wheel.wh_nodes[(i * 2) + 1] = &inner_node;
 
 #ifdef DEBUG_TRUCKPARSER2013
         // TRUCK PARSER 2013 DEBUG
         int modifier = 0;
-        msg << "\nDBG\tN1: index=" << outer_node.pos + modifier << ", iswheel=" << WHEEL_DEFAULT 
-            <<", X=" << outer_node.AbsPosition.x <<", Y=" << outer_node.AbsPosition.y <<", Z=" << outer_node.AbsPosition.z << std::endl
-            << "DBG\tN2: index=" << inner_node.pos + modifier << ", iswheel=" << WHEEL_DEFAULT 
-            <<", X=" << inner_node.AbsPosition.x <<", Y=" << inner_node.AbsPosition.y <<", Z=" << inner_node.AbsPosition.z;
+        msg << "\nDBG\tN1: index=" << outer_node.pos + modifier << ", iswheel=" << WHEEL_DEFAULT
+            << ", X=" << outer_node.AbsPosition.x << ", Y=" << outer_node.AbsPosition.y << ", Z=" << outer_node.AbsPosition.z << std::endl
+            << "DBG\tN2: index=" << inner_node.pos + modifier << ", iswheel=" << WHEEL_DEFAULT
+            << ", X=" << inner_node.AbsPosition.x << ", Y=" << inner_node.AbsPosition.y << ", Z=" << inner_node.AbsPosition.z;
         // END
 #endif
     }
@@ -4560,35 +5164,34 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
     return wheel_index;
 }
 
-void ActorSpawner::AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, std::shared_ptr<RigDef::NodeDefaults> defaults)
+void ActorSpawner::AdjustNodeBuoyancy(node_t& node, RigDef::NodesCommon& node_def)
 {
-    unsigned int options = (defaults->options | node_def.options); // Merge flags
-    node.buoyancy = BITMASK_IS_1(options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_actor->m_dry_mass/15.f;
+    BitMask_t options = (m_state.default_node_options | node_def.options); // Merge flags
+    node.buoyancy = BITMASK_IS_1(options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_actor->m_dry_mass / 15.f;
 }
 
-void ActorSpawner::AdjustNodeBuoyancy(node_t & node, std::shared_ptr<RigDef::NodeDefaults> defaults)
+void ActorSpawner::AdjustNodeBuoyancy(node_t& node)
 {
-    node.buoyancy = BITMASK_IS_1(defaults->options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_actor->m_dry_mass/15.f;
+    node.buoyancy = m_actor->m_dry_mass / 15.f;
 }
 
 void ActorSpawner::BuildWheelBeams(
     unsigned int num_rays,
     unsigned int base_node_index,
-    node_t *axis_node_1,
-    node_t *axis_node_2,
+    node_t* axis_node_1,
+    node_t* axis_node_2,
     float tyre_spring,
     float tyre_damping,
     float rim_spring,
     float rim_damping,
-    std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
-    RigDef::Node::Ref const & rigidity_node_id,
+    RigDef::NodeRef_t const& rigidity_node_id,
     float max_extension // = 0.f
 )
 {
     /* Find out where to connect rigidity node */
     bool rigidity_beam_side_1 = false;
-    node_t *rigidity_node = nullptr;
-    if (rigidity_node_id.IsValidAnyState())
+    node_t* rigidity_node = nullptr;
+    if (rigidity_node_id != NODEREF_INVALID)
     {
         rigidity_node = GetNodePointerOrThrow(rigidity_node_id);
         float distance_1 = rigidity_node->RelPosition.distance(axis_node_1->RelPosition);
@@ -4600,46 +5203,48 @@ void ActorSpawner::BuildWheelBeams(
     {
         /* Bounded */
         unsigned int outer_ring_node_index = base_node_index + (i * 2);
-        node_t *outer_ring_node = & m_actor->ar_nodes[outer_ring_node_index];
-        node_t *inner_ring_node = & m_actor->ar_nodes[outer_ring_node_index + 1];
-        
-        AddWheelBeam(axis_node_1, outer_ring_node, tyre_spring, tyre_damping, beam_defaults, 0.66f, max_extension);
-        AddWheelBeam(axis_node_2, inner_ring_node, tyre_spring, tyre_damping, beam_defaults, 0.66f, max_extension);
-        AddWheelBeam(axis_node_2, outer_ring_node, tyre_spring, tyre_damping, beam_defaults);
-        AddWheelBeam(axis_node_1, inner_ring_node, tyre_spring, tyre_damping, beam_defaults);
+        node_t* outer_ring_node = &m_actor->ar_nodes[outer_ring_node_index];
+        node_t* inner_ring_node = &m_actor->ar_nodes[outer_ring_node_index + 1];
+
+        AddWheelBeam(axis_node_1, outer_ring_node, tyre_spring, tyre_damping, 0.66f, max_extension);
+        AddWheelBeam(axis_node_2, inner_ring_node, tyre_spring, tyre_damping, 0.66f, max_extension);
+        AddWheelBeam(axis_node_2, outer_ring_node, tyre_spring, tyre_damping);
+        AddWheelBeam(axis_node_1, inner_ring_node, tyre_spring, tyre_damping);
 
         /* Reinforcement */
         unsigned int next_outer_ring_node_index = base_node_index + (((i + 1) % num_rays) * 2);
-        node_t *next_outer_ring_node = & m_actor->ar_nodes[next_outer_ring_node_index];
-        node_t *next_inner_ring_node = & m_actor->ar_nodes[next_outer_ring_node_index + 1];
+        node_t* next_outer_ring_node = &m_actor->ar_nodes[next_outer_ring_node_index];
+        node_t* next_inner_ring_node = &m_actor->ar_nodes[next_outer_ring_node_index + 1];
 
-        AddWheelBeam(outer_ring_node, inner_ring_node,      rim_spring, rim_damping, beam_defaults);
-        AddWheelBeam(outer_ring_node, next_outer_ring_node, rim_spring, rim_damping, beam_defaults);
-        AddWheelBeam(inner_ring_node, next_inner_ring_node, rim_spring, rim_damping, beam_defaults);
-        AddWheelBeam(inner_ring_node, next_outer_ring_node, rim_spring, rim_damping, beam_defaults);
+        AddWheelBeam(outer_ring_node, inner_ring_node, rim_spring, rim_damping);
+        AddWheelBeam(outer_ring_node, next_outer_ring_node, rim_spring, rim_damping);
+        AddWheelBeam(inner_ring_node, next_inner_ring_node, rim_spring, rim_damping);
+        AddWheelBeam(inner_ring_node, next_outer_ring_node, rim_spring, rim_damping);
 
         /* Rigidity beams */
         if (rigidity_node != nullptr)
         {
-            node_t *target_node = (rigidity_beam_side_1) ? outer_ring_node : inner_ring_node;
-            unsigned int beam_index = AddWheelBeam(rigidity_node, target_node, tyre_spring, tyre_damping, beam_defaults, -1.f, -1.f, BEAM_VIRTUAL);
+            node_t* target_node = (rigidity_beam_side_1) ? outer_ring_node : inner_ring_node;
+            unsigned int beam_index = AddWheelBeam(rigidity_node, target_node, tyre_spring, tyre_damping, -1.f, -1.f, BEAM_VIRTUAL);
             m_actor->ar_beams[beam_index].bm_type = BEAM_VIRTUAL;
         }
     }
 }
 
-unsigned int ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
+unsigned int ActorSpawner::AddWheel(DataPos_t pos)
 {
+    Wheel& wheel_def = m_document->wheels[pos];
+
     unsigned int base_node_index = m_actor->ar_num_nodes;
-    node_t *axis_node_1 = GetNodePointer(wheel_def.nodes[0]);
-    node_t *axis_node_2 = GetNodePointer(wheel_def.nodes[1]);
+    node_t* axis_node_1 = GetNodePointer(wheel_def.nodes[0]);
+    node_t* axis_node_2 = GetNodePointer(wheel_def.nodes[1]);
 
     if (axis_node_1 == nullptr || axis_node_2 == nullptr)
     {
         std::stringstream msg;
         msg << "Error creating 'wheel': Some axis nodes were not found";
-        msg << " (Node1: " << wheel_def.nodes[0].ToString() << " => " << (axis_node_1 == nullptr) ? "NOT FOUND)" : "found)";
-        msg << " (Node2: " << wheel_def.nodes[1].ToString() << " => " << (axis_node_2 == nullptr) ? "NOT FOUND)" : "found)";
+        msg << " (Node1: " << wheel_def.nodes[0] << " => " << (axis_node_1 == nullptr) ? "NOT FOUND)" : "found)";
+        msg << " (Node2: " << wheel_def.nodes[1] << " => " << (axis_node_2 == nullptr) ? "NOT FOUND)" : "found)";
         AddMessage(Message::TYPE_ERROR, msg.str());
         return -1;
     }
@@ -4650,10 +5255,10 @@ unsigned int ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
     /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
     if (pos_1.z > pos_2.z)
     {
-        node_t *swap = axis_node_1;
+        node_t* swap = axis_node_1;
         axis_node_1 = axis_node_2;
         axis_node_2 = swap;
-    }	
+    }
 
     unsigned int wheel_index = BuildWheelObjectAndNodes(
         wheel_def.num_rays,
@@ -4665,7 +5270,6 @@ unsigned int ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
         wheel_def.radius,
         wheel_def.propulsion,
         wheel_def.braking,
-        wheel_def.node_defaults,
         wheel_def.mass,
         -1.f // Set width to axis length (width in definition is ignored)
     );
@@ -4679,7 +5283,6 @@ unsigned int ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
         wheel_def.damping,     /* Tyre */
         wheel_def.springiness, /* Rim */
         wheel_def.damping,     /* Rim */
-        wheel_def.beam_defaults,
         wheel_def.rigidity_node
     );
 
@@ -4690,7 +5293,7 @@ unsigned int ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
         wheel_def.face_material_name,
         wheel_def.band_material_name,
         /*separate_rim:*/false
-        );
+    );
 
     CreateWheelSkidmarks(wheel_index);
 
@@ -4704,19 +5307,21 @@ void ActorSpawner::CreateWheelSkidmarks(unsigned int wheel_index)
         RoR::App::GetGfxScene()->GetSkidmarkConf(), &m_actor->ar_wheels[wheel_index], m_particles_parent_scenenode, 300, 20);
 }
 
-unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
+unsigned int ActorSpawner::AddWheel2(DataPos_t pos)
 {
+    Wheel2& wheel_2_def = m_document->wheels2[pos];
+
     unsigned int base_node_index = m_actor->ar_num_nodes;
-    wheel_t & wheel = m_actor->ar_wheels[m_actor->ar_num_wheels];
-    node_t *axis_node_1 = GetNodePointer(wheel_2_def.nodes[0]);
-    node_t *axis_node_2 = GetNodePointer(wheel_2_def.nodes[1]);
+    wheel_t& wheel = m_actor->ar_wheels[m_actor->ar_num_wheels];
+    node_t* axis_node_1 = GetNodePointer(wheel_2_def.nodes[0]);
+    node_t* axis_node_2 = GetNodePointer(wheel_2_def.nodes[1]);
 
     if (axis_node_1 == nullptr || axis_node_2 == nullptr)
     {
         std::stringstream msg;
         msg << "Error creating 'wheel2': Some axis nodes were not found";
-        msg << " (Node1: " << wheel_2_def.nodes[0].ToString() << " => " << (axis_node_1 == nullptr) ? "NOT FOUND)" : "found)";
-        msg << " (Node2: " << wheel_2_def.nodes[1].ToString() << " => " << (axis_node_2 == nullptr) ? "NOT FOUND)" : "found)";
+        msg << " (Node1: " << wheel_2_def.nodes[0] << " => " << (axis_node_1 == nullptr) ? "NOT FOUND)" : "found)";
+        msg << " (Node2: " << wheel_2_def.nodes[1] << " => " << (axis_node_2 == nullptr) ? "NOT FOUND)" : "found)";
         AddMessage(Message::TYPE_ERROR, msg.str());
         return -1;
     }
@@ -4727,16 +5332,16 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
     if (pos_1.z > pos_2.z)
     {
-        node_t *swap = axis_node_1;
+        node_t* swap = axis_node_1;
         axis_node_1 = axis_node_2;
         axis_node_2 = swap;
     }
 
     /* Find out where to connect rigidity node */
     bool rigidity_beam_side_1 = false;
-    if (wheel_2_def.rigidity_node.IsValidAnyState())
+    if (wheel_2_def.rigidity_node != NODEREF_INVALID)
     {
-        node_t & rigidity_node = m_actor->ar_nodes[this->GetNodeIndexOrThrow(wheel_2_def.rigidity_node)];
+        node_t& rigidity_node = m_actor->ar_nodes[this->GetNodeIndexOrThrow(wheel_2_def.rigidity_node)];
         Ogre::Real distance_1 = (rigidity_node.RelPosition - axis_node_1->RelPosition).length();
         Ogre::Real distance_2 = (rigidity_node.RelPosition - axis_node_2->RelPosition).length();
         rigidity_beam_side_1 = distance_1 < distance_2;
@@ -4760,30 +5365,30 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         /* Outer ring */
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + rim_ray_vector;
 
-        node_t & outer_node    = GetFreeNode();
-        InitNode(outer_node, ray_point, wheel_2_def.node_defaults);
-        outer_node.mass        = node_mass;
+        node_t& outer_node = GetFreeNode();
+        InitNode(outer_node, ray_point);
+        outer_node.mass = node_mass;
         outer_node.nd_rim_node = true;
 
-        m_actor->ar_minimass[outer_node.pos] = m_state.global_minimass;
+        m_actor->ar_minimass[outer_node.pos] = m_state.default_minimass;
 
         m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(outer_node.pos));
 
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + rim_ray_vector;
 
-        node_t & inner_node    = GetFreeNode();
-        InitNode(inner_node, ray_point, wheel_2_def.node_defaults);
-        inner_node.mass        = node_mass;
+        node_t& inner_node = GetFreeNode();
+        InitNode(inner_node, ray_point);
+        inner_node.mass = node_mass;
         inner_node.nd_rim_node = true;
 
-        m_actor->ar_minimass[inner_node.pos] = m_state.global_minimass;
+        m_actor->ar_minimass[inner_node.pos] = m_state.default_minimass;
 
         m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(inner_node.pos));
 
         /* Wheel object */
-        wheel.wh_rim_nodes[i * 2] = & outer_node;
-        wheel.wh_rim_nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_rim_nodes[i * 2] = &outer_node;
+        wheel.wh_rim_nodes[(i * 2) + 1] = &inner_node;
 
         rim_ray_vector = rim_ray_rotator * rim_ray_vector;
     }
@@ -4798,34 +5403,34 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         /* Outer ring */
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + tyre_ray_vector;
 
-        node_t & outer_node = GetFreeNode();
+        node_t& outer_node = GetFreeNode();
         InitNode(outer_node, ray_point);
-        outer_node.mass          = (0.67f * wheel_2_def.mass) / (2.f * wheel_2_def.num_rays);
+        outer_node.mass = (0.67f * wheel_2_def.mass) / (2.f * wheel_2_def.num_rays);
         outer_node.friction_coef = wheel.wh_width * WHEEL_FRICTION_COEF;
-        outer_node.volume_coef   = wheel_2_def.node_defaults->volume;
-        outer_node.surface_coef  = wheel_2_def.node_defaults->surface;
-        outer_node.nd_contacter  = true;
-        outer_node.nd_tyre_node  = true;
+        outer_node.volume_coef = m_state.default_node_volume;
+        outer_node.surface_coef = m_state.default_node_surface;
+        outer_node.nd_contacter = true;
+        outer_node.nd_tyre_node = true;
 
         m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(outer_node.pos));
 
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + tyre_ray_vector;
 
-        node_t & inner_node = GetFreeNode();
+        node_t& inner_node = GetFreeNode();
         InitNode(inner_node, ray_point);
-        inner_node.mass          = (0.33f * wheel_2_def.mass) / (2.f * wheel_2_def.num_rays);
+        inner_node.mass = (0.33f * wheel_2_def.mass) / (2.f * wheel_2_def.num_rays);
         inner_node.friction_coef = wheel.wh_width * WHEEL_FRICTION_COEF;
-        inner_node.volume_coef   = wheel_2_def.node_defaults->volume;
-        inner_node.surface_coef  = wheel_2_def.node_defaults->surface;
-        inner_node.nd_contacter  = true;
-        inner_node.nd_tyre_node  = true;
+        inner_node.volume_coef = m_state.default_node_volume;
+        inner_node.surface_coef = m_state.default_node_surface;
+        inner_node.nd_contacter = true;
+        inner_node.nd_tyre_node = true;
 
         m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(inner_node.pos));
 
         /* Wheel object */
-        wheel.wh_nodes[i * 2] = & outer_node;
-        wheel.wh_nodes[(i * 2) + 1] = & inner_node;
+        wheel.wh_nodes[i * 2] = &outer_node;
+        wheel.wh_nodes[(i * 2) + 1] = &inner_node;
 
         tyre_ray_vector = rim_ray_rotator * tyre_ray_vector; // This is OK
     }
@@ -4837,35 +5442,35 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
         /* Bounded */
         unsigned int rim_outer_node_index = base_node_index + (i * 2);
-        node_t *rim_outer_node = & m_actor->ar_nodes[rim_outer_node_index];
-        node_t *rim_inner_node = & m_actor->ar_nodes[rim_outer_node_index + 1];
+        node_t* rim_outer_node = &m_actor->ar_nodes[rim_outer_node_index];
+        node_t* rim_inner_node = &m_actor->ar_nodes[rim_outer_node_index + 1];
 
         unsigned int beam_index;
-        beam_index = AddWheelRimBeam(wheel_2_def, axis_node_1, rim_outer_node);
+        beam_index = AddWheels2RimBeam(pos, axis_node_1, rim_outer_node);
         GetBeam(beam_index).shortbound = 0.66;
-        beam_index = AddWheelRimBeam(wheel_2_def, axis_node_2, rim_inner_node);
+        beam_index = AddWheels2RimBeam(pos, axis_node_2, rim_inner_node);
         GetBeam(beam_index).shortbound = 0.66;
-        AddWheelRimBeam(wheel_2_def, axis_node_2, rim_outer_node);
-        AddWheelRimBeam(wheel_2_def, axis_node_1, rim_inner_node);
+        AddWheels2RimBeam(pos, axis_node_2, rim_outer_node);
+        AddWheels2RimBeam(pos, axis_node_1, rim_inner_node);
 
         /* Reinforcement */
         unsigned int rim_next_outer_node_index = base_node_index + (((i + 1) % wheel_2_def.num_rays) * 2);
-        node_t *rim_next_outer_node = & m_actor->ar_nodes[rim_next_outer_node_index];
-        node_t *rim_next_inner_node = & m_actor->ar_nodes[rim_next_outer_node_index + 1];
+        node_t* rim_next_outer_node = &m_actor->ar_nodes[rim_next_outer_node_index];
+        node_t* rim_next_inner_node = &m_actor->ar_nodes[rim_next_outer_node_index + 1];
 
-        AddWheelRimBeam(wheel_2_def, axis_node_1, rim_outer_node);
-        AddWheelRimBeam(wheel_2_def, rim_outer_node, rim_inner_node);
-        AddWheelRimBeam(wheel_2_def, rim_outer_node, rim_next_outer_node);
-        AddWheelRimBeam(wheel_2_def, rim_inner_node, rim_next_inner_node);
-        AddWheelRimBeam(wheel_2_def, rim_outer_node, rim_next_inner_node);
-        AddWheelRimBeam(wheel_2_def, rim_inner_node, rim_next_outer_node);
+        AddWheels2RimBeam(pos, axis_node_1, rim_outer_node);
+        AddWheels2RimBeam(pos, rim_outer_node, rim_inner_node);
+        AddWheels2RimBeam(pos, rim_outer_node, rim_next_outer_node);
+        AddWheels2RimBeam(pos, rim_inner_node, rim_next_inner_node);
+        AddWheels2RimBeam(pos, rim_outer_node, rim_next_inner_node);
+        AddWheels2RimBeam(pos, rim_inner_node, rim_next_outer_node);
 
         /* -- Rigidity -- */
-        if (wheel_2_def.rigidity_node.IsValidAnyState())
+        if (wheel_2_def.rigidity_node != NODEREF_INVALID)
         {
-            unsigned int rig_beam_index = AddWheelRimBeam(wheel_2_def,
-                            GetNodePointer(wheel_2_def.rigidity_node),
-                            (rigidity_beam_side_1) ? rim_outer_node : rim_inner_node
+            unsigned int rig_beam_index = AddWheels2RimBeam(pos,
+                GetNodePointer(wheel_2_def.rigidity_node),
+                (rigidity_beam_side_1) ? rim_outer_node : rim_inner_node
             );
             m_actor->ar_beams[rig_beam_index].bm_type = BEAM_VIRTUAL;
         }
@@ -4873,42 +5478,42 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         /* --- Tyre --- */
 
         unsigned int tyre_node_index = rim_outer_node_index + (2 * wheel_2_def.num_rays);
-        node_t *tyre_outer_node = & m_actor->ar_nodes[tyre_node_index];
-        node_t *tyre_inner_node = & m_actor->ar_nodes[tyre_node_index + 1];
+        node_t* tyre_outer_node = &m_actor->ar_nodes[tyre_node_index];
+        node_t* tyre_inner_node = &m_actor->ar_nodes[tyre_node_index + 1];
         unsigned int tyre_next_node_index = rim_next_outer_node_index + (2 * wheel_2_def.num_rays);
-        node_t *tyre_next_outer_node = & m_actor->ar_nodes[tyre_next_node_index];
-        node_t *tyre_next_inner_node = & m_actor->ar_nodes[tyre_next_node_index + 1];
+        node_t* tyre_next_outer_node = &m_actor->ar_nodes[tyre_next_node_index];
+        node_t* tyre_next_inner_node = &m_actor->ar_nodes[tyre_next_node_index + 1];
 
         /* Tyre band */
-        AddTyreBeam(wheel_2_def, tyre_outer_node, tyre_next_outer_node);
-        AddTyreBeam(wheel_2_def, tyre_outer_node, tyre_next_inner_node);
-        AddTyreBeam(wheel_2_def, tyre_inner_node, tyre_next_outer_node);
-        AddTyreBeam(wheel_2_def, tyre_inner_node, tyre_next_inner_node);
+        AddWheels2TyreBeam(pos, tyre_outer_node, tyre_next_outer_node);
+        AddWheels2TyreBeam(pos, tyre_outer_node, tyre_next_inner_node);
+        AddWheels2TyreBeam(pos, tyre_inner_node, tyre_next_outer_node);
+        AddWheels2TyreBeam(pos, tyre_inner_node, tyre_next_inner_node);
         /* Tyre sidewalls */
-        AddTyreBeam(wheel_2_def, tyre_outer_node, rim_outer_node);
-        AddTyreBeam(wheel_2_def, tyre_outer_node, rim_next_outer_node);
-        AddTyreBeam(wheel_2_def, tyre_inner_node, rim_inner_node);
-        AddTyreBeam(wheel_2_def, tyre_inner_node, rim_next_inner_node);
+        AddWheels2TyreBeam(pos, tyre_outer_node, rim_outer_node);
+        AddWheels2TyreBeam(pos, tyre_outer_node, rim_next_outer_node);
+        AddWheels2TyreBeam(pos, tyre_inner_node, rim_inner_node);
+        AddWheels2TyreBeam(pos, tyre_inner_node, rim_next_inner_node);
         /* Reinforcement */
-        AddTyreBeam(wheel_2_def, tyre_outer_node, rim_inner_node);
-        AddTyreBeam(wheel_2_def, tyre_outer_node, rim_next_inner_node);
-        AddTyreBeam(wheel_2_def, tyre_inner_node, rim_outer_node);
-        AddTyreBeam(wheel_2_def, tyre_inner_node, rim_next_outer_node);
+        AddWheels2TyreBeam(pos, tyre_outer_node, rim_inner_node);
+        AddWheels2TyreBeam(pos, tyre_outer_node, rim_next_inner_node);
+        AddWheels2TyreBeam(pos, tyre_inner_node, rim_outer_node);
+        AddWheels2TyreBeam(pos, tyre_inner_node, rim_next_outer_node);
         /* Backpressure, bounded */
-        AddTyreBeam(wheel_2_def, axis_node_1, tyre_outer_node);
-        AddTyreBeam(wheel_2_def, axis_node_2, tyre_inner_node);
+        AddWheels2TyreBeam(pos, axis_node_1, tyre_outer_node);
+        AddWheels2TyreBeam(pos, axis_node_2, tyre_inner_node);
     }
 
     /* Wheel object */
-    wheel.wh_braking       = this->TranslateBrakingDef(wheel_2_def.braking);
-    wheel.wh_propulsed     = (int)wheel_2_def.propulsion;
-    wheel.wh_num_nodes     = 2 * wheel_2_def.num_rays;
+    wheel.wh_braking = this->TranslateBrakingDef(wheel_2_def.braking);
+    wheel.wh_propulsed = (int)wheel_2_def.propulsion;
+    wheel.wh_num_nodes = 2 * wheel_2_def.num_rays;
     wheel.wh_num_rim_nodes = wheel.wh_num_nodes;
-    wheel.wh_axis_node_0   = axis_node_1;
-    wheel.wh_axis_node_1   = axis_node_2;
-    wheel.wh_radius        = wheel_2_def.tyre_radius;
-    wheel.wh_rim_radius    = wheel_2_def.rim_radius;
-    wheel.wh_arm_node      = this->GetNodePointer(wheel_2_def.reference_arm_node);
+    wheel.wh_axis_node_0 = axis_node_1;
+    wheel.wh_axis_node_1 = axis_node_2;
+    wheel.wh_radius = wheel_2_def.tyre_radius;
+    wheel.wh_rim_radius = wheel_2_def.rim_radius;
+    wheel.wh_arm_node = this->GetNodePointer(wheel_2_def.reference_arm_node);
 
     if (wheel_2_def.propulsion != RigDef::WheelPropulsion::NONE)
     {
@@ -4931,18 +5536,18 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 }
 
 void ActorSpawner::CreateWheelVisuals(
-    unsigned int wheel_index, 
+    unsigned int wheel_index,
     unsigned int node_base_index,
     unsigned int num_rays,
-    Ogre::String const & rim_material_name,
-    Ogre::String const & band_material_name,
+    Ogre::String const& rim_material_name,
+    Ogre::String const& band_material_name,
     bool separate_rim,
     float rim_ratio
 )
 {
     m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill all current nodes - needed to setup flexing meshes
 
-    wheel_t & wheel = m_actor->ar_wheels[wheel_index];
+    wheel_t& wheel = m_actor->ar_wheels[wheel_index];
 
     try
     {
@@ -4964,7 +5569,7 @@ void ActorSpawner::CreateWheelVisuals(
         );
 
         const std::string instance_name = this->ComposeName("WheelEntity", wheel_index);
-        Ogre::Entity *ec = App::GetGfxScene()->GetSceneManager()->createEntity(instance_name, wheel_mesh_name);
+        Ogre::Entity* ec = App::GetGfxScene()->GetSceneManager()->createEntity(instance_name, wheel_mesh_name);
         this->SetupNewEntity(ec, Ogre::ColourValue(0, 0.5, 0.5));
         visual_wheel.wx_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         m_actor->m_deletion_entities.emplace_back(ec);
@@ -4973,12 +5578,12 @@ void ActorSpawner::CreateWheelVisuals(
     }
     catch (Ogre::Exception& e)
     {
-        AddMessage(Message::TYPE_ERROR, "Failed to create wheel visuals: " +  e.getFullDescription());
+        AddMessage(Message::TYPE_ERROR, "Failed to create wheel visuals: " + e.getFullDescription());
     }
 }
 
 void ActorSpawner::CreateFlexBodyWheelVisuals(
-    unsigned int wheel_index, 
+    unsigned int wheel_index,
     unsigned int node_base_index,
     NodeNum_t axis_node_1,
     NodeNum_t axis_node_2,
@@ -4996,19 +5601,19 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
         "tracks/trans", // Rim material name. Original parser: was hardcoded in BTS_FLEXBODYWHEELS
         def.rim_radius,
         def.side != RigDef::WheelSide::RIGHT
-        );
+    );
 
     int num_nodes = def.num_rays * 4;
     std::vector<unsigned int> node_indices;
     node_indices.reserve(num_nodes);
     for (int i = 0; i < num_nodes; ++i)
     {
-        node_indices.push_back( node_base_index + i );
+        node_indices.push_back(node_base_index + i);
     }
 
     RigDef::Flexbody flexbody_def;
     flexbody_def.mesh_name = def.tyre_mesh_name;
-    flexbody_def.offset = Ogre::Vector3(0.5,0,0);
+    flexbody_def.offset = Ogre::Vector3(0.5, 0, 0);
 
     try
     {
@@ -5020,7 +5625,7 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
             Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
             node_indices,
             m_custom_resource_group
-            );
+        );
 
         if (flexbody == nullptr)
             return; // Error already logged
@@ -5031,27 +5636,27 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
     }
     catch (Ogre::Exception& e)
     {
-        this->AddMessage(Message::TYPE_ERROR, 
+        this->AddMessage(Message::TYPE_ERROR,
             "Failed to create flexbodywheel visuals '" + def.tyre_mesh_name + "', reason:" + e.getFullDescription());
     }
 }
 
 unsigned int ActorSpawner::AddWheelBeam(
-    node_t *node_1, 
-    node_t *node_2, 
-    float spring, 
-    float damping, 
-    std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
+    node_t* node_1,
+    node_t* node_2,
+    float spring,
+    float damping,
     float max_contraction,   /* Default: -1.f */
     float max_extension,     /* Default: -1.f */
     BeamType type            /* Default: BEAM_INVISIBLE */
 )
 {
     unsigned int index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(*node_1, *node_2, beam_defaults, DEFAULT_DETACHER_GROUP); 
+    beam_t& beam = AddBeam(*node_1, *node_2);
     beam.bm_type = type;
     beam.k = spring;
     beam.d = damping;
+    beam.detacher_group = DEFAULT_DETACHER_GROUP;
     if (max_contraction > 0.f)
     {
         beam.shortbound = max_contraction;
@@ -5063,42 +5668,45 @@ unsigned int ActorSpawner::AddWheelBeam(
     return index;
 }
 
-unsigned int ActorSpawner::AddWheelRimBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2)
+unsigned int ActorSpawner::AddWheels2RimBeam(DataPos_t pos, node_t* node_1, node_t* node_2)
 {
-    unsigned int beam_index = _SectionWheels2AddBeam(wheel_2_def, node_1, node_2);
-    beam_t & beam = GetBeam(beam_index);
-    beam.k = wheel_2_def.rim_springiness;
-    beam.d = wheel_2_def.rim_damping;
+    unsigned int beam_index = AddWheels2Beam(pos, node_1, node_2);
+    beam_t& beam = GetBeam(beam_index);
+    beam.k = m_document->wheels2[pos].rim_springiness;
+    beam.d = m_document->wheels2[pos].rim_damping;
     return beam_index;
 }
 
-unsigned int ActorSpawner::AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2)
+unsigned int ActorSpawner::AddWheels2TyreBeam(DataPos_t pos, node_t* node_1, node_t* node_2)
 {
-    unsigned int beam_index = _SectionWheels2AddBeam(wheel_2_def, node_1, node_2);
-    beam_t & beam = GetBeam(beam_index);
-    beam.k = wheel_2_def.tyre_springiness;
-    beam.d = wheel_2_def.tyre_damping;
+    unsigned int beam_index = AddWheels2Beam(pos, node_1, node_2);
+    beam_t& beam = GetBeam(beam_index);
+    beam.k = m_document->wheels2[pos].tyre_springiness;
+    beam.d = m_document->wheels2[pos].tyre_damping;
 
     m_actor->getTyrePressure().AddBeam((int)beam_index);
 
     return beam_index;
 }
 
-unsigned int ActorSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2)
+unsigned int ActorSpawner::AddWheels2Beam(DataPos_t pos, node_t* node_1, node_t* node_2)
 {
+    Wheel2& def = m_document->wheels2[pos];
+
     unsigned int index = m_actor->ar_num_beams;
-    beam_t & beam = GetFreeBeam();
+    beam_t& beam = GetFreeBeam();
     InitBeam(beam, node_1, node_2);
     beam.bm_type = BEAM_NORMAL;
-    SetBeamStrength(beam, wheel_2_def.beam_defaults->breaking_threshold);
-    SetBeamDeformationThreshold(beam, wheel_2_def.beam_defaults);
+    beam.strength = m_state.default_break;
+    beam.strength = m_state.default_deform;
     return index;
 }
 
-void ActorSpawner::ProcessWheel2(RigDef::Wheel2 & def)
+void ActorSpawner::ProcessWheel2(DataPos_t pos)
 {
     unsigned int node_base_index = m_actor->ar_num_nodes;
-    unsigned int wheel_index = AddWheel2(def);
+    unsigned int wheel_index = AddWheel2(pos);
+    Wheel2& def = m_document->wheels2[pos];
     this->CreateWheelVisuals(
         wheel_index,
         node_base_index,
@@ -5107,16 +5715,18 @@ void ActorSpawner::ProcessWheel2(RigDef::Wheel2 & def)
         def.band_material_name,
         /*separate_rim:*/true,
         /*rim_ratio:*/def.rim_radius / def.tyre_radius
-        );
+    );
 };
 
-void ActorSpawner::ProcessWheel(RigDef::Wheel & def)
+void ActorSpawner::ProcessWheel(DataPos_t pos)
 {
-    AddWheel(def);
+    AddWheel(pos);
 };
 
-void ActorSpawner::ProcessWheelDetacher(RigDef::WheelDetacher & def)
+void ActorSpawner::ProcessWheelDetacher(DataPos_t pos)
 {
+    WheelDetacher& def = m_document->wheeldetachers[pos];
+
     if (def.wheel_id > m_actor->ar_num_wheels - 1)
     {
         AddMessage(Message::TYPE_ERROR, std::string("Invalid wheel_id: ") + TOSTRING(def.wheel_id));
@@ -5129,8 +5739,10 @@ void ActorSpawner::ProcessWheelDetacher(RigDef::WheelDetacher & def)
     m_actor->ar_wheeldetachers.push_back(obj);
 };
 
-void ActorSpawner::ProcessTractionControl(RigDef::TractionControl & def)
+void ActorSpawner::ProcessTractionControl(DataPos_t pos)
 {
+    TractionControl& def = m_document->tractioncontrol[pos];
+
     /* #1: regulating_force */
     float force = def.regulation_force;
     if (force < 1.f || force > 20.f)
@@ -5153,7 +5765,7 @@ void ActorSpawner::ProcessTractionControl(RigDef::TractionControl & def)
     if (pulse <= 1.0f || pulse >= 2000.0f)
     {
         pulse = 2000.0f;
-    } 
+    }
     m_actor->tc_pulse_time = 1 / pulse;
 
     /* #4: mode */
@@ -5162,8 +5774,10 @@ void ActorSpawner::ProcessTractionControl(RigDef::TractionControl & def)
     m_actor->tc_notoggle = def.attr_no_toggle;
 };
 
-void ActorSpawner::ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def)
+void ActorSpawner::ProcessAntiLockBrakes(DataPos_t pos)
 {
+    AntiLockBrakes& def = m_document->antilockbrakes[pos];
+
     /* #1: regulating_force */
     float force = def.regulation_force;
     if (force < 1.f || force > 20.f)
@@ -5185,7 +5799,7 @@ void ActorSpawner::ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def)
     if (pulse <= 1.0f || pulse >= 2000.0f)
     {
         pulse = 2000.0f;
-    } 
+    }
     m_actor->alb_pulse_time = 1 / pulse;
 
     /* #4: mode */
@@ -5194,8 +5808,10 @@ void ActorSpawner::ProcessAntiLockBrakes(RigDef::AntiLockBrakes & def)
     m_actor->alb_notoggle = def.attr_no_toggle;
 }
 
-void ActorSpawner::ProcessBrakes(RigDef::Brakes & def)
+void ActorSpawner::ProcessBrakes(DataPos_t pos)
 {
+    Brakes& def = m_document->brakes[pos];
+
     m_actor->ar_brake_force = def.default_braking_force;
     m_actor->m_handbrake_force = 2.f * m_actor->ar_brake_force;
     if (def.parking_brake_force != -1.f)
@@ -5204,20 +5820,24 @@ void ActorSpawner::ProcessBrakes(RigDef::Brakes & def)
     }
 };
 
-void ActorSpawner::ProcessEngturbo(RigDef::Engturbo & def)
+void ActorSpawner::ProcessEngturbo(DataPos_t pos)
 {
+    Engturbo& def = m_document->engturbo[pos];
+
     /* Is this a land vehicle? */
     if (m_actor->ar_engine == nullptr)
     {
         AddMessage(Message::TYPE_WARNING, "Section 'engturbo' found but no engine defined. Skipping ...");
         return;
     }
-   
+
     m_actor->ar_engine->SetTurboOptions(def.version, def.tinertiaFactor, def.nturbos, def.param1, def.param2, def.param3, def.param4, def.param5, def.param6, def.param7, def.param8, def.param9, def.param10, def.param11);
 };
 
-void ActorSpawner::ProcessEngoption(RigDef::Engoption & def)
+void ActorSpawner::ProcessEngoption(DataPos_t pos)
 {
+    Engoption& def = m_document->engoption[pos];
+
     /* Is this a land vehicle? */
     if (m_actor->ar_engine == nullptr)
     {
@@ -5246,8 +5866,10 @@ void ActorSpawner::ProcessEngoption(RigDef::Engoption & def)
     );
 };
 
-void ActorSpawner::ProcessEngine(RigDef::Engine & def)
+void ActorSpawner::ProcessEngine(DataPos_t pos)
 {
+    Engine& def = m_document->engine[pos];
+
     /* Process it */
     m_actor->ar_driveable = TRUCK;
 
@@ -5275,13 +5897,17 @@ void ActorSpawner::ProcessEngine(RigDef::Engine & def)
     m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
 };
 
-void ActorSpawner::ProcessHelp(RigDef::Help & def)
+void ActorSpawner::ProcessHelp(DataPos_t pos)
 {
+    RigDef::Help& def = m_document->help[pos];
+
     m_help_material_name = def.material;
 };
 
-void ActorSpawner::ProcessAuthor(RigDef::Author & def)
+void ActorSpawner::ProcessAuthor(DataPos_t pos)
 {
+    RigDef::Author& def = m_document->author[pos];
+
     authorinfo_t author;
     author.type = def.type;
     author.name = def.name;
@@ -5293,31 +5919,33 @@ void ActorSpawner::ProcessAuthor(RigDef::Author & def)
     m_actor->authors.push_back(author);
 };
 
-NodeNum_t ActorSpawner::GetNodeIndexOrThrow(RigDef::Node::Ref const & node_ref)
+NodeNum_t ActorSpawner::GetNodeIndexOrThrow(RigDef::NodeRef_t const& node_ref)
 {
     NodeNum_t node = this->ResolveNodeRef(node_ref);
     if (node == NODENUM_INVALID)
     {
         std::stringstream msg;
-        msg << "Failed to retrieve required node: " << node_ref.ToString();
+        msg << "Failed to retrieve required node: " << node_ref;
         throw Exception(msg.str());
     }
     return node;
 }
 
-void ActorSpawner::ProcessCamera(RigDef::Camera & def)
+void ActorSpawner::ProcessCamera(DataPos_t pos)
 {
-    if (def.center_node.IsValidAnyState())
+    Camera& def = m_document->cameras[pos];
+
+    if (def.center_node != NODEREF_INVALID)
     {
         m_actor->ar_camera_node_pos[m_actor->ar_num_cameras] = GetNodeIndexOrThrow(def.center_node);
     }
 
-    if (def.back_node.IsValidAnyState())
+    if (def.back_node != NODEREF_INVALID)
     {
         m_actor->ar_camera_node_dir[m_actor->ar_num_cameras] = GetNodeIndexOrThrow(def.back_node);
     }
 
-    if (def.left_node.IsValidAnyState())
+    if (def.left_node != NODEREF_INVALID)
     {
         m_actor->ar_camera_node_roll[m_actor->ar_num_cameras] = GetNodeIndexOrThrow(def.left_node);
     }
@@ -5325,48 +5953,21 @@ void ActorSpawner::ProcessCamera(RigDef::Camera & def)
     m_actor->ar_num_cameras++;
 };
 
-node_t* ActorSpawner::GetBeamNodePointer(RigDef::Node::Ref const & node_ref)
+void ActorSpawner::ProcessBeam(DataPos_t pos)
 {
-    node_t* node = GetNodePointer(node_ref);
-    if (node != nullptr)
-    {
-        return node;
-    }
-    return nullptr;
-}
+    Beam& def = m_document->beams[pos];
 
-void ActorSpawner::ProcessBeam(RigDef::Beam & def)
-{
-    // Nodes
-    node_t* ar_nodes[] = {nullptr, nullptr};
-    ar_nodes[0] = GetBeamNodePointer(def.nodes[0]);
-    if (ar_nodes[0] == nullptr)
-    {
-        AddMessage(Message::TYPE_WARNING, std::string("Ignoring beam, could not find node: ") + def.nodes[0].ToString());
-        return;
-    }
-    ar_nodes[1] = GetBeamNodePointer(def.nodes[1]);
-    if (ar_nodes[1] == nullptr)
-    {
-        AddMessage(Message::TYPE_WARNING, std::string("Ignoring beam, could not find node: ") + def.nodes[1].ToString());
-        return;
-    }
-
-    // Beam
+    // Set up beam
     int beam_index = m_actor->ar_num_beams;
-    beam_t & beam = AddBeam(*ar_nodes[0], *ar_nodes[1], def.defaults, def.detacher_group);
+    beam_t& beam = AddBeam(def.nodes[0], def.nodes[1]);
+    beam.strength = m_state.default_break * m_state.default_break_scale;
     beam.bm_type = BEAM_NORMAL;
-    beam.k = def.defaults->GetScaledSpringiness();
-    beam.d = def.defaults->GetScaledDamping();
-    beam.bounded = NOSHOCK; // Orig: if (shortbound) ... hardcoded in BTS_BEAMS
+    beam.d = m_state.default_damp * m_state.default_damp_scale;
+    beam.k = m_state.default_spring * m_state.default_spring_scale;
 
     /* Calculate length */
     // orig = precompression hardcoded to 1
     CalculateBeamLength(beam);
-
-    /* Strength */
-    float beam_strength = def.defaults->GetScaledBreakingThreshold();
-    beam.strength  = beam_strength;
 
     /* Options */
     if (BITMASK_IS_1(def.options, RigDef::Beam::OPTION_r_ROPE))
@@ -5376,142 +5977,16 @@ void ActorSpawner::ProcessBeam(RigDef::Beam & def)
     if (BITMASK_IS_1(def.options, RigDef::Beam::OPTION_s_SUPPORT))
     {
         beam.bounded = SUPPORTBEAM;
-        beam.longbound = def.extension_break_limit;
+        beam.longbound = def.support_break_limit;
     }
 
     if (BITMASK_IS_0(def.options, RigDef::Beam::OPTION_i_INVISIBLE))
     {
-        this->CreateBeamVisuals(beam, beam_index, true, def.defaults);
+        this->CreateBeamVisuals(beam, beam_index, true);
     }
 }
 
-void ActorSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults)
-{
-    /*
-    ---------------------------------------------------------------------------
-        Old parser logic
-    ---------------------------------------------------------------------------
-
-    VAR default_deform              = BEAM_DEFORM (400,000)
-    VAR default_deform_scale        = 1
-    VAR beam_creak                  = BEAM_CREAK_DEFAULT (100,000)
-    VAR enable_advanced_deformation = false
-
-
-    add_beam()
-        IF default_deform < beam_creak
-            default_deform = beam_creak
-        END IF
-
-        VAR beam;
-        beam.default_deform = default_deform * default_deform_scale
-    END
-
-    
-    enable_advanced_deformation:
-        READ enable_advanced_deformation
-
-
-    set_beam_defaults:
-        READ default_deform
-        VAR  default_deform_user_defined
-        READ default_deform_scale
-        VAR  plastic_coef_user_defined
-
-        IF (!enable_advanced_deformation && default_deform < BEAM_DEFORM)
-           default_deform = BEAM_DEFORM;
-        END IF
-
-        IF (plastic_coef_user_defined)
-            beam_creak = 0
-        END IF
-  
-    ---------------------------------------------------------------------------
-        TruckParser2013
-    ---------------------------------------------------------------------------    
-
-    VAR beam_defaults
-    {
-        default_deform                = BEAM_DEFORM
-        scale.default_deform          = 1
-        _enable_advanced_deformation  = false
-        _user_defined                 = false
-        _default_deform_set           = false
-        _plastic_coef_user_defined    = false
-    }
-
-
-    set_beam_defaults:
-        READ beam_defaults
-
-
-    add_beam:
-
-        // Init
-
-        VAR default_deform = BEAM_DEFORM;
-        VAR beam_creak = BEAM_CREAK_DEFAULT;
-
-        // Old 'set_beam_defaults'
-
-        IF (beam_defaults._is_user_defined)
-
-            default_deform = beam_defaults.default_deform
-            IF (!beam_defaults._enable_advanced_deformation && default_deform < BEAM_DEFORM)
-               default_deform = BEAM_DEFORM;
-            END IF
-
-            IF (beam_defaults._plastic_coef_user_defined && beam_defaults.plastic_coef >= 0)
-                beam_creak = 0
-            END IF
-
-        END IF
-
-        // Old 'add_beam'
-
-        IF default_deform < beam_creak
-            default_deform = beam_creak
-        END IF
-
-        VAR beam;
-        beam.default_deform = default_deform * beam_defaults.scale.default_deform
-    
-    ---------------------------------------------------------------------------
-    */
-
-    // Old init
-    float default_deform = BEAM_DEFORM; 
-    float beam_creak = BEAM_CREAK_DEFAULT;
-
-    // Old 'set_beam_defaults'
-    if (beam_defaults->_is_user_defined)
-    {
-        default_deform = beam_defaults->deformation_threshold;
-        if (!beam_defaults->_enable_advanced_deformation && default_deform < BEAM_DEFORM)
-        {
-            default_deform = BEAM_DEFORM;
-        }
-
-        if (beam_defaults->_is_plastic_deform_coef_user_defined && beam_defaults->plastic_deform_coef >= 0.f)
-        {
-            beam_creak = 0.f;
-        }
-    }
-
-    // Old 'add_beam'
-    if (default_deform < beam_creak)
-    {
-        default_deform = beam_creak;
-    }
-
-    float deformation_threshold = default_deform * beam_defaults->scale.deformation_threshold_constant;
-
-    beam.minmaxposnegstress = deformation_threshold;
-    beam.maxposstress       = deformation_threshold;
-    beam.maxnegstress       = -(deformation_threshold);
-}
-
-void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override)
+void ActorSpawner::CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::string material_override)
 {
     std::string material_name = material_override;
     if (material_name.empty())
@@ -5522,7 +5997,7 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
         }
         else
         {
-            material_name = beam_defaults->beam_material_name;
+            material_name = m_state.default_beam_material;
             // Check for existing substitute
             auto it = m_managed_materials.find(material_name);
             if (it != m_managed_materials.end())
@@ -5548,7 +6023,7 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
         entity->setMaterialName(material_name);
 
         BeamGfx beamx;
-        beamx.rod_diameter_mm = uint16_t(beam_defaults->visual_beam_diameter * 1000.f);
+        beamx.rod_diameter_mm = uint16_t(m_state.default_beam_diameter * 1000.f);
         beamx.rod_beam_index = static_cast<uint16_t>(beam_index);
         beamx.rod_node1 = beam.p1->pos;
         beamx.rod_node2 = beam.p2->pos;
@@ -5558,7 +6033,7 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
         beamx.rod_scenenode = m_actor->m_gfx_actor->m_gfx_beams_parent_scenenode->createChildSceneNode();
         beamx.rod_scenenode->attachObject(entity);
         beamx.rod_scenenode->setVisible(visible, /*cascade:*/ false);
-        beamx.rod_scenenode->setScale(beam_defaults->visual_beam_diameter, -1, beam_defaults->visual_beam_diameter);
+        beamx.rod_scenenode->setScale(m_state.default_beam_diameter, -1, m_state.default_beam_diameter);
 
         m_actor->m_gfx_actor->m_gfx_beams.push_back(beamx);
     }
@@ -5568,29 +6043,27 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
     }
 }
 
-void ActorSpawner::CalculateBeamLength(beam_t & beam)
+
+
+
+void ActorSpawner::CalculateBeamLength(beam_t& beam)
 {
     float beam_length = (beam.p1->RelPosition - beam.p2->RelPosition).length();
     beam.L = beam_length;
     beam.refL = beam_length;
 }
 
-void ActorSpawner::InitBeam(beam_t & beam, node_t *node_1, node_t *node_2)
+void ActorSpawner::InitBeam(beam_t& beam, node_t* node_1, node_t* node_2)
 {
     beam.p1 = node_1;
     beam.p2 = node_2;
-
-    /* Length */
     CalculateBeamLength(beam);
 }
 
-void ActorSpawner::AddMessage(ActorSpawner::Message type,	Ogre::String const & text)
+void ActorSpawner::AddMessage(ActorSpawner::Message type, Ogre::String const& text)
 {
     Str<4000> txt;
-    if (m_file)
-    {
-        txt << m_file->name;
-    }
+    txt << m_document->name;
     if (m_current_keyword != RigDef::Keyword::INVALID)
     {
         txt << " (" << RigDef::KeywordToString(m_current_keyword) << ")";
@@ -5615,148 +6088,106 @@ void ActorSpawner::AddMessage(ActorSpawner::Message type,	Ogre::String const & t
     RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_ACTOR, cm_type, txt.ToCStr());
 }
 
-NodeNum_t ActorSpawner::ResolveNodeRef(RigDef::Node::Ref const & node_ref)
+NodeNum_t ActorSpawner::ResolveNodeRef(RigDef::NodeRef_t const& node_ref)
 {
-    if (!node_ref.IsValidAnyState())
+    if (node_ref == NODEREF_INVALID)
     {
-        AddMessage(Message::TYPE_ERROR, std::string("Attempt to resolve invalid node reference: ") + node_ref.ToString());
         return NODENUM_INVALID;
     }
-    bool is_imported = node_ref.GetImportState_IsValid();
-    bool is_named = (is_imported ? node_ref.GetImportState_IsResolvedNamed() : node_ref.GetRegularState_IsNamed());
-    if (is_named)
+
+    if (m_actor->ar_num_nodes == 0)
     {
-        auto result = m_named_nodes.find(node_ref.Str());
-        if (result != m_named_nodes.end())
+        // we got this before the user added any nodes, thats bad
+        // but for compatibility reasons (soundsources, camera) we will return what was asked for and report an error only
+        this->AddMessage(Message::TYPE_WARNING,
+            fmt::format("Error: using node '{}' before actually declaring that node. Please move this element ({}) after the nodes/nodes2 block.", node_ref, KeywordToString(m_current_keyword)));
+        return static_cast<NodeNum_t>(PARSEINT(node_ref));
+    }
+
+    // query named nodes ('nodes2') first
+    if (!m_node_names.empty())
+    {
+        auto itor = m_node_names.find(node_ref);
+        if (itor != m_node_names.end())
         {
-            return (NodeNum_t)result->second;
+            return itor->second;
         }
+    }
 
-        std::stringstream msg;
-        msg << "Failed to resolve node-ref (node not found):" << node_ref.ToString();
-        AddMessage(Message::TYPE_ERROR, msg.str());
+    int id = PARSEINT(node_ref);
+    if (id < 0)
+    {
+        this->AddMessage(Message::TYPE_WARNING,
+            fmt::format("Error: invalid node number {}, less than zero, using positive number, please fix", id));
+        id = -id;
+    }
 
+    // check if the number is roughly correct
+    if (id >= m_actor->ar_num_nodes)
+    {
+        this->AddMessage(Message::TYPE_ERROR,
+            fmt::format("Error: invalid node number {}, bigger than existing nodes ({})", id, m_actor->ar_num_nodes));
         return NODENUM_INVALID;
     }
-    else
-    {
-        // Imported nodes pass without check
-        if (!is_imported && (node_ref.Num() >= static_cast<unsigned int>(m_actor->ar_num_nodes)))
-        {
 
-            std::stringstream msg;
-            msg << "Failed to resolve node-ref (node index too big, node count is: "<<m_actor->ar_num_nodes<<"): " << node_ref.ToString();
-            AddMessage(Message::TYPE_ERROR, msg.str());
-
-            return NODENUM_INVALID;
-        }
-        return (NodeNum_t)node_ref.Num();
-    }
+    return static_cast<NodeNum_t>(id);
 }
 
-node_t* ActorSpawner::GetNodePointer(RigDef::Node::Ref const & node_ref)
+node_t* ActorSpawner::GetNodePointer(RigDef::NodeRef_t const& node_ref)
 {
     NodeNum_t node = ResolveNodeRef(node_ref);
-    if (node != NODENUM_INVALID)
-    {
-        return & m_actor->ar_nodes[node];
-    }
-    else
+    if (node == NODENUM_INVALID)
     {
         return nullptr;
     }
+
+    return &m_actor->ar_nodes[node];
 }
 
-node_t* ActorSpawner::GetNodePointerOrThrow(RigDef::Node::Ref const & node_ref)
+node_t* ActorSpawner::GetNodePointerOrThrow(RigDef::NodeRef_t const& node_ref)
 {
-    node_t *node = GetNodePointer(node_ref);
-    if (node == nullptr)
+    NodeNum_t node = ResolveNodeRef(node_ref);
+    if (node == NODENUM_INVALID)
     {
-        std::stringstream msg;
-        msg << "Required node not found: " << node_ref.ToString();
-        throw Exception(msg.str());
+        throw Exception(fmt::format("Required node not found: {}", node_ref));
     }
-    return node;
+
+    return &m_actor->ar_nodes[node];
 }
 
-std::pair<unsigned int, bool> ActorSpawner::AddNode(RigDef::Node::Id & id)
+void ActorSpawner::ProcessNode(DataPos_t pos)
 {
-    if (!id.IsValid())
-    {
-        std::stringstream msg;
-        msg << "Attempt to add node with 'INVALID' flag: " << id.ToString() << " (number of nodes at this point: " << m_actor->ar_num_nodes << ")";
-        this->AddMessage(Message::TYPE_ERROR, msg.str());
-        return std::make_pair(0, false);
-    }
-
-    if (id.IsTypeNamed())
-    {
-        unsigned int new_index = static_cast<unsigned int>(m_actor->ar_num_nodes);
-        auto insert_result = m_named_nodes.insert(std::make_pair(id.Str(), new_index));
-        if (! insert_result.second)
-        {
-            std::stringstream msg;
-            msg << "Ignoring named node! Duplicate name: " << id.Str() << " (number of nodes at this point: " << m_actor->ar_num_nodes << ")";
-            this->AddMessage(Message::TYPE_ERROR, msg.str());
-            return std::make_pair(0, false);
-        }
-        m_actor->ar_nodes_name[new_index] = id.Str();
-        m_actor->ar_nodes_id[new_index] = m_actor->ar_num_nodes;
-        m_actor->ar_nodes_name_top_length = std::max(m_actor->ar_nodes_name_top_length, (int)id.Str().length());
-        m_actor->ar_num_nodes++;
-        return std::make_pair(new_index, true);
-    }
-    if (id.IsTypeNumbered())
-    {
-        if (id.Num() < static_cast<unsigned int>(m_actor->ar_num_nodes))
-        {
-            std::stringstream msg;
-            msg << "Duplicate node number, previous definition will be overriden! - " << id.ToString() << " (number of nodes at this point: " << m_actor->ar_num_nodes << ")";
-            this->AddMessage(Message::TYPE_WARNING, msg.str());
-        }
-        unsigned int new_index = static_cast<unsigned int>(m_actor->ar_num_nodes);
-        m_actor->ar_nodes_id[new_index] = id.Num();
-        m_actor->ar_num_nodes++;
-        return std::make_pair(new_index, true);
-    }
-    // Invalid node ID without type flag!
-    throw Exception("Invalid Node::Id without type flags!");
+    Node& def = m_document->nodes[pos];
+    this->AddNode(def, TOSTRING(def.num), def.num);
 }
 
-void ActorSpawner::ProcessNode(RigDef::Node & def)
+void ActorSpawner::ProcessNode2(DataPos_t pos)
 {
-    std::pair<unsigned int, bool> inserted_node = AddNode(def.id);
-    if (! inserted_node.second)
-    {
-        return;
-    }
+    Node2& def = m_document->nodes2[pos];
+    this->AddNode(def, def.name, NODENUM_INVALID);
 
-    node_t & node = m_actor->ar_nodes[inserted_node.first];
-    node.pos = inserted_node.first; /* Node index */
+    m_node_names[def.name] = m_actor->ar_nodes[m_actor->ar_num_nodes - 1].pos;
+}
 
-    /* Positioning */
-    Ogre::Vector3 node_position = m_spawn_position + def.position;
-    node.AbsPosition = node_position; 
-    node.RelPosition = node_position - m_actor->ar_origin;
+void ActorSpawner::AddNode(NodesCommon& def, std::string const& node_name, NodeNum_t node_number)
+{
 
-    node.friction_coef = def.node_defaults->friction;
-    node.volume_coef = def.node_defaults->volume;
-    node.surface_coef = def.node_defaults->surface;
+    // Set up node
+    node_t& node = this->GetFreeNode();
+    InitNode(node, m_spawn_position + def.position);
+    node.nd_lockgroup = m_state.lockgroup_default;
 
-    /* Mass */
-    if (def.default_minimass)
-    {
-        m_actor->ar_minimass[inserted_node.first] = def.default_minimass->min_mass_Kg;
-    }
-    else
-    {
-        m_actor->ar_minimass[inserted_node.first] = m_state.global_minimass;
-    }
+    // Fill debug info
+    m_actor->ar_nodes_name[node.pos] = node_name;
+    m_actor->ar_nodes_id[node.pos] = node_number;
+    m_actor->ar_nodes_name_top_length = std::max(m_actor->ar_nodes_name_top_length, (int)node_name.length());
 
-    if (def.node_defaults->load_weight >= 0.f) // The >= operator is in orig.
+    // Configure mass
+    m_actor->ar_minimass[node.pos] = m_state.default_minimass;
+    if (m_state.default_node_loadweight >= 0.f) // The >= operator is intentional.
     {
         // orig = further override of hardcoded default.
-        node.mass = def.node_defaults->load_weight; 
+        node.mass = m_state.default_node_loadweight;
         node.nd_override_mass = true;
         node.nd_loaded_mass = true;
     }
@@ -5766,69 +6197,72 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         node.nd_loaded_mass = false;
     }
 
-    /* Lockgroup */
-    node.nd_lockgroup = (m_file->lockgroup_default_nolock) ? RigDef::Lockgroup::LOCKGROUP_NOLOCK : RigDef::Lockgroup::LOCKGROUP_DEFAULT;
-
     /* Options */
-    unsigned int options = def.options | def.node_defaults->options; /* Merge bit flags */
+    BitMask_t options = def.options | m_state.default_node_options; // merge bit masks
     if (BITMASK_IS_1(options, RigDef::Node::OPTION_l_LOAD_WEIGHT))
     {
         node.nd_loaded_mass = true;
-        if (def._has_load_weight_override)
+        if (def._num_args > 5) // Was override specified? 
         {
             node.nd_override_mass = true;
-            node.mass = def.load_weight_override;
+            node.mass = def.loadweight_override;
         }
         else
         {
             m_actor->m_masscount++;
         }
     }
+
     if (BITMASK_IS_1(options, RigDef::Node::OPTION_h_HOOK_POINT))
     {
         /* Link [current-node] -> [node-0] */
         /* If current node is 0, link [node-0] -> [node-1] */
-        node_t & node_2 = m_actor->ar_nodes[((node.pos == 0) ? 1 : 0)];
+        node_t& node_2 = m_actor->ar_nodes[((node.pos == 0) ? 1 : 0)];
         unsigned int beam_index = m_actor->ar_num_beams;
 
-        beam_t & beam = AddBeam(node, node_2, def.beam_defaults, def.detacher_group);
-        SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold() * 100.f);
-        beam.bm_type           = BEAM_HYDRO;
-        beam.d                 = def.beam_defaults->GetScaledDamping() * 0.1f;
-        beam.k                 = def.beam_defaults->GetScaledSpringiness();
-        beam.bounded           = ROPE;
-        beam.bm_disabled       = true;
-        beam.L                 = HOOK_RANGE_DEFAULT;
-        beam.refL              = HOOK_RANGE_DEFAULT;
-        SetBeamDeformationThreshold(beam, def.beam_defaults);
-        CreateBeamVisuals(beam, beam_index, false, def.beam_defaults);
-            
+        // Set up beam
+        beam_t& beam = AddBeam(node, node_2);
+        beam.strength = m_state.default_break * m_state.default_break_scale * 100.f;
+        beam.bm_type = BEAM_HYDRO;
+        beam.d = m_state.default_damp * m_state.default_damp_scale * 0.1f;
+        beam.k = m_state.default_spring * m_state.default_spring_scale;
+        beam.bounded = ROPE;
+        beam.bm_disabled = true;
+        beam.L = HOOK_RANGE_DEFAULT;
+        beam.refL = HOOK_RANGE_DEFAULT;
+        beam.default_beam_deform = m_state.default_deform * m_state.default_deform_scale;
+        beam.minmaxposnegstress = m_state.default_deform * m_state.default_deform_scale;
+        beam.maxposstress = m_state.default_deform * m_state.default_deform_scale;
+        beam.maxnegstress = m_state.default_deform * m_state.default_deform_scale;
+
+        CreateBeamVisuals(beam, beam_index, false);
+
         // Logic cloned from SerializedRig.cpp, section BTS_NODES
         hook_t hook;
-        hook.hk_hook_node         = & node;
-        hook.hk_group             = -1;
-        hook.hk_locked            = UNLOCKED;
-        hook.hk_lock_node         = nullptr;
-        hook.hk_locked_actor      = nullptr;
-        hook.hk_lockgroup         = -1;
-        hook.hk_beam              = & beam;
-        hook.hk_maxforce          = HOOK_FORCE_DEFAULT;
-        hook.hk_lockrange         = HOOK_RANGE_DEFAULT;
-        hook.hk_lockspeed         = HOOK_SPEED_DEFAULT;
-        hook.hk_selflock          = false;
-        hook.hk_nodisable         = false;
-        hook.hk_timer             = 0.0f;
-        hook.hk_timer_preset      = HOOK_LOCK_TIMER_DEFAULT;
-        hook.hk_autolock          = false;
-        hook.hk_min_length        = 0.f;
+        hook.hk_hook_node = &node;
+        hook.hk_group = -1;
+        hook.hk_locked = UNLOCKED;
+        hook.hk_lock_node = nullptr;
+        hook.hk_locked_actor = nullptr;
+        hook.hk_lockgroup = -1;
+        hook.hk_beam = &beam;
+        hook.hk_maxforce = HOOK_FORCE_DEFAULT;
+        hook.hk_lockrange = HOOK_RANGE_DEFAULT;
+        hook.hk_lockspeed = HOOK_SPEED_DEFAULT;
+        hook.hk_selflock = false;
+        hook.hk_nodisable = false;
+        hook.hk_timer = 0.0f;
+        hook.hk_timer_preset = HOOK_LOCK_TIMER_DEFAULT;
+        hook.hk_autolock = false;
+        hook.hk_min_length = 0.f;
         m_actor->ar_hooks.push_back(hook);
     }
-    AdjustNodeBuoyancy(node, def, def.node_defaults);
+    AdjustNodeBuoyancy(node, def);
     node.nd_no_ground_contact = BITMASK_IS_1(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
-    node.nd_no_mouse_grab  = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB);
+    node.nd_no_mouse_grab = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB);
 
-    m_actor->ar_exhaust_dir_node        = BITMASK_IS_1(options, RigDef::Node::OPTION_y_EXHAUST_DIRECTION) ? node.pos : 0;
-    m_actor->ar_exhaust_pos_node         = BITMASK_IS_1(options, RigDef::Node::OPTION_x_EXHAUST_POINT) ? node.pos : 0;
+    m_actor->ar_exhaust_dir_node = BITMASK_IS_1(options, RigDef::Node::OPTION_y_EXHAUST_DIRECTION) ? node.pos : 0;
+    m_actor->ar_exhaust_pos_node = BITMASK_IS_1(options, RigDef::Node::OPTION_x_EXHAUST_POINT) ? node.pos : 0;
 
     // Update "fusedrag" autocalc y & z span
     if (def.position.z < m_fuse_z_min) { m_fuse_z_min = def.position.z; }
@@ -5839,17 +6273,21 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     // GFX
     NodeGfx nfx(node.pos);
     nfx.nx_no_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
-    nfx.nx_may_get_wet  = BITMASK_IS_0(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
+    nfx.nx_may_get_wet = BITMASK_IS_0(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
     nfx.nx_no_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
-    nfx.nx_no_sparks    = BITMASK_IS_1(options, RigDef::Node::OPTION_f_NO_SPARKS);
+    nfx.nx_no_sparks = BITMASK_IS_1(options, RigDef::Node::OPTION_f_NO_SPARKS);
     m_actor->m_gfx_actor->m_gfx_nodes.push_back(nfx);
 }
 
 void ActorSpawner::AddExhaust(
-        NodeNum_t emitter_node_idx,
-        NodeNum_t direction_node_idx
-    )
+    NodeNum_t emitter_node_idx,
+    NodeNum_t direction_node_idx
+)
 {
+    if (m_actor->m_disable_smoke)
+    {
+        return;
+    }
     exhaust_t exhaust;
     exhaust.emitterNode = emitter_node_idx;
     exhaust.directionNode = direction_node_idx;
@@ -5879,29 +6317,30 @@ void ActorSpawner::AddExhaust(
     m_actor->exhausts.push_back(exhaust);
 }
 
-void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
+void ActorSpawner::ProcessCinecam(DataPos_t pos)
 {
+    Cinecam& def = m_document->cinecam[pos];
+
     // Node
-    Ogre::Vector3 node_pos = m_spawn_position + def.position;
-    node_t & camera_node = GetAndInitFreeNode(node_pos);
-    camera_node.nd_no_ground_contact = true; // Orig: hardcoded in BTS_CINECAM
-    camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT; // Node defaults are ignored here.
-    AdjustNodeBuoyancy(camera_node, def.node_defaults);
-    camera_node.volume_coef   = def.node_defaults->volume;
-    camera_node.surface_coef  = def.node_defaults->surface;
-    // NOTE: Not applying the 'node_mass' value here for backwards compatibility - this node must go through initial `Actor::RecalculateNodeMasses()` pass with default weight.
+    node_t& node = GetFreeNode();
+    InitNode(node, m_spawn_position + def.position);
+    node.nd_no_ground_contact = true; // Historical name 'contactless'
+    node.friction_coef = NODE_FRICTION_COEF_DEFAULT;
+    node.surface_coef = NODE_SURFACE_COEF_DEFAULT;
+    node.volume_coef = NODE_VOLUME_COEF_DEFAULT;
 
-    m_actor->ar_minimass[camera_node.pos] = m_state.global_minimass;
+    m_actor->ar_minimass[node.pos] = m_state.default_minimass;
 
-    m_actor->ar_cinecam_node[m_actor->ar_num_cinecams] = camera_node.pos;
+    m_actor->ar_cinecam_node[m_actor->ar_num_cinecams] = node.pos;
+    // TODO: research this (from truck-inout branch)
+    //  m_actor->ar_cinecam_node_predef_mass[m_actor->ar_num_cinecams] = node.mass;
     m_actor->ar_num_cinecams++;
 
     // Beams
     for (unsigned int i = 0; i < 8; i++)
     {
-        int beam_index = m_actor->ar_num_beams;
-        node_t& node = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[i])];
-        beam_t & beam = AddBeam(camera_node, node, def.beam_defaults, DEFAULT_DETACHER_GROUP);
+        node_t& node2 = m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[i])];
+        beam_t& beam = this->AddBeam(node, node2);
         beam.bm_type = BEAM_NORMAL;
         CalculateBeamLength(beam);
         beam.k = def.spring;
@@ -5909,32 +6348,28 @@ void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
     }
 };
 
-void ActorSpawner::InitNode(node_t & node, Ogre::Vector3 const & position)
+void ActorSpawner::InitNode(node_t& node, Ogre::Vector3 const& position)
 {
-    /* Position */
     node.AbsPosition = position;
     node.RelPosition = position - m_actor->ar_origin;
+
+    node.friction_coef = m_state.default_node_friction;
+    node.volume_coef = m_state.default_node_volume;
+    node.surface_coef = m_state.default_node_surface;
+
+    node.buoyancy = m_actor->m_dry_mass / 15.f; // Ignore the 'b' flag in 'set_node_defaults' for backwards compatibility
+    node.mass = 10.f;
 }
 
-void ActorSpawner::InitNode(
-    node_t & node, 
-    Ogre::Vector3 const & position,
-    std::shared_ptr<RigDef::NodeDefaults> node_defaults
-)
+void ActorSpawner::ProcessGlobals(DataPos_t pos)
 {
-    InitNode(node, position);
-    node.friction_coef = node_defaults->friction;
-    node.volume_coef = node_defaults->volume;
-    node.surface_coef = node_defaults->surface;
-}
+    Globals& def = m_document->globals[pos];
 
-void ActorSpawner::ProcessGlobals(RigDef::Globals & def)
-{
     m_actor->m_dry_mass = def.dry_mass;
     m_actor->m_load_mass = def.cargo_mass;
 
     // NOTE: Don't do any material pre-processing here; it'll be done on actual entities (via `SetupNewEntity()`).
-    if (! def.material_name.empty())
+    if (!def.material_name.empty())
     {
         Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(def.material_name); // Check if exists (compatibility)
         if (!mat.isNull())
@@ -5970,10 +6405,10 @@ bool ActorSpawner::CheckParticleLimit(unsigned int count)
 
 bool ActorSpawner::CheckAxleLimit(unsigned int count)
 {
-    if ((m_actor->m_num_wheel_diffs + count) > MAX_WHEELS/2)
+    if ((m_actor->m_num_wheel_diffs + count) > MAX_WHEELS / 2)
     {
         std::stringstream msg;
-        msg << "Axle limit (" << MAX_WHEELS/2 << ") exceeded";
+        msg << "Axle limit (" << MAX_WHEELS / 2 << ") exceeded";
         AddMessage(Message::TYPE_ERROR, msg.str());
         return false;
     }
@@ -6065,59 +6500,68 @@ bool ActorSpawner::CheckScrewpropLimit(unsigned int count)
     return true;
 }
 
-void ActorSpawner::InitNode(unsigned int node_index, Ogre::Vector3 const & position)
+void ActorSpawner::InitNode(unsigned int node_index, Ogre::Vector3 const& position)
 {
     InitNode(m_actor->ar_nodes[node_index], position);
 }
 
-beam_t & ActorSpawner::GetBeam(unsigned int index)
+beam_t& ActorSpawner::GetBeam(unsigned int index)
 {
     return m_actor->ar_beams[index];
 }
 
-node_t & ActorSpawner::GetFreeNode()
+node_t& ActorSpawner::GetFreeNode()
 {
-    node_t & node = m_actor->ar_nodes[m_actor->ar_num_nodes];
+    if (m_actor->ar_num_nodes == NODENUM_INVALID)
+    {
+        this->AddMessage(Message::TYPE_ERROR,
+            fmt::format("Fatal: actor can't have more than {} nodes.",
+                NODENUM_INVALID - 1));
+        throw Exception("");
+    }
+
+    node_t& node = m_actor->ar_nodes[m_actor->ar_num_nodes];
     node.pos = m_actor->ar_num_nodes;
     m_actor->ar_num_nodes++;
     return node;
 }
 
-beam_t & ActorSpawner::GetFreeBeam()
+beam_t& ActorSpawner::GetFreeBeam()
 {
-    beam_t & beam = m_actor->ar_beams[m_actor->ar_num_beams];
+    beam_t& beam = m_actor->ar_beams[m_actor->ar_num_beams];
     m_actor->ar_num_beams++;
+    this->AddMessage(Message::TYPE_INFO, fmt::format("ar_num_beams {}", m_actor->ar_num_beams));
     return beam;
 }
 
-shock_t & ActorSpawner::GetFreeShock()
+shock_t& ActorSpawner::GetFreeShock()
 {
-    shock_t & shock = m_actor->ar_shocks[m_actor->ar_num_shocks];
+    shock_t& shock = m_actor->ar_shocks[m_actor->ar_num_shocks];
     m_actor->ar_num_shocks++;
     return shock;
 }
 
-beam_t & ActorSpawner::GetAndInitFreeBeam(node_t & node_1, node_t & node_2)
+beam_t& ActorSpawner::GetAndInitFreeBeam(node_t& node_1, node_t& node_2)
 {
-    beam_t & beam = GetFreeBeam();
-    beam.p1 = & node_1;
-    beam.p2 = & node_2;
+    beam_t& beam = GetFreeBeam();
+    beam.p1 = &node_1;
+    beam.p2 = &node_2;
     return beam;
 }
 
-node_t & ActorSpawner::GetAndInitFreeNode(Ogre::Vector3 const & position)
+node_t& ActorSpawner::GetAndInitFreeNode(Ogre::Vector3 const& position)
 {
-    node_t & node = GetFreeNode();
+    node_t& node = GetFreeNode();
     InitNode(node, position);
     return node;
 }
 
-void ActorSpawner::SetBeamSpring(beam_t & beam, float spring)
+void ActorSpawner::SetBeamSpring(beam_t& beam, float spring)
 {
     beam.k = spring;
 }
 
-void ActorSpawner::SetBeamDamping(beam_t & beam, float damping)
+void ActorSpawner::SetBeamDamping(beam_t& beam, float damping)
 {
     beam.d = damping;
 }
@@ -6128,7 +6572,7 @@ void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
     int ar_exhaust_pos_node = vehicle->ar_exhaust_pos_node;
 
 #ifdef USE_OPENAL
-    if (App::GetSoundScriptManager()->isDisabled()) 
+    if (App::GetSoundScriptManager()->isDisabled())
     {
         return;
     }
@@ -6166,7 +6610,7 @@ void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
         // turn signals
         AddSoundSourceInstance(vehicle, "tracks/default_turn_signal", 0);
     }
-    if (vehicle->ar_driveable==TRUCK)
+    if (vehicle->ar_driveable == TRUCK)
     {
         //horn
         if (vehicle->ar_is_police)
@@ -6174,7 +6618,7 @@ void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
         else
             AddSoundSourceInstance(vehicle, "tracks/default_horn", 0);
         //shift
-            AddSoundSourceInstance(vehicle, "tracks/default_shift", 0);
+        AddSoundSourceInstance(vehicle, "tracks/default_shift", 0);
     }
     //pump
     if (vehicle->m_has_command_beams)
@@ -6192,7 +6636,7 @@ void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
         AddSoundSourceInstance(vehicle, "tracks/default_tractioncontrol", 0);
     }
     //screetch
-    if ((vehicle->ar_driveable==TRUCK || vehicle->ar_driveable==AIRPLANE) && vehicle->ar_num_wheels != 0)
+    if ((vehicle->ar_driveable == TRUCK || vehicle->ar_driveable == AIRPLANE) && vehicle->ar_num_wheels != 0)
     {
         AddSoundSourceInstance(vehicle, "tracks/default_screetch", 0);
     }
@@ -6200,9 +6644,9 @@ void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
     AddSoundSourceInstance(vehicle, "tracks/default_break", 0);
     AddSoundSourceInstance(vehicle, "tracks/default_creak", 0);
     //boat engine
-    if (vehicle->ar_driveable==BOAT)
+    if (vehicle->ar_driveable == BOAT)
     {
-        if (vehicle->m_total_mass>50000.0)
+        if (vehicle->m_total_mass > 50000.0)
             AddSoundSourceInstance(vehicle, "tracks/default_marine_large", ar_exhaust_pos_node);
         else
             AddSoundSourceInstance(vehicle, "tracks/default_marine_small", ar_exhaust_pos_node);
@@ -6211,7 +6655,7 @@ void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
         SOUND_MODULATE(trucknum, SS_MOD_ENGINE, 0.5);
     }
     //airplane warnings
-    if (vehicle->ar_driveable==AIRPLANE)
+    if (vehicle->ar_driveable == AIRPLANE)
     {
         AddSoundSourceInstance(vehicle, "tracks/default_gpws_10", 0);
         AddSoundSourceInstance(vehicle, "tracks/default_gpws_20", 0);
@@ -6240,10 +6684,10 @@ void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
         AddSoundSourceInstance(vehicle, "tracks/default_aivionic_chat13", 0);
     }
     //airplane engines
-    for (int i=0; i<vehicle->ar_num_aeroengines && i<8; i++)
+    for (int i = 0; i < vehicle->ar_num_aeroengines && i < 8; i++)
     {
         int turbojet_node = vehicle->ar_aeroengines[i]->getNoderef();
-        Ogre::String index_str = TOSTRING(i+1);
+        Ogre::String index_str = TOSTRING(i + 1);
 
         if (vehicle->ar_aeroengines[i]->getType() == AeroEngineType::AE_TURBOJET)
         {
@@ -6273,7 +6717,7 @@ void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
     }
 
     // linked sounds
-    for (int i=0; i<vehicle->m_num_command_beams; i++)
+    for (int i = 0; i < vehicle->m_num_command_beams; i++)
     {
         AddSoundSource(vehicle, App::GetSoundScriptManager()->createInstance(Ogre::String("tracks/linked/default_command/extend"), trucknum, NULL, SL_COMMAND, i), 0);
         AddSoundSource(vehicle, App::GetSoundScriptManager()->createInstance(Ogre::String("tracks/linked/default_command/retract"), trucknum, NULL, SL_COMMAND, -i), 0);
@@ -6284,12 +6728,12 @@ void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
 
 void ActorSpawner::UpdateCollcabContacterNodes()
 {
-    for (int i=0; i<m_actor->ar_num_collcabs; i++)
+    for (int i = 0; i < m_actor->ar_num_collcabs; i++)
     {
         int tmpv = m_actor->ar_collcabs[i] * 3;
         m_actor->ar_nodes[m_actor->ar_cabs[tmpv]].nd_cab_node = true;
-        m_actor->ar_nodes[m_actor->ar_cabs[tmpv+1]].nd_cab_node = true;
-        m_actor->ar_nodes[m_actor->ar_cabs[tmpv+2]].nd_cab_node = true;
+        m_actor->ar_nodes[m_actor->ar_cabs[tmpv + 1]].nd_cab_node = true;
+        m_actor->ar_nodes[m_actor->ar_cabs[tmpv + 2]].nd_cab_node = true;
     }
     for (int i = 0; i < m_actor->ar_num_nodes; i++)
     {
@@ -6299,7 +6743,7 @@ void ActorSpawner::UpdateCollcabContacterNodes()
             m_actor->ar_num_contacters++;
         }
         else if (!m_actor->ar_nodes[i].nd_no_ground_contact &&
-                 (m_actor->ar_nodes[i].nd_cab_node || m_actor->ar_nodes[i].nd_rim_node || m_actor->ar_num_collcabs == 0))
+            (m_actor->ar_nodes[i].nd_cab_node || m_actor->ar_nodes[i].nd_rim_node || m_actor->ar_num_collcabs == 0))
         {
             m_actor->ar_nodes[i].nd_contactable = true;
             m_actor->ar_num_contactable_nodes++;
@@ -6307,35 +6751,32 @@ void ActorSpawner::UpdateCollcabContacterNodes()
     }
 }
 
-RigDef::MaterialFlareBinding* ActorSpawner::FindFlareBindingForMaterial(std::string const & material_name)
+DataPos_t ActorSpawner::FindFlareBindingForMaterial(std::string const& material_name)
 {
-    for (auto& module: m_selected_modules)
+    //FIXME: this ignores sectionconfig!
+    for (size_t i = 0; i < m_document->materialflarebindings.size(); i++)
     {
-        for (auto& def: module->materialflarebindings)
+        if (m_document->materialflarebindings[i].material_name == material_name)
         {
-            if (def.material_name == material_name)
-            {
-                return &def;
-            }
+            return (DataPos_t)i;
         }
     }
-    return nullptr;
+
+    return DATAPOS_INVALID;
 }
 
-RigDef::VideoCamera* ActorSpawner::FindVideoCameraByMaterial(std::string const & material_name)
+DataPos_t ActorSpawner::FindVideoCameraByMaterial(std::string const& material_name)
 {
-    for (auto& module: m_selected_modules)
+    //FIXME: this ignores sectionconfig!
+    for (size_t i = 0; i < m_document->videocameras.size(); i++)
     {
-        for (auto& def: module->videocameras)
+        if (m_document->videocameras[i].material_name == material_name)
         {
-            if (def.material_name == material_name)
-            {
-                return &def;
-            }
+            return (DataPos_t)i;
         }
     }
 
-    return nullptr;
+    return DATAPOS_INVALID;
 }
 
 Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_lookup_name)
@@ -6356,7 +6797,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
         {
             lookup_entry.mirror_prop_type = m_curr_mirror_prop_type;
             lookup_entry.mirror_prop_scenenode = m_curr_mirror_prop_scenenode;
-            lookup_entry.material_flare_def = nullptr;
+            lookup_entry.material_flare_pos = DATAPOS_INVALID;
             static int mirror_counter = 0;
             const std::string new_mat_name = this->ComposeName("RenderMaterial", mirror_counter);
             ++mirror_counter;
@@ -6367,8 +6808,8 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
         }
 
         // Query 'videocameras'
-        RigDef::VideoCamera* videocam_def = this->FindVideoCameraByMaterial(mat_lookup_name);
-        if (videocam_def != nullptr)
+        RigDef::DataPos_t videocam_pos = this->FindVideoCameraByMaterial(mat_lookup_name);
+        if (videocam_pos != DATAPOS_INVALID)
         {
             Ogre::MaterialPtr video_mat_shared;
             auto found_managedmat = m_managed_materials.find(mat_lookup_name);
@@ -6383,8 +6824,8 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
 
             if (!video_mat_shared.isNull())
             {
-                lookup_entry.video_camera_def = videocam_def;
-                const std::string video_mat_name = this->ComposeName(videocam_def->material_name.c_str(), 0);
+                lookup_entry.video_camera_pos = videocam_pos;
+                const std::string video_mat_name = this->ComposeName(m_document->videocameras[videocam_pos].material_name.c_str(), 0);
                 lookup_entry.material = video_mat_shared->clone(video_mat_name, true, m_custom_resource_group);
                 m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry));
                 return lookup_entry.material; // Done!
@@ -6398,10 +6839,10 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
         }
 
         // Resolve 'materialflarebindings'.
-        RigDef::MaterialFlareBinding* mat_flare_def = this->FindFlareBindingForMaterial(mat_lookup_name);
-        if (mat_flare_def != nullptr)
+        DataPos_t matflare_pos = this->FindFlareBindingForMaterial(mat_lookup_name);
+        if (matflare_pos != DATAPOS_INVALID)
         {
-            lookup_entry.material_flare_def = mat_flare_def;
+            lookup_entry.material_flare_pos = matflare_pos;
         }
 
         // Query .skin material replacements
@@ -6426,9 +6867,9 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
                 {
                     std::stringstream buf;
                     buf << "Material '" << skin_res->second << "' from skin '" << m_actor->m_used_skin_entry->dname
-                        << "' not found (filename: '" << m_actor->m_used_skin_entry->fname 
-                        << "', resource group: '"<< m_actor->m_used_skin_entry->resource_group
-                        <<"')! Ignoring it...";
+                        << "' not found (filename: '" << m_actor->m_used_skin_entry->fname
+                        << "', resource group: '" << m_actor->m_used_skin_entry->resource_group
+                        << "')! Ignoring it...";
                     this->AddMessage(Message::TYPE_ERROR, buf.str());
                 }
             }
@@ -6459,11 +6900,11 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
         }
 
         // Finally, query texture replacements - .skin and builtins
-        for (auto& technique: lookup_entry.material->getTechniques())
+        for (auto& technique : lookup_entry.material->getTechniques())
         {
-            for (auto& pass: technique->getPasses())
+            for (auto& pass : technique->getPasses())
             {
-                for (auto& tex_unit: pass->getTextureUnitStates())
+                for (auto& tex_unit : pass->getTextureUnitStates())
                 {
                     // Built-ins
                     if (tex_unit->getTextureName() == "dashtexture")
@@ -6546,23 +6987,6 @@ Ogre::MaterialPtr ActorSpawner::CreateSimpleMaterial(Ogre::ColourValue color)
 
 void ActorSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_color)
 {
-    // RULE: Each actor must have it's own material instances (a lookup table is kept for OrigName->CustomName)
-    //
-    // Setup routine:
-    //
-    //   1. If "SimpleMaterials" (plain color surfaces denoting component type) are enabled in config file, 
-    //          material is generated (not saved to lookup table) and processing ends.
-    //   2. If the material name is 'mirror', it's a special prop - rear view mirror.
-    //          material is generated, added to lookup table under generated name (special case) and processing ends.
-    //   3. If the material is a 'videocamera' of any subtype, material is created, added to lookup table and processing ends.
-    //   4  'materialflarebindngs' are resolved -> binding is persisted in lookup table.
-    //   5  SkinZIP _material replacements_ are queried. If match is found, it's added to lookup table and processing ends.
-    //   6. ManagedMaterials are queried. If match is found, it's added to lookup table and processing ends.
-    //   7. Orig. material is cloned to create substitute.
-    //   8. SkinZIP _texture replacements_ are queried. If match is found, substitute material is updated.
-    //   9. Material is added to lookup table, processing ends.
-    // ==========================================================
-
     if (ent == nullptr)
     {
         // Dirty but I don't see any alternative ... ~ ulteq, 10/2018
@@ -6608,22 +7032,22 @@ void ActorSpawner::FinalizeGfxSetup()
     // TODO &*&*
 
     // Process special materials
-    for (auto& entry: m_material_substitutions)
+    for (auto& entry : m_material_substitutions)
     {
-        if (entry.second.material_flare_def != nullptr) // 'materialflarebindings'
+        if (entry.second.material_flare_pos != DATAPOS_INVALID) // 'materialflarebindings'
         {
             this->CreateMaterialFlare(
-                entry.second.material_flare_def->flare_number, entry.second.material);
+                m_document->materialflarebindings[entry.second.material_flare_pos].flare_number, entry.second.material);
         }
         else if (entry.second.mirror_prop_type != CustomMaterial::MirrorPropType::MPROP_NONE) // special 'prop' - rear view mirror
         {
             this->CreateMirrorPropVideoCam(
                 entry.second.material, entry.second.mirror_prop_type, entry.second.mirror_prop_scenenode);
         }
-        else if (entry.second.video_camera_def != nullptr) // 'videocameras'
+        else if (entry.second.video_camera_pos != DATAPOS_INVALID) // 'videocameras'
         {
             this->SetCurrentKeyword(RigDef::Keyword::VIDEOCAMERA); // Logging
-            this->CreateVideoCamera(entry.second.video_camera_def);
+            this->CreateVideoCamera(entry.second.video_camera_pos);
             this->SetCurrentKeyword(RigDef::Keyword::INVALID); // Logging
         }
     }
@@ -6634,19 +7058,13 @@ void ActorSpawner::FinalizeGfxSetup()
     }
 
     // Load dashboard layouts
-    for (auto& module: m_selected_modules)
+    // FIXME: this ignores sectionconfig!
+    for (RigDef::GuiSettings& entry : m_document->guisettings)
     {
-        for (auto& gs: module->guisettings)
-        {
-            if (gs.key == "dashboard")
-            {
-                m_actor->ar_dashboard->loadDashBoard(gs.value, false);
-            }
-            else if (gs.key == "texturedashboard")
-            {
-                m_actor->ar_dashboard->loadDashBoard(gs.value, true);
-            }
-        }
+        if (entry.key == "dashboard")
+            m_actor->ar_dashboard->loadDashBoard(entry.value, /*textureLayer:*/false);
+        else if (entry.key == "rttdashboard")
+            m_actor->ar_dashboard->loadDashBoard(entry.value, /*textureLayer:*/true);
     }
 
     // If none specified, load default dashboard layouts
@@ -6745,9 +7163,11 @@ void ActorSpawner::FinalizeGfxSetup()
                 "Failed to load `help` material '" + m_help_material_name + "', message:" + e.getFullDescription());
         }
     }
+
+    m_actor->GetGfxActor()->m_driverseat_prop_index = m_driverseat_prop_index;
 }
 
-void ActorSpawner::ValidateRotator(int id, int axis1, int axis2, NodeNum_t *nodes1, NodeNum_t *nodes2)
+void ActorSpawner::ValidateRotator(int id, int axis1, int axis2, NodeNum_t* nodes1, NodeNum_t* nodes2)
 {
     const float eps = 0.001f;
     const Ogre::Vector3 ax1 = m_actor->ar_nodes[axis1].AbsPosition;
@@ -6766,7 +7186,7 @@ void ActorSpawner::ValidateRotator(int id, int axis1, int axis2, NodeNum_t *node
         (std::max(a2len, a4len) / std::min(a2len, a4len) > 1.f + eps))
     {
         Ogre::String msg = Ogre::StringUtil::format("Off-centered axis on base plate of rotator %d", id);
-        AddMessage(Message::TYPE_WARNING, msg);	
+        AddMessage(Message::TYPE_WARNING, msg);
     }
 
     Ogre::Vector3 b1 = pl.projectVector(ax2 - m_actor->ar_nodes[nodes2[0]].AbsPosition);
@@ -6781,7 +7201,7 @@ void ActorSpawner::ValidateRotator(int id, int axis1, int axis2, NodeNum_t *node
         (std::max(b2len, b4len) / std::min(b2len, b4len) > 1.f + eps))
     {
         Ogre::String msg = Ogre::StringUtil::format("Off-centered axis on rotating plate of rotator %d", id);
-        AddMessage(Message::TYPE_WARNING, msg);	
+        AddMessage(Message::TYPE_WARNING, msg);
     }
 
     float rot1 = a1.dotProduct(b1);
@@ -6794,7 +7214,7 @@ void ActorSpawner::ValidateRotator(int id, int axis1, int axis2, NodeNum_t *node
         (std::max(rot4, rot1) / std::min(rot4, rot1) > 1.f + eps))
     {
         Ogre::String msg = Ogre::StringUtil::format("Misaligned plates on rotator %d", id);
-        AddMessage(Message::TYPE_WARNING, msg);	
+        AddMessage(Message::TYPE_WARNING, msg);
     }
 }
 
@@ -6818,32 +7238,34 @@ Ogre::ManualObject* CreateVideocameraDebugMesh()
     const float pos_mark_len = 0.8f;
     const float dir_mark_len = 4.f;
     // X
-    mo->position(pos_mark_len,0,0);
+    mo->position(pos_mark_len, 0, 0);
     mo->colour(pos_mark_col);
-    mo->position(-pos_mark_len,0,0);
+    mo->position(-pos_mark_len, 0, 0);
     mo->colour(pos_mark_col);
     // Y
-    mo->position(0,pos_mark_len,0);
+    mo->position(0, pos_mark_len, 0);
     mo->colour(pos_mark_col);
-    mo->position(0,-pos_mark_len,0);
+    mo->position(0, -pos_mark_len, 0);
     mo->colour(pos_mark_col);
     // +Z
-    mo->position(0,0,pos_mark_len);
+    mo->position(0, 0, pos_mark_len);
     mo->colour(pos_mark_col);
-    mo->position(0,0,0);
+    mo->position(0, 0, 0);
     mo->colour(pos_mark_col);
     // -Z = the direction
-    mo->position(0,0,-dir_mark_len);
+    mo->position(0, 0, -dir_mark_len);
     mo->colour(dir_mark_col);
-    mo->position(0,0,0);
+    mo->position(0, 0, 0);
     mo->colour(dir_mark_col);
     mo->end(); // Don't forget this!
 
     return mo;
 }
 
-void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
+void ActorSpawner::CreateVideoCamera(DataPos_t pos)
 {
+    RigDef::VideoCamera* def = &m_document->videocameras[pos];
+
     try
     {
         RoR::VideoCamera vcam;
@@ -6866,9 +7288,9 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         }
 
         vcam.vcam_node_center = this->GetNodeIndexOrThrow(def->reference_node);
-        vcam.vcam_node_dir_y  = this->GetNodeIndexOrThrow(def->bottom_node);
-        vcam.vcam_node_dir_z  = this->GetNodeIndexOrThrow(def->left_node);
-        vcam.vcam_pos_offset  = def->offset;
+        vcam.vcam_node_dir_y = this->GetNodeIndexOrThrow(def->bottom_node);
+        vcam.vcam_node_dir_z = this->GetNodeIndexOrThrow(def->left_node);
+        vcam.vcam_pos_offset = def->offset;
 
         //rotate camera picture 180 degrees, skip for mirrors
         float rotation_z = (def->camera_role != 1) ? def->rotation.z + 180 : def->rotation.z;
@@ -6878,7 +7300,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
             * Ogre::Quaternion(Ogre::Degree(def->rotation.x), Ogre::Vector3::UNIT_X);
 
         // set alternative camposition (optional)
-        if (def->alt_reference_node.IsValidAnyState())
+        if (def->alt_reference_node != NODEREF_INVALID)
         {
             vcam.vcam_node_alt_pos = this->GetNodeIndexOrThrow(def->alt_reference_node);
         }
@@ -6888,7 +7310,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         }
 
         // set alternative lookat position (optional)
-        if (def->alt_orientation_node.IsValidAnyState())
+        if (def->alt_orientation_node != NODEREF_INVALID)
         {
             // This is a tracker camera
             vcam.vcam_type = VCTYPE_TRACKING_VIDEOCAM;
@@ -6966,7 +7388,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
 
         m_actor->m_gfx_actor->m_videocameras.push_back(vcam);
     }
-    catch (std::exception & ex)
+    catch (std::exception& ex)
     {
         this->AddMessage(Message::TYPE_ERROR, ex.what());
     }
@@ -7036,7 +7458,7 @@ void ActorSpawner::CreateMirrorPropVideoCam(
         // Submit the videocamera
         m_actor->m_gfx_actor->m_videocameras.push_back(vcam);
     }
-    catch (std::exception & ex)
+    catch (std::exception& ex)
     {
         this->AddMessage(Message::TYPE_ERROR, ex.what());
     }
@@ -7070,7 +7492,7 @@ void ActorSpawner::HandleException()
     }
 }
 
-Ogre::ParticleSystem* ActorSpawner::CreateParticleSystem(std::string const & name, std::string const & template_name)
+Ogre::ParticleSystem* ActorSpawner::CreateParticleSystem(std::string const& name, std::string const& template_name)
 {
     // None of `Ogre::SceneManager::createParticleSystem()` overloads
     // lets us specify both resource group and template name.
@@ -7080,7 +7502,7 @@ Ogre::ParticleSystem* ActorSpawner::CreateParticleSystem(std::string const & nam
     params["templateName"] = template_name;
 
     Ogre::MovableObject* obj = App::GetGfxScene()->GetSceneManager()->createMovableObject(
-       name, Ogre::ParticleSystemFactory::FACTORY_TYPE_NAME, &params);
+        name, Ogre::ParticleSystemFactory::FACTORY_TYPE_NAME, &params);
     Ogre::ParticleSystem* psys = static_cast<Ogre::ParticleSystem*>(obj);
     psys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
     return psys;
@@ -7088,9 +7510,6 @@ Ogre::ParticleSystem* ActorSpawner::CreateParticleSystem(std::string const & nam
 
 void ActorSpawner::CreateCabVisual()
 {
-    ROR_ASSERT(m_oldstyle_cab_texcoords.size() > 0);
-    ROR_ASSERT(m_actor->ar_num_cabs > 0);
-
     //the cab materials are as follow:
     //texname: base texture with emissive(2 pass) or without emissive if none available(1 pass), alpha cutting
     //texname-trans: transparency texture (1 pass)
@@ -7105,7 +7524,7 @@ void ActorSpawner::CreateCabVisual()
     Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(m_cab_material_name);
     if (mat.isNull())
     {
-        Ogre::String msg = "Material '"+m_cab_material_name+"' missing!";
+        Ogre::String msg = "Material '" + m_cab_material_name + "' missing!";
         AddMessage(Message::TYPE_ERROR, msg);
         return;
     }
@@ -7114,14 +7533,14 @@ void ActorSpawner::CreateCabVisual()
     char transmatname[256];
     static int trans_counter = 0;
     sprintf(transmatname, "%s-trans-%d", m_cab_material_name.c_str(), trans_counter++);
-    Ogre::MaterialPtr transmat=mat->clone(transmatname);
-    if (mat->getTechnique(0)->getNumPasses()>1) // If there's the "emissive pass", remove it from the 'transmat'
+    Ogre::MaterialPtr transmat = mat->clone(transmatname);
+    if (mat->getTechnique(0)->getNumPasses() > 1) // If there's the "emissive pass", remove it from the 'transmat'
     {
         transmat->getTechnique(0)->removePass(1);
     }
     transmat->getTechnique(0)->getPass(0)->setAlphaRejectSettings(Ogre::CMPF_LESS_EQUAL, 128);
     transmat->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
-    if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates()>0)
+    if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates() > 0)
     {
         transmat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureFiltering(Ogre::TFO_NONE);
     }
@@ -7132,19 +7551,19 @@ void ActorSpawner::CreateCabVisual()
     char backmatname[256];
     static int back_counter = 0;
     sprintf(backmatname, "%s-back-%d", m_cab_material_name.c_str(), back_counter++);
-    Ogre::MaterialPtr backmat=mat->clone(backmatname);
-    if (mat->getTechnique(0)->getNumPasses()>1)// If there's the "emissive pass", remove it from the 'transmat'
+    Ogre::MaterialPtr backmat = mat->clone(backmatname);
+    if (mat->getTechnique(0)->getNumPasses() > 1)// If there's the "emissive pass", remove it from the 'transmat'
     {
         backmat->getTechnique(0)->removePass(1);
     }
-    if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates()>0)
+    if (transmat->getTechnique(0)->getPass(0)->getNumTextureUnitStates() > 0)
     {
         backmat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setColourOperationEx(
-            Ogre::LBX_SOURCE1, 
-            Ogre::LBS_MANUAL, 
-            Ogre::LBS_MANUAL, 
-            Ogre::ColourValue(0,0,0),
-            Ogre::ColourValue(0,0,0)
+            Ogre::LBX_SOURCE1,
+            Ogre::LBS_MANUAL,
+            Ogre::LBS_MANUAL,
+            Ogre::ColourValue(0, 0, 0),
+            Ogre::ColourValue(0, 0, 0)
         );
     }
     if (App::gfx_reduce_shadows->getBool())
@@ -7158,7 +7577,7 @@ void ActorSpawner::CreateCabVisual()
     char cab_material_name_cstr[1000] = {};
     strncpy(cab_material_name_cstr, m_cab_material_name.c_str(), 999);
     std::string mesh_name = this->ComposeName("VehicleCabMesh", 0);
-    FlexObj* cab_mesh =new FlexObj(
+    FlexObj* cab_mesh = new FlexObj(
         m_actor->m_gfx_actor.get(),
         m_actor->ar_nodes,
         m_oldstyle_cab_texcoords,
@@ -7172,7 +7591,7 @@ void ActorSpawner::CreateCabVisual()
     );
 
     Ogre::SceneNode* cab_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-    Ogre::Entity *ec = nullptr;
+    Ogre::Entity* ec = nullptr;
     try
     {
         ec = App::GetGfxScene()->GetSceneManager()->createEntity(this->ComposeName("VehicleCabEntity", 0), mesh_name);
@@ -7191,7 +7610,7 @@ void ActorSpawner::CreateCabVisual()
     }
     catch (Ogre::Exception& e)
     {
-        this->AddMessage(Message::TYPE_ERROR, "error creating cab mesh: "+e.getFullDescription());
+        this->AddMessage(Message::TYPE_ERROR, "error creating cab mesh: " + e.getFullDescription());
         if (ec)
         {
             App::GetGfxScene()->GetSceneManager()->destroyEntity(ec);
@@ -7218,4 +7637,66 @@ void ActorSpawner::CreateMaterialFlare(int flareid, Ogre::MaterialPtr m)
     p->setSelfIllumination(Ogre::ColourValue::ZERO);
 
     m_actor->m_gfx_actor->m_flare_materials.push_back(binding);
+}
+
+bool ActorSpawner::ValidateTrigger(RigDef::Trigger& def)
+{
+    bool ok = true;
+
+    bool hook_toggle =
+        BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_H_LOCKS_HOOK_GROUP)
+        || BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_h_UNLOCKS_HOOK_GROUP);
+
+    bool trigger_blocker = BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_B_TRIGGER_BLOCKER);
+    bool inv_trigger_blocker = BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_A_INV_TRIGGER_BLOCKER);
+
+    if (BITMASK_IS_0(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER))
+    {
+        if (!trigger_blocker && !inv_trigger_blocker && !hook_toggle)
+        {
+            /* Make the full check */
+            if (def.shortbound_trigger_action < 1 || def.shortbound_trigger_action > MAX_COMMANDS)
+            {
+                std::stringstream msg;
+                msg << "Wrong parameter 'shortbound_trigger_action': " << def.shortbound_trigger_action;
+                msg << "; Alloved range is <0 - " << MAX_COMMANDS << ">. ";
+                msg << "Trigger deactivated.";
+                AddMessage(Message::TYPE_ERROR, msg.str());
+                ok = false;
+            }
+        }
+        else if (!hook_toggle)
+        {
+            /* This is a Trigger-Blocker, make special check */
+            if (def.shortbound_trigger_action < 0)
+            {
+                std::stringstream msg;
+                msg << "Wrong parameter 'shortbound_trigger_action': " << def.shortbound_trigger_action;
+                msg << "; Alloved range is <0 - " << MAX_COMMANDS << ">. ";
+                msg << "Trigger deactivated.";
+                AddMessage(Message::TYPE_ERROR, msg.str());
+                ok = false;
+            }
+            if (def.longbound_trigger_action < 0)
+            {
+                std::stringstream msg;
+                msg << "Wrong parameter 'longbound_trigger_action': " << def.longbound_trigger_action;
+                msg << "; Alloved range is <0 - " << MAX_COMMANDS << ">. ";
+                msg << "Trigger deactivated.";
+                AddMessage(Message::TYPE_ERROR, msg.str());
+                ok = false;
+            }
+        }
+    }
+    else
+    {
+        /* Engine trigger */
+        if (trigger_blocker || inv_trigger_blocker || hook_toggle || BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_s_CMD_NUM_SWITCH))
+        {
+            AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber. Engine trigger deactivated.");
+            ok = false;
+        }
+    }
+
+    return ok;
 }

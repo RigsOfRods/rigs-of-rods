@@ -86,7 +86,6 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     LOG(" == Spawning vehicle: " + def->name);
 
     ActorSpawner spawner;
-    spawner.ConfigureSections(actor->m_section_config, def);
     spawner.ProcessNewActor(actor, rq, def);
 
     if (App::diag_actor_dump->getBool())
@@ -119,7 +118,20 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     };
 
     /* Place correctly */
-    if (spawner.GetMemoryRequirements().num_fixes == 0)
+    CacheActorConfigInfo config_info;
+    CacheEntry* cache_entry = rq.asr_cache_entry;
+    if (cache_entry == nullptr)
+    {
+        cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, false, rq.asr_filename);
+    }
+    for (CacheActorConfigInfo& info : cache_entry->sectionconfigs)
+    {
+        if (info.config_name == rq.asr_config)
+        {
+            config_info = info;
+        }
+    }
+    if (config_info.fixescount == 0)
     {
         Ogre::Vector3 vehicle_position = rq.asr_position;
 
@@ -318,7 +330,7 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     }
 
     // Launch scripts (FIXME: ignores sectionconfig)
-    for (RigDef::Script const& script_def : def->root_module->scripts)
+    for (RigDef::Script const& script_def : def->scripts)
     {
         App::GetScriptEngine()->loadScript(script_def.filename, ScriptCategory::ACTOR, actor);
     }
@@ -331,6 +343,12 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     }
 
     m_actors.push_back(ActorPtr(actor));
+
+    // lock slide nodes after spawning the actor?
+    if (actor->m_slidenodes_connect_instantly)
+    {
+        actor->toggleSlideNodeLock();
+    }
 
     return actor;
 }
