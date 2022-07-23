@@ -69,8 +69,8 @@ FlexBody* FlexFactory::CreateFlexBody(
     std::string resource_group_name)
 {
     Ogre::MeshPtr common_mesh = Ogre::MeshManager::getSingleton().load(def->mesh_name, resource_group_name);
-    int flexbody_id = m_rig_spawner->GetActor()->GetGfxActor()->GetNumFlexbodies();
-    const std::string mesh_unique_name = m_rig_spawner->ComposeName("FlexbodyMesh", flexbody_id);
+    int flexbody_id = (int)m_rig_spawner->GetActor()->GetGfxActor()->GetFlexbodies().size();
+    const std::string mesh_unique_name = m_rig_spawner->ComposeName(fmt::format("{}_FlexBody", def->mesh_name).c_str(), flexbody_id);
     Ogre::MeshPtr mesh = common_mesh->clone(mesh_unique_name);
     const std::string flexbody_name = m_rig_spawner->ComposeName("Flexbody", flexbody_id);
     Ogre::Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(flexbody_name, mesh_unique_name, resource_group_name);

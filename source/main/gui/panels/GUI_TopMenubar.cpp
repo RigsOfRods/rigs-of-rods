@@ -643,6 +643,12 @@ void TopMenubar::Update()
                     App::GetGuiManager()->NodeBeamUtils.SetVisible(true);
                     m_open_menu = TopMenu::TOPMENU_NONE;
                 }
+
+                if (ImGui::Button(_LC("TopMenubar", "FlexBody debug")))
+                {
+                    App::GetGuiManager()->FlexbodyDebug.SetVisible(true);
+                    m_open_menu = TopMenu::TOPMENU_NONE;
+                }
             }
 
             ImGui::Separator();

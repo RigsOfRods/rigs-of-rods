@@ -532,6 +532,13 @@ FlexBody::FlexBody(
         stat_showmesh_time, stat_euclidean2_time);
     LOG(stats);
 #endif
+
+    // Keep the forset nodes for diagnostics
+    // TODO: update the constructor - should be vector<NodeNum_t>, not vector<unsigned int>
+    for (unsigned int nodenum : node_indices)
+    {
+        m_forset_nodes.push_back((NodeNum_t)nodenum);
+    }
 }
 
 FlexBody::~FlexBody()
@@ -615,20 +622,17 @@ void FlexBody::ComputeFlexbody()
     RoR::NodeSB* nodes = m_gfx_actor->GetSimNodeBuffer();
 
     // compute the local center
-    Ogre::Vector3 flexit_normal;
-
     if (m_node_center >= 0)
     {
         Vector3 diffX = nodes[m_node_x].AbsPosition - nodes[m_node_center].AbsPosition;
         Vector3 diffY = nodes[m_node_y].AbsPosition - nodes[m_node_center].AbsPosition;
-        flexit_normal = fast_normalise(diffY.crossProduct(diffX));
+        Ogre::Vector3 flexit_normal = fast_normalise(diffY.crossProduct(diffX));
 
         m_flexit_center = nodes[m_node_center].AbsPosition + m_center_offset.x * diffX + m_center_offset.y * diffY;
         m_flexit_center += m_center_offset.z * flexit_normal;
     }
     else
     {
-        flexit_normal = Vector3::UNIT_Y;
         m_flexit_center = nodes[0].AbsPosition;
     }
 
@@ -725,3 +729,15 @@ void FlexBody::updateBlend() //so easy!
     }
 }
 
+std::string FlexBody::getOrigMeshName()
+{
+    std::string meshname = m_scene_entity->getMesh()->getName();
+    // Cut off the generated '_FlexBody_#@Actor_#' part
+    // TODO: fix the resource management to create resource group for each actor (currently done for each repo ZIP) - then we won't need those unique tokens anymore.
+    size_t pos = meshname.find("_FlexBody_");
+    if (pos != std::string::npos)
+    {
+        meshname = meshname.substr(0, pos);
+    }
+    return meshname;
+}

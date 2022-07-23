@@ -199,6 +199,11 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
         this->TextureToolWindow.Draw();
     }
 
+    if (this->FlexbodyDebug.IsVisible())
+    {
+        this->FlexbodyDebug.Draw();
+    }
+
     if (this->SurveyMap.IsVisible())
     {
         this->SurveyMap.Draw();

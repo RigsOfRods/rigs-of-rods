@@ -502,6 +502,8 @@ void GameContext::ChangePlayerActor(Actor* actor)
             player_character->SetActorCoupling(true, m_player_actor);
         }
 
+        App::GetGuiManager()->FlexbodyDebug.AnalyzeFlexbodies();
+
         TRIGGER_EVENT(SE_TRUCK_ENTER, m_player_actor?m_player_actor->ar_instance_id:-1);
     }
 
