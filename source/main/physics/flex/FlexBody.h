@@ -76,7 +76,14 @@ public:
 
     void SetFlexbodyCastShadow(bool val);
 
-    int size() { return static_cast<int>(m_vertex_count); };
+    int getVertexCount() { return static_cast<int>(m_vertex_count); };
+    Ogre::Entity* getEntity() { return m_scene_entity; }
+    std::string getOrigMeshName();
+    std::vector<NodeNum_t>& getForsetNodes() { return m_forset_nodes; };
+
+    NodeNum_t getRefNode() { return m_node_center; }
+    NodeNum_t getXNode() { return m_node_x; }
+    NodeNum_t getYNode() { return m_node_y; }
 
 private:
 
@@ -113,6 +120,9 @@ private:
     bool m_has_texture;
     bool m_has_texture_blend;
     bool m_blend_changed;
+
+    // Diagnostic data, not used for calculations
+    std::vector<NodeNum_t> m_forset_nodes;
 };
 
 /// @} // addtogroup Flex

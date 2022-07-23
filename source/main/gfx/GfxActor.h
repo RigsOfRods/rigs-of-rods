@@ -132,7 +132,7 @@ public:
     void                 CalculateDriverPos(Ogre::Vector3& out_pos, Ogre::Quaternion& out_rot);
     int                  GetActorId() const;
     int                  GetActorState() const;
-    int                  GetNumFlexbodies() const { return static_cast<int>(m_flexbodies.size()); }
+    std::vector<FlexBody*>& GetFlexbodies() { return m_flexbodies; };
     ActorType            GetActorDriveable() const;
     Ogre::MaterialPtr&   GetCabTransMaterial() { return m_cab_mat_visual_trans; }
     VideoCamState        GetVideoCamState() const { return m_vidcam_state; }

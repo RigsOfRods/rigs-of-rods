@@ -2974,7 +2974,7 @@ void RoR::GfxActor::UpdatePropAnimations(float dt)
 
 void RoR::GfxActor::SortFlexbodies()
 {
-    std::sort(m_flexbodies.begin(), m_flexbodies.end(), [](FlexBody* a, FlexBody* b) { return a->size() > b->size(); });
+    std::sort(m_flexbodies.begin(), m_flexbodies.end(), [](FlexBody* a, FlexBody* b) { return a->getVertexCount() > b->getVertexCount(); });
 }
 
 void RoR::GfxActor::UpdateFlexbodies()

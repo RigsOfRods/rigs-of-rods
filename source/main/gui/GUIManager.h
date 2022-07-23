@@ -31,6 +31,7 @@
 // GUI panels
 #include "GUI_CollisionsDebug.h"
 #include "GUI_ConsoleWindow.h"
+#include "GUI_FlexbodyDebug.h"
 #include "GUI_FrictionSettings.h"
 #include "GUI_RepositorySelector.h"
 #include "GUI_GameMainMenu.h"
@@ -124,6 +125,7 @@ public:
     GUI::SurveyMap              SurveyMap;
     GUI::DirectionArrow         DirectionArrow;
     GUI::VehicleButtons         VehicleButtons;
+    GUI::FlexbodyDebug          FlexbodyDebug;
     Ogre::Overlay*              MenuWallpaper = nullptr;
 
     // GUI manipulation
