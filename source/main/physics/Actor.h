@@ -265,7 +265,7 @@ public:
     std::string*         ar_nodes_name;                //!< Name in truck file, only if defined with 'nodes2'
     int                  ar_nodes_name_top_length = 0; //!< For nicely formatted diagnostic output
     int                  ar_num_nodes;
-    std::vector<float>   ar_minimass;                  //!< minimum node mass in Kg
+    std::vector<float>   ar_minimass;                  //!< minimum node mass in Kg; Values of 'set_default_minimass', or -1 where global minimass from 'minimass' should be filled later.
     bool                 ar_minimass_skip_loaded_nodes = false;
 
     beam_t*              ar_beams;
@@ -592,6 +592,7 @@ private:
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
+    bool m_slidenodes_connect_instantly:1;
     bool m_net_initialized:1;
     bool m_water_contact:1;        //!< Scripting state
     bool m_water_contact_old:1;    //!< Scripting state

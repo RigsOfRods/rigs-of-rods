@@ -114,7 +114,6 @@ namespace Regexes
 
 // IMPORTANT! If you add a value here, you must also modify File::Keywords enum, it relies on positions in this regex
 #define IDENTIFY_KEYWORD_REGEX_STRING                             \
-    /* E_KEYWORD_BLOCK("advdrag") ~~ Not supported yet */         \
     E_KEYWORD_INLINE("add_animation")  /* Position 1 */           \
     E_KEYWORD_BLOCK("airbrakes")       /* Position 2 */           \
     E_KEYWORD_BLOCK("animators")       /* Position 3 etc... */    \

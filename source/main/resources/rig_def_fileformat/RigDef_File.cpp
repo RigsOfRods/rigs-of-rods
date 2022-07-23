@@ -31,13 +31,11 @@
 namespace RigDef
 {
 
-const char* ROOT_MODULE_NAME = "_Root_"; // Static
+const DataPos_t DATAPOS_INVALID = -1;
+const NodeRef_t NODEREF_INVALID = "";
 
-/* -------------------------------------------------------------------------- */
-/* Sections                                                                   */
-/*                                                                            */
-/* This is the place to set defaults.                                         */
-/* -------------------------------------------------------------------------- */
+// --------------------------------
+// Element definitions
 
 Airbrake::Airbrake():
     offset(Ogre::Vector3::ZERO),
@@ -172,7 +170,7 @@ void Animation::AddMotorSource(unsigned int source, unsigned int motor)
 
 const char * KeywordToString(Keyword keyword)
 {
-    // PLEASE maintain alphabetical order!
+    /* NOTE: Maintain alphabetical order! */
 
     switch (keyword)
     {
@@ -287,26 +285,14 @@ const char * KeywordToString(Keyword keyword)
         case Keyword::WHEELS2:              return "wheels2";
         case Keyword::WINGS:                return "wings";
 
-        default:                           return "";
+        default:                             return "~Unknown~";
     }
 }
 
-Document::Module::Module(Ogre::String const & name):
-    name(name)
-{}
-
-Document::Document():
-    hide_in_chooser(false),
-    enable_advanced_deformation(false),
-    rollon(false),
-    forward_commands(false),
-    import_commands(false),
-    lockgroup_default_nolock(false),
-    rescuer(false),
-    disable_default_sounds(false),
-    slide_nodes_connect_instantly(false)
+bool Document::HasKeyword(Keyword _keyword)
 {
-    root_module = std::make_shared<Document::Module>(ROOT_MODULE_NAME); // Required to exist.
+    return std::find_if(lines.begin(), lines.end(),
+        [_keyword](RigDef::Line const& l){ return l.keyword == _keyword; }) != lines.end();
 }
 
 } /* namespace RigDef */

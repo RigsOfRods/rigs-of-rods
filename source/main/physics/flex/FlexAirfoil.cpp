@@ -574,6 +574,10 @@ void FlexAirfoil::setControlDeflection(float val)
 
 void FlexAirfoil::enableInducedDrag(float span, float area, bool l)
 {
+    // Make sure we don't divide by zero later on.
+    ROR_ASSERT(span != 0);
+    ROR_ASSERT(area != 0);
+
     idSpan=span;
     idArea=area;
     useInducedDrag=true;
