@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-05-29 14:59+0200\n"
-"PO-Revision-Date: 2022-07-06 17:19+0000\n"
+"PO-Revision-Date: 2022-07-23 18:24+0000\n"
 "Last-Translator: Maxime Leroy <lisacintosh@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "fr/>\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 4.14-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -58,39 +58,29 @@ msgstr ""
 "Défaut du dossier de ressources. Vérifiez si l'installation est correcte."
 
 #: Application.cpp:361
-#, fuzzy
-#| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
 msgstr "Boîte automatique"
 
 #: Application.cpp:362
-#, fuzzy
-#| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr "Boîte manuelle - Embrayage auto"
+msgstr "Boîte manuelle avec embrayage auto"
 
 #: Application.cpp:363
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr "Entièrement manuelle: changement de vitesses séquentiel"
+msgstr "Entièrement manuelle : changement de vitesses séquentiel"
 
 #: Application.cpp:364
-#, fuzzy
-#| msgid "Fully Manual: stick shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr "Entièrement manuelle: levier de vitesses"
+msgstr "Entièrement manuelle : levier de vitesses"
 
 #: Application.cpp:365
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
-msgstr "Complètement manuel: passage avec levier de de vitesses et gammes"
+msgstr "Complètement manuel : passage avec levier de de vitesses et gammes"
 
 #: Application.cpp:374
 msgctxt "GfxFlaresMode"
@@ -108,15 +98,11 @@ msgid "Only current vehicle, main lights"
 msgstr "Seulement le véhicule actuel, lumières principales"
 
 #: Application.cpp:377
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
 msgstr "Tous les véhicules, lumières principales"
 
 #: Application.cpp:378
-#, fuzzy
-#| msgid "All vehicles, all lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
 msgstr "Tous les véhicules, toutes les lumières"
@@ -129,7 +115,7 @@ msgstr "Désactivé"
 #: Application.cpp:388
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "PSSM"
 
 #: Application.cpp:397
 msgctxt "GfxSkyMode"
@@ -137,11 +123,9 @@ msgid "Sandstorm (fastest)"
 msgstr "Sandstorm (plus rapide)"
 
 #: Application.cpp:398
-#, fuzzy
-#| msgid "Caelum (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
-msgstr "Caelum (meilleur apparence, moins bonnes performances)"
+msgstr "Caelum (meilleure apparence, plus lent)"
 
 #: Application.cpp:399
 msgctxt "GfxSkyMode"
@@ -164,12 +148,9 @@ msgid "Trilinear"
 msgstr "Trilinéaire"
 
 #: Application.cpp:411
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Anisotropy"
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
-msgstr "Anisotropie"
+msgstr "Anisotrope"
 
 #: Application.cpp:420
 msgctxt "GfxVegetation"
@@ -207,15 +188,11 @@ msgid "Reflection"
 msgstr "Réflexion"
 
 #: Application.cpp:435
-#, fuzzy
-#| msgid "Reflection + refraction (speed optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
-msgstr "Reflets + réfraction (performances optimisées)"
+msgstr "Reflets + réfraction (optimisé pour les performances)"
 
 #: Application.cpp:436
-#, fuzzy
-#| msgid "Reflection + refraction (quality optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
 msgstr "Réflexion + réfraction (optimisé pour la qualité)"
@@ -246,9 +223,6 @@ msgid "None"
 msgstr "Aucun"
 
 #: Application.cpp:458
-#, fuzzy
-#| msgctxt "ModCategory"
-#| msgid "All"
 msgctxt "IoInputGrabMode"
 msgid "All"
 msgstr "Tout"
