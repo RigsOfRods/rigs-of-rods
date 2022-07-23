@@ -81,10 +81,7 @@ public:
 
 private:
 
-    /**
-    * Inline-ection 'submesh_groundmodel', unique across all modules.
-    */
-    bool CheckSectionSubmeshGroundmodel();
+
 
     /**
     * Checks there's at least 1 forward gear.
@@ -105,8 +102,6 @@ private:
 
     bool CheckCommand(RigDef::Command2 & def);
 
-    bool CheckTrigger(RigDef::Trigger & def);
-
     /**
     * Section 'videocamera'.
     */
@@ -118,8 +113,7 @@ private:
 /* Properties                                                                 */
 /* -------------------------------------------------------------------------- */
 
-    RigDef::DocumentPtr m_file; //!< The parsed input file.
-    std::list<std::shared_ptr<RigDef::Document::Module>> m_selected_modules;
+    RigDef::DocumentPtr m_file; //!< The parsed input file
     bool m_check_beams;
 
 };

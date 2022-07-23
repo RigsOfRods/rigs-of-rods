@@ -148,7 +148,6 @@ set(SOURCE_FILES
         physics/ActorManager.{h,cpp}
         physics/ActorSlideNode.cpp
         physics/ActorSpawner.{h,cpp}
-        physics/ActorSpawnerFlow.cpp
         physics/CmdKeyInertia.{h,cpp}
         physics/Differentials.{h,cpp}
         physics/Savegame.cpp
@@ -180,12 +179,10 @@ set(SOURCE_FILES
         resources/otc_fileformat/OTCFileFormat.{h,cpp}
         resources/odef_fileformat/ODefFileFormat.{h,cpp}
         resources/rig_def_fileformat/RigDef_File.{h,cpp}
-        resources/rig_def_fileformat/RigDef_Node.{h,cpp}
         resources/rig_def_fileformat/RigDef_Parser.{h,cpp}
         resources/rig_def_fileformat/RigDef_Prerequisites.h
         resources/rig_def_fileformat/RigDef_Regexes.h
-        resources/rig_def_fileformat/RigDef_SequentialImporter.{h,cpp}
-        resources/rig_def_fileformat/RigDef_Serializer.{h,cpp}
+        #resources/rig_def_fileformat/RigDef_Serializer.{h,cpp}  #FIXME: remake as sequential
         resources/rig_def_fileformat/RigDef_Validator.{h,cpp}
         resources/skin_fileformat/SkinFileFormat.{h,cpp}
         resources/terrn2_fileformat/Terrn2FileFormat.{h,cpp}

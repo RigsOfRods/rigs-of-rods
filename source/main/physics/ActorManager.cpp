@@ -86,7 +86,6 @@ Actor* ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr de
     LOG(" == Spawning vehicle: " + def->name);
 
     ActorSpawner spawner;
-    spawner.ConfigureSections(actor->m_section_config, def);
     spawner.ProcessNewActor(actor, rq, def);
 
     if (App::diag_actor_dump->getBool())
@@ -319,6 +318,12 @@ Actor* ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr de
     }
 
     m_actors.push_back(actor);
+
+    // lock slide nodes after spawning the actor?
+    if (actor->m_slidenodes_connect_instantly)
+    {
+        actor->toggleSlideNodeLock();
+    }
 
     return actor;
 }
