@@ -245,7 +245,6 @@ void registerEventTypeEnum(AngelScript::asIScriptEngine* engine)
     result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TOGGLE_TERRAIN_EDITOR",   EV_COMMON_TOGGLE_TERRAIN_EDITOR ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TOGGLE_CUSTOM_PARTICLES", EV_COMMON_TOGGLE_CUSTOM_PARTICLES); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TOGGLE_MAT_DEBUG",        EV_COMMON_TOGGLE_MAT_DEBUG      ); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TOGGLE_RENDER_MODE",      EV_COMMON_TOGGLE_RENDER_MODE    ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TOGGLE_REPLAY_MODE",      EV_COMMON_TOGGLE_REPLAY_MODE    ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TOGGLE_PHYSICS",          EV_COMMON_TOGGLE_PHYSICS        ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TOGGLE_STATS",            EV_COMMON_TOGGLE_STATS          ); ROR_ASSERT(result >= 0);

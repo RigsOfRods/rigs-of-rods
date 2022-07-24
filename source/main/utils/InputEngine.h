@@ -266,7 +266,6 @@ enum events
     EV_COMMON_TOGGLE_TERRAIN_EDITOR,   //!< toggle terrain editor
     EV_COMMON_TOGGLE_CUSTOM_PARTICLES, //!< toggle particle cannon
     EV_COMMON_TOGGLE_MAT_DEBUG,   //!< debug purpose - dont use (currently not used)
-    EV_COMMON_TOGGLE_RENDER_MODE, //!< toggle render mode (solid, wireframe and points)
     EV_COMMON_TOGGLE_REPLAY_MODE, //!< toggle replay mode
     EV_COMMON_TOGGLE_PHYSICS,     //!< toggle physics on/off
     EV_COMMON_TOGGLE_STATS,       //!< toggle Ogre statistics (FPS etc.)
