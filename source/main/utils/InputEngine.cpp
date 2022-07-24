@@ -885,24 +885,6 @@ bool InputEngine::isEventAnalog(int eventID)
         }
     }
     return false;
-#if 0
-    // XXX : TODO fix this problem properly
-    std::vector<event_trigger_t> t_vec = events[eventID];
-    for (std::vector<event_trigger_t>::iterator i = t_vec.begin(); i != t_vec.end(); i++)
-    {
-        event_trigger_t t = *i;
-        if (i->eventtype == ET_MouseAxisX \
-            || i->eventtype == ET_MouseAxisX \
-            || i->eventtype == ET_MouseAxisY \
-            || i->eventtype == ET_MouseAxisZ \
-            || i->eventtype == ET_JoystickAxisAbs \
-            || i->eventtype == ET_JoystickAxisRel \
-            || i->eventtype == ET_JoystickSliderX \
-            || i->eventtype == ET_JoystickSliderY)
-            return true;
-    }
-    return false;
-#endif //0
 }
 
 float InputEngine::getEventValue(int eventID, bool pure, InputSourceType valueSource /*= InputSourceType::IST_ANY*/)
