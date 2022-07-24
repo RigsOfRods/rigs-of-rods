@@ -161,11 +161,7 @@ void ShaderParticleRenderer::_updateRenderQueue(RenderQueue* queue, std::vector<
     queue->addRenderable(this, mRenderQueueID);
 }
 
-//////////////////////////////////////////////////////////////////////////
-void ShaderParticleRenderer::visitRenderables(Renderable::Visitor* visitor, bool debugRenderables)
-{
-    visitor->visit(this, 0, debugRenderables);
-}
+
 
 //////////////////////////////////////////////////////////////////////////
 void ShaderParticleRenderer::_setMaterial(MaterialPtr& mat)
@@ -179,15 +175,9 @@ void ShaderParticleRenderer::_notifyCurrentCamera(Camera* cam)
 }
 
 //////////////////////////////////////////////////////////////////////////
-void ShaderParticleRenderer::_notifyParticleRotated(void)
+void ShaderParticleRenderer::visitRenderables(Renderable::Visitor* visitor, bool debugRenderables/* = false*/)
 {
-    // nothing to do
-}
-
-//////////////////////////////////////////////////////////////////////////
-void ShaderParticleRenderer::_notifyParticleResized(void)
-{
-    // nothing to do
+    // STUB   
 }
 
 //////////////////////////////////////////////////////////////////////////
