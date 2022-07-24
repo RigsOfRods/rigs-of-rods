@@ -71,7 +71,6 @@ DECLARE_RESOURCE_PACK( AIRFOILS,              "airfoils",             "AirfoilsR
 DECLARE_RESOURCE_PACK( CAELUM,                "caelum",               "CaelumRG");
 DECLARE_RESOURCE_PACK( CUBEMAPS,              "cubemaps",             "CubemapsRG");
 DECLARE_RESOURCE_PACK( DASHBOARDS,            "dashboards",           "DashboardsRG");
-DECLARE_RESOURCE_PACK( FAMICONS,              "famicons",             "FamiconsRG");
 DECLARE_RESOURCE_PACK( FLAGS,                 "flags",                "FlagsRG");
 DECLARE_RESOURCE_PACK( FONTS,                 "fonts",                "FontsRG");
 DECLARE_RESOURCE_PACK( HYDRAX,                "hydrax",               "HydraxRG");
@@ -376,7 +375,6 @@ void ContentManager::LoadGameplayResources()
     {
         this->AddResourcePack(ContentManager::ResourcePack::AIRFOILS);
         this->AddResourcePack(ContentManager::ResourcePack::TEXTURES);
-        this->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
         this->AddResourcePack(ContentManager::ResourcePack::MATERIALS);
         this->AddResourcePack(ContentManager::ResourcePack::MESHES);
         this->AddResourcePack(ContentManager::ResourcePack::OVERLAYS);

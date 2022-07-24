@@ -59,7 +59,6 @@ public:
         static const ResourcePack CAELUM;
         static const ResourcePack CUBEMAPS;
         static const ResourcePack DASHBOARDS;
-        static const ResourcePack FAMICONS;
         static const ResourcePack FLAGS;
         static const ResourcePack FONTS;
         static const ResourcePack HYDRAX;
