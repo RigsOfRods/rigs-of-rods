@@ -69,14 +69,8 @@ void VehicleButtons::Draw(RoR::GfxActor* actorx)
     }
 
     // Show when mouse is on the left of screen
-    if ((ImGui::GetIO().MousePos.x <= window_pos.x + ImGui::GetStyle().WindowPadding.x) && ImGui::GetIO().MousePos.y <= ImGui::GetIO().DisplaySize.y &&
-         App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE &&
-         !App::GetGuiManager()->ConsoleWindow.IsHovered() &&
-         !App::GetGuiManager()->GameControls.IsHovered() &&
-         !App::GetGuiManager()->FrictionSettings.IsHovered() &&
-         !App::GetGuiManager()->TextureToolWindow.IsHovered() &&
-         !App::GetGuiManager()->NodeBeamUtils.IsHovered() &&
-         !App::GetGuiManager()->MainSelector.IsHovered())
+    if (App::GetGuiManager()->AreStaticMenusAllowed() &&
+        (ImGui::GetIO().MousePos.x <= window_pos.x + ImGui::GetStyle().WindowPadding.x) && ImGui::GetIO().MousePos.y <= ImGui::GetIO().DisplaySize.y)
     {
         is_visible = true;
     }

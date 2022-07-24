@@ -53,6 +53,7 @@ public:
     void CreateTerrainTextures(); //!< Init
     void Draw();
     bool IsVisible() const { return mMapMode != SurveyMapMode::NONE; }
+    bool IsHovered() const { return IsVisible() && mWindowMouseHovered; }
     void CycleMode();
     void ToggleMode();
 
@@ -75,8 +76,12 @@ protected:
                      std::string const& filename, std::string const& caption, 
                      float pos_x, float pos_y, float angle);
 
+    // Window display
     SurveyMapMode mMapMode = SurveyMapMode::NONE; // Display mode
     SurveyMapMode mMapLastMode = SurveyMapMode::NONE; // Display mode
+    bool          mWindowMouseHovered = false;
+
+    // Map
     Ogre::Vector2 mTerrainSize = Ogre::Vector2::ZERO; // Computed reference map size (in meters)
     Ogre::Vector2 mMapCenterOffset = Ogre::Vector2::ZERO; // Displacement, in meters
     float         mMapZoom = 0.f; // Ratio: 0-1

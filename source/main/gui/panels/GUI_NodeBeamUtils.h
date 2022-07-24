@@ -32,7 +32,7 @@ public:
 
     void SetVisible(bool visible);
     bool IsVisible() const { return m_is_visible; }
-    bool IsHovered() const { return m_is_hovered; }
+    bool IsHovered() const { return IsVisible() && m_is_hovered; }
 
 private:
     bool m_is_visible = false;

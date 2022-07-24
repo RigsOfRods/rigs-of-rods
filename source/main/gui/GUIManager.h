@@ -130,6 +130,7 @@ public:
     void RequestGuiCaptureKeyboard(bool val); //!< Pass true during frame to prevent input passing to application
     bool IsGuiCaptureKeyboardRequested() const { return m_gui_kb_capture_requested; }
     void ApplyGuiCaptureKeyboard(); //!< Call after rendered frame to apply queued value
+    bool AreStaticMenusAllowed(); //!< i.e. top menubar / vehicle UI buttons
 
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();

@@ -385,11 +385,7 @@ void MainSelector::Draw()
 
     ImGui::EndGroup();
 
-    // Don't update hover if Close() was already called.
-    if (m_loader_type != LoaderType::LT_None)
-    {
-        m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
-    }
+    m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
 
     ImGui::End();
     if (!keep_open)
