@@ -196,7 +196,7 @@ COMMON_CYCLE_DEBUG_VIEWS       Keyboard             EXPL+CTRL+K
 COMMON_TOGGLE_TERRAIN_EDITOR   Keyboard             EXPL+CTRL+Y 
 COMMON_TOGGLE_CUSTOM_PARTICLES Keyboard             G 
 COMMON_TOGGLE_MAT_DEBUG        Keyboard             EXPL+CTRL+SHIFT+ALT+F 
-COMMON_TOGGLE_RENDER_MODE      Keyboard             E 
+COMMON_TOGGLE_RENDER_MODE      None
 COMMON_TOGGLE_REPLAY_MODE      Keyboard             CTRL+J 
 COMMON_TOGGLE_PHYSICS          Keyboard             EXPL+J 
 COMMON_TOGGLE_STATS            Keyboard             EXPL+F 

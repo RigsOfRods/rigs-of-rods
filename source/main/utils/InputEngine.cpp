@@ -45,7 +45,6 @@ InputEvent eventInfo[] = {
     {"COMMON_SCREENSHOT",             EV_COMMON_SCREENSHOT,             "Keyboard EXPL+SYSRQ",          _LC("InputEvent", "take a screenshot")},
     {"COMMON_SCREENSHOT_BIG",         EV_COMMON_SCREENSHOT_BIG,         "Keyboard EXPL+CTRL+SYSRQ",     _LC("InputEvent", "take a big screenshot (3 times the screen size)")},
     {"COMMON_TOGGLE_MAT_DEBUG",       EV_COMMON_TOGGLE_MAT_DEBUG,       "",                             _LC("InputEvent", "debug purpose - dont use")},
-    {"COMMON_TOGGLE_RENDER_MODE",     EV_COMMON_TOGGLE_RENDER_MODE,     "Keyboard E",                   _LC("InputEvent", "toggle render mode (solid, wireframe and points)")},
     {"COMMON_TOGGLE_PHYSICS",         EV_COMMON_TOGGLE_PHYSICS,         "Keyboard EXPL+J",              _LC("InputEvent", "enable or disable physics")},
     {"COMMON_FOV_LESS",               EV_COMMON_FOV_LESS,               "Keyboard EXPL+NUMPAD7",        _LC("InputEvent", "decreases the current FOV value")},
     {"COMMON_FOV_MORE",               EV_COMMON_FOV_MORE,               "Keyboard EXPL+CTRL+NUMPAD7",   _LC("InputEvent", "increase the current FOV value")},

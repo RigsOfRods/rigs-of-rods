@@ -811,19 +811,6 @@ void GameContext::UpdateGlobalInputEvents()
             this->PushMessage(Message(MSG_APP_DISPLAY_FULLSCREEN_REQUESTED));
     }
 
-    // toggle render mode
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_RENDER_MODE, 0.5f))
-    {
-        static int mSceneDetailIndex;
-        mSceneDetailIndex = (mSceneDetailIndex + 1) % 3;
-        switch (mSceneDetailIndex)
-        {
-        case 0: App::GetCameraManager()->GetCamera()->setPolygonMode(Ogre::PM_SOLID);       break;
-        case 1: App::GetCameraManager()->GetCamera()->setPolygonMode(Ogre::PM_WIREFRAME);   break;
-        case 2: App::GetCameraManager()->GetCamera()->setPolygonMode(Ogre::PM_POINTS);      break;
-        }
-    }
-
     // Write player position to log
     if (App::app_state->getEnum<AppState>() == AppState::SIMULATION &&
         App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_OUTPUT_POSITION))
