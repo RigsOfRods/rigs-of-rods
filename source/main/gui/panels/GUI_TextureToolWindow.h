@@ -31,9 +31,9 @@ public:
     const float LEFT_PANE_WIDTH = 200.f;
     const float WINDOW_WIDTH = 600.f;
 
-    void SetVisible(bool visible) { m_is_visible = visible; m_is_hovered = false; }
+    void SetVisible(bool visible) { m_is_visible = visible; }
     bool IsVisible() const { return m_is_visible; }
-    bool IsHovered() const { return m_is_hovered; }
+    bool IsHovered() const { return IsVisible() && m_is_hovered; }
 
     void Draw();
 

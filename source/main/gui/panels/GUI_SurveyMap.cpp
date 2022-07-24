@@ -229,6 +229,8 @@ void SurveyMap::Draw()
         }
     }
 
+    mWindowMouseHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
+
     ImGui::End();
     ImGui::PopStyleVar(2); // WindowPadding, WindowRounding
 }

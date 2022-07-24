@@ -48,9 +48,9 @@ public:
         const ground_model_t* const live_data;
     };
 
-    void SetVisible(bool visible) { m_is_visible = visible; m_is_hovered = false; }
+    void SetVisible(bool visible) { m_is_visible = visible; }
     bool IsVisible() const { return m_is_visible; }
-    bool IsHovered() const { return m_is_hovered; }
+    bool IsHovered() const { return IsVisible() && m_is_hovered; }
 
     void AnalyzeTerrain();
     void setActiveCol(const ground_model_t* gm) { m_nearest_gm = gm; }

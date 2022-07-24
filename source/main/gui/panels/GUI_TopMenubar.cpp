@@ -695,13 +695,7 @@ void TopMenubar::Update()
 
 bool TopMenubar::ShouldDisplay(ImVec2 window_pos)
 {
-    if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FREE ||
-        App::GetGuiManager()->ConsoleWindow.IsHovered() ||
-        App::GetGuiManager()->GameControls.IsHovered() ||
-        App::GetGuiManager()->FrictionSettings.IsHovered() ||
-        App::GetGuiManager()->TextureToolWindow.IsHovered() ||
-        App::GetGuiManager()->NodeBeamUtils.IsHovered() ||
-        App::GetGuiManager()->MainSelector.IsHovered())
+    if (!App::GetGuiManager()->AreStaticMenusAllowed())
     {
         return false;
     }

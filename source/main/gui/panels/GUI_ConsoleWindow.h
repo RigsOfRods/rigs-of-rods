@@ -42,9 +42,9 @@ public:
     static const size_t HISTORY_CAP = 100u;
 
     ConsoleWindow();
-    void SetVisible(bool visible) { m_is_visible = visible; m_is_hovered = false; }
+    void SetVisible(bool visible) { m_is_visible = visible; }
     bool IsVisible() const { return m_is_visible; }
-    bool IsHovered() const { return m_is_hovered; }
+    bool IsHovered() const { return IsVisible() && m_is_hovered; }
 
     void Draw();
     void doCommand(std::string msg);

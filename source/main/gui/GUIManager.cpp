@@ -110,6 +110,18 @@ void GUIManager::ApplyGuiCaptureKeyboard()
     m_gui_kb_capture_requested = m_gui_kb_capture_queued;
 };
 
+bool GUIManager::AreStaticMenusAllowed() //!< i.e. top menubar / vehicle UI buttons
+{
+    return (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE &&
+            !App::GetGuiManager()->ConsoleWindow.IsHovered() &&
+            !App::GetGuiManager()->GameControls.IsHovered() &&
+            !App::GetGuiManager()->FrictionSettings.IsHovered() &&
+            !App::GetGuiManager()->TextureToolWindow.IsHovered() &&
+            !App::GetGuiManager()->NodeBeamUtils.IsHovered() &&
+            !App::GetGuiManager()->MainSelector.IsHovered() &&
+            !App::GetGuiManager()->SurveyMap.IsHovered());
+}
+
 void GUIManager::DrawSimulationGui(float dt)
 {
     if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)

@@ -43,7 +43,7 @@ public:
 
     void Show(LoaderType type, std::string const& filter_guid = "");
     bool IsVisible() { return m_loader_type != LT_None; };
-    bool IsHovered() { return m_is_hovered; }
+    bool IsHovered() { return IsVisible() && m_is_hovered; }
     bool m_kb_focused = true;
     void Draw();
     void Close();
