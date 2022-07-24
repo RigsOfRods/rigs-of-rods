@@ -60,6 +60,8 @@ void FlexbodyDebug::Draw()
     if (ImGui::Combo(_LC("FlexbodyDebug", "Select flexbody"), &m_combo_selection, m_combo_items.c_str()))
     {
         this->UpdateVisibility();
+        show_locator.resize(0);
+        show_locator.resize(actor->GetGfxActor()->GetFlexbodies()[m_combo_selection]->getVertexCount(), false);
     }
     if (ImGui::Checkbox("Hide other", &this->hide_other_flexbodies))
     {
@@ -87,9 +89,64 @@ void FlexbodyDebug::Draw()
 
     ImGui::Text("Forset nodes: (total %d)", (int)flexbody->getForsetNodes().size());
     ImGui::SameLine();
-    ImGui::Checkbox("Show##forset", &this->show_forset_nodes);
+    ImGui::Checkbox("Show all##forset", &this->show_forset_nodes);
+
+    ImGui::Text("Vertices: (total %d)", (int)flexbody->getVertexCount());
+    ImGui::SameLine();
+    ImGui::Checkbox("Show all##verts", &this->show_vertices);
+
+    const float content_height = 
+        (2.f * ImGui::GetStyle().WindowPadding.y) 
+        + (5.f * ImGui::GetItemsLineHeightWithSpacing())
+        + ImGui::GetStyle().ItemSpacing.y * 3;
+    const float child_height = ImGui::GetWindowHeight() - (content_height + 50);
+
+
+    ImGui::BeginChild("FlexbodyDebug-scroll", ImVec2(0.f, child_height), false);
+
+    // Begin table
+    ImGui::Columns(5);
+    ImGui::TextDisabled("Vert#");
+    ImGui::NextColumn();
+    ImGui::TextDisabled("REF node");
+    ImGui::NextColumn();
+    ImGui::TextDisabled("VX node");
+    ImGui::NextColumn();
+    ImGui::TextDisabled("VY node");
+    ImGui::NextColumn();
+    // show checkbox
+    ImGui::NextColumn();
+    ImGui::Separator();
+
+    bool locators_visible = false;
+    for (int i = 0; i < flexbody->getVertexCount(); i++)
+    {
+        ImGui::PushID(i);
+        Locator_t& loc = flexbody->getVertexLocator(i);
+        ImGui::TextDisabled("%d", i);
+        ImGui::NextColumn();
+        ImGui::Text("%d", (int)loc.ref);
+        ImGui::NextColumn();
+        ImGui::Text("%d", (int)loc.nx);
+        ImGui::NextColumn();
+        ImGui::Text("%d", (int)loc.ny);
+        ImGui::NextColumn();
+        bool show = this->show_locator[i];
+        if (ImGui::Checkbox("Show", &show))
+        {
+            this->show_locator[i] = show;
+        }
+        ImGui::NextColumn();
+        ImGui::PopID();
+
+        locators_visible = locators_visible || this->show_locator[i];
+    }
+
+    // End table
+    ImGui::Columns(1);
+    ImGui::EndChild();
     
-    if (this->show_base_nodes || this->show_forset_nodes)
+    if (this->show_base_nodes || this->show_forset_nodes || this->show_vertices || locators_visible)
     {
         this->DrawDebugView();
     }
@@ -117,6 +174,9 @@ void FlexbodyDebug::AnalyzeFlexbodies()
         }
         ImTerminateComboboxString(m_combo_items);
     }
+
+    show_locator.resize(0);
+    show_locator.resize(actor->GetGfxActor()->GetFlexbodies()[m_combo_selection]->getVertexCount(), false);
 }
 
 // All colors are in ABGR format (alpha, blue, green, red)
@@ -127,6 +187,14 @@ const float BASENODE_RADIUS(3.f);
 const float BEAM_THICKNESS(1.2f);
 const float BLUE_BEAM_THICKNESS = BEAM_THICKNESS + 0.8f; // Blue beam looks a lot thinner for some reason
 const ImU32 NODE_TEXT_COLOR(0xffcccccf); // node ID text color
+const ImU32 VERTEX_COLOR = ImColor(0.1f, 1.f, 1.f);
+const ImU32 VERTEX_TEXT_COLOR = ImColor(171, 194, 186);
+const float VERTEX_RADIUS(1.f);
+const float LOCATOR_BEAM_THICKNESS(1.0f);
+const ImU32 LOCATOR_BEAM_COLOR = ImColor(0.05f, 1.f, 0.65f);
+const ImU32 AXIS_X_BEAM_COLOR = ImColor(1.f, 0.f, 0.f);
+const ImU32 AXIS_Y_BEAM_COLOR = ImColor(0.1f, 0.1f, 1.f);
+
 
 void FlexbodyDebug::DrawDebugView()
 {
@@ -160,8 +228,8 @@ void FlexbodyDebug::DrawDebugView()
         drawlist->ChannelsSetCurrent(LAYER_BEAMS);
         if (refnode_pos.z < 0)
         {
-            if (xnode_pos.z < 0) { drawlist->AddLine(ImVec2(refnode_pos.x, refnode_pos.y), ImVec2(xnode_pos.x, xnode_pos.y), ImColor(1.f, 0.f, 0.f), BEAM_THICKNESS); }
-            if (ynode_pos.z < 0) { drawlist->AddLine(ImVec2(refnode_pos.x, refnode_pos.y), ImVec2(ynode_pos.x, ynode_pos.y), ImColor(0.1f, 0.1f, 1.f), BLUE_BEAM_THICKNESS); }
+            if (xnode_pos.z < 0) { drawlist->AddLine(ImVec2(refnode_pos.x, refnode_pos.y), ImVec2(xnode_pos.x, xnode_pos.y), AXIS_X_BEAM_COLOR, BEAM_THICKNESS); }
+            if (ynode_pos.z < 0) { drawlist->AddLine(ImVec2(refnode_pos.x, refnode_pos.y), ImVec2(ynode_pos.x, ynode_pos.y), AXIS_Y_BEAM_COLOR, BLUE_BEAM_THICKNESS); }
         }
 
         drawlist->ChannelsSetCurrent(LAYER_TEXT);
@@ -180,6 +248,70 @@ void FlexbodyDebug::DrawDebugView()
 
             drawlist->ChannelsSetCurrent(LAYER_TEXT);
             drawlist->AddText(ImVec2(pos.x, pos.y), NODE_TEXT_COLOR, fmt::format("{}", node).c_str());
+        }
+    }
+
+    if (this->show_vertices)
+    {
+        for (int i = 0; i < flexbody->getVertexCount(); i++)
+        {
+            Ogre::Vector3 vert_pos = world2screen.Convert(flexbody->getVertexPos(i));
+            if (vert_pos.z < 0.f)
+            {
+                drawlist->ChannelsSetCurrent(LAYER_NODES);
+                drawlist->AddCircleFilled(ImVec2(vert_pos.x, vert_pos.y), VERTEX_RADIUS, VERTEX_COLOR);
+
+                drawlist->ChannelsSetCurrent(LAYER_TEXT);
+                drawlist->AddText(ImVec2(vert_pos.x, vert_pos.y), VERTEX_TEXT_COLOR, fmt::format("v{}", i).c_str());
+            }
+        }
+    }
+
+    for (int i = 0; i < flexbody->getVertexCount(); i++)
+    {
+        if (this->show_locator[i])
+        {
+            // The vertex
+            Ogre::Vector3 vert_pos = world2screen.Convert(flexbody->getVertexPos(i));
+            if (!this->show_vertices) // don't draw twice
+            {
+                if (vert_pos.z < 0.f)
+                {
+                    drawlist->ChannelsSetCurrent(LAYER_NODES);
+                    drawlist->AddCircleFilled(ImVec2(vert_pos.x, vert_pos.y), VERTEX_RADIUS, VERTEX_COLOR);
+
+                    drawlist->ChannelsSetCurrent(LAYER_TEXT);
+                    drawlist->AddText(ImVec2(vert_pos.x, vert_pos.y), VERTEX_TEXT_COLOR, fmt::format("v{}", i).c_str());
+                }
+            }
+
+            // The locator nodes
+            Locator_t& loc = flexbody->getVertexLocator(i);
+            Ogre::Vector3 refnode_pos = world2screen.Convert(nodes[loc.ref].AbsPosition);
+            Ogre::Vector3 xnode_pos = world2screen.Convert(nodes[loc.nx].AbsPosition);
+            Ogre::Vector3 ynode_pos = world2screen.Convert(nodes[loc.ny].AbsPosition);
+            if (!this->show_forset_nodes) // don't draw twice
+            {
+                // (z < 0) means "in front of the camera"
+                if (refnode_pos.z < 0.f) { drawlist->AddCircleFilled(ImVec2(refnode_pos.x, refnode_pos.y), FORSETNODE_RADIUS, FORSETNODE_COLOR); }
+                if (xnode_pos.z < 0.f) { drawlist->AddCircleFilled(ImVec2(xnode_pos.x, xnode_pos.y), FORSETNODE_RADIUS, FORSETNODE_COLOR); }
+                if (ynode_pos.z < 0.f) { drawlist->AddCircleFilled(ImVec2(ynode_pos.x, ynode_pos.y), FORSETNODE_RADIUS, FORSETNODE_COLOR); }
+            }
+
+            drawlist->ChannelsSetCurrent(LAYER_BEAMS);
+            if (refnode_pos.z < 0)
+            {
+                if (xnode_pos.z < 0) { drawlist->AddLine(ImVec2(refnode_pos.x, refnode_pos.y), ImVec2(xnode_pos.x, xnode_pos.y), AXIS_X_BEAM_COLOR, BEAM_THICKNESS); }
+                if (ynode_pos.z < 0) { drawlist->AddLine(ImVec2(refnode_pos.x, refnode_pos.y), ImVec2(ynode_pos.x, ynode_pos.y), AXIS_Y_BEAM_COLOR, BLUE_BEAM_THICKNESS); }
+                if (vert_pos.z < 0) { drawlist->AddLine(ImVec2(refnode_pos.x, refnode_pos.y), ImVec2(vert_pos.x, vert_pos.y), LOCATOR_BEAM_COLOR, LOCATOR_BEAM_THICKNESS); }
+            }
+
+            if (!this->show_forset_nodes) // don't draw twice
+            {
+                drawlist->AddText(ImVec2(refnode_pos.x, refnode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", loc.ref).c_str());
+                drawlist->AddText(ImVec2(xnode_pos.x, xnode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", loc.nx).c_str());
+                drawlist->AddText(ImVec2(ynode_pos.x, ynode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", loc.ny).c_str());
+            }
         }
     }
 

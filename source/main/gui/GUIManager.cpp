@@ -149,6 +149,11 @@ void GUIManager::DrawSimulationGui(float dt)
     {
         this->MessageBoxDialog.Draw();
     }
+
+    if (this->FlexbodyDebug.IsVisible())
+    {
+        this->FlexbodyDebug.Draw();
+    }
 };
 
 void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
@@ -197,11 +202,6 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     if (this->TextureToolWindow.IsVisible())
     {
         this->TextureToolWindow.Draw();
-    }
-
-    if (this->FlexbodyDebug.IsVisible())
-    {
-        this->FlexbodyDebug.Draw();
     }
 
     if (this->SurveyMap.IsVisible())

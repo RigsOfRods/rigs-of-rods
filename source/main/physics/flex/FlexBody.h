@@ -77,6 +77,8 @@ public:
     void SetFlexbodyCastShadow(bool val);
 
     int getVertexCount() { return static_cast<int>(m_vertex_count); };
+    Locator_t& getVertexLocator(int vert) { ROR_ASSERT((size_t)vert < m_vertex_count); return m_locators[vert]; }
+    Ogre::Vector3 getVertexPos(int vert) { ROR_ASSERT((size_t)vert < m_vertex_count); return m_dst_pos[vert] + m_flexit_center; }
     Ogre::Entity* getEntity() { return m_scene_entity; }
     std::string getOrigMeshName();
     std::vector<NodeNum_t>& getForsetNodes() { return m_forset_nodes; };
