@@ -235,13 +235,7 @@ void MultiplayerSelector::DrawServerlistTab()
     // LOAD RESOURCES
     if (!m_lock_icon)
     {
-        try
-        {
-            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FAMICONS);
-            m_lock_icon = Ogre::TextureManager::getSingleton().load(
-                "lock.png", ContentManager::ResourcePack::FAMICONS.resource_group_name);
-        }
-        catch (...) {} // Logged by OGRE
+        m_lock_icon = FetchIcon("lock.png");
     }
 
     // DETERMINE WHAT TO DRAW

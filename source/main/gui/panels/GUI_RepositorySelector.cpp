@@ -1319,7 +1319,7 @@ void RepositorySelector::handleResponse(const Ogre::WorkQueue::Response *req, co
     {
         try // Check if loads correctly (not null, not invalid etc...)
         {
-            m_data.items[item_idx].preview_tex = FetchIcon(file.c_str());
+            m_data.items[item_idx].preview_tex = FetchImage(file.c_str(), RGN_CACHE);
             m_data.items[item_idx].preview_tex->load();
         }
         catch (...) // Doesn't load, fallback

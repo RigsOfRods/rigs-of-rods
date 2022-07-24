@@ -72,6 +72,7 @@ void DrawGTextEdit(CVar* cvar, const char* label, Str<1000>& buf);
 
 void DrawGCombo(CVar* cvar, const char* label, const char* values);
 
+Ogre::TexturePtr FetchImage(const char* name, const char* rg_name);
 Ogre::TexturePtr FetchIcon(const char* name);
 
 ImDrawList* GetImDummyFullscreenWindow();
