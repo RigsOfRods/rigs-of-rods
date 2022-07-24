@@ -43,7 +43,9 @@ public:
     bool draw_mesh_wireframe = false;
     bool show_base_nodes = false;
     bool show_forset_nodes = false;
+    bool show_vertices = false;
     bool hide_other_flexbodies = false;
+    std::vector<bool> show_locator;
 
 private:
 
