@@ -6972,29 +6972,23 @@ void ActorSpawner::CreateVideoCamera(DataPos_t pos)
         Ogre::SceneNode* vcam_snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         vcam_snode->attachObject(vcam.vcam_ogre_camera);
 
-        if (!App::gfx_window_videocams->getBool())
+        if (App::gfx_window_videocams->getBool())
         {
-            vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(
-                vcam.vcam_material->getName() + "_texture",
-                Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-                Ogre::TEX_TYPE_2D,
-                def->texture_width,
-                def->texture_height,
-                0, // no mip maps
-                Ogre::PF_R8G8B8,
-                Ogre::TU_RENDERTARGET);
-            vcam.vcam_render_target = vcam.vcam_render_tex->getBuffer()->getRenderTarget();
-            vcam.vcam_render_target->setAutoUpdated(false);
+            this->AddMessage(Message::TYPE_ERROR, "`gfx_window_videocams`: Windowed video cameras are not supported by this game version.");
+            App::gfx_window_videocams->setVal(false);
         }
-        else
-        {
-            const std::string window_name = (!def->camera_name.empty()) ? def->camera_name : def->material_name;
-            vcam.vcam_render_window = App::GetAppContext()->CreateCustomRenderWindow(window_name, def->texture_width, def->texture_height);
-            vcam.vcam_render_window->setAutoUpdated(false);
-            vcam.vcam_render_window->setDeactivateOnFocusChange(false);
 
-            // TODO: disable texture mirrors
-        }
+        vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(
+            vcam.vcam_material->getName() + "_texture",
+            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+            Ogre::TEX_TYPE_2D,
+            def->texture_width,
+            def->texture_height,
+            0, // no mip maps
+            Ogre::PF_R8G8B8,
+            Ogre::TU_RENDERTARGET);
+        vcam.vcam_render_target = vcam.vcam_render_tex->getBuffer()->getRenderTarget();
+        vcam.vcam_render_target->setAutoUpdated(false);
 
         vcam.vcam_ogre_camera->setNearClipDistance(def->min_clip_distance);
         vcam.vcam_ogre_camera->setFarClipDistance(def->max_clip_distance);
