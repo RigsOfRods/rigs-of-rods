@@ -126,6 +126,7 @@ resolve_conan_dependencies()
 add_subdirectory(external/angelscript_addons)
 add_subdirectory(source/version_info)
 add_subdirectory(source/main)
+add_subdirectory(source/frontend)
 add_subdirectory(doc)
 
 feature_summary(WHAT ALL)

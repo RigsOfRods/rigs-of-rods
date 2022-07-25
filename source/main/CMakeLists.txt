@@ -3,7 +3,7 @@
 ####################################################################################################
 
 set(SOURCE_FILES
-        main.cpp
+        MainMessageLoop.cpp
         Application.{h,cpp}
         ForwardDeclarations.h
         AppContext.{h,cpp}
@@ -230,43 +230,20 @@ expand_file_extensions(SOURCE_FILES ${SOURCE_FILES})
 # Generate source groups for use in IDEs
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${SOURCE_FILES})
 
-if (WIN32)
-    # clang-cl doesn't support resource files
-    if (NOT (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
-        list(APPEND SOURCE_FILES "icon.rc")
-    endif ()
-endif ()
-
 
 ####################################################################################################
-#  EXECUTABLE TARGET
+#  LIBRARY TARGET
 ####################################################################################################
-set(BINNAME "RoR")
-add_executable(${BINNAME} ${SOURCE_FILES})
+set(BINNAME "RoR_Main")
+add_library(${BINNAME} STATIC ${headers} ${SOURCE_FILES})
 
 if (WIN32)
-    set_target_properties(${BINNAME} PROPERTIES WIN32_EXECUTABLE YES)
     # disable some annoying VS warnings:
     # warning C4244: 'initializing' : conversion from 'const float' to 'int', possible loss of data
     # warning C4305: 'initializing' : truncation from 'double' to 'const float'
     target_compile_options(${BINNAME} PRIVATE /wd4305 /wd4244)
     # Disable non-standard behavior
     target_compile_options(${BINNAME} PRIVATE /permissive-)
-endif ()
-
-if (MSVC)
-    # set startup project for Visual Studio Builds
-    set_property(
-            DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-            PROPERTY
-            VS_STARTUP_PROJECT ${BINNAME}
-    )
-    # set Visual Studio working directory to the Configuration directory
-    set_target_properties(
-            ${BINNAME}
-            PROPERTIES
-            VS_DEBUGGER_WORKING_DIRECTORY "${RUNTIME_OUTPUT_DIRECTORY}"
-    )
 endif ()
 
 ####################################################################################################

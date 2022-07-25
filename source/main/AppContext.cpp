@@ -450,9 +450,13 @@ void AppContext::SetUpLogging()
     CreateFolder(logs_dir);
     App::sys_logs_dir->setStr(logs_dir.c_str());
 
-    auto ogre_log_manager = OGRE_NEW Ogre::LogManager();
+    if (!Ogre::LogManager::getSingletonPtr())
+    {
+        OGRE_NEW Ogre::LogManager();
+    }
+
     std::string rorlog_path = PathCombine(logs_dir, "RoR.log");
-    Ogre::Log* rorlog = ogre_log_manager->createLog(rorlog_path, true, true);
+    Ogre::Log* rorlog = Ogre::LogManager::getSingleton().createLog(rorlog_path, true, true);
     rorlog->stream() << "[RoR] Rigs of Rods (www.rigsofrods.org) version " << ROR_VERSION_STRING;
     std::time_t t = std::time(nullptr);
     rorlog->stream() << "[RoR] Current date: " << std::put_time(std::localtime(&t), "%Y-%m-%d");
