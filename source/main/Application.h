@@ -29,6 +29,7 @@
 #include "BitFlags.h"
 #include "CVar.h"
 #include "ForwardDeclarations.h"
+#include "MsgQueue.h"
 #include "Str.h"
 #include "ZeroedMemoryAllocator.h" // Legacy
 
@@ -63,67 +64,6 @@ int RunApplicationMessageLoop();
 
 /// @addtogroup GameState Game state
 /// @{
-
-/// @addtogroup MsgQueue Message queue
-/// @{
-
-/// Global gameplay message loop, see `struct Message` in GameContext.h
-enum MsgType
-{
-    MSG_INVALID,
-    // Application
-    MSG_APP_SHUTDOWN_REQUESTED,
-    MSG_APP_SCREENSHOT_REQUESTED,
-    MSG_APP_DISPLAY_FULLSCREEN_REQUESTED,
-    MSG_APP_DISPLAY_WINDOWED_REQUESTED,
-    MSG_APP_MODCACHE_LOAD_REQUESTED,
-    MSG_APP_MODCACHE_UPDATE_REQUESTED,
-    MSG_APP_MODCACHE_PURGE_REQUESTED,
-    // Networking
-    MSG_NET_CONNECT_REQUESTED,
-    MSG_NET_CONNECT_STARTED,
-    MSG_NET_CONNECT_PROGRESS,
-    MSG_NET_CONNECT_SUCCESS,
-    MSG_NET_CONNECT_FAILURE,
-    MSG_NET_SERVER_KICK,
-    MSG_NET_DISCONNECT_REQUESTED,
-    MSG_NET_USER_DISCONNECT,
-    MSG_NET_RECV_ERROR,
-    MSG_NET_REFRESH_SERVERLIST_SUCCESS,    //!< Payload = GUI::MpServerInfoVec* (owner)
-    MSG_NET_REFRESH_SERVERLIST_FAILURE,
-    MSG_NET_REFRESH_REPOLIST_SUCCESS,    //!< Payload = GUI::ResourcesCollection* (owner)
-    MSG_NET_OPEN_RESOURCE_SUCCESS,    //!< Payload = GUI::ResourcesCollection* (owner)
-    MSG_NET_REFRESH_REPOLIST_FAILURE,
-    // Simulation
-    MSG_SIM_PAUSE_REQUESTED,
-    MSG_SIM_UNPAUSE_REQUESTED,
-    MSG_SIM_LOAD_TERRN_REQUESTED,
-    MSG_SIM_LOAD_SAVEGAME_REQUESTED,
-    MSG_SIM_UNLOAD_TERRN_REQUESTED,
-    MSG_SIM_SPAWN_ACTOR_REQUESTED,         //!< Payload = RoR::ActorSpawnRequest* (owner)
-    MSG_SIM_MODIFY_ACTOR_REQUESTED,        //!< Payload = RoR::ActorModifyRequest* (owner)
-    MSG_SIM_DELETE_ACTOR_REQUESTED,        //!< Payload = RoR::Actor* (weak)
-    MSG_SIM_SEAT_PLAYER_REQUESTED,         //!< Payload = RoR::Actor* (weak) | nullptr
-    MSG_SIM_TELEPORT_PLAYER_REQUESTED,     //!< Payload = Ogre::Vector3* (owner)
-    MSG_SIM_HIDE_NET_ACTOR_REQUESTED,      //!< Payload = Actor* (weak)
-    MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED,    //!< Payload = Actor* (weak)
-    // GUI
-    MSG_GUI_OPEN_MENU_REQUESTED,
-    MSG_GUI_CLOSE_MENU_REQUESTED,
-    MSG_GUI_OPEN_SELECTOR_REQUESTED,       //!< Payload = LoaderType* (owner), Description = GUID | empty
-    MSG_GUI_CLOSE_SELECTOR_REQUESTED,
-    MSG_GUI_MP_CLIENTS_REFRESH,
-    MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED,    //!< Payload = MessageBoxConfig* (owner)
-    MSG_GUI_DOWNLOAD_PROGRESS,
-    MSG_GUI_DOWNLOAD_FINISHED,
-    // Editing
-    MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  //!< Payload = RoR::ground_model_t* (weak)
-    MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,
-    MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED,
-    MSG_EDI_RELOAD_BUNDLE_REQUESTED,       //!< Payload = RoR::CacheEntry* (weak)
-};
-
-/// @} // addtogroup MsgQueue
 
 enum class AppState
 {

@@ -28,6 +28,7 @@
 #include "Actor.h"
 #include "ActorManager.h"
 #include "CharacterFactory.h"
+#include "MsgQueue.h"
 #include "RaceSystem.h"
 #include "RecoveryMode.h"
 #include "SceneMouse.h"
@@ -42,26 +43,6 @@ namespace RoR {
 
 /// @addtogroup GameState
 /// @{
-
-/// @addtogroup MsgQueue
-/// @{
-
-/// Unified game event system - all requests and state changes are reported using a message.
-struct Message
-{
-    Message(MsgType _type): type(_type) {}
-    Message(MsgType _type, std::string const& _desc): type(_type), description(_desc) {}
-    Message(MsgType _type, void* _data): type(_type), payload(_data) {}
-
-    MsgType     type         = MSG_INVALID;
-    std::string description;
-    void*       payload      = nullptr;
-    std::vector<Message> chain; //!< Posted after the message is processed
-};
-
-typedef std::queue < Message, std::list<Message>> GameMsgQueue;
-
-/// @} // addtogroup MsgQueue
 
 /// Central game state manager.
 /// RoR's gameplay is quite simple in structure, it consists of:

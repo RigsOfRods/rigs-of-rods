@@ -8,6 +8,7 @@ set(SOURCE_FILES
         ForwardDeclarations.h
         AppContext.{h,cpp}
         GameContext.{h,cpp}
+        MsgQueue.h
         audio/MumbleIntegration.{h,cpp}
         audio/Sound.{h,cpp}
         audio/SoundManager.{h,cpp}
