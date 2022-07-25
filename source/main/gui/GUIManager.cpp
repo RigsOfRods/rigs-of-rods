@@ -113,14 +113,15 @@ void GUIManager::ApplyGuiCaptureKeyboard()
 bool GUIManager::AreStaticMenusAllowed() //!< i.e. top menubar / vehicle UI buttons
 {
     return (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE &&
-            !App::GetGuiManager()->ConsoleWindow.IsHovered() &&
-            !App::GetGuiManager()->GameControls.IsHovered() &&
-            !App::GetGuiManager()->FrictionSettings.IsHovered() &&
-            !App::GetGuiManager()->TextureToolWindow.IsHovered() &&
-            !App::GetGuiManager()->NodeBeamUtils.IsHovered() &&
-            !App::GetGuiManager()->CollisionsDebug.IsHovered() &&
-            !App::GetGuiManager()->MainSelector.IsHovered() &&
-            !App::GetGuiManager()->SurveyMap.IsHovered());
+            !this->ConsoleWindow.IsHovered() &&
+            !this->GameControls.IsHovered() &&
+            !this->FrictionSettings.IsHovered() &&
+            !this->TextureToolWindow.IsHovered() &&
+            !this->NodeBeamUtils.IsHovered() &&
+            !this->CollisionsDebug.IsHovered() &&
+            !this->MainSelector.IsHovered() &&
+            !this->SurveyMap.IsHovered() &&
+            !this->FlexbodyDebug.IsHovered());
 }
 
 void GUIManager::DrawSimulationGui(float dt)
