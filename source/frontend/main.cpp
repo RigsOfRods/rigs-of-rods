@@ -19,11 +19,27 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// -------------------------------------------
+// It turns out Ogre::Root is dumb and doesn't tolerate user creating individual singletons early by hand.
+// The singletons are also reason you can't split OGRE usage into frontend/backend.
+// For example, backend should not process .material files, 
+//     but there's only one singleton controlling it.
+// Using Ogre::Root without initializing rendering is still possible, 
+//     but only if there's completely different renderer.
+// 
+// For this backend, I give up on separating OGRE tasks, I let the backend load everything.
+// I'll only move rendering-related message processing and simbuffer processing here
+//     so that future frontend can use it as tutorial/template.
+// -------------------------------------------
+
+#include "MessageHandler.h"
+
 // Includes from backend
 #include "Application.h"
 #include "PlatformUtils.h"
 
 // Dependencies
+#include <Bites/OgreWindowEventUtilities.h>
 #include <Ogre.h>
 
 // System includes
@@ -44,9 +60,16 @@ int main(int argc, char *argv[])
     // Initialize the backend
     int start_res = RoR::StartApplication(argc, argv);
     safe_log->stream() << "RoR::StartApplication() finished, result:" << start_res << "\n";
-    
+
     // Run the backend message loop
-    std::thread msgloop_thread = std::thread(&RoR::RunApplicationMessageLoop);
+    MessageHandler msg_handler;
+    std::thread msgloop_thread = std::thread(&RoR::RunApplicationMessageLoop, &msg_handler);
+
+    while (!msg_handler.WasExitRequested())
+    {
+        OgreBites::WindowEventUtilities::messagePump();
+        // TODO: request simbuffers, process simbuffers, invoke rendering.
+    }
 
     // Wait until the loop exits
     msgloop_thread.join();

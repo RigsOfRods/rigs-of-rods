@@ -5,6 +5,7 @@
 
 set(SOURCE_FILES
         main.cpp
+        MessageHandler.{h,cpp}
     )
     
 include(SourceFileUtils)

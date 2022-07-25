@@ -323,7 +323,7 @@ int RoR::StartApplication(int argc, char* argv[])
 #endif
 }
 
-int RoR::RunApplicationMessageLoop()
+int RoR::RunApplicationMessageLoop(MessageListener* msg_listener)
 {
 
 #ifndef _DEBUG
@@ -339,7 +339,6 @@ int RoR::RunApplicationMessageLoop()
 
         while (App::app_state->getEnum<AppState>() != AppState::SHUTDOWN)
         {
-            OgreBites::WindowEventUtilities::messagePump();
 
             // Halt physics (wait for async tasks to finish)
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
@@ -351,7 +350,7 @@ int RoR::RunApplicationMessageLoop()
             while (App::GetGameContext()->HasMessages())
             {
                 Message m = App::GetGameContext()->PopMessage();
-                bool failed_m = false;
+                bool failed_m = !msg_listener->ProcessMessage(m);
                 switch (m.type)
                 {
 
@@ -371,24 +370,6 @@ int RoR::RunApplicationMessageLoop()
                     }
 #endif // USE_SOCKETW
                     App::app_state->setVal((int)AppState::SHUTDOWN);
-                    break;
-
-                case MSG_APP_SCREENSHOT_REQUESTED:
-                    App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-                    App::GetAppContext()->CaptureScreenshot();
-                    App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::VISIBLE);
-                    break;
-
-                case MSG_APP_DISPLAY_FULLSCREEN_REQUESTED:
-                    App::GetAppContext()->ActivateFullscreen(true);
-                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                                  _L("Display mode changed to fullscreen"));
-                    break;
-
-                case MSG_APP_DISPLAY_WINDOWED_REQUESTED:
-                    App::GetAppContext()->ActivateFullscreen(false);
-                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                                  _L("Display mode changed to windowed"));
                     break;
 
                 case MSG_APP_MODCACHE_LOAD_REQUESTED:

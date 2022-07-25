@@ -56,7 +56,7 @@ namespace RoR {
 // ------------------------------------------------------------------------------------------------
 
 int StartApplication(int argc, char* argv[]);
-int RunApplicationMessageLoop();
+int RunApplicationMessageLoop(MessageListener* listener);
 
 // ------------------------------------------------------------------------------------------------
 // Global definitions and enumerations
