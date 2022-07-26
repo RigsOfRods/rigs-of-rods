@@ -93,7 +93,7 @@ void FlexbodyDebug::Draw()
 
     ImGui::Text("Vertices: (total %d)", (int)flexbody->getVertexCount());
     ImGui::SameLine();
-    ImGui::Checkbox("Show all##verts", &this->show_vertices);
+    ImGui::Checkbox("Show all (pick with mouse)##verts", &this->show_vertices);
 
     const float content_height = 
         (2.f * ImGui::GetStyle().WindowPadding.y) 
@@ -145,11 +145,6 @@ void FlexbodyDebug::Draw()
     // End table
     ImGui::Columns(1);
     ImGui::EndChild();
-    
-    if (this->show_base_nodes || this->show_forset_nodes || this->show_vertices || locators_visible)
-    {
-        this->DrawDebugView();
-    }
 
     m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
     App::GetGuiManager()->RequestGuiCaptureKeyboard(m_is_hovered);
@@ -158,6 +153,11 @@ void FlexbodyDebug::Draw()
     if (!keep_open)
     {
         this->SetVisible(false);
+    }
+
+    if (this->show_base_nodes || this->show_forset_nodes || this->show_vertices || locators_visible)
+    {
+        this->DrawDebugView();
     }
 }
 
@@ -194,6 +194,7 @@ const float LOCATOR_BEAM_THICKNESS(1.0f);
 const ImU32 LOCATOR_BEAM_COLOR = ImColor(0.05f, 1.f, 0.65f);
 const ImU32 AXIS_X_BEAM_COLOR = ImColor(1.f, 0.f, 0.f);
 const ImU32 AXIS_Y_BEAM_COLOR = ImColor(0.1f, 0.1f, 1.f);
+const float VERT_HOVER_MAX_DISTANCE = 25.f;
 
 
 void FlexbodyDebug::DrawDebugView()
@@ -251,6 +252,10 @@ void FlexbodyDebug::DrawDebugView()
         }
     }
 
+    int hovered_vert = -1;
+    float hovered_vert_dist_squared = FLT_MAX;
+    ImVec2 mouse_pos = ImGui::GetMousePos();
+    ImVec2 dbg_cursor_dist(0, 0);
     if (this->show_vertices)
     {
         for (int i = 0; i < flexbody->getVertexCount(); i++)
@@ -258,31 +263,47 @@ void FlexbodyDebug::DrawDebugView()
             Ogre::Vector3 vert_pos = world2screen.Convert(flexbody->getVertexPos(i));
             if (vert_pos.z < 0.f)
             {
+                // Draw the visual dot
                 drawlist->ChannelsSetCurrent(LAYER_NODES);
                 drawlist->AddCircleFilled(ImVec2(vert_pos.x, vert_pos.y), VERTEX_RADIUS, VERTEX_COLOR);
 
-                drawlist->ChannelsSetCurrent(LAYER_TEXT);
-                drawlist->AddText(ImVec2(vert_pos.x, vert_pos.y), VERTEX_TEXT_COLOR, fmt::format("v{}", i).c_str());
+                // Check mouse hover
+                ImVec2 cursor_dist((vert_pos.x - mouse_pos.x), (vert_pos.y - mouse_pos.y));
+                float dist_squared = (cursor_dist.x * cursor_dist.x) + (cursor_dist.y * cursor_dist.y);
+                if (dist_squared < hovered_vert_dist_squared)
+                {
+                    hovered_vert = i;
+                    hovered_vert_dist_squared = dist_squared;
+                    dbg_cursor_dist = cursor_dist;
+                }
             }
         }
     }
 
+    // Validate mouse hover
+    if (hovered_vert != -1
+        && hovered_vert_dist_squared > VERT_HOVER_MAX_DISTANCE * VERT_HOVER_MAX_DISTANCE)
+    {
+        hovered_vert = -1;
+    }
+
     for (int i = 0; i < flexbody->getVertexCount(); i++)
     {
-        if (this->show_locator[i])
+        if (this->show_locator[i] || i == hovered_vert)
         {
             // The vertex
             Ogre::Vector3 vert_pos = world2screen.Convert(flexbody->getVertexPos(i));
-            if (!this->show_vertices) // don't draw twice
+
+            if (vert_pos.z < 0.f)
             {
-                if (vert_pos.z < 0.f)
+                if (!this->show_vertices) // don't draw twice
                 {
                     drawlist->ChannelsSetCurrent(LAYER_NODES);
                     drawlist->AddCircleFilled(ImVec2(vert_pos.x, vert_pos.y), VERTEX_RADIUS, VERTEX_COLOR);
-
-                    drawlist->ChannelsSetCurrent(LAYER_TEXT);
-                    drawlist->AddText(ImVec2(vert_pos.x, vert_pos.y), VERTEX_TEXT_COLOR, fmt::format("v{}", i).c_str());
                 }
+
+                drawlist->ChannelsSetCurrent(LAYER_TEXT);
+                drawlist->AddText(ImVec2(vert_pos.x, vert_pos.y), VERTEX_TEXT_COLOR, fmt::format("v{}", i).c_str());
             }
 
             // The locator nodes
@@ -311,6 +332,11 @@ void FlexbodyDebug::DrawDebugView()
                 drawlist->AddText(ImVec2(refnode_pos.x, refnode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", loc.ref).c_str());
                 drawlist->AddText(ImVec2(xnode_pos.x, xnode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", loc.nx).c_str());
                 drawlist->AddText(ImVec2(ynode_pos.x, ynode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", loc.ny).c_str());
+            }
+
+            if (i == hovered_vert && ImGui::IsMouseClicked(0))
+            {
+                this->show_locator[i] = !this->show_locator[i];
             }
         }
     }
