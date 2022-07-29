@@ -138,9 +138,9 @@ void CacheSystem::LoadModCache(CacheValidity validity)
         App::diag_log_console_echo->setVal(orig_echo);
         this->DetectDuplicates();
         this->WriteCacheFileJson();
-    }
 
-    this->LoadCacheFileJson();
+        this->LoadCacheFileJson();
+    }
 
     RoR::Log("[RoR|ModCache] Cache loaded");
 }
@@ -177,23 +177,18 @@ CacheEntry* CacheSystem::FindEntryByFilename(LoaderType type, bool partial, std:
 CacheValidity CacheSystem::EvaluateCacheValidity()
 {
     this->GenerateHashFromFilenames();
-    this->LoadCacheFileJson();
 
-    // First, open cache file and get hash for quick update check
-    rapidjson::Document j_doc;
-    if (!App::GetContentManager()->LoadAndParseJson(CACHE_FILE, RGN_CACHE, j_doc))
+    // Load cache file
+    CacheValidity validity = this->LoadCacheFileJson();
+
+    if (validity != CacheValidity::VALID)
     {
-        RoR::Log("[RoR|ModCache] Invalid or missing cache file");
-        return CacheValidity::NEEDS_REBUILD;
+        RoR::Log("[RoR|ModCache] Cannot load cache file: wrong version, corrupted or missing.");
+        return validity;
     }
 
-    if (j_doc["format_version"].GetInt() != CACHE_FILE_FORMAT)
-    {
-        RoR::Log("[RoR|ModCache] Invalid cache file format");
-        return CacheValidity::NEEDS_REBUILD;
-    }
-
-    if (j_doc["global_hash"].GetString() != m_filenames_hash)
+    // Compare stored hash with generated hash
+    if (m_filenames_hash_loaded != m_filenames_hash_generated)
     {
         RoR::Log("[RoR|ModCache] Cache file out of date");
         return CacheValidity::NEEDS_UPDATE;
@@ -303,7 +298,7 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
     }
 }
 
-void CacheSystem::LoadCacheFileJson()
+CacheValidity CacheSystem::LoadCacheFileJson()
 {
     // Clear existing entries
     m_entries.clear();
@@ -313,7 +308,13 @@ void CacheSystem::LoadCacheFileJson()
         !j_doc.IsObject() || !j_doc.HasMember("entries") || !j_doc["entries"].IsArray())
     {
         RoR::Log("[RoR|ModCache] Error, cache file still invalid after check/update, content selector will be empty.");
-        return;
+        return CacheValidity::NEEDS_REBUILD;
+    }
+
+    if (j_doc["format_version"].GetInt() != CACHE_FILE_FORMAT)
+    {
+        RoR::Log("[RoR|ModCache] Invalid cache file format");
+        return CacheValidity::NEEDS_REBUILD;
     }
 
     for (rapidjson::Value& j_entry: j_doc["entries"].GetArray())
@@ -323,6 +324,10 @@ void CacheSystem::LoadCacheFileJson()
         entry.number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
         m_entries.push_back(entry);
     }
+
+    m_filenames_hash_loaded = j_doc["global_hash"].GetString();
+
+    return CacheValidity::VALID;
 }
 
 void CacheSystem::PruneCache()
@@ -563,7 +568,7 @@ void CacheSystem::WriteCacheFileJson()
     rapidjson::Document j_doc;
     j_doc.SetObject();
     j_doc.AddMember("format_version", CACHE_FILE_FORMAT, j_doc.GetAllocator());
-    j_doc.AddMember("global_hash", rapidjson::StringRef(m_filenames_hash.c_str()), j_doc.GetAllocator());
+    j_doc.AddMember("global_hash", rapidjson::StringRef(m_filenames_hash_generated.c_str()), j_doc.GetAllocator());
 
     // Entries
     rapidjson::Value j_entries(rapidjson::kArrayType);
@@ -1030,7 +1035,7 @@ bool CacheSystem::ParseKnownFiles(Ogre::String group)
 void CacheSystem::GenerateHashFromFilenames()
 {
     std::string filenames = App::GetContentManager()->ListAllUserContent();
-    m_filenames_hash = HashData(filenames.c_str(), static_cast<int>(filenames.size()));
+    m_filenames_hash_generated = HashData(filenames.c_str(), static_cast<int>(filenames.size()));
 }
 
 void CacheSystem::FillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr ds, Ogre::String fname)

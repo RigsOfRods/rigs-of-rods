@@ -218,7 +218,7 @@ private:
 
     void WriteCacheFileJson();
     void ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Document& j_doc, CacheEntry const & entry);
-    void LoadCacheFileJson();
+    CacheValidity LoadCacheFileJson();
     void ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & out_entry);
 
     static Ogre::String StripUIDfromString(Ogre::String uidstr); 
@@ -247,7 +247,8 @@ private:
     bool Match(size_t& out_score, std::string data, std::string const& query, size_t );
 
     std::time_t                          m_update_time;      //!< Ensures that all inserted files share the same timestamp
-    std::string                          m_filenames_hash;   //!< stores hash over the content, for quick update detection
+    std::string                          m_filenames_hash_loaded;   //!< hash from cachefile, for quick update detection
+    std::string                          m_filenames_hash_generated;   //!< stores hash over the content, for quick update detection
     std::vector<CacheEntry>              m_entries;
     std::vector<Ogre::String>            m_known_extensions; //!< the extensions we track in the cache system
     std::set<Ogre::String>               m_resource_paths;   //!< A temporary list of existing resource paths
