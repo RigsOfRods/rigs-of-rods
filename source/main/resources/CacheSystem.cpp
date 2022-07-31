@@ -152,7 +152,8 @@ CacheEntry* CacheSystem::FindEntryByFilename(LoaderType type, bool partial, std:
     CacheEntry* partial_match = nullptr;
     for (CacheEntry& entry : m_entries)
     {
-        if ((type == LT_Terrain) != (entry.fext == "terrn2"))
+        if ((type == LT_Terrain) != (entry.fext == "terrn2") ||
+            (type == LT_AllBeam && entry.fext == "skin"))
             continue;
 
         String fname = entry.fname;
