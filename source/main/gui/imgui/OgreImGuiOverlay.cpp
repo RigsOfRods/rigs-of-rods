@@ -306,7 +306,7 @@ void ImGuiOverlay::ImGUIRenderable::updateVertexData(const ImVector<ImDrawVert>&
         mRenderOp.indexData->indexBuffer->getNumIndexes() != size_t(idxBuf.size()))
     {
         mRenderOp.indexData->indexBuffer = HardwareBufferManager::getSingleton().createIndexBuffer(
-            HardwareIndexBuffer::IT_16BIT, idxBuf.size(), HardwareBuffer::HBU_WRITE_ONLY);
+            HardwareIndexBuffer::IT_32BIT, idxBuf.size(), HardwareBuffer::HBU_WRITE_ONLY);
     }
 
     if (mConvertToBGR)
