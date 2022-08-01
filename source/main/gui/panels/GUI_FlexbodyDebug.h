@@ -50,6 +50,8 @@ public:
 private:
 
     void UpdateVisibility();
+    void DrawMemoryOrderGraph(FlexBody* flexbody);
+    void DrawLocatorsTable(FlexBody* flexbody, bool& locators_visible);
 
     // Flexbody selection combobox
     std::string m_combo_items;

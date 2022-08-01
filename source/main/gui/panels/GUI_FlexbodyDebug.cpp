@@ -95,56 +95,17 @@ void FlexbodyDebug::Draw()
     ImGui::SameLine();
     ImGui::Checkbox("Show all (pick with mouse)##verts", &this->show_vertices);
 
-    const float content_height = 
-        (2.f * ImGui::GetStyle().WindowPadding.y) 
-        + (5.f * ImGui::GetItemsLineHeightWithSpacing())
-        + ImGui::GetStyle().ItemSpacing.y * 3;
-    const float child_height = ImGui::GetWindowHeight() - (content_height + 50);
-
-
-    ImGui::BeginChild("FlexbodyDebug-scroll", ImVec2(0.f, child_height), false);
-
-    // Begin table
-    ImGui::Columns(5);
-    ImGui::TextDisabled("Vert#");
-    ImGui::NextColumn();
-    ImGui::TextDisabled("REF node");
-    ImGui::NextColumn();
-    ImGui::TextDisabled("VX node");
-    ImGui::NextColumn();
-    ImGui::TextDisabled("VY node");
-    ImGui::NextColumn();
-    // show checkbox
-    ImGui::NextColumn();
-    ImGui::Separator();
-
-    bool locators_visible = false;
-    for (int i = 0; i < flexbody->getVertexCount(); i++)
+    bool locators_visible;
+    if (ImGui::CollapsingHeader("Vertex bindings table"))
     {
-        ImGui::PushID(i);
-        Locator_t& loc = flexbody->getVertexLocator(i);
-        ImGui::TextDisabled("%d", i);
-        ImGui::NextColumn();
-        ImGui::Text("%d", (int)loc.ref);
-        ImGui::NextColumn();
-        ImGui::Text("%d", (int)loc.nx);
-        ImGui::NextColumn();
-        ImGui::Text("%d", (int)loc.ny);
-        ImGui::NextColumn();
-        bool show = this->show_locator[i];
-        if (ImGui::Checkbox("Show", &show))
-        {
-            this->show_locator[i] = show;
-        }
-        ImGui::NextColumn();
-        ImGui::PopID();
-
-        locators_visible = locators_visible || this->show_locator[i];
+        this->DrawLocatorsTable(flexbody, /*out:*/locators_visible);
     }
 
-    // End table
-    ImGui::Columns(1);
-    ImGui::EndChild();
+
+    if (ImGui::CollapsingHeader("Vertex bindings memory (developers)"))
+    {
+        this->DrawMemoryOrderGraph(flexbody);
+    }
 
     m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
     App::GetGuiManager()->RequestGuiCaptureKeyboard(m_is_hovered);
@@ -179,23 +140,30 @@ void FlexbodyDebug::AnalyzeFlexbodies()
     show_locator.resize(actor->GetGfxActor()->GetFlexbodies()[m_combo_selection]->getVertexCount(), false);
 }
 
-// All colors are in ABGR format (alpha, blue, green, red)
-const ImU32 FORSETNODE_COLOR(0xff44ddff);
+const ImVec4 FORSETNODE_COLOR_V4(1.f, 0.87f, 0.3f, 1.f);
+const ImU32 FORSETNODE_COLOR = ImColor(FORSETNODE_COLOR_V4);
 const float FORSETNODE_RADIUS(2.f);
-const ImU32 BASENODE_COLOR(0xff44a5ff);
+const ImU32 BASENODE_COLOR(0xff44a5ff); // ABGR format (alpha, blue, green, red)
 const float BASENODE_RADIUS(3.f);
 const float BEAM_THICKNESS(1.2f);
 const float BLUE_BEAM_THICKNESS = BEAM_THICKNESS + 0.8f; // Blue beam looks a lot thinner for some reason
-const ImU32 NODE_TEXT_COLOR(0xffcccccf); // node ID text color
-const ImU32 VERTEX_COLOR = ImColor(0.1f, 1.f, 1.f);
+const ImU32 NODE_TEXT_COLOR(0xffcccccf); // node ID text color - ABGR format (alpha, blue, green, red)
+const ImVec4 VERTEX_COLOR_V4(0.1f, 1.f, 1.f, 1.f);
+const ImU32 VERTEX_COLOR = ImColor(VERTEX_COLOR_V4);
 const ImU32 VERTEX_TEXT_COLOR = ImColor(171, 194, 186);
 const float VERTEX_RADIUS(1.f);
 const float LOCATOR_BEAM_THICKNESS(1.0f);
-const ImU32 LOCATOR_BEAM_COLOR = ImColor(0.05f, 1.f, 0.65f);
-const ImU32 AXIS_X_BEAM_COLOR = ImColor(1.f, 0.f, 0.f);
-const ImU32 AXIS_Y_BEAM_COLOR = ImColor(0.1f, 0.1f, 1.f);
+const ImVec4 LOCATOR_BEAM_COLOR_V4(0.05f, 1.f, 0.65f, 1.f);
+const ImVec4 AXIS_X_BEAM_COLOR_V4(1.f, 0.f, 0.f, 1.f);
+const ImVec4 AXIS_Y_BEAM_COLOR_V4(0.15f, 0.15f, 1.f, 1.f);
+const ImU32 LOCATOR_BEAM_COLOR = ImColor(LOCATOR_BEAM_COLOR_V4);
+const ImU32 AXIS_X_BEAM_COLOR = ImColor(AXIS_X_BEAM_COLOR_V4);
+const ImU32 AXIS_Y_BEAM_COLOR = ImColor(AXIS_Y_BEAM_COLOR_V4);
 const float VERT_HOVER_MAX_DISTANCE = 25.f;
-
+const float MEMGRAPH_NODE_RADIUS(1.f);
+const ImVec4 MEMGRAPH_NODEREF_COLOR_V4(1.f, 0.89f, 0.22f, 1.f);
+const ImVec4 MEMGRAPH_NODEX_COLOR_V4(1.f, 0.21f, 0.21f, 1.f);
+const ImVec4 MEMGRAPH_NODEY_COLOR_V4(0.27f, 0.76f, 1.f, 1.f);
 
 void FlexbodyDebug::DrawDebugView()
 {
@@ -356,4 +324,103 @@ void FlexbodyDebug::UpdateVisibility()
     {
         flexbody_vec[i]->setVisible(!this->hide_other_flexbodies || i == m_combo_selection);
     }
+}
+
+void FlexbodyDebug::DrawLocatorsTable(FlexBody* flexbody, bool& locators_visible)
+{
+    const float content_height =
+        (2.f * ImGui::GetStyle().WindowPadding.y)
+        + (5.f * ImGui::GetItemsLineHeightWithSpacing())
+        + ImGui::GetStyle().ItemSpacing.y * 5;
+    const float child_height = ImGui::GetWindowHeight() - (content_height + 100);
+
+
+    ImGui::BeginChild("FlexbodyDebug-scroll", ImVec2(0.f, child_height), false);
+
+    // Begin table
+    ImGui::Columns(5);
+    ImGui::TextDisabled("Vert#");
+    ImGui::NextColumn();
+    ImGui::TextDisabled("REF node");
+    ImGui::NextColumn();
+    ImGui::TextDisabled("VX node");
+    ImGui::NextColumn();
+    ImGui::TextDisabled("VY node");
+    ImGui::NextColumn();
+    // show checkbox
+    ImGui::NextColumn();
+    ImGui::Separator();
+
+    for (int i = 0; i < flexbody->getVertexCount(); i++)
+    {
+        ImGui::PushID(i);
+        Locator_t& loc = flexbody->getVertexLocator(i);
+        ImGui::TextDisabled("%d", i);
+        ImGui::NextColumn();
+        ImGui::Text("%d", (int)loc.ref);
+        ImGui::NextColumn();
+        ImGui::Text("%d", (int)loc.nx);
+        ImGui::NextColumn();
+        ImGui::Text("%d", (int)loc.ny);
+        ImGui::NextColumn();
+        bool show = this->show_locator[i];
+        if (ImGui::Checkbox("Show", &show))
+        {
+            this->show_locator[i] = show;
+        }
+        ImGui::NextColumn();
+        ImGui::PopID();
+
+        locators_visible = locators_visible || this->show_locator[i];
+    }
+
+    // End table
+    ImGui::Columns(1);
+    ImGui::EndChild();
+}
+
+void FlexbodyDebug::DrawMemoryOrderGraph(FlexBody* flexbody)
+{
+    // Analysis
+    NodeNum_t forset_max = std::numeric_limits<NodeNum_t>::min();
+    NodeNum_t forset_min = std::numeric_limits<NodeNum_t>::max();
+    for (NodeNum_t n : flexbody->getForsetNodes())
+    {
+        if (n > forset_max) { forset_max = n; }
+        if (n < forset_min) { forset_min = n; }
+    }
+
+    // Legend
+    ImGui::Text("For developers only; modders cannot affect this.");
+    ImGui::TextDisabled("For optimal CPU cache usage, all dots should be roughly in ascending order (left->right), gaps are OK");
+    ImGui::TextDisabled("X axis (left->right) = verts (total %d)", flexbody->getVertexCount());
+    ImGui::TextDisabled("Y axis (bottom->top) = nodes (lowest %d, higest %d) ", (int)forset_min, (int)forset_max);
+    ImGui::SameLine();
+    ImGui::TextColored(MEMGRAPH_NODEREF_COLOR_V4, "REF");
+    ImGui::SameLine();
+    ImGui::TextColored(MEMGRAPH_NODEX_COLOR_V4, " VX");
+    ImGui::SameLine();
+    ImGui::TextColored(MEMGRAPH_NODEY_COLOR_V4, " VY");
+    ImGui::Separator();
+
+    // The graph
+    ImVec2 size(ImGui::GetWindowWidth() - 2 * ImGui::GetStyle().WindowPadding.x, 200);
+    ImVec2 top_left_pos = ImGui::GetCursorScreenPos();
+    ImGui::Dummy(size);
+
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
+    int num_verts = flexbody->getVertexCount();
+    const float x_step = (size.x / (float)num_verts);
+    const float y_step = (size.y / (float)(forset_max - forset_min));
+    for (int i = 0; i < num_verts; i++)
+    {
+        const int NUM_SEGMENTS = 5;
+        Locator_t& loc = flexbody->getVertexLocator(i);
+        ImVec2 bottom_x_pos = top_left_pos + ImVec2(i * x_step, size.y);
+
+        drawlist->AddCircleFilled(bottom_x_pos - ImVec2(0, (loc.ref - forset_min) * y_step), MEMGRAPH_NODE_RADIUS, ImColor(MEMGRAPH_NODEREF_COLOR_V4), NUM_SEGMENTS);
+        drawlist->AddCircleFilled(bottom_x_pos - ImVec2(0, (loc.nx - forset_min) * y_step), MEMGRAPH_NODE_RADIUS, ImColor(MEMGRAPH_NODEX_COLOR_V4), NUM_SEGMENTS);
+        drawlist->AddCircleFilled(bottom_x_pos - ImVec2(0, (loc.ny - forset_min) * y_step), MEMGRAPH_NODE_RADIUS, ImColor(MEMGRAPH_NODEY_COLOR_V4), NUM_SEGMENTS);
+    }
+    ImGui::Separator();
 }
