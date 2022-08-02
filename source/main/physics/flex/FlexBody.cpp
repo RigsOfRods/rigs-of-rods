@@ -571,7 +571,7 @@ void FlexBody::setVisible(bool visible)
         m_scene_node->setVisible(visible);
 }
 
-void FlexBody::SetFlexbodyCastShadow(bool val)
+void FlexBody::setFlexbodyCastShadow(bool val)
 {
     m_scene_entity->setCastShadows(val);
 }
@@ -615,7 +615,7 @@ void FlexBody::printMeshInfo(Mesh* mesh)
     }
 }
 
-void FlexBody::ComputeFlexbody()
+void FlexBody::computeFlexbody()
 {
     if (m_has_texture_blend) updateBlend();
 
@@ -656,7 +656,7 @@ void FlexBody::ComputeFlexbody()
     }
 }
 
-void FlexBody::UpdateFlexbodyVertexBuffers()
+void FlexBody::updateFlexbodyVertexBuffers()
 {
     Vector3 *ppt = m_dst_pos;
     Vector3 *npt = m_dst_normals;
