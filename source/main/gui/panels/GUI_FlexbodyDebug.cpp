@@ -96,15 +96,19 @@ void FlexbodyDebug::Draw()
     ImGui::Checkbox("Show all (pick with mouse)##verts", &this->show_vertices);
 
     bool locators_visible;
-    if (ImGui::CollapsingHeader("Vertex bindings table"))
+    if (ImGui::CollapsingHeader("Vertex locators table"))
     {
         this->DrawLocatorsTable(flexbody, /*out:*/locators_visible);
     }
 
-
-    if (ImGui::CollapsingHeader("Vertex bindings memory (developers)"))
+    if (ImGui::CollapsingHeader("Vertex locators memory (developers)"))
     {
         this->DrawMemoryOrderGraph(flexbody);
+    }
+
+    if (ImGui::CollapsingHeader("Mesh info (developers)"))
+    {
+        this->DrawMeshInfo(flexbody);
     }
 
     m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
@@ -423,4 +427,13 @@ void FlexbodyDebug::DrawMemoryOrderGraph(FlexBody* flexbody)
         drawlist->AddCircleFilled(bottom_x_pos - ImVec2(0, (loc.ny - forset_min) * y_step), MEMGRAPH_NODE_RADIUS, ImColor(MEMGRAPH_NODEY_COLOR_V4), NUM_SEGMENTS);
     }
     ImGui::Separator();
+}
+
+void FlexbodyDebug::DrawMeshInfo(FlexBody* flexbody)
+{
+    ImGui::Text("For developers only; modders cannot affect this.");
+    ImGui::Separator();
+    ImGui::Text("%s", flexbody->getOrigMeshInfo().c_str());
+    ImGui::Separator();
+    ImGui::Text("%s", flexbody->getLiveMeshInfo().c_str());
 }

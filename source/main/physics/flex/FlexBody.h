@@ -59,7 +59,6 @@ public:
 
     ~FlexBody();
 
-    void printMeshInfo(Ogre::Mesh* mesh);
     void reset();
     void updateBlend();
     void writeBlend();
@@ -82,12 +81,16 @@ public:
     Ogre::Entity* getEntity() { return m_scene_entity; }
     std::string getOrigMeshName();
     std::vector<NodeNum_t>& getForsetNodes() { return m_forset_nodes; };
+    std::string getOrigMeshInfo() { return m_orig_mesh_info; }
+    std::string getLiveMeshInfo() { return this->printMeshInfo("Live", m_scene_entity->getMesh()); }
 
     NodeNum_t getRefNode() { return m_node_center; }
     NodeNum_t getXNode() { return m_node_x; }
     NodeNum_t getYNode() { return m_node_y; }
 
 private:
+
+    std::string printMeshInfo(std::string const& title, Ogre::MeshPtr mesh);
 
     RoR::GfxActor*    m_gfx_actor;
     size_t            m_vertex_count;
@@ -125,6 +128,7 @@ private:
 
     // Diagnostic data, not used for calculations
     std::vector<NodeNum_t> m_forset_nodes;
+    std::string m_orig_mesh_info;
 };
 
 /// @} // addtogroup Flex
