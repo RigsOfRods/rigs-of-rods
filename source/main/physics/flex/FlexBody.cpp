@@ -27,6 +27,7 @@
 #include "FlexFactory.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
+#include "GUIManager.h"
 #include "RigDef_File.h"
 
 #include <Ogre.h>
@@ -514,31 +515,17 @@ FlexBody::FlexBody(
 
     if (vertices != nullptr) { free(vertices); }
 
-#ifdef FLEXBODY_LOG_LOADING_TIMES
-    char stats[1000];
-    sprintf(stats, "FLEXBODY (%s) ready, stats:"
-        "\n\tmesh loaded:  %f sec"
-        "\n\tmesh ready:   %f sec"
-        "\n\tmesh scanned: %f sec"
-        "\n\tOgre vertexbuffers created:       %f sec"
-        "\n\tOgre vertexbuffers reorganised:   %f sec"
-        "\n\tmanual vertexbuffers created:     %f sec"
-        "\n\tmanual vertexbuffers transformed: %f sec"
-        "\n\tnodes located:      %f sec"
-        "\n\tmesh displayed:     %f sec"
-        "\n\tnormals calculated: %f sec",
-        meshname.c_str(), stat_mesh_loaded_time, stat_mesh_ready_time, stat_mesh_scanned_time, 
-        stat_vertexbuffers_created_time, stat_buffers_reorganised_time,
-        stat_manual_buffers_created_time, stat_transformed_time, stat_located_time, 
-        stat_showmesh_time, stat_euclidean2_time);
-    LOG(stats);
-#endif
-
     // Keep the forset nodes for diagnostics
-    // TODO: update the constructor - should be vector<NodeNum_t>, not vector<unsigned int>
     for (unsigned int nodenum : node_indices)
     {
         m_forset_nodes.push_back((NodeNum_t)nodenum);
+    }
+
+    if (App::GetGuiManager()->FlexbodyDebug.flexbody_defrag_enable
+        // For simplicity, only take 1-submesh meshes (almost always the case anyway)
+        && m_scene_entity->getMesh()->getNumSubMeshes() == 1)
+    {
+        this->defragmentFlexbodyMesh();
     }
 }
 
@@ -745,4 +732,86 @@ std::string FlexBody::getOrigMeshName()
         meshname = meshname.substr(0, pos);
     }
     return meshname;
+}
+
+static int const_penalty = -1;
+static int prog_up_penalty = -1;
+static int prog_down_penalty = -1;
+
+int evalNodeDistance(NodeNum_t a, NodeNum_t b)
+{
+    if (a > b)
+        return const_penalty + prog_down_penalty * (a - b);
+    else if (a < b)
+        return const_penalty + prog_up_penalty * (b - a);
+    else
+        return 0;
+}
+
+int evalMemoryDistance(Locator_t& a, Locator_t& b)
+{
+    return 0
+        + evalNodeDistance(a.ref, b.ref) + evalNodeDistance(a.nx, b.ref) + evalNodeDistance(a.ny, b.ref)
+        + evalNodeDistance(a.ref, b.nx) + evalNodeDistance(a.nx, b.nx) + evalNodeDistance(a.ny, b.nx)
+        + evalNodeDistance(a.ref, b.ny) + evalNodeDistance(a.nx, b.ny) + evalNodeDistance(a.ny, b.ny)
+        + evalNodeDistance(a.getSmallestNode(), b.getSmallestNode())
+        + evalNodeDistance(a.getMean(), b.getMean());
+}
+
+void FlexBody::defragmentFlexbodyMesh()
+{
+    // config
+    const_penalty = App::GetGuiManager()->FlexbodyDebug.flexbody_defrag_const_penalty;
+    prog_up_penalty = App::GetGuiManager()->FlexbodyDebug.flexbody_defrag_prog_up_penalty;
+    prog_down_penalty = App::GetGuiManager()->FlexbodyDebug.flexbody_defrag_prog_down_penalty;
+
+    // Analysis
+    NodeNum_t forset_max = std::numeric_limits<NodeNum_t>::min();
+    NodeNum_t forset_min = std::numeric_limits<NodeNum_t>::max();
+    for (NodeNum_t n : this->getForsetNodes())
+    {
+        if (n > forset_max) { forset_max = n; }
+        if (n < forset_min) { forset_min = n; }
+    }
+
+    // record original vert order
+    std::vector<int> vert_pos;
+    for (int i = 0; i < m_vertex_count; i++)
+    {
+        vert_pos.push_back(i);
+    }
+
+    Locator_t prev_loc;
+    // edge values to start with
+    prev_loc.ref =  forset_min;
+    prev_loc.nx =  forset_min;
+    prev_loc.ny =  forset_min;
+
+    // SELECTION SORT (https://www.geeksforgeeks.org/selection-sort/)
+    for (int i = 0; i < m_vertex_count; i++)
+    {
+        // Find the next locator closest in memory
+        int closest_loc = i;
+        int closest_loc_penalty = INT_MAX;
+        for (int j = i; j < m_vertex_count; j++)
+        {
+            int penalty = evalMemoryDistance(prev_loc, m_locators[j]);
+            if (penalty < closest_loc_penalty)
+            {
+                closest_loc_penalty = penalty;
+                closest_loc = j;
+            }
+        }
+
+        // Swap locators in memory
+        Locator_t loc_tmp = m_locators[closest_loc];
+        int pos_tmp = vert_pos[closest_loc];
+        m_locators[closest_loc] = m_locators[i];
+        vert_pos[closest_loc] = vert_pos[i];
+        m_locators[i] = loc_tmp;
+        vert_pos[i] = pos_tmp;
+
+        // Go next
+        prev_loc = m_locators[i];
+    }
 }

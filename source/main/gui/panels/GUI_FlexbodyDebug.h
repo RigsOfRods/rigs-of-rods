@@ -39,13 +39,11 @@ public:
     void AnalyzeFlexbodies(); //!< populates the combobox
     void DrawDebugView();
 
-    // Display options
-    bool draw_mesh_wireframe = false;
-    bool show_base_nodes = false;
-    bool show_forset_nodes = false;
-    bool show_vertices = false;
-    bool hide_other_flexbodies = false;
-    std::vector<bool> show_locator;
+    // Flexbody defragmentation settings
+    bool flexbody_defrag_enable = false;
+    int  flexbody_defrag_const_penalty = 7;
+    int  flexbody_defrag_prog_up_penalty = 3;
+    int  flexbody_defrag_prog_down_penalty = 1;
 
 private:
 
@@ -53,6 +51,14 @@ private:
     void DrawMemoryOrderGraph(FlexBody* flexbody);
     void DrawLocatorsTable(FlexBody* flexbody, bool& locators_visible);
     void DrawMeshInfo(FlexBody* flexbody);
+
+    // Display options
+    bool draw_mesh_wireframe = false;
+    bool show_base_nodes = false;
+    bool show_forset_nodes = false;
+    bool show_vertices = false;
+    bool hide_other_flexbodies = false;
+    std::vector<bool> show_locator;
 
     // Flexbody selection combobox
     std::string m_combo_items;

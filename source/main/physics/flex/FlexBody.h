@@ -91,6 +91,7 @@ public:
 private:
 
     std::string printMeshInfo(std::string const& title, Ogre::MeshPtr mesh);
+    void defragmentFlexbodyMesh();
 
     RoR::GfxActor*    m_gfx_actor;
     size_t            m_vertex_count;
