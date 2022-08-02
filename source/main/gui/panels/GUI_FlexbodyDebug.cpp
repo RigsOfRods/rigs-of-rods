@@ -101,7 +101,7 @@ void FlexbodyDebug::Draw()
         this->DrawLocatorsTable(flexbody, /*out:*/locators_visible);
     }
 
-    if (ImGui::CollapsingHeader("Vertex locators memory (developers)"))
+    if (ImGui::CollapsingHeader("Vertex locators memory"))
     {
         this->DrawMemoryOrderGraph(flexbody);
     }
@@ -128,20 +128,22 @@ void FlexbodyDebug::Draw()
 
 void FlexbodyDebug::AnalyzeFlexbodies()
 {
-    m_combo_items = "";
     Actor* actor = App::GetGameContext()->GetPlayerActor();
     if (actor)
     {
+        m_combo_items = "";
         for (FlexBody* fb : actor->GetGfxActor()->GetFlexbodies())
         {
             ImAddItemToComboboxString(m_combo_items,
                 fmt::format("{} ({} verts -> {} nodes)", fb->getOrigMeshName(), fb->getVertexCount(), fb->getForsetNodes().size()));
         }
         ImTerminateComboboxString(m_combo_items);
-    }
 
-    show_locator.resize(0);
-    show_locator.resize(actor->GetGfxActor()->GetFlexbodies()[m_combo_selection]->getVertexCount(), false);
+        m_combo_selection = std::min(m_combo_selection, (int)actor->GetGfxActor()->GetFlexbodies().size() - 1);
+
+        show_locator.resize(0);
+        show_locator.resize(actor->GetGfxActor()->GetFlexbodies()[m_combo_selection]->getVertexCount(), false);
+    }
 }
 
 const ImVec4 FORSETNODE_COLOR_V4(1.f, 0.87f, 0.3f, 1.f);
@@ -394,8 +396,30 @@ void FlexbodyDebug::DrawMemoryOrderGraph(FlexBody* flexbody)
         if (n < forset_min) { forset_min = n; }
     }
 
+    // Tools!
+    const float SLIDER_WIDTH = 150;
+    ImGui::Checkbox("Enable defrag", &this->flexbody_defrag_enable);
+    ImGui::SameLine();
+    if (ImGui::Button("Reload vehicle"))
+    {
+        ActorModifyRequest* rq = new ActorModifyRequest;
+        rq->amr_type = ActorModifyRequest::Type::RELOAD;
+        rq->amr_actor = App::GetGameContext()->GetPlayerActor();
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
+    }
+    if (this->flexbody_defrag_enable)
+    {
+        ImGui::TextDisabled("Sorting: insert-sort by lowest penalty, start: REF=VX=VY=%d", (int)forset_min);
+        ImGui::TextDisabled("Penalty calc: nodes (each x each), smalest nodes, node means");
+        ImGui::SetNextItemWidth(SLIDER_WIDTH);
+        ImGui::SliderInt("Const penalty for inequality", &this->flexbody_defrag_const_penalty, 0, 15);
+        ImGui::SetNextItemWidth(SLIDER_WIDTH);
+        ImGui::SliderInt("Progressive penalty for upward direction", &this->flexbody_defrag_prog_up_penalty, 0, 15);
+        ImGui::SetNextItemWidth(SLIDER_WIDTH);
+        ImGui::SliderInt("Progressive penalty for downward direction", &this->flexbody_defrag_prog_down_penalty, 0, 15);
+    }
+
     // Legend
-    ImGui::Text("For developers only; modders cannot affect this.");
     ImGui::TextDisabled("For optimal CPU cache usage, all dots should be roughly in ascending order (left->right), gaps are OK");
     ImGui::TextDisabled("X axis (left->right) = verts (total %d)", flexbody->getVertexCount());
     ImGui::TextDisabled("Y axis (bottom->top) = nodes (lowest %d, higest %d) ", (int)forset_min, (int)forset_max);
