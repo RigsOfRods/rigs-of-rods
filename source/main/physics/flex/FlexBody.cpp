@@ -99,6 +99,7 @@ FlexBody::FlexBody(
     }
 
     Ogre::MeshPtr mesh=ent->getMesh();
+    m_orig_mesh_info = this->printMeshInfo("Original", mesh); // For diagnostics only
     int num_submeshes = static_cast<int>(mesh->getNumSubMeshes());
     if (preloaded_from_cache == nullptr)
     {
@@ -576,43 +577,47 @@ void FlexBody::setFlexbodyCastShadow(bool val)
     m_scene_entity->setCastShadows(val);
 }
 
-void FlexBody::printMeshInfo(Mesh* mesh)
+void formatVertexDeclInfo(Str<4000>& text, Ogre::VertexDeclaration* vertexDeclaration, int j)
 {
+    const VertexElement* ve = vertexDeclaration->getElement(j);
+    text << "\n" << "\telement #" << (j) << "/" << (vertexDeclaration->getElementCount());
+    text << " binding:" << (ve->getSource());
+    text << ", offset:" << (ve->getOffset());
+    text << ", type:" << (ve->getType());
+    text << ", semantic:" << (ve->getSemantic());
+    text << ", size:" << (ve->getSize());
+}
+
+std::string FlexBody::printMeshInfo(std::string const& title, MeshPtr mesh)
+{
+    Str<4000> text;
+    text << title;
+
     if (mesh->sharedVertexData)
     {
-        LOG("FLEXBODY Mesh has Shared Vertices:");
+        text << "\n" <<("Mesh has Shared Vertices:");
         VertexData* vt=mesh->sharedVertexData;
-        LOG("FLEXBODY element count:"+TOSTRING(vt->vertexDeclaration->getElementCount()));
         for (int j=0; j<(int)vt->vertexDeclaration->getElementCount(); j++)
         {
-            const VertexElement* ve=vt->vertexDeclaration->getElement(j);
-            LOG("FLEXBODY element "+TOSTRING(j)+" source "+TOSTRING(ve->getSource()));
-            LOG("FLEXBODY element "+TOSTRING(j)+" offset "+TOSTRING(ve->getOffset()));
-            LOG("FLEXBODY element "+TOSTRING(j)+" type "+TOSTRING(ve->getType()));
-            LOG("FLEXBODY element "+TOSTRING(j)+" semantic "+TOSTRING(ve->getSemantic()));
-            LOG("FLEXBODY element "+TOSTRING(j)+" size "+TOSTRING(ve->getSize()));
+            formatVertexDeclInfo(text, vt->vertexDeclaration, j);
         }
     }
-    LOG("FLEXBODY Mesh has "+TOSTRING(mesh->getNumSubMeshes())+" submesh(es)");
+    text << "\n" <<("Mesh has "+TOSTRING(mesh->getNumSubMeshes())+" submesh(es)");
     for (int i=0; i<mesh->getNumSubMeshes(); i++)
     {
         SubMesh* submesh = mesh->getSubMesh(i);
-        LOG("FLEXBODY SubMesh "+TOSTRING(i)+": uses shared?:"+TOSTRING(submesh->useSharedVertices));
+        text << "\n" <<("SubMesh "+TOSTRING(i)+": uses shared?:"+TOSTRING(submesh->useSharedVertices));
         if (!submesh->useSharedVertices)
         {
             VertexData* vt=submesh->vertexData;
-            LOG("FLEXBODY element count:"+TOSTRING(vt->vertexDeclaration->getElementCount()));
             for (int j=0; j<(int)vt->vertexDeclaration->getElementCount(); j++)
             {
-                const VertexElement* ve=vt->vertexDeclaration->getElement(j);
-                LOG("FLEXBODY element "+TOSTRING(j)+" source "+TOSTRING(ve->getSource()));
-                LOG("FLEXBODY element "+TOSTRING(j)+" offset "+TOSTRING(ve->getOffset()));
-                LOG("FLEXBODY element "+TOSTRING(j)+" type "+TOSTRING(ve->getType()));
-                LOG("FLEXBODY element "+TOSTRING(j)+" semantic "+TOSTRING(ve->getSemantic()));
-                LOG("FLEXBODY element "+TOSTRING(j)+" size "+TOSTRING(ve->getSize()));
+                formatVertexDeclInfo(text, vt->vertexDeclaration, j);
             }
         }
     }
+
+    return text.ToCStr();
 }
 
 void FlexBody::computeFlexbody()
