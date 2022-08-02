@@ -69,12 +69,12 @@ public:
     void setCameraMode(int mode) { m_camera_mode = mode; };
     int getCameraMode() { return m_camera_mode; };
 
-    void ComputeFlexbody(); //!< Updates mesh deformation; works on CPU using local copy of vertex data.
-    void UpdateFlexbodyVertexBuffers();
+    void computeFlexbody(); //!< Updates mesh deformation; works on CPU using local copy of vertex data.
+    void updateFlexbodyVertexBuffers();
 
     void setVisible(bool visible);
 
-    void SetFlexbodyCastShadow(bool val);
+    void setFlexbodyCastShadow(bool val);
 
     int getVertexCount() { return static_cast<int>(m_vertex_count); };
     Locator_t& getVertexLocator(int vert) { ROR_ASSERT((size_t)vert < m_vertex_count); return m_locators[vert]; }

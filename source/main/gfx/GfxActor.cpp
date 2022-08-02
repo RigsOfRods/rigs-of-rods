@@ -2988,7 +2988,7 @@ void RoR::GfxActor::UpdateFlexbodies()
         {
             auto func = std::function<void()>([fb]()
                 {
-                    fb->ComputeFlexbody();
+                    fb->computeFlexbody();
                 });
             auto task_handle = App::GetThreadPool()->RunTask(func);
             m_flexbody_tasks.push_back(task_handle);
@@ -3024,7 +3024,7 @@ void RoR::GfxActor::FinishFlexbodyTasks()
     }
     for (FlexBody* fb: m_flexbodies)
     {
-        fb->UpdateFlexbodyVertexBuffers();
+        fb->updateFlexbodyVertexBuffers();
     }
 }
 
@@ -3131,7 +3131,7 @@ void RoR::GfxActor::SetCastShadows(bool value)
     // Flexbody meshes
     for (FlexBody* fb: m_flexbodies)
     {
-        fb->SetFlexbodyCastShadow(value);
+        fb->setFlexbodyCastShadow(value);
     }
 }
 
