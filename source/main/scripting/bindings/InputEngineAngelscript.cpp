@@ -26,25 +26,27 @@
 #include "InputEngine.h"
 #include "ScriptEngine.h"
 
-void registerInputEngineObject(AngelScript::asIScriptEngine* engine)
+using namespace AngelScript;
+
+void registerInputEngineObject(asIScriptEngine* engine)
 {
     using namespace RoR;
     int result = 0;
 
-    result = engine->RegisterObjectType("InputEngineClass", sizeof(InputEngine), AngelScript::asOBJ_REF | AngelScript::asOBJ_NOCOUNT); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectType("InputEngineClass", sizeof(InputEngine), asOBJ_REF | asOBJ_NOCOUNT); ROR_ASSERT(result>=0);
     
-    result = engine->RegisterObjectMethod("InputEngineClass", "string getEventCommand(inputEvents ev)", AngelScript::asMETHOD(InputEngine,getEventCommand), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("InputEngineClass", "string getEventCommandTrimmed(inputEvents ev)", AngelScript::asMETHOD(InputEngine,getEventCommandTrimmed), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("InputEngineClass", "string getEventCommand(inputEvents ev)", asMETHOD(InputEngine,getEventCommand), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("InputEngineClass", "string getEventCommandTrimmed(inputEvents ev)", asMETHOD(InputEngine,getEventCommandTrimmed), asCALL_THISCALL); ROR_ASSERT(result>=0);
 
 // TODO: register OIS::KeyCode or port to SDL2 already (for Apple OSX support)
-//    result = engine->RegisterObjectMethod("InputEngineClass", "bool isKeyDown(int keycode)", AngelScript::asMETHOD(InputEngine,isKeyDown), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
-//    result = engine->RegisterObjectMethod("InputEngineClass", "bool isKeyDownEffective(int keycode)", AngelScript::asMETHOD(InputEngine,isKeyDownEffective), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+//    result = engine->RegisterObjectMethod("InputEngineClass", "bool isKeyDown(int keycode)", asMETHOD(InputEngine,isKeyDown), asCALL_THISCALL); ROR_ASSERT(result>=0);
+//    result = engine->RegisterObjectMethod("InputEngineClass", "bool isKeyDownEffective(int keycode)", asMETHOD(InputEngine,isKeyDownEffective), asCALL_THISCALL); ROR_ASSERT(result>=0);
 
-    result = engine->RegisterObjectMethod("InputEngineClass", "bool getEventBoolValue(inputEvents ev)", AngelScript::asMETHOD(InputEngine,getEventBoolValue), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("InputEngineClass", "bool getEventBoolValueBounce(inputEvents ev, float time = 0.2f)", AngelScript::asMETHOD(InputEngine,getEventBoolValueBounce), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);    
+    result = engine->RegisterObjectMethod("InputEngineClass", "bool getEventBoolValue(inputEvents ev)", asMETHOD(InputEngine,getEventBoolValue), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("InputEngineClass", "bool getEventBoolValueBounce(inputEvents ev, float time = 0.2f)", asMETHOD(InputEngine,getEventBoolValueBounce), asCALL_THISCALL); ROR_ASSERT(result>=0);    
 }
 
-void registerEventTypeEnum(AngelScript::asIScriptEngine* engine)
+void registerEventTypeEnum(asIScriptEngine* engine)
 {
     using namespace RoR;
     int result = 0;
@@ -368,7 +370,7 @@ void registerEventTypeEnum(AngelScript::asIScriptEngine* engine)
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCKEDIT_RELOAD",               EV_TRUCKEDIT_RELOAD             ); ROR_ASSERT(result >= 0);               
 }
 
-void RoR::registerInputEngine(AngelScript::asIScriptEngine* engine)
+void RoR::RegisterInputEngine(asIScriptEngine* engine)
 {
     registerEventTypeEnum(engine);
     registerInputEngineObject(engine);

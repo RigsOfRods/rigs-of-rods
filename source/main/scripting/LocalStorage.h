@@ -28,11 +28,6 @@
 /// @addtogroup Scripting
 /// @{
 
-void registerLocalStorage(AngelScript::asIScriptEngine* engine);
-void scriptLocalStorageFactory_Generic(AngelScript::asIScriptGeneric* gen);
-void scriptLocalStorageFactory2_Generic(AngelScript::asIScriptGeneric* gen);
-void scriptLocalStorageFactory3_Generic(AngelScript::asIScriptGeneric* gen);
-
 /**
  *  @brief A class that allows scripts to store data persistently
  */

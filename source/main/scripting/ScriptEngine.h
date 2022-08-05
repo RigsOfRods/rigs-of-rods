@@ -31,6 +31,7 @@
 
 #define DEFAULT_TERRAIN_SCRIPT "default.as" // Used when map creator doesn't provide custom script.
 
+#include "AngelScriptBindings.h"
 #include "Application.h"
 #include "GameScript.h"
 #include "InterThreadStoreVector.h"
@@ -201,20 +202,6 @@ protected:
 
     InterThreadStoreVector<Ogre::String> stringExecutionQueue; //!< The string execution queue \see queueStringForExecution
 };
-
-// This function will register the following objects with the scriptengine:
-//    - Ogre::Vector3
-//    - Ogre::Vector2
-//    - Ogre::Radian
-//    - Ogre::Degree
-//    - Ogre::Quaternion
-//    - Ogre::ColourValue
-void RegisterOgreObjects(AngelScript::asIScriptEngine* engine);
-
-void RegisterImGuiBindings(AngelScript::asIScriptEngine* engine);
-
-/// Registers RoR::InputEngine, defined in InputEngineAngelscript.cpp
-void registerInputEngine(AngelScript::asIScriptEngine* engine);
 
 /// @}   //addtogroup Scripting
 
