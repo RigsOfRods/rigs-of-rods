@@ -436,6 +436,7 @@ extern CVar* flexbody_defrag_const_penalty;
 extern CVar* flexbody_defrag_prog_up_penalty;
 extern CVar* flexbody_defrag_prog_down_penalty;
 extern CVar* flexbody_defrag_reorder_indices;
+extern CVar* flexbody_defrag_reorder_texcoords;
 extern CVar* flexbody_defrag_invert_lookup;
 
 // ------------------------------------------------------------------------------------------------

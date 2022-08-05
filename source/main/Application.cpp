@@ -243,6 +243,7 @@ CVar* flexbody_defrag_const_penalty;
 CVar* flexbody_defrag_prog_up_penalty;
 CVar* flexbody_defrag_prog_down_penalty;
 CVar* flexbody_defrag_reorder_indices;
+CVar* flexbody_defrag_reorder_texcoords;
 CVar* flexbody_defrag_invert_lookup;
 
 // Instance management

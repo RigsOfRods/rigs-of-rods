@@ -186,6 +186,7 @@ void Console::cVarSetupBuiltins()
     App::flexbody_defrag_prog_up_penalty   = this->cVarCreate("flexbody_defrag_prog_up_penalty",   "", CVAR_TYPE_INT, "3");
     App::flexbody_defrag_prog_down_penalty = this->cVarCreate("flexbody_defrag_prog_down_penalty", "", CVAR_TYPE_INT, "1");
     App::flexbody_defrag_reorder_indices   = this->cVarCreate("flexbody_defrag_reorder_indices",   "", CVAR_TYPE_BOOL, "true");
+    App::flexbody_defrag_reorder_texcoords = this->cVarCreate("flexbody_defrag_reorder_texcoords", "", CVAR_TYPE_BOOL, "true");
     App::flexbody_defrag_invert_lookup     = this->cVarCreate("flexbody_defrag_invert_lookup",     "", CVAR_TYPE_BOOL, "true");
 }
 
