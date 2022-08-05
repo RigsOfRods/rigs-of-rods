@@ -23,11 +23,11 @@
 
 #include "Application.h"
 #include "ApproxMath.h"
+#include "Console.h"
 #include "SimData.h"
 #include "FlexFactory.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
-#include "GUIManager.h"
 #include "RigDef_File.h"
 
 #include <Ogre.h>
@@ -521,7 +521,7 @@ FlexBody::FlexBody(
         m_forset_nodes.push_back((NodeNum_t)nodenum);
     }
 
-    if (App::GetGuiManager()->FlexbodyDebug.flexbody_defrag_enable
+    if (App::GetConsole()->cVarGet("flexbody_defrag_enabled", CVAR_TYPE_BOOL)->getBool()
         // For simplicity, only take 1-submesh meshes (almost always the case anyway)
         && m_scene_entity->getMesh()->getNumSubMeshes() == 1)
     {
@@ -734,18 +734,22 @@ std::string FlexBody::getOrigMeshName()
     return meshname;
 }
 
-static int const_penalty = -1;
-static int prog_up_penalty = -1;
-static int prog_down_penalty = -1;
-
 int evalNodeDistance(NodeNum_t a, NodeNum_t b)
 {
     if (a > b)
-        return const_penalty + prog_down_penalty * (a - b);
+    {
+        return App::flexbody_defrag_const_penalty->getInt()
+            + App::flexbody_defrag_prog_down_penalty->getInt() * (a - b);
+    }
     else if (a < b)
-        return const_penalty + prog_up_penalty * (b - a);
+    {
+        return App::flexbody_defrag_const_penalty->getInt()
+            + App::flexbody_defrag_prog_down_penalty->getInt() * (b - a);
+    }
     else
+    {
         return 0;
+    }
 }
 
 int evalMemoryDistance(Locator_t& a, Locator_t& b)
@@ -758,13 +762,20 @@ int evalMemoryDistance(Locator_t& a, Locator_t& b)
         + evalNodeDistance(a.getMean(), b.getMean());
 }
 
+template<typename uint_T> void reorderIndexBuffer(Ogre::IndexData* idx_data, std::vector<int> const& new_index_lookup)
+{
+    uint_T* workibuf = new uint_T[idx_data->indexCount];
+    idx_data->indexBuffer->readData(0, idx_data->indexBuffer->getSizeInBytes(), workibuf);
+    for (size_t i = 0; i < idx_data->indexCount; i++)
+    {
+        workibuf[i] = new_index_lookup[workibuf[i]];
+    }
+    idx_data->indexBuffer->writeData(0, idx_data->indexBuffer->getSizeInBytes(), workibuf);
+    delete[] workibuf;
+}
+
 void FlexBody::defragmentFlexbodyMesh()
 {
-    // config
-    const_penalty = App::GetGuiManager()->FlexbodyDebug.flexbody_defrag_const_penalty;
-    prog_up_penalty = App::GetGuiManager()->FlexbodyDebug.flexbody_defrag_prog_up_penalty;
-    prog_down_penalty = App::GetGuiManager()->FlexbodyDebug.flexbody_defrag_prog_down_penalty;
-
     // Analysis
     NodeNum_t forset_max = std::numeric_limits<NodeNum_t>::min();
     NodeNum_t forset_min = std::numeric_limits<NodeNum_t>::max();
@@ -774,11 +785,10 @@ void FlexBody::defragmentFlexbodyMesh()
         if (n < forset_min) { forset_min = n; }
     }
 
-    // record original vert order
-    std::vector<int> vert_pos;
-    for (int i = 0; i < m_vertex_count; i++)
+    std::vector<int> new_index_lookup(m_vertex_count);
+    for (int i = 0; i < (int)m_vertex_count; i++)
     {
-        vert_pos.push_back(i);
+        new_index_lookup[i] = i;
     }
 
     Locator_t prev_loc;
@@ -803,15 +813,84 @@ void FlexBody::defragmentFlexbodyMesh()
             }
         }
 
-        // Swap locators in memory
+        // Swap locators in memory, update lookup
         Locator_t loc_tmp = m_locators[closest_loc];
-        int pos_tmp = vert_pos[closest_loc];
+        int idx_tmp = new_index_lookup[closest_loc];
+
         m_locators[closest_loc] = m_locators[i];
-        vert_pos[closest_loc] = vert_pos[i];
+        new_index_lookup[closest_loc] = new_index_lookup[i];
+
         m_locators[i] = loc_tmp;
-        vert_pos[i] = pos_tmp;
+        new_index_lookup[i] = idx_tmp;    
 
         // Go next
         prev_loc = m_locators[i];
+    }
+
+    if (App::flexbody_defrag_invert_lookup->getBool())
+    {
+        std::vector<int> inverted_lookup(m_vertex_count);
+        for (int i = 0; i < (int)m_vertex_count; i++)
+        {
+            inverted_lookup[new_index_lookup[i]] = i;
+        }
+        for (int i = 0; i < (int)m_vertex_count; i++)
+        {
+            new_index_lookup[i] = inverted_lookup[i];
+        }
+    }
+
+    // REORDERING VERTICES
+    // * positions/normals are calculated, no action needed.
+    // * texcoords (aka UV-coords) must be fixed.
+    // step1 - find the buffer
+/*FIXME    
+    Ogre::VertexData* vert_data = nullptr;
+    if (m_scene_entity->getMesh()->sharedVertexData)
+    {
+        vert_data = m_scene_entity->getMesh()->sharedVertexData;
+    }
+    else
+    {
+        // for simplicity we only support single submesh
+        vert_data = m_scene_entity->getMesh()->getSubMesh(0)->vertexData;
+    }
+    const Ogre::VertexElement* uv_elem = vert_data->vertexDeclaration->findElementBySemantic(Ogre::VES_TEXTURE_COORDINATES);
+    Ogre::HardwareVertexBufferSharedPtr uv_buf = vert_data->vertexBufferBinding->getBuffer(uv_elem->getSource());
+    
+
+    // step2 - create working copies
+    ROR_ASSERT(uv_elem->getType() == Ogre::VET_FLOAT2);
+    float* workbuf_src = new float[uv_buf->getNumVertices() * 2];
+    float* workbuf_dst = new float[uv_buf->getNumVertices() * 2];
+    uv_buf->readData(0, uv_buf->getSizeInBytes(), workbuf_src);
+
+    // step3 - actually reorder
+    for (size_t i = 0; i < uv_buf->getNumVertices(); i++)
+    {
+        workbuf_dst[i * 2] = workbuf_src[i * 2];
+        workbuf_dst[(i * 2)+1] = workbuf_src[(i * 2)+1];
+    }
+
+    // step4 - upload to video card
+    uv_buf->writeData(0, uv_buf->getSizeInBytes(), workbuf_dst);
+    delete[] workbuf_src;
+    delete[] workbuf_dst;
+    
+    */
+
+    // REORDERING INDICES
+    if (App::flexbody_defrag_reorder_indices->getBool())
+    {
+        Ogre::IndexData* idx_data = m_scene_entity->getMesh()->getSubMesh(0)->indexData;
+        // Index can be 16-bit or 32-bit!
+        if (idx_data->indexBuffer->getType() == Ogre::HardwareIndexBuffer::IT_16BIT)
+        {
+            reorderIndexBuffer<uint16_t>(idx_data, new_index_lookup);
+        }
+        else
+        {
+            reorderIndexBuffer<uint32_t>(idx_data, new_index_lookup);
+        }
     }
 }

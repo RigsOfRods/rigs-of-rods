@@ -237,6 +237,14 @@ CVar* gfx_flexbody_cache;
 CVar* gfx_reduce_shadows;
 CVar* gfx_enable_rtshaders;
 
+// Flexbodies
+CVar* flexbody_defrag_enabled;
+CVar* flexbody_defrag_const_penalty;
+CVar* flexbody_defrag_prog_up_penalty;
+CVar* flexbody_defrag_prog_down_penalty;
+CVar* flexbody_defrag_reorder_indices;
+CVar* flexbody_defrag_invert_lookup;
+
 // Instance management
 void SetCacheSystem    (CacheSystem* obj)             { g_cache_system = obj; }
 

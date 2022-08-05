@@ -430,6 +430,14 @@ extern CVar* gfx_flexbody_cache;
 extern CVar* gfx_reduce_shadows;
 extern CVar* gfx_enable_rtshaders;
 
+// Flexbodies
+extern CVar* flexbody_defrag_enabled;
+extern CVar* flexbody_defrag_const_penalty;
+extern CVar* flexbody_defrag_prog_up_penalty;
+extern CVar* flexbody_defrag_prog_down_penalty;
+extern CVar* flexbody_defrag_reorder_indices;
+extern CVar* flexbody_defrag_invert_lookup;
+
 // ------------------------------------------------------------------------------------------------
 // Global objects
 // ------------------------------------------------------------------------------------------------
