@@ -774,6 +774,22 @@ template<typename uint_T> void reorderIndexBuffer(Ogre::IndexData* idx_data, std
     delete[] workibuf;
 }
 
+void reorderVertexBuffer(Ogre::HardwareVertexBufferSharedPtr vert_buf, const Ogre::VertexElement* vert_elem, std::vector<int> const& new_index_lookup)
+{
+    char* workbuf_src = new char[vert_buf->getSizeInBytes()];
+    char* workbuf_dst = new char[vert_buf->getSizeInBytes()];
+    vert_buf->readData(0, vert_buf->getSizeInBytes(), workbuf_src);
+    for (size_t i = 0; i < vert_buf->getNumVertices(); i++)
+    {
+        void* src = workbuf_src + (i * vert_elem->getSize());
+        void* dst = workbuf_dst + (new_index_lookup[i] * vert_elem->getSize());
+        std::memcpy(dst, src, vert_elem->getSize());
+    }
+    vert_buf->writeData(0, vert_buf->getSizeInBytes(), workbuf_dst);
+    delete[] workbuf_src;
+    delete[] workbuf_dst;
+}
+
 void FlexBody::defragmentFlexbodyMesh()
 {
     // Analysis
@@ -843,41 +859,22 @@ void FlexBody::defragmentFlexbodyMesh()
     // REORDERING VERTICES
     // * positions/normals are calculated, no action needed.
     // * texcoords (aka UV-coords) must be fixed.
-    // step1 - find the buffer
-/*FIXME    
-    Ogre::VertexData* vert_data = nullptr;
-    if (m_scene_entity->getMesh()->sharedVertexData)
+    if (App::flexbody_defrag_reorder_texcoords->getBool())
     {
-        vert_data = m_scene_entity->getMesh()->sharedVertexData;
+        Ogre::VertexData* vert_data = nullptr;
+        if (m_scene_entity->getMesh()->sharedVertexData)
+        {
+            vert_data = m_scene_entity->getMesh()->sharedVertexData;
+        }
+        else
+        {
+            // for simplicity we only support single submesh
+            vert_data = m_scene_entity->getMesh()->getSubMesh(0)->vertexData;
+        }
+        const Ogre::VertexElement* uv_elem = vert_data->vertexDeclaration->findElementBySemantic(Ogre::VES_TEXTURE_COORDINATES);
+        Ogre::HardwareVertexBufferSharedPtr uv_buf = vert_data->vertexBufferBinding->getBuffer(uv_elem->getSource());
+        reorderVertexBuffer(uv_buf, uv_elem, new_index_lookup);
     }
-    else
-    {
-        // for simplicity we only support single submesh
-        vert_data = m_scene_entity->getMesh()->getSubMesh(0)->vertexData;
-    }
-    const Ogre::VertexElement* uv_elem = vert_data->vertexDeclaration->findElementBySemantic(Ogre::VES_TEXTURE_COORDINATES);
-    Ogre::HardwareVertexBufferSharedPtr uv_buf = vert_data->vertexBufferBinding->getBuffer(uv_elem->getSource());
-    
-
-    // step2 - create working copies
-    ROR_ASSERT(uv_elem->getType() == Ogre::VET_FLOAT2);
-    float* workbuf_src = new float[uv_buf->getNumVertices() * 2];
-    float* workbuf_dst = new float[uv_buf->getNumVertices() * 2];
-    uv_buf->readData(0, uv_buf->getSizeInBytes(), workbuf_src);
-
-    // step3 - actually reorder
-    for (size_t i = 0; i < uv_buf->getNumVertices(); i++)
-    {
-        workbuf_dst[i * 2] = workbuf_src[i * 2];
-        workbuf_dst[(i * 2)+1] = workbuf_src[(i * 2)+1];
-    }
-
-    // step4 - upload to video card
-    uv_buf->writeData(0, uv_buf->getSizeInBytes(), workbuf_dst);
-    delete[] workbuf_src;
-    delete[] workbuf_dst;
-    
-    */
 
     // REORDERING INDICES
     if (App::flexbody_defrag_reorder_indices->getBool())

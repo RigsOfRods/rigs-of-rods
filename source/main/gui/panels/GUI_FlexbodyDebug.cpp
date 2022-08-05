@@ -410,6 +410,8 @@ void FlexbodyDebug::DrawMemoryOrderGraph(FlexBody* flexbody)
 
     if (App::flexbody_defrag_enabled->getBool())
     {
+        DrawGCheckbox(App::flexbody_defrag_reorder_texcoords, "Reorder texcoords");
+        ImGui::SameLine();
         DrawGCheckbox(App::flexbody_defrag_reorder_indices, "Reorder indices");
         ImGui::SameLine();
         DrawGCheckbox(App::flexbody_defrag_invert_lookup, "Invert index lookup");
