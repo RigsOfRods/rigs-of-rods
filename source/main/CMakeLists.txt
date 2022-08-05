@@ -199,7 +199,7 @@ set(SOURCE_FILES
         terrain/TerrainEditor.{h,cpp}
         terrain/TerrainGeometryManager.{h,cpp}
         terrain/TerrainManager.{h,cpp}
-        terrain/TerrainObjectManager.{h,cpp}
+        terrain/TerrainObjectManager.{h,cpp}        
         threadpool/ThreadPool.h
         utils/ConfigFile.{h,cpp}
         utils/ErrorUtils.{h,cpp}
@@ -220,11 +220,18 @@ if (USE_ANGELSCRIPT)
     list(APPEND SOURCE_FILES
             scripting/GameScript.{h,cpp}
             scripting/LocalStorage.{h,cpp}
-            scripting/OgreAngelscript.cpp
-            scripting/ImGuiAngelscript.cpp
-            scripting/InputEngineAngelscript.cpp
             scripting/OgreScriptBuilder.{h,cpp}
             scripting/ScriptEngine.{h,cpp}
+            scripting/bindings/AngelScriptBindings.h
+            scripting/bindings/ActorAngelscript.cpp
+            scripting/bindings/ConsoleAngelscript.cpp
+            scripting/bindings/GameScriptAngelscript.cpp
+            scripting/bindings/ImGuiAngelscript.cpp
+            scripting/bindings/InputEngineAngelscript.cpp
+            scripting/bindings/LocalStorageAngelscript.cpp
+            scripting/bindings/OgreAngelscript.cpp
+            scripting/bindings/ScriptEventsAngelscript.cpp
+            scripting/bindings/VehicleAiAngelscript.cpp
             )
 endif ()
 
@@ -310,7 +317,6 @@ target_include_directories(${BINNAME} PRIVATE
         gfx/camera
         gfx/hydrax
         gfx/particle
-        gfx/procedural
         gfx/skyx
         gui
         gui/imgui
@@ -321,8 +327,6 @@ target_include_directories(${BINNAME} PRIVATE
         physics/air
         physics/collision
         physics/flex
-        physics/mplatform
-        physics/threading
         physics/utils
         physics/water
         resources
@@ -333,9 +337,8 @@ target_include_directories(${BINNAME} PRIVATE
         resources/terrn2_fileformat
         resources/tobj_fileformat
         system
-        rig_editor
-        rig_editor/rig_data
         scripting
+        scripting/bindings
         terrain
         terrain/map
         threadpool
