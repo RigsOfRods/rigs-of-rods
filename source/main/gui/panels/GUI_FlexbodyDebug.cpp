@@ -398,7 +398,7 @@ void FlexbodyDebug::DrawMemoryOrderGraph(FlexBody* flexbody)
 
     // Tools!
     const float SLIDER_WIDTH = 150;
-    ImGui::Checkbox("Enable defrag", &this->flexbody_defrag_enable);
+    DrawGCheckbox(App::flexbody_defrag_enabled, "Enable defrag");
     ImGui::SameLine();
     if (ImGui::Button("Reload vehicle"))
     {
@@ -407,16 +407,25 @@ void FlexbodyDebug::DrawMemoryOrderGraph(FlexBody* flexbody)
         rq->amr_actor = App::GetGameContext()->GetPlayerActor();
         App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
     }
-    if (this->flexbody_defrag_enable)
+
+    if (App::flexbody_defrag_enabled->getBool())
+    {
+        DrawGCheckbox(App::flexbody_defrag_reorder_indices, "Reorder indices");
+        ImGui::SameLine();
+        DrawGCheckbox(App::flexbody_defrag_invert_lookup, "Invert index lookup");
+
+    }
+
+    if (App::flexbody_defrag_enabled->getBool())
     {
         ImGui::TextDisabled("Sorting: insert-sort by lowest penalty, start: REF=VX=VY=%d", (int)forset_min);
         ImGui::TextDisabled("Penalty calc: nodes (each x each), smalest nodes, node means");
         ImGui::SetNextItemWidth(SLIDER_WIDTH);
-        ImGui::SliderInt("Const penalty for inequality", &this->flexbody_defrag_const_penalty, 0, 15);
+        DrawGIntSlider(App::flexbody_defrag_const_penalty, "Const penalty for inequality", 0, 15);
         ImGui::SetNextItemWidth(SLIDER_WIDTH);
-        ImGui::SliderInt("Progressive penalty for upward direction", &this->flexbody_defrag_prog_up_penalty, 0, 15);
+        DrawGIntSlider(App::flexbody_defrag_prog_up_penalty, "Progressive penalty for upward direction", 0, 15);
         ImGui::SetNextItemWidth(SLIDER_WIDTH);
-        ImGui::SliderInt("Progressive penalty for downward direction", &this->flexbody_defrag_prog_down_penalty, 0, 15);
+        DrawGIntSlider(App::flexbody_defrag_prog_down_penalty, "Progressive penalty for downward direction", 0, 15);
     }
 
     // Legend

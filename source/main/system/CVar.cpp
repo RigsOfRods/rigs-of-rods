@@ -180,6 +180,13 @@ void Console::cVarSetupBuiltins()
     App::gfx_flexbody_cache      = this->cVarCreate("gfx_flexbody_cache",      "Flexbody_UseCache",          CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::gfx_reduce_shadows      = this->cVarCreate("gfx_reduce_shadows",      "Shadow optimizations",       CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::gfx_enable_rtshaders    = this->cVarCreate("gfx_enable_rtshaders",    "Use RTShader System",        CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+
+    App::flexbody_defrag_enabled           = this->cVarCreate("flexbody_defrag_enabled",           "", CVAR_TYPE_BOOL);
+    App::flexbody_defrag_const_penalty     = this->cVarCreate("flexbody_defrag_const_penalty",     "", CVAR_TYPE_INT, "7");
+    App::flexbody_defrag_prog_up_penalty   = this->cVarCreate("flexbody_defrag_prog_up_penalty",   "", CVAR_TYPE_INT, "3");
+    App::flexbody_defrag_prog_down_penalty = this->cVarCreate("flexbody_defrag_prog_down_penalty", "", CVAR_TYPE_INT, "1");
+    App::flexbody_defrag_reorder_indices   = this->cVarCreate("flexbody_defrag_reorder_indices",   "", CVAR_TYPE_BOOL, "true");
+    App::flexbody_defrag_invert_lookup     = this->cVarCreate("flexbody_defrag_invert_lookup",     "", CVAR_TYPE_BOOL, "true");
 }
 
 CVar* Console::cVarCreate(std::string const& name, std::string const& long_name,

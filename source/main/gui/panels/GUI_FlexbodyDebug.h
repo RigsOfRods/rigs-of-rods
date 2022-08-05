@@ -39,12 +39,6 @@ public:
     void AnalyzeFlexbodies(); //!< populates the combobox
     void DrawDebugView();
 
-    // Flexbody defragmentation settings
-    bool flexbody_defrag_enable = false;
-    int  flexbody_defrag_const_penalty = 7;
-    int  flexbody_defrag_prog_up_penalty = 3;
-    int  flexbody_defrag_prog_down_penalty = 1;
-
 private:
 
     void UpdateVisibility();
