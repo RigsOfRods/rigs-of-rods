@@ -36,7 +36,6 @@
 #include "MeshObject.h"
 #include "ODefFileFormat.h"
 #include "PlatformUtils.h"
-#include "ProceduralManager.h"
 #include "ProceduralRoad.h"
 #include "SoundScriptManager.h"
 #include "TerrainGeometryManager.h"
@@ -93,10 +92,6 @@ TerrainObjectManager::~TerrainObjectManager()
     {
         App::GetGfxScene()->GetSceneManager()->destroyStaticGeometry("bakeSG");
         m_staticgeometry = nullptr;
-    }
-    if (m_procedural_mgr != nullptr)
-    {
-        delete m_procedural_mgr;
     }
     App::GetGfxScene()->GetSceneManager()->destroyAllEntities();
 
@@ -180,11 +175,6 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
         return;
     }
 
-    if (m_procedural_mgr == nullptr)
-    {
-        m_procedural_mgr = new ProceduralManager();
-    }
-
     int mapsizex = terrainManager->getGeometryManager()->getMaxTerrainSize().x;
     int mapsizez = terrainManager->getGeometryManager()->getMaxTerrainSize().z;
 
@@ -225,7 +215,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     // Procedural roads
     for (ProceduralObject po : tobj->proc_objects)
     {
-        m_procedural_mgr->addObject(po);
+        m_procedural_mgr.addObject(po);
     }
 
     // Vehicles
@@ -263,7 +253,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
 
     if (App::diag_terrn_log_roads->getBool())
     {
-        m_procedural_mgr->logDiagnostics();
+        m_procedural_mgr.logDiagnostics();
     }
 }
 

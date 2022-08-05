@@ -19,8 +19,6 @@ set(SOURCE_FILES
         gameplay/CruiseControl.cpp
         gameplay/EngineSim.{h,cpp}
         gameplay/Landusemap.{h,cpp}
-        gameplay/ProceduralManager.{h,cpp}
-        gameplay/ProceduralRoad.{h,cpp}
         gameplay/RaceSystem.{h,cpp}
         gameplay/RecoveryMode.{h,cpp}
         gameplay/Replay.{h,cpp}
@@ -197,6 +195,8 @@ set(SOURCE_FILES
         system/ConsoleCmd.{h,cpp}
         system/CVar.{h,cpp}
         terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
+        terrain/ProceduralManager.{h,cpp}
+        terrain/ProceduralRoad.{h,cpp}
         terrain/TerrainEditor.{h,cpp}
         terrain/TerrainGeometryManager.{h,cpp}
         terrain/Terrain.{h,cpp}
