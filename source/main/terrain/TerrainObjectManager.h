@@ -171,7 +171,7 @@ protected:
     std::vector<MapEntity>                m_map_entities;
     Terrain*           terrainManager;
     Ogre::StaticGeometry*     m_staticgeometry;
-    ProceduralManager*        m_procedural_mgr;
+    ProceduralManager         m_procedural_mgr;
     Ogre::SceneNode*          m_staticgeometry_bake_node;
     int                       m_entity_counter = 0;
     std::string               m_resource_group;
