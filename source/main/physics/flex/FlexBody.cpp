@@ -829,14 +829,17 @@ void FlexBody::defragmentFlexbodyMesh()
             }
         }
 
-        // Swap locators in memory, update lookup
+        // Swap locators+normals in memory, update lookup
         Locator_t loc_tmp = m_locators[closest_loc];
+        Ogre::Vector3 norm_tmp = m_src_normals[closest_loc];
         int idx_tmp = new_index_lookup[closest_loc];
 
         m_locators[closest_loc] = m_locators[i];
+        m_src_normals[closest_loc] = m_src_normals[i];
         new_index_lookup[closest_loc] = new_index_lookup[i];
 
         m_locators[i] = loc_tmp;
+        m_src_normals[i] = norm_tmp;
         new_index_lookup[i] = idx_tmp;    
 
         // Go next
