@@ -30,6 +30,7 @@
 #ifdef USE_ANGELSCRIPT
 
 #include "Application.h"
+#include "RefCountingObject.h"
 #include "scriptdictionary/scriptdictionary.h"
 
 namespace RoR {
@@ -54,7 +55,7 @@ enum Ai_values
     AI_POWER
 };
 
-class VehicleAI : public ZeroedMemoryAllocator
+class VehicleAI : public ZeroedMemoryAllocator, public RefCountingObject<VehicleAI>
 {
 public:
     VehicleAI(ActorPtr b);
@@ -69,17 +70,6 @@ public:
      *  @return True if the AI is driving
      */
     bool IsActive();
-
-#ifdef USE_ANGELSCRIPT
-    // we have to add this to be able to use the class as reference inside scripts
-    void addRef()
-    {
-    };
-
-    void release()
-    {
-    };
-#endif
     /**
      *  Updates the AI.
      */

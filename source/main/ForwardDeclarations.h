@@ -142,8 +142,9 @@ namespace RoR
     struct client_t;
     struct authorinfo_t;
 
-    /// AngelScript-friendly shared pointers
+    // AngelScript-friendly shared pointers
     typedef RefCountingObjectPtr<Actor> ActorPtr;
+    typedef RefCountingObjectPtr<VehicleAI> VehicleAIPtr;
 
     namespace GUI
     {

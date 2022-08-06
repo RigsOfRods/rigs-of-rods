@@ -896,25 +896,23 @@ int GameScript::sendGameCmd(const String& message)
     return -11;
 }
 
-VehicleAI* GameScript::getCurrentTruckAI()
+VehicleAIPtr GameScript::getCurrentTruckAI()
 {
-    VehicleAI* result = nullptr;
     if (App::GetGameContext()->GetPlayerActor())
     {
-        result = App::GetGameContext()->GetPlayerActor()->ar_vehicle_ai;
+        return App::GetGameContext()->GetPlayerActor()->getVehicleAI();
     }
-    return result;
+    return nullptr;
 }
 
-VehicleAI* GameScript::getTruckAIByNum(int num)
+VehicleAIPtr GameScript::getTruckAIByNum(int num)
 {
-    VehicleAI* result = nullptr;
     ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(num);
     if (actor != nullptr)
     {
-        result = actor->ar_vehicle_ai;
+        return actor->getVehicleAI();
     }
-    return result;
+    return nullptr;
 }
 
 ActorPtr GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)

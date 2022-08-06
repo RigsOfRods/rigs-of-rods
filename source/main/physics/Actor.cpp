@@ -130,8 +130,7 @@ void Actor::dispose()
         delete m_replay_handler;
     m_replay_handler = nullptr;
 
-    if (ar_vehicle_ai)
-        delete ar_vehicle_ai;
+    // The object will be deleted by RefCountingObjectPtr
     ar_vehicle_ai = nullptr;
 
     // remove all scene nodes
