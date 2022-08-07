@@ -442,7 +442,7 @@ Console*             GetConsole();
 InputEngine*         GetInputEngine();
 CacheSystem*         GetCacheSystem();
 MumbleIntegration*   GetMumble();
-TerrainManager*      GetSimTerrain();
+Terrain*      GetSimTerrain();
 ThreadPool*          GetThreadPool();
 CameraManager*       GetCameraManager();
 GfxScene*            GetGfxScene();
@@ -466,7 +466,7 @@ void CreateSoundScriptManager();
 void CreateScriptEngine();
 
 // Setters
-void SetSimTerrain           (TerrainManager*    obj);
+void SetSimTerrain           (Terrain*    obj);
 void SetCacheSystem          (CacheSystem*       obj);
 
 // Cleanups

@@ -25,7 +25,7 @@
 #include "CameraManager.h"
 #include "GfxScene.h"
 #include "PlatformUtils.h" // PathCombine
-#include "TerrainManager.h"
+#include "Terrain.h"
 
 #include <Ogre.h>
 

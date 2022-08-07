@@ -106,7 +106,7 @@ namespace RoR
     class  Task;
     class  TerrainEditor;
     class  TerrainGeometryManager;
-    class  TerrainManager;
+    class  Terrain;
     class  TerrainObjectManager;
     struct Terrn2Author;
     struct Terrn2Def;

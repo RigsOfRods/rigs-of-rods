@@ -35,7 +35,7 @@
 #include "Language.h"
 #include "OgreImGui.h"
 #include "SurveyMapTextureCreator.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "TerrainObjectManager.h"
 
 using namespace RoR;

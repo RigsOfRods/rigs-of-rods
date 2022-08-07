@@ -19,7 +19,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "TerrainManager.h"
+#include "Terrain.h"
 
 #include "ActorManager.h"
 #include "CacheSystem.h"
@@ -45,7 +45,7 @@
 using namespace RoR;
 using namespace Ogre;
 
-TerrainManager::TerrainManager(CacheEntry* entry)
+RoR::Terrain::Terrain(CacheEntry* entry)
     : m_collisions(0)
     , m_geometry_manager(0)
     , m_object_manager(0)
@@ -61,7 +61,7 @@ TerrainManager::TerrainManager(CacheEntry* entry)
 {
 }
 
-TerrainManager::~TerrainManager()
+RoR::Terrain::~Terrain()
 {
     if (App::app_state->getEnum<AppState>() == AppState::SHUTDOWN)
     {
@@ -126,9 +126,9 @@ TerrainManager::~TerrainManager()
     }
 }
 
-TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry* entry)
+RoR::Terrain* RoR::Terrain::LoadAndPrepareTerrain(CacheEntry* entry)
 {
-    auto terrn_mgr = std::unique_ptr<TerrainManager>(new TerrainManager(entry));
+    auto terrn_mgr = std::unique_ptr<Terrain>(new RoR::Terrain(entry));
     auto* loading_window = &App::GetGuiManager()->LoadingWindow;
 
     std::string const& filename = entry->fname;
@@ -234,7 +234,7 @@ TerrainManager* TerrainManager::LoadAndPrepareTerrain(CacheEntry* entry)
     return terrn_mgr.release();
 }
 
-void TerrainManager::initCamera()
+void RoR::Terrain::initCamera()
 {
     App::GetCameraManager()->GetCamera()->getViewport()->setBackgroundColour(m_def.ambient_color);
     App::GetCameraManager()->GetCameraNode()->setPosition(m_def.start_position);
@@ -262,7 +262,7 @@ void TerrainManager::initCamera()
     }
 }
 
-void TerrainManager::initSkySubSystem()
+void RoR::Terrain::initSkySubSystem()
 {
 #ifdef USE_CAELUM
     // Caelum skies
@@ -309,7 +309,7 @@ void TerrainManager::initSkySubSystem()
     }
 }
 
-void TerrainManager::initLight()
+void RoR::Terrain::initLight()
 {
     if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
     {
@@ -339,7 +339,7 @@ void TerrainManager::initLight()
     }
 }
 
-void TerrainManager::initFog()
+void RoR::Terrain::initFog()
 {
     if (m_sight_range >= UNLIMITED_SIGHTRANGE)
         App::GetGfxScene()->GetSceneManager()->setFog(FOG_NONE);
@@ -347,7 +347,7 @@ void TerrainManager::initFog()
         App::GetGfxScene()->GetSceneManager()->setFog(FOG_LINEAR, m_def.ambient_color, 0.000f, m_sight_range * 0.65f, m_sight_range*0.9);
 }
 
-void TerrainManager::initVegetation()
+void RoR::Terrain::initVegetation()
 {
     switch (App::gfx_vegetation_mode->getEnum<GfxVegetation>())
     {
@@ -366,7 +366,7 @@ void TerrainManager::initVegetation()
     }
 }
 
-void TerrainManager::fixCompositorClearColor()
+void RoR::Terrain::fixCompositorClearColor()
 {
     // hack
     // now with extensive error checking
@@ -392,7 +392,7 @@ void TerrainManager::fixCompositorClearColor()
     }
 }
 
-void TerrainManager::initWater()
+void RoR::Terrain::initWater()
 {
     // disabled in global config
     if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::NONE)
@@ -423,7 +423,7 @@ void TerrainManager::initWater()
         TerrainGroup::TerrainIterator ti = m_geometry_manager->getTerrainGroup()->getTerrainIterator();
         while (ti.hasMoreElements())
         {
-            Terrain* t = ti.getNext()->instance;
+            Ogre::Terrain* t = ti.getNext()->instance;
             MaterialPtr ptr = t->getMaterial();
             m_hydrax_water->GetHydrax()->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
         }
@@ -436,13 +436,13 @@ void TerrainManager::initWater()
     }
 }
 
-void TerrainManager::initShadows()
+void RoR::Terrain::initShadows()
 {
     m_shadow_manager = new ShadowManager();
     m_shadow_manager->loadConfiguration();
 }
 
-void TerrainManager::loadTerrainObjects()
+void RoR::Terrain::loadTerrainObjects()
 {
     for (std::string tobj_filename : m_def.tobj_files)
     {
@@ -452,7 +452,7 @@ void TerrainManager::loadTerrainObjects()
     m_object_manager->PostLoadTerrain(); // bakes the geometry and things
 }
 
-void TerrainManager::initTerrainCollisions()
+void RoR::Terrain::initTerrainCollisions()
 {
     if (!m_def.traction_map_file.empty())
     {
@@ -460,7 +460,7 @@ void TerrainManager::initTerrainCollisions()
     }
 }
 
-void TerrainManager::initScripting()
+void RoR::Terrain::initScripting()
 {
 #ifdef USE_ANGELSCRIPT
     bool loaded = false;
@@ -481,68 +481,68 @@ void TerrainManager::initScripting()
 #endif //USE_ANGELSCRIPT
 }
 
-void TerrainManager::setGravity(float value)
+void RoR::Terrain::setGravity(float value)
 {
     m_cur_gravity = value;
 }
 
-void TerrainManager::initObjects()
+void RoR::Terrain::initObjects()
 {
     m_object_manager = new TerrainObjectManager(this);
 }
 
-Ogre::AxisAlignedBox TerrainManager::getTerrainCollisionAAB()
+Ogre::AxisAlignedBox RoR::Terrain::getTerrainCollisionAAB()
 {
     return m_collisions->getCollisionAAB();
 }
 
-Ogre::Vector3 TerrainManager::getMaxTerrainSize()
+Ogre::Vector3 RoR::Terrain::getMaxTerrainSize()
 {
     if (!m_geometry_manager)
         return Vector3::ZERO;
     return m_geometry_manager->getMaxTerrainSize();
 }
 
-float TerrainManager::GetHeightAt(float x, float z)
+float RoR::Terrain::GetHeightAt(float x, float z)
 {
     return m_geometry_manager->getHeightAt(x, z);
 }
 
-Ogre::Vector3 TerrainManager::GetNormalAt(float x, float y, float z)
+Ogre::Vector3 RoR::Terrain::GetNormalAt(float x, float y, float z)
 {
     return m_geometry_manager->getNormalAt(x, y, z);
 }
 
-SkyManager* TerrainManager::getSkyManager()
+SkyManager* RoR::Terrain::getSkyManager()
 {
     return m_sky_manager;
 }
 
-bool TerrainManager::isFlat()
+bool RoR::Terrain::isFlat()
 {
     return m_geometry_manager->isFlat();
 }
 
-void TerrainManager::LoadTelepoints()
+void RoR::Terrain::LoadTelepoints()
 {
     if (m_object_manager)
         m_object_manager->LoadTelepoints();
 }
 
-void TerrainManager::LoadPredefinedActors()
+void RoR::Terrain::LoadPredefinedActors()
 {
     if (m_object_manager)
         m_object_manager->LoadPredefinedActors();
 }
 
-bool TerrainManager::HasPredefinedActors()
+bool RoR::Terrain::HasPredefinedActors()
 {
     if (m_object_manager)
         return m_object_manager->HasPredefinedActors();
     return false;
 }
 
-void TerrainManager::HandleException(const char* summary)
+void RoR::Terrain::HandleException(const char* summary)
 {
     try
     {

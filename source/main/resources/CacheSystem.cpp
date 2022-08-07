@@ -40,7 +40,7 @@
 #include "RigDef_Parser.h"
 
 #include "SkinFileFormat.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "Terrn2FileFormat.h"
 #include "Utils.h"
 

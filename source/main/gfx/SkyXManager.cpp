@@ -25,7 +25,7 @@
 #include "CameraManager.h"
 #include "GfxScene.h"
 #include "HydraxWater.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "TerrainGeometryManager.h"
 
 using namespace Ogre;

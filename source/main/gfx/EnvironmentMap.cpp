@@ -25,7 +25,7 @@
 #include "GfxActor.h"
 #include "GfxScene.h"
 #include "SkyManager.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 
 #include <OgreOverlaySystem.h>
 #include <OgreOverlayManager.h>

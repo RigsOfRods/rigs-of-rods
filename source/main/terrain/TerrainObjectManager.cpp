@@ -39,7 +39,7 @@
 #include "ProceduralRoad.h"
 #include "SoundScriptManager.h"
 #include "TerrainGeometryManager.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "TObjFileFormat.h"
 #include "Utils.h"
 #include "WriteTextToTexture.h"
@@ -63,7 +63,7 @@ inline float getTerrainHeight(Real x, Real z, void* unused = 0)
     return App::GetSimTerrain()->GetHeightAt(x, z);
 }
 
-TerrainObjectManager::TerrainObjectManager(TerrainManager* terrainManager) :
+TerrainObjectManager::TerrainObjectManager(Terrain* terrainManager) :
     terrainManager(terrainManager)
 {
     //prepare for baking

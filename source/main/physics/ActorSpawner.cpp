@@ -63,7 +63,7 @@
 #include "SkinFileFormat.h"
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "TorqueCurve.h"
 #include "TurboJet.h"
 #include "TurboProp.h"

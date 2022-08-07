@@ -45,7 +45,7 @@
 #include "RoRVersion.h"
 #include "ScrewProp.h"
 #include "SoundScriptManager.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "TurboProp.h"
 #include "Utils.h"
 

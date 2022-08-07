@@ -38,7 +38,7 @@
 #include "ScrewProp.h"
 #include "Skidmark.h"
 #include "SkyManager.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 
 #include <rapidjson/rapidjson.h>
 #include <fstream>

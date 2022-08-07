@@ -41,7 +41,7 @@
 #include "SkyManager.h"
 #include "SkyXManager.h"
 #include "SoundScriptManager.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "Utils.h"
 #include "VehicleAI.h"
 #include "GUI_VehicleButtons.h"
@@ -112,7 +112,7 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
     App::GetCacheSystem()->LoadResource(*terrn_entry);
 
     // Perform the loading and setup
-    App::SetSimTerrain(TerrainManager::LoadAndPrepareTerrain(terrn_entry));
+    App::SetSimTerrain(RoR::Terrain::LoadAndPrepareTerrain(terrn_entry));
     if (!App::GetSimTerrain())
     {
         return false; // Message box already displayed

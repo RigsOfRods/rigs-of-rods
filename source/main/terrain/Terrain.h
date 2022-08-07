@@ -33,15 +33,15 @@ namespace RoR {
 /// @addtogroup Terrain
 /// @{
 
-class TerrainManager : public ZeroedMemoryAllocator
+class Terrain : public ZeroedMemoryAllocator
 {
 public:
     static const int UNLIMITED_SIGHTRANGE = 4999;
 
-    static TerrainManager* LoadAndPrepareTerrain(CacheEntry* entry); //!< Factory function
+    static Terrain* LoadAndPrepareTerrain(CacheEntry* entry); //!< Factory function
 
-    TerrainManager(CacheEntry* entry);
-    ~TerrainManager();
+    Terrain(CacheEntry* entry);
+    ~Terrain();
 
         // Terrain info
 

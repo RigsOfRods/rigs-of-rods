@@ -25,7 +25,7 @@
 #include "ActorManager.h"
 #include "GfxScene.h"
 #include "DustPool.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "Water.h"
 
 using namespace Ogre;

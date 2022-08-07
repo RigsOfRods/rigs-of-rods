@@ -25,7 +25,7 @@
 #include "Console.h"
 #include "ErrorUtils.h"
 #include "Language.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #ifdef USE_PAGED
 #include "PropertyMaps.h"
 #include "PagedGeometry.h"

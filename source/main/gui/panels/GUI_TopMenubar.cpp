@@ -40,7 +40,7 @@
 #include "PlatformUtils.h"
 #include "Replay.h"
 #include "SkyManager.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "Water.h"
 
 #include <algorithm>
