@@ -35,7 +35,7 @@
 #include "RoRnet.h"
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 

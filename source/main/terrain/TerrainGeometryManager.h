@@ -38,7 +38,7 @@ namespace RoR {
 class TerrainGeometryManager : public ZeroedMemoryAllocator
 {
 public:
-    TerrainGeometryManager(TerrainManager* terrainManager);
+    TerrainGeometryManager(Terrain* terrainManager);
     ~TerrainGeometryManager();
 
     bool InitTerrain(std::string otc_filename);
@@ -70,7 +70,7 @@ private:
     Ogre::DataStreamPtr getPageConfig(int x, int z);
 
     std::shared_ptr<RoR::OTCFile> m_spec;
-    TerrainManager*      terrainManager;
+    RoR::Terrain*      terrainManager;
     Ogre::TerrainGroup*  m_ogre_terrain_group;
     bool                 m_was_new_geometry_generated;
 

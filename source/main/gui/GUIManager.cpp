@@ -37,7 +37,7 @@
 #include "OverlayWrapper.h"
 #include "PlatformUtils.h"
 #include "RTTLayer.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 
 #include <OgreOverlayElement.h>
 #include <OgreOverlayContainer.h>

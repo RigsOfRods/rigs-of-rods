@@ -50,7 +50,7 @@
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
 #include "SkyManager.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainObjectManager.h"
 #include "Utils.h"

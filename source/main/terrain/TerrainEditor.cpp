@@ -29,7 +29,7 @@
 #include "GfxScene.h"
 #include "InputEngine.h"
 #include "OgreImGui.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "TerrainObjectManager.h"
 #include "PlatformUtils.h"
 

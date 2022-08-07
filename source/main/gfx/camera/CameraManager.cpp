@@ -34,7 +34,7 @@
 #include "Language.h"
 #include "OverlayWrapper.h"
 #include "Replay.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "GUIManager.h"
 #include "PerVehicleCameraContext.h"
 #include "Water.h"

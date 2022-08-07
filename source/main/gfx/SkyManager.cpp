@@ -26,7 +26,7 @@
 #include "AppContext.h"
 #include "CameraManager.h"
 #include "GfxScene.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "TerrainGeometryManager.h"
 
 #include <Caelum.h>

@@ -23,7 +23,7 @@
 #include "Application.h"
 #include "Collisions.h"
 #include "GfxScene.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 
 using namespace Ogre;
 using namespace RoR;

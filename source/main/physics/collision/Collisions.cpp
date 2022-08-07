@@ -33,7 +33,7 @@
 #include "MovableText.h"
 #include "PlatformUtils.h"
 #include "ScriptEngine.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 
 using namespace RoR;
 

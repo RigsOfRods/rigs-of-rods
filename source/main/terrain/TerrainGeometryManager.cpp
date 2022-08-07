@@ -27,7 +27,7 @@
 #include "GfxScene.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "ShadowManager.h"
 #include "OgreTerrainPSSMMaterialGenerator.h"
 #include "OTCFileFormat.h"
@@ -134,7 +134,7 @@ Ogre::MaterialPtr Terrn2CustomMaterial::Profile::generate(const Ogre::Terrain* t
 
 #define XZSTR(X,Z)   String("[") + TOSTRING(X) + String(",") + TOSTRING(Z) + String("]")
 
-TerrainGeometryManager::TerrainGeometryManager(TerrainManager* terrainManager)
+TerrainGeometryManager::TerrainGeometryManager(Terrain* terrainManager)
     : mHeightData(nullptr)
     , mIsFlat(false)
     , mMinHeight(0.0f)
@@ -310,7 +310,7 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
 
     const std::string cache_filename_format = m_spec->cache_filename_base + "_OGRE_" + TOSTRING(OGRE_VERSION) + "_";
 
-    m_ogre_terrain_group = OGRE_NEW TerrainGroup(App::GetGfxScene()->GetSceneManager(), Terrain::ALIGN_X_Z, m_spec->page_size, m_spec->world_size);
+    m_ogre_terrain_group = OGRE_NEW TerrainGroup(App::GetGfxScene()->GetSceneManager(), Ogre::Terrain::ALIGN_X_Z, m_spec->page_size, m_spec->world_size);
     m_ogre_terrain_group->setFilenameConvention(cache_filename_format, "mapbin");
     m_ogre_terrain_group->setOrigin(m_spec->origin_pos);
     m_ogre_terrain_group->setResourceGroup(RGN_CACHE);
@@ -326,7 +326,7 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
     App::GetGuiManager()->LoadingWindow.SetProgress(44, _L("Loading terrain pages ..."));
     m_ogre_terrain_group->loadAllTerrains(true);
 
-    Terrain* terrain = m_ogre_terrain_group->getTerrain(0, 0);
+    Ogre::Terrain* terrain = m_ogre_terrain_group->getTerrain(0, 0);
 
     if (terrain == nullptr)
         return true;
@@ -389,7 +389,7 @@ void TerrainGeometryManager::updateLightMap()
 
     while (ti.hasMoreElements())
     {
-        Terrain* terrain = ti.getNext()->instance;
+        Ogre::Terrain* terrain = ti.getNext()->instance;
         if (!terrain)
             continue;
 

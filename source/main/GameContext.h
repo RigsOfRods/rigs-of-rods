@@ -65,7 +65,7 @@ typedef std::queue < Message, std::list<Message>> GameMsgQueue;
 
 /// Central game state manager.
 /// RoR's gameplay is quite simple in structure, it consists of:
-///  - static terrain:  static elevation map, managed by `TerrainManager`.
+///  - static terrain:  static elevation map, managed by `Terrain`.
 ///                     this includes static collision objects (or intrusion detection objects), managed by `TerrainObjectManager`.
 ///  - softbody actors: a.k.a "trucks" or "vehicles" (local or remote), managed by `ActorManager`. They collide with static terrain and each other.
 ///                     this includes 'fixes' - actors with partially fixed position.

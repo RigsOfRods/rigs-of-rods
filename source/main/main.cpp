@@ -52,7 +52,7 @@
 #include "ScriptEngine.h"
 #include "Skidmark.h"
 #include "SoundScriptManager.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "Utils.h"
 #include <Overlay/OgreOverlaySystem.h>
 #include <ctime>

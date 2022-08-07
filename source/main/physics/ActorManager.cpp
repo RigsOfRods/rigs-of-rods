@@ -49,7 +49,7 @@
 #include "ActorSpawner.h"
 #include "ScriptEngine.h"
 #include "SoundScriptManager.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "ThreadPool.h"
 #include "Utils.h"
 #include "VehicleAI.h"

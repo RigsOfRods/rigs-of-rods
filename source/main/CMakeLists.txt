@@ -199,7 +199,7 @@ set(SOURCE_FILES
         terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
         terrain/TerrainEditor.{h,cpp}
         terrain/TerrainGeometryManager.{h,cpp}
-        terrain/TerrainManager.{h,cpp}
+        terrain/Terrain.{h,cpp}
         terrain/TerrainObjectManager.{h,cpp}        
         threadpool/ThreadPool.h
         utils/ConfigFile.{h,cpp}

@@ -73,7 +73,7 @@ public:
         int id;
     };
 
-    TerrainObjectManager(TerrainManager* terrainManager);
+    TerrainObjectManager(Terrain* terrainManager);
     ~TerrainObjectManager();
 
     std::vector<EditorObject>& GetEditorObjects() { return m_editor_objects; }
@@ -169,7 +169,7 @@ protected:
     std::vector<AnimatedObject>           m_animated_objects;
     std::vector<MeshObject*>              m_mesh_objects;
     std::vector<MapEntity>                m_map_entities;
-    TerrainManager*           terrainManager;
+    Terrain*           terrainManager;
     Ogre::StaticGeometry*     m_staticgeometry;
     ProceduralManager*        m_procedural_mgr;
     Ogre::SceneNode*          m_staticgeometry_bake_node;

@@ -31,7 +31,7 @@
 #include "InputEngine.h"
 #include "MovableText.h"
 #include "Network.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "Utils.h"
 #include "Water.h"
 

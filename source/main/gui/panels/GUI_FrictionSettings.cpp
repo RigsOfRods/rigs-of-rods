@@ -33,7 +33,7 @@
 #include "GameContext.h"
 #include "GUIManager.h"
 #include "Language.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "Utils.h"
 
 using namespace RoR;

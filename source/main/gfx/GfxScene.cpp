@@ -35,7 +35,7 @@
 #include "SkyManager.h"
 #include "SkyXManager.h"
 #include "TerrainGeometryManager.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 
@@ -140,7 +140,7 @@ void GfxScene::UpdateScene(float dt_sec)
     // Terrain - animated meshes and paged geometry
     App::GetSimTerrain()->getObjectManager()->UpdateTerrainObjects(dt_sec);
 
-    // Terrain - lightmap; TODO: ported as-is from TerrainManager::update(), is it needed? ~ only_a_ptr, 05/2018
+    // Terrain - lightmap; TODO: ported as-is from Terrain::update(), is it needed? ~ only_a_ptr, 05/2018
     App::GetSimTerrain()->getGeometryManager()->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017
 
     // Terrain - water

@@ -23,7 +23,7 @@
 #include <Ogre.h>
 
 #include "Application.h"
-#include "TerrainManager.h"
+#include "Terrain.h"
 #include "Water.h"
 
 using namespace Ogre;
