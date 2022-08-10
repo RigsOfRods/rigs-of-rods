@@ -63,6 +63,7 @@ void TObjParser::Prepare()
     m_in_procedural_road = false;
     m_road2_use_old_mode = false;
     m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject());
+    m_cur_procedural_obj_start_line = -1;
     
     m_def = std::shared_ptr<TObjFile>(new TObjFile());
 }
@@ -112,14 +113,14 @@ bool TObjParser::ProcessCurrentLine()
         m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject()); // Hard reset, discarding last "non-procedural" road strip. For backwards compatibility. ~ Petr Ohlidal, 08/2020
         m_in_procedural_road = true;
         m_road2_use_old_mode = true;
+        m_cur_procedural_obj_start_line = m_line_number;
         return true;
     }
     else if (strncmp("end_procedural_roads", m_cur_line, 20) == 0)
     {
         if (m_road2_use_old_mode)
         {
-            m_def->proc_objects.push_back(m_cur_procedural_obj);
-            m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject());
+            this->FlushProceduralObject();
         }
         m_in_procedural_road = false;
         return true;
@@ -164,8 +165,10 @@ std::shared_ptr<TObjFile> TObjParser::Finalize()
         Vector3 pp_pos = m_road2_last_pos + m_road2_last_rot * Vector3(10.0f, 0.0f, 0.9f);
         this->ImportProceduralPoint(pp_pos, m_road2_last_rot, TObj::SpecialObject::ROAD);
 
-        m_def->proc_objects.push_back(m_cur_procedural_obj);
+        this->FlushProceduralObject();
     }
+
+    m_filename = "";
 
     std::shared_ptr<TObjFile> tmp_def = m_def;
     m_def.reset();
@@ -174,6 +177,7 @@ std::shared_ptr<TObjFile> TObjParser::Finalize()
 
 void TObjParser::ProcessOgreStream(Ogre::DataStream* stream)
 {
+    m_filename = stream->getName();
     char raw_line_buf[TObj::LINE_BUF_LEN];
     bool keep_reading = true;
     while (keep_reading && !stream->eof())
@@ -293,10 +297,7 @@ void TObjParser::ProcessRoadObject(const TObjEntry& object)
         {
             Vector3 pp_pos = m_road2_last_pos + this->CalcRotation(m_road2_last_rot) * Vector3(10.0f, 0.0f, 0.9f);
             this->ImportProceduralPoint(pp_pos, m_road2_last_rot, object.special);
-
-            // finish it and start new object
-            m_def->proc_objects.push_back(m_cur_procedural_obj);
-            m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject());
+            this->FlushProceduralObject();
         }
         m_road2_use_old_mode = true;
 
@@ -326,6 +327,10 @@ void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 c
     pp.width      = 8;
 
     m_cur_procedural_obj->points.push_back(pp);
+    if (m_cur_procedural_obj_start_line == -1)
+    {
+        m_cur_procedural_obj_start_line = m_line_number;
+    }
 }
 
 Ogre::Quaternion TObjParser::CalcRotation(Ogre::Vector3 const& rot) const
@@ -365,4 +370,13 @@ bool TObjParser::ParseObjectLine(TObjEntry& object)
 
     object = TObjEntry(pos, rot, odef.ToCStr(), special, type, name);
     return true;
+}
+
+void TObjParser::FlushProceduralObject()
+{
+    // finish it and start new object
+    m_cur_procedural_obj->name = fmt::format("{} (lines {} - {})", m_filename, m_cur_procedural_obj_start_line, m_line_number);
+    m_def->proc_objects.push_back(m_cur_procedural_obj);
+    m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject());
+    m_cur_procedural_obj_start_line = -1;
 }
