@@ -735,11 +735,11 @@ void registerOgreQuaternion(AngelScript::asIScriptEngine* engine)
     ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectMethod("quaternion", "quaternion Log() const", asMETHOD(Quaternion,Log), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectMethod("quaternion", "radian getRoll(bool) const", asMETHOD(Quaternion,getRoll), asCALL_THISCALL);
+    r = engine->RegisterObjectMethod("quaternion", "radian getRoll(bool reprojectAxis = true) const", asMETHOD(Quaternion,getRoll), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectMethod("quaternion", "radian getPitch(bool) const", asMETHOD(Quaternion,getPitch), asCALL_THISCALL);
+    r = engine->RegisterObjectMethod("quaternion", "radian getPitch(bool reprojectAxis = true) const", asMETHOD(Quaternion,getPitch), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
-    r = engine->RegisterObjectMethod("quaternion", "radian getYaw(bool) const", asMETHOD(Quaternion,getYaw), asCALL_THISCALL);
+    r = engine->RegisterObjectMethod("quaternion", "radian getYaw(bool reprojectAxis = true) const", asMETHOD(Quaternion,getYaw), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
     r = engine->RegisterObjectMethod("quaternion", "bool equals(const quaternion &in, const radian &in) const", asMETHOD(Quaternion,equals), asCALL_THISCALL);
     ROR_ASSERT( r >= 0 );
