@@ -37,6 +37,35 @@ using namespace std;
 
 void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
 {
+    // ENUMS (outside namespace)
+
+    engine->RegisterEnum("ImGuiWindowFlags");
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_None", ImGuiWindowFlags_None);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoTitleBar", ImGuiWindowFlags_NoTitleBar);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoResize", ImGuiWindowFlags_NoResize);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoMove", ImGuiWindowFlags_NoMove);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoScrollbar", ImGuiWindowFlags_NoScrollbar);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoScrollWithMouse", ImGuiWindowFlags_NoScrollWithMouse);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoCollapse", ImGuiWindowFlags_NoCollapse);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_AlwaysAutoResize", ImGuiWindowFlags_AlwaysAutoResize);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoBackground", ImGuiWindowFlags_NoBackground);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoSavedSettings", ImGuiWindowFlags_NoSavedSettings);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoMouseInputs", ImGuiWindowFlags_NoMouseInputs);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_MenuBar", ImGuiWindowFlags_MenuBar);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_HorizontalScrollbar", ImGuiWindowFlags_HorizontalScrollbar);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoFocusOnAppearing", ImGuiWindowFlags_NoFocusOnAppearing);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoBringToFrontOnFocus", ImGuiWindowFlags_NoBringToFrontOnFocus);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_AlwaysVerticalScrollbar", ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_AlwaysHorizontalScrollbar", ImGuiWindowFlags_AlwaysHorizontalScrollbar);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_AlwaysUseWindowPadding", ImGuiWindowFlags_AlwaysUseWindowPadding);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoNavInputs", ImGuiWindowFlags_NoNavInputs);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoNavFocus", ImGuiWindowFlags_NoNavFocus);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_UnsavedDocument", ImGuiWindowFlags_UnsavedDocument);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoNav", ImGuiWindowFlags_NoNav);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoDecoration", ImGuiWindowFlags_NoDecoration);
+    engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoInputs", ImGuiWindowFlags_NoInputs);
+
+    // FUNCTIONS (within namespace)
     engine->SetDefaultNamespace("ImGui");
         
     engine->RegisterGlobalFunction("bool Begin(const string&in, bool, int=0)", asFUNCTIONPR([](const string& name, bool opened, int flags) { return ImGui::Begin(name.c_str(), &opened, flags); }, (const string&, bool, int), bool), asCALL_CDECL);
@@ -269,11 +298,12 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
         return ImGui::SliderFloat2(n.c_str(), &v.x, mn, mx); }, (const string&, Vector2&, float,float),bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool SliderFloat3(const string&in, vector3&inout, float, float)", asFUNCTIONPR([](const string& n, Vector3& v, float mn, float mx) { 
         return ImGui::SliderFloat3(n.c_str(), &v.x, mn, mx); }, (const string&, Vector3&, float,float),bool), asCALL_CDECL);
+    engine->RegisterGlobalFunction("bool SliderInt(const string&in, int&inout, int = 0, int = 0)", asFUNCTIONPR([](const string& n, int& v, int mn, int mx) {
+        return ImGui::SliderInt(n.c_str(), &v, mn, mx); }, (const string&, int&, int, int), bool), asCALL_CDECL);
 /* --- TODO: Register Vector4
     engine->RegisterGlobalFunction("bool SliderFloat4(const string&in, Vector4&inout, float, float)", asFUNCTIONPR([](const string& n, Vector4& v, float mn, float mx) { 
         return ImGui::SliderFloat4(n.c_str(), &v.x, mn, mx); }, (const string&, Vector4&,float,float),bool), asCALL_CDECL);
-    engine->RegisterGlobalFunction("bool SliderInt(const string&in, int&inout, int = 0, int = 0)", asFUNCTIONPR([](const string& n, int& v, int mn, int mx) { 
-        return ImGui::SliderInt(n.c_str(), &v, mn, mx); }, (const string&, int&,int,int), bool), asCALL_CDECL);
+    
     engine->RegisterGlobalFunction("bool SliderInt2(const string&in, IntVector2&inout, int = 0, int = 0)", asFUNCTIONPR([](const string& n, IntVector2& v, int mn, int mx) { 
         return ImGui::SliderInt2(n.c_str(), &v.x, mn, mx); }, (const string&, IntVector2&, int,int),bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool SliderInt3(const string&in, IntVector3&inout, int = 0, int = 0)", asFUNCTIONPR([](const string& n, IntVector3& v, int mn, int mx) { 
