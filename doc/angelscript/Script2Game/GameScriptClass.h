@@ -35,6 +35,11 @@ namespace Script2Game {
 class GameScriptClass
 {
 public:
+    // PLEASE maintain the same order as in GameScript.h and GameScriptAngelscript.cpp!
+
+    /// @name General
+    /// @{
+
 	/**
 	 * writes a message to the scripting logbook (AngelScript.log)
 	 * @param message string to log
@@ -46,13 +51,183 @@ public:
 	 * @return time in seconds
 	 */
 	double getTime();
+    
+	/**
+	 * Generates a random number between from and to
+	 * @param from The generated number will be higher than this number
+	 * @param to The generated number will be lower than this number
+	 * @return The random number between from and to
+	 */
+	float rangeRandom(float from, float to);
 
 	/**
-	 * sets the character position
-	 * @param vec X, Y and Z coordinate of the position on the terrain
+	 * Sends or request information from the master server
 	 */
-	void setPersonPosition(vector3 vec);
+	int useOnlineAPI(const string apiquery, const dictionary dict, string result);    
+    
+	/**
+	*  Gets the Curent frames per second (FPS)
+	*  @return The Current FPS
+	*/
+	void getFPS();
+    
+	/**
+	*  Gets the average frames per second (FPS)
+	*  @return The average FPS
+	*/
+	void getAvgFPS();    
 
+	/**
+	*  Back to menu
+	*/
+	void backToMenu();
+
+	/**
+	*  Quits the game
+	*/
+	void quitGame();    
+    
+    /// @}
+
+    /// @name GUI
+    /// @{
+    
+	/**
+	 * shows a message to the user
+	 * @deprecated Use the game.message function instead.
+	 * @param message The message to be shown
+	 * @param time How long the message should be shown (in seconds)
+	 * @param charHeight The font size to be used (use -1 for the default size)
+	 */
+	void flashMessage(string message, float time, float charHeight);
+
+	/**
+	 * shows a message to the user
+	 * @param txt The message to be shown
+	 * @param icon The filename of the icon to be shown in front of the message.
+	 * @param timeMilliseconds How long the message should be shown (in milliseconds)
+	 * @param forceVisible Set this to true if you want the message to be forced on the user's screen (~it will show, even when the GUI is hidden).
+	 */
+	void message(string txt, string icon, float timeMilliseconds, bool forceVisible);
+    
+	/**
+	 * OBSOLETE - returns 0.
+	 * @deprecated
+	 * @return always 0
+	 */
+	int getChatFontSize();
+
+	/**
+	 * OBSOLETE - does nothing.
+	 * @deprecated
+	 * @param size font size in pixels
+	 */
+	void setChatFontSize(int size);    
+    
+	/**
+	 *  Shows a message box
+	 *  
+	 *  @param mTitle The box title
+	 *  @param mText The box content text
+	 *  @param button1 Set to true to show the first button
+	 *  @param mButton1 The text in the first button
+	 *  @param AllowClose If set to true the user can close the box by pressing the X in the top-right
+	 *  @param button2 Set to true to show the second button
+	 *  @param mButton2 The text in the second button
+	 *  
+	 *  @see scriptEvents
+	 */
+	void showMessageBox(string mTitle, stringmText, bool button1, stringmButton1, bool AllowClose, bool button2, stringmButton2);
+
+	/** 
+	 * This shows a vehicle chooser
+	 * @param type A string specifying the type of the chooser.
+	 *      You can choose out of the following:
+	 *           - "vehicle"
+	 *           - "truck"
+	 *           - "car"
+	 *           - "boat"
+	 *           - "airplane"
+	 *           - "heli"
+	 *           - "trailer"
+	 *           - "load"
+	 *           - "extension"
+	 * @param instance the unique name of the object with the event box in which the truck/load should be spawned
+	 * @param box the name of the box in which the truck will be spawned
+	*/
+	void showChooser(string type, string instance, string box);
+    
+	/**
+	 * set direction arrow
+	 * @param text text to be displayed. "" to hide the text
+	 * @param position The position to which the arrow should point.
+	 * @see hideDirectionArrow
+	 */
+	void updateDirectionArrow(string text, vector3 position);
+
+	/**
+	 * Hides the direction arrow
+	 * @see UpdateDirectionArrow
+	 */
+	void hideDirectionArrow();    
+
+    /// @}
+
+    /// @name Script management
+    /// @{
+        
+	/**
+	 * registers for a new event to be received by the scripting system
+	 * @param eventValue \see enum scriptEvents
+	 */
+	void registerForEvent(int eventValue);
+    
+    /**
+     * unregisters from receiving event.
+     * @param eventValue \see enum scriptEvents
+     */
+    void unRegisterEvent(int eventValue);    
+    
+	/**
+	 * Adds a global function to the script.
+	 * @param func the function to be added, e.g.: "void func() { log('works'); }"
+	 */
+	int addScriptFunction(const string func);
+	
+	/**
+	 * Checks if a global function exists
+	 * @param func the declaration of the function that should be checked for existance, e.g.: "void func()"
+	 */
+	int scriptFunctionExists(const string func);
+	
+	/**
+	 * Removes a global function from the script.
+	 * @param func the declaration of the function that should be removed, e.g.: "void func()"
+	 */
+	int deleteScriptFunction(const string func);
+	
+	/**
+	 * Adds a global variable to the script.
+	 * @param var the declaration of the variable that should be added, e.g.: "int missionState;"
+	 */
+	int addScriptVariable(const string var);
+	
+	/**
+	 * Removes a global variable from the script.
+	 * @param var the declaration of the variable that should be removed, e.g.: "int missionState;"
+	 */
+	int deleteScriptVariable(const string var);    
+
+	/**
+	 * Clears the event cache
+	 */
+	void clearEventCache();    
+
+    /// @}
+
+    /// @name Terrain
+    /// @{
+    
 	/**
 	 * Loads a terrain
 	 * @warning
@@ -62,13 +237,25 @@ public:
 	 * @param terrain The name of the terrain
 	 */
 	void loadTerrain(string terrain);
-
+    
 	/**
-	 * moves the person relative
-	 * @param relative_movement X, Y and Z coordinate of the translation
+	 * Gets the currently loaded terrain name
+	 * @param result This string will contain the name of the terrain after you called this function
+	 * @return 1 on success, 0 if terrain not loaded
 	 */
-	void movePerson(vector3 relative_movement);
-
+	int getLoadedTerrain(string result);
+    
+	/**
+	 * Gets the currently loaded terrain instance
+	 */    
+	TerrainClass@ getTerrain();    
+    
+	/**
+	 * Checks if Caleum is enabled.
+	 * @return true if Caleum is available
+	 */
+	bool getCaelumAvailable();    
+    
 	/**
 	 * gets the time of the day in seconds
 	 * @return string with HH::MM::SS format
@@ -79,8 +266,20 @@ public:
 	 * sets the time of the day in seconds
 	 * @param value day time in seconds
 	 */
-	void setCaelumTime(float value);
+	void setCaelumTime(float value);    
+    
+	/**
+	 * returns the currently set upo gravity
+	 * @return float number describing gravity terrain wide.
+	 */
+	float getGravity();
 	
+	/**
+	 * sets the gravity terrain wide. This is an expensive call, since the masses of all trucks are recalculated.
+	 * @param value new gravity terrain wide (default is -9.81)
+	 */
+	void setGravity(float value);    
+    
 	/**
 	 * returns the current base water level (without waves)
 	 * @return water height in meters
@@ -98,7 +297,65 @@ public:
 	 * sets the base water height
 	 * @param value base height in meters
 	 */
-	void setWaterHeight(float value);
+	void setWaterHeight(float value);    
+    
+	/**
+	 * This spawns an object
+	 * @param objectName The name of the object (~the name of the odef file, but without the .odef extension)
+	 * @param instanceName A unique name for this object (you can choose one, but make sure that you don't use the same name twice)
+	 * @param pos The position where the object should be spawned
+	 * @param rot The rotation in which the object should be spawned
+	 * @param eventhandler A name of a function that should be called when an event happens (events, as defined in the object definition file). Enter empty string to ignore events.
+	 * @param uniquifyMaterials Set this to true if you need to uniquify the materials
+	 */
+	void spawnObject(const string objectName, const string instanceName, vector3 pos, vector3 rot, const string eventhandler, bool uniquifyMaterials);
+    
+	/**
+	 * This moves an object to a new position
+	 * @note This doesn't update the collision box!
+	 * @param instanceName The unique name that you chose when spawning this object
+	 * @param pos The position where the object should be moved to
+	 */
+	void moveObjectVisuals(const string instanceName, const vector3 pos);
+
+	/**
+	 * This destroys an object
+	 * @param instanceName The unique name that you chose when spawning this object
+	 * @see spawnObject
+	 */
+	void destroyObject(const string instanceName);    
+
+    /// @}
+
+    /// @name Character
+    /// @{
+
+	/**
+	 * Returns the current position of the person
+	 * @return A vector containing the X, Y and Z coordinate of the person or an empty vector if the user is in a truck
+	 */
+	vector3 getPersonPosition();    
+
+	/**
+	 * sets the character position
+	 * @param vec X, Y and Z coordinate of the position on the terrain
+	 */
+	void setPersonPosition(vector3 vec);
+
+	/**
+	 * moves the person relative
+	 * @param relative_movement X, Y and Z coordinate of the translation
+	 */
+	void movePerson(vector3 relative_movement);
+    
+    void setPersonRotation(radian &in);
+    
+    radian getPersonRotation();
+
+    /// @}
+
+    /// @name Actors
+    /// @{
 
 	/**
 	 * returns the current selected truck, null if in person mode
@@ -128,71 +385,42 @@ public:
 	 * @return integer truck number
 	 */
 	int getCurrentTruckNumber();
-	
-	/**
-	 * returns the currently set upo gravity
-	 * @return float number describing gravity terrain wide.
-	 */
-	float getGravity();
-	
-	/**
-	 * sets the gravity terrain wide. This is an expensive call, since the masses of all trucks are recalculated.
-	 * @param value new gravity terrain wide (default is -9.81)
-	 */
-	void setGravity(float value);
-
-	/**
-	 * registers for a new event to be received by the scripting system
-	 * @param eventValue \see enum scriptEvents
-	 */
-	void registerForEvent(int eventValue);
     
-    /**
-     * unregisters from receiving event.
-     * @param eventValue \see enum scriptEvents
-     */
-    void unRegisterEvent(int eventValue);    
+	/**
+	 *  Spawns a truck by filename
+	 *  
+	 *  @param truckName The filename of the truck
+	 *  @param pos The position where the truck should be spawned
+	 *  @param rot The rotation in which the truck should be spawned
+	 *  @return reference to Beam object
+	 */
+	BeamClass @spawnTruck(stringtruckName, vector3 pos, vector3 rot);    
+    
+	/**
+	 * This method repairs the vehicle in the box
+	 */
+	void repairVehicle(string instance, string box, bool keepPosition);
 
 	/**
-	 * shows a message to the user
-	 * @deprecated Use the game.message function instead.
-	 * @param message The message to be shown
-	 * @param time How long the message should be shown (in seconds)
-	 * @param charHeight The font size to be used (use -1 for the default size)
+	 * This method removes the vehicle in the box
 	 */
-	void flashMessage(string message, float time, float charHeight);
+	void removeVehicle(string instance, string box);
 
 	/**
-	 * shows a message to the user
-	 * @param txt The message to be shown
-	 * @param icon The filename of the icon to be shown in front of the message.
-	 * @param timeMilliseconds How long the message should be shown (in milliseconds)
-	 * @param forceVisible Set this to true if you want the message to be forced on the user's screen (~it will show, even when the GUI is hidden).
+	 * Number of trucks with flag
 	 */
-	void message(string txt, string icon, float timeMilliseconds, bool forceVisible);
-
+	int getNumTrucksByFlag(int flag);    
+    
 	/**
-	 * set direction arrow
-	 * @param text text to be displayed. "" to hide the text
-	 * @param position The position to which the arrow should point.
-	 * @see hideDirectionArrow
+	 * Gives the currently used truck a boost in RPM.
+	 * @param factor This factor determines by how much that the RPM of the truck will be increased ( rpm += 2000.0f * factor ).
 	 */
-	void UpdateDirectionArrow(string text, vector3 position);
+	void boostCurrentTruck(float factor);    
+	
+    ///@}
 
-
-	/**
-	 * returns the size of the font used by the chat box
-	 * @deprecated
-	 * @return pixel size of the chat text
-	 */
-	int getChatFontSize();
-
-	/**
-	 * changes the font size of the chat box
-	 * @deprecated
-	 * @param size font size in pixels
-	 */
-	void setChatFontSize(int size);
+    /// @name Camera
+    /// @{
 	
 	/**
 	 * Sets the camera's position.
@@ -246,71 +474,10 @@ public:
 	*/
 	void cameraLookAt(vector3 targetPoint);
 
-	/** 
-	 * This shows a vehicle chooser
-	 * @param type A string specifying the type of the chooser.
-	 *      You can choose out of the following:
-	 *           - "vehicle"
-	 *           - "truck"
-	 *           - "car"
-	 *           - "boat"
-	 *           - "airplane"
-	 *           - "heli"
-	 *           - "trailer"
-	 *           - "load"
-	 *           - "extension"
-	 * @param instance the unique name of the object with the event box in which the truck/load should be spawned
-	 * @param box the name of the box in which the truck will be spawned
-	*/
-	void showChooser(string type, string instance, string box);
+    ///@}
 
-	/**
-	 * This method repairs the vehicle in the box
-	 */
-	void repairVehicle(string instance, string box, bool keepPosition);
-
-	/**
-	 * This method removes the vehicle in the box
-	 */
-	void removeVehicle(string instance, string box);
-
-	/**
-	 * This spawns an object
-	 * @param objectName The name of the object (~the name of the odef file, but without the .odef extension)
-	 * @param instanceName A unique name for this object (you can choose one, but make sure that you don't use the same name twice)
-	 * @param pos The position where the object should be spawned
-	 * @param rot The rotation in which the object should be spawned
-	 * @param eventhandler A name of a function that should be called when an event happens (events, as defined in the object definition file). Enter empty string to ignore events.
-	 * @param uniquifyMaterials Set this to true if you need to uniquify the materials
-	 */
-	void spawnObject(const string objectName, const string instanceName, vector3 pos, vector3 rot, const string eventhandler, bool uniquifyMaterials);
-    
-	/**
-	 * This moves an object to a new position
-	 * @note This doesn't update the collision box!
-	 * @param instanceName The unique name that you chose when spawning this object
-	 * @param pos The position where the object should be moved to
-	 */
-	void moveObjectVisuals(const string instanceName, const vector3 pos);
-
-	/**
-	 * This destroys an object
-	 * @param instanceName The unique name that you chose when spawning this object
-	 * @see spawnObject
-	 */
-	void destroyObject(const string instanceName);
-
-
-	/**
-	 * Number of trucks with flag
-	 */
-	int getNumTrucksByFlag(int flag);
-
-	/**
-	 * Checks if Caleum is enabled.
-	 * @return true if Caleum is available
-	 */
-	bool getCaelumAvailable();
+    /// @name Race system
+    /// @{
 
 	/**
 	 * Stops the timer
@@ -325,19 +492,10 @@ public:
 	 */
 	void startTimer();
 
-	/**
-	 * Gets a setting
-	 * @param str The name of the setting
-	 * @return the value of the setting
-	 */
-	string getSetting(string str);
+    ///@}
 
-	/**
-	 * Hides the direction arrow
-	 * @see UpdateDirectionArrow
-	 */
-	void hideDirectionArrow();
-
+    /// @name Material helpers
+    /// @{
 
 	int setMaterialAmbient(const string materialName, float red, float green, float blue);
 	int setMaterialDiffuse(const string materialName, float red, float green, float blue, float alpha);
@@ -349,113 +507,7 @@ public:
 	int setMaterialTextureScroll(const string materialName, int techniqueNum, int passNum, int textureUnitNum, float sx, float sy);
 	int setMaterialTextureScale(const string materialName, int techniqueNum, int passNum, int textureUnitNum, float u, float v);
 
-	/**
-	 * Generates a random number between from and to
-	 * @param from The generated number will be higher than this number
-	 * @param to The generated number will be lower than this number
-	 * @return The random number between from and to
-	 */
-	float rangeRandom(float from, float to);
-
-	/**
-	 * Sends or request information from the master server
-	 */
-	int useOnlineAPI(const string apiquery, const dictionary dict, string result);
-
-	/**
-	 * Gets the currently loaded terrain
-	 * @param result This string will contain the name of the terrain after you called this function
-	 * @return 0 on success
-	 */
-	int getLoadedTerrain(string result);
-
-	/**
-	 * Returns the current position of the person
-	 * @return A vector containing the X, Y and Z coordinate of the person or an empty vector if the user is in a truck
-	 */
-	vector3 getPersonPosition();
-
-	/**
-	 * Clears the event cache
-	 */
-	void clearEventCache();
-	
-	/**
-	 * Gives the currently used truck a boost in RPM.
-	 * @param factor This factor determines by how much that the RPM of the truck will be increased ( rpm += 2000.0f * factor ).
-	 */
-	void boostCurrentTruck(float factor);
-	
-	/**
-	 * Adds a global function to the script.
-	 * @param func the function to be added, e.g.: "void func() { log('works'); }"
-	 */
-	int addScriptFunction(const string func);
-	
-	/**
-	 * Checks if a global function exists
-	 * @param func the declaration of the function that should be checked for existance, e.g.: "void func()"
-	 */
-	int scriptFunctionExists(const string func);
-	
-	/**
-	 * Removes a global function from the script.
-	 * @param func the declaration of the function that should be removed, e.g.: "void func()"
-	 */
-	int deleteScriptFunction(const string func);
-	
-	/**
-	 * Adds a global variable to the script.
-	 * @param var the declaration of the variable that should be added, e.g.: "int missionState;"
-	 */
-	int addScriptVariable(const string var);
-	
-	/**
-	 * Removes a global variable from the script.
-	 * @param var the declaration of the variable that should be removed, e.g.: "int missionState;"
-	 */
-	int deleteScriptVariable(const string var);
-
-	/**
-	 *  Shows a message box
-	 *  
-	 *  @param mTitle The box title
-	 *  @param mText The box content text
-	 *  @param button1 Set to true to show the first button
-	 *  @param mButton1 The text in the first button
-	 *  @param AllowClose If set to true the user can close the box by pressing the X in the top-right
-	 *  @param button2 Set to true to show the second button
-	 *  @param mButton2 The text in the second button
-	 *  
-	 *  @see scriptEvents
-	 */
-	void showMessageBox(string mTitle, stringmText, bool button1, stringmButton1, bool AllowClose, bool button2, stringmButton2);
-	
-	/**
-	 *  Spawns a truck by filename
-	 *  
-	 *  @param truckName The filename of the truck
-	 *  @param pos The position where the truck should be spawned
-	 *  @param rot The rotation in which the truck should be spawned
-	 *  @return reference to Beam object
-	 */
-	BeamClass @spawnTruck(stringtruckName, vector3 pos, vector3 rot);
-
-	/**
-	*  Gets the Curent frames per second (FPS)
-	*  @return The Current FPS
-	*/
-	void getFPS();
-
-	/**
-	*  Back to menu
-	*/
-	void backToMenu();
-
-	/**
-	*  Quits the game
-	*/
-	void quitGame();
+    ///@}
 };
 
 /// @}    //addtogroup Script2Game
