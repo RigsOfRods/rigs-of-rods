@@ -92,7 +92,7 @@ void GameScript::activateAllVehicles()
     App::GetGameContext()->GetActorManager()->WakeUpAllActors();
 }
 
-void GameScript::SetTrucksForcedAwake(bool forceActive)
+void GameScript::setTrucksForcedAwake(bool forceActive)
 {
     App::GetGameContext()->GetActorManager()->SetTrucksForcedAwake(forceActive);
 }
@@ -272,7 +272,7 @@ int GameScript::getNumTrucksByFlag(int flag)
     return result;
 }
 
-int GameScript::GetPlayerActorId()
+int GameScript::getCurrentTruckNumber()
 {
     Actor* actor = App::GetGameContext()->GetPlayerActor();
     return (actor != nullptr) ? actor->ar_instance_id : -1;
@@ -312,7 +312,7 @@ void GameScript::message(String& txt, String& icon)
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, icon);
 }
 
-void GameScript::UpdateDirectionArrow(String& text, Vector3& vec)
+void GameScript::updateDirectionArrow(String& text, Vector3& vec)
 {
     App::GetGameContext()->GetRaceSystem().UpdateDirectionArrow(const_cast<char*>(text.c_str()), Vector3(vec.x, vec.y, vec.z));
 }
@@ -386,7 +386,7 @@ void GameScript::destroyObject(const String& instanceName)
     }
 }
 
-void GameScript::MoveTerrainObjectVisuals(const String& instanceName, const Vector3& pos)
+void GameScript::moveObjectVisuals(const String& instanceName, const Vector3& pos)
 {
     if (!this->HaveSimTerrain(__FUNCTION__))
         return;
@@ -626,6 +626,9 @@ int GameScript::getLoadedTerrain(String& result)
 
 void GameScript::clearEventCache()
 {
+    if (!this->HaveSimTerrain(__FUNCTION__))
+        return;
+
     if (App::GetSimTerrain()->GetCollisions() == nullptr)
     {
         this->logFormat("Cannot execute '%s', collisions not ready", __FUNCTION__);

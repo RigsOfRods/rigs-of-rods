@@ -41,6 +41,10 @@ namespace RoR {
 class GameScript : public ZeroedMemoryAllocator
 {
 public:
+    // PLEASE maintain the same order as in GameScriptAngelscript.cpp!
+
+    /// @name General
+    /// @{
 
     /**
      * writes a message to the games log (RoR.log)
@@ -49,39 +53,211 @@ public:
     void log(const Ogre::String& msg);
 
     /**
-     * writes a message to the games log (RoR.log)
-     * @param msg string to log
-     */
-    void logFormat(const char* fmt, ...);
-
-    /**
-     * moves the person relative
-     * @param vec translation vector
-     */
-    void activateAllVehicles();
-
-    /**
-     * moves the person relative
-     * @param vec translation vector
-     */
-    void SetTrucksForcedAwake(bool forceActive);
-
-    /**
      * returns the time in seconds since the game was started
      * @return time in seconds
      */
     float getTime();
 
-    //anglescript test
-    void boostCurrentTruck(float factor);
+    void backToMenu();
+    void quitGame();
+    float getFPS();
+    float getAvgFPS();
+    float rangeRandom(float from, float to);
 
+    int useOnlineAPI(const Ogre::String& apiquery, const AngelScript::CScriptDictionary& dict, Ogre::String& result);
+
+    /// @}
+
+    /// @name GUI
+    /// @{
+
+    /**
+     * DEPRECATED: use message()
+     * shows a message to the user
+     */
+    void flashMessage(Ogre::String& txt, float time, float charHeight);
+
+    /**
+     * shows a message to the user over the console system
+     */
+    void message(Ogre::String& txt, Ogre::String& icon);
+
+    /**
+     * OBSOLETE, returns 0;
+     */
+    int getChatFontSize();
+
+    /**
+     * OBSOLETE, does nothing.
+     */
+    void setChatFontSize(int size);
+
+    void showMessageBox(Ogre::String& title, Ogre::String& text, bool use_btn1, Ogre::String& btn1_text, bool allow_close, bool use_btn2, Ogre::String& btn2_text);
+
+    void showChooser(const Ogre::String& type, const Ogre::String& instance, const Ogre::String& box);
+
+    /**
+     * set direction arrow
+     * @param text text to be displayed. "" to hide the text
+     */
+    void updateDirectionArrow(Ogre::String& text, Ogre::Vector3& vec);
+
+    void hideDirectionArrow();
+
+    /// @}
+
+    /// @name Script management
+    /// @{
+
+    /**
+     * registers for a new event to be received by the scripting system
+     * @param eventValue \see enum scriptEvents
+     */
+    void registerForEvent(int eventValue);
+
+    /**
+     * unregisters from receiving event.
+     * @param eventValue \see enum scriptEvents
+     */
+    void unRegisterEvent(int eventValue);
+
+    /**
+     * Adds a global function to the script
+     * (Wrapper for ScriptEngine::addFunction)
+     * @param arg A declaration for the function.
+    */
+    int addScriptFunction(const Ogre::String& arg);
+
+    /**
+     * Checks if a global function exists in the script
+     * (Wrapper for ScriptEngine::functionExists)
+     * @param arg A declaration for the function.
+    */
+    int scriptFunctionExists(const Ogre::String& arg);
+
+    /**
+     * Deletes a global function from the script
+     * (Wrapper for ScriptEngine::deleteFunction)
+     * @param arg A declaration for the function.
+    */
+    int deleteScriptFunction(const Ogre::String& arg);
+
+    /**
+     * Adds a global variable to the script
+     * (Wrapper for ScriptEngine::addVariable)
+     * @param arg A declaration for the variable.
+    */
+    int addScriptVariable(const Ogre::String& arg);
+
+    /**
+     * Deletes a global variable from the script
+     * (Wrapper for ScriptEngine::deleteVariable)
+     * @param arg A declaration for the variable.
+    */
+    int deleteScriptVariable(const Ogre::String& arg);
+
+    void clearEventCache();
+
+    /**
+    * Multiplayer only: sends AngelScript snippet to all players.
+    */
+    int sendGameCmd(const Ogre::String& message);
+
+    /// @}
+
+    /// @name Terrain
+    /// @{
+    
+    void loadTerrain(const Ogre::String& terrain);
+
+    /**
+     * gets the name of current terrain.
+     * @return 1 on success, 0 if terrain not loaded
+     */
+    int getLoadedTerrain(Ogre::String& result);
+
+    bool getCaelumAvailable();
+
+    /**
+     * gets the time of the day in seconds
+     * @return string with HH::MM::SS format
+     */
+    Ogre::String getCaelumTime();
+
+    /**
+     * sets the time of the day in seconds
+     * @param value day time in seconds
+     */
+    void setCaelumTime(float value);
+
+    /**
+     * returns the currently set upo gravity
+     * @return float number describing gravity terrain wide.
+     */
+    float getGravity();
+
+    /**
+     * sets the gravity terrain wide. This is an expensive call, since the masses of all trucks are recalculated.
+     * @param value new gravity terrain wide (default is -9.81)
+     */
+    void setGravity(float value);
+
+    /**
+    * Gets terrain height at given coordinates.
+    */
+    float getGroundHeight(Ogre::Vector3& v);
+
+    /**
+     * returns the current base water level (without waves)
+     * @return water height in meters
+     */
+    float getWaterHeight();
+
+    /**
+     * sets the base water height
+     * @param value base height in meters
+     */
+    void setWaterHeight(float value);
+
+    /**
+    * This spawns a static terrain object (.ODEF file)
+    * @param objectName The name of the object (~the name of the odef file, but without the .odef extension)
+    * @param instanceName A unique name for this object (you can choose one, but make sure that you don't use the same name twice)
+    * @param pos The position where the object should be spawned
+    * @param rot The rotation in which the object should be spawned
+    * @param eventhandler A name of a function that should be called when an event happens (events, as defined in the object definition file)
+    * @param uniquifyMaterials Set this to true if you need to uniquify the materials
+    */
+    void spawnObject(const Ogre::String& objectName, const Ogre::String& instanceName, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& eventhandler, bool uniquifyMaterials);
+
+    /**
+    * This moves an object to a new position
+    * @note This doesn't update the collision box!
+    * @param instanceName The unique name that you chose when spawning this object
+    * @param pos The position where the object should be moved to
+    */
+    void moveObjectVisuals(const Ogre::String& instanceName, const Ogre::Vector3& pos);
+
+    /**
+    * This destroys an object
+    * @param instanceName The unique name that you chose when spawning this object
+    * @see spawnObject
+    */
+    void destroyObject(const Ogre::String& instanceName);
+
+    /// @}
+
+    /// @name Character
+    /// @{
+
+    Ogre::Vector3 getPersonPosition();
+    
     /**
      * sets the character position
      * @param vec position vector on the terrain
      */
     void setPersonPosition(const Ogre::Vector3& vec);
 
-    void loadTerrain(const Ogre::String& terrain);
     /**
      * moves the person relative
      * @param vec translation vector
@@ -100,31 +276,25 @@ public:
      */
     Ogre::Radian getPersonRotation();
 
-    /**
-     * gets the time of the day in seconds
-     * @return string with HH::MM::SS format
-     */
-    Ogre::String getCaelumTime();
+    /// @}
+
+    /// @name Actors
+    /// @{
 
     /**
-     * sets the time of the day in seconds
-     * @param value day time in seconds
+     * moves the person relative
+     * @param vec translation vector
      */
-    void setCaelumTime(float value);
+    void activateAllVehicles();
 
     /**
-     * returns the current base water level (without waves)
-     * @return water height in meters
+     * moves the person relative
+     * @param vec translation vector
      */
-    float getWaterHeight();
+    void setTrucksForcedAwake(bool forceActive);
 
-    float getGroundHeight(Ogre::Vector3& v);
-
-    /**
-     * sets the base water height
-     * @param value base height in meters
-     */
-    void setWaterHeight(float value);
+    //anglescript test
+    void boostCurrentTruck(float factor);
 
     /**
      * returns the current selected truck, 0 if in person mode
@@ -148,60 +318,23 @@ public:
      * returns the current truck number. >=0 when using a truck, -1 when in person mode
      * @return integer truck number
      */
-    int GetPlayerActorId();
+    int getCurrentTruckNumber();
 
-    /**
-     * returns the currently set upo gravity
-     * @return float number describing gravity terrain wide.
-     */
-    float getGravity();
+    Actor* spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot);
 
-    /**
-     * sets the gravity terrain wide. This is an expensive call, since the masses of all trucks are recalculated.
-     * @param value new gravity terrain wide (default is -9.81)
-     */
-    void setGravity(float value);
+    void repairVehicle(const Ogre::String& instance, const Ogre::String& box, bool keepPosition);
 
-    /**
-     * registers for a new event to be received by the scripting system
-     * @param eventValue \see enum scriptEvents
-     */
-    void registerForEvent(int eventValue);
+    void removeVehicle(const Ogre::String& instance, const Ogre::String& box);
 
-    /**
-     * unregisters from receiving event.
-     * @param eventValue \see enum scriptEvents
-     */
-    void unRegisterEvent(int eventValue);
+    int getNumTrucksByFlag(int flag);
 
-    /**
-     * DEPRECATED: use message
-     * shows a message to the user
-     */
-    void flashMessage(Ogre::String& txt, float time, float charHeight);
+    VehicleAI* getCurrentTruckAI();
+    VehicleAI* getTruckAIByNum(int num);
 
-    /**
-     * shows a message to the user over the console system
-     */
-    void message(Ogre::String& txt, Ogre::String& icon);
+    ///@}
 
-    /**
-     * set direction arrow
-     * @param text text to be displayed. "" to hide the text
-     */
-    void UpdateDirectionArrow(Ogre::String& text, Ogre::Vector3& vec);
-
-    /**
-     * returns the size of the font used by the chat box
-     * @return pixel size of the chat text
-     */
-    int getChatFontSize();
-
-    /**
-     * changes the font size of the chat box
-     * @param size font size in pixels
-     */
-    void setChatFontSize(int size);
+    /// @name Camera
+    /// @{
 
     /**
      * Sets the camera's position.
@@ -267,78 +400,21 @@ public:
     */
     void cameraLookAt(const Ogre::Vector3& targetPoint);
 
-    /**
-     * Adds a global function to the script
-     * (Wrapper for ScriptEngine::addFunction)
-     * @param arg A declaration for the function.
-    */
-    int addScriptFunction(const Ogre::String& arg);
+    ///@}
 
-    /**
-     * Checks if a global function exists in the script
-     * (Wrapper for ScriptEngine::functionExists)
-     * @param arg A declaration for the function.
-    */
-    int scriptFunctionExists(const Ogre::String& arg);
+    /// @name Race system
+    /// @{
 
-    /**
-     * Deletes a global function from the script
-     * (Wrapper for ScriptEngine::deleteFunction)
-     * @param arg A declaration for the function.
-    */
-    int deleteScriptFunction(const Ogre::String& arg);
-
-    /**
-     * Adds a global variable to the script
-     * (Wrapper for ScriptEngine::addVariable)
-     * @param arg A declaration for the variable.
-    */
-    int addScriptVariable(const Ogre::String& arg);
-
-    /**
-     * Deletes a global variable from the script
-     * (Wrapper for ScriptEngine::deleteVariable)
-     * @param arg A declaration for the variable.
-    */
-    int deleteScriptVariable(const Ogre::String& arg);
-
-    /**
-    * This spawns an object
-    * @param objectName The name of the object (~the name of the odef file, but without the .odef extension)
-    * @param instanceName A unique name for this object (you can choose one, but make sure that you don't use the same name twice)
-    * @param pos The position where the object should be spawned
-    * @param rot The rotation in which the object should be spawned
-    * @param eventhandler A name of a function that should be called when an event happens (events, as defined in the object definition file)
-    * @param uniquifyMaterials Set this to true if you need to uniquify the materials
-    */
-    void spawnObject(const Ogre::String& objectName, const Ogre::String& instanceName, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& eventhandler, bool uniquifyMaterials);
-    /**
-    * This destroys an object
-    * @param instanceName The unique name that you chose when spawning this object
-    * @see spawnObject
-    */
-    void destroyObject(const Ogre::String& instanceName);
-    /**
-    * This moves an object to a new position
-    * @note This doesn't update the collision box!
-    * @param instanceName The unique name that you chose when spawning this object
-    * @param pos The position where the object should be moved to
-    */
-    void MoveTerrainObjectVisuals(const Ogre::String& instanceName, const Ogre::Vector3& pos);
-
-    // new things, not documented yet
-    void showChooser(const Ogre::String& type, const Ogre::String& instance, const Ogre::String& box);
-    void repairVehicle(const Ogre::String& instance, const Ogre::String& box, bool keepPosition);
-    void removeVehicle(const Ogre::String& instance, const Ogre::String& box);
-
-    int getNumTrucksByFlag(int flag);
-    bool getCaelumAvailable();
     void stopTimer();
     void startTimer(int id);
     void setTimeDiff(float diff);
     void setBestLapTime(float time);
-    Ogre::String getSetting(const Ogre::String& str);
-    void hideDirectionArrow();
+
+    ///@}
+
+    /// @name Material helpers
+    /// @{
+
     int setMaterialAmbient(const Ogre::String& materialName, float red, float green, float blue);
     int setMaterialDiffuse(const Ogre::String& materialName, float red, float green, float blue, float alpha);
     int setMaterialSpecular(const Ogre::String& materialName, float red, float green, float blue, float alpha);
@@ -349,31 +425,19 @@ public:
     int setMaterialTextureScroll(const Ogre::String& materialName, int techniqueNum, int passNum, int textureUnitNum, float sx, float sy);
     int setMaterialTextureScale(const Ogre::String& materialName, int techniqueNum, int passNum, int textureUnitNum, float u, float v);
 
-    float rangeRandom(float from, float to);
-    int useOnlineAPI(const Ogre::String& apiquery, const AngelScript::CScriptDictionary& dict, Ogre::String& result);
-
-    int getLoadedTerrain(Ogre::String& result);
-    Ogre::Vector3 getPersonPosition();
-
-    void clearEventCache();
-    int sendGameCmd(const Ogre::String& message);
-
-    VehicleAI* getCurrentTruckAI();
-    VehicleAI* getTruckAIByNum(int num);
-
-    Actor* spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot);
-
-    void showMessageBox(Ogre::String& title, Ogre::String& text, bool use_btn1, Ogre::String& btn1_text, bool allow_close, bool use_btn2, Ogre::String& btn2_text);
-    void backToMenu();
-    void quitGame();
-    float getFPS();
-    float getAvgFPS();
+    ///@}
 
 private:
 
     bool HaveSimTerrain(const char* func_name); //!< Helper; Check if SimController instance exists, log warning if not.
     bool HavePlayerAvatar(const char* func_name); //!< Helper; Check if local Character instance exists, log warning if not.
     bool HaveMainCamera(const char* func_name); //!< Helper; Check if main camera exists, log warning if not.
+
+    /**
+     * writes a message to the games log (RoR.log)
+     * @param msg string to log
+     */
+    void logFormat(const char* fmt, ...);
 };
 
 /// @}   //addtogroup Scripting
