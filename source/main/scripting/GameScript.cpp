@@ -282,10 +282,10 @@ void GameScript::registerForEvent(int eventValue)
 {
     if (App::GetScriptEngine())
     {
-        int unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
-        if (unit_id != -1)
+        ScriptUnitId_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+        if (unit_id != SCRIPTUNITID_INVALID)
         {
-            App::GetScriptEngine()->getScriptUnits()[unit_id].eventMask |= eventValue;
+            App::GetScriptEngine()->getScriptUnit(unit_id).eventMask |= eventValue;
         }
     }
 }
@@ -294,10 +294,10 @@ void GameScript::unRegisterEvent(int eventValue)
 {
     if (App::GetScriptEngine())
     {
-        int unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
-        if (unit_id != -1)
+        ScriptUnitId_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+        if (unit_id != SCRIPTUNITID_INVALID)
         {
-            App::GetScriptEngine()->getScriptUnits()[unit_id].eventMask &= ~eventValue;
+            App::GetScriptEngine()->getScriptUnit(unit_id).eventMask &= ~eventValue;
         }
     }
 }
@@ -416,10 +416,10 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 
     try
     {
-        AngelScript::asIScriptModule* module = App::GetScriptEngine()->getScriptUnits()[App::GetScriptEngine()->getTerrainScriptUnit()].scriptModule;
+        AngelScript::asIScriptModule* module = App::GetScriptEngine()->getScriptUnit(App::GetScriptEngine()->getTerrainScriptUnit()).scriptModule;
         if (module == nullptr)
         {
-            this->logFormat("spawnObject(): Failed to fetch/create script module '%s'", module->GetName());
+            this->logFormat("spawnObject(): Failed to fetch/create script module");
             return;
         }
 
@@ -726,8 +726,8 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     if (App::app_disable_online_api->getBool())
         return 0;
 
-    int unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
-    if (unit_id == -1)
+    ScriptUnitId_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+    if (unit_id == SCRIPTUNITID_INVALID)
         return 2;
 
     Actor* player_actor = App::GetGameContext()->GetPlayerActor();
@@ -742,8 +742,8 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 
     std::string terrain_name = App::GetSimTerrain()->getTerrainName();
 
-    std::string script_name = App::GetScriptEngine()->getScriptUnits()[unit_id].scriptName;
-    std::string script_hash = App::GetScriptEngine()->getScriptUnits()[unit_id].scriptHash;
+    std::string script_name = App::GetScriptEngine()->getScriptUnit(unit_id).scriptName;
+    std::string script_hash = App::GetScriptEngine()->getScriptUnit(unit_id).scriptHash;
 
     rapidjson::Document j_doc;
     j_doc.SetObject();

@@ -120,16 +120,9 @@ TerrainManager::~TerrainManager()
         m_collisions = nullptr;
     }
 
-    if (m_def.as_files.size() != 0)
+    if (App::GetScriptEngine()->getTerrainScriptUnit() != SCRIPTUNITID_INVALID)
     {
-        for (std::string as_filename : m_def.as_files)
-        {
-            App::GetScriptEngine()->unloadScript(as_filename, ScriptCategory::TERRAIN);
-        }
-    }
-    else
-    {
-        App::GetScriptEngine()->unloadScript(DEFAULT_TERRAIN_SCRIPT, ScriptCategory::TERRAIN);
+        App::GetScriptEngine()->unloadScript(App::GetScriptEngine()->getTerrainScriptUnit());
     }
 }
 

@@ -58,6 +58,17 @@
 using namespace Ogre;
 using namespace RoR;
 
+const char* RoR::ScriptCategoryToString(ScriptCategory c)
+{
+    switch (c)
+    {
+    case ScriptCategory::TERRAIN: return "TERRAIN";
+    case ScriptCategory::CUSTOM: return "CUSTOM";
+    case ScriptCategory::INVALID: return "INVALID";
+    default: return "";
+    }
+}
+
 // some hacky functions
 
 void logString(const std::string &str)
@@ -182,21 +193,22 @@ int ScriptEngine::framestep(Real dt)
     // framestep stuff below
     if (!engine || !context) return 0;
 
-    for (size_t i = 0; i < m_script_units.size(); i++)
+    for (auto& pair: m_script_units)
     {
-        if (!m_script_units[i].frameStepFunctionPtr)
+        ScriptUnitId_t id = pair.first;
+        if (!m_script_units[id].frameStepFunctionPtr)
         {
             continue;
         }
 
-        context->Prepare(m_script_units[i].frameStepFunctionPtr);
+        context->Prepare(m_script_units[id].frameStepFunctionPtr);
 
         // Set the function arguments
         context->SetArgFloat(0, dt);
 
-        m_currently_executing_script_unit = (int)i;
+        m_currently_executing_script_unit = id;
         int r = context->Execute();
-        m_currently_executing_script_unit = -1;
+        m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
         if ( r == AngelScript::asEXECUTION_FINISHED )
         {
             // The return value is only valid if the execution finished successfully
@@ -211,9 +223,10 @@ int ScriptEngine::fireEvent(std::string instanceName, float intensity)
     if (!engine || !context)
         return 0;
 
-    for (size_t i = 0; i < m_script_units.size(); i++)
+    for (auto& pair: m_script_units)
     {
-        AngelScript::asIScriptFunction* func = m_script_units[i].scriptModule->GetFunctionByDecl(
+        ScriptUnitId_t id = pair.first;
+        AngelScript::asIScriptFunction* func = m_script_units[id].scriptModule->GetFunctionByDecl(
             "void fireEvent(string, float)"); // TODO: this shouldn't be hard coded --neorej16
 
         context->Prepare(func);
@@ -222,9 +235,9 @@ int ScriptEngine::fireEvent(std::string instanceName, float intensity)
         context->SetArgObject(0, &instanceName);
         context->SetArgFloat (1, intensity);
 
-        m_currently_executing_script_unit = (int)i;
+        m_currently_executing_script_unit = id;
         int r = context->Execute();
-        m_currently_executing_script_unit = -1;
+        m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
         if ( r == AngelScript::asEXECUTION_FINISHED )
         {
           // The return value is only valid if the execution finished successfully
@@ -240,13 +253,14 @@ void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, node_t
     if (!engine || !context)
         return;
 
-    for (size_t i = 0; i < m_script_units.size(); i++)
+    for (auto& pair: m_script_units)
     {
+        ScriptUnitId_t id = pair.first;
         int functionId = _functionId;
-        if (functionId <= 0 && (m_script_units[i].defaultEventCallbackFunctionPtr != nullptr))
+        if (functionId <= 0 && (m_script_units[id].defaultEventCallbackFunctionPtr != nullptr))
         {
             // use the default event handler instead then
-            functionId = m_script_units[i].defaultEventCallbackFunctionPtr->GetId();
+            functionId = m_script_units[id].defaultEventCallbackFunctionPtr->GetId();
         }
         else if (functionId <= 0)
         {
@@ -267,9 +281,9 @@ void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, node_t
         else
             context->SetArgDWord (3, static_cast<AngelScript::asDWORD>(-1));
 
-        m_currently_executing_script_unit = (int)i;
+        m_currently_executing_script_unit = id;
         int r = context->Execute();
-        m_currently_executing_script_unit = -1;
+        m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
 
         if ( r == AngelScript::asEXECUTION_FINISHED )
         {
@@ -290,7 +304,7 @@ int ScriptEngine::executeString(String command)
         return 1;
 
     // Only works with terrain script module (classic behavior)
-    if (m_terrain_script_unit < 0)
+    if (m_terrain_script_unit == SCRIPTUNITID_INVALID)
         return 1;
 
     AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
@@ -311,7 +325,7 @@ int ScriptEngine::addFunction(const String &arg)
         
 
     // Only works with terrain script module (classic behavior)
-    if (m_terrain_script_unit < 0)
+    if (m_terrain_script_unit == SCRIPTUNITID_INVALID)
         return 1;
 
     AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
@@ -359,7 +373,7 @@ int ScriptEngine::functionExists(const String &arg)
         return -1; // ... OK, I guess the author wanted the fn. to be usable both within script and C++, but IMO that's bad design (generally good, but bad for a game.. bad for RoR), really ~ only_a_ptr, 09/2017
 
     // Only works with terrain script module (classic behavior)
-    if (m_terrain_script_unit < 0)
+    if (m_terrain_script_unit == SCRIPTUNITID_INVALID)
         return -1;
 
     AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
@@ -384,7 +398,7 @@ int ScriptEngine::deleteFunction(const String &arg)
         return AngelScript::asERROR;
 
     // Only works with terrain script module (classic behavior)
-    if (m_terrain_script_unit < 0)
+    if (m_terrain_script_unit == SCRIPTUNITID_INVALID)
         return -1;
 
     AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
@@ -433,7 +447,7 @@ int ScriptEngine::addVariable(const String &arg)
 {
     if (!engine || !context) return 1;
     // Only works with terrain script module (classic behavior)
-    if (m_terrain_script_unit < 0)
+    if (m_terrain_script_unit == SCRIPTUNITID_INVALID)
         return 1;
 
     AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
@@ -453,7 +467,7 @@ int ScriptEngine::deleteVariable(const String &arg)
 {
     if (!engine || !context) return 1;
     // Only works with terrain script module (classic behavior)
-    if (m_terrain_script_unit < 0)
+    if (m_terrain_script_unit == SCRIPTUNITID_INVALID)
         return 1;
     AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
 
@@ -484,22 +498,23 @@ void ScriptEngine::triggerEvent(int eventnum, int value)
 {
     if (!engine || !context) return;
 
-    for (size_t i = 0; i < m_script_units.size(); i++)
+    for (auto& pair: m_script_units)
     {
-        if (m_script_units[i].eventCallbackFunctionPtr==nullptr)
+        ScriptUnitId_t id = pair.first;
+        if (m_script_units[id].eventCallbackFunctionPtr==nullptr)
             continue;
-        if (m_script_units[i].eventMask & eventnum)
+        if (m_script_units[id].eventMask & eventnum)
         {
             // script registered for that event, so sent it
-            context->Prepare(m_script_units[i].eventCallbackFunctionPtr);
+            context->Prepare(m_script_units[id].eventCallbackFunctionPtr);
 
             // Set the function arguments
             context->SetArgDWord(0, eventnum);
             context->SetArgDWord(1, value);
 
-            m_currently_executing_script_unit = (int)i;
+            m_currently_executing_script_unit = id;
             int r = context->Execute();
-            m_currently_executing_script_unit = -1;
+            m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
             if ( r == AngelScript::asEXECUTION_FINISHED )
             {
                 // The return value is only valid if the execution finished successfully
@@ -509,32 +524,28 @@ void ScriptEngine::triggerEvent(int eventnum, int value)
     }
 }
 
-String ScriptEngine::composeModuleName(String const& scriptName, ScriptCategory origin)
+String ScriptEngine::composeModuleName(String const& scriptName, ScriptCategory origin, ScriptUnitId_t id)
 {
-    switch (origin)
-    {
-    case ScriptCategory::TERRAIN: return fmt::format("TERRAIN:{}", scriptName);
-
-    case ScriptCategory::CUSTOM: return fmt::format("CUSTOM:{}", scriptName);
-
-    default: return "";
-    }
+    return fmt::format("{}(category:{},unique ID:{})", scriptName, ScriptCategoryToString(origin), id);
 }
 
-int ScriptEngine::loadScript(String scriptName, ScriptCategory category/* = ScriptCategory::TERRAIN*/)
+ScriptUnitId_t ScriptEngine::loadScript(String scriptName, ScriptCategory category/* = ScriptCategory::TERRAIN*/)
 {
     // This function creates a new script unit, tries to set it up and removes it if setup fails.
     // -----------------------------------------------------------------------------------------
     // A script unit is how Rigs of Rods organizes scripts from various sources.
     // Because the script is executed during loading, it's wrapping unit must
     // be created early, and removed if setup fails.
-    int unit_id = (int)m_script_units.size();
-    m_script_units.resize(m_script_units.size() + 1);
+    static ScriptUnitId_t id_counter = 0;
+
+    ScriptUnitId_t unit_id = id_counter++;
+    auto itor_pair = m_script_units.insert(std::make_pair(unit_id, ScriptUnit()));
+    m_script_units[unit_id].uniqueId = unit_id;
     m_script_units[unit_id].scriptName = scriptName;
     m_script_units[unit_id].scriptCategory = category;
     if (category == ScriptCategory::TERRAIN)
     {
-        m_terrain_script_unit = (int)m_script_units.size() - 1;
+        m_terrain_script_unit = unit_id;
     }    
 
     // Perform the actual script loading, building and running main().
@@ -543,14 +554,15 @@ int ScriptEngine::loadScript(String scriptName, ScriptCategory category/* = Scri
     // If setup failed, remove the unit.
     if (result != 0)
     {
-        m_script_units.pop_back();
+        m_script_units.erase(itor_pair.first);
         if (category == ScriptCategory::TERRAIN)
         {
-            m_terrain_script_unit = -1;
-        } 
+            m_terrain_script_unit = SCRIPTUNITID_INVALID;
+        }
+        return SCRIPTUNITID_INVALID;
     }
 
-    return result;
+    return unit_id;
 }
 
 int ScriptEngine::setupScriptUnit(int unit_id)
@@ -558,9 +570,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     int result=0;
 
     String moduleName = this->composeModuleName(
-        m_script_units[unit_id].scriptName, m_script_units[unit_id].scriptCategory);
-    if (moduleName == "")
-        return -1;
+        m_script_units[unit_id].scriptName, m_script_units[unit_id].scriptCategory, m_script_units[unit_id].uniqueId);
 
     // The builder is a helper class that will load the script file,
     // search for #include directives, and load any included files as
@@ -593,7 +603,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     // the game must already be aware of the script, but only temporarily.
     m_currently_executing_script_unit = unit_id; // for `BuildModule()` below.
     result = builder.BuildModule();
-    m_currently_executing_script_unit = -1; // Tidy up.
+    m_currently_executing_script_unit = SCRIPTUNITID_INVALID; // Tidy up.
     if ( result < 0 )
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
@@ -642,7 +652,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     SLOG(fmt::format("Executing main() in {}", moduleName));
     m_currently_executing_script_unit = unit_id; // for `Execute()` below.
     result = context->Execute();
-    m_currently_executing_script_unit = -1; // Tidy up.
+    m_currently_executing_script_unit = SCRIPTUNITID_INVALID; // Tidy up.
     if ( result != AngelScript::asEXECUTION_FINISHED )
     {
         // The execution didn't complete as expected. Determine what happened.
@@ -681,28 +691,27 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     return 0;
 }
 
-void ScriptEngine::unloadScript(String scriptName, ScriptCategory category)
+void ScriptEngine::unloadScript(ScriptUnitId_t id)
 {
-    ROR_ASSERT(m_currently_executing_script_unit == -1);
+    ROR_ASSERT(id != SCRIPTUNITID_INVALID);
+    ROR_ASSERT(m_currently_executing_script_unit == SCRIPTUNITID_INVALID);
 
-    String module_name = this->composeModuleName(scriptName, category);
-    if (module_name == "")
-        return;
-
-    for (size_t i = 0; i < m_script_units.size(); i++)
+    engine->DiscardModule(m_script_units[id].scriptModule->GetName());
+    m_script_units.erase(id);
+    if (m_terrain_script_unit == id)
     {
-        if (m_script_units[i].scriptModule->GetName() == module_name)
-        {
-            m_script_units.erase(m_script_units.begin() + i);
-            if (i == (size_t)m_terrain_script_unit)
-            {
-                m_terrain_script_unit = -1;
-            }
-        }
+        m_terrain_script_unit = SCRIPTUNITID_INVALID;
     }
 }
 
 void ScriptEngine::activateLogging()
 {
     scriptLog->addListener(this);
+}
+
+ScriptUnit& ScriptEngine::getScriptUnit(ScriptUnitId_t unique_id)
+{
+    ROR_ASSERT(unique_id != SCRIPTUNITID_INVALID);
+    ROR_ASSERT(m_script_units.count(unique_id) != 0);
+    return m_script_units[unique_id];
 }
