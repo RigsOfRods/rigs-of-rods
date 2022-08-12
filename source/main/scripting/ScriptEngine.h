@@ -41,6 +41,8 @@
 #include "scriptdictionary/scriptdictionary.h"
 #include "scriptbuilder/scriptbuilder.h"
 
+#include <map>
+
 namespace RoR {
 
 /// @addtogroup Scripting
@@ -53,9 +55,15 @@ enum class ScriptCategory
     CUSTOM
 };
 
+const char* ScriptCategoryToString(ScriptCategory c);
+
+typedef int ScriptUnitId_t;
+static const ScriptUnitId_t SCRIPTUNITID_INVALID = -1;
+
 /// Represents a loaded script and all associated resources/handles.
 struct ScriptUnit
 {
+    ScriptUnitId_t uniqueId = SCRIPTUNITID_INVALID;
     ScriptCategory scriptCategory = ScriptCategory::INVALID;
     unsigned int eventMask = 0; //!< filter mask for script events
     AngelScript::asIScriptModule* scriptModule = nullptr;
@@ -66,7 +74,7 @@ struct ScriptUnit
     Ogre::String scriptHash;
 };
 
-typedef std::vector<ScriptUnit> ScriptUnitVec;
+typedef std::map<ScriptUnitId_t, ScriptUnit> ScriptUnitMap;
 
 /**
  *  @brief This class represents the angelscript scripting interface. It can load and execute scripts.
@@ -84,15 +92,15 @@ public:
     /**
      * Loads a script
      * @param scriptname filename to load
-     * @return 0 on success, everything else on error
+     * @return Unique ID of the script unit (because one script file can be loaded multiple times).
      */
-    int loadScript(Ogre::String scriptname, ScriptCategory category = ScriptCategory::TERRAIN);
+    ScriptUnitId_t loadScript(Ogre::String scriptname, ScriptCategory category = ScriptCategory::TERRAIN);
 
     /**
      * Unloads a script
-     * @param scriptname filename to unload
+     * @param unique_id The script unit ID as returned by `loadScript()`
      */
-    void unloadScript(Ogre::String scriptname, ScriptCategory category);
+    void unloadScript(ScriptUnitId_t unique_id);
 
     /**
      * Calls the script's framestep function to be able to use timed things inside the script
@@ -165,9 +173,9 @@ public:
     inline void SLOG(const char* msg) { this->scriptLog->logMessage(msg); } //!< Replacement of macro
     inline void SLOG(std::string msg) { this->scriptLog->logMessage(msg); } //!< Replacement of macro
 
-    ScriptUnitVec& getScriptUnits() { return m_script_units; }
-    int getTerrainScriptUnit() const { return m_terrain_script_unit; } //!< @return -1 if none exists.
-    int getCurrentlyExecutingScriptUnit() const { return m_currently_executing_script_unit; } //!< @return -1 if none is executing right now.
+    ScriptUnit& getScriptUnit(ScriptUnitId_t unique_id);
+    ScriptUnitId_t getTerrainScriptUnit() const { return m_terrain_script_unit; } //!< @return SCRIPTUNITID_INVALID if none exists.
+    ScriptUnitId_t getCurrentlyExecutingScriptUnit() const { return m_currently_executing_script_unit; } //!< @return SCRIPTUNITID_INVALID if none is executing right now.
 
 
 protected:
@@ -184,7 +192,7 @@ protected:
      */
     void msgCallback(const AngelScript::asSMessageInfo* msg);
 
-    Ogre::String composeModuleName(Ogre::String const& scriptName, ScriptCategory origin);
+    Ogre::String composeModuleName(Ogre::String const& scriptName, ScriptCategory origin, ScriptUnitId_t id);
 
     /**
     * Helper for `loadScript()`, does the actual building without worry about unit management.
@@ -196,9 +204,9 @@ protected:
     AngelScript::asIScriptContext* context; //!< context in which all scripting happens
     Ogre::Log*      scriptLog;
     GameScript      m_game_script;
-    ScriptUnitVec   m_script_units;
-    int             m_terrain_script_unit = -1;
-    int             m_currently_executing_script_unit = -1;
+    ScriptUnitMap   m_script_units;
+    ScriptUnitId_t  m_terrain_script_unit = SCRIPTUNITID_INVALID;
+    ScriptUnitId_t  m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
 
     InterThreadStoreVector<Ogre::String> stringExecutionQueue; //!< The string execution queue \see queueStringForExecution
 };
