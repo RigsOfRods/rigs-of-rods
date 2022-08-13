@@ -29,6 +29,7 @@
 #include "GUI_ConsoleView.h"
 #include "OgreImGui.h"
 #include "GUI_AngelScriptExamples.h"
+#include "GUI_ScriptMonitor.h"
 
 #include <vector>
 #include <string>
@@ -51,17 +52,22 @@ public:
 
 private:
 
-    AngelScriptExamples m_angelscript_examples;
-
     static int TextEditCallback(ImGuiTextEditCallbackData *data);
     void TextEditCallbackProc(ImGuiTextEditCallbackData *data);
 
+    // Window state
+    bool                     m_is_visible = false;
+    bool                     m_is_hovered = false;
+
+    // Special panels
+    AngelScriptExamples      m_angelscript_examples;
+    ScriptMonitor            m_script_monitor;
+
+    // Console context
     ConsoleView              m_console_view;
     Str<500>                 m_cmd_buffer;
     std::vector<std::string> m_cmd_history;
     int                      m_cmd_history_cursor = -1;
-    bool                     m_is_visible = false;
-    bool                     m_is_hovered = false;
 };
 
 } // namespace GUI
