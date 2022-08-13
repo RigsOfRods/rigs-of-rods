@@ -51,6 +51,7 @@
 #include "ScriptEngine.h"
 #include "SkyManager.h"
 #include "TerrainManager.h"
+#include "TerrainGeometryManager.h"
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 #include "Water.h"
@@ -452,6 +453,27 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 void GameScript::hideDirectionArrow()
 {
     App::GetGameContext()->GetRaceSystem().UpdateDirectionArrow(0, Vector3::ZERO);
+}
+
+bool GameScript::getScreenPosFromWorldPos(Ogre::Vector3 const& world_pos, Ogre::Vector2& out_screen)
+{
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+    World2ScreenConverter world2screen(
+        App::GetCameraManager()->GetCamera()->getViewMatrix(true), App::GetCameraManager()->GetCamera()->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
+    Ogre::Vector3 pos_xyz = world2screen.Convert(world_pos);
+    if (pos_xyz.z < 0.f)
+    {
+        out_screen.x = pos_xyz.x;
+        out_screen.y = pos_xyz.y;
+        return true;
+    }
+    return false;
+}
+
+Ogre::Vector2 GameScript::getDisplaySize()
+{
+    ImVec2 size = ImGui::GetIO().DisplaySize;
+    return Vector2(size.x, size.y);
 }
 
 int GameScript::setMaterialAmbient(const String& materialName, float red, float green, float blue)
@@ -932,6 +954,21 @@ float GameScript::getFPS()
 float GameScript::getAvgFPS()
 {
     return App::GetAppContext()->GetRenderWindow()->getStatistics().avgFPS;
+}
+
+bool GameScript::getMousePositionOnTerrain(Ogre::Vector3& out_pos)
+{
+    if (!HaveSimTerrain(__FUNCTION__))
+        return false;
+
+    Ogre::Vector2 mouse_npos = App::GetInputEngine()->getMouseNormalizedScreenPos();
+    Ogre::Ray ray = App::GetCameraManager()->GetCamera()->getCameraToViewportRay(mouse_npos.x, mouse_npos.y);
+    Ogre::TerrainGroup::RayResult ray_result = App::GetSimTerrain()->getGeometryManager()->getTerrainGroup()->rayIntersects(ray);
+    if (ray_result.hit)
+    {
+        out_pos = ray_result.position;
+    }
+    return ray_result.hit;
 }
 
 bool GameScript::HaveSimTerrain(const char* func_name)

@@ -528,6 +528,7 @@ public:
     int                 getCurrentKeyCombo(Ogre::String* combo);            //!< Returns number of non-modifier keys pressed (or modifier count as negative number).
     int                 getCurrentJoyButton(int& joystickNumber, int& button);
     int                 getCurrentPovValue(int& joystickNumber, int& pov, int& povdir);
+    Ogre::Vector2       getMouseNormalizedScreenPos();                      //!< Returns XY position in range from 0 (top/left) to 1 (bottom/right)
 
         // Event utils
 

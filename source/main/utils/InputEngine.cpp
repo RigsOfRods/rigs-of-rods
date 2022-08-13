@@ -1622,6 +1622,15 @@ int InputEngine::getCurrentPovValue(int& joystickNumber, int& pov, int& povdir)
     return 0;
 }
 
+Ogre::Vector2 InputEngine::getMouseNormalizedScreenPos()
+{
+    OIS::MouseState const& mstate = mMouse->getMouseState();
+    Ogre::Vector2 res;
+    res.x = static_cast<float>(mstate.X.abs) / static_cast<float>(mstate.width);
+    res.y = static_cast<float>(mstate.Y.abs) / static_cast<float>(mstate.height);
+    return res;
+}
+
 event_trigger_t InputEngine::newEvent()
 {
     event_trigger_t res;
