@@ -476,6 +476,12 @@ Ogre::Vector2 GameScript::getDisplaySize()
     return Vector2(size.x, size.y);
 }
 
+Ogre::Vector2 GameScript::getMouseScreenPosition()
+{
+    ImVec2 pos = ImGui::GetIO().MousePos;
+    return Vector2(pos.x, pos.y);
+}
+
 int GameScript::setMaterialAmbient(const String& materialName, float red, float green, float blue)
 {
     try

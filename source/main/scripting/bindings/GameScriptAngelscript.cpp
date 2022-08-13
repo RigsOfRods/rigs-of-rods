@@ -55,6 +55,7 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "void hideDirectionArrow()", asMETHOD(GameScript, hideDirectionArrow), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "bool getScreenPosFromWorldPos(const vector3&in, vector2&out)", AngelScript::asMETHOD(GameScript, getScreenPosFromWorldPos), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "vector2 getDisplaySize()", AngelScript::asMETHOD(GameScript, getDisplaySize), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "vector2 getMouseScreenPosition()", AngelScript::asMETHOD(GameScript, getMouseScreenPosition), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // > Script management
     result = engine->RegisterObjectMethod("GameScriptClass", "void registerForEvent(int)", asMETHOD(GameScript, registerForEvent), asCALL_THISCALL); ROR_ASSERT(result >= 0);
