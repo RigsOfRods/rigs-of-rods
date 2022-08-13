@@ -50,6 +50,7 @@ private:
     void             DrawVersionBox();
     void             DrawNoticeBox();
     bool             HighlightButton(const std::string &text, ImVec2 btn_size, int index) const;
+    void             HandleInputEvents();
     bool             m_is_visible = false;
     int              m_num_buttons;
     int              m_kb_focus_index = -1; // -1 = no focus; 0+ = button index

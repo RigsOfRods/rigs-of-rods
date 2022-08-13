@@ -82,20 +82,6 @@ void GameMainMenu::DrawMenuPanel()
         }
     }
 
-    // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
-    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
-    {
-        m_kb_focus_index = (m_kb_focus_index <= 0) ? (m_num_buttons - 1) : (m_kb_focus_index - 1);
-    }
-    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
-    {
-        m_kb_focus_index = (m_kb_focus_index < (m_num_buttons - 1)) ? (m_kb_focus_index + 1) : 0;
-    }
-    if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
-    {
-        m_kb_enter_index = m_kb_focus_index;
-    }
-
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, BUTTON_PADDING);
     ImGui::PushStyleColor(ImGuiCol_TitleBg, ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive]);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, WINDOW_BG_COLOR);
@@ -119,6 +105,8 @@ void GameMainMenu::DrawMenuPanel()
     int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
     if (ImGui::Begin(_LC("MainMenu", title), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
     {
+        this->HandleInputEvents();
+
         int button_index = 0;
         ImVec2 btn_size(WINDOW_WIDTH, 0.f);
 
@@ -229,7 +217,7 @@ void GameMainMenu::DrawMenuPanel()
         cache_updated = false;
     }
 
-    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows));
     ImGui::End();
     ImGui::PopStyleVar();
     ImGui::PopStyleColor(3);
@@ -295,4 +283,27 @@ void GameMainMenu::DrawNoticeBox()
 bool GameMainMenu::HighlightButton(const std::string& txt,ImVec2 btn_size, int index) const{
     std::string button_txt = (m_kb_focus_index == index) ? fmt::format("--> {} <--", txt) : txt;
     return ImGui::Button(button_txt.c_str(), btn_size) || (m_kb_enter_index == index);
+}
+
+void GameMainMenu::HandleInputEvents()
+{
+    // Only handle keystrokes if keyboard capture is not requested or requested by us.
+    bool kb_capture_req = App::GetGuiManager()->IsGuiCaptureKeyboardRequested();
+    bool window_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
+    if (!kb_capture_req || window_hovered)
+    {
+        // Keyboard updates - move up/down and wrap on top/bottom. Initial index is '-1' which means "no focus"
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
+        {
+            m_kb_focus_index = (m_kb_focus_index <= 0) ? (m_num_buttons - 1) : (m_kb_focus_index - 1);
+        }
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
+        {
+            m_kb_focus_index = (m_kb_focus_index < (m_num_buttons - 1)) ? (m_kb_focus_index + 1) : 0;
+        }
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
+        {
+            m_kb_enter_index = m_kb_focus_index;
+        }
+    }
 }
