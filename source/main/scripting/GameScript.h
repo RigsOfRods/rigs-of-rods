@@ -116,6 +116,11 @@ public:
     */
     Ogre::Vector2 getDisplaySize();
 
+    /**
+    * Gets mouse position in pixels.
+    */
+    Ogre::Vector2 getMouseScreenPosition();
+
     /// @}
 
     /// @name Script management

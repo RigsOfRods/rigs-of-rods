@@ -140,7 +140,9 @@ void ScriptEngine::init()
     AngelScript::RegisterStdStringUtils(engine);
     AngelScript::RegisterScriptMath(engine);
     static float SCRIPT_FLT_MAX = FLT_MAX;
+    static int SCRIPT_INT_MAX = INT_MAX;
     result = engine->RegisterGlobalProperty("const float FLT_MAX", &SCRIPT_FLT_MAX); ROR_ASSERT( result >= 0 );
+    result = engine->RegisterGlobalProperty("const int INT_MAX", &SCRIPT_INT_MAX); ROR_ASSERT(result >= 0);
     AngelScript::RegisterScriptAny(engine);
     AngelScript::RegisterScriptDictionary(engine);
 
