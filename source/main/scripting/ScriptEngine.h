@@ -176,7 +176,7 @@ public:
     ScriptUnit& getScriptUnit(ScriptUnitId_t unique_id);
     ScriptUnitId_t getTerrainScriptUnit() const { return m_terrain_script_unit; } //!< @return SCRIPTUNITID_INVALID if none exists.
     ScriptUnitId_t getCurrentlyExecutingScriptUnit() const { return m_currently_executing_script_unit; } //!< @return SCRIPTUNITID_INVALID if none is executing right now.
-
+    ScriptUnitMap const& getScriptUnits() const { return m_script_units; }
 
 protected:
 

@@ -89,6 +89,14 @@ void ConsoleWindow::Draw()
             ImGui::Columns(1); // reset
             ImGui::EndMenu();
         }
+        ImGui::SetNextWindowSize(ImVec2(0.f, 0.f)); // reset to auto-fit
+
+        if (ImGui::BeginMenu(_LC("Console", "Script Monitor")))
+        {
+            ImGui::Dummy(ImVec2(340.f, 1.f)); // Manually resize width (DearIMGUI bug workaround)
+            m_script_monitor.Draw();
+            ImGui::EndMenu();
+        }
 #endif
         ImGui::EndMenuBar();
     }

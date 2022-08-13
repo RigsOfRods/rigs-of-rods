@@ -388,6 +388,46 @@ public:
     }
 };
 
+class LoadScriptCmd : public ConsoleCmd
+{
+public:
+    LoadScriptCmd() : ConsoleCmd("loadscript", "[filename]", _L("Runs an AngelScript file")) {}
+
+    void Run(Ogre::StringVector const& args) override
+    {
+        Str<200> reply;
+        reply << m_name << ": ";
+        Console::MessageType reply_type;
+
+#ifdef USE_ANGELSCRIPT
+        if (args.size() == 1)
+        {
+            reply_type = Console::CONSOLE_SYSTEM_ERROR;
+            reply << _L("Missing parameter: ") << m_usage;
+        }
+        else
+        {
+            ScriptUnitId_t id = App::GetScriptEngine()->loadScript(args[1], ScriptCategory::CUSTOM);
+            if (id == SCRIPTUNITID_INVALID)
+            {
+                reply_type = Console::CONSOLE_SYSTEM_ERROR;
+                reply << _L("Failed to load script. See 'Angelscript.log' or use console command `log` and retry.");
+            }
+            else
+            {
+                reply_type = Console::CONSOLE_SYSTEM_REPLY;
+                reply << fmt::format(_L("Script '{}' running with ID '{}'"), args[1], id);
+            }
+        }
+#else
+        reply_type = Console::CONSOLE_SYSTEM_ERROR;
+        reply << _L("Scripting disabled in this build");
+#endif
+        
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
+    }
+};
+
 // -------------------------------------------------------------------------------------
 // CVar (builtin) console commmands
 
@@ -620,6 +660,7 @@ void Console::regBuiltinCommands()
     cmd = new HelpCmd();                  m_commands.insert(std::make_pair(cmd->getName(), cmd));
     // Additions
     cmd = new ClearCmd();                 m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new LoadScriptCmd();            m_commands.insert(std::make_pair(cmd->getName(), cmd));
     // CVars
     cmd = new SetCmd();                   m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new SetstringCmd();             m_commands.insert(std::make_pair(cmd->getName(), cmd));
