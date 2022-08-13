@@ -104,6 +104,18 @@ public:
 
     void hideDirectionArrow();
 
+    /**
+    * @param world_pos The world position to be converted, in meters.
+    * @param out_screen_pos The resulting screen position, in pixels.
+    * @return true if the world position is in front of the camera and the resulting screen position is valid.
+    */
+    bool getScreenPosFromWorldPos(Ogre::Vector3 const& world_pos, Ogre::Vector2& out_screen_pos);
+
+    /**
+    * Gets screen size in pixels.
+    */
+    Ogre::Vector2 getDisplaySize();
+
     /// @}
 
     /// @name Script management
@@ -244,6 +256,13 @@ public:
     * @see spawnObject
     */
     void destroyObject(const Ogre::String& instanceName);
+
+    /**
+    * Calculates mouse cursor position on terrain.
+    * @param out_pos Calculated position, in meters.
+    * @return true if mouse points to the terrain and output coordinates are valid.
+    */
+    bool getMousePositionOnTerrain(Ogre::Vector3& out_pos);
 
     /// @}
 

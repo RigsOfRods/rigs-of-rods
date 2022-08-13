@@ -223,6 +223,7 @@ void registerOgreRadian(AngelScript::asIScriptEngine* engine);
 void registerOgreDegree(AngelScript::asIScriptEngine* engine);
 void registerOgreQuaternion(AngelScript::asIScriptEngine* engine);
 void registerOgreTexture(AngelScript::asIScriptEngine* engine);
+void registerOgreColourValue(AngelScript::asIScriptEngine* engine);
 
 // main registration method
 void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
@@ -261,6 +262,7 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     registerOgreVector2(engine);
     registerOgreQuaternion(engine);
     registerOgreTexture(engine);
+    registerOgreColourValue(engine);
 }
 
 // register Ogre::Vector3

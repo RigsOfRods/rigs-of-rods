@@ -21,11 +21,11 @@ namespace Script2Game {
 
 /** \addtogroup ScriptSideAPIs
  *  @{
- */    
+ */
 
 /** \addtogroup Script2Game
  *  @{
- */    
+ */
 
 /**
  * @brief Binding of RoR::GameScript; A general class that will provide you with general functions.
@@ -63,7 +63,7 @@ public:
 	/**
 	 * Sends or request information from the master server
 	 */
-	int useOnlineAPI(const string apiquery, const dictionary dict, string result);    
+	int useOnlineAPI(const string apiquery, const dictionary dict, string result);
     
 	/**
 	*  Gets the Curent frames per second (FPS)
@@ -75,7 +75,7 @@ public:
 	*  Gets the average frames per second (FPS)
 	*  @return The average FPS
 	*/
-	void getAvgFPS();    
+	void getAvgFPS();
 
 	/**
 	*  Back to menu
@@ -85,13 +85,13 @@ public:
 	/**
 	*  Quits the game
 	*/
-	void quitGame();    
+	void quitGame();
     
     /// @}
 
     /// @name GUI
     /// @{
-    
+
 	/**
 	 * shows a message to the user
 	 * @deprecated Use the game.message function instead.
@@ -109,7 +109,7 @@ public:
 	 * @param forceVisible Set this to true if you want the message to be forced on the user's screen (~it will show, even when the GUI is hidden).
 	 */
 	void message(string txt, string icon, float timeMilliseconds, bool forceVisible);
-    
+
 	/**
 	 * OBSOLETE - returns 0.
 	 * @deprecated
@@ -122,8 +122,8 @@ public:
 	 * @deprecated
 	 * @param size font size in pixels
 	 */
-	void setChatFontSize(int size);    
-    
+	void setChatFontSize(int size);
+
 	/**
 	 *  Shows a message box
 	 *  
@@ -156,7 +156,7 @@ public:
 	 * @param box the name of the box in which the truck will be spawned
 	*/
 	void showChooser(string type, string instance, string box);
-    
+
 	/**
 	 * set direction arrow
 	 * @param text text to be displayed. "" to hide the text
@@ -169,13 +169,25 @@ public:
 	 * Hides the direction arrow
 	 * @see UpdateDirectionArrow
 	 */
-	void hideDirectionArrow();    
+	void hideDirectionArrow();
+
+    /**
+    * @param world_pos The world position to be converted, in meters.
+    * @param out_screen_pos The resulting screen position, in pixels.
+    * @return true if the world position is in front of the camera and the resulting screen position is valid.
+    */
+    bool getScreenPosFromWorldPos(const vector3&in, vector2&out);
+    
+    /**
+    * Gets screen size in pixels.
+    */
+    vector2 getDisplaySize();
 
     /// @}
 
     /// @name Script management
     /// @{
-        
+
 	/**
 	 * registers for a new event to be received by the scripting system
 	 * @param eventValue \see enum scriptEvents
@@ -186,7 +198,7 @@ public:
      * unregisters from receiving event.
      * @param eventValue \see enum scriptEvents
      */
-    void unRegisterEvent(int eventValue);    
+    void unRegisterEvent(int eventValue);
     
 	/**
 	 * Adds a global function to the script.
@@ -216,12 +228,12 @@ public:
 	 * Removes a global variable from the script.
 	 * @param var the declaration of the variable that should be removed, e.g.: "int missionState;"
 	 */
-	int deleteScriptVariable(const string var);    
+	int deleteScriptVariable(const string var);
 
 	/**
 	 * Clears the event cache
 	 */
-	void clearEventCache();    
+	void clearEventCache();
 
     /// @}
 
@@ -248,13 +260,13 @@ public:
 	/**
 	 * Gets the currently loaded terrain instance
 	 */    
-	TerrainClass@ getTerrain();    
+	TerrainClass@ getTerrain();
     
 	/**
 	 * Checks if Caleum is enabled.
 	 * @return true if Caleum is available
 	 */
-	bool getCaelumAvailable();    
+	bool getCaelumAvailable();
     
 	/**
 	 * gets the time of the day in seconds
@@ -266,7 +278,7 @@ public:
 	 * sets the time of the day in seconds
 	 * @param value day time in seconds
 	 */
-	void setCaelumTime(float value);    
+	void setCaelumTime(float value);
     
 	/**
 	 * returns the currently set upo gravity
@@ -278,7 +290,7 @@ public:
 	 * sets the gravity terrain wide. This is an expensive call, since the masses of all trucks are recalculated.
 	 * @param value new gravity terrain wide (default is -9.81)
 	 */
-	void setGravity(float value);    
+	void setGravity(float value);
     
 	/**
 	 * returns the current base water level (without waves)
@@ -297,7 +309,7 @@ public:
 	 * sets the base water height
 	 * @param value base height in meters
 	 */
-	void setWaterHeight(float value);    
+	void setWaterHeight(float value);
     
 	/**
 	 * This spawns an object
@@ -323,7 +335,14 @@ public:
 	 * @param instanceName The unique name that you chose when spawning this object
 	 * @see spawnObject
 	 */
-	void destroyObject(const string instanceName);    
+	void destroyObject(const string instanceName);
+    
+    /**
+    * Calculates mouse cursor position on terrain.
+    * @param out_pos Calculated position, in meters.
+    * @return true if mouse points to the terrain and output coordinates are valid.
+    */
+    bool getMousePositionOnTerrain(vector3 &out);
 
     /// @}
 
@@ -334,7 +353,7 @@ public:
 	 * Returns the current position of the person
 	 * @return A vector containing the X, Y and Z coordinate of the person or an empty vector if the user is in a truck
 	 */
-	vector3 getPersonPosition();    
+	vector3 getPersonPosition();
 
 	/**
 	 * sets the character position
@@ -394,7 +413,7 @@ public:
 	 *  @param rot The rotation in which the truck should be spawned
 	 *  @return reference to Beam object
 	 */
-	BeamClass @spawnTruck(stringtruckName, vector3 pos, vector3 rot);    
+	BeamClass @spawnTruck(stringtruckName, vector3 pos, vector3 rot);
     
 	/**
 	 * This method repairs the vehicle in the box
@@ -409,13 +428,13 @@ public:
 	/**
 	 * Number of trucks with flag
 	 */
-	int getNumTrucksByFlag(int flag);    
+	int getNumTrucksByFlag(int flag);
     
 	/**
 	 * Gives the currently used truck a boost in RPM.
 	 * @param factor This factor determines by how much that the RPM of the truck will be increased ( rpm += 2000.0f * factor ).
 	 */
-	void boostCurrentTruck(float factor);    
+	void boostCurrentTruck(float factor);
 	
     ///@}
 
