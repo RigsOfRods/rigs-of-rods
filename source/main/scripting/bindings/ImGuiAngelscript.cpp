@@ -22,6 +22,7 @@
 /// @file
 /// @author https://gist.github.com/JSandusky/54b85068aa30390c91a0b377703f042e
 /// @author https://discourse.urho3d.io/t/dear-imgui-w-o-steamrolling/3960
+/// @author Petr Ohlidal (enums, ImDrawList)
 
 #include "OgreImGui.h"
 #include "scriptarray/scriptarray.h"
@@ -37,7 +38,7 @@ using namespace std;
 
 void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
 {
-    // ENUMS (outside namespace)
+    // ENUMS (global namespace)
 
     engine->RegisterEnum("ImGuiWindowFlags");
     engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_None", ImGuiWindowFlags_None);
@@ -65,7 +66,18 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoDecoration", ImGuiWindowFlags_NoDecoration);
     engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoInputs", ImGuiWindowFlags_NoInputs);
 
-    // FUNCTIONS (within namespace)
+    // ImDrawList object (global namespace)
+    engine->RegisterObjectType("ImDrawList", sizeof(ImDrawList), asOBJ_REF | asOBJ_NOCOUNT);
+    engine->RegisterObjectMethod("ImDrawList", "void AddLine(const vector2&in p1, const vector2&in p2, const color&in col, float thickness = 1.f)", asFUNCTIONPR([](ImDrawList* drawlist, Ogre::Vector2 const& p1, Ogre::Vector2 const& p2, Ogre::ColourValue const& col, float thickness) { drawlist->AddLine(ImVec2(p1.x, p1.y), ImVec2(p2.x, p2.y), ImColor(col.r, col.g, col.b, col.a), thickness); }, (ImDrawList * , Ogre::Vector2 const& , Ogre::Vector2 const& , Ogre::ColourValue const& , float ), void), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("ImDrawList", "void AddTriangle(const vector2&in p1, const vector2&in p2, const vector2&in p3, const color&in col, float thickness = 1.f)", asFUNCTIONPR([](ImDrawList* drawlist, Ogre::Vector2 const& p1, Ogre::Vector2 const& p2, Ogre::Vector2 const& p3, Ogre::ColourValue const& col, float thickness) { drawlist->AddTriangle(ImVec2(p1.x, p1.y), ImVec2(p2.x, p2.y), ImVec2(p3.x, p3.y), ImColor(col.r, col.g, col.b, col.a), thickness); }, (ImDrawList*, Ogre::Vector2 const&, Ogre::Vector2 const&, Ogre::Vector2 const&, Ogre::ColourValue const&, float), void), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("ImDrawList", "void AddTriangleFilled(const vector2&in p1, const vector2&in p2, const vector2&in p3, const color&in col)", asFUNCTIONPR([](ImDrawList* drawlist, Ogre::Vector2 const& p1, Ogre::Vector2 const& p2, Ogre::Vector2 const& p3, Ogre::ColourValue const& col) { drawlist->AddTriangleFilled(ImVec2(p1.x, p1.y), ImVec2(p2.x, p2.y), ImVec2(p3.x, p3.y), ImColor(col.r, col.g, col.b, col.a)); }, (ImDrawList*, Ogre::Vector2 const&, Ogre::Vector2 const&, Ogre::Vector2 const&, Ogre::ColourValue const&), void), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("ImDrawList", "void AddRect(const vector2&in p_min, const vector2&in p_max, const color&in col, float rounding = 0.0f, int rounding_corners = 15, float thickness = 1.f)", asFUNCTIONPR([](ImDrawList* drawlist, Ogre::Vector2 const& p1, Ogre::Vector2 const& p2, Ogre::ColourValue const& col, float rounding, int rounding_corners, float thickness) { drawlist->AddRect(ImVec2(p1.x, p1.y), ImVec2(p2.x, p2.y), ImColor(col.r, col.g, col.b, col.a), rounding, rounding_corners, thickness); }, (ImDrawList * drawlist, Ogre::Vector2 const& , Ogre::Vector2 const& , Ogre::ColourValue const& , float , int , float ), void), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("ImDrawList", "void AddRectFilled(const vector2&in p_min, const vector2&in p_max, const color&in col, float rounding = 0.0f, int rounding_corners = 15)", asFUNCTIONPR([](ImDrawList* drawlist, Ogre::Vector2 const& p1, Ogre::Vector2 const& p2, Ogre::ColourValue const& col, float rounding, int rounding_corners) { drawlist->AddRectFilled(ImVec2(p1.x, p1.y), ImVec2(p2.x, p2.y), ImColor(col.r, col.g, col.b, col.a), rounding, rounding_corners); }, (ImDrawList * drawlist, Ogre::Vector2 const&, Ogre::Vector2 const&, Ogre::ColourValue const&, float, int), void), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("ImDrawList", "void AddCircle(const vector2&in center, float radius, const color&in col, int num_segments = 12, float thickness = 1.f)", asFUNCTIONPR([](ImDrawList* drawlist, Ogre::Vector2 const& center, float radius, Ogre::ColourValue const& col, int num_segments, float thickness) { drawlist->AddCircle(ImVec2(center.x, center.y), radius, ImColor(col.r, col.g, col.b, col.a), num_segments, thickness); }, (ImDrawList*, Ogre::Vector2 const&, float, Ogre::ColourValue const&, int, float), void), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("ImDrawList", "void AddCircleFilled(const vector2&in center, float radius, const color&in col, int num_segments = 12)", asFUNCTIONPR([](ImDrawList* drawlist, Ogre::Vector2 const& center, float radius, Ogre::ColourValue const& col, int num_segments) { drawlist->AddCircleFilled(ImVec2(center.x, center.y), radius, ImColor(col.r, col.g, col.b, col.a), num_segments); }, (ImDrawList*, Ogre::Vector2 const&, float, Ogre::ColourValue const&, int), void), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("ImDrawList", "void AddText(const vector2&in pos, const color&in col, const string&in text)", asFUNCTIONPR([](ImDrawList* drawlist, Ogre::Vector2 const& pos, Ogre::ColourValue const& col, std::string const& text) { drawlist->AddText(ImVec2(pos.x, pos.y), ImColor(col.r, col.g, col.b, col.a), text.c_str()); }, (ImDrawList * drawlist, Ogre::Vector2 const&, Ogre::ColourValue const&, std::string const&), void), asCALL_CDECL_OBJFIRST);
+
+    // FUNCTIONS (namespace ImGui)
     engine->SetDefaultNamespace("ImGui");
         
     engine->RegisterGlobalFunction("bool Begin(const string&in, bool, int=0)", asFUNCTIONPR([](const string& name, bool opened, int flags) { return ImGui::Begin(name.c_str(), &opened, flags); }, (const string&, bool, int), bool), asCALL_CDECL);
@@ -73,6 +85,9 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterGlobalFunction("bool BeginChild(const string&in)", asFUNCTIONPR([](const string& name) { 
         return ImGui::Begin(name.c_str()); }, (const string&), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("void EndChild()", asFUNCTIONPR(ImGui::EndChild, (), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("ImDrawList@ GetWindowDrawList()", asFUNCTIONPR(ImGui::GetWindowDrawList, (), ImDrawList*), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void PushStyleColor(int index, const color&in color)", asFUNCTIONPR([](int index, Ogre::ColourValue const& col) { ImGui::PushStyleColor(index, (ImU32)ImColor(col.r, col.g, col.b, col.a)); }, (int, Ogre::ColourValue const&), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void PopStyleColor(int count)", asFUNCTIONPR(ImGui::PopStyleColor, (int), void), asCALL_CDECL);
 
     engine->RegisterGlobalFunction("vector2 GetContentRegionMax()", asFUNCTIONPR([]() { 
         auto v = ImGui::GetContentRegionMax(); return Vector2(v.x, v.y); }, (), Vector2), asCALL_CDECL);
