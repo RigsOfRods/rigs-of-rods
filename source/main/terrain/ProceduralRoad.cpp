@@ -43,7 +43,8 @@ ProceduralRoad::~ProceduralRoad()
 {
     if (snode)
     {
-        snode->removeAndDestroyAllChildren();
+        App::GetGfxScene()->GetSceneManager()->destroySceneNode(snode);
+        snode = nullptr;
     }
     if (!msh.isNull())
     {
