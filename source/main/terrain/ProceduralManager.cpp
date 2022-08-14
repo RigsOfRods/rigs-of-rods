@@ -52,17 +52,11 @@ void ProceduralManager::deleteObject(ProceduralObjectPtr po)
 
 void ProceduralManager::removeObject(ProceduralObjectPtr po)
 {
-    auto itor = pObjects.begin();
-    while (itor != pObjects.end())
+    for (size_t i = 0; i < pObjects.size(); i++)
     {
-        if (*itor == po)
+        if (pObjects[i] == po)
         {
-            this->deleteObject(*itor);
-            itor = pObjects.erase(itor);
-        }
-        else
-        {
-            itor++;
+            pObjects.erase(pObjects.begin() + i);
         }
     }
 }
