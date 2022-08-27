@@ -128,6 +128,8 @@ void ScriptEngine::init()
     AngelScript::RegisterStdString(engine);
     AngelScript::RegisterStdStringUtils(engine);
     AngelScript::RegisterScriptMath(engine);
+    static float SCRIPT_FLT_MAX = FLT_MAX;
+    result = engine->RegisterGlobalProperty("const float FLT_MAX", &SCRIPT_FLT_MAX); ROR_ASSERT( result >= 0 );
     AngelScript::RegisterScriptAny(engine);
     AngelScript::RegisterScriptDictionary(engine);
 
@@ -204,6 +206,7 @@ void ScriptEngine::init()
     result = engine->RegisterObjectMethod("BeamClass", "void beaconsToggle()", AngelScript::asMETHOD(Actor,beaconsToggle), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void toggleCustomParticles()", AngelScript::asMETHOD(Actor,toggleCustomParticles), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "int getNodeCount()", AngelScript::asMETHOD(Actor,getNodeCount), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getShockCount()", AngelScript::asMETHOD(Actor,getShockCount), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "float getTotalMass(bool)", AngelScript::asMETHOD(Actor,getTotalMass), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "int getWheelNodeCount()", AngelScript::asMETHOD(Actor,getWheelNodeCount), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setMass(float)", AngelScript::asMETHOD(Actor,setMass), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
@@ -220,10 +223,12 @@ void ScriptEngine::init()
     result = engine->RegisterObjectMethod("BeamClass", "float getWheelSpeed()", AngelScript::asMETHOD(Actor,getWheelSpeed), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "float getSpeed()", AngelScript::asMETHOD(Actor,getSpeed), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "vector3 getGForces()", AngelScript::asMETHOD(Actor,getGForces), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
-
     result = engine->RegisterObjectMethod("BeamClass", "float getRotation()", AngelScript::asMETHOD(Actor,getRotation), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "vector3 getVehiclePosition()", AngelScript::asMETHOD(Actor,getPosition), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "vector3 getNodePosition(int)", AngelScript::asMETHOD(Actor,getNodePosition), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getShockSpringRate(int)", AngelScript::asMETHOD(Actor,getShockSpringRate), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getShockDamping(int)", AngelScript::asMETHOD(Actor,getShockDamping), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getShockVelocity(int)", AngelScript::asMETHOD(Actor,getShockVelocity), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
 
     result = engine->RegisterObjectMethod("BeamClass", "VehicleAIClass @getVehicleAI()", AngelScript::asMETHOD(Actor,getVehicleAI), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     
@@ -828,7 +833,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     if ( result < 0 )
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format("Could not load script '{}' - failed to build module.", moduleName));
+            fmt::format("Could not load script '{}' - failed to build module. See 'Angelscript.log' for more info.", moduleName));
         return result;
     }
 
