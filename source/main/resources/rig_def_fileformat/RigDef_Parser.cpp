@@ -2435,6 +2435,11 @@ void Parser::ParseHydros()
     hydro.lenghtening_factor = this->GetArgFloat  (2);
     
     if (m_num_args > 3) { hydro.options = this->GetArgHydroOptions(3); }
+
+    if (!hydro.options)
+    {
+        hydro.options |= Hydro::OPTION_n_INPUT_NORMAL;
+    }
     
     this->ParseOptionalInertia(hydro.inertia, 4);
 
@@ -3111,7 +3116,7 @@ BitMask_t Parser::GetArgHydroOptions (int index)
     {
         switch (c)
         {
-            case (char)HydroOption::i_INVISIBLE                : ret |= Hydro::OPTION_i_INVISIBLE                ; break;
+            case (char)HydroOption::j_INVISIBLE                : ret |= Hydro::OPTION_j_INVISIBLE                ; break;
             case (char)HydroOption::s_DISABLE_ON_HIGH_SPEED    : ret |= Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED    ; break;
             case (char)HydroOption::a_INPUT_AILERON            : ret |= Hydro::OPTION_a_INPUT_AILERON            ; break;
             case (char)HydroOption::r_INPUT_RUDDER             : ret |= Hydro::OPTION_r_INPUT_RUDDER             ; break;
@@ -3122,14 +3127,24 @@ BitMask_t Parser::GetArgHydroOptions (int index)
             case (char)HydroOption::y_INPUT_InvAILERON_RUDDER  : ret |= Hydro::OPTION_y_INPUT_InvAILERON_RUDDER  ; break;
             case (char)HydroOption::g_INPUT_ELEVATOR_RUDDER    : ret |= Hydro::OPTION_g_INPUT_ELEVATOR_RUDDER    ; break;
             case (char)HydroOption::h_INPUT_InvELEVATOR_RUDDER : ret |= Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER ; break;
+            case (char)HydroOption::n_INPUT_NORMAL             : ret |= Hydro::OPTION_n_INPUT_NORMAL             ; break;
 
-            case (char)HydroOption::n_DUMMY: break;
+            case (char)HydroOption::i_INVISIBLE_INPUT_NORMAL:
+                if (ret == 0)
+                {
+                    // Original intent: when using 'i' flag alone, also force 'n' (steering input).
+                    // For backward compatibility, do it every time 'i' comes first, even if not alone.
+                    ret |= Hydro::OPTION_n_INPUT_NORMAL;
+                }
+                ret |= Hydro::OPTION_j_INVISIBLE;
+                break;
 
             default:
                 this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
                     fmt::format("ignoring invalid option '{}'", c));
         }
     }
+
     return ret;
 }
 

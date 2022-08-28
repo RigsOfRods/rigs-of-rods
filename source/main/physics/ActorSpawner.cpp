@@ -3590,12 +3590,7 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
     bool invisible = false;
     unsigned int hydro_flags = 0;
 
-    if (def.options == 0)
-    {
-        invisible = false;
-        hydro_flags |= HYDRO_FLAG_DIR;
-    }
-    if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_i_INVISIBLE))
+    if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_j_INVISIBLE))
     {
         invisible = true;
     }
@@ -3639,9 +3634,7 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
     {
         hydro_flags |= (HYDRO_FLAG_REV_ELEVATOR | HYDRO_FLAG_RUDDER);
     }
-
-    // if you use the 'INVISIBLE' flag on its own, add the direction to it
-    if (invisible && !hydro_flags)
+    if (BITMASK_IS_1(def.options, RigDef::Hydro::OPTION_n_INPUT_NORMAL))
     {
         hydro_flags |= HYDRO_FLAG_DIR;
     }

@@ -324,8 +324,9 @@ enum class BeamOption: char
 
 enum class HydroOption: char
 {
-    n_DUMMY                  = 'n',
-    i_INVISIBLE              = 'i',
+    n_INPUT_NORMAL           = 'n',
+    j_INVISIBLE              = 'j',
+    i_INVISIBLE_INPUT_NORMAL = 'i', //!< For backwards compatibility; combines flags 'j' and 'n'.
     // Useful for trucks
     s_DISABLE_ON_HIGH_SPEED  = 's',
     // Useful for planes: These can be used to control flight surfaces, or to create a thrust vectoring system.
@@ -950,7 +951,7 @@ struct Hook
 
 struct Hydro
 {
-    static const BitMask_t OPTION_i_INVISIBLE                 = BITMASK(1);
+    static const BitMask_t OPTION_j_INVISIBLE                 = BITMASK(1);
     // Useful for trucks:
     static const BitMask_t OPTION_s_DISABLE_ON_HIGH_SPEED     = BITMASK(2);
     // Useful for planes: These can be used to control flight surfaces, or to create a thrust vectoring system.
@@ -963,6 +964,8 @@ struct Hydro
     static const BitMask_t OPTION_y_INPUT_InvAILERON_RUDDER   = BITMASK(9);
     static const BitMask_t OPTION_g_INPUT_ELEVATOR_RUDDER     = BITMASK(10);
     static const BitMask_t OPTION_h_INPUT_InvELEVATOR_RUDDER  = BITMASK(11);
+    // Generic steering input
+    static const BitMask_t OPTION_n_INPUT_NORMAL              = BITMASK(12);
 
     Node::Ref nodes[2];
     float lenghtening_factor = 0.f;
