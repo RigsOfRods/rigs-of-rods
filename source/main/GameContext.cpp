@@ -888,7 +888,7 @@ void GameContext::UpdateSimInputEvents(float dt)
         else // We're in a vehicle -> If moving slowly enough, get out
         {
             if (this->GetPlayerActor()->ar_nodes[0].Velocity.squaredLength() < 1.0f ||
-                this->GetPlayerActor()->ar_state == ActorState::NETWORKED_OK)
+                this->GetPlayerActor()->ar_state == ActorState::NETWORKED_OK || this->GetPlayerActor()->ar_state == ActorState::NETWORKED_HIDDEN)
             {
                 this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, nullptr));
             }
