@@ -1,4 +1,4 @@
-﻿/*
+/*
     This source file is part of Rigs of Rods
 
     Copyright 2005-2012 Pierre-Michel Ricordel
@@ -115,6 +115,13 @@ public:
      *  @see Ai_values
      */
     void SetValueAtWaypoint(Ogre::String& id, int& value_id, float& value);
+    /**
+     *  Gets offset translation based on vehicle rotation and waypoints
+     *
+     *  @param [in] offset The offset.
+     *  @param [unsigned int] wp The waypoint.
+     */
+    Ogre::Vector3 getTranslation(int& offset, unsigned int& wp);
 
 private:
     /**
@@ -129,6 +136,8 @@ private:
     Actor* beam;//!< The verhicle the AI is driving.
     bool is_enabled = false;//!< True if the AI is driving.
     Ogre::Vector3 current_waypoint;//!< The coordinates of the waypoint that the AI is driving to.
+    Ogre::Vector3 prev_waypoint;//!< The coordinates of the previous waypoint.
+    Ogre::Vector3 next_waypoint;//!< The coordinates of the next waypoint.
     int current_waypoint_id = 0;//!< The curent waypoint ID.
     std::map<int, Ogre::Vector3> waypoints;//!< Map with all waypoints.
     std::map<Ogre::String, int> waypoint_ids;//!< Map with all waypoint IDs.
@@ -139,6 +148,9 @@ private:
     std::map<int, float> waypoint_wait_time;//!< Map with all waypoint wait times.
     int free_waypoints = 0;//!< The amount of waypoints.
     float acc_power = 0.8;//!< The engine power.
+    float init_y = 0;
+    bool last_waypoint = false;
+    bool hold = false;
 };
 
 } // namespace RoR

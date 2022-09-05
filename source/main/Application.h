@@ -87,6 +87,7 @@ enum MsgType
     MSG_NET_REFRESH_REPOLIST_SUCCESS,    //!< Payload = GUI::ResourcesCollection* (owner)
     MSG_NET_OPEN_RESOURCE_SUCCESS,    //!< Payload = GUI::ResourcesCollection* (owner)
     MSG_NET_REFRESH_REPOLIST_FAILURE,
+    MSG_NET_REFRESH_AI_PRESETS,
     // Simulation
     MSG_SIM_PAUSE_REQUESTED,
     MSG_SIM_UNPAUSE_REQUESTED,

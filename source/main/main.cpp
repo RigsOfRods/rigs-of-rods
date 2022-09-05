@@ -42,6 +42,7 @@
 #include "GUI_MultiplayerClientList.h"
 #include "GUI_RepositorySelector.h"
 #include "GUI_SimActorStats.h"
+#include "GUI_SurveyMap.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "MumbleIntegration.h"
@@ -492,6 +493,10 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->RepositorySelector.ShowError(m.description);
                     break;
 
+                case MSG_NET_REFRESH_AI_PRESETS:
+                    App::GetGuiManager()->TopMenubar.Refresh(m.description);
+                    break;
+
                 // -- Gameplay events --
 
                 case MSG_SIM_PAUSE_REQUESTED:
@@ -584,6 +589,7 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->MainSelector.Close();
                     App::GetGuiManager()->LoadingWindow.SetVisible(false);
                     App::GetGuiManager()->MenuWallpaper->show();
+                    App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
                     App::sim_state->setVal((int)SimState::OFF);
                     App::app_state->setVal((int)AppState::MAIN_MENU);
                     delete App::GetSimTerrain();

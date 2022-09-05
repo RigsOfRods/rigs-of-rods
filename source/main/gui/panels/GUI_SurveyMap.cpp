@@ -37,6 +37,7 @@
 #include "SurveyMapTextureCreator.h"
 #include "Terrain.h"
 #include "TerrainObjectManager.h"
+#include "Collisions.h"
 
 using namespace RoR;
 using namespace GUI;
@@ -99,10 +100,13 @@ void SurveyMap::Draw()
     }
 
     // Open window
-    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar;
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(WINDOW_PADDING, WINDOW_PADDING));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, WINDOW_ROUNDING);
-    ImGui::SetNextWindowSize(ImVec2((view_size.x + 8), (view_size.y + 8)));
+    ImGui::SetNextWindowSize(ImVec2((view_size.x + 8), (view_size.y + 40)));
+
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
 
     if (mMapMode == SurveyMapMode::BIG)
     {
@@ -157,8 +161,23 @@ void SurveyMap::Draw()
         tex = mMapTextureCreatorDynamic->GetTexture();
     }
 
+    bool w_adj = false;
+    if (!ai_waypoints.empty())
+    {
+        for (int i = 0; i < ai_waypoints.size(); i++)
+        {
+            ImVec2 cw_dist = this->CalcWaypointMapPos(tl_screen_pos, view_size, view_origin, i);
+            if (abs(cw_dist.x) <= 5 && abs(cw_dist.y) <= 5)
+            {
+                w_adj = true;
+            }
+        }
+    }
+
+    ImGui::BeginChild("map", ImVec2(0.f, view_size.y), false);
+
     ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), view_size);
-    if (ImGui::IsItemClicked(0)) // 0 = left click
+    if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1)) // 0 = left click, 1 = right click
     {
         ImVec2 mouse_view_offset = (ImGui::GetMousePos() - tl_screen_pos) / view_size;
         Vector2 mouse_map_pos;
@@ -171,8 +190,20 @@ void SurveyMap::Draw()
             mouse_map_pos = view_origin + (Vector2(mouse_view_offset.x, mouse_view_offset.y) * smallmap_size);
         }
 
-        Ogre::Vector3* payload = new Ogre::Vector3(mouse_map_pos.x, 0.f, mouse_map_pos.y);
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_TELEPORT_PLAYER_REQUESTED, (void*)payload));
+        if (ImGui::IsItemClicked(1)) // Set AI waypoint
+        {
+            float y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(mouse_map_pos.x, mouse_map_pos.y);
+            ai_waypoints.push_back(Ogre::Vector3(mouse_map_pos.x, y, mouse_map_pos.y));
+        }
+        else if (!w_adj) // Teleport
+        {
+            Ogre::Vector3* payload = new Ogre::Vector3(mouse_map_pos.x, 0.f, mouse_map_pos.y);
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_TELEPORT_PLAYER_REQUESTED, (void*)payload));
+         }
+    }
+    else if (ImGui::IsItemClicked(2) && !w_adj) // 2 = middle click, clear AI waypoints
+    {
+        ai_waypoints.clear();
     }
     else if (ImGui::IsItemHovered())
     {
@@ -180,9 +211,49 @@ void SurveyMap::Draw()
         ImVec2 mouse_pos = ImGui::GetMousePos();
         ImDrawList* drawlist = ImGui::GetWindowDrawList();
         drawlist->AddCircleFilled(mouse_pos, 5, ImGui::GetColorU32(ImVec4(1,0,0,1)));
-        const char* title = "Teleport";
-        ImVec2 text_pos(mouse_pos.x - (ImGui::CalcTextSize(title).x/2), mouse_pos.y + 5);
-        drawlist->AddText(text_pos, ImGui::GetColorU32(ImGui::GetStyle().Colors[ImGuiCol_Text]), title);
+    }
+
+    // Draw AI waypoints
+    if (!ai_waypoints.empty())
+    {
+        for (int i = 0; i < ai_waypoints.size(); i++)
+        {
+            ImVec2 cw_dist = this->DrawWaypoint(tl_screen_pos, view_size, view_origin, std::to_string(i), i);
+
+            if (abs(cw_dist.x) <= 5 && abs(cw_dist.y) <= 5)
+            {
+                if (ImGui::IsMouseClicked(0))
+                {
+                    mMouseClicked = true;
+                    mWaypointNum = i;
+                }
+                else if (ImGui::IsMouseReleased(0))
+                {
+                    mMouseClicked = false;
+                }
+            }
+
+            if (mMouseClicked)
+            {
+                ImVec2 mouse_view_offset = (ImGui::GetMousePos() - tl_screen_pos) / view_size;
+                Vector2 mouse_map_pos;
+                if (mMapMode == SurveyMapMode::BIG)
+                {
+                    mouse_map_pos = view_origin + Vector2(mouse_view_offset.x, mouse_view_offset.y) * mTerrainSize;
+                }
+                else if (mMapMode == SurveyMapMode::SMALL)
+                {
+                    mouse_map_pos = view_origin + (Vector2(mouse_view_offset.x, mouse_view_offset.y) * smallmap_size);
+                }
+
+                float y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(mouse_map_pos.x, mouse_map_pos.y);
+                ai_waypoints[mWaypointNum] = Ogre::Vector3(mouse_map_pos.x, y, mouse_map_pos.y);
+            }
+            else if (abs(cw_dist.x) <= 5 && abs(cw_dist.y) <= 5 && ImGui::IsItemClicked(2))
+            {
+                ai_waypoints.erase(ai_waypoints.begin() + i);
+            }
+        }
     }
 
     if (App::gfx_surveymap_icons->getBool())
@@ -204,7 +275,7 @@ void SurveyMap::Draw()
         // Draw actor icons
         for (GfxActor* gfx_actor: App::GetGfxScene()->GetGfxActors())
         {
-            const char* type_str = this->getTypeByDriveable(gfx_actor->GetActorDriveable());
+            const char* type_str = this->getTypeByDriveable(gfx_actor->GetActorDriveable(), gfx_actor->GetActor());
             int truckstate = gfx_actor->GetActorState();
             Str<100> fileName;
 
@@ -234,10 +305,94 @@ void SurveyMap::Draw()
             }
         }
     }
+    ImGui::EndChild();
+
+    // Bottom area
+    float orig_y = ImGui::GetCursorPosY();
+
+    if (!m_icons_cached)
+    {
+        this->CacheIcons();
+    }
+
+    ImGui::Image(reinterpret_cast<ImTextureID>(m_left_mouse_button->getHandle()), ImVec2(28, 24));
+    ImGui::SameLine();
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().ItemSpacing.y);
+    if (mMapMode == SurveyMapMode::SMALL)
+    {
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x);
+    }
+
+    const char* text1 = "Teleport";
+    if (w_adj || mMouseClicked)
+    {
+        text1 = "Adjust";
+        if (mMapMode == SurveyMapMode::BIG)
+        {
+            text1 = "Drag to adjust this waypoint";
+        }
+    }
+    ImGui::Text(text1);
+
+    ImGui::SameLine();
+
+    ImGui::SetCursorPosY(orig_y);
+    ImGui::Image(reinterpret_cast<ImTextureID>(m_right_mouse_button->getHandle()), ImVec2(28, 24));
+    ImGui::SameLine();
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().ItemSpacing.y);
+    if (mMapMode == SurveyMapMode::SMALL)
+    {
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x);
+    }
+    const char* text2 = "Waypoint";
+    if (mMapMode == SurveyMapMode::BIG)
+    {
+        text2 = "Set AI waypoint";
+    }
+    ImGui::Text(text2);
+
+    ImGui::SameLine();
+
+    ImGui::SetCursorPosY(orig_y);
+    ImGui::Image(reinterpret_cast<ImTextureID>(m_middle_mouse_button->getHandle()), ImVec2(28, 24));
+    ImGui::SameLine();
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().ItemSpacing.y);
+    if (mMapMode == SurveyMapMode::SMALL)
+    {
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x);
+    }
+
+    const char* text3 = "Clear";
+    if (w_adj || mMouseClicked)
+    {
+        text3 = "Remove";
+    }
+    if (mMapMode == SurveyMapMode::BIG)
+    {
+        text3 = "Remove all AI waypoints";
+        if (w_adj || mMouseClicked)
+        {
+            text3 = "Remove this waypoint";
+        }
+    }
+    ImGui::Text(text3);
+
+    if (mMapMode == SurveyMapMode::SMALL)
+    {
+        ImGui::SameLine();
+
+        ImGui::SetCursorPosY(orig_y);
+        ImGui::Image(reinterpret_cast<ImTextureID>(m_middle_mouse_scroll_button->getHandle()), ImVec2(28, 24));
+        ImGui::SameLine();
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().ItemSpacing.y);
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x);
+        ImGui::Text("Zoom");
+    }
 
     mWindowMouseHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
 
     ImGui::End();
+    ImGui::PopStyleColor(); // WindowBg
     ImGui::PopStyleVar(2); // WindowPadding, WindowRounding
 }
 
@@ -291,7 +446,7 @@ void SurveyMap::setMapZoomRelative(float delta)
 }
 
 
-const char* SurveyMap::getTypeByDriveable(ActorType driveable)
+const char* SurveyMap::getTypeByDriveable(ActorType driveable, Actor* actor)
 {
     switch (driveable)
     {
@@ -305,9 +460,29 @@ const char* SurveyMap::getTypeByDriveable(ActorType driveable)
         return "boat";
     case MACHINE:
         return "machine";
+    case AI:
+        return this->getAIType(actor);
     default:
         return "unknown";
     }
+}
+
+const char* SurveyMap::getAIType(Actor* actor)
+{
+    if (actor->ar_engine)
+    {
+        return "truck";
+    }
+    else if (actor->ar_num_aeroengines > 0)
+    {
+        return "airplane";
+    }
+    else if (actor->ar_num_screwprops > 0)
+    {
+        return "boat";
+    }
+
+    return "unknown";
 }
 
 void SurveyMap::CycleMode()
@@ -369,4 +544,66 @@ void SurveyMap::DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 vie
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImVec2 text_pos(img_pos.x - (ImGui::CalcTextSize(caption.c_str()).x/2), img_pos.y + 5);
     drawlist->AddText(text_pos, ImGui::GetColorU32(ImGui::GetStyle().Colors[ImGuiCol_Text]), caption.c_str());
+}
+
+ImVec2 SurveyMap::DrawWaypoint(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin,
+                                      std::string const& caption, int idx)
+{
+    Ogre::Vector2 terrn_size_adj = mTerrainSize;
+    if (mMapMode == SurveyMapMode::SMALL)
+    {
+        terrn_size_adj = mTerrainSize * (1.f - mMapZoom);
+    }
+
+    ImVec2 pos1;
+    pos1.x = view_pos.x + ((ai_waypoints[idx].x - view_origin.x) / terrn_size_adj.x) * view_size.x;
+    pos1.y = view_pos.y + ((ai_waypoints[idx].z - view_origin.y) / terrn_size_adj.y) * view_size.y;
+
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
+    ImVec4 col = ImVec4(1,0,0,1);
+    ImVec2 dist = ImGui::GetMousePos() - pos1;
+    if (abs(dist.x) <= 5 && abs(dist.y) <= 5)
+    {
+        col = ImVec4(1,1,0,1);
+    }
+    drawlist->AddCircleFilled(pos1, 5, ImGui::GetColorU32(ImVec4(col)));
+    ImVec2 text_pos(pos1.x - (ImGui::CalcTextSize(caption.c_str()).x/2), pos1.y + 5);
+    drawlist->AddText(text_pos, ImGui::GetColorU32(ImGui::GetStyle().Colors[ImGuiCol_Text]), caption.c_str());
+
+    if (ai_waypoints.size() >= 2 && idx != ai_waypoints.size() - 1)
+    {
+        ImVec2 pos2;
+        pos2.x = view_pos.x + ((ai_waypoints[idx+1].x - view_origin.x) / terrn_size_adj.x) * view_size.x;
+        pos2.y = view_pos.y + ((ai_waypoints[idx+1].z - view_origin.y) / terrn_size_adj.y) * view_size.y;
+        drawlist->AddLine(pos1, pos2, ImGui::GetColorU32(ImVec4(1,0,0,1)));
+    }
+
+    return ImGui::GetMousePos() - pos1;
+}
+
+ImVec2 SurveyMap::CalcWaypointMapPos(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin, int idx)
+{
+    Ogre::Vector2 terrn_size_adj = mTerrainSize;
+    if (mMapMode == SurveyMapMode::SMALL)
+    {
+        terrn_size_adj = mTerrainSize * (1.f - mMapZoom);
+    }
+
+    ImVec2 pos;
+    pos.x = view_pos.x + ((ai_waypoints[idx].x - view_origin.x) / terrn_size_adj.x) * view_size.x;
+    pos.y = view_pos.y + ((ai_waypoints[idx].z - view_origin.y) / terrn_size_adj.y) * view_size.y;
+
+    return ImGui::GetMousePos() - pos;
+}
+
+void SurveyMap::CacheIcons()
+{
+    // Thanks WillM for the icons!
+
+    m_left_mouse_button = FetchIcon("left-mouse-button.png");
+    m_middle_mouse_button = FetchIcon("middle-mouse-button.png");
+    m_middle_mouse_scroll_button = FetchIcon("middle-mouse-scroll-button.png");
+    m_right_mouse_button = FetchIcon("right-mouse-button.png");
+
+    m_icons_cached = true;
 }

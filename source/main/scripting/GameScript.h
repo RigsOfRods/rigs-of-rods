@@ -345,6 +345,16 @@ public:
     int getCurrentTruckNumber();
 
     Actor* spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot);
+    Actor* spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::String& truckSectionConfig, std::string& truckSkin);
+    AngelScript::CScriptArray* getWaypoints();
+    int getAIVehicleCount();
+    int getAIVehicleDistance();
+    int getAIVehiclePositionScheme();
+    int getAIVehicleSpeed();
+    Ogre::String getAIVehicleName();
+    Ogre::String getAIVehicleSectionConfig();
+    std::string getAIVehicleSkin();
+    int getAIRepeatTimes();
 
     void repairVehicle(const Ogre::String& instance, const Ogre::String& box, bool keepPosition);
 
