@@ -704,6 +704,8 @@ void ActorManager::UpdateSleepingState(Actor* player_actor, float dt)
         {
             if (actor->ar_state != ActorState::LOCAL_SIMULATED)
                 continue;
+            if (actor->ar_driveable == AI)
+                continue;
             if (actor->getVelocity().squaredLength() > 0.01f)
             {
                 actor->ar_sleep_counter = 0.0f;

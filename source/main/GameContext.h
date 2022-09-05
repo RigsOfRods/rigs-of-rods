@@ -197,6 +197,8 @@ private:
     RaceSystem          m_race_system;
     RecoveryMode        m_recovery_mode;                     //!< Aka 'advanced repair' or 'interactive reset'
     SceneMouse          m_scene_mouse;                       //!< Mouse interaction with scene
+    Ogre::Timer         m_timer;
+    Ogre::Vector3       prev_pos = Ogre::Vector3::ZERO;
 };
 
 /// @} // addtogroup GameState

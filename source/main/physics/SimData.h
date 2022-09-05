@@ -735,7 +735,8 @@ struct ActorSpawnRequest
         TERRN_DEF,    //!< Preloaded with terrain
         USER,         //!< Direct selection by user via GUI
         SAVEGAME,     //!< User spawned and part of a savegame
-        NETWORK       //!< Remote controlled
+        NETWORK,      //!< Remote controlled
+        AI            //!< Script controlled
     };
 
     CacheEntry*         asr_cache_entry = nullptr; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'

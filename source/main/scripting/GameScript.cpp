@@ -45,6 +45,8 @@
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
+#include "GUI_SurveyMap.h"
+#include "GUI_TopMenubar.h"
 #include "Language.h"
 #include "Network.h"
 #include "RoRVersion.h"
@@ -55,6 +57,7 @@
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 #include "Water.h"
+#include "CacheSystem.h"
 
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
@@ -921,6 +924,85 @@ Actor* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre:
     rq.asr_rotation = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
     rq.asr_filename = truckName;
     return App::GetGameContext()->SpawnActor(rq);
+}
+
+Actor* GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::String& truckSectionConfig, std::string& truckSkin)
+{
+    ActorSpawnRequest rq;
+    rq.asr_position = pos;
+
+    // Set rotation based on first two waypoints
+    Ogre::Vector3 dir = App::GetGuiManager()->SurveyMap.ai_waypoints[0] - App::GetGuiManager()->SurveyMap.ai_waypoints[1];
+    dir.y = 0;
+    rq.asr_rotation = Ogre::Vector3::UNIT_X.getRotationTo(dir, Ogre::Vector3::UNIT_Y);
+
+    rq.asr_filename = truckName;
+    rq.asr_config = truckSectionConfig;
+    rq.asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(truckSkin);
+    rq.asr_origin = ActorSpawnRequest::Origin::AI;
+    return App::GetGameContext()->SpawnActor(rq);
+}
+
+AngelScript::CScriptArray* GameScript::getWaypoints()
+{
+    std::vector<Ogre::Vector3> vec = App::GetGuiManager()->SurveyMap.ai_waypoints;
+    AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(AngelScript::asGetActiveContext()->GetEngine()->GetTypeInfoByDecl("array<vector3>"), vec.size());
+
+    for(AngelScript::asUINT i = 0; i < arr->GetSize(); i++)
+    {
+        // Set the value of each element
+        arr->SetValue(i, &vec[i]);
+    }
+
+    return arr;
+}
+
+int GameScript::getAIVehicleCount()
+{
+    int num = App::GetGuiManager()->TopMenubar.ai_num;
+    return num;
+}
+
+int GameScript::getAIVehicleDistance()
+{
+    int dist = App::GetGuiManager()->TopMenubar.ai_distance;
+    return dist;
+}
+
+int GameScript::getAIVehiclePositionScheme()
+{
+    int scheme = App::GetGuiManager()->TopMenubar.ai_position_scheme;
+    return scheme;
+}
+
+int GameScript::getAIVehicleSpeed()
+{
+    int speed = App::GetGuiManager()->TopMenubar.ai_speed;
+    return speed;
+}
+
+Ogre::String GameScript::getAIVehicleName()
+{
+    Ogre::String name = App::GetGuiManager()->TopMenubar.ai_fname;
+    return name;
+}
+
+Ogre::String GameScript::getAIVehicleSectionConfig()
+{
+    Ogre::String config = App::GetGuiManager()->TopMenubar.ai_sectionconfig;
+    return config;
+}
+
+std::string GameScript::getAIVehicleSkin()
+{
+    std::string skin = App::GetGuiManager()->TopMenubar.ai_skin;
+    return skin;
+}
+
+int GameScript::getAIRepeatTimes()
+{
+    int times = App::GetGuiManager()->TopMenubar.ai_times;
+    return times;
 }
 
 void GameScript::showMessageBox(Ogre::String& title, Ogre::String& text, bool use_btn1, Ogre::String& btn1_text, bool allow_close, bool use_btn2, Ogre::String& btn2_text)

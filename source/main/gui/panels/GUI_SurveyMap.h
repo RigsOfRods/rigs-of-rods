@@ -59,6 +59,8 @@ public:
 
     const char* getTypeByDriveable(int driveable);
 
+    std::vector<Ogre::Vector3> ai_waypoints;
+
 protected:
 
     enum class SurveyMapMode
@@ -70,16 +72,24 @@ protected:
 
     void setMapZoom(float zoom);
     void setMapZoomRelative(float dt_sec);
-    const char* getTypeByDriveable(ActorType driveable);
+    const char* getTypeByDriveable(ActorType driveable, Actor* actor);
+    const char* getAIType(Actor* actor);
 
     void DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin,
                      std::string const& filename, std::string const& caption, 
                      float pos_x, float pos_y, float angle);
 
+    ImVec2 DrawWaypoint(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin,
+                     std::string const& caption, int idx);
+
+    ImVec2 CalcWaypointMapPos(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin, int idx);
+
     // Window display
     SurveyMapMode mMapMode = SurveyMapMode::NONE; // Display mode
     SurveyMapMode mMapLastMode = SurveyMapMode::NONE; // Display mode
     bool          mWindowMouseHovered = false;
+    bool          mMouseClicked = false;
+    int           mWaypointNum = 0;
 
     // Map
     Ogre::Vector2 mTerrainSize = Ogre::Vector2::ZERO; // Computed reference map size (in meters)
@@ -88,8 +98,15 @@ protected:
 
     std::unique_ptr<SurveyMapTextureCreator> mMapTextureCreatorStatic;
     std::unique_ptr<SurveyMapTextureCreator> mMapTextureCreatorDynamic;
+
+    // Icon cache
+    bool m_icons_cached = false;
+    Ogre::TexturePtr m_left_mouse_button;
+    Ogre::TexturePtr m_middle_mouse_button;
+    Ogre::TexturePtr m_middle_mouse_scroll_button;
+    Ogre::TexturePtr m_right_mouse_button;
+    void CacheIcons();
 };
 
 } // namespace GUI
 } // namespace RoR
-

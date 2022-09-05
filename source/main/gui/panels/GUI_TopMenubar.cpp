@@ -34,6 +34,7 @@
 #include "GUIManager.h"
 #include "GUIUtils.h"
 #include "GUI_MainSelector.h"
+#include "GUI_SurveyMap.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "Network.h"
@@ -42,12 +43,64 @@
 #include "SkyManager.h"
 #include "Terrain.h"
 #include "Water.h"
+#include "ScriptEngine.h"
+#include "Console.h"
+#include "ContentManager.h"
 
 #include <algorithm>
 #include <fmt/format.h>
+#include <rapidjson/document.h>
+
+#ifdef USE_CURL
+#   include <curl/curl.h>
+#   include <curl/easy.h>
+#endif //USE_CURL
+
+#if defined(_MSC_VER) && defined(GetObject) // This MS Windows macro from <wingdi.h> (Windows Kit 8.1) clashes with RapidJSON
+#   undef GetObject
+#endif
 
 using namespace RoR;
 using namespace GUI;
+
+#if defined(USE_CURL)
+
+static size_t CurlWriteFunc(void *ptr, size_t size, size_t nmemb, std::string* data)
+{
+    data->append((char*)ptr, size * nmemb);
+    return size * nmemb;
+}
+
+void GetJson()
+{
+    std::string url = "https://raw.githubusercontent.com/RigsOfRods-Community/ai-waypoints/main/waypoints.json";
+    std::string response_payload;
+    long response_code = 0;
+
+    CURL *curl = curl_easy_init();
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+#ifdef _WIN32
+    curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif // _WIN32
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteFunc);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_payload);
+
+    curl_easy_perform(curl);
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
+    curl_easy_cleanup(curl);
+    curl = nullptr;
+
+    if (response_code == 200)
+    {
+        Message m(MSG_NET_REFRESH_AI_PRESETS);
+        m.description = response_payload;
+        App::GetGameContext()->PushMessage(m);
+    }
+}
+
+#endif // defined(USE_CURL)
 
 void TopMenubar::Update()
 {
@@ -64,7 +117,13 @@ void TopMenubar::Update()
     std::string savegames_title =   _LC("TopMenubar", "Saves");
     std::string settings_title =    _LC("TopMenubar", "Settings");
     std::string tools_title =       _LC("TopMenubar", "Tools");
-    const int NUM_BUTTONS = 5;
+    std::string ai_title =          _LC("TopMenubar", "Vehicle AI");
+
+    int NUM_BUTTONS = 5;
+    if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+    {
+        NUM_BUTTONS = 6;
+    }
 
     float menubar_content_width =
         (ImGui::GetStyle().ItemSpacing.x * (NUM_BUTTONS - 1)) +
@@ -74,6 +133,11 @@ void TopMenubar::Update()
         ImGui::CalcTextSize(savegames_title.c_str()).x +
         ImGui::CalcTextSize(settings_title.c_str()).x +
         ImGui::CalcTextSize(tools_title.c_str()).x;
+
+    if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+    {
+        menubar_content_width += ImGui::CalcTextSize(ai_title.c_str()).x;
+    }
 
     ImVec2 window_target_pos = ImVec2((ImGui::GetIO().DisplaySize.x/2.f) - (menubar_content_width / 2.f), theme.screen_edge_padding.y);
     if (!this->ShouldDisplay(window_target_pos))
@@ -94,6 +158,11 @@ void TopMenubar::Update()
     ImGui::SetNextWindowPos(window_target_pos);
     ImGui::Begin("Top menubar", nullptr, flags);
 
+    if (ImGui::IsWindowHovered())
+    {
+        ai_menu = false;
+    }
+
     // The 'simulation' button
     ImVec2 window_pos = ImGui::GetWindowPos();
     ImVec2 sim_cursor = ImGui::GetCursorPos();
@@ -101,6 +170,20 @@ void TopMenubar::Update()
     if ((m_open_menu != TopMenu::TOPMENU_SIM) && ImGui::IsItemHovered())
     {
         m_open_menu = TopMenu::TOPMENU_SIM;
+    }
+
+    // The 'AI' button
+    ImVec2 ai_cursor = ImVec2(0, 0);
+
+    if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+    {
+        ImGui::SameLine();
+        ai_cursor = ImGui::GetCursorPos();
+        ImGui::Button(ai_title.c_str());
+        if ((m_open_menu != TopMenu::TOPMENU_AI) && ImGui::IsItemHovered())
+        {
+            m_open_menu = TopMenu::TOPMENU_AI;
+        }
     }
 
     ImGui::SameLine();
@@ -691,6 +774,362 @@ void TopMenubar::Update()
         }
         break;
 
+    case TopMenu::TOPMENU_AI:
+        menu_pos.y = window_pos.y + ai_cursor.y + MENU_Y_OFFSET;
+        menu_pos.x = ai_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
+        ImGui::SetNextWindowPos(menu_pos);
+        if (ImGui::Begin(_LC("TopMenubar", "AI menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+        {
+            if (ImGui::IsWindowHovered())
+            {
+                ai_menu = false;
+            }
+
+            ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
+            ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "General options:"));
+
+            if (ai_num < 1)
+                ai_num = 1;
+
+            ImGui::InputInt(_LC("TopMenubar", "Vehicle count"), &ai_num, 1, 100);
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text(_LC("TopMenubar", "Number of vehicles"));
+                ImGui::EndTooltip();
+            }
+
+            if (ai_num < 2)
+            {
+                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+            }
+
+            ImGui::InputInt(_LC("TopMenubar", "Distance"), &ai_distance, 1, 100);
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text(_LC("TopMenubar", "Following distance in meters"));
+                ImGui::EndTooltip();
+            }
+
+            std::string label1 = "Behind";
+            if (ai_position_scheme == 1)
+            {
+                label1 = "Parallel";
+            }
+
+            if (ImGui::BeginCombo("Position", label1.c_str()))
+            {
+                if (ImGui::Selectable("Behind"))
+                {
+                    ai_position_scheme = 0;
+                }
+                if (ImGui::Selectable("Parallel"))
+                {
+                    ai_position_scheme = 1;
+                }
+                ImGui::EndCombo();
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text(_LC("TopMenubar", "Positioning scheme"));
+                ImGui::Separator();
+                ImGui::Text(_LC("TopMenubar", "Behind: Set vehicle behind vehicle, in line"));
+                ImGui::Text(_LC("TopMenubar", "Parallel: Set vehicles in parallel, useful for certain scenarios like drag races"));
+                ImGui::EndTooltip();
+            }
+
+            if (ai_num < 2)
+            {
+                ImGui::PopItemFlag();
+                ImGui::PopStyleVar();
+            }
+
+            if (ai_times < 1)
+                ai_times = 1;
+
+            ImGui::InputInt(_LC("TopMenubar", "Repeat times"), &ai_times, 1, 100);
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text(_LC("TopMenubar", "How many times to loop the path"));
+                ImGui::EndTooltip();
+            }
+
+            ImGui::Separator();
+            ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Vehicle options:"));
+
+            if (ai_speed < 1)
+                ai_speed = 1;
+
+            ImGui::InputInt(_LC("TopMenubar", "Speed"), &ai_speed, 1, 100);
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text(_LC("TopMenubar", "Speed in km/h for land vehicles or knots/s for boats"));
+                ImGui::EndTooltip();
+            }
+
+            std::string label2 = "Normal";
+            if (ai_mode == 1)
+            {
+                label2 = "Race";
+            }
+            else if (ai_mode == 2)
+            {
+                label2 = "Chase";
+            }
+
+            if (ImGui::BeginCombo("Mode", label2.c_str()))
+            {
+                if (ImGui::Selectable("Normal"))
+                {
+                    ai_mode = 0;
+                }
+                if (ImGui::Selectable("Race"))
+                {
+                    ai_mode = 1;
+                }
+                if (ImGui::Selectable("Chase"))
+                {
+                    ai_mode = 2;
+                }
+                ImGui::EndCombo();
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text(_LC("TopMenubar", "Land vehicle driving mode"));
+                ImGui::Separator();
+                ImGui::Text(_LC("TopMenubar", "Normal: Modify speed according to turns, other vehicles and character"));
+                ImGui::Text(_LC("TopMenubar", "Race: Always keep defined speed"));
+                ImGui::Text(_LC("TopMenubar", "Chase: Follow character and player vehicle"));
+                ImGui::EndTooltip();
+            }
+
+            if (ai_altitude < 1)
+                ai_altitude = 1;
+
+            ImGui::InputInt(_LC("TopMenubar", "Altitude"), &ai_altitude, 1, 100);
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text(_LC("TopMenubar", "Airplane maximum altitude in feet"));
+                ImGui::EndTooltip();
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::Button(StripColorMarksFromText(ai_dname).c_str(), ImVec2(250, 0)))
+            {
+                ai_select = true;
+
+                RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+                m.payload = reinterpret_cast<void*>(new LoaderType(LT_AllBeam));
+                App::GetGameContext()->PushMessage(m);
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text(_LC("TopMenubar", "Land vehicles, boats and airplanes"));
+                ImGui::EndTooltip();
+            }
+
+            ImGui::Separator();
+
+            if (ai_rec)
+            {
+                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+            }
+
+            if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 2)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
+            }
+
+            if (ImGui::Button(_LC("TopMenubar", "Start"), ImVec2(80, 0)))
+            {
+                if (ai_mode == 2)
+                {
+                    App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
+                    if (App::GetGameContext()->GetPlayerActor()) // We are in vehicle
+                    {
+                        App::GetGuiManager()->SurveyMap.ai_waypoints.push_back(App::GetGameContext()->GetPlayerActor()->getPosition() + Ogre::Vector3(20, 0, 0));
+                    }
+                    else // We are in feet
+                    {
+                        App::GetGuiManager()->SurveyMap.ai_waypoints.push_back(App::GetGameContext()->GetPlayerCharacter()->getPosition() + Ogre::Vector3(20, 0, 0));
+                    }
+                    App::GetScriptEngine()->loadScript("AI.as", ScriptCategory::CUSTOM);
+                }
+                else
+                {
+                    if (App::GetGuiManager()->SurveyMap.ai_waypoints.empty())
+                    {
+                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                      fmt::format(_LC("TopMenubar", "Select a preset, record or open survey map ({}) to set waypoints."),
+                                                      App::GetInputEngine()->getEventCommandTrimmed(EV_SURVEY_MAP_CYCLE)), "lightbulb.png");
+                    }
+                    else
+                    {
+                        App::GetScriptEngine()->loadScript("AI.as", ScriptCategory::CUSTOM);
+                    }
+                }
+            }
+
+            if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 2)
+            {
+                ImGui::PopStyleColor();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button(_LC("TopMenubar", "Stop"), ImVec2(80, 0)))
+            {
+                if (ai_mode == 2)
+                {
+                    App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
+                }
+
+                for (auto actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
+                {
+                    if (actor->ar_driveable == AI)
+                    {
+                        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
+                    }
+                }
+            }
+
+            if (ai_rec)
+            {
+                ImGui::PopItemFlag();
+                ImGui::PopStyleVar();
+            }
+
+            ImGui::SameLine();
+
+            ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+            std::string label = "Record";
+            if (ai_rec)
+            {
+                label = "Recording";
+                ImGui::PushStyleColor(ImGuiCol_Button, RED_TEXT);
+            }
+
+            if (ImGui::Button(label.c_str(), ImVec2(80, 0)))
+            {
+                if (!ai_rec)
+                {
+                    App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
+                    ai_rec = true;
+                }
+                else
+                {
+                   ai_rec = false;
+                }
+            }
+
+            ImGui::PopStyleColor();
+            ImGui::Separator();
+
+            bool is_open = ImGui::CollapsingHeader(_LC("TopMenubar", "Presets"));
+            if (ImGui::IsItemActivated() && !is_open && j_doc.Empty()) // Fetch once
+            {
+                this->GetPresets();
+                //App::GetContentManager()->LoadAndParseJson("waypoints.json", RGN_SAVEGAMES, j_doc);
+            }
+
+            if (is_open && j_doc.Empty())
+            {
+                float spinner_size = 8.f;
+                ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - spinner_size);
+                LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
+            }
+
+            if (is_open && !j_doc.Empty())
+            {
+                size_t num_rows = j_doc.GetArray().Size();
+                int count = 0;
+                for (size_t i = 0; i < num_rows; i++)
+                {
+                    rapidjson::Value& j_row =  j_doc[static_cast<rapidjson::SizeType>(i)];
+
+                    if (App::sim_terrain_name->getStr() == j_row["terrain"].GetString())
+                    {
+                        count++;
+                        if (ImGui::Button(j_row["preset"].GetString(), ImVec2(250, 0)))
+                        {
+                            App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
+
+                            for (size_t i = 0; i < j_row["waypoints"].Size(); i++)
+                            {
+                                float x = j_row["waypoints"][i][0].GetFloat();
+                                float y = j_row["waypoints"][i][1].GetFloat();
+                                float z = j_row["waypoints"][i][2].GetFloat();
+                                App::GetGuiManager()->SurveyMap.ai_waypoints.push_back(Ogre::Vector3(x, y, z));
+                            }
+                        }
+                    }
+                }
+                if (count == 0)
+                {
+                    ImGui::Text(_LC("TopMenubar", "No presets found for this terrain :("));
+                }
+            }
+
+            if (ImGui::CollapsingHeader(_LC("TopMenubar", "Waypoints")))
+            {
+                if (App::GetGuiManager()->SurveyMap.ai_waypoints.empty())
+                {
+                    ImGui::Text(_LC("TopMenubar", "No waypoints defined."));
+                }
+                else
+                {
+                    if (ImGui::Button(_LC("TopMenubar", "Export"), ImVec2(250, 0)))
+                    {
+                        for (int i = 0; i < App::GetGuiManager()->SurveyMap.ai_waypoints.size(); i++)
+                        {
+                            std::string s = "[" + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].x) + ", " + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].y) + ", " + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].z) + "],";
+                            RoR::Log(s.c_str());
+                        }
+                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                      fmt::format(_LC("TopMenubar", "{} waypoints exported to RoR.log"),
+                                                      App::GetGuiManager()->SurveyMap.ai_waypoints.size()), "lightbulb.png");
+                    }
+
+                    ImGui::BeginChild("waypoints-scrolling", ImVec2(0.f, 200), false);
+
+                    for (int i = 0; i < App::GetGuiManager()->SurveyMap.ai_waypoints.size(); i++)
+                    {
+                        ImGui::PushID(i);
+                        ImGui::AlignTextToFramePadding();
+                        ImGui::Text(std::to_string(i).c_str());
+                        ImGui::SameLine();
+                        std::string w = std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].x) + " " + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].y) + " " + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].z);
+                        if (ImGui::Button(w.c_str(), ImVec2(230, 0)))
+                        {
+                            Ogre::Vector3* payload = new Ogre::Vector3(App::GetGuiManager()->SurveyMap.ai_waypoints[i]);
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_TELEPORT_PLAYER_REQUESTED, (void*)payload));
+                        }
+                        ImGui::PopID();
+                    }
+
+                    ImGui::EndChild();
+                }
+            }
+
+            ImGui::PopItemWidth();
+            m_open_menu_hoverbox_min = menu_pos;
+            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
+            App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
+            ImGui::End();
+        }
+        break;
+
     default:
         m_open_menu_hoverbox_min = ImVec2(0,0);
         m_open_menu_hoverbox_max = ImVec2(0,0);
@@ -704,6 +1143,12 @@ bool TopMenubar::ShouldDisplay(ImVec2 window_pos)
     if (!App::GetGuiManager()->AreStaticMenusAllowed())
     {
         return false;
+    }
+
+    if (ai_menu)
+    {
+        m_open_menu = TopMenu::TOPMENU_AI;
+        return true;
     }
 
     ImVec2 box_min(0,0);
@@ -991,4 +1436,17 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         }
         ImGui::PopStyleColor(1); // WindowBg
     }
+}
+
+void TopMenubar::Refresh(std::string payload)
+{
+    j_doc.Parse(payload.c_str());
+}
+
+void TopMenubar::GetPresets()
+{
+#if defined(USE_CURL)
+    std::packaged_task<void()> task(GetJson);
+    std::thread(std::move(task)).detach();
+#endif // defined(USE_CURL)
 }

@@ -46,6 +46,7 @@ void RoR::RegisterVehicleAi(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("VehicleAIClass", "void setActive(bool)", asMETHOD(VehicleAI, SetActive), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("VehicleAIClass", "void addEvent(string &in,int &in)", asMETHOD(VehicleAI, AddEvent), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("VehicleAIClass", "void setValueAtWaypoint(string &in, int &in, float &in)", asMETHOD(VehicleAI, SetValueAtWaypoint), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("VehicleAIClass", "vector3 getTranslation(int &in, uint &in)", AngelScript::asMETHOD(VehicleAI, getTranslation), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectBehaviour("VehicleAIClass", asBEHAVE_ADDREF, "void f()", asMETHOD(VehicleAI, addRef), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectBehaviour("VehicleAIClass", asBEHAVE_RELEASE, "void f()", asMETHOD(VehicleAI, release), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 

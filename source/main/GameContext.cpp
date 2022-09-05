@@ -33,6 +33,8 @@
 #include "GUIManager.h"
 #include "GUI_FrictionSettings.h"
 #include "GUI_MainSelector.h"
+#include "GUI_TopMenubar.h"
+#include "GUI_SurveyMap.h"
 #include "InputEngine.h"
 #include "OverlayWrapper.h"
 #include "Replay.h"
@@ -245,6 +247,17 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
         if (rq.asr_terrn_machine)
         {
             fresh_actor->ar_driveable = MACHINE;
+        }
+    }
+    else if (rq.asr_origin == ActorSpawnRequest::Origin::AI)
+    {
+        fresh_actor->ar_driveable = AI;
+        fresh_actor->ar_state = ActorState::LOCAL_SIMULATED;
+
+        if (fresh_actor->ar_engine)
+        {
+            fresh_actor->ar_engine->SetAutoMode(RoR::SimGearboxMode::AUTO);
+            fresh_actor->ar_engine->autoShiftSet(EngineSim::DRIVE);
         }
     }
     else if (rq.asr_origin == ActorSpawnRequest::Origin::NETWORK)
@@ -575,6 +588,12 @@ void GameContext::ShowLoaderGUI(int type, const Ogre::String& instance, const Og
 void GameContext::OnLoaderGuiCancel()
 {
     m_current_selection = ActorSpawnRequest(); // Reset
+
+    if (App::GetGuiManager()->TopMenubar.ai_select)
+    {
+        App::GetGuiManager()->TopMenubar.ai_select = false;
+        App::GetGuiManager()->TopMenubar.ai_menu = true;
+    }
 }
 
 void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::string sectionconfig)
@@ -584,6 +603,10 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
     {
     case LT_Skin:
         m_current_selection.asr_skin_entry = entry;
+        if (App::GetGuiManager()->TopMenubar.ai_select)
+        {
+            App::GetGuiManager()->TopMenubar.ai_skin = entry->dname;
+        }
         spawn_now = true;
         break;
 
@@ -626,10 +649,21 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
 
     if (spawn_now)
     {
-        ActorSpawnRequest* rq = new ActorSpawnRequest;
-        *rq = m_current_selection;
-        this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
-        m_current_selection = ActorSpawnRequest(); // Reset
+        if (App::GetGuiManager()->TopMenubar.ai_select)
+        {
+            App::GetGuiManager()->TopMenubar.ai_fname = m_current_selection.asr_cache_entry->fname;
+            App::GetGuiManager()->TopMenubar.ai_dname = m_current_selection.asr_cache_entry->dname;
+            App::GetGuiManager()->TopMenubar.ai_sectionconfig = sectionconfig;
+            App::GetGuiManager()->TopMenubar.ai_select = false;
+            App::GetGuiManager()->TopMenubar.ai_menu = true;
+        }
+        else
+        {
+            ActorSpawnRequest* rq = new ActorSpawnRequest;
+            *rq = m_current_selection;
+            this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+            m_current_selection = ActorSpawnRequest(); // Reset
+        }
     }
 }
 
@@ -888,7 +922,8 @@ void GameContext::UpdateSimInputEvents(float dt)
         else // We're in a vehicle -> If moving slowly enough, get out
         {
             if (this->GetPlayerActor()->ar_nodes[0].Velocity.squaredLength() < 1.0f ||
-                this->GetPlayerActor()->ar_state == ActorState::NETWORKED_OK || this->GetPlayerActor()->ar_state == ActorState::NETWORKED_HIDDEN)
+                this->GetPlayerActor()->ar_state == ActorState::NETWORKED_OK || this->GetPlayerActor()->ar_state == ActorState::NETWORKED_HIDDEN ||
+                this->GetPlayerActor()->ar_driveable == AI)
             {
                 this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, nullptr));
             }
@@ -959,6 +994,35 @@ void GameContext::UpdateSimInputEvents(float dt)
                 nearest_actor->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
             }
         }
+    }
+
+    // AI waypoint recording
+    if (App::GetGuiManager()->TopMenubar.ai_rec)
+    {
+        if (m_timer.getMilliseconds() > 1000) // Don't spam it, record every 1 sec
+        {
+            if (App::GetGameContext()->GetPlayerActor()) // We are in vehicle
+            {
+                if (App::GetGameContext()->GetPlayerActor()->getPosition().distance(prev_pos) >= 5) // Skip very close positions
+                {
+                    App::GetGuiManager()->SurveyMap.ai_waypoints.push_back(App::GetGameContext()->GetPlayerActor()->getPosition());
+                }
+                prev_pos = App::GetGameContext()->GetPlayerActor()->getPosition();
+            }
+            else // We are in feet
+            {
+                if (App::GetGameContext()->GetPlayerCharacter()->getPosition() != prev_pos) // Skip same positions
+                {
+                    App::GetGuiManager()->SurveyMap.ai_waypoints.push_back(App::GetGameContext()->GetPlayerCharacter()->getPosition());
+                }
+                prev_pos = App::GetGameContext()->GetPlayerCharacter()->getPosition();
+            }
+            m_timer.reset();
+        }
+    }
+    else
+    {
+        prev_pos = Ogre::Vector3::ZERO;
     }
 }
 

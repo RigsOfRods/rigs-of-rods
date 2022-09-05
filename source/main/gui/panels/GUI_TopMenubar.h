@@ -28,6 +28,7 @@
 #include "RoRnet.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <vector>
 
 namespace RoR {
@@ -44,7 +45,7 @@ public:
     const ImVec4  ORANGE_TEXT           = ImVec4(0.9f, 0.6f, 0.0f, 1.f);
     const ImVec4  RED_TEXT              = ImVec4(1.00f, 0.00f, 0.00f, 1.f);
 
-    enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS };
+    enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS, TOPMENU_AI };
 
     TopMenubar(): m_open_menu(TopMenu::TOPMENU_NONE), m_daytime(0), m_quickload(false), m_confirm_remove_all(false) {}
 
@@ -52,6 +53,24 @@ public:
     bool ShouldDisplay(ImVec2 window_pos);
 
     bool IsVisible() { return m_open_menu != TopMenu::TOPMENU_NONE; };
+
+    // Vehicle AI
+    int ai_num = 1;
+    int ai_speed = 50;
+    int ai_times = 1;
+    int ai_altitude = 1000;
+    int ai_distance = 20;
+    int ai_position_scheme = 0;
+    Ogre::String ai_fname = "95bbUID-agoras.truck";
+    Ogre::String ai_dname = "Bus RVI Agora S";
+    Ogre::String ai_sectionconfig = "";
+    std::string ai_skin = "";
+    bool ai_select = false;
+    bool ai_rec = false;
+    int ai_mode = 0;
+    bool ai_menu = false;
+
+    void Refresh(std::string payload);
 
 private:
     void DrawActorListSinglePlayer();
@@ -68,6 +87,9 @@ private:
     bool    m_quickload;
     std::string m_quicksave_name;
     std::vector<std::string> m_savegame_names;
+
+    void GetPresets();
+    rapidjson::Document j_doc;
 };
 
 } // namespace GUI
