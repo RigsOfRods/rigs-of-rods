@@ -67,6 +67,12 @@ void SurveyMap::Draw()
         {
             setMapZoomRelative(-ImGui::GetIO().DeltaTime);
         }
+
+        // Zoom in/out with mouse wheel also
+        if (mWindowMouseHovered)
+        {
+            setMapZoomRelative(ImGui::GetIO().MouseWheel*0.5f);
+        }
     }
 
     // Calculate window position
