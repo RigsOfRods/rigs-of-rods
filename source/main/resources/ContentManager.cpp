@@ -379,6 +379,12 @@ void ContentManager::InitManagedMaterials(std::string const & rg_name)
         ResourceGroupManager::getSingleton().initialiseResourceGroup(rg_name);
 }
 
+void ContentManager::ForcePerPixelLighting(MaterialPtr mat1)
+{
+    Ogre::RTShader::ShaderGenerator* mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+    mShaderGenerator->createShaderBasedTechnique(*mat1, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
+}
+
 void ContentManager::LoadGameplayResources()
 {
     if (!m_base_resource_loaded)
@@ -419,14 +425,6 @@ void ContentManager::LoadGameplayResources()
     Ogre::RTShader::ShaderGenerator* mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
     mShaderGenerator->setShaderCachePath(cache_path);      
     mShaderGenerator->addSceneManager(App::GetGfxScene()->GetSceneManager());
-
-    MaterialPtr mat1 = MaterialManager::getSingleton().getByName("truckshop", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-    mShaderGenerator->createShaderBasedTechnique(*mat1, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-
-    //RoR::App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-    //Ogre::RTShader::RenderState* schemRenderState = mShaderGenerator->getRenderState(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-    //Ogre::RTShader::PerPixelLighting* perPixelLightModel = mShaderGenerator->createSubRenderState<Ogre::RTShader::PerPixelLighting>();
-    //schemRenderState->addTemplateSubRenderState(perPixelLightModel);
 
     RoR::App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
     Ogre::RTShader::RenderState* schemRenderState = mShaderGenerator->getRenderState(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);

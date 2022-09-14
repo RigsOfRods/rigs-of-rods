@@ -26,6 +26,7 @@
 #include "CacheSystem.h"
 #include "Collisions.h"
 #include "Console.h"
+#include "ContentManager.h"
 #include "ErrorUtils.h"
 #include "Language.h"
 #include "GameContext.h"
@@ -642,6 +643,14 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             String newmatname = matname + "/" + instancename;
             se->getMaterial()->clone(newmatname);
             se->setMaterialName(newmatname);
+        }
+    }
+
+    if (mo && App::gfx_enable_rtshaders->getBool())
+    {
+        for (Ogre::SubEntity* subent : mo->getEntity()->getSubEntities())
+        {
+            App::GetContentManager()->ForcePerPixelLighting(subent->getMaterial());
         }
     }
 

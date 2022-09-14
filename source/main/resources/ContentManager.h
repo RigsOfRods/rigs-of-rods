@@ -91,6 +91,9 @@ public:
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
     bool               DeleteDiskFile(std::string const& filename, std::string const& rg_name);
 
+    // RTSS:
+    void               ForcePerPixelLighting(Ogre::MaterialPtr mat);
+
     // JSON:
     bool               LoadAndParseJson(std::string const& filename, std::string const& rg_name, rapidjson::Document& j_doc);
     bool               SerializeAndWriteJson(std::string const& filename, std::string const& rg_name, rapidjson::Document& j_doc);
@@ -107,6 +110,7 @@ private:
 
     CacheSystem       m_mod_cache; //!< Database of addon content
     bool              m_base_resource_loaded;
+    Ogre::PSSMShadowCameraSetup* pssmSetup = nullptr;
 };
 
 } // namespace RoR
