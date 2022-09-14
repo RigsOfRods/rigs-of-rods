@@ -22,6 +22,7 @@
 
 #include "Application.h"
 #include "Collisions.h"
+#include "ContentManager.h"
 #include "GfxScene.h"
 #include "Terrain.h"
 
@@ -64,11 +65,13 @@ void ProceduralRoad::finish()
     addQuad(pts[3], pts[2], pts[1], pts[0], TEXFIT_NONE, lastpos, lastpos, lastwidth);
 
     createMesh();
+    createMaterial();
     String entity_name = String("RoadSystem_Instance-").append(StringConverter::toString(mid));
     String mesh_name = String("RoadSystem-").append(StringConverter::toString(mid));
     Entity* ec = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name, mesh_name);
     snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     snode->attachObject(ec);
+    ec->setMaterial(mat);
 }
 
 void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, int type, float width, float bwidth, float bheight, int pillartype)
@@ -565,8 +568,7 @@ void ProceduralRoad::createMesh()
     Ogre::String mesh_name = Ogre::String("RoadSystem-").append(Ogre::StringConverter::toString(mid));
     msh = MeshManager::getSingleton().createManual(mesh_name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
-    mainsub = msh->createSubMesh();
-    mainsub->setMaterialName("road2");
+    SubMesh* mainsub = msh->createSubMesh();
 
     /// Define the vertices
     size_t vbufCount = (2 * 3 + 2) * vertexcount;
@@ -654,3 +656,20 @@ void ProceduralRoad::createMesh()
 
     free(vertices);
 };
+
+void ProceduralRoad::createMaterial()
+{
+    if (!msh)
+    {
+        return;
+    }
+
+    // TODO: allow modders to specify custom material
+    MaterialPtr orig_mat = Ogre::MaterialManager::getSingleton().getByName("road2");
+    mat = orig_mat->clone(fmt::format("RoadSystem-Material-{}", mid));
+    if (App::gfx_enable_rtshaders->getBool())
+    {
+        App::GetContentManager()->ForcePerPixelLighting(mat);
+    }
+    
+}
