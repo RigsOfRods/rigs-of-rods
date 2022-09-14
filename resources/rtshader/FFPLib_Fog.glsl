@@ -1,11 +1,10 @@
-#version 120
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
 (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org
 
-Copyright (c) 2000-2009 Torus Knot Software Ltd
+Copyright (c) 2000-2014 Torus Knot Software Ltd
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -31,9 +30,9 @@ THE SOFTWARE.
 // Program Desc: Fog functions of the FFP.
 // Program Type: Vertex/Pixel shader
 // Language: GLSL
-// Notes: Implements cor functions needed by FFPFog class.
+// Notes: Implements core functions needed by FFPFog class.
 // Based on fog engine. 
-// See http://msdn.microsoft.com/en-us/library/ee418582.aspx
+// See http://msdn.microsoft.com/en-us/library/bb173398.aspx
 // Vertex based fog: the w component of the out position is used
 // as the distance parameter to fog formulas. This is basically the z coordinate
 // in world space. See pixel fog under D3D docs. The fog factor is computed according 
@@ -95,6 +94,19 @@ void FFP_PixelFog_Depth(in mat4 mWorldViewProj,
 {
 	vec4 vOutPos  = mWorldViewProj * pos;
 	oDepth			= vOutPos.w;	
+}
+
+
+//-----------------------------------------------------------------------------
+void FFP_PixelFog_PositionDepth(in mat4 mWorld, 
+				   in vec3 cameraPos,
+				   in vec4 pos, 				   				   				   
+				   out vec3 oPosView,
+				   out float oDepth)
+{
+	vec4 vOutPos  = mWorld * pos;
+	oPosView      = vOutPos.xyz - cameraPos;
+	oDepth        = length(oPosView);	
 }
 
 //-----------------------------------------------------------------------------

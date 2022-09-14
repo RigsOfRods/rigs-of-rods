@@ -4,7 +4,7 @@ This source file is part of OGRE
 (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org
 
-Copyright (c) 2000-2009 Torus Knot Software Ltd
+Copyright (c) 2000-2014 Torus Knot Software Ltd
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -33,9 +33,9 @@ THE SOFTWARE.
 // Notes: Implements core functions for FFPTexturing class.
 // based on texturing operations needed by render system.
 // Implements texture coordinate processing:
-// see http://msdn.microsoft.com/en-us/library/ee422494.aspx
+// see http://msdn.microsoft.com/en-us/library/bb206247.aspx
 // Implements texture blending operation:
-// see http://msdn.microsoft.com/en-us/library/ee422488.aspx
+// see http://msdn.microsoft.com/en-us/library/bb206241.aspx
 //-----------------------------------------------------------------------------
 
 
@@ -64,46 +64,19 @@ void FFP_GenerateTexCoord_EnvMap_Normal(in float4x4 mWorldIT,
 }
 
 //-----------------------------------------------------------------------------
-void FFP_GenerateTexCoord_EnvMap_Normal(in float4x4 mWorldIT, 
-						   in float4x4 mView,
-						   in float4x4 mTexture,
-						   in float3 vNormal,
-						   out float3 vOut)
+void FFP_GenerateTexCoord_EnvMap_Sphere(in	float4x4	mWorld,
+										in	float4x4	mView,
+										in	float4x4	mWorldIT,
+										in	float4		vPos,
+										in	float3		vNormal,
+										out float2		vOut)
 {
-	float3 vWorldNormal = mul((float3x3)mWorldIT, vNormal);
-	float3 vViewNormal  = mul((float3x3)mView, vWorldNormal);
-	
-	vOut = mul(mTexture, float4(vViewNormal, 1)).xyz;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_GenerateTexCoord_EnvMap_Sphere(in float4x4 mWorld, 
-						   in float4x4 mView,
-						   in float3 vNormal,
-						   out float2 vOut)
-{	
-	float3 vWorldNormal = mul((float3x3)mWorld, vNormal);
-	float3 vViewNormal  = mul((float3x3)mView, vWorldNormal);
-
-	vOut.x = vViewNormal.x/2 + 0.5;
-	vOut.y = -vViewNormal.y/2 + 0.5;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_GenerateTexCoord_EnvMap_Sphere(in float4x4 mWorld, 
-						   in float4x4 mView,
-						   in float4x4 mTexture,
-						   in float3 vNormal,
-						   out float2 vOut)
-{	
-	float3 vWorldNormal = mul((float3x3)mWorld, vNormal);
-	float3 vViewNormal  = mul((float3x3)mView, vWorldNormal);
-	float2 vSphereCoords;
-
-	vSphereCoords.x = vViewNormal.x/2 + 0.5;
-	vSphereCoords.y = -vViewNormal.y/2 + 0.5;
-	
-	vOut = mul(mTexture, float4(vSphereCoords, 0, 0)).xy;
+	float4x4 worldview = mul(mView,mWorld);
+	float3 normal = normalize(mul(mWorldIT,float4(vNormal,0.0)).xyz); 
+	float3 eyedir =  normalize(mul(worldview, vPos)).xyz;
+	float3 r = reflect(eyedir, normal);
+	float two_p = 2 * sqrt( r.x *  r.x +  r.y *  r.y +  (r.z + 1) *  (r.z + 1));
+	vOut = float2(0.5 + r.x / two_p,0.5 - r.y / two_p);
 }
 
 //-----------------------------------------------------------------------------
@@ -132,39 +105,6 @@ void FFP_GenerateTexCoord_EnvMap_Reflect(in float4x4 mWorld,
  	matViewT[2][1] = -matViewT[2][1];
   	matViewT[2][2] = -matViewT[2][2];
  	vReflect = mul((float3x3)matViewT, vReflect);
- 	
-	vOut = vReflect;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_GenerateTexCoord_EnvMap_Reflect(in float4x4 mWorld, 
-							in float4x4 mWorldIT, 
-						   in float4x4 mView,	
-						   in float4x4 mTexture,					  
-						   in float3 vNormal,
-						   in float4 vPos,						  
-						   out float3 vOut)
-{		
-	mView[2][0] = -mView[2][0];
-	mView[2][1] = -mView[2][1];
-	mView[2][2] = -mView[2][2];
-	mView[2][3] = -mView[2][3];
-	
-	float4x4 matViewT = transpose(mView);
-
-	float3 vWorldNormal = mul((float3x3)mWorldIT, vNormal);
-	float3 vViewNormal  = mul((float3x3)mView, vWorldNormal);
-	float4 vWorldPos    = mul(mWorld, vPos);
-	float3 vNormViewPos  = normalize(mul(mView, vWorldPos).xyz);
-	
-	float3 vReflect = reflect(vNormViewPos, vViewNormal);
-
-	matViewT[2][0] = -matViewT[2][0];
- 	matViewT[2][1] = -matViewT[2][1];
-  	matViewT[2][2] = -matViewT[2][2];
- 	vReflect = mul((float3x3)matViewT, vReflect);	
-
- 	vReflect = mul(mTexture, float4(vReflect,1)).xyz;
  	
 	vOut = vReflect;
 }

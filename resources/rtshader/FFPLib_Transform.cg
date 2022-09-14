@@ -4,7 +4,7 @@ This source file is part of OGRE
 (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org
 
-Copyright (c) 2000-2009 Torus Knot Software Ltd
+Copyright (c) 2000-2014 Torus Knot Software Ltd
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -32,14 +32,47 @@ THE SOFTWARE.
 // Language: CG
 // Notes: Implements core functions for FFPTransform class.
 // based on transform engine. 
-// See http://msdn.microsoft.com/en-us/library/ee422511.aspx
+// See http://msdn.microsoft.com/en-us/library/bb206269.aspx
 //-----------------------------------------------------------------------------
 
-
+//-----------------------------------------------------------------------------
+void FFP_Transform(in float3x3 m, 
+				   in float3 v, 
+				   out float3 vOut)
+{
+	vOut = mul(m, v);
+}
 //-----------------------------------------------------------------------------
 void FFP_Transform(in float4x4 m, 
 				   in float4 v, 
 				   out float4 vOut)
 {
 	vOut = mul(m, v);
+}
+//-----------------------------------------------------------------------------
+#ifndef OPENGL_ES_2
+
+//-----------------------------------------------------------------------------
+void FFP_Transform(in float3x4 m, 
+				   in float4 v, 
+				   out float3 vOut)
+{
+	vOut = mul(m, v);
+}
+
+//-----------------------------------------------------------------------------
+void FFP_Transform(in float3x4 m, 
+				   in float3 v, 
+				   out float3 vOut)
+{
+	vOut = mul((float3x3)m, v);
+}
+//-----------------------------------------------------------------------------
+#endif 
+//-----------------------------------------------------------------------------
+void FFP_Transform(in float4x4 m, 
+				   in float3 v, 
+				   out float3 vOut)
+{
+	vOut = mul((float3x3)m, v);
 }
