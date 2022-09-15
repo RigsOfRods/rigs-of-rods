@@ -521,10 +521,12 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
         j_entry.AddMember("lights", (int)actor->m_headlight_on, j_doc.GetAllocator());
         j_entry.AddMember("blink_type", (int)actor->getBlinkType(), j_doc.GetAllocator());
-        j_entry.AddMember("pp_beacon_light", actor->m_beacon_light_on, j_doc.GetAllocator());
         j_entry.AddMember("custom_particles", actor->m_custom_particles_enabled, j_doc.GetAllocator());
 
         // Flares
+        // "beacon_light" was "pp_beacon_light" since release 2021.02 (savegame file format 2).
+        // It was caused by find-&-replace derp in commit 5a159ad9c0d0ffb1fa3e6f4f9c4577fab3910e3e.
+        j_entry.AddMember("beacon_light", actor->m_beacon_light_on, j_doc.GetAllocator());
         rapidjson::Value j_custom_lights(rapidjson::kArrayType);
         for (int i = 0; i < MAX_CLIGHTS; i++)
         {
@@ -803,11 +805,13 @@ void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_ent
         actor->lightsToggle();
     }
     actor->setBlinkType(BlinkType(j_entry["blink_type"].GetInt()));
-    actor->m_beacon_light_on = j_entry["pp_beacon_light"].GetBool();
     if (actor->m_custom_particles_enabled != j_entry["custom_particles"].GetBool())
     {
         actor->toggleCustomParticles();
     }
+    // "beacon_light" was "pp_beacon_light" since release 2021.02 (savegame file format 2).
+    // It was caused by find-&-replace derp in commit 5a159ad9c0d0ffb1fa3e6f4f9c4577fab3910e3e.
+    actor->m_beacon_light_on = (j_entry.HasMember("beacon_light")) ? j_entry["beacon_light"].GetBool() : j_entry["pp_beacon_light"].GetBool();
 
     if (j_entry.HasMember("custom_lights"))
     {
