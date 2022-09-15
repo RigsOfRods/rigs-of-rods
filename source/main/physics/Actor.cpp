@@ -2941,35 +2941,6 @@ void Actor::lightsToggle()
         }
     }
     m_headlight_on = !m_headlight_on;
-    if (!m_headlight_on)
-    {
-        for (size_t i = 0; i < ar_flares.size(); i++)
-        {
-            if (ar_flares[i].fl_type == FlareType::HEADLIGHT)
-            {
-                ar_flares[i].snode->setVisible(false);
-                if (ar_flares[i].bbs)
-                    ar_flares[i].snode->detachAllObjects();
-                if (ar_flares[i].light)
-                    ar_flares[i].light->setVisible(false);
-                ar_flares[i].isVisible = false;
-            }
-        }
-    }
-    else
-    {
-        for (size_t i = 0; i < ar_flares.size(); i++)
-        {
-            if (ar_flares[i].fl_type == FlareType::HEADLIGHT)
-            {
-                if (ar_flares[i].light)
-                    ar_flares[i].light->setVisible(true);
-                ar_flares[i].isVisible = true;
-                if (ar_flares[i].bbs)
-                    ar_flares[i].snode->attachObject(ar_flares[i].bbs);
-            }
-        }
-    }
 
     m_gfx_actor->SetCabLightsActive(m_headlight_on);
 
