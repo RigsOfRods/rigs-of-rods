@@ -54,6 +54,8 @@
 
 #include <Ogre.h>
 
+using namespace RoR;
+
 RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
                         RoR::Renderdash* renderdash):
     m_actor(actor),
@@ -3017,11 +3019,27 @@ void RoR::GfxActor::FinishFlexbodyTasks()
     }
 }
 
+// internal helper
+bool ShouldEnableLightSource(FlareType type, bool is_player)
+{
+    switch (App::gfx_flares_mode->getEnum<GfxFlaresMode>())
+    {
+    case GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY:  //!< Only current vehicle, main lights
+        return is_player && (type == FlareType::HEADLIGHT);
+    case GfxFlaresMode::ALL_VEHICLES_HEAD_ONLY:  //!< All vehicles, main lights
+        return (type == FlareType::HEADLIGHT);
+    case GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS: //!< All vehicles, all lights
+        return true;
+    default:
+        return false;
+    }
+}
+
 void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
 {
-    // == Flare states are determined in simulation, this function only applies them to OGRE objects ==
+    // Flare states are determined in simulation, this function only applies them to OGRE objects
+    // ------------------------------------------------------------------------------------------
 
-    bool enableAll = ((App::gfx_flares_mode->getEnum<GfxFlaresMode>() == GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && !is_player);
     NodeSB* nodes = this->GetSimNodeBuffer();
 
     int num_flares = static_cast<int>(m_actor->ar_flares.size());
@@ -3029,20 +3047,15 @@ void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
     {
         flare_t& flare = m_actor->ar_flares[i];
         
-        //TODO: Following code is a quick+dirty port from `Actor::updateFlares()` - tidy it up! ~only_a_ptr, 06/2018
+        this->SetMaterialFlareOn(i, flare.isVisible);
 
-        if (flare.fl_type == FlareType::HEADLIGHT)
+        // The billboard flare
+        flare.snode->setVisible(flare.isVisible);
+
+        // The light source
+        if (flare.light)
         {
-            this->SetMaterialFlareOn(i, m_simbuf.simbuf_headlight_on);
-        }
-        else
-        {
-            this->SetMaterialFlareOn(i, flare.isVisible);
-            flare.snode->setVisible(flare.isVisible);
-            if (flare.light != nullptr)
-            {
-                flare.light->setVisible(flare.isVisible && enableAll);
-            }
+            flare.light->setVisible(flare.isVisible && ShouldEnableLightSource(flare.fl_type, is_player));
         }
 
         Ogre::Vector3 normal = (nodes[flare.nodey].AbsPosition - nodes[flare.noderef].AbsPosition).crossProduct(nodes[flare.nodex].AbsPosition - nodes[flare.noderef].AbsPosition);
