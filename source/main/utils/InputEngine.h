@@ -269,8 +269,11 @@ enum events
     EV_COMMON_TOGGLE_REPLAY_MODE, //!< toggle replay mode
     EV_COMMON_TOGGLE_PHYSICS,     //!< toggle physics on/off
     EV_COMMON_TOGGLE_STATS,       //!< toggle Ogre statistics (FPS etc.)
-    EV_COMMON_TOGGLE_TRUCK_BEACONS, //!< toggle truck beacons
-    EV_COMMON_TOGGLE_TRUCK_LIGHTS,//!< toggle truck front lights
+    EV_COMMON_TOGGLE_TRUCK_BEACONS,   //!< toggle truck beacons
+    EV_COMMON_CYCLE_TRUCK_LIGHTS,     //!< cycle truck front light mode (off -> running light -> low beams -> off).
+    EV_COMMON_TOGGLE_TRUCK_LOW_BEAMS, //!< toggle truck low beams (on/off); also toggles running lights.
+    EV_COMMON_TOGGLE_TRUCK_HIGH_BEAMS,//!< toggle truck high beams (on/off); doesn't need low beams, doesn't use 't' lights.
+    EV_COMMON_TOGGLE_TRUCK_FOG_LIGHTS,//!< toggle truck fog lights (on/off); doesn't need low beams, doesn't use 't' lights.
     EV_COMMON_TRUCK_INFO,         //!< toggle truck HUD
     EV_COMMON_TRUCK_DESCRIPTION,  //!< toggle truck description
     EV_COMMON_TRUCK_REMOVE,

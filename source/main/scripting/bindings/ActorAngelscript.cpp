@@ -57,20 +57,13 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "void parkingbrakeToggle()", asMETHOD(Actor,parkingbrakeToggle), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void tractioncontrolToggle()", asMETHOD(Actor,tractioncontrolToggle), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void antilockbrakeToggle()", asMETHOD(Actor,antilockbrakeToggle), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "void beaconsToggle()", asMETHOD(Actor,beaconsToggle), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    
     result = engine->RegisterObjectMethod("BeamClass", "void toggleCustomParticles()", asMETHOD(Actor,toggleCustomParticles), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "int getNodeCount()", asMETHOD(Actor,getNodeCount), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "float getTotalMass(bool)", asMETHOD(Actor,getTotalMass), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "int getWheelNodeCount()", asMETHOD(Actor,getWheelNodeCount), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setMass(float)", asMETHOD(Actor,setMass), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "bool getBrakeLightVisible()", asMETHOD(Actor,getBrakeLightVisible), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "bool getCustomLightVisible(int)", asMETHOD(Actor,getCustomLightVisible), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "void setCustomLightVisible(int, bool)", asMETHOD(Actor,setCustomLightVisible), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "bool getBeaconMode()", asMETHOD(Actor,getBeaconMode), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "void setBlinkType(int)", asMETHOD(Actor,setBlinkType), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "int getBlinkType()", asMETHOD(Actor,getBlinkType), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "bool getCustomParticleMode()", asMETHOD(Actor,getCustomParticleMode), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "bool getReverseLightVisible()", asMETHOD(Actor,getCustomParticleMode), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "float getHeadingDirectionAngle()", asMETHOD(Actor,getRotation), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "bool isLocked()", asMETHOD(Actor,isLocked), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "float getWheelSpeed()", asMETHOD(Actor,getWheelSpeed), asCALL_THISCALL); ROR_ASSERT(result>=0);
@@ -83,6 +76,17 @@ void RoR::RegisterActor(asIScriptEngine *engine)
 
     result = engine->RegisterObjectMethod("BeamClass", "VehicleAIClass @getVehicleAI()", asMETHOD(Actor,getVehicleAI), asCALL_THISCALL); ROR_ASSERT(result>=0);
     
+    // - lights (PLEASE maintain the same order as in 'Actor.h')
+    result = engine->RegisterObjectMethod("BeamClass", "int getBlinkType()", asMETHOD(Actor, getBlinkType), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setBlinkType(int)", asMETHOD(Actor, setBlinkType), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool getCustomLightVisible(int)", asMETHOD(Actor, getCustomLightVisible), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setCustomLightVisible(int, bool)", asMETHOD(Actor, setCustomLightVisible), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool getBeaconMode()", asMETHOD(Actor, getBeaconMode), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "void beaconsToggle()", asMETHOD(Actor, beaconsToggle), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool getBrakeLightVisible()", asMETHOD(Actor, getBrakeLightVisible), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "bool getReverseLightVisible()", asMETHOD(Actor, getReverseLightVisible), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+
+    // - refcount
     result = engine->RegisterObjectBehaviour("BeamClass", asBEHAVE_ADDREF, "void f()", asMETHOD(Actor,addRef), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectBehaviour("BeamClass", asBEHAVE_RELEASE, "void f()", asMETHOD(Actor,release), asCALL_THISCALL); ROR_ASSERT(result>=0);
 

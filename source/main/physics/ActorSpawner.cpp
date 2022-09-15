@@ -2076,7 +2076,15 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     flare.snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     std::string flare_name = this->ComposeName("Flare", static_cast<int>(m_actor->ar_flares.size()));
     flare.bbs = App::GetGfxScene()->GetSceneManager()->createBillboardSet(flare_name, 1);
-    bool using_default_material = true;
+
+    // Backwards compatibility:
+    // before 't' (tail light) was introduced in 2022, tail lights were indicated as 'f' (headlight) + custom material.
+    bool using_default_material = (def.material_name.length() == 0 || def.material_name == "default");
+    if (flare.fl_type == FlareType::HEADLIGHT && !using_default_material)
+    {
+        flare.fl_type = FlareType::TAIL_LIGHT;
+    }
+
     if (flare.bbs == nullptr)
     {
         AddMessage(Message::TYPE_WARNING, "Failed to create flare: '" + flare_name + "', continuing without it (compatibility)...");
@@ -2086,7 +2094,6 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
         flare.bbs->createBillboard(0,0,0);
         flare.bbs->setVisibilityFlags(DEPTHMAP_DISABLED);
         std::string material_name = def.material_name;
-        using_default_material = (material_name.length() == 0 || material_name == "default");
         if (using_default_material)
         {
             if (flare.fl_type == FlareType::BRAKE_LIGHT)
@@ -2101,11 +2108,16 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             {
                 material_name = "tracks/greenflare";
             }
+            else if (flare.fl_type == FlareType::TAIL_LIGHT)
+            {
+                material_name = "tracks/redflare";
+            }
             else
             {
                 material_name = "tracks/flare";
             }
         }
+
         Ogre::MaterialPtr material = this->FindOrCreateCustomizedMaterial(material_name);
         if (!material.isNull())
         {
@@ -2118,24 +2130,41 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
 
     if ((App::gfx_flares_mode->getEnum<GfxFlaresMode>() >= GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && size > 0.001)
     {
-        //if (type == 'f' && usingDefaultMaterial && flaresMode >=2 && size > 0.001)
-        if (flare.fl_type == FlareType::HEADLIGHT && using_default_material )
+        if (flare.fl_type == FlareType::HEADLIGHT)
         {
-            /* front light */
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setType(Ogre::Light::LT_SPOTLIGHT);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 1));
-            flare.light->setAttenuation(400, 0.9, 0, 0);
+            flare.light->setAttenuation(200, 0.9, 0, 0);
             flare.light->setSpotlightRange( Ogre::Degree(35), Ogre::Degree(45) );
+            flare.light->setCastShadows(false);
+        }
+        else if (flare.fl_type == FlareType::HIGH_BEAM)
+        {
+            flare.light = App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
+            flare.light->setType(Ogre::Light::LT_SPOTLIGHT);
+            flare.light->setDiffuseColour(Ogre::ColourValue(1, 1, 1));
+            flare.light->setSpecularColour(Ogre::ColourValue(1, 1, 1));
+            flare.light->setAttenuation(400, 0.9, 0, 0);
+            flare.light->setSpotlightRange(Ogre::Degree(35), Ogre::Degree(45));
+            flare.light->setCastShadows(false);
+        }
+        else if (flare.fl_type == FlareType::FOG_LIGHT)
+        {
+            flare.light = App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
+            flare.light->setType(Ogre::Light::LT_SPOTLIGHT);
+            flare.light->setDiffuseColour(Ogre::ColourValue(1, 1, 1));
+            flare.light->setSpecularColour(Ogre::ColourValue(1, 1, 1));
+            flare.light->setAttenuation(400, 0.9, 0, 0);
+            flare.light->setSpotlightRange(Ogre::Degree(35), Ogre::Degree(45));
             flare.light->setCastShadows(false);
         }
     }
     if ((App::gfx_flares_mode->getEnum<GfxFlaresMode>() >= GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS) && size > 0.001)
     {
-        if (flare.fl_type == FlareType::HEADLIGHT && ! using_default_material)
+        if (flare.fl_type == FlareType::TAIL_LIGHT)
         {
-            /* this is a quick fix for the red backlight when frontlight is switched on */
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1.0, 0, 0));
             flare.light->setSpecularColour( Ogre::ColourValue(1.0, 0, 0));
@@ -2167,7 +2196,14 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             flare.light=App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
             flare.light->setDiffuseColour( Ogre::ColourValue(1, 1, 1));
             flare.light->setSpecularColour( Ogre::ColourValue(1, 1, 1));
-            flare.light->setAttenuation(50.0, 1.0, 1, 0.2);
+            flare.light->setAttenuation(1.0, 1.0, 1, 0.2);
+        }
+        else if (flare.fl_type == FlareType::SIDELIGHT)
+        {
+            flare.light = App::GetGfxScene()->GetSceneManager()->createLight(flare_name);
+            flare.light->setDiffuseColour(Ogre::ColourValue(1, 1, 1));
+            flare.light->setSpecularColour(Ogre::ColourValue(1, 1, 1));
+            flare.light->setAttenuation(5.0, 1.0, 1, 0.2);
         }
     }
 

@@ -82,37 +82,45 @@ enum UserAuth
 
 enum Netmask
 {
-    NETMASK_HORN         = BITMASK(1),  //!< horn is in use
-    NETMASK_LIGHTS       = BITMASK(2),  //!< lights on
-    NETMASK_BRAKES       = BITMASK(3),  //!< brake lights on
-    NETMASK_REVERSE      = BITMASK(4),  //!< reverse light on
-    NETMASK_BEACONS      = BITMASK(5),  //!< beacons on
-    NETMASK_BLINK_LEFT   = BITMASK(6),  //!< left blinker on
-    NETMASK_BLINK_RIGHT  = BITMASK(7),  //!< right blinker on
-    NETMASK_BLINK_WARN   = BITMASK(8),  //!< warn blinker on
-    NETMASK_CLIGHT1      = BITMASK(9),  //!< custom light 1 on
-    NETMASK_CLIGHT2      = BITMASK(10), //!< custom light 2 on
-    NETMASK_CLIGHT3      = BITMASK(11), //!< custom light 3 on
-    NETMASK_CLIGHT4      = BITMASK(12), //!< custom light 4 on
-    NETMASK_CLIGHT5      = BITMASK(13), //!< custom light 5 on
-    NETMASK_CLIGHT6      = BITMASK(14), //!< custom light 6 on
-    NETMASK_CLIGHT7      = BITMASK(15), //!< custom light 7 on
-    NETMASK_CLIGHT8      = BITMASK(16), //!< custom light 8 on
-    NETMASK_CLIGHT9      = BITMASK(17), //!< custom light 9 on
-    NETMASK_CLIGHT10     = BITMASK(18), //!< custom light 10 on
-    NETMASK_POLICEAUDIO  = BITMASK(19), //!< police siren on
-    NETMASK_PARTICLE     = BITMASK(20), //!< custom particles on
-    NETMASK_PBRAKE       = BITMASK(21), //!< custom particles on
-    NETMASK_TC_ACTIVE    = BITMASK(22), //!< traction control light on?
-    NETMASK_ALB_ACTIVE   = BITMASK(23), //!< anti lock brake light on?
-    NETMASK_ENGINE_CONT  = BITMASK(24), //!< ignition on?
-    NETMASK_ENGINE_RUN   = BITMASK(25), //!< engine running?
+    NETMASK_HORN         = BITMASK(1), //!< horn is in use
+    NETMASK_POLICEAUDIO  = BITMASK(2), //!< police siren on
+    NETMASK_PARTICLE     = BITMASK(3), //!< custom particles on
+    NETMASK_PBRAKE       = BITMASK(4), //!< parking brake
+    NETMASK_TC_ACTIVE    = BITMASK(5), //!< traction control light on?
+    NETMASK_ALB_ACTIVE   = BITMASK(6), //!< anti lock brake light on?
+    NETMASK_ENGINE_CONT  = BITMASK(7), //!< ignition on?
+    NETMASK_ENGINE_RUN   = BITMASK(8), //!< engine running?
 
-    NETMASK_ENGINE_MODE_AUTOMATIC     = BITMASK(26), //!< engine mode
-    NETMASK_ENGINE_MODE_SEMIAUTO      = BITMASK(27), //!< engine mode
-    NETMASK_ENGINE_MODE_MANUAL        = BITMASK(28), //!< engine mode
-    NETMASK_ENGINE_MODE_MANUAL_STICK  = BITMASK(29), //!< engine mode
-    NETMASK_ENGINE_MODE_MANUAL_RANGES = BITMASK(30)  //!< engine mode
+    NETMASK_ENGINE_MODE_AUTOMATIC     = BITMASK(9), //!< engine mode
+    NETMASK_ENGINE_MODE_SEMIAUTO      = BITMASK(10), //!< engine mode
+    NETMASK_ENGINE_MODE_MANUAL        = BITMASK(11), //!< engine mode
+    NETMASK_ENGINE_MODE_MANUAL_STICK  = BITMASK(12), //!< engine mode
+    NETMASK_ENGINE_MODE_MANUAL_RANGES = BITMASK(13), //!< engine mode
+};
+
+enum Lightmask
+{
+    LIGHTMASK_CUSTOM1     = BITMASK(1),  //!< custom light 1 on
+    LIGHTMASK_CUSTOM2     = BITMASK(2),  //!< custom light 2 on
+    LIGHTMASK_CUSTOM3     = BITMASK(3),  //!< custom light 3 on
+    LIGHTMASK_CUSTOM4     = BITMASK(4),  //!< custom light 4 on
+    LIGHTMASK_CUSTOM5     = BITMASK(5),  //!< custom light 5 on
+    LIGHTMASK_CUSTOM6     = BITMASK(6),  //!< custom light 6 on
+    LIGHTMASK_CUSTOM7     = BITMASK(7),  //!< custom light 7 on
+    LIGHTMASK_CUSTOM8     = BITMASK(8),  //!< custom light 8 on
+    LIGHTMASK_CUSTOM9     = BITMASK(9),  //!< custom light 9 on
+    LIGHTMASK_CUSTOM10    = BITMASK(10), //!< custom light 10 on
+
+    LIGHTMASK_HEADLIGHT   = BITMASK(11),
+    LIGHTMASK_HIGHBEAMS   = BITMASK(12),
+    LIGHTMASK_FOGLIGHTS   = BITMASK(13),
+    LIGHTMASK_SIDELIGHTS  = BITMASK(14),
+    LIGHTMASK_BRAKES      = BITMASK(15), //!< brake lights on
+    LIGHTMASK_REVERSE     = BITMASK(16), //!< reverse light on
+    LIGHTMASK_BEACONS     = BITMASK(17), //!< beacons on
+    LIGHTMASK_BLINK_LEFT  = BITMASK(18), //!< left blinker on
+    LIGHTMASK_BLINK_RIGHT = BITMASK(19), //!< right blinker on
+    LIGHTMASK_BLINK_WARN  = BITMASK(20), //!< warn blinker on
 };
 
 // -------------------------------- structs -----------------------------------
@@ -185,7 +193,8 @@ struct VehicleState                  //!< Formerly `oob_t`
     float    hydrodirstate;        //!< the turning direction status
     float    brake;                //!< the brake value
     float    wheelspeed;           //!< the wheel speed value
-    uint32_t flagmask;             //!< flagmask: NETMASK_*
+    BitMask_t flagmask;             //!< flagmask: NETMASK_*
+    BitMask_t lightmask;            //!< flagmask: LIGHTMASK_*
 };
 
 struct ServerInfo

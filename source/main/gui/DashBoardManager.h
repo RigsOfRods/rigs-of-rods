@@ -112,7 +112,6 @@ enum DashData
     DD_LOCKED, /// locked lamp
 
     DD_LOW_PRESSURE, /// low pressure
-    DD_LIGHTS, /// lights on
 
     DD_TRACTIONCONTROL_MODE,
     DD_ANTILOCKBRAKE_MODE,
@@ -170,10 +169,29 @@ enum DashData
     DD_ALTITUDE,
     DD_ALTITUDE_STRING,
 
-    DD_EDITOR_NODE_INFO, // editor node info string
-
     DD_ODOMETER_TOTAL,
     DD_ODOMETER_USER,
+
+    // Lights (mirrors RoRnet::Lightmask)
+
+    DD_CUSTOM_LIGHT1,  //!< custom light 1 on
+    DD_CUSTOM_LIGHT2,  //!< custom light 2 on
+    DD_CUSTOM_LIGHT3,  //!< custom light 3 on
+    DD_CUSTOM_LIGHT4,  //!< custom light 4 on
+    DD_CUSTOM_LIGHT5,  //!< custom light 5 on
+    DD_CUSTOM_LIGHT6,  //!< custom light 6 on
+    DD_CUSTOM_LIGHT7,  //!< custom light 7 on
+    DD_CUSTOM_LIGHT8,  //!< custom light 8 on
+    DD_CUSTOM_LIGHT9,  //!< custom light 9 on
+    DD_CUSTOM_LIGHT10, //!< custom light 10 on
+
+    DD_HEADLIGHTS,
+    DD_HIGHBEAMS,
+    DD_FOGLIGHTS,
+    DD_SIDELIGHTS,
+    DD_BRAKE_LIGHTS,
+    DD_REVERSE_LIGHT,
+    DD_BEACONS,
 
     DD_SIGNAL_TURNLEFT,  //!< Left blinker is lit.
     DD_SIGNAL_TURNRIGHT, //!< Right blinker is lit.

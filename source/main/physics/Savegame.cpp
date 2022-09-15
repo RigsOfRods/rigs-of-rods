@@ -519,21 +519,26 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_entry.AddMember("wheel_speed", actor->ar_wheel_speed, j_doc.GetAllocator());
         j_entry.AddMember("wheel_spin", actor->ar_wheel_spin, j_doc.GetAllocator());
 
-        j_entry.AddMember("lights", (int)actor->m_headlight_on, j_doc.GetAllocator());
-        j_entry.AddMember("blink_type", (int)actor->getBlinkType(), j_doc.GetAllocator());
         j_entry.AddMember("custom_particles", actor->m_custom_particles_enabled, j_doc.GetAllocator());
 
         // Flares
+        j_entry.AddMember("lights", (int)actor->getHeadlightsVisible(), j_doc.GetAllocator());
+        j_entry.AddMember("blink_type", (int)actor->getBlinkType(), j_doc.GetAllocator());
         // "beacon_light" was "pp_beacon_light" since release 2021.02 (savegame file format 2).
         // It was caused by find-&-replace derp in commit 5a159ad9c0d0ffb1fa3e6f4f9c4577fab3910e3e.
-        j_entry.AddMember("beacon_light", actor->m_beacon_light_on, j_doc.GetAllocator());
+        j_entry.AddMember("beacon_light", actor->getBeaconMode(), j_doc.GetAllocator());
+        j_entry.AddMember("high_beams_on", actor->getHighBeamsVisible(), j_doc.GetAllocator());
+        j_entry.AddMember("fog_lights_on", actor->getFogLightsVisible(), j_doc.GetAllocator());
+
+        // User-defined flares
         rapidjson::Value j_custom_lights(rapidjson::kArrayType);
         for (int i = 0; i < MAX_CLIGHTS; i++)
         {
-            j_custom_lights.PushBack(actor->m_custom_lights_on[i], j_doc.GetAllocator());
+            j_custom_lights.PushBack(actor->getCustomLightVisible(i), j_doc.GetAllocator());
         }
         j_entry.AddMember("custom_lights", j_custom_lights, j_doc.GetAllocator());
 
+        // Buoyance
         if (actor->m_buoyance)
         {
             j_entry.AddMember("buoyance_sink", actor->m_buoyance->sink, j_doc.GetAllocator());
@@ -800,25 +805,27 @@ void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_ent
     actor->ar_wheel_speed = j_entry["wheel_speed"].GetFloat();
     actor->ar_wheel_spin = j_entry["wheel_spin"].GetFloat();
 
-    if (actor->m_headlight_on != (bool)j_entry["lights"].GetInt())
-    {
-        actor->lightsToggle();
-    }
-    actor->setBlinkType(BlinkType(j_entry["blink_type"].GetInt()));
     if (actor->m_custom_particles_enabled != j_entry["custom_particles"].GetBool())
     {
         actor->toggleCustomParticles();
     }
+
+    // Flares
+    actor->setHeadlightsVisible((bool)j_entry["lights"].GetInt()); // legacy name
+    actor->setBlinkType(BlinkType(j_entry["blink_type"].GetInt()));
     // "beacon_light" was "pp_beacon_light" since release 2021.02 (savegame file format 2).
     // It was caused by find-&-replace derp in commit 5a159ad9c0d0ffb1fa3e6f4f9c4577fab3910e3e.
-    actor->m_beacon_light_on = (j_entry.HasMember("beacon_light")) ? j_entry["beacon_light"].GetBool() : j_entry["pp_beacon_light"].GetBool();
+    actor->setBeaconMode(j_entry.HasMember("beacon_light") ? j_entry["beacon_light"].GetBool() : j_entry["pp_beacon_light"].GetBool());
+    actor->setHighBeamsVisible(j_entry.HasMember("high_beams_on") ? j_entry["high_beams_on"].GetBool() : false); // (added to savegame file format 3)
+    actor->setFogLightsVisible(j_entry.HasMember("fog_lights_on") ? j_entry["fog_lights_on"].GetBool() : false); // (added to savegame file format 3)
 
+    // User-defined flares
     if (j_entry.HasMember("custom_lights"))
     {
         auto flares = j_entry["custom_lights"].GetArray();
         for (int i = 0; i < MAX_CLIGHTS; i++)
         {
-            actor->m_custom_lights_on[i] = flares[i].GetBool();
+            actor->setCustomLightVisible(i, flares[i].GetBool());
         }
     }
 

@@ -61,7 +61,6 @@ DashBoardManager::DashBoardManager(void) : visible(true), free_dashboard(0)
     INITDATA(DD_PARKINGBRAKE            , DC_BOOL , "parkingbrake");
     INITDATA(DD_LOCKED                  , DC_BOOL , "locked");
     INITDATA(DD_LOW_PRESSURE            , DC_BOOL , "low_pressure");
-    INITDATA(DD_LIGHTS                  , DC_BOOL , "lights");
     INITDATA(DD_TRACTIONCONTROL_MODE    , DC_INT  , "tractioncontrol_mode");
     INITDATA(DD_ANTILOCKBRAKE_MODE      , DC_INT  , "antilockbrake_mode");
     INITDATA(DD_TIES_MODE               , DC_INT  , "ties_mode");
@@ -106,14 +105,35 @@ DashBoardManager::DashBoardManager(void) : visible(true), free_dashboard(0)
     INITDATA(DD_WING_AOA_5              , DC_FLOAT, "wing_aoa_5");
     INITDATA(DD_ALTITUDE                , DC_FLOAT, "altitude");
     INITDATA(DD_ALTITUDE_STRING         , DC_CHAR , "altitude_string");
-    INITDATA(DD_EDITOR_NODE_INFO        , DC_CHAR , "editor_node_info");
 
     INITDATA(DD_ODOMETER_TOTAL          , DC_FLOAT, "odometer_total");
     INITDATA(DD_ODOMETER_USER           , DC_FLOAT, "odometer_user");
 
+    // Lights (mirrors RoRnet::Lightmask)
+
+    INITDATA(DD_CUSTOM_LIGHT1           , DC_BOOL, "custom_light1");
+    INITDATA(DD_CUSTOM_LIGHT2           , DC_BOOL, "custom_light2");
+    INITDATA(DD_CUSTOM_LIGHT3           , DC_BOOL, "custom_light3");
+    INITDATA(DD_CUSTOM_LIGHT4           , DC_BOOL, "custom_light4");
+    INITDATA(DD_CUSTOM_LIGHT5           , DC_BOOL, "custom_light5");
+    INITDATA(DD_CUSTOM_LIGHT6           , DC_BOOL, "custom_light6");
+    INITDATA(DD_CUSTOM_LIGHT7           , DC_BOOL, "custom_light7");
+    INITDATA(DD_CUSTOM_LIGHT8           , DC_BOOL, "custom_light8");
+    INITDATA(DD_CUSTOM_LIGHT9           , DC_BOOL, "custom_light9");
+    INITDATA(DD_CUSTOM_LIGHT10          , DC_BOOL, "custom_light10");
+
+    INITDATA(DD_HEADLIGHTS              , DC_BOOL, "headlights");
+    INITDATA(DD_HIGHBEAMS               , DC_BOOL, "highbeams");
+    INITDATA(DD_FOGLIGHTS               , DC_BOOL, "foglights");
+    INITDATA(DD_SIDELIGHTS              , DC_BOOL, "sidelights");
+    INITDATA(DD_BRAKE_LIGHTS            , DC_BOOL, "brake_lights");
+    INITDATA(DD_REVERSE_LIGHT           , DC_BOOL, "reverse_light");
+    INITDATA(DD_BEACONS                 , DC_BOOL, "beacons");
+
     INITDATA(DD_SIGNAL_TURNLEFT         , DC_BOOL, "signal_turnleft");
     INITDATA(DD_SIGNAL_TURNRIGHT        , DC_BOOL, "signal_turnright");
     INITDATA(DD_SIGNAL_WARNING          , DC_BOOL, "signal_warning");
+
     // load dash fonts
     MyGUI::ResourceManager::getInstance().load("MyGUI_FontsDash.xml");
 }
