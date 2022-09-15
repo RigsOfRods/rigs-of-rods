@@ -251,7 +251,9 @@ void registerEventTypeEnum(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TOGGLE_PHYSICS",          EV_COMMON_TOGGLE_PHYSICS        ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TOGGLE_STATS",            EV_COMMON_TOGGLE_STATS          ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TOGGLE_TRUCK_BEACONS",    EV_COMMON_TOGGLE_TRUCK_BEACONS  ); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TOGGLE_TRUCK_LIGHTS",     EV_COMMON_TOGGLE_TRUCK_LIGHTS   ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TOGGLE_TRUCK_LOW_BEAMS",  EV_COMMON_TOGGLE_TRUCK_LOW_BEAMS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TOGGLE_TRUCK_HIGH_BEAMS", EV_COMMON_TOGGLE_TRUCK_HIGH_BEAMS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TOGGLE_TRUCK_FOG_LIGHTS", EV_COMMON_TOGGLE_TRUCK_FOG_LIGHTS); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TRUCK_INFO",              EV_COMMON_TRUCK_INFO            ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TRUCK_DESCRIPTION",       EV_COMMON_TRUCK_DESCRIPTION     ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_TRUCK_REMOVE",            EV_COMMON_TRUCK_REMOVE          ); ROR_ASSERT(result >= 0);

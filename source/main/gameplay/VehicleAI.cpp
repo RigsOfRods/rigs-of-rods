@@ -164,7 +164,7 @@ void VehicleAI::updateWaypoint()
         switch (event)
         {
         case AI_LIGHTSTOGGLE:
-            beam->lightsToggle();
+            beam->toggleHeadlights();
             break;
         case AI_BEACONSTOGGLE:
             beam->beaconsToggle();
@@ -443,7 +443,7 @@ void VehicleAI::update(float dt, int doUpdate)
                             if (beam->getNodePosition(i).distance(actor->getNodePosition(k)) < 5)
                             {
                                 beam->ar_parking_brake = true;
-                                beam->lightsToggle();
+                                beam->toggleHeadlights();
                                 break;
                             }
                         }
@@ -470,7 +470,7 @@ void VehicleAI::update(float dt, int doUpdate)
                     if (beam->getNodePosition(i).distance(App::GetGameContext()->GetPlayerCharacter()->getPosition()) < 5)
                     {
                         beam->ar_hydro_dir_command = -1;
-                        beam->lightsToggle();
+                        beam->toggleHeadlights();
                         break;
                     }
                 }
@@ -504,7 +504,7 @@ void VehicleAI::update(float dt, int doUpdate)
                     {
                         maxspeed = App::GetGuiManager()->TopMenubar.ai_speed;
                         beam->ar_parking_brake = true;
-                        beam->lightsToggle();
+                        beam->toggleHeadlights();
                     }
                 }
             }
@@ -519,7 +519,7 @@ void VehicleAI::update(float dt, int doUpdate)
                 if (beam->getPosition().distance(App::GetGameContext()->GetPlayerCharacter()->getPosition()) < 20)
                 {
                     beam->ar_parking_brake = true;
-                    beam->lightsToggle();
+                    beam->toggleHeadlights();
                 }
             }
         }

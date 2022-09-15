@@ -246,7 +246,7 @@ Actor* ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr de
 
     // Initialize visuals
     actor->updateVisual();
-    actor->lightsToggle();
+    actor->toggleHeadlights();
     actor->GetGfxActor()->SetDebugView((DebugViewType)rq.asr_debugview);
 
     // perform full visual update only if the vehicle won't be immediately driven by player.
@@ -696,9 +696,7 @@ void ActorManager::ForwardCommands(Actor* source_actor)
             }
 
             // forward lights
-            hook.hk_locked_actor->m_headlight_on = source_actor->m_headlight_on;
-            hook.hk_locked_actor->m_blink_type = source_actor->m_blink_type;
-            hook.hk_locked_actor->m_extern_reverse_light_on = source_actor->getReverseLightVisible();
+            hook.hk_locked_actor->setLightStateMask(source_actor->getLightStateMask());
         }
     }
 }
@@ -1414,5 +1412,7 @@ void ActorManager::UpdateTruckFeatures(Actor* vehicle, float dt)
             engine->SetAcceleration(Ogre::Math::Clamp(accl, 0.0f, engine->GetAcceleration()));
         }
     }
+
+    BITMASK_SET(vehicle->m_lightmask, RoRnet::LIGHTMASK_BRAKES, (vehicle->ar_brake > 0.01f && !vehicle->ar_parking_brake));
 }
 

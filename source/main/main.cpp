@@ -687,7 +687,7 @@ int main(int argc, char *argv[])
                         actor->GetGfxActor()->SetAllMeshesVisible(false);
                         actor->GetGfxActor()->SetCastShadows(false);
                         actor->muteAllSounds(); // Stop sounds
-                        actor->setLightsOff(); // Turn all lights off
+                        actor->forceAllFlaresOff();
                         actor->setSmokeEnabled(false);
                     }
                     break;

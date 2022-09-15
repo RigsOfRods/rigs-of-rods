@@ -557,7 +557,7 @@ void Actor::calcNetwork()
     ar_wheel_speed = netwspeed;
 
     int gear = oob1->engine_gear;
-    unsigned int flagmask = oob1->flagmask;
+    const BitMask_t flagmask = oob1->flagmask;
 
     if (ar_engine)
     {
@@ -593,45 +593,18 @@ void Actor::calcNetwork()
     if (((flagmask & NETMASK_PARTICLE) != 0) != m_custom_particles_enabled)
         toggleCustomParticles();
 
-    // set lights
-    if (((flagmask & NETMASK_LIGHTS) != 0) != m_headlight_on)
-        lightsToggle();
-    if (((flagmask & NETMASK_BEACONS) != 0) != m_beacon_light_on)
-        beaconsToggle();
-
     m_antilockbrake = flagmask & NETMASK_ALB_ACTIVE;
     m_tractioncontrol = flagmask & NETMASK_TC_ACTIVE;
     ar_parking_brake = flagmask & NETMASK_PBRAKE;
 
-    BlinkType btype = BLINK_NONE;
-    if ((flagmask & NETMASK_BLINK_LEFT) != 0)
-        btype = BLINK_LEFT;
-    else if ((flagmask & NETMASK_BLINK_RIGHT) != 0)
-        btype = BLINK_RIGHT;
-    else if ((flagmask & NETMASK_BLINK_WARN) != 0)
-        btype = BLINK_WARN;
-    setBlinkType(btype);
-
-    setCustomLightVisible(0, ((flagmask & NETMASK_CLIGHT1) > 0));
-    setCustomLightVisible(1, ((flagmask & NETMASK_CLIGHT2) > 0));
-    setCustomLightVisible(2, ((flagmask & NETMASK_CLIGHT3) > 0));
-    setCustomLightVisible(3, ((flagmask & NETMASK_CLIGHT4) > 0));
-    setCustomLightVisible(4, ((flagmask & NETMASK_CLIGHT5) > 0));
-    setCustomLightVisible(5, ((flagmask & NETMASK_CLIGHT6) > 0));
-    setCustomLightVisible(6, ((flagmask & NETMASK_CLIGHT7) > 0));
-    setCustomLightVisible(7, ((flagmask & NETMASK_CLIGHT8) > 0));
-    setCustomLightVisible(8, ((flagmask & NETMASK_CLIGHT9) > 0));
-    setCustomLightVisible(9, ((flagmask & NETMASK_CLIGHT10) > 0));
-
-    m_net_brake_light_on = ((flagmask & NETMASK_BRAKES) != 0);
-    m_net_reverse_light_on = ((flagmask & NETMASK_REVERSE) != 0);
+    this->setLightStateMask(oob1->lightmask);
 
     if ((flagmask & NETMASK_HORN))
         SOUND_START(ar_instance_id, SS_TRIG_HORN);
     else
         SOUND_STOP(ar_instance_id, SS_TRIG_HORN);
 
-    if (m_net_reverse_light_on && ar_engine && ar_engine->IsRunning())
+    if ((oob1->lightmask & RoRnet::LIGHTMASK_REVERSE) && ar_engine && ar_engine->IsRunning())
         SOUND_START(ar_instance_id, SS_TRIG_REVERSE_GEAR);
     else
         SOUND_STOP(ar_instance_id, SS_TRIG_REVERSE_GEAR);
@@ -1526,7 +1499,7 @@ void Actor::SyncReset(bool reset_position)
     ar_hydro_dir_wheel_display = 0.0;
 	
     ar_fusedrag = Vector3::ZERO;
-    m_blink_type = BLINK_NONE;
+    this->setBlinkType(BlinkType::BLINK_NONE);
     ar_parking_brake = false;
     ar_trailer_parking_brake = false;
     ar_avg_wheel_speed = 0.0f;
@@ -1960,43 +1933,8 @@ void Actor::sendStreamData()
         send_oob->brake = ar_brake;
         send_oob->wheelspeed = ar_wheel_speed;
 
-        BlinkType b = getBlinkType();
-        if (b == BLINK_LEFT)
-            send_oob->flagmask += NETMASK_BLINK_LEFT;
-        else if (b == BLINK_RIGHT)
-            send_oob->flagmask += NETMASK_BLINK_RIGHT;
-        else if (b == BLINK_WARN)
-            send_oob->flagmask += NETMASK_BLINK_WARN;
+        // RoRnet::Netmask
 
-        if (m_headlight_on)
-            send_oob->flagmask += NETMASK_LIGHTS;
-        if (getCustomLightVisible(0))
-            send_oob->flagmask += NETMASK_CLIGHT1;
-        if (getCustomLightVisible(1))
-            send_oob->flagmask += NETMASK_CLIGHT2;
-        if (getCustomLightVisible(2))
-            send_oob->flagmask += NETMASK_CLIGHT3;
-        if (getCustomLightVisible(3))
-            send_oob->flagmask += NETMASK_CLIGHT4;
-        if (getCustomLightVisible(4))
-            send_oob->flagmask += NETMASK_CLIGHT5;
-        if (getCustomLightVisible(5))
-            send_oob->flagmask += NETMASK_CLIGHT6;
-        if (getCustomLightVisible(6))
-            send_oob->flagmask += NETMASK_CLIGHT7;
-        if (getCustomLightVisible(7))
-            send_oob->flagmask += NETMASK_CLIGHT8;
-        if (getCustomLightVisible(8))
-            send_oob->flagmask += NETMASK_CLIGHT9;
-        if (getCustomLightVisible(9))
-            send_oob->flagmask += NETMASK_CLIGHT10;
-
-        if (getBrakeLightVisible())
-            send_oob->flagmask += NETMASK_BRAKES;
-        if (getReverseLightVisible())
-            send_oob->flagmask += NETMASK_REVERSE;
-        if (getBeaconMode())
-            send_oob->flagmask += NETMASK_BEACONS;
         if (getCustomParticleMode())
             send_oob->flagmask += NETMASK_PARTICLE;
 
@@ -2009,6 +1947,10 @@ void Actor::sendStreamData()
 
         if (SOUND_GET_STATE(ar_instance_id, SS_TRIG_HORN))
             send_oob->flagmask += NETMASK_HORN;
+
+        // RoRnet::Lightmask
+
+        send_oob->lightmask = m_lightmask; // That's it baby :)
     }
 
     // then process the contents
@@ -2928,7 +2870,7 @@ void Actor::prepareInside(bool inside)
     }
 }
 
-void Actor::lightsToggle()
+void Actor::toggleHeadlights()
 {
     // export light command
     Actor* player_actor = App::GetGameContext()->GetPlayerActor();
@@ -2937,17 +2879,18 @@ void Actor::lightsToggle()
         for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             if (actor->ar_state == ActorState::LOCAL_SIMULATED && this != actor && actor->ar_import_commands)
-                actor->lightsToggle();
+                actor->toggleHeadlights();
         }
     }
-    m_headlight_on = !m_headlight_on;
 
-    m_gfx_actor->SetCabLightsActive(m_headlight_on);
+    BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_HEADLIGHT, (m_lightmask & RoRnet::LIGHTMASK_HEADLIGHT));
+
+    m_gfx_actor->SetCabLightsActive(m_lightmask & RoRnet::LIGHTMASK_HEADLIGHT);
 
     TRIGGER_EVENT(SE_TRUCK_LIGHT_TOGGLE, ar_instance_id);
 }
 
-void Actor::setLightsOff()
+void Actor::forceAllFlaresOff()
 {
     for (size_t i = 0; i < ar_flares.size(); i++)
     {
@@ -2979,53 +2922,39 @@ void Actor::updateFlareStates(float dt)
 
         // manage light states
         bool isvisible = false;
-        if (ar_flares[i].fl_type == FlareType::HEADLIGHT)
+        switch (ar_flares[i].fl_type)
         {
-            isvisible = m_headlight_on;
+        case FlareType::HEADLIGHT: isvisible = (m_lightmask & RoRnet::LIGHTMASK_HEADLIGHT); break;
+        case FlareType::HIGH_BEAM: isvisible = (m_lightmask & RoRnet::LIGHTMASK_HIGHBEAMS); break;
+        case FlareType::FOG_LIGHT: isvisible = (m_lightmask & RoRnet::LIGHTMASK_FOGLIGHTS); break;
+        case FlareType::SIDELIGHT: isvisible = (m_lightmask & RoRnet::LIGHTMASK_SIDELIGHTS); break;
+        case FlareType::TAIL_LIGHT: isvisible = (m_lightmask & RoRnet::LIGHTMASK_HEADLIGHT); break;
+        case FlareType::BRAKE_LIGHT: isvisible = (m_lightmask & RoRnet::LIGHTMASK_BRAKES); break;
+        case FlareType::REVERSE_LIGHT: isvisible = (m_lightmask & RoRnet::LIGHTMASK_REVERSE); break;
+        case FlareType::BLINKER_LEFT: isvisible = (m_lightmask & RoRnet::LIGHTMASK_BLINK_LEFT || m_lightmask & RoRnet::LIGHTMASK_BLINK_WARN); break;
+        case FlareType::BLINKER_RIGHT: isvisible = (m_lightmask & RoRnet::LIGHTMASK_BLINK_RIGHT || m_lightmask & RoRnet::LIGHTMASK_BLINK_WARN); break;
+        case FlareType::DASHBOARD: isvisible = ar_dashboard->_getBool(ar_flares[i].dashboard_link); break;
+        case FlareType::USER: isvisible = this->getCustomLightVisible(ar_flares[i].controlnumber); break;
         }
-        else if (ar_flares[i].fl_type == FlareType::BRAKE_LIGHT)
-        {
-            isvisible = getBrakeLightVisible();
-        }
-        else if (ar_flares[i].fl_type == FlareType::REVERSE_LIGHT)
-        {
-            if (ar_engine || m_extern_reverse_light_on)
-                isvisible = getReverseLightVisible();
-        }
-        else if (ar_flares[i].fl_type == FlareType::USER)
-        {
-            isvisible = this->getCustomLightVisible(ar_flares[i].controlnumber);
-        }
-        else if (ar_flares[i].fl_type == FlareType::DASHBOARD)
-        {
-            isvisible = ar_dashboard->_getBool(ar_flares[i].dashboard_link);
-        }
-        else if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT)
-        {
-            isvisible = (m_blink_type == BLINK_LEFT || m_blink_type == BLINK_WARN);
-        }
-        else if (ar_flares[i].fl_type == FlareType::BLINKER_RIGHT)
-        {
-            isvisible = (m_blink_type == BLINK_RIGHT || m_blink_type == BLINK_WARN);
-        }
+
         // apply blinking
         isvisible = isvisible && ar_flares[i].blinkdelay_state;
 
-        if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT && m_blink_type == BLINK_LEFT)
+        if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT && (m_lightmask & RoRnet::LIGHTMASK_BLINK_LEFT))
         {
             ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
 
             if (isvisible)
                 SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_TICK);
         }
-        else if (ar_flares[i].fl_type == FlareType::BLINKER_RIGHT && m_blink_type == BLINK_RIGHT)
+        else if (ar_flares[i].fl_type == FlareType::BLINKER_RIGHT && (m_lightmask & RoRnet::LIGHTMASK_BLINK_RIGHT))
         {
             ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
 
             if (isvisible)
                 SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_TICK);
         }
-        else if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT && m_blink_type == BLINK_WARN)
+        else if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT && (m_lightmask & RoRnet::LIGHTMASK_BLINK_WARN))
         {
             ar_dashboard->setBool(DD_SIGNAL_WARNING, isvisible);
             ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
@@ -3041,7 +2970,7 @@ void Actor::updateFlareStates(float dt)
 
 void Actor::toggleBlinkType(BlinkType blink)
 {
-    if (m_blink_type == blink)
+    if (this->getBlinkType() == blink)
         setBlinkType(BLINK_NONE);
     else
         setBlinkType(blink);
@@ -3049,19 +2978,32 @@ void Actor::toggleBlinkType(BlinkType blink)
 
 void Actor::setBlinkType(BlinkType blink)
 {
-    m_blink_type = blink;
-
-    ar_dashboard->setBool(DD_SIGNAL_WARNING, false);
-    ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, false);
-    ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, false);
-
-    if (blink == BLINK_NONE)
+    switch (blink)
     {
-        SOUND_STOP(ar_instance_id, SS_TRIG_TURN_SIGNAL);
-    }
-    else
-    {
+    case BlinkType::BLINK_LEFT:
+        BITMASK_SET_1(m_lightmask, RoRnet::LIGHTMASK_BLINK_LEFT);
+        BITMASK_SET_0(m_lightmask, RoRnet::LIGHTMASK_BLINK_RIGHT);
+        BITMASK_SET_0(m_lightmask, RoRnet::LIGHTMASK_BLINK_WARN);
         SOUND_START(ar_instance_id, SS_TRIG_TURN_SIGNAL);
+        break;
+    case BlinkType::BLINK_RIGHT:
+        BITMASK_SET_0(m_lightmask, RoRnet::LIGHTMASK_BLINK_LEFT);
+        BITMASK_SET_1(m_lightmask, RoRnet::LIGHTMASK_BLINK_RIGHT);
+        BITMASK_SET_0(m_lightmask, RoRnet::LIGHTMASK_BLINK_WARN);
+        SOUND_START(ar_instance_id, SS_TRIG_TURN_SIGNAL);
+        break;
+    case BlinkType::BLINK_WARN:
+        BITMASK_SET_0(m_lightmask, RoRnet::LIGHTMASK_BLINK_LEFT);
+        BITMASK_SET_0(m_lightmask, RoRnet::LIGHTMASK_BLINK_RIGHT);
+        BITMASK_SET_1(m_lightmask, RoRnet::LIGHTMASK_BLINK_WARN);
+        SOUND_START(ar_instance_id, SS_TRIG_TURN_SIGNAL);
+        break;
+    case BlinkType::BLINK_NONE:
+        BITMASK_SET_0(m_lightmask, RoRnet::LIGHTMASK_BLINK_LEFT);
+        BITMASK_SET_0(m_lightmask, RoRnet::LIGHTMASK_BLINK_RIGHT);
+        BITMASK_SET_0(m_lightmask, RoRnet::LIGHTMASK_BLINK_WARN);
+        SOUND_STOP(ar_instance_id, SS_TRIG_TURN_SIGNAL);
+        break;
     }
 }
 
@@ -3070,13 +3012,13 @@ void Actor::autoBlinkReset()
     // TODO: make this set-able per actor
     const float blink_lock_range = App::io_blink_lock_range->getFloat();
 
-    if (m_blink_type == BLINK_LEFT && ar_hydro_dir_state < -blink_lock_range)
+    if (this->getBlinkType() == BLINK_LEFT && ar_hydro_dir_state < -blink_lock_range)
     {
         // passed the threshold: the turn signal gets locked
         m_blinker_autoreset = true;
     }
 
-    if (m_blink_type == BLINK_LEFT && m_blinker_autoreset && ar_hydro_dir_state > -blink_lock_range)
+    if (this->getBlinkType() == BLINK_LEFT && m_blinker_autoreset && ar_hydro_dir_state > -blink_lock_range)
     {
         // steering wheel turned back: turn signal gets automatically unlocked
         setBlinkType(BLINK_NONE);
@@ -3084,14 +3026,37 @@ void Actor::autoBlinkReset()
     }
 
     // same for the right turn signal
-    if (m_blink_type == BLINK_RIGHT && ar_hydro_dir_state > blink_lock_range)
+    if (this->getBlinkType() == BLINK_RIGHT && ar_hydro_dir_state > blink_lock_range)
         m_blinker_autoreset = true;
 
-    if (m_blink_type == BLINK_RIGHT && m_blinker_autoreset && ar_hydro_dir_state < blink_lock_range)
+    if (this->getBlinkType() == BLINK_RIGHT && m_blinker_autoreset && ar_hydro_dir_state < blink_lock_range)
     {
         setBlinkType(BLINK_NONE);
         m_blinker_autoreset = false;
     }
+}
+
+void Actor::setLightStateMask(BitMask_t lightmask)
+{
+    using namespace RoRnet;
+
+    // Perform any special toggling logic where needed.
+    if ((m_lightmask & LIGHTMASK_HEADLIGHT) != (lightmask & LIGHTMASK_HEADLIGHT))
+        this->toggleHeadlights();
+    if ((m_lightmask & LIGHTMASK_BEACONS) != (lightmask & LIGHTMASK_BEACONS))
+        this->beaconsToggle();
+
+    BlinkType btype = BLINK_NONE;
+    if ((lightmask & LIGHTMASK_BLINK_LEFT) != 0)
+        btype = BLINK_LEFT;
+    else if ((lightmask & LIGHTMASK_BLINK_RIGHT) != 0)
+        btype = BLINK_RIGHT;
+    else if ((lightmask & LIGHTMASK_BLINK_WARN) != 0)
+        btype = BLINK_WARN;
+    this->setBlinkType(btype);
+
+    // Update all lights at once (this overwrites the toggled lights with the same value, so it's harmless).
+    m_lightmask = lightmask;
 }
 
 void Actor::toggleCustomParticles()
@@ -3734,22 +3699,11 @@ void Actor::beaconsToggle()
     {
         return;
     }
-
-    m_beacon_light_on = !m_beacon_light_on;
+    // flip the flag
+    BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_BEACONS, m_lightmask & RoRnet::LIGHTMASK_BEACONS);
 
     //ScriptEvent - Beacon toggle
     TRIGGER_EVENT(SE_TRUCK_BEACONS_TOGGLE, ar_instance_id);
-}
-
-bool Actor::getReverseLightVisible()
-{
-    if (ar_state == ActorState::NETWORKED_OK)
-        return m_net_reverse_light_on;
-
-    if (ar_engine)
-        return (ar_engine->GetGear() < 0);
-
-    return m_extern_reverse_light_on;
 }
 
 void Actor::muteAllSounds()
@@ -3968,10 +3922,6 @@ void Actor::updateDashBoards(float dt)
     bool low_pres = !ar_engine_hydraulics_ready;
     ar_dashboard->setBool(DD_LOW_PRESSURE, low_pres);
 
-    // lights
-    bool lightsOn = m_headlight_on;
-    ar_dashboard->setBool(DD_LIGHTS, lightsOn);
-
     // turn signals already done by `updateFlareStates()` and `setBlinkType()`
 
     // Traction Control
@@ -4130,6 +4080,32 @@ void Actor::updateDashBoards(float dt)
         ar_dashboard->updateFeatures();
         m_hud_features_ok = true;
     }
+
+    // Lights (all kinds)
+    //   PLEASE maintain the same order as in 'DashBoardManager.h'
+
+    ar_dashboard->setBool(DD_CUSTOM_LIGHT1 , m_lightmask & RoRnet::LIGHTMASK_CUSTOM1   );
+    ar_dashboard->setBool(DD_CUSTOM_LIGHT2 , m_lightmask & RoRnet::LIGHTMASK_CUSTOM2   );
+    ar_dashboard->setBool(DD_CUSTOM_LIGHT3 , m_lightmask & RoRnet::LIGHTMASK_CUSTOM3   );
+    ar_dashboard->setBool(DD_CUSTOM_LIGHT4 , m_lightmask & RoRnet::LIGHTMASK_CUSTOM4   );
+    ar_dashboard->setBool(DD_CUSTOM_LIGHT5 , m_lightmask & RoRnet::LIGHTMASK_CUSTOM5   );
+    ar_dashboard->setBool(DD_CUSTOM_LIGHT6 , m_lightmask & RoRnet::LIGHTMASK_CUSTOM6   );
+    ar_dashboard->setBool(DD_CUSTOM_LIGHT7 , m_lightmask & RoRnet::LIGHTMASK_CUSTOM7   );
+    ar_dashboard->setBool(DD_CUSTOM_LIGHT8 , m_lightmask & RoRnet::LIGHTMASK_CUSTOM8   );
+    ar_dashboard->setBool(DD_CUSTOM_LIGHT9 , m_lightmask & RoRnet::LIGHTMASK_CUSTOM9   );
+    ar_dashboard->setBool(DD_CUSTOM_LIGHT10, m_lightmask & RoRnet::LIGHTMASK_CUSTOM10  );
+
+    ar_dashboard->setBool(DD_HEADLIGHTS    , m_lightmask & RoRnet::LIGHTMASK_HEADLIGHT ); 
+    ar_dashboard->setBool(DD_HIGHBEAMS     , m_lightmask & RoRnet::LIGHTMASK_HIGHBEAMS ); 
+    ar_dashboard->setBool(DD_FOGLIGHTS     , m_lightmask & RoRnet::LIGHTMASK_FOGLIGHTS ); 
+    ar_dashboard->setBool(DD_SIDELIGHTS    , m_lightmask & RoRnet::LIGHTMASK_SIDELIGHTS); 
+    ar_dashboard->setBool(DD_BRAKE_LIGHTS  , m_lightmask & RoRnet::LIGHTMASK_BRAKES    ); 
+    ar_dashboard->setBool(DD_REVERSE_LIGHT , m_lightmask & RoRnet::LIGHTMASK_REVERSE   ); 
+    ar_dashboard->setBool(DD_BEACONS       , m_lightmask & RoRnet::LIGHTMASK_BEACONS   ); 
+
+    ar_dashboard->setBool(DD_SIGNAL_WARNING, m_lightmask & RoRnet::LIGHTMASK_BLINK_WARN);
+    ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, m_lightmask & RoRnet::LIGHTMASK_BLINK_RIGHT);
+    ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, m_lightmask & RoRnet::LIGHTMASK_BLINK_LEFT);
 
     // TODO: compass value
 
@@ -4451,14 +4427,6 @@ void Actor::setMass(float m)
     m_dry_mass = m;
 }
 
-bool Actor::getBrakeLightVisible()
-{
-    if (ar_state == ActorState::NETWORKED_OK)
-        return m_net_brake_light_on;
-
-    return (ar_brake > 0.01f && !ar_parking_brake);
-}
-
 bool Actor::getCustomLightVisible(int number)
 {
     if (number < 0 || number >= MAX_CLIGHTS)
@@ -4467,7 +4435,16 @@ bool Actor::getCustomLightVisible(int number)
         return false;
     }
 
-    return m_custom_lights_on[number];
+    if (number == 0) return (m_lightmask & RoRnet::LIGHTMASK_CUSTOM1);
+    if (number == 1) return (m_lightmask & RoRnet::LIGHTMASK_CUSTOM2);
+    if (number == 2) return (m_lightmask & RoRnet::LIGHTMASK_CUSTOM3);
+    if (number == 3) return (m_lightmask & RoRnet::LIGHTMASK_CUSTOM4);
+    if (number == 4) return (m_lightmask & RoRnet::LIGHTMASK_CUSTOM5);
+    if (number == 5) return (m_lightmask & RoRnet::LIGHTMASK_CUSTOM6);
+    if (number == 6) return (m_lightmask & RoRnet::LIGHTMASK_CUSTOM7);
+    if (number == 7) return (m_lightmask & RoRnet::LIGHTMASK_CUSTOM8);
+    if (number == 8) return (m_lightmask & RoRnet::LIGHTMASK_CUSTOM9);
+    if (number == 9) return (m_lightmask & RoRnet::LIGHTMASK_CUSTOM10);
 }
 
 void Actor::setCustomLightVisible(int number, bool visible)
@@ -4478,7 +4455,16 @@ void Actor::setCustomLightVisible(int number, bool visible)
         return;
     }
 
-    m_custom_lights_on[number] = visible;
+    if (number == 0) BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_CUSTOM1 , visible);
+    if (number == 1) BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_CUSTOM2 , visible);
+    if (number == 2) BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_CUSTOM3 , visible);
+    if (number == 3) BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_CUSTOM4 , visible);
+    if (number == 4) BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_CUSTOM5 , visible);
+    if (number == 5) BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_CUSTOM6 , visible);
+    if (number == 6) BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_CUSTOM7 , visible);
+    if (number == 7) BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_CUSTOM8 , visible);
+    if (number == 8) BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_CUSTOM9 , visible);
+    if (number == 9) BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_CUSTOM10, visible);
 }
 
 bool Actor::getCustomLightPresent(int number)
@@ -4497,14 +4483,12 @@ bool Actor::getCustomLightPresent(int number)
     return false;
 }
 
-bool Actor::getBeaconMode() // Angelscript export
-{
-    return m_beacon_light_on;
-}
-
 BlinkType Actor::getBlinkType()
 {
-    return m_blink_type;
+    if (m_lightmask & RoRnet::LIGHTMASK_BLINK_LEFT) return BlinkType::BLINK_LEFT;
+    if (m_lightmask & RoRnet::LIGHTMASK_BLINK_RIGHT) return BlinkType::BLINK_RIGHT;
+    if (m_lightmask & RoRnet::LIGHTMASK_BLINK_WARN) return BlinkType::BLINK_WARN;
+    return BlinkType::BLINK_NONE;
 }
 
 bool Actor::getCustomParticleMode()
@@ -4621,3 +4605,4 @@ void Actor::UpdatePropAnimInputEvents()
         state.event_active_prev = ev_active;
     }
 }
+

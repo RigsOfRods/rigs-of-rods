@@ -1168,6 +1168,44 @@ void GameContext::UpdateCommonInputEvents(float dt)
         App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)m_player_actor));
     }
 
+    // Front lights
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LOW_BEAMS))
+    {
+        m_player_actor->setHeadlightsVisible(!m_player_actor->getHeadlightsVisible());
+        // sync sidelights to lowbeams
+        m_player_actor->setSideLightsVisible(m_player_actor->getHeadlightsVisible());
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CYCLE_TRUCK_LIGHTS))
+    {
+        if (!m_player_actor->getSideLightsVisible())
+        {
+            m_player_actor->setSideLightsVisible(true);
+        }
+        else if (!m_player_actor->getHeadlightsVisible())
+        {
+            m_player_actor->setHeadlightsVisible(true);
+        }
+        else
+        {
+            m_player_actor->setSideLightsVisible(false);
+            m_player_actor->setHeadlightsVisible(false);
+        }
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_HIGH_BEAMS))
+    {
+        m_player_actor->setHighBeamsVisible(!m_player_actor->getHighBeamsVisible());
+    }
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_FOG_LIGHTS))
+    {
+        m_player_actor->setFogLightsVisible(!m_player_actor->getFogLightsVisible());
+    }
+
+    // Beacons
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_BEACONS))
+    {
+        m_player_actor->beaconsToggle();
+    }
+
     // blinkers
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_BLINK_LEFT))
         m_player_actor->toggleBlinkType(BLINK_LEFT);
@@ -1233,16 +1271,6 @@ void GameContext::UpdateCommonInputEvents(float dt)
         {
             actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
         }
-    }
-
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_LIGHTS))
-    {
-        m_player_actor->lightsToggle();
-    }
-
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_BEACONS))
-    {
-        m_player_actor->beaconsToggle();
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) &&

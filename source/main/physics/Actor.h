@@ -27,6 +27,7 @@
 #include "GfxActor.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
+#include "RoRnet.h"
 #include "SimData.h"
 #include "TyrePressure.h"
 
@@ -108,8 +109,6 @@ public:
     /// @name User interaction
     /// @{
     void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
-    void              lightsToggle();
-    void              setLightsOff();
     void              tieToggle(int group=-1);
     bool              isTied();
     void              hookToggle(int group=-1, HookAction mode=HOOK_TOGGLE, NodeNum_t node_number=NODENUM_INVALID);
@@ -137,18 +136,36 @@ public:
     void              setSmokeEnabled(bool enabled) { m_disable_smoke = !enabled; }
     bool              getSmokeEnabled() const { return !m_disable_smoke; }
     bool              getCustomParticleMode();
-    void              beaconsToggle();
-    bool              getBrakeLightVisible();
-    bool              getCustomLightVisible(int number);
-    void              setCustomLightVisible(int number, bool visible);
-    bool              getCustomLightPresent(int number);
-    bool              getReverseLightVisible();            //!< Tells if the reverse-light is currently lit.
-    bool              getHeadLightVisible() { return m_headlight_on; }
-    bool              getBeaconMode();
-    void              toggleBlinkType(BlinkType blink);
+
+    std::vector<Actor*>& getAllLinkedActors() { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
+    //! @}
+
+    /// @name Vehicle lights
+    /// @{
+    // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp'
     BlinkType         getBlinkType();
     void              setBlinkType(BlinkType blink);
-    std::vector<Actor*>& getAllLinkedActors() { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
+    void              toggleBlinkType(BlinkType blink);
+    bool              getCustomLightVisible(int number);
+    void              setCustomLightVisible(int number, bool visible);
+    bool              getBeaconMode() const { return m_lightmask & RoRnet::LIGHTMASK_BEACONS; }
+    void              beaconsToggle();
+    bool              getBrakeLightVisible() const { return m_lightmask & RoRnet::LIGHTMASK_BRAKES; }
+    bool              getReverseLightVisible() const { return m_lightmask & RoRnet::LIGHTMASK_REVERSE; }
+    // not exported to scripting:
+    void              toggleHeadlights();
+    bool              getCustomLightPresent(int number);
+    BitMask_t         getLightStateMask() const { return m_lightmask; }
+    void              setLightStateMask(BitMask_t lightmask); //!< Does all the necessary toggling.
+    bool              getSideLightsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_BEACONS; }
+    void              setSideLightsVisible(bool val) { BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_SIDELIGHTS, val); }
+    bool              getHeadlightsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_BEACONS; }
+    void              setHeadlightsVisible(bool val) { if (val != this->getHeadlightsVisible()) { this->toggleHeadlights(); } }
+    bool              getHighBeamsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_BEACONS; }
+    void              setHighBeamsVisible(bool val) { BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_HIGHBEAMS, val); }
+    bool              getFogLightsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_BEACONS; }
+    void              setFogLightsVisible(bool val) { BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_FOGLIGHTS, val); }
+    void              setBeaconMode(bool val) { BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_BEACONS, val); }
     //! @}
 
     /// @name Visual state updates
@@ -158,6 +175,7 @@ public:
     void              updateFlareStates(float dt);
     void              updateVisual(float dt=0);
     void              updateDashBoards(float dt);
+    void              forceAllFlaresOff();
     //! @}
 
     /// @name Audio
@@ -549,13 +567,7 @@ private:
     /// @name Light states
     /// @{
     GfxFlaresMode     m_flares_mode = GfxFlaresMode::NONE;       //!< Snapshot of cvar 'gfx_flares_mode' on spawn.
-    bool              m_headlight_on = true;                     //!< Headlights on/off state.
-    bool              m_net_brake_light_on = false;
-    bool              m_net_reverse_light_on = false;
-    bool              m_extern_reverse_light_on = false;         //!< For trailers and such - imported state.
-    bool              m_beacon_light_on = false;
-    bool              m_custom_lights_on[MAX_CLIGHTS] = {false}; //!< 'u' flares control number on/off states.
-    BlinkType         m_blink_type = BLINK_NONE;                 //!< Current turn/warn signal mode.
+    BitMask_t         m_lightmask = 0;                           //!< RoRnet::Lightmask
     bool              m_blinker_autoreset = false;               //!< When true, we're steering and blinker will turn off automatically.
     /// @}
 

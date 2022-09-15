@@ -1762,8 +1762,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_tyre_pressurizing = m_actor->getTyrePressure().IsPressurizing();
 
     // Effects
-    m_simbuf.simbuf_headlight_on = m_actor->m_headlight_on;
-    m_simbuf.simbuf_beaconlight_active = m_actor->m_beacon_light_on;
+    m_simbuf.simbuf_lightmask = m_actor->m_lightmask;
     m_simbuf.simbuf_smoke_enabled = m_actor->getSmokeEnabled();
     m_simbuf.simbuf_parking_brake = m_actor->ar_parking_brake;
 
@@ -2206,9 +2205,9 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
     }
 
     // Update beacon flares
-    if (m_simbuf.simbuf_beaconlight_active != m_beaconlight_active)
+    if ((m_simbuf.simbuf_lightmask & RoRnet::LIGHTMASK_BEACONS) != m_beaconlight_active)
     {
-        m_beaconlight_active = m_simbuf.simbuf_beaconlight_active;
+        m_beaconlight_active = (m_simbuf.simbuf_lightmask & RoRnet::LIGHTMASK_BEACONS);
         this->SetBeaconsEnabled(m_beaconlight_active);
     }
 

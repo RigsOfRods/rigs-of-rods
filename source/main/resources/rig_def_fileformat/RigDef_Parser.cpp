@@ -2915,11 +2915,18 @@ FlareType Parser::GetArgFlareType(int index)
     char in = this->GetArgChar(index);
     switch (in)
     {
-        case (char)FlareType::HEADLIGHT:
+        // Front lights
+        case (char)FlareType::HEADLIGHT: 
+        case (char)FlareType::HIGH_BEAM:
+        case (char)FlareType::FOG_LIGHT:
+        // Rear lighs
+        case (char)FlareType::TAIL_LIGHT:
         case (char)FlareType::BRAKE_LIGHT:
+        case (char)FlareType::REVERSE_LIGHT:
+        // Special lights
+        case (char)FlareType::SIDELIGHT:
         case (char)FlareType::BLINKER_LEFT:
         case (char)FlareType::BLINKER_RIGHT:
-        case (char)FlareType::REVERSE_LIGHT:
         case (char)FlareType::USER:
         case (char)FlareType::DASHBOARD:
             return FlareType(in);

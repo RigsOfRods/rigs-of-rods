@@ -157,7 +157,7 @@ void VehicleButtons::DrawHeadLightButton(RoR::GfxActor* actorx)
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
-    else if (actorx->GetActor()->getHeadLightVisible())
+    else if (actorx->GetActor()->getHeadlightsVisible())
     {
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
     }
@@ -168,7 +168,7 @@ void VehicleButtons::DrawHeadLightButton(RoR::GfxActor* actorx)
 
     if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_headlight_icon->getHandle()), ImVec2(24, 24)))
     {
-        actorx->GetActor()->lightsToggle();
+        actorx->GetActor()->toggleHeadlights();
     }
 
     if (!has_headlight)
@@ -184,7 +184,7 @@ void VehicleButtons::DrawHeadLightButton(RoR::GfxActor* actorx)
     if (ImGui::IsItemHovered())
     {
         ImGui::BeginTooltip();
-        ImGui::TextDisabled("%s (%s)", "Head Lights", App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_TRUCK_LIGHTS).c_str());
+        ImGui::TextDisabled("%s (%s)", "Head Lights", App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_TRUCK_LOW_BEAMS).c_str());
         ImGui::EndTooltip();
     }
 }

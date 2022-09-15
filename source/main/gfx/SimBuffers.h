@@ -161,8 +161,7 @@ struct ActorSB
     bool              simbuf_tyre_pressurizing        = false;  
 
     // Effects
-    bool              simbuf_headlight_on             = 0;
-    bool              simbuf_beaconlight_active       = false;
+    BitMask_t         simbuf_lightmask                = 0;
     bool              simbuf_smoke_enabled            = false;
     bool              simbuf_parking_brake            = false;
 

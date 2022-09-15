@@ -4,7 +4,7 @@
 
 /// @file
 /// @brief Bit operations
-typedef unsigned int BitMask_t;
+typedef uint32_t BitMask_t;
 
 #define BITMASK( OFFSET )           ( 1  << ((OFFSET) - 1) )
 
@@ -14,7 +14,11 @@ typedef unsigned int BitMask_t;
 #define BITMASK_SET_0( VAR, FLAGS ) ( (VAR) &= ~ (FLAGS) )
 #define BITMASK_SET_1( VAR, FLAGS ) ( (VAR) |= (FLAGS) )
 
-
+inline void BITMASK_SET(BitMask_t& mask, BitMask_t flag, bool val)
+{
+	if (val) { BITMASK_SET_1(mask, flag); }
+	else { BITMASK_SET_0(mask, flag); }
+}
 
 // --------------- TO BE REMOVED --------------- //
 
