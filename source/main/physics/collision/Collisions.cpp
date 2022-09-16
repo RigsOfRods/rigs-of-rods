@@ -1694,6 +1694,7 @@ void Collisions::finishLoadingTerrain()
         debugsn->setPosition(Vector3::ZERO);
         debugsn->attachObject(debugmo);
 
-        createCollisionDebugVisualization();
+        // Disabled this temporary until the lag it creates is fixed
+        // createCollisionDebugVisualization();
     }
 }
