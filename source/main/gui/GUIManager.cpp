@@ -118,6 +118,7 @@ bool GUIManager::AreStaticMenusAllowed() //!< i.e. top menubar / vehicle UI butt
             !App::GetGuiManager()->FrictionSettings.IsHovered() &&
             !App::GetGuiManager()->TextureToolWindow.IsHovered() &&
             !App::GetGuiManager()->NodeBeamUtils.IsHovered() &&
+            !App::GetGuiManager()->CollisionsDebug.IsHovered() &&
             !App::GetGuiManager()->MainSelector.IsHovered() &&
             !App::GetGuiManager()->SurveyMap.IsHovered());
 }
@@ -137,6 +138,11 @@ void GUIManager::DrawSimulationGui(float dt)
     if (this->NodeBeamUtils.IsVisible())
     {
         this->NodeBeamUtils.Draw();
+    }
+
+    if (this->CollisionsDebug.IsVisible())
+    {
+        this->CollisionsDebug.Draw();
     }
 
     if (this->MessageBoxDialog.IsVisible())

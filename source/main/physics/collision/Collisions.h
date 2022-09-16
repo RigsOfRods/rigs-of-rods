@@ -51,6 +51,8 @@ class Collisions : public ZeroedMemoryAllocator
 {
 public:
 
+    typedef std::vector<collision_box_t> CollisionBoxVec;
+
     enum SurfaceType
     {
         FX_NONE,
@@ -112,7 +114,7 @@ private:
     static const int MAXIMUM_CELL = 0x7FFF;
 
     // collision boxes pool
-    std::vector<collision_box_t> m_collision_boxes; // Formerly MAX_COLLISION_BOXES = 5000
+    CollisionBoxVec m_collision_boxes; // Formerly MAX_COLLISION_BOXES = 5000
     std::vector<collision_box_t*> m_last_called_cboxes;
 
     // collision tris pool;
@@ -139,7 +141,6 @@ private:
     bool debugMode;
     int collision_version;
     inline int GetNumCollisionTris() const { return static_cast<int>(m_collision_tris.size()); }
-    inline int GetNumCollisionBoxes() const { return static_cast<int>(m_collision_boxes.size()); }
     unsigned int hashmask;
 
     const Ogre::Vector3 m_terrain_size;
@@ -196,6 +197,10 @@ public:
         size_t& index_count, unsigned* & indices,
         const Ogre::Vector3& position = Ogre::Vector3::ZERO,
         const Ogre::Quaternion& orient = Ogre::Quaternion::IDENTITY, const Ogre::Vector3& scale = Ogre::Vector3::UNIT_SCALE);
+
+    // Read-only (const) getters.
+    eventsource_t const& getEventSource(int pos) const { ROR_ASSERT(pos < free_eventsource); return eventsources[pos]; }
+    CollisionBoxVec const& getCollisionBoxes() const { return m_collision_boxes; }
 };
 
 Ogre::Vector3 primitiveCollision(node_t* node, Ogre::Vector3 velocity, float mass, Ogre::Vector3 normal, float dt, ground_model_t* gm, float penetration = 0);
