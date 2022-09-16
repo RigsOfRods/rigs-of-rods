@@ -65,6 +65,31 @@ void CollisionsDebug::Draw()
             snode->setVisible(m_draw_collision_boxes);
         }
     }
+    ImGui::Separator();
+    ImGui::Text("Num collision meshes: %d (%d tris)", (int)App::GetSimTerrain()->GetCollisions()->getCollisionBoxes().size());
+    if (ImGui::Checkbox("Show collision meshes", &m_draw_collision_meshes))
+    {
+        // Initial setup
+        if (m_draw_collision_meshes && m_collision_meshes.size() == 0)
+        {
+            for (const collision_mesh_t& cmesh : App::GetSimTerrain()->GetCollisions()->getCollisionMeshes())
+            {
+                this->AddCollisionMeshDebugMesh(cmesh);
+            }
+        }
+        // Update visibility
+        for (Ogre::SceneNode* snode : m_collision_boxes)
+        {
+            snode->setVisible(m_draw_collision_boxes);
+        }
+    }
+    if (ImGui::InputFloat("Collision mesh draw distance", &m_collision_mesh_draw_distance))
+    {
+        for (Ogre::SceneNode* snode : m_collision_meshes)
+        {
+            snode->getAttachedObject(0)->setRenderingDistance(m_collision_mesh_draw_distance);
+        }
+    }
 
     m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
     App::GetGuiManager()->RequestGuiCaptureKeyboard(m_is_hovered);
@@ -90,8 +115,51 @@ void CollisionsDebug::Draw()
             }
         }
     }
+
+    if (m_draw_collision_meshes)
+    {
+        for (const collision_mesh_t& cmesh : App::GetSimTerrain()->GetCollisions()->getCollisionMeshes())
+        {
+            if (IsDistanceWithin(cam_pos, cmesh.position, MAX_DISTANCE_METERS))
+            {
+                this->DrawCollisionMeshDebugText(cmesh);
+            }
+        }
+    }
 }
 
+void CollisionsDebug::AddCollisionMeshDebugMesh(collision_mesh_t const& coll_mesh)
+{
+    // Gather data
+    const CollisionTriVec& ctris = App::GetSimTerrain()->GetCollisions()->getCollisionTriangles();
+
+    // Create mesh
+    Ogre::ManualObject* debugmo = App::GetGfxScene()->GetSceneManager()->createManualObject();
+    debugmo->begin("tracks/debug/collision/triangle", RenderOperation::OT_TRIANGLE_LIST);
+    for (int i = coll_mesh.collision_tri_start; i < coll_mesh.collision_tri_end; i++)
+    {
+        // The collision triangle vertices are in world coordinates.
+        debugmo->position(ctris[i].a - coll_mesh.position);
+        debugmo->position(ctris[i].b - coll_mesh.position);
+        debugmo->position(ctris[i].c - coll_mesh.position);
+    }
+    debugmo->end();
+    debugmo->setRenderingDistance(m_collision_mesh_draw_distance);
+    debugmo->setBoundingBox(AxisAlignedBox::BOX_INFINITE); // make infinite
+        /*AxisAlignedBox(
+            coll_mesh.position + coll_mesh.bounding_box.getMinimum(),
+            coll_mesh.position + coll_mesh.bounding_box.getMaximum()));
+            */
+
+    // Display mesh
+    SceneNode* debugsn = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    debugsn->setPosition(coll_mesh.position);
+    // NOTE: orientation and scale are already "baked" to the collision triangle positions, do not re-apply it here.
+    debugsn->attachObject(debugmo);
+
+    // Submit mesh
+    m_collision_meshes.push_back(debugsn);
+}
 
 void CollisionsDebug::AddCollisionBoxDebugMesh(collision_box_t const& coll_box)
 {
@@ -181,6 +249,13 @@ Ogre::Vector3 CollisionsDebug::GetCollBoxWorldPos(collision_box_t const& coll_bo
     return Vector3(coll_box.lo + (coll_box.hi - coll_box.lo) * 0.5f);
 }
 
+void CollisionsDebug::DrawCollisionMeshDebugText(collision_mesh_t const& coll_mesh)
+{
+    this->DrawLabelAtWorldPos(
+        fmt::format("COLLMESH\nmeshname:{}\ngroundmodel:{}", coll_mesh.mesh_name, coll_mesh.ground_model->name),
+        coll_mesh.position);
+}
+
 void CollisionsDebug::DrawCollisionBoxDebugText(collision_box_t const& coll_box)
 {
     if (!coll_box.virt)
@@ -248,4 +323,11 @@ void CollisionsDebug::CleanUp()
         App::GetGfxScene()->GetSceneManager()->destroySceneNode(snode);
     }
     m_collision_boxes.clear();
+
+    for (Ogre::SceneNode* snode : m_collision_meshes)
+    {
+        snode->removeAndDestroyAllChildren();
+        App::GetGfxScene()->GetSceneManager()->destroySceneNode(snode);
+    }
+    m_collision_meshes.clear();
 }

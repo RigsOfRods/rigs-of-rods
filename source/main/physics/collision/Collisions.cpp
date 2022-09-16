@@ -117,7 +117,6 @@ using namespace RoR;
 
 Collisions::Collisions(Ogre::Vector3 terrn_size):
       debugMode(false)
-    , debugmo(nullptr)
     , forcecam(false)
     , free_eventsource(0)
     , hashmask(0)
@@ -134,12 +133,6 @@ Collisions::Collisions(Ogre::Vector3 terrn_size):
     loadDefaultModels();
     defaultgm = getGroundModelByString("concrete");
     defaultgroundgm = getGroundModelByString("gravel");
-
-    if (debugMode)
-    {
-        debugmo = App::GetGfxScene()->GetSceneManager()->createManualObject();
-        debugmo->begin("tracks/debug/collision/triangle", RenderOperation::OT_TRIANGLE_LIST);
-    }
 }
 
 Collisions::~Collisions()
@@ -556,7 +549,7 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
 
 int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, ground_model_t* gm)
 {
-    int new_tri_index = this->GetNumCollisionTris();
+    int new_tri_index = (int)m_collision_tris.size();
     collision_tri_t new_tri;
     new_tri.a=p1;
     new_tri.b=p2;
@@ -598,13 +591,6 @@ int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, ground_model
         {
             hash_add(i, j, new_tri_index + hash_coll_element_t::ELEMENT_TRI_BASE_INDEX, new_tri.aab.getMaximum().y);
         }
-    }
-    
-    if (debugMode)
-    {
-        debugmo->position(p1);
-        debugmo->position(p2);
-        debugmo->position(p3);
     }
 
     m_collision_aab.merge(new_tri.aab);
@@ -1410,9 +1396,8 @@ int Collisions::createCollisionDebugVisualization()
     return 0;
 }
 
-int Collisions::addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre::Quaternion q, Ogre::Vector3 scale, ground_model_t *gm, std::vector<int> *collTris)
+void Collisions::addCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::Quaternion const& q, Ogre::Vector3 const& scale, ground_model_t *gm, std::vector<int> *collTris)
 {
-    // normal, non virtual collision box
     Entity *ent = App::GetGfxScene()->GetSceneManager()->createEntity(meshname);
     ent->setMaterialName("tracks/debug/collision/mesh");
 
@@ -1421,14 +1406,15 @@ int Collisions::addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre:
         gm = getGroundModelByString("concrete");
     }
 
+    // Analyze the mesh
     size_t vertex_count,index_count;
     Vector3* vertices;
     unsigned* indices;
 
     getMeshInformation(ent->getMesh().getPointer(),vertex_count,vertices,index_count,indices, pos, q, scale);
 
-    //LOG(LML_NORMAL,"Vertices in mesh: %u",vertex_count);
-    //LOG(LML_NORMAL,"Triangles in mesh: %u",index_count / 3);
+    // Generate collision triangles
+    int collision_tri_start = (int)m_collision_tris.size();
     for (int i=0; i<(int)index_count/3; i++)
     {
         int triID = addCollisionTri(vertices[indices[i*3]], vertices[indices[i*3+1]], vertices[indices[i*3+2]], gm);
@@ -1436,32 +1422,25 @@ int Collisions::addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre:
             collTris->push_back(triID);
     }
 
+    // Submit the mesh record
+    collision_mesh_t rec;
+    rec.mesh_name = meshname;
+    rec.source_name = srcname;
+    rec.position = pos;
+    rec.orientation = q;
+    rec.scale = scale;
+    rec.ground_model = gm;
+    rec.num_verts = vertex_count;
+    rec.num_indices = index_count;
+    rec.collision_tri_start = collision_tri_start;
+    rec.collision_tri_end = (int)m_collision_tris.size();
+    rec.bounding_box = ent->getMesh()->getBounds();
+    m_collision_meshes.push_back(rec);
+
+    // Clean up
     delete[] vertices;
     delete[] indices;
-    if (!debugMode)
-    {
-        App::GetGfxScene()->GetSceneManager()->destroyEntity(ent);
-    } else
-    {
-        SceneNode *n=App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-        n->attachObject(ent);
-        n->setPosition(pos);
-        n->setScale(scale);
-        n->setOrientation(q);
-    
-        String labelName = "collision_mesh_label_"+TOSTRING(this->GetNumCollisionTris());
-        String labelCaption = "COLLMESH\nmeshname:"+meshname + "\ngroundmodel:" + String(gm->name);
-        MovableText *mt = new MovableText(labelName, labelCaption);
-        mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
-        mt->setFontName("CyberbitEnglish");
-        mt->setAdditionalHeight(1);
-        mt->setCharacterHeight(0.3);
-        mt->setColor(ColourValue::Black);
-        mt->setRenderingDistance(200);
-        
-        n->attachObject(mt);
-    }
-    return 0;
+    App::GetGfxScene()->GetSceneManager()->destroyEntity(ent);
 }
 
 void Collisions::getMeshInformation(Mesh* mesh,size_t &vertex_count,Ogre::Vector3* &vertices,
@@ -1584,11 +1563,6 @@ void Collisions::finishLoadingTerrain()
 {
     if (debugMode)
     {
-        SceneNode *debugsn = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-        debugmo->end();
-        debugsn->setPosition(Vector3::ZERO);
-        debugsn->attachObject(debugmo);
-
         createCollisionDebugVisualization();
     }
 }

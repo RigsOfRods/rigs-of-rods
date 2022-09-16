@@ -20,9 +20,11 @@
 */
 
 /// @file
+/// @author Petr Ohlidal, 2022
 
 #pragma once
 
+#include "Collisions.h"
 #include "ForwardDeclarations.h"
 
 #include <Ogre.h>
@@ -44,12 +46,18 @@ public:
 
 private:
     void AddCollisionBoxDebugMesh(collision_box_t const& coll_box);
+    void AddCollisionMeshDebugMesh(collision_mesh_t const& coll_mesh);
     void DrawCollisionBoxDebugText(collision_box_t const& coll_box);
+    void DrawCollisionMeshDebugText(collision_mesh_t const& coll_mesh);
     void DrawLabelAtWorldPos(std::string const& caption, Ogre::Vector3 const& world_pos);
     Ogre::Vector3 GetCollBoxWorldPos(collision_box_t const& coll_box);
 
     std::vector<Ogre::SceneNode*> m_collision_boxes;
-    bool                          m_draw_collision_boxes = false;
+    bool m_draw_collision_boxes = false;
+
+    std::vector<Ogre::SceneNode*> m_collision_meshes;
+    bool m_draw_collision_meshes = false;
+    float m_collision_mesh_draw_distance = 200.f;
 
     bool m_is_visible = false;
     bool m_is_hovered = false;
