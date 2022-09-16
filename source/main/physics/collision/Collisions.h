@@ -3,7 +3,7 @@
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
     Copyright 2009      Lefteris Stamatogiannakis
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2022 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -30,6 +30,12 @@
 
 namespace RoR {
 
+/// @addtogroup Physics
+/// @{
+
+/// @addtogroup Collisions
+/// @{
+
 struct eventsource_t
 {
     char instancename[256];
@@ -41,11 +47,35 @@ struct eventsource_t
     bool enabled;
 };
 
-/// @addtogroup Physics
-/// @{
+struct collision_tri_t
+{
+    Ogre::Vector3 a;
+    Ogre::Vector3 b;
+    Ogre::Vector3 c;
+    Ogre::AxisAlignedBox aab;
+    Ogre::Matrix3 forward;
+    Ogre::Matrix3 reverse;
+    ground_model_t* gm;
+    bool enabled;
+};
+typedef std::vector<collision_tri_t> CollisionTriVec;
 
-/// @addtogroup Collisions
-/// @{
+/// Records which collision triangles belong to which mesh.
+struct collision_mesh_t
+{
+    std::string mesh_name;
+    std::string source_name;
+    Ogre::Vector3 position = Ogre::Vector3::ZERO;
+    Ogre::Quaternion orientation = Ogre::Quaternion::IDENTITY;
+    Ogre::Vector3 scale = Ogre::Vector3::ZERO;
+    Ogre::AxisAlignedBox bounding_box;
+    ground_model_t* ground_model = nullptr;
+    int collision_tri_start = -1;
+    int collision_tri_end = -1;
+    int num_verts = 0;
+    int num_indices = 0;
+};
+typedef std::vector<collision_mesh_t> CollisionMeshVec;
 
 class Collisions : public ZeroedMemoryAllocator
 {
@@ -87,18 +117,6 @@ private:
         int element_index;
     };
 
-    struct collision_tri_t
-    {
-        Ogre::Vector3 a;
-        Ogre::Vector3 b;
-        Ogre::Vector3 c;
-        Ogre::AxisAlignedBox aab;
-        Ogre::Matrix3 forward;
-        Ogre::Matrix3 reverse;
-        ground_model_t* gm;
-        bool enabled;
-    };
-
     static const int LATEST_GROUND_MODEL_VERSION = 3;
     static const int MAX_EVENT_SOURCE = 500;
 
@@ -117,8 +135,9 @@ private:
     CollisionBoxVec m_collision_boxes; // Formerly MAX_COLLISION_BOXES = 5000
     std::vector<collision_box_t*> m_last_called_cboxes;
 
-    // collision tris pool;
-    std::vector<collision_tri_t> m_collision_tris; // Formerly MAX_COLLISION_TRIS = 100000
+    // collision tris pool
+    CollisionTriVec m_collision_tris; // Formerly MAX_COLLISION_TRIS = 100000
+    CollisionMeshVec m_collision_meshes; // For diagnostics/editing only.
 
     Ogre::AxisAlignedBox m_collision_aab; // Tight bounding box around all collision meshes
 
@@ -137,10 +156,8 @@ private:
     void envokeScriptCallback(collision_box_t* cbox, node_t* node = 0);
 
     Landusemap* landuse;
-    Ogre::ManualObject* debugmo;
     bool debugMode;
     int collision_version;
-    inline int GetNumCollisionTris() const { return static_cast<int>(m_collision_tris.size()); }
     unsigned int hashmask;
 
     const Ogre::Vector3 m_terrain_size;
@@ -177,7 +194,7 @@ public:
     void finishLoadingTerrain();
 
     int addCollisionBox(Ogre::SceneNode* tenode, bool rotating, bool virt, Ogre::Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String& eventname, const Ogre::String& instancename, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc = Ogre::Vector3::UNIT_SCALE, Ogre::Vector3 dr = Ogre::Vector3::ZERO, CollisionEventFilter event_filter = EVENT_ALL, int scripthandler = -1);
-    int addCollisionMesh(Ogre::String meshname, Ogre::Vector3 pos, Ogre::Quaternion q, Ogre::Vector3 scale, ground_model_t* gm = 0, std::vector<int>* collTris = 0);
+    void addCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::Quaternion const& q, Ogre::Vector3 const& scale, ground_model_t* gm = 0, std::vector<int>* collTris = 0);
     int addCollisionTri(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, ground_model_t* gm);
     int createCollisionDebugVisualization();
     void removeCollisionBox(int number);
@@ -201,6 +218,8 @@ public:
     // Read-only (const) getters.
     eventsource_t const& getEventSource(int pos) const { ROR_ASSERT(pos < free_eventsource); return eventsources[pos]; }
     CollisionBoxVec const& getCollisionBoxes() const { return m_collision_boxes; }
+    CollisionMeshVec const& getCollisionMeshes() const { return m_collision_meshes; }
+    CollisionTriVec const& getCollisionTriangles() const { return m_collision_tris; }
 };
 
 Ogre::Vector3 primitiveCollision(node_t* node, Ogre::Vector3 velocity, float mass, Ogre::Vector3 normal, float dt, ground_model_t* gm, float penetration = 0);
