@@ -46,6 +46,7 @@ private:
     void AddCollisionBoxDebugMesh(collision_box_t const& coll_box);
     void DrawCollisionBoxDebugText(collision_box_t const& coll_box);
     void DrawLabelAtWorldPos(std::string const& caption, Ogre::Vector3 const& world_pos);
+    Ogre::Vector3 GetCollBoxWorldPos(collision_box_t const& coll_box);
 
     std::vector<Ogre::SceneNode*> m_collision_boxes;
     bool                          m_draw_collision_boxes = false;

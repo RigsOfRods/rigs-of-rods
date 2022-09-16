@@ -93,4 +93,6 @@ private:
     Ogre::Vector2 m_screen_size;
 };
 
+bool IsDistanceWithin(Ogre::Vector3 const& a, Ogre::Vector3 const& b, float max);
+
 } // namespace RoR

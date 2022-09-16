@@ -141,3 +141,8 @@ std::string RoR::Sha1Hash(std::string const & input)
     return sha1.ReportHash();
 }
 
+bool RoR::IsDistanceWithin(Ogre::Vector3 const& a, Ogre::Vector3 const& b, float max)
+{
+    return a.squaredDistance(b) <= max * max;
+}
+

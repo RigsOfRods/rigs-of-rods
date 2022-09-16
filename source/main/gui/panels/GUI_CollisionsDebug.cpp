@@ -42,8 +42,6 @@ void CollisionsDebug::Draw()
 {
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
-    ImGui::SetNextWindowSize(ImVec2(475.f, ImGui::GetIO().DisplaySize.y - 40.f), ImGuiCond_Appearing);
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
     bool keep_open = true;
     ImGui::Begin(_LC("About", "Static collision debug"), &keep_open, win_flags);
@@ -78,11 +76,18 @@ void CollisionsDebug::Draw()
         this->SetVisible(false);
     }
 
+    // only draw reasonably close labels
+    const Ogre::Vector3 cam_pos = App::GetCameraManager()->GetCameraNode()->getPosition();
+    const float MAX_DISTANCE_METERS = 155.f;
+
     if (m_draw_collision_boxes)
     {
         for (const collision_box_t& cbox : App::GetSimTerrain()->GetCollisions()->getCollisionBoxes())
         {
-            this->DrawCollisionBoxDebugText(cbox);
+            if (IsDistanceWithin(cam_pos, this->GetCollBoxWorldPos(cbox), MAX_DISTANCE_METERS))
+            {
+                this->DrawCollisionBoxDebugText(cbox);
+            }
         }
     }
 }
@@ -171,9 +176,14 @@ void CollisionsDebug::AddCollisionBoxDebugMesh(collision_box_t const& coll_box)
     m_collision_boxes.push_back(debugsn);
 }
 
+Ogre::Vector3 CollisionsDebug::GetCollBoxWorldPos(collision_box_t const& coll_box)
+{
+    return Vector3(coll_box.lo + (coll_box.hi - coll_box.lo) * 0.5f);
+}
+
 void CollisionsDebug::DrawCollisionBoxDebugText(collision_box_t const& coll_box)
 {
-    if (coll_box.virt)
+    if (!coll_box.virt)
         return;
 
     int scripthandler = -1;
@@ -188,8 +198,7 @@ void CollisionsDebug::DrawCollisionBoxDebugText(collision_box_t const& coll_box)
 
     String caption = "EVENTBOX\nevent:" + String(boxname) + "\ninstance:" + String(instancename) + "\nhandler:" + TOSTRING(scripthandler);
 
-    Vector3 world_pos(coll_box.lo + (coll_box.hi - coll_box.lo) * 0.5f);
-    this->DrawLabelAtWorldPos(caption, world_pos);
+    this->DrawLabelAtWorldPos(caption, this->GetCollBoxWorldPos(coll_box));
 }
 
 void CollisionsDebug::DrawLabelAtWorldPos(std::string const& caption, Ogre::Vector3 const& world_pos)
