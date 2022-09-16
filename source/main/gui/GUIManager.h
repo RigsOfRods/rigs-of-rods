@@ -29,6 +29,7 @@
 #include "GUI_MessageBox.h"
 
 // GUI panels
+#include "GUI_CollisionsDebug.h"
 #include "GUI_ConsoleWindow.h"
 #include "GUI_FrictionSettings.h"
 #include "GUI_RepositorySelector.h"
@@ -100,6 +101,7 @@ public:
     ~GUIManager();
 
 
+    GUI::CollisionsDebug        CollisionsDebug;
     GUI::GameMainMenu           GameMainMenu;
     GUI::GameAbout              GameAbout;
     GUI::GameSettings           GameSettings;

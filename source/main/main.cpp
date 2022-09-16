@@ -580,6 +580,7 @@ int main(int argc, char *argv[])
                     App::GetGameContext()->GetSceneMouse().DiscardVisuals();
                     App::DestroyOverlayWrapper();
                     App::GetCameraManager()->ResetAllBehaviors();
+                    App::GetGuiManager()->CollisionsDebug.CleanUp();
                     App::GetGuiManager()->MainSelector.Close();
                     App::GetGuiManager()->LoadingWindow.SetVisible(false);
                     App::GetGuiManager()->MenuWallpaper->show();

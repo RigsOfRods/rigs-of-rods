@@ -547,6 +547,12 @@ void TopMenubar::Update()
                 m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
+            if (ImGui::Button(_LC("TopMenubar", "Collisions debug")))
+            {
+                App::GetGuiManager()->CollisionsDebug.SetVisible(true);
+                m_open_menu = TopMenu::TOPMENU_NONE;
+            }
+
             if (current_actor != nullptr)
             {
                 if (ImGui::Button(_LC("TopMenubar", "Node / Beam utility")))

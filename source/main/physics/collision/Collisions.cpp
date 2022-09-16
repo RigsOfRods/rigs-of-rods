@@ -407,7 +407,7 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
 {
     Quaternion rotation  = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
     Quaternion direction = Quaternion(Degree(dr.x), Vector3::UNIT_X) * Quaternion(Degree(dr.y), Vector3::UNIT_Y) * Quaternion(Degree(dr.z), Vector3::UNIT_Z);
-    int coll_box_index = this->GetNumCollisionBoxes();
+    int coll_box_index = (int)m_collision_boxes.size();
     collision_box_t coll_box;
 
     coll_box.enabled = true;
@@ -476,49 +476,41 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
         coll_box.unrot = rotation.Inverse();
     }
 
-    SceneNode *debugsn = 0;
-    
-    if (debugMode)
-    {
-        debugsn = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-    }
-
     // set raw box
     // 8 points of a cube
-    Vector3 cube_points[8];
     if (coll_box.selfrotated || coll_box.refined)
     {
-        cube_points[0] = Ogre::Vector3(l.x, l.y, l.z) * sc;
-        cube_points[1] = Ogre::Vector3(h.x, l.y, l.z) * sc;
-        cube_points[2] = Ogre::Vector3(l.x, h.y, l.z) * sc;
-        cube_points[3] = Ogre::Vector3(h.x, h.y, l.z) * sc;
-        cube_points[4] = Ogre::Vector3(l.x, l.y, h.z) * sc;
-        cube_points[5] = Ogre::Vector3(h.x, l.y, h.z) * sc;
-        cube_points[6] = Ogre::Vector3(l.x, h.y, h.z) * sc;
-        cube_points[7] = Ogre::Vector3(h.x, h.y, h.z) * sc;
+        coll_box.debug_verts[0] = Ogre::Vector3(l.x, l.y, l.z) * sc;
+        coll_box.debug_verts[1] = Ogre::Vector3(h.x, l.y, l.z) * sc;
+        coll_box.debug_verts[2] = Ogre::Vector3(l.x, h.y, l.z) * sc;
+        coll_box.debug_verts[3] = Ogre::Vector3(h.x, h.y, l.z) * sc;
+        coll_box.debug_verts[4] = Ogre::Vector3(l.x, l.y, h.z) * sc;
+        coll_box.debug_verts[5] = Ogre::Vector3(h.x, l.y, h.z) * sc;
+        coll_box.debug_verts[6] = Ogre::Vector3(l.x, h.y, h.z) * sc;
+        coll_box.debug_verts[7] = Ogre::Vector3(h.x, h.y, h.z) * sc;
         
         // rotate box
         if (coll_box.selfrotated)
             for (int i=0; i < 8; i++)
             {
-                cube_points[i]=cube_points[i]-coll_box.selfcenter;
-                cube_points[i]=coll_box.selfrot*cube_points[i];
-                cube_points[i]=cube_points[i]+coll_box.selfcenter;
+                coll_box.debug_verts[i]=coll_box.debug_verts[i]-coll_box.selfcenter;
+                coll_box.debug_verts[i]=coll_box.selfrot*coll_box.debug_verts[i];
+                coll_box.debug_verts[i]=coll_box.debug_verts[i]+coll_box.selfcenter;
             }
             if (coll_box.refined)
             {
                 for (int i=0; i < 8; i++)
                 {
-                    cube_points[i] = coll_box.rot * cube_points[i];
+                    coll_box.debug_verts[i] = coll_box.rot * coll_box.debug_verts[i];
                 }
             }
             // find min/max
-            coll_box.lo = cube_points[0];
-            coll_box.hi = cube_points[0];
+            coll_box.lo = coll_box.debug_verts[0];
+            coll_box.hi = coll_box.debug_verts[0];
             for (int i=1; i < 8; i++)
             {
-                coll_box.lo.makeFloor(cube_points[i]);
-                coll_box.hi.makeCeil(cube_points[i]);
+                coll_box.lo.makeFloor(coll_box.debug_verts[i]);
+                coll_box.hi.makeCeil(coll_box.debug_verts[i]);
             }
             // set absolute coords
             coll_box.lo += pos;
@@ -529,111 +521,14 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
         coll_box.lo = pos + coll_box.relo;
         coll_box.hi = pos + coll_box.rehi;
         Vector3 d = (coll_box.rehi - coll_box.relo);
-        cube_points[0] = coll_box.relo;
-        cube_points[1] = coll_box.relo;	cube_points[1].x += d.x;
-        cube_points[2] = coll_box.relo;                          cube_points[2].y += d.y;
-        cube_points[3] = coll_box.relo; cube_points[3].x += d.x; cube_points[3].y += d.y;
-        cube_points[4] = coll_box.relo;                                                   cube_points[4].z += d.z;
-        cube_points[5] = coll_box.relo; cube_points[5].x += d.x;                          cube_points[5].z += d.z;
-        cube_points[6] = coll_box.relo; cube_points[6].y += d.y;                          cube_points[6].z += d.z;
-        cube_points[7] = coll_box.relo; cube_points[7].x += d.x; cube_points[7].y += d.y; cube_points[7].z += d.z;
-    }
-
-    if (debugsn)
-    {
-        debugsn->setPosition(pos);
-        // box content
-        ManualObject *mo = App::GetGfxScene()->GetSceneManager()->createManualObject();
-        String matName = "tracks/debug/collision/box";
-        if (virt && scripthandler == -1)
-            matName = "tracks/debug/eventbox/unused";
-        else if (virt)
-            matName = "tracks/debug/eventbox/used";
-        AxisAlignedBox *aa = new AxisAlignedBox();
-        for (int i=0; i < 8; i++)
-        {
-            aa->merge(cube_points[i]);
-        }
-        mo->begin(matName, Ogre::RenderOperation::OT_TRIANGLE_LIST);
-        mo->position(cube_points[0]);
-        mo->position(cube_points[1]);
-        mo->position(cube_points[2]);
-        mo->position(cube_points[3]);
-        mo->position(cube_points[4]);
-        mo->position(cube_points[5]);
-        mo->position(cube_points[6]);
-        mo->position(cube_points[7]);
-
-        // front
-        mo->triangle(0,1,2);
-        mo->triangle(1,3,2);
-        // right side
-        mo->triangle(3,1,5);
-        mo->triangle(5,7,3);
-        // left side
-        mo->triangle(6,4,0);
-        mo->triangle(0,2,6);
-        // back side
-        mo->triangle(7,5,4);
-        mo->triangle(4,6,7);
-        // bottom
-        mo->triangle(5,4,1);
-        mo->triangle(4,0,1);
-        // top
-        mo->triangle(2,3,6);
-        mo->triangle(3,7,6);
-
-        mo->end();
-        mo->setBoundingBox(*aa);
-        mo->setRenderingDistance(200);
-        debugsn->attachObject(mo);
-
-        // the border
-        mo = App::GetGfxScene()->GetSceneManager()->createManualObject();
-        mo->begin(matName, Ogre::RenderOperation::OT_LINE_LIST);
-        mo->position(cube_points[0]);
-        mo->position(cube_points[1]);
-        mo->position(cube_points[2]);
-        mo->position(cube_points[3]);
-        mo->position(cube_points[4]);
-        mo->position(cube_points[5]);
-        mo->position(cube_points[6]);
-        mo->position(cube_points[7]);
-        //front
-        mo->index(0);mo->index(1); mo->index(1);mo->index(3); mo->index(3);mo->index(2); mo->index(2);mo->index(0);
-        // right side
-        mo->index(1);mo->index(5); mo->index(5);mo->index(7); mo->index(7);mo->index(3); mo->index(3);mo->index(1);
-        // left side
-        mo->index(0);mo->index(2); mo->index(2);mo->index(6); mo->index(6);mo->index(4); mo->index(4);mo->index(0);
-        // back side
-        mo->index(5);mo->index(4); mo->index(4);mo->index(6); mo->index(6);mo->index(7); mo->index(7);mo->index(5);
-        // bottom and top not needed
-        mo->end();
-        mo->setBoundingBox(*aa);
-        debugsn->attachObject(mo);
-        mo->setRenderingDistance(200);
-        delete(aa);
-
-        // label
-        // setup a label
-        if (virt)
-        {
-            String labelName = "collision_box_label_"+TOSTRING(coll_box_index);
-            String labelCaption = "EVENTBOX\nevent:"+String(eventname) + "\ninstance:" + String(instancename);
-            if (scripthandler != -1)
-                labelCaption += "\nhandler:" + TOSTRING(scripthandler);
-            MovableText *mt = new MovableText(labelName, labelCaption);
-            mt->setTextAlignment(MovableText::H_CENTER, MovableText::V_ABOVE);
-            mt->setFontName("CyberbitEnglish");
-            mt->setAdditionalHeight(1);
-            mt->setCharacterHeight(0.3);
-            mt->setColor(ColourValue::Black);
-            mt->setRenderingDistance(200);
-
-            SceneNode *n2 = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-            n2->attachObject(mt);
-            n2->setPosition(coll_box.lo + (coll_box.hi - coll_box.lo) * 0.5f);
-        }
+        coll_box.debug_verts[0] = coll_box.relo;
+        coll_box.debug_verts[1] = coll_box.relo;	coll_box.debug_verts[1].x += d.x;
+        coll_box.debug_verts[2] = coll_box.relo;                          coll_box.debug_verts[2].y += d.y;
+        coll_box.debug_verts[3] = coll_box.relo; coll_box.debug_verts[3].x += d.x; coll_box.debug_verts[3].y += d.y;
+        coll_box.debug_verts[4] = coll_box.relo;                                                   coll_box.debug_verts[4].z += d.z;
+        coll_box.debug_verts[5] = coll_box.relo; coll_box.debug_verts[5].x += d.x;                          coll_box.debug_verts[5].z += d.z;
+        coll_box.debug_verts[6] = coll_box.relo; coll_box.debug_verts[6].y += d.y;                          coll_box.debug_verts[6].z += d.z;
+        coll_box.debug_verts[7] = coll_box.relo; coll_box.debug_verts[7].x += d.x; coll_box.debug_verts[7].y += d.y; coll_box.debug_verts[7].z += d.z;
     }
 
     // register this collision box in the index
