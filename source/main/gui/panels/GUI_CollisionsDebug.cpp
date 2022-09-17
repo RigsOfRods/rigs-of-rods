@@ -182,20 +182,17 @@ void CollisionsDebug::AddCollisionMeshDebugMesh(collision_mesh_t const& coll_mes
     // Create mesh
     Ogre::ManualObject* debugmo = App::GetGfxScene()->GetSceneManager()->createManualObject();
     debugmo->begin("tracks/debug/collision/triangle", RenderOperation::OT_TRIANGLE_LIST);
-    for (int i = coll_mesh.collision_tri_start; i < coll_mesh.collision_tri_end; i++)
+    for (int i = 0; i < coll_mesh.collision_tri_count; i++)
     {
-        // The collision triangle vertices are in world coordinates.
-        debugmo->position(ctris[i].a - coll_mesh.position);
-        debugmo->position(ctris[i].b - coll_mesh.position);
-        debugmo->position(ctris[i].c - coll_mesh.position);
+        collision_tri_t const& ctri = ctris[i + coll_mesh.collision_tri_start];
+        // The collision triangle vertices are in world coords, we want local coords.
+        debugmo->position(ctri.a - coll_mesh.position);
+        debugmo->position(ctri.b - coll_mesh.position);
+        debugmo->position(ctri.c - coll_mesh.position);
     }
     debugmo->end();
     debugmo->setRenderingDistance(m_collision_mesh_draw_distance);
     debugmo->setBoundingBox(AxisAlignedBox::BOX_INFINITE); // make infinite
-        /*AxisAlignedBox(
-            coll_mesh.position + coll_mesh.bounding_box.getMinimum(),
-            coll_mesh.position + coll_mesh.bounding_box.getMaximum()));
-            */
 
     // Display mesh
     SceneNode* debugsn = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
@@ -297,9 +294,11 @@ Ogre::Vector3 CollisionsDebug::GetCollBoxWorldPos(collision_box_t const& coll_bo
 
 void CollisionsDebug::DrawCollisionMeshDebugText(collision_mesh_t const& coll_mesh)
 {
-    const char* type_str = (m_labels_draw_types) ? "COLLMESH\n" : "";
+    const char* label_type_str = (m_labels_draw_types) ? "COLLMESH\n" : "";
+    const char* ground_model_str = (coll_mesh.ground_model) ? coll_mesh.ground_model->name : "(multiple)";
+
     std::string caption = fmt::format("{}meshname:{}\ngroundmodel:{}",
-        type_str, coll_mesh.mesh_name, coll_mesh.ground_model->name);
+        label_type_str, coll_mesh.mesh_name, ground_model_str);
     if (m_labels_draw_sources)
     {
         caption += fmt::format("\nsource:{}", coll_mesh.source_name);
@@ -505,9 +504,12 @@ void CollisionsDebug::ClearCollisionCellVisuals()
     m_draw_collision_cells = false;
     m_collision_cell_draw_distance = DEFAULT_DRAWDIST;
     
-    m_collision_grid_root->removeAndDestroyAllChildren();
-    App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_collision_grid_root);
-    m_collision_grid_root = nullptr;
+    if (m_collision_grid_root)
+    {
+        m_collision_grid_root->removeAndDestroyAllChildren();
+        App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_collision_grid_root);
+        m_collision_grid_root = nullptr;
+    }
 }
 
 void CollisionsDebug::SetVisible(bool v) 

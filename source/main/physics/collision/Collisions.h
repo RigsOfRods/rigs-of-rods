@@ -71,7 +71,7 @@ struct collision_mesh_t
     Ogre::AxisAlignedBox bounding_box;
     ground_model_t* ground_model = nullptr;
     int collision_tri_start = -1;
-    int collision_tri_end = -1;
+    int collision_tri_count = 0;
     int num_verts = 0;
     int num_indices = 0;
 };
@@ -193,7 +193,8 @@ public:
     void finishLoadingTerrain();
 
     int addCollisionBox(Ogre::SceneNode* tenode, bool rotating, bool virt, Ogre::Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String& eventname, const Ogre::String& instancename, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc = Ogre::Vector3::UNIT_SCALE, Ogre::Vector3 dr = Ogre::Vector3::ZERO, CollisionEventFilter event_filter = EVENT_ALL, int scripthandler = -1);
-    void addCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::Quaternion const& q, Ogre::Vector3 const& scale, ground_model_t* gm = 0, std::vector<int>* collTris = 0);
+    void addCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::Quaternion const& q, Ogre::Vector3 const& scale, ground_model_t* gm = 0, std::vector<int>* collTris = 0); //!< generate collision tris from existing mesh resource
+    void registerCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::AxisAlignedBox bounding_box, ground_model_t* gm, int ctri_start, int ctri_count); //!< Mark already generated collision tris as belonging to (virtual) mesh.
     int addCollisionTri(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, ground_model_t* gm);
     void createCollisionDebugVisualization(Ogre::SceneNode* root_node, std::vector<Ogre::SceneNode*>& out_nodes);
     void removeCollisionBox(int number);
