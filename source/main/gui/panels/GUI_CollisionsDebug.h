@@ -59,6 +59,9 @@ private:
     bool m_draw_collision_meshes = false;
     float m_collision_mesh_draw_distance = 200.f;
 
+    Ogre::SceneNode* m_collision_grid_root = nullptr;
+    bool m_draw_collision_grid = false;
+
     bool m_is_visible = false;
     bool m_is_hovered = false;
 };
