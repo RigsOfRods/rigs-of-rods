@@ -423,10 +423,37 @@ void ContentManager::LoadGameplayResources()
     MaterialPtr mat1 = MaterialManager::getSingleton().getByName("truckshop", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
     mShaderGenerator->createShaderBasedTechnique(*mat1, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
 
+    //RoR::App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
+    //Ogre::RTShader::RenderState* schemRenderState = mShaderGenerator->getRenderState(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
+    //Ogre::RTShader::PerPixelLighting* perPixelLightModel = mShaderGenerator->createSubRenderState<Ogre::RTShader::PerPixelLighting>();
+    //schemRenderState->addTemplateSubRenderState(perPixelLightModel);
+
     RoR::App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
     Ogre::RTShader::RenderState* schemRenderState = mShaderGenerator->getRenderState(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-    Ogre::RTShader::PerPixelLighting* perPixelLightModel = mShaderGenerator->createSubRenderState<Ogre::RTShader::PerPixelLighting>();
-    schemRenderState->addTemplateSubRenderState(perPixelLightModel);
+
+    App::GetGfxScene()->GetSceneManager()->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED);
+    App::GetGfxScene()->GetSceneManager()->setShadowDirectionalLightExtrusionDistance(299.0f);
+    App::GetGfxScene()->GetSceneManager()->setShadowFarDistance(350.0f);
+    App::GetGfxScene()->GetSceneManager()->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, 3);
+    App::GetGfxScene()->GetSceneManager()->setShadowTextureSettings(2048, 3, PF_FLOAT32_R);
+    App::GetGfxScene()->GetSceneManager()->setShadowTextureSelfShadow(true);
+    App::GetGfxScene()->GetSceneManager()->setShadowCasterRenderBackFaces(true);
+
+    MaterialPtr passCaterMaterial = MaterialManager::getSingleton().getByName("PSSM/shadow_caster");
+    App::GetGfxScene()->GetSceneManager()->setShadowTextureCasterMaterial(passCaterMaterial);
+
+    PSSMShadowCameraSetup* pssmSetup = new PSSMShadowCameraSetup();
+    pssmSetup->calculateSplitPoints(3, 1, 500, 1);
+    pssmSetup->setSplitPadding(App::GetCameraManager()->GetCamera()->getNearClipDistance());
+    pssmSetup->setOptimalAdjustFactor(0, 2);
+    pssmSetup->setOptimalAdjustFactor(1, 1);
+    pssmSetup->setOptimalAdjustFactor(2, 0.5);
+
+    App::GetGfxScene()->GetSceneManager()->setShadowCameraSetup(ShadowCameraSetupPtr(pssmSetup));
+
+    auto subRenderState = mShaderGenerator->createSubRenderState<RTShader::IntegratedPSSM3>();
+    subRenderState->setSplitPoints(pssmSetup->getSplitPoints());
+    schemRenderState->addTemplateSubRenderState(subRenderState);      
 }
 
 std::string ContentManager::ListAllUserContent()
