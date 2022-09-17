@@ -319,7 +319,6 @@ extern CVar* diag_camera;
 extern CVar* diag_trace_globals;
 extern CVar* diag_rig_log_node_import;
 extern CVar* diag_rig_log_node_stats;
-extern CVar* diag_collisions;
 extern CVar* diag_truck_mass;
 extern CVar* diag_envmap;
 extern CVar* diag_videocameras;

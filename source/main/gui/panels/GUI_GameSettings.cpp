@@ -384,7 +384,6 @@ void GameSettings::DrawDiagSettings()
     DrawGCheckbox(App::diag_rig_log_node_import, _LC("GameSettings", "Log node import (spawn)"));
     DrawGCheckbox(App::diag_rig_log_node_stats,  _LC("GameSettings", "Log node stats (spawn)"));
     DrawGCheckbox(App::diag_camera,              _LC("GameSettings", "Debug camera (rails)"));
-    DrawGCheckbox(App::diag_collisions,          _LC("GameSettings", "Debug collisions"));
     DrawGCheckbox(App::diag_truck_mass,          _LC("GameSettings", "Debug actor mass"));
     DrawGCheckbox(App::diag_envmap,              _LC("GameSettings", "Debug realtime reflections"));
     DrawGCheckbox(App::diag_videocameras,        _LC("GameSettings", "Debug videocameras"));
