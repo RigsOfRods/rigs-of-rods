@@ -76,7 +76,6 @@ void Console::cVarSetupBuiltins()
     App::diag_camera             = this->cVarCreate("diag_camera",             "Camera Debug",               CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_rig_log_node_import= this->cVarCreate("diag_rig_log_node_import","RigImporter_LogAllNodes",    CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_rig_log_node_stats = this->cVarCreate("diag_rig_log_node_stats", "RigImporter_LogNodeStats",   CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
-    App::diag_collisions         = this->cVarCreate("diag_collisions",         "Debug Collisions",           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_truck_mass         = this->cVarCreate("diag_truck_mass",         "Debug Truck Mass",           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_envmap             = this->cVarCreate("diag_envmap",             "EnvMapDebug",                CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_videocameras       = this->cVarCreate("diag_videocameras",       "VideoCameraDebug",           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
