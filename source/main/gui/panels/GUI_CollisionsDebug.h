@@ -40,34 +40,52 @@ public:
     const ImVec4 COLOR_EVENTBOX = ImVec4(181/255.f, 51/255.f, 64/255.f, 1.f);
     const ImVec4 COLOR_COLLMESH = ImVec4(209/255.f, 109/255.f, 44/255.f, 1.f);
     const float  WIDTH_DRAWDIST = 75.f;
+    const float  DEFAULT_DRAWDIST = 200.f;
 
-    void SetVisible(bool v) { m_is_visible = v; }
+    void SetVisible(bool v);
     bool IsVisible() const { return m_is_visible; }
     bool IsHovered() const { return IsVisible() && m_is_hovered; }
 
     void Draw();
     void CleanUp();
 
-private:
+    // EVENTBOX
+    void SetDrawEventBoxes(bool val);
     void AddCollisionBoxDebugMesh(collision_box_t const& coll_box);
-    void AddCollisionMeshDebugMesh(collision_mesh_t const& coll_mesh);
     void DrawCollisionBoxDebugText(collision_box_t const& coll_box);
-    void DrawCollisionMeshDebugText(collision_mesh_t const& coll_mesh);
-    void DrawLabelAtWorldPos(std::string const& caption, Ogre::Vector3 const& world_pos, ImVec4 const& text_color);
     Ogre::Vector3 GetCollBoxWorldPos(collision_box_t const& coll_box);
+    void ClearEventBoxVisuals();
 
+    // COLLMESH
+    void SetDrawCollisionMeshes(bool val);
+    void AddCollisionMeshDebugMesh(collision_mesh_t const& coll_mesh);
+    void DrawCollisionMeshDebugText(collision_mesh_t const& coll_mesh);
+    void ClearCollisionMeshVisuals();
+
+    // CELL
+    void SetDrawCollisionCells(bool val);
+    void ClearCollisionCellVisuals();
+
+private:
+
+    void DrawLabelAtWorldPos(std::string const& caption, Ogre::Vector3 const& world_pos, ImVec4 const& text_color);
+    void GenerateCellDebugMaterials();
+
+    // EVENTBOX
     std::vector<Ogre::SceneNode*> m_collision_boxes;
     bool m_draw_collision_boxes = false;
-    float m_collision_box_draw_distance = 200.f;
+    float m_collision_box_draw_distance = DEFAULT_DRAWDIST;
 
+    // COLLMESH
     std::vector<Ogre::SceneNode*> m_collision_meshes;
     bool m_draw_collision_meshes = false;
-    float m_collision_mesh_draw_distance = 200.f;
+    float m_collision_mesh_draw_distance = DEFAULT_DRAWDIST;
 
+    // CELL
     std::vector<Ogre::SceneNode*> m_collision_cells;
     Ogre::SceneNode* m_collision_grid_root = nullptr;
     bool m_draw_collision_cells = false;
-    float m_collision_cell_draw_distance = 200.f;
+    float m_collision_cell_draw_distance = DEFAULT_DRAWDIST;
 
     bool m_is_visible = false;
     bool m_is_hovered = false;
