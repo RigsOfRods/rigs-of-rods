@@ -42,7 +42,7 @@ void CollisionsDebug::Draw()
 {
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
-    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
+    ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize;
     bool keep_open = true;
     ImGui::Begin(_LC("About", "Static collision debug"), &keep_open, win_flags);
 
@@ -56,19 +56,7 @@ void CollisionsDebug::Draw()
     ImGui::Text("Num event boxes: %d", (int)App::GetSimTerrain()->GetCollisions()->getCollisionBoxes().size());
     if (ImGui::Checkbox("Show event boxes", &m_draw_collision_boxes))
     {
-        // Initial fill
-        if (m_draw_collision_boxes &&m_collision_boxes.size() == 0)
-        {
-            for (const collision_box_t& cbox : App::GetSimTerrain()->GetCollisions()->getCollisionBoxes())
-            {
-                this->AddCollisionBoxDebugMesh(cbox);
-            }
-        }
-        // Update visibility
-        for (Ogre::SceneNode* snode : m_collision_boxes)
-        {
-            snode->setVisible(m_draw_collision_boxes);
-        }
+        this->SetDrawEventBoxes(m_draw_collision_boxes);
     }
     ImGui::SetNextItemWidth(WIDTH_DRAWDIST);
     if (ImGui::InputFloat("Draw distance (meters, 0=unlimited)", &m_collision_box_draw_distance))
@@ -76,6 +64,13 @@ void CollisionsDebug::Draw()
         for (Ogre::SceneNode* snode : m_collision_boxes)
         {
             snode->getAttachedObject(0)->setRenderingDistance(m_collision_box_draw_distance);
+        }
+    }
+    if (m_collision_boxes.size() > 0)
+    {
+        if (ImGui::Button("Dump debug meshes (performance)."))
+        {
+            this->ClearEventBoxVisuals();
         }
     }
     ImGui::Separator();
@@ -87,19 +82,7 @@ void CollisionsDebug::Draw()
     ImGui::Text("Num collision meshes: %d (%d tris)", (int)App::GetSimTerrain()->GetCollisions()->getCollisionBoxes().size());
     if (ImGui::Checkbox("Show collision meshes", &m_draw_collision_meshes))
     {
-        // Initial setup
-        if (m_draw_collision_meshes && m_collision_meshes.size() == 0)
-        {
-            for (const collision_mesh_t& cmesh : App::GetSimTerrain()->GetCollisions()->getCollisionMeshes())
-            {
-                this->AddCollisionMeshDebugMesh(cmesh);
-            }
-        }
-        // Update visibility
-        for (Ogre::SceneNode* snode : m_collision_meshes)
-        {
-            snode->setVisible(m_draw_collision_meshes);
-        }
+        this->SetDrawCollisionMeshes(m_draw_collision_meshes);
     }
     ImGui::SetNextItemWidth(WIDTH_DRAWDIST);
     if (ImGui::InputFloat("Draw distance (meters, 0=unlimited)", &m_collision_mesh_draw_distance))
@@ -109,12 +92,19 @@ void CollisionsDebug::Draw()
             snode->getAttachedObject(0)->setRenderingDistance(m_collision_mesh_draw_distance);
         }
     }
+    if (m_collision_meshes.size() > 0)
+    {
+        if (ImGui::Button("Dump debug meshes (performance)."))
+        {
+            this->ClearCollisionMeshVisuals();
+        }
+    }
     ImGui::Separator();
     ImGui::PopID(); // COLLMESH
 
-    // CELLS
-    ImGui::PushID("CELLS");
-    ImGui::Text("CELLS");
+    // CELL
+    ImGui::PushID("CELL");
+    ImGui::Text("CELL");
     ImGui::Text("Occupancy: ");
     for (int i = 0; i <= 10; i+=1)
     {
@@ -124,19 +114,9 @@ void CollisionsDebug::Draw()
         int tris = static_cast<int>(f*Collisions::CELL_BLOCKSIZE);
         ImGui::TextColored(color, "%d ", tris);
     }
-    if (ImGui::Checkbox("Show lookup cells", &m_draw_collision_cells))
+    if (ImGui::Checkbox("Show lookup cells (warning: slow!)", &m_draw_collision_cells))
     {
-        // Initial setup
-        if (m_draw_collision_cells && !m_collision_grid_root)
-        {
-            m_collision_grid_root = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-            App::GetSimTerrain()->GetCollisions()->createCollisionDebugVisualization(m_collision_grid_root, m_collision_cells);
-        }
-        // Update visibility
-        if (m_collision_grid_root)
-        {
-            m_collision_grid_root->setVisible(m_draw_collision_cells);
-        }
+        this->SetDrawCollisionCells(m_draw_collision_cells);
     }
     ImGui::SetNextItemWidth(WIDTH_DRAWDIST);
     if (ImGui::InputFloat("Draw distance (meters, 0=unlimited)", &m_collision_cell_draw_distance))
@@ -146,7 +126,14 @@ void CollisionsDebug::Draw()
             snode->getAttachedObject(0)->setRenderingDistance(m_collision_cell_draw_distance);
         }
     }
-    ImGui::PopID(); // CELLS
+    if (m_collision_grid_root)
+    {
+        if (ImGui::Button("Dump debug meshes (performance)."))
+        {
+            this->ClearCollisionCellVisuals();
+        }
+    }
+    ImGui::PopID(); // CELL
 
     m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
     App::GetGuiManager()->RequestGuiCaptureKeyboard(m_is_hovered);
@@ -364,17 +351,161 @@ void CollisionsDebug::DrawLabelAtWorldPos(std::string const& caption, Ogre::Vect
 
 void CollisionsDebug::CleanUp()
 {
+    // EVENTBOX
+    this->ClearEventBoxVisuals();
+
+    // COLLMESH
+    this->ClearCollisionMeshVisuals();
+
+    // CELLS
+    this->ClearCollisionCellVisuals();
+}
+
+void CollisionsDebug::GenerateCellDebugMaterials()
+{
+    if (MaterialManager::getSingleton().getByName("mat-coll-dbg-0", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME))
+    {
+        return; // already generated before
+    }
+
+    // create materials
+    int i = 0;
+    char bname[256];
+    for (i = 0; i <= 100; i++)
+    {
+        // register a material for skeleton view
+        sprintf(bname, "mat-coll-dbg-%d", i);
+        MaterialPtr mat = (MaterialPtr)(MaterialManager::getSingleton().create(bname, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
+        float f = fabs(((float)i) / 100);
+        Pass* p = mat->getTechnique(0)->getPass(0); //
+        p->createTextureUnitState()->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, ColourValue(f * 2.0, 2.0 * (1.0 - f), 0.2, 0.7));
+        p->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
+        p->setLightingEnabled(false);
+        p->setDepthWriteEnabled(false);
+        p->setDepthBias(3, 3);
+        p->setCullingMode(Ogre::CULL_NONE);
+
+        Pass* p2 = mat->getTechnique(0)->createPass();
+        p2->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
+        p2->setLightingEnabled(false);
+        p2->setDepthWriteEnabled(false);
+        p2->setDepthBias(3, 3);
+        p2->setCullingMode(Ogre::CULL_NONE);
+        p2->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
+        TextureUnitState* tus2 = p2->createTextureUnitState();
+        tus2->setTextureName("tile.png");
+
+
+        mat->setLightingEnabled(false);
+        mat->setReceiveShadows(false);
+    }
+}
+
+void CollisionsDebug::SetDrawEventBoxes(bool val)
+{
+    m_draw_collision_boxes = val;
+
+    // Initial fill
+    if (m_draw_collision_boxes && m_collision_boxes.size() == 0)
+    {
+        for (const collision_box_t& cbox : App::GetSimTerrain()->GetCollisions()->getCollisionBoxes())
+        {
+            this->AddCollisionBoxDebugMesh(cbox);
+        }
+    }
+    // Update visibility
     for (Ogre::SceneNode* snode : m_collision_boxes)
     {
-        snode->removeAndDestroyAllChildren();
-        App::GetGfxScene()->GetSceneManager()->destroySceneNode(snode);
+        snode->setVisible(m_draw_collision_boxes);
     }
-    m_collision_boxes.clear();
+}
 
+void CollisionsDebug::SetDrawCollisionMeshes(bool val)
+{
+    m_draw_collision_meshes = val;
+
+    // Initial setup
+    if (m_draw_collision_meshes && m_collision_meshes.size() == 0)
+    {
+        for (const collision_mesh_t& cmesh : App::GetSimTerrain()->GetCollisions()->getCollisionMeshes())
+        {
+            this->AddCollisionMeshDebugMesh(cmesh);
+        }
+    }
+    // Update visibility
     for (Ogre::SceneNode* snode : m_collision_meshes)
     {
-        snode->removeAndDestroyAllChildren();
+        snode->setVisible(m_draw_collision_meshes);
+    }
+}
+
+void CollisionsDebug::SetDrawCollisionCells(bool val)
+{
+    m_draw_collision_cells = val;
+
+    // Initial setup
+    if (m_draw_collision_cells && !m_collision_grid_root)
+    {
+        this->GenerateCellDebugMaterials();
+        m_collision_grid_root = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        App::GetSimTerrain()->GetCollisions()->createCollisionDebugVisualization(m_collision_grid_root, m_collision_cells);
+    }
+    // Update visibility
+    if (m_collision_grid_root)
+    {
+        m_collision_grid_root->setVisible(m_draw_collision_cells);
+    }
+}
+
+void CollisionsDebug::ClearCollisionMeshVisuals()
+{
+    for (Ogre::SceneNode* snode : m_collision_meshes)
+    {
+        Entity* ent = static_cast<Entity*>(snode->getAttachedObject(0));
+        App::GetGfxScene()->GetSceneManager()->destroyEntity(ent);
         App::GetGfxScene()->GetSceneManager()->destroySceneNode(snode);
     }
     m_collision_meshes.clear();
+    m_draw_collision_meshes = false;
+    m_collision_mesh_draw_distance = DEFAULT_DRAWDIST;
+}
+
+void CollisionsDebug::ClearEventBoxVisuals()
+{
+    for (Ogre::SceneNode* snode : m_collision_boxes)
+    {
+        Entity* ent = static_cast<Entity*>(snode->getAttachedObject(0));
+        App::GetGfxScene()->GetSceneManager()->destroyEntity(ent);
+        App::GetGfxScene()->GetSceneManager()->destroySceneNode(snode);
+    }
+    m_collision_boxes.clear();
+    m_draw_collision_boxes = false;
+    m_collision_box_draw_distance = DEFAULT_DRAWDIST;
+}
+
+void CollisionsDebug::ClearCollisionCellVisuals()
+{
+    for (Ogre::SceneNode* snode : m_collision_cells)
+    {
+        ManualObject* mo = static_cast<ManualObject*>(snode->getAttachedObject(0));
+        App::GetGfxScene()->GetSceneManager()->destroyManualObject(mo);
+    }
+    m_collision_cells.clear();
+    m_draw_collision_cells = false;
+    m_collision_cell_draw_distance = DEFAULT_DRAWDIST;
+    
+    m_collision_grid_root->removeAndDestroyAllChildren();
+    App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_collision_grid_root);
+    m_collision_grid_root = nullptr;
+}
+
+void CollisionsDebug::SetVisible(bool v) 
+{ 
+    if (!v)
+    {
+        this->SetDrawEventBoxes(false);
+        this->SetDrawCollisionMeshes(false);
+        this->SetDrawCollisionCells(false);
+    }
+    m_is_visible = v;
 }

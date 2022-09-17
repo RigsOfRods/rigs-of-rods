@@ -1275,37 +1275,7 @@ void Collisions::createCollisionDebugVisualization(Ogre::SceneNode* root_node, s
 {
     LOG("COLL: Creating collision debug visualization ...");
 
-    // create materials
-    int i = 0;
-    char bname[256];
-    for (i=0;i<=100;i++)
-    {
-        // register a material for skeleton view
-        sprintf(bname, "mat-coll-dbg-%d", i);
-        MaterialPtr mat=(MaterialPtr)(MaterialManager::getSingleton().create(bname, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
-        float f = fabs(((float)i)/100);
-        Pass *p = mat->getTechnique(0)->getPass(0); //
-        p->createTextureUnitState()->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, ColourValue(f*2.0, 2.0*(1.0-f), 0.2, 0.7));
-        p->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
-        p->setLightingEnabled(false);
-        p->setDepthWriteEnabled(false);
-        p->setDepthBias(3, 3);
-        p->setCullingMode(Ogre::CULL_NONE);
 
-        Pass *p2 = mat->getTechnique(0)->createPass();
-        p2->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
-        p2->setLightingEnabled(false);
-        p2->setDepthWriteEnabled(false);
-        p2->setDepthBias(3, 3);
-        p2->setCullingMode(Ogre::CULL_NONE);
-        p2->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
-        TextureUnitState *tus2 = p2->createTextureUnitState();
-        tus2->setTextureName("tile.png");
-
-
-        mat->setLightingEnabled(false);
-        mat->setReceiveShadows(false);
-    }
 
     for (int x=0; x<(int)(m_terrain_size.x); x+=(int)CELL_SIZE)
     {
@@ -1333,8 +1303,9 @@ void Collisions::createCollisionDebugVisualization(Ogre::SceneNode* root_node, s
                 groundheight += 0.1; // 10 cm hover
 
                 float percentd = static_cast<float>(hashtable[hash].size()) / static_cast<float>(CELL_BLOCKSIZE);
-
                 if (percentd > 1) percentd = 1;
+
+                // see `RoR::GUI::CollisionsDebug::GenerateCellDebugMaterials()`
                 String matName = "mat-coll-dbg-"+TOSTRING((int)(percentd*100));
                 String cell_name="("+TOSTRING(cellx)+","+ TOSTRING(cellz)+")";
 
