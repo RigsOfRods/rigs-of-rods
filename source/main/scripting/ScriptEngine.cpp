@@ -40,6 +40,8 @@
 #include <curl/easy.h>
 #endif //USE_CURL
 
+#include <cfloat>
+
 #include "Application.h"
 #include "Actor.h"
 #include "ActorManager.h"

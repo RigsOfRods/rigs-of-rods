@@ -33,6 +33,7 @@
 #include "CameraManager.h"
 #include "GUIUtils.h"
 
+#include <Ogre.h>
 #include <imgui_internal.h>
 
 using namespace RoR;
