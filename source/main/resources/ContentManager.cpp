@@ -430,6 +430,8 @@ void ContentManager::LoadGameplayResources()
 
     RoR::App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
     Ogre::RTShader::RenderState* schemRenderState = mShaderGenerator->getRenderState(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
+    Ogre::RTShader::PerPixelLighting* perPixelLightModel = mShaderGenerator->createSubRenderState<Ogre::RTShader::PerPixelLighting>();
+    schemRenderState->addTemplateSubRenderState(perPixelLightModel);
 
     App::GetGfxScene()->GetSceneManager()->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED);
     App::GetGfxScene()->GetSceneManager()->setShadowDirectionalLightExtrusionDistance(299.0f);
