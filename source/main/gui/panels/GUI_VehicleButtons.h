@@ -27,6 +27,7 @@
 #include "ForwardDeclarations.h"
 
 #include <vector>
+#include <Ogre.h>
 
 namespace RoR {
 namespace GUI {

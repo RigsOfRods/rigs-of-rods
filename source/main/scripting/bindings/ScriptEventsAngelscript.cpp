@@ -21,6 +21,7 @@
 
 #include "ScriptEvents.h"
 #include "AngelScriptBindings.h"
+#include "Application.h"
 #include <angelscript.h>
 
 using namespace AngelScript;

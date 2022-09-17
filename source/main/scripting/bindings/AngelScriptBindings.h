@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <angelscript.h>
+
 /// @file
 
 namespace RoR {
