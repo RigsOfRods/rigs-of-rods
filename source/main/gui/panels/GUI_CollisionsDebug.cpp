@@ -47,9 +47,14 @@ void CollisionsDebug::Draw()
     ImGui::Begin(_LC("About", "Static collision debug"), &keep_open, win_flags);
 
     ImGui::Text("Terrain name: %s", App::GetSimTerrain()->getTerrainName().c_str());
+    ImGui::Text("Terrain size: %.2fx%.2f meters", App::GetSimTerrain()->getMaxTerrainSize().x, App::GetSimTerrain()->getMaxTerrainSize().z);
     ImGui::Separator();
-    ImGui::Text("Num collision boxes: %d", (int)App::GetSimTerrain()->GetCollisions()->getCollisionBoxes().size());
-    if (ImGui::Checkbox("Show collision boxes", &m_draw_collision_boxes))
+
+    // EVENTBOX
+    ImGui::PushID("EVENTBOX");
+    ImGui::TextColored(COLOR_EVENTBOX, "EVENTBOX");
+    ImGui::Text("Num event boxes: %d", (int)App::GetSimTerrain()->GetCollisions()->getCollisionBoxes().size());
+    if (ImGui::Checkbox("Show event boxes", &m_draw_collision_boxes))
     {
         // Initial fill
         if (m_draw_collision_boxes &&m_collision_boxes.size() == 0)
@@ -65,7 +70,20 @@ void CollisionsDebug::Draw()
             snode->setVisible(m_draw_collision_boxes);
         }
     }
+    ImGui::SetNextItemWidth(WIDTH_DRAWDIST);
+    if (ImGui::InputFloat("Draw distance (meters, 0=unlimited)", &m_collision_box_draw_distance))
+    {
+        for (Ogre::SceneNode* snode : m_collision_boxes)
+        {
+            snode->getAttachedObject(0)->setRenderingDistance(m_collision_box_draw_distance);
+        }
+    }
     ImGui::Separator();
+    ImGui::PopID(); // EVENTBOX
+
+    // COLLMESH
+    ImGui::PushID("COLLMESH");
+    ImGui::TextColored(COLOR_COLLMESH, "COLLMESH");
     ImGui::Text("Num collision meshes: %d (%d tris)", (int)App::GetSimTerrain()->GetCollisions()->getCollisionBoxes().size());
     if (ImGui::Checkbox("Show collision meshes", &m_draw_collision_meshes))
     {
@@ -78,35 +96,57 @@ void CollisionsDebug::Draw()
             }
         }
         // Update visibility
-        for (Ogre::SceneNode* snode : m_collision_boxes)
+        for (Ogre::SceneNode* snode : m_collision_meshes)
         {
-            snode->setVisible(m_draw_collision_boxes);
+            snode->setVisible(m_draw_collision_meshes);
         }
     }
-    if (ImGui::InputFloat("Collision mesh draw distance", &m_collision_mesh_draw_distance))
+    ImGui::SetNextItemWidth(WIDTH_DRAWDIST);
+    if (ImGui::InputFloat("Draw distance (meters, 0=unlimited)", &m_collision_mesh_draw_distance))
     {
         for (Ogre::SceneNode* snode : m_collision_meshes)
         {
             snode->getAttachedObject(0)->setRenderingDistance(m_collision_mesh_draw_distance);
         }
     }
-
     ImGui::Separator();
-    ImGui::Text("Terrain size: %fx%f meters", App::GetSimTerrain()->getMaxTerrainSize().x, App::GetSimTerrain()->getMaxTerrainSize().z);
-    if (ImGui::Checkbox("Show collision grid", &m_draw_collision_grid))
+    ImGui::PopID(); // COLLMESH
+
+    // CELLS
+    ImGui::PushID("CELLS");
+    ImGui::Text("CELLS");
+    ImGui::Text("Occupancy: ");
+    for (int i = 0; i <= 10; i+=1)
+    {
+        ImGui::SameLine();
+        float f = i / 10.f;
+        ImVec4 color(f * 2.0, 2.0 * (1.0 - f), 0.2, 0.7);
+        int tris = static_cast<int>(f*Collisions::CELL_BLOCKSIZE);
+        ImGui::TextColored(color, "%d ", tris);
+    }
+    if (ImGui::Checkbox("Show lookup cells", &m_draw_collision_cells))
     {
         // Initial setup
-        if (m_draw_collision_grid && !m_collision_grid_root)
+        if (m_draw_collision_cells && !m_collision_grid_root)
         {
             m_collision_grid_root = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-            App::GetSimTerrain()->GetCollisions()->createCollisionDebugVisualization(m_collision_grid_root);
+            App::GetSimTerrain()->GetCollisions()->createCollisionDebugVisualization(m_collision_grid_root, m_collision_cells);
         }
         // Update visibility
         if (m_collision_grid_root)
         {
-            m_collision_grid_root->setVisible(m_draw_collision_grid);
+            m_collision_grid_root->setVisible(m_draw_collision_cells);
         }
     }
+    ImGui::SetNextItemWidth(WIDTH_DRAWDIST);
+    if (ImGui::InputFloat("Draw distance (meters, 0=unlimited)", &m_collision_cell_draw_distance))
+    {
+        for (Ogre::SceneNode* snode : m_collision_cells)
+        {
+            snode->getAttachedObject(0)->setRenderingDistance(m_collision_cell_draw_distance);
+        }
+    }
+    ImGui::PopID(); // CELLS
 
     m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
     App::GetGuiManager()->RequestGuiCaptureKeyboard(m_is_hovered);
@@ -120,13 +160,12 @@ void CollisionsDebug::Draw()
 
     // only draw reasonably close labels
     const Ogre::Vector3 cam_pos = App::GetCameraManager()->GetCameraNode()->getPosition();
-    const float MAX_DISTANCE_METERS = 155.f;
 
     if (m_draw_collision_boxes)
     {
         for (const collision_box_t& cbox : App::GetSimTerrain()->GetCollisions()->getCollisionBoxes())
         {
-            if (IsDistanceWithin(cam_pos, this->GetCollBoxWorldPos(cbox), MAX_DISTANCE_METERS))
+            if (IsDistanceWithin(cam_pos, this->GetCollBoxWorldPos(cbox), m_collision_box_draw_distance))
             {
                 this->DrawCollisionBoxDebugText(cbox);
             }
@@ -137,7 +176,7 @@ void CollisionsDebug::Draw()
     {
         for (const collision_mesh_t& cmesh : App::GetSimTerrain()->GetCollisions()->getCollisionMeshes())
         {
-            if (IsDistanceWithin(cam_pos, cmesh.position, MAX_DISTANCE_METERS))
+            if (IsDistanceWithin(cam_pos, cmesh.position, m_collision_mesh_draw_distance))
             {
                 this->DrawCollisionMeshDebugText(cmesh);
             }
@@ -270,30 +309,22 @@ void CollisionsDebug::DrawCollisionMeshDebugText(collision_mesh_t const& coll_me
 {
     this->DrawLabelAtWorldPos(
         fmt::format("COLLMESH\nmeshname:{}\ngroundmodel:{}", coll_mesh.mesh_name, coll_mesh.ground_model->name),
-        coll_mesh.position);
+        coll_mesh.position, COLOR_COLLMESH);
 }
 
 void CollisionsDebug::DrawCollisionBoxDebugText(collision_box_t const& coll_box)
 {
-    if (!coll_box.virt)
+    if (!coll_box.virt || coll_box.eventsourcenum == -1)
         return;
 
-    int scripthandler = -1;
-    std::string boxname;
-    std::string instancename;
-    if (coll_box.eventsourcenum != -1)
-    {
-        scripthandler = App::GetSimTerrain()->GetCollisions()->getEventSource(coll_box.eventsourcenum).scripthandler;
-        boxname = App::GetSimTerrain()->GetCollisions()->getEventSource(coll_box.eventsourcenum).boxname;
-        instancename = App::GetSimTerrain()->GetCollisions()->getEventSource(coll_box.eventsourcenum).instancename;
-    }
-
-    String caption = "EVENTBOX\nevent:" + String(boxname) + "\ninstance:" + String(instancename) + "\nhandler:" + TOSTRING(scripthandler);
-
-    this->DrawLabelAtWorldPos(caption, this->GetCollBoxWorldPos(coll_box));
+    eventsource_t const& eventsource = App::GetSimTerrain()->GetCollisions()->getEventSource(coll_box.eventsourcenum);
+    this->DrawLabelAtWorldPos(
+        fmt::format("EVENTBOX\nevent:{}\ninstance:{}\nhandler:{}",
+            eventsource.boxname, eventsource.instancename, eventsource.scripthandler),
+        this->GetCollBoxWorldPos(coll_box), COLOR_EVENTBOX);
 }
 
-void CollisionsDebug::DrawLabelAtWorldPos(std::string const& caption, Ogre::Vector3 const& world_pos)
+void CollisionsDebug::DrawLabelAtWorldPos(std::string const& caption, Ogre::Vector3 const& world_pos, ImVec4 const& text_color)
 {
     // ----- BEGIN COPYPASTE FROM GfxScene::DrawNetLabel ----
 
@@ -326,7 +357,6 @@ void CollisionsDebug::DrawLabelAtWorldPos(std::string const& caption, Ogre::Vect
             ImGui::GetStyle().WindowRounding);
 
         // draw colored text
-        ImVec4 text_color = ImGui::GetStyle().Colors[ImGuiCol_Text];
         drawlist->AddText(g->Font, g->FontSize, text_pos, ImColor(text_color), caption.c_str());
     }
     // ---- END COPYPASTE ----

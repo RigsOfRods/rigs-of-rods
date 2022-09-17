@@ -124,9 +124,6 @@ private:
     static const int HASH_POWER = 20;
     static const int HASH_SIZE = 1 << HASH_POWER;
 
-    // how many elements per cell? power of 2 minus 2 is better
-    static const int CELL_BLOCKSIZE = 126;
-
     // terrain size is limited to 327km x 327km:
     static const int CELL_SIZE = 2.0; // we divide through this
     static const int MAXIMUM_CELL = 0x7FFF;
@@ -170,6 +167,9 @@ private:
 
 public:
 
+    // how many elements per cell? power of 2 minus 2 is better
+    static const int CELL_BLOCKSIZE = 126;
+
     std::mutex m_scriptcallback_mutex;
 
     bool forcecam;
@@ -195,7 +195,7 @@ public:
     int addCollisionBox(Ogre::SceneNode* tenode, bool rotating, bool virt, Ogre::Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String& eventname, const Ogre::String& instancename, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc = Ogre::Vector3::UNIT_SCALE, Ogre::Vector3 dr = Ogre::Vector3::ZERO, CollisionEventFilter event_filter = EVENT_ALL, int scripthandler = -1);
     void addCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::Quaternion const& q, Ogre::Vector3 const& scale, ground_model_t* gm = 0, std::vector<int>* collTris = 0);
     int addCollisionTri(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, ground_model_t* gm);
-    void createCollisionDebugVisualization(Ogre::SceneNode* root_node);
+    void createCollisionDebugVisualization(Ogre::SceneNode* root_node, std::vector<Ogre::SceneNode*>& out_nodes);
     void removeCollisionBox(int number);
     void removeCollisionTri(int number);
     void clearEventCache() { m_last_called_cboxes.clear(); }

@@ -1271,7 +1271,7 @@ Vector3 RoR::primitiveCollision(node_t *node, Ogre::Vector3 velocity, float mass
     return force;
 }
 
-void Collisions::createCollisionDebugVisualization(Ogre::SceneNode* root_node)
+void Collisions::createCollisionDebugVisualization(Ogre::SceneNode* root_node, std::vector<Ogre::SceneNode*>& out_nodes)
 {
     LOG("COLL: Creating collision debug visualization ...");
 
@@ -1383,7 +1383,8 @@ void Collisions::createCollisionDebugVisualization(Ogre::SceneNode* root_node)
 
                 mo_node->setVisible(true);
                 mo_node->setPosition(Vector3(x+CELL_SIZE/(float)2.0, groundheight, z+CELL_SIZE/(float)2.0));
-                // FIXME: scenenode is leaking
+                
+                out_nodes.push_back(mo_node);
             }
         }
     }
