@@ -69,6 +69,11 @@ void ProceduralRoad::finish()
     Entity* ec = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name, mesh_name);
     snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     snode->attachObject(ec);
+
+    App::GetSimTerrain()->GetCollisions()->registerCollisionMesh(
+        "RoadSystem", mesh_name, 
+        ec->getBoundingBox().getCenter(), ec->getMesh()->getBounds(),
+        /*groundmodel:*/nullptr, registeredCollTris[0], (int)registeredCollTris.size());
 }
 
 void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, int type, float width, float bwidth, float bheight, int pillartype)

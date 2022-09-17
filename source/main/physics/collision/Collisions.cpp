@@ -1398,7 +1398,7 @@ void Collisions::addCollisionMesh(Ogre::String const& srcname, Ogre::String cons
     rec.num_verts = vertex_count;
     rec.num_indices = index_count;
     rec.collision_tri_start = collision_tri_start;
-    rec.collision_tri_end = (int)m_collision_tris.size();
+    rec.collision_tri_count = (int)m_collision_tris.size() - collision_tri_start;
     rec.bounding_box = ent->getMesh()->getBounds();
     m_collision_meshes.push_back(rec);
 
@@ -1406,6 +1406,20 @@ void Collisions::addCollisionMesh(Ogre::String const& srcname, Ogre::String cons
     delete[] vertices;
     delete[] indices;
     App::GetGfxScene()->GetSceneManager()->destroyEntity(ent);
+}
+
+void Collisions::registerCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, AxisAlignedBox bounding_box, ground_model_t* gm, int ctri_start, int ctri_count)
+{
+    // Submit the mesh record
+    collision_mesh_t rec;
+    rec.mesh_name = meshname;
+    rec.source_name = srcname;
+    rec.position = pos;
+    rec.ground_model = gm;
+    rec.collision_tri_start = ctri_start;
+    rec.collision_tri_count = ctri_count;
+    rec.bounding_box = bounding_box;
+    m_collision_meshes.push_back(rec);
 }
 
 void Collisions::getMeshInformation(Mesh* mesh,size_t &vertex_count,Ogre::Vector3* &vertices,
