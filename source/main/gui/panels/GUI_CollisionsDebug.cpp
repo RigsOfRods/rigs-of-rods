@@ -48,6 +48,9 @@ void CollisionsDebug::Draw()
 
     ImGui::Text("Terrain name: %s", App::GetSimTerrain()->getTerrainName().c_str());
     ImGui::Text("Terrain size: %.2fx%.2f meters", App::GetSimTerrain()->getMaxTerrainSize().x, App::GetSimTerrain()->getMaxTerrainSize().z);
+    ImGui::Checkbox("Draw labels", &m_draw_labels);
+    ImGui::Checkbox("Draw label types", &m_labels_draw_types);
+    ImGui::Checkbox("Sources on labels", &m_labels_draw_sources);
     ImGui::Separator();
 
     // EVENTBOX
@@ -148,7 +151,7 @@ void CollisionsDebug::Draw()
     // only draw reasonably close labels
     const Ogre::Vector3 cam_pos = App::GetCameraManager()->GetCameraNode()->getPosition();
 
-    if (m_draw_collision_boxes)
+    if (m_draw_labels && m_draw_collision_boxes)
     {
         for (const collision_box_t& cbox : App::GetSimTerrain()->GetCollisions()->getCollisionBoxes())
         {
@@ -159,7 +162,7 @@ void CollisionsDebug::Draw()
         }
     }
 
-    if (m_draw_collision_meshes)
+    if (m_draw_labels && m_draw_collision_meshes)
     {
         for (const collision_mesh_t& cmesh : App::GetSimTerrain()->GetCollisions()->getCollisionMeshes())
         {
@@ -294,9 +297,15 @@ Ogre::Vector3 CollisionsDebug::GetCollBoxWorldPos(collision_box_t const& coll_bo
 
 void CollisionsDebug::DrawCollisionMeshDebugText(collision_mesh_t const& coll_mesh)
 {
-    this->DrawLabelAtWorldPos(
-        fmt::format("COLLMESH\nmeshname:{}\ngroundmodel:{}", coll_mesh.mesh_name, coll_mesh.ground_model->name),
-        coll_mesh.position, COLOR_COLLMESH);
+    const char* type_str = (m_labels_draw_types) ? "COLLMESH\n" : "";
+    std::string caption = fmt::format("{}meshname:{}\ngroundmodel:{}",
+        type_str, coll_mesh.mesh_name, coll_mesh.ground_model->name);
+    if (m_labels_draw_sources)
+    {
+        caption += fmt::format("\nsource:{}", coll_mesh.source_name);
+    }
+
+    this->DrawLabelAtWorldPos(caption, coll_mesh.position, COLOR_COLLMESH);
 }
 
 void CollisionsDebug::DrawCollisionBoxDebugText(collision_box_t const& coll_box)
@@ -305,8 +314,10 @@ void CollisionsDebug::DrawCollisionBoxDebugText(collision_box_t const& coll_box)
         return;
 
     eventsource_t const& eventsource = App::GetSimTerrain()->GetCollisions()->getEventSource(coll_box.eventsourcenum);
+    const char* type_str = (m_labels_draw_types) ? "EVENTBOX\n" : "";
+
     this->DrawLabelAtWorldPos(
-        fmt::format("EVENTBOX\nevent:{}\ninstance:{}\nhandler:{}",
+        fmt::format("{}event:{}\ninstance:{}\nhandler:{}", type_str,
             eventsource.boxname, eventsource.instancename, eventsource.scripthandler),
         this->GetCollBoxWorldPos(coll_box), COLOR_EVENTBOX);
 }

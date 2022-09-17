@@ -87,6 +87,9 @@ private:
     bool m_draw_collision_cells = false;
     float m_collision_cell_draw_distance = DEFAULT_DRAWDIST;
 
+    bool m_draw_labels = true;
+    bool m_labels_draw_types = true;
+    bool m_labels_draw_sources = true;
     bool m_is_visible = false;
     bool m_is_hovered = false;
 };
