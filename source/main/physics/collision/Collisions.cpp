@@ -116,14 +116,12 @@ using namespace Ogre;
 using namespace RoR;
 
 Collisions::Collisions(Ogre::Vector3 terrn_size):
-      debugMode(false)
-    , forcecam(false)
+      forcecam(false)
     , free_eventsource(0)
     , hashmask(0)
     , landuse(0)
     , m_terrain_size(terrn_size)
 {
-    debugMode = App::diag_collisions->getBool(); // TODO: make interactive - do not copy the value, use GVar directly
     for (int i=0; i < HASH_POWER; i++)
     {
         hashmask = hashmask << 1;
@@ -1273,13 +1271,9 @@ Vector3 RoR::primitiveCollision(node_t *node, Ogre::Vector3 velocity, float mass
     return force;
 }
 
-int Collisions::createCollisionDebugVisualization()
+void Collisions::createCollisionDebugVisualization(Ogre::SceneNode* root_node)
 {
     LOG("COLL: Creating collision debug visualization ...");
-
-    static int loaded = 0;
-    // prevent double calling
-    if (loaded != 0) return -1;
 
     // create materials
     int i = 0;
@@ -1345,7 +1339,7 @@ int Collisions::createCollisionDebugVisualization()
                 String cell_name="("+TOSTRING(cellx)+","+ TOSTRING(cellz)+")";
 
                 ManualObject *mo =  App::GetGfxScene()->GetSceneManager()->createManualObject("collisionDebugVisualization"+cell_name);
-                SceneNode *mo_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("collisionDebugVisualization_node"+cell_name);
+                SceneNode *mo_node = root_node->createChildSceneNode("collisionDebugVisualization_node"+cell_name);
 
                 mo->begin(matName, Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
@@ -1371,6 +1365,7 @@ int Collisions::createCollisionDebugVisualization()
 
                 mo->end();
                 mo->setBoundingBox(AxisAlignedBox(0, 0, 0, CELL_SIZE, 1, CELL_SIZE));
+                mo->setRenderingDistance(200.f);
                 mo_node->attachObject(mo);
 
 #if 0
@@ -1388,12 +1383,10 @@ int Collisions::createCollisionDebugVisualization()
 
                 mo_node->setVisible(true);
                 mo_node->setPosition(Vector3(x+CELL_SIZE/(float)2.0, groundheight, z+CELL_SIZE/(float)2.0));
+                // FIXME: scenenode is leaking
             }
         }
     }
-
-    loaded = 1;
-    return 0;
 }
 
 void Collisions::addCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::Quaternion const& q, Ogre::Vector3 const& scale, ground_model_t *gm, std::vector<int> *collTris)
@@ -1561,8 +1554,4 @@ void Collisions::getMeshInformation(Mesh* mesh,size_t &vertex_count,Ogre::Vector
 
 void Collisions::finishLoadingTerrain()
 {
-    if (debugMode)
-    {
-        createCollisionDebugVisualization();
-    }
 }

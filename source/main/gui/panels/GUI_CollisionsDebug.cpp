@@ -91,6 +91,23 @@ void CollisionsDebug::Draw()
         }
     }
 
+    ImGui::Separator();
+    ImGui::Text("Terrain size: %fx%f meters", App::GetSimTerrain()->getMaxTerrainSize().x, App::GetSimTerrain()->getMaxTerrainSize().z);
+    if (ImGui::Checkbox("Show collision grid", &m_draw_collision_grid))
+    {
+        // Initial setup
+        if (m_draw_collision_grid && !m_collision_grid_root)
+        {
+            m_collision_grid_root = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+            App::GetSimTerrain()->GetCollisions()->createCollisionDebugVisualization(m_collision_grid_root);
+        }
+        // Update visibility
+        if (m_collision_grid_root)
+        {
+            m_collision_grid_root->setVisible(m_draw_collision_grid);
+        }
+    }
+
     m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
     App::GetGuiManager()->RequestGuiCaptureKeyboard(m_is_hovered);
 
