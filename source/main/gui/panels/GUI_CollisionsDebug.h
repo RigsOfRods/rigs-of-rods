@@ -86,6 +86,7 @@ private:
     Ogre::SceneNode* m_collision_grid_root = nullptr;
     bool m_draw_collision_cells = false;
     float m_collision_cell_draw_distance = DEFAULT_DRAWDIST;
+    int m_cell_generator_distance_limit = 50; // meters from character, to reduce memory load.
 
     bool m_draw_labels = true;
     bool m_labels_draw_types = true;

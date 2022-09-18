@@ -1271,7 +1271,7 @@ Vector3 RoR::primitiveCollision(node_t *node, Ogre::Vector3 velocity, float mass
     return force;
 }
 
-void Collisions::createCollisionDebugVisualization(Ogre::SceneNode* root_node, std::vector<Ogre::SceneNode*>& out_nodes)
+void Collisions::createCollisionDebugVisualization(Ogre::SceneNode* root_node, Ogre::AxisAlignedBox const& area_limit, std::vector<Ogre::SceneNode*>& out_nodes)
 {
     LOG("COLL: Creating collision debug visualization ...");
 
@@ -1281,6 +1281,10 @@ void Collisions::createCollisionDebugVisualization(Ogre::SceneNode* root_node, s
     {
         for (int z=0; z<(int)(m_terrain_size.z); z+=(int)CELL_SIZE)
         {
+            
+            if (!area_limit.contains(Ogre::Vector3(x, 0.f, z)))
+                continue;
+
             int cellx = (int)(x/(float)CELL_SIZE);
             int cellz = (int)(z/(float)CELL_SIZE);
             const int hash = hash_find(cellx, cellz);

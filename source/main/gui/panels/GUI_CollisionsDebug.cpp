@@ -23,6 +23,7 @@
 
 #include "Application.h"
 #include "Collisions.h"
+#include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
@@ -116,6 +117,16 @@ void CollisionsDebug::Draw()
         ImVec4 color(f * 2.0, 2.0 * (1.0 - f), 0.2, 0.7);
         int tris = static_cast<int>(f*Collisions::CELL_BLOCKSIZE);
         ImGui::TextColored(color, "%d ", tris);
+    }
+    ImGui::SetNextItemWidth(WIDTH_DRAWDIST);
+    if (ImGui::InputInt("Debug area extent (around character)", &m_cell_generator_distance_limit));
+    ImGui::SameLine();
+    ImGui::TextDisabled("(?)");
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        ImGui::Text("To save memory and FPS, only cells around the characters will be visualized");
+        ImGui::EndTooltip();
     }
     if (ImGui::Checkbox("Show lookup cells (warning: slow!)", &m_draw_collision_cells))
     {
@@ -458,9 +469,15 @@ void CollisionsDebug::SetDrawCollisionCells(bool val)
     {
         this->GenerateCellDebugMaterials();
         m_collision_grid_root = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        // For memory (including VRAM) and performance reasons, only generate meshes up to a certain distance from the character.
+        AxisAlignedBox aabb;
+        aabb.setMinimum(App::GetGameContext()->GetPlayerCharacter()->getPosition() + Ogre::Vector3(-m_cell_generator_distance_limit, 0,  -m_cell_generator_distance_limit));
+        aabb.getMinimum().y = -FLT_MAX; // vertical axis
+        aabb.setMaximum(App::GetGameContext()->GetPlayerCharacter()->getPosition() + Ogre::Vector3(m_cell_generator_distance_limit, 0, m_cell_generator_distance_limit));
+        aabb.getMaximum().y = FLT_MAX; // vertical axis
         try
         {
-            App::GetSimTerrain()->GetCollisions()->createCollisionDebugVisualization(m_collision_grid_root, m_collision_cells);
+            App::GetSimTerrain()->GetCollisions()->createCollisionDebugVisualization(m_collision_grid_root, aabb, m_collision_cells);
         }
         catch (std::bad_alloc const& allocex)
         {
