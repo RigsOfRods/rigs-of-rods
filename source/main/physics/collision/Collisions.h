@@ -196,7 +196,7 @@ public:
     void addCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::Quaternion const& q, Ogre::Vector3 const& scale, ground_model_t* gm = 0, std::vector<int>* collTris = 0); //!< generate collision tris from existing mesh resource
     void registerCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::AxisAlignedBox bounding_box, ground_model_t* gm, int ctri_start, int ctri_count); //!< Mark already generated collision tris as belonging to (virtual) mesh.
     int addCollisionTri(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, ground_model_t* gm);
-    void createCollisionDebugVisualization(Ogre::SceneNode* root_node, std::vector<Ogre::SceneNode*>& out_nodes);
+    void createCollisionDebugVisualization(Ogre::SceneNode* root_node, Ogre::AxisAlignedBox const& area_limit, std::vector<Ogre::SceneNode*>& out_nodes);
     void removeCollisionBox(int number);
     void removeCollisionTri(int number);
     void clearEventCache() { m_last_called_cboxes.clear(); }
