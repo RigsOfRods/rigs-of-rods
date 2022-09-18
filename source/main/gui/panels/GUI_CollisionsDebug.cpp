@@ -458,7 +458,16 @@ void CollisionsDebug::SetDrawCollisionCells(bool val)
     {
         this->GenerateCellDebugMaterials();
         m_collision_grid_root = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-        App::GetSimTerrain()->GetCollisions()->createCollisionDebugVisualization(m_collision_grid_root, m_collision_cells);
+        try
+        {
+            App::GetSimTerrain()->GetCollisions()->createCollisionDebugVisualization(m_collision_grid_root, m_collision_cells);
+        }
+        catch (std::bad_alloc const& allocex)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("Could not create debug view, error: {}", allocex.what()));
+            this->ClearCollisionCellVisuals();
+        }
     }
     // Update visibility
     if (m_collision_grid_root)
