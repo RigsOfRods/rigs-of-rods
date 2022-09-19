@@ -34,10 +34,15 @@ public:
     bool IsVisible() const { return m_is_visible; }
     bool IsHovered() const { return IsVisible() && m_is_hovered; }
 
+    bool IsManualPoseActive() const { return m_manual_pose_active; }
+
 private:
+    void DrawAnimControls(Ogre::AnimationState* anim_state);
+
     bool m_is_visible = false;
     bool m_is_hovered = false;
 
+    bool m_manual_pose_active = false;
 };
 
 } // namespace GUI

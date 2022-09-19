@@ -65,20 +65,23 @@ void CharacterPoseUtil::Draw()
     bool keep_open = true;
     ImGui::Begin(_LC("CharacterPoseUtil", "Character pose utility"), &keep_open, flags);
 
-    ImGui::Dummy(ImVec2(250, 1)); // force minimum width
+    
 
     ImGui::Text("Character: '%s'", gfx_character->xc_instance_name.c_str());
-    ImGui::TextDisabled("(gray text means 'disabled')");
+    ImGui::Checkbox("Manual pose", &m_manual_pose_active);
+    if (!m_manual_pose_active)
+    {
+        ImGui::TextDisabled("(gray text means 'disabled')");
+    }
+    ImGui::Dummy(ImVec2(350, 1)); // force minimum width
     ImGui::Separator();
 
     AnimationStateSet* stateset = ent->getAllAnimationStates();
     for (auto& state_pair : stateset->getAnimationStates())
     {
         AnimationState* as = state_pair.second;
-        ImVec4 color = (as->getEnabled()) ? ImGui::GetStyle().Colors[ImGuiCol_Text] : ImGui::GetStyle().Colors[ImGuiCol_TextDisabled];
-        ImGui::TextColored(color, "'%s' (%.2f sec)", as->getAnimationName().c_str(), as->getLength());
-        std::string caption = fmt::format("{:.2f} sec", as->getTimePosition());
-        ImGui::ProgressBar(as->getTimePosition() / as->getLength(), ImVec2(-1, 0), caption.c_str());
+        this->DrawAnimControls(as);
+
     }
 
     // Common window epilogue:
@@ -93,8 +96,55 @@ void CharacterPoseUtil::Draw()
     }
 }
 
+void CharacterPoseUtil::DrawAnimControls(Ogre::AnimationState* anim_state)
+{
+    ImGui::PushID(anim_state);
+
+    // anim name line
+    ImVec4 color = (anim_state->getEnabled()) ? ImGui::GetStyle().Colors[ImGuiCol_Text] : ImGui::GetStyle().Colors[ImGuiCol_TextDisabled];
+    ImGui::TextColored(color, "'%s' (%.2f sec)", anim_state->getAnimationName().c_str(), anim_state->getLength());
+    if (m_manual_pose_active)
+    {
+        ImGui::SameLine();
+        bool enabled = anim_state->getEnabled();
+        if (ImGui::Checkbox("Enabled", &enabled))
+        {
+            anim_state->setEnabled(enabled);
+            anim_state->setWeight(enabled ? 1.f : 0.f);
+        }
+        ImGui::SameLine();
+        float weight = anim_state->getWeight();
+        ImGui::SetNextItemWidth(50.f);
+        if (ImGui::InputFloat("Weight", &weight))
+        {
+            anim_state->setWeight(weight);
+        }
+    }
+
+    // anim progress line
+    if (m_manual_pose_active)
+    {
+        float timepos = anim_state->getTimePosition();
+        if (ImGui::SliderFloat("Time pos", &timepos, 0.f, anim_state->getLength()))
+        {
+            anim_state->setTimePosition(timepos);
+        }
+    }
+    else
+    {
+        std::string caption = fmt::format("{:.2f} sec", anim_state->getTimePosition());
+        ImGui::ProgressBar(anim_state->getTimePosition() / anim_state->getLength(), ImVec2(-1, 0), caption.c_str());
+    }
+
+    ImGui::PopID(); // AnimationState*
+}
+
 void CharacterPoseUtil::SetVisible(bool v)
 {
     m_is_visible = v;
     m_is_hovered = false;
+    if (!v)
+    {
+        m_manual_pose_active = false;
+    }
 }

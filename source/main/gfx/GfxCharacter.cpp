@@ -29,6 +29,7 @@
 #include "Console.h"
 #include "GameContext.h"
 #include "GfxScene.h"
+#include "GUIManager.h"
 #include "InputEngine.h"
 #include "MovableText.h"
 #include "Network.h"
@@ -146,61 +147,64 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         xc_scenenode->setVisible(true);
     }
 
-    // Reset all anims
-
-
-    LOG(fmt::format("file:{}, line:{}, func:{}, resetting all animations before update", __FILE__, __LINE__, __FUNCTION__));
-    AnimationStateSet* stateset = entity->getAllAnimationStates();
-    for (auto& state_pair: stateset->getAnimationStates())
+    if (!App::GetGuiManager()->CharacterPoseUtil.IsManualPoseActive())
     {
-        AnimationState* as = state_pair.second;
-        as->setEnabled(false);
-        as->setWeight(0);
-        LOG(fmt::format("\tanim '{}' was reset", as->getAnimationName()));
-        }
+        // Reset all anims
 
-    // upper body anim
-    if (xc_simbuf.simbuf_anim_upper_name != "")
-    {
-        LOG(fmt::format("file:{}, line:{}, func:{}, enabling upper body anim (name '{}', time {})",
-            __FILE__, __LINE__, __FUNCTION__,
-            xc_simbuf.simbuf_anim_upper_name, xc_simbuf.simbuf_anim_upper_time));
-        try
+
+        LOG(fmt::format("file:{}, line:{}, func:{}, resetting all animations before update", __FILE__, __LINE__, __FUNCTION__));
+        AnimationStateSet* stateset = entity->getAllAnimationStates();
+        for (auto& state_pair : stateset->getAnimationStates())
         {
-            this->EnableAnim(entity->getAnimationState(xc_simbuf.simbuf_anim_upper_name), xc_simbuf.simbuf_anim_upper_time);
+            AnimationState* as = state_pair.second;
+            as->setEnabled(false);
+            as->setWeight(0);
+            LOG(fmt::format("\tanim '{}' was reset", as->getAnimationName()));
         }
-        catch (Ogre::Exception& eeh) { 
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-                fmt::format("error updating upper body anim (name '{}', time {}), message:{}",
-                    xc_simbuf.simbuf_anim_upper_name, xc_simbuf.simbuf_anim_upper_time, eeh.getFullDescription()));
-        }
-    }
-    else
-    {
-        LOG(fmt::format("file:{}, line:{}, func:{}, no upper body anim requested",
-            __FILE__, __LINE__, __FUNCTION__));
-    }
 
-    // lower body anim
-    if (xc_simbuf.simbuf_anim_lower_name != "")
-    {
-        LOG(fmt::format("file:{}, line:{}, func:{}, enabling lower body anim (name '{}', time {})",
-            __FILE__, __LINE__, __FUNCTION__,
-            xc_simbuf.simbuf_anim_lower_name, xc_simbuf.simbuf_anim_lower_time));
-        try
+        // upper body anim
+        if (xc_simbuf.simbuf_anim_upper_name != "")
         {
-            this->EnableAnim(entity->getAnimationState(xc_simbuf.simbuf_anim_lower_name), xc_simbuf.simbuf_anim_lower_time);
+            LOG(fmt::format("file:{}, line:{}, func:{}, enabling upper body anim (name '{}', time {})",
+                __FILE__, __LINE__, __FUNCTION__,
+                xc_simbuf.simbuf_anim_upper_name, xc_simbuf.simbuf_anim_upper_time));
+            try
+            {
+                this->EnableAnim(entity->getAnimationState(xc_simbuf.simbuf_anim_upper_name), xc_simbuf.simbuf_anim_upper_time);
+            }
+            catch (Ogre::Exception& eeh) {
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                    fmt::format("error updating upper body anim (name '{}', time {}), message:{}",
+                        xc_simbuf.simbuf_anim_upper_name, xc_simbuf.simbuf_anim_upper_time, eeh.getFullDescription()));
+            }
         }
-        catch (Ogre::Exception& eeh) { 
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-                fmt::format("error updating lower body anim (name '{}', time {}), message:{}",
-                    xc_simbuf.simbuf_anim_lower_name, xc_simbuf.simbuf_anim_lower_time, eeh.getFullDescription())); 
+        else
+        {
+            LOG(fmt::format("file:{}, line:{}, func:{}, no upper body anim requested",
+                __FILE__, __LINE__, __FUNCTION__));
         }
-    }
-    else
-    {
-        LOG(fmt::format("file:{}, line:{}, func:{}, no lower body anim requested",
-            __FILE__, __LINE__, __FUNCTION__));
+
+        // lower body anim
+        if (xc_simbuf.simbuf_anim_lower_name != "")
+        {
+            LOG(fmt::format("file:{}, line:{}, func:{}, enabling lower body anim (name '{}', time {})",
+                __FILE__, __LINE__, __FUNCTION__,
+                xc_simbuf.simbuf_anim_lower_name, xc_simbuf.simbuf_anim_lower_time));
+            try
+            {
+                this->EnableAnim(entity->getAnimationState(xc_simbuf.simbuf_anim_lower_name), xc_simbuf.simbuf_anim_lower_time);
+            }
+            catch (Ogre::Exception& eeh) {
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                    fmt::format("error updating lower body anim (name '{}', time {}), message:{}",
+                        xc_simbuf.simbuf_anim_lower_name, xc_simbuf.simbuf_anim_lower_time, eeh.getFullDescription()));
+            }
+        }
+        else
+        {
+            LOG(fmt::format("file:{}, line:{}, func:{}, no lower body anim requested",
+                __FILE__, __LINE__, __FUNCTION__));
+        }
     }
 
     // Multiplayer label
