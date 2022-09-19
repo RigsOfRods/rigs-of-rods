@@ -148,15 +148,16 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
 
     // Reset all anims
 
-    AnimationStateIterator it = entity->getAllAnimationStates()->getAnimationStateIterator();
-    LOG(fmt::format("file:{}, line:{}, func:{}, resetting all animations before update", __FILE__, __LINE__, __FUNCTION__ ));
-    while (it.hasMoreElements())
+
+    LOG(fmt::format("file:{}, line:{}, func:{}, resetting all animations before update", __FILE__, __LINE__, __FUNCTION__));
+    AnimationStateSet* stateset = entity->getAllAnimationStates();
+    for (auto& state_pair: stateset->getAnimationStates())
     {
-        AnimationState* as = it.getNext();
+        AnimationState* as = state_pair.second;
         as->setEnabled(false);
         as->setWeight(0);
         LOG(fmt::format("\tanim '{}' was reset", as->getAnimationName()));
-    }
+        }
 
     // upper body anim
     if (xc_simbuf.simbuf_anim_upper_name != "")

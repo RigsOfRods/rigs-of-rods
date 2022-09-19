@@ -115,6 +115,7 @@ set(SOURCE_FILES
         gui/imgui/imstb_textedit.h
         gui/imgui/imstb_truetype.h
         gui/panels/GUI_AngelScriptExamples.{h,cpp}
+        gui/panels/GUI_CharacterPoseUtil.{h,cpp}
         gui/panels/GUI_CollisionsDebug.{h,cpp}
         gui/panels/GUI_ConsoleView.{h,cpp}
         gui/panels/GUI_ConsoleWindow.{h,cpp}

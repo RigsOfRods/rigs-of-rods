@@ -32,6 +32,7 @@
 #include "GUI_CollisionsDebug.h"
 #include "GUI_ConsoleWindow.h"
 #include "GUI_FlexbodyDebug.h"
+#include "GUI_CharacterPoseUtil.h"
 #include "GUI_FrictionSettings.h"
 #include "GUI_RepositorySelector.h"
 #include "GUI_GameMainMenu.h"
@@ -102,6 +103,7 @@ public:
     ~GUIManager();
 
 
+    GUI::CharacterPoseUtil      CharacterPoseUtil;
     GUI::CollisionsDebug        CollisionsDebug;
     GUI::GameMainMenu           GameMainMenu;
     GUI::GameAbout              GameAbout;
