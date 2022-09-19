@@ -44,7 +44,7 @@ Character* CharacterFactory::CreateLocalCharacter()
 #endif // USE_SOCKETW
 
     m_local_character = std::unique_ptr<Character>(new Character(-1, 0, playerName, colourNum, false));
-    App::GetGfxScene()->RegisterGfxCharacter(m_local_character->SetupGfx());
+    App::GetGfxScene()->RegisterGfxCharacter(m_local_character.get());
     return m_local_character.get();
 }
 
@@ -59,7 +59,7 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
     LOG(" new character for " + TOSTRING(sourceid) + ":" + TOSTRING(streamid) + ", colour: " + TOSTRING(colour));
 
     Character* ch = new Character(sourceid, streamid, name, colour, true);
-    App::GetGfxScene()->RegisterGfxCharacter(ch->SetupGfx());
+    App::GetGfxScene()->RegisterGfxCharacter(ch);
     m_remote_characters.push_back(std::unique_ptr<Character>(ch));
 #endif // USE_SOCKETW
 }

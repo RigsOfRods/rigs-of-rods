@@ -27,6 +27,7 @@
 #include "ContentManager.h"
 #include "GameContext.h"
 #include "GfxActor.h"
+#include "GfxCharacter.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
 #include "GUI_MainSelector.h"

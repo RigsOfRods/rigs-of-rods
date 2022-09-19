@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2017-2018 Petr Ohlidal
+    Copyright 2017-2022 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -26,6 +26,7 @@
 #include "ActorManager.h"
 #include "CameraManager.h"
 #include "Collisions.h"
+#include "Console.h"
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "InputEngine.h"
@@ -37,8 +38,6 @@
 
 using namespace Ogre;
 using namespace RoR;
-
-#define LOGSTREAM Ogre::LogManager::getSingleton().stream()
 
 Character::Character(int source, unsigned int streamid, UTFString player_name, int color_number, bool is_remote) :
       m_actor_coupling(nullptr)
@@ -55,8 +54,7 @@ Character::Character(int source, unsigned int streamid, UTFString player_name, i
     , m_is_remote(is_remote)
     , m_source_id(source)
     , m_stream_id(streamid)
-    , m_gfx_character(nullptr)
-    , m_driving_anim_length(0.f)
+    , m_driving_anim_length(1.f) // placeholder, filled by `GfxCharacter::GfxCharacter(Character*)` via friend access which is hacky but whatever 
     , m_anim_upper_name("") // unused
     , m_anim_lower_name("Idle_sway")
 {
@@ -72,11 +70,7 @@ Character::Character(int source, unsigned int streamid, UTFString player_name, i
 
 Character::~Character()
 {
-    if (m_gfx_character != nullptr)
-    {
-        App::GetGfxScene()->RemoveGfxCharacter(m_gfx_character);
-        delete m_gfx_character;
-    }
+    
 }
 
 void Character::updateCharacterRotation()
@@ -422,19 +416,16 @@ void Character::move(Vector3 offset)
 void Character::ReportError(const char* detail)
 {
 #ifdef USE_SOCKETW
-    Ogre::UTFString username;
+    std::string username;
     RoRnet::UserInfo info;
     if (!App::GetNetwork()->GetUserInfo(m_source_id, info))
-        username = "~~ERROR getting username~~";
+        username = "?";
     else
         username = info.username;
 
-    char msg_buf[300];
-    snprintf(msg_buf, 300,
-        "[RoR|Networking] ERROR on m_is_remote character (User: '%s', SourceID: %d, StreamID: %d): ",
-        username.asUTF8_c_str(), m_source_id, m_stream_id);
-
-    LOGSTREAM << msg_buf << detail;
+    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+        fmt::format("Error on networked character (User: '{}', SourceID: {}, StreamID: {}): {}",
+        username, m_source_id, m_stream_id, detail));
 #endif
 }
 
@@ -561,180 +552,4 @@ void Character::SetActorCoupling(bool enabled, ActorPtr actor)
 
 ActorPtr Character::GetActorCoupling() { return m_actor_coupling; }
 
-// --------------------------------
-// GfxCharacter
-
-GfxCharacter* Character::SetupGfx()
-{
-    Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(m_instance_name + "_mesh", "character.mesh");
-    m_driving_anim_length = entity->getAnimationState("Driving")->getLength();
-
-    // fix disappearing mesh
-    AxisAlignedBox aabb;
-    aabb.setInfinite();
-    entity->getMesh()->_setBounds(aabb);
-
-    // add entity to the scene node
-    Ogre::SceneNode* scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-    scenenode->attachObject(entity);
-    scenenode->setScale(0.02f, 0.02f, 0.02f);
-    scenenode->setVisible(false);
-
-    // setup colour
-    MaterialPtr mat1 = MaterialManager::getSingleton().getByName("tracks/character");
-    MaterialPtr mat2 = mat1->clone("tracks/" + m_instance_name);
-    entity->setMaterialName("tracks/" + m_instance_name);
-
-    m_gfx_character = new GfxCharacter();
-    m_gfx_character->xc_scenenode = scenenode;
-    m_gfx_character->xc_character = this;
-    m_gfx_character->xc_instance_name = m_instance_name;
-
-    return m_gfx_character;
-}
-
-RoR::GfxCharacter::~GfxCharacter()
-{
-    Entity* ent = static_cast<Ogre::Entity*>(xc_scenenode->getAttachedObject(0));
-    xc_scenenode->detachAllObjects();
-    App::GetGfxScene()->GetSceneManager()->destroySceneNode(xc_scenenode);
-    App::GetGfxScene()->GetSceneManager()->destroyEntity(ent);
-    MaterialManager::getSingleton().unload("tracks/" + xc_instance_name);
-}
-
-void RoR::GfxCharacter::BufferSimulationData()
-{
-    xc_simbuf_prev = xc_simbuf;
-
-    xc_simbuf.simbuf_character_pos          = xc_character->getPosition();
-    xc_simbuf.simbuf_character_rot          = xc_character->getRotation();
-    xc_simbuf.simbuf_color_number           = xc_character->GetColorNum();
-    xc_simbuf.simbuf_net_username           = xc_character->GetNetUsername();
-    xc_simbuf.simbuf_is_remote              = xc_character->GetIsRemote();
-    xc_simbuf.simbuf_actor_coupling         = xc_character->GetActorCoupling();
-    xc_simbuf.simbuf_anim_upper_name        = xc_character->GetUpperAnimName();
-    xc_simbuf.simbuf_anim_upper_time        = xc_character->GetUpperAnimTime();
-    xc_simbuf.simbuf_anim_lower_name        = xc_character->GetLowerAnimName();
-    xc_simbuf.simbuf_anim_lower_time        = xc_character->GetLowerAnimTime();
-}
-
-void RoR::GfxCharacter::UpdateCharacterInScene()
-{
-    // Actor coupling
-    if (xc_simbuf.simbuf_actor_coupling != xc_simbuf_prev.simbuf_actor_coupling)
-    {
-        if (xc_simbuf.simbuf_actor_coupling != nullptr)
-        {
-            // Entering/switching vehicle
-            xc_scenenode->getAttachedObject(0)->setCastShadows(false);
-            xc_scenenode->setVisible(xc_simbuf.simbuf_actor_coupling->GetGfxActor()->HasDriverSeatProp());
-        }
-        else if (xc_simbuf_prev.simbuf_actor_coupling != nullptr)
-        {
-            // Leaving vehicle
-            xc_scenenode->getAttachedObject(0)->setCastShadows(true);
-            xc_scenenode->resetOrientation();
-        }
-    }
-
-    // Position + Orientation
-    Ogre::Entity* entity = static_cast<Ogre::Entity*>(xc_scenenode->getAttachedObject(0));
-    if (xc_simbuf.simbuf_actor_coupling != nullptr)
-    {
-        // We're in vehicle
-        GfxActor* gfx_actor = xc_simbuf.simbuf_actor_coupling->GetGfxActor();
-
-        // Update character visibility first
-        switch (gfx_actor->GetSimDataBuffer().simbuf_actor_state)
-        {
-        case ActorState::NETWORKED_HIDDEN:
-            entity->setVisible(false);
-            break;
-        case ActorState::NETWORKED_OK:
-            entity->setVisible(gfx_actor->HasDriverSeatProp());
-            break;
-        default:
-            break; // no change.
-        }
-
-        // If visible, update position
-        if (entity->isVisible())
-        {
-            Ogre::Vector3 pos;
-            Ogre::Quaternion rot;
-            xc_simbuf.simbuf_actor_coupling->GetGfxActor()->CalculateDriverPos(pos, rot);
-            xc_scenenode->setOrientation(rot);
-            // hack to position the character right perfect on the default seat (because the mesh has decentered origin)
-            xc_scenenode->setPosition(pos + (rot * Vector3(0.f, -0.6f, 0.f)));
-        }
-    }
-    else
-    {
-        xc_scenenode->resetOrientation();
-        xc_scenenode->yaw(-xc_simbuf.simbuf_character_rot);
-        xc_scenenode->setPosition(xc_simbuf.simbuf_character_pos);
-        xc_scenenode->setVisible(true);
-    }
-
-    // Animation: kill all first, then enable what's desired.
-    this->DisableAnim(entity->getAnimationState("Idle_sway"));
-    this->DisableAnim(entity->getAnimationState("TurnRight"));
-    this->DisableAnim(entity->getAnimationState("TurnLeft"));
-    this->DisableAnim(entity->getAnimationState("Side_step"));
-    this->DisableAnim(entity->getAnimationState("Swim_loop"));
-    this->DisableAnim(entity->getAnimationState("Run"));
-    this->DisableAnim(entity->getAnimationState("Walk"));
-    this->DisableAnim(entity->getAnimationState("Spot_swim"));
-
-    if (xc_simbuf.simbuf_anim_upper_name != "")
-    {
-        this->EnableAnim(entity->getAnimationState(xc_simbuf.simbuf_anim_upper_name), xc_simbuf.simbuf_anim_upper_time);
-    }
-
-    if (xc_simbuf.simbuf_anim_lower_name != "")
-    {
-        this->EnableAnim(entity->getAnimationState(xc_simbuf.simbuf_anim_lower_name), xc_simbuf.simbuf_anim_lower_time);
-    }
-
-    // Multiplayer label
-#ifdef USE_SOCKETW
-    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !xc_simbuf.simbuf_actor_coupling)
-    {
-        // From 'updateCharacterNetworkColor()'
-        const String materialName = "tracks/" + xc_instance_name;
-
-        MaterialPtr mat = MaterialManager::getSingleton().getByName(materialName);
-        if (!mat.isNull() && mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 1 &&
-                mat->getTechnique(0)->getPass(1)->getNumTextureUnitStates() > 1)
-        {
-            const auto& state = mat->getTechnique(0)->getPass(1)->getTextureUnitState(1);
-            Ogre::ColourValue color = App::GetNetwork()->GetPlayerColor(xc_simbuf.simbuf_color_number);
-            state->setColourOperationEx(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, color);
-        }
-
-        if ((!xc_simbuf.simbuf_is_remote && !App::mp_hide_own_net_label->getBool()) ||
-            (xc_simbuf.simbuf_is_remote && !App::mp_hide_net_labels->getBool()))
-        {
-            float camDist = (xc_scenenode->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition()).length();
-            Ogre::Vector3 scene_pos = xc_scenenode->getPosition();
-            scene_pos.y += (1.9f + camDist / 100.0f);
-
-            App::GetGfxScene()->DrawNetLabel(scene_pos, camDist, xc_simbuf.simbuf_net_username, xc_simbuf.simbuf_color_number);
-        }
-    }
-#endif // USE_SOCKETW
-}
-
-void GfxCharacter::DisableAnim(Ogre::AnimationState* as)
-{
-    as->setEnabled(false);
-    as->setWeight(0);
-}
-
-void GfxCharacter::EnableAnim(Ogre::AnimationState* as, float time)
-{
-    as->setEnabled(true);
-    as->setWeight(1);
-    as->setTimePosition(time); // addTime() ?
-}
 
