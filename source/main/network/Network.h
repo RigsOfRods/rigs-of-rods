@@ -37,7 +37,6 @@
 #include <string>
 #include <thread>
 #include <vector>
-#include <OgreUTFString.h>
 
 namespace RoR {
 
@@ -119,7 +118,7 @@ public:
     Ogre::String         GetTerrainName();
 
     int                  GetUserColor();
-    Ogre::UTFString      GetUsername();
+    std::string      GetUsername();
     RoRnet::UserInfo     GetLocalUserData();
     std::vector<RoRnet::UserInfo> GetUserInfos();
     bool                 GetUserInfo(int uid, RoRnet::UserInfo &result);
@@ -156,7 +155,7 @@ private:
     std::vector<RoRnet::UserInfo> m_users;
     std::vector<RoRnet::UserInfo> m_disconnected_users;
 
-    Ogre::UTFString      m_username; // Shadows GVar 'mp_player_name' for multithreaded access.
+    std::string      m_username; // Shadows GVar 'mp_player_name' for multithreaded access.
     std::string          m_net_host; // Shadows GVar 'mp_server_host' for multithreaded access.
     std::string          m_password; // Shadows GVar 'mp_server_password' for multithreaded access.
     std::string          m_token;    // Shadows GVar 'mp_player_token' for multithreaded access.

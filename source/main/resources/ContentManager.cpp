@@ -24,11 +24,9 @@
 
 #include <Overlay/OgreOverlayManager.h>
 #include <Overlay/OgreOverlay.h>
-#include <Plugins/ParticleFX/OgreBoxEmitterFactory.h>
 
 
 #include "Application.h"
-#include "ColoredTextAreaOverlayElementFactory.h"
 #include "ErrorUtils.h"
 #include "SoundScriptManager.h"
 #include "SkinFileFormat.h"
@@ -209,10 +207,6 @@ void ContentManager::InitContentManager()
 
     // add scripts folder
     ResourceGroupManager::getSingleton().addResourceLocation(std::string(App::sys_user_dir->getStr()) + PATH_SLASH + "scripts", "FileSystem", "Scripts");
-
-    LOG("RoR|ContentManager: Registering colored text overlay factory");
-    ColoredTextAreaOverlayElementFactory* pCT = new ColoredTextAreaOverlayElementFactory();
-    OverlayManager::getSingleton().addOverlayElementFactory(pCT);
 
     // set default mipmap level (NB some APIs ignore this)
     if (TextureManager::getSingletonPtr())

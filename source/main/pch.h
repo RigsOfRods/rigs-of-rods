@@ -33,7 +33,6 @@
 #include <OgrePrerequisites.h>
 #include <Bites/OgreWindowEventUtilities.h>
 #include <Overlay/OgreFontManager.h>
-#include <OgreUTFString.h>
 #include <OIS.h>
 #include <MyGUI.h>
 #include <imgui.h>

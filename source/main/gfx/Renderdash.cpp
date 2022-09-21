@@ -48,7 +48,10 @@ RoR::Renderdash::Renderdash(std::string const& rg_name, std::string const& tex_n
     m_dash_cam = App::GetGfxScene()->GetSceneManager()->createCamera(cam_name);
     m_dash_cam->setNearClipDistance(1.0);
     m_dash_cam->setFarClipDistance(10.0);
-    m_dash_cam->setPosition(Ogre::Vector3(0.0, -10000.0, 0.0));
+
+    Ogre::SceneNode* m_dash_cam_snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    m_dash_cam_snode->attachObject(m_dash_cam);
+    m_dash_cam_snode->setPosition(Ogre::Vector3(0.0, -10000.0, 0.0));
 
     m_dash_cam->setAspectRatio(2.0);
 

@@ -50,10 +50,13 @@ void RoR::GfxEnvmap::SetupEnvMap()
         m_cameras[face] = App::GetGfxScene()->GetSceneManager()->createCamera("EnvironmentCamera-" + TOSTRING(face));
         m_cameras[face]->setAspectRatio(1.0);
         m_cameras[face]->setProjectionType(Ogre::PT_PERSPECTIVE);
-        m_cameras[face]->setFixedYawAxis(false);
         m_cameras[face]->setFOVy(Ogre::Degree(90));
         m_cameras[face]->setNearClipDistance(0.1f);
         m_cameras[face]->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
+
+        m_cameras_snode[face] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        m_cameras_snode[face]->attachObject(m_cameras[face]);
+        m_cameras_snode[face]->setFixedYawAxis(false);
 
         Ogre::Viewport* v = m_render_targets[face]->addViewport(m_cameras[face]);
         v->setOverlaysEnabled(false);
@@ -62,12 +65,12 @@ void RoR::GfxEnvmap::SetupEnvMap()
         m_render_targets[face]->setAutoUpdated(false);
     }
 
-    m_cameras[0]->setDirection(+Ogre::Vector3::UNIT_X);
-    m_cameras[1]->setDirection(-Ogre::Vector3::UNIT_X);
-    m_cameras[2]->setDirection(+Ogre::Vector3::UNIT_Y);
-    m_cameras[3]->setDirection(-Ogre::Vector3::UNIT_Y);
-    m_cameras[4]->setDirection(-Ogre::Vector3::UNIT_Z);
-    m_cameras[5]->setDirection(+Ogre::Vector3::UNIT_Z);
+    m_cameras_snode[0]->setDirection(+Ogre::Vector3::UNIT_X);
+    m_cameras_snode[1]->setDirection(-Ogre::Vector3::UNIT_X);
+    m_cameras_snode[2]->setDirection(+Ogre::Vector3::UNIT_Y);
+    m_cameras_snode[3]->setDirection(-Ogre::Vector3::UNIT_Y);
+    m_cameras_snode[4]->setDirection(-Ogre::Vector3::UNIT_Z);
+    m_cameras_snode[5]->setDirection(+Ogre::Vector3::UNIT_Z);
 
     if (App::diag_envmap->getBool())
     {
@@ -225,7 +228,7 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, boo
 
     for (int i = 0; i < NUM_FACES; i++)
     {
-        m_cameras[i]->setPosition(center);
+        m_cameras[i]->getParentSceneNode()->setPosition(center);
     }
 
     if (gfx_actor != nullptr)

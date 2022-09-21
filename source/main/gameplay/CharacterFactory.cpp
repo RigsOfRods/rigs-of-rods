@@ -31,7 +31,7 @@ using namespace RoR;
 Character* CharacterFactory::CreateLocalCharacter()
 {
     int colourNum = -1;
-    Ogre::UTFString playerName = "";
+    std::string playerName = "";
 
 #ifdef USE_SOCKETW
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
@@ -53,7 +53,7 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
     RoRnet::UserInfo info;
     App::GetNetwork()->GetUserInfo(sourceid, info);
     int colour = info.colournum;
-    Ogre::UTFString name = tryConvertUTF(info.username);
+    std::string name = tryConvertUTF(info.username);
 
     LOG(" new character for " + TOSTRING(sourceid) + ":" + TOSTRING(streamid) + ", colour: " + TOSTRING(colour));
 
