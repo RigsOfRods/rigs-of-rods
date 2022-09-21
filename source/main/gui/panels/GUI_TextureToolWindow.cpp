@@ -94,7 +94,7 @@ void TextureToolWindow::Draw()
         ImGui::BeginChild("tex info", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing())); // Leave room for 1 line below us
 
         ImGui::Text("Res: %u x %u pixels", m_display_tex->getWidth(), m_display_tex->getHeight());
-        ImGui::Text("Size: %s", formatBytes(m_display_tex->getSize()).asUTF8_c_str());
+        ImGui::Text("Size: %s", formatBytes(m_display_tex->getSize()).c_str());
         ImGui::Text("Format: %s", Ogre::PixelUtil::getFormatName(m_display_tex->getFormat()).c_str());
         if (m_display_tex->getNumFaces() > 1)
             ImGui::Text("Num. faces: %u", m_display_tex->getNumFaces());

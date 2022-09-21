@@ -1,4 +1,4 @@
-cent
+font cent
 {
 
 	type	image
@@ -102,7 +102,7 @@ cent
 
 }
 
-cent_black
+font cent_black
 {
 
 	type	image

@@ -29,7 +29,6 @@
 #include "Application.h"
 #include "ForceFeedback.h"
 
-#include <OgreUTFString.h>
 #include "OISEvents.h"
 #include "OISForceFeedback.h"
 #include "OISInputManager.h"
@@ -408,7 +407,7 @@ struct InputEvent
     Ogre::String name;
     int eventID;
     Ogre::String defaultKey;
-    Ogre::UTFString description;
+    std::string description;
 };
 
 struct event_trigger_t
