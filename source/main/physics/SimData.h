@@ -37,7 +37,6 @@
 
 #include <memory>
 #include <Ogre.h>
-#include <OgreUTFString.h>
 #include <rapidjson/document.h>
 
 namespace RoR {
@@ -813,7 +812,7 @@ struct ActorSpawnRequest
     TuneupDefPtr        asr_working_tuneup; //!< Only filled when editing tuneup via Tuning menu.
     Origin              asr_origin = Origin::UNKNOWN;
     int                 asr_debugview = 0; //(int)DebugViewType::DEBUGVIEW_NONE;
-    Ogre::UTFString     asr_net_username;
+    std::string     asr_net_username;
     int                 asr_net_color = 0;
     int                 net_source_id = 0;
     int                 net_stream_id = 0;

@@ -23,7 +23,7 @@
 
 #include <OgreColourValue.h>
 #include <OgreDataStream.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 #include <memory>
 #include <string>

@@ -1,5 +1,4 @@
 #include "OgreShaderParticleRenderer.h"
-#include "OgreParticleCustomParam.h"
 
 #include <OgreParticle.h>
 #include <OgreStringConverter.h>
@@ -129,7 +128,7 @@ const String& ShaderParticleRenderer::getType(void) const
 }
 
 //////////////////////////////////////////////////////////////////////////
-void ShaderParticleRenderer::_updateRenderQueue(RenderQueue* queue, Ogre::list<Particle*>::type& currentParticles, bool cullIndividually)
+void ShaderParticleRenderer::_updateRenderQueue(RenderQueue* queue, std::vector<Particle*>& currentParticles, bool cullIndividually)
 {
     // be sure that we have enough space in buffers
     if (!allocateBuffers(currentParticles.size())) {
@@ -142,7 +141,7 @@ void ShaderParticleRenderer::_updateRenderQueue(RenderQueue* queue, Ogre::list<P
     if (!currentParticles.empty()) {
         HardwareVertexBufferSharedPtr pVB = mVertexData->vertexBufferBinding->getBuffer(0);
         uchar* pDataVB  = reinterpret_cast<uchar*>(pVB->lock(HardwareBuffer::HBL_DISCARD));
-        for (Ogre::list<Particle*>::type::iterator it=currentParticles.begin(); it!=currentParticles.end(); ++it) {
+        for (auto it=currentParticles.begin(); it!=currentParticles.end(); ++it) {
             Particle* pParticle = *it;
             addParticle(pDataVB, *pParticle);
             pDataVB += 4 * mVertexSize;
@@ -209,18 +208,6 @@ void ShaderParticleRenderer::_notifyDefaultDimensions(Real width, Real height)
 {
     mDefaultParticleSize.x = width;
     mDefaultParticleSize.y = height;
-}
-
-//////////////////////////////////////////////////////////////////////////
-ParticleVisualData* ShaderParticleRenderer::_createVisualData(void)
-{
-    return OGRE_NEW ParticleCustomParam();
-}
-
-//////////////////////////////////////////////////////////////////////////
-void ShaderParticleRenderer::_destroyVisualData(ParticleVisualData* vis)
-{
-    OGRE_DELETE vis;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -447,10 +434,11 @@ void ShaderParticleRenderer::addParticle(uint8* pDataVB, const Particle& particl
     if (mVertexFormatColour) {
         for (int k=0; k<4; ++k) {
             float* pColour = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-            pColour[0] = particle.mColour.r;
-            pColour[1] = particle.mColour.g;
-            pColour[2] = particle.mColour.b;
-            pColour[3] = particle.mColour.a;
+            Ogre::ColourValue colourVal(particle.mColour);
+            pColour[0] = colourVal.r;
+            pColour[1] = colourVal.g;
+            pColour[2] = colourVal.b;
+            pColour[3] = colourVal.a;
         }
         ofs += sizeof(float) * 4;
     }
@@ -549,17 +537,7 @@ void ShaderParticleRenderer::addParticle(uint8* pDataVB, const Particle& particl
         ofs += sizeof(float);
     }
 
-    // custom parameter
-    ParticleCustomParam* pCustom = static_cast<ParticleCustomParam*>(particle.getVisualData());
-    const Vector4& customData = pCustom != NULL ? pCustom->paramValue : Vector4::ZERO;
-    for (int k=0; k<4; ++k) {
-        float* pParams = reinterpret_cast<float*>(pDataVB + k*mVertexSize + ofs);
-        pParams[0] = customData.x;
-        pParams[1] = customData.y;
-        pParams[2] = customData.z;
-        pParams[3] = customData.w;
-    }
-    ofs += sizeof(float) * 4;
+    // custom parameter -- removed during OGRE13 upgrade
 
     // if you see this assert some informations were not added into vertex buffer !!!
     assert(ofs == mVertexSize);
