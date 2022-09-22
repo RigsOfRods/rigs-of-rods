@@ -13,5 +13,5 @@ out vec4 fragColor;
 // Texturing fragment program for GLSL
 void main()
 {
-	fragColor = outColor * texture(sampleTexture, outUV0.xy);
+	fragColor = outColor * textureLod(sampleTexture, outUV0.xy, 0);
 }
