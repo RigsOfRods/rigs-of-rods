@@ -4,7 +4,7 @@ This source file is part of OGRE
 (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org
 
-Copyright (c) 2000-2009 Torus Knot Software Ltd
+Copyright (c) 2000-2014 Torus Knot Software Ltd
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -26,20 +26,42 @@ THE SOFTWARE.
 */
 
 //-----------------------------------------------------------------------------
-// Program Name: FFPLib_Transform
-// Program Desc: Transform functions of the FFP.
-// Program Type: Vertex shader
-// Language: HLSL
-// Notes: Implements core functions for FFPTransform class.
-// based on transform engine. 
-// See http://msdn.microsoft.com/en-us/library/ee422511.aspx
+// Program Name: SGXLib_NormalMapLighting
+// Program Desc: Normal map lighting functions.
+// Program Type: Vertex/Pixel shader
+// Language: GLSL
 //-----------------------------------------------------------------------------
 
-
 //-----------------------------------------------------------------------------
-void FFP_Transform(in float4x4 m, 
-				   in float4 v, 
-				   out float4 vOut)
+void SGX_FetchNormal(in sampler2D s,
+				   in vec2 uv,
+				   out vec3 vOut)
 {
-	vOut = mul(m, v);
+	vOut = 2.0 * texture2D(s, uv).xyz - 1.0;
+}
+
+//-----------------------------------------------------------------------------
+void SGX_ConstructTBNMatrix(in vec3 vNormal,
+				   in vec3 vTangent,
+				   out mat3 vOut)
+{
+	// use non-normalised post-interpolation values as in mikktspace
+	// resulting normal will be normalised by lighting
+	vec3 vBinormal = cross(vNormal, vTangent);
+	// direction: from tangent space to world
+	vOut = mtxFromCols(vTangent, vBinormal, vNormal);
+}
+
+//-----------------------------------------------------------------------------
+void SGX_Generate_Parallax_Texcoord(in sampler2D normalHeightMap,
+						in vec2 texCoord,
+						in vec3 viewPos,
+						in vec2 scaleBias,
+						out vec2 newTexCoord)
+{
+	vec3 eyeVec = -normalize(viewPos);
+	float height = texture2D(normalHeightMap, texCoord).a;
+	float displacement = (height * scaleBias.x) + scaleBias.y;
+	vec2 scaledEyeDir = eyeVec.xy * displacement;
+	newTexCoord = scaledEyeDir + texCoord;
 }
