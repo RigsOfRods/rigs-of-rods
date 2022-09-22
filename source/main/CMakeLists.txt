@@ -458,10 +458,12 @@ extract_pot("${SOURCE_FILES}")
 # -----------------------
 if (NOT WIN32)
     set(CFG_COMMENT_RENDERSYSTEM_D3D9 "# ")
+    set(CFG_COMMENT_RENDERSYSTEM_D3D11 "# ")
 endif ()
 
 if (WIN32)
-    set(CFG_COMMENT_RENDERSYSTEM_GL "# ")
+    # set(CFG_COMMENT_RENDERSYSTEM_GL "# ")
+    set(CFG_COMMENT_RENDERSYSTEM_GL3PLUS "# ")
 endif ()
 
 set(CFG_COMMENT_RENDERSYSTEM_D3D11 "# ")
