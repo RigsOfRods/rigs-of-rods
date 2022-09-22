@@ -4,6 +4,7 @@ find_package(Threads REQUIRED)
 
 # --- Ogre 3D graphics engine ---
 find_package(OGRE 1.11 REQUIRED COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
+        CONAN_OPTIONS ogre3d:resourcemanager_strict=off
 
 # --- Object Oriented Input System ---
 find_package(OIS REQUIRED)
