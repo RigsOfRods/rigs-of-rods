@@ -863,6 +863,8 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     for (ODefSpotlight& spotl: odef->spotlights)
     {
         Light* spotLight = App::GetGfxScene()->GetSceneManager()->createLight();
+        SceneNode *sn = tenode->createChildSceneNode();
+        sn->attachObject(spotLight);
 
         spotLight->setType(Light::LT_SPOTLIGHT);
         spotLight->getParentSceneNode()->setPosition(spotl.pos);
@@ -880,14 +882,14 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         float fsize = Math::Clamp(spotl.range / 10, 0.2f, 2.0f);
         lflare->setDefaultDimensions(fsize, fsize);
 
-        SceneNode *sn = tenode->createChildSceneNode();
-        sn->attachObject(spotLight);
         sn->attachObject(lflare);
     }
 
     for (ODefPointLight& plight : odef->point_lights)
     {
         Light* pointlight = App::GetGfxScene()->GetSceneManager()->createLight();
+        SceneNode *sn = tenode->createChildSceneNode();
+        sn->attachObject(pointlight);
 
         pointlight->setType(Light::LT_POINT);
         pointlight->getParentSceneNode()->setPosition(plight.pos);
@@ -904,8 +906,6 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         float fsize = Math::Clamp(plight.range / 10, 0.2f, 2.0f);
         lflare->setDefaultDimensions(fsize, fsize);
 
-        SceneNode *sn = tenode->createChildSceneNode();
-        sn->attachObject(pointlight);
         sn->attachObject(lflare);
     }
 
