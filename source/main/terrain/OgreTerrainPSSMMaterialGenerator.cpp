@@ -79,7 +79,7 @@ TerrainPSSMMaterialGenerator::SM2Profile::SM2Profile(TerrainMaterialGenerator* p
     , mGlobalColourMapEnabled(true)
     , mLightmapEnabled(true)
     , mCompositeMapEnabled(true)
-    , mReceiveDynamicShadows(true)
+    , mReceiveDynamicShadows(false)
     , mPSSM(0)
     , mDepthShadows(false)
     , mLowLodShadows(false)
