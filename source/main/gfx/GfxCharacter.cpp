@@ -186,6 +186,69 @@ void RoR::GfxCharacter::UpdateCharacterInScene(float dt)
 #endif // USE_SOCKETW
 }
 
+void GfxCharacter::EvaluateAnimDef(CharacterAnimDef const& def, float dt)
+{
+    // Test if applicable.
+    if (//(def.for_situations != 0 && BITMASK_IS_0(xc_simbuf.simbuf_situation_flags, def.for_situations)) || // some situations are specified, but none of the situations matches
+        (!BITMASK_IS_1(xc_simbuf.simbuf_situation_flags, def.for_situations)) || // not all situation flags are satisified
+        (xc_simbuf.simbuf_situation_flags & def.except_situations) || // any of the forbidden situation matches
+        //(def.for_actions != 0 && BITMASK_IS_0(xc_simbuf.simbuf_action_flags, def.for_actions)) || // some actions are specified, but none of the actions matches
+        (!BITMASK_IS_1(xc_simbuf.simbuf_action_flags, def.for_actions)) || // not all action flags are satisfied
+        (xc_simbuf.simbuf_action_flags & def.except_actions)) // any of the forbidden situation matches
+    {
+        return;
+    }
+
+    Ogre::Entity* entity = static_cast<Ogre::Entity*>(xc_scenenode->getAttachedObject(0));
+    AnimationState* as = entity->getAnimationState(def.anim_name);
+
+    // Query data sources.
+    float timepos = 1.f;
+    if (def.playback_time_ratio != 0.f)
+    {
+        timepos *= (def.playback_time_ratio * dt);
+    }
+    if (def.playback_h_speed_ratio != 0.f)
+    {
+        timepos *= (def.playback_h_speed_ratio * xc_simbuf.simbuf_character_h_speed);
+    }
+    if (def.playback_steering_ratio != 0.f && xc_simbuf.simbuf_actor_coupling)
+    {
+        timepos *= (def.playback_steering_ratio * xc_simbuf.simbuf_actor_coupling->ar_hydro_dir_wheel_display);
+    }
+
+    // Transform the anim pos.
+    if (def.source_percentual)
+    {
+        if (def.anim_neutral_mid)
+        {
+            timepos = (timepos + 1.0f) * 0.5f;
+        }
+        timepos *= as->getLength();
+    }
+    if (def.playback_trim > 0.f)
+    {
+        // prevent animation flickering on the borders:
+        if (timepos < def.playback_trim)
+        {
+            timepos = def.playback_trim;
+        }
+        if (timepos > as->getLength() - def.playback_trim)
+        {
+            timepos = as->getLength() - def.playback_trim;
+        }
+    }
+    if (def.anim_continuous)
+    {
+        timepos += as->getTimePosition();
+    }
+
+    // Update the OGRE object
+    as->setTimePosition(timepos);
+    as->setWeight(def.weight);
+    as->setEnabled(true);
+}
+
 void GfxCharacter::UpdateAnimations(float dt)
 {
     // Reset all anims
@@ -198,103 +261,9 @@ void GfxCharacter::UpdateAnimations(float dt)
         as->setWeight(0);
     }
 
-    if (BITMASK_IS_1(xc_simbuf.simbuf_situation_flags, Character::SITUATION_DRIVING))
+    for (CharacterAnimDef const& def : xc_character->m_character_def->anims)
     {
-        AnimationState* as = entity->getAnimationState("Driving");
-        float angle = xc_simbuf.simbuf_actor_coupling->ar_hydro_dir_wheel_display * -1.0f; // not getSteeringAngle(), but this, as its smoothed
-        float anim_time_pos = ((angle + 1.0f) * 0.5f) * as->getLength();
-        // prevent animation flickering on the borders:
-        if (anim_time_pos < 0.01f)
-        {
-            anim_time_pos = 0.01f;
-        }
-        if (anim_time_pos > as->getLength() - 0.01f)
-        {
-            anim_time_pos = as->getLength() - 0.01f;
-        }
-        
-        as->setTimePosition(anim_time_pos);
-        as->setWeight(1.f);
-        as->setEnabled(true);
-    }
-    else if (BITMASK_IS_1(xc_simbuf.simbuf_situation_flags, Character::SITUATION_IN_DEEP_WATER))
-    {
-        if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_MOVE_FORWARD) ||
-            BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_MOVE_BACKWARD))
-        {
-            AnimationState* as = entity->getAnimationState("Swim_loop");
-            as->setTimePosition(as->getTimePosition() + (dt * xc_simbuf.simbuf_character_h_speed));
-            as->setWeight(1.f);
-            as->setEnabled(true);
-        }
-        else
-        {
-            AnimationState* as = entity->getAnimationState("Spot_swim");
-            as->setTimePosition(as->getTimePosition() + dt);
-            as->setWeight(1.f);
-            as->setEnabled(true);
-        }
-    }
-    else // solid ground or jumping
-    {
-        if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_MOVE_FORWARD) ||
-            BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_MOVE_BACKWARD))
-        {
-            AnimationState* as = nullptr;
-            if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_RUN))
-                as = entity->getAnimationState("Run");
-            else
-                as = entity->getAnimationState("Walk");
-
-            float time = dt * xc_simbuf.simbuf_character_h_speed;
-            as->setTimePosition(as->getTimePosition() + time);
-as->setWeight(1.f);
-            as->setEnabled(true);
-        }
-        else
-        {
-            if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_TURN_LEFT))
-            {
-                AnimationState* as = entity->getAnimationState("Turn");
-                float time = dt;
-                if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_SLOW_TURN))
-                    time *= 1.2f;
-                as->setTimePosition(as->getTimePosition() + time);
-                as->setWeight(1.f);
-                as->setEnabled(true);
-            }
-            else if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_TURN_RIGHT))
-            {
-                AnimationState* as = entity->getAnimationState("Turn");
-                float time = -dt;
-                if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_SLOW_TURN))
-                    time *= 1.2f;
-                as->setTimePosition(as->getTimePosition() + time);
-                as->setWeight(1.f);
-                as->setEnabled(true);
-            }
-            else if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_SIDESTEP_RIGHT))
-            {
-                AnimationState* as = entity->getAnimationState("Side_step");
-                as->setTimePosition(as->getTimePosition() + dt);
-                as->setWeight(1.f);
-                as->setEnabled(true);
-            }
-            else if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_SIDESTEP_LEFT))
-            {
-                AnimationState* as = entity->getAnimationState("Side_step");
-                as->setTimePosition(as->getTimePosition() + -dt);
-                as->setWeight(1.f);
-                as->setEnabled(true);
-            }
-            else
-            {
-                AnimationState* as = entity->getAnimationState("Idle_sway");
-                as->setTimePosition(as->getTimePosition() + dt);
-                as->setWeight(1.f);
-                as->setEnabled(true);
-            }
-        }
+        this->EvaluateAnimDef(def, dt);
     }
 }
 

@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "CharacterDefFileFormat.h"
 #include "ForwardDeclarations.h"
 #include "SimBuffers.h"
 
@@ -44,6 +45,7 @@ struct GfxCharacter
     void            DisableAnim(Ogre::AnimationState* anim_state);
     void            EnableAnim(Ogre::AnimationState* anim_state, float time);
     void            UpdateAnimations(float dt);
+    void            EvaluateAnimDef(CharacterAnimDef const& def, float dt);
 
     Ogre::SceneNode*          xc_scenenode;
     CharacterSB               xc_simbuf;

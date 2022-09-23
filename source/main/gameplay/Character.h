@@ -22,6 +22,7 @@
 #pragma once
 
 
+#include "CharacterDefFileFormat.h"
 #include "ForwardDeclarations.h"
 #include "SimBuffers.h"
 
@@ -37,6 +38,7 @@ namespace RoR {
 
 /// @addtogroup Character
 /// @{
+/// 
 
 /// Character uses simplified physics and occupies single point in space.
 /// Note on animations: 
@@ -67,7 +69,7 @@ public:
     static const BitMask_t SITUATION_IN_AIR = BITMASK(4);
     static const BitMask_t SITUATION_DRIVING = BITMASK(5);
 
-    Character(int source = -1, unsigned int streamid = 0, Ogre::UTFString playerName = "", int color_number = 0, bool is_remote = true);
+    Character(CharacterDefPtr def, int source = -1, unsigned int streamid = 0, Ogre::UTFString playerName = "", int color_number = 0, bool is_remote = true);
     ~Character();
        
     // get state
@@ -79,7 +81,6 @@ public:
     void           setRotation(Ogre::Radian rotation);
     void           move(Ogre::Vector3 offset);
     void           updateLocal(float dt);
-    void           upateRemote(float dt);
     void           updateCharacterRotation();
     void           SetActorCoupling(bool enabled, ActorPtr actor);
 
@@ -98,6 +99,7 @@ private:
     void           SendStreamSetup();
 
     // attributes
+    CharacterDefPtr  m_character_def;
     std::string      m_instance_name;
 
     // transforms

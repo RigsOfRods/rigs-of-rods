@@ -193,6 +193,7 @@ set(SOURCE_FILES
         resources/skin_fileformat/SkinFileFormat.{h,cpp}
         resources/terrn2_fileformat/Terrn2FileFormat.{h,cpp}
         resources/tobj_fileformat/TObjFileFormat.{h,cpp}
+        resources/character_def_fileformat/CharacterDefFileFormat.h
         system/AppCommandLine.cpp
         system/AppConfig.cpp
         system/Console.{h,cpp}
@@ -343,6 +344,7 @@ target_include_directories(${BINNAME} PRIVATE
         physics/utils
         physics/water
         resources
+        resources/character_def_fileformat
         resources/odef_fileformat/
         resources/otc_fileformat/
         resources/rig_def_fileformat
