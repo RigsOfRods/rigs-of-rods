@@ -141,6 +141,12 @@ int main(int argc, char *argv[])
             return -1; // Error already displayed
         }
 
+#ifdef USE_CAELUM
+        // Initialize CaelumPlugin, must happen before initialising resource groups
+        new Caelum::CaelumPlugin();
+        Caelum::CaelumPlugin::getSingleton().initialise();
+#endif //USE_CAELUM
+
         Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
         // Deploy base config files from 'skeleton.zip'
@@ -230,12 +236,6 @@ int main(int argc, char *argv[])
 
         // Load inertia config file
         App::GetGameContext()->GetActorManager()->GetInertiaConfig().LoadDefaultInertiaModels();
-
-#ifdef USE_CAELUM
-        // Initialize CaelumPlugin, must happen before initialising resource groups
-        new Caelum::CaelumPlugin(); 
-        Caelum::CaelumPlugin::getSingleton().initialise();
-#endif //USE_CAELUM
 
         // Load mod cache
         if (App::app_force_cache_purge->getBool())
