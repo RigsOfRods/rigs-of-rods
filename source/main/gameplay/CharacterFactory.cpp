@@ -79,12 +79,16 @@ void CharacterFactory::removeStreamSource(int sourceid)
 
 void CharacterFactory::Update(float dt)
 {
-    m_local_character->update(dt);
+    m_local_character->updateLocal(dt);
 
-    for (auto& c : m_remote_characters)
+#ifdef USE_SOCKETW
+    if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) && !m_local_character->isRemote())
     {
-        c->update(dt);
+        m_local_character->SendStreamData();
     }
+#endif // USE_SOCKETW
+
+
 }
 
 void CharacterFactory::UndoRemoteActorCoupling(ActorPtr actor)

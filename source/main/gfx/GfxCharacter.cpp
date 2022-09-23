@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2017-2018 Petr Ohlidal
+    Copyright 2017-2022 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -45,7 +45,6 @@ GfxCharacter::GfxCharacter(Character* character)
     , xc_instance_name(character->m_instance_name)
 {
     Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(xc_instance_name + "_mesh", "character.mesh");
-    character->m_driving_anim_length = entity->getAnimationState("Driving")->getLength();
 
     // fix disappearing mesh
     AxisAlignedBox aabb;
@@ -83,13 +82,12 @@ void RoR::GfxCharacter::BufferSimulationData()
     xc_simbuf.simbuf_net_username           = xc_character->GetNetUsername();
     xc_simbuf.simbuf_is_remote              = xc_character->isRemote();
     xc_simbuf.simbuf_actor_coupling         = xc_character->GetActorCoupling();
-    xc_simbuf.simbuf_anim_upper_name        = xc_character->GetUpperAnimName();
-    xc_simbuf.simbuf_anim_upper_time        = xc_character->GetUpperAnimTime();
-    xc_simbuf.simbuf_anim_lower_name        = xc_character->GetLowerAnimName();
-    xc_simbuf.simbuf_anim_lower_time        = xc_character->GetLowerAnimTime();
+    xc_simbuf.simbuf_action_flags           = xc_character->m_action_flags;
+    xc_simbuf.simbuf_situation_flags        = xc_character->m_situation_flags;
+    xc_simbuf.simbuf_character_h_speed      = xc_character->m_character_h_speed;
 }
 
-void RoR::GfxCharacter::UpdateCharacterInScene()
+void RoR::GfxCharacter::UpdateCharacterInScene(float dt)
 {
     // Actor coupling
     if (xc_simbuf.simbuf_actor_coupling != xc_simbuf_prev.simbuf_actor_coupling)
@@ -149,61 +147,13 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
 
     if (!App::GetGuiManager()->CharacterPoseUtil.IsManualPoseActive())
     {
-        // Reset all anims
-
-
-        LOG(fmt::format("file:{}, line:{}, func:{}, resetting all animations before update", __FILE__, __LINE__, __FUNCTION__));
-        AnimationStateSet* stateset = entity->getAllAnimationStates();
-        for (auto& state_pair : stateset->getAnimationStates())
+        try
         {
-            AnimationState* as = state_pair.second;
-            as->setEnabled(false);
-            as->setWeight(0);
-            LOG(fmt::format("\tanim '{}' was reset", as->getAnimationName()));
+            this->UpdateAnimations(dt);
         }
-
-        // upper body anim
-        if (xc_simbuf.simbuf_anim_upper_name != "")
-        {
-            LOG(fmt::format("file:{}, line:{}, func:{}, enabling upper body anim (name '{}', time {})",
-                __FILE__, __LINE__, __FUNCTION__,
-                xc_simbuf.simbuf_anim_upper_name, xc_simbuf.simbuf_anim_upper_time));
-            try
-            {
-                this->EnableAnim(entity->getAnimationState(xc_simbuf.simbuf_anim_upper_name), xc_simbuf.simbuf_anim_upper_time);
-            }
-            catch (Ogre::Exception& eeh) {
-                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-                    fmt::format("error updating upper body anim (name '{}', time {}), message:{}",
-                        xc_simbuf.simbuf_anim_upper_name, xc_simbuf.simbuf_anim_upper_time, eeh.getFullDescription()));
-            }
-        }
-        else
-        {
-            LOG(fmt::format("file:{}, line:{}, func:{}, no upper body anim requested",
-                __FILE__, __LINE__, __FUNCTION__));
-        }
-
-        // lower body anim
-        if (xc_simbuf.simbuf_anim_lower_name != "")
-        {
-            LOG(fmt::format("file:{}, line:{}, func:{}, enabling lower body anim (name '{}', time {})",
-                __FILE__, __LINE__, __FUNCTION__,
-                xc_simbuf.simbuf_anim_lower_name, xc_simbuf.simbuf_anim_lower_time));
-            try
-            {
-                this->EnableAnim(entity->getAnimationState(xc_simbuf.simbuf_anim_lower_name), xc_simbuf.simbuf_anim_lower_time);
-            }
-            catch (Ogre::Exception& eeh) {
-                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-                    fmt::format("error updating lower body anim (name '{}', time {}), message:{}",
-                        xc_simbuf.simbuf_anim_lower_name, xc_simbuf.simbuf_anim_lower_time, eeh.getFullDescription()));
-            }
-        }
-        else
-        {
-            LOG(fmt::format("file:{}, line:{}, func:{}, no lower body anim requested",
-                __FILE__, __LINE__, __FUNCTION__));
+        catch (Ogre::Exception& eeh) {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("error updating animations, message:{}", eeh.getFullDescription()));
         }
     }
 
@@ -234,6 +184,118 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         }
     }
 #endif // USE_SOCKETW
+}
+
+void GfxCharacter::UpdateAnimations(float dt)
+{
+    // Reset all anims
+    Ogre::Entity* entity = static_cast<Ogre::Entity*>(xc_scenenode->getAttachedObject(0));
+    AnimationStateSet* stateset = entity->getAllAnimationStates();
+    for (auto& state_pair : stateset->getAnimationStates())
+    {
+        AnimationState* as = state_pair.second;
+        as->setEnabled(false);
+        as->setWeight(0);
+    }
+
+    if (BITMASK_IS_1(xc_simbuf.simbuf_situation_flags, Character::SITUATION_DRIVING))
+    {
+        AnimationState* as = entity->getAnimationState("Driving");
+        float angle = xc_simbuf.simbuf_actor_coupling->ar_hydro_dir_wheel_display * -1.0f; // not getSteeringAngle(), but this, as its smoothed
+        float anim_time_pos = ((angle + 1.0f) * 0.5f) * as->getLength();
+        // prevent animation flickering on the borders:
+        if (anim_time_pos < 0.01f)
+        {
+            anim_time_pos = 0.01f;
+        }
+        if (anim_time_pos > as->getLength() - 0.01f)
+        {
+            anim_time_pos = as->getLength() - 0.01f;
+        }
+        
+        as->setTimePosition(anim_time_pos);
+        as->setWeight(1.f);
+        as->setEnabled(true);
+    }
+    else if (BITMASK_IS_1(xc_simbuf.simbuf_situation_flags, Character::SITUATION_IN_DEEP_WATER))
+    {
+        if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_MOVE_FORWARD) ||
+            BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_MOVE_BACKWARD))
+        {
+            AnimationState* as = entity->getAnimationState("Swim_loop");
+            as->setTimePosition(as->getTimePosition() + (dt * xc_simbuf.simbuf_character_h_speed));
+            as->setWeight(1.f);
+            as->setEnabled(true);
+        }
+        else
+        {
+            AnimationState* as = entity->getAnimationState("Spot_swim");
+            as->setTimePosition(as->getTimePosition() + dt);
+            as->setWeight(1.f);
+            as->setEnabled(true);
+        }
+    }
+    else // solid ground or jumping
+    {
+        if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_MOVE_FORWARD) ||
+            BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_MOVE_BACKWARD))
+        {
+            AnimationState* as = nullptr;
+            if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_RUN))
+                as = entity->getAnimationState("Run");
+            else
+                as = entity->getAnimationState("Walk");
+
+            float time = dt * xc_simbuf.simbuf_character_h_speed;
+            as->setTimePosition(as->getTimePosition() + time);
+as->setWeight(1.f);
+            as->setEnabled(true);
+        }
+        else
+        {
+            if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_TURN_LEFT))
+            {
+                AnimationState* as = entity->getAnimationState("Turn");
+                float time = dt;
+                if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_SLOW_TURN))
+                    time *= 1.2f;
+                as->setTimePosition(as->getTimePosition() + time);
+                as->setWeight(1.f);
+                as->setEnabled(true);
+            }
+            else if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_TURN_RIGHT))
+            {
+                AnimationState* as = entity->getAnimationState("Turn");
+                float time = -dt;
+                if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_SLOW_TURN))
+                    time *= 1.2f;
+                as->setTimePosition(as->getTimePosition() + time);
+                as->setWeight(1.f);
+                as->setEnabled(true);
+            }
+            else if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_SIDESTEP_RIGHT))
+            {
+                AnimationState* as = entity->getAnimationState("Side_step");
+                as->setTimePosition(as->getTimePosition() + dt);
+                as->setWeight(1.f);
+                as->setEnabled(true);
+            }
+            else if (BITMASK_IS_1(xc_simbuf.simbuf_action_flags, Character::ACTION_SIDESTEP_LEFT))
+            {
+                AnimationState* as = entity->getAnimationState("Side_step");
+                as->setTimePosition(as->getTimePosition() + -dt);
+                as->setWeight(1.f);
+                as->setEnabled(true);
+            }
+            else
+            {
+                AnimationState* as = entity->getAnimationState("Idle_sway");
+                as->setTimePosition(as->getTimePosition() + dt);
+                as->setWeight(1.f);
+                as->setEnabled(true);
+            }
+        }
+    }
 }
 
 void GfxCharacter::DisableAnim(Ogre::AnimationState* as)

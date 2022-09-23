@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2017-2018 Petr Ohlidal
+    Copyright 2017-2022 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -40,9 +40,10 @@ struct GfxCharacter
     ~GfxCharacter();
     
     void            BufferSimulationData();
-    void            UpdateCharacterInScene();
+    void            UpdateCharacterInScene(float dt);
     void            DisableAnim(Ogre::AnimationState* anim_state);
     void            EnableAnim(Ogre::AnimationState* anim_state, float time);
+    void            UpdateAnimations(float dt);
 
     Ogre::SceneNode*          xc_scenenode;
     CharacterSB               xc_simbuf;

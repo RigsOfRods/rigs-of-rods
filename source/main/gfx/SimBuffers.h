@@ -67,18 +67,20 @@ namespace RoR {
 
 struct CharacterSB
 {
+    // Transforms
     Ogre::Vector3      simbuf_character_pos;
     Ogre::Radian       simbuf_character_rot; //!< When on foot
+    float              simbuf_character_h_speed; //!< When on foot
+
+    // State
+    BitMask_t          simbuf_action_flags;
+    BitMask_t          simbuf_situation_flags;
+    ActorPtr           simbuf_actor_coupling;
+
+    // Network
     Ogre::UTFString    simbuf_net_username;
     bool               simbuf_is_remote;
     int                simbuf_color_number;
-    ActorPtr           simbuf_actor_coupling;
-
-    // anims
-    std::string        simbuf_anim_upper_name;
-    float              simbuf_anim_upper_time;
-    std::string        simbuf_anim_lower_name;
-    float              simbuf_anim_lower_time;
 };
 
 struct NodeSB

@@ -204,7 +204,7 @@ void GfxScene::UpdateScene(float dt_sec)
     // Player avatars
     for (GfxCharacter* a: m_all_gfx_characters)
     {
-        a->UpdateCharacterInScene();
+        a->UpdateCharacterInScene(dt_sec);
     }
 
     // Actors - update misc visuals

@@ -48,69 +48,78 @@ class Character
 
 public:
 
+    // Action flags
+    static const BitMask_t ACTION_MOVE_FORWARD = BITMASK(1);
+    static const BitMask_t ACTION_MOVE_BACKWARD = BITMASK(2);
+    static const BitMask_t ACTION_TURN_RIGHT = BITMASK(3);
+    static const BitMask_t ACTION_TURN_LEFT = BITMASK(4);
+    static const BitMask_t ACTION_SIDESTEP_RIGHT = BITMASK(5);
+    static const BitMask_t ACTION_SIDESTEP_LEFT = BITMASK(6);
+    static const BitMask_t ACTION_RUN = BITMASK(7);
+    static const BitMask_t ACTION_JUMP = BITMASK(8);
+    static const BitMask_t ACTION_WAVE_HAND = BITMASK(9);
+    static const BitMask_t ACTION_SLOW_TURN = BITMASK(10);
+
+    // Situation flags
+    static const BitMask_t SITUATION_ON_SOLID_GROUND = BITMASK(1);
+    static const BitMask_t SITUATION_IN_SHALLOW_WATER = BITMASK(2);
+    static const BitMask_t SITUATION_IN_DEEP_WATER = BITMASK(3);
+    static const BitMask_t SITUATION_IN_AIR = BITMASK(4);
+    static const BitMask_t SITUATION_DRIVING = BITMASK(5);
+
     Character(int source = -1, unsigned int streamid = 0, Ogre::UTFString playerName = "", int color_number = 0, bool is_remote = true);
     ~Character();
        
-    Ogre::UTFString const& GetNetUsername()             { return m_net_username; }
+    // get state
+    Ogre::Vector3  getPosition();
     Ogre::Radian   getRotation() const                  { return m_character_rotation; }
     ActorPtr       GetActorCoupling();
     
-    Ogre::Vector3  getPosition();
     void           setPosition(Ogre::Vector3 position);
     void           setRotation(Ogre::Radian rotation);
     void           move(Ogre::Vector3 offset);
-    void           update(float dt);
+    void           updateLocal(float dt);
+    void           upateRemote(float dt);
     void           updateCharacterRotation();
     void           SetActorCoupling(bool enabled, ActorPtr actor);
 
     // network
     void           receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer);
+    void           SendStreamData();
     int            getSourceID() const                  { return m_source_id; }
     bool           isRemote() const                     { return m_is_remote; }
     int            GetColorNum() const                  { return m_color_number; }
     void           setColour(int color)                 { this->m_color_number = color; }
-
-    // anims
-    std::string const & GetUpperAnimName() const        { return m_anim_upper_name; }
-    float          GetUpperAnimTime() const             { return m_anim_upper_time; }
-    std::string const & GetLowerAnimName() const        { return m_anim_lower_name; }
-    float          GetLowerAnimTime() const             { return m_anim_lower_time; }
+    Ogre::UTFString const& GetNetUsername()             { return m_net_username; }
 
 private:
 
     void           ReportError(const char* detail);
-    void           SendStreamData();
     void           SendStreamSetup();
-    void           SetUpperAnimState(std::string mode, float time = 0);
-    void           SetLowerAnimState(std::string mode, float time = 0);
 
-    ActorPtr         m_actor_coupling; //!< The vehicle or machine which the character occupies
+    // attributes
+    std::string      m_instance_name;
+
+    // transforms
+    Ogre::Vector3    m_character_position;
+    Ogre::Vector3    m_prev_position;
     Ogre::Radian     m_character_rotation;
     float            m_character_h_speed;
     float            m_character_v_speed;
-    Ogre::Vector3    m_character_position;
-    Ogre::Vector3    m_prev_position;
-    bool             m_can_jump;
-    std::string      m_instance_name;
 
-    // visuals
-    float            m_driving_anim_length;
+    // state
+    BitMask_t        m_action_flags = 0;
+    BitMask_t        m_situation_flags = 0;
+    ActorPtr         m_actor_coupling; //!< The vehicle or machine which the character occupies
 
     // network
     bool             m_is_remote;
-    float            m_net_last_anim_time;
     int              m_color_number;
     Ogre::UTFString  m_net_username;
     Ogre::Timer      m_net_timer;
     unsigned long    m_net_last_update_time;
     int              m_stream_id;
     int              m_source_id;
-
-    // anims
-    std::string      m_anim_upper_name;
-    float            m_anim_upper_time;
-    std::string      m_anim_lower_name;
-    float            m_anim_lower_time;
 };
 
 /// @} // addtogroup Character

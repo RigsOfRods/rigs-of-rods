@@ -39,8 +39,6 @@
 
 #define ROR_ASSERT(_EXPR)  assert(_EXPR)
 
-#define CHARACTER_ANIM_NAME_LEN 10 // Restricted for networking
-
 // Legacy macros
 #define TOSTRING(x)     Ogre::StringConverter::toString(x)
 #define PARSEINT(x)     Ogre::StringConverter::parseInt(x)
