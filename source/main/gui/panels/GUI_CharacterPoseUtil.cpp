@@ -61,14 +61,45 @@ void CharacterPoseUtil::Draw()
 
     Entity* ent = static_cast<Entity*>(gfx_character->xc_scenenode->getAttachedObject(0));
 
-    const int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize;
+    const int flags = ImGuiWindowFlags_NoCollapse;
     bool keep_open = true;
     ImGui::Begin(_LC("CharacterPoseUtil", "Character pose utility"), &keep_open, flags);
 
-    
+    ImGui::Text("Character: '%s' (mesh: '%s')", 
+        gfx_character->xc_instance_name.c_str(), 
+        gfx_character->xc_character->getCharacterDef()->mesh_name.c_str());
 
-    ImGui::Text("Character: '%s'", gfx_character->xc_instance_name.c_str());
-    ImGui::Checkbox("Manual pose", &m_manual_pose_active);
+    ImGui::BeginTabBar("CharacterPoseUtilTabs");
+
+    if (ImGui::BeginTabItem("Skeletal anims"))
+    {
+        this->DrawSkeletalPanel(ent);
+        ImGui::EndTabItem();
+    }
+
+    if (ImGui::BeginTabItem("Game anims"))
+    {
+        this->DrawAnimDbgPanel();
+        ImGui::EndTabItem();
+    }
+
+    ImGui::EndTabBar();
+
+    // Common window epilogue:
+
+    m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(m_is_hovered);
+
+    ImGui::End();
+    if (!keep_open)
+    {
+        this->SetVisible(false);
+    }
+}
+
+void CharacterPoseUtil::DrawSkeletalPanel(Ogre::Entity* ent)
+{
+    ImGui::Checkbox("Manual pose mode", &m_manual_pose_active);
     if (!m_manual_pose_active)
     {
         ImGui::TextDisabled("(gray text means 'disabled')");
@@ -82,17 +113,6 @@ void CharacterPoseUtil::Draw()
         AnimationState* as = state_pair.second;
         this->DrawAnimControls(as);
 
-    }
-
-    // Common window epilogue:
-
-    m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
-    App::GetGuiManager()->RequestGuiCaptureKeyboard(m_is_hovered);
-
-    ImGui::End();
-    if (!keep_open)
-    {
-        this->SetVisible(false);
     }
 }
 
@@ -137,6 +157,122 @@ void CharacterPoseUtil::DrawAnimControls(Ogre::AnimationState* anim_state)
     }
 
     ImGui::PopID(); // AnimationState*
+}
+
+ImVec4 ForFlagColor(BitMask_t flags, BitMask_t mask, bool active)
+{
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    ImVec4 normal_text_color = ImGui::GetStyle().Colors[ImGuiCol_Text];
+    return (active)
+        ? theme.success_text_color
+        : ((BITMASK_IS_1(flags, mask)) ? normal_text_color : theme.warning_text_color);
+}
+
+ImVec4 ExceptFlagColor(BitMask_t flags, BitMask_t mask, bool active)
+{
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    ImVec4 normal_text_color = ImGui::GetStyle().Colors[ImGuiCol_Text];
+    return (active)
+        ? theme.value_blue_text_color
+        : ((BITMASK_IS_1(flags, mask)) ? theme.error_text_color : normal_text_color);
+}
+
+void CharacterPoseUtil::DrawAnimDbgItem(int id)
+{
+    CharacterAnimDbg const& dbg = anim_dbg_states[id];
+    CharacterAnimDef* def = App::GetGameContext()->GetPlayerCharacter()->getCharacterDef()->getAnimById(id);
+
+
+    // Draw attributes
+    ImGui::Text("%s", fmt::format("anim: '{}', continuous: {}, autorestart: {}, neutral_mid: {}",
+        def->anim_name, def->anim_continuous, def->anim_autorestart, def->anim_neutral_mid).c_str());
+
+    // Draw the 'for_' flags, the satisfied get colored yellow. If all are satisfied, all get colored green.
+    ImGui::TextDisabled("For flags:");
+    int num_flags = 0;
+    const int MAX_FLAGS_PER_LINE = 3;
+    for (int i = 1; i <= 32; i++)
+    {
+        BitMask_t testmask = BITMASK(i);
+        if (BITMASK_IS_1(def->for_situations, testmask))
+        {
+            ImVec4 color = ForFlagColor(dbg.missing_situations, testmask, dbg.active);
+            if (num_flags > 0 && num_flags % MAX_FLAGS_PER_LINE == 0)
+            {
+                ImGui::TextDisabled("    (more):");
+            }
+            ImGui::SameLine();
+            ImGui::TextColored(color, "%s", Character::SituationFlagToString(testmask));
+            num_flags++;
+        }
+        if (BITMASK_IS_1(def->for_actions, testmask))
+        {
+            ImVec4 color = ForFlagColor(dbg.missing_actions, testmask, dbg.active);
+            if (num_flags > 0 && num_flags % MAX_FLAGS_PER_LINE == 0)
+            {
+                ImGui::TextDisabled("    (more):");
+            }
+            ImGui::SameLine();
+            ImGui::TextColored(color, "%s", Character::ActionFlagToString(testmask));
+            num_flags++;
+        }
+    }
+
+    // Draw the 'except_' flags, blocking get colored red.
+    ImGui::TextDisabled("Except flags:");
+    num_flags = 0;
+    for (int i = 1; i <= 32; i++)
+    {
+        BitMask_t testmask = BITMASK(i);
+        if (BITMASK_IS_1(def->except_situations, testmask))
+        {
+            ImVec4 color = ExceptFlagColor(dbg.blocking_situations, testmask, dbg.active);
+            if (num_flags > 0 && num_flags % MAX_FLAGS_PER_LINE == 0)
+            {
+                ImGui::TextDisabled("    (more):");
+            }
+            ImGui::SameLine();
+            ImGui::TextColored(color, "%s", Character::SituationFlagToString(testmask));
+            num_flags++;
+        }
+        if (BITMASK_IS_1(def->except_actions, testmask))
+        {
+            ImVec4 color = ExceptFlagColor(dbg.blocking_actions, testmask, dbg.active);
+            if (num_flags > 0 && num_flags % MAX_FLAGS_PER_LINE == 0)
+            {
+                ImGui::TextDisabled("    (more):");
+            }
+            ImGui::SameLine();
+            ImGui::TextColored(color, "%s", Character::ActionFlagToString(testmask));
+            num_flags++;
+        }
+    }
+}
+
+void CharacterPoseUtil::DrawAnimDbgPanel()
+{
+    const float child_height = ImGui::GetWindowHeight()
+        - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
+            + ImGui::GetStyle().ItemSpacing.y);
+
+    ImGui::BeginChild("CharacterPoseUi-animDbg-scroll", ImVec2(0.f, child_height), false);
+
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    if (ImGui::TreeNode("Game animations"))
+    {
+        for (CharacterAnimDef const& anim : App::GetGameContext()->GetPlayerCharacter()->getCharacterDef()->anims)
+        {
+            ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+            if (ImGui::TreeNode(&anim, "%s", anim.game_description.c_str()))
+            {
+                this->DrawAnimDbgItem(anim.game_id);
+                ImGui::TreePop();
+            }
+        }
+        ImGui::TreePop();
+    }
+
+    ImGui::EndChild();
 }
 
 void CharacterPoseUtil::SetVisible(bool v)

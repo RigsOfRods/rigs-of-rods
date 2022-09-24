@@ -486,4 +486,56 @@ void Character::SetActorCoupling(bool enabled, ActorPtr actor)
 ActorPtr Character::GetActorCoupling() { return m_actor_coupling; }
 
 
+const char* Character::ActionFlagToString(BitMask_t action)
+{
+    if (BITMASK_IS_1(action, ACTION_MOVE_FORWARD  )) { return "ACTION_MOVE_FORWARD"; }
+    if (BITMASK_IS_1(action, ACTION_MOVE_BACKWARD )) { return "ACTION_MOVE_BACKWARD"; }
+    if (BITMASK_IS_1(action, ACTION_TURN_RIGHT    )) { return "ACTION_TURN_RIGHT"; }
+    if (BITMASK_IS_1(action, ACTION_TURN_LEFT     )) { return "ACTION_TURN_LEFT"; }
+    if (BITMASK_IS_1(action, ACTION_SIDESTEP_RIGHT)) { return "ACTION_SIDESTEP_RIGHT"; }
+    if (BITMASK_IS_1(action, ACTION_SIDESTEP_LEFT )) { return "ACTION_SIDESTEP_LEFT"; }
+    if (BITMASK_IS_1(action, ACTION_RUN           )) { return "ACTION_RUN"; }
+    if (BITMASK_IS_1(action, ACTION_JUMP          )) { return "ACTION_JUMP"; }
+    if (BITMASK_IS_1(action, ACTION_WAVE_HAND     )) { return "ACTION_WAVE_HAND"; }
+    if (BITMASK_IS_1(action, ACTION_SLOW_TURN     )) { return "ACTION_SLOW_TURN"; }
 
+    return "~";
+}
+
+BitMask_t Character::ActionFlagFromString(std::string const& str)
+{
+    if (str == "ACTION_MOVE_FORWARD"    ) { return ACTION_MOVE_FORWARD  ;}
+    if (str == "ACTION_MOVE_BACKWARD"   ) { return ACTION_MOVE_BACKWARD ;}
+    if (str == "ACTION_TURN_RIGHT"      ) { return ACTION_TURN_RIGHT    ;}
+    if (str == "ACTION_TURN_LEFT"       ) { return ACTION_TURN_LEFT     ;}
+    if (str == "ACTION_SIDESTEP_RIGHT"  ) { return ACTION_SIDESTEP_RIGHT;}
+    if (str == "ACTION_SIDESTEP_LEFT"   ) { return ACTION_SIDESTEP_LEFT ;}
+    if (str == "ACTION_RUN"             ) { return ACTION_RUN           ;}
+    if (str == "ACTION_JUMP"            ) { return ACTION_JUMP          ;}
+    if (str == "ACTION_WAVE_HAND"       ) { return ACTION_WAVE_HAND     ;}
+    if (str == "ACTION_SLOW_TURN"       ) { return ACTION_SLOW_TURN     ;}
+
+    return 0;
+}
+
+const char* Character::SituationFlagToString(BitMask_t mask)
+{
+    if (BITMASK_IS_1(mask, SITUATION_ON_SOLID_GROUND )) { return "SITUATION_ON_SOLID_GROUND"; }
+    if (BITMASK_IS_1(mask, SITUATION_IN_SHALLOW_WATER)) { return "SITUATION_IN_SHALLOW_WATER"; }
+    if (BITMASK_IS_1(mask, SITUATION_IN_DEEP_WATER   )) { return "SITUATION_IN_DEEP_WATER"; }
+    if (BITMASK_IS_1(mask, SITUATION_IN_AIR          )) { return "SITUATION_IN_AIR"; }
+    if (BITMASK_IS_1(mask, SITUATION_DRIVING         )) { return "SITUATION_DRIVING"; }  
+
+    return "~";
+}
+
+BitMask_t Character::SituationFlagFromString(std::string const& str)
+{
+    if (str == "SITUATION_ON_SOLID_GROUND")  { return SITUATION_ON_SOLID_GROUND; }
+    if (str == "SITUATION_IN_SHALLOW_WATER") { return SITUATION_IN_SHALLOW_WATER; }
+    if (str == "SITUATION_IN_DEEP_WATER")    { return SITUATION_IN_DEEP_WATER; }
+    if (str == "SITUATION_IN_AIR")           { return SITUATION_IN_AIR; }
+    if (str == "SITUATION_DRIVING")          { return SITUATION_DRIVING; }
+
+    return 0;
+}

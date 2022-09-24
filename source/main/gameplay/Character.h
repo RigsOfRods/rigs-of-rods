@@ -52,26 +52,35 @@ class Character
 public:
 
     // Action flags
-    static const BitMask_t ACTION_MOVE_FORWARD = BITMASK(1);
-    static const BitMask_t ACTION_MOVE_BACKWARD = BITMASK(2);
-    static const BitMask_t ACTION_TURN_RIGHT = BITMASK(3);
-    static const BitMask_t ACTION_TURN_LEFT = BITMASK(4);
+    static const BitMask_t ACTION_MOVE_FORWARD   = BITMASK(1);
+    static const BitMask_t ACTION_MOVE_BACKWARD  = BITMASK(2);
+    static const BitMask_t ACTION_TURN_RIGHT     = BITMASK(3);
+    static const BitMask_t ACTION_TURN_LEFT      = BITMASK(4);
     static const BitMask_t ACTION_SIDESTEP_RIGHT = BITMASK(5);
-    static const BitMask_t ACTION_SIDESTEP_LEFT = BITMASK(6);
-    static const BitMask_t ACTION_RUN = BITMASK(7);
-    static const BitMask_t ACTION_JUMP = BITMASK(8);
-    static const BitMask_t ACTION_WAVE_HAND = BITMASK(9);
-    static const BitMask_t ACTION_SLOW_TURN = BITMASK(10);
+    static const BitMask_t ACTION_SIDESTEP_LEFT  = BITMASK(6);
+    static const BitMask_t ACTION_RUN            = BITMASK(7);
+    static const BitMask_t ACTION_JUMP           = BITMASK(8);
+    static const BitMask_t ACTION_WAVE_HAND      = BITMASK(9);
+    static const BitMask_t ACTION_SLOW_TURN      = BITMASK(10);
+
+    static const char* ActionFlagToString(BitMask_t single_action_flag);
+    static BitMask_t ActionFlagFromString(std::string const& single_action_flag_str);
 
     // Situation flags
-    static const BitMask_t SITUATION_ON_SOLID_GROUND = BITMASK(1);
+    static const BitMask_t SITUATION_ON_SOLID_GROUND  = BITMASK(1);
     static const BitMask_t SITUATION_IN_SHALLOW_WATER = BITMASK(2);
-    static const BitMask_t SITUATION_IN_DEEP_WATER = BITMASK(3);
-    static const BitMask_t SITUATION_IN_AIR = BITMASK(4);
-    static const BitMask_t SITUATION_DRIVING = BITMASK(5);
+    static const BitMask_t SITUATION_IN_DEEP_WATER    = BITMASK(3);
+    static const BitMask_t SITUATION_IN_AIR           = BITMASK(4);
+    static const BitMask_t SITUATION_DRIVING          = BITMASK(5);
+
+    static const char* SituationFlagToString(BitMask_t single_situation_flag);
+    static BitMask_t SituationFlagFromString(std::string const& single_situation_flag_str);
 
     Character(CharacterDefPtr def, int source = -1, unsigned int streamid = 0, Ogre::UTFString playerName = "", int color_number = 0, bool is_remote = true);
     ~Character();
+
+    // get info
+    CharacterDefPtr getCharacterDef() { return m_character_def; }
        
     // get state
     Ogre::Vector3  getPosition();

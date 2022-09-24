@@ -35,12 +35,15 @@ CharacterFactory::CharacterFactory()
     // NOTE each anim is evaluated separately, there is no either-or relation,
     // so you must set each anim's conditions to avoid conflicts.
 
+    static int id_counter = 0;
+
     CharacterDefPtr rorbot = std::make_shared<CharacterDef>();
     rorbot->mesh_name = "character.mesh";
     rorbot->name = "Classic RORBot";
 
-    { // driving
+    { 
         CharacterAnimDef def;
+        def.game_description = "driving";
         BITMASK_SET_1(def.for_situations, Character::SITUATION_DRIVING);
         def.anim_name = "Driving";
         def.playback_time_ratio = 0.f;
@@ -49,30 +52,36 @@ CharacterFactory::CharacterFactory()
         def.source_percentual = true;
         def.anim_neutral_mid = true;
         def.playback_trim = 0.01f;
+        def.game_id = id_counter++;
         rorbot->anims.push_back(def);
     }
 
-    { // swimming
+    {
         CharacterAnimDef def;
+        def.game_description = "swimming";
         BITMASK_SET_1(def.for_situations, Character::SITUATION_IN_DEEP_WATER);
         BITMASK_SET_1(def.for_actions, Character::ACTION_MOVE_FORWARD);
         def.anim_name = "Swim_loop";
         def.playback_h_speed_ratio = 1.f;
         def.playback_time_ratio = 1.f;
+        def.game_id = id_counter++;
         rorbot->anims.push_back(def);
     }
 
-    { // floating in water
+    {
         CharacterAnimDef def;
+        def.game_description = "swimming on spot";
         BITMASK_SET_1(def.for_situations, Character::SITUATION_IN_DEEP_WATER);
         BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_FORWARD);
         def.anim_name = "Spot_swim";
         def.playback_time_ratio = 1.f;
+        def.game_id = id_counter++;
         rorbot->anims.push_back(def);
     }
 
-    { // running
+    {
         CharacterAnimDef def;
+        def.game_description = "running";
         BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
         BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
         BITMASK_SET_1(def.for_actions, Character::ACTION_MOVE_FORWARD);
@@ -80,11 +89,13 @@ CharacterFactory::CharacterFactory()
         def.anim_name = "Run";
         def.playback_time_ratio = 1.f;
         def.playback_h_speed_ratio = 1.f;
+        def.game_id = id_counter++;
         rorbot->anims.push_back(def);
     }
 
-    { // walking forward
+    {
         CharacterAnimDef def;
+        def.game_description = "walking forward";
         BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
         BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
         BITMASK_SET_1(def.for_actions, Character::ACTION_MOVE_FORWARD);
@@ -92,22 +103,26 @@ CharacterFactory::CharacterFactory()
         def.anim_name = "Walk";
         def.playback_time_ratio = 1.f;
         def.playback_h_speed_ratio = 1.f;
+        def.game_id = id_counter++;
         rorbot->anims.push_back(def);
     }
 
-    { // walking backward
+    {
         CharacterAnimDef def;
+        def.game_description = "walking backward";
         BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
         BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
         BITMASK_SET_1(def.for_actions, Character::ACTION_MOVE_BACKWARD);
         def.anim_name = "Walk";
         def.playback_time_ratio = -1.f;
         def.playback_h_speed_ratio = 1.f;
+        def.game_id = id_counter++;
         rorbot->anims.push_back(def);
     }
 
-    { // side stepping right (+time)
+    {
         CharacterAnimDef def;
+        def.game_description = "side stepping right";
         BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
         BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
         BITMASK_SET_1(def.for_actions, Character::ACTION_SIDESTEP_RIGHT);
@@ -119,11 +134,13 @@ CharacterFactory::CharacterFactory()
         def.anim_name = "Side_step";
         def.playback_time_ratio = 1.f;
         def.anim_autorestart = true;
+        def.game_id = id_counter++;
         rorbot->anims.push_back(def);
     }
 
-    { // side stepping left (-time)
+    {
         CharacterAnimDef def;
+        def.game_description = "side stepping left";
         BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
         BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
         BITMASK_SET_1(def.for_actions, Character::ACTION_SIDESTEP_LEFT);
@@ -135,11 +152,13 @@ CharacterFactory::CharacterFactory()
         def.anim_name = "Side_step";
         def.playback_time_ratio = -1.f;
         def.anim_autorestart = true;
+        def.game_id = id_counter++;
         rorbot->anims.push_back(def);
     }
 
-    { // turning left (+time)
+    { 
         CharacterAnimDef def;
+        def.game_description = "turning left";
         BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
         BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
         BITMASK_SET_1(def.for_actions, Character::ACTION_TURN_LEFT);
@@ -151,11 +170,13 @@ CharacterFactory::CharacterFactory()
         def.anim_name = "Turn";
         def.playback_time_ratio = 1.f;
         def.anim_autorestart = true;
+        def.game_id = id_counter++;
         rorbot->anims.push_back(def);
     }
 
-    { // turning right (-time)
+    { 
         CharacterAnimDef def;
+        def.game_description = "turning right";
         BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
         BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
         BITMASK_SET_1(def.for_actions, Character::ACTION_TURN_RIGHT);
@@ -167,11 +188,13 @@ CharacterFactory::CharacterFactory()
         def.anim_name = "Turn";
         def.playback_time_ratio = -1.f;
         def.anim_autorestart = true;
+        def.game_id = id_counter++;
         rorbot->anims.push_back(def);
     }
 
-    { // idle
+    {
         CharacterAnimDef def;
+        def.game_description = "idle standing";
         BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
         BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
         BITMASK_SET_1(def.except_actions, Character::ACTION_TURN_RIGHT);
@@ -183,6 +206,7 @@ CharacterFactory::CharacterFactory()
         BITMASK_SET_1(def.except_actions, Character::ACTION_RUN);
         def.anim_name = "Idle_sway";
         def.playback_time_ratio = 1.f;
+        def.game_id = id_counter++;
         rorbot->anims.push_back(def);
     }
 

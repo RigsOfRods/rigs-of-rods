@@ -38,7 +38,8 @@ namespace RoR {
 struct CharacterAnimDef
 {
     std::string anim_name; //!< Name of the skeletal animation from OGRE's *.skeleton file.
-    std::string description; //!< Internal game name.
+    std::string game_description; //!< Internal game name.
+    int         game_id = -1;
 
     // Conditions
     BitMask_t for_situations = 0;    //!< Character::SITUATION_, all must be satisfied.
@@ -65,6 +66,16 @@ struct CharacterDef
     std::string name;
     std::string mesh_name;
     std::vector<CharacterAnimDef> anims;
+
+    CharacterAnimDef* getAnimById(int id)
+    {
+        for (CharacterAnimDef & anim : anims)
+        {
+            if (anim.game_id == id)
+                return &anim;
+        }
+        return nullptr;
+    }
 };
 
 typedef std::shared_ptr<CharacterDef> CharacterDefPtr;
