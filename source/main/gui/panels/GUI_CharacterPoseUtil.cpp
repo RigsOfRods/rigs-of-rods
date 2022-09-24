@@ -1,6 +1,6 @@
 /*
     This source file is part of Rigs of Rods
-    Copyright 2016-2020 Petr Ohlidal
+    Copyright 2022 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -79,7 +79,7 @@ void CharacterPoseUtil::Draw()
 
     if (ImGui::BeginTabItem("Game anims"))
     {
-        this->DrawAnimDbgPanel();
+        this->DrawAnimDbgPanel(ent);
         ImGui::EndTabItem();
     }
 
@@ -177,7 +177,7 @@ ImVec4 ExceptFlagColor(BitMask_t flags, BitMask_t mask, bool active)
         : ((BITMASK_IS_1(flags, mask)) ? theme.error_text_color : normal_text_color);
 }
 
-void CharacterPoseUtil::DrawAnimDbgItem(int id)
+void CharacterPoseUtil::DrawAnimDbgItemFull(int id)
 {
     CharacterAnimDbg const& dbg = anim_dbg_states[id];
     CharacterAnimDef* def = App::GetGameContext()->GetPlayerCharacter()->getCharacterDef()->getAnimById(id);
@@ -249,7 +249,70 @@ void CharacterPoseUtil::DrawAnimDbgItem(int id)
     }
 }
 
-void CharacterPoseUtil::DrawAnimDbgPanel()
+void CharacterPoseUtil::DrawAnimDbgItemInline(int id, Ogre::Entity* ent)
+{
+    CharacterAnimDbg const& dbg = anim_dbg_states[id];
+    CharacterAnimDef* def = App::GetGameContext()->GetPlayerCharacter()->getCharacterDef()->getAnimById(id);
+    AnimationState* as = ent->getAnimationState(def->anim_name);
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+
+    if (dbg.active)
+    {
+        ImGui::Text("Playing '%s'", def->anim_name.c_str());
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(100);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+        std::string caption = fmt::format("{:.2f}/{:.2f} sec", as->getTimePosition(), as->getLength());
+        ImGui::ProgressBar(as->getTimePosition() / as->getLength(), ImVec2(-1, 0), caption.c_str());
+        ImGui::PopStyleVar(); // ImGuiStyleVar_FramePadding
+    }
+    else
+    {
+        if (dbg.blocking_situations || dbg.blocking_actions)
+        {
+            // Draw the blocking 'except_' flags, colored red.
+            ImGui::SameLine();
+            ImGui::TextDisabled("Blocked by:");
+            for (int i = 1; i <= 32; i++)
+            {
+                BitMask_t testmask = BITMASK(i);
+                if (BITMASK_IS_1(dbg.blocking_situations, testmask))
+                {
+                    ImGui::SameLine();
+                    ImGui::TextColored(theme.error_text_color, "%s", Character::SituationFlagToString(testmask));
+                }
+                if (BITMASK_IS_1(dbg.blocking_actions, testmask))
+                {
+                    ImGui::SameLine();
+                    ImGui::TextColored(theme.error_text_color, "%s", Character::ActionFlagToString(testmask));
+                }
+            }
+        }
+        else
+        {
+            // Draw the 'for_' flags, the satisfied get colored yellow.
+            ImGui::TextDisabled("Activated by:");
+            for (int i = 1; i <= 32; i++)
+            {
+                BitMask_t testmask = BITMASK(i);
+                if (BITMASK_IS_1(def->for_situations, testmask))
+                {
+                    ImVec4 color = ForFlagColor(dbg.missing_situations, testmask, false);
+                    ImGui::SameLine();
+                    ImGui::TextColored(color, "%s", Character::SituationFlagToString(testmask));
+                }
+                if (BITMASK_IS_1(def->for_actions, testmask))
+                {
+                    ImVec4 color = ForFlagColor(dbg.missing_actions, testmask, false);
+                    ImGui::SameLine();
+                    ImGui::TextColored(color, "%s", Character::ActionFlagToString(testmask));
+                }
+            }
+        }
+    }
+}
+
+void CharacterPoseUtil::DrawAnimDbgPanel(Ogre::Entity* ent)
 {
     const float child_height = ImGui::GetWindowHeight()
         - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
@@ -257,19 +320,18 @@ void CharacterPoseUtil::DrawAnimDbgPanel()
 
     ImGui::BeginChild("CharacterPoseUi-animDbg-scroll", ImVec2(0.f, child_height), false);
 
-    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    if (ImGui::TreeNode("Game animations"))
+    for (CharacterAnimDef const& anim : App::GetGameContext()->GetPlayerCharacter()->getCharacterDef()->anims)
     {
-        for (CharacterAnimDef const& anim : App::GetGameContext()->GetPlayerCharacter()->getCharacterDef()->anims)
+        if (ImGui::TreeNode(&anim, "%s", anim.game_description.c_str()))
         {
-            ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-            if (ImGui::TreeNode(&anim, "%s", anim.game_description.c_str()))
-            {
-                this->DrawAnimDbgItem(anim.game_id);
-                ImGui::TreePop();
-            }
+            this->DrawAnimDbgItemFull(anim.game_id);
+            ImGui::TreePop();
         }
-        ImGui::TreePop();
+        else
+        {
+            ImGui::SameLine();
+            this->DrawAnimDbgItemInline(anim.game_id, ent);
+        }
     }
 
     ImGui::EndChild();

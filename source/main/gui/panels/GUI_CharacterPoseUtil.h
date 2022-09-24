@@ -68,8 +68,9 @@ public:
 
 private:
     void DrawAnimControls(Ogre::AnimationState* anim_state);
-    void DrawAnimDbgItem(int id);
-    void DrawAnimDbgPanel();
+    void DrawAnimDbgItemFull(int id);
+    void DrawAnimDbgItemInline(int id, Ogre::Entity* ent);
+    void DrawAnimDbgPanel(Ogre::Entity* ent);
     void DrawSkeletalPanel(Ogre::Entity* ent);
 
     bool m_is_visible = false;
