@@ -106,19 +106,6 @@ CharacterFactory::CharacterFactory()
         rorbot->anims.push_back(def);
     }
 
-    { // side stepping left (-time)
-        CharacterAnimDef def;
-        BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
-        BITMASK_SET_1(def.except_situations, Character::SITUATION_DRIVING);
-        BITMASK_SET_1(def.for_actions, Character::ACTION_TURN_LEFT);
-        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_FORWARD);
-        BITMASK_SET_1(def.except_actions, Character::ACTION_MOVE_BACKWARD);
-        BITMASK_SET_1(def.except_actions, Character::ACTION_RUN);
-        def.anim_name = "Side_step";
-        def.playback_time_ratio = -1.f;
-        rorbot->anims.push_back(def);
-    }
-
     { // side stepping right (+time)
         CharacterAnimDef def;
         BITMASK_SET_1(def.except_situations, Character::SITUATION_IN_DEEP_WATER);
