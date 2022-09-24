@@ -131,6 +131,7 @@ CharacterFactory::CharacterFactory()
         BITMASK_SET_1(def.except_actions, Character::ACTION_RUN);
         def.anim_name = "Side_step";
         def.playback_time_ratio = 1.f;
+        def.anim_autorestart = true;
         rorbot->anims.push_back(def);
     }
 
@@ -146,6 +147,7 @@ CharacterFactory::CharacterFactory()
         BITMASK_SET_1(def.except_actions, Character::ACTION_RUN);
         def.anim_name = "Side_step";
         def.playback_time_ratio = -1.f;
+        def.anim_autorestart = true;
         rorbot->anims.push_back(def);
     }
 
@@ -161,6 +163,7 @@ CharacterFactory::CharacterFactory()
         BITMASK_SET_1(def.except_actions, Character::ACTION_RUN);
         def.anim_name = "Turn";
         def.playback_time_ratio = 1.f;
+        def.anim_autorestart = true;
         rorbot->anims.push_back(def);
     }
 
@@ -176,6 +179,7 @@ CharacterFactory::CharacterFactory()
         BITMASK_SET_1(def.except_actions, Character::ACTION_RUN);
         def.anim_name = "Turn";
         def.playback_time_ratio = -1.f;
+        def.anim_autorestart = true;
         rorbot->anims.push_back(def);
     }
 

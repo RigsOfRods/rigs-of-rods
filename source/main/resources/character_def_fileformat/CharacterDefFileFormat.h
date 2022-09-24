@@ -51,6 +51,7 @@ struct CharacterAnimDef
     float playback_h_speed_ratio = 0.f; //!< How much horizontal movement speed affects animation position.
     float playback_steering_ratio = 0.f; //!< How much vehicle steering angle affects animation position.
     bool  anim_continuous = true; //!< Should animation keep advancing and looping, or should it be set to exact position?
+    bool  anim_autorestart = false; //!< Should animation always restart from 0 when activated?
     bool  anim_neutral_mid = false; //!< Does the anim have the 'neutral' position in it's middle (such as steering left/right) instead of at start? Only effective together with "percentual".
     bool  source_percentual = false; //!< Is the position source value a percentage of animation length?
     float playback_trim = 0.0f; //!< How much to trim the animation position. Useful for i.e. steering animation to avoid flickering.
