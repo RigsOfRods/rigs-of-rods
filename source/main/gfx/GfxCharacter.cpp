@@ -238,6 +238,14 @@ void GfxCharacter::EvaluateAnimDef(CharacterAnimDef const& def, float dt)
             timepos = as->getLength() - def.playback_trim;
         }
     }
+    if (def.anim_autorestart)
+    {
+        // If the animation was just activated, start from 0.
+        if (!BITMASK_IS_1(xc_simbuf_prev.simbuf_action_flags, def.for_actions))
+        {
+            as->setTimePosition(0.f);
+        }
+    }
     if (def.anim_continuous)
     {
         timepos += as->getTimePosition();
