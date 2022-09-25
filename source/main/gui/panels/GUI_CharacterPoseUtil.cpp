@@ -67,7 +67,7 @@ void CharacterPoseUtil::Draw()
 
     ImGui::Text("Character: '%s' (mesh: '%s')", 
         gfx_character->xc_instance_name.c_str(), 
-        gfx_character->xc_character->getCharacterDef()->mesh_name.c_str());
+        gfx_character->xc_character->getCharacterDocument()->mesh_name.c_str());
 
     ImGui::BeginTabBar("CharacterPoseUtilTabs");
 
@@ -180,7 +180,7 @@ ImVec4 ExceptFlagColor(BitMask_t flags, BitMask_t mask, bool active)
 void CharacterPoseUtil::DrawAnimDbgItemFull(int id)
 {
     CharacterAnimDbg const& dbg = anim_dbg_states[id];
-    CharacterAnimDef* def = App::GetGameContext()->GetPlayerCharacter()->getCharacterDef()->getAnimById(id);
+    CharacterAnimDef* def = App::GetGameContext()->GetPlayerCharacter()->getCharacterDocument()->getAnimById(id);
 
 
     // Draw attributes
@@ -252,7 +252,7 @@ void CharacterPoseUtil::DrawAnimDbgItemFull(int id)
 void CharacterPoseUtil::DrawAnimDbgItemInline(int id, Ogre::Entity* ent)
 {
     CharacterAnimDbg const& dbg = anim_dbg_states[id];
-    CharacterAnimDef* def = App::GetGameContext()->GetPlayerCharacter()->getCharacterDef()->getAnimById(id);
+    CharacterAnimDef* def = App::GetGameContext()->GetPlayerCharacter()->getCharacterDocument()->getAnimById(id);
     AnimationState* as = ent->getAnimationState(def->anim_name);
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
@@ -320,7 +320,7 @@ void CharacterPoseUtil::DrawAnimDbgPanel(Ogre::Entity* ent)
 
     ImGui::BeginChild("CharacterPoseUi-animDbg-scroll", ImVec2(0.f, child_height), false);
 
-    for (CharacterAnimDef const& anim : App::GetGameContext()->GetPlayerCharacter()->getCharacterDef()->anims)
+    for (CharacterAnimDef const& anim : App::GetGameContext()->GetPlayerCharacter()->getCharacterDocument()->anims)
     {
         if (ImGui::TreeNode(&anim, "%s", anim.game_description.c_str()))
         {

@@ -21,8 +21,7 @@
 
 #pragma once
 
-
-#include "CharacterDefFileFormat.h"
+#include "CharacterFileFormat.h"
 #include "ForwardDeclarations.h"
 #include "SimBuffers.h"
 
@@ -75,11 +74,11 @@ public:
     static const char* SituationFlagToString(BitMask_t single_situation_flag);
     static BitMask_t SituationFlagFromString(std::string const& single_situation_flag_str);
 
-    Character(CharacterDefPtr def, int source = -1, unsigned int streamid = 0, Ogre::UTFString playerName = "", int color_number = 0, bool is_remote = true);
+    Character(CharacterDocumentPtr def, int source = -1, unsigned int streamid = 0, Ogre::UTFString playerName = "", int color_number = 0, bool is_remote = true);
     ~Character();
 
     // get info
-    CharacterDefPtr getCharacterDef() { return m_character_def; }
+    CharacterDocumentPtr getCharacterDocument() { return m_character_def; }
        
     // get state
     Ogre::Vector3  getPosition();
@@ -108,7 +107,7 @@ private:
     void           SendStreamSetup();
 
     // attributes
-    CharacterDefPtr  m_character_def;
+    CharacterDocumentPtr  m_character_def;
     std::string      m_instance_name;
 
     // transforms

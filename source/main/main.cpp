@@ -225,6 +225,20 @@ int main(int argc, char *argv[])
             App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_LOAD_REQUESTED));
         }
 
+        // Load classic character
+        try
+        {
+            Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource("classic.character");
+            CharacterParser character_parser;
+            App::GetGameContext()->GetCharacterFactory()->DefineCharacter(
+                character_parser.ProcessOgreStream(stream));
+        }
+        catch (Ogre::Exception& eeh)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("error loading classic character, message:{}", eeh.getFullDescription()));
+        }
+
         // Load startup scripts (console, then RoR.cfg)
         if (App::cli_custom_scripts->getStr() != "")
         {

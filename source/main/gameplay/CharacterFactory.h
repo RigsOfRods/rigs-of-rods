@@ -24,7 +24,7 @@
 #include "Application.h"
 
 #include "Character.h"
-#include "CharacterDefFileFormat.h"
+#include "CharacterFileFormat.h"
 #include "Network.h"
 
 #include <memory>
@@ -46,13 +46,14 @@ public:
     void DeleteAllCharacters();
     void UndoRemoteActorCoupling(ActorPtr actor);
     void Update(float dt);
+    void DefineCharacter(CharacterDocumentPtr doc) { m_character_defs.push_back(doc); }
 #ifdef USE_SOCKETW
     void handleStreamData(std::vector<RoR::NetRecvPacket> packet);
 #endif // USE_SOCKETW
 
 private:
 
-    std::vector<CharacterDefPtr>            m_character_defs;
+    std::vector<CharacterDocumentPtr>            m_character_defs;
 
     std::unique_ptr<Character>              m_local_character;
     std::vector<std::unique_ptr<Character>> m_remote_characters;

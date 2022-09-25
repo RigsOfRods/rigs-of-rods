@@ -39,7 +39,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-Character::Character(CharacterDefPtr def, int source, unsigned int streamid, UTFString player_name, int color_number, bool is_remote) :
+Character::Character(CharacterDocumentPtr def, int source, unsigned int streamid, UTFString player_name, int color_number, bool is_remote) :
       m_actor_coupling(nullptr)
     , m_character_rotation(0.0f)
     , m_character_h_speed(2.0f)

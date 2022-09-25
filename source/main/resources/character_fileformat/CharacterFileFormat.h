@@ -1,8 +1,6 @@
 /*
     This source file is part of Rigs of Rods
-    Copyright 2005-2012 Pierre-Michel Ricordel
-    Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2022 Petr Ohlidal
+    Copyright 2022 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -38,7 +36,7 @@ namespace RoR {
 struct CharacterAnimDef
 {
     std::string anim_name; //!< Name of the skeletal animation from OGRE's *.skeleton file.
-    std::string game_description; //!< Internal game name.
+    std::string game_description; //!< Gameplay name.
     int         game_id = -1;
 
     // Conditions
@@ -61,9 +59,9 @@ struct CharacterAnimDef
     float weight = 1.0f;
 };
 
-struct CharacterDef
+struct CharacterDocument
 {
-    std::string name;
+    std::string character_name;
     std::string mesh_name;
     std::vector<CharacterAnimDef> anims;
 
@@ -78,7 +76,34 @@ struct CharacterDef
     }
 };
 
-typedef std::shared_ptr<CharacterDef> CharacterDefPtr;
+typedef std::shared_ptr<CharacterDocument> CharacterDocumentPtr;
+
+// -----------------------------------------------------------------------------
+
+class CharacterParser
+{
+public:
+    
+    CharacterDocumentPtr ProcessOgreStream(Ogre::DataStreamPtr stream);
+
+private:
+    void                       ProcessLine(const char* line);
+    void                       ProcessCurrentLine();
+    void                       TokenizeCurrentLine();
+    std::string                GetParam(int pos);
+
+    struct CharacterParserContext
+    {
+        CharacterAnimDef anim;
+        bool in_anim = false;
+    }                          m_ctx; //!< Parser context
+
+    CharacterDocumentPtr       m_def;
+    int                        m_line_number;
+    std::string                m_cur_line;
+    std::string                m_filename;
+    Ogre::StringVector         m_cur_args; // see TokenizeCurrentLine()
+};
 
 /// @} // addtogroup Character
 /// @} // addtogroup Gameplay
