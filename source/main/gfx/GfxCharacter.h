@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "CharacterDefFileFormat.h"
+#include "CharacterFileFormat.h"
 #include "ForwardDeclarations.h"
 #include "SimBuffers.h"
 
