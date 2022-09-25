@@ -285,7 +285,7 @@ void Character::updateLocal(float dt)
         position += dt * m_character_h_speed * 0.5f * accel * Vector3(cos(m_character_rotation.valueRadians() + Math::HALF_PI), 0.0f, sin(m_character_rotation.valueRadians() + Math::HALF_PI));
         if (!isswimming && not_walking)
         {
-            BITMASK_SET_1(m_action_flags, Character::ACTION_SIDESTEP_LEFT);
+            BITMASK_SET_1(m_action_flags, Character::ACTION_SIDESTEP_RIGHT);
             idleanim = false;
         }
     }
