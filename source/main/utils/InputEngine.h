@@ -126,6 +126,8 @@ enum events
     EV_CAMERA_ZOOM_IN_FAST,      //!< zoom camera in faster
     EV_CAMERA_ZOOM_OUT,          //!< zoom camera out
     EV_CAMERA_ZOOM_OUT_FAST,     //!< zoom camera out faster
+
+    // Character
     EV_CHARACTER_BACKWARDS,      //!< step backwards with the character
     EV_CHARACTER_FORWARD,        //!< step forward with the character
     EV_CHARACTER_JUMP,           //!< let the character jump
@@ -136,6 +138,30 @@ enum events
     EV_CHARACTER_RUN,            //!< let the character run
     EV_CHARACTER_SIDESTEP_LEFT,  //!< sidestep to the left
     EV_CHARACTER_SIDESTEP_RIGHT, //!< sidestep to the right
+
+    EV_CHARACTER_CUSTOM_ACTION_01,
+    EV_CHARACTER_CUSTOM_ACTION_02,
+    EV_CHARACTER_CUSTOM_ACTION_03,
+    EV_CHARACTER_CUSTOM_ACTION_04,
+    EV_CHARACTER_CUSTOM_ACTION_05,
+    EV_CHARACTER_CUSTOM_ACTION_06,
+    EV_CHARACTER_CUSTOM_ACTION_07,
+    EV_CHARACTER_CUSTOM_ACTION_08,
+    EV_CHARACTER_CUSTOM_ACTION_09,
+    EV_CHARACTER_CUSTOM_ACTION_10,
+
+    EV_CHARACTER_CUSTOM_MODE_01,
+    EV_CHARACTER_CUSTOM_MODE_02,
+    EV_CHARACTER_CUSTOM_MODE_03,
+    EV_CHARACTER_CUSTOM_MODE_04,
+    EV_CHARACTER_CUSTOM_MODE_05,
+    EV_CHARACTER_CUSTOM_MODE_06,
+    EV_CHARACTER_CUSTOM_MODE_07,
+    EV_CHARACTER_CUSTOM_MODE_08,
+    EV_CHARACTER_CUSTOM_MODE_09,
+    EV_CHARACTER_CUSTOM_MODE_10,
+
+    // Commands
     EV_COMMANDS_01,              //!< Command 1
     EV_COMMANDS_02,              //!< Command 2
     EV_COMMANDS_03,              //!< Command 3

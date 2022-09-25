@@ -59,8 +59,17 @@ public:
     static const BitMask_t ACTION_SIDESTEP_LEFT  = BITMASK(6);
     static const BitMask_t ACTION_RUN            = BITMASK(7);
     static const BitMask_t ACTION_JUMP           = BITMASK(8);
-    static const BitMask_t ACTION_WAVE_HAND      = BITMASK(9);
-    static const BitMask_t ACTION_SLOW_TURN      = BITMASK(10);
+    static const BitMask_t ACTION_SLOW_TURN      = BITMASK(9);
+    static const BitMask_t ACTION_CUSTOM_01      = BITMASK(10);
+    static const BitMask_t ACTION_CUSTOM_02      = BITMASK(11);
+    static const BitMask_t ACTION_CUSTOM_03      = BITMASK(12);
+    static const BitMask_t ACTION_CUSTOM_04      = BITMASK(13);
+    static const BitMask_t ACTION_CUSTOM_05      = BITMASK(14);
+    static const BitMask_t ACTION_CUSTOM_06      = BITMASK(15);
+    static const BitMask_t ACTION_CUSTOM_07      = BITMASK(16);
+    static const BitMask_t ACTION_CUSTOM_08      = BITMASK(17);
+    static const BitMask_t ACTION_CUSTOM_09      = BITMASK(18);
+    static const BitMask_t ACTION_CUSTOM_10      = BITMASK(19);
 
     static const char* ActionFlagToString(BitMask_t single_action_flag);
     static BitMask_t ActionFlagFromString(std::string const& single_action_flag_str);
@@ -71,6 +80,16 @@ public:
     static const BitMask_t SITUATION_IN_DEEP_WATER    = BITMASK(3);
     static const BitMask_t SITUATION_IN_AIR           = BITMASK(4);
     static const BitMask_t SITUATION_DRIVING          = BITMASK(5);
+    static const BitMask_t SITUATION_CUSTOM_MODE_01   = BITMASK(10);
+    static const BitMask_t SITUATION_CUSTOM_MODE_02   = BITMASK(11);
+    static const BitMask_t SITUATION_CUSTOM_MODE_03   = BITMASK(12);
+    static const BitMask_t SITUATION_CUSTOM_MODE_04   = BITMASK(13);
+    static const BitMask_t SITUATION_CUSTOM_MODE_05   = BITMASK(14);
+    static const BitMask_t SITUATION_CUSTOM_MODE_06   = BITMASK(15);
+    static const BitMask_t SITUATION_CUSTOM_MODE_07   = BITMASK(16);
+    static const BitMask_t SITUATION_CUSTOM_MODE_08   = BITMASK(17);
+    static const BitMask_t SITUATION_CUSTOM_MODE_09   = BITMASK(18);
+    static const BitMask_t SITUATION_CUSTOM_MODE_10   = BITMASK(19);
 
     static const char* SituationFlagToString(BitMask_t single_situation_flag);
     static BitMask_t SituationFlagFromString(std::string const& single_situation_flag_str);
