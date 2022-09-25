@@ -139,6 +139,7 @@ begin_animation
     game_description "idle standing"
     except_situation SITUATION_IN_DEEP_WATER
     except_situation SITUATION_DRIVING
+    except_situation SITUATION_CUSTOM_MODE_01
     except_action ACTION_TURN_RIGHT
     except_action ACTION_TURN_LEFT
     except_action ACTION_SIDESTEP_LEFT
@@ -146,6 +147,26 @@ begin_animation
     except_action ACTION_MOVE_FORWARD
     except_action ACTION_MOVE_BACKWARD
     except_action ACTION_RUN
+    except_action ACTION_CUSTOM_01
     anim_name "Idle_sway"
     playback_time_ratio 1.f
+end_animation
+
+begin_animation
+    game_description "custom action 01 test"
+    for_action ACTION_CUSTOM_01
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING    
+    except_situation SITUATION_CUSTOM_MODE_01
+    anim_name "Spot_swim"
+    playback_time_ratio 10.0
+end_animation
+
+begin_animation
+    game_description "custom mode 01 test"
+    for_situation SITUATION_CUSTOM_MODE_01
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING    
+    anim_name "Driving"
+    playback_time_ratio 2.0
 end_animation
