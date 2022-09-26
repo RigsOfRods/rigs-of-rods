@@ -658,6 +658,7 @@ int main(int argc, char *argv[])
                     App::GetCameraManager()->ResetAllBehaviors();
                     App::GetGuiManager()->CollisionsDebug.CleanUp();
                     App::GetGuiManager()->MainSelector.Close();
+                    App::GetGuiManager()->SurveyMap.Close();
                     App::GetGuiManager()->LoadingWindow.SetVisible(false);
                     App::GetGuiManager()->MenuWallpaper->show();
                     App::GetGuiManager()->SurveyMap.ai_waypoints.clear();

@@ -405,6 +405,27 @@ void SurveyMap::CreateTerrainTextures()
     mMapTextureCreatorDynamic->update(mMapCenter + mMapCenterOffset, mTerrainSize);
 }
 
+void SurveyMap::UpdateTerrainTextures()
+{
+    mMapCenterOffset     = Ogre::Vector2::ZERO; // Reset, maybe new terrain was loaded
+    AxisAlignedBox aab   = App::GetSimTerrain()->getTerrainCollisionAAB();
+    Vector3 terrain_size = App::GetSimTerrain()->getMaxTerrainSize();
+    bool use_aab         = App::GetSimTerrain()->isFlat() && std::min(aab.getSize().x, aab.getSize().z) > 50.0f;
+
+    if (terrain_size.isZeroLength() || use_aab && (aab.getSize().length() < terrain_size.length()))
+    {
+        terrain_size = aab.getSize();
+        terrain_size.y = aab.getMaximum().y;
+        Vector3 offset = aab.getCenter() - terrain_size / 2;
+        mMapCenterOffset = Vector2(offset.x, offset.z);
+    }
+
+    mTerrainSize = Vector2(terrain_size.x, terrain_size.z);
+    Ogre::Vector2 mMapCenter = mTerrainSize / 2;
+
+    mMapTextureCreatorStatic->update(mMapCenter + mMapCenterOffset, mTerrainSize);
+    mMapTextureCreatorDynamic->update(mMapCenter + mMapCenterOffset, mTerrainSize);
+}
 
 void SurveyMap::setMapZoom(float zoom)
 {
@@ -421,6 +442,10 @@ void SurveyMap::setMapZoomRelative(float delta)
     setMapZoom(mMapZoom + 0.5f * delta * (1.0f - mMapZoom));
 }
 
+void SurveyMap::Close()
+{
+    mMapMode = SurveyMapMode::NONE;
+}
 
 const char* SurveyMap::getTypeByDriveable(ActorType driveable, ActorPtr actor)
 {
@@ -470,6 +495,11 @@ void SurveyMap::CycleMode()
     case SurveyMapMode::BIG:                  mMapMode = SurveyMapMode::NONE;  break;
     default:;
     }
+
+   if (mMapMode != SurveyMapMode::NONE)
+   {
+       this->UpdateTerrainTextures();
+   }
 }
 
 void SurveyMap::ToggleMode()
