@@ -54,6 +54,7 @@ public:
 
     void CreateTerrainTextures();
     void Draw();
+    void Close();
     bool IsVisible() const { return mMapMode != SurveyMapMode::NONE; }
     bool IsHovered() const { return IsVisible() && mWindowMouseHovered; }
     void CycleMode();
@@ -106,6 +107,8 @@ protected:
     // Circular minimap
     ImVec2 m_circle_center;
     float m_circle_radius = 0.f;
+
+    void UpdateTerrainTextures();
 };
 
 } // namespace GUI
