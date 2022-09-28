@@ -79,8 +79,10 @@ void SurveyMap::Draw()
     // Calculate window position
     Ogre::RenderWindow* rw = RoR::App::GetAppContext()->GetRenderWindow();
     ImVec2 view_size(0, 0);
+    ImVec2 view_padding(8, 8);
     if (mMapMode == SurveyMapMode::BIG)
     {
+        view_padding.y = 40; // Extra space for hints
         view_size.y = (rw->getWidth() * 0.55f) -
             ((2 * App::GetGuiManager()->GetTheme().screen_edge_padding.y) + (2 * WINDOW_PADDING));
         Vector3 terrn_size = App::GetSimTerrain()->getMaxTerrainSize(); // Y is 'up'!
@@ -103,7 +105,7 @@ void SurveyMap::Draw()
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(WINDOW_PADDING, WINDOW_PADDING));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, WINDOW_ROUNDING);
-    ImGui::SetNextWindowSize(ImVec2((view_size.x + 8), (view_size.y + 40)));
+    ImGui::SetNextWindowSize(ImVec2((view_size.x + view_padding.x), (view_size.y + view_padding.y)));
 
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
     ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
@@ -211,6 +213,12 @@ void SurveyMap::Draw()
         ImVec2 mouse_pos = ImGui::GetMousePos();
         ImDrawList* drawlist = ImGui::GetWindowDrawList();
         drawlist->AddCircleFilled(mouse_pos, 5, ImGui::GetColorU32(ImVec4(1,0,0,1)));
+        if (mMapMode == SurveyMapMode::SMALL)
+        {
+            const char* title = "Teleport/Waypoint";
+            ImVec2 text_pos(mouse_pos.x - (ImGui::CalcTextSize(title).x/2), mouse_pos.y - 25);
+            drawlist->AddText(text_pos, ImGui::GetColorU32(ImGui::GetStyle().Colors[ImGuiCol_Text]), title);
+        }
     }
 
     // Draw AI waypoints
@@ -318,76 +326,44 @@ void SurveyMap::Draw()
     ImGui::Image(reinterpret_cast<ImTextureID>(m_left_mouse_button->getHandle()), ImVec2(28, 24));
     ImGui::SameLine();
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().ItemSpacing.y);
-    if (mMapMode == SurveyMapMode::SMALL)
-    {
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x);
-    }
 
-    const char* text1 = "Teleport";
+    const char* text = "Teleport";
     if (w_adj || mMouseClicked)
     {
-        text1 = "Adjust";
-        if (mMapMode == SurveyMapMode::BIG)
-        {
-            text1 = "Drag to adjust this waypoint";
-        }
+        text = "Drag to adjust this waypoint";
     }
-    ImGui::Text(text1);
+    ImGui::Text(text);
 
     ImGui::SameLine();
-
     ImGui::SetCursorPosY(orig_y);
     ImGui::Image(reinterpret_cast<ImTextureID>(m_right_mouse_button->getHandle()), ImVec2(28, 24));
     ImGui::SameLine();
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().ItemSpacing.y);
-    if (mMapMode == SurveyMapMode::SMALL)
-    {
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x);
-    }
-    const char* text2 = "Waypoint";
-    if (mMapMode == SurveyMapMode::BIG)
-    {
-        text2 = "Set AI waypoint";
-    }
-    ImGui::Text(text2);
+
+    text = "Set AI waypoint";
+    ImGui::Text(text);
 
     ImGui::SameLine();
-
     ImGui::SetCursorPosY(orig_y);
     ImGui::Image(reinterpret_cast<ImTextureID>(m_middle_mouse_button->getHandle()), ImVec2(28, 24));
     ImGui::SameLine();
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().ItemSpacing.y);
-    if (mMapMode == SurveyMapMode::SMALL)
-    {
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x);
-    }
 
-    const char* text3 = "Clear";
+    text = "Remove all AI waypoints";
     if (w_adj || mMouseClicked)
     {
-        text3 = "Remove";
+        text = "Remove this waypoint";
     }
-    if (mMapMode == SurveyMapMode::BIG)
-    {
-        text3 = "Remove all AI waypoints";
-        if (w_adj || mMouseClicked)
-        {
-            text3 = "Remove this waypoint";
-        }
-    }
-    ImGui::Text(text3);
+    ImGui::Text(text);
 
-    if (mMapMode == SurveyMapMode::SMALL)
-    {
-        ImGui::SameLine();
+    ImGui::SameLine();
+    ImGui::SetCursorPosY(orig_y);
+    ImGui::Image(reinterpret_cast<ImTextureID>(m_middle_mouse_scroll_button->getHandle()), ImVec2(28, 24));
+    ImGui::SameLine();
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().ItemSpacing.y);
 
-        ImGui::SetCursorPosY(orig_y);
-        ImGui::Image(reinterpret_cast<ImTextureID>(m_middle_mouse_scroll_button->getHandle()), ImVec2(28, 24));
-        ImGui::SameLine();
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetStyle().ItemSpacing.y);
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x);
-        ImGui::Text("Zoom");
-    }
+    text = "Zoom mini map";
+    ImGui::Text(text);
 
     mWindowMouseHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
 
