@@ -2944,7 +2944,16 @@ void Actor::lightsToggle()
                     ar_flares[i].light->setVisible(true);
                 ar_flares[i].isVisible = true;
                 if (ar_flares[i].bbs)
-                    ar_flares[i].snode->attachObject(ar_flares[i].bbs);
+                {
+                    try
+                    {
+                        ar_flares[i].snode->attachObject(ar_flares[i].bbs);
+                    }
+                    catch (...)
+                    {
+                        // Already attached
+                    }
+                }
             }
         }
     }
