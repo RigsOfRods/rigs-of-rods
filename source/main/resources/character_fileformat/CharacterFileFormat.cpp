@@ -67,6 +67,14 @@ std::string CharacterParser::GetParam(int pos)
         return "";
 }
 
+static ForceAnimBlend ParseForceAnimBlend(std::string const& line)
+{
+    if (line == "none") return ForceAnimBlend::NONE;
+    if (line == "average") return ForceAnimBlend::AVERAGE;
+    if (line == "cumulative") return ForceAnimBlend::CUMULATIVE;
+    return ForceAnimBlend::NONE;
+}
+
 void CharacterParser::TokenizeCurrentLine()
 {
     // Recognizes quoted strings!
@@ -121,6 +129,10 @@ void CharacterParser::ProcessCurrentLine()
         else if (StartsWith(m_cur_line, "mesh_name"))
         {
             m_def->mesh_name = GetParam(1);
+        }
+        else if (StartsWith(m_cur_line, "force_animblend"))
+        {
+            m_def->force_animblend = ParseForceAnimBlend(GetParam(1));
         }
         else if (StartsWith(m_cur_line, "begin_animation"))
         {

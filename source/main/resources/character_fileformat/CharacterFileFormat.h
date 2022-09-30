@@ -59,11 +59,20 @@ struct CharacterAnimDef
     float weight = 1.0f;
 };
 
+enum class ForceAnimBlend //!< Should a specific `Ogre::SkeletonAnimationBlendMode` be forced, or should we keep what the .skeleton file defines?
+{
+    NONE, //!< Use what's defined in the skeleton, see '<skeleton blendmode="">' in the XML.
+    AVERAGE,
+    CUMULATIVE
+};
+
 struct CharacterDocument
 {
     std::string character_name;
     std::string mesh_name;
     std::vector<CharacterAnimDef> anims;
+    std::vector<SkeletalAnimOptions> skeletal_anim_opts;
+    ForceAnimBlend force_animblend = ForceAnimBlend::NONE; //!< Should a specific `Ogre::SkeletonAnimationBlendMode` be forced, or should we keep what the .skeleton file defines?
 
     CharacterAnimDef* getAnimById(int id)
     {
