@@ -63,6 +63,12 @@ GfxCharacter::GfxCharacter(Character* character)
     MaterialPtr mat2 = mat1->clone("tracks/" + xc_instance_name);
     entity->setMaterialName("tracks/" + xc_instance_name);
 
+    // setup animations
+    if (character->getCharacterDocument()->animblend_cumulative)
+    {
+        entity->getSkeleton()->setBlendMode(ANIMBLEND_CUMULATIVE);
+    }
+
     // setup diagnostic UI
     for (CharacterAnimDef const& def : xc_character->m_character_def->anims)
     {
