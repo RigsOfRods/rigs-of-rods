@@ -253,7 +253,17 @@ void CharacterPoseUtil::DrawAnimDbgItemInline(int id, Ogre::Entity* ent)
 {
     CharacterAnimDbg const& dbg = anim_dbg_states[id];
     CharacterAnimDef* def = App::GetGameContext()->GetPlayerCharacter()->getCharacterDocument()->getAnimById(id);
-    AnimationState* as = ent->getAnimationState(def->anim_name);
+    
+    AnimationState* as = nullptr; 
+    try
+    {
+        as = ent->getAnimationState(def->anim_name);
+    }
+    catch (Ogre::ItemIdentityException)
+    {
+        ImGui::TextDisabled("ERROR: Animation '%s' does not exist.", def->anim_name.c_str());
+        return;
+    }
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
     if (dbg.active)
