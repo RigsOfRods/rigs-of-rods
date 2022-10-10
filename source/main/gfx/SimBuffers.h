@@ -82,6 +82,11 @@ struct CommandKeySB
     float             simbuf_cmd_value;
 };
 
+struct PropAnimKeySB
+{
+    bool              simbuf_anim_active;
+};
+
 struct AeroEngineSB
 {
     AeroEngineType    simbuf_ae_type;
@@ -129,6 +134,7 @@ struct ActorSB
     std::vector<NodeSB>       simbuf_nodes;
     std::vector<ScrewpropSB>  simbuf_screwprops;
     std::vector<CommandKeySB> simbuf_commandkey;
+    std::vector<PropAnimKeySB> simbuf_prop_anim_keys;
     std::vector<AeroEngineSB> simbuf_aeroengines;
     std::vector<AirbrakeSB>   simbuf_airbrakes;
 

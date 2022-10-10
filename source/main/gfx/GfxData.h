@@ -118,9 +118,6 @@ struct PropAnim
     PropAnimMode animMode     = {};
     float        animOpt3     = 0;  //!< Various purposes
     float        animOpt5     = 0;
-    int          animKey      = 0;
-    int          animKeyState = 0;
-    int          lastanimKS   = 0;
     float        lower_limit  = 0;  //!< The lower limit for the animation
     float        upper_limit  = 0;  //!< The upper limit for the animation
 };

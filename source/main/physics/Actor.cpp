@@ -4606,3 +4606,25 @@ void Actor::WriteDiagnosticDump(std::string const& fileName)
     outStream->write(text.c_str(), text.length());
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(rgName);
 }
+
+void Actor::UpdatePropAnimInputEvents()
+{
+    for (PropAnimKeyState& state : m_prop_anim_key_states)
+    {
+        bool ev_active = App::GetInputEngine()->getEventValue(state.event_id);
+        if (state.eventlock_present)
+        {
+            // Toggle-mode
+            if (ev_active && (ev_active != state.event_active_prev))
+            {
+                state.anim_active = !state.anim_active;
+            }
+        }
+        else
+        {
+            // Direct-mode
+            state.anim_active = ev_active;
+        }
+        state.event_active_prev = ev_active;
+    }
+}

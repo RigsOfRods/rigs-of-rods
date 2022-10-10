@@ -1750,7 +1750,6 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     for (RigDef::Animation& anim_def: def.animations)
     {
         PropAnim anim;
-        anim.animKeyState = -1.0f; // Orig: hardcoded in {add_animation}
 
         /* Arg #1: ratio */
         anim.animratio = anim_def.ratio;
@@ -1868,9 +1867,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_PERMANENT)) {
             BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_PERMANENT);
         }
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_EVENT)) {
-            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_EVENT);
-        }
+
         /* Motor-indexed sources */
         std::list<RigDef::Animation::MotorSource>::iterator source_itor = anim_def.motor_sources.begin();
         for ( ; source_itor != anim_def.motor_sources.end(); source_itor++)
@@ -1967,29 +1964,26 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_BOUNCE);
             anim.animOpt5 = 1.f;
         }
-        if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_EVENT_LOCK)) 
-        {
-            anim.animKeyState = 0.0f;
-            anim.lastanimKS = 0.0f;
-        }
-        
-        /* Parameter 'event:' */
 
-        if (! anim_def.event.empty())
+        // Parameter 'event:'
+        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_EVENT) &&
+            anim_def.event_name != "")
         {
-            // we are using keys as source
-            anim.animFlags |= PROP_ANIM_FLAG_EVENT;
-
-            int event_id = RoR::App::GetInputEngine()->resolveEventName(anim_def.event);
+            int event_id = RoR::App::GetInputEngine()->resolveEventName(anim_def.event_name);
             if (event_id == -1)
             {
-                AddMessage(Message::TYPE_ERROR, "Unknown animation event: " + anim_def.event);
+                AddMessage(Message::TYPE_ERROR, "Unknown animation event: " + anim_def.event_name);
             }
             else
             {
-                anim.animKey = event_id;
+                PropAnimKeyState state;
+                state.eventlock_present = BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_EVENT_LOCK);
+                state.event_id = static_cast<events>(event_id);
+                m_actor->m_prop_anim_key_states.push_back(state);
+                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_EVENT);
             }
         }
+
         prop.pp_animations.push_back(anim);
     }
     m_actor->m_gfx_actor->m_props.push_back(prop);

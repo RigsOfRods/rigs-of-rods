@@ -148,7 +148,7 @@ public:
     void              toggleBlinkType(BlinkType blink);
     BlinkType         getBlinkType();
     void              setBlinkType(BlinkType blink);
-    std::vector<Actor*> getAllLinkedActors() { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
+    std::vector<Actor*>& getAllLinkedActors() { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     //! @}
 
     /// @name Visual state updates
@@ -218,6 +218,7 @@ public:
     Ogre::Real        getMinimalCameraRadius();
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
     bool              isBeingReset() const              { return m_ongoing_reset; };
+    void              UpdatePropAnimInputEvents();
 #ifdef USE_ANGELSCRIPT
     // we have to add this to be able to use the class as reference inside scripts
     void              addRef()                          {};
@@ -536,6 +537,7 @@ private:
     bool              m_has_axles_section;     //!< Temporary (legacy parsing helper) until central diffs are implemented
     TyrePressure      m_tyre_pressure;
     std::vector<std::string>  m_description;
+    std::vector<PropAnimKeyState> m_prop_anim_key_states;
 
     /// @name Light states
     /// @{
