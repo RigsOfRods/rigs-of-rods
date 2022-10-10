@@ -1091,9 +1091,9 @@ void Parser::ParseDirectiveAddAnimation()
             }
             else if (entry[0] == "event")
             {
-                animation.event = entry[1];
-                Ogre::StringUtil::trim(animation.event);
-                Ogre::StringUtil::toUpperCase(animation.event);
+                animation.event_name = entry[1];
+                Ogre::StringUtil::trim(animation.event_name);
+                Ogre::StringUtil::toUpperCase(animation.event_name);
             }
             else if (entry[0] == "source")
             {

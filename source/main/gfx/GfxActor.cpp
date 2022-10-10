@@ -1694,6 +1694,13 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_commandkey[i].simbuf_cmd_value = m_actor->ar_command_key[i].commandValue;
     }
 
+    // Elements: Prop animation keys
+    m_simbuf.simbuf_prop_anim_keys.resize(m_actor->m_prop_anim_key_states.size());
+    for (size_t i = 0; i < m_actor->m_prop_anim_key_states.size(); ++i)
+    {
+        m_simbuf.simbuf_prop_anim_keys[i].simbuf_anim_active = m_actor->m_prop_anim_key_states[i].anim_active;
+    }
+
     // Elements: Aeroengines
     m_simbuf.simbuf_aeroengines.resize(m_actor->ar_num_aeroengines);
     for (int i = 0; i < m_actor->ar_num_aeroengines; ++i)
@@ -2754,8 +2761,10 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 }
 
-void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
+void RoR::GfxActor::UpdatePropAnimations(float dt)
 {
+    int prop_anim_key_index = 0;
+
     for (Prop& prop: m_props)
     {
         int animnum = 0;
@@ -2773,50 +2782,12 @@ void RoR::GfxActor::UpdatePropAnimations(float dt, bool is_player_connected)
 
             this->CalcPropAnimation(anim.animFlags, cstate, div, dt, lower_limit, upper_limit, animOpt3);
 
-            // key triggered animations
-            if ((anim.animFlags & ANIM_FLAG_EVENT) && anim.animKey != -1 && is_player_connected)
+            // key triggered animations - state determined in simulation
+            if (anim.animFlags & ANIM_FLAG_EVENT)
             {
-                // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
-                if (RoR::App::GetInputEngine()->getEventValue(anim.animKey))
-                {
-                    // keystatelock is disabled then set cstate
-                    if (anim.animKeyState == -1.0f)
-                    {
-                        // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
-                        cstate += RoR::App::GetInputEngine()->getEventValue(anim.animKey);
-                    }
-                    else if (!anim.animKeyState)
-                    {
-                        // a key was pressed and a toggle was done already, so bypass
-                        //toggle now
-                        if (!anim.lastanimKS)
-                        {
-                            anim.lastanimKS = 1.0f;
-                            // use animkey as bool to determine keypress / release state of inputengine
-                            anim.animKeyState = 1.0f;
-                        }
-                        else
-                        {
-                            anim.lastanimKS = 0.0f;
-                            // use animkey as bool to determine keypress / release state of inputengine
-                            anim.animKeyState = 1.0f;
-                        }
-                    }
-                    else
-                    {
-                        // bypas mode, get the last set position and set it
-                        cstate += anim.lastanimKS;
-                    }
-                }
-                else
-                {
-                    // keyevent exists and keylock is enabled but the key isnt pressed right now = get lastanimkeystatus for cstate and reset keypressed bool animkey
-                    if (anim.animKeyState != -1.0f)
-                    {
-                        cstate += anim.lastanimKS;
-                        anim.animKeyState = 0.0f;
-                    }
-                }
+                ROR_ASSERT(prop_anim_key_index < (int)m_simbuf.simbuf_prop_anim_keys.size());
+                const bool anim_active = m_simbuf.simbuf_prop_anim_keys[prop_anim_key_index++].simbuf_anim_active;
+                cstate += (float)anim_active;
             }
 
             //propanimation placed here to avoid interference with existing hydros(cstate) and permanent prop animation
