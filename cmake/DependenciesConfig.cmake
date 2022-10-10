@@ -111,6 +111,10 @@ add_external_lib(
 add_external_lib(
         zlib
         zlib/1.2.12
-        PKG_CONFIG "zlib >= 1.2.12"
-        FIND_PACKAGE
+)
+
+# Fix conan version conflict
+add_external_lib(
+        libpng
+        libpng/1.6.37
 )
