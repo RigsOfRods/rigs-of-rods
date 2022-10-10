@@ -25,6 +25,7 @@ option(BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
 option(USE_PCH "Use a Precompiled header for speeding up the build" ON)
 option(CREATE_CONTENT_FOLDER "Create the base content folder" ON)
+option(USE_REMOTERY "Enable Remotery" OFF)
 set(ROR_DEPENDENCY_DIR "${CMAKE_SOURCE_DIR}/dependencies" CACHE PATH "Path to the dependencies")
 set(ROR_FEAT_TIMING OFF)
 
@@ -116,6 +117,7 @@ include(DependenciesConfig)
 # Recurse into subdirectories
 ################################################################################
 add_subdirectory(external/angelscript_addons)
+add_subdirectory(external/remotery)
 add_subdirectory(source/version_info)
 add_subdirectory(source/main)
 add_subdirectory(doc)

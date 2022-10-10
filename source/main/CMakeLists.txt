@@ -448,6 +448,12 @@ if (ROR_USE_PAGED)
     target_compile_definitions(${BINNAME} PRIVATE USE_PAGED)
 endif ()
 
+
+if (USE_REMOTERY)
+    target_compile_definitions(${BINNAME} PRIVATE USE_REMOTERY)
+    target_link_libraries(${BINNAME} PRIVATE remotery)
+endif ()
+
 ####################################################################################################
 #  POST-BUILD STEPS
 ####################################################################################################
