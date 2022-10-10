@@ -347,7 +347,7 @@ void Actor::pushNetwork(char* data, int size)
     update.wheel_data.resize(ar_num_wheels * sizeof(float));
 
     // check if the size of the data matches to what we expected
-    if ((unsigned int)size == (m_net_buffer_size + sizeof(RoRnet::VehicleState)))
+    if ((unsigned int)size == (m_net_total_buffer_size + sizeof(RoRnet::VehicleState)))
     {
         // we walk through the incoming data and separate it a bit
         char* ptr = data;
@@ -366,6 +366,15 @@ void Actor::pushNetwork(char* data, int size)
             float wspeed = *(float*)(ptr);
             update.wheel_data[i] = wspeed;
             ptr += sizeof(float);
+        }
+
+        // then process the prop animation keys
+        for (size_t i = 0; i < m_prop_anim_key_states.size(); i++)
+        {
+            // Unpack bit array
+            char byte = *(ptr + (i / 8));
+            char mask = char(1) << (7 - (i % 8));
+            m_prop_anim_key_states[i].anim_active = (byte & mask);
         }
     }
     else
@@ -1897,7 +1906,7 @@ void Actor::sendStreamData()
     ar_net_last_update_time = ar_net_timer.getMilliseconds();
 
     //look if the packet is too big first
-    if (m_net_buffer_size + sizeof(RoRnet::VehicleState) > 8192)
+    if (m_net_total_buffer_size + sizeof(RoRnet::VehicleState) > RORNET_MAX_MESSAGE_LENGTH)
     {
         ErrorUtils::ShowError(_L("Actor is too big to be sent over the net."), _L("Network error!"));
         exit(126);
@@ -2006,7 +2015,7 @@ void Actor::sendStreamData()
     {
         char* ptr = send_buffer + sizeof(RoRnet::VehicleState);
         float* send_nodes = (float *)ptr;
-        packet_len += m_net_buffer_size;
+        packet_len += m_net_total_buffer_size;
 
         // copy data into the buffer
         int i;
@@ -2036,6 +2045,19 @@ void Actor::sendStreamData()
         for (i = 0; i < ar_num_wheels; i++)
         {
             wfbuf[i] = ar_wheels[i].wh_net_rp;
+        }
+        ptr += ar_num_wheels * sizeof(float);
+
+        // Then the anim key states
+        for (size_t i = 0; i < m_prop_anim_key_states.size(); i++)
+        {
+            if (m_prop_anim_key_states[i].anim_active)
+            {
+                // Pack as bit array, starting with most signifficant bit
+                char& dst_byte = *(ptr + (i / 8));
+                char mask = ((char)m_prop_anim_key_states[i].anim_active) << (7 - (i % 8));
+                dst_byte |= mask;
+            }
         }
     }
 

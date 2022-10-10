@@ -493,8 +493,6 @@ private:
     Ogre::Vector3     m_mouse_grab_pos;
     float             m_mouse_grab_move_force;
     float             m_spawn_rotation;
-    Ogre::UTFString   m_net_username;
-    int               m_net_color_num;
     Ogre::Timer       m_reset_timer;
     Ogre::Vector3     m_rotation_request_center;
     float             m_rotation_request;         //!< Accumulator
@@ -511,10 +509,6 @@ private:
     Differential*     m_wheel_diffs[MAX_WHEELS/2];//!< Physics
     int               m_num_wheel_diffs;          //!< Physics attr
     TransferCase*     m_transfer_case;            //!< Physics
-    float             m_net_node_compression;  //!< Sim attr;
-    int               m_net_first_wheel_node;  //!< Network attr; Determines data buffer layout
-    int               m_net_node_buf_size;     //!< Network attr; buffer size
-    int               m_net_buffer_size;       //!< Network attr; buffer size
     int               m_wheel_node_count;      //!< Static attr; filled at spawn
     int               m_previous_gear;         //!< Sim state; land vehicle shifting
     float             m_handbrake_force;       //!< Physics attr; defined in truckfile
@@ -538,6 +532,19 @@ private:
     TyrePressure      m_tyre_pressure;
     std::vector<std::string>  m_description;
     std::vector<PropAnimKeyState> m_prop_anim_key_states;
+
+    /// @name Networking
+    /// @{
+    size_t            m_net_node_buf_size;        //!< For incoming/outgoing traffic; calculated on spawn
+    size_t            m_net_wheel_buf_size;       //!< For incoming/outgoing traffic; calculated on spawn
+    size_t            m_net_propanimkey_buf_size; //!< For incoming/outgoing traffic; calculated on spawn
+    size_t            m_net_total_buffer_size;    //!< For incoming/outgoing traffic; calculated on spawn
+    float             m_net_node_compression;     //!< For incoming/outgoing traffic; calculated on spawn
+    int               m_net_first_wheel_node;     //!< Network attr; Determines data buffer layout; calculated on spawn
+
+    Ogre::UTFString   m_net_username;
+    int               m_net_color_num;
+    /// @}
 
     /// @name Light states
     /// @{
