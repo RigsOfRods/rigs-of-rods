@@ -22,7 +22,10 @@
 /// @file
 /// @author Thomas Fischer
 /// @date   30th of April 2010
-/// @brief Core data structures for simulation.
+/// @brief Core data structures for simulation; Everything affected by by either physics, network or user interaction is here.
+///
+/// Note that simulation state and gfx state is separated; For example,
+/// light states (on/off) are here while the actual lights (renderer objects) are in 'GfxData.h' :)
 
 #pragma once
 
@@ -30,6 +33,7 @@
 #include "SimConstants.h"
 #include "BitFlags.h"
 #include "CmdKeyInertia.h"
+#include "InputEngine.h"
 
 #include <memory>
 #include <Ogre.h>
@@ -639,6 +643,15 @@ struct cparticle_t
     bool active;
     Ogre::SceneNode *snode;
     Ogre::ParticleSystem* psys;
+};
+
+/// User input state for animated props with 'source:event'.
+struct PropAnimKeyState
+{
+    bool eventlock_present = false;
+    bool event_active_prev = false;
+    bool anim_active = false;
+    events event_id = EV_MODE_LAST; // invalid
 };
 
 /// @}

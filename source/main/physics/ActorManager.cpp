@@ -286,13 +286,20 @@ Actor* ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr de
     if (App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
     {
         // network buffer layout (without RoRnet::VehicleState):
-        //
+        // -----------------------------------------------------
+
         //  - 3 floats (x,y,z) for the reference node 0
         //  - ar_num_nodes - 1 times 3 short ints (compressed position info)
-        //  - ar_num_wheels times a float for the wheel rotation
-        //
         actor->m_net_node_buf_size = sizeof(float) * 3 + (actor->m_net_first_wheel_node - 1) * sizeof(short int) * 3;
-        actor->m_net_buffer_size = actor->m_net_node_buf_size + actor->ar_num_wheels * sizeof(float);
+        actor->m_net_total_buffer_size += actor->m_net_node_buf_size;
+        //  - ar_num_wheels times a float for the wheel rotation
+        actor->m_net_wheel_buf_size = actor->ar_num_wheels * sizeof(float);
+        actor->m_net_total_buffer_size += actor->m_net_wheel_buf_size;
+        //  - bit array (made of ints) for the prop animation key states
+        actor->m_net_propanimkey_buf_size = 
+            (actor->m_prop_anim_key_states.size() / 8) + // whole chars
+            (size_t)(actor->m_prop_anim_key_states.size() % 8 != 0); // remainder: 0 or 1 chars
+        actor->m_net_total_buffer_size += actor->m_net_propanimkey_buf_size;
 
         if (rq.asr_origin == ActorSpawnRequest::Origin::NETWORK)
         {

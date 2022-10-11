@@ -105,7 +105,7 @@ public:
     void                 UpdateWingMeshes();
     void                 UpdateBeaconFlare(Prop & prop, float dt, bool is_player_actor);
     void                 UpdateProps(float dt, bool is_player_actor);
-    void                 UpdatePropAnimations(float dt, bool is_player_connected);
+    void                 UpdatePropAnimations(float dt);
     void                 UpdateAirbrakes();
     void                 UpdateCParticles();
     void                 UpdateAeroEngines();

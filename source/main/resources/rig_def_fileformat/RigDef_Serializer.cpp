@@ -591,7 +591,7 @@ void Serializer::ProcessDirectiveAddAnimation(RigDef::Animation & anim)
             
     if (BITMASK_IS_1(src_flags, RigDef::Animation::SOURCE_EVENT))
     {
-        m_stream << ", event: " << anim.event;
+        m_stream << ", event: " << anim.event_name;
     }
 }
 

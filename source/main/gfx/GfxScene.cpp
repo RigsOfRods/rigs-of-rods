@@ -98,11 +98,9 @@ void GfxScene::UpdateScene(float dt_sec)
 
     // Var
     GfxActor* player_gfx_actor = nullptr;
-    std::set<GfxActor*> player_connected_gfx_actors;
     if (m_simbuf.simbuf_player_actor != nullptr)
     {
         player_gfx_actor = m_simbuf.simbuf_player_actor->GetGfxActor();
-        player_connected_gfx_actors = player_gfx_actor->GetLinkedGfxActors();
     }
 
     // FOV
@@ -211,7 +209,6 @@ void GfxScene::UpdateScene(float dt_sec)
     // Actors - update misc visuals
     for (GfxActor* gfx_actor: m_all_gfx_actors)
     {
-        bool is_player_connected = (player_connected_gfx_actors.find(gfx_actor) != player_connected_gfx_actors.end());
         if (gfx_actor->IsActorLive())
         {
             gfx_actor->UpdateRods();
@@ -220,7 +217,7 @@ void GfxScene::UpdateScene(float dt_sec)
             gfx_actor->UpdateAirbrakes();
             gfx_actor->UpdateCParticles();
             gfx_actor->UpdateAeroEngines();
-            gfx_actor->UpdatePropAnimations(dt_sec, (gfx_actor == player_gfx_actor) || is_player_connected);
+            gfx_actor->UpdatePropAnimations(dt_sec);
             gfx_actor->UpdateRenderdashRTT();
         }
         // Beacon flares must always be updated

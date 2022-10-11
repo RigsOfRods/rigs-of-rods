@@ -535,10 +535,7 @@ struct Animation
     BitMask_t source = 0;
     std::list<MotorSource> motor_sources;
     BitMask_t mode = 0;
-
-    // NOTE: MSVC highlights 'event' as keyword: http://msdn.microsoft.com/en-us/library/4b612y2s%28v=vs.100%29.aspx
-    // But it's ok to use as identifier in this context: http://msdn.microsoft.com/en-us/library/8d7y7wz6%28v=vs.100%29.aspx
-    Ogre::String event;
+    Ogre::String event_name;
 
     void AddMotorSource(BitMask_t source, unsigned int motor);
 };
