@@ -70,6 +70,19 @@ public:
     int ai_mode = 0;
     bool ai_menu = false;
 
+    // Second selections for Drag Race Mode
+    bool ai_select2 = false;
+    Ogre::String ai_fname2 = "95bbUID-agoras.truck";
+    Ogre::String ai_dname2 = "Bus RVI Agora S";
+    Ogre::String ai_sectionconfig2 = "";
+    std::string ai_skin2 = "";
+
+    int ai_num_prev = 1;
+    int ai_speed_prev = 50;
+    int ai_position_scheme_prev = 0;
+    int ai_times_prev = 1;
+    int ai_mode_prev = 0;
+
     void Refresh(std::string payload);
 
 private:

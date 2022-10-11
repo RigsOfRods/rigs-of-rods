@@ -594,6 +594,11 @@ void GameContext::OnLoaderGuiCancel()
         App::GetGuiManager()->TopMenubar.ai_select = false;
         App::GetGuiManager()->TopMenubar.ai_menu = true;
     }
+    if (App::GetGuiManager()->TopMenubar.ai_select2)
+    {
+        App::GetGuiManager()->TopMenubar.ai_select2 = false;
+        App::GetGuiManager()->TopMenubar.ai_menu = true;
+    }
 }
 
 void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::string sectionconfig)
@@ -606,6 +611,10 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
         if (App::GetGuiManager()->TopMenubar.ai_select)
         {
             App::GetGuiManager()->TopMenubar.ai_skin = entry->dname;
+        }
+        if (App::GetGuiManager()->TopMenubar.ai_select2)
+        {
+            App::GetGuiManager()->TopMenubar.ai_skin2 = entry->dname;
         }
         spawn_now = true;
         break;
@@ -655,6 +664,14 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
             App::GetGuiManager()->TopMenubar.ai_dname = m_current_selection.asr_cache_entry->dname;
             App::GetGuiManager()->TopMenubar.ai_sectionconfig = sectionconfig;
             App::GetGuiManager()->TopMenubar.ai_select = false;
+            App::GetGuiManager()->TopMenubar.ai_menu = true;
+        }
+        else if (App::GetGuiManager()->TopMenubar.ai_select2)
+        {
+            App::GetGuiManager()->TopMenubar.ai_fname2 = m_current_selection.asr_cache_entry->fname;
+            App::GetGuiManager()->TopMenubar.ai_dname2 = m_current_selection.asr_cache_entry->dname;
+            App::GetGuiManager()->TopMenubar.ai_sectionconfig2 = sectionconfig;
+            App::GetGuiManager()->TopMenubar.ai_select2 = false;
             App::GetGuiManager()->TopMenubar.ai_menu = true;
         }
         else

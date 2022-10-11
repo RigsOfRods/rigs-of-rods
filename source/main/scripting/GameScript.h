@@ -351,9 +351,9 @@ public:
     int getAIVehicleDistance();
     int getAIVehiclePositionScheme();
     int getAIVehicleSpeed();
-    Ogre::String getAIVehicleName();
-    Ogre::String getAIVehicleSectionConfig();
-    std::string getAIVehicleSkin();
+    Ogre::String getAIVehicleName(int x);
+    Ogre::String getAIVehicleSectionConfig(int x);
+    std::string getAIVehicleSkin(int x);
     int getAIRepeatTimes();
 
     void repairVehicle(const Ogre::String& instance, const Ogre::String& box, bool keepPosition);
