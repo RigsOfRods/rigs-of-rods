@@ -15,7 +15,7 @@ void main()
 
     for (int x = 0; x < game.getAIVehicleCount(); x++)
     {
-        VehicleAIClass @CurrentTruckai = game.spawnTruckAI(game.getAIVehicleName(), vector3(waypoints[0].x + translation_x, waypoints[0].y, waypoints[0].z + translation_z), game.getAIVehicleSectionConfig(), game.getAIVehicleSkin()).getVehicleAI();
+        VehicleAIClass @CurrentTruckai = game.spawnTruckAI(game.getAIVehicleName(x), vector3(waypoints[0].x + translation_x, waypoints[0].y, waypoints[0].z + translation_z), game.getAIVehicleSectionConfig(x), game.getAIVehicleSkin(x)).getVehicleAI();
 
         for (int t = 0; t < game.getAIRepeatTimes(); t++)
         {

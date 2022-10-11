@@ -981,22 +981,46 @@ int GameScript::getAIVehicleSpeed()
     return speed;
 }
 
-Ogre::String GameScript::getAIVehicleName()
+Ogre::String GameScript::getAIVehicleName(int x)
 {
-    Ogre::String name = App::GetGuiManager()->TopMenubar.ai_fname;
-    return name;
+    if (App::GetGuiManager()->TopMenubar.ai_mode == 2 && x == 1) // Drag Race Mode
+    {
+        Ogre::String name = App::GetGuiManager()->TopMenubar.ai_fname2;
+        return name;
+    }
+    else
+    {
+        Ogre::String name = App::GetGuiManager()->TopMenubar.ai_fname;
+        return name;
+    }
 }
 
-Ogre::String GameScript::getAIVehicleSectionConfig()
+Ogre::String GameScript::getAIVehicleSectionConfig(int x)
 {
-    Ogre::String config = App::GetGuiManager()->TopMenubar.ai_sectionconfig;
-    return config;
+    if (App::GetGuiManager()->TopMenubar.ai_mode == 2 && x == 1) // Drag Race Mode
+    {
+        Ogre::String config = App::GetGuiManager()->TopMenubar.ai_sectionconfig2;
+        return config;
+    }
+    else
+    {
+        Ogre::String config = App::GetGuiManager()->TopMenubar.ai_sectionconfig;
+        return config;
+    }
 }
 
-std::string GameScript::getAIVehicleSkin()
+std::string GameScript::getAIVehicleSkin(int x)
 {
-    std::string skin = App::GetGuiManager()->TopMenubar.ai_skin;
-    return skin;
+    if (App::GetGuiManager()->TopMenubar.ai_mode == 2 && x == 1) // Drag Race Mode
+    {
+        std::string skin = App::GetGuiManager()->TopMenubar.ai_skin2;
+        return skin;
+    }
+    else
+    {
+        std::string skin = App::GetGuiManager()->TopMenubar.ai_skin;
+        return skin;
+    }
 }
 
 int GameScript::getAIRepeatTimes()

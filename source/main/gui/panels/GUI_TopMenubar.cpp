@@ -791,12 +791,25 @@ void TopMenubar::Update()
             if (ai_num < 1)
                 ai_num = 1;
 
+
+            if (ai_mode == 2)
+            {
+                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+            }
+
             ImGui::InputInt(_LC("TopMenubar", "Vehicle count"), &ai_num, 1, 100);
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
                 ImGui::Text(_LC("TopMenubar", "Number of vehicles"));
                 ImGui::EndTooltip();
+            }
+
+            if (ai_mode == 2)
+            {
+                ImGui::PopItemFlag();
+                ImGui::PopStyleVar();
             }
 
             if (ai_num < 2)
@@ -817,6 +830,12 @@ void TopMenubar::Update()
             if (ai_position_scheme == 1)
             {
                 label1 = "Parallel";
+            }
+
+            if (ai_mode == 2)
+            {
+                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
             }
 
             if (ImGui::BeginCombo("Position", label1.c_str()))
@@ -850,12 +869,30 @@ void TopMenubar::Update()
             if (ai_times < 1)
                 ai_times = 1;
 
+            if (ai_mode == 3)
+            {
+                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+            }
+
             ImGui::InputInt(_LC("TopMenubar", "Repeat times"), &ai_times, 1, 100);
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
                 ImGui::Text(_LC("TopMenubar", "How many times to loop the path"));
                 ImGui::EndTooltip();
+            }
+
+            if (ai_mode == 3)
+            {
+                ImGui::PopItemFlag();
+                ImGui::PopStyleVar();
+            }
+
+            if (ai_mode == 2)
+            {
+                ImGui::PopItemFlag();
+                ImGui::PopStyleVar();
             }
 
             ImGui::Separator();
@@ -879,6 +916,10 @@ void TopMenubar::Update()
             }
             else if (ai_mode == 2)
             {
+                label2 = "Drag Race";
+            }
+            else if (ai_mode == 3)
+            {
                 label2 = "Chase";
             }
 
@@ -887,14 +928,54 @@ void TopMenubar::Update()
                 if (ImGui::Selectable("Normal"))
                 {
                     ai_mode = 0;
+
+                    if (ai_mode_prev == 2)
+                    {
+                        ai_num = ai_num_prev;
+                        ai_speed = ai_speed_prev;
+                        ai_position_scheme = ai_position_scheme_prev;
+                        ai_times = ai_times_prev;
+                    }
+                    ai_mode_prev = ai_mode;
                 }
                 if (ImGui::Selectable("Race"))
                 {
                     ai_mode = 1;
+
+                    if (ai_mode_prev == 2)
+                    {
+                        ai_num = ai_num_prev;
+                        ai_speed = ai_speed_prev;
+                        ai_position_scheme = ai_position_scheme_prev;
+                        ai_times = ai_times_prev;
+                    }
+                    ai_mode_prev = ai_mode;
+                }
+                if (ImGui::Selectable("Drag Race"))
+                {
+                    ai_mode = 2;
+                    ai_mode_prev = ai_mode;
+                    ai_num_prev = ai_num;
+                    ai_speed_prev = ai_speed;
+                    ai_position_scheme_prev = ai_position_scheme;
+                    ai_times_prev = ai_times;
+                    ai_num = 2;
+                    ai_speed = 1000;
+                    ai_position_scheme = 1;
+                    ai_times = 1;
                 }
                 if (ImGui::Selectable("Chase"))
                 {
-                    ai_mode = 2;
+                    ai_mode = 3;
+
+                    if (ai_mode_prev == 2)
+                    {
+                        ai_num = ai_num_prev;
+                        ai_speed = ai_speed_prev;
+                        ai_position_scheme = ai_position_scheme_prev;
+                        ai_times = ai_times_prev;
+                    }
+                    ai_mode_prev = ai_mode;
                 }
                 ImGui::EndCombo();
             }
@@ -937,6 +1018,26 @@ void TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
+            if (ai_mode == 2)
+            {
+                ImGui::PushID("vehicle2");
+                if (ImGui::Button(StripColorMarksFromText(ai_dname2).c_str(), ImVec2(250, 0)))
+                {
+                    ai_select2 = true;
+
+                    RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+                    m.payload = reinterpret_cast<void*>(new LoaderType(LT_AllBeam));
+                    App::GetGameContext()->PushMessage(m);
+                }
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::BeginTooltip();
+                    ImGui::Text(_LC("TopMenubar", "Land vehicles, boats and airplanes"));
+                    ImGui::EndTooltip();
+                }
+                ImGui::PopID();
+            }
+
             ImGui::Separator();
 
             if (ai_rec)
@@ -945,14 +1046,14 @@ void TopMenubar::Update()
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
             }
 
-            if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 2)
+            if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 3)
             {
                 ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
             }
 
             if (ImGui::Button(_LC("TopMenubar", "Start"), ImVec2(80, 0)))
             {
-                if (ai_mode == 2)
+                if (ai_mode == 3)
                 {
                     App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
                     if (App::GetGameContext()->GetPlayerActor()) // We are in vehicle
@@ -980,7 +1081,7 @@ void TopMenubar::Update()
                 }
             }
 
-            if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 2)
+            if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 3)
             {
                 ImGui::PopStyleColor();
             }
@@ -989,7 +1090,7 @@ void TopMenubar::Update()
 
             if (ImGui::Button(_LC("TopMenubar", "Stop"), ImVec2(80, 0)))
             {
-                if (ai_mode == 2)
+                if (ai_mode == 3)
                 {
                     App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
                 }
