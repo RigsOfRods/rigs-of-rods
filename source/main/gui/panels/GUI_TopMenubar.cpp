@@ -925,6 +925,12 @@ void TopMenubar::Update()
                 label2 = "Chase";
             }
 
+            if (ai_start)
+            {
+                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+            }
+
             if (ImGui::BeginCombo("Mode", label2.c_str()))
             {
                 if (ImGui::Selectable("Normal"))
@@ -991,6 +997,12 @@ void TopMenubar::Update()
                 ImGui::Text(_LC("TopMenubar", "Drag Race: Two vehicles performing a drag race"));
                 ImGui::Text(_LC("TopMenubar", "Chase: Follow character and player vehicle"));
                 ImGui::EndTooltip();
+            }
+
+            if (ai_start)
+            {
+                ImGui::PopItemFlag();
+                ImGui::PopStyleVar();
             }
 
             if (ai_speed < 1)
@@ -1093,6 +1105,11 @@ void TopMenubar::Update()
                         App::GetScriptEngine()->loadScript("AI.as", ScriptCategory::CUSTOM);
                     }
                 }
+
+                if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty())
+                {
+                    ai_start = true;
+                }
             }
 
             if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 3)
@@ -1116,6 +1133,8 @@ void TopMenubar::Update()
                         App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
                     }
                 }
+
+                ai_start = false;
             }
 
             if (ai_rec)
