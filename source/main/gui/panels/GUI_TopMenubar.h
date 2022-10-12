@@ -70,7 +70,7 @@ public:
     int ai_mode = 0;
     bool ai_menu = false;
 
-    // Second selections for Drag Race Mode
+    // Secondary selections for Drag Race mode
     bool ai_select2 = false;
     Ogre::String ai_fname2 = "95bbUID-agoras.truck";
     Ogre::String ai_dname2 = "Bus RVI Agora S";

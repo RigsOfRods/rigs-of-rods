@@ -898,17 +898,6 @@ void TopMenubar::Update()
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Vehicle options:"));
 
-            if (ai_speed < 1)
-                ai_speed = 1;
-
-            ImGui::InputInt(_LC("TopMenubar", "Speed"), &ai_speed, 1, 100);
-            if (ImGui::IsItemHovered())
-            {
-                ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "Speed in km/h for land vehicles or knots/s for boats"));
-                ImGui::EndTooltip();
-            }
-
             std::string label2 = "Normal";
             if (ai_mode == 1)
             {
@@ -988,6 +977,17 @@ void TopMenubar::Update()
                 ImGui::Text(_LC("TopMenubar", "Race: Always keep defined speed"));
                 ImGui::Text(_LC("TopMenubar", "Drag Race: Two vehicles performing a drag race"));
                 ImGui::Text(_LC("TopMenubar", "Chase: Follow character and player vehicle"));
+                ImGui::EndTooltip();
+            }
+
+            if (ai_speed < 1)
+                ai_speed = 1;
+
+            ImGui::InputInt(_LC("TopMenubar", "Speed"), &ai_speed, 1, 100);
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text(_LC("TopMenubar", "Speed in km/h for land vehicles or knots/s for boats"));
                 ImGui::EndTooltip();
             }
 
