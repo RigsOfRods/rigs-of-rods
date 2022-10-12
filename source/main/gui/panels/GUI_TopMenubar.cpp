@@ -999,6 +999,7 @@ void TopMenubar::Update()
                 ImGui::Separator();
                 ImGui::Text(_LC("TopMenubar", "Normal: Modify speed according to turns, other vehicles and character"));
                 ImGui::Text(_LC("TopMenubar", "Race: Always keep defined speed"));
+                ImGui::Text(_LC("TopMenubar", "Drag Race: Two vehicles performing a drag race"));
                 ImGui::Text(_LC("TopMenubar", "Chase: Follow character and player vehicle"));
                 ImGui::EndTooltip();
             }
