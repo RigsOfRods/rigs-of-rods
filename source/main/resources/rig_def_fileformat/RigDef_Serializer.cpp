@@ -25,6 +25,7 @@
 
 #include "RigDef_Serializer.h"
 
+#include "Actor.h"
 #include "RigDef_File.h"
 
 #include <fstream>

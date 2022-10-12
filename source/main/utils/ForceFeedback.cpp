@@ -112,7 +112,7 @@ void ForceFeedback::Update()
         return;
     }
 
-    Actor* player_actor = App::GetGameContext()->GetPlayerActor();
+    ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
     if (player_actor && player_actor->ar_driveable == TRUCK)
     {
         Ogre::Vector3 ff_vehicle = player_actor->GetFFbBodyForces();

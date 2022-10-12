@@ -19,6 +19,8 @@
 
 #include "GUIUtils.h"
 
+#include "Actor.h"
+
 #include "imgui_internal.h" // ImTextCharFromUtf8
 #include <regex>
 #include <stdio.h> // sscanf

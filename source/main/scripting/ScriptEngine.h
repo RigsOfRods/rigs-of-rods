@@ -117,6 +117,8 @@ public:
      */
     void triggerEvent(int scriptEvents, int value = 0);
 
+    void setEventsEnabled(bool val) { m_events_enabled = val; }
+
     /**
      * executes a string (useful for the console)
      * @param command string to execute
@@ -207,6 +209,7 @@ protected:
     ScriptUnitMap   m_script_units;
     ScriptUnitId_t  m_terrain_script_unit = SCRIPTUNITID_INVALID;
     ScriptUnitId_t  m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
+    bool            m_events_enabled = true; //!< Hack to enable fast shutdown without cleanup
 
     InterThreadStoreVector<Ogre::String> stringExecutionQueue; //!< The string execution queue \see queueStringForExecution
 };

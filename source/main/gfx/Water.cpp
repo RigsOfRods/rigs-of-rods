@@ -21,6 +21,7 @@
 
 #include "Water.h"
 
+#include "Actor.h"
 #include "AppContext.h"
 #include "CameraManager.h"
 #include "GfxScene.h"

@@ -324,13 +324,13 @@ public:
      * returns the current selected truck, 0 if in person mode
      * @return reference to Beam object that is currently in use
      */
-    Actor* getCurrentTruck();
+    ActorPtr getCurrentTruck();
 
     /**
      * returns a truck by index, get max index by calling getNumTrucks
      * @return reference to Beam object that the selected slot
      */
-    Actor* getTruckByNum(int num);
+    ActorPtr getTruckByNum(int num);
 
     /**
      * returns the current amount of loaded trucks
@@ -344,8 +344,8 @@ public:
      */
     int getCurrentTruckNumber();
 
-    Actor* spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot);
-    Actor* spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::String& truckSectionConfig, std::string& truckSkin);
+    ActorPtr spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot);
+    ActorPtr spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::String& truckSectionConfig, std::string& truckSkin);
     AngelScript::CScriptArray* getWaypoints();
     int getAIVehicleCount();
     int getAIVehicleDistance();

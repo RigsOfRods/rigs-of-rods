@@ -49,7 +49,7 @@ public:
     OutGauge(void);
 
     void Connect();
-    bool Update(float dt, Actor* truck);
+    bool Update(float dt, ActorPtr truck);
     void Close();
 
 private:

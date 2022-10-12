@@ -48,6 +48,7 @@ void RoR::RegisterActor(asIScriptEngine *engine)
 
     // class Actor (historically Beam)
     result = engine->RegisterObjectType("BeamClass", sizeof(Actor), asOBJ_REF); ROR_ASSERT(result>=0);
+    ActorPtr::RegisterRefCountingObjectPtr("BeamClassPtr", "BeamClass", engine);
     result = engine->RegisterObjectMethod("BeamClass", "void scaleTruck(float)", asMETHOD(Actor,scaleTruck), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "string getTruckName()", asMETHOD(Actor,getTruckName), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "string getTruckFileName()", asMETHOD(Actor,getTruckFileName), asCALL_THISCALL); ROR_ASSERT(result>=0);
@@ -76,14 +77,8 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "float getWheelSpeed()", asMETHOD(Actor,getWheelSpeed), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "float getSpeed()", asMETHOD(Actor,getSpeed), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "vector3 getGForces()", asMETHOD(Actor,getGForces), asCALL_THISCALL); ROR_ASSERT(result>=0);
-
     result = engine->RegisterObjectMethod("BeamClass", "float getRotation()", asMETHOD(Actor,getRotation), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "vector3 getVehiclePosition()", asMETHOD(Actor,getPosition), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "vector3 getNodePosition(int)", asMETHOD(Actor,getNodePosition), asCALL_THISCALL); ROR_ASSERT(result>=0);
-
     result = engine->RegisterObjectMethod("BeamClass", "VehicleAIClass @getVehicleAI()", asMETHOD(Actor,getVehicleAI), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    
-    result = engine->RegisterObjectBehaviour("BeamClass", asBEHAVE_ADDREF, "void f()", asMETHOD(Actor,addRef), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectBehaviour("BeamClass", asBEHAVE_RELEASE, "void f()", asMETHOD(Actor,release), asCALL_THISCALL); ROR_ASSERT(result>=0);
-
 }

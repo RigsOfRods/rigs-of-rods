@@ -72,8 +72,8 @@ protected:
 
     void setMapZoom(float zoom);
     void setMapZoomRelative(float dt_sec);
-    const char* getTypeByDriveable(ActorType driveable, Actor* actor);
-    const char* getAIType(Actor* actor);
+    const char* getTypeByDriveable(ActorType driveable, ActorPtr actor);
+    const char* getAIType(ActorPtr actor);
 
     void DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin,
                      std::string const& filename, std::string const& caption, 

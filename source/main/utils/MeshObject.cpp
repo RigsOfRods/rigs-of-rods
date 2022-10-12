@@ -24,6 +24,7 @@
 
 #include "MeshObject.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "GfxScene.h"
 #include "MeshLodGenerator/OgreMeshLodGenerator.h"

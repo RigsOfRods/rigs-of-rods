@@ -25,6 +25,7 @@
 
 #include "RigDef_Validator.h"
 
+#include "Actor.h"
 #include "SimConstants.h"
 #include "Application.h"
 #include "Console.h"

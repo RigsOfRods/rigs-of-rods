@@ -122,9 +122,9 @@ public:
         Ogre::Overlay *o;
     };
 
-    void ToggleDashboardOverlays(Actor *actor);
+    void ToggleDashboardOverlays(ActorPtr actor);
 
-    void showDashboardOverlays(bool show, Actor *actor);
+    void showDashboardOverlays(bool show, ActorPtr actor);
 
     void windowResized();
     void resizeOverlay(LoadedOverlay & overlay);
@@ -138,7 +138,7 @@ public:
     void update(float dt);
     void UpdateLandVehicleHUD(RoR::GfxActor* ga);
     void UpdateAerialHUD(RoR::GfxActor* ga);
-    void UpdateMarineHUD(Actor * vehicle);
+    void UpdateMarineHUD(ActorPtr vehicle);
 
     void ShowRacingOverlay();
     void HideRacingOverlay();

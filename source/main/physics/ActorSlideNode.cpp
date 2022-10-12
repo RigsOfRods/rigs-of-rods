@@ -53,10 +53,10 @@ void Actor::toggleSlideNodeLock()
         }
 
         // check all the slide rail on all the other trucks :(
-        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+        for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             // make sure this truck is allowed
-            if ((this != actor && !itNode->sn_attach_foreign) || (this == actor && !itNode->sn_attach_self))
+            if ((this != actor.GetRef() && !itNode->sn_attach_foreign) || (this == actor.GetRef() && !itNode->sn_attach_self))
                 continue;
 
             current = GetClosestRailOnActor(actor, (*itNode));
@@ -70,7 +70,7 @@ void Actor::toggleSlideNodeLock()
     m_slidenodes_locked = !m_slidenodes_locked;
 } // is ugly....
 
-std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(Actor* actor, const SlideNode& node)
+std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(ActorPtr actor, const SlideNode& node)
 {
     std::pair<RailGroup*, Ogre::Real> closest((RailGroup*)NULL, std::numeric_limits<Ogre::Real>::infinity());
 

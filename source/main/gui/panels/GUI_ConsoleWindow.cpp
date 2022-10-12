@@ -21,6 +21,8 @@
 
 
 #include "GUI_ConsoleWindow.h"
+
+#include "Actor.h"
 #include "GUIManager.h"
 #include "GUI_AngelScriptExamples.h"
 

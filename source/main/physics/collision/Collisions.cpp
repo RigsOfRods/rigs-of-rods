@@ -893,7 +893,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
 
 bool Collisions::permitEvent(CollisionEventFilter filter)
 {
-    Actor *b = App::GetGameContext()->GetPlayerActor();
+    ActorPtr b = App::GetGameContext()->GetPlayerActor();
 
     switch (filter)
     {

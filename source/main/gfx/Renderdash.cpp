@@ -20,6 +20,7 @@
 
 #include "Renderdash.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "GfxScene.h"
 #include "GUIManager.h"

@@ -21,6 +21,7 @@
 
 #include "GUI_GameControls.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "Language.h"
 #include "OgreImGui.h"

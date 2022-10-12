@@ -41,7 +41,7 @@ namespace RoR {
 class TyrePressure
 {
 public:
-    TyrePressure(Actor* a): m_actor(a) {}
+    TyrePressure(ActorPtr a): m_actor(a) {}
 
     void                AddBeam(int beam_id) { m_pressure_beams.push_back(beam_id); }
     bool                IsEnabled() const { return m_pressure_beams.size() != 0; }
@@ -51,7 +51,7 @@ public:
     bool                IsPressurizing() const { return m_pressure_pressed; }
 
 private:
-    Actor*              m_actor;
+    ActorPtr              m_actor;
     std::vector<int>    m_pressure_beams;
     bool                m_pressure_pressed = false;
     float               m_pressure_pressed_timer = 0.f;

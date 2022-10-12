@@ -159,7 +159,7 @@ void Character::update(float dt)
         // Submesh "collision"
         {
             float depth = 0.0f;
-            for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+            for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
                 if (actor->ar_bounding_box.contains(position))
                 {
@@ -496,7 +496,7 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
         else if (msg->command == CHARACTER_CMD_ATTACH)
         {
             auto* attach_msg = reinterpret_cast<NetCharacterMsgAttach*>(buffer);
-            Actor* beam = App::GetGameContext()->GetActorManager()->GetActorByNetworkLinks(attach_msg->source_id, attach_msg->stream_id);
+            ActorPtr beam = App::GetGameContext()->GetActorManager()->GetActorByNetworkLinks(attach_msg->source_id, attach_msg->stream_id);
             if (beam != nullptr)
             {
                 this->SetActorCoupling(true, beam);
@@ -520,7 +520,7 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
 #endif
 }
 
-void Character::SetActorCoupling(bool enabled, Actor* actor)
+void Character::SetActorCoupling(bool enabled, ActorPtr actor)
 {
     m_actor_coupling = actor;
 #ifdef USE_SOCKETW

@@ -370,12 +370,12 @@ void OverlayWrapper::showPressureOverlay(bool show)
     }
 }
 
-void OverlayWrapper::ToggleDashboardOverlays(Actor* actor)
+void OverlayWrapper::ToggleDashboardOverlays(ActorPtr actor)
 {
     showDashboardOverlays(!m_dashboard_visible, actor);
 }
 
-void OverlayWrapper::showDashboardOverlays(bool show, Actor* actor)
+void OverlayWrapper::showDashboardOverlays(bool show, ActorPtr actor)
 {
     m_dashboard_visible = show;
 
@@ -500,7 +500,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
     bool res = false;
     const OIS::MouseState ms = _arg.state;
     
-    Actor* player_actor = App::GetGameContext()->GetPlayerActor();
+    ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
 
     if (!player_actor)
         return res;
@@ -919,7 +919,7 @@ void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
         m_aerial_dashboard.vs_trim.DisplayFormat("+%i00", simbuf.simbuf_ap_vs_value / 100);
 }
 
-void OverlayWrapper::UpdateMarineHUD(Actor* vehicle)
+void OverlayWrapper::UpdateMarineHUD(ActorPtr vehicle)
 {
     // throttles
     bthro1->setTop(thrtop + thrheight * (0.5 - vehicle->ar_screwprops[0]->getThrottle() / 2.0) - 1.0);

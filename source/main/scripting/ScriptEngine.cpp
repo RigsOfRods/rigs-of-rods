@@ -502,7 +502,7 @@ int ScriptEngine::deleteVariable(const String &arg)
 
 void ScriptEngine::triggerEvent(int eventnum, int value)
 {
-    if (!engine || !context) return;
+    if (!engine || !context || !m_events_enabled) return;
 
     for (auto& pair: m_script_units)
     {

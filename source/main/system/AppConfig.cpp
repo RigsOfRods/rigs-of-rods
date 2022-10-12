@@ -19,6 +19,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Actor.h"
 #include "Application.h"
 #include "Console.h"
 #include "ContentManager.h" // RGN_CONFIG

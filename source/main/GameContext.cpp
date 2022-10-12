@@ -144,7 +144,7 @@ void GameContext::UnloadTerrain()
 // --------------------------------
 // Actors (physics and netcode)
 
-Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
+ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
 {
     if (rq.asr_origin == ActorSpawnRequest::Origin::USER)
     {
@@ -206,7 +206,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
     }
 #endif //SOCKETW
 
-    Actor* fresh_actor = m_actor_manager.CreateNewActor(rq, def);
+    ActorPtr fresh_actor = m_actor_manager.CreateNewActor(rq, def);
 
     // lock slide nodes after spawning the actor?
     if (def->slide_nodes_connect_instantly)
@@ -219,7 +219,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
         m_last_spawned_actor = fresh_actor;
         if (fresh_actor->ar_driveable != NOT_DRIVEABLE)
         {
-            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)fresh_actor));
+            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(fresh_actor))));
         }
         if (rq.asr_spawnbox == nullptr)
         {
@@ -233,13 +233,13 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
             fresh_actor->ar_num_nodes > 0 &&
             App::diag_preset_veh_enter->getBool())
         {
-            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)fresh_actor));
+            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(fresh_actor))));
         }
         if (fresh_actor->ar_driveable != NOT_DRIVEABLE &&
             fresh_actor->ar_num_nodes > 0 &&
             App::cli_preset_veh_enter->getBool())
         {
-            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)fresh_actor));
+            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(fresh_actor))));
         }
     }
     else if (rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF)
@@ -281,7 +281,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
         if (fresh_actor->ar_driveable != NOT_DRIVEABLE &&
             rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
         {
-            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)fresh_actor));
+            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(fresh_actor))));
         }
     }
 
@@ -340,7 +340,7 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
     }
 }
 
-void GameContext::DeleteActor(Actor* actor)
+void GameContext::DeleteActor(ActorPtr actor)
 {
     if (actor == m_player_actor)
     {
@@ -386,9 +386,9 @@ void GameContext::DeleteActor(Actor* actor)
     m_actor_manager.DeleteActorInternal(actor);
 }
 
-void GameContext::ChangePlayerActor(Actor* actor)
+void GameContext::ChangePlayerActor(ActorPtr actor)
 {
-    Actor* prev_player_actor = m_player_actor;
+    ActorPtr prev_player_actor = m_player_actor;
     m_player_actor = actor;
 
     // hide any old dashes
@@ -487,12 +487,12 @@ void GameContext::ChangePlayerActor(Actor* actor)
     m_actor_manager.UpdateSleepingState(m_player_actor, 0.f);
 }
 
-Actor* GameContext::FetchPrevVehicleOnList()
+ActorPtr GameContext::FetchPrevVehicleOnList()
 {
     return m_actor_manager.FetchPreviousVehicleOnList(m_player_actor, m_prev_player_actor);
 }
 
-Actor* GameContext::FetchNextVehicleOnList()
+ActorPtr GameContext::FetchNextVehicleOnList()
 {
     return m_actor_manager.FetchNextVehicleOnList(m_player_actor, m_prev_player_actor);
 }
@@ -502,7 +502,7 @@ void GameContext::UpdateActors()
     m_actor_manager.UpdateActors(m_player_actor);
 }
 
-Actor* GameContext::FindActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
+ActorPtr GameContext::FindActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
 {
     return m_actor_manager.FindActorInsideBox(App::GetSimTerrain()->GetCollisions(),
                                               ev_src_instance_name, box_name);
@@ -563,7 +563,7 @@ void GameContext::ShowLoaderGUI(int type, const Ogre::String& instance, const Og
     if (!(App::mp_state->getEnum<MpState>() == MpState::CONNECTED))
     {
         collision_box_t* spawnbox = App::GetSimTerrain()->GetCollisions()->getBox(instance, box);
-        for (auto actor : this->GetActorManager()->GetActors())
+        for (ActorPtr actor : this->GetActorManager()->GetActors())
         {
             for (int i = 0; i < actor->ar_num_nodes; i++)
             {
@@ -749,7 +749,7 @@ void GameContext::TeleportPlayer(float x, float z)
 
     float src_agl = std::numeric_limits<float>::max(); 
     float dst_agl = std::numeric_limits<float>::max(); 
-    for (auto actor : actors)
+    for (ActorPtr actor : actors)
     {
         for (int i = 0; i < actor->ar_num_nodes; i++)
         {
@@ -762,7 +762,7 @@ void GameContext::TeleportPlayer(float x, float z)
 
     translation += Ogre::Vector3::UNIT_Y * (std::max(0.0f, src_agl) - dst_agl);
 
-    for (auto actor : actors)
+    for (ActorPtr actor : actors)
     {
         actor->resetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
     }
@@ -892,8 +892,8 @@ void GameContext::UpdateSimInputEvents(float dt)
         {
             // find the nearest vehicle
             float mindist = 1000.0;
-            Actor* nearest_actor = nullptr;
-            for (auto actor : this->GetActorManager()->GetActors())
+            ActorPtr nearest_actor = nullptr;
+            for (ActorPtr& actor : this->GetActorManager()->GetActors())
             {
                 if (!actor->ar_driveable)
                     continue;
@@ -916,7 +916,7 @@ void GameContext::UpdateSimInputEvents(float dt)
 
             if (mindist < 20.0)
             {
-                this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)nearest_actor));
+                this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(nearest_actor))));
             }
         }
         else // We're in a vehicle -> If moving slowly enough, get out
@@ -933,20 +933,20 @@ void GameContext::UpdateSimInputEvents(float dt)
     // enter next truck
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
     {
-        Actor* actor = this->FetchNextVehicleOnList();
+        ActorPtr actor = this->FetchNextVehicleOnList();
         if (actor != this->GetPlayerActor())
         {
-            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
+            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
         }
     }
 
     // enter previous truck
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
     {
-        Actor* actor = this->FetchPrevVehicleOnList();
+        ActorPtr actor = this->FetchPrevVehicleOnList();
         if (actor != this->GetPlayerActor())
         {
-            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
+            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
         }
     }
 
@@ -967,9 +967,9 @@ void GameContext::UpdateSimInputEvents(float dt)
     {
         // Find nearest actor
         const Ogre::Vector3 position = App::GetGameContext()->GetPlayerCharacter()->getPosition();
-        Actor* nearest_actor = nullptr;
+        ActorPtr nearest_actor = nullptr;
         float min_squared_distance = std::numeric_limits<float>::max();
-        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+        for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             float squared_distance = position.squaredDistance(actor->ar_nodes[0].AbsPosition);
             if (squared_distance < min_squared_distance)
@@ -1106,7 +1106,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     // remove current truck
     if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK))
     {
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)m_player_actor));
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(m_player_actor))));
     }
 
     // blinkers
@@ -1128,7 +1128,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_REMOVE))
     {
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)m_player_actor));
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(m_player_actor))));
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ROPELOCK))
@@ -1161,7 +1161,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DEBUG_VIEW))
     {
         m_player_actor->GetGfxActor()->ToggleDebugView();
-        for (auto actor : m_player_actor->getAllLinkedActors())
+        for (ActorPtr actor : m_player_actor->getAllLinkedActors())
         {
             actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
         }
@@ -1170,7 +1170,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CYCLE_DEBUG_VIEWS))
     {
         m_player_actor->GetGfxActor()->CycleDebugViews();
-        for (auto actor : m_player_actor->getAllLinkedActors())
+        for (ActorPtr actor : m_player_actor->getAllLinkedActors())
         {
             actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
         }
@@ -1190,8 +1190,8 @@ void GameContext::UpdateCommonInputEvents(float dt)
         App::mp_state->getEnum<MpState>() != MpState::CONNECTED &&
         m_player_actor->ar_driveable != AIRPLANE)
     {
-        Actor* rescuer = nullptr;
-        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+        ActorPtr rescuer = nullptr;
+        for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             if (actor->ar_rescuer_flag)
             {
@@ -1204,7 +1204,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
         }
         else
         {
-            App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)rescuer));
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(rescuer))));
         }
     }
 
@@ -1239,7 +1239,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     // toggle physics
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_PHYSICS))
     {
-        for (auto actor : App::GetGameContext()->GetPlayerActor()->getAllLinkedActors())
+        for (ActorPtr actor : App::GetGameContext()->GetPlayerActor()->getAllLinkedActors())
         {
             actor->ar_physics_paused = !App::GetGameContext()->GetPlayerActor()->ar_physics_paused;
         }
@@ -1686,7 +1686,7 @@ void GameContext::UpdateTruckInputEvents(float dt)
     }
 
     m_player_actor->UpdatePropAnimInputEvents();
-    for (Actor* linked_actor : m_player_actor->getAllLinkedActors())
+    for (ActorPtr linked_actor : m_player_actor->getAllLinkedActors())
     {
         linked_actor->UpdatePropAnimInputEvents();
     }

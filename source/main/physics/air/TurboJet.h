@@ -64,7 +64,7 @@ class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
 
 public:
 
-    Turbojet(Actor* actor, NodeNum_t tnodefront, NodeNum_t tnodeback, NodeNum_t tnoderef, RigDef::Turbojet & def);
+    Turbojet(ActorPtr actor, NodeNum_t tnodefront, NodeNum_t tnodeback, NodeNum_t tnoderef, RigDef::Turbojet & def);
     ~Turbojet();
 
     void flipStart();
@@ -128,7 +128,7 @@ private:
     int m_sound_thr;
 
     // Attachment
-    Actor* m_actor;
+    ActorPtr m_actor;
     NodeNum_t m_node_back;
     NodeNum_t m_node_front;
     NodeNum_t m_node_ref;

@@ -203,6 +203,8 @@ set(SOURCE_FILES
         terrain/Terrain.{h,cpp}
         terrain/TerrainObjectManager.{h,cpp}        
         threadpool/ThreadPool.h
+        utils/memory/RefCountingObject.h
+        utils/memory/RefCountingObjectPtr.h        
         utils/ConfigFile.{h,cpp}
         utils/ErrorUtils.{h,cpp}
         utils/ForceFeedback.{h,cpp}
@@ -344,6 +346,7 @@ target_include_directories(${BINNAME} PRIVATE
         terrain
         terrain/map
         threadpool
+        utils/memory
         utils
         )
 

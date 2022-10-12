@@ -21,6 +21,7 @@
 
 #include "LocalStorage.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "ContentManager.h"
 #include "PlatformUtils.h"

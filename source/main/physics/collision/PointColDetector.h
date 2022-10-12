@@ -35,13 +35,13 @@ public:
 
     struct pointid_t
     {
-        Actor* actor;
+        ActorPtr actor;
         short node_id;
     };
 
     std::vector<pointid_t*> hit_list;
 
-    PointColDetector(Actor* actor): m_actor(actor), m_object_list_size(-1) {};
+    PointColDetector(ActorPtr actor): m_actor(actor), m_object_list_size(-1) {};
 
     void UpdateIntraPoint(bool contactables = false);
     void UpdateInterPoint(bool ignorestate = false);
@@ -65,9 +65,9 @@ private:
         int begin;
     };
 
-    Actor*                 m_actor;
-    std::vector<Actor*>    m_linked_actors;
-    std::vector<Actor*>    m_collision_partners;
+    ActorPtr                 m_actor;
+    std::vector<ActorPtr>    m_linked_actors;
+    std::vector<ActorPtr>    m_collision_partners;
     std::vector<refelem_t> m_ref_list;
     std::vector<pointid_t> m_pointid_list;
     std::vector<kdnode_t>  m_kdtree;

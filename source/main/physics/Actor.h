@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2016-2020 Petr Ohlidal
+    Copyright 2016-2022 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -27,6 +27,8 @@
 #include "GfxActor.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
+#include "RefCountingObject.h"
+#include "RefCountingObjectPtr.h"
 #include "SimData.h"
 #include "TyrePressure.h"
 
@@ -37,9 +39,11 @@ namespace RoR {
 /// @addtogroup Physics
 /// @{
 
+typedef std::vector<ActorPtr> ActorPtrVec;
+
 /// Softbody object; can be anything from soda can to a space shuttle
 /// Former name: `Beam` (that's why scripting uses `BeamClass`)
-class Actor : public ZeroedMemoryAllocator
+class Actor : public ZeroedMemoryAllocator, public RefCountingObject<Actor>
 {
     friend class ActorSpawner;
     friend class ActorManager;
@@ -55,6 +59,8 @@ public:
         );
 
     ~Actor();
+
+    void              dispose(); //!< Effectively destroys the object but keeps it in memory to satisfy shared pointers.
 
     /// @name Networking
     /// @{
@@ -148,7 +154,7 @@ public:
     void              toggleBlinkType(BlinkType blink);
     BlinkType         getBlinkType();
     void              setBlinkType(BlinkType blink);
-    std::vector<Actor*>& getAllLinkedActors() { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
+    std::vector<ActorPtr>& getAllLinkedActors() { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     //! @}
 
     /// @name Visual state updates
@@ -191,7 +197,7 @@ public:
     void              HandleInputEvents(float dt);
     void              HandleAngelScriptEvents(float dt);
     void              UpdateCruiseControl(float dt);       //!< Defined in 'gameplay/CruiseControl.cpp'
-    bool              Intersects(Actor* actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
+    bool              Intersects(ActorPtr actor, Ogre::Vector3 offset = Ogre::Vector3::ZERO);  //!< Slow intersection test
     /// Moves the actor at most 'direction.length()' meters towards 'direction' to resolve any collisions
     void              resolveCollisions(Ogre::Vector3 direction);
     /// Auto detects an ideal collision avoidance direction (front, back, left, right, up)
@@ -219,11 +225,6 @@ public:
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
     bool              isBeingReset() const              { return m_ongoing_reset; };
     void              UpdatePropAnimInputEvents();
-#ifdef USE_ANGELSCRIPT
-    // we have to add this to be able to use the class as reference inside scripts
-    void              addRef()                          {};
-    void              release()                         {};
-#endif
 
     // -------------------- Public data -------------------- //
 
@@ -449,7 +450,7 @@ private:
     void              DetermineLinkedActors();
     void              RecalculateNodeMasses(Ogre::Real total); //!< Previously 'calc_masses2()'
     void              calcNodeConnectivityGraph();
-    void              AddInterActorBeam(beam_t* beam, Actor* a, Actor* b);
+    void              AddInterActorBeam(beam_t* beam, ActorPtr a, ActorPtr b);
     void              RemoveInterActorBeam(beam_t* beam);
     void              DisjoinInterActorBeams();            //!< Destroys all inter-actor beams which are connected with this actor
     void              autoBlinkReset();                    //!< Resets the turn signal when the steering wheel is turned back.
@@ -462,7 +463,7 @@ private:
     /// @param actor which actor to retrieve the closest Rail from
     /// @param node which SlideNode is being checked against
     /// @return a pair containing the rail, and the distant to the SlideNode
-    std::pair<RailGroup*, Ogre::Real> GetClosestRailOnActor( Actor* actor, const SlideNode& node);
+    std::pair<RailGroup*, Ogre::Real> GetClosestRailOnActor( ActorPtr actor, const SlideNode& node);
 
     // -------------------- data -------------------- //
 
@@ -481,7 +482,7 @@ private:
     float             m_avionic_chatter_timer;      //!< Sound fx state
     PointColDetector* m_inter_point_col_detector;   //!< Physics
     PointColDetector* m_intra_point_col_detector;   //!< Physics
-    std::vector<Actor*>  m_linked_actors;           //!< Sim state; other actors linked using 'hooks'
+    ActorPtrVec       m_linked_actors;              //!< Sim state; other actors linked using 'hooks'
     Ogre::Vector3     m_avg_node_position;          //!< average node position
     Ogre::Real        m_min_camera_radius;
     Ogre::Vector3     m_avg_node_position_prev;

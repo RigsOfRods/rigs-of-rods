@@ -45,7 +45,7 @@ public:
     float max_torque;
 
     Turboprop(
-        Actor* a,
+        ActorPtr a,
         const char* propname,
         NodeNum_t nr,
         NodeNum_t nb,
@@ -131,7 +131,7 @@ private:
     int thr_id;
 
     // Attachment
-    Actor* m_actor;
+    ActorPtr m_actor;
     NodeNum_t nodeback;
     NodeNum_t noderef;
     NodeNum_t nodep[4];

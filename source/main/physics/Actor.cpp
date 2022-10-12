@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2022 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -79,11 +79,20 @@ static const Ogre::Vector3 BOUNDING_BOX_PADDING(0.05f, 0.05f, 0.05f);
 
 Actor::~Actor()
 {
-    TRIGGER_EVENT(SE_GENERIC_DELETED_TRUCK, ar_instance_id);
+    if (ar_state != ActorState::DISPOSED)
+    {
+        this->dispose();
+    }
+}
 
-    // TODO: IMPROVE below: delete/destroy prop entities, etc
+void Actor::dispose()
+{
+    TRIGGER_EVENT(SE_GENERIC_DELETED_TRUCK, ar_instance_id);
+    ar_state = ActorState::DISPOSED;
 
     this->DisjoinInterActorBeams();
+    ar_hooks.clear();
+    ar_ties.clear();
 
     // delete all classes we might have constructed
     if (ar_dashboard != nullptr)
@@ -115,7 +124,7 @@ Actor::~Actor()
 
     if (m_fusealge_airfoil)
         delete m_fusealge_airfoil;
-    m_fusealge_airfoil = 0;
+    m_fusealge_airfoil = nullptr;
 
     if (m_replay_handler)
         delete m_replay_handler;
@@ -123,9 +132,8 @@ Actor::~Actor()
 
     if (ar_vehicle_ai)
         delete ar_vehicle_ai;
-    ar_vehicle_ai = 0;
+    ar_vehicle_ai = nullptr;
 
-    // TODO: Make sure we catch everything here
     // remove all scene nodes
     if (m_deletion_scene_nodes.size() > 0)
     {
@@ -247,6 +255,7 @@ Actor::~Actor()
     {
         delete (*it);
     }
+    m_railgroups.clear();
 
     if (m_intra_point_col_detector)
     {
@@ -268,26 +277,37 @@ Actor::~Actor()
         if (m_axle_diffs[i] != nullptr)
             delete m_axle_diffs[i];
     }
+    m_num_axle_diffs = 0;
 
     for (int i = 0; i < m_num_wheel_diffs; ++i)
     {
         if (m_wheel_diffs[i] != nullptr)
             delete m_wheel_diffs[i];
     }
+    m_num_wheel_diffs = 0;
 
-    delete ar_nodes;
-    delete ar_beams;
-    delete ar_shocks;
-    delete ar_rotators;
-    delete ar_wings;
+    delete[] ar_nodes;
+    ar_num_nodes = 0;
+    m_wheel_node_count = 0;
+    delete[] ar_beams;
+    ar_num_beams = 0;
+    delete[] ar_shocks;
+    ar_num_shocks = 0;
+    delete[] ar_rotators;
+    ar_num_rotators = 0;
+    delete[] ar_wings;
+    ar_num_wings = 0;
 }
 
 // This method scales actors. Stresses should *NOT* be scaled, they describe
 // the material type and they do not depend on length or scale.
 void Actor::scaleTruck(float value)
 {
+    if (ar_state == ActorState::DISPOSED)
+        return;
     if (value < 0)
         return;
+
     ar_scale *= value;
     // scale beams
     for (int i = 0; i < ar_num_beams; i++)
@@ -323,6 +343,9 @@ void Actor::scaleTruck(float value)
 
 float Actor::getRotation()
 {
+    if (ar_state == ActorState::DISPOSED)
+        return 0.f;
+
     Vector3 dir = getDirection();
 
     return atan2(dir.dotProduct(Vector3::UNIT_X), dir.dotProduct(-Vector3::UNIT_Z));
@@ -400,7 +423,8 @@ void Actor::pushNetwork(char* data, int size)
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, text.ToCStr());
 
             // Remove self
-            App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)this));
+            ActorPtr self = App::GetGameContext()->GetActorManager()->GetActorById(ar_instance_id); // Get shared pointer to ourselves so references are added correctly.
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(self))));
 
             m_net_initialized = true;
         }
@@ -738,12 +762,15 @@ void Actor::RecalculateNodeMasses(Real total)
 
 float Actor::getTotalMass(bool withLocked)
 {
+    if (ar_state == ActorState::DISPOSED)
+        return 0.f;
+
     if (!withLocked)
         return m_total_mass; // already computed in RecalculateNodeMasses
 
     float mass = m_total_mass;
 
-    for (auto actor : m_linked_actors)
+    for (ActorPtr actor : m_linked_actors)
     {
         mass += actor->m_total_mass;
     }
@@ -756,10 +783,10 @@ void Actor::DetermineLinkedActors() //TODO: Refactor this - logic iterating over
     m_linked_actors.clear();
 
     bool found = true;
-    std::map<Actor*, bool> lookup_table;
-    std::pair<std::map<Actor*, bool>::iterator, bool> ret;
+    std::map<ActorPtr, bool> lookup_table;
+    std::pair<std::map<ActorPtr, bool>::iterator, bool> ret;
 
-    lookup_table.insert(std::pair<Actor*, bool>(this, false));
+    lookup_table.insert(std::pair<ActorPtr, bool>(this, false));
     
     auto inter_actor_links = App::GetGameContext()->GetActorManager()->inter_actor_links; // TODO: Shouldn't this have been a reference?? Also, ugly, see the TODO note above ~ only_a_ptr, 01/2018
 
@@ -767,18 +794,18 @@ void Actor::DetermineLinkedActors() //TODO: Refactor this - logic iterating over
     {
         found = false;
 
-        for (std::map<Actor*, bool>::iterator it_beam = lookup_table.begin(); it_beam != lookup_table.end(); ++it_beam)
+        for (std::map<ActorPtr, bool>::iterator it_beam = lookup_table.begin(); it_beam != lookup_table.end(); ++it_beam)
         {
             if (!it_beam->second)
             {
-                auto actor = it_beam->first;
+                ActorPtr actor = it_beam->first;
                 for (auto it = inter_actor_links.begin(); it != inter_actor_links.end(); it++)
                 {
                     auto actor_pair = it->second;
                     if (actor == actor_pair.first || actor == actor_pair.second)
                     {
                         auto other_actor = (actor != actor_pair.first) ? actor_pair.first : actor_pair.second;
-                        ret = lookup_table.insert(std::pair<Actor*, bool>(other_actor, false));
+                        ret = lookup_table.insert(std::pair<ActorPtr, bool>(other_actor, false));
                         if (ret.second)
                         {
                             m_linked_actors.push_back(other_actor);
@@ -816,7 +843,7 @@ void Actor::calcNodeConnectivityGraph()
     }
 }
 
-bool Actor::Intersects(Actor* actor, Vector3 offset)
+bool Actor::Intersects(ActorPtr actor, Vector3 offset)
 {
     Vector3 bb_min = ar_bounding_box.getMinimum() + offset;
     Vector3 bb_max = ar_bounding_box.getMaximum() + offset;
@@ -900,7 +927,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
 
         bool collision = false;
 
-        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+        for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             if (actor == this)
                 continue;
@@ -980,7 +1007,7 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
         // Test beams (between contactable nodes) against cabs
         if (!collision)
         {
-            for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
                 if (actor == this)
                     continue;
@@ -1480,6 +1507,9 @@ float Actor::getHeightAboveGroundBelow(float height, bool skip_virtual_nodes)
 
 void Actor::reset(bool keep_position)
 {
+    if (ar_state == ActorState::DISPOSED)
+        return;
+
     ActorModifyRequest* rq = new ActorModifyRequest;
     rq->amr_actor = this;
     rq->amr_type  = (keep_position) ? ActorModifyRequest::Type::RESET_ON_SPOT : ActorModifyRequest::Type::RESET_ON_INIT_POS;
@@ -1501,7 +1531,7 @@ void Actor::SoftReset()
     {
         Vector3 translation = -agl * Vector3::UNIT_Y;
         this->resetPosition(ar_nodes[0].AbsPosition + translation, false);
-        for (auto actor : m_linked_actors)
+        for (ActorPtr actor : m_linked_actors)
         {
             actor->resetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
         }
@@ -2931,12 +2961,12 @@ void Actor::prepareInside(bool inside)
 void Actor::lightsToggle()
 {
     // export light command
-    Actor* player_actor = App::GetGameContext()->GetPlayerActor();
-    if (ar_state == ActorState::LOCAL_SIMULATED && this == player_actor && ar_forward_commands)
+    ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
+    if (ar_state == ActorState::LOCAL_SIMULATED && this == player_actor.GetRef() && ar_forward_commands)
     {
-        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+        for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
-            if (actor->ar_state == ActorState::LOCAL_SIMULATED && this != actor && actor->ar_import_commands)
+            if (actor->ar_state == ActorState::LOCAL_SIMULATED && this != actor.GetRef() && actor->ar_import_commands)
                 actor->lightsToggle();
         }
     }
@@ -3078,6 +3108,9 @@ void Actor::toggleBlinkType(BlinkType blink)
 
 void Actor::setBlinkType(BlinkType blink)
 {
+    if (ar_state == ActorState::DISPOSED)
+        return;
+
     m_blink_type = blink;
 
     ar_dashboard->setBool(DD_SIGNAL_WARNING, false);
@@ -3125,6 +3158,9 @@ void Actor::autoBlinkReset()
 
 void Actor::toggleCustomParticles()
 {
+    if (ar_state == ActorState::DISPOSED)
+        return;
+
     m_custom_particles_enabled = !m_custom_particles_enabled;
     for (int i = 0; i < ar_num_custom_particles; i++)
     {
@@ -3262,7 +3298,7 @@ void Actor::updateVisual(float dt)
     ar_hydro_elevator_command = autoelevator;
 }
 
-void Actor::AddInterActorBeam(beam_t* beam, Actor* a, Actor* b)
+void Actor::AddInterActorBeam(beam_t* beam, ActorPtr a, ActorPtr b)
 {
     beam->bm_locked_actor = b;
 
@@ -3272,15 +3308,15 @@ void Actor::AddInterActorBeam(beam_t* beam, Actor* a, Actor* b)
         ar_inter_beams.push_back(beam);
     }
 
-    std::pair<Actor*, Actor*> actor_pair(a, b);
+    std::pair<ActorPtr, ActorPtr> actor_pair(a, b);
     App::GetGameContext()->GetActorManager()->inter_actor_links[beam] = actor_pair;
 
     a->DetermineLinkedActors();
-    for (auto actor : a->m_linked_actors)
+    for (ActorPtr actor : a->m_linked_actors)
         actor->DetermineLinkedActors();
 
     b->DetermineLinkedActors();
-    for (auto actor : b->m_linked_actors)
+    for (ActorPtr actor : b->m_linked_actors)
         actor->DetermineLinkedActors();
 }
 
@@ -3299,11 +3335,11 @@ void Actor::RemoveInterActorBeam(beam_t* beam)
         App::GetGameContext()->GetActorManager()->inter_actor_links.erase(it);
 
         actor_pair.first->DetermineLinkedActors();
-        for (auto actor : actor_pair.first->m_linked_actors)
+        for (ActorPtr actor : actor_pair.first->m_linked_actors)
             actor->DetermineLinkedActors();
 
         actor_pair.second->DetermineLinkedActors();
-        for (auto actor : actor_pair.second->m_linked_actors)
+        for (ActorPtr actor : actor_pair.second->m_linked_actors)
             actor->DetermineLinkedActors();
     }
 }
@@ -3315,7 +3351,7 @@ void Actor::DisjoinInterActorBeams()
     for (auto it = inter_actor_links->begin(); it != inter_actor_links->end();)
     {
         auto actor_pair = it->second;
-        if (this == actor_pair.first || this == actor_pair.second)
+        if (this == actor_pair.first.GetRef() || this == actor_pair.second.GetRef())
         {
             it->first->bm_locked_actor = nullptr;
             it->first->bm_inter_actor = false;
@@ -3323,11 +3359,11 @@ void Actor::DisjoinInterActorBeams()
             inter_actor_links->erase(it++);
 
             actor_pair.first->DetermineLinkedActors();
-            for (auto actor : actor_pair.first->m_linked_actors)
+            for (ActorPtr actor : actor_pair.first->m_linked_actors)
                 actor->DetermineLinkedActors();
 
             actor_pair.second->DetermineLinkedActors();
-            for (auto actor : actor_pair.second->m_linked_actors)
+            for (ActorPtr actor : actor_pair.second->m_linked_actors)
                 actor->DetermineLinkedActors();
         }
         else
@@ -3339,7 +3375,7 @@ void Actor::DisjoinInterActorBeams()
 
 void Actor::tieToggle(int group)
 {
-    Actor* player_actor = App::GetGameContext()->GetPlayerActor();
+    ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
 
     // untie all ties if one is tied
     bool istied = false;
@@ -3371,10 +3407,10 @@ void Actor::tieToggle(int group)
                 auto linked_actors = it->ti_locked_actor->getAllLinkedActors();
                 if (!(std::find(linked_actors.begin(), linked_actors.end(), this) != linked_actors.end()))
                 {
-                    if (this == player_actor)
+                    if (this == player_actor.GetRef())
                     {
                         it->ti_locked_actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        for (auto actor : it->ti_locked_actor->getAllLinkedActors())
+                        for (ActorPtr actor : it->ti_locked_actor->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
                         }
@@ -3382,7 +3418,7 @@ void Actor::tieToggle(int group)
                     else if (it->ti_locked_actor == player_actor)
                     {
                         m_gfx_actor->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        for (auto actor : this->getAllLinkedActors())
+                        for (ActorPtr actor : this->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
                         }
@@ -3407,10 +3443,10 @@ void Actor::tieToggle(int group)
                 // tie is unlocked and should get locked, search new remote ropable to lock to
                 float mindist = it->ti_beam->refL;
                 node_t* nearest_node = 0;
-                Actor* nearest_actor = 0;
+                ActorPtr nearest_actor = 0;
                 ropable_t* locktedto = 0;
                 // iterate over all actors
-                for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+                for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
                 {
                     if (actor->ar_state == ActorState::LOCAL_SLEEPING ||
                         (actor == this && it->ti_no_self_lock))
@@ -3426,7 +3462,7 @@ void Actor::tieToggle(int group)
                             continue;
 
                         // skip if tienode is ropable too (no selflock)
-                        if (this == actor && itr->node->pos == it->ti_beam->p1->pos)
+                        if (this == actor.GetRef() && itr->node->pos == it->ti_beam->p1->pos)
                             continue;
 
                         // calculate the distance and record the nearest ropable
@@ -3459,10 +3495,10 @@ void Actor::tieToggle(int group)
                     {
                         AddInterActorBeam(it->ti_beam, this, nearest_actor);
                         // update skeletonview on the tied actors
-                        if (this == player_actor)
+                        if (this == player_actor.GetRef())
                         {
                             nearest_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                            for (auto actor : nearest_actor->getAllLinkedActors())
+                            for (ActorPtr actor : nearest_actor->getAllLinkedActors())
                             {
                                 actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                             }
@@ -3470,7 +3506,7 @@ void Actor::tieToggle(int group)
                         else if (nearest_actor == player_actor)
                         {
                             m_gfx_actor->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
-                            for (auto actor : this->getAllLinkedActors())
+                            for (ActorPtr actor : this->getAllLinkedActors())
                             {
                                 actor->GetGfxActor()->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
                             }
@@ -3487,7 +3523,7 @@ void Actor::tieToggle(int group)
 
 void Actor::ropeToggle(int group)
 {
-    Actor* player_actor = App::GetGameContext()->GetPlayerActor();
+    ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
 
     // iterate over all ropes
     for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
@@ -3510,10 +3546,10 @@ void Actor::ropeToggle(int group)
                 auto linked_actors = it->rp_locked_actor->getAllLinkedActors();
                 if (!(std::find(linked_actors.begin(), linked_actors.end(), this) != linked_actors.end()))
                 {
-                    if (this == player_actor)
+                    if (this == player_actor.GetRef())
                     {
                         it->rp_locked_actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        for (auto actor : it->rp_locked_actor->getAllLinkedActors())
+                        for (ActorPtr actor : it->rp_locked_actor->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
                         }
@@ -3521,7 +3557,7 @@ void Actor::ropeToggle(int group)
                     else if (it->rp_locked_actor == player_actor)
                     {
                         m_gfx_actor->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        for (auto actor : this->getAllLinkedActors())
+                        for (ActorPtr actor : this->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
                         }
@@ -3536,10 +3572,10 @@ void Actor::ropeToggle(int group)
             //we lock ropes
             // search new remote ropable to lock to
             float mindist = it->rp_beam->L;
-            Actor* nearest_actor = nullptr;
+            ActorPtr nearest_actor = nullptr;
             ropable_t* rop = 0;
             // iterate over all actor_slots
-            for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
                 if (actor->ar_state == ActorState::LOCAL_SLEEPING)
                     continue;
@@ -3572,10 +3608,10 @@ void Actor::ropeToggle(int group)
                 {
                     AddInterActorBeam(it->rp_beam, this, nearest_actor);
                     // update skeletonview on the roped up actors
-                    if (this == player_actor)
+                    if (this == player_actor.GetRef())
                     {
                         nearest_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                        for (auto actor : nearest_actor->getAllLinkedActors())
+                        for (ActorPtr actor : nearest_actor->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                         }
@@ -3583,7 +3619,7 @@ void Actor::ropeToggle(int group)
                     else if (nearest_actor == player_actor)
                     {
                         m_gfx_actor->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
-                        for (auto actor : this->getAllLinkedActors())
+                        for (ActorPtr actor : this->getAllLinkedActors())
                         {
                             actor->GetGfxActor()->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
                         }
@@ -3638,7 +3674,7 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
             continue;
         }
 
-        Actor* prev_locked_actor = it->hk_locked_actor; // memorize current value
+        ActorPtr prev_locked_actor = it->hk_locked_actor; // memorize current value
 
         // do this only for toggle or lock attempts, skip prelocked or locked nodes for performance
         if (mode != HOOK_UNLOCK && it->hk_locked == UNLOCKED)
@@ -3648,11 +3684,11 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
             float mindist = it->hk_lockrange;
             float distance = 100000000.0f;
             // iterate over all actor_slots
-            for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
                 if (actor->ar_state == ActorState::LOCAL_SLEEPING)
                     continue;
-                if (this == actor && !it->hk_selflock)
+                if (this == actor.GetRef() && !it->hk_selflock)
                     continue; // don't lock to self
 
                 node_t* nearest_node = nullptr;
@@ -3663,7 +3699,7 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
                         continue;
 
                     // exclude this truck and its current hooknode from the locking search
-                    if (this == actor && i == it->hk_hook_node->pos)
+                    if (this == actor.GetRef() && i == it->hk_hook_node->pos)
                         continue;
 
                     // a lockgroup for this hooknode is set -> skip all nodes that do not have the same lockgroup (-1 = default(all nodes))
@@ -3715,7 +3751,7 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
             if (it->hk_locked_actor)
             {
                 it->hk_locked_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                for (auto actor : it->hk_locked_actor->getAllLinkedActors())
+                for (ActorPtr actor : it->hk_locked_actor->getAllLinkedActors())
                 {
                     actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                 }
@@ -3723,7 +3759,7 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
             else if (prev_locked_actor != this)
             {
                 prev_locked_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                for (auto actor : prev_locked_actor->getAllLinkedActors())
+                for (ActorPtr actor : prev_locked_actor->getAllLinkedActors())
                 {
                     actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                 }
@@ -3734,6 +3770,9 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
 
 void Actor::parkingbrakeToggle()
 {
+    if (ar_state == ActorState::DISPOSED)
+        return;
+
     ar_parking_brake = !ar_parking_brake;
 
     if (ar_parking_brake)
@@ -3747,18 +3786,27 @@ void Actor::parkingbrakeToggle()
 
 void Actor::antilockbrakeToggle()
 {
+    if (ar_state == ActorState::DISPOSED)
+        return;
+
     if (!alb_notoggle)
         alb_mode = !alb_mode;
 }
 
 void Actor::tractioncontrolToggle()
 {
+    if (ar_state == ActorState::DISPOSED)
+        return;
+
     if (!tc_notoggle)
         tc_mode = !tc_mode;
 }
 
 void Actor::beaconsToggle()
 {
+    if (ar_state == ActorState::DISPOSED)
+        return;
+
     if (m_flares_mode == GfxFlaresMode::NONE)
     {
         return;
@@ -3772,6 +3820,9 @@ void Actor::beaconsToggle()
 
 bool Actor::getReverseLightVisible()
 {
+    if (ar_state == ActorState::DISPOSED)
+        return false;
+
     if (ar_state == ActorState::NETWORKED_OK)
         return m_net_reverse_light_on;
 
@@ -4562,7 +4613,7 @@ Vector3 Actor::getNodePosition(int nodeNumber)
     }
     else
     {
-        return Ogre::Vector3();
+        return Ogre::Vector3::ZERO;
     }
 }
 

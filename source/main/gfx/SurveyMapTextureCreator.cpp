@@ -20,6 +20,7 @@
 
 #include "SurveyMapTextureCreator.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "GfxScene.h"
 #include "IWater.h"

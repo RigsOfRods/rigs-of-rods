@@ -21,6 +21,7 @@
 
 #include "GUI_GameChatBox.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "ChatSystem.h"
 #include "Console.h"

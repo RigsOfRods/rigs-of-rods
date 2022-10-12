@@ -24,8 +24,8 @@
 
 #pragma once
 
+#include "Actor.h"
 #include "Application.h"
-
 #include "SimData.h"
 #include "CmdKeyInertia.h"
 #include "Network.h"
@@ -50,8 +50,13 @@ public:
     ActorManager();
     ~ActorManager();
 
-    Actor*         CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr def);
-    void           UpdateActors(Actor* player_actor);
+    /// @name Lifetime
+    /// @{
+    ActorPtr       CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr def);
+    void           DeleteActorInternal(ActorPtr actor); //!< Do not call directly; use `GameContext::DeleteActor()`
+    /// @}
+
+    void           UpdateActors(ActorPtr player_actor);
     void           SyncWithSimThread();
     void           UpdatePhysicsSimulation();
     void           WakeUpAllActors();
@@ -72,16 +77,16 @@ public:
     void           SetSimulationPaused(bool v)             { m_simulation_paused = v; }
     float          GetTotalTime() const                    { return m_total_sim_time; }
     RoR::CmdKeyInertiaConfig& GetInertiaConfig()           { return m_inertia_config; }
-    Actor*         FetchNextVehicleOnList(Actor* player, Actor* prev_player);
-    Actor*         FetchPreviousVehicleOnList(Actor* player, Actor* prev_player);
-    Actor*         FetchRescueVehicle();
+    ActorPtr         FetchNextVehicleOnList(ActorPtr player, ActorPtr prev_player);
+    ActorPtr         FetchPreviousVehicleOnList(ActorPtr player, ActorPtr prev_player);
+    ActorPtr         FetchRescueVehicle();
     void           CleanUpSimulation(); //!< Call this after simulation loop finishes.
-    Actor*         GetActorByNetworkLinks(int source_id, int stream_id); // used by character
+    ActorPtr         GetActorByNetworkLinks(int source_id, int stream_id); // used by character
     void           RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition = false);
-    void           UpdateSleepingState(Actor* player_actor, float dt);
-    void           DeleteActorInternal(Actor* b); //!< Use `GameContext::DeleteActor()`
-    Actor*         GetActorById(int actor_id);
-    Actor*         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
+    void           UpdateSleepingState(ActorPtr player_actor, float dt);
+    
+    ActorPtr         GetActorById(int actor_id);
+    ActorPtr         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void           UpdateInputEvents(float dt);
     RigDef::DocumentPtr   FetchActorDef(std::string filename, bool predefined_on_terrain = false);
 
@@ -93,15 +98,15 @@ public:
 
     bool           LoadScene(Ogre::String filename);
     bool           SaveScene(Ogre::String filename);
-    void           RestoreSavedState(Actor* actor, rapidjson::Value const& j_entry);
+    void           RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_entry);
 
-    std::vector<Actor*> GetActors() const                  { return m_actors; };
-    std::vector<Actor*> GetLocalActors();
+    ActorPtrVec& GetActors() { return m_actors; };
+    std::vector<ActorPtr> GetLocalActors();
 
-    std::pair<Actor*, float> GetNearestActor(Ogre::Vector3 position);
+    std::pair<ActorPtr, float> GetNearestActor(Ogre::Vector3 position);
 
     // A list of all beams interconnecting two actors
-    std::map<beam_t*, std::pair<Actor*, Actor*>> inter_actor_links;
+    std::map<beam_t*, std::pair<ActorPtr, ActorPtr>> inter_actor_links;
 
 private:
 
@@ -109,8 +114,8 @@ private:
     bool           PredictActorCollAabbIntersect(int a, int b);  //!< Returns whether or not the bounding boxes of truck a and truck b might intersect during the next framestep. Based on the truck collision bounding boxes.
     void           RemoveStreamSource(int sourceid);
     void           RecursiveActivation(int j, std::vector<bool>& visited);
-    void           ForwardCommands(Actor* source_actor); //!< Fowards things to trailers
-    void           UpdateTruckFeatures(Actor* vehicle, float dt);
+    void           ForwardCommands(ActorPtr source_actor); //!< Fowards things to trailers
+    void           UpdateTruckFeatures(ActorPtr vehicle, float dt);
 
     // Networking
     std::map<int, std::set<int>> m_stream_mismatches; //!< Networking: A set of streams without a corresponding actor in the actor-array for each stream source
@@ -118,7 +123,7 @@ private:
     Ogre::Timer         m_net_timer;
 
     // Physics
-    std::vector<Actor*> m_actors;
+    ActorPtrVec         m_actors;
     bool                m_forced_awake           = false; //!< disables sleep counters
     int                 m_physics_steps          = 0;
     float               m_dt_remainder           = 0.f;   //!< Keeps track of the rounding error in the time step calculation

@@ -507,7 +507,7 @@ void CameraManager::switchBehavior(CameraBehaviors new_behavior)
     this->ActivateNewBehavior(new_behavior, true);
 }
 
-void CameraManager::SwitchBehaviorOnVehicleChange(CameraBehaviors new_behavior, Actor* new_vehicle)
+void CameraManager::SwitchBehaviorOnVehicleChange(CameraBehaviors new_behavior, ActorPtr new_vehicle)
 {
     if (new_behavior == m_current_behavior)
     {
@@ -626,7 +626,7 @@ void CameraManager::NotifyContextChange()
     }
 }
 
-void CameraManager::NotifyVehicleChanged(Actor* new_vehicle)
+void CameraManager::NotifyVehicleChanged(ActorPtr new_vehicle)
 {
     // Getting out of vehicle
     if (new_vehicle == nullptr)
@@ -1249,7 +1249,7 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
 
     if (m_splinecam_num_linked_beams > 0)
     {
-        for (auto actor : linkedBeams)
+        for (ActorPtr actor : linkedBeams)
         {
             if (actor->ar_num_camera_rails <= 0)
                 continue;

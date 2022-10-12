@@ -21,6 +21,7 @@
 
 #include "GUI_SimPerfStats.h"
 
+#include "Actor.h"
 #include "AppContext.h"
 #include "GUIManager.h"
 #include "Language.h"

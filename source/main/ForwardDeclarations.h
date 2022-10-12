@@ -25,6 +25,7 @@
 /// @author Petr Ohlidal
 /// @date   12/2013
 
+#include "RefCountingObjectPtr.h"
 
 #pragma once
 
@@ -140,6 +141,9 @@ namespace RoR
     struct ground_model_t;
     struct client_t;
     struct authorinfo_t;
+
+    /// AngelScript-friendly shared pointers
+    typedef RefCountingObjectPtr<Actor> ActorPtr;
 
     namespace GUI
     {

@@ -19,6 +19,7 @@
 
 #include "ODefFileFormat.h"
 
+#include "Actor.h"
 #include "Utils.h"
 
 using namespace RoR;
