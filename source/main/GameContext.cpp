@@ -631,6 +631,14 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
     case LT_AllBeam:
         m_current_selection.asr_cache_entry = entry;
         m_current_selection.asr_config = sectionconfig;
+        if (App::GetGuiManager()->TopMenubar.ai_select)
+        {
+            App::GetGuiManager()->TopMenubar.ai_sectionconfig = sectionconfig;
+        }
+        if (App::GetGuiManager()->TopMenubar.ai_select2)
+        {
+            App::GetGuiManager()->TopMenubar.ai_sectionconfig2 = sectionconfig;
+        }
         m_current_selection.asr_origin = ActorSpawnRequest::Origin::USER;
         // Look for extra skins
         if (!entry->guid.empty())
@@ -662,7 +670,6 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
         {
             App::GetGuiManager()->TopMenubar.ai_fname = m_current_selection.asr_cache_entry->fname;
             App::GetGuiManager()->TopMenubar.ai_dname = m_current_selection.asr_cache_entry->dname;
-            App::GetGuiManager()->TopMenubar.ai_sectionconfig = sectionconfig;
             App::GetGuiManager()->TopMenubar.ai_select = false;
             App::GetGuiManager()->TopMenubar.ai_menu = true;
         }
@@ -670,7 +677,6 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
         {
             App::GetGuiManager()->TopMenubar.ai_fname2 = m_current_selection.asr_cache_entry->fname;
             App::GetGuiManager()->TopMenubar.ai_dname2 = m_current_selection.asr_cache_entry->dname;
-            App::GetGuiManager()->TopMenubar.ai_sectionconfig2 = sectionconfig;
             App::GetGuiManager()->TopMenubar.ai_select2 = false;
             App::GetGuiManager()->TopMenubar.ai_menu = true;
         }
