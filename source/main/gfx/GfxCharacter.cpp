@@ -63,16 +63,52 @@ GfxCharacter::GfxCharacter(Character* character)
     MaterialPtr mat2 = mat1->clone("tracks/" + xc_instance_name);
     entity->setMaterialName("tracks/" + xc_instance_name);
 
-    // setup animations
-    if (character->getCharacterDocument()->animblend_cumulative)
+    // setup animation blend
+    switch (character->getCharacterDocument()->force_animblend)
     {
-        entity->getSkeleton()->setBlendMode(ANIMBLEND_CUMULATIVE);
+    case ForceAnimBlend::CUMULATIVE: entity->getSkeleton()->setBlendMode(ANIMBLEND_CUMULATIVE); break;
+    case ForceAnimBlend::AVERAGE: entity->getSkeleton()->setBlendMode(ANIMBLEND_AVERAGE); break;
+    default:; // Keep the preset defined in .skeleton file
+    }
+
+    // setup bone blend masks
+    for (BoneBlendMaskDef& mask_def : character->getCharacterDocument()->bone_blend_masks)
+    {
+        this->SetupBoneBlendMask(mask_def);
     }
 
     // setup diagnostic UI
     for (CharacterAnimDef const& def : xc_character->m_character_def->anims)
     {
         App::GetGuiManager()->CharacterPoseUtil.anim_dbg_states[def.game_id] = CharacterAnimDbg();
+    }
+}
+
+void GfxCharacter::SetupBoneBlendMask(BoneBlendMaskDef const& mask_def)
+{
+    Entity* entity = static_cast<Entity*>(xc_scenenode->getAttachedObject(0));
+
+    AnimationState* mask_created = nullptr;
+    try
+    {
+        AnimationState* anim = entity->getAnimationState(mask_def.anim_name);
+        if (mask_def.bone_weights.size() > 0)
+        {
+            anim->createBlendMask(entity->getSkeleton()->getNumBones());
+            mask_created = anim;
+            for (BoneBlendMaskWeightDef const& def : mask_def.bone_weights)
+            {
+                Bone* bone = entity->getSkeleton()->getBone(def.bone_name);
+                anim->setBlendMaskEntry(bone->getHandle(), def.bone_weight);
+            }
+        }
+    }
+    catch (Exception& eeh)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("error setting up bone blend mask for animation '{}', message:{}", mask_def.anim_name, eeh.getFullDescription()));
+        if (mask_created)
+            mask_created->destroyBlendMask();
     }
 }
 

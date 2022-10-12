@@ -46,6 +46,7 @@ struct GfxCharacter
     void            EnableAnim(Ogre::AnimationState* anim_state, float time);
     void            UpdateAnimations(float dt);
     void            EvaluateAnimDef(CharacterAnimDef const& def, float dt);
+    void            SetupBoneBlendMask(BoneBlendMaskDef const& mask_def);
 
     Ogre::SceneNode*          xc_scenenode;
     CharacterSB               xc_simbuf;

@@ -122,7 +122,8 @@ void CharacterPoseUtil::DrawAnimControls(Ogre::AnimationState* anim_state)
 
     // anim name line
     ImVec4 color = (anim_state->getEnabled()) ? ImGui::GetStyle().Colors[ImGuiCol_Text] : ImGui::GetStyle().Colors[ImGuiCol_TextDisabled];
-    ImGui::TextColored(color, "'%s' (%.2f sec)", anim_state->getAnimationName().c_str(), anim_state->getLength());
+    const char* uses_boneblendmask_text = anim_state->getBlendMask() ? ", uses bone blend mask!" : "";
+    ImGui::TextColored(color, "'%s' (%.2f sec%s)", anim_state->getAnimationName().c_str(), anim_state->getLength(), uses_boneblendmask_text);
     if (m_manual_pose_active)
     {
         ImGui::SameLine();

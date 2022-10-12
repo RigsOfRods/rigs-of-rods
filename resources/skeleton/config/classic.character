@@ -1,5 +1,8 @@
 ; The classic character (aka RORbot)
-;  NOTE each anim is evaluated separately, there is no either-or relation,
+
+; This file format lets you compose game animations from one or more
+;  skeletal animations exported from a 3D modelling tool.
+;  NOTE each game-anim is evaluated separately, there is no either-or relation,
 ;  so you must set each anim's conditions to avoid conflicts.
 
 ; For explanation of individual parameters,
@@ -13,6 +16,24 @@
 
 mesh_name "character.mesh"
 character_name "Classic RORBot"
+
+begin_bone_blend_mask
+; This is a dummy example of how bone blend masks can be done.
+; bone_weight <bone name> <weight: 0.0 - 1.0>
+    anim_name "Run"
+    bone_weight "hand.R" 1
+    bone_weight "hand.L" 1
+    bone_weight "forearm.R" 1
+    bone_weight "forearm.L" 1
+    bone_weight "upper_arm.R" 1
+    bone_weight "upper_arm.L" 1
+    bone_weight "shoulder.R" 1
+    bone_weight "shoulder.L" 1
+    bone_weight "head" 1
+    bone_weight "neck" 1
+    bone_weight "chest" 1
+    bone_weight "spine" 1
+end_bone_blend_mask
 
 begin_animation
     game_description "driving"
@@ -160,6 +181,7 @@ begin_animation
     except_situation SITUATION_CUSTOM_MODE_01
     anim_name "Spot_swim"
     playback_time_ratio 10.0
+    anim_continuous false
 end_animation
 
 begin_animation
@@ -169,4 +191,5 @@ begin_animation
     except_situation SITUATION_DRIVING    
     anim_name "Driving"
     playback_time_ratio 2.0
+    
 end_animation
