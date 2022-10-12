@@ -120,8 +120,10 @@ void CharacterParser::TokenizeCurrentLine()
 // retval true = continue processing (false = stop)
 void CharacterParser::ProcessCurrentLine()
 {
-    if (!m_ctx.in_anim)
+    if (!m_ctx.in_anim && !m_ctx.in_bone_blend_mask)
     {
+        // Root level
+
         if (StartsWith(m_cur_line, "character_name"))
         {
             m_def->character_name = GetParam(1);
@@ -138,9 +140,15 @@ void CharacterParser::ProcessCurrentLine()
         {
             m_ctx.in_anim = true;
         }
+        else if (StartsWith(m_cur_line, "begin_bone_blend_mask"))
+        {
+            m_ctx.in_bone_blend_mask = true;
+        }
     }
-    else
+    else if (m_ctx.in_anim)
     {
+        // In '[begin/end]_animation' block.
+
         if (StartsWith(m_cur_line, "end_animation"))
         {
             m_ctx.anim.game_id = (int)m_def->anims.size();
@@ -207,6 +215,28 @@ void CharacterParser::ProcessCurrentLine()
         else if (StartsWith(m_cur_line, "source_percentual"))
         {
             m_ctx.anim.source_percentual = Ogre::StringConverter::parseBool(GetParam(1));
+        }
+    }
+    else if (m_ctx.in_bone_blend_mask)
+    {
+        // In '[begin/end]_bone_blend_mask' block.
+
+        if (StartsWith(m_cur_line, "end_bone_blend_mask"))
+        {
+            m_def->bone_blend_masks.push_back(m_ctx.bone_blend_mask);
+            m_ctx.bone_blend_mask = BoneBlendMaskDef();
+            m_ctx.in_bone_blend_mask = false;
+        }
+        else if (StartsWith(m_cur_line, "anim_name"))
+        {
+            m_ctx.bone_blend_mask.anim_name = GetParam(1);
+        }
+        else if (StartsWith(m_cur_line, "bone_weight"))
+        {
+            BoneBlendMaskWeightDef def;
+            def.bone_name = GetParam(1);
+            def.bone_weight = Ogre::StringConverter::parseReal(GetParam(2));
+            m_ctx.bone_blend_mask.bone_weights.push_back(def);
         }
     }
 }

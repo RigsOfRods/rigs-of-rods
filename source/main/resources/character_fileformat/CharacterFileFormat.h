@@ -33,6 +33,18 @@ namespace RoR {
 /// @addtogroup Character
 /// @{
 
+struct BoneBlendMaskWeightDef //!< See `Ogre::AnimationState::setBlendMaskEntry()`
+{
+    std::string bone_name;
+    float bone_weight = 0.f;
+};
+
+struct BoneBlendMaskDef //!< Additional settings for a skeletal animation track exported from 3D modelling tool.
+{
+    std::string anim_name; //!< Name of the skeletal animation from OGRE's *.skeleton file.
+    std::vector<BoneBlendMaskWeightDef> bone_weights;
+};
+
 struct CharacterAnimDef
 {
     std::string anim_name; //!< Name of the skeletal animation from OGRE's *.skeleton file.
@@ -71,7 +83,7 @@ struct CharacterDocument
     std::string character_name;
     std::string mesh_name;
     std::vector<CharacterAnimDef> anims;
-    std::vector<SkeletalAnimOptions> skeletal_anim_opts;
+    std::vector<BoneBlendMaskDef> bone_blend_masks;
     ForceAnimBlend force_animblend = ForceAnimBlend::NONE; //!< Should a specific `Ogre::SkeletonAnimationBlendMode` be forced, or should we keep what the .skeleton file defines?
 
     CharacterAnimDef* getAnimById(int id)
@@ -104,7 +116,9 @@ private:
     struct CharacterParserContext
     {
         CharacterAnimDef anim;
+        BoneBlendMaskDef bone_blend_mask;
         bool in_anim = false;
+        bool in_bone_blend_mask = false;
     }                          m_ctx; //!< Parser context
 
     CharacterDocumentPtr       m_def;
