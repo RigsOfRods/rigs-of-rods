@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-29 14:59+0200\n"
+"POT-Creation-Date: 2022-10-13 14:29+0200\n"
 "PO-Revision-Date: 2021-12-13 10:52+0000\n"
 "Last-Translator: A.Panagiotou <tas750@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/rigs-of-rods/game/"
@@ -56,262 +56,262 @@ msgstr ""
 "Λάθος φάκελος βασικών αρχείων. Ελέγξτε εάν η εφαρμογή είναι σωστά "
 "εγκατεστημένη"
 
-#: Application.cpp:361
+#: Application.cpp:359
 #, fuzzy
 #| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
 msgstr "Αυτόματες ταχύτητες."
 
-#: Application.cpp:362
+#: Application.cpp:360
 #, fuzzy
 #| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
 msgstr "Χειροκίνητες ταχύτητες - Αυτόματος συμπλέκτης."
 
-#: Application.cpp:363
+#: Application.cpp:361
 #, fuzzy
 #| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
 msgstr "χειροκινιτο κιβωτιο (σειριακος λεβιες)"
 
-#: Application.cpp:364
+#: Application.cpp:362
 #, fuzzy
 #| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
 msgstr "χειροκινιτο κιβωτιο (σειριακος λεβιες)"
 
-#: Application.cpp:365
+#: Application.cpp:363
 #, fuzzy
 #| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
 msgstr "Πλήρος χειροκίνητο: λεβιές ταχυτητων με σχέσεις"
 
-#: Application.cpp:374
+#: Application.cpp:372
 #, fuzzy
 #| msgid "None (fastest)"
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
 msgstr "Κανένα (γρηγορότερο)"
 
-#: Application.cpp:375
+#: Application.cpp:373
 #, fuzzy
 #| msgid "Light source effects:"
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
 msgstr "Πηγή εφε φωτός"
 
-#: Application.cpp:376
+#: Application.cpp:374
 #, fuzzy
 #| msgid "Only current vehicle, main lights"
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
 msgstr "μονο τα φωτα του οχηματος, τα κυρια φωτα"
 
-#: Application.cpp:377
+#: Application.cpp:375
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
 msgstr ""
 
-#: Application.cpp:378
+#: Application.cpp:376
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
 msgstr ""
 
-#: Application.cpp:387
+#: Application.cpp:385
 msgctxt "GfxShadowType"
 msgid "Disabled"
 msgstr ""
 
-#: Application.cpp:388
+#: Application.cpp:386
 msgctxt "GfxShadowType"
 msgid "PSSM"
 msgstr ""
 
-#: Application.cpp:397
+#: Application.cpp:395
 #, fuzzy
 #| msgid "Sandstorm (fastest)"
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
 msgstr "αμμοθύελλα (γρηγορότερο)"
 
-#: Application.cpp:398
+#: Application.cpp:396
 #, fuzzy
 #| msgid "Caelum (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
 msgstr "Caelum (το πιο ποιοτικό, πιο αργό)"
 
-#: Application.cpp:399
+#: Application.cpp:397
 #, fuzzy
 #| msgid "Full (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
 msgstr "Πλήρης (η καλύτερη απεικόνιση, πιο αργή)"
 
-#: Application.cpp:408
+#: Application.cpp:406
 msgctxt "GfxTexFilter"
 msgid "None"
 msgstr ""
 
-#: Application.cpp:409
+#: Application.cpp:407
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
 msgstr ""
 
-#: Application.cpp:410
+#: Application.cpp:408
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
 msgstr ""
 
-#: Application.cpp:411
+#: Application.cpp:409
 #, fuzzy
 #| msgid "Drag anisotropy:"
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
 msgstr "Σύρετε ανισοτροπία"
 
-#: Application.cpp:420
+#: Application.cpp:418
 msgctxt "GfxVegetation"
 msgid "None"
 msgstr ""
 
-#: Application.cpp:421
+#: Application.cpp:419
 #, fuzzy
 #| msgid "20%"
 msgctxt "GfxVegetation"
 msgid "20%"
 msgstr "20%"
 
-#: Application.cpp:422
+#: Application.cpp:420
 #, fuzzy
 #| msgid "50%"
 msgctxt "GfxVegetation"
 msgid "50%"
 msgstr "50%"
 
-#: Application.cpp:423
+#: Application.cpp:421
 msgctxt "GfxVegetation"
 msgid "Full"
 msgstr ""
 
-#: Application.cpp:432
+#: Application.cpp:430
 msgctxt "GfxWaterMode"
 msgid "None"
 msgstr ""
 
-#: Application.cpp:433
+#: Application.cpp:431
 #, fuzzy
 #| msgid "Sandstorm (fastest)"
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
 msgstr "αμμοθύελλα (γρηγορότερο)"
 
-#: Application.cpp:434
+#: Application.cpp:432
 #, fuzzy
 #| msgid "Reflection"
 msgctxt "GfxWaterMode"
 msgid "Reflection"
 msgstr "Αντανάκλαση"
 
-#: Application.cpp:435
+#: Application.cpp:433
 #, fuzzy
 #| msgid "Reflection + refraction (speed optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
 msgstr "Αντανάκλαση +διάθλαση (βελτιστοποιημένη ταχύτητα)"
 
-#: Application.cpp:436
+#: Application.cpp:434
 #, fuzzy
 #| msgid "Reflection + refraction (quality optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
 msgstr "Αντανάκλαση + διάθλαση (βελτιστοποιημένη ποιότητα)"
 
-#: Application.cpp:437
+#: Application.cpp:435
 msgctxt "GfxWaterMode"
 msgid "HydraX"
 msgstr ""
 
-#: Application.cpp:446
+#: Application.cpp:444
 msgctxt "GfxExtCamMode"
 msgid "None"
 msgstr ""
 
-#: Application.cpp:447
+#: Application.cpp:445
 msgctxt "GfxExtCamMode"
 msgid "Static"
 msgstr ""
 
-#: Application.cpp:448
+#: Application.cpp:446
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
 msgstr ""
 
-#: Application.cpp:457
+#: Application.cpp:455
 msgctxt "IoInputGrabMode"
 msgid "None"
 msgstr ""
 
-#: Application.cpp:458
+#: Application.cpp:456
 #, fuzzy
 #| msgid "All"
 msgctxt "IoInputGrabMode"
 msgid "All"
 msgstr "Όλα"
 
-#: Application.cpp:459
+#: Application.cpp:457
 #, fuzzy
 #| msgid "Dynamically"
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
 msgstr "Δυναμικά"
 
-#: GameContext.cpp:104
+#: GameContext.cpp:107
 msgid "Terrain not found: "
 msgstr "Δεν βρέθηκε ο χάρτης"
 
-#: GameContext.cpp:106 terrain/TerrainManager.cpp:154
+#: GameContext.cpp:109 terrain/Terrain.cpp:147
 msgid "Terrain loading error"
 msgstr "Σφάλμα φόρτωσης χάρτη"
 
-#: GameContext.cpp:559
+#: GameContext.cpp:572
 msgid "Please clear the place first"
 msgstr "Παρακαλώ καθαρίστε τον χώρο πρώτα."
 
-#: GameContext.cpp:853
+#: GameContext.cpp:874
 msgid "Enabled hard reset mode"
 msgstr "Ενεργοποιημένη λειτουργία βίαιης επαναφοράς"
 
-#: GameContext.cpp:853
+#: GameContext.cpp:874
 msgid "Enabled soft reset mode"
 msgstr ""
 
-#: GameContext.cpp:1010
+#: GameContext.cpp:1061
 msgid "Time set to "
 msgstr "Ο χρόνος ρυθμίστηκε στις "
 
-#: GameContext.cpp:1152
+#: GameContext.cpp:1203
 msgid "No rescue truck found!"
 msgstr "Δεν βρέθηκε φορτηγό διάσωσης!"
 
-#: GameContext.cpp:1220
+#: GameContext.cpp:1279
 msgid "forwardcommands enabled"
 msgstr "Ενεργοποιημένες εντολές προώθησης"
 
-#: GameContext.cpp:1224
+#: GameContext.cpp:1283
 msgid "forwardcommands disabled"
 msgstr "Απενεργοποιημένες εντολές προώθησης"
 
-#: GameContext.cpp:1233
+#: GameContext.cpp:1292
 msgid "importcommands enabled"
 msgstr "Ενεργοποιημένες εντολές εισόδου"
 
-#: GameContext.cpp:1237
+#: GameContext.cpp:1296
 msgid "importcommands disabled"
 msgstr "Απενεργοποιημένες εντολές εισόδου"
 
@@ -637,6 +637,13 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.10-dev\n"
 
+#: gui/panels/GUI_CollisionsDebug.cpp:48
+#, fuzzy
+#| msgid "Static friction coef:"
+msgctxt "About"
+msgid "Static collision debug"
+msgstr "Στατική συντ. τριβής:"
+
 #: gui/panels/GUI_ConsoleView.cpp:244
 msgctxt "Console"
 msgid "By area:"
@@ -710,7 +717,15 @@ msgctxt "Console"
 msgid "AngelScript"
 msgstr "Περιγραφή: "
 
-#: gui/panels/GUI_ConsoleWindow.cpp:104
+#. reset to auto-fit
+#: gui/panels/GUI_ConsoleWindow.cpp:94
+#, fuzzy
+#| msgid "Description: "
+msgctxt "Console"
+msgid "Script Monitor"
+msgstr "Περιγραφή: "
+
+#: gui/panels/GUI_ConsoleWindow.cpp:112
 #, fuzzy
 #| msgid "Command 1"
 msgctxt "Console"
@@ -1192,59 +1207,59 @@ msgstr ""
 
 #. Device type selector
 #. - General BeginCombo() API, you have full control over your selection data and display type.
-#: gui/panels/GUI_GameControls.cpp:213
+#: gui/panels/GUI_GameControls.cpp:215
 msgctxt "GameSettings"
 msgid "EventType"
 msgstr ""
 
 #. Buttons
-#: gui/panels/GUI_GameControls.cpp:258
+#: gui/panels/GUI_GameControls.cpp:260
 msgctxt "GameSettings"
 msgid "OK"
 msgstr ""
 
-#: gui/panels/GUI_GameControls.cpp:263
+#: gui/panels/GUI_GameControls.cpp:265
 #, fuzzy
 #| msgid "Cancel"
 msgctxt "GameSettings"
 msgid "Cancel"
 msgstr "Άκυρο."
 
-#: gui/panels/GUI_GameControls.cpp:268
+#: gui/panels/GUI_GameControls.cpp:270
 msgctxt "GameSettings"
 msgid "Delete"
 msgstr ""
 
-#: gui/panels/GUI_GameMainMenu.cpp:127
+#: gui/panels/GUI_GameMainMenu.cpp:115
 msgctxt "MainMenu"
 msgid "Single player"
 msgstr ""
 
-#: gui/panels/GUI_GameMainMenu.cpp:137 gui/panels/GUI_GameMainMenu.cpp:146
+#: gui/panels/GUI_GameMainMenu.cpp:125 gui/panels/GUI_GameMainMenu.cpp:134
 msgctxt "MainMenu"
 msgid "Resume game"
 msgstr ""
 
-#: gui/panels/GUI_GameMainMenu.cpp:155
+#: gui/panels/GUI_GameMainMenu.cpp:143
 msgctxt "MainMenu"
 msgid "Multiplayer"
 msgstr ""
 
-#: gui/panels/GUI_GameMainMenu.cpp:161
+#: gui/panels/GUI_GameMainMenu.cpp:149
 #, fuzzy
 #| msgid "Compositors: "
 msgctxt "MainMenu"
 msgid "Repository"
 msgstr "Στοιχειοθέτες: "
 
-#: gui/panels/GUI_GameMainMenu.cpp:167
+#: gui/panels/GUI_GameMainMenu.cpp:155
 #, fuzzy
 #| msgid "Fluid Settings"
 msgctxt "MainMenu"
 msgid "Settings"
 msgstr "Fluid Ρυθμίσεις (ListenRead phonetically)"
 
-#: gui/panels/GUI_GameMainMenu.cpp:173 gui/panels/GUI_GameMainMenu.cpp:187
+#: gui/panels/GUI_GameMainMenu.cpp:161 gui/panels/GUI_GameMainMenu.cpp:175
 #, fuzzy
 #| msgctxt "GameSettings"
 #| msgid "Controls"
@@ -1252,25 +1267,25 @@ msgctxt "MainMenu"
 msgid "Controls"
 msgstr "Χειρισμός"
 
-#: gui/panels/GUI_GameMainMenu.cpp:179
+#: gui/panels/GUI_GameMainMenu.cpp:167
 #, fuzzy
 #| msgid "About"
 msgctxt "MainMenu"
 msgid "About"
 msgstr "Περί"
 
-#: gui/panels/GUI_GameMainMenu.cpp:193
+#: gui/panels/GUI_GameMainMenu.cpp:181
 msgid "Return to menu"
 msgstr ""
 
-#: gui/panels/GUI_GameMainMenu.cpp:204
+#: gui/panels/GUI_GameMainMenu.cpp:192
 #, fuzzy
 #| msgid "exit the game"
 msgctxt "MainMenu"
 msgid "Exit game"
 msgstr "έξοδος απο το παιχνίδι"
 
-#: gui/panels/GUI_GameMainMenu.cpp:242 gui/panels/GUI_GameMainMenu.cpp:270
+#: gui/panels/GUI_GameMainMenu.cpp:230 gui/panels/GUI_GameMainMenu.cpp:258
 #, fuzzy
 #| msgid "Version: "
 msgctxt "MainMenu"
@@ -1278,14 +1293,14 @@ msgid "Game version"
 msgstr "εκδοση"
 
 #. needed to align with VersionBox
-#: gui/panels/GUI_GameMainMenu.cpp:243 gui/panels/GUI_GameMainMenu.cpp:271
+#: gui/panels/GUI_GameMainMenu.cpp:231 gui/panels/GUI_GameMainMenu.cpp:259
 #, fuzzy
 #| msgid "Network error!"
 msgctxt "MainMenu"
 msgid "Net. protocol"
 msgstr "Σφάλμα δικτύου"
 
-#: gui/panels/GUI_GameMainMenu.cpp:256
+#: gui/panels/GUI_GameMainMenu.cpp:244
 #, fuzzy
 #| msgid "Version: "
 msgctxt "MainMenu"
@@ -1293,12 +1308,12 @@ msgid "Version box"
 msgstr "εκδοση"
 
 #. needed to align with VersionBox
-#: gui/panels/GUI_GameMainMenu.cpp:272
+#: gui/panels/GUI_GameMainMenu.cpp:260
 msgctxt "MainMenu"
 msgid "Cache updated"
 msgstr ""
 
-#: gui/panels/GUI_GameMainMenu.cpp:285
+#: gui/panels/GUI_GameMainMenu.cpp:273
 msgctxt "MainMenu"
 msgid "Notice box"
 msgstr ""
@@ -1609,228 +1624,218 @@ msgctxt "GameSettings"
 msgid "Waves on water"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:365
-msgctxt "GameSettings"
-msgid "Classic material shaders (experimental)"
-msgstr ""
-
-#: gui/panels/GUI_GameSettings.cpp:370
+#: gui/panels/GUI_GameSettings.cpp:369
 #, fuzzy
 #| msgid "rotate camera right"
 msgctxt "GameSettings"
 msgid "Static camera height (meters)"
 msgstr "περιστροφή κάμερας δεξιά"
 
-#: gui/panels/GUI_GameSettings.cpp:371
+#: gui/panels/GUI_GameSettings.cpp:370
 msgctxt "GameSettings"
 msgid "Exterior field of view"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:372
+#: gui/panels/GUI_GameSettings.cpp:371
 msgctxt "GameSettings"
 msgid "Interior field of view"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:377
+#: gui/panels/GUI_GameSettings.cpp:376
 msgctxt "GameSettings"
 msgid "Diagnostic options"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:378
+#: gui/panels/GUI_GameSettings.cpp:377
 msgctxt "GameSettings"
 msgid ""
 "These settings are for advanced users only, you should only change these if "
 "you know what you're doing"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:380
+#: gui/panels/GUI_GameSettings.cpp:379
 msgctxt "GameSettings"
 msgid "Preselected terrain"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:381
+#: gui/panels/GUI_GameSettings.cpp:380
 msgctxt "GameSettings"
 msgid "Preselected vehicle"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:382
+#: gui/panels/GUI_GameSettings.cpp:381
 msgctxt "GameSettings"
 msgid "Presel. veh. config"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:383
+#: gui/panels/GUI_GameSettings.cpp:382
 msgctxt "GameSettings"
 msgid "Enter preselected vehicle"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:384
+#: gui/panels/GUI_GameSettings.cpp:383
 msgctxt "GameSettings"
 msgid "Auto actor spawner report"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:385
+#: gui/panels/GUI_GameSettings.cpp:384
 msgctxt "GameSettings"
 msgid "Log node import (spawn)"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:386
+#: gui/panels/GUI_GameSettings.cpp:385
 msgctxt "GameSettings"
 msgid "Log node stats (spawn)"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:387
+#: gui/panels/GUI_GameSettings.cpp:386
 msgctxt "GameSettings"
 msgid "Debug camera (rails)"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:388
-msgctxt "GameSettings"
-msgid "Debug collisions"
-msgstr ""
-
-#: gui/panels/GUI_GameSettings.cpp:389
+#: gui/panels/GUI_GameSettings.cpp:387
 msgctxt "GameSettings"
 msgid "Debug actor mass"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:390
+#: gui/panels/GUI_GameSettings.cpp:388
 msgctxt "GameSettings"
 msgid "Debug realtime reflections"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:391
+#: gui/panels/GUI_GameSettings.cpp:389
 msgctxt "GameSettings"
 msgid "Debug videocameras"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:392
+#: gui/panels/GUI_GameSettings.cpp:390
 msgctxt "GameSettings"
 msgid "Debug textures"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:393
+#: gui/panels/GUI_GameSettings.cpp:391
 msgctxt "GameSettings"
 msgid "Hide broken beams"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:394
+#: gui/panels/GUI_GameSettings.cpp:392
 msgctxt "GameSettings"
 msgid "Hide wheel info"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:395
+#: gui/panels/GUI_GameSettings.cpp:393
 msgctxt "GameSettings"
 msgid "Hide wheels"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:396
+#: gui/panels/GUI_GameSettings.cpp:394
 msgctxt "GameSettings"
 msgid "Hide nodes"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:397
+#: gui/panels/GUI_GameSettings.cpp:395
 msgctxt "GameSettings"
 msgid "Echo log to console"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:398
+#: gui/panels/GUI_GameSettings.cpp:396
 msgctxt "GameSettings"
 msgid "Log beam breaking"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:399
+#: gui/panels/GUI_GameSettings.cpp:397
 msgctxt "GameSettings"
 msgid "Log beam deforming"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:400
+#: gui/panels/GUI_GameSettings.cpp:398
 msgctxt "GameSettings"
 msgid "Log beam triggers"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:401
+#: gui/panels/GUI_GameSettings.cpp:399
 #, fuzzy
 #| msgid "Regen cache"
 msgctxt "GameSettings"
 msgid "Rebuild cache"
 msgstr "Ξαναφόρτωμα της προσωρινής μνήμης"
 
-#: gui/panels/GUI_GameSettings.cpp:411
+#: gui/panels/GUI_GameSettings.cpp:409
 msgctxt "GameSettings"
 msgid "Controller options"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:413
+#: gui/panels/GUI_GameSettings.cpp:411
 msgctxt "GameSettings"
 msgid "Input grab mode"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:416
+#: gui/panels/GUI_GameSettings.cpp:414
 msgctxt "GameSettings"
 msgid "Analog Input Smoothing"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:417
+#: gui/panels/GUI_GameSettings.cpp:415
 msgctxt "GameSettings"
 msgid "Analog Input Sensitivity"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:418
+#: gui/panels/GUI_GameSettings.cpp:416
 msgctxt "GameSettings"
 msgid "Blinker Lock Range"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:420
+#: gui/panels/GUI_GameSettings.cpp:418
 msgctxt "GameSettings"
 msgid "Use arcade controls"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:422
+#: gui/panels/GUI_GameSettings.cpp:420
 msgctxt "GameSettings"
 msgid "Enable ForceFeedback"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:426
+#: gui/panels/GUI_GameSettings.cpp:424
 msgctxt "GameSettings"
 msgid "FFB camera gain"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:427
+#: gui/panels/GUI_GameSettings.cpp:425
 msgctxt "GameSettings"
 msgid "FFB center gain"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:428
+#: gui/panels/GUI_GameSettings.cpp:426
 msgctxt "GameSettings"
 msgid "FFB master gain"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:429
+#: gui/panels/GUI_GameSettings.cpp:427
 msgctxt "GameSettings"
 msgid "FFB stress gain"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:433
+#: gui/panels/GUI_GameSettings.cpp:431
 msgctxt "GameSettings"
 msgid "Enable OutGauge protocol"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:436
+#: gui/panels/GUI_GameSettings.cpp:434
 msgctxt "GameSettings"
 msgid "OutGauge IP"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:438
+#: gui/panels/GUI_GameSettings.cpp:436
 msgctxt "GameSettings"
 msgid "OutGauge port"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:439
+#: gui/panels/GUI_GameSettings.cpp:437
 msgctxt "GameSettings"
 msgid "OutGauge ID"
 msgstr ""
 
-#: gui/panels/GUI_GameSettings.cpp:440
+#: gui/panels/GUI_GameSettings.cpp:438
 msgctxt "GameSettings"
 msgid "OutGauge delay"
 msgstr ""
@@ -2942,12 +2947,12 @@ msgctxt "TextureToolWindow"
 msgid "Save Raw"
 msgstr "Αποθήκευση ως PNG"
 
-#: gui/panels/GUI_TextureToolWindow.cpp:171
+#: gui/panels/GUI_TextureToolWindow.cpp:173
 msgctxt "TextureToolWindow"
 msgid "saved texture as "
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:62
+#: gui/panels/GUI_TopMenubar.cpp:115
 #, fuzzy
 #| msgctxt "GameSettings"
 #| msgid "Simulation settings"
@@ -2955,33 +2960,40 @@ msgctxt "TopMenubar"
 msgid "Simulation"
 msgstr "Ρυθμίσεις προσομοίωσης"
 
-#: gui/panels/GUI_TopMenubar.cpp:63
+#: gui/panels/GUI_TopMenubar.cpp:116
 #, fuzzy
 #| msgid "Vehicle Type: "
 msgctxt "TopMenubar"
 msgid "Vehicles"
 msgstr "Τύπος οχήματος: "
 
-#: gui/panels/GUI_TopMenubar.cpp:64
+#: gui/panels/GUI_TopMenubar.cpp:117
 #, fuzzy
 #| msgid "Save as PNG"
 msgctxt "TopMenubar"
 msgid "Saves"
 msgstr "Αποθήκευση ως PNG"
 
-#: gui/panels/GUI_TopMenubar.cpp:65
+#: gui/panels/GUI_TopMenubar.cpp:118
 #, fuzzy
 #| msgid "Fluid Settings"
 msgctxt "TopMenubar"
 msgid "Settings"
 msgstr "Fluid Ρυθμίσεις (ListenRead phonetically)"
 
-#: gui/panels/GUI_TopMenubar.cpp:66
+#: gui/panels/GUI_TopMenubar.cpp:119
 msgctxt "TopMenubar"
 msgid "Tools"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:172
+#: gui/panels/GUI_TopMenubar.cpp:120
+#, fuzzy
+#| msgid "Vehicle Type: "
+msgctxt "TopMenubar"
+msgid "Vehicle AI"
+msgstr "Τύπος οχήματος: "
+
+#: gui/panels/GUI_TopMenubar.cpp:255
 #, fuzzy
 #| msgctxt "GameSettings"
 #| msgid "Skip main menu"
@@ -2990,158 +3002,158 @@ msgid "Sim menu"
 msgstr "Παράλειψη βασικού μενού"
 
 #. TODO: Display hotkeys on the right side of the menu (with different text color)
-#: gui/panels/GUI_TopMenubar.cpp:176
+#: gui/panels/GUI_TopMenubar.cpp:259
 msgctxt "TopMenubar"
 msgid "Get new vehicle"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:187
+#: gui/panels/GUI_TopMenubar.cpp:270
 msgctxt "TopMenubar"
 msgid "Show vehicle description"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:194
+#: gui/panels/GUI_TopMenubar.cpp:277
 #, fuzzy
 #| msgid "Only current vehicle, main lights"
 msgctxt "TopMenubar"
 msgid "Reload current vehicle"
 msgstr "μονο τα φωτα του οχηματος, τα κυρια φωτα"
 
-#: gui/panels/GUI_TopMenubar.cpp:202
+#: gui/panels/GUI_TopMenubar.cpp:285
 msgctxt "TopMenubar"
 msgid "Remove current vehicle"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:210
+#: gui/panels/GUI_TopMenubar.cpp:293
 msgctxt "TopMenubar"
 msgid "Activate last spawned vehicle"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:218
+#: gui/panels/GUI_TopMenubar.cpp:301
 #, fuzzy
 #| msgid "Only current vehicle, main lights"
 msgctxt "TopMenubar"
 msgid "Reload last spawned vehicle"
 msgstr "μονο τα φωτα του οχηματος, τα κυρια φωτα"
 
-#: gui/panels/GUI_TopMenubar.cpp:226
+#: gui/panels/GUI_TopMenubar.cpp:309
 msgctxt "TopMenubar"
 msgid "Remove last spawned vehicle"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:235
+#: gui/panels/GUI_TopMenubar.cpp:318
 msgctxt "TopMenubar"
 msgid "Remove all vehicles"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:242
+#: gui/panels/GUI_TopMenubar.cpp:325
 msgctxt "TopMenubar"
 msgid " [!] Confirm removal"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:257
+#: gui/panels/GUI_TopMenubar.cpp:340
 msgctxt "TopMenubar"
 msgid "Activate all vehicles"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:263
+#: gui/panels/GUI_TopMenubar.cpp:346
 msgctxt "TopMenubar"
 msgid "Activated vehicles never sleep"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:268
+#: gui/panels/GUI_TopMenubar.cpp:351
 msgctxt "TopMenubar"
 msgid "Send all vehicles to sleep"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:276
+#: gui/panels/GUI_TopMenubar.cpp:359
 #, fuzzy
 #| msgid "Only current vehicle, main lights"
 msgctxt "TopMenubar"
 msgid "Reload current terrain"
 msgstr "μονο τα φωτα του οχηματος, τα κυρια φωτα"
 
-#: gui/panels/GUI_TopMenubar.cpp:289
+#: gui/panels/GUI_TopMenubar.cpp:372
 msgctxt "TopMenubar"
 msgid "Back to menu"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:299
+#: gui/panels/GUI_TopMenubar.cpp:382
 msgctxt "TopMenubar"
 msgid "Exit"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:316
+#: gui/panels/GUI_TopMenubar.cpp:399
 msgctxt "TopMenubar"
 msgid "Actors menu"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:347
+#: gui/panels/GUI_TopMenubar.cpp:430
 #, fuzzy
 #| msgid "Save as PNG"
 msgctxt "TopMenubar"
 msgid "Savegames"
 msgstr "Αποθήκευση ως PNG"
 
-#: gui/panels/GUI_TopMenubar.cpp:349
+#: gui/panels/GUI_TopMenubar.cpp:432
 msgctxt "TopMenubar"
 msgid "Quicksave"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:359
+#: gui/panels/GUI_TopMenubar.cpp:442
 msgctxt "TopMenubar"
 msgid "Quickload"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:370
+#: gui/panels/GUI_TopMenubar.cpp:453
 msgctxt "TopMenubar"
 msgid "(Save with CTRL+ALT+1..5)"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:373
+#: gui/panels/GUI_TopMenubar.cpp:456
 msgctxt "TopMenubar"
 msgid "Empty Slot"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:387
+#: gui/panels/GUI_TopMenubar.cpp:470
 msgctxt "TopMenubar"
 msgid "(Load with ALT+1..5)"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:415
+#: gui/panels/GUI_TopMenubar.cpp:498
 msgctxt "TopMenubar"
 msgid "Settings menu"
 msgstr ""
 
 #. Width includes [+/-] buttons
-#: gui/panels/GUI_TopMenubar.cpp:418
+#: gui/panels/GUI_TopMenubar.cpp:501
 msgctxt "TopMenubar"
 msgid "Audio:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:419
+#: gui/panels/GUI_TopMenubar.cpp:502
 msgctxt "TopMenubar"
 msgid "Volume"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:421
+#: gui/panels/GUI_TopMenubar.cpp:504
 msgctxt "TopMenubar"
 msgid "Frames per second:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:424
+#: gui/panels/GUI_TopMenubar.cpp:507
 #, fuzzy
 #| msgid "Reflection"
 msgctxt "TopMenubar"
 msgid "Reflections"
 msgstr "Αντανάκλαση"
 
-#: gui/panels/GUI_TopMenubar.cpp:426
+#: gui/panels/GUI_TopMenubar.cpp:509
 msgctxt "TopMenubar"
 msgid "Game"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:429
+#: gui/panels/GUI_TopMenubar.cpp:512
 #, fuzzy
 #| msgctxt "GameSettings"
 #| msgid "Simulation settings"
@@ -3149,281 +3161,447 @@ msgctxt "TopMenubar"
 msgid "Simulation:"
 msgstr "Ρυθμίσεις προσομοίωσης"
 
-#: gui/panels/GUI_TopMenubar.cpp:431
+#: gui/panels/GUI_TopMenubar.cpp:514
 msgctxt "TopMenubar"
 msgid "Slow motion"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:436
+#: gui/panels/GUI_TopMenubar.cpp:519
 #, fuzzy
 #| msgid "Times used: "
 msgctxt "TopMenubar"
 msgid "Time lapse"
 msgstr "Φορές χρησιμοποιούνται:"
 
-#: gui/panels/GUI_TopMenubar.cpp:443 gui/panels/GUI_TopMenubar.cpp:450
+#: gui/panels/GUI_TopMenubar.cpp:526 gui/panels/GUI_TopMenubar.cpp:533
 msgctxt "TopMenubar"
 msgid "Camera:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:444 gui/panels/GUI_TopMenubar.cpp:454
-#: gui/panels/GUI_TopMenubar.cpp:462
+#: gui/panels/GUI_TopMenubar.cpp:527 gui/panels/GUI_TopMenubar.cpp:537
+#: gui/panels/GUI_TopMenubar.cpp:545
 #, fuzzy
 #| msgid "FOV: "
 msgctxt "TopMenubar"
 msgid "FOV"
 msgstr "Πεδιο Ορατότητας: "
 
-#: gui/panels/GUI_TopMenubar.cpp:445
+#: gui/panels/GUI_TopMenubar.cpp:528
 msgctxt "TopMenubar"
 msgid "Height"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:469
+#: gui/panels/GUI_TopMenubar.cpp:552
 msgctxt "TopMenubar"
 msgid "Tracking"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:476
+#: gui/panels/GUI_TopMenubar.cpp:559
 msgctxt "TopMenubar"
 msgid "Time of day:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:483
+#: gui/panels/GUI_TopMenubar.cpp:566
 msgctxt "TopMenubar"
 msgid "Cycle"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:486
+#: gui/panels/GUI_TopMenubar.cpp:569 gui/panels/GUI_TopMenubar.cpp:867
 msgctxt "TopMenubar"
 msgid "Speed"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:495
+#: gui/panels/GUI_TopMenubar.cpp:578
 msgctxt "TopMenubar"
 msgid "Waves Height:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:507
+#: gui/panels/GUI_TopMenubar.cpp:590
 #, fuzzy
 #| msgid "Cockpit options:"
 msgctxt "TopMenubar"
 msgid "Vehicle control options:"
 msgstr "επιλογές θεσης του οδηγου"
 
-#: gui/panels/GUI_TopMenubar.cpp:508
+#: gui/panels/GUI_TopMenubar.cpp:591
 msgctxt "TopMenubar"
 msgid "Keyboard steering speed coupling"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:513
+#: gui/panels/GUI_TopMenubar.cpp:596
 msgctxt "TopMenubar"
 msgid "Multiplayer:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:514
+#: gui/panels/GUI_TopMenubar.cpp:597
 #, fuzzy
 #| msgid "Debug Collision Meshes"
 msgctxt "TopMenubar"
 msgid "Collisions"
 msgstr "Debug Collision Meshes"
 
-#: gui/panels/GUI_TopMenubar.cpp:515
+#: gui/panels/GUI_TopMenubar.cpp:598
 msgctxt "TopMenubar"
 msgid "Hide labels"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:530
+#: gui/panels/GUI_TopMenubar.cpp:613
 msgctxt "TopMenubar"
 msgid "Tools menu"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:532
+#: gui/panels/GUI_TopMenubar.cpp:615
 #, fuzzy
 #| msgid "Friction Settings"
 msgctxt "TopMenubar"
 msgid "Friction settings"
 msgstr "Τριβής Ρυθμίσεις"
 
-#: gui/panels/GUI_TopMenubar.cpp:538
+#: gui/panels/GUI_TopMenubar.cpp:621
 #, fuzzy
 #| msgid "show / hide the console"
 msgctxt "TopMenubar"
 msgid "Show console"
 msgstr "δείξε / κρύψε την κονσόλα"
 
-#: gui/panels/GUI_TopMenubar.cpp:544
+#: gui/panels/GUI_TopMenubar.cpp:627
 #, fuzzy
 #| msgid "Texture shadows"
 msgctxt "TopMenubar"
 msgid "Texture tool"
 msgstr "Σκιές υφής"
 
-#: gui/panels/GUI_TopMenubar.cpp:552
+#: gui/panels/GUI_TopMenubar.cpp:633
+#, fuzzy
+#| msgid "Debug Collision Meshes"
+msgctxt "TopMenubar"
+msgid "Collisions debug"
+msgstr "Debug Collision Meshes"
+
+#: gui/panels/GUI_TopMenubar.cpp:641
 msgctxt "TopMenubar"
 msgid "Node / Beam utility"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:560
+#: gui/panels/GUI_TopMenubar.cpp:649
 msgctxt "TopMenubar"
 msgid "Pre-spawn diag. options:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:563
+#: gui/panels/GUI_TopMenubar.cpp:652
 msgctxt "TopMenubar"
 msgid "Node mass recalc. logging"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:570
+#: gui/panels/GUI_TopMenubar.cpp:659
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime - mass recalculation"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:575
+#: gui/panels/GUI_TopMenubar.cpp:664
 #, fuzzy
 #| msgid "Beam Break Debug"
 msgctxt "TopMenubar"
 msgid "Beam break logging"
 msgstr "Δέσμη Break Debug"
 
-#: gui/panels/GUI_TopMenubar.cpp:582 gui/panels/GUI_TopMenubar.cpp:594
+#: gui/panels/GUI_TopMenubar.cpp:671 gui/panels/GUI_TopMenubar.cpp:683
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:587
+#: gui/panels/GUI_TopMenubar.cpp:676
 #, fuzzy
 #| msgid "Beam Deform Debug"
 msgctxt "TopMenubar"
 msgid "Beam deform. logging"
 msgstr "Δέσμη παραμορφώνεται Debug"
 
-#: gui/panels/GUI_TopMenubar.cpp:599
+#: gui/panels/GUI_TopMenubar.cpp:688
 #, fuzzy
 #| msgid "Trigger Debug"
 msgctxt "TopMenubar"
 msgid "Trigger logging"
 msgstr "Trigger Debug"
 
-#: gui/panels/GUI_TopMenubar.cpp:606
+#: gui/panels/GUI_TopMenubar.cpp:695
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime - trigger beams activity"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:611
+#: gui/panels/GUI_TopMenubar.cpp:700
 msgctxt "TopMenubar"
 msgid "VideoCamera direction marker"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:618
+#: gui/panels/GUI_TopMenubar.cpp:707
 msgctxt "TopMenubar"
 msgid "Visual marker of VideoCameras direction"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:626
+#: gui/panels/GUI_TopMenubar.cpp:715
 msgctxt "TopMenubar"
 msgid "Live diagnostic views:"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:627
+#: gui/panels/GUI_TopMenubar.cpp:716
 #, c-format
 msgctxt "TopMenubar"
 msgid "(Toggle with %s)"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:628
+#: gui/panels/GUI_TopMenubar.cpp:717
 #, c-format
 msgctxt "TopMenubar"
 msgid "(Cycle with %s)"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:635
+#: gui/panels/GUI_TopMenubar.cpp:724
 msgctxt "TopMenubar"
 msgid "Normal view"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:636
+#: gui/panels/GUI_TopMenubar.cpp:725
 #, fuzzy
 #| msgid "Skeletons: "
 msgctxt "TopMenubar"
 msgid "Skeleton view"
 msgstr "Σκελετοί: "
 
-#: gui/panels/GUI_TopMenubar.cpp:637
+#: gui/panels/GUI_TopMenubar.cpp:726
 msgctxt "TopMenubar"
 msgid "Node details"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:638
+#: gui/panels/GUI_TopMenubar.cpp:727
 msgctxt "TopMenubar"
 msgid "Beam details"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:641
+#: gui/panels/GUI_TopMenubar.cpp:730
 msgctxt "TopMenubar"
 msgid "Wheel details"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:645
+#: gui/panels/GUI_TopMenubar.cpp:734
 msgctxt "TopMenubar"
 msgid "Shock details"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:649
+#: gui/panels/GUI_TopMenubar.cpp:738
 #, fuzzy
 #| msgid "Rotators: "
 msgctxt "TopMenubar"
 msgid "Rotator details"
 msgstr "Περιστροφείς:"
 
-#: gui/panels/GUI_TopMenubar.cpp:653
+#: gui/panels/GUI_TopMenubar.cpp:742
 msgctxt "TopMenubar"
 msgid "Slidenode details"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:657
+#: gui/panels/GUI_TopMenubar.cpp:746
 msgctxt "TopMenubar"
 msgid "Submesh details"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:668
+#: gui/panels/GUI_TopMenubar.cpp:757
 #, fuzzy
 #| msgid "Fluid Settings"
 msgctxt "TopMenubar"
 msgid "Settings:"
 msgstr "Fluid Ρυθμίσεις (ListenRead phonetically)"
 
-#: gui/panels/GUI_TopMenubar.cpp:669
+#: gui/panels/GUI_TopMenubar.cpp:758
 msgctxt "TopMenubar"
 msgid "Hide broken beams"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:670
+#: gui/panels/GUI_TopMenubar.cpp:759
 msgctxt "TopMenubar"
 msgid "Hide beam stress"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:671
+#: gui/panels/GUI_TopMenubar.cpp:760
 msgctxt "TopMenubar"
 msgid "Hide wheels"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:672
+#: gui/panels/GUI_TopMenubar.cpp:761
 msgctxt "TopMenubar"
 msgid "Hide nodes"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:675
+#: gui/panels/GUI_TopMenubar.cpp:764
 msgctxt "TopMenubar"
 msgid "Hide wheel info"
 msgstr ""
 
+#: gui/panels/GUI_TopMenubar.cpp:781
+#, fuzzy
+#| msgctxt "GameSettings"
+#| msgid "Skip main menu"
+msgctxt "TopMenubar"
+msgid "AI menu"
+msgstr "Παράλειψη βασικού μενού"
+
+#. Width includes [+/-] buttons
+#: gui/panels/GUI_TopMenubar.cpp:789
+#, fuzzy
+#| msgid "Cockpit options:"
+msgctxt "TopMenubar"
+msgid "General options:"
+msgstr "επιλογές θεσης του οδηγου"
+
+#: gui/panels/GUI_TopMenubar.cpp:794
+#, fuzzy
+#| msgid "Vehicle Type: "
+msgctxt "TopMenubar"
+msgid "Vehicle count"
+msgstr "Τύπος οχήματος: "
+
 #: gui/panels/GUI_TopMenubar.cpp:798
+msgctxt "TopMenubar"
+msgid "Number of vehicles"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:808
+msgctxt "TopMenubar"
+msgid "Distance"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:812
+msgctxt "TopMenubar"
+msgid "Following distance in meters"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:837
+msgctxt "TopMenubar"
+msgid "Positioning scheme"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:839
+msgctxt "TopMenubar"
+msgid "Behind: Set vehicle behind vehicle, in line"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:840
+msgctxt "TopMenubar"
+msgid ""
+"Parallel: Set vehicles in parallel, useful for certain scenarios like drag "
+"races"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:853
+msgctxt "TopMenubar"
+msgid "Repeat times"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:857
+msgctxt "TopMenubar"
+msgid "How many times to loop the path"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:862
+#, fuzzy
+#| msgid "Cockpit options:"
+msgctxt "TopMenubar"
+msgid "Vehicle options:"
+msgstr "επιλογές θεσης του οδηγου"
+
+#: gui/panels/GUI_TopMenubar.cpp:871
+msgctxt "TopMenubar"
+msgid "Speed in km/h for land vehicles or knots/s for boats"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:904
+msgctxt "TopMenubar"
+msgid "Land vehicle driving mode"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:906
+msgctxt "TopMenubar"
+msgid "Normal: Modify speed according to turns, other vehicles and character"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:907
+msgctxt "TopMenubar"
+msgid "Race: Always keep defined speed"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:908
+msgctxt "TopMenubar"
+msgid "Chase: Follow character and player vehicle"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:915
+msgctxt "TopMenubar"
+msgid "Altitude"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:919
+msgctxt "TopMenubar"
+msgid "Airplane maximum altitude in feet"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:936
+msgctxt "TopMenubar"
+msgid "Land vehicles, boats and airplanes"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:953
+#, fuzzy
+#| msgid "loading...\n"
+msgctxt "TopMenubar"
+msgid "Start"
+msgstr "φορτώνει...\n"
+
+#: gui/panels/GUI_TopMenubar.cpp:973
+msgctxt "TopMenubar"
+msgid "Select a preset, record or open survey map ({}) to set waypoints."
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:990
+msgctxt "TopMenubar"
+msgid "Stop"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:1038
+msgctxt "TopMenubar"
+msgid "Presets"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:1079
+msgctxt "TopMenubar"
+msgid "No presets found for this terrain :("
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:1083
+msgctxt "TopMenubar"
+msgid "Waypoints"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:1087
+msgctxt "TopMenubar"
+msgid "No waypoints defined."
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:1091
+msgctxt "TopMenubar"
+msgid "Export"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:1099
+msgctxt "TopMenubar"
+msgid "{} waypoints exported to RoR.log"
+msgstr ""
+
+#: gui/panels/GUI_TopMenubar.cpp:1254
 msgctxt "TopMenubar"
 msgid "None spawned yet"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:799
+#: gui/panels/GUI_TopMenubar.cpp:1255
 #, fuzzy
 #| msgctxt "GameSettings"
 #| msgid "Simulation settings"
@@ -3431,37 +3609,64 @@ msgctxt "TopMenubar"
 msgid "Use [Simulation] menu"
 msgstr "Ρυθμίσεις προσομοίωσης"
 
-#: gui/panels/GUI_TopMenubar.cpp:860
+#: gui/panels/GUI_TopMenubar.cpp:1316
 msgctxt "TopMenubar"
 msgid "All physics paused, press {} to resume"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:869
+#: gui/panels/GUI_TopMenubar.cpp:1325
 msgctxt "TopMenubar"
 msgid "Vehicle physics paused, press {} to resume"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:878
+#: gui/panels/GUI_TopMenubar.cpp:1334
 #, fuzzy
 #| msgid "Gameplay"
 msgctxt "TopMenubar"
 msgid "Replay"
 msgstr "Παιχνιδι"
 
-#: gui/panels/GUI_TopMenubar.cpp:901
+#: gui/panels/GUI_TopMenubar.cpp:1357
 msgctxt "DirectionArrow"
 msgid "meter"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:920
+#: gui/panels/GUI_TopMenubar.cpp:1376
 msgctxt "TopMenubar"
 msgid "Terrain editing mode, press {} to save and exit"
 msgstr ""
 
-#: gui/panels/GUI_TopMenubar.cpp:960
+#: gui/panels/GUI_TopMenubar.cpp:1416
 msgctxt "TopMenubar"
 msgid "Time"
 msgstr ""
+
+#: gui/panels/GUI_VehicleButtons.cpp:64
+msgctxt "VehicleButtons"
+msgid "Hover the mouse on the left to see controls"
+msgstr ""
+
+#. Align with the buttons
+#: gui/panels/GUI_VehicleButtons.cpp:82
+#, fuzzy
+#| msgid "Controls"
+msgctxt "VehicleButtons"
+msgid "Main Controls"
+msgstr "Χειρισμός"
+
+#. Align with the buttons
+#: gui/panels/GUI_VehicleButtons.cpp:129
+msgctxt "VehicleButtons"
+msgid "Custom Lights"
+msgstr ""
+
+#. Align with the buttons
+#: gui/panels/GUI_VehicleButtons.cpp:135
+#, fuzzy
+#| msgid "Commands: "
+msgctxt "VehicleButtons"
+msgid "Commands"
+msgstr "Εντολές:"
 
 #: gui/panels/GUI_VehicleDescription.cpp:66
 #, fuzzy
@@ -3498,66 +3703,66 @@ msgctxt "VehicleDescription"
 msgid "(no author information available) "
 msgstr "Δεν υπάρχουν πληροφορίες απο τον συντάκτη."
 
-#: main.cpp:355
+#: main.cpp:356
 msgid "Display mode changed to fullscreen"
 msgstr ""
 
-#: main.cpp:361
+#: main.cpp:362
 msgid "Display mode changed to windowed"
 msgstr ""
 
-#: main.cpp:413
+#: main.cpp:414
 msgctxt "Network"
 msgid "Network disconnected"
 msgstr ""
 
-#: main.cpp:421
+#: main.cpp:422
 msgid "Network fatal error: "
 msgstr "δεν βρισκει δικτιο. ειπαρχει σφαλμα"
 
-#: main.cpp:469
+#: main.cpp:470
 msgctxt "Network"
 msgid "Multiplayer: connection failed"
 msgstr ""
 
-#: main.cpp:515
+#: main.cpp:520
 msgid "Loading resources"
 msgstr ""
 
-#: main.cpp:547
+#: main.cpp:552
 msgctxt "ChatBox"
 msgid "Press {} to start chatting"
 msgstr ""
 
-#: main.cpp:601
+#: main.cpp:608
 #, fuzzy
 #| msgid "Could not write config file"
 msgid "Could not read savegame file"
 msgstr "Δεν μπόρεσε να γίνει εγγραφή στο αρχείο config"
 
-#: main.cpp:614 physics/Savegame.cpp:266
+#: main.cpp:621 physics/Savegame.cpp:266
 #, fuzzy
 #| msgid "Error while loading landuse config"
 msgid "Error while loading scene: Terrain mismatch"
 msgstr "Σφάλμα κατά τη φόρτωση ρυθμίσεων χρήσης έκτασης"
 
-#: main.cpp:758
+#: main.cpp:765
 msgid "Entered terrain editing mode"
 msgstr ""
 
-#: main.cpp:760
+#: main.cpp:767
 msgid "Press {} or middle mouse click to select an object"
 msgstr ""
 
-#: main.cpp:772
+#: main.cpp:779
 msgid "Left terrain editing mode"
 msgstr ""
 
-#: main.cpp:1016
+#: main.cpp:1023
 msgid "An exception has occured!"
 msgstr "Μια εξαίρεση έχει συμβεί!"
 
-#: main.cpp:1021
+#: main.cpp:1028
 msgid "An exception (std::runtime_error) has occured!"
 msgstr ""
 
@@ -3733,64 +3938,64 @@ msgctxt "NetUserAuth"
 msgid "Banned user"
 msgstr "βαθμολογημενος χρηστης"
 
-#: physics/Actor.cpp:390
+#: physics/Actor.cpp:399
 #, fuzzy
 #| msgid "No content installed"
 msgid " content mismatch: "
 msgstr "Δεν εγκατεστημένο περιεχόμενο"
 
-#: physics/Actor.cpp:1278
+#: physics/Actor.cpp:1287
 msgid "No inter-axle differential installed on current vehicle!"
 msgstr ""
 
-#: physics/Actor.cpp:1292 physics/Actor.cpp:1318
+#: physics/Actor.cpp:1301 physics/Actor.cpp:1327
 msgid "Axle "
 msgstr ""
 
-#: physics/Actor.cpp:1306
+#: physics/Actor.cpp:1315
 msgid "No inter-wheel differential installed on current vehicle!"
 msgstr ""
 
-#: physics/Actor.cpp:1332
+#: physics/Actor.cpp:1341
 msgid "Transfercase switched to: "
 msgstr ""
 
-#: physics/Actor.cpp:1337
+#: physics/Actor.cpp:1346
 msgid "No transfercase installed on current vehicle!"
 msgstr ""
 
-#: physics/Actor.cpp:1902
+#: physics/Actor.cpp:1911
 msgid "Actor is too big to be sent over the net."
 msgstr ""
 
-#: physics/Actor.cpp:1902
+#: physics/Actor.cpp:1911
 msgid "Network error!"
 msgstr "Σφάλμα δικτύου"
 
-#: physics/ActorManager.cpp:379
+#: physics/ActorManager.cpp:386
 msgid "spawned a new vehicle: "
 msgstr ""
 
-#: physics/ActorManager.cpp:389
+#: physics/ActorManager.cpp:396
 #, fuzzy
 #| msgid "No content installed"
 msgid "Mod not installed: "
 msgstr "Δεν εγκατεστημένο περιεχόμενο"
 
-#: physics/ActorManager.cpp:1271 physics/ActorManager.cpp:1280
-#: physics/ActorManager.cpp:1298
+#: physics/ActorManager.cpp:1281 physics/ActorManager.cpp:1290
+#: physics/ActorManager.cpp:1308
 msgid "New simulation speed: "
 msgstr ""
 
-#: physics/ActorManager.cpp:1292
+#: physics/ActorManager.cpp:1302
 msgid "Simulation speed reset."
 msgstr ""
 
-#: physics/ActorManager.cpp:1318
+#: physics/ActorManager.cpp:1328
 msgid "Physics paused"
 msgstr ""
 
-#: physics/ActorManager.cpp:1323
+#: physics/ActorManager.cpp:1333
 msgid "Physics unpaused"
 msgstr ""
 
@@ -3880,11 +4085,11 @@ msgstr "Σφάλμα κατά τη φόρτωση ρυθμίσεων χρήση�
 msgid "Scene saved"
 msgstr ""
 
-#: physics/collision/Collisions.cpp:204
+#: physics/collision/Collisions.cpp:195
 msgid "Configuration error"
 msgstr "σφάλμα διαμορφοσης-διαμορφοτη"
 
-#: physics/collision/Collisions.cpp:204
+#: physics/collision/Collisions.cpp:195
 msgid ""
 "Your ground configuration is too old, please copy skeleton/config/"
 "ground_models.cfg to My Documents/Rigs of Rods/config"
@@ -3893,191 +4098,191 @@ msgstr ""
 "αντίγραφο / config / ground_models.cfg στα έγγραφά μου / Rigs of Rods / "
 "config"
 
-#: resources/CacheSystem.cpp:466
+#: resources/CacheSystem.cpp:471
 #, fuzzy
 #| msgid "Non-Driveable"
 msgctxt "MainSelector"
 msgid "Non-Driveable"
 msgstr "Μη-οδηγήσημο"
 
-#: resources/CacheSystem.cpp:467
+#: resources/CacheSystem.cpp:472
 #, fuzzy
 #| msgid "Truck"
 msgctxt "MainSelector"
 msgid "Truck"
 msgstr "Φορτηγό"
 
-#: resources/CacheSystem.cpp:468
+#: resources/CacheSystem.cpp:473
 #, fuzzy
 #| msgid "Airplane"
 msgctxt "MainSelector"
 msgid "Airplane"
 msgstr "Αεροπλάνο"
 
-#: resources/CacheSystem.cpp:469
+#: resources/CacheSystem.cpp:474
 #, fuzzy
 #| msgid "Boat"
 msgctxt "MainSelector"
 msgid "Boat"
 msgstr "Σκάφος"
 
-#: resources/CacheSystem.cpp:470
+#: resources/CacheSystem.cpp:475
 #, fuzzy
 #| msgid "Machine"
 msgctxt "MainSelector"
 msgid "Machine"
 msgstr "Μηχανή"
 
-#: resources/CacheSystem.cpp:471
+#: resources/CacheSystem.cpp:476
 msgctxt "MainSelector"
 msgid "A.I."
 msgstr ""
 
-#: resources/CacheSystem.cpp:981
+#: resources/CacheSystem.cpp:986
 msgid "Loading zips in group "
 msgstr "Φορτώνονται σε γκρούπ τα σιμπιεσμένα αρχεια "
 
 #. these are the category numbers from the repository. do not modify them!
 #. vehicles
-#: resources/CacheSystem.h:258
+#: resources/CacheSystem.h:259
 msgctxt "ModCategory"
 msgid "Other Land Vehicles"
 msgstr ""
 
-#: resources/CacheSystem.h:260
+#: resources/CacheSystem.h:261
 msgctxt "ModCategory"
 msgid "Street Cars"
 msgstr ""
 
-#: resources/CacheSystem.h:261
+#: resources/CacheSystem.h:262
 msgctxt "ModCategory"
 msgid "Light Racing Cars"
 msgstr ""
 
-#: resources/CacheSystem.h:262
+#: resources/CacheSystem.h:263
 msgctxt "ModCategory"
 msgid "Offroad Cars"
 msgstr ""
 
-#: resources/CacheSystem.h:263
+#: resources/CacheSystem.h:264
 msgctxt "ModCategory"
 msgid "Fantasy Cars"
 msgstr ""
 
-#: resources/CacheSystem.h:264
+#: resources/CacheSystem.h:265
 msgctxt "ModCategory"
 msgid "Bikes"
 msgstr ""
 
-#: resources/CacheSystem.h:265
+#: resources/CacheSystem.h:266
 msgctxt "ModCategory"
 msgid "Crawlers"
 msgstr ""
 
-#: resources/CacheSystem.h:267
+#: resources/CacheSystem.h:268
 msgctxt "ModCategory"
 msgid "Towercranes"
 msgstr ""
 
-#: resources/CacheSystem.h:268
+#: resources/CacheSystem.h:269
 msgctxt "ModCategory"
 msgid "Mobile Cranes"
 msgstr ""
 
-#: resources/CacheSystem.h:269
+#: resources/CacheSystem.h:270
 msgctxt "ModCategory"
 msgid "Other cranes"
 msgstr ""
 
-#: resources/CacheSystem.h:271
+#: resources/CacheSystem.h:272
 msgctxt "ModCategory"
 msgid "Buses"
 msgstr ""
 
-#: resources/CacheSystem.h:272
+#: resources/CacheSystem.h:273
 msgctxt "ModCategory"
 msgid "Tractors"
 msgstr ""
 
-#: resources/CacheSystem.h:273
+#: resources/CacheSystem.h:274
 msgctxt "ModCategory"
 msgid "Forklifts"
 msgstr ""
 
-#: resources/CacheSystem.h:274
+#: resources/CacheSystem.h:275
 msgctxt "ModCategory"
 msgid "Fantasy Trucks"
 msgstr ""
 
-#: resources/CacheSystem.h:275
+#: resources/CacheSystem.h:276
 msgctxt "ModCategory"
 msgid "Transport Trucks"
 msgstr ""
 
-#: resources/CacheSystem.h:276
+#: resources/CacheSystem.h:277
 msgctxt "ModCategory"
 msgid "Racing Trucks"
 msgstr ""
 
-#: resources/CacheSystem.h:277
+#: resources/CacheSystem.h:278
 #, fuzzy
 #| msgid "reload truck"
 msgctxt "ModCategory"
 msgid "Offroad Trucks"
 msgstr "επανακινιση θεσης αυτοκινιτου"
 
-#: resources/CacheSystem.h:279
+#: resources/CacheSystem.h:280
 #, fuzzy
 #| msgid "Boat"
 msgctxt "ModCategory"
 msgid "Boats"
 msgstr "Σκάφος"
 
-#: resources/CacheSystem.h:281
+#: resources/CacheSystem.h:282
 msgctxt "ModCategory"
 msgid "Helicopters"
 msgstr ""
 
-#: resources/CacheSystem.h:282
+#: resources/CacheSystem.h:283
 msgctxt "ModCategory"
 msgid "Aircraft"
 msgstr ""
 
-#: resources/CacheSystem.h:284
+#: resources/CacheSystem.h:285
 msgctxt "ModCategory"
 msgid "Trailers"
 msgstr ""
 
-#: resources/CacheSystem.h:285
+#: resources/CacheSystem.h:286
 msgctxt "ModCategory"
 msgid "Other Loads"
 msgstr ""
 
 #. terrains
-#: resources/CacheSystem.h:288
+#: resources/CacheSystem.h:289
 #, fuzzy
 #| msgid "Loading Terrain"
 msgctxt "ModCategory"
 msgid "Addon Terrains"
 msgstr "Φόρτωση του χώρου"
 
-#: resources/CacheSystem.h:290
+#: resources/CacheSystem.h:291
 msgctxt "ModCategory"
 msgid "Container"
 msgstr ""
 
-#: resources/CacheSystem.h:292
+#: resources/CacheSystem.h:293
 msgctxt "ModCategory"
 msgid "Submarine"
 msgstr ""
 
 #. note: these categories are NOT in the repository:
-#: resources/CacheSystem.h:295
+#: resources/CacheSystem.h:296
 msgctxt "ModCategory"
 msgid "Official Terrains"
 msgstr ""
 
-#: resources/CacheSystem.h:296
+#: resources/CacheSystem.h:297
 #, fuzzy
 #| msgid "Loading Terrain"
 msgctxt "ModCategory"
@@ -4085,29 +4290,29 @@ msgid "Night Terrains"
 msgstr "Φόρτωση του χώρου"
 
 #. do not use category numbers above 9000!
-#: resources/CacheSystem.h:299
+#: resources/CacheSystem.h:300
 msgctxt "ModCategory"
 msgid "Unsorted"
 msgstr ""
 
-#: resources/CacheSystem.h:300
+#: resources/CacheSystem.h:301
 #, fuzzy
 #| msgid "All"
 msgctxt "ModCategory"
 msgid "All"
 msgstr "Όλα"
 
-#: resources/CacheSystem.h:301
+#: resources/CacheSystem.h:302
 msgctxt "ModCategory"
 msgid "Fresh"
 msgstr ""
 
-#: resources/CacheSystem.h:302
+#: resources/CacheSystem.h:303
 msgctxt "ModCategory"
 msgid "Hidden"
 msgstr ""
 
-#: scripting/GameScript.cpp:789
+#: scripting/GameScript.cpp:823
 msgid "using Online API..."
 msgstr ""
 
@@ -4173,7 +4378,7 @@ msgstr ""
 msgid "spawnobject  - spawn a object at the player position"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:179
+#: system/ConsoleCmd.cpp:179 system/ConsoleCmd.cpp:406
 #, fuzzy
 #| msgid "Missing someone?"
 msgid "Missing parameter: "
@@ -4223,7 +4428,7 @@ msgstr ""
 msgid "Run AngelScript code snippet"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:347
+#: system/ConsoleCmd.cpp:347 system/ConsoleCmd.cpp:424
 msgid "Scripting disabled in this build"
 msgstr ""
 
@@ -4247,59 +4452,148 @@ msgstr ""
 msgid "- use Arrow Up/Down Keys in the InputBox to reuse old messages"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:397
+#: system/ConsoleCmd.cpp:394
+#, fuzzy
+#| msgid "Description: "
+msgid "Runs an AngelScript file"
+msgstr "Περιγραφή: "
+
+#: system/ConsoleCmd.cpp:414
+msgid ""
+"Failed to load script. See 'Angelscript.log' or use console command `log` "
+"and retry."
+msgstr ""
+
+#: system/ConsoleCmd.cpp:419
+msgid "Script '{}' running with ID '{}'"
+msgstr ""
+
+#: system/ConsoleCmd.cpp:437
 msgid "Print cvars with one of <expr> in name"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:436
+#: system/ConsoleCmd.cpp:476
 msgid "Get or set value of existing CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:464
+#: system/ConsoleCmd.cpp:504
 msgid "No such CVar: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:526
+#: system/ConsoleCmd.cpp:566
 msgid "Set or create string CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:532
+#: system/ConsoleCmd.cpp:572
 msgid "Set or create boolean CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:538
+#: system/ConsoleCmd.cpp:578
 msgid "Set or create integer CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:544
+#: system/ConsoleCmd.cpp:584
 msgid "Set or create real-number CVar"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:550
+#: system/ConsoleCmd.cpp:590
 msgid "Clear console history. Types: all/info/net/chat/terrn/actor/script"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:587
+#: system/ConsoleCmd.cpp:627
 msgid "No such message type: {}"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:637
+#: system/ConsoleCmd.cpp:678
 msgid ""
 "Using slashes before commands are deprecated, you can now type command "
 "without any slashes"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:660
+#: system/ConsoleCmd.cpp:701
 msgid "unknown command: "
 msgstr ""
 
-#: system/ConsoleCmd.cpp:676
+#: system/ConsoleCmd.cpp:717
 msgid "Only allowed when simulation is running"
 msgstr ""
 
-#: system/ConsoleCmd.cpp:680
+#: system/ConsoleCmd.cpp:721
 msgid "Not allowed in current app state"
 msgstr ""
+
+#: terrain/Terrain.cpp:153
+msgid "Initializing Shadow Subsystem"
+msgstr ""
+
+#: terrain/Terrain.cpp:156
+msgid "Initializing Geometry Subsystem"
+msgstr ""
+
+#: terrain/Terrain.cpp:159
+msgid "Initializing Object Subsystem"
+msgstr ""
+
+#. *.odef files
+#: terrain/Terrain.cpp:162
+msgid "Initializing Camera Subsystem"
+msgstr ""
+
+#. sky, must come after camera due to m_sight_range
+#: terrain/Terrain.cpp:166
+msgid "Initializing Sky Subsystem"
+msgstr ""
+
+#: terrain/Terrain.cpp:169
+msgid "Initializing Light Subsystem"
+msgstr ""
+
+#: terrain/Terrain.cpp:174
+msgid "Initializing Fog Subsystem"
+msgstr ""
+
+#: terrain/Terrain.cpp:178
+msgid "Initializing Vegetation Subsystem"
+msgstr ""
+
+#: terrain/Terrain.cpp:183
+msgid "Loading Terrain Geometry"
+msgstr ""
+
+#: terrain/Terrain.cpp:189
+msgid "Initializing Collision Subsystem"
+msgstr ""
+
+#: terrain/Terrain.cpp:192
+msgid "Initializing Script Subsystem"
+msgstr ""
+
+#. END Hack for GameScript::spawnObject()
+#: terrain/Terrain.cpp:197
+msgid "Initializing Water Subsystem"
+msgstr ""
+
+#: terrain/Terrain.cpp:200
+msgid "Loading Terrain Objects"
+msgstr ""
+
+#. END Hack for the Landusemap
+#: terrain/Terrain.cpp:210
+msgid "Initializing terrain light properties"
+msgstr ""
+
+#. END Hack for the Collision debug visual
+#. *.terrn2 file feature
+#. Particle effects
+#: terrain/Terrain.cpp:220
+msgid "Initializing Overview Map Subsystem"
+msgstr ""
+
+#: terrain/Terrain.cpp:226
+#, fuzzy
+#| msgid "Loading Terrain"
+msgid "Loading Terrain Actors"
+msgstr "Φόρτωση του χώρου"
 
 #: terrain/TerrainEditor.cpp:121 terrain/TerrainEditor.cpp:124
 msgid "ry"
@@ -4339,79 +4633,6 @@ msgstr "Φόρτωση του χώρου"
 #: terrain/TerrainGeometryManager.cpp:373
 msgid "Saving all terrain pages ..."
 msgstr ""
-
-#: terrain/TerrainManager.cpp:160
-msgid "Initializing Shadow Subsystem"
-msgstr ""
-
-#: terrain/TerrainManager.cpp:163
-msgid "Initializing Geometry Subsystem"
-msgstr ""
-
-#: terrain/TerrainManager.cpp:166
-msgid "Initializing Object Subsystem"
-msgstr ""
-
-#. *.odef files
-#: terrain/TerrainManager.cpp:169
-msgid "Initializing Camera Subsystem"
-msgstr ""
-
-#. sky, must come after camera due to m_sight_range
-#: terrain/TerrainManager.cpp:173
-msgid "Initializing Sky Subsystem"
-msgstr ""
-
-#: terrain/TerrainManager.cpp:176
-msgid "Initializing Light Subsystem"
-msgstr ""
-
-#: terrain/TerrainManager.cpp:181
-msgid "Initializing Fog Subsystem"
-msgstr ""
-
-#: terrain/TerrainManager.cpp:185
-msgid "Initializing Vegetation Subsystem"
-msgstr ""
-
-#: terrain/TerrainManager.cpp:190
-msgid "Loading Terrain Geometry"
-msgstr ""
-
-#: terrain/TerrainManager.cpp:196
-msgid "Initializing Collision Subsystem"
-msgstr ""
-
-#: terrain/TerrainManager.cpp:199
-msgid "Initializing Script Subsystem"
-msgstr ""
-
-#. END Hack for GameScript::spawnObject()
-#: terrain/TerrainManager.cpp:204
-msgid "Initializing Water Subsystem"
-msgstr ""
-
-#: terrain/TerrainManager.cpp:207
-msgid "Loading Terrain Objects"
-msgstr ""
-
-#. END Hack for the Landusemap
-#: terrain/TerrainManager.cpp:217
-msgid "Initializing terrain light properties"
-msgstr ""
-
-#. END Hack for the Collision debug visual
-#. *.terrn2 file feature
-#. Particle effects
-#: terrain/TerrainManager.cpp:227
-msgid "Initializing Overview Map Subsystem"
-msgstr ""
-
-#: terrain/TerrainManager.cpp:233
-#, fuzzy
-#| msgid "Loading Terrain"
-msgid "Loading Terrain Actors"
-msgstr "Φόρτωση του χώρου"
 
 #: utils/ErrorUtils.cpp:43
 msgid ""
@@ -4504,54 +4725,47 @@ msgstr "για σκοπούς αποκωδικοποίησης - μήν το χ�
 
 #: utils/InputEngine.cpp:48
 #, fuzzy
-#| msgid "toggle render mode (solid, wireframe and points)"
-msgctxt "InputEvent"
-msgid "toggle render mode (solid, wireframe and points)"
-msgstr "ενεργοποίηση μεθόδου απόδοσης (σταθερή, καλωδιόγραμμα και σημεία)"
-
-#: utils/InputEngine.cpp:49
-#, fuzzy
 #| msgid "enable or disable replay mode"
 msgctxt "InputEvent"
 msgid "enable or disable physics"
 msgstr "ενεροποίησε ή απενεροποιησε το replay"
 
-#: utils/InputEngine.cpp:50
+#: utils/InputEngine.cpp:49
 #, fuzzy
 #| msgid "decreases the current FOV value"
 msgctxt "InputEvent"
 msgid "decreases the current FOV value"
 msgstr "Μειώνει την τιμή του πεδίου ορατότητας"
 
-#: utils/InputEngine.cpp:51
+#: utils/InputEngine.cpp:50
 #, fuzzy
 #| msgid "increase the current FOV value"
 msgctxt "InputEvent"
 msgid "increase the current FOV value"
 msgstr "αύξηση της τιμής του Π.Ο."
 
-#: utils/InputEngine.cpp:52
+#: utils/InputEngine.cpp:51
 #, fuzzy
 #| msgid "increase the current FOV value"
 msgctxt "InputEvent"
 msgid "reset the FOV value"
 msgstr "αύξηση της τιμής του Π.Ο."
 
-#: utils/InputEngine.cpp:53
+#: utils/InputEngine.cpp:52
 #, fuzzy
 #| msgid "save the currently loaded terrain to a mesh file"
 msgctxt "InputEvent"
 msgid "save the currently loaded terrain to a mesh file"
 msgstr "αποθηκεύσετε το τρέχον terrain σε ενα αρχειο (mesh)"
 
-#: utils/InputEngine.cpp:54
+#: utils/InputEngine.cpp:53
 #, fuzzy
 #| msgid "toggle traction control"
 msgctxt "InputEvent"
 msgid "toggle terrain editor"
 msgstr "εναλλαγή σύστημα ελέγχου πρόσφυσης"
 
-#: utils/InputEngine.cpp:55
+#: utils/InputEngine.cpp:54
 #, fuzzy
 #| msgid "toggle between windowed and fullscreen mode"
 msgctxt "InputEvent"
@@ -4559,54 +4773,54 @@ msgid "toggle between windowed and fullscreen mode"
 msgstr "εναλλαγή μεταξύ προβολής παραθύρου και πλήρους προβολής"
 
 #. Comon: actor interaction
-#: utils/InputEngine.cpp:58
+#: utils/InputEngine.cpp:57
 #, fuzzy
 #| msgid "enter or exit a truck"
 msgctxt "InputEvent"
 msgid "enter or exit a truck"
 msgstr "είσοδος ή έξοδος απο ένα όχημα"
 
-#: utils/InputEngine.cpp:59
+#: utils/InputEngine.cpp:58
 #, fuzzy
 #| msgid "enter or exit a truck"
 msgctxt "InputEvent"
 msgid "enter next truck"
 msgstr "είσοδος ή έξοδος απο ένα όχημα"
 
-#: utils/InputEngine.cpp:60
+#: utils/InputEngine.cpp:59
 #, fuzzy
 #| msgid "enter or exit a truck"
 msgctxt "InputEvent"
 msgid "enter previous truck"
 msgstr "είσοδος ή έξοδος απο ένα όχημα"
 
-#: utils/InputEngine.cpp:61
+#: utils/InputEngine.cpp:60
 #, fuzzy
 #| msgid "delete current truck"
 msgctxt "InputEvent"
 msgid "remove current truck"
 msgstr "διαγραφή τρέχοντος οχήματος"
 
-#: utils/InputEngine.cpp:62
+#: utils/InputEngine.cpp:61
 #, fuzzy
 #| msgid "delete current truck"
 msgctxt "InputEvent"
 msgid "delete current truck"
 msgstr "διαγραφή τρέχοντος οχήματος"
 
-#: utils/InputEngine.cpp:63
+#: utils/InputEngine.cpp:62
 #, fuzzy
 #| msgid "repair truck"
 msgctxt "InputEvent"
 msgid "respawn last truck"
 msgstr "Αυτοματη επισκευη"
 
-#: utils/InputEngine.cpp:64
+#: utils/InputEngine.cpp:63
 msgctxt "InputEvent"
 msgid "get new vehicle"
 msgstr ""
 
-#: utils/InputEngine.cpp:65
+#: utils/InputEngine.cpp:64
 #, fuzzy
 #| msgid "decrease tire pressure (note: only very few trucks support this)"
 msgctxt "InputEvent"
@@ -4615,7 +4829,7 @@ msgstr ""
 "μείωση της πίεσης των ελαστικών (σημείωση: πολύ λίγα αυτοκινητα εχουν "
 "υποστήριξη αυτής της επιλογης)"
 
-#: utils/InputEngine.cpp:66
+#: utils/InputEngine.cpp:65
 #, fuzzy
 #| msgid "increase tire pressure (note: only very few trucks support this)"
 msgctxt "InputEvent"
@@ -4624,112 +4838,112 @@ msgstr ""
 "αύξηση της πίεσης των ελαστικών (σημείωση: πολύ λίγα αυτοκινητα "
 "υποστήριζουνε πιεσης ελαστικων)"
 
-#: utils/InputEngine.cpp:67
+#: utils/InputEngine.cpp:66
 #, fuzzy
 #| msgid "connect hook node to a node in close proximity"
 msgctxt "InputEvent"
 msgid "connect hook node to a node in close proximity"
 msgstr "σύνδεσε τον γάντζο σε έναν κόμβο σε κοντινή ακτίνα"
 
-#: utils/InputEngine.cpp:68
+#: utils/InputEngine.cpp:67
 #, fuzzy
 #| msgid "unlock autolock hook node"
 msgctxt "InputEvent"
 msgid "unlock autolock hook node"
 msgstr "ξεκλειδώσετε αυτόματου κλειδώματος κόμβο γάντζο"
 
-#: utils/InputEngine.cpp:69
+#: utils/InputEngine.cpp:68
 #, fuzzy
 #| msgid "connect a rope to a node in close proximity"
 msgctxt "InputEvent"
 msgid "connect a rope to a node in close proximity"
 msgstr "συνδέσετε ένα σχοινί σε έναν κόμβο σε μικρή απόσταση"
 
-#: utils/InputEngine.cpp:70
+#: utils/InputEngine.cpp:69
 #, fuzzy
 #| msgid "repair truck"
 msgctxt "InputEvent"
 msgid "repair truck"
 msgstr "Αυτοματη επισκευη"
 
-#: utils/InputEngine.cpp:71
+#: utils/InputEngine.cpp:70
 #, fuzzy
 #| msgid "teleport to rescue truck"
 msgctxt "InputEvent"
 msgid "teleport to rescue truck"
 msgstr "τηλεμεταφορά στο φορτηγό διάσωσης"
 
-#: utils/InputEngine.cpp:72
+#: utils/InputEngine.cpp:71
 #, fuzzy
 #| msgid "reset truck to original starting position"
 msgctxt "InputEvent"
 msgid "reset truck to original starting position"
 msgstr "μηδενησμός θέσης φορτηγού στην αρχική του θέση"
 
-#: utils/InputEngine.cpp:73
+#: utils/InputEngine.cpp:72
 #, fuzzy
 #| msgid "toggle cruise control"
 msgctxt "InputEvent"
 msgid "toggle reset mode"
 msgstr "ενάλλαξτε τον ρυθμιστή πορείας"
 
-#: utils/InputEngine.cpp:74
+#: utils/InputEngine.cpp:73
 #, fuzzy
 #| msgid "tie a load to the truck"
 msgctxt "InputEvent"
 msgid "tie a load to the truck"
 msgstr "δέσε ενα φορτίο στο όχημα"
 
-#: utils/InputEngine.cpp:75
+#: utils/InputEngine.cpp:74
 #, fuzzy
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle truck beacons"
 msgstr "εμφάνιση των ραδιοσημαντήρων του οχήματος"
 
-#: utils/InputEngine.cpp:76
+#: utils/InputEngine.cpp:75
 #, fuzzy
 #| msgid "toggle truck front lights"
 msgctxt "InputEvent"
 msgid "toggle truck front lights"
 msgstr "ενεργοποίηση των εμπρόσθιων φωτών του οχήματος"
 
-#: utils/InputEngine.cpp:77
+#: utils/InputEngine.cpp:76
 #, fuzzy
 #| msgid "toggle particle cannon"
 msgctxt "InputEvent"
 msgid "toggle particle cannon"
 msgstr "εμφάνιση κανονιού σωματιδίων"
 
-#: utils/InputEngine.cpp:78
+#: utils/InputEngine.cpp:77
 #, fuzzy
 #| msgid "enable or disable replay mode"
 msgctxt "InputEvent"
 msgid "enable or disable replay mode"
 msgstr "ενεροποίησε ή απενεροποιησε το replay"
 
-#: utils/InputEngine.cpp:79
+#: utils/InputEngine.cpp:78
 #, fuzzy
 #| msgid "more replay forward"
 msgctxt "InputEvent"
 msgid "more replay forward"
 msgstr "Περισσότερο replay εμπρός"
 
-#: utils/InputEngine.cpp:80
+#: utils/InputEngine.cpp:79
 #, fuzzy
 #| msgid "more replay backward"
 msgctxt "InputEvent"
 msgid "more replay backward"
 msgstr "περισσότερο replay προς τα πίσω"
 
-#: utils/InputEngine.cpp:81
+#: utils/InputEngine.cpp:80
 #, fuzzy
 #| msgid "move replay fast forward"
 msgctxt "InputEvent"
 msgid "move replay fast forward"
 msgstr "μετακίνιση του replay γρήγορα προς τα εμπρός"
 
-#: utils/InputEngine.cpp:82
+#: utils/InputEngine.cpp:81
 #, fuzzy
 #| msgid "move replay fast backward"
 msgctxt "InputEvent"
@@ -4737,80 +4951,80 @@ msgid "move replay fast backward"
 msgstr "προχώρισε γρήγορα προς τα πίσω στο replay"
 
 #. Common: UI
-#: utils/InputEngine.cpp:85
+#: utils/InputEngine.cpp:84
 #, fuzzy
 #| msgid "show / hide the console"
 msgctxt "InputEvent"
 msgid "show / hide the console"
 msgstr "δείξε / κρύψε την κονσόλα"
 
-#: utils/InputEngine.cpp:86
+#: utils/InputEngine.cpp:85
 #, fuzzy
 #| msgid "enter the chat"
 msgctxt "InputEvent"
 msgid "enter the chat"
 msgstr "μπες στην συνομιλία"
 
-#: utils/InputEngine.cpp:87
+#: utils/InputEngine.cpp:86
 #, fuzzy
 #| msgid "sends the entered text"
 msgctxt "InputEvent"
 msgid "sends the entered text"
 msgstr "στέλνει το κείμενο που έχει εισαχθεί"
 
-#: utils/InputEngine.cpp:88
+#: utils/InputEngine.cpp:87
 #, fuzzy
 #| msgid "hide all GUI elements"
 msgctxt "InputEvent"
 msgid "hide all GUI elements"
 msgstr "κρύψιμο όλων των στοιχείων γραφικών χρηστη"
 
-#: utils/InputEngine.cpp:89
+#: utils/InputEngine.cpp:88
 #, fuzzy
 #| msgid "display or hide net chat"
 msgctxt "InputEvent"
 msgid "display or hide the dashboard overlay"
 msgstr "εμφάνιση ή κρύψιμο των συνομιλιών ίντερνετ"
 
-#: utils/InputEngine.cpp:90
+#: utils/InputEngine.cpp:89
 msgctxt "InputEvent"
 msgid "toggle debug view"
 msgstr ""
 
-#: utils/InputEngine.cpp:91
+#: utils/InputEngine.cpp:90
 msgctxt "InputEvent"
 msgid "cycle debug views"
 msgstr ""
 
-#: utils/InputEngine.cpp:92
+#: utils/InputEngine.cpp:91
 #, fuzzy
 #| msgid "toggle truck HUD"
 msgctxt "InputEvent"
 msgid "toggle truck HUD"
 msgstr "εμφάνιση του πίνακα ελέγχου και οργάνων του οχήματος"
 
-#: utils/InputEngine.cpp:93
+#: utils/InputEngine.cpp:92
 #, fuzzy
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle truck description"
 msgstr "εμφάνιση των ραδιοσημαντήρων του οχήματος"
 
-#: utils/InputEngine.cpp:94
+#: utils/InputEngine.cpp:93
 #, fuzzy
 #| msgid "display or hide net chat"
 msgctxt "InputEvent"
 msgid "display or hide net chat"
 msgstr "εμφάνιση ή κρύψιμο των συνομιλιών ίντερνετ"
 
-#: utils/InputEngine.cpp:95
+#: utils/InputEngine.cpp:94
 #, fuzzy
 #| msgid "toggle between net chat display modes"
 msgctxt "InputEvent"
 msgid "toggle between net chat display modes"
 msgstr "εναλλαγή μεταξύ των μεθόδων απεικόνισης των συζητίσεων μέσω internet"
 
-#: utils/InputEngine.cpp:96
+#: utils/InputEngine.cpp:95
 #, fuzzy
 #| msgid "toggle Ogre statistics (FPS etc.)"
 msgctxt "InputEvent"
@@ -4818,140 +5032,140 @@ msgid "toggle Ogre statistics (FPS etc.)"
 msgstr "Ogre εναλλαγή στατιστικές (FPS κλπ)."
 
 #. Common: savegames
-#: utils/InputEngine.cpp:99
+#: utils/InputEngine.cpp:98
 #, fuzzy
 #| msgid "save position as slot 1"
 msgctxt "InputEvent"
 msgid "save scene in slot 01"
 msgstr "αποθηκεύσετε θέση υποδοχή 1"
 
-#: utils/InputEngine.cpp:100
+#: utils/InputEngine.cpp:99
 #, fuzzy
 #| msgid "save position as slot 2"
 msgctxt "InputEvent"
 msgid "save scene in slot 02"
 msgstr "αποθηκεύσετε θέση slot 2"
 
-#: utils/InputEngine.cpp:101
+#: utils/InputEngine.cpp:100
 #, fuzzy
 #| msgid "save position as slot 3"
 msgctxt "InputEvent"
 msgid "save scene in slot 03"
 msgstr "αποθηκεύσετε θέση slot 3"
 
-#: utils/InputEngine.cpp:102
+#: utils/InputEngine.cpp:101
 #, fuzzy
 #| msgid "save position as slot 4"
 msgctxt "InputEvent"
 msgid "save scene in slot 04"
 msgstr "αποθηκεύσετε θέση slot 4"
 
-#: utils/InputEngine.cpp:103
+#: utils/InputEngine.cpp:102
 #, fuzzy
 #| msgid "save position as slot 5"
 msgctxt "InputEvent"
 msgid "save scene in slot 05"
 msgstr "αποθηκεύσετε θέση υποδοχή 5"
 
-#: utils/InputEngine.cpp:104
+#: utils/InputEngine.cpp:103
 #, fuzzy
 #| msgid "save position as slot 6"
 msgctxt "InputEvent"
 msgid "save scene in slot 06"
 msgstr "αποθηκεύσετε θέση ως υποδοχή 6"
 
-#: utils/InputEngine.cpp:105
+#: utils/InputEngine.cpp:104
 #, fuzzy
 #| msgid "save position as slot 7"
 msgctxt "InputEvent"
 msgid "save scene in slot 07"
 msgstr "αποθηκεύσετε θέση slot 7"
 
-#: utils/InputEngine.cpp:106
+#: utils/InputEngine.cpp:105
 #, fuzzy
 #| msgid "save position as slot 8"
 msgctxt "InputEvent"
 msgid "save scene in slot 08"
 msgstr "αποθηκεύσετε θέση κουλοχέρη 8"
 
-#: utils/InputEngine.cpp:107
+#: utils/InputEngine.cpp:106
 #, fuzzy
 #| msgid "save position as slot 9"
 msgctxt "InputEvent"
 msgid "save scene in slot 09"
 msgstr "αποθηκεύσετε θέση slot 9"
 
-#: utils/InputEngine.cpp:108
+#: utils/InputEngine.cpp:107
 #, fuzzy
 #| msgid "save position as slot 10"
 msgctxt "InputEvent"
 msgid "save scene in slot 10"
 msgstr "αποθηκεύσετε θέση υποδοχή 10"
 
-#: utils/InputEngine.cpp:110
+#: utils/InputEngine.cpp:109
 #, fuzzy
 #| msgid "load position under slot 1"
 msgctxt "InputEvent"
 msgid "load scene from slot 01"
 msgstr "θέση υπό φορτίο υποδοχή 1"
 
-#: utils/InputEngine.cpp:111
+#: utils/InputEngine.cpp:110
 #, fuzzy
 #| msgid "load position under slot 2"
 msgctxt "InputEvent"
 msgid "load scene from slot 02"
 msgstr "θέση υπό φορτίο slot 2"
 
-#: utils/InputEngine.cpp:112
+#: utils/InputEngine.cpp:111
 #, fuzzy
 #| msgid "load position under slot 3"
 msgctxt "InputEvent"
 msgid "load scene from slot 03"
 msgstr "θέση υπό φορτίο υποδοχή 3"
 
-#: utils/InputEngine.cpp:113
+#: utils/InputEngine.cpp:112
 #, fuzzy
 #| msgid "load position under slot 4"
 msgctxt "InputEvent"
 msgid "load scene from slot 04"
 msgstr "θέση υπό φορτίο υποδοχή 4"
 
-#: utils/InputEngine.cpp:114
+#: utils/InputEngine.cpp:113
 #, fuzzy
 #| msgid "load position under slot 5"
 msgctxt "InputEvent"
 msgid "load scene from slot 05"
 msgstr "θέση υπό φορτίο υποδοχή 5"
 
-#: utils/InputEngine.cpp:115
+#: utils/InputEngine.cpp:114
 #, fuzzy
 #| msgid "load position under slot 6"
 msgctxt "InputEvent"
 msgid "load scene from slot 06"
 msgstr "θέση υπό φορτίο υποδοχή 6"
 
-#: utils/InputEngine.cpp:116
+#: utils/InputEngine.cpp:115
 #, fuzzy
 #| msgid "load position under slot 7"
 msgctxt "InputEvent"
 msgid "load scene from slot 07"
 msgstr "θέση υπό φορτίο υποδοχή 7"
 
-#: utils/InputEngine.cpp:117
+#: utils/InputEngine.cpp:116
 #, fuzzy
 #| msgid "load position under slot 8"
 msgctxt "InputEvent"
 msgid "load scene from slot 08"
 msgstr "θέση υπό φορτίο κουλοχέρη 8"
 
-#: utils/InputEngine.cpp:118
+#: utils/InputEngine.cpp:117
 #, fuzzy
 #| msgid "load position under slot 9"
 msgctxt "InputEvent"
 msgid "load scene from slot 09"
 msgstr "θέση υπό φορτίο υποδοχή 9"
 
-#: utils/InputEngine.cpp:119
+#: utils/InputEngine.cpp:118
 #, fuzzy
 #| msgid "load position under slot 10"
 msgctxt "InputEvent"
@@ -4959,203 +5173,203 @@ msgid "load scene from slot 10"
 msgstr "θέση υπό φορτίο υποδοχή 10"
 
 #. Truck: generic
-#: utils/InputEngine.cpp:122
+#: utils/InputEngine.cpp:121
 #, fuzzy
 #| msgid "accelerate the truck"
 msgctxt "InputEvent"
 msgid "accelerate the truck"
 msgstr "Επιτάχυνε το όχημα"
 
-#: utils/InputEngine.cpp:123
+#: utils/InputEngine.cpp:122
 msgctxt "InputEvent"
 msgid "accelerate with 25 percent pedal input"
 msgstr ""
 
-#: utils/InputEngine.cpp:124
+#: utils/InputEngine.cpp:123
 msgctxt "InputEvent"
 msgid "accelerate with 50 percent pedal input"
 msgstr ""
 
-#: utils/InputEngine.cpp:125
+#: utils/InputEngine.cpp:124
 #, fuzzy
 #| msgid "toggle left direction indicator (blinker)"
 msgctxt "InputEvent"
 msgid "toggle left direction indicator (blinker)"
 msgstr "εμφάνισε τον αριστερό δείκτη κατεύθυνσης (φλας)"
 
-#: utils/InputEngine.cpp:126
+#: utils/InputEngine.cpp:125
 #, fuzzy
 #| msgid "toggle right direction indicator (blinker)"
 msgctxt "InputEvent"
 msgid "toggle right direction indicator (blinker)"
 msgstr "ενεργοποίηση του δεξιού βέλους κατεύθυνσης (φλας)"
 
-#: utils/InputEngine.cpp:127
+#: utils/InputEngine.cpp:126
 #, fuzzy
 #| msgid "toggle all direction indicators"
 msgctxt "InputEvent"
 msgid "toggle all direction indicators"
 msgstr "εμφάνισε όλους τους δείκτες κατεύθυνσης"
 
-#: utils/InputEngine.cpp:128
+#: utils/InputEngine.cpp:127
 #, fuzzy
 #| msgid "brake"
 msgctxt "InputEvent"
 msgid "brake"
 msgstr "φρένο"
 
-#: utils/InputEngine.cpp:129
+#: utils/InputEngine.cpp:128
 msgctxt "InputEvent"
 msgid "brake with 25 percent pedal input"
 msgstr ""
 
-#: utils/InputEngine.cpp:130
+#: utils/InputEngine.cpp:129
 msgctxt "InputEvent"
 msgid "brake with 50 percent pedal input"
 msgstr ""
 
-#: utils/InputEngine.cpp:131
+#: utils/InputEngine.cpp:130
 #, fuzzy
 #| msgid "truck horn"
 msgctxt "InputEvent"
 msgid "truck horn"
 msgstr "κόρνα οχήματος"
 
-#: utils/InputEngine.cpp:132
+#: utils/InputEngine.cpp:131
 #, fuzzy
 #| msgid "toggle custom light 1"
 msgctxt "InputEvent"
 msgid "toggle custom light 1"
 msgstr "ενεργοποίηση του διαμορφωμένου φωτός 1"
 
-#: utils/InputEngine.cpp:133
+#: utils/InputEngine.cpp:132
 #, fuzzy
 #| msgid "toggle custom light 2"
 msgctxt "InputEvent"
 msgid "toggle custom light 2"
 msgstr "ενεργοποίηση του διαμορφωμένου φωτός 2"
 
-#: utils/InputEngine.cpp:134
+#: utils/InputEngine.cpp:133
 #, fuzzy
 #| msgid "toggle custom light 3"
 msgctxt "InputEvent"
 msgid "toggle custom light 3"
 msgstr "ενεργοποίηση του διαμορφωμένου φωτός 3"
 
-#: utils/InputEngine.cpp:135
+#: utils/InputEngine.cpp:134
 #, fuzzy
 #| msgid "toggle custom light 4"
 msgctxt "InputEvent"
 msgid "toggle custom light 4"
 msgstr "ενεργοποίηση του διαμορφωμένου φωτός 4"
 
-#: utils/InputEngine.cpp:136
+#: utils/InputEngine.cpp:135
 #, fuzzy
 #| msgid "toggle custom light 5"
 msgctxt "InputEvent"
 msgid "toggle custom light 5"
 msgstr "ενεργοποίηση του διαμορφωμένου φωτός 5"
 
-#: utils/InputEngine.cpp:137
+#: utils/InputEngine.cpp:136
 #, fuzzy
 #| msgid "toggle custom light 6"
 msgctxt "InputEvent"
 msgid "toggle custom light 6"
 msgstr "ενεργοποίηση του διαμορφωμένου φωτός 6"
 
-#: utils/InputEngine.cpp:138
+#: utils/InputEngine.cpp:137
 #, fuzzy
 #| msgid "toggle custom light 7"
 msgctxt "InputEvent"
 msgid "toggle custom light 7"
 msgstr "ενεργοποίηση του διαμορφωμένου φωτός 7"
 
-#: utils/InputEngine.cpp:139
+#: utils/InputEngine.cpp:138
 #, fuzzy
 #| msgid "toggle custom light 8"
 msgctxt "InputEvent"
 msgid "toggle custom light 8"
 msgstr "ενεργοποίηση του διαμορφωμένου φωτός 8"
 
-#: utils/InputEngine.cpp:140
+#: utils/InputEngine.cpp:139
 #, fuzzy
 #| msgid "toggle custom light 9"
 msgctxt "InputEvent"
 msgid "toggle custom light 9"
 msgstr "ενεργοποίηση του διαμορφωμένου φωτός 9"
 
-#: utils/InputEngine.cpp:141
+#: utils/InputEngine.cpp:140
 #, fuzzy
 #| msgid "toggle custom light 10"
 msgctxt "InputEvent"
 msgid "toggle custom light 10"
 msgstr "ενεργοποίηση του διαμορφωμένου φωτός 10"
 
-#: utils/InputEngine.cpp:142
+#: utils/InputEngine.cpp:141
 #, fuzzy
 #| msgid "toggle parking brake"
 msgctxt "InputEvent"
 msgid "toggle parking brake"
 msgstr "χειρόφρενο"
 
-#: utils/InputEngine.cpp:143
+#: utils/InputEngine.cpp:142
 #, fuzzy
 #| msgid "toggle parking brake"
 msgctxt "InputEvent"
 msgid "toggle trailer parking brake"
 msgstr "χειρόφρενο"
 
-#: utils/InputEngine.cpp:144
+#: utils/InputEngine.cpp:143
 #, fuzzy
 #| msgid "toggle antilock brake"
 msgctxt "InputEvent"
 msgid "toggle antilock brake"
 msgstr "εναλλαγή φρένων τροχών"
 
-#: utils/InputEngine.cpp:145
+#: utils/InputEngine.cpp:144
 #, fuzzy
 #| msgid "toggle antilock brake"
 msgctxt "InputEvent"
 msgid "toggle videocamera"
 msgstr "εναλλαγή φρένων τροχών"
 
-#: utils/InputEngine.cpp:146
+#: utils/InputEngine.cpp:145
 #, fuzzy
 #| msgid "toggle traction control"
 msgctxt "InputEvent"
 msgid "toggle traction control"
 msgstr "εναλλαγή σύστημα ελέγχου πρόσφυσης"
 
-#: utils/InputEngine.cpp:147
+#: utils/InputEngine.cpp:146
 #, fuzzy
 #| msgid "toggle cruise control"
 msgctxt "InputEvent"
 msgid "toggle cruise control"
 msgstr "ενάλλαξτε τον ρυθμιστή πορείας"
 
-#: utils/InputEngine.cpp:148
+#: utils/InputEngine.cpp:147
 msgctxt "InputEvent"
 msgid "match target speed / rpm with current truck speed / rpm"
 msgstr ""
 
-#: utils/InputEngine.cpp:149
+#: utils/InputEngine.cpp:148
 msgctxt "InputEvent"
 msgid "increase target speed / rpm"
 msgstr ""
 
-#: utils/InputEngine.cpp:150
+#: utils/InputEngine.cpp:149
 msgctxt "InputEvent"
 msgid "decrease target speed / rpm"
 msgstr ""
 
-#: utils/InputEngine.cpp:151
+#: utils/InputEngine.cpp:150
 #, fuzzy
 #| msgid "hold to start the engine"
 msgctxt "InputEvent"
 msgid "hold to start the engine"
 msgstr "κράτησε πατημένο για να ξεκινίσει η μηχανή"
 
-#: utils/InputEngine.cpp:152 utils/InputEngine.cpp:211
+#: utils/InputEngine.cpp:151 utils/InputEngine.cpp:210
 #, fuzzy
 #| msgid "steer left"
 msgctxt "InputEvent"
@@ -5163,88 +5377,88 @@ msgid "steer left"
 msgstr "στρίψιμο αριστερά"
 
 #. Airplane
-#: utils/InputEngine.cpp:153 utils/InputEngine.cpp:199
-#: utils/InputEngine.cpp:212
+#: utils/InputEngine.cpp:152 utils/InputEngine.cpp:198
+#: utils/InputEngine.cpp:211
 #, fuzzy
 #| msgid "steer right"
 msgctxt "InputEvent"
 msgid "steer right"
 msgstr "στρίψημο δεξιά"
 
-#: utils/InputEngine.cpp:154
+#: utils/InputEngine.cpp:153
 #, fuzzy
 #| msgid "toggle ignition"
 msgctxt "InputEvent"
 msgid "toggle ignition"
 msgstr "ενεργοποίηση ανάφλεξης"
 
-#: utils/InputEngine.cpp:155
+#: utils/InputEngine.cpp:154
 #, fuzzy
 #| msgid "[forwards commands]"
 msgctxt "InputEvent"
 msgid "toggle forwardcommands"
 msgstr "[εντολές προς τα εμπρός]"
 
-#: utils/InputEngine.cpp:156
+#: utils/InputEngine.cpp:155
 #, fuzzy
 #| msgid "[imports commands]"
 msgctxt "InputEvent"
 msgid "toggle importcommands"
 msgstr "[εντολές]"
 
-#: utils/InputEngine.cpp:157
+#: utils/InputEngine.cpp:156
 #, fuzzy
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle physics"
 msgstr "εμφάνιση των ραδιοσημαντήρων του οχήματος"
 
-#: utils/InputEngine.cpp:158
+#: utils/InputEngine.cpp:157
 msgctxt "InputEvent"
 msgid "cycle between available inter axle differential modes"
 msgstr ""
 
-#: utils/InputEngine.cpp:159
+#: utils/InputEngine.cpp:158
 msgctxt "InputEvent"
 msgid "cycle between available inter wheel differential modes"
 msgstr ""
 
-#: utils/InputEngine.cpp:160
+#: utils/InputEngine.cpp:159
 #, fuzzy
 #| msgid "toggle cruise control"
 msgctxt "InputEvent"
 msgid "toggle transfer case mode"
 msgstr "ενάλλαξτε τον ρυθμιστή πορείας"
 
-#: utils/InputEngine.cpp:161
+#: utils/InputEngine.cpp:160
 #, fuzzy
 #| msgid "toggle parking brake"
 msgctxt "InputEvent"
 msgid "toggle transfer case gear ratio"
 msgstr "χειρόφρενο"
 
-#: utils/InputEngine.cpp:162
+#: utils/InputEngine.cpp:161
 #, fuzzy
 #| msgid "move left mirror to the left"
 msgctxt "InputEvent"
 msgid "move left mirror to the left"
 msgstr "μετακίνηση του αριστερού καθρέπτη προς τα αριστερά"
 
-#: utils/InputEngine.cpp:163
+#: utils/InputEngine.cpp:162
 #, fuzzy
 #| msgid "move left mirror to the right"
 msgctxt "InputEvent"
 msgid "move left mirror to the right"
 msgstr "μετακίνηση αριστερού καθρέφτη στα δεξιά"
 
-#: utils/InputEngine.cpp:164
+#: utils/InputEngine.cpp:163
 #, fuzzy
 #| msgid "more right mirror to the left"
 msgctxt "InputEvent"
 msgid "more right mirror to the left"
 msgstr "μετακίνηση του δεξί καθρέπτη προς τα αριστερα"
 
-#: utils/InputEngine.cpp:165
+#: utils/InputEngine.cpp:164
 #, fuzzy
 #| msgid "move right mirror to the right"
 msgctxt "InputEvent"
@@ -5252,287 +5466,287 @@ msgid "move right mirror to the right"
 msgstr "μετακίνηση του δεξιού καθρέφτη στα δεξιά"
 
 #. Truck: transmission
-#: utils/InputEngine.cpp:168
+#: utils/InputEngine.cpp:167
 #, fuzzy
 #| msgid "shift automatic transmission one gear down"
 msgctxt "InputEvent"
 msgid "shift automatic transmission one gear down"
 msgstr "αλλαξε στο αυτόματο κιβώτιο ταχυτητων μια σχέση κάτω"
 
-#: utils/InputEngine.cpp:169
+#: utils/InputEngine.cpp:168
 #, fuzzy
 #| msgid "shift automatic transmission one gear up"
 msgctxt "InputEvent"
 msgid "shift automatic transmission one gear up"
 msgstr "αλλαγή μίας σχέσης πάνω στο αυτόματο κιβώτιο ταχυτήτων"
 
-#: utils/InputEngine.cpp:170
+#: utils/InputEngine.cpp:169
 #, fuzzy
 #| msgid "manual clutch (for manual transmission)"
 msgctxt "InputEvent"
 msgid "manual clutch (for manual transmission)"
 msgstr "χειροκίνητος συμπλέκτης (για το χειροκίνητο κιβώτιο ταχυτήτων)"
 
-#: utils/InputEngine.cpp:171
+#: utils/InputEngine.cpp:170
 #, fuzzy
 #| msgid "shift one gear down in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift one gear down in manual transmission mode"
 msgstr "αλλαγή μίας σχέσεως κάτω σε χειροκίνητο κιβώτιο ταχυτήτων"
 
-#: utils/InputEngine.cpp:172
+#: utils/InputEngine.cpp:171
 #, fuzzy
 #| msgid "shift to neutral gear in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift to neutral gear in manual transmission mode"
 msgstr "αλλαγή στην νεκρά ταχύτητα σε μη-αυτόματο κιβώτιο ταχυτήτων"
 
-#: utils/InputEngine.cpp:173
+#: utils/InputEngine.cpp:172
 #, fuzzy
 #| msgid "shift one gear up in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift one gear up in manual transmission mode"
 msgstr "αλλαγή επόμενης ταχύτητας στη χειροκίνητη αλλαγή ταχυτήτων"
 
-#: utils/InputEngine.cpp:174
+#: utils/InputEngine.cpp:173
 #, fuzzy
 #| msgid "shift directly to reverse gear"
 msgctxt "InputEvent"
 msgid "shift directly to reverse gear"
 msgstr "αλλαγή κατεθείαν στην ταχύτητα για όπισθεν"
 
-#: utils/InputEngine.cpp:175
+#: utils/InputEngine.cpp:174
 #, fuzzy
 #| msgid "shift directly to first gear"
 msgctxt "InputEvent"
 msgid "shift directly to first gear"
 msgstr "άλλαγή κατευθείαν στην 1η ταχύτητα"
 
-#: utils/InputEngine.cpp:176
+#: utils/InputEngine.cpp:175
 #, fuzzy
 #| msgid "shift directly to second gear"
 msgctxt "InputEvent"
 msgid "shift directly to second gear"
 msgstr "αλλαγή κατευθείαν στην 2η ταχύτητα"
 
-#: utils/InputEngine.cpp:177
+#: utils/InputEngine.cpp:176
 #, fuzzy
 #| msgid "shift directly to third gear"
 msgctxt "InputEvent"
 msgid "shift directly to third gear"
 msgstr "αλλαγή κατευθείαν στην 3η ταχύτητα"
 
-#: utils/InputEngine.cpp:178
+#: utils/InputEngine.cpp:177
 #, fuzzy
 #| msgid "shift directly to fourth gear"
 msgctxt "InputEvent"
 msgid "shift directly to fourth gear"
 msgstr "αλλαγή κατευθείαν στην 4η ταχύτητα"
 
-#: utils/InputEngine.cpp:179
+#: utils/InputEngine.cpp:178
 #, fuzzy
 #| msgid "shift directly to 5th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 5th gear"
 msgstr "αλλαγή κατεθείαν στην 5η ταχύτητα"
 
-#: utils/InputEngine.cpp:180
+#: utils/InputEngine.cpp:179
 #, fuzzy
 #| msgid "shift directly to 6th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 6th gear"
 msgstr "άλλαξε κατευθείαν στην 6η ταχύτητα"
 
-#: utils/InputEngine.cpp:181
+#: utils/InputEngine.cpp:180
 #, fuzzy
 #| msgid "shift directly to 7th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 7th gear"
 msgstr "αλλαγή κατευθείαν στην 7η ταχύτητα"
 
-#: utils/InputEngine.cpp:182
+#: utils/InputEngine.cpp:181
 #, fuzzy
 #| msgid "shift directly to 8th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 8th gear"
 msgstr "αλλαγή κατευθείαν στην 8η ταχύτητα"
 
-#: utils/InputEngine.cpp:183
+#: utils/InputEngine.cpp:182
 #, fuzzy
 #| msgid "shift directly to 9th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 9th gear"
 msgstr "ανέβασε κατευθείαν στην 9ατη ταχύτητα"
 
-#: utils/InputEngine.cpp:184
+#: utils/InputEngine.cpp:183
 #, fuzzy
 #| msgid "shift directly to 10th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 10th gear"
 msgstr "άλλαξε κατευθείαν στην 10ατη ταχύτητα"
 
-#: utils/InputEngine.cpp:185
+#: utils/InputEngine.cpp:184
 #, fuzzy
 #| msgid "shift directly to 11th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 11th gear"
 msgstr "άλλαξε κατεθέίαν στην 11ατη ταχύτητα"
 
-#: utils/InputEngine.cpp:186
+#: utils/InputEngine.cpp:185
 #, fuzzy
 #| msgid "shift directly to 12th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 12th gear"
 msgstr "αλλαγή κατευθείαν στην 12ατη ταχύτητα"
 
-#: utils/InputEngine.cpp:187
+#: utils/InputEngine.cpp:186
 #, fuzzy
 #| msgid "shift directly to 13th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 13th gear"
 msgstr "ανέβασε κατευθείαν στην 13η ταχύτητα"
 
-#: utils/InputEngine.cpp:188
+#: utils/InputEngine.cpp:187
 #, fuzzy
 #| msgid "shift directly to 14th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 14th gear"
 msgstr "αλλαγή κατεθείαν στην 14αρτη ταχύτητα"
 
-#: utils/InputEngine.cpp:189
+#: utils/InputEngine.cpp:188
 #, fuzzy
 #| msgid "shift directly to 15th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 15th gear"
 msgstr "αλλαγή κατευθείαν στην 15η ταχύτητα"
 
-#: utils/InputEngine.cpp:190
+#: utils/InputEngine.cpp:189
 #, fuzzy
 #| msgid "shift directly to 16th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 16th gear"
 msgstr "αλλαξε κατευθείαν στην 16η ταχύτητα"
 
-#: utils/InputEngine.cpp:191
+#: utils/InputEngine.cpp:190
 #, fuzzy
 #| msgid "shift directly to 17th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 17th gear"
 msgstr "αλλαξε ταχύτητα κατευθείαν στην 17η"
 
-#: utils/InputEngine.cpp:192
+#: utils/InputEngine.cpp:191
 #, fuzzy
 #| msgid "shift directly to 18th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 18th gear"
 msgstr "αλλαγή κατευθείαν στην 18η ταχύτητα"
 
-#: utils/InputEngine.cpp:193
+#: utils/InputEngine.cpp:192
 #, fuzzy
 #| msgid "sets low range (1-6) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets low range (1-6) for H-shaft"
 msgstr "θέτει χαμηλή εμβέλεια (1-6) για το Η-φρεάτιο"
 
-#: utils/InputEngine.cpp:194
+#: utils/InputEngine.cpp:193
 #, fuzzy
 #| msgid "sets middle range (7-12) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets middle range (7-12) for H-shaft"
 msgstr "θέτει μεσαία εμβέλεια (7-12) για το Η-φρεάτιο"
 
-#: utils/InputEngine.cpp:195
+#: utils/InputEngine.cpp:194
 #, fuzzy
 #| msgid "sets high range (13-18) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets high range (13-18) for H-shaft"
 msgstr "θέτει υψυλή εμβέλεια (13-18) για το H-φρεάτιο"
 
-#: utils/InputEngine.cpp:196
+#: utils/InputEngine.cpp:195
 #, fuzzy
 #| msgid "toggle between transmission modes"
 msgctxt "InputEvent"
 msgid "toggle between transmission modes"
 msgstr "ενναλαγή μεταξύ των επιλογών μεθόδου αλλαγής ταχύτητας"
 
-#: utils/InputEngine.cpp:200
+#: utils/InputEngine.cpp:199
 #, fuzzy
 #| msgid "normal brake for an aircraft"
 msgctxt "InputEvent"
 msgid "normal brake for an aircraft"
 msgstr "κανονικό φρένο για αεροσκάφος"
 
-#: utils/InputEngine.cpp:201
+#: utils/InputEngine.cpp:200
 #, fuzzy
 #| msgid "pull the elevator down in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator down in an aircraft."
 msgstr "τράβηξε τον μοχλό κίνησης των πτερυγίων προς τα κάτω στο αεροπλάνο"
 
-#: utils/InputEngine.cpp:202
+#: utils/InputEngine.cpp:201
 #, fuzzy
 #| msgid "pull the elevator up in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator up in an aircraft."
 msgstr "τράβιξε τον μοχλό προς τα πάνω σε ένα αεροσκάφος."
 
-#: utils/InputEngine.cpp:203
+#: utils/InputEngine.cpp:202
 #, fuzzy
 #| msgid "full flaps in an aircraft."
 msgctxt "InputEvent"
 msgid "full flaps in an aircraft."
 msgstr "μέγιστη κλίση στα πτερύγια καμπυλότητας στο αεροσκάφος"
 
-#: utils/InputEngine.cpp:204
+#: utils/InputEngine.cpp:203
 #, fuzzy
 #| msgid "one step less flaps."
 msgctxt "InputEvent"
 msgid "one step less flaps."
 msgstr "ένα βήμα λιγότερο τα πτερύγια καμπυλότητας."
 
-#: utils/InputEngine.cpp:205
+#: utils/InputEngine.cpp:204
 #, fuzzy
 #| msgid "one step more flaps."
 msgctxt "InputEvent"
 msgid "one step more flaps."
 msgstr "ένα βήμα περισσότερα πτερύγια καμπυλότητας"
 
-#: utils/InputEngine.cpp:206
+#: utils/InputEngine.cpp:205
 #, fuzzy
 #| msgid "no flaps."
 msgctxt "InputEvent"
 msgid "no flaps."
 msgstr "καθόλου πτερύγια καμπυλότητας"
 
-#: utils/InputEngine.cpp:207
+#: utils/InputEngine.cpp:206
 #, fuzzy
 #| msgid "airplane parking brake."
 msgctxt "InputEvent"
 msgid "airplane parking brake."
 msgstr "φρένο στάθμευσης αεροπλάνων"
 
-#: utils/InputEngine.cpp:208
+#: utils/InputEngine.cpp:207
 #, fuzzy
 #| msgid "reverse the turboprops"
 msgctxt "InputEvent"
 msgid "reverse the turboprops"
 msgstr "αναστροφή των τούρμπο-προπέλων"
 
-#: utils/InputEngine.cpp:209
+#: utils/InputEngine.cpp:208
 #, fuzzy
 #| msgid "rudder left"
 msgctxt "InputEvent"
 msgid "rudder left"
 msgstr "πηδάλιο ουράς προς τα αριστερά"
 
-#: utils/InputEngine.cpp:210
+#: utils/InputEngine.cpp:209
 #, fuzzy
 #| msgid "rudder right"
 msgctxt "InputEvent"
 msgid "rudder right"
 msgstr "πηδάλιο ουρας δεξιά"
 
-#: utils/InputEngine.cpp:213 utils/InputEngine.cpp:232
+#: utils/InputEngine.cpp:212 utils/InputEngine.cpp:231
 #, fuzzy
 #| msgid ""
 #| "throttle axis. Only use this if you have fitting hardware :) (i.e. a "
@@ -5544,70 +5758,70 @@ msgstr ""
 "Άξονας γκαζιού. Να χρησιμοποιείτε μόνο αυτό, αν έχετε τοποθέτηση υλικού:) "
 "(δηλ. Slider)"
 
-#: utils/InputEngine.cpp:214
+#: utils/InputEngine.cpp:213
 #, fuzzy
 #| msgid "decreases the airplane thrust"
 msgctxt "InputEvent"
 msgid "decreases the airplane thrust"
 msgstr "μειώνει την ώθηση του αεροπλάνου"
 
-#: utils/InputEngine.cpp:215
+#: utils/InputEngine.cpp:214
 #, fuzzy
 #| msgid "full thrust"
 msgctxt "InputEvent"
 msgid "full thrust"
 msgstr "πλήρης υσχύ"
 
-#: utils/InputEngine.cpp:216 utils/InputEngine.cpp:227
+#: utils/InputEngine.cpp:215 utils/InputEngine.cpp:226
 #, fuzzy
 #| msgid "no thrust"
 msgctxt "InputEvent"
 msgid "no thrust"
 msgstr "χωρις υσχύ"
 
-#: utils/InputEngine.cpp:217
+#: utils/InputEngine.cpp:216
 #, fuzzy
 #| msgid "increase the airplane thrust"
 msgctxt "InputEvent"
 msgid "increase the airplane thrust"
 msgstr "αύξυση της ώθησης του αεροπλάνου"
 
-#: utils/InputEngine.cpp:218
+#: utils/InputEngine.cpp:217
 #, fuzzy
 #| msgid "switch all engines on / off"
 msgctxt "InputEvent"
 msgid "switch all engines on / off"
 msgstr "όλες οι μηχανές ανοιχτές / κλειστές"
 
-#: utils/InputEngine.cpp:219
+#: utils/InputEngine.cpp:218
 #, fuzzy
 #| msgid "no airbrakes"
 msgctxt "InputEvent"
 msgid "no airbrakes"
 msgstr "χωρίς αερόφρενα"
 
-#: utils/InputEngine.cpp:220
+#: utils/InputEngine.cpp:219
 #, fuzzy
 #| msgid "full airbrakes"
 msgctxt "InputEvent"
 msgid "full airbrakes"
 msgstr "μέχιστα αερόφρενα"
 
-#: utils/InputEngine.cpp:221
+#: utils/InputEngine.cpp:220
 #, fuzzy
 #| msgid "less airbrakes"
 msgctxt "InputEvent"
 msgid "less airbrakes"
 msgstr "λιγότερα αερόφρενα"
 
-#: utils/InputEngine.cpp:222
+#: utils/InputEngine.cpp:221
 #, fuzzy
 #| msgid "more airbrakes"
 msgctxt "InputEvent"
 msgid "more airbrakes"
 msgstr "περισσότερα αερόφρενα"
 
-#: utils/InputEngine.cpp:223
+#: utils/InputEngine.cpp:222
 #, fuzzy
 #| msgid "airplane throttle"
 msgctxt "InputEvent"
@@ -5615,49 +5829,49 @@ msgid "airplane throttle"
 msgstr "ώθηση αεροπλάνου"
 
 #. Boat
-#: utils/InputEngine.cpp:226
+#: utils/InputEngine.cpp:225
 #, fuzzy
 #| msgid "center the rudder"
 msgctxt "InputEvent"
 msgid "center the rudder"
 msgstr "Κεντράρισε το πτερύγιο ουράς"
 
-#: utils/InputEngine.cpp:228
+#: utils/InputEngine.cpp:227
 #, fuzzy
 #| msgid "steer left a step"
 msgctxt "InputEvent"
 msgid "steer left a step"
 msgstr "Στρίψε αριστερά ενα βήμα"
 
-#: utils/InputEngine.cpp:229
+#: utils/InputEngine.cpp:228
 #, fuzzy
 #| msgid "steer left (analog value!)"
 msgctxt "InputEvent"
 msgid "steer left (analog value!)"
 msgstr "στρίψιμο αριστερά (αναλογικές τιμές!)"
 
-#: utils/InputEngine.cpp:230
+#: utils/InputEngine.cpp:229
 #, fuzzy
 #| msgid "steer right a step"
 msgctxt "InputEvent"
 msgid "steer right a step"
 msgstr "στρίψημο κατα ένα βήμα δεξιά"
 
-#: utils/InputEngine.cpp:231
+#: utils/InputEngine.cpp:230
 #, fuzzy
 #| msgid "steer right (analog value!)"
 msgctxt "InputEvent"
 msgid "steer right (analog value!)"
 msgstr "στρίψε δεξιά (αναλογικές τιμές!)"
 
-#: utils/InputEngine.cpp:233
+#: utils/InputEngine.cpp:232
 #, fuzzy
 #| msgid "decrease throttle"
 msgctxt "InputEvent"
 msgid "decrease throttle"
 msgstr "μείωση υσχύως"
 
-#: utils/InputEngine.cpp:234
+#: utils/InputEngine.cpp:233
 #, fuzzy
 #| msgid "increase throttle"
 msgctxt "InputEvent"
@@ -5665,588 +5879,588 @@ msgid "increase throttle"
 msgstr "αύξησε την υσχύ"
 
 #. Commands
-#: utils/InputEngine.cpp:237
+#: utils/InputEngine.cpp:236
 #, fuzzy
 #| msgid "Command 1"
 msgctxt "InputEvent"
 msgid "Command 1"
 msgstr "Εντολή 1"
 
-#: utils/InputEngine.cpp:238
+#: utils/InputEngine.cpp:237
 #, fuzzy
 #| msgid "Command 2"
 msgctxt "InputEvent"
 msgid "Command 2"
 msgstr "Εντολή 2"
 
-#: utils/InputEngine.cpp:239
+#: utils/InputEngine.cpp:238
 #, fuzzy
 #| msgid "Command 3"
 msgctxt "InputEvent"
 msgid "Command 3"
 msgstr "Εντολή 3"
 
-#: utils/InputEngine.cpp:240
+#: utils/InputEngine.cpp:239
 #, fuzzy
 #| msgid "Command 4"
 msgctxt "InputEvent"
 msgid "Command 4"
 msgstr "Εντολή 4"
 
-#: utils/InputEngine.cpp:241
+#: utils/InputEngine.cpp:240
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 5"
 msgstr "Εντολή 5"
 
-#: utils/InputEngine.cpp:242
+#: utils/InputEngine.cpp:241
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 6"
 msgstr "Εντολή 6"
 
-#: utils/InputEngine.cpp:243
+#: utils/InputEngine.cpp:242
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 7"
 msgstr "Εντολή 7"
 
-#: utils/InputEngine.cpp:244
+#: utils/InputEngine.cpp:243
 #, fuzzy
 #| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 8"
 msgstr "Εντολή 8"
 
-#: utils/InputEngine.cpp:245
+#: utils/InputEngine.cpp:244
 #, fuzzy
 #| msgid "Command 9"
 msgctxt "InputEvent"
 msgid "Command 9"
 msgstr "Εντολή 9"
 
-#: utils/InputEngine.cpp:246
+#: utils/InputEngine.cpp:245
 #, fuzzy
 #| msgid "Command 10"
 msgctxt "InputEvent"
 msgid "Command 10"
 msgstr "Εντολή 10"
 
-#: utils/InputEngine.cpp:247
+#: utils/InputEngine.cpp:246
 #, fuzzy
 #| msgid "Command 11"
 msgctxt "InputEvent"
 msgid "Command 11"
 msgstr "Εντολή 11"
 
-#: utils/InputEngine.cpp:248
+#: utils/InputEngine.cpp:247
 #, fuzzy
 #| msgid "Command 12"
 msgctxt "InputEvent"
 msgid "Command 12"
 msgstr "Εντολή 12"
 
-#: utils/InputEngine.cpp:249
+#: utils/InputEngine.cpp:248
 #, fuzzy
 #| msgid "Command 13"
 msgctxt "InputEvent"
 msgid "Command 13"
 msgstr "Εντολή 13"
 
-#: utils/InputEngine.cpp:250
+#: utils/InputEngine.cpp:249
 #, fuzzy
 #| msgid "Command 14"
 msgctxt "InputEvent"
 msgid "Command 14"
 msgstr "Εντολή 14"
 
-#: utils/InputEngine.cpp:251
+#: utils/InputEngine.cpp:250
 #, fuzzy
 #| msgid "Command 15"
 msgctxt "InputEvent"
 msgid "Command 15"
 msgstr "Εντολή 15"
 
-#: utils/InputEngine.cpp:252
+#: utils/InputEngine.cpp:251
 #, fuzzy
 #| msgid "Command 16"
 msgctxt "InputEvent"
 msgid "Command 16"
 msgstr "Εντολή 16"
 
-#: utils/InputEngine.cpp:253
+#: utils/InputEngine.cpp:252
 #, fuzzy
 #| msgid "Command 17"
 msgctxt "InputEvent"
 msgid "Command 17"
 msgstr "Εντολη 17"
 
-#: utils/InputEngine.cpp:254
+#: utils/InputEngine.cpp:253
 #, fuzzy
 #| msgid "Command 18"
 msgctxt "InputEvent"
 msgid "Command 18"
 msgstr "Εντολή 18"
 
-#: utils/InputEngine.cpp:255
+#: utils/InputEngine.cpp:254
 #, fuzzy
 #| msgid "Command 19"
 msgctxt "InputEvent"
 msgid "Command 19"
 msgstr "Εντολή 19"
 
-#: utils/InputEngine.cpp:256
+#: utils/InputEngine.cpp:255
 #, fuzzy
 #| msgid "Command 20"
 msgctxt "InputEvent"
 msgid "Command 20"
 msgstr "Εντολή 20"
 
-#: utils/InputEngine.cpp:257
+#: utils/InputEngine.cpp:256
 #, fuzzy
 #| msgid "Command 21"
 msgctxt "InputEvent"
 msgid "Command 21"
 msgstr "Εντολή 21"
 
-#: utils/InputEngine.cpp:258
+#: utils/InputEngine.cpp:257
 #, fuzzy
 #| msgid "Command 22"
 msgctxt "InputEvent"
 msgid "Command 22"
 msgstr "Εντολή 22"
 
-#: utils/InputEngine.cpp:259
+#: utils/InputEngine.cpp:258
 #, fuzzy
 #| msgid "Command 23"
 msgctxt "InputEvent"
 msgid "Command 23"
 msgstr "Εντολή 23"
 
-#: utils/InputEngine.cpp:260
+#: utils/InputEngine.cpp:259
 #, fuzzy
 #| msgid "Command 24"
 msgctxt "InputEvent"
 msgid "Command 24"
 msgstr "Εντολή 24"
 
-#: utils/InputEngine.cpp:261
+#: utils/InputEngine.cpp:260
 #, fuzzy
 #| msgid "Command 25"
 msgctxt "InputEvent"
 msgid "Command 25"
 msgstr "Εντολή 25"
 
-#: utils/InputEngine.cpp:262
+#: utils/InputEngine.cpp:261
 #, fuzzy
 #| msgid "Command 26"
 msgctxt "InputEvent"
 msgid "Command 26"
 msgstr "Εντολή 26"
 
-#: utils/InputEngine.cpp:263
+#: utils/InputEngine.cpp:262
 #, fuzzy
 #| msgid "Command 27"
 msgctxt "InputEvent"
 msgid "Command 27"
 msgstr "Εντολή 27"
 
-#: utils/InputEngine.cpp:264
+#: utils/InputEngine.cpp:263
 #, fuzzy
 #| msgid "Command 28"
 msgctxt "InputEvent"
 msgid "Command 28"
 msgstr "Εντολή 28"
 
-#: utils/InputEngine.cpp:265
+#: utils/InputEngine.cpp:264
 #, fuzzy
 #| msgid "Command 29"
 msgctxt "InputEvent"
 msgid "Command 29"
 msgstr "Εντολή 29"
 
-#: utils/InputEngine.cpp:266
+#: utils/InputEngine.cpp:265
 #, fuzzy
 #| msgid "Command 30"
 msgctxt "InputEvent"
 msgid "Command 30"
 msgstr "Εντολή 30"
 
-#: utils/InputEngine.cpp:267
+#: utils/InputEngine.cpp:266
 #, fuzzy
 #| msgid "Command 31"
 msgctxt "InputEvent"
 msgid "Command 31"
 msgstr "Εντολή 31"
 
-#: utils/InputEngine.cpp:268
+#: utils/InputEngine.cpp:267
 #, fuzzy
 #| msgid "Command 32"
 msgctxt "InputEvent"
 msgid "Command 32"
 msgstr "Εντολή 32"
 
-#: utils/InputEngine.cpp:269
+#: utils/InputEngine.cpp:268
 #, fuzzy
 #| msgid "Command 33"
 msgctxt "InputEvent"
 msgid "Command 33"
 msgstr "Εντολή 33"
 
-#: utils/InputEngine.cpp:270
+#: utils/InputEngine.cpp:269
 #, fuzzy
 #| msgid "Command 34"
 msgctxt "InputEvent"
 msgid "Command 34"
 msgstr "Εντολή 34"
 
-#: utils/InputEngine.cpp:271
+#: utils/InputEngine.cpp:270
 #, fuzzy
 #| msgid "Command 35"
 msgctxt "InputEvent"
 msgid "Command 35"
 msgstr "Εντολή 35"
 
-#: utils/InputEngine.cpp:272
+#: utils/InputEngine.cpp:271
 #, fuzzy
 #| msgid "Command 36"
 msgctxt "InputEvent"
 msgid "Command 36"
 msgstr "Εντολή 36"
 
-#: utils/InputEngine.cpp:273
+#: utils/InputEngine.cpp:272
 #, fuzzy
 #| msgid "Command 37"
 msgctxt "InputEvent"
 msgid "Command 37"
 msgstr "Εντολή 37"
 
-#: utils/InputEngine.cpp:274
+#: utils/InputEngine.cpp:273
 #, fuzzy
 #| msgid "Command 38"
 msgctxt "InputEvent"
 msgid "Command 38"
 msgstr "Εντολή 38"
 
-#: utils/InputEngine.cpp:275
+#: utils/InputEngine.cpp:274
 #, fuzzy
 #| msgid "Command 39"
 msgctxt "InputEvent"
 msgid "Command 39"
 msgstr "Εντολή 39"
 
-#: utils/InputEngine.cpp:276
+#: utils/InputEngine.cpp:275
 #, fuzzy
 #| msgid "Command 40"
 msgctxt "InputEvent"
 msgid "Command 40"
 msgstr "Εντολή 40"
 
-#: utils/InputEngine.cpp:277
+#: utils/InputEngine.cpp:276
 #, fuzzy
 #| msgid "Command 41"
 msgctxt "InputEvent"
 msgid "Command 41"
 msgstr "Εντολή 41"
 
-#: utils/InputEngine.cpp:278
+#: utils/InputEngine.cpp:277
 #, fuzzy
 #| msgid "Command 42"
 msgctxt "InputEvent"
 msgid "Command 42"
 msgstr "Εντολή 42"
 
-#: utils/InputEngine.cpp:279
+#: utils/InputEngine.cpp:278
 #, fuzzy
 #| msgid "Command 43"
 msgctxt "InputEvent"
 msgid "Command 43"
 msgstr "Εντολή 43"
 
-#: utils/InputEngine.cpp:280
+#: utils/InputEngine.cpp:279
 #, fuzzy
 #| msgid "Command 44"
 msgctxt "InputEvent"
 msgid "Command 44"
 msgstr "Εντολή 44"
 
-#: utils/InputEngine.cpp:281
+#: utils/InputEngine.cpp:280
 #, fuzzy
 #| msgid "Command 45"
 msgctxt "InputEvent"
 msgid "Command 45"
 msgstr "Εντολή 45"
 
-#: utils/InputEngine.cpp:282
+#: utils/InputEngine.cpp:281
 #, fuzzy
 #| msgid "Command 46"
 msgctxt "InputEvent"
 msgid "Command 46"
 msgstr "Εντολή 46"
 
-#: utils/InputEngine.cpp:283
+#: utils/InputEngine.cpp:282
 #, fuzzy
 #| msgid "Command 47"
 msgctxt "InputEvent"
 msgid "Command 47"
 msgstr "Εντολή 47"
 
-#: utils/InputEngine.cpp:284
+#: utils/InputEngine.cpp:283
 #, fuzzy
 #| msgid "Command 48"
 msgctxt "InputEvent"
 msgid "Command 48"
 msgstr "Εντολή 48"
 
-#: utils/InputEngine.cpp:285
+#: utils/InputEngine.cpp:284
 #, fuzzy
 #| msgid "Command 4"
 msgctxt "InputEvent"
 msgid "Command 49"
 msgstr "Εντολή 4"
 
-#: utils/InputEngine.cpp:286
+#: utils/InputEngine.cpp:285
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 50"
 msgstr "Εντολή 5"
 
-#: utils/InputEngine.cpp:287
+#: utils/InputEngine.cpp:286
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 51"
 msgstr "Εντολή 5"
 
-#: utils/InputEngine.cpp:288
+#: utils/InputEngine.cpp:287
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 52"
 msgstr "Εντολή 5"
 
-#: utils/InputEngine.cpp:289
+#: utils/InputEngine.cpp:288
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 53"
 msgstr "Εντολή 5"
 
-#: utils/InputEngine.cpp:290
+#: utils/InputEngine.cpp:289
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 54"
 msgstr "Εντολή 5"
 
-#: utils/InputEngine.cpp:291
+#: utils/InputEngine.cpp:290
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 55"
 msgstr "Εντολή 5"
 
-#: utils/InputEngine.cpp:292
+#: utils/InputEngine.cpp:291
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 56"
 msgstr "Εντολή 5"
 
-#: utils/InputEngine.cpp:293
+#: utils/InputEngine.cpp:292
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 57"
 msgstr "Εντολή 5"
 
-#: utils/InputEngine.cpp:294
+#: utils/InputEngine.cpp:293
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 58"
 msgstr "Εντολή 5"
 
-#: utils/InputEngine.cpp:295
+#: utils/InputEngine.cpp:294
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 59"
 msgstr "Εντολή 5"
 
-#: utils/InputEngine.cpp:296
+#: utils/InputEngine.cpp:295
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 60"
 msgstr "Εντολή 6"
 
-#: utils/InputEngine.cpp:297
+#: utils/InputEngine.cpp:296
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 61"
 msgstr "Εντολή 6"
 
-#: utils/InputEngine.cpp:298
+#: utils/InputEngine.cpp:297
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 62"
 msgstr "Εντολή 6"
 
-#: utils/InputEngine.cpp:299
+#: utils/InputEngine.cpp:298
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 63"
 msgstr "Εντολή 6"
 
-#: utils/InputEngine.cpp:300
+#: utils/InputEngine.cpp:299
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 64"
 msgstr "Εντολή 6"
 
-#: utils/InputEngine.cpp:301
+#: utils/InputEngine.cpp:300
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 65"
 msgstr "Εντολή 6"
 
-#: utils/InputEngine.cpp:302
+#: utils/InputEngine.cpp:301
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 66"
 msgstr "Εντολή 6"
 
-#: utils/InputEngine.cpp:303
+#: utils/InputEngine.cpp:302
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 67"
 msgstr "Εντολή 6"
 
-#: utils/InputEngine.cpp:304
+#: utils/InputEngine.cpp:303
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 68"
 msgstr "Εντολή 6"
 
-#: utils/InputEngine.cpp:305
+#: utils/InputEngine.cpp:304
 #, fuzzy
 #| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 69"
 msgstr "Εντολή 6"
 
-#: utils/InputEngine.cpp:306
+#: utils/InputEngine.cpp:305
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 70"
 msgstr "Εντολή 7"
 
-#: utils/InputEngine.cpp:307
+#: utils/InputEngine.cpp:306
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 71"
 msgstr "Εντολή 7"
 
-#: utils/InputEngine.cpp:308
+#: utils/InputEngine.cpp:307
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 72"
 msgstr "Εντολή 7"
 
-#: utils/InputEngine.cpp:309
+#: utils/InputEngine.cpp:308
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 73"
 msgstr "Εντολή 7"
 
-#: utils/InputEngine.cpp:310
+#: utils/InputEngine.cpp:309
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 74"
 msgstr "Εντολή 7"
 
-#: utils/InputEngine.cpp:311
+#: utils/InputEngine.cpp:310
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 75"
 msgstr "Εντολή 7"
 
-#: utils/InputEngine.cpp:312
+#: utils/InputEngine.cpp:311
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 76"
 msgstr "Εντολή 7"
 
-#: utils/InputEngine.cpp:313
+#: utils/InputEngine.cpp:312
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 77"
 msgstr "Εντολή 7"
 
-#: utils/InputEngine.cpp:314
+#: utils/InputEngine.cpp:313
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 78"
 msgstr "Εντολή 7"
 
-#: utils/InputEngine.cpp:315
+#: utils/InputEngine.cpp:314
 #, fuzzy
 #| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 79"
 msgstr "Εντολή 7"
 
-#: utils/InputEngine.cpp:316
+#: utils/InputEngine.cpp:315
 #, fuzzy
 #| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 80"
 msgstr "Εντολή 8"
 
-#: utils/InputEngine.cpp:317
+#: utils/InputEngine.cpp:316
 #, fuzzy
 #| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 81"
 msgstr "Εντολή 8"
 
-#: utils/InputEngine.cpp:318
+#: utils/InputEngine.cpp:317
 #, fuzzy
 #| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 82"
 msgstr "Εντολή 8"
 
-#: utils/InputEngine.cpp:319
+#: utils/InputEngine.cpp:318
 #, fuzzy
 #| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 83"
 msgstr "Εντολή 8"
 
-#: utils/InputEngine.cpp:320
+#: utils/InputEngine.cpp:319
 #, fuzzy
 #| msgid "Command 8"
 msgctxt "InputEvent"
@@ -6254,70 +6468,70 @@ msgid "Command 84"
 msgstr "Εντολή 8"
 
 #. Character
-#: utils/InputEngine.cpp:323
+#: utils/InputEngine.cpp:322
 #, fuzzy
 #| msgid "step backwards with the character"
 msgctxt "InputEvent"
 msgid "step backwards with the character"
 msgstr "προχώρησε προς τα πίσω με τον χαρακτήρα"
 
-#: utils/InputEngine.cpp:324
+#: utils/InputEngine.cpp:323
 #, fuzzy
 #| msgid "step forward with the character"
 msgctxt "InputEvent"
 msgid "step forward with the character"
 msgstr "προχώρησε μπροστά με τον χαρακτήρα"
 
-#: utils/InputEngine.cpp:325
+#: utils/InputEngine.cpp:324
 #, fuzzy
 #| msgid "let the character jump"
 msgctxt "InputEvent"
 msgid "let the character jump"
 msgstr "άφησε τον χαρακτήρα να πηδήξει"
 
-#: utils/InputEngine.cpp:326
+#: utils/InputEngine.cpp:325
 #, fuzzy
 #| msgid "rotate character left"
 msgctxt "InputEvent"
 msgid "rotate character left"
 msgstr "περιστροφή χαρακτήρα αριστερά"
 
-#: utils/InputEngine.cpp:327
+#: utils/InputEngine.cpp:326
 #, fuzzy
 #| msgid "rotate character right"
 msgctxt "InputEvent"
 msgid "rotate character right"
 msgstr "περιστροφή χαρακτήρα δεξιά"
 
-#: utils/InputEngine.cpp:328
+#: utils/InputEngine.cpp:327
 #, fuzzy
 #| msgid "let the character run"
 msgctxt "InputEvent"
 msgid "let the character run"
 msgstr "άφησε τον χαρακτήρα να τρέξει"
 
-#: utils/InputEngine.cpp:329
+#: utils/InputEngine.cpp:328
 #, fuzzy
 #| msgid "sidestep to the left"
 msgctxt "InputEvent"
 msgid "sidestep to the left"
 msgstr "παράπλευρη μετακίνηση προς τα αριστερά"
 
-#: utils/InputEngine.cpp:330
+#: utils/InputEngine.cpp:329
 #, fuzzy
 #| msgid "sidestep to the right"
 msgctxt "InputEvent"
 msgid "sidestep to the right"
 msgstr "παράπλευρο βήμα στα δεξιά"
 
-#: utils/InputEngine.cpp:331
+#: utils/InputEngine.cpp:330
 #, fuzzy
 #| msgid "rotate view up"
 msgctxt "InputEvent"
 msgid "rotate view up"
 msgstr "Περιστροφή θέας προς τα επάνω"
 
-#: utils/InputEngine.cpp:332
+#: utils/InputEngine.cpp:331
 #, fuzzy
 #| msgid "rotate view down"
 msgctxt "InputEvent"
@@ -6325,105 +6539,105 @@ msgid "rotate view down"
 msgstr "περιστροφή θέας προς τα κάτω"
 
 #. Camera
-#: utils/InputEngine.cpp:335
+#: utils/InputEngine.cpp:334
 #, fuzzy
 #| msgid "change camera mode"
 msgctxt "InputEvent"
 msgid "change camera mode"
 msgstr "άλλαξε την λειουργεία της κάμερας"
 
-#: utils/InputEngine.cpp:336
+#: utils/InputEngine.cpp:335
 #, fuzzy
 #| msgid "look back (toggles between normal and lookback)"
 msgctxt "InputEvent"
 msgid "look back (toggles between normal and lookback)"
 msgstr "κοίταξε πίσω (αλλάζει μεταξύ κανονικό και κολιταγμα πίσω)"
 
-#: utils/InputEngine.cpp:337
+#: utils/InputEngine.cpp:336
 #, fuzzy
 #| msgid "reset the camera position"
 msgctxt "InputEvent"
 msgid "reset the camera position"
 msgstr "μηδενισμός θέσης κάμερας"
 
-#: utils/InputEngine.cpp:338
+#: utils/InputEngine.cpp:337
 #, fuzzy
 #| msgid "rotate camera down"
 msgctxt "InputEvent"
 msgid "rotate camera down"
 msgstr "περιστροφή της κάμερας προς τα κάτω"
 
-#: utils/InputEngine.cpp:339
+#: utils/InputEngine.cpp:338
 #, fuzzy
 #| msgid "rotate camera left"
 msgctxt "InputEvent"
 msgid "rotate camera left"
 msgstr "περιστροφή κάμερας αριστερά"
 
-#: utils/InputEngine.cpp:340
+#: utils/InputEngine.cpp:339
 #, fuzzy
 #| msgid "rotate camera right"
 msgctxt "InputEvent"
 msgid "rotate camera right"
 msgstr "περιστροφή κάμερας δεξιά"
 
-#: utils/InputEngine.cpp:341
+#: utils/InputEngine.cpp:340
 #, fuzzy
 #| msgid "rotate camera up"
 msgctxt "InputEvent"
 msgid "rotate camera up"
 msgstr "περιστροφή της κάμερας προς τα πάνω"
 
-#: utils/InputEngine.cpp:342
+#: utils/InputEngine.cpp:341
 #, fuzzy
 #| msgid "zoom camera in"
 msgctxt "InputEvent"
 msgid "zoom camera in"
 msgstr "μεγέθυνση κάμερας"
 
-#: utils/InputEngine.cpp:343
+#: utils/InputEngine.cpp:342
 #, fuzzy
 #| msgid "zoom camera in faster"
 msgctxt "InputEvent"
 msgid "zoom camera in faster"
 msgstr "μεγέθυνση της κάμερας γρηγορότερα"
 
-#: utils/InputEngine.cpp:344
+#: utils/InputEngine.cpp:343
 #, fuzzy
 #| msgid "zoom camera out"
 msgctxt "InputEvent"
 msgid "zoom camera out"
 msgstr "απομάκρυνση της κάμερας προς τα πίσω"
 
-#: utils/InputEngine.cpp:345
+#: utils/InputEngine.cpp:344
 #, fuzzy
 #| msgid "zoom camera out faster"
 msgctxt "InputEvent"
 msgid "zoom camera out faster"
 msgstr "απομάκρυνση της κάμερας προς τα πίσω γρηγορότερα"
 
-#: utils/InputEngine.cpp:346
+#: utils/InputEngine.cpp:345
 #, fuzzy
 #| msgid "fix the camera to a position"
 msgctxt "InputEvent"
 msgid "fix the camera to a position"
 msgstr "πάγωμα της κάμερας σε μία θέση"
 
-#: utils/InputEngine.cpp:347
+#: utils/InputEngine.cpp:346
 #, fuzzy
 #| msgid "enable / disable free camera mode"
 msgctxt "InputEvent"
 msgid "enable / disable free camera mode"
 msgstr "ενεργοποίηση / απενεργοποίηση ελεύθερης κάμερας"
 
-#: utils/InputEngine.cpp:348
+#: utils/InputEngine.cpp:347
 #, fuzzy
 #| msgid "rotate camera up"
 msgctxt "InputEvent"
 msgid "move camera up"
 msgstr "περιστροφή της κάμερας προς τα πάνω"
 
-#: utils/InputEngine.cpp:349
+#: utils/InputEngine.cpp:348
 #, fuzzy
 #| msgid "rotate camera down"
 msgctxt "InputEvent"
@@ -6431,28 +6645,28 @@ msgid "move camera down"
 msgstr "περιστροφή της κάμερας προς τα κάτω"
 
 #. Sky
-#: utils/InputEngine.cpp:352
+#: utils/InputEngine.cpp:351
 #, fuzzy
 #| msgid "decrease day-time"
 msgctxt "InputEvent"
 msgid "decrease day-time"
 msgstr "μείωσε μέρα-ώρα"
 
-#: utils/InputEngine.cpp:353
+#: utils/InputEngine.cpp:352
 #, fuzzy
 #| msgid "decrease day-time a lot faster"
 msgctxt "InputEvent"
 msgid "decrease day-time a lot faster"
 msgstr "μείωσε μέρα-ώρα πολύ ποιο γρήγορα"
 
-#: utils/InputEngine.cpp:354
+#: utils/InputEngine.cpp:353
 #, fuzzy
 #| msgid "increase day-time"
 msgctxt "InputEvent"
 msgid "increase day-time"
 msgstr "αύξισε μέρα-ώρα"
 
-#: utils/InputEngine.cpp:355
+#: utils/InputEngine.cpp:354
 #, fuzzy
 #| msgid "increase day-time a lot faster"
 msgctxt "InputEvent"
@@ -6460,35 +6674,35 @@ msgid "increase day-time a lot faster"
 msgstr "αύξηση μέρας-ώρας πολύ ποιο γρήγορα"
 
 #. Grass
-#: utils/InputEngine.cpp:358
+#: utils/InputEngine.cpp:357
 #, fuzzy
 #| msgid "EXPERIMENTAL: remove some grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove some grass"
 msgstr "ΠΕΙΡΑΜΑΤΙΚΟ: αφέρεση λίγου γρασιδιού"
 
-#: utils/InputEngine.cpp:359
+#: utils/InputEngine.cpp:358
 #, fuzzy
 #| msgid "EXPERIMENTAL: add some grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: add some grass"
 msgstr "ΠΕΙΡΑΜΑΤΙΚΟ: πρόσθεσε λίγο γρασίδι"
 
-#: utils/InputEngine.cpp:360
+#: utils/InputEngine.cpp:359
 #, fuzzy
 #| msgid "EXPERIMENTAL: set maximum amount of grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: set maximum amount of grass"
 msgstr "ΠΕΙΡΑΜΑΤΙΚΟ: θέσε το μέγιστο ποσό γρασιδιού"
 
-#: utils/InputEngine.cpp:361
+#: utils/InputEngine.cpp:360
 #, fuzzy
 #| msgid "EXPERIMENTAL: remove grass completely"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove grass completely"
 msgstr "ΠΕΙΡΑΜΑΤΙΚΟ: αφαίρεση του γρασιδιού τελείως"
 
-#: utils/InputEngine.cpp:362
+#: utils/InputEngine.cpp:361
 #, fuzzy
 #| msgid "EXPERIMENTAL: save changes to the grass density image"
 msgctxt "InputEvent"
@@ -6496,35 +6710,35 @@ msgid "EXPERIMENTAL: save changes to the grass density image"
 msgstr "ΠΕΙΡΑΜΑΤΙΚΟ: σώσε τις αλλαγές στην εικόνα της πυκνότητας γρασιδιού"
 
 #. Survey map
-#: utils/InputEngine.cpp:365
+#: utils/InputEngine.cpp:364
 #, fuzzy
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle map icons"
 msgstr "εμφάνιση των ραδιοσημαντήρων του οχήματος"
 
-#: utils/InputEngine.cpp:366
+#: utils/InputEngine.cpp:365
 #, fuzzy
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle map"
 msgstr "εμφάνιση των ραδιοσημαντήρων του οχήματος"
 
-#: utils/InputEngine.cpp:367
+#: utils/InputEngine.cpp:366
 #, fuzzy
 #| msgid "change camera mode"
 msgctxt "InputEvent"
 msgid "cycle map modes"
 msgstr "άλλαξε την λειουργεία της κάμερας"
 
-#: utils/InputEngine.cpp:368
+#: utils/InputEngine.cpp:367
 #, fuzzy
 #| msgid "zoom in"
 msgctxt "InputEvent"
 msgid "zoom in"
 msgstr "μεγέθυνση"
 
-#: utils/InputEngine.cpp:369
+#: utils/InputEngine.cpp:368
 #, fuzzy
 #| msgid "zoom camera out"
 msgctxt "InputEvent"
@@ -6532,35 +6746,35 @@ msgid "zoom out"
 msgstr "απομάκρυνση της κάμερας προς τα πίσω"
 
 #. Menu
-#: utils/InputEngine.cpp:372
+#: utils/InputEngine.cpp:371
 #, fuzzy
 #| msgid "select next element in current category"
 msgctxt "InputEvent"
 msgid "select next element in current category"
 msgstr "επέλεξε το επόμενο στοιχείο στην τρέχουσα κατηγορία"
 
-#: utils/InputEngine.cpp:373
+#: utils/InputEngine.cpp:372
 #, fuzzy
 #| msgid "select previous category"
 msgctxt "InputEvent"
 msgid "select previous category"
 msgstr "Επέλεξε την προηγούμενη κατηγορία"
 
-#: utils/InputEngine.cpp:374
+#: utils/InputEngine.cpp:373
 #, fuzzy
 #| msgid "select next category"
 msgctxt "InputEvent"
 msgid "select next category"
 msgstr "επιλογή επόμενης κατηγορίας"
 
-#: utils/InputEngine.cpp:375
+#: utils/InputEngine.cpp:374
 #, fuzzy
 #| msgid "select focussed item and close menu"
 msgctxt "InputEvent"
 msgid "select focussed item and close menu"
 msgstr "Επέλεξε το αντικείμενο και κλίσε το μενού"
 
-#: utils/InputEngine.cpp:376
+#: utils/InputEngine.cpp:375
 #, fuzzy
 #| msgid "select previous element in current category"
 msgctxt "InputEvent"
@@ -6568,16 +6782,22 @@ msgid "select previous element in current category"
 msgstr "επιλογή προηγούμενου στοιχείου στη τρέχουσα κατηγορία"
 
 #. Truck editing
-#: utils/InputEngine.cpp:379
+#: utils/InputEngine.cpp:378
 #, fuzzy
 #| msgid "reload truck"
 msgctxt "InputEvent"
 msgid "reload truck"
 msgstr "επανακινιση θεσης αυτοκινιτου"
 
-#: utils/InputEngine.cpp:1717
+#: utils/InputEngine.cpp:1707
 msgid "(Please press a key)"
 msgstr ""
+
+#, fuzzy
+#~| msgid "toggle render mode (solid, wireframe and points)"
+#~ msgctxt "InputEvent"
+#~ msgid "toggle render mode (solid, wireframe and points)"
+#~ msgstr "ενεργοποίηση μεθόδου απόδοσης (σταθερή, καλωδιόγραμμα και σημεία)"
 
 #, fuzzy
 #~| msgid "Airplane"
