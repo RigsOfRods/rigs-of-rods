@@ -460,6 +460,7 @@ public:
     int setMaterialTextureScale(const Ogre::String& materialName, int techniqueNum, int passNum, int textureUnitNum, float u, float v);
 
     ///@}
+    TerrainPtr getTerrain();
 
 private:
 

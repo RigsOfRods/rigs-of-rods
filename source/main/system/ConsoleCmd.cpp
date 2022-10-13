@@ -69,17 +69,17 @@ public:
         Str<200> reply;
         if (args.size() == 1)
         {
-            reply << _L("Current gravity is: ") << App::GetSimTerrain()->getGravity();
+            reply << _L("Current gravity is: ") << App::GetGameContext()->GetTerrain()->getGravity();
         }
         else
         {
-                 if (args[1] == "earth")    { App::GetSimTerrain()->setGravity(DEFAULT_GRAVITY);    }
-            else if (args[1] == "moon")     { App::GetSimTerrain()->setGravity(-1.62f);             }
-            else if (args[1] == "mars")     { App::GetSimTerrain()->setGravity(-3.711f);            }
-            else if (args[1] == "jupiter")  { App::GetSimTerrain()->setGravity(-24.8f);             }
-            else                            { App::GetSimTerrain()->setGravity(PARSEREAL(args[1])); }
+                 if (args[1] == "earth")    { App::GetGameContext()->GetTerrain()->setGravity(DEFAULT_GRAVITY);    }
+            else if (args[1] == "moon")     { App::GetGameContext()->GetTerrain()->setGravity(-1.62f);             }
+            else if (args[1] == "mars")     { App::GetGameContext()->GetTerrain()->setGravity(-3.711f);            }
+            else if (args[1] == "jupiter")  { App::GetGameContext()->GetTerrain()->setGravity(-24.8f);             }
+            else                            { App::GetGameContext()->GetTerrain()->setGravity(PARSEREAL(args[1])); }
 
-            reply << _L("Gravity set to: ") << App::GetSimTerrain()->getGravity();
+            reply << _L("Gravity set to: ") << App::GetGameContext()->GetTerrain()->getGravity();
         }
 
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, reply.ToCStr());
@@ -99,7 +99,7 @@ public:
         Str<200> reply;
         Console::MessageType reply_type;
         reply << m_name << ": ";
-        if (!App::GetSimTerrain()->getWater())
+        if (!App::GetGameContext()->GetTerrain()->getWater())
         {
             reply_type = Console::CONSOLE_SYSTEM_ERROR;
             reply << _L("This terrain does not have water.");
@@ -109,12 +109,12 @@ public:
             reply_type = Console::CONSOLE_SYSTEM_REPLY;
             if (args.size() > 1)
             {
-                IWater* water = App::GetSimTerrain()->getWater();
-                float height = (args[1] == "default") ? App::GetSimTerrain()->getWaterHeight() : PARSEREAL(args[1]);
+                IWater* water = App::GetGameContext()->GetTerrain()->getWater();
+                float height = (args[1] == "default") ? App::GetGameContext()->GetTerrain()->getWaterHeight() : PARSEREAL(args[1]);
                 water->SetStaticWaterHeight(height);
                 water->UpdateWater();
             }
-            reply << _L ("Water level set to: ") << App::GetSimTerrain()->getWater()->GetStaticWaterHeight();
+            reply << _L ("Water level set to: ") << App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight();
         }
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
     }
@@ -130,7 +130,7 @@ public:
         if (!this->CheckAppState(AppState::SIMULATION))
             return;
 
-        ROR_ASSERT(App::GetSimTerrain());
+        ROR_ASSERT(App::GetGameContext()->GetTerrain());
 
         Str<200> reply;
         reply << m_name << ": ";
@@ -149,7 +149,7 @@ public:
         }
         reply << _L("Terrain height at position: ")
               << "x: " << pos.x << " z: " << pos.z << " = "
-              <<  App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
+              <<  App::GetGameContext()->GetTerrain()->GetHeightAt(pos.x, pos.z);
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
     }
 };
@@ -165,7 +165,7 @@ public:
             return;
 
         ROR_ASSERT(App::GetGameContext()->GetPlayerCharacter());
-        ROR_ASSERT(App::GetSimTerrain());
+        ROR_ASSERT(App::GetGameContext()->GetTerrain());
 
         Str<200> reply;
         reply << m_name << ": ";
@@ -182,7 +182,7 @@ public:
             {
                 Ogre::Vector3 pos = App::GetGameContext()->GetPlayerCharacter()->getPosition();
                 Ogre::SceneNode* bake_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(args[1], pos, Ogre::Vector3::ZERO, bake_node, "Console", "");
+                App::GetGameContext()->GetTerrain()->getObjectManager()->LoadTerrainObject(args[1], pos, Ogre::Vector3::ZERO, bake_node, "Console", "");
 
                 reply_type = Console::CONSOLE_SYSTEM_REPLY;
                 reply << _L("Spawned object at position: ") << "x: " << pos.x << " z: " << pos.z;

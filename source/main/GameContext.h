@@ -32,6 +32,7 @@
 #include "RecoveryMode.h"
 #include "SceneMouse.h"
 #include "SimData.h"
+#include "Terrain.h"
 
 #include <list>
 #include <mutex>
@@ -109,6 +110,7 @@ public:
 
     bool                LoadTerrain(std::string const& filename_part);
     void                UnloadTerrain();
+    TerrainPtr&         GetTerrain() { return m_terrain; }
 
     /// @}
     /// @name Actors
@@ -178,6 +180,9 @@ private:
     GameMsgQueue        m_msg_queue;
     Message*            m_msg_chain_end = nullptr;
     std::mutex          m_msg_mutex;
+
+    // Terrain
+    TerrainPtr          m_terrain;
 
     // Actors (physics and netcode)
     ActorManager        m_actor_manager;

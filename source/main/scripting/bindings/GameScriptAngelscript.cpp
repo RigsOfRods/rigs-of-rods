@@ -31,6 +31,7 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
 
     // class GameScript
     result = engine->RegisterObjectType("GameScriptClass", sizeof(GameScript), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "TerrainClass@ getTerrain()", AngelScript::asMETHOD(GameScript,getTerrain), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
     
     // PLEASE maintain the same order as in GameScript.h!
 

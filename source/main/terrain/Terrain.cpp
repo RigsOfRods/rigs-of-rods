@@ -45,7 +45,7 @@
 using namespace RoR;
 using namespace Ogre;
 
-RoR::Terrain::Terrain(CacheEntry* entry)
+RoR::Terrain::Terrain(CacheEntry* entry, Terrn2Def def)
     : m_collisions(0)
     , m_geometry_manager(0)
     , m_object_manager(0)
@@ -58,11 +58,21 @@ RoR::Terrain::Terrain(CacheEntry* entry)
     , m_cur_gravity(DEFAULT_GRAVITY)
     , m_hydrax_water(nullptr)
     , m_cache_entry(entry)
+    , m_def(def)
 {
 }
 
 RoR::Terrain::~Terrain()
 {
+    if (!m_disposed)
+    {
+        this->dispose();
+    }
+}
+
+void RoR::Terrain::dispose()
+{
+    m_disposed = true;
     if (App::app_state->getEnum<AppState>() == AppState::SHUTDOWN)
     {
         // Rush to exit
@@ -126,112 +136,84 @@ RoR::Terrain::~Terrain()
     }
 }
 
-RoR::Terrain* RoR::Terrain::LoadAndPrepareTerrain(CacheEntry* entry)
+bool RoR::Terrain::initialize()
 {
-    auto terrn_mgr = std::unique_ptr<Terrain>(new RoR::Terrain(entry));
     auto* loading_window = &App::GetGuiManager()->LoadingWindow;
 
-    std::string const& filename = entry->fname;
-    try
-    {
-        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename);
-        LOG(" ===== LOADING TERRAIN " + filename);
-        Terrn2Parser parser;
-        if (! parser.LoadTerrn2(terrn_mgr->m_def, stream))
-        {
-            return nullptr; // Errors already logged to console
-        }
-    }
-    catch (Ogre::Exception& e)
-    {
-        App::GetGuiManager()->ShowMessageBox(_L("Terrain loading error"), e.getFullDescription().c_str());
-        return nullptr;
-    }
-
-    terrn_mgr->setGravity(terrn_mgr->m_def.gravity);
+    this->setGravity(this->m_def.gravity);
 
     loading_window->SetProgress(15, _L("Initializing Shadow Subsystem"));
-    terrn_mgr->initShadows();
+    this->initShadows();
 
     loading_window->SetProgress(17, _L("Initializing Geometry Subsystem"));
-    terrn_mgr->m_geometry_manager = new TerrainGeometryManager(terrn_mgr.get());
+    this->m_geometry_manager = new TerrainGeometryManager(this);
 
     loading_window->SetProgress(19, _L("Initializing Object Subsystem"));
-    terrn_mgr->initObjects(); // *.odef files
+    this->initObjects(); // *.odef files
 
     loading_window->SetProgress(23, _L("Initializing Camera Subsystem"));
-    terrn_mgr->initCamera();
+    this->initCamera();
 
     // sky, must come after camera due to m_sight_range
     loading_window->SetProgress(25, _L("Initializing Sky Subsystem"));
-    terrn_mgr->initSkySubSystem();
+    this->initSkySubSystem();
 
     loading_window->SetProgress(27, _L("Initializing Light Subsystem"));
-    terrn_mgr->initLight();
+    this->initLight();
 
     if (App::gfx_sky_mode->getEnum<GfxSkyMode>() != GfxSkyMode::CAELUM) //Caelum has its own fog management
     {
         loading_window->SetProgress(29, _L("Initializing Fog Subsystem"));
-        terrn_mgr->initFog();
+        this->initFog();
     }
 
     loading_window->SetProgress(31, _L("Initializing Vegetation Subsystem"));
-    terrn_mgr->initVegetation();
+    this->initVegetation();
 
-    terrn_mgr->fixCompositorClearColor();
+    this->fixCompositorClearColor();
 
     loading_window->SetProgress(40, _L("Loading Terrain Geometry"));
-    if (!terrn_mgr->m_geometry_manager->InitTerrain(terrn_mgr->m_def.ogre_ter_conf_filename))
+    if (!this->m_geometry_manager->InitTerrain(this->m_def.ogre_ter_conf_filename))
     {
-        return nullptr; // Error already reported
+        return false; // Error already reported
     }
 
     loading_window->SetProgress(60, _L("Initializing Collision Subsystem"));
-    terrn_mgr->m_collisions = new Collisions(terrn_mgr->getMaxTerrainSize());
+    this->m_collisions = new Collisions(this->getMaxTerrainSize());
 
     loading_window->SetProgress(75, _L("Initializing Script Subsystem"));
-    App::SetSimTerrain(terrn_mgr.get()); // Hack for GameScript::spawnObject()
-    terrn_mgr->initScripting();
-    App::SetSimTerrain(nullptr); // END Hack for GameScript::spawnObject()
+    this->initScripting();
 
     loading_window->SetProgress(77, _L("Initializing Water Subsystem"));
-    terrn_mgr->initWater();
+    this->initWater();
 
     loading_window->SetProgress(80, _L("Loading Terrain Objects"));
-    App::SetSimTerrain(terrn_mgr.get()); // Hack for the ProceduralManager
-    terrn_mgr->loadTerrainObjects(); // *.tobj files
-    App::SetSimTerrain(nullptr); // END Hack for the ProceduralManager
+    this->loadTerrainObjects(); // *.tobj files
 
     // init things after loading the terrain
-    App::SetSimTerrain(terrn_mgr.get()); // Hack for the Landusemap
-    terrn_mgr->initTerrainCollisions();
-    App::SetSimTerrain(nullptr); // END Hack for the Landusemap
+    this->initTerrainCollisions();
 
     loading_window->SetProgress(90, _L("Initializing terrain light properties"));
-    terrn_mgr->m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
-    App::SetSimTerrain(terrn_mgr.get()); // Hack for the Collision debug visual
-    terrn_mgr->m_collisions->finishLoadingTerrain();
-    App::SetSimTerrain(nullptr); // END Hack for the Collision debug visual
+    this->m_geometry_manager->UpdateMainLightPosition(); // Initial update takes a while
+    this->m_collisions->finishLoadingTerrain();
 
-    terrn_mgr->LoadTelepoints(); // *.terrn2 file feature
+    this->LoadTelepoints(); // *.terrn2 file feature
 
     App::GetGfxScene()->CreateDustPools(); // Particle effects
 
     loading_window->SetProgress(92, _L("Initializing Overview Map Subsystem"));
-    App::SetSimTerrain(terrn_mgr.get()); // Hack for the SurveyMapTextureCreator
     App::GetGuiManager()->SurveyMap.CreateTerrainTextures(); // Should be done before actors are loaded, otherwise they'd show up in the static texture
-    App::SetSimTerrain(nullptr); // END Hack for the SurveyMapTextureCreator
 
-    LOG(" ===== LOADING TERRAIN ACTORS " + filename);
+    LOG(" ===== LOADING TERRAIN ACTORS " + m_cache_entry->fname);
     loading_window->SetProgress(95, _L("Loading Terrain Actors"));
-    terrn_mgr->LoadPredefinedActors();
+    this->LoadPredefinedActors();
 
-    LOG(" ===== TERRAIN LOADING DONE " + filename);
+    LOG(" ===== TERRAIN LOADING DONE " + m_cache_entry->fname);
 
-    App::sim_terrain_name->setStr(filename);
-    App::sim_terrain_gui_name->setStr(terrn_mgr->m_def.name);
+    App::sim_terrain_name->setStr(m_cache_entry->fname);
+    App::sim_terrain_gui_name->setStr(this->m_def.name);
 
-    return terrn_mgr.release();
+    return this;
 }
 
 void RoR::Terrain::initCamera()

@@ -59,7 +59,7 @@ using namespace Forests;
 //workaround for pagedgeometry
 inline float getTerrainHeight(Real x, Real z, void* unused = 0)
 {
-    return App::GetSimTerrain()->GetHeightAt(x, z);
+    return App::GetGameContext()->GetTerrain()->GetHeightAt(x, z);
 }
 
 TerrainObjectManager::TerrainObjectManager(Terrain* terrainManager) :

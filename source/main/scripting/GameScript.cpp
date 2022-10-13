@@ -155,9 +155,9 @@ String GameScript::getCaelumTime()
 {
     String result = "";
 #ifdef USE_CAELUM
-    if (App::GetSimTerrain())
+    if (App::GetGameContext()->GetTerrain())
     {
-        result = App::GetSimTerrain()->getSkyManager()->GetPrettyTime();
+        result = App::GetGameContext()->GetTerrain()->getSkyManager()->GetPrettyTime();
     }
 #endif // USE_CAELUM
     return result;
@@ -169,7 +169,7 @@ void GameScript::setCaelumTime(float value)
     if (!this->HaveSimTerrain(__FUNCTION__))
         return;
 
-    App::GetSimTerrain()->getSkyManager()->SetSkyTimeFactor(value);
+    App::GetGameContext()->GetTerrain()->getSkyManager()->SetSkyTimeFactor(value);
 #endif // USE_CAELUM
 }
 
@@ -177,8 +177,8 @@ bool GameScript::getCaelumAvailable()
 {
     bool result = false;
 #ifdef USE_CAELUM
-    if (App::GetSimTerrain())
-        result = App::GetSimTerrain()->getSkyManager() != 0;
+    if (App::GetGameContext()->GetTerrain())
+        result = App::GetGameContext()->GetTerrain()->getSkyManager() != 0;
 #endif // USE_CAELUM
     return result;
 }
@@ -208,9 +208,9 @@ void GameScript::setWaterHeight(float value)
     if (!this->HaveSimTerrain(__FUNCTION__))
         return;
 
-    if (App::GetSimTerrain()->getWater())
+    if (App::GetGameContext()->GetTerrain()->getWater())
     {
-        IWater* water = App::GetSimTerrain()->getWater();
+        IWater* water = App::GetGameContext()->GetTerrain()->getWater();
         water->SetStaticWaterHeight(value);
         water->UpdateWater();
     }
@@ -219,16 +219,16 @@ void GameScript::setWaterHeight(float value)
 float GameScript::getGroundHeight(Vector3& v)
 {
     float result = -1.0f;
-    if (App::GetSimTerrain())
-        result = App::GetSimTerrain()->GetHeightAt(v.x, v.z);
+    if (App::GetGameContext()->GetTerrain())
+        result = App::GetGameContext()->GetTerrain()->GetHeightAt(v.x, v.z);
     return result;
 }
 
 float GameScript::getWaterHeight()
 {
     float result = 0.0f;
-    if (App::GetSimTerrain() && App::GetSimTerrain()->getWater())
-        result = App::GetSimTerrain()->getWater()->GetStaticWaterHeight();
+    if (App::GetGameContext()->GetTerrain() && App::GetGameContext()->GetTerrain()->getWater())
+        result = App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight();
     return result;
 }
 
@@ -240,9 +240,9 @@ ActorPtr GameScript::getCurrentTruck()
 float GameScript::getGravity()
 {
     float result = 0.f;
-    if (App::GetSimTerrain())
+    if (App::GetGameContext()->GetTerrain())
     {
-        result = App::GetSimTerrain()->getGravity();
+        result = App::GetGameContext()->GetTerrain()->getGravity();
     }
     return result;
 }
@@ -252,7 +252,7 @@ void GameScript::setGravity(float value)
     if (!this->HaveSimTerrain(__FUNCTION__))
         return;
 
-    App::GetSimTerrain()->setGravity(value);
+    App::GetGameContext()->GetTerrain()->setGravity(value);
 }
 
 ActorPtr GameScript::getTruckByNum(int num)
@@ -367,7 +367,7 @@ void GameScript::showChooser(const String& type, const String& instance, const S
 
 void GameScript::repairVehicle(const String& instance, const String& box, bool keepPosition)
 {
-    App::GetGameContext()->GetActorManager()->RepairActor(App::GetSimTerrain()->GetCollisions(), instance, box, keepPosition);
+    App::GetGameContext()->GetActorManager()->RepairActor(App::GetGameContext()->GetTerrain()->GetCollisions(), instance, box, keepPosition);
 }
 
 void GameScript::removeVehicle(const String& event_source_instance_name, const String& event_source_box_name)
@@ -384,9 +384,9 @@ void GameScript::destroyObject(const String& instanceName)
     if (!this->HaveSimTerrain(__FUNCTION__))
         return;
 
-    if (App::GetSimTerrain()->getObjectManager())
+    if (App::GetGameContext()->GetTerrain()->getObjectManager())
     {
-        App::GetSimTerrain()->getObjectManager()->unloadObject(instanceName);
+        App::GetGameContext()->GetTerrain()->getObjectManager()->unloadObject(instanceName);
     }
 }
 
@@ -395,9 +395,9 @@ void GameScript::moveObjectVisuals(const String& instanceName, const Vector3& po
     if (!this->HaveSimTerrain(__FUNCTION__))
         return;
 
-    if (App::GetSimTerrain()->getObjectManager())
+    if (App::GetGameContext()->GetTerrain()->getObjectManager())
     {
-        App::GetSimTerrain()->getObjectManager()->MoveObjectVisuals(instanceName, pos);
+        App::GetGameContext()->GetTerrain()->getObjectManager()->MoveObjectVisuals(instanceName, pos);
     }
 }
 
@@ -406,7 +406,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
     if (!this->HaveSimTerrain(__FUNCTION__))
         return;
 
-    if ((App::GetSimTerrain()->getObjectManager() == nullptr))
+    if ((App::GetGameContext()->GetTerrain()->getObjectManager() == nullptr))
     {
         this->logFormat("spawnObject(): Cannot spawn object, no terrain loaded!");
         return;
@@ -444,7 +444,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 
         SceneNode* bakeNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         const String type = "";
-        App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(objectName, pos, rot, bakeNode, instanceName, type, true, handler_func_id, uniquifyMaterials);
+        App::GetGameContext()->GetTerrain()->getObjectManager()->LoadTerrainObject(objectName, pos, rot, bakeNode, instanceName, type, true, handler_func_id, uniquifyMaterials);
     }
     catch (std::exception& e)
     {
@@ -646,13 +646,18 @@ int GameScript::getLoadedTerrain(String& result)
 {
     String terrainName = "";
 
-    if (App::GetSimTerrain())
+    if (App::GetGameContext()->GetTerrain())
     {
-        terrainName = App::GetSimTerrain()->getTerrainName();
+        terrainName = App::GetGameContext()->GetTerrain()->getTerrainName();
         result = terrainName;
     }
 
     return !terrainName.empty();
+}
+
+RoR::TerrainPtr GameScript::getTerrain()
+{
+    return App::GetGameContext()->GetTerrain();
 }
 
 void GameScript::clearEventCache()
@@ -660,13 +665,13 @@ void GameScript::clearEventCache()
     if (!this->HaveSimTerrain(__FUNCTION__))
         return;
 
-    if (App::GetSimTerrain()->GetCollisions() == nullptr)
+    if (App::GetGameContext()->GetTerrain()->GetCollisions() == nullptr)
     {
         this->logFormat("Cannot execute '%s', collisions not ready", __FUNCTION__);
         return;
     }
 
-    App::GetSimTerrain()->GetCollisions()->clearEventCache();
+    App::GetGameContext()->GetTerrain()->GetCollisions()->clearEventCache();
 }
 
 void GameScript::setCameraPosition(const Vector3& pos)
@@ -771,7 +776,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     std::string user = std::string("RoR-Api-User: ") + App::mp_player_name->getStr();
     std::string token = std::string("RoR-Api-User-Token: ") + hashtok;
 
-    std::string terrain_name = App::GetSimTerrain()->getTerrainName();
+    std::string terrain_name = App::GetGameContext()->GetTerrain()->getTerrainName();
 
     std::string script_name = App::GetScriptEngine()->getScriptUnit(unit_id).scriptName;
     std::string script_hash = App::GetScriptEngine()->getScriptUnit(unit_id).scriptHash;
@@ -1049,7 +1054,7 @@ bool GameScript::getMousePositionOnTerrain(Ogre::Vector3& out_pos)
 
     Ogre::Vector2 mouse_npos = App::GetInputEngine()->getMouseNormalizedScreenPos();
     Ogre::Ray ray = App::GetCameraManager()->GetCamera()->getCameraToViewportRay(mouse_npos.x, mouse_npos.y);
-    Ogre::TerrainGroup::RayResult ray_result = App::GetSimTerrain()->getGeometryManager()->getTerrainGroup()->rayIntersects(ray);
+    Ogre::TerrainGroup::RayResult ray_result = App::GetGameContext()->GetTerrain()->getGeometryManager()->getTerrainGroup()->rayIntersects(ray);
     if (ray_result.hit)
     {
         out_pos = ray_result.position;
@@ -1059,7 +1064,7 @@ bool GameScript::getMousePositionOnTerrain(Ogre::Vector3& out_pos)
 
 bool GameScript::HaveSimTerrain(const char* func_name)
 {
-    if (App::GetSimTerrain() == nullptr)
+    if (App::GetGameContext()->GetTerrain() == nullptr)
     {
         this->logFormat("Cannot execute '%s', terrain not ready", func_name);
         return false;

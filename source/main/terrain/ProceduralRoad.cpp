@@ -23,6 +23,7 @@
 #include "Actor.h"
 #include "Application.h"
 #include "Collisions.h"
+#include "GameContext.h"
 #include "GfxScene.h"
 #include "Terrain.h"
 
@@ -52,7 +53,7 @@ ProceduralRoad::~ProceduralRoad()
     }
     for (int number : registeredCollTris)
     {
-        App::GetSimTerrain()->GetCollisions()->removeCollisionTri(number);
+        App::GetGameContext()->GetTerrain()->GetCollisions()->removeCollisionTri(number);
     }
 }
 
@@ -71,7 +72,7 @@ void ProceduralRoad::finish()
     snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     snode->attachObject(ec);
 
-    App::GetSimTerrain()->GetCollisions()->registerCollisionMesh(
+    App::GetGameContext()->GetTerrain()->GetCollisions()->registerCollisionMesh(
         "RoadSystem", mesh_name, 
         ec->getBoundingBox().getCenter(), ec->getMesh()->getBounds(),
         /*groundmodel:*/nullptr, registeredCollTris[0], (int)registeredCollTris.size());
@@ -87,8 +88,8 @@ void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, int type, float width
         //define type
         Vector3 leftv = pos + rot * Vector3(0, 0, bwidth + width / 2.0);
         Vector3 rightv = pos + rot * Vector3(0, 0, -bwidth - width / 2.0);
-        float dleft = leftv.y - RoR::App::GetSimTerrain()->GetHeightAt(leftv.x, leftv.z);
-        float dright = rightv.y - RoR::App::GetSimTerrain()->GetHeightAt(rightv.x, rightv.z);
+        float dleft = leftv.y - RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(leftv.x, leftv.z);
+        float dright = rightv.y - RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(rightv.x, rightv.z);
         if (dleft < bheight + 0.1 && dright < bheight + 0.1)
             type = ROAD_FLAT;
         if (dleft < bheight + 0.1 && dright >= bheight + 0.1 && dright < 4.0)
@@ -166,9 +167,9 @@ void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, int type, float width
             Vector3 rightv = pos + rot * Vector3(0, 0, -bwidth - width / 2.0);
             Vector3 middle = lpts[0] - ((lpts[0] + (pts[1] - lpts[0]) / 2) -
                 (lpts[7] + (pts[6] - lpts[7]) / 2)) * 0.5;
-            float heightleft = RoR::App::GetSimTerrain()->GetHeightAt(leftv.x, leftv.z);
-            float heightright = RoR::App::GetSimTerrain()->GetHeightAt(rightv.x, rightv.z);
-            float heightmiddle = RoR::App::GetSimTerrain()->GetHeightAt(middle.x, middle.z);
+            float heightleft = RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(leftv.x, leftv.z);
+            float heightright = RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(rightv.x, rightv.z);
+            float heightmiddle = RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(middle.x, middle.z);
 
             bool builtpillars = true;
 
@@ -197,7 +198,7 @@ void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, int type, float width
 
             middle = lpts[0] - ((lpts[0] + (pts[1] - lpts[0]) / 2) -
                 (lpts[7] + (pts[6] - lpts[7]) / 2)) * sidefactor;
-            float len = middle.y - RoR::App::GetSimTerrain()->GetHeightAt(middle.x, middle.z) + 5;
+            float len = middle.y - RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(middle.x, middle.z) + 5;
             float width2 = len / 30;
 
             if (pillartype == 2 && len > 20)
@@ -344,7 +345,7 @@ void ProceduralRoad::computePoints(Vector3* pts, Vector3 pos, Quaternion rot, in
 
 inline Vector3 ProceduralRoad::baseOf(Vector3 p)
 {
-    float y = RoR::App::GetSimTerrain()->GetHeightAt(p.x, p.z) - 0.01;
+    float y = RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(p.x, p.z) - 0.01;
 
     if (y > p.y)
     {
@@ -390,9 +391,9 @@ void ProceduralRoad::addQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, int
     }
     if (collision)
     {
-        ground_model_t* gm = App::GetSimTerrain()->GetCollisions()->getGroundModelByString("concrete");
+        ground_model_t* gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString("concrete");
         if (texfit == TEXFIT_ROAD || texfit == TEXFIT_ROADS1 || texfit == TEXFIT_ROADS2 || texfit == TEXFIT_ROADS3 || texfit == TEXFIT_ROADS4)
-            gm = App::GetSimTerrain()->GetCollisions()->getGroundModelByString("asphalt");
+            gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString("asphalt");
         addCollisionQuad(p1, p2, p3, p4, gm, flip);
     }
     tricount += 2;
@@ -539,21 +540,21 @@ void ProceduralRoad::addCollisionQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector
     int triID = 0;
     if (flip)
     {
-        triID = App::GetSimTerrain()->GetCollisions()->addCollisionTri(p1, p2, p4, gm);
+        triID = App::GetGameContext()->GetTerrain()->GetCollisions()->addCollisionTri(p1, p2, p4, gm);
         if (triID >= 0)
             registeredCollTris.push_back(triID);
 
-        triID = App::GetSimTerrain()->GetCollisions()->addCollisionTri(p4, p2, p3, gm);
+        triID = App::GetGameContext()->GetTerrain()->GetCollisions()->addCollisionTri(p4, p2, p3, gm);
         if (triID >= 0)
             registeredCollTris.push_back(triID);
     }
     else
     {
-        triID = App::GetSimTerrain()->GetCollisions()->addCollisionTri(p1, p2, p3, gm);
+        triID = App::GetGameContext()->GetTerrain()->GetCollisions()->addCollisionTri(p1, p2, p3, gm);
         if (triID >= 0)
             registeredCollTris.push_back(triID);
 
-        triID = App::GetSimTerrain()->GetCollisions()->addCollisionTri(p1, p3, p4, gm);
+        triID = App::GetGameContext()->GetTerrain()->GetCollisions()->addCollisionTri(p1, p3, p4, gm);
         if (triID >= 0)
             registeredCollTris.push_back(triID);
     }

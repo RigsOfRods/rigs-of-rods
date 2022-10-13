@@ -23,6 +23,7 @@
 #include "Actor.h"
 #include "AppContext.h"
 #include "CameraManager.h"
+#include "GameContext.h"
 #include "GfxScene.h"
 #include "SkyManager.h"
 #include "Terrain.h"
@@ -97,9 +98,9 @@ bool HydraxWater::IsUnderWater(Ogre::Vector3 pos)
 void HydraxWater::UpdateWater()
 {
 #ifdef USE_CAELUM
-    if (RoR::App::GetSimTerrain()->getSkyManager() != nullptr)
+    if (RoR::App::GetGameContext()->GetTerrain()->getSkyManager() != nullptr)
     {
-        SkyManager* sky = RoR::App::GetSimTerrain()->getSkyManager();
+        SkyManager* sky = RoR::App::GetGameContext()->GetTerrain()->getSkyManager();
         Ogre::Vector3 sunPosition = App::GetCameraManager()->GetCameraNode()->_getDerivedPosition();
         sunPosition -= sky->GetCaelumSys()->getSun()->getLightDirection() * 80000;
         mHydrax->setSunPosition(sunPosition);

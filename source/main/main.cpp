@@ -578,7 +578,7 @@ int main(int argc, char *argv[])
                 case MSG_SIM_UNLOAD_TERRN_REQUESTED:
                     if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
                     {
-                        App::GetSimTerrain()->GetTerrainEditor()->WriteOutputFile();
+                        App::GetGameContext()->GetTerrain()->GetTerrainEditor()->WriteOutputFile();
                     }
                     App::GetGameContext()->SaveScene("autosave.sav");
                     App::GetGameContext()->ChangePlayerActor(nullptr);
@@ -594,8 +594,7 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
                     App::sim_state->setVal((int)SimState::OFF);
                     App::app_state->setVal((int)AppState::MAIN_MENU);
-                    delete App::GetSimTerrain();
-                    App::SetSimTerrain(nullptr);
+                    App::GetGameContext()->UnloadTerrain();
                     App::GetGfxScene()->ClearScene();
                     App::sim_terrain_name->setStr("");
                     App::sim_terrain_gui_name->setStr("");
@@ -770,7 +769,7 @@ int main(int argc, char *argv[])
                 case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED:
                     {
                         ground_model_t* modified_gm = (ground_model_t*)m.payload;
-                        ground_model_t* live_gm = App::GetSimTerrain()->GetCollisions()->getGroundModelByString(modified_gm->name);
+                        ground_model_t* live_gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString(modified_gm->name);
                         *live_gm = *modified_gm; // Copy over
                     }
                     break;
@@ -790,8 +789,8 @@ int main(int argc, char *argv[])
                 case MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED:
                     if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
                     {
-                        App::GetSimTerrain()->GetTerrainEditor()->WriteOutputFile();
-                        App::GetSimTerrain()->GetTerrainEditor()->ClearSelection();
+                        App::GetGameContext()->GetTerrain()->GetTerrainEditor()->WriteOutputFile();
+                        App::GetGameContext()->GetTerrain()->GetTerrainEditor()->ClearSelection();
                         App::sim_state->setVal((int)SimState::RUNNING);
                         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                                                       _L("Left terrain editing mode"));
@@ -894,7 +893,7 @@ int main(int argc, char *argv[])
                         if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
                         {
                             App::GetGameContext()->UpdateSkyInputEvents(dt);
-                            App::GetSimTerrain()->GetTerrainEditor()->UpdateInputEvents(dt);
+                            App::GetGameContext()->GetTerrain()->GetTerrainEditor()->UpdateInputEvents(dt);
                         }
                         else
                         {

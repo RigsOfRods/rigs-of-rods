@@ -47,8 +47,8 @@ void CollisionsDebug::Draw()
     bool keep_open = true;
     ImGui::Begin(_LC("About", "Static collision debug"), &keep_open, win_flags);
 
-    ImGui::Text("Terrain name: %s", App::GetSimTerrain()->getTerrainName().c_str());
-    ImGui::Text("Terrain size: %.2fx%.2f meters", App::GetSimTerrain()->getMaxTerrainSize().x, App::GetSimTerrain()->getMaxTerrainSize().z);
+    ImGui::Text("Terrain name: %s", App::GetGameContext()->GetTerrain()->getTerrainName().c_str());
+    ImGui::Text("Terrain size: %.2fx%.2f meters", App::GetGameContext()->GetTerrain()->getMaxTerrainSize().x, App::GetGameContext()->GetTerrain()->getMaxTerrainSize().z);
     ImGui::Checkbox("Draw labels", &m_draw_labels);
     ImGui::Checkbox("Draw label types", &m_labels_draw_types);
     ImGui::Checkbox("Sources on labels", &m_labels_draw_sources);
@@ -57,7 +57,7 @@ void CollisionsDebug::Draw()
     // EVENTBOX
     ImGui::PushID("EVENTBOX");
     ImGui::TextColored(COLOR_EVENTBOX, "EVENTBOX");
-    ImGui::Text("Num event boxes: %d", (int)App::GetSimTerrain()->GetCollisions()->getCollisionBoxes().size());
+    ImGui::Text("Num event boxes: %d", (int)App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes().size());
     if (ImGui::Checkbox("Show event boxes", &m_draw_collision_boxes))
     {
         this->SetDrawEventBoxes(m_draw_collision_boxes);
@@ -83,7 +83,7 @@ void CollisionsDebug::Draw()
     // COLLMESH
     ImGui::PushID("COLLMESH");
     ImGui::TextColored(COLOR_COLLMESH, "COLLMESH");
-    ImGui::Text("Num collision meshes: %d (%d tris)", (int)App::GetSimTerrain()->GetCollisions()->getCollisionBoxes().size());
+    ImGui::Text("Num collision meshes: %d (%d tris)", (int)App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes().size());
     if (ImGui::Checkbox("Show collision meshes", &m_draw_collision_meshes))
     {
         this->SetDrawCollisionMeshes(m_draw_collision_meshes);
@@ -164,7 +164,7 @@ void CollisionsDebug::Draw()
 
     if (m_draw_labels && m_draw_collision_boxes)
     {
-        for (const collision_box_t& cbox : App::GetSimTerrain()->GetCollisions()->getCollisionBoxes())
+        for (const collision_box_t& cbox : App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes())
         {
             if (IsDistanceWithin(cam_pos, this->GetCollBoxWorldPos(cbox), m_collision_box_draw_distance))
             {
@@ -175,7 +175,7 @@ void CollisionsDebug::Draw()
 
     if (m_draw_labels && m_draw_collision_meshes)
     {
-        for (const collision_mesh_t& cmesh : App::GetSimTerrain()->GetCollisions()->getCollisionMeshes())
+        for (const collision_mesh_t& cmesh : App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionMeshes())
         {
             if (IsDistanceWithin(cam_pos, cmesh.position, m_collision_mesh_draw_distance))
             {
@@ -188,7 +188,7 @@ void CollisionsDebug::Draw()
 void CollisionsDebug::AddCollisionMeshDebugMesh(collision_mesh_t const& coll_mesh)
 {
     // Gather data
-    const CollisionTriVec& ctris = App::GetSimTerrain()->GetCollisions()->getCollisionTriangles();
+    const CollisionTriVec& ctris = App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionTriangles();
 
     // Create mesh
     Ogre::ManualObject* debugmo = App::GetGfxScene()->GetSceneManager()->createManualObject();
@@ -219,7 +219,7 @@ void CollisionsDebug::AddCollisionBoxDebugMesh(collision_box_t const& coll_box)
 {
     int scripthandler = -1;
     if (coll_box.eventsourcenum != -1)
-        scripthandler = App::GetSimTerrain()->GetCollisions()->getEventSource(coll_box.eventsourcenum).scripthandler;
+        scripthandler = App::GetGameContext()->GetTerrain()->GetCollisions()->getEventSource(coll_box.eventsourcenum).scripthandler;
 
     SceneNode* debugsn = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
 
@@ -323,7 +323,7 @@ void CollisionsDebug::DrawCollisionBoxDebugText(collision_box_t const& coll_box)
     if (!coll_box.virt || coll_box.eventsourcenum == -1)
         return;
 
-    eventsource_t const& eventsource = App::GetSimTerrain()->GetCollisions()->getEventSource(coll_box.eventsourcenum);
+    eventsource_t const& eventsource = App::GetGameContext()->GetTerrain()->GetCollisions()->getEventSource(coll_box.eventsourcenum);
     const char* type_str = (m_labels_draw_types) ? "EVENTBOX\n" : "";
 
     this->DrawLabelAtWorldPos(
@@ -429,7 +429,7 @@ void CollisionsDebug::SetDrawEventBoxes(bool val)
     // Initial fill
     if (m_draw_collision_boxes && m_collision_boxes.size() == 0)
     {
-        for (const collision_box_t& cbox : App::GetSimTerrain()->GetCollisions()->getCollisionBoxes())
+        for (const collision_box_t& cbox : App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes())
         {
             this->AddCollisionBoxDebugMesh(cbox);
         }
@@ -448,7 +448,7 @@ void CollisionsDebug::SetDrawCollisionMeshes(bool val)
     // Initial setup
     if (m_draw_collision_meshes && m_collision_meshes.size() == 0)
     {
-        for (const collision_mesh_t& cmesh : App::GetSimTerrain()->GetCollisions()->getCollisionMeshes())
+        for (const collision_mesh_t& cmesh : App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionMeshes())
         {
             this->AddCollisionMeshDebugMesh(cmesh);
         }
@@ -477,7 +477,7 @@ void CollisionsDebug::SetDrawCollisionCells(bool val)
         aabb.getMaximum().y = FLT_MAX; // vertical axis
         try
         {
-            App::GetSimTerrain()->GetCollisions()->createCollisionDebugVisualization(m_collision_grid_root, aabb, m_collision_cells);
+            App::GetGameContext()->GetTerrain()->GetCollisions()->createCollisionDebugVisualization(m_collision_grid_root, aabb, m_collision_cells);
         }
         catch (std::bad_alloc const& allocex)
         {

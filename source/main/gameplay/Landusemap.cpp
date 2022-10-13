@@ -25,6 +25,7 @@
 #include "Collisions.h"
 #include "Console.h"
 #include "ErrorUtils.h"
+#include "GameContext.h"
 #include "Language.h"
 #include "Terrain.h"
 #ifdef USE_PAGED
@@ -39,7 +40,7 @@ using namespace RoR;
 Landusemap::Landusemap(String configFilename) :
     data(0)
     , default_ground_model(nullptr)
-    , mapsize(App::GetSimTerrain()->getMaxTerrainSize())
+    , mapsize(App::GetGameContext()->GetTerrain()->getMaxTerrainSize())
 {
     loadConfig(configFilename);
 #ifndef USE_PAGED
@@ -119,9 +120,9 @@ int Landusemap::loadConfig(const Ogre::String& filename)
                 if (kname == "texture")
                     textureFilename = kvalue;
                 else if (kname == "frictionconfig" || kname == "loadGroundModelsConfig")
-                    App::GetSimTerrain()->GetCollisions()->loadGroundModelsConfigFile(kvalue);
+                    App::GetGameContext()->GetTerrain()->GetCollisions()->loadGroundModelsConfigFile(kvalue);
                 else if (kname == "defaultuse")
-                    default_ground_model = App::GetSimTerrain()->GetCollisions()->getGroundModelByString(kvalue);
+                    default_ground_model = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString(kvalue);
             }
             else if (secName == "use-map")
             {
@@ -178,7 +179,7 @@ int Landusemap::loadConfig(const Ogre::String& filename)
                 //	counters[use]++;
 
                 // store the pointer to the ground model in the data slot
-                *ptr = App::GetSimTerrain()->GetCollisions()->getGroundModelByString(use);
+                *ptr = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString(use);
                 ptr++;
             }
         }

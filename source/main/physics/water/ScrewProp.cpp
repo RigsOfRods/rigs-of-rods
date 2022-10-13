@@ -25,6 +25,7 @@
 #include "SimData.h"
 #include "ActorManager.h"
 #include "DustPool.h"
+#include "GameContext.h"
 #include "GfxScene.h"
 #include "SoundScriptManager.h"
 #include "Terrain.h"
@@ -47,10 +48,10 @@ Screwprop::Screwprop(ActorPtr a, NodeNum_t noderef, NodeNum_t nodeback, NodeNum_
 
 void Screwprop::updateForces(int update)
 {
-    if (!App::GetSimTerrain()->getWater())
+    if (!App::GetGameContext()->GetTerrain()->getWater())
         return;
 
-    float depth = App::GetSimTerrain()->getWater()->CalcWavesHeight(m_actor->ar_nodes[noderef].AbsPosition) - m_actor->ar_nodes[noderef].AbsPosition.y;
+    float depth = App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(m_actor->ar_nodes[noderef].AbsPosition) - m_actor->ar_nodes[noderef].AbsPosition.y;
     if (depth < 0)
         return; //out of water!
     Vector3 dir = m_actor->ar_nodes[nodeback].RelPosition - m_actor->ar_nodes[noderef].RelPosition;

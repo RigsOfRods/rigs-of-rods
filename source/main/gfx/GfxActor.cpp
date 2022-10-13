@@ -27,6 +27,7 @@
 #include "Collisions.h"
 #include "DustPool.h" // General particle gfx
 #include "EngineSim.h"
+#include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
@@ -331,7 +332,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
     {
 #ifdef USE_CAELUM
         // caelum needs to know that we changed the cameras
-        SkyManager* sky = App::GetSimTerrain()->getSkyManager();
+        SkyManager* sky = App::GetGameContext()->GetTerrain()->getSkyManager();
         if ((sky != nullptr) && (RoR::App::app_state->getEnum<AppState>() == RoR::AppState::SIMULATION))
         {
             sky->NotifySkyCameraChanged(vidcam.vcam_ogre_camera);
@@ -445,9 +446,9 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
 void RoR::GfxActor::UpdateParticles(float dt_sec)
 {
     float water_height = 0.f; // Unused if terrain has no water
-    if (App::GetSimTerrain()->getWater() != nullptr)
+    if (App::GetGameContext()->GetTerrain()->getWater() != nullptr)
     {
-        water_height = App::GetSimTerrain()->getWater()->GetStaticWaterHeight();
+        water_height = App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight();
     }
 
     for (NodeGfx& nfx: m_gfx_nodes)

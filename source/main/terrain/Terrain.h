@@ -22,6 +22,7 @@
 #pragma once
 
 #include "Application.h"
+#include "RefCountingObject.h"
 #include "TerrainEditor.h"
 #include "Terrn2FileFormat.h"
 
@@ -33,34 +34,36 @@ namespace RoR {
 /// @addtogroup Terrain
 /// @{
 
-class Terrain : public ZeroedMemoryAllocator
+class Terrain : public ZeroedMemoryAllocator, public RefCountingObject<Terrain>
 {
 public:
     static const int UNLIMITED_SIGHTRANGE = 4999;
 
-    static Terrain* LoadAndPrepareTerrain(CacheEntry* entry); //!< Factory function
-
-    Terrain(CacheEntry* entry);
+    Terrain(CacheEntry* entry, Terrn2Def def);
     ~Terrain();
+    bool initialize();
+    void dispose();
 
-        // Terrain info
-
+    /// @name Terrain info
+    /// @{
     std::string             getTerrainName() const        { return m_def.name; }
     std::string             getGUID() const               { return m_def.guid; }
     int                     getCategoryID() const         { return m_def.category_id; }
     int                     getVersion() const            { return m_def.version; }
     const CacheEntry*       getCacheEntry()               { return m_cache_entry; }
+    /// @}
 
-        // Terrain properties
-
+    /// @name Terrain properties
+    /// @{
     Terrn2Def&              GetDef()                      { return m_def; }
     Ogre::Vector3           getSpawnPos()                 { return m_def.start_position; }
     float                   getWaterHeight() const        { return m_def.water_height; }
     bool                    isFlat();
     float                   getPagedDetailFactor() const  { return m_paged_detail_factor; }
+    /// @}
 
-        // Subsystems
-
+    /// @name Subsystems
+    /// @{
     TerrainGeometryManager* getGeometryManager()          { return m_geometry_manager; }
     TerrainObjectManager*   getObjectManager()            { return m_object_manager; }
     HydraxWater*            getHydraxManager()            { return m_hydrax_water; }
@@ -70,27 +73,31 @@ public:
     TerrainEditor*          GetTerrainEditor()            { return &m_terrain_editor; }
     Collisions*             GetCollisions()               { return m_collisions; }
     IWater*                 getWater()                    { return m_water.get(); }
+    /// @}
 
-        // Visuals
-
+    /// @name Visuals
+    /// @{
     Ogre::Light*            getMainLight()                { return m_main_light; }
     int                     getFarClip() const            { return m_sight_range; }
+    /// @}
 
-        // Simulation
-
+    /// @name Simulation
+    /// @{
     void                    setGravity(float value);
     float                   getGravity() const            { return m_cur_gravity; }
     float                   GetHeightAt(float x, float z);
     Ogre::Vector3           GetNormalAt(float x, float y, float z);
     Ogre::Vector3           getMaxTerrainSize();
     Ogre::AxisAlignedBox    getTerrainCollisionAAB();
+    /// @}
 
-        // Utility
-
+    /// @name Utility
+    /// @{
     void                    LoadTelepoints();
     void                    LoadPredefinedActors();
     bool                    HasPredefinedActors();
     void                    HandleException(const char* summary);
+    /// @}
 
 private:
 
@@ -132,6 +139,7 @@ private:
 
     Ogre::Light*            m_main_light;
     float                   m_cur_gravity;
+    bool                    m_disposed = false;
 };
 
 /// @} // addtogroup Terrain

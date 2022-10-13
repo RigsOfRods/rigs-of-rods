@@ -663,7 +663,7 @@ float Collisions::getSurfaceHeight(float x, float z)
 
 float Collisions::getSurfaceHeightBelow(float x, float z, float height)
 {
-    float surface_height = App::GetSimTerrain()->GetHeightAt(x, z);
+    float surface_height = App::GetGameContext()->GetTerrain()->GetHeightAt(x, z);
 
     // find the correct cell
     int refx = (int)(x / (float)CELL_SIZE);
@@ -1171,13 +1171,13 @@ bool Collisions::isInside(Ogre::Vector3 pos, collision_box_t *cbox, float border
 
 bool Collisions::groundCollision(node_t *node, float dt)
 {
-    Real v = App::GetSimTerrain()->GetHeightAt(node->AbsPosition.x, node->AbsPosition.z);
+    Real v = App::GetGameContext()->GetTerrain()->GetHeightAt(node->AbsPosition.x, node->AbsPosition.z);
     if (v > node->AbsPosition.y)
     {
         ground_model_t* ogm = landuse ? landuse->getGroundModelAt(node->AbsPosition.x, node->AbsPosition.z) : nullptr;
         // when landuse fails or we don't have it, use the default value
         if (!ogm) ogm = defaultgroundgm;
-        Ogre::Vector3 normal = App::GetSimTerrain()->GetNormalAt(node->AbsPosition.x, v, node->AbsPosition.z);
+        Ogre::Vector3 normal = App::GetGameContext()->GetTerrain()->GetNormalAt(node->AbsPosition.x, v, node->AbsPosition.z);
         node->Forces += primitiveCollision(node, node->Velocity, node->mass, normal, dt, ogm, v - node->AbsPosition.y);
         node->nd_last_collision_gm = ogm;
         return true;
@@ -1300,10 +1300,10 @@ void Collisions::createCollisionDebugVisualization(Ogre::SceneNode* root_node, O
                 float z2 = z+CELL_SIZE;
 
                 // find a good ground height for all corners of the cell ...
-                groundheight = std::max(groundheight, App::GetSimTerrain()->GetHeightAt(x, z));
-                groundheight = std::max(groundheight, App::GetSimTerrain()->GetHeightAt(x2, z));
-                groundheight = std::max(groundheight, App::GetSimTerrain()->GetHeightAt(x, z2));
-                groundheight = std::max(groundheight, App::GetSimTerrain()->GetHeightAt(x2, z2));
+                groundheight = std::max(groundheight, App::GetGameContext()->GetTerrain()->GetHeightAt(x, z));
+                groundheight = std::max(groundheight, App::GetGameContext()->GetTerrain()->GetHeightAt(x2, z));
+                groundheight = std::max(groundheight, App::GetGameContext()->GetTerrain()->GetHeightAt(x, z2));
+                groundheight = std::max(groundheight, App::GetGameContext()->GetTerrain()->GetHeightAt(x2, z2));
                 groundheight += 0.1; // 10 cm hover
 
                 float percentd = static_cast<float>(hashtable[hash].size()) / static_cast<float>(CELL_BLOCKSIZE);

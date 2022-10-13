@@ -235,6 +235,7 @@ if (USE_ANGELSCRIPT)
             scripting/bindings/LocalStorageAngelscript.cpp
             scripting/bindings/OgreAngelscript.cpp
             scripting/bindings/ScriptEventsAngelscript.cpp
+            scripting/bindings/TerrainAngelscript.cpp
             scripting/bindings/VehicleAiAngelscript.cpp
             )
 endif ()

@@ -145,6 +145,7 @@ namespace RoR
     // AngelScript-friendly shared pointers
     typedef RefCountingObjectPtr<Actor> ActorPtr;
     typedef RefCountingObjectPtr<VehicleAI> VehicleAIPtr;
+    typedef RefCountingObjectPtr<Terrain> TerrainPtr;
 
     namespace GUI
     {
