@@ -50,7 +50,7 @@ public:
     void EnumReferences(AngelScript::asIScriptEngine *engine);
     void ReleaseReferences(AngelScript::asIScriptEngine *engine);
 
-    static void RegisterRefCountingObjectPtr(const char* handle_name, const char* obj_name, AngelScript::asIScriptEngine *engine);
+    static void RegisterRefCountingObjectPtr(AngelScript::asIScriptEngine* engine, const char* handle_name, const char* obj_name);
 
     /// It's CRITICAL that this function gets invoked only once for each object in memory,
     /// and subsequent shared pointers are created from the original shared pointer.
@@ -78,7 +78,7 @@ protected:
 };
 
 template<class T>
-void RefCountingObjectPtr<T>::RegisterRefCountingObjectPtr(const char* handle_name, const char* obj_name, AngelScript::asIScriptEngine *engine)
+void RefCountingObjectPtr<T>::RegisterRefCountingObjectPtr(AngelScript::asIScriptEngine* engine, const char* handle_name, const char* obj_name)
 {
     using namespace AngelScript;
 

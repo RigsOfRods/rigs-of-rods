@@ -33,9 +33,8 @@ void RoR::RegisterTerrain(asIScriptEngine* engine)
 {
     int result = 0;
 
-    result = engine->RegisterObjectType("TerrainClass", sizeof(RoR::Terrain), asOBJ_REF); ROR_ASSERT(result>=0);
-    TerrainPtr::RegisterRefCountingObjectPtr("TerrainClassPtr", "TerrainClass", engine);
-    
+    Terrain::RegisterRefCountingObject(engine, "TerrainClass");
+    TerrainPtr::RegisterRefCountingObjectPtr(engine, "TerrainClassPtr", "TerrainClass");    
     result = engine->RegisterObjectMethod("TerrainClass", "string getTerrainName()", asMETHOD(RoR::Terrain,getTerrainName), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("TerrainClass", "string getGUID()", asMETHOD(RoR::Terrain,getGUID), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("TerrainClass", "int getVersion()", asMETHOD(RoR::Terrain,getVersion), asCALL_THISCALL); ROR_ASSERT(result>=0);

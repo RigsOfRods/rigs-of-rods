@@ -47,8 +47,8 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     
 
     // class Actor (historically Beam)
-    result = engine->RegisterObjectType("BeamClass", sizeof(Actor), asOBJ_REF); ROR_ASSERT(result>=0);
-    ActorPtr::RegisterRefCountingObjectPtr("BeamClassPtr", "BeamClass", engine);
+    Actor::RegisterRefCountingObject(engine, "BeamClass");
+    ActorPtr::RegisterRefCountingObjectPtr(engine, "BeamClassPtr", "BeamClass");
     result = engine->RegisterObjectMethod("BeamClass", "void scaleTruck(float)", asMETHOD(Actor,scaleTruck), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "string getTruckName()", asMETHOD(Actor,getTruckName), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "string getTruckFileName()", asMETHOD(Actor,getTruckFileName), asCALL_THISCALL); ROR_ASSERT(result>=0);

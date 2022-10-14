@@ -34,7 +34,7 @@ public:
         }
     }
 
-    static void  RegisterRefCountingObject(const char* name, AngelScript::asIScriptEngine *engine)
+    static void  RegisterRefCountingObject(AngelScript::asIScriptEngine* engine, const char* name)
     {
         using namespace AngelScript;
 
