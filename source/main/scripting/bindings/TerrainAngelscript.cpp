@@ -41,4 +41,5 @@ void RoR::RegisterTerrain(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("TerrainClass", "int getVersion()", asMETHOD(RoR::Terrain,getVersion), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("TerrainClass", "bool isFlat()", asMETHOD(RoR::Terrain,isFlat), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("TerrainClass", "vector3 getSpawnPos()", asMETHOD(RoR::Terrain,getSpawnPos), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("TerrainClass", "ProceduralManagerClass @getProceduralManager()", asMETHOD(RoR::Terrain, getProceduralManager), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 }

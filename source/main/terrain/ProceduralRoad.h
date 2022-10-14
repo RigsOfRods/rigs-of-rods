@@ -23,27 +23,55 @@
 #include <Ogre.h>
 
 #include "Application.h"
+#include "RefCountingObject.h"
 
 namespace RoR {
 
 /// @addtogroup Terrain
 /// @{
 
+enum class RoadType
+{
+    ROAD_AUTOMATIC,
+    ROAD_FLAT,
+    ROAD_LEFT,
+    ROAD_RIGHT,
+    ROAD_BOTH,
+    ROAD_BRIDGE,
+    ROAD_MONORAIL
+};
+
+enum class TextureFit
+{
+    TEXFIT_NONE,
+    TEXFIT_BRICKWALL,
+    TEXFIT_ROADS1,
+    TEXFIT_ROADS2,
+    TEXFIT_ROAD,
+    TEXFIT_ROADS3,
+    TEXFIT_ROADS4,
+    TEXFIT_CONCRETEWALL,
+    TEXFIT_CONCRETEWALLI,
+    TEXFIT_CONCRETETOP,
+    TEXFIT_CONCRETEUNDER
+};
+
 // dynamic roads
-class ProceduralRoad : public ZeroedMemoryAllocator
+class ProceduralRoad : public RefCountingObject<ProceduralRoad>
 {
 public:
 
-    ProceduralRoad(int id);
+    ProceduralRoad();
     ~ProceduralRoad();
 
-    void addBlock(Ogre::Vector3 pos, Ogre::Quaternion rot, int type, float width, float bwidth, float bheight, int pillartype = 1);
+    void addBlock(Ogre::Vector3 pos, Ogre::Quaternion rot, RoadType type, float width, float bwidth, float bheight, int pillartype = 1);
     /**
      * @param p1 Top left point.
      * @param p2 Top right point.
      */
-    void addQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, int texfit, Ogre::Vector3 pos, Ogre::Vector3 lastpos, float width, bool flip = false);
+    void addQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, TextureFit texfit, Ogre::Vector3 pos, Ogre::Vector3 lastpos, float width, bool flip = false);
     void addCollisionQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, ground_model_t* gm, bool flip = false);
+    void addCollisionQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, std::string const& gm_name, bool flip = false);
     void createMesh();
     void finish();
     void setCollisionEnabled(bool v) { collision = v; }
@@ -51,37 +79,11 @@ public:
     static const unsigned int MAX_VERTEX = 50000;
     static const unsigned int MAX_TRIS = 50000;
 
-    enum RoadType
-    {
-        ROAD_AUTOMATIC,
-        ROAD_FLAT,
-        ROAD_LEFT,
-        ROAD_RIGHT,
-        ROAD_BOTH,
-        ROAD_BRIDGE,
-        ROAD_MONORAIL
-    };
-
-    enum
-    {
-        TEXFIT_NONE,
-        TEXFIT_BRICKWALL,
-        TEXFIT_ROADS1,
-        TEXFIT_ROADS2,
-        TEXFIT_ROAD,
-        TEXFIT_ROADS3,
-        TEXFIT_ROADS4,
-        TEXFIT_CONCRETEWALL,
-        TEXFIT_CONCRETEWALLI,
-        TEXFIT_CONCRETETOP,
-        TEXFIT_CONCRETEUNDER
-    };
-
 private:
 
     inline Ogre::Vector3 baseOf(Ogre::Vector3 p);
-    void computePoints(Ogre::Vector3* pts, Ogre::Vector3 pos, Ogre::Quaternion rot, int type, float width, float bwidth, float bheight);
-    void textureFit(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, int texfit, Ogre::Vector2* texc, Ogre::Vector3 pos, Ogre::Vector3 lastpos, float width);
+    void computePoints(Ogre::Vector3* pts, Ogre::Vector3 pos, Ogre::Quaternion rot, RoadType type, float width, float bwidth, float bheight);
+    void textureFit(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, TextureFit texfit, Ogre::Vector2* texc, Ogre::Vector3 pos, Ogre::Vector3 lastpos, float width);
 
     typedef struct
     {
@@ -91,24 +93,24 @@ private:
     } CoVertice_t;
 
     Ogre::MeshPtr msh;
-    Ogre::SubMesh* mainsub;
+    Ogre::SubMesh* mainsub = nullptr;
 
-    Ogre::Vector2 tex[MAX_VERTEX];
-    Ogre::Vector3 vertex[MAX_VERTEX];
-    int tricount;
-    int vertexcount;
-    short tris[MAX_TRIS * 3];
+    Ogre::Vector2 tex[MAX_VERTEX] = {};
+    Ogre::Vector3 vertex[MAX_VERTEX] = {};
+    int tricount = 0;
+    int vertexcount = 0;
+    short tris[MAX_TRIS * 3] = {};
 
     Ogre::Quaternion lastrot;
-    Ogre::SceneNode* snode;
+    Ogre::SceneNode* snode = nullptr;
     Ogre::Vector3 lastpos;
-    bool first;
-    float lastbheight;
-    float lastbwidth;
-    float lastwidth;
-    int lasttype;
-    int mid;
-    bool collision; //!< Register collision triangles?
+    bool first = true;
+    float lastbheight = 0.f;
+    float lastbwidth = 0.f;
+    float lastwidth = 0.f;
+    RoadType lasttype;
+    int mid = 0;
+    bool collision = true; //!< Register collision triangles?
     std::vector<int> registeredCollTris;
 };
 

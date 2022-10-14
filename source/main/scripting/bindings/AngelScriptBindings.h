@@ -67,6 +67,9 @@ void RegisterOgreObjects(AngelScript::asIScriptEngine* engine);
 /// Registers RoR::Terrain, defined in TerrainAngelscript.cpp
 void RegisterTerrain(AngelScript::asIScriptEngine* engine);
 
+/// defined in ProceduralRoadAngelscript.cpp
+void RegisterProceduralRoad(AngelScript::asIScriptEngine* engine);
+
 
 /// @}   //addtogroup Scripting
 

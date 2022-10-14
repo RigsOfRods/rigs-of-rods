@@ -84,6 +84,10 @@ namespace RoR
     class  OgreSubsystem;
     struct PlatformUtils;
     class  PointColDetector;
+    class  ProceduralManager;
+    struct ProceduralObject;
+    struct ProceduralPoint;
+    class  ProceduralRoad;
     struct Prop;
     struct PropAnim;
     class  RailGroup;
@@ -146,6 +150,10 @@ namespace RoR
     typedef RefCountingObjectPtr<Actor> ActorPtr;
     typedef RefCountingObjectPtr<VehicleAI> VehicleAIPtr;
     typedef RefCountingObjectPtr<Terrain> TerrainPtr;
+    typedef RefCountingObjectPtr<ProceduralPoint> ProceduralPointPtr;
+    typedef RefCountingObjectPtr<ProceduralObject> ProceduralObjectPtr;
+    typedef RefCountingObjectPtr<ProceduralRoad> ProceduralRoadPtr;
+    typedef RefCountingObjectPtr<ProceduralManager> ProceduralManagerPtr;
 
     namespace GUI
     {

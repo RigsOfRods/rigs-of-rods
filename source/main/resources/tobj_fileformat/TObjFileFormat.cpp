@@ -62,6 +62,7 @@ void TObjParser::Prepare()
     m_in_procedural_road = false;
     m_in_procedural_road = false;
     m_road2_use_old_mode = false;
+    m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject());
     
     m_def = std::shared_ptr<TObjFile>(new TObjFile());
 }
@@ -108,7 +109,7 @@ bool TObjParser::ProcessCurrentLine()
     }
     if (strncmp("begin_procedural_roads", m_cur_line, 22) == 0)
     {
-        m_cur_procedural_obj = ProceduralObject(); // Hard reset, discarding last "non-procedural" road strip. For backwards compatibility. ~ Petr Ohlidal, 08/2020
+        m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject()); // Hard reset, discarding last "non-procedural" road strip. For backwards compatibility. ~ Petr Ohlidal, 08/2020
         m_in_procedural_road = true;
         m_road2_use_old_mode = true;
         return true;
@@ -118,7 +119,7 @@ bool TObjParser::ProcessCurrentLine()
         if (m_road2_use_old_mode)
         {
             m_def->proc_objects.push_back(m_cur_procedural_obj);
-            m_cur_procedural_obj = ProceduralObject();
+            m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject());
         }
         m_in_procedural_road = false;
         return true;
@@ -197,17 +198,17 @@ void TObjParser::ProcessProceduralLine()
 
     point.rotation = this->CalcRotation(rot);
 
-         if (obj_name == "flat"             ) { point.type = ProceduralRoad::ROAD_FLAT;  }
-    else if (obj_name == "left"             ) { point.type = ProceduralRoad::ROAD_LEFT;  }
-    else if (obj_name == "right"            ) { point.type = ProceduralRoad::ROAD_RIGHT; }
-    else if (obj_name == "both"             ) { point.type = ProceduralRoad::ROAD_BOTH;  }
-    else if (obj_name == "bridge"           ) { point.type = ProceduralRoad::ROAD_BRIDGE;    point.pillartype = 1; }
-    else if (obj_name == "monorail"         ) { point.type = ProceduralRoad::ROAD_MONORAIL;  point.pillartype = 2; }
-    else if (obj_name == "monorail2"        ) { point.type = ProceduralRoad::ROAD_MONORAIL;  point.pillartype = 0; }
-    else if (obj_name == "bridge_no_pillars") { point.type = ProceduralRoad::ROAD_BRIDGE;    point.pillartype = 0; }
-    else                                      { point.type = ProceduralRoad::ROAD_AUTOMATIC; point.pillartype = 0; }
+         if (obj_name == "flat"             ) { point.type = RoadType::ROAD_FLAT;  }
+    else if (obj_name == "left"             ) { point.type = RoadType::ROAD_LEFT;  }
+    else if (obj_name == "right"            ) { point.type = RoadType::ROAD_RIGHT; }
+    else if (obj_name == "both"             ) { point.type = RoadType::ROAD_BOTH;  }
+    else if (obj_name == "bridge"           ) { point.type = RoadType::ROAD_BRIDGE;    point.pillartype = 1; }
+    else if (obj_name == "monorail"         ) { point.type = RoadType::ROAD_MONORAIL;  point.pillartype = 2; }
+    else if (obj_name == "monorail2"        ) { point.type = RoadType::ROAD_MONORAIL;  point.pillartype = 0; }
+    else if (obj_name == "bridge_no_pillars") { point.type = RoadType::ROAD_BRIDGE;    point.pillartype = 0; }
+    else                                      { point.type = RoadType::ROAD_AUTOMATIC; point.pillartype = 0; }
 
-    m_cur_procedural_obj.points.push_back(point);
+    m_cur_procedural_obj->points.push_back(point);
 }
 
 void TObjParser::ProcessGridLine()
@@ -295,7 +296,7 @@ void TObjParser::ProcessRoadObject(const TObjEntry& object)
 
             // finish it and start new object
             m_def->proc_objects.push_back(m_cur_procedural_obj);
-            m_cur_procedural_obj = ProceduralObject();
+            m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject());
         }
         m_road2_use_old_mode = true;
 
@@ -321,10 +322,10 @@ void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 c
     pp.pillartype = (int)(special != TObj::SpecialObject::ROAD_BRIDGE_NO_PILLARS);
     pp.position   = pos;
     pp.rotation   = this->CalcRotation(rot);
-    pp.type       = (special == TObj::SpecialObject::ROAD) ? ProceduralRoad::ROAD_FLAT : ProceduralRoad::ROAD_AUTOMATIC;
+    pp.type       = (special == TObj::SpecialObject::ROAD) ? RoadType::ROAD_FLAT : RoadType::ROAD_AUTOMATIC;
     pp.width      = 8;
 
-    m_cur_procedural_obj.points.push_back(pp);
+    m_cur_procedural_obj->points.push_back(pp);
 }
 
 Ogre::Quaternion TObjParser::CalcRotation(Ogre::Vector3 const& rot) const

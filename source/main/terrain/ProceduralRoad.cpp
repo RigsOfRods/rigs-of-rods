@@ -23,21 +23,21 @@
 #include "Actor.h"
 #include "Application.h"
 #include "Collisions.h"
+#include "Console.h"
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "Terrain.h"
 
+#include <Ogre.h>
+
 using namespace Ogre;
 using namespace RoR;
 
-ProceduralRoad::ProceduralRoad(int id) :
-    first(true)
-    , mid(id)
-    , snode(0)
-    , tricount(0)
-    , vertexcount(0)
+static int id_counter = 0;
+
+ProceduralRoad::ProceduralRoad()
 {
-    msh.setNull();
+    mid = id_counter++;
 }
 
 ProceduralRoad::~ProceduralRoad()
@@ -61,9 +61,9 @@ void ProceduralRoad::finish()
 {
     Vector3 pts[8];
     computePoints(pts, lastpos, lastrot, lasttype, lastwidth, lastbwidth, lastbheight);
-    addQuad(pts[7], pts[6], pts[5], pts[4], TEXFIT_NONE, lastpos, lastpos, lastwidth);
-    addQuad(pts[7], pts[4], pts[3], pts[0], TEXFIT_NONE, lastpos, lastpos, lastwidth);
-    addQuad(pts[3], pts[2], pts[1], pts[0], TEXFIT_NONE, lastpos, lastpos, lastwidth);
+    addQuad(pts[7], pts[6], pts[5], pts[4], TextureFit::TEXFIT_NONE, lastpos, lastpos, lastwidth);
+    addQuad(pts[7], pts[4], pts[3], pts[0], TextureFit::TEXFIT_NONE, lastpos, lastpos, lastwidth);
+    addQuad(pts[3], pts[2], pts[1], pts[0], TextureFit::TEXFIT_NONE, lastpos, lastpos, lastwidth);
 
     createMesh();
     String entity_name = String("RoadSystem_Instance-").append(StringConverter::toString(mid));
@@ -78,9 +78,9 @@ void ProceduralRoad::finish()
         /*groundmodel:*/nullptr, registeredCollTris[0], (int)registeredCollTris.size());
 }
 
-void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, int type, float width, float bwidth, float bheight, int pillartype)
+void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, RoadType type, float width, float bwidth, float bheight, int pillartype)
 {
-    if (type == ROAD_AUTOMATIC)
+    if (type == RoadType::ROAD_AUTOMATIC)
     {
         width = 10.0;
         bwidth = 1.4;
@@ -91,16 +91,16 @@ void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, int type, float width
         float dleft = leftv.y - RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(leftv.x, leftv.z);
         float dright = rightv.y - RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(rightv.x, rightv.z);
         if (dleft < bheight + 0.1 && dright < bheight + 0.1)
-            type = ROAD_FLAT;
+            type = RoadType::ROAD_FLAT;
         if (dleft < bheight + 0.1 && dright >= bheight + 0.1 && dright < 4.0)
-            type = ROAD_LEFT;
+            type = RoadType::ROAD_LEFT;
         if (dleft >= bheight + 0.1 && dleft < 4.0 && dright < bheight + 0.1)
-            type = ROAD_RIGHT;
+            type = RoadType::ROAD_RIGHT;
         if (dleft >= bheight + 0.1 && dleft < 4.0 && dright >= bheight + 0.1 && dright < 4.0)
-            type = ROAD_BOTH;
-        if (type == ROAD_AUTOMATIC)
-            type = ROAD_BRIDGE;
-        if (type != ROAD_FLAT)
+            type = RoadType::ROAD_BOTH;
+        if (type == RoadType::ROAD_AUTOMATIC)
+            type = RoadType::ROAD_BRIDGE;
+        if (type != RoadType::ROAD_FLAT)
         {
             width = 10.0;
             bwidth = 0.4;
@@ -112,51 +112,51 @@ void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, int type, float width
     if (!first)
     {
         Vector3 lpts[8];
-        if (type == ROAD_MONORAIL)
+        if (type == RoadType::ROAD_MONORAIL)
             pos.y += 2;
 
         computePoints(pts, pos, rot, type, width, bwidth, bheight);
         computePoints(lpts, lastpos, lastrot, lasttype, lastwidth, lastbwidth, lastbheight);
 
         //tarmac
-        if (type == ROAD_MONORAIL)
-            addQuad(pts[4], lpts[4], lpts[3], pts[3], TEXFIT_CONCRETETOP, pos, lastpos, width);
+        if (type == RoadType::ROAD_MONORAIL)
+            addQuad(pts[4], lpts[4], lpts[3], pts[3], TextureFit::TEXFIT_CONCRETETOP, pos, lastpos, width);
         else
-            addQuad(pts[4], lpts[4], lpts[3], pts[3], TEXFIT_ROAD, pos, lastpos, width);
+            addQuad(pts[4], lpts[4], lpts[3], pts[3], TextureFit::TEXFIT_ROAD, pos, lastpos, width);
 
-        if (type == ROAD_FLAT && lasttype == ROAD_FLAT)
+        if (type == RoadType::ROAD_FLAT && lasttype == RoadType::ROAD_FLAT)
         {
             //sides (close)
-            addQuad(pts[5], lpts[5], lpts[4], pts[4], TEXFIT_ROADS3, pos, lastpos, width);
-            addQuad(pts[3], lpts[3], lpts[2], pts[2], TEXFIT_ROADS2, pos, lastpos, width);
+            addQuad(pts[5], lpts[5], lpts[4], pts[4], TextureFit::TEXFIT_ROADS3, pos, lastpos, width);
+            addQuad(pts[3], lpts[3], lpts[2], pts[2], TextureFit::TEXFIT_ROADS2, pos, lastpos, width);
             //sides (far)
-            addQuad(pts[6], lpts[6], lpts[5], pts[5], TEXFIT_ROADS4, pos, lastpos, width);
-            addQuad(pts[2], lpts[2], lpts[1], pts[1], TEXFIT_ROADS1, pos, lastpos, width);
+            addQuad(pts[6], lpts[6], lpts[5], pts[5], TextureFit::TEXFIT_ROADS4, pos, lastpos, width);
+            addQuad(pts[2], lpts[2], lpts[1], pts[1], TextureFit::TEXFIT_ROADS1, pos, lastpos, width);
         }
         else
         {
             //sides (close)
-            addQuad(pts[5], lpts[5], lpts[4], pts[4], TEXFIT_CONCRETEWALLI, pos, lastpos, width, (type == ROAD_FLAT || type == ROAD_LEFT));
-            addQuad(pts[3], lpts[3], lpts[2], pts[2], TEXFIT_CONCRETEWALLI, pos, lastpos, width, !(type == ROAD_FLAT || type == ROAD_RIGHT));
+            addQuad(pts[5], lpts[5], lpts[4], pts[4], TextureFit::TEXFIT_CONCRETEWALLI, pos, lastpos, width, (type == RoadType::ROAD_FLAT || type == RoadType::ROAD_LEFT));
+            addQuad(pts[3], lpts[3], lpts[2], pts[2], TextureFit::TEXFIT_CONCRETEWALLI, pos, lastpos, width, !(type == RoadType::ROAD_FLAT || type == RoadType::ROAD_RIGHT));
             //sides (far)
-            addQuad(pts[6], lpts[6], lpts[5], pts[5], TEXFIT_CONCRETETOP, pos, lastpos, width, (type == ROAD_FLAT || type == ROAD_LEFT));
-            addQuad(pts[2], lpts[2], lpts[1], pts[1], TEXFIT_CONCRETETOP, pos, lastpos, width, !(type == ROAD_FLAT || type == ROAD_RIGHT));
+            addQuad(pts[6], lpts[6], lpts[5], pts[5], TextureFit::TEXFIT_CONCRETETOP, pos, lastpos, width, (type == RoadType::ROAD_FLAT || type == RoadType::ROAD_LEFT));
+            addQuad(pts[2], lpts[2], lpts[1], pts[1], TextureFit::TEXFIT_CONCRETETOP, pos, lastpos, width, !(type == RoadType::ROAD_FLAT || type == RoadType::ROAD_RIGHT));
         }
-        if (type == ROAD_BRIDGE || lasttype == ROAD_BRIDGE || type == ROAD_MONORAIL || lasttype == ROAD_MONORAIL)
+        if (type == RoadType::ROAD_BRIDGE || lasttype == RoadType::ROAD_BRIDGE || type == RoadType::ROAD_MONORAIL || lasttype == RoadType::ROAD_MONORAIL)
         {
             //walls
-            addQuad(pts[1], lpts[1], lpts[0], pts[0], TEXFIT_CONCRETEWALL, pos, lastpos, width);
-            addQuad(lpts[6], pts[6], pts[7], lpts[7], TEXFIT_CONCRETEWALL, pos, lastpos, width);
+            addQuad(pts[1], lpts[1], lpts[0], pts[0], TextureFit::TEXFIT_CONCRETEWALL, pos, lastpos, width);
+            addQuad(lpts[6], pts[6], pts[7], lpts[7], TextureFit::TEXFIT_CONCRETEWALL, pos, lastpos, width);
             //underside - we flip the underside so it folds gracefully with the top
-            addQuad(pts[0], lpts[0], lpts[7], pts[7], TEXFIT_CONCRETEUNDER, pos, lastpos, width, true);
+            addQuad(pts[0], lpts[0], lpts[7], pts[7], TextureFit::TEXFIT_CONCRETEUNDER, pos, lastpos, width, true);
         }
         else
         {
             //walls
-            addQuad(pts[1], lpts[1], lpts[0], pts[0], TEXFIT_BRICKWALL, pos, lastpos, width);
-            addQuad(lpts[6], pts[6], pts[7], lpts[7], TEXFIT_BRICKWALL, pos, lastpos, width);
+            addQuad(pts[1], lpts[1], lpts[0], pts[0], TextureFit::TEXFIT_BRICKWALL, pos, lastpos, width);
+            addQuad(lpts[6], pts[6], pts[7], lpts[7], TextureFit::TEXFIT_BRICKWALL, pos, lastpos, width);
         }
-        if ((type == ROAD_BRIDGE || type == ROAD_MONORAIL) && pillartype > 0)
+        if ((type == RoadType::ROAD_BRIDGE || type == RoadType::ROAD_MONORAIL) && pillartype > 0)
         {
             /* this is the basic bridge pillar mod.
              * it will create on pillar for each segment!
@@ -219,25 +219,25 @@ void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, int type, float width
                     middle + Vector3(-width2, 0, -width2),
                     middle + Vector3(width2, 0, -width2),
                     middle + Vector3(width2, -len, -width2),
-                    TEXFIT_CONCRETETOP, pos, lastpos, width2);
+                    TextureFit::TEXFIT_CONCRETETOP, pos, lastpos, width2);
 
                 addQuad(middle + Vector3(width2, -len, width2),
                     middle + Vector3(width2, 0, width2),
                     middle + Vector3(-width2, 0, width2),
                     middle + Vector3(-width2, -len, width2),
-                    TEXFIT_CONCRETETOP, pos, lastpos, width2);
+                    TextureFit::TEXFIT_CONCRETETOP, pos, lastpos, width2);
 
                 addQuad(middle + Vector3(-width2, -len, width2),
                     middle + Vector3(-width2, 0, width2),
                     middle + Vector3(-width2, 0, -width2),
                     middle + Vector3(-width2, -len, -width2),
-                    TEXFIT_CONCRETETOP, pos, lastpos, width2);
+                    TextureFit::TEXFIT_CONCRETETOP, pos, lastpos, width2);
 
                 addQuad(middle + Vector3(width2, -len, -width2),
                     middle + Vector3(width2, 0, -width2),
                     middle + Vector3(width2, 0, width2),
                     middle + Vector3(width2, -len, width2),
-                    TEXFIT_CONCRETETOP, pos, lastpos, width2);
+                    TextureFit::TEXFIT_CONCRETETOP, pos, lastpos, width2);
             }
         }
     }
@@ -245,9 +245,9 @@ void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, int type, float width
     {
         first = false;
         computePoints(pts, pos, rot, type, width, bwidth, bheight);
-        addQuad(pts[0], pts[1], pts[2], pts[3], TEXFIT_NONE, pos, pos, width);
-        addQuad(pts[0], pts[3], pts[4], pts[7], TEXFIT_NONE, pos, pos, width);
-        addQuad(pts[4], pts[5], pts[6], pts[7], TEXFIT_NONE, pos, pos, width);
+        addQuad(pts[0], pts[1], pts[2], pts[3], TextureFit::TEXFIT_NONE, pos, pos, width);
+        addQuad(pts[0], pts[3], pts[4], pts[7], TextureFit::TEXFIT_NONE, pos, pos, width);
+        addQuad(pts[4], pts[5], pts[6], pts[7], TextureFit::TEXFIT_NONE, pos, pos, width);
     }
     lastpos = pos;
     lastrot = rot;
@@ -264,7 +264,7 @@ void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, int type, float width
         msg << " width=" << width;
         msg << " bwidth=" << bwidth;
         msg << " bheight=" << bheight;
-        msg << " type=" << type;
+        msg << " type=" << (int)type;
         for (int i = 0; i < 8; ++i)
         {
             msg << "\n\t Point#" << i << ": " << pts[i].x << " " << pts[i].y << " " << pts[i].z;
@@ -273,9 +273,9 @@ void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, int type, float width
     }
 }
 
-void ProceduralRoad::computePoints(Vector3* pts, Vector3 pos, Quaternion rot, int type, float width, float bwidth, float bheight)
+void ProceduralRoad::computePoints(Vector3* pts, Vector3 pos, Quaternion rot, RoadType type, float width, float bwidth, float bheight)
 {
-    if (type == ROAD_FLAT)
+    if (type == RoadType::ROAD_FLAT)
     {
         pts[1] = pos + rot * Vector3(0, -bheight, bwidth + width / 2.0);
         pts[0] = baseOf(pts[1]);
@@ -286,7 +286,7 @@ void ProceduralRoad::computePoints(Vector3* pts, Vector3 pos, Quaternion rot, in
         pts[6] = pos + rot * Vector3(0, -bheight, -bwidth - width / 2.0);
         pts[7] = baseOf(pts[6]);
     }
-    if (type == ROAD_BOTH)
+    if (type == RoadType::ROAD_BOTH)
     {
         pts[1] = pos + rot * Vector3(0, bheight, bwidth + width / 2.0);
         pts[0] = baseOf(pts[1]);
@@ -297,7 +297,7 @@ void ProceduralRoad::computePoints(Vector3* pts, Vector3 pos, Quaternion rot, in
         pts[6] = pos + rot * Vector3(0, bheight, -bwidth - width / 2.0);
         pts[7] = baseOf(pts[6]);
     }
-    if (type == ROAD_LEFT)
+    if (type == RoadType::ROAD_LEFT)
     {
         pts[1] = pos + rot * Vector3(0, -bheight, bwidth + width / 2.0);
         pts[0] = baseOf(pts[1]);
@@ -308,7 +308,7 @@ void ProceduralRoad::computePoints(Vector3* pts, Vector3 pos, Quaternion rot, in
         pts[6] = pos + rot * Vector3(0, bheight, -bwidth - width / 2.0);
         pts[7] = baseOf(pts[6]);
     }
-    if (type == ROAD_RIGHT)
+    if (type == RoadType::ROAD_RIGHT)
     {
         pts[1] = pos + rot * Vector3(0, bheight, bwidth + width / 2.0);
         pts[0] = baseOf(pts[1]);
@@ -319,7 +319,7 @@ void ProceduralRoad::computePoints(Vector3* pts, Vector3 pos, Quaternion rot, in
         pts[6] = pos + rot * Vector3(0, -bheight, -bwidth - width / 2.0);
         pts[7] = baseOf(pts[6]);
     }
-    if (type == ROAD_BRIDGE)
+    if (type == RoadType::ROAD_BRIDGE)
     {
         pts[0] = pos + rot * Vector3(0, -0.4, bwidth + width / 2.0);
         pts[1] = pos + rot * Vector3(0, bheight, bwidth + width / 2.0);
@@ -330,7 +330,7 @@ void ProceduralRoad::computePoints(Vector3* pts, Vector3 pos, Quaternion rot, in
         pts[6] = pos + rot * Vector3(0, bheight, -bwidth - width / 2.0);
         pts[7] = pos + rot * Vector3(0, -0.4, -bwidth - width / 2.0);
     }
-    if (type == ROAD_MONORAIL)
+    if (type == RoadType::ROAD_MONORAIL)
     {
         pts[0] = pos + rot * Vector3(0, -1.4, bwidth + width / 2.0);
         pts[1] = pos + rot * Vector3(0, bheight, bwidth + width / 2.0);
@@ -355,7 +355,7 @@ inline Vector3 ProceduralRoad::baseOf(Vector3 p)
     return Vector3(p.x, y, p.z);
 }
 
-void ProceduralRoad::addQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, int texfit, Vector3 pos, Vector3 lastpos, float width, bool flip)
+void ProceduralRoad::addQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, TextureFit texfit, Vector3 pos, Vector3 lastpos, float width, bool flip)
 {
     if (vertexcount + 3 >= MAX_VERTEX || tricount * 3 + 3 + 2 >= MAX_TRIS * 3)
         return;
@@ -392,7 +392,7 @@ void ProceduralRoad::addQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, int
     if (collision)
     {
         ground_model_t* gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString("concrete");
-        if (texfit == TEXFIT_ROAD || texfit == TEXFIT_ROADS1 || texfit == TEXFIT_ROADS2 || texfit == TEXFIT_ROADS3 || texfit == TEXFIT_ROADS4)
+        if (texfit == TextureFit::TEXFIT_ROAD || texfit == TextureFit::TEXFIT_ROADS1 || texfit == TextureFit::TEXFIT_ROADS2 || texfit == TextureFit::TEXFIT_ROADS3 || texfit == TextureFit::TEXFIT_ROADS4)
             gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString("asphalt");
         addCollisionQuad(p1, p2, p3, p4, gm, flip);
     }
@@ -400,11 +400,11 @@ void ProceduralRoad::addQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, int
     vertexcount += 4;
 }
 
-void ProceduralRoad::textureFit(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, int texfit, Vector2* texc, Vector3 pos, Vector3 lastpos, float width)
+void ProceduralRoad::textureFit(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, TextureFit texfit, Vector2* texc, Vector3 pos, Vector3 lastpos, float width)
 {
     int i;
 
-    if (texfit == TEXFIT_BRICKWALL || texfit == TEXFIT_CONCRETEWALL || texfit == TEXFIT_CONCRETEWALLI)
+    if (texfit == TextureFit::TEXFIT_BRICKWALL || texfit == TextureFit::TEXFIT_CONCRETEWALL || texfit == TextureFit::TEXFIT_CONCRETEWALLI)
     {
         Vector3 ps[4];
         ps[0] = p1;
@@ -429,7 +429,7 @@ void ProceduralRoad::textureFit(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, 
         for (i = 0; i < 4; i++)
         {
             Vector3 trv = forward * (ps[i] - pref1);
-            if (texfit == TEXFIT_BRICKWALL)
+            if (texfit == TextureFit::TEXFIT_BRICKWALL)
             {
                 float ty = 0.746 - trv.y * 0.25 / 4.5;
                 // fix overlapping
@@ -437,7 +437,7 @@ void ProceduralRoad::textureFit(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, 
                     ty = 1;
                 texc[i] = Vector2(trv.x / 10.0, ty);
             }
-            if (texfit == TEXFIT_CONCRETEWALL)
+            if (texfit == TextureFit::TEXFIT_CONCRETEWALL)
             {
                 // fix overlapping
                 float ty = 0.496 - (trv.y - 0.7) * 0.25 / 4.5;
@@ -445,7 +445,7 @@ void ProceduralRoad::textureFit(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, 
                     ty = 1;
                 texc[i] = Vector2(trv.x / 10.0, ty);
             }
-            if (texfit == TEXFIT_CONCRETEWALLI)
+            if (texfit == TextureFit::TEXFIT_CONCRETEWALLI)
             {
                 float ty = 0.496 + trv.y * 0.25 / 4.5;
                 // fix overlapping
@@ -456,7 +456,7 @@ void ProceduralRoad::textureFit(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, 
         }
         return;
     }
-    if (texfit == TEXFIT_ROAD || texfit == TEXFIT_ROADS1 || texfit == TEXFIT_ROADS2 || texfit == TEXFIT_ROADS3 || texfit == TEXFIT_ROADS4 || texfit == TEXFIT_CONCRETETOP || texfit == TEXFIT_CONCRETEUNDER)
+    if (texfit == TextureFit::TEXFIT_ROAD || texfit == TextureFit::TEXFIT_ROADS1 || texfit == TextureFit::TEXFIT_ROADS2 || texfit == TextureFit::TEXFIT_ROADS3 || texfit == TextureFit::TEXFIT_ROADS4 || texfit == TextureFit::TEXFIT_CONCRETETOP || texfit == TextureFit::TEXFIT_CONCRETEUNDER)
     {
         Vector3 ps[4];
         ps[0] = p1;
@@ -487,7 +487,7 @@ void ProceduralRoad::textureFit(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, 
         for (i = 0; i < 4; i++)
         {
             Vector3 trv = forward * (ps[i] - pref1);
-            if (texfit == TEXFIT_CONCRETETOP)
+            if (texfit == TextureFit::TEXFIT_CONCRETETOP)
             {
                 if (i == 0)
                     trvrefz = trv.z;
@@ -497,27 +497,27 @@ void ProceduralRoad::textureFit(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, 
             {
                 float v1 = 0.072;
                 float v2 = 0.423;
-                if (texfit == TEXFIT_ROADS1)
+                if (texfit == TextureFit::TEXFIT_ROADS1)
                 {
                     v1 = 0.001;
                     v2 = 0.036;
                 };
-                if (texfit == TEXFIT_ROADS2)
+                if (texfit == TextureFit::TEXFIT_ROADS2)
                 {
                     v1 = 0.036;
                     v2 = 0.072;
                 };
-                if (texfit == TEXFIT_ROADS3)
+                if (texfit == TextureFit::TEXFIT_ROADS3)
                 {
                     v1 = 0.423;
                     v2 = 0.458;
                 };
-                if (texfit == TEXFIT_ROADS4)
+                if (texfit == TextureFit::TEXFIT_ROADS4)
                 {
                     v1 = 0.458;
                     v2 = 0.493;
                 };
-                if (texfit == TEXFIT_CONCRETEUNDER)
+                if (texfit == TextureFit::TEXFIT_CONCRETEUNDER)
                 {
                     v1 = 0.496;
                     v2 = 0.745;
@@ -557,6 +557,20 @@ void ProceduralRoad::addCollisionQuad(Vector3 p1, Vector3 p2, Vector3 p3, Vector
         triID = App::GetGameContext()->GetTerrain()->GetCollisions()->addCollisionTri(p1, p3, p4, gm);
         if (triID >= 0)
             registeredCollTris.push_back(triID);
+    }
+}
+
+void ProceduralRoad::addCollisionQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, std::string const& gm_name, bool flip /*= false*/)
+{
+    ground_model_t* gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString(gm_name);
+    if (gm)
+    {
+        this->addCollisionQuad(p1, p2, p3, p4, gm, flip);
+    }
+    else
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING, 
+            fmt::format("ProceduralRoad::addCollisionQuad() - ground model '{}' does not exist", gm_name));
     }
 }
 

@@ -120,6 +120,8 @@ public:
 
     std::vector<localizer_t> GetLocalizers() { return localizers; }
 
+    ProceduralManagerPtr& getProceduralManager() { return m_procedural_manager; }
+
 protected:
 
     struct AnimatedObject
@@ -171,7 +173,7 @@ protected:
     std::vector<MapEntity>                m_map_entities;
     Terrain*           terrainManager;
     Ogre::StaticGeometry*     m_staticgeometry;
-    ProceduralManager         m_procedural_mgr;
+    ProceduralManagerPtr      m_procedural_manager;
     Ogre::SceneNode*          m_staticgeometry_bake_node;
     int                       m_entity_counter = 0;
     std::string               m_resource_group;
