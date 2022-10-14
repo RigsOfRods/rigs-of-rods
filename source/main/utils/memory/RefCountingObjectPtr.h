@@ -20,16 +20,23 @@ public:
     // Constructors
     RefCountingObjectPtr();
     RefCountingObjectPtr(const RefCountingObjectPtr<T> &other);
-    RefCountingObjectPtr(T *ref); // Only invoke directly using C++! AngelScript must use a wrapper.
     ~RefCountingObjectPtr();
 
     // Assignments
     RefCountingObjectPtr &operator=(const RefCountingObjectPtr<T> &other);
     // Intentionally omitting raw-pointer assignment, for simplicity - see raw pointer constructor.
 
-    // Compare equalness
+    // Compare smart ptr
     bool operator==(const RefCountingObjectPtr<T> &o) const { return m_ref == o.m_ref; }
     bool operator!=(const RefCountingObjectPtr<T> &o) const { return m_ref != o.m_ref; }
+
+    // Compare pointer
+    bool operator==(const T* o) const { return m_ref == o; }
+    bool operator!=(const T* o) const { return m_ref != o; }
+
+    // Compare nullptr
+    bool operator==(const nullptr_t) const { return m_ref == nullptr; }
+    bool operator!=(const nullptr_t) const { return m_ref != nullptr; }
 
     // Get the reference
     T *GetRef() { return m_ref; }
@@ -45,7 +52,13 @@ public:
 
     static void RegisterRefCountingObjectPtr(const char* handle_name, const char* obj_name, AngelScript::asIScriptEngine *engine);
 
+    /// It's CRITICAL that this function gets invoked only once for each object in memory,
+    /// and subsequent shared pointers are created from the original shared pointer.
+    /// Binding multiple times compromises the ref counting and WILL cause 'double free or corruption' bug!
+    static RefCountingObjectPtr<T> Bind(T* ref) { return RefCountingObjectPtr<T>(ref); }
+
 protected:
+    explicit RefCountingObjectPtr(T* ref); // Only invoke directly using C++! AngelScript must use a wrapper.
 
     void Set(T* ref);
     void ReleaseHandle();

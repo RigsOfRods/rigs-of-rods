@@ -98,7 +98,7 @@ Message GameContext::PopMessage()
 
 bool GameContext::LoadTerrain(std::string const& filename_part)
 {
-    m_last_spawned_actor = nullptr;
+    m_last_spawned_actor = ActorPtr();
 
     // Find terrain in modcache
     CacheEntry* terrn_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Terrain, /*partial=*/true, filename_part);
@@ -138,10 +138,10 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
     // * Landusemap
     // * SurveyMapTextureCreator
     // * Collisions (debug visualization)
-    m_terrain = new RoR::Terrain(terrn_entry, terrn2);
+    m_terrain = TerrainPtr::Bind(new RoR::Terrain(terrn_entry, terrn2));
     if (!m_terrain->initialize())
     {
-        m_terrain = nullptr; // TerrainPtr deletes the object
+        m_terrain = TerrainPtr(); // TerrainPtr deletes the object
         return false; // Message box already displayed
     }
 
@@ -163,7 +163,7 @@ void GameContext::UnloadTerrain()
         // dispose(), do not `delete` - script may still hold reference to the object.
         m_terrain->dispose();
         // release local reference - object will be deleted when all references are released.
-        m_terrain = nullptr;
+        m_terrain = TerrainPtr();
     }
 }
 
@@ -208,7 +208,7 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         rq.asr_filename, rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF);
     if (def == nullptr)
     {
-        return nullptr; // Error already reported
+        return ActorPtr(); // Error already reported
     }
 
     if (rq.asr_skin_entry != nullptr)
@@ -371,18 +371,18 @@ void GameContext::DeleteActor(ActorPtr actor)
     if (actor == m_player_actor)
     {
         Ogre::Vector3 center = m_player_actor->getRotationCenter();
-        this->ChangePlayerActor(nullptr); // Get out of the vehicle
+        this->ChangePlayerActor(ActorPtr()); // Get out of the vehicle
         this->GetPlayerCharacter()->setPosition(center);
     }
 
     if (actor == m_prev_player_actor)
     {
-        m_prev_player_actor = nullptr;
+        m_prev_player_actor = ActorPtr();
     }
 
     if (actor == m_last_spawned_actor)
     {
-        m_last_spawned_actor = nullptr;
+        m_last_spawned_actor = ActorPtr();
     }
 
     // Find linked actors and un-tie if tied
@@ -469,7 +469,7 @@ void GameContext::ChangePlayerActor(ActorPtr actor)
             Character* player_character = this->GetPlayerCharacter();
             if (player_character)
             {
-                player_character->SetActorCoupling(false, nullptr);
+                player_character->SetActorCoupling(false, ActorPtr());
                 player_character->setRotation(Ogre::Radian(rotation));
                 player_character->setPosition(position);
             }
@@ -918,7 +918,7 @@ void GameContext::UpdateSimInputEvents(float dt)
         {
             // find the nearest vehicle
             float mindist = 1000.0;
-            ActorPtr nearest_actor = nullptr;
+            ActorPtr nearest_actor;
             for (ActorPtr& actor : this->GetActorManager()->GetActors())
             {
                 if (!actor->ar_driveable)
@@ -993,7 +993,7 @@ void GameContext::UpdateSimInputEvents(float dt)
     {
         // Find nearest actor
         const Ogre::Vector3 position = App::GetGameContext()->GetPlayerCharacter()->getPosition();
-        ActorPtr nearest_actor = nullptr;
+        ActorPtr nearest_actor;
         float min_squared_distance = std::numeric_limits<float>::max();
         for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
@@ -1216,7 +1216,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
         App::mp_state->getEnum<MpState>() != MpState::CONNECTED &&
         m_player_actor->ar_driveable != AIRPLANE)
     {
-        ActorPtr rescuer = nullptr;
+        ActorPtr rescuer;
         for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             if (actor->ar_rescuer_flag)

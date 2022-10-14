@@ -307,7 +307,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         {
             Str<600> msg; msg << _L("Error while loading scene: Missing content (probably not installed)") << " '" << filename << "'";
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-            actors.push_back(nullptr);
+            actors.push_back(ActorPtr());
             continue;
         }
 
@@ -319,7 +319,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
         String section_config = j_entry["section_config"].GetString();
 
-        ActorPtr actor = nullptr;
+        ActorPtr actor;
         int index = static_cast<int>(actors.size());
         if (index < x_actors.size())
         {
@@ -333,7 +333,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
                 }
                 else if (x_actors[index] == prev_player_actor)
                 {
-                    App::GetGameContext()->SetPrevPlayerActor(nullptr);
+                    App::GetGameContext()->SetPrevPlayerActor(ActorPtr());
                 }
                 App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(x_actors[index]))));
                 actors_changed = true;
@@ -378,7 +378,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         }
         else if (x_actors[index] == prev_player_actor)
         {
-            App::GetGameContext()->SetPrevPlayerActor(nullptr);
+            App::GetGameContext()->SetPrevPlayerActor(ActorPtr());
         }
         App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(x_actors[index]))));
         actors_changed = true;

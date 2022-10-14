@@ -287,7 +287,7 @@ void ActorSpawner::InitializeRig()
     }
 
 #ifdef USE_ANGELSCRIPT
-    m_actor->ar_vehicle_ai = new VehicleAI(m_actor);
+    m_actor->ar_vehicle_ai = VehicleAIPtr::Bind(new VehicleAI(m_actor));
 #endif // USE_ANGELSCRIPT
 
     m_actor->ar_airbrake_intensity = 0;
@@ -2677,7 +2677,6 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     tie.ti_tying = false;
     tie.ti_tied = false;
     tie.ti_beam = & beam;
-    tie.ti_locked_actor   = nullptr;
     tie.ti_locked_ropable = nullptr;
     tie.ti_contract_speed = def.auto_shorten_rate;
     tie.ti_max_stress = def.max_stress;
@@ -5677,7 +5676,6 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         hook.hk_group             = -1;
         hook.hk_locked            = UNLOCKED;
         hook.hk_lock_node         = nullptr;
-        hook.hk_locked_actor      = nullptr;
         hook.hk_lockgroup         = -1;
         hook.hk_beam              = & beam;
         hook.hk_maxforce          = HOOK_FORCE_DEFAULT;

@@ -56,7 +56,7 @@ public:
     void                UpdateInputEvents();
 
 protected:
-    ActorPtr              m_actor = nullptr;
+    ActorPtr            m_actor;
     float               m_replay_timer = 0.f;
     float               ar_replay_precision = 1.f;
     int                 ar_replay_pos = 0;

@@ -112,7 +112,6 @@ CameraManager::CameraManager() :
     , m_cam_limit_movement(true)
     , m_camera_node(nullptr)
 {
-    m_cct_player_actor = nullptr;
     m_staticcam_update_timer.reset();
 
     m_camera = App::GetGfxScene()->GetSceneManager()->createCamera("PlayerCam");
@@ -528,7 +527,7 @@ bool CameraManager::hasActiveBehavior()
 
 void CameraManager::ResetAllBehaviors()
 {
-    this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_INVALID, nullptr);
+    this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_INVALID, ActorPtr());
 }
 
 bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
@@ -631,7 +630,7 @@ void CameraManager::NotifyVehicleChanged(ActorPtr new_vehicle)
     // Getting out of vehicle
     if (new_vehicle == nullptr)
     {
-        m_cct_player_actor = nullptr;
+        m_cct_player_actor = ActorPtr();
         if (this->m_current_behavior != CAMERA_BEHAVIOR_FIXED && this->m_current_behavior != CAMERA_BEHAVIOR_STATIC &&
                 this->m_current_behavior != CAMERA_BEHAVIOR_FREE)
         {

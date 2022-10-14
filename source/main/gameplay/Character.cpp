@@ -41,8 +41,7 @@ using namespace RoR;
 #define LOGSTREAM Ogre::LogManager::getSingleton().stream()
 
 Character::Character(int source, unsigned int streamid, UTFString player_name, int color_number, bool is_remote) :
-      m_actor_coupling(nullptr)
-    , m_can_jump(false)
+     m_can_jump(false)
     , m_character_rotation(0.0f)
     , m_character_h_speed(2.0f)
     , m_character_v_speed(0.0f)
@@ -489,7 +488,7 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
         else if (msg->command == CHARACTER_CMD_DETACH)
         {
             if (m_actor_coupling != nullptr)
-                this->SetActorCoupling(false, nullptr);
+                this->SetActorCoupling(false, ActorPtr());
             else
                 this->ReportError("Received command `DETACH`, but not currently attached to a vehicle. Ignoring command.");
         }

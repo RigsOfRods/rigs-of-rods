@@ -39,7 +39,6 @@ using namespace RoR;
 
 SceneMouse::SceneMouse() :
     mouseGrabState(0),
-    grab_truck(nullptr),
     pickLine(nullptr),
     pickLineNode(nullptr)
 {
@@ -100,7 +99,7 @@ void SceneMouse::releaseMousePick()
 void SceneMouse::reset()
 {
     minnode = NODENUM_INVALID;
-    grab_truck = 0;
+    grab_truck = ActorPtr();
     mindist = 99999;
     mouseGrabState = 0;
     lastgrabpos = Vector3::ZERO;
@@ -124,7 +123,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 
         // walk all trucks
         minnode = NODENUM_INVALID;
-        grab_truck = NULL;
+        grab_truck = ActorPtr();
         for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             if (actor->ar_state == ActorState::LOCAL_SIMULATED)

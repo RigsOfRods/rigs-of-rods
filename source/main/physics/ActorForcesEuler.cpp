@@ -1572,7 +1572,8 @@ void Actor::CalcNodes()
         if (approx_speed > 6860 && !m_ongoing_reset)
         {
             ActorModifyRequest* rq = new ActorModifyRequest; // actor exploded, schedule reset
-            rq->amr_actor = this;
+            ActorPtr self = App::GetGameContext()->GetActorManager()->GetActorById(ar_instance_id); // Fetch a shared pointer to ourselves, so references are added correctly.
+            rq->amr_actor = self;
             rq->amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
             App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
             m_ongoing_reset = true;
@@ -1637,7 +1638,9 @@ void Actor::CalcHooks()
                 it->hk_beam->bm_inter_actor = (it->hk_locked_actor != nullptr);
                 it->hk_beam->L = (it->hk_hook_node->AbsPosition - it->hk_lock_node->AbsPosition).length();
                 it->hk_beam->bm_disabled = false;
-                AddInterActorBeam(it->hk_beam, this, it->hk_locked_actor);
+                
+                ActorPtr self = App::GetGameContext()->GetActorManager()->GetActorById(ar_instance_id); // Fetch a shared pointer to ourselves, so references are added correctly.
+                AddInterActorBeam(it->hk_beam, self, it->hk_locked_actor);
             }
             else
             {
@@ -1673,7 +1676,7 @@ void Actor::CalcHooks()
                                 //force exceeded reset the hook node
                                 it->hk_locked = UNLOCKED;
                                 it->hk_lock_node = 0;
-                                it->hk_locked_actor = 0;
+                                it->hk_locked_actor = ActorPtr();
                                 it->hk_beam->p2 = &ar_nodes[0];
                                 it->hk_beam->bm_inter_actor = false;
                                 it->hk_beam->L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();

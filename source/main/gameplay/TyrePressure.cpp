@@ -37,7 +37,7 @@ void TyrePressure::UpdateInputEvents(float dt)
         change = Ogre::Math::Clamp(change, -dt * 10.0f, -dt * 1.0f);
         if (m_pressure_pressed = this->ModifyTyrePressure(change))
         {
-            SOUND_START(m_actor, SS_TRIG_AIR);
+            SOUND_START(m_actor.ar_instance_id, SS_TRIG_AIR);
         }
     }
     else if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_PRESSURE_MORE))
@@ -46,12 +46,12 @@ void TyrePressure::UpdateInputEvents(float dt)
         change = Ogre::Math::Clamp(change, +dt * 1.0f, +dt * 10.0f);
         if (m_pressure_pressed = this->ModifyTyrePressure(change))
         {
-            SOUND_START(m_actor, SS_TRIG_AIR);
+            SOUND_START(m_actor.ar_instance_id, SS_TRIG_AIR);
         }
     }
     else if (m_pressure_pressed)
     {
-        SOUND_STOP(m_actor, SS_TRIG_AIR);
+        SOUND_STOP(m_actor.ar_instance_id, SS_TRIG_AIR);
         m_pressure_pressed = false;
         m_pressure_pressed_timer = 1.5f;
     }
@@ -69,7 +69,7 @@ bool TyrePressure::ModifyTyrePressure(float v)
 
     for (int beam_id: m_pressure_beams)
     {
-        m_actor->ar_beams[beam_id].k = 10000 + newpressure * 10000;
+        m_actor.ar_beams[beam_id].k = 10000 + newpressure * 10000;
     }
     m_ref_tyre_pressure = newpressure;
     return true;

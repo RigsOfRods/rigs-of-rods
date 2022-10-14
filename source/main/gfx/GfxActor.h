@@ -156,7 +156,7 @@ private:
     static Ogre::Quaternion SpecialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest);
 
     // Static info
-    ActorPtr                      m_actor = nullptr;
+    ActorPtr                    m_actor;
     std::string                 m_custom_resource_group;
     int                         m_driverseat_prop_index = -1;
     Ogre::SceneNode*            m_gfx_beams_parent_scenenode = nullptr;

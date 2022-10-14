@@ -76,7 +76,7 @@ ActorManager::~ActorManager()
 
 ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr def)
 {
-    ActorPtr actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
+    ActorPtr actor = ActorPtr::Bind(new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq));
 
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {
@@ -555,7 +555,7 @@ ActorPtr ActorManager::GetActorByNetworkLinks(int source_id, int stream_id)
         }
     }
 
-    return nullptr;
+    return ActorPtr();
 }
 
 bool ActorManager::CheckActorCollAabbIntersect(int a, int b)
@@ -775,7 +775,7 @@ void ActorManager::SendAllActorsSleeping()
 ActorPtr ActorManager::FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
 {
     // try to find the desired actor (the one in the box)
-    ActorPtr ret = nullptr;
+    ActorPtr ret;
     for (ActorPtr& actor: m_actors)
     {
         if (collisions->isInside(actor->ar_nodes[0].AbsPosition, inst, box))
@@ -785,7 +785,7 @@ ActorPtr ActorManager::FindActorInsideBox(Collisions* collisions, const Ogre::St
                 ret = actor;
             else
             // second actor found -> unclear which one was meant
-                return nullptr;
+                return ActorPtr();
         }
     }
     return ret;
@@ -823,7 +823,7 @@ void ActorManager::UnmuteAllActors()
 
 std::pair<ActorPtr, float> ActorManager::GetNearestActor(Vector3 position)
 {
-    ActorPtr nearest_actor = nullptr;
+    ActorPtr nearest_actor;
     float min_squared_distance = std::numeric_limits<float>::max();
     for (ActorPtr& actor : m_actors)
     {
@@ -878,7 +878,7 @@ void ActorManager::DeleteActorInternal(ActorPtr actor)
     auto actor_i = m_actors.begin();
     while (actor_i != m_actors.end())
     {
-        if (actor == actor_i->GetRef())
+        if (actor == *actor_i)
         {
             actor_i = m_actors.erase(actor_i);
         }
@@ -913,7 +913,7 @@ ActorPtr ActorManager::FetchNextVehicleOnList(ActorPtr player, ActorPtr prev_pla
     {
         if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            return m_actors[i].GetRef();
+            return m_actors[i];
         }
     }
 
@@ -921,16 +921,16 @@ ActorPtr ActorManager::FetchNextVehicleOnList(ActorPtr player, ActorPtr prev_pla
     {
         if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            return m_actors[i].GetRef();
+            return m_actors[i];
         }
     }
 
     if (pivot_index >= 0 && m_actors[pivot_index]->ar_state != ActorState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
     {
-        return m_actors[pivot_index].GetRef();
+        return m_actors[pivot_index];
     }
 
-    return nullptr;
+    return ActorPtr();
 }
 
 ActorPtr ActorManager::FetchPreviousVehicleOnList(ActorPtr player, ActorPtr prev_player)
@@ -941,7 +941,7 @@ ActorPtr ActorManager::FetchPreviousVehicleOnList(ActorPtr player, ActorPtr prev
     {
         if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            return m_actors[i].GetRef();
+            return m_actors[i];
         }
     }
 
@@ -949,16 +949,16 @@ ActorPtr ActorManager::FetchPreviousVehicleOnList(ActorPtr player, ActorPtr prev
     {
         if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            return m_actors[i].GetRef();
+            return m_actors[i];
         }
     }
 
     if (pivot_index >= 0 && m_actors[pivot_index]->ar_state != ActorState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
     {
-        return m_actors[pivot_index].GetRef();
+        return m_actors[pivot_index];
     }
 
-    return nullptr;
+    return ActorPtr();
 }
 
 ActorPtr ActorManager::FetchRescueVehicle()
@@ -970,7 +970,7 @@ ActorPtr ActorManager::FetchRescueVehicle()
             return actor;
         }
     }
-    return nullptr;
+    return ActorPtr();
 }
 
 void ActorManager::UpdateActors(ActorPtr player_actor)
@@ -1086,7 +1086,7 @@ ActorPtr ActorManager::GetActorById(int actor_id)
             return actor;
         }
     }
-    return 0;
+    return ActorPtr();
 }
 
 void ActorManager::UpdatePhysicsSimulation()

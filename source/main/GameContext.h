@@ -186,9 +186,9 @@ private:
 
     // Actors (physics and netcode)
     ActorManager        m_actor_manager;
-    ActorPtr              m_player_actor = nullptr;           //!< Actor (vehicle or machine) mounted and controlled by player
-    ActorPtr              m_prev_player_actor = nullptr;      //!< Previous actor (vehicle or machine) mounted and controlled by player
-    ActorPtr              m_last_spawned_actor = nullptr;     //!< Last actor spawned by user and still alive.
+    ActorPtr            m_player_actor;           //!< Actor (vehicle or machine) mounted and controlled by player
+    ActorPtr            m_prev_player_actor;      //!< Previous actor (vehicle or machine) mounted and controlled by player
+    ActorPtr            m_last_spawned_actor;     //!< Last actor spawned by user and still alive.
     
     CacheEntry*         m_last_cache_selection = nullptr;   //!< Vehicle/load
     CacheEntry*         m_last_skin_selection = nullptr;

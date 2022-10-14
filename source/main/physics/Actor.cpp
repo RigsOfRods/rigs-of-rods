@@ -105,7 +105,7 @@ void Actor::dispose()
 #ifdef USE_OPENAL
     for (int i = SS_TRIG_NONE + 1; i < SS_MAX_TRIG; i++)
     {
-        SOUND_STOP(this, i);
+        SOUND_STOP(this->ar_instance_id, i);
     }
 #endif // USE_OPENAL
     muteAllSounds();
@@ -131,7 +131,7 @@ void Actor::dispose()
     m_replay_handler = nullptr;
 
     // The object will be deleted by RefCountingObjectPtr
-    ar_vehicle_ai = nullptr;
+    ar_vehicle_ai = VehicleAIPtr();
 
     // remove all scene nodes
     if (m_deletion_scene_nodes.size() > 0)
@@ -785,7 +785,8 @@ void Actor::DetermineLinkedActors() //TODO: Refactor this - logic iterating over
     std::map<ActorPtr, bool> lookup_table;
     std::pair<std::map<ActorPtr, bool>::iterator, bool> ret;
 
-    lookup_table.insert(std::pair<ActorPtr, bool>(this, false));
+    ActorPtr self = App::GetGameContext()->GetActorManager()->GetActorById(ar_instance_id); // Fetch a shared pointer to ourselves, so references are added correctly.
+    lookup_table.insert(std::pair<ActorPtr, bool>(self, false));
     
     auto inter_actor_links = App::GetGameContext()->GetActorManager()->inter_actor_links; // TODO: Shouldn't this have been a reference?? Also, ugly, see the TODO note above ~ only_a_ptr, 01/2018
 
@@ -1510,7 +1511,8 @@ void Actor::reset(bool keep_position)
         return;
 
     ActorModifyRequest* rq = new ActorModifyRequest;
-    rq->amr_actor = this;
+    ActorPtr self = App::GetGameContext()->GetActorManager()->GetActorById(ar_instance_id); // Fetch a shared pointer to ourselves, so references are added correctly.
+    rq->amr_actor = self;
     rq->amr_type  = (keep_position) ? ActorModifyRequest::Type::RESET_ON_SPOT : ActorModifyRequest::Type::RESET_ON_INIT_POS;
     App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
 }
@@ -1595,7 +1597,7 @@ void Actor::SyncReset(bool reset_position)
     {
         h.hk_locked = UNLOCKED;
         h.hk_lock_node = nullptr;
-        h.hk_locked_actor = nullptr;
+        h.hk_locked_actor = ActorPtr();
         h.hk_beam->p2 = &ar_nodes[0];
         h.hk_beam->bm_disabled = true;
         h.hk_beam->bm_inter_actor = false;
@@ -1607,7 +1609,7 @@ void Actor::SyncReset(bool reset_position)
     {
         r.rp_locked = UNLOCKED;
         r.rp_locked_ropable = nullptr;
-        r.rp_locked_actor = nullptr;
+        r.rp_locked_actor = ActorPtr();
         this->RemoveInterActorBeam(r.rp_beam);
     }
 
@@ -1615,7 +1617,7 @@ void Actor::SyncReset(bool reset_position)
     {
         t.ti_tied = false;
         t.ti_tying = false;
-        t.ti_locked_actor = nullptr;
+        t.ti_locked_actor = ActorPtr();
         t.ti_locked_ropable = nullptr;
         t.ti_beam->p2 = &ar_nodes[0];
         t.ti_beam->bm_disabled = true;
@@ -3352,7 +3354,7 @@ void Actor::DisjoinInterActorBeams()
         auto actor_pair = it->second;
         if (this == actor_pair.first.GetRef() || this == actor_pair.second.GetRef())
         {
-            it->first->bm_locked_actor = nullptr;
+            it->first->bm_locked_actor = ActorPtr();
             it->first->bm_inter_actor = false;
             it->first->bm_disabled = true;
             inter_actor_links->erase(it++);
@@ -3424,7 +3426,7 @@ void Actor::tieToggle(int group)
                     }
                 }
             }
-            it->ti_locked_actor = nullptr;
+            it->ti_locked_actor = ActorPtr();
         }
     }
 
@@ -3442,7 +3444,7 @@ void Actor::tieToggle(int group)
                 // tie is unlocked and should get locked, search new remote ropable to lock to
                 float mindist = it->ti_beam->refL;
                 node_t* nearest_node = 0;
-                ActorPtr nearest_actor = 0;
+                ActorPtr nearest_actor;
                 ropable_t* locktedto = 0;
                 // iterate over all actors
                 for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
@@ -3483,7 +3485,7 @@ void Actor::tieToggle(int group)
                     // now trigger the tying action
                     it->ti_locked_actor = nearest_actor;
                     it->ti_beam->p2 = nearest_node;
-                    it->ti_beam->bm_inter_actor = nearest_actor != this;
+                    it->ti_beam->bm_inter_actor = nearest_actor.GetRef() != this;
                     it->ti_beam->stress = 0;
                     it->ti_beam->L = it->ti_beam->refL;
                     it->ti_tied = true;
@@ -3492,7 +3494,8 @@ void Actor::tieToggle(int group)
                     it->ti_locked_ropable->attached_ties++;
                     if (it->ti_beam->bm_inter_actor)
                     {
-                        AddInterActorBeam(it->ti_beam, this, nearest_actor);
+                        ActorPtr self = App::GetGameContext()->GetActorManager()->GetActorById(ar_instance_id); // Fetch a shared pointer to ourselves, so references are added correctly.
+                        AddInterActorBeam(it->ti_beam, self, nearest_actor);
                         // update skeletonview on the tied actors
                         if (this == player_actor.GetRef())
                         {
@@ -3563,7 +3566,7 @@ void Actor::ropeToggle(int group)
                     }
                 }
             }
-            it->rp_locked_actor = nullptr;
+            it->rp_locked_actor = ActorPtr();
             it->rp_locked_ropable = nullptr;
         }
         else
@@ -3571,7 +3574,7 @@ void Actor::ropeToggle(int group)
             //we lock ropes
             // search new remote ropable to lock to
             float mindist = it->rp_beam->L;
-            ActorPtr nearest_actor = nullptr;
+            ActorPtr nearest_actor;
             ropable_t* rop = 0;
             // iterate over all actor_slots
             for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
@@ -3605,7 +3608,8 @@ void Actor::ropeToggle(int group)
                 it->rp_locked_ropable->attached_ropes++;
                 if (nearest_actor != this)
                 {
-                    AddInterActorBeam(it->rp_beam, this, nearest_actor);
+                    ActorPtr self = App::GetGameContext()->GetActorManager()->GetActorById(ar_instance_id); // Fetch a shared pointer to ourselves, so references are added correctly.
+                    AddInterActorBeam(it->rp_beam, self, nearest_actor);
                     // update skeletonview on the roped up actors
                     if (this == player_actor.GetRef())
                     {
@@ -3736,7 +3740,7 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
                 it->hk_timer = it->hk_timer_preset; //timer reset for autolock nodes
             }
             it->hk_lock_node = 0;
-            it->hk_locked_actor = 0;
+            it->hk_locked_actor = ActorPtr();
             //disable hook-assistance beam
             it->hk_beam->p2 = &ar_nodes[0];
             it->hk_beam->bm_inter_actor = false;
@@ -4451,7 +4455,7 @@ Actor::Actor(
     , ar_trailer_parking_brake(false)
     , m_avg_node_position(rq.asr_position)
     , m_previous_gear(0)
-    , m_tyre_pressure(this)
+    , m_tyre_pressure(*this)
     , m_replay_handler(nullptr)
     , ar_right_mirror_angle(-0.52)
     , ar_rudder(0)

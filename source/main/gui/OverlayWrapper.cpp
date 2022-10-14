@@ -65,7 +65,7 @@ OverlayWrapper::OverlayWrapper():
 
 OverlayWrapper::~OverlayWrapper()
 {
-    showDashboardOverlays(false, nullptr);
+    showDashboardOverlays(false, ActorPtr());
     HideRacingOverlay();
 }
 

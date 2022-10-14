@@ -581,7 +581,7 @@ int main(int argc, char *argv[])
                         App::GetGameContext()->GetTerrain()->GetTerrainEditor()->WriteOutputFile();
                     }
                     App::GetGameContext()->SaveScene("autosave.sav");
-                    App::GetGameContext()->ChangePlayerActor(nullptr);
+                    App::GetGameContext()->ChangePlayerActor(ActorPtr());
                     App::GetGameContext()->GetActorManager()->CleanUpSimulation();
                     App::GetGameContext()->GetCharacterFactory()->DeleteAllCharacters();
                     App::GetGameContext()->GetSceneMouse().DiscardVisuals();

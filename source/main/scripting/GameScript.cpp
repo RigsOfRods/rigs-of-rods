@@ -907,7 +907,7 @@ VehicleAIPtr GameScript::getCurrentTruckAI()
     {
         return App::GetGameContext()->GetPlayerActor()->getVehicleAI();
     }
-    return nullptr;
+    return VehicleAIPtr();
 }
 
 VehicleAIPtr GameScript::getTruckAIByNum(int num)
@@ -917,7 +917,7 @@ VehicleAIPtr GameScript::getTruckAIByNum(int num)
     {
         return actor->getVehicleAI();
     }
-    return nullptr;
+    return VehicleAIPtr();
 }
 
 ActorPtr GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
