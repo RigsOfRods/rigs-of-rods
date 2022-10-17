@@ -1191,7 +1191,7 @@ void TopMenubar::Update()
                 {
                     rapidjson::Value& j_row =  j_doc[static_cast<rapidjson::SizeType>(i)];
 
-                    if (App::sim_terrain_name->getStr() == j_row["terrain"].GetString())
+                    if (j_row.HasMember("terrain") && App::sim_terrain_name->getStr() == j_row["terrain"].GetString())
                     {
                         count++;
                         if (ImGui::Button(j_row["preset"].GetString(), ImVec2(250, 0)))
@@ -1211,6 +1211,24 @@ void TopMenubar::Update()
                 if (count == 0)
                 {
                     ImGui::Text(_LC("TopMenubar", "No presets found for this terrain :("));
+                    ImGui::Text(_LC("TopMenubar", "Supported terrains:"));
+                    ImGui::Separator();
+
+                    ImGui::BeginChild("terrains-scrolling", ImVec2(0.f, 200), false);
+
+                    for (size_t i = 0; i < num_rows; i++)
+                    {
+                        rapidjson::Value& j_row_terrains =  j_doc[static_cast<rapidjson::SizeType>(i)];
+                        if (j_row_terrains.HasMember("terrains"))
+                        {
+                            for (size_t i = 0; i < j_row_terrains["terrains"].Size(); i++)
+                            {
+                                ImGui::Text(j_row_terrains["terrains"][i].GetString());
+                            }
+                        }
+                    }
+
+                    ImGui::EndChild();
                 }
             }
 
