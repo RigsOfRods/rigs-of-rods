@@ -82,7 +82,6 @@ public:
     int ai_position_scheme_prev = 0;
     int ai_times_prev = 1;
     int ai_mode_prev = 0;
-    bool ai_start = false;
 
     void Refresh(std::string payload);
 
