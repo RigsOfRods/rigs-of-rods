@@ -912,10 +912,14 @@ void TopMenubar::Update()
                 label2 = "Chase";
             }
 
-            if (ai_start)
+            for (auto actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
             {
-                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+                if (actor->ar_driveable == AI)
+                {
+                    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+                    break;
+                }
             }
 
             if (ImGui::BeginCombo("Mode", label2.c_str()))
@@ -986,10 +990,14 @@ void TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
-            if (ai_start)
+            for (auto actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
             {
-                ImGui::PopItemFlag();
-                ImGui::PopStyleVar();
+                if (actor->ar_driveable == AI)
+                {
+                    ImGui::PopItemFlag();
+                    ImGui::PopStyleVar();
+                    break;
+                }
             }
 
             if (ai_speed < 1)
@@ -1092,11 +1100,6 @@ void TopMenubar::Update()
                         App::GetScriptEngine()->loadScript("AI.as", ScriptCategory::CUSTOM);
                     }
                 }
-
-                if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty())
-                {
-                    ai_start = true;
-                }
             }
 
             if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 3)
@@ -1120,8 +1123,6 @@ void TopMenubar::Update()
                         App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
                     }
                 }
-
-                ai_start = false;
             }
 
             if (ai_rec)
