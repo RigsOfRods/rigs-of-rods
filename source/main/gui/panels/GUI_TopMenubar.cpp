@@ -1173,8 +1173,14 @@ void TopMenubar::Update()
             bool is_open = ImGui::CollapsingHeader(_LC("TopMenubar", "Presets"));
             if (ImGui::IsItemActivated() && !is_open && j_doc.Empty()) // Fetch once
             {
-                this->GetPresets();
-                //App::GetContentManager()->LoadAndParseJson("waypoints.json", RGN_SAVEGAMES, j_doc);
+                if (FileExists(PathCombine(App::sys_savegames_dir->getStr(), "waypoints.json")))
+                {
+                    App::GetContentManager()->LoadAndParseJson("waypoints.json", RGN_SAVEGAMES, j_doc);
+                }
+                else
+                {
+                    this->GetPresets();
+                }
             }
 
             if (is_open && j_doc.Empty())
