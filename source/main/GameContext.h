@@ -110,7 +110,7 @@ public:
 
     bool                LoadTerrain(std::string const& filename_part);
     void                UnloadTerrain();
-    TerrainPtr&         GetTerrain() { return m_terrain; }
+    TerrainPtr          GetTerrain() { return m_terrain; }
 
     /// @}
     /// @name Actors

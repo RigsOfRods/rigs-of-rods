@@ -99,18 +99,18 @@ void RoR::RegisterProceduralRoad(asIScriptEngine* engine)
     result = engine->RegisterObjectBehaviour("ProceduralObjectClass", asBEHAVE_FACTORY, "ProceduralObjectClass@ f()", asFUNCTION(ProceduralObjectFactory), asCALL_CDECL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "string getName()", asMETHOD(RoR::ProceduralObject, getName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "void setName(const string&in)", asMETHOD(RoR::ProceduralObject, setName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralObjectClass", "void addPoint(ProceduralPointClass @)", asMETHOD(RoR::ProceduralObject, addPoint), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralObjectClass", "void insertPoint(int pos, ProceduralPointClass @)", asMETHOD(RoR::ProceduralObject, insertPoint), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "void addPoint(ProceduralPointClassPtr @)", asMETHOD(RoR::ProceduralObject, addPoint), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "void insertPoint(int pos, ProceduralPointClassPtr@)", asMETHOD(RoR::ProceduralObject, insertPoint), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "void deletePoint(int pos)", asMETHOD(RoR::ProceduralObject, deletePoint), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralObjectClass", "ProceduralPointClass @getPoint(int pos)", asMETHOD(RoR::ProceduralObject, getPoint), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "ProceduralPointClassPtr @getPoint(int pos)", asMETHOD(RoR::ProceduralObject, getPoint), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "int getNumPoints()", asMETHOD(RoR::ProceduralObject, getNumPoints), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralObjectClass", "ProceduralRoadClass @getRoad()", asMETHOD(ProceduralObject, getRoad), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "ProceduralRoadClassPtr @getRoad()", asMETHOD(ProceduralObject, getRoad), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // class ProceduralManager (ref)
     ProceduralManager::RegisterRefCountingObject(engine, "ProceduralManagerClass");
     ProceduralManagerPtr::RegisterRefCountingObjectPtr(engine, "ProceduralManagerClassPtr", "ProceduralManagerClass");
-    result = engine->RegisterObjectMethod("ProceduralManagerClass", "void addObject(ProceduralObjectClass@)", asMETHOD(ProceduralManager, addObject), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("ProceduralManagerClass", "void removeObject(ProceduralObjectClass@)", asMETHOD(ProceduralManager, removeObject), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralManagerClass", "void addObject(ProceduralObjectClassPtr@)", asMETHOD(ProceduralManager, addObject), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("ProceduralManagerClass", "void removeObject(ProceduralObjectClassPtr@)", asMETHOD(ProceduralManager, removeObject), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralManagerClass", "int getNumObjects()", asMETHOD(RoR::ProceduralManager, getNumObjects), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("ProceduralManagerClass", "ProceduralObjectClass @getObject(int pos)", asMETHOD(ProceduralManager, getObject), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralManagerClass", "ProceduralObjectClassPtr @getObject(int pos)", asMETHOD(ProceduralManager, getObject), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 }
