@@ -3,25 +3,27 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# 이정희 <daemul72@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: Korean (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/ko/)\n"
+"PO-Revision-Date: 2022-10-19 19:11+0000\n"
+"Last-Translator: 이정희 <daemul72@gmail.com>\n"
+"Language-Team: Korean <https://hosted.weblate.org/projects/rigs-of-rods/game/"
+"ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 4.14.2-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
 msgid "Startup error"
-msgstr "가동하다 오류가 생겼습니다."
+msgstr "시작 오류"
 
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
@@ -270,7 +272,7 @@ msgstr ""
 
 #: GameContext.cpp:1203
 msgid "No rescue truck found!"
-msgstr "트럭을 구하여 찾을수 없습니다!"
+msgstr "구조 트럭을 찾을 수 없습니다!"
 
 #: GameContext.cpp:1279
 msgid "forwardcommands enabled"
@@ -294,7 +296,7 @@ msgstr ""
 
 #: gameplay/EngineSim.cpp:1437
 msgid "Low range selected"
-msgstr "저범위 선택됨"
+msgstr "낮은 범위 선택됨"
 
 #: gameplay/EngineSim.cpp:1443
 msgid "Mid range selected"
