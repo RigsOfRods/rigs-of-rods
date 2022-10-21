@@ -76,6 +76,7 @@ jobs:
     runs-on: windows-2019
     env:
       BUILD_TOOLS_PATH: C:\apps\build-tools\
+      CONAN_USER_HOME_SHORT: None
     steps:
       - run: echo $env:BUILD_TOOLS_PATH | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
@@ -90,16 +91,11 @@ jobs:
           file(DOWNLOAD https://cdn.anotherfoxguy.com/build-tools.zip "$ENV{TMP}/build-tools.zip" SHOW_PROGRESS)
           execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "$ENV{TMP}/build-tools.zip" WORKING_DIRECTORY "$ENV{BUILD_TOOLS_PATH}")
 
-      - name: Cache conan packages Part 1
+      - name: Cache conan packages
         uses: actions/cache@v3
         with:
-          key: conan-user-${{ hashFiles('cmake/DependenciesConfig.cmake') }}
+          key: conan-${{ hashFiles('cmake/DependenciesConfig.cmake') }}
           path: ~/.conan
-      - name: Cache conan packages Part 2
-        uses: actions/cache@v3
-        with:
-          key: conan-root-${{ hashFiles('cmake/DependenciesConfig.cmake') }}
-          path: C:/.conan/
 
       - name: Enable Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1.11.0
