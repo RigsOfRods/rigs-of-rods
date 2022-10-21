@@ -202,6 +202,7 @@ CVar* audio_menu_music;
 
 // Graphics
 CVar* gfx_flares_mode;
+CVar* gfx_polygon_mode;
 CVar* gfx_shadow_type;
 CVar* gfx_extcam_mode;
 CVar* gfx_sky_mode;

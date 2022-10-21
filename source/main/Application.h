@@ -395,6 +395,7 @@ extern CVar* audio_menu_music;
 
 // Graphics
 extern CVar* gfx_flares_mode;
+extern CVar* gfx_polygon_mode;
 extern CVar* gfx_shadow_type;
 extern CVar* gfx_extcam_mode;
 extern CVar* gfx_sky_mode;
