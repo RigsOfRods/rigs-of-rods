@@ -202,7 +202,7 @@ set(SOURCE_FILES
         terrain/TerrainEditor.{h,cpp}
         terrain/TerrainGeometryManager.{h,cpp}
         terrain/Terrain.{h,cpp}
-        terrain/TerrainObjectManager.{h,cpp}        
+        terrain/TerrainObjectManager.{h,cpp}
         threadpool/ThreadPool.h
         utils/ConfigFile.{h,cpp}
         utils/ErrorUtils.{h,cpp}
@@ -377,7 +377,7 @@ target_include_directories(${BINNAME} PRIVATE
 
 #  REQUIRED DEPENDENCIES
 # -----------------------
-if (UNIX AND NOT APPLE)
+if (UNIX)
     #  include_directories(${GTK_INCLUDE_DIRS})
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
 endif ()
@@ -385,6 +385,23 @@ target_link_libraries(${BINNAME} PRIVATE ${OS_LIBS} version_info)
 
 # --- Threading support (still needed for GCC even with C++11)
 set(CMAKE_THREAD_PREFER_PTHREAD YES)
+find_package(Threads REQUIRED)
+
+# --- Ogre 3D graphics engine ---
+find_package(OGRE REQUIRED)
+
+# --- Object Oriented Input System ---
+find_package(OIS REQUIRED)
+
+# --- MyGUI - graphical user inferface ---
+find_package(MyGUI REQUIRED)
+
+# --- fmt - A modern formatting library  ---
+find_package(fmt REQUIRED)
+
+# --- RapidJSON - JSON parser/generator ---
+find_package(RapidJSON REQUIRED)
+
 target_link_libraries(${BINNAME} PRIVATE
         Threads::Threads
         OGRE::OGRE
@@ -399,28 +416,42 @@ if (TARGET MyGUI::OgrePlatform)
 endif ()
 target_compile_definitions(${BINNAME} PRIVATE $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>)
 
-if (USE_OPENAL)
+#  OPTIONAL DEPENDENCIES
+# -----------------------
+
+# --- OpenAL - audio library ---
+find_package(OpenAL)
+if (OPENAL_FOUND)
     target_link_libraries(${BINNAME} PRIVATE OpenAL::OpenAL)
     target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
 endif ()
 
-if (USE_DISCORD_RPC)
+# --- Discord RPC -- Rich Presence for discord ---
+find_package(discord_rpc)
+if (discord_rpc_FOUND)
     target_link_libraries(${BINNAME} PRIVATE discord-rpc::discord-rpc)
     target_compile_definitions(${BINNAME} PRIVATE USE_DISCORD_RPC)
 endif ()
 
-if (USE_SOCKETW)
-    target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
+# --- SocketW - networking library ---
+find_package(SocketW)
+find_package(OpenSSL)
+if (SOCKETW_FOUND)
+    target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW OpenSSL::SSL)
     target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
 endif ()
 
-if (USE_ANGELSCRIPT)
+# --- AngelScript - scripting interface ---
+find_package(AngelScript)
+if (ANGELSCRIPT_FOUND)
     target_link_libraries(${BINNAME} PRIVATE AngelScript::AngelScript angelscript_addons)
     target_include_directories(${BINNAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/angelscript_addons)
     target_compile_definitions(${BINNAME} PRIVATE USE_ANGELSCRIPT AS_USE_NAMESPACE)
 endif ()
 
-if (USE_CURL)
+# --- cURL ---
+find_package(CURL)
+if (CURL_FOUND)
     target_link_libraries(${BINNAME} PRIVATE CURL::libcurl)
     target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
 
@@ -429,26 +460,29 @@ if (USE_CURL)
     endif ()
 endif ()
 
-if (USE_CAELUM)
+# --- Caelum -- Ogre addon for realistic sky rendering ---
+find_package(Caelum)
+if (CAELUM_FOUND)
     target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
     target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
 endif ()
-if (USE_PAGED)
+
+# --- PagedGeometry -- Ogre addon ---
+find_package(PagedGeometry)
+if (PAGED_FOUND)
     target_link_libraries(${BINNAME} PRIVATE PagedGeometry::PagedGeometry)
     target_compile_definitions(${BINNAME} PRIVATE USE_PAGED)
 endif ()
 
+####################################################################################################
+#  POST-BUILD STEPS
+####################################################################################################
 
 if (USE_PHC)
     target_precompile_headers(${BINNAME} PRIVATE phc.h)
 endif ()
 
 extract_pot("${SOURCE_FILES}")
-
-####################################################################################################
-#  POST-BUILD STEPS
-####################################################################################################
-
 
 # Configure plugins.cfg
 # -----------------------
