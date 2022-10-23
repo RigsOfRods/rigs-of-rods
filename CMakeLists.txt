@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/find-modules)
 
+cmake_policy(SET CMP0127 OLD)
+
 include(CMakeDependentOption)
 include(Macros)
 include(FeatureSummary)
@@ -98,6 +100,7 @@ ELSEIF (UNIX)
     set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} -Og -ggdb")
 endif (WIN32)
 
+include(DependenciesConfig)
 
 ################################################################################
 # Recurse into subdirectories
