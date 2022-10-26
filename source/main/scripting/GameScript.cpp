@@ -926,13 +926,19 @@ Actor* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre:
     return App::GetGameContext()->SpawnActor(rq);
 }
 
-Actor* GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::String& truckSectionConfig, std::string& truckSkin)
+Actor* GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::String& truckSectionConfig, std::string& truckSkin, int x)
 {
     ActorSpawnRequest rq;
     rq.asr_position = pos;
 
     // Set rotation based on first two waypoints
-    Ogre::Vector3 dir = App::GetGuiManager()->SurveyMap.ai_waypoints[0] - App::GetGuiManager()->SurveyMap.ai_waypoints[1];
+    std::vector<Ogre::Vector3> waypoints = App::GetGuiManager()->SurveyMap.ai_waypoints;
+    if (App::GetGuiManager()->TopMenubar.ai_mode == 3 && x == 1) // Crash driving mode
+    {
+        std::reverse(waypoints.begin(), waypoints.end());
+    }
+
+    Ogre::Vector3 dir = waypoints[0] - waypoints[1];
     dir.y = 0;
     rq.asr_rotation = Ogre::Vector3::UNIT_X.getRotationTo(dir, Ogre::Vector3::UNIT_Y);
 
@@ -943,9 +949,14 @@ Actor* GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, Ogr
     return App::GetGameContext()->SpawnActor(rq);
 }
 
-AngelScript::CScriptArray* GameScript::getWaypoints()
+AngelScript::CScriptArray* GameScript::getWaypoints(int x)
 {
     std::vector<Ogre::Vector3> vec = App::GetGuiManager()->SurveyMap.ai_waypoints;
+    if (App::GetGuiManager()->TopMenubar.ai_mode == 3 && x == 1) // Crash driving mode
+    {
+        std::reverse(vec.begin(), vec.end());
+    }
+
     AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(AngelScript::asGetActiveContext()->GetEngine()->GetTypeInfoByDecl("array<vector3>"), vec.size());
 
     for(AngelScript::asUINT i = 0; i < arr->GetSize(); i++)
@@ -983,7 +994,7 @@ int GameScript::getAIVehicleSpeed()
 
 Ogre::String GameScript::getAIVehicleName(int x)
 {
-    if (App::GetGuiManager()->TopMenubar.ai_mode == 2 && x == 1) // Drag Race mode
+    if ((App::GetGuiManager()->TopMenubar.ai_mode == 2 || App::GetGuiManager()->TopMenubar.ai_mode == 3) && x == 1) // Drag Race or Crash driving mode
     {
         Ogre::String name = App::GetGuiManager()->TopMenubar.ai_fname2;
         return name;
@@ -997,7 +1008,7 @@ Ogre::String GameScript::getAIVehicleName(int x)
 
 Ogre::String GameScript::getAIVehicleSectionConfig(int x)
 {
-    if (App::GetGuiManager()->TopMenubar.ai_mode == 2 && x == 1) // Drag Race mode
+    if ((App::GetGuiManager()->TopMenubar.ai_mode == 2 || App::GetGuiManager()->TopMenubar.ai_mode == 3) && x == 1) // Drag Race or Crash driving mode
     {
         Ogre::String config = App::GetGuiManager()->TopMenubar.ai_sectionconfig2;
         return config;
@@ -1011,7 +1022,7 @@ Ogre::String GameScript::getAIVehicleSectionConfig(int x)
 
 std::string GameScript::getAIVehicleSkin(int x)
 {
-    if (App::GetGuiManager()->TopMenubar.ai_mode == 2 && x == 1) // Drag Race mode
+    if ((App::GetGuiManager()->TopMenubar.ai_mode == 2 || App::GetGuiManager()->TopMenubar.ai_mode == 3) && x == 1) // Drag Race or Crash driving mode
     {
         std::string skin = App::GetGuiManager()->TopMenubar.ai_skin2;
         return skin;
