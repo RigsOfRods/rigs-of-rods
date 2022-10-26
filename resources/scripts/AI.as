@@ -1,7 +1,5 @@
 #include "base.as"
 
-array<vector3> waypoints = game.getWaypoints();
-
 //Stuff that the scripts uses internally. doesn't need to be changed.
 vector3 currentWaypoint(0, 0, 0);
 int waypoint = 0;
@@ -15,7 +13,9 @@ void main()
 
     for (int x = 0; x < game.getAIVehicleCount(); x++)
     {
-        VehicleAIClass @CurrentTruckai = game.spawnTruckAI(game.getAIVehicleName(x), vector3(waypoints[0].x + translation_x, waypoints[0].y, waypoints[0].z + translation_z), game.getAIVehicleSectionConfig(x), game.getAIVehicleSkin(x)).getVehicleAI();
+        array<vector3> waypoints = game.getWaypoints(x);
+
+        VehicleAIClass @CurrentTruckai = game.spawnTruckAI(game.getAIVehicleName(x), vector3(waypoints[0].x + translation_x, waypoints[0].y, waypoints[0].z + translation_z), game.getAIVehicleSectionConfig(x), game.getAIVehicleSkin(x), x).getVehicleAI();
 
         for (int t = 0; t < game.getAIRepeatTimes(); t++)
         {
@@ -35,6 +35,10 @@ void main()
                 else if (position_scheme == 1) // Vehicle parallel to vehicle, offset all waypoints
                 {
                     CurrentTruckai.addWaypoint("way"+i, vector3(waypoints[i].x + CurrentTruckai.getTranslation(offset, i).x, waypoints[i].y, waypoints[i].z + CurrentTruckai.getTranslation(offset, i).z));
+                }
+                else if (position_scheme == 2) // Vehicle opposite to vehicle, add the reversed waypoints
+                {
+                    CurrentTruckai.addWaypoint("way"+i, vector3(waypoints[i].x, waypoints[i].y, waypoints[i].z));
                 }
             }
         }

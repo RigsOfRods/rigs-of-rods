@@ -254,7 +254,7 @@ void VehicleAI::update(float dt, int doUpdate)
         angle_deg = dir1.angleBetween(dir2.normalisedCopy()).valueDegrees(); // Degrees 0 - 180
     }
 
-    if (App::GetGuiManager()->TopMenubar.ai_mode == 3) // Chase driving mode
+    if (App::GetGuiManager()->TopMenubar.ai_mode == 4) // Chase driving mode
     {
         if (App::GetGameContext()->GetPlayerActor()) // We are in vehicle
         {
@@ -476,7 +476,7 @@ void VehicleAI::update(float dt, int doUpdate)
                 }
             }
         }
-        else if (App::GetGuiManager()->TopMenubar.ai_mode == 3) // Chase driving mode
+        else if (App::GetGuiManager()->TopMenubar.ai_mode == 4) // Chase driving mode
         {
             if (App::GetGameContext()->GetPlayerActor())
             {

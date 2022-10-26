@@ -792,7 +792,7 @@ void TopMenubar::Update()
                 ai_num = 1;
 
 
-            if (ai_mode == 2)
+            if (ai_mode == 2 || ai_mode == 3) // Drag Race or Crash driving mode
             {
                 ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
@@ -806,13 +806,19 @@ void TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
-            if (ai_mode == 2)
+            if (ai_mode == 2 || ai_mode == 3) // Drag Race or Crash driving mode
             {
                 ImGui::PopItemFlag();
                 ImGui::PopStyleVar();
             }
 
             if (ai_num < 2)
+            {
+                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+            }
+
+            if (ai_mode == 3) // Crash driving mode
             {
                 ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
@@ -826,13 +832,23 @@ void TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
+            if (ai_mode == 3) // Crash driving mode
+            {
+                ImGui::PopItemFlag();
+                ImGui::PopStyleVar();
+            }
+
             std::string label1 = "Behind";
             if (ai_position_scheme == 1)
             {
                 label1 = "Parallel";
             }
+            else if (ai_position_scheme == 2)
+            {
+                label1 = "Opposite";
+            }
 
-            if (ai_mode == 2)
+            if (ai_mode == 2 || ai_mode == 3) // Drag Race or Crash driving mode
             {
                 ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
@@ -869,7 +885,7 @@ void TopMenubar::Update()
             if (ai_times < 1)
                 ai_times = 1;
 
-            if (ai_mode == 3)
+            if (ai_mode == 4) // Chase driving mode
             {
                 ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
@@ -883,13 +899,13 @@ void TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
-            if (ai_mode == 3)
+            if (ai_mode == 4) // Chase driving mode
             {
                 ImGui::PopItemFlag();
                 ImGui::PopStyleVar();
             }
 
-            if (ai_mode == 2)
+            if (ai_mode == 2 || ai_mode == 3) // Drag Race or Crash driving mode
             {
                 ImGui::PopItemFlag();
                 ImGui::PopStyleVar();
@@ -908,6 +924,10 @@ void TopMenubar::Update()
                 label2 = "Drag Race";
             }
             else if (ai_mode == 3)
+            {
+                label2 = "Crash";
+            }
+            else if (ai_mode == 4)
             {
                 label2 = "Chase";
             }
@@ -928,7 +948,7 @@ void TopMenubar::Update()
                 {
                     ai_mode = 0;
 
-                    if (ai_mode_prev == 2)
+                    if (ai_mode_prev == 2 || ai_mode_prev == 3)
                     {
                         ai_num = ai_num_prev;
                         ai_speed = ai_speed_prev;
@@ -941,7 +961,7 @@ void TopMenubar::Update()
                 {
                     ai_mode = 1;
 
-                    if (ai_mode_prev == 2)
+                    if (ai_mode_prev == 2 || ai_mode_prev == 3)
                     {
                         ai_num = ai_num_prev;
                         ai_speed = ai_speed_prev;
@@ -953,21 +973,41 @@ void TopMenubar::Update()
                 if (ImGui::Selectable("Drag Race"))
                 {
                     ai_mode = 2;
+
+                    if (ai_mode_prev != 3)
+                    {
+                        ai_num_prev = ai_num;
+                        ai_speed_prev = ai_speed;
+                        ai_position_scheme_prev = ai_position_scheme;
+                        ai_times_prev = ai_times;
+                    }
                     ai_mode_prev = ai_mode;
-                    ai_num_prev = ai_num;
-                    ai_speed_prev = ai_speed;
-                    ai_position_scheme_prev = ai_position_scheme;
-                    ai_times_prev = ai_times;
                     ai_num = 2;
                     ai_speed = 1000;
                     ai_position_scheme = 1;
                     ai_times = 1;
                 }
-                if (ImGui::Selectable("Chase"))
+                if (ImGui::Selectable("Crash"))
                 {
                     ai_mode = 3;
+                    if (ai_mode_prev != 2)
+                    {
+                        ai_num_prev = ai_num;
+                        ai_speed_prev = ai_speed;
+                        ai_position_scheme_prev = ai_position_scheme;
+                        ai_times_prev = ai_times;
+                    }
+                    ai_mode_prev = ai_mode;
+                    ai_num = 2;
+                    ai_speed = 100;
+                    ai_position_scheme = 2;
+                    ai_times = 1;
+                }
+                if (ImGui::Selectable("Chase"))
+                {
+                    ai_mode = 4;
 
-                    if (ai_mode_prev == 2)
+                    if (ai_mode_prev == 2 || ai_mode_prev == 3)
                     {
                         ai_num = ai_num_prev;
                         ai_speed = ai_speed_prev;
@@ -986,6 +1026,7 @@ void TopMenubar::Update()
                 ImGui::Text(_LC("TopMenubar", "Normal: Modify speed according to turns, other vehicles and character"));
                 ImGui::Text(_LC("TopMenubar", "Race: Always keep defined speed"));
                 ImGui::Text(_LC("TopMenubar", "Drag Race: Two vehicles performing a drag race"));
+                ImGui::Text(_LC("TopMenubar", "Crash: Two vehicles driving in opposite direction"));
                 ImGui::Text(_LC("TopMenubar", "Chase: Follow character and player vehicle"));
                 ImGui::EndTooltip();
             }
@@ -1039,7 +1080,7 @@ void TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
-            if (ai_mode == 2)
+            if (ai_mode == 2 || ai_mode == 3) // Drag Race or Crash driving mode
             {
                 ImGui::PushID("vehicle2");
                 if (ImGui::Button(StripColorMarksFromText(ai_dname2).c_str(), ImVec2(250, 0)))
@@ -1067,14 +1108,14 @@ void TopMenubar::Update()
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
             }
 
-            if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 3)
+            if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 4) // Waypoints provided or Chase driving mode
             {
                 ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
             }
 
             if (ImGui::Button(_LC("TopMenubar", "Start"), ImVec2(80, 0)))
             {
-                if (ai_mode == 3)
+                if (ai_mode == 4) // Chase driving mode
                 {
                     App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
                     if (App::GetGameContext()->GetPlayerActor()) // We are in vehicle
@@ -1102,7 +1143,7 @@ void TopMenubar::Update()
                 }
             }
 
-            if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 3)
+            if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 4) // Waypoints provided or Chase driving mode
             {
                 ImGui::PopStyleColor();
             }
@@ -1111,7 +1152,7 @@ void TopMenubar::Update()
 
             if (ImGui::Button(_LC("TopMenubar", "Stop"), ImVec2(80, 0)))
             {
-                if (ai_mode == 3)
+                if (ai_mode == 4) // Chase driving mode
                 {
                     App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
                 }
