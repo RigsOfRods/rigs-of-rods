@@ -590,7 +590,7 @@ private:
     float             m_net_node_compression = 0.f;     //!< For incoming/outgoing traffic; calculated on spawn
     int               m_net_first_wheel_node = 0;     //!< Network attr; Determines data buffer layout; calculated on spawn
 
-    Ogre::UTFString   m_net_username;
+    std::string       m_net_username;
     int               m_net_color_num = 0;
     /// @}
 
