@@ -708,6 +708,19 @@ void TopMenubar::Update()
                 ImGui::EndTooltip();
             }
 
+            ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
+            ImGui::Separator();
+            ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Visual options:"));
+            DrawGIntSlider(App::gfx_polygon_mode, _LC("TopMenubar", "Polygon mode"), 1, 3);
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text(_LC("TopMenubar", "1 = Solid"));
+                ImGui::Text(_LC("TopMenubar", "2 = Wireframe"));
+                ImGui::Text(_LC("TopMenubar", "3 = Points"));
+                ImGui::EndTooltip();
+            }
+
             if (current_actor != nullptr)
             {
                 ImGui::Separator();
