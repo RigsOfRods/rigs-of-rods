@@ -848,9 +848,9 @@ void GameContext::UpdateGlobalInputEvents()
     // render mode
     switch (App::gfx_polygon_mode->getEnum<Ogre::PolygonMode>())
     {
-    case 3: App::GetCameraManager()->GetCamera()->setPolygonMode(Ogre::PM_SOLID);       break;
+    case 1: App::GetCameraManager()->GetCamera()->setPolygonMode(Ogre::PM_SOLID);       break;
     case 2: App::GetCameraManager()->GetCamera()->setPolygonMode(Ogre::PM_WIREFRAME);   break;
-    case 1: App::GetCameraManager()->GetCamera()->setPolygonMode(Ogre::PM_POINTS);      break;
+    case 3: App::GetCameraManager()->GetCamera()->setPolygonMode(Ogre::PM_POINTS);      break;
     }
 
     // Write player position to log
