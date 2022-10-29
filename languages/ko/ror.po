@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2022-10-19 19:11+0000\n"
+"PO-Revision-Date: 2022-10-29 14:07+0000\n"
 "Last-Translator: 이정희 <daemul72@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "ko/>\n"
@@ -6184,11 +6184,9 @@ msgstr "낮시간을 줄입니다."
 
 #. Grass
 #: utils/InputEngine.cpp:357
-#, fuzzy
-#| msgid "EXPERIMENTAL: remove grass completely"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove some grass"
-msgstr "베타: 풀을 모두 제거"
+msgstr "실험용: 약간의 풀 제거"
 
 #: utils/InputEngine.cpp:358
 #, fuzzy
