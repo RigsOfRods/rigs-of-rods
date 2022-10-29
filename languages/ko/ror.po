@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2022-10-29 14:07+0000\n"
+"PO-Revision-Date: 2022-10-30 05:01+0000\n"
 "Last-Translator: 이정희 <daemul72@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "ko/>\n"
@@ -6186,85 +6186,69 @@ msgstr "낮시간을 줄입니다."
 #: utils/InputEngine.cpp:357
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove some grass"
-msgstr "실험용: 약간의 풀 제거"
+msgstr "실험용: 약간의 잔디를 제거합니다"
 
 #: utils/InputEngine.cpp:358
-#, fuzzy
-#| msgid "EXPERIMENTAL: remove grass completely"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: add some grass"
-msgstr "베타: 풀을 모두 제거"
+msgstr "실험용: 약간의 잔디를 추가합니다"
 
 #: utils/InputEngine.cpp:359
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: set maximum amount of grass"
-msgstr ""
+msgstr "실험용: 잔디의 최대 양을 설정합니다"
 
 #: utils/InputEngine.cpp:360
-#, fuzzy
-#| msgid "EXPERIMENTAL: remove grass completely"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove grass completely"
-msgstr "베타: 풀을 모두 제거"
+msgstr "실험용 : 잔디를 완전히 제거합니다"
 
 #: utils/InputEngine.cpp:361
-#, fuzzy
-#| msgid "EXPERIMENTAL: remove grass completely"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: save changes to the grass density image"
-msgstr "베타: 풀을 모두 제거"
+msgstr "실험용: 잔디 밀도 이미지에 대한 변경 사항을 저장합니다"
 
 #. Survey map
 #: utils/InputEngine.cpp:364
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle map icons"
-msgstr "toggle 트럭 탐지장치"
+msgstr "맵 아이콘 전환"
 
 #: utils/InputEngine.cpp:365
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle map"
-msgstr "toggle 트럭 탐지장치"
+msgstr "맵 전환"
 
 #: utils/InputEngine.cpp:366
 msgctxt "InputEvent"
 msgid "cycle map modes"
-msgstr ""
+msgstr "사이클 맵 모드"
 
 #: utils/InputEngine.cpp:367
 msgctxt "InputEvent"
 msgid "zoom in"
-msgstr ""
+msgstr "확대"
 
 #: utils/InputEngine.cpp:368
 msgctxt "InputEvent"
 msgid "zoom out"
-msgstr ""
+msgstr "축소"
 
 #. Menu
 #: utils/InputEngine.cpp:371
-#, fuzzy
-#| msgid "select next category"
 msgctxt "InputEvent"
 msgid "select next element in current category"
-msgstr "다음 카테고리를 선택합니다."
+msgstr "현재 범주에서 다음 요소 선택"
 
 #: utils/InputEngine.cpp:372
-#, fuzzy
-#| msgid "select next category"
 msgctxt "InputEvent"
 msgid "select previous category"
-msgstr "다음 카테고리를 선택합니다."
+msgstr "이전 범주 선택"
 
 #: utils/InputEngine.cpp:373
-#, fuzzy
-#| msgid "select next category"
 msgctxt "InputEvent"
 msgid "select next category"
-msgstr "다음 카테고리를 선택합니다."
+msgstr "다음 범주 선택"
 
 #: utils/InputEngine.cpp:374
 msgctxt "InputEvent"
