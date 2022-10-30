@@ -4,7 +4,13 @@ find_package(Threads REQUIRED)
 
 # --- Ogre 3D graphics engine ---
 find_package(OGRE 1.11 REQUIRED COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
-        CONAN_OPTIONS ogre3d:resourcemanager_strict=off
+if (USE_PACKAGE_MANAGER)
+    conan_add_remote(NAME ror-conan
+            URL https://git.anotherfoxguy.com/api/packages/rorbot/conan
+            VERIFY_SSL True
+            )
+endif ()
+
 
 # --- Object Oriented Input System ---
 find_package(OIS REQUIRED)
