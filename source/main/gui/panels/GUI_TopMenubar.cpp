@@ -1224,7 +1224,7 @@ void TopMenubar::Update()
                 int count = 0;
                 for (size_t i = 0; i < num_rows; i++)
                 {
-                    rapidjson::Value& j_row =  j_doc[static_cast<rapidjson::SizeType>(i)];
+                    rapidjson::Value& j_row = j_doc[static_cast<rapidjson::SizeType>(i)];
 
                     if (j_row.HasMember("terrain") && App::sim_terrain_name->getStr() == j_row["terrain"].GetString())
                     {
@@ -1253,7 +1253,7 @@ void TopMenubar::Update()
 
                     for (size_t i = 0; i < num_rows; i++)
                     {
-                        rapidjson::Value& j_row_terrains =  j_doc[static_cast<rapidjson::SizeType>(i)];
+                        rapidjson::Value& j_row_terrains = j_doc[static_cast<rapidjson::SizeType>(i)];
                         if (j_row_terrains.HasMember("terrains"))
                         {
                             for (size_t i = 0; i < j_row_terrains["terrains"].Size(); i++)
