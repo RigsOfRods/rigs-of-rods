@@ -21,21 +21,21 @@
 
 #include "ContentManager.h"
 
-
-#include <Overlay/OgreOverlayManager.h>
-#include <Overlay/OgreOverlay.h>
-
-
 #include "Application.h"
 #include "ErrorUtils.h"
 #include "SoundScriptManager.h"
 #include "SkinFileFormat.h"
 #include "Language.h"
 #include "PlatformUtils.h"
-
+#include "AppContext.h"
+#include "GfxScene.h"
 #include "CacheSystem.h"
-
 #include "OgreShaderParticleRenderer.h"
+
+#include <Overlay/OgreOverlayManager.h>
+#include <Overlay/OgreOverlay.h>
+#include <OgreSGTechniqueResolverListener.h>
+#include <RTShaderSystem/OgreRTShaderSystem.h>
 
 // Removed by Skybon as part of OGRE 1.9 port 
 // Disabling temporarily for 1.8.1 as well. ~ only_a_ptr, 2015-11
@@ -385,6 +385,8 @@ void ContentManager::InitManagedMaterials(std::string const & rg_name)
         ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir,"shadows/pssm/off"), "FileSystem", rg_name);
     }
 
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir,"shadows/pssm/off"), "FileSystem", rg_name);
+
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "texture"), "FileSystem", rg_name);
 
     // Last
@@ -392,6 +394,12 @@ void ContentManager::InitManagedMaterials(std::string const & rg_name)
 
     if (rg_name == RGN_MANAGED_MATS) // Only initialize the global resource group
         ResourceGroupManager::getSingleton().initialiseResourceGroup(rg_name);
+}
+
+void ContentManager::EnableRTSS(MaterialPtr mat)
+{
+    Ogre::RTShader::ShaderGenerator* mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+    mShaderGenerator->createShaderBasedTechnique(*mat, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
 }
 
 void ContentManager::LoadGameplayResources()
@@ -420,6 +428,42 @@ void ContentManager::LoadGameplayResources()
 
     if (App::gfx_vegetation_mode->getEnum<GfxVegetation>() != RoR::GfxVegetation::NONE)
         this->AddResourcePack(ContentManager::ResourcePack::PAGED);
+
+    // Setup rtss
+    this->AddResourcePack(ContentManager::ResourcePack::RTSHADER, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+    std::string cache_path = PathCombine(App::sys_user_dir->getStr(), "shader_cache");
+    if (!FolderExists(cache_path))
+    {
+        CreateFolder(cache_path);
+    }
+
+    Ogre::RTShader::ShaderGenerator::initialize();
+    Ogre::RTShader::ShaderGenerator* mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+    mShaderGenerator->setShaderCachePath(cache_path);      
+
+    mShaderGenerator->addSceneManager(App::GetGfxScene()->GetSceneManager());
+    Ogre::RTShader::RenderState* schemRenderState = mShaderGenerator->getRenderState(Ogre::MSN_SHADERGEN);
+    RoR::App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::MSN_SHADERGEN);
+
+    // Per-pixel lighting is enabled by default, proceed to PSSM3
+    App::GetGfxScene()->GetSceneManager()->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED);
+    App::GetGfxScene()->GetSceneManager()->setShadowFarDistance(350);
+    App::GetGfxScene()->GetSceneManager()->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, 3);
+    App::GetGfxScene()->GetSceneManager()->setShadowTextureSettings(2048, 3, PF_DEPTH16);
+    App::GetGfxScene()->GetSceneManager()->setShadowTextureSelfShadow(true);
+
+    PSSMShadowCameraSetup* pssmSetup = new PSSMShadowCameraSetup();
+    pssmSetup->calculateSplitPoints(3, 1, 500, 1);
+    pssmSetup->setSplitPadding(App::GetCameraManager()->GetCamera()->getNearClipDistance());
+    pssmSetup->setOptimalAdjustFactor(0, 2);
+    pssmSetup->setOptimalAdjustFactor(1, 1);
+    pssmSetup->setOptimalAdjustFactor(2, 0.5);
+
+    App::GetGfxScene()->GetSceneManager()->setShadowCameraSetup(ShadowCameraSetupPtr(pssmSetup));
+    auto subRenderState = mShaderGenerator->createSubRenderState<RTShader::IntegratedPSSM3>();
+    subRenderState->setSplitPoints(pssmSetup->getSplitPoints());
+    schemRenderState->addTemplateSubRenderState(subRenderState);
 }
 
 std::string ContentManager::ListAllUserContent()
