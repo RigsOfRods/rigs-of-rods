@@ -79,7 +79,7 @@ TerrainPSSMMaterialGenerator::SM2Profile::SM2Profile(TerrainMaterialGenerator* p
     , mGlobalColourMapEnabled(true)
     , mLightmapEnabled(true)
     , mCompositeMapEnabled(true)
-    , mReceiveDynamicShadows(true)
+    , mReceiveDynamicShadows(false)
     , mPSSM(0)
     , mDepthShadows(false)
     , mLowLodShadows(false)
@@ -230,7 +230,7 @@ uint8 TerrainPSSMMaterialGenerator::SM2Profile::getMaxLayers(const Terrain* terr
     }
 
     // each layer needs 2.25 units (1xdiffusespec, 1xnormalheight, 0.25xblend)
-    return static_cast<uint8>(freeTextureUnits / 2.16f);
+    return static_cast<uint8>(freeTextureUnits / 2.25f);
 }
 
 //---------------------------------------------------------------------

@@ -64,8 +64,6 @@
 #include <fstream>
 
 #ifdef USE_CURL
-#include <OgreRTShaderSystem.h>
-#include <OgreSGTechniqueResolverListener.h>
 #include <curl/curl.h>
 #endif //USE_CURL
 
@@ -198,21 +196,6 @@ int main(int argc, char *argv[])
         App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(overlay_system);
         App::CreateCameraManager(); // Creates OGRE Camera
         App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
-
-        if (Ogre::RTShader::ShaderGenerator::initialize())
-        {
-            // Grab the shader generator pointer.
-            auto mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
-            // Add the shader libs resource location. a sample shader lib can be found in Samples\Media\RTShaderLib
-            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RTSHADER);
-            // Set shader cache path.
-            mShaderGenerator->setShaderCachePath(App::sys_cache_dir->getStr());
-            // Set the scene manager.
-            mShaderGenerator->addSceneManager(App::GetGfxScene()->GetSceneManager());
-
-            auto* schemeNotFoundHandler = new OgreBites::SGTechniqueResolverListener(mShaderGenerator);
-            Ogre::MaterialManager::getSingleton().addListener(schemeNotFoundHandler);
-        }
 
         App::CreateGuiManager(); // Needs scene manager
 

@@ -26,6 +26,7 @@
 #include "CacheSystem.h"
 #include "Collisions.h"
 #include "Console.h"
+#include "ContentManager.h"
 #include "ErrorUtils.h"
 #include "Language.h"
 #include "GameContext.h"
@@ -628,6 +629,14 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             String newmatname = matname + "/" + instancename;
             se->getMaterial()->clone(newmatname);
             se->setMaterialName(newmatname);
+        }
+    }
+
+    if (mo)
+    {
+        for (Ogre::SubEntity* subent : mo->getEntity()->getSubEntities())
+        {
+            App::GetContentManager()->EnableRTSS(subent->getMaterial());
         }
     }
 

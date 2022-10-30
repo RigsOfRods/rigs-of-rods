@@ -91,6 +91,9 @@ public:
     std::string        ListAllUserContent(); //!< Used by ModCache for quick detection of added/removed content
     bool               DeleteDiskFile(std::string const& filename, std::string const& rg_name);
 
+    // RTSS:
+    void               EnableRTSS(Ogre::MaterialPtr mat);
+
     // JSON:
     bool               LoadAndParseJson(std::string const& filename, std::string const& rg_name, rapidjson::Document& j_doc);
     bool               SerializeAndWriteJson(std::string const& filename, std::string const& rg_name, rapidjson::Document& j_doc);
