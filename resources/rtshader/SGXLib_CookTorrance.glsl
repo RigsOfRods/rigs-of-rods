@@ -155,15 +155,17 @@ void evaluateLight(
         color *= getAngleAttenuation(spotParams.xyz, vLightDirView.xyz, vLightView);
     }
 
-    // linear to gamma
-    color = pow(color, vec3_splat(1.0/2.2));
     vOutColour += color;
 }
 
 #if LIGHT_COUNT > 0
 void PBR_Lights(
+#ifdef HAVE_SHADOW_FACTOR
+                in float shadowFactor,
+#endif
                 in vec3 vNormal,
                 in vec3 viewPos,
+                in vec4 ambient,
                 in vec4 lightPos[LIGHT_COUNT],
                 in vec4 lightColor[LIGHT_COUNT],
                 in vec4 pointParams[LIGHT_COUNT],
@@ -173,6 +175,10 @@ void PBR_Lights(
                 in vec2 mrParam,
                 inout vec3 vOutColour)
 {
+#ifdef DEBUG_PSSM
+	baseColor += pssm_lod_info;
+#endif
+
     // gamma to linear
     baseColor = pow(baseColor, vec3_splat(2.2));
 
@@ -191,7 +197,17 @@ void PBR_Lights(
     {
         evaluateLight(vNormal, viewPos, lightPos[i], lightColor[i].xyz, pointParams[i], vLightDirView[i], spotParams[i],
                       diffuseColor, f0, roughness, vOutColour);
+
+#ifdef HAVE_SHADOW_FACTOR
+        if(i == 0) // directional lights always come first
+            vOutColour *= shadowFactor;
+#endif
     }
+
+    vOutColour += baseColor * pow(ambient.rgb, vec3_splat(2.2));
+
+    // linear to gamma
+    vOutColour = pow(vOutColour, vec3_splat(1.0/2.2));
 
     vOutColour = saturate(vOutColour);
 }
