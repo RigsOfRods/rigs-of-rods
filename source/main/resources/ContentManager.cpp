@@ -405,23 +405,8 @@ void ContentManager::LoadGameplayResources()
     if (App::gfx_vegetation_mode->getEnum<GfxVegetation>() != RoR::GfxVegetation::NONE)
         this->AddResourcePack(ContentManager::ResourcePack::PAGED);
 
-    // Setup rtss
-    this->AddResourcePack(ContentManager::ResourcePack::RTSHADER, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
-    std::string cache_path = PathCombine(App::sys_user_dir->getStr(), "shader_cache");
-    if (!FolderExists(cache_path))
-    {
-        CreateFolder(cache_path);
-    }
-
-    Ogre::RTShader::ShaderGenerator::initialize();
-    Ogre::RTShader::ShaderGenerator* mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
-    mShaderGenerator->setShaderCachePath(cache_path);      
-
-    mShaderGenerator->addSceneManager(App::GetGfxScene()->GetSceneManager());
-    Ogre::RTShader::RenderState* schemRenderState = mShaderGenerator->getRenderState(Ogre::MSN_SHADERGEN);
     RoR::App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::MSN_SHADERGEN);
-
     // Per-pixel lighting is enabled by default, proceed to PSSM3
     App::GetGfxScene()->GetSceneManager()->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED);
     App::GetGfxScene()->GetSceneManager()->setShadowFarDistance(350);
@@ -435,6 +420,9 @@ void ContentManager::LoadGameplayResources()
     pssmSetup->setOptimalAdjustFactor(0, 2);
     pssmSetup->setOptimalAdjustFactor(1, 1);
     pssmSetup->setOptimalAdjustFactor(2, 0.5);
+
+    auto* mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+    auto* schemRenderState = mShaderGenerator->getRenderState(Ogre::MSN_SHADERGEN);
 
     App::GetGfxScene()->GetSceneManager()->setShadowCameraSetup(ShadowCameraSetupPtr(pssmSetup));
     auto subRenderState = mShaderGenerator->createSubRenderState<RTShader::IntegratedPSSM3>();
