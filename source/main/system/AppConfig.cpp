@@ -92,11 +92,8 @@ IoInputGrabMode ParseIoInputGrabMode(std::string const & s)
 
 GfxShadowType ParseGfxShadowType(std::string const & s)
 {
- //   if (s == CONF_GFX_SHADOW_PSSM)    { return GfxShadowType::PSSM    ; }
-  //  else                              { return GfxShadowType::NONE    ; }
-
-
-    return GfxShadowType::NONE;
+    if (s == CONF_GFX_SHADOW_PSSM)    { return GfxShadowType::PSSM    ; }
+    else                              { return GfxShadowType::NONE    ; }
 }
 
 GfxExtCamMode ParseGfxExtCamMode(std::string const & s)

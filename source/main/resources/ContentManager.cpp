@@ -371,22 +371,6 @@ void ContentManager::InitManagedMaterials(std::string const & rg_name)
 {
     Ogre::String managed_materials_dir = PathCombine(App::sys_resources_dir->getStr(), "managed_materials");
 
-    //Dirty, needs to be improved
-    if (App::gfx_shadow_type->getEnum<GfxShadowType>() == GfxShadowType::PSSM)
-    {
-        if (rg_name == RGN_MANAGED_MATS) // Only load shared resources on startup
-        {
-            ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on/shared"), "FileSystem", rg_name);
-        }
-        ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on"), "FileSystem", rg_name);
-    }
-    else
-    {
-        ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir,"shadows/pssm/off"), "FileSystem", rg_name);
-    }
-
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir,"shadows/pssm/off"), "FileSystem", rg_name);
-
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "texture"), "FileSystem", rg_name);
 
     // Last
@@ -396,11 +380,7 @@ void ContentManager::InitManagedMaterials(std::string const & rg_name)
         ResourceGroupManager::getSingleton().initialiseResourceGroup(rg_name);
 }
 
-void ContentManager::EnableRTSS(MaterialPtr mat)
-{
-    Ogre::RTShader::ShaderGenerator* mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
-    mShaderGenerator->createShaderBasedTechnique(*mat, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-}
+
 
 void ContentManager::LoadGameplayResources()
 {
@@ -429,29 +409,6 @@ void ContentManager::LoadGameplayResources()
     if (App::gfx_vegetation_mode->getEnum<GfxVegetation>() != RoR::GfxVegetation::NONE)
         this->AddResourcePack(ContentManager::ResourcePack::PAGED);
 
-
-    RoR::App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::MSN_SHADERGEN);
-    // Per-pixel lighting is enabled by default, proceed to PSSM3
-    App::GetGfxScene()->GetSceneManager()->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED);
-    App::GetGfxScene()->GetSceneManager()->setShadowFarDistance(350);
-    App::GetGfxScene()->GetSceneManager()->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, 3);
-    App::GetGfxScene()->GetSceneManager()->setShadowTextureSettings(2048, 3, PF_DEPTH16);
-    App::GetGfxScene()->GetSceneManager()->setShadowTextureSelfShadow(true);
-
-    PSSMShadowCameraSetup* pssmSetup = new PSSMShadowCameraSetup();
-    pssmSetup->calculateSplitPoints(3, 1, 500, 1);
-    pssmSetup->setSplitPadding(App::GetCameraManager()->GetCamera()->getNearClipDistance());
-    pssmSetup->setOptimalAdjustFactor(0, 2);
-    pssmSetup->setOptimalAdjustFactor(1, 1);
-    pssmSetup->setOptimalAdjustFactor(2, 0.5);
-
-    auto* mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
-    auto* schemRenderState = mShaderGenerator->getRenderState(Ogre::MSN_SHADERGEN);
-
-    App::GetGfxScene()->GetSceneManager()->setShadowCameraSetup(ShadowCameraSetupPtr(pssmSetup));
-    auto subRenderState = mShaderGenerator->createSubRenderState<RTShader::IntegratedPSSM3>();
-    subRenderState->setSplitPoints(pssmSetup->getSplitPoints());
-    schemRenderState->addTemplateSubRenderState(subRenderState);
 }
 
 std::string ContentManager::ListAllUserContent()
