@@ -61,6 +61,8 @@
 #include <iomanip>
 #include <string>
 #include <fstream>
+#include <OgreRTShaderSystem.h>
+#include <OgreSGTechniqueResolverListener.h>
 
 #ifdef USE_CURL
 #include <curl/curl.h>
@@ -192,6 +194,21 @@ int main(int argc, char *argv[])
         App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(overlay_system);
         App::CreateCameraManager(); // Creates OGRE Camera
         App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
+
+        //Note: for DirectX this needs to happen early
+        if (!Ogre::RTShader::ShaderGenerator::initialize())
+        {
+            ErrorUtils::ShowError(_L("Startup error"),_L("Failed to setup RTShader system"));
+            return -1;
+        }
+
+        auto mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RTSHADER);
+        mShaderGenerator->setShaderCachePath(App::sys_cache_dir->getStr());
+        mShaderGenerator->addSceneManager(App::GetGfxScene()->GetSceneManager());
+
+        auto* schemeNotFoundHandler = new OgreBites::SGTechniqueResolverListener(mShaderGenerator);
+        Ogre::MaterialManager::getSingleton().addListener(schemeNotFoundHandler);
 
         App::CreateGuiManager(); // Needs scene manager
 
