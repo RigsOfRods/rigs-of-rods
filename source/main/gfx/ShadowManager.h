@@ -26,6 +26,7 @@
 
 #include <Terrain/OgreTerrain.h>
 #include <OgreShadowCameraSetupPSSM.h>
+#include <OgreScriptCompiler.h>
 #include <Terrain/OgreTerrainMaterialGeneratorA.h>
 
 #include "Application.h"
@@ -38,16 +39,6 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
-//Store datas using structs
-struct PSSM_Shadows_Data
-{
-    Ogre::ShadowCameraSetupPtr mPSSMSetup;
-    bool mDepthShadows;
-    int ShadowsTextureNum;
-    int Quality;
-    float lambda;
-};
-
 class ShadowManager
 {
 public:
@@ -55,20 +46,9 @@ public:
     ShadowManager();
     ~ShadowManager();
 
-    void loadConfiguration();
+    void SetupPSSM();
 
-    void updatePSSM();
-
-    void updateTerrainMaterial(Ogre::TerrainPSSMMaterialGenerator::SM2Profile* matProfile);
-
-protected:
-
-    void processPSSM();
-    void setManagedMaterialSplitPoints(Ogre::PSSMShadowCameraSetup::SplitPointList splitPointList);
-
-    int updateShadowTechnique();
-
-    PSSM_Shadows_Data PSSM_Shadows;
+    void EnableRTSS(const Ogre::MaterialPtr& mat);
 };
 
 /// @} // addtogroup Gfx

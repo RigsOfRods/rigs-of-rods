@@ -28,6 +28,7 @@
 #include "ContentManager.h"
 #include "GfxScene.h"
 #include "Terrain.h"
+#include "ShadowManager.h"
 
 #include <Ogre.h>
 
@@ -689,5 +690,5 @@ void ProceduralRoad::createMaterial()
     // TODO: allow modders to specify custom material
     MaterialPtr orig_mat = Ogre::MaterialManager::getSingleton().getByName("road2");
     mat = orig_mat->clone(fmt::format("RoadSystem-Material-{}", mid));
-    App::GetContentManager()->EnableRTSS(mat);
+    App::GetSimTerrain()->getShadowManager()->EnableRTSS(mat);
 }
