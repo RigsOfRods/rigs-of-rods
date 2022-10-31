@@ -425,7 +425,7 @@ void RoR::Terrain::initWater()
 void RoR::Terrain::initShadows()
 {
     m_shadow_manager = new ShadowManager();
-    m_shadow_manager->loadConfiguration();
+    m_shadow_manager->SetupPSSM();
 }
 
 void RoR::Terrain::loadTerrainObjects()
