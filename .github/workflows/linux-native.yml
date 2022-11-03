@@ -1,60 +1,73 @@
 name: Linux with Sysdeps
 on:
   push:
-    branches: [master]
+    branches: [master, sccache]
 jobs:
   linux:
     runs-on: ubuntu-20.04
+    env:
+      SCCACHE_GHA_ENABLED: "true"
     steps:
       - name: Install Dependencies
         run: |
-          sudo apt update
-          sudo apt install -y libxrandr-dev libxt-dev libxaw7-dev libzzip-dev \
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libxrandr-dev libxt-dev libxaw7-dev libzzip-dev \
             mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libfreetype6-dev nvidia-cg-dev \
             libssl-dev libopenal-dev libois-dev libcurl4-openssl-dev rapidjson-dev gettext libfmt-dev
             
       - uses: actions/checkout@v4
 
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.3
+
       - name: Build OGRE
         run: |
           git clone --depth 1 --branch v1.11.6 https://github.com/OGRECave/ogre.git && cd ogre
-          cmake -DCMAKE_BUILD_TYPE=Release -DOGRE_BUILD_DEPENDENCIES=OFF -DOGRE_RESOURCEMANAGER_STRICT=0 \
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DOGRE_BUILD_DEPENDENCIES=OFF -DOGRE_RESOURCEMANAGER_STRICT=0 \
+            -DCMAKE_C_COMPILER_LAUNCHER=${SCCACHE_PATH} -DCMAKE_CXX_COMPILER_LAUNCHER=${SCCACHE_PATH} \
             -DOGRE_BUILD_RENDERSYSTEM_GL3PLUS=FALSE -DOGRE_BUILD_TOOLS=FALSE -DOGRE_BUILD_SAMPLES=FALSE -DOGRE_BUILD_COMPONENT_PROPERTY=FALSE \
             -DOGRE_BUILD_COMPONENT_JAVA=FALSE -DOGRE_BUILD_COMPONENT_CSHARP=FALSE -DOGRE_BUILD_COMPONENT_PYTHON=FALSE \
             -DOGRE_BUILD_PLUGIN_BSP=FALSE -DOGRE_BUILD_PLUGIN_PCZ=FALSE -DOGRE_BUILD_COMPONENT_HLMS=FALSE -DOGRE_BUILD_COMPONENT_VOLUME=FALSE .
-          sudo make -j 2 install 
+          sudo ninja install
 
       - name: Build MyGUI
         run: |
           git clone --depth 1 --branch MyGUI3.4.0 https://github.com/MyGUI/mygui.git && cd mygui
-          cmake -DCMAKE_BUILD_TYPE=Release -DMYGUI_BUILD_DEMOS=FALSE -DMYGUI_BUILD_TOOLS=FALSE .
-          sudo make -j 2 install 
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DMYGUI_BUILD_DEMOS=FALSE -DMYGUI_BUILD_TOOLS=FALSE \
+            -DCMAKE_C_COMPILER_LAUNCHER=${SCCACHE_PATH} -DCMAKE_CXX_COMPILER_LAUNCHER=${SCCACHE_PATH} .
+          sudo ninja install
 
       - name: Build Caelum
         run: |
           git clone --depth 1 https://github.com/RigsOfRods/ogre-caelum.git && cd ogre-caelum
-          cmake -DCMAKE_BUILD_TYPE=Release -DCaelum_BUILD_SAMPLES=FALSE -DINSTALL_OGRE_PLUGIN=OFF .
-          sudo make -j 2 install 
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCaelum_BUILD_SAMPLES=FALSE -DINSTALL_OGRE_PLUGIN=OFF \
+            -DCMAKE_C_COMPILER_LAUNCHER=${SCCACHE_PATH} -DCMAKE_CXX_COMPILER_LAUNCHER=${SCCACHE_PATH} .
+          sudo ninja install
 
       - name: Build PagedGeometry
         run: |
           git clone --depth 1 https://github.com/RigsOfRods/ogre-pagedgeometry.git && cd ogre-pagedgeometry
-          cmake -DCMAKE_BUILD_TYPE=Release .
-          sudo make -j 2 install 
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER_LAUNCHER=${SCCACHE_PATH} -DCMAKE_CXX_COMPILER_LAUNCHER=${SCCACHE_PATH} .
+          sudo ninja install
 
       - name: Build SocketW
         run: |
           git clone https://github.com/RigsOfRods/socketw.git && cd socketw
-          cmake -DCMAKE_BUILD_TYPE=Release .
-          sudo make -j 2 install 
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER_LAUNCHER=${SCCACHE_PATH} -DCMAKE_CXX_COMPILER_LAUNCHER=${SCCACHE_PATH} .
+          sudo ninja install
 
       - name: Build Angelscript
         run: |
           git clone --depth 1 https://github.com/AnotherFoxGuy/angelscript.git && cd angelscript
-          cmake -DCMAKE_BUILD_TYPE=Release .
-          sudo make -j 2 install 
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER_LAUNCHER=${SCCACHE_PATH} -DCMAKE_CXX_COMPILER_LAUNCHER=${SCCACHE_PATH} .
+          sudo ninja install
 
       - name: Build Rigs of Rods
         run: |
-          cmake -DCMAKE_BUILD_TYPE=Release -DROR_FORCE_SYSTEM_DEPENDENCIES=TRUE .
-          sudo make -j 2 install
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUSE_PCH=OFF \
+            -DCMAKE_C_COMPILER_LAUNCHER=${SCCACHE_PATH} -DCMAKE_CXX_COMPILER_LAUNCHER=${SCCACHE_PATH} .
+          sudo ninja install
+          sccache -s
