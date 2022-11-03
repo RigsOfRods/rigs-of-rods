@@ -225,20 +225,6 @@ int main(int argc, char *argv[])
             App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_LOAD_REQUESTED));
         }
 
-        // Load classic character
-        try
-        {
-            Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource("classic.character");
-            CharacterParser character_parser;
-            App::GetGameContext()->GetCharacterFactory()->DefineCharacter(
-                character_parser.ProcessOgreStream(stream));
-        }
-        catch (Ogre::Exception& eeh)
-        {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-                fmt::format("error loading classic character, message:{}", eeh.getFullDescription()));
-        }
-
         // Load startup scripts (console, then RoR.cfg)
         if (App::cli_custom_scripts->getStr() != "")
         {
@@ -582,9 +568,9 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->LoadingWindow.SetProgress(5, _L("Loading resources"));
                     App::GetContentManager()->LoadGameplayResources();
 
-                    if (App::GetGameContext()->LoadTerrain(m.description))
+                    if (App::GetGameContext()->LoadTerrain(m.description)
+                        && App::GetGameContext()->CreatePlayerCharacter())
                     {
-                        App::GetGameContext()->CreatePlayerCharacter();
                         // Spawn preselected vehicle; commandline has precedence
                         if (App::cli_preset_vehicle->getStr() != "")
                             App::GetGameContext()->SpawnPreselectedActor(App::cli_preset_vehicle->getStr(), App::cli_preset_veh_config->getStr()); // Needs character for position
@@ -611,8 +597,8 @@ int main(int argc, char *argv[])
                         if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
                         {
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                                                  fmt::format(_LC("ChatBox", "Press {} to start chatting"),
-                                               App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_CHATMODE)), "lightbulb.png");
+                                                                    fmt::format(_LC("ChatBox", "Press {} to start chatting"),
+                                                App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_CHATMODE)), "lightbulb.png");
                         }
 #endif // USE_SOCKETW
                         if (App::io_outgauge_mode->getInt() > 0)
@@ -622,6 +608,8 @@ int main(int argc, char *argv[])
                     }
                     else
                     {
+                        // Failed to load terrain or character - messagebox is already displayed
+
                         if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
                         {
                             App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));

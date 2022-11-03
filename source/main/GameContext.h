@@ -142,7 +142,7 @@ public:
     /// @name Characters
     /// @{ 
 
-    void                CreatePlayerCharacter(); //!< Terrain must be loaded
+    bool                CreatePlayerCharacter(); //!< Terrain must be loaded
     Character*          GetPlayerCharacter();
     CharacterFactory*   GetCharacterFactory() { return &m_character_factory; }
 

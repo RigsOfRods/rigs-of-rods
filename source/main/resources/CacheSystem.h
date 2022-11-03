@@ -27,6 +27,7 @@
 #pragma once
 
 #include "Application.h"
+#include "CharacterFileFormat.h"
 #include "Language.h"
 #include "RigDef_File.h"
 #include "SimData.h"
@@ -84,6 +85,7 @@ public:
 
     RigDef::DocumentPtr actor_def; //!< Cached actor definition (aka truckfile) after first spawn
     std::shared_ptr<RoR::SkinDef> skin_def;  //!< Cached skin info, added on first use or during cache rebuild
+    CharacterDocumentPtr character_def; //!< Cached character definition
 
     // following all TRUCK detail information:
     Ogre::String description;
@@ -239,6 +241,7 @@ private:
 
     void FillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
     void FillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname, Ogre::String group);
+    void FillCharacterDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr ds);
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
 

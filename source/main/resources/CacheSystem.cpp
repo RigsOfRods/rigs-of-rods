@@ -25,26 +25,25 @@
 
 #include "CacheSystem.h"
 
-#include <OgreException.h>
 #include "Application.h"
-#include "SimData.h"
+#include "CharacterFileFormat.h"
 #include "ContentManager.h"
 #include "ErrorUtils.h"
+#include "GfxActor.h"
+#include "GfxScene.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_GameMainMenu.h"
 #include "GUIManager.h"
-#include "GfxActor.h"
-#include "GfxScene.h"
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RigDef_Parser.h"
-
+#include "SimData.h"
 #include "SkinFileFormat.h"
 #include "Terrain.h"
 #include "Terrn2FileFormat.h"
 #include "Utils.h"
 
-#include <OgreFileSystem.h>
+#include <Ogre.h>
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/ostreamwrapper.h>
@@ -111,6 +110,7 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("load");
     m_known_extensions.push_back("train");
     m_known_extensions.push_back("skin");
+    m_known_extensions.push_back("character");
 }
 
 void CacheSystem::LoadModCache(CacheValidity validity)
@@ -645,6 +645,11 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
             new_entries.resize(1);
             FillTerrainDetailInfo(new_entries.back(), ds, f.filename);
         }
+        else if (ext == "character")
+        {
+            new_entries.resize(1);
+            FillCharacterDetailInfo(new_entries.back(), ds);
+        }
         else if (ext == "skin")
         {
             auto new_skins = RoR::SkinParser::ParseSkins(ds);
@@ -1068,6 +1073,14 @@ void CacheSystem::FillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr d
     entry.version    = def.version;
 }
 
+void CacheSystem::FillCharacterDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr datastream)
+{
+    CharacterParser parser;
+    CharacterDocumentPtr doc = parser.ProcessOgreStream(datastream);
+    
+    entry.dname = doc->character_name;
+}
+
 bool CacheSystem::CheckResourceLoaded(Ogre::String & filename)
 {
     Ogre::String group = "";
@@ -1125,6 +1138,13 @@ void CacheSystem::LoadResource(CacheEntry& t)
         {
             // PagedGeometry is hardcoded to use `Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME`
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
+            ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+        }
+        else if (t.fext == "character")
+        {
+            // This is a character mod bundle - use `inGlobalPool=false` to prevent resource name conflicts.
+            // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
+            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
             ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
         }
         else if (t.fext == "skin")
@@ -1279,8 +1299,10 @@ size_t CacheSystem::Query(CacheQuery& query)
         bool add = false;
         if (entry.fext == "terrn2")
             add = (query.cqy_filter_type == LT_Terrain);
-        if (entry.fext == "skin")
+        else if (entry.fext == "skin")
             add = (query.cqy_filter_type == LT_Skin);
+        else if (entry.fext == "character")
+            add = (query.cqy_filter_type == LT_Character);
         else if (entry.fext == "truck")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck);
         else if (entry.fext == "car")

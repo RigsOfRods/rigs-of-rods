@@ -249,6 +249,7 @@ enum VisibilityMasks
 enum LoaderType //!< Operation mode for GUI::MainSelector
 {
     LT_None,
+    LT_Character, // No script alias, invoked from Settings UI.
     LT_Terrain,   // Invocable from GUI; No script alias, used in main menu
     LT_Vehicle,   // Script "vehicle",   ext: truck car
     LT_Truck,     // Script "truck",     ext: truck car
@@ -301,6 +302,7 @@ extern CVar* sim_no_self_collisions;
 extern CVar* sim_gearbox_mode;
 extern CVar* sim_soft_reset_mode;
 extern CVar* sim_quickload_dialog;
+extern CVar* sim_player_character;
 
 // Multiplayer
 extern CVar* mp_state;

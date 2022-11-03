@@ -108,6 +108,7 @@ CVar* sim_no_self_collisions;
 CVar* sim_gearbox_mode;
 CVar* sim_soft_reset_mode;
 CVar* sim_quickload_dialog;
+CVar* sim_player_character;
 
 // Multiplayer
 CVar* mp_state;
