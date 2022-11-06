@@ -317,6 +317,7 @@ enum class TriggerOption: char
 
 enum class BeamOption: char
 {
+    v_DUMMY                  = 'v',
     i_INVISIBLE              = 'i',
     r_ROPE                   = 'r',
     s_SUPPORT                = 's',
