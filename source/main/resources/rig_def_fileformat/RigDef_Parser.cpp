@@ -3101,6 +3101,8 @@ BitMask_t Parser::GetArgBeamOptions(int index)
             case (char)BeamOption::r_ROPE     : ret |= Beam::OPTION_r_ROPE     ; break;
             case (char)BeamOption::s_SUPPORT  : ret |= Beam::OPTION_s_SUPPORT  ; break;
 
+            case (char)BeamOption::v_DUMMY: break;
+
             default:
                 this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
                     fmt::format("ignoring invalid option '{}'", c));
