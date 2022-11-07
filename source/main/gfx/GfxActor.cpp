@@ -3046,15 +3046,15 @@ void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
     {
         flare_t& flare = m_actor->ar_flares[i];
         
-        this->SetMaterialFlareOn(i, flare.isVisible);
+        this->SetMaterialFlareOn(i, flare.intensity > 0.3);
 
         // The billboard flare
-        flare.snode->setVisible(flare.isVisible);
+        flare.snode->setVisible(flare.intensity > 0);
 
         // The light source
         if (flare.light)
         {
-            flare.light->setVisible(flare.isVisible && ShouldEnableLightSource(flare.fl_type, is_player));
+            flare.light->setVisible(flare.intensity > 0 && ShouldEnableLightSource(flare.fl_type, is_player));
         }
 
         Ogre::Vector3 normal = (nodes[flare.nodey].AbsPosition - nodes[flare.noderef].AbsPosition).crossProduct(nodes[flare.nodex].AbsPosition - nodes[flare.noderef].AbsPosition);
@@ -3073,7 +3073,7 @@ void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
         float amplitude = normal.dotProduct(vdir);
         flare.snode->setPosition(mposition - 0.1 * amplitude * normal * flare.offsetz);
         flare.snode->setDirection(normal);
-        float fsize = flare.size;
+        float fsize = flare.size * flare.intensity;
         if (fsize < 0)
         {
             amplitude = 1;
@@ -3085,7 +3085,7 @@ void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
             // point the real light towards the ground a bit
             flare.light->setDirection(-normal - Ogre::Vector3(0, 0.2, 0));
         }
-        if (flare.isVisible)
+        if (flare.intensity > 0)
         {
             if (amplitude > 0)
             {

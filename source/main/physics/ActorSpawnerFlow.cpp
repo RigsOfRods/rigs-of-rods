@@ -170,6 +170,7 @@ void ActorSpawner::ProcessNewActor(Actor* actor, ActorSpawnRequest rq, RigDef::D
 
     PROCESS_ELEMENT(RigDef::Keyword::ANTILOCKBRAKES, antilockbrakes, ProcessAntiLockBrakes);
     PROCESS_ELEMENT(RigDef::Keyword::FLARES2, flares2, ProcessFlare2);
+    PROCESS_ELEMENT(RigDef::Keyword::FLARES3, flares3, ProcessFlare3);
     PROCESS_ELEMENT(RigDef::Keyword::AXLES, axles, ProcessAxle);
     PROCESS_ELEMENT(RigDef::Keyword::TRANSFERCASE, transfercase, ProcessTransferCase);
     PROCESS_ELEMENT(RigDef::Keyword::INTERAXLES, interaxles, ProcessInterAxle);

@@ -2964,7 +2964,16 @@ void Actor::updateFlareStates(float dt)
                 SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_WARN_TICK);
         }
 
-        ar_flares[i].isVisible = isvisible; // 3D engine objects are updated in GfxActor
+        // 3D engine objects are updated in GfxActor
+        if (ar_flares[i].uses_inertia)
+        {
+            ar_flares[i].intensity = ar_flares[i].inertia.CalcSimpleDelay(isvisible, dt);
+            ImGui::Text("flare %d (type: '%c') intensity %.2f (input: %d)", i, (char)ar_flares[i].fl_type, ar_flares[i].intensity, (int)isvisible);
+        }
+        else
+        {
+            ar_flares[i].intensity = (float)isvisible;
+        }
     }
 }
 

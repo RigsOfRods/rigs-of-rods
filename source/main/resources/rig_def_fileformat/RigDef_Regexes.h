@@ -153,6 +153,7 @@ namespace Regexes
     E_KEYWORD_BLOCK("fixes")                                      \
     E_KEYWORD_BLOCK("flares")                                     \
     E_KEYWORD_BLOCK("flares2")                                    \
+    E_KEYWORD_BLOCK("flares3")                                    \
     E_KEYWORD_BLOCK("flexbodies")                                 \
     E_KEYWORD_INLINE("flexbody_camera_mode")                      \
     E_KEYWORD_BLOCK("flexbodywheels")                             \
