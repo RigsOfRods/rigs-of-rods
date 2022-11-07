@@ -104,6 +104,7 @@ enum class Keyword
     FIXES,
     FLARES,
     FLARES2,
+    FLARES3,
     FLEXBODIES,
     FLEXBODY_CAMERA_MODE,
     FLEXBODYWHEELS,
@@ -871,6 +872,11 @@ struct Flare2 // Used for both 'flares' and 'flares2' sections
     Ogre::String material_name;
 };
 
+struct Flare3: public Flare2
+{
+    std::shared_ptr<Inertia> inertia_defaults;
+};
+
 struct Flexbody
 {
     Node::Ref reference_node;
@@ -1570,6 +1576,7 @@ struct Document
         std::vector<Node::Ref>             fixes;
         std::vector<Fileinfo>              fileinfo;
         std::vector<Flare2>                flares2; // 'flares' are auto-imported as 'flares2' (only 1 extra argument)
+        std::vector<Flare3>                flares3;
         std::vector<Flexbody>              flexbodies;
         std::vector<FlexBodyWheel>         flexbodywheels;
         std::vector<Fusedrag>              fusedrag;

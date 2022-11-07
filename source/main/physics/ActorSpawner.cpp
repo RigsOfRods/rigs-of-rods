@@ -1990,6 +1990,17 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     m_actor->m_gfx_actor->m_props.push_back(prop);
 }
 
+void ActorSpawner::ProcessFlare3(RigDef::Flare3 & def)
+{
+    // Do the common processing
+    this->ProcessFlare2(def);
+
+    // Now setup the extra inertia feature
+    flare_t& f = m_actor->ar_flares.back();
+    f.uses_inertia = true;
+    this->_ProcessSimpleInertia(*def.inertia_defaults, f.inertia);
+}
+
 void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
 {
     if (m_actor->m_flares_mode == GfxFlaresMode::NONE) { return; }
@@ -2125,7 +2136,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             flare.snode->attachObject(flare.bbs);
         }
     }
-    flare.isVisible = true;
+    flare.intensity = 1.f;
     flare.light = nullptr;
 
     if ((App::gfx_flares_mode->getEnum<GfxFlaresMode>() >= GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && size > 0.001)
@@ -3294,6 +3305,31 @@ void ActorSpawner::ProcessRotator2(RigDef::Rotator2 & def)
 
     m_actor->ar_num_rotators++;
     m_actor->m_has_command_beams = true;
+}
+
+void ActorSpawner::_ProcessSimpleInertia(RigDef::Inertia & inertia, RoR::SimpleInertia& obj)
+{
+    // TODO: refactor _ProcessKeyInertia() to use this.
+
+    // Handle placeholders
+    std::string start_function;
+    std::string stop_function;
+    if (inertia.start_function != "" && inertia.start_function != "/" && inertia.start_function != "-")
+    {
+        start_function = inertia.start_function;
+    }
+    if (inertia.stop_function != "" && inertia.stop_function != "/" && inertia.stop_function != "-")
+    {
+        stop_function = inertia.stop_function;
+    }
+
+    obj.SetSimpleDelay(
+        App::GetGameContext()->GetActorManager()->GetInertiaConfig(),
+        inertia.start_delay_factor,
+        inertia.stop_delay_factor,
+        start_function,
+        stop_function
+    );
 }
 
 void ActorSpawner::_ProcessKeyInertia(

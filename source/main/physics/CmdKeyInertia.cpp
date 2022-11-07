@@ -183,3 +183,60 @@ void RoR::CmdKeyInertia::ResetCmdKeyDelay()
     m_last_output = 0.0;
     m_time = 0.0;
 }
+
+// -------------------------- Simple inertia --------------------------
+
+void RoR::SimpleInertia::SetSimpleDelay(RoR::CmdKeyInertiaConfig& cfg, float start_delay, float stop_delay, std::string start_function, std::string stop_function)
+{
+    // Delay values should always be greater than 0
+    if (start_delay > 0)
+        m_start_delay = start_delay;
+    else
+        RoR::LogFormat("[RoR|SimpleInertia] Warning: Start Delay '%f', should be >0, using 0", start_delay);
+
+    if (stop_delay > 0)
+        m_stop_delay = stop_delay;
+    else
+        RoR::LogFormat("[RoR|SimpleInertia] Warning: Stop Delay '%f', should be >0, using 0", start_delay);
+
+    // if we don't find the spline, we use the "constant" one
+    Ogre::SimpleSpline* start_spline = cfg.GetSplineByName(start_function);
+    if (start_spline != nullptr)
+        m_start_spline = start_spline;
+    else
+        RoR::LogFormat("[RoR|SimpleInertia] Start Function '%s' not found", start_function.c_str());
+
+    Ogre::SimpleSpline* stop_spline = cfg.GetSplineByName(stop_function);
+    if (stop_spline != nullptr)
+        m_stop_spline = stop_spline;
+    else
+        RoR::LogFormat("[RoR|SimpleInertia] Stop Function '%s' not found", stop_function.c_str());
+}
+
+float RoR::SimpleInertia::CalcSimpleDelay(bool input, float dt)
+{
+    if (input)
+    {
+        if (m_spline_time < m_start_delay)
+        {
+            m_spline_time += (dt / m_start_delay);
+        }
+    }
+    else
+    {
+        if (m_spline_time > 0)
+        {
+            m_spline_time -= (dt / m_stop_delay);
+        }
+    }
+
+    if (input)
+    {
+        return m_start_spline->interpolate(m_spline_time).y;
+    }
+    else
+    {
+        return m_stop_spline->interpolate(m_spline_time).y;
+    }
+}
+

@@ -242,6 +242,7 @@ void Parser::ProcessCurrentLine()
         case Keyword::FIXES:                this->ParseFixes();                   return;
         case Keyword::FLARES:
         case Keyword::FLARES2:              this->ParseFlaresUnified();           return;
+        case Keyword::FLARES3:              this->ParseFlares3();                 return;
         case Keyword::FLEXBODIES:           this->ParseFlexbody();                return;
         case Keyword::FLEXBODYWHEELS:       this->ParseFlexBodyWheel();           return;
         case Keyword::FUSEDRAG:             this->ParseFusedrag();                return;
@@ -961,6 +962,39 @@ void Parser::ParseFlaresUnified()
     if (m_num_args > pos) { flare2.material_name     = this->GetArgStr      (pos++); }
 
     m_current_module->flares2.push_back(flare2);
+}
+
+void Parser::ParseFlares3()
+{
+    const bool is_flares2 = (m_current_block == Keyword::FLARES2);
+    if (! this->CheckNumArguments(is_flares2 ? 6 : 5)) { return; }
+
+    Flare3 flare3;
+    flare3.inertia_defaults = m_user_default_inertia;
+
+    flare3.reference_node = this->GetArgNodeRef(0);
+    flare3.node_axis_x    = this->GetArgNodeRef(1);
+    flare3.node_axis_y    = this->GetArgNodeRef(2);
+    flare3.offset.x       = this->GetArgFloat(3);
+    flare3.offset.y       = this->GetArgFloat(4);
+    flare3.offset.z       = this->GetArgFloat(5);
+    if (m_num_args > 6) { flare3.type = this->GetArgFlareType(6); }
+
+    if (m_num_args > 7)
+    {
+        switch (flare3.type)
+        {
+            case FlareType::USER:      flare3.control_number = this->GetArgInt(7); break;
+            case FlareType::DASHBOARD: flare3.dashboard_link = this->GetArgStr(7); break;
+            default: break;
+        }
+    }
+
+    if (m_num_args > 8) { flare3.blink_delay_milis = this->GetArgInt      (8); }
+    if (m_num_args > 9) { flare3.size              = this->GetArgFloat    (9); }
+    if (m_num_args > 10) { flare3.material_name    = this->GetArgStr      (10); }
+
+    m_current_module->flares3.push_back(flare3);
 }
 
 void Parser::ParseFixes()

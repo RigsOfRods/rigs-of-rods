@@ -133,6 +133,7 @@ private:
     void ParseFileinfo();
     void ParseFixes();
     void ParseFlaresUnified();
+    void ParseFlares3();
     void ParseFlexbody();
     void ParseFlexBodyWheel();
     void ParseForset();

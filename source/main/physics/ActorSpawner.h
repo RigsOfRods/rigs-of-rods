@@ -171,6 +171,7 @@ private:
     void ProcessExtCamera(RigDef::ExtCamera & def);
     void ProcessFixedNode(RigDef::Node::Ref node_ref); // 'fixes'
     void ProcessFlare2(RigDef::Flare2 & def);
+    void ProcessFlare3(RigDef::Flare3 & def);
     void ProcessFlexbody(RigDef::Flexbody& def);
     void ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def);
     void ProcessFusedrag(RigDef::Fusedrag & def);
@@ -231,6 +232,8 @@ private:
         Ogre::String const & airfoil,
         float power,
         float pitch);
+
+    void _ProcessSimpleInertia(RigDef::Inertia & def, RoR::SimpleInertia& obj);
 
     void _ProcessKeyInertia(
         RigDef::Inertia & inertia, 

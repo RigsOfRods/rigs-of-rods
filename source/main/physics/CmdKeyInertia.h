@@ -39,6 +39,7 @@ private:
     std::map<Ogre::String, Ogre::SimpleSpline> m_splines;
 };
 
+/// Designed to be run in physics loop (2khz)
 class CmdKeyInertia
 {
 public:
@@ -57,6 +58,24 @@ protected:
     Ogre::SimpleSpline* m_stop_spline;
 
     float CalculateCmdOutput(float time, Ogre::SimpleSpline* spline);
+};
+
+/// Designed to be run on main/rendering loop (FPS)
+class SimpleInertia
+{
+public:
+    void SetSimpleDelay(RoR::CmdKeyInertiaConfig& cfg, float start_delay, float stop_delay, std::string start_function, std::string stop_function);
+
+    /// Expected to be invoked in main/rendering loop, once per frame. The `dt` is in seconds.
+    float CalcSimpleDelay(bool input, float dt);
+
+private:
+    bool               m_last_input = false;
+    float               m_start_delay = 0;
+    float               m_stop_delay = 0;
+    float               m_spline_time = 0;
+    Ogre::SimpleSpline* m_start_spline = nullptr;
+    Ogre::SimpleSpline* m_stop_spline = nullptr;
 };
 
 /// @} // addtogroup Gameplay

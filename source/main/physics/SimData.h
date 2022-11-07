@@ -631,7 +631,9 @@ struct flare_t
     float blinkdelay_curr;
     bool blinkdelay_state;
     float size;
-    bool isVisible;
+    float intensity;
+    bool uses_inertia = false; //!< Only 'flares3'
+    SimpleInertia inertia; //!< Only 'flares3'
 };
 
 struct exhaust_t
