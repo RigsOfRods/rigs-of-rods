@@ -49,18 +49,21 @@ void GUI::DirectionArrow::LoadOverlay()
 
 void GUI::DirectionArrow::CreateArrow()
 {
-    // setup direction arrow
-    Ogre::Entity* arrow_entity = App::GetGfxScene()->GetSceneManager()->createEntity("arrow2.mesh");
-    arrow_entity->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
+    if (m_overlay)
+    {
+        // setup direction arrow
+        Ogre::Entity* arrow_entity = App::GetGfxScene()->GetSceneManager()->createEntity("arrow2.mesh");
+        arrow_entity->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
 
-    // Add entity to the scene node
-    m_node = new Ogre::SceneNode(App::GetGfxScene()->GetSceneManager());
-    m_node->attachObject(arrow_entity);
-    m_node->setVisible(false);
-    m_node->setScale(0.1, 0.1, 0.1);
-    m_node->setPosition(Ogre::Vector3(-0.6, +0.4, -1));
-    m_node->setFixedYawAxis(true, Ogre::Vector3::UNIT_Y);
-    m_overlay->add3D(m_node);
+        // Add entity to the scene node
+        m_node = new Ogre::SceneNode(App::GetGfxScene()->GetSceneManager());
+        m_node->attachObject(arrow_entity);
+        m_node->setVisible(false);
+        m_node->setScale(0.1, 0.1, 0.1);
+        m_node->setPosition(Ogre::Vector3(-0.6, +0.4, -1));
+        m_node->setFixedYawAxis(true, Ogre::Vector3::UNIT_Y);
+        m_overlay->add3D(m_node);
+    }
 }
 
 void GUI::DirectionArrow::Update(RoR::GfxActor* player_vehicle)

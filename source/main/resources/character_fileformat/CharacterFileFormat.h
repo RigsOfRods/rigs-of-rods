@@ -82,6 +82,7 @@ struct CharacterDocument
 {
     std::string character_name;
     std::string mesh_name;
+    Ogre::Vector3 mesh_scale = Ogre::Vector3(1, 1, 1);
     std::vector<CharacterAnimDef> anims;
     std::vector<BoneBlendMaskDef> bone_blend_masks;
     ForceAnimBlend force_animblend = ForceAnimBlend::NONE; //!< Should a specific `Ogre::SkeletonAnimationBlendMode` be forced, or should we keep what the .skeleton file defines?
