@@ -77,6 +77,8 @@ Character* CharacterFactory::CreateLocalCharacter()
         return nullptr;
     }
 
+    App::GetCacheSystem()->LoadResource(*cache_entry);
+
     CharacterDocumentPtr document = this->FetchCharacterDef(cache_entry);
     if (!document)
     {

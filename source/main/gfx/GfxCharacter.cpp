@@ -55,7 +55,7 @@ GfxCharacter::GfxCharacter(Character* character)
     // add entity to the scene node
     xc_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     xc_scenenode->attachObject(entity);
-    xc_scenenode->setScale(0.02f, 0.02f, 0.02f);
+    xc_scenenode->setScale(xc_character->m_character_def->mesh_scale);
     xc_scenenode->setVisible(false);
 
     // setup colour

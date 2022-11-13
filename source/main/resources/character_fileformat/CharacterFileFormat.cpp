@@ -132,6 +132,12 @@ void CharacterParser::ProcessCurrentLine()
         {
             m_def->mesh_name = GetParam(1);
         }
+        else if (StartsWith(m_cur_line, "mesh_scale"))
+        {
+            if (m_cur_args.size() > 1) m_def->mesh_scale.x = Ogre::StringConverter::parseReal(GetParam(1));
+            if (m_cur_args.size() > 2) m_def->mesh_scale.y = Ogre::StringConverter::parseReal(GetParam(2));
+            if (m_cur_args.size() > 3) m_def->mesh_scale.z = Ogre::StringConverter::parseReal(GetParam(3));
+        }
         else if (StartsWith(m_cur_line, "force_animblend"))
         {
             m_def->force_animblend = ParseForceAnimBlend(GetParam(1));
