@@ -82,7 +82,7 @@ add_external_lib(
 
 add_external_lib(
         fmt
-        fmt/8.0.1
+        fmt/9.1.0
         REQUIRED
         PKG_CONFIG "fmt >= 6"
         FIND_PACKAGE_OPTIONS CONFIG
