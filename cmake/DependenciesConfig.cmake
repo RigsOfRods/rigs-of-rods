@@ -1,6 +1,13 @@
 include(DependenciesFunctions)
 find_package(Threads REQUIRED)
 
+if (USE_PACKAGE_MANAGER)
+    conan_add_remote(NAME ror-conan
+            URL https://git.anotherfoxguy.com/api/packages/rorbot/conan
+            VERIFY_SSL True
+            )
+endif ()
+
 set(ROR_FEAT_TIMING OFF)
 
 # Some pkg-config files are broken, that is why they are commented out
@@ -8,7 +15,6 @@ set(ROR_FEAT_TIMING OFF)
 add_external_lib(
         OGRE
         ogre3d/1.11.6.1@anotherfoxguy/stable
-        CONAN_PKG_NAME OGRE
         REQUIRED
         # PKG_CONFIG "OGRE = 1.11.6"
         FIND_PACKAGE_OPTIONS 1.11 COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain
@@ -24,7 +30,7 @@ add_external_lib(
 
 add_external_lib(
         OIS
-        ois/1.4@rigsofrods/custom
+        ois/1.4.1@rigsofrods/custom
         REQUIRED
         PKG_CONFIG "ois >= 1.4"
         FIND_PACKAGE
@@ -62,9 +68,8 @@ add_external_lib(
 add_external_lib(
         Caelum
         # Temporary switch back to the rigs of rods version, since the OGRE version is broken
-        ogre3d-caelum/0.6.3@rigs-of-rods/stable
+        ogre3d-caelum/0.6.3.1@anotherfoxguy/stable
         # PKG_CONFIG "Caelum >= 0.6.3"
-        CONAN_PKG_NAME Caelum
         FIND_PACKAGE
 )
 add_external_lib(
@@ -72,7 +77,6 @@ add_external_lib(
         ogre3d-pagedgeometry/1.2.0@anotherfoxguy/stable
         # PKG_CONFIG "PagedGeometry >= 1.2"
         FIND_PACKAGE
-        CONAN_PKG_NAME PagedGeometry
         SYMBOL PAGED
 )
 
