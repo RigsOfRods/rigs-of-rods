@@ -2510,7 +2510,7 @@ void ActorSpawner::ProcessInterAxle(RigDef::InterAxle & def)
                 diff->AddDifferentialType(VISCOUS_DIFF);
                 break;
             default:
-                AddMessage(Message::TYPE_WARNING, fmt::format("Unknown differential type: '{}'", val));
+                AddMessage(Message::TYPE_WARNING, fmt::format("Unknown differential type: '{}'", (char)val));
                 break;
             }
         }
