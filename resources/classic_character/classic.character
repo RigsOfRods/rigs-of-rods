@@ -1,0 +1,189 @@
+; The classic character (aka RoRbot)
+; -----------------------------------------------------------------------------
+;
+; This file format lets you compose game animations from one or more
+;  skeletal animations exported from a 3D modelling tool.
+;  NOTE each game-anim is evaluated separately, there is no either-or relation,
+;  so you must set each anim's conditions to avoid conflicts.
+;
+; For explanation of individual parameters,
+;  see file source/main/resources/character_fileformat/CharacterFileFormat.h
+;
+; For authoritative list of SITUATION_ and ACTION_ flags,
+;  see file source/main/gameplay/Character.h
+;
+; Tip: in game, use 'Game animations' UI panel,
+;  open it from top menubar >> Tools >> Character pose util >> tab 'game anims'
+;
+; -----------------------------------------------------------------------------
+
+; Name displayed in the Selector UI - required
+character_name "Classic RORBot"
+
+; Name of the mesh file - required.
+mesh_name "character.mesh"
+
+; Scaling factor of the mesh - optional, default is 1.0 on all axes.
+; NOTE: the 0.02 factor used to be hardcoded because the default character mesh is oversized like that.
+mesh_scale 0.02 0.02 0.02
+
+begin_animation
+    game_description "driving"
+    for_situation SITUATION_DRIVING
+    anim_name "Driving"
+    playback_time_ratio 0.f
+    playback_steering_ratio -1.f
+    anim_continuous false
+    source_percentual true
+    anim_neutral_mid true
+    playback_trim 0.01f  
+end_animation
+
+begin_animation
+    game_description "swimming"
+    for_situation SITUATION_IN_DEEP_WATER
+    for_action ACTION_MOVE_FORWARD
+    anim_name "Swim_loop"
+    playback_h_speed_ratio 1.f
+    playback_time_ratio 1.f
+end_animation
+        
+begin_animation
+    game_description "swimming on spot"
+    for_situation SITUATION_IN_DEEP_WATER
+    except_action ACTION_MOVE_FORWARD
+    anim_name "Spot_swim"
+    playback_time_ratio 1.f
+end_animation
+        
+begin_animation
+    game_description "running"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    for_action ACTION_MOVE_FORWARD
+    for_action ACTION_RUN
+    anim_name "Run"
+    playback_time_ratio 1.f
+    playback_h_speed_ratio 1.f
+end_animation
+        
+begin_animation
+    game_description "walking forward"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    for_action ACTION_MOVE_FORWARD
+    except_action ACTION_RUN
+    anim_name "Walk"
+    playback_time_ratio 1.f
+    playback_h_speed_ratio 1.f
+end_animation
+        
+begin_animation
+    game_description "walking backward"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    for_action ACTION_MOVE_BACKWARD
+    anim_name "Walk"
+    playback_time_ratio -1.f
+    playback_h_speed_ratio 1.f
+end_animation
+        
+begin_animation
+    game_description "side stepping right"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    for_action ACTION_SIDESTEP_RIGHT
+    except_action ACTION_MOVE_FORWARD
+    except_action ACTION_MOVE_BACKWARD
+    except_action ACTION_TURN_RIGHT
+    except_action ACTION_TURN_LEFT
+    except_action ACTION_RUN
+    anim_name "Side_step"
+    playback_time_ratio 1.f
+    anim_autorestart true
+end_animation
+        
+begin_animation
+    game_description "side stepping left"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    for_action ACTION_SIDESTEP_LEFT
+    except_action ACTION_MOVE_FORWARD
+    except_action ACTION_MOVE_BACKWARD
+    except_action ACTION_TURN_RIGHT
+    except_action ACTION_TURN_LEFT
+    except_action ACTION_RUN
+    anim_name "Side_step"
+    playback_time_ratio -1.f
+    anim_autorestart true
+end_animation
+        
+begin_animation
+    game_description "turning left"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    for_action ACTION_TURN_LEFT
+    except_action ACTION_SIDESTEP_LEFT
+    except_action ACTION_SIDESTEP_RIGHT
+    except_action ACTION_MOVE_FORWARD
+    except_action ACTION_MOVE_BACKWARD
+    except_action ACTION_RUN
+    anim_name "Turn"
+    playback_time_ratio 1.f
+    anim_autorestart true
+end_animation
+        
+begin_animation
+    game_description "turning right"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    for_action ACTION_TURN_RIGHT
+    except_action ACTION_SIDESTEP_LEFT
+    except_action ACTION_SIDESTEP_RIGHT
+    except_action ACTION_MOVE_FORWARD
+    except_action ACTION_MOVE_BACKWARD
+    except_action ACTION_RUN
+    anim_name "Turn"
+    playback_time_ratio -1.f
+    anim_autorestart true
+end_animation
+        
+begin_animation
+    game_description "idle standing"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    except_situation SITUATION_CUSTOM_MODE_01
+    except_action ACTION_TURN_RIGHT
+    except_action ACTION_TURN_LEFT
+    except_action ACTION_SIDESTEP_LEFT
+    except_action ACTION_SIDESTEP_RIGHT
+    except_action ACTION_MOVE_FORWARD
+    except_action ACTION_MOVE_BACKWARD
+    except_action ACTION_RUN
+    except_action ACTION_CUSTOM_01
+    anim_name "Idle_sway"
+    playback_time_ratio 1.f
+end_animation
+
+begin_animation
+    game_description "custom action 01 test"
+    for_action ACTION_CUSTOM_01
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING    
+    except_situation SITUATION_CUSTOM_MODE_01
+    anim_name "Spot_swim"
+    playback_time_ratio 10.0
+    anim_continuous false
+end_animation
+
+begin_animation
+    game_description "custom mode 01 test"
+    for_situation SITUATION_CUSTOM_MODE_01
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING    
+    anim_name "Driving"
+    playback_time_ratio 2.0
+    
+end_animation
+
+

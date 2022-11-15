@@ -1481,6 +1481,7 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
             ResourceGroupManager::getSingleton().addResourceLocation(
                 entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
+            App::GetContentManager()->InitManagedMaterials(group);
         }
         else if (entry->fext == "character")
         {
@@ -1488,6 +1489,7 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
             // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
             ResourceGroupManager::getSingleton().addResourceLocation(entry->resource_bundle_path, entry->resource_bundle_type, group);
+            App::GetContentManager()->InitManagedMaterials(group);
         }
         else if (entry->fext == "skin")
         {
@@ -1513,8 +1515,8 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
             ResourceGroupManager::getSingleton().addResourceLocation(
                 entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
-
             App::GetContentManager()->InitManagedMaterials(group);
+
             App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES, group);
             App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS, group);
             App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES, group);

@@ -275,7 +275,9 @@ void ContentManager::InitModCache(CacheValidity validity)
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_process_dir->getStr(), "content") , "FileSystem", RGN_CONTENT);
     std::string objects = PathCombine("resources", "beamobjects.zip");
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_process_dir->getStr(), objects)   , "Zip"       , RGN_CONTENT);
-    
+    std::string character = PathCombine("resources", "classic_character.zip");
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_process_dir->getStr(), character) , "Zip"       , RGN_CONTENT);
+
     // Create RGN_TEMP in recursive mode to find all subdirectories.
 
     ResourceGroupManager::getSingleton().createResourceGroup(RGN_TEMP, false);

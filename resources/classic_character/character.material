@@ -1,0 +1,28 @@
+import * from "managed_mats.material"
+
+material tracks/character: RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			depth_bias -20
+			texture_unit Diffuse_Map 1
+			{
+				texture character.dds
+			}
+		}
+		pass ColorChange
+		{
+			scene_blend alpha_blend
+			texture_unit
+			{
+				texture character-alpha.png
+			}
+			texture_unit
+			{
+				colour_op_ex blend_current_alpha src_manual src_current 0 0 0
+			}
+		}
+	}
+}

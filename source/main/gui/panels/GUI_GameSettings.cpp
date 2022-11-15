@@ -305,11 +305,12 @@ void GameSettings::DrawGameplaySettings()
     DrawGCheckbox(App::sim_tuning_enabled, _LC("GameSettings", "Enable vehicle tuning"));
 
     // Character
+    ImGui::Separator();
     ImGui::TextDisabled("%s:", _LC("GameSettings", "Player character"));
     ImGui::SameLine();
     ImGui::Text("%s", App::sim_player_character->getStr().c_str());
     ImGui::SameLine();
-    if (ImGui::Button(_LC("GameSettings", "Select")))
+    if (ImGui::SmallButton(_LC("GameSettings", "Select")))
     {
         LoaderType* payload = new LoaderType(LoaderType::LT_Character);
         App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_SELECTOR_REQUESTED, (void*)payload));

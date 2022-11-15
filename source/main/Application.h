@@ -39,6 +39,8 @@
 
 #define ROR_ASSERT(_EXPR)  assert(_EXPR)
 
+#define CLASSIC_CHARACTER_FILE "classic.character"
+
 // OGRE resource group names
 #define RGN_TEMP "Temp"
 #define RGN_CACHE "Cache"
