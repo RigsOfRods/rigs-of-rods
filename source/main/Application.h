@@ -39,6 +39,8 @@
 
 #define ROR_ASSERT(_EXPR)  assert(_EXPR)
 
+#define CLASSIC_CHARACTER_FILE "classic.character"
+
 // Legacy macros
 #define TOSTRING(x)     Ogre::StringConverter::toString(x)
 #define PARSEINT(x)     Ogre::StringConverter::parseInt(x)

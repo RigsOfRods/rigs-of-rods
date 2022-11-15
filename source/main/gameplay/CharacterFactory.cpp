@@ -72,9 +72,22 @@ Character* CharacterFactory::CreateLocalCharacter()
     CacheEntry* cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, App::sim_player_character->getStr());
     if (!cache_entry)
     {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format("Could not find character '{}' in mod cache.", App::sim_player_character->getStr()));
-        return nullptr;
+        // If this was a custom mod, retry with the builtin
+        if (App::sim_player_character->getStr() != CLASSIC_CHARACTER_FILE)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("Could not find configured character '{}' in mod cache, falling back to '{}'", App::sim_player_character->getStr(), CLASSIC_CHARACTER_FILE));
+            App::sim_player_character->setStr(CLASSIC_CHARACTER_FILE);
+
+            cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, App::sim_player_character->getStr());
+        }
+
+        if (!cache_entry)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("Could not find character '{}' in mod cache.", App::sim_player_character->getStr()));
+            return nullptr;
+        }
     }
 
     App::GetCacheSystem()->LoadResource(*cache_entry);

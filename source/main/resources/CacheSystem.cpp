@@ -1139,6 +1139,7 @@ void CacheSystem::LoadResource(CacheEntry& t)
             // PagedGeometry is hardcoded to use `Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME`
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
             ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+            App::GetContentManager()->InitManagedMaterials(group);
         }
         else if (t.fext == "character")
         {
@@ -1146,6 +1147,7 @@ void CacheSystem::LoadResource(CacheEntry& t)
             // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
             ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+            App::GetContentManager()->InitManagedMaterials(group);
         }
         else if (t.fext == "skin")
         {
@@ -1161,8 +1163,8 @@ void CacheSystem::LoadResource(CacheEntry& t)
             // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
             ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
-
             App::GetContentManager()->InitManagedMaterials(group);
+
             App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES, group);
             App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS, group);
             App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES, group);
