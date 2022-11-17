@@ -233,7 +233,10 @@ DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, bool _tex
 
 DashBoard::~DashBoard()
 {
+    // Clear the GUI widgets
     MyGUI::LayoutManager::getInstance().unloadLayout(widgets);
+    // Force unloading the '.layout' file from memory
+    MyGUI::ResourceManager::getInstance().removeByName(filename);
 }
 
 void DashBoard::updateFeatures()
