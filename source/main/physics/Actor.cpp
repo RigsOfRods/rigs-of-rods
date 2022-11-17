@@ -4454,6 +4454,8 @@ bool Actor::getCustomLightVisible(int number)
     if (number == 7) return (m_lightmask & RoRnet::LIGHTMASK_CUSTOM8);
     if (number == 8) return (m_lightmask & RoRnet::LIGHTMASK_CUSTOM9);
     if (number == 9) return (m_lightmask & RoRnet::LIGHTMASK_CUSTOM10);
+
+    return false;
 }
 
 void Actor::setCustomLightVisible(int number, bool visible)
