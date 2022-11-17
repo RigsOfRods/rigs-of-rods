@@ -33,10 +33,8 @@ using namespace RoR;
 
 #define INITDATA(key, type, name) data[key] = dashData_t(type, name)
 
-DashBoardManager::DashBoardManager(void) : visible(true), free_dashboard(0)
+DashBoardManager::DashBoardManager(void) : visible(true)
 {
-    // clear some things
-    memset(&dashboards, 0, sizeof(dashboards));
 
     // init data
     INITDATA(DD_ENGINE_RPM              , DC_FLOAT, "rpm");
@@ -141,13 +139,10 @@ DashBoardManager::DashBoardManager(void) : visible(true), free_dashboard(0)
 DashBoardManager::~DashBoardManager(void)
 {
     // free all objects
-    for (int i = 0; i < free_dashboard; i++)
+    while (m_dashboards.size() > 0)
     {
-        if (!dashboards[i])
-            continue;
-
-        delete(dashboards[i]);
-        dashboards[i] = 0;
+        delete m_dashboards.back();
+        m_dashboards.pop_back();
     }
 }
 
@@ -164,35 +159,28 @@ int DashBoardManager::getLinkIDForName(Ogre::String& str)
 
 int DashBoardManager::loadDashBoard(Ogre::String filename, bool textureLayer)
 {
-    if (free_dashboard >= MAX_DASH)
-    {
-        LOG("maximum amount of dashboards per truck reached, discarding the rest: " + TOSTRING(MAX_DASH));
-        return 1;
-    }
 
     DashBoard* d = new DashBoard(this, filename, textureLayer);
     d->setVisible(true);
 
-    dashboards[free_dashboard] = d;
-    free_dashboard++;
+    m_dashboards.push_back(d);
 
     return 0;
 }
 
-void DashBoardManager::update(float& dt)
+void DashBoardManager::update(float dt)
 {
-    // TODO: improve logic: only update visible dashboards
-    for (int i = 0; i < free_dashboard; i++)
+    for (DashBoard* d: m_dashboards)
     {
-        dashboards[i]->update(dt);
+        d->update(dt);
     }
 }
 
 void DashBoardManager::updateFeatures()
 {
-    for (int i = 0; i < free_dashboard; i++)
+    for (DashBoard* d: m_dashboards)
     {
-        dashboards[i]->updateFeatures();
+        d->updateFeatures();
     }
 }
 
@@ -213,28 +201,31 @@ float DashBoardManager::getNumeric(size_t key)
 void DashBoardManager::setVisible(bool visibility)
 {
     visible = visibility;
-    for (int i = 0; i < free_dashboard; i++)
+    for (DashBoard* d: m_dashboards)
     {
-        if (!dashboards[i]->getIsTextureLayer())
-            dashboards[i]->setVisible(visibility);
+        if (!d->getIsTextureLayer())
+        {
+            d->setVisible(visibility);
+        }
     }
 }
 
 void DashBoardManager::setVisible3d(bool visibility)
 {
-    for (int i = 0; i < free_dashboard; i++)
+    for (DashBoard* d: m_dashboards)
     {
-        if (dashboards[i]->getIsTextureLayer())
-            dashboards[i]->setVisible(visibility, false);
+        if (d->getIsTextureLayer())
+        {
+            d->setVisible(visibility, /*smooth:*/false);
+        }
     }
 }
 
 void DashBoardManager::windowResized()
 {
-    for (int i = 0; i < free_dashboard; i++)
+    for (DashBoard* d: m_dashboards)
     {
-        if (dashboards[i])
-            dashboards[i]->windowResized();
+        d->windowResized();
     }
 }
 
@@ -245,7 +236,7 @@ DashBoard::DashBoard(DashBoardManager* manager, Ogre::String filename, bool _tex
     // use 'this' class pointer to make layout unique
     prefix = MyGUI::utility::toString(this, "_");
     memset(&controls, 0, sizeof(controls));
-    loadLayout(filename);
+    loadLayoutInternal();
     // hide first
     if (mainWidget)
         mainWidget->setVisible(false);
@@ -270,7 +261,7 @@ void DashBoard::updateFeatures()
     }
 }
 
-void DashBoard::update(float& dt)
+void DashBoard::update(float dt)
 {
     // walk all controls and animate them
     for (int i = 0; i < free_controls; i++)
@@ -736,7 +727,7 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
     }
 }
 
-void DashBoard::loadLayout(Ogre::String filename)
+void DashBoard::loadLayoutInternal()
 {
     widgets = MyGUI::LayoutManager::getInstance().loadLayout(filename, prefix, nullptr); // never has a parent
 

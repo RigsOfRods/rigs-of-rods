@@ -31,6 +31,7 @@
 #include <MyGUI.h>
 
 #include <string>
+#include <vector>
 
 namespace RoR {
 
@@ -38,7 +39,6 @@ namespace RoR {
 #define DD_MAX_SCREWPROP  6
 #define DD_MAX_AEROENGINE 6
 #define DD_MAX_WING       6
-#define MAX_DASH          6
 
 #define MAX_CONTROLS      1024
 
@@ -228,10 +228,10 @@ public:
 
     int loadDashBoard(Ogre::String filename, bool textureLayer);
 
-    void update(float& dt);
+    void update(float dt);
     void updateFeatures();
 
-    bool WasDashboardLoaded() const { return (free_dashboard > 0); };
+    bool WasDashboardLoaded() const { return (m_dashboards.size() > 0); };
 
     void setVisible(bool visibility);
     void setVisible3d(bool visibility);
@@ -240,8 +240,7 @@ public:
 protected:
     bool visible;
     dashData_t data[DD_MAX];
-    DashBoard* dashboards[MAX_DASH];
-    int free_dashboard;
+    std::vector<DashBoard*> m_dashboards;
 };
 
 class DashBoard : public ZeroedMemoryAllocator
@@ -256,7 +255,7 @@ public:
 
     bool getIsTextureLayer() { return textureLayer; }
 
-    void update(float& dt);
+    void update(float dt);
     void updateFeatures();
 
     void windowResized();
@@ -327,7 +326,7 @@ protected:
         bool lastState;
     } layoutLink_t;
 
-    void loadLayout(Ogre::String filename);
+    void loadLayoutInternal();
     void loadLayoutRecursive(MyGUI::WidgetPtr ptr);
     layoutLink_t controls[MAX_CONTROLS];
     int free_controls;
