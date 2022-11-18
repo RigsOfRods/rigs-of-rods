@@ -36,7 +36,7 @@
 class ImprovedConfigFile : public RoR::ConfigFile
 {
 public:
-    ImprovedConfigFile() : separators("="), filename()
+    ImprovedConfigFile() : separators("=")
     {
         ConfigFile();
     }
@@ -45,9 +45,9 @@ public:
     {
     }
 
-    void loadImprovedCfg()
+    void loadImprovedCfg(std::string const& filename, std::string const& resource_group_name)
     {
-        ConfigFile::load(this->filename, this->resource_group_name, this->separators, /*trimWhitespace*/true);
+        ConfigFile::load(filename, resource_group_name, this->separators, /*trimWhitespace*/true);
     }
 
     bool hasSetting(Ogre::String key, Ogre::String section = "")
@@ -55,11 +55,11 @@ public:
         return (mSettingsPtr.find(section) != mSettingsPtr.end() && mSettingsPtr[section]->find(key) != mSettingsPtr[section]->end());
     }
 
-    bool saveImprovedCfg()
+    bool saveImprovedCfg(std::string const& filename, std::string const& resource_group_name)
     {
         Ogre::DataStreamPtr stream
             = Ogre::ResourceGroupManager::getSingleton().createResource(
-                this->filename, this->resource_group_name, /*overwrite=*/true);
+                filename, resource_group_name, /*overwrite=*/true);
 
         const size_t BUF_LEN = 2000;
         char buf[BUF_LEN];
@@ -231,6 +231,4 @@ public:
 
 protected:
     Ogre::String separators;
-    Ogre::String filename;
-    Ogre::String resource_group_name;
 };

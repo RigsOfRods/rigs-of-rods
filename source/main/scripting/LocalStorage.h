@@ -93,10 +93,11 @@ public:
     void ReleaseAllReferences(AngelScript::asIScriptEngine* engine);
 
     SettingsBySection getSettings() { return mSettingsPtr; }
-    std::string getFilename() { return filename; }
+    std::string getFilename() { return m_filename; }
     std::string getSection() { return sectionName; }
 
 protected:
+    std::string m_filename;
     bool saved; //!< Inverted 'dirty flag'
     std::string sectionName;
 
