@@ -2902,7 +2902,6 @@ void Actor::updateFlareStates(float dt)
 {
     if (m_flares_mode == GfxFlaresMode::NONE) { return; }
 
-    //the flares
     for (size_t i = 0; i < this->ar_flares.size(); i++)
     {
         // let the light blink
@@ -2940,31 +2939,15 @@ void Actor::updateFlareStates(float dt)
         // apply blinking
         isvisible = isvisible && ar_flares[i].blinkdelay_state;
 
-        if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT && (m_lightmask & RoRnet::LIGHTMASK_BLINK_LEFT))
+        // update turn signal state
+        switch (ar_flares[i].fl_type)
         {
-            ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
-
-            if (isvisible)
-                SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_TICK);
-        }
-        else if (ar_flares[i].fl_type == FlareType::BLINKER_RIGHT && (m_lightmask & RoRnet::LIGHTMASK_BLINK_RIGHT))
-        {
-            ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
-
-            if (isvisible)
-                SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_TICK);
-        }
-        else if (ar_flares[i].fl_type == FlareType::BLINKER_LEFT && (m_lightmask & RoRnet::LIGHTMASK_BLINK_WARN))
-        {
-            ar_dashboard->setBool(DD_SIGNAL_WARNING, isvisible);
-            ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, isvisible);
-            ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, isvisible);
-
-            if (isvisible)
-                SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_TURN_SIGNAL_WARN_TICK);
+            case FlareType::BLINKER_LEFT: m_blinker_left_lit = isvisible; break;
+            case FlareType::BLINKER_RIGHT: m_blinker_right_lit = isvisible; break;
+            default:;
         }
 
-        // 3D engine objects are updated in GfxActor
+        // update light intensity
         if (ar_flares[i].uses_inertia)
         {
             ar_flares[i].intensity = ar_flares[i].inertia.CalcSimpleDelay(isvisible, dt);
@@ -4112,9 +4095,9 @@ void Actor::updateDashBoards(float dt)
     ar_dashboard->setBool(DD_REVERSE_LIGHT , m_lightmask & RoRnet::LIGHTMASK_REVERSE   ); 
     ar_dashboard->setBool(DD_BEACONS       , m_lightmask & RoRnet::LIGHTMASK_BEACONS   ); 
 
-    ar_dashboard->setBool(DD_SIGNAL_WARNING, m_lightmask & RoRnet::LIGHTMASK_BLINK_WARN);
-    ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, m_lightmask & RoRnet::LIGHTMASK_BLINK_RIGHT);
-    ar_dashboard->setBool(DD_SIGNAL_TURNLEFT, m_lightmask & RoRnet::LIGHTMASK_BLINK_LEFT);
+    ar_dashboard->setBool(DD_SIGNAL_WARNING,   m_blinker_right_lit && m_blinker_left_lit);
+    ar_dashboard->setBool(DD_SIGNAL_TURNRIGHT, m_blinker_right_lit);
+    ar_dashboard->setBool(DD_SIGNAL_TURNLEFT,  m_blinker_left_lit);
 
     // TODO: compass value
 
