@@ -95,13 +95,13 @@ void FlexbodyDebug::Draw()
     ImGui::SameLine();
     ImGui::Checkbox("Show all (pick with mouse)##verts", &this->show_vertices);
 
-    bool locators_visible;
+    bool locators_visible = false;
     if (ImGui::CollapsingHeader("Vertex locators table"))
     {
         this->DrawLocatorsTable(flexbody, /*out:*/locators_visible);
     }
 
-    if (ImGui::CollapsingHeader("Vertex locators memory"))
+    if (ImGui::CollapsingHeader("Vertex locators memory (experimental!)"))
     {
         this->DrawMemoryOrderGraph(flexbody);
     }
@@ -128,22 +128,26 @@ void FlexbodyDebug::Draw()
 
 void FlexbodyDebug::AnalyzeFlexbodies()
 {
+    // Reset
+    m_combo_items = "";
+    m_combo_selection = -1;
+
+    // Analyze
     Actor* actor = App::GetGameContext()->GetPlayerActor();
-    if (actor)
+    if (actor && actor->GetGfxActor()->GetFlexbodies().size() > 0)
     {
-        m_combo_items = "";
         for (FlexBody* fb : actor->GetGfxActor()->GetFlexbodies())
         {
             ImAddItemToComboboxString(m_combo_items,
                 fmt::format("{} ({} verts -> {} nodes)", fb->getOrigMeshName(), fb->getVertexCount(), fb->getForsetNodes().size()));
         }
-        ImTerminateComboboxString(m_combo_items);
 
-        m_combo_selection = std::min(m_combo_selection, (int)actor->GetGfxActor()->GetFlexbodies().size() - 1);
+        m_combo_selection = 0;
 
         show_locator.resize(0);
         show_locator.resize(actor->GetGfxActor()->GetFlexbodies()[m_combo_selection]->getVertexCount(), false);
     }
+    ImTerminateComboboxString(m_combo_items);
 }
 
 const ImVec4 FORSETNODE_COLOR_V4(1.f, 0.87f, 0.3f, 1.f);
@@ -274,6 +278,16 @@ void FlexbodyDebug::DrawDebugView()
                 {
                     drawlist->ChannelsSetCurrent(LAYER_NODES);
                     drawlist->AddCircleFilled(ImVec2(vert_pos.x, vert_pos.y), VERTEX_RADIUS, VERTEX_COLOR);
+
+                    // Check mouse hover
+                    ImVec2 cursor_dist((vert_pos.x - mouse_pos.x), (vert_pos.y - mouse_pos.y));
+                    float dist_squared = (cursor_dist.x * cursor_dist.x) + (cursor_dist.y * cursor_dist.y);
+                    if (dist_squared < hovered_vert_dist_squared)
+                    {
+                        hovered_vert = i;
+                        hovered_vert_dist_squared = dist_squared;
+                        dbg_cursor_dist = cursor_dist;
+                    }
                 }
 
                 drawlist->ChannelsSetCurrent(LAYER_TEXT);
@@ -410,12 +424,14 @@ void FlexbodyDebug::DrawMemoryOrderGraph(FlexBody* flexbody)
 
     if (App::flexbody_defrag_enabled->getBool())
     {
-        DrawGCheckbox(App::flexbody_defrag_reorder_texcoords, "Reorder texcoords");
-        ImGui::SameLine();
-        DrawGCheckbox(App::flexbody_defrag_reorder_indices, "Reorder indices");
-        ImGui::SameLine();
-        DrawGCheckbox(App::flexbody_defrag_invert_lookup, "Invert index lookup");
-
+        if (ImGui::CollapsingHeader("Artistic effects (keep all enabled for correct visual)."))
+        {
+            DrawGCheckbox(App::flexbody_defrag_reorder_texcoords, "Reorder texcoords");
+            ImGui::SameLine();
+            DrawGCheckbox(App::flexbody_defrag_reorder_indices, "Reorder indices");
+            ImGui::SameLine();
+            DrawGCheckbox(App::flexbody_defrag_invert_lookup, "Invert index lookup");
+        }
     }
 
     if (App::flexbody_defrag_enabled->getBool())
