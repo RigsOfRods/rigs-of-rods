@@ -569,6 +569,8 @@ private:
     GfxFlaresMode     m_flares_mode = GfxFlaresMode::NONE;       //!< Snapshot of cvar 'gfx_flares_mode' on spawn.
     BitMask_t         m_lightmask = 0;                           //!< RoRnet::Lightmask
     bool              m_blinker_autoreset = false;               //!< When true, we're steering and blinker will turn off automatically.
+    bool              m_blinker_left_lit = false;                //!< Blinking state of left turn signal
+    bool              m_blinker_right_lit = false;               //!< Blinking state of right turn signal
     /// @}
 
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
