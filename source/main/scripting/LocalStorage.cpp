@@ -44,9 +44,8 @@ LocalStorage::LocalStorage(AngelScript::asIScriptEngine *engine_in, std::string 
 
     sectionName = sectionName_in.substr(0, sectionName_in.find(".", 0));
     
-    this->filename = fileName_in + ".asdata";
+    m_filename = fileName_in + ".asdata";
     this->separators = "=";
-    this->resource_group_name = RGN_CACHE;
     loadDict();
     
     saved = true;
@@ -101,7 +100,7 @@ void LocalStorage::ReleaseAllReferences(AngelScript::asIScriptEngine * /*engine*
 
 LocalStorage &LocalStorage::operator =(LocalStorage &other)
 {
-    filename = other.getFilename();
+    m_filename = other.getFilename();
     sectionName = other.getSection();
     SettingsBySection::iterator secIt;
     SettingsBySection osettings = other.getSettings();
@@ -251,14 +250,14 @@ void LocalStorage::saveDict()
 
     try
     {
-        this->saveImprovedCfg();
+        this->saveImprovedCfg(m_filename, RGN_CACHE);
         this->saved = true;
     }
     catch (std::exception& e)
     {
         RoR::LogFormat("[RoR|Scripting|LocalStorage]"
                        "Error saving file '%s' (resource group '%s'), message: '%s'",
-                        this->filename, RGN_CACHE, e.what());
+                        m_filename, RGN_CACHE, e.what());
     }
 }
 
@@ -266,13 +265,13 @@ bool LocalStorage::loadDict()
 {
     try
     {
-        this->loadImprovedCfg();
+        this->loadImprovedCfg(m_filename, RGN_CACHE);
     }
     catch (std::exception& e)
     {
         RoR::LogFormat("[RoR|Scripting|LocalStorage]"
                        "Error reading file '%s' (resource group '%s'), message: '%s'",
-                        this->filename, RGN_CACHE, e.what());
+                        m_filename, RGN_CACHE, e.what());
         return false;
     }
     saved = true;
