@@ -29,7 +29,6 @@ class GameControls
 {
 public:
     const ImVec4      GRAY_HINT_TEXT = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
-    const int         MAPFILE_ID_DEFAULT = -1;
 
     void SetVisible(bool visible);
     bool IsVisible() const { return m_is_visible; }
@@ -58,7 +57,7 @@ private:
     float m_colum_widths[3] = {}; //!< body->header width sync
 
     // Mode/config file selection
-    int m_active_mapping_file = MAPFILE_ID_DEFAULT; //!< Negative values = MAPFILE_ID_*, 0+ = device specific map file.
+    int m_active_mapping_file = InputEngine::DEFAULT_MAPFILE_DEVICEID;
     bool m_unsaved_changes = false;
 
     // Editing context

@@ -408,6 +408,7 @@ bool GameControls::ShouldDisplay(event_trigger_t& trig)
 {
     // display only keyboard items from "input.map" or defaults
     return trig.eventtype == eventtypes::ET_Keyboard &&
-            (trig.configDeviceID == MAPFILE_ID_DEFAULT); // input.map
+            (trig.configDeviceID == InputEngine::DEFAULT_MAPFILE_DEVICEID ||
+                (trig.configDeviceID == InputEngine::BUILTIN_MAPPING_DEVICEID));
 }
 
