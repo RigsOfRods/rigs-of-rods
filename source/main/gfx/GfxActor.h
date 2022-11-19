@@ -148,7 +148,7 @@ public:
     bool                 HasDriverSeatProp() const { return m_driverseat_prop_index != -1; }
     void                 CalcPropAnimation(const int flag_state, float& cstate, int& div, float timer,
                                               const float lower_limit, const float upper_limit, const float option3);
-    std::vector<Prop>    getProps() { return m_props; }
+    std::vector<Prop>&   getProps() { return m_props; }
     bool                 hasCamera() { return m_videocameras.size() > 0; }
 
 private:

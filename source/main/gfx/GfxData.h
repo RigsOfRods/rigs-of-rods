@@ -141,6 +141,7 @@ struct Prop
     MeshObject*           pp_mesh_obj             = nullptr;
     int                   pp_camera_mode          = -2;                  //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
     std::vector<PropAnim> pp_animations;
+    bool                  pp_force_hidden         = false;
 
     // Special prop - steering wheel
     MeshObject*           pp_wheel_mesh_obj       = nullptr;
@@ -160,6 +161,22 @@ struct Prop
     int                   pp_aero_engine_idx      = -1;                  //!< Special - a turboprop/pistonprop reference
     bool                  pp_aero_propeller_blade:1;                     //!< Special - single blade mesh
     bool                  pp_aero_propeller_spin:1;                      //!< Special - blurred spinning propeller effect
+
+    void SetAllMeshesVisible(bool visible)
+    {
+        if (pp_mesh_obj)
+            pp_mesh_obj->setVisible(visible);
+        if (pp_wheel_mesh_obj)
+            pp_wheel_mesh_obj->setVisible(visible);
+        if (pp_beacon_scene_node[0])
+            pp_beacon_scene_node[0]->setVisible(visible);
+        if (pp_beacon_scene_node[1])
+            pp_beacon_scene_node[1]->setVisible(visible);
+        if (pp_beacon_scene_node[2])
+            pp_beacon_scene_node[2]->setVisible(visible);
+        if (pp_beacon_scene_node[3])
+            pp_beacon_scene_node[3]->setVisible(visible);
+    }
 };
 
 enum VideoCamType

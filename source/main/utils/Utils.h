@@ -95,4 +95,6 @@ private:
 
 bool IsDistanceWithin(Ogre::Vector3 const& a, Ogre::Vector3 const& b, float max);
 
+std::string PrintMeshInfo(std::string const& title, Ogre::MeshPtr mesh);
+
 } // namespace RoR

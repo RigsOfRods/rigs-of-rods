@@ -146,3 +146,46 @@ bool RoR::IsDistanceWithin(Ogre::Vector3 const& a, Ogre::Vector3 const& b, float
     return a.squaredDistance(b) <= max * max;
 }
 
+void formatVertexDeclInfo(RoR::Str<4000>& text, Ogre::VertexDeclaration* vertexDeclaration, int j)
+{
+    const VertexElement* ve = vertexDeclaration->getElement(j);
+    text << "\n" << "\telement #" << (j) << "/" << (vertexDeclaration->getElementCount());
+    text << " binding:" << (ve->getSource());
+    text << ", offset:" << (ve->getOffset());
+    text << ", type:" << (ve->getType());
+    text << ", semantic:" << (ve->getSemantic());
+    text << ", size:" << (ve->getSize());
+}
+
+std::string RoR::PrintMeshInfo(std::string const& title, MeshPtr mesh)
+{
+    Str<4000> text;
+    text << title;
+
+    if (mesh->sharedVertexData)
+    {
+        text << "\n" <<("Mesh has Shared Vertices:");
+        VertexData* vt=mesh->sharedVertexData;
+        for (int j=0; j<(int)vt->vertexDeclaration->getElementCount(); j++)
+        {
+            formatVertexDeclInfo(text, vt->vertexDeclaration, j);
+        }
+    }
+    text << "\n" <<("Mesh has "+TOSTRING(mesh->getNumSubMeshes())+" submesh(es)");
+    for (int i=0; i<mesh->getNumSubMeshes(); i++)
+    {
+        SubMesh* submesh = mesh->getSubMesh(i);
+        text << "\n" <<("SubMesh "+TOSTRING(i)+": uses shared?:"+TOSTRING(submesh->useSharedVertices));
+        if (!submesh->useSharedVertices)
+        {
+            VertexData* vt=submesh->vertexData;
+            for (int j=0; j<(int)vt->vertexDeclaration->getElementCount(); j++)
+            {
+                formatVertexDeclInfo(text, vt->vertexDeclaration, j);
+            }
+        }
+    }
+
+    return text.ToCStr();
+}
+

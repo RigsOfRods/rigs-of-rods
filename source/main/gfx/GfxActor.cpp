@@ -2169,7 +2169,7 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
             else if (prop.pp_aero_propeller_spin)
                 prop.pp_scene_node->setVisible(show_spinner);
         }
-        else
+        else if (!prop.pp_force_hidden)
         {
             const bool mo_visible = (prop.pp_camera_mode == -2 || prop.pp_camera_mode == m_simbuf.simbuf_cur_cinecam);
             prop.pp_mesh_obj->setVisible(mo_visible);
@@ -2227,18 +2227,7 @@ void RoR::GfxActor::SetPropsVisible(bool visible)
 {
     for (Prop& prop: m_props)
     {
-        if (prop.pp_mesh_obj)
-            prop.pp_mesh_obj->setVisible(visible);
-        if (prop.pp_wheel_mesh_obj)
-            prop.pp_wheel_mesh_obj->setVisible(visible);
-        if (prop.pp_beacon_scene_node[0])
-            prop.pp_beacon_scene_node[0]->setVisible(visible);
-        if (prop.pp_beacon_scene_node[1])
-            prop.pp_beacon_scene_node[1]->setVisible(visible);
-        if (prop.pp_beacon_scene_node[2])
-            prop.pp_beacon_scene_node[2]->setVisible(visible);
-        if (prop.pp_beacon_scene_node[3])
-            prop.pp_beacon_scene_node[3]->setVisible(visible);
+        prop.SetAllMeshesVisible(visible);
     }
 }
 

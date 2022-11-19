@@ -58,8 +58,11 @@ void MeshObject::setCastShadows(bool b)
 
 void MeshObject::setVisible(bool b)
 {
-    if (sceneNode)
+    // Workaround: if the scenenode is not used (entity not attached) for some reason, try hiding the entity directly.
+    if (sceneNode && sceneNode->getAttachedObjects().size() > 0)
         sceneNode->setVisible(b);
+    else if (ent)
+        ent->setVisible(b);
 }
 
 void MeshObject::createEntity(Ogre::String meshName, Ogre::String entityRG, Ogre::String entityName)
