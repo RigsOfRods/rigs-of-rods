@@ -100,7 +100,7 @@ FlexBody::FlexBody(
     }
 
     Ogre::MeshPtr mesh=ent->getMesh();
-    m_orig_mesh_info = this->printMeshInfo("Original", mesh); // For diagnostics only
+    m_orig_mesh_info = RoR::PrintMeshInfo("Original", mesh); // For diagnostics only
     int num_submeshes = static_cast<int>(mesh->getNumSubMeshes());
     if (preloaded_from_cache == nullptr)
     {
@@ -562,49 +562,6 @@ void FlexBody::setVisible(bool visible)
 void FlexBody::setFlexbodyCastShadow(bool val)
 {
     m_scene_entity->setCastShadows(val);
-}
-
-void formatVertexDeclInfo(Str<4000>& text, Ogre::VertexDeclaration* vertexDeclaration, int j)
-{
-    const VertexElement* ve = vertexDeclaration->getElement(j);
-    text << "\n" << "\telement #" << (j) << "/" << (vertexDeclaration->getElementCount());
-    text << " binding:" << (ve->getSource());
-    text << ", offset:" << (ve->getOffset());
-    text << ", type:" << (ve->getType());
-    text << ", semantic:" << (ve->getSemantic());
-    text << ", size:" << (ve->getSize());
-}
-
-std::string FlexBody::printMeshInfo(std::string const& title, MeshPtr mesh)
-{
-    Str<4000> text;
-    text << title;
-
-    if (mesh->sharedVertexData)
-    {
-        text << "\n" <<("Mesh has Shared Vertices:");
-        VertexData* vt=mesh->sharedVertexData;
-        for (int j=0; j<(int)vt->vertexDeclaration->getElementCount(); j++)
-        {
-            formatVertexDeclInfo(text, vt->vertexDeclaration, j);
-        }
-    }
-    text << "\n" <<("Mesh has "+TOSTRING(mesh->getNumSubMeshes())+" submesh(es)");
-    for (int i=0; i<mesh->getNumSubMeshes(); i++)
-    {
-        SubMesh* submesh = mesh->getSubMesh(i);
-        text << "\n" <<("SubMesh "+TOSTRING(i)+": uses shared?:"+TOSTRING(submesh->useSharedVertices));
-        if (!submesh->useSharedVertices)
-        {
-            VertexData* vt=submesh->vertexData;
-            for (int j=0; j<(int)vt->vertexDeclaration->getElementCount(); j++)
-            {
-                formatVertexDeclInfo(text, vt->vertexDeclaration, j);
-            }
-        }
-    }
-
-    return text.ToCStr();
 }
 
 void FlexBody::computeFlexbody()

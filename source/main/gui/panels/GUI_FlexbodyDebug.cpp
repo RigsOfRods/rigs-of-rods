@@ -40,7 +40,7 @@ void FlexbodyDebug::Draw()
 {
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
     bool keep_open = true;
-    ImGui::Begin(_LC("FlexbodyDebug", "Flexbody debug"), &keep_open, win_flags);
+    ImGui::Begin(_LC("FlexbodyDebug", "Flexbody/Prop debug"), &keep_open, win_flags);
 
     Actor* actor = App::GetGameContext()->GetPlayerActor();
     if (!actor)
@@ -50,32 +50,59 @@ void FlexbodyDebug::Draw()
         return;
     }
 
-    if (actor->GetGfxActor()->GetFlexbodies().size() == 0)
+    if (actor->GetGfxActor()->GetFlexbodies().size() == 0
+        && actor->GetGfxActor()->getProps().size() == 0)
     {
-        ImGui::Text("%s", _LC("FlexbodyDebug", "This vehicle has no flexbodies."));
+        ImGui::Text("%s", _LC("FlexbodyDebug", "This vehicle has no flexbodies or props."));
         ImGui::End();
         return;
     }
 
-    if (ImGui::Combo(_LC("FlexbodyDebug", "Select flexbody"), &m_combo_selection, m_combo_items.c_str()))
+    if (ImGui::Combo(_LC("FlexbodyDebug", "Select element"), &m_combo_selection, m_combo_items.c_str()))
     {
         this->UpdateVisibility();
         show_locator.resize(0);
-        show_locator.resize(actor->GetGfxActor()->GetFlexbodies()[m_combo_selection]->getVertexCount(), false);
+        if (m_combo_selection < m_combo_props_start)
+        {
+            show_locator.resize(actor->GetGfxActor()->GetFlexbodies()[m_combo_selection]->getVertexCount(), false);
+        }
     }
-    if (ImGui::Checkbox("Hide other", &this->hide_other_flexbodies))
+    if (ImGui::Checkbox("Hide other", &this->hide_other_elements))
     {
         this->UpdateVisibility();
     }
     ImGui::Separator();
-    FlexBody* flexbody = actor->GetGfxActor()->GetFlexbodies()[m_combo_selection];
-    
-    ImGui::Text("Mesh: '%s'", flexbody->getOrigMeshName().c_str());
+
+    // Fetch the element (prop or flexbody)
+    FlexBody* flexbody = nullptr;
+    Prop* prop = nullptr;
+    Ogre::MaterialPtr mat; // Assume one submesh (=> subentity)
+    NodeNum_t node_ref = NODENUM_INVALID, node_x = NODENUM_INVALID, node_y = NODENUM_INVALID;
+    std::string mesh_name;
+    if (m_combo_selection >= m_combo_props_start)
+    {
+        prop = &actor->GetGfxActor()->getProps()[m_combo_selection - m_combo_props_start];
+        mat = prop->pp_mesh_obj->getEntity()->getSubEntity(0)->getMaterial();
+        node_ref = prop->pp_node_ref;
+        node_x = prop->pp_node_x;
+        node_y = prop->pp_node_y;
+        mesh_name = prop->pp_mesh_obj->getEntity()->getMesh()->getName();
+    }
+    else
+    {
+        flexbody = actor->GetGfxActor()->GetFlexbodies()[m_combo_selection];
+        mat = flexbody->getEntity()->getSubEntity(0)->getMaterial();
+        node_ref = flexbody->getRefNode();
+        node_x = flexbody->getXNode();
+        node_y = flexbody->getYNode();
+        mesh_name = flexbody->getOrigMeshName();
+    }
+
+    ImGui::Text("Mesh: '%s'", mesh_name.c_str());
     ImGui::SameLine();
     if (ImGui::Checkbox("Wireframe (per material)", &this->draw_mesh_wireframe))
     {
-        // Assume one submesh (=> subentity), one technique and one pass
-        Ogre::MaterialPtr mat = flexbody->getEntity()->getSubEntity(0)->getMaterial();
+        // Assume one technique and one pass
         if (mat && mat->getTechniques().size() > 0 && mat->getTechniques()[0]->getPasses().size() > 0)
         {
             Ogre::PolygonMode mode = (this->draw_mesh_wireframe) ? Ogre::PM_WIREFRAME : Ogre::PM_SOLID;
@@ -83,32 +110,38 @@ void FlexbodyDebug::Draw()
         }
     }
 
-    ImGui::Text("Base nodes: Ref=%d, X=%d, Y=%d", (int)flexbody->getRefNode(), (int)flexbody->getXNode(), (int)flexbody->getYNode());
+    ImGui::Text("Base nodes: Ref=%d, X=%d, Y=%d", (int)node_ref, (int)node_x, (int)node_y);
     ImGui::SameLine();
     ImGui::Checkbox("Show##base", &this->show_base_nodes);
 
-    ImGui::Text("Forset nodes: (total %d)", (int)flexbody->getForsetNodes().size());
-    ImGui::SameLine();
-    ImGui::Checkbox("Show all##forset", &this->show_forset_nodes);
-
-    ImGui::Text("Vertices: (total %d)", (int)flexbody->getVertexCount());
-    ImGui::SameLine();
-    ImGui::Checkbox("Show all (pick with mouse)##verts", &this->show_vertices);
-
-    bool locators_visible = false;
-    if (ImGui::CollapsingHeader("Vertex locators table"))
+    bool flexbody_locators_visible = false;
+    if (flexbody)
     {
-        this->DrawLocatorsTable(flexbody, /*out:*/locators_visible);
+        ImGui::Text("Forset nodes: (total %d)", (int)flexbody->getForsetNodes().size());
+        ImGui::SameLine();
+        ImGui::Checkbox("Show all##forset", &this->show_forset_nodes);
+
+        ImGui::Text("Vertices: (total %d)", (int)flexbody->getVertexCount());
+        ImGui::SameLine();
+        ImGui::Checkbox("Show all (pick with mouse)##verts", &this->show_vertices);
+
+        if (ImGui::CollapsingHeader("Vertex locators table"))
+        {
+            this->DrawLocatorsTable(flexbody, /*out:*/flexbody_locators_visible);
+        }
+
+        if (ImGui::CollapsingHeader("Vertex locators memory (experimental!)"))
+        {
+            this->DrawMemoryOrderGraph(flexbody);
+        }
     }
 
-    if (ImGui::CollapsingHeader("Vertex locators memory (experimental!)"))
+    if (ImGui::CollapsingHeader("Mesh info"))
     {
-        this->DrawMemoryOrderGraph(flexbody);
-    }
-
-    if (ImGui::CollapsingHeader("Mesh info (developers)"))
-    {
-        this->DrawMeshInfo(flexbody);
+        if (flexbody)
+            this->DrawMeshInfo(flexbody);
+        else
+            this->DrawMeshInfo(prop);
     }
 
     m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
@@ -120,9 +153,9 @@ void FlexbodyDebug::Draw()
         this->SetVisible(false);
     }
 
-    if (this->show_base_nodes || this->show_forset_nodes || this->show_vertices || locators_visible)
+    if (this->show_base_nodes || this->show_forset_nodes || this->show_vertices || flexbody_locators_visible)
     {
-        this->DrawDebugView();
+        this->DrawDebugView(flexbody, prop, node_ref, node_x, node_y);
     }
 }
 
@@ -130,9 +163,13 @@ void FlexbodyDebug::AnalyzeFlexbodies()
 {
     // Reset
     m_combo_items = "";
+    m_combo_props_start = -1;
     m_combo_selection = -1;
 
-    // Analyze
+    // Var
+    int num_combo_items = 0;
+
+    // Analyze flexbodies
     Actor* actor = App::GetGameContext()->GetPlayerActor();
     if (actor && actor->GetGfxActor()->GetFlexbodies().size() > 0)
     {
@@ -140,6 +177,7 @@ void FlexbodyDebug::AnalyzeFlexbodies()
         {
             ImAddItemToComboboxString(m_combo_items,
                 fmt::format("{} ({} verts -> {} nodes)", fb->getOrigMeshName(), fb->getVertexCount(), fb->getForsetNodes().size()));
+            num_combo_items++;
         }
 
         m_combo_selection = 0;
@@ -147,6 +185,21 @@ void FlexbodyDebug::AnalyzeFlexbodies()
         show_locator.resize(0);
         show_locator.resize(actor->GetGfxActor()->GetFlexbodies()[m_combo_selection]->getVertexCount(), false);
     }
+
+    // Analyze props as well
+    if (actor && actor->GetGfxActor()->getProps().size() > 0)
+    {
+        m_combo_props_start = num_combo_items;
+        for (Prop const& p: actor->GetGfxActor()->getProps())
+        {
+            ImAddItemToComboboxString(m_combo_items, fmt::format("{} (prop)", p.pp_mesh_obj->getEntity()->getMesh()->getName()));
+            num_combo_items++;
+        }
+
+        if (m_combo_selection == -1)
+            m_combo_selection = 0;
+    }
+
     ImTerminateComboboxString(m_combo_items);
 }
 
@@ -175,10 +228,9 @@ const ImVec4 MEMGRAPH_NODEREF_COLOR_V4(1.f, 0.89f, 0.22f, 1.f);
 const ImVec4 MEMGRAPH_NODEX_COLOR_V4(1.f, 0.21f, 0.21f, 1.f);
 const ImVec4 MEMGRAPH_NODEY_COLOR_V4(0.27f, 0.76f, 1.f, 1.f);
 
-void FlexbodyDebug::DrawDebugView()
+void FlexbodyDebug::DrawDebugView(FlexBody* flexbody, Prop* prop, NodeNum_t node_ref, NodeNum_t node_x, NodeNum_t node_y)
 {
     ROR_ASSERT(App::GetGameContext()->GetPlayerActor() != nullptr);
-    FlexBody* flexbody = App::GetGameContext()->GetPlayerActor()->GetGfxActor()->GetFlexbodies()[m_combo_selection];
     NodeSB* nodes = App::GetGameContext()->GetPlayerActor()->GetGfxActor()->GetSimNodeBuffer();
 
     // Var
@@ -196,9 +248,9 @@ void FlexbodyDebug::DrawDebugView()
     if (this->show_base_nodes)
     {
         drawlist->ChannelsSetCurrent(LAYER_NODES);
-        Ogre::Vector3 refnode_pos = world2screen.Convert(nodes[flexbody->getRefNode()].AbsPosition);
-        Ogre::Vector3 xnode_pos = world2screen.Convert(nodes[flexbody->getXNode()].AbsPosition);
-        Ogre::Vector3 ynode_pos = world2screen.Convert(nodes[flexbody->getYNode()].AbsPosition);
+        Ogre::Vector3 refnode_pos = world2screen.Convert(nodes[node_ref].AbsPosition);
+        Ogre::Vector3 xnode_pos = world2screen.Convert(nodes[node_x].AbsPosition);
+        Ogre::Vector3 ynode_pos = world2screen.Convert(nodes[node_y].AbsPosition);
         // (z < 0) means "in front of the camera"
         if (refnode_pos.z < 0.f) {drawlist->AddCircleFilled(ImVec2(refnode_pos.x, refnode_pos.y), BASENODE_RADIUS, BASENODE_COLOR); }
         if (xnode_pos.z < 0.f) { drawlist->AddCircleFilled(ImVec2(xnode_pos.x, xnode_pos.y), BASENODE_RADIUS, BASENODE_COLOR); }
@@ -212,12 +264,12 @@ void FlexbodyDebug::DrawDebugView()
         }
 
         drawlist->ChannelsSetCurrent(LAYER_TEXT);
-        drawlist->AddText(ImVec2(refnode_pos.x, refnode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", flexbody->getRefNode()).c_str());
-        drawlist->AddText(ImVec2(xnode_pos.x, xnode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", flexbody->getXNode()).c_str());
-        drawlist->AddText(ImVec2(ynode_pos.x, ynode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", flexbody->getYNode()).c_str());
+        drawlist->AddText(ImVec2(refnode_pos.x, refnode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", node_ref).c_str());
+        drawlist->AddText(ImVec2(xnode_pos.x, xnode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", node_x).c_str());
+        drawlist->AddText(ImVec2(ynode_pos.x, ynode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", node_y).c_str());
     }
 
-    if (this->show_forset_nodes)
+    if (flexbody && this->show_forset_nodes)
     {
         for (NodeNum_t node : flexbody->getForsetNodes())
         {
@@ -234,7 +286,7 @@ void FlexbodyDebug::DrawDebugView()
     float hovered_vert_dist_squared = FLT_MAX;
     ImVec2 mouse_pos = ImGui::GetMousePos();
     ImVec2 dbg_cursor_dist(0, 0);
-    if (this->show_vertices)
+    if (flexbody && this->show_vertices)
     {
         for (int i = 0; i < flexbody->getVertexCount(); i++)
         {
@@ -265,66 +317,69 @@ void FlexbodyDebug::DrawDebugView()
         hovered_vert = -1;
     }
 
-    for (int i = 0; i < flexbody->getVertexCount(); i++)
+    if (flexbody)
     {
-        if (this->show_locator[i] || i == hovered_vert)
+        for (int i = 0; i < flexbody->getVertexCount(); i++)
         {
-            // The vertex
-            Ogre::Vector3 vert_pos = world2screen.Convert(flexbody->getVertexPos(i));
-
-            if (vert_pos.z < 0.f)
+            if (this->show_locator[i] || i == hovered_vert)
             {
-                if (!this->show_vertices) // don't draw twice
-                {
-                    drawlist->ChannelsSetCurrent(LAYER_NODES);
-                    drawlist->AddCircleFilled(ImVec2(vert_pos.x, vert_pos.y), VERTEX_RADIUS, VERTEX_COLOR);
+                // The vertex
+                Ogre::Vector3 vert_pos = world2screen.Convert(flexbody->getVertexPos(i));
 
-                    // Check mouse hover
-                    ImVec2 cursor_dist((vert_pos.x - mouse_pos.x), (vert_pos.y - mouse_pos.y));
-                    float dist_squared = (cursor_dist.x * cursor_dist.x) + (cursor_dist.y * cursor_dist.y);
-                    if (dist_squared < hovered_vert_dist_squared)
+                if (vert_pos.z < 0.f)
+                {
+                    if (!this->show_vertices) // don't draw twice
                     {
-                        hovered_vert = i;
-                        hovered_vert_dist_squared = dist_squared;
-                        dbg_cursor_dist = cursor_dist;
+                        drawlist->ChannelsSetCurrent(LAYER_NODES);
+                        drawlist->AddCircleFilled(ImVec2(vert_pos.x, vert_pos.y), VERTEX_RADIUS, VERTEX_COLOR);
+
+                        // Check mouse hover
+                        ImVec2 cursor_dist((vert_pos.x - mouse_pos.x), (vert_pos.y - mouse_pos.y));
+                        float dist_squared = (cursor_dist.x * cursor_dist.x) + (cursor_dist.y * cursor_dist.y);
+                        if (dist_squared < hovered_vert_dist_squared)
+                        {
+                            hovered_vert = i;
+                            hovered_vert_dist_squared = dist_squared;
+                            dbg_cursor_dist = cursor_dist;
+                        }
                     }
+
+                    drawlist->ChannelsSetCurrent(LAYER_TEXT);
+                    drawlist->AddText(ImVec2(vert_pos.x, vert_pos.y), VERTEX_TEXT_COLOR, fmt::format("v{}", i).c_str());
                 }
 
-                drawlist->ChannelsSetCurrent(LAYER_TEXT);
-                drawlist->AddText(ImVec2(vert_pos.x, vert_pos.y), VERTEX_TEXT_COLOR, fmt::format("v{}", i).c_str());
-            }
+                // The locator nodes
+                Locator_t& loc = flexbody->getVertexLocator(i);
+                Ogre::Vector3 refnode_pos = world2screen.Convert(nodes[loc.ref].AbsPosition);
+                Ogre::Vector3 xnode_pos = world2screen.Convert(nodes[loc.nx].AbsPosition);
+                Ogre::Vector3 ynode_pos = world2screen.Convert(nodes[loc.ny].AbsPosition);
+                if (!this->show_forset_nodes) // don't draw twice
+                {
+                    // (z < 0) means "in front of the camera"
+                    if (refnode_pos.z < 0.f) { drawlist->AddCircleFilled(ImVec2(refnode_pos.x, refnode_pos.y), FORSETNODE_RADIUS, FORSETNODE_COLOR); }
+                    if (xnode_pos.z < 0.f) { drawlist->AddCircleFilled(ImVec2(xnode_pos.x, xnode_pos.y), FORSETNODE_RADIUS, FORSETNODE_COLOR); }
+                    if (ynode_pos.z < 0.f) { drawlist->AddCircleFilled(ImVec2(ynode_pos.x, ynode_pos.y), FORSETNODE_RADIUS, FORSETNODE_COLOR); }
+                }
 
-            // The locator nodes
-            Locator_t& loc = flexbody->getVertexLocator(i);
-            Ogre::Vector3 refnode_pos = world2screen.Convert(nodes[loc.ref].AbsPosition);
-            Ogre::Vector3 xnode_pos = world2screen.Convert(nodes[loc.nx].AbsPosition);
-            Ogre::Vector3 ynode_pos = world2screen.Convert(nodes[loc.ny].AbsPosition);
-            if (!this->show_forset_nodes) // don't draw twice
-            {
-                // (z < 0) means "in front of the camera"
-                if (refnode_pos.z < 0.f) { drawlist->AddCircleFilled(ImVec2(refnode_pos.x, refnode_pos.y), FORSETNODE_RADIUS, FORSETNODE_COLOR); }
-                if (xnode_pos.z < 0.f) { drawlist->AddCircleFilled(ImVec2(xnode_pos.x, xnode_pos.y), FORSETNODE_RADIUS, FORSETNODE_COLOR); }
-                if (ynode_pos.z < 0.f) { drawlist->AddCircleFilled(ImVec2(ynode_pos.x, ynode_pos.y), FORSETNODE_RADIUS, FORSETNODE_COLOR); }
-            }
+                drawlist->ChannelsSetCurrent(LAYER_BEAMS);
+                if (refnode_pos.z < 0)
+                {
+                    if (xnode_pos.z < 0) { drawlist->AddLine(ImVec2(refnode_pos.x, refnode_pos.y), ImVec2(xnode_pos.x, xnode_pos.y), AXIS_X_BEAM_COLOR, BEAM_THICKNESS); }
+                    if (ynode_pos.z < 0) { drawlist->AddLine(ImVec2(refnode_pos.x, refnode_pos.y), ImVec2(ynode_pos.x, ynode_pos.y), AXIS_Y_BEAM_COLOR, BLUE_BEAM_THICKNESS); }
+                    if (vert_pos.z < 0) { drawlist->AddLine(ImVec2(refnode_pos.x, refnode_pos.y), ImVec2(vert_pos.x, vert_pos.y), LOCATOR_BEAM_COLOR, LOCATOR_BEAM_THICKNESS); }
+                }
 
-            drawlist->ChannelsSetCurrent(LAYER_BEAMS);
-            if (refnode_pos.z < 0)
-            {
-                if (xnode_pos.z < 0) { drawlist->AddLine(ImVec2(refnode_pos.x, refnode_pos.y), ImVec2(xnode_pos.x, xnode_pos.y), AXIS_X_BEAM_COLOR, BEAM_THICKNESS); }
-                if (ynode_pos.z < 0) { drawlist->AddLine(ImVec2(refnode_pos.x, refnode_pos.y), ImVec2(ynode_pos.x, ynode_pos.y), AXIS_Y_BEAM_COLOR, BLUE_BEAM_THICKNESS); }
-                if (vert_pos.z < 0) { drawlist->AddLine(ImVec2(refnode_pos.x, refnode_pos.y), ImVec2(vert_pos.x, vert_pos.y), LOCATOR_BEAM_COLOR, LOCATOR_BEAM_THICKNESS); }
-            }
+                if (!this->show_forset_nodes) // don't draw twice
+                {
+                    drawlist->AddText(ImVec2(refnode_pos.x, refnode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", loc.ref).c_str());
+                    drawlist->AddText(ImVec2(xnode_pos.x, xnode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", loc.nx).c_str());
+                    drawlist->AddText(ImVec2(ynode_pos.x, ynode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", loc.ny).c_str());
+                }
 
-            if (!this->show_forset_nodes) // don't draw twice
-            {
-                drawlist->AddText(ImVec2(refnode_pos.x, refnode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", loc.ref).c_str());
-                drawlist->AddText(ImVec2(xnode_pos.x, xnode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", loc.nx).c_str());
-                drawlist->AddText(ImVec2(ynode_pos.x, ynode_pos.y), NODE_TEXT_COLOR, fmt::format("{}", loc.ny).c_str());
-            }
-
-            if (i == hovered_vert && ImGui::IsMouseClicked(0))
-            {
-                this->show_locator[i] = !this->show_locator[i];
+                if (i == hovered_vert && ImGui::IsMouseClicked(0))
+                {
+                    this->show_locator[i] = !this->show_locator[i];
+                }
             }
         }
     }
@@ -334,15 +389,30 @@ void FlexbodyDebug::DrawDebugView()
 
 void FlexbodyDebug::UpdateVisibility()
 {
-    if (!App::GetGameContext()->GetPlayerActor())
+    Actor* actor = App::GetGameContext()->GetPlayerActor();
+    if (!actor)
     {
         return;
     }
 
-    auto& flexbody_vec = App::GetGameContext()->GetPlayerActor()->GetGfxActor()->GetFlexbodies();
-    for (int i = 0; i < flexbody_vec.size(); i++)
+    auto& flexbody_vec = actor->GetGfxActor()->GetFlexbodies();
+    for (int i = 0; i < (int)flexbody_vec.size(); i++)
     {
-        flexbody_vec[i]->setVisible(!this->hide_other_flexbodies || i == m_combo_selection);
+        const int combo_pos = i;
+        const bool visible = (!this->hide_other_elements || combo_pos == m_combo_selection);
+        flexbody_vec[i]->setVisible(visible);
+    }
+
+    auto& prop_vec = actor->GetGfxActor()->getProps();
+    for (int i = 0; i < (int)prop_vec.size(); i++)
+    {
+        const int combo_pos = i + (int)flexbody_vec.size();
+        const bool visible = (!this->hide_other_elements || combo_pos == m_combo_selection);
+        // Prop visibility is updated every frame based on camera position and settings, see `GfxActor::UpdateProps()`
+        // The 'force hidden' flag disables that update.
+        prop_vec[i].pp_force_hidden = !visible;
+        if (prop_vec[i].pp_force_hidden)
+            prop_vec[i].SetAllMeshesVisible(false);
     }
 }
 
@@ -487,4 +557,28 @@ void FlexbodyDebug::DrawMeshInfo(FlexBody* flexbody)
     ImGui::Text("%s", flexbody->getOrigMeshInfo().c_str());
     ImGui::Separator();
     ImGui::Text("%s", flexbody->getLiveMeshInfo().c_str());
+}
+
+void FlexbodyDebug::DrawMeshInfo(Prop* prop)
+{
+    ImGui::Text("The prop mesh files as provided by modder.");
+    if (prop->pp_mesh_obj)
+    {
+        ImGui::Separator();
+        ImGui::Text("%s", RoR::PrintMeshInfo("Prop", prop->pp_mesh_obj->getEntity()->getMesh()).c_str());
+    }
+    if (prop->pp_wheel_mesh_obj)
+    {
+        ImGui::Separator();
+        ImGui::Text("%s", RoR::PrintMeshInfo("Special: steering wheel", prop->pp_wheel_mesh_obj->getEntity()->getMesh()).c_str());
+    }
+    for (int i = 0; i < 4; i++)
+    {
+        if (prop->pp_beacon_scene_node[i])
+        {
+            ImGui::Separator();
+            Ogre::Entity* entity = static_cast<Ogre::Entity*>(prop->pp_beacon_scene_node[i]->getAttachedObject(0));
+            ImGui::Text("%s", RoR::PrintMeshInfo(fmt::format("Special: beacon #{}", i), entity->getMesh()).c_str());
+        }
+    }
 }

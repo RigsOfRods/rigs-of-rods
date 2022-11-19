@@ -28,6 +28,7 @@
 namespace RoR {
 namespace GUI {
 
+/// Flexbody and prop diagnostic
 class FlexbodyDebug
 {
 public:
@@ -37,7 +38,7 @@ public:
     void Draw();
 
     void AnalyzeFlexbodies(); //!< populates the combobox
-    void DrawDebugView();
+    void DrawDebugView(FlexBody* flexbody, Prop* prop, NodeNum_t node_ref, NodeNum_t node_x, NodeNum_t node_y);
 
 private:
 
@@ -45,17 +46,19 @@ private:
     void DrawMemoryOrderGraph(FlexBody* flexbody);
     void DrawLocatorsTable(FlexBody* flexbody, bool& locators_visible);
     void DrawMeshInfo(FlexBody* flexbody);
+    void DrawMeshInfo(Prop* prop);
 
     // Display options
     bool draw_mesh_wireframe = false;
     bool show_base_nodes = false;
     bool show_forset_nodes = false;
     bool show_vertices = false;
-    bool hide_other_flexbodies = false;
+    bool hide_other_elements = false;
     std::vector<bool> show_locator;
 
-    // Flexbody selection combobox
-    std::string m_combo_items;
+    // Flexbody and prop selection combobox
+    std::string m_combo_items; //!< Flexbodies come first, props second
+    int m_combo_props_start = -1; //!< Index of first prop in the combobox. -1 means no props.
     int m_combo_selection = 0;
 
     // Window state

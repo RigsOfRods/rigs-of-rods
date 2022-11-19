@@ -26,6 +26,7 @@
 #include "Locator_t.h"
 #include "SimData.h"
 #include "RigDef_File.h"
+#include "Utils.h"
 
 #include <Ogre.h>
 
@@ -82,7 +83,7 @@ public:
     std::string getOrigMeshName();
     std::vector<NodeNum_t>& getForsetNodes() { return m_forset_nodes; };
     std::string getOrigMeshInfo() { return m_orig_mesh_info; }
-    std::string getLiveMeshInfo() { return this->printMeshInfo("Live", m_scene_entity->getMesh()); }
+    std::string getLiveMeshInfo() { return RoR::PrintMeshInfo("Live", m_scene_entity->getMesh()); }
 
     NodeNum_t getRefNode() { return m_node_center; }
     NodeNum_t getXNode() { return m_node_x; }
@@ -90,7 +91,6 @@ public:
 
 private:
 
-    std::string printMeshInfo(std::string const& title, Ogre::MeshPtr mesh);
     void defragmentFlexbodyMesh();
 
     RoR::GfxActor*    m_gfx_actor;
