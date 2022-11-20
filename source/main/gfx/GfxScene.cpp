@@ -77,6 +77,7 @@ void GfxScene::ClearScene()
     // Recover from the wipe
     App::GetCameraManager()->ReCreateCameraNode();
     App::GetGuiManager()->DirectionArrow.CreateArrow();
+    App::GetGfxScene()->GetEnvMap().CreateSceneNodes();
 }
 
 void GfxScene::Init()

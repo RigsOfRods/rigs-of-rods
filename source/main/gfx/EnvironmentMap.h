@@ -39,6 +39,7 @@ public:
 
     void SetupEnvMap();
     void UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, bool full = false);
+    void CreateSceneNodes(); //!< Must be invoked repeatedly because we wipe the SceneManager after return to main menu.
 
 private:
 
