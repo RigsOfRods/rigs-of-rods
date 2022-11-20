@@ -54,10 +54,6 @@ void RoR::GfxEnvmap::SetupEnvMap()
         m_cameras[face]->setNearClipDistance(0.1f);
         m_cameras[face]->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
 
-        m_cameras_snode[face] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-        m_cameras_snode[face]->attachObject(m_cameras[face]);
-        m_cameras_snode[face]->setFixedYawAxis(false);
-
         Ogre::Viewport* v = m_render_targets[face]->addViewport(m_cameras[face]);
         v->setOverlaysEnabled(false);
         v->setClearEveryFrame(true);
@@ -65,12 +61,7 @@ void RoR::GfxEnvmap::SetupEnvMap()
         m_render_targets[face]->setAutoUpdated(false);
     }
 
-    m_cameras_snode[0]->setDirection(+Ogre::Vector3::UNIT_X);
-    m_cameras_snode[1]->setDirection(-Ogre::Vector3::UNIT_X);
-    m_cameras_snode[2]->setDirection(+Ogre::Vector3::UNIT_Y);
-    m_cameras_snode[3]->setDirection(-Ogre::Vector3::UNIT_Y);
-    m_cameras_snode[4]->setDirection(-Ogre::Vector3::UNIT_Z);
-    m_cameras_snode[5]->setDirection(+Ogre::Vector3::UNIT_Z);
+    this->CreateSceneNodes();
 
     if (App::diag_envmap->getBool())
     {
@@ -261,4 +252,25 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, boo
         gfx_actor->SetRodsVisible(true);
         gfx_actor->SetAllMeshesVisible(true);
     }
+}
+
+void RoR::GfxEnvmap::CreateSceneNodes()
+{
+    // We call `Ogre::SceneManager::clearScene()` after returning to menu, so all SceneNode pointers become dangling.
+    // See `RoR::GfxScene::ClearScene()`.
+    // ----------------------------------------------
+
+    for (int face = 0; face < NUM_FACES; face++)
+    {
+        m_cameras_snode[face] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        m_cameras_snode[face]->attachObject(m_cameras[face]);
+        m_cameras_snode[face]->setFixedYawAxis(false);
+    }
+
+    m_cameras_snode[0]->setDirection(+Ogre::Vector3::UNIT_X);
+    m_cameras_snode[1]->setDirection(-Ogre::Vector3::UNIT_X);
+    m_cameras_snode[2]->setDirection(+Ogre::Vector3::UNIT_Y);
+    m_cameras_snode[3]->setDirection(-Ogre::Vector3::UNIT_Y);
+    m_cameras_snode[4]->setDirection(-Ogre::Vector3::UNIT_Z);
+    m_cameras_snode[5]->setDirection(+Ogre::Vector3::UNIT_Z);
 }
