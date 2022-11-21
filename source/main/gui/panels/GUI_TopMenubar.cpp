@@ -224,7 +224,7 @@ void TopMenubar::Update()
         m_open_menu = TopMenu::TOPMENU_SETTINGS;
 #ifdef USE_CAELUM
         if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
-            m_daytime = App::GetSimTerrain()->getSkyManager()->GetTime();
+            m_daytime = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
 #endif // USE_CAELUM
     }
 
@@ -361,9 +361,9 @@ void TopMenubar::Update()
                     App::GetGameContext()->PushMessage(Message(MsgType::MSG_SIM_UNLOAD_TERRN_REQUESTED));
                     // Order is required - create chain.
                     App::GetGameContext()->ChainMessage(Message(MsgType::MSG_EDI_RELOAD_BUNDLE_REQUESTED,
-                        (void*)App::GetSimTerrain()->getCacheEntry()));
+                        (void*)App::GetGameContext()->GetTerrain()->getCacheEntry()));
                     App::GetGameContext()->ChainMessage(Message(MsgType::MSG_SIM_LOAD_TERRN_REQUESTED,
-                        App::GetSimTerrain()->getCacheEntry()->fname));
+                        App::GetGameContext()->GetTerrain()->getCacheEntry()->fname));
                 }
             }
 
@@ -557,10 +557,10 @@ void TopMenubar::Update()
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Time of day:"));
-                float time = App::GetSimTerrain()->getSkyManager()->GetTime();
+                float time = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
                 if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
                 {
-                    App::GetSimTerrain()->getSkyManager()->SetTime(time);
+                    App::GetGameContext()->GetTerrain()->getSkyManager()->SetTime(time);
                 }
                 ImGui::SameLine();
                 DrawGCheckbox(App::gfx_sky_time_cycle, _LC("TopMenubar", "Cycle"));
@@ -570,7 +570,7 @@ void TopMenubar::Update()
                 }
             }       
 #endif // USE_CAELUM
-            if (RoR::App::gfx_water_waves->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED && App::GetSimTerrain()->getWater())
+            if (RoR::App::gfx_water_waves->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED && App::GetGameContext()->GetTerrain()->getWater())
             {
                 if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
                 {
@@ -578,7 +578,7 @@ void TopMenubar::Update()
                     ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Waves Height:"));
                     if(ImGui::SliderFloat("", &m_waves_height, 0.f, 4.f, ""))
                     {
-                        App::GetSimTerrain()->getWater()->SetWavesHeight(m_waves_height);
+                        App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(m_waves_height);
                     }
                     ImGui::PopID();
                 }

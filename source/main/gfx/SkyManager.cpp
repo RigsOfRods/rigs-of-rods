@@ -25,6 +25,7 @@
 
 #include "AppContext.h"
 #include "CameraManager.h"
+#include "GameContext.h"
 #include "GfxScene.h"
 #include "Terrain.h"
 #include "TerrainGeometryManager.h"
@@ -64,7 +65,7 @@ void SkyManager::NotifySkyCameraChanged(Ogre::Camera* cam)
 
 void SkyManager::DetectSkyUpdate()
 {
-    if (!m_caelum_system || !App::GetSimTerrain())
+    if (!m_caelum_system || !App::GetGameContext()->GetTerrain())
     {
         return;
     }
@@ -73,7 +74,7 @@ void SkyManager::DetectSkyUpdate()
 
     if (c - m_last_clock > 0.001f)
     {
-        TerrainGeometryManager* gm = App::GetSimTerrain()->getGeometryManager();
+        TerrainGeometryManager* gm = App::GetGameContext()->GetTerrain()->getGeometryManager();
         if (gm)
             gm->updateLightMap();
     }

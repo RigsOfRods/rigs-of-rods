@@ -21,6 +21,7 @@
 #include "AutoPilot.h"
 
 #include "Application.h"
+#include "GameContext.h"
 #include "SimData.h"
 #include "SoundScriptManager.h"
 #include "Terrain.h"
@@ -325,9 +326,9 @@ void Autopilot::gpws_update(float spawnheight)
         return;
     if (mode_gpws && ref_b)
     {
-        float groundalt = App::GetSimTerrain()->GetHeightAt(ref_c->AbsPosition.x, ref_c->AbsPosition.z);
-        if (App::GetSimTerrain()->getWater() && groundalt < App::GetSimTerrain()->getWater()->GetStaticWaterHeight())
-            groundalt = App::GetSimTerrain()->getWater()->GetStaticWaterHeight();
+        float groundalt = App::GetGameContext()->GetTerrain()->GetHeightAt(ref_c->AbsPosition.x, ref_c->AbsPosition.z);
+        if (App::GetGameContext()->GetTerrain()->getWater() && groundalt < App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight())
+            groundalt = App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight();
         float height = (ref_c->AbsPosition.y - groundalt - spawnheight) * 3.28083f; //in feet!
         //skip height warning sounds when the plane is slower then ~10 knots
         if ((ref_c->Velocity.length() * 1.9685f) > 10.0f)

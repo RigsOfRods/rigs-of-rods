@@ -21,6 +21,7 @@
 #include "SurveyMapTextureCreator.h"
 
 #include "Application.h"
+#include "GameContext.h"
 #include "GfxScene.h"
 #include "IWater.h"
 #include "Terrain.h"
@@ -93,7 +94,7 @@ void SurveyMapTextureCreator::update(Vector2 center, Vector2 size)
 
 void SurveyMapTextureCreator::preRenderTargetUpdate(const RenderTargetEvent &evt)
 {
-    auto water = App::GetSimTerrain()->getWater();
+    auto water = App::GetGameContext()->GetTerrain()->getWater();
     if (water)
     {
         water->SetStaticWaterHeight(water->GetStaticWaterHeight());
@@ -106,7 +107,7 @@ void SurveyMapTextureCreator::preRenderTargetUpdate(const RenderTargetEvent &evt
 
 void SurveyMapTextureCreator::postRenderTargetUpdate(const RenderTargetEvent &evt)
 {
-    auto water = App::GetSimTerrain()->getWater();
+    auto water = App::GetGameContext()->GetTerrain()->getWater();
     if (water)
     {
         water->UpdateWater();

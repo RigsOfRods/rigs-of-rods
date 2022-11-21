@@ -1185,15 +1185,15 @@ void Actor::resetPosition(float px, float pz, bool setInitPosition, float miny)
 
     // vertical displacement
     float vertical_offset = miny - this->getMinHeight();
-    if (App::GetSimTerrain()->getWater())
+    if (App::GetGameContext()->GetTerrain()->getWater())
     {
-        vertical_offset += std::max(0.0f, App::GetSimTerrain()->getWater()->GetStaticWaterHeight() - miny);
+        vertical_offset += std::max(0.0f, App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight() - miny);
     }
     for (int i = 1; i < ar_num_nodes; i++)
     {
         if (ar_nodes[i].nd_no_ground_contact)
             continue;
-        float terrainHeight = App::GetSimTerrain()->GetHeightAt(ar_nodes[i].AbsPosition.x, ar_nodes[i].AbsPosition.z);
+        float terrainHeight = App::GetGameContext()->GetTerrain()->GetHeightAt(ar_nodes[i].AbsPosition.x, ar_nodes[i].AbsPosition.z);
         vertical_offset += std::max(0.0f, terrainHeight - (ar_nodes[i].AbsPosition.y + vertical_offset));
     }
     for (int i = 0; i < ar_num_nodes; i++)
@@ -1214,7 +1214,7 @@ void Actor::resetPosition(float px, float pz, bool setInitPosition, float miny)
         while (offset < 1.0f)
         {
             Vector3 query = ar_nodes[i].AbsPosition + Vector3(0.0f, offset, 0.0f);
-            if (!App::GetSimTerrain()->GetCollisions()->collisionCorrect(&query, false))
+            if (!App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query, false))
             {
                 mesh_offset = offset;
                 break;
@@ -1458,7 +1458,7 @@ float Actor::getHeightAboveGround(bool skip_virtual_nodes)
         if (!skip_virtual_nodes || !ar_nodes[i].nd_no_ground_contact)
         {
             Vector3 pos = ar_nodes[i].AbsPosition;
-            agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(pos.x, pos.z), agl);
+            agl = std::min(pos.y - App::GetGameContext()->GetTerrain()->GetCollisions()->getSurfaceHeight(pos.x, pos.z), agl);
         }
     }
     return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : getHeightAboveGround(false);
@@ -1472,7 +1472,7 @@ float Actor::getHeightAboveGroundBelow(float height, bool skip_virtual_nodes)
         if (!skip_virtual_nodes || !ar_nodes[i].nd_no_ground_contact)
         {
             Vector3 pos = ar_nodes[i].AbsPosition;
-            agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(pos.x, pos.z, height), agl);
+            agl = std::min(pos.y - App::GetGameContext()->GetTerrain()->GetCollisions()->getSurfaceHeightBelow(pos.x, pos.z, height), agl);
         }
     }
     return (!skip_virtual_nodes || agl < std::numeric_limits<float>::max()) ? agl : getHeightAboveGroundBelow(height, false);
@@ -1492,9 +1492,9 @@ void Actor::SoftReset()
 
     float agl = this->getHeightAboveGroundBelow(this->getMaxHeight(true), true);
 
-    if (App::GetSimTerrain()->getWater())
+    if (App::GetGameContext()->GetTerrain()->getWater())
     {
-        agl = std::min(this->getMinHeight(true) - App::GetSimTerrain()->getWater()->GetStaticWaterHeight(), agl);
+        agl = std::min(this->getMinHeight(true) - App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight(), agl);
     }
 
     if (agl < 0.0f)
@@ -1648,9 +1648,9 @@ void Actor::SyncReset(bool reset_position)
         this->ResetAngle(cur_rot);
         this->resetPosition(cur_position, false);
         float agl = this->getHeightAboveGroundBelow(this->getMaxHeight(true), true);
-        if (App::GetSimTerrain()->getWater())
+        if (App::GetGameContext()->GetTerrain()->getWater())
         {
-            agl = std::min(this->getMinHeight(true) - App::GetSimTerrain()->getWater()->GetStaticWaterHeight(), agl);
+            agl = std::min(this->getMinHeight(true) - App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight(), agl);
         }
         if (agl < 0.0f)
         {
@@ -3209,7 +3209,7 @@ void Actor::updateVisual(float dt)
     float autoelevator = 0;
     if (ar_autopilot)
     {
-        ar_autopilot->UpdateIls(App::GetSimTerrain()->getObjectManager()->GetLocalizers());
+        ar_autopilot->UpdateIls(App::GetGameContext()->GetTerrain()->getObjectManager()->GetLocalizers());
         autoaileron = ar_autopilot->getAilerons();
         autorudder = ar_autopilot->getRudder();
         autoelevator = ar_autopilot->getElevator();
@@ -4277,7 +4277,7 @@ void Actor::calculateLocalGForces()
     Vector3 cam_roll = this->GetCameraRoll();
     Vector3 cam_up   = cam_dir.crossProduct(cam_roll);
 
-    float gravity = App::GetSimTerrain()->getGravity();
+    float gravity = App::GetGameContext()->GetTerrain()->getGravity();
 
     float vertacc = m_camera_gforces.dotProduct(cam_up) + gravity;
     float longacc = m_camera_gforces.dotProduct(cam_dir);

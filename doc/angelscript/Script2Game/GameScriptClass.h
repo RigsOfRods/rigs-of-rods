@@ -419,6 +419,11 @@ public:
 	 * This method repairs the vehicle in the box
 	 */
 	void repairVehicle(string instance, string box, bool keepPosition);
+    
+	/**
+	 * Gets the currently loaded terrain instance
+	 */    
+	TerrainClass@ getTerrain();
 
 	/**
 	 * This method removes the vehicle in the box

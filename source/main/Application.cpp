@@ -42,6 +42,7 @@
 #include "Network.h"
 #include "ScriptEngine.h"
 #include "SoundScriptManager.h"
+#include "Terrain.h"
 #include "ThreadPool.h"
 
 namespace RoR {
@@ -60,7 +61,6 @@ static GUIManager*      g_gui_manager;
 static InputEngine*     g_input_engine;
 static CacheSystem*     g_cache_system;
 static MumbleIntegration* g_mumble;
-static Terrain*  g_sim_terrain;
 static ThreadPool*      g_thread_pool;
 static CameraManager*   g_camera_manager;
 static GfxScene         g_gfx_scene;
@@ -238,7 +238,6 @@ CVar* gfx_reduce_shadows;
 CVar* gfx_enable_rtshaders;
 
 // Instance management
-void SetSimTerrain     (Terrain* obj)          { g_sim_terrain = obj;}
 void SetCacheSystem    (CacheSystem* obj)             { g_cache_system = obj; }
 
 // Instance access
@@ -250,7 +249,6 @@ Console*               GetConsole            () { return &g_console;}
 InputEngine*           GetInputEngine        () { return g_input_engine;}
 CacheSystem*           GetCacheSystem        () { return g_cache_system;}
 MumbleIntegration*     GetMumble             () { return g_mumble; }
-Terrain*        GetSimTerrain         () { return g_sim_terrain; }
 ThreadPool*            GetThreadPool         () { return g_thread_pool; }
 CameraManager*         GetCameraManager      () { return g_camera_manager; }
 GfxScene*              GetGfxScene           () { return &g_gfx_scene; }

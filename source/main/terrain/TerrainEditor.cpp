@@ -38,7 +38,7 @@ using namespace Ogre;
 
 void TerrainEditor::UpdateInputEvents(float dt)
 {
-    auto& object_list = App::GetSimTerrain()->getObjectManager()->GetEditorObjects();
+    auto& object_list = App::GetGameContext()->GetTerrain()->getObjectManager()->GetEditorObjects();
     bool update = false;
 
     if (ImGui::IsMouseClicked(2)) // Middle button
@@ -97,7 +97,7 @@ void TerrainEditor::UpdateInputEvents(float dt)
         try
         {
             SceneNode* bakeNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-            App::GetSimTerrain()->getObjectManager()->LoadTerrainObject(m_last_object_name, pos, Vector3::ZERO, bakeNode, "Console", "");
+            App::GetGameContext()->GetTerrain()->getObjectManager()->LoadTerrainObject(m_last_object_name, pos, Vector3::ZERO, bakeNode, "Console", "");
 
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_REPLY, _L("Spawned object at position: ") + String("x: ") + TOSTRING(pos.x) + String("z: ") + TOSTRING(pos.z), "world.png");
         }
@@ -230,7 +230,7 @@ void TerrainEditor::UpdateInputEvents(float dt)
         }
         if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK))
         {
-            App::GetSimTerrain()->getObjectManager()->unloadObject(object_list[m_object_index].instance_name);
+            App::GetGameContext()->GetTerrain()->getObjectManager()->unloadObject(object_list[m_object_index].instance_name);
         }
     }
     else
@@ -254,7 +254,7 @@ void TerrainEditor::WriteOutputFile()
             = Ogre::ResourceGroupManager::getSingleton().createResource(
                 editor_logpath, RGN_CONFIG, /*overwrite=*/true);
 
-        for (auto object : App::GetSimTerrain()->getObjectManager()->GetEditorObjects())
+        for (auto object : App::GetGameContext()->GetTerrain()->getObjectManager()->GetEditorObjects())
         {
             SceneNode* sn = object.node;
             if (sn != nullptr)

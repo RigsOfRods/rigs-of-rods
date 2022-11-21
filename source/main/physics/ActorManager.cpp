@@ -150,7 +150,7 @@ Actor* ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr de
             bool inside = true;
 
             for (int i = 0; i < actor->ar_num_nodes; i++)
-                inside = (inside && App::GetSimTerrain()->GetCollisions()->isInside(actor->ar_nodes[i].AbsPosition, rq.asr_spawnbox, 0.2f));
+                inside = (inside && App::GetGameContext()->GetTerrain()->GetCollisions()->isInside(actor->ar_nodes[i].AbsPosition, rq.asr_spawnbox, 0.2f));
 
             if (!inside)
             {
@@ -204,10 +204,10 @@ Actor* ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr de
     std::string subMeshGroundModelName = spawner.GetSubmeshGroundmodelName();
     if (!subMeshGroundModelName.empty())
     {
-        actor->ar_submesh_ground_model = App::GetSimTerrain()->GetCollisions()->getGroundModelByString(subMeshGroundModelName);
+        actor->ar_submesh_ground_model = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString(subMeshGroundModelName);
         if (!actor->ar_submesh_ground_model)
         {
-            actor->ar_submesh_ground_model = App::GetSimTerrain()->GetCollisions()->defaultgm;
+            actor->ar_submesh_ground_model = App::GetGameContext()->GetTerrain()->GetCollisions()->defaultgm;
         }
     }
 
@@ -1383,7 +1383,7 @@ void ActorManager::UpdateTruckFeatures(Actor* vehicle, float dt)
             {
                 // anti roll back in SimGearboxMode::AUTO (DRIVE, TWO, ONE) mode
                 // anti roll forth in SimGearboxMode::AUTO (REAR) mode
-                float g = std::abs(App::GetSimTerrain()->getGravity());
+                float g = std::abs(App::GetGameContext()->GetTerrain()->getGravity());
                 float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * vehicle->getTotalMass()) * g;
                 float engine_force = std::abs(engine->GetTorque()) / vehicle->getAvgPropedWheelRadius();
                 float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force));

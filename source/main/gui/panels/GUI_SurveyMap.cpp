@@ -85,7 +85,7 @@ void SurveyMap::Draw()
         view_padding.y = 40; // Extra space for hints
         view_size.y = (rw->getWidth() * 0.55f) -
             ((2 * App::GetGuiManager()->GetTheme().screen_edge_padding.y) + (2 * WINDOW_PADDING));
-        Vector3 terrn_size = App::GetSimTerrain()->getMaxTerrainSize(); // Y is 'up'!
+        Vector3 terrn_size = App::GetGameContext()->GetTerrain()->getMaxTerrainSize(); // Y is 'up'!
         if (!terrn_size.isZeroLength())
         {
             view_size.x = (view_size.y / terrn_size.z) * terrn_size.x;
@@ -194,7 +194,7 @@ void SurveyMap::Draw()
 
         if (ImGui::IsItemClicked(1)) // Set AI waypoint
         {
-            float y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(mouse_map_pos.x, mouse_map_pos.y);
+            float y = App::GetGameContext()->GetTerrain()->GetCollisions()->getSurfaceHeight(mouse_map_pos.x, mouse_map_pos.y);
             ai_waypoints.push_back(Ogre::Vector3(mouse_map_pos.x, y, mouse_map_pos.y));
         }
         else if (!w_adj) // Teleport
@@ -254,7 +254,7 @@ void SurveyMap::Draw()
                     mouse_map_pos = view_origin + (Vector2(mouse_view_offset.x, mouse_view_offset.y) * smallmap_size);
                 }
 
-                float y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(mouse_map_pos.x, mouse_map_pos.y);
+                float y = App::GetGameContext()->GetTerrain()->GetCollisions()->getSurfaceHeight(mouse_map_pos.x, mouse_map_pos.y);
                 ai_waypoints[mWaypointNum] = Ogre::Vector3(mouse_map_pos.x, y, mouse_map_pos.y);
             }
             else if (abs(cw_dist.x) <= 5 && abs(cw_dist.y) <= 5 && ImGui::IsItemClicked(2))
@@ -267,7 +267,7 @@ void SurveyMap::Draw()
     if (App::gfx_surveymap_icons->getBool())
     {
         // Draw terrain object icons
-        for (TerrainObjectManager::MapEntity& e: App::GetSimTerrain()->getObjectManager()->GetMapEntities())
+        for (TerrainObjectManager::MapEntity& e: App::GetGameContext()->GetTerrain()->getObjectManager()->GetMapEntities())
         {
             int id = App::GetGameContext()->GetRaceSystem().GetRaceId();
             bool visible = !((e.type == "checkpoint" && e.id != id) || (e.type == "racestart" && id != -1 && e.id != id));
@@ -375,9 +375,9 @@ void SurveyMap::Draw()
 void SurveyMap::CreateTerrainTextures()
 {
     mMapCenterOffset     = Ogre::Vector2::ZERO; // Reset, maybe new terrain was loaded
-    AxisAlignedBox aab   = App::GetSimTerrain()->getTerrainCollisionAAB();
-    Vector3 terrain_size = App::GetSimTerrain()->getMaxTerrainSize();
-    bool use_aab         = App::GetSimTerrain()->isFlat() && std::min(aab.getSize().x, aab.getSize().z) > 50.0f;
+    AxisAlignedBox aab   = App::GetGameContext()->GetTerrain()->getTerrainCollisionAAB();
+    Vector3 terrain_size = App::GetGameContext()->GetTerrain()->getMaxTerrainSize();
+    bool use_aab         = App::GetGameContext()->GetTerrain()->isFlat() && std::min(aab.getSize().x, aab.getSize().z) > 50.0f;
 
     if (terrain_size.isZeroLength() || use_aab && (aab.getSize().length() < terrain_size.length()))
     {

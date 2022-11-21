@@ -23,6 +23,7 @@
 #include <Ogre.h>
 
 #include "Application.h"
+#include "GameContext.h"
 #include "Terrain.h"
 #include "Water.h"
 
@@ -272,7 +273,7 @@ void DustPool::update()
         }
         else if (types[i] == DUST_RIPPLE)
         {
-            positions[i].y = RoR::App::GetSimTerrain()->getWater()->GetStaticWaterHeight() - 0.02;
+            positions[i].y = RoR::App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight() - 0.02;
             sns[i]->setPosition(positions[i]);
 
             col.a = vel * 0.04;

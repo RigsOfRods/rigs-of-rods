@@ -23,6 +23,7 @@
 #include "Application.h"
 #include "SimData.h"
 #include "ActorManager.h"
+#include "GameContext.h"
 #include "GfxScene.h"
 #include "DustPool.h"
 #include "Terrain.h"
@@ -63,9 +64,9 @@ Vector3 Buoyance::computePressureForceSub(Vector3 a, Vector3 b, Vector3 c, Vecto
     if (type != BUOY_DRAGONLY)
     {
         //compute pression prism points
-        Vector3 ap = a + (App::GetSimTerrain()->getWater()->CalcWavesHeight(a) - a.y) * 9810 * normal;
-        Vector3 bp = b + (App::GetSimTerrain()->getWater()->CalcWavesHeight(b) - b.y) * 9810 * normal;
-        Vector3 cp = c + (App::GetSimTerrain()->getWater()->CalcWavesHeight(c) - c.y) * 9810 * normal;
+        Vector3 ap = a + (App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(a) - a.y) * 9810 * normal;
+        Vector3 bp = b + (App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(b) - b.y) * 9810 * normal;
+        Vector3 cp = c + (App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(c) - c.y) * 9810 * normal;
         //find centroid
         Vector3 ctd = (a + b + c + ap + bp + cp) / 6.0;
         //compute volume
@@ -85,7 +86,7 @@ Vector3 Buoyance::computePressureForceSub(Vector3 a, Vector3 b, Vector3 c, Vecto
         //take in account the wave speed
         //compute center
         Vector3 tc = (a + b + c) / 3.0;
-        vel = vel - App::GetSimTerrain()->getWater()->CalcWavesVelocity(tc);
+        vel = vel - App::GetGameContext()->GetTerrain()->getWater()->CalcWavesVelocity(tc);
         float vell = vel.length();
         if (vell > 0.01)
         {
@@ -103,13 +104,13 @@ Vector3 Buoyance::computePressureForceSub(Vector3 a, Vector3 b, Vector3 c, Vecto
                     if (fxdir.y < 0)
                         fxdir.y = -fxdir.y;
 
-                    if (App::GetSimTerrain()->getWater()->CalcWavesHeight(a) - a.y < 0.1)
+                    if (App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(a) - a.y < 0.1)
                         splashp->malloc(a, fxdir);
 
-                    else if (App::GetSimTerrain()->getWater()->CalcWavesHeight(b) - b.y < 0.1)
+                    else if (App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(b) - b.y < 0.1)
                         splashp->malloc(b, fxdir);
 
-                    else if (App::GetSimTerrain()->getWater()->CalcWavesHeight(c) - c.y < 0.1)
+                    else if (App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(c) - c.y < 0.1)
                         splashp->malloc(c, fxdir);
                 }
             }
@@ -124,7 +125,7 @@ Vector3 Buoyance::computePressureForceSub(Vector3 a, Vector3 b, Vector3 c, Vecto
 //compute pressure and drag forces on a random triangle
 Vector3 Buoyance::computePressureForce(Vector3 a, Vector3 b, Vector3 c, Vector3 vel, int type)
 {
-    float wha = App::GetSimTerrain()->getWater()->CalcWavesHeight((a + b + c) / 3.0);
+    float wha = App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight((a + b + c) / 3.0);
     //check if fully emerged
     if (a.y > wha && b.y > wha && c.y > wha)
         return Vector3::ZERO;
@@ -178,9 +179,9 @@ Vector3 Buoyance::computePressureForce(Vector3 a, Vector3 b, Vector3 c, Vector3 
 
 void Buoyance::computeNodeForce(node_t* a, node_t* b, node_t* c, bool doUpdate, int type)
 {
-    if (a->AbsPosition.y > App::GetSimTerrain()->getWater()->CalcWavesHeight(a->AbsPosition) &&
-        b->AbsPosition.y > App::GetSimTerrain()->getWater()->CalcWavesHeight(b->AbsPosition) &&
-        c->AbsPosition.y > App::GetSimTerrain()->getWater()->CalcWavesHeight(c->AbsPosition))
+    if (a->AbsPosition.y > App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(a->AbsPosition) &&
+        b->AbsPosition.y > App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(b->AbsPosition) &&
+        c->AbsPosition.y > App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(c->AbsPosition))
         return;
 
     update = doUpdate;

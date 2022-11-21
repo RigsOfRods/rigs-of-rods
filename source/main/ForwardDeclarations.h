@@ -25,6 +25,7 @@
 /// @author Petr Ohlidal
 /// @date   12/2013
 
+#include "RefCountingObjectPtr.h"
 
 #pragma once
 
@@ -141,6 +142,7 @@ namespace RoR
     struct client_t;
     struct authorinfo_t;
 
+    typedef RefCountingObjectPtr<Terrain> TerrainPtr;
     namespace GUI
     {
         class  ConsoleView;
