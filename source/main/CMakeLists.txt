@@ -404,8 +404,11 @@ if (USE_DISCORD_RPC)
 endif ()
 
 if (USE_SOCKETW)
-    target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW OpenSSL::SSL)
+    target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
     target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
+    if (TARGET OpenSSL::SSL)
+        target_link_libraries(${BINNAME} PRIVATE OpenSSL::SSL)
+    endif ()
 endif ()
 
 if (USE_ANGELSCRIPT)
