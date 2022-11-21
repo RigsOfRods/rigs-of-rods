@@ -338,7 +338,7 @@ void ActorSpawner::InitializeRig()
         m_actor->m_intra_point_col_detector = new PointColDetector(m_actor);
     }
 
-    m_actor->ar_submesh_ground_model = App::GetSimTerrain()->GetCollisions()->defaultgm;
+    m_actor->ar_submesh_ground_model = App::GetGameContext()->GetTerrain()->GetCollisions()->defaultgm;
 
     // Lights mode
     m_actor->m_flares_mode = App::gfx_flares_mode->getEnum<GfxFlaresMode>();
@@ -2510,7 +2510,7 @@ void ActorSpawner::ProcessInterAxle(RigDef::InterAxle & def)
                 diff->AddDifferentialType(VISCOUS_DIFF);
                 break;
             default:
-                AddMessage(Message::TYPE_WARNING, fmt::format("Unknown differential type: '{}'", val));
+                AddMessage(Message::TYPE_WARNING, fmt::format("Unknown differential type: '{}'", (char)val));
                 break;
             }
         }

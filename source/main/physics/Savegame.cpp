@@ -61,7 +61,7 @@ std::string GameContext::GetQuicksaveFilename()
 
 void GameContext::LoadScene(std::string const& filename)
 {
-    ROR_ASSERT(App::GetSimTerrain());
+    ROR_ASSERT(App::GetGameContext()->GetTerrain());
     m_actor_manager.LoadScene(filename);
 }
 
@@ -283,7 +283,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
     {
         if (j_doc.HasMember("daytime"))
         {
-            App::GetSimTerrain()->getSkyManager()->SetTime(j_doc["daytime"].GetDouble());
+            App::GetGameContext()->GetTerrain()->getSkyManager()->SetTime(j_doc["daytime"].GetDouble());
         }
     }
 #endif // USE_CAELUM
@@ -436,7 +436,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 #ifdef USE_CAELUM
     if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
     {
-        j_doc.AddMember("daytime", App::GetSimTerrain()->getSkyManager()->GetTime(), j_doc.GetAllocator());
+        j_doc.AddMember("daytime", App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime(), j_doc.GetAllocator());
     }
 #endif // USE_CAELUM
 

@@ -147,7 +147,7 @@ void Actor::CalcFuseDrag()
 
 void Actor::CalcBuoyance(bool doUpdate)
 {
-    if (ar_num_buoycabs && App::GetSimTerrain()->getWater())
+    if (ar_num_buoycabs && App::GetGameContext()->GetTerrain()->getWater())
     {
         for (int i = 0; i < ar_num_buoycabs; i++)
         {
@@ -1521,8 +1521,8 @@ void Actor::CalcBeamsInterActor()
 
 void Actor::CalcNodes()
 {
-    const auto water = App::GetSimTerrain()->getWater();
-    const float gravity = App::GetSimTerrain()->getGravity();
+    const auto water = App::GetGameContext()->GetTerrain()->getWater();
+    const float gravity = App::GetGameContext()->GetTerrain()->getGravity();
     m_water_contact = false;
 
     for (NodeNum_t i = 0; i < ar_num_nodes; i++)
@@ -1531,8 +1531,8 @@ void Actor::CalcNodes()
         if (!ar_nodes[i].nd_no_ground_contact)
         {
             Vector3 oripos = ar_nodes[i].AbsPosition;
-            bool contacted = App::GetSimTerrain()->GetCollisions()->groundCollision(&ar_nodes[i], PHYSICS_DT);
-            contacted = contacted | App::GetSimTerrain()->GetCollisions()->nodeCollision(&ar_nodes[i], PHYSICS_DT, false);
+            bool contacted = App::GetGameContext()->GetTerrain()->GetCollisions()->groundCollision(&ar_nodes[i], PHYSICS_DT);
+            contacted = contacted | App::GetGameContext()->GetTerrain()->GetCollisions()->nodeCollision(&ar_nodes[i], PHYSICS_DT, false);
             ar_nodes[i].nd_has_ground_contact = contacted;
             if (ar_nodes[i].nd_has_ground_contact || ar_nodes[i].nd_has_mesh_contact)
             {
@@ -1549,7 +1549,7 @@ void Actor::CalcNodes()
             // record g forces on cameras
             m_camera_gforces_accu += ar_nodes[i].Forces / ar_nodes[i].mass;
             // trigger script callbacks
-            App::GetSimTerrain()->GetCollisions()->nodeCollision(&ar_nodes[i], PHYSICS_DT, true);
+            App::GetGameContext()->GetTerrain()->GetCollisions()->nodeCollision(&ar_nodes[i], PHYSICS_DT, true);
         }
 
         // integration

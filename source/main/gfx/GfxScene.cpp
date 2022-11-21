@@ -136,13 +136,13 @@ void GfxScene::UpdateScene(float dt_sec)
     }
 
     // Terrain - animated meshes and paged geometry
-    App::GetSimTerrain()->getObjectManager()->UpdateTerrainObjects(dt_sec);
+    App::GetGameContext()->GetTerrain()->getObjectManager()->UpdateTerrainObjects(dt_sec);
 
     // Terrain - lightmap; TODO: ported as-is from Terrain::update(), is it needed? ~ only_a_ptr, 05/2018
-    App::GetSimTerrain()->getGeometryManager()->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017
+    App::GetGameContext()->GetTerrain()->getGeometryManager()->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017
 
     // Terrain - water
-    IWater* water = App::GetSimTerrain()->getWater();
+    IWater* water = App::GetGameContext()->GetTerrain()->getWater();
     if (water)
     {
         if (player_gfx_actor != nullptr)
@@ -158,14 +158,14 @@ void GfxScene::UpdateScene(float dt_sec)
 
     // Terrain - sky
 #ifdef USE_CAELUM
-    SkyManager* sky = App::GetSimTerrain()->getSkyManager();
+    SkyManager* sky = App::GetGameContext()->GetTerrain()->getSkyManager();
     if (sky != nullptr)
     {
         sky->DetectSkyUpdate();
     }
 #endif
 
-    SkyXManager* skyx_man = App::GetSimTerrain()->getSkyXManager();
+    SkyXManager* skyx_man = App::GetGameContext()->GetTerrain()->getSkyXManager();
     if (skyx_man != nullptr)
     {
        skyx_man->update(dt_sec); // Light update

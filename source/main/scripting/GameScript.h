@@ -269,6 +269,8 @@ public:
     */
     bool getMousePositionOnTerrain(Ogre::Vector3& out_pos);
 
+    TerrainPtr getTerrain();
+
     /// @}
 
     /// @name Character

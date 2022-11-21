@@ -51,19 +51,19 @@ static const float         ROTATE_SPEED = 100.f;
 
 bool intersectsTerrain(Vector3 a, Vector3 b) // internal helper
 {
-    b.y = std::max(b.y, App::GetSimTerrain()->GetHeightAt(b.x, b.z) + 1.0f);
+    b.y = std::max(b.y, App::GetGameContext()->GetTerrain()->GetHeightAt(b.x, b.z) + 1.0f);
 
     int steps = std::max(3.0f, a.distance(b) * 2.0f);
     for (int i = 1; i < steps; i++)
     {
         Vector3 pos = a + (b - a) * (float)i / steps;
-        float h = App::GetSimTerrain()->GetHeightAt(pos.x, pos.z);
+        float h = App::GetGameContext()->GetTerrain()->GetHeightAt(pos.x, pos.z);
         if (h > pos.y)
         {
             return true;
         }
     }
-    return App::GetSimTerrain()->GetCollisions()->intersectsTris(Ray(a, b - a)).first;
+    return App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(Ray(a, b - a)).first;
 }
 
 bool intersectsTerrain(Vector3 a, Vector3 start, Vector3 end, float interval) // internal helper
@@ -744,7 +744,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
                 distance > cmradius * std::max(25.0f, speed * 1.15f) ||
                 intersectsTerrain(m_staticcam_position, lookAt, lookAtPrediction, interval))
         {
-            const auto water = App::GetSimTerrain()->getWater();
+            const auto water = App::GetGameContext()->GetTerrain()->getWater();
             float water_height = (water && !water->IsUnderWater(lookAt)) ? water->GetStaticWaterHeight() : 0.0f;
             float desired_offset = std::max(std::sqrt(radius) * 2.89f, App::gfx_camera_height->getFloat());
 
@@ -766,7 +766,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
                     pos += (velocity + velocity.crossProduct(Vector3::UNIT_Y) * rnd) * dist;
                 }
                 pos.y = std::max(pos.y, water_height);
-                pos.y = std::max(pos.y, App::GetSimTerrain()->GetHeightAt(pos.x, pos.z));
+                pos.y = std::max(pos.y, App::GetGameContext()->GetTerrain()->GetHeightAt(pos.x, pos.z));
                 pos.y += desired_offset * (i < 7 ? 1.0f : frand());
                 if (!intersectsTerrain(pos, lookAt, lookAtPrediction, interval))
                 {
@@ -887,7 +887,7 @@ void CameraManager::CameraBehaviorOrbitUpdate()
 
     if (m_cam_limit_movement)
     {
-        float h = App::GetSimTerrain()->GetHeightAt(desiredPosition.x, desiredPosition.z) + 1.0f;
+        float h = App::GetGameContext()->GetTerrain()->GetHeightAt(desiredPosition.x, desiredPosition.z) + 1.0f;
 
         desiredPosition.y = std::max(h, desiredPosition.y);
     }
@@ -911,10 +911,10 @@ void CameraManager::CameraBehaviorOrbitUpdate()
 
     Vector3 camPosition = (1.0f / (m_cam_ratio + 1.0f)) * desiredPosition + (m_cam_ratio / (m_cam_ratio + 1.0f)) * precedingPosition;
 
-    if (App::GetSimTerrain()->GetCollisions() && App::GetSimTerrain()->GetCollisions()->forcecam)
+    if (App::GetGameContext()->GetTerrain()->GetCollisions() && App::GetGameContext()->GetTerrain()->GetCollisions()->forcecam)
     {
-        this->GetCameraNode()->setPosition(App::GetSimTerrain()->GetCollisions()->forcecampos);
-        App::GetSimTerrain()->GetCollisions()->forcecam = false;
+        this->GetCameraNode()->setPosition(App::GetGameContext()->GetTerrain()->GetCollisions()->forcecampos);
+        App::GetGameContext()->GetTerrain()->GetCollisions()->forcecam = false;
     }
     else
     {

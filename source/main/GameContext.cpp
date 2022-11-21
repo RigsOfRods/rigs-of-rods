@@ -113,16 +113,41 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
     // Init resources
     App::GetCacheSystem()->LoadResource(*terrn_entry);
 
-    // Perform the loading and setup
-    App::SetSimTerrain(RoR::Terrain::LoadAndPrepareTerrain(terrn_entry));
-    if (!App::GetSimTerrain())
+    // Load the terrain
+    Terrn2Def terrn2;
+    std::string const& filename = terrn_entry->fname;
+    try
     {
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename);
+        LOG(" ===== LOADING TERRAIN " + filename);
+        Terrn2Parser parser;
+        if (! parser.LoadTerrn2(terrn2, stream))
+        {
+            return false; // Errors already logged to console
+        }
+    }
+    catch (Ogre::Exception& e)
+    {
+        App::GetGuiManager()->ShowMessageBox(_L("Terrain loading error"), e.getFullDescription().c_str());
+        return false;
+    }
+
+    // CAUTION - the global instance must be set during init! Needed by:
+    // * GameScript::spawnObject()
+    // * ProceduralManager
+    // * Landusemap
+    // * SurveyMapTextureCreator
+    // * Collisions (debug visualization)
+    m_terrain = TerrainPtr::Bind(new RoR::Terrain(terrn_entry, terrn2));
+    if (!m_terrain->initialize())
+    {
+        m_terrain = TerrainPtr(); // release local reference - object will be deleted when all references are released.
         return false; // Message box already displayed
     }
 
     // Initialize envmap textures by rendering center of map
-    Ogre::Vector3 center = App::GetSimTerrain()->getMaxTerrainSize() / 2;
-    center.y = App::GetSimTerrain()->GetHeightAt(center.x, center.z) + 1.0f;
+    Ogre::Vector3 center = m_terrain->getMaxTerrainSize() / 2;
+    center.y = m_terrain->GetHeightAt(center.x, center.z) + 1.0f;
     App::GetGfxScene()->GetEnvMap().UpdateEnvMap(center, /*gfx_actor:*/nullptr, /*full:*/true);
 
     // Scan groundmodels
@@ -133,11 +158,12 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
 
 void GameContext::UnloadTerrain()
 {
-    if (App::GetSimTerrain() != nullptr)
+    if (m_terrain != nullptr)
     {
-        // remove old terrain
-        delete(App::GetSimTerrain());
-        App::SetSimTerrain(nullptr);
+        // dispose(), do not `delete` - script may still hold reference to the object.
+        m_terrain->dispose();
+        // release local reference - object will be deleted when all references are released.
+        m_terrain = TerrainPtr();
     }
 }
 
@@ -159,7 +185,7 @@ Actor* GameContext::SpawnActor(ActorSpawnRequest& rq)
                 float h = m_player_actor->getMaxHeight(true);
                 rq.asr_rotation = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(m_player_actor->getRotation()), Ogre::Vector3::UNIT_Y);
                 rq.asr_position = m_player_actor->getRotationCenter();
-                rq.asr_position.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(rq.asr_position.x, rq.asr_position.z, h);
+                rq.asr_position.y = m_terrain->GetCollisions()->getSurfaceHeightBelow(rq.asr_position.x, rq.asr_position.z, h);
                 rq.asr_position.y += m_player_actor->getHeightAboveGroundBelow(h, true); // retain height above ground
             }
             else
@@ -434,11 +460,11 @@ void GameContext::ChangePlayerActor(Actor* actor)
                 // actor has a cinecam (find optimal exit position)
                 Ogre::Vector3 l = position - 2.0f * prev_player_actor->GetCameraRoll();
                 Ogre::Vector3 r = position + 2.0f * prev_player_actor->GetCameraRoll();
-                float l_h = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(l.x, l.z, l.y + h);
-                float r_h = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(r.x, r.z, r.y + h);
+                float l_h = m_terrain->GetCollisions()->getSurfaceHeightBelow(l.x, l.z, l.y + h);
+                float r_h = m_terrain->GetCollisions()->getSurfaceHeightBelow(r.x, r.z, r.y + h);
                 position  = std::abs(r.y - r_h) * 1.2f < std::abs(l.y - l_h) ? r : l;
             }
-            position.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(position.x, position.z, position.y + h);
+            position.y = m_terrain->GetCollisions()->getSurfaceHeightBelow(position.x, position.z, position.y + h);
 
             Character* player_character = this->GetPlayerCharacter();
             if (player_character)
@@ -504,7 +530,7 @@ void GameContext::UpdateActors()
 
 Actor* GameContext::FindActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name)
 {
-    return m_actor_manager.FindActorInsideBox(App::GetSimTerrain()->GetCollisions(),
+    return m_actor_manager.FindActorInsideBox(m_terrain->GetCollisions(),
                                               ev_src_instance_name, box_name);
 }
 
@@ -562,12 +588,12 @@ void GameContext::ShowLoaderGUI(int type, const Ogre::String& instance, const Og
     // first, test if the place if clear, BUT NOT IN MULTIPLAYER
     if (!(App::mp_state->getEnum<MpState>() == MpState::CONNECTED))
     {
-        collision_box_t* spawnbox = App::GetSimTerrain()->GetCollisions()->getBox(instance, box);
+        collision_box_t* spawnbox = m_terrain->GetCollisions()->getBox(instance, box);
         for (auto actor : this->GetActorManager()->GetActors())
         {
             for (int i = 0; i < actor->ar_num_nodes; i++)
             {
-                if (App::GetSimTerrain()->GetCollisions()->isInside(actor->ar_nodes[i].AbsPosition, spawnbox))
+                if (m_terrain->GetCollisions()->isInside(actor->ar_nodes[i].AbsPosition, spawnbox))
                 {
                     App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Please clear the place first"), "error.png");
                     return;
@@ -576,9 +602,9 @@ void GameContext::ShowLoaderGUI(int type, const Ogre::String& instance, const Og
         }
     }
 
-    m_current_selection.asr_position = App::GetSimTerrain()->GetCollisions()->getPosition(instance, box);
-    m_current_selection.asr_rotation = App::GetSimTerrain()->GetCollisions()->getDirection(instance, box);
-    m_current_selection.asr_spawnbox = App::GetSimTerrain()->GetCollisions()->getBox(instance, box);
+    m_current_selection.asr_position = m_terrain->GetCollisions()->getPosition(instance, box);
+    m_current_selection.asr_rotation = m_terrain->GetCollisions()->getDirection(instance, box);
+    m_current_selection.asr_spawnbox = m_terrain->GetCollisions()->getBox(instance, box);
 
     RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
     m.payload = reinterpret_cast<void*>(new LoaderType(LoaderType(type)));
@@ -698,12 +724,12 @@ void GameContext::CreatePlayerCharacter()
     m_character_factory.CreateLocalCharacter();
 
     // Adjust character position
-    Ogre::Vector3 spawn_pos = App::GetSimTerrain()->getSpawnPos();
+    Ogre::Vector3 spawn_pos = m_terrain->getSpawnPos();
     float spawn_rot = 0.0f;
 
     // Classic behavior, retained for compatibility.
     // Required for maps like N-Labs or F1 Track.
-    if (!App::GetSimTerrain()->HasPredefinedActors())
+    if (!m_terrain->HasPredefinedActors())
     {
         spawn_rot = 180.0f;
     }
@@ -732,7 +758,7 @@ void GameContext::CreatePlayerCharacter()
         App::diag_preset_spawn_rot->setStr("");
     }
 
-    spawn_pos.y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
+    spawn_pos.y = m_terrain->GetCollisions()->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
 
     this->GetPlayerCharacter()->setPosition(spawn_pos);
     this->GetPlayerCharacter()->setRotation(Ogre::Degree(spawn_rot));
@@ -756,7 +782,7 @@ Character* GameContext::GetPlayerCharacter() // Convenience ~ counterpart of `Ge
 
 void GameContext::TeleportPlayer(float x, float z)
 {
-    float y = App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(x, z);
+    float y = m_terrain->GetCollisions()->getSurfaceHeight(x, z);
     if (!this->GetPlayerActor())
     {
         this->GetPlayerCharacter()->setPosition(Ogre::Vector3(x, y, z));
@@ -777,9 +803,9 @@ void GameContext::TeleportPlayer(float x, float z)
         for (int i = 0; i < actor->ar_num_nodes; i++)
         {
             Ogre::Vector3 pos = actor->ar_nodes[i].AbsPosition;
-            src_agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(pos.x, pos.z), src_agl);
+            src_agl = std::min(pos.y - m_terrain->GetCollisions()->getSurfaceHeight(pos.x, pos.z), src_agl);
             pos += translation;
-            dst_agl = std::min(pos.y - App::GetSimTerrain()->GetCollisions()->getSurfaceHeight(pos.x, pos.z), dst_agl);
+            dst_agl = std::min(pos.y - m_terrain->GetCollisions()->getSurfaceHeight(pos.x, pos.z), dst_agl);
         }
     }
 
@@ -1061,7 +1087,7 @@ void GameContext::UpdateSkyInputEvents(float dt)
 {
 #ifdef USE_CAELUM
     if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM &&
-        App::GetSimTerrain()->getSkyManager())
+        m_terrain->getSkyManager())
     {
         float time_factor = 1.0f;
 
@@ -1086,37 +1112,37 @@ void GameContext::UpdateSkyInputEvents(float dt)
             time_factor = App::gfx_sky_time_speed->getInt();
         }
 
-        if (App::GetSimTerrain()->getSkyManager()->GetSkyTimeFactor() != time_factor)
+        if (m_terrain->getSkyManager()->GetSkyTimeFactor() != time_factor)
         {
-            App::GetSimTerrain()->getSkyManager()->SetSkyTimeFactor(time_factor);
-            Str<200> msg; msg << _L("Time set to ") << App::GetSimTerrain()->getSkyManager()->GetPrettyTime();
+            m_terrain->getSkyManager()->SetSkyTimeFactor(time_factor);
+            Str<200> msg; msg << _L("Time set to ") << m_terrain->getSkyManager()->GetPrettyTime();
             RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr());
         }
     }
 
 #endif // USE_CAELUM
     if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX &&
-        App::GetSimTerrain()->getSkyXManager())
+        m_terrain->getSkyXManager())
     {
         if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
         {
-            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(1.0f);
+            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(1.0f);
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST))
         {
-            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(2.0f);
+            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(2.0f);
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME))
         {
-            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(-1.0f);
+            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(-1.0f);
         }
         else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST))
         {
-            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(-2.0f);
+            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(-2.0f);
         }
         else
         {
-            App::GetSimTerrain()->getSkyXManager()->GetSkyX()->setTimeMultiplier(0.01f);
+            m_terrain->getSkyXManager()->GetSkyX()->setTimeMultiplier(0.01f);
         }
     }
 }

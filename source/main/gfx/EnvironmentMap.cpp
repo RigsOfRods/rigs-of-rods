@@ -22,6 +22,7 @@
 
 #include "Application.h"
 #include "CameraManager.h"
+#include "GameContext.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
 #include "SkyManager.h"
@@ -231,18 +232,18 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, boo
     {
 #ifdef USE_CAELUM
         // caelum needs to know that we changed the cameras
-        if (App::GetSimTerrain()->getSkyManager())
+        if (App::GetGameContext()->GetTerrain()->getSkyManager())
         {
-            App::GetSimTerrain()->getSkyManager()->NotifySkyCameraChanged(m_cameras[m_update_round]);
+            App::GetGameContext()->GetTerrain()->getSkyManager()->NotifySkyCameraChanged(m_cameras[m_update_round]);
         }
 #endif // USE_CAELUM
         m_render_targets[m_update_round]->update();
         m_update_round = (m_update_round + 1) % NUM_FACES;
     }
 #ifdef USE_CAELUM
-    if (App::GetSimTerrain()->getSkyManager())
+    if (App::GetGameContext()->GetTerrain()->getSkyManager())
     {
-        App::GetSimTerrain()->getSkyManager()->NotifySkyCameraChanged(App::GetCameraManager()->GetCamera());
+        App::GetGameContext()->GetTerrain()->getSkyManager()->NotifySkyCameraChanged(App::GetCameraManager()->GetCamera());
     }
 #endif // USE_CAELUM
 

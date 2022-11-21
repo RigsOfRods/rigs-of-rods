@@ -159,6 +159,7 @@ void ScriptEngine::init()
     RegisterVehicleAi(engine);     // VehicleAIClass, aiEvents, AiValues
     RegisterConsole(engine);       // ConsoleClass, CVarClass, CVarFlags
     RegisterActor(engine);         // BeamClass
+    RegisterTerrain(engine);       // TerrainClass
     RegisterGameScript(engine);    // GameScriptClass
     RegisterScriptEvents(engine);  // scriptEvents
 

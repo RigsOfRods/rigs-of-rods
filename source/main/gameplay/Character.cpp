@@ -119,7 +119,7 @@ float calculate_collision_depth(Vector3 pos)
     Vector3 query = pos + 0.3f * Vector3::UNIT_Y;
     while (query.y > pos.y)
     {
-        if (App::GetSimTerrain()->GetCollisions()->collisionCorrect(&query, false))
+        if (App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query, false))
             break;
         query.y -= 0.001f;
     }
@@ -145,7 +145,7 @@ void Character::update(float dt)
 
         // Trigger script events and handle mesh (ground) collision
         Vector3 query = position;
-        App::GetSimTerrain()->GetCollisions()->collisionCorrect(&query);
+        App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query);
 
         // Auto compensate minor height differences
         float depth = calculate_collision_depth(position);
@@ -194,7 +194,7 @@ void Character::update(float dt)
             for (int i = 1; i < numstep; i++)
             {
                 Vector3 query = base + diff * ((float)i / numstep);
-                if (App::GetSimTerrain()->GetCollisions()->collisionCorrect(&query, false))
+                if (App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query, false))
                 {
                     m_character_v_speed = std::max(0.0f, m_character_v_speed);
                     position = m_prev_position + diff * ((float)(i - 1) / numstep);
@@ -207,7 +207,7 @@ void Character::update(float dt)
         m_prev_position = position;
 
         // ground contact
-        float pheight = App::GetSimTerrain()->GetHeightAt(position.x, position.z);
+        float pheight = App::GetGameContext()->GetTerrain()->GetHeightAt(position.x, position.z);
 
         if (position.y < pheight)
         {
@@ -220,9 +220,9 @@ void Character::update(float dt)
         bool isswimming = false;
         float wheight = -99999;
 
-        if (App::GetSimTerrain()->getWater())
+        if (App::GetGameContext()->GetTerrain()->getWater())
         {
-            wheight = App::GetSimTerrain()->getWater()->CalcWavesHeight(position);
+            wheight = App::GetGameContext()->GetTerrain()->getWater()->CalcWavesHeight(position);
             if (position.y < wheight - 1.8f)
             {
                 position.y = wheight - 1.8f;
@@ -231,7 +231,7 @@ void Character::update(float dt)
         }
 
         // 0.1 due to 'jumping' from waves -> not nice looking
-        if (App::GetSimTerrain()->getWater() && (wheight - pheight > 1.8f) && (position.y + 0.1f <= wheight))
+        if (App::GetGameContext()->GetTerrain()->getWater() && (wheight - pheight > 1.8f) && (position.y + 0.1f <= wheight))
         {
             isswimming = true;
         }

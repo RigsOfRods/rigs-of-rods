@@ -23,6 +23,7 @@
 
 #include "AppContext.h"
 #include "CameraManager.h"
+#include "GameContext.h"
 #include "GfxScene.h"
 #include "HydraxWater.h"
 #include "Terrain.h"
@@ -89,10 +90,10 @@ bool SkyXManager::UpdateSkyLight()
 	// Calculate current color gradients point
 	float point = (-lightDir.y + 1.0f) / 2.0f;
 
-    if (App::GetSimTerrain ()->getHydraxManager ()) 
+    if (App::GetGameContext()->GetTerrain()->getHydraxManager ()) 
     {
-        App::GetSimTerrain ()->getHydraxManager ()->GetHydrax ()->setWaterColor (mWaterGradient.getColor (point));
-        App::GetSimTerrain ()->getHydraxManager ()->GetHydrax ()->setSunPosition (sunPos*0.1);
+        App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setWaterColor (mWaterGradient.getColor (point));
+        App::GetGameContext()->GetTerrain()->getHydraxManager ()->GetHydrax ()->setSunPosition (sunPos*0.1);
     }
 		
 
@@ -101,15 +102,15 @@ bool SkyXManager::UpdateSkyLight()
 
 	mLight0->setPosition(sunPos*0.02);
 	mLight1->setDirection(lightDir);
-    if (App::GetSimTerrain()->getWater())
+    if (App::GetGameContext()->GetTerrain()->getWater())
     {
-        App::GetSimTerrain()->getWater()->WaterSetSunPosition(sunPos*0.1);
+        App::GetGameContext()->GetTerrain()->getWater()->WaterSetSunPosition(sunPos*0.1);
     }
 
 	//setFadeColour was removed with https://github.com/RigsOfRods/rigs-of-rods/pull/1459
 /*	Ogre::Vector3 sunCol = mSunGradient.getColor(point);
 	mLight0->setSpecularColour(sunCol.x, sunCol.y, sunCol.z);
-	if (App::GetSimTerrain()->getWater()) App::GetSimTerrain()->getWater()->setFadeColour(Ogre::ColourValue(sunCol.x, sunCol.y, sunCol.z));
+	if (App::GetGameContext()->GetTerrain()->getWater()) App::GetGameContext()->GetTerrain()->getWater()->setFadeColour(Ogre::ColourValue(sunCol.x, sunCol.y, sunCol.z));
 	*/
 	Ogre::Vector3 ambientCol = mAmbientGradient.getColor(point);
 	mLight1->setDiffuseColour(ambientCol.x, ambientCol.y, ambientCol.z);
@@ -132,7 +133,7 @@ bool SkyXManager::UpdateSkyLight()
 	
     if (round (mBasicController->getTime ().x) != mLastHour)
     {
-        TerrainGeometryManager* gm = App::GetSimTerrain ()->getGeometryManager ();
+        TerrainGeometryManager* gm = App::GetGameContext()->GetTerrain()->getGeometryManager ();
         if (gm)
             gm->updateLightMap ();
 

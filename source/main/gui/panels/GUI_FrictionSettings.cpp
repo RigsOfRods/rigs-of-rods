@@ -138,8 +138,8 @@ bool FrictionSettings::GmComboItemGetter(void* data, int idx, const char** out_t
 void FrictionSettings::AnalyzeTerrain()
 {
     m_gm_entries.clear();
-    auto itor = App::GetSimTerrain()->GetCollisions()->getGroundModels()->begin();
-    auto endi = App::GetSimTerrain()->GetCollisions()->getGroundModels()->end();
+    auto itor = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModels()->begin();
+    auto endi = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModels()->end();
     for (; itor != endi; ++itor)
     {
         m_gm_entries.emplace_back(&itor->second);

@@ -233,6 +233,7 @@ if (USE_ANGELSCRIPT)
             scripting/bindings/LocalStorageAngelscript.cpp
             scripting/bindings/OgreAngelscript.cpp
             scripting/bindings/ScriptEventsAngelscript.cpp
+            scripting/bindings/TerrainAngelscript.cpp
             scripting/bindings/VehicleAiAngelscript.cpp
             )
 endif ()
@@ -345,6 +346,7 @@ target_include_directories(${BINNAME} PRIVATE
         terrain/map
         threadpool
         utils
+        utils/memory
         )
 
 
@@ -404,7 +406,7 @@ if (USE_DISCORD_RPC)
 endif ()
 
 if (USE_SOCKETW)
-    target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW OpenSSL::SSL)
+    target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
     target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
 endif ()
 

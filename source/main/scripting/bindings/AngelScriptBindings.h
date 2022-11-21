@@ -64,6 +64,10 @@ void RegisterImGuiBindings(AngelScript::asIScriptEngine* engine);
 /// defined in OgreAngelscript.cpp
 void RegisterOgreObjects(AngelScript::asIScriptEngine* engine);
 
+/// Registers RoR::Terrain, defined in TerrainAngelscript.cpp
+void RegisterTerrain(AngelScript::asIScriptEngine* engine);
+
+
 /// @}   //addtogroup Scripting
 
 } // namespace RoR
