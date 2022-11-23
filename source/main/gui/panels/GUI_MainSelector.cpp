@@ -90,7 +90,7 @@ void MainSelector::Draw()
 
     // category keyboard control
     const int num_categories = static_cast<int>(m_display_categories.size());
-    if (!m_searchbox_was_active)
+    if (m_search_input == "")
     {
         if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow)))
         {
@@ -140,7 +140,8 @@ void MainSelector::Draw()
     }
     if (ImGui::InputText("##SelectorSearch", m_search_input.GetBuffer(), m_search_input.GetCapacity()))
     {
-        // `m_last_selected_category` intentionally not updated
+        m_selected_category = 0; // 'All'
+        m_selected_cid = CID_All;
         this->UpdateSearchParams();
         this->UpdateDisplayLists();
     }
