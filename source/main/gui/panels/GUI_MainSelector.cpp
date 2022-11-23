@@ -90,7 +90,7 @@ void MainSelector::Draw()
 
     // category keyboard control
     const int num_categories = static_cast<int>(m_display_categories.size());
-    if (m_search_input == "")
+    if (!m_searchbox_was_active || m_search_input == "")
     {
         if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow)))
         {
