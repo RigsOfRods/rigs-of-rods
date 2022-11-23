@@ -966,7 +966,8 @@ enum ImGuiKey_
     ImGuiKey_X,         // for text edit CTRL+X: cut
     ImGuiKey_Y,         // for text edit CTRL+Y: redo
     ImGuiKey_Z,         // for text edit CTRL+Z: undo
-    ImGuiKey_COUNT
+    ImGuiKey_COUNT,
+    ImGuiKey_Slash
 };
 
 // Gamepad/Keyboard directional navigation
