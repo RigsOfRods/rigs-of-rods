@@ -960,14 +960,14 @@ enum ImGuiKey_
     ImGuiKey_KeyPad7,
     ImGuiKey_KeyPad8,
     ImGuiKey_KeyPad9,
+    ImGuiKey_Slash,
     ImGuiKey_A,         // for text edit CTRL+A: select all
     ImGuiKey_C,         // for text edit CTRL+C: copy
     ImGuiKey_V,         // for text edit CTRL+V: paste
     ImGuiKey_X,         // for text edit CTRL+X: cut
     ImGuiKey_Y,         // for text edit CTRL+Y: redo
     ImGuiKey_Z,         // for text edit CTRL+Z: undo
-    ImGuiKey_COUNT,
-    ImGuiKey_Slash
+    ImGuiKey_COUNT
 };
 
 // Gamepad/Keyboard directional navigation
