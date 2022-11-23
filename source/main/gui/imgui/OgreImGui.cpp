@@ -73,6 +73,7 @@ void OgreImGui::Init()
     io.KeyMap[ImGuiKey_KeyPad7] = OIS::KC_NUMPAD7;
     io.KeyMap[ImGuiKey_KeyPad8] = OIS::KC_NUMPAD8;
     io.KeyMap[ImGuiKey_KeyPad9] = OIS::KC_NUMPAD9;
+    io.KeyMap[ImGuiKey_Slash] = OIS::KC_SLASH;
 
     // Load font
     m_imgui_overlay->addFont("rigsofrods/fonts/Roboto-Medium",

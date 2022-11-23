@@ -134,7 +134,7 @@ void MainSelector::Draw()
         m_kb_focused = false;
     }
 
-    if (!m_searchbox_was_active && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Tab)))
+    if (!m_searchbox_was_active && (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Tab)) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Slash))))
     {
         ImGui::SetKeyboardFocusHere();
     }
