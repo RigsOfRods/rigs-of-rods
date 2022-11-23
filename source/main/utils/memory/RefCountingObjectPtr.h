@@ -115,7 +115,7 @@ void RefCountingObjectPtr<T>::RegisterRefCountingObjectPtr(AS_NAMESPACE_QUALIFIE
     r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpImplCast), asCALL_CDECL_OBJFIRST); RefCountingObjectPtr_ASSERT( r >= 0 );
 
     // GetRef
-    snprintf(decl_buf, DECLBUF_MAX, "%s @ GetHandle()", obj_name);
+    snprintf(decl_buf, DECLBUF_MAX, "%s @ getHandle()", obj_name);
     r = engine->RegisterObjectMethod(handle_name, decl_buf, asFUNCTION(RefCountingObjectPtr::OpImplCast), asCALL_CDECL_OBJFIRST); RefCountingObjectPtr_ASSERT( r >= 0 );
 
     // Assign
