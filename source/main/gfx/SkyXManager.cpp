@@ -103,7 +103,7 @@ bool SkyXManager::UpdateSkyLight()
 
 	mLight0->getParentSceneNode()->setPosition(sunPos*0.02);
 	mLight1->getParentSceneNode()->setDirection(lightDir);
-    if (App::GetSimTerrain()->getWater())
+    if (App::GetGameContext()->GetTerrain()->getWater())
     {
         App::GetGameContext()->GetTerrain()->getWater()->WaterSetSunPosition(sunPos*0.1);
     }
