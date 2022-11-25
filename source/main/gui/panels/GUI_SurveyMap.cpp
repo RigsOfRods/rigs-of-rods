@@ -480,9 +480,9 @@ void SurveyMap::CreateTerrainTextures()
 void SurveyMap::UpdateTerrainTextures()
 {
     mMapCenterOffset     = Ogre::Vector2::ZERO; // Reset, maybe new terrain was loaded
-    AxisAlignedBox aab   = App::GetSimTerrain()->getTerrainCollisionAAB();
-    Vector3 terrain_size = App::GetSimTerrain()->getMaxTerrainSize();
-    bool use_aab         = App::GetSimTerrain()->isFlat() && std::min(aab.getSize().x, aab.getSize().z) > 50.0f;
+    AxisAlignedBox aab   = App::GetGameContext()->GetTerrain()->getTerrainCollisionAAB();
+    Vector3 terrain_size = App::GetGameContext()->GetTerrain()->getMaxTerrainSize();
+    bool use_aab         = App::GetGameContext()->GetTerrain()->isFlat() && std::min(aab.getSize().x, aab.getSize().z) > 50.0f;
 
     if (terrain_size.isZeroLength() || use_aab && (aab.getSize().length() < terrain_size.length()))
     {
