@@ -467,7 +467,7 @@ endif ()
 
 if (WIN32)
     set(CFG_OGRE_PLUGIN_CAELUM "Plugin=Caelum")
-    set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=Caelum")
+    set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=Caelum_d")
 else ()
     if (${_PREFIX}USE_CAELUM STREQUAL "SYSTEM")
         set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
