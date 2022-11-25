@@ -635,7 +635,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     {
         for (Ogre::SubEntity* subent : mo->getEntity()->getSubEntities())
         {
-            App::GetSimTerrain()->getShadowManager()->EnableRTSS(subent->getMaterial());
+            App::GetGameContext()->GetTerrain()->getShadowManager()->EnableRTSS(subent->getMaterial());
         }
     }
 
