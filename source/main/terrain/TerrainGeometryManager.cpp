@@ -30,7 +30,6 @@
 #include "GUI_LoadingWindow.h"
 #include "Terrain.h"
 #include "ShadowManager.h"
-#include "OgreTerrainPSSMMaterialGenerator.h"
 #include "OTCFileFormat.h"
 
 #include <OgreLight.h>
@@ -434,7 +433,7 @@ void TerrainGeometryManager::configureTerrainDefaults()
     else
     {
         terrainOptions->setDefaultMaterialGenerator(
-            Ogre::TerrainMaterialGeneratorPtr(new Ogre::TerrainPSSMMaterialGenerator()));
+            Ogre::TerrainMaterialGeneratorPtr(new Ogre::TerrainMaterialGeneratorA()));
     }
     // Configure global
     terrainOptions->setMaxPixelError(m_spec->max_pixel_error);
@@ -460,10 +459,10 @@ void TerrainGeometryManager::configureTerrainDefaults()
     defaultimp.maxBatchSize = m_spec->batch_size_max;
 
     // optimizations
-    TerrainPSSMMaterialGenerator::SM2Profile* matProfile = nullptr;
+    TerrainMaterialGeneratorA::SM2Profile* matProfile = nullptr;
     if (custom_mat.empty())
     {
-        matProfile = static_cast<TerrainPSSMMaterialGenerator::SM2Profile*>(terrainOptions->getDefaultMaterialGenerator()->getActiveProfile());
+        matProfile = static_cast<TerrainMaterialGeneratorA::SM2Profile*>(terrainOptions->getDefaultMaterialGenerator()->getActiveProfile());
         if (matProfile)
         {
             matProfile->setLightmapEnabled(m_spec->lightmap_enabled);
