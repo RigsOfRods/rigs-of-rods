@@ -32,8 +32,6 @@
 #include "Application.h"
 #include "Application.h"
 
-#include "OgreTerrainPSSMMaterialGenerator.h"
-
 namespace RoR {
 
 /// @addtogroup Gfx
