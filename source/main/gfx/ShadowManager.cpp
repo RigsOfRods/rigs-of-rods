@@ -73,6 +73,15 @@ void ShadowManager::SetupPSSM()
         auto subRenderState = mShaderGenerator->createSubRenderState<RTShader::IntegratedPSSM3>();
         subRenderState->setSplitPoints(pssmSetup->getSplitPoints());
         schemRenderState->addTemplateSubRenderState(subRenderState);
+
+        // PBR
+        //auto subRenderStateNP = mShaderGenerator->createSubRenderState(Ogre::RTShader::SRS_NORMALMAP);
+        //schemRenderState->addTemplateSubRenderState(subRenderStateNP);
+        //subRenderStateNP->setParameter("texture", "Grass004_1K_NormalGL.jpg");
+
+        //auto subRenderStateMR = mShaderGenerator->createSubRenderState(Ogre::RTShader::SRS_COOK_TORRANCE_LIGHTING);
+        //schemRenderState->addTemplateSubRenderState(subRenderStateMR);
+        //subRenderStateMR->setParameter("texture", "Grass004_1K_Roughness.jpg");
     }
 }
 
