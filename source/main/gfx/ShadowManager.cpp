@@ -53,14 +53,11 @@ void ShadowManager::SetupPSSM()
         App::GetGfxScene()->GetSceneManager()->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED);
         App::GetGfxScene()->GetSceneManager()->setShadowFarDistance(350);
         App::GetGfxScene()->GetSceneManager()->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, 3);
-        App::GetGfxScene()->GetSceneManager()->setShadowTextureCountPerLightType(Ogre::Light::LT_POINT, 3);
-        App::GetGfxScene()->GetSceneManager()->setShadowTextureCountPerLightType(Ogre::Light::LT_SPOTLIGHT, 3);
         App::GetGfxScene()->GetSceneManager()->setShadowTextureSettings(2048, 3, PF_DEPTH16);
         App::GetGfxScene()->GetSceneManager()->setShadowTextureSelfShadow(true);
 
-
         auto* pssmSetup = new PSSMShadowCameraSetup();
-        pssmSetup->calculateSplitPoints(3, 1, 500, 1);
+        pssmSetup->calculateSplitPoints(3, 1, 500);
         pssmSetup->setSplitPadding(App::GetCameraManager()->GetCamera()->getNearClipDistance());
         pssmSetup->setOptimalAdjustFactor(0, 2);
         pssmSetup->setOptimalAdjustFactor(1, 1);
