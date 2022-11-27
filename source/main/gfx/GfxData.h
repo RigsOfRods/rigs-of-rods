@@ -141,7 +141,6 @@ struct Prop
     MeshObject*           pp_mesh_obj             = nullptr;
     int                   pp_camera_mode          = -2;                  //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
     std::vector<PropAnim> pp_animations;
-    bool                  pp_force_hidden         = false;
 
     // Special prop - steering wheel
     MeshObject*           pp_wheel_mesh_obj       = nullptr;
@@ -162,7 +161,7 @@ struct Prop
     bool                  pp_aero_propeller_blade:1;                     //!< Special - single blade mesh
     bool                  pp_aero_propeller_spin:1;                      //!< Special - blurred spinning propeller effect
 
-    void SetAllMeshesVisible(bool visible)
+    void setPropMeshesVisible(bool visible)
     {
         if (pp_mesh_obj)
             pp_mesh_obj->setVisible(visible);
