@@ -25,6 +25,7 @@
 #include "GameContext.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
+#include "GUIManager.h"
 #include "SkyManager.h"
 #include "Terrain.h"
 
@@ -210,6 +211,11 @@ void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, boo
     if (!App::gfx_envmap_enabled->getBool())
     {
         return;
+    }
+
+    if (App::GetGuiManager()->FlexbodyDebug.IsHideOtherElementsModeActive())
+    {
+        return; // Prevent showing meshes hidden by the diagnostic UI.
     }
 
     if (!full && update_rate == 0)

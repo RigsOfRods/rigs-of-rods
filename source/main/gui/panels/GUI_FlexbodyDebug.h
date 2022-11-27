@@ -36,6 +36,7 @@ public:
     bool IsHovered() const { return m_is_hovered; }
     void SetVisible(bool value) { m_is_visible = value; m_is_hovered = false; }
     void Draw();
+    bool IsHideOtherElementsModeActive() const { return hide_other_elements; }
 
     void AnalyzeFlexbodies(); //!< populates the combobox
     void DrawDebugView(FlexBody* flexbody, Prop* prop, NodeNum_t node_ref, NodeNum_t node_x, NodeNum_t node_y);

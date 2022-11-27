@@ -67,7 +67,7 @@ void FlexbodyDebug::Draw()
             show_locator.resize(actor->GetGfxActor()->GetFlexbodies()[m_combo_selection]->getVertexCount(), false);
         }
     }
-    if (ImGui::Checkbox("Hide other", &this->hide_other_elements))
+    if (ImGui::Checkbox("Hide other (note: pauses reflections)", &this->hide_other_elements))
     {
         this->UpdateVisibility();
     }
@@ -395,24 +395,31 @@ void FlexbodyDebug::UpdateVisibility()
         return;
     }
 
-    auto& flexbody_vec = actor->GetGfxActor()->GetFlexbodies();
-    for (int i = 0; i < (int)flexbody_vec.size(); i++)
+    if (this->hide_other_elements)
     {
-        const int combo_pos = i;
-        const bool visible = (!this->hide_other_elements || combo_pos == m_combo_selection);
-        flexbody_vec[i]->setVisible(visible);
-    }
+        // Hide everything, even meshes scattered across gameplay components (wheels, wings...).
+        // Note: Environment map (dynamic reflections) is halted while the "Hide other" mode is active - see `RoR::GfxEnvmap::UpdateEnvMap()`
+        actor->GetGfxActor()->SetAllMeshesVisible(false);
 
-    auto& prop_vec = actor->GetGfxActor()->getProps();
-    for (int i = 0; i < (int)prop_vec.size(); i++)
+        // Then re-display what we need manually.
+        auto& flexbody_vec = actor->GetGfxActor()->GetFlexbodies();
+        const int combo_flexbody_selection = m_combo_selection;
+        if (combo_flexbody_selection > 0 && combo_flexbody_selection < (int)flexbody_vec.size())
+        {
+            flexbody_vec[combo_flexbody_selection]->setVisible(true);
+        }
+
+        auto& prop_vec = actor->GetGfxActor()->getProps();
+        const int combo_prop_selection = m_combo_selection + (int)flexbody_vec.size();
+        if (combo_prop_selection > 0 && combo_prop_selection < (int)prop_vec.size())
+        {
+            prop_vec[combo_prop_selection].setPropMeshesVisible(true);
+        }
+    }
+    else
     {
-        const int combo_pos = i + (int)flexbody_vec.size();
-        const bool visible = (!this->hide_other_elements || combo_pos == m_combo_selection);
-        // Prop visibility is updated every frame based on camera position and settings, see `GfxActor::UpdateProps()`
-        // The 'force hidden' flag disables that update.
-        prop_vec[i].pp_force_hidden = !visible;
-        if (prop_vec[i].pp_force_hidden)
-            prop_vec[i].SetAllMeshesVisible(false);
+        // Show everything, `GfxActor::UpdateScene()` will update visibility as needed.
+        actor->GetGfxActor()->SetAllMeshesVisible(true);
     }
 }
 
