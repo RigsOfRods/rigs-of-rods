@@ -189,8 +189,10 @@ private:
     void                       ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObj::SpecialObject special);
     Ogre::Quaternion           CalcRotation(Ogre::Vector3 const& rot) const;
     bool                       ParseObjectLine(TObjEntry& object);
+    void                       FlushProceduralObject();
 
     std::shared_ptr<TObjFile>  m_def;
+    std::string                m_filename;
     int                        m_line_number;
     const char*                m_cur_line;
     bool                       m_in_procedural_road; // Old parser: 'bool proroad'
@@ -198,6 +200,7 @@ private:
     Ogre::Vector3              m_road2_last_pos;
     Ogre::Vector3              m_road2_last_rot;
     ProceduralObjectPtr        m_cur_procedural_obj;
+    int                        m_cur_procedural_obj_start_line;
 };
 
 } // namespace RoR
