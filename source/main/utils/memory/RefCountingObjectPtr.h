@@ -156,7 +156,8 @@ template<class T>
 inline T* RefCountingObjectPtr<T>::OpImplCast(RefCountingObjectPtr<T>* self)
 {
     T* ref = self->GetRef();
-    ref->AddRef();
+    if (ref)
+        ref->AddRef();
     return ref;
 }
 

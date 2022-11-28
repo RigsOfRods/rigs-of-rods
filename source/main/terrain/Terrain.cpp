@@ -547,3 +547,8 @@ void RoR::Terrain::HandleException(const char* summary)
     }
 }
 
+ProceduralManagerPtr RoR::Terrain::getProceduralManager()
+{
+    return m_object_manager->getProceduralManager();
+}
+

@@ -71,6 +71,8 @@ TerrainObjectManager::TerrainObjectManager(Terrain* terrainManager) :
     // terrain custom group
     m_resource_group = terrainManager->GetDef().name + "-TerrnObjects";
     Ogre::ResourceGroupManager::getSingleton().createResourceGroup(m_resource_group);
+
+    m_procedural_manager = ProceduralManagerPtr::Bind(new ProceduralManager());
 }
 
 TerrainObjectManager::~TerrainObjectManager()
@@ -212,9 +214,9 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     }
 
     // Procedural roads
-    for (ProceduralObject po : tobj->proc_objects)
+    for (ProceduralObjectPtr& po : tobj->proc_objects)
     {
-        m_procedural_mgr.addObject(po);
+        m_procedural_manager->addObject(po);
     }
 
     // Vehicles
@@ -252,7 +254,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
 
     if (App::diag_terrn_log_roads->getBool())
     {
-        m_procedural_mgr.logDiagnostics();
+        m_procedural_manager->logDiagnostics();
     }
 }
 

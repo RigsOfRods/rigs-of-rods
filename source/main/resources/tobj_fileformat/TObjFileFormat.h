@@ -163,7 +163,7 @@ struct TObjFile
     std::vector<TObjGrass>        grass;
     std::vector<TObjVehicle>      vehicles;
     std::vector<TObjEntry>        objects;
-    std::vector<ProceduralObject> proc_objects;
+    std::vector<ProceduralObjectPtr> proc_objects;
 };
 
 // -----------------------------------------------------------------------------
@@ -197,7 +197,7 @@ private:
     bool                       m_road2_use_old_mode; // Old parser: 'int r2oldmode'
     Ogre::Vector3              m_road2_last_pos;
     Ogre::Vector3              m_road2_last_rot;
-    ProceduralObject           m_cur_procedural_obj;
+    ProceduralObjectPtr        m_cur_procedural_obj;
 };
 
 } // namespace RoR

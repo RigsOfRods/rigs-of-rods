@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2022 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -18,7 +19,8 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// thomas, 17th of June 2008
+// @author thomas, 17th of June 2008
+
 #pragma once
 
 #include "Application.h"
@@ -29,38 +31,60 @@ namespace RoR {
 /// @addtogroup Terrain
 /// @{
 
-struct ProceduralPoint
+struct ProceduralPoint: public RefCountingObject<ProceduralPoint>
 {
     Ogre::Vector3 position = Ogre::Vector3::ZERO;
     Ogre::Quaternion rotation = Ogre::Quaternion::IDENTITY;
-    int type = 0;
+    RoadType type = RoadType::ROAD_AUTOMATIC;
     float width = 0.f;
     float bwidth = 0.f;
     float bheight = 0.f;
     int pillartype = 0;
 };
 
-struct ProceduralObject
+struct ProceduralObject: public RefCountingObject<ProceduralObject>
 {
-    std::vector<ProceduralPoint> points;
-    ProceduralRoad* road = nullptr;
+    // Nice funcs for Angelscript
+    void addPoint(ProceduralPointPtr p) { points.push_back(p); }
+    ProceduralPointPtr getPoint(int pos);
+    void insertPoint(int pos, ProceduralPointPtr p);
+    void deletePoint(int pos);
+    int getNumPoints() const { return (int)points.size(); }
+    ProceduralRoadPtr getRoad() { return road; }
+    std::string getName() { return name; }
+    void setName(std::string const& new_name) { name = new_name; }
+
+    std::string name;
+    std::vector<ProceduralPointPtr> points;
+    ProceduralRoadPtr road;
 };
 
-class ProceduralManager
+class ProceduralManager: public RefCountingObject<ProceduralManager>
 {
 public:
     ~ProceduralManager();
 
-    int  addObject(ProceduralObject& po);
+    /// Generates road mesh and adds to internal list
+    void addObject(ProceduralObjectPtr po);
 
-    int  deleteObject(ProceduralObject& po);
+    /// Clears road mesh and removes from internal list
+    void removeObject(ProceduralObjectPtr po);
+
+    int getNumObjects() { return (int)pObjects.size(); }
+
+    ProceduralObjectPtr getObject(int pos);
 
     void logDiagnostics();
 
-private:
-    int updateObject(ProceduralObject& po);
+    void removeAllObjects();
 
-    std::vector<ProceduralObject> pObjects;
+private:
+    /// Rebuilds the road mesh
+    void updateObject(ProceduralObjectPtr po);
+    /// Deletes the road mesh
+    void deleteObject(ProceduralObjectPtr po);
+
+    std::vector<ProceduralObjectPtr> pObjects;
 };
 
 /// @} // addtogroup Terrain

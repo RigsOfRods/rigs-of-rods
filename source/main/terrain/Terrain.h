@@ -65,6 +65,7 @@ public:
     /// @name Subsystems
     /// @{
     TerrainGeometryManager* getGeometryManager()          { return m_geometry_manager; }
+    ProceduralManagerPtr    getProceduralManager();
     TerrainObjectManager*   getObjectManager()            { return m_object_manager; }
     HydraxWater*            getHydraxManager()            { return m_hydrax_water; }
     SkyManager*             getSkyManager();

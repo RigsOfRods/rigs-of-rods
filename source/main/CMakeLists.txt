@@ -232,6 +232,7 @@ if (USE_ANGELSCRIPT)
             scripting/bindings/InputEngineAngelscript.cpp
             scripting/bindings/LocalStorageAngelscript.cpp
             scripting/bindings/OgreAngelscript.cpp
+            scripting/bindings/ProceduralRoadAngelscript.cpp
             scripting/bindings/ScriptEventsAngelscript.cpp
             scripting/bindings/TerrainAngelscript.cpp
             scripting/bindings/VehicleAiAngelscript.cpp
