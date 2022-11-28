@@ -40,6 +40,8 @@ public:
      * @return Player spawn position when entering game.
      */
     vector3 getSpawnPos();
+    
+    ProceduralManagerClass @getProceduralManager();
 };
 
 /// @}    //addtogroup Script2Game

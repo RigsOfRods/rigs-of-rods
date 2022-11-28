@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2022 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -26,49 +27,112 @@
 using namespace Ogre;
 using namespace RoR;
 
+#pragma region ProceduralObject
+
+ProceduralPointPtr ProceduralObject::getPoint(int pos)
+{
+    if (pos >= 0 && pos < (int)points.size())
+    {
+        return points[pos];
+    }
+    else
+    {
+        return ProceduralPointPtr();
+    }
+}
+
+void ProceduralObject::insertPoint(int pos, ProceduralPointPtr p)
+{
+    if (pos >= 0 && pos < (int)points.size())
+    {
+        points.insert(points.begin() + pos, p);
+    }
+}
+
+void ProceduralObject::deletePoint(int pos)
+{
+    if (pos >= 0 && pos < (int)points.size())
+    {
+        points.erase(points.begin() + pos);
+    }
+}
+
+#pragma endregion
+
+#pragma region ProceduralManager
+
 ProceduralManager::~ProceduralManager()
 {
-    for (ProceduralObject& po : pObjects)
+    this->removeAllObjects();
+}
+
+ProceduralObjectPtr ProceduralManager::getObject(int pos)
+{
+    if (pos >= 0 && pos < (int)pObjects.size())
     {
-        deleteObject(po);
+        return pObjects[pos];
+    }
+    else
+    {
+        return ProceduralObjectPtr();
     }
 }
 
-int ProceduralManager::deleteObject(ProceduralObject& po)
+void ProceduralManager::removeAllObjects()
 {
-    if (po.road)
+    for (ProceduralObjectPtr obj : pObjects)
     {
-        // loaded already, destroy old object
-        delete po.road;
-        po.road = 0;
+        this->deleteObject(obj);
     }
-    return 0;
+    pObjects.clear(); // delete (unreference) all objects.
 }
 
-int ProceduralManager::updateObject(ProceduralObject& po)
+void ProceduralManager::deleteObject(ProceduralObjectPtr po)
 {
-    if (po.road)
-        deleteObject(po);
-    // create new road2 object
-    po.road = new ProceduralRoad((int)pObjects.size());
+    if (po->road)
+    {
+        // loaded already, delete (unreference) old object
+        po->road = ProceduralRoadPtr();
+    }
+}
+
+void ProceduralManager::removeObject(ProceduralObjectPtr po)
+{
+    auto itor = pObjects.begin();
+    while (itor != pObjects.end())
+    {
+        if (*itor == po)
+        {
+            this->deleteObject(*itor);
+            itor = pObjects.erase(itor);
+        }
+        else
+        {
+            itor++;
+        }
+    }
+}
+
+void ProceduralManager::updateObject(ProceduralObjectPtr po)
+{
+    if (po->road)
+        this->deleteObject(po);
+
+    po->road = ProceduralRoadPtr::Bind(new ProceduralRoad());
     // In diagnostic mode, disable collisions (speeds up terrain loading)
-    po.road->setCollisionEnabled(!App::diag_terrn_log_roads->getBool());
+    po->road->setCollisionEnabled(!App::diag_terrn_log_roads->getBool());
 
-    std::vector<ProceduralPoint>::iterator it;
-    for (it = po.points.begin(); it != po.points.end(); it++)
+    for (ProceduralPointPtr& pp: po->points)
     {
-        ProceduralPoint pp = *it;
-        po.road->addBlock(pp.position, pp.rotation, pp.type, pp.width, pp.bwidth, pp.bheight, pp.pillartype);
+        po->road->addBlock(pp->position, pp->rotation, pp->type, pp->width, pp->bwidth, pp->bheight, pp->pillartype);
     }
-    po.road->finish();
-    return 0;
+    po->road->finish();
 }
 
-int ProceduralManager::addObject(ProceduralObject& po)
+void ProceduralManager::addObject(ProceduralObjectPtr po)
 {
     updateObject(po);
     pObjects.push_back(po);
-    return 0;
 }
 
 void ProceduralManager::logDiagnostics()
@@ -79,13 +143,15 @@ void ProceduralManager::logDiagnostics()
     for (int i=0; i< (int) pObjects.size(); ++i)
     {
         LogFormat("~~~~~~ ProceduralObject %d ~~~~~~", i);
-        ProceduralObject& po=pObjects[i];
-        for (int j = 0; j<(int)po.points.size(); ++j)
+        ProceduralObjectPtr& po=pObjects[i];
+        for (int j = 0; j<(int)po->points.size(); ++j)
         {
-            ProceduralPoint& pt = po.points[j];
+            ProceduralPointPtr& pp = po->points[j];
             LogFormat("\t Point [%d] posXYZ %f %f %f, type %d, width %f, bwidth %f, bheight %f, pillartype %i",
-                                j,   pt.position.x, pt.position.y, pt.position.z,
-                                                   pt.type, pt.width, pt.bwidth, pt.bheight, pt.pillartype);
+                                j,   pp->position.x, pp->position.y, pp->position.z,
+                                                   pp->type, pp->width, pp->bwidth, pp->bheight, pp->pillartype);
         }
     }
 }
+
+#pragma endregion
