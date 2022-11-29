@@ -314,6 +314,7 @@ void GameSettings::DrawGraphicsSettings()
     DrawGCombo(App::gfx_shadow_type, _LC("GameSettings", "Shadow type (requires restart)"),
         m_combo_items_shadow_type.c_str());
 
+    /* Probably remove, default settings are lightweight already and look good.
     if (App::gfx_shadow_type->getEnum<GfxShadowType>() != GfxShadowType::NONE)
     {
         DrawGCheckbox(App::gfx_reduce_shadows, _LC("GameSettings", "Shadow optimizations"));
@@ -322,6 +323,7 @@ void GameSettings::DrawGraphicsSettings()
             DrawGIntSlider(App::gfx_shadow_quality, _LC("GameSettings", "Shadow quality"), 0, 3);
         }
     }
+    */
 
     DrawGCombo(App::gfx_sky_mode, _LC("GameSettings", "Sky gfx"),
         m_combo_items_sky_mode.c_str());
