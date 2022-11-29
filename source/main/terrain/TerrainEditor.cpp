@@ -266,6 +266,41 @@ void TerrainEditor::WriteOutputFile()
                 stream->write(line.c_str(), line.length());
             }
         }
+        
+        // Export procedural roads
+        int num_roads = App::GetGameContext()->GetTerrain()->getProceduralManager()->getNumObjects();
+        for (int i = 0; i < num_roads; i++)
+        {
+            ProceduralObjectPtr obj = App::GetGameContext()->GetTerrain()->getProceduralManager()->getObject(i);
+            int num_points = obj->getNumPoints();
+            if (num_points > 0)
+            {
+                stream->write("\nbegin_procedural_roads\n", 24);
+                for (int j = 0; j < num_points; j++)
+                {
+                    ProceduralPointPtr point = obj->getPoint(j);
+                    std::string type_str;
+                    switch (point->type)
+                    {
+                    case RoadType::ROAD_AUTOMATIC: type_str = "both"; break; // ??
+                    case RoadType::ROAD_FLAT: type_str = "flat"; break;
+                    case RoadType::ROAD_LEFT: type_str = "left"; break;
+                    case RoadType::ROAD_RIGHT: type_str = "right"; break;
+                    case RoadType::ROAD_BOTH: type_str = "both"; break;
+                    case RoadType::ROAD_BRIDGE: type_str = (point->pillartype == 1) ? "bridge" : "bridge_no_pillars"; break;
+                    case RoadType::ROAD_MONORAIL: type_str = (point->pillartype == 2) ? "monorail" : "monorail2"; break;
+                    }
+
+                    std::string line = fmt::format(
+                        "\t{:13f}, {:13f}, {:13f}, 0, {:13f}, 0, {:13f}, {:13f}, {:13f}, {}\n",
+                        point->position.x, point->position.y, point->position.z,
+                        point->rotation.getYaw().valueDegrees(),
+                        point->width, point->bwidth, point->bheight, type_str);
+                    stream->write(line.c_str(), line.length());
+                }
+                stream->write("end_procedural_roads\n", 21);
+            }
+        }
     }
     catch (std::exception& e)
     {
