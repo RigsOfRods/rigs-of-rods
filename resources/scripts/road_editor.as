@@ -98,8 +98,13 @@ class TerrainEditor
         
         if (ImGui::CollapsingHeader("Manage roads"))
         {
-            this.drawRoadList();     
-        }        
+            this.drawRoadListPanel();     
+        }
+
+        if (ImGui::CollapsingHeader("AI Waypoints"))
+        {
+            this.drawAiWaypointsPanel();
+        }
         
         // Slider for selecting nodes
         TerrainClass@ terrain = game.getTerrain();
@@ -131,18 +136,7 @@ class TerrainEditor
             ImGui::TextDisabled("Add new road point at the character position and link it to selected road point (if any).");
             if (ImGui::Button("Insert new point"))
             {
-                ProceduralPointClass@ point = ProceduralPointClass();
-                point.position = game.getPersonPosition();                
-                
-                if (obj.getNumPoints() == 0 || m_selected_point == obj.getNumPoints() - 1)
-                {
-                    obj.addPoint(point);
-                    m_selected_point = obj.getNumPoints() - 1;
-                }
-                else
-                {
-                    obj.insertPoint(m_selected_point, point);
-                }
+                this.addPointToCurrentRoad(game.getPersonPosition());
             }
             
             if (obj.getNumPoints() > 0)
@@ -214,7 +208,7 @@ class TerrainEditor
         }
     }
     
-    void drawRoadList()
+    void drawRoadListPanel()
     {
         // Basic info - num procedural objects and [+] button
         TerrainClass@ terrain = game.getTerrain();
@@ -225,10 +219,10 @@ class TerrainEditor
         {
             // Add new road
             ProceduralObjectClass obj;
-            obj.setName("from editor " + roads.getNumObjects());
+            obj.setName("road " + roads.getNumObjects() + " (from editor)");
             roads.addObject(obj);
             // Select the new road
-            m_selected_road = roads.getNumObjects() - 1;
+            this.setSelectedRoad(roads.getNumObjects() - 1);
         }
         ImGui::Separator();
         
@@ -240,11 +234,7 @@ class TerrainEditor
             ImGui::PushID(i);
             if (ImGui::RadioButton(obj.getName(), i == m_selected_road))
             {
-                if (m_selected_road != i)
-                {
-                    m_selected_point = clamp(0, m_selected_point, obj.getNumPoints());
-                }
-                m_selected_road = i;
+                this.setSelectedRoad(i);
             }
             ImGui::SameLine();
             if (ImGui::Button("Delete"))
@@ -260,6 +250,107 @@ class TerrainEditor
             m_selected_road = min(m_selected_road, roads.getNumObjects() - 1);
         }
         ImGui::Separator();
+    }
+    
+    void drawAiWaypointsExportPanel(ProceduralObjectClass@ obj)
+    {
+        ImGui::PushID("ai export");
+        ImGui::Text("Export road points as waypoints to survey map");
+        
+        if (obj.getNumPoints() > 0)
+        {
+            ImGui::Text("Current road has " + obj.getNumPoints() + " points");
+            ImGui::SliderInt("First", m_ai_export_first, 0, obj.getNumPoints() - 1);
+            ImGui::SliderInt("Last", m_ai_export_last, 0, obj.getNumPoints() - 1);
+            if (m_ai_export_first > m_ai_export_last)
+            {
+                ImGui::Text("bad range!");
+            }
+            else
+            {
+                string btn_text = "Export " + (m_ai_export_last - m_ai_export_first) + " waypoints";
+                if (ImGui::Button(btn_text))
+                {
+                    for (int i = m_ai_export_first; i <= m_ai_export_last; i++)
+                    {
+                        game.addWaypoint(obj.getPoint(i).getHandle().position);
+                    }
+                }
+            }
+        }
+        else
+        {
+            ImGui::Text("The current road is empty - nothing to export!");
+        }
+        
+        ImGui::PopID(); // "ai export"
+    }
+    
+    void drawAiWaypointsImportPanel(ProceduralObjectClass@ obj)
+    {
+        ImGui::PushID("ai import");
+        
+        ImGui::Text("Import road points from AI waypoints in survey map");
+        array<vector3> waypoints = game.getWaypoints(0);
+        
+        // Resize range sliders if needed
+        if (m_ai_import_available != int(waypoints.length()))
+        {
+            m_ai_import_first = min(m_ai_import_first, int(waypoints.length()) - 1);
+            m_ai_import_last = min(m_ai_import_last, int(waypoints.length()) - 1);
+        }
+        
+        // Draw export UI
+        if (waypoints.length() > 0)
+        {
+            ImGui::Text("There are " + waypoints.length() + " waypoints available");
+
+            ImGui::SliderInt("First", m_ai_import_first, 0, int(waypoints.length()) - 1);
+            ImGui::SliderInt("Last", m_ai_import_last, 0, int(waypoints.length()) - 1);
+            if (m_ai_import_first > m_ai_import_last)
+            {
+                ImGui::Text("bad range!");
+            }
+            else
+            {
+                string btn_text = "Import " + (m_ai_import_last - m_ai_import_first) + " waypoints";
+                if (ImGui::Button(btn_text))
+                {
+                    for (int i = m_ai_import_first; i <= m_ai_import_last; i++)
+                    {
+                        this.addPointToCurrentRoad(waypoints[i]);
+                    }
+                }
+            }
+        }
+        else
+        {
+            ImGui::Text("No waypoints defined in survey map - nothing to import!");
+        }        
+        
+        ImGui::PopID(); // "ai import"
+    }
+    
+    void drawAiWaypointsPanel()
+    {
+        ImGui::PushID("waypoints panel");
+        ImGui::TextDisabled("This tool lets you convert between procedural road points and AI waypoints (editable using survey map).");
+        TerrainClass@ terrain = game.getTerrain();
+        ProceduralManagerClass@ roads = terrain.getProceduralManager();
+        if (roads.getNumObjects() > 0)
+        {
+            ProceduralObjectClass@ obj = roads.getObject(m_selected_road);
+            ImGui::Separator();
+            this.drawAiWaypointsExportPanel(obj);
+            ImGui::Separator();
+            this.drawAiWaypointsImportPanel(obj);
+        }
+        else
+        {
+            ImGui::Text("There are no roads - nothing to import/export!");
+        }
+        
+        ImGui::PopID(); // "waypoints panel"
     }
 
     void visualizeRoad()
@@ -398,6 +489,24 @@ class TerrainEditor
         }
     }
     
+    void addPointToCurrentRoad(vector3 pos)
+    {
+        ProceduralObjectClass@ obj = game.getTerrain().getHandle().getProceduralManager().getHandle().getObject(m_selected_road);
+    
+        ProceduralPointClass@ point = ProceduralPointClass();
+        point.position = pos;            
+        
+        if (obj.getNumPoints() == 0 || m_selected_point == obj.getNumPoints() - 1)
+        {
+            obj.addPoint(point);
+            m_selected_point = obj.getNumPoints() - 1;
+        }
+        else
+        {
+            obj.insertPoint(m_selected_point, point);
+        }
+    }    
+    
     void goToPoint(ProceduralObjectClass@ obj, int point_idx)
     {
         ProceduralPointClass@ point = obj.getPoint(point_idx);
@@ -420,6 +529,24 @@ class TerrainEditor
             }
         }
     }
+    
+    void setSelectedRoad(int road)
+    {
+        if (road != m_selected_road)
+        {
+            m_selected_road = road;
+            ProceduralObjectClass@ obj = game.getTerrain().getHandle().getProceduralManager().getHandle().getObject(m_selected_road);
+            // AI export panel
+            m_ai_export_first = min(m_ai_export_first, obj.getNumPoints() - 1);
+            m_ai_export_last = min(m_ai_export_last, obj.getNumPoints() - 1);
+            // Selected point
+            int new_selected_point = clamp(0, m_selected_point, obj.getNumPoints());
+            if (m_selected_point != new_selected_point)
+            {
+                this.setSelectedPoint(new_selected_point);
+            }
+        }
+    }
  
     int m_selected_road = 0;
     int m_selected_point = 0;
@@ -427,6 +554,13 @@ class TerrainEditor
     float m_selected_point_elevation = 0.f;
     float m_hovered_point_elevation = 0.f;  
     bool m_selected_point_auto_goto = false;
+    
+    // Waypoints panel
+    int m_ai_import_first = 0;
+    int m_ai_import_last = 0;
+    int m_ai_import_available = 0;
+    int m_ai_export_first = 0;
+    int m_ai_export_last = 0;
 }
 
 /*
