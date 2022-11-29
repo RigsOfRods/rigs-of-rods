@@ -973,6 +973,11 @@ AngelScript::CScriptArray* GameScript::getWaypoints(int x)
     return arr;
 }
 
+void GameScript::addWaypoint(const Ogre::Vector3& pos)
+{
+    App::GetGuiManager()->SurveyMap.ai_waypoints.push_back(pos);
+}
+
 int GameScript::getAIVehicleCount()
 {
     int num = App::GetGuiManager()->TopMenubar.ai_num;

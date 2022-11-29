@@ -349,6 +349,7 @@ public:
     Actor* spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot);
     Actor* spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::String& truckSectionConfig, std::string& truckSkin, int x);
     AngelScript::CScriptArray* getWaypoints(int x);
+    void addWaypoint(const Ogre::Vector3& pos);
     int getAIVehicleCount();
     int getAIVehicleDistance();
     int getAIVehiclePositionScheme();
