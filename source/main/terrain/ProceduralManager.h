@@ -57,6 +57,7 @@ struct ProceduralObject: public RefCountingObject<ProceduralObject>
     std::string name;
     std::vector<ProceduralPointPtr> points;
     ProceduralRoadPtr road;
+    int smoothing_num_splits = 0; // 0=off
 };
 
 class ProceduralManager: public RefCountingObject<ProceduralManager>
