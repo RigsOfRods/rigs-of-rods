@@ -59,10 +59,9 @@ void TObjParser::Prepare()
     m_cur_line           = nullptr;
     m_line_number        = 0;
     m_in_procedural_road = false;
-    m_in_procedural_road = false;
-    m_road2_use_old_mode = false;
     m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject());
     m_cur_procedural_obj_start_line = -1;
+    m_road2_num_blocks = 0;
     
     m_def = std::shared_ptr<TObjFile>(new TObjFile());
 }
@@ -111,13 +110,12 @@ bool TObjParser::ProcessCurrentLine()
     {
         m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject()); // Hard reset, discarding last "non-procedural" road strip. For backwards compatibility. ~ Petr Ohlidal, 08/2020
         m_in_procedural_road = true;
-        m_road2_use_old_mode = true;
         m_cur_procedural_obj_start_line = m_line_number;
         return true;
     }
     else if (strncmp("end_procedural_roads", m_cur_line, 20) == 0)
     {
-        if (m_road2_use_old_mode)
+        if (m_in_procedural_road)
         {
             this->FlushProceduralObject();
         }
@@ -129,10 +127,7 @@ bool TObjParser::ProcessCurrentLine()
 
     if (m_in_procedural_road)
     {
-        if (m_road2_use_old_mode)
-        {
-            this->ProcessProceduralLine();
-        }
+        this->ProcessProceduralLine();
     }
     else
     {
@@ -159,7 +154,7 @@ bool TObjParser::ProcessCurrentLine()
 std::shared_ptr<TObjFile> TObjParser::Finalize()
 {
     // finish the last road
-    if (m_road2_use_old_mode != 0)
+    if (m_road2_num_blocks > 0)
     {
         Vector3 pp_pos = m_road2_last_pos + m_road2_last_rot * Vector3(10.0f, 0.0f, 0.9f);
         this->ImportProceduralPoint(pp_pos, m_road2_last_rot, TObj::SpecialObject::ROAD);
@@ -292,13 +287,13 @@ void TObjParser::ProcessRoadObject(const TObjEntry& object)
     if (object.position.distance(m_road2_last_pos) > 20.0f)
     {
         // break the road
-        if (m_road2_use_old_mode)
+        if (m_road2_num_blocks > 0)
         {
             Vector3 pp_pos = m_road2_last_pos + this->CalcRotation(m_road2_last_rot) * Vector3(10.0f, 0.0f, 0.9f);
             this->ImportProceduralPoint(pp_pos, m_road2_last_rot, object.special);
             this->FlushProceduralObject();
         }
-        m_road2_use_old_mode = true;
+        m_road2_num_blocks++;
 
         // beginning of new
         this->ImportProceduralPoint(object.position, object.rotation, object.special);
@@ -378,4 +373,5 @@ void TObjParser::FlushProceduralObject()
     m_def->proc_objects.push_back(m_cur_procedural_obj);
     m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject());
     m_cur_procedural_obj_start_line = -1;
+    m_road2_num_blocks = 0;
 }
