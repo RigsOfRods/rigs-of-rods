@@ -95,6 +95,7 @@ private:
 
     Ogre::MeshPtr msh;
     Ogre::SubMesh* mainsub = nullptr;
+    Ogre::MaterialPtr mat; // createMaterial();
 
     Ogre::Vector2 tex[MAX_VERTEX] = {};
     Ogre::Vector3 vertex[MAX_VERTEX] = {};
