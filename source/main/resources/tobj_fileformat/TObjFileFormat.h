@@ -195,12 +195,16 @@ private:
     std::string                m_filename;
     int                        m_line_number;
     const char*                m_cur_line;
-    bool                       m_in_procedural_road; // Old parser: 'bool proroad'
-    bool                       m_road2_use_old_mode; // Old parser: 'int r2oldmode'
-    Ogre::Vector3              m_road2_last_pos;
-    Ogre::Vector3              m_road2_last_rot;
+
+    // Procedural roads
+    bool                       m_in_procedural_road;
     ProceduralObjectPtr        m_cur_procedural_obj;
     int                        m_cur_procedural_obj_start_line;
+
+    // Auto-importing legacy road blocks (ODEF) as procedural roads
+    Ogre::Vector3              m_road2_last_pos;
+    Ogre::Vector3              m_road2_last_rot;
+    int                        m_road2_num_blocks;
 };
 
 } // namespace RoR
