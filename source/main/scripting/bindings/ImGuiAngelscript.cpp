@@ -102,6 +102,7 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterGlobalFunction("ImDrawList@ GetWindowDrawList()", asFUNCTIONPR(ImGui::GetWindowDrawList, (), ImDrawList*), asCALL_CDECL);
     engine->RegisterGlobalFunction("void PushStyleColor(int index, const color&in color)", asFUNCTIONPR([](int index, Ogre::ColourValue const& col) { ImGui::PushStyleColor(index, (ImU32)ImColor(col.r, col.g, col.b, col.a)); }, (int, Ogre::ColourValue const&), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void PopStyleColor(int count)", asFUNCTIONPR(ImGui::PopStyleColor, (int), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void SetNextItemWidth(float)", asFUNCTIONPR(ImGui::SetNextItemWidth, (float), void), asCALL_CDECL);
 
     engine->RegisterGlobalFunction("vector2 GetContentRegionMax()", asFUNCTIONPR([]() { 
         auto v = ImGui::GetContentRegionMax(); return Vector2(v.x, v.y); }, (), Vector2), asCALL_CDECL);
@@ -312,8 +313,10 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     /* --- TODO: Register Vector4
     engine->RegisterGlobalFunction("bool InputFloat4(const string&, Vector4&inout)", asFUNCTIONPR([](const string& id, Vector4& val) {
         return ImGui::InputFloat4(id.c_str(), &val.x_); }, (const string&, Vector4&),bool), asCALL_CDECL);
+        */
     engine->RegisterGlobalFunction("bool InputInt(const string&, int&inout)", asFUNCTIONPR([](const string& id, int& val) {
         return ImGui::InputInt(id.c_str(), &val); }, (const string&, int&), bool), asCALL_CDECL);
+    /*
     engine->RegisterGlobalFunction("bool InputInt2(const string&, IntVector2&inout)", asFUNCTIONPR([](const string& id, IntVector2& val) {
         return ImGui::InputInt2(id.c_str(), &val.x_); }, (const string&, IntVector2&),bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool InputInt3(const string&, IntVector3&inout)", asFUNCTIONPR([](const string& id, IntVector3& val) {

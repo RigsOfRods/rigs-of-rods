@@ -116,9 +116,52 @@ void ProceduralManager::updateObject(ProceduralObjectPtr po)
     // In diagnostic mode, disable collisions (speeds up terrain loading)
     po->road->setCollisionEnabled(!App::diag_terrn_log_roads->getBool());
 
-    for (ProceduralPointPtr& pp: po->points)
+    Ogre::SimpleSpline spline;
+    if (po->smoothing_num_splits > 0)
     {
-        po->road->addBlock(pp->position, pp->rotation, pp->type, pp->width, pp->bwidth, pp->bheight, pp->pillartype);
+        // Init smoothing
+        spline.setAutoCalculate(false);
+        for (ProceduralPointPtr& pp : po->points)
+        {
+            spline.addPoint(pp->position);
+        }
+        spline.recalcTangents();
+    }
+
+    for (int i_point = 0; i_point < po->getNumPoints(); i_point++)
+    {
+        ProceduralPointPtr pp = po->getPoint(i_point);
+        if (po->smoothing_num_splits > 0)
+        {
+            const int num_segments = po->smoothing_num_splits + 1;
+
+            // smoothing on
+            for (int i_seg = 1; i_seg <= num_segments; i_seg++)
+            {
+                if (i_point == 0)
+                {
+                    po->road->addBlock(pp->position, pp->rotation, pp->type, pp->width, pp->bwidth, pp->bheight, pp->pillartype);
+                }
+                else
+                {
+                    const float progress = static_cast<float>(i_seg) / static_cast<float>(num_segments);
+                    ProceduralPointPtr prev_pp = po->getPoint(i_point - 1);
+
+                    const Ogre::Vector3 smooth_pos = spline.interpolate(i_point - 1, progress);
+                    const Ogre::Quaternion smooth_rot = Quaternion::nlerp(progress, prev_pp->rotation, pp->rotation);
+                    const float smooth_width = Math::lerp(prev_pp->width, pp->width, progress);
+                    const float smooth_bwidth = Math::lerp(prev_pp->bwidth, pp->bwidth, progress);
+                    const float smooth_bheight = Math::lerp(prev_pp->bheight, pp->bheight, progress);
+
+                    po->road->addBlock(smooth_pos, smooth_rot, pp->type, smooth_width, smooth_bwidth, smooth_bheight, pp->pillartype);
+                }
+            }
+        }
+        else
+        {
+            // smoothing off
+            po->road->addBlock(pp->position, pp->rotation, pp->type, pp->width, pp->bwidth, pp->bheight, pp->pillartype);
+        }
     }
     po->road->finish();
 }

@@ -85,12 +85,12 @@ private:
     void computePoints(Ogre::Vector3* pts, Ogre::Vector3 pos, Ogre::Quaternion rot, RoadType type, float width, float bwidth, float bheight);
     void textureFit(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, TextureFit texfit, Ogre::Vector2* texc, Ogre::Vector3 pos, Ogre::Vector3 lastpos, float width);
 
-    typedef struct
+    struct CoVertice_t
     {
         Ogre::Vector3 vertex;
         Ogre::Vector3 normal;
         Ogre::Vector2 texcoord;
-    } CoVertice_t;
+    };
 
     Ogre::MeshPtr msh;
     Ogre::SubMesh* mainsub = nullptr;
@@ -99,7 +99,7 @@ private:
     Ogre::Vector3 vertex[MAX_VERTEX] = {};
     int tricount = 0;
     int vertexcount = 0;
-    short tris[MAX_TRIS * 3] = {};
+    uint16_t tris[MAX_TRIS * 3] = {};
 
     Ogre::Quaternion lastrot;
     Ogre::SceneNode* snode = nullptr;

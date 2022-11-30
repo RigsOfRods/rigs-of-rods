@@ -106,13 +106,20 @@ class TerrainEditor
             this.drawAiWaypointsPanel();
         }
         
-        // Slider for selecting nodes
+        this.drawRoadEditPanel();
+        
+        // End window
+        ImGui::End();
+    }
+    
+    void drawRoadEditPanel()
+    {
+        ImGui::PushID("road edit box");
+    
         TerrainClass@ terrain = game.getTerrain();
         ProceduralManagerClass@ roads = terrain.getProceduralManager();
         if (roads.getNumObjects() > 0)
         {
-            ImGui::PushID("road edit box");
-            
             ProceduralObjectClass@ obj = roads.getObject(m_selected_road);
             ImGui::Text("Road: " + obj.getName());
             ImGui::Text("Total points: " + obj.getNumPoints());
@@ -145,20 +152,22 @@ class TerrainEditor
                 {
                     obj.deletePoint(m_selected_point);
                 }
+                
+                ImGui::SetNextItemWidth(120.f);
+                ImGui::InputInt("Num splits (smoothing, 0=off)", obj.smoothing_num_splits);
             
                 if (ImGui::Button("> Rebuild road mesh <"))
                 {
                     roads.removeObject(obj); // Clears the existing mesh
                     this.recalculateRotations(obj);
                     roads.addObject(obj); // Generates new mesh
+                    // Because we removed and re-added the ProceduralObject from/to the manager,
+                    // it got new index, so our selection is invalid. Update it.
+                    this.setSelectedRoad(roads.getNumObjects() - 1);
                 } 
-            }                
-
-            ImGui::PopID(); // road edit box
+            }
         }
-        
-        // End window
-        ImGui::End();
+        ImGui::PopID(); // "road edit box"
     }
     
     void recalculateRotations(ProceduralObjectClass@ obj)
