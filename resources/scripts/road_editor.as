@@ -126,13 +126,14 @@ class TerrainEditor
             if (obj.getNumPoints() > 0)
             {
                 ImGui::TextDisabled("Use slider or left-click road point to select it.");
-                ImGui::TextDisabled("Press 'M' to move the selected point to mouse position");
+                ImGui::TextDisabled("Press hotkey '" + inputs.getEventCommandTrimmed(EV_ROAD_EDITOR_POINT_SET_POS) + "' to move the selected point to mouse position");
                 int slider_val = m_selected_point;
                 if (ImGui::SliderInt("", slider_val, 0, obj.getNumPoints() - 1))
                 {
                     this.setSelectedPoint(slider_val);
                 }
-                if (ImGui::Button("Go to point"))
+                if (inputs.getEventBoolValueBounce(EV_ROAD_EDITOR_POINT_GOTO)
+                    || ImGui::Button("Go to point (hotkey: '" + inputs.getEventCommandTrimmed(EV_ROAD_EDITOR_POINT_GOTO) + "')"))
                 {
                     this.goToPoint(obj, m_selected_point);
                 }
@@ -141,14 +142,16 @@ class TerrainEditor
             }
             
             ImGui::TextDisabled("Add new road point at the character position and link it to selected road point (if any).");
-            if (ImGui::Button("Insert new point"))
+            if (inputs.getEventBoolValueBounce(EV_ROAD_EDITOR_POINT_INSERT)
+                || ImGui::Button("Insert new point (hotkey: '" + inputs.getEventCommandTrimmed(EV_ROAD_EDITOR_POINT_INSERT) + "')"))
             {
                 this.addPointToCurrentRoad(game.getPersonPosition());
             }
             
             if (obj.getNumPoints() > 0)
             {
-                if (ImGui::Button("Remove selected point"))
+                if (inputs.getEventBoolValueBounce(EV_ROAD_EDITOR_POINT_DELETE)
+                    || ImGui::Button("Remove selected point (hotkey: '" + inputs.getEventCommandTrimmed(EV_ROAD_EDITOR_POINT_DELETE) + "')"))
                 {
                     obj.deletePoint(m_selected_point);
                 }
@@ -156,7 +159,8 @@ class TerrainEditor
                 ImGui::SetNextItemWidth(120.f);
                 ImGui::InputInt("Num splits (smoothing, 0=off)", obj.smoothing_num_splits);
             
-                if (ImGui::Button("> Rebuild road mesh <"))
+                if (inputs.getEventBoolValueBounce(EV_ROAD_EDITOR_REBUILD_MESH)
+                    ||ImGui::Button("Rebuild road mesh (hotkey: '" + inputs.getEventCommandTrimmed(EV_ROAD_EDITOR_REBUILD_MESH) + "')"))
                 {
                     roads.removeObject(obj); // Clears the existing mesh
                     this.recalculateRotations(obj);
@@ -484,9 +488,8 @@ class TerrainEditor
         ProceduralManagerClass@ roads = terrain.getProceduralManager();
         ProceduralObjectClass@ obj = roads.getObject(m_selected_road);    
     
-        // Reused Hotkey 'M'
         vector3 mouse_tpos;
-        if (inputs.getEventBoolValue(EV_COMMON_TOGGLE_TRUCK_BEACONS)
+        if (inputs.getEventBoolValue(EV_ROAD_EDITOR_POINT_SET_POS)
             && game.getMousePositionOnTerrain(mouse_tpos))
         {
             // Y is 'up'.

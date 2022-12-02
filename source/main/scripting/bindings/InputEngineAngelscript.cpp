@@ -368,6 +368,12 @@ void registerEventTypeEnum(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("inputEvents", "EV_COMMON_QUICKLOAD_10",            EV_COMMON_QUICKLOAD_10          ); ROR_ASSERT(result >= 0);               
 
     result = engine->RegisterEnumValue("inputEvents", "EV_TRUCKEDIT_RELOAD",               EV_TRUCKEDIT_RELOAD             ); ROR_ASSERT(result >= 0);               
+
+    result = engine->RegisterEnumValue("inputEvents", "EV_ROAD_EDITOR_POINT_INSERT",       EV_ROAD_EDITOR_POINT_INSERT     ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("inputEvents", "EV_ROAD_EDITOR_POINT_GOTO",         EV_ROAD_EDITOR_POINT_GOTO       ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("inputEvents", "EV_ROAD_EDITOR_POINT_SET_POS",      EV_ROAD_EDITOR_POINT_SET_POS    ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("inputEvents", "EV_ROAD_EDITOR_POINT_DELETE",       EV_ROAD_EDITOR_POINT_DELETE     ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("inputEvents", "EV_ROAD_EDITOR_REBUILD_MESH",       EV_ROAD_EDITOR_REBUILD_MESH     ); ROR_ASSERT(result >= 0);
 }
 
 void RoR::RegisterInputEngine(asIScriptEngine* engine)

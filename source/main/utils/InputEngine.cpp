@@ -377,6 +377,13 @@ InputEvent eventInfo[] = {
     // Truck editing
     {"TRUCKEDIT_RELOAD",              EV_TRUCKEDIT_RELOAD,              "Keyboard EXPL+SHIFT+CTRL+R",   _LC("InputEvent", "reload truck")},
 
+    // Road editing
+    {"ROAD_EDITOR_POINT_INSERT",      EV_ROAD_EDITOR_POINT_INSERT,      "Keyboard EXPL+INSERT",         _LC("InputEvent", "insert road point") },
+    {"ROAD_EDITOR_POINT_GOTO",        EV_ROAD_EDITOR_POINT_GOTO,        "Keyboard EXPL+G",              _LC("InputEvent", "go to road point") },
+    {"ROAD_EDITOR_POINT_SET_POS",     EV_ROAD_EDITOR_POINT_SET_POS,     "Keyboard EXPL+M",              _LC("InputEvent", "set road point position") },
+    {"ROAD_EDITOR_POINT_DELETE",      EV_ROAD_EDITOR_POINT_DELETE,      "Keyboard EXPL+DELETE",         _LC("InputEvent", "delete road point") },
+    {"ROAD_EDITOR_REBUILD_MESH",      EV_ROAD_EDITOR_REBUILD_MESH,      "Keyboard EXPL+B",              _LC("InputEvent", "regenerate road mesh") },
+
     // The end, DO NOT MODIFY
     {"", -1, "", ""},
 };

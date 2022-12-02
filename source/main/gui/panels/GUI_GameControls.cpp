@@ -138,6 +138,7 @@ void GameControls::Draw()
         this->DrawControlsTabItem("Map", "SURVEY_MAP");
         this->DrawControlsTabItem("Menu", "MENU");
         this->DrawControlsTabItem("Truck", "TRUCK");
+        this->DrawControlsTabItem("Road editor", "ROAD_EDITOR");
 
         ImGui::EndTabBar(); // GameSettingsTabs
 
