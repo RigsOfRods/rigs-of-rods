@@ -82,7 +82,7 @@ class TerrainEditor
             }
         }
         this.visualizeRoad();
-        this.updateRoad();
+        this.updateInputEvents();
     }
 
     void drawWindow()
@@ -153,28 +153,140 @@ class TerrainEditor
                 if (inputs.getEventBoolValueBounce(EV_ROAD_EDITOR_POINT_DELETE)
                     || ImGui::Button("Remove selected point (hotkey: '" + inputs.getEventCommandTrimmed(EV_ROAD_EDITOR_POINT_DELETE) + "')"))
                 {
-                    obj.deletePoint(m_selected_point);
+                    this.deletePointFromCurrentRoad(m_selected_point);
                 }
-                
-                ImGui::SetNextItemWidth(120.f);
-                ImGui::InputInt("Num splits (smoothing, 0=off)", obj.smoothing_num_splits);
-            
-                if (inputs.getEventBoolValueBounce(EV_ROAD_EDITOR_REBUILD_MESH)
-                    ||ImGui::Button("Rebuild road mesh (hotkey: '" + inputs.getEventCommandTrimmed(EV_ROAD_EDITOR_REBUILD_MESH) + "')"))
-                {
-                    roads.removeObject(obj); // Clears the existing mesh
-                    this.recalculateRotations(obj);
-                    roads.addObject(obj); // Generates new mesh
-                    // Because we removed and re-added the ProceduralObject from/to the manager,
-                    // it got new index, so our selection is invalid. Update it.
-                    this.setSelectedRoad(roads.getNumObjects() - 1);
-                } 
             }
+            
+            if (ImGui::CollapsingHeader("Point properties"))
+            {
+                this.drawPointPropertiesPanel(obj);
+            }              
+            
+            if (ImGui::CollapsingHeader("Mesh rebuild"))
+            {
+                this.drawMeshRebuildPanel(obj);
+            }         
         }
         ImGui::PopID(); // "road edit box"
     }
     
-    void recalculateRotations(ProceduralObjectClass@ obj)
+    void drawPointPropertiesPanel(ProceduralObjectClass@ obj)
+    {
+        ImGui::PushID("point properties");
+        if (obj.getNumPoints() > 0)
+        {
+            ProceduralPointClass@ point = obj.getPoint(m_selected_point);
+        
+            ImGui::SetNextItemWidth(130.f);
+            ImGui::InputFloat("Elevation (meters)", point.position.y);
+            
+            ImGui::SetNextItemWidth(100.f);
+            ImGui::InputFloat("Width (meters)", point.width);   
+
+            ImGui::SetNextItemWidth(100.f);
+            ImGui::InputFloat("Border width (meters)", point.border_width);  
+            
+            ImGui::SetNextItemWidth(100.f);
+            ImGui::InputFloat("Border height (meters)", point.border_height);
+
+            ImGui::Text("Type:");
+            // Types supported by TOBJ format
+            if (ImGui::RadioButton("(automatic)", point.type == ROAD_AUTOMATIC))
+            {
+                point.type = ROAD_AUTOMATIC;
+                point.pillar_type = 0;
+            }
+            if (ImGui::RadioButton("flat (no border)", point.type == ROAD_FLAT))
+            {
+                point.type = ROAD_FLAT;
+                point.pillar_type = 0;
+            }  
+            if (ImGui::RadioButton("left (border on left)", point.type == ROAD_LEFT))
+            {
+                point.type = ROAD_LEFT;
+                point.pillar_type = 0;
+            }   
+            if (ImGui::RadioButton("right (border on right)", point.type == ROAD_RIGHT))
+            {
+                point.type = ROAD_RIGHT;
+                point.pillar_type = 0;
+            }      
+            if (ImGui::RadioButton("both (with borders)", point.type == ROAD_BOTH))
+            {
+                point.type = ROAD_BOTH;
+                point.pillar_type = 0;
+            }    
+            if (ImGui::RadioButton("bridge (with pillars)", point.type == ROAD_BRIDGE && point.pillar_type == 1))
+            {
+                point.type = ROAD_BRIDGE;
+                point.pillar_type = 1;
+            }
+            if (ImGui::RadioButton("bridge_no_pillars", point.type == ROAD_BRIDGE && point.pillar_type == 0))
+            {
+                point.type = ROAD_BRIDGE;
+                point.pillar_type = 0;
+            }
+            if (ImGui::RadioButton("monorail (with pillars)", point.type == ROAD_BRIDGE && point.pillar_type == 2))
+            {
+                point.type = ROAD_MONORAIL;
+                point.pillar_type = 2;
+            }
+            if (ImGui::RadioButton("monorail2 (no pillars)", point.type == ROAD_BRIDGE && point.pillar_type == 0))
+            {
+                point.type = ROAD_MONORAIL;
+                point.pillar_type = 0;
+            } 
+            // End of types supported by TOBJ format
+        }
+        else
+        {
+            ImGui::Text("Road has no points - nothing to edit!");
+        }        
+        
+        ImGui::PopID(); //"point properties"
+    }
+    
+    void drawMeshRebuildPanel(ProceduralObjectClass@ obj)
+    {
+        ImGui::PushID("mesh rebuild");
+        
+        ProceduralManagerClass@ roads = game.getTerrain().getHandle().getProceduralManager();
+    
+        if (obj.getNumPoints() > 0)
+        {
+            ImGui::SetNextItemWidth(100.f);
+            ImGui::InputFloat("Common minimum point elevation (meters)", m_global_min_point_elevation);
+        
+            ImGui::SetNextItemWidth(100.f);
+            ImGui::InputFloat("Common extra point elevation (meters)", m_global_extra_point_elevation);            
+        
+            ImGui::SetNextItemWidth(120.f);
+            ImGui::InputInt("Num smoothing splits (0=off)", obj.smoothing_num_splits);
+        
+            // NOTE: hotkey is processed in `updateInputEvents()` to be independent of the UI
+            if (ImGui::Button("Rebuild road mesh (hotkey: '" + inputs.getEventCommandTrimmed(EV_ROAD_EDITOR_REBUILD_MESH) + "')"))
+            {
+                this.rebuildMesh(obj);
+            } 
+        }
+        else
+        {
+            ImGui::Text("Road has no points - nothing to generate!");
+        }
+        
+        ImGui::PopID(); //"mesh rebuild"
+    }
+    
+    void recalculatePointElevations(ProceduralObjectClass@ obj)
+    {
+        for (int i = 0; i < obj.getNumPoints(); i++)
+        {
+            ProceduralPointClass@ point = obj.getPoint(i);
+            point.position.y = m_global_extra_point_elevation + fmax(point.position.y, game.getGroundHeight(point.position) + m_global_min_point_elevation);
+        }
+    }
+    
+    void recalculatePointRotations(ProceduralObjectClass@ obj)
     {
         // Loop all segments; for each segment, calculate the end-point orientation from the segment direction. Special case is point #0.
         //------------------------------------------------
@@ -182,9 +294,7 @@ class TerrainEditor
         for (int i = 1; i < obj.getNumPoints(); i++)
         {
             ProceduralPointClass@ point = obj.getPoint(i);
-            point.position.y = fmax(point.position.y, game.getGroundHeight(point.position) + MIN_HEIGHT_ABOVE_GROUND);
             ProceduralPointClass@ prev_point = obj.getPoint(i - 1);
-            prev_point.position.y = fmax(prev_point.position.y, game.getGroundHeight(prev_point.position) + MIN_HEIGHT_ABOVE_GROUND);
             
             // Calc angle
             vector3 unitvec_road = (point.position - prev_point.position);
@@ -482,7 +592,7 @@ class TerrainEditor
         }
     }
     
-    void updateRoad()
+    void updateInputEvents()
     {
         TerrainClass@ terrain = game.getTerrain();
         ProceduralManagerClass@ roads = terrain.getProceduralManager();
@@ -499,6 +609,24 @@ class TerrainEditor
             //game.log("Updating road '"+obj.getName()+"', point '"+m_selected_point+"' position to X:"+new_pos.x+" Y:"+new_pos.y+" Z:"+new_pos.z+" (previously X:"+old_pos.x+" Y:"+old_pos.y+" Z:"+old_pos.z+")");
             pp.position = new_pos;
         }
+        
+        if (inputs.getEventBoolValueBounce(EV_ROAD_EDITOR_REBUILD_MESH))
+        {
+            this.rebuildMesh(obj);
+        }
+    }
+    
+    void rebuildMesh(ProceduralObjectClass@ obj)
+    {
+        ProceduralManagerClass@ roads = game.getTerrain().getHandle().getProceduralManager();
+    
+        roads.removeObject(obj); // Clears the existing mesh
+        this.recalculatePointElevations(obj);
+        this.recalculatePointRotations(obj);
+        roads.addObject(obj); // Generates new mesh
+        // Because we removed and re-added the ProceduralObject from/to the manager,
+        // it got new index, so our selection is invalid. Update it.
+        this.setSelectedRoad(roads.getNumObjects() - 1);
     }
     
     void addPointToCurrentRoad(vector3 pos)
@@ -506,6 +634,15 @@ class TerrainEditor
         ProceduralObjectClass@ obj = game.getTerrain().getHandle().getProceduralManager().getHandle().getObject(m_selected_road);
     
         ProceduralPointClass@ point = ProceduralPointClass();
+        if (obj.getNumPoints() > 0)
+        {
+            ProceduralPointClass@ template = obj.getPoint(m_selected_point);
+            point.type = template.type;
+            point.pillar_type = template.pillar_type;
+            point.width = template.width;
+            point.border_width = template.border_width;
+            point.border_height = template.border_height;
+        }
         point.position = pos;            
         
         if (obj.getNumPoints() == 0 || m_selected_point == obj.getNumPoints() - 1)
@@ -517,7 +654,21 @@ class TerrainEditor
         {
             obj.insertPoint(m_selected_point, point);
         }
-    }    
+    }  
+
+    void deletePointFromCurrentRoad(int pos)
+    {
+        ProceduralObjectClass@ obj = game.getTerrain().getHandle().getProceduralManager().getHandle().getObject(m_selected_road);
+        
+        obj.deletePoint(pos);
+        if (pos >= obj.getNumPoints())
+        {
+            if (obj.getNumPoints() > 0)
+                this.setSelectedPoint(obj.getNumPoints() - 1);
+            else
+                m_selected_point = 0;
+        }
+    }
     
     void goToPoint(ProceduralObjectClass@ obj, int point_idx)
     {
@@ -573,6 +724,10 @@ class TerrainEditor
     int m_ai_import_available = 0;
     int m_ai_export_first = 0;
     int m_ai_export_last = 0;
+    
+    // Mesh generation panel
+    float m_global_extra_point_elevation = 0; // Added to all points
+    float m_global_min_point_elevation = 0.3; // Added to lower points
 }
 
 /*
