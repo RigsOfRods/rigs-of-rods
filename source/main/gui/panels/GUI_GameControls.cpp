@@ -160,7 +160,7 @@ void GameControls::DrawEvent(RoR::events ev_code)
 
     // Check if we have anything to show
     int display_count = 0;
-    for (event_trigger_t& trig: triggers)
+    for (event_trigger_t& trig : triggers)
     {
         display_count += (int)this->ShouldDisplay(trig);
     }
@@ -179,11 +179,20 @@ void GameControls::DrawEvent(RoR::events ev_code)
 
     // Command column
 
+    int num_visible_commands = 0; // Count visible commands ahead of time
+    for (event_trigger_t& trig : triggers)
+    {
+        num_visible_commands += this->ShouldDisplay(trig);
+    }
+
+    int num_drawn_commands = 0;
     for (event_trigger_t& trig: triggers)
     {
         if (!this->ShouldDisplay(trig)) continue;
 
         ImGui::PushID(&trig);
+
+        ImVec2 cursor_before_command = ImGui::GetCursorScreenPos();
 
         if (ImGui::Button(App::GetInputEngine()->getTriggerCommand(trig).c_str(), ImVec2(ImGui::GetColumnWidth() - 2*ImGui::GetStyle().ItemSpacing.x, 0)))
         {
@@ -194,6 +203,15 @@ void GameControls::DrawEvent(RoR::events ev_code)
             m_active_buffer.Clear();
             m_interactive_keybinding_active = true;
             m_interactive_keybinding_expl = trig.explicite;
+        }
+
+        // If there's more than 1 commands, add numbering at the left side of the buttons
+        num_drawn_commands++;
+        if (num_visible_commands > 1)
+        {
+            ImVec2 text_pos = cursor_before_command + ImGui::GetStyle().FramePadding;
+            ImU32 text_color = ImColor(ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+            ImGui::GetWindowDrawList()->AddText(text_pos, text_color, fmt::format("{}.", num_drawn_commands).c_str());
         }
 
         ImGui::PopID(); // &trig
