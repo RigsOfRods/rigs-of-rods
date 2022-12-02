@@ -54,6 +54,11 @@ ProceduralRoad::~ProceduralRoad()
         MeshManager::getSingleton().remove(msh->getName());
         msh.setNull();
     }
+    if (!mat.isNull())
+    {
+        MaterialManager::getSingleton().remove(mat);
+        mat.setNull();
+    }
     for (int number : registeredCollTris)
     {
         App::GetGameContext()->GetTerrain()->GetCollisions()->removeCollisionTri(number);
