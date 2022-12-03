@@ -276,6 +276,8 @@ void TerrainEditor::WriteOutputFile()
             if (num_points > 0)
             {
                 stream->write("\nbegin_procedural_roads\n", 24);
+                std::string smoothing_line = fmt::format("\tsmoothing_num_splits {}\n", obj->smoothing_num_splits);
+                stream->write(smoothing_line.c_str(), smoothing_line.length());
                 for (int j = 0; j < num_points; j++)
                 {
                     ProceduralPointPtr point = obj->getPoint(j);

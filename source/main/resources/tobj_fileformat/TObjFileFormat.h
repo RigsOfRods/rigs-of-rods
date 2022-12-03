@@ -195,6 +195,7 @@ private:
     std::string                m_filename;
     int                        m_line_number;
     const char*                m_cur_line;
+    const char*                m_cur_line_trimmed;
 
     // Procedural roads
     bool                       m_in_procedural_road;
