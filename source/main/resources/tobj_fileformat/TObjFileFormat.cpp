@@ -72,6 +72,11 @@ bool TObjParser::ProcessLine(const char* line)
     if ((line != nullptr) && (line[0] != 0) && (line[0] != '/') && (line[0] != ';'))
     {
         m_cur_line = line; // No trimming by design.
+        m_cur_line_trimmed = line;
+        while (m_cur_line_trimmed[0] == ' ' || m_cur_line_trimmed[0] == '\t')
+        {
+            m_cur_line_trimmed++;
+        }
         result = this->ProcessCurrentLine();
     }
     m_line_number++;
@@ -113,7 +118,7 @@ bool TObjParser::ProcessCurrentLine()
         m_cur_procedural_obj_start_line = m_line_number;
         return true;
     }
-    else if (strncmp("end_procedural_roads", m_cur_line, 20) == 0)
+    if (strncmp("end_procedural_roads", m_cur_line, 20) == 0)
     {
         if (m_in_procedural_road)
         {
@@ -122,6 +127,15 @@ bool TObjParser::ProcessCurrentLine()
         m_in_procedural_road = false;
         return true;
     }
+    if (strncmp("smoothing_num_splits", m_cur_line_trimmed, 20) == 0)
+    {
+        if (m_in_procedural_road)
+        {
+            sscanf(m_cur_line_trimmed, "smoothing_num_splits %d", &m_cur_procedural_obj->smoothing_num_splits);
+        }
+        return true;
+    }
+    
 
     // ** Process entries (ODEF or special objects)
 
