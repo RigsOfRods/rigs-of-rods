@@ -181,8 +181,7 @@ public:
             else
             {
                 Ogre::Vector3 pos = App::GetGameContext()->GetPlayerCharacter()->getPosition();
-                Ogre::SceneNode* bake_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                App::GetGameContext()->GetTerrain()->getObjectManager()->LoadTerrainObject(args[1], pos, Ogre::Vector3::ZERO, bake_node, "Console", "");
+                App::GetGameContext()->GetTerrain()->getObjectManager()->LoadTerrainObject(args[1], pos, Ogre::Vector3::ZERO, "Console", "");
 
                 reply_type = Console::CONSOLE_SYSTEM_REPLY;
                 reply << _L("Spawned object at position: ") << "x: " << pos.x << " z: " << pos.z;

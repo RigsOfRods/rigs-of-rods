@@ -442,9 +442,8 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
             }
         }
 
-        SceneNode* bakeNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         const String type = "";
-        App::GetGameContext()->GetTerrain()->getObjectManager()->LoadTerrainObject(objectName, pos, rot, bakeNode, instanceName, type, true, handler_func_id, uniquifyMaterials);
+        App::GetGameContext()->GetTerrain()->getObjectManager()->LoadTerrainObject(objectName, pos, rot, instanceName, type, true, handler_func_id, uniquifyMaterials);
     }
     catch (std::exception& e)
     {

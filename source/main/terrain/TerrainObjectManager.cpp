@@ -65,8 +65,6 @@ inline float getTerrainHeight(Real x, Real z, void* unused = 0)
 TerrainObjectManager::TerrainObjectManager(Terrain* terrainManager) :
     terrainManager(terrainManager)
 {
-    //prepare for baking
-    m_staticgeometry_bake_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
 
     // terrain custom group
     m_resource_group = terrainManager->GetDef().name + "-TerrnObjects";
@@ -89,11 +87,7 @@ TerrainObjectManager::~TerrainObjectManager()
         delete geom;
     }
 #endif //USE_PAGED
-    if (m_staticgeometry != nullptr)
-    {
-        App::GetGfxScene()->GetSceneManager()->destroyStaticGeometry("bakeSG");
-        m_staticgeometry = nullptr;
-    }
+
     App::GetGfxScene()->GetSceneManager()->destroyAllEntities();
 
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(m_resource_group);
@@ -249,7 +243,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     // Entries
     for (TObjEntry entry : tobj->objects)
     {
-        this->LoadTerrainObject(entry.odef_name, entry.position, entry.rotation, m_staticgeometry_bake_node, entry.instance_name, entry.type);
+        this->LoadTerrainObject(entry.odef_name, entry.position, entry.rotation, entry.instance_name, entry.type);
     }
 
     if (App::diag_terrn_log_roads->getBool())
@@ -454,27 +448,6 @@ void TerrainObjectManager::ProcessGrass(
 #endif //USE_PAGED
 }
 
-void TerrainObjectManager::PostLoadTerrain()
-{
-    // okay, now bake everything
-    m_staticgeometry = App::GetGfxScene()->GetSceneManager()->createStaticGeometry("bakeSG");
-    m_staticgeometry->setCastShadows(true);
-    m_staticgeometry->addSceneNode(m_staticgeometry_bake_node);
-    m_staticgeometry->setRegionDimensions(Vector3(terrainManager->getFarClip() / 2.0f, 10000.0, terrainManager->getFarClip() / 2.0f));
-    m_staticgeometry->setRenderingDistance(terrainManager->getFarClip());
-    try
-    {
-        m_staticgeometry->build();
-        m_staticgeometry_bake_node->detachAllObjects();
-        // crash under linux:
-        //m_staticgeometry_bake_node->removeAndDestroyAllChildren();
-    }
-    catch (...)
-    {
-        LOG("error while baking roads. ignoring.");
-    }
-}
-
 void TerrainObjectManager::MoveObjectVisuals(const String& instancename, const Ogre::Vector3& pos)
 {
     if (m_static_objects.find(instancename) == m_static_objects.end())
@@ -554,7 +527,7 @@ ODefFile* TerrainObjectManager::FetchODef(std::string const & odef_name)
     return odef.get();
 }
 
-void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* m_staticgeometry_bake_node, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
+void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
 {
     if (type == "grid")
     {
@@ -564,7 +537,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             for (int z = 0; z < 500; z += 50)
             {
                 const String notype = "";
-                LoadTerrainObject(name, pos + Vector3(x, 0.0f, z), rot, m_staticgeometry_bake_node, name, notype, enable_collisions, scripthandler, uniquifyMaterial);
+                LoadTerrainObject(name, pos + Vector3(x, 0.0f, z), rot, name, notype, enable_collisions, scripthandler, uniquifyMaterial);
             }
         }
         return;
