@@ -108,13 +108,19 @@ void TerrainEditor::UpdateInputEvents(float dt)
     }
     else if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_NEXT_TRUCK, 0.25f))
     {
-        m_object_index = (m_object_index + 1 + (int)object_list.size()) % object_list.size();
-        update = true;
+        if (object_list.size() > 0)
+        {
+            m_object_index = (m_object_index + 1 + (int)object_list.size()) % object_list.size();
+            update = true;
+        }
     }
     else if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
     {
-        m_object_index = (m_object_index - 1 + (int)object_list.size()) % object_list.size();
-        update = true;
+        if (object_list.size() > 0)
+        {
+            m_object_index = (m_object_index - 1 + (int)object_list.size()) % object_list.size();
+            update = true;
+        }
     }
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK))
     {
