@@ -181,10 +181,16 @@ public:
             else
             {
                 Ogre::Vector3 pos = App::GetGameContext()->GetPlayerCharacter()->getPosition();
-                App::GetGameContext()->GetTerrain()->getObjectManager()->LoadTerrainObject(args[1], pos, Ogre::Vector3::ZERO, "Console", "");
-
-                reply_type = Console::CONSOLE_SYSTEM_REPLY;
-                reply << _L("Spawned object at position: ") << "x: " << pos.x << " z: " << pos.z;
+                if (App::GetGameContext()->GetTerrain()->getObjectManager()->LoadTerrainObject(args[1], pos, Ogre::Vector3::ZERO, "Console", ""))
+                {
+                    reply_type = Console::CONSOLE_SYSTEM_REPLY;
+                    reply << _L("Spawned object at position: ") << "x: " << pos.x << " z: " << pos.z;
+                }
+                else
+                {
+                    reply_type = Console::CONSOLE_SYSTEM_ERROR;
+                    reply << _L("Could not spawn object");
+                }
             }
         }
         catch (std::exception& e)

@@ -527,7 +527,7 @@ ODefFile* TerrainObjectManager::FetchODef(std::string const & odef_name)
     return odef.get();
 }
 
-void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
+bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
 {
     if (type == "grid")
     {
@@ -540,15 +540,16 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
                 LoadTerrainObject(name, pos + Vector3(x, 0.0f, z), rot, name, notype, enable_collisions, scripthandler, uniquifyMaterial);
             }
         }
-        return;
+        return true;
     }
 
     const std::string odefname = name + ".odef"; // for logging
     ODefFile* odef = this->FetchODef(name);
     if (odef == nullptr)
     {
-        LOG("[ODEF] File not found: " + odefname);
-        return;
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format(_L("Could not load file '{}'"), odefname));
+        return false;
     }
 
     SceneNode* tenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
@@ -567,7 +568,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         {
             delete mo;
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING,
-                fmt::format("ODEF: Could not load mesh {}", odef->header.mesh_name));
+                fmt::format(_L("Could not load mesh '{}' (used by object '{}')"), odef->header.mesh_name, odefname));
         }
     }
 
@@ -647,9 +648,7 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     {
         if (cmesh.mesh_name == "")
         {
-            App::GetConsole()->putMessage(
-                Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING,
-                "ODEF: Skipping collision mesh with empty name");
+            LOG("[ODEF] Skipping collision mesh with empty name. Object: " + odefname);
             continue;
         }
 
@@ -864,6 +863,8 @@ void TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         sn->attachObject(pointlight);
         sn->attachObject(lflare);
     }
+
+    return true;
 }
 
 bool TerrainObjectManager::UpdateAnimatedObjects(float dt)
