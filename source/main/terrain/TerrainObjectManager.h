@@ -79,13 +79,12 @@ public:
     std::vector<EditorObject>& GetEditorObjects() { return m_editor_objects; }
     std::vector<MapEntity>& GetMapEntities() { return m_map_entities; }
     void           LoadTObjFile(Ogre::String filename);
-    void           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, Ogre::SceneNode* m_staticgeometry_bake_node, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
+    void           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
     void           MoveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
     void           unloadObject(const Ogre::String& instancename);
     void           LoadTelepoints();
     void           LoadPredefinedActors();
     bool           HasPredefinedActors() { return !m_predefined_actors.empty(); };
-    void           PostLoadTerrain();
     bool           UpdateTerrainObjects(float dt);
 
     void ProcessTree(
@@ -172,9 +171,7 @@ protected:
     std::vector<MeshObject*>              m_mesh_objects;
     std::vector<MapEntity>                m_map_entities;
     Terrain*           terrainManager;
-    Ogre::StaticGeometry*     m_staticgeometry;
     ProceduralManagerPtr      m_procedural_manager;
-    Ogre::SceneNode*          m_staticgeometry_bake_node;
     int                       m_entity_counter = 0;
     std::string               m_resource_group;
 

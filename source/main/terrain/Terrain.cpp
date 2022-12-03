@@ -430,8 +430,6 @@ void RoR::Terrain::loadTerrainObjects()
     {
         m_object_manager->LoadTObjFile(tobj_filename);
     }
-
-    m_object_manager->PostLoadTerrain(); // bakes the geometry and things
 }
 
 void RoR::Terrain::initTerrainCollisions()
