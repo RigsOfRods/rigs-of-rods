@@ -391,14 +391,26 @@ class TerrainEditor
             }
             else
             {
-                string btn_text = "Export " + (m_ai_export_last - m_ai_export_first) + " waypoints";
+                string btn_text = "Export " + ((m_ai_export_last - m_ai_export_first) + 1) + " waypoints";
                 if (ImGui::Button(btn_text))
                 {
-                    for (int i = m_ai_export_first; i <= m_ai_export_last; i++)
+                    if (m_ai_export_reverse)
                     {
-                        game.addWaypoint(obj.getPoint(i).getHandle().position);
+                        for (int i = m_ai_export_last; i >= m_ai_export_first; i--)
+                        {
+                            game.addWaypoint(obj.getPoint(i).getHandle().position);
+                        }
+                    }
+                    else
+                    {
+                        for (int i = m_ai_export_first; i <= m_ai_export_last; i++)
+                        {
+                            game.addWaypoint(obj.getPoint(i).getHandle().position);
+                        }
                     }
                 }
+                ImGui::SameLine();
+                ImGui::Checkbox("Reverse", m_ai_export_reverse);
             }
         }
         else
@@ -436,14 +448,26 @@ class TerrainEditor
             }
             else
             {
-                string btn_text = "Import " + (m_ai_import_last - m_ai_import_first) + " waypoints";
+                string btn_text = "Import " + ((m_ai_import_last - m_ai_import_first) + 1) + " waypoints";
                 if (ImGui::Button(btn_text))
                 {
-                    for (int i = m_ai_import_first; i <= m_ai_import_last; i++)
+                    if (m_ai_import_reverse)
                     {
-                        this.addPointToCurrentRoad(waypoints[i]);
+                        for (int i = m_ai_import_last; i >= m_ai_import_first; i--)
+                        {
+                            this.addPointToCurrentRoad(waypoints[i]);
+                        }
+                    }
+                    else
+                    {
+                        for (int i = m_ai_import_first; i <= m_ai_import_last; i++)
+                        {
+                            this.addPointToCurrentRoad(waypoints[i]);
+                        }
                     }
                 }
+                ImGui::SameLine();
+                ImGui::Checkbox("Reverse", m_ai_import_reverse);                
             }
         }
         else
@@ -722,8 +746,10 @@ class TerrainEditor
     int m_ai_import_first = 0;
     int m_ai_import_last = 0;
     int m_ai_import_available = 0;
+    bool m_ai_import_reverse = false;
     int m_ai_export_first = 0;
     int m_ai_export_last = 0;
+    bool m_ai_export_reverse = false;
     
     // Mesh generation panel
     float m_global_extra_point_elevation = 0; // Added to all points
