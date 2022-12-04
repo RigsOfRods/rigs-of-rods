@@ -1533,7 +1533,8 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
                            * Ogre::Quaternion(Ogre::Degree(def.rotation.y), Ogre::Vector3::UNIT_Y)
                            * Ogre::Quaternion(Ogre::Degree(def.rotation.x), Ogre::Vector3::UNIT_X);
     prop.pp_rota         = def.rotation;
-    prop.pp_camera_mode      = def.camera_settings.mode; /* Handles default value */
+    prop.pp_camera_mode_active = def.camera_settings.mode; /* Handles default value */
+    prop.pp_camera_mode_orig = def.camera_settings.mode; /* Handles default value */
     prop.pp_wheel_rot_degree  = 160.f; // ??
 
     /* SPECIAL PROPS */

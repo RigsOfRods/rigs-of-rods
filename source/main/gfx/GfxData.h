@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include "MeshObject.h"
 #include "SimData.h"
 
 #include <Ogre.h>
@@ -111,6 +112,11 @@ enum class DebugViewType
     DEBUGVIEW_SUBMESH,
 };
 
+// Dynamic visibility control (value 0 and higher is cinecam index)
+static const int CAMERA_MODE_ALWAYS_HIDDEN = -3;
+static const int CAMERA_MODE_ALWAYS_VISIBLE = -2;
+static const int CAMERA_MODE_3RDPERSON_ONLY = -1;
+
 struct PropAnim
 {
     float        animratio    = 0;  //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
@@ -139,8 +145,11 @@ struct Prop
     Ogre::Quaternion      pp_rot                  = Ogre::Quaternion::IDENTITY;
     Ogre::SceneNode*      pp_scene_node           = nullptr;             //!< The pivot scene node (parented to root-node).
     MeshObject*           pp_mesh_obj             = nullptr;
-    int                   pp_camera_mode          = -2;                  //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
     std::vector<PropAnim> pp_animations;
+
+    // Visibility control
+    int                   pp_camera_mode_active = CAMERA_MODE_ALWAYS_VISIBLE;           //!< Dynamic visibility mode {0 and higher = cinecam index}
+    int                   pp_camera_mode_orig = CAMERA_MODE_ALWAYS_VISIBLE;             //!< Dynamic visibility mode {0 and higher = cinecam index}
 
     // Special prop - steering wheel
     MeshObject*           pp_wheel_mesh_obj       = nullptr;

@@ -400,6 +400,11 @@ void FlexbodyDebug::UpdateVisibility()
         // Hide everything, even meshes scattered across gameplay components (wheels, wings...).
         // Note: Environment map (dynamic reflections) is halted while the "Hide other" mode is active - see `RoR::GfxEnvmap::UpdateEnvMap()`
         actor->GetGfxActor()->SetAllMeshesVisible(false);
+        // Override prop dynamic visibility mode
+        for (Prop& prop : actor->GetGfxActor()->getProps())
+        {
+            prop.pp_camera_mode_active = CAMERA_MODE_ALWAYS_HIDDEN;
+        }
 
         // Then re-display what we need manually.
         auto& flexbody_vec = actor->GetGfxActor()->GetFlexbodies();
@@ -410,16 +415,21 @@ void FlexbodyDebug::UpdateVisibility()
         }
 
         auto& prop_vec = actor->GetGfxActor()->getProps();
-        const int combo_prop_selection = m_combo_selection + (int)flexbody_vec.size();
+        const int combo_prop_selection = m_combo_selection - (int)flexbody_vec.size();
         if (combo_prop_selection > 0 && combo_prop_selection < (int)prop_vec.size())
         {
-            prop_vec[combo_prop_selection].setPropMeshesVisible(true);
+            prop_vec[combo_prop_selection].pp_camera_mode_active = CAMERA_MODE_ALWAYS_VISIBLE;
         }
     }
     else
     {
         // Show everything, `GfxActor::UpdateScene()` will update visibility as needed.
         actor->GetGfxActor()->SetAllMeshesVisible(true);
+        // Restore prop dynamic visibility mode
+        for (Prop& prop : actor->GetGfxActor()->getProps())
+        {
+            prop.pp_camera_mode_active = prop.pp_camera_mode_orig;
+        }
     }
 }
 
