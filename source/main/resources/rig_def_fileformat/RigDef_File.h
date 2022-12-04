@@ -41,6 +41,7 @@
 
 #include "Application.h"
 #include "BitFlags.h"
+#include "GfxData.h"
 #include "RigDef_Node.h"
 #include "SimConstants.h"
 #include "SimData.h"
@@ -724,7 +725,7 @@ struct CameraRail
 
 struct CameraSettings
 {
-    int mode = -2; // {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
+    int mode = RoR::CAMERA_MODE_ALWAYS_VISIBLE; //!< 0 and higher = cinecam index
 };
 
 struct Cinecam
