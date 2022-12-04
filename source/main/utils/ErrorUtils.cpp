@@ -32,6 +32,8 @@
 #include <shlobj.h>
 #include <shellapi.h> // for ShellExecuteW
 #define _L
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#define _L
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #include "Language.h"
 #endif

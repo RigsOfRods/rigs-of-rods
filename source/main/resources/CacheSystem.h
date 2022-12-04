@@ -141,7 +141,7 @@ struct CacheQueryResult
         cqr_entry(entry), cqr_score(score)
     {}
 
-    bool operator<(CacheQueryResult const& other);
+    bool operator<(CacheQueryResult const& other) const;
 
     CacheEntry* cqr_entry;
     size_t      cqr_score;

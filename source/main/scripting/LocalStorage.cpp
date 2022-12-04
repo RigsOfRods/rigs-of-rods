@@ -257,7 +257,7 @@ void LocalStorage::saveDict()
     {
         RoR::LogFormat("[RoR|Scripting|LocalStorage]"
                        "Error saving file '%s' (resource group '%s'), message: '%s'",
-                        m_filename, RGN_CACHE, e.what());
+                        m_filename.c_str(), RGN_CACHE, e.what());
     }
 }
 
@@ -271,7 +271,7 @@ bool LocalStorage::loadDict()
     {
         RoR::LogFormat("[RoR|Scripting|LocalStorage]"
                        "Error reading file '%s' (resource group '%s'), message: '%s'",
-                        m_filename, RGN_CACHE, e.what());
+                        m_filename.c_str(), RGN_CACHE, e.what());
         return false;
     }
     saved = true;
