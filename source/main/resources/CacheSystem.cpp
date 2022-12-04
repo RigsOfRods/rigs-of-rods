@@ -1377,7 +1377,7 @@ bool CacheSystem::Match(size_t& out_score, std::string data, std::string const& 
     }
 }
 
-bool CacheQueryResult::operator<(CacheQueryResult const& other)
+bool CacheQueryResult::operator<(CacheQueryResult const& other) const
 {
     if (cqr_score == other.cqr_score)
     {
