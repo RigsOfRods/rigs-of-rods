@@ -207,6 +207,7 @@ set(SOURCE_FILES
         utils/ConfigFile.{h,cpp}
         utils/ErrorUtils.{h,cpp}
         utils/ForceFeedback.{h,cpp}
+        utils/GenericFileFormat.{h,cpp}
         utils/ImprovedConfigFile.h
         utils/InputEngine.{h,cpp}
         utils/InterThreadStoreVector.h
