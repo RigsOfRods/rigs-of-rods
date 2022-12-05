@@ -1296,11 +1296,20 @@ void TopMenubar::Update()
                 {
                     if (ImGui::Button(_LC("TopMenubar", "Export"), ImVec2(250, 0)))
                     {
+                        std::string s;
+
                         for (int i = 0; i < App::GetGuiManager()->SurveyMap.ai_waypoints.size(); i++)
                         {
-                            std::string s = "[" + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].x) + ", " + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].y) + ", " + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].z) + "],";
-                            RoR::Log(s.c_str());
+                            s += "\n            [" + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].x) + ", " + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].y) + ", " + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].z) + "]";
+                            if (i != App::GetGuiManager()->SurveyMap.ai_waypoints.size() - 1)
+                            {
+                                s += ",";
+                            }
                         }
+
+                        std::string json = fmt::format("\n    {{\n        \"terrain\":\"{}\",\n        \"preset\":\"Preset name\",\n        \"waypoints\":\n        [{}\n        ]\n    }}", App::sim_terrain_name->getStr(), s);
+                        RoR::Log(json.c_str());
+
                         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                                                       fmt::format(_LC("TopMenubar", "{} waypoints exported to RoR.log"),
                                                       App::GetGuiManager()->SurveyMap.ai_waypoints.size()), "lightbulb.png");
