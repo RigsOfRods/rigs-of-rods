@@ -512,19 +512,28 @@ ODefFile* TerrainObjectManager::FetchODef(std::string const & odef_name)
     }
     catch (...) // This means "not found"
     {
+        LOG(fmt::format("[ODEF] Could not find {} in any resource group", filename));
         return nullptr;
     }
 
-    // Load and parse the file
-    Ogre::DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(filename, group_name);
-    ODefParser parser;
-    parser.Prepare();
-    parser.ProcessOgreStream(ds.get());
-    std::shared_ptr<ODefFile> odef = parser.Finalize();
+    try
+    {
+        // Load and parse the file
+        Ogre::DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(filename, group_name);
+        ODefParser parser;
+        parser.Prepare();
+        parser.ProcessOgreStream(ds.get());
+        std::shared_ptr<ODefFile> odef = parser.Finalize();
 
-    // Add to cache and return
-    m_odef_cache.insert(std::make_pair(odef_name, odef));
-    return odef.get();
+        // Add to cache and return
+        m_odef_cache.insert(std::make_pair(odef_name, odef));
+        return odef.get();
+    }
+    catch (...)
+    {
+        LOG(fmt::format("[ODEF] An exception occurred when loading or parsing {}", filename));
+        return nullptr;
+    }
 }
 
 bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
@@ -547,8 +556,12 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     ODefFile* odef = this->FetchODef(name);
     if (odef == nullptr)
     {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format(_L("Could not load file '{}'"), odefname));
+        // Only log to console if requested from Console UI or script (debug message to RoR.log is written anyway).
+        if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format(_L("Could not load file '{}'"), odefname));
+        }
         return false;
     }
 
@@ -567,8 +580,12 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         else
         {
             delete mo;
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING,
-                fmt::format(_L("Could not load mesh '{}' (used by object '{}')"), odef->header.mesh_name, odefname));
+            // Only log to console if requested from Console UI or script (debug message to RoR.log is written anyway).
+            if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+            {
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format(_L("Could not load mesh '{}' (used by object '{}')"), odef->header.mesh_name, odefname));
+            }
         }
     }
 
@@ -939,8 +956,16 @@ void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile
             // Validate AABB (minimum corners must be less or equal to maximum corners)
             if (cbox.aabb_min.x > cbox.aabb_max.x || cbox.aabb_min.y > cbox.aabb_max.y || cbox.aabb_min.z > cbox.aabb_max.z)
             {
-                std::string msg = "ODEF: Skipping invalid collision box, min: " + TOSTRING(cbox.aabb_min) + ", max: " + TOSTRING(cbox.aabb_max);
-                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING, msg);
+                // Only log to console if invoked from Console UI or script.
+                std::string msg = "Skipping invalid collision box, min: " + TOSTRING(cbox.aabb_min) + ", max: " + TOSTRING(cbox.aabb_max);
+                if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                {
+                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING, msg);
+                }
+                else
+                {
+                    LOG(fmt::format("[ODEF] {}", msg));
+                }
                 continue;
             }
 
