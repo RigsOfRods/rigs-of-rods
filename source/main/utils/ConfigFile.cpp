@@ -124,6 +124,5 @@ bool ConfigFile::HasSection(std::string const & name)
 void ConfigFile::logMessage(std::string const & msg)
 {
     // If filename is specified, log "filename: message", otherwise just "message".
-    App::GetConsole()->putMessage(m_log_area, Console::CONSOLE_SYSTEM_WARNING,
-        fmt::format("{}{}{}", m_log_filename, (m_log_filename == "" ? "" : ": "), msg));
+    LOG(fmt::format("{}{}{}", m_log_filename, (m_log_filename == "" ? "" : ": "), msg));
 }
