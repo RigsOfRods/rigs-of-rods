@@ -157,13 +157,13 @@ public:
     bool              getCustomLightPresent(int number);
     BitMask_t         getLightStateMask() const { return m_lightmask; }
     void              setLightStateMask(BitMask_t lightmask); //!< Does all the necessary toggling.
-    bool              getSideLightsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_BEACONS; }
+    bool              getSideLightsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_SIDELIGHTS; }
     void              setSideLightsVisible(bool val) { BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_SIDELIGHTS, val); }
-    bool              getHeadlightsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_BEACONS; }
+    bool              getHeadlightsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_HEADLIGHT; }
     void              setHeadlightsVisible(bool val) { if (val != this->getHeadlightsVisible()) { this->toggleHeadlights(); } }
-    bool              getHighBeamsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_BEACONS; }
+    bool              getHighBeamsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_HIGHBEAMS; }
     void              setHighBeamsVisible(bool val) { BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_HIGHBEAMS, val); }
-    bool              getFogLightsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_BEACONS; }
+    bool              getFogLightsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_FOGLIGHTS; }
     void              setFogLightsVisible(bool val) { BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_FOGLIGHTS, val); }
     void              setBeaconMode(bool val) { BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_BEACONS, val); }
     //! @}

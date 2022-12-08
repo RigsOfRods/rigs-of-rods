@@ -2205,7 +2205,7 @@ void RoR::GfxActor::UpdateProps(float dt, bool is_player_actor)
     }
 
     // Update beacon flares
-    if ((m_simbuf.simbuf_lightmask & RoRnet::LIGHTMASK_BEACONS) != m_beaconlight_active)
+    if (BITMASK_IS_1(m_simbuf.simbuf_lightmask, RoRnet::LIGHTMASK_BEACONS) != m_beaconlight_active)
     {
         m_beaconlight_active = (m_simbuf.simbuf_lightmask & RoRnet::LIGHTMASK_BEACONS);
         this->SetBeaconsEnabled(m_beaconlight_active);
