@@ -217,16 +217,24 @@ float RoR::SimpleInertia::CalcSimpleDelay(bool input, float dt)
 {
     if (input)
     {
-        if (m_spline_time < m_start_delay)
+        if (m_spline_time < 1.f)
         {
             m_spline_time += (dt / m_start_delay);
+            if (m_spline_time > 1.f)
+            {
+                m_spline_time = 1.f;
+            }
         }
     }
     else
     {
-        if (m_spline_time > 0)
+        if (m_spline_time > 0.f)
         {
             m_spline_time -= (dt / m_stop_delay);
+            if (m_spline_time < 0.f)
+            {
+                m_spline_time = 0.f;
+            }
         }
     }
 

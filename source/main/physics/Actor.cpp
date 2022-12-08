@@ -2883,9 +2883,11 @@ void Actor::toggleHeadlights()
         }
     }
 
-    BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_HEADLIGHT, (m_lightmask & RoRnet::LIGHTMASK_HEADLIGHT));
+    // flip the flag
+    BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_HEADLIGHT, !this->getHeadlightsVisible());
 
-    m_gfx_actor->SetCabLightsActive(m_lightmask & RoRnet::LIGHTMASK_HEADLIGHT);
+    // sync cab light state
+    m_gfx_actor->SetCabLightsActive(this->getHeadlightsVisible());
 
     TRIGGER_EVENT(SE_TRUCK_LIGHT_TOGGLE, ar_instance_id);
 }
@@ -2951,7 +2953,6 @@ void Actor::updateFlareStates(float dt)
         if (ar_flares[i].uses_inertia)
         {
             ar_flares[i].intensity = ar_flares[i].inertia.CalcSimpleDelay(isvisible, dt);
-            ImGui::Text("flare %d (type: '%c') intensity %.2f (input: %d)", i, (char)ar_flares[i].fl_type, ar_flares[i].intensity, (int)isvisible);
         }
         else
         {
@@ -3692,7 +3693,7 @@ void Actor::beaconsToggle()
         return;
     }
     // flip the flag
-    BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_BEACONS, m_lightmask & RoRnet::LIGHTMASK_BEACONS);
+    BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_BEACONS, !this->getBeaconMode());
 
     //ScriptEvent - Beacon toggle
     TRIGGER_EVENT(SE_TRUCK_BEACONS_TOGGLE, ar_instance_id);
