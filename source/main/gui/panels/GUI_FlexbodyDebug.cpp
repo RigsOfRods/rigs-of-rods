@@ -409,14 +409,14 @@ void FlexbodyDebug::UpdateVisibility()
         // Then re-display what we need manually.
         auto& flexbody_vec = actor->GetGfxActor()->GetFlexbodies();
         const int combo_flexbody_selection = m_combo_selection;
-        if (combo_flexbody_selection > 0 && combo_flexbody_selection < (int)flexbody_vec.size())
+        if (combo_flexbody_selection >= 0 && combo_flexbody_selection < (int)flexbody_vec.size())
         {
             flexbody_vec[combo_flexbody_selection]->setVisible(true);
         }
 
         auto& prop_vec = actor->GetGfxActor()->getProps();
         const int combo_prop_selection = m_combo_selection - (int)flexbody_vec.size();
-        if (combo_prop_selection > 0 && combo_prop_selection < (int)prop_vec.size())
+        if (combo_prop_selection >= 0 && combo_prop_selection < (int)prop_vec.size())
         {
             prop_vec[combo_prop_selection].pp_camera_mode_active = CAMERA_MODE_ALWAYS_VISIBLE;
         }
