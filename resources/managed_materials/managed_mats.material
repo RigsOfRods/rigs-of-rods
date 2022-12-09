@@ -3,7 +3,7 @@ import * from "texture_manager.material"
 
 abstract material RoR/Managed_Mats/Base
 {
-	technique BaseTechnique: Shadows/managed/base_receiver
+	technique BaseTechnique
 	{
 	//Texture is rendred here
 		pass BaseRender
@@ -32,7 +32,7 @@ abstract material RoR/Managed_Mats/BaseNoShadows
 
 abstract material RoR/Managed_Mats/BaseSpecular
 {
-	technique BaseTechnique: Shadows/managed/base_receiver
+	technique BaseTechnique
 	{
 	//Texture is rendred here
 		pass BaseRender

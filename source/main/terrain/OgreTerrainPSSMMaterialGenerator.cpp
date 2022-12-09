@@ -550,9 +550,8 @@ void TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelper::defaultVpParams(
 
     if (terrain->_getUseVertexCompression() && tt != RENDER_COMPOSITE_MAP)
     {
-        Matrix4 posIndexToObjectSpace;
-        terrain->getPointTransform(&posIndexToObjectSpace);
-        params->setNamedConstant("posIndexToObjectSpace", posIndexToObjectSpace);
+        Ogre::Affine3 posIndexToObjectSpaceAffine = terrain->getPointTransform();
+        params->setNamedConstant("posIndexToObjectSpace", posIndexToObjectSpaceAffine);
     }
 }
 

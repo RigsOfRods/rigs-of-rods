@@ -30,7 +30,7 @@
 #include "RigDef_Prerequisites.h"
 
 #include <memory>
-#include <OgreVector3.h>
+#include <Ogre.h>
 #include <string>
 
 namespace RigDef

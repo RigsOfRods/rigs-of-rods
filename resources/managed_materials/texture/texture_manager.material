@@ -5,7 +5,7 @@ abstract pass Texture/managed/SpecularMapping
 		scene_blend add
 		texture_unit SpecularMapping1_Tex
 		{
-			texture_alias specular_tex
+			texture specular_tex
 			// use alpha from this texture
 			alpha_op_ex source1 src_texture src_texture
 			// and colour from last pass
@@ -31,7 +31,7 @@ abstract technique WaterMapping
 		scene_blend alpha_blend
 		texture_unit Splat1
 		{
-			texture_alias watermap_tex
+			texture watermap_tex
 			// use alpha from this texture
 			alpha_op_ex source1 src_texture src_texture
 			// and colour from last pass
@@ -58,7 +58,7 @@ abstract technique AOMapping
 			scene_blend modulate
 			texture_unit ao
 			{
-				texture_alias aomap_tex
+				texture aomap_tex
 			}
 		}
 }
