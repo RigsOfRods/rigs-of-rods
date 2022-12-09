@@ -45,11 +45,7 @@ namespace RoR {
         // Only one should be set!
         int thumb_resourceitem_idx = -1; //!< fetch thumbnail
         int attachment_id = -1; //!< download attachment
-        // attachment extras
         std::string attachment_ext;
-        // thumb extras
-        int thumb_resource_id = 0;
-        std::string thumb_url;
     };
 
     /// Payload for `MSG_NET_INSTALL_REPOFILE_REQUEST` message - also used for update (overwrites existing)
@@ -64,17 +60,6 @@ namespace RoR {
         int rfir_filesize_bytes = 0; // For display only
     };
 
-    // This will be removed during OGRE14 migration
-    struct RepoImageRequestHandler: public Ogre::WorkQueue::RequestHandler
-    {
-        Ogre::WorkQueue::Response* handleRequest(const Ogre::WorkQueue::Request* req, const Ogre::WorkQueue* srcQ) override;
-    };
-
-    // `Ogre::Any` holder requires the `<<` operator to be implemented, otherwise it won't compile. ~ This will also be removed during OGRE14 migration
-    inline std::ostream& operator<<(std::ostream& os, RepoImageDownloadRequest& val)
-    {
-        return os;
-    }
 
 namespace GUI {
 
@@ -170,7 +155,7 @@ public:
     void                                UpdateResourceFilesAndDescription(ResourcesCollection* data);
     void                                ShowError(CurlFailInfo* failinfo);
     void                                DrawThumbnail(ResourceItemArrayPos_t resource_arraypos, ImVec2 image_size, float spinner_size, ImVec2 spinner_cursor);
-    static void                         DownloadImage(RepoImageDownloadRequest* request); //!< To be run on background via Ogre WorkQueue
+    bool                                DownloadImage(RepoImageDownloadRequest* request); //!< To be run on background via Ogre WorkQueue
     void                                LoadDownloadedImage(RepoImageDownloadRequest* request); //!< To be run on main thread
     void                                DrawResourceDescriptionBBCode(const ResourceItem& item, ImVec2 panel_screenpos, ImVec2 panel_size);
     void                                DrawAttachment(BBCodeDrawingContext* context, int attachment_id);
@@ -201,10 +186,6 @@ private:
     RepoFileInstallRequestID_t          m_next_install_request_id = 0;
     std::vector<RepoFileInstallRequest> m_queued_install_requests;
     RepoFileInstallRequestID_t          m_active_install_request_id = REPOFILEINSTALLREQUESTID_INVALID;
-
-    // This will be removed during OGRE14 migration
-    Ogre::uint16                        m_ogre_workqueue_channel = 0;
-    RepoImageRequestHandler             m_repo_image_request_handler;
 
     // status or error messages
     std::string                         m_repofiles_msg;
