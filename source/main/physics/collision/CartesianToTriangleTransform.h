@@ -22,7 +22,7 @@
 #include "Triangle.h"
 
 #include <OgreMatrix3.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 /// @addtogroup Physics
 /// @{
