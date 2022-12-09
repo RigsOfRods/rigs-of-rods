@@ -1177,18 +1177,31 @@ void GameContext::UpdateCommonInputEvents(float dt)
     }
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CYCLE_TRUCK_LIGHTS))
     {
-        if (!m_player_actor->getSideLightsVisible())
+        // Smart cycling:
+        //  1) all lights off
+        //  2) sidelights on but only if any installed, otherwise skip to 3).
+        //  3) sidelights and lowbeams on.
+        //  4) sidelights, lowbeams and highbeams on, but only if highbeams are installed, otherwise cycle to 1).
+        if (m_player_actor->countFlaresByType(FlareType::SIDELIGHT) > 0 && !m_player_actor->getSideLightsVisible())
         {
             m_player_actor->setSideLightsVisible(true);
         }
         else if (!m_player_actor->getHeadlightsVisible())
         {
+            m_player_actor->setSideLightsVisible(true);
             m_player_actor->setHeadlightsVisible(true);
+        }
+        else if (m_player_actor->countFlaresByType(FlareType::HIGH_BEAM) > 0 && !m_player_actor->getHighBeamsVisible())
+        {
+            m_player_actor->setSideLightsVisible(true);
+            m_player_actor->setHeadlightsVisible(true);
+            m_player_actor->setHighBeamsVisible(true);
         }
         else
         {
             m_player_actor->setSideLightsVisible(false);
             m_player_actor->setHeadlightsVisible(false);
+            m_player_actor->setHighBeamsVisible(false);
         }
     }
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_TRUCK_HIGH_BEAMS))
