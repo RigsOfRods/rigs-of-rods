@@ -193,6 +193,7 @@ function(_conan_install build_type)
             GENERATORS cmake_multi
             BUILD_REQUIRES ${CONAN_BUILD_REQUIRES}
             ${CONAN_CONFIG_OPTIONS}
+            IMPORTS "bin, *.exe -> ${RUNTIME_OUTPUT_DIRECTORY} @ root_package=ogre3d, keep_path=False"
             IMPORTS "bin, *.dll -> ${RUNTIME_OUTPUT_DIRECTORY} @ keep_path=False"
             IMPORTS "lib, *.dll -> ${RUNTIME_OUTPUT_DIRECTORY} @ keep_path=False"
             IMPORTS "lib, *.dylib -> ${RUNTIME_OUTPUT_DIRECTORY} @ keep_path=False"
