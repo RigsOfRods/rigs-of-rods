@@ -79,6 +79,7 @@ void GfxScene::ClearScene()
     // Recover from the wipe
     App::GetCameraManager()->ReCreateCameraNode();
     App::GetGuiManager()->DirectionArrow.CreateArrow();
+    App::GetGfxScene()->GetEnvMap().CreateSceneNodes();
     m_gfx_freebeams_grouping_node = m_scene_manager->getRootSceneNode()->createChildSceneNode("FreeBeam Visuals");
 }
 

@@ -30,6 +30,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "Enums.h"
 
+#include <queue>
+
 /// @addtogroup Gfx
 /// @{
 

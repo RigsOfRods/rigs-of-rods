@@ -9,7 +9,7 @@ material managed/flexmesh_standard/simple
 		{
 			texture_unit Diffuse_Map
 			{
-				texture_alias unknown.dds
+				texture unknown.dds
 			}
 		}
 	}
@@ -25,12 +25,12 @@ material managed/flexmesh_standard/damageonly
 			diffuse vertexcolour
 			texture_unit Diffuse_Map
 			{
-				texture_alias unknown.dds
+				texture unknown.dds
 				colour_op_ex source1 src_texture src_current
 			}
 			texture_unit Dmg_Diffuse_Map
 			{
-				texture_alias unknown.dds
+				texture unknown.dds
 				colour_op_ex blend_diffuse_alpha src_texture src_current 
 			}
 		}
@@ -47,7 +47,7 @@ material managed/flexmesh_standard/specularonly
 		{
 			texture_unit Diffuse_Map
 			{
-				texture_alias unknown.dds
+				texture unknown.dds
 			}
 		}
 		pass SpecularMapping1: Texture/managed/SpecularMapping
@@ -67,12 +67,12 @@ material managed/flexmesh_standard/speculardamage
 			diffuse vertexcolour
 			texture_unit Diffuse_Map
 			{
-				texture_alias unknown.dds
+				texture unknown.dds
 				colour_op_ex source1 src_texture src_current
 			}
 			texture_unit Dmg_Diffuse_Map
 			{
-				texture_alias unknown.dds
+				texture unknown.dds
 				colour_op_ex blend_diffuse_alpha src_texture src_current 
 			}
 		}
@@ -92,7 +92,7 @@ material managed/mesh_standard/simple
 		{
 			texture_unit Diffuse_Map
 			{
-				texture_alias unknown.dds
+				texture unknown.dds
 			}
 		}
 	}
@@ -107,7 +107,7 @@ material managed/mesh_standard/specular
 		{
 			texture_unit Diffuse_Map
 			{
-				texture_alias unknown.dds
+				texture unknown.dds
 			}
 		}
 		pass SpecularMapping1: Texture/managed/SpecularMapping
