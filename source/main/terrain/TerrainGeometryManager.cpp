@@ -481,8 +481,6 @@ void TerrainGeometryManager::configureTerrainDefaults()
             matProfile->setLayerParallaxMappingEnabled(m_spec->parallax_enabled);
             matProfile->setGlobalColourMapEnabled(m_spec->global_colormap_enabled);
             matProfile->setReceiveDynamicShadowsDepth(m_spec->recv_dyn_shadows_depth);
-
-            terrainManager->getShadowManager()->updateTerrainMaterial(matProfile);
         }
     }
 

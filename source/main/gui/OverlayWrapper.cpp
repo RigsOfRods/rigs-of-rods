@@ -425,11 +425,11 @@ void OverlayWrapper::showDashboardOverlays(bool show, ActorPtr actor)
 
 void OverlayWrapper::updateStats(bool detailed)
 {
-    static UTFString currFps = _L("Current FPS: ");
-    static UTFString avgFps = _L("Average FPS: ");
-    static UTFString bestFps = _L("Best FPS: ");
-    static UTFString worstFps = _L("Worst FPS: ");
-    static UTFString tris = _L("Triangle Count: ");
+    static std::string currFps = _L("Current FPS: ");
+    static std::string avgFps = _L("Average FPS: ");
+    static std::string bestFps = _L("Best FPS: ");
+    static std::string worstFps = _L("Worst FPS: ");
+    static std::string tris = _L("Triangle Count: ");
     const RenderTarget::FrameStats& stats = win->getStatistics();
 
     // update stats when necessary
@@ -442,44 +442,44 @@ void OverlayWrapper::updateStats(bool detailed)
 
         guiAvg->setCaption(avgFps + TOSTRING(stats.avgFPS));
         guiCurr->setCaption(currFps + TOSTRING(stats.lastFPS));
-        guiBest->setCaption(bestFps + TOSTRING(stats.bestFPS) + U(" ") + TOSTRING(stats.bestFrameTime) + U(" ms"));
-        guiWorst->setCaption(worstFps + TOSTRING(stats.worstFPS) + U(" ") + TOSTRING(stats.worstFrameTime) + U(" ms"));
+        guiBest->setCaption(bestFps + TOSTRING(stats.bestFPS) + (" ") + TOSTRING(stats.bestFrameTime) + (" ms"));
+        guiWorst->setCaption(worstFps + TOSTRING(stats.worstFPS) + (" ") + TOSTRING(stats.worstFrameTime) + (" ms"));
 
         OverlayElement* guiTris = OverlayManager::getSingleton().getOverlayElement("Core/NumTris");
-        UTFString triss = tris + TOSTRING(stats.triangleCount);
+        std::string triss = tris + TOSTRING(stats.triangleCount);
         if (stats.triangleCount > 1000000)
-            triss = tris + TOSTRING(stats.triangleCount/1000000.0f) + U(" M");
+            triss = tris + TOSTRING(stats.triangleCount/1000000.0f) + (" M");
         else if (stats.triangleCount > 1000)
-            triss = tris + TOSTRING(stats.triangleCount/1000.0f) + U(" k");
+            triss = tris + TOSTRING(stats.triangleCount/1000.0f) + (" k");
         guiTris->setCaption(triss);
 
         // create some memory texts
-        UTFString memoryText;
+        std::string memoryText;
         if (TextureManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("Textures: ") + formatBytes(TextureManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(TextureManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("Textures: ") + formatBytes(TextureManager::getSingleton().getMemoryUsage()) + (" / ") + formatBytes(TextureManager::getSingleton().getMemoryBudget()) + ("\n");
         if (CompositorManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("Compositors: ") + formatBytes(CompositorManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(CompositorManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("Compositors: ") + formatBytes(CompositorManager::getSingleton().getMemoryUsage()) + (" / ") + formatBytes(CompositorManager::getSingleton().getMemoryBudget()) + ("\n");
         if (FontManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("Fonts: ") + formatBytes(FontManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(FontManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("Fonts: ") + formatBytes(FontManager::getSingleton().getMemoryUsage()) + (" / ") + formatBytes(FontManager::getSingleton().getMemoryBudget()) + ("\n");
         if (GpuProgramManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("GPU Program: ") + formatBytes(GpuProgramManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(GpuProgramManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("GPU Program: ") + formatBytes(GpuProgramManager::getSingleton().getMemoryUsage()) + (" / ") + formatBytes(GpuProgramManager::getSingleton().getMemoryBudget()) + ("\n");
         if (HighLevelGpuProgramManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("HL GPU Program: ") + formatBytes(HighLevelGpuProgramManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(HighLevelGpuProgramManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("HL GPU Program: ") + formatBytes(HighLevelGpuProgramManager::getSingleton().getMemoryUsage()) + (" / ") + formatBytes(HighLevelGpuProgramManager::getSingleton().getMemoryBudget()) + ("\n");
         if (MaterialManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("Materials: ") + formatBytes(MaterialManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(MaterialManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("Materials: ") + formatBytes(MaterialManager::getSingleton().getMemoryUsage()) + (" / ") + formatBytes(MaterialManager::getSingleton().getMemoryBudget()) + ("\n");
         if (MeshManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("Meshes: ") + formatBytes(MeshManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(MeshManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("Meshes: ") + formatBytes(MeshManager::getSingleton().getMemoryUsage()) + (" / ") + formatBytes(MeshManager::getSingleton().getMemoryBudget()) + ("\n");
         if (SkeletonManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("Skeletons: ") + formatBytes(SkeletonManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(SkeletonManager::getSingleton().getMemoryBudget()) + U("\n");
+            memoryText = memoryText + _L("Skeletons: ") + formatBytes(SkeletonManager::getSingleton().getMemoryUsage()) + (" / ") + formatBytes(SkeletonManager::getSingleton().getMemoryBudget()) + ("\n");
         if (MaterialManager::getSingleton().getMemoryUsage() > 1)
-            memoryText = memoryText + _L("Materials: ") + formatBytes(MaterialManager::getSingleton().getMemoryUsage()) + U(" / ") + formatBytes(MaterialManager::getSingleton().getMemoryBudget()) + U("\n");
-        memoryText = memoryText + U("\n");
+            memoryText = memoryText + _L("Materials: ") + formatBytes(MaterialManager::getSingleton().getMemoryUsage()) + (" / ") + formatBytes(MaterialManager::getSingleton().getMemoryBudget()) + ("\n");
+        memoryText = memoryText + ("\n");
 
         OverlayElement* memoryDbg = OverlayManager::getSingleton().getOverlayElement("Core/MemoryText");
         memoryDbg->setCaption(memoryText);
 
         float sumMem = TextureManager::getSingleton().getMemoryUsage() + CompositorManager::getSingleton().getMemoryUsage() + FontManager::getSingleton().getMemoryUsage() + GpuProgramManager::getSingleton().getMemoryUsage() + HighLevelGpuProgramManager::getSingleton().getMemoryUsage() + MaterialManager::getSingleton().getMemoryUsage() + MeshManager::getSingleton().getMemoryUsage() + SkeletonManager::getSingleton().getMemoryUsage() + MaterialManager::getSingleton().getMemoryUsage();
-        String sumMemoryText = _L("Memory (Ogre): ") + formatBytes(sumMem) + U("\n");
+        String sumMemoryText = _L("Memory (Ogre): ") + formatBytes(sumMem) + ("\n");
 
         OverlayElement* memorySumDbg = OverlayManager::getSingleton().getOverlayElement("Core/CurrMemory");
         memorySumDbg->setCaption(sumMemoryText);
@@ -962,7 +962,7 @@ void OverlayWrapper::HideRacingOverlay()
 void OverlayWrapper::UpdateRacingGui(RoR::GfxScene* gs)
 {
     float time = gs->GetSimDataBuffer().simbuf_race_time;
-    UTFString txt = StringUtil::format("%.2i'%.2i.%.2i", (int)(time) / 60, (int)(time) % 60, (int)(time * 100.0) % 100);
+    std::string txt = StringUtil::format("%.2i'%.2i.%.2i", (int)(time) / 60, (int)(time) % 60, (int)(time * 100.0) % 100);
     this->laptime->setCaption(txt);
     if (gs->GetSimDataBuffer().simbuf_race_best_time > 0.0f)
     {

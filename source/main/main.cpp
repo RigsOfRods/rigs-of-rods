@@ -137,6 +137,12 @@ int main(int argc, char *argv[])
             return -1; // Error already displayed
         }
 
+#ifdef USE_CAELUM
+        // Initialize CaelumPlugin, must happen before initialising resource groups
+        new Caelum::CaelumPlugin();
+        Caelum::CaelumPlugin::getSingleton().initialise();
+#endif //USE_CAELUM
+
         Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
         // Deploy base config files from 'skeleton.zip'
@@ -634,6 +640,7 @@ int main(int argc, char *argv[])
                     App::GetCameraManager()->ResetAllBehaviors();
                     App::GetGuiManager()->CollisionsDebug.CleanUp();
                     App::GetGuiManager()->MainSelector.Close();
+                    App::GetGuiManager()->SurveyMap.Close();
                     App::GetGuiManager()->LoadingWindow.SetVisible(false);
                     App::GetGuiManager()->MenuWallpaper->show();
                     App::GetGuiManager()->TopMenubar.ai_waypoints.clear();
