@@ -197,6 +197,7 @@ public:
     /// @{
     std::string       getTruckName() { return ar_design_name; }
     std::string       getTruckFileName() { return ar_filename; }
+    std::string       getTruckFileResourceGroup();
     int               getTruckType() { return ar_driveable; }
     Ogre::String      getSectionConfig() { return m_section_config; }
     CacheEntry*       getUsedSkin() { return m_used_skin_entry; }

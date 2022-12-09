@@ -4614,3 +4614,7 @@ void Actor::UpdatePropAnimInputEvents()
     }
 }
 
+std::string Actor::getTruckFileResourceGroup()
+{
+    return m_gfx_actor->GetResourceGroup();
+}

@@ -31,6 +31,8 @@
 ///  - Strings cannot be multiline. Linebreak within string ends the string.
 ///  - KEYWORD tokens cannot start with a digit or special character.
 
+#include "RefCountingObject.h"
+
 #include <vector>
 #include <string>
 
@@ -55,48 +57,56 @@ struct Token
     float     data;
 };
 
-struct Document
+struct GenericDocument: public RefCountingObject<GenericDocument>
 {
     static const BitMask_t OPTION_ALLOW_NAKED_STRINGS = BITMASK(1); //!< Allow strings without quotes, for backwards compatibility.
     static const BitMask_t OPTION_ALLOW_SLASH_COMMENTS = BITMASK(2); //!< Allow comments starting with `//`. 
 
-    virtual ~Document() {};
+    virtual ~GenericDocument() {};
 
     std::vector<char> string_pool; // Data of COMMENT/KEYWORD/STRING tokens; NUL-terminated strings.
     std::vector<Token> tokens;
     
-    virtual void Load(Ogre::DataStreamPtr datastream, BitMask_t options = 0);
-    virtual void Save(Ogre::DataStreamPtr datastream);
+    virtual void LoadFromDataStream(Ogre::DataStreamPtr datastream, BitMask_t options = 0);
+    virtual void SaveToDataStream(Ogre::DataStreamPtr datastream);
+
+    virtual bool LoadFromResource(std::string resource_name, std::string resource_group_name, BitMask_t options = 0);
+    virtual bool SaveToResource(std::string resource_name, std::string resource_group_name);
 };
 
-struct Reader
-{
-    Reader(Document& d) : doc(d) {}
-    virtual ~Reader() {};
+typedef RefCountingObjectPtr<GenericDocument> GenericDocumentPtr;
 
-    Document& doc;
-    size_t token_pos = 0;
-    size_t line_num = 0;
+struct GenericDocReader: public RefCountingObject<GenericDocument>
+{
+    GenericDocReader(GenericDocumentPtr d) : doc(d) {}
+    virtual ~GenericDocReader() {};
+
+    GenericDocumentPtr doc;
+    uint32_t token_pos = 0;
+    uint32_t line_num = 0;
 
     bool MoveNext() { token_pos++; return EndOfFile(); }
     bool SeekNextLine();
-    size_t CountLineArgs();
-    bool EndOfFile(size_t offset = 0) const { return token_pos + offset >= doc.tokens.size(); }
+    int CountLineArgs();
+    bool EndOfFile(int offset = 0) const { return token_pos + offset >= doc->tokens.size(); }
 
-    TokenType GetType(size_t offset = 0) const { return !EndOfFile(offset) ? doc.tokens[token_pos + offset].type : TokenType::NONE; }
-    const char* GetStringData(size_t offset = 0) const { return !EndOfFile(offset) ? (doc.string_pool.data() + (size_t)doc.tokens[token_pos + offset].data) : nullptr; }
-    float GetFloatData(size_t offset = 0) const { return !EndOfFile(offset) ? doc.tokens[token_pos + offset].data : 0.f; }
+    TokenType GetTokType(int offset = 0) const { return !EndOfFile(offset) ? doc->tokens[token_pos + offset].type : TokenType::NONE; }
+    const char* GetStringData(int offset = 0) const { return !EndOfFile(offset) ? (doc->string_pool.data() + (uint32_t)doc->tokens[token_pos + offset].data) : nullptr; }
+    float GetFloatData(int offset = 0) const { return !EndOfFile(offset) ? doc->tokens[token_pos + offset].data : 0.f; }
 
-    const char* GetArgString(size_t offset = 0) const { ROR_ASSERT(IsArgString(offset)); return GetStringData(offset); }
-    float GetArgFloat(size_t offset = 0) const { ROR_ASSERT(IsArgFloat(offset)); return GetFloatData(offset); }
-    bool GetArgBool(size_t offset = 0) const { ROR_ASSERT(IsArgBool(offset)); return GetFloatData(offset) == 1.f; }
-    const char* GetArgKeyword(size_t offset = 0) const { ROR_ASSERT(IsArgKeyword(offset)); return GetStringData(offset); }
+    const char* GetTokString(int offset = 0) const { ROR_ASSERT(IsTokString(offset)); return GetStringData(offset); }
+    float GetTokFloat(int offset = 0) const { ROR_ASSERT(IsTokFloat(offset)); return GetFloatData(offset); }
+    bool GetTokBool(int offset = 0) const { ROR_ASSERT(IsTokBool(offset)); return GetFloatData(offset) == 1.f; }
+    const char* GetTokKeyword(int offset = 0) const { ROR_ASSERT(IsTokKeyword(offset)); return GetStringData(offset); }
+    const char* GetTokComment(int offset = 0) const { ROR_ASSERT(IsTokComment(offset)); return GetStringData(offset); }
 
-    bool IsArgString(size_t offset = 0) const { return GetType(offset) == TokenType::STRING; };
-    bool IsArgFloat(size_t offset = 0) const { return GetType(offset) == TokenType::NUMBER; };
-    bool IsArgBool(size_t offset = 0) const { return GetType(offset) == TokenType::BOOL; };
-    bool IsArgKeyword(size_t offset = 0) const { return GetType(offset) == TokenType::KEYWORD; };
-
+    bool IsTokString(int offset = 0) const { return GetTokType(offset) == TokenType::STRING; };
+    bool IsTokFloat(int offset = 0) const { return GetTokType(offset) == TokenType::NUMBER; };
+    bool IsTokBool(int offset = 0) const { return GetTokType(offset) == TokenType::BOOL; };
+    bool IsTokKeyword(int offset = 0) const { return GetTokType(offset) == TokenType::KEYWORD; };
+    bool IsTokComment(int offset = 0) const { return GetTokType(offset) == TokenType::COMMENT; };
 };
+
+typedef RefCountingObjectPtr<GenericDocReader> GenericDocReaderPtr;
 
 } // namespace RoR

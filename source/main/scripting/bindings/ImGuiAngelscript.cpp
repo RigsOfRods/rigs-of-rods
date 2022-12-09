@@ -179,7 +179,7 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterGlobalFunction("vector2 GetCursorStartPos()", asFUNCTIONPR([]() { auto v = ImGui::GetCursorStartPos(); return Vector2(v.x, v.y); }, (), Vector2), asCALL_CDECL);
     engine->RegisterGlobalFunction("vector2 GetCursorScreenPos()", asFUNCTIONPR([]() { auto v = ImGui::GetCursorScreenPos(); return Vector2(v.x, v.y); }, (), Vector2), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetCursorScreenPos(vector2)", asFUNCTIONPR([](Vector2 v) { ImGui::SetCursorScreenPos(ImVec2(v.x, v.y)); }, (Vector2), void), asCALL_CDECL);
-  //  engine->RegisterGlobalFunction("void AlignTextToFramePadding()", asFUNCTIONPR(ImGui::AlignTextToFramePadding, (), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void AlignTextToFramePadding()", asFUNCTIONPR(ImGui::AlignTextToFramePadding, (), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("float GetTextLineHeight()", asFUNCTIONPR(ImGui::GetTextLineHeight, (), float), asCALL_CDECL);
     engine->RegisterGlobalFunction("float GetTextLineHeightWithSpacing()", asFUNCTIONPR(ImGui::GetTextLineHeightWithSpacing, (), float), asCALL_CDECL);
   //  engine->RegisterGlobalFunction("float GetFrameHeight()", asFUNCTIONPR(ImGui::GetFrameHeight, (), float), asCALL_CDECL);
