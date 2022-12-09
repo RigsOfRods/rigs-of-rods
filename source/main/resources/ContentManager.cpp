@@ -24,11 +24,9 @@
 
 #include <Overlay/OgreOverlayManager.h>
 #include <Overlay/OgreOverlay.h>
-#include <Plugins/ParticleFX/OgreBoxEmitterFactory.h>
 
 
 #include "Application.h"
-#include "ColoredTextAreaOverlayElementFactory.h"
 #include "ErrorUtils.h"
 #include "SoundScriptManager.h"
 #include "SkinFileFormat.h"
@@ -71,7 +69,7 @@ using namespace RoR;
 DECLARE_RESOURCE_PACK( OGRE_CORE,             "OgreCore",             "OgreCoreRG");
 DECLARE_RESOURCE_PACK( WALLPAPERS,            "wallpapers",           "Wallpapers");
 DECLARE_RESOURCE_PACK( AIRFOILS,              "airfoils",             "AirfoilsRG");
-DECLARE_RESOURCE_PACK( CAELUM,                "caelum",               "CaelumRG");
+DECLARE_RESOURCE_PACK( CAELUM,                "caelum",               "Caelum");
 DECLARE_RESOURCE_PACK( CUBEMAPS,              "cubemaps",             "CubemapsRG");
 DECLARE_RESOURCE_PACK( DASHBOARDS,            "dashboards",           "DashboardsRG");
 DECLARE_RESOURCE_PACK( FAMICONS,              "famicons",             "FamiconsRG");
@@ -211,10 +209,6 @@ void ContentManager::InitContentManager()
 
     // streams path, to be processed later by the cache system
     LOG("RoR|ContentManager: Loading filesystems");
-
-    LOG("RoR|ContentManager: Registering colored text overlay factory");
-    ColoredTextAreaOverlayElementFactory* pCT = new ColoredTextAreaOverlayElementFactory();
-    OverlayManager::getSingleton().addOverlayElementFactory(pCT);
 
     // set default mipmap level (NB some APIs ignore this)
     if (TextureManager::getSingletonPtr())
@@ -382,20 +376,6 @@ void ContentManager::InitManagedMaterials(std::string const & rg_name)
 {
     Ogre::String managed_materials_dir = PathCombine(App::sys_resources_dir->getStr(), "managed_materials");
 
-    //Dirty, needs to be improved
-    if (App::gfx_shadow_type->getEnum<GfxShadowType>() == GfxShadowType::PSSM)
-    {
-        if (rg_name == RGN_MANAGED_MATS) // Only load shared resources on startup
-        {
-            ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on/shared"), "FileSystem", rg_name);
-        }
-        ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "shadows/pssm/on"), "FileSystem", rg_name);
-    }
-    else
-    {
-        ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir,"shadows/pssm/off"), "FileSystem", rg_name);
-    }
-
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(managed_materials_dir, "texture"), "FileSystem", rg_name);
 
     // Last
@@ -431,6 +411,7 @@ void ContentManager::LoadGameplayResources()
 
     if (App::gfx_vegetation_mode->getEnum<GfxVegetation>() != RoR::GfxVegetation::NONE)
         this->AddResourcePack(ContentManager::ResourcePack::PAGED);
+
 }
 
 std::string ContentManager::ListAllUserContent()
