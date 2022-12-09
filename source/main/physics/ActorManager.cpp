@@ -246,7 +246,6 @@ Actor* ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr de
 
     // Initialize visuals
     actor->updateVisual();
-    actor->toggleHeadlights();
     actor->GetGfxActor()->SetDebugView((DebugViewType)rq.asr_debugview);
 
     // perform full visual update only if the vehicle won't be immediately driven by player.
