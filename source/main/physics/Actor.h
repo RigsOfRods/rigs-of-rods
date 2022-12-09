@@ -152,9 +152,10 @@ public:
     void              beaconsToggle();
     bool              getBrakeLightVisible() const { return m_lightmask & RoRnet::LIGHTMASK_BRAKES; }
     bool              getReverseLightVisible() const { return m_lightmask & RoRnet::LIGHTMASK_REVERSE; }
+    int               countCustomLights(int control_number);
+    int               countFlaresByType(FlareType type);
     // not exported to scripting:
     void              toggleHeadlights();
-    bool              getCustomLightPresent(int number);
     BitMask_t         getLightStateMask() const { return m_lightmask; }
     void              setLightStateMask(BitMask_t lightmask); //!< Does all the necessary toggling.
     bool              getSideLightsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_SIDELIGHTS; }

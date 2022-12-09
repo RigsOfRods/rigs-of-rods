@@ -4462,20 +4462,32 @@ void Actor::setCustomLightVisible(int number, bool visible)
     if (number == 9) BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_CUSTOM10, visible);
 }
 
-bool Actor::getCustomLightPresent(int number)
+int Actor::countCustomLights(int number)
 {
     if (number < 0 || number >= MAX_CLIGHTS)
     {
         LOG(fmt::format("invalid custom-light ID {}, allowed range is 0-{}", number, MAX_CLIGHTS-1));
-        return false;
+        return -1;
     }
 
+    int count = 0;
     for (int i = 0; i < ar_flares.size(); i++)
     {
         if (ar_flares[i].controlnumber == number)
-            return true;
+            count++;
     }
-    return false;
+    return count;
+}
+
+int Actor::countFlaresByType(FlareType type)
+{
+    int count = 0;
+    for (int i = 0; i < ar_flares.size(); i++)
+    {
+        if (ar_flares[i].fl_type == type)
+            count++;
+    }
+    return count;
 }
 
 BlinkType Actor::getBlinkType()
