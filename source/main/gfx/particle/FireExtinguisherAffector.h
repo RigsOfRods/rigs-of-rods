@@ -23,7 +23,7 @@
 #ifdef USE_ANGELSCRIPT
 
 #include <OgreParticleAffector.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 #include "ExtinguishableFireAffectorFactory.h"
 
