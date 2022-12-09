@@ -70,6 +70,9 @@ void RegisterTerrain(AngelScript::asIScriptEngine* engine);
 /// defined in ProceduralRoadAngelscript.cpp
 void RegisterProceduralRoad(AngelScript::asIScriptEngine* engine);
 
+/// defined in GenericFileFormatAngelscript.cpp
+void RegisterGenericFileFormat(AngelScript::asIScriptEngine* engine);
+
 
 /// @}   //addtogroup Scripting
 

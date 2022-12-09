@@ -44,11 +44,11 @@ enum class PartialToken
 
 struct DocumentParser
 {
-    DocumentParser(Document& d, const BitMask_t opt, Ogre::DataStreamPtr ds)
+    DocumentParser(GenericDocument& d, const BitMask_t opt, Ogre::DataStreamPtr ds)
         : doc(d), options(opt), datastream(ds) {}
 
     // Config
-    Document& doc;
+    GenericDocument& doc;
     const BitMask_t options;
     Ogre::DataStreamPtr datastream;
 
@@ -92,11 +92,11 @@ void DocumentParser::BeginToken(const char c)
         break;
 
     case '/':
-        if (options & Document::OPTION_ALLOW_SLASH_COMMENTS)
+        if (options & GenericDocument::OPTION_ALLOW_SLASH_COMMENTS)
         {
             partial_tok_type = PartialToken::COMMENT_SLASH;
         }
-        else if (options & Document::OPTION_ALLOW_NAKED_STRINGS &&
+        else if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS &&
             (doc.tokens.size() != 0 && doc.tokens.back().type != TokenType::LINEBREAK)) // not first on line?
         {
             tok.push_back(c);
@@ -151,7 +151,7 @@ void DocumentParser::BeginToken(const char c)
             tok.push_back(c);
             partial_tok_type = PartialToken::KEYWORD;
         }
-        else if (options & Document::OPTION_ALLOW_NAKED_STRINGS)
+        else if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
         {
             tok.push_back(c);
             partial_tok_type = PartialToken::STRING_NAKED;
@@ -375,7 +375,7 @@ void DocumentParser::UpdateBool(const char c)
     case 'r':
         if (partial_tok_type != PartialToken::BOOL_TRUE || tok.size() != 1)
         {
-            if (options & Document::OPTION_ALLOW_NAKED_STRINGS)
+            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
                 partial_tok_type = PartialToken::STRING_NAKED;
             else
                 partial_tok_type = PartialToken::GARBAGE;
@@ -387,7 +387,7 @@ void DocumentParser::UpdateBool(const char c)
     case 'u':
         if (partial_tok_type != PartialToken::BOOL_TRUE || tok.size() != 2)
         {
-            if (options & Document::OPTION_ALLOW_NAKED_STRINGS)
+            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
                 partial_tok_type = PartialToken::STRING_NAKED;
             else
                 partial_tok_type = PartialToken::GARBAGE;
@@ -399,7 +399,7 @@ void DocumentParser::UpdateBool(const char c)
     case 'a':
         if (partial_tok_type != PartialToken::BOOL_FALSE || tok.size() != 1)
         {
-            if (options & Document::OPTION_ALLOW_NAKED_STRINGS)
+            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
                 partial_tok_type = PartialToken::STRING_NAKED;
             else
                 partial_tok_type = PartialToken::GARBAGE;
@@ -411,7 +411,7 @@ void DocumentParser::UpdateBool(const char c)
     case 'l':
         if (partial_tok_type != PartialToken::BOOL_FALSE || tok.size() != 2)
         {
-            if (options & Document::OPTION_ALLOW_NAKED_STRINGS)
+            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
                 partial_tok_type = PartialToken::STRING_NAKED;
             else
                 partial_tok_type = PartialToken::GARBAGE;
@@ -423,7 +423,7 @@ void DocumentParser::UpdateBool(const char c)
     case 's':
         if (partial_tok_type != PartialToken::BOOL_FALSE || tok.size() != 3)
         {
-            if (options & Document::OPTION_ALLOW_NAKED_STRINGS)
+            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
                 partial_tok_type = PartialToken::STRING_NAKED;
             else
                 partial_tok_type = PartialToken::GARBAGE;
@@ -447,7 +447,7 @@ void DocumentParser::UpdateBool(const char c)
         }
         else
         {
-            if (options & Document::OPTION_ALLOW_NAKED_STRINGS)
+            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
                 partial_tok_type = PartialToken::STRING_NAKED;
             else
                 partial_tok_type = PartialToken::GARBAGE;
@@ -457,7 +457,7 @@ void DocumentParser::UpdateBool(const char c)
         break;
 
     default:
-        if (options & Document::OPTION_ALLOW_NAKED_STRINGS)
+        if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
             partial_tok_type = PartialToken::STRING_NAKED;
         else
             partial_tok_type = PartialToken::GARBAGE;
@@ -547,7 +547,7 @@ void DocumentParser::UpdateGarbage(const char c)
     }
 }   
 
-void Document::Load(Ogre::DataStreamPtr datastream, const BitMask_t options)
+void GenericDocument::LoadFromDataStream(Ogre::DataStreamPtr datastream, const BitMask_t options)
 {
     // Reset the document
     tokens.clear();
@@ -616,7 +616,7 @@ void Document::Load(Ogre::DataStreamPtr datastream, const BitMask_t options)
     const char* EOL_STR = "\n"; // "LF"
 #endif
 
-void Document::Save(Ogre::DataStreamPtr datastream)
+void GenericDocument::SaveToDataStream(Ogre::DataStreamPtr datastream)
 {
     std::string separator;
     const char* pool_str = nullptr;
@@ -668,16 +668,48 @@ void Document::Save(Ogre::DataStreamPtr datastream)
     }
 }
 
-bool Reader::SeekNextLine()
+bool GenericDocument::LoadFromResource(std::string resource_name, std::string resource_group_name, BitMask_t options/* = 0*/)
+{
+    try
+    {
+        Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().openResource(resource_name, resource_group_name);
+        this->LoadFromDataStream(datastream, options);
+        return true;
+    }
+    catch (Ogre::Exception& eeh)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("GenericDocument: could not load file '{}' from resource group '{}': {}", resource_name, resource_group_name, eeh.getDescription()));
+        return false;
+    }
+}
+
+bool GenericDocument::SaveToResource(std::string resource_name, std::string resource_group_name)
+{
+    try
+    {
+        Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(resource_name, resource_group_name);
+        this->SaveToDataStream(datastream);
+        return true;
+    }
+    catch (Ogre::Exception& eeh)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("GenericDocument: could not write file '{}' to resource group '{}': {}", resource_name, resource_group_name, eeh.getDescription()));
+        return false;
+    }
+}
+
+bool GenericDocReader::SeekNextLine()
 {
     // Skip current line
-    while (!this->EndOfFile() && this->GetType() != TokenType::LINEBREAK)
+    while (!this->EndOfFile() && this->GetTokType() != TokenType::LINEBREAK)
     {
         this->MoveNext();
     }
 
     // Skip comments
-    while (!this->EndOfFile() && !this->IsArgString() && !this->IsArgFloat() && !this->IsArgBool() && !this->IsArgKeyword())
+    while (!this->EndOfFile() && !this->IsTokString() && !this->IsTokFloat() && !this->IsTokBool() && !this->IsTokKeyword())
     {
         this->MoveNext();
     }
@@ -685,11 +717,10 @@ bool Reader::SeekNextLine()
     return this->EndOfFile();
 }
 
-size_t Reader::CountLineArgs()
+int GenericDocReader::CountLineArgs()
 {
-    size_t count = 0;
-    while (!EndOfFile(count) && this->GetType(count) != TokenType::LINEBREAK)
+    int count = 0;
+    while (!EndOfFile(count) && this->GetTokType(count) != TokenType::LINEBREAK)
         count++;
     return count;
 }
-

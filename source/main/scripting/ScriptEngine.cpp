@@ -163,6 +163,7 @@ void ScriptEngine::init()
     RegisterTerrain(engine);       // TerrainClass
     RegisterGameScript(engine);    // GameScriptClass
     RegisterScriptEvents(engine);  // scriptEvents
+    RegisterGenericFileFormat(engine); // TokenType, GenericDocumentClass, GenericDocReaderClass
 
     // now the global instances
     result = engine->RegisterGlobalProperty("GameScriptClass game", &m_game_script); ROR_ASSERT(result>=0);

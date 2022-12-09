@@ -230,6 +230,7 @@ if (USE_ANGELSCRIPT)
             scripting/bindings/ActorAngelscript.cpp
             scripting/bindings/ConsoleAngelscript.cpp
             scripting/bindings/GameScriptAngelscript.cpp
+            scripting/bindings/GenericFileFormatAngelscript.cpp
             scripting/bindings/ImGuiAngelscript.cpp
             scripting/bindings/InputEngineAngelscript.cpp
             scripting/bindings/LocalStorageAngelscript.cpp
