@@ -433,13 +433,13 @@ void DocumentParser::UpdateBool(const char c)
         break;
 
     case 'e':
-        if (partial_tok_type == PartialToken::BOOL_TRUE || tok.size() == 3)
+        if (partial_tok_type == PartialToken::BOOL_TRUE && tok.size() == 3)
         {
             doc.tokens.push_back({ TokenType::BOOL, 1.f });
             tok.clear();
             partial_tok_type = PartialToken::NONE;
         }
-        else if (partial_tok_type == PartialToken::BOOL_FALSE || tok.size() == 4)
+        else if (partial_tok_type == PartialToken::BOOL_FALSE && tok.size() == 4)
         {
             doc.tokens.push_back({ TokenType::BOOL, 0.f });
             tok.clear();
