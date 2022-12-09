@@ -44,7 +44,22 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("truckTypes", "TT_BOAT", BOAT); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("truckTypes", "TT_MACHINE", MACHINE); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("truckTypes", "TT_AI", AI); ROR_ASSERT(result>=0);
-    
+
+    // enum FlareType
+    result = engine->RegisterEnum("FlareType"); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FlareType", "FLARE_TYPE_NONE", (int)FlareType::NONE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FlareType", "FLARE_TYPE_HEADLIGHT", (int)FlareType::HEADLIGHT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FlareType", "FLARE_TYPE_HIGH_BEAM", (int)FlareType::HIGH_BEAM); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FlareType", "FLARE_TYPE_FOG_LIGHT", (int)FlareType::FOG_LIGHT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FlareType", "FLARE_TYPE_TAIL_LIGHT", (int)FlareType::TAIL_LIGHT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FlareType", "FLARE_TYPE_BRAKE_LIGHT", (int)FlareType::BRAKE_LIGHT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FlareType", "FLARE_TYPE_REVERSE_LIGHT", (int)FlareType::REVERSE_LIGHT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FlareType", "FLARE_TYPE_SIDELIGHT", (int)FlareType::SIDELIGHT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FlareType", "FLARE_TYPE_BLINKER_LEFT", (int)FlareType::BLINKER_LEFT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FlareType", "FLARE_TYPE_BLINKER_RIGHT", (int)FlareType::BLINKER_RIGHT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FlareType", "FLARE_TYPE_USER", (int)FlareType::USER); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FlareType", "FLARE_TYPE_DASHBOARD", (int)FlareType::DASHBOARD); ROR_ASSERT(result >= 0);
+
 
     // class Actor (historically Beam)
     result = engine->RegisterObjectType("BeamClass", sizeof(Actor), asOBJ_REF); ROR_ASSERT(result>=0);
@@ -85,6 +100,8 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "void beaconsToggle()", asMETHOD(Actor, beaconsToggle), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "bool getBrakeLightVisible()", asMETHOD(Actor, getBrakeLightVisible), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "bool getReverseLightVisible()", asMETHOD(Actor, getReverseLightVisible), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int countCustomLights(int)", asMETHOD(Actor, countCustomLights), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int countFlaresByType(FlareType)", asMETHOD(Actor, countFlaresByType), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // - refcount
     result = engine->RegisterObjectBehaviour("BeamClass", asBEHAVE_ADDREF, "void f()", asMETHOD(Actor,addRef), asCALL_THISCALL); ROR_ASSERT(result>=0);
