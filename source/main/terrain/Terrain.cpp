@@ -323,13 +323,17 @@ void RoR::Terrain::initLight()
         m_main_light = App::GetGfxScene()->GetSceneManager()->createLight("MainLight");
         //directional light for shadow
         m_main_light->setType(Light::LT_DIRECTIONAL);
-        m_main_light->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
 
         m_main_light->setDiffuseColour(m_def->ambient_color);
         m_main_light->setSpecularColour(m_def->ambient_color);
         m_main_light->setCastShadows(true);
         m_main_light->setShadowFarDistance(1000.0f);
         m_main_light->setShadowNearClipDistance(-1);
+
+        // attach to scene node (can be retrieved by Ogre::Light::getParentSceneNode())
+        Ogre::SceneNode* snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        snode->attachObject(m_main_light);
+        snode->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
     }
 }
 
@@ -436,7 +440,7 @@ void RoR::Terrain::initWater()
 void RoR::Terrain::initShadows()
 {
     m_shadow_manager = new ShadowManager();
-    m_shadow_manager->loadConfiguration();
+    m_shadow_manager->SetupPSSM();
 }
 
 void RoR::Terrain::loadTerrainObjects()
