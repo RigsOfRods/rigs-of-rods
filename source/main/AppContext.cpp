@@ -63,9 +63,6 @@ using namespace RoR;
 bool AppContext::SetUpInput()
 {
     App::CreateInputEngine();
-    App::GetInputEngine()->SetMouseListener(this);
-    App::GetInputEngine()->SetKeyboardListener(this);
-    App::GetInputEngine()->SetJoystickListener(this);
 
     if (App::io_ffb_enabled->getBool())
     {
@@ -74,19 +71,18 @@ bool AppContext::SetUpInput()
     return true;
 }
 
-bool AppContext::mouseMoved(const OIS::MouseEvent& arg) // overrides OIS::MouseListener
+bool AppContext::mouseMoved(const OgreBites::MouseMotionEvent& arg) // overrides OgreBites::InputListener
 {
     App::GetGuiManager()->WakeUpGUI();
     App::GetGuiManager()->GetImGui().InjectMouseMoved(arg);
-    App::GetInputEngine()->processMouseMotionEvent(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
         if (!App::GetOverlayWrapper() || !App::GetOverlayWrapper()->handleMouseMoved()) // update the old airplane / autopilot gui
         {
-            if (!App::GetCameraManager()->handleMouseMoved())
+            if (!App::GetCameraManager()->handleMouseMoved(arg))
             {
-                App::GetGameContext()->GetSceneMouse().handleMouseMoved();
+                App::GetGameContext()->GetSceneMouse().handleMouseMoved(arg);
             }
         }
     }
@@ -94,11 +90,23 @@ bool AppContext::mouseMoved(const OIS::MouseEvent& arg) // overrides OIS::MouseL
     return true;
 }
 
-bool AppContext::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID _id) // overrides OIS::MouseListener
+bool AppContext::mouseWheelRolled(const OgreBites::MouseWheelEvent& arg)
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().SetMouseButtonState(_id, /*down:*/true);
-    App::GetInputEngine()->processMousePressEvent(arg, _id);
+    App::GetGuiManager()->GetImGui().InjectMouseWheelRolled(arg);
+
+    if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
+    {
+        App::GetCameraManager()->handleMouseWheelRolled(arg);
+    }
+
+    return true;
+}
+
+bool AppContext::mousePressed(const OgreBites::MouseButtonEvent& arg) // overrides OgreBites::InputListener
+{
+    App::GetGuiManager()->WakeUpGUI();
+    App::GetGuiManager()->GetImGui().InjectMousePressed(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
@@ -107,7 +115,7 @@ bool AppContext::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID _id
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {
                 App::GetGameContext()->GetSceneMouse().handleMousePressed();
-                App::GetCameraManager()->handleMousePressed();
+                App::GetCameraManager()->handleMousePressed(arg);
             }
         }
     }
@@ -115,11 +123,10 @@ bool AppContext::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID _id
     return true;
 }
 
-bool AppContext::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID _id) // overrides OIS::MouseListener
+bool AppContext::mouseReleased(const OgreBites::MouseButtonEvent& arg) // overrides OgreBites::InputListener
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().SetMouseButtonState(_id, /*down:*/false);
-    App::GetInputEngine()->processMouseReleaseEvent(arg, _id);
+    App::GetGuiManager()->GetImGui().InjectMouseReleased(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
@@ -135,7 +142,7 @@ bool AppContext::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID _i
     return true;
 }
 
-bool AppContext::keyPressed(const OIS::KeyEvent& arg)
+bool AppContext::keyPressed(const OgreBites::KeyboardEvent& arg)
 {
     App::GetGuiManager()->GetImGui().InjectKeyPressed(arg);
 
@@ -148,7 +155,7 @@ bool AppContext::keyPressed(const OIS::KeyEvent& arg)
     return true;
 }
 
-bool AppContext::keyReleased(const OIS::KeyEvent& arg)
+bool AppContext::keyReleased(const OgreBites::KeyboardEvent& arg)
 {
     App::GetGuiManager()->GetImGui().InjectKeyReleased(arg);
 
@@ -157,7 +164,7 @@ bool AppContext::keyReleased(const OIS::KeyEvent& arg)
     {
         App::GetInputEngine()->ProcessKeyRelease(arg);
     }
-    else if (App::GetInputEngine()->isKeyDownEffective(arg.key))
+    else if (App::GetInputEngine()->isKeyDownEffective(arg.keysym.sym))
     {
         // If capturing is requested, still pass release events for already-pressed keys.
         App::GetInputEngine()->ProcessKeyRelease(arg);
@@ -166,15 +173,26 @@ bool AppContext::keyReleased(const OIS::KeyEvent& arg)
     return true;
 }
 
-bool AppContext::buttonPressed(const OIS::JoyStickEvent& arg, int)  { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
-bool AppContext::buttonReleased(const OIS::JoyStickEvent& arg, int) { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
-bool AppContext::axisMoved(const OIS::JoyStickEvent& arg, int)      { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
-bool AppContext::sliderMoved(const OIS::JoyStickEvent& arg, int)    { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
-bool AppContext::povMoved(const OIS::JoyStickEvent& arg, int)       { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
+bool AppContext::buttonPressed(const OgreBites::ButtonEvent& arg)
+{
+ //FIXME-SDL   App::GetInputEngine()->ProcessJoystickEvent(arg);
+    return true;
+}
+
+bool AppContext::buttonReleased(const OgreBites::ButtonEvent& arg)
+{
+ //FIXME-SDL   App::GetInputEngine()->ProcessJoystickEvent(arg);
+    return true;
+}
+
+bool AppContext::axisMoved(const OgreBites::AxisEvent& arg)
+{
+    App::GetInputEngine()->ProcessJoystickEvent(arg);
+    return true;
+}
 
 void AppContext::windowResized(Ogre::RenderWindow* rw)
 {
-    App::GetInputEngine()->windowResized(rw); // Update mouse area
     if (App::GetOverlayWrapper())
     {
         App::GetOverlayWrapper()->windowResized();
@@ -190,12 +208,7 @@ void AppContext::windowResized(Ogre::RenderWindow* rw)
 
 void AppContext::windowFocusChange(Ogre::RenderWindow* rw)
 {
-    // If you alt+TAB out of the window while any mouse button is down, OIS will not release it until you click in the window again.
-    // See https://github.com/RigsOfRods/rigs-of-rods/issues/2468
-    // To work around, we reset all internal mouse button states here and pay attention not to get them polluted by OIS again.
-    App::GetGuiManager()->GetImGui().ResetAllMouseButtons();
-    // Same applies to keyboard keys - reset them manually otherwise OIS will hold them 'down' the entire time.
-    App::GetInputEngine()->resetKeysAndMouseButtons();
+    App::GetInputEngine()->resetKeys();
 }
 
 // --------------------------

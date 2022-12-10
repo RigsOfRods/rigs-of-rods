@@ -431,11 +431,10 @@ bool OverlayWrapper::handleMousePressed()
         || !m_aerial_dashboard.hovered_widget)
         return false;
 
-    // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
-    //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
-    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
     bool res = false;
-    if (player_actor->ar_driveable == AIRPLANE && ms.buttonDown(OIS::MB_Left))
+    const Ogre::Vector2 mouseNorm = App::GetInputEngine()->getMouseNormalizedScreenPos();
+    if (player_actor->ar_driveable == AIRPLANE
+        && App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_LEFT))
     {
         const int num_engines = std::min(4, player_actor->ar_num_aeroengines);
 
@@ -553,6 +552,7 @@ bool OverlayWrapper::handleMousePressed()
     return res;
 }
 
+
 bool OverlayWrapper::handleMouseMoved()
 {
     ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
@@ -584,11 +584,8 @@ bool OverlayWrapper::handleMouseMoved()
 
 bool OverlayWrapper::handleMouseReleased()
 {
-    // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
-    //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
-    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
 
-    if (!ms.buttonDown(OIS::MB_Left))
+    if (!App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_LEFT))
     {
         m_aerial_dashboard.mouse_drag_in_progress = false;
     }

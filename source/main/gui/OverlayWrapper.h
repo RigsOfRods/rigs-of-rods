@@ -30,7 +30,7 @@
 #include "Application.h"
 
 #include <Overlay/OgreTextAreaOverlayElement.h>
-#include <OIS.h>
+#include <Bites/OgreInput.h>
 
 namespace RoR {
 
@@ -185,6 +185,7 @@ protected:
     void placeNeedle(Ogre::SceneNode *node, float x, float y, float len);
     void updateStats(bool detailed=false);
     void showPressureOverlay(bool show);
+    bool mouseChanged();
 
     Ogre::OverlayElement *loadOverlayElement(Ogre::String name);
 

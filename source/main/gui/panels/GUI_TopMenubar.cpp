@@ -2252,7 +2252,7 @@ void DrawRepairBoxEvent(events ev, std::string const& desc)
     ImDrawEventHighlighted(ev); ImGui::SameLine(); ImGui::TextDisabled(desc.c_str()); ImGui::NextColumn();
 }
 
-void DrawRepairBoxModkey(OIS::KeyCode modkey, std::string const& desc)
+void DrawRepairBoxModkey(SDL_Keymod modkey, std::string const& desc)
 {
     ImDrawModifierKeyHighlighted(modkey); ImGui::SameLine(); ImGui::TextDisabled(desc.c_str()); ImGui::NextColumn();
 }
@@ -2483,9 +2483,9 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
                       ImGui::SetColumnWidth(1, 125);
                       ImGui::SetColumnWidth(2, 125);
                         ImGui::NextColumn();
-                        DrawRepairBoxModkey(OIS::KC_LMENU,_LC("LiveRepair", "Slow step")); // Left alt
-                        DrawRepairBoxModkey(OIS::KC_LSHIFT,_LC("LiveRepair", "Fast step"));
-                        DrawRepairBoxModkey(OIS::KC_LCONTROL,_LC("LiveRepair", "10x step")); // Left ctrl
+                        DrawRepairBoxModkey(KMOD_LALT,_LC("LiveRepair", "Slow step")); // Left alt
+                        DrawRepairBoxModkey(KMOD_LSHIFT,_LC("LiveRepair", "Fast step"));
+                        DrawRepairBoxModkey(KMOD_LCTRL,_LC("LiveRepair", "10x step")); // Left ctrl
                       ImGui::Columns(1);
 
                     SimResetMode resetmode = App::sim_soft_reset_mode->getEnum<SimResetMode>();

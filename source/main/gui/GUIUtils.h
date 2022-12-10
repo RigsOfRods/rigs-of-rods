@@ -21,6 +21,7 @@
 
 #include "Application.h"
 #include "GUIManager.h"
+#include <SDL_keycode.h>
 
 namespace RoR {
 
@@ -88,7 +89,7 @@ void ImTerminateComboboxString(std::string& target);
 // Input engine helpers
 void ImDrawEventHighlighted(events input_event);
 bool ImDrawEventHighlightedButton(events input_event, bool* btn_hovered = nullptr, bool* btn_active = nullptr);
-void ImDrawModifierKeyHighlighted(OIS::KeyCode key);
+void ImDrawModifierKeyHighlighted(SDL_Keymod key);
 ImVec2 ImCalcEventHighlightedSize(events input_event);
 
 // Draws button which must be held for a period to report "clicked" - shows a tooltip with countdown progressbar.

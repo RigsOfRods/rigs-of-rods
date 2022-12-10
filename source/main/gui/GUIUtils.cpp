@@ -486,7 +486,7 @@ bool RoR::ImDrawEventHighlightedButton(events input_event, bool* btn_hovered /*=
     return retval;
 }
 
-void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
+void RoR::ImDrawModifierKeyHighlighted(SDL_Keymod key)
 {
     ImVec4 col = ImGui::GetStyle().Colors[ImGuiCol_Text];
     if (App::GetInputEngine()->isKeyDown(key))
