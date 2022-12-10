@@ -142,7 +142,7 @@ void TerrainEditor::UpdateInputEvents(float dt)
         std::string ssmsg = _L("Rotating: ") + axis;
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "information.png");
     }
-    if (App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
+    if (App::GetInputEngine()->isKeyDownValueBounce(OgreBites::SDLK_SPACE))
     {
         m_object_tracking = !m_object_tracking;
         std::string ssmsg = m_object_tracking ? _L("Enabled object tracking") : _L("Disabled object tracking");
@@ -211,9 +211,9 @@ void TerrainEditor::UpdateInputEvents(float dt)
 
         if (translation != Vector3::ZERO || rotation != 0.0f)
         {
-            float scale = App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.1f : 1.0f;
-            scale *= App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) ? 3.0f : 1.0f;
-            scale *= App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
+            float scale = App::GetInputEngine()->isKeyDown(SDLK_LALT) ? 0.1f : 1.0f;
+            scale *= App::GetInputEngine()->isKeyDown(SDLK_LSHIFT) ? 3.0f : 1.0f;
+            scale *= App::GetInputEngine()->isKeyDown(SDLK_LCTRL) ? 10.0f : 1.0f;
 
             object_list[m_object_index].position += translation * scale * dt;
             sn->setPosition(object_list[m_object_index].position);

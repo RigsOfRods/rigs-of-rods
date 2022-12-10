@@ -23,7 +23,7 @@
 
 #include "Application.h"
 
-#include <OIS.h>
+
 #include <Ogre.h>
 
 namespace RoR {
@@ -67,11 +67,13 @@ public:
     void NotifyVehicleChanged(ActorPtr new_vehicle);
 
     void CameraBehaviorOrbitReset();
-    bool CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg);
+    bool CameraBehaviorOrbitMouseMoved(const OgreBites::MouseMotionEvent& _arg);
+    bool CameraBehaviorOrbitMouseWheelRolled(const OgreBites::MouseWheelEvent& _arg);
     void CameraBehaviorOrbitUpdate();
 
-    bool mouseMoved(const OIS::MouseEvent& _arg);
-    bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    bool mouseMoved(const OgreBites::MouseMotionEvent& _arg);
+    bool mousePressed(const OgreBites::MouseButtonEvent& _arg);
+    bool mouseWheelRolled(const OgreBites::MouseWheelEvent& _arg);
 
     void ResetAllBehaviors();
     void ReCreateCameraNode(); //!< Needed since we call `Ogre::SceneManager::ClearScene()` after end of sim. session
@@ -89,14 +91,14 @@ protected:
     void ResetCurrentBehavior();
     void DeactivateCurrentBehavior();
     void UpdateCameraBehaviorStatic();
-    bool CameraBehaviorStaticMouseMoved(const OIS::MouseEvent& _arg);
+    bool CameraBehaviorStaticMouseWheelRolled(const OgreBites::MouseWheelEvent& _arg);
     void UpdateCameraBehaviorFree();
     void UpdateCameraBehaviorFixed();
     void UpdateCameraBehaviorVehicle();
     void CameraBehaviorVehicleReset();
-    bool CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    bool CameraBehaviorVehicleMousePressed(const OgreBites::MouseButtonEvent& _arg);
     void CameraBehaviorVehicleSplineUpdate();
-    bool CameraBehaviorVehicleSplineMouseMoved(const OIS::MouseEvent& _arg);
+    bool CameraBehaviorVehicleSplineMouseMoved(const OgreBites::MouseMotionEvent& _arg);
     void CameraBehaviorVehicleSplineReset();
     void CameraBehaviorVehicleSplineCreateSpline();
     void CameraBehaviorVehicleSplineUpdateSpline();

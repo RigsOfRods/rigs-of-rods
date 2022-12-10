@@ -490,32 +490,30 @@ void OverlayWrapper::updateStats(bool detailed)
     }
 }
 
-bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
+bool OverlayWrapper::mouseChanged()
 {
     if (!m_aerial_dashboard.needles_overlay->isVisible())
         return false;
     bool res = false;
-    const OIS::MouseState ms = _arg.state;
+
     
     ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
 
     if (!player_actor)
         return res;
 
-    float mouseX = ms.X.abs / (float)ms.width;
-    float mouseY = ms.Y.abs / (float)ms.height;
+    const Ogre::Vector2 mouseNorm = App::GetInputEngine()->getMouseNormalizedScreenPos();
 
-    // TODO: fix: when the window is scaled, the findElementAt doesn not seem to pick up the correct element :-\
-
-    if (player_actor->ar_driveable == AIRPLANE && ms.buttonDown(OIS::MB_Left))
+    if (player_actor->ar_driveable == AIRPLANE
+        && App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_LEFT))
     {
         const int num_engines = std::min(4, player_actor->ar_num_aeroengines);
 
-        OverlayElement* element = m_aerial_dashboard.needles_overlay->findElementAt(mouseX, mouseY);
+        OverlayElement* element = m_aerial_dashboard.needles_overlay->findElementAt(mouseNorm.x, mouseNorm.y);
         if (element)
         {
             res = true;
-            float thr_value = 1.0f - ((mouseY - thrtop - throffset) / thrheight);
+            float thr_value = 1.0f - ((mouseNorm.y - thrtop - throffset) / thrheight);
             for (int i = 0; i < num_engines; ++i)
             {
                 if (element == m_aerial_dashboard.engines[i].thr_element)
@@ -525,7 +523,7 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
             }
         }
 
-        element = m_aerial_dashboard.dash_overlay->findElementAt(mouseX, mouseY);
+        element = m_aerial_dashboard.dash_overlay->findElementAt(mouseNorm.x, mouseNorm.y);
         if (element)
         {
             res = true;
@@ -630,14 +628,19 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
     return res;
 }
 
-bool OverlayWrapper::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool OverlayWrapper::mouseMoved(const OgreBites::MouseMotionEvent& arg)
 {
-    return mouseMoved(_arg);
+    return this->mouseChanged();
 }
 
-bool OverlayWrapper::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool OverlayWrapper::mousePressed(const OgreBites::MouseButtonEvent& arg)
 {
-    return mouseMoved(_arg);
+    return this->mouseChanged();
+}
+
+bool OverlayWrapper::mouseReleased(const OgreBites::MouseButtonEvent& arg)
+{
+    return this->mouseChanged();
 }
 
 void OverlayWrapper::UpdatePressureOverlay(RoR::GfxActor* ga)

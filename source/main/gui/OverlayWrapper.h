@@ -30,7 +30,7 @@
 #include "Application.h"
 
 #include <Overlay/OgreTextAreaOverlayElement.h>
-#include <OIS.h>
+#include <Bites/OgreInput.h>
 
 namespace RoR {
 
@@ -129,9 +129,9 @@ public:
     void windowResized();
     void resizeOverlay(LoadedOverlay & overlay);
 
-    bool mouseMoved(const OIS::MouseEvent& _arg);
-    bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
-    bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    bool mouseMoved(const OgreBites::MouseMotionEvent& arg);
+    bool mousePressed(const OgreBites::MouseButtonEvent& arg);
+    bool mouseReleased(const OgreBites::MouseButtonEvent& arg);
     
 
     void UpdatePressureOverlay(RoR::GfxActor* ga);
@@ -163,6 +163,7 @@ protected:
     void placeNeedle(Ogre::SceneNode *node, float x, float y, float len);
     void updateStats(bool detailed=false);
     void showPressureOverlay(bool show);
+    bool mouseChanged();
 
     Ogre::OverlayElement *loadOverlayElement(Ogre::String name);
 

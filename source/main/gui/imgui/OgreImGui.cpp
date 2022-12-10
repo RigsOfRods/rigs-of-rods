@@ -35,6 +35,52 @@
 
 using namespace RoR;
 
+// Based on OGRE 13.5.3, file Components\Bites\src\OgreImGuiInputListener.cpp
+// returning int instead of ImGuiKey because our outdated DearIMGUI doesn't have `ImGuiKey_None`
+static int SDL2KeycodeToImGuiKey(int keycode)
+{
+    switch (keycode)
+    {
+    case '\t': return ImGuiKey_Tab;
+    case SDLK_LEFT: return ImGuiKey_LeftArrow;
+    case SDLK_RIGHT: return ImGuiKey_RightArrow;
+    case SDLK_UP: return ImGuiKey_UpArrow;
+    case SDLK_DOWN: return ImGuiKey_DownArrow;
+    case SDLK_PAGEUP: return ImGuiKey_PageUp;
+    case SDLK_PAGEDOWN: return ImGuiKey_PageDown;
+    case SDLK_HOME: return ImGuiKey_Home;
+    case SDLK_END: return ImGuiKey_End;
+    case SDLK_INSERT: return ImGuiKey_Insert;
+    case SDLK_DELETE: return ImGuiKey_Delete;
+    case '\b': return ImGuiKey_Backspace;
+    case SDLK_SPACE: return ImGuiKey_Space;
+    case SDLK_RETURN: return ImGuiKey_Enter;
+    case SDLK_ESCAPE: return ImGuiKey_Escape;
+
+    case SDLK_KP_0: return ImGuiKey_KeyPad0;
+    case SDLK_KP_1: return ImGuiKey_KeyPad1;
+    case SDLK_KP_2: return ImGuiKey_KeyPad2;
+    case SDLK_KP_3: return ImGuiKey_KeyPad3;
+    case SDLK_KP_4: return ImGuiKey_KeyPad4;
+    case SDLK_KP_5: return ImGuiKey_KeyPad5;
+    case SDLK_KP_6: return ImGuiKey_KeyPad6;
+    case SDLK_KP_7: return ImGuiKey_KeyPad7;
+    case SDLK_KP_8: return ImGuiKey_KeyPad8;
+    case SDLK_KP_9: return ImGuiKey_KeyPad9;
+
+    case 'a': return ImGuiKey_A;
+    case 'c': return ImGuiKey_C;
+    case 'v': return ImGuiKey_V;
+    case 'x': return ImGuiKey_X;
+    case 'y': return ImGuiKey_Y;
+    case 'z': return ImGuiKey_Z;
+
+    case '/': return ImGuiKey_Slash; // Heh, apparently newer DearIMGUI added the same key we hacked-in :)
+
+    }
+    return -1;
+}
+
 void OgreImGui::Init()
 {
     m_imgui_overlay = std::unique_ptr<Ogre::ImGuiOverlay>(new Ogre::ImGuiOverlay());
@@ -44,37 +90,7 @@ void OgreImGui::Init()
     // Disable 'imgui.ini' - we don't need to persist window positions.
     io.IniFilename = nullptr;
 
-    // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array that we will update during the application lifetime.
-    io.KeyMap[ImGuiKey_Tab] = OIS::KC_TAB;
-    io.KeyMap[ImGuiKey_LeftArrow] = OIS::KC_LEFT;
-    io.KeyMap[ImGuiKey_RightArrow] = OIS::KC_RIGHT;
-    io.KeyMap[ImGuiKey_UpArrow] = OIS::KC_UP;
-    io.KeyMap[ImGuiKey_DownArrow] = OIS::KC_DOWN;
-    io.KeyMap[ImGuiKey_PageUp] = OIS::KC_PGUP;
-    io.KeyMap[ImGuiKey_PageDown] = OIS::KC_PGDOWN;
-    io.KeyMap[ImGuiKey_Home] = OIS::KC_HOME;
-    io.KeyMap[ImGuiKey_End] = OIS::KC_END;
-    io.KeyMap[ImGuiKey_Delete] = OIS::KC_DELETE;
-    io.KeyMap[ImGuiKey_Backspace] = OIS::KC_BACK;
-    io.KeyMap[ImGuiKey_Enter] = OIS::KC_RETURN;
-    io.KeyMap[ImGuiKey_Escape] = OIS::KC_ESCAPE;
-    io.KeyMap[ImGuiKey_A] = OIS::KC_A;
-    io.KeyMap[ImGuiKey_C] = OIS::KC_C;
-    io.KeyMap[ImGuiKey_V] = OIS::KC_V;
-    io.KeyMap[ImGuiKey_X] = OIS::KC_X;
-    io.KeyMap[ImGuiKey_Y] = OIS::KC_Y;
-    io.KeyMap[ImGuiKey_Z] = OIS::KC_Z;
-    io.KeyMap[ImGuiKey_KeyPad0] = OIS::KC_NUMPAD0;
-    io.KeyMap[ImGuiKey_KeyPad1] = OIS::KC_NUMPAD1;
-    io.KeyMap[ImGuiKey_KeyPad2] = OIS::KC_NUMPAD2;
-    io.KeyMap[ImGuiKey_KeyPad3] = OIS::KC_NUMPAD3;
-    io.KeyMap[ImGuiKey_KeyPad4] = OIS::KC_NUMPAD4;
-    io.KeyMap[ImGuiKey_KeyPad5] = OIS::KC_NUMPAD5;
-    io.KeyMap[ImGuiKey_KeyPad6] = OIS::KC_NUMPAD6;
-    io.KeyMap[ImGuiKey_KeyPad7] = OIS::KC_NUMPAD7;
-    io.KeyMap[ImGuiKey_KeyPad8] = OIS::KC_NUMPAD8;
-    io.KeyMap[ImGuiKey_KeyPad9] = OIS::KC_NUMPAD9;
-    io.KeyMap[ImGuiKey_Slash] = OIS::KC_SLASH;
+    // NOTE: Setting up `io.KeyMap` isn't possible with SDL2 because the values must be 0-512 and SDL's Keycodes are bitmasks which are much larger.
 
     // Load font
     m_imgui_overlay->addFont("rigsofrods/fonts/Roboto-Medium",
@@ -86,49 +102,79 @@ void OgreImGui::Init()
     m_imgui_overlay->show();
 }
 
-void OgreImGui::InjectMouseMoved( const OIS::MouseEvent &arg )
+void OgreImGui::InjectMouseMoved(const OgreBites::MouseMotionEvent& arg)
 {
-
     ImGuiIO& io = ImGui::GetIO();
 
-    io.MousePos.x = arg.state.X.abs;
-    io.MousePos.y = arg.state.Y.abs;
-    io.MouseWheel = Ogre::Math::Clamp((float)arg.state.Z.rel, -1/3.f, 1/3.f);
+    io.MousePos.x = arg.x;
+    io.MousePos.y = arg.y;
 }
 
-void OgreImGui::InjectMousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+void OgreImGui::InjectMouseWheelRolled(const OgreBites::MouseWheelEvent& arg)
 {
     ImGuiIO& io = ImGui::GetIO();
+    io.MouseWheel = Ogre::Math::Clamp((float)arg.y, -1 / 3.f, 1 / 3.f);
+}
+
+
+// map sdl2 mouse buttons to imgui (copypasted from OgreImGuiInputListener.cpp)
+static int sdl2imgui(int b)
+{
+    switch (b)
+    {
+    case 2:
+        return 2;
+    case 3:
+        return 1;
+    default:
+        return b - 1;
+    }
+}
+
+void OgreImGui::InjectMousePressed(const OgreBites::MouseButtonEvent& arg)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    int id = sdl2imgui(arg.button);
     if (id<5)
     {
         io.MouseDown[id] = true;
     }
 }
 
-void OgreImGui::InjectMouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+void OgreImGui::InjectMouseReleased(const OgreBites::MouseButtonEvent& arg)
 {
     ImGuiIO& io = ImGui::GetIO();
+    int id = sdl2imgui(arg.button);
     if (id<5)
     {
         io.MouseDown[id] = false;
     }
 }
 
-void OgreImGui::InjectKeyPressed( const OIS::KeyEvent &arg )
+void OgreImGui::InjectKeyPressed(const OgreBites::KeyboardEvent& arg)
 {
     ImGuiIO& io = ImGui::GetIO();
-    io.KeysDown[arg.key] = true;
-
-    if (arg.text>0)
+    int key = SDL2KeycodeToImGuiKey(arg.keysym.sym);
+    if (key != -1)
     {
-        io.AddInputCharacter((unsigned short)arg.text);
+        io.KeysDown[key] = true;
     }
 }
 
-void OgreImGui::InjectKeyReleased( const OIS::KeyEvent &arg )
+void OgreImGui::InjectKeyReleased(const OgreBites::KeyboardEvent& arg)
 {
     ImGuiIO& io = ImGui::GetIO();
-    io.KeysDown[arg.key] = false;
+    int key = SDL2KeycodeToImGuiKey(arg.keysym.sym);
+    if (key != -1)
+    {
+        io.KeysDown[key] = false;
+    }
+}
+
+void OgreImGui::InjectTextInput(const OgreBites::TextInputEvent& arg)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    io.AddInputCharactersUTF8(arg.chars);
 }
 
 void OgreImGui::renderQueueStarted(Ogre::uint8 queueGroupId,

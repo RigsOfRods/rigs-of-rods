@@ -39,6 +39,8 @@
 #include "PerVehicleCameraContext.h"
 #include "Water.h"
 
+#include <SDL2/SDL_keyboard.h>
+
 using namespace Ogre;
 using namespace RoR;
 
@@ -531,7 +533,7 @@ void CameraManager::ResetAllBehaviors()
     this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_INVALID, nullptr);
 }
 
-bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
+bool CameraManager::mouseMoved(const OgreBites::MouseMotionEvent& _arg)
 {
 
     if (App::sim_state->getEnum<SimState>() == SimState::PAUSED)
@@ -546,11 +548,10 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
             return false;
         if (!m_charactercam_is_3rdperson)
         {
-            const OIS::MouseState ms = _arg.state;
             Radian angle = App::GetGameContext()->GetPlayerCharacter()->getRotation();
 
-            m_cam_rot_y += Degree(ms.Y.rel * 0.13f);
-            angle += Degree(ms.X.rel * 0.13f);
+            m_cam_rot_y += Degree(_arg.yrel * 0.13f);
+            angle += Degree(_arg.xrel * 0.13f);
 
             m_cam_rot_y = Radian(std::min(+Math::HALF_PI * 0.65f, m_cam_rot_y.valueRadians()));
             m_cam_rot_y = Radian(std::max(m_cam_rot_y.valueRadians(), -Math::HALF_PI * 0.9f));
@@ -564,15 +565,14 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
 
         return CameraManager::CameraBehaviorOrbitMouseMoved(_arg);
     }
-    case CAMERA_BEHAVIOR_STATIC:          return CameraBehaviorStaticMouseMoved(_arg);
+    case CAMERA_BEHAVIOR_STATIC:          return false;
     case CAMERA_BEHAVIOR_VEHICLE:         return CameraBehaviorOrbitMouseMoved(_arg);
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return this->CameraBehaviorVehicleSplineMouseMoved(_arg);
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return CameraBehaviorOrbitMouseMoved(_arg);
     case CAMERA_BEHAVIOR_FREE: {
-        const OIS::MouseState ms = _arg.state;
 
-        App::GetCameraManager()->GetCameraNode()->yaw(Degree(-ms.X.rel * 0.13f), Ogre::Node::TS_WORLD);
-        App::GetCameraManager()->GetCameraNode()->pitch(Degree(-ms.Y.rel * 0.13f));
+        App::GetCameraManager()->GetCameraNode()->yaw(Degree(-_arg.xrel * 0.13f), Ogre::Node::TS_WORLD);
+        App::GetCameraManager()->GetCameraNode()->pitch(Degree(-_arg.yrel * 0.13f));
 
         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
 
@@ -586,11 +586,35 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
     }
 }
 
-bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool CameraManager::mouseWheelRolled(const OgreBites::MouseWheelEvent& _arg)
 {
-    const OIS::MouseState ms = _arg.state;
+    if (App::sim_state->getEnum<SimState>() == SimState::PAUSED)
+    {
+        return true; // Do nothing when paused
+    }
 
-    if (ms.buttonDown(OIS::MB_Right) && _id == OIS::MB_Middle)
+    switch (m_current_behavior)
+    {
+    case CAMERA_BEHAVIOR_CHARACTER: {
+        if (!App::GetGameContext()->GetPlayerCharacter())
+            return false;
+        if (!m_charactercam_is_3rdperson)
+        {
+            return true;
+        }
+        return CameraManager::CameraBehaviorStaticMouseWheelRolled(_arg);
+    }
+    case CAMERA_BEHAVIOR_STATIC: return this->CameraBehaviorStaticMouseWheelRolled(_arg);
+    case CAMERA_BEHAVIOR_VEHICLE:
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return CameraBehaviorOrbitMouseWheelRolled(_arg);
+    default: return false;
+    }
+}
+
+bool CameraManager::mousePressed(const OgreBites::MouseButtonEvent& _arg)
+{
+    if (App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_RIGHT)
+        && App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_MIDDLE))
     {
         ResetCurrentBehavior();
     }
@@ -599,9 +623,9 @@ bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID
     {
     case CAMERA_BEHAVIOR_CHARACTER:       return false;
     case CAMERA_BEHAVIOR_STATIC:          return false;
-    case CAMERA_BEHAVIOR_VEHICLE:         return this->CameraBehaviorVehicleMousePressed(_arg, _id);
-    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return this->CameraBehaviorVehicleMousePressed(_arg, _id);
-    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return this->CameraBehaviorVehicleMousePressed(_arg, _id);
+    case CAMERA_BEHAVIOR_VEHICLE:         return this->CameraBehaviorVehicleMousePressed(_arg);
+    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return this->CameraBehaviorVehicleMousePressed(_arg);
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return this->CameraBehaviorVehicleMousePressed(_arg);
     case CAMERA_BEHAVIOR_FREE:            return false;
     case CAMERA_BEHAVIOR_FIXED:           return false;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return false;
@@ -797,14 +821,13 @@ void CameraManager::UpdateCameraBehaviorStatic()
     App::GetCameraManager()->GetCamera()->setFOVy(Radian(fov));
 }
 
-bool CameraManager::CameraBehaviorStaticMouseMoved(const OIS::MouseEvent& _arg)
+bool CameraManager::CameraBehaviorStaticMouseWheelRolled(const OgreBites::MouseWheelEvent& _arg)
 {
-    const OIS::MouseState ms = _arg.state;
 
-    if (ms.buttonDown(OIS::MB_Right))
+    if (App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_RIGHT))
     {
-        float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.00002f : 0.0002f;
-        m_staticcam_fov_exponent += ms.Z.rel * scale;
+        float scale = RoR::App::GetInputEngine()->isKeyDown(SDLK_LALT) ? 0.00002f : 0.0002f;
+        m_staticcam_fov_exponent += _arg.y * scale;
         m_staticcam_fov_exponent = Math::Clamp(m_staticcam_fov_exponent, 0.8f, 1.50f);
         App::gfx_static_cam_fov_exp->setVal(m_staticcam_fov_exponent);
         return true;
@@ -855,7 +878,7 @@ void CameraManager::CameraBehaviorOrbitUpdate()
         ResetCurrentBehavior();
     }
 
-    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
+    if (RoR::App::GetInputEngine()->isKeyDown(SDLK_RSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OgreBites::SDLK_SPACE))
     {
         m_cam_limit_movement = !m_cam_limit_movement;
         if (m_cam_limit_movement)
@@ -931,16 +954,26 @@ void CameraManager::CameraBehaviorOrbitUpdate()
     App::GetCameraManager()->GetCameraNode()->lookAt(m_cam_look_at_smooth, Ogre::Node::TS_WORLD);
 }
 
-bool CameraManager::CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg)
+bool CameraManager::CameraBehaviorOrbitMouseMoved(const OgreBites::MouseMotionEvent& _arg)
 {
-    const OIS::MouseState ms = _arg.state;
 
-    if (ms.buttonDown(OIS::MB_Right))
+    if (App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_RIGHT))
     {
-        float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.002f : 0.02f;
-        m_cam_rot_x += Degree(ms.X.rel * 0.13f);
-        m_cam_rot_y += Degree(-ms.Y.rel * 0.13f);
-        m_cam_dist += -ms.Z.rel * scale;
+        m_cam_rot_x += Degree(_arg.xrel * 0.13f);
+        m_cam_rot_y += Degree(-_arg.yrel * 0.13f);
+        return true;
+    }
+
+    return false;
+}
+
+bool CameraManager::CameraBehaviorOrbitMouseWheelRolled(const OgreBites::MouseWheelEvent& _arg)
+{
+
+    if (App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_RIGHT))
+    {
+        float scale = RoR::App::GetInputEngine()->isKeyDown(SDLK_LALT) ? 0.002f : 0.02f;
+        m_cam_dist += -_arg.y * scale;
         return true;
     }
 
@@ -965,17 +998,17 @@ void CameraManager::UpdateCameraBehaviorFree()
     Vector3 mTrans(Vector3::ZERO);
     Real cct_trans_scale(m_cct_trans_scale * 5.0f * m_cct_dt);
 
-    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
+    if (RoR::App::GetInputEngine()->isKeyDown(SDLK_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(SDLK_RSHIFT))
     {
         cct_rot_scale *= 3.0f;
         cct_trans_scale *= 5.0f;
     }
-    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL))
+    if (RoR::App::GetInputEngine()->isKeyDown(SDLK_LCTRL))
     {
         cct_rot_scale *= 6.0f;
         cct_trans_scale *= 10.0f;
     }
-    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
+    if (RoR::App::GetInputEngine()->isKeyDown(SDLK_LALT))
     {
         cct_rot_scale *= 0.2f;
         cct_trans_scale *= 0.2f;
@@ -1069,11 +1102,10 @@ void CameraManager::CameraBehaviorVehicleReset()
 	m_cam_dist = m_cam_dist_min * 1.5f + 2.0f;
 }
 
-bool CameraManager::CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool CameraManager::CameraBehaviorVehicleMousePressed(const OgreBites::MouseButtonEvent& _arg)
 {
-	const OIS::MouseState ms = _arg.state;
 
-	if ( ms.buttonDown(OIS::MB_Middle) && RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) )
+	if ( App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_MIDDLE) && RoR::App::GetInputEngine()->isKeyDown(SDLK_LSHIFT) )
 	{
 		if ( m_cct_player_actor && m_cct_player_actor->ar_custom_camera_node != NODENUM_INVALID)
 		{
@@ -1134,7 +1166,7 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
 
     m_cam_look_at = m_splinecam_spline->interpolate(m_splinecam_spline_pos);
 
-    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
+    if (RoR::App::GetInputEngine()->isKeyDown(SDLK_LSHIFT) && RoR::App::GetInputEngine()->isKeyDownValueBounce(OgreBites::SDLK_SPACE))
     {
         m_splinecam_auto_tracking = !m_splinecam_auto_tracking;
         if (m_splinecam_auto_tracking)
@@ -1165,29 +1197,28 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
     CameraManager::CameraBehaviorOrbitUpdate();
 }
 
-bool CameraManager::CameraBehaviorVehicleSplineMouseMoved(  const OIS::MouseEvent& _arg)
+bool CameraManager::CameraBehaviorVehicleSplineMouseMoved(  const OgreBites::MouseMotionEvent& _arg)
 {
-    const OIS::MouseState ms = _arg.state;
 
     m_cam_ratio = 1.0f / (m_cct_dt * 4.0f);
 
-    if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) && ms.buttonDown(OIS::MB_Right))
+    if (RoR::App::GetInputEngine()->isKeyDown(SDLK_LCTRL) && App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_RIGHT))
     {
-        Real splinePosDiff = ms.X.rel * std::max(0.00005f, m_splinecam_spline_len * 0.0000001f);
+        Real splinePosDiff = _arg.xrel * std::max(0.00005f, m_splinecam_spline_len * 0.0000001f);
 
-        if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
+        if (RoR::App::GetInputEngine()->isKeyDown(SDLK_LSHIFT) || RoR::App::GetInputEngine()->isKeyDown(SDLK_RSHIFT))
         {
             splinePosDiff *= 3.0f;
         }
 
-        if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
+        if (RoR::App::GetInputEngine()->isKeyDown(SDLK_LALT))
         {
             splinePosDiff *= 0.1f;
         }
 
         m_splinecam_spline_pos += splinePosDiff;
 
-        if (ms.X.rel > 0 && m_splinecam_spline_pos > 0.99f)
+        if (_arg.xrel > 0 && m_splinecam_spline_pos > 0.99f)
         {
             if (m_splinecam_spline_closed)
             {
@@ -1198,7 +1229,7 @@ bool CameraManager::CameraBehaviorVehicleSplineMouseMoved(  const OIS::MouseEven
                 // u - turn
             }
         }
-        else if (ms.X.rel < 0 && m_splinecam_spline_pos < 0.01f)
+        else if (_arg.xrel < 0 && m_splinecam_spline_pos < 0.01f)
         {
             if (m_splinecam_spline_closed)
             {

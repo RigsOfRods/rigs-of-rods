@@ -62,9 +62,6 @@ using namespace RoR;
 bool AppContext::SetUpInput()
 {
     App::CreateInputEngine();
-    App::GetInputEngine()->SetMouseListener(this);
-    App::GetInputEngine()->SetKeyboardListener(this);
-    App::GetInputEngine()->SetJoystickListener(this);
 
     if (App::io_ffb_enabled->getBool())
     {
@@ -73,7 +70,7 @@ bool AppContext::SetUpInput()
     return true;
 }
 
-bool AppContext::mouseMoved(const OIS::MouseEvent& arg) // overrides OIS::MouseListener
+bool AppContext::mouseMoved(const OgreBites::MouseMotionEvent& arg) // overrides OgreBites::InputListener
 {
     App::GetGuiManager()->WakeUpGUI();
     App::GetGuiManager()->GetImGui().InjectMouseMoved(arg);
@@ -97,59 +94,64 @@ bool AppContext::mouseMoved(const OIS::MouseEvent& arg) // overrides OIS::MouseL
     return true;
 }
 
-bool AppContext::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID _id) // overrides OIS::MouseListener
+bool AppContext::mouseWheelRolled(const OgreBites::MouseWheelEvent& arg)
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().InjectMousePressed(arg, _id);
+    App::GetGuiManager()->GetImGui().InjectMouseWheelRolled(arg);
+
+    if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
+    {
+        App::GetCameraManager()->mouseWheelRolled(arg);
+    }
+
+    return true;
+}
+
+bool AppContext::mousePressed(const OgreBites::MouseButtonEvent& arg) // overrides OgreBites::InputListener
+{
+    App::GetGuiManager()->WakeUpGUI();
+    App::GetGuiManager()->GetImGui().InjectMousePressed(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
         bool handled = false;
         if (App::GetOverlayWrapper())
         {
-            handled = App::GetOverlayWrapper()->mousePressed(arg, _id); // update the old airplane / autopilot gui
+            handled = App::GetOverlayWrapper()->mousePressed(arg); // update the old airplane / autopilot gui
         }
 
         if (!handled && App::app_state->getEnum<AppState>() == AppState::SIMULATION)
         {
-            App::GetGameContext()->GetSceneMouse().mousePressed(arg, _id);
-            App::GetCameraManager()->mousePressed(arg, _id);
+            App::GetGameContext()->GetSceneMouse().mousePressed(arg);
+            App::GetCameraManager()->mousePressed(arg);
         }
-    }
-    else
-    {
-        App::GetInputEngine()->ProcessMouseEvent(arg);
     }
 
     return true;
 }
 
-bool AppContext::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID _id) // overrides OIS::MouseListener
+bool AppContext::mouseReleased(const OgreBites::MouseButtonEvent& arg) // overrides OgreBites::InputListener
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().InjectMouseReleased(arg, _id);
+    App::GetGuiManager()->GetImGui().InjectMouseReleased(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
         bool handled = false;
         if (App::GetOverlayWrapper())
         {
-            handled = App::GetOverlayWrapper()->mouseReleased(arg, _id); // update the old airplane / autopilot gui
+            handled = App::GetOverlayWrapper()->mouseReleased(arg); // update the old airplane / autopilot gui
         }
         if (!handled && App::app_state->getEnum<AppState>() == AppState::SIMULATION)
         {
-            App::GetGameContext()->GetSceneMouse().mouseReleased(arg, _id);
+            App::GetGameContext()->GetSceneMouse().mouseReleased(arg);
         }
-    }
-    else
-    {
-        App::GetInputEngine()->ProcessMouseEvent(arg);
     }
 
     return true;
 }
 
-bool AppContext::keyPressed(const OIS::KeyEvent& arg)
+bool AppContext::keyPressed(const OgreBites::KeyboardEvent& arg)
 {
     App::GetGuiManager()->GetImGui().InjectKeyPressed(arg);
 
@@ -162,7 +164,7 @@ bool AppContext::keyPressed(const OIS::KeyEvent& arg)
     return true;
 }
 
-bool AppContext::keyReleased(const OIS::KeyEvent& arg)
+bool AppContext::keyReleased(const OgreBites::KeyboardEvent& arg)
 {
     App::GetGuiManager()->GetImGui().InjectKeyReleased(arg);
 
@@ -171,7 +173,7 @@ bool AppContext::keyReleased(const OIS::KeyEvent& arg)
     {
         App::GetInputEngine()->ProcessKeyRelease(arg);
     }
-    else if (App::GetInputEngine()->isKeyDownEffective(arg.key))
+    else if (App::GetInputEngine()->isKeyDownEffective(arg.keysym.sym))
     {
         // If capturing is requested, still pass release events for already-pressed keys.
         App::GetInputEngine()->ProcessKeyRelease(arg);
@@ -180,15 +182,26 @@ bool AppContext::keyReleased(const OIS::KeyEvent& arg)
     return true;
 }
 
-bool AppContext::buttonPressed(const OIS::JoyStickEvent& arg, int)  { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
-bool AppContext::buttonReleased(const OIS::JoyStickEvent& arg, int) { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
-bool AppContext::axisMoved(const OIS::JoyStickEvent& arg, int)      { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
-bool AppContext::sliderMoved(const OIS::JoyStickEvent& arg, int)    { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
-bool AppContext::povMoved(const OIS::JoyStickEvent& arg, int)       { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
+bool AppContext::buttonPressed(const OgreBites::ButtonEvent& arg)
+{
+ //FIXME-SDL   App::GetInputEngine()->ProcessJoystickEvent(arg);
+    return true;
+}
+
+bool AppContext::buttonReleased(const OgreBites::ButtonEvent& arg)
+{
+ //FIXME-SDL   App::GetInputEngine()->ProcessJoystickEvent(arg);
+    return true;
+}
+
+bool AppContext::axisMoved(const OgreBites::AxisEvent& arg)
+{
+    App::GetInputEngine()->ProcessJoystickEvent(arg);
+    return true;
+}
 
 void AppContext::windowResized(Ogre::RenderWindow* rw)
 {
-    App::GetInputEngine()->windowResized(rw); // Update mouse area
     App::GetOverlayWrapper()->windowResized();
     if (App::sim_state->getEnum<AppState>() == RoR::AppState::SIMULATION)
     {

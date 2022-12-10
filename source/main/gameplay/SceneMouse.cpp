@@ -111,15 +111,16 @@ void SceneMouse::reset()
     mouseGrabState = 0;
 }
 
-bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
+bool SceneMouse::mouseMoved(const OgreBites::MouseMotionEvent& _arg)
 {
-    const OIS::MouseState ms = _arg.state;
+    m_mouse_x = _arg.x;
+    m_mouse_y = _arg.y;
 
     // experimental mouse hack
-    if (ms.buttonDown(OIS::MB_Left) && mouseGrabState == 0)
+    if (App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_LEFT) && mouseGrabState == 0)
     {
-        lastMouseY = ms.Y.abs;
-        lastMouseX = ms.X.abs;
+        lastMouseY = m_mouse_y;
+        lastMouseX = m_mouse_x;
 
         Ray mouseRay = getMouseRay();
 
@@ -177,15 +178,15 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
             }
         }
     }
-    else if (ms.buttonDown(OIS::MB_Left) && mouseGrabState == 1)
+    else if (App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_LEFT) && mouseGrabState == 1)
     {
         // force applying and so forth happens in update()
-        lastMouseY = ms.Y.abs;
-        lastMouseX = ms.X.abs;
+        lastMouseY = m_mouse_y;
+        lastMouseX = m_mouse_x;
         // not fixed
         return false;
     }
-    else if (!ms.buttonDown(OIS::MB_Left) && mouseGrabState == 1)
+    else if (!App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_LEFT) && mouseGrabState == 1)
     {
         releaseMousePick();
         // not fixed
@@ -225,16 +226,15 @@ void SceneMouse::UpdateVisuals()
     }
 }
 
-bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool SceneMouse::mousePressed(const OgreBites::MouseButtonEvent& _arg)
 {
+
     if (App::sim_state->getEnum<SimState>() == SimState::PAUSED) { return true; } // Do nothing when paused
 
-    const OIS::MouseState ms = _arg.state;
-
-    if (ms.buttonDown(OIS::MB_Middle))
+    if (App::GetInputEngine()->isMouseButtonDown(OgreBites::BUTTON_MIDDLE))
     {
-        lastMouseY = ms.Y.abs;
-        lastMouseX = ms.X.abs;
+        lastMouseY = m_mouse_y;
+        lastMouseX = m_mouse_x;
         Ray mouseRay = getMouseRay();
 
         if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
@@ -301,7 +301,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
     return true;
 }
 
-bool SceneMouse::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool SceneMouse::mouseReleased(const OgreBites::MouseButtonEvent& _arg)
 {
     if (App::sim_state->getEnum<SimState>() == SimState::PAUSED) { return true; } // Do nothing when paused
 

@@ -27,13 +27,14 @@
 #include "GameContext.h"
 #include "InputEngine.h"
 
-#include <OISForceFeedback.h>
+
 #include <OgreString.h>
 
 namespace RoR {
 
 void ForceFeedback::Setup()
 {
+    /* FIXME-SDL
     using namespace Ogre;
     m_device = App::GetInputEngine()->getForceFeedbackDevice();
     if (!m_device)
@@ -45,12 +46,18 @@ void ForceFeedback::Setup()
     m_device->setAutoCenterMode(false);
     m_device->setMasterGain(0.0);
 
+    */
+
     //do not load effect now, its too early
 }
 
 void ForceFeedback::SetForces(float roll, float pitch, float wspeed, float dircommand, float stress)
 {
+    /* FIXME-SDL
+
     if (!m_device) { return; }
+
+    
 
     //LOG(String("ForceFeedback: R=")+TOSTRING(roll)+" D="+TOSTRING(dir)+" S="+TOSTRING(wspeed)+" H="+TOSTRING(stress));
     if (!m_hydro_effect)
@@ -88,22 +95,27 @@ void ForceFeedback::SetForces(float roll, float pitch, float wspeed, float dirco
         hydroConstForce->level = ff; //-10K to +10k
     }
     m_device->modify(m_hydro_effect);
+
+    */
 }
 
 void ForceFeedback::SetEnabled(bool b)
 {
+    /* FIXME-SDL
     if (!m_device) { return; }
-
+    
     if (b != m_enabled)
     {
         float gain = (b) ? App::io_ffb_master_gain->getFloat() : 0.f;
         m_device->setMasterGain(gain);
     }
     m_enabled = b;
+    */
 }
 
 void ForceFeedback::Update()
 {
+    /* FIXME-SDL
     if (!m_device)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
@@ -123,6 +135,7 @@ void ForceFeedback::Update()
             player_actor->ar_hydro_dir_command,
             player_actor->GetFFbHydroForces());
     }
+    */
 }
 
 } // namespace RoR

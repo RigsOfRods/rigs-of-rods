@@ -256,7 +256,7 @@ void Character::update(float dt)
         tmpJoy = RoR::App::GetInputEngine()->getEventValue(EV_CHARACTER_RIGHT);
         if (tmpJoy > 0.0f)
         {
-            float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.1f : 1.0f;
+            float scale = RoR::App::GetInputEngine()->isKeyDown(SDLK_LALT) ? 0.1f : 1.0f;
             setRotation(m_character_rotation + dt * 2.0f * scale * Radian(tmpJoy));
             if (!isswimming && not_walking)
             {
@@ -268,7 +268,7 @@ void Character::update(float dt)
         tmpJoy = RoR::App::GetInputEngine()->getEventValue(EV_CHARACTER_LEFT);
         if (tmpJoy > 0.0f)
         {
-            float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.1f : 1.0f;
+            float scale = RoR::App::GetInputEngine()->isKeyDown(SDLK_LALT) ? 0.1f : 1.0f;
             setRotation(m_character_rotation - dt * scale * 2.0f * Radian(tmpJoy));
             if (!isswimming && not_walking)
             {

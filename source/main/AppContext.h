@@ -29,9 +29,11 @@
 #include "Application.h"
 #include "ForceFeedback.h"
 
+#include <Bites/OgreApplicationContext.h>
 #include <Bites/OgreWindowEventUtilities.h>
+#include <Bites/OgreInput.h>
 #include <Ogre.h>
-#include <OIS.h>
+
 
 namespace RoR {
 
@@ -41,9 +43,8 @@ namespace RoR {
 /// Central setup and event handler for input/windowing/rendering.
 /// Inspired by OgreBites::ApplicationContext.
 class AppContext: public OgreBites::WindowEventListener,
-                  public OIS::MouseListener,
-                  public OIS::KeyListener,
-                  public OIS::JoyStickListener
+                  public OgreBites::InputListener,
+                  public OgreBites::ApplicationContext
 {
 public:
     // Startup (in order)
@@ -73,21 +74,16 @@ private:
     virtual void         windowResized(Ogre::RenderWindow* rw) override;
     virtual void         windowFocusChange(Ogre::RenderWindow* rw) override;
 
-    // OIS::MouseListener
-    virtual bool         mouseMoved(const OIS::MouseEvent& arg) override;
-    virtual bool         mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id) override;
-    virtual bool         mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID id) override;
-
-    // OIS::KeyListener
-    virtual bool         keyPressed(const OIS::KeyEvent& arg) override;
-    virtual bool         keyReleased(const OIS::KeyEvent& arg) override;
-
-    // OIS::JoyStickListener
-    virtual bool         buttonPressed(const OIS::JoyStickEvent& arg, int button) override;
-    virtual bool         buttonReleased(const OIS::JoyStickEvent& arg, int button) override;
-    virtual bool         axisMoved(const OIS::JoyStickEvent& arg, int axis) override;
-    virtual bool         sliderMoved(const OIS::JoyStickEvent& arg, int) override;
-    virtual bool         povMoved(const OIS::JoyStickEvent& arg, int) override;
+    // OgreBites::InputListener
+    virtual bool         mouseMoved(const OgreBites::MouseMotionEvent& arg) override;
+    virtual bool         mouseWheelRolled(const OgreBites::MouseWheelEvent& evt) override;
+    virtual bool         mousePressed(const OgreBites::MouseButtonEvent& arg) override;
+    virtual bool         mouseReleased(const OgreBites::MouseButtonEvent& arg) override;
+    virtual bool         keyPressed(const OgreBites::KeyboardEvent& arg) override;
+    virtual bool         keyReleased(const OgreBites::KeyboardEvent& arg) override;
+    virtual bool         buttonPressed(const OgreBites::ButtonEvent& arg) override;
+    virtual bool         buttonReleased(const OgreBites::ButtonEvent& arg) override;
+    virtual bool         axisMoved(const OgreBites::AxisEvent& arg) override;
 
     // Rendering and window management
     void                 SetRenderWindowIcon(Ogre::RenderWindow* rw);

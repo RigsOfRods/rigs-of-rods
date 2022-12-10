@@ -29,12 +29,7 @@
 #include "Application.h"
 #include "ForceFeedback.h"
 
-#include "OISEvents.h"
-#include "OISForceFeedback.h"
-#include "OISInputManager.h"
-#include "OISJoyStick.h"
-#include "OISKeyboard.h"
-#include "OISMouse.h"
+#include <Bites/OgreInput.h>
 
 #define MAX_JOYSTICKS 10
 #define MAX_JOYSTICK_POVS 4
@@ -417,13 +412,11 @@ struct event_trigger_t
     enum eventtypes eventtype;
     int configDeviceID;            //!< For which device (which config file) was this binding defined?
     // keyboard
-    int keyCode;
+    SDL_Keycode keyCode;
     bool explicite;
     bool ctrl;
     bool shift;
     bool alt;
-    //mouse
-    int mouseButtonNumber;
     //joystick buttons
     int joystickNumber;
     int joystickButtonNumber;
@@ -458,30 +451,23 @@ class InputEngine
 public:
     typedef std::vector<event_trigger_t> TriggerVec;
     typedef std::map<int, TriggerVec> EventMap;
+    typedef std::map<std::string, SDL_Keycode> KeyCodeMap;
+    typedef std::map<SDL_Keycode, bool> KeyStateMap;
 
     static const std::string DEFAULT_MAPFILE; //!< = "input.map";
     static const int         DEFAULT_MAPFILE_DEVICEID = -1; //!< virtual device ID for "input.map" entries
     static const int         BUILTIN_MAPPING_DEVICEID = -2; //!< virtual device ID for builtin defaults
 
     InputEngine();
-    ~InputEngine();
-
-        // Setup
-
-    void                SetKeyboardListener(OIS::KeyListener* obj);
-    OIS::Keyboard*      GetOisKeyboard() { return mKeyboard; }
-    void                SetMouseListener(OIS::MouseListener* obj);
-    void                SetJoystickListener(OIS::JoyStickListener* obj);
-    void                destroy();
+    ~InputEngine() {};
 
         // Input processing
 
     void                Capture();
     void                updateKeyBounces(float dt);
-    void                ProcessMouseEvent(const OIS::MouseEvent& arg);
-    void                ProcessKeyPress(const OIS::KeyEvent& arg);
-    void                ProcessKeyRelease(const OIS::KeyEvent& arg);
-    void                ProcessJoystickEvent(const OIS::JoyStickEvent& arg);
+    void                ProcessKeyPress(const OgreBites::KeyboardEvent& arg);
+    void                ProcessKeyRelease(const OgreBites::KeyboardEvent& arg);
+    void                ProcessJoystickEvent(const OgreBites::AxisEvent& arg);
     void                resetKeys();
 
         // Event info
@@ -496,7 +482,6 @@ public:
     Ogre::String        getEventDefaultConfig(int eventID);
     bool                isEventDefined(int eventID);
     int                 getKeboardKeyForCommand(int eventID);               //!< Returns -1 if not Keyboard
-    int                 getJoyComponentCount(OIS::ComponentType type, int joystickNumber);
     std::string         getJoyVendor(int joystickNumber);
     int                 getNumJoysticks() { return free_joysticks; }
     EventMap&           getEvents() { return events; };
@@ -527,14 +512,13 @@ public:
     bool                isEventAnalog(int eventID);
     bool                getEventBoolValueBounce(int eventID, float time = 0.2f);
     float               getEventBounceTime(int eventID);
-    bool                isKeyDownEffective(OIS::KeyCode mod);               //!< Reads RoR internal buffer
-    bool                isKeyDownValueBounce(OIS::KeyCode mod, float time = 0.2f);
+    bool                isKeyDownEffective(SDL_Keycode mod);               //!< Reads RoR internal buffer
+    bool                isKeyDownValueBounce(SDL_Keycode, float time = 0.2f);
 
         // Direct input device states
 
-    OIS::JoyStickState* getCurrentJoyState(int joystickNumber);
-    OIS::MouseState     getMouseState();
-    bool                isKeyDown(OIS::KeyCode mod);                        //!< Asks OIS directly
+    bool                isKeyDown(OgreBites::Keycode mod);                  //!< Asks SDL directly; only works for modifier keys.
+    bool                isMouseButtonDown(OgreBites::ButtonType btn);       //!< Asks SDL directly    
     int                 getCurrentKeyCombo(Ogre::String* combo);            //!< Returns number of non-modifier keys pressed (or modifier count as negative number).
     int                 getCurrentJoyButton(int& joystickNumber, int& button);
     int                 getCurrentPovValue(int& joystickNumber, int& pov, int& povdir);
@@ -546,32 +530,19 @@ public:
     static int          resolveEventName(Ogre::String eventName);
     static Ogre::String eventIDToName(int eventID);
     static Ogre::String eventIDToDescription(int eventID);
-    std::string         getKeyNameForKeyCode(OIS::KeyCode keycode);
-
-
-        // Misc
-
-    void windowResized(Ogre::RenderWindow* rw);
-    OIS::ForceFeedback* getForceFeedbackDevice() { return mForceFeedback; };
+    std::string         getKeyNameForKeyCode(SDL_Keycode keycode);
 
 protected:
 
     //OIS Input devices
-    OIS::InputManager* mInputManager;
-    OIS::Mouse* mMouse;
-    OIS::Keyboard* mKeyboard;
-    OIS::JoyStick* mJoy[MAX_JOYSTICKS];
     int free_joysticks; //!< Number of detected game controllers
-    OIS::ForceFeedback* mForceFeedback;
     int uniqueCounter;
 
     // this stores the key/button/axis values
-    std::map<int, bool> keyState;
-    OIS::JoyStickState joyState[MAX_JOYSTICKS];
-    OIS::MouseState mouseState;
+    KeyStateMap keyState;
 
     // define event aliases
-    std::map<int, std::vector<event_trigger_t>> events;
+    EventMap events;
     std::map<int, float> event_times;
     std::string m_loaded_configs[MAX_JOYSTICKS];
     bool loadMapping(Ogre::String fileName, int deviceID);
@@ -580,8 +551,8 @@ protected:
 
     void initAllKeys();
     void setup();
-    std::map<std::string, OIS::KeyCode> allkeys;
-    std::map<std::string, OIS::KeyCode>::iterator allit;
+    KeyCodeMap allkeys;
+    KeyCodeMap::iterator allit;
 
     float deadZone(float axis, float dz);
     float axisLinearity(float axisValue, float linearity);

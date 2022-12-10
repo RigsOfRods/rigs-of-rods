@@ -21,8 +21,7 @@
 
 #pragma once
 
-// Forward decl.
-namespace OIS { class ForceFeedback; class Effect; }
+
 
 namespace RoR {
 
@@ -42,8 +41,8 @@ private:
     /// -hydro beam stress, the ideal data source for FF wheels
     void SetForces(float roll, float pitch, float wspeed, float dircommand, float stress);
 
-    OIS::ForceFeedback* m_device = nullptr;
-    OIS::Effect*        m_hydro_effect = nullptr;
+    //FIXME-SDL    OIS::ForceFeedback* m_device = nullptr;
+    //FIXME-SDL    OIS::Effect*        m_hydro_effect = nullptr;
     bool                m_enabled = false; /// Disables FF when not in vehicle
 };
 

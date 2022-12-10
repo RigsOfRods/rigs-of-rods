@@ -302,12 +302,11 @@ void GUIManager::UpdateMouseCursorVisibility()
 void GUIManager::NewImGuiFrame(float dt)
 {
     ImGuiIO& io = ImGui::GetIO();
-    OIS::Keyboard* kb = App::GetInputEngine()->GetOisKeyboard();
 
      // Read keyboard modifiers inputs
-    io.KeyCtrl = kb->isKeyDown(OIS::KC_LCONTROL);
-    io.KeyShift = kb->isKeyDown(OIS::KC_LSHIFT);
-    io.KeyAlt = kb->isKeyDown(OIS::KC_LMENU);
+    io.KeyCtrl = App::GetInputEngine()->isKeyDown(SDLK_LCTRL);
+    io.KeyShift = App::GetInputEngine()->isKeyDown(SDLK_LSHIFT);
+    io.KeyAlt = App::GetInputEngine()->isKeyDown(SDLK_LALT);
     io.KeySuper = false;
 
     // Call IMGUI
