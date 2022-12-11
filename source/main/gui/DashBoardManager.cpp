@@ -127,6 +127,7 @@ DashBoardManager::DashBoardManager(void) : visible(true)
     INITDATA(DD_BRAKE_LIGHTS            , DC_BOOL, "brake_lights");
     INITDATA(DD_REVERSE_LIGHT           , DC_BOOL, "reverse_light");
     INITDATA(DD_BEACONS                 , DC_BOOL, "beacons");
+    INITDATA(DD_LIGHTS_LEGACY           , DC_BOOL, "lights"); // Alias of 'sidelights'
 
     INITDATA(DD_SIGNAL_TURNLEFT         , DC_BOOL, "signal_turnleft");
     INITDATA(DD_SIGNAL_TURNRIGHT        , DC_BOOL, "signal_turnright");
