@@ -15,7 +15,7 @@ jobs:
       - name: Cache conan
         uses: actions/cache@v3
         with:
-          key: conan-${{ hashFiles('cmake/DependenciesConfig.cmake') }}
+          key: conan-ubuntu-${{ hashFiles('cmake/DependenciesConfig.cmake') }}
           path: ~/.conan/
 
       - name: Install dependencies
@@ -98,7 +98,7 @@ jobs:
       - name: Cache conan packages
         uses: actions/cache@v3
         with:
-          key: conan-${{ hashFiles('cmake/DependenciesConfig.cmake') }}
+          key: conan-windows-${{ hashFiles('cmake/DependenciesConfig.cmake') }}
           path: ~/.conan
 
       - name: Enable Developer Command Prompt
