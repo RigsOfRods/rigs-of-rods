@@ -192,6 +192,7 @@ enum DashData
     DD_BRAKE_LIGHTS,
     DD_REVERSE_LIGHT,
     DD_BEACONS,
+    DD_LIGHTS_LEGACY,    //!< Alias of 'sidelights'
 
     DD_SIGNAL_TURNLEFT,  //!< Left blinker is lit.
     DD_SIGNAL_TURNRIGHT, //!< Right blinker is lit.

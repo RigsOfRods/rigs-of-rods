@@ -4092,6 +4092,7 @@ void Actor::updateDashBoards(float dt)
     ar_dashboard->setBool(DD_HIGHBEAMS     , m_lightmask & RoRnet::LIGHTMASK_HIGHBEAMS ); 
     ar_dashboard->setBool(DD_FOGLIGHTS     , m_lightmask & RoRnet::LIGHTMASK_FOGLIGHTS ); 
     ar_dashboard->setBool(DD_SIDELIGHTS    , m_lightmask & RoRnet::LIGHTMASK_SIDELIGHTS); 
+    ar_dashboard->setBool(DD_LIGHTS_LEGACY , m_lightmask & RoRnet::LIGHTMASK_SIDELIGHTS); 
     ar_dashboard->setBool(DD_BRAKE_LIGHTS  , m_lightmask & RoRnet::LIGHTMASK_BRAKES    ); 
     ar_dashboard->setBool(DD_REVERSE_LIGHT , m_lightmask & RoRnet::LIGHTMASK_REVERSE   ); 
     ar_dashboard->setBool(DD_BEACONS       , m_lightmask & RoRnet::LIGHTMASK_BEACONS   ); 
