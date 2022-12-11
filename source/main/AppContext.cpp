@@ -64,9 +64,11 @@ bool AppContext::SetUpInput()
 {
     App::CreateInputEngine();
 
+    this->addInputListener(this);
+
     if (App::io_ffb_enabled->getBool())
     {
-        m_force_feedback.Setup();
+       // FIXME-SDL m_force_feedback.Setup();
     }
     return true;
 }
@@ -232,8 +234,8 @@ void AppContext::SetRenderWindowIcon(Ogre::RenderWindow* rw)
     }
 #endif // _WIN32
 }
-
-bool AppContext::SetUpRendering()
+ 
+void AppContext::createRoot() // override of OgreBites::ApplicationContext
 {
     // Create 'OGRE root' facade
     // * leave 'plugins' param empty, we load manually below
@@ -241,7 +243,7 @@ bool AppContext::SetUpRendering()
     std::string log_filepath = PathCombine(App::sys_logs_dir->getStr(), "RoR.log");
     std::string cfg_filepath = PathCombine(App::sys_config_dir->getStr(), "ogre.cfg");
     LOG(fmt::format("[RoR|Startup|Rendering] Creating OGRE renderer Root object, config='{}'", cfg_filepath));
-    m_ogre_root = new Ogre::Root("", cfg_filepath, log_filepath);
+    mRoot = new Ogre::Root("", cfg_filepath, log_filepath);
 
     // load OGRE plugins manually
     std::string plugins_path = PathCombine(RoR::App::sys_process_dir->getStr(), "plugins.cfg");
@@ -253,11 +255,11 @@ bool AppContext::SetUpRendering()
         cfg.load(plugins_path);
         std::string plugin_dir = cfg.getSetting("PluginFolder", /*section=*/"", /*default=*/App::sys_process_dir->getStr());
         Ogre::StringVector plugins = cfg.getMultiSetting("Plugin");
-        for (Ogre::String plugin_filename: plugins)
+        for (Ogre::String plugin_filename : plugins)
         {
             try
             {
-                m_ogre_root->loadPlugin(PathCombine(plugin_dir, plugin_filename));
+                mRoot->loadPlugin(PathCombine(plugin_dir, plugin_filename));
             }
             catch (Ogre::Exception&) {} // Logged by OGRE
         }
@@ -267,53 +269,58 @@ bool AppContext::SetUpRendering()
         ErrorUtils::ShowError (
             _L("Startup error"), 
             fmt::format(_L("Could not load file '{}' - make sure the game is installed correctly.\n\nDetailed info: {}"), plugins_path, e.getDescription()));
-        return false;
+        return;
     }
 
     // Load renderer configuration
-    bool autodetect_resolution = false;
     try
     {
-        if (!m_ogre_root->restoreConfig())
+        if (!mRoot->restoreConfig())
         {
-            autodetect_resolution = true;
+            m_autodetect_resolution = true;
             LOG(fmt::format("[RoR|Startup|Rendering] WARNING - invalid 'ogre.cfg', selecting render plugin manually..."));
 
             const auto render_systems = App::GetAppContext()->GetOgreRoot()->getAvailableRenderers();
             if (!render_systems.empty())
             {
                 LOG(fmt::format("[RoR|Startup|Rendering] Auto-selected renderer plugin '{}'", render_systems.front()->getName()));
-                    m_ogre_root->setRenderSystem(render_systems.front());
+                mRoot->setRenderSystem(render_systems.front());
             }
             else
             {
                 ErrorUtils::ShowError (_L("Startup error"), _L("No render system plugin available. Check your plugins.cfg"));
-                return false;
+                return;
             }
         }
     }
     catch (Ogre::Exception& e)
     {
         ErrorUtils::ShowError (_L("Error restoring settings from 'ogre.cfg'"), e.getDescription());
-        return false;
+        return;
     }
 
-    const auto rs = m_ogre_root->getRenderSystemByName(App::app_rendersys_override->getStr());
-    if (rs != nullptr && rs != m_ogre_root->getRenderSystem())
+    const auto rs = mRoot->getRenderSystemByName(App::app_rendersys_override->getStr());
+    if (rs != nullptr && rs != mRoot->getRenderSystem())
     {
         LOG(fmt::format("[RoR|Startup|Rendering] Setting renderer '{}' on behalf of 'app_rendersys_override' (user selection via Settings UI)", rs->getName()));
         // The user has selected a different render system during the previous session.
-        m_ogre_root->setRenderSystem(rs);
-        m_ogre_root->saveConfig();
+        mRoot->setRenderSystem(rs);
+        mRoot->saveConfig();
     }
     App::app_rendersys_override->setStr("");
 
+}
+
+bool AppContext::SetUpRendering()
+{
+    this->createRoot();
+
     // Start the renderer
-    LOG(fmt::format("[RoR|Startup|Rendering] Starting renderer '{}' (without auto-creating render window)", m_ogre_root->getRenderSystem()->getName()));
-    m_ogre_root->initialise(/*createWindow=*/false);
+    LOG(fmt::format("[RoR|Startup|Rendering] Starting renderer '{}' (without auto-creating render window)", mRoot->getRenderSystem()->getName()));
+    mRoot->initialise(/*createWindow=*/false);
 
     // Review configuration options
-    Ogre::ConfigOptionMap ropts = m_ogre_root->getRenderSystem()->getConfigOptions();
+    Ogre::ConfigOptionMap ropts = mRoot->getRenderSystem()->getConfigOptions();
     std::stringstream ropts_log;
     for (auto& pair: ropts)
     {
@@ -354,7 +361,7 @@ bool AppContext::SetUpRendering()
     if(width < 800) width = 800;
     if(height < 600) height = 600;
 
-    if (autodetect_resolution)
+    if (m_autodetect_resolution)
     {
         for (auto& p_mode_str: ropts["Video Mode"].possibleValues)
         {
@@ -367,12 +374,12 @@ bool AppContext::SetUpRendering()
             {
                 width = p_width;
                 height = p_height;
-                m_ogre_root->getRenderSystem()->setConfigOption("Video Mode", p_mode_str);
+                mRoot->getRenderSystem()->setConfigOption("Video Mode", p_mode_str);
             }
         }
 
         LOG(fmt::format("[RoR|Startup|Rendering] WARNING - invalid 'ogre.cfg', auto-detected resolution {}x{}", width, height));
-        m_ogre_root->saveConfig();
+        mRoot->saveConfig();
     }
 
     // Review render window settings
@@ -384,11 +391,11 @@ bool AppContext::SetUpRendering()
     LOG(fmt::format("[RoR|Startup|Rendering] Creating render window with settings:\n{}", miscParams_log.str()));
 
     // Create render window
-    m_render_window = Ogre::Root::getSingleton().createRenderWindow (
+    // To use SDL input, we must create SDL window, otherwise we won't receive events.
+    OgreBites::NativeWindowPair window_pair = this->createWindow (
         "Rigs of Rods version " + Ogre::String (ROR_VERSION_STRING),
-        width, height, ropts["Full Screen"].currentValue == "Yes", &miscParams);
-    OgreBites::WindowEventUtilities::_addRenderWindow(m_render_window);
-    OgreBites::WindowEventUtilities::addWindowEventListener(m_render_window, this);
+        width, height, miscParams);
+    m_render_window = window_pair.render;
 
     this->SetRenderWindowIcon(m_render_window);
     m_render_window->setActive(true);
@@ -403,7 +410,7 @@ bool AppContext::SetUpRendering()
 Ogre::RenderWindow* AppContext::CreateCustomRenderWindow(std::string const& window_name, int width, int height)
 {
     Ogre::NameValuePairList misc;
-    Ogre::ConfigOptionMap ropts = m_ogre_root->getRenderSystem()->getConfigOptions();
+    Ogre::ConfigOptionMap ropts = mRoot->getRenderSystem()->getConfigOptions();
     misc["FSAA"] = Ogre::StringConverter::parseInt(ropts["FSAA"].currentValue, 0);
 
     Ogre::RenderWindow* rw = Ogre::Root::getSingleton().createRenderWindow(window_name, width, height, false, &misc);
