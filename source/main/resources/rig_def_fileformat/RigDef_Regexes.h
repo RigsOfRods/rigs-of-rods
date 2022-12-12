@@ -77,6 +77,8 @@ namespace Regexes
 
 #define E_DELIMITER_SPACE "[[:blank:]]+"
 
+#define E_DELIMITER_CLASSIC "[[:blank:],:|]+" // Separators: space/comma/colon/pipe, see also `IsSeparator()` in RigDef_Parser.cpp. This is what original parser did.
+
 #define E_NODE_ID "[[:alnum:]_-]+"
 
 // --------------------------------------------------------------------------
@@ -94,13 +96,11 @@ namespace Regexes
 /// A keyword which should be on it's own line. Used in IDENTIFY_KEYWORD.
 #define E_KEYWORD_BLOCK(_NAME_) \
     "(^" _NAME_ "[[:blank:]]*$)?"
+
 /// A keyword which should have values following it. Used in IDENTIFY_KEYWORD.
 #define E_KEYWORD_INLINE(_NAME_) \
-    "(^" _NAME_ E_DELIMITER_SPACE ".*$)?"
-    
-/// Inline keyword, tolerant version: keyword and values can be delimited by either space or comma
-#define E_KEYWORD_INLINE_TOLERANT(_NAME_) \
-    "(^" _NAME_ "[[:blank:],]+" ".*$)?"
+    "(^" _NAME_ E_DELIMITER_CLASSIC ".*$)?"
+
 /// Actual regex definition macro.
 #define DEFINE_REGEX(_NAME_,_REGEXP_) \
     const std::regex _NAME_ = std::regex( _REGEXP_, std::regex::ECMAScript);
@@ -115,7 +115,7 @@ namespace Regexes
 // IMPORTANT! If you add a value here, you must also modify File::Keywords enum, it relies on positions in this regex
 #define IDENTIFY_KEYWORD_REGEX_STRING                             \
     /* E_KEYWORD_BLOCK("advdrag") ~~ Not supported yet */         \
-    E_KEYWORD_INLINE_TOLERANT("add_animation")  /* Position 1 */  \
+    E_KEYWORD_INLINE("add_animation")  /* Position 1 */           \
     E_KEYWORD_BLOCK("airbrakes")       /* Position 2 */           \
     E_KEYWORD_BLOCK("animators")       /* Position 3 etc... */    \
     E_KEYWORD_INLINE("AntiLockBrakes")                            \
