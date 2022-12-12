@@ -880,6 +880,8 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
         return;
     }
 
+    m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill all current nodes - needed to setup flexing meshes
+
     NodeNum_t node1 = this->GetNodeIndexOrThrow(def.nodes[1]);
 
     const std::string wing_name = this->ComposeName("Wing", m_actor->ar_num_wings);
