@@ -37,7 +37,7 @@ enum class PartialToken
     TITLE_STRING,      // A whole-line string, with spaces
     NUMBER,            // Number with digits and optionally leading '-'
     NUMBER_DOT,        // Like NUMBER but already containing '.'
-    KEYWORD,           // Unqoted string at the start of line
+    KEYWORD,           // Unqoted string at the start of line. Accepted characters: alphanumeric and underscore
     BOOL_TRUE,         // Partial 'true'
     BOOL_FALSE,        // Partial 'false'
     GARBAGE,           // Text not fitting any above category, will be discarded
@@ -533,6 +533,11 @@ void DocumentParser::UpdateKeyword(const char c)
         doc.tokens.push_back({ TokenType::LINEBREAK, 0.f });
         line_num++;
         line_pos = 0;
+        break;
+
+    case '_':
+        tok.push_back(c);
+        line_pos++;
         break;
 
     default:
