@@ -58,8 +58,7 @@ void main()
 void frameStep(float dt)
 {
     // Open demo window
-    ImGui::SetNextWindowSize(vector2(400, 320));
-    ImGui::Begin("Demo Script", /*open:*/true, /*flags:*/0);
+    ImGui::Begin("Demo Script", /*open:*/true, ImGuiWindowFlags_AlwaysAutoResize);
     
     // show some stats
     ImGui::Text("Total frames: " + g_total_frames);
@@ -114,7 +113,8 @@ void frameStep(float dt)
                     GenericDocumentClass@ doc = GenericDocumentClass();
                     int flags = GENERIC_DOCUMENT_OPTION_ALLOW_NAKED_STRINGS
                               | GENERIC_DOCUMENT_OPTION_ALLOW_SLASH_COMMENTS
-                              | GENERIC_DOCUMENT_OPTION_FIRST_LINE_IS_TITLE;
+                              | GENERIC_DOCUMENT_OPTION_FIRST_LINE_IS_TITLE
+                              | GENERIC_DOCUMENT_OPTION_ALLOW_SEPARATOR_COLON;
                     if (doc.LoadFromResource(actor.getTruckFileName(), actor.getTruckFileResourceGroup(), flags))
                     {
                         @g_displayed_document = @doc;
