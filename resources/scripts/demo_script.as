@@ -112,7 +112,9 @@ void frameStep(float dt)
                 if (ImGui::Button("View document"))
                 {
                     GenericDocumentClass@ doc = GenericDocumentClass();
-                    int flags = GENERIC_DOCUMENT_OPTION_ALLOW_NAKED_STRINGS | GENERIC_DOCUMENT_OPTION_ALLOW_SLASH_COMMENTS;
+                    int flags = GENERIC_DOCUMENT_OPTION_ALLOW_NAKED_STRINGS
+                              | GENERIC_DOCUMENT_OPTION_ALLOW_SLASH_COMMENTS
+                              | GENERIC_DOCUMENT_OPTION_FIRST_LINE_IS_TITLE;
                     if (doc.LoadFromResource(actor.getTruckFileName(), actor.getTruckFileResourceGroup(), flags))
                     {
                         @g_displayed_document = @doc;
@@ -213,7 +215,7 @@ void drawDocumentWindow()
 
         // Other tokens come anywhere - delimiting logic is needed
         default:
-            if (reader.GetTokType(-1) != TOKEN_TYPE_LINEBREAK)
+            if (reader.GetPos() != 0 && reader.GetTokType(-1) != TOKEN_TYPE_LINEBREAK)
             {
                 ImGui::SameLine();
                 string delimiter = (reader.GetTokType(-1) == TOKEN_TYPE_KEYWORD) ? " " : ", ";
