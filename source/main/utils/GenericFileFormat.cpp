@@ -328,12 +328,6 @@ void DocumentParser::UpdateNumber(const char c)
         line_pos = 0;
         break;
 
-    case '-':
-        partial_tok_type = PartialToken::GARBAGE;
-        tok.push_back(c);
-        line_pos++;
-        break;
-
     case '.':
         if (partial_tok_type == PartialToken::NUMBER)
         {
@@ -347,6 +341,37 @@ void DocumentParser::UpdateNumber(const char c)
         }
         line_pos++;
         break;
+
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+    case '-': // For scientific notation
+    case '+': // For scientific notation
+    case 'e': // For scientific notation
+        tok.push_back(c);
+        line_pos++;
+        break;
+
+    default:
+        if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
+        {
+            partial_tok_type = PartialToken::STRING_NAKED;
+        }
+        else
+        {
+            partial_tok_type = PartialToken::GARBAGE;
+        }
+        tok.push_back(c);
+        line_pos++;
+        break;
+
     }
 
     if (partial_tok_type == PartialToken::GARBAGE)
