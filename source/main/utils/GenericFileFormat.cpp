@@ -68,6 +68,8 @@ struct DocumentParser
     void UpdateKeyword(const char c);
     void UpdateTitle(const char c); // Only for OPTION_FIRST_LINE_IS_TITLE
     void UpdateGarbage(const char c);
+
+    void DiscontinueBool();
 };
 
 void DocumentParser::BeginToken(const char c)
@@ -389,10 +391,7 @@ void DocumentParser::UpdateBool(const char c)
     case 'r':
         if (partial_tok_type != PartialToken::BOOL_TRUE || tok.size() != 1)
         {
-            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
-                partial_tok_type = PartialToken::STRING_NAKED;
-            else
-                partial_tok_type = PartialToken::GARBAGE;
+            this->DiscontinueBool();
         }
         tok.push_back(c);
         line_pos++;
@@ -401,10 +400,7 @@ void DocumentParser::UpdateBool(const char c)
     case 'u':
         if (partial_tok_type != PartialToken::BOOL_TRUE || tok.size() != 2)
         {
-            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
-                partial_tok_type = PartialToken::STRING_NAKED;
-            else
-                partial_tok_type = PartialToken::GARBAGE;
+            this->DiscontinueBool();
         }
         tok.push_back(c);
         line_pos++;
@@ -413,10 +409,7 @@ void DocumentParser::UpdateBool(const char c)
     case 'a':
         if (partial_tok_type != PartialToken::BOOL_FALSE || tok.size() != 1)
         {
-            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
-                partial_tok_type = PartialToken::STRING_NAKED;
-            else
-                partial_tok_type = PartialToken::GARBAGE;
+            this->DiscontinueBool();
         }
         tok.push_back(c);
         line_pos++;
@@ -425,10 +418,7 @@ void DocumentParser::UpdateBool(const char c)
     case 'l':
         if (partial_tok_type != PartialToken::BOOL_FALSE || tok.size() != 2)
         {
-            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
-                partial_tok_type = PartialToken::STRING_NAKED;
-            else
-                partial_tok_type = PartialToken::GARBAGE;
+            this->DiscontinueBool();
         }
         tok.push_back(c);
         line_pos++;
@@ -437,10 +427,7 @@ void DocumentParser::UpdateBool(const char c)
     case 's':
         if (partial_tok_type != PartialToken::BOOL_FALSE || tok.size() != 3)
         {
-            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
-                partial_tok_type = PartialToken::STRING_NAKED;
-            else
-                partial_tok_type = PartialToken::GARBAGE;
+            this->DiscontinueBool();
         }
         tok.push_back(c);
         line_pos++;
@@ -461,21 +448,16 @@ void DocumentParser::UpdateBool(const char c)
         }
         else
         {
-            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
-                partial_tok_type = PartialToken::STRING_NAKED;
-            else
-                partial_tok_type = PartialToken::GARBAGE;
+            this->DiscontinueBool();
             tok.push_back(c);
         }
         line_pos++;
         break;
 
     default:
-        if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
-            partial_tok_type = PartialToken::STRING_NAKED;
-        else
-            partial_tok_type = PartialToken::GARBAGE;
+        this->DiscontinueBool();
         tok.push_back(c);
+        line_pos++;
         break;
     }
 
@@ -484,6 +466,16 @@ void DocumentParser::UpdateBool(const char c)
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
             fmt::format("{}, line {}, pos {}: stray character '{}' in boolean", datastream->getName(), line_num, line_pos, c));
     }
+}
+
+void DocumentParser::DiscontinueBool()
+{
+    if (doc.tokens.size() == 0 || doc.tokens.back().type == TokenType::LINEBREAK)
+        partial_tok_type = PartialToken::KEYWORD;
+    else if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
+        partial_tok_type = PartialToken::STRING_NAKED;
+    else
+        partial_tok_type = PartialToken::GARBAGE;
 }
 
 void DocumentParser::UpdateKeyword(const char c)
