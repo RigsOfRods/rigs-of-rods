@@ -34,6 +34,7 @@ enum class PartialToken
     COMMENT_SLASH,     // Comment starting with '//'
     STRING_QUOTED,     // String starting/ending with '"'
     STRING_NAKED,      // String without '"' on either end
+    TITLE_STRING,      // A whole-line string, with spaces
     NUMBER,            // Number with digits and optionally leading '-'
     NUMBER_DOT,        // Like NUMBER but already containing '.'
     KEYWORD,           // Unqoted string at the start of line
@@ -57,6 +58,7 @@ struct DocumentParser
     size_t line_num = 0;
     size_t line_pos = 0;
     PartialToken partial_tok_type = PartialToken::NONE;
+    bool title_found = false; // Only for OPTION_FIRST_LINE_IS_TITLE
 
     void BeginToken(const char c);
     void UpdateComment(const char c);
@@ -64,6 +66,7 @@ struct DocumentParser
     void UpdateNumber(const char c);
     void UpdateBool(const char c);
     void UpdateKeyword(const char c);
+    void UpdateTitle(const char c); // Only for OPTION_FIRST_LINE_IS_TITLE
     void UpdateGarbage(const char c);
 };
 
@@ -163,6 +166,17 @@ void DocumentParser::BeginToken(const char c)
         }
         line_pos++;
         break;
+    }
+
+    if (options & GenericDocument::OPTION_FIRST_LINE_IS_TITLE
+        && !title_found
+        && (doc.tokens.size() == 0 || doc.tokens.back().type == TokenType::LINEBREAK)
+        && partial_tok_type != PartialToken::NONE
+        && partial_tok_type != PartialToken::COMMENT_SEMICOLON
+        && partial_tok_type != PartialToken::COMMENT_SLASH)
+    {
+        title_found = true;
+        partial_tok_type = PartialToken::TITLE_STRING;
     }
 
     if (partial_tok_type == PartialToken::GARBAGE)
@@ -521,6 +535,33 @@ void DocumentParser::UpdateKeyword(const char c)
     }
 }
 
+void DocumentParser::UpdateTitle(const char c)
+{
+    switch (c)
+    {
+    case '\r':
+        break;
+
+    case '\n':
+        // Flush title string
+        doc.tokens.push_back({ TokenType::STRING, (float)doc.string_pool.size() });
+        tok.push_back('\0');
+        std::copy(tok.begin(), tok.end(), std::back_inserter(doc.string_pool));
+        tok.clear();
+        partial_tok_type = PartialToken::NONE;
+        // Break line
+        doc.tokens.push_back({ TokenType::LINEBREAK, 0.f });
+        line_num++;
+        line_pos = 0;
+        break;
+
+    default:
+        tok.push_back(c);
+        line_pos++;
+        break;
+    }
+}
+
 void DocumentParser::UpdateGarbage(const char c)
 {
     switch (c)
@@ -594,6 +635,10 @@ void GenericDocument::LoadFromDataStream(Ogre::DataStreamPtr datastream, const B
 
             case PartialToken::KEYWORD:
                 parser.UpdateKeyword(c);
+                break;
+
+            case PartialToken::TITLE_STRING:
+                parser.UpdateTitle(c);
                 break;
 
             case PartialToken::GARBAGE:

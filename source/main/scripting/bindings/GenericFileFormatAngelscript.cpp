@@ -76,6 +76,7 @@ void RoR::RegisterGenericFileFormat(asIScriptEngine* engine)
     engine->RegisterEnum("GenericDocumentOptions");
     engine->RegisterEnumValue("GenericDocumentOptions", "GENERIC_DOCUMENT_OPTION_ALLOW_NAKED_STRINGS", GenericDocument::OPTION_ALLOW_NAKED_STRINGS);
     engine->RegisterEnumValue("GenericDocumentOptions", "GENERIC_DOCUMENT_OPTION_ALLOW_SLASH_COMMENTS", GenericDocument::OPTION_ALLOW_SLASH_COMMENTS);
+    engine->RegisterEnumValue("GenericDocumentOptions", "GENERIC_DOCUMENT_OPTION_FIRST_LINE_IS_TITLE", GenericDocument::OPTION_FIRST_LINE_IS_TITLE);
 
 
     // class GenericDocument
@@ -93,6 +94,7 @@ void RoR::RegisterGenericFileFormat(asIScriptEngine* engine)
     engine->RegisterObjectBehaviour("GenericDocReaderClass", asBEHAVE_FACTORY, "GenericDocReaderClass@ f(GenericDocumentClassPtr @)", asFUNCTION(GenericDocReaderFactory), asCALL_CDECL);
 
     engine->RegisterObjectMethod("GenericDocReaderClass", "bool MoveNext()", asMETHOD(GenericDocReader, MoveNext), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "uint GetPos()", asMETHOD(GenericDocReader, GetPos), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocReaderClass", "bool SeekNextLine()", asMETHOD(GenericDocReader, SeekNextLine), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocReaderClass", "uint CountLineArgs()", asMETHOD(GenericDocReader, CountLineArgs), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocReaderClass", "bool EndOfFile(int offset = 0)", asMETHOD(GenericDocReader, EndOfFile), asCALL_THISCALL);

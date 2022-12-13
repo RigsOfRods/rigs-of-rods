@@ -61,6 +61,7 @@ struct GenericDocument: public RefCountingObject<GenericDocument>
 {
     static const BitMask_t OPTION_ALLOW_NAKED_STRINGS = BITMASK(1); //!< Allow strings without quotes, for backwards compatibility.
     static const BitMask_t OPTION_ALLOW_SLASH_COMMENTS = BITMASK(2); //!< Allow comments starting with `//`. 
+    static const BitMask_t OPTION_FIRST_LINE_IS_TITLE = BITMASK(3); //!< First non-empty & non-comment line is a naked string with spaces.
 
     virtual ~GenericDocument() {};
 
@@ -86,6 +87,7 @@ struct GenericDocReader: public RefCountingObject<GenericDocument>
     uint32_t line_num = 0;
 
     bool MoveNext() { token_pos++; return EndOfFile(); }
+    uint32_t GetPos() const { return token_pos; }
     bool SeekNextLine();
     int CountLineArgs();
     bool EndOfFile(int offset = 0) const { return token_pos + offset >= doc->tokens.size(); }
