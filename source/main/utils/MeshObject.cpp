@@ -31,48 +31,48 @@
 using namespace Ogre;
 using namespace RoR;
 
-MeshObject::MeshObject(Ogre::String meshName, Ogre::String entityRG, Ogre::String entityName, Ogre::SceneNode* sceneNode)
-    : sceneNode(sceneNode)
-    , ent(nullptr)
-    , castshadows(true)
+MeshObject::MeshObject(Ogre::String meshName, Ogre::String entityRG, Ogre::String entityName, Ogre::SceneNode* m_scene_node)
+    : m_scene_node(m_scene_node)
+    , m_entity(nullptr)
+    , m_cast_shadows(true)
 {
     this->createEntity(meshName, entityRG, entityName);
 }
 
 void MeshObject::setMaterialName(Ogre::String m)
 {
-    if (ent)
+    if (m_entity)
     {
-        ent->setMaterialName(m);
+        m_entity->setMaterialName(m);
     }
 }
 
 void MeshObject::setCastShadows(bool b)
 {
-    castshadows = b;
-    if (sceneNode && sceneNode->numAttachedObjects())
+    m_cast_shadows = b;
+    if (m_scene_node && m_scene_node->numAttachedObjects())
     {
-        sceneNode->getAttachedObject(0)->setCastShadows(b);
+        m_scene_node->getAttachedObject(0)->setCastShadows(b);
     }
 }
 
 void MeshObject::setVisible(bool b)
 {
     // Workaround: if the scenenode is not used (entity not attached) for some reason, try hiding the entity directly.
-    if (sceneNode && sceneNode->getAttachedObjects().size() > 0)
-        sceneNode->setVisible(b);
-    else if (ent)
-        ent->setVisible(b);
+    if (m_scene_node && m_scene_node->getAttachedObjects().size() > 0)
+        m_scene_node->setVisible(b);
+    else if (m_entity)
+        m_entity->setVisible(b);
 }
 
 void MeshObject::createEntity(Ogre::String meshName, Ogre::String entityRG, Ogre::String entityName)
 {
-    if (!sceneNode)
+    if (!m_scene_node)
         return;
 
     try
     {
-        Ogre::MeshPtr mesh = Ogre::MeshManager::getSingleton().load(meshName, entityRG);
+        m_mesh = Ogre::MeshManager::getSingleton().load(meshName, entityRG);
 
         // important: you need to add the LODs before creating the entity
         // now find possible LODs, needs to be done before calling createEntity()
@@ -109,11 +109,11 @@ void MeshObject::createEntity(Ogre::String meshName, Ogre::String entityRG, Ogre
 
         // now create an entity around the mesh and attach it to the scene graph
 
-        ent = App::GetGfxScene()->GetSceneManager()->createEntity(entityName, meshName, entityRG);
-        ent->setCastShadows(castshadows);
+        m_entity = App::GetGfxScene()->GetSceneManager()->createEntity(entityName, meshName, entityRG);
+        m_entity->setCastShadows(m_cast_shadows);
 
-        sceneNode->attachObject(ent);
-        sceneNode->setVisible(true);
+        m_scene_node->attachObject(m_entity);
+        m_scene_node->setVisible(true);
     }
     catch (Ogre::Exception& e)
     {
