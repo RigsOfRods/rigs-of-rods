@@ -79,7 +79,8 @@ void FlexbodyDebug::Draw()
     Ogre::MaterialPtr mat; // Assume one submesh (=> subentity)
     NodeNum_t node_ref = NODENUM_INVALID, node_x = NODENUM_INVALID, node_y = NODENUM_INVALID;
     std::string mesh_name;
-    if (m_combo_selection >= m_combo_props_start)
+    if (actor->GetGfxActor()->getProps().size() > 0
+        && m_combo_selection >= m_combo_props_start)
     {
         prop = &actor->GetGfxActor()->getProps()[m_combo_selection - m_combo_props_start];
         mat = prop->pp_mesh_obj->getEntity()->getSubEntity(0)->getMaterial();
