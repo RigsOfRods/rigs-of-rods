@@ -32,7 +32,7 @@
 /// @addtogroup Gfx
 /// @{
 
-class MeshObject : public Ogre::Resource::Listener, public ZeroedMemoryAllocator
+class MeshObject
 {
 public:
     MeshObject(Ogre::String meshName, Ogre::String entityRG, Ogre::String entityName, Ogre::SceneNode* sceneNode);
@@ -40,15 +40,15 @@ public:
     void setMaterialName(Ogre::String m);
     void setCastShadows(bool b);
     void setVisible(bool b);
-    inline Ogre::Entity*    getEntity() { return ent; };
-    inline Ogre::SceneNode* GetSceneNode() { return sceneNode; }
+    inline Ogre::Entity*    getEntity() { return m_entity; };
+    inline Ogre::SceneNode* GetSceneNode() { return m_scene_node; }
+    inline Ogre::MeshPtr    getLoadedMesh() { return m_mesh; }
 
 protected:
-    Ogre::SceneNode* sceneNode;
-    Ogre::Entity* ent;
-    Ogre::MeshPtr mesh;
-
-    bool castshadows;
+    Ogre::SceneNode* m_scene_node = nullptr;
+    Ogre::Entity* m_entity = nullptr;
+    Ogre::MeshPtr m_mesh;
+    bool m_cast_shadows = false;
 
     void createEntity(Ogre::String meshName, Ogre::String entityRG, Ogre::String entityName);
 };
