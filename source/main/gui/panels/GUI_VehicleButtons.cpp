@@ -146,7 +146,7 @@ void VehicleButtons::DrawHeadLightButton(RoR::GfxActor* actorx)
     bool has_headlight = false;
     for (int i = 0; i < actorx->GetActor()->ar_flares.size(); i++)
     {
-        if (actorx->GetActor()->ar_flares[i].fl_type == FlareType::HEADLIGHT)
+        if (actorx->GetActor()->ar_flares[i].fl_type == FlareType::HEADLIGHT || actorx->GetActor()->ar_flares[i].fl_type == FlareType::TAIL_LIGHT)
         {
             has_headlight = true;
         }
