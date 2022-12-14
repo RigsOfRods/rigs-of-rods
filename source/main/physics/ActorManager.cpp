@@ -1413,5 +1413,6 @@ void ActorManager::UpdateTruckFeatures(Actor* vehicle, float dt)
     }
 
     BITMASK_SET(vehicle->m_lightmask, RoRnet::LIGHTMASK_BRAKES, (vehicle->ar_brake > 0.01f && !vehicle->ar_parking_brake));
+    BITMASK_SET(vehicle->m_lightmask, RoRnet::LIGHTMASK_REVERSE, (vehicle->ar_engine && vehicle->ar_engine->GetGear() < 0));
 }
 
