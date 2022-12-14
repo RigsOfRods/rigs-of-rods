@@ -589,13 +589,5 @@ void FlexbodyDebug::DrawMeshInfo(Prop* prop)
         ImGui::Separator();
         ImGui::Text("%s", RoR::PrintMeshInfo("Special: steering wheel", prop->pp_wheel_mesh_obj->getEntity()->getMesh()).c_str());
     }
-    for (int i = 0; i < 4; i++)
-    {
-        if (prop->pp_beacon_scene_node[i])
-        {
-            ImGui::Separator();
-            Ogre::Entity* entity = static_cast<Ogre::Entity*>(prop->pp_beacon_scene_node[i]->getAttachedObject(0));
-            ImGui::Text("%s", RoR::PrintMeshInfo(fmt::format("Special: beacon #{}", i), entity->getMesh()).c_str());
-        }
-    }
+    // NOTE: `prop->pp_beacon_scene_node` has only billboards attached, not meshes.
 }
