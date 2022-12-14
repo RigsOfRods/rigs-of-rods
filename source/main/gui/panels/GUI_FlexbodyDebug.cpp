@@ -83,11 +83,14 @@ void FlexbodyDebug::Draw()
         && m_combo_selection >= m_combo_props_start)
     {
         prop = &actor->GetGfxActor()->getProps()[m_combo_selection - m_combo_props_start];
-        mat = prop->pp_mesh_obj->getEntity()->getSubEntity(0)->getMaterial();
         node_ref = prop->pp_node_ref;
         node_x = prop->pp_node_x;
         node_y = prop->pp_node_y;
-        mesh_name = prop->pp_mesh_obj->getEntity()->getMesh()->getName();
+        if (prop->pp_mesh_obj) // Aerial beacons 'L/R/w' have no mesh
+        {
+            mat = prop->pp_mesh_obj->getEntity()->getSubEntity(0)->getMaterial();
+            mesh_name = prop->pp_mesh_obj->getEntity()->getMesh()->getName();
+        }
     }
     else
     {
@@ -100,14 +103,17 @@ void FlexbodyDebug::Draw()
     }
 
     ImGui::Text("Mesh: '%s'", mesh_name.c_str());
-    ImGui::SameLine();
-    if (ImGui::Checkbox("Wireframe (per material)", &this->draw_mesh_wireframe))
+    if (mat)
     {
-        // Assume one technique and one pass
-        if (mat && mat->getTechniques().size() > 0 && mat->getTechniques()[0]->getPasses().size() > 0)
+        ImGui::SameLine();
+        if (ImGui::Checkbox("Wireframe (per material)", &this->draw_mesh_wireframe))
         {
-            Ogre::PolygonMode mode = (this->draw_mesh_wireframe) ? Ogre::PM_WIREFRAME : Ogre::PM_SOLID;
-            mat->getTechniques()[0]->getPasses()[0]->setPolygonMode(mode);
+            // Assume one technique and one pass
+            if (mat->getTechniques().size() > 0 && mat->getTechniques()[0]->getPasses().size() > 0)
+            {
+                Ogre::PolygonMode mode = (this->draw_mesh_wireframe) ? Ogre::PM_WIREFRAME : Ogre::PM_SOLID;
+                mat->getTechniques()[0]->getPasses()[0]->setPolygonMode(mode);
+            }
         }
     }
 
@@ -193,7 +199,16 @@ void FlexbodyDebug::AnalyzeFlexbodies()
         m_combo_props_start = num_combo_items;
         for (Prop const& p: actor->GetGfxActor()->getProps())
         {
-            ImAddItemToComboboxString(m_combo_items, fmt::format("{} (prop)", p.pp_mesh_obj->getEntity()->getMesh()->getName()));
+            std::string caption;
+            if (p.pp_beacon_type == 'L' || p.pp_beacon_type == 'R' || p.pp_beacon_type == 'w')
+            {
+                caption = fmt::format("(special prop - aerial nav light '{}')", p.pp_beacon_type);
+            }
+            else
+            {
+                caption = fmt::format("{} (prop)", p.pp_mesh_obj->getEntity()->getMesh()->getName());
+            }
+            ImAddItemToComboboxString(m_combo_items, caption);
             num_combo_items++;
         }
 
