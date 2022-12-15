@@ -30,18 +30,21 @@ using namespace Ogre;
 enum class PartialToken
 {
     NONE,
-    COMMENT_SEMICOLON, // Comment starting with ';'
-    COMMENT_SLASH,     // Comment starting with '//'
-    STRING_QUOTED,     // String starting/ending with '"'
-    STRING_NAKED,      // String without '"' on either end
+    COMMENT_SEMICOLON,             // Comment starting with ';'
+    COMMENT_SLASH,                 // Comment starting with '//'
+    STRING_QUOTED,                 // String starting/ending with '"'
+    STRING_NAKED,                  // String without '"' on either end
     STRING_NAKED_CAPTURING_SPACES, // Only for OPTION_PARENTHESES_CAPTURE_SPACES - A naked string seeking the closing ')'.
-    TITLE_STRING,      // A whole-line string, with spaces
-    NUMBER,            // Number with digits and optionally leading '-'
-    NUMBER_DOT,        // Like NUMBER but already containing '.'
-    KEYWORD,           // Unqoted string at the start of line. Accepted characters: alphanumeric and underscore
-    BOOL_TRUE,         // Partial 'true'
-    BOOL_FALSE,        // Partial 'false'
-    GARBAGE,           // Text not fitting any above category, will be discarded
+    TITLE_STRING,                  // A whole-line string, with spaces
+    NUMBER_INTEGER,                // Just digits and optionally leading '-'
+    NUMBER_DECIMAL,                // Like INTEGER but already containing '.'
+    NUMBER_SCIENTIFIC_STUB,        // Like DECIMAL, already containing 'e' or 'E' but not the exponent value.
+    NUMBER_SCIENTIFIC_STUB_MINUS,  // Like SCIENTIFIC_STUB but with only '-' in exponent. 
+    NUMBER_SCIENTIFIC,             // Valid decimal number in scientific notation.
+    KEYWORD,                       // Unqoted string at the start of line. Accepted characters: alphanumeric and underscore
+    BOOL_TRUE,                     // Partial 'true'
+    BOOL_FALSE,                    // Partial 'false'
+    GARBAGE,                       // Text not fitting any above category, will be discarded
 };
 
 struct DocumentParser
@@ -71,6 +74,7 @@ struct DocumentParser
     void UpdateGarbage(const char c);
 
     void DiscontinueBool();
+    void DiscontinueNumber();
     void FlushStringishToken(RoR::TokenType type);
 };
 
@@ -140,13 +144,7 @@ void DocumentParser::BeginToken(const char c)
 
     case '.':
         tok.push_back(c);
-        partial_tok_type = PartialToken::NUMBER_DOT;
-        line_pos++;
-        break;
-
-    case '-':
-        tok.push_back(c);
-        partial_tok_type = PartialToken::NUMBER;
+        partial_tok_type = PartialToken::NUMBER_DECIMAL;
         line_pos++;
         break;
 
@@ -162,13 +160,24 @@ void DocumentParser::BeginToken(const char c)
         line_pos++;
         break;
 
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+    case '-':
+        partial_tok_type = PartialToken::NUMBER_INTEGER;
+        tok.push_back(c);
+        line_pos++;
+        break;
+
     default:
-        if (isdigit(c))
-        {
-            tok.push_back(c);
-            partial_tok_type = PartialToken::NUMBER;
-        }
-        else if (isalpha(c) &&
+        if (isalpha(c) &&
             (doc.tokens.size() == 0 || doc.tokens.back().type == TokenType::LINEBREAK)) // on line start?
         {
             tok.push_back(c);
@@ -381,23 +390,50 @@ void DocumentParser::UpdateNumber(const char c)
         }
         else
         {
-            partial_tok_type = PartialToken::GARBAGE;
+            this->DiscontinueNumber();
             tok.push_back(c);
         }
         line_pos++;
         break;
 
     case '.':
-        if (partial_tok_type == PartialToken::NUMBER)
+        if (partial_tok_type == PartialToken::NUMBER_INTEGER)
         {
-            tok.push_back(c);
-            partial_tok_type = PartialToken::NUMBER_DOT;
+            partial_tok_type = PartialToken::NUMBER_DECIMAL;
         }
-        else // (partial_tok_type == PartialToken::NUMBER_DOT)
+        else
         {
-            partial_tok_type = PartialToken::GARBAGE;
-            tok.push_back(c);
+            this->DiscontinueNumber();
         }
+        tok.push_back(c);
+        line_pos++;
+        break;
+
+    case 'e':
+    case 'E':
+        if (partial_tok_type == PartialToken::NUMBER_DECIMAL
+            || partial_tok_type == PartialToken::NUMBER_INTEGER)
+        {
+            partial_tok_type = PartialToken::NUMBER_SCIENTIFIC_STUB;
+        }
+        else
+        {
+            this->DiscontinueNumber();
+        }
+        tok.push_back(c);
+        line_pos++;
+        break;
+
+    case '-':
+        if (partial_tok_type == PartialToken::NUMBER_SCIENTIFIC_STUB)
+        {
+            partial_tok_type = PartialToken::NUMBER_SCIENTIFIC_STUB_MINUS;
+        }
+        else
+        {
+            this->DiscontinueNumber();
+        }
+        tok.push_back(c);
         line_pos++;
         break;
 
@@ -411,22 +447,17 @@ void DocumentParser::UpdateNumber(const char c)
     case '7':
     case '8':
     case '9':
-    case '-': // For scientific notation
-    case '+': // For scientific notation
-    case 'e': // For scientific notation
+        if (partial_tok_type == PartialToken::NUMBER_SCIENTIFIC_STUB
+            || partial_tok_type == PartialToken::NUMBER_SCIENTIFIC_STUB_MINUS)
+        {
+            partial_tok_type = PartialToken::NUMBER_SCIENTIFIC;
+        }
         tok.push_back(c);
         line_pos++;
         break;
 
     default:
-        if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
-        {
-            partial_tok_type = PartialToken::STRING_NAKED;
-        }
-        else
-        {
-            partial_tok_type = PartialToken::GARBAGE;
-        }
+        this->DiscontinueNumber();
         tok.push_back(c);
         line_pos++;
         break;
@@ -575,6 +606,14 @@ void DocumentParser::DiscontinueBool()
     if (doc.tokens.size() == 0 || doc.tokens.back().type == TokenType::LINEBREAK)
         partial_tok_type = PartialToken::KEYWORD;
     else if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
+        partial_tok_type = PartialToken::STRING_NAKED;
+    else
+        partial_tok_type = PartialToken::GARBAGE;
+}
+
+void DocumentParser::DiscontinueNumber()
+{
+    if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
         partial_tok_type = PartialToken::STRING_NAKED;
     else
         partial_tok_type = PartialToken::GARBAGE;
@@ -746,8 +785,11 @@ void GenericDocument::LoadFromDataStream(Ogre::DataStreamPtr datastream, const B
                 parser.UpdateString(c);
                 break;
 
-            case PartialToken::NUMBER:
-            case PartialToken::NUMBER_DOT:
+            case PartialToken::NUMBER_INTEGER:
+            case PartialToken::NUMBER_DECIMAL:
+            case PartialToken::NUMBER_SCIENTIFIC:
+            case PartialToken::NUMBER_SCIENTIFIC_STUB:
+            case PartialToken::NUMBER_SCIENTIFIC_STUB_MINUS:
                 parser.UpdateNumber(c);
                 break;
 
