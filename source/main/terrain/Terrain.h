@@ -47,6 +47,8 @@ public:
     /// @name Terrain info
     /// @{
     std::string             getTerrainName() const        { return m_def.name; }
+    std::string             getTerrainFileName();
+    std::string             getTerrainFileResourceGroup();
     std::string             getGUID() const               { return m_def.guid; }
     int                     getCategoryID() const         { return m_def.category_id; }
     int                     getVersion() const            { return m_def.version; }

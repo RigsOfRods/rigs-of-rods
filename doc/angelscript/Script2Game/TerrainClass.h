@@ -22,6 +22,16 @@ public:
     string getTerrainName();
     
     /**
+     * @return File name of the terrain definition (TERRN2 format).
+     */
+    string getTerrainFileName(); 
+    
+    /**
+     * @return OGRE resource group of the terrain bundle (ZIP/directory under 'mods/') where definition files live.
+     */
+    string getTerrainFileResourceGroup();    
+    
+    /**
      * @return GUID (global unique ID) of the terrain, or empty string if not specified.
      */
     string getGUID();

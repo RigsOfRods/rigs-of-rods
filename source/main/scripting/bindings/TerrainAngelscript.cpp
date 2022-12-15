@@ -36,6 +36,8 @@ void RoR::RegisterTerrain(asIScriptEngine* engine)
 
     int result = 0;
     result = engine->RegisterObjectMethod("TerrainClass", "string getTerrainName()", asMETHOD(RoR::Terrain,getTerrainName), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("TerrainClass", "string getTerrainFileName()", asMETHOD(RoR::Terrain, getTerrainFileName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TerrainClass", "string getTerrainFileResourceGroup()", asMETHOD(RoR::Terrain, getTerrainFileResourceGroup), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("TerrainClass", "string getGUID()", asMETHOD(RoR::Terrain,getGUID), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("TerrainClass", "int getVersion()", asMETHOD(RoR::Terrain,getVersion), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("TerrainClass", "bool isFlat()", asMETHOD(RoR::Terrain,isFlat), asCALL_THISCALL); ROR_ASSERT(result>=0);

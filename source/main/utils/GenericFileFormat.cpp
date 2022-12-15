@@ -32,6 +32,7 @@ enum class PartialToken
     NONE,
     COMMENT_SEMICOLON,             // Comment starting with ';'
     COMMENT_SLASH,                 // Comment starting with '//'
+    COMMENT_HASH,
     STRING_QUOTED,                 // String starting/ending with '"'
     STRING_NAKED,                  // String without '"' on either end
     STRING_NAKED_CAPTURING_SPACES, // Only for OPTION_PARENTHESES_CAPTURE_SPACES - A naked string seeking the closing ')'.
@@ -42,6 +43,7 @@ enum class PartialToken
     NUMBER_SCIENTIFIC_STUB_MINUS,  // Like SCIENTIFIC_STUB but with only '-' in exponent. 
     NUMBER_SCIENTIFIC,             // Valid decimal number in scientific notation.
     KEYWORD,                       // Unqoted string at the start of line. Accepted characters: alphanumeric and underscore
+    KEYWORD_BRACED,                // Like KEYWORD but starting with '[' and ending with ']'
     BOOL_TRUE,                     // Partial 'true'
     BOOL_FALSE,                    // Partial 'false'
     GARBAGE,                       // Text not fitting any above category, will be discarded
@@ -75,7 +77,9 @@ struct DocumentParser
 
     void DiscontinueBool();
     void DiscontinueNumber();
+    void DiscontinueKeyword();
     void FlushStringishToken(RoR::TokenType type);
+    void FlushNumericToken();
 };
 
 void DocumentParser::BeginToken(const char c)
@@ -107,6 +111,22 @@ void DocumentParser::BeginToken(const char c)
         }
         break;
 
+    case '=':
+        if (options & GenericDocument::OPTION_ALLOW_SEPARATOR_EQUALS)
+        {
+            line_pos++;
+        }
+        else
+        {
+            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
+                partial_tok_type = PartialToken::STRING_NAKED;
+            else
+                partial_tok_type = PartialToken::GARBAGE;
+            tok.push_back(c);
+            line_pos++;
+        }
+        break;
+
     case '\n':
         doc.tokens.push_back({ TokenType::LINEBREAK, 0.f });
         line_num++;
@@ -123,17 +143,46 @@ void DocumentParser::BeginToken(const char c)
         {
             partial_tok_type = PartialToken::COMMENT_SLASH;
         }
-        else if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS &&
-            (doc.tokens.size() != 0 && doc.tokens.back().type != TokenType::LINEBREAK)) // not first on line?
+        else
         {
+            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
+                partial_tok_type = PartialToken::STRING_NAKED;
+            else
+                partial_tok_type = PartialToken::GARBAGE;
             tok.push_back(c);
-            partial_tok_type = PartialToken::STRING_NAKED;
+        }
+        line_pos++;
+        break;
+
+    case '#':
+        if (options & GenericDocument::OPTION_ALLOW_HASH_COMMENTS)
+        {
+            partial_tok_type = PartialToken::COMMENT_HASH;
         }
         else
         {
-            partial_tok_type = PartialToken::GARBAGE;
+            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
+                partial_tok_type = PartialToken::STRING_NAKED;
+            else
+                partial_tok_type = PartialToken::GARBAGE;
             tok.push_back(c);
         }
+        line_pos++;
+        break;
+
+    case '[':
+        if (options & GenericDocument::OPTION_ALLOW_BRACED_KEYWORDS)
+        {
+            partial_tok_type = PartialToken::KEYWORD_BRACED;
+        }
+        else
+        {
+            if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
+                partial_tok_type = PartialToken::STRING_NAKED;
+            else
+                partial_tok_type = PartialToken::GARBAGE;
+        }
+        tok.push_back(c);
         line_pos++;
         break;
 
@@ -304,6 +353,19 @@ void DocumentParser::UpdateString(const char c)
         line_pos++;
         break;
 
+    case '=':
+        if (options & GenericDocument::OPTION_ALLOW_SEPARATOR_EQUALS
+            && (partial_tok_type == PartialToken::STRING_NAKED || partial_tok_type == PartialToken::STRING_NAKED_CAPTURING_SPACES))
+        {
+            this->FlushStringishToken(TokenType::STRING);
+        }
+        else
+        {
+            tok.push_back(c);
+        }
+        line_pos++;
+        break;
+
     case '"':
         if (partial_tok_type == PartialToken::STRING_QUOTED)
         {
@@ -359,20 +421,12 @@ void DocumentParser::UpdateNumber(const char c)
     case ' ':
     case ',':
     case '\t':
-        // Flush number
-        tok.push_back('\0');
-        doc.tokens.push_back({ TokenType::NUMBER, (float)Ogre::StringConverter::parseReal(tok.data()) });
-        tok.clear();
-        partial_tok_type = PartialToken::NONE;
+        this->FlushNumericToken();
         line_pos++;
         break;
 
     case '\n':
-        // Flush number
-        tok.push_back('\0');
-        doc.tokens.push_back({ TokenType::NUMBER, (float)Ogre::StringConverter::parseReal(tok.data()) });
-        tok.clear();
-        partial_tok_type = PartialToken::NONE;
+        this->FlushNumericToken();
         // Break line
         doc.tokens.push_back({ TokenType::LINEBREAK, 0.f });
         line_num++;
@@ -382,11 +436,20 @@ void DocumentParser::UpdateNumber(const char c)
     case ':':
         if (options & GenericDocument::OPTION_ALLOW_SEPARATOR_COLON)
         {
-            // Flush number
-            tok.push_back('\0');
-            doc.tokens.push_back({ TokenType::NUMBER, (float)Ogre::StringConverter::parseReal(tok.data()) });
-            tok.clear();
-            partial_tok_type = PartialToken::NONE;
+            this->FlushNumericToken();
+        }
+        else
+        {
+            this->DiscontinueNumber();
+            tok.push_back(c);
+        }
+        line_pos++;
+        break;
+
+    case '=':
+        if (options & GenericDocument::OPTION_ALLOW_SEPARATOR_EQUALS)
+        {
+            this->FlushNumericToken();
         }
         else
         {
@@ -521,6 +584,24 @@ void DocumentParser::UpdateBool(const char c)
         line_pos++;
         break;
 
+    case '=':
+        if (options & GenericDocument::OPTION_ALLOW_SEPARATOR_EQUALS)
+        {
+            // Discard token
+            tok.push_back('\0');
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("{}, line {}, pos {}: discarding incomplete boolean token '{}'", datastream->getName(), line_num, line_pos, tok.data()));
+            tok.clear();
+            partial_tok_type = PartialToken::NONE;
+        }
+        else
+        {
+            partial_tok_type = PartialToken::GARBAGE;
+            tok.push_back(c);
+        }
+        line_pos++;
+        break;
+
     case 'r':
         if (partial_tok_type != PartialToken::BOOL_TRUE || tok.size() != 1)
         {
@@ -619,6 +700,14 @@ void DocumentParser::DiscontinueNumber()
         partial_tok_type = PartialToken::GARBAGE;
 }
 
+void DocumentParser::DiscontinueKeyword()
+{
+    if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
+        partial_tok_type = PartialToken::STRING_NAKED;
+    else
+        partial_tok_type = PartialToken::GARBAGE;
+}
+
 void DocumentParser::UpdateKeyword(const char c)
 {
     switch (c)
@@ -648,7 +737,20 @@ void DocumentParser::UpdateKeyword(const char c)
         }
         else
         {
-            partial_tok_type = PartialToken::GARBAGE;
+            this->DiscontinueKeyword();
+            tok.push_back(c);
+        }
+        line_pos++;
+        break;
+
+    case '=':
+        if (options & GenericDocument::OPTION_ALLOW_SEPARATOR_EQUALS)
+        {
+            this->FlushStringishToken(TokenType::KEYWORD);
+        }
+        else
+        {
+            this->DiscontinueKeyword();
             tok.push_back(c);
         }
         line_pos++;
@@ -675,10 +777,23 @@ void DocumentParser::UpdateKeyword(const char c)
         line_pos++;
         break;
 
+    case ']':
+        if (partial_tok_type == PartialToken::KEYWORD_BRACED)
+        {
+            partial_tok_type == PartialToken::KEYWORD; // Do not allow any more ']'.
+        }
+        else
+        {
+            this->DiscontinueKeyword();
+        }
+        tok.push_back(c);
+        line_pos++;
+        break;
+
     default:
         if (!isalnum(c))
         {
-            partial_tok_type = PartialToken::GARBAGE;
+            this->DiscontinueKeyword();
         }
         tok.push_back(c);
         line_pos++;
@@ -749,6 +864,14 @@ void DocumentParser::FlushStringishToken(RoR::TokenType type)
     partial_tok_type = PartialToken::NONE;
 }
 
+void DocumentParser::FlushNumericToken()
+{
+    tok.push_back('\0');
+    doc.tokens.push_back({ TokenType::NUMBER, (float)Ogre::StringConverter::parseReal(tok.data()) });
+    tok.clear();
+    partial_tok_type = PartialToken::NONE;
+}
+
 void GenericDocument::LoadFromDataStream(Ogre::DataStreamPtr datastream, const BitMask_t options)
 {
     // Reset the document
@@ -776,6 +899,7 @@ void GenericDocument::LoadFromDataStream(Ogre::DataStreamPtr datastream, const B
 
             case PartialToken::COMMENT_SEMICOLON:
             case PartialToken::COMMENT_SLASH:
+            case PartialToken::COMMENT_HASH:
                 parser.UpdateComment(c);
                 break;
 
@@ -799,6 +923,7 @@ void GenericDocument::LoadFromDataStream(Ogre::DataStreamPtr datastream, const B
                 break;
 
             case PartialToken::KEYWORD:
+            case PartialToken::KEYWORD_BRACED:
                 parser.UpdateKeyword(c);
                 break;
 
