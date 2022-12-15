@@ -34,6 +34,7 @@ enum class PartialToken
     COMMENT_SLASH,     // Comment starting with '//'
     STRING_QUOTED,     // String starting/ending with '"'
     STRING_NAKED,      // String without '"' on either end
+    STRING_NAKED_CAPTURING_SPACES, // Only for OPTION_PARENTHESES_CAPTURE_SPACES - A naked string seeking the closing ')'.
     TITLE_STRING,      // A whole-line string, with spaces
     NUMBER,            // Number with digits and optionally leading '-'
     NUMBER_DOT,        // Like NUMBER but already containing '.'
@@ -70,6 +71,7 @@ struct DocumentParser
     void UpdateGarbage(const char c);
 
     void DiscontinueBool();
+    void FlushStringishToken(RoR::TokenType type);
 };
 
 void DocumentParser::BeginToken(const char c)
@@ -212,12 +214,7 @@ void DocumentParser::UpdateComment(const char c)
         break;
 
     case '\n':
-        // Flush comment
-        doc.tokens.push_back({ TokenType::COMMENT, (float)doc.string_pool.size() });
-        tok.push_back('\0');
-        std::copy(tok.begin(), tok.end(), std::back_inserter(doc.string_pool));
-        tok.clear();
-        partial_tok_type = PartialToken::NONE;
+        this->FlushStringishToken(TokenType::COMMENT);
         // Break line
         doc.tokens.push_back({ TokenType::LINEBREAK, 0.f });
         line_num++;
@@ -247,20 +244,27 @@ void DocumentParser::UpdateString(const char c)
         break;
 
     case ' ':
+        if (partial_tok_type == PartialToken::STRING_QUOTED
+            || partial_tok_type == PartialToken::STRING_NAKED_CAPTURING_SPACES)
+        {
+            tok.push_back(c);
+        }
+        else // (partial_tok_type == PartialToken::STRING_NAKED)
+        {
+            this->FlushStringishToken(TokenType::STRING);
+        }
+        line_pos++;
+        break;
+
     case ',':
     case '\t':
         if (partial_tok_type == PartialToken::STRING_QUOTED)
         {
-            tok.push_back('\0');
+            tok.push_back(c);
         }
         else // (partial_tok_type == PartialToken::STRING_NAKED)
         {
-            // Flush string
-            doc.tokens.push_back({ TokenType::STRING, (float)doc.string_pool.size() });
-            tok.push_back('\0');
-            std::copy(tok.begin(), tok.end(), std::back_inserter(doc.string_pool));
-            tok.clear();
-            partial_tok_type = PartialToken::NONE;
+            this->FlushStringishToken(TokenType::STRING);
         }
         line_pos++;
         break;
@@ -271,12 +275,7 @@ void DocumentParser::UpdateString(const char c)
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
                 fmt::format("{}, line {}, pos {}: quoted string interrupted by newline", datastream->getName(), line_num, line_pos));
         }
-        // Flush string
-        doc.tokens.push_back({ TokenType::STRING, (float)doc.string_pool.size() });
-        tok.push_back('\0');
-        std::copy(tok.begin(), tok.end(), std::back_inserter(doc.string_pool));
-        tok.clear();
-        partial_tok_type = PartialToken::NONE;
+        this->FlushStringishToken(TokenType::STRING);
         // Break line
         doc.tokens.push_back({ TokenType::LINEBREAK, 0.f });
         line_num++;
@@ -285,14 +284,9 @@ void DocumentParser::UpdateString(const char c)
 
     case ':':
         if (options & GenericDocument::OPTION_ALLOW_SEPARATOR_COLON
-            && partial_tok_type == PartialToken::STRING_NAKED)
+            && (partial_tok_type == PartialToken::STRING_NAKED || partial_tok_type == PartialToken::STRING_NAKED_CAPTURING_SPACES))
         {
-            // Flush string
-            doc.tokens.push_back({ TokenType::STRING, (float)doc.string_pool.size() });
-            tok.push_back('\0');
-            std::copy(tok.begin(), tok.end(), std::back_inserter(doc.string_pool));
-            tok.clear();
-            partial_tok_type = PartialToken::NONE;
+            this->FlushStringishToken(TokenType::STRING);
         }
         else
         {
@@ -304,18 +298,32 @@ void DocumentParser::UpdateString(const char c)
     case '"':
         if (partial_tok_type == PartialToken::STRING_QUOTED)
         {
-            // Flush string
-            doc.tokens.push_back({ TokenType::STRING, (float)doc.string_pool.size() });
-            tok.push_back('\0');
-            std::copy(tok.begin(), tok.end(), std::back_inserter(doc.string_pool));
-            tok.clear();
-            partial_tok_type = PartialToken::NONE;
+            this->FlushStringishToken(TokenType::STRING);
         }
         else // (partial_tok_type == PartialToken::STRING_NAKED)
         {
             partial_tok_type = PartialToken::GARBAGE;
             tok.push_back(c);
         }
+        line_pos++;
+        break;
+
+    case '(':
+        if (partial_tok_type == PartialToken::STRING_NAKED
+            && options & GenericDocument::OPTION_PARENTHESES_CAPTURE_SPACES)
+        {
+            partial_tok_type = PartialToken::STRING_NAKED_CAPTURING_SPACES;
+        }
+        tok.push_back(c);
+        line_pos++;
+        break;
+
+    case ')':
+        if (partial_tok_type == PartialToken::STRING_NAKED_CAPTURING_SPACES)
+        {
+            partial_tok_type = PartialToken::STRING_NAKED;
+        }
+        tok.push_back(c);
         line_pos++;
         break;
 
@@ -582,22 +590,12 @@ void DocumentParser::UpdateKeyword(const char c)
     case ' ':
     case ',':
     case '\t':
-        // Flush keyword
-        doc.tokens.push_back({ TokenType::KEYWORD, (float)doc.string_pool.size() });
-        tok.push_back('\0');
-        std::copy(tok.begin(), tok.end(), std::back_inserter(doc.string_pool));
-        tok.clear();
-        partial_tok_type = PartialToken::NONE;
+        this->FlushStringishToken(TokenType::KEYWORD);
         line_pos++;
         break;
 
     case '\n':
-        // Flush keyword
-        doc.tokens.push_back({ TokenType::KEYWORD, (float)doc.string_pool.size() });
-        tok.push_back('\0');
-        std::copy(tok.begin(), tok.end(), std::back_inserter(doc.string_pool));
-        tok.clear();
-        partial_tok_type = PartialToken::NONE;
+        this->FlushStringishToken(TokenType::KEYWORD);
         // Break line
         doc.tokens.push_back({ TokenType::LINEBREAK, 0.f });
         line_num++;
@@ -607,12 +605,7 @@ void DocumentParser::UpdateKeyword(const char c)
     case ':':
         if (options & GenericDocument::OPTION_ALLOW_SEPARATOR_COLON)
         {
-            // Flush keyword
-            doc.tokens.push_back({ TokenType::KEYWORD, (float)doc.string_pool.size() });
-            tok.push_back('\0');
-            std::copy(tok.begin(), tok.end(), std::back_inserter(doc.string_pool));
-            tok.clear();
-            partial_tok_type = PartialToken::NONE;
+            this->FlushStringishToken(TokenType::KEYWORD);
         }
         else
         {
@@ -623,6 +616,22 @@ void DocumentParser::UpdateKeyword(const char c)
         break;
 
     case '_':
+        tok.push_back(c);
+        line_pos++;
+        break;
+
+    case '(':
+        if (options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
+        {
+            if (options & GenericDocument::OPTION_PARENTHESES_CAPTURE_SPACES)
+                partial_tok_type = PartialToken::STRING_NAKED_CAPTURING_SPACES;
+            else
+                partial_tok_type = PartialToken::STRING_NAKED;
+        }
+        else
+        {
+            partial_tok_type = PartialToken::GARBAGE;
+        }
         tok.push_back(c);
         line_pos++;
         break;
@@ -652,12 +661,7 @@ void DocumentParser::UpdateTitle(const char c)
         break;
 
     case '\n':
-        // Flush title string
-        doc.tokens.push_back({ TokenType::STRING, (float)doc.string_pool.size() });
-        tok.push_back('\0');
-        std::copy(tok.begin(), tok.end(), std::back_inserter(doc.string_pool));
-        tok.clear();
-        partial_tok_type = PartialToken::NONE;
+        this->FlushStringishToken(TokenType::STRING);
         // Break line
         doc.tokens.push_back({ TokenType::LINEBREAK, 0.f });
         line_num++;
@@ -695,7 +699,16 @@ void DocumentParser::UpdateGarbage(const char c)
         line_pos++;
         break;
     }
-}   
+}
+
+void DocumentParser::FlushStringishToken(RoR::TokenType type)
+{
+    doc.tokens.push_back({ type, (float)doc.string_pool.size() });
+    tok.push_back('\0');
+    std::copy(tok.begin(), tok.end(), std::back_inserter(doc.string_pool));
+    tok.clear();
+    partial_tok_type = PartialToken::NONE;
+}
 
 void GenericDocument::LoadFromDataStream(Ogre::DataStreamPtr datastream, const BitMask_t options)
 {
@@ -729,6 +742,7 @@ void GenericDocument::LoadFromDataStream(Ogre::DataStreamPtr datastream, const B
 
             case PartialToken::STRING_QUOTED:
             case PartialToken::STRING_NAKED:
+            case PartialToken::STRING_NAKED_CAPTURING_SPACES:
                 parser.UpdateString(c);
                 break;
 

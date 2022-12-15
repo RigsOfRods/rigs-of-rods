@@ -114,7 +114,8 @@ void frameStep(float dt)
                     int flags = GENERIC_DOCUMENT_OPTION_ALLOW_NAKED_STRINGS
                               | GENERIC_DOCUMENT_OPTION_ALLOW_SLASH_COMMENTS
                               | GENERIC_DOCUMENT_OPTION_FIRST_LINE_IS_TITLE
-                              | GENERIC_DOCUMENT_OPTION_ALLOW_SEPARATOR_COLON;
+                              | GENERIC_DOCUMENT_OPTION_ALLOW_SEPARATOR_COLON
+                              | GENERIC_DOCUMENT_OPTION_PARENTHESES_CAPTURE_SPACES;
                     if (doc.LoadFromResource(actor.getTruckFileName(), actor.getTruckFileResourceGroup(), flags))
                     {
                         @g_displayed_document = @doc;
