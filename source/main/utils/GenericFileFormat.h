@@ -63,6 +63,7 @@ struct GenericDocument: public RefCountingObject<GenericDocument>
     static const BitMask_t OPTION_ALLOW_SLASH_COMMENTS = BITMASK(2); //!< Allow comments starting with `//`. 
     static const BitMask_t OPTION_FIRST_LINE_IS_TITLE = BITMASK(3); //!< First non-empty & non-comment line is a naked string with spaces.
     static const BitMask_t OPTION_ALLOW_SEPARATOR_COLON = BITMASK(4); //!< Allow ':' as separator between tokens.
+    static const BitMask_t OPTION_PARENTHESES_CAPTURE_SPACES = BITMASK(5); //!< If non-empty NAKED string encounters '(', following spaces will be captured until matching ')' is found.
 
     virtual ~GenericDocument() {};
 
