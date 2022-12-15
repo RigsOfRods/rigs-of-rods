@@ -550,3 +550,12 @@ ProceduralManagerPtr RoR::Terrain::getProceduralManager()
     return m_object_manager->getProceduralManager();
 }
 
+std::string RoR::Terrain::getTerrainFileName()
+{
+    return m_cache_entry->fname;
+}
+
+std::string RoR::Terrain::getTerrainFileResourceGroup()
+{
+    return m_cache_entry->resource_group;
+}

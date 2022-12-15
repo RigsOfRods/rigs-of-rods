@@ -40,6 +40,8 @@ CVarClass@  g_sim_state = console.cVarFind("sim_state"); // 0=off, 1=running, 2=
 CVarClass@  g_mp_state = console.cVarFind("mp_state"); // 0=disabled, 1=connecting, 2=connected, see MpState in Application.h
 CVarClass@  g_io_arcade_controls = console.cVarFind("io_arcade_controls"); // bool
 GenericDocumentClass@ g_displayed_document = null;
+string g_displayed_doc_filename;
+array<string> g_terrain_tobj_files;
 
 /*
     ---------------------------------------------------------------------------
@@ -72,6 +74,11 @@ void frameStep(float dt)
         ImGui::Text("Pro tip: Press '"
             + inputs.getEventCommandTrimmed(EV_COMMON_CONSOLE_TOGGLE)
             + "' to open console anytime.");
+            
+        // Reset simulation data
+        @g_displayed_document = null;
+        g_displayed_doc_filename = "";
+        g_terrain_tobj_files.removeRange(0, g_terrain_tobj_files.length());
     }
     else if (g_app_state.getInt() == 2) // simulation
     {
@@ -95,6 +102,8 @@ void frameStep(float dt)
             ImGui::Text("(terrain edit)");
         }
         
+        drawTerrainButtons();
+        
         ImGui::TextDisabled("Camera controls:");
         ImGui::Text("Change camera: " + inputs.getEventCommandTrimmed(EV_CAMERA_CHANGE));
         ImGui::Text("Toggle free camera: " + inputs.getEventCommandTrimmed(EV_CAMERA_FREE_MODE));
@@ -103,6 +112,8 @@ void frameStep(float dt)
         BeamClass@ actor = game.getCurrentTruck();
         if (@actor != null)
         {
+            // Actor name and "View document" button
+            ImGui::PushID("actor");
             ImGui::AlignTextToFramePadding();
             ImGui::Text("You are driving " + actor.getTruckName());
             ImGui::SameLine();
@@ -119,6 +130,7 @@ void frameStep(float dt)
                     if (doc.LoadFromResource(actor.getTruckFileName(), actor.getTruckFileResourceGroup(), flags))
                     {
                         @g_displayed_document = @doc;
+                        g_displayed_doc_filename = actor.getTruckFileName();
                     }
                 }
             }
@@ -127,8 +139,10 @@ void frameStep(float dt)
                 if (ImGui::Button("Close document"))
                 {
                     @g_displayed_document = null;
+                    g_displayed_doc_filename = "";
                 }
             }
+            ImGui::PopID(); //"actor"
             
             ImGui::TextDisabled("Vehicle controls:");
 
@@ -192,10 +206,106 @@ void frameStep(float dt)
     }
 }
 
+void drawTerrainButtons()
+{
+    // Terrain name (with "view document" button)
+    ImGui::PushID("terrn");
+    TerrainClass@ terrain = game.getTerrain();
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text("Terrain: " + terrain.getTerrainName());
+    ImGui::SameLine();
+    if (@g_displayed_document == null)
+    {
+        if (ImGui::Button("View document"))
+        {
+            GenericDocumentClass@ doc = GenericDocumentClass();
+            int flags = GENERIC_DOCUMENT_OPTION_ALLOW_NAKED_STRINGS
+                      | GENERIC_DOCUMENT_OPTION_ALLOW_SLASH_COMMENTS
+                      | GENERIC_DOCUMENT_OPTION_ALLOW_HASH_COMMENTS
+                      | GENERIC_DOCUMENT_OPTION_ALLOW_SEPARATOR_EQUALS
+                      | GENERIC_DOCUMENT_OPTION_ALLOW_BRACED_KEYWORDS;
+            if (doc.LoadFromResource(terrain.getTerrainFileName(), terrain.getTerrainFileResourceGroup(), flags))
+            {
+                @g_displayed_document = @doc;
+                g_displayed_doc_filename = terrain.getTerrainFileName();
+                
+                // Fetch TOBJ filenames
+                if (g_terrain_tobj_files.length() == 0)
+                {
+                    GenericDocReaderClass@ reader = GenericDocReaderClass(doc);
+                    bool in_section_objects = false;
+                    while (!reader.EndOfFile())
+                    {
+                        if (reader.GetTokType() == TOKEN_TYPE_KEYWORD && reader.GetTokKeyword().substr(0, 1) == "[")
+                        {
+                            in_section_objects = (reader.GetTokKeyword() == '[Objects]');
+                        }
+                        else if (reader.GetTokType() == TOKEN_TYPE_STRING && in_section_objects)
+                        {
+                            // Note: in GenericDocument, a text on line start is always a KEYWORD token,
+                            // but KEYWORDs must not contain special characters,
+                            // so file names always decay to strings because of '.'.                    
+                            g_terrain_tobj_files.insertLast(reader.GetTokString());
+                        }
+                        reader.MoveNext();
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        if (ImGui::Button("Close document"))
+        {
+            @g_displayed_document = null;
+            g_displayed_doc_filename = "";
+        }
+    }
+
+    // TOBJ files
+    ImGui::PushID("tobj");
+    for (uint i = 0; i < g_terrain_tobj_files.length(); i++)
+    {
+        ImGui::PushID(i);
+        ImGui::AlignTextToFramePadding();
+        ImGui::Bullet();
+        ImGui::SameLine();
+        ImGui::Text(g_terrain_tobj_files[i]);
+        ImGui::SameLine();
+        if (@g_displayed_document == null)
+        {
+            if (ImGui::Button("View document"))
+            {
+                GenericDocumentClass@ doc = GenericDocumentClass();
+                int flags = GENERIC_DOCUMENT_OPTION_ALLOW_NAKED_STRINGS
+                          | GENERIC_DOCUMENT_OPTION_ALLOW_SLASH_COMMENTS;
+                if (doc.LoadFromResource(g_terrain_tobj_files[i], terrain.getTerrainFileResourceGroup(), flags))
+                {
+                    @g_displayed_document = @doc;   
+                    g_displayed_doc_filename = g_terrain_tobj_files[i];
+                }
+            }
+        }
+        else
+        {
+            if (ImGui::Button("Close document"))
+            {
+                @g_displayed_document = null;
+                g_displayed_doc_filename = "";
+            }
+        }
+        ImGui::PopID(); // i
+    }
+    ImGui::PopID(); //"tobj"
+    
+    ImGui::PopID(); //"terrn"
+}
+
 void drawDocumentWindow()
 {
     ImGui::PushID("document view");
-    ImGui::Begin("Document view", /*open:*/true, /*flags:*/0);
+    string caption = "Document view (" + g_displayed_doc_filename + ")";
+    ImGui::Begin(caption, /*open:*/true, /*flags:*/0);
 
     GenericDocReaderClass reader(g_displayed_document);
     while (!reader.EndOfFile())
