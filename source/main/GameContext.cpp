@@ -1333,7 +1333,10 @@ void GameContext::UpdateCommonInputEvents(float dt)
     // enter/exit truck - Without a delay: the vehicle must brake like braking normally
     if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_ENTER_OR_EXIT_TRUCK))
     {
-        m_player_actor->ar_brake = 0.66f;
+        if (m_player_actor->ar_driveable != AI)
+        {
+            m_player_actor->ar_brake = 0.66f;
+        }
     }
 
     // toggle physics
