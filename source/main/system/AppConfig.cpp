@@ -245,6 +245,7 @@ const char* GfxWaterModeToStr(GfxWaterMode v)
 {
     switch(v)
     {
+    case GfxWaterMode::NONE     : return CONF_WATER_NONE;
     case GfxWaterMode::BASIC    : return CONF_WATER_BASIC;
     case GfxWaterMode::REFLECT  : return CONF_WATER_REFLECT;
     case GfxWaterMode::FULL_FAST: return CONF_WATER_FULL_FAST;
