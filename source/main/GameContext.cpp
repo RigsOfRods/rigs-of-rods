@@ -373,6 +373,8 @@ void GameContext::DeleteActor(Actor* actor)
         Ogre::Vector3 center = m_player_actor->getRotationCenter();
         this->ChangePlayerActor(nullptr); // Get out of the vehicle
         this->GetPlayerCharacter()->setPosition(center);
+        // Update scene SimBuffer immediatelly to prevent having dangling pointer.
+        App::GetGfxScene()->GetSimDataBuffer().simbuf_player_actor = nullptr;
     }
 
     if (actor == m_prev_player_actor)
