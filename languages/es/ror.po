@@ -7,15 +7,15 @@
 # Lepe City <lepecity@gmail.com>, 2017
 # Joaquín Lafuente <lafuente_45@hotmail.com>, 2021.
 # Joaquin Gomez <joa97@hotmail.com.ar>, 2021, 2022.
-# Mxt Apps <mxtapps@gmail.com>, 2021.
+# Mxt Apps <mxtapps@gmail.com>, 2021, 2022.
 # Jhaltzkers Jhaltzkers <jhaltzkers@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2022-06-18 01:14+0000\n"
-"Last-Translator: Jhaltzkers Jhaltzkers <jhaltzkers@gmail.com>\n"
+"PO-Revision-Date: 2022-12-27 09:48+0000\n"
+"Last-Translator: Mxt Apps <mxtapps@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/es/>\n"
 "Language: es\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13-dev\n"
+"X-Generator: Weblate 4.15.1-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -3128,22 +3128,22 @@ msgstr "Eliminar todos los vehículos"
 #: gui/panels/GUI_TopMenubar.cpp:808
 msgctxt "TopMenubar"
 msgid "Distance"
-msgstr ""
+msgstr "Distancia"
 
 #: gui/panels/GUI_TopMenubar.cpp:812
 msgctxt "TopMenubar"
 msgid "Following distance in meters"
-msgstr ""
+msgstr "Distancia de seguimiento en metros"
 
 #: gui/panels/GUI_TopMenubar.cpp:837
 msgctxt "TopMenubar"
 msgid "Positioning scheme"
-msgstr ""
+msgstr "Esquema de posicionamiento"
 
 #: gui/panels/GUI_TopMenubar.cpp:839
 msgctxt "TopMenubar"
 msgid "Behind: Set vehicle behind vehicle, in line"
-msgstr ""
+msgstr "Detrás: Poner el vehículo detrás del otro vehículo, en línea"
 
 #: gui/panels/GUI_TopMenubar.cpp:840
 msgctxt "TopMenubar"
@@ -3151,16 +3151,18 @@ msgid ""
 "Parallel: Set vehicles in parallel, useful for certain scenarios like drag "
 "races"
 msgstr ""
+"Paralelo: Poner los vehículos en paralelo, útil para ciertas situaciones "
+"como las carreras de arrastre"
 
 #: gui/panels/GUI_TopMenubar.cpp:853
 msgctxt "TopMenubar"
 msgid "Repeat times"
-msgstr ""
+msgstr "Veces que se repetirá"
 
 #: gui/panels/GUI_TopMenubar.cpp:857
 msgctxt "TopMenubar"
 msgid "How many times to loop the path"
-msgstr ""
+msgstr "Cuántas veces se debe repetir el camino"
 
 #: gui/panels/GUI_TopMenubar.cpp:862
 #, fuzzy
@@ -3172,7 +3174,7 @@ msgstr "Posición del vehículo: "
 #: gui/panels/GUI_TopMenubar.cpp:871
 msgctxt "TopMenubar"
 msgid "Speed in km/h for land vehicles or knots/s for boats"
-msgstr ""
+msgstr "Velocidad en km/h para vehículos de tierra o nudos/s para barcos"
 
 #: gui/panels/GUI_TopMenubar.cpp:904
 #, fuzzy
@@ -3185,16 +3187,18 @@ msgstr "Entrando al modo de edición de terrenos"
 msgctxt "TopMenubar"
 msgid "Normal: Modify speed according to turns, other vehicles and character"
 msgstr ""
+"Normal: Modificar la velocidad del vehículo de acuerdo con las curvas, otros "
+"vehículos y el personaje"
 
 #: gui/panels/GUI_TopMenubar.cpp:907
 msgctxt "TopMenubar"
 msgid "Race: Always keep defined speed"
-msgstr ""
+msgstr "Carrera: Seguir siempre la velocidad definida"
 
 #: gui/panels/GUI_TopMenubar.cpp:908
 msgctxt "TopMenubar"
 msgid "Chase: Follow character and player vehicle"
-msgstr ""
+msgstr "Persecución: Sigue al personaje y a su vehículo"
 
 #: gui/panels/GUI_TopMenubar.cpp:915
 #, fuzzy
@@ -3207,12 +3211,12 @@ msgstr "Altitud: "
 #: gui/panels/GUI_TopMenubar.cpp:919
 msgctxt "TopMenubar"
 msgid "Airplane maximum altitude in feet"
-msgstr ""
+msgstr "Altitud máxima de la aeronave en pies"
 
 #: gui/panels/GUI_TopMenubar.cpp:936
 msgctxt "TopMenubar"
 msgid "Land vehicles, boats and airplanes"
-msgstr ""
+msgstr "Vehículos de tierra, barcos y aeronaves"
 
 #: gui/panels/GUI_TopMenubar.cpp:953
 #, fuzzy
@@ -3226,41 +3230,43 @@ msgstr "Comenzando..."
 msgctxt "TopMenubar"
 msgid "Select a preset, record or open survey map ({}) to set waypoints."
 msgstr ""
+"Selecciona una ruta predefinida, graba o abre el mapa del área ({}) para "
+"seguir los puntos de la ruta."
 
 #: gui/panels/GUI_TopMenubar.cpp:990
 msgctxt "TopMenubar"
 msgid "Stop"
-msgstr ""
+msgstr "Detener"
 
 #: gui/panels/GUI_TopMenubar.cpp:1038
 msgctxt "TopMenubar"
 msgid "Presets"
-msgstr ""
+msgstr "Rutas predefinidas"
 
 #: gui/panels/GUI_TopMenubar.cpp:1079
 msgctxt "TopMenubar"
 msgid "No presets found for this terrain :("
-msgstr ""
+msgstr "No se encontraron rutas predefinidas para este terreno :("
 
 #: gui/panels/GUI_TopMenubar.cpp:1083
 msgctxt "TopMenubar"
 msgid "Waypoints"
-msgstr ""
+msgstr "Puntos de la ruta"
 
 #: gui/panels/GUI_TopMenubar.cpp:1087
 msgctxt "TopMenubar"
 msgid "No waypoints defined."
-msgstr ""
+msgstr "No se han definido puntos de la ruta."
 
 #: gui/panels/GUI_TopMenubar.cpp:1091
 msgctxt "TopMenubar"
 msgid "Export"
-msgstr ""
+msgstr "Exportar"
 
 #: gui/panels/GUI_TopMenubar.cpp:1099
 msgctxt "TopMenubar"
 msgid "{} waypoints exported to RoR.log"
-msgstr ""
+msgstr "Se han exportado {} puntos de la ruta a RoR.log"
 
 #: gui/panels/GUI_TopMenubar.cpp:1254
 msgctxt "TopMenubar"
@@ -3305,7 +3311,7 @@ msgstr "Hora"
 #: gui/panels/GUI_VehicleButtons.cpp:64
 msgctxt "VehicleButtons"
 msgid "Hover the mouse on the left to see controls"
-msgstr ""
+msgstr "Pasa el ratón por encima en la izquierda para ver los controles"
 
 #. Align with the buttons
 #: gui/panels/GUI_VehicleButtons.cpp:82
@@ -4085,10 +4091,12 @@ msgid ""
 "Failed to load script. See 'Angelscript.log' or use console command `log` "
 "and retry."
 msgstr ""
+"No se ha podido cargar el script. Comprueba 'Angelscript.log' o usa el "
+"comando de la consola `log` y vuelve a intentarlo."
 
 #: system/ConsoleCmd.cpp:419
 msgid "Script '{}' running with ID '{}'"
-msgstr ""
+msgstr "El script '{}' se está ejecutando con la ID '{}'"
 
 #: system/ConsoleCmd.cpp:437
 msgid "Print cvars with one of <expr> in name"
