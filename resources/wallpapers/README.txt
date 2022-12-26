@@ -17,7 +17,7 @@ Terrain:
 https://forum.rigsofrods.org/resources/lapaz.398/
 Vehicles:
 https://forum.rigsofrods.org/resources/bobcat-s770-cat-262d-komatsu-sk820-5-takeuchi-tl12v2-deere-332g.596/
-http://archives.rigsofrods.net/repo/files/repofiles-1st-batch/119b7db37788e1e3f9ca27598c41014b7bc6658b_TrafficCone.zip
+https://forum.rigsofrods.org/resources/traffic-cone.982/
 
 loading_04:
 Terrain:
