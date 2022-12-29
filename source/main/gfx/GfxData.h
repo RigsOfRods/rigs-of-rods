@@ -175,12 +175,13 @@ struct Prop
     Ogre::Vector3         pp_wheel_pos            = Ogre::Vector3::ZERO;
     Ogre::SceneNode*      pp_wheel_scene_node     = nullptr;
     float                 pp_wheel_rot_degree     = 0;
-    
+
     // Special prop - beacon
     char                  pp_beacon_type          = 0;                   //!< Special prop: beacon {0 = none, 'b' = user-specified, 'r' = red, 'p' = police lightbar, 'L'/'R'/'w' - aircraft wings}
     Ogre::BillboardSet*   pp_beacon_bbs[4]        = {};
     Ogre::SceneNode*      pp_beacon_scene_node[4] = {};
     Ogre::Light*          pp_beacon_light[4]      = {};
+    Ogre::SceneNode*      pp_beacon_light_snode[4] = {};
     float                 pp_beacon_rot_rate[4]   = {};                  //!< Radians per second
     float                 pp_beacon_rot_angle[4]  = {};                  //!< Radians
     
