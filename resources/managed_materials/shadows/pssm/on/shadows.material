@@ -4,7 +4,6 @@ abstract technique Shadows/managed/base_receiver
 	{
 			ambient 1 1 1 1
 			diffuse 1 1 1 1
-			depth_bias 0.1 0.1
 			
 			vertex_program_ref PSSM/shadow_receiver_vs {}
 			fragment_program_ref PSSM/shadow_receiver_ps {}

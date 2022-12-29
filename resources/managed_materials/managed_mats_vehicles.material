@@ -1,14 +1,12 @@
-import * from "shadows.material"
 import * from "texture_manager.material"
 
 material managed/flexmesh_standard/simple
 {
-	technique BaseTechnique: Shadows/managed/base_receiver //Include shadows
+	technique BaseTechnique
 	{
 	//Texture is rendred here
 		pass BaseRender
 		{
-			depth_bias -0.1 -0.1
 			texture_unit Diffuse_Map
 			{
 				texture_alias unknown.dds
@@ -19,12 +17,11 @@ material managed/flexmesh_standard/simple
 
 material managed/flexmesh_standard/damageonly
 {
-	technique BaseTechnique: Shadows/managed/base_receiver //Include shadows
+	technique BaseTechnique
 	{
 	//Texture is rendred here
 		pass BaseRender
 		{
-			depth_bias -0.1 -0.1
 			diffuse vertexcolour
 			texture_unit Diffuse_Map
 			{
@@ -43,12 +40,11 @@ material managed/flexmesh_standard/damageonly
 
 material managed/flexmesh_standard/specularonly
 {
-	technique BaseTechnique: Shadows/managed/base_receiver //Include shadows
+	technique BaseTechnique
 	{
 	//Texture is rendred here
 		pass BaseRender
 		{
-			depth_bias -0.1 -0.1
 			texture_unit Diffuse_Map
 			{
 				texture_alias unknown.dds
@@ -63,12 +59,11 @@ material managed/flexmesh_standard/specularonly
 
 material managed/flexmesh_standard/speculardamage
 {
-	technique BaseTechnique: Shadows/managed/base_receiver //Include shadows
+	technique BaseTechnique
 	{
 	//Texture is rendred here
 		pass BaseRender
 		{
-			depth_bias -0.1 -0.1
 			diffuse vertexcolour
 			texture_unit Diffuse_Map
 			{
@@ -90,12 +85,11 @@ material managed/flexmesh_standard/speculardamage
 
 material managed/mesh_standard/simple
 {
-	technique BaseTechnique: Shadows/managed/base_receiver //Include shadows
+	technique BaseTechnique
 	{
 	//Texture is rendred here
 		pass BaseRender
 		{
-			depth_bias -0.1 -0.1
 			texture_unit Diffuse_Map
 			{
 				texture_alias unknown.dds
@@ -111,7 +105,6 @@ material managed/mesh_standard/specular
 	//Texture is rendred here
 		pass BaseRender
 		{
-			depth_bias -0.1 -0.1
 			texture_unit Diffuse_Map
 			{
 				texture_alias unknown.dds
