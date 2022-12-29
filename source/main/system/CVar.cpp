@@ -180,6 +180,7 @@ void Console::cVarSetupBuiltins()
     App::gfx_flexbody_cache      = this->cVarCreate("gfx_flexbody_cache",      "Flexbody_UseCache",          CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::gfx_reduce_shadows      = this->cVarCreate("gfx_reduce_shadows",      "Shadow optimizations",       CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::gfx_enable_rtshaders    = this->cVarCreate("gfx_enable_rtshaders",    "Use RTShader System",        CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::gfx_alt_actor_materials = this->cVarCreate("gfx_alt_actor_materials", "Use alternate vehicle materials", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "false");
 
     App::flexbody_defrag_enabled           = this->cVarCreate("flexbody_defrag_enabled",           "", CVAR_TYPE_BOOL);
     App::flexbody_defrag_const_penalty     = this->cVarCreate("flexbody_defrag_const_penalty",     "", CVAR_TYPE_INT, "7");

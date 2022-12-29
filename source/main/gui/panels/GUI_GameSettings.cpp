@@ -362,6 +362,7 @@ void GameSettings::DrawGraphicsSettings()
         DrawGCheckbox(App::gfx_declutter_map,  _LC("GameSettings", "Declutter overview map"));
     }
     DrawGCheckbox(App::gfx_water_waves,      _LC("GameSettings", "Waves on water"));
+    DrawGCheckbox(App::gfx_alt_actor_materials,      _LC("GameSettings", "Use alternate vehicle materials"));
 
     DrawGCombo(App::gfx_extcam_mode, "Exterior camera mode",
         m_combo_items_extcam_mode.c_str());
