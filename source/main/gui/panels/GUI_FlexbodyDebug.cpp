@@ -86,7 +86,8 @@ void FlexbodyDebug::Draw()
         node_ref = prop->pp_node_ref;
         node_x = prop->pp_node_x;
         node_y = prop->pp_node_y;
-        if (prop->pp_mesh_obj) // Aerial beacons 'L/R/w' have no mesh
+        if (prop->pp_mesh_obj // Aerial beacons 'L/R/w' have no mesh
+            && prop->pp_mesh_obj->getLoadedMesh()) // Props are spawned even if meshes fail to load.
         {
             mat = prop->pp_mesh_obj->getEntity()->getSubEntity(0)->getMaterial();
             mesh_name = prop->pp_mesh_obj->getEntity()->getMesh()->getName();
@@ -204,9 +205,28 @@ void FlexbodyDebug::AnalyzeFlexbodies()
             {
                 caption = fmt::format("(special prop - aerial nav light '{}')", p.pp_beacon_type);
             }
+            else if (p.pp_wheel_mesh_obj)
+            {
+                if (p.pp_mesh_obj->getLoadedMesh() && p.pp_wheel_mesh_obj->getLoadedMesh())
+                {
+                    caption = fmt::format("(special prop: dashboard '{}' + dirwheel '{}')", p.pp_mesh_obj->getLoadedMesh()->getName(), p.pp_wheel_mesh_obj->getLoadedMesh()->getName());
+                }
+                else if (!p.pp_mesh_obj->getLoadedMesh() && p.pp_wheel_mesh_obj->getLoadedMesh())
+                {
+                    caption = fmt::format("(special prop: no dashboard + dirwheel '{}')", p.pp_wheel_mesh_obj->getLoadedMesh()->getName());
+                }
+                else
+                {
+                    caption = "(corrupted dashboard prop - no meshes loaded)";
+                }
+            }
+            else if (p.pp_mesh_obj->getLoadedMesh())
+            {
+                caption = fmt::format("{} (prop)", p.pp_mesh_obj->getLoadedMesh()->getName());
+            }
             else
             {
-                caption = fmt::format("{} (prop)", p.pp_mesh_obj->getEntity()->getMesh()->getName());
+                caption = "(corrupted prop - mesh not loaded)";
             }
             ImAddItemToComboboxString(m_combo_items, caption);
             num_combo_items++;
@@ -595,15 +615,15 @@ void FlexbodyDebug::DrawMeshInfo(FlexBody* flexbody)
 void FlexbodyDebug::DrawMeshInfo(Prop* prop)
 {
     ImGui::Text("The prop mesh files as provided by modder.");
-    if (prop->pp_mesh_obj)
+    if (prop->pp_mesh_obj && prop->pp_mesh_obj->getLoadedMesh())
     {
         ImGui::Separator();
-        ImGui::Text("%s", RoR::PrintMeshInfo("Prop", prop->pp_mesh_obj->getEntity()->getMesh()).c_str());
+        ImGui::Text("%s", RoR::PrintMeshInfo("Prop", prop->pp_mesh_obj->getLoadedMesh()).c_str());
     }
-    if (prop->pp_wheel_mesh_obj)
+    if (prop->pp_wheel_mesh_obj && prop->pp_wheel_mesh_obj->getLoadedMesh())
     {
         ImGui::Separator();
-        ImGui::Text("%s", RoR::PrintMeshInfo("Special: steering wheel", prop->pp_wheel_mesh_obj->getEntity()->getMesh()).c_str());
+        ImGui::Text("%s", RoR::PrintMeshInfo("Special: steering wheel", prop->pp_wheel_mesh_obj->getLoadedMesh()).c_str());
     }
     // NOTE: `prop->pp_beacon_scene_node` has only billboards attached, not meshes.
 }

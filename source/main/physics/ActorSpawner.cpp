@@ -1587,12 +1587,6 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     prop.pp_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     const std::string instance_name = this->ComposeName("PropEntity", prop_index);
     prop.pp_mesh_obj = new MeshObject(def.mesh_name, m_custom_resource_group, instance_name, prop.pp_scene_node);
-    if (!prop.pp_mesh_obj->getLoadedMesh())
-    {
-        AddMessage(Message::TYPE_WARNING, fmt::format("Skipping prop because mesh '{}' could not be loaded", def.mesh_name));
-        delete prop.pp_mesh_obj;
-        return; // No mercy
-    }
 
     prop.pp_mesh_obj->setCastShadows(true); // Orig code {{ prop.pp_mesh_obj->setCastShadows(shadowmode != 0); }}, shadowmode has default value 1 and changes with undocumented directive 'set_shadows'
 
