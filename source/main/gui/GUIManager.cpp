@@ -33,7 +33,7 @@
 #include "GUIUtils.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "OgreImGui.h"
+
 #include "OverlayWrapper.h"
 #include "PlatformUtils.h"
 #include "RTTLayer.h"
@@ -310,9 +310,7 @@ void GUIManager::NewImGuiFrame(float dt)
     io.KeySuper = false;
 
     // Call IMGUI
-    Ogre::FrameEvent ev;
-    ev.timeSinceLastFrame = dt;
-    Ogre::ImGuiOverlay::NewFrame(ev);
+    Ogre::ImGuiOverlay::NewFrame();
 
     // Reset state
     m_gui_kb_capture_queued = false;
@@ -320,13 +318,32 @@ void GUIManager::NewImGuiFrame(float dt)
 
 void GUIManager::SetupImGui()
 {
-    m_imgui.Init();
+    // Initialize OGRE's builtin DearIMGUI
+    // see OGRE source file '/Samples/Simple/include/ImGuiDemo.h'
+    m_imgui_overlay = new Ogre::ImGuiOverlay();
+
+    // handle DPI scaling
+    float vpScale = Ogre::OverlayManager::getSingleton().getPixelRatio();
+    ImGui::GetIO().FontGlobalScale = std::round(vpScale); // default font does not work with fractional scaling
+    ImGui::GetStyle().ScaleAllSizes(vpScale);
+
+    m_imgui_overlay->setZOrder(300);
+    m_imgui_overlay->show();
+    Ogre::OverlayManager::getSingleton().addOverlay(m_imgui_overlay); // now owned by overlaymgr
+
+    // NOTE:
+    // Custom apps will ASSERT on ImGuiOverlay::NewFrame() and not display any UI if they
+    //  have not registered the overlay system by calling mSceneMgr->addRenderQueueListener(mOverlaySystem).
+    // Rigs of Rods does this in main().
+
+    m_imgui_input_listener = new OgreBites::ImGuiInputListener();
+
     // Colors
     ImGuiStyle& style = ImGui::GetStyle();
     style.Colors[ImGuiCol_Text]                  = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
     style.Colors[ImGuiCol_TextDisabled]          = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
     style.Colors[ImGuiCol_WindowBg]              = ImVec4(0.06f, 0.06f, 0.06f, 0.90f);
-    style.Colors[ImGuiCol_ChildWindowBg]         = ImVec4(0.00f, 0.00f, 0.00f, 0.1f);
+    style.Colors[ImGuiCol_ChildBg]               = ImVec4(0.00f, 0.00f, 0.00f, 0.1f);
     style.Colors[ImGuiCol_PopupBg]               = ImVec4(0.05f, 0.05f, 0.10f, 0.90f);
     style.Colors[ImGuiCol_Border]                = ImVec4(0.20f, 0.20f, 0.20f, 0.90f);
     style.Colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 0.90f);
@@ -358,7 +375,7 @@ void GUIManager::SetupImGui()
     style.Colors[ImGuiCol_PlotHistogram]         = ImVec4(0.18f, 0.53f, 0.79f, 0.90f);
     style.Colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(0.13f, 0.40f, 0.60f, 0.90f);
     style.Colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.00f, 0.00f, 1.00f, 0.90f);
-    style.Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.20f, 0.20f, 0.90f);
+    style.Colors[ImGuiCol_ModalWindowDimBg]      = ImVec4(0.20f, 0.20f, 0.20f, 0.90f);
     // Styles
     style.WindowPadding         = ImVec2(10.f, 10.f);
     style.FrameRounding         = 2.f;
@@ -367,8 +384,6 @@ void GUIManager::SetupImGui()
     style.ItemSpacing           = ImVec2(5.f, 5.f);
     style.GrabRounding          = 3.f;
     style.WindowBorderSize      = 0.f;
-
-    App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(&m_imgui);
 }
 
 void GUIManager::DrawCommonGui()

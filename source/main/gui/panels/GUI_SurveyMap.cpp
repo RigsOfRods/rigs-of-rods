@@ -33,7 +33,7 @@
 #include "GUIUtils.h"
 #include "InputEngine.h"
 #include "Language.h"
-#include "OgreImGui.h"
+
 #include "SurveyMapTextureCreator.h"
 #include "Terrain.h"
 #include "TerrainObjectManager.h"
@@ -112,7 +112,7 @@ void SurveyMap::Draw()
 
     if (mMapMode == SurveyMapMode::BIG)
     {
-        ImGui::SetNextWindowPosCenter();
+        ImSetNextWindowPosCenter();
     }
     else if (mMapMode == SurveyMapMode::SMALL)
     {

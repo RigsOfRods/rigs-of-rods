@@ -27,8 +27,9 @@
 #include "ContentManager.h"
 #include "GameContext.h"
 #include "GfxScene.h"
+#include "GUIUtils.h"
 #include "InputEngine.h"
-#include "OgreImGui.h"
+
 #include "Terrain.h"
 #include "TerrainObjectManager.h"
 #include "PlatformUtils.h"

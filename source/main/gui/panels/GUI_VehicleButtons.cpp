@@ -34,7 +34,7 @@
 #include "GUIUtils.h"
 
 #include <Ogre.h>
-#include <imgui_internal.h>
+
 
 using namespace RoR;
 using namespace GUI;
@@ -154,7 +154,7 @@ void VehicleButtons::DrawHeadLightButton(RoR::GfxActor* actorx)
 
     if (!has_headlight)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (actorx->GetActor()->getHeadlightsVisible())
@@ -173,7 +173,7 @@ void VehicleButtons::DrawHeadLightButton(RoR::GfxActor* actorx)
 
     if (!has_headlight)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -202,7 +202,7 @@ void VehicleButtons::DrawLeftBlinkerButton(RoR::GfxActor* actorx)
 
     if (!has_blink)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (actorx->GetActor()->getBlinkType() == BLINK_LEFT)
@@ -221,7 +221,7 @@ void VehicleButtons::DrawLeftBlinkerButton(RoR::GfxActor* actorx)
 
     if (!has_blink)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -250,7 +250,7 @@ void VehicleButtons::DrawRightBlinkerButton(RoR::GfxActor* actorx)
 
     if (!has_blink)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (actorx->GetActor()->getBlinkType() == BLINK_RIGHT)
@@ -269,7 +269,7 @@ void VehicleButtons::DrawRightBlinkerButton(RoR::GfxActor* actorx)
 
     if (!has_blink)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -298,7 +298,7 @@ void VehicleButtons::DrawWarnBlinkerButton(RoR::GfxActor* actorx)
 
     if (!has_blink)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (actorx->GetActor()->getBlinkType() == BLINK_WARN)
@@ -317,7 +317,7 @@ void VehicleButtons::DrawWarnBlinkerButton(RoR::GfxActor* actorx)
 
     if (!has_blink)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -337,7 +337,7 @@ void VehicleButtons::DrawHornButton(RoR::GfxActor* actorx)
 {
     if (actorx->GetActor()->getTruckType() != TRUCK)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (SOUND_GET_STATE(actorx->GetActor()->ar_instance_id, SS_TRIG_HORN))
@@ -373,7 +373,7 @@ void VehicleButtons::DrawHornButton(RoR::GfxActor* actorx)
 
     if (actorx->GetActor()->getTruckType() != TRUCK)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -393,7 +393,7 @@ void VehicleButtons::DrawMirrorButton(RoR::GfxActor* actorx)
 {
     if (!actorx->hasCamera())
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (actorx->GetVideoCamState() == VideoCamState::VCSTATE_ENABLED_ONLINE)
@@ -419,7 +419,7 @@ void VehicleButtons::DrawMirrorButton(RoR::GfxActor* actorx)
 
     if (!actorx->hasCamera())
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -468,7 +468,7 @@ void VehicleButtons::DrawParkingBrakeButton(RoR::GfxActor* actorx)
 {
     if (actorx->GetActor()->getTruckType() == NOT_DRIVEABLE || actorx->GetActor()->getTruckType() == BOAT)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (actorx->GetActor()->getParkingBrake())
@@ -487,7 +487,7 @@ void VehicleButtons::DrawParkingBrakeButton(RoR::GfxActor* actorx)
 
     if (actorx->GetActor()->getTruckType() == NOT_DRIVEABLE || actorx->GetActor()->getTruckType() == BOAT)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -507,7 +507,7 @@ void VehicleButtons::DrawTractionControlButton(RoR::GfxActor* actorx)
 {
     if (actorx->GetActor()->tc_nodash)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (actorx->GetActor()->tc_mode)
@@ -526,7 +526,7 @@ void VehicleButtons::DrawTractionControlButton(RoR::GfxActor* actorx)
 
     if (actorx->GetActor()->tc_nodash)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -546,7 +546,7 @@ void VehicleButtons::DrawAbsButton(RoR::GfxActor* actorx)
 {
     if (actorx->GetActor()->alb_nodash)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (actorx->GetActor()->alb_mode)
@@ -565,7 +565,7 @@ void VehicleButtons::DrawAbsButton(RoR::GfxActor* actorx)
 
     if (actorx->GetActor()->alb_nodash)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -645,7 +645,7 @@ void VehicleButtons::DrawAxleDiffButton(RoR::GfxActor* actorx)
 {
     if (actorx->GetActor()->getAxleDiffMode() == 0)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TOGGLE_INTER_AXLE_DIFF))
@@ -665,7 +665,7 @@ void VehicleButtons::DrawAxleDiffButton(RoR::GfxActor* actorx)
 
     if (actorx->GetActor()->getAxleDiffMode() == 0)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -685,7 +685,7 @@ void VehicleButtons::DrawWheelDiffButton(RoR::GfxActor* actorx)
 {
     if (actorx->GetActor()->getWheelDiffMode() == 0)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TOGGLE_INTER_WHEEL_DIFF))
@@ -705,7 +705,7 @@ void VehicleButtons::DrawWheelDiffButton(RoR::GfxActor* actorx)
 
     if (actorx->GetActor()->getWheelDiffMode() == 0)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -726,7 +726,7 @@ void VehicleButtons::DrawTransferCaseModeButton(RoR::GfxActor* actorx)
     if (!actorx->GetActor()->ar_engine || !actorx->GetActor()->getTransferCaseMode() ||
          actorx->GetActor()->getTransferCaseMode()->tr_ax_2 < 0 || !actorx->GetActor()->getTransferCaseMode()->tr_2wd)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TOGGLE_TCASE_4WD_MODE))
@@ -747,7 +747,7 @@ void VehicleButtons::DrawTransferCaseModeButton(RoR::GfxActor* actorx)
     if (!actorx->GetActor()->ar_engine || !actorx->GetActor()->getTransferCaseMode() ||
          actorx->GetActor()->getTransferCaseMode()->tr_ax_2 < 0 || !actorx->GetActor()->getTransferCaseMode()->tr_2wd)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -768,7 +768,7 @@ void VehicleButtons::DrawTransferCaseGearRatioButton(RoR::GfxActor* actorx)
     if (!actorx->GetActor()->ar_engine || !actorx->GetActor()->getTransferCaseMode() ||
          actorx->GetActor()->getTransferCaseMode()->tr_gear_ratios.size() < 2)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TOGGLE_TCASE_GEAR_RATIO))
@@ -789,7 +789,7 @@ void VehicleButtons::DrawTransferCaseGearRatioButton(RoR::GfxActor* actorx)
     if (!actorx->GetActor()->ar_engine || !actorx->GetActor()->getTransferCaseMode() ||
          actorx->GetActor()->getTransferCaseMode()->tr_gear_ratios.size() < 2)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -809,7 +809,7 @@ void VehicleButtons::DrawParticlesButton(RoR::GfxActor* actorx)
 {
     if (actorx->GetActor()->ar_num_custom_particles == 0)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (actorx->GetActor()->getCustomParticleMode())
@@ -828,7 +828,7 @@ void VehicleButtons::DrawParticlesButton(RoR::GfxActor* actorx)
 
     if (actorx->GetActor()->ar_num_custom_particles == 0)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -857,7 +857,7 @@ void VehicleButtons::DrawBeaconButton(RoR::GfxActor* actorx)
 
     if (!has_beacon)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (actorx->GetActor()->getBeaconMode())
@@ -876,7 +876,7 @@ void VehicleButtons::DrawBeaconButton(RoR::GfxActor* actorx)
 
     if (!has_beacon)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -896,7 +896,7 @@ void VehicleButtons::DrawShiftModeButton(RoR::GfxActor* actorx)
 {
     if (!actorx->GetActor()->ar_engine)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SWITCH_SHIFT_MODES))
@@ -935,7 +935,7 @@ void VehicleButtons::DrawShiftModeButton(RoR::GfxActor* actorx)
 
     if (!actorx->GetActor()->ar_engine)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -984,7 +984,7 @@ void VehicleButtons::DrawEngineButton(RoR::GfxActor* actorx)
 {
     if (!actorx->GetActor()->ar_engine)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (actorx->GetActor()->ar_engine->isRunning())
@@ -1010,7 +1010,7 @@ void VehicleButtons::DrawEngineButton(RoR::GfxActor* actorx)
 
     if (!actorx->GetActor()->ar_engine)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -1164,7 +1164,7 @@ void VehicleButtons::DrawLockButton(RoR::GfxActor* actorx)
 {
     if (actorx->GetActor()->ar_hooks.empty())
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (actorx->GetActor()->isLocked())
@@ -1194,7 +1194,7 @@ void VehicleButtons::DrawLockButton(RoR::GfxActor* actorx)
 
     if (actorx->GetActor()->ar_hooks.empty())
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -1214,7 +1214,7 @@ void VehicleButtons::DrawSecureButton(RoR::GfxActor* actorx)
 {
     if (actorx->GetActor()->ar_ties.empty())
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (actorx->GetActor()->isTied())
@@ -1233,7 +1233,7 @@ void VehicleButtons::DrawSecureButton(RoR::GfxActor* actorx)
 
     if (actorx->GetActor()->ar_ties.empty())
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else
@@ -1253,7 +1253,7 @@ void VehicleButtons::DrawCruiseControlButton(RoR::GfxActor* actorx)
 {
     if (!actorx->GetActor()->ar_engine)
     {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::BeginDisabled();
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
     else if (actorx->GetActor()->cc_mode)
@@ -1272,7 +1272,7 @@ void VehicleButtons::DrawCruiseControlButton(RoR::GfxActor* actorx)
 
     if (!actorx->GetActor()->ar_engine)
     {
-        ImGui::PopItemFlag();
+        ImGui::EndDisabled();
         ImGui::PopStyleVar();
     }
     else

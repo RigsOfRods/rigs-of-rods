@@ -28,6 +28,7 @@
 #include "Actor.h"
 #include "Application.h"
 #include "GUIManager.h"
+#include "GUIUtils.h"
 #include "Language.h"
 #include "RoRVersion.h"
 #include "Utils.h"
@@ -41,7 +42,7 @@ void GameAbout::Draw()
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGui::SetNextWindowSize(ImVec2(475.f, ImGui::GetIO().DisplaySize.y - 40.f), ImGuiCond_Appearing);
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
+    ImSetNextWindowPosCenter(ImGuiCond_Appearing);
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
     bool keep_open = true;
     ImGui::Begin(_LC("About", "About Rigs of Rods"), &keep_open, win_flags);

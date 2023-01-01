@@ -91,8 +91,8 @@ void MessageBoxDialog::Draw()
     const bool was_visible = m_is_visible;
 
     // Draw window
-    ImGui::SetNextWindowContentWidth(300.f); // Initial size only
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing); // Initial pos. only
+    ImGui::SetNextWindowContentSize(ImVec2(300.f, 0.f)); // Initial size only
+    ImSetNextWindowPosCenter(ImGuiCond_Appearing); // Initial pos. only
     ImGui::Begin(m_cfg.mbc_title.c_str(), m_close_handle);
     ImGui::TextWrapped("%s", m_cfg.mbc_text.c_str());
 

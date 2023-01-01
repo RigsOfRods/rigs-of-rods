@@ -24,9 +24,9 @@
 
 #pragma once
 
-#include "OgreImGui.h"
+
 #include "Application.h"
-#include "GUI_MessageBox.h"
+#include "GUIUtils.h"
 
 // GUI panels
 #include "GUI_CollisionsDebug.h"
@@ -55,11 +55,13 @@
 #include "GUI_VehicleButtons.h"
 
 // Deps
+#include <Bites/OgreImGuiInputListener.h>
 #include <Bites/OgreWindowEventUtilities.h>
 #include <MyGUI.h>
 #include <MyGUI_OgrePlatform.h>
 #include <MyGUI_UString.h>
 #include <OgreOverlay.h>
+#include <OgreImGuiOverlay.h>
 
 namespace RoR {
 
@@ -154,7 +156,8 @@ public:
 
     void SetUpMenuWallpaper();
 
-    inline OgreImGui& GetImGui() { return m_imgui; }
+    inline Ogre::ImGuiOverlay* GetImGui() { return m_imgui_overlay; }
+    OgreBites::ImGuiInputListener* GetImGuiInputListener() { return m_imgui_input_listener; }
     inline GuiTheme&  GetTheme() { return m_theme; }
 
     void WakeUpGUI();
@@ -169,12 +172,15 @@ private:
     MyGUI::Gui*          m_mygui                    = nullptr;
     MyGUI::OgrePlatform* m_mygui_platform           = nullptr;
     bool                 m_hide_gui                 = false;
-    OgreImGui            m_imgui;
     GuiTheme             m_theme;
     bool                 m_gui_kb_capture_queued    = false; //!< Resets and accumulates every frame
     bool                 m_gui_kb_capture_requested = false; //!< Effective value, persistent
     Ogre::Timer          m_last_mousemove_time;
     bool                 m_is_cursor_supressed      = false; //!< True if cursor was manually hidden.
+
+    // DearIMGUI integration
+    Ogre::ImGuiOverlay* m_imgui_overlay = nullptr;
+    OgreBites::ImGuiInputListener* m_imgui_input_listener = nullptr;
 };
 
 } // namespace RoR

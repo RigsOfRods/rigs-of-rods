@@ -23,7 +23,7 @@
 #include "Utils.h"
 
 #include <Ogre.h>
-#include "OgreImGui.h" 
+ 
 
 using namespace RoR;
 using namespace GUI;

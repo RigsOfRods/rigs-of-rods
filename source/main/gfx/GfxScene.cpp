@@ -39,7 +39,7 @@
 #include "TerrainObjectManager.h"
 #include "Utils.h"
 
-#include "imgui_internal.h"
+
 
 #include <Ogre.h>
 
@@ -377,7 +377,6 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
         GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
         ImDrawList* drawlist = GetImDummyFullscreenWindow();
-        ImGuiContext* g = ImGui::GetCurrentContext();
 
         ImVec2 text_pos(pos.x - ((text_size.x / 2)), pos.y - ((text_size.y / 2)));
 
@@ -392,7 +391,7 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
         // draw colored text
         Ogre::ColourValue color = App::GetNetwork()->GetPlayerColor(colornum);
         ImVec4 text_color(color.r, color.g, color.b, 1.f);
-        drawlist->AddText(g->Font, g->FontSize, text_pos, ImColor(text_color), caption.c_str());
+        drawlist->AddText(ImGui::GetFont(), ImGui::GetFontSize(), text_pos, ImColor(text_color), caption.c_str());
     }
 
 #endif // USE_SOCKETW

@@ -99,17 +99,6 @@ set(SOURCE_FILES
         gui/GUIUtils.{h,cpp}
         gui/OverlayWrapper.{h,cpp}
         gui/RTTLayer.{h,cpp}
-        gui/imgui/imgui.{h,cpp}
-        gui/imgui/imgui_demo.cpp
-        gui/imgui/imgui_draw.cpp
-        gui/imgui/imgui_widgets.cpp
-        gui/imgui/OgreImGuiOverlay.{h,cpp}
-        gui/imgui/OgreImGui.{h,cpp}
-        gui/imgui/imconfig.h
-        gui/imgui/imgui_internal.h
-        gui/imgui/imstb_rectpack.h
-        gui/imgui/imstb_textedit.h
-        gui/imgui/imstb_truetype.h
         gui/panels/GUI_AngelScriptExamples.{h,cpp}
         gui/panels/GUI_CollisionsDebug.{h,cpp}
         gui/panels/GUI_ConsoleView.{h,cpp}
@@ -327,7 +316,6 @@ target_include_directories(${BINNAME} PRIVATE
         gfx/particle
         gfx/skyx
         gui
-        gui/imgui
         gui/mygui
         gui/panels
         network

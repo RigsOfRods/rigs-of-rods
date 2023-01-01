@@ -94,7 +94,8 @@ void RoR::Renderdash::preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
     App::GetGfxScene()->GetSceneManager()->setFindVisibleObjects(false);
 
     // Disable DearIMGUI overlay
-    App::GetGfxScene()->GetSceneManager()->removeRenderQueueListener(&App::GetGuiManager()->GetImGui());
+    // FIXME: how to prevent OGRE builtin IMGUI from rendering to renderdash?
+//    App::GetGfxScene()->GetSceneManager()->removeRenderQueueListener(App::GetGuiManager()->GetImGui());
 
     // Disable other overlays
     App::GetOverlayWrapper()->HideRacingOverlay();
@@ -112,7 +113,8 @@ void RoR::Renderdash::postRenderTargetUpdate(const Ogre::RenderTargetEvent& evt)
     App::GetGfxScene()->GetSceneManager()->setFindVisibleObjects(true);
 
     // Enable DearIMGUI overlay
-    App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(&App::GetGuiManager()->GetImGui());
+    // FIXME: how to prevent OGRE builtin IMGUI from rendering to renderdash?
+//    App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(&App::GetGuiManager()->GetImGui());
 
     // Overlays 'racing' and 'direction arrow' are re-enabled automatically if needed
 

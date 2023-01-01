@@ -66,7 +66,7 @@ void MpClientList::Draw()
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
     const float content_width = 200.f;
-    ImGui::SetNextWindowContentWidth(content_width);
+    ImGui::SetNextWindowContentSize(ImVec2(content_width, 0.f));
     ImGui::SetNextWindowPos(ImVec2(
         ImGui::GetIO().DisplaySize.x - (content_width + (2*ImGui::GetStyle().WindowPadding.x) + theme.screen_edge_padding.x),
         theme.screen_edge_padding.y));

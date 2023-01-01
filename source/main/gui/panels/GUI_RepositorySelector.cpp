@@ -38,7 +38,7 @@
 #include "RoRVersion.h"
 
 #include <imgui.h>
-#include <imgui_internal.h>
+
 #include <rapidjson/document.h>
 #include <vector>
 #include <fmt/core.h>
@@ -389,7 +389,7 @@ void RepositorySelector::Draw()
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGui::SetNextWindowSize(ImVec2((ImGui::GetIO().DisplaySize.x / 1.4), (ImGui::GetIO().DisplaySize.y / 1.2)), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
+    ImSetNextWindowPosCenter(ImGuiCond_Appearing);
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
     bool keep_open = true;
     Ogre::TexturePtr tex1 = FetchIcon("arrow_rotate_anticlockwise.png");
@@ -414,7 +414,7 @@ void RepositorySelector::Draw()
         // Deactivate in resource view
         if (m_resource_view)
         {
-            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::BeginDisabled();
             ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
         }
 
@@ -553,12 +553,12 @@ void RepositorySelector::Draw()
 
         if (m_resource_view)
         {
-            ImGui::PopItemFlag();
+            ImGui::EndDisabled();
             ImGui::PopStyleVar();
         }
 
         const float table_height = ImGui::GetWindowHeight()
-                - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
+                - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetFrameHeightWithSpacing())
                 - ImGui::GetStyle().ItemSpacing.y);
 
         if (m_resource_view)
@@ -764,10 +764,10 @@ void RepositorySelector::Draw()
                 }
                 else if (!FileExists(file))
                 {
-                    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                    ImGui::BeginDisabled();
                     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
                     ImGui::Button(_LC("RepositorySelector", "Remove"), ImVec2(100, 0));
-                    ImGui::PopItemFlag();
+                    ImGui::EndDisabled();
                     ImGui::PopStyleVar();
                 }
 
@@ -779,10 +779,10 @@ void RepositorySelector::Draw()
         }
         else
         {
-            float col0_width = 0.40f * ImGui::GetWindowContentRegionWidth();
-            float col1_width = 0.15f * ImGui::GetWindowContentRegionWidth();
-            float col2_width = 0.20f * ImGui::GetWindowContentRegionWidth();
-            float col3_width = 0.10f * ImGui::GetWindowContentRegionWidth();
+            float col0_width = 0.40f * ImGui::GetWindowContentRegionMax().x;
+            float col1_width = 0.15f * ImGui::GetWindowContentRegionMax().x;
+            float col2_width = 0.20f * ImGui::GetWindowContentRegionMax().x;
+            float col3_width = 0.10f * ImGui::GetWindowContentRegionMax().x;
 
             if (m_view_mode == "Basic")
             {

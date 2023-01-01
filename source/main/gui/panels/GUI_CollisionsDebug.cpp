@@ -33,7 +33,7 @@
 #include "Utils.h"
 #include "RoRnet.h"
 
-#include "imgui_internal.h"
+
 
 using namespace RoR;
 using namespace GUI;
@@ -354,7 +354,6 @@ void CollisionsDebug::DrawLabelAtWorldPos(std::string const& caption, Ogre::Vect
         GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
         ImDrawList* drawlist = GetImDummyFullscreenWindow();
-        ImGuiContext* g = ImGui::GetCurrentContext();
 
         ImVec2 text_pos(pos.x - ((text_size.x / 2)), pos.y - ((text_size.y / 2)));
 
@@ -367,7 +366,7 @@ void CollisionsDebug::DrawLabelAtWorldPos(std::string const& caption, Ogre::Vect
             ImGui::GetStyle().WindowRounding);
 
         // draw colored text
-        drawlist->AddText(g->Font, g->FontSize, text_pos, ImColor(text_color), caption.c_str());
+        drawlist->AddText(ImGui::GetFont(), ImGui::GetFontSize(), text_pos, ImColor(text_color), caption.c_str());
     }
     // ---- END COPYPASTE ----
 }

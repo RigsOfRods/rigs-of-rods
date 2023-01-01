@@ -39,7 +39,7 @@
 #include "InputEngine.h" // TODO: Keys shouldn't be queried from here, but buffered in sim. loop ~ only_a_ptr, 06/2018
 #include "MeshObject.h"
 #include "MovableText.h"
-#include "OgreImGui.h"
+
 #include "Renderdash.h" // classic 'renderdash' material
 #include "ActorSpawner.h"
 #include "SlideNode.h"
@@ -50,7 +50,7 @@
 #include "TurboProp.h"
 #include "Utils.h"
 
-#include "imgui_internal.h"
+
 
 #include <Ogre.h>
 

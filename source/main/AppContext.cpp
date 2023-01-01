@@ -75,7 +75,7 @@ bool AppContext::SetUpInput()
 bool AppContext::mouseMoved(const OgreBites::MouseMotionEvent& arg) // overrides OgreBites::InputListener
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().InjectMouseMoved(arg);
+    App::GetGuiManager()->GetImGuiInputListener()->mouseMoved(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
@@ -99,7 +99,7 @@ bool AppContext::mouseMoved(const OgreBites::MouseMotionEvent& arg) // overrides
 bool AppContext::mouseWheelRolled(const OgreBites::MouseWheelEvent& arg)
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().InjectMouseWheelRolled(arg);
+    App::GetGuiManager()->GetImGuiInputListener()->mouseWheelRolled(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
@@ -112,7 +112,7 @@ bool AppContext::mouseWheelRolled(const OgreBites::MouseWheelEvent& arg)
 bool AppContext::mousePressed(const OgreBites::MouseButtonEvent& arg) // overrides OgreBites::InputListener
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().InjectMousePressed(arg);
+    App::GetGuiManager()->GetImGuiInputListener()->mousePressed(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
@@ -135,7 +135,7 @@ bool AppContext::mousePressed(const OgreBites::MouseButtonEvent& arg) // overrid
 bool AppContext::mouseReleased(const OgreBites::MouseButtonEvent& arg) // overrides OgreBites::InputListener
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().InjectMouseReleased(arg);
+    App::GetGuiManager()->GetImGuiInputListener()->mouseReleased(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
@@ -155,7 +155,7 @@ bool AppContext::mouseReleased(const OgreBites::MouseButtonEvent& arg) // overri
 
 bool AppContext::keyPressed(const OgreBites::KeyboardEvent& arg)
 {
-    App::GetGuiManager()->GetImGui().InjectKeyPressed(arg);
+    App::GetGuiManager()->GetImGuiInputListener()->keyPressed(arg);
 
     if (!App::GetGuiManager()->IsGuiCaptureKeyboardRequested() &&
         !ImGui::GetIO().WantCaptureKeyboard)
@@ -168,7 +168,7 @@ bool AppContext::keyPressed(const OgreBites::KeyboardEvent& arg)
 
 bool AppContext::keyReleased(const OgreBites::KeyboardEvent& arg)
 {
-    App::GetGuiManager()->GetImGui().InjectKeyReleased(arg);
+    App::GetGuiManager()->GetImGuiInputListener()->keyReleased(arg);
 
     if (!App::GetGuiManager()->IsGuiCaptureKeyboardRequested() &&
         !ImGui::GetIO().WantCaptureKeyboard)

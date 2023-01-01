@@ -27,7 +27,6 @@
 #pragma once
 
 #include "Application.h"
-#include "OgreImGui.h" // ImVec4
 
 #include <future>
 #include <memory>
