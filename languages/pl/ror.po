@@ -4,22 +4,24 @@
 #
 # Translators:
 # Karol Bieńkowski <karlossss1996@gmail.com>, 2019
+# Michał Mańk <michal.090506@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2019-05-14 16:55+0000\n"
-"Last-Translator: Karol Bieńkowski <karlossss1996@gmail.com>\n"
-"Language-Team: Polish (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/pl/)\n"
+"PO-Revision-Date: 2023-01-02 00:53+0000\n"
+"Last-Translator: Michał Mańk <michal.090506@gmail.com>\n"
+"Language-Team: Polish <https://hosted.weblate.org/projects/rigs-of-rods/game/"
+"pl/>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n"
-"%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n"
-"%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
+"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && ("
+"n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
+"n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
+"X-Generator: Weblate 4.15.1-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -48,7 +50,7 @@ msgstr "Błąd podczas uzyskiwania ścieżki katalogowej użytkownika"
 msgid "Resources folder not found. Check if correctly installed."
 msgstr ""
 "Folder z zasobami nie został znaleziony. Sprawdź czy został zainstalowany "
-"poprawnie"
+"poprawnie."
 
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
@@ -290,7 +292,7 @@ msgstr "Błąd podczas ładowania terenu"
 
 #: GameContext.cpp:572
 msgid "Please clear the place first"
-msgstr "Proszę oczyścić miejsce"
+msgstr "Proszę najpierw wyczyścić miejsce"
 
 #: GameContext.cpp:874
 #, fuzzy
@@ -304,7 +306,7 @@ msgstr ""
 
 #: GameContext.cpp:1061
 msgid "Time set to "
-msgstr "Czas ustawiony na"
+msgstr "Czas ustawiony na "
 
 #: GameContext.cpp:1203
 msgid "No rescue truck found!"
@@ -384,7 +386,7 @@ msgstr "Bieżący poziom FPS: "
 
 #: gui/OverlayWrapper.cpp:432
 msgid "Average FPS: "
-msgstr "Średni poziom FPS: "
+msgstr "Średnia poziomu FPS: "
 
 #: gui/OverlayWrapper.cpp:433
 msgid "Best FPS: "
@@ -400,7 +402,7 @@ msgstr "Liczba trójkątów: "
 
 #: gui/OverlayWrapper.cpp:462
 msgid "Textures: "
-msgstr "Tekstury:"
+msgstr "Tekstury: "
 
 #: gui/OverlayWrapper.cpp:464
 msgid "Compositors: "
@@ -408,31 +410,31 @@ msgstr "Kompozytory:"
 
 #: gui/OverlayWrapper.cpp:466
 msgid "Fonts: "
-msgstr "Czcionki:"
+msgstr "Czcionki: "
 
 #: gui/OverlayWrapper.cpp:468
 msgid "GPU Program: "
-msgstr "Program GPU:"
+msgstr "Program GPU: "
 
 #: gui/OverlayWrapper.cpp:470
 msgid "HL GPU Program: "
-msgstr "Program HL GPU:"
+msgstr "Program HL GPU: "
 
 #: gui/OverlayWrapper.cpp:472 gui/OverlayWrapper.cpp:478
 msgid "Materials: "
-msgstr "Materiały:"
+msgstr "Materiały: "
 
 #: gui/OverlayWrapper.cpp:474
 msgid "Meshes: "
-msgstr "Meshe:"
+msgstr "Meshe: "
 
 #: gui/OverlayWrapper.cpp:476
 msgid "Skeletons: "
-msgstr "Szkielety:"
+msgstr "Szkielety: "
 
 #: gui/OverlayWrapper.cpp:485
 msgid "Memory (Ogre): "
-msgstr "Pamięć (Ogre):"
+msgstr "Pamięć (Ogre): "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
 #, fuzzy
@@ -1545,7 +1547,7 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:224
 msgctxt "GameSettings"
 msgid "Skip main menu"
-msgstr "Omiń menu główne"
+msgstr "Pomiń menu główne"
 
 #: gui/panels/GUI_GameSettings.cpp:225
 msgctxt "GameSettings"
@@ -1664,7 +1666,7 @@ msgstr "Muzyka w menu głównym"
 #: gui/panels/GUI_GameSettings.cpp:295
 msgctxt "GameSettings"
 msgid "Master volume"
-msgstr "Głośność"
+msgstr "Ogólna głośność"
 
 #: gui/panels/GUI_GameSettings.cpp:301
 msgctxt "GameSettings"
@@ -1726,7 +1728,7 @@ msgstr "Efekty wody"
 #: gui/panels/GUI_GameSettings.cpp:345
 msgctxt "GameSettings"
 msgid "FPS limit"
-msgstr "Limit klatek na sekundę"
+msgstr "Limit FPS"
 
 #: gui/panels/GUI_GameSettings.cpp:347
 msgctxt "GameSettings"
@@ -1741,13 +1743,13 @@ msgstr "Włącz ślady poślizgu opon"
 #: gui/panels/GUI_GameSettings.cpp:350
 msgctxt "GameSettings"
 msgid "Realtime reflections"
-msgstr "Dynamiczne odbicia świetlne"
+msgstr "Odbicia w czasie rzeczywistym"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_GameSettings.cpp:354
 msgctxt "GameSettings"
 msgid "Realtime refl. update rate"
-msgstr "częst. aktualizacji dyn. odbić"
+msgstr "Częstość aktualizacji odbić"
 
 #: gui/panels/GUI_GameSettings.cpp:358
 msgctxt "GameSettings"
@@ -1813,7 +1815,7 @@ msgstr "Wybrany pojazd"
 #: gui/panels/GUI_GameSettings.cpp:381
 msgctxt "GameSettings"
 msgid "Presel. veh. config"
-msgstr "Wymuś konf. pojazdu"
+msgstr "Wybrana konf. pojazdu"
 
 #: gui/panels/GUI_GameSettings.cpp:382
 msgctxt "GameSettings"
@@ -1838,7 +1840,7 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:386
 msgctxt "GameSettings"
 msgid "Debug camera (rails)"
-msgstr "Debuguj kamerę (ścieżkę)"
+msgstr "Debuguj kamerę (ścieżka)"
 
 #: gui/panels/GUI_GameSettings.cpp:387
 msgctxt "GameSettings"
@@ -1848,7 +1850,7 @@ msgstr "Debuguj masę obiektu"
 #: gui/panels/GUI_GameSettings.cpp:388
 msgctxt "GameSettings"
 msgid "Debug realtime reflections"
-msgstr "Debuguj dynamiczne odbicia świetlne"
+msgstr "Debuguj odbicia czasu rzeczywistego"
 
 #: gui/panels/GUI_GameSettings.cpp:389
 msgctxt "GameSettings"
@@ -1982,7 +1984,7 @@ msgstr "Port OutGauge"
 #: gui/panels/GUI_GameSettings.cpp:437
 msgctxt "GameSettings"
 msgid "OutGauge ID"
-msgstr "OutGauge ID"
+msgstr "ID OutGauge"
 
 #: gui/panels/GUI_GameSettings.cpp:438
 msgctxt "GameSettings"
@@ -3972,7 +3974,7 @@ msgstr ""
 
 #: main.cpp:779
 msgid "Left terrain editing mode"
-msgstr "Opuszczenie trybu edycji terenu "
+msgstr "Opuszczenie trybu edycji terenu"
 
 #: main.cpp:1023
 msgid "An exception has occured!"
@@ -4045,7 +4047,7 @@ msgid ""
 "'%s' and the server is using '%s'"
 msgstr ""
 "Ustanawianie sesji sieciowej: niezgodna wersja serwera: ty używasz wersji "
-"'%s', a serwer używa '%s'."
+"'%s', a serwer używa '%s'"
 
 #: network/Network.cpp:464
 msgid "server uses a different protocol version"
