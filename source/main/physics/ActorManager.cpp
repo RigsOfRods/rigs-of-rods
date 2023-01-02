@@ -317,6 +317,12 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
         actor->m_replay_handler = new Replay(actor, App::sim_replay_length->getInt());
     }
 
+    // Launch scripts (FIXME: ignores sectionconfig)
+    for (RigDef::Script const& script_def : def->root_module->scripts)
+    {
+        App::GetScriptEngine()->loadScript(script_def.filename, ScriptCategory::ACTOR, actor);
+    }
+
     LOG(" ===== DONE LOADING VEHICLE");
 
     if (App::diag_actor_dump->getBool())

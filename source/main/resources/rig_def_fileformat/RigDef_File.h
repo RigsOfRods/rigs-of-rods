@@ -145,6 +145,7 @@ enum class Keyword
     ROTATORS,
     ROTATORS2,
     SCREWPROPS,
+    SCRIPTS,
     SECTION,
     SECTIONCONFIG,
     SET_BEAM_DEFAULTS,
@@ -1158,6 +1159,11 @@ struct Screwprop
     float power = 0.f;
 };
 
+struct Script
+{
+    std::string filename;
+};
+
 struct ShadowOptions
 {
     int shadow_mode = 0;
@@ -1610,6 +1616,7 @@ struct Document
         std::vector<Rotator>               rotators;
         std::vector<Rotator2>              rotators2;
         std::vector<Screwprop>             screwprops;
+        std::vector<Script>                scripts;
         std::vector<Shock>                 shocks;
         std::vector<Shock2>                shocks2;
         std::vector<Shock3>                shocks3;

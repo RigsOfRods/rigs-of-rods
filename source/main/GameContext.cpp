@@ -412,6 +412,19 @@ void GameContext::DeleteActor(ActorPtr actor)
 #endif //SOCKETW
 
     TRIGGER_EVENT(SE_GENERIC_DELETED_TRUCK, actor->ar_instance_id);
+
+    // Unload actor's scripts
+    std::vector<ScriptUnitId_t> unload_list;
+    for (auto& pair : App::GetScriptEngine()->getScriptUnits())
+    {
+        if (pair.second.associatedActor == actor)
+            unload_list.push_back(pair.first);
+    }
+    for (ScriptUnitId_t id : unload_list)
+    {
+        App::GetScriptEngine()->unloadScript(id);
+    }
+
     m_actor_manager.DeleteActorInternal(actor);
 }
 

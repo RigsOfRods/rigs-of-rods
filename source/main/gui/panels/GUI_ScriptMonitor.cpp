@@ -32,7 +32,7 @@ void ScriptMonitor::Draw()
     ImGui::Columns(3);
     ImGui::SetColumnWidth(0, 30);
     ImGui::SetColumnWidth(1, 200);
-    ImGui::SetColumnWidth(2, 100);
+    ImGui::SetColumnWidth(2, 200);
 
     // Header
     ImGui::TextDisabled("ID");
@@ -57,6 +57,10 @@ void ScriptMonitor::Draw()
         ImGui::NextColumn();
         switch (unit.scriptCategory)
         {
+        case ScriptCategory::ACTOR:
+            ImGui::Text("(actor [%u] '%s')", unit.associatedActor->ar_vector_index, unit.associatedActor->getTruckName().c_str());
+            break;
+
         case ScriptCategory::TERRAIN:
             ImGui::Text("(terrain)");
             break;

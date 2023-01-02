@@ -64,9 +64,10 @@ const char* RoR::ScriptCategoryToString(ScriptCategory c)
 {
     switch (c)
     {
+    case ScriptCategory::INVALID: return "INVALID";
+    case ScriptCategory::ACTOR: return "ACTOR";
     case ScriptCategory::TERRAIN: return "TERRAIN";
     case ScriptCategory::CUSTOM: return "CUSTOM";
-    case ScriptCategory::INVALID: return "INVALID";
     default: return "";
     }
 }
@@ -536,7 +537,7 @@ String ScriptEngine::composeModuleName(String const& scriptName, ScriptCategory 
     return fmt::format("{}(category:{},unique ID:{})", scriptName, ScriptCategoryToString(origin), id);
 }
 
-ScriptUnitId_t ScriptEngine::loadScript(String scriptName, ScriptCategory category/* = ScriptCategory::TERRAIN*/)
+ScriptUnitId_t ScriptEngine::loadScript(String scriptName, ScriptCategory category/* = ScriptCategory::TERRAIN*/, ActorPtr associatedActor /*= nullptr*/)
 {
     // This function creates a new script unit, tries to set it up and removes it if setup fails.
     // -----------------------------------------------------------------------------------------
@@ -553,7 +554,11 @@ ScriptUnitId_t ScriptEngine::loadScript(String scriptName, ScriptCategory catego
     if (category == ScriptCategory::TERRAIN)
     {
         m_terrain_script_unit = unit_id;
-    }    
+    }
+    else if (category == ScriptCategory::ACTOR)
+    {
+        m_script_units[unit_id].associatedActor = associatedActor;
+    }
 
     // Perform the actual script loading, building and running main().
     int result = this->setupScriptUnit(unit_id);
@@ -594,6 +599,18 @@ int ScriptEngine::setupScriptUnit(int unit_id)
         return result;
     }
     m_script_units[unit_id].scriptModule = engine->GetModule(moduleName.c_str(), AngelScript::asGM_ONLY_IF_EXISTS);
+
+    // For actor scripts, add global var `thisActor` to the module
+    if (m_script_units[unit_id].scriptCategory == ScriptCategory::ACTOR)
+    {
+        result = m_script_units[unit_id].scriptModule->AddScriptSection(m_script_units[unit_id].scriptName.c_str(), "BeamClass@ thisActor;");
+        if (result < 0)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("Could not load script '{}' - failed to create global variable `thisActor`.", moduleName));
+            return result;
+        }
+    }
 
     // Load the script from the file system.
     result = builder.AddSectionFromFile(m_script_units[unit_id].scriptName.c_str());
@@ -652,6 +669,27 @@ int ScriptEngine::setupScriptUnit(int unit_id)
             fmt::format("Could not load script '{}' - failed to build module.", moduleName));
         context->Release();
         return -1;
+    }
+
+    // For actor scripts, initialize the global var `thisActor`
+    if (m_script_units[unit_id].scriptCategory == ScriptCategory::ACTOR)
+    {
+        int var_index = m_script_units[unit_id].scriptModule->GetGlobalVarIndexByName("thisActor");
+        if (var_index < 0)
+        {
+            SLOG("Could not find global var `thisActor`");
+            return -1;
+        }
+
+        // Example: https://www.gamedev.net/forums/topic/644188-angelscript-2263-global-property-issues-solved/5069638/
+        Actor** thisActorAddr = (Actor**)m_script_units[unit_id].scriptModule->GetAddressOfGlobalVar(var_index);
+        if (thisActorAddr == nullptr)
+        {
+            SLOG("Could not retrieve address of global var `thisActor`");
+            return -1;
+        }
+        *thisActorAddr = m_script_units[unit_id].associatedActor.GetRef();
+        (*thisActorAddr)->AddRef();
     }
 
     // Execute the `main()` function in the script.

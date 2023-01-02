@@ -275,6 +275,7 @@ void Parser::ProcessCurrentLine()
         case Keyword::ROTATORS:
         case Keyword::ROTATORS2:            this->ParseRotatorsUnified();         return;
         case Keyword::SCREWPROPS:           this->ParseScrewprops();              return;
+        case Keyword::SCRIPTS:              this->ParseScripts();                 return;
         case Keyword::SHOCKS:               this->ParseShock();                   return;
         case Keyword::SHOCKS2:              this->ParseShock2();                  return;
         case Keyword::SHOCKS3:              this->ParseShock3();                  return;
@@ -2098,6 +2099,17 @@ void Parser::ParseScrewprops()
     screwprop.power     = this->GetArgFloat  (3);
 
     m_current_module->screwprops.push_back(screwprop);
+}
+
+void Parser::ParseScripts()
+{
+    if (!this->CheckNumArguments(1)) { return; }
+
+    Script script;
+
+    script.filename = this->GetArgStr(0);
+
+    m_current_module->scripts.push_back(script);
 }
 
 void Parser::ParseRotatorsUnified()
