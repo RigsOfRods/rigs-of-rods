@@ -95,7 +95,7 @@ void ConsoleWindow::Draw()
 
         if (ImGui::BeginMenu(_LC("Console", "Script Monitor")))
         {
-            ImGui::Dummy(ImVec2(340.f, 1.f)); // Manually resize width (DearIMGUI bug workaround)
+            ImGui::Dummy(ImVec2(440.f, 1.f)); // Manually resize width (DearIMGUI bug workaround)
             m_script_monitor.Draw();
             ImGui::EndMenu();
         }

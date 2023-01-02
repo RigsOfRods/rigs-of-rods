@@ -51,7 +51,8 @@ namespace RoR {
 enum class ScriptCategory
 {
     INVALID,
-    TERRAIN,
+    ACTOR,   //!< Defined in truck file under 'scripts', contains global variable `BeamClass@ thisActor`.
+    TERRAIN, //!< Defined in terrn2 file under '[Scripts]', receives terrain eventbox notifications.
     CUSTOM
 };
 
@@ -70,6 +71,7 @@ struct ScriptUnit
     AngelScript::asIScriptFunction* frameStepFunctionPtr = nullptr; //!< script function pointer to the frameStep function
     AngelScript::asIScriptFunction* eventCallbackFunctionPtr = nullptr; //!< script function pointer to the event callback function
     AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr = nullptr; //!< script function pointer for spawner events
+    ActorPtr associatedActor; //!< For ScriptCategory::ACTOR
     Ogre::String scriptName;
     Ogre::String scriptHash;
 };
@@ -94,7 +96,7 @@ public:
      * @param scriptname filename to load
      * @return Unique ID of the script unit (because one script file can be loaded multiple times).
      */
-    ScriptUnitId_t loadScript(Ogre::String scriptname, ScriptCategory category = ScriptCategory::TERRAIN);
+    ScriptUnitId_t loadScript(Ogre::String scriptname, ScriptCategory category = ScriptCategory::TERRAIN, ActorPtr associatedActor = nullptr);
 
     /**
      * Unloads a script
