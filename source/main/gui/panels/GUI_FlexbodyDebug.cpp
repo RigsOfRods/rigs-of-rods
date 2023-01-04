@@ -455,11 +455,16 @@ void FlexbodyDebug::UpdateVisibility()
         if (combo_prop_selection >= 0 && combo_prop_selection < (int)prop_vec.size())
         {
             prop_vec[combo_prop_selection].pp_camera_mode_active = CAMERA_MODE_ALWAYS_VISIBLE;
+            if (prop_vec[combo_prop_selection].pp_wheel_mesh_obj)
+            {
+                // Special case: the steering wheel mesh visibility is not controlled by 'camera mode'
+                prop_vec[combo_prop_selection].pp_wheel_mesh_obj->setVisible(true);
+            }
         }
     }
     else
     {
-        // Show everything, `GfxActor::UpdateScene()` will update visibility as needed.
+        // Show everything, `GfxActor::UpdateProps()` will update visibility as needed.
         actor->GetGfxActor()->SetAllMeshesVisible(true);
         // Restore prop dynamic visibility mode
         for (Prop& prop : actor->GetGfxActor()->getProps())
