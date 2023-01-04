@@ -38,6 +38,8 @@
 #include <OgreStringVector.h>
 #include <OgreStringConverter.h>
 
+#include <algorithm>
+
 using namespace RoR;
 
 namespace RigDef
@@ -132,6 +134,9 @@ void Parser::ProcessCurrentLine()
             return;
         case Keyword::CRUISECONTROL:
             this->ParseCruiseControl();
+            return;
+        case Keyword::DEFAULT_SKIN:
+            this->ParseDirectiveDefaultSkin();
             return;
         case Keyword::DETACHER_GROUP:
             this->ParseDirectiveDetacherGroup();
@@ -1036,6 +1041,17 @@ void Parser::ParseFileFormatVersion()
 
     m_current_module->fileformatversion.push_back(ffv);
     m_current_block = Keyword::INVALID;
+}
+
+void Parser::ParseDirectiveDefaultSkin()
+{
+    if (!this->CheckNumArguments(2)) { return; } // 2 items: keyword, param
+
+    DefaultSkin data;
+    data.skin_name = this->GetArgStr(1);
+    std::replace(data.skin_name.begin(), data.skin_name.end(), '_', ' ');
+
+    m_current_module->default_skin.push_back(data);
 }
 
 void Parser::ParseDirectiveDetacherGroup()

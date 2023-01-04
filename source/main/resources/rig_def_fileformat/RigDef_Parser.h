@@ -90,6 +90,7 @@ private:
     void ProcessGlobalDirective(Keyword keyword); //!< Directives that should only appear in root module
     void ParseDirectiveAddAnimation();
     void ParseDirectiveBackmesh();
+    void ParseDirectiveDefaultSkin();
     void ParseDirectiveDetacherGroup();
     void ParseDirectiveFlexbodyCameraMode();
     void ParseDirectiveForset();
