@@ -85,6 +85,7 @@ enum class Keyword
     COMMENT,
     CONTACTERS,
     CRUISECONTROL,
+    DEFAULT_SKIN,
     DESCRIPTION,
     DETACHER_GROUP,
     DISABLEDEFAULTSOUNDS,
@@ -785,6 +786,11 @@ struct CruiseControl
 struct DefaultMinimass
 {
     float min_mass_Kg = DEFAULT_MINIMASS; //!< minimum node mass in Kg
+};
+
+struct DefaultSkin
+{
+    std::string skin_name;
 };
 
 struct Engine
@@ -1566,6 +1572,7 @@ struct Document
         std::vector<Command2>              commands2; // 'commands' are auto-imported as 'commands2' (only 1 extra argument)
         std::vector<CruiseControl>         cruisecontrol;
         std::vector<Node::Ref>             contacters;
+        std::vector<DefaultSkin>           default_skin;
         std::vector<Ogre::String>          description;
         std::vector<Engine>                engine;
         std::vector<Engoption>             engoption;

@@ -258,6 +258,7 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
     // Vehicle details
     out_entry.description =       j_entry["description"].GetString();
     out_entry.tags =              j_entry["tags"].GetString();
+    out_entry.default_skin =      j_entry["default_skin"].GetString();
     out_entry.fileformatversion = j_entry["fileformatversion"].GetInt();
     out_entry.hasSubmeshs =       j_entry["hasSubmeshs"].GetBool();
     out_entry.nodecount =         j_entry["nodecount"].GetInt();
@@ -517,6 +518,7 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
     // Vehicle details
     j_entry.AddMember("description",         rapidjson::StringRef(entry.description.c_str()),       j_doc.GetAllocator());
     j_entry.AddMember("tags",                rapidjson::StringRef(entry.tags.c_str()),              j_doc.GetAllocator());
+    j_entry.AddMember("default_skin",        rapidjson::StringRef(entry.default_skin.c_str()),      j_doc.GetAllocator());
     j_entry.AddMember("fileformatversion",   entry.fileformatversion, j_doc.GetAllocator());
     j_entry.AddMember("hasSubmeshs",         entry.hasSubmeshs,       j_doc.GetAllocator());
     j_entry.AddMember("nodecount",           entry.nodecount,         j_doc.GetAllocator());
@@ -742,6 +744,12 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
         author.type = author_itor->type;
 
         entry.authors.push_back(author);
+    }
+
+    /* Default skin */
+    if (def->root_module->default_skin.size() > 0)
+    {
+        entry.default_skin = def->root_module->default_skin.back().skin_name;
     }
 
     /* Modules (previously called "sections") */

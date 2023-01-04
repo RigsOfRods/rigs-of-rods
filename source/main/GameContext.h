@@ -27,6 +27,7 @@
 
 #include "Actor.h"
 #include "ActorManager.h"
+#include "CacheSystem.h"
 #include "CharacterFactory.h"
 #include "RaceSystem.h"
 #include "RecoveryMode.h"
@@ -194,6 +195,7 @@ private:
     CacheEntry*         m_last_skin_selection = nullptr;
     Ogre::String        m_last_section_config;
     ActorSpawnRequest   m_current_selection;                //!< Context of the loader UI
+    CacheEntry          m_dummy_cache_selection;
 
     // Characters (simplified physics and netcode)
     CharacterFactory    m_character_factory;

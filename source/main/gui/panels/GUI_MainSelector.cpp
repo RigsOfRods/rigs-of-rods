@@ -52,13 +52,14 @@ using namespace GUI;
 //   Syntax 'abcdef': searches fulltext (ingoring case) in: name, filename, description, author name/mail (in this order, with descending rank) and returns rank+string pos as score
 //   Syntax 'AREA:abcdef': searches (ignoring case) in AREA: 'guid'(guid string), 'author' (name/email), 'wheels' (string "WHEELCOUNTxPROPWHEELCOUNT"), 'file' (filename); returns string pos as score
 
-void MainSelector::Show(LoaderType type, std::string const& filter_guid)
+void MainSelector::Show(LoaderType type, std::string const& filter_guid, CacheEntry* advertised_entry)
 {
     m_loader_type = type;
     m_search_method = CacheSearchMethod::NONE;
     m_search_input.Clear();
     m_search_string.clear();
     m_filter_guid = filter_guid;
+    m_advertised_entry = advertised_entry;
     m_selected_cid = m_last_selected_cid[type];
     if (m_selected_cid == 0)
         m_selected_cid = CID_All;
@@ -311,6 +312,12 @@ void MainSelector::Draw()
                 ImGui::SameLine();
                 ImGui::TextColored(theme.value_blue_text_color, "%s", sd_entry.sde_entry->hasSubmeshs ?_LC("MainSelector", "Yes") : _LC("MainSelector", "No"));
             }
+            if (sd_entry.sde_entry->default_skin != "")
+            {
+                ImGui::Text("%s", _LC("MainSelector", "Default skin: "));
+                ImGui::SameLine();
+                ImGui::TextColored(theme.value_blue_text_color, "%s", sd_entry.sde_entry->default_skin.c_str());
+            }
             this->DrawAttrFloat(_LC("MainSelector", "Torque: "), sd_entry.sde_entry->torque);
             this->DrawAttrInt(_LC("MainSelector", "Transmission Gear Count: "), sd_entry.sde_entry->numgears);
             if (sd_entry.sde_entry->minrpm > 0)
@@ -418,11 +425,10 @@ void MainSelector::UpdateDisplayLists()
     m_display_categories.clear();
     m_display_entries.clear();
 
-    if (m_loader_type == LT_Skin)
+    if (m_advertised_entry)
     {
-        m_dummy_skin.dname = "Default skin";
-        m_dummy_skin.description = "Original, unmodified skin";
-        m_display_entries.push_back(&m_dummy_skin);
+        m_display_entries.push_back(m_advertised_entry);
+        m_selected_entry = 0;
     }
 
     // Find all relevant entries
@@ -438,8 +444,11 @@ void MainSelector::UpdateDisplayLists()
     m_selected_entry = -1;
     for (CacheQueryResult const& res: query.cqy_results)
     {
-        m_display_entries.push_back(res.cqr_entry);
-        m_selected_entry = 0;
+        if (res.cqr_entry != m_advertised_entry)
+        {
+            m_display_entries.push_back(res.cqr_entry);
+            m_selected_entry = 0;
+        }
     }
 
     // Sort categories alphabetically
@@ -598,11 +607,6 @@ void MainSelector::Apply()
             sectionconfig = sd_entry.sde_entry->sectionconfigs[m_selected_sectionconfig];
         }
         this->Close();
-
-        if (m_loader_type == LT_Skin && sd_entry.sde_entry == &m_dummy_skin)
-        {
-            sd_entry.sde_entry = nullptr;
-        }
 
         App::GetGameContext()->OnLoaderGuiApply(type, sd_entry.sde_entry, sectionconfig);
     }

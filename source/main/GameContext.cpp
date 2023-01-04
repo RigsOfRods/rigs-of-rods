@@ -637,14 +637,17 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
     switch (type)
     {
     case LT_Skin:
-        m_current_selection.asr_skin_entry = entry;
-        if (App::GetGuiManager()->TopMenubar.ai_select)
+        if (entry != &m_dummy_cache_selection)
         {
-            App::GetGuiManager()->TopMenubar.ai_skin = entry->dname;
-        }
-        if (App::GetGuiManager()->TopMenubar.ai_select2)
-        {
-            App::GetGuiManager()->TopMenubar.ai_skin2 = entry->dname;
+            m_current_selection.asr_skin_entry = entry;
+            if (App::GetGuiManager()->TopMenubar.ai_select)
+            {
+                App::GetGuiManager()->TopMenubar.ai_skin = entry->dname;
+            }
+            if (App::GetGuiManager()->TopMenubar.ai_select2)
+            {
+                App::GetGuiManager()->TopMenubar.ai_skin2 = entry->dname;
+            }
         }
         spawn_now = true;
         break;
@@ -676,9 +679,36 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
             CacheQuery skin_query;
             skin_query.cqy_filter_guid = entry->guid;
             skin_query.cqy_filter_type = LT_Skin;
-            if (App::GetCacheSystem()->Query(skin_query) > 0)
+            size_t num_skins = App::GetCacheSystem()->Query(skin_query);
+            // Determine default skin
+            CacheEntry* default_skin_entry = nullptr;
+            if (entry->default_skin != "")
             {
-                App::GetGuiManager()->MainSelector.Show(LT_Skin, entry->guid); // Intentionally not using MSG_
+                for (CacheQueryResult& res : skin_query.cqy_results)
+                {
+                    if (res.cqr_entry->dname == entry->default_skin)
+                        default_skin_entry = res.cqr_entry;
+                }
+                if (!default_skin_entry)
+                {
+                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                        fmt::format(_L("Default skin '{}' for actor '{}' not found!"), entry->default_skin, entry->dname));
+                }
+                if (default_skin_entry && num_skins == 1)
+                {
+                    m_current_selection.asr_skin_entry = default_skin_entry;
+                }
+            }
+            else
+            {
+                default_skin_entry = &m_dummy_cache_selection;
+                default_skin_entry->dname = "Default skin";
+                default_skin_entry->description = "Original, unmodified skin";
+            }
+
+            if (!m_current_selection.asr_skin_entry && num_skins > 0)
+            {
+                App::GetGuiManager()->MainSelector.Show(LT_Skin, entry->guid, default_skin_entry); // Intentionally not using MSG_
             }
             else
             {
@@ -715,8 +745,9 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
             ActorSpawnRequest* rq = new ActorSpawnRequest;
             *rq = m_current_selection;
             this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
-            m_current_selection = ActorSpawnRequest(); // Reset
         }
+
+        m_current_selection = ActorSpawnRequest(); // Reset
     }
 }
 

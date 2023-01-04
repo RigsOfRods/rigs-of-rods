@@ -36,7 +36,7 @@
 #include <string>
 
 #define CACHE_FILE "mods.cache"
-#define CACHE_FILE_FORMAT 11
+#define CACHE_FILE_FORMAT 12
 #define CACHE_FILE_FRESHNESS 86400 // 60*60*24 = one day
 
 namespace RoR {
@@ -88,6 +88,7 @@ public:
     // following all TRUCK detail information:
     Ogre::String description;
     Ogre::String tags;
+    std::string default_skin;
     int fileformatversion;
     bool hasSubmeshs;
     int nodecount;
