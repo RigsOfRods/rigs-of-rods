@@ -56,7 +56,7 @@ void ShadowManager::SetupPSSM()
         App::GetGfxScene()->GetSceneManager()->setShadowTextureSettings(2048, 3, PF_DEPTH16);
         App::GetGfxScene()->GetSceneManager()->setShadowTextureSelfShadow(true);
 
-        auto* pssmSetup = new PSSMShadowCameraSetup();
+        pssmSetup = new PSSMShadowCameraSetup();
         pssmSetup->calculateSplitPoints(3, 1, 500);
         pssmSetup->setSplitPadding(App::GetCameraManager()->GetCamera()->getNearClipDistance());
         pssmSetup->setOptimalAdjustFactor(0, 2);
