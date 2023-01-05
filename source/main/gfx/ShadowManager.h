@@ -47,6 +47,7 @@ public:
     void SetupPSSM();
 
     void EnableRTSS(const Ogre::MaterialPtr& mat);
+    Ogre::PSSMShadowCameraSetup* pssmSetup;
 };
 
 /// @} // addtogroup Gfx
