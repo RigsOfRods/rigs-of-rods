@@ -71,7 +71,7 @@ void VehicleButtons::Draw(RoR::GfxActor* actorx)
 
     // Show when mouse is on the left of screen
     if (App::GetGuiManager()->AreStaticMenusAllowed() &&
-        (ImGui::GetIO().MousePos.x <= window_pos.x + ImGui::GetStyle().WindowPadding.x) && ImGui::GetIO().MousePos.y <= ImGui::GetIO().DisplaySize.y)
+        (ImGui::GetIO().MousePos.x <= window_pos.x + ImGui::GetStyle().WindowPadding.x) && ImGui::GetIO().MousePos.y <= ImGui::GetIO().DisplaySize.y && !ImGui::IsMouseDown(1))
     {
         is_visible = true;
     }
