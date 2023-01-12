@@ -1360,6 +1360,11 @@ bool TopMenubar::ShouldDisplay(ImVec2 window_pos)
         return false;
     }
 
+    if (ImGui::IsMouseDown(1))
+    {
+        return false;
+    }
+
     if (ai_menu)
     {
         m_open_menu = TopMenu::TOPMENU_AI;
