@@ -38,12 +38,6 @@ THE SOFTWARE.
 // see http://msdn.microsoft.com/en-us/library/bb206241.aspx
 //-----------------------------------------------------------------------------
 
-#ifdef OGRE_HLSL
-mat3 to_mat3(mat4 m) { return (mat3)m; }
-#else
-#define to_mat3 mat3
-#endif
-
 //-----------------------------------------------------------------------------
 void FFP_TransformTexCoord(in mat4 m, in vec2 v, out vec2 vOut)
 {
@@ -62,166 +56,44 @@ void FFP_TransformTexCoord(in mat4 m, in vec3 v, out vec3 vOut)
 }
 
 //-----------------------------------------------------------------------------
-void FFP_GenerateTexCoord_EnvMap_Normal(in mat4 mWorldIT, 
-						   in mat4 mView,
+void FFP_GenerateTexCoord_EnvMap_Normal(in mat3 mWorldIT,
 						   in vec3 vNormal,
 						   out vec3 vOut)
 {
-	vec3 vWorldNormal = mul(to_mat3(mWorldIT), vNormal);
-	vec3 vViewNormal  = mul(to_mat3(mView), vWorldNormal);
-
-	vOut = vViewNormal;
+	vOut = normalize(mul(mWorldIT, vNormal));
 }
 
 //-----------------------------------------------------------------------------
-void FFP_GenerateTexCoord_EnvMap_Sphere(in 	mat4 mWorld,
-										in 	mat4 mView,
-										in 	mat4 mWorldIT,
+void FFP_GenerateTexCoord_EnvMap_Sphere(in 	mat4 mWorldView,
+										in 	mat3 mWorldIT,
 										in 	vec4 vPos,
 										in 	vec3 vNormal,
 										out vec2 vOut)
 {
-	mat4 worldview = mul(mView, mWorld);
-	vec3 normal = normalize( mul(mWorldIT, vec4(vNormal,0.0)).xyz);
-	vec3 eyedir =  normalize(mul(worldview, vPos)).xyz;
+	vec3 normal = normalize( mul(mWorldIT, vNormal));
+	vec3 eyedir =  normalize(mul(mWorldView, vPos)).xyz;
 	vec3 r = reflect(eyedir, normal);
-	float two_p = 2.0 * sqrt( r.x * r.x + r.y * r.y + (r.z + 1.0) *  (r.z + 1.0));
+	r.z += 1.0;
+	float two_p = 2.0 * length(r);
 	vOut = vec2(0.5 + r.x / two_p, 0.5 - r.y / two_p);
 }
 
 //-----------------------------------------------------------------------------
 void FFP_GenerateTexCoord_EnvMap_Reflect(in mat4 mWorld, 
 							in mat4 mWorldIT, 
-						   in mat4 mView,						  
+						   in vec3 vCamPos,
 						   in vec3 vNormal,
 						   in vec4 vPos,						  
 						   out vec3 vOut)
 {
-#ifdef OGRE_HLSL
-	mView[2][0] = -mView[2][0];
-	mView[2][1] = -mView[2][1];
-	mView[2][2] = -mView[2][2];
-	mView[2][3] = -mView[2][3];
-#else
-	mView[0][2] = -mView[0][2];
-	mView[1][2] = -mView[1][2];
-	mView[2][2] = -mView[2][2];
-	mView[3][2] = -mView[3][2];
-#endif
-
-	mat4 matViewT = transpose(mView);
-
-	vec3 vWorldNormal = mul(to_mat3(mWorldIT), vNormal);
-	vec3 vViewNormal  = mul(to_mat3(mView), vWorldNormal);
-	vec4 vWorldPos    = mul(mWorld, vPos);
-	vec3 vNormViewPos  = normalize(mul(mView, vWorldPos).xyz);
+	vec3 vWorldNormal = normalize(mul(mWorldIT, vec4(vNormal, 0.0)).xyz);
+	vec3 vWorldPos    = mul(mWorld, vPos).xyz;
+	vec3 vEyeDir  = normalize(vWorldPos - vCamPos);
 	
-	vec3 vReflect = reflect(vNormViewPos, vViewNormal);
-
-#ifdef OGRE_HLSL
-	matViewT[2][0] = -matViewT[2][0];
-	matViewT[2][1] = -matViewT[2][1];
-	matViewT[2][2] = -matViewT[2][2];
-#else
-	matViewT[0][2] = -matViewT[0][2];
-	matViewT[1][2] = -matViewT[1][2];
-	matViewT[2][2] = -matViewT[2][2];
-#endif
-	vReflect = mul(to_mat3(matViewT), vReflect);
+	vec3 vReflect = reflect(vEyeDir, vWorldNormal);
+	vReflect.z *= -1.0;
 
 	vOut = vReflect;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_GenerateTexCoord_Projection(in mat4 mWorld, 							
-						   in mat4 mTexViewProjImage,					  			
-						   in vec4 vPos,						  				  
-						   out vec3 vOut)
-{
-	vec4 vWorldPos    = mul(mWorld, vPos);
-	vec4 vTexturePos  = mul(mTexViewProjImage, vWorldPos);
-
-	vOut = vec3(vTexturePos.xy, vTexturePos.w);
-}
-
-//-----------------------------------------------------------------------------
-void FFP_SampleTextureProj(in sampler2D s, 
-				   in vec3 f,
-				   out vec4 t)
-{
-	t = texture2D(s, f.xy/f.z);
-}
-
-//-----------------------------------------------------------------------------
-void FFP_ModulateX2(in float vIn0, in float vIn1, out float vOut)
-{
-	vOut = vIn0 * vIn1 * 2.0;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_ModulateX2(in vec2 vIn0, in vec2 vIn1, out vec2 vOut)
-{
-	vOut = vIn0 * vIn1 * 2.0;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_ModulateX2(in vec3 vIn0, in vec3 vIn1, out vec3 vOut)
-{
-	vOut = vIn0 * vIn1 * 2.0;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_ModulateX2(in vec4 vIn0, in vec4 vIn1, out vec4 vOut)
-{
-	vOut = vIn0 * vIn1 * 2.0;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_ModulateX4(in float vIn0, in float vIn1, out float vOut)
-{
-	vOut = vIn0 * vIn1 * 4.0;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_ModulateX4(in vec2 vIn0, in vec2 vIn1, out vec2 vOut)
-{
-	vOut = vIn0 * vIn1 * 4.0;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_ModulateX4(in vec3 vIn0, in vec3 vIn1, out vec3 vOut)
-{
-	vOut = vIn0 * vIn1 * 4.0;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_ModulateX4(in vec4 vIn0, in vec4 vIn1, out vec4 vOut)
-{
-	vOut = vIn0 * vIn1 * 4.0;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_AddSigned(in float vIn0, in float vIn1, out float vOut)
-{
-	vOut = vIn0 + vIn1 - 0.5;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_AddSigned(in vec2 vIn0, in vec2 vIn1, out vec2 vOut)
-{
-	vOut = vIn0 + vIn1 - 0.5;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_AddSigned(in vec3 vIn0, in vec3 vIn1, out vec3 vOut)
-{
-	vOut = vIn0 + vIn1 - 0.5;
-}
-
-//-----------------------------------------------------------------------------
-void FFP_AddSigned(in vec4 vIn0, in vec4 vIn1, out vec4 vOut)
-{
-	vOut = vIn0 + vIn1 - 0.5;
 }
 
 //-----------------------------------------------------------------------------
