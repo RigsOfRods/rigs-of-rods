@@ -473,14 +473,13 @@ void TerrainGeometryManager::configureTerrainDefaults()
             matProfile->setLayerParallaxMappingEnabled(m_spec->parallax_enabled);
             matProfile->setGlobalColourMapEnabled(m_spec->global_colormap_enabled);
             matProfile->setReceiveDynamicShadowsDepth(m_spec->recv_dyn_shadows_depth);
-            // Apply our pssm setup to RTSS Terrain. Needs Ogre 13.6
-            // matProfile->setReceiveDynamicShadowsPSSM(App::GetGameContext()->GetTerrain()->getShadowManager()->pssmSetup);
+            matProfile->setReceiveDynamicShadowsPSSM(App::GetGameContext()->GetTerrain()->getShadowManager()->pssmSetup);
         }
     }
 
-    // Enable multiple lights in RTSS Terrain. Needs Ogre 13.6
+    // Enable multiple lights in RTSS Terrain.
     // See https://ogrecave.github.io/ogre/api/13/class_ogre_1_1_r_t_shader_1_1_render_state.html#acb10ca9d88182aa3051086c5acee656f for light types 
-    // static_cast<TerrainMaterialGeneratorA*>(terrainOptions->getDefaultMaterialGenerator().get())->getMainRenderState()->setLightCount({8, 1, 8});
+    static_cast<TerrainMaterialGeneratorA*>(terrainOptions->getDefaultMaterialGenerator().get())->getMainRenderState()->setLightCount({8, 1, 8});
 
     terrainOptions->setLayerBlendMapSize   (m_spec->layer_blendmap_size);
     terrainOptions->setCompositeMapSize    (m_spec->composite_map_size);
