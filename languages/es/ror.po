@@ -9,13 +9,14 @@
 # Joaquin Gomez <joa97@hotmail.com.ar>, 2021, 2022.
 # Mxt Apps <mxtapps@gmail.com>, 2021, 2022.
 # Jhaltzkers Jhaltzkers <jhaltzkers@gmail.com>, 2022.
+# gallegonovato <fran-carro@hotmail.es>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2022-12-27 09:48+0000\n"
-"Last-Translator: Mxt Apps <mxtapps@gmail.com>\n"
+"PO-Revision-Date: 2023-01-14 02:53+0000\n"
+"Last-Translator: gallegonovato <fran-carro@hotmail.es>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/es/>\n"
 "Language: es\n"
@@ -61,72 +62,51 @@ msgstr ""
 "Carpeta de recursos defectuosa. Compruebe si está instalado correctamente."
 
 #: Application.cpp:359
-#, fuzzy
-#| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
 msgstr "Cambio automático"
 
 #: Application.cpp:360
-#, fuzzy
-#| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr "Cambio manual - Embrague automático"
+msgstr "Cambio manual con embrague automático"
 
 #: Application.cpp:361
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
 msgstr "Totalmente manual: cambio secuencial"
 
 #: Application.cpp:362
-#, fuzzy
-#| msgid "Fully Manual: stick shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr "Campo completamente manual: Palanca de cambios"
+msgstr "Totalmente manual: cambio de marchas"
 
 #: Application.cpp:363
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
-msgstr "Manual completo: transmisión manual con rangos"
+msgstr "Totalmente manual: diferentes marchas en el cambio"
 
 #: Application.cpp:372
-#, fuzzy
-#| msgid "None (fastest)"
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
-msgstr "Ninguno (Lo mas rápido)"
+msgstr "Ninguno (más rápido)"
 
 #: Application.cpp:373
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Light sources"
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr "Fuentes de luz"
+msgstr "Sin fuente de luz"
 
 #: Application.cpp:374
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr "Todos los vehiculos, las luces principales"
+msgstr "Solo vehículo actual, luces principales"
 
 #: Application.cpp:375
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
-msgstr "Todos los vehiculos, las luces principales"
+msgstr "Todos los vehículos, luces principales"
 
 #: Application.cpp:376
-#, fuzzy
-#| msgid "All vehicles, all lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
 msgstr "Todos los vehículos, todas las luces"
@@ -142,25 +122,19 @@ msgid "PSSM"
 msgstr "PSSM"
 
 #: Application.cpp:395
-#, fuzzy
-#| msgid "Sandstorm (fastest)"
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
-msgstr "SandStorm (rápido)"
+msgstr "SandStorm (Más rapido)"
 
 #: Application.cpp:396
-#, fuzzy
-#| msgid "Caelum (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
-msgstr "Caelum (el más bonito, más lento)"
+msgstr "Caelum (mejor visión, más lento)"
 
 #: Application.cpp:397
-#, fuzzy
-#| msgid "Full (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
-msgstr "Todos (más bonito, más lento)"
+msgstr "SkyX (mejor visión, más lento)"
 
 #: Application.cpp:406
 msgctxt "GfxTexFilter"
@@ -168,26 +142,19 @@ msgid "None"
 msgstr "Ninguno"
 
 #: Application.cpp:407
-#, fuzzy
-#| msgid "Bilinear"
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
-msgstr "Bilinear"
+msgstr "Bilineal"
 
 #: Application.cpp:408
-#, fuzzy
-#| msgid "Trilinear"
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
-msgstr "Trilinear"
+msgstr "Trilineal"
 
 #: Application.cpp:409
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Anisotropy"
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
-msgstr "Anisotropía"
+msgstr "Anisotrópico"
 
 #: Application.cpp:418
 msgctxt "GfxVegetation"
@@ -195,15 +162,11 @@ msgid "None"
 msgstr "Ninguno"
 
 #: Application.cpp:419
-#, fuzzy
-#| msgid "20%"
 msgctxt "GfxVegetation"
 msgid "20%"
 msgstr "20%"
 
 #: Application.cpp:420
-#, fuzzy
-#| msgid "50%"
 msgctxt "GfxVegetation"
 msgid "50%"
 msgstr "50%"
@@ -219,40 +182,29 @@ msgid "None"
 msgstr "Ninguno"
 
 #: Application.cpp:431
-#, fuzzy
-#| msgid "Basic (fastest)"
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
-msgstr "Básico (rápido)"
+msgstr "Básico (más rápido)"
 
 #: Application.cpp:432
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reflections"
 msgctxt "GfxWaterMode"
 msgid "Reflection"
-msgstr "Reflejos"
+msgstr "Reflexión"
 
 #: Application.cpp:433
-#, fuzzy
-#| msgid "Reflection + refraction (speed optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
 msgstr "Reflexión + refracción (velocidad optimizada)"
 
 #: Application.cpp:434
-#, fuzzy
-#| msgid "Reflection + refraction (quality optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
-msgstr "Reflexión y refracción (calidad optimizada)"
+msgstr "Reflexión + refracción (calidad optimizada)"
 
 #: Application.cpp:435
-#, fuzzy
-#| msgid "Hydrax"
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr "Hydrax"
+msgstr "HydraX"
 
 #: Application.cpp:444
 msgctxt "GfxExtCamMode"
@@ -275,20 +227,14 @@ msgid "None"
 msgstr "Ninguno"
 
 #: Application.cpp:456
-#, fuzzy
-#| msgctxt "ModCategory"
-#| msgid "All"
 msgctxt "IoInputGrabMode"
 msgid "All"
-msgstr "Todos"
+msgstr "Todas"
 
 #: Application.cpp:457
-#, fuzzy
-#| msgctxt "TextureToolWindow"
-#| msgid "Dynamic only"
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr "Sólo dinámica"
+msgstr "Dinámico"
 
 #: GameContext.cpp:107
 msgid "Terrain not found: "
@@ -629,12 +575,9 @@ msgstr ""
 "X-Generator: Weblate 4.10-dev\n"
 
 #: gui/panels/GUI_CollisionsDebug.cpp:48
-#, fuzzy
-#| msgctxt "FrictionSettings"
-#| msgid "Static friction coef"
 msgctxt "About"
 msgid "Static collision debug"
-msgstr "Coeficiente de fricción estática"
+msgstr "Depuración de colisiones estáticas"
 
 #: gui/panels/GUI_ConsoleView.cpp:244
 msgctxt "Console"
@@ -703,12 +646,9 @@ msgstr "AngelScript"
 
 #. reset to auto-fit
 #: gui/panels/GUI_ConsoleWindow.cpp:94
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Scripting"
 msgctxt "Console"
 msgid "Script Monitor"
-msgstr "Scripting"
+msgstr "Monitor de scripts"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:112
 msgctxt "Console"
@@ -2681,12 +2621,9 @@ msgid "Tools"
 msgstr "Herramientas"
 
 #: gui/panels/GUI_TopMenubar.cpp:120
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Vehicles"
 msgctxt "TopMenubar"
 msgid "Vehicle AI"
-msgstr "Vehículos"
+msgstr "Inteligencia Artificial de los vehículos"
 
 #: gui/panels/GUI_TopMenubar.cpp:255
 msgctxt "TopMenubar"
@@ -2937,12 +2874,9 @@ msgid "Texture tool"
 msgstr "Herramienta de textura"
 
 #: gui/panels/GUI_TopMenubar.cpp:633
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Collisions"
 msgctxt "TopMenubar"
 msgid "Collisions debug"
-msgstr "Colisiones"
+msgstr "Depuración de colisiones"
 
 #: gui/panels/GUI_TopMenubar.cpp:641
 msgctxt "TopMenubar"
@@ -3093,37 +3027,25 @@ msgid "Hide wheel info"
 msgstr "Ocultar información de la rueda"
 
 #: gui/panels/GUI_TopMenubar.cpp:781
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Sim menu"
 msgctxt "TopMenubar"
 msgid "AI menu"
-msgstr "Simulación"
+msgstr "Menú de la IA"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_TopMenubar.cpp:789
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Filter options"
 msgctxt "TopMenubar"
 msgid "General options:"
-msgstr "Opciones de filtro"
+msgstr "Opciones generales:"
 
 #: gui/panels/GUI_TopMenubar.cpp:794
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Vehicles"
 msgctxt "TopMenubar"
 msgid "Vehicle count"
-msgstr "Vehículos"
+msgstr "Cantidad de vehículos"
 
 #: gui/panels/GUI_TopMenubar.cpp:798
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Remove all vehicles"
 msgctxt "TopMenubar"
 msgid "Number of vehicles"
-msgstr "Eliminar todos los vehículos"
+msgstr "Número de vehículos"
 
 #: gui/panels/GUI_TopMenubar.cpp:808
 msgctxt "TopMenubar"
@@ -3165,11 +3087,9 @@ msgid "How many times to loop the path"
 msgstr "Cuántas veces se debe repetir el camino"
 
 #: gui/panels/GUI_TopMenubar.cpp:862
-#, fuzzy
-#| msgid "Vehicle position: "
 msgctxt "TopMenubar"
 msgid "Vehicle options:"
-msgstr "Posición del vehículo: "
+msgstr "Opciones del vehículo:"
 
 #: gui/panels/GUI_TopMenubar.cpp:871
 msgctxt "TopMenubar"
@@ -3177,11 +3097,9 @@ msgid "Speed in km/h for land vehicles or knots/s for boats"
 msgstr "Velocidad en km/h para vehículos de tierra o nudos/s para barcos"
 
 #: gui/panels/GUI_TopMenubar.cpp:904
-#, fuzzy
-#| msgid "Entered terrain editing mode"
 msgctxt "TopMenubar"
 msgid "Land vehicle driving mode"
-msgstr "Entrando al modo de edición de terrenos"
+msgstr "Modo de conducción del vehículo terrestre"
 
 #: gui/panels/GUI_TopMenubar.cpp:906
 msgctxt "TopMenubar"
@@ -3201,12 +3119,9 @@ msgid "Chase: Follow character and player vehicle"
 msgstr "Persecución: Sigue al personaje y a su vehículo"
 
 #: gui/panels/GUI_TopMenubar.cpp:915
-#, fuzzy
-#| msgctxt "SimActorStats"
-#| msgid "Altitude: "
 msgctxt "TopMenubar"
 msgid "Altitude"
-msgstr "Altitud: "
+msgstr "Altitud"
 
 #: gui/panels/GUI_TopMenubar.cpp:919
 msgctxt "TopMenubar"
@@ -3219,12 +3134,9 @@ msgid "Land vehicles, boats and airplanes"
 msgstr "Vehículos de tierra, barcos y aeronaves"
 
 #: gui/panels/GUI_TopMenubar.cpp:953
-#, fuzzy
-#| msgctxt "Network"
-#| msgid "Starting..."
 msgctxt "TopMenubar"
 msgid "Start"
-msgstr "Comenzando..."
+msgstr "Inicio"
 
 #: gui/panels/GUI_TopMenubar.cpp:973
 msgctxt "TopMenubar"
@@ -3315,27 +3227,18 @@ msgstr "Pasa el ratón por encima en la izquierda para ver los controles"
 
 #. Align with the buttons
 #: gui/panels/GUI_VehicleButtons.cpp:82
-#, fuzzy
-#| msgctxt "GameControls"
-#| msgid "Game Controls"
 msgctxt "VehicleButtons"
 msgid "Main Controls"
-msgstr "Controles del juego"
+msgstr "Controles principales"
 
 #. Align with the buttons
 #: gui/panels/GUI_VehicleButtons.cpp:129
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Lights"
 msgctxt "VehicleButtons"
 msgid "Custom Lights"
-msgstr "Luces"
+msgstr "Luces a medida"
 
 #. Align with the buttons
 #: gui/panels/GUI_VehicleButtons.cpp:135
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Commands"
 msgctxt "VehicleButtons"
 msgid "Commands"
 msgstr "Comandos"
@@ -4081,10 +3984,8 @@ msgstr ""
 "mensajes anteriores"
 
 #: system/ConsoleCmd.cpp:394
-#, fuzzy
-#| msgid "Run AngelScript code snippet"
 msgid "Runs an AngelScript file"
-msgstr "Ejecutar el fragmento de código AngelScript"
+msgstr "Ejecuta un fichero AngelScript"
 
 #: system/ConsoleCmd.cpp:414
 msgid ""
