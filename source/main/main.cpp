@@ -210,6 +210,7 @@ int main(int argc, char *argv[])
         App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RTSHADER);
         mShaderGenerator->setShaderCachePath(App::sys_cache_dir->getStr());
         mShaderGenerator->addSceneManager(App::GetGfxScene()->GetSceneManager());
+        App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::MSN_SHADERGEN);
 
 //        auto* schemeNotFoundHandler = new OgreBites::SGTechniqueResolverListener(mShaderGenerator);
 //        Ogre::MaterialManager::getSingleton().addListener(schemeNotFoundHandler);

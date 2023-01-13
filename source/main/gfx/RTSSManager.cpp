@@ -18,7 +18,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ShadowManager.h"
+#include "RTSSManager.h"
 
 #include "Actor.h"
 #include "CameraManager.h"
@@ -34,22 +34,19 @@
 using namespace Ogre;
 using namespace RoR;
 
-ShadowManager::ShadowManager()
+RTSSManager::RTSSManager()
 {
 }
 
-ShadowManager::~ShadowManager()
+RTSSManager::~RTSSManager()
 {
 }
 
-void ShadowManager::SetupPSSM()
+void RTSSManager::SetupRTSS()
 {
-    //TODO: reimplement shadow quality
+    // RTSS PSSM3
     if(App::gfx_shadow_type->getEnum<GfxShadowType>() == GfxShadowType::PSSM)
     {
-        //TODO: Make Per-pixel lighting a separate setting
-        RoR::App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::MSN_SHADERGEN);
-        // Per-pixel lighting is enabled by default, proceed to PSSM3
         App::GetGfxScene()->GetSceneManager()->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE_INTEGRATED);
         App::GetGfxScene()->GetSceneManager()->setShadowFarDistance(350);
         App::GetGfxScene()->GetSceneManager()->setShadowTextureCountPerLightType(Ogre::Light::LT_DIRECTIONAL, 3);
@@ -70,23 +67,20 @@ void ShadowManager::SetupPSSM()
         auto subRenderState = mShaderGenerator->createSubRenderState<RTShader::IntegratedPSSM3>();
         subRenderState->setSplitPoints(pssmSetup->getSplitPoints());
         schemRenderState->addTemplateSubRenderState(subRenderState);
-
-        // PBR
-        //auto subRenderStateNP = mShaderGenerator->createSubRenderState(Ogre::RTShader::SRS_NORMALMAP);
-        //schemRenderState->addTemplateSubRenderState(subRenderStateNP);
-        //subRenderStateNP->setParameter("texture", "Grass004_1K_NormalGL.jpg");
-
-        //auto subRenderStateMR = mShaderGenerator->createSubRenderState(Ogre::RTShader::SRS_COOK_TORRANCE_LIGHTING);
-        //schemRenderState->addTemplateSubRenderState(subRenderStateMR);
-        //subRenderStateMR->setParameter("texture", "Grass004_1K_Roughness.jpg");
     }
+
+    // PBR
+    //auto subRenderStateNP = mShaderGenerator->createSubRenderState(Ogre::RTShader::SRS_NORMALMAP);
+    //schemRenderState->addTemplateSubRenderState(subRenderStateNP);
+    //subRenderStateNP->setParameter("texture", "Grass004_1K_NormalGL.jpg");
+
+    //auto subRenderStateMR = mShaderGenerator->createSubRenderState(Ogre::RTShader::SRS_COOK_TORRANCE_LIGHTING);
+    //schemRenderState->addTemplateSubRenderState(subRenderStateMR);
+    //subRenderStateMR->setParameter("texture", "Grass004_1K_Roughness.jpg");
 }
 
-void ShadowManager::EnableRTSS(const MaterialPtr& mat)
+void RTSSManager::EnableRTSS(const MaterialPtr& mat)
 {
-    if(App::gfx_shadow_type->getEnum<GfxShadowType>() == GfxShadowType::PSSM)
-    {
-        Ogre::RTShader::ShaderGenerator* mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
-        mShaderGenerator->createShaderBasedTechnique(*mat, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-    }
+    Ogre::RTShader::ShaderGenerator* mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+    mShaderGenerator->createShaderBasedTechnique(*mat, Ogre::MaterialManager::DEFAULT_SCHEME_NAME, Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
 }
