@@ -37,14 +37,14 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
-class ShadowManager : public ZeroedMemoryAllocator
+class RTSSManager : public ZeroedMemoryAllocator
 {
 public:
 
-    ShadowManager();
-    ~ShadowManager();
+    RTSSManager();
+    ~RTSSManager();
 
-    void SetupPSSM();
+    void SetupRTSS();
 
     void EnableRTSS(const Ogre::MaterialPtr& mat);
     Ogre::PSSMShadowCameraSetup* pssmSetup;

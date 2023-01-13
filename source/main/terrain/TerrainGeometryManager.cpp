@@ -29,7 +29,7 @@
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "Terrain.h"
-#include "ShadowManager.h"
+#include "RTSSManager.h"
 #include "OTCFileFormat.h"
 #include "GameContext.h"
 
@@ -472,7 +472,7 @@ void TerrainGeometryManager::configureTerrainDefaults()
             matProfile->setLayerParallaxMappingEnabled(m_spec->parallax_enabled);
             matProfile->setGlobalColourMapEnabled(m_spec->global_colormap_enabled);
             matProfile->setReceiveDynamicShadowsDepth(m_spec->recv_dyn_shadows_depth);
-            matProfile->setReceiveDynamicShadowsPSSM(App::GetGameContext()->GetTerrain()->getShadowManager()->pssmSetup);
+            matProfile->setReceiveDynamicShadowsPSSM(App::GetGameContext()->GetTerrain()->getRTSSManager()->pssmSetup);
         }
     }
 
