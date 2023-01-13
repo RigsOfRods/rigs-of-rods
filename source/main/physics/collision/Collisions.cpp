@@ -604,11 +604,21 @@ void Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
         return;
     
     std::lock_guard<std::mutex> lock(m_scriptcallback_mutex);
-    // this prevents that the same callback gets called at 2k FPS all the time, serious hit on FPS ...
-    if (std::find(std::begin(m_last_called_cboxes), std::end(m_last_called_cboxes), cbox) == m_last_called_cboxes.end())
+    if (node)
     {
+        // An actor is activating the eventbox
+        // Duplicate invocation is prevented by `Actor::m_active_eventboxes` cache.
         App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].scripthandler, &eventsources[cbox->eventsourcenum], node);
-        m_last_called_cboxes.push_back(cbox);
+    }
+    else
+    {
+        // A character is activating the eventbox
+        // this prevents that the same callback gets called at 2k FPS all the time, serious hit on FPS ... 
+        if (std::find(std::begin(m_last_called_cboxes), std::end(m_last_called_cboxes), cbox) == m_last_called_cboxes.end())
+        {
+            App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].scripthandler, &eventsources[cbox->eventsourcenum], node);
+            m_last_called_cboxes.push_back(cbox);
+        }
     }
 #endif //USE_ANGELSCRIPT
 }
@@ -914,7 +924,7 @@ bool Collisions::permitEvent(CollisionEventFilter filter)
     }
 }
 
-bool Collisions::nodeCollision(node_t *node, float dt, bool envokeScriptCallbacks)
+bool Collisions::nodeCollision(node_t *node, float dt)
 {
     // find the correct cell
     int refx = (int)(node->AbsPosition.x / CELL_SIZE);
@@ -965,17 +975,12 @@ bool Collisions::nodeCollision(node_t *node, float dt, bool envokeScriptCallback
                     // now test with the inner box
                     if (Pos > cbox->relo && Pos < cbox->rehi)
                     {
-                        if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter) && envokeScriptCallbacks)
-                        {
-                            envokeScriptCallback(cbox, node);
-                            isScriptCallbackEnvoked = true;
-                        }
                         if (cbox->camforced && !forcecam)
                         {
                             forcecam = true;
                             forcecampos = cbox->campos;
                         }
-                        if (!cbox->virt && !envokeScriptCallbacks)
+                        if (!cbox->virt)
                         {
                             // collision, process as usual
                             // we have a collision
@@ -1005,17 +1010,12 @@ bool Collisions::nodeCollision(node_t *node, float dt, bool envokeScriptCallback
                     }
                 } else
                 {
-                    if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter) && envokeScriptCallbacks)
-                    {
-                        envokeScriptCallback(cbox, node);
-                        isScriptCallbackEnvoked = true;
-                    }
                     if (cbox->camforced && !forcecam)
                     {
                         forcecam = true;
                         forcecampos = cbox->campos;
                     }
-                    if (!cbox->virt && !envokeScriptCallbacks)
+                    if (!cbox->virt)
                     {
                         // we have a collision
                         contacted=true;
@@ -1071,11 +1071,8 @@ bool Collisions::nodeCollision(node_t *node, float dt, bool envokeScriptCallback
         }
     }
 
-    if (envokeScriptCallbacks && !isScriptCallbackEnvoked)
-        clearEventCache();
-
     // process minctri collision
-    if (minctri && !envokeScriptCallbacks)
+    if (minctri)
     {
         // we have a contact
         contacted=true;
@@ -1089,6 +1086,46 @@ bool Collisions::nodeCollision(node_t *node, float dt, bool envokeScriptCallback
     return contacted;
 }
 
+void Collisions::findPotentialEventBoxes(Ogre::AxisAlignedBox const& aabb, CollisionBoxPtrVec& out_boxes)
+{
+    // Find collision cells occupied by the actor (remember 'Y' is 'up').
+    const int cell_lo_x = (int)(aabb.getMinimum().x / (float)CELL_SIZE);
+    const int cell_lo_z = (int)(aabb.getMinimum().z / (float)CELL_SIZE);
+    const int cell_hi_x = (int)(aabb.getMaximum().x / (float)CELL_SIZE);
+    const int cell_hi_z = (int)(aabb.getMaximum().z / (float)CELL_SIZE);
+
+    // Loop the collision cells
+    for (int refx = cell_lo_x; refx <= cell_hi_x; refx++)
+    {
+        for (int refz = cell_lo_z; refz <= cell_hi_z; refz++)
+        {
+            // Find current cell
+            const int hash = this->hash_find(refx, refz);
+            const unsigned int cell_id = (refx << 16) + refz;
+
+            // Find eligible event boxes in the cell
+            for (size_t k = 0; k < hashtable[hash].size(); k++)
+            {
+                if (hashtable[hash][k].cell_id != cell_id)
+                {
+                    continue;
+                }
+                else if (hashtable[hash][k].IsCollisionBox())
+                {
+                    collision_box_t* cbox = &m_collision_boxes[hashtable[hash][k].element_index];
+
+                    if (!cbox->enabled)
+                        continue;
+
+                    if (cbox->eventsourcenum != -1 && this->permitEvent(cbox->event_filter))
+                    {
+                        out_boxes.push_back(cbox);
+                    }
+                }
+            }
+        }
+    }
+}
 
 Vector3 Collisions::getPosition(const Ogre::String &inst, const Ogre::String &box)
 {

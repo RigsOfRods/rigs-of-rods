@@ -402,6 +402,8 @@ public:
     float             ar_collision_range;             //!< Physics attr
     float             ar_top_speed;                   //!< Sim state
     ground_model_t*   ar_last_fuzzy_ground_model;     //!< GUI state
+    CollisionBoxPtrVec m_potential_eventboxes;
+    std::vector<std::pair<collision_box_t*, NodeNum_t>> m_active_eventboxes;
 
     // Gameplay state
     ActorState        ar_state;
@@ -455,7 +457,8 @@ private:
     void              CalcHooks();                         
     void              CalcHydros();                        
     void              CalcMouse();                         
-    void              CalcNodes();                         
+    void              CalcNodes();
+    void              CalcEventBoxes();
     void              CalcReplay();                        
     void              CalcRopes();                         
     void              CalcShocks(bool doUpdate, int num_steps); 
