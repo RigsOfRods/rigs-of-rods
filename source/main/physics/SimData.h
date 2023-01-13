@@ -697,6 +697,7 @@ struct collision_box_t
     Ogre::Vector3 campos;       //!< camera position
     Ogre::Vector3 debug_verts[8];//!< box corners in absolute world position
 };
+typedef std::vector<collision_box_t*> CollisionBoxPtrVec;
 
 /// Surface friction properties.
 struct ground_model_t

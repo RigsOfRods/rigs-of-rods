@@ -45,6 +45,8 @@ using namespace RoR;
 void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
 {
     this->CalcNodes(); // must be done directly after the inter truck collisions are handled
+    this->UpdateBoundingBoxes();
+    this->CalcEventBoxes();
     this->CalcReplay();
     this->CalcAircraftForces(doUpdate);
     this->CalcFuseDrag();
@@ -1532,7 +1534,7 @@ void Actor::CalcNodes()
         {
             Vector3 oripos = ar_nodes[i].AbsPosition;
             bool contacted = App::GetGameContext()->GetTerrain()->GetCollisions()->groundCollision(&ar_nodes[i], PHYSICS_DT);
-            contacted = contacted | App::GetGameContext()->GetTerrain()->GetCollisions()->nodeCollision(&ar_nodes[i], PHYSICS_DT, false);
+            contacted = contacted | App::GetGameContext()->GetTerrain()->GetCollisions()->nodeCollision(&ar_nodes[i], PHYSICS_DT);
             ar_nodes[i].nd_has_ground_contact = contacted;
             if (ar_nodes[i].nd_has_ground_contact || ar_nodes[i].nd_has_mesh_contact)
             {
@@ -1548,8 +1550,6 @@ void Actor::CalcNodes()
         {
             // record g forces on cameras
             m_camera_gforces_accu += ar_nodes[i].Forces / ar_nodes[i].mass;
-            // trigger script callbacks
-            App::GetGameContext()->GetTerrain()->GetCollisions()->nodeCollision(&ar_nodes[i], PHYSICS_DT, true);
         }
 
         // integration
@@ -1616,8 +1616,67 @@ void Actor::CalcNodes()
             ar_nodes[i].nd_under_water = is_under_water;
         }
     }
+}
 
-    this->UpdateBoundingBoxes();
+void Actor::CalcEventBoxes()
+{
+    // Assumption: node positions and bounding boxes are up to date.
+    // First, find all collision boxes which this actor's bounding box touches (potential collisions)
+    // For each potential collision box:
+    // * if a collision was already recorded, test the recorded node. If still colliding, do nothing.
+    // * otherwise loop nodes until collision is found. If not, clear the collision record.
+    // ----------------------------------------------------------------------------------------------
+
+    m_potential_eventboxes.clear();
+    App::GetGameContext()->GetTerrain()->GetCollisions()->findPotentialEventBoxes(ar_bounding_box, m_potential_eventboxes);
+
+    for (collision_box_t* cbox : m_potential_eventboxes)
+    {
+        // Find existing collision record
+        bool has_collision = false;
+        bool do_callback = true;
+        auto itor = m_active_eventboxes.begin();
+        while (itor != m_active_eventboxes.end())
+        {
+            if (itor->first == cbox)
+            {
+                // Existing record found - check if the node still collides
+                has_collision = App::GetGameContext()->GetTerrain()->GetCollisions()->isInside(ar_nodes[itor->second].AbsPosition, cbox);
+                if (!has_collision)
+                {
+                    // Erase the collision record
+                    itor = m_active_eventboxes.erase(itor);
+                    // Prevent invoking the same callback again
+                    do_callback = false;
+                }
+                break;
+            }
+            else
+            {
+                itor++;
+            }
+        }
+
+        if (!has_collision)
+        {
+            // Find if any node collides
+            for (NodeNum_t i = 0; i < ar_num_nodes; i++)
+            {
+                has_collision = App::GetGameContext()->GetTerrain()->GetCollisions()->isInside(ar_nodes[i].AbsPosition, cbox);
+                if (has_collision)
+                {
+                    // Add new collision record
+                    m_active_eventboxes.push_back(std::make_pair(cbox, i));
+                    // Do the script callback
+                    if (do_callback)
+                    {
+                        App::GetGameContext()->GetTerrain()->GetCollisions()->envokeScriptCallback(cbox, &ar_nodes[i]);
+                    }
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void Actor::CalcHooks()

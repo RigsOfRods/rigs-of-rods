@@ -130,7 +130,7 @@ private:
 
     // collision boxes pool
     CollisionBoxVec m_collision_boxes; // Formerly MAX_COLLISION_BOXES = 5000
-    std::vector<collision_box_t*> m_last_called_cboxes;
+    std::vector<collision_box_t*> m_last_called_cboxes; // Only used for character, actors have their own cache `Actor::m_active_eventboxes`
 
     // collision tris pool
     CollisionTriVec m_collision_tris; // Formerly MAX_COLLISION_TRIS = 100000
@@ -150,7 +150,6 @@ private:
     int free_eventsource;
 
     bool permitEvent(CollisionEventFilter filter);
-    void envokeScriptCallback(collision_box_t* cbox, node_t* node = 0);
 
     Landusemap* landuse;
     int collision_version;
@@ -188,7 +187,9 @@ public:
     bool groundCollision(node_t* node, float dt);
     bool isInside(Ogre::Vector3 pos, const Ogre::String& inst, const Ogre::String& box, float border = 0);
     bool isInside(Ogre::Vector3 pos, collision_box_t* cbox, float border = 0);
-    bool nodeCollision(node_t* node, float dt, bool envokeScriptCallbacks = true);
+    bool nodeCollision(node_t* node, float dt);
+    void findPotentialEventBoxes(Ogre::AxisAlignedBox const& aabb, CollisionBoxPtrVec& out_boxes);
+    void envokeScriptCallback(collision_box_t* cbox, node_t* node = 0);
 
     void finishLoadingTerrain();
 
