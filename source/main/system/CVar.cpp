@@ -172,7 +172,6 @@ void Console::cVarSetupBuiltins()
     App::gfx_declutter_map       = this->cVarCreate("gfx_declutter_map",       "Declutter overview map",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::gfx_envmap_enabled      = this->cVarCreate("gfx_envmap_enabled",      "Reflections",                CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::gfx_envmap_rate         = this->cVarCreate("gfx_envmap_rate",         "ReflectionUpdateRate",       CVAR_ARCHIVE | CVAR_TYPE_INT,     "1");
-    App::gfx_shadow_quality      = this->cVarCreate("gfx_shadow_quality",      "Shadows Quality",            CVAR_ARCHIVE | CVAR_TYPE_INT,     "2");
     App::gfx_skidmarks_mode      = this->cVarCreate("gfx_skidmarks_mode",      "Skidmarks",                  CVAR_ARCHIVE | CVAR_TYPE_INT,     "0");
     App::gfx_sight_range         = this->cVarCreate("gfx_sight_range",         "SightRange",                 CVAR_ARCHIVE | CVAR_TYPE_INT,     "5000");
     App::gfx_camera_height       = this->cVarCreate("gfx_camera_height",       "Static camera height",       CVAR_ARCHIVE | CVAR_TYPE_INT,     "5");

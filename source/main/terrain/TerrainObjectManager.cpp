@@ -43,7 +43,7 @@
 #include "TObjFileFormat.h"
 #include "Utils.h"
 #include "WriteTextToTexture.h"
-#include "ShadowManager.h"
+#include "RTSSManager.h"
 
 #include <RTShaderSystem/OgreRTShaderSystem.h>
 #include <Overlay/OgreFontManager.h>
@@ -637,7 +637,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     {
         for (Ogre::SubEntity* subent : mo->getEntity()->getSubEntities())
         {
-            App::GetGameContext()->GetTerrain()->getShadowManager()->EnableRTSS(subent->getMaterial());
+            App::GetGameContext()->GetTerrain()->getRTSSManager()->EnableRTSS(subent->getMaterial());
         }
     }
 
