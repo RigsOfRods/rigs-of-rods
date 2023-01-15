@@ -806,7 +806,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
                 // now test with the inner box
                 if (Pos > cbox->relo && Pos < cbox->rehi)
                 {
-                    if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter) && envokeScriptCallbacks)
+                    if (cbox->eventsourcenum!=-1 && permitEvent(nullptr, cbox->event_filter) && envokeScriptCallbacks)
                     {
                         envokeScriptCallback(cbox);
                         isScriptCallbackEnvoked = true;
@@ -841,7 +841,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
 
             } else
             {
-                if (cbox->eventsourcenum!=-1 && permitEvent(cbox->event_filter) && envokeScriptCallbacks)
+                if (cbox->eventsourcenum!=-1 && permitEvent(nullptr, cbox->event_filter) && envokeScriptCallbacks)
                 {
                     envokeScriptCallback(cbox);
                     isScriptCallbackEnvoked = true;
@@ -900,10 +900,8 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
     return contacted;
 }
 
-bool Collisions::permitEvent(CollisionEventFilter filter)
+bool Collisions::permitEvent(Actor* b, CollisionEventFilter filter)
 {
-    Actor *b = App::GetGameContext()->GetPlayerActor();
-
     switch (filter)
     {
     case EVENT_ALL:
@@ -1085,9 +1083,10 @@ bool Collisions::nodeCollision(node_t *node, float dt)
     return contacted;
 }
 
-void Collisions::findPotentialEventBoxes(Ogre::AxisAlignedBox const& aabb, CollisionBoxPtrVec& out_boxes)
+void Collisions::findPotentialEventBoxes(Actor* actor, CollisionBoxPtrVec& out_boxes)
 {
     // Find collision cells occupied by the actor (remember 'Y' is 'up').
+    const AxisAlignedBox aabb = actor->ar_bounding_box;
     const int cell_lo_x = (int)(aabb.getMinimum().x / (float)CELL_SIZE);
     const int cell_lo_z = (int)(aabb.getMinimum().z / (float)CELL_SIZE);
     const int cell_hi_x = (int)(aabb.getMaximum().x / (float)CELL_SIZE);
@@ -1116,7 +1115,7 @@ void Collisions::findPotentialEventBoxes(Ogre::AxisAlignedBox const& aabb, Colli
                     if (!cbox->enabled)
                         continue;
 
-                    if (cbox->eventsourcenum != -1 && this->permitEvent(cbox->event_filter))
+                    if (cbox->eventsourcenum != -1 && this->permitEvent(actor, cbox->event_filter))
                     {
                         out_boxes.push_back(cbox);
                     }
