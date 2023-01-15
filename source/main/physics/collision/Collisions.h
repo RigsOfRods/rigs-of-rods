@@ -148,7 +148,7 @@ private:
     eventsource_t eventsources[MAX_EVENT_SOURCE];
     int free_eventsource;
 
-    bool permitEvent(CollisionEventFilter filter);
+    bool permitEvent(Actor* actor, CollisionEventFilter filter);
 
     Landusemap* landuse;
     int collision_version;
@@ -187,8 +187,8 @@ public:
     bool isInside(Ogre::Vector3 pos, const Ogre::String& inst, const Ogre::String& box, float border = 0);
     bool isInside(Ogre::Vector3 pos, collision_box_t* cbox, float border = 0);
     bool nodeCollision(node_t* node, float dt);
-    void findPotentialEventBoxes(Ogre::AxisAlignedBox const& aabb, CollisionBoxPtrVec& out_boxes);
     void envokeScriptCallback(collision_box_t* cbox, node_t* node = 0);
+    void findPotentialEventBoxes(Actor* actor, CollisionBoxPtrVec& out_boxes);
 
     void finishLoadingTerrain();
 

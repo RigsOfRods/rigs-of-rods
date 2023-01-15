@@ -1628,7 +1628,7 @@ void Actor::CalcEventBoxes()
     // ----------------------------------------------------------------------------------------------
 
     m_potential_eventboxes.clear();
-    App::GetGameContext()->GetTerrain()->GetCollisions()->findPotentialEventBoxes(ar_bounding_box, m_potential_eventboxes);
+    App::GetGameContext()->GetTerrain()->GetCollisions()->findPotentialEventBoxes(this, m_potential_eventboxes);
 
     for (collision_box_t* cbox : m_potential_eventboxes)
     {
