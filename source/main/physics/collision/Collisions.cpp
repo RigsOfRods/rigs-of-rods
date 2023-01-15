@@ -394,7 +394,7 @@ int Collisions::hash_find(int cell_x, int cell_z)
     return static_cast<int>(pos);
 }
 
-int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String &eventname, const Ogre::String &instancename, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc /* = Vector3::UNIT_SCALE */, Ogre::Vector3 dr /* = Vector3::ZERO */, CollisionEventFilter event_filter /* = EVENT_ALL */, int scripthandler /* = -1 */)
+int Collisions::addCollisionBox(bool rotating, bool virt, Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String &eventname, const Ogre::String &instancename, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc /* = Vector3::UNIT_SCALE */, Ogre::Vector3 dr /* = Vector3::ZERO */, CollisionEventFilter event_filter /* = EVENT_ALL */, int scripthandler /* = -1 */)
 {
     Quaternion rotation  = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
     Quaternion direction = Quaternion(Degree(dr.x), Vector3::UNIT_X) * Quaternion(Degree(dr.y), Vector3::UNIT_Y) * Quaternion(Degree(dr.z), Vector3::UNIT_Z);
@@ -446,7 +446,6 @@ int Collisions::addCollisionBox(SceneNode *tenode, bool rotating, bool virt, Vec
         strcpy(eventsources[free_eventsource].instancename, instancename.c_str());
         eventsources[free_eventsource].scripthandler = scripthandler;
         eventsources[free_eventsource].cbox = coll_box_index;
-        eventsources[free_eventsource].snode = tenode;
         eventsources[free_eventsource].direction = direction;
         eventsources[free_eventsource].enabled = true;
         coll_box.eventsourcenum = free_eventsource;

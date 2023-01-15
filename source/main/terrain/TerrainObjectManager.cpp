@@ -970,7 +970,7 @@ void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile
             }
 
             int boxnum = terrainManager->GetCollisions()->addCollisionBox(
-                params.node, cbox.is_rotating, cbox.is_virtual, params.position, params.rotation,
+                cbox.is_rotating, cbox.is_virtual, params.position, params.rotation,
                 cbox.aabb_min, cbox.aabb_max, cbox.box_rot, cbox.event_name,
                 params.instance_name, cbox.force_cam_pos, cbox.cam_pos,
                 cbox.scale, cbox.direction, cbox.event_filter, params.script_handler);
