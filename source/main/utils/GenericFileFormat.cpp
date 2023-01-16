@@ -780,7 +780,7 @@ void DocumentParser::UpdateKeyword(const char c)
     case ']':
         if (partial_tok_type == PartialToken::KEYWORD_BRACED)
         {
-            partial_tok_type == PartialToken::KEYWORD; // Do not allow any more ']'.
+            partial_tok_type = PartialToken::KEYWORD; // Do not allow any more ']'.
         }
         else
         {
