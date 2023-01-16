@@ -15,43 +15,89 @@ namespace Script2Game {
 class BeamClass
 {
 public:
+
+    /// @name Physics state
+    /// @{
+    // PLEASE maintain the same ordering as in 'Actor.h' and 'scripting/bindings/ActorAngelscript.cpp'
+    
+    TruckState getTruckState();
+    
+    vector3 getVehiclePosition();
+    
 	/**
-	 * Scales the truck.
-	 */
-	void scaleTruck(float ratio);
-	
+	 * Returns the angle in which the truck is heading.
+	 */  
+    float getRotation();
+    
 	/**
-	 * Gets the name of the truck.
+	 * Returns the angle in which the truck is heading.
 	 */
-	string getTruckName();
+	float getHeadingDirectionAngle();
+    
+    float getSpeed();
+    
+	/**
+	 * Gets the G-forces that this truck is currently experiencing.
+	 * @return a vector3 representing the G-forces
+	 */
+	vector3 getGForces();
+    
+	/**
+	 * Gets the total mass of the truck.
+	 * @param withLocked if true, the mass of everything locked to the truck will be added to the mass of the truck.
+	 */
+	float getTotalMass(bool withLocked);   
 
 	/**
-	 * Gets the name of the loaded section for a truck.
+	 * Gets the total amount of nodes of the truck.
 	 */
-	string getSectionConfig();
-	
+	int getNodeCount();
+    
+   /**
+	* Returns the position of the node
+	* @param the nuber of the node
+    * @return vector3 of the world position for the node
+	*/	
+	vector3 getNodePosition(int nodeNumber);    
+    
+	/**
+	 * Gets the total amount of nodes of the wheels of the truck.
+	 */
+	int getWheelNodeCount();    
+    
+	/**
+	 * Gets the current wheel speed of the vehicle.
+	 */
+	float getWheelSpeed();   
+
 	/**
 	 * Resets the truck.
 	 * @param reset_position true if you want to keep the truck at the current position.
 	 *        (otherwise, it will be moved to its origin position)
 	 */
 	void reset(bool keep_position);
+    
+    //! @}
+    
+    /// @name Physics editing
+    /// @{
+    // PLEASE maintain the same ordering as in 'Actor.h' and 'scripting/bindings/ActorAngelscript.cpp'  
+    
+	/**
+	 * Scales the truck.
+	 */
+	void scaleTruck(float ratio);
 	
 	/**
-	 * Sets the detail level of the truck.
-	 * @param v v=0: full detail, v=1: no beams
+	 * Sets the mass of the truck.
 	 */
-	void setDetailLevel(int v);
+	void setMass(float m);
 	
-	/**
-	 * Shows the skeleton of the truck.
-	 */
-	void showSkeleton(bool meshes, bool newMode);
+    //! @}
 	
-	/**
-	 * Hides the skeleton of the truck.
-	 */
-	void hideSkeleton(bool newMode);
+    /// @name User interaction
+    /// @{
+    // PLEASE maintain the same ordering as in 'Actor.h' and 'scripting/bindings/ActorAngelscript.cpp'  
 	
 	/**
 	 * Toggles the parking brake.
@@ -69,56 +115,50 @@ public:
 	void antilockbrakeToggle();
 	
 	/**
-	 * Toggles the beacons.
-	 */
-	void beaconsToggle();
-	
-	/**
-	 * Enables or disables replay mode.
-	 */
-	void setReplayMode(bool rm);
-	
-	/**
 	 * Toggles the custom particles.
 	 */
 	void toggleCustomParticles();
+
+	/**
+	 * Gets the custom particles mode.
+	 */
+	bool getCustomParticleMode();
+    
+	/**
+	 * Returns true if a hook of this truck is locked.
+	 */
+	bool isLocked();      
+    
+    //! @}
+    
+    /// @name Subsystems
+    /// @{
+    // PLEASE maintain the same ordering as in 'Actor.h' and 'scripting/bindings/ActorAngelscript.cpp'      
+
 	
 	/**
-	 * Gets the default deformation.
+	 * Retrieve the waypoint AI object.
 	 */
-	float getDefaultDeformation();
+	VehicleAiClass getVehicleAI();
 	
+    //! @}
+	
+    /// @name Vehicle lights
+    /// @{
+    // PLEASE maintain the same order as in 'Actor.h' and 'scripting/bindings/ActorAngelscript.cpp'
+    
 	/**
-	 * Gets the total amount of nodes of the truck.
+	 * Gets the blinking type.
+	 * @see blinktype
 	 */
-	int getNodeCount();
-	
+	int getBlinkType();    
+    
 	/**
-	 * Gets the total mass of the truck.
-	 * @param withLocked if true, the mass of everything locked to the truck will be added to the mass of the truck.
+	 * Sets the blinking type.
+	 * @see blinktype
 	 */
-	float getTotalMass(bool withLocked);
-	
-	/**
-	 * Gets the total amount of nodes of the wheels of the truck.
-	 */
-	int getWheelNodeCount();
-	
-	/**
-	 * Recalculates the mass of the truck.
-	 */
-	void recalc_masses();
-	
-	/**
-	 * Sets the mass of the truck.
-	 */
-	void setMass(float m);
-	
-	/**
-	 * Returns true if the brake light is enabled.
-	 */
-	bool getBrakeLightVisible();
-	
+	void setBlinkType(int blink);    
+    
 	/**
 	 * Returns true if the custom light with the number number is enabled.
 	 */
@@ -127,71 +167,65 @@ public:
 	/**
 	 * Enables or disables the custom light.
 	 */
-	void setCustomLightVisible(int number, bool visible);
-	
+	void setCustomLightVisible(int number, bool visible);  
+
 	/**
 	 * Gets the mode of the beacon.
 	 */
-	bool getBeaconMode();
-	
+	bool getBeaconMode();    
+    
 	/**
-	 * Sets the blinking type.
-	 * @see blinktype
+	 * Toggles the beacons.
 	 */
-	void setBlinkType(int blink);
-	
+	void beaconsToggle();    
+    
 	/**
-	 * Gets the blinking type.
-	 * @see blinktype
+	 * Returns true if the brake light is enabled.
 	 */
-	int getBlinkType();
-	
-	/**
-	 * Gets the custom particles mode.
-	 */
-	bool getCustomParticleMode();
-	
-	/**
-	 * Returns the index number of the lowest node.
-	 */
-	int getLowestNode();
-	
-	/**
-	 * Sets the mesh visibility.
-	 */
-	bool setMeshVisibility(bool visible);
+	bool getBrakeLightVisible();   
 
 	/**
 	 * Returns true if the reverse lights are enabled.
 	 */
 	bool getReverseLightVisible();
-	
+
 	/**
-	 * Returns the angle in which the truck is heading.
+	 * Counts flares using the given custom light group number (1-10).
 	 */
-	float getHeadingDirectionAngle();
-	
+    int countCustomLights(int);
+    
 	/**
-	 * Returns true if a hook of this truck is locked.
+	 * Counts flares using the given type.
 	 */
-	bool isLocked();
-	
+    int countFlaresByType(FlareType);
+    
+    //! @}
+    
+    /// @name Organizational
+    /// @{
+    // PLEASE maintain the same order as in 'Actor.h' and 'scripting/bindings/ActorAngelscript.cpp'
+
 	/**
-	 * Gets the current wheel speed of the vehicle.
+	 * Gets the designated name of the truck.
 	 */
-	float getWheelSpeed();
-	
+	string getTruckName();
+    
 	/**
-	 * Gets the G-forces that this truck is currently experiencing.
-	 * @return a vector3 representing the G-forces
+	 * Gets the name of the truck definition file.
 	 */
-	vector3 getGForces();
-   /**
-	* Returns the position of the node
-	* @param the nuber of the node
-    * @return vector3 of the world position for the node
-	*/	
-	Ogre::Vector3 getNodePosition(int nodeNumber);
+	string getTruckFileName();    
+    
+	/**
+	 * Gets the name of the OGRE resource group where the truck definition file lives. Useful for loading using `GenericDocumentClass`.
+	 */
+	string getTruckFileResourceGroup();      
+
+	/**
+	 * Gets the name of the loaded section for a truck.
+	 */
+	string getSectionConfig();
+    
+    //! @}    
 }
 
 /// @}    //addtogroup Script2Game
