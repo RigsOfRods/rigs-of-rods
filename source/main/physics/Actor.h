@@ -67,28 +67,31 @@ public:
 
     /// @name Physics state
     /// @{
+    // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
+    ActorState        getTruckState() { return ar_state; }
+    Ogre::Vector3     getPosition(); // AngelScript: `getVehiclePosition()`
+    float             getRotation();
+    float             getSpeed() { return m_avg_node_velocity.length(); };
+    Ogre::Vector3     getGForces() { return m_camera_local_gforces_cur; };
+    float             getTotalMass(bool withLocked=true);
+    int               getNodeCount() { return ar_num_nodes; }
+    Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
+    int               getWheelNodeCount() const;
+    float             getWheelSpeed() const { return ar_wheel_speed; }
     void              reset(bool keep_position = false);   //!< call this one to reset a truck from any context
+    // not exported to scripting:
     void              resetPosition(Ogre::Vector3 translation, bool setInitPosition); //!< Moves the actor to given world coords.
     void              resetPosition(float px, float pz, bool setInitPosition, float miny); //!< Moves the actor to given world coords.
     void              requestRotation(float rotation, Ogre::Vector3 center) { m_rotation_request += rotation; m_rotation_request_center = center; };
     void              requestAngleSnap(int division) { m_anglesnap_request = division; };
     void              requestTranslation(Ogre::Vector3 translation) { m_translation_request += translation; };
-    int               getNodeCount() { return ar_num_nodes; }
-    float             getTotalMass(bool withLocked=true);
-    int               getWheelNodeCount() const;
-    float             getWheelSpeed() const { return ar_wheel_speed; }
-    float             getSpeed() { return m_avg_node_velocity.length(); };
     Ogre::Vector3     getVelocity() const { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
-    float             getRotation();
     Ogre::Vector3     getDirection();
-    Ogre::Vector3     getPosition();
-    Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
     Ogre::Vector3     getRotationCenter();
     float             getMinHeight(bool skip_virtual_nodes=true);
     float             getMaxHeight(bool skip_virtual_nodes=true);
     float             getHeightAboveGround(bool skip_virtual_nodes=true);
     float             getHeightAboveGroundBelow(float height, bool skip_virtual_nodes=true);
-    Ogre::Vector3     getGForces() { return m_camera_local_gforces_cur; };
     Ogre::Vector3     getMaxGForces() { return m_camera_local_gforces_max; };
     bool              hasSlidenodes() { return !m_slidenodes.empty(); };
     void              updateSlideNodePositions();          //!< incrementally update the position of all SlideNodes
@@ -99,8 +102,10 @@ public:
 
     /// @name Physics editing
     /// @{
+    // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
     void              scaleTruck(float value);
     void              setMass(float m);
+    // not exported to scripting:
     void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
     void              searchBeamDefaults();                //!< Searches for more stable beam defaults
     void              updateInitPosition();
@@ -108,6 +113,13 @@ public:
 
     /// @name User interaction
     /// @{
+    // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
+    void              parkingbrakeToggle();
+    void              tractioncontrolToggle();
+    void              antilockbrakeToggle();
+    void              toggleCustomParticles();
+    bool              getCustomParticleMode();
+    // not exported to scripting:
     void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
     void              tieToggle(int group=-1);
     bool              isTied();
@@ -116,10 +128,7 @@ public:
     void              ropeToggle(int group=-1);
     void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              toggleSlideNodeLock();
-    void              parkingbrakeToggle();
     bool              getParkingBrake() { return ar_parking_brake; }
-    void              antilockbrakeToggle();
-    void              tractioncontrolToggle();
     void              cruisecontrolToggle();               //!< Defined in 'gameplay/CruiseControl.cpp'
     void              toggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
     void              displayAxleDiffMode();               //! Writes info to console/notify box
@@ -132,17 +141,16 @@ public:
     void              toggleTransferCaseGearRatio();       //! Toggles between Hi and Lo mode
     Ogre::String      getTransferCaseName();               //! Gets the current transfer case mode name (4WD Hi, ...)
     void              displayTransferCaseMode();           //! Writes info to console/notify area
-    void              toggleCustomParticles();
     void              setSmokeEnabled(bool enabled) { m_disable_smoke = !enabled; }
     bool              getSmokeEnabled() const { return !m_disable_smoke; }
-    bool              getCustomParticleMode();
+    
 
     std::vector<Actor*>& getAllLinkedActors() { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     //! @}
 
     /// @name Vehicle lights
     /// @{
-    // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp'
+    // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
     BlinkType         getBlinkType();
     void              setBlinkType(BlinkType blink);
     void              toggleBlinkType(BlinkType blink);
@@ -193,13 +201,15 @@ public:
     VehicleAI*        getVehicleAI() { return ar_vehicle_ai; }
     //! @}
 
-    /// @name Organizational things
+    /// @name Organizational
     /// @{
+    // PLEASE maintain the same ordering as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
     std::string       getTruckName() { return ar_design_name; }
     std::string       getTruckFileName() { return ar_filename; }
     std::string       getTruckFileResourceGroup();
     int               getTruckType() { return ar_driveable; }
     Ogre::String      getSectionConfig() { return m_section_config; }
+    // not exported to scripting:
     CacheEntry*       getUsedSkin() { return m_used_skin_entry; }
     void              setUsedSkin(CacheEntry* skin) { m_used_skin_entry = skin; }
     bool              isPreloadedWithTerrain() const { return m_preloaded_with_terrain; };

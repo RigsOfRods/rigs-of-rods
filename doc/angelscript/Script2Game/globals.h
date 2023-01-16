@@ -403,18 +403,53 @@ enum inputEvents
 }
 
 /**
- * Different truck states registered with the script.
+ * Binding of RoR::ActorType
  */
-enum truckStates {
-	TS_ACTIVATED,      //!< leading truck
-	TS_DESACTIVATED,   //!< not leading but active
-	TS_MAYSLEEP,       //!< active but wanting to sleep
-	TS_GOSLEEP,        //!< active but ordered to sleep ASAP (synchronously)
-	TS_SLEEPING,       //!< not active, sleeping
-	TS_NETWORKED,      //!< not calculated, gets remote data
-	TS_RECYCLE,        //!< waiting for reusage
-	TS_DELETED,        //!< special used when truck pointer is 0
+enum truckTypes {
+    TT_NOT_DRIVEABLE,
+    TT_TRUCK,
+    TT_AIRPLANE,
+    TT_BOAT,
+    TT_MACHINE,
+    TT_AI,
+}
+
+/**
+ * Binding of RoR::ActorState
+ */
+enum TruckState {
+	TS_SIMULATED,      //!< locally simulated and active
+	TS_SLEEPING,       //!< locally simulated but sleeping
+	TS_NETWORKED,      //!< controlled by network data
 };
+
+/**
+ * Binding of RoR::FlareType
+ */
+enum FlareType {
+    FLARE_TYPE_NONE,
+    FLARE_TYPE_HEADLIGHT,
+    FLARE_TYPE_HIGH_BEAM,
+    FLARE_TYPE_FOG_LIGHT,
+    FLARE_TYPE_TAIL_LIGHT,
+    FLARE_TYPE_BRAKE_LIGHT,
+    FLARE_TYPE_REVERSE_LIGHT,
+    FLARE_TYPE_SIDELIGHT,
+    FLARE_TYPE_BLINKER_LEFT,
+    FLARE_TYPE_BLINKER_RIGHT,
+    FLARE_TYPE_USER,
+    FLARE_TYPE_DASHBOARD,
+};
+
+/**
+ * Binding of RoR::BlinkType
+ */
+enum BlinkType {
+    BLINK_NONE,
+    BLINK_LEFT,
+    BLINK_RIGHT,
+    BLINK_WARN,
+}
 
 } // namespace Script2Game
 
