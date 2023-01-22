@@ -79,7 +79,6 @@ static const Ogre::Vector3 BOUNDING_BOX_PADDING(0.05f, 0.05f, 0.05f);
 
 Actor::~Actor()
 {
-    TRIGGER_EVENT(SE_GENERIC_DELETED_TRUCK, ar_instance_id);
 
     // TODO: IMPROVE below: delete/destroy prop entities, etc
 
@@ -1700,7 +1699,6 @@ void Actor::HandleAngelScriptEvents(float dt)
 {
 #ifdef USE_ANGELSCRIPT
 
-    // TODO: restore events SE_TRUCK_LOCKED and SE_TRUCK_UNLOCKED
     if (m_water_contact && !m_water_contact_old)
     {
         m_water_contact_old = m_water_contact;
@@ -3670,8 +3668,7 @@ void Actor::parkingbrakeToggle()
     else
         SOUND_STOP(ar_instance_id, SS_TRIG_PARK);
 
-    //ScriptEvent - Parking Brake toggle
-    TRIGGER_EVENT(SE_TRUCK_PARKINGBREAK_TOGGLE, ar_instance_id);
+    TRIGGER_EVENT(SE_TRUCK_PARKINGBRAKE_TOGGLE, ar_instance_id);
 }
 
 void Actor::antilockbrakeToggle()

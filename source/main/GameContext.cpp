@@ -411,6 +411,7 @@ void GameContext::DeleteActor(Actor* actor)
     }
 #endif //SOCKETW
 
+    TRIGGER_EVENT(SE_GENERIC_DELETED_TRUCK, actor->ar_instance_id);
     m_actor_manager.DeleteActorInternal(actor);
 }
 
