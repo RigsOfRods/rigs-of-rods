@@ -162,9 +162,9 @@ class racesManager {
 		game.registerForEvent(SE_TRUCK_EXIT);
 		game.registerForEvent(SE_TRUCK_RESET);
 		game.registerForEvent(SE_TRUCK_TELEPORT);
+        game.registerForEvent(SE_TRUCK_MOUSE_GRAB);
 		game.registerForEvent(SE_GENERIC_DELETED_TRUCK);
 		game.registerForEvent(SE_ANGELSCRIPT_MANIPULATIONS);
-		// game.registerForEvent(SE_GENERIC_MOUSE_BEAM_INTERACTION);
 		
 		// add the eventcallback method if it doesn't exist
 		if(game.scriptFunctionExists("void eventCallback(int, int)")<0)
@@ -798,14 +798,10 @@ class racesManager {
 			this.cancelCurrentRace();
 			this.message("You must finish the race with the vehicle you started it! Race aborted.", "stop.png");
 		}
-		else if( eventnum == SE_GENERIC_MOUSE_BEAM_INTERACTION )
+		else if( eventnum == SE_TRUCK_MOUSE_GRAB and this.truckNum == value )
 		{
-			//debug: game.log("mouse beam interaction");
-			// TODO: abort race here
-		}
-		else if( eventnum == SE_GENERIC_INPUT_EVENT )
-		{
-			//debug: game.log("Input event");
+			this.cancelCurrentRace();
+			this.message("You must not grab the vehicle during a race! Race aborted.", "stop.png");
 		}
 		else if( eventnum == SE_ANGELSCRIPT_MANIPULATIONS )
 		{
