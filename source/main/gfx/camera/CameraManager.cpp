@@ -813,19 +813,26 @@ bool CameraManager::CameraBehaviorStaticMouseMoved(const OIS::MouseEvent& _arg)
     return false;
 }
 
-void CameraManager::CameraBehaviorOrbitUpdate()
+void CameraManager::CameraBehaviorOrbitToggleAngle(events ev, Ogre::Degree angle)
 {
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_LOOKBACK))
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(ev))
     {
-        if (m_cam_rot_x > Degree(0))
+        if (m_cam_rot_x != angle)
         {
-            m_cam_rot_x = Degree(0);
+            m_cam_rot_x = angle;
         }
         else
         {
-            m_cam_rot_x = Degree(180);
+            m_cam_rot_x = Degree(0);
         }
     }
+}
+
+void CameraManager::CameraBehaviorOrbitUpdate()
+{
+    this->CameraBehaviorOrbitToggleAngle(EV_CAMERA_LOOK_BACK, Degree(180));
+    this->CameraBehaviorOrbitToggleAngle(EV_CAMERA_LOOK_LEFT, Degree(270));
+    this->CameraBehaviorOrbitToggleAngle(EV_CAMERA_LOOK_RIGHT, Degree(90));
 
     if (App::io_invert_orbitcam->getBool() && this->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
     {
@@ -960,13 +967,13 @@ bool CameraManager::CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg)
 
         if (App::io_invert_orbitcam->getBool() && this->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
         {
-            m_cam_rot_x += Degree(ms.X.rel * -0.13f);
-            m_cam_rot_y += Degree(-ms.Y.rel * -0.13f);
+            m_cam_rot_x += Degree(_arg.state.X.rel * -0.13f);
+            m_cam_rot_y += Degree(-_arg.state.Y.rel * -0.13f);
         }
         else
         {
-            m_cam_rot_x += Degree(ms.X.rel * 0.13f);
-            m_cam_rot_y += Degree(-ms.Y.rel * 0.13f);
+            m_cam_rot_x += Degree(_arg.state.X.rel * 0.13f);
+            m_cam_rot_y += Degree(-_arg.state.Y.rel * 0.13f);
         }
         return true;
     }

@@ -115,8 +115,10 @@ enum events
     EV_CAMERA_DOWN,
     EV_CAMERA_FREE_MODE,
     EV_CAMERA_FREE_MODE_FIX,
-    EV_CAMERA_LOOKBACK,          //!< look back (toggles between normal and lookback)
-    EV_CAMERA_RESET,             //!< reset the camera position
+    EV_CAMERA_LOOK_BACK,         //!< look back (toggles between normal and lookback)
+    EV_CAMERA_LOOK_LEFT,         //!< look left (toggles between normal and lookleft)
+    EV_CAMERA_LOOK_RIGHT,        //!< look right (toggles between normal and lookright)
+    EV_CAMERA_RESET,             //!< reset the camera position/rotation
     EV_CAMERA_ROTATE_DOWN,       //!< rotate camera down
     EV_CAMERA_ROTATE_LEFT,       //!< rotate camera left
     EV_CAMERA_ROTATE_RIGHT,      //!< rotate camera right

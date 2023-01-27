@@ -22,6 +22,7 @@
 #pragma once
 
 #include "Application.h"
+#include "InputEngine.h"
 
 #include <OIS.h>
 #include <Ogre.h>
@@ -101,6 +102,7 @@ protected:
     void CameraBehaviorOrbitReset();
     bool CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg);
     void CameraBehaviorOrbitUpdate();
+    void CameraBehaviorOrbitToggleAngle(RoR::events ev, Ogre::Degree angle);
 
     Ogre::Camera*        m_camera;
     Ogre::SceneNode*     m_camera_node;

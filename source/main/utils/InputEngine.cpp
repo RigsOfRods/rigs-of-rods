@@ -337,7 +337,9 @@ InputEvent eventInfo[] = {
 
     // Camera
     {"CAMERA_CHANGE",                 EV_CAMERA_CHANGE,                 "Keyboard EXPL+C",              _LC("InputEvent", "change camera mode")},
-    {"CAMERA_LOOKBACK",               EV_CAMERA_LOOKBACK,               "Keyboard NUMPAD1",             _LC("InputEvent", "look back (toggles between normal and lookback)")},
+    {"CAMERA_LOOK_BACK",              EV_CAMERA_LOOK_BACK,              "Keyboard NUMPAD1",             _LC("InputEvent", "look back (toggles between normal and lookback)")},
+    {"CAMERA_LOOK_LEFT",              EV_CAMERA_LOOK_LEFT,              "",                             _LC("InputEvent", "look left (toggles between normal and lookleft)")},
+    {"CAMERA_LOOK_RIGHT",             EV_CAMERA_LOOK_RIGHT,             "",                             _LC("InputEvent", "look right (toggles between normal and lookright)")},
     {"CAMERA_RESET",                  EV_CAMERA_RESET,                  "Keyboard NUMPAD5",             _LC("InputEvent", "reset the camera position")},
     {"CAMERA_ROTATE_DOWN",            EV_CAMERA_ROTATE_DOWN,            "Keyboard NUMPAD2",             _LC("InputEvent", "rotate camera down")},
     {"CAMERA_ROTATE_LEFT",            EV_CAMERA_ROTATE_LEFT,            "Keyboard NUMPAD4",             _LC("InputEvent", "rotate camera left")},
