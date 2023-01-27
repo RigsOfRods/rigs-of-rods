@@ -66,10 +66,6 @@ public:
     void NotifyContextChange();
     void NotifyVehicleChanged(ActorPtr new_vehicle);
 
-    void CameraBehaviorOrbitReset();
-    bool CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg);
-    void CameraBehaviorOrbitUpdate();
-
     bool mouseMoved(const OIS::MouseEvent& _arg);
     bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
 
@@ -102,6 +98,9 @@ protected:
     void CameraBehaviorVehicleSplineUpdateSpline();
     void CameraBehaviorVehicleSplineUpdateSplineDisplay();
     void CreateCameraNode();
+    void CameraBehaviorOrbitReset();
+    bool CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg);
+    void CameraBehaviorOrbitUpdate();
 
     Ogre::Camera*        m_camera;
     Ogre::SceneNode*     m_camera_node;
