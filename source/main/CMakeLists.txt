@@ -390,7 +390,7 @@ target_link_libraries(${BINNAME} PRIVATE ${OS_LIBS} version_info)
 target_link_libraries(${BINNAME} PRIVATE
         Threads::Threads
         ${OGRE_LIBRARIES}
-        OIS::OIS
+        ois::ois
         fmt::fmt
         MyGUI::MyGUI
         rapidjson
@@ -416,7 +416,7 @@ if (ROR_USE_DISCORD_RPC)
 endif ()
 
 if (ROR_USE_SOCKETW)
-    target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
+    target_link_libraries(${BINNAME} PRIVATE socketw::socketw)
     target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
 endif ()
 

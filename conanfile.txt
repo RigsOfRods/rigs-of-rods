@@ -8,7 +8,7 @@ mygui/3.4.0@anotherfoxguy/stable
 ogre3d-caelum/0.6.3@rigs-of-rods/stable
 ogre3d-pagedgeometry/1.2.0@anotherfoxguy/stable
 ogre3d/1.11.6.1@anotherfoxguy/stable
-ois/1.4@rigsofrods/custom
+ois/1.4.1@rigsofrods/custom
 openal/1.21.1
 openssl/1.1.1l
 rapidjson/cci.20200410
@@ -20,7 +20,8 @@ CMakeDeps
 CMakeToolchain
 
 [imports]
-bin, *.dll ->bin @ keep_path=False
+bin, *.exe -> bin @ root_package=ogre3d, keep_path=False
+bin, *.dll -> bin @ keep_path=False
 lib, *.dll -> bin @ keep_path=False
 lib, *.dylib -> bin @ keep_path=False
 lib, *.so* -> bin @ keep_path=False
