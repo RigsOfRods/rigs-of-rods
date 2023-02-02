@@ -32,7 +32,7 @@ find_package(SocketW)
 cmake_dependent_option(ROR_USE_SOCKETW "use SOCKETW" ON "TARGET socketw::socketw" OFF)
 
 # --- AngelScript - scripting interface ---
-find_package(AngelScript)
+find_package(Angelscript)
 cmake_dependent_option(ROR_USE_ANGELSCRIPT "use angelscript" ON "TARGET Angelscript::angelscript" OFF)
 
 # --- cURL ---
