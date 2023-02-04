@@ -126,8 +126,9 @@ void MainSelector::Draw()
     ImGui::SameLine();
 
     // search box
-    ImGui::PushItemWidth(ImGui::GetWindowWidth() - 
-        (LEFT_PANE_WIDTH + 2*(ImGui::GetStyle().WindowPadding.x) + ImGui::GetStyle().ItemSpacing.x));
+    const ImVec2 searchbox_cursor = ImGui::GetCursorPos();
+    const float searchbox_width = ImGui::GetWindowWidth() -
+        (LEFT_PANE_WIDTH + 2 * (ImGui::GetStyle().WindowPadding.x) + ImGui::GetStyle().ItemSpacing.x);
 
     if (m_kb_focused == true)
     {
@@ -139,6 +140,7 @@ void MainSelector::Draw()
     {
         ImGui::SetKeyboardFocusHere();
     }
+    ImGui::PushItemWidth(searchbox_width);
     if (ImGui::InputText("##SelectorSearch", m_search_input.GetBuffer(), m_search_input.GetCapacity()))
     {
         m_selected_category = 0; // 'All'
@@ -146,11 +148,29 @@ void MainSelector::Draw()
         this->UpdateSearchParams();
         this->UpdateDisplayLists();
     }
-    // TODO: Remove focus using tab key (not possible with DearIMGUI?)
-    m_searchbox_was_active = ImGui::IsItemActive();
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY()
-        + (ImGui::GetStyle().WindowPadding.y - ImGui::GetStyle().ItemSpacing.y));
     ImGui::PopItemWidth();
+    m_searchbox_was_active = ImGui::IsItemActive();
+    const ImVec2 separator_cursor = ImGui::GetCursorPos()
+        + ImVec2(0, ImGui::GetStyle().WindowPadding.y - ImGui::GetStyle().ItemSpacing.y);
+    
+    // advanced search hint
+    const char* searchbox_hint = "(?)";
+    ImGui::SetCursorPos(searchbox_cursor + ImVec2(searchbox_width - (ImGui::CalcTextSize(searchbox_hint).x + ImGui::GetStyle().FramePadding.x), ImGui::GetStyle().FramePadding.y));
+    ImGui::TextDisabled(searchbox_hint);
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        ImGui::TextDisabled("Fulltext search:");
+        ImGui::Text("~ partial name, filename, description, author name or e-mail");
+        ImGui::TextDisabled("Advanced search:");
+        ImGui::Text("guid: ~ partial GUID");
+        ImGui::Text("author: ~ partial author name or e-mail");
+        ImGui::Text("wheels: ~ wheel configuration (i.e. 4x4)");
+        ImGui::Text("file: ~ partial file name");
+        ImGui::EndTooltip();
+    }
+    
+    ImGui::SetCursorPos(separator_cursor);
     ImGui::Separator();
 
     // left
