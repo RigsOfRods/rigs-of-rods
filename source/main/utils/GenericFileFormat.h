@@ -31,6 +31,7 @@
 ///  - Strings cannot be multiline. Linebreak within string ends the string.
 ///  - KEYWORD tokens cannot start with a digit or special character.
 
+#include "Application.h"
 #include "RefCountingObject.h"
 #include "RefCountingObjectPtr.h"
 #include "BitFlags.h"
