@@ -150,12 +150,12 @@ struct CacheQueryResult
 
 enum class CacheSearchMethod // Always case-insensitive
 {
-    NONE,     // No searching
-    FULLTEXT, // Fields: name, filename, description, author name/mail (in this order, with descending rank) and returns rank+string pos as score
-    GUID,     // Fields: guid
-    AUTHORS,  // Fields: name, email), 'wheels' (), 'file' (filename)
-    WHEELS,   // Fields: num wheels (string), num propelled wheels (string)
-    FILENAME  // Fields: truckfile name
+    NONE,     //!< No searching
+    FULLTEXT, //!< Partial match in: name, filename, description, author name/mail
+    GUID,     //!< Partial match in: guid 
+    AUTHORS,  //!< Partial match in: author name/email
+    WHEELS,   //!< Wheel configuration, i.e. 4x4
+    FILENAME  //!< Partial match in file name
 };
 
 struct CacheQuery
