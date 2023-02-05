@@ -1,0 +1,90 @@
+; -------------------------------------------
+; Steam Deck (Linux) Controller Input Map
+; Created by CuriousMike
+; Version 1.0
+
+;Buttons:
+;A: Button 0
+;B: Button 1
+;X: Button 2
+;Y: Button 3
+;Left bumper: Button 4
+;Right bumper: Button 5
+;View: Button 6
+;Menu: Button 7
+;Left stick button: Button 8
+;Right stick button: Button 9
+
+;Axes:
+;Left Stick (Left/Right): Axis 0
+;Left Stick (Up/Down): Axis 1
+;Right Stick (Left/Right): Axis 3
+;Right Stick (Up/Down): Axis 4
+;Left Trigger: Axis 2
+;Right Trigger: Axis 5
+; -------------------------------------------
+
+
+
+
+; AIRPLANE
+AIRPLANE_ELEVATOR_DOWN         JoystickAxis         0 1 UPPER
+AIRPLANE_ELEVATOR_UP           JoystickAxis         0 1 LOWER
+AIRPLANE_PARKING_BRAKE         JoystickButton       0 5
+AIRPLANE_REVERSE               JoystickButton       0 4
+AIRPLANE_RUDDER_LEFT           JoystickAxis         0 5 UPPER
+AIRPLANE_RUDDER_RIGHT          JoystickAxis         0 2 UPPER
+AIRPLANE_STEER_LEFT            JoystickAxis         0 0 LOWER+DEADZONE=0.15
+AIRPLANE_STEER_RIGHT           JoystickAxis         0 0 UPPER+DEADZONE=0.15
+AIRPLANE_THROTTLE_AXIS         None
+AIRPLANE_THROTTLE_UP           JoystickPov          0 0 North
+AIRPLANE_THROTTLE_FULL         JoystickButton       0 2
+AIRPLANE_THROTTLE_NO           JoystickButton       0 1
+AIRPLANE_THROTTLE_DOWN         JoystickPov          0 0 South
+AIRPLANE_TOGGLE_ENGINES        JoystickButton       0 0
+
+
+; BOAT
+BOAT_STEER_LEFT               JoystickAxis         0 0 LOWER+DEADZONE=0.25
+BOAT_STEER_RIGHT              JoystickAxis         0 0 UPPER+DEADZONE=0.25
+BOAT_THROTTLE_UP 			  JoystickAxis         0 5 UPPER
+BOAT_THROTTLE_DOWN 			  JoystickAxis         0 2 UPPER
+BOAT_REVERSE                  JoystickButton       0 1
+BOAT_CENTER_RUDDER            JoystickButton       0 2
+
+; CAMERA
+CAMERA_CHANGE                  JoystickButton       0 6
+CAMERA_ROTATE_DOWN             JoystickAxis         0 4 UPPER
+CAMERA_ROTATE_UP               JoystickAxis         0 4 LOWER
+CAMERA_ROTATE_LEFT             JoystickAxis         0 3 LOWER
+CAMERA_ROTATE_RIGHT            JoystickAxis         0 3 UPPER
+
+; CHARACTER
+CHARACTER_BACKWARDS            JoystickAxis         0 1 UPPER
+CHARACTER_FORWARD              JoystickAxis         0 1 LOWER
+CHARACTER_JUMP                 JoystickButton       0 2
+CHARACTER_LEFT                 JoystickAxis         0 0 LOWER
+CHARACTER_RIGHT                JoystickAxis         0 0 UPPER
+CHARACTER_RUN                  JoystickButton       0 0
+
+; COMMON
+COMMON_ENTER_OR_EXIT_TRUCK     JoystickButton       0 3
+COMMON_LOCK                    JoystickPov          0 0 East
+COMMON_QUIT_GAME               JoystickButton       0 7
+COMMON_CYCLE_TRUCK_LIGHTS     JoystickPov          0 0 East
+COMMON_REPAIR_TRUCK 					JoystickPov          0 0 West
+
+; TRUCK
+TRUCK_ACCELERATE               JoystickAxis         0 5 UPPER
+TRUCK_AUTOSHIFT_UP             JoystickPov          0 0 North
+TRUCK_AUTOSHIFT_DOWN           JoystickPov          0 0 South
+TRUCK_BRAKE                    JoystickAxis         0 2 UPPER
+TRUCK_HORN                     JoystickButton       0 8
+TRUCK_PARKING_BRAKE            JoystickButton       0 5
+TRUCK_SHIFT_DOWN               JoystickButton       0 1
+TRUCK_SHIFT_UP                 JoystickButton       0 2
+TRUCK_MANUAL_CLUTCH			   JoystickButton       0 4
+TRUCK_STARTER                  JoystickButton       0 0
+TRUCK_STEER_LEFT               JoystickAxis         0 0 LOWER+DEADZONE=0.25
+TRUCK_STEER_RIGHT              JoystickAxis         0 0 UPPER+DEADZONE=0.25
+TRUCK_TOGGLE_CONTACT           JoystickButton       0 9
