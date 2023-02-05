@@ -201,7 +201,7 @@ COMMON_TOGGLE_REPLAY_MODE      Keyboard             CTRL+J
 COMMON_TOGGLE_PHYSICS          Keyboard             EXPL+J 
 COMMON_TOGGLE_STATS            Keyboard             EXPL+F 
 COMMON_TOGGLE_TRUCK_BEACONS    Keyboard             M 
-COMMON_TOGGLE_TRUCK_LIGHTS     Keyboard             N 
+COMMON_CYCLE_TRUCK_LIGHTS     Keyboard             N 
 COMMON_TRUCK_INFO              Keyboard             EXPL+T 
 COMMON_TRUCK_DESCRIPTION       Keyboard             EXPL+CTRL+T 
 COMMON_FOV_LESS                Keyboard             EXPL+NUMPAD7 

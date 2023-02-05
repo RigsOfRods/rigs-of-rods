@@ -65,7 +65,7 @@ CHARACTER_RIGHT                JoystickAxis         0 3 UPPER
 CHARACTER_RUN                  JoystickButton       0 1 
 
 ; COMMON
-COMMON_TOGGLE_TRUCK_LIGHTS     JoystickButton       0 4
+COMMON_CYCLE_TRUCK_LIGHTS     JoystickButton       0 4
 
 ; TRUCK
 TRUCK_BLINK_LEFT               JoystickAxis         0 3 LOWER+DEADZONE=0.15

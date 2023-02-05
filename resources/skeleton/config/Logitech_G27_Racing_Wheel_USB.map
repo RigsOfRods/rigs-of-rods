@@ -25,7 +25,7 @@ CHARACTER_RUN                  JoystickButton       0 16
 ; COMMON
 COMMON_ENTER_OR_EXIT_TRUCK     JoystickButton       0 15 
 COMMON_LOCK                    JoystickButton       0 1 
-COMMON_TOGGLE_TRUCK_LIGHTS     JoystickButton       0 18 
+COMMON_CYCLE_TRUCK_LIGHTS     JoystickButton       0 18 
 
 
 ; TRUCK
