@@ -70,7 +70,7 @@ CHARACTER_RUN                  JoystickButton       0 0
 COMMON_ENTER_OR_EXIT_TRUCK     JoystickButton       0 3 
 COMMON_LOCK                    JoystickPov          0 0 East
 COMMON_QUIT_GAME               JoystickButton       0 7 
-COMMON_TOGGLE_TRUCK_LIGHTS     JoystickPov          0 0 West
+COMMON_CYCLE_TRUCK_LIGHTS     JoystickPov          0 0 West
 
 ; TRUCK
 TRUCK_ACCELERATE               JoystickAxis         0 4 LOWER

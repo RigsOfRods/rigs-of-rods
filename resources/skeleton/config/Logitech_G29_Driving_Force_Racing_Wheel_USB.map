@@ -18,7 +18,7 @@ CHARACTER_RUN                  JoystickButton       0 3
 
 ; COMMON
 COMMON_QUIT_GAME               JoystickButton       0 24 
-COMMON_TOGGLE_TRUCK_LIGHTS     JoystickButton       0 10 
+COMMON_CYCLE_TRUCK_LIGHTS     JoystickButton       0 10 
 COMMON_TRUCK_INFO              JoystickButton       0 9 
 
 ; MAP
