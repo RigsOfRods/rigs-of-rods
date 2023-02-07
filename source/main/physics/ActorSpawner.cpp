@@ -2261,17 +2261,19 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         this->AddMessage(Message::TYPE_WARNING, "Skipping managed material, missing texture file: " + def.diffuse_map);
         return;
     }
+
     if (def.damaged_diffuse_map != "" &&
         !rgm.resourceExists(m_custom_resource_group, def.damaged_diffuse_map))
     {
-        this->AddMessage(Message::TYPE_WARNING, "Skipping managed material, missing texture file: " + def.damaged_diffuse_map);
-        return;
+        this->AddMessage(Message::TYPE_WARNING, "Damage texture not found: " + def.damaged_diffuse_map);
+        def.damaged_diffuse_map = "";
     }
+
     if (def.specular_map != "" &&
         !rgm.resourceExists(m_custom_resource_group, def.specular_map))
     {
-        this->AddMessage(Message::TYPE_WARNING, "Skipping managed material, missing texture file: " + def.specular_map);
-        return;
+        this->AddMessage(Message::TYPE_WARNING, "Specular texture not found: " + def.specular_map);
+        def.specular_map = "";
     }
 
     // Create temporary placeholder
