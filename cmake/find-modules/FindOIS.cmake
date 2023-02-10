@@ -1,96 +1,50 @@
-#-------------------------------------------------------------------
-# This file is part of the CMake build system for OGRE
-#     (Object-oriented Graphics Rendering Engine)
-# For the latest info, see http://www.ogre3d.org/
+# The MIT License (MIT)
 #
-# The contents of this file are placed in the public domain. Feel
-# free to make use of it in any way you like.
-#-------------------------------------------------------------------
+# Copyright (c) 2021 Edgar (Edgar@AnotherFoxGuy.com)
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
-# - Try to find OIS
-# Once done, this will define
+# Find OIS
+# -----------
 #
-#  OIS_FOUND - system has OIS
-#  OIS_INCLUDE_DIRS - the OIS include directories 
-#  OIS_LIBRARIES - link these to use OIS
-#  OIS_BINARY_REL / OIS_BINARY_DBG - DLL names (windows only)
+# Find OIS include directories and libraries.
+# This module will set the following variables:
+#
+# * OIS_FOUND         - True if OIS is found
+# * OIS_INCLUDE_DIRS  - The include directory
+# * OIS_LIBRARIES     - The libraries to link against
 #
 # In addition the following imported targets are defined:
 #
-#  OIS::OIS
+# * OIS::OIS
 #
 
-include(FindPkgMacros)
-findpkg_begin(OIS)
+find_path(OIS_INCLUDE_DIR OIS.h PATH_SUFFIXES OIS)
+find_library(OIS_LIBRARY OIS)
 
-# Get path, convert backslashes as ${ENV_${var}}
-getenv_path(OIS_HOME)
-getenv_path(OGRE_SDK)
-getenv_path(OGRE_HOME)
-getenv_path(OGRE_SOURCE)
-getenv_path(OGRE_DEPENDENCIES_DIR)
+set(OIS_INCLUDE_DIRS ${OIS_INCLUDE_DIR})
+set(OIS_LIBRARIES ${OIS_LIBRARY})
 
-# construct search paths
-set(OIS_PREFIX_PATH ${OIS_HOME} ${ENV_OIS_HOME}
-        ${OGRE_DEPENDENCIES_DIR} ${ENV_OGRE_DEPENDENCIES_DIR}
-        ${OGRE_SOURCE}/iOSDependencies ${ENV_OGRE_SOURCE}/iOSDependencies
-        ${OGRE_SOURCE}/Dependencies ${ENV_OGRE_SOURCE}/Dependencies
-        ${OGRE_SDK} ${ENV_OGRE_SDK}
-        ${OGRE_HOME} ${ENV_OGRE_HOME})
-create_search_paths(OIS)
-# redo search if prefix path changed
-clear_if_changed(OIS_PREFIX_PATH
-        OIS_LIBRARY_FWK
-        OIS_LIBRARY_REL
-        OIS_LIBRARY_DBG
-        OIS_INCLUDE_DIR
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(OIS FOUND_VAR OIS_FOUND
+        REQUIRED_VARS OIS_INCLUDE_DIRS OIS_LIBRARIES
         )
-
-set(OIS_LIBRARY_NAMES OIS)
-get_debug_names(OIS_LIBRARY_NAMES)
-
-use_pkgconfig(OIS_PKGC OIS)
-
-# For OIS, prefer static library over framework (important when referencing OIS source build)
-set(CMAKE_FIND_FRAMEWORK "LAST")
-
-findpkg_framework(OIS)
-if (OIS_HOME)
-    # OIS uses the 'includes' path for its headers in the source release, not 'include'
-    set(OIS_INC_SEARCH_PATH ${OIS_INC_SEARCH_PATH} ${OIS_HOME}/includes)
-endif ()
-if (APPLE AND OIS_HOME)
-    # OIS source build on Mac stores libs in a different location
-    # Also this is for static build
-    set(OIS_LIB_SEARCH_PATH ${OIS_LIB_SEARCH_PATH} ${OIS_HOME}/Mac/XCode-2.2/build)
-endif ()
-find_path(OIS_INCLUDE_DIR NAMES OIS.h HINTS ${OIS_INC_SEARCH_PATH} ${OIS_PKGC_INCLUDE_DIRS} PATH_SUFFIXES OIS)
-find_library(OIS_LIBRARY_REL NAMES ${OIS_LIBRARY_NAMES} HINTS ${OIS_LIB_SEARCH_PATH} ${OIS_PKGC_LIBRARY_DIRS} PATH_SUFFIXES "" Release RelWithDebInfo MinSizeRel)
-find_library(OIS_LIBRARY_DBG NAMES ${OIS_LIBRARY_NAMES_DBG} HINTS ${OIS_LIB_SEARCH_PATH} ${OIS_PKGC_LIBRARY_DIRS} PATH_SUFFIXES "" Debug)
-
-make_library_set(OIS_LIBRARY)
-
-if (WIN32)
-    set(OIS_BIN_SEARCH_PATH ${OGRE_DEPENDENCIES_DIR}/bin ${CMAKE_SOURCE_DIR}/Dependencies/bin ${OIS_HOME}/dll
-            ${ENV_OIS_HOME}/dll ${ENV_OGRE_DEPENDENCIES_DIR}/bin
-            ${OGRE_SOURCE}/Dependencies/bin ${ENV_OGRE_SOURCE}/Dependencies/bin
-            ${OGRE_SDK}/bin ${ENV_OGRE_SDK}/bin
-            ${OGRE_HOME}/bin ${ENV_OGRE_HOME}/bin)
-    find_file(OIS_BINARY_REL NAMES "OIS.dll" HINTS ${OIS_BIN_SEARCH_PATH}
-            PATH_SUFFIXES "" Release RelWithDebInfo MinSizeRel)
-    find_file(OIS_BINARY_DBG NAMES "OIS_d.dll" HINTS ${OIS_BIN_SEARCH_PATH}
-            PATH_SUFFIXES "" Debug)
-endif ()
-mark_as_advanced(OIS_BINARY_REL OIS_BINARY_DBG)
-
-
-findpkg_finish(OIS)
-
-# add parent of OIS folder to support OIS/OIS.h
-add_parent_dir(OIS_INCLUDE_DIRS OIS_INCLUDE_DIR)
-
-# Reset framework finding
-set(CMAKE_FIND_FRAMEWORK "FIRST")
 
 if (OIS_FOUND)
     add_library(OIS::OIS INTERFACE IMPORTED)
@@ -99,3 +53,5 @@ if (OIS_FOUND)
             INTERFACE_INCLUDE_DIRECTORIES "${OIS_INCLUDE_DIRS}"
             )
 endif ()
+
+mark_as_advanced(OIS_INCLUDE_DIR OIS_LIBRARY)

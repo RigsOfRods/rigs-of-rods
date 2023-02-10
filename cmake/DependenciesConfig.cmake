@@ -1,124 +1,48 @@
-include(DependenciesFunctions)
+# --- Threading support (still needed for GCC even with C++11)
+set(CMAKE_THREAD_PREFER_PTHREAD YES)
 find_package(Threads REQUIRED)
 
-if (USE_PACKAGE_MANAGER)
-    conan_add_remote(NAME ror-conan
-            URL https://git.anotherfoxguy.com/api/packages/rorbot/conan
-            VERIFY_SSL True
-            )
-endif ()
+# --- Ogre 3D graphics engine ---
+find_package(OGRE 1.11 REQUIRED COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain)
 
-set(ROR_FEAT_TIMING OFF)
+# --- Object Oriented Input System ---
+find_package(OIS REQUIRED)
 
-# Some pkg-config files are broken, that is why they are commented out
+# --- MyGUI - graphical user inferface ---
+find_package(MyGUI REQUIRED)
 
-add_external_lib(
-        OGRE
-        ogre3d/1.11.6.1@anotherfoxguy/stable
-        REQUIRED
-        # PKG_CONFIG "OGRE = 1.11.6"
-        FIND_PACKAGE_OPTIONS 1.11 COMPONENTS Bites Overlay Paging RTShaderSystem MeshLodGenerator Terrain
-)
+# --- fmt - A modern formatting library  ---
+find_package(fmt REQUIRED)
 
-add_external_lib(
-        OpenAL
-        openal/1.21.1
-        REQUIRED
-        PKG_CONFIG "openal >= 1.18"
-        FIND_PACKAGE_OPTIONS CONFIG
-)
+# --- RapidJSON - JSON parser/generator ---
+find_package(RapidJSON REQUIRED)
 
-add_external_lib(
-        OIS
-        ois/1.4.1@rigsofrods/custom
-        REQUIRED
-        PKG_CONFIG "ois >= 1.4"
-        FIND_PACKAGE
-)
+# Components
 
-add_external_lib(
-        MyGUI
-        mygui/3.4.0@anotherfoxguy/stable
-        REQUIRED
-        # PKG_CONFIG "MYGUI = 3.4.0"
-        FIND_PACKAGE
-)
-add_external_lib(
-        SocketW
-        socketw/3.11.0@anotherfoxguy/stable
-        PKG_CONFIG "socketw >= 3.10"
-        FIND_PACKAGE
-)
+# --- OpenAL - audio library ---
+find_package(OpenAL)
+cmake_dependent_option(ROR_USE_OPENAL "use OPENAL" ON "OPENAL_FOUND" OFF)
 
-add_external_lib(
-        AngelScript
-        angelscript/2.35.1
-        # PKG_CONFIG "angelscript = 2.32.0"
-        FIND_PACKAGE
-)
+# --- Discord RPC -- Rich Presence for discord ---
+find_package(discord_rpc)
+cmake_dependent_option(ROR_USE_DISCORD_RPC "use discord-rpc" ON "discord_rpc_FOUND" OFF)
 
-add_external_lib(
-        CURL
-        libcurl/7.79.1
-        PKG_CONFIG "libcurl >= 7.6"
-        FIND_PACKAGE_OPTIONS CONFIG
-        INTERFACE_NAME CURL::libcurl
-)
+# --- SocketW - networking library ---
+find_package(SocketW)
+cmake_dependent_option(ROR_USE_SOCKETW "use SOCKETW" ON "TARGET socketw::socketw" OFF)
 
-add_external_lib(
-        Caelum
-        # Temporary switch back to the rigs of rods version, since the OGRE version is broken
-        ogre3d-caelum/0.6.3.1@anotherfoxguy/stable
-        # PKG_CONFIG "Caelum >= 0.6.3"
-        FIND_PACKAGE
-)
-add_external_lib(
-        PagedGeometry
-        ogre3d-pagedgeometry/1.2.0@anotherfoxguy/stable
-        # PKG_CONFIG "PagedGeometry >= 1.2"
-        FIND_PACKAGE
-        SYMBOL PAGED
-)
+# --- AngelScript - scripting interface ---
+find_package(Angelscript)
+cmake_dependent_option(ROR_USE_ANGELSCRIPT "use angelscript" ON "TARGET Angelscript::angelscript" OFF)
 
-add_external_lib(
-        fmt
-        fmt/9.1.0
-        REQUIRED
-        PKG_CONFIG "fmt >= 6"
-        FIND_PACKAGE_OPTIONS CONFIG
-)
+# --- cURL ---
+find_package(CURL)
+cmake_dependent_option(ROR_USE_CURL "use curl" ON "CURL_FOUND" OFF)
 
-add_external_lib(
-        discord_rpc
-        discord-rpc/3.4.0@anotherfoxguy/stable
-        FIND_PACKAGE
-        INTERFACE_NAME discord-rpc::discord-rpc
-)
+# --- Caelum -- Ogre addon for realistic sky rendering ---
+find_package(Caelum)
+cmake_dependent_option(ROR_USE_CAELUM "use caelum" ON "CAELUM_FOUND" OFF)
 
-add_external_lib(
-        RapidJSON
-        rapidjson/cci.20200410
-        REQUIRED
-        PKG_CONFIG "RapidJSON >= 1.1"
-        FIND_PACKAGE_OPTIONS CONFIG
-)
-
-add_external_lib(
-        OpenSSL
-        openssl/1.1.1l
-        PKG_CONFIG "openssl >= 1.1.1"
-        FIND_PACKAGE
-        INTERFACE_NAME OpenSSL::SSL
-)
-
-# Update zlib to 1.2.12 due to https://github.com/advisories/GHSA-jc36-42cf-vqwj
-add_external_lib(
-        zlib
-        zlib/1.2.12
-)
-
-# Fix conan version conflict
-add_external_lib(
-        libpng
-        libpng/1.6.37
-)
+# --- PagedGeometry -- Ogre addon ---
+find_package(PagedGeometry)
+cmake_dependent_option(ROR_USE_PAGED "use pagedgeometry" ON "PAGED_FOUND" OFF)
