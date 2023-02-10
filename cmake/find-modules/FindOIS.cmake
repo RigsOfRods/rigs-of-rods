@@ -52,6 +52,8 @@ if (OIS_FOUND)
             INTERFACE_LINK_LIBRARIES "${OIS_LIBRARIES}"
             INTERFACE_INCLUDE_DIRECTORIES "${OIS_INCLUDE_DIRS}"
             )
+    # Tmp fix
+    add_library(ois::ois ALIAS OIS::OIS)
 endif ()
 
 mark_as_advanced(OIS_INCLUDE_DIR OIS_LIBRARY)

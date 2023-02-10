@@ -14,6 +14,8 @@ set(PROJECT_NAME_SHORT "RoR")
 set(PROJECT_NAME_UNDERSCORE "Rigs_of_Rods")
 set(PROJECT_NAME_LONG "Rigs of Rods")
 
+set(REQUIRED_DEPS_VERSION 30)
+
 project(${PROJECT_NAME_UNDERSCORE})
 
 ################################################################################
@@ -46,6 +48,14 @@ if (NOT USE_PHC)
     if (SCCACHE_PROGRAM)
         set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE_PROGRAM}")
         message("Using ${SCCACHE_PROGRAM} for speeding up build")
+    endif ()
+endif ()
+
+# Check deps version
+if (EXISTS "${ROR_DEPENDENCY_DIR}/version.cmake")
+    include("${ROR_DEPENDENCY_DIR}/version.cmake")
+    if (NOT ${REQUIRED_DEPS_VERSION} EQUAL ${DEPENDENCIES_VERSION})
+        message(FATAL_ERROR "\n The ror-dependencies version is ${DEPENDENCIES_VERSION}, while RoR requires ${REQUIRED_DEPS_VERSION} \n Please update the dependencies")
     endif ()
 endif ()
 
