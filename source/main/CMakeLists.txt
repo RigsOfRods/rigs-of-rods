@@ -379,9 +379,9 @@ target_include_directories(${BINNAME} PRIVATE
 #  REQUIRED DEPENDENCIES
 # -----------------------
 
-if(WIN32)
+if (WIN32)
     set(OS_LIBS "Ws2_32")
-else()
+else ()
     #  include_directories(${GTK_INCLUDE_DIRS})
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
 endif ()
@@ -417,7 +417,7 @@ if (ROR_USE_DISCORD_RPC)
 endif ()
 
 if (ROR_USE_SOCKETW)
-    target_link_libraries(${BINNAME} PRIVATE socketw::socketw)
+    target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
     target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
 endif ()
 
@@ -469,7 +469,7 @@ endif ()
 set(CFG_COMMENT_RENDERSYSTEM_D3D11 "# ")
 set(CFG_COMMENT_RENDERSYSTEM_GL3PLUS "# ")
 
-if (DEFINED OGRE_PLUGIN_DIR)
+if (DEFINED OGRE_PLUGIN_DIR AND NOT WIN32)
     set(PLUGINS_FOLDER "${OGRE_PLUGIN_DIR}")
 else ()
     set(PLUGINS_FOLDER ".")

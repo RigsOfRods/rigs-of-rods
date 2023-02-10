@@ -1,4 +1,4 @@
-[requires]
+[requires] 
 angelscript/2.35.1
 discord-rpc/3.4.0@anotherfoxguy/stable
 fmt/8.0.1
