@@ -202,7 +202,7 @@ set(SOURCE_FILES
         terrain/TerrainEditor.{h,cpp}
         terrain/TerrainGeometryManager.{h,cpp}
         terrain/Terrain.{h,cpp}
-        terrain/TerrainObjectManager.{h,cpp}        
+        terrain/TerrainObjectManager.{h,cpp}
         threadpool/ThreadPool.h
         utils/ConfigFile.{h,cpp}
         utils/ErrorUtils.{h,cpp}
@@ -220,7 +220,7 @@ set(SOURCE_FILES
         utils/ZeroedMemoryAllocator.h
         )
 
-if (USE_ANGELSCRIPT)
+if (ROR_USE_ANGELSCRIPT)
     list(APPEND SOURCE_FILES
             scripting/GameScript.{h,cpp}
             scripting/LocalStorage.{h,cpp}
@@ -378,50 +378,56 @@ target_include_directories(${BINNAME} PRIVATE
 
 #  REQUIRED DEPENDENCIES
 # -----------------------
-if (UNIX AND NOT APPLE)
+
+if(WIN32)
+    set(OS_LIBS "Ws2_32")
+else()
     #  include_directories(${GTK_INCLUDE_DIRS})
     set(OS_LIBS "X11 -l${CMAKE_DL_LIBS} -lrt")
 endif ()
 target_link_libraries(${BINNAME} PRIVATE ${OS_LIBS} version_info)
 
-# --- Threading support (still needed for GCC even with C++11)
-set(CMAKE_THREAD_PREFER_PTHREAD YES)
+
 target_link_libraries(${BINNAME} PRIVATE
         Threads::Threads
-        OGRE::OGRE
-        OIS::OIS
+        ${OGRE_LIBRARIES}
+        ois::ois
         fmt::fmt
         MyGUI::MyGUI
-        RapidJSON::RapidJSON
+        rapidjson
         )
-
+target_include_directories(${BINNAME} PRIVATE ${OGRE_INCLUDE_DIRS})
 if (TARGET MyGUI::OgrePlatform)
     target_link_libraries(${BINNAME} PRIVATE MyGUI::OgrePlatform)
 endif ()
 target_compile_definitions(${BINNAME} PRIVATE $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>)
 
-if (USE_OPENAL)
-    target_link_libraries(${BINNAME} PRIVATE OpenAL::OpenAL)
+#  OPTIONAL DEPENDENCIES
+# -----------------------
+
+if (ROR_USE_OPENAL)
+    target_link_libraries(${BINNAME} PRIVATE ${OPENAL_LIBRARY})
+    target_include_directories(${BINNAME} PRIVATE ${OPENAL_INCLUDE_DIR})
     target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
 endif ()
 
-if (USE_DISCORD_RPC)
+if (ROR_USE_DISCORD_RPC)
     target_link_libraries(${BINNAME} PRIVATE discord-rpc::discord-rpc)
     target_compile_definitions(${BINNAME} PRIVATE USE_DISCORD_RPC)
 endif ()
 
-if (USE_SOCKETW)
-    target_link_libraries(${BINNAME} PRIVATE SocketW::SocketW)
+if (ROR_USE_SOCKETW)
+    target_link_libraries(${BINNAME} PRIVATE socketw::socketw)
     target_compile_definitions(${BINNAME} PRIVATE USE_SOCKETW)
 endif ()
 
-if (USE_ANGELSCRIPT)
-    target_link_libraries(${BINNAME} PRIVATE AngelScript::AngelScript angelscript_addons)
+if (ROR_USE_ANGELSCRIPT)
+    target_link_libraries(${BINNAME} PRIVATE Angelscript::angelscript angelscript_addons)
     target_include_directories(${BINNAME} PRIVATE ${CMAKE_SOURCE_DIR}/external/angelscript_addons)
     target_compile_definitions(${BINNAME} PRIVATE USE_ANGELSCRIPT AS_USE_NAMESPACE)
 endif ()
 
-if (USE_CURL)
+if (ROR_USE_CURL)
     target_link_libraries(${BINNAME} PRIVATE CURL::libcurl)
     target_compile_definitions(${BINNAME} PRIVATE USE_CURL)
 
@@ -430,26 +436,25 @@ if (USE_CURL)
     endif ()
 endif ()
 
-if (USE_CAELUM)
+if (ROR_USE_CAELUM)
     target_link_libraries(${BINNAME} PRIVATE Caelum::Caelum)
     target_compile_definitions(${BINNAME} PRIVATE USE_CAELUM)
 endif ()
-if (USE_PAGED)
+
+if (ROR_USE_PAGED)
     target_link_libraries(${BINNAME} PRIVATE PagedGeometry::PagedGeometry)
     target_compile_definitions(${BINNAME} PRIVATE USE_PAGED)
 endif ()
 
+####################################################################################################
+#  POST-BUILD STEPS
+####################################################################################################
 
 if (USE_PHC)
     target_precompile_headers(${BINNAME} PRIVATE phc.h)
 endif ()
 
 extract_pot("${SOURCE_FILES}")
-
-####################################################################################################
-#  POST-BUILD STEPS
-####################################################################################################
-
 
 # Configure plugins.cfg
 # -----------------------

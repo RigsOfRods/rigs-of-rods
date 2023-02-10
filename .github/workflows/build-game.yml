@@ -15,7 +15,7 @@ jobs:
       - name: Cache conan
         uses: actions/cache@v3
         with:
-          key: conan-ubuntu-${{ hashFiles('cmake/DependenciesConfig.cmake') }}
+          key: conan-ubuntu-${{ hashFiles('conanfile.txt') }}
           path: ~/.conan/
 
       - name: Install dependencies
@@ -45,7 +45,12 @@ jobs:
           conan config set general.revisions_enabled=1
           echo "tools.system.package_manager:mode = install" > ~/.conan/global.conf
           echo "tools.system.package_manager:sudo = True" >> ~/.conan/global.conf
-          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=redist -DCREATE_CONTENT_FOLDER=ON .
+          conan profile new --detect --force default
+          conan profile update conf.tools.cmake.cmaketoolchain:generator="Ninja" default
+          conan profile update settings.compiler.libcxx=libstdc++11 default
+          conan remote add ror-conan https://git.anotherfoxguy.com/api/packages/rorbot/conan -f
+          conan install . -s build_type=Release -b missing -pr:b=default
+          cmake . -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=redist -DCREATE_CONTENT_FOLDER=ON -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
         shell: bash
 
       - name: Build
@@ -98,7 +103,7 @@ jobs:
       - name: Cache conan packages
         uses: actions/cache@v3
         with:
-          key: conan-windows-${{ hashFiles('cmake/DependenciesConfig.cmake') }}
+          key: conan-windows-${{ hashFiles('conanfile.txt') }}
           path: ~/.conan
 
       - name: Enable Developer Command Prompt
@@ -107,7 +112,9 @@ jobs:
       - name: Configure
         run: |
           conan config set general.revisions_enabled=1
-          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=redist -DCREATE_CONTENT_FOLDER=ON .
+          conan remote add ror-conan https://git.anotherfoxguy.com/api/packages/rorbot/conan -f
+          conan install . -b missing -pr:b=tools/conan-profiles/vs-19-release-ninja -pr=tools/conan-profiles/vs-19-release-ninja
+          cmake . -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=redist -DCREATE_CONTENT_FOLDER=ON -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
         shell: cmd
 
       - name: Build
