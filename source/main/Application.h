@@ -260,6 +260,7 @@ enum LoaderType //!< Operation mode for GUI::MainSelector
 {
     LT_None,
     LT_Terrain,   // Invocable from GUI; No script alias, used in main menu
+    LT_Mission,   // Invocable from GUI; No script alias, used in simulation top menubar
     LT_Vehicle,   // Script "vehicle",   ext: truck car
     LT_Truck,     // Script "truck",     ext: truck car
     LT_Car,       // Script "car",       ext: car

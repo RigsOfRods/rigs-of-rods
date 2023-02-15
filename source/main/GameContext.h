@@ -112,6 +112,7 @@ public:
     bool                LoadTerrain(std::string const& filename_part);
     void                UnloadTerrain();
     const TerrainPtr&   GetTerrain() { return m_terrain; }
+    bool                LoadMission(std::string const& filename_part);
 
     /// @}
     /// @name Actors
@@ -202,7 +203,7 @@ private:
 
     // Gameplay feats (misc.)
     RaceSystem          m_race_system;
-    RepairMode        m_recovery_mode;                     //!< Aka 'advanced repair' or 'interactive reset'
+    RepairMode          m_recovery_mode;                     //!< Aka 'advanced repair' or 'interactive reset'
     SceneMouse          m_scene_mouse;                       //!< Mouse interaction with scene
     Ogre::Timer         m_timer;
     Ogre::Vector3       prev_pos = Ogre::Vector3::ZERO;

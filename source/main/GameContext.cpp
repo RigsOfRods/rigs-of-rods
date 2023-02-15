@@ -166,6 +166,34 @@ void GameContext::UnloadTerrain()
     }
 }
 
+bool GameContext::LoadMission(std::string const& filename_part)
+{
+    // Find terrain in modcache
+    CacheEntry* mission_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Mission, /*partial=*/true, filename_part);
+    if (!mission_entry)
+    {
+        Str<200> msg; msg << _L("Mission not found: ") << filename_part;
+        RoR::Log(msg.ToCStr());
+        return false;
+    }
+
+    // Init resources
+    App::GetCacheSystem()->LoadResource(*mission_entry);
+
+    // Load script
+    std::string scriptname = (mission_entry->mission_script != "") ? mission_entry->mission_script : DEFAULT_MISSION_SCRIPT;
+    ScriptUnitId_t scriptID = App::GetScriptEngine()->loadScript(scriptname, ScriptCategory::MISSION);
+    if (scriptID == SCRIPTUNITID_INVALID)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format(_L("Could not load mission script '{}'"), scriptname));
+        return false;
+    }
+    
+    // Execute the setup routine
+    return App::GetScriptEngine()->invokeLoadMission(scriptID, mission_entry->fname, mission_entry->resource_group);
+}
+
 // --------------------------------
 // Actors (physics and netcode)
 

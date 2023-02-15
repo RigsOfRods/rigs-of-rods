@@ -27,7 +27,9 @@
 
 #ifdef USE_ANGELSCRIPT
 
-#define DEFAULT_TERRAIN_SCRIPT "default.as" // Used when map creator doesn't provide custom script.
+#define DEFAULT_TERRAIN_SCRIPT "terrain_default.as" // Used when map creator doesn't provide custom script.
+#define DEFAULT_MISSION_SCRIPT "mission_default.as" // Used when mission creator doesn't provide custom script.
+
 
 #include "AngelScriptBindings.h"
 #include "Application.h"
@@ -60,6 +62,7 @@ enum class ScriptCategory
     INVALID,
     ACTOR,   //!< Defined in truck file under 'scripts', contains global variable `BeamClass@ thisActor`.
     TERRAIN, //!< Defined in terrn2 file under '[Scripts]', receives terrain eventbox notifications.
+    MISSION, //!< Defined in mission file as 'mission_script', must specify functions `loadMission()` and `unloadMission()`
     CUSTOM   //!< Loaded by user via either: A) ingame console 'loadscript'; B) RoR.cfg 'app_custom_scripts'; C) commandline '-runscript'.
 };
 
@@ -76,6 +79,8 @@ struct ScriptUnit
     AngelScript::asIScriptFunction* eventCallbackFunctionPtr = nullptr; //!< script function pointer to the event callback function
     AngelScript::asIScriptFunction* eventCallbackExFunctionPtr = nullptr; //!< script function pointer to the event callback function
     AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr = nullptr; //!< script function pointer for spawner events
+    AngelScript::asIScriptFunction* loadMissionFunctionPtr = nullptr; //!< only `ScriptCategory::MISSION`, called to set up the mission.
+    AngelScript::asIScriptFunction* unloadMissionFunctionPtr = nullptr; //!< only `ScriptCategory::MISSION`, called to clean up the mission.
     ActorPtr associatedActor; //!< For ScriptCategory::ACTOR
     Ogre::String scriptName;
     Ogre::String scriptHash;
@@ -218,6 +223,9 @@ public:
     void forwardExceptionAsScriptEvent(const std::string& from);
 
     AngelScript::asIScriptEngine* getEngine() { return engine; };
+
+    bool invokeLoadMission(ScriptUnitId_t id, const std::string& filename, const std::string& resource_group);
+    bool invokeUnloadMission(ScriptUnitId_t id);
 
     // method from Ogre::LogListener
     void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);

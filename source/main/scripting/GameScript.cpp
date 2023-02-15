@@ -426,7 +426,13 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
         return;
     }
 
-    if (App::GetScriptEngine()->getTerrainScriptUnit() == -1)
+    // Determine script unit to use
+    // - if a script is currently being executed, use it (added for mission scripts).
+    // - otherwise use terrain script module (classic behavior)
+    ScriptUnitId_t unitID = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+    if (unitID == SCRIPTUNITID_INVALID)
+        unitID = App::GetScriptEngine()->getTerrainScriptUnit();
+    if (unitID == SCRIPTUNITID_INVALID)
     {
         this->logFormat("spawnObject(): Cannot spawn object, no terrain script loaded!");
         return;
@@ -434,7 +440,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 
     try
     {
-        AngelScript::asIScriptModule* module = App::GetScriptEngine()->getScriptUnit(App::GetScriptEngine()->getTerrainScriptUnit()).scriptModule;
+        AngelScript::asIScriptModule* module = App::GetScriptEngine()->getScriptUnit(unitID).scriptModule;
         if (module == nullptr)
         {
             this->logFormat("spawnObject(): Failed to fetch/create script module");
@@ -454,7 +460,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 
             // Look up the function and log if not found or found with bad arguments (probably a typo).
             AngelScript::asIScriptFunction* handler_func = App::GetScriptEngine()->getFunctionByDeclAndLogCandidates(
-                App::GetScriptEngine()->getTerrainScriptUnit(), GETFUNCFLAG_REQUIRED,
+                unitID, GETFUNCFLAG_REQUIRED,
                 eventhandler, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT);
             if (handler_func != nullptr)
             {

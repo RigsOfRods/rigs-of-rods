@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -69,6 +69,7 @@ const char* RoR::ScriptCategoryToString(ScriptCategory c)
     case ScriptCategory::INVALID: return "INVALID";
     case ScriptCategory::ACTOR: return "ACTOR";
     case ScriptCategory::TERRAIN: return "TERRAIN";
+    case ScriptCategory::MISSION: return "MISSION";
     case ScriptCategory::CUSTOM: return "CUSTOM";
     default: return "";
     }
@@ -490,14 +491,19 @@ int ScriptEngine::addFunction(const String &arg)
     if (!engine || !context)
         return 1;
 
-    if (!context)
+    // Determine script unit to use
+    // - if a script is currently being executed, use it (added for mission scripts).
+    // - otherwise use terrain script module (classic behavior)
+    ScriptUnitId_t unitID = this->getCurrentlyExecutingScriptUnit();
+    if (unitID == SCRIPTUNITID_INVALID)
+        unitID = m_terrain_script_unit;
+    if (unitID == SCRIPTUNITID_INVALID)
+    {
+        SLOG("addFunction(): no current or terrain script available.");
+        return 1; // No terrain script loaded
+    }
         
-
-    // Only works with terrain script module (classic behavior)
-    if (m_terrain_script_unit == SCRIPTUNITID_INVALID)
-        return 1;
-
-    AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
+    AngelScript::asIScriptModule* mod = m_script_units[unitID].scriptModule;
 
     AngelScript::asIScriptFunction *func = 0;
     int r = mod->CompileFunction("addfunc", arg.c_str(), 0, AngelScript::asCOMP_ADD_TO_MODULE, &func);
@@ -514,13 +520,13 @@ int ScriptEngine::addFunction(const String &arg)
 
         if (func == mod->GetFunctionByDecl("void frameStep(float)"))
         {
-            if (m_script_units[m_terrain_script_unit].frameStepFunctionPtr == nullptr)
-                m_script_units[m_terrain_script_unit].frameStepFunctionPtr = func;
+            if (m_script_units[unitID].frameStepFunctionPtr == nullptr)
+                m_script_units[unitID].frameStepFunctionPtr = func;
         }
         else if (func == mod->GetFunctionByDecl("void eventCallback(int, int)"))
         {
-            if (m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr == nullptr)
-                m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr = func;
+            if (m_script_units[unitID].eventCallbackFunctionPtr == nullptr)
+                m_script_units[unitID].eventCallbackFunctionPtr = func;
         }
         else if (func == mod->GetFunctionByDecl("void eventCallbackEx(scriptEvents,   int, int, int, int,   string, string, string, string)"))
         {
@@ -532,8 +538,8 @@ int ScriptEngine::addFunction(const String &arg)
                 m_terrain_script_unit, GETFUNCFLAG_OPTIONAL,
                 GETFUNC_DEFAULTEVENTCALLBACK_NAME, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT))
         {
-            if (m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr == nullptr)
-                m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr = func;
+            if (m_script_units[unitID].defaultEventCallbackFunctionPtr == nullptr)
+                m_script_units[unitID].defaultEventCallbackFunctionPtr = func;
         }
     }
 
@@ -888,6 +894,9 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     m_script_units[unit_id].defaultEventCallbackFunctionPtr = this->getFunctionByDeclAndLogCandidates(
         unit_id, GETFUNCFLAG_OPTIONAL, GETFUNC_DEFAULTEVENTCALLBACK_NAME, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT);
 
+    m_script_units[unit_id].loadMissionFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("bool loadMission(string, string)");
+    m_script_units[unit_id].unloadMissionFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("bool unloadMission()");
+
     // Find the function that is to be called.
     auto main_func = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void main()");
     if ( main_func == nullptr )
@@ -1010,4 +1019,32 @@ ScriptUnit& ScriptEngine::getScriptUnit(ScriptUnitId_t unique_id)
     ROR_ASSERT(unique_id != SCRIPTUNITID_INVALID);
     ROR_ASSERT(m_script_units.count(unique_id) != 0);
     return m_script_units[unique_id];
+}
+
+bool ScriptEngine::invokeLoadMission(ScriptUnitId_t id, const std::string& filename, const std::string& resource_group)
+{
+    context->Prepare(this->getScriptUnit(id).loadMissionFunctionPtr);
+    context->SetArgObject(0, (void*)&filename);
+    context->SetArgObject(1, (void*)&resource_group);
+    m_currently_executing_script_unit = id;
+    int r = context->Execute();
+    m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
+
+    if (r == AngelScript::asEXECUTION_FINISHED)
+    {
+        // The return value is only valid if the execution finished successfully
+        return static_cast<bool>(context->GetReturnDWord());
+    }
+    else
+    {
+        LOG(fmt::format("WARNING: Invoking `loadMission(filename='{}', resource_group='{}')` in '{}' ended with error code {}",
+            filename, resource_group, this->getScriptUnit(id).scriptName, r));
+        return false;
+    }
+}
+
+bool ScriptEngine::invokeUnloadMission(ScriptUnitId_t id)
+{
+    // TBD
+    return false;
 }
