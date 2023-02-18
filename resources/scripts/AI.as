@@ -1,9 +1,5 @@
 #include "base.as"
 
-//Stuff that the scripts uses internally. doesn't need to be changed.
-vector3 currentWaypoint(0, 0, 0);
-int waypoint = 0;
-
 void main()
 {
     int offset = 0;
@@ -15,7 +11,17 @@ void main()
     {
         array<vector3> waypoints = game.getWaypoints(x);
 
-        VehicleAIClass @CurrentTruckai = game.spawnTruckAI(game.getAIVehicleName(x), vector3(waypoints[0].x + translation_x, waypoints[0].y, waypoints[0].z + translation_z), game.getAIVehicleSectionConfig(x), game.getAIVehicleSkin(x), x).getVehicleAI();
+        string spawn_vehiclename = game.getAIVehicleName(x);
+        vector3 spawn_pos = vector3(waypoints[0].x + translation_x, waypoints[0].y, waypoints[0].z + translation_z);
+        string spawn_sectionconfig = game.getAIVehicleSectionConfig(x);
+        string spawn_skin = game.getAIVehicleSkin(x);
+        BeamClass@ CurrentTruck = game.spawnTruckAI(spawn_vehiclename, spawn_pos, spawn_sectionconfig, spawn_skin, x);
+        if (@CurrentTruck == null)
+        {
+            game.log("Vehicle AI: Could not spawn vehicle '"+spawn_vehiclename+"' ("+(x+1)+"/"+game.getAIVehicleCount()+"), skipping it...");
+            continue; // Skip this vehicle
+        }
+        VehicleAIClass @CurrentTruckai = CurrentTruck.getVehicleAI();
 
         for (int t = 0; t < game.getAIRepeatTimes(); t++)
         {

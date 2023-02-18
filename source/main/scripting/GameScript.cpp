@@ -934,25 +934,33 @@ ActorPtr GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogr
 
 ActorPtr GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::String& truckSectionConfig, std::string& truckSkin, int x)
 {
-    ActorSpawnRequest rq;
-    rq.asr_position = pos;
-
-    // Set rotation based on first two waypoints
-    std::vector<Ogre::Vector3> waypoints = App::GetGuiManager()->SurveyMap.ai_waypoints;
-    if (App::GetGuiManager()->TopMenubar.ai_mode == 3 && x == 1) // Crash driving mode
+    try
     {
-        std::reverse(waypoints.begin(), waypoints.end());
+        ActorSpawnRequest rq;
+        rq.asr_position = pos;
+
+        // Set rotation based on first two waypoints
+        std::vector<Ogre::Vector3> waypoints = App::GetGuiManager()->SurveyMap.ai_waypoints;
+        if (App::GetGuiManager()->TopMenubar.ai_mode == 3 && x == 1) // Crash driving mode
+        {
+            std::reverse(waypoints.begin(), waypoints.end());
+        }
+
+        Ogre::Vector3 dir = waypoints[0] - waypoints[1];
+        dir.y = 0;
+        rq.asr_rotation = Ogre::Vector3::UNIT_X.getRotationTo(dir, Ogre::Vector3::UNIT_Y);
+
+        rq.asr_filename = truckName;
+        rq.asr_config = truckSectionConfig;
+        rq.asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(truckSkin);
+        rq.asr_origin = ActorSpawnRequest::Origin::AI;
+        return App::GetGameContext()->SpawnActor(rq);
     }
-
-    Ogre::Vector3 dir = waypoints[0] - waypoints[1];
-    dir.y = 0;
-    rq.asr_rotation = Ogre::Vector3::UNIT_X.getRotationTo(dir, Ogre::Vector3::UNIT_Y);
-
-    rq.asr_filename = truckName;
-    rq.asr_config = truckSectionConfig;
-    rq.asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(truckSkin);
-    rq.asr_origin = ActorSpawnRequest::Origin::AI;
-    return App::GetGameContext()->SpawnActor(rq);
+    catch (std::exception& ex)
+    {
+        this->log(fmt::format("Error running `spawnTruckAI()` - got exception '{}'", ex.what()));
+        return ActorPtr();
+    }
 }
 
 AngelScript::CScriptArray* GameScript::getWaypoints(int x)
