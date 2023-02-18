@@ -40,11 +40,20 @@
 
 #include <map>
 #include <unordered_map>
+#include <vector>
 
 namespace RoR {
 
 /// @addtogroup Terrain
 /// @{
+
+struct Localizer
+{
+    LocalizerType type;
+    Ogre::Vector3 position;
+    Ogre::Quaternion rotation;
+};
+typedef std::vector<Localizer> LocalizerVec;
 
 class TerrainObjectManager
 {
@@ -94,14 +103,7 @@ public:
         char* grassmat, char* colorMapFilename, char* densityMapFilename,
         int growtechnique, int techn, int range, int mapsizex, int mapsizez);
 
-    struct localizer_t
-    {
-        LocalizerType type;
-        Ogre::Vector3 position;
-        Ogre::Quaternion rotation;
-    };
-
-    std::vector<localizer_t> GetLocalizers() { return localizers; }
+    LocalizerVec& GetLocalizers() { return m_localizers; }
 
     ProceduralManagerPtr& getProceduralManager() { return m_procedural_manager; }
     Ogre::SceneNode* getGroupingSceneNode();
@@ -154,7 +156,7 @@ protected:
 
     // Variables
 
-    std::vector<localizer_t> localizers;
+    LocalizerVec                          m_localizers;
     std::unordered_map<std::string, std::shared_ptr<RoR::ODefDocument>> m_odef_cache;
     std::vector<TObjDocumentPtr>          m_tobj_cache;
     int                                   m_tobj_cache_active_id = -1;

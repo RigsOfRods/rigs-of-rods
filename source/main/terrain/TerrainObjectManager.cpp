@@ -663,11 +663,11 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
     for (LocalizerType type : odef->localizers)
     {
-        localizer_t loc;
+        Localizer loc;
         loc.position = Vector3(pos.x, pos.y, pos.z);
         loc.rotation = rotation;
         loc.type = type;
-        localizers.push_back(loc);
+        m_localizers.push_back(loc);
     }
 
     if (odef->mode_standard)
