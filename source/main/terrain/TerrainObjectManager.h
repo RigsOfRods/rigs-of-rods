@@ -101,16 +101,6 @@ public:
         Ogre::Quaternion rotation;
     };
 
-    struct object_t
-    {
-        Ogre::String name;
-        Ogre::Vector3 position;
-        Ogre::Vector3 rotation;
-        Ogre::Vector3 initial_position;
-        Ogre::Vector3 initial_rotation;
-        Ogre::SceneNode* node;
-    };
-
     std::vector<localizer_t> GetLocalizers() { return localizers; }
 
     ProceduralManagerPtr& getProceduralManager() { return m_procedural_manager; }
