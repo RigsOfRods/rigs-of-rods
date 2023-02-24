@@ -45,10 +45,10 @@ public:
     /**
     * Orientation on all axes packed to single quaternion. Use `getYaw()`, `getPitch()` and `getRoll()` for individual rotations in radians.
     */
-    quaternion getOrientation()
+    quaternion getOrientation();
     
     /**
-    * Meters per second.
+    * Returns average node speed in meters/second.
     */
     float getSpeed();
     
