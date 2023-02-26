@@ -30,7 +30,11 @@
 #ifdef USE_ANGELSCRIPT
 
 #include "Application.h"
+#include "RefCountingObject.h"
+
 #include "scriptdictionary/scriptdictionary.h"
+
+#include <string>
 
 namespace RoR {
 
@@ -54,74 +58,75 @@ enum Ai_values
     AI_POWER
 };
 
-class VehicleAI : public ZeroedMemoryAllocator
+class VehicleAI : public RefCountingObject<VehicleAI>
 {
+    // PLEASE maintain the same order as in 'bindings/VehicleAiAngelscript.cpp' and 'doc/../VehicleAIClass.h'
+
 public:
     VehicleAI(Actor* b);
     ~VehicleAI();
+
     /**
      *  Activates/Deactivates the AI.
      *  @param [in] value Activate or deactivation the AI
      */
-    void SetActive(bool value);
+    void setActive(bool value);
+
     /**
      *  Returns the status of the AI.
      *  @return True if the AI is driving
      */
-    bool IsActive();
+    bool isActive();
 
-#ifdef USE_ANGELSCRIPT
-    // we have to add this to be able to use the class as reference inside scripts
-    void addRef()
-    {
-    };
-
-    void release()
-    {
-    };
-#endif
-    /**
-     *  Updates the AI.
-     */
-    void update(float dt, int doUpdate);
     /**
      *  Adds one waypoint.
      *
      *  @param [in] id The waypoint ID.
      *  @param [in] point The coordinates of the waypoint.
      */
-    void AddWaypoint(Ogre::String& id, Ogre::Vector3& point);
+    void addWaypoint(std::string const& id, Ogre::Vector3 const& point);
+
     /**
      *  Adds a dictionary with waypoints.
-     *  @param [in] d Dictionary with waypoints
+     *  @param d Dictionary with waypoints (string ID -> vector3 pos)
      */
-    void AddWaypoints(AngelScript::CScriptDictionary& d);
+    void addWaypoints(AngelScript::CScriptDictionary& d);
+
     /**
      *  Adds a event
      *
-     *  @param [in] id The waypoint ID.
-     *  @param [in] ev The ID of the event.
+     *  @param id The waypoint ID.
+     *  @param ev The ID of the event.
      *
      *  @see Ai_events
      */
-    void AddEvent(Ogre::String& id, int& ev);
+    void addEvent(std::string const& id, int ev);
+
     /**
      *  Sets a value at a waypoint.
      *
-     *  @param [in] id The waypoint ID.
-     *  @param [in] value_id The ID of the value that will be set.
-     *  @param [in] value The value itself.
+     *  @param id The waypoint ID.
+     *  @param value_id The ID of the value that will be set.
+     *  @param value The value itself.
      *
      *  @see Ai_values
      */
-    void SetValueAtWaypoint(Ogre::String& id, int& value_id, float& value);
+    void setValueAtWaypoint(std::string const& id, int value_id, float value);
+
     /**
      *  Gets offset translation based on vehicle rotation and waypoints
      *
-     *  @param [in] offset The offset.
-     *  @param [unsigned int] wp The waypoint.
+     *  @param offset The offset.
+     *  @param wp The waypoint.
      */
-    Ogre::Vector3 getTranslation(int& offset, unsigned int& wp);
+    Ogre::Vector3 getTranslation(int offset, unsigned int wp);
+
+    // Not exported to script:
+
+    /**
+     *  Updates the AI.
+     */
+    void update(float dt, int doUpdate);
 
 private:
     /**
@@ -129,19 +134,19 @@ private:
      */
     void updateWaypoint();
 
-    bool is_waiting;//!< 
-    float wait_time;//!<(seconds) The amount of time the AI has to wait on this waypoint.
+    bool is_waiting=false;//!<
+    float wait_time=0.f;//!<(seconds) The amount of time the AI has to wait.
 
     float maxspeed = 50;//!<(KM/H) The max speed the AI is allowed to drive.
-    Actor* beam;//!< The verhicle the AI is driving.
+    Actor* beam = nullptr;//!< The verhicle the AI is driving.
     bool is_enabled = false;//!< True if the AI is driving.
-    Ogre::Vector3 current_waypoint;//!< The coordinates of the waypoint that the AI is driving to.
-    Ogre::Vector3 prev_waypoint;//!< The coordinates of the previous waypoint.
-    Ogre::Vector3 next_waypoint;//!< The coordinates of the next waypoint.
+    Ogre::Vector3 current_waypoint = Ogre::Vector3::ZERO;//!< The coordinates of the waypoint that the AI is driving to.
+    Ogre::Vector3 prev_waypoint = Ogre::Vector3::ZERO;;//!< The coordinates of the previous waypoint.
+    Ogre::Vector3 next_waypoint = Ogre::Vector3::ZERO;;//!< The coordinates of the next waypoint.
     int current_waypoint_id = 0;//!< The curent waypoint ID.
     std::map<int, Ogre::Vector3> waypoints;//!< Map with all waypoints.
-    std::map<Ogre::String, int> waypoint_ids;//!< Map with all waypoint IDs.
-    std::map<int, Ogre::String> waypoint_names;//!< Map with all waypoint names.
+    std::map<std::string, int> waypoint_ids;//!< Map with all waypoint IDs.
+    std::map<int, std::string> waypoint_names;//!< Map with all waypoint names.
     std::map<int, int> waypoint_events;//!< Map with all waypoint events.
     std::map<int, float> waypoint_speed;//!< Map with all waypoint speeds.
     std::map<int, float> waypoint_power;//!< Map with all waypoint engine power.

@@ -30,6 +30,7 @@
 #include "RoRnet.h"
 #include "SimData.h"
 #include "TyrePressure.h"
+#include "VehicleAI.h"
 
 #include <Ogre.h>
 
@@ -198,7 +199,7 @@ public:
     /// @{
     Replay*           getReplay();
     TyrePressure&     getTyrePressure() { return m_tyre_pressure; }
-    VehicleAI*        getVehicleAI() { return ar_vehicle_ai; }
+    VehicleAIPtr      getVehicleAI() { return ar_vehicle_ai; }
     //! @}
 
     /// @name Organizational
@@ -372,7 +373,7 @@ public:
     NodeNum_t         ar_camera_node_roll[MAX_CAMERAS]   = {NODENUM_INVALID};  //!< Physics attr; 'camera' = frame of reference; left node
     bool              ar_camera_node_roll_inv[MAX_CAMERAS] = {false};              //!< Physics attr; 'camera' = frame of reference; indicates roll node is right instead of left
     float             ar_posnode_spawn_height;
-    VehicleAI*        ar_vehicle_ai;
+    VehicleAIPtr      ar_vehicle_ai;
     float             ar_scale;               //!< Physics state; scale of the actor (nominal = 1.0)
     Ogre::Real        ar_brake;               //!< Physics state; braking intensity
     float             ar_wheel_speed;         //!< Physics state; wheel speed in m/s

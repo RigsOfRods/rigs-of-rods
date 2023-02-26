@@ -50,18 +50,18 @@ VehicleAI::~VehicleAI()
 {
 }
 
-void VehicleAI::SetActive(bool value)
+void VehicleAI::setActive(bool value)
 {
     is_enabled = value;
     init_y = beam->getPosition().y;
 }
 
-bool VehicleAI::IsActive()
+bool VehicleAI::isActive()
 {
     return is_enabled;
 }
 
-void VehicleAI::AddWaypoint(Ogre::String& id, Ogre::Vector3& point)
+void VehicleAI::addWaypoint(std::string const& id, Ogre::Vector3 const& point)
 {
     if (current_waypoint == Vector3::ZERO)
         current_waypoint = point;
@@ -72,67 +72,69 @@ void VehicleAI::AddWaypoint(Ogre::String& id, Ogre::Vector3& point)
     waypoint_names.emplace(free_waypoints, id);
 }
 
-void VehicleAI::AddWaypoints(AngelScript::CScriptDictionary& d)
+void VehicleAI::addWaypoints(AngelScript::CScriptDictionary& d)
 {
     for (auto item : d)
     {
         Ogre::Vector3 point;
         item.GetValue(&point, item.GetTypeId());
-        Ogre::String key(item.GetKey());
-        this->AddWaypoint(key, point);
+        std::string key(item.GetKey());
+        this->addWaypoint(key, point);
     }
 }
 
-Ogre::Vector3 VehicleAI::getTranslation(int& offset, unsigned int& wp)
+Ogre::Vector3 VehicleAI::getTranslation(int offset, unsigned int wp)
 {
-   Ogre::Vector3 translation = Ogre::Vector3::ZERO;
+    ROR_ASSERT(wp < App::GetGuiManager()->SurveyMap.ai_waypoints.size());
 
-   if (int(wp) == 0) // First waypoint we have nothing to compare, return translation based on initial vehicle rotation
-   {
-       if (App::GetGuiManager()->TopMenubar.ai_position_scheme == 0) // Set vehicle behind vehicle
-       {
-           translation.x += offset * cos(beam->getRotation() - Ogre::Math::HALF_PI);
-           translation.z += offset * sin(beam->getRotation() - Ogre::Math::HALF_PI);
-       }
-       else if (App::GetGuiManager()->TopMenubar.ai_position_scheme == 1) // Set vehicle parallel to vehicle
-       {
-           translation.x += offset * cos(beam->getRotation());
-           translation.z += offset * sin(beam->getRotation());
-       }
-   }
-   else // Return translation based on two waypoints
-   {
-       if (App::GetGuiManager()->TopMenubar.ai_position_scheme == 0)
-       {
-           Ogre::Vector3 dir = App::GetGuiManager()->SurveyMap.ai_waypoints[int(wp)-1] - App::GetGuiManager()->SurveyMap.ai_waypoints[int(wp)];
-           translation -= offset * dir.normalisedCopy();
-       }
-       else if (App::GetGuiManager()->TopMenubar.ai_position_scheme == 1)
-       {
-           Ogre::Vector3 dir = App::GetGuiManager()->SurveyMap.ai_waypoints[int(wp)] - App::GetGuiManager()->SurveyMap.ai_waypoints[int(wp)-1];
-           float angle = Ogre::Vector3::UNIT_Z.angleBetween(dir.normalisedCopy()).valueRadians();
+    Ogre::Vector3 translation = Ogre::Vector3::ZERO;
 
-           if (dir.x > 0) // Direction on the right fails to produce offset in some angles, invert to have the same offset on both sides
-           {
-               angle = -Ogre::Vector3::UNIT_Z.angleBetween(dir.normalisedCopy()).valueRadians();
-           }
+    if (int(wp) == 0) // First waypoint we have nothing to compare, return translation based on initial vehicle rotation
+    {
+        if (App::GetGuiManager()->TopMenubar.ai_position_scheme == 0) // Set vehicle behind vehicle
+        {
+            translation.x += offset * cos(beam->getRotation() - Ogre::Math::HALF_PI);
+            translation.z += offset * sin(beam->getRotation() - Ogre::Math::HALF_PI);
+        }
+        else if (App::GetGuiManager()->TopMenubar.ai_position_scheme == 1) // Set vehicle parallel to vehicle
+        {
+            translation.x += offset * cos(beam->getRotation());
+            translation.z += offset * sin(beam->getRotation());
+        }
+    }
+    else // Return translation based on two waypoints
+    {
+        if (App::GetGuiManager()->TopMenubar.ai_position_scheme == 0)
+        {
+            Ogre::Vector3 dir = App::GetGuiManager()->SurveyMap.ai_waypoints[int(wp)-1] - App::GetGuiManager()->SurveyMap.ai_waypoints[int(wp)];
+            translation -= offset * dir.normalisedCopy();
+        }
+        else if (App::GetGuiManager()->TopMenubar.ai_position_scheme == 1)
+        {
+            Ogre::Vector3 dir = App::GetGuiManager()->SurveyMap.ai_waypoints[int(wp)] - App::GetGuiManager()->SurveyMap.ai_waypoints[int(wp)-1];
+            float angle = Ogre::Vector3::UNIT_Z.angleBetween(dir.normalisedCopy()).valueRadians();
 
-           translation.x -= offset * cos(angle);
-           translation.z -= offset * sin(angle);
-       }
-   }
+            if (dir.x > 0) // Direction on the right fails to produce offset in some angles, invert to have the same offset on both sides
+            {
+                angle = -Ogre::Vector3::UNIT_Z.angleBetween(dir.normalisedCopy()).valueRadians();
+            }
 
-   return translation;
+            translation.x -= offset * cos(angle);
+            translation.z -= offset * sin(angle);
+        }
+    }
+
+    return translation;
 }
 
-void VehicleAI::AddEvent(Ogre::String& id, int& ev)
+void VehicleAI::addEvent(std::string const& id, int ev)
 {
     int waypointid = waypoint_ids[id];
     if (waypointid)
         waypoint_events.emplace(waypointid, ev);
 }
 
-void VehicleAI::SetValueAtWaypoint(Ogre::String& id, int& value_id, float& value)
+void VehicleAI::setValueAtWaypoint(std::string const& id, int value_id, float value)
 {
     int waypointid = waypoint_ids[id];
     if (waypointid)

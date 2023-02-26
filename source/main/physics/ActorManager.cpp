@@ -985,7 +985,7 @@ void ActorManager::UpdateActors(Actor* player_actor)
         actor->HandleAngelScriptEvents(dt);
 
 #ifdef USE_ANGELSCRIPT
-        if (actor->ar_vehicle_ai && actor->ar_vehicle_ai->IsActive())
+        if (actor->ar_vehicle_ai && actor->ar_vehicle_ai->isActive())
             actor->ar_vehicle_ai->update(dt, 0);
 #endif // USE_ANGELSCRIPT
 
@@ -1360,7 +1360,7 @@ void ActorManager::UpdateTruckFeatures(Actor* vehicle, float dt)
     if (vehicle->isBeingReset() || vehicle->ar_physics_paused)
         return;
 #ifdef USE_ANGELSCRIPT
-    if (vehicle->ar_vehicle_ai && vehicle->ar_vehicle_ai->IsActive())
+    if (vehicle->ar_vehicle_ai && vehicle->ar_vehicle_ai->isActive())
         return;
 #endif // USE_ANGELSCRIPT
 

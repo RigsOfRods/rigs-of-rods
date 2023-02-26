@@ -98,7 +98,7 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "bool isLocked()", asMETHOD(Actor,isLocked), asCALL_THISCALL); ROR_ASSERT(result>=0);
 
     // - subsystems (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
-    result = engine->RegisterObjectMethod("BeamClass", "VehicleAIClass @getVehicleAI()", asMETHOD(Actor,getVehicleAI), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "VehicleAIClassPtr @getVehicleAI()", asMETHOD(Actor,getVehicleAI), asCALL_THISCALL); ROR_ASSERT(result>=0);
 
     // - lights (PLEASE maintain the same ordering as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "int getBlinkType()", asMETHOD(Actor, getBlinkType), asCALL_THISCALL); ROR_ASSERT(result >= 0);

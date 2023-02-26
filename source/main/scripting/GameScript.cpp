@@ -37,6 +37,7 @@
 #include "AppContext.h"
 #include "Actor.h"
 #include "ActorManager.h"
+#include "CacheSystem.h"
 #include "Character.h"
 #include "ChatSystem.h"
 #include "Collisions.h"
@@ -56,8 +57,9 @@
 #include "TerrainGeometryManager.h"
 #include "TerrainObjectManager.h"
 #include "Utils.h"
+#include "VehicleAI.h"
 #include "Water.h"
-#include "CacheSystem.h"
+
 
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
@@ -900,9 +902,9 @@ int GameScript::sendGameCmd(const String& message)
     return -11;
 }
 
-VehicleAI* GameScript::getCurrentTruckAI()
+VehicleAIPtr GameScript::getCurrentTruckAI()
 {
-    VehicleAI* result = nullptr;
+    VehicleAIPtr result = nullptr;
     if (App::GetGameContext()->GetPlayerActor())
     {
         result = App::GetGameContext()->GetPlayerActor()->ar_vehicle_ai;
@@ -910,9 +912,9 @@ VehicleAI* GameScript::getCurrentTruckAI()
     return result;
 }
 
-VehicleAI* GameScript::getTruckAIByNum(int num)
+VehicleAIPtr GameScript::getTruckAIByNum(int num)
 {
-    VehicleAI* result = nullptr;
+    VehicleAIPtr result = nullptr;
     Actor* actor = App::GetGameContext()->GetActorManager()->GetActorById(num);
     if (actor != nullptr)
     {
