@@ -74,7 +74,7 @@ class racesManager {
 	double lastRaceEventTime;
 	string raceManagerVersion;
 	int arrowMethod;
-	LocalStorage raceDataFile;
+	LocalStorageClass@ raceDataFile;
 	array<int> penaltyTime;
 	
 // public constants
@@ -172,7 +172,7 @@ class racesManager {
 			
 		
 		// Load the file containing the race data
-		this.raceDataFile = LocalStorage("raceTimes");
+		@this.raceDataFile = LocalStorageClass("raceTimes");
 	}
 
 	// add a race
@@ -1441,7 +1441,7 @@ class raceBuilder {
 		return this.locked;
 	}
 	
-	void saveRace(LocalStorage @d)
+	void saveRace(LocalStorageClass @d)
 	{
 		// Go to the correct section
 		string terrain;
@@ -1470,7 +1470,7 @@ class raceBuilder {
 		// For performance reasons, we don't save here yet.
 	}
 	
-	void loadRace(LocalStorage@ d)
+	void loadRace(LocalStorageClass@ d)
 	{
 		// Go to the correct section
 		string terrain;

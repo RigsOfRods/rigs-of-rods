@@ -76,6 +76,7 @@ namespace RoR
     class  IWater;
     class  Landusemap;
     class  LanguageEngine;
+    class  LocalStorage;
     class  MovableText;
     class  MumbleIntegration;
     class  OutGauge;
@@ -146,11 +147,12 @@ namespace RoR
     struct client_t;
     struct authorinfo_t;
 
-    typedef RefCountingObjectPtr<Terrain> TerrainPtr;
+    typedef RefCountingObjectPtr<LocalStorage> LocalStoragePtr;
     typedef RefCountingObjectPtr<ProceduralPoint> ProceduralPointPtr;
     typedef RefCountingObjectPtr<ProceduralObject> ProceduralObjectPtr;
     typedef RefCountingObjectPtr<ProceduralRoad> ProceduralRoadPtr;
     typedef RefCountingObjectPtr<ProceduralManager> ProceduralManagerPtr;
+    typedef RefCountingObjectPtr<Terrain> TerrainPtr;
     typedef RefCountingObjectPtr<VehicleAI> VehicleAIPtr;
 
     namespace GUI

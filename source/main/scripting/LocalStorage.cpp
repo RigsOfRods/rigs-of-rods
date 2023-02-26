@@ -25,16 +25,12 @@
 #include "ContentManager.h"
 #include "PlatformUtils.h"
 
-int LocalStorage::refCount = 0;
+using namespace RoR;
+
 
 /* class that implements the localStorage interface for the scripts */
-LocalStorage::LocalStorage(AngelScript::asIScriptEngine *engine_in, std::string fileName_in, const std::string &sectionName_in)
+LocalStorage::LocalStorage(std::string fileName_in, const std::string& sectionName_in, const std::string &resource_group = RGN_CACHE)
 {
-    refCount++;
-    cgflag=false;
-    this->engine = engine_in;
-    engine->NotifyGarbageCollectorOfNewObject(this, engine->GetTypeInfoByDecl("LocalStorage"));
-
     // inversed logic, better use a whitelist instead of a blacklist, so you are on the safe side ;) - tdev
     std::string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
     for (std::string::iterator it = fileName_in.begin() ; it < fileName_in.end() ; ++it){
@@ -45,18 +41,10 @@ LocalStorage::LocalStorage(AngelScript::asIScriptEngine *engine_in, std::string 
     sectionName = sectionName_in.substr(0, sectionName_in.find(".", 0));
     
     m_filename = fileName_in + ".asdata";
+    m_resource_group = resource_group;
     this->separators = "=";
     loadDict();
     
-    saved = true;
-}
-
-LocalStorage::LocalStorage(AngelScript::asIScriptEngine *engine_in)
-{
-    this->engine = engine_in;
-    refCount++;
-
-    engine->NotifyGarbageCollectorOfNewObject(this, engine->GetTypeInfoByDecl("LocalStorage"));
     saved = true;
 }
 
@@ -66,44 +54,12 @@ LocalStorage::~LocalStorage()
     saveDict();
 }
 
-void LocalStorage::AddRef() const
+void LocalStorage::copyFrom(LocalStoragePtr other)
 {
-    // We need to clear the GC flag
-    refCount ++;
-}
-
-void LocalStorage::Release() const
-{
-    // We need to clear the GC flag
-    refCount --;
-    if ( refCount == 0 )
-        delete this;
-}
-
-int LocalStorage::GetRefCount()
-{
-    return refCount;
-}
-
-void LocalStorage::SetGCFlag()
-{
-    cgflag=true;
-}
-
-bool LocalStorage::GetGCFlag()
-{
-    return cgflag;
-}
-
-void LocalStorage::EnumReferences(AngelScript::asIScriptEngine *engine){}
-void LocalStorage::ReleaseAllReferences(AngelScript::asIScriptEngine * /*engine*/){}
-
-LocalStorage &LocalStorage::operator =(LocalStorage &other)
-{
-    m_filename = other.getFilename();
-    sectionName = other.getSection();
+    m_filename = other->getFilename();
+    sectionName = other->getSection();
     SettingsBySection::iterator secIt;
-    SettingsBySection osettings = other.getSettings();
+    SettingsBySection osettings = other->getSettings();
     for (secIt = osettings.begin(); secIt!=osettings.end(); secIt++)
     {
         SettingsMultiMap::iterator setIt;
@@ -112,7 +68,6 @@ LocalStorage &LocalStorage::operator =(LocalStorage &other)
             setSetting(setIt->first, setIt->second, secIt->first);
         }
     }
-    return *this;
 }
 
 void LocalStorage::changeSection(const std::string &section)
@@ -121,14 +76,14 @@ void LocalStorage::changeSection(const std::string &section)
 }
 
 // getters and setters
-std::string LocalStorage::get(std::string &key)
+std::string LocalStorage::get(std::string key)
 {
     std::string sec;
     parseKey(key, sec);
     return getString(key, sec);
 }
 
-void LocalStorage::set(std::string &key, const std::string &value)
+void LocalStorage::set(std::string key, const std::string &value)
 {
     std::string sec;
     parseKey(key, sec);
@@ -136,14 +91,14 @@ void LocalStorage::set(std::string &key, const std::string &value)
     saved = false;
 }
 
-int LocalStorage::getInt(std::string &key)
+int LocalStorage::getInt(std::string key)
 {
     std::string sec;
     parseKey(key, sec);
     return getSettingInt(key, sec);
 }
 
-void LocalStorage::set(std::string &key, const int value)
+void LocalStorage::set(std::string key, const int value)
 {
     std::string sec;
     parseKey(key, sec);
@@ -151,14 +106,14 @@ void LocalStorage::set(std::string &key, const int value)
     saved = false;
 }
 
-float LocalStorage::getFloat(std::string &key)
+float LocalStorage::getFloat(std::string key)
 {
     std::string sec;
     parseKey(key, sec);
     return getSettingReal(key, sec);
 }
 
-void LocalStorage::set(std::string &key, const float value)
+void LocalStorage::set(std::string key, const float value)
 {
     std::string sec;
     parseKey(key, sec);
@@ -166,14 +121,14 @@ void LocalStorage::set(std::string &key, const float value)
     saved = false;
 }
 
-bool LocalStorage::getBool(std::string &key)
+bool LocalStorage::getBool(std::string key)
 {
     std::string sec;
     parseKey(key, sec);
     return getSettingBool(key, sec);
 }
 
-void LocalStorage::set(std::string &key, const bool value)
+void LocalStorage::set(std::string key, const bool value)
 {
     std::string sec;
     parseKey(key, sec);
@@ -181,14 +136,14 @@ void LocalStorage::set(std::string &key, const bool value)
     saved = false;
 }
 
-Ogre::Vector3 LocalStorage::getVector3(std::string &key)
+Ogre::Vector3 LocalStorage::getVector3(std::string key)
 {
     std::string sec;
     parseKey(key, sec);
     return getSettingVector3(key, sec);
 }
 
-void LocalStorage::set(std::string &key, const Ogre::Vector3 &value)
+void LocalStorage::set(std::string key, const Ogre::Vector3 &value)
 {
     std::string sec;
     parseKey(key, sec);
@@ -196,14 +151,14 @@ void LocalStorage::set(std::string &key, const Ogre::Vector3 &value)
     saved = false;
 }
 
-Ogre::Quaternion LocalStorage::getQuaternion(std::string &key)
+Ogre::Quaternion LocalStorage::getQuaternion(std::string key)
 {
     std::string sec;
     parseKey(key, sec);
     return getSettingQuaternion(key, sec);
 }
 
-void LocalStorage::set(std::string &key, const Ogre::Quaternion &value)
+void LocalStorage::set(std::string key, const Ogre::Quaternion &value)
 {
     std::string sec;
     parseKey(key, sec);
@@ -211,14 +166,14 @@ void LocalStorage::set(std::string &key, const Ogre::Quaternion &value)
     saved = false;
 }
 
-Ogre::Radian LocalStorage::getRadian(std::string &key)
+Ogre::Radian LocalStorage::getRadian(std::string key)
 {
     std::string sec;
     parseKey(key, sec);
     return getSettingRadian(key, sec);
 }
 
-void LocalStorage::set(std::string &key, const Ogre::Radian &value)
+void LocalStorage::set(std::string key, const Ogre::Radian &value)
 {
     std::string sec;
     parseKey(key, sec);
@@ -226,14 +181,14 @@ void LocalStorage::set(std::string &key, const Ogre::Radian &value)
     saved = false;
 }
 
-Ogre::Degree LocalStorage::getDegree(std::string &key)
+Ogre::Degree LocalStorage::getDegree(std::string key)
 {
     std::string sec;
     parseKey(key, sec);
     return Ogre::Degree(getSettingRadian(key, sec));
 }
 
-void LocalStorage::set(std::string &key, const Ogre::Degree &value)
+void LocalStorage::set(std::string key, const Ogre::Degree &value)
 {
     std::string sec;
     parseKey(key, sec);
@@ -278,7 +233,7 @@ bool LocalStorage::loadDict()
     return true;
 }
 
-void LocalStorage::eraseKey(std::string &key)
+void LocalStorage::eraseKey(std::string key)
 {
     std::string sec;
     parseKey(key, sec);
@@ -292,7 +247,7 @@ void LocalStorage::deleteAll()
     // SLOG("This feature is not available yet");
 }
 
-void LocalStorage::parseKey(std::string &key, std::string &section)
+void LocalStorage::parseKey(std::string& key, std::string &section)
 {
     size_t dot = key.find(".", 0);
     if ( dot != std::string::npos )
@@ -308,7 +263,7 @@ void LocalStorage::parseKey(std::string &key, std::string &section)
         section = sectionName;
 }
 
-bool LocalStorage::exists(std::string &key)
+bool LocalStorage::exists(std::string key)
 {
     std::string sec;
     parseKey(key, sec);
