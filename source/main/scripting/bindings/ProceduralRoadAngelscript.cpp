@@ -73,7 +73,7 @@ void RoR::RegisterProceduralRoad(asIScriptEngine* engine)
     // struct ProceduralPoint (ref)
     ProceduralPoint::RegisterRefCountingObject(engine, "ProceduralPointClass");
     ProceduralPointPtr::RegisterRefCountingObjectPtr(engine, "ProceduralPointClassPtr", "ProceduralPointClass");
-    result = engine->RegisterObjectBehaviour("ProceduralPointClass", asBEHAVE_FACTORY, "ProceduralPointClass@ f()", asFUNCTION(ProceduralPointFactory), asCALL_CDECL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectBehaviour("ProceduralPointClass", asBEHAVE_FACTORY, "ProceduralPointClass@+ f()", asFUNCTION(ProceduralPointFactory), asCALL_CDECL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectProperty("ProceduralPointClass", "vector3 position", offsetof(ProceduralPoint, position)); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectProperty("ProceduralPointClass", "quaternion rotation", offsetof(ProceduralPoint, rotation)); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectProperty("ProceduralPointClass", "float width", offsetof(ProceduralPoint, width)); ROR_ASSERT(result >= 0);
@@ -85,7 +85,7 @@ void RoR::RegisterProceduralRoad(asIScriptEngine* engine)
     // class ProceduralRoad (ref)
     ProceduralRoad::RegisterRefCountingObject(engine, "ProceduralRoadClass");
     ProceduralRoadPtr::RegisterRefCountingObjectPtr(engine, "ProceduralRoadClassPtr", "ProceduralRoadClass");
-    result = engine->RegisterObjectBehaviour("ProceduralRoadClass", asBEHAVE_FACTORY, "ProceduralRoadClass@ f()", asFUNCTION(ProceduralRoadFactory), asCALL_CDECL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectBehaviour("ProceduralRoadClass", asBEHAVE_FACTORY, "ProceduralRoadClass@+ f()", asFUNCTION(ProceduralRoadFactory), asCALL_CDECL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralRoadClass", "void addBlock(vector3 pos, quaternion rot, RoadType type, float width, float border_width, float border_height, int pillar_type = 1)", asMETHOD(RoR::ProceduralRoad, addBlock), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralRoadClass", "void addQuad(vector3 p1, vector3 p2, vector3 p3, vector3 p4, TextureFit texfit, vector3 pos, vector3 lastpos, float width, bool flip = false)", asMETHOD(RoR::ProceduralRoad, addQuad), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralRoadClass", "void addCollisionQuad(vector3 p1, vector3 p2, vector3 p3, vector3 p4, const string&in gm_name, bool flip = false)", asMETHODPR(RoR::ProceduralRoad, addCollisionQuad, (Ogre::Vector3, Ogre::Vector3, Ogre::Vector3, Ogre::Vector3, std::string const&, bool), void), asCALL_THISCALL); ROR_ASSERT(result >= 0);
@@ -96,7 +96,7 @@ void RoR::RegisterProceduralRoad(asIScriptEngine* engine)
     // class ProceduralObject (ref)
     ProceduralObject::RegisterRefCountingObject(engine, "ProceduralObjectClass");
     ProceduralObjectPtr::RegisterRefCountingObjectPtr(engine, "ProceduralObjectClassPtr", "ProceduralObjectClass");
-    result = engine->RegisterObjectBehaviour("ProceduralObjectClass", asBEHAVE_FACTORY, "ProceduralObjectClass@ f()", asFUNCTION(ProceduralObjectFactory), asCALL_CDECL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectBehaviour("ProceduralObjectClass", asBEHAVE_FACTORY, "ProceduralObjectClass@+ f()", asFUNCTION(ProceduralObjectFactory), asCALL_CDECL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "string getName()", asMETHOD(RoR::ProceduralObject, getName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "void setName(const string&in)", asMETHOD(RoR::ProceduralObject, setName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "void addPoint(ProceduralPointClassPtr @)", asMETHOD(RoR::ProceduralObject, addPoint), asCALL_THISCALL); ROR_ASSERT(result >= 0);

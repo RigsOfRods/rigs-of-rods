@@ -25,6 +25,7 @@ class RefCountingObjectPtr
 {
 public:
     // Constructors
+    RefCountingObjectPtr(T* ref);
     RefCountingObjectPtr();
     RefCountingObjectPtr(const RefCountingObjectPtr<T> &other);
     ~RefCountingObjectPtr();
@@ -59,13 +60,7 @@ public:
 
     static void RegisterRefCountingObjectPtr(AS_NAMESPACE_QUALIFIER asIScriptEngine* engine, const char* handle_name, const char* obj_name);
 
-    /// It's CRITICAL that this function gets invoked only once for each object in memory,
-    /// and subsequent shared pointers are created from the original shared pointer.
-    /// Binding multiple times compromises the ref counting and WILL cause 'double free or corruption' bug!
-    static RefCountingObjectPtr<T> Bind(T* ref) { return RefCountingObjectPtr<T>(ref); }
-
 protected:
-    explicit RefCountingObjectPtr(T* ref); // Only invoke directly using C++! AngelScript must use a wrapper.
 
     void Set(T* ref);
     void ReleaseHandle();
@@ -177,6 +172,14 @@ inline bool RefCountingObjectPtr<T>::OpEquals(RefCountingObjectPtr<T>* self, voi
 }
 
 template<class T>
+inline RefCountingObjectPtr<T>::RefCountingObjectPtr(T* ref)
+    : m_ref(nullptr)
+{
+    RefCoutingObjectPtr_DEBUGTRACE((T*)nullptr);
+    this->Set(ref);
+}
+
+template<class T>
 inline RefCountingObjectPtr<T>::RefCountingObjectPtr()
     : m_ref(nullptr)
 {
@@ -189,16 +192,6 @@ inline RefCountingObjectPtr<T>::RefCountingObjectPtr(const RefCountingObjectPtr<
     RefCoutingObjectPtr_DEBUGTRACE(other.m_ref);
     m_ref = other.m_ref;
     AddRefHandle();
-}
-
-template<class T>
-inline RefCountingObjectPtr<T>::RefCountingObjectPtr(T *ref)
-{
-    // Used directly from C++, DO NOT increase refcount!
-    // It's already been done by constructor/factory/AngelScript (if retrieved from script context).
-    // ------------------------------------------
-    RefCoutingObjectPtr_DEBUGTRACE(ref);
-    m_ref  = ref;
 }
 
 template<class T>

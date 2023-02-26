@@ -59,7 +59,7 @@ void TObjParser::Prepare()
     m_cur_line           = nullptr;
     m_line_number        = 0;
     m_in_procedural_road = false;
-    m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject());
+    m_cur_procedural_obj = new ProceduralObject();
     m_cur_procedural_obj_start_line = -1;
     m_road2_num_blocks = 0;
     
@@ -113,7 +113,7 @@ bool TObjParser::ProcessCurrentLine()
     }
     if (strncmp("begin_procedural_roads", m_cur_line, 22) == 0)
     {
-        m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject()); // Hard reset, discarding last "non-procedural" road strip. For backwards compatibility. ~ Petr Ohlidal, 08/2020
+        m_cur_procedural_obj = new ProceduralObject(); // Hard reset, discarding last "non-procedural" road strip. For backwards compatibility. ~ Petr Ohlidal, 08/2020
         m_in_procedural_road = true;
         m_cur_procedural_obj_start_line = m_line_number;
         return true;
@@ -220,7 +220,7 @@ void TObjParser::ProcessProceduralLine()
     else if (obj_name == "bridge_no_pillars") { point.type = RoadType::ROAD_BRIDGE;    point.pillartype = 0; }
     else                                      { point.type = RoadType::ROAD_AUTOMATIC; point.pillartype = 0; }
 
-    m_cur_procedural_obj->points.push_back(ProceduralPointPtr::Bind(new ProceduralPoint(point)));
+    m_cur_procedural_obj->points.push_back(new ProceduralPoint(point));
 }
 
 void TObjParser::ProcessGridLine()
@@ -334,7 +334,7 @@ void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 c
     pp.type       = (special == TObj::SpecialObject::ROAD) ? RoadType::ROAD_FLAT : RoadType::ROAD_AUTOMATIC;
     pp.width      = 8;
 
-    m_cur_procedural_obj->points.push_back(ProceduralPointPtr::Bind(new ProceduralPoint(pp)));
+    m_cur_procedural_obj->points.push_back(new ProceduralPoint(pp));
     if (m_cur_procedural_obj_start_line == -1)
     {
         m_cur_procedural_obj_start_line = m_line_number;
@@ -385,7 +385,7 @@ void TObjParser::FlushProceduralObject()
     // finish it and start new object
     m_cur_procedural_obj->name = fmt::format("{} (lines {} - {})", m_filename, m_cur_procedural_obj_start_line, m_line_number);
     m_def->proc_objects.push_back(m_cur_procedural_obj);
-    m_cur_procedural_obj = ProceduralObjectPtr::Bind(new ProceduralObject());
+    m_cur_procedural_obj = new ProceduralObject();
     m_cur_procedural_obj_start_line = -1;
     m_road2_num_blocks = 0;
 }
