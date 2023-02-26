@@ -138,10 +138,10 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
     // * Landusemap
     // * SurveyMapTextureCreator
     // * Collisions (debug visualization)
-    m_terrain = TerrainPtr::Bind(new RoR::Terrain(terrn_entry, terrn2));
+    m_terrain = new RoR::Terrain(terrn_entry, terrn2);
     if (!m_terrain->initialize())
     {
-        m_terrain = TerrainPtr(); // release local reference - object will be deleted when all references are released.
+        m_terrain = nullptr; // release local reference - object will be deleted when all references are released.
         return false; // Message box already displayed
     }
 
@@ -163,7 +163,7 @@ void GameContext::UnloadTerrain()
         // dispose(), do not `delete` - script may still hold reference to the object.
         m_terrain->dispose();
         // release local reference - object will be deleted when all references are released.
-        m_terrain = TerrainPtr();
+        m_terrain = nullptr;
     }
 }
 

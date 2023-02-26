@@ -70,7 +70,7 @@ TerrainObjectManager::TerrainObjectManager(Terrain* terrainManager) :
     m_resource_group = terrainManager->GetDef().name + "-TerrnObjects";
     Ogre::ResourceGroupManager::getSingleton().createResourceGroup(m_resource_group);
 
-    m_procedural_manager = ProceduralManagerPtr::Bind(new ProceduralManager());
+    m_procedural_manager = new ProceduralManager();
 }
 
 TerrainObjectManager::~TerrainObjectManager()

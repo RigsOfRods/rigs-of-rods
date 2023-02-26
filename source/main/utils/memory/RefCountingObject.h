@@ -63,7 +63,7 @@ public:
         r = engine->RegisterObjectBehaviour(name, asBEHAVE_RELEASE, "void f()", asMETHOD(T,Release), asCALL_THISCALL); RefCountingObject_ASSERT( r >= 0 );
     }
 
-    int m_refcount = 1; // Initial refcount for any angelscript object.
+    int m_refcount = 0;
 };
 
 /*

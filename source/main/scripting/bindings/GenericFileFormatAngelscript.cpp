@@ -87,7 +87,7 @@ void RoR::RegisterGenericFileFormat(asIScriptEngine* engine)
     // class GenericDocument
     GenericDocument::RegisterRefCountingObject(engine, "GenericDocumentClass");
     GenericDocumentPtr::RegisterRefCountingObjectPtr(engine, "GenericDocumentClassPtr", "GenericDocumentClass");
-    engine->RegisterObjectBehaviour("GenericDocumentClass", asBEHAVE_FACTORY, "GenericDocumentClass@ f()", asFUNCTION(GenericDocumentFactory), asCALL_CDECL);
+    engine->RegisterObjectBehaviour("GenericDocumentClass", asBEHAVE_FACTORY, "GenericDocumentClass@+ f()", asFUNCTION(GenericDocumentFactory), asCALL_CDECL);
 
     engine->RegisterObjectMethod("GenericDocumentClass", "bool loadFromResource(string,string,int)", asMETHOD(GenericDocument, loadFromResource), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocumentClass", "bool saveToResource(string,string)", asMETHOD(GenericDocument, saveToResource), asCALL_THISCALL);
@@ -96,7 +96,7 @@ void RoR::RegisterGenericFileFormat(asIScriptEngine* engine)
     // class GenericDocReader
     GenericDocReader::RegisterRefCountingObject(engine, "GenericDocReaderClass");
     GenericDocReaderPtr::RegisterRefCountingObjectPtr(engine, "GenericDocReaderClassPtr", "GenericDocReaderClass");
-    engine->RegisterObjectBehaviour("GenericDocReaderClass", asBEHAVE_FACTORY, "GenericDocReaderClass@ f(GenericDocumentClassPtr @)", asFUNCTION(GenericDocReaderFactory), asCALL_CDECL);
+    engine->RegisterObjectBehaviour("GenericDocReaderClass", asBEHAVE_FACTORY, "GenericDocReaderClass@+ f(GenericDocumentClassPtr @)", asFUNCTION(GenericDocReaderFactory), asCALL_CDECL);
 
     engine->RegisterObjectMethod("GenericDocReaderClass", "bool moveNext()", asMETHOD(GenericDocReader, moveNext), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocReaderClass", "uint getPos()", asMETHOD(GenericDocReader, getPos), asCALL_THISCALL);
