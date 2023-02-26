@@ -73,11 +73,11 @@ struct GenericDocument: public RefCountingObject<GenericDocument>
     std::vector<char> string_pool; // Data of COMMENT/KEYWORD/STRING tokens; NUL-terminated strings.
     std::vector<Token> tokens;
     
-    virtual void LoadFromDataStream(Ogre::DataStreamPtr datastream, BitMask_t options = 0);
-    virtual void SaveToDataStream(Ogre::DataStreamPtr datastream);
+    virtual void loadFromDataStream(Ogre::DataStreamPtr datastream, BitMask_t options = 0);
+    virtual void saveToDataStream(Ogre::DataStreamPtr datastream);
 
-    virtual bool LoadFromResource(std::string resource_name, std::string resource_group_name, BitMask_t options = 0);
-    virtual bool SaveToResource(std::string resource_name, std::string resource_group_name);
+    virtual bool loadFromResource(std::string resource_name, std::string resource_group_name, BitMask_t options = 0);
+    virtual bool saveToResource(std::string resource_name, std::string resource_group_name);
 };
 
 typedef RefCountingObjectPtr<GenericDocument> GenericDocumentPtr;
@@ -91,27 +91,30 @@ struct GenericDocReader: public RefCountingObject<GenericDocument>
     uint32_t token_pos = 0;
     uint32_t line_num = 0;
 
-    bool MoveNext() { token_pos++; return EndOfFile(); }
-    uint32_t GetPos() const { return token_pos; }
-    bool SeekNextLine();
-    int CountLineArgs();
-    bool EndOfFile(int offset = 0) const { return token_pos + offset >= doc->tokens.size(); }
+    // PLEASE maintain the same order as in 'bindings/GenericFileFormatAngelscript.cpp'
 
-    TokenType GetTokType(int offset = 0) const { return !EndOfFile(offset) ? doc->tokens[token_pos + offset].type : TokenType::NONE; }
-    const char* GetStringData(int offset = 0) const { return !EndOfFile(offset) ? (doc->string_pool.data() + (uint32_t)doc->tokens[token_pos + offset].data) : nullptr; }
-    float GetFloatData(int offset = 0) const { return !EndOfFile(offset) ? doc->tokens[token_pos + offset].data : 0.f; }
+    bool moveNext() { token_pos++; return endOfFile(); }
+    uint32_t getPos() const { return token_pos; }
+    bool seekNextLine();
+    int countLineArgs();
+    bool endOfFile(int offset = 0) const { return token_pos + offset >= doc->tokens.size(); }
+    TokenType tokenType(int offset = 0) const { return !endOfFile(offset) ? doc->tokens[token_pos + offset].type : TokenType::NONE; }
 
-    const char* GetTokString(int offset = 0) const { ROR_ASSERT(IsTokString(offset)); return GetStringData(offset); }
-    float GetTokFloat(int offset = 0) const { ROR_ASSERT(IsTokFloat(offset)); return GetFloatData(offset); }
-    bool GetTokBool(int offset = 0) const { ROR_ASSERT(IsTokBool(offset)); return GetFloatData(offset) == 1.f; }
-    const char* GetTokKeyword(int offset = 0) const { ROR_ASSERT(IsTokKeyword(offset)); return GetStringData(offset); }
-    const char* GetTokComment(int offset = 0) const { ROR_ASSERT(IsTokComment(offset)); return GetStringData(offset); }
+    const char* getTokString(int offset = 0) const { ROR_ASSERT(isTokString(offset)); return getStringData(offset); }
+    float getTokFloat(int offset = 0) const { ROR_ASSERT(isTokFloat(offset)); return getFloatData(offset); }
+    bool getTokBool(int offset = 0) const { ROR_ASSERT(isTokBool(offset)); return getFloatData(offset) == 1.f; }
+    const char* getTokKeyword(int offset = 0) const { ROR_ASSERT(isTokKeyword(offset)); return getStringData(offset); }
+    const char* getTokComment(int offset = 0) const { ROR_ASSERT(isTokComment(offset)); return getStringData(offset); }
 
-    bool IsTokString(int offset = 0) const { return GetTokType(offset) == TokenType::STRING; };
-    bool IsTokFloat(int offset = 0) const { return GetTokType(offset) == TokenType::NUMBER; };
-    bool IsTokBool(int offset = 0) const { return GetTokType(offset) == TokenType::BOOL; };
-    bool IsTokKeyword(int offset = 0) const { return GetTokType(offset) == TokenType::KEYWORD; };
-    bool IsTokComment(int offset = 0) const { return GetTokType(offset) == TokenType::COMMENT; };
+    bool isTokString(int offset = 0) const { return tokenType(offset) == TokenType::STRING; }
+    bool isTokFloat(int offset = 0) const { return tokenType(offset) == TokenType::NUMBER; }
+    bool isTokBool(int offset = 0) const { return tokenType(offset) == TokenType::BOOL; }
+    bool isTokKeyword(int offset = 0) const { return tokenType(offset) == TokenType::KEYWORD; }
+    bool isTokComment(int offset = 0) const { return tokenType(offset) == TokenType::COMMENT; }
+
+    // Not exported to script:
+    const char* getStringData(int offset = 0) const { return !endOfFile(offset) ? (doc->string_pool.data() + (uint32_t)doc->tokens[token_pos + offset].data) : nullptr; }
+    float getFloatData(int offset = 0) const { return !endOfFile(offset) ? doc->tokens[token_pos + offset].data : 0.f; }
 };
 
 typedef RefCountingObjectPtr<GenericDocReader> GenericDocReaderPtr;

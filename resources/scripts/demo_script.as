@@ -127,7 +127,7 @@ void frameStep(float dt)
                               | GENERIC_DOCUMENT_OPTION_FIRST_LINE_IS_TITLE
                               | GENERIC_DOCUMENT_OPTION_ALLOW_SEPARATOR_COLON
                               | GENERIC_DOCUMENT_OPTION_PARENTHESES_CAPTURE_SPACES;
-                    if (doc.LoadFromResource(actor.getTruckFileName(), actor.getTruckFileResourceGroup(), flags))
+                    if (doc.loadFromResource(actor.getTruckFileName(), actor.getTruckFileResourceGroup(), flags))
                     {
                         @g_displayed_document = @doc;
                         g_displayed_doc_filename = actor.getTruckFileName();
@@ -224,7 +224,7 @@ void drawTerrainButtons()
                       | GENERIC_DOCUMENT_OPTION_ALLOW_HASH_COMMENTS
                       | GENERIC_DOCUMENT_OPTION_ALLOW_SEPARATOR_EQUALS
                       | GENERIC_DOCUMENT_OPTION_ALLOW_BRACED_KEYWORDS;
-            if (doc.LoadFromResource(terrain.getTerrainFileName(), terrain.getTerrainFileResourceGroup(), flags))
+            if (doc.loadFromResource(terrain.getTerrainFileName(), terrain.getTerrainFileResourceGroup(), flags))
             {
                 @g_displayed_document = @doc;
                 g_displayed_doc_filename = terrain.getTerrainFileName();
@@ -234,20 +234,20 @@ void drawTerrainButtons()
                 {
                     GenericDocReaderClass@ reader = GenericDocReaderClass(doc);
                     bool in_section_objects = false;
-                    while (!reader.EndOfFile())
+                    while (!reader.endOfFile())
                     {
-                        if (reader.GetTokType() == TOKEN_TYPE_KEYWORD && reader.GetTokKeyword().substr(0, 1) == "[")
+                        if (reader.tokenType() == TOKEN_TYPE_KEYWORD && reader.getTokKeyword().substr(0, 1) == "[")
                         {
-                            in_section_objects = (reader.GetTokKeyword() == '[Objects]');
+                            in_section_objects = (reader.getTokKeyword() == '[Objects]');
                         }
-                        else if (reader.GetTokType() == TOKEN_TYPE_STRING && in_section_objects)
+                        else if (reader.tokenType() == TOKEN_TYPE_STRING && in_section_objects)
                         {
                             // Note: in GenericDocument, a text on line start is always a KEYWORD token,
                             // but KEYWORDs must not contain special characters,
                             // so file names always decay to strings because of '.'.                    
-                            g_terrain_tobj_files.insertLast(reader.GetTokString());
+                            g_terrain_tobj_files.insertLast(reader.getTokString());
                         }
-                        reader.MoveNext();
+                        reader.moveNext();
                     }
                 }
             }
@@ -279,7 +279,7 @@ void drawTerrainButtons()
                 GenericDocumentClass@ doc = GenericDocumentClass();
                 int flags = GENERIC_DOCUMENT_OPTION_ALLOW_NAKED_STRINGS
                           | GENERIC_DOCUMENT_OPTION_ALLOW_SLASH_COMMENTS;
-                if (doc.LoadFromResource(g_terrain_tobj_files[i], terrain.getTerrainFileResourceGroup(), flags))
+                if (doc.loadFromResource(g_terrain_tobj_files[i], terrain.getTerrainFileResourceGroup(), flags))
                 {
                     @g_displayed_document = @doc;   
                     g_displayed_doc_filename = g_terrain_tobj_files[i];
@@ -308,16 +308,16 @@ void drawDocumentWindow()
     ImGui::Begin(caption, /*open:*/true, /*flags:*/0);
 
     GenericDocReaderClass reader(g_displayed_document);
-    while (!reader.EndOfFile())
+    while (!reader.endOfFile())
     {
-        switch (reader.GetTokType())
+        switch (reader.tokenType())
         {
         // These tokens are always at start of line
         case TOKEN_TYPE_KEYWORD:
-            ImGui::TextColored(color(1.f, 1.f, 0.f, 1.f), reader.GetTokKeyword());
+            ImGui::TextColored(color(1.f, 1.f, 0.f, 1.f), reader.getTokKeyword());
             break;
         case TOKEN_TYPE_COMMENT:
-            ImGui::TextDisabled(";" + reader.GetTokComment());
+            ImGui::TextDisabled(";" + reader.getTokComment());
             break;
             
         // Linebreak is implicit in DearIMGUI, no action needed
@@ -326,29 +326,29 @@ void drawDocumentWindow()
 
         // Other tokens come anywhere - delimiting logic is needed
         default:
-            if (reader.GetPos() != 0 && reader.GetTokType(-1) != TOKEN_TYPE_LINEBREAK)
+            if (reader.getPos() != 0 && reader.tokenType(-1) != TOKEN_TYPE_LINEBREAK)
             {
                 ImGui::SameLine();
-                string delimiter = (reader.GetTokType(-1) == TOKEN_TYPE_KEYWORD) ? " " : ", ";
+                string delimiter = (reader.tokenType(-1) == TOKEN_TYPE_KEYWORD) ? " " : ", ";
                 ImGui::Text(delimiter);
                 ImGui::SameLine();
             }
 
-            switch (reader.GetTokType())
+            switch (reader.tokenType())
             {
             case TOKEN_TYPE_STRING:
-                ImGui::TextColored(color(0.f, 1.f, 1.f, 1.f), "\"" + reader.GetTokString() + "\"");
+                ImGui::TextColored(color(0.f, 1.f, 1.f, 1.f), "\"" + reader.getTokString() + "\"");
                 break;
             case TOKEN_TYPE_NUMBER:
-                ImGui::Text("" + reader.GetTokFloat());
+                ImGui::Text("" + reader.getTokFloat());
                 break;
             case TOKEN_TYPE_BOOL:
-                ImGui::TextColored(color(1.f, 0.f, 1.f, 1.f), ""+reader.GetTokBool());
+                ImGui::TextColored(color(1.f, 0.f, 1.f, 1.f), ""+reader.getTokBool());
                 break;
             }
         }
         
-        reader.MoveNext();
+        reader.moveNext();
     }
     
     ImGui::End();

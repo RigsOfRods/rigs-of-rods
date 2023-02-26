@@ -30,21 +30,21 @@ using namespace RoR;
 using namespace AngelScript;
 
 // Wrappers
-static std::string GenericDocReader_GetTokString(GenericDocReader* reader, uint32_t offset)
+static std::string GenericDocReader_getTokString(GenericDocReader* reader, uint32_t offset)
 {
-    const char* val = reader->GetTokString(offset);
+    const char* val = reader->getTokString(offset);
     return (val) ? val : "";
 }
 
-static std::string GenericDocReader_GetTokKeyword(GenericDocReader* reader, uint32_t offset)
+static std::string GenericDocReader_getTokKeyword(GenericDocReader* reader, uint32_t offset)
 {
-    const char* val = reader->GetTokKeyword(offset);
+    const char* val = reader->getTokKeyword(offset);
     return (val) ? val : "";
 }
 
-static std::string GenericDocReader_GetTokComment(GenericDocReader* reader, uint32_t offset)
+static std::string GenericDocReader_getTokComment(GenericDocReader* reader, uint32_t offset)
 {
-    const char* val = reader->GetTokComment(offset);
+    const char* val = reader->getTokComment(offset);
     return (val) ? val : "";
 }
 
@@ -89,8 +89,8 @@ void RoR::RegisterGenericFileFormat(asIScriptEngine* engine)
     GenericDocumentPtr::RegisterRefCountingObjectPtr(engine, "GenericDocumentClassPtr", "GenericDocumentClass");
     engine->RegisterObjectBehaviour("GenericDocumentClass", asBEHAVE_FACTORY, "GenericDocumentClass@ f()", asFUNCTION(GenericDocumentFactory), asCALL_CDECL);
 
-    engine->RegisterObjectMethod("GenericDocumentClass", "bool LoadFromResource(string,string,int)", asMETHOD(GenericDocument, LoadFromResource), asCALL_THISCALL);
-    engine->RegisterObjectMethod("GenericDocumentClass", "bool SaveToResource(string,string)", asMETHOD(GenericDocument, SaveToResource), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocumentClass", "bool loadFromResource(string,string,int)", asMETHOD(GenericDocument, loadFromResource), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocumentClass", "bool saveToResource(string,string)", asMETHOD(GenericDocument, saveToResource), asCALL_THISCALL);
 
 
     // class GenericDocReader
@@ -98,23 +98,22 @@ void RoR::RegisterGenericFileFormat(asIScriptEngine* engine)
     GenericDocReaderPtr::RegisterRefCountingObjectPtr(engine, "GenericDocReaderClassPtr", "GenericDocReaderClass");
     engine->RegisterObjectBehaviour("GenericDocReaderClass", asBEHAVE_FACTORY, "GenericDocReaderClass@ f(GenericDocumentClassPtr @)", asFUNCTION(GenericDocReaderFactory), asCALL_CDECL);
 
-    engine->RegisterObjectMethod("GenericDocReaderClass", "bool MoveNext()", asMETHOD(GenericDocReader, MoveNext), asCALL_THISCALL);
-    engine->RegisterObjectMethod("GenericDocReaderClass", "uint GetPos()", asMETHOD(GenericDocReader, GetPos), asCALL_THISCALL);
-    engine->RegisterObjectMethod("GenericDocReaderClass", "bool SeekNextLine()", asMETHOD(GenericDocReader, SeekNextLine), asCALL_THISCALL);
-    engine->RegisterObjectMethod("GenericDocReaderClass", "uint CountLineArgs()", asMETHOD(GenericDocReader, CountLineArgs), asCALL_THISCALL);
-    engine->RegisterObjectMethod("GenericDocReaderClass", "bool EndOfFile(int offset = 0)", asMETHOD(GenericDocReader, EndOfFile), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "bool moveNext()", asMETHOD(GenericDocReader, moveNext), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "uint getPos()", asMETHOD(GenericDocReader, getPos), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "bool seekNextLine()", asMETHOD(GenericDocReader, seekNextLine), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "uint countLineArgs()", asMETHOD(GenericDocReader, countLineArgs), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "bool endOfFile(int offset = 0)", asMETHOD(GenericDocReader, endOfFile), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "TokenType tokenType(int offset = 0)", asMETHOD(GenericDocReader, tokenType), asCALL_THISCALL);
 
-    engine->RegisterObjectMethod("GenericDocReaderClass", "TokenType GetTokType(int offset = 0)", asMETHOD(GenericDocReader, GetTokType), asCALL_THISCALL);
-
-    engine->RegisterObjectMethod("GenericDocReaderClass", "string GetTokString(int offset = 0)", asFUNCTION(GenericDocReader_GetTokString), asCALL_CDECL_OBJFIRST);
-    engine->RegisterObjectMethod("GenericDocReaderClass", "float GetTokFloat(int offset = 0)", asMETHOD(GenericDocReader, GetTokFloat), asCALL_THISCALL);
-    engine->RegisterObjectMethod("GenericDocReaderClass", "bool GetTokBool(int offset = 0)", asMETHOD(GenericDocReader, GetTokBool), asCALL_THISCALL);
-    engine->RegisterObjectMethod("GenericDocReaderClass", "string GetTokKeyword(int offset = 0)", asFUNCTION(GenericDocReader_GetTokKeyword), asCALL_CDECL_OBJFIRST);
-    engine->RegisterObjectMethod("GenericDocReaderClass", "string GetTokComment(int offset = 0)", asFUNCTION(GenericDocReader_GetTokComment), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "string getTokString(int offset = 0)", asFUNCTION(GenericDocReader_getTokString), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "float getTokFloat(int offset = 0)", asMETHOD(GenericDocReader, getTokFloat), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "bool getTokBool(int offset = 0)", asMETHOD(GenericDocReader, getTokBool), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "string getTokKeyword(int offset = 0)", asFUNCTION(GenericDocReader_getTokKeyword), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "string getTokComment(int offset = 0)", asFUNCTION(GenericDocReader_getTokComment), asCALL_CDECL_OBJFIRST);
     
-    engine->RegisterObjectMethod("GenericDocReaderClass", "bool IsTokString(int offset = 0)", asMETHOD(GenericDocReader, IsTokString), asCALL_THISCALL);
-    engine->RegisterObjectMethod("GenericDocReaderClass", "bool IsTokFloat(int offset = 0)", asMETHOD(GenericDocReader, IsTokFloat), asCALL_THISCALL);
-    engine->RegisterObjectMethod("GenericDocReaderClass", "bool IsTokBool(int offset = 0)", asMETHOD(GenericDocReader, IsTokBool), asCALL_THISCALL);
-    engine->RegisterObjectMethod("GenericDocReaderClass", "bool IsTokKeyword(int offset = 0)", asMETHOD(GenericDocReader, IsTokKeyword), asCALL_THISCALL);
-    engine->RegisterObjectMethod("GenericDocReaderClass", "bool IsTokComment(int offset = 0)", asMETHOD(GenericDocReader, IsTokComment), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "bool isTokString(int offset = 0)", asMETHOD(GenericDocReader, isTokString), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "bool isTokFloat(int offset = 0)", asMETHOD(GenericDocReader, isTokFloat), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "bool isTokBool(int offset = 0)", asMETHOD(GenericDocReader, isTokBool), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "bool isTokKeyword(int offset = 0)", asMETHOD(GenericDocReader, isTokKeyword), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocReaderClass", "bool isTokComment(int offset = 0)", asMETHOD(GenericDocReader, isTokComment), asCALL_THISCALL);
 }
