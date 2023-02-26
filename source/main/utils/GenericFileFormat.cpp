@@ -872,7 +872,7 @@ void DocumentParser::FlushNumericToken()
     partial_tok_type = PartialToken::NONE;
 }
 
-void GenericDocument::LoadFromDataStream(Ogre::DataStreamPtr datastream, const BitMask_t options)
+void GenericDocument::loadFromDataStream(Ogre::DataStreamPtr datastream, const BitMask_t options)
 {
     // Reset the document
     tokens.clear();
@@ -951,7 +951,7 @@ void GenericDocument::LoadFromDataStream(Ogre::DataStreamPtr datastream, const B
     const char* EOL_STR = "\n"; // "LF"
 #endif
 
-void GenericDocument::SaveToDataStream(Ogre::DataStreamPtr datastream)
+void GenericDocument::saveToDataStream(Ogre::DataStreamPtr datastream)
 {
     std::string separator;
     const char* pool_str = nullptr;
@@ -1003,12 +1003,12 @@ void GenericDocument::SaveToDataStream(Ogre::DataStreamPtr datastream)
     }
 }
 
-bool GenericDocument::LoadFromResource(std::string resource_name, std::string resource_group_name, BitMask_t options/* = 0*/)
+bool GenericDocument::loadFromResource(std::string resource_name, std::string resource_group_name, BitMask_t options/* = 0*/)
 {
     try
     {
         Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().openResource(resource_name, resource_group_name);
-        this->LoadFromDataStream(datastream, options);
+        this->loadFromDataStream(datastream, options);
         return true;
     }
     catch (Ogre::Exception& eeh)
@@ -1019,12 +1019,12 @@ bool GenericDocument::LoadFromResource(std::string resource_name, std::string re
     }
 }
 
-bool GenericDocument::SaveToResource(std::string resource_name, std::string resource_group_name)
+bool GenericDocument::saveToResource(std::string resource_name, std::string resource_group_name)
 {
     try
     {
         Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(resource_name, resource_group_name);
-        this->SaveToDataStream(datastream);
+        this->saveToDataStream(datastream);
         return true;
     }
     catch (Ogre::Exception& eeh)
@@ -1035,27 +1035,27 @@ bool GenericDocument::SaveToResource(std::string resource_name, std::string reso
     }
 }
 
-bool GenericDocReader::SeekNextLine()
+bool GenericDocReader::seekNextLine()
 {
     // Skip current line
-    while (!this->EndOfFile() && this->GetTokType() != TokenType::LINEBREAK)
+    while (!this->endOfFile() && this->tokenType() != TokenType::LINEBREAK)
     {
-        this->MoveNext();
+        this->moveNext();
     }
 
-    // Skip comments
-    while (!this->EndOfFile() && !this->IsTokString() && !this->IsTokFloat() && !this->IsTokBool() && !this->IsTokKeyword())
+    // Skip comments and empty lines
+    while (!this->endOfFile() && !this->isTokString() && !this->isTokFloat() && !this->isTokBool() && !this->isTokKeyword())
     {
-        this->MoveNext();
+        this->moveNext();
     }
 
-    return this->EndOfFile();
+    return this->endOfFile();
 }
 
-int GenericDocReader::CountLineArgs()
+int GenericDocReader::countLineArgs()
 {
     int count = 0;
-    while (!EndOfFile(count) && this->GetTokType(count) != TokenType::LINEBREAK)
+    while (!endOfFile(count) && this->tokenType(count) != TokenType::LINEBREAK)
         count++;
     return count;
 }

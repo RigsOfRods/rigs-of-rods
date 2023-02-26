@@ -28,12 +28,12 @@ class GenericDocumentClass
     /**
     * Loads and parses a document from OGRE resource system.
     */
-    bool LoadFromResource(string resource_name, string resource_group_name, int options = 0);
+    bool loadFromResource(string resource_name, string resource_group_name, int options = 0);
     
     /**
     * Saves the document to OGRE resource system.
     */
-    bool SaveToResource(string resource_name, string resource_group_name);
+    bool saveToResource(string resource_name, string resource_group_name);
 };
 
 /// @}    //addtogroup Script2Game

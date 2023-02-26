@@ -24,29 +24,28 @@ enum TokenType
  */
 class GenericDocReaderClass
 {
+    // PLEASE maintain the same order as in 'GenericFileFormat.h' and 'GenericFileFormatAngelscript.cpp'
+    
     GenericDocReader(GenericDocumentPtr@ d);
 
-    bool MoveNext();
-    uint GetPos();
-    bool SeekNextLine();
-    int CountLineArgs();
-    bool EndOfFile(int offset = 0);
+    bool moveNext();
+    uint getPos();
+    bool seekNextLine();
+    int countLineArgs();
+    bool endOfFile(int offset = 0);
+    TokenType tokenType(int offset = 0);
 
-    TokenType GetTokType(int offset = 0);
-    string GetStringData(int offset = 0);
-    float GetFloatData(int offset = 0);
+    string getTokString(int offset = 0);
+    float getTokFloat(int offset = 0);
+    bool gettokBool(int offset = 0);
+    string getTokKeyword(int offset = 0);
+    string getTokComment(int offset = 0);
 
-    string GetTokString(int offset = 0);
-    float GetTokFloat(int offset = 0);
-    bool GetTokBool(int offset = 0);
-    string GetTokKeyword(int offset = 0);
-    string GetTokComment(int offset = 0);
-
-    bool IsTokString(int offset = 0);
-    bool IsTokFloat(int offset = 0);
-    bool IsTokBool(int offset = 0);
-    bool IsTokKeyword(int offset = 0);
-    bool IsTokComment(int offset = 0);
+    bool isTokString(int offset = 0);
+    bool isTokFloat(int offset = 0);
+    bool isTokBool(int offset = 0);
+    bool isTokKeyword(int offset = 0);
+    bool isTokComment(int offset = 0);
 };
 
 /// @}    //addtogroup Script2Game
