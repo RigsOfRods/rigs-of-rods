@@ -151,6 +151,7 @@ namespace RoR
     typedef RefCountingObjectPtr<ProceduralObject> ProceduralObjectPtr;
     typedef RefCountingObjectPtr<ProceduralRoad> ProceduralRoadPtr;
     typedef RefCountingObjectPtr<ProceduralManager> ProceduralManagerPtr;
+    typedef RefCountingObjectPtr<VehicleAI> VehicleAIPtr;
 
     namespace GUI
     {

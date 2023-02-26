@@ -120,9 +120,7 @@ Actor::~Actor()
         delete m_replay_handler;
     m_replay_handler = nullptr;
 
-    if (ar_vehicle_ai)
-        delete ar_vehicle_ai;
-    ar_vehicle_ai = 0;
+    ar_vehicle_ai = nullptr; // RefCountingObjectPtr<> will handle the cleanup.
 
     // TODO: Make sure we catch everything here
     // remove all scene nodes

@@ -365,8 +365,8 @@ public:
 
     int getNumTrucksByFlag(int flag);
 
-    VehicleAI* getCurrentTruckAI();
-    VehicleAI* getTruckAIByNum(int num);
+    VehicleAIPtr getCurrentTruckAI();
+    VehicleAIPtr getTruckAIByNum(int num);
 
     ///@}
 

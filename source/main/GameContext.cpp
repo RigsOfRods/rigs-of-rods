@@ -1711,7 +1711,7 @@ void GameContext::UpdateTruckInputEvents(float dt)
     if (m_player_actor->isBeingReset() || m_player_actor->ar_physics_paused)
         return;
 #ifdef USE_ANGELSCRIPT
-    if (m_player_actor->ar_vehicle_ai && m_player_actor->ar_vehicle_ai->IsActive())
+    if (m_player_actor->ar_vehicle_ai && m_player_actor->ar_vehicle_ai->isActive())
         return;
 #endif // USE_ANGELSCRIPT
 

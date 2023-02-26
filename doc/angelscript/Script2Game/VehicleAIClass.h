@@ -62,43 +62,63 @@ enum Ai_values
  */
 class VehicleAIClass
 {
+    // PLEASE maintain the same order as in 'bindings/VehicleAiAngelscript.cpp' and 'VehicleAI.h'
+    
 public:
 	/**
 	 *  Activates/Deactivates the AI.
-	 *  @param [in] value Activate or deactivation the AI
+	 *  @param value Activate or deactivation the AI
 	 */
-	void SetActive(bool value);
+	void setActive(bool value);
+    
+    /**
+     *  Returns the status of the AI.
+     *  @return True if the AI is driving
+     */
+    bool isActive();    
+    
 	/**
 	 *  Adds one waypoint.
 	 *
-	 *  @param [in] id The waypoint ID.
-	 *  @param [in] point The coordinates of the waypoint.
+	 *  @param id The waypoint ID.
+	 *  @param point The coordinates of the waypoint.
 	 */
-	void AddWaypoint(Ogre::String& id, Ogre::Vector3 point);
+	void addWaypoint(string const&in id, vector3 const&in pos);
+    
 	/**
 	 *  Adds a dictionary with waypoints.
-	 *  @param [in] d Dictionary with waypoints
+	 *  @param d Dictionary with waypoints (string ID -> vector3 pos)
 	 */
-	void AddWaypoints(AngelScript::CScriptDictionary d);
+	void addWaypoints(dictionary &in d);
+    
 	/**
 	 *  Adds a event
 	 *
-	 *  @param [in] id The waypoint ID.
-	 *  @param [in] ev The ID of the event.
+	 *  @param id The waypoint ID.
+	 *  @param ev The ID of the event.
 	 *
 	 *  @see Ai_events
 	 */
-	void AddEvent(Ogre::String id, int ev);
+	void addEvent(string const&in id, int ev);
+    
 	/**
 	 *  Sets a value at a waypoint.
 	 *
-	 *  @param [in] id The waypoint ID.
-	 *  @param [in] value_id The ID of the value that will be set.
-	 *  @param [in] value The value itself.
+	 *  @param id The waypoint ID.
+	 *  @param value_id The ID of the value that will be set.
+	 *  @param value The value itself.
 	 *
 	 *  @see Ai_values
 	 */
-	void SetValueAtWaypoint(Ogre::String id, int value_id, float value);
+	void setValueAtWaypoint(string const&in id, int value_id, float value);
+    
+    /**
+     *  Gets offset translation based on vehicle rotation and waypoints
+     *
+     *  @param offset The offset.
+     *  @param wp The waypoint index.
+     */
+    vector3 getTranslation(int offset, unsigned int wp);
 
 }
 
