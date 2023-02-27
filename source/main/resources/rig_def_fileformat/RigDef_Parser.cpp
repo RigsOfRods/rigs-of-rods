@@ -25,6 +25,7 @@
 
 #include "RigDef_Parser.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "SimConstants.h"
 #include "CacheSystem.h"

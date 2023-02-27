@@ -31,7 +31,7 @@ using namespace GUI;
 
 void NodeBeamUtils::Draw()
 {
-    Actor* actor = App::GetGameContext()->GetPlayerActor();
+    ActorPtr actor = App::GetGameContext()->GetPlayerActor();
     if (!actor)
     {
         this->SetVisible(false);

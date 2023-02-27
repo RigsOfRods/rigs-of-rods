@@ -39,7 +39,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-VehicleAI::VehicleAI(Actor* b) :
+VehicleAI::VehicleAI(ActorPtr b) :
     is_waiting(false),
     wait_time(0.0f)
 {
@@ -419,7 +419,7 @@ void VehicleAI::update(float dt, int doUpdate)
             }
 
             // Collision avoidance with other actors
-            for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+            for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
                 if (actor->ar_driveable == NOT_DRIVEABLE) // Ignore objects that may be actors
                     continue;
@@ -490,7 +490,7 @@ void VehicleAI::update(float dt, int doUpdate)
             }
 
             // Collision avoidance with other actors
-            for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+            for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
                 if (actor->ar_driveable == NOT_DRIVEABLE) // Ignore objects that may be actors
                     continue;

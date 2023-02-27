@@ -58,7 +58,7 @@ protected:
 
     NodeNum_t minnode = NODENUM_INVALID;
     float mindist;
-    Actor* grab_truck;
+    ActorPtr grab_truck;
     Ogre::Vector3 lastgrabpos;
     int lastMouseX, lastMouseY;
 

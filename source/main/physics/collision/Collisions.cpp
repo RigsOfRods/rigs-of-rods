@@ -900,7 +900,7 @@ bool Collisions::collisionCorrect(Vector3 *refpos, bool envokeScriptCallbacks)
     return contacted;
 }
 
-bool Collisions::permitEvent(Actor* b, CollisionEventFilter filter)
+bool Collisions::permitEvent(ActorPtr b, CollisionEventFilter filter)
 {
     switch (filter)
     {

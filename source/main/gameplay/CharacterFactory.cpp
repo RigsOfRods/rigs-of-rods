@@ -86,7 +86,7 @@ void CharacterFactory::Update(float dt)
     }
 }
 
-void CharacterFactory::UndoRemoteActorCoupling(Actor* actor)
+void CharacterFactory::UndoRemoteActorCoupling(ActorPtr actor)
 {
     for (auto& c : m_remote_characters)
     {

@@ -21,6 +21,7 @@
 
 #include "SkyXManager.h"
 
+#include "Actor.h"
 #include "AppContext.h"
 #include "CameraManager.h"
 #include "GameContext.h"

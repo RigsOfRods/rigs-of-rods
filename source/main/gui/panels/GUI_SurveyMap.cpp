@@ -138,7 +138,7 @@ void SurveyMap::Draw()
         // Calc. view center
         smallmap_size = mTerrainSize * (1.0f - mMapZoom);
         Ogre::Vector2 player_map_pos;
-        Actor* actor = App::GetGfxScene()->GetSimDataBuffer().simbuf_player_actor;
+        ActorPtr actor = App::GetGfxScene()->GetSimDataBuffer().simbuf_player_actor;
         if (actor)
         {
             auto& actor_data = actor->GetGfxActor()->GetSimDataBuffer();
@@ -422,7 +422,7 @@ void SurveyMap::setMapZoomRelative(float delta)
 }
 
 
-const char* SurveyMap::getTypeByDriveable(ActorType driveable, Actor* actor)
+const char* SurveyMap::getTypeByDriveable(ActorType driveable, ActorPtr actor)
 {
     switch (driveable)
     {
@@ -443,7 +443,7 @@ const char* SurveyMap::getTypeByDriveable(ActorType driveable, Actor* actor)
     }
 }
 
-const char* SurveyMap::getAIType(Actor* actor)
+const char* SurveyMap::getAIType(ActorPtr actor)
 {
     if (actor->ar_engine)
     {

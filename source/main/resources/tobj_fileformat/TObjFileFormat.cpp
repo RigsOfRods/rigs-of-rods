@@ -19,6 +19,7 @@
 
 #include "TObjFileFormat.h"
 
+#include "Actor.h"
 #include "ProceduralRoad.h"
 
 #define LOGSTREAM Ogre::LogManager::getSingleton().stream() << "[RoR|TObj fileformat] "

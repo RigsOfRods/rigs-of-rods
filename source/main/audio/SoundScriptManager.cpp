@@ -98,7 +98,7 @@ SoundScriptManager::~SoundScriptManager()
         delete sound_manager;
 }
 
-void SoundScriptManager::trigOnce(Actor* actor, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigOnce(ActorPtr actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -126,7 +126,7 @@ void SoundScriptManager::trigOnce(int actor_id, int trig, int linkType, int link
     }
 }
 
-void SoundScriptManager::trigStart(Actor* actor, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigStart(ActorPtr actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -157,7 +157,7 @@ void SoundScriptManager::trigStart(int actor_id, int trig, int linkType, int lin
     }
 }
 
-void SoundScriptManager::trigStop(Actor* actor, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigStop(ActorPtr actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -187,7 +187,7 @@ void SoundScriptManager::trigStop(int actor_id, int trig, int linkType, int link
     }
 }
 
-void SoundScriptManager::trigKill(Actor* actor, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigKill(ActorPtr actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -217,7 +217,7 @@ void SoundScriptManager::trigKill(int actor_id, int trig, int linkType, int link
     }
 }
 
-void SoundScriptManager::trigToggle(Actor* actor, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigToggle(ActorPtr actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -239,7 +239,7 @@ void SoundScriptManager::trigToggle(int actor_id, int trig, int linkType, int li
         trigStart(actor_id, trig, linkType, linkItemID);
 }
 
-bool SoundScriptManager::getTrigState(Actor* actor, int trig, int linkType, int linkItemID)
+bool SoundScriptManager::getTrigState(ActorPtr actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return false;
@@ -258,7 +258,7 @@ bool SoundScriptManager::getTrigState(int actor_id, int trig, int linkType, int 
     return state_map[linkType][linkItemID][actor_id][trig];
 }
 
-void SoundScriptManager::modulate(Actor* actor, int mod, float value, int linkType, int linkItemID)
+void SoundScriptManager::modulate(ActorPtr actor, int mod, float value, int linkType, int linkItemID)
 {
     if (disabled)
         return;

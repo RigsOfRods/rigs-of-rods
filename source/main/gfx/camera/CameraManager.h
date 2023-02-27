@@ -64,7 +64,7 @@ public:
     Ogre::Camera*     GetCamera()                 { return m_camera; }
 
     void NotifyContextChange();
-    void NotifyVehicleChanged(Actor* new_vehicle);
+    void NotifyVehicleChanged(ActorPtr new_vehicle);
 
     void CameraBehaviorOrbitReset();
     bool CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg);
@@ -82,7 +82,7 @@ public:
 protected:
 
     void switchBehavior(CameraBehaviors new_behavior);
-    void SwitchBehaviorOnVehicleChange(CameraBehaviors new_behavior, Actor* new_vehicle);
+    void SwitchBehaviorOnVehicleChange(CameraBehaviors new_behavior, ActorPtr new_vehicle);
     void ToggleCameraBehavior(CameraBehaviors new_behavior); //!< Only accepts FREE and FREEFIX modes
     void ActivateNewBehavior(CameraBehaviors new_behavior, bool reset);
     void UpdateCurrentBehavior();
@@ -110,7 +110,7 @@ protected:
     CameraBehaviors      m_cam_before_toggled;  //!< Toggled modes (FREE, FREEFIX) remember original state.
     CameraBehaviors      m_prev_toggled_cam;    //!< Switching toggled modes (FREE, FREEFIX) keeps 1-slot history.
     // Old `CameraContext`
-    Actor*               m_cct_player_actor; // TODO: duplicates `GameContext::m_player_actor`
+    ActorPtr             m_cct_player_actor; // TODO: duplicates `GameContext::m_player_actor`
     Ogre::Degree         m_cct_rot_scale;
     Ogre::Real           m_cct_dt;
     Ogre::Real           m_cct_trans_scale;

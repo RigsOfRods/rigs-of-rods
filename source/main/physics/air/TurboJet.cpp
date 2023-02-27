@@ -33,7 +33,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-Turbojet::Turbojet(Actor* actor, NodeNum_t tnodefront, NodeNum_t tnodeback, NodeNum_t tnoderef, RigDef::Turbojet & def)
+Turbojet::Turbojet(ActorPtr actor, NodeNum_t tnodefront, NodeNum_t tnodeback, NodeNum_t tnoderef, RigDef::Turbojet & def)
 {
     m_actor = actor;
 #ifdef USE_OPENAL

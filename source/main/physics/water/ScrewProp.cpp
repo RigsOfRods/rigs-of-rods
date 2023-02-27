@@ -34,7 +34,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-Screwprop::Screwprop(Actor* a, NodeNum_t noderef, NodeNum_t nodeback, NodeNum_t nodeup, float fullpower) :
+Screwprop::Screwprop(ActorPtr a, NodeNum_t noderef, NodeNum_t nodeback, NodeNum_t nodeup, float fullpower) :
     m_actor(a)
     , noderef(noderef)
     , nodeback(nodeback)

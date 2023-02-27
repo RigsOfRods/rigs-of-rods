@@ -1127,14 +1127,14 @@ void ActorSpawner::ProcessSoundSource2(RigDef::SoundSource2 & def)
 #endif // USE_OPENAL
 }
 
-void ActorSpawner::AddSoundSourceInstance(Actor *vehicle, Ogre::String const & sound_script_name, int node_index, int type)
+void ActorSpawner::AddSoundSourceInstance(ActorPtr const& vehicle, Ogre::String const & sound_script_name, int node_index, int type)
 {
 #ifdef USE_OPENAL
     AddSoundSource(vehicle, App::GetSoundScriptManager()->createInstance(sound_script_name, vehicle->ar_instance_id, nullptr), (NodeNum_t)node_index);
 #endif // USE_OPENAL
 }
 
-void ActorSpawner::AddSoundSource(Actor *vehicle, SoundScriptInstance *sound_script, NodeNum_t node_index, int type)
+void ActorSpawner::AddSoundSource(ActorPtr const& vehicle, SoundScriptInstance *sound_script, NodeNum_t node_index, int type)
 {
     if (! CheckSoundScriptLimit(vehicle, 1))
     {
@@ -6005,7 +6005,7 @@ bool ActorSpawner::CheckTexcoordLimit(unsigned int count)
 }
 
 /* Static version */
-bool ActorSpawner::CheckSoundScriptLimit(Actor *vehicle, unsigned int count)
+bool ActorSpawner::CheckSoundScriptLimit(ActorPtr const& vehicle, unsigned int count)
 {
     if ((vehicle->ar_num_soundsources + count) > MAX_SOUNDSCRIPTS_PER_TRUCK)
     {
@@ -6122,7 +6122,7 @@ void ActorSpawner::SetBeamDamping(beam_t & beam, float damping)
     beam.d = damping;
 }
 
-void ActorSpawner::SetupDefaultSoundSources(Actor *vehicle)
+void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
 {
     int trucknum = vehicle->ar_instance_id;
     int ar_exhaust_pos_node = vehicle->ar_exhaust_pos_node;

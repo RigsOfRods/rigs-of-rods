@@ -16,6 +16,7 @@
 
 #include "GUI_ScriptMonitor.h"
 
+#include "Actor.h"
 #include "ContentManager.h"
 #include "ScriptEngine.h"
 

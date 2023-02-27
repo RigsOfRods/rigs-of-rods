@@ -69,7 +69,8 @@ void RoR::RegisterActor(asIScriptEngine *engine)
 
 
     // class Actor (historically Beam)
-    result = engine->RegisterObjectType("BeamClass", sizeof(Actor), asOBJ_REF); ROR_ASSERT(result>=0);
+    Actor::RegisterRefCountingObject(engine, "BeamClass");
+    ActorPtr::RegisterRefCountingObjectPtr(engine, "BeamClassPtr", "BeamClass");
 
     // - physics state (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "TruckState getTruckState()", asMETHOD(Actor,getTruckState), asCALL_THISCALL); ROR_ASSERT(result>=0);
@@ -96,7 +97,6 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "void toggleCustomParticles()", asMETHOD(Actor,toggleCustomParticles), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "bool getCustomParticleMode()", asMETHOD(Actor,getCustomParticleMode), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "bool isLocked()", asMETHOD(Actor,isLocked), asCALL_THISCALL); ROR_ASSERT(result>=0);
-
     // - subsystems (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "VehicleAIClassPtr @getVehicleAI()", asMETHOD(Actor,getVehicleAI), asCALL_THISCALL); ROR_ASSERT(result>=0);
 
@@ -118,9 +118,4 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "string getTruckFileResourceGroup()", asMETHOD(Actor, getTruckFileResourceGroup), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int  getTruckType()", asMETHOD(Actor,getTruckType), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "string getSectionConfig()", asMETHOD(Actor, getSectionConfig), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-
-    // - refcount
-    result = engine->RegisterObjectBehaviour("BeamClass", asBEHAVE_ADDREF, "void f()", asMETHOD(Actor,addRef), asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectBehaviour("BeamClass", asBEHAVE_RELEASE, "void f()", asMETHOD(Actor,release), asCALL_THISCALL); ROR_ASSERT(result>=0);
-
 }

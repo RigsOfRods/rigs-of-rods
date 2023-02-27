@@ -234,7 +234,7 @@ float GameScript::getWaterHeight()
     return result;
 }
 
-Actor* GameScript::getCurrentTruck()
+ActorPtr GameScript::getCurrentTruck()
 {
     return App::GetGameContext()->GetPlayerActor();
 }
@@ -257,7 +257,7 @@ void GameScript::setGravity(float value)
     App::GetGameContext()->GetTerrain()->setGravity(value);
 }
 
-Actor* GameScript::getTruckByNum(int num)
+ActorPtr GameScript::getTruckByNum(int num)
 {
     return App::GetGameContext()->GetActorManager()->GetActorById(num);
 }
@@ -270,7 +270,7 @@ int GameScript::getNumTrucks()
 int GameScript::getNumTrucksByFlag(int flag)
 {
     int result = 0;
-    for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+    for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if (!flag || static_cast<int>(actor->ar_state) == flag)
             result++;
@@ -280,7 +280,7 @@ int GameScript::getNumTrucksByFlag(int flag)
 
 int GameScript::getCurrentTruckNumber()
 {
-    Actor* actor = App::GetGameContext()->GetPlayerActor();
+    ActorPtr actor = App::GetGameContext()->GetPlayerActor();
     return (actor != nullptr) ? actor->ar_instance_id : -1;
 }
 
@@ -374,10 +374,10 @@ void GameScript::repairVehicle(const String& instance, const String& box, bool k
 
 void GameScript::removeVehicle(const String& event_source_instance_name, const String& event_source_box_name)
 {
-    Actor* actor = App::GetGameContext()->FindActorByCollisionBox(event_source_instance_name, event_source_box_name);
+    ActorPtr actor = App::GetGameContext()->FindActorByCollisionBox(event_source_instance_name, event_source_box_name);
     if (actor)
     {
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
     }
 }
 
@@ -767,7 +767,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     if (unit_id == SCRIPTUNITID_INVALID)
         return 2;
 
-    Actor* player_actor = App::GetGameContext()->GetPlayerActor();
+    ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
 
     if (player_actor == nullptr)
         return 1;
@@ -800,7 +800,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     j_doc.AddMember("actor-hash", rapidjson::StringRef(player_actor->ar_filehash.c_str()), j_doc.GetAllocator());
 
     rapidjson::Value j_linked_actors(rapidjson::kArrayType);
-    for (auto actor : player_actor->getAllLinkedActors())
+    for (ActorPtr actor : player_actor->getAllLinkedActors())
     {
         rapidjson::Value j_actor(rapidjson::kObjectType);
         j_actor.AddMember("actor-name", rapidjson::StringRef(actor->ar_design_name.c_str()), j_doc.GetAllocator());
@@ -855,7 +855,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 
 void GameScript::boostCurrentTruck(float factor)
 {
-    Actor* actor = App::GetGameContext()->GetPlayerActor();
+    ActorPtr actor = App::GetGameContext()->GetPlayerActor();
     if (actor && actor->ar_engine)
     {
         float rpm = actor->ar_engine->GetEngineRpm();
@@ -915,7 +915,7 @@ VehicleAIPtr GameScript::getCurrentTruckAI()
 VehicleAIPtr GameScript::getTruckAIByNum(int num)
 {
     VehicleAIPtr result = nullptr;
-    Actor* actor = App::GetGameContext()->GetActorManager()->GetActorById(num);
+    ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(num);
     if (actor != nullptr)
     {
         result = actor->ar_vehicle_ai;
@@ -923,7 +923,7 @@ VehicleAIPtr GameScript::getTruckAIByNum(int num)
     return result;
 }
 
-Actor* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
+ActorPtr GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot)
 {
     ActorSpawnRequest rq;
     rq.asr_position = pos;
@@ -932,7 +932,7 @@ Actor* GameScript::spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre:
     return App::GetGameContext()->SpawnActor(rq);
 }
 
-Actor* GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::String& truckSectionConfig, std::string& truckSkin, int x)
+ActorPtr GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::String& truckSectionConfig, std::string& truckSkin, int x)
 {
     ActorSpawnRequest rq;
     rq.asr_position = pos;

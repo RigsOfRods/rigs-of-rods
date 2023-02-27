@@ -281,6 +281,7 @@ enum class ActorState
     NETWORKED_HIDDEN, //!< not simulated, not updated (remote)
     LOCAL_REPLAY,
     LOCAL_SLEEPING,   //!< sleeping (local) actor
+    DISPOSED          //!< removed from simulation, still in memory to satisfy pointers.
 };
 
 enum class AeroEngineType
@@ -360,7 +361,7 @@ struct beam_t
     SpecialBeam     bounded;
     BeamType        bm_type;
     bool            bm_inter_actor;        //!< in case p2 is on another actor
-    Actor*          bm_locked_actor;       //!< in case p2 is on another actor
+    ActorPtr        bm_locked_actor;       //!< in case p2 is on another actor
     bool            bm_disabled;
     bool            bm_broken;
 
@@ -498,7 +499,7 @@ struct hook_t
     node_t* hk_hook_node;
     node_t* hk_lock_node;
     beam_t* hk_beam;
-    Actor*  hk_locked_actor;
+    ActorPtr  hk_locked_actor;
 };
 
 struct ropable_t
@@ -517,12 +518,12 @@ struct rope_t
     int        rp_group;
     beam_t*    rp_beam;
     ropable_t* rp_locked_ropable;
-    Actor*     rp_locked_actor;
+    ActorPtr     rp_locked_actor;
 };
 
 struct tie_t
 {
-    Actor*     ti_locked_actor;
+    ActorPtr     ti_locked_actor;
     beam_t*    ti_beam;
     ropable_t* ti_locked_ropable;
     int        ti_group;
@@ -794,7 +795,7 @@ struct ActorModifyRequest
         WAKE_UP
     };
 
-    Actor*              amr_actor;
+    ActorPtr            amr_actor;
     Type                amr_type;
     std::shared_ptr<rapidjson::Document>
                         amr_saved_state;

@@ -25,6 +25,7 @@
 
 #include "GUI_GameAbout.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "GUIManager.h"
 #include "Language.h"

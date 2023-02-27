@@ -31,7 +31,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-Airbrake::Airbrake(Actor* actor, const char* basename, int num, node_t* ndref, node_t* ndx, node_t* ndy, node_t* nda, Ogre::Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float ty1, float tx2, float ty2, float lift_coef)
+Airbrake::Airbrake(ActorPtr actor, const char* basename, int num, node_t* ndref, node_t* ndx, node_t* ndy, node_t* nda, Ogre::Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float ty1, float tx2, float ty2, float lift_coef)
 {
     snode = 0;
     noderef = ndref;

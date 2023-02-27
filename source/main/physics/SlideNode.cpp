@@ -26,6 +26,7 @@
 
 #include "SlideNode.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "SimData.h"
 

@@ -22,6 +22,7 @@
 #pragma once
 
 #include "Application.h"
+#include "Actor.h"
 
 namespace RoR {
 
@@ -38,7 +39,7 @@ class EngineSim : public ZeroedMemoryAllocator
 
 public:
 
-    EngineSim(float min_rpm, float max_rpm, float torque, std::vector<float> gears, float dratio, Actor* actor);
+    EngineSim(float min_rpm, float max_rpm, float torque, std::vector<float> gears, float dratio, ActorPtr actor);
     ~EngineSim();
 
     /// Sets current engine state;
@@ -153,7 +154,7 @@ private:
     };
 
     // Vehicle
-    Actor*         m_actor;
+    ActorPtr         m_actor;
 
     // Gearbox
     float          m_ref_wheel_revolutions; //!< Gears; estimated wheel revolutions based on current vehicle speed along the longi. axis

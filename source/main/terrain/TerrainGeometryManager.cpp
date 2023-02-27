@@ -21,6 +21,7 @@
 
 #include "TerrainGeometryManager.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "ContentManager.h"
 #include "Language.h"

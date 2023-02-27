@@ -100,7 +100,7 @@ void OutGauge::Connect()
 #endif // _WIN32
 }
 
-bool OutGauge::Update(float dt, Actor* truck)
+bool OutGauge::Update(float dt, ActorPtr truck)
 {
 #if defined(_WIN32) && defined(USE_SOCKETW)
     if (!working)

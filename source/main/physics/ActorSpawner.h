@@ -96,13 +96,13 @@ public:
     /// @name Processing
     /// @{
     void                           ConfigureSections(Ogre::String const & sectionconfig, RigDef::DocumentPtr def);
-    void                           ProcessNewActor(Actor *actor, ActorSpawnRequest rq, RigDef::DocumentPtr def);
-    static void                    SetupDefaultSoundSources(Actor *actor);
+    void                           ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef::DocumentPtr def);
+    static void                    SetupDefaultSoundSources(ActorPtr const& actor);
     /// @}
 
     /// @name Utility
     /// @{
-    Actor*                         GetActor() { return m_actor; }
+    ActorPtr                       GetActor() { return m_actor; }
     ActorMemoryRequirements const& GetMemoryRequirements() { return m_memory_requirements; }
     std::string                    GetSubmeshGroundmodelName();
     /// @}
@@ -364,7 +364,7 @@ private:
     bool                          CheckTexcoordLimit(unsigned int count);
     bool                          CheckCabLimit(unsigned int count);
     bool                          CheckCameraRailLimit(unsigned int count);
-    static bool                   CheckSoundScriptLimit(Actor *vehicle, unsigned int count);
+    static bool                   CheckSoundScriptLimit(ActorPtr const& vehicle, unsigned int count);
     bool                          CheckAeroEngineLimit(unsigned int count);
     bool                          CheckScrewpropLimit(unsigned int count);
     /// @}
@@ -418,8 +418,8 @@ private:
 
     /// @name Audio setup
     /// @{
-    static void                   AddSoundSource(Actor *vehicle, SoundScriptInstance *sound_script, NodeNum_t node_index, int type = -2);
-    static void                   AddSoundSourceInstance(Actor *vehicle, Ogre::String const & sound_script_name, int node_index, int type = -2);
+    static void                   AddSoundSource(ActorPtr const& vehicle, SoundScriptInstance *sound_script, NodeNum_t node_index, int type = -2);
+    static void                   AddSoundSourceInstance(ActorPtr const& vehicle, Ogre::String const & sound_script_name, int node_index, int type = -2);
     /// @}
 
     /// Maintenance
@@ -437,7 +437,7 @@ private:
 
     /// @name Settings
     /// @{
-    Actor*                   m_actor;
+    ActorPtr                 m_actor;
     RigDef::DocumentPtr      m_file;
     std::list<std::shared_ptr<RigDef::Document::Module>>
                              m_selected_modules;

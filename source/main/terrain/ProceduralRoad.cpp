@@ -20,6 +20,7 @@
 
 #include "ProceduralRoad.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "Collisions.h"
 #include "Console.h"

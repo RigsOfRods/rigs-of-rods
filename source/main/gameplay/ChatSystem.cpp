@@ -20,6 +20,7 @@
 
 #include "ChatSystem.h"
 
+#include "Actor.h"
 #include "Console.h"
 #include "GUIManager.h"
 #include "Language.h"

@@ -136,7 +136,7 @@ public:
         reply << m_name << ": ";
         Console::MessageType reply_type = Console::CONSOLE_SYSTEM_REPLY;
         Ogre::Vector3 pos;
-        Actor* const actor = App::GetGameContext()->GetPlayerActor();
+        ActorPtr const actor = App::GetGameContext()->GetPlayerActor();
         if (actor)
         {
             pos = actor->getPosition();
@@ -256,7 +256,7 @@ public:
         reply << m_name << ": ";
         Console::MessageType reply_type = Console::CONSOLE_SYSTEM_REPLY;
 
-        Actor* b = App::GetGameContext()->GetPlayerActor();
+        ActorPtr b = App::GetGameContext()->GetPlayerActor();
         if (!b && App::GetGameContext()->GetPlayerCharacter())
         {
             Ogre::Vector3 pos = App::GetGameContext()->GetPlayerCharacter()->getPosition();
@@ -296,7 +296,7 @@ public:
             reply_type = Console::CONSOLE_SYSTEM_REPLY;
             Ogre::Vector3 pos(PARSEREAL(args[1]), PARSEREAL(args[2]), PARSEREAL(args[3]));
 
-            Actor* b = App::GetGameContext()->GetPlayerActor();
+            ActorPtr b = App::GetGameContext()->GetPlayerActor();
             if (!b && App::GetGameContext()->GetPlayerCharacter())
             {
                 App::GetGameContext()->GetPlayerCharacter()->setPosition(pos);

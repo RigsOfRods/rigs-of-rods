@@ -56,7 +56,7 @@
 
 using namespace RoR;
 
-RoR::GfxActor::GfxActor(Actor* actor, ActorSpawner* spawner, std::string ogre_resource_group,
+RoR::GfxActor::GfxActor(ActorPtr actor, ActorSpawner* spawner, std::string ogre_resource_group,
                         RoR::Renderdash* renderdash):
     m_actor(actor),
     m_custom_resource_group(ogre_resource_group),
@@ -1799,7 +1799,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
 
     // Linked Actors
     m_linked_gfx_actors.clear();
-    for (auto actor : m_actor->getAllLinkedActors())
+    for (ActorPtr actor : m_actor->getAllLinkedActors())
     {
         m_linked_gfx_actors.insert(actor->GetGfxActor());
     }

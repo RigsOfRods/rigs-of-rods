@@ -32,7 +32,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-Replay::Replay(Actor* actor, int _numFrames)
+Replay::Replay(ActorPtr actor, int _numFrames)
 {
     m_actor = actor;
     numFrames = _numFrames;
@@ -48,7 +48,9 @@ Replay::Replay(Actor* actor, int _numFrames)
 
     outOfMemory = false;
 
-    unsigned long bsize = (actor->ar_num_nodes * numFrames * sizeof(node_simple_t) + actor->ar_num_beams * numFrames * sizeof(beam_simple_t) + numFrames * sizeof(unsigned long)) / 1024.0f;
+    const int numNodes = actor->ar_num_nodes;
+    const int numBeams = actor->ar_num_beams;
+    unsigned long bsize = (numNodes * numFrames * sizeof(node_simple_t) + numBeams * numFrames * sizeof(beam_simple_t) + numFrames * sizeof(unsigned long)) / 1024.0f;
     LOG("replay buffer size: " + TOSTRING(bsize) + " kB");
 
     writeIndex = 0;

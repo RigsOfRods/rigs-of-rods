@@ -147,6 +147,7 @@ namespace RoR
     struct client_t;
     struct authorinfo_t;
 
+    typedef RefCountingObjectPtr<Actor> ActorPtr;
     typedef RefCountingObjectPtr<LocalStorage> LocalStoragePtr;
     typedef RefCountingObjectPtr<ProceduralPoint> ProceduralPointPtr;
     typedef RefCountingObjectPtr<ProceduralObject> ProceduralObjectPtr;

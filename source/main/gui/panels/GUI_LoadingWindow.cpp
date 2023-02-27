@@ -21,6 +21,7 @@
 #include "GUI_LoadingWindow.h"
 #include <fmt/format.h>
 
+#include "Actor.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
 #include "OgreImGui.h"

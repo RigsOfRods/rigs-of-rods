@@ -192,7 +192,7 @@ void AppContext::windowResized(Ogre::RenderWindow* rw)
     App::GetOverlayWrapper()->windowResized();
     if (App::sim_state->getEnum<AppState>() == RoR::AppState::SIMULATION)
     {
-        for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
+        for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
         {
             actor->ar_dashboard->windowResized();
         }

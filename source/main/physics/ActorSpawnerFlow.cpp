@@ -54,7 +54,7 @@ using namespace RoR;
     this->SetCurrentKeyword(RigDef::Keyword::INVALID);                  \
 }
 
-void ActorSpawner::ProcessNewActor(Actor* actor, ActorSpawnRequest rq, RigDef::DocumentPtr def)
+void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef::DocumentPtr def)
 {
     m_actor = actor;
     m_file = def;

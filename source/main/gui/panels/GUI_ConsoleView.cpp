@@ -22,6 +22,7 @@
 
 #include "GUI_ConsoleView.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "Console.h"
 #include "GUIManager.h"
