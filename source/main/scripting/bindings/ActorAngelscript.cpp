@@ -127,4 +127,5 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "string getTruckFileResourceGroup()", asMETHOD(Actor, getTruckFileResourceGroup), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "int  getTruckType()", asMETHOD(Actor,getTruckType), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "string getSectionConfig()", asMETHOD(Actor, getSectionConfig), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getInstanceId()", asMETHOD(Actor, getInstanceId), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 }

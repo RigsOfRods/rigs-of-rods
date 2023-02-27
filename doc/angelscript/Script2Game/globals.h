@@ -40,34 +40,36 @@ void log(const string message);
 void print(const string message);
 
 /**
- * All the events that can be used by the script.
- * @see game::registerForEvent
- * @see The scriptEvents enum in the Rigs of Rods source code.
+ * Binding of `RoR::scriptEvents`; All the events that can be used by the script.
+ * @see Script2Game::GameScriptClass::registerForEvent()
  */
  enum scriptEvents
  {
- 	SE_TRUCK_ENTER                     = 0x00000004, //!< triggered when switching from person mode to truck mode, the argument refers to the truck number (use `game.getTruckByNum()`)
- 	SE_TRUCK_EXIT                      = 0x00000008, //!< triggered when switching from truck mode to person mode, the argument refers to the truck number (use `game.getTruckByNum()`)
+    SE_EVENTBOX_ENTER                  //!< An actor or person entered an eventbox; Arguments of `eventCallbackEx()`: #1 type, #2 Actor Instance ID (use `game.getTruckByNum()`), #3 Actor node ID, #4 unused, #5 object instance name, #6 eventbox name #7 unused #8 unused.
+    SE_EVENTBOX_EXIT                   //!< An actor or person entered an eventbox; Arguments of `eventCallbackEx()`: #1 type, #2 Actor Instance ID (use `game.getTruckByNum()`), #3 unused, #4 unused, #5 object instance name, #6 eventbox name #7 unused #8 unused.
+     
+ 	SE_TRUCK_ENTER                     //!< triggered when switching from person mode to truck mode, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
+ 	SE_TRUCK_EXIT                      //!< triggered when switching from truck mode to person mode, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
 
- 	SE_TRUCK_ENGINE_DIED               = 0x00000010, //!< triggered when the trucks engine dies (from underrev, water, etc), the argument refers to the truck number (use `game.getTruckByNum()`)
- 	SE_TRUCK_ENGINE_FIRE               = 0x00000020, //!< triggered when the planes engines start to get on fire, the argument refers to the truck number (use `game.getTruckByNum()`)
- 	SE_TRUCK_TOUCHED_WATER             = 0x00000040, //!< triggered when any part of the truck touches water, the argument refers to the truck number (use `game.getTruckByNum()`)
- 	SE_TRUCK_LIGHT_TOGGLE              = 0x00000400, //!< triggered when the main light is toggled, the argument refers to the truck number (use `game.getTruckByNum()`)
- 	SE_TRUCK_TIE_TOGGLE                = 0x00001000, //!< triggered when the user toggles ties, the argument refers to the truck number (use `game.getTruckByNum()`)
- 	SE_TRUCK_PARKINGBRAKE_TOGGLE       = 0x00002000, //!< triggered when the user toggles the parking brake, the argument refers to the truck number (use `game.getTruckByNum()`)
- 	SE_TRUCK_BEACONS_TOGGLE            = 0x00004000, //!< triggered when the user toggles beacons, the argument refers to the truck number (use `game.getTruckByNum()`)
- 	SE_TRUCK_CPARTICLES_TOGGLE         = 0x00008000, //!< triggered when the user toggles custom particles, the argument refers to the truck number (use `game.getTruckByNum()`)
+ 	SE_TRUCK_ENGINE_DIED               //!< triggered when the trucks engine dies (from underrev, water, etc), the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
+ 	SE_TRUCK_ENGINE_FIRE               //!< triggered when the planes engines start to get on fire, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
+ 	SE_TRUCK_TOUCHED_WATER             //!< triggered when any part of the truck touches water, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
+ 	SE_TRUCK_LIGHT_TOGGLE              //!< triggered when the main light is toggled, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
+ 	SE_TRUCK_TIE_TOGGLE                //!< triggered when the user toggles ties, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
+ 	SE_TRUCK_PARKINGBRAKE_TOGGLE       //!< triggered when the user toggles the parking brake, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
+ 	SE_TRUCK_BEACONS_TOGGLE            //!< triggered when the user toggles beacons, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
+ 	SE_TRUCK_CPARTICLES_TOGGLE         //!< triggered when the user toggles custom particles, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
 
- 	SE_GENERIC_NEW_TRUCK               = 0x00020000, //!< triggered when the user spawns a new truck, the argument refers to the truck number (use `game.getTruckByNum()`)
- 	SE_GENERIC_DELETED_TRUCK           = 0x00040000, //!< triggered when the user deletes a truck, the argument refers to the truck number (use `game.getTruckByNum()`)
+ 	SE_GENERIC_NEW_TRUCK               //!< triggered when the user spawns a new truck, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
+ 	SE_GENERIC_DELETED_TRUCK           //!< triggered when the user deletes a truck, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
     
-    SE_TRUCK_RESET                     = 0x00200000, //!< triggered when the user resets the truck, the argument refers to the truck number (use `game.getTruckByNum()`)
-    SE_TRUCK_TELEPORT                  = 0x00400000, //!< triggered when the user teleports the truck, the argument refers to the truck number (use `game.getTruckByNum()`)
-    SE_TRUCK_MOUSE_GRAB                = 0x00100000, //!< triggered when the user uses the mouse to interact with the actor, the argument refers to the truck number (use `game.getTruckByNum()`)
+    SE_TRUCK_RESET                     //!< triggered when the user resets the truck, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
+    SE_TRUCK_TELEPORT                  //!< triggered when the user teleports the truck, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
+    SE_TRUCK_MOUSE_GRAB                //!< triggered when the user uses the mouse to interact with the actor, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
 
- 	SE_ANGELSCRIPT_MANIPULATIONS       = 0x00800000, //!< triggered when the user tries to dynamically use the scripting capabilities (prevent cheating)
+ 	SE_ANGELSCRIPT_MANIPULATIONS       //!< triggered when the user tries to dynamically use the scripting capabilities (prevent cheating)
 
- 	SE_GENERIC_MESSAGEBOX_CLICK        = 0x01000000, //!< triggered when the user clicks on a message box button, the argument refers to the button pressed
+ 	SE_GENERIC_MESSAGEBOX_CLICK        //!< triggered when the user clicks on a message box button, the argument refers to the button pressed
 
  	SE_ALL_EVENTS                      = 0xffffffff,
 

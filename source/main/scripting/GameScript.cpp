@@ -262,11 +262,6 @@ ActorPtr GameScript::getTruckByNum(int num)
     return App::GetGameContext()->GetActorManager()->GetActorById(num);
 }
 
-int GameScript::getNumTrucks()
-{
-    return (int)App::GetGameContext()->GetActorManager()->GetActors().size();
-}
-
 int GameScript::getNumTrucksByFlag(int flag)
 {
     int result = 0;
@@ -982,6 +977,20 @@ AngelScript::CScriptArray* GameScript::getWaypoints(int x)
     {
         // Set the value of each element
         arr->SetValue(i, &vec[i]);
+    }
+
+    return arr;
+}
+
+AngelScript::CScriptArray* GameScript::getAllTrucks()
+{
+    ActorPtrVec& actors = App::GetGameContext()->GetActorManager()->GetActors();
+    AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(AngelScript::asGetActiveContext()->GetEngine()->GetTypeInfoByDecl("array<BeamClass@>"), actors.size());
+
+    for (AngelScript::asUINT i = 0; i < arr->GetSize(); i++)
+    {
+        // Set the value of each element
+        arr->SetValue(i, &actors[i]);
     }
 
     return arr;

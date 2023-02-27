@@ -341,10 +341,10 @@ public:
     ActorPtr getTruckByNum(int num);
 
     /**
-     * returns the current amount of loaded trucks
-     * @return integer value representing the amount of loaded trucks
+     * returns an array of all currently existing actors.
+     * @return `array<BeamClass@>`
      */
-    int getNumTrucks();
+    AngelScript::CScriptArray* getAllTrucks();
 
     /**
      * returns the current truck number. >=0 when using a truck, -1 when in person mode

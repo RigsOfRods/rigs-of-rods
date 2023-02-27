@@ -216,6 +216,7 @@ public:
     std::string       getTruckFileResourceGroup();
     int               getTruckType() { return ar_driveable; }
     Ogre::String      getSectionConfig() { return m_section_config; }
+    int               getInstanceId() { return ar_instance_id; }
     // not exported to scripting:
     CacheEntry*       getUsedSkin() { return m_used_skin_entry; }
     void              setUsedSkin(CacheEntry* skin) { m_used_skin_entry = skin; }
