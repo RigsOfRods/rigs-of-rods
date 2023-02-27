@@ -21,6 +21,7 @@
 
 #include "InputEngine.h"
 
+#include "Actor.h"
 #include "AppContext.h"
 #include "Console.h"
 #include "ContentManager.h"

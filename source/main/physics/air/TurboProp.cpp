@@ -35,7 +35,7 @@ using namespace Ogre;
 using namespace RoR;
 
 Turboprop::Turboprop(
-    Actor* a,
+    ActorPtr a,
     const char* propname,
     NodeNum_t nr,
     NodeNum_t nb,

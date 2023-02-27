@@ -67,7 +67,7 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
 
 void Actor::CalcForceFeedback(bool doUpdate)
 {
-    if (this == App::GetGameContext()->GetPlayerActor())
+    if (this == App::GetGameContext()->GetPlayerActor().GetRef())
     {
         if (doUpdate)
         {
@@ -988,7 +988,7 @@ void Actor::CalcCommands(bool doUpdate)
             ar_engine->SetEnginePriming(requested);
         }
 
-        if (doUpdate && this == App::GetGameContext()->GetPlayerActor())
+        if (doUpdate && this == App::GetGameContext()->GetPlayerActor().GetRef())
         {
 #ifdef USE_OPENAL
             if (active > 0)
@@ -1693,7 +1693,7 @@ void Actor::CalcHooks()
             {
                 //enable beam if not enabled yet between those 2 nodes
                 it->hk_beam->p2 = it->hk_lock_node;
-                it->hk_beam->bm_inter_actor = it->hk_locked_actor != 0;
+                it->hk_beam->bm_inter_actor = (it->hk_locked_actor != nullptr);
                 it->hk_beam->L = (it->hk_hook_node->AbsPosition - it->hk_lock_node->AbsPosition).length();
                 it->hk_beam->bm_disabled = false;
                 AddInterActorBeam(it->hk_beam, this, it->hk_locked_actor);

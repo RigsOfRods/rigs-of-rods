@@ -25,6 +25,7 @@
 
 #include "OgreImGui.h"
 
+#include "Actor.h"
 #include "AppContext.h"
 #include "ContentManager.h"
 #include "OgreImGuiOverlay.h"

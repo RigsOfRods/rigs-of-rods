@@ -35,7 +35,7 @@ class Screwprop : public ZeroedMemoryAllocator
 {
 public:
 
-    Screwprop( Actor* actor, NodeNum_t noderef, NodeNum_t nodeback, NodeNum_t nodeup, float power);
+    Screwprop( ActorPtr actor, NodeNum_t noderef, NodeNum_t nodeback, NodeNum_t nodeup, float power);
 
     void updateForces(int update);
     void setThrottle(float val);
@@ -54,7 +54,7 @@ private:
     float throtle;
 
     // Attachment
-    Actor*    m_actor;
+    ActorPtr    m_actor;
     NodeNum_t nodeback;
     NodeNum_t noderef;
     NodeNum_t nodeup;

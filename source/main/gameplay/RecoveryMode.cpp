@@ -115,7 +115,7 @@ void RecoveryMode::UpdateInputEvents(float dt)
 
             if (App::sim_soft_reset_mode->getBool())
             {
-                for (auto actor : App::GetGameContext()->GetPlayerActor()->getAllLinkedActors())
+                for (ActorPtr actor : App::GetGameContext()->GetPlayerActor()->getAllLinkedActors())
                 {
                     actor->requestRotation(rotation, rotation_center);
                     actor->requestTranslation(translation);
@@ -129,7 +129,7 @@ void RecoveryMode::UpdateInputEvents(float dt)
             App::GetGameContext()->GetPlayerActor()->requestAngleSnap(45);
             if (App::sim_soft_reset_mode->getBool())
             {
-                for (auto actor : App::GetGameContext()->GetPlayerActor()->getAllLinkedActors())
+                for (ActorPtr actor : App::GetGameContext()->GetPlayerActor()->getAllLinkedActors())
                 {
                     actor->requestAngleSnap(45);
                 }
@@ -144,7 +144,7 @@ void RecoveryMode::UpdateInputEvents(float dt)
         if (App::sim_soft_reset_mode->getBool())
         {
             reset_type = ActorModifyRequest::Type::SOFT_RESET;
-            for (auto actor : App::GetGameContext()->GetPlayerActor()->getAllLinkedActors())
+            for (ActorPtr actor : App::GetGameContext()->GetPlayerActor()->getAllLinkedActors())
             {
                 ActorModifyRequest* rq = new ActorModifyRequest;
                 rq->amr_actor = actor;

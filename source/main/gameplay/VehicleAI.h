@@ -63,7 +63,7 @@ class VehicleAI : public RefCountingObject<VehicleAI>
     // PLEASE maintain the same order as in 'bindings/VehicleAiAngelscript.cpp' and 'doc/../VehicleAIClass.h'
 
 public:
-    VehicleAI(Actor* b);
+    VehicleAI(ActorPtr b);
     ~VehicleAI();
 
     /**
@@ -138,7 +138,7 @@ private:
     float wait_time=0.f;//!<(seconds) The amount of time the AI has to wait.
 
     float maxspeed = 50;//!<(KM/H) The max speed the AI is allowed to drive.
-    Actor* beam = nullptr;//!< The verhicle the AI is driving.
+    ActorPtr beam;//!< The verhicle the AI is driving.
     bool is_enabled = false;//!< True if the AI is driving.
     Ogre::Vector3 current_waypoint = Ogre::Vector3::ZERO;//!< The coordinates of the waypoint that the AI is driving to.
     Ogre::Vector3 prev_waypoint = Ogre::Vector3::ZERO;;//!< The coordinates of the previous waypoint.

@@ -34,7 +34,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<float> gears, float dratio, Actor* actor) :
+EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<float> gears, float dratio, ActorPtr actor) :
     m_air_pressure(0.0f)
     , m_auto_cur_acc(0.0f)
     , m_auto_mode(AUTOMATIC)

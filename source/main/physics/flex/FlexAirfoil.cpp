@@ -74,7 +74,7 @@ float refairfoilpos[90]={
 
 using namespace Ogre;
 
-FlexAirfoil::FlexAirfoil(Ogre::String const & name, Actor* actor, NodeNum_t pnfld, NodeNum_t pnfrd, NodeNum_t pnflu, NodeNum_t pnfru, NodeNum_t pnbld, NodeNum_t pnbrd, NodeNum_t pnblu, NodeNum_t pnbru, std::string const & texband, Vector2 texlf, Vector2 texrf, Vector2 texlb, Vector2 texrb, char mtype, float controlratio, float mind, float maxd, Ogre::String const & afname, float lift_coef, bool break_able)
+FlexAirfoil::FlexAirfoil(Ogre::String const & name, ActorPtr actor, NodeNum_t pnfld, NodeNum_t pnfrd, NodeNum_t pnflu, NodeNum_t pnfru, NodeNum_t pnbld, NodeNum_t pnbrd, NodeNum_t pnblu, NodeNum_t pnbru, std::string const & texband, Vector2 texlf, Vector2 texrf, Vector2 texlb, Vector2 texrb, char mtype, float controlratio, float mind, float maxd, Ogre::String const & afname, float lift_coef, bool break_able)
     :nfld(pnfld)
     ,nfrd(pnfrd)
     ,nflu(pnflu)

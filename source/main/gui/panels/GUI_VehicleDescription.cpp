@@ -40,7 +40,7 @@ using namespace GUI;
 
 void VehicleDescription::Draw()
 {
-    Actor* actor = App::GetGameContext()->GetPlayerActor();
+    ActorPtr actor = App::GetGameContext()->GetPlayerActor();
     if (!actor)
     {
         m_is_visible = false;

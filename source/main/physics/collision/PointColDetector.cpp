@@ -48,8 +48,8 @@ void PointColDetector::UpdateInterPoint(bool ignorestate)
     m_linked_actors = m_actor->getAllLinkedActors();
 
     int contacters_size = 0;
-    std::vector<Actor*> collision_partners;
-    for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+    std::vector<ActorPtr> collision_partners;
+    for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if (actor != m_actor && (ignorestate || actor->ar_update_physics) &&
                 m_actor->ar_bounding_box.intersects(actor->ar_bounding_box))
@@ -94,7 +94,7 @@ void PointColDetector::update_structures_for_contacters(bool ignoreinternal)
 
     // Insert all contacters into the list of points to consider when building the kdtree
     int refi = 0;
-    for (auto actor : m_collision_partners)
+    for (ActorPtr actor : m_collision_partners)
     {
         bool is_linked = std::find(m_linked_actors.begin(), m_linked_actors.end(), actor) != m_linked_actors.end();
         bool internal_collision = !ignoreinternal && ((actor == m_actor) || is_linked);

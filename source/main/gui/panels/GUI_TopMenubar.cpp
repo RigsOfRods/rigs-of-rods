@@ -109,8 +109,14 @@ void TopMenubar::Update()
 
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
-    auto actors = App::GetGameContext()->GetActorManager()->GetActors();
-    int num_playable_actors = std::count_if(actors.begin(), actors.end(), [](Actor* a) {return !a->ar_hide_in_actor_list;});
+    int num_playable_actors = 0;
+    for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
+    {
+        if (!actor->ar_hide_in_actor_list)
+        {
+            num_playable_actors++;
+        }
+    }
 
     std::string sim_title =         _LC("TopMenubar", "Simulation");
     std::string actors_title = fmt::format("{} ({})", _LC("TopMenubar", "Vehicles"), num_playable_actors);
@@ -245,7 +251,7 @@ void TopMenubar::Update()
     this->DrawSpecialStateBox(window_target_pos.y + topmenu_final_size.y + 10.f);
 
     ImVec2 menu_pos;
-    Actor* current_actor = App::GetGameContext()->GetPlayerActor();
+    ActorPtr current_actor = App::GetGameContext()->GetPlayerActor();
     switch (m_open_menu)
     {
     case TopMenu::TOPMENU_SIM:
@@ -284,7 +290,7 @@ void TopMenubar::Update()
 
                     if (ImGui::Button(_LC("TopMenubar", "Remove current vehicle")))
                     {
-                        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)current_actor));
+                        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(current_actor))));
                     }
                 }
             }
@@ -308,8 +314,8 @@ void TopMenubar::Update()
 
                 if (ImGui::Button(_LC("TopMenubar", "Remove last spawned vehicle")))
                 {
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED,
-                        (void*)App::GetGameContext()->GetLastSpawnedActor()));
+                    ActorPtr actor = App::GetGameContext()->GetLastSpawnedActor();
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                 }
             }
 
@@ -324,12 +330,12 @@ void TopMenubar::Update()
                     ImGui::PushStyleColor(ImGuiCol_Text, ORANGE_TEXT);
                     if (ImGui::Button(_LC("TopMenubar", " [!] Confirm removal")))
                     {
-                        for (auto actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
+                        for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
                         {
                             if (!actor->ar_hide_in_actor_list && !actor->isPreloadedWithTerrain() && 
                                     actor->ar_state != ActorState::NETWORKED_OK)
                             {
-                                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
+                                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                             }
                         }
                         m_confirm_remove_all = false;
@@ -1176,11 +1182,11 @@ void TopMenubar::Update()
                     App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
                 }
 
-                for (auto actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
+                for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
                 {
                     if (actor->ar_driveable == AI)
                     {
-                        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
+                        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                     }
                 }
             }
@@ -1391,7 +1397,7 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 {
     // Count actors owned by the player
     unsigned int num_actors_player = 0;
-    for (Actor* actor : App::GetGameContext()->GetActorManager()->GetActors())
+    for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if (actor->ar_net_source_id == user.uniqueid)
         {
@@ -1416,7 +1422,7 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
     Ogre::TexturePtr tex1 = FetchIcon("control_pause.png");
     Ogre::TexturePtr tex2 = FetchIcon("control_play.png");
     int i = 0;
-    for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+    for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if ((!actor->ar_hide_in_actor_list) && (actor->ar_net_source_id == user.uniqueid))
         {
@@ -1426,14 +1432,14 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
             {
                 if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex1->getHandle()), ImVec2(16, 16)))
                 {
-                   App::GetGameContext()->PushMessage(Message(MSG_SIM_HIDE_NET_ACTOR_REQUESTED, (void*)actor));
+                   App::GetGameContext()->PushMessage(Message(MSG_SIM_HIDE_NET_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                 }
             }
             else if (actor->ar_state == ActorState::NETWORKED_HIDDEN)
             {
                 if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex2->getHandle()), ImVec2(16, 16)))
                 {
-                   App::GetGameContext()->PushMessage(Message(MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED, (void*)actor));
+                   App::GetGameContext()->PushMessage(Message(MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                 }
             }
             else // Our actor(s)
@@ -1442,7 +1448,7 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
                 ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
                 if (ImGui::Button(text_buf_rem.c_str()))
                 {
-                   App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
+                   App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                 }
                 ImGui::PopStyleColor();
             }
@@ -1452,7 +1458,7 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
             std::string actortext_buf = fmt::format("{} ({}) ##[{}:{}]", StripColorMarksFromText(actor->ar_design_name).c_str(), actor->ar_filename.c_str(), i++, user.uniqueid);
             if (ImGui::Button(actortext_buf.c_str())) // Button clicked?
             {
-                App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
             }
         }
     }
@@ -1460,8 +1466,8 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 
 void TopMenubar::DrawActorListSinglePlayer()
 {
-    std::vector<Actor*> actor_list;
-    for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+    std::vector<ActorPtr> actor_list;
+    for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if (!actor->ar_hide_in_actor_list)
         {
@@ -1477,15 +1483,15 @@ void TopMenubar::DrawActorListSinglePlayer()
     }
     else
     {
-        Actor* player_actor = App::GetGameContext()->GetPlayerActor();
+        ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
         int i = 0;
-        for (auto actor : actor_list)
+        for (ActorPtr actor : actor_list)
         {
             std::string text_buf_rem = fmt::format("X ##[{}]", i);
             ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
             if (ImGui::Button(text_buf_rem.c_str()))
             {
-                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
             }
             ImGui::PopStyleColor();
             ImGui::SameLine();
@@ -1510,7 +1516,7 @@ void TopMenubar::DrawActorListSinglePlayer()
             }
             if (ImGui::Button(text_buf.c_str())) // Button clicked?
             {
-                App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
             }
             ImGui::PopStyleColor();
         }
@@ -1561,7 +1567,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         GameContextSB& data = App::GetGfxScene()->GetSimDataBuffer();
         GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
         float distance = 0.0f;
-        Actor* player_actor = App::GetGfxScene()->GetSimDataBuffer().simbuf_player_actor;
+        ActorPtr player_actor = App::GetGfxScene()->GetSimDataBuffer().simbuf_player_actor;
         if (player_actor != nullptr && App::GetGameContext()->GetPlayerActor() &&
             player_actor->GetGfxActor()->GetSimDataBuffer().simbuf_actor_state == ActorState::LOCAL_SIMULATED)
         {

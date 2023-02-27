@@ -225,7 +225,7 @@ void SimActorStats::Draw(RoR::GfxActor* actorx)
     ImGui::PopStyleColor(1); // WindowBg
 }
 
-void SimActorStats::UpdateStats(float dt, Actor* actor)
+void SimActorStats::UpdateStats(float dt, ActorPtr actor)
 {
     //taken from TruckHUD.cpp (now removed)
     beam_t* beam = actor->ar_beams;

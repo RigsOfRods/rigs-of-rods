@@ -24,6 +24,8 @@
 /// @date   12/2013
 
 #include "RigDef_File.h"
+
+#include "Actor.h"
 #include "SimConstants.h"
 
 namespace RigDef

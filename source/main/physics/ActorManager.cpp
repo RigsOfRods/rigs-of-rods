@@ -74,9 +74,9 @@ ActorManager::~ActorManager()
     this->SyncWithSimThread(); // Wait for sim task to finish
 }
 
-Actor* ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr def)
+ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr def)
 {
-    Actor* actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
+    ActorPtr actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
 
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {
@@ -324,7 +324,7 @@ Actor* ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr de
         actor->WriteDiagnosticDump(actor->ar_filename + "_dump_recalc.txt"); // Saves file to 'logs'
     }
 
-    m_actors.push_back(actor);
+    m_actors.push_back(ActorPtr(actor));
 
     return actor;
 }
@@ -333,14 +333,14 @@ void ActorManager::RemoveStreamSource(int sourceid)
 {
     m_stream_mismatches.erase(sourceid);
 
-    for (auto actor : m_actors)
+    for (ActorPtr& actor : m_actors)
     {
         if (actor->ar_state != ActorState::NETWORKED_OK)
             continue;
 
         if (actor->ar_net_source_id == sourceid)
         {
-            App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)actor));
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
         }
     }
 }
@@ -435,7 +435,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
         else if (packet.header.command == RoRnet::MSG2_STREAM_REGISTER_RESULT)
         {
             RoRnet::StreamRegister* reg = (RoRnet::StreamRegister *)packet.buffer;
-            for (auto actor : m_actors)
+            for (ActorPtr& actor: m_actors)
             {
                 if (actor->ar_net_source_id == reg->origin_sourceid && actor->ar_net_stream_id == reg->origin_streamid)
                 {
@@ -457,12 +457,12 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
         }
         else if (packet.header.command == RoRnet::MSG2_STREAM_UNREGISTER)
         {
-            Actor* b = this->GetActorByNetworkLinks(packet.header.source, packet.header.streamid);
+            ActorPtr b = this->GetActorByNetworkLinks(packet.header.source, packet.header.streamid);
             if (b)
             {
                 if (b->ar_state == ActorState::NETWORKED_OK || b->ar_state == ActorState::NETWORKED_HIDDEN)
                 {
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)b));
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(b))));
                 }
             }
             m_stream_mismatches[packet.header.source].erase(packet.header.streamid);
@@ -473,7 +473,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
         }
         else if (packet.header.command == RoRnet::MSG2_STREAM_DATA)
         {
-            for (auto actor : m_actors)
+            for (ActorPtr& actor: m_actors)
             {
                 if (actor->ar_state != ActorState::NETWORKED_OK)
                     continue;
@@ -511,7 +511,7 @@ int ActorManager::CheckNetworkStreamsOk(int sourceid)
     if (!m_stream_mismatches[sourceid].empty())
         return 0;
 
-    for (auto actor : m_actors)
+    for (ActorPtr& actor: m_actors)
     {
         if (actor->ar_state != ActorState::NETWORKED_OK)
             continue;
@@ -529,7 +529,7 @@ int ActorManager::CheckNetRemoteStreamsOk(int sourceid)
 {
     int result = 2;
 
-    for (auto actor : m_actors)
+    for (ActorPtr& actor: m_actors)
     {
         if (actor->ar_state == ActorState::NETWORKED_OK)
             continue;
@@ -544,9 +544,9 @@ int ActorManager::CheckNetRemoteStreamsOk(int sourceid)
     return result;
 }
 
-Actor* ActorManager::GetActorByNetworkLinks(int source_id, int stream_id)
+ActorPtr ActorManager::GetActorByNetworkLinks(int source_id, int stream_id)
 {
-    for (auto actor : m_actors)
+    for (ActorPtr& actor: m_actors)
     {
         if (actor->ar_net_source_id == source_id && actor->ar_net_stream_id == stream_id)
         {
@@ -640,13 +640,13 @@ void ActorManager::RecursiveActivation(int j, std::vector<bool>& visited)
     }
 }
 
-void ActorManager::ForwardCommands(Actor* source_actor)
+void ActorManager::ForwardCommands(ActorPtr source_actor)
 {
     if (source_actor->ar_forward_commands)
     {
         auto linked_actors = source_actor->getAllLinkedActors();
 
-        for (auto actor : this->GetActors())
+        for (ActorPtr& actor : this->GetActors())
         {
             if (actor != source_actor && actor->ar_import_commands &&
                     (actor->getPosition().distance(source_actor->getPosition()) < 
@@ -700,11 +700,11 @@ void ActorManager::ForwardCommands(Actor* source_actor)
     }
 }
 
-void ActorManager::UpdateSleepingState(Actor* player_actor, float dt)
+void ActorManager::UpdateSleepingState(ActorPtr player_actor, float dt)
 {
     if (!m_forced_awake)
     {
-        for (auto actor : m_actors)
+        for (ActorPtr& actor: m_actors)
         {
             if (actor->ar_state != ActorState::LOCAL_SIMULATED)
                 continue;
@@ -747,7 +747,7 @@ void ActorManager::UpdateSleepingState(Actor* player_actor, float dt)
 
 void ActorManager::WakeUpAllActors()
 {
-    for (auto actor : m_actors)
+    for (ActorPtr& actor: m_actors)
     {
         if (actor->ar_state == ActorState::LOCAL_SLEEPING)
         {
@@ -760,7 +760,7 @@ void ActorManager::WakeUpAllActors()
 void ActorManager::SendAllActorsSleeping()
 {
     m_forced_awake = false;
-    for (auto actor : m_actors)
+    for (ActorPtr& actor: m_actors)
     {
         if (actor->ar_state == ActorState::LOCAL_SIMULATED)
         {
@@ -769,11 +769,11 @@ void ActorManager::SendAllActorsSleeping()
     }
 }
 
-Actor* ActorManager::FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
+ActorPtr ActorManager::FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box)
 {
     // try to find the desired actor (the one in the box)
-    Actor* ret = nullptr;
-    for (auto actor : m_actors)
+    ActorPtr ret = nullptr;
+    for (ActorPtr& actor: m_actors)
     {
         if (collisions->isInside(actor->ar_nodes[0].AbsPosition, inst, box))
         {
@@ -790,7 +790,7 @@ Actor* ActorManager::FindActorInsideBox(Collisions* collisions, const Ogre::Stri
 
 void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition)
 {
-    Actor* actor = this->FindActorInsideBox(collisions, inst, box);
+    ActorPtr actor = this->FindActorInsideBox(collisions, inst, box);
     if (actor != nullptr)
     {
         SOUND_PLAY_ONCE(actor, SS_TRIG_REPAIR);
@@ -804,7 +804,7 @@ void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst,
 
 void ActorManager::MuteAllActors()
 {
-    for (auto actor : m_actors)
+    for (ActorPtr& actor: m_actors)
     {
         actor->muteAllSounds();
     }
@@ -812,17 +812,17 @@ void ActorManager::MuteAllActors()
 
 void ActorManager::UnmuteAllActors()
 {
-    for (auto actor : m_actors)
+    for (ActorPtr& actor: m_actors)
     {
         actor->unmuteAllSounds();
     }
 }
 
-std::pair<Actor*, float> ActorManager::GetNearestActor(Vector3 position)
+std::pair<ActorPtr, float> ActorManager::GetNearestActor(Vector3 position)
 {
-    Actor* nearest_actor = nullptr;
+    ActorPtr nearest_actor = nullptr;
     float min_squared_distance = std::numeric_limits<float>::max();
-    for (auto actor : m_actors)
+    for (ActorPtr& actor : m_actors)
     {
         float squared_distance = position.squaredDistance(actor->ar_nodes[0].AbsPosition);
         if (squared_distance < min_squared_distance)
@@ -836,9 +836,10 @@ std::pair<Actor*, float> ActorManager::GetNearestActor(Vector3 position)
 
 void ActorManager::CleanUpSimulation() // Called after simulation finishes
 {
-    for (auto actor : m_actors)
+    for (ActorPtr& actor : m_actors)
     {
-        delete actor;
+        // Only dispose(), do not `delete`; a script may still hold pointer to the object.
+        actor->dispose();
     }
     m_actors.clear();
 
@@ -848,9 +849,9 @@ void ActorManager::CleanUpSimulation() // Called after simulation finishes
     m_simulation_speed = 1.f;
 }
 
-void ActorManager::DeleteActorInternal(Actor* actor)
+void ActorManager::DeleteActorInternal(ActorPtr actor)
 {
-    if (actor == 0)
+    if (actor == nullptr)
         return;
 
     this->SyncWithSimThread();
@@ -862,7 +863,7 @@ void ActorManager::DeleteActorInternal(Actor* actor)
         {
             App::GetNetwork()->AddPacket(actor->ar_net_stream_id, RoRnet::MSG2_STREAM_UNREGISTER, 0, 0);
         }
-        else if (std::count_if(m_actors.begin(), m_actors.end(), [actor](Actor* b)
+        else if (std::count_if(m_actors.begin(), m_actors.end(), [actor](ActorPtr& b)
                     { return b->ar_net_source_id == actor->ar_net_source_id; }) == 1)
         {
             // We're deleting the last actor from this stream source, reset the stream time offset
@@ -871,15 +872,28 @@ void ActorManager::DeleteActorInternal(Actor* actor)
     }
 #endif // USE_SOCKETW
 
-    m_actors.erase(std::remove(m_actors.begin(), m_actors.end(), actor), m_actors.end());
-    delete actor;
+    auto actor_i = m_actors.begin();
+    while (actor_i != m_actors.end())
+    {
+        if (actor == actor_i->GetRef())
+        {
+            actor_i = m_actors.erase(actor_i);
+        }
+        else
+        {
+            actor_i++;
+        }
+    }
+
+    // Only dispose(), do not `delete`; a script may still hold pointer to the object.
+    actor->dispose();
 
     // Upate actor indices
     for (unsigned int i = 0; i < m_actors.size(); i++)
         m_actors[i]->ar_vector_index = i;
 }
 
-int FindPivotActorId(Actor* player, Actor* prev_player)
+int FindPivotActorId(ActorPtr player, ActorPtr prev_player)
 {
     if (player != nullptr)
         return player->ar_vector_index;
@@ -888,7 +902,7 @@ int FindPivotActorId(Actor* player, Actor* prev_player)
     return -1;
 }
 
-Actor* ActorManager::FetchNextVehicleOnList(Actor* player, Actor* prev_player)
+ActorPtr ActorManager::FetchNextVehicleOnList(ActorPtr player, ActorPtr prev_player)
 {
     int pivot_index = FindPivotActorId(player, prev_player);
 
@@ -896,7 +910,7 @@ Actor* ActorManager::FetchNextVehicleOnList(Actor* player, Actor* prev_player)
     {
         if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            return m_actors[i];
+            return m_actors[i].GetRef();
         }
     }
 
@@ -904,19 +918,19 @@ Actor* ActorManager::FetchNextVehicleOnList(Actor* player, Actor* prev_player)
     {
         if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            return m_actors[i];
+            return m_actors[i].GetRef();
         }
     }
 
     if (pivot_index >= 0 && m_actors[pivot_index]->ar_state != ActorState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
     {
-        return m_actors[pivot_index];
+        return m_actors[pivot_index].GetRef();
     }
 
     return nullptr;
 }
 
-Actor* ActorManager::FetchPreviousVehicleOnList(Actor* player, Actor* prev_player)
+ActorPtr ActorManager::FetchPreviousVehicleOnList(ActorPtr player, ActorPtr prev_player)
 {
     int pivot_index = FindPivotActorId(player, prev_player);
 
@@ -924,7 +938,7 @@ Actor* ActorManager::FetchPreviousVehicleOnList(Actor* player, Actor* prev_playe
     {
         if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            return m_actors[i];
+            return m_actors[i].GetRef();
         }
     }
 
@@ -932,21 +946,21 @@ Actor* ActorManager::FetchPreviousVehicleOnList(Actor* player, Actor* prev_playe
     {
         if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            return m_actors[i];
+            return m_actors[i].GetRef();
         }
     }
 
     if (pivot_index >= 0 && m_actors[pivot_index]->ar_state != ActorState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
     {
-        return m_actors[pivot_index];
+        return m_actors[pivot_index].GetRef();
     }
 
     return nullptr;
 }
 
-Actor* ActorManager::FetchRescueVehicle()
+ActorPtr ActorManager::FetchRescueVehicle()
 {
-    for (auto actor : m_actors)
+    for (ActorPtr& actor: m_actors)
     {
         if (actor->ar_rescuer_flag)
         {
@@ -956,7 +970,7 @@ Actor* ActorManager::FetchRescueVehicle()
     return nullptr;
 }
 
-void ActorManager::UpdateActors(Actor* player_actor)
+void ActorManager::UpdateActors(ActorPtr player_actor)
 {
     float dt = m_simulation_time;
 
@@ -979,7 +993,7 @@ void ActorManager::UpdateActors(Actor* player_actor)
 
     this->UpdateSleepingState(player_actor, dt);
 
-    for (auto actor : m_actors)
+    for (ActorPtr& actor: m_actors)
     {
         actor->HandleInputEvents(dt);
         actor->HandleAngelScriptEvents(dt);
@@ -1060,9 +1074,9 @@ void ActorManager::UpdateActors(Actor* player_actor)
         m_sim_task->join();
 }
 
-Actor* ActorManager::GetActorById(int actor_id)
+ActorPtr ActorManager::GetActorById(int actor_id)
 {
-    for (auto actor : m_actors)
+    for (ActorPtr& actor: m_actors)
     {
         if (actor->ar_instance_id == actor_id)
         {
@@ -1074,7 +1088,7 @@ Actor* ActorManager::GetActorById(int actor_id)
 
 void ActorManager::UpdatePhysicsSimulation()
 {
-    for (auto actor : m_actors)
+    for (ActorPtr& actor: m_actors)
     {
         actor->UpdatePhysicsOrigin();
     }
@@ -1082,19 +1096,20 @@ void ActorManager::UpdatePhysicsSimulation()
     {
         {
             std::vector<std::function<void()>> tasks;
-            for (auto actor : m_actors)
+            for (ActorPtr& actor: m_actors)
             {
                 if (actor->ar_update_physics = actor->CalcForcesEulerPrepare(i == 0))
                 {
-                    auto func = std::function<void()>([this, i, actor]()
+                    ActorPtr actor_raw = actor;
+                    auto func = std::function<void()>([this, i, actor_raw]()
                         {
-                            actor->CalcForcesEulerCompute(i == 0, m_physics_steps);
+                            actor_raw->CalcForcesEulerCompute(i == 0, m_physics_steps);
                         });
                     tasks.push_back(func);
                 }
             }
             App::GetThreadPool()->Parallelize(tasks);
-            for (auto actor : m_actors)
+            for (ActorPtr& actor: m_actors)
             {
                 if (actor->ar_update_physics)
                 {
@@ -1104,25 +1119,26 @@ void ActorManager::UpdatePhysicsSimulation()
         }
         {
             std::vector<std::function<void()>> tasks;
-            for (auto actor : m_actors)
+            for (ActorPtr& actor: m_actors)
             {
                 if (actor->m_inter_point_col_detector != nullptr && (actor->ar_update_physics ||
                         (App::mp_pseudo_collisions->getBool() && actor->ar_state == ActorState::NETWORKED_OK)))
                 {
-                    auto func = std::function<void()>([this, actor]()
+                    ActorPtr actor_raw = actor;
+                    auto func = std::function<void()>([this, actor_raw]()
                         {
-                            actor->m_inter_point_col_detector->UpdateInterPoint();
-                            if (actor->ar_collision_relevant)
+                            actor_raw->m_inter_point_col_detector->UpdateInterPoint();
+                            if (actor_raw->ar_collision_relevant)
                             {
                                 ResolveInterActorCollisions(PHYSICS_DT,
-                                    *actor->m_inter_point_col_detector,
-                                    actor->ar_num_collcabs,
-                                    actor->ar_collcabs,
-                                    actor->ar_cabs,
-                                    actor->ar_inter_collcabrate,
-                                    actor->ar_nodes,
-                                    actor->ar_collision_range,
-                                    *actor->ar_submesh_ground_model);
+                                   *actor_raw->m_inter_point_col_detector,
+                                    actor_raw->ar_num_collcabs,
+                                    actor_raw->ar_collcabs,
+                                    actor_raw->ar_cabs,
+                                    actor_raw->ar_inter_collcabrate,
+                                    actor_raw->ar_nodes,
+                                    actor_raw->ar_collision_range,
+                                   *actor_raw->ar_submesh_ground_model);
                             }
                         });
                     tasks.push_back(func);
@@ -1131,7 +1147,7 @@ void ActorManager::UpdatePhysicsSimulation()
             App::GetThreadPool()->Parallelize(tasks);
         }
     }
-    for (auto actor : m_actors)
+    for (ActorPtr& actor: m_actors)
     {
         actor->m_ongoing_reset = false;
         if (actor->ar_update_physics && m_physics_steps > 0)
@@ -1254,10 +1270,10 @@ RigDef::DocumentPtr ActorManager::FetchActorDef(std::string filename, bool prede
     }
 }
 
-std::vector<Actor*> ActorManager::GetLocalActors()
+std::vector<ActorPtr> ActorManager::GetLocalActors()
 {
-    std::vector<Actor*> actors;
-    for (auto actor : m_actors)
+    std::vector<ActorPtr> actors;
+    for (ActorPtr& actor: m_actors)
     {
         if (actor->ar_state != ActorState::NETWORKED_OK)
             actors.push_back(actor);
@@ -1355,7 +1371,7 @@ void ActorManager::UpdateInputEvents(float dt)
     }
 }
 
-void ActorManager::UpdateTruckFeatures(Actor* vehicle, float dt)
+void ActorManager::UpdateTruckFeatures(ActorPtr vehicle, float dt)
 {
     if (vehicle->isBeingReset() || vehicle->ar_physics_paused)
         return;

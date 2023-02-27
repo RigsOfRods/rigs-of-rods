@@ -117,22 +117,22 @@ public:
     /// @name Actors
     /// @{
 
-    Actor*              SpawnActor(ActorSpawnRequest& rq);
+    ActorPtr              SpawnActor(ActorSpawnRequest& rq);
     void                ModifyActor(ActorModifyRequest& rq);
-    void                DeleteActor(Actor* actor);
+    void                DeleteActor(ActorPtr actor);
     void                UpdateActors();
     ActorManager*       GetActorManager() { return &m_actor_manager; }
-    Actor*              FetchPrevVehicleOnList();
-    Actor*              FetchNextVehicleOnList();
-    Actor*              FindActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name);
+    ActorPtr            FetchPrevVehicleOnList();
+    ActorPtr            FetchNextVehicleOnList();
+    ActorPtr            FindActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name);
     void                RespawnLastActor();
     void                SpawnPreselectedActor(std::string const& preset_vehicle, std::string const& preset_veh_config); //!< needs `Character` to exist
 
-    Actor*              GetPlayerActor() { return m_player_actor; }
-    Actor*              GetPrevPlayerActor() { return m_prev_player_actor; }
-    Actor*              GetLastSpawnedActor() { return m_last_spawned_actor; } //!< Last actor spawned by user and still alive.
-    void                SetPrevPlayerActor(Actor* actor) { m_prev_player_actor = actor; }
-    void                ChangePlayerActor(Actor* actor);
+    ActorPtr            GetPlayerActor() { return m_player_actor; }
+    ActorPtr            GetPrevPlayerActor() { return m_prev_player_actor; }
+    ActorPtr            GetLastSpawnedActor() { return m_last_spawned_actor; } //!< Last actor spawned by user and still alive.
+    void                SetPrevPlayerActor(ActorPtr actor) { m_prev_player_actor = actor; }
+    void                ChangePlayerActor(ActorPtr actor);
 
     void                ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box);
     void                OnLoaderGuiCancel(); //!< GUI callback
@@ -187,9 +187,9 @@ private:
 
     // Actors (physics and netcode)
     ActorManager        m_actor_manager;
-    Actor*              m_player_actor = nullptr;           //!< Actor (vehicle or machine) mounted and controlled by player
-    Actor*              m_prev_player_actor = nullptr;      //!< Previous actor (vehicle or machine) mounted and controlled by player
-    Actor*              m_last_spawned_actor = nullptr;     //!< Last actor spawned by user and still alive.
+    ActorPtr              m_player_actor = nullptr;           //!< Actor (vehicle or machine) mounted and controlled by player
+    ActorPtr              m_prev_player_actor = nullptr;      //!< Previous actor (vehicle or machine) mounted and controlled by player
+    ActorPtr              m_last_spawned_actor = nullptr;     //!< Last actor spawned by user and still alive.
     
     CacheEntry*         m_last_cache_selection = nullptr;   //!< Vehicle/load
     CacheEntry*         m_last_skin_selection = nullptr;

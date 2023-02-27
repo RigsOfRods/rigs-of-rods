@@ -20,6 +20,7 @@
 
 #include "Skidmark.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "SimData.h"
 #include "ContentManager.h" // RGN_CONFIG

@@ -42,7 +42,7 @@ void FlexbodyDebug::Draw()
     bool keep_open = true;
     ImGui::Begin(_LC("FlexbodyDebug", "Flexbody/Prop debug"), &keep_open, win_flags);
 
-    Actor* actor = App::GetGameContext()->GetPlayerActor();
+    ActorPtr actor = App::GetGameContext()->GetPlayerActor();
     if (!actor)
     {
         ImGui::Text("%s", _LC("FlexbodyDebug", "You are on foot."));
@@ -178,7 +178,7 @@ void FlexbodyDebug::AnalyzeFlexbodies()
     int num_combo_items = 0;
 
     // Analyze flexbodies
-    Actor* actor = App::GetGameContext()->GetPlayerActor();
+    ActorPtr actor = App::GetGameContext()->GetPlayerActor();
     if (actor && actor->GetGfxActor()->GetFlexbodies().size() > 0)
     {
         for (FlexBody* fb : actor->GetGfxActor()->GetFlexbodies())
@@ -425,7 +425,7 @@ void FlexbodyDebug::DrawDebugView(FlexBody* flexbody, Prop* prop, NodeNum_t node
 
 void FlexbodyDebug::UpdateVisibility()
 {
-    Actor* actor = App::GetGameContext()->GetPlayerActor();
+    ActorPtr actor = App::GetGameContext()->GetPlayerActor();
     if (!actor)
     {
         return;

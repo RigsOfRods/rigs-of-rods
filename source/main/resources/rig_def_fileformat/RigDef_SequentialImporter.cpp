@@ -26,6 +26,7 @@
 #include <iomanip>
 #include "RigDef_SequentialImporter.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "Console.h"
 #include "RigDef_Parser.h"

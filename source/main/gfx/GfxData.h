@@ -253,7 +253,7 @@ struct BeamGfx
 
     NodeNum_t        rod_node1           = NODENUM_INVALID;  //!< Node index - may change during simulation!
     NodeNum_t        rod_node2           = NODENUM_INVALID;  //!< Node index - may change during simulation!
-    Actor*           rod_target_actor    = nullptr;
+    ActorPtr           rod_target_actor    = nullptr;
     bool             rod_is_visible      = false;
 };
 

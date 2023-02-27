@@ -298,8 +298,8 @@ bool ActorManager::LoadScene(Ogre::String filename)
     auto actors_changed = false;
     auto player_actor = App::GetGameContext()->GetPlayerActor();
     auto prev_player_actor = App::GetGameContext()->GetPrevPlayerActor();
-    std::vector<Actor*> actors;
-    std::vector<Actor*> x_actors = GetLocalActors();
+    std::vector<ActorPtr> actors;
+    std::vector<ActorPtr> x_actors = GetLocalActors();
     for (rapidjson::Value& j_entry: j_doc["actors"].GetArray())
     {
         String filename = j_entry["filename"].GetString();
@@ -319,7 +319,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
         String section_config = j_entry["section_config"].GetString();
 
-        Actor* actor = nullptr;
+        ActorPtr actor = nullptr;
         int index = static_cast<int>(actors.size());
         if (index < x_actors.size())
         {
@@ -335,7 +335,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
                 {
                     App::GetGameContext()->SetPrevPlayerActor(nullptr);
                 }
-                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)x_actors[index]));
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(x_actors[index]))));
                 actors_changed = true;
             }
             else
@@ -380,7 +380,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         {
             App::GetGameContext()->SetPrevPlayerActor(nullptr);
         }
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)x_actors[index]));
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(x_actors[index]))));
         actors_changed = true;
     }
 
@@ -390,7 +390,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         if (actors[index] == nullptr)
             continue;
 
-        Actor* actor = actors[index];
+        ActorPtr actor = actors[index];
         rapidjson::Value& j_entry = j_doc["actors"][index];
 
         this->RestoreSavedState(actor, j_entry);
@@ -407,7 +407,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
 bool ActorManager::SaveScene(Ogre::String filename)
 {
-    std::vector<Actor*> x_actors = GetLocalActors();
+    std::vector<ActorPtr> x_actors = GetLocalActors();
 
     if (App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
     {
@@ -453,10 +453,10 @@ bool ActorManager::SaveScene(Ogre::String filename)
     j_doc.AddMember("player_rotation", App::GetGameContext()->GetPlayerCharacter()->getRotation().valueRadians(), j_doc.GetAllocator());
 
     std::map<int, int> vector_index_lookup;
-    for (auto actor : m_actors)
+    for (ActorPtr& actor : m_actors)
     {
         vector_index_lookup[actor->ar_vector_index] = -1;
-        auto search = std::find_if(x_actors.begin(), x_actors.end(), [actor](Actor* b)
+        auto search = std::find_if(x_actors.begin(), x_actors.end(), [actor](ActorPtr b)
                 { return actor->ar_instance_id == b->ar_instance_id; });
         if (search != x_actors.end())
         {
@@ -466,7 +466,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
     // Actors
     rapidjson::Value j_actors(rapidjson::kArrayType);
-    for (auto actor : x_actors)
+    for (ActorPtr actor : x_actors)
     {
         rapidjson::Value j_entry(rapidjson::kObjectType);
 
@@ -727,7 +727,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
             j_beam.PushBack(actor->ar_beams[i].bm_broken, j_doc.GetAllocator());
             j_beam.PushBack(actor->ar_beams[i].bm_disabled, j_doc.GetAllocator());
             j_beam.PushBack(actor->ar_beams[i].bm_inter_actor, j_doc.GetAllocator());
-            Actor* locked_actor = actor->ar_beams[i].bm_locked_actor;
+            ActorPtr locked_actor = actor->ar_beams[i].bm_locked_actor;
             j_beam.PushBack(locked_actor ? vector_index_lookup[locked_actor->ar_vector_index] : -1, j_doc.GetAllocator());
 
             j_beams.PushBack(j_beam, j_doc.GetAllocator());
@@ -756,7 +756,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
     return true;
 }
 
-void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_entry)
+void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_entry)
 {
     actor->m_spawn_rotation = j_entry["spawn_rotation"].GetFloat();
     actor->ar_state = static_cast<ActorState>(j_entry["sim_state"].GetInt());
@@ -764,7 +764,7 @@ void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_ent
 
     if (j_entry["player_actor"].GetBool())
     {
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
     }
     else if (j_entry["prev_player_actor"].GetBool())
     {
@@ -916,7 +916,7 @@ void ActorManager::RestoreSavedState(Actor* actor, rapidjson::Value const& j_ent
         actor->ar_initial_node_positions[i] = Vector3(data[6].GetFloat(), data[7].GetFloat(), data[8].GetFloat());
     }
 
-    std::vector<Actor*> actors = this->GetLocalActors();
+    std::vector<ActorPtr> actors = this->GetLocalActors();
 
     auto beams = j_entry["beams"].GetArray();
     for (rapidjson::SizeType i = 0; i < beams.Size(); i++)

@@ -20,6 +20,7 @@
 
 #include "ShadowManager.h"
 
+#include "Actor.h"
 #include "CameraManager.h"
 #include "GfxScene.h"
 

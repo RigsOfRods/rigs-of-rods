@@ -19,6 +19,7 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Actor.h"
 #include "Application.h"
 #include "AppContext.h"
 #include "CacheSystem.h"
@@ -342,6 +343,7 @@ int main(int argc, char *argv[])
                     }
 #endif // USE_SOCKETW
                     App::app_state->setVal((int)AppState::SHUTDOWN);
+                    App::GetScriptEngine()->setEventsEnabled(false); // Hack to enable fast shutdown without cleanup.
                     break;
 
                 case MSG_APP_SCREENSHOT_REQUESTED:
@@ -500,7 +502,7 @@ int main(int argc, char *argv[])
                 // -- Gameplay events --
 
                 case MSG_SIM_PAUSE_REQUESTED:
-                    for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
+                    for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
                     {
                         actor->muteAllSounds();
                     }
@@ -508,7 +510,7 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_SIM_UNPAUSE_REQUESTED:
-                    for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
+                    for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
                     {
                         actor->unmuteAllSounds();
                     }
@@ -654,18 +656,28 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_SIM_DELETE_ACTOR_REQUESTED:
+                {
+                    ActorPtr* actor_ptr = static_cast<ActorPtr*>(m.payload);
+                    ROR_ASSERT(actor_ptr);
                     if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
                     {
-                        App::GetGameContext()->DeleteActor((Actor*)m.payload);
+                        App::GetGameContext()->DeleteActor(*actor_ptr);
                     }
+                    delete actor_ptr;
                     break;
+                }
 
                 case MSG_SIM_SEAT_PLAYER_REQUESTED:
+                {
+                    ActorPtr* actor_ptr = static_cast<ActorPtr*>(m.payload);
+                    ROR_ASSERT(actor_ptr); // Even if leaving vehicle, the pointer must be valid.
                     if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
                     {
-                        App::GetGameContext()->ChangePlayerActor((Actor*)m.payload);
+                        App::GetGameContext()->ChangePlayerActor(*actor_ptr);
                     }
+                    delete actor_ptr;
                     break;
+                }
 
                 case MSG_SIM_TELEPORT_PLAYER_REQUESTED:
                     if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
@@ -677,10 +689,13 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_SIM_HIDE_NET_ACTOR_REQUESTED:
-                    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED &&
-                        ((Actor*)m.payload)->ar_state == ActorState::NETWORKED_OK)
+                {
+                    ActorPtr* actor_ptr = static_cast<ActorPtr*>(m.payload);
+                    ROR_ASSERT(actor_ptr);
+                    if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) &&
+                        ((*actor_ptr)->ar_state == ActorState::NETWORKED_OK))
                     {
-                        Actor* actor = (Actor*)m.payload;
+                        ActorPtr actor = *actor_ptr;
                         actor->ar_state = ActorState::NETWORKED_HIDDEN; // Stop net. updates
                         App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor()); // Remove visuals (also stops updating SimBuffer)
                         actor->GetGfxActor()->GetSimDataBuffer().simbuf_actor_state = ActorState::NETWORKED_HIDDEN; // Hack - manually propagate the new state to SimBuffer so Character can reflect it.
@@ -690,13 +705,18 @@ int main(int argc, char *argv[])
                         actor->forceAllFlaresOff();
                         actor->setSmokeEnabled(false);
                     }
+                    delete actor_ptr;
                     break;
+                }
 
                 case MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED:
+                {
+                    ActorPtr* actor_ptr = static_cast<ActorPtr*>(m.payload);
+                    ROR_ASSERT(actor_ptr);
                     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED &&
-                        ((Actor*)m.payload)->ar_state == ActorState::NETWORKED_HIDDEN)
+                        ((*actor_ptr)->ar_state == ActorState::NETWORKED_HIDDEN))
                     {
-                        Actor* actor = (Actor*)m.payload;
+                        ActorPtr actor = *actor_ptr;
                         actor->ar_state = ActorState::NETWORKED_OK; // Resume net. updates
                         App::GetGfxScene()->RegisterGfxActor(actor->GetGfxActor()); // Restore visuals (also resumes updating SimBuffer)
                         actor->GetGfxActor()->SetAllMeshesVisible(true);
@@ -704,7 +724,9 @@ int main(int argc, char *argv[])
                         actor->unmuteAllSounds(); // Unmute sounds
                         actor->setSmokeEnabled(true);
                     }
+                    delete actor_ptr;
                     break;
+                }
 
                 // -- GUI events ---
 
@@ -784,11 +806,11 @@ int main(int argc, char *argv[])
                         // To reload the bundle, it's resource group must be destroyed and re-created. All actors using it must be deleted.
                         CacheEntry* entry = reinterpret_cast<CacheEntry*>(m.payload);
                         bool all_clear = true;
-                        for (Actor* actor: App::GetGameContext()->GetActorManager()->GetActors())
+                        for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
                         {
                             if (actor->GetGfxActor()->GetResourceGroup() == entry->resource_group)
                             {
-                                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, actor));
+                                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                                 all_clear = false;
                             }
                         }
@@ -932,7 +954,7 @@ int main(int argc, char *argv[])
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {
                 App::GetGuiManager()->DrawSimulationGui(dt);
-                for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+                for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
                 {
                     actor->GetGfxActor()->UpdateDebugView();
                 }

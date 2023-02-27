@@ -126,7 +126,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         // walk all trucks
         minnode = NODENUM_INVALID;
         grab_truck = NULL;
-        for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+        for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             if (actor->ar_state == ActorState::LOCAL_SIMULATED)
             {
@@ -236,13 +236,13 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
             return true;
         }
 
-        Actor* player_actor = App::GetGameContext()->GetPlayerActor();
+        ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
 
         // Reselect the player actor
         {
             Real nearest_ray_distance = std::numeric_limits<float>::max();
 
-            for (auto actor : App::GetGameContext()->GetActorManager()->GetActors())
+            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
                 if (actor != player_actor)
                 {
@@ -254,7 +254,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
                         if (ray_distance < nearest_ray_distance)
                         {
                             nearest_ray_distance = ray_distance;
-                            App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, (void*)actor));
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                         }
                     }
                 }

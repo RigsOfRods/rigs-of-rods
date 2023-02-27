@@ -96,11 +96,11 @@ enum MsgType
     MSG_SIM_UNLOAD_TERRN_REQUESTED,
     MSG_SIM_SPAWN_ACTOR_REQUESTED,         //!< Payload = RoR::ActorSpawnRequest* (owner)
     MSG_SIM_MODIFY_ACTOR_REQUESTED,        //!< Payload = RoR::ActorModifyRequest* (owner)
-    MSG_SIM_DELETE_ACTOR_REQUESTED,        //!< Payload = RoR::Actor* (weak)
-    MSG_SIM_SEAT_PLAYER_REQUESTED,         //!< Payload = RoR::Actor* (weak) | nullptr
+    MSG_SIM_DELETE_ACTOR_REQUESTED,        //!< Payload = RoR::ActorPtr* (owner)
+    MSG_SIM_SEAT_PLAYER_REQUESTED,         //!< Payload = RoR::ActorPtr (owner) | nullptr
     MSG_SIM_TELEPORT_PLAYER_REQUESTED,     //!< Payload = Ogre::Vector3* (owner)
-    MSG_SIM_HIDE_NET_ACTOR_REQUESTED,      //!< Payload = Actor* (weak)
-    MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED,    //!< Payload = Actor* (weak)
+    MSG_SIM_HIDE_NET_ACTOR_REQUESTED,      //!< Payload = ActorPtr* (owner)
+    MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED,    //!< Payload = ActorPtr* (owner)
     // GUI
     MSG_GUI_OPEN_MENU_REQUESTED,
     MSG_GUI_CLOSE_MENU_REQUESTED,

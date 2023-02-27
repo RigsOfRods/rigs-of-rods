@@ -36,7 +36,7 @@ public:
     void SetVisible(bool vis) { m_is_visible = vis; }
     bool IsVisible() const { return m_is_visible; }
 
-    void UpdateStats(float dt, Actor* actor); //!< Caution: touches live data, must be synced with sim. thread
+    void UpdateStats(float dt, ActorPtr actor); //!< Caution: touches live data, must be synced with sim. thread
     void Draw(RoR::GfxActor* actorx);
 
 private:

@@ -194,7 +194,7 @@ struct ActorSB
 
 struct GameContextSB
 {
-    Actor*            simbuf_player_actor             = nullptr;
+    ActorPtr          simbuf_player_actor;
     Ogre::Vector3     simbuf_character_pos            = Ogre::Vector3::ZERO;
     bool              simbuf_sim_paused               = false;
     float             simbuf_sim_speed                = 1.f;
