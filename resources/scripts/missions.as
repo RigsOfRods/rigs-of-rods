@@ -12,17 +12,24 @@
 *                    suit creator's needs.
 */
 
-#include "road_utils.as"
+// Mission type includes:
 #include "races.as"
+#include "stunts.as"
+// Utility includes:
+#include "road_utils.as"
 
 // Mandatory global variable, referenced by race callbacks:
 //  - raceEvent(int, string, string, int)
 //  - raceCancelPointHandler(int, string, string, int)
-racesManager races();
+//  - eventCallback(int, int) *installed using `addFunction()`*
+racesManager@ races = null;
+// Other managers:
+StuntsManager@ stunts = null;
 
 class MissionManager
 {
     MissionBuilder@ loadedMission; // currently just 1
+    int uniqueIdCounter = 0;
 
     bool loadMission(string filename, string resourceGroup)
     {
@@ -73,6 +80,23 @@ class MissionManager
                 else if (reader.getTokKeyword() == "race_laps")
                 {
                     mission.raceLaps = int(reader.getTokFloat(1));
+                }
+                // Stunt properties
+                else if (reader.getTokKeyword() == "stunt_start_obj_instance")
+                {
+                    mission.stuntStartObjInstance = reader.getTokString(1);
+                }
+                else if (reader.getTokKeyword() == "stunt_start_box_name")
+                {
+                    mission.stuntStartBoxName = reader.getTokString(1);
+                }
+                else if (reader.getTokKeyword() == "stunt_end_obj_instance")
+                {
+                    mission.stuntEndObjInstance = reader.getTokString(1);
+                }
+                else if (reader.getTokKeyword() == "stunt_end_box_name")
+                {
+                    mission.stuntEndBoxName = reader.getTokString(1);
                 }
                 // Procedural road
                 else if (reader.getTokKeyword() == "begin_procedural_roads")
@@ -125,6 +149,48 @@ class MissionManager
                         reader.seekNextLine();
                     }
                 }
+                // Static terrain objects
+                else if (reader.getTokKeyword() == "begin_terrain_objects")
+                {
+                    while (!reader.endOfFile() && (reader.tokenType() != TOKEN_TYPE_KEYWORD || reader.getTokKeyword() != "end_terrain_objects"))
+                    {
+                        if (
+                            (reader.tokenType(0) == TOKEN_TYPE_NUMBER)
+                            && (reader.tokenType(1) == TOKEN_TYPE_NUMBER)
+                            && (reader.tokenType(2) == TOKEN_TYPE_NUMBER)
+                            && (reader.tokenType(3) == TOKEN_TYPE_NUMBER)
+                            && (reader.tokenType(4) == TOKEN_TYPE_NUMBER)
+                            && (reader.tokenType(5) == TOKEN_TYPE_NUMBER)
+                            && (reader.tokenType(6) == TOKEN_TYPE_STRING))
+                        {
+                            TerrainObject sobj;
+                            sobj.position = vector3(reader.getTokFloat(0), reader.getTokFloat(1), reader.getTokFloat(2));
+                            sobj.rotation = vector3(reader.getTokFloat(3), reader.getTokFloat(4), reader.getTokFloat(5));
+                            sobj.odefName = reader.getTokString(6);
+                            if ((reader.tokenType(7) == TOKEN_TYPE_STRING))
+                            {
+                                sobj.type = reader.getTokString(7);
+                                if ((reader.tokenType(8) == TOKEN_TYPE_STRING))
+                                {
+                                    sobj.instanceName = reader.getTokString(8);
+                                }                                 
+                            }
+                            // An unique instance name is needed for proper unloading later.
+                            // If none or empty specified in .mission file, generate one.
+                            if (sobj.instanceName == "")
+                            {
+                                sobj.instanceName = filename + "/" + this.uniqueIdCounter++;
+                            }
+                            mission.terrainObjects.insertLast(sobj);
+                        }
+                        else if ((reader.tokenType(0) != TOKEN_TYPE_LINEBREAK) && (reader.tokenType(0) != TOKEN_TYPE_COMMENT))
+                        {
+                            game.log("MissionManager: Warning - skipping invalid static-objects line");
+                        }
+                        
+                        reader.seekNextLine();
+                    }
+                }
             }
             
             reader.seekNextLine();
@@ -170,6 +236,11 @@ class MissionBuilder
     string missionType;
     // Terrain elements
     array<ProceduralObjectClass@> proceduralRoads;
+    array<TerrainObject@> terrainObjects;
+    
+    // mission type specific properties:
+    // note: These will be refactored to dedicated builders, like RaceMissionBuilder and StuntMissonBuilder, after the prototype phase is concluded.
+    
     // Race properties
     array<array<double>> checkpoints; // The format used by 'races.as': {'posX, posY, posZ, rotX, rotY, rotZ'}
     string checkpointObjName;
@@ -178,12 +249,23 @@ class MissionBuilder
     int raceLaps = 0; // -1=NoLaps, 0=Unlimited, 1=One
     int raceID = -1;
     
+    // Stunt properties
+    string stuntStartObjInstance;
+    string stuntStartBoxName;
+    string stuntEndObjInstance;
+    string stuntEndBoxName;
+    int stuntID = -1;
+    
     bool build()
     {
         if (this.missionType == "race")
         {
             return this.buildRace();
         }
+        else if (this.missionType == "stunt")
+        {
+            return this.buildStunt();
+        }        
         else
         {
             game.log("MissionBuilder: cannot load mission - unknown type '"+this.missionType+"'");
@@ -194,26 +276,42 @@ class MissionBuilder
     void destroy()
     {
         game.log ("DEBUG >> MissionBuilder::destroy()");
+        this.destroyTerrainObjects();
         this.destroyProceduralRoads();
-        races.deleteRace(this.raceID);
+        if (this.raceID != -1)
+        {
+            races.deleteRace(this.raceID);
+        }
+        if (this.stuntID != -1)
+        {
+            stunts.deleteStunt(this.stuntID);
+        }
         game.log ("DEBUG << MissionBuilder::destroy()");
     }
     
     // --------------
     // Mission types:
+    // Note: These will be refactored to dedicated builders, like RaceMissionBuilder and StuntMissonBuilder, after the prototype phase is concluded.
     
     bool buildRace()
     {
-        // Procedural roads
-        this.buildProceduralRoads();
+        // Make sure racemanager exists
+        if (@races == null)
+            @races = racesManager();
+    
+        // Prep terrain
+        this.spawnTerrainObjects();
+        this.spawnProceduralRoads();
         
-        // Race checkpoints
+        // Race checkpoints - set defaults
         if (this.checkpointObjName == "")
             this.checkpointObjName = "chp-checkpoint";
         if (this.startObjName == "")
             this.startObjName = "chp-start"; // A "start/finish" sign
         if (this.finishObjName == "")
-            this.finishObjName = "chp-start"; // A "start/finish" sign            
+            this.finishObjName = "chp-start"; // A "start/finish" sign    
+
+        // Create the race
         this.raceID = races.addRace(
             this.missionName, this.checkpoints, this.raceLaps,
             this.checkpointObjName, this.startObjName, this.finishObjName, "");
@@ -222,10 +320,32 @@ class MissionBuilder
         return true;
     }
     
+    bool buildStunt()
+    {
+        game.log("DEBUG >> MissionBuilder.buildStunt()");
+    
+        // make sure stuntmanager exits
+        if (@stunts == null)
+            @stunts = StuntsManager();
+          
+        // Prep terrain
+        this.spawnTerrainObjects();
+        this.spawnProceduralRoads();
+
+        // Create the stunt
+        this.stuntID = stunts.addStunt(
+            this.missionName,
+            this.stuntStartObjInstance, this.stuntStartBoxName,
+            this.stuntEndObjInstance, this.stuntEndBoxName);
+            
+        game.log("DEBUG << MissionBuilder.buildStunt()");
+        return true;
+    }
+    
     // --------------
     // Utilities:
     
-    void buildProceduralRoads()
+    void spawnProceduralRoads()
     {
         TerrainClass@ terrain = game.getTerrain();
         ProceduralManagerClass@ roadManager = terrain.getProceduralManager();
@@ -244,7 +364,35 @@ class MissionBuilder
             roadManager.removeObject(this.proceduralRoads[i]);
         }
     }
+    
+    void spawnTerrainObjects()
+    {
+        for (uint i = 0; i < this.terrainObjects.length(); i++)
+        {
+            game.spawnObject(
+                this.terrainObjects[i].odefName,
+                this.terrainObjects[i].instanceName,
+                this.terrainObjects[i].position,
+                this.terrainObjects[i].rotation,
+                "", false);
+        }
+    }
+    
+    void destroyTerrainObjects()
+    {
+        for (uint i = 0; i < this.terrainObjects.length(); i++)
+        {
+            game.destroyObject(this.terrainObjects[i].instanceName);
+        }
+    }    
 }
 
-
-
+// Helper class - represents a line in TOBJ file - can be a static object (ODEF) or an actor (TRUCK/FIXED).
+class TerrainObject
+{
+    vector3 position;
+    vector3 rotation;
+    string odefName;
+    string type;
+    string instanceName;
+}
