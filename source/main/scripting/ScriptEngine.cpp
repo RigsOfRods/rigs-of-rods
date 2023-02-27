@@ -59,6 +59,7 @@
 
 using namespace Ogre;
 using namespace RoR;
+using namespace AngelScript;
 
 const char* RoR::ScriptCategoryToString(ScriptCategory c)
 {
@@ -361,6 +362,11 @@ int ScriptEngine::addFunction(const String &arg)
             if (m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr == nullptr)
                 m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr = func;
         }
+        else if (func == mod->GetFunctionByDecl("void eventCallbackEx(scriptEvents,   int, int, int, int,   string, string, string, string)"))
+        {
+            if (m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr == nullptr)
+                m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr = func;
+        }
         else if (func == mod->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)"))
         {
             if (m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr == nullptr)
@@ -437,6 +443,9 @@ int ScriptEngine::deleteFunction(const String &arg)
         if ( m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr == func )
             m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr = nullptr;
 
+        if (m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr == func)
+            m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr = nullptr;
+
         if ( m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr == func )
             m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr = nullptr;
 
@@ -502,23 +511,38 @@ int ScriptEngine::deleteVariable(const String &arg)
     return index;
 }
 
-void ScriptEngine::triggerEvent(int eventnum, int value)
+void ScriptEngine::triggerEvent(scriptEvents eventnum, int arg1, int arg2ex, int arg3ex, int arg4ex, std::string arg5ex, std::string arg6ex, std::string arg7ex, std::string arg8ex)
 {
     if (!engine || !context || !m_events_enabled) return;
 
     for (auto& pair: m_script_units)
     {
         ScriptUnitId_t id = pair.first;
-        if (m_script_units[id].eventCallbackFunctionPtr==nullptr)
+        asIScriptFunction* callback = m_script_units[id].eventCallbackExFunctionPtr;
+        if (!callback)
+            callback = m_script_units[id].eventCallbackFunctionPtr;
+        if (!callback)
             continue;
+
         if (m_script_units[id].eventMask & eventnum)
         {
             // script registered for that event, so sent it
-            context->Prepare(m_script_units[id].eventCallbackFunctionPtr);
+            context->Prepare(callback);
 
             // Set the function arguments
             context->SetArgDWord(0, eventnum);
-            context->SetArgDWord(1, value);
+            context->SetArgDWord(1, arg1);
+            if (callback == m_script_units[id].eventCallbackExFunctionPtr)
+            {
+                // Extended arguments
+                context->SetArgDWord(2, arg2ex);
+                context->SetArgDWord(3, arg3ex);
+                context->SetArgDWord(4, arg4ex);
+                context->SetArgObject(5, &arg5ex);
+                context->SetArgObject(6, &arg6ex);
+                context->SetArgObject(7, &arg7ex);
+                context->SetArgObject(8, &arg8ex);
+            }
 
             m_currently_executing_script_unit = id;
             int r = context->Execute();
@@ -643,6 +667,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     m_script_units[unit_id].frameStepFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void frameStep(float)");
 
     m_script_units[unit_id].eventCallbackFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void eventCallback(int, int)");
+    m_script_units[unit_id].eventCallbackExFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void eventCallbackEx(scriptEvents,   int, int, int, int,   string, string, string, string)");
 
     m_script_units[unit_id].defaultEventCallbackFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)");
 

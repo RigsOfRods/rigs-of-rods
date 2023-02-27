@@ -32,6 +32,10 @@ void RoR::RegisterScriptEvents(asIScriptEngine *engine)
 
     // enum scriptEvents
     result = engine->RegisterEnum("scriptEvents"); ROR_ASSERT(result>=0);
+
+    result = engine->RegisterEnumValue("scriptEvents", "SE_EVENTBOX_ENTER", SE_EVENTBOX_ENTER); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("scriptEvents", "SE_EVENTBOX_EXIT", SE_EVENTBOX_EXIT); ROR_ASSERT(result >= 0);
+
     result = engine->RegisterEnumValue("scriptEvents", "SE_TRUCK_ENTER", SE_TRUCK_ENTER); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_TRUCK_EXIT", SE_TRUCK_EXIT); ROR_ASSERT(result>=0);
 

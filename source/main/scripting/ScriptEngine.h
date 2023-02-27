@@ -27,7 +27,11 @@
 
 #ifdef USE_ANGELSCRIPT
 
+/// Invoke script function `eventCallbackEx()`, if registered, otherwise fall back to `eventCallback()`
 #define TRIGGER_EVENT(x, y) App::GetScriptEngine()->triggerEvent((x), (y))
+
+/// Invoke script function `eventCallbackEx()`, if registered, otherwise fall back to `eventCallback()`
+#define TRIGGER_EVENT_EX(ev, a1, a2, a3, a4, a5, a6, a7, a8) App::GetScriptEngine()->triggerEvent((ev), (a1), (a2), (a3), (a4), (a5), (a6), (a7), (a8))
 
 #define DEFAULT_TERRAIN_SCRIPT "default.as" // Used when map creator doesn't provide custom script.
 
@@ -70,6 +74,7 @@ struct ScriptUnit
     AngelScript::asIScriptModule* scriptModule = nullptr;
     AngelScript::asIScriptFunction* frameStepFunctionPtr = nullptr; //!< script function pointer to the frameStep function
     AngelScript::asIScriptFunction* eventCallbackFunctionPtr = nullptr; //!< script function pointer to the event callback function
+    AngelScript::asIScriptFunction* eventCallbackExFunctionPtr = nullptr; //!< script function pointer to the event callback function
     AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr = nullptr; //!< script function pointer for spawner events
     ActorPtr associatedActor; //!< For ScriptCategory::ACTOR
     Ogre::String scriptName;
@@ -114,10 +119,10 @@ public:
     void activateLogging();
 
     /**
-     * triggers an event. Not to be used by the end-user
-     * @param eventValue \see enum scriptEvents
+     * triggers an event; Not to be used by the end-user.
+     * Runs either `eventCallbackEx()`, if registered, or `eventCallback()`, if registered, in this order.
      */
-    void triggerEvent(int scriptEvents, int value = 0);
+    void triggerEvent(scriptEvents eventnum, int arg1=0, int arg2ex=0, int arg3ex=0, int arg4ex=0, std::string arg5ex="", std::string arg6ex="", std::string arg7ex="", std::string arg8ex="");
 
     void setEventsEnabled(bool val) { m_events_enabled = val; }
 
@@ -222,4 +227,5 @@ protected:
 
 #else // USE_ANGELSCRIPT
 #   define TRIGGER_EVENT(x, y)
+#   define TRIGGER_EVENT_EX(ev, a1, a2, a3, a4, a5, a6, a7, a8)
 #endif // USE_ANGELSCRIPT

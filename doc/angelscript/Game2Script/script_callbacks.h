@@ -19,11 +19,18 @@ void main();
 */
 void frameStep(float dt);
 
-/** Optional; Invoked if a registered event is triggered, see Script2Game::game::registerForEvent.
+/** Optional; Invoked if a registered event is triggered, see `GameScriptClass::registerForEvent()`.
 *   @param event Event code.
 *   @param param Event-specific parameter, see docs for the event codes.
 */
 void eventCallback(Script2Game::scriptEvents event, int param);
+
+/** Optional; if present, will be used instead of `Game2Script::eventCallback()`.
+*   Invoked if a registered event is triggered, see `GameScriptClass::registerForEvent()`.
+*   The first argument is the same as `eventCallback()` gets, other are extras, see descriptions at `Script2Game::scriptEvents`.
+*   @param event Event code.
+*/
+void eventCallbackEx(Script2Game::scriptEvents event, int arg1, int arg2ex, int arg3ex, int arg4ex, string arg5ex, string arg6ex, string arg7ex, string arg8ex);
 
 /** Optional; Invoked when a vehicle touches an eventbox which has no custom handler function.
 *   @param trigger_type Unused, always 0.
