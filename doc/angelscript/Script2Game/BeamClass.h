@@ -225,6 +225,11 @@ public:
 	 */
 	string getSectionConfig();
     
+	/**
+	 * Gets the unique Actor Instance ID; The same value as provided by `Game2Script::eventCallbackEx()`.
+	 */
+	int getInstanceId();    
+    
     //! @}    
 }
 

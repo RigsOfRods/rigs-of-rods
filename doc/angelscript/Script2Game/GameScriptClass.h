@@ -390,24 +390,20 @@ public:
 	BeamClass@ getCurrentTruck();
 
 	/**
-	 * returns a truck by index, get max index by calling getNumTrucks
-	 * @param truck_number A truck number.
-	 * @see getCurrentTruckNumber()
-	 * @see getNumTrucks()
-	 * @remarks returns null if the truck does not exist
-	 * @return reference to Beam object that the selected slot
+	 * Get an actor by Instance ID, get one from `eventCallbackEx()` or manually by `BeamClass::getInstanceId()`.
+	 * @param truck_number Actor instance ID.
+	 * @see GameScriptClass.getCurrentTruckNumber()
+	 * @return returns null if the actor does not exist
 	 */
 	BeamClass@ getTruckByNum(int truck_number);
 
-	/**
-	 * returns the current amount of loaded trucks
-	 * @return integer value representing the amount of loaded trucks
-	 */
-	int getNumTrucks();
+    /**
+     * returns an array of all currently existing actors.
+     */
+    array<BeamClass@> getAllTrucks();
 
 	/**
-	 * returns the current truck number. >=0 when using a truck, -1 when in person mode
-	 * @return integer truck number
+	 * returns the instance ID of current player vehicle, or -1 when in person mode
 	 */
 	int getCurrentTruckNumber();
     
