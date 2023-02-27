@@ -35,6 +35,7 @@
 #include "GameContext.h"
 #include "Replay.h"
 #include "ScrewProp.h"
+#include "ScriptEngine.h"
 #include "SoundScriptManager.h"
 #include "Terrain.h"
 #include "Water.h"
@@ -1634,7 +1635,8 @@ void Actor::CalcEventBoxes()
     {
         // Find existing collision record
         bool has_collision = false;
-        bool do_callback = true;
+        bool do_callback_enter = true;
+        bool do_callback_exit = false;
         auto itor = m_active_eventboxes.begin();
         while (itor != m_active_eventboxes.end())
         {
@@ -1646,8 +1648,9 @@ void Actor::CalcEventBoxes()
                 {
                     // Erase the collision record
                     itor = m_active_eventboxes.erase(itor);
-                    // Prevent invoking the same callback again
-                    do_callback = false;
+                    // Prevent invoking the same ENTER callback again
+                    do_callback_enter = false;
+                    do_callback_exit = true;
                 }
                 break;
             }
@@ -1665,16 +1668,26 @@ void Actor::CalcEventBoxes()
                 has_collision = App::GetGameContext()->GetTerrain()->GetCollisions()->isInside(ar_nodes[i].AbsPosition, cbox);
                 if (has_collision)
                 {
+                    do_callback_exit = false;
                     // Add new collision record
                     m_active_eventboxes.push_back(std::make_pair(cbox, i));
                     // Do the script callback
-                    if (do_callback)
+                    if (do_callback_enter)
                     {
                         App::GetGameContext()->GetTerrain()->GetCollisions()->envokeScriptCallback(cbox, &ar_nodes[i]);
+
+                        const eventsource_t& eventsource = App::GetGameContext()->GetTerrain()->GetCollisions()->getEventSource(cbox->eventsourcenum);
+                        TRIGGER_EVENT_EX(SE_EVENTBOX_ENTER, 0, ar_instance_id, ar_nodes[i].pos, 0, eventsource.es_instance_name, eventsource.es_box_name, "", "");
                     }
                     break;
                 }
             }
+        }
+
+        if (do_callback_exit)
+        {
+            const eventsource_t& eventsource = App::GetGameContext()->GetTerrain()->GetCollisions()->getEventSource(cbox->eventsourcenum);
+            TRIGGER_EVENT_EX(SE_EVENTBOX_EXIT, 0, ar_instance_id, 0, 0, eventsource.es_instance_name, eventsource.es_box_name, "", "");
         }
     }
 }
