@@ -706,6 +706,7 @@ struct collision_box_t
     bool selfrotated;
     bool camforced;
     bool enabled;
+    bool pending_delete;
     CollisionEventFilter event_filter;
     short eventsourcenum;
     Ogre::Vector3 lo;           //!< absolute collision box

@@ -146,6 +146,7 @@ class MissionManager
         if (@loadedMission != null)
         {
             loadedMission.destroy();
+            game.pruneCollisionElements();
         }
         else
         {

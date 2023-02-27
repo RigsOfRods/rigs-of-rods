@@ -56,6 +56,7 @@ ProceduralRoad::~ProceduralRoad()
     {
         App::GetGameContext()->GetTerrain()->GetCollisions()->removeCollisionTri(number);
     }
+    App::GetGameContext()->GetTerrain()->GetCollisions()->unregisterCollisionMesh(m_registered_coll_mesh_name);
 }
 
 void ProceduralRoad::finish()
@@ -68,13 +69,13 @@ void ProceduralRoad::finish()
 
     createMesh();
     String entity_name = String("RoadSystem_Instance-").append(StringConverter::toString(mid));
-    String mesh_name = String("RoadSystem-").append(StringConverter::toString(mid));
-    Entity* ec = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name, mesh_name);
+    m_registered_coll_mesh_name = String("RoadSystem-").append(StringConverter::toString(mid));
+    Entity* ec = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name, m_registered_coll_mesh_name);
     snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     snode->attachObject(ec);
 
     App::GetGameContext()->GetTerrain()->GetCollisions()->registerCollisionMesh(
-        "RoadSystem", mesh_name, 
+        "RoadSystem", m_registered_coll_mesh_name,
         ec->getBoundingBox().getCenter(), ec->getMesh()->getBounds(),
         /*groundmodel:*/nullptr, registeredCollTris[0], (int)registeredCollTris.size());
 }

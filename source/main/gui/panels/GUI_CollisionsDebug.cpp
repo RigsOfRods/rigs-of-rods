@@ -52,6 +52,19 @@ void CollisionsDebug::Draw()
     ImGui::Checkbox("Draw labels", &m_draw_labels);
     ImGui::Checkbox("Draw label types", &m_labels_draw_types);
     ImGui::Checkbox("Sources on labels", &m_labels_draw_sources);
+    if (ImGui::Button("Prune collision elements"))
+    {
+        App::GetGameContext()->GetTerrain()->GetCollisions()->pruneCollisionElements();
+    }
+    ImGui::SameLine();
+    ImGui::TextDisabled("(?)");
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        ImGui::Text("Collision elements are not removed immediatelly but marked as `pending_delete`.");
+        ImGui::Text("This button forces immediate deletion of those pending elements.");
+        ImGui::EndTooltip();
+    }
     ImGui::Separator();
 
     // EVENTBOX

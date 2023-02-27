@@ -903,7 +903,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
             curl_easy_setopt(curl, CURLOPT_URL,           url.c_str());
             curl_easy_setopt(curl, CURLOPT_HTTPHEADER,    slist);
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS,    json.c_str());
-            
+
             CURLcode curl_result = curl_easy_perform(curl);
             curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
 
@@ -1867,4 +1867,12 @@ std::string GameScript::CheckFileAccess(const char* func_name, const std::string
     {
         return basename + "." + extension;
     }
+}
+
+void GameScript::pruneCollisionElements()
+{
+    if (!HaveSimTerrain(__FUNCTION__))
+        return;
+
+    App::GetGameContext()->GetTerrain()->GetCollisions()->pruneCollisionElements();
 }

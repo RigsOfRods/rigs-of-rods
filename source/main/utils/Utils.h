@@ -34,6 +34,7 @@
 
 #include <MyGUI.h>
 #include <OgreUTFString.h>
+#include <vector>
 
 namespace RoR {
 
@@ -109,3 +110,7 @@ void CvarAddFileToList(CVar* cvar, const std::string& filename);
 void CvarRemoveFileFromList(CVar* cvar, const std::string& filename);
 
 } // namespace RoR
+
+
+
+

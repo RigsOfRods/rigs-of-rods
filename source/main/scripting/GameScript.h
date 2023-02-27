@@ -352,6 +352,12 @@ public:
 
     TerrainPtr getTerrain();
 
+    /**
+    * Erases collision elements marked `pending_delete` and rebuilds lookup grid.
+    * Call this once after you've unloaded a mission or moved/removed things using editor.
+    */
+    void pruneCollisionElements();
+
     /// @}
 
     /// @name Character
