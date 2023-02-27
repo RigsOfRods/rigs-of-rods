@@ -28,9 +28,12 @@ bool loadMission(string filename, string resource_group)
     return result;
 }
 
-bool unloadMission()
+/* A mandatory callback for cleanup after a mission */
+void unloadMission()
 {
-    return false; // TBD
+    game.log("unloading mission");
+    g_missions.unloadMission();
+    game.log("finished unloading mission");
 }
 
 

@@ -114,6 +114,7 @@ void TopMenubar::Update()
 
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
+    int num_loaded_missions = App::GetScriptEngine()->getNumLoadedMissions();
     int num_playable_actors = 0;
     for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
     {
@@ -125,15 +126,16 @@ void TopMenubar::Update()
 
     std::string sim_title =         _LC("TopMenubar", "Simulation");
     std::string actors_title = fmt::format("{} ({})", _LC("TopMenubar", "Vehicles"), num_playable_actors);
+    std::string missions_title = fmt::format("{} ({})", _LC("TopMenubar", "Missions"), num_loaded_missions);
     std::string savegames_title =   _LC("TopMenubar", "Saves");
     std::string settings_title =    _LC("TopMenubar", "Settings");
     std::string tools_title =       _LC("TopMenubar", "Tools");
     std::string ai_title =          _LC("TopMenubar", "Vehicle AI");
 
-    int NUM_BUTTONS = 5;
+    int NUM_BUTTONS = 6;
     if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
     {
-        NUM_BUTTONS = 6;
+        NUM_BUTTONS = 7;
     }
 
     float menubar_content_width =
@@ -141,6 +143,7 @@ void TopMenubar::Update()
         (ImGui::GetStyle().FramePadding.x * (NUM_BUTTONS * 2)) +
         ImGui::CalcTextSize(sim_title.c_str()).x +
         ImGui::CalcTextSize(actors_title.c_str()).x +
+        ImGui::CalcTextSize(missions_title.c_str()).x +
         ImGui::CalcTextSize(savegames_title.c_str()).x +
         ImGui::CalcTextSize(settings_title.c_str()).x +
         ImGui::CalcTextSize(tools_title.c_str()).x;
@@ -181,6 +184,16 @@ void TopMenubar::Update()
     if ((m_open_menu != TopMenu::TOPMENU_SIM) && ImGui::IsItemHovered())
     {
         m_open_menu = TopMenu::TOPMENU_SIM;
+    }
+
+    ImGui::SameLine();
+
+    // The 'missions' button
+    ImVec2 missions_cursor = ImGui::GetCursorPos();
+    ImGui::Button(missions_title.c_str());
+    if ((m_open_menu != TopMenu::TOPMENU_MISSIONS) && ImGui::IsItemHovered())
+    {
+        m_open_menu = TopMenu::TOPMENU_MISSIONS;
     }
 
     // The 'AI' button
@@ -266,6 +279,18 @@ void TopMenubar::Update()
         if (ImGui::Begin(_LC("TopMenubar", "Sim menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
             // TODO: Display hotkeys on the right side of the menu (with different text color)
+
+            if (ImGui::Button(_LC("TopMenubar", "Load a mission")))
+            {
+                m_open_menu = TopMenu::TOPMENU_NONE;
+
+                RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+                m.payload = reinterpret_cast<void*>(new LoaderType(LT_Mission));
+                m.description = App::GetGameContext()->GetTerrain()->getGUID();
+                App::GetGameContext()->PushMessage(m);
+            }
+
+            ImGui::Separator();
 
             if (ImGui::Button(_LC("TopMenubar", "Get new vehicle")))
             {
@@ -426,6 +451,22 @@ void TopMenubar::Update()
                 }
 #endif // USE_SOCKETW
             }
+            m_open_menu_hoverbox_min = menu_pos;
+            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
+            App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
+            ImGui::End();
+        }
+        break;
+
+    case TopMenu::TOPMENU_MISSIONS:
+        menu_pos.y = window_pos.y + missions_cursor.y + MENU_Y_OFFSET;
+        menu_pos.x = missions_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
+        ImGui::SetNextWindowPos(menu_pos);
+        if (ImGui::Begin(_LC("TopMenubar", "Missions menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+        {
+            this->DrawMissionList();
+
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
@@ -1848,4 +1889,43 @@ void TopMenubar::GetPresets()
     std::packaged_task<void()> task(GetJson);
     std::thread(std::move(task)).detach();
 #endif // defined(USE_CURL)
+}
+
+void TopMenubar::DrawMissionList()
+{
+    if (App::GetScriptEngine()->getNumLoadedMissions() == 0)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
+        ImGui::Text("%s", _LC("TopMenubar", "None loaded yet"));
+        ImGui::Text("%s", _LC("TopMenubar", "Use [Simulation] menu"));
+        ImGui::PopStyleColor();
+    }
+    else
+    {
+        const ScriptUnitMap& scripts = App::GetScriptEngine()->getScriptUnits();
+        int i = 0;
+        for (auto& pair : scripts)
+        {
+            if (pair.second.scriptCategory != ScriptCategory::MISSION)
+                continue;
+
+            const ScriptUnit* mission = &pair.second;
+            ImGui::PushID(mission->uniqueId);
+
+            std::string text_buf_rem = fmt::format("X", i);
+            ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
+            if (ImGui::Button(text_buf_rem.c_str()))
+            {
+                ScriptUnitId_t* id = new ScriptUnitId_t(mission->uniqueId);
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_MISSION_REQUESTED, (void*)id));
+            }
+            ImGui::PopStyleColor();
+            ImGui::SameLine();
+
+            std::string text_buf = fmt::format("[{}] {}", i++, StripColorMarksFromText(mission->missionEntry->dname).c_str());
+            ImGui::Text("%s", text_buf.c_str());
+
+            ImGui::PopID(); // mission->uniqueId
+        }
+    }
 }

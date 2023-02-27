@@ -681,6 +681,7 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
         else if (ext == "mission")
         {
             new_entries.resize(1);
+            FillMissionDetailInfo(new_entries.back(), ds, f.filename);
         }
         else
         {
@@ -1113,8 +1114,6 @@ void CacheSystem::FillMissionDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr d
 
         reader->seekNextLine();
     }
-    entry.fname = fname;
-    entry.fext = "mission";
 }
 
 bool CacheSystem::CheckResourceLoaded(Ogre::String & filename)

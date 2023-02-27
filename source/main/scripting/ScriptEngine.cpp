@@ -751,7 +751,7 @@ String ScriptEngine::composeModuleName(String const& scriptName, ScriptCategory 
 
 ScriptUnitId_t ScriptEngine::loadScript(
     String scriptName, ScriptCategory category/* = ScriptCategory::TERRAIN*/,
-    ActorPtr associatedActor /*= nullptr*/, std::string buffer /* =""*/)
+    ActorPtr associatedActor /*= nullptr*/, std::string buffer /* =""*/, CacheEntry* missionEntry /*= nullptr*/)
 {
     // This function creates a new script unit, tries to set it up and removes it if setup fails.
     // -----------------------------------------------------------------------------------------
@@ -773,6 +773,15 @@ ScriptUnitId_t ScriptEngine::loadScript(
     else if (category == ScriptCategory::ACTOR)
     {
         m_script_units[unit_id].associatedActor = associatedActor;
+    }
+    else if (category == ScriptCategory::MISSION)
+    {
+        if (missionEntry == nullptr)
+        {
+            LOG("loadScript(): FATAL ERROR - mission cache entry not available, likely programmer error.");
+            return SCRIPTUNITID_INVALID;
+        }
+        m_script_units[unit_id].missionEntry = missionEntry;
     }
 
     // Perform the actual script loading, building and running main().
@@ -895,7 +904,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
         unit_id, GETFUNCFLAG_OPTIONAL, GETFUNC_DEFAULTEVENTCALLBACK_NAME, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT);
 
     m_script_units[unit_id].loadMissionFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("bool loadMission(string, string)");
-    m_script_units[unit_id].unloadMissionFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("bool unloadMission()");
+    m_script_units[unit_id].unloadMissionFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void unloadMission()");
 
     // Find the function that is to be called.
     auto main_func = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void main()");
@@ -1043,8 +1052,26 @@ bool ScriptEngine::invokeLoadMission(ScriptUnitId_t id, const std::string& filen
     }
 }
 
-bool ScriptEngine::invokeUnloadMission(ScriptUnitId_t id)
+void ScriptEngine::invokeUnloadMission(ScriptUnitId_t id)
 {
-    // TBD
-    return false;
+    context->Prepare(this->getScriptUnit(id).unloadMissionFunctionPtr);
+    m_currently_executing_script_unit = id;
+    int r = context->Execute();
+    m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
+
+    if (r != AngelScript::asEXECUTION_FINISHED)
+    {
+        LOG(fmt::format("WARNING: Invoking `unloadMission()` in '{}' ended with error code {}", this->getScriptUnit(id).scriptName, r));
+    }
+}
+
+int ScriptEngine::getNumLoadedMissions()
+{
+    int count = 0;
+    for (auto& pair : m_script_units)
+    {
+        if (pair.second.scriptCategory == ScriptCategory::MISSION)
+            count++;
+    }
+    return count;
 }

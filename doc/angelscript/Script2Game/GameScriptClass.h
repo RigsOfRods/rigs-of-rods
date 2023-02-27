@@ -623,6 +623,15 @@ public:
 	 * @see stopTimer
 	 */
 	void startTimer();
+    
+	/**
+	 * @return The time that passed since the timer started
+	 */
+	float getElapsedTime();  
+
+    void setTimeDiff(float diff);
+    
+    void setBestLapTime(float time);
 
     ///@}
 

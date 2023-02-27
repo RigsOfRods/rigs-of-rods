@@ -85,6 +85,7 @@ struct ScriptUnit
     Ogre::String scriptName;
     Ogre::String scriptHash;
     Ogre::String scriptBuffer;
+    CacheEntry* missionEntry = nullptr;
 };
 
 typedef std::map<ScriptUnitId_t, ScriptUnit> ScriptUnitMap;
@@ -133,10 +134,11 @@ public:
      * @param category How to treat the script?
      * @param associatedActor Only for category ACTOR
      * @param buffer String with full script body; if empty, a file will be loaded as usual.
+     * @param missionEntry Required for `ScriptCategory::MISSION`, otherwise unused.
      * @return Unique ID of the script unit (because one script file can be loaded multiple times).
      */
     ScriptUnitId_t loadScript(Ogre::String scriptname, ScriptCategory category = ScriptCategory::TERRAIN,
-        ActorPtr associatedActor = nullptr, std::string buffer = "");
+        ActorPtr associatedActor = nullptr, std::string buffer = "", CacheEntry* missionEntry = nullptr);
 
     /**
      * Unloads a script
@@ -225,7 +227,8 @@ public:
     AngelScript::asIScriptEngine* getEngine() { return engine; };
 
     bool invokeLoadMission(ScriptUnitId_t id, const std::string& filename, const std::string& resource_group);
-    bool invokeUnloadMission(ScriptUnitId_t id);
+    void invokeUnloadMission(ScriptUnitId_t id);
+    int getNumLoadedMissions();
 
     // method from Ogre::LogListener
     void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);

@@ -105,6 +105,8 @@ enum MsgType
     MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED,    //!< Payload = ActorPtr* (owner)
     MSG_SIM_SCRIPT_EVENT_TRIGGERED,        //!< Payload = RoR::ScriptEventArgs* (owner)
     MSG_SIM_SCRIPT_CALLBACK_QUEUED,        //!< Payload = RoR::ScriptCallbackArgs* (owner)
+    MSG_SIM_LOAD_MISSION_REQUESTED,        //!< Payload = RoR::CacheEntry* (weak)
+    MSG_SIM_UNLOAD_MISSION_REQUESTED,      //!< Payload = RoR::ScriptUnitId_t (owner)
     MSG_SIM_ACTOR_LINKING_REQUESTED,       //!< Payload = RoR::ActorLinkingRequest* (owner)
     // GUI
     MSG_GUI_OPEN_MENU_REQUESTED,

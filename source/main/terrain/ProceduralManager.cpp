@@ -91,8 +91,8 @@ void ProceduralManager::deleteObject(ProceduralObjectPtr po)
 {
     if (po->road)
     {
-        // loaded already, delete (unreference) old object
-        po->road = ProceduralRoadPtr();
+        // delete (unreference) old object
+        po->road = nullptr;
     }
 }
 
@@ -102,6 +102,7 @@ void ProceduralManager::removeObject(ProceduralObjectPtr po)
     {
         if (pObjects[i] == po)
         {
+            this->deleteObject(pObjects[i]);
             pObjects.erase(pObjects.begin() + i);
         }
     }

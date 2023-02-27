@@ -455,7 +455,14 @@ public:
         }
         else
         {
-            if (!App::GetGameContext()->LoadMission(args[1]))
+            // Find mission in modcache
+            CacheEntry* mission_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Mission, /*partial=*/true, args[1]);
+            if (!mission_entry)
+            {
+                reply_type = Console::CONSOLE_SYSTEM_ERROR;
+                reply << _L("Mission not found: ") << args[1];
+            }
+            else if (!App::GetGameContext()->LoadMission(mission_entry))
             {
                 reply_type = Console::CONSOLE_SYSTEM_ERROR;
                 reply << _L("The mission could not be loaded");

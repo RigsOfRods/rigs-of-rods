@@ -166,23 +166,14 @@ void GameContext::UnloadTerrain()
     }
 }
 
-bool GameContext::LoadMission(std::string const& filename_part)
+bool GameContext::LoadMission(CacheEntry* mission_entry)
 {
-    // Find terrain in modcache
-    CacheEntry* mission_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Mission, /*partial=*/true, filename_part);
-    if (!mission_entry)
-    {
-        Str<200> msg; msg << _L("Mission not found: ") << filename_part;
-        RoR::Log(msg.ToCStr());
-        return false;
-    }
-
     // Init resources
     App::GetCacheSystem()->LoadResource(*mission_entry);
 
     // Load script
     std::string scriptname = (mission_entry->mission_script != "") ? mission_entry->mission_script : DEFAULT_MISSION_SCRIPT;
-    ScriptUnitId_t scriptID = App::GetScriptEngine()->loadScript(scriptname, ScriptCategory::MISSION);
+    ScriptUnitId_t scriptID = App::GetScriptEngine()->loadScript(scriptname, ScriptCategory::MISSION, /*associatedActor:*/nullptr, "", mission_entry);
     if (scriptID == SCRIPTUNITID_INVALID)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
@@ -679,6 +670,10 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
     bool spawn_now = false;
     switch (type)
     {
+    case LT_Mission:
+        this->PushMessage(Message(MSG_SIM_LOAD_MISSION_REQUESTED, (void*)entry));
+        break;
+
     case LT_Skin:
         if (entry != &m_dummy_cache_selection)
         {

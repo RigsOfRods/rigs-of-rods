@@ -532,10 +532,11 @@ public:
     /// @name Race system
     /// @{
 
-    void stopTimer();
+    float stopTimer();
     void startTimer(int id);
     void setTimeDiff(float diff);
     void setBestLapTime(float time);
+    float getElapsedTime();
 
     ///@}
 

@@ -52,7 +52,7 @@ public:
     const ImVec4  ORANGE_TEXT           = ImVec4(0.9f, 0.6f, 0.0f, 1.f);
     const ImVec4  RED_TEXT              = ImVec4(1.00f, 0.00f, 0.00f, 1.f);
 
-    enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS, TOPMENU_AI };
+    enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS, TOPMENU_AI, TOPMENU_MISSIONS };
     enum class StateBox { STATEBOX_NONE, STATEBOX_REPLAY, STATEBOX_RACE, STATEBOX_LIVE_REPAIR, STATEBOX_QUICK_REPAIR };
 
     TopMenubar(): m_open_menu(), m_daytime(0), m_quickload(false), m_confirm_remove_all(false) {}
@@ -98,6 +98,7 @@ private:
     void DrawActorListSinglePlayer();
     void DrawMpUserToActorList(RoRnet::UserInfo &user); // Multiplayer
     void DrawSpecialStateBox(float top_offset);
+    void DrawMissionList();
 
     ImVec2  m_open_menu_hoverbox_min;
     ImVec2  m_open_menu_hoverbox_max;

@@ -188,9 +188,16 @@ bool GameScript::getCaelumAvailable()
     return result;
 }
 
-void GameScript::stopTimer()
+float GameScript::getElapsedTime()
 {
+    return App::GetGameContext()->GetRaceSystem().GetRaceTime();
+}
+
+float GameScript::stopTimer()
+{
+    float elapsedTime = this->getElapsedTime();
     App::GetGameContext()->GetRaceSystem().StopRaceTimer();
+    return elapsedTime;
 }
 
 void GameScript::startTimer(int id)

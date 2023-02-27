@@ -22,7 +22,7 @@ racesManager races();
 
 class MissionManager
 {
-    array<MissionBuilder@> loadedMissions;
+    MissionBuilder@ loadedMission; // currently just 1
 
     bool loadMission(string filename, string resourceGroup)
     {
@@ -135,8 +135,23 @@ class MissionManager
             game.log("MissionManager: Failed to load mission - error modifying terrain");
             return false;
         }
-        this.loadedMissions.insertLast(mission);
+        game.log ("DEBUG  MissionManager::loadMission() - setting `loadedMission`");
+        @loadedMission = @mission;
         return true;
+    }
+    
+    void unloadMission()
+    {
+        game.log ("DEBUG >> MissionManager::unloadMission()");
+        if (@loadedMission != null)
+        {
+            loadedMission.destroy();
+        }
+        else
+        {
+            game.log ("DEBUG  MissionManager::unloadMission() - `loadedMission` is null!");
+        }
+        game.log ("DEBUG << MissionManager::unloadMission()");
     }
 }
 
@@ -175,6 +190,14 @@ class MissionBuilder
         }
     }
     
+    void destroy()
+    {
+        game.log ("DEBUG >> MissionBuilder::destroy()");
+        this.destroyProceduralRoads();
+        races.deleteRace(this.raceID);
+        game.log ("DEBUG << MissionBuilder::destroy()");
+    }
+    
     // --------------
     // Mission types:
     
@@ -208,6 +231,16 @@ class MissionBuilder
         for (uint i = 0; i < this.proceduralRoads.length(); i++)
         {
             roadManager.addObject(this.proceduralRoads[i]);
+        }
+    }
+    
+    void destroyProceduralRoads()
+    {
+        TerrainClass@ terrain = game.getTerrain();
+        ProceduralManagerClass@ roadManager = terrain.getProceduralManager();
+        for (uint i = 0; i < this.proceduralRoads.length(); i++)
+        {
+            roadManager.removeObject(this.proceduralRoads[i]);
         }
     }
 }

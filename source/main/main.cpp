@@ -817,6 +817,24 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_SIM_LOAD_MISSION_REQUESTED:
+                {
+                    if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                    {
+                        App::GetGameContext()->LoadMission(static_cast<CacheEntry*>(m.payload));
+                    }
+                    break;
+                }
+
+                case MSG_SIM_UNLOAD_MISSION_REQUESTED:
+                {
+                    ScriptUnitId_t* id = (ScriptUnitId_t*)m.payload;
+                    App::GetScriptEngine()->invokeUnloadMission(*id);
+                    App::GetScriptEngine()->unloadScript(*id);
+                    delete id;
+                    break;
+                }
+
                 case MSG_SIM_ACTOR_LINKING_REQUESTED:
                 {
                     // Estabilishing a physics linkage between 2 actors modifies a global linkage table
