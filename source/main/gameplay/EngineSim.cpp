@@ -1110,12 +1110,13 @@ void EngineSim::shiftTo(int newGear)
 
 void EngineSim::updateShifts()
 {
-    if (m_engine_is_electric)
-        return;
     if (m_autoselect == MANUALMODE)
         return;
 
-    SOUND_PLAY_ONCE(m_actor, SS_TRIG_SHIFT);
+    if (!m_engine_is_electric)
+    {
+        SOUND_PLAY_ONCE(m_actor, SS_TRIG_SHIFT);
+    }
 
     if (m_autoselect == REAR)
     {
@@ -1151,6 +1152,8 @@ void EngineSim::updateShifts()
 void EngineSim::autoShiftSet(int mode)
 {
     m_autoselect = (autoswitch)mode;
+    if (m_engine_is_electric && m_autoselect > DRIVE)
+        m_autoselect = DRIVE;
     updateShifts();
 }
 
@@ -1165,7 +1168,8 @@ void EngineSim::autoShiftUp()
 
 void EngineSim::autoShiftDown()
 {
-    if (m_autoselect != ONE)
+    if ((m_engine_is_electric && m_autoselect != DRIVE) ||
+        (!m_engine_is_electric && m_autoselect != ONE))
     {
         m_autoselect = (autoswitch)(m_autoselect + 1);
         updateShifts();
