@@ -37,8 +37,6 @@ namespace RoR {
 struct ActorSpawnContext
 {
     // 'globals':
-    float       truckmass_ = 0;   // UNUSED
-    float       loadmass_ = 0;    // UNUSED
     std::string texname;       //!< Keyword 'globals' - material
 
     bool        wheel_contact_requested = false;
