@@ -4285,9 +4285,9 @@ beam_t& ActorSpawner::AddBeam(node_t& node_1, node_t& node_2)
     beam.strength = m_state.default_break;
 
     beam.default_beam_deform = m_state.default_deform * m_state.default_deform_scale;
-    beam.minmaxposnegstress = m_state.default_deform * m_state.default_deform_scale;
-    beam.maxposstress = m_state.default_deform * m_state.default_deform_scale;
-    beam.maxnegstress = m_state.default_deform * m_state.default_deform_scale;
+    beam.minmaxposnegstress = beam.default_beam_deform;
+    beam.maxposstress = beam.default_beam_deform;
+    beam.maxnegstress = -beam.default_beam_deform;
 
     beam.plastic_coef = m_state.default_plastic_coef;
 
