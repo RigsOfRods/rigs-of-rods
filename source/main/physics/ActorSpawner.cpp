@@ -585,6 +585,8 @@ void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string
             LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
                 document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             info.wheelcount++;
+            if (wheel.propulsion != WheelPropulsion::NONE)
+                info.propwheelcount++;
             break;
         }
 
@@ -598,6 +600,8 @@ void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string
             LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
                 document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             info.wheelcount++;
+            if (wheel2.propulsion != WheelPropulsion::NONE)
+                info.propwheelcount++;
             break;
         }
 
@@ -609,6 +613,8 @@ void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string
             LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
                 document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             info.wheelcount++;
+            if (meshwheel.propulsion != WheelPropulsion::NONE)
+                info.propwheelcount++;
             break;
         }
 
@@ -620,6 +626,8 @@ void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string
             LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
                 document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             info.wheelcount++;
+            if (meshwheel2.propulsion != WheelPropulsion::NONE)
+                info.propwheelcount++;
             break;
         }
 
@@ -634,6 +642,8 @@ void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string
             LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
                 document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             info.wheelcount++;
+            if (fbwheel.propulsion != WheelPropulsion::NONE)
+                info.propwheelcount++;
             break;
         }
 
