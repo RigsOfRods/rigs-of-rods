@@ -443,7 +443,8 @@ void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string
     bool skipping_section = false;
     for (RigDef::Line& cur_line: m_document->lines)
     {
-        if (cur_line.block_boundary || skipping_section)
+        if (cur_line.block_boundary 
+            || (skipping_section && cur_line.keyword != RigDef::Keyword::END_SECTION))
         {
             continue;
         }
@@ -463,8 +464,6 @@ void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string
             if (BITMASK_IS_1(m_document->nodes[cur_line.data_pos].options, RigDef::Node::OPTION_h_HOOK_POINT))
             {
                 info.beamcount++;
-                LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}", 
-                    document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             }
             break;
 
@@ -473,44 +472,32 @@ void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string
             if (BITMASK_IS_1(m_document->nodes2[cur_line.data_pos].options, RigDef::Node2::OPTION_h_HOOK_POINT))
             {
                 info.beamcount++;
-                LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
-                    document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             }
             break;
 
         case RigDef::Keyword::BEAMS:
         case RigDef::Keyword::ANIMATORS:
             info.beamcount++;
-            LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
-                document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             break;
 
         case RigDef::Keyword::TIES:
             info.tiecount++;
             info.beamcount++;
-            LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
-                document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             break;
 
         case RigDef::Keyword::ROPES:
             info.ropecount++;
             info.beamcount++;
-            LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
-                document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             break;
 
         case RigDef::Keyword::HYDROS:
             info.hydroscount++;
             info.beamcount++;
-            LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
-                document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             break;
 
         case RigDef::Keyword::CINECAM:
             info.nodecount++;
             info.beamcount += 8;
-            LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
-                document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             break;
 
         case RigDef::Keyword::SHOCKS:
@@ -519,16 +506,12 @@ void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string
         case RigDef::Keyword::TRIGGERS:
             info.shockcount++;
             info.beamcount++;
-            LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
-                document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             break;
 
         case RigDef::Keyword::COMMANDS:
         case RigDef::Keyword::COMMANDS2:
             info.commandscount++;
             info.beamcount++;
-            LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
-                document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             break;
 
         case RigDef::Keyword::FLARES:
@@ -582,8 +565,6 @@ void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string
             RigDef::Wheel& wheel = m_document->wheels[cur_line.data_pos];
             info.nodecount += wheel.num_rays * 2; // BuildWheelObjectAndNodes()
             info.beamcount += wheel.num_rays * ((wheel.rigidity_node != NODEREF_INVALID) ? 9 : 8); // BuildWheelBeams()
-            LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
-                document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             info.wheelcount++;
             if (wheel.propulsion != WheelPropulsion::NONE)
                 info.propwheelcount++;
@@ -597,8 +578,6 @@ void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string
             // Rim beams:  num_rays*10 (*11 with valid rigidity_node)
             // Tyre beams: num_rays*14
             info.beamcount += wheel2.num_rays * ((wheel2.rigidity_node != NODEREF_INVALID) ? 25 : 24);
-            LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
-                document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             info.wheelcount++;
             if (wheel2.propulsion != WheelPropulsion::NONE)
                 info.propwheelcount++;
@@ -610,8 +589,6 @@ void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string
             RigDef::MeshWheel& meshwheel = m_document->meshwheels[cur_line.data_pos];
             info.nodecount += meshwheel.num_rays * 2; // BuildWheelObjectAndNodes()
             info.beamcount += meshwheel.num_rays * ((meshwheel.rigidity_node != NODEREF_INVALID) ? 9 : 8); // BuildWheelBeams()
-            LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
-                document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             info.wheelcount++;
             if (meshwheel.propulsion != WheelPropulsion::NONE)
                 info.propwheelcount++;
@@ -623,8 +600,6 @@ void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string
             RigDef::MeshWheel2& meshwheel2 = m_document->meshwheels2[cur_line.data_pos];
             info.nodecount += meshwheel2.num_rays * 2; // BuildWheelObjectAndNodes()
             info.beamcount += meshwheel2.num_rays * ((meshwheel2.rigidity_node != NODEREF_INVALID) ? 9 : 8); // BuildWheelBeams()
-            LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
-                document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             info.wheelcount++;
             if (meshwheel2.propulsion != WheelPropulsion::NONE)
                 info.propwheelcount++;
@@ -639,8 +614,6 @@ void ActorSpawner::FillCacheConfigInfo(RigDef::DocumentPtr document, std::string
             // Tyre beams:     num_rays*10 (num_rays*11 with valid rigidity_node)
             // Support beams:  num_rays*2
             info.beamcount += fbwheel.num_rays * ((fbwheel.rigidity_node != NODEREF_INVALID) ? 21 : 20);
-            LOG(fmt::format("FillCacheConfigInfo: {}, {} - beamcount {}",
-                document->name, RigDef::KeywordToString(cur_line.keyword), info.beamcount));
             info.wheelcount++;
             if (fbwheel.propulsion != WheelPropulsion::NONE)
                 info.propwheelcount++;
