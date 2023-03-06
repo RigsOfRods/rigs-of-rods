@@ -147,6 +147,7 @@ struct TObjEntry
     char                 type[TObj::STR_LEN]          = {};
     char                 instance_name[TObj::STR_LEN] = {};
     char                 odef_name[TObj::STR_LEN]     = {};
+    float                rendering_distance           = 0.f; // 0 means 'always rendered', see https://ogrecave.github.io/ogre/api/1.11/class_ogre_1_1_movable_object.html#afe1f2a1009e3f14f36e1bcc9b1b9557e
 };
 
 // -----------------------------------------------------------------------------
@@ -196,6 +197,7 @@ private:
     int                        m_line_number;
     const char*                m_cur_line;
     const char*                m_cur_line_trimmed;
+    float                      m_default_rendering_distance;
 
     // Procedural roads
     bool                       m_in_procedural_road;

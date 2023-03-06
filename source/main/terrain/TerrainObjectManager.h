@@ -79,7 +79,7 @@ public:
     std::vector<EditorObject>& GetEditorObjects() { return m_editor_objects; }
     std::vector<MapEntity>& GetMapEntities() { return m_map_entities; }
     void           LoadTObjFile(Ogre::String filename);
-    bool           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
+    bool           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, float rendering_distance = 0, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
     void           MoveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
     void           unloadObject(const Ogre::String& instancename);
     void           LoadTelepoints();

@@ -63,6 +63,7 @@ void TObjParser::Prepare()
     m_cur_procedural_obj = new ProceduralObject();
     m_cur_procedural_obj_start_line = -1;
     m_road2_num_blocks = 0;
+    m_default_rendering_distance = 0.f;
     
     m_def = std::shared_ptr<TObjFile>(new TObjFile());
 }
@@ -110,6 +111,15 @@ bool TObjParser::ProcessCurrentLine()
     if (strncmp(m_cur_line, "grass", 5) == 0)
     {
         this->ProcessGrassLine();
+        return true;
+    }
+    if (strncmp(m_cur_line, "set_default_rendering_distance", 30) == 0)
+    {
+        const int result = sscanf(m_cur_line, "set_default_rendering_distance %f", &m_default_rendering_distance);
+        if (result != 1)
+        {
+            LOG(fmt::format("too few parameters on line: '{}'", m_cur_line));
+        }
         return true;
     }
     if (strncmp("begin_procedural_roads", m_cur_line, 22) == 0)
@@ -378,6 +388,7 @@ bool TObjParser::ParseObjectLine(TObjEntry& object)
     else if (odef == "roadbridge"        ) { special = TObj::SpecialObject::ROAD_BRIDGE           ; }
 
     object = TObjEntry(pos, rot, odef.ToCStr(), special, type, name);
+    object.rendering_distance = m_default_rendering_distance;
     return true;
 }
 
