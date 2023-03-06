@@ -243,7 +243,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     // Entries
     for (TObjEntry entry : tobj->objects)
     {
-        this->LoadTerrainObject(entry.odef_name, entry.position, entry.rotation, entry.instance_name, entry.type);
+        this->LoadTerrainObject(entry.odef_name, entry.position, entry.rotation, entry.instance_name, entry.type, entry.rendering_distance);
     }
 
     if (App::diag_terrn_log_roads->getBool())
@@ -536,7 +536,7 @@ ODefFile* TerrainObjectManager::FetchODef(std::string const & odef_name)
     }
 }
 
-bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
+bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, float rendering_distance /* = 0 */, bool enable_collisions /* = true */, int scripthandler /* = -1 */, bool uniquifyMaterial /* = false */)
 {
     if (type == "grid")
     {
@@ -546,7 +546,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             for (int z = 0; z < 500; z += 50)
             {
                 const String notype = "";
-                LoadTerrainObject(name, pos + Vector3(x, 0.0f, z), rot, name, notype, enable_collisions, scripthandler, uniquifyMaterial);
+                LoadTerrainObject(name, pos + Vector3(x, 0.0f, z), rot, name, notype, /*rendering_distance:*/0, enable_collisions, scripthandler, uniquifyMaterial);
             }
         }
         return true;
@@ -575,6 +575,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         if (mo->getEntity())
         {
             mo->getEntity()->setCastShadows(odef->header.cast_shadows);
+            mo->getEntity()->setRenderingDistance(rendering_distance);
             m_mesh_objects.push_back(mo);
         }
         else
