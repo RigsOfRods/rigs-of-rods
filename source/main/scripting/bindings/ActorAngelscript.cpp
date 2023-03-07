@@ -67,6 +67,15 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("BlinkType", "BLINK_RIGHT", (int)BLINK_RIGHT); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("BlinkType", "BLINK_WARN", (int)BLINK_WARN); ROR_ASSERT(result >= 0);
 
+    // enum ActorModifyRequestType
+    result = engine->RegisterEnum("ActorModifyRequestType"); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_INVALID", (int)ActorModifyRequest::Type::INVALID); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_RELOAD", (int)ActorModifyRequest::Type::RELOAD); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_RESET_ON_INIT_POS", (int)ActorModifyRequest::Type::RESET_ON_INIT_POS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_RESET_ON_SPOT", (int)ActorModifyRequest::Type::RESET_ON_SPOT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_SOFT_RESET", (int)ActorModifyRequest::Type::SOFT_RESET); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_RESTORE_SAVED", (int)ActorModifyRequest::Type::RESTORE_SAVED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_WAKE_UP", (int)ActorModifyRequest::Type::WAKE_UP); ROR_ASSERT(result >= 0);
 
     // class Actor (historically Beam)
     Actor::RegisterRefCountingObject(engine, "BeamClass");

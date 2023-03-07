@@ -117,6 +117,8 @@ enum MsgType
     MSG_EDI_RELOAD_BUNDLE_REQUESTED,       //!< Payload = RoR::CacheEntry* (weak)
 };
 
+const char* MsgTypeToString(MsgType type);
+
 /// @} // addtogroup MsgQueue
 
 enum class AppState

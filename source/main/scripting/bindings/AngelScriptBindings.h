@@ -73,6 +73,9 @@ void RegisterProceduralRoad(AngelScript::asIScriptEngine* engine);
 /// defined in GenericFileFormatAngelscript.cpp
 void RegisterGenericFileFormat(AngelScript::asIScriptEngine* engine);
 
+/// Registers enum MsgType, defined in MsgQueueAngelscript.cpp
+void RegisterMessageQueue(AngelScript::asIScriptEngine* engine);
+
 
 /// @}   //addtogroup Scripting
 

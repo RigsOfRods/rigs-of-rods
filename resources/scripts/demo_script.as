@@ -70,15 +70,7 @@ void frameStep(float dt)
     // Show some game context
     if (g_app_state.getInt() == 1) // main menu
     {
-        ImGui::Text("Game state: main menu");
-        ImGui::Text("Pro tip: Press '"
-            + inputs.getEventCommandTrimmed(EV_COMMON_CONSOLE_TOGGLE)
-            + "' to open console anytime.");
-            
-        // Reset simulation data
-        @g_displayed_document = null;
-        g_displayed_doc_filename = "";
-        g_terrain_tobj_files.removeRange(0, g_terrain_tobj_files.length());
+        drawMainMenuPanel();
     }
     else if (g_app_state.getInt() == 2) // simulation
     {
@@ -353,4 +345,23 @@ void drawDocumentWindow()
     
     ImGui::End();
     ImGui::PopID(); //"document view"
+}
+
+void drawMainMenuPanel()
+{
+    ImGui::Text("Game state: main menu");
+    ImGui::Text("Pro tip: Press '"
+        + inputs.getEventCommandTrimmed(EV_COMMON_CONSOLE_TOGGLE)
+        + "' to open console anytime.");
+        
+    // Test message queue
+    if (ImGui::Button("Launch simple test terrain"))
+    {
+        game.pushMessage(MSG_SIM_LOAD_TERRN_REQUESTED, {{'filename', 'simple2.terrn2'}});
+    }
+        
+    // Reset simulation data
+    @g_displayed_document = null;
+    g_displayed_doc_filename = "";
+    g_terrain_tobj_files.removeRange(0, g_terrain_tobj_files.length());
 }

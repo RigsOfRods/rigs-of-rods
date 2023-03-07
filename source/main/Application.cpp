@@ -4,7 +4,7 @@
     Copyright 2007-2012 Thomas Fischer
     Copyright 2013-2020 Petr Ohlidal
 
-    For more information, see http://www.rigsofrods.org/
+    For more information see http://www.rigsofrods.org/
 
     Rigs of Rods is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License version 3, as
@@ -476,6 +476,65 @@ std::string ToLocalizedString(IoInputGrabMode e)
     case IoInputGrabMode::ALL:       return _LC("IoInputGrabMode", "All");
     case IoInputGrabMode::DYNAMIC:   return _LC("IoInputGrabMode", "Dynamic");
     default:                         return "";
+    }
+}
+
+const char* MsgTypeToString(MsgType type)
+{
+    switch (type)
+    {
+    case MSG_APP_SHUTDOWN_REQUESTED           : return "MSG_APP_SHUTDOWN_REQUESTED";
+    case MSG_APP_SCREENSHOT_REQUESTED         : return "MSG_APP_SCREENSHOT_REQUESTED";
+    case MSG_APP_DISPLAY_FULLSCREEN_REQUESTED : return "MSG_APP_DISPLAY_FULLSCREEN_REQUESTED";
+    case MSG_APP_DISPLAY_WINDOWED_REQUESTED   : return "MSG_APP_DISPLAY_WINDOWED_REQUESTED";
+    case MSG_APP_MODCACHE_LOAD_REQUESTED      : return "MSG_APP_MODCACHE_LOAD_REQUESTED";
+    case MSG_APP_MODCACHE_UPDATE_REQUESTED    : return "MSG_APP_MODCACHE_UPDATE_REQUESTED";
+    case MSG_APP_MODCACHE_PURGE_REQUESTED     : return "MSG_APP_MODCACHE_PURGE_REQUESTED";
+
+    case MSG_NET_CONNECT_REQUESTED            : return "MSG_NET_CONNECT_REQUESTED";
+    case MSG_NET_CONNECT_STARTED              : return "MSG_NET_CONNECT_STARTED";
+    case MSG_NET_CONNECT_PROGRESS             : return "MSG_NET_CONNECT_PROGRESS";
+    case MSG_NET_CONNECT_SUCCESS              : return "MSG_NET_CONNECT_SUCCESS";
+    case MSG_NET_CONNECT_FAILURE              : return "MSG_NET_CONNECT_FAILURE";
+    case MSG_NET_SERVER_KICK                  : return "MSG_NET_SERVER_KICK";
+    case MSG_NET_DISCONNECT_REQUESTED         : return "MSG_NET_DISCONNECT_REQUESTED";
+    case MSG_NET_USER_DISCONNECT              : return "MSG_NET_USER_DISCONNECT";
+    case MSG_NET_RECV_ERROR                   : return "MSG_NET_RECV_ERROR";
+    case MSG_NET_REFRESH_SERVERLIST_SUCCESS   : return "MSG_NET_REFRESH_SERVERLIST_SUCCESS";
+    case MSG_NET_REFRESH_SERVERLIST_FAILURE   : return "MSG_NET_REFRESH_SERVERLIST_FAILURE";
+    case MSG_NET_REFRESH_REPOLIST_SUCCESS     : return "MSG_NET_REFRESH_REPOLIST_SUCCESS";
+    case MSG_NET_OPEN_RESOURCE_SUCCESS        : return "MSG_NET_OPEN_RESOURCE_SUCCESS";
+    case MSG_NET_REFRESH_REPOLIST_FAILURE     : return "MSG_NET_REFRESH_REPOLIST_FAILURE";
+    case MSG_NET_REFRESH_AI_PRESETS           : return "MSG_NET_REFRESH_AI_PRESETS";
+
+    case MSG_SIM_PAUSE_REQUESTED              : return "MSG_SIM_PAUSE_REQUESTED";
+    case MSG_SIM_UNPAUSE_REQUESTED            : return "MSG_SIM_UNPAUSE_REQUESTED";
+    case MSG_SIM_LOAD_TERRN_REQUESTED         : return "MSG_SIM_LOAD_TERRN_REQUESTED";
+    case MSG_SIM_LOAD_SAVEGAME_REQUESTED      : return "MSG_SIM_LOAD_SAVEGAME_REQUESTED";
+    case MSG_SIM_UNLOAD_TERRN_REQUESTED       : return "MSG_SIM_UNLOAD_TERRN_REQUESTED";
+    case MSG_SIM_SPAWN_ACTOR_REQUESTED        : return "MSG_SIM_SPAWN_ACTOR_REQUESTED";
+    case MSG_SIM_MODIFY_ACTOR_REQUESTED       : return "MSG_SIM_MODIFY_ACTOR_REQUESTED";
+    case MSG_SIM_DELETE_ACTOR_REQUESTED       : return "MSG_SIM_DELETE_ACTOR_REQUESTED";
+    case MSG_SIM_SEAT_PLAYER_REQUESTED        : return "MSG_SIM_SEAT_PLAYER_REQUESTED";
+    case MSG_SIM_TELEPORT_PLAYER_REQUESTED    : return "MSG_SIM_TELEPORT_PLAYER_REQUESTED";
+    case MSG_SIM_HIDE_NET_ACTOR_REQUESTED     : return "MSG_SIM_HIDE_NET_ACTOR_REQUESTED";
+    case MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED   : return "MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED";
+
+    case MSG_GUI_OPEN_MENU_REQUESTED          : return "MSG_GUI_OPEN_MENU_REQUESTED";
+    case MSG_GUI_CLOSE_MENU_REQUESTED         : return "MSG_GUI_CLOSE_MENU_REQUESTED";
+    case MSG_GUI_OPEN_SELECTOR_REQUESTED      : return "MSG_GUI_OPEN_SELECTOR_REQUESTED";
+    case MSG_GUI_CLOSE_SELECTOR_REQUESTED     : return "MSG_GUI_CLOSE_SELECTOR_REQUESTED";
+    case MSG_GUI_MP_CLIENTS_REFRESH           : return "MSG_GUI_MP_CLIENTS_REFRESH";
+    case MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED   : return "MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED";
+    case MSG_GUI_DOWNLOAD_PROGRESS            : return "MSG_GUI_DOWNLOAD_PROGRESS";
+    case MSG_GUI_DOWNLOAD_FINISHED            : return "MSG_GUI_DOWNLOAD_FINISHED";
+
+    case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED : return "MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED";
+    case MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED : return "MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED";
+    case MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED : return "MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED";
+    case MSG_EDI_RELOAD_BUNDLE_REQUESTED      : return "MSG_EDI_RELOAD_BUNDLE_REQUESTED";
+
+    default: return "";
     }
 }
 

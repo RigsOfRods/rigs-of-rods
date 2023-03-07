@@ -87,6 +87,12 @@ public:
 	*/
 	void quitGame();
     
+    /**
+    * Pushes a message to internal message queue. Parameters are listed in `Script2Game::MsgType` comments.
+    * @return True if the message was pushed, false if it was rejected.
+    */
+    bool pushMessage(MsgType type, dictionary@ dict);
+    
     /// @}
 
     /// @name GUI

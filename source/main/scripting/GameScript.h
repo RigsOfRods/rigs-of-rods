@@ -66,6 +66,12 @@ public:
 
     int useOnlineAPI(const Ogre::String& apiquery, const AngelScript::CScriptDictionary& dict, Ogre::String& result);
 
+    /**
+    * Pushes a message to internal message queue. Parameters are listed in `Script2Game::MsgType` comments.
+    * @return True if the message was pushed, false if it was rejected.
+    */
+    bool pushMessage(MsgType type, AngelScript::CScriptDictionary* dict);
+
     /// @}
 
     /// @name GUI
@@ -469,6 +475,8 @@ private:
     bool HaveSimTerrain(const char* func_name); //!< Helper; Check if SimController instance exists, log warning if not.
     bool HavePlayerAvatar(const char* func_name); //!< Helper; Check if local Character instance exists, log warning if not.
     bool HaveMainCamera(const char* func_name); //!< Helper; Check if main camera exists, log warning if not.
+
+    template<typename T> bool GetValueFromDict(const std::string& log_msg, AngelScript::CScriptDictionary* dict, bool required, std::string const& key, const char* type_decl, T& out_value); //!< Helper; get value from dict safely or log warning.
 
     /**
      * writes a message to the games log (RoR.log)
