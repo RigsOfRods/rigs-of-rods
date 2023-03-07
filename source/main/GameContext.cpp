@@ -305,7 +305,8 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
     else
     {
         if (fresh_actor->ar_driveable != NOT_DRIVEABLE &&
-            rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
+            rq.asr_origin != ActorSpawnRequest::Origin::NETWORK &&
+            rq.asr_enter)
         {
             this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(fresh_actor))));
         }

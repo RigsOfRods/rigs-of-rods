@@ -234,6 +234,7 @@ if (USE_ANGELSCRIPT)
             scripting/bindings/ImGuiAngelscript.cpp
             scripting/bindings/InputEngineAngelscript.cpp
             scripting/bindings/LocalStorageAngelscript.cpp
+            scripting/bindings/MsgQueueAngelscript.cpp
             scripting/bindings/OgreAngelscript.cpp
             scripting/bindings/ProceduralRoadAngelscript.cpp
             scripting/bindings/ScriptEventsAngelscript.cpp

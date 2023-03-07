@@ -163,6 +163,7 @@ void ScriptEngine::init()
     RegisterActor(engine);         // BeamClass
     RegisterProceduralRoad(engine);// procedural_point, ProceduralRoadClass, ProceduralObjectClass, ProceduralManagerClass
     RegisterTerrain(engine);       // TerrainClass
+    RegisterMessageQueue(engine);  // enum MsgType
     RegisterGameScript(engine);    // GameScriptClass
     RegisterScriptEvents(engine);  // scriptEvents
     RegisterGenericFileFormat(engine); // TokenType, GenericDocumentClass, GenericDocReaderClass

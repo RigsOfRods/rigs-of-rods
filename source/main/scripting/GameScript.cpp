@@ -1118,6 +1118,233 @@ bool GameScript::getMousePositionOnTerrain(Ogre::Vector3& out_pos)
     return ray_result.hit;
 }
 
+template<typename T>
+bool GameScript::GetValueFromDict(const std::string& log_msg, AngelScript::CScriptDictionary* dict, bool required, std::string const& key, const char* decl, T & out_value)
+{
+    if (!dict)
+    {
+        // Dict is NULL
+        if (required)
+        {
+            this->log(fmt::format("{}: ERROR, no parameters; '{}' is required.", log_msg, key));
+        }
+        return false;
+    }
+
+    auto itor = dict->find(key);
+    if (itor == dict->end())
+    {
+        // Key not found
+        if (required)
+        {
+            this->log(fmt::format("{}: ERROR, required parameter '{}' not found.", log_msg, key));
+        }
+        return false;
+    }
+
+    const int val_typeid = App::GetScriptEngine()->getEngine()->GetTypeIdByDecl(decl);
+    if (itor.GetTypeId() != val_typeid)
+    {
+        // Wrong type
+        if (required)
+        {
+            this->log(fmt::format("{}: ERROR, required parameter '{}' must be a {}, instead got {}.",
+                log_msg, key, decl, App::GetScriptEngine()->getEngine()->GetTypeDeclaration(val_typeid)));
+        }
+        return false;
+    }
+
+    return itor.GetValue(&out_value, val_typeid); // Error will be logged to Angelscript.log
+}
+
+bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
+{
+    Message m(type);
+    std::string log_msg = fmt::format("`pushMessage({})`", MsgTypeToString(type));
+
+    switch (type)
+    {
+        // -- NOT ALLOWED --
+
+        // Application
+    case MSG_APP_MODCACHE_LOAD_REQUESTED:
+        // Networking
+    case MSG_NET_CONNECT_STARTED:
+    case MSG_NET_CONNECT_PROGRESS:
+    case MSG_NET_CONNECT_SUCCESS:
+    case MSG_NET_CONNECT_FAILURE:
+    case MSG_NET_SERVER_KICK:
+    case MSG_NET_USER_DISCONNECT:
+    case MSG_NET_RECV_ERROR:
+    case MSG_NET_REFRESH_SERVERLIST_SUCCESS:
+    case MSG_NET_REFRESH_SERVERLIST_FAILURE:
+    case MSG_NET_REFRESH_REPOLIST_SUCCESS:
+    case MSG_NET_OPEN_RESOURCE_SUCCESS:
+    case MSG_NET_REFRESH_REPOLIST_FAILURE:
+        // GUI
+    case MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED:
+    case MSG_GUI_DOWNLOAD_PROGRESS:
+    case MSG_GUI_DOWNLOAD_FINISHED:
+    case MSG_GUI_OPEN_SELECTOR_REQUESTED:
+        // Editing
+    case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED:
+    case MSG_EDI_RELOAD_BUNDLE_REQUESTED:
+        this->log(fmt::format("{} is not allowed.", log_msg));
+        return false;
+
+
+        // -- SOME ASSEMBLY REQUIRED --
+
+        // Simulation
+    case MSG_SIM_LOAD_TERRN_REQUESTED:
+        if (!GetValueFromDict(log_msg, dict, /*required:*/true, "filename", "string", m.description))
+        {
+            return false;
+        }
+        break;
+
+    case MSG_SIM_LOAD_SAVEGAME_REQUESTED:
+        if (!GetValueFromDict(log_msg, dict, /*required:*/true, "filename", "string", m.description))
+        {
+            return false;
+        }
+        break;
+
+    case MSG_SIM_SPAWN_ACTOR_REQUESTED:         //!< Payload = RoR::ActorSpawnRequest* (owner)
+    {
+        ActorSpawnRequest* rq = new ActorSpawnRequest();
+
+        // Get required params
+        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "filename", "string", rq->asr_filename) &&
+            this->GetValueFromDict(log_msg, dict, /*required:*/true, "position", "vector3", rq->asr_position) &&
+            this->GetValueFromDict(log_msg, dict, /*required:*/true, "rotation", "quaternion", rq->asr_rotation))
+        {
+            rq->asr_cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/true, rq->asr_filename);
+            if (!rq->asr_cache_entry)
+            {
+                this->log(fmt::format("{}: WARNING, vehicle '{}' is not installed.", log_msg, rq->asr_filename));
+                delete rq;
+                return false;
+            }
+
+            // Set sectionconfig
+            this->GetValueFromDict(log_msg, dict, /*required:*/false, "config", "string", rq->asr_config);
+            // Make sure config exists
+            if (rq->asr_config != "")
+            {
+                auto result = std::find(rq->asr_cache_entry->sectionconfigs.begin(), rq->asr_cache_entry->sectionconfigs.end(), rq->asr_config);
+                if (result == rq->asr_cache_entry->sectionconfigs.end())
+                {
+                    this->log(fmt::format("{}: WARNING, configuration '{}' does not exist in '{}'.", log_msg, rq->asr_config, rq->asr_filename));
+                    rq->asr_config = "";
+                }
+            }
+            // If no config given (or was invalid), use the first available (classic behavior).
+            if (rq->asr_config == "" && rq->asr_cache_entry->sectionconfigs.size() > 0)
+            {
+                rq->asr_config = rq->asr_cache_entry->sectionconfigs[0];
+            }
+
+            // Enter or not?
+            this->GetValueFromDict(log_msg, dict, /*required:*/false, "enter", "bool", rq->asr_enter);
+
+            // Get skin
+            std::string skin_name;
+            if (this->GetValueFromDict(log_msg, dict, /*required:*/false, "skin", "string", skin_name))
+            {
+                rq->asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(skin_name);
+                if (!rq->asr_skin_entry)
+                    this->log(fmt::format("{}: WARNING, skin '{}' is not installed.", log_msg, skin_name));
+            }
+
+            m.payload = rq;
+        }
+        else
+        {
+            delete rq;
+            return false;
+        }
+        break;
+    }
+
+    case MSG_SIM_MODIFY_ACTOR_REQUESTED:        //!< Payload = RoR::ActorModifyRequest* (owner)
+    {
+        ActorModifyRequest::Type modify_type;
+        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "type", "ActorModifyRequestType", modify_type))
+        {
+            ActorModifyRequest* rq = new ActorModifyRequest();
+            rq->amr_type = modify_type;
+            m.payload = rq;
+        }
+        else
+        {
+            return false;
+        }
+        break;
+    }
+
+    case MSG_SIM_DELETE_ACTOR_REQUESTED:        //!< Payload = RoR::ActorPtr* (owner)
+    case MSG_SIM_HIDE_NET_ACTOR_REQUESTED:      //!< Payload = ActorPtr* (owner)
+    case MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED:    //!< Payload = ActorPtr* (owner)
+    {
+        int instance_id = -1;
+        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "instance_id", "int", instance_id))
+        {
+            ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(instance_id);
+            if (actor)
+            {
+                m.payload = new ActorPtr(actor);
+            }
+            else
+            {
+                this->log(fmt::format("{}: Actor with instance ID '{}' not found!", log_msg, instance_id));
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+        break;
+    }
+    
+    case MSG_SIM_SEAT_PLAYER_REQUESTED:         //!< Payload = RoR::ActorPtr (owner) | nullptr
+    {
+        int instance_id = -1;
+        ActorPtr actor;
+        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "instance_id", "int", instance_id)
+            && instance_id > -1)
+        {
+            actor = App::GetGameContext()->GetActorManager()->GetActorById(instance_id);
+        }
+        m.payload = new ActorPtr(actor);
+        break;
+    }
+
+    case MSG_SIM_TELEPORT_PLAYER_REQUESTED:     //!< Payload = Ogre::Vector3* (owner)
+    {
+        Ogre::Vector3 position;
+        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "position", "vector3", position))
+        {
+            m.payload = new Ogre::Vector3(position);
+        }
+        else
+        {
+            return false;
+        }
+        break;
+    }
+    
+    default:;
+    }
+
+    App::GetGameContext()->PushMessage(m);
+    return true;
+}
+
+// ------------------------
+// Helpers:
+
 bool GameScript::HaveSimTerrain(const char* func_name)
 {
     if (App::GetGameContext()->GetTerrain() == nullptr)

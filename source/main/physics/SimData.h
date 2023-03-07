@@ -777,6 +777,7 @@ struct ActorSpawnRequest
     int                 net_source_id = 0;
     int                 net_stream_id = 0;
     bool                asr_free_position = false;   //!< Disables the automatic spawn position adjustment
+    bool                asr_enter = true;
     bool                asr_terrn_machine = false;   //!< This is a fixed machinery
     std::shared_ptr<rapidjson::Document>
                         asr_saved_state;             //!< Pushes msg MODIFY_ACTOR (type RESTORE_SAVED) after spawn.
