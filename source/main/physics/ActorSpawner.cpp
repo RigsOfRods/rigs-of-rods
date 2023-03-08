@@ -5691,14 +5691,9 @@ unsigned int ActorSpawner::AddWheels2TyreBeam(DataPos_t pos, node_t* node_1, nod
 
 unsigned int ActorSpawner::AddWheels2Beam(DataPos_t pos, node_t* node_1, node_t* node_2)
 {
-    Wheel2& def = m_document->wheels2[pos];
-
     unsigned int index = m_actor->ar_num_beams;
-    beam_t& beam = GetFreeBeam();
-    InitBeam(beam, node_1, node_2);
-    beam.bm_type = BEAM_NORMAL;
-    beam.strength = m_state.default_break;
-    beam.strength = m_state.default_deform;
+    beam_t& beam = this->AddBeam(*node_1, *node_2);
+    this->CalculateBeamLength(beam);
     return index;
 }
 
