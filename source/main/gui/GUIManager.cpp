@@ -322,6 +322,10 @@ void GUIManager::SetupImGui()
     // see OGRE source file '/Samples/Simple/include/ImGuiDemo.h'
     m_imgui_overlay = new Ogre::ImGuiOverlay();
 
+    // Load font
+    m_imgui_overlay->addFont("rigsofrods/fonts/Roboto-Medium",
+        ContentManager::ResourcePack::FONTS.resource_group_name);
+
     // handle DPI scaling
     float vpScale = Ogre::OverlayManager::getSingleton().getPixelRatio();
     ImGui::GetIO().FontGlobalScale = std::round(vpScale); // default font does not work with fractional scaling
