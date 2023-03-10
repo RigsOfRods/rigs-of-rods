@@ -15,12 +15,12 @@ jobs:
       - name: Cache conan
         uses: actions/cache@v3
         with:
-          key: conan-ubuntu-${{ hashFiles('conanfile.txt') }}
-          path: ~/.conan/
+          key: conan-ubuntu-${{ hashFiles('conanfile.py') }}
+          path: ~/.conan2/
 
       - name: Install dependencies
         run: |
-          curl "https://raw.githubusercontent.com/AnotherFoxGuy/ci-scripts/main/install-conan.sh" | sudo bash
+          curl "https://raw.githubusercontent.com/AnotherFoxGuy/ci-scripts/main/install-conan2.0.sh" | sudo bash
           sudo apt-get update
           sudo apt-get -y install \
                   pkg-config \
@@ -42,15 +42,12 @@ jobs:
 
       - name: Configure
         run: |
-          conan config set general.revisions_enabled=1
-          echo "tools.system.package_manager:mode = install" > ~/.conan/global.conf
-          echo "tools.system.package_manager:sudo = True" >> ~/.conan/global.conf
-          conan profile new --detect --force default
-          conan profile update conf.tools.cmake.cmaketoolchain:generator="Ninja" default
-          conan profile update settings.compiler.libcxx=libstdc++11 default
+          conan profile detect --force
+          echo "tools.system.package_manager:mode = install" > ~/.conan2/global.conf
+          echo "tools.system.package_manager:sudo = True" >> ~/.conan2/global.conf
           conan remote add ror-conan https://git.anotherfoxguy.com/api/packages/rorbot/conan -f
-          conan install . -s build_type=Release -b missing -pr:b=default
-          cmake . -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=redist -DCREATE_CONTENT_FOLDER=ON -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
+          conan install . -s build_type=Release -b missing -pr:b=default -c tools.cmake.cmaketoolchain:generator="Ninja"
+          cmake --preset conan-release -DCMAKE_INSTALL_PREFIX=redist -DCREATE_CONTENT_FOLDER=ON
         shell: bash
 
       - name: Build
@@ -77,14 +74,14 @@ jobs:
           path: redist
 
       - name: Clean Conan pkgs
-        run: conan remove "*" -fsb
+        run: conan cache clean "*" -sbd
         shell: bash
 
   build-msvc:
     name: Windows build
     runs-on: windows-2019
     env:
-      BUILD_TOOLS_PATH: C:\apps\build-tools\
+      BUILD_TOOLS_PATH: C:\Program Files\Conan\conan
       CONAN_USER_HOME_SHORT: None
     steps:
       - run: echo $env:BUILD_TOOLS_PATH | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
@@ -94,27 +91,22 @@ jobs:
           submodules: true
 
       - name: Install Build tools
-        shell: cmake -P {0}
-        run: |
-          file(MAKE_DIRECTORY $ENV{BUILD_TOOLS_PATH})
-          file(DOWNLOAD https://cdn.anotherfoxguy.com/build-tools.zip "$ENV{TMP}/build-tools.zip" SHOW_PROGRESS)
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "$ENV{TMP}/build-tools.zip" WORKING_DIRECTORY "$ENV{BUILD_TOOLS_PATH}")
+        run: choco install ninja conan -y
 
       - name: Cache conan packages
         uses: actions/cache@v3
         with:
-          key: conan-windows-${{ hashFiles('conanfile.txt') }}
-          path: ~/.conan
+          key: conan-windows-${{ hashFiles('conanfile.py') }}
+          path: ~/.conan2
 
       - name: Enable Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1.12.1
 
       - name: Configure
         run: |
-          conan config set general.revisions_enabled=1
           conan remote add ror-conan https://git.anotherfoxguy.com/api/packages/rorbot/conan -f
           conan install . -b missing -pr:b=tools/conan-profiles/vs-19-release-ninja -pr=tools/conan-profiles/vs-19-release-ninja
-          cmake . -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=redist -DCREATE_CONTENT_FOLDER=ON -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
+          cmake --preset conan-release -DCMAKE_INSTALL_PREFIX=redist -DCREATE_CONTENT_FOLDER=ON
         shell: cmd
 
       - name: Build
@@ -137,5 +129,5 @@ jobs:
           path: redist
 
       - name: Clean Conan pkgs
-        run: conan remove "*" -fsb
+        run: conan cache clean "*" -sbd
         shell: cmd

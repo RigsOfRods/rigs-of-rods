@@ -32,5 +32,5 @@ build/
 tools/l10n/tx/
 tools/l10n/languages/
 tools/l10n/ror\.pot
-
+CMakeUserPresets.json
 tools/l10n/TMP.pot
