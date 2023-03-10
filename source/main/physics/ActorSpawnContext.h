@@ -73,6 +73,12 @@ struct ActorSpawnContext
     std::string inertia_default_startFunction;
     std::string inertia_default_stopFunction;
 
+    // Fusedrag autocalc
+    float       fuse_z_min = 1000.0f;
+    float       fuse_z_max = -1000.0f;
+    float       fuse_y_min = 1000.0f;
+    float       fuse_y_max = -1000.0f;
+
     bool        enable_advanced_deformation = false;
     int         lockgroup_default = NODE_LOCKGROUP_DEFAULT;
 

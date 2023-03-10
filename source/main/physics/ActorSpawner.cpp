@@ -92,10 +92,6 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
     m_selected_config = rq.asr_config;
     m_current_keyword = RigDef::Keyword::INVALID;
     m_wing_area = 0.f;
-    m_fuse_z_min = 1000.0f;
-    m_fuse_z_max = -1000.0f;
-    m_fuse_y_min = 1000.0f;
-    m_fuse_y_max = -1000.0f;
     m_first_wing_index = -1;
     m_particles_parent_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
 
@@ -1190,7 +1186,7 @@ void ActorSpawner::ProcessFusedrag(DataPos_t pos)
 
         // calculate fusedrag by truck size
         factor = def.area_coefficient;
-        width = (m_fuse_z_max - m_fuse_z_min) * (m_fuse_y_max - m_fuse_y_min) * factor;
+        width = (m_state.fuse_z_max - m_state.fuse_z_min) * (m_state.fuse_y_max - m_state.fuse_y_min) * factor;
 
         m_actor->m_fusealge_airfoil = new Airfoil(fusefoil);
 
@@ -6260,10 +6256,10 @@ void ActorSpawner::AddNode(NodesCommon& def, std::string const& node_name, NodeN
     m_actor->ar_exhaust_pos_node = BITMASK_IS_1(options, RigDef::Node::OPTION_x_EXHAUST_POINT) ? node.pos : 0;
 
     // Update "fusedrag" autocalc y & z span
-    if (def.position.z < m_fuse_z_min) { m_fuse_z_min = def.position.z; }
-    if (def.position.z > m_fuse_z_max) { m_fuse_z_max = def.position.z; }
-    if (def.position.y < m_fuse_y_min) { m_fuse_y_min = def.position.y; }
-    if (def.position.y > m_fuse_y_max) { m_fuse_y_max = def.position.y; }
+    if (def.position.z < m_state.fuse_z_min) { m_state.fuse_z_min = def.position.z; }
+    if (def.position.z > m_state.fuse_z_max) { m_state.fuse_z_max = def.position.z; }
+    if (def.position.y < m_state.fuse_y_min) { m_state.fuse_y_min = def.position.y; }
+    if (def.position.y > m_state.fuse_y_max) { m_state.fuse_y_max = def.position.y; }
 
     // GFX
     NodeGfx nfx(node.pos);
