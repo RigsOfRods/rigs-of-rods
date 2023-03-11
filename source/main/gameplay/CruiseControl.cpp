@@ -51,7 +51,7 @@ void Actor::UpdateCruiseControl(float dt)
         (ar_engine->GetGear() > 0 && cc_target_speed < cc_target_speed_lower_limit) ||
         (ar_engine->GetGear() > 0 && ar_parking_brake) ||
         (ar_engine->GetGear() < 0) ||
-        !ar_engine->IsRunning() ||
+        !ar_engine->isRunning() ||
         !ar_engine->hasContact())
     {
         this->cruisecontrolToggle();

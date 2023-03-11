@@ -1295,7 +1295,7 @@ void EngineSim::UpdateInputEvents(float dt)
     else
     {
         // start engine
-        if (this->hasContact() && !this->IsRunning() && (accl > 0 || brake > 0))
+        if (this->hasContact() && !this->isRunning() && (accl > 0 || brake > 0))
         {
             this->StartEngine();
         }
@@ -1366,7 +1366,7 @@ void EngineSim::UpdateInputEvents(float dt)
         this->toggleContact();
     }
 
-    if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STARTER) && this->hasContact() && !this->IsRunning())
+    if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STARTER) && this->hasContact() && !this->isRunning())
     {
         // starter
         m_starter = true;

@@ -603,7 +603,7 @@ void Actor::calcNetwork()
     else
         SOUND_STOP(ar_instance_id, SS_TRIG_HORN);
 
-    if ((oob1->lightmask & RoRnet::LIGHTMASK_REVERSE) && ar_engine && ar_engine->IsRunning())
+    if ((oob1->lightmask & RoRnet::LIGHTMASK_REVERSE) && ar_engine && ar_engine->isRunning())
         SOUND_START(ar_instance_id, SS_TRIG_REVERSE_GEAR);
     else
         SOUND_STOP(ar_instance_id, SS_TRIG_REVERSE_GEAR);
@@ -1904,7 +1904,7 @@ void Actor::sendStreamData()
 
             if (ar_engine->hasContact())
                 send_oob->flagmask += NETMASK_ENGINE_CONT;
-            if (ar_engine->IsRunning())
+            if (ar_engine->isRunning())
                 send_oob->flagmask += NETMASK_ENGINE_RUN;
 
             switch (ar_engine->GetAutoShiftMode())
@@ -3829,11 +3829,11 @@ void Actor::updateDashBoards(float dt)
         ar_dashboard->setFloat(DD_ENGINE_TURBO, turbo);
 
         // ignition
-        bool ign = (ar_engine->hasContact() && !ar_engine->IsRunning());
+        bool ign = (ar_engine->hasContact() && !ar_engine->isRunning());
         ar_dashboard->setBool(DD_ENGINE_IGNITION, ign);
 
         // battery
-        bool batt = (ar_engine->hasContact() && !ar_engine->IsRunning());
+        bool batt = (ar_engine->hasContact() && !ar_engine->isRunning());
         ar_dashboard->setBool(DD_ENGINE_BATTERY, batt);
 
         // clutch warning

@@ -990,7 +990,7 @@ void VehicleButtons::DrawEngineButton(RoR::GfxActor* actorx)
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
     }
-    else if (actorx->GetActor()->ar_engine->IsRunning())
+    else if (actorx->GetActor()->ar_engine->isRunning())
     {
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
     }
@@ -1001,7 +1001,7 @@ void VehicleButtons::DrawEngineButton(RoR::GfxActor* actorx)
 
     if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_engine_icon->getHandle()), ImVec2(24, 24)))
     {
-        if (actorx->GetActor()->ar_engine && actorx->GetActor()->ar_engine->IsRunning())
+        if (actorx->GetActor()->ar_engine && actorx->GetActor()->ar_engine->isRunning())
         {
             actorx->GetActor()->ar_engine->toggleContact();
         }
@@ -1024,7 +1024,7 @@ void VehicleButtons::DrawEngineButton(RoR::GfxActor* actorx)
     if (ImGui::IsItemHovered())
     {
         ImGui::BeginTooltip();
-        if (actorx->GetActor()->ar_engine && !actorx->GetActor()->ar_engine->IsRunning())
+        if (actorx->GetActor()->ar_engine && !actorx->GetActor()->ar_engine->isRunning())
         {
             ImGui::TextDisabled("%s (%s + %s)", "Start Engine", App::GetInputEngine()->getEventCommandTrimmed(EV_TRUCK_TOGGLE_CONTACT).c_str(), App::GetInputEngine()->getEventCommandTrimmed(EV_TRUCK_STARTER).c_str());
         }
