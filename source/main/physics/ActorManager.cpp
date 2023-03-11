@@ -1366,7 +1366,7 @@ void ActorManager::UpdateTruckFeatures(Actor* vehicle, float dt)
 
     EngineSim* engine = vehicle->ar_engine;
 
-    if (engine && engine->HasStarterContact() &&
+    if (engine && engine->hasContact() &&
         engine->GetAutoShiftMode() == SimGearboxMode::AUTO &&
         engine->getAutoShift() != EngineSim::NEUTRAL)
     {

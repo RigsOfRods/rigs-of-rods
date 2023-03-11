@@ -1003,7 +1003,7 @@ void VehicleButtons::DrawEngineButton(RoR::GfxActor* actorx)
     {
         if (actorx->GetActor()->ar_engine && actorx->GetActor()->ar_engine->IsRunning())
         {
-            actorx->GetActor()->ar_engine->ToggleStarterContact();
+            actorx->GetActor()->ar_engine->toggleContact();
         }
         else if (actorx->GetActor()->ar_engine)
         {

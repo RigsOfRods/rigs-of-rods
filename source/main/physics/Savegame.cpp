@@ -500,7 +500,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
             j_entry.AddMember("engine_auto_mode", actor->ar_engine->GetAutoMode(), j_doc.GetAllocator());
             j_entry.AddMember("engine_auto_select", actor->ar_engine->getAutoShift(), j_doc.GetAllocator());
             j_entry.AddMember("engine_is_running", actor->ar_engine->IsRunning(), j_doc.GetAllocator());
-            j_entry.AddMember("engine_has_contact", actor->ar_engine->HasStarterContact(), j_doc.GetAllocator());
+            j_entry.AddMember("engine_has_contact", actor->ar_engine->hasContact(), j_doc.GetAllocator());
             j_entry.AddMember("engine_wheel_spin", actor->ar_wheel_spin, j_doc.GetAllocator());
             j_entry.AddMember("alb_mode", actor->alb_mode, j_doc.GetAllocator());
             j_entry.AddMember("tc_mode", actor->tc_mode, j_doc.GetAllocator());
