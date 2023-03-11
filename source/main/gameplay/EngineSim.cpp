@@ -42,7 +42,7 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
     , m_braking_torque(-torque / 5.0f)
     , m_clutch_force(10000.0f)
     , m_clutch_time(0.2f)
-    , m_starter_has_contact(false)
+    , m_contact(false)
     , m_cur_acc(0.0f)
     , m_cur_clutch(0.0f)
     , m_cur_clutch_torque(0.0f)
@@ -426,11 +426,11 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
     float totaltorque = 0.0f;
 
     // engine braking
-    if (m_engine_is_running && m_starter_has_contact)
+    if (m_engine_is_running && m_contact)
     {
         totaltorque += m_braking_torque * m_cur_engine_rpm / m_engine_max_rpm * (1.0f - m_cur_acc);
     }
-    else if (!m_starter_has_contact || !m_starter)
+    else if (!m_contact || !m_starter)
     {
         totaltorque += m_braking_torque;
     }
@@ -441,7 +441,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
         totaltorque -= 8.0f * m_hydropump_state / (m_cur_engine_rpm * 0.105f * dt);
     }
 
-    if (m_engine_is_running && m_starter_has_contact && m_cur_engine_rpm < (m_engine_max_rpm * 1.25f))
+    if (m_engine_is_running && m_contact && m_cur_engine_rpm < (m_engine_max_rpm * 1.25f))
     {
         m_cur_engine_torque = getEnginePower() * acc;
         totaltorque += m_cur_engine_torque;
@@ -454,7 +454,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
             this->StopEngine();
         }
 
-        if (m_starter_has_contact && !m_engine_is_running)
+        if (m_contact && !m_engine_is_running)
         {
             if (m_cur_engine_rpm < m_engine_idle_rpm)
             {
@@ -879,7 +879,7 @@ void EngineSim::PushNetworkState(float rpm, float acc, float clutch, int gear, b
     m_cur_clutch = clutch;
     m_cur_gear = gear;
     m_engine_is_running = running;
-    m_starter_has_contact = contact;
+    m_contact = contact;
     if (automode != -1)
     {
         m_auto_mode = automode;
@@ -972,10 +972,10 @@ float EngineSim::GetClutchForce()
     return m_clutch_force;
 }
 
-void EngineSim::ToggleStarterContact()
+void EngineSim::toggleContact()
 {
-    m_starter_has_contact = !m_starter_has_contact;
-    if (m_starter_has_contact)
+    m_contact = !m_contact;
+    if (m_contact)
     {
         SOUND_START(m_actor, SS_TRIG_IGNITION);
     }
@@ -988,7 +988,7 @@ void EngineSim::ToggleStarterContact()
 void EngineSim::StartEngine()
 {
     this->OffStart();
-    m_starter_has_contact = true;
+    m_contact = true;
     m_cur_engine_rpm = m_engine_idle_rpm;
     m_engine_is_running = true;
     if (m_auto_mode <= SEMIAUTO)
@@ -1007,7 +1007,7 @@ void EngineSim::OffStart()
 {
     m_air_pressure = 0.0f;
     m_autoselect = MANUALMODE;
-    m_starter_has_contact = false;
+    m_contact = false;
     m_cur_acc = 0.0f;
     m_cur_clutch = 0.0f;
     m_cur_clutch_torque = 0.0f;
@@ -1026,11 +1026,6 @@ void EngineSim::OffStart()
         m_cur_turbo_rpm[i] = 0.0f;
         m_turbo_bov_rpm[i] = 0.0f;
     }
-}
-
-void EngineSim::SetStarter(bool v)
-{
-    m_starter = static_cast<int>(v);
 }
 
 int EngineSim::GetGear()
@@ -1300,7 +1295,7 @@ void EngineSim::UpdateInputEvents(float dt)
     else
     {
         // start engine
-        if (this->HasStarterContact() && !this->IsRunning() && (accl > 0 || brake > 0))
+        if (this->hasContact() && !this->IsRunning() && (accl > 0 || brake > 0))
         {
             this->StartEngine();
         }
@@ -1368,18 +1363,18 @@ void EngineSim::UpdateInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_CONTACT))
     {
-        this->ToggleStarterContact();
+        this->toggleContact();
     }
 
-    if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STARTER) && this->HasStarterContact() && !this->IsRunning())
+    if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STARTER) && this->hasContact() && !this->IsRunning())
     {
         // starter
-        this->SetStarter(1);
+        m_starter = true;
         SOUND_START(m_actor, SS_TRIG_STARTER);
     }
     else
     {
-        this->SetStarter(0);
+        m_starter = false;
         SOUND_STOP(m_actor, SS_TRIG_STARTER);
     }
 

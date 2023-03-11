@@ -82,9 +82,7 @@ public:
     void           SetWheelSpin(float rpm);      //!< Set current wheel spinning speed.
     void           SetTCaseRatio(float ratio);   //!< Set current transfer case gear (reduction) ratio
     void           ToggleAutoShiftMode();
-    void           ToggleStarterContact();
     void           OffStart();                   //!< Quick start of vehicle engine.
-    void           SetStarter(bool v);           //!< Controls vehicle m_starter. No side effects.
     void           StartEngine();                //!< Quick engine start. Plays sounds.
     int            GetGear();                    //!< low level gear changing
     int            GetGearRange();               //!< low level gear changing
@@ -92,7 +90,6 @@ public:
     void           SetGearRange(int v);          //!< low level gear changing
     void           StopEngine();                 //!< stall engine
     float          GetAccToHoldRPM();            //!< estimate required throttle input to hold the current rpm
-    bool           HasStarterContact() const{ return m_starter_has_contact; };
     bool           HasTurbo() const         { return m_engine_has_turbo; };
     bool           IsRunning() const        { return m_engine_is_running; };
     int            GetAutoMode() const      { return static_cast<int>(m_auto_mode); };
@@ -125,6 +122,10 @@ public:
     void           UpdateEngineSim(float dt, int doUpdate);
     void           UpdateEngineAudio();
     void           UpdateInputEvents(float dt);
+
+    // Ignition
+    void           toggleContact();
+    bool           hasContact() const { return m_contact; };
 
     enum autoswitch
     {
@@ -172,7 +173,6 @@ private:
 
     // Engine
     bool           m_engine_is_electric;    //!< Engine attribute
-    bool           m_starter_has_contact;   //!< Engine state
     bool           m_engine_has_air;        //!< Engine attribute
     bool           m_engine_has_turbo;      //!< Engine attribute
     int            m_engine_turbo_mode;     //!< Engine attribute
@@ -197,6 +197,10 @@ private:
     TorqueCurve*   m_torque_curve;
     float          m_air_pressure;
 
+    // Ignition
+    bool           m_contact;               //!< Ignition switch is in ON/RUN position.
+    bool           m_starter;               //!< Ignition switch is in START position.
+
     // Shifting
     float          m_post_shift_time;       //!< Shift attribute
     float          m_post_shift_clock;
@@ -210,7 +214,6 @@ private:
     int            m_auto_mode; //!< Transmission mode (@see enum EngineSim::shiftmodes)
     autoswitch     m_autoselect;
     float          m_auto_cur_acc;
-    int            m_starter;
     float          m_full_rpm_range;
     float          m_one_third_rpm_range;
     float          m_half_rpm_range;

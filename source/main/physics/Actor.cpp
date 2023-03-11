@@ -1934,7 +1934,7 @@ void Actor::sendStreamData()
             send_oob->engine_clutch = ar_engine->GetClutch();
             send_oob->engine_gear = ar_engine->GetGear();
 
-            if (ar_engine->HasStarterContact())
+            if (ar_engine->hasContact())
                 send_oob->flagmask += NETMASK_ENGINE_CONT;
             if (ar_engine->IsRunning())
                 send_oob->flagmask += NETMASK_ENGINE_RUN;
@@ -3888,11 +3888,11 @@ void Actor::updateDashBoards(float dt)
         ar_dashboard->setFloat(DD_ENGINE_TURBO, turbo);
 
         // ignition
-        bool ign = (ar_engine->HasStarterContact() && !ar_engine->IsRunning());
+        bool ign = (ar_engine->hasContact() && !ar_engine->IsRunning());
         ar_dashboard->setBool(DD_ENGINE_IGNITION, ign);
 
         // battery
-        bool batt = (ar_engine->HasStarterContact() && !ar_engine->IsRunning());
+        bool batt = (ar_engine->hasContact() && !ar_engine->IsRunning());
         ar_dashboard->setBool(DD_ENGINE_BATTERY, batt);
 
         // clutch warning
