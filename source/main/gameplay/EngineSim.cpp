@@ -447,14 +447,24 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
         totaltorque += m_cur_engine_torque;
     }
 
+    // engine stall
     if (!m_engine_is_electric)
     {
         if (m_engine_is_running && m_cur_engine_rpm < m_engine_stall_rpm)
         {
             this->StopEngine();
         }
+    }
 
-        if (m_contact && !m_engine_is_running)
+    // engine start
+    if (m_contact && !m_engine_is_running)
+    {
+        if (m_engine_is_electric)
+        {
+            if (m_starter)
+                m_engine_is_running = true;
+        }
+        else
         {
             if (m_cur_engine_rpm < m_engine_idle_rpm)
             {
@@ -1368,9 +1378,9 @@ void EngineSim::UpdateInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_STARTER) && this->hasContact() && !this->isRunning())
     {
-        // starter
         m_starter = true;
-        SOUND_START(m_actor, SS_TRIG_STARTER);
+        if (!m_engine_is_electric)
+            SOUND_START(m_actor, SS_TRIG_STARTER);
     }
     else
     {
