@@ -91,7 +91,7 @@ public:
     void           StopEngine();                 //!< stall engine
     float          GetAccToHoldRPM();            //!< estimate required throttle input to hold the current rpm
     bool           HasTurbo() const         { return m_engine_has_turbo; };
-    bool           IsRunning() const        { return m_engine_is_running; };
+    bool           isRunning() const        { return m_engine_is_running; };
     int            GetAutoMode() const      { return static_cast<int>(m_auto_mode); };
     char           GetEngineType() const    { return m_engine_type; };
     float          getIdleRPM() const       { return m_engine_idle_rpm; };

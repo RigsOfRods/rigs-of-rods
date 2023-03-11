@@ -895,7 +895,7 @@ void Actor::CalcCommands(bool doUpdate)
                         if (bbeam_dir * cmd_beam.cmb_state->auto_moving_mode > 0)
                             v = 1;
 
-                        if (cmd_beam.cmb_needs_engine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
+                        if (cmd_beam.cmb_needs_engine && ((ar_engine && !ar_engine->isRunning()) || !ar_engine_hydraulics_ready))
                             continue;
 
                         if (v > 0.0f && cmd_beam.cmb_engine_coupling > 0.0f)
@@ -955,7 +955,7 @@ void Actor::CalcCommands(bool doUpdate)
                 float v = 0.0f;
                 int rota = std::abs(ar_command_key[i].rotators[j]) - 1;
 
-                if (ar_rotators[rota].needs_engine && ((ar_engine && !ar_engine->IsRunning()) || !ar_engine_hydraulics_ready))
+                if (ar_rotators[rota].needs_engine && ((ar_engine && !ar_engine->isRunning()) || !ar_engine_hydraulics_ready))
                     continue;
 
                 v = ar_command_key[i].rotator_inertia.CalcCmdKeyDelay(ar_command_key[i].commandValue, PHYSICS_DT);

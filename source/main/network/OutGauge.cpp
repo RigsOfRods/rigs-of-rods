@@ -169,7 +169,7 @@ bool OutGauge::Update(float dt, ActorPtr truck)
             gd.ShowLights |= DL_HANDBRAKE;
         if (truck->getHeadlightsVisible())
             gd.ShowLights |= DL_FULLBEAM;
-        if (truck->ar_engine->hasContact() && !truck->ar_engine->IsRunning())
+        if (truck->ar_engine->hasContact() && !truck->ar_engine->isRunning())
             gd.ShowLights |= DL_BATTERY;
         if (truck->ar_dashboard->_getBool(DD_SIGNAL_TURNLEFT))
             gd.ShowLights |= DL_SIGNAL_L;

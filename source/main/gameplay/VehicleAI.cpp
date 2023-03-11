@@ -350,7 +350,7 @@ void VehicleAI::update(float dt, int doUpdate)
     if (beam->ar_engine) // Truck
     {
         // Start engine if not running
-        if (!beam->ar_engine->IsRunning())
+        if (!beam->ar_engine->isRunning())
             beam->ar_engine->StartEngine();
 
         beam->ar_parking_brake = false;

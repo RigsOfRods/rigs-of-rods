@@ -499,7 +499,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
             j_entry.AddMember("engine_rpm", actor->ar_engine->GetEngineRpm(), j_doc.GetAllocator());
             j_entry.AddMember("engine_auto_mode", actor->ar_engine->GetAutoMode(), j_doc.GetAllocator());
             j_entry.AddMember("engine_auto_select", actor->ar_engine->getAutoShift(), j_doc.GetAllocator());
-            j_entry.AddMember("engine_is_running", actor->ar_engine->IsRunning(), j_doc.GetAllocator());
+            j_entry.AddMember("engine_is_running", actor->ar_engine->isRunning(), j_doc.GetAllocator());
             j_entry.AddMember("engine_has_contact", actor->ar_engine->hasContact(), j_doc.GetAllocator());
             j_entry.AddMember("engine_wheel_spin", actor->ar_wheel_spin, j_doc.GetAllocator());
             j_entry.AddMember("alb_mode", actor->alb_mode, j_doc.GetAllocator());
@@ -779,7 +779,7 @@ void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_e
         int autoselect = j_entry["engine_auto_select"].GetInt();
         bool running = j_entry["engine_is_running"].GetBool();
         bool contact = j_entry["engine_has_contact"].GetBool();
-        if (running != actor->ar_engine->IsRunning())
+        if (running != actor->ar_engine->isRunning())
         {
             if (running)
                 actor->ar_engine->StartEngine();
