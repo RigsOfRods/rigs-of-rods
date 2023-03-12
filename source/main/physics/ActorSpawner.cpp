@@ -1642,7 +1642,7 @@ void ActorSpawner::ProcessSoundSource2(DataPos_t pos)
     AddSoundSource(
         m_actor,
         App::GetSoundScriptManager()->createInstance(def.sound_script_name, m_actor->ar_instance_id),
-        GetNodeIndexOrThrow(def.node),
+        static_cast<NodeNum_t>(PARSEINT(def.node)), // DO NOT check nodes here, they may come afterwards
         def.mode
     );
 #endif // USE_OPENAL
@@ -1681,8 +1681,8 @@ void ActorSpawner::ProcessSoundSource(DataPos_t pos)
     AddSoundSource(
         m_actor,
         App::GetSoundScriptManager()->createInstance(def.sound_script_name, m_actor->ar_instance_id),
-        GetNodeIndexOrThrow(def.node),
-        -2
+        static_cast<NodeNum_t>(PARSEINT(def.node)), // DO NOT check nodes here, they may come afterwards
+        SoundSource2::MODE_ALWAYS
     );
 #endif // USE_OPENAL
 }
