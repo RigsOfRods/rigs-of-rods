@@ -852,6 +852,12 @@ void Parser::ParseDirectiveForset()
 {
     Forset def;
 
+    // --------------------------------------------------------------------------------------------
+    // BEWARE OF QUIRKS in the following code (they must be preserved for backwards compatibility):
+    // - a space between the 'forset' keyword and arguments is optional.
+    // - a separator at the end of line will silently add '0' to the node list.
+    // --------------------------------------------------------------------------------------------
+
     //parsing set definition
     char* pos = m_current_line + 6; // 'forset' = 6 characters
     while (*pos == ' ' || *pos == ':' || *pos == ',') { pos++; } // Skip any separators
@@ -859,12 +865,12 @@ void Parser::ParseDirectiveForset()
     char endwas = 'G';
     while (endwas != 0)
     {
-        NodeRef_t val1, val2;
+        int val1, val2; // Node numbers
         end = pos;
         while (*end != '-' && *end != ',' && *end != 0) end++;
         endwas = *end;
         *end = 0;
-        val1 = pos;
+        val1 = strtoul(pos, 0, 10);
         if (endwas == '-')
         {
             pos = end + 1;
@@ -872,12 +878,12 @@ void Parser::ParseDirectiveForset()
             while (*end != ',' && *end != 0) end++;
             endwas = *end;
             *end = 0;
-            val2 = pos;
-            def.node_ranges.push_back(NodeRange(val1, val2));
+            val2 = strtoul(pos, 0, 10);
+            def.node_set.push_back(NodeInterval(val1, val2));
         }
         else
         {
-            def.node_ranges.push_back(NodeRange(val1, val1));
+            def.node_set.push_back(NodeInterval(val1, val1));
         }
         pos = end + 1;
     }

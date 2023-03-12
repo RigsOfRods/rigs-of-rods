@@ -2020,9 +2020,15 @@ void ActorSpawner::BuildFlexbody(DataPos_t flexbodies_data_pos, DataPos_t forset
     RigDef::Flexbody& def = m_document->flexbodies[flexbodies_data_pos];
     RigDef::Forset& forset_def = m_document->forset[forset_data_pos];
 
-    // Collect nodes from ranges
-    std::vector<NodeNum_t> nodes;
-    this->ResolveNodeRanges(nodes, forset_def.node_ranges);
+    // Collect nodes from ranges (the forset-specific way, without any checks)
+    std::vector<unsigned int> nodes_uint;
+    for (NodeInterval const& range : forset_def.node_set)
+    {
+        for (int i = range.start; i <= range.end; i++)
+        {
+            nodes_uint.push_back(static_cast<unsigned int>(i));
+        }
+    }
 
     // Gather flexbody parameters
     NodeNum_t reference_node = this->ResolveNodeRef(def.reference_node);
@@ -2042,9 +2048,6 @@ void ActorSpawner::BuildFlexbody(DataPos_t flexbodies_data_pos, DataPos_t forset
 
     try
     {
-        std::vector<unsigned int> nodes_uint; // FIXME: temp. workaround
-        for (NodeNum_t n : nodes) { nodes_uint.push_back(n); }
-
         auto* flexbody = m_flex_factory.CreateFlexBody(
             &def, reference_node, x_axis_node, y_axis_node, rot, nodes_uint, m_custom_resource_group);
 

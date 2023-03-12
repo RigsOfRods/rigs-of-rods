@@ -481,6 +481,16 @@ struct NodeRange
     NodeRef_t end;
 };
 
+/// For backwards compatibility, 'forset' cannot use `NodeRef_t` (string), but must use numbers directly.
+struct NodeInterval
+{
+    NodeInterval(int _start, int _end): start(_start), end(_end) {}
+    NodeInterval(int _single): start(_single), end(_single) {}
+
+    int start;
+    int end;
+};
+
 // --------------------------------
 // Rig definition data for individual elements
 
@@ -923,7 +933,7 @@ struct FlexBodyWheel: public BaseWheel2
 
 struct Forset
 {
-    std::vector<NodeRange> node_ranges;
+    std::vector<NodeInterval> node_set;
 };
 
 struct Fusedrag
