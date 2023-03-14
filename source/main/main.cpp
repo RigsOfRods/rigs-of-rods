@@ -473,23 +473,34 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_NET_REFRESH_SERVERLIST_SUCCESS:
-                    App::GetGuiManager()->MultiplayerSelector.UpdateServerlist((GUI::MpServerInfoVec*)m.payload);
-                    delete (GUI::MpServerInfoVec*)m.payload;
+                {
+                    GUI::MpServerInfoVec* data = static_cast<GUI::MpServerInfoVec*>(m.payload);
+                    App::GetGuiManager()->MultiplayerSelector.UpdateServerlist(data);
+                    delete data;
                     break;
+                }
 
                 case MSG_NET_REFRESH_SERVERLIST_FAILURE:
+                {
                     App::GetGuiManager()->MultiplayerSelector.DisplayRefreshFailed(m.description);
                     break;
+                }
 
                 case MSG_NET_REFRESH_REPOLIST_SUCCESS:
-                    App::GetGuiManager()->RepositorySelector.UpdateResources((GUI::ResourcesCollection*)m.payload);
-                    delete (GUI::ResourcesCollection*)m.payload;
+                {
+                    GUI::ResourcesCollection* data = static_cast<GUI::ResourcesCollection*>(m.payload);
+                    App::GetGuiManager()->RepositorySelector.UpdateResources(data);
+                    delete data;
                     break;
+                }
 
                 case MSG_NET_OPEN_RESOURCE_SUCCESS:
-                    App::GetGuiManager()->RepositorySelector.UpdateFiles((GUI::ResourcesCollection*)m.payload);
-                    delete (GUI::ResourcesCollection*)m.payload;
+                {
+                    GUI::ResourcesCollection* data = static_cast<GUI::ResourcesCollection*>(m.payload);
+                    App::GetGuiManager()->RepositorySelector.UpdateFiles(data);
+                    delete data;
                     break;
+                }
 
                 case MSG_NET_REFRESH_REPOLIST_FAILURE:
                     App::GetGuiManager()->RepositorySelector.ShowError(m.description);
@@ -602,58 +613,62 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_SIM_LOAD_SAVEGAME_REQUESTED:
+                {
+                    std::string terrn_filename = App::GetGameContext()->ExtractSceneTerrain(m.description);
+                    if (terrn_filename == "")
                     {
-                        std::string terrn_filename = App::GetGameContext()->ExtractSceneTerrain(m.description);
-                        if (terrn_filename == "")
+                        Str<400> msg; msg << _L("Could not read savegame file") << "'" << m.description << "'";
+                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
+                        if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
                         {
-                            Str<400> msg; msg << _L("Could not read savegame file") << "'" << m.description << "'";
-                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-                            if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
-                            {
-                                App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
-                            }
-                        }
-                        else if (terrn_filename == App::sim_terrain_name->getStr())
-                        {
-                            App::GetGameContext()->LoadScene(m.description);
-                        }
-                        else if (terrn_filename != App::sim_terrain_name->getStr() && App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
-                        {
-                            Str<400> msg; msg << _L("Error while loading scene: Terrain mismatch");
-                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-                        }
-                        else
-                        {
-                            if (App::sim_terrain_name->getStr() != "")
-                            {
-                                App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
-                            }
-
-                            RoR::LogFormat("[RoR|Savegame] Loading terrain '%s' ...", terrn_filename.c_str());
-                            App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, terrn_filename));
-                            // Loading terrain may produce actor-spawn requests; the savegame-request must be posted after them.
-                            App::GetGameContext()->ChainMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, m.description));
+                            App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
                         }
                     }
+                    else if (terrn_filename == App::sim_terrain_name->getStr())
+                    {
+                        App::GetGameContext()->LoadScene(m.description);
+                    }
+                    else if (terrn_filename != App::sim_terrain_name->getStr() && App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+                    {
+                        Str<400> msg; msg << _L("Error while loading scene: Terrain mismatch");
+                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
+                    }
+                    else
+                    {
+                        if (App::sim_terrain_name->getStr() != "")
+                        {
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                        }
+
+                        RoR::LogFormat("[RoR|Savegame] Loading terrain '%s' ...", terrn_filename.c_str());
+                        App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, terrn_filename));
+                        // Loading terrain may produce actor-spawn requests; the savegame-request must be posted after them.
+                        App::GetGameContext()->ChainMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, m.description));
+                    }
                     break;
+                }
 
                 case MSG_SIM_SPAWN_ACTOR_REQUESTED:
+                {
+                    ActorSpawnRequest* rq = static_cast<ActorSpawnRequest*>(m.payload);
                     if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
                     {
-                        ActorSpawnRequest* rq = (ActorSpawnRequest*)m.payload;
                         App::GetGameContext()->SpawnActor(*rq);
-                        delete rq;
                     }
+                    delete rq;
                     break;
+                }
 
                 case MSG_SIM_MODIFY_ACTOR_REQUESTED:
+                {
+                    ActorModifyRequest* rq = static_cast<ActorModifyRequest*>(m.payload);
                     if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
                     {
-                        ActorModifyRequest* rq = (ActorModifyRequest*)m.payload;
                         App::GetGameContext()->ModifyActor(*rq);
-                        delete rq;
                     }
+                    delete rq;
                     break;
+                }
 
                 case MSG_SIM_DELETE_ACTOR_REQUESTED:
                 {
@@ -680,13 +695,15 @@ int main(int argc, char *argv[])
                 }
 
                 case MSG_SIM_TELEPORT_PLAYER_REQUESTED:
+                {
+                    Ogre::Vector3* pos = static_cast<Ogre::Vector3*>(m.payload);
                     if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
                     {
-                        Ogre::Vector3* pos = (Ogre::Vector3*)m.payload;
                         App::GetGameContext()->TeleportPlayer(pos->x, pos->z);
-                        delete pos;
                     }
+                    delete pos;
                     break;
+                }
 
                 case MSG_SIM_HIDE_NET_ACTOR_REQUESTED:
                 {
@@ -739,9 +756,12 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_GUI_OPEN_SELECTOR_REQUESTED:
-                    App::GetGuiManager()->MainSelector.Show(*reinterpret_cast<LoaderType*>(m.payload), m.description);
-                    delete reinterpret_cast<LoaderType*>(m.payload);
+                {
+                    LoaderType* type = static_cast<LoaderType*>(m.payload);
+                    App::GetGuiManager()->MainSelector.Show(*type, m.description);
+                    delete type;
                     break;
+                }
 
                 case MSG_GUI_CLOSE_SELECTOR_REQUESTED:
                     App::GetGuiManager()->MainSelector.Close();
@@ -752,15 +772,21 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED:
-                    App::GetGuiManager()->ShowMessageBox(*(GUI::MessageBoxConfig*)m.payload);
-                    delete (GUI::MessageBoxConfig*)m.payload;
+                {
+                    GUI::MessageBoxConfig* conf = static_cast<GUI::MessageBoxConfig*>(m.payload);
+                    App::GetGuiManager()->ShowMessageBox(*conf);
+                    delete conf;
                     break;
+                }
 
                 case MSG_GUI_DOWNLOAD_PROGRESS:
+                {
                     App::GetGameContext()->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
-                    App::GetGuiManager()->LoadingWindow.SetProgress(*reinterpret_cast<int*>(m.payload), m.description, false);
-                    delete reinterpret_cast<int*>(m.payload);
+                    int* percentage = static_cast<int*>(m.payload);
+                    App::GetGuiManager()->LoadingWindow.SetProgress(*percentage, m.description, false);
+                    delete percentage;
                     break;
+                }
 
                 case MSG_GUI_DOWNLOAD_FINISHED:
                     App::GetGuiManager()->LoadingWindow.SetVisible(false);
@@ -771,12 +797,13 @@ int main(int argc, char *argv[])
                 // -- Editing events --
 
                 case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED:
-                    {
-                        ground_model_t* modified_gm = (ground_model_t*)m.payload;
-                        ground_model_t* live_gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString(modified_gm->name);
-                        *live_gm = *modified_gm; // Copy over
-                    }
+                {
+                    ground_model_t* modified_gm = static_cast<ground_model_t*>(m.payload);
+                    ground_model_t* live_gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString(modified_gm->name);
+                    *live_gm = *modified_gm; // Copy over
+                    //DO NOT `delete` the payload - it's a weak pointer, the data are owned by `RoR::Collisions`; See `enum MsgType` in file 'Application.h'.
                     break;
+                }
 
                 case MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED:
                     if (App::sim_state->getEnum<SimState>() != SimState::EDITOR_MODE)
@@ -802,31 +829,33 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_EDI_RELOAD_BUNDLE_REQUESTED:
+                {
+                    // To reload the bundle, it's resource group must be destroyed and re-created. All actors using it must be deleted.
+                    CacheEntry* entry = static_cast<CacheEntry*>(m.payload);
+                    bool all_clear = true;
+                    for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
                     {
-                        // To reload the bundle, it's resource group must be destroyed and re-created. All actors using it must be deleted.
-                        CacheEntry* entry = reinterpret_cast<CacheEntry*>(m.payload);
-                        bool all_clear = true;
-                        for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
+                        if (actor->GetGfxActor()->GetResourceGroup() == entry->resource_group)
                         {
-                            if (actor->GetGfxActor()->GetResourceGroup() == entry->resource_group)
-                            {
-                                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
-                                all_clear = false;
-                            }
-                        }
-
-                        if (all_clear)
-                        {
-                            // Nobody uses the RG anymore -> destroy and re-create it.
-                            App::GetCacheSystem()->ReLoadResource(*entry);
-                        }
-                        else
-                        {
-                            // Re-post the same message again so that it's message chain is executed later.
-                            App::GetGameContext()->PushMessage(m);
-                            failed_m = true;
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
+                            all_clear = false;
                         }
                     }
+
+                    if (all_clear)
+                    {
+                        // Nobody uses the RG anymore -> destroy and re-create it.
+                        App::GetCacheSystem()->ReLoadResource(*entry);
+                    }
+                    else
+                    {
+                        // Re-post the same message again so that it's message chain is executed later.
+                        App::GetGameContext()->PushMessage(m);
+                        failed_m = true;
+                    }
+                    //DO NOT `delete` the payload - it's a weak pointer, data are owned by `RoR::CacheSystem`; See `enum MsgType` in file 'Application.h'.
+                    break;
+                }
 
                 default:;
                 }

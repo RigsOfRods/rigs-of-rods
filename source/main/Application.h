@@ -84,8 +84,8 @@ enum MsgType
     MSG_NET_RECV_ERROR,
     MSG_NET_REFRESH_SERVERLIST_SUCCESS,    //!< Payload = GUI::MpServerInfoVec* (owner)
     MSG_NET_REFRESH_SERVERLIST_FAILURE,
-    MSG_NET_REFRESH_REPOLIST_SUCCESS,    //!< Payload = GUI::ResourcesCollection* (owner)
-    MSG_NET_OPEN_RESOURCE_SUCCESS,    //!< Payload = GUI::ResourcesCollection* (owner)
+    MSG_NET_REFRESH_REPOLIST_SUCCESS,      //!< Payload = GUI::ResourcesCollection* (owner)
+    MSG_NET_OPEN_RESOURCE_SUCCESS,         //!< Payload = GUI::ResourcesCollection* (owner)
     MSG_NET_REFRESH_REPOLIST_FAILURE,
     MSG_NET_REFRESH_AI_PRESETS,
     // Simulation
