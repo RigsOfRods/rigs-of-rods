@@ -109,6 +109,7 @@ namespace RoR
     class  SoundManager;
     class  SoundScriptInstance;
     class  SoundScriptManager;
+    class  SoundScriptTemplate;
     class  Task;
     class  TerrainEditor;
     class  TerrainGeometryManager;
@@ -153,6 +154,7 @@ namespace RoR
     typedef RefCountingObjectPtr<ProceduralObject> ProceduralObjectPtr;
     typedef RefCountingObjectPtr<ProceduralRoad> ProceduralRoadPtr;
     typedef RefCountingObjectPtr<ProceduralManager> ProceduralManagerPtr;
+    typedef RefCountingObjectPtr<SoundScriptTemplate> SoundScriptTemplatePtr;
     typedef RefCountingObjectPtr<Terrain> TerrainPtr;
     typedef RefCountingObjectPtr<VehicleAI> VehicleAIPtr;
 

@@ -337,7 +337,7 @@ Real SoundScriptManager::getLoadingOrder(void) const
     return 1000.0f;
 }
 
-SoundScriptTemplate* SoundScriptManager::createTemplate(String name, String groupname, String filename)
+SoundScriptTemplatePtr SoundScriptManager::createTemplate(String name, String groupname, String filename)
 {
     // first, search if there is a template name collision
     if (templates.find(name) != templates.end())
@@ -346,7 +346,7 @@ SoundScriptTemplate* SoundScriptManager::createTemplate(String name, String grou
         return nullptr;
     }
 
-    SoundScriptTemplate* ssi = new SoundScriptTemplate(name, groupname, filename, loading_base);
+    SoundScriptTemplatePtr ssi = new SoundScriptTemplate(name, groupname, filename, loading_base);
     templates[name] = ssi;
     return ssi;
 }
@@ -354,7 +354,7 @@ SoundScriptTemplate* SoundScriptManager::createTemplate(String name, String grou
 SoundScriptInstance* SoundScriptManager::createInstance(Ogre::String templatename, int actor_id, Ogre::SceneNode* toAttach, int soundLinkType, int soundLinkItemId)
 {
     //first, search template
-    SoundScriptTemplate* templ = NULL;
+    SoundScriptTemplatePtr templ = NULL;
 
     if (templates.find(templatename) == templates.end())
     {
@@ -405,7 +405,7 @@ SoundScriptInstance* SoundScriptManager::createInstance(Ogre::String templatenam
 
 void SoundScriptManager::parseScript(DataStreamPtr& stream, const String& groupName)
 {
-    SoundScriptTemplate* sst = 0;
+    SoundScriptTemplatePtr sst = nullptr;
     String line = "";
     std::vector<String> vecparams;
 
@@ -417,7 +417,7 @@ void SoundScriptManager::parseScript(DataStreamPtr& stream, const String& groupN
         // ignore comments & blanks
         if (!(line.length() == 0 || line.substr(0, 2) == "//"))
         {
-            if (sst == 0)
+            if (!sst)
             {
                 // no current SoundScript
                 // so first valid data should be a SoundScript name
@@ -491,6 +491,7 @@ void SoundScriptManager::setEnabled(bool state)
 SoundScriptTemplate::SoundScriptTemplate(String name, String groupname, String filename, bool baseTemplate) :
     base_template(baseTemplate)
     , file_name(filename)
+    , group_name(groupname)
     , free_sound(0)
     , gain_multiplier(1.0f)
     , gain_offset(0.0f)
@@ -1021,7 +1022,7 @@ int SoundScriptTemplate::parseModulation(String str)
 
 //====================================================================
 
-SoundScriptInstance::SoundScriptInstance(int actor_id, SoundScriptTemplate* templ, SoundManager* sound_manager, String instancename, int soundLinkType, int soundLinkItemId) :
+SoundScriptInstance::SoundScriptInstance(int actor_id, SoundScriptTemplatePtr templ, SoundManager* sound_manager, String instancename, int soundLinkType, int soundLinkItemId) :
     actor_id(actor_id)
     , templ(templ)
     , sound_manager(sound_manager)

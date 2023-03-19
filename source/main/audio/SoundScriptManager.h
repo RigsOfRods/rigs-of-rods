@@ -23,8 +23,10 @@
 
 #pragma once
 
-#include "Application.h"
 #include "Actor.h"
+#include "AngelScriptBindings.h"
+#include "Application.h"
+#include "RefCountingObjectPtr.h"
 
 #include <OgreScriptLoader.h>
 
@@ -170,14 +172,20 @@ enum SoundLinkTypes {
     SL_MAX
 };
 
-class SoundScriptTemplate : public ZeroedMemoryAllocator
+class SoundScriptTemplate : public RefCountingObject<SoundScriptTemplate>
 {
     friend class SoundScriptManager;
     friend class SoundScriptInstance;
+    friend void RegisterSoundScript(AngelScript::asIScriptEngine* engine);
 
 public:
 
     SoundScriptTemplate(Ogre::String name, Ogre::String groupname, Ogre::String filename, bool baseTemplate);
+
+    // 'sound' attribute getters for AngelScript
+    int getNumSounds() { return free_sound; }
+    Ogre::String getSoundName(int pos) { if (pos >= 0 && pos < free_sound) { return sound_names[pos]; } else { return ""; } }
+    float getSoundPitch(int pos) { if (pos >= 0 && pos < free_sound) { return sound_pitches[pos]; } else { return 0.f; } }
     
 private:
 
@@ -186,6 +194,7 @@ private:
 
     Ogre::String name;
     Ogre::String file_name;
+    Ogre::String group_name;
 
     bool         base_template;
     bool         has_start_sound;
@@ -219,7 +228,7 @@ class SoundScriptInstance : public ZeroedMemoryAllocator
 
 public:
 
-    SoundScriptInstance(int actor_id, SoundScriptTemplate* templ, SoundManager* sm, Ogre::String instancename, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
+    SoundScriptInstance(int actor_id, SoundScriptTemplatePtr templ, SoundManager* sm, Ogre::String instancename, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
     void runOnce();
     void setEnabled(bool e);
     void setGain(float value);
@@ -236,7 +245,7 @@ private:
 
     float pitchgain_cutoff(float sourcepitch, float targetpitch);
 
-    SoundScriptTemplate* templ;
+    SoundScriptTemplatePtr templ;
     SoundManager* sound_manager;
     Sound *start_sound;
     Sound *stop_sound;
@@ -292,7 +301,7 @@ public:
 
 private:
 
-    SoundScriptTemplate* createTemplate(Ogre::String name, Ogre::String groupname, Ogre::String filename);
+    SoundScriptTemplatePtr createTemplate(Ogre::String name, Ogre::String groupname, Ogre::String filename);
     void skipToNextCloseBrace(Ogre::DataStreamPtr& chunk);
     void skipToNextOpenBrace(Ogre::DataStreamPtr& chunk);
 
@@ -304,7 +313,7 @@ private:
     int instance_counter;
     Ogre::StringVector script_patterns;
 
-    std::map <Ogre::String, SoundScriptTemplate*> templates;
+    std::map <Ogre::String, SoundScriptTemplatePtr> templates;
 
     // instances lookup tables
     int free_trigs[SS_MAX_TRIG];

@@ -76,6 +76,8 @@ void RegisterGenericFileFormat(AngelScript::asIScriptEngine* engine);
 /// Registers enum MsgType, defined in MsgQueueAngelscript.cpp
 void RegisterMessageQueue(AngelScript::asIScriptEngine* engine);
 
+/// defined in SoundScriptAngelscript.cpp
+void RegisterSoundScript(AngelScript::asIScriptEngine* engine);
 
 /// @}   //addtogroup Scripting
 

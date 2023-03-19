@@ -238,6 +238,7 @@ if (USE_ANGELSCRIPT)
             scripting/bindings/OgreAngelscript.cpp
             scripting/bindings/ProceduralRoadAngelscript.cpp
             scripting/bindings/ScriptEventsAngelscript.cpp
+            scripting/bindings/SoundScriptAngelscript.cpp
             scripting/bindings/TerrainAngelscript.cpp
             scripting/bindings/VehicleAiAngelscript.cpp
             )
