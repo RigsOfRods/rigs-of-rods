@@ -1134,7 +1134,7 @@ void ActorSpawner::AddSoundSourceInstance(ActorPtr const& vehicle, Ogre::String 
 #endif // USE_OPENAL
 }
 
-void ActorSpawner::AddSoundSource(ActorPtr const& vehicle, SoundScriptInstance *sound_script, NodeNum_t node_index, int type)
+void ActorSpawner::AddSoundSource(ActorPtr const& vehicle, SoundScriptInstancePtr sound_script, NodeNum_t node_index, int type)
 {
     if (! CheckSoundScriptLimit(vehicle, 1))
     {

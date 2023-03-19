@@ -418,7 +418,7 @@ private:
 
     /// @name Audio setup
     /// @{
-    static void                   AddSoundSource(ActorPtr const& vehicle, SoundScriptInstance *sound_script, NodeNum_t node_index, int type = -2);
+    static void                   AddSoundSource(ActorPtr const& vehicle, SoundScriptInstancePtr sound_script, NodeNum_t node_index, int type = -2);
     static void                   AddSoundSourceInstance(ActorPtr const& vehicle, Ogre::String const & sound_script_name, int node_index, int type = -2);
     /// @}
 

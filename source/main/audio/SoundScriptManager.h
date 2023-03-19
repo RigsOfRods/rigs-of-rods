@@ -27,6 +27,8 @@
 #include "AngelScriptBindings.h"
 #include "Application.h"
 #include "RefCountingObjectPtr.h"
+#include "Sound.h"
+#include "SoundManager.h"
 
 #include <OgreScriptLoader.h>
 
@@ -222,7 +224,7 @@ private:
     int          free_sound;
 };
 
-class SoundScriptInstance : public ZeroedMemoryAllocator
+class SoundScriptInstance : public RefCountingObject<SoundScriptInstance>
 {
     friend class SoundScriptManager;
 
@@ -237,6 +239,15 @@ public:
     void start();
     void stop();
     void kill();
+
+    SoundScriptTemplatePtr getTemplate() { return templ; }
+    SoundPtr getStartSound() { return start_sound; }
+    SoundPtr getStopSound() { return stop_sound; }
+    SoundPtr getSound(int pos) { if (pos >= 0 && pos < templ->free_sound) { return sounds[pos]; } else { return nullptr; } }
+    float getStartSoundPitchgain() { return start_sound_pitchgain; }
+    float getStopSoundPitchgain() { return stop_sound_pitchgain; }
+    float getSoundPitchgain(int pos) { if (pos >= 0 && pos < templ->free_sound) { return sounds_pitchgain[pos]; } else { return 0.f; } }
+    int getActorInstanceId() { return actor_id; }
 
     static const float PITCHDOWN_FADE_FACTOR;
     static const float PITCHDOWN_CUTOFF_FACTOR;
@@ -274,7 +285,7 @@ public:
     void parseScript(Ogre::DataStreamPtr& stream, const Ogre::String& groupName);
     Ogre::Real getLoadingOrder(void) const;
 
-    SoundScriptInstance* createInstance(Ogre::String templatename, int actor_id, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
+    SoundScriptInstancePtr createInstance(Ogre::String templatename, int actor_id, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
 
     // functions
     void trigOnce    (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
@@ -319,13 +330,13 @@ private:
 
     // instances lookup tables
     int free_trigs[SS_MAX_TRIG];
-    SoundScriptInstance *trigs[SS_MAX_TRIG * MAX_INSTANCES_PER_GROUP];
+    SoundScriptInstancePtr trigs[SS_MAX_TRIG * MAX_INSTANCES_PER_GROUP];
 
     int free_pitches[SS_MAX_MOD];
-    SoundScriptInstance *pitches[SS_MAX_MOD * MAX_INSTANCES_PER_GROUP];
+    SoundScriptInstancePtr pitches[SS_MAX_MOD * MAX_INSTANCES_PER_GROUP];
     
     int free_gains[SS_MAX_MOD];
-    SoundScriptInstance *gains[SS_MAX_MOD * MAX_INSTANCES_PER_GROUP];
+    SoundScriptInstancePtr gains[SS_MAX_MOD * MAX_INSTANCES_PER_GROUP];
 
     // state map
     // soundLinks, soundItems, actor_ids, triggers
