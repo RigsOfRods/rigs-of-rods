@@ -89,10 +89,10 @@ add_external_lib(
 )
 
 add_external_lib(
-        discord_rpc
-        discord-rpc/3.4.0@anotherfoxguy/stable
-        FIND_PACKAGE
-        INTERFACE_NAME discord-rpc::discord-rpc
+        DiscordGameSDK
+        discord-game-sdk/2.5.6@anotherfoxguy/stable
+        CONAN_PKG_NAME DiscordGameSDK
+        INTERFACE_NAME Discord::SDK
 )
 
 add_external_lib(

@@ -313,6 +313,9 @@ int main(int argc, char *argv[])
         {
             OgreBites::WindowEventUtilities::messagePump();
 
+            // Update Discord integration
+            App::GetDiscordRpc()->RunCallbacks();
+
             // Halt physics (wait for async tasks to finish)
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {

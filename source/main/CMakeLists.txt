@@ -404,8 +404,8 @@ if (USE_OPENAL)
     target_compile_definitions(${BINNAME} PRIVATE USE_OPENAL)
 endif ()
 
-if (USE_DISCORD_RPC)
-    target_link_libraries(${BINNAME} PRIVATE discord-rpc::discord-rpc)
+if (USE_DISCORDGAMESDK)
+    target_link_libraries(${BINNAME} PRIVATE Discord::SDK)
     target_compile_definitions(${BINNAME} PRIVATE USE_DISCORD_RPC)
 endif ()
 

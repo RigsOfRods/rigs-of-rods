@@ -26,15 +26,28 @@ namespace RoR {
 /// @addtogroup Network
 /// @{
 
+#ifdef USE_DISCORD_RPC
+struct DiscordState {
+    discord::User currentUser;
+    std::string requestedServer;
+    std::unique_ptr<discord::Core> core;
+};
+#endif
+
 /// Wrapper class, just for code consistency with other subsystems
 class DiscordRpc
 {
 public:
     void Init();
     void UpdatePresence();
-    void Shutdown();	
-};
+    void RunCallbacks();
+    void Shutdown();
 
+  private:
+#ifdef USE_DISCORD_RPC
+    DiscordState state{};
+#endif
+};
 /// @}   //addtogroup Network
 
 } // namespace RoR

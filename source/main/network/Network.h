@@ -110,6 +110,7 @@ public:
     int                  GetNetQuality();
 
     Ogre::String         GetTerrainName();
+    Ogre::String         GetServerName();
 
     int                  GetUserColor();
     Ogre::UTFString      GetUsername();

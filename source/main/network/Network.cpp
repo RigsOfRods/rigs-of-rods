@@ -682,6 +682,11 @@ Ogre::String Network::GetTerrainName()
     return m_server_settings.terrain;
 }
 
+Ogre::String Network::GetServerName()
+{
+  return m_server_settings.servername;
+}
+
 int Network::GetUserColor()
 {
     std::lock_guard<std::mutex> lock(m_userdata_mutex);
