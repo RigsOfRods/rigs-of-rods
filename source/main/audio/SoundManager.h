@@ -49,7 +49,7 @@ public:
     SoundManager();
     ~SoundManager();
 
-    Sound* createSound(Ogre::String filename);
+    SoundPtr createSound(Ogre::String filename);
 
     void setCamera(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
     void pauseAllSounds();
@@ -83,7 +83,7 @@ private:
     ALuint hardware_sources[MAX_HARDWARE_SOURCES];     // this buffer contains valid AL handles up to m_hardware_sources_num
 
     // audio sources
-    Sound* audio_sources[MAX_AUDIO_BUFFERS];
+    SoundPtr audio_sources[MAX_AUDIO_BUFFERS];
     // helper for calculating the most audible sources
     std::pair<int, float> audio_sources_most_audible[MAX_AUDIO_BUFFERS];
     

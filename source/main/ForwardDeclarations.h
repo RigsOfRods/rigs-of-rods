@@ -154,6 +154,7 @@ namespace RoR
     typedef RefCountingObjectPtr<ProceduralObject> ProceduralObjectPtr;
     typedef RefCountingObjectPtr<ProceduralRoad> ProceduralRoadPtr;
     typedef RefCountingObjectPtr<ProceduralManager> ProceduralManagerPtr;
+    typedef RefCountingObjectPtr<Sound> SoundPtr;
     typedef RefCountingObjectPtr<SoundScriptTemplate> SoundScriptTemplatePtr;
     typedef RefCountingObjectPtr<Terrain> TerrainPtr;
     typedef RefCountingObjectPtr<VehicleAI> VehicleAIPtr;

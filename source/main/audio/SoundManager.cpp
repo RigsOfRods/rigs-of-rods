@@ -301,7 +301,7 @@ void SoundManager::assign(int source_index, int hardware_index)
     hardware_sources_map[hardware_index] = source_index;
 
     ALuint hw_source = hardware_sources[hardware_index];
-    Sound* audio_source = audio_sources[source_index];
+    SoundPtr audio_source = audio_sources[source_index];
 
     // the hardware source is supposed to be stopped!
     alSourcei(hw_source, AL_BUFFER, audio_source->buffer);
@@ -356,7 +356,7 @@ void SoundManager::setMasterVolume(float v)
     alListenerf(AL_GAIN, v);
 }
 
-Sound* SoundManager::createSound(String filename)
+SoundPtr SoundManager::createSound(String filename)
 {
     if (!audio_device)
         return NULL;
