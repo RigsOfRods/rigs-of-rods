@@ -240,6 +240,8 @@ public:
 
     static const float PITCHDOWN_FADE_FACTOR;
     static const float PITCHDOWN_CUTOFF_FACTOR;
+    static const int ACTOR_ID_UNKNOWN = -1;
+    static const int ACTOR_ID_TERRAIN_OBJECT = -2;
 
 private:
 
@@ -255,7 +257,7 @@ private:
     float sounds_pitchgain[MAX_SOUNDS_PER_SCRIPT];
     float lastgain;
 
-    int actor_id;           // ID of the actor this sound belongs to.
+    int actor_id;           // ID of the actor this sound belongs to, or an `ACTOR_ID_*` constant.
     int sound_link_type;    // holds the SL_ type this is bound to
     int sound_link_item_id; // holds the item number this is for
 };
@@ -272,7 +274,7 @@ public:
     void parseScript(Ogre::DataStreamPtr& stream, const Ogre::String& groupName);
     Ogre::Real getLoadingOrder(void) const;
 
-    SoundScriptInstance* createInstance(Ogre::String templatename, int actor_id, Ogre::SceneNode *toAttach=NULL, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
+    SoundScriptInstance* createInstance(Ogre::String templatename, int actor_id, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
 
     // functions
     void trigOnce    (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
