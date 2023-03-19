@@ -293,7 +293,7 @@ int main(int argc, char *argv[])
 #ifdef USE_OPENAL
         if (App::audio_menu_music->getBool())
         {
-            App::GetSoundScriptManager()->createInstance("tracks/main_menu_tune", -1, nullptr);
+            App::GetSoundScriptManager()->createInstance("tracks/main_menu_tune", -1);
             SOUND_START(-1, SS_TRIG_MAIN_MENU);
         }
 #endif // USE_OPENAL

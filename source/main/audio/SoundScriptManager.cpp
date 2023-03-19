@@ -351,7 +351,7 @@ SoundScriptTemplatePtr SoundScriptManager::createTemplate(String name, String gr
     return ssi;
 }
 
-SoundScriptInstance* SoundScriptManager::createInstance(Ogre::String templatename, int actor_id, Ogre::SceneNode* toAttach, int soundLinkType, int soundLinkItemId)
+SoundScriptInstance* SoundScriptManager::createInstance(Ogre::String templatename, int actor_id, int soundLinkType, int soundLinkItemId)
 {
     //first, search template
     SoundScriptTemplatePtr templ = NULL;
