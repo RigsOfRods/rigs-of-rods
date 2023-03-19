@@ -424,7 +424,7 @@ struct collcab_rate_t
 
 struct soundsource_t
 {
-    SoundScriptInstance* ssi;
+    SoundScriptInstancePtr ssi;
     NodeNum_t nodenum;
     int type;
 };

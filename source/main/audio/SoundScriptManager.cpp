@@ -117,7 +117,7 @@ void SoundScriptManager::trigOnce(int actor_id, int trig, int linkType, int link
     for (int i = 0; i < free_trigs[trig]; i++)
     {
         // cycle through all instance groups
-        SoundScriptInstance* inst = trigs[trig + i * SS_MAX_TRIG];
+        SoundScriptInstancePtr inst = trigs[trig + i * SS_MAX_TRIG];
 
         if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
@@ -148,7 +148,7 @@ void SoundScriptManager::trigStart(int actor_id, int trig, int linkType, int lin
 
     for (int i = 0; i < free_trigs[trig]; i++)
     {
-        SoundScriptInstance* inst = trigs[trig + i * SS_MAX_TRIG];
+        SoundScriptInstancePtr inst = trigs[trig + i * SS_MAX_TRIG];
 
         if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
@@ -178,7 +178,7 @@ void SoundScriptManager::trigStop(int actor_id, int trig, int linkType, int link
     state_map[linkType][linkItemID][actor_id][trig] = false;
     for (int i = 0; i < free_trigs[trig]; i++)
     {
-        SoundScriptInstance* inst = trigs[trig + i * SS_MAX_TRIG];
+        SoundScriptInstancePtr inst = trigs[trig + i * SS_MAX_TRIG];
 
         if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
@@ -208,7 +208,7 @@ void SoundScriptManager::trigKill(int actor_id, int trig, int linkType, int link
     state_map[linkType][linkItemID][actor_id][trig] = false;
     for (int i = 0; i < free_trigs[trig]; i++)
     {
-        SoundScriptInstance* inst = trigs[trig + i * SS_MAX_TRIG];
+        SoundScriptInstancePtr inst = trigs[trig + i * SS_MAX_TRIG];
 
         if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
@@ -279,7 +279,7 @@ void SoundScriptManager::modulate(int actor_id, int mod, float value, int linkTy
 
     for (int i = 0; i < free_gains[mod]; i++)
     {
-        SoundScriptInstance* inst = gains[mod + i * SS_MAX_MOD];
+        SoundScriptInstancePtr inst = gains[mod + i * SS_MAX_MOD];
         if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
             // this one requires modulation
@@ -292,7 +292,7 @@ void SoundScriptManager::modulate(int actor_id, int mod, float value, int linkTy
 
     for (int i = 0; i < free_pitches[mod]; i++)
     {
-        SoundScriptInstance* inst = pitches[mod + i * SS_MAX_MOD];
+        SoundScriptInstancePtr inst = pitches[mod + i * SS_MAX_MOD];
         if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
             // this one requires modulation
@@ -351,7 +351,7 @@ SoundScriptTemplatePtr SoundScriptManager::createTemplate(String name, String gr
     return ssi;
 }
 
-SoundScriptInstance* SoundScriptManager::createInstance(Ogre::String templatename, int actor_id, int soundLinkType, int soundLinkItemId)
+SoundScriptInstancePtr SoundScriptManager::createInstance(Ogre::String templatename, int actor_id, int soundLinkType, int soundLinkItemId)
 {
     //first, search template
     SoundScriptTemplatePtr templ = NULL;
@@ -376,7 +376,7 @@ SoundScriptInstance* SoundScriptManager::createInstance(Ogre::String templatenam
         return NULL; // reached limit!
     }
 
-    SoundScriptInstance* inst = new SoundScriptInstance(actor_id, templ, sound_manager, templ->file_name + "-" + TOSTRING(actor_id) + "-" + TOSTRING(instance_counter), soundLinkType, soundLinkItemId);
+    SoundScriptInstancePtr inst = new SoundScriptInstance(actor_id, templ, sound_manager, templ->file_name + "-" + TOSTRING(actor_id) + "-" + TOSTRING(instance_counter), soundLinkType, soundLinkItemId);
     instance_counter++;
 
     // register to lookup tables
