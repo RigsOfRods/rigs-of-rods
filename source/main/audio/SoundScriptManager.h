@@ -247,9 +247,9 @@ private:
 
     SoundScriptTemplatePtr templ;
     SoundManager* sound_manager;
-    Sound *start_sound;
-    Sound *stop_sound;
-    Sound *sounds[MAX_SOUNDS_PER_SCRIPT];
+    SoundPtr start_sound;
+    SoundPtr stop_sound;
+    SoundPtr sounds[MAX_SOUNDS_PER_SCRIPT];
     float start_sound_pitchgain;
     float stop_sound_pitchgain;
     float sounds_pitchgain[MAX_SOUNDS_PER_SCRIPT];

@@ -23,6 +23,7 @@
 #pragma once
 
 #include "Application.h"
+#include "RefCountingObject.h"
 
 #ifdef __APPLE__
 #   include <OpenAL/al.h>
@@ -35,7 +36,7 @@ namespace RoR {
 /// @addtogroup Audio
 /// @{
 
-class Sound : public ZeroedMemoryAllocator
+class Sound : public RefCountingObject<Sound>
 {
     friend class SoundManager;
 
@@ -53,6 +54,15 @@ public:
 
     bool getEnabled();
     bool isPlaying();
+    float getAudibility() { return audibility; }
+    float getGain() { return gain; }
+    float getPitch() { return pitch; }
+    bool getLoop() { return loop; }
+    int getCurrentHardwareIndex() { return hardware_index; }
+    ALuint getBuffer() { return buffer; }
+    Ogre::Vector3 getPosition() { return position; }
+    Ogre::Vector3 getVelocity() { return velocity; }
+    int getSourceIndex() { return source_index; }
 
     enum RecomputeSource
     {

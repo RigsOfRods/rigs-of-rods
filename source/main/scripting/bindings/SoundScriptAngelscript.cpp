@@ -21,6 +21,7 @@
 /// @author Petr Ohlidal
 
 #include "ScriptEngine.h"
+#include "Sound.h"
 #include "SoundScriptManager.h"
 
 using namespace RoR;
@@ -166,4 +167,30 @@ void RoR::RegisterSoundScript(AngelScript::asIScriptEngine* engine)
     result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "float stop_sound_pitch", offsetof(SoundScriptTemplate, stop_sound_pitch)); ROR_ASSERT(result >= 0);
 
     result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "SoundTriggers trigger_source", offsetof(SoundScriptTemplate, trigger_source)); ROR_ASSERT(result >= 0);
+
+    // class Sound
+    Sound::RegisterRefCountingObject(engine, "SoundClass");
+    SoundPtr::RegisterRefCountingObjectPtr(engine, "SoundClassPtr", "SoundClass");
+
+    result = engine->RegisterObjectMethod("SoundClass", "void setPitch(float pitch)", asMETHOD(Sound, setPitch), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "void setGain(float gain)", asMETHOD(Sound, setGain), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "void setPosition(vector3 pos)", asMETHOD(Sound, setPosition), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "void setVelocity(vector3 vel)", asMETHOD(Sound, setVelocity), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "void setLoop(bool loop)", asMETHOD(Sound, setLoop), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "void setEnabled(bool e)", asMETHOD(Sound, setEnabled), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "void play()", asMETHOD(Sound, play), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "void stop()", asMETHOD(Sound, stop), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+
+    result = engine->RegisterObjectMethod("SoundClass", "bool getEnabled()", asMETHOD(Sound, getEnabled), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "bool isPlaying()", asMETHOD(Sound, isPlaying), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "float getAudibility() ", asMETHOD(Sound, getAudibility), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "float getGain() ", asMETHOD(Sound, getGain), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "float getPitch() ", asMETHOD(Sound, getPitch), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "bool getLoop()", asMETHOD(Sound, getLoop), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "int getCurrentHardwareIndex()", asMETHOD(Sound, getCurrentHardwareIndex), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "uint getBuffer()", asMETHOD(Sound, getBuffer), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "vector3 getPosition()", asMETHOD(Sound, getPosition), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "vector3 getVelocity()", asMETHOD(Sound, getVelocity), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundClass", "int getSourceIndex()", asMETHOD(Sound, getSourceIndex), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+
 }
