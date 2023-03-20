@@ -3114,7 +3114,8 @@ void Actor::updateSoundSources()
     for (int i = 0; i < ar_num_soundsources; i++)
     {
         // TODO: Investigate segfaults after terrain reloads ~ ulteq 11/2018
-        ar_soundsources[i].ssi->setPosition(ar_nodes[ar_soundsources[i].nodenum].AbsPosition, ar_nodes[ar_soundsources[i].nodenum].Velocity);
+        ar_soundsources[i].ssi->setPosition(ar_nodes[ar_soundsources[i].nodenum].AbsPosition);
+        ar_soundsources[i].ssi->setVelocity(ar_nodes[ar_soundsources[i].nodenum].Velocity);
     }
     //also this, so it is updated always, and for any vehicle
     SOUND_MODULATE(ar_instance_id, SS_MOD_AIRSPEED, ar_nodes[0].Velocity.length() * 1.9438);

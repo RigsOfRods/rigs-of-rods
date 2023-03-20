@@ -1240,12 +1240,11 @@ void SoundScriptInstance::setGain(float value)
     lastgain = value;
 }
 
-void SoundScriptInstance::setPosition(Vector3 pos, Vector3 velocity)
+void SoundScriptInstance::setPosition(Vector3 pos)
 {
     if (start_sound)
     {
         start_sound->setPosition(pos);
-        start_sound->setVelocity(velocity);
     }
 
     for (int i = 0; i < templ->free_sound; i++)
@@ -1253,13 +1252,32 @@ void SoundScriptInstance::setPosition(Vector3 pos, Vector3 velocity)
         if (sounds[i])
         {
             sounds[i]->setPosition(pos);
-            sounds[i]->setVelocity(velocity);
         }
     }
 
     if (stop_sound)
     {
         stop_sound->setPosition(pos);
+    }
+}
+
+void SoundScriptInstance::setVelocity(Vector3 velocity)
+{
+    if (start_sound)
+    {
+        start_sound->setVelocity(velocity);
+    }
+
+    for (int i = 0; i < templ->free_sound; i++)
+    {
+        if (sounds[i])
+        {
+            sounds[i]->setVelocity(velocity);
+        }
+    }
+
+    if (stop_sound)
+    {
         stop_sound->setVelocity(velocity);
     }
 }

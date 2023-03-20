@@ -44,6 +44,7 @@ string g_displayed_doc_filename;
 array<string> g_terrain_tobj_files;
 SoundScriptInstanceClass@ g_playing_soundscript = null;
 SoundClass@ g_playing_sound = null;
+bool g_sound_follows_player = true;
 
 /*
     ---------------------------------------------------------------------------
@@ -372,10 +373,52 @@ void drawMainMenuPanel()
     g_terrain_tobj_files.removeRange(0, g_terrain_tobj_files.length());
 }
 
+vector3 detectPlayerPosition()
+{
+    if (g_app_state.getInt() == 2) // simulation
+    {
+
+        // get current pos
+        vector3 pos;
+        BeamClass@ actor = game.getCurrentTruck();
+        if (@actor != null)
+            pos = actor.getVehiclePosition();
+        else
+            pos = game.getPersonPosition();
+
+        return pos;
+            
+    }
+    else // main menu
+    {
+        return vector3(0,0,0);
+    }
+}
+
 void drawAudioButtons()
 {
     ImGui::PushID("AudioTest");
     ImGui::TextDisabled("Audio API test");
+    
+    if (g_app_state.getInt() == 1) // main menu
+    {
+        ImGui::TextDisabled("You are in main menu - spatial (3D) audio is off");
+    }
+    else if (g_app_state.getInt() == 2) // simulation
+    {
+        ImGui::TextDisabled("You are in simulation - spatial (3D) audio is on");
+        ImGui::Checkbox("Sound follows player", g_sound_follows_player);
+
+        // Update sound positions
+        if (g_sound_follows_player)
+        {
+            vector3 pos = detectPlayerPosition();
+            if (@g_playing_sound != null)
+                g_playing_sound.setPosition(pos);
+            if (@g_playing_soundscript != null)
+                g_playing_soundscript.setPosition(pos);
+        }
+    }
     
     array<SoundScriptTemplateClass@>@ templates = game.getAllSoundScriptTemplates();
     string templates_title = "Sound script templates (" + templates.length() + ")";
@@ -402,6 +445,7 @@ void drawAudioButtons()
                 if (ImGui::Button("Play"))
                 {
                     @g_playing_soundscript = game.createSoundScriptInstance(template.name);
+                    g_playing_soundscript.setPosition(detectPlayerPosition());
                     g_playing_soundscript.start();
                 }
             }
@@ -475,6 +519,7 @@ void drawWavPreviewBulletButton(string wav_file)
             g_playing_sound.setEnabled(true);
             g_playing_sound.setGain(1.f);
             g_playing_sound.setLoop(true);
+            g_playing_sound.setPosition(detectPlayerPosition());
             g_playing_sound.play();
             game.log("Demo script: playing file " + wav_file);
         }

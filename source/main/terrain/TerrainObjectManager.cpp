@@ -649,7 +649,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         for (std::string& snd_name : odef->sounds)
         {
             SoundScriptInstancePtr sound = App::GetSoundScriptManager()->createInstance(snd_name, SoundScriptInstance::ACTOR_ID_TERRAIN_OBJECT);
-            sound->setPosition(tenode->getPosition(), Vector3::ZERO);
+            sound->setPosition(tenode->getPosition());
             sound->start();
         }
     }
