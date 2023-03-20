@@ -146,4 +146,12 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "int setMaterialTextureRotate(const string &in, int, int, int, float)", asMETHOD(GameScript,setMaterialTextureRotate), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int setMaterialTextureScroll(const string &in, int, int, int, float, float)", asMETHOD(GameScript,setMaterialTextureScroll), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int setMaterialTextureScale(const string &in, int, int, int, float, float)", asMETHOD(GameScript,setMaterialTextureScale), asCALL_THISCALL); ROR_ASSERT(result>=0);
+
+    // > Audio
+    result = engine->RegisterObjectMethod("GameScriptClass", "array<SoundScriptTemplateClass@>@ getAllSoundScriptTemplates()", asMETHOD(GameScript, getAllSoundScriptTemplates), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "SoundScriptTemplateClassPtr@ getSoundScriptTemplate(const string &in)", asMETHOD(GameScript, getSoundScriptTemplate), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "array<SoundScriptInstanceClass@>@ getAllSoundScriptInstances()", asMETHOD(GameScript, getAllSoundScriptInstances), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "SoundClassPtr@ createSoundFromResource(const string &in filename, const string &in rg_name = string())", asMETHOD(GameScript, createSoundFromResource), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "SoundScriptInstanceClassPtr@ createSoundScriptInstance(const string &in template, int actor_instance_id = -1)", asMETHOD(GameScript, createSoundScriptInstance), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+
 }

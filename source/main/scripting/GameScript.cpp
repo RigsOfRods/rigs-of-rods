@@ -52,7 +52,9 @@
 #include "Network.h"
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
+#include "ScriptUtils.h"
 #include "SkyManager.h"
+#include "SoundScriptManager.h"
 #include "Terrain.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainObjectManager.h"
@@ -60,12 +62,12 @@
 #include "VehicleAI.h"
 #include "Water.h"
 
-
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 
 using namespace Ogre;
 using namespace RoR;
+using namespace AngelScript;
 
 // GUIDELINE: Make functions safe from invoking in wrong circumstances,
 // i.e. when server script calls function using SimController while in main menu.
@@ -1139,7 +1141,6 @@ bool GameScript::GetValueFromDict(const std::string& log_msg, AngelScript::CScri
         }
         return false;
     }
-
     auto itor = dict->find(key);
     if (itor == dict->end())
     {
@@ -1349,6 +1350,34 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
 
     App::GetGameContext()->PushMessage(m);
     return true;
+}
+
+// --------------------------------
+// Audio
+
+CScriptArray* GameScript::getAllSoundScriptTemplates()
+{
+    return MapToScriptArray(App::GetSoundScriptManager()->getAllTemplates(), "SoundScriptTemplateClass@");
+}
+
+SoundScriptTemplatePtr GameScript::getSoundScriptTemplate(const std::string& name)
+{
+    return App::GetSoundScriptManager()->getTemplate(name);
+}
+
+AngelScript::CScriptArray* GameScript::getAllSoundScriptInstances()
+{
+    return VectorToScriptArray(App::GetSoundScriptManager()->getAllInstances(), "SoundScriptInstanceClass@");
+}
+
+SoundPtr GameScript::createSoundFromResource(const std::string& filename, const std::string& resource_group_name)
+{
+    return App::GetSoundScriptManager()->getSoundManager()->createSound(filename, resource_group_name);
+}
+
+SoundScriptInstancePtr GameScript::createSoundScriptInstance(const std::string& template_name, int actor_instance_id = SoundScriptInstance::ACTOR_ID_UNKNOWN)
+{
+    return App::GetSoundScriptManager()->createInstance(template_name, actor_instance_id);
 }
 
 // ------------------------

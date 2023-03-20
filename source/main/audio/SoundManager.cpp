@@ -58,6 +58,7 @@ SoundManager::SoundManager() :
     , hardware_sources_num(0)
     , sound_context(NULL)
     , audio_device(NULL)
+    , camera_position(Ogre::Vector3::ZERO)
 {
     if (App::audio_device_name->getStr() == "")
     {
@@ -356,7 +357,7 @@ void SoundManager::setMasterVolume(float v)
     alListenerf(AL_GAIN, v);
 }
 
-SoundPtr SoundManager::createSound(String filename)
+SoundPtr SoundManager::createSound(String filename, Ogre::String resource_group_name /* = "" */)
 {
     if (!audio_device)
         return NULL;
@@ -383,7 +384,7 @@ SoundPtr SoundManager::createSound(String filename)
     {
         // load the file
         alGenBuffers(1, &audio_buffers[audio_buffers_in_use_count]);
-        if (loadWAVFile(filename, audio_buffers[audio_buffers_in_use_count]))
+        if (loadWAVFile(filename, audio_buffers[audio_buffers_in_use_count], resource_group_name))
         {
             // there was an error!
             alDeleteBuffers(1, &audio_buffers[audio_buffers_in_use_count]);
@@ -399,7 +400,7 @@ SoundPtr SoundManager::createSound(String filename)
     return audio_sources[audio_buffers_in_use_count++];
 }
 
-bool SoundManager::loadWAVFile(String filename, ALuint buffer)
+bool SoundManager::loadWAVFile(String filename, ALuint buffer, Ogre::String resource_group_name /*= ""*/)
 {
     if (!audio_device)
         return true;
@@ -407,8 +408,11 @@ bool SoundManager::loadWAVFile(String filename, ALuint buffer)
 
     // create the Stream
     ResourceGroupManager* rgm = ResourceGroupManager::getSingletonPtr();
-    String group = rgm->findGroupContainingResource(filename);
-    DataStreamPtr stream = rgm->openResource(filename, group);
+    if (resource_group_name == "")
+    {
+        resource_group_name = rgm->findGroupContainingResource(filename);
+    }
+    DataStreamPtr stream = rgm->openResource(filename, resource_group_name);
 
     // load RIFF/WAVE
     char magic[5];

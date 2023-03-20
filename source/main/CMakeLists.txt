@@ -226,6 +226,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/LocalStorage.{h,cpp}
             scripting/OgreScriptBuilder.{h,cpp}
             scripting/ScriptEngine.{h,cpp}
+            scripting/ScriptUtils.h
             scripting/bindings/AngelScriptBindings.h
             scripting/bindings/ActorAngelscript.cpp
             scripting/bindings/ConsoleAngelscript.cpp

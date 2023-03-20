@@ -49,7 +49,11 @@ public:
     SoundManager();
     ~SoundManager();
 
-    SoundPtr createSound(Ogre::String filename);
+    /**
+    * @param filename WAV file.
+    * @param resource_group_name Leave empty to auto-search all groups (classic behavior).
+    */
+    SoundPtr createSound(Ogre::String filename, Ogre::String resource_group_name = "");
 
     void setCamera(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
     void pauseAllSounds();
@@ -74,7 +78,7 @@ private:
     void assign(int source_index, int hardware_index);
     void retire(int source_index);
 
-    bool loadWAVFile(Ogre::String filename, ALuint buffer);
+    bool loadWAVFile(Ogre::String filename, ALuint buffer, Ogre::String resource_group_name = "");
 
     // active audio sources (hardware sources)
     int    hardware_sources_num;                       // total number of available hardware sources < MAX_HARDWARE_SOURCES

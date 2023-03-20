@@ -248,6 +248,7 @@ public:
     float getStopSoundPitchgain() { return stop_sound_pitchgain; }
     float getSoundPitchgain(int pos) { if (pos >= 0 && pos < templ->free_sound) { return sounds_pitchgain[pos]; } else { return 0.f; } }
     int getActorInstanceId() { return actor_id; }
+    const Ogre::String& getInstanceName() { return instance_name; }
 
     static const float PITCHDOWN_FADE_FACTOR;
     static const float PITCHDOWN_CUTOFF_FACTOR;
@@ -258,6 +259,7 @@ private:
 
     float pitchgain_cutoff(float sourcepitch, float targetpitch);
 
+    Ogre::String instance_name;
     SoundScriptTemplatePtr templ;
     SoundManager* sound_manager;
     SoundPtr start_sound;
@@ -286,6 +288,9 @@ public:
     Ogre::Real getLoadingOrder(void) const;
 
     SoundScriptInstancePtr createInstance(Ogre::String templatename, int actor_id, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
+    std::vector<SoundScriptInstancePtr>& getAllInstances() { return instances; }
+    SoundScriptTemplatePtr getTemplate(Ogre::String name) { return templates[name]; }
+    std::map <Ogre::String, SoundScriptTemplatePtr>& getAllTemplates() { return templates; }
 
     // functions
     void trigOnce    (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
@@ -312,6 +317,8 @@ public:
 
     void update(float dt_sec);
 
+    SoundManager* getSoundManager() { return sound_manager; }
+
 private:
 
     SoundScriptTemplatePtr createTemplate(Ogre::String name, Ogre::String groupname, Ogre::String filename);
@@ -327,6 +334,7 @@ private:
     Ogre::StringVector script_patterns;
 
     std::map <Ogre::String, SoundScriptTemplatePtr> templates;
+    std::vector<SoundScriptInstancePtr> instances;
 
     // instances lookup tables
     int free_trigs[SS_MAX_TRIG];
