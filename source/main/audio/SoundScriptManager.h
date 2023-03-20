@@ -235,7 +235,8 @@ public:
     void setEnabled(bool e);
     void setGain(float value);
     void setPitch(float value);
-    void setPosition(Ogre::Vector3 pos, Ogre::Vector3 velocity);
+    void setPosition(Ogre::Vector3 pos);
+    void setVelocity(Ogre::Vector3 velo);
     void start();
     void stop();
     void kill();

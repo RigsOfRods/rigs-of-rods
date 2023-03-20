@@ -200,7 +200,8 @@ void RoR::RegisterSoundScript(AngelScript::asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("SoundScriptInstanceClass", "void runOnce()", asMETHOD(SoundScriptInstance, runOnce), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("SoundScriptInstanceClass", "void setPitch(float pitch)", asMETHOD(SoundScriptInstance, setPitch), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("SoundScriptInstanceClass", "void setGain(float gain)", asMETHOD(SoundScriptInstance, setGain), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("SoundScriptInstanceClass", "void setPosition(vector3 pos, vector3 velo)", asMETHOD(SoundScriptInstance, setPosition), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundScriptInstanceClass", "void setPosition(vector3 pos)", asMETHOD(SoundScriptInstance, setPosition), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundScriptInstanceClass", "void setVelocity(vector3 velo)", asMETHOD(SoundScriptInstance, setVelocity), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("SoundScriptInstanceClass", "void start()", asMETHOD(SoundScriptInstance, start), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("SoundScriptInstanceClass", "void stop()", asMETHOD(SoundScriptInstance, stop), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("SoundScriptInstanceClass", "void kill()", asMETHOD(SoundScriptInstance, kill), asCALL_THISCALL); ROR_ASSERT(result >= 0);
