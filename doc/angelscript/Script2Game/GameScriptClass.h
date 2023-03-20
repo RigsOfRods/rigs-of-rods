@@ -534,6 +534,36 @@ public:
 	int setMaterialTextureScale(const string materialName, int techniqueNum, int passNum, int textureUnitNum, float u, float v);
 
     ///@}
+    
+    /// @name Audio
+    /// @{
+
+    array<SoundScriptTemplateClass> getAllSoundScriptTemplates();
+    
+    /**
+    * Retrieves one sound script template by name.
+    */
+    SoundScriptTemplateClass getSoundScriptTemplate(const string &in name);
+    
+    /**
+    * Diagnostic function, returns all existing sound script instances.
+    */
+    array<SoundScriptInstanceClass> getAllSoundScriptInstances();
+    
+    /**
+    * @param filename WAV file; This WAV file MUST be mono, and exported as 16-bit PCM with no metadata.
+    * @param resource_group_name Leave empty to auto-search all groups (classic behavior).
+    */    
+    SoundClass createSoundFromResource(const string &in filename, const string &in resource_group_name = string());
+
+    /**
+    * @param template_name Name defined in the '.soundscript' file.
+    * @param actor_instance_id Values 0 and larger are reserved as actor instance IDs, see `getTruckByNum()`; -1 means undefined, -2 is reserved for terrain objects.
+    * @see https://docs.rigsofrods.org/vehicle-creation/fileformat-soundscript
+    */
+    SoundScriptInstanceClass createSoundScriptInstance(const string &in template_name, int actor_instance_id = -1); 
+
+    ///@}    
 };
 
 /// @}    //addtogroup Script2Game
