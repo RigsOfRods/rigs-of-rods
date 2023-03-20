@@ -35,6 +35,13 @@
 # * discord-rpc::discord-rpc
 #
 
+find_package(discord-rpc QUIET CONFIG)
+
+if (TARGET discord-rpc::discord-rpc)
+    set(discord_rpc_FOUND TRUE)
+    return()
+endif ()
+
 find_path(discord_rpc_INCLUDE_DIR discord_rpc.h)
 find_library(discord_rpc_LIBRARY discord-rpc)
 
