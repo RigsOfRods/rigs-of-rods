@@ -42,6 +42,8 @@ CVarClass@  g_io_arcade_controls = console.cVarFind("io_arcade_controls"); // bo
 GenericDocumentClass@ g_displayed_document = null;
 string g_displayed_doc_filename;
 array<string> g_terrain_tobj_files;
+SoundScriptInstanceClass@ g_playing_soundscript = null;
+SoundClass@ g_playing_sound = null;
 
 /*
     ---------------------------------------------------------------------------
@@ -71,6 +73,8 @@ void frameStep(float dt)
     if (g_app_state.getInt() == 1) // main menu
     {
         drawMainMenuPanel();
+        ImGui::Separator();
+        drawAudioButtons();
     }
     else if (g_app_state.getInt() == 2) // simulation
     {
@@ -182,6 +186,8 @@ void frameStep(float dt)
             ImGui::Text("Run: " + inputs.getEventCommandTrimmed(EV_CHARACTER_RUN));
         }
         
+        ImGui::Separator();
+        drawAudioButtons();
     }
     
     // End window
@@ -364,4 +370,177 @@ void drawMainMenuPanel()
     @g_displayed_document = null;
     g_displayed_doc_filename = "";
     g_terrain_tobj_files.removeRange(0, g_terrain_tobj_files.length());
+}
+
+void drawAudioButtons()
+{
+    ImGui::PushID("AudioTest");
+    ImGui::TextDisabled("Audio API test");
+    
+    array<SoundScriptTemplateClass@>@ templates = game.getAllSoundScriptTemplates();
+    string templates_title = "Sound script templates (" + templates.length() + ")";
+    if (ImGui::CollapsingHeader(templates_title))
+    {
+        ImGui::PushID("templates");
+        
+        for (uint i = 0; i < templates.length(); i++)
+        {
+            ImGui::PushID(i);
+            
+            SoundScriptTemplateClass@ template = game.getSoundScriptTemplate(templates[i].name); // Look up again by name, just to test the API
+            
+            ImGui::Text(template.name);
+            if (template.base_template)
+            {
+                ImGui::SameLine();
+                ImGui::TextDisabled(" [base]");
+            }
+            ImGui::SameLine();
+
+            if (@g_playing_soundscript == null)
+            {
+                if (ImGui::Button("Play"))
+                {
+                    @g_playing_soundscript = game.createSoundScriptInstance(template.name);
+                    g_playing_soundscript.start();
+                }
+            }
+            else
+            {
+                if (ImGui::Button("Stop"))
+                {
+                    g_playing_soundscript.kill();
+                    @g_playing_soundscript = null;
+                }
+            }
+            
+            ImGui::PopID(); // i
+        }
+        
+        ImGui::PopID(); // "templates"
+    }
+    
+    array<SoundScriptInstanceClass@>@ instances = game.getAllSoundScriptInstances();
+    string instances_title = "Sound script instances (" + instances.length() + ")";
+    if (ImGui::CollapsingHeader(instances_title))
+    {
+        ImGui::PushID("instances");
+    
+        for (uint i = 0; i < instances.length(); i++)
+        {
+            ImGui::PushID(i);
+        
+            SoundScriptInstanceClass@ instance = instances[i];
+            
+            ImGui::Text(instance.getInstanceName());
+            ImGui::SameLine();
+            ImGui::TextDisabled("(show tooltip with details)");
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                drawSoundScriptInstanceDiagPanel(instance);
+                ImGui::EndTooltip();
+            }
+            
+            ImGui::PopID(); // i
+        }
+        
+        ImGui::PopID(); // "instances"
+    }
+    
+    ImGui::TextDisabled("Some builtin sounds");
+
+    drawWavPreviewBulletButton("default_horn.wav");
+    drawWavPreviewBulletButton("default_police.wav");
+    drawWavPreviewBulletButton("default_pump.wav");
+    drawWavPreviewBulletButton("default_shift.wav");
+    drawWavPreviewBulletButton("default_starter.wav");
+    
+    ImGui::PopID(); // "AudioTest"
+}
+
+void drawWavPreviewBulletButton(string wav_file)
+{
+    ImGui::PushID(wav_file);
+
+    ImGui::Bullet();
+    ImGui::SameLine();
+    ImGui::Text(wav_file);
+    ImGui::SameLine();
+    if (@g_playing_sound == null)
+    {
+        if (ImGui::Button("Play loop"))
+        {        
+            @g_playing_sound = game.createSoundFromResource(wav_file);
+            g_playing_sound.setEnabled(true);
+            g_playing_sound.setGain(1.f);
+            g_playing_sound.setLoop(true);
+            g_playing_sound.play();
+            game.log("Demo script: playing file " + wav_file);
+        }
+    }
+    else
+    {
+        if (ImGui::Button("Stop"))
+        {
+            g_playing_sound.stop();
+            @g_playing_sound = null;
+            game.log("Demo script: stopping file " + wav_file);
+        }
+    }
+    
+    ImGui::PopID(); // wav_file
+}
+
+void drawSoundObjectDiag(SoundClass@ snd)
+{
+    string txt 
+        = "\t enabled:"+snd.getEnabled()+", playing:"+snd.isPlaying()
+        +"\n\t audibility:"+snd.getAudibility()
+        +"\n\t gain:"+snd.getGain() +", pitch:"+snd.getPitch()
+        +"\n\t loop:"+snd.getLoop()
+        +"\n\t currentHardwareIndex:"+snd.getCurrentHardwareIndex()
+        +"\n\t OpenAL buffer ID:"+snd.getBuffer()
+        +"\n\t position: X="+snd.getPosition().x+" Y="+snd.getPosition().y+" Z="+snd.getPosition().z
+        +"\n\t velocity: X="+snd.getVelocity().x+" Y="+snd.getVelocity().y+" Z="+snd.getVelocity().z;
+    ImGui::Text(txt);
+}
+
+void drawSoundScriptInstanceDiagPanel(SoundScriptInstanceClass@ instance)
+{
+    SoundScriptTemplateClass@ template = instance.getTemplate();
+
+    // START sound
+    SoundClass@ startSnd = instance.getStartSound();
+    if (@startSnd != null)
+    {
+        ImGui::Text("START sound: '" + template.start_sound_name + "' (pitchgain: "+instance.getStartSoundPitchgain()+")");
+        drawSoundObjectDiag(startSnd);
+    }
+    else
+    {
+        ImGui::TextDisabled("[no START sound]");
+    }
+    
+    // SOUNDS (running)
+    int numSounds = template.getNumSounds();
+    ImGui::Text("SOUNDS (count: " + numSounds + ")");
+    for (int i = 0; i < numSounds; i++)
+    {
+        SoundClass@ snd = instance.getSound(i);
+        ImGui::Text("SOUND: '" + template.getSoundName(i) + "' (pitchgain: "+instance.getSoundPitchgain(i)+")");
+        drawSoundObjectDiag(snd);
+    }
+    
+    // STOP sound
+    SoundClass@ stopSnd = instance.getStopSound();
+    if (@stopSnd != null)
+    {
+        ImGui::Text("STOP sound: '" + template.stop_sound_name + "' (pitchgain: "+instance.getStopSoundPitchgain()+")");
+        drawSoundObjectDiag(stopSnd);
+    }
+    else
+    {
+        ImGui::TextDisabled("[no STOP sound]");
+    }    
 }

@@ -377,6 +377,7 @@ SoundScriptInstancePtr SoundScriptManager::createInstance(Ogre::String templaten
     }
 
     SoundScriptInstancePtr inst = new SoundScriptInstance(actor_id, templ, sound_manager, templ->file_name + "-" + TOSTRING(actor_id) + "-" + TOSTRING(instance_counter), soundLinkType, soundLinkItemId);
+    instances.push_back(inst);
     instance_counter++;
 
     // register to lookup tables
@@ -1024,6 +1025,7 @@ int SoundScriptTemplate::parseModulation(String str)
 
 SoundScriptInstance::SoundScriptInstance(int actor_id, SoundScriptTemplatePtr templ, SoundManager* sound_manager, String instancename, int soundLinkType, int soundLinkItemId) :
     actor_id(actor_id)
+    , instance_name(instancename)
     , templ(templ)
     , sound_manager(sound_manager)
     , sound_link_type(soundLinkType)

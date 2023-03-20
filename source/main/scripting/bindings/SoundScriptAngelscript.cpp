@@ -139,8 +139,8 @@ void RoR::RegisterSoundScript(AngelScript::asIScriptEngine* engine)
     SoundScriptTemplatePtr::RegisterRefCountingObjectPtr(engine, "SoundScriptTemplateClassPtr", "SoundScriptTemplateClass");
 
     result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "int getNumSounds()", asMETHOD(SoundScriptTemplate, getNumSounds), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "string getSoundName()", asMETHOD(SoundScriptTemplate, getSoundName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "float getSoundPitch()", asMETHOD(SoundScriptTemplate, getSoundPitch), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "string getSoundName(int)", asMETHOD(SoundScriptTemplate, getSoundName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "float getSoundPitch(int)", asMETHOD(SoundScriptTemplate, getSoundPitch), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "string name", offsetof(SoundScriptTemplate, name)); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "string file_name", offsetof(SoundScriptTemplate, file_name)); ROR_ASSERT(result >= 0);
@@ -213,5 +213,6 @@ void RoR::RegisterSoundScript(AngelScript::asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("SoundScriptInstanceClass", "float getStopSoundPitchgain()", asMETHOD(SoundScriptInstance, getStopSoundPitchgain), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("SoundScriptInstanceClass", "float getSoundPitchgain(int pos)", asMETHOD(SoundScriptInstance, getSoundPitchgain), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("SoundScriptInstanceClass", "int getActorInstanceId()", asMETHOD(SoundScriptInstance, getActorInstanceId), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundScriptInstanceClass", "const string& getInstanceName()", asMETHOD(SoundScriptInstance, getInstanceName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
 }

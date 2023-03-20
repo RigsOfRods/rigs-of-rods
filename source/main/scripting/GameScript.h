@@ -470,6 +470,23 @@ public:
 
     ///@}
 
+    /// @name Audio
+    /// @{
+
+    AngelScript::CScriptArray* getAllSoundScriptTemplates();
+    SoundScriptTemplatePtr     getSoundScriptTemplate(const std::string& name);
+    AngelScript::CScriptArray* getAllSoundScriptInstances();
+
+    /**
+    * @param filename WAV file.
+    * @param resource_group_name Leave empty to auto-search all groups (classic behavior).
+    */
+    SoundPtr                   createSoundFromResource(const std::string& filename, const std::string& resource_group_name);
+
+    SoundScriptInstancePtr     createSoundScriptInstance(const std::string& template_name, int actor_instance_id /*= SoundScriptInstance::ACTOR_ID_UNKNOWN*/);
+
+    /// @}
+
 private:
 
     bool HaveSimTerrain(const char* func_name); //!< Helper; Check if SimController instance exists, log warning if not.
