@@ -316,7 +316,10 @@ void GfxScene::BufferSimulationData()
 void GfxScene::RemoveGfxActor(RoR::GfxActor* remove_me)
 {
     auto itor = std::remove(m_all_gfx_actors.begin(), m_all_gfx_actors.end(), remove_me);
-    m_all_gfx_actors.erase(itor, m_all_gfx_actors.end());
+    if (itor != m_all_gfx_actors.end())
+    {
+        m_all_gfx_actors.erase(itor, m_all_gfx_actors.end());
+    }
 }
 
 void GfxScene::RegisterGfxCharacter(RoR::GfxCharacter* gfx_character)
@@ -327,7 +330,10 @@ void GfxScene::RegisterGfxCharacter(RoR::GfxCharacter* gfx_character)
 void GfxScene::RemoveGfxCharacter(RoR::GfxCharacter* remove_me)
 {
     auto itor = std::remove(m_all_gfx_characters.begin(), m_all_gfx_characters.end(), remove_me);
-    m_all_gfx_characters.erase(itor, m_all_gfx_characters.end());
+    if (itor != m_all_gfx_characters.end())
+    {
+        m_all_gfx_characters.erase(itor, m_all_gfx_characters.end());
+    }
 }
 
 void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string const& nick, int colornum)
