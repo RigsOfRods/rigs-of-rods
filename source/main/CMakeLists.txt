@@ -394,9 +394,8 @@ target_link_libraries(${BINNAME} PRIVATE
         ois::ois
         fmt::fmt
         MyGUI::MyGUI
-        rapidjson
         )
-target_include_directories(${BINNAME} PRIVATE ${OGRE_INCLUDE_DIRS})
+target_include_directories(${BINNAME} PRIVATE ${OGRE_INCLUDE_DIRS} ${RapidJSON_INCLUDE_DIRS})
 if (TARGET MyGUI::OgrePlatform)
     target_link_libraries(${BINNAME} PRIVATE MyGUI::OgrePlatform)
 endif ()
