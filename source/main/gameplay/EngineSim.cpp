@@ -1422,9 +1422,26 @@ void EngineSim::UpdateInputEvents(float dt)
                 this->shift(-1);
             }
         }
-        else if (shiftmode != SimGearboxMode::AUTO && App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_NEUTRAL))
+        else if (shiftmode != SimGearboxMode::AUTO)
         {
-            this->shiftTo(0);
+            if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_NEUTRAL))
+            {
+                this->shiftTo(0);
+            }
+            else if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR_REVERSE))
+            {
+                this->shiftTo(-1);
+            }
+            else
+            {
+                for (int i = 1; i < 19; i++)
+                {
+                    if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SHIFT_GEAR01 + i - 1))
+                    {
+                        this->shiftTo(i);
+                    }
+                }
+            }
         }
     }
     else //if (shiftmode > SimGearboxMode::MANUAL) // h-shift or h-shift with ranges shifting
