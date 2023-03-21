@@ -30,6 +30,10 @@ cmake_dependent_option(ROR_USE_DISCORD_RPC "use discord-rpc" ON "discord_rpc_FOU
 # --- SocketW - networking library ---
 find_package(SocketW)
 cmake_dependent_option(ROR_USE_SOCKETW "use SOCKETW" ON "TARGET SocketW::SocketW" OFF)
+if(TARGET SocketW::SocketW)
+    # Fix to find SocketW+OpenSSL
+    find_package(OpenSSL QUIET)
+endif()
 
 # --- AngelScript - scripting interface ---
 find_package(Angelscript)
