@@ -13,6 +13,7 @@
      * Load and write text files in the resource system.
      * Inspect loaded sounds and soundscript templates, and of course play sounds!
      * Post messages to game's main message queue, performing almost any operation.
+     * Query list of resource files (filtered using pattern) from OGRE resource groups.
      
     There are several ways of invoking a script:
      1. From in-game console (hotkey ~), say 'loadscript <filename>'
@@ -59,6 +60,10 @@ bool demotabsNoTooltip = true;
 bool demotabOpentabChecks = true;
 bool demotabOpentabEmpty = true;
 
+// findResourceFileInfo
+const string RG_NAME = "Scripts";
+const string RG_PATTERN = "demo*.*";
+
 /*
     ---------------------------------------------------------------------------
     Script setup function - invoked once when script is loaded.
@@ -93,7 +98,9 @@ void frameStep(float dt)
         
         ImGui::Separator();
         drawTextResourceButtons();   
-        drawExampleTabs();        
+        drawExampleTabs();
+        ImGui::Separator();
+        drawFindResourceFileInfo();        
     }
     else if (g_app_state.getInt() == 2) // simulation
     {
@@ -796,4 +803,26 @@ void drawExampleTabs()
     ImGui::Text("nothing interesting down here...");
 }
 
+
+
+void drawFindResourceFileInfo()
+{
+    array<dictionary> @fileinfo = game.findResourceFileInfo(RG_NAME, RG_PATTERN);
+    if (@fileinfo != null)
+    {
+        ImGui::Text(RG_NAME+" ("+fileinfo.length()+" results for pattern '"+RG_PATTERN+"')");
+        for (uint i=0; i<fileinfo.length(); i++)
+        {
+            string filename = string(fileinfo[i]['filename']);
+            uint size = uint(fileinfo[i]['compressedSize']);
+            ImGui::Bullet(); ImGui::SameLine();
+            ImGui::Text(filename); ImGui::SameLine(); 
+            ImGui::TextDisabled("("+float(size)/1000.f+" KB)");
+        }
+    }
+    else
+    {
+        ImGui::Text("Null result :(");
+    }
+}
 
