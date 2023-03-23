@@ -1655,6 +1655,39 @@ bool GameScript::createTextResourceFromString(const std::string& data, const std
     }
 }
 
+AngelScript::CScriptArray* GameScript::findResourceFileInfo(const std::string& resource_group, const std::string& pattern, bool dirs /*= false*/)
+{
+    try
+    {
+        // Search the file system
+        Ogre::FileInfoListPtr fileInfoList 
+            = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(resource_group, pattern, dirs);
+
+        // Put results to array
+        AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl("array<dictionary>");
+        AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo);
+        int stringTypeid = App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("string");
+        for (const Ogre::FileInfo& fileinfo: *fileInfoList)
+        {
+            AngelScript::CScriptDictionary* dict = AngelScript::CScriptDictionary::Create(App::GetScriptEngine()->getEngine());
+            dict->Set("filename", new std::string(fileinfo.filename), stringTypeid);
+            dict->Set("basename", new std::string(fileinfo.basename), stringTypeid);
+            dict->Set("compressedSize", (asINT64)fileinfo.compressedSize);
+            dict->Set("uncompressedSize", (asINT64)fileinfo.uncompressedSize);
+
+            arr->InsertLast(dict);
+        }
+        return arr;
+    }
+    catch (Ogre::Exception& oex)
+    {
+        LOG(fmt::format("findResourceFileInfo(): {}", oex.getDescription()));
+        return nullptr;
+    }
+
+
+}
+
 // ------------------------
 // Helpers:
 
