@@ -1298,8 +1298,9 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
     case MSG_SIM_HIDE_NET_ACTOR_REQUESTED:      //!< Payload = ActorPtr* (owner)
     case MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED:    //!< Payload = ActorPtr* (owner)
     {
-        int instance_id = -1;
-        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "instance_id", "int", instance_id))
+        // `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
+        int64_t instance_id = -1;
+        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "instance_id", "int64", instance_id))
         {
             ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(instance_id);
             if (actor)
@@ -1321,9 +1322,10 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
     
     case MSG_SIM_SEAT_PLAYER_REQUESTED:         //!< Payload = RoR::ActorPtr (owner) | nullptr
     {
-        int instance_id = -1;
+        // `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
+        int64_t instance_id = -1;
         ActorPtr actor;
-        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "instance_id", "int", instance_id)
+        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "instance_id", "int64", instance_id)
             && instance_id > -1)
         {
             actor = App::GetGameContext()->GetActorManager()->GetActorById(instance_id);
