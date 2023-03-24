@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          curl "https://raw.githubusercontent.com/AnotherFoxGuy/ci-scripts/main/install-conan2.0.sh" | sudo bash
+          curl "https://raw.githubusercontent.com/AnotherFoxGuy/ci-scripts/main/install-conan.sh" | sudo bash
           sudo apt-get update
           sudo apt-get -y install \
                   pkg-config \
@@ -81,7 +81,7 @@ jobs:
     name: Windows build
     runs-on: windows-2019
     env:
-      BUILD_TOOLS_PATH: C:\Program Files\Conan\conan
+      BUILD_TOOLS_PATH: C:\apps\build-tools\
       CONAN_USER_HOME_SHORT: None
     steps:
       - run: echo $env:BUILD_TOOLS_PATH | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
@@ -91,7 +91,8 @@ jobs:
           submodules: true
 
       - name: Install Build tools
-        run: choco install ninja conan -y
+        run: git clone https://git.anotherfoxguy.com/AnotherFoxGuy/build-tools.git %BUILD_TOOLS_PATH%
+        shell: cmd
 
       - name: Cache conan packages
         uses: actions/cache@v3
