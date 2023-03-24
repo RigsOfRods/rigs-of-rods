@@ -1152,19 +1152,20 @@ bool GameScript::GetValueFromDict(const std::string& log_msg, AngelScript::CScri
         return false;
     }
 
-    const int val_typeid = App::GetScriptEngine()->getEngine()->GetTypeIdByDecl(decl);
-    if (itor.GetTypeId() != val_typeid)
+    const int expected_typeid = App::GetScriptEngine()->getEngine()->GetTypeIdByDecl(decl);
+    const int actual_typeid = itor.GetTypeId();
+    if (actual_typeid != expected_typeid)
     {
         // Wrong type
         if (required)
         {
             this->log(fmt::format("{}: ERROR, required parameter '{}' must be a {}, instead got {}.",
-                log_msg, key, decl, App::GetScriptEngine()->getEngine()->GetTypeDeclaration(val_typeid)));
+                log_msg, key, decl, App::GetScriptEngine()->getEngine()->GetTypeDeclaration(actual_typeid)));
         }
         return false;
     }
 
-    return itor.GetValue(&out_value, val_typeid); // Error will be logged to Angelscript.log
+    return itor.GetValue(&out_value, actual_typeid); // Error will be logged to Angelscript.log
 }
 
 bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
