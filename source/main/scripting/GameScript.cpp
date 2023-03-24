@@ -1281,10 +1281,14 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
     case MSG_SIM_MODIFY_ACTOR_REQUESTED:        //!< Payload = RoR::ActorModifyRequest* (owner)
     {
         ActorModifyRequest::Type modify_type;
-        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "type", "ActorModifyRequestType", modify_type))
+        // `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
+        int64_t instance_id = -1;
+        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "type", "ActorModifyRequestType", modify_type) &&
+            this->GetValueFromDict(log_msg, dict, /*required:*/true, "instance_id", "int64", instance_id))
         {
             ActorModifyRequest* rq = new ActorModifyRequest();
             rq->amr_type = modify_type;
+            rq->amr_actor = App::GetGameContext()->GetActorManager()->GetActorById(static_cast<int>(instance_id));
             m.payload = rq;
         }
         else
