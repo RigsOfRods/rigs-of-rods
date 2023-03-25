@@ -78,6 +78,7 @@ protected:
     Ogre::ColourValue colours[MAX_DUSTS];
     Ogre::ParticleSystem* pss[MAX_DUSTS];
     Ogre::SceneNode* sns[MAX_DUSTS];
+    Ogre::SceneNode* parent_snode;
     Ogre::Vector3 positions[MAX_DUSTS];
     Ogre::Vector3 velocities[MAX_DUSTS];
     float rates[MAX_DUSTS];
