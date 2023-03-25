@@ -117,33 +117,8 @@ template<typename T>
 class CReadonlyScriptDictView
 {
 public:
-    static const char* VALUE_DECL;
 
     CReadonlyScriptDictView(const std::map<std::string, T>& map) : m_map(map), m_refcount(1) {}
-
-    // Gets the stored value. Returns false if the value isn't compatible with the informed typeId
-    bool Get(const std::string& key, void* value, int typeId) const
-    {
-        if (typeId != AngelScript::asGetActiveContext()->GetEngine()->GetTypeIdByDecl(VALUE_DECL))
-            return false;
-
-        auto it = m_map.find(key);
-        if (it == m_map.end())
-            return false;
-
-        *(void**)value = it->second;
-        return true;
-    }
-
-    bool Get(const std::string& key, AngelScript::asINT64& value) const
-    {
-        return Get(key, &value, AngelScript::asTYPEID_INT64);
-    }
-
-    bool Get(const std::string& key, double& value) const
-    {
-        return Get(key, &value, AngelScript::asTYPEID_DOUBLE);
-    }
 
     bool Exists(const std::string& key) const
     {
@@ -186,7 +161,7 @@ public:
         return array;
     }
 
-    static void RegisterReadonlyScriptDictView(AngelScript::asIScriptEngine* engine, const char* decl)
+    static void RegisterReadonlyScriptDictView(AngelScript::asIScriptEngine* engine, const char* decl, const char* value_decl)
     {
         using namespace AngelScript;
 
@@ -201,13 +176,9 @@ public:
         r = engine->RegisterObjectMethod(decl, "uint getSize() const", asMETHOD(CReadonlyScriptDictView<T>, GetSize), asCALL_THISCALL); ROR_ASSERT(r >= 0);
         r = engine->RegisterObjectMethod(decl, "array<string> @getKeys() const", asMETHOD(CReadonlyScriptDictView<T>, GetKeys), asCALL_THISCALL); assert(r >= 0);
 
-        r = engine->RegisterObjectMethod(decl, "bool get(const string &in, ?&out) const", asMETHODPR(CReadonlyScriptDictView<T>, Get, (const std::string&, void*, int) const, bool), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-        r = engine->RegisterObjectMethod(decl, "bool get(const string &in, int64&out) const", asMETHODPR(CReadonlyScriptDictView<T>, Get, (const std::string&, asINT64&) const, bool), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-        r = engine->RegisterObjectMethod(decl, "bool get(const string &in, double&out) const", asMETHODPR(CReadonlyScriptDictView<T>, Get, (const std::string&, double&) const, bool), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-
-        std::string opIndexDecl = fmt::format("{}@ opIndex(const string &in)", VALUE_DECL);
+        std::string opIndexDecl = fmt::format("{}@ opIndex(const string &in)", value_decl);
         r = engine->RegisterObjectMethod(decl, opIndexDecl.c_str(), asMETHOD(CReadonlyScriptDictView<T>, OpIndex), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-        std::string opIndexConstDecl = fmt::format("const {}@ opIndex(const string &in) const", VALUE_DECL);
+        std::string opIndexConstDecl = fmt::format("const {}@ opIndex(const string &in) const", value_decl);
         r = engine->RegisterObjectMethod(decl, opIndexConstDecl.c_str(), asMETHOD(CReadonlyScriptDictView<T>, OpIndex), asCALL_THISCALL); ROR_ASSERT(r >= 0);
 
     }
@@ -224,7 +195,6 @@ template <typename T>
 class CReadonlyScriptArrayView
 {
 public:
-    static const char* VALUE_DECL;
 
     CReadonlyScriptArrayView(const std::vector<T>& vec) : m_vec(vec), m_refcount(1) {}
 
@@ -232,7 +202,7 @@ public:
     unsigned GetSize() const { return m_vec.size(); }
     T OpIndex(unsigned pos) { return m_vec.at(pos); }
 
-    static void RegisterReadonlyScriptArrayView(AngelScript::asIScriptEngine* engine, const char* decl)
+    static void RegisterReadonlyScriptArrayView(AngelScript::asIScriptEngine* engine, const char* decl, const char* value_decl)
     {
         using namespace AngelScript;
 
@@ -245,9 +215,9 @@ public:
         r = engine->RegisterObjectMethod(decl, "bool isEmpty() const", asMETHOD(CReadonlyScriptArrayView<T>, IsEmpty), asCALL_THISCALL); ROR_ASSERT(r >= 0);
         r = engine->RegisterObjectMethod(decl, "uint length() const", asMETHOD(CReadonlyScriptArrayView<T>, GetSize), asCALL_THISCALL); ROR_ASSERT(r >= 0);
         
-        std::string opIndexDecl = fmt::format("{}@ opIndex(uint pos)", VALUE_DECL);
+        std::string opIndexDecl = fmt::format("{}@ opIndex(uint pos)", value_decl);
         r = engine->RegisterObjectMethod(decl, opIndexDecl.c_str(), asMETHOD(CReadonlyScriptArrayView<T>, OpIndex), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-        std::string opIndexConstDecl = fmt::format("const {}@ opIndex(uint pos) const", VALUE_DECL);
+        std::string opIndexConstDecl = fmt::format("const {}@ opIndex(uint pos) const", value_decl);
         r = engine->RegisterObjectMethod(decl, opIndexConstDecl.c_str(), asMETHOD(CReadonlyScriptArrayView<T>, OpIndex), asCALL_THISCALL); ROR_ASSERT(r >= 0);
 
     }
