@@ -59,7 +59,7 @@ Character::Character(int source, unsigned int streamid, UTFString player_name, i
     , m_anim_name("Idle_sway")
 {
     static int id_counter = 0;
-    m_instance_name = "Character" + TOSTRING(id_counter);
+    m_instance_name = "Character#" + TOSTRING(id_counter);
     ++id_counter;
 
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
@@ -560,7 +560,7 @@ GfxCharacter* Character::SetupGfx()
     entity->getMesh()->_setBounds(aabb);
 
     // add entity to the scene node
-    Ogre::SceneNode* scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    Ogre::SceneNode* scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode(m_instance_name);
     scenenode->attachObject(entity);
     scenenode->setScale(0.02f, 0.02f, 0.02f);
     scenenode->setVisible(false);
