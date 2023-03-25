@@ -299,6 +299,14 @@ static SceneManagerInstanceDict* RootGetSceneManagers(Root* self)
     return new SceneManagerInstanceDict(self->getSceneManagers());
 }
 
+/***ANIMATIONSTATESET***/
+typedef CReadonlyScriptDictView<AnimationState*> AnimationStateDict;
+
+static AnimationStateDict* AnimationStateSetGetAnimationStates(AnimationStateSet* self)
+{
+    return new AnimationStateDict(self->getAnimationStates());
+}
+
 // forward declarations, defined below
 void registerOgreVector3(AngelScript::asIScriptEngine* engine);
 void registerOgreVector2(AngelScript::asIScriptEngine* engine);
@@ -314,6 +322,8 @@ void registerOgreNode(AngelScript::asIScriptEngine* engine);
 void registerOgreSceneNode(AngelScript::asIScriptEngine* engine);
 void registerOgreSceneManager(AngelScript::asIScriptEngine* engine);
 void registerOgreRoot(AngelScript::asIScriptEngine* engine);
+void registerOgreAnimationState(AngelScript::asIScriptEngine* engine);
+void registerOgreAnimationStateSet(AngelScript::asIScriptEngine* engine);
 
 // main registration method
 void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
@@ -368,11 +378,18 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     engine->RegisterObjectType("Root", sizeof(Root), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
+    engine->RegisterObjectType("AnimationState", sizeof(Root), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
+    engine->RegisterObjectType("AnimationStateSet", sizeof(Root), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
     // dictionary/array view types, also under namespace `Ogre`
 
     SceneManagerInstanceDict::RegisterReadonlyScriptDictView(engine, "SceneManagerInstanceDict", "SceneManager");
     MovableObjectArray::RegisterReadonlyScriptArrayView(engine, "MovableObjectArray", "MovableObject");
     ChildNodeArray::RegisterReadonlyScriptArrayView(engine, "ChildNodeArray", "Node");
+    AnimationStateDict::RegisterReadonlyScriptDictView(engine, "AnimationStateDict", "AnimationState");
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 
@@ -392,6 +409,8 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     registerOgreSceneNode(engine);
     registerOgreSceneManager(engine);
     registerOgreRoot(engine);
+    registerOgreAnimationState(engine);
+    registerOgreAnimationStateSet(engine);
 
     // To estabilish class hierarchy in AngelScript you need to register the reference cast operators opCast and opImplCast.
 
@@ -996,7 +1015,16 @@ void registerOgreEntity(AngelScript::asIScriptEngine* engine)
     int r;
     r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("Entity", "void setMaterialName(const string &in name, const string &in rg = \"OgreAutodetect\")", asMETHOD(Entity, setMaterialName), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "void setMaterialName(const string &in name, const string &in rg = \"OgreAutodetect\")", asMETHOD(Entity, setMaterialName), asCALL_THISCALL);  ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "AnimationState @getAnimationState(const string &in) const", asMETHOD(Entity, getAnimationState), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "AnimationStateSet @getAllAnimationStates()", asMETHOD(Entity, getAllAnimationStates), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "void setDisplaySkeleton(bool)", asMETHOD(Entity, setDisplaySkeleton), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "bool getDisplaySkeleton() const", asMETHOD(Entity, getDisplaySkeleton), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "uint64 getNumManualLodLevels() const", asMETHOD(Entity, getNumManualLodLevels), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "uint16 getCurrentLodIndex()", asMETHOD(Entity, getCurrentLodIndex), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "Entity @getManualLodLevel(uint64) const", asMETHOD(Entity, getManualLodLevel), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "void setMeshLodBias(float, uint16, uint16)", asMETHOD(Entity, setMeshLodBias), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "void setMaterialLodBias(float, uint16, uint16)", asMETHOD(Entity, setMaterialLodBias), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     
     registerOgreMovableObjectBase<MovableObject>(engine, "Entity");
 
@@ -1072,6 +1100,50 @@ void registerOgreRoot(AngelScript::asIScriptEngine* engine)
 
     r = engine->SetDefaultNamespace("Ogre::Root");
     r = engine->RegisterGlobalFunction("Root& getSingleton()", asFUNCTION(Root::getSingleton), asCALL_CDECL);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+void registerOgreAnimationState(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    // Register the getters and setters
+    engine->RegisterObjectMethod("AnimationState", "const string& getAnimationName() const", asMETHOD(AnimationState, getAnimationName), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "float getTimePosition() const", asMETHOD(AnimationState, getTimePosition), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "void setTimePosition(float)", asMETHOD(AnimationState, setTimePosition), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "float getLength() const", asMETHOD(AnimationState, getLength), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "void setLength(float)", asMETHOD(AnimationState, setLength), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "float getWeight() const", asMETHOD(AnimationState, getWeight), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "void setWeight(float)", asMETHOD(AnimationState, setWeight), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "void addTime(float)", asMETHOD(AnimationState, addTime), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "bool hasEnded() const", asMETHOD(AnimationState, hasEnded), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "bool getEnabled() const", asMETHOD(AnimationState, getEnabled), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "void setEnabled(bool)", asMETHOD(AnimationState, setEnabled), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "void setLoop(bool)", asMETHOD(AnimationState, setLoop), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "bool getLoop() const", asMETHOD(AnimationState, getLoop), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "AnimationStateSet@ getParent()", asMETHOD(AnimationState, getParent), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "void createBlendMask(uint blendMaskSizeHint, float initialWeight = 1.0f)", asMETHOD(AnimationState, createBlendMask), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "void destroyBlendMask()", asMETHOD(AnimationState, destroyBlendMask), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "bool hasBlendMask() const", asMETHOD(AnimationState, hasBlendMask), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "void setBlendMaskEntry(uint boneHandle, float weight)", asMETHOD(AnimationState, setBlendMaskEntry), asCALL_THISCALL);
+    engine->RegisterObjectMethod("AnimationState", "float getBlendMaskEntry(uint boneHandle)", asMETHOD(AnimationState, getBlendMaskEntry), asCALL_THISCALL);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+void registerOgreAnimationStateSet(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("AnimationStateSet", "AnimationState@ createAnimationState(const string& in, float, float, float = 1.0f, bool = false)", asMETHOD(AnimationStateSet, createAnimationState), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationStateSet", "AnimationState@ getAnimationState(const string& in) const", asMETHOD(AnimationStateSet, getAnimationState), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationStateSet", "bool hasAnimationState(const string& in) const", asMETHOD(AnimationStateSet, hasAnimationState), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationStateSet", "void removeAnimationState(const string& in)", asMETHOD(AnimationStateSet, removeAnimationState), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationStateSet", "void removeAllAnimationStates()", asMETHOD(AnimationStateSet, removeAllAnimationStates), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("AnimationStateSet", "AnimationStateDict@ getAnimationStates()", asFUNCTION(AnimationStateSetGetAnimationStates), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
