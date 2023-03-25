@@ -54,6 +54,32 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
 {
     // ENUMS (global namespace)
 
+
+    engine->RegisterEnum("ImGuiStyleVar"); 
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_Alpha", ImGuiStyleVar_Alpha);                         // float     Alpha
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_WindowPadding", ImGuiStyleVar_WindowPadding);        // ImVec2    WindowPadding
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_WindowRounding", ImGuiStyleVar_WindowRounding);       // float     WindowRounding
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_WindowBorderSize", ImGuiStyleVar_WindowBorderSize);    // float     WindowBorderSize
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_WindowMinSize", ImGuiStyleVar_WindowMinSize);         // ImVec2    WindowMinSize
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_WindowTitleAlign", ImGuiStyleVar_WindowTitleAlign);    // ImVec2    WindowTitleAlign
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_ChildRounding", ImGuiStyleVar_ChildRounding);         // float     ChildRounding
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_ChildBorderSize", ImGuiStyleVar_ChildBorderSize);     // float     ChildBorderSize
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_PopupRounding", ImGuiStyleVar_PopupRounding);         // float     PopupRounding
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_PopupBorderSize", ImGuiStyleVar_PopupBorderSize);     // float     PopupBorderSize
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_FramePadding", ImGuiStyleVar_FramePadding);          // ImVec2    FramePadding
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_FrameRounding", ImGuiStyleVar_FrameRounding);        // float     FrameRounding
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_FrameBorderSize", ImGuiStyleVar_FrameBorderSize);     // float     FrameBorderSize
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_ItemSpacing", ImGuiStyleVar_ItemSpacing);             // ImVec2    ItemSpacing
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_ItemInnerSpacing", ImGuiStyleVar_ItemInnerSpacing);    // ImVec2    ItemInnerSpacing
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_IndentSpacing", ImGuiStyleVar_IndentSpacing);          // float     IndentSpacing
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_ScrollbarSize", ImGuiStyleVar_ScrollbarSize);          // float     ScrollbarSize
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_ScrollbarRounding", ImGuiStyleVar_ScrollbarRounding);   // float     ScrollbarRounding
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_GrabMinSize", ImGuiStyleVar_GrabMinSize);                // float     GrabMinSize
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_GrabRounding", ImGuiStyleVar_GrabRounding);              // float     GrabRounding
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_TabRounding", ImGuiStyleVar_TabRounding);                 // float     TabRounding
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_ButtonTextAlign", ImGuiStyleVar_ButtonTextAlign);         // ImVec2    ButtonTextAlign
+    engine->RegisterEnumValue("ImGuiStyleVar", "ImGuiStyleVar_SelectableTextAlign", ImGuiStyleVar_SelectableTextAlign); // ImVec2    SelectableTextAlign
+
     engine->RegisterEnum("ImGuiWindowFlags");
     engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_None", ImGuiWindowFlags_None);
     engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoTitleBar", ImGuiWindowFlags_NoTitleBar);
@@ -130,8 +156,11 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterGlobalFunction("bool BeginChild(uint, const vector2&in=vector2(0,0), bool=false, int=0)", asFUNCTIONPR([](ImGuiID id, const Ogre::Vector2& size, bool border, int flags) { return ImGui::BeginChild(id, ImVec2(size.x, size.y), border, flags); }, (ImGuiID, const Ogre::Vector2&, bool, int), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("void EndChild()", asFUNCTIONPR(ImGui::EndChild, (), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("ImDrawList@ GetWindowDrawList()", asFUNCTIONPR(ImGui::GetWindowDrawList, (), ImDrawList*), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void PushStyleVar(int index, float val)", asFUNCTIONPR([](int index, float val) { ImGui::PushStyleVar(index,val); }, (int, float), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void PushStyleVar(int index, const vector2&in val)", asFUNCTIONPR([](int index, const Ogre::Vector2& val) { ImGui::PushStyleVar(index, ImVec2(val.x, val.y)); }, (int, const Ogre::Vector2 &), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void PopStyleVar(int count = 1)", asFUNCTION(ImGui::PopStyleVar), asCALL_CDECL);
     engine->RegisterGlobalFunction("void PushStyleColor(int index, const color&in color)", asFUNCTIONPR([](int index, Ogre::ColourValue const& col) { ImGui::PushStyleColor(index, (ImU32)ImColor(col.r, col.g, col.b, col.a)); }, (int, Ogre::ColourValue const&), void), asCALL_CDECL);
-    engine->RegisterGlobalFunction("void PopStyleColor(int count)", asFUNCTIONPR(ImGui::PopStyleColor, (int), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void PopStyleColor(int count = 1)", asFUNCTIONPR(ImGui::PopStyleColor, (int), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetNextItemWidth(float)", asFUNCTIONPR(ImGui::SetNextItemWidth, (float), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetNextItemOpen(bool, ImGuiCond)", asFUNCTIONPR(ImGui::SetNextItemOpen, (bool, int), void), asCALL_CDECL);
 
