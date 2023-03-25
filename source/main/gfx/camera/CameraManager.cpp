@@ -134,7 +134,7 @@ CameraManager::~CameraManager()
 void CameraManager::CreateCameraNode()
 {
     ROR_ASSERT(!m_camera_node);
-    m_camera_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    m_camera_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("PlayerCamNode");
     m_camera_node->setFixedYawAxis(true);
     m_camera_node->attachObject(m_camera);
 }
