@@ -90,25 +90,34 @@ class OgreInspector
         }
     }
 
-    void drawTreeNodeOgreSceneNodeRecursive(const Ogre::SceneNode@ snode)
+    void drawTreeNodeOgreSceneNodeRecursive(Ogre::SceneNode@ snode)
     {
-        // When drawing first time, fold nodes with many children (root node can have hundreds...)
-        const Ogre::ChildNodeArray@ children = snode.getChildren();
-        ImGui::SetNextItemOpen(children.length() < 10, ImGuiCond_Once);
+        // Start with all nodes folded (root node can have hundreds...)
+        ImGui::SetNextItemOpen(false, ImGuiCond_Once);
         
-        // The `__getUniqueId()` is a Rigs of Rods extension (that's why double leading underscores), 
+        Ogre::ChildNodeArray@ children = snode.getChildren();
+        
+        // The `__getUniqueName()` is a Rigs of Rods extension (that's why double leading underscores), 
         // because names are optional and usually not set, and imgui tree nodes require unique IDs.
-        if (ImGui::TreeNode(snode.__getUniqueId()))
+        if (ImGui::TreeNode(snode.__getUniqueName()))
         {
             // Tree node open, draw children recursively
             ImGui::TextDisabled("Ogre::Node ["+children.length()+"]");
             for (uint i = 0; i < children.length(); i++)
             {
-                const Ogre::SceneNode@ child = cast<Ogre::SceneNode>(children[i]);
+                Ogre::SceneNode@ child = cast<Ogre::SceneNode>(children[i]);
                 if (@child != null)
                 {
                     drawTreeNodeOgreSceneNodeRecursive(child);
                 }
+            }
+            
+            // Draw attached movable objects
+            Ogre::MovableObjectArray@ movables = snode.getAttachedObjects();
+            ImGui::TextDisabled("Ogre::MovableObject [" + movables.length() + "]");
+            for (uint i = 0; i < movables.length(); i++)
+            {
+                drawTreeNodeOgreMovableObject(movables[i]);
             }
         
             ImGui::TreePop();
@@ -118,6 +127,26 @@ class OgreInspector
             // Tree node closed, draw child count
             ImGui::SameLine();
             ImGui::Text("("+children.length()+" children)");
+        }
+    }
+    
+    void drawTreeNodeOgreMovableObject(Ogre::MovableObject@ movable)
+    {
+        if (ImGui::TreeNode(movable.__getUniqueName()))
+        {
+            bool visible = movable.isVisible();
+            if (ImGui::Checkbox("Visible", visible))
+            {
+                movable.setVisible(visible);
+            }
+            
+            bool castShadows = movable.getCastShadows();
+            if (ImGui::Checkbox("Cast shadows", castShadows))
+            {
+                movable.setCastShadows(castShadows);
+            }
+        
+            ImGui::TreePop();
         }
     }
 }
