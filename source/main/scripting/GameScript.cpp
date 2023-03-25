@@ -1365,6 +1365,11 @@ bool GameScript::getMousePositionOnTerrain(Ogre::Vector3& out_pos)
     return ray_result.hit;
 }
 
+Ogre::SceneManager* GameScript::getSceneManager()
+{
+    return App::GetGfxScene()->GetSceneManager();
+}
+
 bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
 {
     Message m(type);

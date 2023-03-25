@@ -124,7 +124,12 @@ public:
     * @return True on successful write. False if file not writable or exists and overwrite is disabled.
     */
     bool createTextResourceFromString(const string &in, const string &in filename, const string &in resource_group, bool overwrite=false);
-    
+
+    /**
+    * Retrieves the OGRE scene manager object.
+    */
+    AngelOgre::SceneManager@ getSceneManager();
+
     /**
     * Opens URL (must start with 'http://' or 'https://') in system's default web browser.
     */
@@ -134,7 +139,7 @@ public:
     * Invokes a background thread to fetch data using CURL; when finished, sends MSG_APP_SCRIPT_THREAD_STATUS + Payload = RoR::ScriptEventArgs* (owner) - see `SE_ANGELSCRIPT_THREAD_STATUS` for arguments.
     */
     void fetchUrlAsStringAsync(const std::string& url, const std::string& display_filename);
-    
+
     /// @}
 
     /// @name GUI

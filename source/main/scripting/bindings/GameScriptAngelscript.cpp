@@ -59,6 +59,7 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "bool deleteResource(const string &in, const string &in)", asMETHOD(GameScript, deleteResource), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "string loadTextResourceAsString(const string &in, const string &in)", asMETHOD(GameScript, loadTextResourceAsString), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "bool createTextResourceFromString(const string &in, const string &in, const string &in, bool=false)", asMETHOD(GameScript, createTextResourceFromString), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "Ogre::SceneManager@ getSceneManager()", asMETHOD(GameScript, getSceneManager), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "array<dictionary>@ findResourceFileInfo(const string &in, const string &in, bool=false)", asMETHOD(GameScript, findResourceFileInfo), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void fetchUrlAsStringAsync(const string &in, const string &in)", asMETHOD(GameScript, fetchUrlAsStringAsync), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
