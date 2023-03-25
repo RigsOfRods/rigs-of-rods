@@ -40,11 +40,13 @@ DustPool::DustPool(Ogre::SceneManager* sm, const char* dname, int dsize):
 	size(std::min(dsize, static_cast<int>(MAX_DUSTS))),
 	m_is_discarded(false)
 {
+    parent_snode = sm->getRootSceneNode()->createChildSceneNode(fmt::format("DustPools/{}", dname));
+
     for (int i = 0; i < size; i++)
     {
         char dename[256];
         sprintf(dename, "Dust %s %i", dname, i);
-        sns[i] = sm->getRootSceneNode()->createChildSceneNode();
+        sns[i] = parent_snode->createChildSceneNode();
         pss[i] = sm->createParticleSystem(dename, dname);
         if (pss[i])
         {
@@ -78,6 +80,7 @@ void DustPool::Discard(Ogre::SceneManager* sm)
 			pss[i] = nullptr;
 		}
 	}
+    sm->destroySceneNode(parent_snode);
 	m_is_discarded = true;
 }
 
