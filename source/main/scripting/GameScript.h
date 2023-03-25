@@ -114,6 +114,8 @@ public:
     */
     bool createTextResourceFromString(const std::string& data, const std::string& filename, const std::string& resource_group, bool overwrite=false);
 
+    Ogre::SceneManager* getSceneManager();
+
     /**
     * Proxy to `Ogre::ResourceGroupManager::findResourceFileInfo()`, see https://ogrecave.github.io/ogre/api/1.11/class_ogre_1_1_resource_group_manager.html#a662f68163310401718d3c3981a7baec4
     */
