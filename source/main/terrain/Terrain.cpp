@@ -37,10 +37,13 @@
 #include "SkyXManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainObjectManager.h"
+#include "Utils.h"
 #include "Water.h"
 
 #include <Terrain/OgreTerrainPaging.h>
 #include <Terrain/OgreTerrainGroup.h>
+
+#include <algorithm>
 
 using namespace RoR;
 using namespace Ogre;
@@ -559,4 +562,19 @@ std::string RoR::Terrain::getTerrainFileName()
 std::string RoR::Terrain::getTerrainFileResourceGroup()
 {
     return m_cache_entry->resource_group;
+}
+
+void RoR::Terrain::addSurveyMapEntity(const std::string& type, const std::string& filename, const std::string& resource_group, const std::string& caption, const Ogre::Vector3& pos, float angle, int id)
+{
+    m_object_manager->m_map_entities.push_back({ type, caption, filename, resource_group, pos, angle, id });
+}
+
+void RoR::Terrain::delSurveyMapEntities(int id)
+{
+    EraseIf(m_object_manager->m_map_entities, [id](const SurveyMapEntity& e) { return e.id == id; });
+}
+
+SurveyMapEntityVec& RoR::Terrain::getSurveyMapEntities()
+{
+    return m_object_manager->m_map_entities;
 }

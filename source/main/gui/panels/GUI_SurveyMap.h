@@ -24,10 +24,11 @@
 /// @file
 
 #include "Application.h"
-#include "SimData.h"
-
 #include "OgreImGui.h"
+#include "SimData.h"
 #include "SurveyMapTextureCreator.h"
+
+#include <vector>
 
 namespace RoR {
 namespace GUI {
@@ -72,8 +73,8 @@ protected:
     const char* getAIType(ActorPtr actor);
 
     void DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin,
-                     std::string const& filename, std::string const& caption, 
-                     float pos_x, float pos_y, float angle);
+                     std::string const& filename, std::string const& caption,
+                     float pos_x, float pos_y, float angle, std::string resource_group = "");
 
     ImVec2 DrawWaypoint(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin,
                      std::string const& caption, int idx);

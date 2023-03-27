@@ -201,6 +201,7 @@ set(SOURCE_FILES
         terrain/OgreTerrainPSSMMaterialGenerator.{h,cpp}
         terrain/ProceduralManager.{h,cpp}
         terrain/ProceduralRoad.{h,cpp}
+        terrain/SurveyMapEntity.h
         terrain/TerrainEditor.{h,cpp}
         terrain/TerrainGeometryManager.{h,cpp}
         terrain/Terrain.{h,cpp}

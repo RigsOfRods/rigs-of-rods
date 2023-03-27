@@ -35,12 +35,22 @@ void RoR::RegisterTerrain(asIScriptEngine* engine)
     TerrainPtr::RegisterRefCountingObjectPtr(engine, "TerrainClassPtr", "TerrainClass");
 
     int result = 0;
+
+    // > General
     result = engine->RegisterObjectMethod("TerrainClass", "string getTerrainName()", asMETHOD(RoR::Terrain,getTerrainName), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("TerrainClass", "string getTerrainFileName()", asMETHOD(RoR::Terrain, getTerrainFileName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("TerrainClass", "string getTerrainFileResourceGroup()", asMETHOD(RoR::Terrain, getTerrainFileResourceGroup), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("TerrainClass", "string getGUID()", asMETHOD(RoR::Terrain,getGUID), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("TerrainClass", "int getVersion()", asMETHOD(RoR::Terrain,getVersion), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    
+    // > Landscape
     result = engine->RegisterObjectMethod("TerrainClass", "bool isFlat()", asMETHOD(RoR::Terrain,isFlat), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    
+    // > Gameplay
     result = engine->RegisterObjectMethod("TerrainClass", "vector3 getSpawnPos()", asMETHOD(RoR::Terrain,getSpawnPos), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("TerrainClass", "void addSurveyMapEntity(const string &in type, const string &in filename, const string &in resource_group, const string &in caption, const vector3 &in pos, float angle, int id)", asMETHOD(RoR::Terrain, addSurveyMapEntity), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TerrainClass", "void delSurveyMapEntities(int id)", asMETHOD(RoR::Terrain, delSurveyMapEntities), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    
+    // > Subsystems
     result = engine->RegisterObjectMethod("TerrainClass", "ProceduralManagerClassPtr @getProceduralManager()", asMETHOD(RoR::Terrain, getProceduralManager), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 }
