@@ -2,6 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -24,10 +25,9 @@
 #include "Application.h"
 
 #include "ODefFileFormat.h"
-
-
 #include "MeshObject.h"
 #include "ProceduralManager.h"
+#include "SurveyMapEntity.h"
 
 #ifdef USE_PAGED
 #include "PagedGeometry.h"
@@ -48,6 +48,7 @@ namespace RoR {
 
 class TerrainObjectManager
 {
+    friend class Terrain;
 public:
 
     struct EditorObject
@@ -64,20 +65,10 @@ public:
         int script_handler = -1;
     };
 
-    struct MapEntity
-    {
-        Ogre::String type;
-        Ogre::String name;
-        Ogre::Vector3 pos;
-        float rot;
-        int id;
-    };
-
     TerrainObjectManager(Terrain* terrainManager);
     ~TerrainObjectManager();
 
     std::vector<EditorObject>& GetEditorObjects() { return m_editor_objects; }
-    std::vector<MapEntity>& GetMapEntities() { return m_map_entities; }
     void           LoadTObjFile(Ogre::String filename);
     bool           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, float rendering_distance = 0, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
     void           MoveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
@@ -169,7 +160,7 @@ protected:
     std::vector<PredefinedActor>          m_predefined_actors;
     std::vector<AnimatedObject>           m_animated_objects;
     std::vector<MeshObject*>              m_mesh_objects;
-    std::vector<MapEntity>                m_map_entities;
+    SurveyMapEntityVec                    m_map_entities;
     Terrain*           terrainManager;
     ProceduralManagerPtr      m_procedural_manager;
     int                       m_entity_counter = 0;

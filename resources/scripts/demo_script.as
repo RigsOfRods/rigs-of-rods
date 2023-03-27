@@ -14,16 +14,13 @@
      * Inspect loaded sounds and soundscript templates, and of course play sounds!
      * Post messages to game's main message queue, performing almost any operation.
      * Query list of resource files (filtered using pattern) from OGRE resource groups.
+     * Add custom icons to survey map.
      
-    There are several ways of invoking a script:
-     1. From in-game console (hotkey ~), say 'loadscript <filename>'
-     2. By using command line parameter '-runscript <filename>'.
+    To invoke this script, open in-game console and say `loadscript demo_script.as`.
+    Alternatively, you can run the game with parameter '-runscript <filename>'.
         You can use this command multiple times at once.
-     3. By setting 'app_custom_scripts' in RoR.cfg to a comma-separated list
-        of filenames. Spaces in filename are acceptable.
-     4. By defining it with terrain, see terrn2 fileformat, section '[Scripts]':
-        https://docs.rigsofrods.org/terrain-creation/terrn2-subsystem/.
-        This is the classic old method, used for i.e. races.        
+    Alternatively, you can set 'app_custom_scripts' in RoR.cfg.
+        It's a comma-separated list, spaces in filenames are acceptable.
     
     For introduction to game events, read
     https://docs.rigsofrods.org/terrain-creation/scripting/.
@@ -212,6 +209,9 @@ void frameStep(float dt)
                 + inputs.getEventCommandTrimmed(EV_CHARACTER_LEFT) + "/"
                 + inputs.getEventCommandTrimmed(EV_CHARACTER_RIGHT));
             ImGui::Text("Run: " + inputs.getEventCommandTrimmed(EV_CHARACTER_RUN));
+            
+            ImGui::Separator();
+            drawSurveymapIconsPanel();
         }
         ImGui::Separator();
         drawAIButtons();
@@ -403,6 +403,26 @@ void drawMainMenuPanel()
     @g_displayed_document = null;
     g_displayed_doc_filename = "";
     g_terrain_tobj_files.removeRange(0, g_terrain_tobj_files.length());
+}
+
+const int SURVEYMAP_ICONS_GROUPID = -222;
+
+void drawSurveymapIconsPanel()
+{
+    ImGui::TextDisabled("Survey map icon test");
+    TerrainClass@ terrn = game.getTerrain();
+    if (ImGui::Button("Add icons"))
+    {
+        vector3 pos = game.getPersonPosition();
+        terrn.addSurveyMapEntity("info!", "arrow_up.png", /*resource_group:*/"", /*caption:*/"", pos + vector3(0.f, 0.f, -100.f), /*angle:*/0.f, SURVEYMAP_ICONS_GROUPID);
+        terrn.addSurveyMapEntity("warn!", "error.png", /*resource_group:*/"", /*caption:*/"", pos + vector3(-100.f, 0.f, 0.f), /*angle:*/-3.14/2, SURVEYMAP_ICONS_GROUPID);
+        terrn.addSurveyMapEntity("error!", "exclamation.png", /*resource_group:*/"", /*caption:*/"", pos + vector3(100.f, 0.f, 0.f), /*angle:*/3.14/2, SURVEYMAP_ICONS_GROUPID);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Clear icons"))
+    {
+        terrn.delSurveyMapEntities(SURVEYMAP_ICONS_GROUPID);
+    }
 }
 
 vector3 detectPlayerPosition()

@@ -909,7 +909,7 @@ void TerrainObjectManager::LoadTelepoints()
 {
     for (Terrn2Telepoint& telepoint: terrainManager->GetDef().telepoints)
     {
-        m_map_entities.push_back({"telepoint", telepoint.name, telepoint.position, 0});
+        m_map_entities.push_back({"telepoint", "icon_telepoint.dds", /*resource_group:*/"", telepoint.name, telepoint.position, 0});
     }
 }
 
@@ -989,7 +989,7 @@ void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile
                     type = "racestart";
                 }
                 int race_id = res.size() > 1 ? StringConverter::parseInt(res[1], -1) : -1;
-                m_map_entities.push_back({type, "", params.position, params.rotation.y, race_id});
+                m_map_entities.push_back({type, fmt::format("icon_{}.dds", type), /*resource_group:*/"", /*name:*/"", params.position, params.rotation.y, race_id});
             }
             else if (!params.type.empty())
             {
@@ -999,7 +999,7 @@ void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile
                 {
                     caption = params.instance_name + " " + params.type;
                 }
-                m_map_entities.push_back({params.type, caption, params.position, params.rotation.y, -1});
+                m_map_entities.push_back({params.type, fmt::format("icon_{}.dds", params.type), /*resource_group:*/"", caption, params.position, params.rotation.y, -1});
             }
         }
     }

@@ -295,16 +295,14 @@ void SurveyMap::Draw()
     if (App::gfx_surveymap_icons->getBool())
     {
         // Draw terrain object icons
-        for (TerrainObjectManager::MapEntity& e: App::GetGameContext()->GetTerrain()->getObjectManager()->GetMapEntities())
+        for (SurveyMapEntity& e: App::GetGameContext()->GetTerrain()->getSurveyMapEntities())
         {
             int id = App::GetGameContext()->GetRaceSystem().GetRaceId();
             bool visible = !((e.type == "checkpoint" && e.id != id) || (e.type == "racestart" && id != -1 && e.id != id));
-            Str<100> filename;
-            filename << "icon_" << e.type << ".dds";
 
             if ((visible) && (!App::gfx_declutter_map->getBool()))
             {
-                this->DrawMapIcon(tl_screen_pos, view_size, view_origin, filename.ToCStr(), e.name, e.pos.x, e.pos.z, e.rot);
+                this->DrawMapIcon(tl_screen_pos, view_size, view_origin, e.filename, e.caption, e.pos.x, e.pos.z, e.rot, e.resource_group);
             }
         }
 
@@ -520,13 +518,15 @@ void SurveyMap::ToggleMode()
 
 void SurveyMap::DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin,
                                       std::string const& filename, std::string const& caption, 
-                                      float pos_x, float pos_y, float angle)
+                                      float pos_x, float pos_y, float angle, std::string resource_group /* ="" */)
 {
     Ogre::TexturePtr tex;
+    if (resource_group == "")
+        resource_group = ContentManager::ResourcePack::TEXTURES.resource_group_name;
+
     try
     {
-        tex = Ogre::TextureManager::getSingleton().load(
-            filename, ContentManager::ResourcePack::TEXTURES.resource_group_name);
+        tex = Ogre::TextureManager::getSingleton().load(filename, resource_group);
     }
     catch (Ogre::FileNotFoundException)
     {

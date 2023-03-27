@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -19,10 +19,13 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/// @file
+
 #pragma once
 
 #include "Application.h"
 #include "RefCountingObject.h"
+#include "SurveyMapEntity.h"
 #include "TerrainEditor.h"
 #include "Terrn2FileFormat.h"
 
@@ -62,6 +65,9 @@ public:
     float                   getWaterHeight() const        { return m_def.water_height; }
     bool                    isFlat();
     float                   getPagedDetailFactor() const  { return m_paged_detail_factor; }
+    void                    addSurveyMapEntity(const std::string& type, const std::string& filename, const std::string& resource_group, const std::string& caption, const Ogre::Vector3& pos, float angle, int id);
+    void                    delSurveyMapEntities(int id);
+    SurveyMapEntityVec&     getSurveyMapEntities();
     /// @}
 
     /// @name Subsystems
