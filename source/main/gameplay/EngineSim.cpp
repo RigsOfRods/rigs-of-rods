@@ -953,6 +953,15 @@ void EngineSim::setTCaseRatio(float ratio)
     }
 }
 
+float EngineSim::getGearRatio(int pos)
+{
+    if (pos < -1 || pos > m_num_gears)
+        return 0.f;
+
+    // Strip off the DiffRatio and TCaseRatio from the internal gear ratio
+    return (m_gear_ratios[pos] / m_tcase_ratio) / m_diff_ratio;
+}
+
 // for hydros acceleration
 float EngineSim::getCrankFactor()
 {
@@ -1039,7 +1048,7 @@ int EngineSim::getGear()
 }
 
 // low level gear changing
-void EngineSim::SetGear(int v)
+void EngineSim::setGear(int v)
 {
     m_cur_gear = v;
 }
@@ -1049,7 +1058,7 @@ int EngineSim::getGearRange()
     return m_cur_gear_range;
 }
 
-void EngineSim::SetGearRange(int v)
+void EngineSim::setGearRange(int v)
 {
     m_cur_gear_range = v;
 }
@@ -1335,7 +1344,7 @@ void EngineSim::UpdateInputEvents(float dt)
                 }
                 else
                 {
-                    this->SetGear(-1);
+                    this->setGear(-1);
                 }
             }
             else if (velocity > -1.0f && brake < 0.5f && accl > 0.5f && this->getGear() < 0)
@@ -1347,7 +1356,7 @@ void EngineSim::UpdateInputEvents(float dt)
                 }
                 else
                 {
-                    this->SetGear(1);
+                    this->setGear(1);
                 }
             }
         }
@@ -1436,19 +1445,19 @@ void EngineSim::UpdateInputEvents(float dt)
             //  maybe this should not be here, but should experiment
             if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_LOWRANGE) && curgearrange != 0)
             {
-                this->SetGearRange(0);
+                this->setGearRange(0);
                 gear_changed = true;
                 App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Low range selected"), "cog.png");
             }
             else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_MIDRANGE) && curgearrange != 1 && this->getNumGearsRanges() > 1)
             {
-                this->SetGearRange(1);
+                this->setGearRange(1);
                 gear_changed = true;
                 App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Mid range selected"), "cog.png");
             }
             else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_HIGHRANGE) && curgearrange != 2 && this->getNumGearsRanges() > 2)
             {
-                this->SetGearRange(2);
+                this->setGearRange(2);
                 gear_changed = true;
                 App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("High range selected"), "cog.png");
             }
