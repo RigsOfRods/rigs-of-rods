@@ -268,9 +268,9 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     if (actor->ar_engine)
     {
         if (!actor->m_preloaded_with_terrain && App::sim_spawn_running->getBool())
-            actor->ar_engine->StartEngine();
+            actor->ar_engine->startEngine();
         else
-            actor->ar_engine->OffStart();
+            actor->ar_engine->offStart();
     }
     // pressurize tires
     if (actor->getTyrePressure().IsEnabled())
@@ -303,7 +303,7 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
             actor->ar_state = ActorState::NETWORKED_OK;
             if (actor->ar_engine)
             {
-                actor->ar_engine->StartEngine();
+                actor->ar_engine->startEngine();
             }
         }
 
@@ -1432,7 +1432,7 @@ void ActorManager::UpdateTruckFeatures(ActorPtr vehicle, float dt)
     Engine* engine = vehicle->ar_engine;
 
     if (engine && engine->hasContact() &&
-        engine->GetAutoShiftMode() == SimGearboxMode::AUTO &&
+        engine->getAutoMode() == SimGearboxMode::AUTO &&
         engine->getAutoShift() != Engine::NEUTRAL)
     {
         Ogre::Vector3 dirDiff = vehicle->getDirection();
@@ -1447,7 +1447,7 @@ void ActorManager::UpdateTruckFeatures(ActorPtr vehicle, float dt)
                 // anti roll forth in SimGearboxMode::AUTO (REAR) mode
                 float g = std::abs(App::GetGameContext()->GetTerrain()->getGravity());
                 float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * vehicle->getTotalMass()) * g;
-                float engine_force = std::abs(engine->GetTorque()) / vehicle->getAvgPropedWheelRadius();
+                float engine_force = std::abs(engine->getTorque()) / vehicle->getAvgPropedWheelRadius();
                 float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force));
                 if (vehicle->ar_avg_wheel_speed * pitchAngle.valueDegrees() > 0.0f)
                 {
@@ -1456,7 +1456,7 @@ void ActorManager::UpdateTruckFeatures(ActorPtr vehicle, float dt)
                 vehicle->ar_brake = sqrt(ratio);
             }
         }
-        else if (vehicle->ar_brake == 0.0f && !vehicle->ar_parking_brake && engine->GetTorque() == 0.0f)
+        else if (vehicle->ar_brake == 0.0f && !vehicle->ar_parking_brake && engine->getTorque() == 0.0f)
         {
             float ratio = std::max(0.0f, 0.2f - std::abs(vehicle->ar_avg_wheel_speed)) / 0.2f;
             vehicle->ar_brake = ratio;
@@ -1470,15 +1470,15 @@ void ActorManager::UpdateTruckFeatures(ActorPtr vehicle, float dt)
     if (vehicle->sl_enabled)
     {
         // check speed limit
-        if (engine && engine->GetGear() != 0)
+        if (engine && engine->getGear() != 0)
         {
             float accl = (vehicle->sl_speed_limit - std::abs(vehicle->ar_wheel_speed / 1.02f)) * 2.0f;
-            engine->SetAcceleration(Ogre::Math::Clamp(accl, 0.0f, engine->GetAcceleration()));
+            engine->setAcc(Ogre::Math::Clamp(accl, 0.0f, engine->getAcc()));
         }
     }
 
     BITMASK_SET(vehicle->m_lightmask, RoRnet::LIGHTMASK_BRAKES, (vehicle->ar_brake > 0.01f && !vehicle->ar_parking_brake));
-    BITMASK_SET(vehicle->m_lightmask, RoRnet::LIGHTMASK_REVERSE, (vehicle->ar_engine && vehicle->ar_engine->GetGear() < 0));
+    BITMASK_SET(vehicle->m_lightmask, RoRnet::LIGHTMASK_REVERSE, (vehicle->ar_engine && vehicle->ar_engine->getGear() < 0));
 }
 
 void ActorManager::CalcFreeForces()

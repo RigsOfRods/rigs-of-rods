@@ -43,96 +43,85 @@ public:
     Engine(float min_rpm, float max_rpm, float torque, float reverse_gear, float neutral_gear, std::vector<float> gears, float dratio, ActorPtr actor);
     ~Engine();
 
-    /// Sets current engine state;
-    /// @param gear Current gear {-1 = reverse, 0 = neutral, 1...21 = forward}
-    void PushNetworkState(float engine_rpm, float acc, float clutch, int gear, bool running, bool contact, char auto_mode, char auto_select=-1);
-
-    /// Sets engine options.
-    /// @param einertia Engine inertia
-    /// @param etype Engine type {'t' = truck (default), 'c' = car}
-    /// @param eclutch
-    /// @param ctime Clutch time
-    /// @param stime Shift time
-    /// @param pstime Post-shift time
-    /// @param irpm Idle RPM
-    /// @param srpm Stall RPM
-    /// @param maximix Max. idle mixture
-    /// @param minimix Min. idle mixture
-    void SetEngineOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix, float ebraking);
-
-    /// Sets turbo options.
-    /// @param tinertiatinertiaFactor Turbo inertia factor
-    /// @param nturbos Number of turbos
-    /// @param additionalTorque Torque that will be added to the engine at max turbo rpm
-    void SetTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11);
-
-    // Config getters
-    int            getNumGears() const { return m_num_gears; };
-    float          getMaxRPM() const { return m_engine_max_rpm; };
-    float          getMinRPM() const { return m_engine_min_rpm; };
-    float          getIdleRPM() const { return m_engine_idle_rpm; };
-    float          getDiffRatio() const { return m_diff_ratio; }
-
-    void           SetAcceleration(float val);
-    void           SetAutoMode(RoR::SimGearboxMode mode);
-    void           SetClutch(float clutch);
-    float          GetAcceleration();
-    float          GetClutch();
-    float          GetClutchForce();
-    float          GetCrankFactor();
-    float          GetSmoke();
-    float          GetTorque();
-    float          GetTurboPsi();
-    RoR::SimGearboxMode GetAutoShiftMode();
-    void           SetEngineRpm(float rpm);      //!< Set current engine RPM.
-    void           SetEnginePriming(bool p);     //!< Set current engine prime.
-    void           SetHydroPumpWork(float work); //!< Set current hydro pump work.
-    void           SetWheelSpin(float rpm);      //!< Set current wheel spinning speed.
-    void           SetTCaseRatio(float ratio);   //!< Set current transfer case gear (reduction) ratio
-    void           ToggleAutoShiftMode();
-    void           OffStart();                   //!< Quick start of vehicle engine.
-    void           StartEngine();                //!< Quick engine start. Plays sounds.
-    int            GetGear();                    //!< low level gear changing
-    int            GetGearRange();               //!< low level gear changing
-    void           SetGear(int v);               //!< low level gear changing
-    void           SetGearRange(int v);          //!< low level gear changing
-    void           StopEngine();                 //!< stall engine
-    float          GetAccToHoldRPM();            //!< estimate required throttle input to hold the current rpm
-    bool           HasTurbo() const         { return m_engine_has_turbo; };
-    bool           isRunning() const        { return m_engine_is_running; };
-    int            GetAutoMode() const      { return static_cast<int>(m_auto_mode); };
-    char           GetEngineType() const    { return m_engine_type; };
+    /// @name Configuration
+    /// @{
+    void           SetEngineOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix, float ebraking);
+    void           SetTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11);
     
-
+    int            getNumGears() const { return m_num_gears; }; //!< Num forward gears ('engine' attrs #7[1]...)
+    float          getMaxRPM() const { return m_engine_max_rpm; }; //!< Shift up RPM ('engine' attr #2)
+    float          getMinRPM() const { return m_engine_min_rpm; }; //!< Shift down RPM ('engine' attr #1)
+    float          getIdleRPM() const { return m_engine_idle_rpm; }; //!< ('engoption' attr #8)
+    float          getDiffRatio() const { return m_diff_ratio; } //!< Global gear ratio ('engine' attr #4) 
+    float          getEngineInertia() const { return m_engine_inertia; }; //!< ('engoption' attr #1)
+    char           getEngineType() const { return m_engine_type; }; //!< 't' = truck (default), 'c' = car ('engoption' attr #2)
+    float          getClutchForce() const { return m_clutch_force; } //!< ('engoption' attr #3)
+    float          getClutchTime() const { return m_clutch_time; } //!< Time (in seconds) the clutch takes to apply ('engoption' attr #5)
+    int            getNumGearsRanges() const { return getNumGears() / 6 + 1; };
+    TorqueCurve*   getTorqueCurve() { return m_torque_curve; };
+    bool           hasTurbo() const { return m_engine_has_turbo; };
+    /// @}
     
-    int            getNumGearsRanges() const{ return getNumGears() / 6 + 1; };
-    TorqueCurve*   getTorqueCurve()         { return m_torque_curve; };
-    float          GetEngineRpm() const     { return m_cur_engine_rpm; }
-    float          GetEngineTorque() const  { return m_cur_engine_torque; }
-    float          GetInputShaftRpm()       { return m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1]; };
-    float          GetDriveRatio()          { return m_gear_ratios[m_cur_gear + 1]; };
-    float          GetEngineInertia()       { return m_engine_inertia; };
-    float          getEnginePower()         { return getEnginePower(m_cur_engine_rpm); };
+    /// @name State getters
+    /// @{
+    float          getAcc();
+    float          getClutch();
+    float          getCrankFactor();
+    float          getRPM() { return m_cur_engine_rpm; }
+    float          getSmoke();
+    float          getTorque();
+    float          getTurboPSI();
+    RoR::SimGearboxMode getAutoMode();
+    int            getGear();
+    int            getGearRange();
+    bool           isRunning() const { return m_engine_is_running; };
+    bool           hasContact() const { return m_contact; }; //!< Ignition
+    float          getEngineTorque() const { return m_cur_engine_torque; }
+    float          getInputShaftRPM() { return m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1]; };
+    float          getDriveRatio() { return m_gear_ratios[m_cur_gear + 1]; };
+    float          getEnginePower() { return getEnginePower(m_cur_engine_rpm); };
     float          getEnginePower(float rpm);
     float          getTurboPower();
     float          getIdleMixture();
     float          getPrimeMixture();
     int            getAutoShift();
+    float          getAccToHoldRPM(); //!< estimate required throttle input to hold the current rpm
+    /// @}
+
+    /// @name State changes
+    /// @{
+    void           pushNetworkState(float engine_rpm, float acc, float clutch, int gear, bool running, bool contact, char auto_mode, char auto_select = -1);
+    void           setAcc(float val);
     void           autoSetAcc(float val);
+    void           setClutch(float clutch);
+    void           setRPM(float rpm);
+    void           setWheelSpin(float rpm);
+    void           toggleAutoMode();
+    void           setAutoMode(RoR::SimGearboxMode mode);
+    void           setPrime(bool p);
+    void           setHydroPump(float work);
+    void           setManualClutch(float val);
+    void           setTCaseRatio(float ratio);   //!< Set current transfer case gear (reduction) ratio
+    void           toggleContact();              //!< Ignition
+    void           offStart();                   //!< Quick start of vehicle engine.
+    void           startEngine();                //!< Quick engine start. Plays sounds.
+    void           stopEngine();                 //!< stall engine
     void           autoShiftDown();
     void           autoShiftSet(int mode);
     void           autoShiftUp();
-    void           setManualClutch(float val);
-    void           shift(int val);             //!< Changes gear by a relative offset. Plays sounds.
-    void           shiftTo(int val);           //!< Changes gear to given value. Plays sounds.
+    void           SetGear(int v);               //!< low level gear changing
+    void           SetGearRange(int v);          //!< low level gear changing
+    void           shift(int val);               //!< Changes gear by a relative offset. Plays sounds.
+    void           shiftTo(int val);             //!< Changes gear to given value. Plays sounds.
+    /// @}
+
+    /// @name Updates
+    /// @{
     void           updateShifts();             //!< Changes gears. Plays sounds.
     void           UpdateEngine(float dt, int doUpdate);
     void           UpdateEngineAudio();
     void           UpdateInputEvents(float dt);
-
-    // Ignition
-    void           toggleContact();
-    bool           hasContact() const { return m_contact; };
+    /// @}
 
     enum autoswitch
     {
@@ -170,11 +159,11 @@ private:
     int            m_cur_gear;              //!< Gears; Current gear {-1 = reverse, 0 = neutral, 1...21 = forward} 
     int            m_cur_gear_range;        //!< Gears
     int            m_num_gears;             //!< Num. forward gears
-    std::vector<float> m_gear_ratios;       //!< [R|N|1|...] ('engine' attrs #5,#6,#7...)
+    std::vector<float> m_gear_ratios;       //!< [R|N|1|...] ('engine' attrs #4[global],#5[R],#6[N],#7[1]...)
 
     // Clutch
-    float          m_clutch_force;          //!< Clutch attribute
-    float          m_clutch_time;           //!< Clutch attribute
+    float          m_clutch_force;          //!< ('engoption' attr #3)
+    float          m_clutch_time;           //!< Time (in seconds) the clutch takes to apply ('engoption' attr #5)
     float          m_cur_clutch;
     float          m_cur_clutch_torque;
 
@@ -184,7 +173,7 @@ private:
     bool           m_engine_has_turbo;      //!< Engine attribute
     int            m_engine_turbo_mode;     //!< Engine attribute
     bool           m_engine_is_running;     //!< Engine state
-    char           m_engine_type;           //!< Engine attribute {'t' = truck (default), 'c' = car}
+    char           m_engine_type;           //!< 't' = truck (default), 'c' = car ('engoption' attr #2)
     float          m_braking_torque;        //!< Engine attribute
     float          m_cur_acc;               //!< Engine
     float          m_cur_engine_rpm;        //!< Engine
@@ -193,13 +182,13 @@ private:
     float          m_tcase_ratio;           //!< Engine
     float          m_engine_torque;         //!< Torque in N/m ('engine' attr #3) 
     float          m_hydropump_state;       //!< Engine
-    float          m_min_idle_mixture;      //!< Engine attribute
-    float          m_max_idle_mixture;      //!< Engine attribute
-    float          m_engine_inertia;        //!< Engine attribute
+    float          m_min_idle_mixture;      //!< Minimum throttle to maintain the idle RPM ('engoption' attr #10)
+    float          m_max_idle_mixture;      //!< Maximum throttle to maintain the idle RPM ('engoption' attr #9)
+    float          m_engine_inertia;        //!< ('engoption' attr #1)
     float          m_engine_max_rpm;        //!< Shift up RPM ('engine' attr #2)
     float          m_engine_min_rpm;        //!< Shift down RPM ('engine' attr #1)
-    float          m_engine_idle_rpm;       //!< ('engine' attr #1, adjusted)
-    float          m_engine_stall_rpm;      //!< 'engoption' attr 
+    float          m_engine_idle_rpm;       //!< ('engoption' attr #8)
+    float          m_engine_stall_rpm;      //!< ('engoption' attr #7)
     bool           m_engine_is_priming;     //!< Engine
     TorqueCurve*   m_torque_curve;
     float          m_air_pressure;
@@ -209,9 +198,9 @@ private:
     bool           m_starter;               //!< Ignition switch is in START position.
 
     // Shifting
-    float          m_post_shift_time;       //!< Shift attribute
+    float          m_post_shift_time;       //!< Time (in seconds) until full torque is transferred ('engoption' attr #6)
     float          m_post_shift_clock;
-    float          m_shift_time;            //!< Shift attribute
+    float          m_shift_time;            //!< Time (in seconds) that it takes to shift ('engoption' attr #4)
     float          m_shift_clock;
     int            m_post_shifting;
     int            m_shifting;
