@@ -71,7 +71,7 @@ public:
     float          getSmoke();
     float          getTorque();
     float          getTurboPSI();
-    RoR::SimGearboxMode getAutoMode();
+    SimGearboxMode getAutoMode();
     int            getGear();
     int            getGearRange();
     bool           isRunning() const { return m_engine_is_running; };
@@ -97,7 +97,7 @@ public:
     void           setRPM(float rpm);
     void           setWheelSpin(float rpm);
     void           toggleAutoMode();
-    void           setAutoMode(RoR::SimGearboxMode mode);
+    void           setAutoMode(SimGearboxMode mode);
     void           setPrime(bool p);
     void           setHydroPump(float work);
     void           setManualClutch(float val);
@@ -140,15 +140,6 @@ public:
     };
 
 private:
-
-    enum shiftmodes
-    {
-        AUTOMATIC,
-        SEMIAUTO,
-        MANUAL,
-        MANUAL_STICK,
-        MANUAL_RANGES
-    };
 
     // Vehicle
     ActorPtr         m_actor;
@@ -207,7 +198,7 @@ private:
     int            m_shift_val;
 
     // Auto transmission
-    int            m_auto_mode; //!< Transmission mode (@see enum Engine::shiftmodes)
+    SimGearboxMode m_auto_mode;
     autoswitch     m_autoselect;
     float          m_auto_cur_acc;
     float          m_full_rpm_range;
