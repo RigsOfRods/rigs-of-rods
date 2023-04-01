@@ -37,7 +37,7 @@ using namespace RoR;
 EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, float reverse_gear, float neutral_gear, std::vector<float> forward_gears, float diff_ratio, ActorPtr actor) :
     m_air_pressure(0.0f)
     , m_auto_cur_acc(0.0f)
-    , m_auto_mode(AUTOMATIC)
+    , m_auto_mode(SimGearboxMode::AUTO)
     , m_autoselect(DRIVE)
     , m_braking_torque(-torque / 5.0f)
     , m_clutch_force(10000.0f)
@@ -505,7 +505,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
 
     m_cur_engine_rpm = std::max(0.0f, m_cur_engine_rpm);
 
-    if (m_auto_mode < MANUAL)
+    if (m_auto_mode < SimGearboxMode::MANUAL)
     {
         // auto-shift
         if (m_shifting)
@@ -624,7 +624,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
             m_ref_wheel_revolutions = velocity / m_actor->ar_wheels[0].wh_radius * RAD_PER_SEC_TO_RPM;
         }
 
-        if (!m_engine_is_electric && m_auto_mode == AUTOMATIC && (m_autoselect == DRIVE || m_autoselect == TWO) && m_cur_gear > 0)
+        if (!m_engine_is_electric && m_auto_mode == SimGearboxMode::AUTO && (m_autoselect == DRIVE || m_autoselect == TWO) && m_cur_gear > 0)
         {
             if ((m_cur_engine_rpm > m_engine_max_rpm - 100.0f && m_cur_gear > 1) || m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1] > m_engine_max_rpm - 100.0f)
             {
@@ -770,7 +770,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
                 m_brakes.pop_back();
             }
             // avoid over-revving
-            if (m_auto_mode <= SEMIAUTO && m_cur_gear != 0)
+            if (m_auto_mode <= SimGearboxMode::SEMI_AUTO && m_cur_gear != 0)
             {
                 if (std::abs(m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1]) > m_engine_max_rpm * 1.25f)
                 {
@@ -816,9 +816,10 @@ void EngineSim::UpdateEngineAudio()
 
 void EngineSim::toggleAutoMode()
 {
-    m_auto_mode = (m_auto_mode + 1) % (MANUAL_RANGES + 1);
+    m_auto_mode = static_cast<SimGearboxMode>(
+        (static_cast<int>(m_auto_mode) + 1) % (static_cast<int>(SimGearboxMode::MANUAL_RANGES) + 1));
 
-    if (m_auto_mode == AUTOMATIC)
+    if (m_auto_mode == SimGearboxMode::AUTO)
     {
         if (m_cur_gear > 0)
             m_autoselect = DRIVE;
@@ -832,7 +833,7 @@ void EngineSim::toggleAutoMode()
         m_autoselect = MANUALMODE;
     }
 
-    if (m_auto_mode == MANUAL_RANGES)
+    if (m_auto_mode == SimGearboxMode::MANUAL_RANGES)
     {
         m_cur_gear_range = 0;
     }
@@ -845,7 +846,7 @@ RoR::SimGearboxMode EngineSim::getAutoMode()
 
 void EngineSim::setAutoMode(RoR::SimGearboxMode mode)
 {
-    this->m_auto_mode = (shiftmodes)mode;
+    this->m_auto_mode = mode;
 }
 
 void EngineSim::setAcc(float val)
@@ -891,7 +892,7 @@ void EngineSim::pushNetworkState(float rpm, float acc, float clutch, int gear, b
     m_contact = contact;
     if (automode != -1)
     {
-        m_auto_mode = automode;
+        m_auto_mode = static_cast<SimGearboxMode>(automode);
     }
     if (autoselect != -1)
     {
@@ -995,11 +996,11 @@ void EngineSim::startEngine()
     m_contact = true;
     m_cur_engine_rpm = m_engine_idle_rpm;
     m_engine_is_running = true;
-    if (m_auto_mode <= SEMIAUTO)
+    if (m_auto_mode <= SimGearboxMode::SEMI_AUTO)
     {
         m_cur_gear = 1;
     }
-    if (m_auto_mode == AUTOMATIC)
+    if (m_auto_mode == SimGearboxMode::AUTO)
     {
         m_autoselect = DRIVE;
     }
@@ -1021,7 +1022,7 @@ void EngineSim::offStart()
     m_engine_is_running = false;
     m_shifting = 0;
     m_shift_val = 0;
-    if (m_auto_mode == AUTOMATIC)
+    if (m_auto_mode == SimGearboxMode::AUTO)
     {
         m_autoselect = NEUTRAL;
     }
@@ -1082,7 +1083,7 @@ void EngineSim::shift(int val)
 {
     if (!val || m_cur_gear + val < -1 || m_cur_gear + val > getNumGears())
         return;
-    if (m_auto_mode < MANUAL)
+    if (m_auto_mode < SimGearboxMode::MANUAL)
     {
         m_shift_val = val;
         m_shifting = 1;
@@ -1182,7 +1183,7 @@ int EngineSim::getAutoShift()
 
 void EngineSim::setManualClutch(float val)
 {
-    if (m_auto_mode >= MANUAL)
+    if (m_auto_mode >= SimGearboxMode::MANUAL)
     {
         val = std::max(0.0f, val);
         m_cur_clutch = 1.0 - val;
