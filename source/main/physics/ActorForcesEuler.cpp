@@ -164,7 +164,7 @@ void Actor::CalcDifferentials()
 {
     if (ar_engine && m_num_proped_wheels > 0)
     {
-        float torque = ar_engine->GetTorque() / m_num_proped_wheels;
+        float torque = ar_engine->getTorque() / m_num_proped_wheels;
         if (m_has_axles_section)
         {
             torque *= 2.0f; // Required to stay backwards compatible
@@ -458,7 +458,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
 
     if (ar_engine)
     {
-        ar_engine->SetWheelSpin(ar_wheel_spin * RAD_PER_SEC_TO_RPM); // Update the driveshaft speed
+        ar_engine->setWheelSpin(ar_wheel_spin * RAD_PER_SEC_TO_RPM); // Update the driveshaft speed
     }
 
     if (doUpdate)
@@ -744,14 +744,14 @@ void Actor::CalcCommands(bool doUpdate)
 
         // hydraulics ready?
         if (ar_engine)
-            ar_engine_hydraulics_ready = ar_engine->GetEngineRpm() > ar_engine->getIdleRPM() * 0.95f;
+            ar_engine_hydraulics_ready = ar_engine->getRPM() > ar_engine->getIdleRPM() * 0.95f;
         else
             ar_engine_hydraulics_ready = true;
 
         // crankfactor
         float crankfactor = 1.0f;
         if (ar_engine)
-            crankfactor = ar_engine->GetCrankFactor();
+            crankfactor = ar_engine->getCrankFactor();
 
         // speed up machines
         if (ar_driveable == MACHINE)
@@ -985,8 +985,8 @@ void Actor::CalcCommands(bool doUpdate)
 
         if (ar_engine)
         {
-            ar_engine->SetHydroPumpWork(work);
-            ar_engine->SetEnginePriming(requested);
+            ar_engine->setHydroPump(work);
+            ar_engine->setPrime(requested);
         }
 
         if (doUpdate && this == App::GetGameContext()->GetPlayerActor().GetRef())
@@ -1618,7 +1618,7 @@ void Actor::CalcNodes()
                 // engine stall
                 if (i == ar_cinecam_node[0] && ar_engine)
                 {
-                    ar_engine->StopEngine();
+                    ar_engine->stopEngine();
                 }
             }
             ar_nodes[i].nd_under_water = is_under_water;

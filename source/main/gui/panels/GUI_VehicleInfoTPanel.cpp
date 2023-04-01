@@ -747,7 +747,7 @@ void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
 
         this->DrawShiftModeButton(actorx);
 
-        switch (actorx->GetActor()->ar_engine->GetAutoShiftMode())
+        switch (actorx->GetActor()->ar_engine->getAutoMode())
         {
         case SimGearboxMode::AUTO:
             DrawSingleBulletRow("Shift Up", EV_TRUCK_AUTOSHIFT_UP);
@@ -1064,13 +1064,13 @@ void VehicleInfoTPanel::DrawShiftModeButton(RoR::GfxActor* actorx)
 {
     if (DrawSingleButtonRow(App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SWITCH_SHIFT_MODES), m_shift_icon, "Shift Mode", EV_TRUCK_SWITCH_SHIFT_MODES))
     {
-        actorx->GetActor()->ar_engine->ToggleAutoShiftMode();
+        actorx->GetActor()->ar_engine->toggleAutoMode();
         // force gui update
         actorx->GetActor()->RequestUpdateHudFeatures();
 
         // Inform player via chatbox
         const char* msg = nullptr;
-        switch (actorx->GetActor()->ar_engine->GetAutoShiftMode())
+        switch (actorx->GetActor()->ar_engine->getAutoMode())
         {
         case SimGearboxMode::AUTO: msg = "Automatic shift";
             break;
@@ -1097,7 +1097,7 @@ void VehicleInfoTPanel::DrawEngineButton(RoR::GfxActor* actorx)
         }
         else if (actorx->GetActor()->ar_engine)
         {
-            actorx->GetActor()->ar_engine->StartEngine();
+            actorx->GetActor()->ar_engine->startEngine();
         }
     }
 }
