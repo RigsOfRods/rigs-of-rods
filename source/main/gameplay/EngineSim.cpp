@@ -451,7 +451,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
     {
         if (m_engine_is_running && m_cur_engine_rpm < m_engine_stall_rpm)
         {
-            this->StopEngine();
+            this->stopEngine();
         }
     }
 
@@ -540,7 +540,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
             {
                 // we're done m_shifting
                 SOUND_STOP(m_actor, SS_TRIG_SHIFT);
-                SetAcceleration(m_auto_cur_acc);
+                setAcc(m_auto_cur_acc);
                 m_shifting = 0;
                 m_post_shifting = 1;
                 m_post_shift_clock = 0.0f;
@@ -814,7 +814,7 @@ void EngineSim::UpdateEngineAudio()
 #endif // USE_OPENAL
 }
 
-void EngineSim::ToggleAutoShiftMode()
+void EngineSim::toggleAutoMode()
 {
     m_auto_mode = (m_auto_mode + 1) % (MANUAL_RANGES + 1);
 
@@ -838,22 +838,22 @@ void EngineSim::ToggleAutoShiftMode()
     }
 }
 
-RoR::SimGearboxMode EngineSim::GetAutoShiftMode()
+RoR::SimGearboxMode EngineSim::getAutoMode()
 {
     return (RoR::SimGearboxMode)this->m_auto_mode;
 }
 
-void EngineSim::SetAutoMode(RoR::SimGearboxMode mode)
+void EngineSim::setAutoMode(RoR::SimGearboxMode mode)
 {
     this->m_auto_mode = (shiftmodes)mode;
 }
 
-void EngineSim::SetAcceleration(float val)
+void EngineSim::setAcc(float val)
 {
     m_cur_acc = val;
 }
 
-float EngineSim::GetTurboPsi()
+float EngineSim::getTurboPSI()
 {
     if (m_engine_turbo_mode == OLD)
     {
@@ -876,12 +876,12 @@ float EngineSim::GetTurboPsi()
     return turboPSI;
 }
 
-float EngineSim::GetAcceleration()
+float EngineSim::getAcc()
 {
     return m_cur_acc;
 }
 
-void EngineSim::PushNetworkState(float rpm, float acc, float clutch, int gear, bool running, bool contact, char automode, char autoselect)
+void EngineSim::pushNetworkState(float rpm, float acc, float clutch, int gear, bool running, bool contact, char automode, char autoselect)
 {
     m_cur_engine_rpm = rpm;
     m_cur_acc = acc;
@@ -899,7 +899,7 @@ void EngineSim::PushNetworkState(float rpm, float acc, float clutch, int gear, b
     }
 }
 
-float EngineSim::GetSmoke()
+float EngineSim::getSmoke()
 {
     if (m_engine_is_running)
     {
@@ -909,32 +909,32 @@ float EngineSim::GetSmoke()
     return -1;
 }
 
-float EngineSim::GetTorque()
+float EngineSim::getTorque()
 {
     return m_cur_clutch_torque;
 }
 
-void EngineSim::SetEngineRpm(float rpm)
+void EngineSim::setRPM(float rpm)
 {
     m_cur_engine_rpm = rpm;
 }
 
-void EngineSim::SetEnginePriming(bool p)
+void EngineSim::setPrime(bool p)
 {
     m_engine_is_priming = p;
 }
 
-void EngineSim::SetHydroPumpWork(float work)
+void EngineSim::setHydroPump(float work)
 {
     m_hydropump_state = work;
 }
 
-void EngineSim::SetWheelSpin(float rpm)
+void EngineSim::setWheelSpin(float rpm)
 {
     m_cur_wheel_revolutions = rpm;
 }
 
-void EngineSim::SetTCaseRatio(float ratio)
+void EngineSim::setTCaseRatio(float ratio)
 {
     if (ratio < 1.0f)
         return;
@@ -953,7 +953,7 @@ void EngineSim::SetTCaseRatio(float ratio)
 }
 
 // for hydros acceleration
-float EngineSim::GetCrankFactor()
+float EngineSim::getCrankFactor()
 {
     float minWorkingRPM = m_engine_idle_rpm * 1.1f; // minWorkingRPM > m_engine_idle_rpm avoids commands deadlocking the engine
 
@@ -966,19 +966,14 @@ float EngineSim::GetCrankFactor()
     return crankfactor;
 }
 
-void EngineSim::SetClutch(float clutch)
+void EngineSim::setClutch(float clutch)
 {
     m_cur_clutch = clutch;
 }
 
-float EngineSim::GetClutch()
+float EngineSim::getClutch()
 {
     return m_cur_clutch;
-}
-
-float EngineSim::GetClutchForce()
-{
-    return m_clutch_force;
 }
 
 void EngineSim::toggleContact()
@@ -994,9 +989,9 @@ void EngineSim::toggleContact()
     }
 }
 
-void EngineSim::StartEngine()
+void EngineSim::startEngine()
 {
-    this->OffStart();
+    this->offStart();
     m_contact = true;
     m_cur_engine_rpm = m_engine_idle_rpm;
     m_engine_is_running = true;
@@ -1012,7 +1007,7 @@ void EngineSim::StartEngine()
     SOUND_START(m_actor, SS_TRIG_ENGINE);
 }
 
-void EngineSim::OffStart()
+void EngineSim::offStart()
 {
     m_air_pressure = 0.0f;
     m_autoselect = MANUALMODE;
@@ -1037,7 +1032,7 @@ void EngineSim::OffStart()
     }
 }
 
-int EngineSim::GetGear()
+int EngineSim::getGear()
 {
     return m_cur_gear;
 }
@@ -1048,7 +1043,7 @@ void EngineSim::SetGear(int v)
     m_cur_gear = v;
 }
 
-int EngineSim::GetGearRange()
+int EngineSim::getGearRange()
 {
     return m_cur_gear_range;
 }
@@ -1058,7 +1053,7 @@ void EngineSim::SetGearRange(int v)
     m_cur_gear_range = v;
 }
 
-void EngineSim::StopEngine()
+void EngineSim::stopEngine()
 {
     if (!m_engine_is_running)
         return;
@@ -1068,7 +1063,7 @@ void EngineSim::StopEngine()
     SOUND_STOP(m_actor, SS_TRIG_ENGINE);
 }
 
-float EngineSim::GetAccToHoldRPM()
+float EngineSim::getAccToHoldRPM()
 {
     return (-m_braking_torque * std::pow(m_cur_engine_rpm / m_engine_max_rpm, 2.0f)) / getEnginePower();
 }
@@ -1079,7 +1074,7 @@ void EngineSim::autoSetAcc(float val)
     m_auto_cur_acc = val;
     if (!m_shifting)
     {
-        SetAcceleration(val);
+        setAcc(val);
     }
 }
 
@@ -1212,7 +1207,7 @@ float EngineSim::getTurboPower()
     }
     else
     {
-        atValue = (((GetTurboPsi() * 6.8) * m_engine_torque) / 100); //1psi = 6% more power
+        atValue = (((getTurboPSI() * 6.8) * m_engine_torque) / 100); //1psi = 6% more power
     }
 
     return atValue;
@@ -1242,7 +1237,7 @@ float EngineSim::getPrimeMixture()
 {
     if (m_engine_is_priming)
     {
-        float crankfactor = GetCrankFactor();
+        float crankfactor = getCrankFactor();
 
         if (crankfactor < 0.9f)
         {
@@ -1295,7 +1290,7 @@ void EngineSim::UpdateInputEvents(float dt)
     }
 
     // arcade controls are only working with auto-clutch!
-    if (!App::io_arcade_controls->getBool() || (this->GetAutoShiftMode() >= SimGearboxMode::MANUAL))
+    if (!App::io_arcade_controls->getBool() || (this->getAutoMode() >= SimGearboxMode::MANUAL))
     {
         // classic mode, realistic
         this->autoSetAcc(accl);
@@ -1306,11 +1301,11 @@ void EngineSim::UpdateInputEvents(float dt)
         // start engine
         if (this->hasContact() && !this->isRunning() && (accl > 0 || brake > 0))
         {
-            this->StartEngine();
+            this->startEngine();
         }
 
         // arcade controls: hey - people wanted it x| ... <- and it's convenient
-        if (this->GetGear() >= 0)
+        if (this->getGear() >= 0)
         {
             // neutral or drive forward, everything is as its used to be: brake is brake and accel. is accel.
             this->autoSetAcc(accl);
@@ -1330,10 +1325,10 @@ void EngineSim::UpdateInputEvents(float dt)
             float velocity = hdir.dotProduct(m_actor->ar_nodes[0].Velocity);
 
             // switching point, does the user want to drive forward from backward or the other way round? change gears?
-            if (velocity < 1.0f && brake > 0.5f && accl < 0.5f && this->GetGear() > 0)
+            if (velocity < 1.0f && brake > 0.5f && accl < 0.5f && this->getGear() > 0)
             {
                 // we are on the brake, jump to reverse gear
-                if (this->GetAutoShiftMode() == SimGearboxMode::AUTO)
+                if (this->getAutoMode() == SimGearboxMode::AUTO)
                 {
                     this->autoShiftSet(EngineSim::REAR);
                 }
@@ -1342,10 +1337,10 @@ void EngineSim::UpdateInputEvents(float dt)
                     this->SetGear(-1);
                 }
             }
-            else if (velocity > -1.0f && brake < 0.5f && accl > 0.5f && this->GetGear() < 0)
+            else if (velocity > -1.0f && brake < 0.5f && accl > 0.5f && this->getGear() < 0)
             {
                 // we are on the gas pedal, jump to first gear when we were in rear gear
-                if (this->GetAutoShiftMode() == SimGearboxMode::AUTO)
+                if (this->getAutoMode() == SimGearboxMode::AUTO)
                 {
                     this->autoShiftSet(EngineSim::DRIVE);
                 }
@@ -1358,7 +1353,7 @@ void EngineSim::UpdateInputEvents(float dt)
     }
 
     // gear management
-    if (this->GetAutoShiftMode() == SimGearboxMode::AUTO)
+    if (this->getAutoMode() == SimGearboxMode::AUTO)
     {
         if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_AUTOSHIFT_UP))
         {
@@ -1390,20 +1385,20 @@ void EngineSim::UpdateInputEvents(float dt)
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SWITCH_SHIFT_MODES))
     {
         // toggle Auto shift
-        this->ToggleAutoShiftMode();
+        this->toggleAutoMode();
 
         // force gui update
         m_actor->RequestUpdateHudFeatures();
 
         App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_INFO, RoR::Console::CONSOLE_SYSTEM_NOTICE,
-            ToLocalizedString(this->GetAutoShiftMode()), "cog.png");
+            ToLocalizedString(this->getAutoMode()), "cog.png");
     }
 
     // joy clutch
     float cval = App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH);
     this->setManualClutch(cval);
 
-    SimGearboxMode shiftmode = this->GetAutoShiftMode();
+    SimGearboxMode shiftmode = this->getAutoMode();
 
     if (shiftmode <= SimGearboxMode::MANUAL) // auto, semi auto and sequential shifting
     {
@@ -1415,7 +1410,7 @@ void EngineSim::UpdateInputEvents(float dt)
         {
             if (shiftmode > SimGearboxMode::SEMI_AUTO ||
                 shiftmode == SimGearboxMode::SEMI_AUTO && (!App::io_arcade_controls->getBool()) ||
-                shiftmode == SimGearboxMode::SEMI_AUTO && this->GetGear() > 0 ||
+                shiftmode == SimGearboxMode::SEMI_AUTO && this->getGear() > 0 ||
                 shiftmode == SimGearboxMode::AUTO)
             {
                 this->shift(-1);
@@ -1430,8 +1425,8 @@ void EngineSim::UpdateInputEvents(float dt)
     {
         bool gear_changed = false;
         bool found = false;
-        int curgear = this->GetGear();
-        int curgearrange = this->GetGearRange();
+        int curgear = this->getGear();
+        int curgearrange = this->getGearRange();
         int gearoffset = std::max(0, curgear - curgearrange * 6);
 
         // one can select range only if in neutral

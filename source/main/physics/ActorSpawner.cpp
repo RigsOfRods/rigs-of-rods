@@ -383,7 +383,7 @@ void ActorSpawner::FinalizeRig()
         }
 
         //Gearbox
-        m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
+        m_actor->ar_engine->setAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
     }
     
     // Sanitize trigger_cmdshort and trigger_cmdlong
@@ -5264,7 +5264,7 @@ void ActorSpawner::ProcessEngine(RigDef::Engine & def)
     );
 
     /* Apply game configuration */
-    m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
+    m_actor->ar_engine->setAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
 };
 
 void ActorSpawner::ProcessHelp(RigDef::Help & def)
@@ -6138,7 +6138,7 @@ void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
         }
         if (vehicle->ar_engine->m_engine_type == 'c')
             AddSoundSourceInstance(vehicle, "tracks/default_car", ar_exhaust_pos_node);
-        if (vehicle->ar_engine->HasTurbo())
+        if (vehicle->ar_engine->hasTurbo())
         {
             if (vehicle->ar_engine->m_turbo_inertia_factor >= 3)
                 AddSoundSourceInstance(vehicle, "tracks/default_turbo_big", ar_exhaust_pos_node);

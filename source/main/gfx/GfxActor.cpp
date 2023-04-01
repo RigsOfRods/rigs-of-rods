@@ -1740,15 +1740,15 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     if (m_actor->ar_engine != nullptr)
     {
         m_simbuf.simbuf_has_engine      = true;
-        m_simbuf.simbuf_gear            = m_actor->ar_engine->GetGear();
+        m_simbuf.simbuf_gear            = m_actor->ar_engine->getGear();
         m_simbuf.simbuf_autoshift       = m_actor->ar_engine->getAutoShift();
-        m_simbuf.simbuf_engine_rpm      = m_actor->ar_engine->GetEngineRpm();
-        m_simbuf.simbuf_engine_turbo_psi= m_actor->ar_engine->GetTurboPsi();
-        m_simbuf.simbuf_engine_accel    = m_actor->ar_engine->GetAcceleration();
-        m_simbuf.simbuf_engine_torque   = m_actor->ar_engine->GetEngineTorque();
-        m_simbuf.simbuf_inputshaft_rpm  = m_actor->ar_engine->GetInputShaftRpm();
-        m_simbuf.simbuf_drive_ratio     = m_actor->ar_engine->GetDriveRatio();
-        m_simbuf.simbuf_clutch          = m_actor->ar_engine->GetClutch();
+        m_simbuf.simbuf_engine_rpm      = m_actor->ar_engine->getRPM();
+        m_simbuf.simbuf_engine_turbo_psi= m_actor->ar_engine->getTurboPSI();
+        m_simbuf.simbuf_engine_accel    = m_actor->ar_engine->getAcc();
+        m_simbuf.simbuf_engine_torque   = m_actor->ar_engine->getEngineTorque();
+        m_simbuf.simbuf_inputshaft_rpm  = m_actor->ar_engine->getInputShaftRPM();
+        m_simbuf.simbuf_drive_ratio     = m_actor->ar_engine->getDriveRatio();
+        m_simbuf.simbuf_clutch          = m_actor->ar_engine->getClutch();
         m_simbuf.simbuf_num_gears       = m_actor->ar_engine->getNumGears();
         m_simbuf.simbuf_engine_max_rpm  = m_actor->ar_engine->getMaxRPM();
     }

@@ -915,11 +915,11 @@ void VehicleButtons::DrawShiftModeButton(RoR::GfxActor* actorx)
     {
         if (actorx->GetActor()->ar_engine)
         {
-            actorx->GetActor()->ar_engine->ToggleAutoShiftMode();
+            actorx->GetActor()->ar_engine->toggleAutoMode();
             // force gui update
             actorx->GetActor()->RequestUpdateHudFeatures();
             const char* msg = nullptr;
-            switch (actorx->GetActor()->ar_engine->GetAutoShiftMode())
+            switch (actorx->GetActor()->ar_engine->getAutoMode())
             {
             case SimGearboxMode::AUTO: msg = "Automatic shift";
                 break;
@@ -953,7 +953,7 @@ void VehicleButtons::DrawShiftModeButton(RoR::GfxActor* actorx)
 
         if (actorx->GetActor()->ar_engine)
         {
-            switch (actorx->GetActor()->ar_engine->GetAutoShiftMode())
+            switch (actorx->GetActor()->ar_engine->getAutoMode())
             {
             case SimGearboxMode::AUTO:
                 ImGui::Separator();
@@ -1007,7 +1007,7 @@ void VehicleButtons::DrawEngineButton(RoR::GfxActor* actorx)
         }
         else if (actorx->GetActor()->ar_engine)
         {
-            actorx->GetActor()->ar_engine->StartEngine();
+            actorx->GetActor()->ar_engine->startEngine();
         }
     }
 

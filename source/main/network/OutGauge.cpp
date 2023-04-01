@@ -139,15 +139,15 @@ bool OutGauge::Update(float dt, ActorPtr truck)
     else if (truck && truck->ar_engine)
     {
         // truck and engine valid
-        if (truck->ar_engine->HasTurbo())
+        if (truck->ar_engine->hasTurbo())
         {
             gd.Flags |= OG_TURBO;
         }
-        gd.Gear = std::max(0, truck->ar_engine->GetGear() + 1); // we only support one reverse gear
+        gd.Gear = std::max(0, truck->ar_engine->getGear() + 1); // we only support one reverse gear
         gd.PLID = 0;
         gd.Speed = fabs(truck->ar_wheel_speed);
-        gd.RPM = truck->ar_engine->GetEngineRpm();
-        gd.Turbo = truck->ar_engine->GetTurboPsi() * 0.0689475729f;
+        gd.RPM = truck->ar_engine->getRPM();
+        gd.Turbo = truck->ar_engine->getTurboPSI() * 0.0689475729f;
         gd.EngTemp = 0; // TODO
         gd.Fuel = 0; // TODO
         gd.OilPressure = 0; // TODO
@@ -182,9 +182,9 @@ bool OutGauge::Update(float dt, ActorPtr truck)
         if (truck->alb_mode)
             gd.ShowLights |= DL_ABS;
 
-        gd.Throttle = truck->ar_engine->GetAcceleration();
+        gd.Throttle = truck->ar_engine->getAcc();
         gd.Brake = truck->ar_brake;
-        gd.Clutch = 1 - truck->ar_engine->GetClutch(); // 0-1
+        gd.Clutch = 1 - truck->ar_engine->getClutch(); // 0-1
 
         strncpy(gd.Display1, truck->ar_design_name.c_str(), 15);
         if (truck->ar_design_name.length() > 15)

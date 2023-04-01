@@ -35,7 +35,7 @@ void Actor::cruisecontrolToggle()
     if (cc_mode)
     {
         cc_target_speed = ar_avg_wheel_speed;
-        cc_target_rpm = ar_engine->GetEngineRpm();
+        cc_target_rpm = ar_engine->getRPM();
     }
     else
     {
@@ -47,10 +47,10 @@ void Actor::cruisecontrolToggle()
 
 void Actor::UpdateCruiseControl(float dt)
 {
-    if ((ar_engine->GetGear() > 0 && App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE) > 0.05f) ||
-        (ar_engine->GetGear() > 0 && cc_target_speed < cc_target_speed_lower_limit) ||
-        (ar_engine->GetGear() > 0 && ar_parking_brake) ||
-        (ar_engine->GetGear() < 0) ||
+    if ((ar_engine->getGear() > 0 && App::GetInputEngine()->getEventValue(EV_TRUCK_BRAKE) > 0.05f) ||
+        (ar_engine->getGear() > 0 && cc_target_speed < cc_target_speed_lower_limit) ||
+        (ar_engine->getGear() > 0 && ar_parking_brake) ||
+        (ar_engine->getGear() < 0) ||
         !ar_engine->isRunning() ||
         !ar_engine->hasContact())
     {
@@ -58,22 +58,22 @@ void Actor::UpdateCruiseControl(float dt)
         return;
     }
 
-    if (ar_engine->GetGear() != 0 && App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f)
+    if (ar_engine->getGear() != 0 && App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH) > 0.05f)
         return;
 
-    float acc = ar_engine->GetAccToHoldRPM();
+    float acc = ar_engine->getAccToHoldRPM();
 
-    if (ar_engine->GetGear() > 0)
+    if (ar_engine->getGear() > 0)
     {
         // Try to maintain the target speed
         float power_weight_ratio = getTotalMass(true) / ar_engine->getEnginePower();
         acc += (cc_target_speed - ar_wheel_speed) * power_weight_ratio * 0.25;
     }
-    else if (ar_engine->GetGear() == 0) // out of gear
+    else if (ar_engine->getGear() == 0) // out of gear
     {
         // Try to maintain the target rpm
         float speed_range = (ar_engine->getMaxRPM() - ar_engine->getMinRPM()) / 50.0f;
-        acc += ar_engine->GetEngineInertia() * (cc_target_rpm - ar_engine->GetEngineRpm()) / speed_range;
+        acc += ar_engine->getEngineInertia() * (cc_target_rpm - ar_engine->getRPM()) / speed_range;
     }
 
     cc_accs.push_front(Ogre::Math::Clamp(acc, -1.0f, +1.0f));
@@ -89,11 +89,11 @@ void Actor::UpdateCruiseControl(float dt)
     }
     avg_acc /= cc_accs.size();
 
-    ar_engine->autoSetAcc(Ogre::Math::Clamp(avg_acc, ar_engine->GetAcceleration(), 1.0f));
+    ar_engine->autoSetAcc(Ogre::Math::Clamp(avg_acc, ar_engine->getAcc(), 1.0f));
 
     if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_ACCL))
     {
-        if (ar_engine->GetGear() > 0)
+        if (ar_engine->getGear() > 0)
         {
             cc_target_speed *= pow(2.0f, dt / 5.0f);
             cc_target_speed = std::max(cc_target_speed_lower_limit, cc_target_speed);
@@ -102,7 +102,7 @@ void Actor::UpdateCruiseControl(float dt)
                 cc_target_speed = std::min(cc_target_speed, sl_speed_limit);
             }
         }
-        else if (ar_engine->GetGear() == 0) // out of gear
+        else if (ar_engine->getGear() == 0) // out of gear
         {
             cc_target_rpm *= pow(2.0f, dt / 5.0f);
             cc_target_rpm = std::min(cc_target_rpm, ar_engine->getMaxRPM());
@@ -110,12 +110,12 @@ void Actor::UpdateCruiseControl(float dt)
     }
     if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_DECL))
     {
-        if (ar_engine->GetGear() > 0)
+        if (ar_engine->getGear() > 0)
         {
             cc_target_speed *= pow(0.5f, dt / 5.0f);
             cc_target_speed = std::max(cc_target_speed_lower_limit, cc_target_speed);
         }
-        else if (ar_engine->GetGear() == 0) // out of gear
+        else if (ar_engine->getGear() == 0) // out of gear
         {
             cc_target_rpm *= pow(0.5f, dt / 5.0f);
             cc_target_rpm = std::max(ar_engine->getMinRPM(), cc_target_rpm);
@@ -128,7 +128,7 @@ void Actor::UpdateCruiseControl(float dt)
         {
             cc_target_speed = std::min(cc_target_speed, sl_speed_limit);
         }
-        cc_target_rpm = ar_engine->GetEngineRpm();
+        cc_target_rpm = ar_engine->getRPM();
     }
 
     if (cc_can_brake)
