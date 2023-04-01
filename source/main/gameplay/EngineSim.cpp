@@ -34,7 +34,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<float> gears, float dratio, ActorPtr actor) :
+EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, float reverse_gear, float neutral_gear, std::vector<float> forward_gears, float diff_ratio, ActorPtr actor) :
     m_air_pressure(0.0f)
     , m_auto_cur_acc(0.0f)
     , m_auto_mode(AUTOMATIC)
@@ -52,10 +52,9 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
     , m_cur_gear_range(0)
     , m_cur_wheel_revolutions(0.0f)
     , m_ref_wheel_revolutions(0.0f)
-    , m_diff_ratio(dratio)
+    , m_diff_ratio(diff_ratio)
     , m_tcase_ratio(1.0f)
     , m_engine_torque(torque)
-    , m_gear_ratios(gears)
     , m_engine_has_air(true)
     , m_engine_has_turbo(true)
     , m_hydropump_state(0.0f)
@@ -66,7 +65,7 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
     , m_engine_max_rpm(std::abs(_max_rpm))
     , m_min_idle_mixture(0.0f)
     , m_engine_min_rpm(std::abs(_min_rpm))
-    , m_num_gears((int)gears.size() - 2)
+    , m_num_gears((int)forward_gears.size())
     , m_post_shift_time(0.2f)
     , m_post_shift_clock(0.0f)
     , m_post_shifting(0)
@@ -106,17 +105,17 @@ EngineSim::EngineSim(float _min_rpm, float _max_rpm, float torque, std::vector<f
     m_one_third_rpm_range = m_full_rpm_range / 3.0f;
     m_half_rpm_range = m_full_rpm_range / 2.0f;
 
-    m_gear_ratios[0] = -m_gear_ratios[0];
-    for (std::vector<float>::iterator it = m_gear_ratios.begin(); it != m_gear_ratios.end(); ++it)
-    {
-        (*it) *= m_diff_ratio;
-    }
-
     for (int i = 0; i < MAXTURBO; i++)
     {
         m_engine_addi_torque[i] = 0;
         m_cur_turbo_rpm[i] = 0;
     }
+
+    // Assemble gear vector in format [R|N|1...]
+    m_gear_ratios.push_back(-reverse_gear * diff_ratio);
+    m_gear_ratios.push_back(neutral_gear * diff_ratio);
+    for (float gear : forward_gears)
+        m_gear_ratios.push_back(gear * diff_ratio);
 }
 
 EngineSim::~EngineSim()
