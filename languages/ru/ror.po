@@ -7,23 +7,24 @@
 # Влад ххх <error.exe1234567890@gmail.com>, 2021.
 # Rassul <r.eleuov@icloud.com>, 2021.
 # Лолло Нуб <lollo.samp@mail.ru>, 2021.
+# Сергей <asvmail.as@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2021-11-02 21:36+0000\n"
-"Last-Translator: Лолло Нуб <lollo.samp@mail.ru>\n"
+"PO-Revision-Date: 2023-04-02 05:09+0000\n"
+"Last-Translator: Сергей <asvmail.as@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
-"%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Weblate 4.9-dev\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || ("
+"n%100>=11 && n%100<=14)? 2 : 3);\n"
+"X-Generator: Weblate 4.17-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -35,18 +36,16 @@ msgid "No render system plugin available. Check your plugins.cfg"
 msgstr "Недоступен плагин для отрисовки. Проверьте plugins.cfg"
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgid "Screenshot:"
 msgid "Screenshot: "
-msgstr "Снимок экрана:"
+msgstr "Снимок экрана: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Ошибка при получении пути к каталогу программы"
 
 #: AppContext.cpp:426
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Ошибка при получении пути к каталогу пользователя"
 
 #: AppContext.cpp:477
 msgid "Resources folder not found. Check if correctly installed."
@@ -488,11 +487,9 @@ msgid "Toggles the tracktion control"
 msgstr "переключение тяги"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
-#, fuzzy
-#| msgid "toggle antilock brake"
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr "переключение антиблокировки тормоза "
+msgstr "Переключение антиблокировки тормозов"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
 #, fuzzy
@@ -687,10 +684,9 @@ msgstr "Актёры"
 #: gui/panels/GUI_ConsoleView.cpp:248
 msgctxt "Console"
 msgid "Terrain"
-msgstr "Карта"
+msgstr "Местность"
 
 #: gui/panels/GUI_ConsoleView.cpp:251
-#, fuzzy
 msgctxt "Console"
 msgid "By level:"
 msgstr "По уровню:"
@@ -1303,11 +1299,9 @@ msgid "Multiplayer"
 msgstr "Мультиплеер"
 
 #: gui/panels/GUI_GameMainMenu.cpp:149
-#, fuzzy
-#| msgid "Compositors: "
 msgctxt "MainMenu"
 msgid "Repository"
-msgstr "Сборщики: "
+msgstr "Репозиторий"
 
 #: gui/panels/GUI_GameMainMenu.cpp:155
 msgctxt "MainMenu"
@@ -1745,7 +1739,6 @@ msgid "Debug textures"
 msgstr "Отладка текстур"
 
 #: gui/panels/GUI_GameSettings.cpp:391
-#, fuzzy
 msgctxt "GameSettings"
 msgid "Hide broken beams"
 msgstr "Скрыть сломанные балки"
@@ -1771,13 +1764,11 @@ msgid "Echo log to console"
 msgstr "Выводить логи в консоль"
 
 #: gui/panels/GUI_GameSettings.cpp:396
-#, fuzzy
 msgctxt "GameSettings"
 msgid "Log beam breaking"
 msgstr "Регистрировать ломание балок"
 
 #: gui/panels/GUI_GameSettings.cpp:397
-#, fuzzy
 msgctxt "GameSettings"
 msgid "Log beam deforming"
 msgstr "Регистрировать деформацию балок"
@@ -1890,8 +1881,6 @@ msgid "Loader"
 msgstr "Выбор карты или транспортного средства"
 
 #: gui/panels/GUI_MainSelector.cpp:269
-#, fuzzy
-#| msgid "Author(s): "
 msgctxt "MainSelector"
 msgid "Author(s): "
 msgstr "Автор(ы): "
@@ -2417,25 +2406,19 @@ msgid "Total mass"
 msgstr "Полная масса:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:56
-#, fuzzy
-#| msgid "Beams: "
 msgctxt "NodeBeamUtils"
 msgid "Beams:"
-msgstr "Лучи: "
+msgstr "Балки:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:66
-#, fuzzy
-#| msgid "Shocks: "
 msgctxt "NodeBeamUtils"
 msgid "Shocks:"
-msgstr "Амортизаторы: "
+msgstr "Амортизаторы:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:76
-#, fuzzy
-#| msgid "Wheels: "
 msgctxt "NodeBeamUtils"
 msgid "Wheels:"
-msgstr "Тип привода: "
+msgstr "Колёса:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:87
 #, fuzzy
@@ -2476,11 +2459,9 @@ msgid "Continue searching"
 msgstr "Продолжить поиск"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
-#, fuzzy
-#| msgid "loading...\n"
 msgctxt "NodeBeamUtils"
 msgid "Start searching"
-msgstr "загрузка...\n"
+msgstr "Начать поиск"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
@@ -2573,18 +2554,14 @@ msgstr ""
 
 #: gui/panels/GUI_RepositorySelector.cpp:473
 #: gui/panels/GUI_RepositorySelector.cpp:764
-#, fuzzy
-#| msgid "Rotating: "
 msgctxt "RepositorySelector"
 msgid "Rating"
-msgstr "Вращение: "
+msgstr "Рейтинг"
 
 #: gui/panels/GUI_RepositorySelector.cpp:478
-#, fuzzy
-#| msgid "Triangle Count: "
 msgctxt "RepositorySelector"
 msgid "Rating Count"
-msgstr "Количество треугольников: "
+msgstr "Подсчет рейтинга"
 
 #: gui/panels/GUI_RepositorySelector.cpp:490
 msgctxt "RepositorySelector"
@@ -2632,11 +2609,9 @@ msgid "Category:"
 msgstr ""
 
 #: gui/panels/GUI_RepositorySelector.cpp:561
-#, fuzzy
-#| msgid "Description: "
 msgctxt "RepositorySelector"
 msgid "Description:"
-msgstr "Описание: "
+msgstr "Описание:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:567
 msgctxt "RepositorySelector"
@@ -2644,18 +2619,14 @@ msgid "Downloads:"
 msgstr ""
 
 #: gui/panels/GUI_RepositorySelector.cpp:573
-#, fuzzy
-#| msgid "Triangle Count: "
 msgctxt "RepositorySelector"
 msgid "View Count:"
-msgstr "Количество треугольников: "
+msgstr "Количество просмотров:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:579
-#, fuzzy
-#| msgid "Rotating: "
 msgctxt "RepositorySelector"
 msgid "Rating:"
-msgstr "Вращение: "
+msgstr "Рейтинг:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:585
 #, fuzzy
@@ -2672,23 +2643,17 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:598
 msgctxt "RepositorySelector"
 msgid "Last Update:"
-msgstr ""
+msgstr "Последнее обновление:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:605
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "Version: "
 msgctxt "RepositorySelector"
 msgid "Version:"
-msgstr "Версия: "
+msgstr "Версия:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:611
-#, fuzzy
-#| msgctxt "About"
-#| msgid "Authors"
 msgctxt "RepositorySelector"
 msgid "Authors:"
-msgstr "Авторы игры"
+msgstr "Авторы:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:617
 msgctxt "RepositorySelector"
@@ -2696,67 +2661,52 @@ msgid "View URL:"
 msgstr ""
 
 #: gui/panels/GUI_RepositorySelector.cpp:624
-#, fuzzy
-#| msgid "Filename: "
 msgctxt "RepositorySelector"
 msgid "Files:"
-msgstr "Имя файла: "
+msgstr "Файлы:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:653
-#, fuzzy
-#| msgid "Filename: "
 msgctxt "RepositorySelector"
 msgid "Filename:"
-msgstr "Имя файла: "
+msgstr "Имя файла:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:702
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Update cache"
 msgctxt "RepositorySelector"
 msgid "Update"
-msgstr "Обновить кэш"
+msgstr "Обновить"
 
 #: gui/panels/GUI_RepositorySelector.cpp:706
 msgctxt "RepositorySelector"
 msgid "Reinstall"
-msgstr ""
+msgstr "Переустановить"
 
 #: gui/panels/GUI_RepositorySelector.cpp:710
 msgctxt "RepositorySelector"
 msgid "Install"
-msgstr ""
+msgstr "Установить"
 
 #: gui/panels/GUI_RepositorySelector.cpp:720
 #: gui/panels/GUI_RepositorySelector.cpp:730
 msgctxt "RepositorySelector"
 msgid "Remove"
-msgstr ""
+msgstr "Удалить"
 
 #: gui/panels/GUI_RepositorySelector.cpp:758
 #: gui/panels/GUI_RepositorySelector.cpp:987
-#, fuzzy
-#| msgctxt "About"
-#| msgid "Version"
 msgctxt "RepositorySelector"
 msgid "Version"
-msgstr "Версия игры"
+msgstr "Версия"
 
 #. Authors, rating count, last update, download count, description
 #: gui/panels/GUI_RepositorySelector.cpp:872
-#, fuzzy
-#| msgctxt "About"
-#| msgid "Authors"
 msgctxt "RepositorySelector"
 msgid "Authors"
-msgstr "Авторы игры"
+msgstr "Авторы"
 
 #: gui/panels/GUI_RepositorySelector.cpp:893
-#, fuzzy
-#| msgid "Description: "
 msgctxt "RepositorySelector"
 msgid "Description"
-msgstr "Описание: "
+msgstr "Описание"
 
 #: gui/panels/GUI_RepositorySelector.cpp:994
 msgctxt "RepositorySelector"
@@ -2776,7 +2726,7 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:1135
 msgctxt "RepositorySelector"
 msgid "No files available :("
-msgstr ""
+msgstr "Нет доступных файлов :("
 
 #: gui/panels/GUI_SimActorStats.cpp:53
 #, fuzzy
@@ -2808,11 +2758,9 @@ msgid "Deformed beams count: "
 msgstr ""
 
 #: gui/panels/GUI_SimActorStats.cpp:81
-#, fuzzy
-#| msgid "Player Information"
 msgctxt "SimActorStats"
 msgid "Average deformation: "
-msgstr "Информация об игроке"
+msgstr "Средняя деформация: "
 
 #: gui/panels/GUI_SimActorStats.cpp:86
 #, fuzzy
@@ -2822,18 +2770,14 @@ msgid "Average stress: "
 msgstr "Средний FPS: "
 
 #: gui/panels/GUI_SimActorStats.cpp:94
-#, fuzzy
-#| msgid " user country: "
 msgctxt "SimActorStats"
 msgid "Node count: "
-msgstr " Страна пользователя: "
+msgstr "Количество узлов: "
 
 #: gui/panels/GUI_SimActorStats.cpp:98
-#, fuzzy
-#| msgid "Total mass: "
 msgctxt "SimActorStats"
 msgid "Total mass: "
-msgstr "Полная масса:"
+msgstr "Полная масса: "
 
 #: gui/panels/GUI_SimActorStats.cpp:115
 #, fuzzy
@@ -2855,11 +2799,9 @@ msgid "Current torque: "
 msgstr "Текущая мощность:"
 
 #: gui/panels/GUI_SimActorStats.cpp:130
-#, fuzzy
-#| msgid "Current power: "
 msgctxt "SimActorStats"
 msgid "Current power: "
-msgstr "Текущая мощность:"
+msgstr "Текущая мощность: "
 
 #: gui/panels/GUI_SimActorStats.cpp:134
 #, fuzzy
@@ -2900,11 +2842,9 @@ msgid "Altitude: "
 msgstr ""
 
 #: gui/panels/GUI_SimActorStats.cpp:182 gui/panels/GUI_SimActorStats.cpp:200
-#, fuzzy
-#| msgid "Engine "
 msgctxt "SimActorStats"
 msgid "Engine "
-msgstr "Двигатель"
+msgstr "Двигатель "
 
 #: gui/panels/GUI_SimActorStats.cpp:212
 #, fuzzy
@@ -2914,15 +2854,11 @@ msgid "Top speed: "
 msgstr "Текущая скорость: "
 
 #: gui/panels/GUI_SimActorStats.cpp:218
-#, fuzzy
-#| msgid "G-Forces:\n"
 msgctxt "SimActorStats"
 msgid "G-Forces:"
-msgstr "G-Forces:\n"
+msgstr "G-Forces:"
 
 #: gui/panels/GUI_SimPerfStats.cpp:80
-#, fuzzy
-#| msgid "Triangle Count: "
 msgctxt "SimPerfStats"
 msgid "Triangle count: "
 msgstr "Количество треугольников: "
@@ -2947,25 +2883,19 @@ msgid "Dynamic only"
 msgstr "Динамически"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:134
-#, fuzzy
-#| msgid "Save as PNG"
 msgctxt "TextureToolWindow"
 msgid "Save as PNG"
 msgstr "Сохранить как PNG"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:139
-#, fuzzy
-#| msgid "Save Raw"
 msgctxt "TextureToolWindow"
 msgid "Save Raw"
 msgstr "Сохранить Raw"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:173
-#, fuzzy
-#| msgid "saved texture as "
 msgctxt "TextureToolWindow"
 msgid "saved texture as "
-msgstr "текстура сохранена как"
+msgstr "текстура сохранена как "
 
 #: gui/panels/GUI_TopMenubar.cpp:115
 #, fuzzy
@@ -2989,8 +2919,6 @@ msgid "Saves"
 msgstr "Сохранить как PNG"
 
 #: gui/panels/GUI_TopMenubar.cpp:118
-#, fuzzy
-#| msgid "Settings"
 msgctxt "TopMenubar"
 msgid "Settings"
 msgstr "Настройки"
@@ -3014,25 +2942,19 @@ msgstr ""
 
 #. TODO: Display hotkeys on the right side of the menu (with different text color)
 #: gui/panels/GUI_TopMenubar.cpp:259
-#, fuzzy
-#| msgid "get new vehicle"
 msgctxt "TopMenubar"
 msgid "Get new vehicle"
-msgstr "получить новый транспорт"
+msgstr "Получить новый транспорт"
 
 #: gui/panels/GUI_TopMenubar.cpp:270
-#, fuzzy
-#| msgid "toggle truck description"
 msgctxt "TopMenubar"
 msgid "Show vehicle description"
-msgstr "переключить описание грузовика"
+msgstr "Показать описание грузовика"
 
 #: gui/panels/GUI_TopMenubar.cpp:277
-#, fuzzy
-#| msgid "Only current vehicle, main lights"
 msgctxt "TopMenubar"
 msgid "Reload current vehicle"
-msgstr "Только текущее транспортное средство, имеет основные фары"
+msgstr "Перезагрузить текущее транспортное средство"
 
 #: gui/panels/GUI_TopMenubar.cpp:285
 msgctxt "TopMenubar"
@@ -3814,7 +3736,7 @@ msgstr "Произошло исключение!"
 
 #: main.cpp:1028
 msgid "An exception (std::runtime_error) has occured!"
-msgstr "An exception (std::runtime_error) has occured!"
+msgstr "Произошло исключение (std::runtime_error)!"
 
 #. Atomic; instruct sender thread to stop
 #: network/Network.cpp:254
@@ -3864,7 +3786,7 @@ msgstr "Установка соединения: ошибка отправки �
 
 #: network/Network.cpp:448
 msgid "Establishing network session: error getting server version"
-msgstr "Установка соединения: ошибка при получении версии сервера "
+msgstr "Установка соединения: ошибка при получении версии сервера"
 
 #: network/Network.cpp:455 network/Network.cpp:479
 #, c-format
@@ -4029,7 +3951,7 @@ msgstr "Не установлен контент"
 #: physics/ActorManager.cpp:1281 physics/ActorManager.cpp:1290
 #: physics/ActorManager.cpp:1308
 msgid "New simulation speed: "
-msgstr "Новая скорость симуляции:"
+msgstr "Новая скорость симуляции: "
 
 #: physics/ActorManager.cpp:1302
 msgid "Simulation speed reset."
@@ -4045,7 +3967,7 @@ msgstr ""
 
 #: physics/Differentials.cpp:52 physics/Differentials.cpp:60
 msgid "invalid"
-msgstr "недействительно "
+msgstr "недействительно"
 
 #: physics/Differentials.cpp:56
 msgid "Split"
@@ -4064,11 +3986,9 @@ msgid "Locked"
 msgstr "заблокированный"
 
 #: physics/Savegame.cpp:204
-#, fuzzy
-#| msgid "Loader"
 msgctxt "QuickloadDialog"
 msgid "Load game?"
-msgstr "Выбор карты или транспортного средства"
+msgstr "Загрузить игру?"
 
 #: physics/Savegame.cpp:205
 msgctxt "QuickloadDialog"
@@ -4380,11 +4300,11 @@ msgstr ""
 
 #: system/ConsoleCmd.cpp:72
 msgid "Current gravity is: "
-msgstr "Текущая гравитация:"
+msgstr "Текущая гравитация: "
 
 #: system/ConsoleCmd.cpp:82
 msgid "Gravity set to: "
-msgstr "Гравитация установлена в:"
+msgstr "Гравитация установлена в: "
 
 #: system/ConsoleCmd.cpp:92
 msgid "Get or set water level."
@@ -4545,7 +4465,7 @@ msgstr ""
 
 #: system/ConsoleCmd.cpp:701
 msgid "unknown command: "
-msgstr "неизвестная команда:"
+msgstr "неизвестная команда: "
 
 #: system/ConsoleCmd.cpp:717
 msgid "Only allowed when simulation is running"
@@ -4659,11 +4579,11 @@ msgstr "Выбран объект: ["
 #. sync load since we want everything in place when we start
 #: terrain/TerrainGeometryManager.cpp:326
 msgid "Loading terrain pages ..."
-msgstr "Загрузка страниц местности"
+msgstr "Загрузка страниц местности ..."
 
 #: terrain/TerrainGeometryManager.cpp:373
 msgid "Saving all terrain pages ..."
-msgstr "Сохранение всех страниц местности..."
+msgstr "Сохранение всех страниц местности ..."
 
 #: utils/ErrorUtils.cpp:43
 msgid ""
@@ -5729,18 +5649,14 @@ msgid "normal brake for an aircraft"
 msgstr "колёсный тормоз самолёта"
 
 #: utils/InputEngine.cpp:200
-#, fuzzy
-#| msgid "pull the elevator down in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator down in an aircraft."
-msgstr "руль высоты вниз в самолёте"
+msgstr "руль высоты вниз в самолёте."
 
 #: utils/InputEngine.cpp:201
-#, fuzzy
-#| msgid "pull the elevator up in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator up in an aircraft."
-msgstr "руль высоты вверх в самолёте"
+msgstr "руль высоты вверх в самолёте."
 
 #: utils/InputEngine.cpp:202
 #, fuzzy
@@ -5750,18 +5666,14 @@ msgid "full flaps in an aircraft."
 msgstr "Полностью опустить закрылки"
 
 #: utils/InputEngine.cpp:203
-#, fuzzy
-#| msgid "one step less flaps."
 msgctxt "InputEvent"
 msgid "one step less flaps."
-msgstr "убрать закрылки на один шаг"
+msgstr "убрать закрылки на один шаг."
 
 #: utils/InputEngine.cpp:204
-#, fuzzy
-#| msgid "one step more flaps."
 msgctxt "InputEvent"
 msgid "one step more flaps."
-msgstr "выпустить закрылки на один шаг"
+msgstr "выпустить закрылки на один шаг."
 
 #: utils/InputEngine.cpp:205
 #, fuzzy
@@ -5771,11 +5683,9 @@ msgid "no flaps."
 msgstr "полностью убранные закрылки."
 
 #: utils/InputEngine.cpp:206
-#, fuzzy
-#| msgid "airplane parking brake."
 msgctxt "InputEvent"
 msgid "airplane parking brake."
-msgstr "стояночный тормоз самолёта"
+msgstr "стояночный тормоз самолёта."
 
 #: utils/InputEngine.cpp:207
 #, fuzzy
@@ -6784,15 +6694,11 @@ msgid "cycle map modes"
 msgstr "Изменить режим камеры"
 
 #: utils/InputEngine.cpp:367
-#, fuzzy
-#| msgid "zoom in"
 msgctxt "InputEvent"
 msgid "zoom in"
-msgstr "Приблизить"
+msgstr "увеличить"
 
 #: utils/InputEngine.cpp:368
-#, fuzzy
-#| msgid "zoom out"
 msgctxt "InputEvent"
 msgid "zoom out"
 msgstr "уменьшить"
@@ -6843,7 +6749,7 @@ msgstr "Перезагрузить автомобиль"
 
 #: utils/InputEngine.cpp:1707
 msgid "(Please press a key)"
-msgstr ""
+msgstr "(Пожалуйста, нажмите клавишу)"
 
 #~ msgctxt "GameSettings"
 #~ msgid "Classic material shaders (experimental)"
