@@ -1745,7 +1745,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_engine_rpm      = m_actor->ar_engine->getRPM();
         m_simbuf.simbuf_engine_turbo_psi= m_actor->ar_engine->getTurboPSI();
         m_simbuf.simbuf_engine_accel    = m_actor->ar_engine->getAcc();
-        m_simbuf.simbuf_engine_torque   = m_actor->ar_engine->getEngineTorque();
+        m_simbuf.simbuf_engine_torque   = m_actor->ar_engine->getCurEngineTorque();
         m_simbuf.simbuf_inputshaft_rpm  = m_actor->ar_engine->getInputShaftRPM();
         m_simbuf.simbuf_drive_ratio     = m_actor->ar_engine->getDriveRatio();
         m_simbuf.simbuf_clutch          = m_actor->ar_engine->getClutch();

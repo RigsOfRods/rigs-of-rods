@@ -1386,7 +1386,7 @@ void ActorManager::UpdateTruckFeatures(ActorPtr vehicle, float dt)
         return;
 #endif // USE_ANGELSCRIPT
 
-    EngineSim* engine = vehicle->ar_engine;
+    EngineSimPtr engine = vehicle->ar_engine;
 
     if (engine && engine->hasContact() &&
         engine->getAutoMode() == SimGearboxMode::AUTO &&

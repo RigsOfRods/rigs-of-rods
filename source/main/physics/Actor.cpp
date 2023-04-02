@@ -120,12 +120,6 @@ void Actor::dispose()
     ar_num_soundsources = 0;
 #endif // USE_OPENAL
 
-    if (ar_engine != nullptr)
-    {
-        delete ar_engine;
-        ar_engine = nullptr;
-    }
-
     if (ar_autopilot != nullptr)
     {
         delete ar_autopilot;
@@ -140,6 +134,7 @@ void Actor::dispose()
         delete m_replay_handler;
     m_replay_handler = nullptr;
 
+    ar_engine = nullptr; // RefCountingObjectPtr<> will handle the cleanup.
     ar_vehicle_ai = nullptr; // RefCountingObjectPtr<> will handle the cleanup.
 
     // remove all scene nodes
@@ -4307,7 +4302,7 @@ void Actor::calculateLocalGForces()
 void Actor::engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue)
 {
     // engineNumber tells us which engine
-    EngineSim* e = ar_engine; // placeholder: actors do not have multiple engines yet
+    EngineSimPtr e = ar_engine; // placeholder: actors do not have multiple engines yet
 
     switch (type)
     {

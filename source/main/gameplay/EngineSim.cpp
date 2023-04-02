@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 

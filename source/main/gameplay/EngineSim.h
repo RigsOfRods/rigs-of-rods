@@ -25,6 +25,10 @@
 
 #include "Application.h"
 #include "Actor.h"
+#include "RefCountingObject.h"
+
+#include <Ogre.h>
+#include <vector>
 
 namespace RoR {
 
@@ -35,7 +39,7 @@ namespace RoR {
 /// @{
 
 /// A land vehicle engine + transmission
-class EngineSim : public ZeroedMemoryAllocator
+class EngineSim : public RefCountingObject<EngineSim>, public ZeroedMemoryAllocator
 {
     friend class ActorSpawner;
 
@@ -44,12 +48,12 @@ public:
     EngineSim(float min_rpm, float max_rpm, float torque, float reverse_gear, float neutral_gear, std::vector<float> gears, float dratio, ActorPtr actor);
     ~EngineSim();
 
-    /// @name Configuration
-    /// @{
+
     void           SetEngineOptions(float einertia, char etype, float eclutch, float ctime, float stime, float pstime, float irpm, float srpm, float maximix, float minimix, float ebraking);
     void           SetTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11);
     
-    // Keyword 'engine'
+    /// @name Definition; keyword 'engine'
+    /// @{
     float          getMinRPM() const { return m_engine_min_rpm; } //!< Shift down RPM ('engine' attr #1)
     float          getMaxRPM() const { return m_engine_max_rpm; } //!< Shift up RPM ('engine' attr #2)
     float          getEngineTorque() const { return m_engine_torque; } //!< Torque in N/m ('engine' attr #3)
@@ -57,8 +61,10 @@ public:
     float          getGearRatio(int pos); //!< -1=R, 0=N, 1... ('engine' attrs #5[R],#6[N],#7[1]...)
     int            getNumGears() const { return m_num_gears; }
     int            getNumGearsRanges() const { return getNumGears() / 6 + 1; }
-    
-    // Keyword 'engoption'
+    /// @}
+
+    /// @name Definition, Keyword 'engoption'
+    /// @{
     float          getEngineInertia() const { return m_engine_inertia; } //!< ('engoption' attr #1)
     char           getEngineType() const { return m_engine_type; } //!< 't' = truck (default), 'c' = car, 'e' = electric car ('engoption' attr #2)
     bool           isElectric() const { return m_engine_is_electric; }
@@ -73,13 +79,14 @@ public:
     float          getMaxIdleMixture() const { return m_max_idle_mixture; } //!< Maximum throttle to maintain the idle RPM ('engoption' attr #9)
     float          getMinIdleMixture() const { return m_min_idle_mixture; } //!< Minimum throttle to maintain the idle RPM ('engoption' attr #10)
     float          getBrakingTorque() const { return m_braking_torque; }
-    
-    // Keyword 'torquecurve'
-    TorqueCurve*   getTorqueCurve() { return m_torque_curve; }
+    /// @}
 
+    /// @name Definition, Keyword 'torquecurve'
+    /// @{
+    TorqueCurve*   getTorqueCurve() { return m_torque_curve; }
     /// @}
     
-    /// @name State getters
+    /// @name General state getters
     /// @{
     float          getAcc();
     float          getClutch();
@@ -93,7 +100,7 @@ public:
     int            getGearRange();
     bool           isRunning() { return m_engine_is_running; }
     bool           hasContact() { return m_contact; } //!< Ignition
-    float          getEngineTorque() { return m_cur_engine_torque; }
+    float          getCurEngineTorque() { return m_cur_engine_torque; }
     float          getInputShaftRPM() { return m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1]; }
     float          getDriveRatio() { return m_gear_ratios[m_cur_gear + 1]; }
     float          getEnginePower() { return getEnginePower(m_cur_engine_rpm); }
@@ -103,21 +110,21 @@ public:
     float          getPrimeMixture();
     int            getAutoShift();
     float          getAccToHoldRPM(); //!< estimate required throttle input to hold the current rpm
+    /// @}
 
-    // Shifting diagnostic
+    /// @name Shifting diagnostic
+    /// @{
     float          getPostShiftClock() { return m_post_shift_clock; }
     float          getShiftClock() { return m_shift_clock; }
     bool           isPostShifting() { return m_post_shifting != 0; }
     bool           isShifting() { return m_shifting != 0; }
-    int            getShiftingToGear() { return m_shift_val; }
-
-    // Autoshift diagnostic
+    int            getShifTargetGear() { return m_shift_val; }
     float          getAutoShiftBehavior() { return m_shift_behaviour; }
     int            getUpshiftDelayCounter() { return m_upshift_delay_counter; }
     int            getKickdownDelayCounter() { return m_kickdown_delay_counter; }
     /// @}
 
-    /// @name State changes
+    /// @name General state changes
     /// @{
     void           pushNetworkState(float engine_rpm, float acc, float clutch, int gear, bool running, bool contact, char auto_mode, char auto_select = -1);
     void           setAcc(float val);
@@ -125,7 +132,6 @@ public:
     void           setClutch(float clutch);
     void           setRPM(float rpm);
     void           setWheelSpin(float rpm);
-    void           toggleAutoMode();
     void           setAutoMode(SimGearboxMode mode);
     void           setPrime(bool p);
     void           setHydroPump(float work);
@@ -135,6 +141,11 @@ public:
     void           offStart();                   //!< Quick start of vehicle engine.
     void           startEngine();                //!< Quick engine start. Plays sounds.
     void           stopEngine();                 //!< stall engine
+    /// @}
+
+    /// @name Shifting
+    /// @{
+    void           toggleAutoMode();
     void           autoShiftDown();
     void           autoShiftSet(int mode);
     void           autoShiftUp();
