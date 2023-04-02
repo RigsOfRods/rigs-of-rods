@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2023-04-02 05:09+0000\n"
+"PO-Revision-Date: 2023-04-02 13:23+0000\n"
 "Last-Translator: Сергей <asvmail.as@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
@@ -56,85 +56,64 @@ msgid "Faulty resource folder. Check if correctly installed."
 msgstr "Неверная папка ресурсов. Проверьте правильность установки."
 
 #: Application.cpp:359
-#, fuzzy
-#| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
-msgstr "Автоматическая"
+msgstr "Автоматическое переключение"
 
 #: Application.cpp:360
-#, fuzzy
-#| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr "Ручная: авт. сцепление"
+msgstr "Ручное переключение с автоматическим сцеплением"
 
 #: Application.cpp:361
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr "Механич.: послед. переключение"
+msgstr "Механическая: последовательное переключение"
 
 #: Application.cpp:362
-#, fuzzy
-#| msgid "Fully Manual: stick shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr "Полностью Ручная: деграйте shift"
+msgstr "Механическая: рычаг переключения передач"
 
 #: Application.cpp:363
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
-msgstr "Ручн.: рычаг перекл. с диап."
+msgstr "Механическая: рычаг переключения передач с диапазонами"
 
 #: Application.cpp:372
-#, fuzzy
-#| msgid "None (fastest)"
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
-msgstr "Нет (быстрее)"
+msgstr "Отсутствуют (быстрее)"
 
 #: Application.cpp:373
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Light sources"
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr "Источники света"
+msgstr "Нет источников света"
 
 #: Application.cpp:374
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr "Все транспортные средства, общие фары"
+msgstr "Только у текущего транспортного средства, основные фары"
 
 #: Application.cpp:375
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
-msgstr "Все транспортные средства, общие фары"
+msgstr "Все транспортные средства, основные фары"
 
 #: Application.cpp:376
-#, fuzzy
-#| msgid "All vehicles, all lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
-msgstr "Все т.средства, все фары"
+msgstr "Все транспортные средства, все фары"
 
 #: Application.cpp:385
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "Отключено"
 
 #: Application.cpp:386
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "PSSM"
 
 #: Application.cpp:395
 #, fuzzy
@@ -163,42 +142,31 @@ msgid "None"
 msgstr ""
 
 #: Application.cpp:407
-#, fuzzy
-#| msgid "Bilinear"
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
 msgstr "Билинейная"
 
 #: Application.cpp:408
-#, fuzzy
-#| msgid "Trilinear"
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
 msgstr "Трилинейная"
 
 #: Application.cpp:409
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Anisotropy"
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
-msgstr "Анизатропная фильтрация"
+msgstr "Анизатропная"
 
 #: Application.cpp:418
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "Отсутствует"
 
 #: Application.cpp:419
-#, fuzzy
-#| msgid "20%"
 msgctxt "GfxVegetation"
 msgid "20%"
 msgstr "20%"
 
 #: Application.cpp:420
-#, fuzzy
-#| msgid "50%"
 msgctxt "GfxVegetation"
 msgid "50%"
 msgstr "50%"
@@ -206,47 +174,37 @@ msgstr "50%"
 #: Application.cpp:421
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "Полная"
 
 #: Application.cpp:430
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "Отсутствуют"
 
 #: Application.cpp:431
-#, fuzzy
-#| msgid "Basic (fastest)"
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
 msgstr "Базовое (быстрое)"
 
 #: Application.cpp:432
-#, fuzzy
-#| msgid "Reflection"
 msgctxt "GfxWaterMode"
 msgid "Reflection"
 msgstr "Отражение"
 
 #: Application.cpp:433
-#, fuzzy
-#| msgid "Reflection + refraction (speed optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
-msgstr "Отражение + преломл. (Скорость)"
+msgstr "Отражение + преломление (оптимальная скорость)"
 
 #: Application.cpp:434
-#, fuzzy
-#| msgid "Reflection + refraction (quality optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
-msgstr "Отражение + преломл. (Качество)"
+msgstr "Отражение + преломление (оптимальное качество)"
 
 #: Application.cpp:435
-#, fuzzy
-#| msgid "Hydrax"
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr "Hydrax"
+msgstr "HydraX"
 
 #: Application.cpp:444
 msgctxt "GfxExtCamMode"
@@ -2905,18 +2863,14 @@ msgid "Simulation"
 msgstr "Ошибка конфигурации"
 
 #: gui/panels/GUI_TopMenubar.cpp:116
-#, fuzzy
-#| msgid "Vehicle speed: "
 msgctxt "TopMenubar"
 msgid "Vehicles"
-msgstr "Скорость транспорта: "
+msgstr "Транспортные средства"
 
 #: gui/panels/GUI_TopMenubar.cpp:117
-#, fuzzy
-#| msgid "Save as PNG"
 msgctxt "TopMenubar"
 msgid "Saves"
-msgstr "Сохранить как PNG"
+msgstr "Сохранения"
 
 #: gui/panels/GUI_TopMenubar.cpp:118
 msgctxt "TopMenubar"
@@ -2929,11 +2883,9 @@ msgid "Tools"
 msgstr "Инструменты"
 
 #: gui/panels/GUI_TopMenubar.cpp:120
-#, fuzzy
-#| msgid "Vehicle speed: "
 msgctxt "TopMenubar"
 msgid "Vehicle AI"
-msgstr "Скорость транспорта: "
+msgstr "ИИ транспорта"
 
 #: gui/panels/GUI_TopMenubar.cpp:255
 msgctxt "TopMenubar"
@@ -3028,11 +2980,9 @@ msgid "Actors menu"
 msgstr ""
 
 #: gui/panels/GUI_TopMenubar.cpp:430
-#, fuzzy
-#| msgid "Save as PNG"
 msgctxt "TopMenubar"
 msgid "Savegames"
-msgstr "Сохранить как PNG"
+msgstr "Сохраненные игры"
 
 #: gui/panels/GUI_TopMenubar.cpp:432
 msgctxt "TopMenubar"
@@ -3074,25 +3024,21 @@ msgstr "Настройки"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_TopMenubar.cpp:501
-#, fuzzy
-#| msgid "Audio device:"
 msgctxt "TopMenubar"
 msgid "Audio:"
-msgstr "Аудио оборудование:"
+msgstr "Аудио:"
 
 #: gui/panels/GUI_TopMenubar.cpp:502
 #, fuzzy
 #| msgid "Sound Volume:"
 msgctxt "TopMenubar"
 msgid "Volume"
-msgstr "Громкость Звука:"
+msgstr "Громкость"
 
 #: gui/panels/GUI_TopMenubar.cpp:504
-#, fuzzy
-#| msgid "sets the maximum frames per second"
 msgctxt "TopMenubar"
 msgid "Frames per second:"
-msgstr "настройки максимального числа кадров в секунду"
+msgstr "Кадров в секунду:"
 
 #: gui/panels/GUI_TopMenubar.cpp:507
 #, fuzzy
@@ -3119,24 +3065,20 @@ msgid "Slow motion"
 msgstr ""
 
 #: gui/panels/GUI_TopMenubar.cpp:519
-#, fuzzy
-#| msgid "Time set to "
 msgctxt "TopMenubar"
 msgid "Time lapse"
-msgstr "Время установлено на "
+msgstr "Промежуток времени"
 
 #: gui/panels/GUI_TopMenubar.cpp:526 gui/panels/GUI_TopMenubar.cpp:533
 msgctxt "TopMenubar"
 msgid "Camera:"
-msgstr ""
+msgstr "Камера:"
 
 #: gui/panels/GUI_TopMenubar.cpp:527 gui/panels/GUI_TopMenubar.cpp:537
 #: gui/panels/GUI_TopMenubar.cpp:545
-#, fuzzy
-#| msgid "FOV: "
 msgctxt "TopMenubar"
 msgid "FOV"
-msgstr "Угол обзора: "
+msgstr "Угол обзора (FOV)"
 
 #: gui/panels/GUI_TopMenubar.cpp:528
 msgctxt "TopMenubar"
@@ -3361,11 +3303,9 @@ msgid "Submesh details"
 msgstr ""
 
 #: gui/panels/GUI_TopMenubar.cpp:757
-#, fuzzy
-#| msgid "Settings"
 msgctxt "TopMenubar"
 msgid "Settings:"
-msgstr "Настройки"
+msgstr "Настройки:"
 
 #: gui/panels/GUI_TopMenubar.cpp:758
 msgctxt "TopMenubar"
@@ -3402,19 +3342,14 @@ msgstr "Главное меню"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_TopMenubar.cpp:789
-#, fuzzy
-#| msgctxt "Console"
-#| msgid "Filter options"
 msgctxt "TopMenubar"
 msgid "General options:"
-msgstr "Настройки фильтра"
+msgstr "Основные параметры:"
 
 #: gui/panels/GUI_TopMenubar.cpp:794
-#, fuzzy
-#| msgid "Vehicle speed: "
 msgctxt "TopMenubar"
 msgid "Vehicle count"
-msgstr "Скорость транспорта: "
+msgstr "Количество транспортных средств"
 
 #: gui/panels/GUI_TopMenubar.cpp:798
 #, fuzzy
@@ -3511,12 +3446,9 @@ msgid "Land vehicles, boats and airplanes"
 msgstr ""
 
 #: gui/panels/GUI_TopMenubar.cpp:953
-#, fuzzy
-#| msgctxt "Network"
-#| msgid "Starting..."
 msgctxt "TopMenubar"
 msgid "Start"
-msgstr "Запуск..."
+msgstr "Запуск"
 
 #: gui/panels/GUI_TopMenubar.cpp:973
 msgctxt "TopMenubar"
@@ -3641,18 +3573,14 @@ msgid "Commands"
 msgstr "Команды"
 
 #: gui/panels/GUI_VehicleDescription.cpp:66
-#, fuzzy
-#| msgid "Description: "
 msgctxt "VehicleDescription"
 msgid "Description"
-msgstr "Описание: "
+msgstr "Описание"
 
 #: gui/panels/GUI_VehicleDescription.cpp:74
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "VehicleDescription"
 msgid "Commands"
-msgstr "Доп. гидравлические узлы: "
+msgstr "Команды"
 
 #: gui/panels/GUI_VehicleDescription.cpp:104
 #, fuzzy
@@ -3669,11 +3597,9 @@ msgid "Authors"
 msgstr "Авторы"
 
 #: gui/panels/GUI_VehicleDescription.cpp:120
-#, fuzzy
-#| msgid "(no author information available) "
 msgctxt "VehicleDescription"
 msgid "(no author information available) "
-msgstr "(информация об авторе отсутствует)"
+msgstr "(информация об авторе отсутствует) "
 
 #: main.cpp:356
 msgid "Display mode changed to fullscreen"
@@ -3943,10 +3869,8 @@ msgid "spawned a new vehicle: "
 msgstr "создал новое транспортное средство: "
 
 #: physics/ActorManager.cpp:396
-#, fuzzy
-#| msgid "No content installed"
 msgid "Mod not installed: "
-msgstr "Не установлен контент"
+msgstr "Mod не установлен: "
 
 #: physics/ActorManager.cpp:1281 physics/ActorManager.cpp:1290
 #: physics/ActorManager.cpp:1308
@@ -4167,7 +4091,6 @@ msgid "Forklifts"
 msgstr "Грузоподъемник"
 
 #: resources/CacheSystem.h:275
-#, fuzzy
 msgctxt "ModCategory"
 msgid "Fantasy Trucks"
 msgstr "Вымышленные транспортные средства"
@@ -5285,11 +5208,9 @@ msgid "toggle trailer parking brake"
 msgstr "переключение стояночного тормоза"
 
 #: utils/InputEngine.cpp:143
-#, fuzzy
-#| msgid "toggle antilock brake"
 msgctxt "InputEvent"
 msgid "toggle antilock brake"
-msgstr "переключение антиблокировки тормоза "
+msgstr "переключение антиблокировки тормоза"
 
 #: utils/InputEngine.cpp:144
 #, fuzzy
@@ -5659,11 +5580,9 @@ msgid "pull the elevator up in an aircraft."
 msgstr "руль высоты вверх в самолёте."
 
 #: utils/InputEngine.cpp:202
-#, fuzzy
-#| msgid "full flaps in an aircraft."
 msgctxt "InputEvent"
 msgid "full flaps in an aircraft."
-msgstr "Полностью опустить закрылки"
+msgstr "Полностью опустить закрылки."
 
 #: utils/InputEngine.cpp:203
 msgctxt "InputEvent"
@@ -5827,607 +5746,435 @@ msgid "steer right (analog value!)"
 msgstr "повернуть направо (аналоговое значение!)"
 
 #: utils/InputEngine.cpp:232
-#, fuzzy
-#| msgid "decrease throttle"
 msgctxt "InputEvent"
 msgid "decrease throttle"
-msgstr "Уменьшить тягу"
+msgstr "уменьшить тягу"
 
 #: utils/InputEngine.cpp:233
-#, fuzzy
-#| msgid "increase throttle"
 msgctxt "InputEvent"
 msgid "increase throttle"
-msgstr "Увеличить тягу"
+msgstr "увеличить тягу"
 
 #. Commands
 #: utils/InputEngine.cpp:236
-#, fuzzy
-#| msgid "Command 1"
 msgctxt "InputEvent"
 msgid "Command 1"
-msgstr "Команда №1"
+msgstr "Команда 1"
 
 #: utils/InputEngine.cpp:237
-#, fuzzy
-#| msgid "Command 2"
 msgctxt "InputEvent"
 msgid "Command 2"
-msgstr "Команда №2"
+msgstr "Команда 2"
 
 #: utils/InputEngine.cpp:238
-#, fuzzy
-#| msgid "Command 3"
 msgctxt "InputEvent"
 msgid "Command 3"
-msgstr "Команда №3"
+msgstr "Команда 3"
 
 #: utils/InputEngine.cpp:239
-#, fuzzy
-#| msgid "Command 4"
 msgctxt "InputEvent"
 msgid "Command 4"
-msgstr "Команда №4"
+msgstr "Команда 4"
 
 #: utils/InputEngine.cpp:240
-#, fuzzy
-#| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 5"
-msgstr "Команда №5"
+msgstr "Команда 5"
 
 #: utils/InputEngine.cpp:241
-#, fuzzy
-#| msgid "Command 6"
 msgctxt "InputEvent"
 msgid "Command 6"
-msgstr "Команда №6"
+msgstr "Команда 6"
 
 #: utils/InputEngine.cpp:242
-#, fuzzy
-#| msgid "Command 7"
 msgctxt "InputEvent"
 msgid "Command 7"
-msgstr "Команда №7"
+msgstr "Команда 7"
 
 #: utils/InputEngine.cpp:243
-#, fuzzy
-#| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 8"
-msgstr "Команда №8"
+msgstr "Команда 8"
 
 #: utils/InputEngine.cpp:244
-#, fuzzy
-#| msgid "Command 9"
 msgctxt "InputEvent"
 msgid "Command 9"
-msgstr "Команда №9"
+msgstr "Команда 9"
 
 #: utils/InputEngine.cpp:245
-#, fuzzy
-#| msgid "Command 10"
 msgctxt "InputEvent"
 msgid "Command 10"
-msgstr "Команда №10"
+msgstr "Команда 10"
 
 #: utils/InputEngine.cpp:246
-#, fuzzy
-#| msgid "Command 11"
 msgctxt "InputEvent"
 msgid "Command 11"
-msgstr "Команда №11"
+msgstr "Команда 11"
 
 #: utils/InputEngine.cpp:247
-#, fuzzy
-#| msgid "Command 12"
 msgctxt "InputEvent"
 msgid "Command 12"
-msgstr "Команда №12"
+msgstr "Команда 12"
 
 #: utils/InputEngine.cpp:248
-#, fuzzy
-#| msgid "Command 13"
 msgctxt "InputEvent"
 msgid "Command 13"
-msgstr "Команда №13"
+msgstr "Команда 13"
 
 #: utils/InputEngine.cpp:249
-#, fuzzy
-#| msgid "Command 14"
 msgctxt "InputEvent"
 msgid "Command 14"
-msgstr "Команда №14"
+msgstr "Команда 14"
 
 #: utils/InputEngine.cpp:250
-#, fuzzy
-#| msgid "Command 15"
 msgctxt "InputEvent"
 msgid "Command 15"
-msgstr "Команда №15"
+msgstr "Команда 15"
 
 #: utils/InputEngine.cpp:251
-#, fuzzy
-#| msgid "Command 16"
 msgctxt "InputEvent"
 msgid "Command 16"
-msgstr "Команда №16"
+msgstr "Команда 16"
 
 #: utils/InputEngine.cpp:252
-#, fuzzy
-#| msgid "Command 17"
 msgctxt "InputEvent"
 msgid "Command 17"
-msgstr "Команда №17"
+msgstr "Команда 17"
 
 #: utils/InputEngine.cpp:253
-#, fuzzy
-#| msgid "Command 18"
 msgctxt "InputEvent"
 msgid "Command 18"
-msgstr "Команда №18"
+msgstr "Команда 18"
 
 #: utils/InputEngine.cpp:254
-#, fuzzy
-#| msgid "Command 19"
 msgctxt "InputEvent"
 msgid "Command 19"
-msgstr "Команда №19"
+msgstr "Команда 19"
 
 #: utils/InputEngine.cpp:255
-#, fuzzy
-#| msgid "Command 20"
 msgctxt "InputEvent"
 msgid "Command 20"
-msgstr "Команда №20"
+msgstr "Команда 20"
 
 #: utils/InputEngine.cpp:256
-#, fuzzy
-#| msgid "Command 21"
 msgctxt "InputEvent"
 msgid "Command 21"
-msgstr "Команда №21"
+msgstr "Команда 21"
 
 #: utils/InputEngine.cpp:257
-#, fuzzy
-#| msgid "Command 22"
 msgctxt "InputEvent"
 msgid "Command 22"
-msgstr "Команда №22"
+msgstr "Команда 22"
 
 #: utils/InputEngine.cpp:258
-#, fuzzy
-#| msgid "Command 23"
 msgctxt "InputEvent"
 msgid "Command 23"
-msgstr "Команда №23"
+msgstr "Команда 23"
 
 #: utils/InputEngine.cpp:259
-#, fuzzy
-#| msgid "Command 24"
 msgctxt "InputEvent"
 msgid "Command 24"
-msgstr "Команда №24"
+msgstr "Команда 24"
 
 #: utils/InputEngine.cpp:260
-#, fuzzy
-#| msgid "Command 25"
 msgctxt "InputEvent"
 msgid "Command 25"
-msgstr "Команда №25"
+msgstr "Команда 25"
 
 #: utils/InputEngine.cpp:261
-#, fuzzy
-#| msgid "Command 26"
 msgctxt "InputEvent"
 msgid "Command 26"
-msgstr "Команда №26"
+msgstr "Команда 26"
 
 #: utils/InputEngine.cpp:262
-#, fuzzy
-#| msgid "Command 27"
 msgctxt "InputEvent"
 msgid "Command 27"
-msgstr "Команда №27"
+msgstr "Команда 27"
 
 #: utils/InputEngine.cpp:263
-#, fuzzy
-#| msgid "Command 28"
 msgctxt "InputEvent"
 msgid "Command 28"
-msgstr "Команда №28"
+msgstr "Команда 28"
 
 #: utils/InputEngine.cpp:264
-#, fuzzy
-#| msgid "Command 29"
 msgctxt "InputEvent"
 msgid "Command 29"
-msgstr "Команда №29"
+msgstr "Команда 29"
 
 #: utils/InputEngine.cpp:265
-#, fuzzy
-#| msgid "Command 30"
 msgctxt "InputEvent"
 msgid "Command 30"
-msgstr "Команда №30"
+msgstr "Команда 30"
 
 #: utils/InputEngine.cpp:266
-#, fuzzy
-#| msgid "Command 31"
 msgctxt "InputEvent"
 msgid "Command 31"
-msgstr "Команда №31"
+msgstr "Команда 31"
 
 #: utils/InputEngine.cpp:267
-#, fuzzy
-#| msgid "Command 32"
 msgctxt "InputEvent"
 msgid "Command 32"
-msgstr "Команда №32"
+msgstr "Команда 32"
 
 #: utils/InputEngine.cpp:268
-#, fuzzy
-#| msgid "Command 33"
 msgctxt "InputEvent"
 msgid "Command 33"
-msgstr "Команда №33"
+msgstr "Команда 33"
 
 #: utils/InputEngine.cpp:269
-#, fuzzy
-#| msgid "Command 34"
 msgctxt "InputEvent"
 msgid "Command 34"
-msgstr "Команда №34"
+msgstr "Команда 34"
 
 #: utils/InputEngine.cpp:270
-#, fuzzy
-#| msgid "Command 35"
 msgctxt "InputEvent"
 msgid "Command 35"
-msgstr "Команда №35"
+msgstr "Команда 35"
 
 #: utils/InputEngine.cpp:271
-#, fuzzy
-#| msgid "Command 36"
 msgctxt "InputEvent"
 msgid "Command 36"
-msgstr "Команда №36"
+msgstr "Команда 36"
 
 #: utils/InputEngine.cpp:272
-#, fuzzy
-#| msgid "Command 37"
 msgctxt "InputEvent"
 msgid "Command 37"
-msgstr "Команда №37"
+msgstr "Команда 37"
 
 #: utils/InputEngine.cpp:273
-#, fuzzy
-#| msgid "Command 38"
 msgctxt "InputEvent"
 msgid "Command 38"
-msgstr "Команда №38"
+msgstr "Команда 38"
 
 #: utils/InputEngine.cpp:274
-#, fuzzy
-#| msgid "Command 39"
 msgctxt "InputEvent"
 msgid "Command 39"
-msgstr "Команда №39"
+msgstr "Команда 39"
 
 #: utils/InputEngine.cpp:275
-#, fuzzy
-#| msgid "Command 40"
 msgctxt "InputEvent"
 msgid "Command 40"
-msgstr "Команда №40"
+msgstr "Команда 40"
 
 #: utils/InputEngine.cpp:276
-#, fuzzy
-#| msgid "Command 41"
 msgctxt "InputEvent"
 msgid "Command 41"
-msgstr "Команда №41"
+msgstr "Команда 41"
 
 #: utils/InputEngine.cpp:277
-#, fuzzy
-#| msgid "Command 42"
 msgctxt "InputEvent"
 msgid "Command 42"
-msgstr "Команда №42"
+msgstr "Команда 42"
 
 #: utils/InputEngine.cpp:278
-#, fuzzy
-#| msgid "Command 43"
 msgctxt "InputEvent"
 msgid "Command 43"
-msgstr "Команда №43"
+msgstr "Команда 43"
 
 #: utils/InputEngine.cpp:279
-#, fuzzy
-#| msgid "Command 44"
 msgctxt "InputEvent"
 msgid "Command 44"
-msgstr "Команда №44"
+msgstr "Команда 44"
 
 #: utils/InputEngine.cpp:280
-#, fuzzy
-#| msgid "Command 45"
 msgctxt "InputEvent"
 msgid "Command 45"
-msgstr "Команда №45"
+msgstr "Команда 45"
 
 #: utils/InputEngine.cpp:281
-#, fuzzy
-#| msgid "Command 46"
 msgctxt "InputEvent"
 msgid "Command 46"
-msgstr "Команда №46"
+msgstr "Команда 46"
 
 #: utils/InputEngine.cpp:282
-#, fuzzy
-#| msgid "Command 47"
 msgctxt "InputEvent"
 msgid "Command 47"
-msgstr "Команда №47"
+msgstr "Команда 47"
 
 #: utils/InputEngine.cpp:283
-#, fuzzy
-#| msgid "Command 48"
 msgctxt "InputEvent"
 msgid "Command 48"
-msgstr "Команда №48"
+msgstr "Команда 48"
 
 #: utils/InputEngine.cpp:284
-#, fuzzy
-#| msgid "Command 49"
 msgctxt "InputEvent"
 msgid "Command 49"
-msgstr "Команда №49"
+msgstr "Команда 49"
 
 #: utils/InputEngine.cpp:285
-#, fuzzy
-#| msgid "Command 50"
 msgctxt "InputEvent"
 msgid "Command 50"
-msgstr "Команда №50"
+msgstr "Команда 50"
 
 #: utils/InputEngine.cpp:286
-#, fuzzy
-#| msgid "Command 51"
 msgctxt "InputEvent"
 msgid "Command 51"
-msgstr "Команда №51"
+msgstr "Команда 51"
 
 #: utils/InputEngine.cpp:287
-#, fuzzy
-#| msgid "Command 52"
 msgctxt "InputEvent"
 msgid "Command 52"
-msgstr "Команда №52"
+msgstr "Команда 52"
 
 #: utils/InputEngine.cpp:288
-#, fuzzy
-#| msgid "Command 53"
 msgctxt "InputEvent"
 msgid "Command 53"
-msgstr "Команда №53"
+msgstr "Команда 53"
 
 #: utils/InputEngine.cpp:289
-#, fuzzy
-#| msgid "Command 54"
 msgctxt "InputEvent"
 msgid "Command 54"
-msgstr "Команда №54"
+msgstr "Команда 54"
 
 #: utils/InputEngine.cpp:290
-#, fuzzy
-#| msgid "Command 55"
 msgctxt "InputEvent"
 msgid "Command 55"
-msgstr "Команда №55"
+msgstr "Команда 55"
 
 #: utils/InputEngine.cpp:291
-#, fuzzy
-#| msgid "Command 56"
 msgctxt "InputEvent"
 msgid "Command 56"
-msgstr "Команда №56"
+msgstr "Команда 56"
 
 #: utils/InputEngine.cpp:292
-#, fuzzy
-#| msgid "Command 57"
 msgctxt "InputEvent"
 msgid "Command 57"
-msgstr "Команда №57"
+msgstr "Команда 57"
 
 #: utils/InputEngine.cpp:293
-#, fuzzy
-#| msgid "Command 58"
 msgctxt "InputEvent"
 msgid "Command 58"
-msgstr "Команда №58"
+msgstr "Команда 58"
 
 #: utils/InputEngine.cpp:294
-#, fuzzy
-#| msgid "Command 59"
 msgctxt "InputEvent"
 msgid "Command 59"
-msgstr "Команда №59"
+msgstr "Команда 59"
 
 #: utils/InputEngine.cpp:295
-#, fuzzy
-#| msgid "Command 60"
 msgctxt "InputEvent"
 msgid "Command 60"
-msgstr "Команда №60"
+msgstr "Команда 60"
 
 #: utils/InputEngine.cpp:296
-#, fuzzy
-#| msgid "Command 61"
 msgctxt "InputEvent"
 msgid "Command 61"
-msgstr "Команда №61"
+msgstr "Команда 61"
 
 #: utils/InputEngine.cpp:297
-#, fuzzy
-#| msgid "Command 62"
 msgctxt "InputEvent"
 msgid "Command 62"
-msgstr "Команда №62"
+msgstr "Команда 62"
 
 #: utils/InputEngine.cpp:298
-#, fuzzy
-#| msgid "Command 63"
 msgctxt "InputEvent"
 msgid "Command 63"
-msgstr "Команда №63"
+msgstr "Команда 63"
 
 #: utils/InputEngine.cpp:299
-#, fuzzy
-#| msgid "Command 64"
 msgctxt "InputEvent"
 msgid "Command 64"
-msgstr "Команда №64"
+msgstr "Команда 64"
 
 #: utils/InputEngine.cpp:300
-#, fuzzy
-#| msgid "Command 65"
 msgctxt "InputEvent"
 msgid "Command 65"
-msgstr "Команда №65"
+msgstr "Команда 65"
 
 #: utils/InputEngine.cpp:301
-#, fuzzy
-#| msgid "Command 66"
 msgctxt "InputEvent"
 msgid "Command 66"
-msgstr "Команда №66"
+msgstr "Команда 66"
 
 #: utils/InputEngine.cpp:302
-#, fuzzy
-#| msgid "Command 67"
 msgctxt "InputEvent"
 msgid "Command 67"
-msgstr "Команда №67"
+msgstr "Команда 67"
 
 #: utils/InputEngine.cpp:303
-#, fuzzy
-#| msgid "Command 68"
 msgctxt "InputEvent"
 msgid "Command 68"
-msgstr "Команда №68"
+msgstr "Команда 68"
 
 #: utils/InputEngine.cpp:304
-#, fuzzy
-#| msgid "Command 69"
 msgctxt "InputEvent"
 msgid "Command 69"
-msgstr "Команда №69"
+msgstr "Команда 69"
 
 #: utils/InputEngine.cpp:305
-#, fuzzy
-#| msgid "Command 70"
 msgctxt "InputEvent"
 msgid "Command 70"
-msgstr "Команда №70"
+msgstr "Команда 70"
 
 #: utils/InputEngine.cpp:306
-#, fuzzy
-#| msgid "Command 71"
 msgctxt "InputEvent"
 msgid "Command 71"
-msgstr "Команда №71"
+msgstr "Команда 71"
 
 #: utils/InputEngine.cpp:307
-#, fuzzy
-#| msgid "Command 72"
 msgctxt "InputEvent"
 msgid "Command 72"
-msgstr "Команда №72"
+msgstr "Команда 72"
 
 #: utils/InputEngine.cpp:308
-#, fuzzy
-#| msgid "Command 73"
 msgctxt "InputEvent"
 msgid "Command 73"
-msgstr "Команда №73"
+msgstr "Команда 73"
 
 #: utils/InputEngine.cpp:309
-#, fuzzy
-#| msgid "Command 74"
 msgctxt "InputEvent"
 msgid "Command 74"
-msgstr "Команда №74"
+msgstr "Команда 74"
 
 #: utils/InputEngine.cpp:310
-#, fuzzy
-#| msgid "Command 75"
 msgctxt "InputEvent"
 msgid "Command 75"
-msgstr "Команда №75"
+msgstr "Команда 75"
 
 #: utils/InputEngine.cpp:311
-#, fuzzy
-#| msgid "Command 76"
 msgctxt "InputEvent"
 msgid "Command 76"
-msgstr "Команда №76"
+msgstr "Команда 76"
 
 #: utils/InputEngine.cpp:312
-#, fuzzy
-#| msgid "Command 77"
 msgctxt "InputEvent"
 msgid "Command 77"
-msgstr "Команда №77"
+msgstr "Команда 77"
 
 #: utils/InputEngine.cpp:313
-#, fuzzy
-#| msgid "Command 78"
 msgctxt "InputEvent"
 msgid "Command 78"
-msgstr "Команда №78"
+msgstr "Команда 78"
 
 #: utils/InputEngine.cpp:314
-#, fuzzy
-#| msgid "Command 79"
 msgctxt "InputEvent"
 msgid "Command 79"
-msgstr "Команда №79"
+msgstr "Команда 79"
 
 #: utils/InputEngine.cpp:315
-#, fuzzy
-#| msgid "Command 80"
 msgctxt "InputEvent"
 msgid "Command 80"
-msgstr "Команда №80"
+msgstr "Команда 80"
 
 #: utils/InputEngine.cpp:316
-#, fuzzy
-#| msgid "Command 81"
 msgctxt "InputEvent"
 msgid "Command 81"
-msgstr "Команда №81"
+msgstr "Команда 81"
 
 #: utils/InputEngine.cpp:317
-#, fuzzy
-#| msgid "Command 82"
 msgctxt "InputEvent"
 msgid "Command 82"
-msgstr "Команда №82"
+msgstr "Команда 82"
 
 #: utils/InputEngine.cpp:318
-#, fuzzy
-#| msgid "Command 83"
 msgctxt "InputEvent"
 msgid "Command 83"
-msgstr "Команда №83"
+msgstr "Команда 83"
 
 #: utils/InputEngine.cpp:319
-#, fuzzy
-#| msgid "Command 84"
 msgctxt "InputEvent"
 msgid "Command 84"
-msgstr "Команда №84"
+msgstr "Команда 84"
 
 #. Character
 #: utils/InputEngine.cpp:322
@@ -6473,138 +6220,100 @@ msgid "let the character run"
 msgstr "Бег"
 
 #: utils/InputEngine.cpp:328
-#, fuzzy
-#| msgid "sidestep to the left"
 msgctxt "InputEvent"
 msgid "sidestep to the left"
-msgstr "приставной шаг влево"
+msgstr "шаг влево"
 
 #: utils/InputEngine.cpp:329
-#, fuzzy
-#| msgid "sidestep to the right"
 msgctxt "InputEvent"
 msgid "sidestep to the right"
-msgstr "приставной шаг вправо"
+msgstr "шаг вправо"
 
 #: utils/InputEngine.cpp:330
-#, fuzzy
-#| msgid "rotate view up"
 msgctxt "InputEvent"
 msgid "rotate view up"
-msgstr "повернуть взгляд наверх"
+msgstr "повернуть взгляд вверх"
 
 #: utils/InputEngine.cpp:331
-#, fuzzy
-#| msgid "rotate view down"
 msgctxt "InputEvent"
 msgid "rotate view down"
 msgstr "повернуть взгляд вниз"
 
 #. Camera
 #: utils/InputEngine.cpp:334
-#, fuzzy
-#| msgid "change camera mode"
 msgctxt "InputEvent"
 msgid "change camera mode"
-msgstr "Изменить режим камеры"
+msgstr "изменить режим камеры"
 
 #: utils/InputEngine.cpp:335
-#, fuzzy
-#| msgid "look back (toggles between normal and lookback)"
 msgctxt "InputEvent"
 msgid "look back (toggles between normal and lookback)"
-msgstr "посмотреть назад (переключиться между обычным и просмотром назад)"
+msgstr "оглянуться назад (переключиться между обычным и просмотром назад)"
 
 #: utils/InputEngine.cpp:336
-#, fuzzy
-#| msgid "reset the camera position"
 msgctxt "InputEvent"
 msgid "reset the camera position"
-msgstr "сбросить позицию камеры"
+msgstr "сбросить положение камеры"
 
 #: utils/InputEngine.cpp:337
-#, fuzzy
-#| msgid "rotate camera down"
 msgctxt "InputEvent"
 msgid "rotate camera down"
-msgstr "вращать камеру вниз"
+msgstr "повернуть камеру вниз"
 
 #: utils/InputEngine.cpp:338
-#, fuzzy
-#| msgid "rotate camera left"
 msgctxt "InputEvent"
 msgid "rotate camera left"
 msgstr "повернуть камеру влево"
 
 #: utils/InputEngine.cpp:339
-#, fuzzy
-#| msgid "rotate camera right"
 msgctxt "InputEvent"
 msgid "rotate camera right"
-msgstr "вращать камеру в право"
+msgstr "повернуть камеру вправо"
 
 #: utils/InputEngine.cpp:340
-#, fuzzy
-#| msgid "rotate camera up"
 msgctxt "InputEvent"
 msgid "rotate camera up"
 msgstr "повернуть камеру вверх"
 
 #: utils/InputEngine.cpp:341
-#, fuzzy
-#| msgid "zoom camera in"
 msgctxt "InputEvent"
 msgid "zoom camera in"
-msgstr "Приблизить камеру"
+msgstr "приблизить камеру"
 
 #: utils/InputEngine.cpp:342
-#, fuzzy
-#| msgid "zoom camera in faster"
 msgctxt "InputEvent"
 msgid "zoom camera in faster"
-msgstr "Приблизить камеру (быстро)"
+msgstr "приблизить камеру быстро"
 
 #: utils/InputEngine.cpp:343
-#, fuzzy
-#| msgid "zoom camera out"
 msgctxt "InputEvent"
 msgid "zoom camera out"
-msgstr "Отдалить камеру"
+msgstr "отдалить камеру"
 
 #: utils/InputEngine.cpp:344
-#, fuzzy
-#| msgid "zoom camera out faster"
 msgctxt "InputEvent"
 msgid "zoom camera out faster"
-msgstr "Отдалить камеру (быстро)"
+msgstr "отдалить камеру быстро"
 
 #: utils/InputEngine.cpp:345
-#, fuzzy
-#| msgid "fix the camera to a position"
 msgctxt "InputEvent"
 msgid "fix the camera to a position"
-msgstr "закрепить камеру в позиции"
+msgstr "закрепить камеру в нужном положении"
 
 #: utils/InputEngine.cpp:346
-#, fuzzy
-#| msgid "enable / disable free camera mode"
 msgctxt "InputEvent"
 msgid "enable / disable free camera mode"
-msgstr "включить/выключить свободную камеру"
+msgstr "включить/выключить режим свободной камеры"
 
 #: utils/InputEngine.cpp:347
-#, fuzzy
-#| msgid "move camera up"
 msgctxt "InputEvent"
 msgid "move camera up"
-msgstr "перемещать камеру вверх"
+msgstr "переместить камеру вверх"
 
 #: utils/InputEngine.cpp:348
-#, fuzzy
-#| msgid "move camera down"
 msgctxt "InputEvent"
 msgid "move camera down"
-msgstr "перемещать камеру вниз"
+msgstr "переместить камеру вниз"
 
 #. Sky
 #: utils/InputEngine.cpp:351
