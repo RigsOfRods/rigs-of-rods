@@ -959,7 +959,7 @@ float EngineSim::getGearRatio(int pos)
         return 0.f;
 
     // Strip off the DiffRatio and TCaseRatio from the internal gear ratio
-    return (m_gear_ratios[pos] / m_tcase_ratio) / m_diff_ratio;
+    return (m_gear_ratios[pos + 2] / m_tcase_ratio) / m_diff_ratio;
 }
 
 // for hydros acceleration

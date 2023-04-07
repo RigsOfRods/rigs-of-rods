@@ -49,7 +49,7 @@ public:
     float          getShiftTime() const; //!< Time (in seconds) that it takes to shift ('engoption' attr #4)
     float          getClutchTime() const; //!< Time (in seconds) the clutch takes to apply ('engoption' attr #5)
     float          getPostShiftTime() const; //!< Time (in seconds) until full torque is transferred ('engoption' attr #6)
-    float          getStallRMP() const; //!< ('engoption' attr #7)
+    float          getStallRPM() const; //!< ('engoption' attr #7)
     float          getIdleRPM() const; //!< ('engoption' attr #8)
     float          getMaxIdleMixture() const; //!< Maximum throttle to maintain the idle RPM ('engoption' attr #9)
     float          getMinIdleMixture() const; //!< Minimum throttle to maintain the idle RPM ('engoption' attr #10)

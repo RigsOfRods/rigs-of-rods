@@ -70,7 +70,7 @@ void RoR::RegisterEngineSim(asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("EngineSimClass", "float getShiftTime() const", asMETHOD(EngineSim, getShiftTime), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("EngineSimClass", "float getClutchTime() const", asMETHOD(EngineSim, getClutchTime), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("EngineSimClass", "float getPostShiftTime() const", asMETHOD(EngineSim, getPostShiftTime), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("EngineSimClass", "float getStallRMP() const", asMETHOD(EngineSim, getStallRMP), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("EngineSimClass", "float getStallRPM() const", asMETHOD(EngineSim, getStallRPM), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("EngineSimClass", "float getIdleRPM() const", asMETHOD(EngineSim, getIdleRPM), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("EngineSimClass", "float getMaxIdleMixture() const", asMETHOD(EngineSim, getMaxIdleMixture), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("EngineSimClass", "float getMinIdleMixture() const", asMETHOD(EngineSim, getMinIdleMixture), asCALL_THISCALL); ROR_ASSERT(r >= 0);
