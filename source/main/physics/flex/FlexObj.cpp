@@ -183,14 +183,13 @@ int FlexObj::ComputeVertexPos(int tidx, int v, std::vector<CabSubmesh>& submeshe
     return 0;
 }
 
-Vector3 FlexObj::UpdateMesh()
+void FlexObj::UpdateMesh()
 {
     RoR::NodeSB* all_nodes = m_gfx_actor->GetSimNodeBuffer();
-    Ogre::Vector3 center=(all_nodes[m_vertex_nodes[0]].AbsPosition+all_nodes[m_vertex_nodes[1]].AbsPosition)/2.0;
     for (size_t i=0; i<m_vertex_count; i++)
     {
-        //set position
-        m_vertices[i].position=all_nodes[m_vertex_nodes[i]].AbsPosition-center;
+        //set position (the scene node is at physics origin, so use node relative position)
+        m_vertices[i].position=all_nodes[m_vertex_nodes[i]].RelPosition;
         //reset normals
         m_vertices[i].normal=Vector3::ZERO;
     }
@@ -198,8 +197,8 @@ Vector3 FlexObj::UpdateMesh()
     for (size_t i=0; i<m_index_count/3; i++)
     {
         Vector3 v1, v2;
-        v1=all_nodes[m_vertex_nodes[m_indices[i*3+1]]].AbsPosition-all_nodes[m_vertex_nodes[m_indices[i*3]]].AbsPosition;
-        v2=all_nodes[m_vertex_nodes[m_indices[i*3+2]]].AbsPosition-all_nodes[m_vertex_nodes[m_indices[i*3]]].AbsPosition;
+        v1=all_nodes[m_vertex_nodes[m_indices[i*3+1]]].RelPosition-all_nodes[m_vertex_nodes[m_indices[i*3]]].RelPosition;
+        v2=all_nodes[m_vertex_nodes[m_indices[i*3+2]]].RelPosition-all_nodes[m_vertex_nodes[m_indices[i*3]]].RelPosition;
         v1=v1.crossProduct(v2);
         float s=v1.length();
 
@@ -223,15 +222,12 @@ Vector3 FlexObj::UpdateMesh()
     {
         m_vertices[i].normal = approx_normalise(m_vertices[i].normal);
     }
-
-    return center;
 }
 
-Vector3 FlexObj::UpdateFlexObj()
+void FlexObj::UpdateFlexObj()
 {
-    Ogre::Vector3 center = this->UpdateMesh();
+    this->UpdateMesh();
     m_hw_vbuf->writeData(0, m_hw_vbuf->getSizeInBytes(), m_vertices_raw, true);
-    return center;
 }
 
 FlexObj::~FlexObj()

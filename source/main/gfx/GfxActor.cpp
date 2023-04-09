@@ -1815,7 +1815,8 @@ void RoR::GfxActor::UpdateCabMesh()
 {
     if ((m_cab_entity != nullptr) && (m_cab_mesh != nullptr))
     {
-        m_cab_scene_node->setPosition(m_cab_mesh->UpdateFlexObj());
+        m_cab_scene_node->setPosition(m_simbuf.simbuf_origin);
+        m_cab_mesh->UpdateFlexObj();
     }
 }
 
