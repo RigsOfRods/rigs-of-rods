@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2023-04-02 13:23+0000\n"
+"PO-Revision-Date: 2023-04-09 11:08+0000\n"
 "Last-Translator: Сергей <asvmail.as@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
@@ -139,7 +139,7 @@ msgstr "Полное (Качество)"
 #: Application.cpp:406
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "Отсутствует"
 
 #: Application.cpp:407
 msgctxt "GfxTexFilter"
@@ -209,22 +209,22 @@ msgstr "HydraX"
 #: Application.cpp:444
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "Отсутствует"
 
 #: Application.cpp:445
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "Статический"
 
 #: Application.cpp:446
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "Покачивание"
 
 #: Application.cpp:455
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "Отсутствует"
 
 #: Application.cpp:456
 #, fuzzy
@@ -2335,8 +2335,6 @@ msgid "Users"
 msgstr "Пользователи"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:282
-#, fuzzy
-#| msgid "Version"
 msgctxt "MultiplayerSelector"
 msgid "Version"
 msgstr "Версия"
@@ -2357,11 +2355,9 @@ msgid "Node/Beam Utils"
 msgstr ""
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:49
-#, fuzzy
-#| msgid "Total mass: "
 msgctxt "NodeBeamUtils"
 msgid "Total mass"
-msgstr "Полная масса:"
+msgstr "Полная масса"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:56
 msgctxt "NodeBeamUtils"
@@ -2432,8 +2428,6 @@ msgid "Reset search"
 msgstr "Сбросить поиск"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:156
-#, fuzzy
-#| msgid "Search Results"
 msgctxt "NodeBeamUtils"
 msgid "Search results"
 msgstr "Результаты поиска"
@@ -2508,7 +2502,7 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:888
 msgctxt "RepositorySelector"
 msgid "Downloads"
-msgstr ""
+msgstr "Загрузки"
 
 #: gui/panels/GUI_RepositorySelector.cpp:473
 #: gui/panels/GUI_RepositorySelector.cpp:764
@@ -2549,7 +2543,7 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:532
 msgctxt "RepositorySelector"
 msgid "Details:"
-msgstr ""
+msgstr "Детали:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:535
 msgctxt "RepositorySelector"
@@ -2559,12 +2553,12 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:541
 msgctxt "RepositorySelector"
 msgid "Resource ID:"
-msgstr ""
+msgstr "ID ресурса:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:547
 msgctxt "RepositorySelector"
 msgid "Category:"
-msgstr ""
+msgstr "Категория:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:561
 msgctxt "RepositorySelector"
@@ -2574,7 +2568,7 @@ msgstr "Описание:"
 #: gui/panels/GUI_RepositorySelector.cpp:567
 msgctxt "RepositorySelector"
 msgid "Downloads:"
-msgstr ""
+msgstr "Загрузки:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:573
 msgctxt "RepositorySelector"
@@ -2587,11 +2581,9 @@ msgid "Rating:"
 msgstr "Рейтинг:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:585
-#, fuzzy
-#| msgid "Triangle Count: "
 msgctxt "RepositorySelector"
 msgid "Rating Count:"
-msgstr "Количество треугольников: "
+msgstr "Подсчет рейтинга:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:591
 msgctxt "RepositorySelector"
@@ -2669,7 +2661,7 @@ msgstr "Описание"
 #: gui/panels/GUI_RepositorySelector.cpp:994
 msgctxt "RepositorySelector"
 msgid "Downloaded"
-msgstr ""
+msgstr "Скачано"
 
 #: gui/panels/GUI_RepositorySelector.cpp:994
 msgctxt "RepositorySelector"
@@ -3114,11 +3106,9 @@ msgid "Waves Height:"
 msgstr "Высота"
 
 #: gui/panels/GUI_TopMenubar.cpp:590
-#, fuzzy
-#| msgid "Vehicle position: "
 msgctxt "TopMenubar"
 msgid "Vehicle control options:"
-msgstr "Позиция транспортного средства: "
+msgstr "Варианты управления транспортного средства:"
 
 #: gui/panels/GUI_TopMenubar.cpp:591
 msgctxt "TopMenubar"
@@ -3699,7 +3689,7 @@ msgstr "Установка соединения..."
 
 #: network/Network.cpp:431
 msgid "Could not create connection"
-msgstr ""
+msgstr "Не удалось создать соединение"
 
 #: network/Network.cpp:435
 msgctxt "Network"
@@ -3768,7 +3758,7 @@ msgstr "Установка соединения: извините, неизве�
 #: network/Network.cpp:545
 msgctxt "Network"
 msgid "Finishing..."
-msgstr ""
+msgstr "Завершение..."
 
 #: network/Network.cpp:798
 msgctxt "NetUserAuth"
@@ -3781,11 +3771,9 @@ msgid "Mod"
 msgstr "Модератор"
 
 #: network/Network.cpp:800 network/Network.cpp:810
-#, fuzzy
-#| msgid "Boat"
 msgctxt "NetUserAuth"
 msgid "Bot"
-msgstr "Лодка"
+msgstr "Бот"
 
 #: network/Network.cpp:801
 msgctxt "NetUserAuth"
@@ -4447,7 +4435,7 @@ msgstr "Инициализация Подсистемы Скриптов"
 #. END Hack for GameScript::spawnObject()
 #: terrain/Terrain.cpp:197
 msgid "Initializing Water Subsystem"
-msgstr "Инициализация Подсистемы Воды"
+msgstr "Инициализация Подсистемы воды"
 
 #: terrain/Terrain.cpp:200
 msgid "Loading Terrain Objects"
@@ -4846,11 +4834,9 @@ msgid "enter the chat"
 msgstr "войти в чат"
 
 #: utils/InputEngine.cpp:86
-#, fuzzy
-#| msgid "sends the entered text"
 msgctxt "InputEvent"
 msgid "sends the entered text"
-msgstr "отправляет введённый текст "
+msgstr "отправляет введённый текст"
 
 #: utils/InputEngine.cpp:87
 #, fuzzy
@@ -5563,8 +5549,6 @@ msgid "toggle between transmission modes"
 msgstr "переключение между видом трансмиссий"
 
 #: utils/InputEngine.cpp:199
-#, fuzzy
-#| msgid "normal brake for an aircraft"
 msgctxt "InputEvent"
 msgid "normal brake for an aircraft"
 msgstr "колёсный тормоз самолёта"
