@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2023-04-09 11:08+0000\n"
+"PO-Revision-Date: 2023-04-09 23:49+0000\n"
 "Last-Translator: Сергей <asvmail.as@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
@@ -2067,18 +2067,14 @@ msgid "[unpacked in directory]"
 msgstr "[распакован в директории]"
 
 #: gui/panels/GUI_MainSelector.cpp:343
-#, fuzzy
-#| msgid "Source: "
 msgctxt "MainSelector"
 msgid "Source: "
-msgstr "Расположение: "
+msgstr "Источник: "
 
 #: gui/panels/GUI_MainSelector.cpp:350
-#, fuzzy
-#| msgid "Filename: "
 msgctxt "MainSelector"
 msgid "Filename: "
-msgstr "Имя файла: "
+msgstr "Название файла: "
 
 #: gui/panels/GUI_MainSelector.cpp:356
 msgctxt "MainSelector"
@@ -2086,22 +2082,16 @@ msgid "Show details"
 msgstr "Показать подробности"
 
 #: gui/panels/GUI_MainSelector.cpp:367
-#, fuzzy
-#| msgid "Configuration error"
 msgctxt "MainSelector"
 msgid "Configuration"
-msgstr "Ошибка конфигурации"
+msgstr "Конфигурация"
 
 #: gui/panels/GUI_MainSelector.cpp:373
-#, fuzzy
-#| msgid "OK"
 msgctxt "MainSelector"
 msgid "OK"
 msgstr "ОК"
 
 #: gui/panels/GUI_MainSelector.cpp:380
-#, fuzzy
-#| msgid "Cancel"
 msgctxt "MainSelector"
 msgid "Cancel"
 msgstr "Отменить"
@@ -2109,27 +2099,23 @@ msgstr "Отменить"
 #: gui/panels/GUI_MessageBox.cpp:110
 msgctxt "MessageBox"
 msgid "Always ask"
-msgstr ""
+msgstr "Всегда спрашивать"
 
 #. TextDisabled() are captions, Text() are values
 #: gui/panels/GUI_MultiplayerClientList.cpp:146
-#, fuzzy
-#| msgid "user name"
 msgctxt "MultiplayerClientList"
 msgid "user name"
-msgstr "Имя пользователя"
+msgstr "имя пользователя"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:151
 msgctxt "MultiplayerClientList"
 msgid "user uid"
-msgstr ""
+msgstr "идентификатор пользователя"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:155
-#, fuzzy
-#| msgid "user language: "
 msgctxt "MultiplayerClientList"
 msgid "user language: "
-msgstr "Язык пользователя: "
+msgstr "язык пользователя: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:159
 msgctxt "MultiplayerClientList"
@@ -2200,11 +2186,9 @@ msgid "No Trucks loaded"
 msgstr "Нет загруженных транспортных средств"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:226
-#, fuzzy
-#| msgid "Slow  Network  Download"
 msgctxt "MultiplayerClientList"
 msgid "Slow  Network  Download"
-msgstr "Медленная закачка"
+msgstr "Медленное  скачивание  по сети"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:84
 msgctxt "MultiplayerSelector"
@@ -2217,8 +2201,6 @@ msgid "Server returned invalid data :("
 msgstr ""
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:114
-#, fuzzy
-#| msgid "None"
 msgctxt "MultiplayerSelector"
 msgid "No"
 msgstr "Нет"
@@ -2239,8 +2221,6 @@ msgid "Direct IP"
 msgstr ""
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:165
-#, fuzzy
-#| msgid "Settings"
 msgctxt "MultiplayerSelector"
 msgid "Settings"
 msgstr "Настройки"
@@ -2273,11 +2253,9 @@ msgid "Multiplayer collisions"
 msgstr "Коллизии в Мультиплеере"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:195
-#, fuzzy
-#| msgid "Player Information"
 msgctxt "MultiplayerSelector"
 msgid "Player nickname"
-msgstr "Информация об игроке"
+msgstr "Псевдоним игрока"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:196
 msgctxt "MultiplayerSelector"
@@ -2297,19 +2275,15 @@ msgid "Server host"
 msgstr "Модератор сервера"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:213
-#, fuzzy
-#| msgid "Server Moderator"
 msgctxt "MultiplayerSelector"
 msgid "Server port"
-msgstr "Модератор сервера"
+msgstr "Порт сервера"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:214
 #: gui/panels/GUI_MultiplayerSelector.cpp:346
-#, fuzzy
-#| msgid "Server Moderator"
 msgctxt "MultiplayerSelector"
 msgid "Server password"
-msgstr "Модератор сервера"
+msgstr "Пароль сервера"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:218
 #: gui/panels/GUI_MultiplayerSelector.cpp:334
