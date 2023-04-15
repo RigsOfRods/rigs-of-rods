@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2023-04-09 23:49+0000\n"
+"PO-Revision-Date: 2023-04-15 23:52+0000\n"
 "Last-Translator: Сергей <asvmail.as@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/ru/>\n"
@@ -6304,39 +6304,29 @@ msgstr "Ускорение времени (быстро)"
 
 #. Grass
 #: utils/InputEngine.cpp:357
-#, fuzzy
-#| msgid "EXPERIMENTAL: remove some grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove some grass"
 msgstr "ЭКСПЕРИМЕНТАЛЬНОЕ: убрать часть травы"
 
 #: utils/InputEngine.cpp:358
-#, fuzzy
-#| msgid "EXPERIMENTAL: add some grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: add some grass"
 msgstr "ЭКСПЕРИМЕНТАЛЬНОЕ: добавить немного травы"
 
 #: utils/InputEngine.cpp:359
-#, fuzzy
-#| msgid "EXPERIMENTAL: set maximum amount of grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: set maximum amount of grass"
 msgstr "ЭКСПЕРИМЕНТАЛЬНОЕ: установить максимальное количество травы"
 
 #: utils/InputEngine.cpp:360
-#, fuzzy
-#| msgid "EXPERIMENTAL: remove grass completely"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove grass completely"
-msgstr "ЭКСПЕРИМЕНТАЛЬНОЕ: убрать траву полностью"
+msgstr "ЭКСПЕРИМЕНТАЛЬНОЕ: полностью убрать траву"
 
 #: utils/InputEngine.cpp:361
-#, fuzzy
-#| msgid "EXPERIMENTAL: save changes to the grass density image"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: save changes to the grass density image"
-msgstr "ЭКСПЕРИМЕНТАЛЬНОЕ: сохранить изменения плотности травы"
+msgstr "ЭКСПЕРИМЕНТАЛЬНОЕ: сохранить изменения в изображении плотности травы"
 
 #. Survey map
 #: utils/InputEngine.cpp:364
@@ -6372,36 +6362,26 @@ msgstr "уменьшить"
 
 #. Menu
 #: utils/InputEngine.cpp:371
-#, fuzzy
-#| msgid "select next element in current category"
 msgctxt "InputEvent"
 msgid "select next element in current category"
 msgstr "выбрать следующий элемент в текущей категории"
 
 #: utils/InputEngine.cpp:372
-#, fuzzy
-#| msgid "select previous category"
 msgctxt "InputEvent"
 msgid "select previous category"
 msgstr "выбрать предыдущую категорию"
 
 #: utils/InputEngine.cpp:373
-#, fuzzy
-#| msgid "select next category"
 msgctxt "InputEvent"
 msgid "select next category"
 msgstr "выбрать следующую категорию"
 
 #: utils/InputEngine.cpp:374
-#, fuzzy
-#| msgid "select focussed item and close menu"
 msgctxt "InputEvent"
 msgid "select focussed item and close menu"
 msgstr "выбрать текущий объект и закрыть меню"
 
 #: utils/InputEngine.cpp:375
-#, fuzzy
-#| msgid "select previous element in current category"
 msgctxt "InputEvent"
 msgid "select previous element in current category"
 msgstr "выбрать предыдущий элемент текущей категории"
