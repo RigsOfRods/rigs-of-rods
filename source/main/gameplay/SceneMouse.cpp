@@ -93,7 +93,7 @@ void SceneMouse::releaseMousePick()
 
     // remove forces
     if (grab_truck)
-        grab_truck->mouseMove(minnode, Vector3::ZERO, 0);
+        grab_truck->clearNodeEffectForceTowardsPoint(minnode);
 
     this->reset();
 }
@@ -198,7 +198,8 @@ void SceneMouse::UpdateSimulation()
         lastgrabpos = mouseRay.getPoint(mindist);
 
         // add forces
-        grab_truck->mouseMove(minnode, lastgrabpos, MOUSE_GRAB_FORCE);
+        grab_truck->clearNodeEffectForceTowardsPoint(minnode);
+        grab_truck->addNodeEffectForceTowardsPoint(minnode, lastgrabpos, MOUSE_GRAB_FORCE);
     }
 }
 

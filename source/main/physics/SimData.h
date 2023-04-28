@@ -664,6 +664,19 @@ struct PropAnimKeyState
     events event_id = EV_MODE_LAST; // invalid
 };
 
+struct NodeEffectConstantForce
+{
+    NodeNum_t nodenum;
+    Ogre::Vector3 force; //!< Newtons
+};
+
+struct NodeEffectForceTowardsPoint
+{
+    NodeNum_t nodenum;
+    Ogre::Vector3 point;
+    float force; //!< Newtons
+};
+
 /// @}
 
 // --------------------------------

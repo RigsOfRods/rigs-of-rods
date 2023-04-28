@@ -59,7 +59,7 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
     this->CalcCommands(doUpdate);
     this->CalcTies();
     this->CalcTruckEngine(doUpdate); // must be done after the commands / engine triggers are updated
-    this->CalcMouse();
+    this->CalcNodeEffects();
     this->CalcBeams(doUpdate);
     this->CalcCabCollisions();
     this->updateSlideNodeForces(PHYSICS_DT); // must be done after the contacters are updated
@@ -91,12 +91,17 @@ void Actor::CalcForceFeedback(bool doUpdate)
     }
 }
 
-void Actor::CalcMouse()
+void Actor::CalcNodeEffects()
 {
-    if (m_mouse_grab_node != NODENUM_INVALID)
+    for (const NodeEffectConstantForce& e : ar_node_effects_constant_force)
     {
-        Vector3 dir = m_mouse_grab_pos - ar_nodes[m_mouse_grab_node].AbsPosition;
-        ar_nodes[m_mouse_grab_node].Forces += m_mouse_grab_move_force * dir;
+        ar_nodes[e.nodenum].Forces += e.force;
+    }
+
+    for (const NodeEffectForceTowardsPoint& e : ar_node_effects_force_towards_point)
+    {
+        const Vector3 dir = e.point - ar_nodes[e.nodenum].AbsPosition;
+        ar_nodes[e.nodenum].Forces += e.force * dir;
     }
 }
 
