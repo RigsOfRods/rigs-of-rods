@@ -45,6 +45,8 @@ static inline ImVec2& operator-=(ImVec2& lhs, const ImVec2& rhs)                
 static inline ImVec2& operator*=(ImVec2& lhs, const float rhs)                  { lhs.x *= rhs; lhs.y *= rhs; return lhs; }
 static inline ImVec2& operator/=(ImVec2& lhs, const float rhs)                  { lhs.x /= rhs; lhs.y /= rhs; return lhs; }
 
+static inline ImVec4 operator*(const ImVec4& lhs, const float rhs)             { return ImVec4(lhs.x*rhs, lhs.y*rhs, lhs.z*rhs, lhs.w*rhs); }
+
 /// DearIMGUI integration.
 /// Input handling is done by injecting OIS events to ImGUI
 /// Rendering is done via port of Ogre::ImGuiOverlay; this is temporary until we migrate to OGRE 1.12.x

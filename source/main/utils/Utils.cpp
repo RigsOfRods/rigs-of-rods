@@ -39,6 +39,7 @@
 #endif
 
 using namespace Ogre;
+using namespace RoR;
 
 String RoR::sha1sum(const char *key, int len)
 {

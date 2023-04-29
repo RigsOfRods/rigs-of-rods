@@ -74,7 +74,9 @@ void DrawGCombo(CVar* cvar, const char* label, const char* values);
 
 Ogre::TexturePtr FetchIcon(const char* name);
 
-ImDrawList* GetImDummyFullscreenWindow();
+ImDrawList* GetImDummyFullscreenWindow(const char* name = nullptr);
+
+bool GetScreenPosFromWorldPos(Ogre::Vector3 const& world_pos, Ogre::Vector2& out_screen);
 
 // Helpers for coposing combobox item strings.
 void ImAddItemToComboboxString(std::string& target, std::string const& item);

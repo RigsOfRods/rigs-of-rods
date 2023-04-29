@@ -20,6 +20,7 @@
 #include "GUIUtils.h"
 
 #include "Actor.h"
+#include "Utils.h"
 
 #include "imgui_internal.h" // ImTextCharFromUtf8
 #include <regex>
@@ -350,8 +351,10 @@ Ogre::TexturePtr RoR::FetchIcon(const char* name)
     return Ogre::TexturePtr(); // null
 }
 
-ImDrawList* RoR::GetImDummyFullscreenWindow()
+ImDrawList* RoR::GetImDummyFullscreenWindow(const char* name /* = nullptr*/)
 {
+    name = (name != nullptr) ? name : "RoR_DefaultTransparentFullscreenWindow";
+
     ImVec2 screen_size = ImGui::GetIO().DisplaySize;
 
     // Dummy fullscreen window to draw to
@@ -360,12 +363,29 @@ ImDrawList* RoR::GetImDummyFullscreenWindow()
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(screen_size);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
-    ImGui::Begin("RoR_TransparentFullscreenWindow", NULL, window_flags);
+    ImGui::Begin(name, nullptr, window_flags);
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
 
     return drawlist;
+}
+
+bool RoR::GetScreenPosFromWorldPos(Ogre::Vector3 const& world_pos, Ogre::Vector2& out_screen)
+{
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+    RoR::World2ScreenConverter world2screen(
+        RoR::App::GetCameraManager()->GetCamera()->getViewMatrix(true),
+        RoR::App::GetCameraManager()->GetCamera()->getProjectionMatrix(),
+        Ogre::Vector2(screen_size.x, screen_size.y));
+    Ogre::Vector3 pos_xyz = world2screen.Convert(world_pos);
+    if (pos_xyz.z < 0.f)
+    {
+        out_screen.x = pos_xyz.x;
+        out_screen.y = pos_xyz.y;
+        return true;
+    }
+    return false;
 }
 
 void RoR::ImAddItemToComboboxString(std::string& target, std::string const& item)

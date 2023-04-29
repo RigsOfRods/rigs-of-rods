@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2014 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -35,6 +35,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
 class SceneMouse
 {
 public:
@@ -56,15 +59,45 @@ protected:
     Ogre::SceneNode* pickLineNode;
     int mouseGrabState;
 
+    ActorPtr grab_truck; // grabbed node truck
+    Ogre::Vector3 lastgrabpos;
+
+    /// @name Mouse node selection with animated highlights: 1. closest node 2. surrounding nodes (animated by distance)
+    /// @{
+    
+    const float HIGHLIGHT_SPHERE_SIZE = 1.f; //!< in meters
+    const float GRAB_SPHERE_SIZE = 0.1f; //!< in meters
+    const ImVec4 MINNODE_COLOR = ImVec4(1.f, 0.8f, 0.3f, 1.f);
+    const float MINNODE_RADIUS = 2;
+    const ImVec4 HIGHLIGHTED_NODE_COLOR = ImVec4(0.7f, 1.f, 0.4f, 1.f);
+    const float HIGHLIGHTED_NODE_RADIUS_MAX = 10; //!< in pixels
+    const float HIGHLIGHTED_NODE_RADIUS_MIN = 0.5; //!< in pixels
+    
+    struct HighlightedNode
+    {
+        float distance;
+        NodeNum_t nodenum;
+    };
+
+    // the grabbable node
     NodeNum_t minnode = NODENUM_INVALID;
     float mindist;
-    ActorPtr grab_truck;
-    Ogre::Vector3 lastgrabpos;
-    int lastMouseX, lastMouseY;
+    ActorPtr mintruck;
+
+    // surrounding nodes
+    std::vector<HighlightedNode> highlightedNodes;
+    float highlightedNodesTopDistance;
+    ActorPtr highlightedTruck;
+
+    /// @}
 
     void releaseMousePick();
     Ogre::Ray getMouseRay();
     void reset();
+    void updateMouseHighlights(ActorPtr actor);
+    void drawMouseHighlights();
 };
+
+/// @}
 
 } // namespace RoR
