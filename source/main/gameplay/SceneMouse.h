@@ -55,10 +55,7 @@ public:
 
 protected:
 
-    Ogre::ManualObject* pickLine;
-    Ogre::SceneNode* pickLineNode;
     int mouseGrabState;
-
     ActorPtr grab_truck; // grabbed node truck
     Ogre::Vector3 lastgrabpos;
 
@@ -67,12 +64,9 @@ protected:
     
     const float HIGHLIGHT_SPHERE_SIZE = 1.f; //!< in meters
     const float GRAB_SPHERE_SIZE = 0.1f; //!< in meters
-    const ImVec4 MINNODE_COLOR = ImVec4(1.f, 0.8f, 0.3f, 1.f);
-    const float MINNODE_RADIUS = 2;
-    const ImVec4 HIGHLIGHTED_NODE_COLOR = ImVec4(0.7f, 1.f, 0.4f, 1.f);
-    const float HIGHLIGHTED_NODE_RADIUS_MAX = 10; //!< in pixels
-    const float HIGHLIGHTED_NODE_RADIUS_MIN = 0.5; //!< in pixels
-    
+    const float FORCE_NEWTONS_TO_LINE_LENGTH_RATIO = 15.5f;
+    // Colors and scales are defined in GUI Theme, see GUIManager.h
+
     struct HighlightedNode
     {
         float distance;
@@ -96,6 +90,7 @@ protected:
     void reset();
     void updateMouseHighlights(ActorPtr actor);
     void drawMouseHighlights();
+    void drawNodeEffects();
 };
 
 /// @}

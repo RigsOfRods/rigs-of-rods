@@ -42,51 +42,19 @@ using namespace RoR;
 
 SceneMouse::SceneMouse() :
     mouseGrabState(0),
-    grab_truck(nullptr),
-    pickLine(nullptr),
-    pickLineNode(nullptr)
+    grab_truck(nullptr)
 {
     this->reset();
 }
 
 void SceneMouse::InitializeVisuals()
 {
-    // load 3d line for mouse picking
-    pickLine = App::GetGfxScene()->GetSceneManager()->createManualObject("PickLineObject");
-    pickLineNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("PickLineNode");
 
-    MaterialPtr pickLineMaterial = MaterialManager::getSingleton().getByName("PickLineMaterial", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-    if (pickLineMaterial.isNull())
-    {
-        pickLineMaterial = MaterialManager::getSingleton().create("PickLineMaterial", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-    }
-    pickLineMaterial->setReceiveShadows(false);
-    pickLineMaterial->getTechnique(0)->setLightingEnabled(true);
-    pickLineMaterial->getTechnique(0)->getPass(0)->setDiffuse(0, 0, 1, 0);
-    pickLineMaterial->getTechnique(0)->getPass(0)->setAmbient(0, 0, 1);
-    pickLineMaterial->getTechnique(0)->getPass(0)->setSelfIllumination(0, 0, 1);
-
-    pickLine->begin("PickLineMaterial", RenderOperation::OT_LINE_LIST);
-    pickLine->position(0, 0, 0);
-    pickLine->position(0, 0, 0);
-    pickLine->end();
-    pickLineNode->attachObject(pickLine);
-    pickLineNode->setVisible(false);
 }
 
 void SceneMouse::DiscardVisuals()
 {
-    if (pickLineNode != nullptr)
-    {
-        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeAndDestroyChild("PickLineNode");
-        pickLineNode = nullptr;
-    }
 
-    if (pickLine != nullptr)
-    {
-        App::GetGfxScene()->GetSceneManager()->destroyManualObject("PickLineObject");
-        pickLine = nullptr;
-    }
 }
 
 void SceneMouse::releaseMousePick()
@@ -250,22 +218,71 @@ void SceneMouse::drawMouseHighlights()
     drawlist->ChannelsSplit(2);
 
     Vector2 screenPos;
+    const GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
     for (const HighlightedNode& hnode : highlightedNodes)
     {
         if (GetScreenPosFromWorldPos(actor->ar_nodes[hnode.nodenum].AbsPosition, /*out:*/screenPos))
         {
+            float animRatio = 1.f - (hnode.distance / highlightedNodesTopDistance); // the closer the bigger
+            float radius = (theme.mouse_highlighted_node_radius_max - theme.mouse_highlighted_node_radius_min) * animRatio;
+
             if (hnode.nodenum == minnode)
             {
                 drawlist->ChannelsSetCurrent(LAYER_MINNODE);
-                drawlist->AddCircle(ImVec2(screenPos.x, screenPos.y), MINNODE_RADIUS, ImColor(MINNODE_COLOR));
+                drawlist->AddCircle(ImVec2(screenPos.x, screenPos.y),
+                    radius, ImColor(theme.mouse_minnode_color),
+                    theme.node_circle_num_segments, theme.mouse_minnode_thickness);
             }
 
-            float animRatio = 1.f - (hnode.distance / highlightedNodesTopDistance); // the closer the bigger
-            float radius = (HIGHLIGHTED_NODE_RADIUS_MAX - HIGHLIGHTED_NODE_RADIUS_MIN) * animRatio;
-            ImVec4 color = HIGHLIGHTED_NODE_COLOR * animRatio;
+            ImVec4 color = theme.mouse_highlighted_node_color * animRatio;
             color.w = 1.f; // no transparency
             drawlist->ChannelsSetCurrent(LAYER_HIGHLIGHTS);
-            drawlist->AddCircleFilled(ImVec2(screenPos.x, screenPos.y), radius, ImColor(color));
+            drawlist->AddCircleFilled(ImVec2(screenPos.x, screenPos.y), radius, ImColor(color), theme.node_circle_num_segments);
+        }
+    }
+
+    drawlist->ChannelsMerge();
+}
+
+void SceneMouse::drawNodeEffects()
+{
+    const GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    ImDrawList* drawlist = GetImDummyFullscreenWindow("Node effect view");
+    const int LAYER_LINES = 0;
+    const int LAYER_CIRCLES = 1;
+    drawlist->ChannelsSplit(2);
+
+    for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+    {
+        if (actor->ar_state != ActorState::LOCAL_SIMULATED)
+            continue;
+
+        for (const NodeEffectConstantForce& e : actor->ar_node_effects_constant_force)
+        {
+            Vector2 nodeScreenPos, pointScreenPos;
+            Vector3 pointWorldPos = actor->ar_nodes[e.nodenum].AbsPosition + (e.force * FORCE_NEWTONS_TO_LINE_LENGTH_RATIO);
+            if (GetScreenPosFromWorldPos(actor->ar_nodes[e.nodenum].AbsPosition, nodeScreenPos)
+                && GetScreenPosFromWorldPos(pointWorldPos, nodeScreenPos))
+            {
+                drawlist->ChannelsSetCurrent(LAYER_LINES);
+                drawlist->AddLine(ImVec2(nodeScreenPos.x, nodeScreenPos.y), ImVec2(pointScreenPos.x, pointScreenPos.y),
+                    ImColor(theme.node_effect_force_line_color), theme.node_effect_force_line_thickness);
+            }
+        }
+
+        for (const NodeEffectForceTowardsPoint& e : actor->ar_node_effects_force_towards_point)
+        {
+            Vector2 nodeScreenPos, pointScreenPos;
+            if (GetScreenPosFromWorldPos(actor->ar_nodes[e.nodenum].AbsPosition, nodeScreenPos)
+                && GetScreenPosFromWorldPos(e.point, pointScreenPos))
+            {
+                drawlist->ChannelsSetCurrent(LAYER_LINES);
+                drawlist->AddLine(ImVec2(nodeScreenPos.x, nodeScreenPos.y), ImVec2(pointScreenPos.x, pointScreenPos.y),
+                    ImColor(theme.node_effect_force_line_color), theme.node_effect_force_line_thickness);
+                drawlist->ChannelsSetCurrent(LAYER_CIRCLES);
+                drawlist->AddCircleFilled(ImVec2(pointScreenPos.x, pointScreenPos.y),
+                    theme.node_effect_force_circle_radius, ImColor(theme.node_effect_force_circle_color));
+            }
         }
     }
 
@@ -276,19 +293,10 @@ void SceneMouse::UpdateVisuals()
 {
     if (grab_truck == nullptr)
     {
-        pickLineNode->setVisible(false);   // Hide the line     
-
         this->drawMouseHighlights();
     }
-    else
-    {
-        pickLineNode->setVisible(true);   // Show the line
-        // update visual line
-        pickLine->beginUpdate(0);
-        pickLine->position(grab_truck->GetGfxActor()->GetSimNodeBuffer()[minnode].AbsPosition);
-        pickLine->position(lastgrabpos);
-        pickLine->end();
-    }
+
+    this->drawNodeEffects();
 }
 
 bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)

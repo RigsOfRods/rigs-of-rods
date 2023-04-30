@@ -88,6 +88,21 @@ public:
         ImVec2 semitrans_text_bg_padding = ImVec2(4.f, 2.f);
 
         ImFont* default_font = nullptr;
+
+        // Mouse pick of nodes
+        float  node_circle_num_segments           = 10.f;
+        ImVec4 mouse_minnode_color                = ImVec4(0.3f, 0.2f, 1.f, 1.f);
+        float  mouse_minnode_thickness            = 3.f; //!< in pixels
+        ImVec4 mouse_highlighted_node_color       = ImVec4(0.7f, 1.f, 0.4f, 1.f);
+        float  mouse_highlighted_node_radius_max  = 10; //!< in pixels
+        float  mouse_highlighted_node_radius_min  = 0.5; //!< in pixels
+
+        // Node effects
+        ImVec4 node_effect_force_line_color       = ImVec4(0.3f, 0.2f, 1.f, 1.f);
+        float  node_effect_force_line_thickness   = 2.f;
+        ImVec4 node_effect_force_circle_color     = ImVec4(0.15f, 0.2f, 1.f, 1.f);
+        float  node_effect_force_circle_radius    = 4.f;
+
     };
 
     // NOTE: RoR's mouse cursor management is a mess - cursor is hidden/revealed ad-hoc in the code (originally by calling `MyGUI::PointerManager::setVisible()`); this enum+API cleans it up a bit ~ only_a_ptr, 09/2017
