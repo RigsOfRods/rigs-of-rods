@@ -3752,7 +3752,7 @@ void Actor::beaconsToggle()
 void Actor::muteAllSounds()
 {
 #ifdef USE_OPENAL
-    if (ar_state == ActorState::DISPOSED)
+    if (ar_state != ActorState::DISPOSED)
         return;
 
     for (int i = 0; i < ar_num_soundsources; i++)
