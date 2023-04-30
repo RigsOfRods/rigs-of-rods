@@ -3,21 +3,23 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# BRN Systems <brnsystems123@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: Slovak (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/sk/)\n"
+"PO-Revision-Date: 2023-05-01 00:47+0000\n"
+"Last-Translator: BRN Systems <brnsystems123@gmail.com>\n"
+"Language-Team: Slovak <https://hosted.weblate.org/projects/rigs-of-rods/game/"
+"sk/>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n "
 ">= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);\n"
+"X-Generator: Weblate 4.18-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -27,20 +29,22 @@ msgstr "Chyba pri spustení"
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
 msgstr ""
+"Žiaden plugin vykresľovacieho systému nie je dostupný. Skontrolujte plugins."
+"cfg"
 
 #: AppContext.cpp:378
 #, fuzzy
 #| msgid "Screenshot Format:"
 msgid "Screenshot: "
-msgstr "Formát screenshotu:"
+msgstr "Screenshot: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Chyba pri načítaní cesty k adresáru programu"
 
 #: AppContext.cpp:426
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Chyba pri načítaní cesty k používateľskému adresáru"
 
 #: AppContext.cpp:477
 msgid "Resources folder not found. Check if correctly installed."
@@ -50,28 +54,22 @@ msgstr ""
 
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
-msgstr ""
+msgstr "Chybný priečinok zdrojov. Skontrolujte, či je správne nainštalovaný."
 
 #: Application.cpp:359
-#, fuzzy
-#| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
 msgstr "Automatické radenie"
 
 #: Application.cpp:360
-#, fuzzy
-#| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr "Manuálne radenie - Autmatická spojka"
+msgstr "Manuálne radenie s automatickou spojkou"
 
 #: Application.cpp:361
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr "Plne manuálna: sekvenčné radenie"
+msgstr "Plne manuálne: sekvenčné radenie"
 
 #: Application.cpp:362
 #, fuzzy
