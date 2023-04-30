@@ -961,6 +961,7 @@ int main(int argc, char *argv[])
                         App::GetOverlayWrapper()->update(dt);
                         App::GetGameContext()->GetRecoveryMode().UpdateInputEvents(dt);
                         App::GetGameContext()->GetActorManager()->UpdateInputEvents(dt);
+                        App::GetGameContext()->GetSceneMouse().UpdateInputEvents();
                         if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
                         {
                             if (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)

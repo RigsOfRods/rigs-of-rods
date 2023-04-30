@@ -102,6 +102,7 @@ public:
         float  node_effect_force_line_thickness   = 2.f;
         ImVec4 node_effect_force_circle_color     = ImVec4(0.15f, 0.2f, 1.f, 1.f);
         float  node_effect_force_circle_radius    = 4.f;
+        ImVec4 node_effect_highlight_line_color   = ImVec4(1.f, 1.f, 0.f, 1.f);
 
     };
 

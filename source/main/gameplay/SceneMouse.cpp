@@ -119,7 +119,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
     return false;
 }
 
-void SceneMouse::updateMouseHighlights(ActorPtr actor)
+void SceneMouse::updateMouseNodeHighlights(ActorPtr& actor)
 {
     ROR_ASSERT(actor != nullptr);
     ROR_ASSERT(actor->ar_state == ActorState::LOCAL_SIMULATED);
@@ -175,6 +175,48 @@ void SceneMouse::updateMouseHighlights(ActorPtr actor)
     ImGui::Text("DBG numGrabHits: %4d, numHighlightHits: %4d", numGrabHits, numHighlightHits);
 }
 
+void SceneMouse::updateMouseEffectHighlights(ActorPtr& actor)
+{
+    Ray mouseRay = getMouseRay();
+
+    for (size_t i = 0; i < actor->ar_node_effects_constant_force.size(); i++)
+    {
+        const NodeEffectConstantForce& e = actor->ar_node_effects_constant_force[i];
+        Vector3 pointWorldPos = actor->ar_nodes[e.nodenum].AbsPosition + (e.force * FORCE_NEWTONS_TO_LINE_LENGTH_RATIO);
+        std::pair<bool, Real> result = mouseRay.intersects(Sphere(pointWorldPos, this->FORCE_UNPIN_SPHERE_SIZE));
+        if (result.first && result.second < cfEffect_mindist)
+        {
+            cfEffect_minnode = e.nodenum;
+            cfEffect_mindist = result.second;
+            cfEffect_mintruck = actor;
+        }
+    }
+
+    for (size_t i = 0; i < actor->ar_node_effects_force_towards_point.size(); i++)
+    {
+        const NodeEffectForceTowardsPoint& e = actor->ar_node_effects_force_towards_point[i];
+        std::pair<bool, Real> result = mouseRay.intersects(Sphere(e.point, this->FORCE_UNPIN_SPHERE_SIZE));
+        if (result.first && result.second < f2pEffect_mindist)
+        {
+            f2pEffect_minnode = e.nodenum;
+            f2pEffect_mindist = result.second;
+            f2pEffect_mintruck = actor;
+        }
+    }
+}
+
+void SceneMouse::UpdateInputEvents()
+{
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_ROAD_EDITOR_POINT_INSERT))
+    {
+        if (mouseGrabState == 1 && grab_truck)
+        {
+            // Reset mouse grab but do not remove node forces
+            this->reset();
+        }
+    }
+}
+
 void SceneMouse::UpdateSimulation()
 {
     Ray mouseRay = getMouseRay();
@@ -192,7 +234,7 @@ void SceneMouse::UpdateSimulation()
     }
     else
     {
-        // refresh mouse highlight
+        // refresh mouse highlight of nodes
         mintruck = nullptr;
         minnode = NODENUM_INVALID;
         mindist = std::numeric_limits<float>::max();
@@ -200,7 +242,22 @@ void SceneMouse::UpdateSimulation()
         {
             if (actor->ar_state == ActorState::LOCAL_SIMULATED)
             {
-                this->updateMouseHighlights(actor);
+                this->updateMouseNodeHighlights(actor);
+            }
+        }
+
+        // refresh mouse highlight of effects
+        cfEffect_mintruck = nullptr;
+        cfEffect_minnode = NODENUM_INVALID;
+        cfEffect_mindist = std::numeric_limits<float>::max();
+        f2pEffect_mintruck = nullptr;
+        f2pEffect_minnode = NODENUM_INVALID;
+        f2pEffect_mindist = std::numeric_limits<float>::max();
+        for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+        {
+            if (actor->ar_state == ActorState::LOCAL_SIMULATED)
+            {
+                this->updateMouseEffectHighlights(actor);
             }
         }
     }
@@ -257,21 +314,27 @@ void SceneMouse::drawNodeEffects()
         if (actor->ar_state != ActorState::LOCAL_SIMULATED)
             continue;
 
-        for (const NodeEffectConstantForce& e : actor->ar_node_effects_constant_force)
+        for (size_t i = 0; i < actor->ar_node_effects_constant_force.size(); i++)
         {
+            const NodeEffectConstantForce& e = actor->ar_node_effects_constant_force[i];
             Vector2 nodeScreenPos, pointScreenPos;
             Vector3 pointWorldPos = actor->ar_nodes[e.nodenum].AbsPosition + (e.force * FORCE_NEWTONS_TO_LINE_LENGTH_RATIO);
             if (GetScreenPosFromWorldPos(actor->ar_nodes[e.nodenum].AbsPosition, nodeScreenPos)
                 && GetScreenPosFromWorldPos(pointWorldPos, nodeScreenPos))
             {
                 drawlist->ChannelsSetCurrent(LAYER_LINES);
+                const bool highlight = (e.nodenum == cfEffect_minnode) && actor == cfEffect_mintruck;
+                const ImColor color = (highlight)
+                    ? ImColor(theme.node_effect_highlight_line_color)
+                    : ImColor(theme.node_effect_force_line_color);
                 drawlist->AddLine(ImVec2(nodeScreenPos.x, nodeScreenPos.y), ImVec2(pointScreenPos.x, pointScreenPos.y),
-                    ImColor(theme.node_effect_force_line_color), theme.node_effect_force_line_thickness);
+                    color, theme.node_effect_force_line_thickness);
             }
         }
 
-        for (const NodeEffectForceTowardsPoint& e : actor->ar_node_effects_force_towards_point)
+        for (size_t i = 0; i < actor->ar_node_effects_force_towards_point.size(); i++)
         {
+            const NodeEffectForceTowardsPoint& e = actor->ar_node_effects_force_towards_point[i];
             Vector2 nodeScreenPos, pointScreenPos;
             if (GetScreenPosFromWorldPos(actor->ar_nodes[e.nodenum].AbsPosition, nodeScreenPos)
                 && GetScreenPosFromWorldPos(e.point, pointScreenPos))
@@ -280,8 +343,12 @@ void SceneMouse::drawNodeEffects()
                 drawlist->AddLine(ImVec2(nodeScreenPos.x, nodeScreenPos.y), ImVec2(pointScreenPos.x, pointScreenPos.y),
                     ImColor(theme.node_effect_force_line_color), theme.node_effect_force_line_thickness);
                 drawlist->ChannelsSetCurrent(LAYER_CIRCLES);
+                const bool highlight = (e.nodenum == f2pEffect_minnode) && actor == f2pEffect_mintruck;
+                const ImColor color = (highlight)
+                    ? ImColor(theme.node_effect_highlight_line_color)
+                    : ImColor(theme.node_effect_force_line_color);
                 drawlist->AddCircleFilled(ImVec2(pointScreenPos.x, pointScreenPos.y),
-                    theme.node_effect_force_circle_radius, ImColor(theme.node_effect_force_circle_color));
+                    theme.node_effect_force_circle_radius, color);
             }
         }
     }
@@ -368,6 +435,19 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
                 App::GetCameraManager()->NotifyContextChange(); // Reset last 'look at' pos
             }
         }
+    }
+
+    if (ms.buttonDown(OIS::MB_Right) && cfEffect_minnode != NODENUM_INVALID)
+    {
+        cfEffect_mintruck->clearNodeEffectConstantForce(cfEffect_minnode);
+        cfEffect_minnode = NODENUM_INVALID;
+        cfEffect_mintruck = nullptr;
+    }
+    else if (ms.buttonDown(OIS::MB_Right) && f2pEffect_minnode != NODENUM_INVALID)
+    {
+        f2pEffect_mintruck->clearNodeEffectForceTowardsPoint(f2pEffect_minnode);
+        f2pEffect_minnode = NODENUM_INVALID;
+        f2pEffect_mintruck = nullptr;
     }
 
     return true;

@@ -52,6 +52,7 @@ public:
     void UpdateSimulation();
     void UpdateVisuals();
     void DiscardVisuals();
+    void UpdateInputEvents();
 
 protected:
 
@@ -59,12 +60,13 @@ protected:
     ActorPtr grab_truck; // grabbed node truck
     Ogre::Vector3 lastgrabpos;
 
-    /// @name Mouse node selection with animated highlights: 1. closest node 2. surrounding nodes (animated by distance)
+    /// @name Mouse node (or pinned force) selection with animated highlights: 1. closest node 2. surrounding nodes (animated by distance)
     /// @{
     
     const float HIGHLIGHT_SPHERE_SIZE = 1.f; //!< in meters
     const float GRAB_SPHERE_SIZE = 0.1f; //!< in meters
     const float FORCE_NEWTONS_TO_LINE_LENGTH_RATIO = 15.5f;
+    const float FORCE_UNPIN_SPHERE_SIZE = 0.2; //!< in meters
     // Colors and scales are defined in GUI Theme, see GUIManager.h
 
     struct HighlightedNode
@@ -78,6 +80,16 @@ protected:
     float mindist;
     ActorPtr mintruck;
 
+    // the node const force effect
+    int cfEffect_minnode = NODENUM_INVALID;
+    float cfEffect_mindist;
+    ActorPtr cfEffect_mintruck;
+
+    // the node force2point effect
+    int f2pEffect_minnode = NODENUM_INVALID;
+    float f2pEffect_mindist;
+    ActorPtr f2pEffect_mintruck;
+
     // surrounding nodes
     std::vector<HighlightedNode> highlightedNodes;
     float highlightedNodesTopDistance;
@@ -88,7 +100,8 @@ protected:
     void releaseMousePick();
     Ogre::Ray getMouseRay();
     void reset();
-    void updateMouseHighlights(ActorPtr actor);
+    void updateMouseNodeHighlights(ActorPtr& actor);
+    void updateMouseEffectHighlights(ActorPtr& actor);
     void drawMouseHighlights();
     void drawNodeEffects();
 };
