@@ -421,3 +421,22 @@ void RoR::ImTerminateComboboxString(std::string& target)
     // Make space for 2 trailing with NULs
     target.resize(prev_size + 2, '\0');
 }
+
+void RoR::ImAddLineColorGradient(ImDrawList* drawlist, const ImVec2& p1, const ImVec2& p2, ImU32 c1, ImU32 c2, float thickness)
+{
+    // Let DearIMGUI draw a line and then adjust colors in the draw buffer
+    // Note that DearIMGUI archieves antialiasing by drawing semitransparent tris around the line tris.
+    // ------------------------------------------------------------------------------------------------
+
+    // Draw the line using color c1
+    drawlist->AddLine(p1, p2, c1, thickness);
+
+    // Prepare the c2 AA color ~ see `ImDrawList::AddPolyLine()` in 'imgui_draw.cpp', around line 610
+    const ImU32 c2aa = c2 & ~IM_COL32_A_MASK;
+
+    // Inject the colors to draw list ~ see `ImDrawList::AddPolyLine()` in 'imgui_draw.cpp', around line 770
+    (drawlist->_VtxWritePtr - 1)->col = c2aa; // end right AA
+    (drawlist->_VtxWritePtr - 2)->col = c2; // end right
+    (drawlist->_VtxWritePtr - 3)->col = c2; // end left
+    (drawlist->_VtxWritePtr - 4)->col = c2aa; // end left AA
+}

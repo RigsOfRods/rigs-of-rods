@@ -105,8 +105,12 @@ protected:
     Ogre::Ray getMouseRay();
     void reset();
     void updateMouseNodeHighlights(ActorPtr& actor);
+    void updateMouseBeamHighlights();
+    void updateMouseBeamHighlightsRecursive(NodeNum_t nodenum, float remTraversalLen, float maxTraversalLen);
     void updateMouseEffectHighlights(ActorPtr& actor);
-    void drawMouseHighlights();
+    void drawMouseNodeHighlights();
+    void drawMouseBeamHighlights();
+    void drawBeamHighlightsRecursive(ImDrawList* drawlist, NodeNum_t node);
     void drawNodeEffects();
 };
 

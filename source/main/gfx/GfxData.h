@@ -223,7 +223,7 @@ struct VideoCamera
 struct NodeGfx
 {
     NodeGfx(NodeNum_t node_idx):
-        nx_node_idx(node_idx),
+        nx_nodenum(node_idx),
         nx_no_particles(false), // Bitfields can't be initialized in-class :(
         nx_may_get_wet(false),
         nx_is_hot(false),
@@ -232,7 +232,8 @@ struct NodeGfx
     {}
 
     float      nx_wet_time_sec = -1; //!< 'Wet' means "already out of water, producing dripping particles". Set to -1 when not 'wet'.
-    NodeNum_t  nx_node_idx = NODENUM_INVALID;
+    float      nx_mouse_traversal_result_perc = -1.f; //!< 1.0 = pointed by mouse, 0.0 = at maximum traversal distance.
+    NodeNum_t  nx_nodenum = NODENUM_INVALID;
 
     // Bit flags
     bool       nx_no_particles:1;     //!< User-defined attr; disable all particles

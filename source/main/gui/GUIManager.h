@@ -63,7 +63,12 @@
 
 namespace RoR {
 
-class GUIManager: public ZeroedMemoryAllocator
+inline ImVec4 ImVec4RGB(uint8_t r, uint8_t g, uint8_t b)
+{
+    return ImVec4(static_cast<float>(r)/255.f, static_cast<float>(g)/255.f, static_cast<float>(b)/255.f, 1.f);
+}
+
+class GUIManager
 {
 public:
 
@@ -96,6 +101,10 @@ public:
         ImVec4 mouse_highlighted_node_color       = ImVec4(0.7f, 1.f, 0.4f, 1.f);
         float  mouse_highlighted_node_radius_max  = 10; //!< in pixels
         float  mouse_highlighted_node_radius_min  = 0.5; //!< in pixels
+        ImVec4 mouse_beam_close_color             = ImVec4RGB(171, 109, 3);
+        ImVec4 mouse_beam_far_color               = ImVec4RGB(128, 114, 91);
+        float  mouse_beam_thickness               = 2.f; //!< in pixels
+        float  mouse_beam_traversal_length        = 2.f; //!< in meters
 
         // Node effects
         ImVec4 node_effect_force_line_color       = ImVec4(0.3f, 0.2f, 1.f, 1.f);

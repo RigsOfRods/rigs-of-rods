@@ -455,7 +455,7 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
 
     for (NodeGfx& nfx: m_gfx_nodes)
     {
-        const node_t& n = m_actor->ar_nodes[nfx.nx_node_idx];
+        const node_t& n = m_actor->ar_nodes[nfx.nx_nodenum];
 
         // 'Wet' effects - water dripping and vapour
         if (nfx.nx_may_get_wet && !nfx.nx_no_particles)
@@ -1667,7 +1667,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
 
     for (NodeGfx& nx: m_gfx_nodes)
     {
-        m_simbuf.simbuf_nodes[nx.nx_node_idx].nd_is_wet = (nx.nx_wet_time_sec != -1.f);
+        m_simbuf.simbuf_nodes[nx.nx_nodenum].nd_is_wet = (nx.nx_wet_time_sec != -1.f);
     }
 
     // Elements: beams
@@ -3188,7 +3188,7 @@ void RoR::GfxActor::SetNodeHot(NodeNum_t nodenum, bool value)
 {
     for (NodeGfx& nfx : m_gfx_nodes)
     {
-        if (nfx.nx_node_idx == nodenum)
+        if (nfx.nx_nodenum == nodenum)
         {
             nfx.nx_is_hot = value;
         }
