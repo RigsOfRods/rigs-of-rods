@@ -149,7 +149,6 @@ public:
     void                 CalcPropAnimation(const int flag_state, float& cstate, int& div, float timer,
                                               const float lower_limit, const float upper_limit, const float option3);
     std::vector<Prop>&   getProps() { return m_props; }
-    std::vector<NodeGfx>& getNodes() { return m_gfx_nodes; }
     bool                 hasCamera() { return m_videocameras.size() > 0; }
 
 private:

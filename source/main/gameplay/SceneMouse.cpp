@@ -225,42 +225,46 @@ void SceneMouse::updateMouseEffectHighlights(ActorPtr& actor)
 
 void SceneMouse::updateMouseBeamHighlights()
 {
+    highlightedBeamIDs.clear();
+
     if (mintruck)
     {
-        // Reset traversal records
-        for (NodeGfx& n: mintruck->GetGfxActor()->getNodes())
-        {
-            n.nx_mouse_traversal_result_perc = -1.f;
-        }
+        highlightedBeamsNodeProximity.clear();
+        highlightedBeamsNodeProximity.assign(mintruck->ar_num_nodes, 0);
 
         // Fire up the recursive update
         const GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+        highlightedBeamsNodeProximity[minnode] = 255;
         this->updateMouseBeamHighlightsRecursive(
-            minnode, theme.mouse_beam_traversal_length, theme.mouse_beam_traversal_length);
+            minnode, 0.f, theme.mouse_beam_traversal_length);
     }
 }
 
-void SceneMouse::updateMouseBeamHighlightsRecursive(NodeNum_t nodenum, float remTraversalLen, float maxTraversalLen)
+void SceneMouse::updateMouseBeamHighlightsRecursive(NodeNum_t nodenum, float traversalLen, float maxTraversalLen)
 {
     ROR_ASSERT(mintruck);
 
-    // Always record the highest result
-    float traversalResult = remTraversalLen / maxTraversalLen;
-    if (traversalResult > mintruck->GetGfxActor()->getNodes()[minnode].nx_mouse_traversal_result_perc)
+    // Traverse connected beams and for each node visited, record it's proximity
+    for (int beamID: mintruck->ar_node_to_beam_connections[nodenum])
     {
-        mintruck->GetGfxActor()->getNodes()[minnode].nx_mouse_traversal_result_perc = traversalResult;
-    }
+        // Always record beams, even if their far node is out of reach.
+        highlightedBeamIDs.push_back(beamID);
 
-    if (remTraversalLen > 0)
-    {
-        // Traverse connected beams and for each node visited, record it's traversal state (1=closest, 0=furthest)
-        for (int beamID: mintruck->ar_node_to_beam_connections[nodenum])
+        // Check if node is within reach
+        const beam_t& b = mintruck->ar_beams[beamID];
+        NodeNum_t nodenumFar = (b.p1->pos == nodenum) ? b.p2->pos : b.p1->pos;
+        float traversalLenFar = traversalLen + b.L;
+
+        if (traversalLenFar < maxTraversalLen)
         {
-            const beam_t& b = mintruck->ar_beams[beamID];
+            // Update node proximity - always record higher result
+            uint8_t proximity = static_cast<uint8_t>(255.f * (traversalLenFar - maxTraversalLen)/maxTraversalLen); // the further the smaller
+            if (proximity > highlightedBeamsNodeProximity[nodenumFar])
+            {
+                highlightedBeamsNodeProximity[nodenumFar] = proximity;
+            }
 
-            NodeNum_t nodenumFar = (b.p1->pos == nodenum) ? b.p2->pos : nodenum;
-            float remTraversalLenFar = remTraversalLen - b.L;
-            this->updateMouseBeamHighlightsRecursive(nodenumFar, remTraversalLenFar, maxTraversalLen);
+            this->updateMouseBeamHighlightsRecursive(nodenumFar, traversalLenFar, maxTraversalLen);
         }
     }
 }
@@ -327,46 +331,34 @@ void SceneMouse::UpdateSimulation()
     }
 }
 
-void SceneMouse::drawBeamHighlightsRecursive(ImDrawList* drawlist, NodeNum_t nodenum)
-{
-    // Traverse connected beams and draw them based on pre-assigned distance values
-
-    ROR_ASSERT(mintruck);
-
-    const GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
-    float t = mintruck->GetGfxActor()->getNodes()[nodenum].nx_mouse_traversal_result_perc;
-    ImVec4 color = ImLerp(theme.mouse_beam_close_color, theme.mouse_beam_far_color, t);
-
-    for (int beamID: mintruck->ar_node_to_beam_connections[nodenum])
-    {
-        const beam_t& b = mintruck->ar_beams[beamID];
-
-        NodeNum_t nodenumFar = (b.p1->pos == nodenum) ? b.p2->pos : nodenum;
-        float tFar = mintruck->GetGfxActor()->getNodes()[nodenumFar].nx_mouse_traversal_result_perc;
-        ImVec4 colorFar = ImLerp(theme.mouse_beam_close_color, theme.mouse_beam_far_color, tFar);
-
-        Vector2 screenPos, screenPosFar;
-        if (GetScreenPosFromWorldPos(mintruck->ar_nodes[nodenum].AbsPosition, screenPos)
-            && GetScreenPosFromWorldPos(mintruck->ar_nodes[nodenumFar].AbsPosition, screenPosFar))
-        {
-            ImAddLineColorGradient(drawlist,
-                ImVec2(screenPos.x, screenPos.y), ImVec2(screenPosFar.x, screenPosFar.y),
-                ImColor(color), ImColor(colorFar), theme.mouse_beam_thickness);
-        }
-    }
-}
-
 void SceneMouse::drawMouseBeamHighlights()
 {
     if (!mintruck)
         return; // nothing to draw
 
     ImDrawList* drawlist = GetImDummyFullscreenWindow("Mouse-grab beam highlights");
-    // line drawingtest
-    ImAddLineColorGradient(drawlist, ImVec2(100, 100), ImVec2(200, 200),
-        ImColor(255, 0, 0, 255), ImColor(0, 0, 255, 255), 10);
-    // END test
-    this->drawBeamHighlightsRecursive(drawlist, minnode);
+
+    const GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+
+    for (int beamID: highlightedBeamIDs)
+    {
+        const beam_t& beam = mintruck->ar_beams[beamID];
+
+        Vector2 screenPos1, screenPos2;
+        if (GetScreenPosFromWorldPos(beam.p1->AbsPosition, screenPos1)
+            && GetScreenPosFromWorldPos(beam.p2->AbsPosition, screenPos2))
+        {
+            const float t1 = static_cast<float>(highlightedBeamsNodeProximity[beam.p1->pos] / 255.f);
+            const float t2 = static_cast<float>(highlightedBeamsNodeProximity[beam.p2->pos] / 255.f);
+
+            const ImVec4 color1 = ImLerp(theme.mouse_beam_close_color, theme.mouse_beam_far_color, 1.f - t1);
+            const ImVec4 color2 = ImLerp(theme.mouse_beam_close_color, theme.mouse_beam_far_color, 1.f - t2);
+
+            ImAddLineColorGradient(drawlist,
+                ImVec2(screenPos1.x, screenPos1.y), ImVec2(screenPos2.x, screenPos2.y),
+                ImColor(color1), ImColor(color2), theme.mouse_beam_thickness);
+        }
+    }
 }
 
 void SceneMouse::drawMouseNodeHighlights()

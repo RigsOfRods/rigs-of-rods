@@ -232,7 +232,6 @@ struct NodeGfx
     {}
 
     float      nx_wet_time_sec = -1; //!< 'Wet' means "already out of water, producing dripping particles". Set to -1 when not 'wet'.
-    float      nx_mouse_traversal_result_perc = -1.f; //!< 1.0 = pointed by mouse, 0.0 = at maximum traversal distance.
     NodeNum_t  nx_nodenum = NODENUM_INVALID;
 
     // Bit flags
