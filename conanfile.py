@@ -20,7 +20,7 @@ class RoR(ConanFile):
         self.requires("ois/1.4.1@rigsofrods/custom")
         self.requires("openal-soft/1.22.2")
         self.requires("openssl/1.1.1s", force=True)
-        self.requires("rapidjson/cci.20200410")
+        self.requires("rapidjson/cci.20211112", force=True)
         self.requires("socketw/3.11.0@anotherfoxguy/stable")
 
         self.requires("libpng/1.6.39", override=True)
