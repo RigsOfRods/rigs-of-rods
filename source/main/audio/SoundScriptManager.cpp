@@ -404,6 +404,71 @@ SoundScriptInstancePtr SoundScriptManager::createInstance(Ogre::String templaten
     return inst;
 }
 
+void SoundScriptManager::removeInstance(SoundScriptInstancePtr& ssi)
+{
+    // Find lookup table entries
+    int trigsPos = -1;
+    for (int i = 0; i < free_trigs[ssi->templ->trigger_source]; i++)
+    {
+        if (trigs[ssi->templ->trigger_source + i * SS_MAX_TRIG] == ssi)
+        {
+            trigsPos = i;
+        }
+    }
+
+    int gainsPos = -1;
+    for (int i = 0; i < free_gains[ssi->templ->gain_source]; i++)
+    {
+        if (gains[ssi->templ->gain_source + i * SS_MAX_MOD] == ssi)
+        {
+            gainsPos = i;
+        }
+    }
+
+    int pitchesPos = -1;
+    for (int i = 0; i < free_gains[ssi->templ->pitch_source]; i++)
+    {
+        if (pitches[ssi->templ->pitch_source + i * SS_MAX_MOD] == ssi)
+        {
+            pitchesPos = i;
+        }
+    }
+
+    // Erase lookup entries
+    if (trigsPos != -1)
+    {
+        for (int i = trigsPos + 1; i < free_trigs[ssi->templ->trigger_source]; i++)
+        {
+            trigs[ssi->templ->trigger_source + (i - 1) * SS_MAX_TRIG]
+                = trigs[ssi->templ->trigger_source + i * SS_MAX_TRIG];
+        }
+        free_trigs[ssi->templ->trigger_source]--;
+    }
+
+    if (gainsPos != -1)
+    {
+        for (int i = gainsPos + 1; i < free_gains[ssi->templ->gain_source]; i++)
+        {
+            gains[ssi->templ->gain_source + (i - 1) * SS_MAX_MOD]
+                = gains[ssi->templ->gain_source + i * SS_MAX_MOD];
+        }
+        free_gains[ssi->templ->gain_source]--;
+    }
+
+    if (pitchesPos != -1)
+    {
+        for (int i = pitchesPos + 1; i < free_pitches[ssi->templ->pitch_source]; i++)
+        {
+            pitches[ssi->templ->pitch_source + (i - 1) * SS_MAX_MOD]
+                = pitches[ssi->templ->pitch_source + i * SS_MAX_MOD];
+        }
+        free_pitches[ssi->templ->pitch_source]--;
+    }
+
+    // Finally remove the instance from list
+    EraseIf(instances, [ssi](SoundScriptInstancePtr& instance) { return ssi == instance; });
+}
+
 void SoundScriptManager::parseScript(DataStreamPtr& stream, const String& groupName)
 {
     SoundScriptTemplatePtr sst = nullptr;

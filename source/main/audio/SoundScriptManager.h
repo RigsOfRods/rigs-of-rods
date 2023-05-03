@@ -289,6 +289,7 @@ public:
     Ogre::Real getLoadingOrder(void) const;
 
     SoundScriptInstancePtr createInstance(Ogre::String templatename, int actor_id, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
+    void removeInstance(SoundScriptInstancePtr& ssi);
     std::vector<SoundScriptInstancePtr>& getAllInstances() { return instances; }
     SoundScriptTemplatePtr getTemplate(Ogre::String name) { return templates[name]; }
     std::map <Ogre::String, SoundScriptTemplatePtr>& getAllTemplates() { return templates; }

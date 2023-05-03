@@ -108,8 +108,17 @@ void Actor::dispose()
     {
         SOUND_STOP(this, i);
     }
-#endif // USE_OPENAL
     muteAllSounds();
+    for (int i = 0; i < ar_num_soundsources; i++)
+    {
+        if (ar_soundsources[i].ssi)
+        {
+            App::GetSoundScriptManager()->removeInstance(ar_soundsources[i].ssi);
+            ar_soundsources[i].ssi = nullptr;
+        }
+    }
+    ar_num_soundsources = 0;
+#endif // USE_OPENAL
 
     if (ar_engine != nullptr)
     {
