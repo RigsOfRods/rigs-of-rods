@@ -87,7 +87,7 @@ Actor::~Actor()
 
 void Actor::dispose()
 {
-    ar_state = ActorState::DISPOSED;
+    
 
     this->DisjoinInterActorBeams();
     ar_hooks.clear();
@@ -298,6 +298,8 @@ void Actor::dispose()
     ar_num_rotators = 0;
     delete[] ar_wings;
     ar_num_wings = 0;
+
+    ar_state = ActorState::DISPOSED;
 }
 
 // This method scales actors. Stresses should *NOT* be scaled, they describe
@@ -3752,7 +3754,7 @@ void Actor::beaconsToggle()
 void Actor::muteAllSounds()
 {
 #ifdef USE_OPENAL
-    if (ar_state != ActorState::DISPOSED)
+    if (ar_state == ActorState::DISPOSED)
         return;
 
     for (int i = 0; i < ar_num_soundsources; i++)
