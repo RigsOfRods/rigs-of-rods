@@ -67,6 +67,12 @@ std::string SanitizeUtf8CString(const char* start, const char* end = nullptr);
 inline std::string& TrimStr(std::string& s) { Ogre::StringUtil::trim(s); return s; }
 std::string Sha1Hash(std::string const & data);
 
+// for std::vector
+template <class T, class A, class Predicate>
+inline void EraseIf(std::vector<T, A>& c, Predicate pred)
+{
+    c.erase(std::remove_if(c.begin(), c.end(), pred), c.end());
+}
 
 /// @author http://www.ogre3d.org/forums/viewtopic.php?p=463232#p463232
 /// @author http://www.ogre3d.org/tikiwiki/tiki-index.php?page=GetScreenspaceCoords&structure=Cookbook
