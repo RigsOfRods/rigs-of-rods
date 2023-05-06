@@ -63,7 +63,7 @@
 
 namespace RoR {
 
-inline ImVec4 ImVec4RGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
+inline ImVec4 RGBAv4(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
 {
     return ImVec4(static_cast<float>(r)/255.f, static_cast<float>(g)/255.f, static_cast<float>(b)/255.f, static_cast<float>(b)/255.f);
 }
@@ -96,13 +96,15 @@ public:
 
         // Mouse pick of nodes
         float  node_circle_num_segments           = 10.f;
-        ImVec4 mouse_minnode_color                = ImVec4(0.3f, 0.2f, 1.f, 1.f);
+        ImVec4 mouse_minnode_color                = RGBAv4(25, 59, 255, 255);
         float  mouse_minnode_thickness            = 3.f; //!< in pixels
         ImVec4 mouse_highlighted_node_color       = ImVec4(0.7f, 1.f, 0.4f, 1.f);
-        float  mouse_highlighted_node_radius_max  = 10; //!< in pixels
-        float  mouse_highlighted_node_radius_min  = 0.5; //!< in pixels
-        ImVec4 mouse_beam_close_color             = ImVec4RGBA(7, 109, 112, 255);
-        ImVec4 mouse_beam_far_color               = ImVec4RGBA(66, 56, 63, 64);
+        float  mouse_node_highlight_ref_distance  = 5.f;
+        float  mouse_node_highlight_aabb_padding = 2.f; //!< in meters, for all directions; Inflates actor AABB in test so highlights show earlier
+        float  mouse_highlighted_node_radius_max  = 5; //!< in pixels
+        float  mouse_highlighted_node_radius_min  = 1; //!< in pixels
+        ImVec4 mouse_beam_close_color             = RGBAv4(3, 148, 109, 255);
+        ImVec4 mouse_beam_far_color               = RGBAv4(38, 54, 51, 180);
         float  mouse_beam_thickness               = 2.f; //!< in pixels
         float  mouse_beam_traversal_length        = 0.8f; //!< in meters
 
