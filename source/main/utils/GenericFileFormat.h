@@ -85,7 +85,7 @@ struct GenericDocument: public RefCountingObject<GenericDocument>
 
 typedef RefCountingObjectPtr<GenericDocument> GenericDocumentPtr;
 
-struct GenericDocReader: public RefCountingObject<GenericDocument>
+struct GenericDocReader: public RefCountingObject<GenericDocReader>
 {
     GenericDocReader(GenericDocumentPtr d) : doc(d) {}
     virtual ~GenericDocReader() {};
