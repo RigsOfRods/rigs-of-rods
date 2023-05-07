@@ -347,7 +347,7 @@ RepositorySelector::~RepositorySelector()
 
 void RepositorySelector::Draw()
 {
-    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    GUITheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGui::SetNextWindowSize(ImVec2((ImGui::GetIO().DisplaySize.x / 1.4), (ImGui::GetIO().DisplaySize.y / 1.2)), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
@@ -1201,7 +1201,7 @@ void RepositorySelector::DrawThumbnail(int resource_item_idx)
     // Displays a thumbnail image if available, or shows a spinner and initiates async download.
     // -----------------------------------------------------------------------------------------
 
-    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    GUITheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImVec2 image_size;
     if (m_view_mode == "List")

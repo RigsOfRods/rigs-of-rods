@@ -239,7 +239,7 @@ void SceneMouse::updateMouseBeamHighlights()
         highlightedBeamsNodeProximity.assign(mintruck->ar_num_nodes, 0);
 
         // Fire up the recursive update
-        const GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+        const GUITheme& theme = App::GetGuiManager()->GetTheme();
         highlightedBeamsNodeProximity[minnode] = 255;
         this->updateMouseBeamHighlightsRecursive(
             minnode, 0.f, theme.mouse_beam_traversal_length);
@@ -346,7 +346,7 @@ void SceneMouse::drawMouseBeamHighlights()
 
     ImDrawList* drawlist = GetImDummyFullscreenWindow("Mouse-grab beam highlights");
 
-    const GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    const GUITheme& theme = App::GetGuiManager()->GetTheme();
 
     for (int beamID: highlightedBeamIDs)
     {
@@ -381,7 +381,7 @@ void SceneMouse::drawMouseNodeHighlights()
     drawlist->ChannelsSplit(2);
 
     Vector2 screenPos;
-    const GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    const GUITheme& theme = App::GetGuiManager()->GetTheme();
     for (const HighlightedNode& hnode : highlightedNodes)
     {
         if (GetScreenPosFromWorldPos(actor->ar_nodes[hnode.nodenum].AbsPosition, /*out:*/screenPos))
@@ -409,7 +409,7 @@ void SceneMouse::drawMouseNodeHighlights()
 
 void SceneMouse::drawNodeEffects()
 {
-    const GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    const GUITheme& theme = App::GetGuiManager()->GetTheme();
     ImDrawList* drawlist = GetImDummyFullscreenWindow("Node effect view");
     const int LAYER_LINES = 0;
     const int LAYER_CIRCLES = 1;

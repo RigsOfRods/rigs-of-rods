@@ -35,7 +35,7 @@ using namespace GUI;
 
 void SimPerfStats::Draw()
 {
-    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    GUITheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;

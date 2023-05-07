@@ -47,7 +47,7 @@ GameChatBox::GameChatBox()
 
 void GameChatBox::Draw()
 {
-    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    GUITheme& theme = App::GetGuiManager()->GetTheme();
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
 

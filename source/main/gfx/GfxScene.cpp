@@ -242,7 +242,7 @@ void GfxScene::UpdateScene(float dt_sec)
 
     App::GetGuiManager()->DrawSimGuiBuffered(player_gfx_actor);
 
-    App::GetGameContext()->GetSceneMouse().UpdateVisuals();
+    ImGui::ShowDemoWindow();
 
     // Actors - finalize threaded tasks
     for (GfxActor* gfx_actor: m_live_gfx_actors)
@@ -373,7 +373,7 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
         ImVec2 pos((int)pos_xyz.x+0.5, (int)pos_xyz.y+0.5);
 
         ImVec2 text_size = ImGui::CalcTextSize(caption.c_str());
-        GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+        GUITheme const& theme = App::GetGuiManager()->GetTheme();
 
         ImDrawList* drawlist = GetImDummyFullscreenWindow();
         ImGuiContext* g = ImGui::GetCurrentContext();

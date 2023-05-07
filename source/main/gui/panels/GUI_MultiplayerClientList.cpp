@@ -61,7 +61,7 @@ void MpClientList::Draw()
         this->CacheIcons();
     }
 
-    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    GUITheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;

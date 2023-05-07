@@ -579,17 +579,63 @@ const float NODE_IMMOVABLE_RADIUS    (2.8f);
 
 void RoR::GfxActor::UpdateDebugView()
 {
-    if (m_debug_view == DebugViewType::DEBUGVIEW_NONE && !m_actor->ar_physics_paused)
+    // This is now responsible for drawing all debug views there are, including:
+    // * the classic Skeletonview + newer debug views by Ulteq
+    // * the SceneMouse mouse-hover highlights
+    // * the SceneMouse node-affector visuals
+    // * the GUI::FlexbodyDebug
+    // -------------------------------------------------------------------------
+
+
+    if (m_actor->ar_physics_paused)
     {
-        return; // Nothing to do
+        this->DrawPhysicsPausedIndicator();
     }
 
-    // Var
-    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
-    World2ScreenConverter world2screen(
-        App::GetCameraManager()->GetCamera()->getViewMatrix(true), App::GetCameraManager()->GetCamera()->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
+    ActorPtr playerActor = App::GetGameContext()->GetPlayerActor();
+    if (playerActor == m_actor)
+    {
+        // SceneMouse: Draw hovered node/beam highlights and node-effect visualizations
+        App::GetGameContext()->GetSceneMouse().UpdateVisuals();
+    }
 
-    ImDrawList* drawlist = GetImDummyFullscreenWindow();
+    // Draw regular debug views
+    switch (m_debug_view)
+    {
+    case DebugViewType::DEBUGVIEW_SKELETON:
+    case DebugViewType::DEBUGVIEW_NODES:
+    case DebugViewType::DEBUGVIEW_BEAMS:
+        this->DrawDebugViewSkeleton();
+        break;
+
+    case DebugViewType::DEBUGVIEW_SUBMESH: 
+        this->DrawDebugViewSubmesh();
+        break; 
+
+    case DebugViewType::DEBUGVIEW_SLIDENODES:
+        this->DrawDebugViewSlidenodes();
+        break; 
+
+    case DebugViewType::DEBUGVIEW_ROTATORS:
+        this->DrawDebugViewRotators();
+        break;
+
+    case DebugViewType::DEBUGVIEW_SHOCKS:
+        this->DrawDebugViewShocks();
+        break; 
+
+    case DebugViewType::DEBUGVIEW_WHEELS:
+        this->DrawDebugViewWheels();
+        break; 
+    
+    default:;
+    }
+}
+
+void GfxActor::DrawPhysicsPausedIndicator()
+{
+    ImDrawList* drawlist = GetImDummyFullscreenWindow("PhysicsPausedCircle");
+    World2ScreenConverter world2screen = World2ScreenConverter::Default();
 
     if (m_actor->ar_physics_paused && !App::GetGuiManager()->IsGuiHidden())
     {
@@ -608,13 +654,15 @@ void RoR::GfxActor::UpdateDebugView()
             drawlist->AddCircleFilled(pos, radius * 1.05f, 0x22222222, 36);
         }
     }
+}
 
+void GfxActor::DrawDebugViewSkeleton()
+{
     // Skeleton display. NOTE: Order matters, it determines Z-ordering on render
-    if ((m_debug_view == DebugViewType::DEBUGVIEW_SKELETON) ||
-        (m_debug_view == DebugViewType::DEBUGVIEW_NODES) ||
-        (m_debug_view == DebugViewType::DEBUGVIEW_BEAMS))
-    {
-        // Beams
+    ImDrawList* drawlist = GetImDummyFullscreenWindow("DebugViewSkeleton");
+    World2ScreenConverter world2screen = World2ScreenConverter::Default();
+
+    // Beams
         const beam_t* beams = m_actor->ar_beams;
         const size_t num_beams = static_cast<size_t>(m_actor->ar_num_beams);
         for (size_t i = 0; i < num_beams; ++i)
@@ -652,7 +700,7 @@ void RoR::GfxActor::UpdateDebugView()
                     if (!App::diag_hide_beam_stress->getBool())
                     {
                         if (beams[i].stress > 0)
-                        {
+                    {
                             float stress_ratio = pow(beams[i].stress / beams[i].maxposstress, 2.0f);
                             float s = std::min(stress_ratio, 1.0f);
                             color = Ogre::ColourValue(0.2f * (1 + 2.0f * s), 0.4f * (1.0f - s), 0.33f, 1.0f).getAsABGR();
@@ -695,41 +743,41 @@ void RoR::GfxActor::UpdateDebugView()
                 }
             }
 
-            // Node info; drawn after nodes to have higher Z-order
-            if ((m_debug_view == DebugViewType::DEBUGVIEW_NODES) || (m_debug_view == DebugViewType::DEBUGVIEW_BEAMS))
+        // Node info; drawn after nodes to have higher Z-order
+        if ((m_debug_view == DebugViewType::DEBUGVIEW_NODES) || (m_debug_view == DebugViewType::DEBUGVIEW_BEAMS))
+        {
+            for (size_t i = 0; i < num_nodes; ++i)
             {
-                for (size_t i = 0; i < num_nodes; ++i)
+                if ((App::diag_hide_wheels->getBool() || App::diag_hide_wheel_info->getBool()) &&
+                    (nodes[i].nd_tyre_node || nodes[i].nd_rim_node))
+                    continue;
+
+                Ogre::Vector3 pos = world2screen.Convert(nodes[i].AbsPosition);
+
+                if (pos.z < 0.f)
                 {
-                    if ((App::diag_hide_wheels->getBool() || App::diag_hide_wheel_info->getBool()) && 
-                            (nodes[i].nd_tyre_node || nodes[i].nd_rim_node))
-                        continue;
+                    ImVec2 pos_xy(pos.x, pos.y);
+                    Str<25> id_buf;
+                    id_buf << nodes[i].pos;
+                    drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
 
-                    Ogre::Vector3 pos = world2screen.Convert(nodes[i].AbsPosition);
-
-                    if (pos.z < 0.f)
+                    if (m_debug_view != DebugViewType::DEBUGVIEW_BEAMS)
                     {
-                        ImVec2 pos_xy(pos.x, pos.y);
-                        Str<25> id_buf;
-                        id_buf << nodes[i].pos;
-                        drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
-
-                        if (m_debug_view != DebugViewType::DEBUGVIEW_BEAMS)
-                        {
-                            char mass_buf[50];
-                            snprintf(mass_buf, 50, "|%.1fKg", nodes[i].mass);
-                            ImVec2 offset = ImGui::CalcTextSize(id_buf.ToCStr());
-                            drawlist->AddText(ImVec2(pos.x + offset.x, pos.y), NODE_MASS_TEXT_COLOR, mass_buf);
-                        }
+                        char mass_buf[50];
+                        snprintf(mass_buf, 50, "|%.1fKg", nodes[i].mass);
+                        ImVec2 offset = ImGui::CalcTextSize(id_buf.ToCStr());
+                        drawlist->AddText(ImVec2(pos.x + offset.x, pos.y), NODE_MASS_TEXT_COLOR, mass_buf);
                     }
                 }
             }
         }
+    }
 
-        // Beam-info: drawn after beams to have higher Z-order
-        if (m_debug_view == DebugViewType::DEBUGVIEW_BEAMS)
+    // Beam-info: drawn after beams to have higher Z-order
+    if (m_debug_view == DebugViewType::DEBUGVIEW_BEAMS)
+    {
+        for (size_t i = 0; i < num_beams; ++i)
         {
-            for (size_t i = 0; i < num_beams; ++i)
-            {
                 if ((App::diag_hide_wheels->getBool() || App::diag_hide_wheel_info->getBool()) &&
                         (beams[i].p1->nd_tyre_node || beams[i].p1->nd_rim_node ||
                          beams[i].p2->nd_tyre_node || beams[i].p2->nd_rim_node))
@@ -748,676 +796,700 @@ void RoR::GfxActor::UpdateDebugView()
                 const size_t BUF_LEN = 50;
                 char buf[BUF_LEN];
                 if (beams[i].strength >= 1000000000000.f)
-                {
+            {
                     snprintf(buf, BUF_LEN, "%.1fT", (beams[i].strength / 1000000000000.f));
-                }
-                else if (beams[i].strength >= 1000000000.f)
-                {
-                    snprintf(buf, BUF_LEN, "%.1fG", (beams[i].strength / 1000000000.f));
-                }
-                else if (beams[i].strength >= 1000000.f)
-                {
-                    snprintf(buf, BUF_LEN, "%.1fM", (beams[i].strength / 1000000.f));
-                }
-                else if (beams[i].strength >= 1000.f)
-                {
-                    snprintf(buf, BUF_LEN, "%.1fK", (beams[i].strength / 1000.f));
-                }
-                else
-                {
-                    snprintf(buf, BUF_LEN, "%.1f", beams[i].strength);
-                }
-                const ImVec2 stren_text_size = ImGui::CalcTextSize(buf);
-                drawlist->AddText(ImVec2(pos.x - stren_text_size.x, pos.y), BEAM_STRENGTH_TEXT_COLOR, buf);
-
-                // Stress
-                snprintf(buf, BUF_LEN, "|%.1f",  beams[i].stress);
-                drawlist->AddText(pos, BEAM_STRESS_TEXT_COLOR, buf);
             }
+                else if (beams[i].strength >= 1000000000.f)
+            {
+                    snprintf(buf, BUF_LEN, "%.1fG", (beams[i].strength / 1000000000.f));
+            }
+                else if (beams[i].strength >= 1000000.f)
+            {
+                    snprintf(buf, BUF_LEN, "%.1fM", (beams[i].strength / 1000000.f));
+            }
+                else if (beams[i].strength >= 1000.f)
+            {
+                    snprintf(buf, BUF_LEN, "%.1fK", (beams[i].strength / 1000.f));
+            }
+            else
+            {
+                    snprintf(buf, BUF_LEN, "%.1f", beams[i].strength);
+            }
+            const ImVec2 stren_text_size = ImGui::CalcTextSize(buf);
+            drawlist->AddText(ImVec2(pos.x - stren_text_size.x, pos.y), BEAM_STRENGTH_TEXT_COLOR, buf);
+
+            // Stress
+                snprintf(buf, BUF_LEN, "|%.1f",  beams[i].stress);
+            drawlist->AddText(pos, BEAM_STRESS_TEXT_COLOR, buf);
         }
-    } else if (m_debug_view == DebugViewType::DEBUGVIEW_WHEELS)
-    {
-        // Wheels
+    }
+}
+
+void GfxActor::DrawDebugViewWheels()
+{
+    ImDrawList* drawlist = GetImDummyFullscreenWindow("DebugViewWheels");
+    World2ScreenConverter world2screen = World2ScreenConverter::Default();
+
+    // Wheels
         const wheel_t* wheels = m_actor->ar_wheels;
         const size_t num_wheels = static_cast<size_t>(m_actor->ar_num_wheels);
         for (int i = 0; i < num_wheels; i++)
-        {
+    {
             Ogre::Vector3 axis = wheels[i].wh_axis_node_1->RelPosition - wheels[i].wh_axis_node_0->RelPosition;
-            axis.normalise();
+        axis.normalise();
 
-            // Wheel axle
-            {
+        // Wheel axle
+        {
                 Ogre::Vector3 pos1_xyz = world2screen.Convert(wheels[i].wh_axis_node_1->AbsPosition);
-                if (pos1_xyz.z < 0.f)
-                {
-                    ImVec2 pos(pos1_xyz.x, pos1_xyz.y);
-                    drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_COLOR);
-                }
-                Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_axis_node_0->AbsPosition);
-                if (pos2_xyz.z < 0.f)
-                {
-                    ImVec2 pos(pos2_xyz.x, pos2_xyz.y);
-                    drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_COLOR);
-                }
-                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
-                {
-                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
-                    ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
-                    drawlist->AddLine(pos1xy, pos2xy, BEAM_COLOR, BEAM_BROKEN_THICKNESS);
-                }
-
-                // Id, Speed, Torque
-                Ogre::Vector3 pos_xyz = pos1_xyz.midPoint(pos2_xyz);
-                if (pos_xyz.z < 0.f)
-                {
-                    float v = ImGui::GetTextLineHeightWithSpacing();
-                    ImVec2 pos(pos_xyz.x, pos_xyz.y);
-                    Str<25> wheel_id_buf;
-                    wheel_id_buf << "Id: " << (i + 1);
-                    float h1 = ImGui::CalcTextSize(wheel_id_buf.ToCStr()).x / 2.0f;
-                    drawlist->AddText(ImVec2(pos.x - h1, pos.y), NODE_TEXT_COLOR, wheel_id_buf.ToCStr());
-                    Str<25> rpm_buf;
-                    rpm_buf << "Speed: " << static_cast<int>(Round(wheels[i].debug_rpm)) << " rpm";
-                    float h2 = ImGui::CalcTextSize(rpm_buf.ToCStr()).x / 2.0f;
-                    drawlist->AddText(ImVec2(pos.x - h2, pos.y + v), NODE_TEXT_COLOR, rpm_buf.ToCStr());
-                    Str<25> torque_buf;
-                    torque_buf << "Torque: " << static_cast<int>(Round(wheels[i].debug_torque)) << " Nm";
-                    float h3 = ImGui::CalcTextSize(torque_buf.ToCStr()).x / 2.0f;
-                    drawlist->AddText(ImVec2(pos.x - h3, pos.y + v + v), NODE_TEXT_COLOR, torque_buf.ToCStr());
-                }
+            if (pos1_xyz.z < 0.f)
+            {
+                ImVec2 pos(pos1_xyz.x, pos1_xyz.y);
+                drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_COLOR);
             }
+                Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_axis_node_0->AbsPosition);
+            if (pos2_xyz.z < 0.f)
+            {
+                ImVec2 pos(pos2_xyz.x, pos2_xyz.y);
+                drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_COLOR);
+            }
+            if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+            {
+                ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                drawlist->AddLine(pos1xy, pos2xy, BEAM_COLOR, BEAM_BROKEN_THICKNESS);
+            }
+
+            // Id, Speed, Torque
+            Ogre::Vector3 pos_xyz = pos1_xyz.midPoint(pos2_xyz);
+            if (pos_xyz.z < 0.f)
+            {
+                float v = ImGui::GetTextLineHeightWithSpacing();
+                ImVec2 pos(pos_xyz.x, pos_xyz.y);
+                Str<25> wheel_id_buf;
+                wheel_id_buf << "Id: " << (i + 1);
+                float h1 = ImGui::CalcTextSize(wheel_id_buf.ToCStr()).x / 2.0f;
+                drawlist->AddText(ImVec2(pos.x - h1, pos.y), NODE_TEXT_COLOR, wheel_id_buf.ToCStr());
+                Str<25> rpm_buf;
+                    rpm_buf << "Speed: " << static_cast<int>(Round(wheels[i].debug_rpm)) << " rpm";
+                float h2 = ImGui::CalcTextSize(rpm_buf.ToCStr()).x / 2.0f;
+                drawlist->AddText(ImVec2(pos.x - h2, pos.y + v), NODE_TEXT_COLOR, rpm_buf.ToCStr());
+                Str<25> torque_buf;
+                    torque_buf << "Torque: " << static_cast<int>(Round(wheels[i].debug_torque)) << " Nm";
+                float h3 = ImGui::CalcTextSize(torque_buf.ToCStr()).x / 2.0f;
+                drawlist->AddText(ImVec2(pos.x - h3, pos.y + v + v), NODE_TEXT_COLOR, torque_buf.ToCStr());
+            }
+        }
 
             Ogre::Vector3 rradius = wheels[i].wh_arm_node->RelPosition - wheels[i].wh_near_attach_node->RelPosition;
 
-            // Reference arm
-            {
+        // Reference arm
+        {
                 Ogre::Vector3 pos1_xyz = world2screen.Convert(wheels[i].wh_arm_node->AbsPosition);
-                if (pos1_xyz.z < 0.f)
-                {
-                    ImVec2 pos(pos1_xyz.x, pos1_xyz.y);
-                    drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_IMMOVABLE_COLOR);
-                }
-                Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition);
-                if (pos2_xyz.z < 0.f)
-                {
-                    ImVec2 pos(pos2_xyz.x, pos2_xyz.y);
-                    drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_COLOR);
-                }
-                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
-                {
-                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
-                    ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
-                    drawlist->AddLine(pos1xy, pos2xy, BEAM_BROKEN_COLOR, BEAM_BROKEN_THICKNESS);
-                }
+            if (pos1_xyz.z < 0.f)
+            {
+                ImVec2 pos(pos1_xyz.x, pos1_xyz.y);
+                drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_IMMOVABLE_COLOR);
             }
+                Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition);
+            if (pos2_xyz.z < 0.f)
+            {
+                ImVec2 pos(pos2_xyz.x, pos2_xyz.y);
+                drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_COLOR);
+            }
+            if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+            {
+                ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                drawlist->AddLine(pos1xy, pos2xy, BEAM_BROKEN_COLOR, BEAM_BROKEN_THICKNESS);
+            }
+        }
 
             Ogre::Vector3 radius = Ogre::Plane(axis, wheels[i].wh_near_attach_node->RelPosition).projectVector(rradius);
 
-            // Projection plane
+        // Projection plane
 #if 0
-            {
-                Ogre::Vector3 up       = axis.crossProduct(radius);
+        {
+            Ogre::Vector3 up = axis.crossProduct(radius);
                 Ogre::Vector3 pos1_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition + radius - up);
                 Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition + radius + up);
                 Ogre::Vector3 pos3_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition - radius + up);
                 Ogre::Vector3 pos4_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition - radius - up);
-                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f) && (pos4_xyz.z < 0.f))
-                {
-                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
-                    ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
-                    ImVec2 pos3xy(pos3_xyz.x, pos3_xyz.y);
-                    ImVec2 pos4xy(pos4_xyz.x, pos4_xyz.y);
-                    drawlist->AddQuadFilled(pos1xy, pos2xy, pos3xy, pos4xy, 0x22888888);
-                }
-            }
-#endif
-            // Projected reference arm & error arm
+            if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f) && (pos4_xyz.z < 0.f))
             {
+                ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                ImVec2 pos3xy(pos3_xyz.x, pos3_xyz.y);
+                ImVec2 pos4xy(pos4_xyz.x, pos4_xyz.y);
+                drawlist->AddQuadFilled(pos1xy, pos2xy, pos3xy, pos4xy, 0x22888888);
+            }
+        }
+#endif
+        // Projected reference arm & error arm
+        {
                 Ogre::Vector3 pos1_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition);
                 Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition + radius);
                 Ogre::Vector3 pos3_xyz = world2screen.Convert(wheels[i].wh_arm_node->AbsPosition);
-                if (pos2_xyz.z < 0.f)
-                {
-                    ImVec2 pos(pos2_xyz.x, pos2_xyz.y);
-                    drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, 0x660033ff);
-                }
+            if (pos2_xyz.z < 0.f)
+            {
+                ImVec2 pos(pos2_xyz.x, pos2_xyz.y);
+                drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, 0x660033ff);
+            }
+            if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+            {
+                ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                drawlist->AddLine(pos1xy, pos2xy, 0x664466dd, BEAM_BROKEN_THICKNESS);
+            }
+            if ((pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
+            {
+                ImVec2 pos1xy(pos2_xyz.x, pos2_xyz.y);
+                ImVec2 pos2xy(pos3_xyz.x, pos3_xyz.y);
+                drawlist->AddLine(pos1xy, pos2xy, 0x99555555, BEAM_BROKEN_THICKNESS);
+            }
+        }
+        // Reaction torque
+        {
+                Ogre::Vector3 cforce = wheels[i].debug_scaled_cforce;
+            {
+                    Ogre::Vector3 pos1_xyz = world2screen.Convert(wheels[i].wh_arm_node->AbsPosition);
+                    Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_arm_node->AbsPosition - cforce);
                 if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
                 {
                     ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
                     ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
-                    drawlist->AddLine(pos1xy, pos2xy, 0x664466dd, BEAM_BROKEN_THICKNESS);
-                }
-                if ((pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
-                {
-                    ImVec2 pos1xy(pos2_xyz.x, pos2_xyz.y);
-                    ImVec2 pos2xy(pos3_xyz.x, pos3_xyz.y);
-                    drawlist->AddLine(pos1xy, pos2xy, 0x99555555, BEAM_BROKEN_THICKNESS);
+                    drawlist->AddLine(pos1xy, pos2xy, 0xffcc4444, BEAM_BROKEN_THICKNESS);
                 }
             }
-            // Reaction torque
             {
-                Ogre::Vector3 cforce = wheels[i].debug_scaled_cforce;
-                {
-                    Ogre::Vector3 pos1_xyz = world2screen.Convert(wheels[i].wh_arm_node->AbsPosition);
-                    Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_arm_node->AbsPosition - cforce);
-                    if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
-                    {
-                        ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
-                        ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
-                        drawlist->AddLine(pos1xy, pos2xy, 0xffcc4444, BEAM_BROKEN_THICKNESS);
-                    }
-                }
-                {
                     Ogre::Vector3 pos1_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition);
                     Ogre::Vector3 pos2_xyz = world2screen.Convert(wheels[i].wh_near_attach_node->AbsPosition + cforce);
-                    if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
-                    {
-                        ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
-                        ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
-                        drawlist->AddLine(pos1xy, pos2xy, 0xffcc4444, BEAM_BROKEN_THICKNESS);
-                    }
+                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+                {
+                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                    ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                    drawlist->AddLine(pos1xy, pos2xy, 0xffcc4444, BEAM_BROKEN_THICKNESS);
                 }
             }
+        }
 
-            // Wheel slip
-            {
+        // Wheel slip
+        {
                 Ogre::Vector3 m = wheels[i].wh_axis_node_0->AbsPosition.midPoint(wheels[i].wh_axis_node_1->AbsPosition);
                 Ogre::Real    w = wheels[i].wh_axis_node_0->AbsPosition.distance(m);
-                Ogre::Vector3 u = - axis.crossProduct(m_simbuf.simbuf_direction);
+            Ogre::Vector3 u = -axis.crossProduct(m_simbuf.simbuf_direction);
                 if (!wheels[i].debug_force.isZeroLength())
-                {
+            {
                     u = - wheels[i].debug_force.normalisedCopy();
-                }
-                Ogre::Vector3 f = axis.crossProduct(u);
+            }
+            Ogre::Vector3 f = axis.crossProduct(u);
                 Ogre::Vector3 a = - axis * w + f * std::max(w, wheels[i].wh_radius * 0.5f);
                 Ogre::Vector3 b = + axis * w + f * std::max(w, wheels[i].wh_radius * 0.5f);
                 Ogre::Vector3 c = + axis * w - f * std::max(w, wheels[i].wh_radius * 0.5f);
                 Ogre::Vector3 d = - axis * w - f * std::max(w, wheels[i].wh_radius * 0.5f);
-                Ogre::Quaternion r = Ogre::Quaternion::IDENTITY;
+            Ogre::Quaternion r = Ogre::Quaternion::IDENTITY;
                 if (wheels[i].debug_vel.length() > 1.0f)
-                {
+            {
                     r = Ogre::Quaternion(f.angleBetween(wheels[i].debug_vel), u);
-                }
+            }
                 Ogre::Vector3 pos1_xyz = world2screen.Convert(m - u * wheels[i].wh_radius + r * a);
                 Ogre::Vector3 pos2_xyz = world2screen.Convert(m - u * wheels[i].wh_radius + r * b);
                 Ogre::Vector3 pos3_xyz = world2screen.Convert(m - u * wheels[i].wh_radius + r * c);
                 Ogre::Vector3 pos4_xyz = world2screen.Convert(m - u * wheels[i].wh_radius + r * d);
-                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f) && (pos4_xyz.z < 0.f))
-                {
-                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
-                    ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
-                    ImVec2 pos3xy(pos3_xyz.x, pos3_xyz.y);
-                    ImVec2 pos4xy(pos4_xyz.x, pos4_xyz.y);
+            if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f) && (pos4_xyz.z < 0.f))
+            {
+                ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                ImVec2 pos3xy(pos3_xyz.x, pos3_xyz.y);
+                ImVec2 pos4xy(pos4_xyz.x, pos4_xyz.y);
                     if (!wheels[i].debug_force.isZeroLength())
-                    {
+                {
                         float slipv = wheels[i].debug_slip.length();
                         float wheelv = wheels[i].debug_vel.length();
-                        float slip_ratio = std::min(slipv, wheelv) / std::max(1.0f, wheelv);
-                        float scale = pow(slip_ratio, 2);
-                        ImU32 col = Ogre::ColourValue(scale, 1.0f - scale, 0.0f, 0.2f).getAsABGR();
-                        drawlist->AddQuadFilled(pos1xy, pos2xy, pos3xy, pos4xy, col);
-                    }
-                    else
-                    {
-                        drawlist->AddQuadFilled(pos1xy, pos2xy, pos3xy, pos4xy, 0x55555555);
-                    }
+                    float slip_ratio = std::min(slipv, wheelv) / std::max(1.0f, wheelv);
+                    float scale = pow(slip_ratio, 2);
+                    ImU32 col = Ogre::ColourValue(scale, 1.0f - scale, 0.0f, 0.2f).getAsABGR();
+                    drawlist->AddQuadFilled(pos1xy, pos2xy, pos3xy, pos4xy, col);
+                }
+                else
+                {
+                    drawlist->AddQuadFilled(pos1xy, pos2xy, pos3xy, pos4xy, 0x55555555);
                 }
             }
+        }
 
-            // Slip vector
+        // Slip vector
             if (!wheels[i].debug_vel.isZeroLength())
-            {
+        {
                 Ogre::Vector3 m = wheels[i].wh_axis_node_0->AbsPosition.midPoint(wheels[i].wh_axis_node_1->AbsPosition);
                 Ogre::Real    w = wheels[i].wh_axis_node_0->AbsPosition.distance(m);
                 Ogre::Vector3 d = axis.crossProduct(m_simbuf.simbuf_direction) * wheels[i].wh_radius;
                 Ogre::Real slipv  = wheels[i].debug_slip.length();
                 Ogre::Real wheelv = wheels[i].debug_vel.length();
                 Ogre::Vector3 s = wheels[i].debug_slip * (std::min(slipv, wheelv) / std::max(1.0f, wheelv)) / slipv;
-                Ogre::Vector3 pos1_xyz = world2screen.Convert(m + d);
+            Ogre::Vector3 pos1_xyz = world2screen.Convert(m + d);
                 Ogre::Vector3 pos2_xyz = world2screen.Convert(m + d + s * std::max(w, wheels[i].wh_radius * 0.5f));
-                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
-                {
-                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
-                    ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
-                    drawlist->AddLine(pos1xy, pos2xy, 0xbb4466dd, BEAM_BROKEN_THICKNESS);
-                }
-            }
-
-            // Down force
-            {
-                Ogre::Real f = wheels[i].debug_force.length();
-                Ogre::Real mass = m_actor->getTotalMass(false) * num_wheels;
-                Ogre::Vector3 normalised_force = wheels[i].debug_force.normalisedCopy() * std::min(f / mass, 1.0f);
-                Ogre::Vector3 m = wheels[i].wh_axis_node_0->AbsPosition.midPoint(wheels[i].wh_axis_node_1->AbsPosition);
-                Ogre::Vector3 pos5_xyz = world2screen.Convert(m);
-                Ogre::Vector3 pos6_xyz = world2screen.Convert(m + normalised_force * wheels[i].wh_radius);
-                if ((pos5_xyz.z < 0.f) && (pos6_xyz.z < 0.f))
-                {
-                    ImVec2 pos1xy(pos5_xyz.x, pos5_xyz.y);
-                    ImVec2 pos2xy(pos6_xyz.x, pos6_xyz.y);
-                    drawlist->AddLine(pos1xy, pos2xy, 0x88888888, BEAM_BROKEN_THICKNESS);
-                }
-            }
-        }
-    } else if (m_debug_view == DebugViewType::DEBUGVIEW_SHOCKS)
-    {
-        // Shocks
-        const beam_t* beams = m_actor->ar_beams;
-        const size_t num_beams = static_cast<size_t>(m_actor->ar_num_beams);
-        std::set<int> node_ids;
-        for (size_t i = 0; i < num_beams; ++i)
-        {
-            if (beams[i].bm_type != BEAM_HYDRO)
-                continue;
-            if (!(beams[i].bounded == SHOCK1 || beams[i].bounded == SHOCK2 || beams[i].bounded == SHOCK3))
-                continue;
-
-            Ogre::Vector3 pos1_xyz = world2screen.Convert(beams[i].p1->AbsPosition);
-            Ogre::Vector3 pos2_xyz = world2screen.Convert(beams[i].p2->AbsPosition);
-
-            if (pos1_xyz.z < 0.f)
-            {
-                node_ids.insert(beams[i].p1->pos);
-            }
-            if (pos2_xyz.z < 0.f)
-            {
-                node_ids.insert(beams[i].p2->pos);
-            }
-
             if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
             {
                 ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
                 ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
-
-                ImU32 beam_color = (beams[i].bounded == SHOCK1) ? BEAM_HYDRO_COLOR : BEAM_BROKEN_COLOR;
-
-                drawlist->AddLine(pos1xy, pos2xy, beam_color, 1.25f * BEAM_BROKEN_THICKNESS);
+                drawlist->AddLine(pos1xy, pos2xy, 0xbb4466dd, BEAM_BROKEN_THICKNESS);
             }
         }
-        for (auto id : node_ids)
+
+        // Down force
         {
-            Ogre::Vector3 pos_xyz = world2screen.Convert(m_actor->ar_nodes[id].AbsPosition);
-            if (pos_xyz.z < 0.f)
+                Ogre::Real f = wheels[i].debug_force.length();
+                Ogre::Real mass = m_actor->getTotalMass(false) * num_wheels;
+                Ogre::Vector3 normalised_force = wheels[i].debug_force.normalisedCopy() * std::min(f / mass, 1.0f);
+                Ogre::Vector3 m = wheels[i].wh_axis_node_0->AbsPosition.midPoint(wheels[i].wh_axis_node_1->AbsPosition);
+            Ogre::Vector3 pos5_xyz = world2screen.Convert(m);
+                Ogre::Vector3 pos6_xyz = world2screen.Convert(m + normalised_force * wheels[i].wh_radius);
+            if ((pos5_xyz.z < 0.f) && (pos6_xyz.z < 0.f))
             {
-                ImVec2 pos_xy(pos_xyz.x, pos_xyz.y);
-                drawlist->AddCircleFilled(pos_xy, NODE_RADIUS, NODE_COLOR);
-                // Node info
-                Str<25> id_buf;
-                id_buf << id;
-                drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
+                ImVec2 pos1xy(pos5_xyz.x, pos5_xyz.y);
+                ImVec2 pos2xy(pos6_xyz.x, pos6_xyz.y);
+                drawlist->AddLine(pos1xy, pos2xy, 0x88888888, BEAM_BROKEN_THICKNESS);
             }
         }
+    }
+}
+
+void GfxActor::DrawDebugViewShocks()
+{
+    ImDrawList* drawlist = GetImDummyFullscreenWindow("DebugViewShocks");
+    World2ScreenConverter world2screen = World2ScreenConverter::Default();
+
+    // Shocks
+        const beam_t* beams = m_actor->ar_beams;
+        const size_t num_beams = static_cast<size_t>(m_actor->ar_num_beams);
+    std::set<int> node_ids;
         for (size_t i = 0; i < num_beams; ++i)
-        {
+    {
             if (beams[i].bm_type != BEAM_HYDRO)
-                continue;
+            continue;
             if (!(beams[i].bounded == SHOCK1 || beams[i].bounded == SHOCK2 || beams[i].bounded == SHOCK3))
-                continue;
+            continue;
 
             Ogre::Vector3 pos1_xyz = world2screen.Convert(beams[i].p1->AbsPosition);
             Ogre::Vector3 pos2_xyz = world2screen.Convert(beams[i].p2->AbsPosition);
-            Ogre::Vector3 pos_xyz  = pos1_xyz.midPoint(pos2_xyz);
 
-            if (pos_xyz.z < 0.f)
-            {
-                // Shock info
+        if (pos1_xyz.z < 0.f)
+        {
+                node_ids.insert(beams[i].p1->pos);
+        }
+        if (pos2_xyz.z < 0.f)
+        {
+                node_ids.insert(beams[i].p2->pos);
+        }
+
+        if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+        {
+            ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+            ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+
+                ImU32 beam_color = (beams[i].bounded == SHOCK1) ? BEAM_HYDRO_COLOR : BEAM_BROKEN_COLOR;
+
+            drawlist->AddLine(pos1xy, pos2xy, beam_color, 1.25f * BEAM_BROKEN_THICKNESS);
+        }
+    }
+    for (auto id : node_ids)
+    {
+        Ogre::Vector3 pos_xyz = world2screen.Convert(m_actor->ar_nodes[id].AbsPosition);
+        if (pos_xyz.z < 0.f)
+        {
+            ImVec2 pos_xy(pos_xyz.x, pos_xyz.y);
+            drawlist->AddCircleFilled(pos_xy, NODE_RADIUS, NODE_COLOR);
+            // Node info
+            Str<25> id_buf;
+            id_buf << id;
+            drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
+        }
+    }
+        for (size_t i = 0; i < num_beams; ++i)
+    {
+            if (beams[i].bm_type != BEAM_HYDRO)
+            continue;
+            if (!(beams[i].bounded == SHOCK1 || beams[i].bounded == SHOCK2 || beams[i].bounded == SHOCK3))
+            continue;
+
+            Ogre::Vector3 pos1_xyz = world2screen.Convert(beams[i].p1->AbsPosition);
+            Ogre::Vector3 pos2_xyz = world2screen.Convert(beams[i].p2->AbsPosition);
+        Ogre::Vector3 pos_xyz = pos1_xyz.midPoint(pos2_xyz);
+
+        if (pos_xyz.z < 0.f)
+        {
+            // Shock info
                 float diff = beams[i].p1->AbsPosition.distance(beams[i].p2->AbsPosition) - beams[i].L;
-                ImU32 text_color = (diff < 0.0f) ? 0xff66ee66 : 0xff8888ff;
+            ImU32 text_color = (diff < 0.0f) ? 0xff66ee66 : 0xff8888ff;
                 float bound = (diff < 0.0f) ? beams[i].shortbound : beams[i].longbound;
                 float ratio = Ogre::Math::Clamp(diff / (bound * beams[i].L), -2.0f, +2.0f);
 
-                float v = ImGui::GetTextLineHeightWithSpacing();
-                ImVec2 pos(pos_xyz.x, pos_xyz.y - v - v);
-                Str<25> len_buf;
-                len_buf << "L: " << static_cast<int>(Round(std::abs(ratio) * 100.0f)) << " %";
-                float h1 = ImGui::CalcTextSize(len_buf.ToCStr()).x / 2.0f;
-                drawlist->AddText(ImVec2(pos.x - h1, pos.y), text_color, len_buf.ToCStr());
-                Str<25> spring_buf;
+            float v = ImGui::GetTextLineHeightWithSpacing();
+            ImVec2 pos(pos_xyz.x, pos_xyz.y - v - v);
+            Str<25> len_buf;
+            len_buf << "L: " << static_cast<int>(Round(std::abs(ratio) * 100.0f)) << " %";
+            float h1 = ImGui::CalcTextSize(len_buf.ToCStr()).x / 2.0f;
+            drawlist->AddText(ImVec2(pos.x - h1, pos.y), text_color, len_buf.ToCStr());
+            Str<25> spring_buf;
                 spring_buf << "S: " << static_cast<int>(Round(beams[i].debug_k)) << " N";
-                float h2 = ImGui::CalcTextSize(spring_buf.ToCStr()).x / 2.0f;
-                drawlist->AddText(ImVec2(pos.x - h2, pos.y + v), text_color, spring_buf.ToCStr());
-                Str<25> damp_buf;
+            float h2 = ImGui::CalcTextSize(spring_buf.ToCStr()).x / 2.0f;
+            drawlist->AddText(ImVec2(pos.x - h2, pos.y + v), text_color, spring_buf.ToCStr());
+            Str<25> damp_buf;
                 damp_buf << "D: " << static_cast<int>(Round(beams[i].debug_d)) << " N";
-                float h3 = ImGui::CalcTextSize(damp_buf.ToCStr()).x / 2.0f;
-                drawlist->AddText(ImVec2(pos.x - h3, pos.y + v + v), text_color, damp_buf.ToCStr());
-                char vel_buf[25];
+            float h3 = ImGui::CalcTextSize(damp_buf.ToCStr()).x / 2.0f;
+            drawlist->AddText(ImVec2(pos.x - h3, pos.y + v + v), text_color, damp_buf.ToCStr());
+            char vel_buf[25];
                 snprintf(vel_buf, 25, "V: %.2f m/s", beams[i].debug_v);
-                float h4 = ImGui::CalcTextSize(vel_buf).x / 2.0f;
-                drawlist->AddText(ImVec2(pos.x - h4, pos.y + v + v + v), text_color, vel_buf);
-            }
+            float h4 = ImGui::CalcTextSize(vel_buf).x / 2.0f;
+            drawlist->AddText(ImVec2(pos.x - h4, pos.y + v + v + v), text_color, vel_buf);
         }
-    } else if (m_debug_view == DebugViewType::DEBUGVIEW_ROTATORS)
-    {
-        // Rotators
+    }
+}
+
+void GfxActor::DrawDebugViewRotators()
+{
+    ImDrawList* drawlist = GetImDummyFullscreenWindow("DebugViewRotators");
+    World2ScreenConverter world2screen = World2ScreenConverter::Default();
+
+    // Rotators
         const node_t* nodes = m_actor->ar_nodes;
         const rotator_t* rotators = m_actor->ar_rotators;
         const size_t num_rotators = static_cast<size_t>(m_actor->ar_num_rotators);
         for (int i = 0; i < num_rotators; i++)
-        {
+    {
             Ogre::Vector3 pos1_xyz = world2screen.Convert(nodes[rotators[i].axis1].AbsPosition);
             Ogre::Vector3 pos2_xyz = world2screen.Convert(nodes[rotators[i].axis2].AbsPosition);
 
-            // Rotator axle
+        // Rotator axle
+        {
+            if (pos1_xyz.z < 0.f)
             {
-                if (pos1_xyz.z < 0.f)
-                {
-                    ImVec2 pos(pos1_xyz.x, pos1_xyz.y);
-                    drawlist->AddCircleFilled(pos, 1.25f * NODE_IMMOVABLE_RADIUS, NODE_COLOR);
-                    Str<25> id_buf;
+                ImVec2 pos(pos1_xyz.x, pos1_xyz.y);
+                drawlist->AddCircleFilled(pos, 1.25f * NODE_IMMOVABLE_RADIUS, NODE_COLOR);
+                Str<25> id_buf;
                     id_buf << nodes[rotators[i].axis1].pos;
-                    drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
-                }
-                if (pos2_xyz.z < 0.f)
-                {
-                    ImVec2 pos(pos2_xyz.x, pos2_xyz.y);
-                    drawlist->AddCircleFilled(pos, 1.25f * NODE_IMMOVABLE_RADIUS, NODE_COLOR);
-                    Str<25> id_buf;
+                drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
+            }
+            if (pos2_xyz.z < 0.f)
+            {
+                ImVec2 pos(pos2_xyz.x, pos2_xyz.y);
+                drawlist->AddCircleFilled(pos, 1.25f * NODE_IMMOVABLE_RADIUS, NODE_COLOR);
+                Str<25> id_buf;
                     id_buf << nodes[rotators[i].axis2].pos;
-                    drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
-                }
-                if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
-                {
-                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
-                    ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
-                    drawlist->AddLine(pos1xy, pos2xy, BEAM_COLOR, 1.25f * BEAM_BROKEN_THICKNESS);
-                }
-
-                // Id, RPM, Error
-                Ogre::Vector3 pos_xyz = pos1_xyz.midPoint(pos2_xyz);
-                if (pos_xyz.z < 0.f)
-                {
-                    float v = ImGui::GetTextLineHeightWithSpacing();
-                    ImVec2 pos(pos_xyz.x, pos_xyz.y);
-                    Str<25> rotator_id_buf;
-                    rotator_id_buf << "Id: " << (i + 1);
-                    float h1 = ImGui::CalcTextSize(rotator_id_buf.ToCStr()).x / 2.0f;
-                    drawlist->AddText(ImVec2(pos.x - h1, pos.y), NODE_TEXT_COLOR, rotator_id_buf.ToCStr());
-                    char angle_buf[25];
-                    snprintf(angle_buf, 25, "Rate: %.1f rpm", 60.0f * rotators[i].debug_rate / Ogre::Math::TWO_PI);
-                    float h2 = ImGui::CalcTextSize(angle_buf).x / 2.0f;
-                    drawlist->AddText(ImVec2(pos.x - h2, pos.y + v), NODE_TEXT_COLOR, angle_buf);
-                    char aerror_buf[25];
-                    snprintf(aerror_buf, 25, "Error: %.1f mrad", 1000.0f * std::abs(rotators[i].debug_aerror));
-                    float h3 = ImGui::CalcTextSize(aerror_buf).x / 2.0f;
-                    drawlist->AddText(ImVec2(pos.x - h3, pos.y + v + v), NODE_TEXT_COLOR, aerror_buf);
-                }
+                drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
+            }
+            if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+            {
+                ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                drawlist->AddLine(pos1xy, pos2xy, BEAM_COLOR, 1.25f * BEAM_BROKEN_THICKNESS);
             }
 
-            // Reference arms
-            for (int j = 0; j < 4; j++)
+            // Id, RPM, Error
+            Ogre::Vector3 pos_xyz = pos1_xyz.midPoint(pos2_xyz);
+            if (pos_xyz.z < 0.f)
             {
-                // Base plate
-                {
-                    ImU32 node_color = Ogre::ColourValue(0.33f, 0.33f, 0.33f, j < 2 ? 1.0f : 0.5f).getAsABGR();
-                    ImU32 beam_color = Ogre::ColourValue(0.33f, 0.33f, 0.33f, j < 2 ? 1.0f : 0.5f).getAsABGR();
+                float v = ImGui::GetTextLineHeightWithSpacing();
+                ImVec2 pos(pos_xyz.x, pos_xyz.y);
+                Str<25> rotator_id_buf;
+                rotator_id_buf << "Id: " << (i + 1);
+                float h1 = ImGui::CalcTextSize(rotator_id_buf.ToCStr()).x / 2.0f;
+                drawlist->AddText(ImVec2(pos.x - h1, pos.y), NODE_TEXT_COLOR, rotator_id_buf.ToCStr());
+                char angle_buf[25];
+                    snprintf(angle_buf, 25, "Rate: %.1f rpm", 60.0f * rotators[i].debug_rate / Ogre::Math::TWO_PI);
+                float h2 = ImGui::CalcTextSize(angle_buf).x / 2.0f;
+                drawlist->AddText(ImVec2(pos.x - h2, pos.y + v), NODE_TEXT_COLOR, angle_buf);
+                char aerror_buf[25];
+                    snprintf(aerror_buf, 25, "Error: %.1f mrad", 1000.0f * std::abs(rotators[i].debug_aerror));
+                float h3 = ImGui::CalcTextSize(aerror_buf).x / 2.0f;
+                drawlist->AddText(ImVec2(pos.x - h3, pos.y + v + v), NODE_TEXT_COLOR, aerror_buf);
+            }
+        }
+
+        // Reference arms
+        for (int j = 0; j < 4; j++)
+        {
+            // Base plate
+            {
+                ImU32 node_color = Ogre::ColourValue(0.33f, 0.33f, 0.33f, j < 2 ? 1.0f : 0.5f).getAsABGR();
+                ImU32 beam_color = Ogre::ColourValue(0.33f, 0.33f, 0.33f, j < 2 ? 1.0f : 0.5f).getAsABGR();
 
                     Ogre::Vector3 pos3_xyz = world2screen.Convert(nodes[rotators[i].nodes1[j]].AbsPosition);
-                    if (pos3_xyz.z < 0.f)
-                    {
-                        ImVec2 pos(pos3_xyz.x, pos3_xyz.y);
-                        drawlist->AddCircleFilled(pos, NODE_RADIUS, node_color);
-                        Str<25> id_buf;
-                        id_buf << nodes[rotators[i].nodes1[j]].pos;
-                        drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
-                    }
-                    if ((pos1_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
-                    {
-                        ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
-                        ImVec2 pos2xy(pos3_xyz.x, pos3_xyz.y);
-                        drawlist->AddLine(pos1xy, pos2xy, beam_color, BEAM_BROKEN_THICKNESS);
-                    }
-                }
-                // Rotating plate
+                if (pos3_xyz.z < 0.f)
                 {
-                    ImU32 node_color = Ogre::ColourValue(1.00f, 0.87f, 0.27f, j < 2 ? 1.0f : 0.5f).getAsABGR();
-                    ImU32 beam_color = Ogre::ColourValue(0.88f, 0.64f, 0.33f, j < 2 ? 1.0f : 0.5f).getAsABGR();
-
-                    Ogre::Vector3 pos3_xyz = world2screen.Convert(nodes[rotators[i].nodes2[j]].AbsPosition);
-                    if (pos3_xyz.z < 0.f)
-                    {
-                        ImVec2 pos(pos3_xyz.x, pos3_xyz.y);
-                        drawlist->AddCircleFilled(pos, NODE_RADIUS, node_color);
-                        Str<25> id_buf;
-                        id_buf << nodes[rotators[i].nodes2[j]].pos;
-                        drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
-                    }
-                    if ((pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
-                    {
-                        ImVec2 pos1xy(pos2_xyz.x, pos2_xyz.y);
-                        ImVec2 pos2xy(pos3_xyz.x, pos3_xyz.y);
-                        drawlist->AddLine(pos1xy, pos2xy, beam_color, BEAM_BROKEN_THICKNESS);
-                    }
+                    ImVec2 pos(pos3_xyz.x, pos3_xyz.y);
+                    drawlist->AddCircleFilled(pos, NODE_RADIUS, node_color);
+                    Str<25> id_buf;
+                        id_buf << nodes[rotators[i].nodes1[j]].pos;
+                    drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
+                }
+                if ((pos1_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
+                {
+                    ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                    ImVec2 pos2xy(pos3_xyz.x, pos3_xyz.y);
+                    drawlist->AddLine(pos1xy, pos2xy, beam_color, BEAM_BROKEN_THICKNESS);
                 }
             }
-
-            // Projection plane
+            // Rotating plate
             {
-                Ogre::Vector3 mid = nodes[rotators[i].axis1].AbsPosition.midPoint(nodes[rotators[i].axis2].AbsPosition);
-                Ogre::Vector3 axis = nodes[rotators[i].axis1].RelPosition - nodes[rotators[i].axis2].RelPosition;
-                Ogre::Vector3 perp = axis.perpendicular(); 
-                axis.normalise();
+                ImU32 node_color = Ogre::ColourValue(1.00f, 0.87f, 0.27f, j < 2 ? 1.0f : 0.5f).getAsABGR();
+                ImU32 beam_color = Ogre::ColourValue(0.88f, 0.64f, 0.33f, j < 2 ? 1.0f : 0.5f).getAsABGR();
 
-                const int steps = 64;
-                Ogre::Plane plane = Ogre::Plane(axis, mid);
-
-                Ogre::Real radius1 = 0.0f;
-                Ogre::Real offset1 = 0.0f;
-                for (int k = 0; k < 2; k++)
+                    Ogre::Vector3 pos3_xyz = world2screen.Convert(nodes[rotators[i].nodes2[j]].AbsPosition);
+                if (pos3_xyz.z < 0.f)
                 {
-                    Ogre::Vector3 r1 = nodes[rotators[i].nodes1[k]].RelPosition - nodes[rotators[i].axis1].RelPosition;
-                    Ogre::Real r = plane.projectVector(r1).length();
-                    if (r > radius1)
-                    {
-                        radius1 = r;
-                        offset1 = plane.getDistance(nodes[rotators[i].nodes1[k]].AbsPosition);
-                    }
+                    ImVec2 pos(pos3_xyz.x, pos3_xyz.y);
+                    drawlist->AddCircleFilled(pos, NODE_RADIUS, node_color);
+                    Str<25> id_buf;
+                        id_buf << nodes[rotators[i].nodes2[j]].pos;
+                    drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
                 }
-                std::vector<ImVec2> pos1_xy;
-                for (int k = 0; k < steps; k++)
+                if ((pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
                 {
-                    Ogre::Quaternion rotation(Ogre::Radian(((float)k / steps) * Ogre::Math::TWO_PI), axis);
-                    Ogre::Vector3 pos_xyz = world2screen.Convert(mid + axis * offset1 + rotation * perp * radius1);
-                    if (pos_xyz.z < 0.f)
-                    {
-                        pos1_xy.push_back(ImVec2(pos_xyz.x, pos_xyz.y));
-                    }
-                }
-                if (!pos1_xy.empty())
-                {
-                    drawlist->AddConvexPolyFilled(pos1_xy.data(), static_cast<int>(pos1_xy.size()), 0x33666666);
-                }
-
-                Ogre::Real radius2 = 0.0f;
-                Ogre::Real offset2 = 0.0f;
-                for (int k = 0; k < 2; k++)
-                {
-                    Ogre::Vector3 r2 = nodes[rotators[i].nodes2[k]].RelPosition - nodes[rotators[i].axis2].RelPosition;
-                    Ogre::Real r = plane.projectVector(r2).length();
-                    if (r > radius2)
-                    {
-                        radius2 = r;
-                        offset2 = plane.getDistance(nodes[rotators[i].nodes2[k]].AbsPosition);
-                    }
-                }
-                std::vector<ImVec2> pos2_xy;
-                for (int k = 0; k < steps; k++)
-                {
-                    Ogre::Quaternion rotation(Ogre::Radian(((float)k / steps) * Ogre::Math::TWO_PI), axis);
-                    Ogre::Vector3 pos_xyz = world2screen.Convert(mid + axis * offset2 + rotation * perp * radius2);
-                    if (pos_xyz.z < 0.f)
-                    {
-                        pos2_xy.push_back(ImVec2(pos_xyz.x, pos_xyz.y));
-                    }
-                }
-                if (!pos2_xy.empty())
-                {
-                    drawlist->AddConvexPolyFilled(pos2_xy.data(), static_cast<int>(pos2_xy.size()), 0x1155a3e0);
-                }
-
-                for (int k = 0; k < 2; k++)
-                {
-                    // Projected and rotated base plate arms (theory vectors)
-                    Ogre::Vector3 ref1 = plane.projectVector(nodes[rotators[i].nodes1[k]].AbsPosition - mid);
-                    Ogre::Vector3 th1 = Ogre::Quaternion(Ogre::Radian(rotators[i].angle), axis) * ref1;
-                    {
-                        Ogre::Vector3 pos1_xyz = world2screen.Convert(mid + axis * offset1);
-                        Ogre::Vector3 pos2_xyz = world2screen.Convert(mid + axis * offset1 + th1);
-                        if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
-                        {
-                            ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
-                            ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
-                            drawlist->AddLine(pos1xy, pos2xy, 0x44888888, BEAM_BROKEN_THICKNESS);
-                        }
-                    }
-                    // Projected rotation plate arms
-                    Ogre::Vector3 ref2 = plane.projectVector(nodes[rotators[i].nodes2[k]].AbsPosition - mid);
-                    {
-                        Ogre::Vector3 pos1_xyz = world2screen.Convert(mid + axis * offset2);
-                        Ogre::Vector3 pos2_xyz = world2screen.Convert(mid + axis * offset2 + ref2);
-                        if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
-                        {
-                            ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
-                            ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
-                            drawlist->AddLine(pos1xy, pos2xy, 0x4455a3e0, BEAM_BROKEN_THICKNESS);
-                        }
-                    }
-                    // Virtual plate connections
-                    th1.normalise();
-                    Ogre::Real radius = std::min(radius1, radius2);
-                    Ogre::Vector3 pos3_xyz = world2screen.Convert(mid + axis * offset1 + th1 * radius);
-                    Ogre::Vector3 pos4_xyz = world2screen.Convert(mid + axis * offset2 + th1 * radius);
-                    if ((pos3_xyz.z < 0.f) && (pos4_xyz.z < 0.f))
-                    {
-                        ImVec2 pos1xy(pos3_xyz.x, pos3_xyz.y);
-                        ImVec2 pos2xy(pos4_xyz.x, pos4_xyz.y);
-                        drawlist->AddLine(pos1xy, pos2xy, BEAM_COLOR, BEAM_BROKEN_THICKNESS);
-                    }
+                    ImVec2 pos1xy(pos2_xyz.x, pos2_xyz.y);
+                    ImVec2 pos2xy(pos3_xyz.x, pos3_xyz.y);
+                    drawlist->AddLine(pos1xy, pos2xy, beam_color, BEAM_BROKEN_THICKNESS);
                 }
             }
         }
-    } else if (m_debug_view == DebugViewType::DEBUGVIEW_SLIDENODES)
-    {
-        // Slide nodes
-        const node_t* nodes = m_actor->ar_nodes;
-        std::set<int> node_ids;
-        for (auto railgroup : m_actor->m_railgroups)
+
+        // Projection plane
         {
-            for (auto railsegment : railgroup->rg_segments)
+                Ogre::Vector3 mid = nodes[rotators[i].axis1].AbsPosition.midPoint(nodes[rotators[i].axis2].AbsPosition);
+                Ogre::Vector3 axis = nodes[rotators[i].axis1].RelPosition - nodes[rotators[i].axis2].RelPosition;
+            Ogre::Vector3 perp = axis.perpendicular();
+            axis.normalise();
+
+            const int steps = 64;
+            Ogre::Plane plane = Ogre::Plane(axis, mid);
+
+            Ogre::Real radius1 = 0.0f;
+            Ogre::Real offset1 = 0.0f;
+            for (int k = 0; k < 2; k++)
             {
-                Ogre::Vector3 pos1 = world2screen.Convert(railsegment.rs_beam->p1->AbsPosition);
-                Ogre::Vector3 pos2 = world2screen.Convert(railsegment.rs_beam->p2->AbsPosition);
-
-                if (pos1.z < 0.f)
+                    Ogre::Vector3 r1 = nodes[rotators[i].nodes1[k]].RelPosition - nodes[rotators[i].axis1].RelPosition;
+                Ogre::Real r = plane.projectVector(r1).length();
+                if (r > radius1)
                 {
-                    node_ids.insert(railsegment.rs_beam->p1->pos);
+                    radius1 = r;
+                        offset1 = plane.getDistance(nodes[rotators[i].nodes1[k]].AbsPosition);
                 }
-                if (pos2.z < 0.f)
+            }
+            std::vector<ImVec2> pos1_xy;
+            for (int k = 0; k < steps; k++)
+            {
+                Ogre::Quaternion rotation(Ogre::Radian(((float)k / steps) * Ogre::Math::TWO_PI), axis);
+                Ogre::Vector3 pos_xyz = world2screen.Convert(mid + axis * offset1 + rotation * perp * radius1);
+                if (pos_xyz.z < 0.f)
                 {
-                    node_ids.insert(railsegment.rs_beam->p2->pos);
+                    pos1_xy.push_back(ImVec2(pos_xyz.x, pos_xyz.y));
                 }
-                if ((pos1.z < 0.f) && (pos2.z < 0.f))
-                {
-                    ImVec2 pos1xy(pos1.x, pos1.y);
-                    ImVec2 pos2xy(pos2.x, pos2.y);
+            }
+            if (!pos1_xy.empty())
+            {
+                drawlist->AddConvexPolyFilled(pos1_xy.data(), static_cast<int>(pos1_xy.size()), 0x33666666);
+            }
 
+            Ogre::Real radius2 = 0.0f;
+            Ogre::Real offset2 = 0.0f;
+            for (int k = 0; k < 2; k++)
+            {
+                    Ogre::Vector3 r2 = nodes[rotators[i].nodes2[k]].RelPosition - nodes[rotators[i].axis2].RelPosition;
+                Ogre::Real r = plane.projectVector(r2).length();
+                if (r > radius2)
+                {
+                    radius2 = r;
+                        offset2 = plane.getDistance(nodes[rotators[i].nodes2[k]].AbsPosition);
+                }
+            }
+            std::vector<ImVec2> pos2_xy;
+            for (int k = 0; k < steps; k++)
+            {
+                Ogre::Quaternion rotation(Ogre::Radian(((float)k / steps) * Ogre::Math::TWO_PI), axis);
+                Ogre::Vector3 pos_xyz = world2screen.Convert(mid + axis * offset2 + rotation * perp * radius2);
+                if (pos_xyz.z < 0.f)
+                {
+                    pos2_xy.push_back(ImVec2(pos_xyz.x, pos_xyz.y));
+                }
+            }
+            if (!pos2_xy.empty())
+            {
+                drawlist->AddConvexPolyFilled(pos2_xy.data(), static_cast<int>(pos2_xy.size()), 0x1155a3e0);
+            }
+
+            for (int k = 0; k < 2; k++)
+            {
+                // Projected and rotated base plate arms (theory vectors)
+                    Ogre::Vector3 ref1 = plane.projectVector(nodes[rotators[i].nodes1[k]].AbsPosition - mid);
+                    Ogre::Vector3 th1 = Ogre::Quaternion(Ogre::Radian(rotators[i].angle), axis) * ref1;
+                {
+                    Ogre::Vector3 pos1_xyz = world2screen.Convert(mid + axis * offset1);
+                    Ogre::Vector3 pos2_xyz = world2screen.Convert(mid + axis * offset1 + th1);
+                    if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+                    {
+                        ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                        ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                        drawlist->AddLine(pos1xy, pos2xy, 0x44888888, BEAM_BROKEN_THICKNESS);
+                    }
+                }
+                // Projected rotation plate arms
+                    Ogre::Vector3 ref2 = plane.projectVector(nodes[rotators[i].nodes2[k]].AbsPosition - mid);
+                {
+                    Ogre::Vector3 pos1_xyz = world2screen.Convert(mid + axis * offset2);
+                    Ogre::Vector3 pos2_xyz = world2screen.Convert(mid + axis * offset2 + ref2);
+                    if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
+                    {
+                        ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
+                        ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
+                        drawlist->AddLine(pos1xy, pos2xy, 0x4455a3e0, BEAM_BROKEN_THICKNESS);
+                    }
+                }
+                // Virtual plate connections
+                th1.normalise();
+                Ogre::Real radius = std::min(radius1, radius2);
+                Ogre::Vector3 pos3_xyz = world2screen.Convert(mid + axis * offset1 + th1 * radius);
+                Ogre::Vector3 pos4_xyz = world2screen.Convert(mid + axis * offset2 + th1 * radius);
+                if ((pos3_xyz.z < 0.f) && (pos4_xyz.z < 0.f))
+                {
+                    ImVec2 pos1xy(pos3_xyz.x, pos3_xyz.y);
+                    ImVec2 pos2xy(pos4_xyz.x, pos4_xyz.y);
                     drawlist->AddLine(pos1xy, pos2xy, BEAM_COLOR, BEAM_BROKEN_THICKNESS);
                 }
             }
         }
-        for (auto id : node_ids)
-        {
-            Ogre::Vector3 pos_xyz = world2screen.Convert(nodes[id].AbsPosition);
-            if (pos_xyz.z < 0.f)
-            {
-                ImVec2 pos_xy(pos_xyz.x, pos_xyz.y);
-                drawlist->AddCircleFilled(pos_xy, NODE_RADIUS, NODE_COLOR);
-                // Node info
-                Str<25> id_buf;
-                id_buf << id;
-                drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
-            }
-        }
-        for (auto slidenode :  m_actor->m_slidenodes)
-        {
-            auto id = slidenode.GetSlideNodeId();
-            Ogre::Vector3 pos_xyz = world2screen.Convert(nodes[id].AbsPosition);
+    }
+}
 
-            if (pos_xyz.z < 0.f)
-            {
-                ImVec2 pos(pos_xyz.x, pos_xyz.y);
-                drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_IMMOVABLE_COLOR);
-                // Node info
-                Str<25> id_buf;
-                id_buf << id;
-                drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
-            }
-        }
-    } else if (m_debug_view == DebugViewType::DEBUGVIEW_SUBMESH)
-    {
-        // Cabs
+void GfxActor::DrawDebugViewSlidenodes()
+{
+    ImDrawList* drawlist = GetImDummyFullscreenWindow("DebugViewSlidenodes");
+    World2ScreenConverter world2screen = World2ScreenConverter::Default();
+
+    // Slide nodes
         const node_t* nodes = m_actor->ar_nodes;
-        const auto cabs = m_actor->ar_cabs;
-        const auto num_cabs = m_actor->ar_num_cabs;
-        const auto buoycabs = m_actor->ar_buoycabs;
-        const auto num_buoycabs = m_actor->ar_num_buoycabs;
-        const auto collcabs = m_actor->ar_collcabs;
-        const auto num_collcabs = m_actor->ar_num_collcabs;
-
-        std::vector<std::pair<float, int>> render_cabs;
-        for (int i = 0; i < num_cabs; i++)
+        std::set<int> node_ids;
+    for (auto railgroup : m_actor->m_railgroups)
+    {
+        for (auto railsegment : railgroup->rg_segments)
         {
-            Ogre::Vector3 pos1_xyz = world2screen.Convert(nodes[cabs[i*3+0]].AbsPosition);
-            Ogre::Vector3 pos2_xyz = world2screen.Convert(nodes[cabs[i*3+1]].AbsPosition);
-            Ogre::Vector3 pos3_xyz = world2screen.Convert(nodes[cabs[i*3+2]].AbsPosition);
-            if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
+                Ogre::Vector3 pos1 = world2screen.Convert(railsegment.rs_beam->p1->AbsPosition);
+                Ogre::Vector3 pos2 = world2screen.Convert(railsegment.rs_beam->p2->AbsPosition);
+
+            if (pos1.z < 0.f)
             {
-                float depth = pos1_xyz.z;
-                depth = std::max(depth, pos2_xyz.z);
-                depth = std::max(depth, pos3_xyz.z);
-                render_cabs.push_back({depth, i});
+                    node_ids.insert(railsegment.rs_beam->p1->pos);
+            }
+            if (pos2.z < 0.f)
+            {
+                    node_ids.insert(railsegment.rs_beam->p2->pos);
+            }
+            if ((pos1.z < 0.f) && (pos2.z < 0.f))
+            {
+                ImVec2 pos1xy(pos1.x, pos1.y);
+                ImVec2 pos2xy(pos2.x, pos2.y);
+
+                drawlist->AddLine(pos1xy, pos2xy, BEAM_COLOR, BEAM_BROKEN_THICKNESS);
             }
         }
-        std::sort(render_cabs.begin(), render_cabs.end());
-
-        // Cabs and contacters (which are part of a cab)
-        std::vector<int> node_ids;
-        for (auto render_cab : render_cabs)
+    }
+    for (auto id : node_ids)
+    {
+        Ogre::Vector3 pos_xyz = world2screen.Convert(nodes[id].AbsPosition);
+        if (pos_xyz.z < 0.f)
         {
-            int i = render_cab.second;
-            bool coll = std::find(collcabs, collcabs + num_collcabs, i) != (collcabs + num_collcabs);
-            bool buoy = std::find(buoycabs, buoycabs + num_buoycabs, i) != (buoycabs + num_buoycabs);
+            ImVec2 pos_xy(pos_xyz.x, pos_xyz.y);
+            drawlist->AddCircleFilled(pos_xy, NODE_RADIUS, NODE_COLOR);
+            // Node info
+            Str<25> id_buf;
+            id_buf << id;
+            drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
+        }
+    }
+    for (auto slidenode : m_actor->m_slidenodes)
+    {
+        auto id = slidenode.GetSlideNodeId();
+        Ogre::Vector3 pos_xyz = world2screen.Convert(nodes[id].AbsPosition);
 
-            ImU32 fill_color = Ogre::ColourValue(0.5f * coll, 0.5f * !buoy, 0.5f * (coll ^ buoy), 0.27f).getAsABGR();
-            ImU32 beam_color = Ogre::ColourValue(0.5f * coll, 0.5f * !buoy, 0.5f * (coll ^ buoy), 0.53f).getAsABGR();
+        if (pos_xyz.z < 0.f)
+        {
+            ImVec2 pos(pos_xyz.x, pos_xyz.y);
+            drawlist->AddCircleFilled(pos, NODE_IMMOVABLE_RADIUS, NODE_IMMOVABLE_COLOR);
+            // Node info
+            Str<25> id_buf;
+            id_buf << id;
+            drawlist->AddText(pos, NODE_TEXT_COLOR, id_buf.ToCStr());
+        }
+    }
+}
 
-            Ogre::Vector3 pos1_xyz = world2screen.Convert(nodes[cabs[i*3+0]].AbsPosition);
-            Ogre::Vector3 pos2_xyz = world2screen.Convert(nodes[cabs[i*3+1]].AbsPosition);
-            Ogre::Vector3 pos3_xyz = world2screen.Convert(nodes[cabs[i*3+2]].AbsPosition);
-            if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
+void GfxActor::DrawDebugViewSubmesh()
+{
+    ImDrawList* drawlist = GetImDummyFullscreenWindow("DebugViewSubmesh");
+    World2ScreenConverter world2screen = World2ScreenConverter::Default();
+
+    // Cabs
+        const node_t* nodes = m_actor->ar_nodes;
+    const auto cabs = m_actor->ar_cabs;
+    const auto num_cabs = m_actor->ar_num_cabs;
+    const auto buoycabs = m_actor->ar_buoycabs;
+    const auto num_buoycabs = m_actor->ar_num_buoycabs;
+    const auto collcabs = m_actor->ar_collcabs;
+    const auto num_collcabs = m_actor->ar_num_collcabs;
+
+    std::vector<std::pair<float, int>> render_cabs;
+    for (int i = 0; i < num_cabs; i++)
+    {
+        Ogre::Vector3 pos1_xyz = world2screen.Convert(nodes[cabs[i*3+0]].AbsPosition);
+        Ogre::Vector3 pos2_xyz = world2screen.Convert(nodes[cabs[i*3+1]].AbsPosition);
+        Ogre::Vector3 pos3_xyz = world2screen.Convert(nodes[cabs[i*3+2]].AbsPosition);
+        if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
+        {
+            float depth = pos1_xyz.z;
+            depth = std::max(depth, pos2_xyz.z);
+            depth = std::max(depth, pos3_xyz.z);
+            render_cabs.push_back({depth, i});
+        }
+    }
+    std::sort(render_cabs.begin(), render_cabs.end());
+
+    // Cabs and contacters (which are part of a cab)
+    std::vector<int> node_ids;
+    for (auto render_cab : render_cabs)
+    {
+        int i = render_cab.second;
+        bool coll = std::find(collcabs, collcabs + num_collcabs, i) != (collcabs + num_collcabs);
+        bool buoy = std::find(buoycabs, buoycabs + num_buoycabs, i) != (buoycabs + num_buoycabs);
+
+        ImU32 fill_color = Ogre::ColourValue(0.5f * coll, 0.5f * !buoy, 0.5f * (coll ^ buoy), 0.27f).getAsABGR();
+        ImU32 beam_color = Ogre::ColourValue(0.5f * coll, 0.5f * !buoy, 0.5f * (coll ^ buoy), 0.53f).getAsABGR();
+
+        Ogre::Vector3 pos1_xyz = world2screen.Convert(nodes[cabs[i*3+0]].AbsPosition);
+        Ogre::Vector3 pos2_xyz = world2screen.Convert(nodes[cabs[i*3+1]].AbsPosition);
+        Ogre::Vector3 pos3_xyz = world2screen.Convert(nodes[cabs[i*3+2]].AbsPosition);
+        if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f))
+        {
+            ImVec2 pos1_xy(pos1_xyz.x, pos1_xyz.y);
+            ImVec2 pos2_xy(pos2_xyz.x, pos2_xyz.y);
+            ImVec2 pos3_xy(pos3_xyz.x, pos3_xyz.y);
+            drawlist->AddTriangleFilled(pos1_xy, pos2_xy, pos3_xy, fill_color);
+            drawlist->AddTriangle(pos1_xy, pos2_xy, pos3_xy, beam_color, BEAM_THICKNESS);
+        }
+        for (int k = 0; k < 3; k++)
+        {
+            int id = cabs[i*3+k];
+            if (std::find(node_ids.begin(), node_ids.end(), id) == node_ids.end())
             {
-                ImVec2 pos1_xy(pos1_xyz.x, pos1_xyz.y);
-                ImVec2 pos2_xy(pos2_xyz.x, pos2_xyz.y);
-                ImVec2 pos3_xy(pos3_xyz.x, pos3_xyz.y);
-                drawlist->AddTriangleFilled(pos1_xy, pos2_xy, pos3_xy, fill_color);
-                drawlist->AddTriangle(pos1_xy, pos2_xy, pos3_xy, beam_color, BEAM_THICKNESS);
-            }
-            for (int k = 0; k < 3; k++)
-            {
-                int id = cabs[i*3+k];
-                if (std::find(node_ids.begin(), node_ids.end(), id) == node_ids.end())
+                Ogre::Vector3 pos_xyz = world2screen.Convert(nodes[id].AbsPosition);
+                if (pos_xyz.z < 0.f)
                 {
-                    Ogre::Vector3 pos_xyz = world2screen.Convert(nodes[id].AbsPosition);
-                    if (pos_xyz.z < 0.f)
-                    {
-                        ImVec2 pos_xy(pos_xyz.x, pos_xyz.y);
-                        drawlist->AddCircleFilled(pos_xy, NODE_RADIUS, nodes[id].nd_contacter ? 0xbb0033ff : 0x88888888);
-                        // Node info
-                        Str<25> id_buf;
-                        id_buf << id;
-                        drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
-                    }
-                    node_ids.push_back(id);
+                    ImVec2 pos_xy(pos_xyz.x, pos_xyz.y);
+                    drawlist->AddCircleFilled(pos_xy, NODE_RADIUS, nodes[id].nd_contacter ? 0xbb0033ff : 0x88888888);
+                    // Node info
+                    Str<25> id_buf;
+                    id_buf << id;
+                    drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
                 }
+                node_ids.push_back(id);
             }
         }
     }

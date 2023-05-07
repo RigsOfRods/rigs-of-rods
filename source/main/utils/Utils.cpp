@@ -26,6 +26,7 @@
 #include "RoRVersion.h"
 #include "SHA1.h"
 #include "Application.h"
+#include "CameraManager.h"
 
 #include <Ogre.h>
 #include <string>
@@ -202,6 +203,15 @@ std::string RoR::PrintMeshInfo(std::string const& title, MeshPtr mesh)
     }
 
     return text.ToCStr();
+}
+
+World2ScreenConverter World2ScreenConverter::Default()
+{
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+    return World2ScreenConverter(
+        App::GetCameraManager()->GetCamera()->getViewMatrix(true),
+        App::GetCameraManager()->GetCamera()->getProjectionMatrix(),
+        Ogre::Vector2(screen_size.x, screen_size.y));
 }
 
 void RoR::CvarAddFileToList(CVar* cvar, const std::string& filename)

@@ -227,7 +227,7 @@ void MultiplayerSelector::DrawDirectTab()
 
 void MultiplayerSelector::DrawServerlistTab()
 {
-    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    GUITheme const& theme = App::GetGuiManager()->GetTheme();
 
     const char* draw_label_text = nullptr;
     ImVec4      draw_label_color;
