@@ -304,6 +304,8 @@ void TerrainObjectManager::ProcessTree(
     }
 
     TreeLoader2D *treeLoader = new TreeLoader2D(geom, TBounds(0, 0, mapsizex, mapsizez));
+    treeLoader->setMinimumScale(scalefrom);
+    treeLoader->setMaximumScale(scaleto);
     geom->setPageLoader(treeLoader);
     treeLoader->setHeightFunction(&getTerrainHeight);
     if (String(ColorMap) != "none")
