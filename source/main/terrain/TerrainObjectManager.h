@@ -46,7 +46,7 @@ namespace RoR {
 /// @addtogroup Terrain
 /// @{
 
-class TerrainObjectManager : public ZeroedMemoryAllocator
+class TerrainObjectManager
 {
 public:
 

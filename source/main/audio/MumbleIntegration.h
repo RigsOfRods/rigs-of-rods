@@ -41,7 +41,7 @@ namespace RoR {
 /// @addtogroup Audio
 /// @{
 
-class MumbleIntegration : public ZeroedMemoryAllocator
+class MumbleIntegration
 {
 public:
     MumbleIntegration();
@@ -80,7 +80,7 @@ protected:
         wchar_t description[2048];
     };
 
-    LinkedMem* lm;
+    LinkedMem* lm = nullptr;
 };
 
 /// @}

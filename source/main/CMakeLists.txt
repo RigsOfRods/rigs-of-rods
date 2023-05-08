@@ -217,7 +217,6 @@ set(SOURCE_FILES
         utils/SHA1.{h,cpp}
         utils/Utils.{h,cpp}
         utils/WriteTextToTexture.{h,cpp}
-        utils/ZeroedMemoryAllocator.h
         utils/memory/RefCountingObject.h
         utils/memory/RefCountingObjectPtr.h
         )

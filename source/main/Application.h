@@ -30,7 +30,6 @@
 #include "CVar.h"
 #include "ForwardDeclarations.h"
 #include "Str.h"
-#include "ZeroedMemoryAllocator.h" // Legacy
 
 #include <fmt/format.h>
 #include <OgreStringConverter.h>

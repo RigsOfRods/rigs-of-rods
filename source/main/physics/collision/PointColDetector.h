@@ -29,7 +29,7 @@ namespace RoR {
 /// @addtogroup Collisions
 /// @{
 
-class PointColDetector : public ZeroedMemoryAllocator
+class PointColDetector
 {
 public:
 
@@ -71,9 +71,9 @@ private:
     std::vector<refelem_t> m_ref_list;
     std::vector<pointid_t> m_pointid_list;
     std::vector<kdnode_t>  m_kdtree;
-    Ogre::Vector3          m_bbmin;
-    Ogre::Vector3          m_bbmax;
-    int                    m_object_list_size;
+    Ogre::Vector3          m_bbmin = Ogre::Vector3::ZERO;
+    Ogre::Vector3          m_bbmax = Ogre::Vector3::ZERO;
+    int                    m_object_list_size = 0;
 
     void queryrec(int kdindex, int axis);
     void build_kdtree_incr(int axis, int index);

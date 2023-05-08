@@ -279,7 +279,7 @@ private:
     int sound_link_item_id; // holds the item number this is for
 };
 
-class SoundScriptManager : public Ogre::ScriptLoader, public ZeroedMemoryAllocator
+class SoundScriptManager : public Ogre::ScriptLoader
 {
 public:
 

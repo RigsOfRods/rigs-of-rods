@@ -187,7 +187,7 @@ enum class CacheValidity
 ///       These entries are persisted in file CACHE_FILE (see above)
 ///    Associated media live in a "resource bundle" (ZIP archive or subdirectory) in content directory (ROR_HOME/mods) and subdirectories.
 ///       If multiple CacheEntries share a bundle, the bundle is loaded only once. Each bundle has dedicated OGRE resource group.
-class CacheSystem : public ZeroedMemoryAllocator
+class CacheSystem
 {
 public:
     typedef std::map<int, Ogre::String> CategoryIdNameMap;

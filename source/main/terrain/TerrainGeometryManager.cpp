@@ -142,6 +142,7 @@ TerrainGeometryManager::TerrainGeometryManager(Terrain* terrainManager)
     , mMaxHeight(std::numeric_limits<float>::min())
     , m_was_new_geometry_generated(false)
     , terrainManager(terrainManager)
+    , m_ogre_terrain_group(nullptr)
 {
 }
 

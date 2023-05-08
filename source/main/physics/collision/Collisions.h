@@ -77,7 +77,7 @@ struct collision_mesh_t
 };
 typedef std::vector<collision_mesh_t> CollisionMeshVec;
 
-class Collisions : public ZeroedMemoryAllocator
+class Collisions
 {
 public:
 

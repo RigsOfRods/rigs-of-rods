@@ -92,7 +92,7 @@ struct LoadScriptRequest
  *  @brief This class represents the angelscript scripting interface. It can load and execute scripts.
  *  @authors Thomas Fischer (thomas{AT}rigsofrods{DOT}com)
  */
-class ScriptEngine : public Ogre::LogListener, public ZeroedMemoryAllocator
+class ScriptEngine : public Ogre::LogListener
 {
     friend class GameScript;
 

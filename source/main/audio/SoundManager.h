@@ -41,7 +41,7 @@ namespace RoR {
 /// @addtogroup Audio
 /// @{
 
-class SoundManager : public ZeroedMemoryAllocator
+class SoundManager
 {
     friend class Sound;
 
@@ -81,8 +81,8 @@ private:
     bool loadWAVFile(Ogre::String filename, ALuint buffer, Ogre::String resource_group_name = "");
 
     // active audio sources (hardware sources)
-    int    hardware_sources_num;                       // total number of available hardware sources < MAX_HARDWARE_SOURCES
-    int    hardware_sources_in_use_count;
+    int    hardware_sources_num = 0;                       // total number of available hardware sources < MAX_HARDWARE_SOURCES
+    int    hardware_sources_in_use_count = 0;
     int    hardware_sources_map[MAX_HARDWARE_SOURCES]; // stores the hardware index for each source. -1 = unmapped
     ALuint hardware_sources[MAX_HARDWARE_SOURCES];     // this buffer contains valid AL handles up to m_hardware_sources_num
 
@@ -92,13 +92,13 @@ private:
     std::pair<int, float> audio_sources_most_audible[MAX_AUDIO_BUFFERS];
     
     // audio buffers: Array of AL buffers and filenames
-    int          audio_buffers_in_use_count;
+    int          audio_buffers_in_use_count = 0;
     ALuint       audio_buffers[MAX_AUDIO_BUFFERS];
     Ogre::String audio_buffer_file_name[MAX_AUDIO_BUFFERS];
 
-    Ogre::Vector3 camera_position;
-    ALCdevice*    audio_device;
-    ALCcontext*   sound_context;
+    Ogre::Vector3 camera_position = Ogre::Vector3::ZERO;
+    ALCdevice*    audio_device = nullptr;
+    ALCcontext*   sound_context = nullptr;
 };
 
 /// @}

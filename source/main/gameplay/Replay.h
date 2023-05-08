@@ -36,7 +36,7 @@ struct beam_simple_t
     bool disabled:1;
 };
 
-class Replay : public ZeroedMemoryAllocator
+class Replay
 {
 public:
     Replay(ActorPtr b, int nframes);
@@ -61,17 +61,17 @@ protected:
     float               ar_replay_precision = 1.f;
     int                 ar_replay_pos = 0;
     int                 m_replay_pos_prev = 0;
-    Ogre::Timer*        replayTimer;
-    int                 numFrames;
-    bool                outOfMemory;
-    int                 writeIndex;
-    int                 firstRun;
-    unsigned long       curFrameTime;
+    Ogre::Timer*        replayTimer = nullptr;
+    int                 numFrames = 0;
+    bool                outOfMemory = false;
+    int                 writeIndex = 0;
+    int                 firstRun = 0;
+    unsigned long       curFrameTime = 0;
 
     // malloc'ed
-    node_simple_t*      nodes;
-    beam_simple_t*      beams;
-    unsigned long*      times;
+    node_simple_t*      nodes = nullptr;
+    beam_simple_t*      beams = nullptr;
+    unsigned long*      times = nullptr;
 };
 
 } // namespace RoR

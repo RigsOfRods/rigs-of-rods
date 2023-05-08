@@ -31,7 +31,7 @@ namespace RoR {
 /// @addtogroup Aerial
 /// @{
 
-class Autopilot : public ZeroedMemoryAllocator
+class Autopilot
 {
 public:
 

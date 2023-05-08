@@ -59,7 +59,7 @@ private:
 /// @addtogroup Aerial
 /// @{
 
-class Turbojet: public AeroEngine, public ZeroedMemoryAllocator
+class Turbojet: public AeroEngine
 {
 
 public:
