@@ -48,7 +48,7 @@ struct PSSM_Shadows_Data
     float lambda;
 };
 
-class ShadowManager : public ZeroedMemoryAllocator
+class ShadowManager
 {
 public:
 

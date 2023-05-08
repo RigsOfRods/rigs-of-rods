@@ -32,7 +32,7 @@ namespace RoR {
 /// @addtogroup Aerial
 /// @{
 
-class Airbrake : public ZeroedMemoryAllocator
+class Airbrake
 {
     friend class RoR::ActorSpawner; // Creates AirbrakeGfx
 

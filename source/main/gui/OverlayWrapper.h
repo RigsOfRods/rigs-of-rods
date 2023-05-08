@@ -108,7 +108,7 @@ struct AeroDashOverlay
     float thrust_track_height;
 };
 
-class OverlayWrapper : public ZeroedMemoryAllocator
+class OverlayWrapper
 {
 public:
 
@@ -117,9 +117,9 @@ public:
 
     struct LoadedOverlay
     {
-        float orgScaleX;
-        float orgScaleY;
-        Ogre::Overlay *o;
+        float orgScaleX = 0.f;
+        float orgScaleY = 0.f;
+        Ogre::Overlay *o = nullptr;
     };
 
     void ToggleDashboardOverlays(ActorPtr actor);
@@ -132,7 +132,7 @@ public:
     bool mouseMoved(const OIS::MouseEvent& _arg);
     bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
     bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
-    float mTimeUntilNextToggle;
+    
 
     void UpdatePressureOverlay(RoR::GfxActor* ga);
     void update(float dt);
@@ -166,66 +166,68 @@ protected:
 
     Ogre::OverlayElement *loadOverlayElement(Ogre::String name);
 
-    Ogre::RenderWindow* win;
+    Ogre::RenderWindow* win = nullptr;
 
-    bool m_dashboard_visible;
+    bool m_dashboard_visible = false;
+
+    float mTimeUntilNextToggle = 0.f;
 
     // -------------------------------------------------------------
     // Overlays
     // -------------------------------------------------------------
 
-    unsigned int  m_visible_overlays;
+    unsigned int  m_visible_overlays = 0;
 
-    Ogre::Overlay *m_truck_pressure_overlay;
-    Ogre::Overlay *m_truck_pressure_needle_overlay;
+    Ogre::Overlay *m_truck_pressure_overlay = nullptr;
+    Ogre::Overlay *m_truck_pressure_needle_overlay = nullptr;
 
     AeroDashOverlay m_aerial_dashboard;
 
-    Ogre::Overlay *m_marine_dashboard_overlay;
-    Ogre::Overlay *m_marine_dashboard_needles_overlay;
+    Ogre::Overlay *m_marine_dashboard_overlay = nullptr;
+    Ogre::Overlay *m_marine_dashboard_needles_overlay = nullptr;
 
-    Ogre::Overlay *m_machine_dashboard_overlay;
+    Ogre::Overlay *m_machine_dashboard_overlay = nullptr;
 
     // Misc
-    Ogre::Overlay *m_racing_overlay;
+    Ogre::Overlay *m_racing_overlay = nullptr;
 
     // -------------------------------------------------------------
     // Overlay elements
     // -------------------------------------------------------------
 
     // Truck
-    Ogre::OverlayElement* guiGear;      //!< truck
-    Ogre::OverlayElement* guiGear3D;    //!< truck
+    Ogre::OverlayElement* guiGear = nullptr;      //!< truck
+    Ogre::OverlayElement* guiGear3D = nullptr;    //!< truck
 
     // Marine overlay elements
-    Ogre::OverlayElement *bthro1;
-    Ogre::OverlayElement *bthro2;
+    Ogre::OverlayElement *bthro1 = nullptr;
+    Ogre::OverlayElement *bthro2 = nullptr;
 
     // Truck
-    Ogre::TextAreaOverlayElement* guiAuto[5];
-    Ogre::TextAreaOverlayElement* guiAuto3D[5];
+    Ogre::TextAreaOverlayElement* guiAuto[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
+    Ogre::TextAreaOverlayElement* guiAuto3D[5] = { nullptr, nullptr, nullptr, nullptr, nullptr };
 
     // Truck (racing overlay)
-    Ogre::TextAreaOverlayElement* laptime;
-    Ogre::TextAreaOverlayElement* bestlaptime;
+    Ogre::TextAreaOverlayElement* laptime = nullptr;
+    Ogre::TextAreaOverlayElement* bestlaptime = nullptr;
 
-    Ogre::TextAreaOverlayElement* boat_depth_value_taoe; //!< Marine
+    Ogre::TextAreaOverlayElement* boat_depth_value_taoe = nullptr; //!< Marine
 
     // truck
-    Ogre::TextureUnitState *speedotexture; // Needed for dashboard prop
-    Ogre::TextureUnitState *tachotexture;  // Needed for dashboard prop
+    Ogre::TextureUnitState *speedotexture = nullptr; // Needed for dashboard prop
+    Ogre::TextureUnitState *tachotexture = nullptr;  // Needed for dashboard prop
 
     // Marine
-    Ogre::TextureUnitState *boatspeedtexture;
-    Ogre::TextureUnitState *boatsteertexture;
+    Ogre::TextureUnitState *boatspeedtexture = nullptr;
+    Ogre::TextureUnitState *boatsteertexture = nullptr;
 
     // Truck
-    Ogre::TextureUnitState *pressuretexture;
+    Ogre::TextureUnitState *pressuretexture = nullptr;
 
     // Marine: Written in init(), read-only in simulation.
-    float thrtop;
-    float thrheight;
-    float throffset;
+    float thrtop = 0.f;
+    float thrheight = 0.f;
+    float throffset = 0.f;
 
     std::vector<LoadedOverlay> m_loaded_overlays;
 };

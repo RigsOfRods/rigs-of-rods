@@ -70,6 +70,12 @@ CSHA1::CSHA1()
 {
     m_block = (SHA1_WORKSPACE_BLOCK *)m_workspace;
 
+    std::memset(m_buffer,    0, sizeof(m_buffer));
+    std::memset(m_digest,    0, sizeof(m_digest));
+    std::memset(m_workspace, 0, sizeof(m_workspace));
+    std::memset(__reserved1, 0, sizeof(__reserved1));
+    std::memset(__reserved2, 0, sizeof(__reserved2));
+
     Reset();
 }
 

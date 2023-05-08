@@ -30,7 +30,7 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
-class DustPool : public ZeroedMemoryAllocator
+class DustPool
 {
 public:
 

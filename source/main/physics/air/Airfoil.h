@@ -28,7 +28,7 @@ namespace RoR {
 /// @{
 
 /// Represents an airfoil http://en.wikipedia.org/wiki/Airfoil
-class Airfoil : public ZeroedMemoryAllocator
+class Airfoil
 {
 public:
 

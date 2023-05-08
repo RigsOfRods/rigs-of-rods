@@ -202,7 +202,7 @@ enum DashData
 };
 
 // this class is NOT intended to be thread safe - performance is required
-class DashBoardManager : public ZeroedMemoryAllocator
+class DashBoardManager
 {
 public:
     DashBoardManager(void);
@@ -239,14 +239,13 @@ public:
     bool getVisible() { return visible; };
     void windowResized();
 protected:
-    bool visible;
+    bool visible = false;
     dashData_t data[DD_MAX];
     std::vector<DashBoard*> m_dashboards;
 };
 
-class DashBoard : public ZeroedMemoryAllocator
+class DashBoard
 {
-    //friend class DashBoardManager;
 public:
     DashBoard(DashBoardManager* manager, Ogre::String filename, bool textureLayer);
     ~DashBoard();

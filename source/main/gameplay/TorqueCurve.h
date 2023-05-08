@@ -39,7 +39,7 @@ namespace RoR {
 /**
  *  @brief This class loads and processes a torque curve for a vehicle.
  */
-class TorqueCurve : public ZeroedMemoryAllocator
+class TorqueCurve
 {
 public:
     const static Ogre::String customModel;

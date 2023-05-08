@@ -34,7 +34,7 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
-class SkyManager : public ZeroedMemoryAllocator
+class SkyManager
 {
 public:
 

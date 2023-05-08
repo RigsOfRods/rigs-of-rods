@@ -33,7 +33,7 @@ namespace RoR {
 /// @{
 
 /// A land vehicle engine + transmission
-class EngineSim : public ZeroedMemoryAllocator
+class EngineSim
 {
     friend class ActorSpawner;
 

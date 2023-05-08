@@ -52,13 +52,7 @@ const float SoundManager::MAX_DISTANCE = 500.0f;
 const float SoundManager::ROLLOFF_FACTOR = 1.0f;
 const float SoundManager::REFERENCE_DISTANCE = 7.5f;
 
-SoundManager::SoundManager() :
-    audio_buffers_in_use_count(0)
-    , hardware_sources_in_use_count(0)
-    , hardware_sources_num(0)
-    , sound_context(NULL)
-    , audio_device(NULL)
-    , camera_position(Ogre::Vector3::ZERO)
+SoundManager::SoundManager()
 {
     if (App::audio_device_name->getStr() == "")
     {

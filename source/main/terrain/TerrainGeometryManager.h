@@ -35,7 +35,7 @@ namespace RoR {
 /// @{
 
 /// this class handles all interactions with the Ogre Terrain system
-class TerrainGeometryManager : public ZeroedMemoryAllocator
+class TerrainGeometryManager
 {
 public:
     TerrainGeometryManager(Terrain* terrainManager);
@@ -75,11 +75,11 @@ private:
     bool                 m_was_new_geometry_generated;
 
     // Terrn position lookup - ported from OGRE engine.
-    Ogre::Vector3 mPos;
-    Ogre::Real mBase;
-    Ogre::Real mScale;
-    Ogre::uint16 mSize;
-    float* mHeightData;
+    Ogre::Vector3 mPos = Ogre::Vector3::ZERO;
+    Ogre::Real mBase = 0.f;
+    Ogre::Real mScale = 0.f;
+    Ogre::uint16 mSize = 0;
+    float* mHeightData = nullptr;
 
     bool  mIsFlat;
     float mMinHeight;

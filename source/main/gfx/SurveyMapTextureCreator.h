@@ -25,7 +25,7 @@
 
 namespace RoR {
 
-class SurveyMapTextureCreator : public Ogre::RenderTargetListener, public ZeroedMemoryAllocator
+class SurveyMapTextureCreator : public Ogre::RenderTargetListener
 {
 public:
 

@@ -121,6 +121,8 @@ Collisions::Collisions(Ogre::Vector3 terrn_size):
     , hashmask(0)
     , landuse(0)
     , m_terrain_size(terrn_size)
+    , collision_version(0)
+    , forcecampos(Ogre::Vector3::ZERO)
 {
     for (int i=0; i < HASH_POWER; i++)
     {

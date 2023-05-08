@@ -453,7 +453,7 @@ struct event_trigger_t
 };
 
 /// Manages controller configuration, evaluates input events
-class InputEngine : public ZeroedMemoryAllocator
+class InputEngine
 {
 public:
     typedef std::vector<event_trigger_t> TriggerVec;

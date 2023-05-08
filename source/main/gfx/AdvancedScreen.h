@@ -44,7 +44,7 @@ void save(Ogre::uchar* data, Ogre::uchar* databuf, int mWidth, int mHeight, Ogre
 
 // this only works with lossless image compression (png)
 
-class AdvancedScreen : public ZeroedMemoryAllocator
+class AdvancedScreen
 {
 public:
 

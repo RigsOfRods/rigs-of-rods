@@ -29,7 +29,7 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
-class SkyXManager : public ZeroedMemoryAllocator
+class SkyXManager
 {
 public:
 	SkyXManager(Ogre::String configFile);
@@ -52,17 +52,17 @@ public:
 	SkyX::SkyX* GetSkyX() { return mSkyX; }
 
 protected:
-	Ogre::Light *mLight0;
-	Ogre::Light *mLight1;
+	Ogre::Light *mLight0 = nullptr;
+	Ogre::Light *mLight1 = nullptr;
 	
-	SkyX::SkyX* mSkyX;
-	SkyX::BasicController* mBasicController;
+	SkyX::SkyX* mSkyX = nullptr;
+	SkyX::BasicController* mBasicController = nullptr;
 
 	SkyX::ColorGradient mWaterGradient, 
 		                mSunGradient, 
 						mAmbientGradient;
 
-	SkyX::CfgFileManager* mCfgFileManager;
+	SkyX::CfgFileManager* mCfgFileManager = nullptr;
 
     int mLastHour = 0;
 };

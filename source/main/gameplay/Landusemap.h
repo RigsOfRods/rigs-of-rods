@@ -30,7 +30,7 @@ namespace RoR {
 /// @addtogroup Terrain
 /// @{
 
-class Landusemap : public ZeroedMemoryAllocator
+class Landusemap
 {
 public:
 
