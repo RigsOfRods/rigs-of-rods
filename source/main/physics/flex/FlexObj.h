@@ -56,7 +56,7 @@ struct CabSubmesh
 
 /// A visual mesh, forming a chassis for softbody actor
 /// At most one instance is created per actor.
-class FlexObj : public ZeroedMemoryAllocator
+class FlexObj
 {
 public:
 

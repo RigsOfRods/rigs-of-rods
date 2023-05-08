@@ -63,7 +63,7 @@
 
 namespace RoR {
 
-class GUIManager: public ZeroedMemoryAllocator
+class GUIManager
 {
 public:
 

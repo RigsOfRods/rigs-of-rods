@@ -54,10 +54,7 @@ using namespace RoR;
 
 bool g_is_scaled = false;
 
-OverlayWrapper::OverlayWrapper():
-    mTimeUntilNextToggle(0),
-    m_dashboard_visible(false),
-    m_visible_overlays(0)
+OverlayWrapper::OverlayWrapper()
 {
     win = RoR::App::GetAppContext()->GetRenderWindow();
     init();

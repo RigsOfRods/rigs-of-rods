@@ -30,7 +30,7 @@ namespace RoR {
 /// @addtogroup Physics
 /// @{
 
-class FlexAirfoil : public ZeroedMemoryAllocator
+class FlexAirfoil
 {
 public:
     FlexAirfoil(Ogre::String const& wname, ActorPtr actor,

@@ -38,7 +38,7 @@ namespace RoR {
 /**
  *  @brief Proxy class that can be called by script functions
  */
-class GameScript : public ZeroedMemoryAllocator
+class GameScript
 {
 public:
     // PLEASE maintain the same order as in GameScriptAngelscript.cpp!

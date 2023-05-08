@@ -34,7 +34,7 @@ namespace RoR {
 /// @addtogroup Terrain
 /// @{
 
-class Terrain : public ZeroedMemoryAllocator, public RefCountingObject<Terrain>
+class Terrain : public RefCountingObject<Terrain>
 {
 public:
     static const int UNLIMITED_SIGHTRANGE = 4999;

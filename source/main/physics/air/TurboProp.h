@@ -35,7 +35,7 @@ namespace RoR {
 /// @addtogroup Aerial
 /// @{
 
-class Turboprop: public AeroEngine, public ZeroedMemoryAllocator
+class Turboprop: public AeroEngine
 {
 public:
 

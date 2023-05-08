@@ -31,7 +31,7 @@ namespace RoR {
 /// @addtogroup Marine
 /// @{
 
-class Screwprop : public ZeroedMemoryAllocator
+class Screwprop
 {
 public:
 

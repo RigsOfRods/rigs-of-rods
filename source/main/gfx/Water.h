@@ -37,7 +37,7 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
-class Water : public IWater, public ZeroedMemoryAllocator
+class Water : public IWater
 {
 public:
 

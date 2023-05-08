@@ -36,7 +36,7 @@
 
 // our own class that wraps the CScriptBuilder and just overwrites the file loading parts
 // to use the ogre resource system
-class OgreScriptBuilder : public AngelScript::CScriptBuilder, public ZeroedMemoryAllocator
+class OgreScriptBuilder : public AngelScript::CScriptBuilder
 {
 public:
     Ogre::String GetHash() { return hash; };
