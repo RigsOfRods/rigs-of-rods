@@ -248,10 +248,10 @@ public:
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
     void              WriteDiagnosticDump(std::string const& filename);
     PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
-    Ogre::Vector3     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
-    Ogre::Vector3     GetCameraRoll()                   { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
+    Ogre::Vector3     GetCameraDir()                    { ROR_ASSERT(ar_state != ActorState::DISPOSED); return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
+    Ogre::Vector3     GetCameraRoll()                   { ROR_ASSERT(ar_state != ActorState::DISPOSED); return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
-    GfxActor*         GetGfxActor()                     { return m_gfx_actor.get(); }
+    GfxActor*         GetGfxActor()                     { ROR_ASSERT(ar_state != ActorState::DISPOSED); return m_gfx_actor.get(); }
     void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
     Ogre::Real        getMinimalCameraRadius();
     float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }

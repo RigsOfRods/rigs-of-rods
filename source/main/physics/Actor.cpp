@@ -3699,7 +3699,7 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
                     actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                 }
             }
-            else if (prev_locked_actor != this)
+            else if (prev_locked_actor != this && prev_locked_actor->ar_state != ActorState::DISPOSED)
             {
                 prev_locked_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
                 for (ActorPtr actor : prev_locked_actor->getAllLinkedActors())
