@@ -40,7 +40,7 @@ public:
     static const int UNLIMITED_SIGHTRANGE = 4999;
 
     Terrain(CacheEntry* entry, Terrn2Def def);
-    ~Terrain();
+    virtual ~Terrain() override;
     bool initialize();
     void dispose();
 

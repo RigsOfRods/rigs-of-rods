@@ -62,7 +62,7 @@ class ProceduralRoad : public RefCountingObject<ProceduralRoad>
 public:
 
     ProceduralRoad();
-    ~ProceduralRoad();
+    virtual ~ProceduralRoad() override;
 
     void addBlock(Ogre::Vector3 pos, Ogre::Quaternion rot, RoadType type, float width, float bwidth, float bheight, int pillartype = 1);
     /**

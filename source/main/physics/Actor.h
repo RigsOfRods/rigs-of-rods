@@ -60,7 +60,7 @@ public:
         , ActorSpawnRequest rq
         );
 
-    ~Actor();
+    virtual ~Actor() override;
 
     void              dispose(); //!< Effectively destroys the object but keeps it in memory to satisfy shared pointers.
 
