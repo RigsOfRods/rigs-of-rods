@@ -39,7 +39,7 @@ class LocalStorage : public ImprovedConfigFile, public RefCountingObject<LocalSt
 {
 public:
     LocalStorage(std::string filename, const std::string& section_name, const std::string& rg_name /* = RGN_CACHE*/);
-    ~LocalStorage();
+    virtual ~LocalStorage() override;
 
     void copyFrom(LocalStoragePtr other);
     void changeSection(const std::string& section);

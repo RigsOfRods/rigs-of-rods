@@ -183,6 +183,7 @@ class SoundScriptTemplate : public RefCountingObject<SoundScriptTemplate>
 public:
 
     SoundScriptTemplate(Ogre::String name, Ogre::String groupname, Ogre::String filename, bool baseTemplate);
+    virtual ~SoundScriptTemplate() override {};
 
     // 'sound' attribute getters for AngelScript
     int getNumSounds() { return free_sound; }
@@ -231,6 +232,8 @@ class SoundScriptInstance : public RefCountingObject<SoundScriptInstance>
 public:
 
     SoundScriptInstance(int actor_id, SoundScriptTemplatePtr templ, SoundManager* sm, Ogre::String instancename, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
+    virtual ~SoundScriptInstance() override {};
+
     void runOnce();
     void setEnabled(bool e);
     void setGain(float value);

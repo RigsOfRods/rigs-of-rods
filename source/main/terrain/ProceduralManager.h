@@ -33,6 +33,8 @@ namespace RoR {
 
 struct ProceduralPoint: public RefCountingObject<ProceduralPoint>
 {
+    virtual ~ProceduralPoint() override {};
+
     Ogre::Vector3 position = Ogre::Vector3::ZERO;
     Ogre::Quaternion rotation = Ogre::Quaternion::IDENTITY;
     RoadType type = RoadType::ROAD_AUTOMATIC;
@@ -44,6 +46,8 @@ struct ProceduralPoint: public RefCountingObject<ProceduralPoint>
 
 struct ProceduralObject: public RefCountingObject<ProceduralObject>
 {
+    virtual ~ProceduralObject() override {};
+
     // Nice funcs for Angelscript
     void addPoint(ProceduralPointPtr p) { points.push_back(p); }
     ProceduralPointPtr getPoint(int pos);
@@ -63,7 +67,7 @@ struct ProceduralObject: public RefCountingObject<ProceduralObject>
 class ProceduralManager: public RefCountingObject<ProceduralManager>
 {
 public:
-    ~ProceduralManager();
+    virtual ~ProceduralManager() override;
 
     /// Generates road mesh and adds to internal list
     void addObject(ProceduralObjectPtr po);

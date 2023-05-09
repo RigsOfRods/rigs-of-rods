@@ -842,12 +842,10 @@ std::pair<ActorPtr, float> ActorManager::GetNearestActor(Vector3 position)
 
 void ActorManager::CleanUpSimulation() // Called after simulation finishes
 {
-    for (ActorPtr& actor : m_actors)
+    while (m_actors.size() > 0)
     {
-        // Only dispose(), do not `delete`; a script may still hold pointer to the object.
-        actor->dispose();
+        this->DeleteActorInternal(m_actors.back());
     }
-    m_actors.clear();
 
     m_total_sim_time = 0.f;
     m_last_simulation_speed = 0.1f;
@@ -878,21 +876,10 @@ void ActorManager::DeleteActorInternal(ActorPtr actor)
     }
 #endif // USE_SOCKETW
 
-    auto actor_i = m_actors.begin();
-    while (actor_i != m_actors.end())
-    {
-        if (actor == actor_i->GetRef())
-        {
-            actor_i = m_actors.erase(actor_i);
-        }
-        else
-        {
-            actor_i++;
-        }
-    }
-
     // Only dispose(), do not `delete`; a script may still hold pointer to the object.
     actor->dispose();
+
+    EraseIf(m_actors, [actor](ActorPtr& curActor) { return actor == curActor; });
 
     // Upate actor indices
     for (unsigned int i = 0; i < m_actors.size(); i++)
