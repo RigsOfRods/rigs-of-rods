@@ -42,6 +42,7 @@ class Sound : public RefCountingObject<Sound>
 
 public:
     Sound(ALuint buffer, SoundManager* soundManager, int sourceIndex);
+    virtual ~Sound() override {};
 
     void setPitch(float pitch);
     void setGain(float gain);

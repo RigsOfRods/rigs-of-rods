@@ -64,7 +64,7 @@ class VehicleAI : public RefCountingObject<VehicleAI>
 
 public:
     VehicleAI(ActorPtr b);
-    ~VehicleAI();
+    virtual ~VehicleAI() override;
 
     /**
      *  Activates/Deactivates the AI.

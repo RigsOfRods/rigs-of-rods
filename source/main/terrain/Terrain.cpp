@@ -72,7 +72,6 @@ RoR::Terrain::~Terrain()
 
 void RoR::Terrain::dispose()
 {
-    m_disposed = true;
     if (App::app_state->getEnum<AppState>() == AppState::SHUTDOWN)
     {
         // Rush to exit
@@ -134,6 +133,8 @@ void RoR::Terrain::dispose()
     {
         App::GetScriptEngine()->unloadScript(App::GetScriptEngine()->getTerrainScriptUnit());
     }
+
+    m_disposed = true;
 }
 
 bool RoR::Terrain::initialize()

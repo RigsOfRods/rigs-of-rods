@@ -79,15 +79,14 @@ static const Ogre::Vector3 BOUNDING_BOX_PADDING(0.05f, 0.05f, 0.05f);
 
 Actor::~Actor()
 {
-    if (ar_state != ActorState::DISPOSED)
-    {
-        this->dispose();
-    }
+    // This class must be handled by `ActorManager::DeleteActorInternal()` (use MSG_SIM_DELETE_ACTOR_REQUESTED) which performs disposal.
+    ROR_ASSERT(ar_state == ActorState::DISPOSED);
+    // We don't dispose here as it's a complex process and not safe to do from a destructor, especially not at unpredictable time.
 }
 
 void Actor::dispose()
 {
-    
+    ROR_ASSERT(ar_state != ActorState::DISPOSED);
 
     this->DisjoinInterActorBeams();
     ar_hooks.clear();

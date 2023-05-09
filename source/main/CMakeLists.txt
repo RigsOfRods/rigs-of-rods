@@ -218,6 +218,8 @@ set(SOURCE_FILES
         utils/Utils.{h,cpp}
         utils/WriteTextToTexture.{h,cpp}
         utils/ZeroedMemoryAllocator.h
+        utils/memory/RefCountingObject.h
+        utils/memory/RefCountingObjectPtr.h
         )
 
 if (ROR_USE_ANGELSCRIPT)
