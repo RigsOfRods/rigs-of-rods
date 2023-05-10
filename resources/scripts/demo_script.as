@@ -10,15 +10,18 @@
      * Read/Write cvars (RoR.cfg values, cli args, game state...)
      * View and update game state (current vehicle...)
      * Parse and display definition files with syntax highlighting.
+     * Inspect loaded sounds and soundscript templates, and of course play sounds!
+     * Post messages to game's main message queue, performing almost any operation.
      
-    There are 3 ways of invoking a script:
-     1. By defining it with terrain, see terrn2 fileformat, section '[Scripts]':
-        https://docs.rigsofrods.org/terrain-creation/terrn2-subsystem/.
-        This is the classic old method, used for i.e. races.
+    There are several ways of invoking a script:
+     1. From in-game console (hotkey ~), say 'loadscript <filename>'
      2. By using command line parameter '-runscript <filename>'.
-        You can use this command multiple times at once. Added in 2022.
+        You can use this command multiple times at once.
      3. By setting 'app_custom_scripts' in RoR.cfg to a comma-separated list
-        of filenames. Spaces in filename are acceptable. Added in 2022.
+        of filenames. Spaces in filename are acceptable.
+     4. By defining it with terrain, see terrn2 fileformat, section '[Scripts]':
+        https://docs.rigsofrods.org/terrain-creation/terrn2-subsystem/.
+        This is the classic old method, used for i.e. races.        
     
     For introduction to game events, read
     https://docs.rigsofrods.org/terrain-creation/scripting/.
@@ -432,32 +435,46 @@ void drawAudioButtons()
         {
             ImGui::PushID(i);
             
-            SoundScriptTemplateClass@ template = game.getSoundScriptTemplate(templates[i].name); // Look up again by name, just to test the API
+            SoundScriptTemplateClass@ template = game.getSoundScriptTemplate(templates[i].getName()); // Look up again by name, just to test the API
             
-            ImGui::Text(template.name);
-            if (template.base_template)
+            if (@template != null)
             {
-                ImGui::SameLine();
-                ImGui::TextDisabled(" [base]");
-            }
-            ImGui::SameLine();
-
-            if (@g_playing_soundscript == null)
-            {
-                if (ImGui::Button("Play"))
+                ImGui::Text(template.getName());
+                if (template.isBaseTemplate())
                 {
-                    @g_playing_soundscript = game.createSoundScriptInstance(template.name);
-                    g_playing_soundscript.setPosition(detectPlayerPosition());
-                    g_playing_soundscript.start();
+                    ImGui::SameLine();
+                    ImGui::TextDisabled(" [base]");
+                }
+                ImGui::SameLine();
+
+                if (@g_playing_soundscript == null)
+                {
+                    if (ImGui::Button("Play"))
+                    {
+                        @g_playing_soundscript = game.createSoundScriptInstance(template.getName());
+                        if (@g_playing_soundscript != null)
+                        {
+                            g_playing_soundscript.setPosition(detectPlayerPosition());
+                            g_playing_soundscript.start();
+                        }
+                        else
+                        {
+                            game.log("Demo script: could not create sound script instance from template '" + template.getName() + "'");
+                        }
+                    }
+                }
+                else
+                {
+                    if (ImGui::Button("Stop"))
+                    {
+                        g_playing_soundscript.kill();
+                        @g_playing_soundscript = null;
+                    }
                 }
             }
             else
             {
-                if (ImGui::Button("Stop"))
-                {
-                    g_playing_soundscript.kill();
-                    @g_playing_soundscript = null;
-                }
+                ImGui::Text("(Lookup failed for template "+i+"/"+templates.length()+")");
             }
             
             ImGui::PopID(); // i
@@ -561,7 +578,7 @@ void drawSoundScriptInstanceDiagPanel(SoundScriptInstanceClass@ instance)
     SoundClass@ startSnd = instance.getStartSound();
     if (@startSnd != null)
     {
-        ImGui::Text("START sound: '" + template.start_sound_name + "' (pitchgain: "+instance.getStartSoundPitchgain()+")");
+        ImGui::Text("START sound: '" + template.getStartSoundName() + "' (pitchgain: "+instance.getStartSoundPitchgain()+")");
         drawSoundObjectDiag(startSnd);
     }
     else
@@ -583,7 +600,7 @@ void drawSoundScriptInstanceDiagPanel(SoundScriptInstanceClass@ instance)
     SoundClass@ stopSnd = instance.getStopSound();
     if (@stopSnd != null)
     {
-        ImGui::Text("STOP sound: '" + template.stop_sound_name + "' (pitchgain: "+instance.getStopSoundPitchgain()+")");
+        ImGui::Text("STOP sound: '" + template.getStopSoundName() + "' (pitchgain: "+instance.getStopSoundPitchgain()+")");
         drawSoundObjectDiag(stopSnd);
     }
     else

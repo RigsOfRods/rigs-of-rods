@@ -142,31 +142,15 @@ void RoR::RegisterSoundScript(AngelScript::asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "string getSoundName(int)", asMETHOD(SoundScriptTemplate, getSoundName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "float getSoundPitch(int)", asMETHOD(SoundScriptTemplate, getSoundPitch), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "string name", offsetof(SoundScriptTemplate, name)); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "string file_name", offsetof(SoundScriptTemplate, file_name)); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "string group_name", offsetof(SoundScriptTemplate, group_name)); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "string getStartSoundName()", asMETHOD(SoundScriptTemplate, getStartSoundName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "float getStartSoundPitch()", asMETHOD(SoundScriptTemplate, getStartSoundPitch), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "string getStopSoundName()", asMETHOD(SoundScriptTemplate, getStopSoundName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "float getStopSoundPitch()", asMETHOD(SoundScriptTemplate, getStopSoundPitch), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "bool base_template", offsetof(SoundScriptTemplate, base_template)); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "bool has_start_sound", offsetof(SoundScriptTemplate, has_start_sound)); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "bool has_stop_sound", offsetof(SoundScriptTemplate, has_stop_sound)); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "bool unpitchable", offsetof(SoundScriptTemplate, unpitchable)); ROR_ASSERT(result >= 0);
-
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "float gain_multiplier", offsetof(SoundScriptTemplate, gain_multiplier)); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "float gain_offset", offsetof(SoundScriptTemplate, gain_offset)); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "float gain_square", offsetof(SoundScriptTemplate, gain_square)); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "ModulationSources gain_source", offsetof(SoundScriptTemplate, gain_source)); ROR_ASSERT(result >= 0);
-
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "float pitch_multiplier", offsetof(SoundScriptTemplate, pitch_multiplier)); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "float pitch_offset", offsetof(SoundScriptTemplate, pitch_offset)); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "float pitch_square", offsetof(SoundScriptTemplate, pitch_square)); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "ModulationSources pitch_source", offsetof(SoundScriptTemplate, pitch_source)); ROR_ASSERT(result >= 0);
-
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "string start_sound_name", offsetof(SoundScriptTemplate, start_sound_name)); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "float start_sound_pitch", offsetof(SoundScriptTemplate, start_sound_pitch)); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "string stop_sound_name", offsetof(SoundScriptTemplate, stop_sound_name)); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "float stop_sound_pitch", offsetof(SoundScriptTemplate, stop_sound_pitch)); ROR_ASSERT(result >= 0);
-
-    result = engine->RegisterObjectProperty("SoundScriptTemplateClass", "SoundTriggers trigger_source", offsetof(SoundScriptTemplate, trigger_source)); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "string getName()", asMETHOD(SoundScriptTemplate, getName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "string getFileName()", asMETHOD(SoundScriptTemplate, getFileName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "string getGroupName()", asMETHOD(SoundScriptTemplate, getGroupName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("SoundScriptTemplateClass", "bool isBaseTemplate()", asMETHOD(SoundScriptTemplate, isBaseTemplate), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // class Sound
     Sound::RegisterRefCountingObject(engine, "SoundClass");
