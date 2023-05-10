@@ -31,6 +31,7 @@
 #include "RefCountingObject.h"
 #include "RefCountingObjectPtr.h"
 #include "SimData.h"
+#include "SoundScriptManager.h"
 #include "TyrePressure.h"
 #include "VehicleAI.h"
 

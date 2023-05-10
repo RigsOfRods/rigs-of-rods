@@ -178,7 +178,6 @@ class SoundScriptTemplate : public RefCountingObject<SoundScriptTemplate>
 {
     friend class SoundScriptManager;
     friend class SoundScriptInstance;
-    friend void RegisterSoundScript(AngelScript::asIScriptEngine* engine);
 
 public:
 
@@ -189,7 +188,19 @@ public:
     int getNumSounds() { return free_sound; }
     Ogre::String getSoundName(int pos) { if (pos >= 0 && pos < free_sound) { return sound_names[pos]; } else { return ""; } }
     float getSoundPitch(int pos) { if (pos >= 0 && pos < free_sound) { return sound_pitches[pos]; } else { return 0.f; } }
-    
+
+    // start/stop sound attribute getters for AngelScript
+    Ogre::String getStartSoundName() { return start_sound_name; }
+    float getStartSoundPitch() { return start_sound_pitch; }
+    Ogre::String getStopSoundName() { return stop_sound_name; }
+    float getStopSoundPitch() { return stop_sound_pitch; }
+
+    // other getters for AngelScript
+    Ogre::String getName() { return name; }
+    Ogre::String getFileName() { return file_name; }
+    Ogre::String getGroupName() { return group_name; }
+    bool isBaseTemplate() { return base_template; }
+
 private:
 
     int parseModulation(Ogre::String str);
