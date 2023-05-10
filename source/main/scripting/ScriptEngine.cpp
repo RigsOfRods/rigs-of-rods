@@ -223,7 +223,7 @@ int ScriptEngine::framestep(Real dt)
         m_currently_executing_script_unit = id;
         int r = context->Execute();
         m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
-        if ( r == AngelScript::asEXECUTION_FINISHED )
+        if ( r != AngelScript::asEXECUTION_FINISHED )
         {
             // The return value is only valid if the execution finished successfully
             AngelScript::asDWORD ret = context->GetReturnDWord();
