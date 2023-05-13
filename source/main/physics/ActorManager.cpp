@@ -221,7 +221,7 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
 
     actor->m_spawn_rotation = actor->getRotation();
 
-    TRIGGER_EVENT(SE_GENERIC_NEW_TRUCK, actor->ar_instance_id);
+    TRIGGER_EVENT_ASYNC(SE_GENERIC_NEW_TRUCK, actor->ar_instance_id);
 
     actor->NotifyActorCameraChanged(); // setup sounds properly
 

@@ -160,7 +160,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         if (grab_truck && minnode != NODENUM_INVALID)
         {
             mouseGrabState = 1;
-            TRIGGER_EVENT(SE_TRUCK_MOUSE_GRAB, grab_truck->ar_instance_id);
+            TRIGGER_EVENT_ASYNC(SE_TRUCK_MOUSE_GRAB, grab_truck->ar_instance_id);
 
             for (std::vector<hook_t>::iterator it = grab_truck->ar_hooks.begin(); it != grab_truck->ar_hooks.end(); it++)
             {

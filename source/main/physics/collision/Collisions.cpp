@@ -604,12 +604,11 @@ void Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
     if (!eventsources[cbox->eventsourcenum].es_enabled)
         return;
     
-    std::lock_guard<std::mutex> lock(m_scriptcallback_mutex);
     if (node)
     {
         // An actor is activating the eventbox
         // Duplicate invocation is prevented by `Actor::m_active_eventboxes` cache.
-        App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].es_script_handler, &eventsources[cbox->eventsourcenum], node);
+        App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].es_script_handler, &eventsources[cbox->eventsourcenum], node->pos);
     }
     else
     {
@@ -617,7 +616,7 @@ void Collisions::envokeScriptCallback(collision_box_t *cbox, node_t *node)
         // this prevents that the same callback gets called at 2k FPS all the time, serious hit on FPS ... 
         if (std::find(std::begin(m_last_called_cboxes), std::end(m_last_called_cboxes), cbox) == m_last_called_cboxes.end())
         {
-            App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].es_script_handler, &eventsources[cbox->eventsourcenum], node);
+            App::GetScriptEngine()->envokeCallback(eventsources[cbox->eventsourcenum].es_script_handler, &eventsources[cbox->eventsourcenum]);
             m_last_called_cboxes.push_back(cbox);
         }
     }

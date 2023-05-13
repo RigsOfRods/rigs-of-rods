@@ -1674,10 +1674,15 @@ void Actor::CalcEventBoxes()
                     // Do the script callback
                     if (do_callback_enter)
                     {
-                        App::GetGameContext()->GetTerrain()->GetCollisions()->envokeScriptCallback(cbox, &ar_nodes[i]);
+                        // IMPORTANT - this function is executed under physics thread pool, do not run script callbacks synchronously!
+                        eventsource_t& eventsource = App::GetGameContext()->GetTerrain()->GetCollisions()->getEventSource(cbox->eventsourcenum);
 
-                        const eventsource_t& eventsource = App::GetGameContext()->GetTerrain()->GetCollisions()->getEventSource(cbox->eventsourcenum);
-                        TRIGGER_EVENT_EX(SE_EVENTBOX_ENTER, 0, ar_instance_id, ar_nodes[i].pos, 0, eventsource.es_instance_name, eventsource.es_box_name, "", "");
+                        // The classic optional per-object script handler.
+                        ScriptCallbackArgs* args = new ScriptCallbackArgs( &eventsource, i );
+                        App::GetGameContext()->PushMessage(Message(MSG_SIM_SCRIPT_CALLBACK_QUEUED, (void*)args));
+
+                        // The new EVENTBOX_ENTER event.
+                        TRIGGER_EVENT_ASYNC(SE_EVENTBOX_ENTER, 0, ar_instance_id, ar_nodes[i].pos, 0, eventsource.es_instance_name, eventsource.es_box_name, "", "");
                     }
                     break;
                 }
@@ -1686,8 +1691,9 @@ void Actor::CalcEventBoxes()
 
         if (do_callback_exit)
         {
+            // IMPORTANT - this function is executed under physics thread pool, do not run script callbacks synchronously!
             const eventsource_t& eventsource = App::GetGameContext()->GetTerrain()->GetCollisions()->getEventSource(cbox->eventsourcenum);
-            TRIGGER_EVENT_EX(SE_EVENTBOX_EXIT, 0, ar_instance_id, 0, 0, eventsource.es_instance_name, eventsource.es_box_name, "", "");
+            TRIGGER_EVENT_ASYNC(SE_EVENTBOX_EXIT, 0, ar_instance_id, 0, 0, eventsource.es_instance_name, eventsource.es_box_name, "", "");
         }
     }
 }

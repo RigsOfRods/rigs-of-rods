@@ -414,7 +414,7 @@ void GameContext::DeleteActor(ActorPtr actor)
     }
 #endif //SOCKETW
 
-    TRIGGER_EVENT(SE_GENERIC_DELETED_TRUCK, actor->ar_instance_id);
+    TRIGGER_EVENT_ASYNC(SE_GENERIC_DELETED_TRUCK, actor->ar_instance_id);
 
     // Unload actor's scripts
     std::vector<ScriptUnitId_t> unload_list;
@@ -496,7 +496,7 @@ void GameContext::ChangePlayerActor(ActorPtr actor)
 
         App::GetAppContext()->GetForceFeedback().SetEnabled(false);
 
-        TRIGGER_EVENT(SE_TRUCK_EXIT, prev_player_actor?prev_player_actor->ar_instance_id:-1);
+        TRIGGER_EVENT_ASYNC(SE_TRUCK_EXIT, prev_player_actor?prev_player_actor->ar_instance_id:-1);
     }
     else
     {
@@ -523,7 +523,7 @@ void GameContext::ChangePlayerActor(ActorPtr actor)
 
         App::GetGuiManager()->FlexbodyDebug.AnalyzeFlexbodies();
 
-        TRIGGER_EVENT(SE_TRUCK_ENTER, m_player_actor?m_player_actor->ar_instance_id:-1);
+        TRIGGER_EVENT_ASYNC(SE_TRUCK_ENTER, m_player_actor?m_player_actor->ar_instance_id:-1);
     }
 
     if (prev_player_actor != nullptr || m_player_actor != nullptr)
@@ -841,7 +841,7 @@ void GameContext::TeleportPlayer(float x, float z)
         return;
     }
 
-    TRIGGER_EVENT(SE_TRUCK_TELEPORT, this->GetPlayerActor()->ar_instance_id);
+    TRIGGER_EVENT_ASYNC(SE_TRUCK_TELEPORT, this->GetPlayerActor()->ar_instance_id);
 
     Ogre::Vector3 translation = Ogre::Vector3(x, y, z) - this->GetPlayerActor()->ar_nodes[0].AbsPosition;
 
