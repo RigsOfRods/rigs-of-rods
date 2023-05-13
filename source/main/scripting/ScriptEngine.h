@@ -27,16 +27,11 @@
 
 #ifdef USE_ANGELSCRIPT
 
-/// Invoke script function `eventCallbackEx()`, if registered, otherwise fall back to `eventCallback()`
-#define TRIGGER_EVENT(x, y) App::GetScriptEngine()->triggerEvent((x), (y))
-
-/// Invoke script function `eventCallbackEx()`, if registered, otherwise fall back to `eventCallback()`
-#define TRIGGER_EVENT_EX(ev, a1, a2, a3, a4, a5, a6, a7, a8) App::GetScriptEngine()->triggerEvent((ev), (a1), (a2), (a3), (a4), (a5), (a6), (a7), (a8))
-
 #define DEFAULT_TERRAIN_SCRIPT "default.as" // Used when map creator doesn't provide custom script.
 
 #include "AngelScriptBindings.h"
 #include "Application.h"
+#include "GameContext.h"
 #include "GameScript.h"
 #include "InterThreadStoreVector.h"
 #include "ScriptEvents.h"
@@ -51,6 +46,13 @@ namespace RoR {
 
 /// @addtogroup Scripting
 /// @{
+
+/// Asynchronously (via `MSG_SIM_SCRIPT_EVENT_TRIGGERED`) invoke script function `eventCallbackEx()`, if registered, otherwise fall back to `eventCallback()`
+inline void TRIGGER_EVENT_ASYNC(scriptEvents type, int arg1, int arg2ex = 0, int arg3ex = 0, int arg4ex = 0, std::string arg5ex = "", std::string arg6ex = "", std::string arg7ex = "", std::string arg8ex = "")
+{
+    ScriptEventArgs* args = new ScriptEventArgs{ type, arg1, arg2ex, arg3ex, arg4ex, arg5ex, arg6ex, arg7ex, arg8ex };
+    App::GetGameContext()->PushMessage(Message(MSG_SIM_SCRIPT_EVENT_TRIGGERED, (void*)args));
+}
 
 /// Note: Either of these can be loaded from script using `game.pushMessage(MSG_APP_LOAD_SCRIPT_REQUESTED...)`
 enum class ScriptCategory
@@ -86,6 +88,14 @@ struct LoadScriptRequest
     std::string lsr_filename;
     ScriptCategory lsr_category = ScriptCategory::TERRAIN;
     ActorInstanceID_t lsr_associated_actor = ACTORINSTANCEID_INVALID; //!< For ScriptCategory::ACTOR
+};
+
+struct ScriptCallbackArgs
+{
+    ScriptCallbackArgs(eventsource_t* evs, NodeNum_t nd): eventsource(evs), node(nd) {}
+
+    eventsource_t* eventsource = nullptr;
+    NodeNum_t node = NODENUM_INVALID;
 };
 
 /**
@@ -177,7 +187,7 @@ public:
 
     int fireEvent(std::string instanceName, float intensity);
 
-    void envokeCallback(int functionId, eventsource_t* source, node_t* node = 0, int type = 0);
+    void envokeCallback(int functionId, eventsource_t* source, NodeNum_t nodenum = NODENUM_INVALID, int type = 0);
 
     AngelScript::asIScriptEngine* getEngine() { return engine; };
 
@@ -231,6 +241,7 @@ protected:
 } // namespace RoR
 
 #else // USE_ANGELSCRIPT
-#   define TRIGGER_EVENT(x, y)
-#   define TRIGGER_EVENT_EX(ev, a1, a2, a3, a4, a5, a6, a7, a8)
+inline void TRIGGER_EVENT_ASYNC(scriptEvents type, int arg1, int arg2ex = 0, int arg3ex = 0, int arg4ex = 0, std::string arg5ex = "", std::string arg6ex = "", std::string arg7ex = "", std::string arg8ex = "")
+{
+}
 #endif // USE_ANGELSCRIPT

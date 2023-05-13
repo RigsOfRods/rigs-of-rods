@@ -1065,7 +1065,7 @@ void EngineSim::StopEngine()
         return;
 
     m_engine_is_running = false;
-    TRIGGER_EVENT(SE_TRUCK_ENGINE_DIED, m_actor->ar_instance_id);
+    TRIGGER_EVENT_ASYNC(SE_TRUCK_ENGINE_DIED, m_actor->ar_instance_id);
     SOUND_STOP(m_actor, SS_TRIG_ENGINE);
 }
 

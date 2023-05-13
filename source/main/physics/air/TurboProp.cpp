@@ -206,7 +206,7 @@ void Turboprop::updateVisuals(RoR::GfxActor* gfx_m_actor)
 #ifdef USE_ANGELSCRIPT
     if (failed != failedold)
     {
-        TRIGGER_EVENT(SE_TRUCK_ENGINE_FIRE, m_actor->ar_instance_id);
+        TRIGGER_EVENT_ASYNC(SE_TRUCK_ENGINE_FIRE, m_actor->ar_instance_id);
         failedold = failed;
     }
 #endif

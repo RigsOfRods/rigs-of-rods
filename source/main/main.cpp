@@ -770,6 +770,22 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_SIM_SCRIPT_EVENT_TRIGGERED:
+                {
+                    ScriptEventArgs* args = static_cast<ScriptEventArgs*>(m.payload);
+                    App::GetScriptEngine()->triggerEvent(args->type, args->arg1, args->arg2ex, args->arg3ex, args->arg4ex, args->arg5ex, args->arg6ex, args->arg7ex, args->arg8ex);
+                    delete args;
+                    break;
+                }
+
+                case MSG_SIM_SCRIPT_CALLBACK_QUEUED:
+                {
+                    ScriptCallbackArgs* args = static_cast<ScriptCallbackArgs*>(m.payload);
+                    App::GetScriptEngine()->envokeCallback(args->eventsource->es_script_handler, args->eventsource, args->node);
+                    delete args;
+                    break;
+                }
+
                 // -- GUI events ---
 
                 case MSG_GUI_OPEN_MENU_REQUESTED:

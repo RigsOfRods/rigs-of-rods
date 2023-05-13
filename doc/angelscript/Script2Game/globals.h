@@ -513,6 +513,8 @@ enum MsgType
     MSG_SIM_TELEPORT_PLAYER_REQUESTED,         //!< Teleport player character anywhere on terrain. Param 'position' (vector3)
     MSG_SIM_HIDE_NET_ACTOR_REQUESTED,          //!< Request hiding of networked actor; used internally by top menubar. Params: 'instance_id' (int)
     MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED,        //!< Request revealing of hidden networked actor; used internally by top menubar. Params: 'instance_id' (int)
+    MSG_SIM_SCRIPT_EVENT_TRIGGERED,            //!< Internal notification about triggering a script event, DO NOT PUSH MANUALLY.
+    MSG_SIM_SCRIPT_CALLBACK_QUEUED,            //!< Internal notification about triggering a script event, DO NOT PUSH MANUALLY.
     // GUI
     MSG_GUI_OPEN_MENU_REQUESTED,
     MSG_GUI_CLOSE_MENU_REQUESTED,

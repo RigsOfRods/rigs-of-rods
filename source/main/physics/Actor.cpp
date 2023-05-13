@@ -1504,7 +1504,7 @@ void Actor::reset(bool keep_position)
 
 void Actor::SoftReset()
 {
-    TRIGGER_EVENT(SE_TRUCK_RESET, ar_instance_id);
+    TRIGGER_EVENT_ASYNC(SE_TRUCK_RESET, ar_instance_id);
 
     float agl = this->getHeightAboveGroundBelow(this->getMaxHeight(true), true);
 
@@ -1528,7 +1528,7 @@ void Actor::SoftReset()
 
 void Actor::SyncReset(bool reset_position)
 {
-    TRIGGER_EVENT(SE_TRUCK_RESET, ar_instance_id);
+    TRIGGER_EVENT_ASYNC(SE_TRUCK_RESET, ar_instance_id);
 
     m_reset_timer.reset();
 
@@ -2931,7 +2931,7 @@ void Actor::toggleHeadlights()
     // sync cab light state
     m_gfx_actor->SetCabLightsActive(this->getHeadlightsVisible());
 
-    TRIGGER_EVENT(SE_TRUCK_LIGHT_TOGGLE, ar_instance_id);
+    TRIGGER_EVENT_ASYNC(SE_TRUCK_LIGHT_TOGGLE, ar_instance_id);
 }
 
 void Actor::forceAllFlaresOff()
@@ -3113,7 +3113,7 @@ void Actor::toggleCustomParticles()
     }
 
     //ScriptEvent - Particle Toggle
-    TRIGGER_EVENT(SE_TRUCK_CPARTICLES_TOGGLE, ar_instance_id);
+    TRIGGER_EVENT_ASYNC(SE_TRUCK_CPARTICLES_TOGGLE, ar_instance_id);
 }
 
 void Actor::updateSoundSources()
@@ -3460,7 +3460,7 @@ void Actor::tieToggle(int group)
     }
 
     //ScriptEvent - Tie toggle
-    TRIGGER_EVENT(SE_TRUCK_TIE_TOGGLE, ar_instance_id);
+    TRIGGER_EVENT_ASYNC(SE_TRUCK_TIE_TOGGLE, ar_instance_id);
 }
 
 void Actor::ropeToggle(int group)
@@ -3722,7 +3722,7 @@ void Actor::parkingbrakeToggle()
     else
         SOUND_STOP(ar_instance_id, SS_TRIG_PARK);
 
-    TRIGGER_EVENT(SE_TRUCK_PARKINGBRAKE_TOGGLE, ar_instance_id);
+    TRIGGER_EVENT_ASYNC(SE_TRUCK_PARKINGBRAKE_TOGGLE, ar_instance_id);
 }
 
 void Actor::antilockbrakeToggle()
@@ -3756,7 +3756,7 @@ void Actor::beaconsToggle()
     BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_BEACONS, !this->getBeaconMode());
 
     //ScriptEvent - Beacon toggle
-    TRIGGER_EVENT(SE_TRUCK_BEACONS_TOGGLE, ar_instance_id);
+    TRIGGER_EVENT_ASYNC(SE_TRUCK_BEACONS_TOGGLE, ar_instance_id);
 }
 
 void Actor::muteAllSounds()
