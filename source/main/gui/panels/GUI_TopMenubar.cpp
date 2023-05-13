@@ -456,7 +456,7 @@ void TopMenubar::Update()
 
             ImGui::Separator();
 
-            ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "(Save with CTRL+ALT+1..5)"));
+            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "(Save with CTRL+ALT+1..5)"));
             for (int i = 1; i <= 5; i++)
             {
                 Ogre::String name = _LC("TopMenubar", "Empty Slot");
@@ -473,7 +473,7 @@ void TopMenubar::Update()
                 }
             }
 
-            ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "(Load with ALT+1..5)"));
+            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "(Load with ALT+1..5)"));
             for (int i = 1; i <= 5; i++)
             {
                 if (!m_savegame_names[i].empty())
@@ -504,10 +504,10 @@ void TopMenubar::Update()
         if (ImGui::Begin(_LC("TopMenubar", "Settings menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
             ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
-            ImGui::TextColored(GRAY_HINT_TEXT,_LC("TopMenubar",  "Audio:"));
+            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Audio:"));
             DrawGFloatSlider(App::audio_master_volume, _LC("TopMenubar", "Volume"), 0, 1);
             ImGui::Separator();
-            ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Frames per second:"));
+            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Frames per second:"));
             if (App::gfx_envmap_enabled->getBool())
             {
                 DrawGIntSlider(App::gfx_envmap_rate, _LC("TopMenubar", "Reflections"), 0, 6);
@@ -515,7 +515,7 @@ void TopMenubar::Update()
             DrawGIntSlider(App::gfx_fps_limit, _LC("TopMenubar", "Game"), 0, 240);
 
             ImGui::Separator();
-            ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Simulation:"));
+            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Simulation:"));
             float slowmotion = std::min(App::GetGameContext()->GetActorManager()->GetSimulationSpeed(), 1.0f);
             if (ImGui::SliderFloat(_LC("TopMenubar", "Slow motion"), &slowmotion, 0.01f, 1.0f))
             {
@@ -529,14 +529,14 @@ void TopMenubar::Update()
             if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
             {
                 ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Camera:"));
+                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Camera:"));
                 DrawGFloatSlider(App::gfx_static_cam_fov_exp, _LC("TopMenubar", "FOV"), 0.8f, 1.5f);
                 DrawGIntSlider(App::gfx_camera_height, _LC("TopMenubar", "Height"), 1, 50);
             }
             else
             {
                 ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Camera:"));
+                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Camera:"));
                 if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
                 {
                     int fov = App::gfx_fov_internal->getInt();
@@ -562,7 +562,7 @@ void TopMenubar::Update()
             if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
             {
                 ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Time of day:"));
+                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Time of day:"));
                 float time = App::GetGameContext()->GetTerrain()->getSkyManager()->GetTime();
                 if (ImGui::SliderFloat("", &time, m_daytime - 0.5f, m_daytime + 0.5f, ""))
                 {
@@ -581,7 +581,7 @@ void TopMenubar::Update()
                 if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
                 {
                     ImGui::PushID("waves");
-                    ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Waves Height:"));
+                    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Waves Height:"));
                     if(ImGui::SliderFloat("", &m_waves_height, 0.f, 4.f, ""))
                     {
                         App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(m_waves_height);
@@ -593,13 +593,13 @@ void TopMenubar::Update()
             if (current_actor != nullptr)
             {
                 ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT,_LC("TopMenubar",  "Vehicle control options:"));
+                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Vehicle control options:"));
                 DrawGCheckbox(App::io_hydro_coupling, _LC("TopMenubar", "Keyboard steering speed coupling"));
             }
             if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {
                 ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT,       _LC("TopMenubar", "Multiplayer:"));
+                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Multiplayer:"));
                 DrawGCheckbox(App::mp_pseudo_collisions, _LC("TopMenubar", "Collisions"));
                 DrawGCheckbox(App::mp_hide_net_labels,   _LC("TopMenubar", "Hide labels"));
             }
@@ -658,7 +658,7 @@ void TopMenubar::Update()
             }
 
             ImGui::Separator();
-            ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Pre-spawn diag. options:"));
+            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Pre-spawn diag. options:"));
 
             bool diag_mass = App::diag_truck_mass->getBool();
             if (ImGui::Checkbox(_LC("TopMenubar", "Node mass recalc. logging"), &diag_mass))
@@ -668,7 +668,7 @@ void TopMenubar::Update()
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "Extra logging on runtime - mass recalculation"));
+                ImGui::Text("%s", _LC("TopMenubar", "Extra logging on runtime - mass recalculation"));
                 ImGui::EndTooltip();
             }
 
@@ -680,7 +680,7 @@ void TopMenubar::Update()
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "Extra logging on runtime"));
+                ImGui::Text("%s", _LC("TopMenubar", "Extra logging on runtime"));
                 ImGui::EndTooltip();
             }
 
@@ -692,7 +692,7 @@ void TopMenubar::Update()
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "Extra logging on runtime"));
+                ImGui::Text("%s", _LC("TopMenubar", "Extra logging on runtime"));
                 ImGui::EndTooltip();
             }
 
@@ -704,7 +704,7 @@ void TopMenubar::Update()
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "Extra logging on runtime - trigger beams activity"));
+                ImGui::Text("%s", _LC("TopMenubar", "Extra logging on runtime - trigger beams activity"));
                 ImGui::EndTooltip();
             }
 
@@ -716,7 +716,7 @@ void TopMenubar::Update()
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "Visual marker of VideoCameras direction"));
+                ImGui::Text("%s", _LC("TopMenubar", "Visual marker of VideoCameras direction"));
                 ImGui::EndTooltip();
             }
 
@@ -727,9 +727,9 @@ void TopMenubar::Update()
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "1 = Solid"));
-                ImGui::Text(_LC("TopMenubar", "2 = Wireframe"));
-                ImGui::Text(_LC("TopMenubar", "3 = Points"));
+                ImGui::Text("%s", _LC("TopMenubar", "1 = Solid"));
+                ImGui::Text("%s", _LC("TopMenubar", "2 = Wireframe"));
+                ImGui::Text("%s", _LC("TopMenubar", "3 = Points"));
                 ImGui::EndTooltip();
             }
 
@@ -737,9 +737,9 @@ void TopMenubar::Update()
             {
                 ImGui::Separator();
 
-                ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Live diagnostic views:"));
-                ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "(Toggle with %s)"), App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_DEBUG_VIEW).c_str());
-                ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "(Cycle with %s)"), App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_CYCLE_DEBUG_VIEWS).c_str());
+                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Live diagnostic views:"));
+                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "(Toggle with %s)"), App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_DEBUG_VIEW).c_str());
+                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "(Cycle with %s)"), App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_CYCLE_DEBUG_VIEWS).c_str());
 
                 int debug_view_type = static_cast<int>(DebugViewType::DEBUGVIEW_NONE);
                 if (current_actor != nullptr)
@@ -779,7 +779,7 @@ void TopMenubar::Update()
                 if (debug_view_type >= 1 && debug_view_type <= static_cast<int>(DebugViewType::DEBUGVIEW_BEAMS)) 
                 {
                     ImGui::Separator();
-                    ImGui::TextColored(GRAY_HINT_TEXT,           _LC("TopMenubar", "Settings:"));
+                    ImGui::TextColored(GRAY_HINT_TEXT, "%s",     _LC("TopMenubar", "Settings:"));
                     DrawGCheckbox(App::diag_hide_broken_beams,   _LC("TopMenubar", "Hide broken beams"));
                     DrawGCheckbox(App::diag_hide_beam_stress,    _LC("TopMenubar", "Hide beam stress"));
                     DrawGCheckbox(App::diag_hide_wheels,         _LC("TopMenubar", "Hide wheels"));
@@ -811,7 +811,7 @@ void TopMenubar::Update()
             }
 
             ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
-            ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "General options:"));
+            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "General options:"));
 
             if (ai_num < 1)
                 ai_num = 1;
@@ -827,7 +827,7 @@ void TopMenubar::Update()
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "Number of vehicles"));
+                ImGui::Text("%s", _LC("TopMenubar", "Number of vehicles"));
                 ImGui::EndTooltip();
             }
 
@@ -853,7 +853,7 @@ void TopMenubar::Update()
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "Following distance in meters"));
+                ImGui::Text("%s", _LC("TopMenubar", "Following distance in meters"));
                 ImGui::EndTooltip();
             }
 
@@ -894,10 +894,10 @@ void TopMenubar::Update()
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "Positioning scheme"));
+                ImGui::Text("%s", _LC("TopMenubar", "Positioning scheme"));
                 ImGui::Separator();
-                ImGui::Text(_LC("TopMenubar", "Behind: Set vehicle behind vehicle, in line"));
-                ImGui::Text(_LC("TopMenubar", "Parallel: Set vehicles in parallel, useful for certain scenarios like drag races"));
+                ImGui::Text("%s", _LC("TopMenubar", "Behind: Set vehicle behind vehicle, in line"));
+                ImGui::Text("%s", _LC("TopMenubar", "Parallel: Set vehicles in parallel, useful for certain scenarios like drag races"));
                 ImGui::EndTooltip();
             }
 
@@ -920,7 +920,7 @@ void TopMenubar::Update()
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "How many times to loop the path"));
+                ImGui::Text("%s", _LC("TopMenubar", "How many times to loop the path"));
                 ImGui::EndTooltip();
             }
 
@@ -937,7 +937,7 @@ void TopMenubar::Update()
             }
 
             ImGui::Separator();
-            ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Vehicle options:"));
+            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Vehicle options:"));
 
             std::string label2 = "Normal";
             if (ai_mode == 1)
@@ -1046,13 +1046,13 @@ void TopMenubar::Update()
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "Land vehicle driving mode"));
+                ImGui::Text("%s", _LC("TopMenubar", "Land vehicle driving mode"));
                 ImGui::Separator();
-                ImGui::Text(_LC("TopMenubar", "Normal: Modify speed according to turns, other vehicles and character"));
-                ImGui::Text(_LC("TopMenubar", "Race: Always keep defined speed"));
-                ImGui::Text(_LC("TopMenubar", "Drag Race: Two vehicles performing a drag race"));
-                ImGui::Text(_LC("TopMenubar", "Crash: Two vehicles driving in opposite direction"));
-                ImGui::Text(_LC("TopMenubar", "Chase: Follow character and player vehicle"));
+                ImGui::Text("%s", _LC("TopMenubar", "Normal: Modify speed according to turns, other vehicles and character"));
+                ImGui::Text("%s", _LC("TopMenubar", "Race: Always keep defined speed"));
+                ImGui::Text("%s", _LC("TopMenubar", "Drag Race: Two vehicles performing a drag race"));
+                ImGui::Text("%s", _LC("TopMenubar", "Crash: Two vehicles driving in opposite direction"));
+                ImGui::Text("%s", _LC("TopMenubar", "Chase: Follow character and player vehicle"));
                 ImGui::EndTooltip();
             }
 
@@ -1073,7 +1073,7 @@ void TopMenubar::Update()
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "Speed in km/h for land vehicles or knots/s for boats"));
+                ImGui::Text("%s", _LC("TopMenubar", "Speed in km/h for land vehicles or knots/s for boats"));
                 ImGui::EndTooltip();
             }
 
@@ -1084,7 +1084,7 @@ void TopMenubar::Update()
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "Airplane maximum altitude in feet"));
+                ImGui::Text("%s", _LC("TopMenubar", "Airplane maximum altitude in feet"));
                 ImGui::EndTooltip();
             }
 
@@ -1101,7 +1101,7 @@ void TopMenubar::Update()
             if (ImGui::IsItemHovered())
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("TopMenubar", "Land vehicles, boats and airplanes"));
+                ImGui::Text("%s", _LC("TopMenubar", "Land vehicles, boats and airplanes"));
                 ImGui::EndTooltip();
             }
 
@@ -1119,7 +1119,7 @@ void TopMenubar::Update()
                 if (ImGui::IsItemHovered())
                 {
                     ImGui::BeginTooltip();
-                    ImGui::Text(_LC("TopMenubar", "Land vehicles, boats and airplanes"));
+                    ImGui::Text("%s", _LC("TopMenubar", "Land vehicles, boats and airplanes"));
                     ImGui::EndTooltip();
                 }
                 ImGui::PopID();
@@ -1270,8 +1270,8 @@ void TopMenubar::Update()
                 }
                 if (count == 0)
                 {
-                    ImGui::Text(_LC("TopMenubar", "No presets found for this terrain :("));
-                    ImGui::Text(_LC("TopMenubar", "Supported terrains:"));
+                    ImGui::Text("%s", _LC("TopMenubar", "No presets found for this terrain :("));
+                    ImGui::Text("%s", _LC("TopMenubar", "Supported terrains:"));
                     ImGui::Separator();
 
                     ImGui::BeginChild("terrains-scrolling", ImVec2(0.f, 200), false);
@@ -1283,7 +1283,7 @@ void TopMenubar::Update()
                         {
                             for (size_t i = 0; i < j_row_terrains["terrains"].Size(); i++)
                             {
-                                ImGui::Text(j_row_terrains["terrains"][i].GetString());
+                                ImGui::Text("%s", j_row_terrains["terrains"][i].GetString());
                             }
                         }
                     }
@@ -1296,7 +1296,7 @@ void TopMenubar::Update()
             {
                 if (App::GetGuiManager()->SurveyMap.ai_waypoints.empty())
                 {
-                    ImGui::Text(_LC("TopMenubar", "No waypoints defined."));
+                    ImGui::Text("%s", _LC("TopMenubar", "No waypoints defined."));
                 }
                 else
                 {
@@ -1327,7 +1327,7 @@ void TopMenubar::Update()
                     {
                         ImGui::PushID(i);
                         ImGui::AlignTextToFramePadding();
-                        ImGui::Text(std::to_string(i).c_str());
+                        ImGui::Text("%d", i);
                         ImGui::SameLine();
                         std::string w = std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].x) + " " + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].y) + " " + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].z);
                         if (ImGui::Button(w.c_str(), ImVec2(230, 0)))

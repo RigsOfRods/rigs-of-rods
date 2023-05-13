@@ -154,9 +154,9 @@ void FrictionSettings::DrawTooltip(const char* title, const char* text)
     {
         ImGui::SetNextWindowSizeConstraints(/*size_min=*/ImVec2(250.f, 50.f), /*size_max=*/ImVec2(1000.f, 1000.f));
         ImGui::BeginTooltip();
-        ImGui::Text(title);
+        ImGui::Text("%s", title);
         ImGui::Separator();
-        ImGui::TextWrapped(text);
+        ImGui::TextWrapped("%s", text);
         ImGui::EndTooltip();
     }
 }

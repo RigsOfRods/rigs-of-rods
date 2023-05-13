@@ -79,11 +79,11 @@ void GameControls::Draw()
             if (checkbox_hovered || hint_hovered)
             {
                 ImGui::BeginTooltip();
-                ImGui::Text(_LC("GameControls",
+                ImGui::Text("%s", _LC("GameControls",
                     "With EXPL tag, only exactly matching key combos will be triggered.\n"
                     "Without it, partial matches will trigger, too."));
                 ImGui::Separator();
-                ImGui::Text(_LC("GameControls",
+                ImGui::Text("%s", _LC("GameControls",
                     "Example: Pressing CTRL+F1 will trigger COMMANDS_03 and COMMANDS_01\n"
                     "but not COMMANDS_02 which has EXPL tag."));
                 ImGui::TextDisabled("    COMMANDS_01    Keyboard    F1");
