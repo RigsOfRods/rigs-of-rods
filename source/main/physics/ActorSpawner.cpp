@@ -551,10 +551,10 @@ void ActorSpawner::FinalizeRig()
         if (m_actor->ar_autopilot != nullptr) 
         {
             m_actor->ar_autopilot->setInertialReferences(
-                & m_actor->ar_nodes[m_airplane_left_light],
-                & m_actor->ar_nodes[m_airplane_right_light],
-                m_actor->m_fusealge_back,
-                & m_actor->ar_nodes[m_actor->ar_camera_node_pos[0]]
+                m_airplane_left_light,
+                m_airplane_right_light,
+                m_actor->m_fusealge_back->pos,
+                m_actor->ar_camera_node_pos[0]
                 );
         }
         //inform wing segments
@@ -651,7 +651,7 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     m_actor->ar_driveable=AIRPLANE;
     if (m_actor->ar_autopilot == nullptr && m_actor->ar_state != ActorState::NETWORKED_OK)
     {
-        m_actor->ar_autopilot=new Autopilot(m_actor->ar_instance_id);
+        m_actor->ar_autopilot=new Autopilot(m_actor);
     }
 
     m_actor->ar_num_aeroengines++;
@@ -760,7 +760,7 @@ void ActorSpawner::BuildAeroEngine(
     /* Autopilot */
     if (m_actor->ar_autopilot == nullptr && m_actor->ar_state != ActorState::NETWORKED_OK)
     {
-        m_actor->ar_autopilot = new Autopilot(m_actor->ar_instance_id);
+        m_actor->ar_autopilot = new Autopilot(m_actor);
     }
 
     /* Visuals */
