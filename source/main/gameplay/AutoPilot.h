@@ -53,10 +53,12 @@ public:
     int heading;
     bool wantsdisconnect;
 
-    Autopilot(int actor_id);
+    // Setup
+    Autopilot(ActorPtr a);
     void reset();
+    void setInertialReferences(NodeNum_t refl, NodeNum_t refr, NodeNum_t refb, NodeNum_t refc);
+
     void disconnect();
-    void setInertialReferences(node_t* refl, node_t* refr, node_t* refb, node_t* refc);
     int toggleHeading(int mode);
     int toggleAlt(int mode);
     bool toggleIAS();
@@ -86,6 +88,13 @@ public:
     int GetVsValue() const { return vs; }
 private:
 
+    // Bindings
+    ActorPtr m_actor;
+    NodeNum_t ref_l = NODENUM_INVALID;
+    NodeNum_t ref_r = NODENUM_INVALID;
+    NodeNum_t ref_b = NODENUM_INVALID;
+    NodeNum_t ref_c = NODENUM_INVALID;
+
     int mode_heading;
     int mode_alt;
     bool mode_ias;
@@ -93,10 +102,6 @@ private:
     int alt;
     int vs;
     int ias;
-    node_t* ref_l;
-    node_t* ref_r;
-    node_t* ref_b;
-    node_t* ref_c;
     float ref_span;
     float last_elevator;
     float last_aileron;
@@ -111,8 +116,6 @@ private:
     float m_ils_runway_heading;
     float m_ils_runway_distance;
     float last_closest_hdist;
-
-    int m_actor_id;
 };
 
 /// @} // addtogroup Aerial

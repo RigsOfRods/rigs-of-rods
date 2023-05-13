@@ -30,13 +30,9 @@
 using namespace Ogre;
 using namespace RoR;
 
-Autopilot::Autopilot(int actor_id):
-    m_actor_id(actor_id)
+Autopilot::Autopilot(ActorPtr a):
+    m_actor(a)
 {
-    ref_l = nullptr;
-    ref_r = nullptr;
-    ref_b = nullptr;
-    ref_c = nullptr;
     ref_span = 1.0f;
     reset();
 }
@@ -75,17 +71,17 @@ void Autopilot::disconnect()
     wantsdisconnect = false;
     if (mode_gpws)
     {
-        SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_APDISCONNECT);
+        SOUND_PLAY_ONCE(m_actor, SS_TRIG_GPWS_APDISCONNECT);
     }
 }
 
-void Autopilot::setInertialReferences(node_t* refl, node_t* refr, node_t* refb, node_t* refc)
+void Autopilot::setInertialReferences(NodeNum_t refl, NodeNum_t refr, NodeNum_t refb, NodeNum_t refc)
 {
     ref_l = refl;
     ref_r = refr;
     ref_b = refb;
     ref_c = refc; // ar_camera_node_pos(0)
-    ref_span = (refl->RelPosition - refr->RelPosition).length();
+    ref_span = (m_actor->ar_nodes[refl].RelPosition - m_actor->ar_nodes[ref_r].RelPosition).length();
 }
 
 float Autopilot::getAilerons()
@@ -93,7 +89,7 @@ float Autopilot::getAilerons()
     float val = 0;
     if (ref_l && ref_r)
     {
-        float rat = (ref_r->RelPosition.y - ref_l->RelPosition.y) / ref_span;
+        float rat = (m_actor->ar_nodes[ref_r].RelPosition.y - m_actor->ar_nodes[ref_l].RelPosition.y) / ref_span;
         float bank = 90.0;
         if (rat >= 1.0)
             bank = 90.0;
@@ -111,7 +107,7 @@ float Autopilot::getAilerons()
         }
         if (mode_heading == HEADING_FIXED)
         {
-            Vector3 vel = (ref_l->Velocity + ref_r->Velocity) / 2.0;
+            Vector3 vel = (m_actor->ar_nodes[ref_l].Velocity + m_actor->ar_nodes[ref_r].Velocity) / 2.0;
             float curdir = atan2(vel.x, -vel.z) * 57.295779513082;
             float want_bank = curdir - (float)heading;
             if (want_bank < -180.0)
@@ -139,7 +135,7 @@ float Autopilot::getAilerons()
             if (offcourse_tolerance > 60.0)
                 offcourse_tolerance = 60.0;
             float intercept_heading = m_ils_runway_heading + error_heading * offcourse_tolerance;
-            Vector3 vel = (ref_l->Velocity + ref_r->Velocity) / 2.0;
+            Vector3 vel = (m_actor->ar_nodes[ref_l].Velocity + m_actor->ar_nodes[ref_r].Velocity) / 2.0;
             float curdir = atan2(vel.x, -vel.z) * 57.295779513082;
             float want_bank = curdir - intercept_heading;
             if (want_bank < -180.0)
@@ -166,8 +162,8 @@ float Autopilot::getElevator()
     if (ref_l && ref_r && ref_b)
     {
         float wanted_vs = (float)vs / 196.87;
-        float current_vs = (ref_l->Velocity.y + ref_r->Velocity.y) / 2.0;
-        float pitch_var = current_vs - ref_b->Velocity.y;
+        float current_vs = (m_actor->ar_nodes[ref_l].Velocity.y + m_actor->ar_nodes[ref_r].Velocity.y) / 2.0;
+        float pitch_var = current_vs - m_actor->ar_nodes[ref_b].Velocity.y;
         if (mode_alt == ALT_VS)
         {
             if (mode_heading == HEADING_NAV)
@@ -199,7 +195,7 @@ float Autopilot::getElevator()
         if (mode_alt == ALT_FIXED)
         {
             float wanted_alt = (float)alt * 0.3048;
-            float current_alt = (ref_l->AbsPosition.y + ref_r->AbsPosition.y) / 2.0;
+            float current_alt = (m_actor->ar_nodes[ref_l].AbsPosition.y + m_actor->ar_nodes[ref_r].AbsPosition.y) / 2.0;
             if (wanted_vs < 0)
                 wanted_vs = -wanted_vs; //absolute value
             float wanted_vs2 = (wanted_alt - current_alt) / 8.0;
@@ -230,14 +226,14 @@ float Autopilot::getThrottle(float thrtl, float dt)
     if (ref_l && ref_r)
     {
         //tropospheric model valid up to 11.000m (33.000ft)
-        float altitude = ref_l->AbsPosition.y;
+        float altitude = m_actor->ar_nodes[ref_l].AbsPosition.y;
         //float sea_level_temperature=273.15+15.0; //in Kelvin
         float sea_level_pressure = 101325; //in Pa
         //float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
         float airpressure = sea_level_pressure * pow(1.0 - 0.0065 * altitude / 288.15, 5.24947); //in Pa
         float airdensity = airpressure * 0.0000120896;//1.225 at sea level
 
-        float gspd = 1.94384449 * ((ref_l->Velocity + ref_r->Velocity) / 2.0).length();
+        float gspd = 1.94384449 * ((m_actor->ar_nodes[ref_l].Velocity + m_actor->ar_nodes[ref_r].Velocity) / 2.0).length();
 
         float spd = gspd * sqrt(airdensity / 1.225); //KIAS
 
@@ -326,25 +322,25 @@ void Autopilot::gpws_update(float spawnheight)
         return;
     if (mode_gpws && ref_b)
     {
-        float groundalt = App::GetGameContext()->GetTerrain()->GetHeightAt(ref_c->AbsPosition.x, ref_c->AbsPosition.z);
+        float groundalt = App::GetGameContext()->GetTerrain()->GetHeightAt(m_actor->ar_nodes[ref_c].AbsPosition.x, m_actor->ar_nodes[ref_c].AbsPosition.z);
         if (App::GetGameContext()->GetTerrain()->getWater() && groundalt < App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight())
             groundalt = App::GetGameContext()->GetTerrain()->getWater()->GetStaticWaterHeight();
-        float height = (ref_c->AbsPosition.y - groundalt - spawnheight) * 3.28083f; //in feet!
+        float height = (m_actor->ar_nodes[ref_c].AbsPosition.y - groundalt - spawnheight) * 3.28083f; //in feet!
         //skip height warning sounds when the plane is slower then ~10 knots
-        if ((ref_c->Velocity.length() * 1.9685f) > 10.0f)
+        if ((m_actor->ar_nodes[ref_c].Velocity.length() * 1.9685f) > 10.0f)
         {
             if (height < 10 && last_gpws_height > 10)
-                SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_10);
+                SOUND_PLAY_ONCE(m_actor, SS_TRIG_GPWS_10);
             if (height < 20 && last_gpws_height > 20)
-                SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_20);
+                SOUND_PLAY_ONCE(m_actor, SS_TRIG_GPWS_20);
             if (height < 30 && last_gpws_height > 30)
-                SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_30);
+                SOUND_PLAY_ONCE(m_actor, SS_TRIG_GPWS_30);
             if (height < 40 && last_gpws_height > 40)
-                SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_40);
+                SOUND_PLAY_ONCE(m_actor, SS_TRIG_GPWS_40);
             if (height < 50 && last_gpws_height > 50)
-                SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_50);
+                SOUND_PLAY_ONCE(m_actor, SS_TRIG_GPWS_50);
             if (height < 100 && last_gpws_height > 100)
-                SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_100);
+                SOUND_PLAY_ONCE(m_actor, SS_TRIG_GPWS_100);
         }
         last_gpws_height = height;
 
@@ -352,10 +348,10 @@ void Autopilot::gpws_update(float spawnheight)
         // height to meters
         height *= 0.3048;
         // get the y-velocity in meters/s
-        float yVel = ref_c->Velocity.y * 1.9685f;
+        float yVel = m_actor->ar_nodes[ref_c].Velocity.y * 1.9685f;
         // will trigger the pullup sound when vvi is high (avoid pullup warning when landing normal) and groundcontact will be in less then 10 seconds
         if (yVel * 10.0f < -height && yVel < -10.0f)
-            SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_PULLUP);
+            SOUND_PLAY_ONCE(m_actor, SS_TRIG_GPWS_PULLUP);
     }
 #endif //OPENAL
 }
@@ -364,7 +360,7 @@ void Autopilot::UpdateIls(std::vector<TerrainObjectManager::localizer_t> localiz
 {
     if (!ref_l || !ref_r)
         return;
-    Vector3 position = (ref_l->AbsPosition + ref_r->AbsPosition) / 2.0;
+    Vector3 position = (m_actor->ar_nodes[ref_l].AbsPosition + m_actor->ar_nodes[ref_r].AbsPosition) / 2.0;
     float closest_hdist = -1;
     float closest_hangle = -90;
     float closest_vdist = -1;
@@ -434,7 +430,7 @@ void Autopilot::UpdateIls(std::vector<TerrainObjectManager::localizer_t> localiz
 
     if (mode_heading == HEADING_NAV && mode_gpws && closest_hdist > 10.0 && closest_hdist < 350.0 && last_closest_hdist > 10.0 && last_closest_hdist > 350.0)
     {
-        SOUND_PLAY_ONCE(m_actor_id, SS_TRIG_GPWS_MINIMUMS);
+        SOUND_PLAY_ONCE(m_actor, SS_TRIG_GPWS_MINIMUMS);
     }
 
     last_closest_hdist = closest_hdist;

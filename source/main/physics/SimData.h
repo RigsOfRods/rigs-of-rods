@@ -294,9 +294,6 @@ enum class AeroEngineType
 // --------------------------------
 // Soft body physics
 
-typedef uint16_t NodeNum_t; //!< Node position within softbody; use RoR::NODENUM_INVALID as empty value.
-static const NodeNum_t NODENUM_INVALID = std::numeric_limits<NodeNum_t>::max();
-
 /// Physics: A vertex in the softbody structure
 struct node_t
 {
