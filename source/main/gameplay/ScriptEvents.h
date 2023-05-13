@@ -22,11 +22,15 @@
 
 #include "BitFlags.h"
 
+#include <string>
+
+namespace RoR {
+
 /// This enum describes what events are existing. The script can register to receive events.
 enum scriptEvents
 {
     SE_EVENTBOX_ENTER                  = BITMASK(1), //!< Actor or person entered an eventbox; arguments: #1 type, #2 actorID (actor only), #3 node ID (actor only), #4 unused, #5 object instance name #6 eventbox name, #7 unused #8 unused.
-    SE_EVENTBOX_EXIT                  = BITMASK(2), //!< Actor or person left an eventbox; arguments: #1 type, #2 actorID (actor only), #3 unused, #4 unused, #5 object instance name #6 eventbox name, #7 unused #8 unused.
+    SE_EVENTBOX_EXIT                   = BITMASK(2), //!< Actor or person left an eventbox; arguments: #1 type, #2 actorID (actor only), #3 unused, #4 unused, #5 object instance name #6 eventbox name, #7 unused #8 unused.
 
     SE_TRUCK_ENTER                     = BITMASK(3), //!< triggered when switching from person mode to vehicle mode, the argument refers to the actor ID of the vehicle
     SE_TRUCK_EXIT                      = BITMASK(4), //!< triggered when switching from vehicle mode to person mode, the argument refers to the actor ID of the vehicle
@@ -55,3 +59,21 @@ enum scriptEvents
 
 };
 
+/// Args for `eventCallbackEx()` queued via `MSG_SIM_SCRIPT_EVENT_TRIGGERED`
+/// See descriptions at `enum RoR::scriptEvents`.
+struct ScriptEventArgs
+{
+    // both `eventCallback()` and `eventCallbackEx()` ...
+    scriptEvents type;
+    int arg1;
+    // only `eventCallbackEx()` ...
+    int arg2ex;
+    int arg3ex;
+    int arg4ex;
+    std::string arg5ex;
+    std::string arg6ex;
+    std::string arg7ex;
+    std::string arg8ex;
+};
+
+} // namespace RoR

@@ -169,8 +169,6 @@ public:
     // how many elements per cell? power of 2 minus 2 is better
     static const int CELL_BLOCKSIZE = 126;
 
-    std::mutex m_scriptcallback_mutex;
-
     bool forcecam;
     Ogre::Vector3 forcecampos;
     ground_model_t *defaultgm, *defaultgroundgm;
@@ -188,7 +186,7 @@ public:
     bool isInside(Ogre::Vector3 pos, const Ogre::String& inst, const Ogre::String& box, float border = 0);
     bool isInside(Ogre::Vector3 pos, collision_box_t* cbox, float border = 0);
     bool nodeCollision(node_t* node, float dt);
-    void envokeScriptCallback(collision_box_t* cbox, node_t* node = 0);
+    void envokeScriptCallback(collision_box_t* cbox, node_t* node = 0); // Only invoke on main thread! Oterwise use `MSG_SIM_SCRIPT_CALLBACK_QUEUED`
     void findPotentialEventBoxes(Actor* actor, CollisionBoxPtrVec& out_boxes);
 
     void finishLoadingTerrain();
@@ -216,8 +214,7 @@ public:
         const Ogre::Vector3& position = Ogre::Vector3::ZERO,
         const Ogre::Quaternion& orient = Ogre::Quaternion::IDENTITY, const Ogre::Vector3& scale = Ogre::Vector3::UNIT_SCALE);
 
-    // Read-only (const) getters.
-    eventsource_t const& getEventSource(int pos) const { ROR_ASSERT(pos < free_eventsource); return eventsources[pos]; }
+    eventsource_t & getEventSource(int pos) { ROR_ASSERT(pos < free_eventsource); return eventsources[pos]; }
     CollisionBoxVec const& getCollisionBoxes() const { return m_collision_boxes; }
     CollisionMeshVec const& getCollisionMeshes() const { return m_collision_meshes; }
     CollisionTriVec const& getCollisionTriangles() const { return m_collision_tris; }

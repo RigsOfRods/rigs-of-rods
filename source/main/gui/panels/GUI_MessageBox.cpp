@@ -118,7 +118,7 @@ void MessageBoxDialog::Draw()
     ImGui::End();
     if (m_is_visible != was_visible)
     {
-        TRIGGER_EVENT(SE_GENERIC_MESSAGEBOX_CLICK, 0); // Scripting
+        TRIGGER_EVENT_ASYNC(SE_GENERIC_MESSAGEBOX_CLICK, 0); // Scripting
     }
 }
 
@@ -130,7 +130,7 @@ void MessageBoxDialog::DrawButton(MessageBoxButton const& button)
 
         if (button.mbb_script_number > 0)
         {
-            TRIGGER_EVENT(SE_GENERIC_MESSAGEBOX_CLICK, button.mbb_script_number); // Scripting
+            TRIGGER_EVENT_ASYNC(SE_GENERIC_MESSAGEBOX_CLICK, button.mbb_script_number); // Scripting
         }
 
         if (button.mbb_mq_message != MsgType::MSG_INVALID)
