@@ -83,7 +83,9 @@ void CollisionsDebug::Draw()
     // COLLMESH
     ImGui::PushID("COLLMESH");
     ImGui::TextColored(COLOR_COLLMESH, "COLLMESH");
-    ImGui::Text("Num collision meshes: %d (%d tris)", (int)App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes().size());
+    ImGui::Text("Num collision meshes: %d (%d tris)",
+        (int)App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionMeshes().size(),
+        (int)App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionTriangles().size());
     if (ImGui::Checkbox("Show collision meshes", &m_draw_collision_meshes))
     {
         this->SetDrawCollisionMeshes(m_draw_collision_meshes);

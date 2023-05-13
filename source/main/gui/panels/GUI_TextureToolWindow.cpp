@@ -97,7 +97,7 @@ void TextureToolWindow::Draw()
         ImGui::Text("Size: %s", formatBytes(m_display_tex->getSize()).asUTF8_c_str());
         ImGui::Text("Format: %s", Ogre::PixelUtil::getFormatName(m_display_tex->getFormat()).c_str());
         if (m_display_tex->getNumFaces() > 1)
-            ImGui::Text("Num. faces: %u", m_display_tex->getNumFaces());
+            ImGui::Text("Num. faces: %d", static_cast<int>(m_display_tex->getNumFaces()));
         if (m_display_tex->getFSAA() > 0)
             ImGui::Text("FSAA: %u", m_display_tex->getFSAA());
         if (m_display_tex->getNumMipmaps() > 0)

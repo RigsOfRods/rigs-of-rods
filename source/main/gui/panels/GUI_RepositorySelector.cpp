@@ -529,22 +529,22 @@ void RepositorySelector::Draw()
 
             float text_pos = 140.f;
 
-            ImGui::Text(_LC("RepositorySelector", "Details:"));
+            ImGui::Text("%s", _LC("RepositorySelector", "Details:"));
             ImGui::Separator();
 
-            ImGui::TextDisabled(_LC("RepositorySelector", "Title:"));
+            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Title:"));
             ImGui::SameLine();
             ImGui::SetCursorPosX(text_pos);
             ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.title.c_str());
             ImGui::Separator();
 
-            ImGui::TextDisabled(_LC("RepositorySelector", "Resource ID:"));
+            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Resource ID:"));
             ImGui::SameLine();
             ImGui::SetCursorPosX(text_pos);
             ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.resource_id);
             ImGui::Separator();
 
-            ImGui::TextDisabled(_LC("RepositorySelector", "Category:"));
+            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Category:"));
             ImGui::SameLine();
             ImGui::SetCursorPosX(text_pos);
 
@@ -558,31 +558,31 @@ void RepositorySelector::Draw()
 
             ImGui::Separator();
 
-            ImGui::TextDisabled(_LC("RepositorySelector", "Description:"));
+            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Description:"));
             ImGui::SameLine();
             ImGui::SetCursorPosX(text_pos);
             ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.tag_line.c_str());
             ImGui::Separator();
 
-            ImGui::TextDisabled(_LC("RepositorySelector", "Downloads:"));
+            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Downloads:"));
             ImGui::SameLine();
             ImGui::SetCursorPosX(text_pos);
             ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.download_count);
             ImGui::Separator();
 
-            ImGui::TextDisabled(_LC("RepositorySelector", "View Count:"));
+            ImGui::TextDisabled("%s", _LC("RepositorySelector", "View Count:"));
             ImGui::SameLine();
             ImGui::SetCursorPosX(text_pos);
             ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.view_count);
             ImGui::Separator();
 
-            ImGui::TextDisabled(_LC("RepositorySelector", "Rating:"));
+            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Rating:"));
             ImGui::SameLine();
             ImGui::SetCursorPosX(text_pos);
             ImGui::TextColored(theme.value_blue_text_color, "%f", m_selected_item.rating_avg);
             ImGui::Separator();
 
-            ImGui::TextDisabled(_LC("RepositorySelector", "Rating Count:"));
+            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Rating Count:"));
             ImGui::SameLine();
             ImGui::SetCursorPosX(text_pos);
             ImGui::TextColored(theme.value_blue_text_color, "%d", m_selected_item.rating_count);
@@ -602,26 +602,26 @@ void RepositorySelector::Draw()
             ImGui::TextColored(theme.value_blue_text_color, "%s", asctime(gmtime (&b)));
             ImGui::Separator();
 
-            ImGui::TextDisabled(_LC("RepositorySelector", "Version:"));
+            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Version:"));
             ImGui::SameLine();
             ImGui::SetCursorPosX(text_pos);
             ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.version.c_str());
             ImGui::Separator();
 
-            ImGui::TextDisabled(_LC("RepositorySelector", "Authors:"));
+            ImGui::TextDisabled("%s", _LC("RepositorySelector", "Authors:"));
             ImGui::SameLine();
             ImGui::SetCursorPosX(text_pos);
             ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.authors.c_str());
             ImGui::Separator();
 
-            ImGui::TextDisabled(_LC("RepositorySelector", "View URL:"));
+            ImGui::TextDisabled("%s", _LC("RepositorySelector", "View URL:"));
             ImGui::SameLine();
             ImGui::SetCursorPosX(text_pos);
             ImGui::TextColored(theme.value_blue_text_color, "%s", m_selected_item.view_url.c_str());
             ImGui::Separator();
 
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
-            ImGui::Text(_LC("RepositorySelector", "Files:"));
+            ImGui::Text("%s", _LC("RepositorySelector", "Files:"));
 
             // Spinner
             if (m_data.files.empty() && m_repofiles_msg.empty())
@@ -650,7 +650,7 @@ void RepositorySelector::Draw()
                 ImGui::AlignTextToFramePadding();
                 float pos_y = ImGui::GetCursorPosY();
 
-                ImGui::TextDisabled(_LC("RepositorySelector", "Filename:"));
+                ImGui::TextDisabled("%s", _LC("RepositorySelector", "Filename:"));
                 ImGui::SameLine();
                 ImGui::SetCursorPosX(text_pos);
 
@@ -665,7 +665,7 @@ void RepositorySelector::Draw()
                     file_time = GetFileLastModifiedTime(file);
                 }
 
-                ImGui::TextColored(theme.value_blue_text_color, m_data.files[i].filename.c_str());
+                ImGui::TextColored(theme.value_blue_text_color, "%s", m_data.files[i].filename.c_str());
 
                 if (FileExists(file) && ImGui::IsItemHovered())
                 {
