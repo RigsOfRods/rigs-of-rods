@@ -139,7 +139,7 @@ private:
     Ogre::AxisAlignedBox m_collision_aab; // Tight bounding box around all collision meshes
 
     // collision hashtable
-    Ogre::Real hashtable_height[HASH_SIZE];
+    std::array<float, HASH_SIZE> hashtable_height;
     std::vector<hash_coll_element_t> hashtable[HASH_SIZE];
 
     // ground models
