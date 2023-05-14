@@ -45,21 +45,24 @@ private:
         Ogre::Vector2 texcoord;
     };
 
+    // Bindings
+    ActorPtr m_actor;
+    NodeNum_t noderef;
+    NodeNum_t nodex;
+    NodeNum_t nodey;
+    NodeNum_t nodea;
+
     Ogre::MeshPtr msh;
     Ogre::SceneNode* snode;
-    node_t* noderef;
-    node_t* nodex;
-    node_t* nodey;
-    node_t* nodea;
+
     Ogre::Vector3 offset; //!< gfx attribute
     float ratio; //!< Current state
     float maxangle; //!< attribute from truckfile
     float area; //!< Attribute set at spawn
-
     Ogre::Entity* ec;
 
 public:
-    Airbrake(ActorPtr actor, const char* basename, int num, node_t* ndref, node_t* ndx, node_t* ndy, node_t* nda, Ogre::Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float tx2, float tx3, float tx4, float lift_coef);
+    Airbrake(ActorPtr actor, const char* basename, int num, NodeNum_t ndref, NodeNum_t ndx, NodeNum_t ndy, NodeNum_t nda, Ogre::Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float tx2, float tx3, float tx4, float lift_coef);
     ~Airbrake() {} // Cleanup of visuals is done by GfxActor
 
     void updatePosition(float amount);

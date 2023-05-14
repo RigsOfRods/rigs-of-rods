@@ -31,8 +31,9 @@
 using namespace Ogre;
 using namespace RoR;
 
-Airbrake::Airbrake(ActorPtr actor, const char* basename, int num, node_t* ndref, node_t* ndx, node_t* ndy, node_t* nda, Ogre::Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float ty1, float tx2, float ty2, float lift_coef)
+Airbrake::Airbrake(ActorPtr actor, const char* basename, int num, NodeNum_t ndref, NodeNum_t ndx, NodeNum_t ndy, NodeNum_t nda, Ogre::Vector3 pos, float width, float length, float maxang, std::string const & texname, float tx1, float ty1, float tx2, float ty2, float lift_coef)
 {
+    m_actor = actor;
     snode = 0;
     noderef = ndref;
     nodex = ndx;
@@ -171,19 +172,19 @@ void Airbrake::updatePosition(float amount)
 void Airbrake::applyForce()
 {
     //tropospheric model valid up to 11.000m (33.000ft)
-    float altitude = noderef->AbsPosition.y;
+    float altitude = m_actor->ar_nodes[noderef].AbsPosition.y;
     //float sea_level_temperature=273.15+15.0; //in Kelvin
     float sea_level_pressure = 101325; //in Pa
     //float airtemperature=sea_level_temperature-altitude*0.0065; //in Kelvin
     float airpressure = sea_level_pressure * pow(1.0 - 0.0065 * altitude / 288.15, 5.24947); //in Pa
     float airdensity = airpressure * 0.0000120896;//1.225 at sea level
 
-    Vector3 wind = -noderef->Velocity;
+    Vector3 wind = -m_actor->ar_nodes[noderef].Velocity;
     float wspeed = wind.length();
 
     Vector3 drag = (1.2 * area * sin(fabs(ratio * maxangle / 57.3)) * 0.5 * airdensity * wspeed / 4.0) * wind;
-    noderef->Forces += drag;
-    nodex->Forces += drag;
-    nodey->Forces += drag;
-    nodea->Forces += drag;
+    m_actor->ar_nodes[noderef].Forces += drag;
+    m_actor->ar_nodes[nodex].Forces += drag;
+    m_actor->ar_nodes[nodey].Forces += drag;
+    m_actor->ar_nodes[nodea].Forces += drag;
 }
