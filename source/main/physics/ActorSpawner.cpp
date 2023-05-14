@@ -3032,8 +3032,8 @@ beam_t *ActorSpawner::FindBeamInRig(NodeNum_t node_a_index, NodeNum_t node_b_ind
 void ActorSpawner::ProcessHook(RigDef::Hook & def)
 {
     /* Find the node */
-    node_t *node = GetNodePointer(def.node);
-    if (node ==  nullptr)
+    NodeNum_t nodenum = this->ResolveNodeRef(def.node);
+    if (nodenum ==  NODENUM_INVALID)
     {
         return;
     }
@@ -3043,7 +3043,7 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
     std::vector <hook_t>::iterator itor = m_actor->ar_hooks.begin();
     for (; itor != m_actor->ar_hooks.end(); itor++)
     {
-        if (itor->hk_hook_node == node)
+        if (itor->hk_hook_node == nodenum)
         {
             hook = &*itor;
             break;
@@ -5796,11 +5796,9 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
             
         // Logic cloned from SerializedRig.cpp, section BTS_NODES
         hook_t hook;
-        hook.hk_hook_node         = & node;
+        hook.hk_hook_node         = node.pos;
         hook.hk_group             = -1;
         hook.hk_locked            = UNLOCKED;
-        hook.hk_lock_node         = nullptr;
-        hook.hk_locked_actor      = nullptr;
         hook.hk_lockgroup         = -1;
         hook.hk_beam              = beam_index;
         hook.hk_maxforce          = HOOK_FORCE_DEFAULT;

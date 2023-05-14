@@ -1707,14 +1707,14 @@ void Actor::CalcHooks()
         it->hk_timer = std::max(0.0f, it->hk_timer - PHYSICS_DT);
 
         beam_t& hookbeam = ar_beams[it->hk_beam];
-        if (it->hk_lock_node && it->hk_locked == PRELOCK)
+        if (it->hk_locked_node != NODENUM_INVALID && it->hk_locked == PRELOCK)
         {
             if (hookbeam.bm_disabled)
             {
                 //enable beam if not enabled yet between those 2 nodes
-                hookbeam.p2 = it->hk_lock_node;
+                hookbeam.p2 = &it->hk_locked_actor->ar_nodes[it->hk_locked_node];
                 hookbeam.bm_inter_actor = (it->hk_locked_actor != nullptr);
-                hookbeam.L = (it->hk_hook_node->AbsPosition - it->hk_lock_node->AbsPosition).length();
+                hookbeam.L = (ar_nodes[it->hk_hook_node].AbsPosition - it->hk_locked_actor->ar_nodes[it->hk_locked_node].AbsPosition).length();
                 hookbeam.bm_disabled = false;
                 AddInterActorBeam(&hookbeam, this, it->hk_locked_actor);
             }
@@ -1751,11 +1751,11 @@ void Actor::CalcHooks()
                             {
                                 //force exceeded reset the hook node
                                 it->hk_locked = UNLOCKED;
-                                it->hk_lock_node = 0;
-                                it->hk_locked_actor = 0;
+                                it->hk_locked_node = NODENUM_INVALID;
+                                it->hk_locked_actor = nullptr;
                                 hookbeam.p2 = &ar_nodes[0];
                                 hookbeam.bm_inter_actor = false;
-                                hookbeam.L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
+                                hookbeam.L = (ar_nodes[0].AbsPosition - ar_nodes[it->hk_hook_node].AbsPosition).length();
                                 hookbeam.bm_disabled = true;
                                 RemoveInterActorBeam(&hookbeam);
                             }

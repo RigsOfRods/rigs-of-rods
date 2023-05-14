@@ -164,7 +164,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 
             for (std::vector<hook_t>::iterator it = grab_truck->ar_hooks.begin(); it != grab_truck->ar_hooks.end(); it++)
             {
-                if (it->hk_hook_node->pos == minnode)
+                if (it->hk_hook_node == minnode)
                 {
                     grab_truck->hookToggle(it->hk_group, MOUSE_HOOK_TOGGLE, minnode);
                 }

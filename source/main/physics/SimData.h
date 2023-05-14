@@ -487,21 +487,21 @@ struct wheeldetacher_t
 struct hook_t
 {
     HookState hk_locked;
-    int     hk_group;
-    int     hk_lockgroup;
-    bool    hk_selflock;
-    bool    hk_autolock;
-    bool    hk_nodisable;
-    float   hk_maxforce;
-    float   hk_lockrange;
-    float   hk_lockspeed;
-    float   hk_timer;
-    float   hk_timer_preset;
-    float   hk_min_length; //!< Absolute value in meters
-    node_t* hk_hook_node;
-    node_t* hk_lock_node;
-    BeamID_t  hk_beam = BEAMID_INVALID;
-    ActorPtr  hk_locked_actor;
+    int       hk_group;
+    int       hk_lockgroup;
+    bool      hk_selflock;
+    bool      hk_autolock;
+    bool      hk_nodisable;
+    float     hk_maxforce;
+    float     hk_lockrange;
+    float     hk_lockspeed;
+    float     hk_timer;
+    float     hk_timer_preset;
+    float     hk_min_length;                    //!< Absolute value in meters
+    NodeNum_t hk_hook_node = NODENUM_INVALID;   //!< The hooking node on master actor, never invalid.
+    BeamID_t  hk_beam = BEAMID_INVALID;         //!< The hooking beam on master actor.
+    ActorPtr  hk_locked_actor;                  //!< The slave actor, or null if not hooked.
+    NodeNum_t hk_locked_node = NODENUM_INVALID; //!< The locked node on slave actor, or NODENUM_INVALID if not hooked.
 };
 
 struct ropable_t

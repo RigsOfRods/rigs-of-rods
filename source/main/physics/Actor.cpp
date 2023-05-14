@@ -1580,12 +1580,12 @@ void Actor::SyncReset(bool reset_position)
     for (auto& h : ar_hooks)
     {
         h.hk_locked = UNLOCKED;
-        h.hk_lock_node = nullptr;
+        h.hk_locked_node = NODENUM_INVALID;
         h.hk_locked_actor = nullptr;
         ar_beams[h.hk_beam].p2 = &ar_nodes[0];
         ar_beams[h.hk_beam].bm_disabled = true;
         ar_beams[h.hk_beam].bm_inter_actor = false;
-        ar_beams[h.hk_beam].L = (ar_nodes[0].AbsPosition - h.hk_hook_node->AbsPosition).length();
+        ar_beams[h.hk_beam].L = (ar_nodes[0].AbsPosition - ar_nodes[h.hk_hook_node].AbsPosition).length();
         this->RemoveInterActorBeam(&ar_beams[h.hk_beam]);
     }
 
@@ -3576,7 +3576,7 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
     // iterate over all hooks
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
-        if (mode == MOUSE_HOOK_TOGGLE && it->hk_hook_node->pos != node_number)
+        if (mode == MOUSE_HOOK_TOGGLE && it->hk_hook_node != node_number)
         {
             //skip all other nodes except the one manually toggled by mouse
             continue;
@@ -3632,7 +3632,7 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
                 if (this == actor.GetRef() && !it->hk_selflock)
                     continue; // don't lock to self
 
-                node_t* nearest_node = nullptr;
+                NodeNum_t nearest_node = NODENUM_INVALID;
                 for (int i = 0; i < actor->ar_num_nodes; i++)
                 {
                     // skip all nodes with lockgroup 9999 (deny lock)
@@ -3640,7 +3640,7 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
                         continue;
 
                     // exclude this truck and its current hooknode from the locking search
-                    if (this == actor.GetRef() && i == it->hk_hook_node->pos)
+                    if (this == actor.GetRef() && i == it->hk_hook_node)
                         continue;
 
                     // a lockgroup for this hooknode is set -> skip all nodes that do not have the same lockgroup (-1 = default(all nodes))
@@ -3648,21 +3648,21 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
                         continue;
 
                     // measure distance
-                    float n2n_distance = (it->hk_hook_node->AbsPosition - actor->ar_nodes[i].AbsPosition).length();
+                    float n2n_distance = (ar_nodes[it->hk_hook_node].AbsPosition - actor->ar_nodes[i].AbsPosition).length();
                     if (n2n_distance < mindist)
                     {
                         if (distance >= n2n_distance)
                         {
                             // located a node that is closer
                             distance = n2n_distance;
-                            nearest_node = &actor->ar_nodes[i];
+                            nearest_node = static_cast<NodeNum_t>(i);
                         }
                     }
                 }
-                if (nearest_node)
+                if (nearest_node != NODENUM_INVALID)
                 {
                     // we found a node, lock to it
-                    it->hk_lock_node = nearest_node;
+                    it->hk_locked_node = nearest_node;
                     it->hk_locked_actor = actor;
                     it->hk_locked = PRELOCK;
                 }
@@ -3677,12 +3677,12 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
             {
                 it->hk_timer = it->hk_timer_preset; //timer reset for autolock nodes
             }
-            it->hk_lock_node = 0;
-            it->hk_locked_actor = 0;
+            it->hk_locked_node = NODENUM_INVALID;
+            it->hk_locked_actor = nullptr;
             //disable hook-assistance beam
             ar_beams[it->hk_beam].p2 = &ar_nodes[0];
             ar_beams[it->hk_beam].bm_inter_actor = false;
-            ar_beams[it->hk_beam].L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
+            ar_beams[it->hk_beam].L = (ar_nodes[0].AbsPosition - ar_nodes[it->hk_hook_node].AbsPosition).length();
             ar_beams[it->hk_beam].bm_disabled = true;
         }
 

@@ -637,7 +637,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         for (const auto& h : actor->ar_hooks)
         {
             rapidjson::Value j_hook(rapidjson::kObjectType);
-            int lock_node = h.hk_lock_node ? h.hk_lock_node->pos : -1;
+            int lock_node = h.hk_locked_node != NODENUM_INVALID ? h.hk_locked_node : -1;
             int locked_actor = h.hk_locked_actor ? vector_index_lookup[h.hk_locked_actor->ar_vector_index] : -1;
             j_hook.AddMember("locked", h.hk_locked, j_doc.GetAllocator());
             j_hook.AddMember("lock_node", lock_node, j_doc.GetAllocator());
@@ -951,12 +951,12 @@ void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_e
         {
             actor->ar_hooks[i].hk_locked = HookState(hooks[i]["locked"].GetInt());
             actor->ar_hooks[i].hk_locked_actor = actors[locked_actor];
-            actor->ar_hooks[i].hk_lock_node = &actors[locked_actor]->ar_nodes[lock_node];
+            actor->ar_hooks[i].hk_locked_node = static_cast<NodeNum_t>(lock_node);
 
             beam_t& hookbeam = actor->ar_beams[actor->ar_hooks[i].hk_beam];
             if (hookbeam.bm_inter_actor)
             {
-                hookbeam.p2 = actor->ar_hooks[i].hk_lock_node;
+                hookbeam.p2 = &actor->ar_nodes[actor->ar_hooks[i].hk_locked_node];
             }
         }
     }
