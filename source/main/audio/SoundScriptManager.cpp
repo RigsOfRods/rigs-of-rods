@@ -369,8 +369,8 @@ SoundScriptInstancePtr SoundScriptManager::createInstance(Ogre::String templaten
     }
 
     if (free_trigs[templ->trigger_source] >= MAX_INSTANCES_PER_GROUP
-        || (free_gains[templ->trigger_source] >= MAX_INSTANCES_PER_GROUP && templ->gain_source != SS_MOD_NONE)
-        || (free_pitches[templ->trigger_source] >= MAX_INSTANCES_PER_GROUP && templ->pitch_source != SS_MOD_NONE))
+        || (free_gains[templ->gain_source] >= MAX_INSTANCES_PER_GROUP && templ->gain_source != SS_MOD_NONE)
+        || (free_pitches[templ->pitch_source] >= MAX_INSTANCES_PER_GROUP && templ->pitch_source != SS_MOD_NONE))
     {
         LOG("SoundScriptManager: Reached MAX_INSTANCES_PER_GROUP limit (" + TOSTRING(MAX_INSTANCES_PER_GROUP) + ")");
         return NULL; // reached limit!
