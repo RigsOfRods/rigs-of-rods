@@ -33,9 +33,9 @@ using namespace RoR;
 FlexMesh::FlexMesh(
     Ogre::String const & name, 
     RoR::GfxActor* gfx_actor,
-    int n1, 
-    int n2, 
-    int nstart, 
+    NodeNum_t n1, 
+    NodeNum_t n2, 
+    NodeNum_t nstart, 
     int nrays,
     Ogre::String const & face_material_name, 
     Ogre::String const & band_material_name, 
@@ -63,8 +63,8 @@ FlexMesh::FlexMesh(
     {
         vertex_count+=2*nrays; // 1 extra vertex for each sidewall.
     }
-    m_vertices = new FlexMeshVertex[vertex_count];
-    m_vertex_nodes=(int*)malloc(vertex_count*sizeof(int));
+    m_vertices.resize(vertex_count);
+    m_vertex_nodes.resize(vertex_count, NODENUM_INVALID);
 
     //define node ids
     m_vertex_nodes[0]=n1;
@@ -138,8 +138,8 @@ FlexMesh::FlexMesh(
     size_t tiretread_num_indices = 3*2*nrays;
     size_t wheelface_num_indices = 3*2*nrays;
     if (m_is_rimmed) wheelface_num_indices=wheelface_num_indices*3;
-    m_wheelface_indices=(unsigned short*)malloc(wheelface_num_indices*sizeof(unsigned short));
-    m_tiretread_indices=(unsigned short*)malloc(tiretread_num_indices*sizeof(unsigned short));
+    m_wheelface_indices.resize(wheelface_num_indices, 0);
+    m_tiretread_indices.resize(tiretread_num_indices, 0);
     for (i=0; i<nrays; i++)
     {
         //wheel sides
@@ -183,7 +183,7 @@ FlexMesh::FlexMesh(
             offset, m_mesh->sharedVertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
     // Upload the vertex data to the card
-    m_hw_vbuf->writeData(0, m_hw_vbuf->getSizeInBytes(), m_vertices, true);
+    m_hw_vbuf->writeData(0, m_hw_vbuf->getSizeInBytes(), m_vertices.data(), true);
 
     // Set vertex buffer binding so buffer 0 is bound to our vertex buffer
     VertexBufferBinding* bind = m_mesh->sharedVertexData->vertexBufferBinding;
@@ -198,7 +198,7 @@ FlexMesh::FlexMesh(
             HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 
     // Upload the index data to the card
-    faceibuf->writeData(0, faceibuf->getSizeInBytes(), m_wheelface_indices, true);
+    faceibuf->writeData(0, faceibuf->getSizeInBytes(), m_wheelface_indices.data(), true);
 
     // Set parameters of the submesh
     m_submesh_wheelface->useSharedVertices = true;
@@ -215,7 +215,7 @@ FlexMesh::FlexMesh(
             HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 
     // Upload the index data to the card
-    bandibuf->writeData(0, bandibuf->getSizeInBytes(), m_tiretread_indices, true);
+    bandibuf->writeData(0, bandibuf->getSizeInBytes(), m_tiretread_indices.data(), true);
 
     // Set parameters of the submesh
     m_submesh_tiretread->useSharedVertices = true;
@@ -236,11 +236,6 @@ FlexMesh::~FlexMesh()
         Ogre::MeshManager::getSingleton().remove(m_mesh->getName());
         m_mesh.setNull();
     }
-
-    if (m_vertices          != nullptr) { delete m_vertices; }
-    if (m_vertex_nodes      != nullptr) { free (m_vertex_nodes); }
-    if (m_wheelface_indices != nullptr) { free (m_wheelface_indices); }
-    if (m_tiretread_indices != nullptr) { free (m_tiretread_indices); }
 }
 
 Vector3 FlexMesh::updateVertices()
@@ -300,6 +295,6 @@ void FlexMesh::flexitCompute()
 
 Vector3 FlexMesh::flexitFinal()
 {
-    m_hw_vbuf->writeData(0, m_hw_vbuf->getSizeInBytes(), m_vertices, true);
+    m_hw_vbuf->writeData(0, m_hw_vbuf->getSizeInBytes(), m_vertices.data(), true);
     return m_flexit_center;
 }
