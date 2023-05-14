@@ -364,7 +364,6 @@ private:
     bool                          CheckTexcoordLimit(unsigned int count);
     bool                          CheckCabLimit(unsigned int count);
     bool                          CheckCameraRailLimit(unsigned int count);
-    static bool                   CheckSoundScriptLimit(ActorPtr const& vehicle, unsigned int count);
     bool                          CheckAeroEngineLimit(unsigned int count);
     bool                          CheckScrewpropLimit(unsigned int count);
     /// @}

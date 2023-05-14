@@ -27,7 +27,6 @@ static const int   MAX_COMMANDS               = 84;              //!< maximum nu
 static const int   MAX_CAMERAS                = 10;              //!< maximum number of cameras per actor
 static const int   MAX_AEROENGINES            = 8;               //!< maximum number of aero engines per actor
 static const int   MAX_SCREWPROPS             = 8;               //!< maximum number of boat screws per actor
-static const int   MAX_SOUNDSCRIPTS_PER_TRUCK = 128;             //!< maximum number of soundsscripts per actor
 static const int   MAX_CPARTICLES             = 10;              //!< maximum number of custom particles per actor
 static const int   MAX_CAMERARAIL             = 50;              //!< maximum number of camera rail points
 static const int   MAX_CLIGHTS                = 10;              //!< See RoRnet::Lightmask and enum events in InputEngine.h
