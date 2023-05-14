@@ -952,9 +952,11 @@ void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_e
             actor->ar_hooks[i].hk_locked = HookState(hooks[i]["locked"].GetInt());
             actor->ar_hooks[i].hk_locked_actor = actors[locked_actor];
             actor->ar_hooks[i].hk_lock_node = &actors[locked_actor]->ar_nodes[lock_node];
-            if (actor->ar_hooks[i].hk_beam->bm_inter_actor)
+
+            beam_t& hookbeam = actor->ar_beams[actor->ar_hooks[i].hk_beam];
+            if (hookbeam.bm_inter_actor)
             {
-                actor->ar_hooks[i].hk_beam->p2 = actor->ar_hooks[i].hk_lock_node;
+                hookbeam.p2 = actor->ar_hooks[i].hk_lock_node;
             }
         }
     }

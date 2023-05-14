@@ -40,6 +40,9 @@ namespace RoR
     typedef uint16_t NodeNum_t; //!< Node index in `Actor::ar_nodes`; use RoR::NODENUM_INVALID as empty value.
     static const NodeNum_t NODENUM_INVALID = std::numeric_limits<NodeNum_t>::max();
 
+    typedef int BeamID_t; //!< Beam position within `Actor::ar_beams`, use RoR::BEAMID_INVALID as empty value.
+    static const BeamID_t BEAMID_INVALID = -1;
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;
