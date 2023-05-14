@@ -1240,7 +1240,7 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
 
     for (int i = 0; i < m_cct_player_actor->ar_num_camera_rails; i++)
     {
-        m_splinecam_spline_nodes.push_back(&m_cct_player_actor->ar_nodes[m_cct_player_actor->ar_camera_rail[i]]);
+        m_splinecam_spline_nodes.push_back(m_cct_player_actor->ar_camera_rail[i]);
     }
 
     auto linkedBeams = m_cct_player_actor->getAllLinkedActors();
@@ -1254,8 +1254,8 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
             if (actor->ar_num_camera_rails <= 0)
                 continue;
 
-            Vector3 curSplineFront = m_splinecam_spline_nodes.front()->AbsPosition;
-            Vector3 curSplineBack = m_splinecam_spline_nodes.back()->AbsPosition;
+            Vector3 curSplineFront = m_cct_player_actor->ar_nodes[m_splinecam_spline_nodes.front()].AbsPosition;
+            Vector3 curSplineBack =  m_cct_player_actor->ar_nodes[m_splinecam_spline_nodes.back()].AbsPosition;
 
             Vector3 linkedSplineFront = actor->ar_nodes[actor->ar_camera_rail[0]].AbsPosition;
             Vector3 linkedSplineBack = actor->ar_nodes[actor->ar_camera_rail[actor->ar_num_camera_rails - 1]].AbsPosition;
@@ -1264,28 +1264,28 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
             {
                 for (int i = 1; i < actor->ar_num_camera_rails; i++)
                 {
-                    m_splinecam_spline_nodes.push_back(&actor->ar_nodes[actor->ar_camera_rail[i]]);
+                    m_splinecam_spline_nodes.push_back(actor->ar_camera_rail[i]);
                 }
             }
             else if (curSplineFront.distance(linkedSplineFront) < 5.0f)
             {
                 for (int i = 1; i < actor->ar_num_camera_rails; i++)
                 {
-                    m_splinecam_spline_nodes.push_front(&actor->ar_nodes[actor->ar_camera_rail[i]]);
+                    m_splinecam_spline_nodes.push_front(actor->ar_camera_rail[i]);
                 }
             }
             else if (curSplineBack.distance(linkedSplineBack) < 5.0f)
             {
                 for (int i = actor->ar_num_camera_rails - 2; i >= 0; i--)
                 {
-                    m_splinecam_spline_nodes.push_back(&actor->ar_nodes[actor->ar_camera_rail[i]]);
+                    m_splinecam_spline_nodes.push_back(actor->ar_camera_rail[i]);
                 }
             }
             else if (curSplineFront.distance(linkedSplineBack) < 5.0f)
             {
                 for (int i = actor->ar_num_camera_rails - 2; i >= 0; i--)
                 {
-                    m_splinecam_spline_nodes.push_front(&actor->ar_nodes[actor->ar_camera_rail[i]]);
+                    m_splinecam_spline_nodes.push_front(actor->ar_camera_rail[i]);
                 }
             }
         }
@@ -1293,7 +1293,7 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
 
     for (unsigned int i = 0; i < m_splinecam_spline_nodes.size(); i++)
     {
-        m_splinecam_spline->addPoint(m_splinecam_spline_nodes[i]->AbsPosition);
+        m_splinecam_spline->addPoint(m_cct_player_actor->ar_nodes[m_splinecam_spline_nodes[i]].AbsPosition);
     }
 
     Vector3 firstPoint = m_splinecam_spline->getPoint(0);
@@ -1331,7 +1331,7 @@ void CameraManager::CameraBehaviorVehicleSplineUpdateSpline()
 {
     for (int i = 0; i < m_splinecam_spline->getNumPoints(); i++)
     {
-        m_splinecam_spline->updatePoint(i, m_splinecam_spline_nodes[i]->AbsPosition);
+        m_splinecam_spline->updatePoint(i, m_cct_player_actor->ar_nodes[m_splinecam_spline_nodes[i]].AbsPosition);
     }
 }
 

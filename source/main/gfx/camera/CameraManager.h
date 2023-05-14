@@ -145,7 +145,7 @@ protected:
     Ogre::Real           m_splinecam_spline_pos;
     bool                 m_splinecam_spline_closed;
     bool                 m_splinecam_auto_tracking;
-    std::deque<node_t*>  m_splinecam_spline_nodes;
+    std::deque<NodeNum_t>  m_splinecam_spline_nodes;
     unsigned int         m_splinecam_num_linked_beams;
 };
 
