@@ -24,6 +24,7 @@
 #include "Application.h"
 
 #include "Flexable.h"
+#include "SimData.h" // NodeNum_t
 
 #include <OgreString.h>
 #include <OgreEntity.h>
@@ -47,9 +48,9 @@ public:
     FlexMesh(
         Ogre::String const& name,
         RoR::GfxActor* gfx_actor,
-        int n1,
-        int n2,
-        int nstart,
+        NodeNum_t n1,
+        NodeNum_t n2,
+        NodeNum_t nstart,
         int nrays,
         Ogre::String const& face_material_name,
         Ogre::String const& band_material_name,
@@ -70,11 +71,11 @@ public:
 
 private:
 
-    struct FlexMeshVertex
+    struct FlexMeshVertex // staging
     {
-        Ogre::Vector3 position;
-        Ogre::Vector3 normal;
-        Ogre::Vector2 texcoord;
+        Ogre::Vector3 position = Ogre::Vector3::ZERO;
+        Ogre::Vector3 normal = Ogre::Vector3::ZERO;
+        Ogre::Vector2 texcoord = Ogre::Vector2::ZERO;
     };
 
     // Wheel
@@ -85,18 +86,20 @@ private:
 
     // Meshes
     Ogre::MeshPtr     m_mesh;
-    Ogre::SubMesh*    m_submesh_wheelface;
-    Ogre::SubMesh*    m_submesh_tiretread;
+    Ogre::SubMesh*    m_submesh_wheelface = nullptr;
+    Ogre::SubMesh*    m_submesh_tiretread = nullptr;
     Ogre::VertexDeclaration* m_vertex_format;
     Ogre::HardwareVertexBufferSharedPtr m_hw_vbuf;
 
-    // Vertices
-    FlexMeshVertex*   m_vertices;
-    int*              m_vertex_nodes;
+    // Vertices - staging
+    std::vector<FlexMeshVertex> m_vertices;
+    std::vector<NodeNum_t> m_vertex_nodes;
 
     // Indices
-    unsigned short*   m_wheelface_indices;
-    unsigned short*   m_tiretread_indices;
+    std::vector<uint16_t> m_wheelface_indices;
+    std::vector<uint16_t> m_tiretread_indices;
+
+    // Skeletal animation (1 bone per node)
 };
 
 /// @} // addtogroup Flex

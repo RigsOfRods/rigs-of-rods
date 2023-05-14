@@ -4958,7 +4958,7 @@ void ActorSpawner::CreateWheelVisuals(
             m_actor->m_gfx_actor.get(),
             wheel.wh_axis_node_0->pos,
             wheel.wh_axis_node_1->pos,
-            node_base_index,
+            static_cast<NodeNum_t>(node_base_index), // FIXME - node_base_index should be also NodeNum_t
             num_rays,
             rim_material_name,
             band_material_name,
