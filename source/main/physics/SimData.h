@@ -500,7 +500,7 @@ struct hook_t
     float   hk_min_length; //!< Absolute value in meters
     node_t* hk_hook_node;
     node_t* hk_lock_node;
-    beam_t* hk_beam;
+    BeamID_t  hk_beam = BEAMID_INVALID;
     ActorPtr  hk_locked_actor;
 };
 

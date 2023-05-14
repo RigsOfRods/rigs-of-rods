@@ -763,30 +763,30 @@ float Actor::getTotalMass(bool withLocked)
     return mass;
 }
 
-void Actor::DetermineLinkedActors() //TODO: Refactor this - logic iterating over all actors should be in `ActorManager`! ~ only_a_ptr, 01/2018
+void Actor::DetermineLinkedActors()
 {
+    // This updates `m_linked_actors` by searching (iteratively) through global `inter_actor_links` list.
+    // --------------------------------------------------------------------------------------------------
     m_linked_actors.clear();
 
     bool found = true;
-    std::map<ActorPtr, bool> lookup_table;
+    std::map<ActorPtr, bool> lookup_table; // tracks visited actors
     std::pair<std::map<ActorPtr, bool>::iterator, bool> ret;
 
     lookup_table.insert(std::pair<ActorPtr, bool>(this, false));
-    
-    auto inter_actor_links = App::GetGameContext()->GetActorManager()->inter_actor_links; // TODO: Shouldn't this have been a reference?? Also, ugly, see the TODO note above ~ only_a_ptr, 01/2018
 
     while (found)
     {
         found = false;
 
-        for (std::map<ActorPtr, bool>::iterator it_beam = lookup_table.begin(); it_beam != lookup_table.end(); ++it_beam)
+        for (std::map<ActorPtr, bool>::iterator it_actor = lookup_table.begin(); it_actor != lookup_table.end(); ++it_actor)
         {
-            if (!it_beam->second)
+            if (!it_actor->second) // not visited yet?
             {
-                ActorPtr actor = it_beam->first;
-                for (auto it = inter_actor_links.begin(); it != inter_actor_links.end(); it++)
+                ActorPtr actor = it_actor->first;
+                for (auto inter_actor_link: App::GetGameContext()->GetActorManager()->inter_actor_links)
                 {
-                    auto actor_pair = it->second;
+                    auto actor_pair = inter_actor_link.second;
                     if (actor == actor_pair.first || actor == actor_pair.second)
                     {
                         auto other_actor = (actor != actor_pair.first) ? actor_pair.first : actor_pair.second;
@@ -798,7 +798,7 @@ void Actor::DetermineLinkedActors() //TODO: Refactor this - logic iterating over
                         }
                     }
                 }
-                it_beam->second = true;
+                it_actor->second = true; // mark visited
             }
         }
     }
@@ -1582,11 +1582,11 @@ void Actor::SyncReset(bool reset_position)
         h.hk_locked = UNLOCKED;
         h.hk_lock_node = nullptr;
         h.hk_locked_actor = nullptr;
-        h.hk_beam->p2 = &ar_nodes[0];
-        h.hk_beam->bm_disabled = true;
-        h.hk_beam->bm_inter_actor = false;
-        h.hk_beam->L = (ar_nodes[0].AbsPosition - h.hk_hook_node->AbsPosition).length();
-        this->RemoveInterActorBeam(h.hk_beam);
+        ar_beams[h.hk_beam].p2 = &ar_nodes[0];
+        ar_beams[h.hk_beam].bm_disabled = true;
+        ar_beams[h.hk_beam].bm_inter_actor = false;
+        ar_beams[h.hk_beam].L = (ar_nodes[0].AbsPosition - h.hk_hook_node->AbsPosition).length();
+        this->RemoveInterActorBeam(&ar_beams[h.hk_beam]);
     }
 
     for (auto& r : ar_ropes)
@@ -3669,7 +3669,7 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
             }
         }
         // this is a locked or prelocked hook and its not a locking attempt or the locked actor was removed (bm_inter_actor == false)
-        else if ((it->hk_locked == LOCKED || it->hk_locked == PRELOCK) && (mode != HOOK_LOCK || !it->hk_beam->bm_inter_actor))
+        else if ((it->hk_locked == LOCKED || it->hk_locked == PRELOCK) && (mode != HOOK_LOCK || !ar_beams[it->hk_beam].bm_inter_actor))
         {
             // we unlock ropes
             it->hk_locked = PREUNLOCK;
@@ -3680,10 +3680,10 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODE
             it->hk_lock_node = 0;
             it->hk_locked_actor = 0;
             //disable hook-assistance beam
-            it->hk_beam->p2 = &ar_nodes[0];
-            it->hk_beam->bm_inter_actor = false;
-            it->hk_beam->L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
-            it->hk_beam->bm_disabled = true;
+            ar_beams[it->hk_beam].p2 = &ar_nodes[0];
+            ar_beams[it->hk_beam].bm_inter_actor = false;
+            ar_beams[it->hk_beam].L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
+            ar_beams[it->hk_beam].bm_disabled = true;
         }
 
         // update skeletonview on the (un)hooked actor

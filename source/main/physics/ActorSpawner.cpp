@@ -3079,7 +3079,7 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
     }
     if (def.flag_no_rope)
     {
-        hook->hk_beam->bounded = NOSHOCK;
+        m_actor->ar_beams[hook->hk_beam].bounded = NOSHOCK;
     }
     if (!def.flag_visible) // NOTE: This flag can only hide a visible beam - it won't show a beam defined with 'invisible' flag.
     {
@@ -3087,7 +3087,7 @@ void ActorSpawner::ProcessHook(RigDef::Hook & def)
         int beam_index = -1;
         for (int i = 0; i < m_actor->ar_num_beams; ++i)
         {
-            if (hook->hk_beam == &m_actor->ar_beams[i])
+            if (hook->hk_beam == static_cast<BeamID_t>(i))
             {
                 beam_index = i;
                 break;
@@ -5780,7 +5780,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         /* Link [current-node] -> [node-0] */
         /* If current node is 0, link [node-0] -> [node-1] */
         node_t & node_2 = m_actor->ar_nodes[((node.pos == 0) ? 1 : 0)];
-        unsigned int beam_index = m_actor->ar_num_beams;
+        BeamID_t beam_index = m_actor->ar_num_beams;
 
         beam_t & beam = AddBeam(node, node_2, def.beam_defaults, def.detacher_group);
         SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold() * 100.f);
@@ -5802,7 +5802,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         hook.hk_lock_node         = nullptr;
         hook.hk_locked_actor      = nullptr;
         hook.hk_lockgroup         = -1;
-        hook.hk_beam              = & beam;
+        hook.hk_beam              = beam_index;
         hook.hk_maxforce          = HOOK_FORCE_DEFAULT;
         hook.hk_lockrange         = HOOK_RANGE_DEFAULT;
         hook.hk_lockspeed         = HOOK_SPEED_DEFAULT;

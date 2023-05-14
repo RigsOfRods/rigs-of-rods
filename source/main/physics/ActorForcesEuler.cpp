@@ -1706,20 +1706,21 @@ void Actor::CalcHooks()
         //we need to do this here to avoid countdown speedup by triggers
         it->hk_timer = std::max(0.0f, it->hk_timer - PHYSICS_DT);
 
+        beam_t& hookbeam = ar_beams[it->hk_beam];
         if (it->hk_lock_node && it->hk_locked == PRELOCK)
         {
-            if (it->hk_beam->bm_disabled)
+            if (hookbeam.bm_disabled)
             {
                 //enable beam if not enabled yet between those 2 nodes
-                it->hk_beam->p2 = it->hk_lock_node;
-                it->hk_beam->bm_inter_actor = (it->hk_locked_actor != nullptr);
-                it->hk_beam->L = (it->hk_hook_node->AbsPosition - it->hk_lock_node->AbsPosition).length();
-                it->hk_beam->bm_disabled = false;
-                AddInterActorBeam(it->hk_beam, this, it->hk_locked_actor);
+                hookbeam.p2 = it->hk_lock_node;
+                hookbeam.bm_inter_actor = (it->hk_locked_actor != nullptr);
+                hookbeam.L = (it->hk_hook_node->AbsPosition - it->hk_lock_node->AbsPosition).length();
+                hookbeam.bm_disabled = false;
+                AddInterActorBeam(&hookbeam, this, it->hk_locked_actor);
             }
             else
             {
-                if (it->hk_beam->L < it->hk_min_length)
+                if (hookbeam.L < it->hk_min_length)
                 {
                     //shortlimit reached -> status LOCKED
                     it->hk_locked = LOCKED;
@@ -1727,15 +1728,15 @@ void Actor::CalcHooks()
                 else
                 {
                     //shorten the connecting beam slowly to locking minrange
-                    if (it->hk_beam->L > it->hk_lockspeed && fabs(it->hk_beam->stress) < it->hk_maxforce)
+                    if (hookbeam.L > it->hk_lockspeed && fabs(hookbeam.stress) < it->hk_maxforce)
                     {
-                        it->hk_beam->L = (it->hk_beam->L - it->hk_lockspeed);
+                        hookbeam.L = (hookbeam.L - it->hk_lockspeed);
                     }
                     else
                     {
-                        if (fabs(it->hk_beam->stress) < it->hk_maxforce)
+                        if (fabs(hookbeam.stress) < it->hk_maxforce)
                         {
-                            it->hk_beam->L = 0.001f;
+                            hookbeam.L = 0.001f;
                             //locking minrange or stress exeeded -> status LOCKED
                             it->hk_locked = LOCKED;
                         }
@@ -1752,11 +1753,11 @@ void Actor::CalcHooks()
                                 it->hk_locked = UNLOCKED;
                                 it->hk_lock_node = 0;
                                 it->hk_locked_actor = 0;
-                                it->hk_beam->p2 = &ar_nodes[0];
-                                it->hk_beam->bm_inter_actor = false;
-                                it->hk_beam->L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
-                                it->hk_beam->bm_disabled = true;
-                                RemoveInterActorBeam(it->hk_beam);
+                                hookbeam.p2 = &ar_nodes[0];
+                                hookbeam.bm_inter_actor = false;
+                                hookbeam.L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
+                                hookbeam.bm_disabled = true;
+                                RemoveInterActorBeam(&hookbeam);
                             }
                         }
                     }
@@ -1766,7 +1767,7 @@ void Actor::CalcHooks()
         if (it->hk_locked == PREUNLOCK)
         {
             it->hk_locked = UNLOCKED;
-            RemoveInterActorBeam(it->hk_beam);
+            RemoveInterActorBeam(&hookbeam);
         }
     }
 }
