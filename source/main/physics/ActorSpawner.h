@@ -453,8 +453,8 @@ private:
     std::string                    m_cab_material_name; //!< Original name defined in truckfile/globals.    
     std::string                    m_help_material_name;
     float                          m_wing_area;
-    int                            m_airplane_left_light;
-    int                            m_airplane_right_light;
+    NodeNum_t                      m_airplane_left_light  = NODENUM_INVALID;
+    NodeNum_t                      m_airplane_right_light = NODENUM_INVALID;
     float                          m_fuse_z_min;
     float                          m_fuse_z_max;
     float                          m_fuse_y_min;

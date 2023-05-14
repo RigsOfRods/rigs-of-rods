@@ -829,10 +829,10 @@ void ActorSpawner::ProcessAirbrake(RigDef::Airbrake & def)
         m_actor,
         this->ComposeName("Airbrake", airbrake_idx).c_str(),
         airbrake_idx,
-        GetNodePointerOrThrow(def.reference_node),
-        GetNodePointerOrThrow(def.x_axis_node),
-        GetNodePointerOrThrow(def.y_axis_node),
-        GetNodePointerOrThrow(def.aditional_node),
+        ResolveNodeRef(def.reference_node),
+        ResolveNodeRef(def.x_axis_node),
+        ResolveNodeRef(def.y_axis_node),
+        ResolveNodeRef(def.aditional_node),
         def.offset,
         def.width,
         def.height,
@@ -860,9 +860,9 @@ void ActorSpawner::ProcessAirbrake(RigDef::Airbrake & def)
     abx.abx_offset = ab->offset;
     ab->offset = Ogre::Vector3::ZERO;
     // Nodes - just copy
-    abx.abx_ref_node = ab->noderef->pos;
-    abx.abx_x_node = ab->nodex->pos;
-    abx.abx_y_node = ab->nodey->pos;
+    abx.abx_ref_node = ab->noderef;
+    abx.abx_x_node = ab->nodex;
+    abx.abx_y_node = ab->nodey;
 
     m_actor->m_gfx_actor->m_gfx_airbrakes.push_back(abx);
 }
