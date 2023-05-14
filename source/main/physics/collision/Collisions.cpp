@@ -133,6 +133,8 @@ Collisions::Collisions(Ogre::Vector3 terrn_size):
     loadDefaultModels();
     defaultgm = getGroundModelByString("concrete");
     defaultgroundgm = getGroundModelByString("gravel");
+
+    hashtable_height.fill(std::numeric_limits<float>::min());
 }
 
 Collisions::~Collisions()
