@@ -295,6 +295,7 @@ public:
     std::vector<Ogre::Vector3>     ar_initial_node_positions;
     std::vector<std::pair<float, float>> ar_initial_beam_defaults;
     std::vector<wheeldetacher_t>   ar_wheeldetachers;
+    std::vector<soundsource_t>     ar_soundsources;
 
     std::vector<std::vector<int>>  ar_node_to_node_connections;
     std::vector<std::vector<int>>  ar_node_to_beam_connections;
@@ -307,8 +308,7 @@ public:
     command_t         ar_command_key[MAX_COMMANDS + 10] = {}; // 0 for safety
     cparticle_t       ar_custom_particles[MAX_CPARTICLES] = {};
     int               ar_num_custom_particles = 0;
-    soundsource_t     ar_soundsources[MAX_SOUNDSCRIPTS_PER_TRUCK] = {};
-    int               ar_num_soundsources = 0;
+    
     AeroEngine*       ar_aeroengines[MAX_AEROENGINES] = {};
     int               ar_num_aeroengines = 0;
     Screwprop*        ar_screwprops[MAX_SCREWPROPS] = {};

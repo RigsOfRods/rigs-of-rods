@@ -424,9 +424,14 @@ struct collcab_rate_t
 
 struct soundsource_t
 {
+    static const int TYPE_ALWAYS = -2;
+    static const int TYPE_EXTERIOR = -1;
+
+    soundsource_t(SoundScriptInstancePtr& s, NodeNum_t n, int t) : ssi(s), nodenum(n), type(t) {}
+
     SoundScriptInstancePtr ssi;
-    NodeNum_t nodenum;
-    int type;
+    NodeNum_t nodenum = NODENUM_INVALID;
+    int type = TYPE_ALWAYS; //!< When active? Can be cinecam index or a `TYPE_*` constant
 };
 
 struct wheel_t
