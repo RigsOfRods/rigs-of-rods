@@ -5,13 +5,14 @@
 # Translators:
 # Elizabeth Sherrock <lizzyd710@gmail.com>, 2021.
 # 404 <212174808@qq.com>, 2022.
+# Galspong Veil <yscmatthew@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2022-02-19 15:08+0000\n"
-"Last-Translator: 404 <212174808@qq.com>\n"
+"PO-Revision-Date: 2023-05-15 02:48+0000\n"
+"Last-Translator: Galspong Veil <yscmatthew@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "rigs-of-rods/game/zh_Hans/>\n"
 "Language: zh\n"
@@ -19,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.11-dev\n"
+"X-Generator: Weblate 4.18-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -53,7 +54,7 @@ msgstr "有故障的资源文件夹。检查是否正确安装。"
 #: Application.cpp:359
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
-msgstr ""
+msgstr "自动波"
 
 #: Application.cpp:360
 msgctxt "SimGearboxMode"
@@ -73,83 +74,74 @@ msgstr ""
 #: Application.cpp:363
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
-msgstr ""
+msgstr "完全手动：带范围的换挡杆"
 
 #: Application.cpp:372
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
-msgstr ""
+msgstr "无（最快）"
 
 #: Application.cpp:373
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Light sources"
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr "光源"
+msgstr "没有光源"
 
 #: Application.cpp:374
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reload current vehicle"
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr "重新加载当前车辆"
+msgstr "只有目前車輛，燈光"
 
 #: Application.cpp:375
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
-msgstr ""
+msgstr "所有车辆，主灯"
 
 #: Application.cpp:376
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
-msgstr ""
+msgstr "所有车辆、所有照明"
 
 #: Application.cpp:385
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "禁用"
 
 #: Application.cpp:386
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "PSSM"
 
 #: Application.cpp:395
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
-msgstr ""
+msgstr "沙尘暴（最快）"
 
 #: Application.cpp:396
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
-msgstr ""
+msgstr "Caelum（最好看，速度较慢）"
 
 #: Application.cpp:397
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
-msgstr ""
+msgstr "SkyX（最好看，速度较慢）"
 
 #: Application.cpp:406
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "无"
 
 #: Application.cpp:407
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
-msgstr ""
+msgstr "双线性"
 
 #: Application.cpp:408
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
-msgstr ""
+msgstr "三线制"
 
 #: Application.cpp:409
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Anisotropy"
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
 msgstr "各向异性"
@@ -157,91 +149,82 @@ msgstr "各向异性"
 #: Application.cpp:418
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "无"
 
 #: Application.cpp:419
 msgctxt "GfxVegetation"
 msgid "20%"
-msgstr ""
+msgstr "20%"
 
 #: Application.cpp:420
 msgctxt "GfxVegetation"
 msgid "50%"
-msgstr ""
+msgstr "50%"
 
 #: Application.cpp:421
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "满"
 
 #: Application.cpp:430
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "无"
 
 #: Application.cpp:431
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
-msgstr ""
+msgstr "基本（最快）"
 
 #: Application.cpp:432
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reflections"
 msgctxt "GfxWaterMode"
 msgid "Reflection"
-msgstr "思考"
+msgstr "射"
 
 #: Application.cpp:433
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
-msgstr ""
+msgstr "反射+折射（速度优化）"
 
 #: Application.cpp:434
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
-msgstr ""
+msgstr "反射+折射（速度优化）"
 
 #: Application.cpp:435
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr ""
+msgstr "Hydrax"
 
 #: Application.cpp:444
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "无"
 
 #: Application.cpp:445
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "靜態"
 
 #: Application.cpp:446
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "解放党"
 
 #: Application.cpp:455
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "无"
 
 #: Application.cpp:456
-#, fuzzy
-#| msgctxt "ModCategory"
-#| msgid "All"
 msgctxt "IoInputGrabMode"
 msgid "All"
 msgstr "都"
 
 #: Application.cpp:457
-#, fuzzy
-#| msgctxt "TextureToolWindow"
-#| msgid "Dynamic only"
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr "仅动态"
+msgstr "动态"
 
 #: GameContext.cpp:107
 msgid "Terrain not found: "
@@ -396,96 +379,66 @@ msgid "Memory (Ogre): "
 msgstr "内存（食人魔）： "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr "加速卡车"
+msgstr "再大小卡车"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr "将负载绑在卡车上"
+msgstr "卡车名字"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "获取卡车文件的名称"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "获取卡车装载部分的名称"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr "将负载绑在卡车上"
+msgstr "获取卡车的类型"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "加速卡车"
+msgstr "重置卡车"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "toggle parking brake"
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
 msgstr "切换驻车制动器"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "toggle traction control"
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr "切换牵引力控制"
+msgstr "切换跟踪控制"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "toggle antilock brake"
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr "切换防抱死制动器"
+msgstr "切换防固定制动器"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "toggle truck beacons"
 msgctxt "AngelScript"
 msgid "Toggles the beacons"
-msgstr "切换卡车信标"
+msgstr "切换信标"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr "[使用自定义粒子]"
+msgstr "切换自定义粒子"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr ""
+msgstr "获取卡车的节点总数"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
 msgstr "将负载绑在卡车上"
@@ -493,30 +446,24 @@ msgstr "将负载绑在卡车上"
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the wheels of the truck"
-msgstr ""
+msgstr "获取卡车的节点总数"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Sets the mass of the truck"
-msgstr "将负载绑在卡车上"
+msgstr "设置卡车的重量"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
 msgid "Returns true if the brake light is enabled"
-msgstr ""
+msgstr "如果启用制动灯，则返回 真的"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:40
 msgctxt "AngelScript"
 msgid "Returns true if the custom light with the number is enabled"
-msgstr ""
+msgstr "如果启用了带有数字的自定义指示灯，则返回 真的"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:41
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "enable or disable physics"
 msgctxt "AngelScript"
 msgid "Enables or disables the custom light"
 msgstr "启用或禁用物理场"
@@ -524,22 +471,19 @@ msgstr "启用或禁用物理场"
 #: gui/panels/GUI_AngelScriptExamples.cpp:42
 msgctxt "AngelScript"
 msgid "Gets the mode of the beacon"
-msgstr ""
+msgstr "获取信标的模式"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:43
 msgctxt "AngelScript"
 msgid "Sets the blinking type"
-msgstr ""
+msgstr "设置闪烁类型"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:44
 msgctxt "AngelScript"
 msgid "Gets the blinking type"
-msgstr ""
+msgstr "设置闪烁类型"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:45
-#, fuzzy
-#| msgctxt "MainSelector"
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Gets the custom particles mode"
 msgstr "[使用自定义粒子]"
@@ -547,7 +491,7 @@ msgstr "[使用自定义粒子]"
 #: gui/panels/GUI_AngelScriptExamples.cpp:46
 msgctxt "AngelScript"
 msgid "Returns true if the reverse lights are enabled"
-msgstr ""
+msgstr "如果启用了倒车灯，则返回 真的"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:47
 msgctxt "AngelScript"
@@ -608,13 +552,11 @@ msgstr "重置相机位置"
 # Elizabeth Sherrock <lizzyd710@gmail.com>, 2021.
 # 404 <212174808@qq.com>, 2022.
 #: gui/panels/GUI_AngelScriptExamples.cpp:65
-#, fuzzy
-#| msgid ""
 msgctxt "Console"
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To:\n"
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
 "PO-Revision-Date: 2022-02-19 15:08+0000\n"
 "Last-Translator: 404 <212174808@qq.com>\n"
@@ -625,7 +567,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.11-dev\n"
+"X-Generator: Weblate 4.11-dev"
 
 #: gui/panels/GUI_CollisionsDebug.cpp:48
 #, fuzzy
@@ -1175,11 +1117,9 @@ msgid "Multiplayer"
 msgstr "多人游戏"
 
 #: gui/panels/GUI_GameMainMenu.cpp:149
-#, fuzzy
-#| msgid "Compositors: "
 msgctxt "MainMenu"
 msgid "Repository"
-msgstr "作曲家： "
+msgstr "存储库"
 
 #: gui/panels/GUI_GameMainMenu.cpp:155
 msgctxt "MainMenu"
@@ -3236,12 +3176,9 @@ msgid "Land vehicles, boats and airplanes"
 msgstr ""
 
 #: gui/panels/GUI_TopMenubar.cpp:953
-#, fuzzy
-#| msgctxt "Network"
-#| msgid "Starting..."
 msgctxt "TopMenubar"
 msgid "Start"
-msgstr "开始。。。"
+msgstr "开始中"
 
 #: gui/panels/GUI_TopMenubar.cpp:973
 msgctxt "TopMenubar"
