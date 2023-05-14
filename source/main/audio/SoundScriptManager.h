@@ -352,15 +352,15 @@ private:
     std::map <Ogre::String, SoundScriptTemplatePtr> templates;
     std::vector<SoundScriptInstancePtr> instances;
 
-    // instances lookup tables
-    int free_trigs[SS_MAX_TRIG];
-    SoundScriptInstancePtr trigs[SS_MAX_TRIG * MAX_INSTANCES_PER_GROUP];
+    // instances lookup tables - using `std::array<>` because it does bounds checking under VisualStudio/Debug.
+    std::array<int, SS_MAX_TRIG> free_trigs;
+    std::array<SoundScriptInstancePtr, SS_MAX_TRIG* MAX_INSTANCES_PER_GROUP> trigs;
 
-    int free_pitches[SS_MAX_MOD];
-    SoundScriptInstancePtr pitches[SS_MAX_MOD * MAX_INSTANCES_PER_GROUP];
+    std::array<int, SS_MAX_MOD> free_pitches;
+    std::array<SoundScriptInstancePtr, SS_MAX_MOD* MAX_INSTANCES_PER_GROUP> pitches;
     
-    int free_gains[SS_MAX_MOD];
-    SoundScriptInstancePtr gains[SS_MAX_MOD * MAX_INSTANCES_PER_GROUP];
+    std::array<int, SS_MAX_MOD> free_gains;
+    std::array<SoundScriptInstancePtr, SS_MAX_MOD* MAX_INSTANCES_PER_GROUP> gains;
 
     // state map
     // soundLinks, soundItems, actor_ids, triggers
