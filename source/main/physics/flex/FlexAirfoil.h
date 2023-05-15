@@ -108,7 +108,7 @@ private:
     unsigned short* bandfaces;
     unsigned short* cupfaces;
     unsigned short* cdnfaces;
-    node_t* nodes;
+    ActorPtr m_actor;
 
     float sref;
 
@@ -128,7 +128,6 @@ private:
     bool idLeft;
 
     Airfoil* airfoil;
-    AeroEngine** aeroengines;
     int free_wash;
     int washpropnum[MAX_AEROENGINES];
     float washpropratio[MAX_AEROENGINES];

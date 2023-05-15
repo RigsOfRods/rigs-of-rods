@@ -83,6 +83,7 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, ActorPtr actor, NodeNum_t pn
     ,nbrd(pnbrd)
     ,nblu(pnblu)
     ,nbru(pnbru)
+    ,m_actor(actor)
 {
     ROR_ASSERT(pnfld != NODENUM_INVALID);
     ROR_ASSERT(pnfrd != NODENUM_INVALID);
@@ -97,8 +98,6 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, ActorPtr actor, NodeNum_t pn
     breakable=break_able;
     broken=false;
     free_wash=0;
-    aeroengines=actor->ar_aeroengines;
-    nodes=actor->ar_nodes;
     useInducedDrag=false;
 
     mindef=mind;
@@ -288,6 +287,8 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, ActorPtr actor, NodeNum_t pn
     cdnfaces[4]=29;
     cdnfaces[5]=28;
 
+    node_t* nodes = m_actor->ar_nodes;
+
     float tsref=2.0*(nodes[nfrd].RelPosition-nodes[nfld].RelPosition).crossProduct(nodes[nbld].RelPosition-nodes[nfld].RelPosition).length();
     sref=2.0*(nodes[nfrd].RelPosition-nodes[nfld].RelPosition).crossProduct(nodes[nbrd].RelPosition-nodes[nfrd].RelPosition).length();
     if (tsref>sref) sref=tsref;
@@ -412,6 +413,8 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, ActorPtr actor, NodeNum_t pn
 
 void FlexAirfoil::updateVerticesPhysics()
 {
+    node_t* nodes = m_actor->ar_nodes;
+
     Vector3 center;
     center=nodes[nfld].AbsPosition;
 
@@ -592,12 +595,14 @@ void FlexAirfoil::updateForces()
     if (!airfoil) return;
     if (broken) return;
 
+    node_t* nodes = m_actor->ar_nodes;
+
     //evaluate wind direction
     Vector3 wind=-(nodes[nfld].Velocity+nodes[nfrd].Velocity)/2.0;
     //add wash
     int i;
     for (i=0; i<free_wash; i++)
-        wind-=(0.5*washpropratio[i]*aeroengines[washpropnum[i]]->getpropwash())*aeroengines[washpropnum[i]]->getAxis();
+        wind-=(0.5*washpropratio[i]*m_actor->ar_aeroengines[washpropnum[i]]->getpropwash())*m_actor->ar_aeroengines[washpropnum[i]]->getAxis();
     float wspeed=wind.length();
     //chord vector, front to back
     Vector3 chordv=((nodes[nbld].RelPosition-nodes[nfld].RelPosition)+(nodes[nbrd].RelPosition-nodes[nfrd].RelPosition))/2.0;
