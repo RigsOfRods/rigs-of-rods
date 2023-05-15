@@ -651,7 +651,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         for (const auto& r : actor->ar_ropes)
         {
             rapidjson::Value j_rope(rapidjson::kObjectType);
-            int locked_ropable = r.rp_locked_ropable ? r.rp_locked_ropable->pos : -1;
+            int locked_ropable = r.rp_locked_ropable ? r.rp_locked_ropable->rb_pos : -1;
             int locked_actor = r.rp_locked_actor ? vector_index_lookup[r.rp_locked_actor->ar_vector_index] : -1;
             j_rope.AddMember("locked", r.rp_locked, j_doc.GetAllocator());
             j_rope.AddMember("locked_ropable", locked_ropable, j_doc.GetAllocator());
@@ -665,7 +665,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         for (const auto& t : actor->ar_ties)
         {
             rapidjson::Value j_tie(rapidjson::kObjectType);
-            int locked_ropable = t.ti_locked_ropable ? t.ti_locked_ropable->pos : -1;
+            int locked_ropable = t.ti_locked_ropable ? t.ti_locked_ropable->rb_pos : -1;
             int locked_actor = t.ti_locked_actor ? vector_index_lookup[t.ti_locked_actor->ar_vector_index] : -1;
             j_tie.AddMember("tied", t.ti_tied, j_doc.GetAllocator());
             j_tie.AddMember("tying", t.ti_tying, j_doc.GetAllocator());
@@ -993,7 +993,8 @@ void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_e
             actor->ar_ties[i].ti_locked_ropable = &actors[locked_actor]->ar_ropables[ropable];
             if (actor->ar_ties[i].ti_beam->bm_inter_actor)
             {
-                actor->ar_ties[i].ti_beam->p2 = actor->ar_ties[i].ti_locked_ropable->node;
+                NodeNum_t tied_nodenum = actor->ar_ties[i].ti_locked_ropable->rb_nodenum;
+                actor->ar_ties[i].ti_beam->p2 = &actor->ar_nodes[tied_nodenum];
             }
         }
     }
