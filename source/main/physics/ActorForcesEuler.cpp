@@ -1058,14 +1058,16 @@ void Actor::CalcTies()
         if (!it->ti_tying)
             continue;
 
+        beam_t& tiebeam = ar_beams[it->ti_beamid];
+
         // division through zero guard
-        if (it->ti_beam->refL == 0 || it->ti_beam->L == 0)
+        if (tiebeam.refL == 0 || tiebeam.L == 0)
             continue;
 
-        float clen = it->ti_beam->L / it->ti_beam->refL;
+        float clen = tiebeam.L / tiebeam.refL;
         if (clen > it->ti_min_length)
         {
-            it->ti_beam->L *= (1.0 - it->ti_contract_speed * PHYSICS_DT / it->ti_beam->L);
+            tiebeam.L *= (1.0 - it->ti_contract_speed * PHYSICS_DT / tiebeam.L);
         }
         else
         {
@@ -1074,7 +1076,7 @@ void Actor::CalcTies()
         }
 
         // check if we hit a certain force limit, then abort the tying process
-        if (fabs(it->ti_beam->stress) > it->ti_max_stress)
+        if (fabs(tiebeam.stress) > it->ti_max_stress)
         {
             it->ti_tying = false;
         }
