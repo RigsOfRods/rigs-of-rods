@@ -451,7 +451,7 @@ endif ()
 #  POST-BUILD STEPS
 ####################################################################################################
 
-if (USE_PHC)
+if (USE_PCH)
     target_precompile_headers(${BINNAME} PRIVATE phc.h)
 endif ()
 
