@@ -270,8 +270,6 @@ void ActorSpawner::InitializeRig()
 
     m_actor->ar_state = ActorState::LOCAL_SLEEPING;
     m_actor->m_fusealge_airfoil = nullptr;
-    m_actor->m_fusealge_front = nullptr;
-    m_actor->m_fusealge_back = nullptr;
     m_actor->m_fusealge_width=0;
     m_actor->ar_brake_force=30000.0;
     m_actor->m_handbrake_force = 2 * m_actor->ar_brake_force;
@@ -553,7 +551,7 @@ void ActorSpawner::FinalizeRig()
             m_actor->ar_autopilot->setInertialReferences(
                 m_airplane_left_light,
                 m_airplane_right_light,
-                m_actor->m_fusealge_back->pos,
+                m_actor->m_fusealge_back,
                 m_actor->ar_camera_node_pos[0]
                 );
         }
@@ -701,8 +699,8 @@ void ActorSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
 
         m_actor->m_fusealge_airfoil = new Airfoil(fusefoil);
 
-        m_actor->m_fusealge_front   = & m_actor->ar_nodes[front_node_idx];
-        m_actor->m_fusealge_back    = & m_actor->ar_nodes[front_node_idx]; // This equals v0.38 / v0.4.0.7, but it's probably a bug
+        m_actor->m_fusealge_front   = front_node_idx;
+        m_actor->m_fusealge_back    = front_node_idx; // This equals v0.38 / v0.4.0.7, but it's probably a bug
         m_actor->m_fusealge_width   = width;
         AddMessage(Message::TYPE_INFO, "Fusedrag autocalculation size: "+TOSTRING(width)+" m^2");
     } 
@@ -714,8 +712,8 @@ void ActorSpawner::ProcessFusedrag(RigDef::Fusedrag & def)
 
         m_actor->m_fusealge_airfoil = new Airfoil(fusefoil);
 
-        m_actor->m_fusealge_front   = & m_actor->ar_nodes[front_node_idx];
-        m_actor->m_fusealge_back    = & m_actor->ar_nodes[front_node_idx]; // This equals v0.38 / v0.4.0.7, but it's probably a bug
+        m_actor->m_fusealge_front   = front_node_idx;
+        m_actor->m_fusealge_back    = front_node_idx; // This equals v0.38 / v0.4.0.7, but it's probably a bug
         m_actor->m_fusealge_width   = width;
     }
 }

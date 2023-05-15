@@ -126,9 +126,12 @@ void Actor::CalcFuseDrag()
 {
     if (m_fusealge_airfoil && m_fusealge_width > 0.0f)
     {
-        Vector3 wind = -m_fusealge_front->Velocity;
+        node_t& nodefront = ar_nodes[m_fusealge_front];
+        node_t& nodeback = ar_nodes[m_fusealge_back];
+
+        Vector3 wind = -nodefront.Velocity;
         float wspeed = wind.length();
-        Vector3 axis = m_fusealge_front->RelPosition - m_fusealge_back->RelPosition;
+        Vector3 axis = nodefront.RelPosition - nodeback.RelPosition;
         float s = axis.length() * m_fusealge_width;
         float cz, cx, cm;
         float v = axis.getRotationTo(wind).w;
@@ -138,7 +141,7 @@ void Actor::CalcFuseDrag()
         m_fusealge_airfoil->getparams(aoa, 1.0, 0.0, &cz, &cx, &cm);
 
         //tropospheric model valid up to 11.000m (33.000ft)
-        float altitude = m_fusealge_front->AbsPosition.y;
+        float altitude = nodefront.AbsPosition.y;
         float sea_level_pressure = 101325; //in Pa
         float airpressure = sea_level_pressure * approx_pow(1.0 - 0.0065 * altitude / 288.1, 5.24947); //in Pa
         float airdensity = airpressure * 0.0000120896f;//1.225 at sea level

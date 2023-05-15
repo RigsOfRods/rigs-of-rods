@@ -550,8 +550,8 @@ private:
     int               m_previous_gear = 0;         //!< Sim state; land vehicle shifting
     float             m_handbrake_force = 0.f;       //!< Physics attr; defined in truckfile
     Airfoil*          m_fusealge_airfoil = nullptr;      //!< Physics attr; defined in truckfile
-    node_t*           m_fusealge_front = nullptr;        //!< Physics attr; defined in truckfile
-    node_t*           m_fusealge_back = nullptr;         //!< Physics attr; defined in truckfile
+    NodeNum_t         m_fusealge_front = NODENUM_INVALID;        //!< Physics attr; defined in truckfile
+    NodeNum_t         m_fusealge_back  = NODENUM_INVALID;         //!< Physics attr; defined in truckfile
     float             m_fusealge_width = 0.f;        //!< Physics attr; defined in truckfile
     float             m_odometer_total = 0.f;        //!< GUI state
     float             m_odometer_user = 0.f;         //!< GUI state
