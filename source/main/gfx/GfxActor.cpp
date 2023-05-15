@@ -1307,18 +1307,20 @@ void RoR::GfxActor::UpdateDebugView()
         std::set<int> node_ids;
         for (auto railgroup : m_actor->m_railgroups)
         {
-            for (auto railsegment : railgroup->rg_segments)
+            for (BeamID_t railsegment_beamid : railgroup->rg_segments)
             {
-                Ogre::Vector3 pos1 = world2screen.Convert(railsegment.rs_beam->p1->AbsPosition);
-                Ogre::Vector3 pos2 = world2screen.Convert(railsegment.rs_beam->p2->AbsPosition);
+                beam_t& railsegment_beam = m_actor->ar_beams[railsegment_beamid];
+
+                Ogre::Vector3 pos1 = world2screen.Convert(railsegment_beam.p1->AbsPosition);
+                Ogre::Vector3 pos2 = world2screen.Convert(railsegment_beam.p2->AbsPosition);
 
                 if (pos1.z < 0.f)
                 {
-                    node_ids.insert(railsegment.rs_beam->p1->pos);
+                    node_ids.insert(railsegment_beam.p1->pos);
                 }
                 if (pos2.z < 0.f)
                 {
-                    node_ids.insert(railsegment.rs_beam->p2->pos);
+                    node_ids.insert(railsegment_beam.p2->pos);
                 }
                 if ((pos1.z < 0.f) && (pos2.z < 0.f))
                 {

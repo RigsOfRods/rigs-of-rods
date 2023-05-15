@@ -46,6 +46,9 @@ namespace RoR
     typedef int RopableID_t; //!< Index to `Actor::ar_ropables`, use RoR::ROPABLEID_INVALID as empty value.
     static const RopableID_t ROPABLEID_INVALID = -1;
 
+    typedef int RailGroupSegmentID_t; //!< Index to `RailGroup::rg_segments`, use RoR::RAILGROUPSEGMENTID_INVALID as empty value.
+    static const RailGroupSegmentID_t RAILGROUPSEGMENTID_INVALID = -1;
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;

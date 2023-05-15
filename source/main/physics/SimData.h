@@ -341,7 +341,7 @@ struct node_t
 /// Simulation: An edge in the softbody structure
 struct beam_t
 {
-    beam_t() { memset(this, 0, sizeof(beam_t)); }
+    beam_t() { memset(this, 0, sizeof(beam_t)); bm_pos = BEAMID_INVALID; }
 
     node_t*         p1;
     node_t*         p2;
@@ -361,6 +361,7 @@ struct beam_t
     ActorPtr        bm_locked_actor;       //!< in case p2 is on another actor
     bool            bm_disabled;
     bool            bm_broken;
+    BeamID_t        bm_pos;
 
     Ogre::Real      shortbound;
     Ogre::Real      longbound;

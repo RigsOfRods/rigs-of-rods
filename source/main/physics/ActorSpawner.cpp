@@ -2819,8 +2819,8 @@ void ActorSpawner::ProcessRailGroup(RigDef::RailGroup & def)
 
 void ActorSpawner::ProcessSlidenode(RigDef::SlideNode & def)
 {
-    node_t & node = m_actor->ar_nodes[GetNodeIndexOrThrow(def.slide_node)];
-    SlideNode slide_node(& node, nullptr);
+    NodeNum_t node = this->ResolveNodeRef(def.slide_node);
+    SlideNode slide_node(m_actor, node, nullptr);
 
     // Optional args
     if (def._spring_rate_set)      { slide_node.SetSpringRate(def.spring_rate); }
@@ -2969,7 +2969,7 @@ RailGroup *ActorSpawner::CreateRail(std::vector<RigDef::Node::Range> & node_rang
     this->CollectNodesFromRanges(node_ranges, node_indices);
 
     // Build the rail
-    RailGroup* rg = new RailGroup();
+    RailGroup* rg = new RailGroup(m_actor);
     for (unsigned int i = 0; i < node_indices.size() - 1; i++)
     {
         beam_t *beam = FindBeamInRig(node_indices[i], node_indices[i + 1]);
@@ -2981,29 +2981,10 @@ RailGroup *ActorSpawner::CreateRail(std::vector<RigDef::Node::Range> & node_rang
             delete rg;
             return nullptr;
         }
-        rg->rg_segments.emplace_back(beam);
+        rg->rg_segments.emplace_back(beam->bm_pos);
     }
 
-    // Link middle segments
-    const size_t num_seg = rg->rg_segments.size();
-    for (size_t i = 1; i < (num_seg - 1); ++i)
-    {
-        rg->rg_segments[i].rs_prev = &rg->rg_segments[i - 1];
-        rg->rg_segments[i].rs_next = &rg->rg_segments[i + 1];
-    }
-
-    // Link end segments
-    const bool is_loop = (node_indices.front() == node_indices.back());
-    if (rg->rg_segments.size() > 1)
-    {
-        rg->rg_segments[0].rs_next = &rg->rg_segments[1];
-        rg->rg_segments[num_seg - 1].rs_prev = &rg->rg_segments[num_seg - 2];
-        if (is_loop)
-        {
-            rg->rg_segments[0].rs_prev = &rg->rg_segments[num_seg - 1];
-            rg->rg_segments[num_seg - 1].rs_next = &rg->rg_segments[0];
-        }
-    }
+    rg->rg_segments_loop = (node_indices.front() == node_indices.back());
 
     return rg; // Transfers memory ownership
 }
@@ -5046,18 +5027,18 @@ unsigned int ActorSpawner::AddWheelBeam(
     return index;
 }
 
-unsigned int ActorSpawner::AddWheelRimBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2)
+BeamID_t ActorSpawner::AddWheelRimBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2)
 {
-    unsigned int beam_index = _SectionWheels2AddBeam(wheel_2_def, node_1, node_2);
+    BeamID_t beam_index = _SectionWheels2AddBeam(wheel_2_def, node_1, node_2);
     beam_t & beam = GetBeam(beam_index);
     beam.k = wheel_2_def.rim_springiness;
     beam.d = wheel_2_def.rim_damping;
     return beam_index;
 }
 
-unsigned int ActorSpawner::AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2)
+BeamID_t ActorSpawner::AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2)
 {
-    unsigned int beam_index = _SectionWheels2AddBeam(wheel_2_def, node_1, node_2);
+    BeamID_t beam_index = _SectionWheels2AddBeam(wheel_2_def, node_1, node_2);
     beam_t & beam = GetBeam(beam_index);
     beam.k = wheel_2_def.tyre_springiness;
     beam.d = wheel_2_def.tyre_damping;
@@ -5067,9 +5048,9 @@ unsigned int ActorSpawner::AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *nod
     return beam_index;
 }
 
-unsigned int ActorSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2)
+BeamID_t ActorSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2)
 {
-    unsigned int index = m_actor->ar_num_beams;
+    BeamID_t index = m_actor->ar_num_beams;
     beam_t & beam = GetFreeBeam();
     InitBeam(beam, node_1, node_2);
     beam.bm_type = BEAM_NORMAL;
@@ -6054,6 +6035,7 @@ node_t & ActorSpawner::GetFreeNode()
 beam_t & ActorSpawner::GetFreeBeam()
 {
     beam_t & beam = m_actor->ar_beams[m_actor->ar_num_beams];
+    beam.bm_pos = m_actor->ar_num_beams;
     m_actor->ar_num_beams++;
     return beam;
 }
