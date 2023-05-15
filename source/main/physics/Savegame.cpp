@@ -651,7 +651,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         for (const auto& r : actor->ar_ropes)
         {
             rapidjson::Value j_rope(rapidjson::kObjectType);
-            int locked_ropable = r.rp_locked_ropable ? r.rp_locked_ropable->rb_pos : -1;
+            int locked_ropable = r.rp_locked_ropable_id != ROPABLEID_INVALID ? r.rp_locked_ropable_id : -1;
             int locked_actor = r.rp_locked_actor ? vector_index_lookup[r.rp_locked_actor->ar_vector_index] : -1;
             j_rope.AddMember("locked", r.rp_locked, j_doc.GetAllocator());
             j_rope.AddMember("locked_ropable", locked_ropable, j_doc.GetAllocator());
@@ -971,9 +971,9 @@ void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_e
             locked_actor < (int)actors.size() &&
             actors[locked_actor] != nullptr)
         {
-            actor->ar_ropes[i].rp_locked = ropes[i]["locked"].GetInt();
+            actor->ar_ropes[i].rp_locked = static_cast<HookState>(ropes[i]["locked"].GetInt());
             actor->ar_ropes[i].rp_locked_actor = actors[locked_actor];
-            actor->ar_ropes[i].rp_locked_ropable = &actors[locked_actor]->ar_ropables[ropable];
+            actor->ar_ropes[i].rp_locked_ropable_id = static_cast<RopableID_t>(ropable);
         }
     }
 

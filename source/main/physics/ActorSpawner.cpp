@@ -2792,7 +2792,7 @@ void ActorSpawner::ProcessRope(RigDef::Rope & def)
     node_t & end_node = m_actor->ar_nodes[GetNodeIndexOrThrow(def.end_node)];
 
     /* Add beam */
-    int beam_index = m_actor->ar_num_beams;
+    BeamID_t beam_index = m_actor->ar_num_beams;
     beam_t & beam = AddBeam(root_node, end_node, def.beam_defaults, def.detacher_group);
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
     beam.k = def.beam_defaults->GetScaledSpringiness();
@@ -2806,9 +2806,9 @@ void ActorSpawner::ProcessRope(RigDef::Rope & def)
 
     /* Register rope */
     rope_t rope;
-    rope.rp_beam = & beam;
+    rope.rp_beam = beam_index;
     rope.rp_locked = UNLOCKED;
-    rope.rp_locked_ropable = nullptr;
+    rope.rp_locked_ropable_id = ROPABLEID_INVALID;
     rope.rp_group = 0; // Orig: hardcoded in BTS_ROPES. TODO: To be used.
     m_actor->ar_ropes.push_back(rope);
 }

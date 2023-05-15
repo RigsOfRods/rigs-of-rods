@@ -698,7 +698,7 @@ void Actor::RecalculateNodeMasses(Real total)
     //fix rope masses
     for (std::vector<rope_t>::iterator it = ar_ropes.begin(); it != ar_ropes.end(); it++)
     {
-        it->rp_beam->p2->mass = 100.0f;
+        ar_beams[it->rp_beam].p2->mass = 100.0f;
     }
 
     // Apply pre-defined cinecam node mass
@@ -1592,9 +1592,9 @@ void Actor::SyncReset(bool reset_position)
     for (auto& r : ar_ropes)
     {
         r.rp_locked = UNLOCKED;
-        r.rp_locked_ropable = nullptr;
+        r.rp_locked_ropable_id = ROPABLEID_INVALID;
         r.rp_locked_actor = nullptr;
-        this->RemoveInterActorBeam(r.rp_beam);
+        this->RemoveInterActorBeam(&ar_beams[r.rp_beam]);
     }
 
     for (auto& t : ar_ties)
@@ -3473,16 +3473,21 @@ void Actor::ropeToggle(int group)
         if (group != -1 && (it->rp_group != -1 && it->rp_group != group))
             continue;
 
+        beam_t& ropebeam = ar_beams[it->rp_beam];
+
         if (it->rp_locked == LOCKED || it->rp_locked == PRELOCK)
         {
             // we unlock ropes
             it->rp_locked = UNLOCKED;
             // remove node locking
-            if (it->rp_locked_ropable)
-                it->rp_locked_ropable->attached_ropes--;
+            if (it->rp_locked_ropable_id != ROPABLEID_INVALID)
+            {
+                it->rp_locked_actor->ar_ropables[it->rp_locked_ropable_id].attached_ropes--;
+            }
+
             if (it->rp_locked_actor != this)
             {
-                this->RemoveInterActorBeam(it->rp_beam);
+                this->RemoveInterActorBeam(&ropebeam);
                 // update skeletonview on the unroped actors
                 auto linked_actors = it->rp_locked_actor->getAllLinkedActors();
                 if (!(std::find(linked_actors.begin(), linked_actors.end(), this) != linked_actors.end()))
@@ -3506,15 +3511,15 @@ void Actor::ropeToggle(int group)
                 }
             }
             it->rp_locked_actor = nullptr;
-            it->rp_locked_ropable = nullptr;
+            it->rp_locked_ropable_id = ROPABLEID_INVALID;
         }
         else
         {
             //we lock ropes
             // search new remote ropable to lock to
-            float mindist = it->rp_beam->L;
+            float mindist = ropebeam.L;
             ActorPtr nearest_actor = nullptr;
-            ropable_t* rop = 0;
+            RopableID_t ropid = ROPABLEID_INVALID;
             // iterate over all actor_slots
             for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
@@ -3528,12 +3533,12 @@ void Actor::ropeToggle(int group)
                         continue;
 
                     // calculate the distance and record the nearest ropable
-                    float dist = (it->rp_beam->p1->AbsPosition - actor->ar_nodes[itr->rb_nodenum].AbsPosition).length();
+                    float dist = (ropebeam.p1->AbsPosition - actor->ar_nodes[itr->rb_nodenum].AbsPosition).length();
                     if (dist < mindist)
                     {
                         mindist = dist;
                         nearest_actor = actor;
-                        rop = &(*itr);
+                        ropid = itr->rb_pos;
                     }
                 }
             }
@@ -3543,11 +3548,11 @@ void Actor::ropeToggle(int group)
                 //okay, we have found a rope to tie
                 it->rp_locked_actor = nearest_actor;
                 it->rp_locked = LOCKED;
-                it->rp_locked_ropable = rop;
-                it->rp_locked_ropable->attached_ropes++;
+                it->rp_locked_ropable_id = ropid;
+                it->rp_locked_actor->ar_ropables[it->rp_locked_ropable_id].attached_ropes++;
                 if (nearest_actor != this)
                 {
-                    AddInterActorBeam(it->rp_beam, this, nearest_actor);
+                    AddInterActorBeam(&ropebeam, this, nearest_actor);
                     // update skeletonview on the roped up actors
                     if (this == player_actor.GetRef())
                     {

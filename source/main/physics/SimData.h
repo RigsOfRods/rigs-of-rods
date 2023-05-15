@@ -516,11 +516,11 @@ struct ropable_t
 
 struct rope_t
 {
-    int        rp_locked;
-    int        rp_group;
-    beam_t*    rp_beam;
-    ropable_t* rp_locked_ropable;
-    ActorPtr     rp_locked_actor;
+    HookState   rp_locked = UNLOCKED;
+    int         rp_group;
+    BeamID_t    rp_beam = BEAMID_INVALID;
+    RopableID_t rp_locked_ropable_id = ROPABLEID_INVALID;
+    ActorPtr    rp_locked_actor;
 };
 
 struct tie_t

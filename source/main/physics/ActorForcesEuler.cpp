@@ -1776,14 +1776,17 @@ void Actor::CalcRopes()
 {
     for (auto r : ar_ropes)
     {
-        if (r.rp_locked == LOCKED && r.rp_locked_ropable)
+        if (r.rp_locked == LOCKED && r.rp_locked_ropable_id != ROPABLEID_INVALID)
         {
-            node_t* locked_node = &r.rp_locked_actor->ar_nodes[r.rp_locked_ropable->rb_nodenum];
-            r.rp_beam->p2->AbsPosition = locked_node->AbsPosition;
-            r.rp_beam->p2->RelPosition = locked_node->AbsPosition - ar_origin;
-            r.rp_beam->p2->Velocity    = locked_node->Velocity;
-            locked_node->Forces       += r.rp_beam->p2->Forces;
-            r.rp_beam->p2->Forces      = Vector3::ZERO;
+            ropable_t& locked_ropable = r.rp_locked_actor->ar_ropables[r.rp_locked_ropable_id];
+            node_t& locked_node = r.rp_locked_actor->ar_nodes[locked_ropable.rb_nodenum];
+            node_t& rope_node = *ar_beams[r.rp_beam].p2;
+
+            rope_node.AbsPosition = locked_node.AbsPosition;
+            rope_node.RelPosition = locked_node.AbsPosition - ar_origin;
+            rope_node.Velocity    = locked_node.Velocity;
+            locked_node.Forces    += rope_node.Forces;
+            rope_node.Forces      = Vector3::ZERO;
         }
     }
 }
