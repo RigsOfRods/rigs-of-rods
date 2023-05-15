@@ -525,13 +525,13 @@ struct rope_t
 
 struct tie_t
 {
-    ActorPtr     ti_locked_actor;
-    beam_t*    ti_beam;
-    ropable_t* ti_locked_ropable;
-    int        ti_group;
-    float      ti_contract_speed;
-    float      ti_max_stress;
-    float      ti_min_length;       //!< Proportional to orig; length
+    ActorPtr    ti_locked_actor;
+    BeamID_t    ti_beamid = BEAMID_INVALID;
+    RopableID_t ti_locked_ropable_id = ROPABLEID_INVALID;
+    int         ti_group;
+    float       ti_contract_speed;
+    float       ti_max_stress;
+    float       ti_min_length;       //!< Proportional to orig; length
 
     bool       ti_no_self_lock:1;   //!< Attribute
     bool       ti_tied:1;           //!< State

@@ -2753,7 +2753,7 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     node_t & node_1 = m_actor->ar_nodes[GetNodeIndexOrThrow(def.root_node)];
     node_t & node_2 = m_actor->ar_nodes[( (node_1.pos == 0) ? 1 : 0 )];
 
-    int beam_index = m_actor->ar_num_beams;
+    BeamID_t beam_index = m_actor->ar_num_beams;
     beam_t & beam = AddBeam(node_1, node_2, def.beam_defaults, def.detacher_group);
     SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold());
     beam.k = def.beam_defaults->GetScaledSpringiness();
@@ -2774,9 +2774,8 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     tie.ti_group = def.group;
     tie.ti_tying = false;
     tie.ti_tied = false;
-    tie.ti_beam = & beam;
+    tie.ti_beamid = beam_index;
     tie.ti_locked_actor   = nullptr;
-    tie.ti_locked_ropable = nullptr;
     tie.ti_contract_speed = def.auto_shorten_rate;
     tie.ti_max_stress = def.max_stress;
     tie.ti_min_length = def.min_length;
