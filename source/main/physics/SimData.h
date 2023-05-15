@@ -441,16 +441,16 @@ struct wheel_t
         FOOT_HAND_SKID_RIGHT, //!< - 3 = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the right)
         FOOT_ONLY             //!< - 4 = yes footbrake, no  handbrake, no  direction control -- footbrake only, such as with the front wheels of a passenger car
     };
+    
+    NodeNum_t     wh_arm_nodenum         = NODENUM_INVALID;
+    NodeNum_t     wh_near_attach_nodenum = NODENUM_INVALID;
+    NodeNum_t     wh_axis_node0num       = NODENUM_INVALID;
+    NodeNum_t     wh_axis_node1num       = NODENUM_INVALID;
 
-    int         wh_num_nodes;
-    node_t*     wh_nodes[50];             // TODO: remove limit, make this dyn-allocated ~ only_a_ptr, 08/2017
-    int         wh_num_rim_nodes;
-    node_t*     wh_rim_nodes[50];         // TODO: remove limit, make this dyn-allocated ~ only_a_ptr, 08/2017
+    std::vector<NodeNum_t> wh_tire_nodes;
+    std::vector<NodeNum_t> wh_rim_nodes;
+
     BrakeCombo  wh_braking;
-    node_t*     wh_arm_node;
-    node_t*     wh_near_attach_node;
-    node_t*     wh_axis_node_0;
-    node_t*     wh_axis_node_1;
     int         wh_propulsed;             // TODO: add enum ~ only_a_ptr, 08/2017
     Ogre::Real  wh_radius;
     Ogre::Real  wh_rim_radius;

@@ -548,36 +548,44 @@ void Actor::calcNetwork()
     for (int i = 0; i < ar_num_wheels; i++)
     {
         float rp = net_rp1[i] + tratio * (net_rp2[i] - net_rp1[i]);
+        node_t& axisnode0 = ar_nodes[ar_wheels[i].wh_axis_node0num];
+        node_t& axisnode1 = ar_nodes[ar_wheels[i].wh_axis_node1num];
         //compute ideal positions
-        Vector3 axis = ar_wheels[i].wh_axis_node_1->RelPosition - ar_wheels[i].wh_axis_node_0->RelPosition;
+        Vector3 axis = axisnode1.RelPosition - axisnode0.RelPosition;
         axis.normalise();
-        Plane pplan = Plane(axis, ar_wheels[i].wh_axis_node_0->AbsPosition);
-        Vector3 ortho = -pplan.projectVector(ar_wheels[i].wh_near_attach_node->AbsPosition) - ar_wheels[i].wh_axis_node_0->AbsPosition;
+        Plane pplan = Plane(axis, axisnode0.AbsPosition);
+        Vector3 ortho = -pplan.projectVector(ar_nodes[ar_wheels[i].wh_near_attach_nodenum].AbsPosition) - axisnode0.AbsPosition;
         Vector3 ray = ortho.crossProduct(axis);
         ray.normalise();
         ray *= ar_wheels[i].wh_radius;
-        float drp = Math::TWO_PI / (ar_wheels[i].wh_num_nodes / 2);
-        for (int j = 0; j < ar_wheels[i].wh_num_nodes / 2; j++)
+        float drp = Math::TWO_PI / (ar_wheels[i].wh_tire_nodes.size() / 2);
+        for (size_t j = 0; j < ar_wheels[i].wh_tire_nodes.size() / 2; j++)
         {
             Vector3 uray = Quaternion(Radian(rp - drp * j), axis) * ray;
 
-            ar_wheels[i].wh_nodes[j * 2 + 0]->AbsPosition = ar_wheels[i].wh_axis_node_0->AbsPosition + uray;
-            ar_wheels[i].wh_nodes[j * 2 + 0]->RelPosition = ar_wheels[i].wh_nodes[j * 2]->AbsPosition - ar_origin;
+            node_t& tirenode0 = ar_nodes[ar_wheels[i].wh_tire_nodes[j * 2 + 0]];
+            node_t& tirenode1 = ar_nodes[ar_wheels[i].wh_tire_nodes[j * 2 + 1]];
 
-            ar_wheels[i].wh_nodes[j * 2 + 1]->AbsPosition = ar_wheels[i].wh_axis_node_1->AbsPosition + uray;
-            ar_wheels[i].wh_nodes[j * 2 + 1]->RelPosition = ar_wheels[i].wh_nodes[j * 2 + 1]->AbsPosition - ar_origin;
+            tirenode0.AbsPosition = axisnode0.AbsPosition + uray;
+            tirenode0.RelPosition = tirenode0.AbsPosition - ar_origin;
+
+            tirenode1.AbsPosition = axisnode1.AbsPosition + uray;
+            tirenode1.RelPosition = tirenode1.AbsPosition - ar_origin;
         }
         ray.normalise();
         ray *= ar_wheels[i].wh_rim_radius;
-        for (int j = 0; j < ar_wheels[i].wh_num_rim_nodes / 2; j++)
+        for (size_t j = 0; j < ar_wheels[i].wh_rim_nodes.size() / 2; j++)
         {
             Vector3 uray = Quaternion(Radian(rp - drp * j), axis) * ray;
 
-            ar_wheels[i].wh_rim_nodes[j * 2 + 0]->AbsPosition = ar_wheels[i].wh_axis_node_0->AbsPosition + uray;
-            ar_wheels[i].wh_rim_nodes[j * 2 + 0]->RelPosition = ar_wheels[i].wh_rim_nodes[j * 2]->AbsPosition - ar_origin;
+            node_t& rimnode0 = ar_nodes[ar_wheels[i].wh_rim_nodes[j * 2 + 0]];
+            node_t& rimnode1 = ar_nodes[ar_wheels[i].wh_rim_nodes[j * 2 + 1]];
 
-            ar_wheels[i].wh_rim_nodes[j * 2 + 1]->AbsPosition = ar_wheels[i].wh_axis_node_1->AbsPosition + uray;
-            ar_wheels[i].wh_rim_nodes[j * 2 + 1]->RelPosition = ar_wheels[i].wh_rim_nodes[j * 2 + 1]->AbsPosition - ar_origin;
+            rimnode0.AbsPosition = axisnode0.AbsPosition + uray;
+            rimnode0.RelPosition = rimnode0.AbsPosition - ar_origin;
+
+            rimnode1.AbsPosition = axisnode1.AbsPosition + uray;
+            rimnode1.RelPosition = rimnode1.AbsPosition - ar_origin;
         }
     }
     this->UpdateBoundingBoxes();
@@ -2856,9 +2864,9 @@ void Actor::updateSkidmarks()
         if (!m_skid_trails[i])
             continue;
 
-        for (int j = 0; j < ar_wheels[i].wh_num_nodes; j++)
+        for (size_t j = 0; j < ar_wheels[i].wh_tire_nodes.size(); j++)
         {
-            auto n = ar_wheels[i].wh_nodes[j];
+            node_t* n = &ar_nodes[ar_wheels[i].wh_tire_nodes[j]];
             if (!n || !n->nd_has_ground_contact || n->nd_last_collision_gm == nullptr ||
                     n->nd_last_collision_gm->fx_type != Collisions::FX_HARD)
             {

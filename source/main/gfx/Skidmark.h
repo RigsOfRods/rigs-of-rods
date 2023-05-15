@@ -60,7 +60,7 @@ class Skidmark
 public:
 
     /// Constructor - see setOperationType() for description of argument.
-    Skidmark(SkidmarkConfig* config,  wheel_t* m_wheel, Ogre::SceneNode* snode, int m_length = 500, int m_bucket_count = 20);
+    Skidmark(ActorPtr owner, SkidmarkConfig* config,  wheel_t* m_wheel, Ogre::SceneNode* snode, int m_length = 500, int m_bucket_count = 20);
     virtual ~Skidmark();
 
     void reset();
@@ -87,6 +87,7 @@ private:
     void AddPoint(const Ogre::Vector3& value, Ogre::Real fsize, Ogre::String texture);
     void UpdatePoint(Ogre::Vector3 contact_point, int index, float slip, Ogre::String ground_model_name);
 
+    ActorPtr             m_actor;
     static int           m_instance_counter;
     bool                 m_is_dirty;
     std::queue<SkidmarkSegment> m_objects;

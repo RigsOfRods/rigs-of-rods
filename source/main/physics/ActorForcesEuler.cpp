@@ -371,9 +371,14 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
 
         ar_wheels[i].debug_torque += ar_wheels[i].wh_torque / (float)num_steps;
 
+        node_t& axisnode0 = ar_nodes[ar_wheels[i].wh_axis_node0num];
+        node_t& axisnode1 = ar_nodes[ar_wheels[i].wh_axis_node1num];
+        node_t& armnode = ar_nodes[ar_wheels[i].wh_arm_nodenum];
+        node_t& nearnode = ar_nodes[ar_wheels[i].wh_near_attach_nodenum];
+
         // application to wheel
-        Vector3 axis = (ar_wheels[i].wh_axis_node_1->RelPosition - ar_wheels[i].wh_axis_node_0->RelPosition).normalisedCopy();
-        float axis_precalc = ar_wheels[i].wh_torque / (Real)(ar_wheels[i].wh_num_nodes);
+        Vector3 axis = (axisnode1.RelPosition - axisnode0.RelPosition).normalisedCopy();
+        float axis_precalc = ar_wheels[i].wh_torque / (Real)(ar_wheels[i].wh_tire_nodes.size());
 
         float expected_wheel_speed = ar_wheels[i].wh_speed;
         ar_wheels[i].wh_speed = 0.0f;
@@ -381,10 +386,10 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
         Real contact_counter = 0.0f;
         Vector3 slip = Vector3::ZERO;
         Vector3 force = Vector3::ZERO;
-        for (int j = 0; j < ar_wheels[i].wh_num_nodes; j++)
+        for (size_t j = 0; j < ar_wheels[i].wh_tire_nodes.size(); j++)
         {
-            node_t* outer_node = ar_wheels[i].wh_nodes[j];
-            node_t* inner_node = (j % 2) ? ar_wheels[i].wh_axis_node_1 : ar_wheels[i].wh_axis_node_0;
+            node_t* outer_node = &ar_nodes[ar_wheels[i].wh_tire_nodes[j]];
+            node_t* inner_node = (j % 2) ? (&ar_nodes[ar_wheels[i].wh_axis_node1num]) : (&ar_nodes[ar_wheels[i].wh_axis_node0num]);
 
             Vector3 radius = outer_node->RelPosition - inner_node->RelPosition;
             float inverted_rlen = 1.0f / radius.length();
@@ -395,15 +400,15 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
             }
 
             Vector3 dir = axis.crossProduct(radius) * inverted_rlen;
-            ar_wheels[i].wh_nodes[j]->Forces += dir * axis_precalc * inverted_rlen;
+            (&ar_nodes[ar_wheels[i].wh_tire_nodes[j]])->Forces += dir * axis_precalc * inverted_rlen;
             ar_wheels[i].wh_speed += (outer_node->Velocity - inner_node->Velocity).dotProduct(dir);
 
-            if (ar_wheels[i].wh_nodes[j]->nd_has_ground_contact || ar_wheels[i].wh_nodes[j]->nd_has_mesh_contact)
+            if ((&ar_nodes[ar_wheels[i].wh_tire_nodes[j]])->nd_has_ground_contact || (&ar_nodes[ar_wheels[i].wh_tire_nodes[j]])->nd_has_mesh_contact)
             {
                 contact_counter += 1.0f;
-                float force_ratio = ar_wheels[i].wh_nodes[j]->nd_last_collision_force.length();
-                slip  += ar_wheels[i].wh_nodes[j]->nd_last_collision_slip * force_ratio;
-                force += ar_wheels[i].wh_nodes[j]->nd_last_collision_force;
+                float force_ratio = (&ar_nodes[ar_wheels[i].wh_tire_nodes[j]])->nd_last_collision_force.length();
+                slip  += (&ar_nodes[ar_wheels[i].wh_tire_nodes[j]])->nd_last_collision_slip * force_ratio;
+                force += (&ar_nodes[ar_wheels[i].wh_tire_nodes[j]])->nd_last_collision_force;
             }
         }
         if (contact_counter > 0.0f && !force.isZeroLength())
@@ -412,14 +417,14 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
             slip /= contact_counter; // average slip vector
             force /= contact_counter; // average force vector
             Vector3 normal = force.normalisedCopy(); // contact plane normal
-            Vector3 v = ar_wheels[i].wh_axis_node_0->Velocity.midPoint(ar_wheels[i].wh_axis_node_1->Velocity);
+            Vector3 v = axisnode0.Velocity.midPoint(axisnode1.Velocity);
             Vector3 vel = v - v.dotProduct(normal) * normal;
             ar_wheels[i].debug_vel   += vel / (float)num_steps;
             ar_wheels[i].debug_slip  += slip / (float)num_steps;
             ar_wheels[i].debug_force += force / (float)num_steps;
         }
 
-        ar_wheels[i].wh_speed /= (Real)ar_wheels[i].wh_num_nodes;
+        ar_wheels[i].wh_speed /= (Real)ar_wheels[i].wh_tire_nodes.size();
         ar_wheels[i].wh_net_rp += (ar_wheels[i].wh_speed / ar_wheels[i].wh_radius) * PHYSICS_DT;
         // We overestimate the average speed on purpose in order to improve the quality of the braking force estimate
         ar_wheels[i].wh_avg_speed = ar_wheels[i].wh_avg_speed * 0.99 + ar_wheels[i].wh_speed * 0.1;
@@ -435,8 +440,8 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
         ar_wheels[i].wh_last_retorque = ar_wheels[i].wh_mass * (ar_wheels[i].wh_speed - expected_wheel_speed) / PHYSICS_DT;
 
         // reaction torque
-        Vector3 rradius = ar_wheels[i].wh_arm_node->RelPosition - ar_wheels[i].wh_near_attach_node->RelPosition;
-        Vector3 radius = Plane(axis, ar_wheels[i].wh_near_attach_node->RelPosition).projectVector(rradius);
+        Vector3 rradius = armnode.RelPosition - nearnode.RelPosition;
+        Vector3 radius = Plane(axis, nearnode.RelPosition).projectVector(rradius);
         float offset = (rradius - radius).length(); // length of the error arm
         Real rlen = radius.normalise(); // length of the projected arm
         // TODO: Investigate the offset length abort condition ~ ulteq 10/2018
@@ -445,8 +450,8 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
             Vector3 cforce = axis.crossProduct(radius);
             // modulate the force according to induced torque error
             cforce *= (0.5f * ar_wheels[i].wh_torque / rlen) * (1.0f - ((offset * 2.0f) / rlen)); // linear modulation
-            ar_wheels[i].wh_arm_node->Forces -= cforce;
-            ar_wheels[i].wh_near_attach_node->Forces += cforce;
+            armnode.Forces -= cforce;
+            nearnode.Forces += cforce;
             ar_wheels[i].debug_scaled_cforce += cforce / m_total_mass / (float)num_steps;
         }
 
