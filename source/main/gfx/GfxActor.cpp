@@ -619,13 +619,16 @@ void RoR::GfxActor::UpdateDebugView()
         const size_t num_beams = static_cast<size_t>(m_actor->ar_num_beams);
         for (size_t i = 0; i < num_beams; ++i)
         {
+            node_t& node_p1 = m_actor->ar_nodes[beams[i].p1num];
+            node_t& node_p2 = m_actor->ar_nodes[beams[i].p2num];
+
             if (App::diag_hide_wheels->getBool() &&
-                    (beams[i].p1->nd_tyre_node || beams[i].p1->nd_rim_node ||
-                     beams[i].p2->nd_tyre_node || beams[i].p2->nd_rim_node))
+                    (node_p1.nd_tyre_node || node_p1.nd_rim_node ||
+                     node_p2.nd_tyre_node || node_p2.nd_rim_node))
                 continue;
 
-            Ogre::Vector3 pos1 = world2screen.Convert(beams[i].p1->AbsPosition);
-            Ogre::Vector3 pos2 = world2screen.Convert(beams[i].p2->AbsPosition);
+            Ogre::Vector3 pos1 = world2screen.Convert(node_p1.AbsPosition);
+            Ogre::Vector3 pos2 = world2screen.Convert(node_p2.AbsPosition);
 
             if ((pos1.z < 0.f) && (pos2.z < 0.f))
             {
@@ -730,13 +733,16 @@ void RoR::GfxActor::UpdateDebugView()
         {
             for (size_t i = 0; i < num_beams; ++i)
             {
+                node_t& node_p1 = m_actor->ar_nodes[beams[i].p1num];
+                node_t& node_p2 = m_actor->ar_nodes[beams[i].p2num];
+
                 if ((App::diag_hide_wheels->getBool() || App::diag_hide_wheel_info->getBool()) &&
-                        (beams[i].p1->nd_tyre_node || beams[i].p1->nd_rim_node ||
-                         beams[i].p2->nd_tyre_node || beams[i].p2->nd_rim_node))
+                        (node_p1.nd_tyre_node || node_p1.nd_rim_node ||
+                         node_p2.nd_tyre_node || node_p2.nd_rim_node))
                     continue;
 
                 // Position
-                Ogre::Vector3 world_pos = (beams[i].p1->AbsPosition + beams[i].p2->AbsPosition) / 2.f;
+                Ogre::Vector3 world_pos = (node_p1.AbsPosition + node_p2.AbsPosition) / 2.f;
                 Ogre::Vector3 pos_xyz = world2screen.Convert(world_pos);
                 if (pos_xyz.z >= 0.f)
                 {
@@ -1017,16 +1023,19 @@ void RoR::GfxActor::UpdateDebugView()
             if (!(beams[i].bounded == SHOCK1 || beams[i].bounded == SHOCK2 || beams[i].bounded == SHOCK3))
                 continue;
 
-            Ogre::Vector3 pos1_xyz = world2screen.Convert(beams[i].p1->AbsPosition);
-            Ogre::Vector3 pos2_xyz = world2screen.Convert(beams[i].p2->AbsPosition);
+            node_t& node_p1 = m_actor->ar_nodes[beams[i].p1num];
+            node_t& node_p2 = m_actor->ar_nodes[beams[i].p2num];
+
+            Ogre::Vector3 pos1_xyz = world2screen.Convert(node_p1.AbsPosition);
+            Ogre::Vector3 pos2_xyz = world2screen.Convert(node_p2.AbsPosition);
 
             if (pos1_xyz.z < 0.f)
             {
-                node_ids.insert(beams[i].p1->pos);
+                node_ids.insert(node_p1.pos);
             }
             if (pos2_xyz.z < 0.f)
             {
-                node_ids.insert(beams[i].p2->pos);
+                node_ids.insert(node_p2.pos);
             }
 
             if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
@@ -1059,14 +1068,17 @@ void RoR::GfxActor::UpdateDebugView()
             if (!(beams[i].bounded == SHOCK1 || beams[i].bounded == SHOCK2 || beams[i].bounded == SHOCK3))
                 continue;
 
-            Ogre::Vector3 pos1_xyz = world2screen.Convert(beams[i].p1->AbsPosition);
-            Ogre::Vector3 pos2_xyz = world2screen.Convert(beams[i].p2->AbsPosition);
+            node_t& node_p1 = m_actor->ar_nodes[beams[i].p1num];
+            node_t& node_p2 = m_actor->ar_nodes[beams[i].p2num];
+
+            Ogre::Vector3 pos1_xyz = world2screen.Convert(node_p1.AbsPosition);
+            Ogre::Vector3 pos2_xyz = world2screen.Convert(node_p2.AbsPosition);
             Ogre::Vector3 pos_xyz  = pos1_xyz.midPoint(pos2_xyz);
 
             if (pos_xyz.z < 0.f)
             {
                 // Shock info
-                float diff = beams[i].p1->AbsPosition.distance(beams[i].p2->AbsPosition) - beams[i].L;
+                float diff = node_p1.AbsPosition.distance(node_p2.AbsPosition) - beams[i].L;
                 ImU32 text_color = (diff < 0.0f) ? 0xff66ee66 : 0xff8888ff;
                 float bound = (diff < 0.0f) ? beams[i].shortbound : beams[i].longbound;
                 float ratio = Ogre::Math::Clamp(diff / (bound * beams[i].L), -2.0f, +2.0f);
@@ -1304,23 +1316,26 @@ void RoR::GfxActor::UpdateDebugView()
     {
         // Slide nodes
         const node_t* nodes = m_actor->ar_nodes;
-        std::set<int> node_ids;
+        std::set<NodeNum_t> node_ids;
         for (auto railgroup : m_actor->m_railgroups)
         {
             for (BeamID_t railsegment_beamid : railgroup->rg_segments)
             {
                 beam_t& railsegment_beam = m_actor->ar_beams[railsegment_beamid];
+                
+                node_t& node_p1 = m_actor->ar_nodes[railsegment_beam.p1num];
+                node_t& node_p2 = m_actor->ar_nodes[railsegment_beam.p2num];
 
-                Ogre::Vector3 pos1 = world2screen.Convert(railsegment_beam.p1->AbsPosition);
-                Ogre::Vector3 pos2 = world2screen.Convert(railsegment_beam.p2->AbsPosition);
+                Ogre::Vector3 pos1 = world2screen.Convert(node_p1.AbsPosition);
+                Ogre::Vector3 pos2 = world2screen.Convert(node_p2.AbsPosition);
 
                 if (pos1.z < 0.f)
                 {
-                    node_ids.insert(railsegment_beam.p1->pos);
+                    node_ids.insert(railsegment_beam.p1num);
                 }
                 if (pos2.z < 0.f)
                 {
-                    node_ids.insert(railsegment_beam.p2->pos);
+                    node_ids.insert(railsegment_beam.p2num);
                 }
                 if ((pos1.z < 0.f) && (pos2.z < 0.f))
                 {
@@ -1681,8 +1696,8 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     for (BeamGfx& rod: m_gfx_beams)
     {
         const beam_t& beam = m_actor->ar_beams[rod.rod_beam_index];
-        rod.rod_node1 = static_cast<uint16_t>(beam.p1->pos);
-        rod.rod_node2 = static_cast<uint16_t>(beam.p2->pos);
+        rod.rod_node1 = beam.p1num;
+        rod.rod_node2 = beam.p2num;
         if (beam.bm_inter_actor)
         {
             rod.rod_target_actor = beam.bm_locked_actor;

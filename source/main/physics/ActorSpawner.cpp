@@ -2995,14 +2995,11 @@ RailGroup *ActorSpawner::CreateRail(std::vector<RigDef::Node::Range> & node_rang
 
 beam_t *ActorSpawner::FindBeamInRig(NodeNum_t node_a_index, NodeNum_t node_b_index)
 {
-    node_t *node_a = & m_actor->ar_nodes[node_a_index];
-    node_t *node_b = & m_actor->ar_nodes[node_b_index];
-
     for (unsigned int i = 0; i < static_cast<unsigned int>(m_actor->ar_num_beams); i++)
     {
         if	(
-                (GetBeam(i).p1 == node_a && GetBeam(i).p2 == node_b)
-            ||	(GetBeam(i).p2 == node_a && GetBeam(i).p1 == node_b)
+                (GetBeam(i).p1num == node_a_index && GetBeam(i).p2num == node_b_index)
+            ||	(GetBeam(i).p2num == node_a_index && GetBeam(i).p1num == node_b_index)
             )
         {
             return & GetBeam(i);
@@ -5518,8 +5515,8 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
         BeamGfx beamx;
         beamx.rod_diameter_mm = uint16_t(beam_defaults->visual_beam_diameter * 1000.f);
         beamx.rod_beam_index = static_cast<uint16_t>(beam_index);
-        beamx.rod_node1 = beam.p1->pos;
-        beamx.rod_node2 = beam.p2->pos;
+        beamx.rod_node1 = beam.p1num;
+        beamx.rod_node2 = beam.p2num;
         beamx.rod_target_actor = m_actor;
         beamx.rod_is_visible = false;
 
@@ -5538,15 +5535,15 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
 
 void ActorSpawner::CalculateBeamLength(beam_t & beam)
 {
-    float beam_length = (beam.p1->RelPosition - beam.p2->RelPosition).length();
+    float beam_length = (m_actor->ar_nodes[beam.p1num].RelPosition - m_actor->ar_nodes[beam.p2num].RelPosition).length();
     beam.L = beam_length;
     beam.refL = beam_length;
 }
 
 void ActorSpawner::InitBeam(beam_t & beam, node_t *node_1, node_t *node_2)
 {
-    beam.p1 = node_1;
-    beam.p2 = node_2;
+    beam.p1num = node_1->pos;
+    beam.p2num = node_2->pos;
 
     /* Length */
     CalculateBeamLength(beam);
@@ -6054,8 +6051,8 @@ shock_t & ActorSpawner::GetFreeShock()
 beam_t & ActorSpawner::GetAndInitFreeBeam(node_t & node_1, node_t & node_2)
 {
     beam_t & beam = GetFreeBeam();
-    beam.p1 = & node_1;
-    beam.p2 = & node_2;
+    beam.p1num = node_1.pos;
+    beam.p2num = node_2.pos;
     return beam;
 }
 
