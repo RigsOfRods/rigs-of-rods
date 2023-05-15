@@ -1778,7 +1778,7 @@ void Actor::CalcRopes()
     {
         if (r.rp_locked == LOCKED && r.rp_locked_ropable)
         {
-            auto locked_node = r.rp_locked_ropable->node;
+            node_t* locked_node = &r.rp_locked_actor->ar_nodes[r.rp_locked_ropable->rb_nodenum];
             r.rp_beam->p2->AbsPosition = locked_node->AbsPosition;
             r.rp_beam->p2->RelPosition = locked_node->AbsPosition - ar_origin;
             r.rp_beam->p2->Velocity    = locked_node->Velocity;

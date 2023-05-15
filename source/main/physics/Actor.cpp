@@ -3383,7 +3383,7 @@ void Actor::tieToggle(int group)
             {
                 // tie is unlocked and should get locked, search new remote ropable to lock to
                 float mindist = it->ti_beam->refL;
-                node_t* nearest_node = 0;
+                NodeNum_t nearest_node = NODENUM_INVALID;
                 ActorPtr nearest_actor = 0;
                 ropable_t* locktedto = 0;
                 // iterate over all actors
@@ -3403,28 +3403,28 @@ void Actor::tieToggle(int group)
                             continue;
 
                         // skip if tienode is ropable too (no selflock)
-                        if (this == actor.GetRef() && itr->node->pos == it->ti_beam->p1->pos)
+                        if (this == actor.GetRef() && itr->rb_nodenum == it->ti_beam->p1->pos)
                             continue;
 
                         // calculate the distance and record the nearest ropable
-                        float dist = (it->ti_beam->p1->AbsPosition - itr->node->AbsPosition).length();
+                        float dist = (it->ti_beam->p1->AbsPosition - actor->ar_nodes[itr->rb_nodenum].AbsPosition).length();
                         if (dist < mindist)
                         {
                             mindist = dist;
-                            nearest_node = itr->node;
+                            nearest_node = itr->rb_nodenum;
                             nearest_actor = actor;
                             locktedto = &(*itr);
                         }
                     }
                 }
                 // if we found a ropable, then tie towards it
-                if (nearest_node)
+                if (nearest_node != NODENUM_INVALID)
                 {
                     // enable the beam and visually display the beam
                     it->ti_beam->bm_disabled = false;
                     // now trigger the tying action
                     it->ti_locked_actor = nearest_actor;
-                    it->ti_beam->p2 = nearest_node;
+                    it->ti_beam->p2 = &nearest_actor->ar_nodes[nearest_node];
                     it->ti_beam->bm_inter_actor = nearest_actor != this;
                     it->ti_beam->stress = 0;
                     it->ti_beam->L = it->ti_beam->refL;
@@ -3528,7 +3528,7 @@ void Actor::ropeToggle(int group)
                         continue;
 
                     // calculate the distance and record the nearest ropable
-                    float dist = (it->rp_beam->p1->AbsPosition - itr->node->AbsPosition).length();
+                    float dist = (it->rp_beam->p1->AbsPosition - actor->ar_nodes[itr->rb_nodenum].AbsPosition).length();
                     if (dist < mindist)
                     {
                         mindist = dist;

@@ -2739,8 +2739,8 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
 void ActorSpawner::ProcessRopable(RigDef::Ropable & def)
 {
     ropable_t ropable;
-    ropable.node = GetNodePointerOrThrow(def.node);
-    ropable.pos = static_cast<int>(m_actor->ar_ropables.size());
+    ropable.rb_nodenum = this->ResolveNodeRef(def.node);
+    ropable.rb_pos = static_cast<RopableID_t>(m_actor->ar_ropables.size());
     ropable.group = def.group;
     ropable.attached_ties = 0;
     ropable.attached_ropes = 0;

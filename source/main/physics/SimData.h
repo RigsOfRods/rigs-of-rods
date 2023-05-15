@@ -506,12 +506,12 @@ struct hook_t
 
 struct ropable_t
 {
-    node_t *node;
-    int pos;            //!< Index into ar_ropables
-    int group;
-    int attached_ties;  //!< State
-    int attached_ropes; //!< State
-    bool multilock;     //!< Attribute
+    NodeNum_t    rb_nodenum = NODENUM_INVALID;
+    RopableID_t  rb_pos = ROPABLEID_INVALID;    //!< Index into ar_ropables
+    int          group;
+    int          attached_ties;                 //!< State
+    int          attached_ropes;                //!< State
+    bool         multilock;                     //!< Attribute
 };
 
 struct rope_t
