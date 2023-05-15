@@ -289,9 +289,9 @@ private:
     void                          InitNode(unsigned int node_index, Ogre::Vector3 const & position);
     void                          InitNode(node_t & node, Ogre::Vector3 const & position, std::shared_ptr<RigDef::NodeDefaults> node_defaults);
     beam_t&                       AddBeam(node_t & node_1, node_t & node_2, std::shared_ptr<RigDef::BeamDefaults> & defaults, int detacher_group);
-    unsigned int                  AddWheelRimBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
-    unsigned int                  AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
-    unsigned int                  _SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
+    BeamID_t                      AddWheelRimBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
+    BeamID_t                      AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
+    BeamID_t                      _SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
     unsigned int                  AddWheel(RigDef::Wheel & wheel);
     unsigned int                  AddWheel2(RigDef::Wheel2 & wheel_2_def); // 'wheels2'
     void                          AddExhaust(NodeNum_t emitter_node_idx, NodeNum_t direction_node_idx);

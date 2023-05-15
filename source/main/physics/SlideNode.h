@@ -36,40 +36,36 @@ namespace RoR {
 /// @addtogroup Physics
 /// @{
 
-/// A single beam in a chain
-struct RailSegment
-{
-    RailSegment(beam_t* beam): rs_prev(nullptr), rs_next(nullptr), rs_beam(beam) {}
-
-    /// Check if the slidenode should skip to a neighbour rail segment
-    RailSegment* CheckCurSlideSegment(Ogre::Vector3 const& point );
-
-    RailSegment*   rs_prev;
-    RailSegment*   rs_next;
-    beam_t*        rs_beam;
-};
-
 /// A series of RailSegment-s for SlideNode to slide along. Can be closed in a loop.
 struct RailGroup
 {
-    RailGroup(): rg_id(-1) {}
+    RailGroup(ActorPtr a): rg_actor(a), rg_id(-1) {}
 
     /// Search for closest rail segment (the one with closest node in it) in the entire RailGroup
-    RailSegment* FindClosestSegment(Ogre::Vector3 const& point );
+    RailGroupSegmentID_t FindClosestSegment(Ogre::Vector3 const& point );
 
-    std::vector<RailSegment> rg_segments;
-    int                      rg_id; //!< Spawn context - matching separately defined rails with slidenodes.
+    /// Check if the slidenode should skip to a neighbour rail segment
+    RailGroupSegmentID_t CheckCurSlideSegment(RailGroupSegmentID_t seg, Ogre::Vector3 const& point);
+
+    /// Get prev/next segment, with loop resolution
+    RailGroupSegmentID_t GetPrevSegment(RailGroupSegmentID_t curSeg) { if (curSeg > 0) return (curSeg - 1); else if (rg_segments_loop) return (static_cast<RailGroupSegmentID_t>(rg_segments.size() - 1)); else return RAILGROUPSEGMENTID_INVALID; }
+    RailGroupSegmentID_t GetNextSegment(RailGroupSegmentID_t curSeg) { if (curSeg < static_cast<RailGroupSegmentID_t>(rg_segments.size() - 1)) return (curSeg + 1); else if (rg_segments_loop) return RailGroupSegmentID_t(0); else return RAILGROUPSEGMENTID_INVALID; }
+
+    ActorPtr                 rg_actor;    //!< Actor owning this railgroup
+    std::vector<BeamID_t>    rg_segments; //!< A chain of beams
+    bool                     rg_segments_loop = false;
+    int                      rg_id;       //!< Spawn context - matching separately defined rails with slidenodes.
 };
 
 class SlideNode
 {
 public:
-    /// @param sliding_node valid pointer to the node acting as a slide node
+    /// @param sliding_node valid node acting as a slide node
     /// @param rail initial RailGroup to slide on, or NULL.
-    SlideNode(node_t* sliding_node, RailGroup* rail);
+    SlideNode(ActorPtr actor, NodeNum_t sliding_node, RailGroup* rail);
 
     /// Returns the node index of the slide node
-    int GetSlideNodeId();
+    NodeNum_t GetSlideNodeId() { return m_sliding_node; }
 
     /// Updates the corrective forces and applies these forces to the beam
     /// @param dt delta time in seconds
@@ -111,11 +107,11 @@ private:
     /// Calculate forces between the ideal and actual position of the sliding node.
     Ogre::Vector3 CalcCorrectiveForces();
 
-    node_t*        m_sliding_node;        //!< Pointer to node that is sliding
-    beam_t*        m_sliding_beam;        //!< Pointer to current beam sliding on
+    ActorPtr       m_actor;               //!< owner of the nodes and beams
+    NodeNum_t      m_sliding_node;        //!< node that is sliding
     RailGroup*     m_initial_railgroup;   //!< Initial Rail group on spawn
     RailGroup*     m_cur_railgroup;       //!< Current Rail group, used for attachments
-    RailSegment*   m_cur_rail_seg;        //!< Current rail segment we are sliding on
+    RailGroupSegmentID_t m_cur_rail_seg;  //!< Current rail segment (a beam) we are sliding on
     float          m_node_forces_ratio;   //!< Ratio of length along the slide beam where the virtual node is "0.0f = p1, 1.0f = p2"
     Ogre::Vector3  m_ideal_position;      //!< Where the node SHOULD be. (World, m)
     float          m_initial_threshold;   //!< Distance from beam calculating corrective forces (m)
@@ -137,53 +133,21 @@ public:
      * @param toAttach Which rail to attach to, Pass NULL to detach this
      * SlideNode from any rail.
      */
-    void AttachToRail(RailGroup* toAttach)
-    {
-        m_cur_railgroup = toAttach;
-        this->ResetPositions();
-        m_cur_threshold = (m_sliding_beam ? getLenTo(m_sliding_beam) : m_initial_threshold);
-    }
-
-    /**
-     * @param group
-     * @param point
-     * @return value is always positive, if group is null return infinity.
-     */
-    static Ogre::Real getLenTo( const RailGroup* group, const Ogre::Vector3& point );
-
-    /**
-     * @param rail
-     * @param point
-     * @return value is always positive, if rail is null return infinity.
-     */
-    static Ogre::Real getLenTo( const RailSegment* rail, const Ogre::Vector3& point );
+    void AttachToRail(RailGroup* toAttach);
 
     /**
      * @param beam
      * @param point
      * @return value is always positive, if beam is null return infinity
      */
-    static Ogre::Real getLenTo( const beam_t* beam, const Ogre::Vector3& point );
-
-
-    /**
-     * @param group
-     * @return value is always positive, if group is null return infinity.
-     */
-    Ogre::Real getLenTo( const RailGroup* group ) const;
-
-    /**
-     * @param rail
-     * @return value is always positive, if rail is null return infinity.
-     */
-    Ogre::Real getLenTo( const RailSegment* rail ) const;
+    static Ogre::Real getLenTo( ActorPtr& actor, const BeamID_t beam, const Ogre::Vector3& point );
 
     /**
      *
      * @param beam
      * @return value is always positive, if beam is null return infinity
      */
-    Ogre::Real getLenTo( const beam_t* beam) const;
+    Ogre::Real getLenTo(ActorPtr& actor, const BeamID_t beamid) const;
 };
 
 /// @} // addtogroup Physics

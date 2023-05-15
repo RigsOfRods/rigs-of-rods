@@ -74,24 +74,20 @@ std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(ActorPtr actor, c
 {
     std::pair<RailGroup*, Ogre::Real> closest((RailGroup*)NULL, std::numeric_limits<Ogre::Real>::infinity());
 
-    RailSegment* curRail = NULL;
-    Ogre::Real lenToCurRail = std::numeric_limits<Ogre::Real>::infinity();
+    RailGroupSegmentID_t segmentId = RAILGROUPSEGMENTID_INVALID;
+    Ogre::Real segmentDist = std::numeric_limits<Ogre::Real>::infinity();
 
-    for (std::vector<RailGroup*>::iterator itGroup = actor->m_railgroups.begin();
-         itGroup != actor->m_railgroups.end();
-         itGroup++)
+    for (RailGroup* railgroup: actor->m_railgroups)
     {
         // find the rail closest to the Node
-        if (*itGroup == nullptr)
-            continue;
 
-        curRail = (*itGroup)->FindClosestSegment(node.GetSlideNodePosition());
-        lenToCurRail = node.getLenTo(curRail);
+        segmentId = railgroup->FindClosestSegment(node.GetSlideNodePosition());
+        segmentDist = node.getLenTo(actor, railgroup->rg_segments[segmentId]);
 
-        if (lenToCurRail < node.GetAttachmentDistance() && lenToCurRail < closest.second)
+        if (segmentDist < node.GetAttachmentDistance() && segmentDist < closest.second)
         {
-            closest.first = (*itGroup);
-            closest.second = lenToCurRail;
+            closest.first = railgroup;
+            closest.second = segmentDist;
         }
     }
 
