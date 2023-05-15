@@ -341,40 +341,38 @@ struct node_t
 /// Simulation: An edge in the softbody structure
 struct beam_t
 {
-    beam_t() { memset(this, 0, sizeof(beam_t)); bm_pos = BEAMID_INVALID; }
+    NodeNum_t       p1num = NODENUM_INVALID;
+    NodeNum_t       p2num = NODENUM_INVALID;
+    float           k = 0.f;                     //!< tensile spring
+    float           d = 0.f;                     //!< damping factor
+    float           L = 0.f;                     //!< length
+    float           minmaxposnegstress = 0.f;
+    float           maxposstress = 0.f;
+    float           maxnegstress = 0.f;
+    float           strength = 0.f;
+    float           stress = 0.f;
+    float           plastic_coef = 0.f;
+    int             detacher_group;              //!< Attribute: detacher group number (integer)
+    SpecialBeam     bounded = NOSHOCK;
+    BeamType        bm_type = BEAM_NORMAL;
+    bool            bm_inter_actor = false;      //!< in case p2 is on another actor
+    ActorPtr        bm_locked_actor;             //!< in case p2 is on another actor
+    bool            bm_disabled = false;
+    bool            bm_broken = false;
+    BeamID_t        bm_pos = BEAMID_INVALID;
 
-    node_t*         p1;
-    node_t*         p2;
-    Ogre::Real      k;                     //!< tensile spring
-    Ogre::Real      d;                     //!< damping factor
-    Ogre::Real      L;                     //!< length
-    Ogre::Real      minmaxposnegstress;
-    Ogre::Real      maxposstress;
-    Ogre::Real      maxnegstress;
-    Ogre::Real      strength;
-    Ogre::Real      stress;
-    Ogre::Real      plastic_coef;
-    int             detacher_group;        //!< Attribute: detacher group number (integer)
-    SpecialBeam     bounded;
-    BeamType        bm_type;
-    bool            bm_inter_actor;        //!< in case p2 is on another actor
-    ActorPtr        bm_locked_actor;       //!< in case p2 is on another actor
-    bool            bm_disabled;
-    bool            bm_broken;
-    BeamID_t        bm_pos;
+    float           shortbound = 0.f;
+    float           longbound = 0.f;
+    float           refL = 0.f;                  //!< reference length
 
-    Ogre::Real      shortbound;
-    Ogre::Real      longbound;
-    Ogre::Real      refL;                  //!< reference length
+    shock_t*        shock = nullptr;
 
-    shock_t*        shock;
+    float           initial_beam_strength = 0.f; //!< for reset
+    float           default_beam_deform = 0.f;   //!< for reset
 
-    Ogre::Real      initial_beam_strength; //!< for reset
-    Ogre::Real      default_beam_deform;   //!< for reset
-
-    Ogre::Real      debug_k;               //!< debug shock spring_rate
-    Ogre::Real      debug_d;               //!< debug shock damping
-    Ogre::Real      debug_v;               //!< debug shock velocity
+    float           debug_k = 0.f;               //!< debug shock spring_rate
+    float           debug_d = 0.f;               //!< debug shock damping
+    float           debug_v = 0.f;               //!< debug shock velocity
 };
 
 struct shock_t

@@ -1125,18 +1125,12 @@ bool Actor::CalcForcesEulerPrepare(bool doUpdate)
 }
 
 template <size_t L>
-void LogNodeId(RoR::Str<L>& msg, node_t* node) // Internal helper
-{
-    msg << " (index: " << node->pos << ")";
-}
-
-template <size_t L>
-void LogBeamNodes(RoR::Str<L>& msg, beam_t& beam) // Internal helper
+void LogBeamNodes(Actor* actor, RoR::Str<L>& msg, BeamID_t beamid) // Internal helper
 {
     msg << "It was between nodes ";
-    LogNodeId(msg, beam.p1);
+    msg << " (index: " << actor->ar_beams[beamid].p1num << ")";
     msg << " and ";
-    LogNodeId(msg, beam.p2);
+    msg << " (index: " << actor->ar_beams[beamid].p2num << ")";
     msg << ".";
 }
 
@@ -1147,7 +1141,7 @@ void Actor::CalcBeams(bool trigger_hooks)
         if (!ar_beams[i].bm_disabled && !ar_beams[i].bm_inter_actor)
         {
             // Calculate beam length
-            Vector3 dis = ar_beams[i].p1->RelPosition - ar_beams[i].p2->RelPosition;
+            Vector3 dis = ar_nodes[ar_beams[i].p1num].RelPosition - ar_nodes[ar_beams[i].p2num].RelPosition;
 
             Real dislen = dis.squaredLength();
             Real inverted_dislen = fast_invSqrt(dislen);
@@ -1161,7 +1155,7 @@ void Actor::CalcBeams(bool trigger_hooks)
             Real d = ar_beams[i].d;
 
             // Calculate beam's rate of change
-            float v = (ar_beams[i].p1->Velocity - ar_beams[i].p2->Velocity).dotProduct(dis) * inverted_dislen;
+            float v = (ar_nodes[ar_beams[i].p1num].Velocity - ar_nodes[ar_beams[i].p2num].Velocity).dotProduct(dis) * inverted_dislen;
 
             if (ar_beams[i].bounded == SHOCK1)
             {
@@ -1225,7 +1219,7 @@ void Actor::CalcBeams(bool trigger_hooks)
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] XXX Support-Beam " << i << " limit extended and broke. "
                                 << "Length: " << difftoBeamL << " / max. Length: " << (ar_beams[i].L*break_limit) << ". ";
-                            LogBeamNodes(msg, ar_beams[i]);
+                            LogBeamNodes(this, msg, static_cast<BeamID_t>(i));
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr());
                         }
                     }
@@ -1280,7 +1274,7 @@ void Actor::CalcBeams(bool trigger_hooks)
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
                                 << len << " / " << ar_beams[i].strength << ". ";
-                            LogBeamNodes(msg, ar_beams[i]);
+                            LogBeamNodes(this, msg, static_cast<BeamID_t>(i));
                             RoR::Log(msg.ToCStr());
                         }
                     }
@@ -1304,7 +1298,7 @@ void Actor::CalcBeams(bool trigger_hooks)
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
                                 << len << " / " << ar_beams[i].strength << ". ";
-                            LogBeamNodes(msg, ar_beams[i]);
+                            LogBeamNodes(this, msg, static_cast<BeamID_t>(i));
                             RoR::Log(msg.ToCStr());
                         }
                     }
@@ -1321,7 +1315,7 @@ void Actor::CalcBeams(bool trigger_hooks)
                     //Break the beam only when it is not connected to a node
                     //which is a part of a collision triangle and has 2 "live" beams or less
                     //connected to it.
-                    if (!((ar_beams[i].p1->nd_cab_node && GetNumActiveConnectedBeams(ar_beams[i].p1->pos) < 3) || (ar_beams[i].p2->nd_cab_node && GetNumActiveConnectedBeams(ar_beams[i].p2->pos) < 3)))
+                    if (!((ar_nodes[ar_beams[i].p1num].nd_cab_node && GetNumActiveConnectedBeams(ar_nodes[ar_beams[i].p1num].pos) < 3) || (ar_nodes[ar_beams[i].p2num].nd_cab_node && GetNumActiveConnectedBeams(ar_nodes[ar_beams[i].p2num].pos) < 3)))
                     {
                         slen = 0.0f;
                         ar_beams[i].bm_broken = true;
@@ -1331,7 +1325,7 @@ void Actor::CalcBeams(bool trigger_hooks)
                         {
                             RoR::Str<200> msg;
                             msg << "[RoR|Diag] XXX Beam " << i << " just broke with force " << len << " / " << ar_beams[i].strength << ". ";
-                            LogBeamNodes(msg, ar_beams[i]);
+                            LogBeamNodes(this, msg, static_cast<BeamID_t>(i));
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr());
                         }
 
@@ -1381,8 +1375,8 @@ void Actor::CalcBeams(bool trigger_hooks)
                         int tmpv = ar_buoycabs[mk] * 3;
                         if (ar_buoycab_types[mk] == Buoyance::BUOY_DRAGONLY)
                             continue;
-                        if ((ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv]] || ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv + 1]] || ar_beams[i].p1 == &ar_nodes[ar_cabs[tmpv + 2]]) &&
-                            (ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv]] || ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv + 1]] || ar_beams[i].p2 == &ar_nodes[ar_cabs[tmpv + 2]]))
+                        if ((ar_beams[i].p1num == ar_cabs[tmpv] || ar_beams[i].p1num == ar_cabs[tmpv + 1] || ar_beams[i].p1num == ar_cabs[tmpv + 2]) &&
+                            (ar_beams[i].p2num == ar_cabs[tmpv] || ar_beams[i].p2num == ar_cabs[tmpv + 1] || ar_beams[i].p2num == ar_cabs[tmpv + 2]))
                         {
                             m_buoyance->sink = true;
                         }
@@ -1393,10 +1387,20 @@ void Actor::CalcBeams(bool trigger_hooks)
             // At last update the beam forces
             Vector3 f = dis;
             f *= (slen * inverted_dislen);
-            ar_beams[i].p1->Forces += f;
-            ar_beams[i].p2->Forces -= f;
+            ar_nodes[ar_beams[i].p1num].Forces += f;
+            ar_nodes[ar_beams[i].p2num].Forces -= f;
         }
     }
+}
+
+template <size_t L>
+void LogInterBeamNodes(Actor* actor, RoR::Str<L>& msg, BeamID_t beamid) // Internal helper
+{
+    msg << "It was between nodes ";
+    msg << " (index: " << actor->ar_inter_beams[beamid]->p1num << ")";
+    msg << " and ";
+    msg << " (index: " << actor->ar_inter_beams[beamid]->p2num << ")";
+    msg << ".";
 }
 
 void Actor::CalcBeamsInterActor()
@@ -1405,8 +1409,11 @@ void Actor::CalcBeamsInterActor()
     {
         if (!ar_inter_beams[i]->bm_disabled && ar_inter_beams[i]->bm_inter_actor)
         {
+            node_t& node_p1 = ar_nodes[ar_inter_beams[i]->p1num];
+            node_t& node_p2 = ar_inter_beams[i]->bm_locked_actor->ar_nodes[ar_inter_beams[i]->p2num];
+
             // Calculate beam length
-            Vector3 dis = ar_inter_beams[i]->p1->AbsPosition - ar_inter_beams[i]->p2->AbsPosition;
+            Vector3 dis = node_p1.AbsPosition - node_p2.AbsPosition;
 
             Real dislen = dis.squaredLength();
             Real inverted_dislen = fast_invSqrt(dislen);
@@ -1426,7 +1433,7 @@ void Actor::CalcBeamsInterActor()
             }
 
             // Calculate beam's rate of change
-            Vector3 v = ar_inter_beams[i]->p1->Velocity - ar_inter_beams[i]->p2->Velocity;
+            Vector3 v = node_p1.Velocity - node_p2.Velocity;
 
             float slen = -k * (difftoBeamL) - d * v.dotProduct(dis) * inverted_dislen;
             ar_inter_beams[i]->stress = slen;
@@ -1461,7 +1468,7 @@ void Actor::CalcBeamsInterActor()
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
                                 << len << " / " << ar_inter_beams[i]->strength << ". ";
-                            LogBeamNodes(msg, (*ar_inter_beams[i]));
+                            LogInterBeamNodes(this, msg, static_cast<BeamID_t>(i));
                             RoR::Log(msg.ToCStr());
                         }
                     }
@@ -1485,7 +1492,7 @@ void Actor::CalcBeamsInterActor()
                             RoR::Str<300> msg;
                             msg << "[RoR|Diag] YYY Beam " << i << " just deformed with extension force "
                                 << len << " / " << ar_inter_beams[i]->strength << ". ";
-                            LogBeamNodes(msg, (*ar_inter_beams[i]));
+                            LogInterBeamNodes(this, msg, static_cast<BeamID_t>(i));
                             RoR::Log(msg.ToCStr());
                         }
                     }
@@ -1502,7 +1509,7 @@ void Actor::CalcBeamsInterActor()
                     //Break the beam only when it is not connected to a node
                     //which is a part of a collision triangle and has 2 "live" beams or less
                     //connected to it.
-                    if (!((ar_inter_beams[i]->p1->nd_cab_node && GetNumActiveConnectedBeams(ar_inter_beams[i]->p1->pos) < 3) || (ar_inter_beams[i]->p2->nd_cab_node && GetNumActiveConnectedBeams(ar_inter_beams[i]->p2->pos) < 3)))
+                    if (!((node_p1.nd_cab_node && GetNumActiveConnectedBeams(node_p1.pos) < 3) || (node_p2.nd_cab_node && GetNumActiveConnectedBeams(node_p2.pos) < 3)))
                     {
                         slen = 0.0f;
                         ar_inter_beams[i]->bm_broken = true;
@@ -1512,7 +1519,7 @@ void Actor::CalcBeamsInterActor()
                         {
                             RoR::Str<200> msg;
                             msg << "Beam " << i << " just broke with force " << len << " / " << ar_inter_beams[i]->strength << ". ";
-                            LogBeamNodes(msg, (*ar_inter_beams[i]));
+                            LogInterBeamNodes(this, msg, static_cast<BeamID_t>(i));
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_NOTICE, msg.ToCStr());
                         }
                     }
@@ -1526,8 +1533,8 @@ void Actor::CalcBeamsInterActor()
             // At last update the beam forces
             Vector3 f = dis;
             f *= (slen * inverted_dislen);
-            ar_inter_beams[i]->p1->Forces += f;
-            ar_inter_beams[i]->p2->Forces -= f;
+            node_p1.Forces += f;
+            node_p2.Forces -= f;
         }
     }
 }
@@ -1722,7 +1729,7 @@ void Actor::CalcHooks()
             if (hookbeam.bm_disabled)
             {
                 //enable beam if not enabled yet between those 2 nodes
-                hookbeam.p2 = &it->hk_locked_actor->ar_nodes[it->hk_locked_node];
+                hookbeam.p2num = it->hk_locked_node;
                 hookbeam.bm_inter_actor = (it->hk_locked_actor != nullptr);
                 hookbeam.L = (ar_nodes[it->hk_hook_node].AbsPosition - it->hk_locked_actor->ar_nodes[it->hk_locked_node].AbsPosition).length();
                 hookbeam.bm_disabled = false;
@@ -1763,7 +1770,7 @@ void Actor::CalcHooks()
                                 it->hk_locked = UNLOCKED;
                                 it->hk_locked_node = NODENUM_INVALID;
                                 it->hk_locked_actor = nullptr;
-                                hookbeam.p2 = &ar_nodes[0];
+                                hookbeam.p2num = NodeNum_t(0);
                                 hookbeam.bm_inter_actor = false;
                                 hookbeam.L = (ar_nodes[0].AbsPosition - ar_nodes[it->hk_hook_node].AbsPosition).length();
                                 hookbeam.bm_disabled = true;
@@ -1790,7 +1797,7 @@ void Actor::CalcRopes()
         {
             ropable_t& locked_ropable = r.rp_locked_actor->ar_ropables[r.rp_locked_ropable_id];
             node_t& locked_node = r.rp_locked_actor->ar_nodes[locked_ropable.rb_nodenum];
-            node_t& rope_node = *ar_beams[r.rp_beam].p2;
+            node_t& rope_node = ar_nodes[ar_beams[r.rp_beam].p2num];
 
             rope_node.AbsPosition = locked_node.AbsPosition;
             rope_node.RelPosition = locked_node.AbsPosition - ar_origin;
