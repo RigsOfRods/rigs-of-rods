@@ -679,11 +679,22 @@ void ActorManager::ForwardCommands(ActorPtr source_actor)
                 }
                 if (source_actor->ar_toggle_ties)
                 {
-                    actor->tieToggle();
+                    //actor->tieToggle();
+                    ActorLinkingRequest* rq = new ActorLinkingRequest();
+                    rq->alr_type = ActorLinkingRequestType::TIE_ACTION;
+                    rq->alr_actor_instance_id = actor->ar_instance_id;
+                    rq->alr_tie_group = -1;
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
+
                 }
                 if (source_actor->ar_toggle_ropes)
                 {
-                    actor->ropeToggle(-1);
+                    //actor->ropeToggle(-1);
+                    ActorLinkingRequest* rq = new ActorLinkingRequest();
+                    rq->alr_type = ActorLinkingRequestType::ROPE_ACTION;
+                    rq->alr_actor_instance_id = actor->ar_instance_id;
+                    rq->alr_rope_group = -1;
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
                 }
             }
         }
@@ -1038,12 +1049,24 @@ void ActorManager::UpdateActors(ActorPtr player_actor)
         this->ForwardCommands(player_actor);
         if (player_actor->ar_toggle_ties)
         {
-            player_actor->tieToggle();
+            //player_actor->tieToggle();
+            ActorLinkingRequest* rq = new ActorLinkingRequest();
+            rq->alr_type = ActorLinkingRequestType::TIE_ACTION;
+            rq->alr_actor_instance_id = player_actor->ar_instance_id;
+            rq->alr_tie_group = -1;
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
+
             player_actor->ar_toggle_ties = false;
         }
         if (player_actor->ar_toggle_ropes)
         {
-            player_actor->ropeToggle(-1);
+            //player_actor->ropeToggle(-1);
+            ActorLinkingRequest* rq = new ActorLinkingRequest();
+            rq->alr_type = ActorLinkingRequestType::ROPE_ACTION;
+            rq->alr_actor_instance_id = player_actor->ar_instance_id;
+            rq->alr_rope_group = -1;
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
+
             player_actor->ar_toggle_ropes = false;
         }
 
