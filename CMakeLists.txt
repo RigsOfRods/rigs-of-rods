@@ -23,7 +23,7 @@ project(${PROJECT_NAME_UNDERSCORE})
 ################################################################################
 option(BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
-option(USE_PHC "Use a Precompiled header for speeding up the build" ON)
+option(USE_PCH "Use a Precompiled header for speeding up the build" ON)
 option(CREATE_CONTENT_FOLDER "Create the base content folder" ON)
 set(ROR_DEPENDENCY_DIR "${CMAKE_SOURCE_DIR}/dependencies" CACHE PATH "Path to the dependencies")
 set(ROR_FEAT_TIMING OFF)
@@ -43,7 +43,7 @@ SET(LIBRARY_OUTPUT_PATH ${RUNTIME_OUTPUT_DIRECTORY})
 
 set(CMAKE_DEBUG_POSTFIX _d)
 
-if (NOT USE_PHC)
+if (NOT USE_PCH)
     find_program(SCCACHE_PROGRAM sccache)
     if (SCCACHE_PROGRAM)
         set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE_PROGRAM}")

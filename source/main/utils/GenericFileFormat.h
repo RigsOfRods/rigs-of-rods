@@ -32,6 +32,9 @@
 ///  - KEYWORD tokens cannot start with a digit or special character.
 
 #include "RefCountingObject.h"
+#include "RefCountingObjectPtr.h"
+#include "BitFlags.h"
+#include "Application.h"
 
 #include <vector>
 #include <string>
