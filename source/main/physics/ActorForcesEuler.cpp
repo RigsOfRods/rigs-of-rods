@@ -147,7 +147,7 @@ void Actor::CalcFuseDrag()
         float airdensity = airpressure * 0.0000120896f;//1.225 at sea level
 
         //fuselage as an airfoil + parasitic drag (half fuselage front surface almost as a flat plane!)
-        ar_fusedrag = ((cx * s + m_fusealge_width * m_fusealge_width * 0.5) * 0.5 * airdensity * wspeed / ar_num_nodes) * wind; 
+        ar_fusedrag = ((cx * s + m_fusealge_width * m_fusealge_width * 0.5) * 0.5 * airdensity * wspeed / static_cast<int>(ar_nodes.size())) * wind;
     }
 }
 
@@ -1545,7 +1545,7 @@ void Actor::CalcNodes()
     const float gravity = App::GetGameContext()->GetTerrain()->getGravity();
     m_water_contact = false;
 
-    for (NodeNum_t i = 0; i < ar_num_nodes; i++)
+    for (NodeNum_t i = 0; i < static_cast<int>(ar_nodes.size()); i++)
     {
         // COLLISION
         if (!ar_nodes[i].nd_no_ground_contact)
@@ -1680,7 +1680,7 @@ void Actor::CalcEventBoxes()
         if (!has_collision)
         {
             // Find if any node collides
-            for (NodeNum_t i = 0; i < ar_num_nodes; i++)
+            for (NodeNum_t i = 0; i < static_cast<int>(ar_nodes.size()); i++)
             {
                 has_collision = App::GetGameContext()->GetTerrain()->GetCollisions()->isInside(ar_nodes[i].AbsPosition, cbox);
                 if (has_collision)

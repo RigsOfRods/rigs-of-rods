@@ -287,7 +287,7 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, ActorPtr actor, NodeNum_t pn
     cdnfaces[4]=29;
     cdnfaces[5]=28;
 
-    node_t* nodes = m_actor->ar_nodes;
+    auto& nodes = m_actor->ar_nodes;
 
     float tsref=2.0*(nodes[nfrd].RelPosition-nodes[nfld].RelPosition).crossProduct(nodes[nbld].RelPosition-nodes[nfld].RelPosition).length();
     sref=2.0*(nodes[nfrd].RelPosition-nodes[nfld].RelPosition).crossProduct(nodes[nbrd].RelPosition-nodes[nfrd].RelPosition).length();
@@ -413,7 +413,7 @@ FlexAirfoil::FlexAirfoil(Ogre::String const & name, ActorPtr actor, NodeNum_t pn
 
 void FlexAirfoil::updateVerticesPhysics()
 {
-    node_t* nodes = m_actor->ar_nodes;
+    auto& nodes = m_actor->ar_nodes;
 
     Vector3 center;
     center=nodes[nfld].AbsPosition;
@@ -595,7 +595,7 @@ void FlexAirfoil::updateForces()
     if (!airfoil) return;
     if (broken) return;
 
-    node_t* nodes = m_actor->ar_nodes;
+    auto& nodes = m_actor->ar_nodes;
 
     //evaluate wind direction
     Vector3 wind=-(nodes[nfld].Velocity+nodes[nfrd].Velocity)/2.0;

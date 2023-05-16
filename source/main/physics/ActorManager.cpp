@@ -96,9 +96,9 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
 
     /* POST-PROCESSING */
 
-    actor->ar_initial_node_positions.resize(actor->ar_num_nodes);
+    actor->ar_initial_node_positions.resize(static_cast<int>(actor->ar_nodes.size()));
     actor->ar_initial_beam_defaults.resize(actor->ar_num_beams);
-    actor->ar_initial_node_masses.resize(actor->ar_num_nodes);
+    actor->ar_initial_node_masses.resize(static_cast<int>(actor->ar_nodes.size()));
 
     actor->UpdateBoundingBoxes(); // (records the unrotated dimensions for 'veh_aab_size')
 
@@ -112,7 +112,7 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
         actor->m_net_node_compression = std::numeric_limits<short int>::max() / std::ceil(max_dimension * 1.5f);
     }
     // Apply spawn position & spawn rotation
-    for (int i = 0; i < actor->ar_num_nodes; i++)
+    for (int i = 0; i < static_cast<int>(actor->ar_nodes.size()); i++)
     {
         actor->ar_nodes[i].AbsPosition = rq.asr_position + rq.asr_rotation * (actor->ar_nodes[i].AbsPosition - rq.asr_position);
         actor->ar_nodes[i].RelPosition = actor->ar_nodes[i].AbsPosition - actor->ar_origin;
@@ -149,7 +149,7 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
         {
             bool inside = true;
 
-            for (int i = 0; i < actor->ar_num_nodes; i++)
+            for (int i = 0; i < static_cast<int>(actor->ar_nodes.size()); i++)
                 inside = (inside && App::GetGameContext()->GetTerrain()->GetCollisions()->isInside(actor->ar_nodes[i].AbsPosition, rq.asr_spawnbox, 0.2f));
 
             if (!inside)
@@ -171,7 +171,7 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     //compute final mass
     actor->RecalculateNodeMasses(actor->m_dry_mass);
     actor->ar_initial_total_mass = actor->m_total_mass;
-    for (int i = 0; i < actor->ar_num_nodes; i++)
+    for (int i = 0; i < static_cast<int>(actor->ar_nodes.size()); i++)
     {
         actor->ar_initial_node_masses[i] = actor->ar_nodes[i].mass;
     }
@@ -190,7 +190,7 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
 
     // calculate minimum camera radius
     actor->calculateAveragePosition();
-    for (int i = 0; i < actor->ar_num_nodes; i++)
+    for (int i = 0; i < static_cast<int>(actor->ar_nodes.size()); i++)
     {
         Real dist = actor->ar_nodes[i].AbsPosition.squaredDistance(actor->m_avg_node_position);
         if (dist > actor->m_min_camera_radius)
@@ -227,15 +227,15 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
 
     // calculate the number of wheel nodes
     actor->m_wheel_node_count = 0;
-    for (int i = 0; i < actor->ar_num_nodes; i++)
+    for (int i = 0; i < static_cast<int>(actor->ar_nodes.size()); i++)
     {
         if (actor->ar_nodes[i].nd_tyre_node)
             actor->m_wheel_node_count++;
     }
 
     // search m_net_first_wheel_node
-    actor->m_net_first_wheel_node = actor->ar_num_nodes;
-    for (int i = 0; i < actor->ar_num_nodes; i++)
+    actor->m_net_first_wheel_node = static_cast<int>(actor->ar_nodes.size());
+    for (int i = 0; i < static_cast<int>(actor->ar_nodes.size()); i++)
     {
         if (actor->ar_nodes[i].nd_tyre_node || actor->ar_nodes[i].nd_rim_node)
         {

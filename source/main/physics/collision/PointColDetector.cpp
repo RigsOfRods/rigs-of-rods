@@ -98,7 +98,7 @@ void PointColDetector::update_structures_for_contacters(bool ignoreinternal)
     {
         bool is_linked = std::find(m_linked_actors.begin(), m_linked_actors.end(), actor) != m_linked_actors.end();
         bool internal_collision = !ignoreinternal && ((actor == m_actor) || is_linked);
-        for (int i = 0; i < actor->ar_num_nodes; i++)
+        for (int i = 0; i < static_cast<int>(actor->ar_nodes.size()); i++)
         {
             if (actor->ar_nodes[i].nd_contacter || (!internal_collision && actor->ar_nodes[i].nd_contactable))
             {

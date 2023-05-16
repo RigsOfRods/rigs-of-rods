@@ -135,7 +135,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
                 if (!pair.first)
                     continue;
 
-                for (int j = 0; j < actor->ar_num_nodes; j++)
+                for (int j = 0; j < static_cast<int>(actor->ar_nodes.size()); j++)
                 {
                     if (actor->ar_nodes[j].nd_no_mouse_grab)
                         continue;
@@ -268,7 +268,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
             Real nearest_ray_distance = std::numeric_limits<float>::max();
             NodeNum_t nearest_node_index = NODENUM_INVALID;
 
-            for (int i = 0; i < player_actor->ar_num_nodes; i++)
+            for (int i = 0; i < static_cast<int>(player_actor->ar_nodes.size()); i++)
             {
                 Vector3 pos = player_actor->ar_nodes[i].AbsPosition;
                 std::pair<bool, Real> pair = mouseRay.intersects(Sphere(pos, 0.25f));

@@ -690,7 +690,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
         // Nodes
         rapidjson::Value j_nodes(rapidjson::kArrayType);
-        for (int i = 0; i < actor->ar_num_nodes; i++)
+        for (int i = 0; i < static_cast<int>(actor->ar_nodes.size()); i++)
         {
             rapidjson::Value j_node(rapidjson::kArrayType);
 

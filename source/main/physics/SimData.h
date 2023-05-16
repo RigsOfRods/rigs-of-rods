@@ -297,25 +297,37 @@ enum class AeroEngineType
 /// Physics: A vertex in the softbody structure
 struct node_t
 {
-    static const int8_t    INVALID_BBOX = -1;
+    node_t(NodeNum_t n)
+        : pos(n)
+        , nd_cab_node(false)
+        , nd_rim_node(false)
+        , nd_tyre_node(false)
+        , nd_contacter(false)
+        , nd_contactable(false)
+        , nd_has_ground_contact(false)
+        , nd_has_mesh_contact(false)
+        , nd_immovable(false)
+        , nd_loaded_mass(false)
+        , nd_no_ground_contact(false)
+        , nd_override_mass(false)
+        , nd_under_water(false)
+        , nd_no_mouse_grab(false)
+    {}
 
-    node_t()               { memset(this, 0, sizeof(node_t)); nd_coll_bbox_id = INVALID_BBOX; }
-    node_t(size_t _pos)    { memset(this, 0, sizeof(node_t)); nd_coll_bbox_id = INVALID_BBOX; pos = static_cast<short>(_pos); }
+    Ogre::Vector3   RelPosition = Ogre::Vector3::ZERO; //!< relative to the local physics origin (one origin per actor) (shaky)
+    Ogre::Vector3   AbsPosition = Ogre::Vector3::ZERO; //!< absolute position in the world (shaky)
+    Ogre::Vector3   Velocity = Ogre::Vector3::ZERO;
+    Ogre::Vector3   Forces = Ogre::Vector3::ZERO;
 
-    Ogre::Vector3   RelPosition;             //!< relative to the local physics origin (one origin per actor) (shaky)
-    Ogre::Vector3   AbsPosition;             //!< absolute position in the world (shaky)
-    Ogre::Vector3   Velocity;
-    Ogre::Vector3   Forces;
+    float           mass = 0.f;
+    float           buoyancy = 0.f;
+    float           friction_coef = 0.f;
+    float           surface_coef = 0.f;
+    float           volume_coef = 0.f;
 
-    Ogre::Real      mass;
-    Ogre::Real      buoyancy;
-    Ogre::Real      friction_coef;
-    Ogre::Real      surface_coef;
-    Ogre::Real      volume_coef;
-
-    NodeNum_t       pos;                     //!< This node's index in Actor::ar_nodes array.
-    int16_t         nd_coll_bbox_id;         //!< Optional attribute (-1 = none) - multiple collision bounding boxes defined in truckfile
-    int16_t         nd_lockgroup;            //!< Optional attribute (-1 = default, 9999 = deny lock) - used in the hook lock logic
+    NodeNum_t       pos = NODENUM_INVALID;             //!< This node's index in Actor::ar_nodes array.
+    BboxID_t        nd_coll_bbox_id = BBOXID_INVALID;  //!< Optional attribute (-1 = none) - multiple collision bounding boxes defined in truckfile
+    int16_t         nd_lockgroup = NODE_LOCKGROUP_DEFAULT; //!< Optional attribute (-1 = default, 9999 = deny lock) - used in the hook lock logic
 
     // Bit flags
     bool            nd_cab_node:1;           //!< Attr; This node is part of collision triangle
@@ -332,10 +344,10 @@ struct node_t
     bool            nd_under_water:1;        //!< State; GFX hint
     bool            nd_no_mouse_grab:1;      //!< Attr; User-defined
 
-    Ogre::Real      nd_avg_collision_slip;   //!< Physics state; average slip velocity across the last few physics frames
-    Ogre::Vector3   nd_last_collision_slip;  //!< Physics state; last collision slip vector
-    Ogre::Vector3   nd_last_collision_force; //!< Physics state; last collision force
-    ground_model_t* nd_last_collision_gm;    //!< Physics state; last collision 'ground model' (surface definition)
+    float           nd_avg_collision_slip = 0.f;                   //!< Physics state; average slip velocity across the last few physics frames
+    Ogre::Vector3   nd_last_collision_slip = Ogre::Vector3::ZERO;  //!< Physics state; last collision slip vector
+    Ogre::Vector3   nd_last_collision_force = Ogre::Vector3::ZERO; //!< Physics state; last collision force
+    ground_model_t* nd_last_collision_gm = nullptr;                //!< Physics state; last collision 'ground model' (surface definition)
 };
 
 /// Simulation: An edge in the softbody structure

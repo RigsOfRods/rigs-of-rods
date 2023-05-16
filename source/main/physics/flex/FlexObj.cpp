@@ -29,15 +29,15 @@
 using namespace Ogre;
 using namespace RoR;
 
-FlexObj::FlexObj(RoR::GfxActor* gfx_actor, node_t* all_nodes, std::vector<CabTexcoord>& texcoords, int numtriangles, 
+FlexObj::FlexObj(ActorPtr& actor, std::vector<CabTexcoord>& texcoords, int numtriangles,
                  int* triangles, std::vector<CabSubmesh>& submesh_defs, 
-                 char* texname, const char* name, char* backtexname, char* transtexname):
-    m_gfx_actor(gfx_actor)
-{
+                 char* texname, const char* name, char* backtexname, char* transtexname)
+{   
+    m_actor = actor;
     m_triangle_count = numtriangles;
 
     // Create the mesh via the MeshManager
-    m_mesh = MeshManager::getSingleton().createManual(name, gfx_actor->GetResourceGroup());
+    m_mesh = MeshManager::getSingleton().createManual(name, m_actor->GetGfxActor()->GetResourceGroup());
 
     // Create submeshes
     m_submeshes.reserve(submesh_defs.size());
@@ -77,9 +77,9 @@ FlexObj::FlexObj(RoR::GfxActor* gfx_actor, node_t* all_nodes, std::vector<CabTex
 
     for (size_t i=0; i<(unsigned int)numtriangles;i++)
     {
-        Ogre::Vector3 base_pos = all_nodes[m_vertex_nodes[m_indices[i*3]]].RelPosition;
-        Ogre::Vector3 v1       = all_nodes[m_vertex_nodes[m_indices[i*3+1]]].RelPosition - base_pos;
-        Ogre::Vector3 v2       = all_nodes[m_vertex_nodes[m_indices[i*3+2]]].RelPosition - base_pos;
+        Ogre::Vector3 base_pos = m_actor->ar_nodes[m_vertex_nodes[m_indices[i*3]]].RelPosition;
+        Ogre::Vector3 v1       = m_actor->ar_nodes[m_vertex_nodes[m_indices[i*3+1]]].RelPosition - base_pos;
+        Ogre::Vector3 v2       = m_actor->ar_nodes[m_vertex_nodes[m_indices[i*3+2]]].RelPosition - base_pos;
         m_s_ref[i]=v1.crossProduct(v2).length()*2.0;
     }
 
@@ -185,7 +185,7 @@ int FlexObj::ComputeVertexPos(int tidx, int v, std::vector<CabSubmesh>& submeshe
 
 Vector3 FlexObj::UpdateMesh()
 {
-    RoR::NodeSB* all_nodes = m_gfx_actor->GetSimNodeBuffer();
+    RoR::NodeSB* all_nodes = m_actor->GetGfxActor()->GetSimNodeBuffer();
     Ogre::Vector3 center=(all_nodes[m_vertex_nodes[0]].AbsPosition+all_nodes[m_vertex_nodes[1]].AbsPosition)/2.0;
     for (size_t i=0; i<m_vertex_count; i++)
     {
