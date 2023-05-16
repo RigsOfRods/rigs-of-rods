@@ -237,7 +237,7 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
     // lock slide nodes after spawning the actor?
     if (def->slide_nodes_connect_instantly)
     {
-        fresh_actor->toggleSlideNodeLock();
+        fresh_actor->toggleSlideNodeLock(); // OK to invoke here - processing MSG_SIM_ACTOR_SPAWN_REQUESTED
     }
 
     if (rq.asr_origin == ActorSpawnRequest::Origin::USER)
@@ -396,12 +396,12 @@ void GameContext::DeleteActor(ActorPtr actor)
     {
         if (actorx->isTied() && std::find(linked_actors.begin(), linked_actors.end(), actorx) != linked_actors.end())
         {
-            actorx->tieToggle();
+            actorx->tieToggle(); // OK to invoke here - processing MSG_SIM_DELETE_ACTOR_REQUESTED
         }
 
         if (actorx->isLocked() && std::find(linked_actors.begin(), linked_actors.end(), actorx) != linked_actors.end())
         {
-            actorx->hookToggle();
+            actorx->hookToggle(); // OK to invoke here - processing MSG_SIM_DELETE_ACTOR_REQUESTED
         }
     }
 
@@ -1298,8 +1298,18 @@ void GameContext::UpdateCommonInputEvents(float dt)
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_LOCK))
     {
-        m_player_actor->hookToggle(-1, HOOK_TOGGLE, -1);
-        m_player_actor->toggleSlideNodeLock();
+        //m_player_actor->hookToggle(-1, HOOK_TOGGLE, -1);
+        ActorLinkingRequest* hook_rq = new ActorLinkingRequest();
+        hook_rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+        hook_rq->alr_actor_instance_id = m_player_actor->ar_instance_id;
+        hook_rq->alr_hook_action = HOOK_TOGGLE;
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, hook_rq));
+
+        //m_player_actor->toggleSlideNodeLock();
+        ActorLinkingRequest* slidenode_rq = new ActorLinkingRequest();
+        slidenode_rq->alr_type = ActorLinkingRequestType::SLIDENODE_ACTION;
+        hook_rq->alr_actor_instance_id = m_player_actor->ar_instance_id;
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, slidenode_rq));
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_AUTOLOCK))

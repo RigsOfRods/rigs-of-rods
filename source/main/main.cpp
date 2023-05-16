@@ -786,6 +786,44 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_SIM_ACTOR_LINKING_REQUESTED:
+                {
+                    // Estabilishing a physics linkage between 2 actors modifies a global linkage table
+                    // and triggers immediate update of every actor's linkage tables,
+                    // so it has to be done sequentially on main thread.
+                    // ---------------------------------------------------------------------------------
+                    ActorLinkingRequest* request = static_cast<ActorLinkingRequest*>(m.payload);
+                    ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(request->alr_actor_instance_id);
+                    if (actor)
+                    {
+                        switch (request->alr_type)
+                        {
+                        case ActorLinkingRequestType::HOOK_ACTION:
+                            actor->hookToggle(request->alr_hook_group, request->alr_hook_action, request->alr_hook_mousenode);
+                            if (request->alr_hook_action == MOUSE_HOOK_TOGGLE)
+                            {
+                                TRIGGER_EVENT_ASYNC(SE_TRUCK_MOUSE_GRAB, request->alr_actor_instance_id);
+                            }
+                            break;
+
+                        case ActorLinkingRequestType::TIE_ACTION:
+                            actor->tieToggle(request->alr_tie_group);
+                            break;
+
+                        case ActorLinkingRequestType::ROPE_ACTION:
+                            actor->ropeToggle(request->alr_rope_group);
+                            break;
+
+                        case ActorLinkingRequestType::SLIDENODE_ACTION:
+                            actor->toggleSlideNodeLock();
+                            break;
+                        }
+                        
+                    }
+                    delete request;
+                    break;
+                }
+
                 // -- GUI events ---
 
                 case MSG_GUI_OPEN_MENU_REQUESTED:

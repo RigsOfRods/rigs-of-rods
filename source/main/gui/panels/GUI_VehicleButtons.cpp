@@ -1181,8 +1181,18 @@ void VehicleButtons::DrawLockButton(RoR::GfxActor* actorx)
 
     if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_lock_icon->getHandle()), ImVec2(24, 24)))
     {
-        actorx->GetActor()->hookToggle(-1, HOOK_TOGGLE, -1);
-        actorx->GetActor()->toggleSlideNodeLock();
+        //actorx->GetActor()->hookToggle(-1, HOOK_TOGGLE, -1);
+        ActorLinkingRequest* hook_rq = new ActorLinkingRequest();
+        hook_rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+        hook_rq->alr_actor_instance_id = actorx->GetActor()->ar_instance_id;
+        hook_rq->alr_hook_action = HOOK_TOGGLE;
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, hook_rq));
+
+        //actorx->GetActor()->toggleSlideNodeLock();
+        ActorLinkingRequest* slidenode_rq = new ActorLinkingRequest();
+        slidenode_rq->alr_type = ActorLinkingRequestType::SLIDENODE_ACTION;
+        hook_rq->alr_actor_instance_id = actorx->GetActor()->ar_instance_id;
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, slidenode_rq));
     }
 
     if (actorx->GetActor()->ar_hooks.empty())

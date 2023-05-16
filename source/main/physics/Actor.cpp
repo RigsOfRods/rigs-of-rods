@@ -1700,7 +1700,7 @@ void Actor::SyncReset(bool reset_position)
     this->resetSlideNodes();
     if (m_slidenodes_locked)
     {
-        this->toggleSlideNodeLock();
+        this->toggleSlideNodeLock(); // OK to be invoked here - SyncReset() - processing MSG_SIM_MODIFY_ACTOR_REQUESTED
     }
 
     m_ongoing_reset = true;
@@ -2693,7 +2693,13 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle unlock
-                            hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, NODENUM_INVALID);
+                            //hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, NODENUM_INVALID);
+                            ActorLinkingRequest* rq = new ActorLinkingRequest();
+                            rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+                            rq->alr_actor_instance_id = ar_instance_id;
+                            rq->alr_hook_action = HOOK_UNLOCK;
+                            rq->alr_hook_group = ar_beams[i].shock->trigger_cmdlong;
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
@@ -2701,7 +2707,13 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle lock
-                            hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, NODENUM_INVALID);
+                            //hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, NODENUM_INVALID);
+                            ActorLinkingRequest* rq = new ActorLinkingRequest();
+                            rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+                            rq->alr_actor_instance_id = ar_instance_id;
+                            rq->alr_hook_action = HOOK_LOCK;
+                            rq->alr_hook_group = ar_beams[i].shock->trigger_cmdlong;
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
@@ -2732,7 +2744,13 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle unlock
-                            hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, NODENUM_INVALID);
+                            //hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, NODENUM_INVALID);
+                            ActorLinkingRequest* rq = new ActorLinkingRequest();
+                            rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+                            rq->alr_actor_instance_id = ar_instance_id;
+                            rq->alr_hook_action = HOOK_UNLOCK;
+                            rq->alr_hook_group = ar_beams[i].shock->trigger_cmdshort;
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_HOOK_LOCK)
@@ -2740,7 +2758,13 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                         if (trigger_hooks)
                         {
                             //autolock hooktoggle lock
-                            hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, NODENUM_INVALID);
+                            //hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, NODENUM_INVALID);
+                            ActorLinkingRequest* rq = new ActorLinkingRequest();
+                            rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+                            rq->alr_actor_instance_id = ar_instance_id;
+                            rq->alr_hook_action = HOOK_LOCK;
+                            rq->alr_hook_group = ar_beams[i].shock->trigger_cmdshort;
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
                         }
                     }
                     else if (ar_beams[i].shock->flags & SHOCK_FLAG_TRG_ENGINE)
@@ -3589,12 +3613,12 @@ void Actor::ropeToggle(int group)
     }
 }
 
-void Actor::hookToggle(int group, HookAction mode, NodeNum_t node_number /*=NODENUM_INVALID*/)
+void Actor::hookToggle(int group, HookAction mode, NodeNum_t mousenode /*=NODENUM_INVALID*/)
 {
     // iterate over all hooks
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
-        if (mode == MOUSE_HOOK_TOGGLE && it->hk_hook_node != node_number)
+        if (mode == MOUSE_HOOK_TOGGLE && it->hk_hook_node != mousenode)
         {
             //skip all other nodes except the one manually toggled by mouse
             continue;

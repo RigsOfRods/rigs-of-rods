@@ -1116,7 +1116,15 @@ bool Actor::CalcForcesEulerPrepare(bool doUpdate)
         return false;
 
     if (doUpdate)
-        this->hookToggle(-2, HOOK_LOCK, -1);
+    {
+        //this->hookToggle(-2, HOOK_LOCK, -1);
+        ActorLinkingRequest* rq = new ActorLinkingRequest();
+        rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+        rq->alr_actor_instance_id = ar_instance_id;
+        rq->alr_hook_action = HOOK_LOCK;
+        rq->alr_hook_group = -2;
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
+    }
 
     this->CalcHooks();
     this->CalcRopes();

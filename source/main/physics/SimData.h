@@ -811,10 +811,36 @@ struct ActorModifyRequest
         WAKE_UP
     };
 
-    ActorInstanceID_t   amr_actor; // not ActorPtr because refcounting vs. multithreading
+    ActorInstanceID_t   amr_actor = ACTORINSTANCEID_INVALID;// not ActorPtr because it's not thread-safe
     Type                amr_type;
     std::shared_ptr<rapidjson::Document>
                         amr_saved_state;
+};
+
+enum class ActorLinkingRequestType
+{
+    INVALID,
+    HOOK_ACTION,
+    TIE_ACTION,
+    ROPE_ACTION,
+    SLIDENODE_ACTION
+};
+
+/// Estabilishing a physics linkage between 2 actors modifies a global linkage table
+/// and triggers immediate update of every actor's linkage tables,
+/// so it has to be done sequentially on main thread.
+struct ActorLinkingRequest
+{
+    ActorInstanceID_t alr_actor_instance_id = ACTORINSTANCEID_INVALID;
+    ActorLinkingRequestType alr_type = ActorLinkingRequestType::INVALID;
+    // hookToggle()
+    int alr_hook_group = -1;
+    HookAction alr_hook_action;
+    NodeNum_t alr_hook_mousenode = NODENUM_INVALID;
+    // tieToggle()
+    int alr_tie_group = -1;
+    // ropeToggle()
+    int alr_rope_group = -1;
 };
 
 } // namespace RoR

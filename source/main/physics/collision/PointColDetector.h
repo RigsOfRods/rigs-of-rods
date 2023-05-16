@@ -67,7 +67,7 @@ private:
 
     ActorPtr                 m_actor;
     std::vector<ActorPtr>    m_linked_actors;
-    std::vector<ActorPtr>    m_collision_partners;
+    std::vector<ActorPtr>    m_collision_partners; //!< IntraPoint: always just owning actor; InterPoint: all colliding actors
     std::vector<refelem_t> m_ref_list;
     std::vector<pointid_t> m_pointid_list;
     std::vector<kdnode_t>  m_kdtree;

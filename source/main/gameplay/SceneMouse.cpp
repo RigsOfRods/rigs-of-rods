@@ -159,14 +159,20 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         // check if we hit a node
         if (grab_truck && minnode != NODENUM_INVALID)
         {
-            mouseGrabState = 1;
-            TRIGGER_EVENT_ASYNC(SE_TRUCK_MOUSE_GRAB, grab_truck->ar_instance_id);
+            mouseGrabState = 1;            
 
             for (std::vector<hook_t>::iterator it = grab_truck->ar_hooks.begin(); it != grab_truck->ar_hooks.end(); it++)
             {
                 if (it->hk_hook_node == minnode)
                 {
-                    grab_truck->hookToggle(it->hk_group, MOUSE_HOOK_TOGGLE, minnode);
+                    //grab_truck->hookToggle(it->hk_group, MOUSE_HOOK_TOGGLE, minnode);
+                    ActorLinkingRequest* rq = new ActorLinkingRequest();
+                    rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+                    rq->alr_actor_instance_id = grab_truck->ar_instance_id;
+                    rq->alr_hook_action = MOUSE_HOOK_TOGGLE;
+                    rq->alr_hook_group = it->hk_group;
+                    rq->alr_hook_mousenode = minnode;
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
                 }
             }
         }
