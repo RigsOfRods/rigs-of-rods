@@ -1006,7 +1006,7 @@ void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_e
     actor->resetSlideNodes();
     if (actor->m_slidenodes_locked != j_entry["slidenodes_locked"].GetBool())
     {
-        actor->toggleSlideNodeLock();
+        actor->toggleSlideNodeLock(); // OK to be invoked here - RestoreSavedState() - processing MSG_SIM_MODIFY_ACTOR_REQUESTED
     }
 
     actor->UpdateBoundingBoxes();

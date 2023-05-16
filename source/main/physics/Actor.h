@@ -131,7 +131,7 @@ public:
     void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
     void              tieToggle(int group=-1);
     bool              isTied();
-    void              hookToggle(int group=-1, HookAction mode=HOOK_TOGGLE, NodeNum_t node_number=NODENUM_INVALID);
+    void              hookToggle(int group=-1, HookAction mode=HOOK_TOGGLE, NodeNum_t mousenode=NODENUM_INVALID);
     bool              isLocked();                          //!< Are hooks locked?
     void              ropeToggle(int group=-1);
     void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
