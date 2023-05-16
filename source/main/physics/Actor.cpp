@@ -105,7 +105,7 @@ void Actor::dispose()
 #ifdef USE_OPENAL
     for (int i = SS_TRIG_NONE + 1; i < SS_MAX_TRIG; i++)
     {
-        SOUND_STOP(this, i);
+        SOUND_STOP(ar_instance_id, i);
     }
     muteAllSounds();
     for (size_t i = 0; i < ar_soundsources.size(); i++)

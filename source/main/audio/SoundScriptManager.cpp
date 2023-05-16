@@ -98,17 +98,6 @@ SoundScriptManager::~SoundScriptManager()
         delete sound_manager;
 }
 
-void SoundScriptManager::trigOnce(ActorPtr actor, int trig, int linkType, int linkItemID)
-{
-    if (disabled)
-        return;
-
-    if (actor)
-    {
-        trigOnce(actor->ar_instance_id, trig, linkType, linkItemID);
-    }
-}
-
 void SoundScriptManager::trigOnce(int actor_id, int trig, int linkType, int linkItemID)
 {
     if (disabled)
@@ -123,17 +112,6 @@ void SoundScriptManager::trigOnce(int actor_id, int trig, int linkType, int link
         {
             inst->runOnce();
         }
-    }
-}
-
-void SoundScriptManager::trigStart(ActorPtr actor, int trig, int linkType, int linkItemID)
-{
-    if (disabled)
-        return;
-
-    if (actor)
-    {
-        trigStart(actor->ar_instance_id, trig, linkType, linkItemID);
     }
 }
 
@@ -157,17 +135,6 @@ void SoundScriptManager::trigStart(int actor_id, int trig, int linkType, int lin
     }
 }
 
-void SoundScriptManager::trigStop(ActorPtr actor, int trig, int linkType, int linkItemID)
-{
-    if (disabled)
-        return;
-
-    if (actor)
-    {
-        trigStop(actor->ar_instance_id, trig, linkType, linkItemID);
-    }
-}
-
 void SoundScriptManager::trigStop(int actor_id, int trig, int linkType, int linkItemID)
 {
     if (disabled)
@@ -184,17 +151,6 @@ void SoundScriptManager::trigStop(int actor_id, int trig, int linkType, int link
         {
             inst->stop();
         }
-    }
-}
-
-void SoundScriptManager::trigKill(ActorPtr actor, int trig, int linkType, int linkItemID)
-{
-    if (disabled)
-        return;
-
-    if (actor)
-    {
-        trigKill(actor->ar_instance_id, trig, linkType, linkItemID);
     }
 }
 
@@ -217,17 +173,6 @@ void SoundScriptManager::trigKill(int actor_id, int trig, int linkType, int link
     }
 }
 
-void SoundScriptManager::trigToggle(ActorPtr actor, int trig, int linkType, int linkItemID)
-{
-    if (disabled)
-        return;
-
-    if (actor)
-    {
-        trigToggle(actor->ar_instance_id, trig, linkType, linkItemID);
-    }
-}
-
 void SoundScriptManager::trigToggle(int actor_id, int trig, int linkType, int linkItemID)
 {
     if (disabled)
@@ -239,34 +184,12 @@ void SoundScriptManager::trigToggle(int actor_id, int trig, int linkType, int li
         trigStart(actor_id, trig, linkType, linkItemID);
 }
 
-bool SoundScriptManager::getTrigState(ActorPtr actor, int trig, int linkType, int linkItemID)
-{
-    if (disabled)
-        return false;
-
-    if (actor)
-        return getTrigState(actor->ar_instance_id, trig, linkType, linkItemID);
-    else
-        return false;
-}
-
 bool SoundScriptManager::getTrigState(int actor_id, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return false;
 
     return state_map[linkType][linkItemID][actor_id][trig];
-}
-
-void SoundScriptManager::modulate(ActorPtr actor, int mod, float value, int linkType, int linkItemID)
-{
-    if (disabled)
-        return;
-
-    if (actor)
-    {
-        modulate(actor->ar_instance_id, mod, value, linkType, linkItemID);
-    }
 }
 
 void SoundScriptManager::modulate(int actor_id, int mod, float value, int linkType, int linkItemID)

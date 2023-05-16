@@ -310,19 +310,12 @@ public:
 
     // functions
     void trigOnce    (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigOnce    (ActorPtr actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void trigStart   (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigStart   (ActorPtr actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void trigStop    (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigStop    (ActorPtr actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void trigToggle  (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigToggle  (ActorPtr actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void trigKill	 (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
-    void trigKill    (ActorPtr actor, int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
     bool getTrigState(int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    bool getTrigState(ActorPtr actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void modulate    (int actor_id, int mod, float value, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void modulate    (ActorPtr actor, int mod, float value, int linkType = SL_DEFAULT, int linkItemID=-1);
 
     void setEnabled(bool state);
 
