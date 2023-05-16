@@ -353,6 +353,8 @@ struct node_t
 /// Simulation: An edge in the softbody structure
 struct beam_t
 {
+    beam_t(BeamID_t id) : bm_pos(id) {}
+
     NodeNum_t       p1num = NODENUM_INVALID;
     NodeNum_t       p2num = NODENUM_INVALID;
     float           k = 0.f;                     //!< tensile spring

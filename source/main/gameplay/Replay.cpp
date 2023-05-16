@@ -49,7 +49,7 @@ Replay::Replay(ActorPtr actor, int _numFrames)
     outOfMemory = false;
 
     const int numNodes = static_cast<int>(actor->ar_nodes.size());
-    const int numBeams = actor->ar_num_beams;
+    const int numBeams = static_cast<int>(actor->ar_beams.size());
     unsigned long bsize = (numNodes * numFrames * sizeof(node_simple_t) + numBeams * numFrames * sizeof(beam_simple_t) + numFrames * sizeof(unsigned long)) / 1024.0f;
     LOG("replay buffer size: " + TOSTRING(bsize) + " kB");
 
@@ -97,7 +97,7 @@ void* Replay::getWriteBuffer(int type)
             outOfMemory = true;
             return 0;
         }
-        beams = (beam_simple_t*)calloc(m_actor->ar_num_beams * numFrames, sizeof(beam_simple_t));
+        beams = (beam_simple_t*)calloc(static_cast<int>(m_actor->ar_beams.size()) * numFrames, sizeof(beam_simple_t));
         if (!beams)
         {
             free(nodes);
@@ -126,7 +126,7 @@ void* Replay::getWriteBuffer(int type)
     else if (type == 1)
     {
         // beams
-        ptr = (void *)(beams + (writeIndex * m_actor->ar_num_beams));
+        ptr = (void *)(beams + (writeIndex * static_cast<int>(m_actor->ar_beams.size())));
     }
     return ptr;
 }
@@ -171,7 +171,7 @@ void* Replay::getReadBuffer(int offset, int type, unsigned long& time)
     if (type == 0)
         return (void *)(nodes + delta * static_cast<int>(m_actor->ar_nodes.size()));
     else if (type == 1)
-        return (void *)(beams + delta * m_actor->ar_num_beams);
+        return (void *)(beams + delta * static_cast<int>(m_actor->ar_beams.size()));
     return 0;
 }
 
@@ -200,7 +200,7 @@ void Replay::onPhysicsStep()
         beam_simple_t* bbuff = (beam_simple_t *)this->getWriteBuffer(1);
         if (bbuff)
         {
-            for (int i = 0; i < m_actor->ar_num_beams; i++)
+            for (int i = 0; i < static_cast<int>(m_actor->ar_beams.size()); i++)
             {
                 bbuff[i].broken = m_actor->ar_beams[i].bm_broken;
                 bbuff[i].disabled = m_actor->ar_beams[i].bm_disabled;
@@ -238,7 +238,7 @@ void Replay::replayStepActor()
         beam_simple_t* bbuff = (beam_simple_t *)this->getReadBuffer(ar_replay_pos, 1, time);
         if (bbuff)
         {
-            for (int i = 0; i < m_actor->ar_num_beams; i++)
+            for (int i = 0; i < static_cast<int>(m_actor->ar_beams.size()); i++)
             {
                 m_actor->ar_beams[i].bm_broken = bbuff[i].broken;
                 m_actor->ar_beams[i].bm_disabled = bbuff[i].disabled;

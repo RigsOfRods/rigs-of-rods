@@ -97,7 +97,7 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     /* POST-PROCESSING */
 
     actor->ar_initial_node_positions.resize(static_cast<int>(actor->ar_nodes.size()));
-    actor->ar_initial_beam_defaults.resize(actor->ar_num_beams);
+    actor->ar_initial_beam_defaults.resize(static_cast<int>(actor->ar_beams.size()));
     actor->ar_initial_node_masses.resize(static_cast<int>(actor->ar_nodes.size()));
 
     actor->UpdateBoundingBoxes(); // (records the unrotated dimensions for 'veh_aab_size')
@@ -212,7 +212,7 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     }
 
     // Set beam defaults
-    for (int i = 0; i < actor->ar_num_beams; i++)
+    for (int i = 0; i < static_cast<int>(actor->ar_beams.size()); i++)
     {
         actor->ar_beams[i].initial_beam_strength       = actor->ar_beams[i].strength;
         actor->ar_beams[i].default_beam_deform         = actor->ar_beams[i].minmaxposnegstress;

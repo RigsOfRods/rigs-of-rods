@@ -615,12 +615,13 @@ void RoR::GfxActor::UpdateDebugView()
         (m_debug_view == DebugViewType::DEBUGVIEW_BEAMS))
     {
         // Beams
-        const beam_t* beams = m_actor->ar_beams;
-        const size_t num_beams = static_cast<size_t>(m_actor->ar_num_beams);
-        for (size_t i = 0; i < num_beams; ++i)
+        const BeamID_t num_beams = static_cast<BeamID_t>(m_actor->ar_beams.size());
+        for (BeamID_t i = 0; i < num_beams; ++i)
         {
-            node_t& node_p1 = m_actor->ar_nodes[beams[i].p1num];
-            node_t& node_p2 = m_actor->ar_nodes[beams[i].p2num];
+            const beam_t& beam = m_actor->ar_beams[i];
+
+            node_t& node_p1 = m_actor->ar_nodes[beam.p1num];
+            node_t& node_p2 = m_actor->ar_nodes[beam.p2num];
 
             if (App::diag_hide_wheels->getBool() &&
                     (node_p1.nd_tyre_node || node_p1.nd_rim_node ||
@@ -635,16 +636,16 @@ void RoR::GfxActor::UpdateDebugView()
                 ImVec2 pos1xy(pos1.x, pos1.y);
                 ImVec2 pos2xy(pos2.x, pos2.y);
 
-                if (beams[i].bm_broken)
+                if (beam.bm_broken)
                 {
                     if (!App::diag_hide_broken_beams->getBool())
                     {
                         drawlist->AddLine(pos1xy, pos2xy, BEAM_BROKEN_COLOR, BEAM_BROKEN_THICKNESS);
                     }
                 }
-                else if (beams[i].bm_type == BEAM_HYDRO)
+                else if (beam.bm_type == BEAM_HYDRO)
                 {
-                    if (!beams[i].bm_disabled)
+                    if (!beam.bm_disabled)
                     {
                         drawlist->AddLine(pos1xy, pos2xy, BEAM_HYDRO_COLOR, BEAM_HYDRO_THICKNESS);
                     }
@@ -654,15 +655,15 @@ void RoR::GfxActor::UpdateDebugView()
                     ImU32 color = BEAM_COLOR;
                     if (!App::diag_hide_beam_stress->getBool())
                     {
-                        if (beams[i].stress > 0)
+                        if (beam.stress > 0)
                         {
-                            float stress_ratio = pow(beams[i].stress / beams[i].maxposstress, 2.0f);
+                            float stress_ratio = pow(beam.stress / beam.maxposstress, 2.0f);
                             float s = std::min(stress_ratio, 1.0f);
                             color = Ogre::ColourValue(0.2f * (1 + 2.0f * s), 0.4f * (1.0f - s), 0.33f, 1.0f).getAsABGR();
                         }
-                        else if (beams[i].stress < 0)
+                        else if (beam.stress < 0)
                         {
-                            float stress_ratio = pow(beams[i].stress / beams[i].maxnegstress, 2.0f);
+                            float stress_ratio = pow(beam.stress / beam.maxnegstress, 2.0f);
                             float s = std::min(stress_ratio, 1.0f);
                             color = Ogre::ColourValue(0.2f, 0.4f * (1.0f - s), 0.33f * (1 + 1.0f * s), 1.0f).getAsABGR();
                         }
@@ -733,8 +734,10 @@ void RoR::GfxActor::UpdateDebugView()
         {
             for (size_t i = 0; i < num_beams; ++i)
             {
-                node_t& node_p1 = m_actor->ar_nodes[beams[i].p1num];
-                node_t& node_p2 = m_actor->ar_nodes[beams[i].p2num];
+                const beam_t& beam = m_actor->ar_beams[i];
+
+                node_t& node_p1 = m_actor->ar_nodes[beam.p1num];
+                node_t& node_p2 = m_actor->ar_nodes[beam.p2num];
 
                 if ((App::diag_hide_wheels->getBool() || App::diag_hide_wheel_info->getBool()) &&
                         (node_p1.nd_tyre_node || node_p1.nd_rim_node ||
@@ -753,31 +756,31 @@ void RoR::GfxActor::UpdateDebugView()
                 // Strength is usually in thousands or millions - we shorten it.
                 const size_t BUF_LEN = 50;
                 char buf[BUF_LEN];
-                if (beams[i].strength >= 1000000000000.f)
+                if (beam.strength >= 1000000000000.f)
                 {
-                    snprintf(buf, BUF_LEN, "%.1fT", (beams[i].strength / 1000000000000.f));
+                    snprintf(buf, BUF_LEN, "%.1fT", (beam.strength / 1000000000000.f));
                 }
-                else if (beams[i].strength >= 1000000000.f)
+                else if (beam.strength >= 1000000000.f)
                 {
-                    snprintf(buf, BUF_LEN, "%.1fG", (beams[i].strength / 1000000000.f));
+                    snprintf(buf, BUF_LEN, "%.1fG", (beam.strength / 1000000000.f));
                 }
-                else if (beams[i].strength >= 1000000.f)
+                else if (beam.strength >= 1000000.f)
                 {
-                    snprintf(buf, BUF_LEN, "%.1fM", (beams[i].strength / 1000000.f));
+                    snprintf(buf, BUF_LEN, "%.1fM", (beam.strength / 1000000.f));
                 }
-                else if (beams[i].strength >= 1000.f)
+                else if (beam.strength >= 1000.f)
                 {
-                    snprintf(buf, BUF_LEN, "%.1fK", (beams[i].strength / 1000.f));
+                    snprintf(buf, BUF_LEN, "%.1fK", (beam.strength / 1000.f));
                 }
                 else
                 {
-                    snprintf(buf, BUF_LEN, "%.1f", beams[i].strength);
+                    snprintf(buf, BUF_LEN, "%.1f", beam.strength);
                 }
                 const ImVec2 stren_text_size = ImGui::CalcTextSize(buf);
                 drawlist->AddText(ImVec2(pos.x - stren_text_size.x, pos.y), BEAM_STRENGTH_TEXT_COLOR, buf);
 
                 // Stress
-                snprintf(buf, BUF_LEN, "|%.1f",  beams[i].stress);
+                snprintf(buf, BUF_LEN, "|%.1f",  beam.stress);
                 drawlist->AddText(pos, BEAM_STRESS_TEXT_COLOR, buf);
             }
         }
@@ -1013,18 +1016,18 @@ void RoR::GfxActor::UpdateDebugView()
     } else if (m_debug_view == DebugViewType::DEBUGVIEW_SHOCKS)
     {
         // Shocks
-        const beam_t* beams = m_actor->ar_beams;
-        const size_t num_beams = static_cast<size_t>(m_actor->ar_num_beams);
         std::set<int> node_ids;
-        for (size_t i = 0; i < num_beams; ++i)
+        for (BeamID_t i = 0; i < static_cast<BeamID_t>(m_actor->ar_beams.size()); ++i)
         {
-            if (beams[i].bm_type != BEAM_HYDRO)
+            const beam_t& beam = m_actor->ar_beams[i];
+
+            if (beam.bm_type != BEAM_HYDRO)
                 continue;
-            if (!(beams[i].bounded == SHOCK1 || beams[i].bounded == SHOCK2 || beams[i].bounded == SHOCK3))
+            if (!(beam.bounded == SHOCK1 || beam.bounded == SHOCK2 || beam.bounded == SHOCK3))
                 continue;
 
-            node_t& node_p1 = m_actor->ar_nodes[beams[i].p1num];
-            node_t& node_p2 = m_actor->ar_nodes[beams[i].p2num];
+            node_t& node_p1 = m_actor->ar_nodes[beam.p1num];
+            node_t& node_p2 = m_actor->ar_nodes[beam.p2num];
 
             Ogre::Vector3 pos1_xyz = world2screen.Convert(node_p1.AbsPosition);
             Ogre::Vector3 pos2_xyz = world2screen.Convert(node_p2.AbsPosition);
@@ -1043,7 +1046,7 @@ void RoR::GfxActor::UpdateDebugView()
                 ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
                 ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
 
-                ImU32 beam_color = (beams[i].bounded == SHOCK1) ? BEAM_HYDRO_COLOR : BEAM_BROKEN_COLOR;
+                ImU32 beam_color = (beam.bounded == SHOCK1) ? BEAM_HYDRO_COLOR : BEAM_BROKEN_COLOR;
 
                 drawlist->AddLine(pos1xy, pos2xy, beam_color, 1.25f * BEAM_BROKEN_THICKNESS);
             }
@@ -1061,15 +1064,17 @@ void RoR::GfxActor::UpdateDebugView()
                 drawlist->AddText(pos_xy, NODE_TEXT_COLOR, id_buf.ToCStr());
             }
         }
-        for (size_t i = 0; i < num_beams; ++i)
+        for (BeamID_t i = 0; i < static_cast<BeamID_t>(m_actor->ar_beams.size()); ++i)
         {
-            if (beams[i].bm_type != BEAM_HYDRO)
+            const beam_t& beam = m_actor->ar_beams[i];
+
+            if (beam.bm_type != BEAM_HYDRO)
                 continue;
-            if (!(beams[i].bounded == SHOCK1 || beams[i].bounded == SHOCK2 || beams[i].bounded == SHOCK3))
+            if (!(beam.bounded == SHOCK1 || beam.bounded == SHOCK2 || beam.bounded == SHOCK3))
                 continue;
 
-            node_t& node_p1 = m_actor->ar_nodes[beams[i].p1num];
-            node_t& node_p2 = m_actor->ar_nodes[beams[i].p2num];
+            node_t& node_p1 = m_actor->ar_nodes[beam.p1num];
+            node_t& node_p2 = m_actor->ar_nodes[beam.p2num];
 
             Ogre::Vector3 pos1_xyz = world2screen.Convert(node_p1.AbsPosition);
             Ogre::Vector3 pos2_xyz = world2screen.Convert(node_p2.AbsPosition);
@@ -1078,10 +1083,10 @@ void RoR::GfxActor::UpdateDebugView()
             if (pos_xyz.z < 0.f)
             {
                 // Shock info
-                float diff = node_p1.AbsPosition.distance(node_p2.AbsPosition) - beams[i].L;
+                float diff = node_p1.AbsPosition.distance(node_p2.AbsPosition) - beam.L;
                 ImU32 text_color = (diff < 0.0f) ? 0xff66ee66 : 0xff8888ff;
-                float bound = (diff < 0.0f) ? beams[i].shortbound : beams[i].longbound;
-                float ratio = Ogre::Math::Clamp(diff / (bound * beams[i].L), -2.0f, +2.0f);
+                float bound = (diff < 0.0f) ? beam.shortbound : beam.longbound;
+                float ratio = Ogre::Math::Clamp(diff / (bound * beam.L), -2.0f, +2.0f);
 
                 float v = ImGui::GetTextLineHeightWithSpacing();
                 ImVec2 pos(pos_xyz.x, pos_xyz.y - v - v);
@@ -1090,15 +1095,15 @@ void RoR::GfxActor::UpdateDebugView()
                 float h1 = ImGui::CalcTextSize(len_buf.ToCStr()).x / 2.0f;
                 drawlist->AddText(ImVec2(pos.x - h1, pos.y), text_color, len_buf.ToCStr());
                 Str<25> spring_buf;
-                spring_buf << "S: " << static_cast<int>(Round(beams[i].debug_k)) << " N";
+                spring_buf << "S: " << static_cast<int>(Round(beam.debug_k)) << " N";
                 float h2 = ImGui::CalcTextSize(spring_buf.ToCStr()).x / 2.0f;
                 drawlist->AddText(ImVec2(pos.x - h2, pos.y + v), text_color, spring_buf.ToCStr());
                 Str<25> damp_buf;
-                damp_buf << "D: " << static_cast<int>(Round(beams[i].debug_d)) << " N";
+                damp_buf << "D: " << static_cast<int>(Round(beam.debug_d)) << " N";
                 float h3 = ImGui::CalcTextSize(damp_buf.ToCStr()).x / 2.0f;
                 drawlist->AddText(ImVec2(pos.x - h3, pos.y + v + v), text_color, damp_buf.ToCStr());
                 char vel_buf[25];
-                snprintf(vel_buf, 25, "V: %.2f m/s", beams[i].debug_v);
+                snprintf(vel_buf, 25, "V: %.2f m/s", beam.debug_v);
                 float h4 = ImGui::CalcTextSize(vel_buf).x / 2.0f;
                 drawlist->AddText(ImVec2(pos.x - h4, pos.y + v + v + v), text_color, vel_buf);
             }
@@ -3202,7 +3207,7 @@ void RoR::GfxActor::UpdateWingMeshes()
     }
 }
 
-int           RoR::GfxActor::FetchNumBeams      () const                 { return m_actor->ar_num_beams; }
+int           RoR::GfxActor::FetchNumBeams      () const                 { return static_cast<int>(m_actor->ar_beams.size()); }
 int           RoR::GfxActor::FetchNumNodes      () const                 { return static_cast<int>(m_actor->ar_nodes.size()); }
 int           RoR::GfxActor::FetchNumWheelNodes () const                 { return m_actor->getWheelNodeCount(); }
 
