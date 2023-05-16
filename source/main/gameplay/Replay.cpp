@@ -48,7 +48,7 @@ Replay::Replay(ActorPtr actor, int _numFrames)
 
     outOfMemory = false;
 
-    const int numNodes = actor->ar_num_nodes;
+    const int numNodes = static_cast<int>(actor->ar_nodes.size());
     const int numBeams = actor->ar_num_beams;
     unsigned long bsize = (numNodes * numFrames * sizeof(node_simple_t) + numBeams * numFrames * sizeof(beam_simple_t) + numFrames * sizeof(unsigned long)) / 1024.0f;
     LOG("replay buffer size: " + TOSTRING(bsize) + " kB");
@@ -91,7 +91,7 @@ void* Replay::getWriteBuffer(int type)
     if (!nodes)
     {
         // get memory
-        nodes = (node_simple_t*)calloc(m_actor->ar_num_nodes * numFrames, sizeof(node_simple_t));
+        nodes = (node_simple_t*)calloc(static_cast<int>(m_actor->ar_nodes.size()) * numFrames, sizeof(node_simple_t));
         if (!nodes)
         {
             outOfMemory = true;
@@ -121,7 +121,7 @@ void* Replay::getWriteBuffer(int type)
     if (type == 0)
     {
         // nodes
-        ptr = (void *)(nodes + (writeIndex * m_actor->ar_num_nodes));
+        ptr = (void *)(nodes + (writeIndex * static_cast<int>(m_actor->ar_nodes.size())));
     }
     else if (type == 1)
     {
@@ -169,7 +169,7 @@ void* Replay::getReadBuffer(int offset, int type, unsigned long& time)
 
     // return buffer pointer
     if (type == 0)
-        return (void *)(nodes + delta * m_actor->ar_num_nodes);
+        return (void *)(nodes + delta * static_cast<int>(m_actor->ar_nodes.size()));
     else if (type == 1)
         return (void *)(beams + delta * m_actor->ar_num_beams);
     return 0;
@@ -189,7 +189,7 @@ void Replay::onPhysicsStep()
         node_simple_t* nbuff = (node_simple_t *)this->getWriteBuffer(0);
         if (nbuff)
         {
-            for (int i = 0; i < m_actor->ar_num_nodes; i++)
+            for (int i = 0; i < static_cast<int>(m_actor->ar_nodes.size()); i++)
             {
                 nbuff[i].position = m_actor->ar_nodes[i].AbsPosition;
                 nbuff[i].velocity = m_actor->ar_nodes[i].Velocity;
@@ -221,7 +221,7 @@ void Replay::replayStepActor()
         node_simple_t* nbuff = (node_simple_t *)this->getReadBuffer(ar_replay_pos, 0, time);
         if (nbuff)
         {
-            for (int i = 0; i < m_actor->ar_num_nodes; i++)
+            for (int i = 0; i < static_cast<int>(m_actor->ar_nodes.size()); i++)
             {
                 m_actor->ar_nodes[i].AbsPosition = nbuff[i].position;
                 m_actor->ar_nodes[i].RelPosition = nbuff[i].position - m_actor->ar_origin;

@@ -269,7 +269,7 @@ void VehicleAI::update(float dt, int doUpdate)
     }
     else
     {
-        for (int i = 0; i < beam->ar_num_nodes; i++)
+        for (int i = 0; i < static_cast<int>(beam->ar_nodes.size()); i++)
         {
             Ogre::Vector3 pos = beam->getNodePosition(i);
             pos.y = 0;
@@ -437,9 +437,9 @@ void VehicleAI::update(float dt, int doUpdate)
                         beam->ar_engine->autoSetAcc(0);
                     }
 
-                    for (int i = 0; i < beam->ar_num_nodes; i++)
+                    for (int i = 0; i < static_cast<int>(beam->ar_nodes.size()); i++)
                     {
-                        for (int k = 0; k < actor->ar_num_nodes; k++)
+                        for (int k = 0; k < static_cast<int>(actor->ar_nodes.size()); k++)
                         {
                             // Too close, stop
                             if (beam->getNodePosition(i).distance(actor->getNodePosition(k)) < 5)
@@ -466,7 +466,7 @@ void VehicleAI::update(float dt, int doUpdate)
                     beam->ar_engine->autoSetAcc(0);
                 }
 
-                for (int i = 0; i < beam->ar_num_nodes; i++)
+                for (int i = 0; i < static_cast<int>(beam->ar_nodes.size()); i++)
                 {
                     // Too close, steer
                     if (beam->getNodePosition(i).distance(App::GetGameContext()->GetPlayerCharacter()->getPosition()) < 5)

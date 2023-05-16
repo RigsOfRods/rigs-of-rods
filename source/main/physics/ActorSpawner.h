@@ -244,9 +244,9 @@ private:
     /// 'wheels', 'meshwheels'
     void BuildWheelBeams(
         unsigned int num_rays,
-        unsigned int base_node_index,
-        node_t *axis_node_1,
-        node_t *axis_node_2,
+        NodeNum_t base_node_index,
+        NodeNum_t axis_node_1,
+        NodeNum_t axis_node_2,
         float tyre_spring,
         float tyre_damping,
         float rim_spring,
@@ -256,9 +256,9 @@ private:
         float max_extension = 0.f);
 
     /// 'wheels', 'meshwheels', 'meshwheels2'
-    unsigned int AddWheelBeam(
-        node_t *node_1,
-        node_t *node_2,
+    BeamID_t AddWheelBeam(
+        NodeNum_t node_1,
+        NodeNum_t node_2,
         float spring,
         float damping,
         std::shared_ptr<RigDef::BeamDefaults> beam_defaults,
@@ -271,9 +271,9 @@ private:
     /// @return Wheel index.
     unsigned int BuildWheelObjectAndNodes(
         unsigned int num_rays,
-        node_t *axis_node_1,
-        node_t *axis_node_2,
-        node_t *reference_arm_node,
+        NodeNum_t axis_node_1,
+        NodeNum_t axis_node_2,
+        NodeNum_t reference_arm_node,
         unsigned int reserve_nodes,
         unsigned int reserve_beams,
         float wheel_radius,
@@ -283,8 +283,7 @@ private:
         float wheel_mass,
         float wheel_width = -1.f);
 
-    /// @return First: node index, second: True if the node was inserted, false if duplicate.
-    std::pair<unsigned int, bool> AddNode(RigDef::Node::Id & id);
+    NodeNum_t                     AddNode(RigDef::Node::Id & id); //!< Returns NODENUM_INVALID if the ID couldn't be assigned.
     void                          InitNode(node_t & node, Ogre::Vector3 const & position);
     void                          InitNode(unsigned int node_index, Ogre::Vector3 const & position);
     void                          InitNode(node_t & node, Ogre::Vector3 const & position, std::shared_ptr<RigDef::NodeDefaults> node_defaults);
@@ -325,9 +324,8 @@ private:
     bool                          AssignWheelToAxle(int & _out_axle_wheel, node_t *axis_node_1, node_t *axis_node_2);
 
     // GetFree*(): Gets a free slot; checks limits, sets it's array position and updates 'free_node' index.
-    node_t&                       GetFreeNode();
+    node_t&                       AddNode();
     beam_t&                       GetFreeBeam();
-    node_t&                       GetAndInitFreeNode(Ogre::Vector3 const & position);
     beam_t&                       GetAndInitFreeBeam(node_t & node_1, node_t & node_2);
     shock_t&                      GetFreeShock();
 
@@ -463,7 +461,7 @@ private:
     std::vector<CabTexcoord>       m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>        m_oldstyle_cab_submeshes;    
     RigDef::Keyword                m_current_keyword = RigDef::Keyword::INVALID; //!< For error reports    
-    std::map<Ogre::String, unsigned int> m_named_nodes;
+    std::map<Ogre::String, NodeNum_t> m_named_nodes;
     /// @}
 
     /// @name Visuals

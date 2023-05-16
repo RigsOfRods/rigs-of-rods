@@ -49,7 +49,7 @@ static bool BackfaceCollisionTest(const float distance,
         const Vector3 &normal,
         const node_t &surface_point,
         const std::vector<int> &neighbour_node_ids,
-        const node_t nodes[])
+        const std::vector<node_t>& nodes)
 {
     auto sign = [](float x){ return (x >= 0) ? 1 : -1; };
 
@@ -116,7 +116,7 @@ void ResolveCollisionForces(const float penetration_depth,
 
 void RoR::ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
         const int free_collcab, int collcabs[], int cabs[],
-        collcab_rate_t inter_collcabrate[], node_t nodes[],
+        collcab_rate_t inter_collcabrate[], std::vector<node_t>& nodes,
         const float collrange,
         ground_model_t &submesh_ground_model)
 {
@@ -199,7 +199,7 @@ void RoR::ResolveInterActorCollisions(const float dt, PointColDetector &interPoi
 
 void RoR::ResolveIntraActorCollisions(const float dt, PointColDetector &intraPointCD,
         const int free_collcab, int collcabs[], int cabs[],
-        collcab_rate_t intra_collcabrate[], node_t nodes[],
+        collcab_rate_t intra_collcabrate[], std::vector<node_t>& nodes,
         const float collrange,
         ground_model_t &submesh_ground_model)
 {

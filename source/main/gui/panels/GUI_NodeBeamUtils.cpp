@@ -160,11 +160,11 @@ void NodeBeamUtils::Draw()
         ImGui::Text("%s", _LC("NodeBeamUtils", "Optimum"));
         ImGui::NextColumn();
         ImGui::Separator();
-        ImGui::Text("%s: %f (%f)", _LC("NodeBeamUtils", "Movement"),   actor->ar_nb_reference[5] / actor->ar_num_nodes, actor->ar_nb_reference[4]);
+        ImGui::Text("%s: %f (%f)", _LC("NodeBeamUtils", "Movement"),   actor->ar_nb_reference[5] / static_cast<int>(actor->ar_nodes.size()), actor->ar_nb_reference[4]);
         ImGui::Text("%s: %.2f (%.2f)", _LC("NodeBeamUtils", "Stress"), actor->ar_nb_reference[1] / actor->ar_num_beams, actor->ar_nb_reference[0]);
         ImGui::Text("%s:   %f (%f)", _LC("NodeBeamUtils", "Yitter"),   actor->ar_nb_reference[3] / actor->ar_num_beams, actor->ar_nb_reference[2]);
         ImGui::NextColumn();
-        ImGui::Text("%s: %f (%f)", _LC("NodeBeamUtils", "Movement"),   actor->ar_nb_optimum[5] / actor->ar_num_nodes, actor->ar_nb_optimum[4]);
+        ImGui::Text("%s: %f (%f)", _LC("NodeBeamUtils", "Movement"),   actor->ar_nb_optimum[5] / static_cast<int>(actor->ar_nodes.size()), actor->ar_nb_optimum[4]);
         ImGui::Text("%s: %.2f (%.2f)", _LC("NodeBeamUtils", "Stress"), actor->ar_nb_optimum[1] / actor->ar_num_beams, actor->ar_nb_optimum[0]);
         ImGui::Text("%s:   %f (%f)", _LC("NodeBeamUtils", "Yitter"),   actor->ar_nb_optimum[3] / actor->ar_num_beams, actor->ar_nb_optimum[2]);
         ImGui::Columns(1);

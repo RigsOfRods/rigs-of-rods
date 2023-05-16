@@ -61,8 +61,7 @@ class FlexObj
 public:
 
     FlexObj(
-        RoR::GfxActor* gfx_actor,
-        node_t* all_nodes, // For initial setup only, pointer is not stored
+        ActorPtr& actor,
         std::vector<CabTexcoord>& texcoords,
         int numtriangles,
         int* triangles,
@@ -92,7 +91,7 @@ private:
 
     Ogre::MeshPtr               m_mesh;
     std::vector<Ogre::SubMesh*> m_submeshes;
-    RoR::GfxActor*              m_gfx_actor;
+    ActorPtr                    m_actor;
     float*                      m_s_ref;
 
     size_t                      m_vertex_count;

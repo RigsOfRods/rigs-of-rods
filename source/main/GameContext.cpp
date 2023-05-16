@@ -256,13 +256,13 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
     else if (rq.asr_origin == ActorSpawnRequest::Origin::CONFIG_FILE)
     {
         if (fresh_actor->ar_driveable != NOT_DRIVEABLE &&
-            fresh_actor->ar_num_nodes > 0 &&
+            fresh_actor->ar_nodes.size() > 0 &&
             App::diag_preset_veh_enter->getBool())
         {
             this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(fresh_actor))));
         }
         if (fresh_actor->ar_driveable != NOT_DRIVEABLE &&
-            fresh_actor->ar_num_nodes > 0 &&
+            fresh_actor->ar_nodes.size() > 0 &&
             App::cli_preset_veh_enter->getBool())
         {
             this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(fresh_actor))));
@@ -612,7 +612,7 @@ void GameContext::ShowLoaderGUI(int type, const Ogre::String& instance, const Og
         collision_box_t* spawnbox = m_terrain->GetCollisions()->getBox(instance, box);
         for (ActorPtr actor : this->GetActorManager()->GetActors())
         {
-            for (int i = 0; i < actor->ar_num_nodes; i++)
+            for (int i = 0; i < static_cast<int>(actor->ar_nodes.size()); i++)
             {
                 if (m_terrain->GetCollisions()->isInside(actor->ar_nodes[i].AbsPosition, spawnbox))
                 {
@@ -852,7 +852,7 @@ void GameContext::TeleportPlayer(float x, float z)
     float dst_agl = std::numeric_limits<float>::max(); 
     for (ActorPtr actor : actors)
     {
-        for (int i = 0; i < actor->ar_num_nodes; i++)
+        for (int i = 0; i < static_cast<int>(actor->ar_nodes.size()); i++)
         {
             Ogre::Vector3 pos = actor->ar_nodes[i].AbsPosition;
             src_agl = std::min(pos.y - m_terrain->GetCollisions()->getSurfaceHeight(pos.x, pos.z), src_agl);

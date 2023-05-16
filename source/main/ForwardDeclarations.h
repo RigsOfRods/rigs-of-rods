@@ -49,6 +49,9 @@ namespace RoR
     typedef int RailGroupSegmentID_t; //!< Index to `RailGroup::rg_segments`, use RoR::RAILGROUPSEGMENTID_INVALID as empty value.
     static const RailGroupSegmentID_t RAILGROUPSEGMENTID_INVALID = -1;
 
+    typedef int16_t BboxID_t; //!< Index to `Actor::ar_collision_bounding_boxes`, use `RoR::BBOXID_INVALID` as empty value.
+    static const BboxID_t BBOXID_INVALID = -1;
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;
