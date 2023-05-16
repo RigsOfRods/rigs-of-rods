@@ -30,6 +30,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <vector>
+#include <rapidjson/document.h>
 
 namespace RoR {
 namespace GUI {

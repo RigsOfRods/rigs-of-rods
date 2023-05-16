@@ -29,6 +29,7 @@
 
 #include <Ogre.h>
 #include <vector>
+#include "imgui.h"
 
 namespace RoR {
 namespace GUI {

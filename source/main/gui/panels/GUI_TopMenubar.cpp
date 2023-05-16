@@ -49,7 +49,7 @@
 
 #include <algorithm>
 #include <fmt/format.h>
-#include <rapidjson/document.h>
+
 
 #ifdef USE_CURL
 #   include <curl/curl.h>

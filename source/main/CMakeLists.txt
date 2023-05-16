@@ -451,8 +451,8 @@ endif ()
 #  POST-BUILD STEPS
 ####################################################################################################
 
-if (USE_PHC)
-    target_precompile_headers(${BINNAME} PRIVATE phc.h)
+if (USE_PCH)
+    target_precompile_headers(${BINNAME} PRIVATE pch.h)
 endif ()
 
 extract_pot("${SOURCE_FILES}")
