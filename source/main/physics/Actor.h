@@ -269,8 +269,7 @@ public:
     std::vector<float>   ar_minimass;                  //!< minimum node mass in Kg
     bool                 ar_minimass_skip_loaded_nodes = false;
 
-    beam_t*              ar_beams = nullptr;
-    int                  ar_num_beams = 0;
+    std::vector<beam_t>  ar_beams;
     std::vector<beam_t*> ar_inter_beams;       //!< Beams connecting 2 actors
     shock_t*             ar_shocks = nullptr;            //!< Shock absorbers
     int                  ar_num_shocks = 0;        //!< Number of shock absorbers

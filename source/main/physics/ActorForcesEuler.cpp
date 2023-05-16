@@ -815,7 +815,7 @@ void Actor::CalcCommands(bool doUpdate)
                 int bbeam_dir = (cmd_beam.cmb_is_contraction) ? -1 : 1;
                 int bbeam = cmd_beam.cmb_beam_index;
 
-                if (bbeam > ar_num_beams)
+                if (bbeam > static_cast<int>(ar_beams.size()))
                     continue;
 
                 // restrict forces
@@ -1136,7 +1136,7 @@ void LogBeamNodes(Actor* actor, RoR::Str<L>& msg, BeamID_t beamid) // Internal h
 
 void Actor::CalcBeams(bool trigger_hooks)
 {
-    for (int i = 0; i < ar_num_beams; i++)
+    for (int i = 0; i < static_cast<int>(ar_beams.size()); i++)
     {
         if (!ar_beams[i].bm_disabled && !ar_beams[i].bm_inter_actor)
         {
@@ -1334,7 +1334,7 @@ void Actor::CalcBeams(bool trigger_hooks)
                         if (ar_beams[i].detacher_group > 0)
                         {
                             // cycle once through the other beams
-                            for (int j = 0; j < ar_num_beams; j++)
+                            for (int j = 0; j < static_cast<int>(ar_beams.size()); j++)
                             {
                                 // beam[i] detacher group# == checked beams detacher group# -> delete & disable checked beam
                                 // do this with all master(positive id) and minor(negative id) beams of this detacher group

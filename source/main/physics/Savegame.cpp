@@ -715,7 +715,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
         // Beams
         rapidjson::Value j_beams(rapidjson::kArrayType);
-        for (int i = 0; i < actor->ar_num_beams; i++)
+        for (int i = 0; i < static_cast<int>(actor->ar_beams.size()); i++)
         {
             rapidjson::Value j_beam(rapidjson::kArrayType);
 

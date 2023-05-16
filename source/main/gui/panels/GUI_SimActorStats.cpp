@@ -228,7 +228,6 @@ void SimActorStats::Draw(RoR::GfxActor* actorx)
 void SimActorStats::UpdateStats(float dt, ActorPtr actor)
 {
     //taken from TruckHUD.cpp (now removed)
-    beam_t* beam = actor->ar_beams;
     float average_deformation = 0.0f;
     float beamstress = 0.0f;
     float mass = actor->getTotalMass();
@@ -237,22 +236,22 @@ void SimActorStats::UpdateStats(float dt, ActorPtr actor)
     Ogre::Vector3 gcur = actor->getGForces();
     Ogre::Vector3 gmax = actor->getMaxGForces();
 
-    for (int i = 0; i < actor->ar_num_beams; i++ , beam++)
+    for (BeamID_t i = 0; i < static_cast<int>(actor->ar_beams.size()); i++)
     {
-        if (beam->bm_broken != 0)
+        if (actor->ar_beams[i].bm_broken != 0)
         {
             beambroken++;
         }
-        beamstress += std::abs(beam->stress);
-        float current_deformation = fabs(beam->L - beam->refL);
-        if (fabs(current_deformation) > 0.0001f && beam->bm_type != BEAM_HYDRO)
+        beamstress += std::abs(actor->ar_beams[i].stress);
+        float current_deformation = fabs(actor->ar_beams[i].L - actor->ar_beams[i].refL);
+        if (fabs(current_deformation) > 0.0001f && actor->ar_beams[i].bm_type != BEAM_HYDRO)
         {
             beamdeformed++;
         }
         average_deformation += current_deformation;
     }
 
-    m_stat_health = ((float)beambroken / (float)actor->ar_num_beams) * 10.0f + ((float)beamdeformed / (float)actor->ar_num_beams);
+    m_stat_health = ((float)beambroken / (float)static_cast<int>(actor->ar_beams.size())) * 10.0f + ((float)beamdeformed / (float)static_cast<int>(actor->ar_beams.size()));
     m_stat_broken_beams = beambroken;
     m_stat_deformed_beams = beamdeformed;
     m_stat_beam_stress = beamstress;

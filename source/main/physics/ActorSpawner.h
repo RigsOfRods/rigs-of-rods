@@ -326,7 +326,6 @@ private:
     // GetFree*(): Gets a free slot; checks limits, sets it's array position and updates 'free_node' index.
     node_t&                       AddNode();
     beam_t&                       GetFreeBeam();
-    beam_t&                       GetAndInitFreeBeam(node_t & node_1, node_t & node_2);
     shock_t&                      GetFreeShock();
 
     float ComputeWingArea(
