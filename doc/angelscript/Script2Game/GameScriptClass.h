@@ -381,6 +381,16 @@ public:
 
     /// @name Actors
     /// @{
+        
+    void activateAllVehicles();
+
+    void setTrucksForcedAwake(bool forceActive);        
+        
+	/**
+	 * Gives the currently used truck a boost in RPM.
+	 * @param factor This factor determines by how much that the RPM of the truck will be increased ( rpm += 2000.0f * factor ).
+	 */
+	void boostCurrentTruck(float factor);        
 
 	/**
 	 * returns the current selected truck, null if in person mode
@@ -423,11 +433,6 @@ public:
 	void repairVehicle(string instance, string box, bool keepPosition);
     
 	/**
-	 * Gets the currently loaded terrain instance
-	 */    
-	TerrainClass@ getTerrain();
-
-	/**
 	 * This method removes the vehicle in the box
 	 */
 	void removeVehicle(string instance, string box);
@@ -436,13 +441,27 @@ public:
 	 * Number of trucks with flag
 	 */
 	int getNumTrucksByFlag(int flag);
-    
-	/**
-	 * Gives the currently used truck a boost in RPM.
-	 * @param factor This factor determines by how much that the RPM of the truck will be increased ( rpm += 2000.0f * factor ).
-	 */
-	void boostCurrentTruck(float factor);
 	
+    ///@}    
+    
+    /// @name Waypoint AI for Actors
+    /// @brief to understand these values, run the game and look in TopMenubar UI->VehicleAI tab.
+    /// @{
+
+    BeamClass@ spawnTruckAI(string truckName, vector3 pos, string truckSectionConfig, string truckSkin, int x);
+    array<vector3>@ getWaypoints(int x);
+    void addWaypoint(vector3 pos);
+    int getAIVehicleCount();
+    int getAIVehicleDistance();
+    int getAIVehiclePositionScheme();
+    int getAIVehicleSpeed();
+    Ogre::String getAIVehicleName(int x);
+    Ogre::String getAIVehicleSectionConfig(int x);
+    std::string getAIVehicleSkin(int x);
+    int getAIRepeatTimes();
+    VehicleAIClass@ getCurrentTruckAI();
+    VehicleAIClass@ getTruckAIByNum(int num);
+
     ///@}
 
     /// @name Camera
