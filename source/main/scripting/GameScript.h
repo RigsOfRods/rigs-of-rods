@@ -353,6 +353,18 @@ public:
     int getCurrentTruckNumber();
 
     ActorPtr spawnTruck(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::Vector3& rot);
+
+    void repairVehicle(const Ogre::String& instance, const Ogre::String& box, bool keepPosition);
+
+    void removeVehicle(const Ogre::String& instance, const Ogre::String& box);
+
+    int getNumTrucksByFlag(int flag);
+
+    ///@}
+
+    /// @name Waypoint AI for Actors; to understand these values, look in TopMenubar UI->VehicleAI tab.
+    /// @{
+
     ActorPtr spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, Ogre::String& truckSectionConfig, std::string& truckSkin, int x);
     AngelScript::CScriptArray* getWaypoints(int x);
     void addWaypoint(const Ogre::Vector3& pos);
@@ -364,13 +376,6 @@ public:
     Ogre::String getAIVehicleSectionConfig(int x);
     std::string getAIVehicleSkin(int x);
     int getAIRepeatTimes();
-
-    void repairVehicle(const Ogre::String& instance, const Ogre::String& box, bool keepPosition);
-
-    void removeVehicle(const Ogre::String& instance, const Ogre::String& box);
-
-    int getNumTrucksByFlag(int flag);
-
     VehicleAIPtr getCurrentTruckAI();
     VehicleAIPtr getTruckAIByNum(int num);
 
