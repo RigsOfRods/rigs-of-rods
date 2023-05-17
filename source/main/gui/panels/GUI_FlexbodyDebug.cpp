@@ -546,7 +546,7 @@ void FlexbodyDebug::DrawMemoryOrderGraph(FlexBody* flexbody)
     {
         ActorModifyRequest* rq = new ActorModifyRequest;
         rq->amr_type = ActorModifyRequest::Type::RELOAD;
-        rq->amr_actor = App::GetGameContext()->GetPlayerActor();
+        rq->amr_actor = App::GetGameContext()->GetPlayerActor()->ar_instance_id;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
     }
 

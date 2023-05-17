@@ -1573,7 +1573,7 @@ void Actor::CalcNodes()
         if (approx_speed > 6860 && !m_ongoing_reset)
         {
             ActorModifyRequest* rq = new ActorModifyRequest; // actor exploded, schedule reset
-            rq->amr_actor = this;
+            rq->amr_actor = this->ar_instance_id;
             rq->amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
             App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
             m_ongoing_reset = true;

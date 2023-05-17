@@ -1498,7 +1498,7 @@ void Actor::reset(bool keep_position)
         return;
 
     ActorModifyRequest* rq = new ActorModifyRequest;
-    rq->amr_actor = this;
+    rq->amr_actor = this->ar_instance_id;
     rq->amr_type  = (keep_position) ? ActorModifyRequest::Type::RESET_ON_SPOT : ActorModifyRequest::Type::RESET_ON_INIT_POS;
     App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
 }

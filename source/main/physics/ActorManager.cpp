@@ -802,7 +802,7 @@ void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst,
         SOUND_PLAY_ONCE(actor, SS_TRIG_REPAIR);
 
         ActorModifyRequest* rq = new ActorModifyRequest;
-        rq->amr_actor = actor;
+        rq->amr_actor = actor->ar_instance_id;
         rq->amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
     }
@@ -1080,7 +1080,7 @@ void ActorManager::UpdateActors(ActorPtr player_actor)
         m_sim_task->join();
 }
 
-ActorPtr ActorManager::GetActorById(int actor_id)
+ActorPtr ActorManager::GetActorById(ActorInstanceID_t actor_id)
 {
     for (ActorPtr& actor: m_actors)
     {

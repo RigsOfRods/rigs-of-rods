@@ -1288,7 +1288,7 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         {
             ActorModifyRequest* rq = new ActorModifyRequest();
             rq->amr_type = modify_type;
-            rq->amr_actor = App::GetGameContext()->GetActorManager()->GetActorById(static_cast<int>(instance_id));
+            rq->amr_actor = static_cast<ActorInstanceID_t>(instance_id);
             m.payload = rq;
         }
         else

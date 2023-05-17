@@ -796,7 +796,7 @@ struct ActorModifyRequest
         WAKE_UP
     };
 
-    ActorPtr            amr_actor;
+    ActorInstanceID_t   amr_actor; // not ActorPtr because refcounting vs. multithreading
     Type                amr_type;
     std::shared_ptr<rapidjson::Document>
                         amr_saved_state;

@@ -284,7 +284,7 @@ void TopMenubar::Update()
                     {
                         ActorModifyRequest* rq = new ActorModifyRequest;
                         rq->amr_type = ActorModifyRequest::Type::RELOAD;
-                        rq->amr_actor = current_actor;
+                        rq->amr_actor = current_actor->ar_instance_id;
                         App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
                     }
 
@@ -300,7 +300,7 @@ void TopMenubar::Update()
                 {
                     ActorModifyRequest* rq = new ActorModifyRequest;
                     rq->amr_type = ActorModifyRequest::Type::WAKE_UP;
-                    rq->amr_actor = App::GetGameContext()->GetLastSpawnedActor();
+                    rq->amr_actor = App::GetGameContext()->GetLastSpawnedActor()->ar_instance_id;
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
                 }
 
@@ -308,7 +308,7 @@ void TopMenubar::Update()
                 {
                     ActorModifyRequest* rq = new ActorModifyRequest;
                     rq->amr_type = ActorModifyRequest::Type::RELOAD;
-                    rq->amr_actor = App::GetGameContext()->GetLastSpawnedActor();
+                    rq->amr_actor = App::GetGameContext()->GetLastSpawnedActor()->ar_instance_id;
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
                 }
 
