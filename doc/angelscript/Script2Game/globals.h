@@ -458,6 +458,17 @@ enum ActorModifyRequestType
 };
 
 /**
+* Binding of `RoR::ScriptCategory` ~ for `game.pushMessage(MSG_APP_LOAD_SCRIPT_REQUESTED ...)`
+*/
+enum ScriptCategory
+{
+    SCRIPT_CATEGORY_INVALID,
+    SCRIPT_CATEGORY_ACTOR,  //!< Defined in truck file under 'scripts', contains global variable `BeamClass@ thisActor`.
+    SCRIPT_CATEGORY_TERRAIN, //!< Defined in terrn2 file under '[Scripts]', receives terrain eventbox notifications.
+    SCRIPT_CATEGORY_CUSTOM, //!< Loaded by user via either: A) ingame console 'loadscript'; B) RoR.cfg 'diag_custom_scripts'; C) commandline '-runscript'.
+};
+
+/**
 * Binding of RoR::MsgType; Global gameplay message loop.
 */
 enum MsgType
@@ -471,6 +482,8 @@ enum MsgType
     MSG_APP_MODCACHE_LOAD_REQUESTED,           //!< Internal for game startup, DO NOT PUSH MANUALLY.
     MSG_APP_MODCACHE_UPDATE_REQUESTED,         //!< Rescan installed mods and update cache. No params.
     MSG_APP_MODCACHE_PURGE_REQUESTED,          //!< Request cleanup and full rebuild of mod cache.
+    MSG_APP_LOAD_SCRIPT_REQUESTED,             //!< Request loading a script; Params 'filename' (string), 'category' (ScriptCategory), 'associated_actor' (int - only for SCRIPT_CATEGORY_ACTOR)
+    MSG_APP_UNLOAD_SCRIPT_REQUESTED,           //!< Request unloading a script; Param 'id' (int - the ID of the script unit, see 'Script Monitor' tab in console UI.)   
     // Networking
     MSG_NET_CONNECT_REQUESTED,                 //!< Request connection to multiplayer server specified by cvars 'mp_server_host, mp_server_port, mp_server_password'. No params.
     MSG_NET_CONNECT_STARTED,                   //!< Networking notification, DO NOT PUSH MANUALLY.

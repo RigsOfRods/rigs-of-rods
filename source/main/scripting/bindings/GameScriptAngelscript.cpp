@@ -19,8 +19,10 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "GameScript.h"
 #include "AngelScriptBindings.h"
+#include "GameScript.h"
+#include "ScriptEngine.h"
+
 #include <angelscript.h>
 
 using namespace AngelScript;
@@ -28,6 +30,14 @@ using namespace AngelScript;
 void RoR::RegisterGameScript(asIScriptEngine *engine)
 {
     int result;
+
+    // enum ScriptCategory ~ for `game.pushMessage(MSG_APP_LOAD_SCRIPT_REQUESTED ...)`
+    result = engine->RegisterEnum("ScriptCategory"); ROR_ASSERT(result >= 0);
+
+    result = engine->RegisterEnumValue("ScriptCategory", "SCRIPT_CATEGORY_INVALID", static_cast<int>(ScriptCategory::INVALID)); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptCategory", "SCRIPT_CATEGORY_ACTOR", static_cast<int>(ScriptCategory::ACTOR)); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptCategory", "SCRIPT_CATEGORY_TERRAIN", static_cast<int>(ScriptCategory::TERRAIN)); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptCategory", "SCRIPT_CATEGORY_CUSTOM", static_cast<int>(ScriptCategory::CUSTOM)); ROR_ASSERT(result >= 0);
 
     // class GameScript
     result = engine->RegisterObjectType("GameScriptClass", sizeof(GameScript), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS); ROR_ASSERT(result >= 0);
@@ -118,8 +128,19 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "string getAIVehicleSectionConfig(int x)", AngelScript::asMETHOD(GameScript, getAIVehicleSectionConfig), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "string getAIVehicleSkin(int x)", AngelScript::asMETHOD(GameScript, getAIVehicleSkin), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int getAIRepeatTimes()", AngelScript::asMETHOD(GameScript, getAIRepeatTimes), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "int getAIMode()", AngelScript::asMETHOD(GameScript, getAIMode), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "VehicleAIClassPtr @getCurrentTruckAI()", asMETHOD(GameScript, getCurrentTruckAI), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "VehicleAIClassPtr @getTruckAIByNum(int)", asMETHOD(GameScript, getTruckAIByNum), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    // AI: set
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setAIVehicleCount(int count)", AngelScript::asMETHOD(GameScript, setAIVehicleCount), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setAIVehicleDistance(int dist)", AngelScript::asMETHOD(GameScript, setAIVehicleDistance), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setAIVehiclePositionScheme(int scheme)", AngelScript::asMETHOD(GameScript, setAIVehiclePositionScheme), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setAIVehicleSpeed(int speed)", AngelScript::asMETHOD(GameScript, setAIVehicleSpeed), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setAIVehicleName(int x, string name)", AngelScript::asMETHOD(GameScript, setAIVehicleName), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setAIVehicleSectionConfig(int x, string config)", AngelScript::asMETHOD(GameScript, setAIVehicleSectionConfig), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setAIVehicleSkin(int x, string skin)", AngelScript::asMETHOD(GameScript, setAIVehicleSkin), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setAIRepeatTimes(int times)", AngelScript::asMETHOD(GameScript, setAIRepeatTimes), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setAIMode(int mode)", AngelScript::asMETHOD(GameScript, setAIMode), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // > Camera
     result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraPosition(vector3 &in)", asMETHOD(GameScript, setCameraPosition), asCALL_THISCALL); ROR_ASSERT(result >= 0);

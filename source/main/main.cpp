@@ -390,6 +390,22 @@ int main(int argc, char *argv[])
                     }
                     break;
 
+                case MSG_APP_LOAD_SCRIPT_REQUESTED:
+                {
+                    LoadScriptRequest* request = static_cast<LoadScriptRequest*>(m.payload);
+                    ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(request->lsr_associated_actor);
+                    App::GetScriptEngine()->loadScript(request->lsr_filename, request->lsr_category, actor);
+                    delete request;
+                    break;
+                }
+
+                case MSG_APP_UNLOAD_SCRIPT_REQUESTED:
+                {
+                    ScriptUnitId_t* id = static_cast<ScriptUnitId_t*>(m.payload);
+                    App::GetScriptEngine()->unloadScript(*id);
+                    delete id;
+                }
+
                 // -- Network events --
 
                 case MSG_NET_CONNECT_REQUESTED:
