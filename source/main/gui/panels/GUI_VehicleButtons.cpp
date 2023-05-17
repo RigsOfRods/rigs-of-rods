@@ -449,7 +449,7 @@ void VehicleButtons::DrawRepairButton(RoR::GfxActor* actorx)
     if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_repair_icon->getHandle()), ImVec2(24, 24)))
     {
         ActorModifyRequest* rq = new ActorModifyRequest;
-        rq->amr_actor = actorx->GetActor();
+        rq->amr_actor = actorx->GetActor()->ar_instance_id;
         rq->amr_type  = ActorModifyRequest::Type::RESET_ON_SPOT;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
     }

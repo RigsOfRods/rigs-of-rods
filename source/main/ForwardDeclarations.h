@@ -31,6 +31,9 @@
 
 namespace RoR
 {
+    typedef int ActorInstanceID_t; //!< Unique sequentially generated ID of an actor in session. Use `ActorManager::GetActorById()`
+    static const ActorInstanceID_t ACTORINSTANCEID_INVALID = -1;
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;

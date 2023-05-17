@@ -296,7 +296,7 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         if (rq.asr_saved_state)
         {
             ActorModifyRequest* req = new ActorModifyRequest();
-            req->amr_actor = fresh_actor;
+            req->amr_actor = fresh_actor->ar_instance_id;
             req->amr_type = ActorModifyRequest::Type::RESTORE_SAVED;
             req->amr_saved_state = rq.asr_saved_state;
             this->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)req));
@@ -317,46 +317,48 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
 
 void GameContext::ModifyActor(ActorModifyRequest& rq)
 {
+    ActorPtr actor = m_actor_manager.GetActorById(rq.amr_actor);
+
     if (rq.amr_type == ActorModifyRequest::Type::SOFT_RESET)
     {
-        rq.amr_actor->SoftReset();
+        actor->SoftReset();
     }
     else if (rq.amr_type == ActorModifyRequest::Type::RESET_ON_SPOT)
     {
-        rq.amr_actor->SyncReset(/*reset_position:*/false);
+        actor->SyncReset(/*reset_position:*/false);
     }
     else if (rq.amr_type == ActorModifyRequest::Type::RESET_ON_INIT_POS)
     {
-        rq.amr_actor->SyncReset(/*reset_position:*/true);
+        actor->SyncReset(/*reset_position:*/true);
     }
     else if (rq.amr_type == ActorModifyRequest::Type::RESTORE_SAVED)
     {
-        m_actor_manager.RestoreSavedState(rq.amr_actor, *rq.amr_saved_state.get());
+        m_actor_manager.RestoreSavedState(actor, *rq.amr_saved_state.get());
     }
     else if (rq.amr_type == ActorModifyRequest::Type::WAKE_UP &&
-        rq.amr_actor->ar_state == ActorState::LOCAL_SLEEPING)
+        actor->ar_state == ActorState::LOCAL_SLEEPING)
     {
-        rq.amr_actor->ar_state = ActorState::LOCAL_SIMULATED;
-        rq.amr_actor->ar_sleep_counter = 0.0f;
+        actor->ar_state = ActorState::LOCAL_SIMULATED;
+        actor->ar_sleep_counter = 0.0f;
     }
     else if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
     {
-        CacheEntry* entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, rq.amr_actor->ar_filename);
+        CacheEntry* entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, actor->ar_filename);
         if (!entry)
         {
-            Str<500> msg; msg <<"Cannot reload vehicle; file '" << rq.amr_actor->ar_filename << "' not found in ModCache.";
+            Str<500> msg; msg <<"Cannot reload vehicle; file '" << actor->ar_filename << "' not found in ModCache.";
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
             return;
         }
 
         // Create spawn request while actor still exists
         ActorSpawnRequest* srq = new ActorSpawnRequest;
-        srq->asr_position   = Ogre::Vector3(rq.amr_actor->getPosition().x, rq.amr_actor->getMinHeight(), rq.amr_actor->getPosition().z);
-        srq->asr_rotation   = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(rq.amr_actor->getRotation()), Ogre::Vector3::UNIT_Y);
-        srq->asr_config     = rq.amr_actor->getSectionConfig();
-        srq->asr_skin_entry = rq.amr_actor->getUsedSkin();
+        srq->asr_position   = Ogre::Vector3(actor->getPosition().x, actor->getMinHeight(), actor->getPosition().z);
+        srq->asr_rotation   = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(actor->getRotation()), Ogre::Vector3::UNIT_Y);
+        srq->asr_config     = actor->getSectionConfig();
+        srq->asr_skin_entry = actor->getUsedSkin();
         srq->asr_cache_entry= entry;
-        srq->asr_debugview  = (int)rq.amr_actor->GetGfxActor()->GetDebugView();
+        srq->asr_debugview  = (int)actor->GetGfxActor()->GetDebugView();
         srq->asr_origin     = ActorSpawnRequest::Origin::USER;
 
         // This deletes all actors using the resource bundle, including the one we're reloading.
@@ -1206,7 +1208,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     {
         ActorModifyRequest* rq = new ActorModifyRequest;
         rq->amr_type = ActorModifyRequest::Type::RELOAD;
-        rq->amr_actor = m_player_actor;
+        rq->amr_actor = m_player_actor->ar_instance_id;
         this->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
     }
 
@@ -1401,7 +1403,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_RESET_TRUCK))
     {
         ActorModifyRequest* rq = new ActorModifyRequest;
-        rq->amr_actor = App::GetGameContext()->GetPlayerActor();
+        rq->amr_actor = App::GetGameContext()->GetPlayerActor()->ar_instance_id;
         rq->amr_type  = ActorModifyRequest::Type::RESET_ON_INIT_POS;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
     }

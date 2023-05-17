@@ -355,7 +355,7 @@ public:
     NodeNum_t         ar_extern_camera_node = NODENUM_INVALID;
     NodeNum_t         ar_exhaust_pos_node   = 0;   //!< Old-format exhaust (one per vehicle) emitter node
     NodeNum_t         ar_exhaust_dir_node   = 0;   //!< Old-format exhaust (one per vehicle) backwards direction node
-    int               ar_instance_id;              //!< Static attr; session-unique ID
+    ActorInstanceID_t ar_instance_id;              //!< Static attr; session-unique ID
     unsigned int      ar_vector_index;             //!< Sim attr; actor element index in std::vector<m_actors>
     ActorType         ar_driveable;                //!< Sim attr; marks vehicle type and features
     EngineSim*        ar_engine;

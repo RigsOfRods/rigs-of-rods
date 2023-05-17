@@ -85,7 +85,7 @@ public:
     void           RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition = false);
     void           UpdateSleepingState(ActorPtr player_actor, float dt);
     
-    ActorPtr         GetActorById(int actor_id);
+    ActorPtr         GetActorById(ActorInstanceID_t actor_id);
     ActorPtr         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void           UpdateInputEvents(float dt);
     RigDef::DocumentPtr   FetchActorDef(std::string filename, bool predefined_on_terrain = false);
