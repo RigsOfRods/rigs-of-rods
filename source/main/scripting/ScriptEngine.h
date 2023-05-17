@@ -52,12 +52,13 @@ namespace RoR {
 /// @addtogroup Scripting
 /// @{
 
+/// Note: Either of these can be loaded from script using `game.pushMessage(MSG_APP_LOAD_SCRIPT_REQUESTED...)`
 enum class ScriptCategory
 {
     INVALID,
     ACTOR,   //!< Defined in truck file under 'scripts', contains global variable `BeamClass@ thisActor`.
     TERRAIN, //!< Defined in terrn2 file under '[Scripts]', receives terrain eventbox notifications.
-    CUSTOM
+    CUSTOM   //!< Loaded by user via either: A) ingame console 'loadscript'; B) RoR.cfg 'app_custom_scripts'; C) commandline '-runscript'.
 };
 
 const char* ScriptCategoryToString(ScriptCategory c);
@@ -82,6 +83,13 @@ struct ScriptUnit
 };
 
 typedef std::map<ScriptUnitId_t, ScriptUnit> ScriptUnitMap;
+
+struct LoadScriptRequest
+{
+    std::string lsr_filename;
+    ScriptCategory lsr_category = ScriptCategory::TERRAIN;
+    ActorInstanceID_t lsr_associated_actor = ACTORINSTANCEID_INVALID; //!< For ScriptCategory::ACTOR
+};
 
 /**
  *  @brief This class represents the angelscript scripting interface. It can load and execute scripts.

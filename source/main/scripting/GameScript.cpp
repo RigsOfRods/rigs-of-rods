@@ -948,6 +948,10 @@ ActorPtr GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, O
             std::reverse(waypoints.begin(), waypoints.end());
         }
 
+        if (waypoints.size() < 2)
+        {
+            throw std::runtime_error("There must be at least 2 waypoints!");
+        }
         Ogre::Vector3 dir = waypoints[0] - waypoints[1];
         dir.y = 0;
         rq.asr_rotation = Ogre::Vector3::UNIT_X.getRotationTo(dir, Ogre::Vector3::UNIT_Y);
@@ -1073,6 +1077,88 @@ int GameScript::getAIRepeatTimes()
 {
     int times = App::GetGuiManager()->TopMenubar.ai_times;
     return times;
+}
+
+int GameScript::getAIMode()
+{
+    int mode = App::GetGuiManager()->TopMenubar.ai_mode;
+    return mode;
+}
+
+// AI: set
+
+void GameScript::setAIVehicleCount(int num)
+{
+    App::GetGuiManager()->TopMenubar.ai_num = num;
+}
+
+void GameScript::setAIVehicleDistance(int dist)
+{
+    App::GetGuiManager()->TopMenubar.ai_distance = dist;
+}
+
+void GameScript::setAIVehiclePositionScheme(int scheme)
+{
+    App::GetGuiManager()->TopMenubar.ai_position_scheme = scheme;
+}
+
+void GameScript::setAIVehicleSpeed(int speed)
+{
+    App::GetGuiManager()->TopMenubar.ai_speed = speed;
+}
+
+void GameScript::setAIVehicleName(int x, std::string name)
+{
+    if ((App::GetGuiManager()->TopMenubar.ai_mode == 2 || App::GetGuiManager()->TopMenubar.ai_mode == 3) && x == 1) // Drag Race or Crash driving mode
+    {
+        App::GetGuiManager()->TopMenubar.ai_fname2 = name;
+    }
+    else
+    {
+        App::GetGuiManager()->TopMenubar.ai_fname = name;
+    }
+}
+
+void GameScript::setAIVehicleSectionConfig(int x, std::string config)
+{
+    switch (x)
+    {
+    case 0:
+        App::GetGuiManager()->TopMenubar.ai_sectionconfig = config;
+        break;
+    case 1:
+        App::GetGuiManager()->TopMenubar.ai_sectionconfig2 = config;
+        break;
+    default:
+        this->log(fmt::format("setAIVehicleSectionConfig: ERROR, valid 'x' is 0 or 1, got {}", x));
+        break;
+    }
+}
+
+void GameScript::setAIVehicleSkin(int x, std::string skin)
+{
+    switch (x)
+    {
+    case 0:
+        App::GetGuiManager()->TopMenubar.ai_skin = skin;
+        break;
+    case 1:
+        App::GetGuiManager()->TopMenubar.ai_skin2 = skin;
+        break;
+    default:
+        this->log(fmt::format("setAIVehicleSkin: ERROR, valid 'x' is 0 or 1, got {}", x));
+        break;
+    }
+}
+
+void GameScript::setAIRepeatTimes(int times)
+{
+    App::GetGuiManager()->TopMenubar.ai_times = times;
+}
+
+void GameScript::setAIMode(int mode)
+{
+    App::GetGuiManager()->TopMenubar.ai_mode = mode;
 }
 
 void GameScript::showMessageBox(Ogre::String& title, Ogre::String& text, bool use_btn1, Ogre::String& btn1_text, bool allow_close, bool use_btn2, Ogre::String& btn2_text)
@@ -1205,6 +1291,41 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
 
 
         // -- SOME ASSEMBLY REQUIRED --
+
+        // Application
+    case MSG_APP_LOAD_SCRIPT_REQUESTED:         //!< Payload = RoR::LoadScriptRequest* (owner)
+    {
+        LoadScriptRequest* rq = new LoadScriptRequest();
+        if (!this->GetValueFromDict(log_msg, dict, /*required:*/true, "filename", "string", rq->lsr_filename))
+        {
+            delete rq;
+            return false;
+        }
+        this->GetValueFromDict(log_msg, dict, /*required:*/false, "category", "ScriptCategory", rq->lsr_category);
+        if (rq->lsr_category == ScriptCategory::ACTOR)
+        {
+            int64_t instance_id; // AngelScript's `Dictionary` converts all ints int `int64`
+            if (!this->GetValueFromDict(log_msg, dict, /*required:*/true, "associated_actor", "int64", instance_id))
+            {
+                this->log(fmt::format("{}: WARNING, category 'ACTOR' specified but 'associated_actor' not given.", log_msg, rq->lsr_filename));
+                delete rq;
+                return false;
+            }
+        }
+        m.payload = rq;
+        break;
+    }
+
+    case MSG_APP_UNLOAD_SCRIPT_REQUESTED:       //!< Payload = RoR::ScriptUnitId_t* (owner)
+    {
+        int64_t id; // AngelScript's `Dictionary` converts all ints int `int64`
+        if (!this->GetValueFromDict(log_msg, dict, /*required:*/true, "id", "int64", id))
+        {
+            return false;
+        }
+        m.payload = new ScriptUnitId_t(static_cast<ScriptUnitId_t>(id));
+        break;
+    }
 
         // Simulation
     case MSG_SIM_LOAD_TERRN_REQUESTED:

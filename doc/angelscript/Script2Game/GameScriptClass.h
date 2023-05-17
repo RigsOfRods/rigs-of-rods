@@ -459,8 +459,20 @@ public:
     Ogre::String getAIVehicleSectionConfig(int x);
     std::string getAIVehicleSkin(int x);
     int getAIRepeatTimes();
+    int getAIMode();
     VehicleAIClass@ getCurrentTruckAI();
     VehicleAIClass@ getTruckAIByNum(int num);
+    
+    // AI: set
+    void setAIVehicleCount(int count);
+    void setAIVehicleDistance(int dist);
+    void setAIVehiclePositionScheme(int scheme);
+    void setAIVehicleSpeed(int speed);
+    void setAIVehicleName(int x, string name);
+    void setAIVehicleSectionConfig(int x, string config);
+    void setAIVehicleSkin(int x, string skin);
+    void setAIRepeatTimes(int times);  
+    void setAIMode(int mode);    
 
     ///@}
 

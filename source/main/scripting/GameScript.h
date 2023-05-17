@@ -313,16 +313,8 @@ public:
     /// @name Actors
     /// @{
 
-    /**
-     * moves the person relative
-     * @param vec translation vector
-     */
     void activateAllVehicles();
 
-    /**
-     * moves the person relative
-     * @param vec translation vector
-     */
     void setTrucksForcedAwake(bool forceActive);
 
     //anglescript test
@@ -376,8 +368,19 @@ public:
     Ogre::String getAIVehicleSectionConfig(int x);
     std::string getAIVehicleSkin(int x);
     int getAIRepeatTimes();
+    int getAIMode();
     VehicleAIPtr getCurrentTruckAI();
     VehicleAIPtr getTruckAIByNum(int num);
+    // AI: set
+    void setAIVehicleCount(int count);
+    void setAIVehicleDistance(int dist);
+    void setAIVehiclePositionScheme(int scheme);
+    void setAIVehicleSpeed(int speed);
+    void setAIVehicleName(int x, std::string name);
+    void setAIVehicleSectionConfig(int x, std::string config);
+    void setAIVehicleSkin(int x, std::string skin);
+    void setAIRepeatTimes(int times);
+    void setAIMode(int mode);
 
     ///@}
 

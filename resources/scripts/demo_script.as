@@ -186,6 +186,8 @@ void frameStep(float dt)
                 + inputs.getEventCommandTrimmed(EV_CHARACTER_RIGHT));
             ImGui::Text("Run: " + inputs.getEventCommandTrimmed(EV_CHARACTER_RUN));
         }
+        ImGui::Separator();
+        drawAIButtons();
         
         ImGui::Separator();
         drawAudioButtons();
@@ -588,4 +590,33 @@ void drawSoundScriptInstanceDiagPanel(SoundScriptInstanceClass@ instance)
     {
         ImGui::TextDisabled("[no STOP sound]");
     }    
+}
+
+void drawAIButtons()
+{
+    ImGui::TextDisabled("AI script test");
+    if (ImGui::Button("Start DAF semitruck in follow-mode"))
+    {
+        // the filename
+        // first parameter is index - only use 0/1 for drag race and crash modes. Otherwise use 0.
+        game.setAIVehicleName(0, "b6b0UID-semi.truck");
+        
+        // 0) Normal driving mode
+        // 1) Race
+        // 2) Drag Race
+        // 3) Crash driving mode
+        // 4) Chase the player mode
+        game.setAIMode(4);
+        
+        // define the start position by inserting initial waypoint.
+        game.addWaypoint(game.getPersonPosition() + vector3(6, 0, 6)); // 6 meters away from player
+        
+        // define the start direction by inserting another waypoint
+        game.addWaypoint(game.getPersonPosition()); // look at player!
+        
+        // Request loading the AI script (asynchronously) - it will spawn the vehicle.
+        // WARNING: this doesn't save off the setup values above - you can still modify them below and change what the AI will do!
+        //          If you want to launch multiple AIs in sequence, register for SE_GENERIC_NEW_TRUCK event - when it arrives, it's safe to setup and launch new AI script.
+        game.pushMessage(MSG_APP_LOAD_SCRIPT_REQUESTED, { {"filename", "AI.as"} });
+    }
 }
