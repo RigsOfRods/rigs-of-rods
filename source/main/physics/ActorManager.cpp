@@ -96,7 +96,6 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
 
     /* POST-PROCESSING */
 
-    actor->ar_initial_beam_defaults.resize(static_cast<int>(actor->ar_beams.size()));
     actor->UpdateBoundingBoxes(); // (records the unrotated dimensions for 'veh_aab_size')
 
     if (App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
@@ -211,9 +210,10 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     // Set beam defaults
     for (int i = 0; i < static_cast<int>(actor->ar_beams.size()); i++)
     {
-        actor->ar_beams[i].initial_beam_strength       = actor->ar_beams[i].strength;
-        actor->ar_beams[i].default_beam_deform         = actor->ar_beams[i].minmaxposnegstress;
-        actor->ar_initial_beam_defaults[i]             = std::make_pair(actor->ar_beams[i].k, actor->ar_beams[i].d);
+        actor->ar_beams_aux[i].bma_initial_beam_strength       = actor->ar_beams[i].strength;
+        actor->ar_beams_aux[i].bma_default_beam_deform         = actor->ar_beams[i].minmaxposnegstress;
+        actor->ar_beams_aux[i].bma_initial_beam_spring         = actor->ar_beams[i].k;
+        actor->ar_beams_aux[i].bma_initial_beam_damp           = actor->ar_beams[i].d;
     }
 
     actor->m_spawn_rotation = actor->getRotation();

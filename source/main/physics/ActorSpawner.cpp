@@ -6054,6 +6054,7 @@ node_t & ActorSpawner::AddNode()
 beam_t & ActorSpawner::GetFreeBeam()
 {
     m_actor->ar_beams.push_back(beam_t(static_cast<BeamID_t>(m_actor->ar_beams.size())));
+    m_actor->ar_beams_aux.push_back(beam_aux_t());
     return m_actor->ar_beams.back();
 }
 
