@@ -362,7 +362,8 @@ struct node_aux_t
     bool            nda_override_mass = false; //!< User defined attr; mass is user-specified rather than calculated (override the calculation)
 };
 
-/// Simulation: An edge in the softbody structure
+/// Beam = a spring in the Mass-Spring-Damper physics model;
+/// This is the HOT data (updated on every physics tick).
 struct beam_t
 {
     beam_t(BeamID_t id) : bm_pos(id) {}
@@ -393,12 +394,20 @@ struct beam_t
 
     shock_t*        shock = nullptr;
 
-    float           initial_beam_strength = 0.f; //!< for reset
-    float           default_beam_deform = 0.f;   //!< for reset
-
     float           debug_k = 0.f;               //!< debug shock spring_rate
     float           debug_d = 0.f;               //!< debug shock damping
     float           debug_v = 0.f;               //!< debug shock velocity
+};
+
+/// Beam = a spring in the Mass-Spring-Damper physics model;
+/// This is auxiliary data used on occasion (for recalculations/resetting/resizing etc...)
+struct beam_aux_t
+{
+    float           bma_initial_beam_strength = 0.f; //!< for reset
+    float           bma_default_beam_deform = 0.f;   //!< for reset
+
+    float           bma_initial_beam_spring = -1.f;
+    float           bma_initial_beam_damp = -1.f;
 };
 
 struct shock_t

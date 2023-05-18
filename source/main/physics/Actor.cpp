@@ -1569,10 +1569,10 @@ void Actor::SyncReset(bool reset_position)
 
     for (int i = 0; i < static_cast<int>(ar_beams.size()); i++)
     {
-        ar_beams[i].maxposstress    = ar_beams[i].default_beam_deform;
-        ar_beams[i].maxnegstress    = -ar_beams[i].default_beam_deform;
-        ar_beams[i].minmaxposnegstress = ar_beams[i].default_beam_deform;
-        ar_beams[i].strength        = ar_beams[i].initial_beam_strength;
+        ar_beams[i].maxposstress    = ar_beams_aux[i].bma_default_beam_deform;
+        ar_beams[i].maxnegstress    = -ar_beams_aux[i].bma_default_beam_deform;
+        ar_beams[i].minmaxposnegstress = ar_beams_aux[i].bma_default_beam_deform;
+        ar_beams[i].strength        = ar_beams_aux[i].bma_initial_beam_strength;
         ar_beams[i].L               = ar_beams[i].refL;
         ar_beams[i].stress          = 0.0;
         ar_beams[i].bm_broken       = false;
@@ -1720,18 +1720,18 @@ void Actor::applyNodeBeamScales()
         if ((ar_nodes[ar_beams[i].p1num].nd_tyre_node || ar_nodes[ar_beams[i].p1num].nd_rim_node) ||
             (ar_nodes[ar_beams[i].p2num].nd_tyre_node || ar_nodes[ar_beams[i].p2num].nd_rim_node))
         {
-            ar_beams[i].k = ar_initial_beam_defaults[i].first * ar_nb_wheels_scale.first;
-            ar_beams[i].d = ar_initial_beam_defaults[i].second * ar_nb_wheels_scale.second;
+            ar_beams[i].k = ar_beams_aux[i].bma_initial_beam_spring * ar_nb_wheels_scale.first;
+            ar_beams[i].d = ar_beams_aux[i].bma_initial_beam_damp * ar_nb_wheels_scale.second;
         }
         else if (ar_beams[i].bounded == SHOCK1 || ar_beams[i].bounded == SHOCK2 || ar_beams[i].bounded == SHOCK3)
         {
-            ar_beams[i].k = ar_initial_beam_defaults[i].first * ar_nb_shocks_scale.first;;
-            ar_beams[i].d = ar_initial_beam_defaults[i].second * ar_nb_shocks_scale.second;
+            ar_beams[i].k = ar_beams_aux[i].bma_initial_beam_spring * ar_nb_shocks_scale.first;;
+            ar_beams[i].d = ar_beams_aux[i].bma_initial_beam_damp * ar_nb_shocks_scale.second;
         }
         else
         {
-            ar_beams[i].k = ar_initial_beam_defaults[i].first * ar_nb_beams_scale.first;
-            ar_beams[i].d = ar_initial_beam_defaults[i].second * ar_nb_beams_scale.second;
+            ar_beams[i].k = ar_beams_aux[i].bma_initial_beam_spring * ar_nb_beams_scale.first;
+            ar_beams[i].d = ar_beams_aux[i].bma_initial_beam_damp * ar_nb_beams_scale.second;
         }
     }
 }
@@ -4612,7 +4612,7 @@ void Actor::WriteDiagnosticDump(std::string const& fileName)
             << " (set_beam_defaults/scale)"
             << " spring:"            << std::setw(8) << ar_beams[i].k //param1 default_spring
             << ", damp:"             << std::setw(8) << ar_beams[i].d //param2 default_damp
-            << ", default_deform:"   << std::setw(8) << ar_beams[i].default_beam_deform //param3 default_deform
+            << ", default_deform:"   << std::setw(8) << ar_beams_aux[i].bma_default_beam_deform //param3 default_deform
             << ", strength:"         << std::setw(8) << ar_beams[i].strength //param4 default_break
                                         //param5 default_beam_diameter ~ only visual
                                         //param6 default_beam_material2 ~ only visual

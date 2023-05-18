@@ -261,14 +261,17 @@ public:
 
     // -------------------- Public data -------------------- //
 
-    std::vector<node_t>       ar_nodes;      //!< The live data, updated every physics tick
-    std::vector<node_aux_t>   ar_nodes_aux;  //!< The auxiliary data, used on occasion (reset/recalc/resize etc...)
+    std::vector<node_t>       ar_nodes;      //!< Index = `NodeNum_t`; The live data, updated every physics tick
+    std::vector<node_aux_t>   ar_nodes_aux;  //!< Index = `NodeNum_t`; The auxiliary data, used on occasion (reset/recalc/resize etc...)
+    std::vector<beam_t>       ar_beams;      //!< Index = `BeamID_t`; The live data, updated every physics tick
+    std::vector<beam_aux_t>   ar_beams_aux;  //!< Index = `BeamID_t`; The auxiliary data, used on occasion (reset/recalc/resize etc...)
+
 
     int                  ar_nodes_name_top_length = 0; //!< For nicely formatted diagnostic output
 
     bool                 ar_minimass_skip_loaded_nodes = false;
 
-    std::vector<beam_t>  ar_beams;
+    
     std::vector<beam_t*> ar_inter_beams;       //!< Beams connecting 2 actors
     shock_t*             ar_shocks = nullptr;            //!< Shock absorbers
     int                  ar_num_shocks = 0;        //!< Number of shock absorbers
@@ -289,7 +292,7 @@ public:
     Ogre::AxisAlignedBox      ar_predicted_bounding_box;
     float                     ar_initial_total_mass = 0.f;
 
-    std::vector<std::pair<float, float>> ar_initial_beam_defaults;
+    
     std::vector<wheeldetacher_t>   ar_wheeldetachers;
     std::vector<soundsource_t>     ar_soundsources;
 
