@@ -335,7 +335,7 @@ void Actor::scaleTruck(float value)
     Vector3 relpos = ar_nodes[0].RelPosition;
     for (int i = 1; i < static_cast<int>(ar_nodes.size()); i++)
     {
-        ar_initial_node_positions[i] = refpos + (ar_initial_node_positions[i] - refpos) * value;
+        ar_nodes_aux[i].nda_initial_node_position = refpos + (ar_nodes_aux[i].nda_initial_node_position - refpos) * value;
         ar_nodes[i].AbsPosition = refpos + (ar_nodes[i].AbsPosition - refpos) * value;
         ar_nodes[i].RelPosition = relpos + (ar_nodes[i].RelPosition - relpos) * value;
         ar_nodes[i].Velocity *= value;
@@ -665,11 +665,11 @@ void Actor::RecalculateNodeMasses(Real total)
     {
         if (!ar_nodes[i].nd_tyre_node)
         {
-            if (!ar_nodes[i].nd_loaded_mass)
+            if (!ar_nodes_aux[i].nda_loaded_mass)
             {
                 ar_nodes[i].mass = 0;
             }
-            else if (!ar_nodes[i].nd_override_mass)
+            else if (!ar_nodes_aux[i].nda_override_mass)
             {
                 ar_nodes[i].mass = m_load_mass / (float)m_masscount;
             }
@@ -717,16 +717,16 @@ void Actor::RecalculateNodeMasses(Real total)
     for (int i = 0; i < static_cast<int>(ar_nodes.size()); i++)
     {
         if (!ar_nodes[i].nd_tyre_node &&
-            !(ar_minimass_skip_loaded_nodes && ar_nodes[i].nd_loaded_mass) &&
-            ar_nodes[i].mass < ar_minimass[i])
+            !(ar_minimass_skip_loaded_nodes && ar_nodes_aux[i].nda_loaded_mass) &&
+            ar_nodes[i].mass < ar_nodes_aux[i].nda_minimass)
         {
             if (App::diag_truck_mass->getBool())
             {
                 char buf[300];
-                snprintf(buf, 300, "Node '%d' mass (%f Kg) is too light. Resetting to 'minimass' (%f Kg)", i, ar_nodes[i].mass, ar_minimass[i]);
+                snprintf(buf, 300, "Node '%d' mass (%f Kg) is too light. Resetting to 'minimass' (%f Kg)", i, ar_nodes[i].mass, ar_nodes_aux[i].nda_minimass);
                 LOG(buf);
             }
-            ar_nodes[i].mass = ar_minimass[i];
+            ar_nodes[i].mass = ar_nodes_aux[i].nda_minimass;
         }
     }
 
@@ -736,9 +736,9 @@ void Actor::RecalculateNodeMasses(Real total)
         if (App::diag_truck_mass->getBool())
         {
             String msg = "Node " + TOSTRING(i) + " : " + TOSTRING((int)ar_nodes[i].mass) + " kg";
-            if (ar_nodes[i].nd_loaded_mass)
+            if (ar_nodes_aux[i].nda_loaded_mass)
             {
-                if (ar_nodes[i].nd_override_mass)
+                if (ar_nodes_aux[i].nda_override_mass)
                     msg += " (overriden by node mass)";
                 else
                     msg += " (normal load node: " + TOSTRING(m_load_mass) + " kg / " + TOSTRING(m_masscount) + " nodes)";
@@ -1187,7 +1187,7 @@ void Actor::updateInitPosition()
 {
     for (int i = 0; i < static_cast<int>(ar_nodes.size()); i++)
     {
-        ar_initial_node_positions[i] = ar_nodes[i].AbsPosition;
+        ar_nodes_aux[i].nda_initial_node_position = ar_nodes[i].AbsPosition;
     }
 }
 
@@ -1266,7 +1266,7 @@ void Actor::resetPosition(Ogre::Vector3 translation, bool setInitPosition)
     {
         for (int i = 0; i < static_cast<int>(ar_nodes.size()); i++)
         {
-            ar_initial_node_positions[i] = ar_nodes[i].AbsPosition;
+            ar_nodes_aux[i].nda_initial_node_position = ar_nodes[i].AbsPosition;
         }
     }
 
@@ -1561,7 +1561,7 @@ void Actor::SyncReset(bool reset_position)
 
     for (int i = 0; i < static_cast<int>(ar_nodes.size()); i++)
     {
-        ar_nodes[i].AbsPosition = ar_initial_node_positions[i];
+        ar_nodes[i].AbsPosition = ar_nodes_aux[i].nda_initial_node_position;
         ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
         ar_nodes[i].Velocity = Vector3::ZERO;
         ar_nodes[i].Forces = Vector3::ZERO;
@@ -1710,7 +1710,7 @@ void Actor::applyNodeBeamScales()
 {
     for (int i = 0; i < static_cast<int>(ar_nodes.size()); i++)
     {
-        ar_nodes[i].mass = ar_initial_node_masses[i] * ar_nb_mass_scale;
+        ar_nodes[i].mass = ar_nodes_aux[i].nda_initial_node_mass * ar_nb_mass_scale;
     }
 
     m_total_mass = ar_initial_total_mass * ar_nb_mass_scale;
@@ -4580,10 +4580,10 @@ void Actor::WriteDiagnosticDump(std::string const& fileName)
             << "  pos:"              << std::setw(3) << ar_nodes[i].pos // indicated pos in node buffer
                                         << ((ar_nodes[i].pos != i) ? " !!sync " : "") // warn if the indicated pos doesn't match
             << " (nodes)"
-            << " id:"                << std::setw(3) << ar_nodes_id[i]
-            << " name:"              << std::setw(ar_nodes_name_top_length) << ar_nodes_name[i]
+            << " id:"                << std::setw(3) << ar_nodes_aux[i].nda_source_id
+            << " name:"              << std::setw(ar_nodes_name_top_length) << ar_nodes_aux[i].nda_source_name
             << ", buoyancy:"         << std::setw(8) << ar_nodes[i].buoyancy
-            << ", loaded:"           << (int)(ar_nodes[i].nd_loaded_mass)
+            << ", loaded:"           << (int)(ar_nodes_aux[i].nda_loaded_mass)
             << " (wheels)"
             << " wheel_rim:"         << (int)ar_nodes[i].nd_rim_node
             << ", wheel_tyre:"       << (int)ar_nodes[i].nd_tyre_node
@@ -4592,7 +4592,7 @@ void Actor::WriteDiagnosticDump(std::string const& fileName)
             << ", friction_coef:"    << std::setw(5) << ar_nodes[i].friction_coef // param 2 friction coef
             << ", volume_coef:"      << ar_nodes[i].volume_coef // param 3 volume coef
             << ", surface_coef:"     << ar_nodes[i].surface_coef // param 4 surface coef
-            << ", overrideMass:"     << ar_nodes[i].nd_override_mass // depends on param 1 load weight
+            << ", overrideMass:"     << ar_nodes_aux[i].nda_override_mass // depends on param 1 load weight
 
             // only set by `ActorSpawner::UpdateCollcabContacterNodes()` based on collcabs
             // The 'retro-0407' equivalent is `node::contacter` set by `Beam::updateContacterNodes()` based on collcabs!
@@ -4606,8 +4606,8 @@ void Actor::WriteDiagnosticDump(std::string const& fileName)
     {
         buf
             << "  "                  << std::setw(4) << i // actual pos in beam buffer
-            << ", node1:"            << std::setw(3) << ((ar_beams[i].p1num) ? ar_nodes_id[ar_nodes[ar_beams[i].p1num].pos] : -1)
-            << ", node2:"            << std::setw(3) << ((ar_beams[i].p2num) ? ar_nodes_id[ar_nodes[ar_beams[i].p2num].pos] : -1)
+            << ", node1:"            << std::setw(3) << ((ar_beams[i].p1num) ? ar_nodes_aux[ar_nodes[ar_beams[i].p1num].pos].nda_source_id : -1)
+            << ", node2:"            << std::setw(3) << ((ar_beams[i].p2num) ? ar_nodes_aux[ar_nodes[ar_beams[i].p2num].pos].nda_source_id : -1)
             << ", refLen:"           << std::setw(9) << ar_beams[i].refL
             << " (set_beam_defaults/scale)"
             << " spring:"            << std::setw(8) << ar_beams[i].k //param1 default_spring
