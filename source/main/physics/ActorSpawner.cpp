@@ -222,8 +222,6 @@ void ActorSpawner::InitializeRig()
     if (req.num_wings > 0)
         m_actor->ar_wings = new wing_t[req.num_wings];
 
-    m_actor->ar_minimass.resize(req.num_nodes);
-
     // commands contain complex data structures, do not memset them ...
     for (int i=0;i<MAX_COMMANDS+1;i++)
     {
@@ -4021,7 +4019,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
             outer_node.friction_coef = def.node_defaults->friction;
             outer_node.nd_rim_node = true;
             AdjustNodeBuoyancy(outer_node, def.node_defaults);
-            m_actor->ar_minimass[outer_node.pos] = m_state.global_minimass;
+            m_actor->ar_nodes_aux[outer_node.pos].nda_minimass = m_state.global_minimass;
 
             wheel.wh_rim_nodes.push_back(outer_node.pos);
             m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(outer_node.pos));
@@ -4039,7 +4037,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
             inner_node.friction_coef = def.node_defaults->friction;
             inner_node.nd_rim_node = true;
             AdjustNodeBuoyancy(inner_node, def.node_defaults);
-            m_actor->ar_minimass[inner_node.pos] = m_state.global_minimass;
+            m_actor->ar_nodes_aux[inner_node.pos].nda_minimass = m_state.global_minimass;
 
             wheel.wh_rim_nodes.push_back(inner_node.pos);
             m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(inner_node.pos));
@@ -4727,7 +4725,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
             outer_node.mass = node_mass;
             outer_node.nd_rim_node = true;
 
-            m_actor->ar_minimass[outer_node.pos] = m_state.global_minimass;
+            m_actor->ar_nodes_aux[outer_node.pos].nda_minimass = m_state.global_minimass;
             wheel.wh_rim_nodes.push_back(outer_node.pos);
             m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(outer_node.pos));
         }
@@ -4741,7 +4739,7 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
             inner_node.mass = node_mass;
             inner_node.nd_rim_node = true;
 
-            m_actor->ar_minimass[inner_node.pos] = m_state.global_minimass;
+            m_actor->ar_nodes_aux[inner_node.pos].nda_minimass = m_state.global_minimass;
             wheel.wh_rim_nodes.push_back(inner_node.pos);
             m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(inner_node.pos));
         }        
@@ -5662,7 +5660,7 @@ NodeNum_t ActorSpawner::AddNode(RigDef::Node::Id & id)
             return NODENUM_INVALID;
         }
         node_t& node = AddNode();
-        m_actor->ar_nodes_name[node.pos] = id.Str();
+        m_actor->ar_nodes_aux[node.pos].nda_source_name = id.Str();
         m_actor->ar_nodes_name_top_length = std::max(m_actor->ar_nodes_name_top_length, (int)id.Str().length());
         
         return new_index;
@@ -5705,24 +5703,24 @@ void ActorSpawner::ProcessNode(RigDef::Node& def)
     /* Mass */
     if (def.default_minimass)
     {
-        m_actor->ar_minimass[inserted_node] = def.default_minimass->min_mass_Kg;
+        m_actor->ar_nodes_aux[inserted_node].nda_minimass = def.default_minimass->min_mass_Kg;
     }
     else
     {
-        m_actor->ar_minimass[inserted_node] = m_state.global_minimass;
+        m_actor->ar_nodes_aux[inserted_node].nda_minimass = m_state.global_minimass;
     }
 
     if (def.node_defaults->load_weight >= 0.f) // The >= operator is in orig.
     {
         // orig = further override of hardcoded default.
         node.mass = def.node_defaults->load_weight;
-        node.nd_override_mass = true;
-        node.nd_loaded_mass = true;
+        m_actor->ar_nodes_aux[inserted_node].nda_override_mass = true;
+        m_actor->ar_nodes_aux[inserted_node].nda_loaded_mass = true;
     }
     else
     {
         node.mass = 10; // Hardcoded in original (bts_nodes, call to init_node())
-        node.nd_loaded_mass = false;
+        m_actor->ar_nodes_aux[inserted_node].nda_loaded_mass = false;
     }
 
     /* Lockgroup */
@@ -5732,10 +5730,10 @@ void ActorSpawner::ProcessNode(RigDef::Node& def)
     unsigned int options = def.options | def.node_defaults->options; /* Merge bit flags */
     if (BITMASK_IS_1(options, RigDef::Node::OPTION_l_LOAD_WEIGHT))
     {
-        node.nd_loaded_mass = true;
+        m_actor->ar_nodes_aux[inserted_node].nda_loaded_mass = true;
         if (def._has_load_weight_override)
         {
-            node.nd_override_mass = true;
+            m_actor->ar_nodes_aux[inserted_node].nda_override_mass = true;
             node.mass = def.load_weight_override;
         }
         else
@@ -5873,7 +5871,7 @@ void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
     camera_node.surface_coef  = def.node_defaults->surface;
     // NOTE: Not applying the 'node_mass' value here for backwards compatibility - this node must go through initial `Actor::RecalculateNodeMasses()` pass with default weight.
 
-    m_actor->ar_minimass[camera_node.pos] = m_state.global_minimass;
+    m_actor->ar_nodes_aux[camera_node.pos].nda_minimass = m_state.global_minimass;
 
     m_actor->ar_cinecam_node[m_actor->ar_num_cinecams] = camera_node.pos;
     m_actor->ar_num_cinecams++;
@@ -6048,10 +6046,7 @@ node_t & ActorSpawner::AddNode()
 {
     NodeNum_t pos = static_cast<NodeNum_t>(m_actor->ar_nodes.size());
     m_actor->ar_nodes.push_back(node_t(pos));
-
-    // By default, fill empty values (assume a generated node)
-    m_actor->ar_nodes_name.push_back("");
-    m_actor->ar_nodes_id.push_back(-1);
+    m_actor->ar_nodes_aux.push_back(node_aux_t()); // Initialize with empty values (assume a generated node)
 
     return m_actor->ar_nodes.back();
 }

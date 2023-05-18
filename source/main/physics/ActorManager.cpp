@@ -96,10 +96,7 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
 
     /* POST-PROCESSING */
 
-    actor->ar_initial_node_positions.resize(static_cast<int>(actor->ar_nodes.size()));
     actor->ar_initial_beam_defaults.resize(static_cast<int>(actor->ar_beams.size()));
-    actor->ar_initial_node_masses.resize(static_cast<int>(actor->ar_nodes.size()));
-
     actor->UpdateBoundingBoxes(); // (records the unrotated dimensions for 'veh_aab_size')
 
     if (App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
@@ -173,7 +170,7 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     actor->ar_initial_total_mass = actor->m_total_mass;
     for (int i = 0; i < static_cast<int>(actor->ar_nodes.size()); i++)
     {
-        actor->ar_initial_node_masses[i] = actor->ar_nodes[i].mass;
+        actor->ar_nodes_aux[i].nda_initial_node_mass = actor->ar_nodes[i].mass;
     }
 
     //setup default sounds
