@@ -73,8 +73,10 @@ void VehicleDescription::Draw()
 
     if (ImGui::CollapsingHeader(_LC("VehicleDescription", "Commands"), ImGuiTreeNodeFlags_DefaultOpen))
     {
+        bool move = false;
+
         ImGui::Columns(2, /*id=*/nullptr, /*border=*/true);
-        for (int i = 1; i < MAX_COMMANDS; i += 2)
+        for (int i = 1; i < MAX_COMMANDS; i++)
         {
             if (actor->ar_command_key[i].description == "hide")
                 continue;
@@ -82,28 +84,37 @@ void VehicleDescription::Draw()
                 continue;
 
             int eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", i));
-            Ogre::String keya = RoR::App::GetInputEngine()->getEventCommand(eventID);
-            eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", i + 1));
-            Ogre::String keyb = RoR::App::GetInputEngine()->getEventCommand(eventID);
+            Ogre::String key = RoR::App::GetInputEngine()->getEventCommandTrimmed(eventID);
 
-            // cut off expl
-            if (keya.size() > 6 && keya.substr(0, 5) == "EXPL+")
-                keya = keya.substr(5);
-            if (keyb.size() > 6 && keyb.substr(0, 5) == "EXPL+")
-                keyb = keyb.substr(5);
+            ImGui::Text("%s", key.c_str());
 
-            ImGui::Text("%s/%s", keya.c_str(), keyb.c_str());
-            ImGui::NextColumn();
-
-            if (!actor->ar_command_key[i].description.empty())
+            if (!move)
             {
-                ImGui::Text("%s", actor->ar_command_key[i].description.c_str());
+                ImGui::SameLine();
+                ImGui::Text("%s", "/");
+                ImGui::SameLine();
+            }
+
+            if (move)
+            {
+                ImGui::NextColumn();
+
+                if (!actor->ar_command_key[i-1].description.empty())
+                {
+                    ImGui::Text("%s", actor->ar_command_key[i-1].description.c_str());
+                }
+                else
+                {
+                    ImGui::TextDisabled("%s", _LC("VehicleDescription", "unknown function"));
+                }
+
+                ImGui::NextColumn();
+                move = false;
             }
             else
             {
-                ImGui::TextDisabled("%s", _LC("VehicleDescription", "unknown function"));
+                move = true;
             }
-            ImGui::NextColumn();
         }
         ImGui::Columns(1);
     }
