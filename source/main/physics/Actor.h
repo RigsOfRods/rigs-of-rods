@@ -249,8 +249,8 @@ public:
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
     void              WriteDiagnosticDump(std::string const& filename);
     PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
-    Ogre::Vector3     GetCameraDir()                    { ROR_ASSERT(ar_state != ActorState::DISPOSED); return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
-    Ogre::Vector3     GetCameraRoll()                   { ROR_ASSERT(ar_state != ActorState::DISPOSED); return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
+    Ogre::Vector3     GetCameraDir()                    { ROR_ASSERT(ar_state != ActorState::DISPOSED); return (ar_nodes[ar_cameras[0].camera_node_pos].RelPosition - ar_nodes[ar_cameras[0].camera_node_dir].RelPosition).normalisedCopy(); }
+    Ogre::Vector3     GetCameraRoll()                   { ROR_ASSERT(ar_state != ActorState::DISPOSED); return (ar_nodes[ar_cameras[0].camera_node_pos].RelPosition - ar_nodes[ar_cameras[0].camera_node_roll].RelPosition).normalisedCopy(); }
     Ogre::Vector3     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
     GfxActor*         GetGfxActor()                     { ROR_ASSERT(ar_state != ActorState::DISPOSED); return m_gfx_actor.get(); }
     void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
@@ -265,7 +265,7 @@ public:
     std::vector<node_aux_t>   ar_nodes_aux;  //!< Index = `NodeNum_t`; The auxiliary data, used on occasion (reset/recalc/resize etc...)
     std::vector<beam_t>       ar_beams;      //!< Index = `BeamID_t`; The live data, updated every physics tick
     std::vector<beam_aux_t>   ar_beams_aux;  //!< Index = `BeamID_t`; The auxiliary data, used on occasion (reset/recalc/resize etc...)
-
+    std::vector<camera_t>     ar_cameras;    //!< Index = `CameraID_t`; A frame of reference, one is generated if not defined (backwards compat).
 
     int                  ar_nodes_name_top_length = 0; //!< For nicely formatted diagnostic output
 
@@ -365,15 +365,6 @@ public:
     float             ar_brake_force = 0.f;              //!< Physics attr; filled at spawn
     float             ar_speedo_max_kph = 0.f;           //!< GUI attr
     Ogre::Vector3     ar_origin = Ogre::Vector3::ZERO;                   //!< Physics state; base position for softbody nodes
-    int               ar_num_cameras = 0;
-    Ogre::Quaternion  ar_main_camera_dir_corr = Ogre::Quaternion::IDENTITY;              //!< Sim attr;
-    NodeNum_t         ar_main_camera_node_pos            = 0;    //!< Sim attr; ar_camera_node_pos[0]  >= 0 ? ar_camera_node_pos[0]  : 0
-    NodeNum_t         ar_main_camera_node_dir            = 0;    //!< Sim attr; ar_camera_node_dir[0]  >= 0 ? ar_camera_node_dir[0]  : 0
-    NodeNum_t         ar_main_camera_node_roll           = 0;    //!< Sim attr; ar_camera_node_roll[0] >= 0 ? ar_camera_node_roll[0] : 0
-    NodeNum_t         ar_camera_node_pos[MAX_CAMERAS]    = {NODENUM_INVALID};  //!< Physics attr; 'camera' = frame of reference; origin node
-    NodeNum_t         ar_camera_node_dir[MAX_CAMERAS]    = {NODENUM_INVALID};  //!< Physics attr; 'camera' = frame of reference; back node
-    NodeNum_t         ar_camera_node_roll[MAX_CAMERAS]   = {NODENUM_INVALID};  //!< Physics attr; 'camera' = frame of reference; left node
-    bool              ar_camera_node_roll_inv[MAX_CAMERAS] = {false};              //!< Physics attr; 'camera' = frame of reference; indicates roll node is right instead of left
     float             ar_posnode_spawn_height = 0.f;
     VehicleAIPtr      ar_vehicle_ai;
     float             ar_scale = 1.f;               //!< Physics state; scale of the actor (nominal = 1.0)
@@ -401,7 +392,7 @@ public:
     float             ar_aileron = 0.f;                     //!< Sim state; aerial controller
     int               ar_aerial_flap = 0;                 //!< Sim state; state of aircraft flaps (values: 0-5)
     Ogre::Vector3     ar_fusedrag = Ogre::Vector3::ZERO;                    //!< Physics state
-    int               ar_current_cinecam = -1;             //!< Sim state; index of current CineCam (-1 if using 3rd-person camera)
+    CameraID_t        ar_current_cinecam = CAMERAID_INVALID;             //!< Sim state; index of current CineCam (CAMERAID_INVALID if using 3rd-person camera)
     NodeNum_t         ar_custom_camera_node = NODENUM_INVALID; //!< Sim state; custom tracking node for 3rd-person camera
     std::string       ar_filename;                    //!< Attribute; filled at spawn
     std::string       ar_filehash;                    //!< Attribute; filled at spawn

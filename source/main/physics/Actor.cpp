@@ -360,7 +360,7 @@ float Actor::getRotation()
 
 Vector3 Actor::getDirection()
 {
-    return ar_main_camera_dir_corr * this->GetCameraDir();
+    return ar_cameras[0].camera_dir_corr * this->GetCameraDir();
 }
 
 Vector3 Actor::getPosition()
@@ -1164,7 +1164,7 @@ void Actor::UpdatePhysicsOrigin()
 void Actor::ResetAngle(float rot)
 {
     // Set origin of rotation to camera node
-    Vector3 origin = ar_nodes[ar_main_camera_node_pos].AbsPosition;
+    Vector3 origin = ar_nodes[ar_cameras[0].camera_node_pos].AbsPosition;
 
     // Set up matrix for yaw rotation
     Matrix3 matrix;
@@ -4085,7 +4085,7 @@ void Actor::updateDashBoards(float dt)
 
         // water speed
         Vector3 hdir = this->GetCameraDir();
-        float knots = hdir.dotProduct(ar_nodes[ar_main_camera_node_pos].Velocity) * 1.9438f; // 1.943 = m/s in knots/s
+        float knots = hdir.dotProduct(ar_nodes[ar_cameras[0].camera_node_pos].Velocity) * 1.9438f; // 1.943 = m/s in knots/s
         ar_dashboard->setFloat(DD_WATER_SPEED, knots);
     }
 

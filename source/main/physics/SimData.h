@@ -410,6 +410,20 @@ struct beam_aux_t
     float           bma_initial_beam_damp = -1.f;
 };
 
+/// Camera (jargon) = frame of reference, mainly for viewing angle but also other purposes.
+/// Camera at index 0 is main camera which always exists and (as fallback) has nodes set to 0.
+struct camera_t
+{
+    camera_t() {}
+    camera_t(NodeNum_t p, NodeNum_t d, NodeNum_t r) : camera_node_pos(p), camera_node_dir(d), camera_node_roll(r) {}
+
+    Ogre::Quaternion camera_dir_corr      = Ogre::Quaternion::IDENTITY;
+    NodeNum_t        camera_node_pos      = NODENUM_INVALID;
+    NodeNum_t        camera_node_dir      = NODENUM_INVALID;
+    NodeNum_t        camera_node_roll     = NODENUM_INVALID;
+    bool             camera_node_roll_inv = false;
+};
+
 struct shock_t
 {
     shock_t() { memset(this, 0, sizeof(shock_t)); }

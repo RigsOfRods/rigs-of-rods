@@ -940,7 +940,7 @@ void OverlayWrapper::UpdateMarineHUD(ActorPtr vehicle)
 
     // water speed
     Vector3 cam_dir = vehicle->getDirection();
-    Vector3 velocity = vehicle->ar_nodes[vehicle->ar_main_camera_node_pos].Velocity;
+    Vector3 velocity = vehicle->ar_nodes[vehicle->ar_cameras[0].camera_node_pos].Velocity;
     float kt = cam_dir.dotProduct(velocity) * 1.9438;
     float angle = kt * 4.2;
     boatspeedtexture->setTextureRotate(Degree(-angle));
