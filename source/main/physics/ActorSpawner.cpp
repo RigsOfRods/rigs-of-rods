@@ -267,13 +267,9 @@ void ActorSpawner::InitializeRig()
     m_actor->m_num_proped_wheels=0;
 
     m_actor->ar_speedo_max_kph=140;
-    m_actor->ar_num_cameras=0;
-    for (int i = 0; i < MAX_CAMERAS; ++i)
-    {
-        m_actor->ar_camera_node_pos [i] = NODENUM_INVALID;
-        m_actor->ar_camera_node_dir [i] = NODENUM_INVALID;
-        m_actor->ar_camera_node_roll[i] = NODENUM_INVALID;
-    }
+
+    // Camera at index 0 is main camera which uses nodenums 0 as fallback.
+    m_actor->ar_cameras.push_back(camera_t(NodeNum_t(0), NodeNum_t(0), NodeNum_t(0)));
 
 #ifdef USE_ANGELSCRIPT
     m_actor->ar_vehicle_ai = new VehicleAI(m_actor);
@@ -399,10 +395,12 @@ void ActorSpawner::FinalizeRig()
         }
     }
 
-    m_actor->ar_main_camera_node_pos  = (m_actor->ar_camera_node_pos[0] != NODENUM_INVALID) ? m_actor->ar_camera_node_pos[0]  : (NodeNum_t)0;
-    m_actor->ar_main_camera_node_dir  = (m_actor->ar_camera_node_dir[0] != NODENUM_INVALID) ? m_actor->ar_camera_node_dir[0]  : (NodeNum_t)0;
-    m_actor->ar_main_camera_node_roll = (m_actor->ar_camera_node_roll[0]!= NODENUM_INVALID) ? m_actor->ar_camera_node_roll[0] : (NodeNum_t)0;
-    
+    // Fix up main camera (index 0)
+    camera_t& maincam = m_actor->ar_cameras[0];
+    if (maincam.camera_node_pos  == NODENUM_INVALID) { maincam.camera_node_pos  = NodeNum_t(0); }
+    if (maincam.camera_node_dir  == NODENUM_INVALID) { maincam.camera_node_dir  = NodeNum_t(0); }
+    if (maincam.camera_node_roll == NODENUM_INVALID) { maincam.camera_node_roll = NodeNum_t(0); }
+
     m_actor->m_has_axles_section = m_actor->m_num_wheel_diffs > 0;
 
     // Calculate mass of each wheel (without rim)
@@ -486,9 +484,9 @@ void ActorSpawner::FinalizeRig()
         m_actor->m_axle_diffs[m_actor->m_num_axle_diffs] = diff;
     }
 
-    if (m_actor->ar_main_camera_node_dir == 0 || m_actor->ar_main_camera_node_dir == NODENUM_INVALID)
+    if (maincam.camera_node_dir == 0 || maincam.camera_node_dir == NODENUM_INVALID)
     {
-        Ogre::Vector3 ref = m_actor->ar_nodes[m_actor->ar_main_camera_node_pos].RelPosition;
+        Ogre::Vector3 ref = m_actor->ar_nodes[maincam.camera_node_pos].RelPosition;
         // Step 1: Find a suitable camera node dir
         float max_dist = 0.0f;
         NodeNum_t furthest_node = 0;
@@ -501,17 +499,17 @@ void ActorSpawner::FinalizeRig()
                 furthest_node = (NodeNum_t)i;
             }
         }
-        m_actor->ar_main_camera_node_dir = furthest_node;
+        maincam.camera_node_dir = furthest_node;
         // Step 2: Correct the misalignment
         Ogre::Vector3 dir = m_actor->ar_nodes[furthest_node].RelPosition - ref;
         float offset = atan2(dir.dotProduct(Ogre::Vector3::UNIT_Z), dir.dotProduct(Ogre::Vector3::UNIT_X));
-        m_actor->ar_main_camera_dir_corr = Ogre::Quaternion(Ogre::Radian(offset), Ogre::Vector3::UNIT_Y);
+        maincam.camera_dir_corr = Ogre::Quaternion(Ogre::Radian(offset), Ogre::Vector3::UNIT_Y);
     }
 
-    if (m_actor->ar_camera_node_pos[0] != NODENUM_INVALID)
+    if (maincam.camera_node_pos != NODENUM_INVALID)
     {
         // store the y-difference between the trucks lowest node and the campos-node for the gwps system
-        m_actor->ar_posnode_spawn_height = m_actor->ar_nodes[m_actor->ar_camera_node_pos[0]].RelPosition.y - m_actor->ar_posnode_spawn_height;
+        m_actor->ar_posnode_spawn_height = m_actor->ar_nodes[maincam.camera_node_pos].RelPosition.y - m_actor->ar_posnode_spawn_height;
     } 
     else
     {
@@ -520,14 +518,14 @@ void ActorSpawner::FinalizeRig()
     }
 
     //cameras workaround
-    for (int i=0; i<m_actor->ar_num_cameras; i++)
+    for (size_t i=0; i<m_actor->ar_cameras.size(); i++)
     {
-        Ogre::Vector3 dir_node_offset = m_actor->ar_nodes[m_actor->ar_camera_node_dir[i]].RelPosition - m_actor->ar_nodes[m_actor->ar_camera_node_pos[i]].RelPosition;
-        Ogre::Vector3 roll_node_offset = m_actor->ar_nodes[m_actor->ar_camera_node_roll[i]].RelPosition - m_actor->ar_nodes[m_actor->ar_camera_node_pos[i]].RelPosition;
+        Ogre::Vector3 dir_node_offset = m_actor->ar_nodes[m_actor->ar_cameras[i].camera_node_dir].RelPosition - m_actor->ar_nodes[m_actor->ar_cameras[i].camera_node_pos].RelPosition;
+        Ogre::Vector3 roll_node_offset = m_actor->ar_nodes[m_actor->ar_cameras[i].camera_node_roll].RelPosition - m_actor->ar_nodes[m_actor->ar_cameras[i].camera_node_pos].RelPosition;
         Ogre::Vector3 cross = dir_node_offset.crossProduct(roll_node_offset);
         
-        m_actor->ar_camera_node_roll_inv[i]=cross.y > 0;
-        if (m_actor->ar_camera_node_roll_inv[i])
+        m_actor->ar_cameras[i].camera_node_roll_inv=cross.y > 0;
+        if (m_actor->ar_cameras[i].camera_node_roll_inv)
         {
             AddMessage(Message::TYPE_WARNING, "camera definition is probably invalid and has been corrected. It should be center, back, left");
         }
@@ -542,7 +540,7 @@ void ActorSpawner::FinalizeRig()
                 m_airplane_left_light,
                 m_airplane_right_light,
                 m_actor->m_fusealge_back,
-                m_actor->ar_camera_node_pos[0]
+                m_actor->ar_cameras[0].camera_node_pos
                 );
         }
         //inform wing segments
@@ -5266,22 +5264,17 @@ NodeNum_t ActorSpawner::GetNodeIndexOrThrow(RigDef::Node::Ref const & node_ref)
 
 void ActorSpawner::ProcessCamera(RigDef::Camera & def)
 {
-    if (def.center_node.IsValidAnyState())
+    // Camera at position 0 is main camera and already exists, do not insert another
+    if (m_num_cameras_processed > 0)
     {
-        m_actor->ar_camera_node_pos[m_actor->ar_num_cameras] = GetNodeIndexOrThrow(def.center_node);
+        m_actor->ar_cameras.push_back(camera_t());
     }
+    m_num_cameras_processed++;
 
-    if (def.back_node.IsValidAnyState())
-    {
-        m_actor->ar_camera_node_dir[m_actor->ar_num_cameras] = GetNodeIndexOrThrow(def.back_node);
-    }
-
-    if (def.left_node.IsValidAnyState())
-    {
-        m_actor->ar_camera_node_roll[m_actor->ar_num_cameras] = GetNodeIndexOrThrow(def.left_node);
-    }
-
-    m_actor->ar_num_cameras++;
+    // Set up the camera (note: INVALID nodenums are fixed up in `FinalizeRig()`)
+    m_actor->ar_cameras.back().camera_node_pos = this->ResolveNodeRef(def.center_node);
+    m_actor->ar_cameras.back().camera_node_dir = this->ResolveNodeRef(def.back_node);
+    m_actor->ar_cameras.back().camera_node_roll = this->ResolveNodeRef(def.left_node);    
 };
 
 node_t* ActorSpawner::GetBeamNodePointer(RigDef::Node::Ref const & node_ref)

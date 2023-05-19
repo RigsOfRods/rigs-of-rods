@@ -585,7 +585,7 @@ void VehicleAI::update(float dt, int doUpdate)
     else if (beam->ar_num_screwprops > 0) // Boat
     {
         Vector3 hdir = beam->GetCameraDir();
-        float knots = hdir.dotProduct(beam->ar_nodes[beam->ar_main_camera_node_pos].Velocity) * 1.9438f; // 1.943 = m/s in knots/s
+        float knots = hdir.dotProduct(beam->ar_nodes[beam->ar_cameras[0].camera_node_pos].Velocity) * 1.9438f; // 1.943 = m/s in knots/s
 
         if (abs(mYaw) < 0.5f)
         {

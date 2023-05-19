@@ -1677,11 +1677,9 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_wheel_speed = m_actor->ar_wheel_speed;
     m_simbuf.simbuf_top_speed = m_actor->ar_top_speed;
     m_simbuf.simbuf_aabb = m_actor->ar_bounding_box;
-    if (m_actor->ar_num_cameras > 0)
-    {
-        m_simbuf.simbuf_camera0_pos_node  = m_actor->ar_camera_node_pos[0];
-        m_simbuf.simbuf_camera0_roll_node = m_actor->ar_camera_node_roll[0];
-    }
+
+    m_simbuf.simbuf_camera0_pos_node = m_actor->ar_cameras[0].camera_node_pos;
+    m_simbuf.simbuf_camera0_roll_node = m_actor->ar_cameras[0].camera_node_roll;
 
     // Elements: nodes
     m_simbuf.simbuf_nodes.resize(static_cast<int>(m_actor->ar_nodes.size()));
@@ -2726,9 +2724,9 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
         div++;
     }
 
-    Ogre::Vector3 cam_pos  = this->GetSimNodeBuffer()[m_actor->ar_main_camera_node_pos ].AbsPosition;
-    Ogre::Vector3 cam_roll = this->GetSimNodeBuffer()[m_actor->ar_main_camera_node_roll].AbsPosition;
-    Ogre::Vector3 cam_dir  = this->GetSimNodeBuffer()[m_actor->ar_main_camera_node_dir ].AbsPosition;
+    Ogre::Vector3 cam_pos  = this->GetSimNodeBuffer()[m_actor->ar_cameras[0].camera_node_pos ].AbsPosition;
+    Ogre::Vector3 cam_roll = this->GetSimNodeBuffer()[m_actor->ar_cameras[0].camera_node_roll].AbsPosition;
+    Ogre::Vector3 cam_dir  = this->GetSimNodeBuffer()[m_actor->ar_cameras[0].camera_node_dir ].AbsPosition;
 
     // roll
     if (flag_state & PROP_ANIM_FLAG_ROLL)
