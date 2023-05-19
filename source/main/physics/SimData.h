@@ -387,12 +387,11 @@ struct beam_t
     bool            bm_disabled = false;
     bool            bm_broken = false;
     BeamID_t        bm_pos = BEAMID_INVALID;
+    ShockID_t       bm_shockid = SHOCKID_INVALID;
 
     float           shortbound = 0.f;
     float           longbound = 0.f;
     float           refL = 0.f;                  //!< reference length
-
-    shock_t*        shock = nullptr;
 
     float           debug_k = 0.f;               //!< debug shock spring_rate
     float           debug_d = 0.f;               //!< debug shock damping
@@ -426,37 +425,38 @@ struct camera_t
 
 struct shock_t
 {
-    shock_t() { memset(this, 0, sizeof(shock_t)); }
+    shock_t(ShockID_t pos) : sk_pos(pos) {}
 
-    int beamid;
-    int flags;
+    BeamID_t  sk_beamid = BEAMID_INVALID;
+    BitMask_t sk_flags = 0;
+    ShockID_t sk_pos = SHOCKID_INVALID;
 
-    bool trigger_enabled;       //!< general trigger,switch and blocker state
-    float trigger_switch_state; //!< needed to avoid doubleswitch, bool and timer in one
-    float trigger_boundary_t;   //!< optional value to tune trigger_switch_state autorelease
-    int trigger_cmdlong;        //!< F-key for trigger injection longbound-check
-    int trigger_cmdshort;       //!< F-key for trigger injection shortbound-check
-    int last_debug_state;       //!< smart debug output
+    bool trigger_enabled = false;     //!< general trigger,switch and blocker state
+    float trigger_switch_state = 0.f; //!< needed to avoid doubleswitch, bool and timer in one
+    float trigger_boundary_t = 0.f;   //!< optional value to tune trigger_switch_state autorelease
+    int trigger_cmdlong = 0;          //!< F-key for trigger injection longbound-check
+    int trigger_cmdshort = 0;         //!< F-key for trigger injection shortbound-check
+    int last_debug_state = 0;         //!< smart debug output
 
-    float springin;  //!< shocks2 & shocks3
-    float dampin;    //!< shocks2 & shocks3
-    float springout; //!< shocks2 & shocks3
-    float dampout;   //!< shocks2 & shocks3
+    float springin = 0.f;  //!< shocks2 & shocks3
+    float dampin = 0.f;    //!< shocks2 & shocks3
+    float springout = 0.f; //!< shocks2 & shocks3
+    float dampout = 0.f;   //!< shocks2 & shocks3
 
-    float sprogin;   //!< shocks2
-    float dprogin;   //!< shocks2
-    float sprogout;  //!< shocks2
-    float dprogout;  //!< shocks2
+    float sprogin = 0.f;   //!< shocks2
+    float dprogin = 0.f;   //!< shocks2
+    float sprogout = 0.f;  //!< shocks2
+    float dprogout = 0.f;  //!< shocks2
 
-    float splitin;   //!< shocks3
-    float dslowin;   //!< shocks3
-    float dfastin;   //!< shocks3
-    float splitout;  //!< shocks3
-    float dslowout;  //!< shocks3
-    float dfastout;  //!< shocks3
+    float splitin = 0.f;   //!< shocks3
+    float dslowin = 0.f;   //!< shocks3
+    float dfastin = 0.f;   //!< shocks3
+    float splitout = 0.f;  //!< shocks3
+    float dslowout = 0.f;  //!< shocks3
+    float dfastout = 0.f;  //!< shocks3
 
-    float sbd_spring;           //!< set beam default for spring
-    float sbd_damp;             //!< set beam default for damping
+    float sbd_spring = 0.f;           //!< set beam default for spring
+    float sbd_damp = 0.f;             //!< set beam default for damping
 };
 
 struct collcab_rate_t

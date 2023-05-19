@@ -1461,7 +1461,7 @@ void RoR::GfxActor::ToggleDebugView()
 void RoR::GfxActor::SetDebugView(DebugViewType dv)
 {
     if (dv == DebugViewType::DEBUGVIEW_WHEELS     && m_actor->ar_num_wheels   == 0 ||
-        dv == DebugViewType::DEBUGVIEW_SHOCKS     && m_actor->ar_num_shocks   == 0 ||
+        dv == DebugViewType::DEBUGVIEW_SHOCKS     && m_actor->ar_shocks.size()  == 0 ||
         dv == DebugViewType::DEBUGVIEW_ROTATORS   && m_actor->ar_num_rotators == 0 ||
         dv == DebugViewType::DEBUGVIEW_SLIDENODES && m_actor->hasSlidenodes() == 0 ||
         dv == DebugViewType::DEBUGVIEW_SUBMESH    && m_actor->ar_num_cabs     == 0)
@@ -1486,7 +1486,7 @@ void RoR::GfxActor::CycleDebugViews()
     case DebugViewType::DEBUGVIEW_BEAMS:
     {
         if      (m_actor->ar_num_wheels)    SetDebugView(DebugViewType::DEBUGVIEW_WHEELS);
-        else if (m_actor->ar_num_shocks)    SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);
+        else if (m_actor->ar_shocks.size()) SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);
         else if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
         else if (m_actor->hasSlidenodes())  SetDebugView(DebugViewType::DEBUGVIEW_SLIDENODES);
         else if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
@@ -1495,7 +1495,7 @@ void RoR::GfxActor::CycleDebugViews()
     }
     case DebugViewType::DEBUGVIEW_WHEELS:
     {
-             if (m_actor->ar_num_shocks)    SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);
+             if (m_actor->ar_shocks.size()) SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);
         else if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
         else if (m_actor->hasSlidenodes())  SetDebugView(DebugViewType::DEBUGVIEW_SLIDENODES);
         else if (m_actor->ar_num_cabs)      SetDebugView(DebugViewType::DEBUGVIEW_SUBMESH);
