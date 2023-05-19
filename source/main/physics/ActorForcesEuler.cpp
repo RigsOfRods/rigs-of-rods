@@ -503,13 +503,13 @@ void Actor::CalcShocks(bool doUpdate, int num_steps)
     {
         if ((m_stabilizer_shock_request == 1 && m_stabilizer_shock_ratio < 0.1) || (m_stabilizer_shock_request == -1 && m_stabilizer_shock_ratio > -0.1))
             m_stabilizer_shock_ratio = m_stabilizer_shock_ratio + (float)m_stabilizer_shock_request * PHYSICS_DT * STAB_RATE;
-        for (int i = 0; i < ar_num_shocks; i++)
+        for (size_t i = 0; i < ar_shocks.size(); i++)
         {
             // active shocks now
-            if (ar_shocks[i].flags & SHOCK_FLAG_RACTIVE)
-                ar_beams[ar_shocks[i].beamid].L = ar_beams[ar_shocks[i].beamid].refL * (1.0 + m_stabilizer_shock_ratio);
-            else if (ar_shocks[i].flags & SHOCK_FLAG_LACTIVE)
-                ar_beams[ar_shocks[i].beamid].L = ar_beams[ar_shocks[i].beamid].refL * (1.0 - m_stabilizer_shock_ratio);
+            if (ar_shocks[i].sk_flags & SHOCK_FLAG_RACTIVE)
+                ar_beams[ar_shocks[i].sk_beamid].L = ar_beams[ar_shocks[i].sk_beamid].refL * (1.0 + m_stabilizer_shock_ratio);
+            else if (ar_shocks[i].sk_flags & SHOCK_FLAG_LACTIVE)
+                ar_beams[ar_shocks[i].sk_beamid].L = ar_beams[ar_shocks[i].sk_beamid].refL * (1.0 - m_stabilizer_shock_ratio);
         }
     }
     //auto shock adjust
@@ -1184,8 +1184,8 @@ void Actor::CalcBeams(bool trigger_hooks)
                     // Skip camera, wheels or any other shocks which are not generated in a shocks or shocks2 section
                     if (ar_beams[i].bm_type == BEAM_HYDRO)
                     {
-                        tspring = ar_beams[i].shock->sbd_spring;
-                        tdamp = ar_beams[i].shock->sbd_damp;
+                        tspring = ar_shocks[ar_beams[i].bm_shockid].sbd_spring;
+                        tdamp   = ar_shocks[ar_beams[i].bm_shockid].sbd_damp;
                     }
 
                     k += (tspring - k) * interp_ratio;

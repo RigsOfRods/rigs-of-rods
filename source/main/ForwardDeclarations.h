@@ -46,6 +46,9 @@ namespace RoR
     typedef int CameraID_t; //!< Index to `Actor::ar_cameras`, use RoR::CAMERAID_INVALID as empty value.
     static const CameraID_t CAMERAID_INVALID = -1;
 
+    typedef int ShockID_t; //!< Index to `Actor::ar_shocks`, use RoR::SHOCKID_INVALID as empty value.
+    static const ShockID_t SHOCKID_INVALID = -1;
+
     typedef int RopableID_t; //!< Index to `Actor::ar_ropables`, use RoR::ROPABLEID_INVALID as empty value.
     static const RopableID_t ROPABLEID_INVALID = -1;
 

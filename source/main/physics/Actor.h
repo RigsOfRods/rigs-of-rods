@@ -266,6 +266,7 @@ public:
     std::vector<beam_t>       ar_beams;      //!< Index = `BeamID_t`; The live data, updated every physics tick
     std::vector<beam_aux_t>   ar_beams_aux;  //!< Index = `BeamID_t`; The auxiliary data, used on occasion (reset/recalc/resize etc...)
     std::vector<camera_t>     ar_cameras;    //!< Index = `CameraID_t`; A frame of reference, one is generated if not defined (backwards compat).
+    std::vector<shock_t>      ar_shocks;     //!< Index = `ShockID_t`; Shock absorbers
 
     int                  ar_nodes_name_top_length = 0; //!< For nicely formatted diagnostic output
 
@@ -273,8 +274,7 @@ public:
 
     
     std::vector<beam_t*> ar_inter_beams;       //!< Beams connecting 2 actors
-    shock_t*             ar_shocks = nullptr;            //!< Shock absorbers
-    int                  ar_num_shocks = 0;        //!< Number of shock absorbers
+
     bool                 ar_has_active_shocks = false; //!< Are there active stabilizer shocks?
     rotator_t*           ar_rotators = nullptr;
     int                  ar_num_rotators = 0;
