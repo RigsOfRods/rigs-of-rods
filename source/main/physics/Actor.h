@@ -267,6 +267,7 @@ public:
     std::vector<beam_aux_t>   ar_beams_aux;  //!< Index = `BeamID_t`; The auxiliary data, used on occasion (reset/recalc/resize etc...)
     std::vector<camera_t>     ar_cameras;    //!< Index = `CameraID_t`; A frame of reference, one is generated if not defined (backwards compat).
     std::vector<shock_t>      ar_shocks;     //!< Index = `ShockID_t`; Shock absorbers
+    std::vector<wing_t>       ar_wings;      //!< Index = `WingID_t`; Airfoil surfaces
 
     int                  ar_nodes_name_top_length = 0; //!< For nicely formatted diagnostic output
 
@@ -278,8 +279,6 @@ public:
     bool                 ar_has_active_shocks = false; //!< Are there active stabilizer shocks?
     rotator_t*           ar_rotators = nullptr;
     int                  ar_num_rotators = 0;
-    wing_t*              ar_wings = nullptr;
-    int                  ar_num_wings = 0;
     std::vector<authorinfo_t> authors;
     std::vector<exhaust_t>    exhausts;
     std::vector<rope_t>       ar_ropes;

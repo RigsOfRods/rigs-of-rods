@@ -67,7 +67,7 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
     m_fuse_z_max = -1000.0f;
     m_fuse_y_min = 1000.0f;
     m_fuse_y_max = -1000.0f;
-    m_first_wing_index = -1;
+    m_first_wing_index = WINGID_INVALID;
 
     m_generate_wing_position_lights = true;
 

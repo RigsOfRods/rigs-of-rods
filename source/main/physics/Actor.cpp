@@ -168,7 +168,7 @@ void Actor::dispose()
     m_gfx_actor.reset();
 
     // delete wings
-    for (int i = 0; i < ar_num_wings; i++)
+    for (size_t i = 0; i < ar_wings.size(); i++)
     {
         // flexAirfoil, airfoil
         if (ar_wings[i].fa)
@@ -298,8 +298,6 @@ void Actor::dispose()
 
     delete[] ar_rotators;
     ar_num_rotators = 0;
-    delete[] ar_wings;
-    ar_num_wings = 0;
 
     ar_state = ActorState::DISPOSED;
 }
@@ -1648,7 +1646,7 @@ void Actor::SyncReset(bool reset_position)
         ar_screwprops[i]->reset();
     for (int i = 0; i < ar_num_rotators; i++)
         ar_rotators[i].angle = 0.0;
-    for (int i = 0; i < ar_num_wings; i++)
+    for (size_t i = 0; i < ar_wings.size(); i++)
         ar_wings[i].fa->broken = false;
     if (ar_autopilot)
         this->ar_autopilot->reset();
@@ -2381,7 +2379,7 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
     if (hydrobeam.hb_anim_flags & ANIM_FLAG_AOA)
     {
         float aoa = 0;
-        if (ar_num_wings > 4)
+        if (ar_wings.size() > 4)
             aoa = (ar_wings[4].fa->aoa) / 25.0f;
         if ((ar_nodes[0].Velocity.length() * 1.9438) < 10.0f)
             aoa = 0;
@@ -3248,7 +3246,7 @@ void Actor::updateVisual(float dt)
         autoelevator = -1.0;
     if (autoelevator > 1.0)
         autoelevator = 1.0;
-    for (int i = 0; i < ar_num_wings; i++)
+    for (size_t i = 0; i < ar_wings.size(); i++)
     {
         if (ar_wings[i].fa->type == 'a')
             ar_wings[i].fa->setControlDeflection(autoaileron);
@@ -4116,9 +4114,9 @@ void Actor::updateDashBoards(float dt)
     }
 
     // wings stuff, you dont need an aeroengine
-    if (ar_num_wings)
+    if (ar_wings.size())
     {
-        for (int i = 0; i < ar_num_wings && i < DD_MAX_WING; i++)
+        for (int i = 0; i < ar_wings.size() && i < DD_MAX_WING; i++)
         {
             // Angle of Attack (AOA)
             float aoa = ar_wings[i].fa->aoa;
@@ -4127,7 +4125,7 @@ void Actor::updateDashBoards(float dt)
     }
 
     // some things only activate when a wing or an aeroengine is present
-    if (ar_num_wings || ar_num_aeroengines)
+    if (ar_wings.size() || ar_num_aeroengines)
     {
         //airspeed
         {

@@ -117,7 +117,7 @@ void Actor::CalcAircraftForces(bool doUpdate)
             ar_screwprops[i]->updateForces(doUpdate);
 
     //wing forces
-    for (int i = 0; i < ar_num_wings; i++)
+    for (size_t i = 0; i < ar_wings.size(); i++)
         if (ar_wings[i].fa)
             ar_wings[i].fa->updateForces();
 }
