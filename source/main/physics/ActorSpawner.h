@@ -457,7 +457,7 @@ private:
     float                          m_fuse_z_max;
     float                          m_fuse_y_min;
     float                          m_fuse_y_max;    
-    int                            m_first_wing_index;
+    WingID_t                       m_first_wing_index = WINGID_INVALID;
     std::vector<CabTexcoord>       m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>        m_oldstyle_cab_submeshes;    
     RigDef::Keyword                m_current_keyword; //!< For error reports    

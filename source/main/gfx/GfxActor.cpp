@@ -1797,7 +1797,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_hydro_aero_rudder_state = m_actor->ar_hydro_rudder_state;
     m_simbuf.simbuf_aero_flap_state = m_actor->ar_aerial_flap;
     m_simbuf.simbuf_airbrake_state = m_actor->ar_airbrake_intensity;
-    if (m_actor->ar_num_wings > 4)
+    if (m_actor->ar_wings.size() > 4)
     {
         m_simbuf.simbuf_wing4_aoa = m_actor->ar_wings[4].fa->aoa;
     }
@@ -3184,7 +3184,7 @@ void RoR::GfxActor::SetAllMeshesVisible(bool visible)
 
 void RoR::GfxActor::SetWingsVisible(bool visible)
 {
-    for (int i = 0; i < m_actor->ar_num_wings; ++i)
+    for (size_t i = 0; i < m_actor->ar_wings.size(); ++i)
     {
         m_actor->ar_wings[i].cnode->setVisible(visible);
     }
@@ -3197,7 +3197,7 @@ void RoR::GfxActor::SetWingsVisible(bool visible)
 
 void RoR::GfxActor::UpdateWingMeshes()
 {
-    for (int i = 0; i < m_actor->ar_num_wings; ++i)
+    for (size_t i = 0; i < m_actor->ar_wings.size(); ++i)
     {
         wing_t& wing = m_actor->ar_wings[i];
         wing.cnode->setPosition(wing.fa->updateVerticesGfx(this));

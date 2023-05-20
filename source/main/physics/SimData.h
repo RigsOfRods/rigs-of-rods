@@ -586,8 +586,8 @@ struct tie_t
 
 struct wing_t
 {
-    FlexAirfoil *fa;
-    Ogre::SceneNode *cnode;
+    FlexAirfoil *fa = nullptr;
+    Ogre::SceneNode *cnode = nullptr;
 };
 
 struct commandbeam_state_t
