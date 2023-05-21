@@ -48,7 +48,7 @@ using namespace RoR;
 static bool BackfaceCollisionTest(const float distance,
         const Vector3 &normal,
         const node_t &surface_point,
-        const std::vector<int> &neighbour_node_ids,
+        const std::vector<NodeNum_t> &neighbour_node_ids,
         const std::vector<node_t>& nodes)
 {
     auto sign = [](float x){ return (x >= 0) ? 1 : -1; };
@@ -165,7 +165,7 @@ void RoR::ResolveInterActorCollisions(const float dt, PointColDetector &interPoi
                     auto normal     = triangle.normal();
 
                     // adapt in case the collision is occuring on the backface of the triangle
-                    const auto neighbour_node_ids = hit_actor->ar_node_to_node_connections[h->node_id];
+                    const auto& neighbour_node_ids = hit_actor->ar_node_to_node_connections[h->node_id];
                     const bool is_backface = BackfaceCollisionTest(distance, normal, *no, neighbour_node_ids, hit_actor->ar_nodes);
                     if (is_backface)
                     {

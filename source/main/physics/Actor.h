@@ -259,155 +259,203 @@ public:
     bool              isBeingReset() const              { return m_ongoing_reset; };
     void              UpdatePropAnimInputEvents();
 
-    // -------------------- Public data -------------------- //
+    /// @name Elements of truck file format
+    /// @{
+    std::vector<node_t>                ar_nodes;      //!< Index = `NodeNum_t`; The live data, updated every physics tick
+    std::vector<node_aux_t>            ar_nodes_aux;  //!< Index = `NodeNum_t`; The auxiliary data, used on occasion (reset/recalc/resize etc...)
+    std::vector<beam_t>                ar_beams;      //!< Index = `BeamID_t`; The live data, updated every physics tick
+    std::vector<beam_aux_t>            ar_beams_aux;  //!< Index = `BeamID_t`; The auxiliary data, used on occasion (reset/recalc/resize etc...)
+    std::vector<camera_t>              ar_cameras;    //!< Index = `CameraID_t`; A frame of reference, one is generated if not defined (backwards compat).
+    std::vector<shock_t>               ar_shocks;     //!< Index = `ShockID_t`; Shock absorbers
+    std::vector<wing_t>                ar_wings;      //!< Index = `WingID_t`; Airfoil surfaces
+    std::vector<wheel_t>               ar_wheels;     //!< Index = `WheelID_t`;
+    std::vector<rotator_t>             ar_rotators;   //!< Index = `RotatorID_t`;
+    std::vector<authorinfo_t>          authors;
+    std::vector<exhaust_t>             exhausts;
+    std::vector<rope_t>                ar_ropes;
+    std::vector<ropable_t>             ar_ropables;
+    std::vector<tie_t>                 ar_ties;
+    std::vector<hook_t>                ar_hooks;
+    std::vector<flare_t>               ar_flares;
+    std::vector<Airbrake*>             ar_airbrakes;
+    std::vector<hydrobeam_t>           ar_hydros;
+    std::vector<wheeldetacher_t>       ar_wheeldetachers;
+    std::vector<soundsource_t>         ar_soundsources;
+    std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this actor
+    std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
+    //                                 'cinecam'
+    NodeNum_t                          ar_cinecam_node[MAX_CAMERAS] = { NODENUM_INVALID };
+    int                                ar_num_cinecams = 0;
+    //                                 'extcamera'
+    ExtCameraMode                      ar_extern_camera_mode = ExtCameraMode::CLASSIC;
+    NodeNum_t                          ar_extern_camera_node = NODENUM_INVALID;
+    //                                 'turbojets/turboprops/pistonprops'
+    AeroEngine*                        ar_aeroengines[MAX_AEROENGINES] = {};
+    int                                ar_num_aeroengines = 0;
+    //                                 'camerarail'
+    NodeNum_t                          ar_camera_rail[MAX_CAMERARAIL] = {}; //!< Nodes defining camera-movement spline
+    int                                ar_num_camera_rails = 0;
+    //                                 'particles'
+    cparticle_t                        ar_custom_particles[MAX_CPARTICLES] = {};
+    int                                ar_num_custom_particles = 0;
+    //                                 'antilockbrake'
+    float                              alb_ratio = 0.f;          //!< Anti-lock brake attribute: Regulating force
+    float                              alb_minspeed = 0.f;       //!< Anti-lock brake attribute;
+    bool                               alb_mode = false;           //!< Anti-lock brake state; Enabled? {1/0}
+    float                              alb_pulse_time = 0.f;     //!< Anti-lock brake attribute;
+    bool                               alb_pulse_state = false;    //!< Anti-lock brake state;
+    bool                               alb_nodash = false;         //!< Anti-lock brake attribute: Hide the dashboard indicator?
+    bool                               alb_notoggle = false;       //!< Anti-lock brake attribute: Disable in-game toggle?
+    float                              alb_timer = 0.f;          //!< Anti-lock brake state;
+    //                                 'tractioncontrol'
+    float                              tc_ratio = 0.f;           //!< Traction control attribute: Regulating force
+    bool                               tc_mode = false;            //!< Traction control state; Enabled? {1/0}
+    float                              tc_pulse_time = 0.f;      //!< Traction control attribute;
+    bool                               tc_pulse_state = 0.f;     //!< Traction control state;
+    bool                               tc_nodash = false;          //!< Traction control attribute; Hide the dashboard indicator?
+    bool                               tc_notoggle = false;        //!< Traction control attribute; Disable in-game toggle?
+    float                              tc_timer = 0.f;           //!< Traction control state;
+    //                                 'cruisecontrol'
+    bool                               cc_mode = false;            //!< Cruise Control
+    bool                               cc_can_brake = false;       //!< Cruise Control
+    float                              cc_target_rpm = 0.f;      //!< Cruise Control
+    float                              cc_target_speed = 0.f;    //!< Cruise Control
+    float                              cc_target_speed_lower_limit = 0.f; //!< Cruise Control
+    std::deque<float>                  cc_accs;            //!< Cruise Control
+    //                                 'speedlimiter'
+    bool                               sl_enabled = false;         //!< Speed limiter;
+    float                              sl_speed_limit = 0.f;     //!< Speed limiter;
+    //                                 'screwprops'
+    Screwprop*                         ar_screwprops[MAX_SCREWPROPS] = {};
+    int                                ar_num_screwprops = 0;
+    //                                 'cab'
+    int                                ar_cabs[MAX_CABS * 3] = {};
+    int                                ar_num_cabs = 0;
+    int                                ar_collcabs[MAX_CABS] = {};
+    collcab_rate_t                     ar_inter_collcabrate[MAX_CABS] = {};
+    collcab_rate_t                     ar_intra_collcabrate[MAX_CABS] = {};
+    int                                ar_num_collcabs = 0;
+    int                                ar_buoycabs[MAX_CABS] = {};
+    int                                ar_buoycab_types[MAX_CABS] = {};
+    int                                ar_num_buoycabs = 0;
+    //                                 'transfercase'
+    TransferCase*                      m_transfer_case = nullptr;
+    //                                 'submesh_groundmodel'
+    ground_model_t*                    ar_submesh_ground_model = nullptr;
+    /// @}
 
-    std::vector<node_t>       ar_nodes;      //!< Index = `NodeNum_t`; The live data, updated every physics tick
-    std::vector<node_aux_t>   ar_nodes_aux;  //!< Index = `NodeNum_t`; The auxiliary data, used on occasion (reset/recalc/resize etc...)
-    std::vector<beam_t>       ar_beams;      //!< Index = `BeamID_t`; The live data, updated every physics tick
-    std::vector<beam_aux_t>   ar_beams_aux;  //!< Index = `BeamID_t`; The auxiliary data, used on occasion (reset/recalc/resize etc...)
-    std::vector<camera_t>     ar_cameras;    //!< Index = `CameraID_t`; A frame of reference, one is generated if not defined (backwards compat).
-    std::vector<shock_t>      ar_shocks;     //!< Index = `ShockID_t`; Shock absorbers
-    std::vector<wing_t>       ar_wings;      //!< Index = `WingID_t`; Airfoil surfaces
-    std::vector<wheel_t>      ar_wheels;     //!< Index = `WheelID_t`;
-    std::vector<rotator_t>    ar_rotators;   //!< Index = `RotatorID_t`;
+    /// @name Gameplay info
+    /// @{
+    ActorType                          ar_driveable = NOT_DRIVEABLE;
+    Ogre::String                       ar_design_name;                           //!< Name given by creator
+    bool                               ar_hide_in_actor_list = false;            //!< 'hideInChooser' ~ Hide in list of spawned actors (available in top menubar). Useful for fixed-place machinery, i.e. cranes.
+    std::string                        ar_filename;                              //!< Attribute; filled at spawn
+    std::string                        ar_filehash;                              //!< Attribute; filled at spawn
+    bool                               ar_has_active_shocks = false;             //!< Are there active stabilizer shocks?
+    int                                ar_nodes_name_top_length = 0;             //!< For nicely formatted diagnostic output
+    Ogre::String                       m_section_config;
+    CacheEntry*                        m_used_skin_entry = nullptr;       //!< Graphics
+    /// @}
 
-    int                  ar_nodes_name_top_length = 0; //!< For nicely formatted diagnostic output
+    /// @name Gameplay state
+    /// @{
+    ActorInstanceID_t                  ar_instance_id = ACTORINSTANCEID_INVALID; //!< session-unique ID
+    unsigned int                       ar_vector_index = 0;                      //!< Sim attr; actor element index in std::vector<m_actors>
+    ActorState                         ar_state = ActorState::LOCAL_SIMULATED;
+    bool                               ar_physics_paused = false;                //!< Physics are frozen
+    bool                               m_ongoing_reset = false;                  //!< Hack to prevent position/rotation creep during interactive truck reset
+    CameraID_t                         ar_current_cinecam = CAMERAID_INVALID;    //!< (CAMERAID_INVALID if using 3rd-person camera)
 
-    bool                 ar_minimass_skip_loaded_nodes = false;
+    /// @}
 
-    
-    std::vector<beam_t*> ar_inter_beams;       //!< Beams connecting 2 actors
+    /// @name Physics attributes
+    /// @{
+    bool                               ar_minimass_skip_loaded_nodes = false;
+    float                              ar_collision_range = DEFAULT_COLLISION_RANGE;             //!< Physics attr
+    float                              ar_brake_force = 0.f;              //!< Physics attr; filled at spawn
+    std::vector<std::vector<NodeNum_t>> ar_node_to_node_connections;
+    std::vector<std::vector<BeamID_t>> ar_node_to_beam_connections;
+    /// @}
 
-    bool                 ar_has_active_shocks = false; //!< Are there active stabilizer shocks?
-    std::vector<authorinfo_t> authors;
-    std::vector<exhaust_t>    exhausts;
-    std::vector<rope_t>       ar_ropes;
-    std::vector<ropable_t>    ar_ropables;
-    std::vector<tie_t>        ar_ties;
-    std::vector<hook_t>       ar_hooks;
-    std::vector<flare_t>      ar_flares;
-    std::vector<Airbrake*>    ar_airbrakes;
-    Ogre::AxisAlignedBox      ar_bounding_box;     //!< standard bounding box (surrounds all nodes of an actor)
-    Ogre::AxisAlignedBox      ar_predicted_bounding_box;
-    float                     ar_initial_total_mass = 0.f;
-
-    
-    std::vector<wheeldetacher_t>   ar_wheeldetachers;
-    std::vector<soundsource_t>     ar_soundsources;
-
-    std::vector<std::vector<int>>  ar_node_to_node_connections;
-    std::vector<std::vector<int>>  ar_node_to_beam_connections;
-    std::vector<Ogre::AxisAlignedBox>  ar_collision_bounding_boxes; //!< smart bounding boxes, used for determining the state of an actor (every box surrounds only a subset of nodes)
+    /// @name Physics state
+    /// @{
+    Ogre::Vector3                      ar_origin = Ogre::Vector3::ZERO;          //!< World position, base for node `RelPosition`.
+    float                              ar_scale = 1.f;                           //!< Physics state; scale of the actor (nominal = 1.0)
+    bool                               ar_collision_relevant = false;            //!< Physics state;
+    bool                               ar_update_physics = false; //!< Physics state; Should this actor be updated (locally) in the next physics step?
+    float                              ar_posnode_spawn_height = 0.f;
+    Ogre::Vector3                      ar_fusedrag = Ogre::Vector3::ZERO;        //!< Physics state
+    float                              ar_initial_total_mass = 0.f;
+    Ogre::AxisAlignedBox               ar_bounding_box;                          //!< standard bounding box (surrounds all nodes of an actor)
+    Ogre::AxisAlignedBox               ar_predicted_bounding_box;
+    std::vector<Ogre::AxisAlignedBox>  ar_collision_bounding_boxes;              //!< smart bounding boxes, used for determining the state of an actor (every box surrounds only a subset of nodes)
     std::vector<Ogre::AxisAlignedBox>  ar_predicted_coll_bounding_boxes;
-    int               ar_num_contactable_nodes = 0; //!< Total number of nodes which can contact ground or cabs
-    int               ar_num_contacters = 0; //!< Total number of nodes which can selfcontact cabs
-    command_t         ar_command_key[MAX_COMMANDS + 10] = {}; // 0 for safety
-    cparticle_t       ar_custom_particles[MAX_CPARTICLES] = {};
-    int               ar_num_custom_particles = 0;
+    std::vector<beam_t*>               ar_inter_beams;                           //!< Beams connecting 2 actors
+    float                              ar_anim_previous_crank = 0.f;     //!< For 'animator' with flag 'torque'
+    float                              ar_anim_shift_timer = 0.f;//!< For 'animator' with flag 'shifter'
+    int                                ar_num_contactable_nodes = 0; //!< Total number of nodes which can contact ground or cabs
+    int                                ar_num_contacters = 0; //!< Total number of nodes which can selfcontact cabs
     
-    AeroEngine*       ar_aeroengines[MAX_AEROENGINES] = {};
-    int               ar_num_aeroengines = 0;
-    Screwprop*        ar_screwprops[MAX_SCREWPROPS] = {};
-    int               ar_num_screwprops = 0;
-    int               ar_cabs[MAX_CABS * 3] = {};
-    int               ar_num_cabs = 0;
-    std::vector<hydrobeam_t> ar_hydros;
-    int               ar_collcabs[MAX_CABS] = {};
-    collcab_rate_t    ar_inter_collcabrate[MAX_CABS] = {};
-    collcab_rate_t    ar_intra_collcabrate[MAX_CABS] = {};
-    int               ar_num_collcabs = 0;
-    int               ar_buoycabs[MAX_CABS] = {};
-    int               ar_buoycab_types[MAX_CABS] = {};
-    int               ar_num_buoycabs = 0;
-    NodeNum_t         ar_camera_rail[MAX_CAMERARAIL] = {}; //!< Nodes defining camera-movement spline
-    int               ar_num_camera_rails = 0;
-    bool              ar_hide_in_actor_list = false;      //!< Hide in list of spawned actors (available in top menubar). Useful for fixed-place machinery, i.e. cranes.
-    Ogre::String      ar_design_name;             //!< Name of the vehicle/machine/object this actor represents
-    float             ar_anim_previous_crank = 0.f;     //!< For 'animator' with flag 'torque'
-    float             alb_ratio = 0.f;          //!< Anti-lock brake attribute: Regulating force
-    float             alb_minspeed = 0.f;       //!< Anti-lock brake attribute;
-    bool              alb_mode = false;           //!< Anti-lock brake state; Enabled? {1/0}
-    float             alb_pulse_time = 0.f;     //!< Anti-lock brake attribute;
-    bool              alb_pulse_state = false;    //!< Anti-lock brake state;
-    bool              alb_nodash = false;         //!< Anti-lock brake attribute: Hide the dashboard indicator?
-    bool              alb_notoggle = false;       //!< Anti-lock brake attribute: Disable in-game toggle?
-    float             alb_timer = 0.f;          //!< Anti-lock brake state;
-    float             tc_ratio = 0.f;           //!< Traction control attribute: Regulating force
-    bool              tc_mode = false;            //!< Traction control state; Enabled? {1/0}
-    float             tc_pulse_time = 0.f;      //!< Traction control attribute;
-    bool              tc_pulse_state = 0.f;     //!< Traction control state;
-    bool              tc_nodash = false;          //!< Traction control attribute; Hide the dashboard indicator?
-    bool              tc_notoggle = false;        //!< Traction control attribute; Disable in-game toggle?
-    float             tc_timer = 0.f;           //!< Traction control state;
-    float             ar_anim_shift_timer = 0.f;//!< For 'animator' with flag 'shifter'
-    bool              cc_mode = false;            //!< Cruise Control
-    bool              cc_can_brake = false;       //!< Cruise Control
-    float             cc_target_rpm = 0.f;      //!< Cruise Control
-    float             cc_target_speed = 0.f;    //!< Cruise Control
-    float             cc_target_speed_lower_limit = 0.f; //!< Cruise Control
-    std::deque<float> cc_accs;            //!< Cruise Control
-    bool              sl_enabled = false;         //!< Speed limiter;
-    float             sl_speed_limit = 0.f;     //!< Speed limiter;
-    ExtCameraMode     ar_extern_camera_mode = ExtCameraMode::CLASSIC;
-    NodeNum_t         ar_extern_camera_node = NODENUM_INVALID;
-    NodeNum_t         ar_exhaust_pos_node   = 0;   //!< Old-format exhaust (one per vehicle) emitter node
-    NodeNum_t         ar_exhaust_dir_node   = 0;   //!< Old-format exhaust (one per vehicle) backwards direction node
-    ActorInstanceID_t ar_instance_id = ACTORINSTANCEID_INVALID;              //!< Static attr; session-unique ID
-    unsigned int      ar_vector_index = 0;             //!< Sim attr; actor element index in std::vector<m_actors>
-    ActorType         ar_driveable = NOT_DRIVEABLE;                //!< Sim attr; marks vehicle type and features
-    EngineSim*        ar_engine = nullptr;
-    NodeNum_t         ar_cinecam_node[MAX_CAMERAS] = {NODENUM_INVALID}; //!< Sim attr; Cine-camera node indexes
-    int               ar_num_cinecams = 0;             //!< Sim attr;
-    Autopilot*        ar_autopilot = nullptr;
-    float             ar_brake_force = 0.f;              //!< Physics attr; filled at spawn
-    float             ar_speedo_max_kph = 0.f;           //!< GUI attr
-    Ogre::Vector3     ar_origin = Ogre::Vector3::ZERO;                   //!< Physics state; base position for softbody nodes
-    float             ar_posnode_spawn_height = 0.f;
-    VehicleAIPtr      ar_vehicle_ai;
-    float             ar_scale = 1.f;               //!< Physics state; scale of the actor (nominal = 1.0)
-    Ogre::Real        ar_brake = 0.f;               //!< Physics state; braking intensity
-    float             ar_wheel_speed = 0.f;         //!< Physics state; wheel speed in m/s
-    float             ar_wheel_spin = 0.f;          //!< Physics state; wheel speed in radians/s
-    float             ar_avg_wheel_speed = 0.f;     //!< Physics state; avg wheel speed in m/s
+    CollisionBoxPtrVec                 m_potential_eventboxes;
+    std::vector<std::pair<collision_box_t*, NodeNum_t>> m_active_eventboxes;
+    float                              ar_wheel_speed = 0.f;         //!< Physics state; wheel speed in m/s
+    float                              ar_wheel_spin = 0.f;          //!< Physics state; wheel speed in radians/s
+    float                              ar_avg_wheel_speed = 0.f;     //!< Physics state; avg wheel speed in m/s
+    float                              ar_sleep_counter = 0.f;               //!< Sim state; idle time counter
+    float                              ar_top_speed = 0.f;                   //!< Sim state
+    ground_model_t*                    ar_last_fuzzy_ground_model = nullptr;     //!< GUI state
+    
+    /// @}
+
+    /// @name Input
+    /// @{
+    command_t         ar_command_key[MAX_COMMANDS + 10] = {}; // 0 for safety
     float             ar_hydro_dir_command = 0.f;
     float             ar_hydro_dir_state = 0.f;
-    Ogre::Real        ar_hydro_dir_wheel_display = 0.f;
+    float             ar_hydro_dir_wheel_display = 0.f;
     float             ar_hydro_aileron_command = 0.f;
     float             ar_hydro_aileron_state = 0.f;
     float             ar_hydro_rudder_command = 0.f;
     float             ar_hydro_rudder_state = 0.f;
     float             ar_hydro_elevator_command = 0.f;
     float             ar_hydro_elevator_state = 0.f;
-    float             ar_sleep_counter = 0.f;               //!< Sim state; idle time counter
-    ground_model_t*   ar_submesh_ground_model = nullptr;
-    bool              ar_parking_brake = false;
-    bool              ar_trailer_parking_brake = false;
-    float             ar_left_mirror_angle = 0.52f;           //!< Sim state; rear view mirror angle
-    float             ar_right_mirror_angle = -0.52f;          //!< Sim state; rear view mirror angle
+    Ogre::Real        ar_brake = 0.f;               //!< Physics state; braking intensity
     float             ar_elevator = 0.f;                    //!< Sim state; aerial controller
     float             ar_rudder = 0.f;                      //!< Sim state; aerial/marine controller
     float             ar_aileron = 0.f;                     //!< Sim state; aerial controller
-    int               ar_aerial_flap = 0;                 //!< Sim state; state of aircraft flaps (values: 0-5)
-    Ogre::Vector3     ar_fusedrag = Ogre::Vector3::ZERO;                    //!< Physics state
-    CameraID_t        ar_current_cinecam = CAMERAID_INVALID;             //!< Sim state; index of current CineCam (CAMERAID_INVALID if using 3rd-person camera)
-    NodeNum_t         ar_custom_camera_node = NODENUM_INVALID; //!< Sim state; custom tracking node for 3rd-person camera
-    std::string       ar_filename;                    //!< Attribute; filled at spawn
-    std::string       ar_filehash;                    //!< Attribute; filled at spawn
     int               ar_airbrake_intensity = 0;          //!< Physics state; values 0-5
+    int               ar_aerial_flap = 0;                 //!< Sim state; state of aircraft flaps (values: 0-5)
+    bool              ar_toggle_ropes = false;     //!< Sim state
+    bool              ar_toggle_ties = false;      //!< Sim state
+    bool              ar_parking_brake = false;
+    bool              ar_trailer_parking_brake = false;
+    /// @}
+
+    /// @name Subsystems
+    /// @{
+    NodeNum_t         ar_exhaust_pos_node = 0;   //!< Old-format exhaust (one per vehicle) emitter node
+    NodeNum_t         ar_exhaust_dir_node = 0;   //!< Old-format exhaust (one per vehicle) backwards direction node
+
+    float             ar_left_mirror_angle = 0.52f;           //!< Sim state; rear view mirror angle
+    float             ar_right_mirror_angle = -0.52f;          //!< Sim state; rear view mirror angle
+
+    float             ar_speedo_max_kph = 0.f;           //!< GUI attr
+    bool              ar_gui_use_engine_max_rpm = false;  //!< Gfx attr
+
+    NodeNum_t         ar_custom_camera_node = NODENUM_INVALID; //!< Sim state; custom tracking node for 3rd-person camera
+
+    EngineSim*        ar_engine = nullptr;
+    Autopilot*        ar_autopilot = nullptr;
+    VehicleAIPtr      ar_vehicle_ai;
+    DashBoardManager* ar_dashboard = nullptr;
+    TyrePressure      m_tyre_pressure;
+    /// @}
+    
     int               ar_net_source_id = 0;               //!< Unique ID of remote player who spawned this actor
     int               ar_net_stream_id = 0;
     std::map<int,int> ar_net_stream_results;
     Ogre::Timer       ar_net_timer;
     unsigned long     ar_net_last_update_time = 0;
-    DashBoardManager* ar_dashboard = nullptr;
-    float             ar_collision_range = DEFAULT_COLLISION_RANGE;             //!< Physics attr
-    float             ar_top_speed = 0.f;                   //!< Sim state
-    ground_model_t*   ar_last_fuzzy_ground_model = nullptr;     //!< GUI state
-    CollisionBoxPtrVec m_potential_eventboxes;
-    std::vector<std::pair<collision_box_t*, NodeNum_t>> m_active_eventboxes;
-
-    // Gameplay state
-    ActorState        ar_state = ActorState::LOCAL_SIMULATED;
 
     // Realtime node/beam structure editing helpers
     bool                    ar_nb_initialized = false;
@@ -427,19 +475,18 @@ public:
     std::pair<float, float> ar_nb_wheels_k_interval;  //!< Search interval for springiness & damping of wheel / rim beams
 
     // Bit flags
-    bool ar_update_physics:1; //!< Physics state; Should this actor be updated (locally) in the next physics step?
+    
     bool ar_disable_aerodyn_turbulent_drag:1; //!< Physics state
     bool ar_engine_hydraulics_ready:1; //!< Sim state; does engine have enough RPM to power hydraulics?
-    bool ar_gui_use_engine_max_rpm:1;  //!< Gfx attr
+    
     bool ar_hydro_speed_coupling:1;
-    bool ar_collision_relevant:1;      //!< Physics state;
+    
     bool ar_is_police:1;        //!< Gfx/sfx attr
     bool ar_rescuer_flag:1;     //!< Gameplay attr; defined in truckfile. TODO: Does anybody use this anymore?
     bool ar_forward_commands:1; //!< Sim state
     bool ar_import_commands:1;  //!< Sim state
-    bool ar_toggle_ropes:1;     //!< Sim state
-    bool ar_toggle_ties:1;      //!< Sim state
-    bool ar_physics_paused:1;   //!< Sim state
+
+    
 
 private:
 
@@ -494,9 +541,7 @@ private:
     RigDef::DocumentPtr                m_definition;
     std::unique_ptr<GfxActor>          m_gfx_actor;
     PerVehicleCameraContext            m_camera_context;
-    Ogre::String                       m_section_config;
-    std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this actor
-    std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
+
     std::vector<Ogre::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.
     std::vector<Ogre::SceneNode*>      m_deletion_scene_nodes; //!< For unloading vehicle; filled at spawn.
     int               m_proped_wheel_pairs[MAX_WHEELS] = {};    //!< Physics attr; For inter-differential locking
@@ -531,8 +576,7 @@ private:
     Differential*     m_axle_diffs[1+MAX_WHEELS/2] = {};//!< Physics
     int               m_num_axle_diffs = 0;           //!< Physics attr
     Differential*     m_wheel_diffs[MAX_WHEELS/2] = {};//!< Physics
-    int               m_num_wheel_diffs = 0;          //!< Physics attr
-    TransferCase*     m_transfer_case = nullptr;            //!< Physics
+    int               m_num_wheel_diffs = 0;          //!< Physics attr    
     int               m_wheel_node_count = 0;      //!< Static attr; filled at spawn
     int               m_previous_gear = 0;         //!< Sim state; land vehicle shifting
     float             m_handbrake_force = 0.f;       //!< Physics attr; defined in truckfile
@@ -547,12 +591,12 @@ private:
     int               m_masscount = 0;             //!< Physics attr; Number of nodes loaded with l option
     float             m_dry_mass = 0.f;              //!< Physics attr;
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
-    CacheEntry*       m_used_skin_entry = nullptr;       //!< Graphics
+    
     bool              m_antilockbrake = false;         //!< GUI state
     bool              m_tractioncontrol = false;       //!< GUI state
-    bool              m_ongoing_reset = false;         //!< Hack to prevent position/rotation creep during interactive truck reset
+    
     bool              m_has_axles_section = false;     //!< Temporary (legacy parsing helper) until central diffs are implemented
-    TyrePressure      m_tyre_pressure;
+    
     std::vector<std::string>  m_description;
     std::vector<PropAnimKeyState> m_prop_anim_key_states;
 

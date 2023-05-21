@@ -811,8 +811,8 @@ void Actor::calcNodeConnectivityGraph()
 {
     int i;
 
-    ar_node_to_node_connections.resize(static_cast<int>(ar_nodes.size()), std::vector<int>());
-    ar_node_to_beam_connections.resize(static_cast<int>(ar_nodes.size()), std::vector<int>());
+    ar_node_to_node_connections.resize(ar_nodes.size());
+    ar_node_to_beam_connections.resize(ar_nodes.size());
 
     for (i = 0; i < static_cast<int>(ar_beams.size()); i++)
     {
