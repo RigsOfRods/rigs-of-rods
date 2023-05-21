@@ -60,7 +60,7 @@ class Skidmark
 public:
 
     /// Constructor - see setOperationType() for description of argument.
-    Skidmark(ActorPtr owner, SkidmarkConfig* config,  wheel_t* m_wheel, Ogre::SceneNode* snode, int m_length = 500, int m_bucket_count = 20);
+    Skidmark(ActorPtr owner, SkidmarkConfig* config,  WheelID_t wheelid, Ogre::SceneNode* snode, int m_length = 500, int m_bucket_count = 20);
     virtual ~Skidmark();
 
     void reset();
@@ -96,7 +96,7 @@ private:
     static Ogre::Vector2 m_tex_coords[4];
     int                  m_bucket_count;
     int                  m_length;
-    wheel_t*             m_wheel;
+    WheelID_t            m_wheel;
     Ogre::SceneNode*     m_scene_node;  
     SkidmarkConfig*      m_config;
 };

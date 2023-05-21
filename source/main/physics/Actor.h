@@ -268,6 +268,7 @@ public:
     std::vector<camera_t>     ar_cameras;    //!< Index = `CameraID_t`; A frame of reference, one is generated if not defined (backwards compat).
     std::vector<shock_t>      ar_shocks;     //!< Index = `ShockID_t`; Shock absorbers
     std::vector<wing_t>       ar_wings;      //!< Index = `WingID_t`; Airfoil surfaces
+    std::vector<wheel_t>      ar_wheels;     //!< Index = `WheelID_t`;
 
     int                  ar_nodes_name_top_length = 0; //!< For nicely formatted diagnostic output
 
@@ -301,8 +302,6 @@ public:
     std::vector<Ogre::AxisAlignedBox>  ar_predicted_coll_bounding_boxes;
     int               ar_num_contactable_nodes = 0; //!< Total number of nodes which can contact ground or cabs
     int               ar_num_contacters = 0; //!< Total number of nodes which can selfcontact cabs
-    wheel_t           ar_wheels[MAX_WHEELS] = {};
-    int               ar_num_wheels = 0;
     command_t         ar_command_key[MAX_COMMANDS + 10] = {}; // 0 for safety
     cparticle_t       ar_custom_particles[MAX_CPARTICLES] = {};
     int               ar_num_custom_particles = 0;
@@ -550,7 +549,6 @@ private:
     float             m_dry_mass = 0.f;              //!< Physics attr;
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
     CacheEntry*       m_used_skin_entry = nullptr;       //!< Graphics
-    Skidmark*         m_skid_trails[MAX_WHEELS*2] = {};
     bool              m_antilockbrake = false;         //!< GUI state
     bool              m_tractioncontrol = false;       //!< GUI state
     bool              m_ongoing_reset = false;         //!< Hack to prevent position/rotation creep during interactive truck reset

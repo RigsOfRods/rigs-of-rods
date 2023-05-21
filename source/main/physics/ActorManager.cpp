@@ -288,8 +288,8 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
         //  - ar_num_nodes - 1 times 3 short ints (compressed position info)
         actor->m_net_node_buf_size = sizeof(float) * 3 + (actor->m_net_first_wheel_node - 1) * sizeof(short int) * 3;
         actor->m_net_total_buffer_size += actor->m_net_node_buf_size;
-        //  - ar_num_wheels times a float for the wheel rotation
-        actor->m_net_wheel_buf_size = actor->ar_num_wheels * sizeof(float);
+        //  - static_cast<int>(ar_wheels.size()) times a float for the wheel rotation
+        actor->m_net_wheel_buf_size = actor->ar_wheels.size() * sizeof(float);
         actor->m_net_total_buffer_size += actor->m_net_wheel_buf_size;
         //  - bit array (made of ints) for the prop animation key states
         actor->m_net_propanimkey_buf_size = 

@@ -787,14 +787,14 @@ void RoR::GfxActor::UpdateDebugView()
     } else if (m_debug_view == DebugViewType::DEBUGVIEW_WHEELS)
     {
         // Wheels
-        const wheel_t* wheels = m_actor->ar_wheels;
-        const size_t num_wheels = static_cast<size_t>(m_actor->ar_num_wheels);
-        for (int i = 0; i < num_wheels; i++)
+        for (size_t i = 0; i < m_actor->ar_wheels.size(); i++)
         {
-            node_t& axisnode0 = m_actor->ar_nodes[wheels[i].wh_axis_node0num];
-            node_t& axisnode1 = m_actor->ar_nodes[wheels[i].wh_axis_node0num];
-            node_t& armnode = m_actor->ar_nodes[wheels[i].wh_arm_nodenum];
-            node_t& nearnode = m_actor->ar_nodes[wheels[i].wh_near_attach_nodenum];
+            wheel_t& wheel = m_actor->ar_wheels[i];
+
+            node_t& axisnode0 = m_actor->ar_nodes[wheel.wh_axis_node0num];
+            node_t& axisnode1 = m_actor->ar_nodes[wheel.wh_axis_node0num];
+            node_t& armnode   = m_actor->ar_nodes[wheel.wh_arm_nodenum];
+            node_t& nearnode  = m_actor->ar_nodes[wheel.wh_near_attach_nodenum];
 
             Ogre::Vector3 axis = axisnode1.RelPosition - axisnode0.RelPosition;
             axis.normalise();
@@ -831,11 +831,11 @@ void RoR::GfxActor::UpdateDebugView()
                     float h1 = ImGui::CalcTextSize(wheel_id_buf.ToCStr()).x / 2.0f;
                     drawlist->AddText(ImVec2(pos.x - h1, pos.y), NODE_TEXT_COLOR, wheel_id_buf.ToCStr());
                     Str<25> rpm_buf;
-                    rpm_buf << "Speed: " << static_cast<int>(Round(wheels[i].debug_rpm)) << " rpm";
+                    rpm_buf << "Speed: " << static_cast<int>(Round(wheel.debug_rpm)) << " rpm";
                     float h2 = ImGui::CalcTextSize(rpm_buf.ToCStr()).x / 2.0f;
                     drawlist->AddText(ImVec2(pos.x - h2, pos.y + v), NODE_TEXT_COLOR, rpm_buf.ToCStr());
                     Str<25> torque_buf;
-                    torque_buf << "Torque: " << static_cast<int>(Round(wheels[i].debug_torque)) << " Nm";
+                    torque_buf << "Torque: " << static_cast<int>(Round(wheel.debug_torque)) << " Nm";
                     float h3 = ImGui::CalcTextSize(torque_buf.ToCStr()).x / 2.0f;
                     drawlist->AddText(ImVec2(pos.x - h3, pos.y + v + v), NODE_TEXT_COLOR, torque_buf.ToCStr());
                 }
@@ -910,7 +910,7 @@ void RoR::GfxActor::UpdateDebugView()
             }
             // Reaction torque
             {
-                Ogre::Vector3 cforce = wheels[i].debug_scaled_cforce;
+                Ogre::Vector3 cforce = wheel.debug_scaled_cforce;
                 {
                     Ogre::Vector3 pos1_xyz = world2screen.Convert(armnode.AbsPosition);
                     Ogre::Vector3 pos2_xyz = world2screen.Convert(armnode.AbsPosition - cforce);
@@ -938,34 +938,34 @@ void RoR::GfxActor::UpdateDebugView()
                 Ogre::Vector3 m = axisnode0.AbsPosition.midPoint(axisnode1.AbsPosition);
                 Ogre::Real    w = axisnode0.AbsPosition.distance(m);
                 Ogre::Vector3 u = - axis.crossProduct(m_simbuf.simbuf_direction);
-                if (!wheels[i].debug_force.isZeroLength())
+                if (!wheel.debug_force.isZeroLength())
                 {
-                    u = - wheels[i].debug_force.normalisedCopy();
+                    u = - wheel.debug_force.normalisedCopy();
                 }
                 Ogre::Vector3 f = axis.crossProduct(u);
-                Ogre::Vector3 a = - axis * w + f * std::max(w, wheels[i].wh_radius * 0.5f);
-                Ogre::Vector3 b = + axis * w + f * std::max(w, wheels[i].wh_radius * 0.5f);
-                Ogre::Vector3 c = + axis * w - f * std::max(w, wheels[i].wh_radius * 0.5f);
-                Ogre::Vector3 d = - axis * w - f * std::max(w, wheels[i].wh_radius * 0.5f);
+                Ogre::Vector3 a = - axis * w + f * std::max(w, wheel.wh_radius * 0.5f);
+                Ogre::Vector3 b = + axis * w + f * std::max(w, wheel.wh_radius * 0.5f);
+                Ogre::Vector3 c = + axis * w - f * std::max(w, wheel.wh_radius * 0.5f);
+                Ogre::Vector3 d = - axis * w - f * std::max(w, wheel.wh_radius * 0.5f);
                 Ogre::Quaternion r = Ogre::Quaternion::IDENTITY;
-                if (wheels[i].debug_vel.length() > 1.0f)
+                if (wheel.debug_vel.length() > 1.0f)
                 {
-                    r = Ogre::Quaternion(f.angleBetween(wheels[i].debug_vel), u);
+                    r = Ogre::Quaternion(f.angleBetween(wheel.debug_vel), u);
                 }
-                Ogre::Vector3 pos1_xyz = world2screen.Convert(m - u * wheels[i].wh_radius + r * a);
-                Ogre::Vector3 pos2_xyz = world2screen.Convert(m - u * wheels[i].wh_radius + r * b);
-                Ogre::Vector3 pos3_xyz = world2screen.Convert(m - u * wheels[i].wh_radius + r * c);
-                Ogre::Vector3 pos4_xyz = world2screen.Convert(m - u * wheels[i].wh_radius + r * d);
+                Ogre::Vector3 pos1_xyz = world2screen.Convert(m - u * wheel.wh_radius + r * a);
+                Ogre::Vector3 pos2_xyz = world2screen.Convert(m - u * wheel.wh_radius + r * b);
+                Ogre::Vector3 pos3_xyz = world2screen.Convert(m - u * wheel.wh_radius + r * c);
+                Ogre::Vector3 pos4_xyz = world2screen.Convert(m - u * wheel.wh_radius + r * d);
                 if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f) && (pos3_xyz.z < 0.f) && (pos4_xyz.z < 0.f))
                 {
                     ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
                     ImVec2 pos2xy(pos2_xyz.x, pos2_xyz.y);
                     ImVec2 pos3xy(pos3_xyz.x, pos3_xyz.y);
                     ImVec2 pos4xy(pos4_xyz.x, pos4_xyz.y);
-                    if (!wheels[i].debug_force.isZeroLength())
+                    if (!wheel.debug_force.isZeroLength())
                     {
-                        float slipv = wheels[i].debug_slip.length();
-                        float wheelv = wheels[i].debug_vel.length();
+                        float slipv = wheel.debug_slip.length();
+                        float wheelv = wheel.debug_vel.length();
                         float slip_ratio = std::min(slipv, wheelv) / std::max(1.0f, wheelv);
                         float scale = pow(slip_ratio, 2);
                         ImU32 col = Ogre::ColourValue(scale, 1.0f - scale, 0.0f, 0.2f).getAsABGR();
@@ -979,16 +979,16 @@ void RoR::GfxActor::UpdateDebugView()
             }
 
             // Slip vector
-            if (!wheels[i].debug_vel.isZeroLength())
+            if (!wheel.debug_vel.isZeroLength())
             {
                 Ogre::Vector3 m = axisnode0.AbsPosition.midPoint(axisnode1.AbsPosition);
                 Ogre::Real    w = axisnode0.AbsPosition.distance(m);
-                Ogre::Vector3 d = axis.crossProduct(m_simbuf.simbuf_direction) * wheels[i].wh_radius;
-                Ogre::Real slipv  = wheels[i].debug_slip.length();
-                Ogre::Real wheelv = wheels[i].debug_vel.length();
-                Ogre::Vector3 s = wheels[i].debug_slip * (std::min(slipv, wheelv) / std::max(1.0f, wheelv)) / slipv;
+                Ogre::Vector3 d = axis.crossProduct(m_simbuf.simbuf_direction) * wheel.wh_radius;
+                Ogre::Real slipv  = wheel.debug_slip.length();
+                Ogre::Real wheelv = wheel.debug_vel.length();
+                Ogre::Vector3 s = wheel.debug_slip * (std::min(slipv, wheelv) / std::max(1.0f, wheelv)) / slipv;
                 Ogre::Vector3 pos1_xyz = world2screen.Convert(m + d);
-                Ogre::Vector3 pos2_xyz = world2screen.Convert(m + d + s * std::max(w, wheels[i].wh_radius * 0.5f));
+                Ogre::Vector3 pos2_xyz = world2screen.Convert(m + d + s * std::max(w, wheel.wh_radius * 0.5f));
                 if ((pos1_xyz.z < 0.f) && (pos2_xyz.z < 0.f))
                 {
                     ImVec2 pos1xy(pos1_xyz.x, pos1_xyz.y);
@@ -999,12 +999,12 @@ void RoR::GfxActor::UpdateDebugView()
 
             // Down force
             {
-                Ogre::Real f = wheels[i].debug_force.length();
-                Ogre::Real mass = m_actor->getTotalMass(false) * num_wheels;
-                Ogre::Vector3 normalised_force = wheels[i].debug_force.normalisedCopy() * std::min(f / mass, 1.0f);
+                Ogre::Real f = wheel.debug_force.length();
+                Ogre::Real mass = m_actor->getTotalMass(false) * m_actor->ar_wheels.size();
+                Ogre::Vector3 normalised_force = wheel.debug_force.normalisedCopy() * std::min(f / mass, 1.0f);
                 Ogre::Vector3 m = axisnode0.AbsPosition.midPoint(axisnode1.AbsPosition);
                 Ogre::Vector3 pos5_xyz = world2screen.Convert(m);
-                Ogre::Vector3 pos6_xyz = world2screen.Convert(m + normalised_force * wheels[i].wh_radius);
+                Ogre::Vector3 pos6_xyz = world2screen.Convert(m + normalised_force * wheel.wh_radius);
                 if ((pos5_xyz.z < 0.f) && (pos6_xyz.z < 0.f))
                 {
                     ImVec2 pos1xy(pos5_xyz.x, pos5_xyz.y);
@@ -1460,7 +1460,7 @@ void RoR::GfxActor::ToggleDebugView()
 
 void RoR::GfxActor::SetDebugView(DebugViewType dv)
 {
-    if (dv == DebugViewType::DEBUGVIEW_WHEELS     && m_actor->ar_num_wheels   == 0 ||
+    if (dv == DebugViewType::DEBUGVIEW_WHEELS     && m_actor->ar_wheels.size()   == 0 ||
         dv == DebugViewType::DEBUGVIEW_SHOCKS     && m_actor->ar_shocks.size()  == 0 ||
         dv == DebugViewType::DEBUGVIEW_ROTATORS   && m_actor->ar_num_rotators == 0 ||
         dv == DebugViewType::DEBUGVIEW_SLIDENODES && m_actor->hasSlidenodes() == 0 ||
@@ -1485,7 +1485,7 @@ void RoR::GfxActor::CycleDebugViews()
     case DebugViewType::DEBUGVIEW_NODES:    SetDebugView(DebugViewType::DEBUGVIEW_BEAMS);    break;
     case DebugViewType::DEBUGVIEW_BEAMS:
     {
-        if      (m_actor->ar_num_wheels)    SetDebugView(DebugViewType::DEBUGVIEW_WHEELS);
+        if      (m_actor->ar_wheels.size())    SetDebugView(DebugViewType::DEBUGVIEW_WHEELS);
         else if (m_actor->ar_shocks.size()) SetDebugView(DebugViewType::DEBUGVIEW_SHOCKS);
         else if (m_actor->ar_num_rotators)  SetDebugView(DebugViewType::DEBUGVIEW_ROTATORS);
         else if (m_actor->hasSlidenodes())  SetDebugView(DebugViewType::DEBUGVIEW_SLIDENODES);

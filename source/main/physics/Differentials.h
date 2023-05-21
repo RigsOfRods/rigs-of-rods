@@ -68,8 +68,8 @@ class Differential
 public:
     Differential(): di_idx_1(0), di_idx_2(0), di_delta_rotation(0.0f) {};
 
-    int       di_idx_1;          //!< array location of wheel / axle 1
-    int       di_idx_2;          //!< array location of wheel / axle 2
+    WheelID_t di_idx_1;          //!< array location of wheel / axle 1
+    WheelID_t di_idx_2;          //!< array location of wheel / axle 2
     float     di_delta_rotation; //!< difference of rotational position between two wheels/axles... a kludge at best
 
     void             AddDifferentialType(DiffType diff) { m_available_diffs.push_back(diff); }

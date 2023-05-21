@@ -578,7 +578,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
         // Wheels
         rapidjson::Value j_wheels(rapidjson::kArrayType);
-        for (int i = 0; i < actor->ar_num_wheels; i++)
+        for (size_t i = 0; i < actor->ar_wheels.size(); i++)
         {
             j_wheels.PushBack(actor->ar_wheels[i].wh_is_detached, j_doc.GetAllocator());
         }
@@ -855,11 +855,11 @@ void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_e
         actor->ar_rotators[i].angle = j_entry["rotators"][i].GetFloat();
     }
 
-    for (int i = 0; i < actor->ar_num_wheels; i++)
+    for (size_t i = 0; i < actor->ar_wheels.size(); i++)
     {
-        if (actor->m_skid_trails[i])
+        if (actor->ar_wheels[i].wh_skidmark)
         {
-            actor->m_skid_trails[i]->reset();
+            actor->ar_wheels[i].wh_skidmark->reset();
         }
         actor->ar_wheels[i].wh_is_detached = j_entry["wheels"][i].GetBool();
     }

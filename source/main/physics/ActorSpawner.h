@@ -269,7 +269,7 @@ private:
     /// Sets up wheel and builds nodes for sections 'wheels', 'meshwheels' and 'meshwheels2'.
     /// @param wheel_width Width of the wheel (used in section 'wheels'). Use negative value to calculate width from axis beam.
     /// @return Wheel index.
-    unsigned int BuildWheelObjectAndNodes(
+    WheelID_t BuildWheelObjectAndNodes(
         unsigned int num_rays,
         NodeNum_t axis_node_1,
         NodeNum_t axis_node_2,
@@ -318,10 +318,8 @@ private:
     /// Creates name containing actor ID token, i.e. "Object_1@Actor_2"
     std::string                   ComposeName(const char* base, int number);
 
-    /// Finds wheel with given axle nodes and returns it's index.
-    /// @param _out_axle_wheel Index of the found wheel.
-    /// @return True if wheel was found, false if not.
-    bool                          AssignWheelToAxle(int & _out_axle_wheel, node_t *axis_node_1, node_t *axis_node_2);
+    /// Finds wheel with given axle nodes and returns it's WheelID_t index (or WHEELID_INVALID if such wheel wasn't found).
+    WheelID_t                     AssignWheelToAxle(NodeNum_t axis_node_1, NodeNum_t axis_node_2);
 
     // GetFree*(): Gets a free slot; checks limits, sets it's array position and updates 'free_node' index.
     node_t&                       AddNode();
@@ -368,7 +366,7 @@ private:
     /// @name Visual setup
     /// @{
     void                          CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override="");
-    void                          CreateWheelSkidmarks(unsigned int wheel_index);
+    void                          CreateWheelSkidmarks(WheelID_t wheel_index);
     void                          FinalizeGfxSetup();
     Ogre::MaterialPtr             FindOrCreateCustomizedMaterial(std::string orig_name);
     Ogre::MaterialPtr             CreateSimpleMaterial(Ogre::ColourValue color);

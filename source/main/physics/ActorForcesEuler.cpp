@@ -172,7 +172,7 @@ void Actor::CalcDifferentials()
         {
             torque *= 2.0f; // Required to stay backwards compatible
         }
-        for (int i = 0; i < ar_num_wheels; i++)
+        for (int i = 0; i < static_cast<int>(ar_wheels.size()); i++)
         {
             if (ar_wheels[i].wh_propulsed && !ar_wheels[i].wh_is_detached)
                 ar_wheels[i].wh_torque += torque;
@@ -285,7 +285,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
     ar_wheel_spin = 0.0f;
     ar_wheel_speed = 0.0f;
 
-    for (int i = 0; i < ar_num_wheels; i++)
+    for (int i = 0; i < static_cast<int>(ar_wheels.size()); i++)
     {
         if (doUpdate)
         {

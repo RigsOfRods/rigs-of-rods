@@ -205,10 +205,10 @@ void Actor::dispose()
     ar_airbrakes.clear();
 
     // delete skidmarks
-    for (int i = 0; i < ar_num_wheels; ++i)
+    for (size_t i = 0; i < ar_wheels.size(); ++i)
     {
-        delete m_skid_trails[i];
-        m_skid_trails[i] = nullptr;
+        delete ar_wheels[i].wh_skidmark;
+        ar_wheels[i].wh_skidmark = nullptr;
     }
 
     // delete flares
@@ -371,7 +371,7 @@ void Actor::pushNetwork(char* data, int size)
 
     update.veh_state.resize(sizeof(RoRnet::VehicleState));
     update.node_data.resize(m_net_node_buf_size);
-    update.wheel_data.resize(ar_num_wheels * sizeof(float));
+    update.wheel_data.resize(static_cast<int>(ar_wheels.size()) * sizeof(float));
 
     // check if the size of the data matches to what we expected
     if ((unsigned int)size == (m_net_total_buffer_size + sizeof(RoRnet::VehicleState)))
@@ -388,7 +388,7 @@ void Actor::pushNetwork(char* data, int size)
         ptr += m_net_node_buf_size;
 
         // then take care of the wheel speeds
-        for (int i = 0; i < ar_num_wheels; i++)
+        for (int i = 0; i < static_cast<int>(ar_wheels.size()); i++)
         {
             float wspeed = *(float*)(ptr);
             update.wheel_data[i] = wspeed;
@@ -538,7 +538,7 @@ void Actor::calcNetwork()
         ar_nodes[i].Velocity    = (p2 - p1) * 1000.0f / (float)(oob2->time - oob1->time);
     }
 
-    for (int i = 0; i < ar_num_wheels; i++)
+    for (int i = 0; i < static_cast<int>(ar_wheels.size()); i++)
     {
         float rp = net_rp1[i] + tratio * (net_rp2[i] - net_rp1[i]);
         node_t& axisnode0 = ar_nodes[ar_wheels[i].wh_axis_node0num];
@@ -1618,7 +1618,7 @@ void Actor::SyncReset(bool reset_position)
         r.attached_ropes = 0;
     }
 
-    for (int i = 0; i < ar_num_wheels; i++)
+    for (int i = 0; i < static_cast<int>(ar_wheels.size()); i++)
     {
         ar_wheels[i].wh_speed = 0.0;
         ar_wheels[i].wh_torque = 0.0;
@@ -2028,11 +2028,11 @@ void Actor::sendStreamData()
 
         // then to the wheels
         float* wfbuf = (float*)ptr;
-        for (i = 0; i < ar_num_wheels; i++)
+        for (i = 0; i < static_cast<int>(ar_wheels.size()); i++)
         {
             wfbuf[i] = ar_wheels[i].wh_net_rp;
         }
-        ptr += ar_num_wheels * sizeof(float);
+        ptr += static_cast<int>(ar_wheels.size()) * sizeof(float);
 
         // Then the anim key states
         for (size_t i = 0; i < m_prop_anim_key_states.size(); i++)
@@ -2889,9 +2889,9 @@ void Actor::setAirbrakeIntensity(float intensity)
 // call this once per frame in order to update the skidmarks
 void Actor::updateSkidmarks()
 {
-    for (int i = 0; i < ar_num_wheels; i++)
+    for (int i = 0; i < static_cast<int>(ar_wheels.size()); i++)
     {
-        if (!m_skid_trails[i])
+        if (!ar_wheels[i].wh_skidmark)
             continue;
 
         for (size_t j = 0; j < ar_wheels[i].wh_tire_nodes.size(); j++)
@@ -2904,7 +2904,7 @@ void Actor::updateSkidmarks()
             }
             if (n->nd_avg_collision_slip > 6.f && n->nd_last_collision_slip.squaredLength() > 9.f)
             {
-                m_skid_trails[i]->update(n->AbsPosition, j, n->nd_avg_collision_slip, n->nd_last_collision_gm->name);
+                ar_wheels[i].wh_skidmark->update(n->AbsPosition, j, n->nd_avg_collision_slip, n->nd_last_collision_gm->name);
                 return;
             }
         }

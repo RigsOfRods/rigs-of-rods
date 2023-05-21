@@ -498,29 +498,31 @@ struct wheel_t
     std::vector<NodeNum_t> wh_tire_nodes;
     std::vector<NodeNum_t> wh_rim_nodes;
 
-    BrakeCombo  wh_braking;
-    int         wh_propulsed;             // TODO: add enum ~ only_a_ptr, 08/2017
-    Ogre::Real  wh_radius;
-    Ogre::Real  wh_rim_radius;
-    Ogre::Real  wh_speed;             //!< Current wheel speed in m/s
-    Ogre::Real  wh_avg_speed;         //!< Internal physics state; Do not read from this
-    Ogre::Real  wh_alb_coef;          //!< Sim state; Current anti-lock  brake modulation ratio
-    Ogre::Real  wh_tc_coef;           //!< Sim state; Current traction control modulation ratio
-    Ogre::Real  wh_mass;              //!< Total rotational mass of the wheel
-    Ogre::Real  wh_torque;            //!< Internal physics state; Do not read from this
-    Ogre::Real  wh_last_torque;       //!< Last internal forces (engine / brakes / diffs)
-    Ogre::Real  wh_last_retorque;     //!< Last external forces (friction, ...)
-    float       wh_net_rp;
-    float       wh_width;
-    bool        wh_is_detached;
+    BrakeCombo  wh_braking = BrakeCombo::NONE;
+    int         wh_propulsed = 0;           //!< 0=NONE, 1=FORWARD, 2=BACKWARD
+    float       wh_radius = 0.f;
+    float       wh_rim_radius = 0.f;
+    float       wh_speed = 0.f;             //!< Current wheel speed in m/s
+    float       wh_avg_speed = 0.f;         //!< Internal physics state; Do not read from this
+    float       wh_alb_coef = 0.f;          //!< Sim state; Current anti-lock  brake modulation ratio
+    float       wh_tc_coef = 0.f;           //!< Sim state; Current traction control modulation ratio
+    float       wh_mass = 0.f;              //!< Total rotational mass of the wheel
+    float       wh_torque = 0.f;            //!< Internal physics state; Do not read from this
+    float       wh_last_torque = 0.f;       //!< Last internal forces (engine / brakes / diffs)
+    float       wh_last_retorque = 0.f;     //!< Last external forces (friction, ...)
+    float       wh_net_rp = 0.f;
+    float       wh_width = 0.f;
+    bool        wh_is_detached = false;
+
+    Skidmark* wh_skidmark = nullptr;
 
     // Debug
-    float debug_rpm;
-    float debug_torque;
-    Ogre::Vector3 debug_vel;
-    Ogre::Vector3 debug_slip;
-    Ogre::Vector3 debug_force;
-    Ogre::Vector3 debug_scaled_cforce;
+    float debug_rpm = 0.f;
+    float debug_torque = 0.f;
+    Ogre::Vector3 debug_vel = Ogre::Vector3::ZERO;
+    Ogre::Vector3 debug_slip = Ogre::Vector3::ZERO;
+    Ogre::Vector3 debug_force = Ogre::Vector3::ZERO;
+    Ogre::Vector3 debug_scaled_cforce = Ogre::Vector3::ZERO;
 };
 
 struct wheeldetacher_t

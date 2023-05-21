@@ -750,7 +750,7 @@ void TopMenubar::Update()
                 ImGui::RadioButton(_LC("TopMenubar", "Skeleton view"),   &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_SKELETON));
                 ImGui::RadioButton(_LC("TopMenubar", "Node details"),    &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_NODES));
                 ImGui::RadioButton(_LC("TopMenubar", "Beam details"),    &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_BEAMS));
-                if (current_actor->ar_num_wheels > 0)
+                if (current_actor->ar_wheels.size() > 0)
                 {
                     ImGui::RadioButton(_LC("TopMenubar", "Wheel details"),   &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_WHEELS));
                 }

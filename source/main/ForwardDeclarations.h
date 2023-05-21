@@ -52,6 +52,9 @@ namespace RoR
     typedef int WingID_t; //!< Index to `Actor::ar_wings`, use RoR::WINGID_INVALID as empty value.
     static const WingID_t WINGID_INVALID = -1;
 
+    typedef int WheelID_t; //!< Index to `Actor::ar_wheels`, use RoR::WHEELID_INVALID as empty value
+    static const WheelID_t WHEELID_INVALID = -1;
+
     typedef int RopableID_t; //!< Index to `Actor::ar_ropables`, use RoR::ROPABLEID_INVALID as empty value.
     static const RopableID_t ROPABLEID_INVALID = -1;
 

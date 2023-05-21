@@ -109,18 +109,18 @@ int RoR::SkidmarkConfig::getTexture(Ogre::String model, Ogre::String ground, flo
 // this is a hardcoded array which we use to map ground types to a certain texture with UV/ coords
 Ogre::Vector2 RoR::Skidmark::m_tex_coords[4] = {Ogre::Vector2(0, 0), Ogre::Vector2(0, 1), Ogre::Vector2(1, 0), Ogre::Vector2(1, 1)};
 
-RoR::Skidmark::Skidmark(ActorPtr a, RoR::SkidmarkConfig* config, wheel_t* m_wheel, 
+RoR::Skidmark::Skidmark(ActorPtr a, RoR::SkidmarkConfig* config, WheelID_t wheelid, 
         Ogre::SceneNode* snode, int m_length /* = 500 */, int m_bucket_count /* = 20 */)
     : m_scene_node(snode)
     , m_is_dirty(true)
     , m_length(m_length)
     , m_bucket_count(m_bucket_count)
-    , m_wheel(m_wheel)
+    , m_wheel(wheelid)
     , m_min_distance(0.25f)
-    , m_max_distance(std::max(0.5f, m_wheel->wh_width * 1.1f))
     , m_config(config)
     , m_actor(a)
 {
+    m_max_distance = std::max(0.5f, m_actor->ar_wheels[wheelid].wh_width * 1.1f);
     if (m_length % 2)
     {
         m_length--;
@@ -206,7 +206,8 @@ void RoR::Skidmark::SetPointInt(unsigned short index, const Ogre::Vector3& value
 void RoR::Skidmark::UpdatePoint(Ogre::Vector3 contact_point, int index, float slip, Ogre::String ground_model_name)
 {
     Ogre::Vector3 thisPoint = contact_point;
-    Ogre::Vector3 axis = m_actor->ar_nodes[m_wheel->wh_axis_node1num].RelPosition - m_actor->ar_nodes[m_wheel->wh_axis_node0num].RelPosition;
+    wheel_t& wheel = m_actor->ar_wheels[m_wheel];
+    Ogre::Vector3 axis = m_actor->ar_nodes[wheel.wh_axis_node1num].RelPosition - m_actor->ar_nodes[wheel.wh_axis_node0num].RelPosition;
     if (index % 2)
     {
         axis = -axis;
@@ -221,8 +222,8 @@ void RoR::Skidmark::UpdatePoint(Ogre::Vector3 contact_point, int index, float sl
     if (texture == "none")
         return;
 
-    if (m_wheel->wh_speed > 1)
-        maxDist *= m_wheel->wh_speed;
+    if (wheel.wh_speed > 1)
+        maxDist *= wheel.wh_speed;
 
     if (!m_objects.size())
     {
