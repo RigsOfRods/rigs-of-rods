@@ -570,7 +570,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
         // Rotators
         rapidjson::Value j_rotators(rapidjson::kArrayType);
-        for (int i = 0; i < actor->ar_num_rotators; i++)
+        for (size_t i = 0; i < actor->ar_rotators.size(); i++)
         {
             j_rotators.PushBack(actor->ar_rotators[i].angle, j_doc.GetAllocator());
         }
@@ -850,7 +850,7 @@ void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_e
         actor->ar_screwprops[i]->setThrottle(screwprops[i]["throttle"].GetFloat());
     }
 
-    for (int i = 0; i < actor->ar_num_rotators; i++)
+    for (int i = 0; i < actor->ar_rotators.size(); i++)
     {
         actor->ar_rotators[i].angle = j_entry["rotators"][i].GetFloat();
     }

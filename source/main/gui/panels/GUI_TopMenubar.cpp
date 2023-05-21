@@ -758,7 +758,7 @@ void TopMenubar::Update()
                 {
                     ImGui::RadioButton(_LC("TopMenubar", "Shock details"),   &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_SHOCKS));
                 }
-                if (current_actor->ar_num_rotators > 0)
+                if (current_actor->ar_rotators.size() > 0)
                 {
                     ImGui::RadioButton(_LC("TopMenubar", "Rotator details"), &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_ROTATORS));
                 }

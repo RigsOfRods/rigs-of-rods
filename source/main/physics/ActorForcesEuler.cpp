@@ -962,7 +962,7 @@ void Actor::CalcCommands(bool doUpdate)
             for (int j = 0; j < (int)ar_command_key[i].rotators.size(); j++)
             {
                 float v = 0.0f;
-                int rota = std::abs(ar_command_key[i].rotators[j]) - 1;
+                RotatorID_t rota = std::abs(ar_command_key[i].rotators[j]) - 1;
 
                 if (ar_rotators[rota].needs_engine && ((ar_engine && !ar_engine->isRunning()) || !ar_engine_hydraulics_ready))
                     continue;
@@ -1013,7 +1013,7 @@ void Actor::CalcCommands(bool doUpdate)
 #endif //USE_OPENAL
         }
         // rotators
-        for (int i = 0; i < ar_num_rotators; i++)
+        for (size_t i = 0; i < ar_rotators.size(); i++)
         {
             // compute rotation axis
             Vector3 ax1 = ar_nodes[ar_rotators[i].axis1].RelPosition;

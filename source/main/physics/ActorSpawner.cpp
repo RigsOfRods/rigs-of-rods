@@ -211,11 +211,6 @@ void ActorSpawner::InitializeRig()
         this->CalcMemoryRequirements(req, module.get());
     }
 
-    // Allocate memory as needed
-
-    if (req.num_rotators > 0)
-        m_actor->ar_rotators = new rotator_t[req.num_rotators];
-
     // commands contain complex data structures, do not memset them ...
     for (int i=0;i<MAX_COMMANDS+1;i++)
     {
@@ -3240,7 +3235,8 @@ void ActorSpawner::ProcessContacter(RigDef::Node::Ref & node_ref)
 
 void ActorSpawner::ProcessRotator(RigDef::Rotator & def)
 {
-    rotator_t & rotator = m_actor->ar_rotators[m_actor->ar_num_rotators];
+    rotator_t rotator;
+    RotatorID_t rotatorid = static_cast<RotatorID_t>(m_actor->ar_rotators.size());
 
     rotator.angle     = 0;
     rotator.rate      = def.rate;
@@ -3257,26 +3253,27 @@ void ActorSpawner::ProcessRotator(RigDef::Rotator & def)
     }
 
     // Validate the reference structure
-    this->ValidateRotator(m_actor->ar_num_rotators + 1, rotator.axis1, rotator.axis2, rotator.nodes1, rotator.nodes2);
+    this->ValidateRotator(rotatorid + 1, rotator.axis1, rotator.axis2, rotator.nodes1, rotator.nodes2);
 
     // Rotate left key
-    m_actor->ar_command_key[def.spin_left_key].rotators.push_back(- (m_actor->ar_num_rotators + 1));
+    m_actor->ar_command_key[def.spin_left_key].rotators.push_back(- (rotatorid + 1));
     m_actor->ar_command_key[def.spin_left_key].description = "Rotate_Left/Right";
 
     // Rotate right key
-    m_actor->ar_command_key[def.spin_right_key].rotators.push_back(m_actor->ar_num_rotators + 1);
+    m_actor->ar_command_key[def.spin_right_key].rotators.push_back(rotatorid + 1);
 
     this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults,
                              m_actor->ar_command_key[def.spin_left_key].rotator_inertia,
                              m_actor->ar_command_key[def.spin_right_key].rotator_inertia);
 
-    m_actor->ar_num_rotators++;
+    m_actor->ar_rotators.push_back(rotator);
     m_actor->m_has_command_beams = true;
 }
 
 void ActorSpawner::ProcessRotator2(RigDef::Rotator2 & def)
 {
-    rotator_t & rotator = m_actor->ar_rotators[m_actor->ar_num_rotators];
+    rotator_t rotator;
+    RotatorID_t rotatorid = static_cast<RotatorID_t>(m_actor->ar_rotators.size());
 
     rotator.angle = 0;
     rotator.rate = def.rate;
@@ -3293,10 +3290,10 @@ void ActorSpawner::ProcessRotator2(RigDef::Rotator2 & def)
     }
 
     // Validate the reference structure
-    this->ValidateRotator(m_actor->ar_num_rotators + 1, rotator.axis1, rotator.axis2, rotator.nodes1, rotator.nodes2);
+    this->ValidateRotator(rotatorid + 1, rotator.axis1, rotator.axis2, rotator.nodes1, rotator.nodes2);
 
     // Rotate left key
-    m_actor->ar_command_key[def.spin_left_key].rotators.push_back(- (m_actor->ar_num_rotators + 1));
+    m_actor->ar_command_key[def.spin_left_key].rotators.push_back(- (rotatorid + 1));
     if (! def.description.empty())
     {
         m_actor->ar_command_key[def.spin_left_key].description = def.description;
@@ -3307,13 +3304,13 @@ void ActorSpawner::ProcessRotator2(RigDef::Rotator2 & def)
     }
 
     // Rotate right key
-    m_actor->ar_command_key[def.spin_right_key].rotators.push_back(m_actor->ar_num_rotators + 1);
+    m_actor->ar_command_key[def.spin_right_key].rotators.push_back(rotatorid + 1);
 
     this->_ProcessKeyInertia(def.inertia, *def.inertia_defaults,
                              m_actor->ar_command_key[def.spin_left_key].rotator_inertia,
                              m_actor->ar_command_key[def.spin_right_key].rotator_inertia);
 
-    m_actor->ar_num_rotators++;
+    m_actor->ar_rotators.push_back(rotator);
     m_actor->m_has_command_beams = true;
 }
 

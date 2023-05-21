@@ -633,7 +633,7 @@ struct command_t
     float playerInputValue;
     bool trigger_cmdkeyblock_state;  //!< identifies blocked F-commands for triggers
     std::vector<commandbeam_t> beams;
-    std::vector<int> rotators;
+    std::vector<int> rotators; // Encoded RotatorID_t plus direction (negative number = left, positive = right)
     Ogre::String description;
     RoR::CmdKeyInertia rotator_inertia;
     RoR::CmdKeyInertia command_inertia;

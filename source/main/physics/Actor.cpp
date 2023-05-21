@@ -296,9 +296,6 @@ void Actor::dispose()
 
     m_wheel_node_count = 0;
 
-    delete[] ar_rotators;
-    ar_num_rotators = 0;
-
     ar_state = ActorState::DISPOSED;
 }
 
@@ -1644,7 +1641,7 @@ void Actor::SyncReset(bool reset_position)
         ar_aeroengines[i]->reset();
     for (int i = 0; i < ar_num_screwprops; i++)
         ar_screwprops[i]->reset();
-    for (int i = 0; i < ar_num_rotators; i++)
+    for (size_t i = 0; i < ar_rotators.size(); i++)
         ar_rotators[i].angle = 0.0;
     for (size_t i = 0; i < ar_wings.size(); i++)
         ar_wings[i].fa->broken = false;
