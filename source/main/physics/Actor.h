@@ -151,9 +151,6 @@ public:
     void              displayTransferCaseMode();           //! Writes info to console/notify area
     void              setSmokeEnabled(bool enabled) { m_disable_smoke = !enabled; }
     bool              getSmokeEnabled() const { return !m_disable_smoke; }
-    
-
-    std::vector<ActorPtr>& getAllLinkedActors() { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     //! @}
 
     /// @name Vehicle lights
@@ -383,6 +380,7 @@ public:
     float                              ar_scale = 1.f;                           //!< Physics state; scale of the actor (nominal = 1.0)
     bool                               ar_collision_relevant = false;            //!< Physics state;
     bool                               ar_update_physics = false; //!< Physics state; Should this actor be updated (locally) in the next physics step?
+    ActorPtrVec                        ar_linked_actors;              //!< Sim state; other actors linked using 'hooks'
     float                              ar_posnode_spawn_height = 0.f;
     Ogre::Vector3                      ar_fusedrag = Ogre::Vector3::ZERO;        //!< Physics state
     float                              ar_initial_total_mass = 0.f;
@@ -550,7 +548,7 @@ private:
     float             m_avionic_chatter_timer = 11.f;      //!< Sound fx state (some pseudo random number,  doesn't matter)
     PointColDetector* m_inter_point_col_detector = nullptr;   //!< Physics
     PointColDetector* m_intra_point_col_detector = nullptr;   //!< Physics
-    ActorPtrVec       m_linked_actors;              //!< Sim state; other actors linked using 'hooks'
+    
     Ogre::Vector3     m_avg_node_position = Ogre::Vector3::ZERO;          //!< average node position
     Ogre::Real        m_min_camera_radius = 0.f;
     Ogre::Vector3     m_avg_node_position_prev = Ogre::Vector3::ZERO;

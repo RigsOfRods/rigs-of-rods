@@ -1125,7 +1125,7 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
         m_cam_target_pitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
     }
 
-    if (m_cct_player_actor->getAllLinkedActors().size() != m_splinecam_num_linked_beams)
+    if (m_cct_player_actor->ar_linked_actors.size() != m_splinecam_num_linked_beams)
     {
         this->CameraBehaviorVehicleSplineCreateSpline();
     }
@@ -1243,7 +1243,7 @@ void CameraManager::CameraBehaviorVehicleSplineCreateSpline()
         m_splinecam_spline_nodes.push_back(m_cct_player_actor->ar_camera_rail[i]);
     }
 
-    auto linkedBeams = m_cct_player_actor->getAllLinkedActors();
+    auto linkedBeams = m_cct_player_actor->ar_linked_actors;
 
     m_splinecam_num_linked_beams = static_cast<int>(linkedBeams.size());
 

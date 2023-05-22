@@ -45,8 +45,6 @@ void PointColDetector::UpdateIntraPoint(bool contactables)
 
 void PointColDetector::UpdateInterPoint(bool ignorestate)
 {
-    m_linked_actors = m_actor->getAllLinkedActors();
-
     int contacters_size = 0;
     std::vector<ActorPtr> collision_partners;
     for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
@@ -55,7 +53,7 @@ void PointColDetector::UpdateInterPoint(bool ignorestate)
                 m_actor->ar_bounding_box.intersects(actor->ar_bounding_box))
         {
             collision_partners.push_back(actor);
-            bool is_linked = std::find(m_linked_actors.begin(), m_linked_actors.end(), actor) != m_linked_actors.end();
+            bool is_linked = std::find(m_actor->ar_linked_actors.begin(), m_actor->ar_linked_actors.end(), actor) != m_actor->ar_linked_actors.end();
             contacters_size += is_linked ? actor->ar_num_contacters : actor->ar_num_contactable_nodes;
             if (m_actor->ar_nodes[0].Velocity.squaredDistance(actor->ar_nodes[0].Velocity) > 16)
             {
@@ -96,7 +94,7 @@ void PointColDetector::update_structures_for_contacters(bool ignoreinternal)
     int refi = 0;
     for (ActorPtr actor : m_collision_partners)
     {
-        bool is_linked = std::find(m_linked_actors.begin(), m_linked_actors.end(), actor) != m_linked_actors.end();
+        bool is_linked = std::find(m_actor->ar_linked_actors.begin(), m_actor->ar_linked_actors.end(), actor) != m_actor->ar_linked_actors.end();
         bool internal_collision = !ignoreinternal && ((actor == m_actor) || is_linked);
         for (int i = 0; i < static_cast<int>(actor->ar_nodes.size()); i++)
         {

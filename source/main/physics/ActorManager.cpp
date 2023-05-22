@@ -647,7 +647,7 @@ void ActorManager::ForwardCommands(ActorPtr source_actor)
 {
     if (source_actor->ar_forward_commands)
     {
-        auto linked_actors = source_actor->getAllLinkedActors();
+        auto linked_actors = source_actor->ar_linked_actors;
 
         for (ActorPtr& actor : this->GetActors())
         {
