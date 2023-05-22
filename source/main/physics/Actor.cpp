@@ -753,7 +753,7 @@ float Actor::getTotalMass(bool withLocked)
 
     float mass = m_total_mass;
 
-    for (ActorPtr actor : ar_linked_actors)
+    for (ActorPtr& actor : ar_linked_actors)
     {
         mass += actor->m_total_mass;
     }
@@ -1515,7 +1515,7 @@ void Actor::SoftReset()
     {
         Vector3 translation = -agl * Vector3::UNIT_Y;
         this->resetPosition(ar_nodes[0].AbsPosition + translation, false);
-        for (ActorPtr actor : ar_linked_actors)
+        for (ActorPtr& actor : ar_linked_actors)
         {
             actor->resetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
         }

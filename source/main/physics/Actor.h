@@ -531,7 +531,7 @@ private:
     /// @param actor which actor to retrieve the closest Rail from
     /// @param node which SlideNode is being checked against
     /// @return a pair containing the rail, and the distant to the SlideNode
-    std::pair<RailGroup*, Ogre::Real> GetClosestRailOnActor( ActorPtr actor, const SlideNode& node);
+    std::pair<RailGroup*, Ogre::Real> GetClosestRailOnActor( ActorPtr& actor, const SlideNode& node);
 
     // -------------------- data -------------------- //
 

@@ -1125,7 +1125,7 @@ void ActorManager::UpdatePhysicsSimulation()
             {
                 if (actor->ar_update_physics = actor->CalcForcesEulerPrepare(i == 0))
                 {
-                    ActorPtr actor_raw = actor;
+                    Actor* actor_raw = actor.GetRef();
                     auto func = std::function<void()>([this, i, actor_raw]()
                         {
                             actor_raw->CalcForcesEulerCompute(i == 0, m_physics_steps);
@@ -1149,7 +1149,7 @@ void ActorManager::UpdatePhysicsSimulation()
                 if (actor->m_inter_point_col_detector != nullptr && (actor->ar_update_physics ||
                         (App::mp_pseudo_collisions->getBool() && actor->ar_state == ActorState::NETWORKED_OK)))
                 {
-                    ActorPtr actor_raw = actor;
+                    Actor* actor_raw = actor.GetRef();
                     auto func = std::function<void()>([this, actor_raw]()
                         {
                             actor_raw->m_inter_point_col_detector->UpdateInterPoint();

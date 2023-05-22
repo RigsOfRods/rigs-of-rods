@@ -70,7 +70,7 @@ void Actor::toggleSlideNodeLock()
     m_slidenodes_locked = !m_slidenodes_locked;
 } // is ugly....
 
-std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(ActorPtr actor, const SlideNode& node)
+std::pair<RailGroup*, Ogre::Real> Actor::GetClosestRailOnActor(ActorPtr& actor, const SlideNode& node)
 {
     std::pair<RailGroup*, Ogre::Real> closest((RailGroup*)NULL, std::numeric_limits<Ogre::Real>::infinity());
 
