@@ -33,10 +33,10 @@ class PointColDetector
 {
 public:
 
-    struct pointid_t
+    struct pointid_t //!< Node to Actor mapping for collision detection
     {
-        ActorPtr actor;
-        short node_id;
+        ActorInstanceID_t pd_actorid = ACTORINSTANCEID_INVALID;
+        NodeNum_t         pd_nodenum = NODENUM_INVALID;
     };
 
     std::vector<pointid_t*> hit_list;

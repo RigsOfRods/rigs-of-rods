@@ -105,8 +105,8 @@ void PointColDetector::update_structures_for_contacters(bool ignoreinternal)
         {
             if (actor->ar_nodes[i].nd_contacter || (!internal_collision && actor->ar_nodes[i].nd_contactable))
             {
-                m_pointid_list[refi].actor = actor;
-                m_pointid_list[refi].node_id = i;
+                m_pointid_list[refi].pd_actorid = actorid;
+                m_pointid_list[refi].pd_nodenum = i;
                 m_ref_list[refi].pidref = &m_pointid_list[refi];
                 m_ref_list[refi].point = actor->ar_nodes[i].AbsPosition.ptr();
                 refi++;

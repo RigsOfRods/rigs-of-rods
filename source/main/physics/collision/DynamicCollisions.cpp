@@ -23,6 +23,7 @@
 
 #include "Application.h"
 #include "Actor.h"
+#include "GameContext.h"
 #include "SimData.h"
 #include "CartesianToTriangleTransform.h"
 #include "Collisions.h"
@@ -148,8 +149,10 @@ void RoR::ResolveInterActorCollisions(const float dt, PointColDetector &interPoi
 
             for (auto h : interPointCD.hit_list)
             {
-                const auto hit_actor = h->actor;
-                const auto hitnode = &hit_actor->ar_nodes[h->node_id];
+                // CRITICAL: we cannot use `ActorPtr` here because ref-counting isn't thread-safe
+                // and this code runs from physics worker threads.
+                Actor* hit_actor = App::GetGameContext()->GetActorManager()->WorkerThreadGetActorByIdUnsafe(h->pd_actorid);
+                const auto hitnode = &hit_actor->ar_nodes[h->pd_nodenum];
 
                 // transform point to triangle local coordinates
                 const auto local_point = transform(hitnode->AbsPosition);
@@ -165,7 +168,7 @@ void RoR::ResolveInterActorCollisions(const float dt, PointColDetector &interPoi
                     auto normal     = triangle.normal();
 
                     // adapt in case the collision is occuring on the backface of the triangle
-                    const auto& neighbour_node_ids = hit_actor->ar_node_to_node_connections[h->node_id];
+                    const auto& neighbour_node_ids = hit_actor->ar_node_to_node_connections[h->pd_nodenum];
                     const bool is_backface = BackfaceCollisionTest(distance, normal, *no, neighbour_node_ids, hit_actor->ar_nodes);
                     if (is_backface)
                     {
@@ -236,7 +239,7 @@ void RoR::ResolveIntraActorCollisions(const float dt, PointColDetector &intraPoi
 
             for (auto h : intraPointCD.hit_list)
             {
-                const auto hitnode = &nodes[h->node_id];
+                const auto hitnode = &nodes[h->pd_nodenum];
 
                 //ignore wheel/chassis self contact
                 if (hitnode->nd_tyre_node) continue;
