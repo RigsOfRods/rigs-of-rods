@@ -33,7 +33,8 @@ void PointColDetector::UpdateIntraPoint(bool contactables)
 
     if (contacters_size != m_object_list_size)
     {
-        m_collision_partners = {m_actor};
+        m_collision_partners.clear();
+        m_collision_partners.push_back(m_actor->ar_instance_id);
         m_object_list_size = contacters_size;
         update_structures_for_contacters(contactables);
     }
@@ -46,13 +47,13 @@ void PointColDetector::UpdateIntraPoint(bool contactables)
 void PointColDetector::UpdateInterPoint(bool ignorestate)
 {
     int contacters_size = 0;
-    std::vector<ActorPtr> collision_partners;
+    std::vector<ActorInstanceID_t> collision_partners;
     for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if (actor != m_actor && (ignorestate || actor->ar_update_physics) &&
                 m_actor->ar_bounding_box.intersects(actor->ar_bounding_box))
         {
-            collision_partners.push_back(actor);
+            collision_partners.push_back(actor->ar_instance_id);
             bool is_linked = std::find(m_actor->ar_linked_actors.begin(), m_actor->ar_linked_actors.end(), actor) != m_actor->ar_linked_actors.end();
             contacters_size += is_linked ? actor->ar_num_contacters : actor->ar_num_contactable_nodes;
             if (m_actor->ar_nodes[0].Velocity.squaredDistance(actor->ar_nodes[0].Velocity) > 16)
@@ -92,11 +93,15 @@ void PointColDetector::update_structures_for_contacters(bool ignoreinternal)
 
     // Insert all contacters into the list of points to consider when building the kdtree
     int refi = 0;
-    for (ActorPtr actor : m_collision_partners)
+    for (ActorInstanceID_t actorid : m_collision_partners)
     {
+        // We cannot use `ActorPtr` here because reference counting isn't thread-safe
+        // and this code is also invoked from physics worker threads.
+        Actor* actor = App::GetGameContext()->GetActorManager()->WorkerThreadGetActorByIdUnsafe(actorid);
+
         bool is_linked = std::find(m_actor->ar_linked_actors.begin(), m_actor->ar_linked_actors.end(), actor) != m_actor->ar_linked_actors.end();
-        bool internal_collision = !ignoreinternal && ((actor == m_actor) || is_linked);
-        for (int i = 0; i < static_cast<int>(actor->ar_nodes.size()); i++)
+        bool internal_collision = !ignoreinternal && ((actorid == m_actor->ar_instance_id) || is_linked);
+        for (NodeNum_t i = 0; i < static_cast<NodeNum_t>(actor->ar_nodes.size()); i++)
         {
             if (actor->ar_nodes[i].nd_contacter || (!internal_collision && actor->ar_nodes[i].nd_contactable))
             {

@@ -1099,6 +1099,18 @@ ActorPtr ActorManager::GetActorById(ActorInstanceID_t actor_id)
     return 0;
 }
 
+Actor* ActorManager::WorkerThreadGetActorByIdUnsafe(ActorInstanceID_t instance_id)
+{
+    for (ActorPtr& actor : m_actors)
+    {
+        if (actor->ar_instance_id == instance_id)
+        {
+            return actor.GetRef();
+        }
+    }
+    return nullptr;
+}
+
 void ActorManager::UpdatePhysicsSimulation()
 {
     for (ActorPtr& actor: m_actors)

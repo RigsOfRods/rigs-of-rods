@@ -86,6 +86,7 @@ public:
     void           UpdateSleepingState(ActorPtr player_actor, float dt);
     
     ActorPtr         GetActorById(ActorInstanceID_t actor_id);
+    Actor*           WorkerThreadGetActorByIdUnsafe(ActorInstanceID_t instance_id); //!< Unsafe, for threaded tasks only!
     ActorPtr         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
     void           UpdateInputEvents(float dt);
     RigDef::DocumentPtr   FetchActorDef(std::string filename, bool predefined_on_terrain = false);
