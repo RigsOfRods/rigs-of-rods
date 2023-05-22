@@ -54,7 +54,7 @@ class Actor : public ZeroedMemoryAllocator, public RefCountingObject<Actor>
 public:
 
     Actor(
-          int actor_id
+          ActorInstanceID_t actor_id
         , unsigned int vector_index
         , RigDef::DocumentPtr def
         , ActorSpawnRequest rq

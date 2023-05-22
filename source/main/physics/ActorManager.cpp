@@ -57,7 +57,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-static int m_actor_counter = 0;
+static ActorInstanceID_t m_actor_counter = 0;
 
 ActorManager::ActorManager()
     : m_dt_remainder(0.0f)

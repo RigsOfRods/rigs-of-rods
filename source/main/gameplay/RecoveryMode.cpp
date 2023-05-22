@@ -154,7 +154,7 @@ void RecoveryMode::UpdateInputEvents(float dt)
         }
 
         ActorModifyRequest* rq = new ActorModifyRequest;
-        rq->amr_actor = App::GetGameContext()->GetPlayerActor();
+        rq->amr_actor = App::GetGameContext()->GetPlayerActor()->ar_instance_id;
         rq->amr_type = reset_type;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
     }
