@@ -336,7 +336,7 @@ void TopMenubar::Update()
                     ImGui::PushStyleColor(ImGuiCol_Text, ORANGE_TEXT);
                     if (ImGui::Button(_LC("TopMenubar", " [!] Confirm removal")))
                     {
-                        for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
+                        for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
                         {
                             if (!actor->ar_hide_in_actor_list && !actor->isPreloadedWithTerrain() && 
                                     actor->ar_state != ActorState::NETWORKED_OK)
@@ -1188,7 +1188,7 @@ void TopMenubar::Update()
                     App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
                 }
 
-                for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
+                for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
                 {
                     if (actor->ar_driveable == AI)
                     {
@@ -1472,7 +1472,7 @@ void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
 void TopMenubar::DrawActorListSinglePlayer()
 {
     std::vector<ActorPtr> actor_list;
-    for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
+    for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if (!actor->ar_hide_in_actor_list)
         {
@@ -1490,7 +1490,7 @@ void TopMenubar::DrawActorListSinglePlayer()
     {
         ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
         int i = 0;
-        for (ActorPtr actor : actor_list)
+        for (ActorPtr& actor : actor_list)
         {
             std::string text_buf_rem = fmt::format("X ##[{}]", i);
             ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
@@ -1502,12 +1502,11 @@ void TopMenubar::DrawActorListSinglePlayer()
             ImGui::SameLine();
 
             std::string text_buf = fmt::format( "[{}] {}", i++, StripColorMarksFromText(actor->ar_design_name).c_str());
-            auto linked_actors = actor->getAllLinkedActors();
             if (actor == player_actor)
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, GREEN_TEXT);
             }
-            else if (std::find(linked_actors.begin(), linked_actors.end(), player_actor) != linked_actors.end())
+            else if (std::find(actor->ar_linked_actors.begin(), actor->ar_linked_actors.end(), player_actor) != actor->ar_linked_actors.end())
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, ORANGE_TEXT);
             }

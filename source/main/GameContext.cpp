@@ -391,15 +391,14 @@ void GameContext::DeleteActor(ActorPtr actor)
     }
 
     // Find linked actors and un-tie if tied
-    auto linked_actors = actor->getAllLinkedActors();
     for (auto actorx : m_actor_manager.GetLocalActors())
     {
-        if (actorx->isTied() && std::find(linked_actors.begin(), linked_actors.end(), actorx) != linked_actors.end())
+        if (actorx->isTied() && std::find(actor->ar_linked_actors.begin(), actor->ar_linked_actors.end(), actorx) != actor->ar_linked_actors.end())
         {
             actorx->tieToggle(); // OK to invoke here - processing MSG_SIM_DELETE_ACTOR_REQUESTED
         }
 
-        if (actorx->isLocked() && std::find(linked_actors.begin(), linked_actors.end(), actorx) != linked_actors.end())
+        if (actorx->isLocked() && std::find(actor->ar_linked_actors.begin(), actor->ar_linked_actors.end(), actorx) != actor->ar_linked_actors.end())
         {
             actorx->hookToggle(); // OK to invoke here - processing MSG_SIM_DELETE_ACTOR_REQUESTED
         }
@@ -610,7 +609,7 @@ void GameContext::ShowLoaderGUI(int type, const Ogre::String& instance, const Og
     if (!(App::mp_state->getEnum<MpState>() == MpState::CONNECTED))
     {
         collision_box_t* spawnbox = m_terrain->GetCollisions()->getBox(instance, box);
-        for (ActorPtr actor : this->GetActorManager()->GetActors())
+        for (ActorPtr& actor : this->GetActorManager()->GetActors())
         {
             for (int i = 0; i < actor->ar_num_nodes; i++)
             {
@@ -845,12 +844,13 @@ void GameContext::TeleportPlayer(float x, float z)
 
     Ogre::Vector3 translation = Ogre::Vector3(x, y, z) - this->GetPlayerActor()->ar_nodes[0].AbsPosition;
 
-    auto actors = this->GetPlayerActor()->getAllLinkedActors();
-    actors.push_back(this->GetPlayerActor());
+    std::vector<ActorPtr> actorsToBeamUp;
+    actorsToBeamUp.push_back(this->GetPlayerActor());
+    actorsToBeamUp.assign(this->GetPlayerActor()->ar_linked_actors.begin(), this->GetPlayerActor()->ar_linked_actors.end());
 
     float src_agl = std::numeric_limits<float>::max(); 
     float dst_agl = std::numeric_limits<float>::max(); 
-    for (ActorPtr actor : actors)
+    for (ActorPtr& actor : actorsToBeamUp)
     {
         for (int i = 0; i < actor->ar_num_nodes; i++)
         {
@@ -863,7 +863,7 @@ void GameContext::TeleportPlayer(float x, float z)
 
     translation += Ogre::Vector3::UNIT_Y * (std::max(0.0f, src_agl) - dst_agl);
 
-    for (ActorPtr actor : actors)
+    for (ActorPtr& actor : actorsToBeamUp)
     {
         actor->resetPosition(actor->ar_nodes[0].AbsPosition + translation, false);
     }
@@ -1329,7 +1329,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DEBUG_VIEW))
     {
         m_player_actor->GetGfxActor()->ToggleDebugView();
-        for (ActorPtr actor : m_player_actor->getAllLinkedActors())
+        for (ActorPtr& actor : m_player_actor->ar_linked_actors)
         {
             actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
         }
@@ -1338,7 +1338,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CYCLE_DEBUG_VIEWS))
     {
         m_player_actor->GetGfxActor()->CycleDebugViews();
-        for (ActorPtr actor : m_player_actor->getAllLinkedActors())
+        for (ActorPtr& actor : m_player_actor->ar_linked_actors)
         {
             actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
         }
@@ -1400,7 +1400,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     // toggle physics
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_PHYSICS))
     {
-        for (ActorPtr actor : App::GetGameContext()->GetPlayerActor()->getAllLinkedActors())
+        for (ActorPtr& actor : App::GetGameContext()->GetPlayerActor()->ar_linked_actors)
         {
             actor->ar_physics_paused = !App::GetGameContext()->GetPlayerActor()->ar_physics_paused;
         }
@@ -1847,7 +1847,7 @@ void GameContext::UpdateTruckInputEvents(float dt)
     }
 
     m_player_actor->UpdatePropAnimInputEvents();
-    for (ActorPtr linked_actor : m_player_actor->getAllLinkedActors())
+    for (ActorPtr linked_actor : m_player_actor->ar_linked_actors)
     {
         linked_actor->UpdatePropAnimInputEvents();
     }

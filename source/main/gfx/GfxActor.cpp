@@ -1796,7 +1796,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
 
     // Linked Actors
     m_linked_gfx_actors.clear();
-    for (ActorPtr actor : m_actor->getAllLinkedActors())
+    for (ActorPtr& actor : m_actor->ar_linked_actors)
     {
         m_linked_gfx_actors.insert(actor->GetGfxActor());
     }

@@ -1072,7 +1072,7 @@ int main(int argc, char *argv[])
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {
                 App::GetGuiManager()->DrawSimulationGui(dt);
-                for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
+                for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
                 {
                     actor->GetGfxActor()->UpdateDebugView();
                 }

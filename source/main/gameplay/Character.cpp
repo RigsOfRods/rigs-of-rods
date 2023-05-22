@@ -159,7 +159,7 @@ void Character::update(float dt)
         // Submesh "collision"
         {
             float depth = 0.0f;
-            for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
+            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
                 if (actor->ar_bounding_box.contains(position))
                 {

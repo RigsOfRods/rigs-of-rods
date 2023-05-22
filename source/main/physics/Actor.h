@@ -151,9 +151,6 @@ public:
     void              displayTransferCaseMode();           //! Writes info to console/notify area
     void              setSmokeEnabled(bool enabled) { m_disable_smoke = !enabled; }
     bool              getSmokeEnabled() const { return !m_disable_smoke; }
-    
-
-    std::vector<ActorPtr>& getAllLinkedActors() { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     //! @}
 
     /// @name Vehicle lights
@@ -296,7 +293,7 @@ public:
     std::vector<Ogre::Vector3>     ar_initial_node_positions;
     std::vector<std::pair<float, float>> ar_initial_beam_defaults;
     std::vector<wheeldetacher_t>   ar_wheeldetachers;
-
+ActorPtrVec                        ar_linked_actors;              //!< Sim state; other actors linked using 'hooks'
     std::vector<std::vector<int>>  ar_node_to_node_connections;
     std::vector<std::vector<int>>  ar_node_to_beam_connections;
     std::vector<Ogre::AxisAlignedBox>  ar_collision_bounding_boxes; //!< smart bounding boxes, used for determining the state of an actor (every box surrounds only a subset of nodes)
@@ -375,6 +372,7 @@ public:
     NodeNum_t         ar_camera_node_dir[MAX_CAMERAS]    = {NODENUM_INVALID};  //!< Physics attr; 'camera' = frame of reference; back node
     NodeNum_t         ar_camera_node_roll[MAX_CAMERAS]   = {NODENUM_INVALID};  //!< Physics attr; 'camera' = frame of reference; left node
     bool              ar_camera_node_roll_inv[MAX_CAMERAS] = {false};              //!< Physics attr; 'camera' = frame of reference; indicates roll node is right instead of left
+    
     float             ar_posnode_spawn_height = 0.f;
     VehicleAIPtr      ar_vehicle_ai;
     float             ar_scale = 1.f;               //!< Physics state; scale of the actor (nominal = 1.0)
@@ -518,7 +516,7 @@ private:
     float             m_avionic_chatter_timer = 11.f;      //!< Sound fx state (some pseudo random number,  doesn't matter)
     PointColDetector* m_inter_point_col_detector = nullptr;   //!< Physics
     PointColDetector* m_intra_point_col_detector = nullptr;   //!< Physics
-    ActorPtrVec       m_linked_actors;              //!< Sim state; other actors linked using 'hooks'
+    
     Ogre::Vector3     m_avg_node_position = Ogre::Vector3::ZERO;          //!< average node position
     Ogre::Real        m_min_camera_radius = 0.f;
     Ogre::Vector3     m_avg_node_position_prev = Ogre::Vector3::ZERO;
