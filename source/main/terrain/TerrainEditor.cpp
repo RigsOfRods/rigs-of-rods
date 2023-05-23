@@ -123,7 +123,7 @@ void TerrainEditor::UpdateInputEvents(float dt)
     }
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK))
     {
-        UTFString axis = _L("ry");
+        std::string axis = _L("ry");
         if (m_rotation_axis == 0)
         {
             axis = _L("ry");
@@ -139,13 +139,13 @@ void TerrainEditor::UpdateInputEvents(float dt)
             axis = _L("rx");
             m_rotation_axis = 0;
         }
-        UTFString ssmsg = _L("Rotating: ") + axis;
+        std::string ssmsg = _L("Rotating: ") + axis;
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "information.png");
     }
     if (App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
     {
         m_object_tracking = !m_object_tracking;
-        UTFString ssmsg = m_object_tracking ? _L("Enabled object tracking") : _L("Disabled object tracking");
+        std::string ssmsg = m_object_tracking ? _L("Enabled object tracking") : _L("Disabled object tracking");
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "information.png");
     }
     if (m_object_index != -1 && update)

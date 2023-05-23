@@ -26,7 +26,7 @@
 #include <OgreDataStream.h>
 #include <OgreResourceGroupManager.h>
 #include <OgreSimpleSpline.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 
 RoR::CmdKeyInertia::CmdKeyInertia()
     : m_start_spline(nullptr)

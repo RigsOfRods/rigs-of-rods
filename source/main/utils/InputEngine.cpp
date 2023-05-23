@@ -633,9 +633,9 @@ void InputEngine::Capture()
 void InputEngine::windowResized(Ogre::RenderWindow* rw)
 {
     //update mouse area
-    unsigned int width, height, depth;
+    unsigned int width, height;
     int left, top;
-    rw->getMetrics(width, height, depth, left, top);
+    rw->getMetrics(width, height, left, top);
     const OIS::MouseState& ms = mMouse->getMouseState();
     ms.width = width;
     ms.height = height;

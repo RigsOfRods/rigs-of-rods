@@ -61,9 +61,11 @@
 #include <iomanip>
 #include <string>
 #include <fstream>
+#include <OgreRTShaderSystem.h>
+#include <OgreSGTechniqueResolverListener.h>
 
 #ifdef USE_CURL
-#   include <curl/curl.h>
+#include <curl/curl.h>
 #endif //USE_CURL
 
 #ifdef __cplusplus
@@ -134,6 +136,12 @@ int main(int argc, char *argv[])
             return -1; // Error already displayed
         }
 
+#ifdef USE_CAELUM
+        // Initialize CaelumPlugin, must happen before initialising resource groups
+        new Caelum::CaelumPlugin();
+        Caelum::CaelumPlugin::getSingleton().initialise();
+#endif //USE_CAELUM
+
         Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
         // Deploy base config files from 'skeleton.zip'
@@ -186,6 +194,22 @@ int main(int argc, char *argv[])
         App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(overlay_system);
         App::CreateCameraManager(); // Creates OGRE Camera
         App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
+
+        //Note: for DirectX this needs to happen early
+        if (!Ogre::RTShader::ShaderGenerator::initialize())
+        {
+            ErrorUtils::ShowError(_L("Startup error"),_L("Failed to setup RTShader system"));
+            return -1;
+        }
+
+        auto mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+        App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::RTSHADER);
+        mShaderGenerator->setShaderCachePath(App::sys_cache_dir->getStr());
+        mShaderGenerator->addSceneManager(App::GetGfxScene()->GetSceneManager());
+        App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::MSN_SHADERGEN);
+
+//        auto* schemeNotFoundHandler = new OgreBites::SGTechniqueResolverListener(mShaderGenerator);
+//        Ogre::MaterialManager::getSingleton().addListener(schemeNotFoundHandler);
 
         App::CreateGuiManager(); // Needs scene manager
 
@@ -608,6 +632,7 @@ int main(int argc, char *argv[])
                     App::GetCameraManager()->ResetAllBehaviors();
                     App::GetGuiManager()->CollisionsDebug.CleanUp();
                     App::GetGuiManager()->MainSelector.Close();
+                    App::GetGuiManager()->SurveyMap.Close();
                     App::GetGuiManager()->LoadingWindow.SetVisible(false);
                     App::GetGuiManager()->MenuWallpaper->show();
                     App::GetGuiManager()->SurveyMap.ai_waypoints.clear();

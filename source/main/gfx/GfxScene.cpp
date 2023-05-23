@@ -77,12 +77,13 @@ void GfxScene::ClearScene()
     // Recover from the wipe
     App::GetCameraManager()->ReCreateCameraNode();
     App::GetGuiManager()->DirectionArrow.CreateArrow();
+    App::GetGfxScene()->GetEnvMap().CreateSceneNodes();
 }
 
 void GfxScene::Init()
 {
     ROR_ASSERT(!m_scene_manager);
-    m_scene_manager = App::GetAppContext()->GetOgreRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "main_scene_manager");
+    m_scene_manager = App::GetAppContext()->GetOgreRoot()->createSceneManager(0, "main_scene_manager");
 
     m_skidmark_conf.LoadDefaultSkidmarkDefs();
 }

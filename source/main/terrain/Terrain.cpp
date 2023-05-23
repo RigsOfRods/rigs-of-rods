@@ -32,7 +32,7 @@
 #include "HydraxWater.h"
 #include "Language.h"
 #include "ScriptEngine.h"
-#include "ShadowManager.h"
+#include "RTSSManager.h"
 #include "SkyManager.h"
 #include "SkyXManager.h"
 #include "TerrainGeometryManager.h"
@@ -49,7 +49,7 @@ RoR::Terrain::Terrain(CacheEntry* entry, Terrn2Def def)
     : m_collisions(0)
     , m_geometry_manager(0)
     , m_object_manager(0)
-    , m_shadow_manager(0)
+    , m_rtss_manager(0)
     , m_sky_manager(0)
     , SkyX_manager(0)
     , m_sight_range(1000)
@@ -118,10 +118,10 @@ void RoR::Terrain::dispose()
         m_geometry_manager = nullptr;
     }
 
-    if (m_shadow_manager != nullptr)
+    if (m_rtss_manager != nullptr)
     {
-        delete(m_shadow_manager);
-        m_shadow_manager = nullptr;
+        delete(m_rtss_manager);
+        m_rtss_manager = nullptr;
     }
 
     if (m_collisions != nullptr)
@@ -142,8 +142,8 @@ bool RoR::Terrain::initialize()
 
     this->setGravity(this->m_def.gravity);
 
-    loading_window->SetProgress(15, _L("Initializing Shadow Subsystem"));
-    this->initShadows();
+    loading_window->SetProgress(15, _L("Initializing RTSS Subsystem"));
+    this->initRTSS();
 
     loading_window->SetProgress(17, _L("Initializing Geometry Subsystem"));
     this->m_geometry_manager = new TerrainGeometryManager(this);
@@ -311,13 +311,17 @@ void RoR::Terrain::initLight()
         m_main_light = App::GetGfxScene()->GetSceneManager()->createLight("MainLight");
         //directional light for shadow
         m_main_light->setType(Light::LT_DIRECTIONAL);
-        m_main_light->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
 
         m_main_light->setDiffuseColour(m_def.ambient_color);
         m_main_light->setSpecularColour(m_def.ambient_color);
         m_main_light->setCastShadows(true);
         m_main_light->setShadowFarDistance(1000.0f);
         m_main_light->setShadowNearClipDistance(-1);
+
+        // attach to scene node (can be retrieved by Ogre::Light::getParentSceneNode())
+        Ogre::SceneNode* snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        snode->attachObject(m_main_light);
+        snode->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
     }
 }
 
@@ -418,10 +422,10 @@ void RoR::Terrain::initWater()
     }
 }
 
-void RoR::Terrain::initShadows()
+void RoR::Terrain::initRTSS()
 {
-    m_shadow_manager = new ShadowManager();
-    m_shadow_manager->loadConfiguration();
+    m_rtss_manager = new RTSSManager();
+    m_rtss_manager->SetupRTSS();
 }
 
 void RoR::Terrain::loadTerrainObjects()

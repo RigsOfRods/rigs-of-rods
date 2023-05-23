@@ -28,6 +28,9 @@
 
 #include <Ogre.h>
 
+#include <codecvt> // https://en.cppreference.com/w/cpp/locale/codecvt_utf8_utf16
+#include <locale>
+
 #ifndef _WIN32
 #   include <iconv.h>
 #endif
@@ -53,20 +56,20 @@ String RoR::HashData(const char *key, int len)
     return result.str();
 }
 
-UTFString RoR::tryConvertUTF(const char* buffer)
+std::string RoR::tryConvertUTF(const char* buffer)
 {
     std::string str_in(buffer);
-    return UTFString(SanitizeUtf8String(str_in));
+    return std::string(SanitizeUtf8String(str_in));
 }
 
-UTFString RoR::formatBytes(double bytes)
+std::string RoR::formatBytes(double bytes)
 {
-    wchar_t tmp[128] = L"";
-    const wchar_t* si_prefix[] = {L"B", L"KB", L"MB", L"GB", L"TB", L"EB", L"ZB", L"YB"};
+    char tmp[128] = "";
+    const char* si_prefix[] = {"B", "KB", "MB", "GB", "TB", "EB", "ZB", "YB"};
     int base = 1024;
     int c = bytes > 0 ? std::min((int)(log(bytes) / log((float)base)), (int)sizeof(si_prefix) - 1) : 0;
-    swprintf(tmp, 128, L"%1.2f %ls", bytes / pow((float)base, c), si_prefix[c]);
-    return UTFString(tmp);
+    snprintf(tmp, 128, "%1.2f %s", bytes / pow((float)base, c), si_prefix[c]);
+    return std::string(tmp);
 }
 
 std::time_t RoR::getTimeStamp()
@@ -139,6 +142,14 @@ std::string RoR::Sha1Hash(std::string const & input)
     sha1.UpdateHash((uint8_t *)input.c_str(), (int)input.length());
     sha1.Final();
     return sha1.ReportHash();
+}
+
+std::wstring RoR::Utf8ToWideChar(std::string input_utf8)
+{
+    // https://stackoverflow.com/a/14809553
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>,wchar_t> convert;
+    std::wstring temp_utf16 = convert.from_bytes(input_utf8);
+    return std::wstring(reinterpret_cast<const wchar_t*>(temp_utf16.c_str()));
 }
 
 bool RoR::IsDistanceWithin(Ogre::Vector3 const& a, Ogre::Vector3 const& b, float max)

@@ -32,7 +32,7 @@
 #include "Locator_t.h"
 #include "RigDef_Prerequisites.h"
 
-#include <OgreVector3.h>
+#include <Ogre.h>
 #include <OgreColourValue.h>
 #include <vector>
 

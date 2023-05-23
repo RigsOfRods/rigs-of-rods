@@ -29,8 +29,6 @@
 
 #include "Application.h"
 
-#include <OgreUTFString.h>
-
 /// @addtogroup Application
 /// @{
 
@@ -40,20 +38,20 @@ struct ErrorUtils
      * shows a simple error message box
      * @return 0 on success, everything else on error
      */
-    static int ShowError(Ogre::UTFString title, Ogre::UTFString message);
+    static int ShowError(std::string title, std::string message);
 
     /**
      * shows a simple info message box
      * @return 0 on success, everything else on error
      */
-    static int ShowInfo(Ogre::UTFString title, Ogre::UTFString message);
+    static int ShowInfo(std::string title, std::string message);
 
     /**
      * shows a generic message box
      * @param type 0 for error, 1 for info
      * @return 0 on success, everything else on error
      */
-    static int ShowMsgBox(Ogre::UTFString title, Ogre::UTFString err, int type);
+    static int ShowMsgBox(std::string title, std::string err, int type);
 };
 
 /// @} // addtogroup Application

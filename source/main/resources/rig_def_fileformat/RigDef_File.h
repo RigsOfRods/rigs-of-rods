@@ -51,7 +51,7 @@
 #include <vector>
 #include <string>
 #include <OgreString.h>
-#include <OgreVector3.h>
+#include <Ogre.h>
 #include <OgreStringConverter.h>
 
 namespace RigDef {
