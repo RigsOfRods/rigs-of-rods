@@ -3,7 +3,7 @@
 This source file is part of Hydrax.
 Visit ---
 
-Copyright (C) 2008 Xavier Verguín González <xavierverguin@hotmail.com>
+Copyright (C) 2008 Xavier Verguï¿½n Gonzï¿½lez <xavierverguin@hotmail.com>
                                            <xavyiy@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
@@ -28,6 +28,8 @@ http://www.cnblogs.com/ArenAK/archive/2007/11/07/951713.html
 --------------------------------------------------------------------------------
 */
 
+#include "Actor.h"
+#include "RefCountingObjectPtr.h"
 #include "GfxScene.h"
 
 #include <ProjectedGrid.h>
