@@ -25,6 +25,7 @@ option(BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
 option(USE_PCH "Use a Precompiled header for speeding up the build" ON)
 option(CREATE_CONTENT_FOLDER "Create the base content folder" ON)
+option(INSTALL_NATIVE "Install RoR into /usr/" ON)
 set(ROR_DEPENDENCY_DIR "${CMAKE_SOURCE_DIR}/dependencies" CACHE PATH "Path to the dependencies")
 set(ROR_FEAT_TIMING OFF)
 
