@@ -7,187 +7,194 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2023-05-26 08:50+0000\n"
+"Last-Translator: Anatolii “๖ۣۜLord” Ohorodnyk <tolanos.1998@gmail.com>\n"
+"Language-Team: Ukrainian <https://hosted.weblate.org/projects/rigs-of-rods/"
+"game/uk/>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 4.18-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
 msgid "Startup error"
-msgstr ""
+msgstr "Помилка запуску"
 
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
-msgstr ""
+msgstr "Відсутній плагін системи рендерингу. Перевірте ваш файл plugins.cfg"
 
 #: AppContext.cpp:378
 msgid "Screenshot: "
-msgstr ""
+msgstr "Знімок екрану: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Помилка при отриманні шляху до каталогу програми"
 
 #: AppContext.cpp:426
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Помилка при отриманні шляху до домашнього каталогу користувача"
 
 #: AppContext.cpp:477
 msgid "Resources folder not found. Check if correctly installed."
 msgstr ""
+"Папка ресурсів не знайдена. Перевірте, чи встановлено програму коректно."
 
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
 msgstr ""
+"Пошкоджена папка ресурсів. Перевірте, чи встановлено програму правильно."
 
 #: Application.cpp:359
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
-msgstr ""
+msgstr "Автоматичне перемикання"
 
 #: Application.cpp:360
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr ""
+msgstr "Ручне перемикання з автоматичним зчепленням"
 
 #: Application.cpp:361
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr ""
+msgstr "Механічна: послідовне перемикання"
 
 #: Application.cpp:362
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr ""
+msgstr "Механічна: важіль перемикання передач"
 
 #: Application.cpp:363
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
-msgstr ""
+msgstr "Механічна: важіль перемикання передач із діапазонами"
 
 #: Application.cpp:372
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
-msgstr ""
+msgstr "Жодного (найшвидший)"
 
 #: Application.cpp:373
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr ""
+msgstr "Немає джерел світла"
 
 #: Application.cpp:374
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr ""
+msgstr "Тільки у поточного транспортного засобу, основні фари"
 
 #: Application.cpp:375
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
-msgstr ""
+msgstr "Усі транспортні засоби, основні фари"
 
 #: Application.cpp:376
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
-msgstr ""
+msgstr "Всі транспортні засоби, всі фари"
 
 #: Application.cpp:385
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "Вимкнено"
 
 #: Application.cpp:386
+#, fuzzy
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "PSSM"
 
 #: Application.cpp:395
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
-msgstr ""
+msgstr "Sandstorm (найшвидший)"
 
 #: Application.cpp:396
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
-msgstr ""
+msgstr "Caelum (найкращий, повільніший)"
 
 #: Application.cpp:397
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
-msgstr ""
+msgstr "SkyX (найкращий, повільніший)"
 
 #: Application.cpp:406
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "None"
 
 #: Application.cpp:407
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
-msgstr ""
+msgstr "Білінійний"
 
 #: Application.cpp:408
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
-msgstr ""
+msgstr "Трилінійний"
 
 #: Application.cpp:409
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
-msgstr ""
+msgstr "Анізотропний"
 
 #: Application.cpp:418
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "None"
 
 #: Application.cpp:419
 msgctxt "GfxVegetation"
 msgid "20%"
-msgstr ""
+msgstr "20%"
 
 #: Application.cpp:420
 msgctxt "GfxVegetation"
 msgid "50%"
-msgstr ""
+msgstr "50%"
 
 #: Application.cpp:421
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "Повна"
 
 #: Application.cpp:430
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "None"
 
 #: Application.cpp:431
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
-msgstr ""
+msgstr "Базовий (найшвидший)"
 
 #: Application.cpp:432
 msgctxt "GfxWaterMode"
 msgid "Reflection"
-msgstr ""
+msgstr "Відображення"
 
 #: Application.cpp:433
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
-msgstr ""
+msgstr "Відображення + заломлення (оптимізована швидкість)"
 
 #: Application.cpp:434
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
-msgstr ""
+msgstr "Відображення + заломлення (оптимізована якість)"
 
 #: Application.cpp:435
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr ""
+msgstr "HydraX"
 
 #: Application.cpp:444
 msgctxt "GfxExtCamMode"
@@ -197,12 +204,12 @@ msgstr ""
 #: Application.cpp:445
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "Статичний"
 
 #: Application.cpp:446
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "Похитування"
 
 #: Application.cpp:455
 msgctxt "IoInputGrabMode"
@@ -212,16 +219,16 @@ msgstr ""
 #: Application.cpp:456
 msgctxt "IoInputGrabMode"
 msgid "All"
-msgstr ""
+msgstr "Всі"
 
 #: Application.cpp:457
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr ""
+msgstr "Динамічний"
 
 #: GameContext.cpp:107
 msgid "Terrain not found: "
-msgstr ""
+msgstr "Місцевість не знайдена: "
 
 #: GameContext.cpp:109 terrain/Terrain.cpp:147
 msgid "Terrain loading error"
@@ -5349,53 +5356,53 @@ msgstr ""
 #: utils/InputEngine.cpp:325
 msgctxt "InputEvent"
 msgid "rotate character left"
-msgstr ""
+msgstr "повернути персонажа ліворуч"
 
 #: utils/InputEngine.cpp:326
 msgctxt "InputEvent"
 msgid "rotate character right"
-msgstr ""
+msgstr "повернути персонажа праворуч"
 
 #: utils/InputEngine.cpp:327
 msgctxt "InputEvent"
 msgid "let the character run"
-msgstr ""
+msgstr "біг"
 
 #: utils/InputEngine.cpp:328
 msgctxt "InputEvent"
 msgid "sidestep to the left"
-msgstr ""
+msgstr "зробити крок вліво"
 
 #: utils/InputEngine.cpp:329
 msgctxt "InputEvent"
 msgid "sidestep to the right"
-msgstr ""
+msgstr "зробити крок вправо"
 
 #: utils/InputEngine.cpp:330
 msgctxt "InputEvent"
 msgid "rotate view up"
-msgstr ""
+msgstr "повернути вид вгору"
 
 #: utils/InputEngine.cpp:331
 msgctxt "InputEvent"
 msgid "rotate view down"
-msgstr ""
+msgstr "повернути вид вниз"
 
 #. Camera
 #: utils/InputEngine.cpp:334
 msgctxt "InputEvent"
 msgid "change camera mode"
-msgstr ""
+msgstr "змінити режим камери"
 
 #: utils/InputEngine.cpp:335
 msgctxt "InputEvent"
 msgid "look back (toggles between normal and lookback)"
-msgstr ""
+msgstr "озирнутися назад (перемикається між звичайним і оглядом назад)"
 
 #: utils/InputEngine.cpp:336
 msgctxt "InputEvent"
 msgid "reset the camera position"
-msgstr ""
+msgstr "скинути положення камери"
 
 #: utils/InputEngine.cpp:337
 msgctxt "InputEvent"
