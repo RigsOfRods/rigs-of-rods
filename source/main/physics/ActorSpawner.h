@@ -295,6 +295,7 @@ private:
     unsigned int                  AddWheel2(RigDef::Wheel2 & wheel_2_def); // 'wheels2'
     void                          AddExhaust(NodeNum_t emitter_node_idx, NodeNum_t direction_node_idx);
     RailGroup*                    CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
+    void                          AddHook(NodeNum_t nodenum, RigDef::Node& def);
     void                          InitializeRig();
     void                          FinalizeRig();
     /// @}
@@ -462,6 +463,7 @@ private:
     std::vector<CabSubmesh>        m_oldstyle_cab_submeshes;    
     RigDef::Keyword                m_current_keyword; //!< For error reports    
     std::map<Ogre::String, NodeNum_t> m_named_nodes;
+    RigDef::Node*                  m_node0_hook_queued = nullptr; //!< Hookbeam needs 2 nodes so if Node#0 is a hooknode, we must defer creating the beam.
     /// @}
 
     /// @name Visuals

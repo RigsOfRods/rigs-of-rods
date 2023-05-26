@@ -5682,7 +5682,7 @@ NodeNum_t ActorSpawner::AddNode(RigDef::Node::Id & id)
     throw Exception("Invalid Node::Id without type flags!");
 }
 
-void ActorSpawner::ProcessNode(RigDef::Node & def)
+void ActorSpawner::ProcessNode(RigDef::Node& def)
 {
     NodeNum_t inserted_node = AddNode(def.id);
     if (inserted_node == NODENUM_INVALID)
@@ -5690,12 +5690,12 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         return;
     }
 
-    node_t & node = m_actor->ar_nodes[inserted_node];
+    node_t& node = m_actor->ar_nodes[inserted_node];
     node.pos = inserted_node; /* Node index */
 
     /* Positioning */
     Ogre::Vector3 node_position = m_spawn_position + def.position;
-    node.AbsPosition = node_position; 
+    node.AbsPosition = node_position;
     node.RelPosition = node_position - m_actor->ar_origin;
 
     node.friction_coef = def.node_defaults->friction;
@@ -5715,7 +5715,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     if (def.node_defaults->load_weight >= 0.f) // The >= operator is in orig.
     {
         // orig = further override of hardcoded default.
-        node.mass = def.node_defaults->load_weight; 
+        node.mass = def.node_defaults->load_weight;
         node.nd_override_mass = true;
         node.nd_loaded_mass = true;
     }
@@ -5745,47 +5745,31 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     }
     if (BITMASK_IS_1(options, RigDef::Node::OPTION_h_HOOK_POINT))
     {
-        /* Link [current-node] -> [node-0] */
-        /* If current node is 0, link [node-0] -> [node-1] */
-        node_t & node_2 = m_actor->ar_nodes[((node.pos == 0) ? 1 : 0)];
-        BeamID_t beam_index = m_actor->ar_num_beams;
+        if (node.pos > 0)
+        {
+            // Link [current-node] -> [node-0].
+            this->AddHook(node.pos, def);
+        }
+        else
+        {
+            // If current node is 0, link [node-0] -> [node-1] when available.
+            m_node0_hook_queued = &def;
+        }
 
-        beam_t & beam = AddBeam(node, node_2, def.beam_defaults, def.detacher_group);
-        SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold() * 100.f);
-        beam.bm_type           = BEAM_HYDRO;
-        beam.d                 = def.beam_defaults->GetScaledDamping() * 0.1f;
-        beam.k                 = def.beam_defaults->GetScaledSpringiness();
-        beam.bounded           = ROPE;
-        beam.bm_disabled       = true;
-        beam.L                 = HOOK_RANGE_DEFAULT;
-        beam.refL              = HOOK_RANGE_DEFAULT;
-        SetBeamDeformationThreshold(beam, def.beam_defaults);
-        CreateBeamVisuals(beam, beam_index, false, def.beam_defaults);
-            
-        // Logic cloned from SerializedRig.cpp, section BTS_NODES
-        hook_t hook;
-        hook.hk_hook_node         = node.pos;
-        hook.hk_group             = -1;
-        hook.hk_locked            = UNLOCKED;
-        hook.hk_lockgroup         = -1;
-        hook.hk_beam              = beam_index;
-        hook.hk_maxforce          = HOOK_FORCE_DEFAULT;
-        hook.hk_lockrange         = HOOK_RANGE_DEFAULT;
-        hook.hk_lockspeed         = HOOK_SPEED_DEFAULT;
-        hook.hk_selflock          = false;
-        hook.hk_nodisable         = false;
-        hook.hk_timer             = 0.0f;
-        hook.hk_timer_preset      = HOOK_LOCK_TIMER_DEFAULT;
-        hook.hk_autolock          = false;
-        hook.hk_min_length        = 0.f;
-        m_actor->ar_hooks.push_back(hook);
     }
     AdjustNodeBuoyancy(node, def, def.node_defaults);
     node.nd_no_ground_contact = BITMASK_IS_1(options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
-    node.nd_no_mouse_grab  = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB);
+    node.nd_no_mouse_grab = BITMASK_IS_1(options, RigDef::Node::OPTION_m_NO_MOUSE_GRAB);
 
-    m_actor->ar_exhaust_dir_node        = BITMASK_IS_1(options, RigDef::Node::OPTION_y_EXHAUST_DIRECTION) ? node.pos : 0;
-    m_actor->ar_exhaust_pos_node         = BITMASK_IS_1(options, RigDef::Node::OPTION_x_EXHAUST_POINT) ? node.pos : 0;
+    m_actor->ar_exhaust_dir_node = BITMASK_IS_1(options, RigDef::Node::OPTION_y_EXHAUST_DIRECTION) ? node.pos : 0;
+    m_actor->ar_exhaust_pos_node = BITMASK_IS_1(options, RigDef::Node::OPTION_x_EXHAUST_POINT) ? node.pos : 0;
+
+    // Process queued hook, if present
+    if (node.pos == NodeNum_t(1) && m_node0_hook_queued)
+    {
+        this->AddHook(NodeNum_t(0), *m_node0_hook_queued);
+        m_node0_hook_queued = nullptr;
+    }
 
     // Update "fusedrag" autocalc y & z span
     if (def.position.z < m_fuse_z_min) { m_fuse_z_min = def.position.z; }
@@ -5800,6 +5784,46 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     nfx.nx_no_particles = BITMASK_IS_1(options, RigDef::Node::OPTION_p_NO_PARTICLES);
     nfx.nx_no_sparks    = BITMASK_IS_1(options, RigDef::Node::OPTION_f_NO_SPARKS);
     m_actor->m_gfx_actor->m_gfx_nodes.push_back(nfx);
+}
+
+void ActorSpawner::AddHook(NodeNum_t nodenum, RigDef::Node& def)
+{
+    ROR_ASSERT(nodenum != NODENUM_INVALID);
+
+    node_t& node = m_actor->ar_nodes[nodenum];
+
+    node_t& node_2 = m_actor->ar_nodes[((node.pos == 0) ? 1 : 0)];
+    BeamID_t beam_index = m_actor->ar_num_beams;
+
+    beam_t& beam = this->AddBeam(node, node_2, def.beam_defaults, def.detacher_group);
+    this->SetBeamStrength(beam, def.beam_defaults->GetScaledBreakingThreshold() * 100.f);
+    beam.bm_type = BEAM_HYDRO;
+    beam.d = def.beam_defaults->GetScaledDamping() * 0.1f;
+    beam.k = def.beam_defaults->GetScaledSpringiness();
+    beam.bounded = ROPE;
+    beam.bm_disabled = true;
+    beam.L = HOOK_RANGE_DEFAULT;
+    beam.refL = HOOK_RANGE_DEFAULT;
+    this->SetBeamDeformationThreshold(beam, def.beam_defaults);
+    this->CreateBeamVisuals(beam, beam_index, false, def.beam_defaults);
+
+    // Logic cloned from SerializedRig.cpp, section BTS_NODES
+    hook_t hook;
+    hook.hk_hook_node = node.pos;
+    hook.hk_group = -1;
+    hook.hk_locked = UNLOCKED;
+    hook.hk_lockgroup = -1;
+    hook.hk_beam = beam_index;
+    hook.hk_maxforce = HOOK_FORCE_DEFAULT;
+    hook.hk_lockrange = HOOK_RANGE_DEFAULT;
+    hook.hk_lockspeed = HOOK_SPEED_DEFAULT;
+    hook.hk_selflock = false;
+    hook.hk_nodisable = false;
+    hook.hk_timer = 0.0f;
+    hook.hk_timer_preset = HOOK_LOCK_TIMER_DEFAULT;
+    hook.hk_autolock = false;
+    hook.hk_min_length = 0.f;
+    m_actor->ar_hooks.push_back(hook);
 }
 
 void ActorSpawner::AddExhaust(
