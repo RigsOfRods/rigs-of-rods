@@ -830,6 +830,8 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 
     std::thread([url, user, token, json]()
         {
+            long response_code = 0;
+
             struct curl_slist *slist = NULL;
             slist = curl_slist_append(slist, "Accept: application/json");
             slist = curl_slist_append(slist, "Content-Type: application/json");
@@ -840,7 +842,16 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
             curl_easy_setopt(curl, CURLOPT_URL,           url.c_str());
             curl_easy_setopt(curl, CURLOPT_HTTPHEADER,    slist);
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS,    json.c_str());
-            curl_easy_perform(curl);
+            
+            CURLcode curl_result = curl_easy_perform(curl);
+            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
+            if (curl_result != CURLE_OK || response_code != 200)
+            {
+                Ogre::LogManager::getSingleton().stream()
+                    << "[RoR|GameScript] `useOnlineAPI()` failed to submit data;"
+                    << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+            }
 
             curl_easy_cleanup(curl);
             curl = nullptr;

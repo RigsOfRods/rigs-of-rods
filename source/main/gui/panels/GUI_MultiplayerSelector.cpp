@@ -70,16 +70,18 @@ void FetchServerlist(std::string portal_url)
     curl_easy_setopt(curl, CURLOPT_WRITEDATA,     &response_payload);
     curl_easy_setopt(curl, CURLOPT_HEADERDATA,    &response_header);
 
-    curl_easy_perform(curl);
+    CURLcode curl_result = curl_easy_perform(curl);
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
 
     curl_easy_cleanup(curl);
     curl = nullptr;
 
-    if (response_code != 200)
+    if (curl_result != CURLE_OK || response_code != 200)
     {
         Ogre::LogManager::getSingleton().stream() 
-            << "[RoR|Multiplayer] Failed to retrieve serverlist; HTTP status code: " << response_code;
+            << "[RoR|Multiplayer] Failed to retrieve serverlist;"
+            << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+
         App::GetGameContext()->PushMessage(
             Message(MSG_NET_REFRESH_SERVERLIST_FAILURE, _LC("MultiplayerSelector", "Error connecting to server :(")));
         return;
