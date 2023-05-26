@@ -130,16 +130,24 @@ std::vector<GUI::ResourceCategories> GetResourceCategories(std::string portal_ur
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_payload);
     curl_easy_setopt(curl, CURLOPT_HEADERDATA, &response_header);
 
-    curl_easy_perform(curl);
+    CURLcode curl_result = curl_easy_perform(curl);
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
 
     curl_easy_cleanup(curl);
     curl = nullptr;
 
+    std::vector<GUI::ResourceCategories> cat;
+    if (curl_result != CURLE_OK || response_code != 200)
+    {
+        Ogre::LogManager::getSingleton().stream()
+            << "[RoR|Repository] Failed to retrieve category list;"
+            << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+        return cat;
+    }
+
     rapidjson::Document j_data_doc;
     j_data_doc.Parse(response_payload.c_str());
-
-    std::vector<GUI::ResourceCategories> cat;
+    
     rapidjson::Value& j_resp_body = j_data_doc["categories"];
     size_t num_rows = j_resp_body.GetArray().Size();
     cat.resize(num_rows);
@@ -177,16 +185,18 @@ void GetResources(std::string portal_url)
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_payload);
     curl_easy_setopt(curl, CURLOPT_HEADERDATA, &response_header);
 
-    curl_easy_perform(curl);
+    CURLcode curl_result = curl_easy_perform(curl);
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
 
     curl_easy_cleanup(curl);
     curl = nullptr;
 
-    if (response_code != 200)
+    if (curl_result != CURLE_OK || response_code != 200)
     {
         Ogre::LogManager::getSingleton().stream()
-                << "[RoR|Repository] Failed to retrieve repolist; HTTP status code: " << response_code;
+            << "[RoR|Repository] Failed to retrieve repolist;"
+            << " Error: '"<< curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+
         App::GetGameContext()->PushMessage(
                 Message(MSG_NET_REFRESH_REPOLIST_FAILURE, _LC("RepositorySelector", "Connection error. Please check your connection.")));
         return;
@@ -243,6 +253,7 @@ void GetResourceFiles(std::string portal_url, int resource_id)
     std::string response_payload;
     std::string resource_url = portal_url + "/resources/" + std::to_string(resource_id);
     std::string user_agent = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
+    long response_code = 0;
 
     CURL *curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL, resource_url.c_str());
@@ -254,10 +265,21 @@ void GetResourceFiles(std::string portal_url, int resource_id)
     curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteFunc);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_payload);
-    curl_easy_perform(curl);
+
+    CURLcode curl_result = curl_easy_perform(curl);
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
 
     curl_easy_cleanup(curl);
     curl = nullptr;
+
+    if (curl_result != CURLE_OK || response_code != 200)
+    {
+        Ogre::LogManager::getSingleton().stream()
+            << "[RoR|Repository] Failed to retrieve resource;"
+            << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+
+        // FIXME: we need a FAILURE message for MSG_NET_OPEN_RESOURCE_SUCCESS
+    }
 
     GUI::ResourcesCollection* cdata_ptr = new GUI::ResourcesCollection();
 
@@ -298,6 +320,7 @@ void DownloadResourceFile(int resource_id, std::string filename, int id)
 
     RepoProgressContext progress_context;
     progress_context.filename = filename;
+    long response_code = 0;
 
     CURL *curl = curl_easy_init();
     try // We write using Ogre::DataStream which throws exceptions
@@ -315,7 +338,18 @@ void DownloadResourceFile(int resource_id, std::string filename, int id)
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, NULL); // Disable Internal CURL progressmeter
         curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, &progress_context);
         curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, CurlProgressFunc); // Use our progress window
-        curl_easy_perform(curl);
+        
+        CURLcode curl_result = curl_easy_perform(curl);
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
+        if (curl_result != CURLE_OK || response_code != 200)
+        {
+            Ogre::LogManager::getSingleton().stream()
+                << "[RoR|Repository] Failed to download resource;"
+                << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+
+            // FIXME: we need a FAILURE message for MSG_GUI_DOWNLOAD_FINISHED
+        }
     }
     catch (Ogre::Exception& oex)
     {
@@ -1270,6 +1304,7 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
     int item_idx = Ogre::any_cast<int>(req->getData());
     std::string filename = std::to_string(m_data.items[item_idx].resource_id) + ".png";
     std::string file = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
+    long response_code = 0;
 
     if (FileExists(file))
     {
@@ -1289,9 +1324,20 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
 #endif // _WIN32
             curl_easy_setopt(curl_th, CURLOPT_WRITEFUNCTION, CurlOgreDataStreamWriteFunc);
             curl_easy_setopt(curl_th, CURLOPT_WRITEDATA, datastream.get());
-            curl_easy_perform(curl_th);
+            CURLcode curl_result = curl_easy_perform(curl_th);
 
-            return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/true, Ogre::Any(item_idx));
+            if (curl_result != CURLE_OK || response_code != 200)
+            {
+                Ogre::LogManager::getSingleton().stream()
+                    << "[RoR|Repository] Failed to download thumbnail;"
+                    << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+
+                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(item_idx));
+            }
+            else
+            {
+                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/true, Ogre::Any(item_idx));
+            }
         }
         catch (Ogre::Exception& oex)
         {

@@ -86,13 +86,19 @@ void GetJson()
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteFunc);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_payload);
 
-    curl_easy_perform(curl);
+    CURLcode curl_result = curl_easy_perform(curl);
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
 
     curl_easy_cleanup(curl);
     curl = nullptr;
 
-    if (response_code == 200)
+    if (curl_result != CURLE_OK || response_code != 200)
+    {
+        Ogre::LogManager::getSingleton().stream()
+            << "[RoR|Repository] Failed to download AI presets;"
+            << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+    }
+    else
     {
         Message m(MSG_NET_REFRESH_AI_PRESETS);
         m.description = response_payload;
