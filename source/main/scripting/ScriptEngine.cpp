@@ -53,6 +53,7 @@
 #include "OgreScriptBuilder.h"
 #include "PlatformUtils.h"
 #include "ScriptEvents.h"
+#include "Utils.h"
 #include "VehicleAI.h"
 
 #include "InputEngine.h"
@@ -598,6 +599,10 @@ ScriptUnitId_t ScriptEngine::loadScript(String scriptName, ScriptCategory catego
             m_terrain_script_unit = SCRIPTUNITID_INVALID;
         }
         return SCRIPTUNITID_INVALID;
+    }
+    else if (category == ScriptCategory::CUSTOM)
+    {
+        CvarAddFileToList(App::app_recent_scripts, scriptName);
     }
 
     return unit_id;

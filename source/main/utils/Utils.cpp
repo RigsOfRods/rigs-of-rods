@@ -21,12 +21,14 @@
 
 #include "Utils.h"
 
+#include "CVar.h"
 #include "RoRnet.h"
 #include "RoRVersion.h"
 #include "SHA1.h"
 #include "Application.h"
 
 #include <Ogre.h>
+#include <string>
 
 #ifndef _WIN32
 #   include <iconv.h>
@@ -141,6 +143,18 @@ std::string RoR::Sha1Hash(std::string const & input)
     return sha1.ReportHash();
 }
 
+std::string RoR::JoinStrVec(Ogre::StringVector tokens, const std::string& delim)
+{
+    Str<500> res;
+    for (String& tok : tokens)
+    {
+        if (res.GetLength() > 0)
+            res << delim;
+        res << tok;
+    }
+    return res.ToCStr();
+}
+
 bool RoR::IsDistanceWithin(Ogre::Vector3 const& a, Ogre::Vector3 const& b, float max)
 {
     return a.squaredDistance(b) <= max * max;
@@ -189,3 +203,24 @@ std::string RoR::PrintMeshInfo(std::string const& title, MeshPtr mesh)
     return text.ToCStr();
 }
 
+void RoR::CvarAddFileToList(CVar* cvar, const std::string& filename)
+{
+    StringVector files = StringUtil::split(cvar->getStr(), ",");
+    if (std::find(files.begin(), files.end(), filename) == files.end()) // Is file not in list yet?
+    {
+        files.push_back(filename);
+    }
+    cvar->setStr(JoinStrVec(files, ","));
+}
+
+void RoR::CvarRemoveFileFromList(CVar* cvar, const std::string& filename)
+{
+    StringVector files = StringUtil::split(cvar->getStr(), ",");
+    auto found = (std::find(files.begin(), files.end(), filename));
+    if (found != files.end()) // Was file in list?
+    {
+        files.erase(found);
+    }
+
+    cvar->setStr(JoinStrVec(files, ","));
+}

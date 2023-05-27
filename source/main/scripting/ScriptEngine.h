@@ -63,9 +63,6 @@ enum class ScriptCategory
 
 const char* ScriptCategoryToString(ScriptCategory c);
 
-typedef int ScriptUnitId_t;
-static const ScriptUnitId_t SCRIPTUNITID_INVALID = -1;
-
 /// Represents a loaded script and all associated resources/handles.
 struct ScriptUnit
 {

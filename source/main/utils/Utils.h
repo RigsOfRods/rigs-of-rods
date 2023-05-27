@@ -67,6 +67,8 @@ std::string SanitizeUtf8CString(const char* start, const char* end = nullptr);
 inline std::string& TrimStr(std::string& s) { Ogre::StringUtil::trim(s); return s; }
 std::string Sha1Hash(std::string const & data);
 
+std::string JoinStrVec(Ogre::StringVector tokens, const std::string& delim);
+
 // for std::vector
 template <class T, class A, class Predicate>
 inline void EraseIf(std::vector<T, A>& c, Predicate pred)
@@ -102,5 +104,8 @@ private:
 bool IsDistanceWithin(Ogre::Vector3 const& a, Ogre::Vector3 const& b, float max);
 
 std::string PrintMeshInfo(std::string const& title, Ogre::MeshPtr mesh);
+
+void CvarAddFileToList(CVar* cvar, const std::string& filename);
+void CvarRemoveFileFromList(CVar* cvar, const std::string& filename);
 
 } // namespace RoR

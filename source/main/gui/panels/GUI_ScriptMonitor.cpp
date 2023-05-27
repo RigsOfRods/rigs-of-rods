@@ -18,19 +18,22 @@
 
 #include "Actor.h"
 #include "ContentManager.h"
+#include "GameContext.h"
 #include "ScriptEngine.h"
+#include "Utils.h"
 
 #include <Ogre.h>
 #include "OgreImGui.h" 
 
 using namespace RoR;
 using namespace GUI;
+using namespace Ogre;
 
 void ScriptMonitor::Draw()
 {
     // Table setup
     ImGui::Columns(3);
-    ImGui::SetColumnWidth(0, 30);
+    ImGui::SetColumnWidth(0, 25);
     ImGui::SetColumnWidth(1, 200);
     ImGui::SetColumnWidth(2, 200);
 
@@ -41,18 +44,20 @@ void ScriptMonitor::Draw()
     ImGui::NextColumn();
     ImGui::TextDisabled("Options");
     
-    ImGui::Separator();
+    this->DrawCommentedSeparator("Active");
 
-    ScriptUnitId_t id_to_reload = SCRIPTUNITID_INVALID;
-    ScriptUnitId_t id_to_stop = SCRIPTUNITID_INVALID;
-
+    StringVector autoload = StringUtil::split(App::app_custom_scripts->getStr(), ",");
     for (auto& pair : App::GetScriptEngine()->getScriptUnits())
     {
         ScriptUnitId_t id = pair.first;
+        ImGui::PushID(id);
+
         ScriptUnit const& unit = pair.second;
         ImGui::NextColumn();
+        ImGui::AlignTextToFramePadding();
         ImGui::TextDisabled("%d", id);
         ImGui::NextColumn();
+        ImGui::AlignTextToFramePadding();
         ImGui::Text("%s", unit.scriptName.c_str());
         ImGui::NextColumn();
         switch (unit.scriptCategory)
@@ -66,36 +71,98 @@ void ScriptMonitor::Draw()
             break;
 
         case ScriptCategory::CUSTOM:
+        {
             if (ImGui::Button("Reload"))
             {
-                // Reloading here would mess up the hashmap we're iterating (plus invalidate the iterator).
-                id_to_reload = id;
+                App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitId_t(id)));
+                LoadScriptRequest* req = new LoadScriptRequest();
+                req->lsr_category = unit.scriptCategory;
+                req->lsr_filename = unit.scriptName;
+                App::GetGameContext()->ChainMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, req));
             }
             ImGui::SameLine();
             if (ImGui::Button("Stop"))
             {
-                // Stopping here would mess up the hashmap we're iterating (plus invalidate the iterator).
-                id_to_stop = id;
+                App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitId_t(id)));
+            }
+
+            ImGui::SameLine();
+            bool autoload_set = std::find(autoload.begin(), autoload.end(), unit.scriptName) != autoload.end();
+            if (ImGui::Checkbox("Autoload", &autoload_set))
+            {
+                if (autoload_set)
+                    CvarAddFileToList(App::app_custom_scripts, unit.scriptName);
+                else
+                    CvarRemoveFileFromList(App::app_custom_scripts, unit.scriptName);
             }
             break;
+        }
         default:;
+        }
+
+        ImGui::PopID(); // ScriptUnitId_t id
+    }
+
+    if (App::app_recent_scripts->getStr() != "")
+    {
+        // Prepare display list for recent scripts
+        m_recent_displaylist.clear();
+        StringVector recent = StringUtil::split(App::app_recent_scripts->getStr(), ",");
+        for (String& filename : recent)
+        {
+            bool is_running = std::find_if(
+                App::GetScriptEngine()->getScriptUnits().begin(),
+                App::GetScriptEngine()->getScriptUnits().end(),
+                [filename](ScriptUnitMap::const_iterator::value_type pair) { return filename == pair.second.scriptName; })
+                != App::GetScriptEngine()->getScriptUnits().end();
+            if (!is_running)
+            {
+                m_recent_displaylist.push_back(filename);
+            }
+        }
+
+        // Draw recent scripts from the displaylist
+        if (m_recent_displaylist.size() > 0)
+        {
+            this->DrawCommentedSeparator("Recent");
+
+            for (String& filename : m_recent_displaylist)
+            {
+                ImGui::PushID(filename.c_str());
+
+                ImGui::NextColumn();
+                ImGui::NextColumn(); // skip "ID"
+                ImGui::AlignTextToFramePadding();
+                ImGui::Text("%s", filename.c_str());
+                ImGui::NextColumn();
+                if (ImGui::Button("Load"))
+                {
+                    LoadScriptRequest* req = new LoadScriptRequest();
+                    req->lsr_category = ScriptCategory::CUSTOM;
+                    req->lsr_filename = filename;
+                    App::GetGameContext()->PushMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, req));
+                }
+
+                ImGui::PopID(); // filename.c_str()
+            }
         }
     }
 
     ImGui::Columns(1); // reset
+}
 
-    if (id_to_reload != SCRIPTUNITID_INVALID)
-    {
-        // Back up the data, the ScriptUnit object will be invalidated!
-        ScriptUnit const& unit = App::GetScriptEngine()->getScriptUnit(id_to_reload);
-        std::string filename = unit.scriptName;
-        ScriptCategory category = unit.scriptCategory;
-        App::GetScriptEngine()->unloadScript(id_to_reload);
-        App::GetScriptEngine()->loadScript(filename, category);
-    }
-
-    if (id_to_stop != SCRIPTUNITID_INVALID)
-    {
-        App::GetScriptEngine()->unloadScript(id_to_stop);
-    }
+void ScriptMonitor::DrawCommentedSeparator(const char* text)
+{
+    ImGui::NextColumn(); // begin new row
+    ImGui::NextColumn(); // skip ID column
+    ImVec2 pos = ImGui::GetCursorScreenPos() + ImVec2(10.f, 0.f);
+    ImGui::Dummy(ImVec2(0.1f, 2.5f));
+    ImGui::Separator();
+    ImGui::Dummy(ImVec2(0.1f, 2.5f));
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
+    ImVec2 padding(5.f, 0.f);
+    ImVec2 rect_max = pos + padding*2 + ImGui::CalcTextSize(text);
+    drawlist->AddRectFilled(pos, rect_max, ImColor(ImGui::GetStyle().Colors[ImGuiCol_Header]), ImGui::GetStyle().WindowRounding);
+    drawlist->AddText(pos + padding, ImColor(ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]), text);
+    ImGui::NextColumn(); // skip Name column
 }
