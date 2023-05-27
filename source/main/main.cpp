@@ -882,6 +882,24 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_EDI_ADD_AFFECTOR_REQUESTED:
+                {
+                    AddAffectorRequest* req = static_cast<AddAffectorRequest*>(m.payload);
+                    AffectorID_t affectorid = App::GetGameContext()->GetActorManager()->AddAffector(req);
+                    if (req->aar_set_mouseforce)
+                        App::GetGameContext()->GetSceneMouse().SetMouseAffector(affectorid);
+                    delete req;
+                    break;
+                }
+
+                case MSG_EDI_REMOVE_AFFECTOR_REQUESTED:
+                {
+                    RemoveAffectorRequest* req = static_cast<RemoveAffectorRequest*>(m.payload);
+                    App::GetGameContext()->GetActorManager()->RemoveAffector(req);
+                    delete req;
+                    break;
+                }
+
                 default:;
                 }
 

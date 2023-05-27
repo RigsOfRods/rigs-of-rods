@@ -37,6 +37,9 @@ namespace RoR
     typedef int ScriptUnitId_t; //!< Unique sequentially generated ID of a loaded and running scriptin session. Use `ScriptEngine::getScriptUnit()`
     static const ScriptUnitId_t SCRIPTUNITID_INVALID = -1;
 
+    typedef int AffectorID_t; //!< Index to `Actor::ar_affectors`, use RoR::AFFECTORID_INVALID as empty value.
+    static const AffectorID_t AFFECTORID_INVALID = -1;
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;

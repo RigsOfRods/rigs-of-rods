@@ -57,13 +57,46 @@ void SceneMouse::DiscardVisuals()
 
 }
 
+void SceneMouse::activateMousePick()
+{
+    grab_truck = mintruck;
+    mouseGrabState = 1;
+    TRIGGER_EVENT(SE_TRUCK_MOUSE_GRAB, grab_truck->ar_instance_id);
+
+    for (hook_t& hook: grab_truck->ar_hooks)
+    {
+        if (hook.hk_hook_node->pos == minnode)
+        {
+            grab_truck->hookToggle(hook.hk_group, MOUSE_HOOK_TOGGLE, minnode);
+        }
+    }
+
+    AddAffectorRequest* areq = new AddAffectorRequest();
+    areq->aar_actor = grab_truck->ar_instance_id;
+    areq->aar_set_mouseforce = true; // Assign us the AffectorID when available.
+    areq->aar_affector.af_nodes.push_back(minnode);
+    areq->aar_affector.af_type = AffectorType::PINNED_FORCE;
+    areq->aar_affector.af_force_vector = lastgrabpos;
+    areq->aar_affector.af_force_min = 0.f;
+    areq->aar_affector.af_force_max = MOUSE_GRAB_FORCE;
+    areq->aar_affector.af_input_ratio = 1.f; // Constant.
+    App::GetGameContext()->PushMessage(Message(MSG_EDI_ADD_AFFECTOR_REQUESTED, areq));
+}
+
 void SceneMouse::releaseMousePick()
 {
     if (App::sim_state->getEnum<SimState>() == SimState::PAUSED) { return; } // Do nothing when paused
 
     // remove forces
     if (grab_truck)
-        grab_truck->clearNodeEffectForceTowardsPoint(minnode);
+    {
+        ROR_ASSERT(grab_affectorid != AFFECTORID_INVALID);
+        ROR_ASSERT(grab_truck->affectorExists(grab_affectorid));
+
+        App::GetGameContext()->PushMessage(
+            Message(MSG_EDI_REMOVE_AFFECTOR_REQUESTED,
+                new RemoveAffectorRequest(grab_truck->ar_instance_id, grab_affectorid)));
+    }
 
     this->reset();
 }
@@ -71,6 +104,7 @@ void SceneMouse::releaseMousePick()
 void SceneMouse::reset()
 {
     minnode = NODENUM_INVALID;
+    grab_affectorid = AFFECTORID_INVALID;
     grab_truck = nullptr;
     mindist = std::numeric_limits<float>::max();
     mouseGrabState = 0;
@@ -81,25 +115,14 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 {
     const OIS::MouseState ms = _arg.state;
 
-    // experimental mouse hack
     if (ms.buttonDown(OIS::MB_Left) && mouseGrabState == 0)
     {
 
-        // mouse selection is updated every frame in `update()`
+        // mouse selection is updated every frame in `updateMouse*Highlights()`
         // check if we hit a node
         if (mintruck && minnode != NODENUM_INVALID)
         {
-            grab_truck = mintruck;
-            mouseGrabState = 1;
-            TRIGGER_EVENT(SE_TRUCK_MOUSE_GRAB, grab_truck->ar_instance_id);
-
-            for (std::vector<hook_t>::iterator it = grab_truck->ar_hooks.begin(); it != grab_truck->ar_hooks.end(); it++)
-            {
-                if (it->hk_hook_node->pos == minnode)
-                {
-                    grab_truck->hookToggle(it->hk_group, MOUSE_HOOK_TOGGLE, minnode);
-                }
-            }
+            this->activateMousePick();
         }
     }
     else if (ms.buttonDown(OIS::MB_Left) && mouseGrabState == 1)
@@ -179,28 +202,31 @@ void SceneMouse::updateMouseEffectHighlights(ActorPtr& actor)
 {
     Ray mouseRay = getMouseRay();
 
-    for (size_t i = 0; i < actor->ar_node_effects_constant_force.size(); i++)
+    for (const affector_t& affector: actor->ar_affectors)
     {
-        const NodeEffectConstantForce& e = actor->ar_node_effects_constant_force[i];
-        Vector3 pointWorldPos = actor->ar_nodes[e.nodenum].AbsPosition + (e.force * FORCE_NEWTONS_TO_LINE_LENGTH_RATIO);
-        std::pair<bool, Real> result = mouseRay.intersects(Sphere(pointWorldPos, this->FORCE_UNPIN_SPHERE_SIZE));
-        if (result.first && result.second < cfEffect_mindist)
+        // The affected node
+        for (NodeNum_t nodenum : affector.af_nodes)
         {
-            cfEffect_minnode = e.nodenum;
-            cfEffect_mindist = result.second;
-            cfEffect_mintruck = actor;
+            std::pair<bool, Real> result = mouseRay.intersects(Sphere(actor->ar_nodes[nodenum].AbsPosition, this->FORCE_UNPIN_SPHERE_SIZE));
+            if (result.first && result.second < aff_nodes_mindist)
+            {
+                aff_nodes_minnode = nodenum;
+                aff_nodes_minaffector = affector.af_pos;
+                aff_nodes_mindist = result.second;
+                aff_nodes_mintruck = actor;
+            }
         }
-    }
 
-    for (size_t i = 0; i < actor->ar_node_effects_force_towards_point.size(); i++)
-    {
-        const NodeEffectForceTowardsPoint& e = actor->ar_node_effects_force_towards_point[i];
-        std::pair<bool, Real> result = mouseRay.intersects(Sphere(e.point, this->FORCE_UNPIN_SPHERE_SIZE));
-        if (result.first && result.second < f2pEffect_mindist)
+        // The pin point
+        if (affector.af_type == AffectorType::PINNED_FORCE)
         {
-            f2pEffect_minnode = e.nodenum;
-            f2pEffect_mindist = result.second;
-            f2pEffect_mintruck = actor;
+            std::pair<bool, Real> result = mouseRay.intersects(Sphere(affector.af_force_vector, this->FORCE_UNPIN_SPHERE_SIZE));
+            if (result.first && result.second < aff_pins_mindist)
+            {
+                aff_pins_minaffector = affector.af_pos;
+                aff_pins_mindist = result.second;
+                aff_pins_mintruck = actor;
+            }
         }
     }
 }
@@ -228,9 +254,11 @@ void SceneMouse::UpdateSimulation()
         // get values
         lastgrabpos = mouseRay.getPoint(mindist);
 
-        // add forces
-        grab_truck->clearNodeEffectForceTowardsPoint(minnode);
-        grab_truck->addNodeEffectForceTowardsPoint(minnode, lastgrabpos, MOUSE_GRAB_FORCE);
+        // update forces when the affector becomes available
+        if (grab_affectorid != AFFECTORID_INVALID)
+        {
+            grab_truck->setAffectorForceVector(grab_affectorid, lastgrabpos);
+        }
     }
     else
     {
@@ -247,12 +275,13 @@ void SceneMouse::UpdateSimulation()
         }
 
         // refresh mouse highlight of effects
-        cfEffect_mintruck = nullptr;
-        cfEffect_minnode = NODENUM_INVALID;
-        cfEffect_mindist = std::numeric_limits<float>::max();
-        f2pEffect_mintruck = nullptr;
-        f2pEffect_minnode = NODENUM_INVALID;
-        f2pEffect_mindist = std::numeric_limits<float>::max();
+        aff_nodes_mintruck = nullptr;
+        aff_nodes_minnode = NODENUM_INVALID;
+        aff_nodes_minaffector = AFFECTORID_INVALID;
+        aff_nodes_mindist = std::numeric_limits<float>::max();
+        aff_pins_mintruck = nullptr;
+        aff_pins_minaffector = AFFECTORID_INVALID;
+        aff_pins_mindist = std::numeric_limits<float>::max();
         for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             if (actor->ar_state == ActorState::LOCAL_SIMULATED)
@@ -314,41 +343,41 @@ void SceneMouse::drawNodeEffects()
         if (actor->ar_state != ActorState::LOCAL_SIMULATED)
             continue;
 
-        for (size_t i = 0; i < actor->ar_node_effects_constant_force.size(); i++)
+        for (affector_t& affector: actor->ar_affectors)
         {
-            const NodeEffectConstantForce& e = actor->ar_node_effects_constant_force[i];
-            Vector2 nodeScreenPos, pointScreenPos;
-            Vector3 pointWorldPos = actor->ar_nodes[e.nodenum].AbsPosition + (e.force * FORCE_NEWTONS_TO_LINE_LENGTH_RATIO);
-            if (GetScreenPosFromWorldPos(actor->ar_nodes[e.nodenum].AbsPosition, nodeScreenPos)
-                && GetScreenPosFromWorldPos(pointWorldPos, nodeScreenPos))
+            for (NodeNum_t nodenum : affector.af_nodes)
             {
-                drawlist->ChannelsSetCurrent(LAYER_LINES);
-                const bool highlight = (e.nodenum == cfEffect_minnode) && actor == cfEffect_mintruck;
-                const ImColor color = (highlight)
-                    ? ImColor(theme.node_effect_highlight_line_color)
-                    : ImColor(theme.node_effect_force_line_color);
-                drawlist->AddLine(ImVec2(nodeScreenPos.x, nodeScreenPos.y), ImVec2(pointScreenPos.x, pointScreenPos.y),
-                    color, theme.node_effect_force_line_thickness);
-            }
-        }
+                Vector2 nodeScreenPos, pointScreenPos;
+                Vector3 pointWorldPos;
+                if (affector.af_type == AffectorType::PINNED_FORCE)
+                {
+                    // Point position specified externally
+                    pointWorldPos = affector.af_force_vector;
+                }
+                else
+                {
+                    // Point position calculated based on force
+                    pointWorldPos = actor->ar_nodes[nodenum].AbsPosition + (affector.curForce() * FORCE_NEWTONS_TO_LINE_LENGTH_RATIO);
+                }
+                if (GetScreenPosFromWorldPos(actor->ar_nodes[nodenum].AbsPosition, nodeScreenPos)
+                    && GetScreenPosFromWorldPos(pointWorldPos, pointScreenPos))
+                {
+                    drawlist->ChannelsSetCurrent(LAYER_LINES);
+                    const bool highlight = (nodenum == aff_nodes_minnode) && actor == aff_nodes_mintruck;
+                    const ImColor color = (highlight)
+                        ? ImColor(theme.node_effect_highlight_line_color)
+                        : ImColor(theme.node_effect_force_line_color);
+                    drawlist->AddLine(ImVec2(nodeScreenPos.x, nodeScreenPos.y), ImVec2(pointScreenPos.x, pointScreenPos.y),
+                        color, theme.node_effect_force_line_thickness);
 
-        for (size_t i = 0; i < actor->ar_node_effects_force_towards_point.size(); i++)
-        {
-            const NodeEffectForceTowardsPoint& e = actor->ar_node_effects_force_towards_point[i];
-            Vector2 nodeScreenPos, pointScreenPos;
-            if (GetScreenPosFromWorldPos(actor->ar_nodes[e.nodenum].AbsPosition, nodeScreenPos)
-                && GetScreenPosFromWorldPos(e.point, pointScreenPos))
-            {
-                drawlist->ChannelsSetCurrent(LAYER_LINES);
-                drawlist->AddLine(ImVec2(nodeScreenPos.x, nodeScreenPos.y), ImVec2(pointScreenPos.x, pointScreenPos.y),
-                    ImColor(theme.node_effect_force_line_color), theme.node_effect_force_line_thickness);
-                drawlist->ChannelsSetCurrent(LAYER_CIRCLES);
-                const bool highlight = (e.nodenum == f2pEffect_minnode) && actor == f2pEffect_mintruck;
-                const ImColor color = (highlight)
-                    ? ImColor(theme.node_effect_highlight_line_color)
-                    : ImColor(theme.node_effect_force_line_color);
-                drawlist->AddCircleFilled(ImVec2(pointScreenPos.x, pointScreenPos.y),
-                    theme.node_effect_force_circle_radius, color);
+                    if (affector.af_pos == aff_pins_minaffector)
+                    {
+                        // This is a PINNED force, draw the extra pin circle
+                        drawlist->ChannelsSetCurrent(LAYER_CIRCLES);
+                        drawlist->AddCircleFilled(ImVec2(pointScreenPos.x, pointScreenPos.y),
+                            theme.node_effect_force_circle_radius, color);
+                    }
+                }
             }
         }
     }
@@ -437,17 +466,24 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
         }
     }
 
-    if (ms.buttonDown(OIS::MB_Right) && cfEffect_minnode != NODENUM_INVALID)
+    // RMB unpins forces
+    if (ms.buttonDown(OIS::MB_Right) && aff_nodes_minnode != NODENUM_INVALID)
     {
-        cfEffect_mintruck->clearNodeEffectConstantForce(cfEffect_minnode);
-        cfEffect_minnode = NODENUM_INVALID;
-        cfEffect_mintruck = nullptr;
+        ROR_ASSERT(aff_nodes_minaffector != AFFECTORID_INVALID);
+        App::GetGameContext()->PushMessage(
+            Message(MSG_EDI_REMOVE_AFFECTOR_REQUESTED,
+                new RemoveAffectorRequest(aff_nodes_mintruck->ar_instance_id, aff_nodes_minaffector)));
+        aff_nodes_minaffector = AFFECTORID_INVALID;
+        aff_nodes_minnode = NODENUM_INVALID;
+        aff_nodes_mintruck = nullptr;
     }
-    else if (ms.buttonDown(OIS::MB_Right) && f2pEffect_minnode != NODENUM_INVALID)
+    else if (ms.buttonDown(OIS::MB_Right) && aff_pins_minaffector != AFFECTORID_INVALID)
     {
-        f2pEffect_mintruck->clearNodeEffectForceTowardsPoint(f2pEffect_minnode);
-        f2pEffect_minnode = NODENUM_INVALID;
-        f2pEffect_mintruck = nullptr;
+        App::GetGameContext()->PushMessage(
+            Message(MSG_EDI_REMOVE_AFFECTOR_REQUESTED,
+                new RemoveAffectorRequest(aff_pins_mintruck->ar_instance_id, aff_pins_minaffector)));
+        aff_pins_minaffector = AFFECTORID_INVALID;
+        aff_pins_mintruck = nullptr;
     }
 
     return true;

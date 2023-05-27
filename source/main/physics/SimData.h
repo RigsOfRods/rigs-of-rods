@@ -589,13 +589,37 @@ struct command_t
 
 struct hydrobeam_t
 {
-    uint16_t hb_beam_index; //!< Index to Actor::ar_beams array
-    float    hb_ref_length; //!< Idle length in meters
-    float    hb_speed;      //!< Rate of change
-    int      hb_flags;
-    int      hb_anim_flags; //!< Animators (beams updating length based on simulation variables)
-    float    hb_anim_param; //!< Animators (beams updating length based on simulation variables)
-    RoR::CmdKeyInertia  hb_inertia;
+    uint16_t       hb_beam_index; //!< Index to Actor::ar_beams array
+    AffectorID_t   hb_affector_id; //!< If valid, this is a virtual hydrobeam which really updates an actuator.
+    float          hb_ref_length; //!< Idle length in meters
+    float          hb_speed;      //!< Rate of change
+    int            hb_flags;
+    int            hb_anim_flags; //!< Animators (beams updating length based on simulation variables)
+    float          hb_anim_param; //!< Animators (beams updating length based on simulation variables)
+    CmdKeyInertia  hb_inertia;
+};
+
+enum class AffectorType
+{
+    INVALID,
+    UNIFORM_FORCE,//!< Applies `af_force_vector` uniformly to all nodes in `af_nodes`.
+    PINNED_FORCE, //!< Attracts/repulses all nodes in `af_nodes` to/from world "pin" point given by `af_force_vector`.
+    THRUSTER,     //!< Takes first 3 nodes from `af_nodes` as noderef/nodex/nodey (Euclidean reference space) and applies `af_force_vector` to all remaining nodes in `af_nodes`
+};
+
+/// An affector applies a controlled force to a set of nodes
+/// (generalized alternative to hydros/commands/rotators/aeroengines/screwprops)
+struct affector_t
+{
+    std::vector<NodeNum_t> af_nodes;
+    AffectorType           af_type = AffectorType::INVALID;
+    float                  af_input_ratio = 0.f;                  //!< Current input (0.0 - 1.0). May be constant or updated by associated `hydrobeam_t`
+    float                  af_force_min = 0.f;                    //!< Magnitude of the force (N) at no input.
+    float                  af_force_max = 0.f;                    //!< Magnitude of the force (N) at highest input.
+    Ogre::Vector3          af_force_vector = Ogre::Vector3::ZERO; //!< Depends on `af_type`. For `PINNED`, this is the pin point.
+    AffectorID_t           af_pos = AFFECTORID_INVALID;
+
+    float curForce() const { return af_force_min + ((af_force_max - af_force_min) * af_input_ratio); }
 };
 
 struct rotator_t
@@ -662,19 +686,6 @@ struct PropAnimKeyState
     bool event_active_prev = false;
     bool anim_active = false;
     events event_id = EV_MODE_LAST; // invalid
-};
-
-struct NodeEffectConstantForce
-{
-    NodeNum_t nodenum;
-    Ogre::Vector3 force; //!< Newtons
-};
-
-struct NodeEffectForceTowardsPoint
-{
-    NodeNum_t nodenum;
-    Ogre::Vector3 point;
-    float force; //!< Newtons
 };
 
 /// @}
@@ -813,6 +824,26 @@ struct ActorModifyRequest
     Type                amr_type;
     std::shared_ptr<rapidjson::Document>
                         amr_saved_state;
+};
+
+struct AddAffectorRequest
+{
+    ActorInstanceID_t   aar_actor = ACTORINSTANCEID_INVALID; // not ActorPtr because refcounting is not multithreaded
+    bool                aar_set_mouseforce = false;
+
+    // The staging data to be added to `Actor`
+    affector_t          aar_affector;   //!< applies force to given node(s)
+    hydrobeam_t         aar_hydrobeam;  //!< A virtual commandbeam (steering/aileron/rudder input)
+
+};
+
+struct RemoveAffectorRequest
+{
+    RemoveAffectorRequest() {}
+    RemoveAffectorRequest(ActorInstanceID_t actor, AffectorID_t aff) : rar_actor(actor), rar_affector(aff) {}
+
+    ActorInstanceID_t   rar_actor = ACTORINSTANCEID_INVALID; // not ActorPtr because refcounting is not multithreaded
+    AffectorID_t        rar_affector = AFFECTORID_INVALID;
 };
 
 } // namespace RoR

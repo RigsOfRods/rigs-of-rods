@@ -117,6 +117,8 @@ enum MsgType
     MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,
     MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED,
     MSG_EDI_RELOAD_BUNDLE_REQUESTED,       //!< Payload = RoR::CacheEntry* (weak)
+    MSG_EDI_ADD_AFFECTOR_REQUESTED,        //!< Payload = RoR::AddAffectorRequest* (owner)
+    MSG_EDI_REMOVE_AFFECTOR_REQUESTED,     //!< Payload = RoR::RemoveAffectorRequest* (owner)
 };
 
 const char* MsgTypeToString(MsgType type);

@@ -77,6 +77,13 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_RESTORE_SAVED", (int)ActorModifyRequest::Type::RESTORE_SAVED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_WAKE_UP", (int)ActorModifyRequest::Type::WAKE_UP); ROR_ASSERT(result >= 0);
 
+    // enum AffectorType
+    result = engine->RegisterEnum("AffectorType"); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("AffectorType", "ACTUATOR_TYPE_INVALID", (int)AffectorType::INVALID); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("AffectorType", "ACTUATOR_TYPE_UNIFORM_FORCE", (int)AffectorType::UNIFORM_FORCE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("AffectorType", "ACTUATOR_TYPE_PINNED_FORCE", (int)AffectorType::PINNED_FORCE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("AffectorType", "ACTUATOR_TYPE_THRUSTER", (int)AffectorType::THRUSTER); ROR_ASSERT(result >= 0);
+
     // class Actor (historically Beam)
     Actor::RegisterRefCountingObject(engine, "BeamClass");
     ActorPtr::RegisterRefCountingObjectPtr(engine, "BeamClassPtr", "BeamClass");

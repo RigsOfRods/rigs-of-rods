@@ -86,6 +86,12 @@ public:
     int               getWheelNodeCount() const;
     float             getWheelSpeed() const { return ar_wheel_speed; }
     void              reset(bool keep_position = false);   //!< call this one to reset a truck from any context
+    bool              affectorExists(AffectorID_t affectorid) { return affectorid >= 0 && affectorid < this->getAffectorCount(); }
+    int               getAffectorCount() { return static_cast<int>(ar_affectors.size()); }
+    AffectorType      getAffectorType(AffectorID_t affectorid)         { ROR_ASSERT(this->affectorExists(affectorid)); return ar_affectors[affectorid].af_type; }
+    float             getAffectorCurrentForce(AffectorID_t affectorid) { ROR_ASSERT(this->affectorExists(affectorid)); return ar_affectors[affectorid].curForce(); }
+    Ogre::Vector3     getAffectorForceVector(AffectorID_t affectorid)  { ROR_ASSERT(this->affectorExists(affectorid)); return ar_affectors[affectorid].af_force_vector; }
+    int               getAffectorNodeCount(AffectorID_t affectorid)    { ROR_ASSERT(this->affectorExists(affectorid)); return static_cast<int>(ar_affectors[affectorid].af_nodes.size()); }
     // not exported to scripting:
     void              resetPosition(Ogre::Vector3 translation, bool setInitPosition); //!< Moves the actor to given world coords.
     void              resetPosition(float px, float pz, bool setInitPosition, float miny); //!< Moves the actor to given world coords.
@@ -112,6 +118,7 @@ public:
     // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
     void              scaleTruck(float value);
     void              setMass(float m);
+    void              setAffectorForceVector(AffectorID_t affectorid, Ogre::Vector3 vec) { ROR_ASSERT(this->affectorExists(affectorid)); ar_affectors[affectorid].af_force_vector = vec; }
     // not exported to scripting:
     void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
     void              searchBeamDefaults();                //!< Searches for more stable beam defaults
@@ -126,11 +133,6 @@ public:
     void              antilockbrakeToggle();
     void              toggleCustomParticles();
     bool              getCustomParticleMode();
-    void              addNodeEffectConstantForce(NodeNum_t nodenum, Ogre::Vector3 force);
-    void              clearNodeEffectConstantForce(NodeNum_t nodenum);
-    void              addNodeEffectForceTowardsPoint(NodeNum_t nodenum, Ogre::Vector3 point, float force);
-    void              clearNodeEffectForceTowardsPoint(NodeNum_t nodenum);
-    void              clearNodeEffects(NodeNum_t nodenum);
     // not exported to scripting:
     void              tieToggle(int group=-1);
     bool              isTied();
@@ -319,6 +321,7 @@ public:
     int               ar_cabs[MAX_CABS*3];
     int               ar_num_cabs;
     std::vector<hydrobeam_t> ar_hydros;
+    std::vector<affector_t> ar_affectors;
     int               ar_collcabs[MAX_CABS];
     collcab_rate_t    ar_inter_collcabrate[MAX_CABS];
     collcab_rate_t    ar_intra_collcabrate[MAX_CABS];
@@ -420,10 +423,6 @@ public:
     float             ar_top_speed;                   //!< Sim state
     ground_model_t*   ar_last_fuzzy_ground_model;     //!< GUI state
 
-    // Node effects
-    std::vector<NodeEffectConstantForce> ar_node_effects_constant_force;
-    std::vector<NodeEffectForceTowardsPoint> ar_node_effects_force_towards_point;
-
     CollisionBoxPtrVec m_potential_eventboxes;
     std::vector<std::pair<collision_box_t*, NodeNum_t>> m_active_eventboxes;
 
@@ -478,7 +477,7 @@ private:
     void              CalcFuseDrag();                      
     void              CalcHooks();                         
     void              CalcHydros();                        
-    void              CalcNodeEffects();                         
+    void              CalcNodeAffectors();                         
     void              CalcNodes();
     void              CalcEventBoxes();
     void              CalcReplay();                        

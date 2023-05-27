@@ -53,10 +53,12 @@ public:
     void UpdateVisuals();
     void DiscardVisuals();
     void UpdateInputEvents();
+    void SetMouseAffector(AffectorID_t id) { grab_affectorid = id; }
 
 protected:
 
     int mouseGrabState;
+    AffectorID_t grab_affectorid = AFFECTORID_INVALID;
     ActorPtr grab_truck; // grabbed node truck
     Ogre::Vector3 lastgrabpos;
 
@@ -80,15 +82,16 @@ protected:
     float mindist;
     ActorPtr mintruck;
 
-    // the node const force effect
-    int cfEffect_minnode = NODENUM_INVALID;
-    float cfEffect_mindist;
-    ActorPtr cfEffect_mintruck;
+    // the affector node
+    NodeNum_t aff_nodes_minnode = NODENUM_INVALID;
+    AffectorID_t aff_nodes_minaffector = AFFECTORID_INVALID;
+    float aff_nodes_mindist;
+    ActorPtr aff_nodes_mintruck;
 
-    // the node force2point effect
-    int f2pEffect_minnode = NODENUM_INVALID;
-    float f2pEffect_mindist;
-    ActorPtr f2pEffect_mintruck;
+    // the PINNED affector's pin position
+    AffectorID_t aff_pins_minaffector = AFFECTORID_INVALID;
+    float aff_pins_mindist;
+    ActorPtr aff_pins_mintruck;
 
     // surrounding nodes
     std::vector<HighlightedNode> highlightedNodes;
@@ -97,6 +100,7 @@ protected:
 
     /// @}
 
+    void activateMousePick();
     void releaseMousePick();
     Ogre::Ray getMouseRay();
     void reset();
