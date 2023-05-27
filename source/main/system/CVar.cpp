@@ -42,6 +42,7 @@ void Console::cVarSetupBuiltins()
     App::app_disable_online_api  = this->cVarCreate("app_disable_online_api",  "Disable Online API",         CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::app_config_long_names   = this->cVarCreate("app_config_long_names",   "Config uses long names",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::app_custom_scripts      = this->cVarCreate("app_custom_scripts",      "",                           CVAR_ARCHIVE,                     "");
+    App::app_recent_scripts      = this->cVarCreate("app_recent_scripts",      "",                           CVAR_ARCHIVE,                     "");
 
     App::sim_state               = this->cVarCreate("sim_state",               "",                                          CVAR_TYPE_INT,     "0"/*(int)SimState::OFF*/);
     App::sim_terrain_name        = this->cVarCreate("sim_terrain_name",        "",                           0);

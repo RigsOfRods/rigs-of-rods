@@ -284,6 +284,7 @@ extern CVar* app_force_cache_update;
 extern CVar* app_disable_online_api;
 extern CVar* app_config_long_names;
 extern CVar* app_custom_scripts;
+extern CVar* app_recent_scripts;
 
 // Simulation
 extern CVar* sim_state;

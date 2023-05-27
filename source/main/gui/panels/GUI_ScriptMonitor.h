@@ -19,6 +19,8 @@
 
 #include "Application.h"
 
+#include <OgreStringVector.h>
+
 namespace RoR {
 namespace GUI {
 
@@ -27,6 +29,8 @@ class ScriptMonitor
 public:
     void Draw();
 private:
+    void DrawCommentedSeparator(const char* text);
+    Ogre::StringVector m_recent_displaylist;
 };
 
 } // namespace GUI

@@ -90,6 +90,7 @@ CVar* app_force_cache_update;
 CVar* app_disable_online_api;
 CVar* app_config_long_names;
 CVar* app_custom_scripts;
+CVar* app_recent_scripts;
 
 // Simulation
 CVar* sim_state;
