@@ -404,6 +404,7 @@ int main(int argc, char *argv[])
                     ScriptUnitId_t* id = static_cast<ScriptUnitId_t*>(m.payload);
                     App::GetScriptEngine()->unloadScript(*id);
                     delete id;
+                    break;
                 }
 
                 // -- Network events --
