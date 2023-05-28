@@ -107,7 +107,7 @@ void TopMenubar::Update()
     // ## ImGui's 'menubar' and 'menuitem' features won't quite cut it...
     // ## Let's do our own menus and menuitems using buttons and coloring tricks.
 
-    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    GUITheme const& theme = App::GetGuiManager()->GetTheme();
 
     int num_playable_actors = 0;
     for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
@@ -1564,7 +1564,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
 
         // Calculate distance
         GameContextSB& data = App::GetGfxScene()->GetSimDataBuffer();
-        GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+        GUITheme const& theme = App::GetGuiManager()->GetTheme();
         float distance = 0.0f;
         ActorPtr player_actor = App::GetGfxScene()->GetSimDataBuffer().simbuf_player_actor;
         if (player_actor != nullptr && App::GetGameContext()->GetPlayerActor() &&

@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2014 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -35,6 +35,9 @@
 
 namespace RoR {
 
+/// @addtogroup Gameplay
+/// @{
+
 class SceneMouse
 {
 public:
@@ -49,22 +52,71 @@ public:
     void UpdateSimulation();
     void UpdateVisuals();
     void DiscardVisuals();
+    void UpdateInputEvents();
+    void SetMouseAffector(AffectorID_t id) { grab_affectorid = id; }
 
 protected:
 
-    Ogre::ManualObject* pickLine;
-    Ogre::SceneNode* pickLineNode;
     int mouseGrabState;
+    AffectorID_t grab_affectorid = AFFECTORID_INVALID;
+    ActorPtr grab_truck; // grabbed node truck
+    Ogre::Vector3 lastgrabpos;
 
+    /// @name Mouse node (or pinned force) selection with animated highlights: 1. closest node 2. surrounding nodes (animated by distance)
+    /// @{
+    
+    const float HIGHLIGHT_SPHERE_SIZE = 1.f; //!< in meters
+    const float GRAB_SPHERE_SIZE = 0.1f; //!< in meters
+    const float FORCE_NEWTONS_TO_LINE_LENGTH_RATIO = 15.5f;
+    const float FORCE_UNPIN_SPHERE_SIZE = 0.2; //!< in meters
+    // Colors and scales are defined in GUI Theme, see GUIManager.h
+
+    struct HighlightedNode
+    {
+        float distance;
+        NodeNum_t nodenum;
+    };
+
+    // the grabbable node
     NodeNum_t minnode = NODENUM_INVALID;
     float mindist;
-    ActorPtr grab_truck;
-    Ogre::Vector3 lastgrabpos;
-    int lastMouseX, lastMouseY;
+    ActorPtr mintruck;
 
+    // the affector node
+    NodeNum_t aff_nodes_minnode = NODENUM_INVALID;
+    AffectorID_t aff_nodes_minaffector = AFFECTORID_INVALID;
+    float aff_nodes_mindist;
+    ActorPtr aff_nodes_mintruck;
+
+    // the PINNED affector's pin position
+    AffectorID_t aff_pins_minaffector = AFFECTORID_INVALID;
+    float aff_pins_mindist;
+    ActorPtr aff_pins_mintruck;
+
+    // surrounding nodes
+    std::vector<HighlightedNode> highlightedNodes;
+    float highlightedNodesTopDistance;
+    ActorPtr highlightedTruck;
+
+    // Highlight of neighbour beams
+    std::vector<uint8_t> highlightedBeamsNodeProximity;
+    std::vector<int> highlightedBeamIDs;
+
+    /// @}
+
+    void activateMousePick();
     void releaseMousePick();
     Ogre::Ray getMouseRay();
     void reset();
+    void updateMouseNodeHighlights(ActorPtr& actor);
+    void updateMouseBeamHighlights();
+    void updateMouseBeamHighlightsRecursive(NodeNum_t nodenum, float traversalLen, float maxTraversalLen);
+    void updateMouseEffectHighlights(ActorPtr& actor);
+    void drawMouseNodeHighlights();
+    void drawMouseBeamHighlights();
+    void drawNodeEffects();
 };
+
+/// @}
 
 } // namespace RoR

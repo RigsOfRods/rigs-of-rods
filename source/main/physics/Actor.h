@@ -86,6 +86,12 @@ public:
     int               getWheelNodeCount() const;
     float             getWheelSpeed() const { return ar_wheel_speed; }
     void              reset(bool keep_position = false);   //!< call this one to reset a truck from any context
+    bool              affectorExists(AffectorID_t affectorid) { return affectorid >= 0 && affectorid < this->getAffectorCount(); }
+    int               getAffectorCount() { return static_cast<int>(ar_affectors.size()); }
+    AffectorType      getAffectorType(AffectorID_t affectorid)         { ROR_ASSERT(this->affectorExists(affectorid)); return ar_affectors[affectorid].af_type; }
+    float             getAffectorCurrentForce(AffectorID_t affectorid) { ROR_ASSERT(this->affectorExists(affectorid)); return ar_affectors[affectorid].curForce(); }
+    Ogre::Vector3     getAffectorForceVector(AffectorID_t affectorid)  { ROR_ASSERT(this->affectorExists(affectorid)); return ar_affectors[affectorid].af_force_vector; }
+    int               getAffectorNodeCount(AffectorID_t affectorid)    { ROR_ASSERT(this->affectorExists(affectorid)); return static_cast<int>(ar_affectors[affectorid].af_nodes.size()); }
     // not exported to scripting:
     void              resetPosition(Ogre::Vector3 translation, bool setInitPosition); //!< Moves the actor to given world coords.
     void              resetPosition(float px, float pz, bool setInitPosition, float miny); //!< Moves the actor to given world coords.
@@ -112,6 +118,7 @@ public:
     // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
     void              scaleTruck(float value);
     void              setMass(float m);
+    void              setAffectorForceVector(AffectorID_t affectorid, Ogre::Vector3 vec) { ROR_ASSERT(this->affectorExists(affectorid)); ar_affectors[affectorid].af_force_vector = vec; }
     // not exported to scripting:
     void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
     void              searchBeamDefaults();                //!< Searches for more stable beam defaults
@@ -127,7 +134,6 @@ public:
     void              toggleCustomParticles();
     bool              getCustomParticleMode();
     // not exported to scripting:
-    void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
     void              tieToggle(int group=-1);
     bool              isTied();
     void              hookToggle(int group=-1, HookAction mode=HOOK_TOGGLE, NodeNum_t node_number=NODENUM_INVALID);
@@ -315,6 +321,7 @@ public:
     int               ar_cabs[MAX_CABS*3];
     int               ar_num_cabs;
     std::vector<hydrobeam_t> ar_hydros;
+    std::vector<affector_t> ar_affectors;
     int               ar_collcabs[MAX_CABS];
     collcab_rate_t    ar_inter_collcabrate[MAX_CABS];
     collcab_rate_t    ar_intra_collcabrate[MAX_CABS];
@@ -415,6 +422,7 @@ public:
     float             ar_collision_range;             //!< Physics attr
     float             ar_top_speed;                   //!< Sim state
     ground_model_t*   ar_last_fuzzy_ground_model;     //!< GUI state
+
     CollisionBoxPtrVec m_potential_eventboxes;
     std::vector<std::pair<collision_box_t*, NodeNum_t>> m_active_eventboxes;
 
@@ -469,7 +477,7 @@ private:
     void              CalcFuseDrag();                      
     void              CalcHooks();                         
     void              CalcHydros();                        
-    void              CalcMouse();                         
+    void              CalcNodeAffectors();                         
     void              CalcNodes();
     void              CalcEventBoxes();
     void              CalcReplay();                        
@@ -525,9 +533,6 @@ private:
     float             m_stabilizer_shock_sleep;     //!< Sim state
     Replay*           m_replay_handler;
     float             m_total_mass;            //!< Physics state; total mass in Kg
-    NodeNum_t         m_mouse_grab_node = NODENUM_INVALID;  //!< Sim state; node currently being dragged by user
-    Ogre::Vector3     m_mouse_grab_pos;
-    float             m_mouse_grab_move_force;
     float             m_spawn_rotation;
     Ogre::Timer       m_reset_timer;
     Ogre::Vector3     m_rotation_request_center;

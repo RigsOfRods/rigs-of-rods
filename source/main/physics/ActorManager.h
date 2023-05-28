@@ -56,6 +56,12 @@ public:
     void           DeleteActorInternal(ActorPtr actor); //!< Do not call directly; use `GameContext::DeleteActor()`
     /// @}
 
+    /// @name Editing
+    /// @{
+    AffectorID_t   AddAffector(AddAffectorRequest* rq);
+    void           RemoveAffector(RemoveAffectorRequest* rq);
+    /// @}
+
     void           UpdateActors(ActorPtr player_actor);
     void           SyncWithSimThread();
     void           UpdatePhysicsSimulation();

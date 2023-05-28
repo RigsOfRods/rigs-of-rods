@@ -76,7 +76,7 @@ void MainSelector::Show(LoaderType type, std::string const& filter_guid, CacheEn
 
 void MainSelector::Draw()
 {
-    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    GUITheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
     ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);

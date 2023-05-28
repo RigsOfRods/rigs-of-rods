@@ -20,6 +20,7 @@
 #include "GUIUtils.h"
 
 #include "Actor.h"
+#include "Utils.h"
 
 #include "imgui_internal.h" // ImTextCharFromUtf8
 #include <regex>
@@ -350,8 +351,10 @@ Ogre::TexturePtr RoR::FetchIcon(const char* name)
     return Ogre::TexturePtr(); // null
 }
 
-ImDrawList* RoR::GetImDummyFullscreenWindow()
+ImDrawList* RoR::GetImDummyFullscreenWindow(const char* name /* = nullptr*/)
 {
+    name = (name != nullptr) ? name : "RoR_DefaultTransparentFullscreenWindow";
+
     ImVec2 screen_size = ImGui::GetIO().DisplaySize;
 
     // Dummy fullscreen window to draw to
@@ -360,12 +363,29 @@ ImDrawList* RoR::GetImDummyFullscreenWindow()
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(screen_size);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
-    ImGui::Begin("RoR_TransparentFullscreenWindow", NULL, window_flags);
+    ImGui::Begin(name, nullptr, window_flags);
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
 
     return drawlist;
+}
+
+bool RoR::GetScreenPosFromWorldPos(Ogre::Vector3 const& world_pos, Ogre::Vector2& out_screen)
+{
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+    RoR::World2ScreenConverter world2screen(
+        RoR::App::GetCameraManager()->GetCamera()->getViewMatrix(true),
+        RoR::App::GetCameraManager()->GetCamera()->getProjectionMatrix(),
+        Ogre::Vector2(screen_size.x, screen_size.y));
+    Ogre::Vector3 pos_xyz = world2screen.Convert(world_pos);
+    if (pos_xyz.z < 0.f)
+    {
+        out_screen.x = pos_xyz.x;
+        out_screen.y = pos_xyz.y;
+        return true;
+    }
+    return false;
 }
 
 void RoR::ImAddItemToComboboxString(std::string& target, std::string const& item)
@@ -400,4 +420,23 @@ void RoR::ImTerminateComboboxString(std::string& target)
 
     // Make space for 2 trailing with NULs
     target.resize(prev_size + 2, '\0');
+}
+
+void RoR::ImAddLineColorGradient(ImDrawList* drawlist, const ImVec2& p1, const ImVec2& p2, ImU32 c1, ImU32 c2, float thickness)
+{
+    // Let DearIMGUI draw a line and then adjust colors in the draw buffer
+    // Note that DearIMGUI archieves antialiasing by drawing semitransparent tris around the line tris.
+    // ------------------------------------------------------------------------------------------------
+
+    // Draw the line using color c1
+    drawlist->AddLine(p1, p2, c1, thickness);
+
+    // Prepare the c2 AA color ~ see `ImDrawList::AddPolyLine()` in 'imgui_draw.cpp', around line 610
+    const ImU32 c2aa = c2 & ~IM_COL32_A_MASK;
+
+    // Inject the colors to draw list ~ see `ImDrawList::AddPolyLine()` in 'imgui_draw.cpp', around line 770
+    (drawlist->_VtxWritePtr - 1)->col = c2aa; // end right AA
+    (drawlist->_VtxWritePtr - 2)->col = c2; // end right
+    (drawlist->_VtxWritePtr - 3)->col = c2; // end left
+    (drawlist->_VtxWritePtr - 4)->col = c2aa; // end left AA
 }

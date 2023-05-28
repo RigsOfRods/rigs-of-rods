@@ -99,6 +99,7 @@ set(SOURCE_FILES
         gfx/skyx/VClouds/VClouds.{h,cpp}
         gui/DashBoardManager.{h,cpp}
         gui/GUIManager.{h,cpp}
+        gui/GUITheme.h
         gui/GUIUtils.{h,cpp}
         gui/OverlayWrapper.{h,cpp}
         gui/RTTLayer.{h,cpp}
@@ -138,6 +139,7 @@ set(SOURCE_FILES
         gui/panels/GUI_ScriptMonitor.{h,cpp}
         gui/panels/GUI_SimPerfStats.{h,cpp}
         gui/panels/GUI_SurveyMap.{h,cpp}
+        gui/panels/GUI_ThemeEditor.{h,cpp}
         gui/panels/GUI_VehicleDescription.{h,cpp}
         gui/panels/GUI_VehicleButtons.{h,cpp}
         network/DiscordRpc.{h,cpp}

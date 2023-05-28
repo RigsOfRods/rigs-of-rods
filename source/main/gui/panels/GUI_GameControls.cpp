@@ -40,7 +40,7 @@ void GameControls::Draw()
     {
         // Interactive keybind mode - controls window remains 'visible', but box is drawn instead.
 
-        GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+        GUITheme& theme = App::GetGuiManager()->GetTheme();
         Ogre::String keys_pressed;
         int num_nonmodifier_keys = App::GetInputEngine()->getCurrentKeyCombo(&keys_pressed);
 
@@ -107,7 +107,7 @@ void GameControls::Draw()
         bool keep_open = true;
         ImGui::Begin(_LC("GameControls", "Game Controls"), &keep_open);
 
-        GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+        GUITheme& theme = App::GetGuiManager()->GetTheme();
 
         // Toolbar
 
@@ -157,7 +157,7 @@ void GameControls::DrawEvent(RoR::events ev_code)
 {
     // Var
     InputEngine::TriggerVec& triggers = App::GetInputEngine()->getEvents()[ev_code];
-    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    GUITheme& theme = App::GetGuiManager()->GetTheme();
     float cursor_x = ImGui::GetCursorPosX();
 
     // Check if we have anything to show

@@ -38,7 +38,7 @@ using namespace GUI;
 
 void GameAbout::Draw()
 {
-    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    GUITheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGui::SetNextWindowSize(ImVec2(475.f, ImGui::GetIO().DisplaySize.y - 40.f), ImGuiCond_Appearing);
     ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);

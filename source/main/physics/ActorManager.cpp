@@ -1438,3 +1438,43 @@ void ActorManager::UpdateTruckFeatures(ActorPtr vehicle, float dt)
     BITMASK_SET(vehicle->m_lightmask, RoRnet::LIGHTMASK_REVERSE, (vehicle->ar_engine && vehicle->ar_engine->GetGear() < 0));
 }
 
+AffectorID_t ActorManager::AddAffector(AddAffectorRequest* rq)
+{
+    // Make sure we have a live actor
+    ActorPtr actor = this->GetActorById(rq->aar_actor);
+    if (!actor || actor->ar_state == ActorState::DISPOSED)
+    {
+        return AFFECTORID_INVALID;
+    }
+
+    // Insert the actuator
+    AffectorID_t affectorid = static_cast<AffectorID_t>(actor->ar_affectors.size());
+    rq->aar_affector.af_pos = affectorid;
+    actor->ar_affectors.push_back(rq->aar_affector);
+
+    // If defined, insert a virtual hydrobeam which will forward hydro controls to the actuator
+    if (rq->aar_hydrobeam.hb_flags != 0)
+    {
+        rq->aar_hydrobeam.hb_affector_id = affectorid;
+        actor->ar_hydros.push_back(rq->aar_hydrobeam);
+    }
+
+    return affectorid;
+}
+
+void ActorManager::RemoveAffector(RemoveAffectorRequest* rq)
+{
+    // Make sure we have a live actor
+    ActorPtr actor = this->GetActorById(rq->rar_actor);
+    if (!actor || actor->ar_state == ActorState::DISPOSED || !actor->affectorExists(rq->rar_affector))
+    {
+        return;
+    }
+
+    // Remove the actuator and re-index the following entries
+    auto reindex_start = actor->ar_affectors.erase(actor->ar_affectors.begin() + rq->rar_affector);
+    std::for_each(reindex_start, actor->ar_affectors.end(), [](affector_t& affector) { affector.af_pos--; });
+
+    // Remove virtual hydrobeam, if any
+    EraseIf(actor->ar_hydros, [rq](hydrobeam_t& hydro) { return rq->rar_affector == hydro.hb_affector_id; });
+}

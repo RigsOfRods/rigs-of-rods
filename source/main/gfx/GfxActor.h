@@ -155,6 +155,15 @@ private:
 
     static Ogre::Quaternion SpecialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest);
 
+    // diagnostic and editor visualizations (managed by `UpdateDebugView()`)
+    void                 DrawDebugViewSubmesh();    // DebugViewType::DEBUGVIEW_SUBMESH
+    void                 DrawDebugViewSlidenodes(); // DebugViewType::DEBUGVIEW_SLIDENODES
+    void                 DrawDebugViewRotators();   // DebugViewType::DEBUGVIEW_ROTATORS
+    void                 DrawDebugViewShocks();     // DebugViewType::DEBUGVIEW_SHOCKS
+    void                 DrawDebugViewWheels();     // DebugViewType::DEBUGVIEW_WHEELS
+    void                 DrawDebugViewSkeleton();   // DebugViewType::DEBUGVIEW_{SKELETON/NODES/BEAMS}
+    void                 DrawPhysicsPausedIndicator();
+
     // Static info
     ActorPtr                      m_actor = nullptr;
     std::string                 m_custom_resource_group;

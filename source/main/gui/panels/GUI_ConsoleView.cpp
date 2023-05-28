@@ -155,7 +155,7 @@ void ConsoleView::DrawConsoleMessages()
 ImVec2 ConsoleView::DrawMessage(ImVec2 cursor, Console::Message const& m)
 {
     Str<LINE_BUF_MAX> line;
-    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    GUITheme& theme = App::GetGuiManager()->GetTheme();
 
     const unsigned long curr_timestamp = App::GetConsole()->queryMessageTimer();
     unsigned long overtime = curr_timestamp - (m.cm_timestamp + (cvw_msg_duration_ms - fadeout_interval));

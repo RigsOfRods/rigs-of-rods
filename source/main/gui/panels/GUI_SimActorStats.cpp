@@ -35,7 +35,7 @@ using namespace GUI;
 
 void SimActorStats::Draw(RoR::GfxActor* actorx)
 {
-    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    GUITheme& theme = App::GetGuiManager()->GetTheme();
     
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;

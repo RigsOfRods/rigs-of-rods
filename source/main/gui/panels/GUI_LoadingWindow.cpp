@@ -79,7 +79,7 @@ void LoadingWindow::SetProgressNetConnect(const std::string& net_status)
 
 void LoadingWindow::Draw()
 {
-    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    GUITheme const& theme = App::GetGuiManager()->GetTheme();
 
     // Height calc
     float text_h = ImGui::CalcTextSize("A").y;

@@ -1472,6 +1472,37 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         }
         break;
     }
+
+    // Editing:
+    case MSG_EDI_ADD_AFFECTOR_REQUESTED:        //!< Payload = RoR::AddAffectorRequest* (owner)
+    {
+        AffectorType type = AffectorType::INVALID;
+        // `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
+        int64_t instance_id = -1;
+        double force_min = 0.f;
+        double force_max = 0.f;
+        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "instance_id", "int64", instance_id) &&
+            this->GetValueFromDict(log_msg, dict, /*required:*/true, "type", "AffectorType", type) &&
+            this->GetValueFromDict(log_msg, dict, /*required:*/true, "force_min", "double", force_min) &&
+            this->GetValueFromDict(log_msg, dict, /*required:*/true, "force_max", "double", force_max)
+            )
+        {
+            AddAffectorRequest* req = new AddAffectorRequest();
+            req->aar_actor = static_cast<ActorInstanceID_t>(instance_id);
+            req->aar_affector.af_type = type;
+            req->aar_affector.af_force_max = static_cast<float>(force_max);
+            req->aar_affector.af_force_min = static_cast<float>(force_min);
+
+            this->GetValueFromDict(log_msg, dict, /*required:*/false, "force_vector", "vector3", req->aar_affector.af_force_vector);
+
+            m.payload = req;
+        }
+        break;
+    }
+    case MSG_EDI_REMOVE_AFFECTOR_REQUESTED:     //!< Payload = RoR::RemoveAffectorRequest* (owner)
+    {
+        break;
+    }
     
     default:;
     }

@@ -85,6 +85,8 @@ public:
         m_view_matrix(view_mtx), m_projection_matrix(proj_mtx), m_screen_size(screen_size)
     {}
 
+    static World2ScreenConverter Default();
+
     /// @return X,Y=screen pos, Z=view space pos ('Z<0' means 'in front of the camera')
     Ogre::Vector3 Convert(Ogre::Vector3 world_pos)
     {

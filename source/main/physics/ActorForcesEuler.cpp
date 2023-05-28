@@ -59,7 +59,7 @@ void Actor::CalcForcesEulerCompute(bool doUpdate, int num_steps)
     this->CalcCommands(doUpdate);
     this->CalcTies();
     this->CalcTruckEngine(doUpdate); // must be done after the commands / engine triggers are updated
-    this->CalcMouse();
+    this->CalcNodeAffectors();
     this->CalcBeams(doUpdate);
     this->CalcCabCollisions();
     this->updateSlideNodeForces(PHYSICS_DT); // must be done after the contacters are updated
@@ -91,12 +91,48 @@ void Actor::CalcForceFeedback(bool doUpdate)
     }
 }
 
-void Actor::CalcMouse()
+void Actor::CalcNodeAffectors()
 {
-    if (m_mouse_grab_node != NODENUM_INVALID)
+    for (const affector_t& affector : ar_affectors)
     {
-        Vector3 dir = m_mouse_grab_pos - ar_nodes[m_mouse_grab_node].AbsPosition;
-        ar_nodes[m_mouse_grab_node].Forces += m_mouse_grab_move_force * dir;
+        switch (affector.af_type)
+        {
+        case AffectorType::UNIFORM_FORCE:
+            for (NodeNum_t nodenum : affector.af_nodes)
+            {
+                ar_nodes[nodenum].Forces += affector.curForce();
+            }
+            break;
+
+        case AffectorType::PINNED_FORCE:
+            for (NodeNum_t nodenum : affector.af_nodes)
+            {
+                const Vector3 dir = affector.af_force_vector - ar_nodes[nodenum].AbsPosition;
+                ar_nodes[nodenum].Forces += affector.curForce() * dir;
+            }
+            break;
+
+        case AffectorType::THRUSTER:
+        {
+            ROR_ASSERT(affector.af_nodes.size() >= 3);
+            // Classic coordinates (Z is up)
+            const NodeNum_t noderef = affector.af_nodes[0];
+            const NodeNum_t nodex = affector.af_nodes[1];
+            const NodeNum_t nodey = affector.af_nodes[2];
+            const Vector3 x_axis = (ar_nodes[nodex].AbsPosition - ar_nodes[noderef].AbsPosition).normalisedCopy();
+            const Vector3 y_axis = (ar_nodes[noderef].AbsPosition - ar_nodes[nodey].AbsPosition).normalisedCopy();
+            const Vector3 z_axis = x_axis.crossProduct(y_axis);
+            // Renderer coordinates (Y is up)
+            const Vector3 dir = Quaternion(x_axis, z_axis, y_axis) * affector.af_force_vector;
+            for (size_t i = 2; i < affector.af_nodes.size(); i++)
+            {
+                ar_nodes[i].Forces += affector.curForce() * dir;
+            }
+        }
+        
+        default:;
+        }
+        
     }
 }
 

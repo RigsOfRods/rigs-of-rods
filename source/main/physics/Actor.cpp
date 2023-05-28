@@ -1270,13 +1270,6 @@ void Actor::resetPosition(Ogre::Vector3 translation, bool setInitPosition)
     calculateAveragePosition();
 }
 
-void Actor::mouseMove(NodeNum_t node, Vector3 pos, float force)
-{
-    m_mouse_grab_node = node;
-    m_mouse_grab_move_force = force * std::pow(m_total_mass / 3000.0f, 0.75f);
-    m_mouse_grab_pos = pos;
-}
-
 void Actor::toggleWheelDiffMode()
 {
     for (int i = 0; i < m_num_wheel_diffs; ++i)
@@ -4404,8 +4397,6 @@ Actor::Actor(
     , m_spawn_rotation(0.0)
     , ar_net_stream_id(0)
     , m_min_camera_radius(0.0f)
-    , m_mouse_grab_move_force(0.0f)
-    , m_mouse_grab_pos(Ogre::Vector3::ZERO)
     , m_net_initialized(false)
     , ar_initial_total_mass(0)
     , ar_parking_brake(false)

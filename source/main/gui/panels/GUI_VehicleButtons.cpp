@@ -41,7 +41,7 @@ using namespace GUI;
 
 void VehicleButtons::Draw(RoR::GfxActor* actorx)
 {
-    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    GUITheme& theme = App::GetGuiManager()->GetTheme();
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
     ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x - ImGui::GetStyle().WindowPadding.x, 100.f));

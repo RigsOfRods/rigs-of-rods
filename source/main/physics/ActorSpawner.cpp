@@ -89,16 +89,19 @@ using namespace RoR;
 void ActorSpawner::ConfigureSections(Ogre::String const & sectionconfig, RigDef::DocumentPtr def)
 {   
     m_selected_modules.push_back(def->root_module);
-    auto result = def->user_modules.find(sectionconfig);
+    if (sectionconfig != "")
+    {
+        auto result = def->user_modules.find(sectionconfig);
 
-    if (result != def->user_modules.end())
-    {
-        m_selected_modules.push_back(result->second);
-        LOG(" == ActorSpawner: Module added to configuration: " + sectionconfig);
-    }
-    else
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Selected module not found: " + sectionconfig);
+        if (result != def->user_modules.end())
+        {
+            m_selected_modules.push_back(result->second);
+            LOG(" == ActorSpawner: Module added to configuration: " + sectionconfig);
+        }
+        else
+        {
+            this->AddMessage(Message::TYPE_WARNING, "Selected module not found: " + sectionconfig);
+        }
     }
 }
 
@@ -5892,6 +5895,15 @@ void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
     // NOTE: Not applying the 'node_mass' value here for backwards compatibility - this node must go through initial `Actor::RecalculateNodeMasses()` pass with default weight.
 
     m_actor->ar_minimass[camera_node.pos] = m_state.global_minimass;
+    
+    // node GFX
+    NodeGfx nfx(camera_node.pos);
+    nfx.nx_no_particles = BITMASK_IS_1(def.node_defaults->options, RigDef::Node::OPTION_p_NO_PARTICLES);
+    nfx.nx_may_get_wet  = BITMASK_IS_0(def.node_defaults->options, RigDef::Node::OPTION_c_NO_GROUND_CONTACT);
+    nfx.nx_no_particles = BITMASK_IS_1(def.node_defaults->options, RigDef::Node::OPTION_p_NO_PARTICLES);
+    nfx.nx_no_sparks    = BITMASK_IS_1(def.node_defaults->options, RigDef::Node::OPTION_f_NO_SPARKS);
+    m_actor->m_gfx_actor->m_gfx_nodes.push_back(nfx);
+
 
     m_actor->ar_cinecam_node[m_actor->ar_num_cinecams] = camera_node.pos;
     m_actor->ar_num_cinecams++;

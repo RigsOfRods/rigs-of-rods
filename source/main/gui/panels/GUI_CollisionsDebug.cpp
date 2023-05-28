@@ -41,7 +41,7 @@ using namespace Ogre;
 
 void CollisionsDebug::Draw()
 {
-    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    GUITheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize;
     bool keep_open = true;
@@ -351,7 +351,7 @@ void CollisionsDebug::DrawLabelAtWorldPos(std::string const& caption, Ogre::Vect
         ImVec2 pos((int)pos_xyz.x + 0.5, (int)pos_xyz.y + 0.5);
 
         ImVec2 text_size = ImGui::CalcTextSize(caption.c_str());
-        GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+        GUITheme const& theme = App::GetGuiManager()->GetTheme();
 
         ImDrawList* drawlist = GetImDummyFullscreenWindow();
         ImGuiContext* g = ImGui::GetCurrentContext();

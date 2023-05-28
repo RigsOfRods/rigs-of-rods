@@ -107,7 +107,7 @@ void SurveyMap::Draw()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, WINDOW_ROUNDING);
     ImGui::SetNextWindowSize(ImVec2((view_size.x + view_padding.x), (view_size.y + view_padding.y)));
 
-    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+    GUITheme const& theme = App::GetGuiManager()->GetTheme();
     ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
 
     if (mMapMode == SurveyMapMode::BIG)

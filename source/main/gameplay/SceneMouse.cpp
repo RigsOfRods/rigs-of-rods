@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2014 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -29,6 +29,8 @@
 #include "Application.h"
 #include "GameContext.h"
 #include "GfxScene.h"
+#include "GUIUtils.h"
+#include "InputEngine.h"
 #include "ScriptEngine.h"
 
 #include <Ogre.h>
@@ -40,51 +42,45 @@ using namespace RoR;
 
 SceneMouse::SceneMouse() :
     mouseGrabState(0),
-    grab_truck(nullptr),
-    pickLine(nullptr),
-    pickLineNode(nullptr)
+    grab_truck(nullptr)
 {
     this->reset();
 }
 
 void SceneMouse::InitializeVisuals()
 {
-    // load 3d line for mouse picking
-    pickLine = App::GetGfxScene()->GetSceneManager()->createManualObject("PickLineObject");
-    pickLineNode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("PickLineNode");
 
-    MaterialPtr pickLineMaterial = MaterialManager::getSingleton().getByName("PickLineMaterial", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-    if (pickLineMaterial.isNull())
-    {
-        pickLineMaterial = MaterialManager::getSingleton().create("PickLineMaterial", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-    }
-    pickLineMaterial->setReceiveShadows(false);
-    pickLineMaterial->getTechnique(0)->setLightingEnabled(true);
-    pickLineMaterial->getTechnique(0)->getPass(0)->setDiffuse(0, 0, 1, 0);
-    pickLineMaterial->getTechnique(0)->getPass(0)->setAmbient(0, 0, 1);
-    pickLineMaterial->getTechnique(0)->getPass(0)->setSelfIllumination(0, 0, 1);
-
-    pickLine->begin("PickLineMaterial", RenderOperation::OT_LINE_LIST);
-    pickLine->position(0, 0, 0);
-    pickLine->position(0, 0, 0);
-    pickLine->end();
-    pickLineNode->attachObject(pickLine);
-    pickLineNode->setVisible(false);
 }
 
 void SceneMouse::DiscardVisuals()
 {
-    if (pickLineNode != nullptr)
+
+}
+
+void SceneMouse::activateMousePick()
+{
+    grab_truck = mintruck;
+    mouseGrabState = 1;
+    TRIGGER_EVENT(SE_TRUCK_MOUSE_GRAB, grab_truck->ar_instance_id);
+
+    for (hook_t& hook: grab_truck->ar_hooks)
     {
-        App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->removeAndDestroyChild("PickLineNode");
-        pickLineNode = nullptr;
+        if (hook.hk_hook_node->pos == minnode)
+        {
+            grab_truck->hookToggle(hook.hk_group, MOUSE_HOOK_TOGGLE, minnode);
+        }
     }
 
-    if (pickLine != nullptr)
-    {
-        App::GetGfxScene()->GetSceneManager()->destroyManualObject("PickLineObject");
-        pickLine = nullptr;
-    }
+    AddAffectorRequest* areq = new AddAffectorRequest();
+    areq->aar_actor = grab_truck->ar_instance_id;
+    areq->aar_set_mouseforce = true; // Assign us the AffectorID when available.
+    areq->aar_affector.af_nodes.push_back(minnode);
+    areq->aar_affector.af_type = AffectorType::PINNED_FORCE;
+    areq->aar_affector.af_force_vector = lastgrabpos;
+    areq->aar_affector.af_force_min = 0.f;
+    areq->aar_affector.af_force_max = MOUSE_GRAB_FORCE;
+    areq->aar_affector.af_input_ratio = 1.f; // Constant.
+    App::GetGameContext()->PushMessage(Message(MSG_EDI_ADD_AFFECTOR_REQUESTED, areq));
 }
 
 void SceneMouse::releaseMousePick()
@@ -93,7 +89,14 @@ void SceneMouse::releaseMousePick()
 
     // remove forces
     if (grab_truck)
-        grab_truck->mouseMove(minnode, Vector3::ZERO, 0);
+    {
+        ROR_ASSERT(grab_affectorid != AFFECTORID_INVALID);
+        ROR_ASSERT(grab_truck->affectorExists(grab_affectorid));
+
+        App::GetGameContext()->PushMessage(
+            Message(MSG_EDI_REMOVE_AFFECTOR_REQUESTED,
+                new RemoveAffectorRequest(grab_truck->ar_instance_id, grab_affectorid)));
+    }
 
     this->reset();
 }
@@ -101,81 +104,31 @@ void SceneMouse::releaseMousePick()
 void SceneMouse::reset()
 {
     minnode = NODENUM_INVALID;
-    grab_truck = 0;
-    mindist = 99999;
+    grab_affectorid = AFFECTORID_INVALID;
+    grab_truck = nullptr;
+    mindist = std::numeric_limits<float>::max();
     mouseGrabState = 0;
     lastgrabpos = Vector3::ZERO;
-    lastMouseX = 0;
-    lastMouseY = 0;
-
-    mouseGrabState = 0;
 }
 
 bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 {
     const OIS::MouseState ms = _arg.state;
 
-    // experimental mouse hack
     if (ms.buttonDown(OIS::MB_Left) && mouseGrabState == 0)
     {
-        lastMouseY = ms.Y.abs;
-        lastMouseX = ms.X.abs;
 
-        Ray mouseRay = getMouseRay();
-
-        // walk all trucks
-        minnode = NODENUM_INVALID;
-        grab_truck = NULL;
-        for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
-        {
-            if (actor->ar_state == ActorState::LOCAL_SIMULATED)
-            {
-                // check if our ray intersects with the bounding box of the truck
-                std::pair<bool, Real> pair = mouseRay.intersects(actor->ar_bounding_box);
-                if (!pair.first)
-                    continue;
-
-                for (int j = 0; j < actor->ar_num_nodes; j++)
-                {
-                    if (actor->ar_nodes[j].nd_no_mouse_grab)
-                        continue;
-
-                    // check if our ray intersects with the node
-                    std::pair<bool, Real> pair = mouseRay.intersects(Sphere(actor->ar_nodes[j].AbsPosition, 0.1f));
-                    if (pair.first)
-                    {
-                        // we hit it, check if its the nearest node
-                        if (pair.second < mindist)
-                        {
-                            mindist = pair.second;
-                            minnode = (NodeNum_t)j;
-                            grab_truck = actor;
-                        }
-                    }
-                }
-            }
-        }
-
+        // mouse selection is updated every frame in `updateMouse*Highlights()`
         // check if we hit a node
-        if (grab_truck && minnode != NODENUM_INVALID)
+        if (mintruck && minnode != NODENUM_INVALID)
         {
-            mouseGrabState = 1;
-            TRIGGER_EVENT(SE_TRUCK_MOUSE_GRAB, grab_truck->ar_instance_id);
-
-            for (std::vector<hook_t>::iterator it = grab_truck->ar_hooks.begin(); it != grab_truck->ar_hooks.end(); it++)
-            {
-                if (it->hk_hook_node->pos == minnode)
-                {
-                    grab_truck->hookToggle(it->hk_group, MOUSE_HOOK_TOGGLE, minnode);
-                }
-            }
+            this->activateMousePick();
         }
     }
     else if (ms.buttonDown(OIS::MB_Left) && mouseGrabState == 1)
     {
         // force applying and so forth happens in update()
-        lastMouseY = ms.Y.abs;
-        lastMouseX = ms.X.abs;
+
         // not fixed
         return false;
     }
@@ -189,34 +142,335 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
     return false;
 }
 
+Ogre::AxisAlignedBox InflateAABB(Ogre::AxisAlignedBox box, float extra)
+{
+    return Ogre::AxisAlignedBox(box.getMinimum() - extra, box.getMaximum() + extra);
+}
+
+void SceneMouse::updateMouseNodeHighlights(ActorPtr& actor)
+{
+    ROR_ASSERT(actor != nullptr);
+    ROR_ASSERT(actor->ar_state == ActorState::LOCAL_SIMULATED);
+
+    Ray mouseRay = getMouseRay();
+
+    // check if our ray intersects with the bounding box of the truck
+    AxisAlignedBox inflated_aabb = InflateAABB(actor->ar_bounding_box, App::GetGuiManager()->GetTheme().mouse_node_highlight_aabb_padding);
+    std::pair<bool, Real> pair = mouseRay.intersects(inflated_aabb);
+    if (!pair.first)
+    {
+        return;
+    }
+
+    for (int j = 0; j < actor->ar_num_nodes; j++)
+    {
+        // skip nodes with grabbing disabled
+        if (actor->ar_nodes[j].nd_no_mouse_grab)
+        {
+            continue;
+        }
+
+        // check if our ray intersects with the node
+        std::pair<bool, Real> pair = mouseRay.intersects(Sphere(actor->ar_nodes[j].AbsPosition, GRAB_SPHERE_SIZE));
+        if (pair.first)
+        {
+
+            // we hit it, check if its the nearest node
+            if (pair.second < mindist)
+            {
+                mindist = pair.second;
+                minnode = static_cast<NodeNum_t>(j);
+                mintruck = actor;
+            }
+        }
+
+        // check if the node is close enough to be highlighted
+        std::pair<bool, Real> highlight_result = mouseRay.intersects(Sphere(actor->ar_nodes[j].AbsPosition, this->HIGHLIGHT_SPHERE_SIZE));
+        if (highlight_result.first)
+        {
+            highlightedTruck = actor;
+
+            highlightedNodes.push_back({ highlight_result.second, static_cast<NodeNum_t>(j) });
+            highlightedNodesTopDistance = std::max(highlightedNodesTopDistance, highlight_result.second);
+        }
+    }
+}
+
+void SceneMouse::updateMouseEffectHighlights(ActorPtr& actor)
+{
+    Ray mouseRay = getMouseRay();
+
+    for (const affector_t& affector: actor->ar_affectors)
+    {
+        // The affected node
+        for (NodeNum_t nodenum : affector.af_nodes)
+        {
+            std::pair<bool, Real> result = mouseRay.intersects(Sphere(actor->ar_nodes[nodenum].AbsPosition, this->FORCE_UNPIN_SPHERE_SIZE));
+            if (result.first && result.second < aff_nodes_mindist)
+            {
+                aff_nodes_minnode = nodenum;
+                aff_nodes_minaffector = affector.af_pos;
+                aff_nodes_mindist = result.second;
+                aff_nodes_mintruck = actor;
+            }
+        }
+
+        // The pin point
+        if (affector.af_type == AffectorType::PINNED_FORCE)
+        {
+            std::pair<bool, Real> result = mouseRay.intersects(Sphere(affector.af_force_vector, this->FORCE_UNPIN_SPHERE_SIZE));
+            if (result.first && result.second < aff_pins_mindist)
+            {
+                aff_pins_minaffector = affector.af_pos;
+                aff_pins_mindist = result.second;
+                aff_pins_mintruck = actor;
+            }
+        }
+    }
+}
+
+void SceneMouse::updateMouseBeamHighlights()
+{
+    highlightedBeamIDs.clear();
+
+    if (mintruck)
+    {
+        highlightedBeamsNodeProximity.clear();
+        highlightedBeamsNodeProximity.assign(mintruck->ar_num_nodes, 0);
+
+        // Fire up the recursive update
+        const GUITheme& theme = App::GetGuiManager()->GetTheme();
+        highlightedBeamsNodeProximity[minnode] = 255;
+        this->updateMouseBeamHighlightsRecursive(
+            minnode, 0.f, theme.mouse_beam_traversal_length);
+    }
+}
+
+void SceneMouse::updateMouseBeamHighlightsRecursive(NodeNum_t nodenum, float traversalLen, float maxTraversalLen)
+{
+    ROR_ASSERT(mintruck);
+
+    // Traverse connected beams and for each node visited, record it's proximity
+    for (int beamID: mintruck->ar_node_to_beam_connections[nodenum])
+    {
+        // Always record beams, even if their far node is out of reach.
+        highlightedBeamIDs.push_back(beamID);
+
+        // Check if node is within reach
+        const beam_t& b = mintruck->ar_beams[beamID];
+        NodeNum_t nodenumFar = (b.p1->pos == nodenum) ? b.p2->pos : b.p1->pos;
+        float traversalLenFar = traversalLen + b.L;
+
+        if (traversalLenFar < maxTraversalLen)
+        {
+            // Update node proximity - always record higher result
+            uint8_t proximity = static_cast<uint8_t>(255.f * (traversalLenFar - maxTraversalLen)/maxTraversalLen); // the further the smaller
+            if (proximity > highlightedBeamsNodeProximity[nodenumFar])
+            {
+                highlightedBeamsNodeProximity[nodenumFar] = proximity;
+                this->updateMouseBeamHighlightsRecursive(nodenumFar, traversalLenFar, maxTraversalLen);
+            }
+        }
+    }
+}
+
+void SceneMouse::UpdateInputEvents()
+{
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_ROAD_EDITOR_POINT_INSERT))
+    {
+        if (mouseGrabState == 1 && grab_truck)
+        {
+            // Reset mouse grab but do not remove node forces
+            this->reset();
+        }
+    }
+}
+
 void SceneMouse::UpdateSimulation()
 {
+    Ray mouseRay = getMouseRay();
+    highlightedNodes.clear(); // clear every frame - highlights are not displayed when grabbing
+    highlightedNodesTopDistance = 0.f;
+    highlightedTruck = nullptr;
+
     if (mouseGrabState == 1 && grab_truck)
     {
         // get values
-        Ray mouseRay = getMouseRay();
         lastgrabpos = mouseRay.getPoint(mindist);
 
-        // add forces
-        grab_truck->mouseMove(minnode, lastgrabpos, MOUSE_GRAB_FORCE);
+        // update forces when the affector becomes available
+        if (grab_affectorid != AFFECTORID_INVALID)
+        {
+            grab_truck->setAffectorForceVector(grab_affectorid, lastgrabpos);
+        }
     }
+    else if (!App::GetGuiManager()->IsGuiCaptureKeyboardRequested()
+        && !ImGui::GetIO().WantCaptureKeyboard
+        && !ImGui::GetIO().WantCaptureMouse)
+    {
+        // refresh mouse highlight of nodes
+        mintruck = nullptr;
+        minnode = NODENUM_INVALID;
+        mindist = std::numeric_limits<float>::max();
+        for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+        {
+            if (actor->ar_state == ActorState::LOCAL_SIMULATED)
+            {
+                this->updateMouseNodeHighlights(actor);
+            }
+        }
+        this->updateMouseBeamHighlights();
+
+        // refresh mouse highlight of effects
+        aff_nodes_mintruck = nullptr;
+        aff_nodes_minnode = NODENUM_INVALID;
+        aff_nodes_minaffector = AFFECTORID_INVALID;
+        aff_nodes_mindist = std::numeric_limits<float>::max();
+        aff_pins_mintruck = nullptr;
+        aff_pins_minaffector = AFFECTORID_INVALID;
+        aff_pins_mindist = std::numeric_limits<float>::max();
+        for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+        {
+            if (actor->ar_state == ActorState::LOCAL_SIMULATED)
+            {
+                this->updateMouseEffectHighlights(actor);
+            }
+        }
+    }
+}
+
+void SceneMouse::drawMouseBeamHighlights()
+{
+    if (!mintruck)
+        return; // nothing to draw
+
+    ImDrawList* drawlist = GetImDummyFullscreenWindow("Mouse-grab beam highlights");
+
+    const GUITheme& theme = App::GetGuiManager()->GetTheme();
+
+    for (int beamID: highlightedBeamIDs)
+    {
+        const beam_t& beam = mintruck->ar_beams[beamID];
+
+        Vector2 screenPos1, screenPos2;
+        if (GetScreenPosFromWorldPos(beam.p1->AbsPosition, screenPos1)
+            && GetScreenPosFromWorldPos(beam.p2->AbsPosition, screenPos2))
+        {
+            const float t1 = static_cast<float>(highlightedBeamsNodeProximity[beam.p1->pos] / 255.f);
+            const float t2 = static_cast<float>(highlightedBeamsNodeProximity[beam.p2->pos] / 255.f);
+
+            const ImVec4 color1 = ImLerp(theme.mouse_beam_close_color, theme.mouse_beam_far_color, 1.f - t1);
+            const ImVec4 color2 = ImLerp(theme.mouse_beam_close_color, theme.mouse_beam_far_color, 1.f - t2);
+
+            ImAddLineColorGradient(drawlist,
+                ImVec2(screenPos1.x, screenPos1.y), ImVec2(screenPos2.x, screenPos2.y),
+                ImColor(color1), ImColor(color2), theme.mouse_beam_thickness);
+        }
+    }
+}
+
+void SceneMouse::drawMouseNodeHighlights()
+{
+    ActorPtr actor = (mintruck != nullptr) ? mintruck : highlightedTruck;
+    if (!actor)
+        return; // Nothing to draw
+
+    ImDrawList* drawlist = GetImDummyFullscreenWindow("Mouse-grab node highlights");
+    const int LAYER_HIGHLIGHTS = 0;
+    const int LAYER_MINNODE = 1;
+    drawlist->ChannelsSplit(2);
+
+    Vector2 screenPos;
+    const GUITheme& theme = App::GetGuiManager()->GetTheme();
+    for (const HighlightedNode& hnode : highlightedNodes)
+    {
+        if (GetScreenPosFromWorldPos(actor->ar_nodes[hnode.nodenum].AbsPosition, /*out:*/screenPos))
+        {
+            float animRatio = (1.f - hnode.distance / theme.mouse_node_highlight_ref_distance); // the closer the bigger
+            float radius = (theme.mouse_highlighted_node_radius_max - theme.mouse_highlighted_node_radius_min) * animRatio;
+
+            if (hnode.nodenum == minnode)
+            {
+                drawlist->ChannelsSetCurrent(LAYER_MINNODE);
+                drawlist->AddCircle(ImVec2(screenPos.x, screenPos.y),
+                    radius, ImColor(theme.mouse_minnode_color),
+                    theme.node_circle_num_segments, theme.mouse_minnode_thickness);
+            }
+
+            ImVec4 color = theme.mouse_highlighted_node_color * animRatio;
+            color.w = 1.f; // no transparency
+            drawlist->ChannelsSetCurrent(LAYER_HIGHLIGHTS);
+            drawlist->AddCircleFilled(ImVec2(screenPos.x, screenPos.y), radius, ImColor(color), theme.node_circle_num_segments);
+        }
+    }
+
+    drawlist->ChannelsMerge();
+}
+
+void SceneMouse::drawNodeEffects()
+{
+    const GUITheme& theme = App::GetGuiManager()->GetTheme();
+    ImDrawList* drawlist = GetImDummyFullscreenWindow("Node effect view");
+    const int LAYER_LINES = 0;
+    const int LAYER_CIRCLES = 1;
+    drawlist->ChannelsSplit(2);
+
+    for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+    {
+        if (actor->ar_state != ActorState::LOCAL_SIMULATED)
+            continue;
+
+        for (affector_t& affector: actor->ar_affectors)
+        {
+            for (NodeNum_t nodenum : affector.af_nodes)
+            {
+                Vector2 nodeScreenPos, pointScreenPos;
+                Vector3 pointWorldPos;
+                if (affector.af_type == AffectorType::PINNED_FORCE)
+                {
+                    // Point position specified externally
+                    pointWorldPos = affector.af_force_vector;
+                }
+                else
+                {
+                    // Point position calculated based on force
+                    pointWorldPos = actor->ar_nodes[nodenum].AbsPosition + (affector.curForce() * FORCE_NEWTONS_TO_LINE_LENGTH_RATIO);
+                }
+                if (GetScreenPosFromWorldPos(actor->ar_nodes[nodenum].AbsPosition, nodeScreenPos)
+                    && GetScreenPosFromWorldPos(pointWorldPos, pointScreenPos))
+                {
+                    drawlist->ChannelsSetCurrent(LAYER_LINES);
+                    const bool highlight = (nodenum == aff_nodes_minnode) && actor == aff_nodes_mintruck;
+                    const ImColor color = (highlight)
+                        ? ImColor(theme.node_effect_highlight_line_color)
+                        : ImColor(theme.node_effect_force_line_color);
+                    drawlist->AddLine(ImVec2(nodeScreenPos.x, nodeScreenPos.y), ImVec2(pointScreenPos.x, pointScreenPos.y),
+                        color, theme.node_effect_force_line_thickness);
+
+                    if (affector.af_pos == aff_pins_minaffector)
+                    {
+                        // This is a PINNED force, draw the extra pin circle
+                        drawlist->ChannelsSetCurrent(LAYER_CIRCLES);
+                        drawlist->AddCircleFilled(ImVec2(pointScreenPos.x, pointScreenPos.y),
+                            theme.node_effect_force_circle_radius, color);
+                    }
+                }
+            }
+        }
+    }
+
+    drawlist->ChannelsMerge();
 }
 
 void SceneMouse::UpdateVisuals()
 {
     if (grab_truck == nullptr)
     {
-        pickLineNode->setVisible(false);   // Hide the line     
+        this->drawMouseNodeHighlights();
     }
-    else
-    {
-        pickLineNode->setVisible(true);   // Show the line
-        // update visual line
-        pickLine->beginUpdate(0);
-        pickLine->position(grab_truck->GetGfxActor()->GetSimNodeBuffer()[minnode].AbsPosition);
-        pickLine->position(lastgrabpos);
-        pickLine->end();
-    }
+
+    this->drawNodeEffects();
+    this->drawMouseBeamHighlights();
 }
 
 bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
@@ -227,8 +481,6 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
 
     if (ms.buttonDown(OIS::MB_Middle))
     {
-        lastMouseY = ms.Y.abs;
-        lastMouseX = ms.X.abs;
         Ray mouseRay = getMouseRay();
 
         if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
@@ -292,6 +544,26 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
         }
     }
 
+    // RMB unpins forces
+    if (ms.buttonDown(OIS::MB_Right) && aff_nodes_minnode != NODENUM_INVALID)
+    {
+        ROR_ASSERT(aff_nodes_minaffector != AFFECTORID_INVALID);
+        App::GetGameContext()->PushMessage(
+            Message(MSG_EDI_REMOVE_AFFECTOR_REQUESTED,
+                new RemoveAffectorRequest(aff_nodes_mintruck->ar_instance_id, aff_nodes_minaffector)));
+        aff_nodes_minaffector = AFFECTORID_INVALID;
+        aff_nodes_minnode = NODENUM_INVALID;
+        aff_nodes_mintruck = nullptr;
+    }
+    else if (ms.buttonDown(OIS::MB_Right) && aff_pins_minaffector != AFFECTORID_INVALID)
+    {
+        App::GetGameContext()->PushMessage(
+            Message(MSG_EDI_REMOVE_AFFECTOR_REQUESTED,
+                new RemoveAffectorRequest(aff_pins_mintruck->ar_instance_id, aff_pins_minaffector)));
+        aff_pins_minaffector = AFFECTORID_INVALID;
+        aff_pins_mintruck = nullptr;
+    }
+
     return true;
 }
 
@@ -309,6 +581,9 @@ bool SceneMouse::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _
 
 Ray SceneMouse::getMouseRay()
 {
+    int lastMouseX = App::GetInputEngine()->getMouseState().X.abs;
+    int lastMouseY = App::GetInputEngine()->getMouseState().Y.abs;
+
     Viewport* vp = App::GetCameraManager()->GetCamera()->getViewport();
 
     return App::GetCameraManager()->GetCamera()->getCameraToViewportRay((float)lastMouseX / (float)vp->getActualWidth(), (float)lastMouseY / (float)vp->getActualHeight());
