@@ -197,7 +197,7 @@ void Character::update(float dt)
                         position.y += std::min(depth, 0.05f);
                     }
 
-                    if (m_contacting_actor != nullptr && App::sim_character_collisions->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+                    if (m_contacting_actor != nullptr)
                     {
                         int motion_cab = -1;
                         if (m_contacting_cab == m_last_contacting_cab) // we're on the same cab - just get it's current pos.
@@ -212,26 +212,31 @@ void Character::update(float dt)
                         m_vehicle_position = cab_position;
                         m_vehicle_rotation = Ogre::Radian(m_contacting_actor->getRotation());
 
-                        position += (m_vehicle_position - m_last_vehicle_position);
-                        this->setRotation(m_character_rotation + (m_vehicle_rotation - m_last_vehicle_rotation));
+                        if (App::sim_character_collisions->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+                        {
+                            position += (m_vehicle_position - m_last_vehicle_position);
+                            this->setRotation(m_character_rotation + (m_vehicle_rotation - m_last_vehicle_rotation));
+                        }
 
                         m_inertia = true;
                         m_inertia_position = (m_vehicle_position - m_last_vehicle_position);
                         m_inertia_rotation = (m_vehicle_rotation - m_last_vehicle_rotation);
                     }
-                    else if (m_inertia && App::sim_character_collisions->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+                    else if (m_inertia)
                     {
-                        position += m_inertia_position;
-                        this->setRotation(m_character_rotation + m_inertia_rotation);
+                        if (App::sim_character_collisions->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+                        {
+                            position += m_inertia_position;
+                            this->setRotation(m_character_rotation + m_inertia_rotation);
+                        }
                     }
                 }
-                else if (m_contacting_actor != nullptr && !m_contacting_actor->ar_bounding_box.contains(position) && App::sim_character_collisions->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED) // we lost contact, reset contacting actor
+                else if (m_contacting_actor != nullptr && !m_contacting_actor->ar_bounding_box.contains(position)) // we lost contact, reset contacting actor
                 {
                     m_contacting_actor = nullptr;
                 }
             }
-            if (App::sim_character_collisions->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
-            {
+
                 if (m_contacting_cab == m_last_contacting_cab)
                 {
                     m_last_vehicle_position = m_vehicle_position;
@@ -243,7 +248,6 @@ void Character::update(float dt)
                 }
                 m_last_contacting_cab = m_contacting_cab;
                 m_last_vehicle_rotation = m_vehicle_rotation;
-            }
         }
 
         // Obstacle detection
