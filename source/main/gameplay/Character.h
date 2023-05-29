@@ -91,6 +91,19 @@ private:
     Ogre::Timer      m_net_timer;
     unsigned long    m_net_last_update_time;
     GfxCharacter*    m_gfx_character;
+
+    // Collision with actor:
+    Ogre::Vector3    m_vehicle_position;
+    Ogre::Radian     m_vehicle_rotation;
+    Ogre::Vector3    m_last_vehicle_position;
+    Ogre::Radian     m_last_vehicle_rotation;
+    bool m_inertia   = false;
+    Ogre::Vector3    m_inertia_position;
+    Ogre::Radian     m_inertia_rotation;
+    ActorPtr         m_contacting_actor;
+    int              m_contacting_cab;
+    int              m_last_contacting_cab;
+    Ogre::Vector3    CalcCabAveragePos(ActorPtr actor, int cab_index);
 };
 
 /// @} // addtogroup Character
@@ -105,7 +118,7 @@ struct GfxCharacter
         Ogre::UTFString    simbuf_net_username;
         bool               simbuf_is_remote;
         int                simbuf_color_number;
-        ActorPtr             simbuf_actor_coupling;
+        ActorPtr           simbuf_actor_coupling;
         std::string        simbuf_anim_name;
         float              simbuf_anim_time; // Intentionally left empty = forces initial update.
     };

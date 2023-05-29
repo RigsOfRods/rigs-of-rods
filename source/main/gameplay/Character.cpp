@@ -145,15 +145,19 @@ void Character::update(float dt)
 
         // Trigger script events and handle mesh (ground) collision
         Vector3 query = position;
-        App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query);
+        if (App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query))
+        {
+            m_inertia = false;
+        }
 
         // Auto compensate minor height differences
-        float depth = calculate_collision_depth(position);
-        if (depth > 0.0f)
+        float terrain_depth = calculate_collision_depth(position);
+        if (terrain_depth > 0.0f)
         {
             m_can_jump = true;
             m_character_v_speed = std::max(0.0f, m_character_v_speed);
-            position.y += std::min(depth, 2.0f * dt);
+            position.y += std::min(terrain_depth, 2.0f * dt);
+            m_inertia = false;
         }
 
         // Submesh "collision"
@@ -173,15 +177,72 @@ void Character::update(float dt)
                         if (result.first && result.second < 1.8f)
                         {
                             depth = std::max(depth, result.second);
+                            if (depth > 0 && m_contacting_actor == nullptr) // check fresh contacting actor also, prevents knockbacks with multiple actors that have node position overlapping
+                            {
+                                // first contact - initialize 'last' values to avoid big knockbacks
+                                Vector3 cab_position = CalcCabAveragePos(actor, i);
+                                m_last_vehicle_position = cab_position;
+                                m_last_vehicle_rotation = Ogre::Radian(actor->getRotation());
+                                m_last_contacting_cab = i;
+                                m_contacting_actor = actor;
+                            }
+                            m_contacting_cab = i;
                         }
                     }
+
+                    if (depth > 0)
+                    {
+                        m_can_jump = true;
+                        m_character_v_speed = std::max(0.0f, m_character_v_speed);
+                        position.y += std::min(depth, 0.05f);
+                    }
+
+                    if (m_contacting_actor != nullptr && App::sim_character_collisions->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+                    {
+                        int motion_cab = -1;
+                        if (m_contacting_cab == m_last_contacting_cab) // we're on the same cab - just get it's current pos.
+                        {
+                            motion_cab = m_contacting_cab;
+                        }
+                        else // we're on different cab - use current position of the previous cab.
+                        {
+                            motion_cab = m_last_contacting_cab;
+                        }
+                        Vector3 cab_position = CalcCabAveragePos(m_contacting_actor, motion_cab);
+                        m_vehicle_position = cab_position;
+                        m_vehicle_rotation = Ogre::Radian(m_contacting_actor->getRotation());
+
+                        position += (m_vehicle_position - m_last_vehicle_position);
+                        this->setRotation(m_character_rotation + (m_vehicle_rotation - m_last_vehicle_rotation));
+
+                        m_inertia = true;
+                        m_inertia_position = (m_vehicle_position - m_last_vehicle_position);
+                        m_inertia_rotation = (m_vehicle_rotation - m_last_vehicle_rotation);
+                    }
+                    else if (m_inertia && App::sim_character_collisions->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+                    {
+                        position += m_inertia_position;
+                        this->setRotation(m_character_rotation + m_inertia_rotation);
+                    }
+                }
+                else if (m_contacting_actor != nullptr && !m_contacting_actor->ar_bounding_box.contains(position) && App::sim_character_collisions->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED) // we lost contact, reset contacting actor
+                {
+                    m_contacting_actor = nullptr;
                 }
             }
-            if (depth > 0.0f)
+            if (App::sim_character_collisions->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
             {
-                m_can_jump = true;
-                m_character_v_speed = std::max(0.0f, m_character_v_speed);
-                position.y += std::min(depth, 0.05f);
+                if (m_contacting_cab == m_last_contacting_cab)
+                {
+                    m_last_vehicle_position = m_vehicle_position;
+                }
+                else if (m_contacting_actor != nullptr) // we used last_contacting_cab's position for the motion, but we'll need contacting_cab's position next frame.
+                {
+                    Vector3 cab_position = CalcCabAveragePos(m_contacting_actor, m_contacting_cab);
+                    m_last_vehicle_position = cab_position;
+                }
+                m_last_contacting_cab = m_contacting_cab;
+                m_last_vehicle_rotation = m_vehicle_rotation;
             }
         }
 
@@ -214,6 +275,7 @@ void Character::update(float dt)
             position.y = pheight;
             m_character_v_speed = 0.0f;
             m_can_jump = true;
+            m_inertia = false;
         }
 
         // water stuff
@@ -373,6 +435,12 @@ void Character::update(float dt)
     }
     else if (m_actor_coupling) // The character occupies a vehicle or machine
     {
+        // Submesh collision - Prevent knockbacks on vehicle exit
+        if (m_contacting_actor != nullptr)
+        {
+            m_contacting_actor = nullptr;
+        }
+
         // Animation
         float angle = m_actor_coupling->ar_hydro_dir_wheel_display * -1.0f; // not getSteeringAngle(), but this, as its smoothed
         float anim_time_pos = ((angle + 1.0f) * 0.5f) * m_driving_anim_length;
@@ -396,6 +464,19 @@ void Character::update(float dt)
         this->SendStreamData();
     }
 #endif // USE_SOCKETW
+}
+
+Ogre::Vector3 Character::CalcCabAveragePos(ActorPtr actor, int cab_index)
+{
+    int tmpv = actor->ar_collcabs[cab_index] * 3;
+    Vector3 a = actor->ar_nodes[actor->ar_cabs[tmpv + 0]].AbsPosition;
+    Vector3 b = actor->ar_nodes[actor->ar_cabs[tmpv + 1]].AbsPosition;
+    Vector3 c = actor->ar_nodes[actor->ar_cabs[tmpv + 2]].AbsPosition;
+    Vector3 result;
+    result.x = (a.x + b.x + c.x) / 3;
+    result.y = (a.y + b.y + c.y) / 3;
+    result.z = (a.z + b.z + c.z) / 3;
+    return result;
 }
 
 void Character::move(Vector3 offset)

@@ -301,6 +301,7 @@ extern CVar* sim_no_self_collisions;
 extern CVar* sim_gearbox_mode;
 extern CVar* sim_soft_reset_mode;
 extern CVar* sim_quickload_dialog;
+extern CVar* sim_character_collisions;
 
 // Multiplayer
 extern CVar* mp_state;

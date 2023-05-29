@@ -603,6 +603,12 @@ void TopMenubar::Update()
                 DrawGCheckbox(App::mp_pseudo_collisions, _LC("TopMenubar", "Collisions"));
                 DrawGCheckbox(App::mp_hide_net_labels,   _LC("TopMenubar", "Hide labels"));
             }
+            if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+            {
+                ImGui::Separator();
+                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Miscellaneous:"));
+                DrawGCheckbox(App::sim_character_collisions, _LC("TopMenubar", "Character collisions"));
+            }
             ImGui::PopItemWidth();
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
