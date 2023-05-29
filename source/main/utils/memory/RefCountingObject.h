@@ -7,6 +7,8 @@
 #pragma once
 
 #include <angelscript.h>
+#include <mutex> // WORKAROUND, not proud of it (see https://github.com/RigsOfRods/rigs-of-rods/pull/3042) ~ only_a_ptr, 05/2023
+
 
 #if !defined(RefCoutingObject_DEBUGTRACE)
 #   define RefCoutingObject_DEBUGTRACE()
@@ -33,12 +35,14 @@ public:
 
     void AddRef()
     {
+        std::unique_lock<std::mutex>(m_refcount_mtx); // WORKAROUND, not proud of it (see https://github.com/RigsOfRods/rigs-of-rods/pull/3042) ~ only_a_ptr, 05/2023
         m_refcount++;
         RefCoutingObject_DEBUGTRACE();
     }
 
     void Release()
     {
+        std::unique_lock<std::mutex>(m_refcount_mtx); // WORKAROUND, not proud of it (see https://github.com/RigsOfRods/rigs-of-rods/pull/3042) ~ only_a_ptr, 05/2023
         m_refcount--;
         RefCoutingObject_DEBUGTRACE();
         if (m_refcount == 0)
@@ -64,6 +68,7 @@ public:
     }
 
     int m_refcount = 0;
+    std::mutex m_refcount_mtx; //!< WORKAROUND, not proud of it (see https://github.com/RigsOfRods/rigs-of-rods/pull/3042) ~ only_a_ptr, 05/2023
 };
 
 /*
