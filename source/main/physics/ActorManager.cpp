@@ -1116,10 +1116,9 @@ void ActorManager::UpdatePhysicsSimulation()
             {
                 if (actor->ar_update_physics = actor->CalcForcesEulerPrepare(i == 0))
                 {
-                    ActorPtr actor_raw = actor;
-                    auto func = std::function<void()>([this, i, actor_raw]()
+                    auto func = std::function<void()>([this, i, &actor]()
                         {
-                            actor_raw->CalcForcesEulerCompute(i == 0, m_physics_steps);
+                            actor->CalcForcesEulerCompute(i == 0, m_physics_steps);
                         });
                     tasks.push_back(func);
                 }
@@ -1140,21 +1139,20 @@ void ActorManager::UpdatePhysicsSimulation()
                 if (actor->m_inter_point_col_detector != nullptr && (actor->ar_update_physics ||
                         (App::mp_pseudo_collisions->getBool() && actor->ar_state == ActorState::NETWORKED_OK)))
                 {
-                    ActorPtr actor_raw = actor;
-                    auto func = std::function<void()>([this, actor_raw]()
+                    auto func = std::function<void()>([this, &actor]()
                         {
-                            actor_raw->m_inter_point_col_detector->UpdateInterPoint();
-                            if (actor_raw->ar_collision_relevant)
+                            actor->m_inter_point_col_detector->UpdateInterPoint();
+                            if (actor->ar_collision_relevant)
                             {
                                 ResolveInterActorCollisions(PHYSICS_DT,
-                                   *actor_raw->m_inter_point_col_detector,
-                                    actor_raw->ar_num_collcabs,
-                                    actor_raw->ar_collcabs,
-                                    actor_raw->ar_cabs,
-                                    actor_raw->ar_inter_collcabrate,
-                                    actor_raw->ar_nodes,
-                                    actor_raw->ar_collision_range,
-                                   *actor_raw->ar_submesh_ground_model);
+                                   *actor->m_inter_point_col_detector,
+                                    actor->ar_num_collcabs,
+                                    actor->ar_collcabs,
+                                    actor->ar_cabs,
+                                    actor->ar_inter_collcabrate,
+                                    actor->ar_nodes,
+                                    actor->ar_collision_range,
+                                   *actor->ar_submesh_ground_model);
                             }
                         });
                     tasks.push_back(func);

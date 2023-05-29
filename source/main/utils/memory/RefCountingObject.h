@@ -8,6 +8,11 @@
 
 #include <angelscript.h>
 
+#include <mutex> // Against accidental threaded access
+#include "Application.h" // Provides access to AppContext
+#include "AppContext.h" // Stores main thread ID for debug checking
+
+
 #if !defined(RefCoutingObject_DEBUGTRACE)
 #   define RefCoutingObject_DEBUGTRACE()
 #endif
@@ -33,15 +38,25 @@ public:
 
     void AddRef()
     {
+        // Detect and prevent accidental threaded access.
+        RefCountingObject_ASSERT(RoR::App::GetAppContext()->GetMainThreadID() == std::this_thread::get_id());
+        std::unique_lock<std::mutex> lock(m_refcount_mtx);
         m_refcount++;
         RefCoutingObject_DEBUGTRACE();
     }
 
     void Release()
     {
-        m_refcount--;
-        RefCoutingObject_DEBUGTRACE();
-        if (m_refcount == 0)
+        // Detect and prevent accidental threaded access.
+        RefCountingObject_ASSERT(RoR::App::GetAppContext()->GetMainThreadID() == std::this_thread::get_id());
+        int nw_refcount = -1;
+        {
+            std::unique_lock<std::mutex> lock(m_refcount_mtx);
+            m_refcount--;
+            nw_refcount = m_refcount;
+            RefCoutingObject_DEBUGTRACE();
+        }
+        if (nw_refcount == 0)
         {
             delete this; // commit suicide! This is legit in C++, but you must completely 100% positively read https://isocpp.org/wiki/faq/freestore-mgmt#delete-this
         }
@@ -64,6 +79,7 @@ public:
     }
 
     int m_refcount = 0;
+    std::mutex m_refcount_mtx; // Against accidental threaded access
 };
 
 /*

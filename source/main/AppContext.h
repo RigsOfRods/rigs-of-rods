@@ -47,6 +47,7 @@ class AppContext: public OgreBites::WindowEventListener,
 {
 public:
     // Startup (in order)
+    void                 SetUpThreads();
     bool                 SetUpProgramPaths();
     void                 SetUpLogging();
     bool                 SetUpResourcesDir();
@@ -65,6 +66,7 @@ public:
     Ogre::Viewport*      GetViewport() { return m_viewport; }
     Ogre::RenderWindow*  GetRenderWindow() { return m_render_window; }
     RoR::ForceFeedback&  GetForceFeedback() { return m_force_feedback; }
+    std::thread::id      GetMainThreadID() { return m_mainthread_id; }
 
 private:
     // OgreBites::WindowEventListener
@@ -101,6 +103,8 @@ private:
     int                  m_prev_screenshot_index = 1;
 
     RoR::ForceFeedback   m_force_feedback;
+
+    std::thread::id      m_mainthread_id;
 };
 
 /// @} // addtogroup Application
