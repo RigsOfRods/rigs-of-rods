@@ -556,3 +556,8 @@ void AppContext::SetUpObsoleteConfMarker()
     }
 #endif // OGRE_PLATFORM_WIN32
 }
+
+void AppContext::SetUpThreads()
+{
+    m_mainthread_id = std::this_thread::get_id();
+}

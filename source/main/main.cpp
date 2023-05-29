@@ -87,6 +87,9 @@ int main(int argc, char *argv[])
         // Create cvars, set default values
         App::GetConsole()->cVarSetupBuiltins();
 
+        // Record main thread ID for checks
+        App::GetAppContext()->SetUpThreads();
+
         // Update cvars 'sys_process_dir', 'sys_user_dir'
         if (!App::GetAppContext()->SetUpProgramPaths())
         {

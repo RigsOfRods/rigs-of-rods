@@ -33,6 +33,18 @@ namespace RoR {
 
 struct ProceduralPoint: public RefCountingObject<ProceduralPoint>
 {
+    ProceduralPoint() {};
+
+    // Copy-ctor must be declared explicitly because there's a WORKAROUND mutex in RefCountingObject ~ only_a_ptr, 05/2023
+    ProceduralPoint(const ProceduralPoint& orig) :
+        position(orig.position),
+        rotation(orig.rotation),
+        type(orig.type),
+        width(orig.width),
+        bwidth(orig.bwidth),
+        bheight(orig.bheight),
+        pillartype(orig.pillartype) {}
+
     virtual ~ProceduralPoint() override {};
 
     Ogre::Vector3 position = Ogre::Vector3::ZERO;
