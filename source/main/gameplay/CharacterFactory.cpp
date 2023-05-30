@@ -92,7 +92,7 @@ void CharacterFactory::UndoRemoteActorCoupling(ActorPtr actor)
     {
         if (c->GetActorCoupling() == actor)
         {
-            c->SetActorCoupling(false, nullptr);
+            c->SetActorCoupling(nullptr);
         }
     }
 }

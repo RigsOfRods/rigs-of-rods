@@ -488,7 +488,7 @@ void GameContext::ChangePlayerActor(ActorPtr actor)
             Character* player_character = this->GetPlayerCharacter();
             if (player_character)
             {
-                player_character->SetActorCoupling(false, nullptr);
+                player_character->SetActorCoupling(nullptr);
                 player_character->setRotation(Ogre::Radian(rotation));
                 player_character->setPosition(position);
             }
@@ -518,7 +518,7 @@ void GameContext::ChangePlayerActor(ActorPtr actor)
         Character* player_character = this->GetPlayerCharacter();
         if (player_character)
         {
-            player_character->SetActorCoupling(true, m_player_actor);
+            player_character->SetActorCoupling(m_player_actor);
         }
 
         App::GetGuiManager()->FlexbodyDebug.AnalyzeFlexbodies();

@@ -51,9 +51,11 @@ namespace RoR {
 enum NetCharacterCmd
 {
     CHARACTER_CMD_INVALID,
-    CHARACTER_CMD_POSITION,
-    CHARACTER_CMD_ATTACH,
-    CHARACTER_CMD_DETACH
+    CHARACTER_CMD_POSITION_GROUND,
+    CHARACTER_CMD_POSITION_CAB,
+    CHARACTER_CMD_ATTACH_SEAT,  //!< Sets 'actor coupling' for seated (+driving) animation.
+    CHARACTER_CMD_ATTACH_CAB,   //!< Sets 'contacting actor' for walking on cab triangles.
+    CHARACTER_CMD_DETACH        //!< Detaches from actor
 };
 
 struct NetCharacterMsgGeneric
@@ -64,10 +66,13 @@ struct NetCharacterMsgGeneric
 struct NetCharacterMsgPos
 {
     int32_t command;
-    float   pos_x, pos_y, pos_z;
-    float   rot_angle;
+    // Both on ground and cab:
+    float   pos_x, pos_y, pos_z; //!< Global when on ground, local when on cab.
+    float   rot_angle;           //!< Always global.
     float   anim_time;
     char    anim_name[CHARACTER_ANIM_NAME_LEN];
+    // Only on cab:
+    int32_t cab_index;
 };
 
 struct NetCharacterMsgAttach
