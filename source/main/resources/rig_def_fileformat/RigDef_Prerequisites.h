@@ -48,7 +48,6 @@ struct BeamDefaults;
 struct BeamDefaultsScale;
 struct Brakes;
 struct Cab;
-struct CameraRail;
 struct CameraSettings;
 struct Cinecam;
 struct CollisionBox;

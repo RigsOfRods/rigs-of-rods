@@ -36,7 +36,7 @@
 #include <string>
 
 #define CACHE_FILE "mods.cache"
-#define CACHE_FILE_FORMAT 12
+#define CACHE_FILE_FORMAT 13
 #define CACHE_FILE_FRESHNESS 86400 // 60*60*24 = one day
 
 namespace RoR {
@@ -49,81 +49,83 @@ struct AuthorInfo
     Ogre::String email;
 };
 
-class CacheEntry
+struct CacheActorConfigInfo
 {
+    // Attributes
+    std::string config_name;
+    float truckmass           = 0;
+    float loadmass            = 0;
+    bool customtach           = 0;
+    bool custom_particles     = 0;
+    bool forwardcommands      = 0;
+    bool importcommands       = 0;
+    bool rescuer              = 0;
+    ActorType driveable       = NOT_DRIVEABLE;
+    
+    // Element counts
+    int nodecount             = 0;
+    int beamcount             = 0;
+    int shockcount            = 0;
+    int fixescount            = 0;
+    int hydroscount           = 0;
+    int tiecount              = 0;
+    int ropecount             = 0;
+    int wheelcount = 0;
+    int propwheelcount        = 0;
+    int commandscount         = 0;
+    int flarescount           = 0;
+    int propscount            = 0;
+    int wingscount            = 0;
+    int turbopropscount       = 0;
+    int turbojetcount         = 0;
+    int rotatorscount         = 0;
+    int exhaustscount         = 0;
+    int flexbodiescount       = 0;
+    int soundsourcescount     = 0;
+    int airbrakescount        = 0;
+    int submeshescount        = 0;
+             
+    // Engine         
+    int numgears              = 0;
+    char enginetype           = '\0';
+    float minrpm              = 0;
+    float maxrpm              = 0;
+    float torque              = 0;
+};
 
-public:
-
-    /** default constructor resets the data. */
-    CacheEntry();
-
+struct CacheEntry
+{
     Ogre::String fpath;                 //!< filepath relative to the .zip file
     Ogre::String fname;                 //!< filename
     Ogre::String fname_without_uid;     //!< filename
     Ogre::String dname;                 //!< name parsed from the file
+    std::string description;
 
-    int categoryid;                     //!< category id
+    int categoryid = -1;                //!< category id
     Ogre::String categoryname;          //!< category name
 
-    std::time_t addtimestamp;           //!< timestamp when this file was added to the cache
+    std::time_t addtimestamp = 0;       //!< timestamp when this file was added to the cache
 
     Ogre::String uniqueid;              //!< file's unique id
     Ogre::String guid;                  //!< global unique id
-    int version;                        //!< file's version
+    int version = -1;                   //!< file's version
     Ogre::String fext;                  //!< file's extension
     std::string resource_bundle_type;   //!< Archive type recognized by OGRE resource system: 'FileSystem' or 'Zip'
     std::string resource_bundle_path;   //!< Path of ZIP or directory which contains the media. Shared between CacheEntries, loaded only once.
-    int number;                         //!< Sequential number, assigned internally, used by Selector-GUI
+    int number = 0;                     //!< Sequential number, assigned internally, used by Selector-GUI
     std::time_t filetime;               //!< filetime
-    bool deleted;                       //!< is this mod deleted?
-    int usagecounter;                   //!< how much it was used already
+    bool deleted = false;               //!< is this mod deleted?
+    int usagecounter = 0;               //!< how much it was used already
     std::vector<AuthorInfo> authors;    //!< authors
     Ogre::String filecachename;         //!< preview image filename
 
     Ogre::String resource_group;        //!< Resource group of the loaded bundle. Empty if not loaded yet.
 
-    RigDef::DocumentPtr actor_def; //!< Cached actor definition (aka truckfile) after first spawn
+    std::vector<CacheActorConfigInfo> sectionconfigs;
+
+    RigDef::DocumentPtr actor_def;      //!< Cached actor definition (aka truckfile) after first spawn
     std::shared_ptr<RoR::SkinDef> skin_def;  //!< Cached skin info, added on first use or during cache rebuild
-
-    // following all TRUCK detail information:
-    Ogre::String description;
-    Ogre::String tags;
     std::string default_skin;
-    int fileformatversion;
-    bool hasSubmeshs;
-    int nodecount;
-    int beamcount;
-    int shockcount;
-    int fixescount;
-    int hydroscount;
-    int wheelcount;
-    int propwheelcount;
-    int commandscount;
-    int flarescount;
-    int propscount;
-    int wingscount;
-    int turbopropscount;
-    int turbojetcount;
-    int rotatorscount;
-    int exhaustscount;
-    int flexbodiescount;
-    int soundsourcescount;
-
-    float truckmass;
-    float loadmass;
-    float minrpm;
-    float maxrpm;
-    float torque;
-    bool customtach;
-    bool custom_particles;
-    bool forwardcommands;
-    bool importcommands;
-    bool rescuer;
-
-    ActorType driveable;
-    int numgears;
-    char enginetype;
-    std::vector<Ogre::String> sectionconfigs;
 };
 
 enum CacheCategoryId

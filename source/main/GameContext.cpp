@@ -234,12 +234,6 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
 
     ActorPtr fresh_actor = m_actor_manager.CreateNewActor(rq, def);
 
-    // lock slide nodes after spawning the actor?
-    if (def->slide_nodes_connect_instantly)
-    {
-        fresh_actor->toggleSlideNodeLock();
-    }
-
     if (rq.asr_origin == ActorSpawnRequest::Origin::USER)
     {
         m_last_spawned_actor = fresh_actor;
@@ -587,17 +581,21 @@ void GameContext::SpawnPreselectedActor(std::string const& preset_vehicle, std::
     // Section config lookup
     if (!entry->sectionconfigs.empty())
     {
-        if (std::find(entry->sectionconfigs.begin(), entry->sectionconfigs.end(),
-                      preset_veh_config)
-            == entry->sectionconfigs.end())
+        bool found = false;
+        for (CacheActorConfigInfo& info : entry->sectionconfigs)
+        {
+            if (info.config_name == preset_veh_config)
+            {
+                rq->asr_config = info.config_name;
+                found = true;
+            }
+        }
+        if (!found)
         {
             // Preselected config doesn't exist -> use first available one
-            rq->asr_config = entry->sectionconfigs[0];
+            rq->asr_config = entry->sectionconfigs[0].config_name;
         }
-        else
-        {
-            rq->asr_config = preset_veh_config;
-        }
+
         RoR::LogFormat("[RoR|Diag] Preselected Truck Config: %s", rq->asr_config.c_str());
     }
 

@@ -32,22 +32,18 @@
 
 #define CHECK_SECTION_IN_ALL_MODULES(_CLASS_, _FIELD_, _FUNCTION_) \
 { \
-    std::list<std::shared_ptr<RigDef::Document::Module>>::iterator module_itor = m_selected_modules.begin(); \
-    for (; module_itor != m_selected_modules.end(); module_itor++) \
-    { \
-        std::vector<_CLASS_>::iterator section_itor = module_itor->get()->_FIELD_.begin(); \
-        for (; section_itor != module_itor->get()->_FIELD_.end(); section_itor++) \
+        std::vector<_CLASS_>::iterator section_itor = m_file->_FIELD_.begin(); \
+        for (; section_itor != m_file->_FIELD_.end(); section_itor++) \
         { \
             if (! _FUNCTION_(*section_itor))\
             { \
-                section_itor = module_itor->get()->_FIELD_.erase(section_itor); \
-                if (section_itor == module_itor->get()->_FIELD_.end()) \
+                section_itor = m_file->_FIELD_.erase(section_itor); \
+                if (section_itor == m_file->_FIELD_.end()) \
                 { \
                     break; \
                 } \
             } \
         } \
-    } \
 }
 
 namespace RigDef
@@ -58,8 +54,6 @@ bool Validator::Validate()
     bool valid = true;
 
     /* CHECK CONFIGURATION (SELECTED MODULES TOGETHER) */
-
-    valid &= CheckSectionSubmeshGroundmodel(); /* Unique */
 
     valid &= CheckGearbox(); /* Min. 1 forward gear */
 
@@ -73,10 +67,6 @@ bool Validator::Validate()
 
     CHECK_SECTION_IN_ALL_MODULES(Command2, commands2, CheckCommand);
 
-    CHECK_SECTION_IN_ALL_MODULES(Trigger, triggers, CheckTrigger);
-
-    CHECK_SECTION_IN_ALL_MODULES(Trigger, triggers, CheckTrigger);
-
     CHECK_SECTION_IN_ALL_MODULES(Flare2, flares2, CheckFlare2);
 
     return valid;
@@ -85,7 +75,6 @@ bool Validator::Validate()
 void Validator::Setup(RigDef::DocumentPtr file)
 {
     m_file = file;
-    m_selected_modules.push_back(file->root_module);
     m_check_beams = true;
 }
 
@@ -111,64 +100,18 @@ void Validator::AddMessage(Validator::Message::Type type, Ogre::String const & t
     RoR::App::GetConsole()->putMessage(RoR::Console::CONSOLE_MSGTYPE_ACTOR, cm_type, text);
 }
 
-bool Validator::CheckSectionSubmeshGroundmodel()
-{
-    Ogre::String *containing_module_name = nullptr;
-
-    std::list<std::shared_ptr<RigDef::Document::Module>>::iterator module_itor = m_selected_modules.begin();
-    for (; module_itor != m_selected_modules.end(); module_itor++)
-    {
-        if (! module_itor->get()->submesh_groundmodel.empty())
-        {
-            if (containing_module_name == nullptr)
-            {
-                containing_module_name = & module_itor->get()->name;
-            }
-            else
-            {
-                std::stringstream text;
-                text << "Duplicate inline-section 'submesh_groundmodel'; found in modules: '" 
-                    << *containing_module_name << "' & '" << module_itor->get()->name << "'";
-                AddMessage(Message::TYPE_FATAL_ERROR, text.str());
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-bool Validator::AddModule(Ogre::String const & module_name)
-{
-    std::map< Ogre::String, std::shared_ptr<RigDef::Document::Module> >::iterator result 
-        = m_file->user_modules.find(module_name);
-
-    if (result != m_file->user_modules.end())
-    {
-        m_selected_modules.push_back(result->second);
-        return true;
-    }
-    return false;
-}
-
 bool Validator::CheckGearbox()
 {
-    /* Find it */
-    std::shared_ptr<RigDef::Engine> engine;
-    std::list<std::shared_ptr<RigDef::Document::Module>>::iterator module_itor = m_selected_modules.begin();
-    for (; module_itor != m_selected_modules.end(); module_itor++)
+    if (m_file->engine.size() > 0)
     {
-        if (module_itor->get()->engine.size() > 0)
+        if (m_file->engine[m_file->engine.size() - 1].gear_ratios.size() > 0)
         {
-            if (module_itor->get()->engine[module_itor->get()->engine.size() - 1].gear_ratios.size() > 0)
-            {
-                return true;
-            }
-            else
-            {
-                AddMessage(Message::TYPE_FATAL_ERROR, "Engine must have at least 1 forward gear.");
-                return false;
-            }
+            return true;
+        }
+        else
+        {
+            AddMessage(Message::TYPE_FATAL_ERROR, "Engine must have at least 1 forward gear.");
+            return false;
         }
     }
     return true;
@@ -384,68 +327,6 @@ bool Validator::CheckFlare2(RigDef::Flare2 & def)
         msg << "Wrong parameter 'blink_delay_milis' (" << def.blink_delay_milis << "), must be in range <-2, 60000>";
         AddMessage(Message::TYPE_ERROR, msg.str());
         ok = false;
-    }
-
-    return ok;
-}
-
-bool Validator::CheckTrigger(RigDef::Trigger & def)
-{
-    bool ok = true;
-
-    bool hook_toggle = 
-        BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_H_LOCKS_HOOK_GROUP)
-        || BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_h_UNLOCKS_HOOK_GROUP);
-
-    bool trigger_blocker = BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_B_TRIGGER_BLOCKER);
-    bool inv_trigger_blocker = BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_A_INV_TRIGGER_BLOCKER);
-
-    if (BITMASK_IS_0(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER))
-    {
-        if (! trigger_blocker && ! inv_trigger_blocker && ! hook_toggle )
-        {
-            /* Make the full check */
-            if (def.shortbound_trigger_action < 1 || def.shortbound_trigger_action > MAX_COMMANDS)
-            {
-                std::stringstream msg;
-                msg << "Wrong parameter 'shortbound_trigger_action': " << def.shortbound_trigger_action;
-                msg << "; Alloved range is <0 - " << MAX_COMMANDS << ">. ";
-                msg << "Trigger deactivated.";
-                AddMessage(Message::TYPE_ERROR, msg.str());
-                ok = false;
-            }
-        }
-        else if (! hook_toggle)
-        {
-            /* This is a Trigger-Blocker, make special check */
-            if (def.shortbound_trigger_action < 0)
-            {
-                std::stringstream msg;
-                msg << "Wrong parameter 'shortbound_trigger_action': " << def.shortbound_trigger_action;
-                msg << "; Alloved range is <0 - " << MAX_COMMANDS << ">. ";
-                msg << "Trigger deactivated.";
-                AddMessage(Message::TYPE_ERROR, msg.str());
-                ok = false;
-            }
-            if (def.longbound_trigger_action < 0)
-            {
-                std::stringstream msg;
-                msg << "Wrong parameter 'longbound_trigger_action': " << def.longbound_trigger_action;
-                msg << "; Alloved range is <0 - " << MAX_COMMANDS << ">. ";
-                msg << "Trigger deactivated.";
-                AddMessage(Message::TYPE_ERROR, msg.str());
-                ok = false;
-            }
-        }
-    }
-    else
-    {
-        /* Engine trigger */
-        if (trigger_blocker || inv_trigger_blocker || hook_toggle || BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_s_CMD_NUM_SWITCH))
-        {
-            AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber. Engine trigger deactivated.");
-            ok = false;
-        }
     }
 
     return ok;

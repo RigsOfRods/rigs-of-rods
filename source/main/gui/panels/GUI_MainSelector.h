@@ -64,7 +64,6 @@ private:
         CacheEntry* sde_entry = nullptr;
         Str<50>     sde_filetime_str;  // pre-formatted
         Str<50>     sde_addtime_str;   // pre-formatted
-        Str<50>     sde_driveable_str; // pre-formatted
     };
 
     typedef std::vector<DisplayCategory> DisplayCategoryVec;
@@ -78,6 +77,7 @@ private:
     void DrawAttrFloat(const char* desc, float val) const;
     void DrawAttrSpecial(bool val, const char* label) const;
     void DrawAttrStr(const char* desc, std::string const& str) const;
+    void DrawCommonDetails(DisplayEntry& sd_entry);
 
     static bool ScComboItemGetter(void* data, int idx, const char** out_text);
     static bool CatComboItemGetter(void* data, int idx, const char** out_text);

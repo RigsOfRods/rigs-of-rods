@@ -706,8 +706,8 @@ void Actor::RecalculateNodeMasses(Real total)
     // Apply pre-defined cinecam node mass
     for (int i = 0; i < this->ar_num_cinecams; ++i)
     {
-        // TODO: this expects all cinecams to be defined in root module (i.e. outside 'section/end_section')
-        ar_nodes[ar_cinecam_node[i]].mass = m_definition->root_module->cinecam[i].node_mass;
+        // FIXME: this ignores sectionconfig!
+        ar_nodes[ar_cinecam_node[i]].mass = m_definition->cinecam[i].node_mass;
     }
 
     //update mass
@@ -1505,6 +1505,9 @@ void Actor::reset(bool keep_position)
 
 void Actor::SoftReset()
 {
+    if (ar_state == ActorState::DISPOSED)
+        return;
+
     TRIGGER_EVENT(SE_TRUCK_RESET, ar_instance_id);
 
     float agl = this->getHeightAboveGroundBelow(this->getMaxHeight(true), true);
@@ -1529,6 +1532,9 @@ void Actor::SoftReset()
 
 void Actor::SyncReset(bool reset_position)
 {
+    if (ar_state == ActorState::DISPOSED)
+        return;
+
     TRIGGER_EVENT(SE_TRUCK_RESET, ar_instance_id);
 
     m_reset_timer.reset();

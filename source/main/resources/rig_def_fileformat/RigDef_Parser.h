@@ -29,7 +29,6 @@
 #include "Console.h"
 #include "RigDef_Prerequisites.h"
 #include "RigDef_File.h"
-#include "RigDef_SequentialImporter.h"
 
 #include <memory>
 #include <string>
@@ -49,10 +48,7 @@ namespace RigDef
 ///  Every time a line of a particular section is parsed, an instance of the struct
 ///  is saved into an array container in struct RigDef::Document. There are exceptions to this rule.
 ///
-///  Keywords 'set_[node|beam|inertia]_defaults' are 'presets' and are managed by dyn. allocated
-///  objects. For every preset, there are 2 pointers:
-///      * 'ror_*' represents game defaults as specified in documentation. Needed for resetting.
-///      * 'user_*' represent the last defaults specified in the .truck file.
+
 class Parser
 {
 
@@ -67,8 +63,6 @@ public:
         int         length;
     };
 
-    Parser();
-
     void Prepare();
     void Finalize();
     void ProcessOgreStream(Ogre::DataStream* stream, Ogre::String resource_group);
@@ -76,10 +70,8 @@ public:
 
     RigDef::DocumentPtr GetFile()
     {
-        return m_definition;
+        return m_document;
     }
-
-    SequentialImporter* GetSequentialImporter() { return &m_sequential_importer; }
 
 private:
 
@@ -87,7 +79,6 @@ private:
 //  Directive parsers
 // --------------------------------------------------------------------------
 
-    void ProcessGlobalDirective(Keyword keyword); //!< Directives that should only appear in root module
     void ParseDirectiveAddAnimation();
     void ParseDirectiveBackmesh();
     void ParseDirectiveDefaultSkin();
@@ -103,14 +94,13 @@ private:
     void ParseDirectiveSetInertiaDefaults();
     void ParseDirectiveSetManagedMaterialsOptions();
     void ParseDirectiveSetNodeDefaults();
-    void ParseDirectiveSubmesh();
 
 // --------------------------------------------------------------------------
 //  Section parsers
 // --------------------------------------------------------------------------
 
     void ParseAirbrakes();
-    void ParseAnimator();
+    void ParseAnimators();
     void ParseAntiLockBrakes();
     void ParseAuthor();
     void ParseAxles();
@@ -118,26 +108,27 @@ private:
     void ParseBrakes();
     void ParseCab();
     void ParseCameras();
-    void ParseCameraRails();
+    void ParseCamerarails();
     void ParseCinecam();
-    void ParseCollisionBox();
-    void ParseCommandsUnified();
-    void ParseContacter();
+    void ParseCollisionboxes();
+    void ParseCommands();
+    void ParseCommands2();
+    void ParseContacters();
     void ParseCruiseControl();
     void ParseDescription();
     void ParseEngine();
     void ParseEngoption();
     void ParseEngturbo();
-    void ParseExhaust();
+    void ParseExhausts();
     void ParseExtCamera();
     void ParseFileFormatVersion();
     void ParseFileinfo();
     void ParseFixes();
-    void ParseFlaresUnified();
+    void ParseFlares();
+    void ParseFlares2();
     void ParseFlares3();
-    void ParseFlexbody();
-    void ParseFlexBodyWheel();
-    void ParseForset();
+    void ParseFlexbodies();
+    void ParseFlexbodywheels();
     void ParseFusedrag();
     void ParseGlobals();
     void ParseGuid();
@@ -149,17 +140,19 @@ private:
     void ParseLockgroups();
     void ParseManagedMaterials();
     void ParseMaterialFlareBindings();
-    void ParseMeshWheel();
-    void ParseMeshWheel2();
+    void ParseMeshwheels();
+    void ParseMeshwheels2();
     void ParseMinimass();
-    void ParseNodesUnified();
+    void ParseNodes();
+    void ParseNodes2();
     void ParseParticles();
     void ParsePistonprops();
     void ParseProps();
     void ParseRailGroups();
     void ParseRopables();
     void ParseRopes();
-    void ParseRotatorsUnified();
+    void ParseRotators();
+    void ParseRotators2();
     void ParseScrewprops();
     void ParseScripts();
     void ParseSetCollisionRange();
@@ -179,7 +172,8 @@ private:
     void ParseTransferCase();
     void ParseTriggers();
     void ParseTurbojets();
-    void ParseTurbopropsUnified();
+    void ParseTurboprops();
+    void ParseTurboprops2();
     void ParseVideoCamera();
     void ParseWheelDetachers();
     void ParseWheel();
@@ -195,7 +189,7 @@ private:
     Keyword          IdentifyKeywordInCurrentLine();
     bool             CheckNumArguments(int num_required_args);
     void             BeginBlock(RigDef::Keyword keyword);
-    void             ProcessChangeModuleLine(Keyword keyword);
+    void             EndBlock(RigDef::Keyword keyword);
 
     std::string        GetArgStr          (int index);
     int                GetArgInt          (int index);
@@ -206,9 +200,9 @@ private:
     bool               GetArgBool         (int index);
     WheelPropulsion    GetArgPropulsion   (int index);
     WheelBraking       GetArgBraking      (int index);
-    Node::Ref          GetArgNodeRef      (int index);
-    Node::Ref          GetArgRigidityNode (int index);
-    Node::Ref          GetArgNullableNode (int index);
+    NodeRef_t          GetArgNodeRef      (int index);
+    NodeRef_t          GetArgRigidityNode (int index);
+    NodeRef_t          GetArgNullableNode (int index);
     WheelSide          GetArgWheelSide    (int index);
     WingControlSurface GetArgWingSurface  (int index);
     RoR::FlareType     GetArgFlareType    (int index);
@@ -241,31 +235,17 @@ private:
 
     static void _TrimTrailingComments(std::string const & line_in, std::string & line_out);
 
-    Node::Ref _ParseNodeRef(std::string const & node_id_str);
+    NodeRef_t _ParseNodeRef(std::string const & node_id_str);
     void _ParseDifferentialTypes(DifferentialTypeVec& diff_types, std::string const& options_str);
-    void _ParseBaseMeshWheel(BaseMeshWheel& mesh_wheel);
+
 
     void ParseOptionalInertia(Inertia& inertia, int index);
 
+    void ParseCommandOptions(CommandCommon& command2, std::string const& options_str);
+
 // --------------------------------------------------------------------------
 
-    // RoR defaults
 
-    std::shared_ptr<Inertia>             m_ror_default_inertia;
-    std::shared_ptr<NodeDefaults>        m_ror_node_defaults;
-
-    // Data from user directives
-    // Each affected section-struct has a shared_ptr to it's respective defaults
-    std::shared_ptr<Inertia>             m_user_default_inertia;
-    std::shared_ptr<BeamDefaults>        m_user_beam_defaults;
-    std::shared_ptr<NodeDefaults>        m_user_node_defaults;
-    std::shared_ptr<DefaultMinimass>     m_set_default_minimass;
-    int                                  m_current_detacher_group;
-    ManagedMaterialsOptions              m_current_managed_material_options;
-
-    // Parser state
-    std::shared_ptr<Document::Module>        m_root_module;
-    std::shared_ptr<Document::Module>        m_current_module;
 
     unsigned int                         m_current_line_number;
     char                                 m_current_line[LINE_BUFFER_LENGTH];
@@ -273,16 +253,13 @@ private:
     int                                  m_num_args;               //!< Number of tokens on current line.
     Keyword                              m_current_block = Keyword::INVALID;
     Keyword                              m_log_keyword = Keyword::INVALID;
-    bool                                 m_any_named_node_defined; //!< Parser state.
-    std::shared_ptr<Submesh>             m_current_submesh;        //!< Parser state.
-    std::shared_ptr<CameraRail>          m_current_camera_rail;    //!< Parser state.
 
-    SequentialImporter                   m_sequential_importer;
+
 
     Ogre::String                         m_filename; // Logging
     Ogre::String                         m_resource_group;
 
-    RigDef::DocumentPtr        m_definition;
+    RigDef::DocumentPtr                  m_document;
 };
 
 } // namespace RigDef
