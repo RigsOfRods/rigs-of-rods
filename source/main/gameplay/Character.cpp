@@ -549,10 +549,11 @@ void Character::SendStreamData()
     NetCharacterMsgPos msg;
     if (m_contacting_actor)
     {
+        const Ogre::Vector3 cab_coords = CalcCabAveragePos(m_contacting_actor, m_contacting_cab);
         msg.command = CHARACTER_CMD_POSITION_CAB;
-        msg.pos_x = m_character_position.x - m_vehicle_position.x;
-        msg.pos_y = m_character_position.y - m_vehicle_position.y;
-        msg.pos_z = m_character_position.z - m_vehicle_position.z;
+        msg.pos_x = m_character_position.x - cab_coords.x;
+        msg.pos_y = m_character_position.y - cab_coords.y;
+        msg.pos_z = m_character_position.z - cab_coords.z;
         msg.cab_index = m_contacting_cab;
     }
     else
