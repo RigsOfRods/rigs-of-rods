@@ -64,6 +64,7 @@ public:
     void           SetActorCoupling(ActorPtr actor); //!< Seating
     void           SetContactingActor(ActorPtr); //!< Standing - collision
     GfxCharacter*  SetupGfx();
+    void           drawCabWalkingDbg();
 
 private:
 
@@ -96,18 +97,17 @@ private:
     float            m_driving_anim_length;
 
     // Collision with actor (standing):
-    Ogre::Vector3    m_vehicle_position;
-    Ogre::Radian     m_vehicle_rotation;
-    Ogre::Vector3    m_last_vehicle_position;
-    Ogre::Radian     m_last_vehicle_rotation;
     bool             m_inertia = false;
     Ogre::Vector3    m_inertia_position;
     Ogre::Radian     m_inertia_rotation;
     ActorPtr         m_contacting_actor;
     int              m_contacting_cab = 0;
-    int              m_last_contacting_cab = 0;
-    Ogre::Vector3    m_net_cab_offset = Ogre::Vector3::ZERO;
-    Ogre::Vector3    CalcCabAveragePos(ActorPtr actor, int cab_index);
+    Ogre::Affine3    m_contacting_cab_matrix;
+    Ogre::Vector3    m_contacting_cab_localpos;
+    int              m_prev_contacting_cab = 0;
+    Ogre::Affine3    m_prev_contacting_cab_matrix;
+    Ogre::Vector3    m_prev_contacting_cab_localpos;
+    Ogre::Affine3    CalcCabTransformMatrix(ActorPtr& actor, int cab_index);
 };
 
 /// @} // addtogroup Character

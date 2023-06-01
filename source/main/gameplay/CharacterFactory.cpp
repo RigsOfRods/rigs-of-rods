@@ -86,6 +86,16 @@ void CharacterFactory::Update(float dt)
     }
 }
 
+void CharacterFactory::DrawDebug()
+{
+    m_local_character->drawCabWalkingDbg();
+
+    for (auto& c : m_remote_characters)
+    {
+        c->drawCabWalkingDbg();
+    }
+}
+
 void CharacterFactory::UndoRemoteActorCoupling(ActorPtr actor)
 {
     for (auto& c : m_remote_characters)

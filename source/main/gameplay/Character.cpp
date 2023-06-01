@@ -163,8 +163,10 @@ void Character::update(float dt)
             float depth = 0.0f;
             for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
+#if 0
                 if (actor->ar_bounding_box.contains(position))
                 {
+
                     for (int i = 0; i < actor->ar_num_collcabs; i++)
                     {
                         int tmpv = actor->ar_collcabs[i] * 3;
@@ -177,16 +179,16 @@ void Character::update(float dt)
                             depth = std::max(depth, result.second);
                             if (depth > 0 && m_contacting_actor == nullptr) // check fresh contacting actor also, prevents knockbacks with multiple actors that have node position overlapping
                             {
-                                // first contact - initialize 'last' values to avoid big knockbacks
-                                Vector3 cab_position = CalcCabAveragePos(actor, i);
-                                m_last_vehicle_position = cab_position;
-                                m_last_vehicle_rotation = Ogre::Radian(actor->getRotation());
-                                m_last_contacting_cab = i;
                                 this->SetContactingActor(actor);
+                                // first contact - initialize 'prev' values to avoid big knockbacks
+                                m_prev_contacting_cab = i;
+                                m_prev_contacting_cab_matrix = CalcCabTransformMatrix(actor, i);
+                                m_prev_contacting_cab_localpos = m_prev_contacting_cab_matrix.inverse() * position;
                             }
                             m_contacting_cab = i;
                         }
                     }
+#endif
 
                     if (depth > 0)
                     {
@@ -197,28 +199,27 @@ void Character::update(float dt)
 
                     if (m_contacting_actor != nullptr)
                     {
-                        int motion_cab = -1;
-                        if (m_contacting_cab == m_last_contacting_cab) // we're on the same cab - just get it's current pos.
-                        {
-                            motion_cab = m_contacting_cab;
-                        }
-                        else // we're on different cab - use current position of the previous cab.
-                        {
-                            motion_cab = m_last_contacting_cab;
-                        }
-                        Vector3 cab_position = CalcCabAveragePos(m_contacting_actor, motion_cab);
-                        m_vehicle_position = cab_position;
-                        m_vehicle_rotation = Ogre::Radian(m_contacting_actor->getRotation());
+                        // Calculate vehicle movement using old & new position of the same cab (the 'prev')
+                        // --------------------------------------------------------------------------------
 
-                        //if (App::sim_character_collisions->getBool())
-                        {
-                            position += (m_vehicle_position - m_last_vehicle_position);
-                            this->setRotation(m_character_rotation + (m_vehicle_rotation - m_last_vehicle_rotation));
-                        }
+                        const Affine3 old_matrix = m_prev_contacting_cab_matrix;
+                        const Affine3 cur_matrix = CalcCabTransformMatrix(actor, m_prev_contacting_cab);
 
+
+                        Vector3 old_pos = old_matrix * m_prev_contacting_cab_localpos;
+                        Vector3 projected_pos = cur_matrix * m_prev_contacting_cab_localpos;
+                        position.x = projected_pos.x;
+                        position.z = projected_pos.z;
+
+                        // Delta rot
+                    //    Ogre::Radian delta_rotation = -(cur_matrix.extractQuaternion() - old_matrix.extractQuaternion()).getYaw();
+                   //     this->setRotation(m_character_rotation + delta_rotation);
+
+                        // Activate inertia
                         m_inertia = true;
-                        m_inertia_position = (m_vehicle_position - m_last_vehicle_position);
-                        m_inertia_rotation = (m_vehicle_rotation - m_last_vehicle_rotation);
+                        m_inertia_position = projected_pos - old_pos;
+                    //    m_inertia_rotation = delta_rotation;
+
                     }
                     else if (m_inertia)
                     {
@@ -228,24 +229,26 @@ void Character::update(float dt)
                             this->setRotation(m_character_rotation + m_inertia_rotation);
                         }
                     }
-                }
+#if 0
+            }
+
                 else if (m_contacting_actor != nullptr && !m_contacting_actor->ar_bounding_box.contains(position)) // we lost contact, reset contacting actor
                 {
                     this->SetContactingActor(nullptr);
                 }
+#endif
             }
 
-            if (m_contacting_cab == m_last_contacting_cab)
+            if (m_contacting_actor != nullptr)
             {
-                m_last_vehicle_position = m_vehicle_position;
+                m_contacting_cab_matrix = CalcCabTransformMatrix(m_contacting_actor, m_contacting_cab);
+                
+
+                m_prev_contacting_cab = m_contacting_cab;
+                m_prev_contacting_cab_matrix = m_contacting_cab_matrix;
+                //m_prev_contacting_cab_localpos = m_contacting_cab_matrix.inverse() * position;
+                
             }
-            else if (m_contacting_actor != nullptr) // we used last_contacting_cab's position for the motion, but we'll need contacting_cab's position next frame.
-            {
-                Vector3 cab_position = CalcCabAveragePos(m_contacting_actor, m_contacting_cab);
-                m_last_vehicle_position = cab_position;
-            }
-            m_last_contacting_cab = m_contacting_cab;
-            m_last_vehicle_rotation = m_vehicle_rotation;
         }
 
         // Obstacle detection
@@ -434,6 +437,10 @@ void Character::update(float dt)
         }
 
         m_character_position = position;
+   /*     if (m_contacting_actor)
+        {
+            m_contacting_cab_localpos = m_contacting_cab_matrix.inverse() * position;
+        }*/
     }
     else if (m_actor_coupling) // The character occupies a vehicle or machine
     {
@@ -464,7 +471,7 @@ void Character::update(float dt)
         // Make sure cab index from network is valid (-1 means no update arrived yet)
         if (m_contacting_cab >= 0 && m_contacting_cab < m_contacting_actor->ar_num_cabs)
         {
-            this->setPosition(m_net_cab_offset + CalcCabAveragePos(m_contacting_actor, m_contacting_cab));
+            this->setPosition(this->CalcCabTransformMatrix(m_contacting_actor, m_contacting_cab) * m_contacting_cab_localpos);
         }
     }
 
@@ -476,17 +483,20 @@ void Character::update(float dt)
 #endif // USE_SOCKETW
 }
 
-Ogre::Vector3 Character::CalcCabAveragePos(ActorPtr actor, int cab_index)
+Ogre::Affine3 Character::CalcCabTransformMatrix(ActorPtr& actor, int cab_index)
 {
-    int tmpv = actor->ar_collcabs[cab_index] * 3;
-    Vector3 a = actor->ar_nodes[actor->ar_cabs[tmpv + 0]].AbsPosition;
-    Vector3 b = actor->ar_nodes[actor->ar_cabs[tmpv + 1]].AbsPosition;
-    Vector3 c = actor->ar_nodes[actor->ar_cabs[tmpv + 2]].AbsPosition;
-    Vector3 result;
-    result.x = (a.x + b.x + c.x) / 3;
-    result.y = (a.y + b.y + c.y) / 3;
-    result.z = (a.z + b.z + c.z) / 3;
-    return result;
+    const int tmpv = actor->ar_collcabs[cab_index] * 3;
+    const Vector3 a = actor->ar_nodes[actor->ar_cabs[tmpv + 0]].AbsPosition;
+    const Vector3 b = actor->ar_nodes[actor->ar_cabs[tmpv + 1]].AbsPosition;
+    const Vector3 c = actor->ar_nodes[actor->ar_cabs[tmpv + 2]].AbsPosition;
+
+    // 'a' is the reference point and 'Y' axis is up.
+    const Vector3 x_axis = b - a;
+    const Vector3 z_axis = c - a;
+    const Vector3 y_axis = x_axis.crossProduct(z_axis);
+    Quaternion rot = Quaternion(x_axis, y_axis, z_axis);
+
+    return Affine3(a, rot);
 }
 
 void Character::move(Vector3 offset)
@@ -549,12 +559,11 @@ void Character::SendStreamData()
     NetCharacterMsgPos msg;
     if (m_contacting_actor)
     {
-        const Ogre::Vector3 cab_coords = CalcCabAveragePos(m_contacting_actor, m_contacting_cab);
         msg.command = CHARACTER_CMD_POSITION_CAB;
-        msg.pos_x = m_character_position.x - cab_coords.x;
-        msg.pos_y = m_character_position.y - cab_coords.y;
-        msg.pos_z = m_character_position.z - cab_coords.z;
         msg.cab_index = m_contacting_cab;
+        msg.pos_x = m_contacting_cab_localpos.x;
+        msg.pos_y = m_contacting_cab_localpos.y;
+        msg.pos_z = m_contacting_cab_localpos.z;
     }
     else
     {
@@ -588,7 +597,7 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
             }
             else if (msg->command == CHARACTER_CMD_POSITION_CAB)
             {
-                m_net_cab_offset = Ogre::Vector3(pos_msg->pos_x, pos_msg->pos_y, pos_msg->pos_z);
+                m_contacting_cab_localpos = Ogre::Vector3(pos_msg->pos_x, pos_msg->pos_y, pos_msg->pos_z);
                 m_contacting_cab = pos_msg->cab_index;
             }
             this->setRotation(Ogre::Radian(pos_msg->rot_angle));
@@ -858,4 +867,55 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         }
     }
 #endif // USE_SOCKETW
+}
+
+void Character::drawCabWalkingDbg()
+{
+    ImGui::Text("Character '%s' (remote: %d)",
+        m_instance_name.c_str(), (int)m_is_remote);
+
+    if (m_contacting_actor)
+    {
+        ImGui::Text("Contacting actor: %s (%d cabs)",
+            m_contacting_actor->ar_design_name.c_str(),
+            m_contacting_actor->ar_num_cabs);
+        ImGui::Text("... cabIndex: %d, cabLocalPos X=%6.2f, Y=%6.2f, Z=%6.2f",
+            m_contacting_cab,
+            m_contacting_cab_localpos.x, m_contacting_cab_localpos.y, m_contacting_cab_localpos.z);
+        ImGui::Text("... prev_cabIndex: %d, prev_cabLocalPos X=%6.2f, Y=%6.2f, Z=%6.2f",
+            m_prev_contacting_cab,
+            m_prev_contacting_cab_localpos.x, m_prev_contacting_cab_localpos.y, m_prev_contacting_cab_localpos.z);
+    }
+    ImGui::Separator();
+
+    if (!m_is_remote)
+    {
+        for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
+        {
+            ImGui::Text("Available actor: %s (%d collcabs/%d cabs)",
+                actor->ar_design_name.c_str(),
+                actor->ar_num_collcabs,
+                actor->ar_num_cabs);
+
+            for (int collcabid = 0; collcabid < actor->ar_num_collcabs; collcabid++)
+            {
+                int cabid = actor->ar_collcabs[collcabid];
+                if (ImGui::Button(fmt::format("GlueTo {} (cab {})", collcabid, cabid).c_str()))
+                {
+                    m_contacting_actor = actor;
+                    m_contacting_cab = cabid;
+                    m_contacting_cab_localpos = Ogre::Vector3(0, 0, 0);
+
+                    // first contact - initialize 'prev' values to avoid big knockbacks
+                    m_prev_contacting_cab = cabid;
+                    m_prev_contacting_cab_matrix = CalcCabTransformMatrix(actor, cabid);
+                    m_prev_contacting_cab_localpos = Ogre::Vector3(0, 0, 0);
+                }
+                ImGui::SameLine();
+            }
+            ImGui::Separator();
+        }
+
+        ImGui::Separator();
+    }
 }

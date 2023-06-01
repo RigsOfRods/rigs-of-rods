@@ -45,6 +45,7 @@ public:
     void DeleteAllCharacters();
     void UndoRemoteActorCoupling(ActorPtr actor);
     void Update(float dt);
+    void DrawDebug();
 #ifdef USE_SOCKETW
     void handleStreamData(std::vector<RoR::NetRecvPacket> packet);
 #endif // USE_SOCKETW

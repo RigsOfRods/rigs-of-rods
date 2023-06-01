@@ -1020,6 +1020,7 @@ int main(int argc, char *argv[])
                         App::GetGuiManager()->FrictionSettings.setActiveCol(App::GetGameContext()->GetPlayerActor()->ar_last_fuzzy_ground_model);
                     }
                 }
+                App::GetGameContext()->GetCharacterFactory()->DrawDebug();
             }
 
 #ifdef USE_MUMBLE
