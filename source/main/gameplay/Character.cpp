@@ -205,11 +205,13 @@ void Character::update(float dt)
                         const Affine3 old_matrix = m_prev_contacting_cab_matrix;
                         const Affine3 cur_matrix = CalcCabTransformMatrix(actor, m_prev_contacting_cab);
 
+                        const int tmpv = actor->ar_collcabs[m_contacting_cab] * 3;
+                        const Vector3 a = actor->ar_nodes[actor->ar_cabs[tmpv + 0]].AbsPosition;
 
                         Vector3 old_pos = old_matrix * m_prev_contacting_cab_localpos;
                         Vector3 projected_pos = cur_matrix * m_prev_contacting_cab_localpos;
-                        position.x = projected_pos.x;
-                        position.z = projected_pos.z;
+                        position.x = projected_pos.x + a.x;
+                        position.z = projected_pos.z + a.z;
 
                         // Delta rot
                     //    Ogre::Radian delta_rotation = -(cur_matrix.extractQuaternion() - old_matrix.extractQuaternion()).getYaw();
@@ -496,7 +498,7 @@ Ogre::Affine3 Character::CalcCabTransformMatrix(ActorPtr& actor, int cab_index)
     const Vector3 y_axis = x_axis.crossProduct(z_axis);
     Quaternion rot = Quaternion(x_axis, y_axis, z_axis);
 
-    return Affine3(a, rot);
+    return Affine3(Vector3::ZERO, rot);
 }
 
 void Character::move(Vector3 offset)
