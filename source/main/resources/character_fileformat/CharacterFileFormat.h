@@ -45,17 +45,18 @@ struct BoneBlendMaskDef //!< Additional settings for a skeletal animation track 
     std::vector<BoneBlendMaskWeightDef> bone_weights;
 };
 
-struct CharacterAnimDef
+/// Action = one or more skeletal animations playing/blended/masked together to create impression activity.
+struct CharacterActionDef
 {
     std::string anim_name; //!< Name of the skeletal animation from OGRE's *.skeleton file.
-    std::string game_description; //!< Gameplay name.
-    int         game_id = -1;
+    std::string action_description; //!< Gameplay name.
+    CharacterActionID_t  action_id = CHARACTERACTIONID_INVALID;
 
     // Conditions
-    BitMask_t for_situations = 0;    //!< Character::SITUATION_, all must be satisfied.
-    BitMask_t except_situations = 0; //!< Character::SITUATION_, none must be satisfied.
-    BitMask_t for_actions = 0;       //!< Character::ACTION_, all must be satisfied.
-    BitMask_t except_actions = 0;    //!< Character::ACTION_, none must be satisfied.
+    BitMask_t for_situations = 0;    //!< `RoRnet::SituationFlags`, all must be satisfied.
+    BitMask_t except_situations = 0; //!< `RoRnet::SituationFlags`, none must be satisfied.
+    BitMask_t for_controls = 0;       //!< `RoRnet::ControlFlags`, all must be satisfied.
+    BitMask_t except_controls = 0;    //!< `RoRnet::ControlFlags`, none must be satisfied.
 
     // Anim position calculation
     float playback_time_ratio = 0.f; //!< How much elapsed time affects animation position.
@@ -83,19 +84,9 @@ struct CharacterDocument
     std::string character_name;
     std::string mesh_name;
     Ogre::Vector3 mesh_scale = Ogre::Vector3(1, 1, 1);
-    std::vector<CharacterAnimDef> anims;
+    std::vector<CharacterActionDef> actions;
     std::vector<BoneBlendMaskDef> bone_blend_masks;
     ForceAnimBlend force_animblend = ForceAnimBlend::NONE; //!< Should a specific `Ogre::SkeletonAnimationBlendMode` be forced, or should we keep what the .skeleton file defines?
-
-    CharacterAnimDef* getAnimById(int id)
-    {
-        for (CharacterAnimDef & anim : anims)
-        {
-            if (anim.game_id == id)
-                return &anim;
-        }
-        return nullptr;
-    }
 };
 
 typedef std::shared_ptr<CharacterDocument> CharacterDocumentPtr;
@@ -116,9 +107,9 @@ private:
 
     struct CharacterParserContext
     {
-        CharacterAnimDef anim;
+        CharacterActionDef action;
         BoneBlendMaskDef bone_blend_mask;
-        bool in_anim = false;
+        bool in_action = false;
         bool in_bone_blend_mask = false;
     }                          m_ctx; //!< Parser context
 

@@ -1,19 +1,20 @@
 ; The classic character (aka RoRbot)
 ; -----------------------------------------------------------------------------
 ;
-; This file format lets you compose game animations from one or more
-;  skeletal animations exported from a 3D modelling tool.
-;  NOTE each game-anim is evaluated separately, there is no either-or relation,
-;  so you must set each anim's conditions to avoid conflicts.
+; This file format lets you compose 'actions' from one or more
+;  skeletal animations exported from a 3D modelling tool,
+;  by responding to SITUATION_ and CONTROL_ flags sent by the game.
+;  NOTE each 'action' is evaluated separately, there is no either-or relation,
+;  so you must always blacklist all non-conforming flags to avoid conflicts.
 ;
 ; For explanation of individual parameters,
 ;  see file source/main/resources/character_fileformat/CharacterFileFormat.h
+;  NOTE ON TERMINOLOGY: 'anim' always means skeletal animation, not the 'action'.
 ;
-; For authoritative list of SITUATION_ and ACTION_ flags,
-;  see file source/main/gameplay/Character.h
+; For authoritative list of SITUATION_ and CONTROL_ flags, see file RoRnet.h
 ;
-; Tip: in game, use 'Game animations' UI panel,
-;  open it from top menubar >> Tools >> Character pose util >> tab 'game anims'
+; Tip: in game, use 'Pose Util' UI panel,
+;  open it from top menubar >> Tools >> Character pose util.
 ;
 ; -----------------------------------------------------------------------------
 
@@ -27,8 +28,8 @@ mesh_name "character.mesh"
 ; NOTE: the 0.02 factor used to be hardcoded because the default character mesh is oversized like that.
 mesh_scale 0.02 0.02 0.02
 
-begin_animation
-    game_description "driving"
+begin_action
+    action_description "driving"
     for_situation SITUATION_DRIVING
     anim_name "Driving"
     playback_time_ratio 0.f
@@ -37,153 +38,152 @@ begin_animation
     source_percentual true
     anim_neutral_mid true
     playback_trim 0.01f  
-end_animation
+end_action
 
-begin_animation
-    game_description "swimming"
+begin_action
+    action_description "swimming"
     for_situation SITUATION_IN_DEEP_WATER
-    for_action ACTION_MOVE_FORWARD
+    for_control CONTROL_MOVE_FORWARD
     anim_name "Swim_loop"
     playback_h_speed_ratio 1.f
     playback_time_ratio 1.f
-end_animation
+end_action
         
-begin_animation
-    game_description "swimming on spot"
+begin_action
+    action_description "swimming on spot"
     for_situation SITUATION_IN_DEEP_WATER
-    except_action ACTION_MOVE_FORWARD
+    except_control CONTROL_MOVE_FORWARD
     anim_name "Spot_swim"
     playback_time_ratio 1.f
-end_animation
+end_action
         
-begin_animation
-    game_description "running"
+begin_action
+    action_description "running"
     except_situation SITUATION_IN_DEEP_WATER
     except_situation SITUATION_DRIVING
-    for_action ACTION_MOVE_FORWARD
-    for_action ACTION_RUN
+    for_control CONTROL_MOVE_FORWARD
+    for_control CONTROL_RUN
     anim_name "Run"
     playback_time_ratio 1.f
     playback_h_speed_ratio 1.f
-end_animation
+end_action
         
-begin_animation
-    game_description "walking forward"
+begin_action
+    action_description "walking forward"
     except_situation SITUATION_IN_DEEP_WATER
     except_situation SITUATION_DRIVING
-    for_action ACTION_MOVE_FORWARD
-    except_action ACTION_RUN
+    for_control CONTROL_MOVE_FORWARD
+    except_control CONTROL_RUN
     anim_name "Walk"
     playback_time_ratio 1.f
     playback_h_speed_ratio 1.f
-end_animation
+end_action
         
-begin_animation
-    game_description "walking backward"
+begin_action
+    action_description "walking backward"
     except_situation SITUATION_IN_DEEP_WATER
     except_situation SITUATION_DRIVING
-    for_action ACTION_MOVE_BACKWARD
+    for_control CONTROL_MOVE_BACKWARD
     anim_name "Walk"
     playback_time_ratio -1.f
     playback_h_speed_ratio 1.f
-end_animation
+end_action
         
-begin_animation
-    game_description "side stepping right"
+begin_action
+    action_description "side stepping right"
     except_situation SITUATION_IN_DEEP_WATER
     except_situation SITUATION_DRIVING
-    for_action ACTION_SIDESTEP_RIGHT
-    except_action ACTION_MOVE_FORWARD
-    except_action ACTION_MOVE_BACKWARD
-    except_action ACTION_TURN_RIGHT
-    except_action ACTION_TURN_LEFT
-    except_action ACTION_RUN
+    for_control CONTROL_SIDESTEP_RIGHT
+    except_control CONTROL_MOVE_FORWARD
+    except_control CONTROL_MOVE_BACKWARD
+    except_control CONTROL_TURN_RIGHT
+    except_control CONTROL_TURN_LEFT
+    except_control CONTROL_RUN
     anim_name "Side_step"
     playback_time_ratio 1.f
     anim_autorestart true
-end_animation
+end_action
         
-begin_animation
-    game_description "side stepping left"
+begin_action
+    action_description "side stepping left"
     except_situation SITUATION_IN_DEEP_WATER
     except_situation SITUATION_DRIVING
-    for_action ACTION_SIDESTEP_LEFT
-    except_action ACTION_MOVE_FORWARD
-    except_action ACTION_MOVE_BACKWARD
-    except_action ACTION_TURN_RIGHT
-    except_action ACTION_TURN_LEFT
-    except_action ACTION_RUN
+    for_control CONTROL_SIDESTEP_LEFT
+    except_control CONTROL_MOVE_FORWARD
+    except_control CONTROL_MOVE_BACKWARD
+    except_control CONTROL_TURN_RIGHT
+    except_control CONTROL_TURN_LEFT
+    except_control CONTROL_RUN
     anim_name "Side_step"
     playback_time_ratio -1.f
     anim_autorestart true
-end_animation
+end_action
         
-begin_animation
-    game_description "turning left"
+begin_action
+    action_description "turning left"
     except_situation SITUATION_IN_DEEP_WATER
     except_situation SITUATION_DRIVING
-    for_action ACTION_TURN_LEFT
-    except_action ACTION_SIDESTEP_LEFT
-    except_action ACTION_SIDESTEP_RIGHT
-    except_action ACTION_MOVE_FORWARD
-    except_action ACTION_MOVE_BACKWARD
-    except_action ACTION_RUN
+    for_control CONTROL_TURN_LEFT
+    except_control CONTROL_SIDESTEP_LEFT
+    except_control CONTROL_SIDESTEP_RIGHT
+    except_control CONTROL_MOVE_FORWARD
+    except_control CONTROL_MOVE_BACKWARD
+    except_control CONTROL_RUN
     anim_name "Turn"
     playback_time_ratio 1.f
     anim_autorestart true
-end_animation
+end_action
         
-begin_animation
-    game_description "turning right"
+begin_action
+    action_description "turning right"
     except_situation SITUATION_IN_DEEP_WATER
     except_situation SITUATION_DRIVING
-    for_action ACTION_TURN_RIGHT
-    except_action ACTION_SIDESTEP_LEFT
-    except_action ACTION_SIDESTEP_RIGHT
-    except_action ACTION_MOVE_FORWARD
-    except_action ACTION_MOVE_BACKWARD
-    except_action ACTION_RUN
+    for_control CONTROL_TURN_RIGHT
+    except_control CONTROL_SIDESTEP_LEFT
+    except_control CONTROL_SIDESTEP_RIGHT
+    except_control CONTROL_MOVE_FORWARD
+    except_control CONTROL_MOVE_BACKWARD
+    except_control CONTROL_RUN
     anim_name "Turn"
     playback_time_ratio -1.f
     anim_autorestart true
-end_animation
+end_action
         
-begin_animation
-    game_description "idle standing"
+begin_action
+    action_description "idle standing"
     except_situation SITUATION_IN_DEEP_WATER
     except_situation SITUATION_DRIVING
     except_situation SITUATION_CUSTOM_MODE_01
-    except_action ACTION_TURN_RIGHT
-    except_action ACTION_TURN_LEFT
-    except_action ACTION_SIDESTEP_LEFT
-    except_action ACTION_SIDESTEP_RIGHT
-    except_action ACTION_MOVE_FORWARD
-    except_action ACTION_MOVE_BACKWARD
-    except_action ACTION_RUN
-    except_action ACTION_CUSTOM_01
+    except_control CONTROL_TURN_RIGHT
+    except_control CONTROL_TURN_LEFT
+    except_control CONTROL_SIDESTEP_LEFT
+    except_control CONTROL_SIDESTEP_RIGHT
+    except_control CONTROL_MOVE_FORWARD
+    except_control CONTROL_MOVE_BACKWARD
+    except_control CONTROL_RUN
+    except_control CONTROL_CUSTOM_01
     anim_name "Idle_sway"
     playback_time_ratio 1.f
-end_animation
+end_action
 
-begin_animation
-    game_description "custom action 01 test"
-    for_action ACTION_CUSTOM_01
+begin_action
+    action_description "custom action 01 test"
+    for_control CONTROL_CUSTOM_ACTION_01
     except_situation SITUATION_IN_DEEP_WATER
     except_situation SITUATION_DRIVING    
     except_situation SITUATION_CUSTOM_MODE_01
     anim_name "Spot_swim"
     playback_time_ratio 10.0
     anim_continuous false
-end_animation
+end_action
 
-begin_animation
-    game_description "custom mode 01 test"
+begin_action
+    action_description "custom mode 01 test"
     for_situation SITUATION_CUSTOM_MODE_01
     except_situation SITUATION_IN_DEEP_WATER
     except_situation SITUATION_DRIVING    
     anim_name "Driving"
-    playback_time_ratio 2.0
-    
-end_animation
+    playback_time_ratio 2.0    
+end_action
 
 

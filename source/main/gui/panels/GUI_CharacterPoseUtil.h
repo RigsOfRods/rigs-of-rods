@@ -49,7 +49,7 @@ struct CharacterAnimDbg
 
 namespace GUI {
 
-typedef std::unordered_map<int, CharacterAnimDbg> CharacterAnimDbgMap;
+typedef std::vector<CharacterAnimDbg> CharacterAnimDbgMap;
 
 class CharacterPoseUtil
 {
@@ -68,8 +68,8 @@ public:
 
 private:
     void DrawAnimControls(Ogre::AnimationState* anim_state);
-    void DrawAnimDbgItemFull(int id);
-    void DrawAnimDbgItemInline(int id, Ogre::Entity* ent);
+    void DrawAnimDbgItemFull(CharacterActionID_t id);
+    void DrawAnimDbgItemInline(CharacterActionID_t id, Ogre::Entity* ent);
     void DrawAnimDbgPanel(Ogre::Entity* ent);
     void DrawSkeletalPanel(Ogre::Entity* ent);
 
