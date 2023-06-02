@@ -19,6 +19,7 @@
 
 #include "CharacterFileFormat.h"
 
+#include "Actor.h"
 #include "Character.h"
 #include "Console.h"
 #include "Utils.h"
@@ -32,7 +33,7 @@ CharacterDocumentPtr CharacterParser::ProcessOgreStream(Ogre::DataStreamPtr stre
 {
     char raw_line_buf[CHA_LINE_BUF_LEN];
     m_filename = stream->getName();
-    m_ctx.anim = CharacterAnimDef();
+    m_ctx.action = CharacterActionDef();
     m_def = std::make_shared<CharacterDocument>();
     while (!stream->eof())
     {
@@ -120,7 +121,7 @@ void CharacterParser::TokenizeCurrentLine()
 // retval true = continue processing (false = stop)
 void CharacterParser::ProcessCurrentLine()
 {
-    if (!m_ctx.in_anim && !m_ctx.in_bone_blend_mask)
+    if (!m_ctx.in_action && !m_ctx.in_bone_blend_mask)
     {
         // Root level
 
@@ -142,85 +143,85 @@ void CharacterParser::ProcessCurrentLine()
         {
             m_def->force_animblend = ParseForceAnimBlend(GetParam(1));
         }
-        else if (StartsWith(m_cur_line, "begin_animation"))
+        else if (StartsWith(m_cur_line, "begin_action"))
         {
-            m_ctx.in_anim = true;
+            m_ctx.in_action = true;
         }
         else if (StartsWith(m_cur_line, "begin_bone_blend_mask"))
         {
             m_ctx.in_bone_blend_mask = true;
         }
     }
-    else if (m_ctx.in_anim)
+    else if (m_ctx.in_action)
     {
-        // In '[begin/end]_animation' block.
+        // In '[begin/end]_action' block.
 
-        if (StartsWith(m_cur_line, "end_animation"))
+        if (StartsWith(m_cur_line, "end_action"))
         {
-            m_ctx.anim.game_id = (int)m_def->anims.size();
-            m_def->anims.push_back(m_ctx.anim);
-            m_ctx.anim = CharacterAnimDef();
-            m_ctx.in_anim = false;
+            m_ctx.action.action_id = static_cast<CharacterActionID_t>(m_def->actions.size());
+            m_def->actions.push_back(m_ctx.action);
+            m_ctx.action = CharacterActionDef();
+            m_ctx.in_action = false;
         }
         else if (StartsWith(m_cur_line, "anim_name"))
         {
-            m_ctx.anim.anim_name = GetParam(1);
+            m_ctx.action.anim_name = GetParam(1);
         }
-        else if (StartsWith(m_cur_line, "game_description"))
+        else if (StartsWith(m_cur_line, "action_description"))
         {
-            m_ctx.anim.game_description = GetParam(1);
+            m_ctx.action.action_description = GetParam(1);
         }
         else if (StartsWith(m_cur_line, "for_situation"))
         {
-            BITMASK_SET_1(m_ctx.anim.for_situations, Character::SituationFlagFromString(GetParam(1)));
+            BITMASK_SET_1(m_ctx.action.for_situations, Character::SituationFlagFromString(GetParam(1)));
         }
-        else if (StartsWith(m_cur_line, "for_action"))
+        else if (StartsWith(m_cur_line, "for_control"))
         {
-            BITMASK_SET_1(m_ctx.anim.for_actions, Character::ActionFlagFromString(GetParam(1)));
+            BITMASK_SET_1(m_ctx.action.for_controls, Character::ControlFlagFromString(GetParam(1)));
         }
         else if (StartsWith(m_cur_line, "except_situation"))
         {
-            BITMASK_SET_1(m_ctx.anim.except_situations, Character::SituationFlagFromString(GetParam(1)));
+            BITMASK_SET_1(m_ctx.action.except_situations, Character::SituationFlagFromString(GetParam(1)));
         }
-        else if (StartsWith(m_cur_line, "except_action"))
+        else if (StartsWith(m_cur_line, "except_control"))
         {
-            BITMASK_SET_1(m_ctx.anim.except_actions, Character::ActionFlagFromString(GetParam(1)));
+            BITMASK_SET_1(m_ctx.action.except_controls, Character::ControlFlagFromString(GetParam(1)));
         }
         else if (StartsWith(m_cur_line, "playback_time_ratio"))
         {
-            m_ctx.anim.playback_time_ratio = Ogre::StringConverter::parseReal(GetParam(1));
+            m_ctx.action.playback_time_ratio = Ogre::StringConverter::parseReal(GetParam(1));
         }
         else if (StartsWith(m_cur_line, "playback_h_speed_ratio"))
         {
-            m_ctx.anim.playback_h_speed_ratio = Ogre::StringConverter::parseReal(GetParam(1));
+            m_ctx.action.playback_h_speed_ratio = Ogre::StringConverter::parseReal(GetParam(1));
         }
         else if (StartsWith(m_cur_line, "playback_steering_ratio"))
         {
-            m_ctx.anim.playback_steering_ratio = Ogre::StringConverter::parseReal(GetParam(1));
+            m_ctx.action.playback_steering_ratio = Ogre::StringConverter::parseReal(GetParam(1));
         }
         else if (StartsWith(m_cur_line, "weight"))
         {
-            m_ctx.anim.weight = Ogre::StringConverter::parseReal(GetParam(1));
+            m_ctx.action.weight = Ogre::StringConverter::parseReal(GetParam(1));
         }
         else if (StartsWith(m_cur_line, "playback_trim"))
         {
-            m_ctx.anim.playback_trim = Ogre::StringConverter::parseReal(GetParam(1));
+            m_ctx.action.playback_trim = Ogre::StringConverter::parseReal(GetParam(1));
         }
         else if (StartsWith(m_cur_line, "anim_continuous"))
         {
-            m_ctx.anim.anim_continuous = Ogre::StringConverter::parseBool(GetParam(1));
+            m_ctx.action.anim_continuous = Ogre::StringConverter::parseBool(GetParam(1));
         }
         else if (StartsWith(m_cur_line, "anim_autorestart"))
         {
-            m_ctx.anim.anim_autorestart = Ogre::StringConverter::parseBool(GetParam(1));
+            m_ctx.action.anim_autorestart = Ogre::StringConverter::parseBool(GetParam(1));
         }
         else if (StartsWith(m_cur_line, "anim_neutral_mid"))
         {
-            m_ctx.anim.anim_neutral_mid = Ogre::StringConverter::parseBool(GetParam(1));
+            m_ctx.action.anim_neutral_mid = Ogre::StringConverter::parseBool(GetParam(1));
         }
         else if (StartsWith(m_cur_line, "source_percentual"))
         {
-            m_ctx.anim.source_percentual = Ogre::StringConverter::parseBool(GetParam(1));
+            m_ctx.action.source_percentual = Ogre::StringConverter::parseBool(GetParam(1));
         }
     }
     else if (m_ctx.in_bone_blend_mask)

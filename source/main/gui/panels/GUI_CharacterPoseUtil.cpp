@@ -178,10 +178,10 @@ ImVec4 ExceptFlagColor(BitMask_t flags, BitMask_t mask, bool active)
         : ((BITMASK_IS_1(flags, mask)) ? theme.error_text_color : normal_text_color);
 }
 
-void CharacterPoseUtil::DrawAnimDbgItemFull(int id)
+void CharacterPoseUtil::DrawAnimDbgItemFull(CharacterActionID_t id)
 {
     CharacterAnimDbg const& dbg = anim_dbg_states[id];
-    CharacterAnimDef* def = App::GetGameContext()->GetPlayerCharacter()->getCharacterDocument()->getAnimById(id);
+    CharacterActionDef* def = &App::GetGameContext()->GetPlayerCharacter()->getCharacterDocument()->actions[id];
 
 
     // Draw attributes
@@ -206,7 +206,7 @@ void CharacterPoseUtil::DrawAnimDbgItemFull(int id)
             ImGui::TextColored(color, "%s", Character::SituationFlagToString(testmask));
             num_flags++;
         }
-        if (BITMASK_IS_1(def->for_actions, testmask))
+        if (BITMASK_IS_1(def->for_controls, testmask))
         {
             ImVec4 color = ForFlagColor(dbg.missing_actions, testmask, dbg.active);
             if (num_flags > 0 && num_flags % MAX_FLAGS_PER_LINE == 0)
@@ -214,7 +214,7 @@ void CharacterPoseUtil::DrawAnimDbgItemFull(int id)
                 ImGui::TextDisabled("    (more):");
             }
             ImGui::SameLine();
-            ImGui::TextColored(color, "%s", Character::ActionFlagToString(testmask));
+            ImGui::TextColored(color, "%s", Character::ControlFlagToString(testmask));
             num_flags++;
         }
     }
@@ -236,7 +236,7 @@ void CharacterPoseUtil::DrawAnimDbgItemFull(int id)
             ImGui::TextColored(color, "%s", Character::SituationFlagToString(testmask));
             num_flags++;
         }
-        if (BITMASK_IS_1(def->except_actions, testmask))
+        if (BITMASK_IS_1(def->except_controls, testmask))
         {
             ImVec4 color = ExceptFlagColor(dbg.blocking_actions, testmask, dbg.active);
             if (num_flags > 0 && num_flags % MAX_FLAGS_PER_LINE == 0)
@@ -244,16 +244,16 @@ void CharacterPoseUtil::DrawAnimDbgItemFull(int id)
                 ImGui::TextDisabled("    (more):");
             }
             ImGui::SameLine();
-            ImGui::TextColored(color, "%s", Character::ActionFlagToString(testmask));
+            ImGui::TextColored(color, "%s", Character::ControlFlagToString(testmask));
             num_flags++;
         }
     }
 }
 
-void CharacterPoseUtil::DrawAnimDbgItemInline(int id, Ogre::Entity* ent)
+void CharacterPoseUtil::DrawAnimDbgItemInline(CharacterActionID_t id, Ogre::Entity* ent)
 {
     CharacterAnimDbg const& dbg = anim_dbg_states[id];
-    CharacterAnimDef* def = App::GetGameContext()->GetPlayerCharacter()->getCharacterDocument()->getAnimById(id);
+    CharacterActionDef* def = &App::GetGameContext()->GetPlayerCharacter()->getCharacterDocument()->actions[id];
     
     AnimationState* as = nullptr; 
     try
@@ -295,7 +295,7 @@ void CharacterPoseUtil::DrawAnimDbgItemInline(int id, Ogre::Entity* ent)
                 if (BITMASK_IS_1(dbg.blocking_actions, testmask))
                 {
                     ImGui::SameLine();
-                    ImGui::TextColored(theme.error_text_color, "%s", Character::ActionFlagToString(testmask));
+                    ImGui::TextColored(theme.error_text_color, "%s", Character::ControlFlagToString(testmask));
                 }
             }
         }
@@ -312,11 +312,11 @@ void CharacterPoseUtil::DrawAnimDbgItemInline(int id, Ogre::Entity* ent)
                     ImGui::SameLine();
                     ImGui::TextColored(color, "%s", Character::SituationFlagToString(testmask));
                 }
-                if (BITMASK_IS_1(def->for_actions, testmask))
+                if (BITMASK_IS_1(def->for_controls, testmask))
                 {
                     ImVec4 color = ForFlagColor(dbg.missing_actions, testmask, false);
                     ImGui::SameLine();
-                    ImGui::TextColored(color, "%s", Character::ActionFlagToString(testmask));
+                    ImGui::TextColored(color, "%s", Character::ControlFlagToString(testmask));
                 }
             }
         }
@@ -331,17 +331,17 @@ void CharacterPoseUtil::DrawAnimDbgPanel(Ogre::Entity* ent)
 
     ImGui::BeginChild("CharacterPoseUi-animDbg-scroll", ImVec2(0.f, child_height), false);
 
-    for (CharacterAnimDef const& anim : App::GetGameContext()->GetPlayerCharacter()->getCharacterDocument()->anims)
+    for (CharacterActionDef const& anim : App::GetGameContext()->GetPlayerCharacter()->getCharacterDocument()->actions)
     {
-        if (ImGui::TreeNode(&anim, "%s", anim.game_description.c_str()))
+        if (ImGui::TreeNode(&anim, "%s", anim.action_description.c_str()))
         {
-            this->DrawAnimDbgItemFull(anim.game_id);
+            this->DrawAnimDbgItemFull(anim.action_id);
             ImGui::TreePop();
         }
         else
         {
             ImGui::SameLine();
-            this->DrawAnimDbgItemInline(anim.game_id, ent);
+            this->DrawAnimDbgItemInline(anim.action_id, ent);
         }
     }
 

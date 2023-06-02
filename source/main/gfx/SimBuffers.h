@@ -73,8 +73,8 @@ struct CharacterSB
     float              simbuf_character_h_speed; //!< When on foot
 
     // State
-    BitMask_t          simbuf_action_flags;
-    BitMask_t          simbuf_situation_flags;
+    BitMask_t          simbuf_control_flags; //!< `RoRnet::ControlFlags`
+    BitMask_t          simbuf_situation_flags; //!< `RoRnet::SituationFlags`
     ActorPtr           simbuf_actor_coupling;
 
     // Network

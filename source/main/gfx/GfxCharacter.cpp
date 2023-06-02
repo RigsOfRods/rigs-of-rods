@@ -78,9 +78,10 @@ GfxCharacter::GfxCharacter(Character* character)
     }
 
     // setup diagnostic UI
-    for (CharacterAnimDef const& def : xc_character->m_character_def->anims)
+    App::GetGuiManager()->CharacterPoseUtil.anim_dbg_states.resize(xc_character->m_character_def->actions.size());
+    for (CharacterActionDef const& def : xc_character->m_character_def->actions)
     {
-        App::GetGuiManager()->CharacterPoseUtil.anim_dbg_states[def.game_id] = CharacterAnimDbg();
+        App::GetGuiManager()->CharacterPoseUtil.anim_dbg_states[def.action_id] = CharacterAnimDbg();
     }
 }
 
@@ -131,7 +132,7 @@ void RoR::GfxCharacter::BufferSimulationData()
     xc_simbuf.simbuf_net_username           = xc_character->GetNetUsername();
     xc_simbuf.simbuf_is_remote              = xc_character->isRemote();
     xc_simbuf.simbuf_actor_coupling         = xc_character->GetActorCoupling();
-    xc_simbuf.simbuf_action_flags           = xc_character->m_action_flags;
+    xc_simbuf.simbuf_control_flags          = xc_character->m_control_flags;
     xc_simbuf.simbuf_situation_flags        = xc_character->m_situation_flags;
     xc_simbuf.simbuf_character_h_speed      = xc_character->m_character_h_speed;
 }
@@ -235,21 +236,21 @@ void RoR::GfxCharacter::UpdateCharacterInScene(float dt)
 #endif // USE_SOCKETW
 }
 
-void GfxCharacter::EvaluateAnimDef(CharacterAnimDef const& def, float dt)
+void GfxCharacter::EvaluateActionDef(CharacterActionDef const& def, float dt)
 {
     CharacterAnimDbg dbg;
 
     // Test if applicable.
     if ((!BITMASK_IS_1(xc_simbuf.simbuf_situation_flags, def.for_situations)) || // not all situation flags are satisified
         (xc_simbuf.simbuf_situation_flags & def.except_situations) || // any of the forbidden situation matches
-        (!BITMASK_IS_1(xc_simbuf.simbuf_action_flags, def.for_actions)) || // not all action flags are satisfied
-        (xc_simbuf.simbuf_action_flags & def.except_actions)) // any of the forbidden situation matches
+        (!BITMASK_IS_1(xc_simbuf.simbuf_control_flags, def.for_controls)) || // not all action flags are satisfied
+        (xc_simbuf.simbuf_control_flags & def.except_controls)) // any of the forbidden situation matches
     {
         dbg.blocking_situations = xc_simbuf.simbuf_situation_flags & def.except_situations;
-        dbg.blocking_actions = xc_simbuf.simbuf_action_flags & def.except_actions;
+        dbg.blocking_actions = xc_simbuf.simbuf_control_flags & def.except_controls;
         dbg.missing_situations = def.for_situations & ~xc_simbuf.simbuf_situation_flags;
-        dbg.missing_actions = def.for_actions & ~xc_simbuf.simbuf_action_flags;
-        App::GetGuiManager()->CharacterPoseUtil.anim_dbg_states[def.game_id] = dbg;
+        dbg.missing_actions = def.for_controls & ~xc_simbuf.simbuf_control_flags;
+        App::GetGuiManager()->CharacterPoseUtil.anim_dbg_states[def.action_id] = dbg;
         return;
     }
 
@@ -301,7 +302,7 @@ void GfxCharacter::EvaluateAnimDef(CharacterAnimDef const& def, float dt)
     if (def.anim_autorestart)
     {
         // If the animation was just activated, start from 0.
-        if (!BITMASK_IS_1(xc_simbuf_prev.simbuf_action_flags, def.for_actions))
+        if (!BITMASK_IS_1(xc_simbuf_prev.simbuf_control_flags, def.for_controls))
         {
             as->setTimePosition(0.f);
         }
@@ -317,7 +318,7 @@ void GfxCharacter::EvaluateAnimDef(CharacterAnimDef const& def, float dt)
     as->setEnabled(true);
 
     dbg.active = true;
-    App::GetGuiManager()->CharacterPoseUtil.anim_dbg_states[def.game_id] = dbg;
+    App::GetGuiManager()->CharacterPoseUtil.anim_dbg_states[def.action_id] = dbg;
 }
 
 void GfxCharacter::UpdateAnimations(float dt)
@@ -332,9 +333,9 @@ void GfxCharacter::UpdateAnimations(float dt)
         as->setWeight(0);
     }
 
-    for (CharacterAnimDef const& def : xc_character->m_character_def->anims)
+    for (CharacterActionDef const& def : xc_character->m_character_def->actions)
     {
-        this->EvaluateAnimDef(def, dt);
+        this->EvaluateActionDef(def, dt);
     }
 }
 

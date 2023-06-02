@@ -38,6 +38,7 @@
 
 using namespace Ogre;
 using namespace RoR;
+using namespace RoRnet;
 
 Character::Character(CharacterDocumentPtr def, int source, unsigned int streamid, UTFString player_name, int color_number, bool is_remote) :
       m_actor_coupling(nullptr)
@@ -123,7 +124,7 @@ void Character::updateLocal(float dt)
     }
 
     bool m_can_jump = false;
-    m_action_flags = 0;
+    m_control_flags = 0;
 
     Vector3 position = m_character_position;
 
@@ -249,7 +250,7 @@ void Character::updateLocal(float dt)
         setRotation(m_character_rotation + dt * 2.0f * scale * Radian(tmpJoy));
         if (!isswimming && not_walking)
         {
-            BITMASK_SET_1(m_action_flags, Character::ACTION_TURN_RIGHT);
+            BITMASK_SET_1(m_control_flags, CONTROL_TURN_RIGHT);
             idleanim = false;
         }
     }
@@ -262,7 +263,7 @@ void Character::updateLocal(float dt)
         setRotation(m_character_rotation - dt * scale * 2.0f * Radian(tmpJoy));
         if (!isswimming && not_walking)
         {
-            BITMASK_SET_1(m_action_flags, Character::ACTION_TURN_LEFT);
+            BITMASK_SET_1(m_control_flags, CONTROL_TURN_LEFT);
             idleanim = false;
         }
     }
@@ -279,7 +280,7 @@ void Character::updateLocal(float dt)
         position += dt * m_character_h_speed * 0.5f * accel * Vector3(cos(m_character_rotation.valueRadians() - Math::HALF_PI), 0.0f, sin(m_character_rotation.valueRadians() - Math::HALF_PI));
         if (!isswimming && not_walking)
         {
-            BITMASK_SET_1(m_action_flags, Character::ACTION_SIDESTEP_LEFT);
+            BITMASK_SET_1(m_control_flags, CONTROL_SIDESTEP_LEFT);
             idleanim = false;
         }
     }
@@ -293,7 +294,7 @@ void Character::updateLocal(float dt)
         position += dt * m_character_h_speed * 0.5f * accel * Vector3(cos(m_character_rotation.valueRadians() + Math::HALF_PI), 0.0f, sin(m_character_rotation.valueRadians() + Math::HALF_PI));
         if (!isswimming && not_walking)
         {
-            BITMASK_SET_1(m_action_flags, Character::ACTION_SIDESTEP_RIGHT);
+            BITMASK_SET_1(m_control_flags, CONTROL_SIDESTEP_RIGHT);
             idleanim = false;
         }
     }
@@ -319,7 +320,7 @@ void Character::updateLocal(float dt)
         {
             if (tmpRun > 0.0f)
             {
-                BITMASK_SET_1(m_action_flags, Character::ACTION_RUN);
+                BITMASK_SET_1(m_control_flags, CONTROL_RUN);
             }
 
             idleanim = false;
@@ -334,41 +335,41 @@ void Character::updateLocal(float dt)
     }
 
     if (tmpGoForward != 0.f)
-        BITMASK_SET_1(m_action_flags, Character::ACTION_MOVE_FORWARD);
+        BITMASK_SET_1(m_control_flags, CONTROL_MOVE_FORWARD);
 
     if (tmpGoBackward != 0.f)
-        BITMASK_SET_1(m_action_flags, Character::ACTION_MOVE_BACKWARD);
+        BITMASK_SET_1(m_control_flags, CONTROL_MOVE_BACKWARD);
 
     if (isswimming)
-        BITMASK_SET_1(m_situation_flags, Character::SITUATION_IN_DEEP_WATER);
+        BITMASK_SET_1(m_situation_flags, RoRnet::SITUATION_IN_DEEP_WATER);
     else
-        BITMASK_SET_0(m_situation_flags, Character::SITUATION_IN_DEEP_WATER);
+        BITMASK_SET_0(m_situation_flags, RoRnet::SITUATION_IN_DEEP_WATER);
 
     m_character_position = position;
 
     // Custom actions
-    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_01)) { BITMASK_SET_1(m_action_flags, Character::ACTION_CUSTOM_01); }
-    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_02)) { BITMASK_SET_1(m_action_flags, Character::ACTION_CUSTOM_02); }
-    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_03)) { BITMASK_SET_1(m_action_flags, Character::ACTION_CUSTOM_03); }
-    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_04)) { BITMASK_SET_1(m_action_flags, Character::ACTION_CUSTOM_04); }
-    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_05)) { BITMASK_SET_1(m_action_flags, Character::ACTION_CUSTOM_05); }
-    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_06)) { BITMASK_SET_1(m_action_flags, Character::ACTION_CUSTOM_06); }
-    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_07)) { BITMASK_SET_1(m_action_flags, Character::ACTION_CUSTOM_07); }
-    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_08)) { BITMASK_SET_1(m_action_flags, Character::ACTION_CUSTOM_08); }
-    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_09)) { BITMASK_SET_1(m_action_flags, Character::ACTION_CUSTOM_09); }
-    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_10)) { BITMASK_SET_1(m_action_flags, Character::ACTION_CUSTOM_10); }
+    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_01)) { BITMASK_SET_1(m_control_flags, CONTROL_CUSTOM_ACTION_01); }
+    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_02)) { BITMASK_SET_1(m_control_flags, CONTROL_CUSTOM_ACTION_02); }
+    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_03)) { BITMASK_SET_1(m_control_flags, CONTROL_CUSTOM_ACTION_03); }
+    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_04)) { BITMASK_SET_1(m_control_flags, CONTROL_CUSTOM_ACTION_04); }
+    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_05)) { BITMASK_SET_1(m_control_flags, CONTROL_CUSTOM_ACTION_05); }
+    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_06)) { BITMASK_SET_1(m_control_flags, CONTROL_CUSTOM_ACTION_06); }
+    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_07)) { BITMASK_SET_1(m_control_flags, CONTROL_CUSTOM_ACTION_07); }
+    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_08)) { BITMASK_SET_1(m_control_flags, CONTROL_CUSTOM_ACTION_08); }
+    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_09)) { BITMASK_SET_1(m_control_flags, CONTROL_CUSTOM_ACTION_09); }
+    if (App::GetInputEngine()->getEventBoolValue(EV_CHARACTER_CUSTOM_ACTION_10)) { BITMASK_SET_1(m_control_flags, CONTROL_CUSTOM_ACTION_10); }
 
     // Custom modes (=situations)
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_01)) { toggle_flag(m_situation_flags, Character::SITUATION_CUSTOM_MODE_01); } 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_02)) { toggle_flag(m_situation_flags, Character::SITUATION_CUSTOM_MODE_02); } 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_03)) { toggle_flag(m_situation_flags, Character::SITUATION_CUSTOM_MODE_03); } 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_04)) { toggle_flag(m_situation_flags, Character::SITUATION_CUSTOM_MODE_04); } 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_05)) { toggle_flag(m_situation_flags, Character::SITUATION_CUSTOM_MODE_05); } 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_06)) { toggle_flag(m_situation_flags, Character::SITUATION_CUSTOM_MODE_06); } 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_07)) { toggle_flag(m_situation_flags, Character::SITUATION_CUSTOM_MODE_07); } 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_08)) { toggle_flag(m_situation_flags, Character::SITUATION_CUSTOM_MODE_08); } 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_09)) { toggle_flag(m_situation_flags, Character::SITUATION_CUSTOM_MODE_09); } 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_10)) { toggle_flag(m_situation_flags, Character::SITUATION_CUSTOM_MODE_10); } 
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_01)) { toggle_flag(m_situation_flags, RoRnet::SITUATION_CUSTOM_MODE_01); } 
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_02)) { toggle_flag(m_situation_flags, RoRnet::SITUATION_CUSTOM_MODE_02); } 
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_03)) { toggle_flag(m_situation_flags, RoRnet::SITUATION_CUSTOM_MODE_03); } 
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_04)) { toggle_flag(m_situation_flags, RoRnet::SITUATION_CUSTOM_MODE_04); } 
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_05)) { toggle_flag(m_situation_flags, RoRnet::SITUATION_CUSTOM_MODE_05); } 
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_06)) { toggle_flag(m_situation_flags, RoRnet::SITUATION_CUSTOM_MODE_06); } 
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_07)) { toggle_flag(m_situation_flags, RoRnet::SITUATION_CUSTOM_MODE_07); } 
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_08)) { toggle_flag(m_situation_flags, RoRnet::SITUATION_CUSTOM_MODE_08); } 
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_09)) { toggle_flag(m_situation_flags, RoRnet::SITUATION_CUSTOM_MODE_09); } 
+    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CHARACTER_CUSTOM_MODE_10)) { toggle_flag(m_situation_flags, RoRnet::SITUATION_CUSTOM_MODE_10); } 
 }
 
 void Character::move(Vector3 offset)
@@ -431,7 +432,7 @@ void Character::SendStreamData()
     msg.pos_y = m_character_position.y;
     msg.pos_z = m_character_position.z;
     msg.rot_angle = m_character_rotation.valueRadians();
-    msg.action_flags = m_action_flags;
+    msg.action_flags = m_control_flags;
     msg.situation_flags = m_situation_flags;
 
     App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA_DISCARDABLE, sizeof(NetCharacterMsgPos), (char*)&msg);
@@ -449,7 +450,7 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
             auto* pos_msg = reinterpret_cast<NetCharacterMsgPos*>(buffer);
             this->setPosition(Ogre::Vector3(pos_msg->pos_x, pos_msg->pos_y, pos_msg->pos_z));
             this->setRotation(Ogre::Radian(pos_msg->rot_angle));
-            m_action_flags = pos_msg->action_flags;
+            m_control_flags = pos_msg->action_flags;
             m_situation_flags = pos_msg->situation_flags;
         }
         else if (msg->command == CHARACTER_CMD_DETACH)
@@ -518,52 +519,52 @@ void Character::SetActorCoupling(bool enabled, ActorPtr actor)
 ActorPtr Character::GetActorCoupling() { return m_actor_coupling; }
 
 
-const char* Character::ActionFlagToString(BitMask_t action)
+const char* Character::ControlFlagToString(BitMask_t action)
 {
-    if (BITMASK_IS_1(action, ACTION_MOVE_FORWARD  )) { return "ACTION_MOVE_FORWARD"; }
-    if (BITMASK_IS_1(action, ACTION_MOVE_BACKWARD )) { return "ACTION_MOVE_BACKWARD"; }
-    if (BITMASK_IS_1(action, ACTION_TURN_RIGHT    )) { return "ACTION_TURN_RIGHT"; }
-    if (BITMASK_IS_1(action, ACTION_TURN_LEFT     )) { return "ACTION_TURN_LEFT"; }
-    if (BITMASK_IS_1(action, ACTION_SIDESTEP_RIGHT)) { return "ACTION_SIDESTEP_RIGHT"; }
-    if (BITMASK_IS_1(action, ACTION_SIDESTEP_LEFT )) { return "ACTION_SIDESTEP_LEFT"; }
-    if (BITMASK_IS_1(action, ACTION_RUN           )) { return "ACTION_RUN"; }
-    if (BITMASK_IS_1(action, ACTION_JUMP          )) { return "ACTION_JUMP"; }
-    if (BITMASK_IS_1(action, ACTION_SLOW_TURN     )) { return "ACTION_SLOW_TURN"; }
-    if (BITMASK_IS_1(action, ACTION_CUSTOM_01     )) { return "ACTION_CUSTOM_01"; }
-    if (BITMASK_IS_1(action, ACTION_CUSTOM_02     )) { return "ACTION_CUSTOM_02"; }
-    if (BITMASK_IS_1(action, ACTION_CUSTOM_03     )) { return "ACTION_CUSTOM_03"; }
-    if (BITMASK_IS_1(action, ACTION_CUSTOM_04     )) { return "ACTION_CUSTOM_04"; }
-    if (BITMASK_IS_1(action, ACTION_CUSTOM_05     )) { return "ACTION_CUSTOM_05"; }
-    if (BITMASK_IS_1(action, ACTION_CUSTOM_06     )) { return "ACTION_CUSTOM_06"; }
-    if (BITMASK_IS_1(action, ACTION_CUSTOM_07     )) { return "ACTION_CUSTOM_07"; }
-    if (BITMASK_IS_1(action, ACTION_CUSTOM_08     )) { return "ACTION_CUSTOM_08"; }
-    if (BITMASK_IS_1(action, ACTION_CUSTOM_09     )) { return "ACTION_CUSTOM_09"; }
-    if (BITMASK_IS_1(action, ACTION_CUSTOM_10     )) { return "ACTION_CUSTOM_10"; }
+    if (BITMASK_IS_1(action, CONTROL_MOVE_FORWARD  )) { return "CONTROL_MOVE_FORWARD"; }
+    if (BITMASK_IS_1(action, CONTROL_MOVE_BACKWARD )) { return "CONTROL_MOVE_BACKWARD"; }
+    if (BITMASK_IS_1(action, CONTROL_TURN_RIGHT    )) { return "CONTROL_TURN_RIGHT"; }
+    if (BITMASK_IS_1(action, CONTROL_TURN_LEFT     )) { return "CONTROL_TURN_LEFT"; }
+    if (BITMASK_IS_1(action, CONTROL_SIDESTEP_RIGHT)) { return "CONTROL_SIDESTEP_RIGHT"; }
+    if (BITMASK_IS_1(action, CONTROL_SIDESTEP_LEFT )) { return "CONTROL_SIDESTEP_LEFT"; }
+    if (BITMASK_IS_1(action, CONTROL_RUN           )) { return "CONTROL_RUN"; }
+    if (BITMASK_IS_1(action, CONTROL_JUMP          )) { return "CONTROL_JUMP"; }
+    if (BITMASK_IS_1(action, CONTROL_SLOW_TURN     )) { return "CONTROL_SLOW_TURN"; }
+    if (BITMASK_IS_1(action, CONTROL_CUSTOM_ACTION_01     )) { return "CONTROL_CUSTOM_ACTION_01"; }
+    if (BITMASK_IS_1(action, CONTROL_CUSTOM_ACTION_02     )) { return "CONTROL_CUSTOM_ACTION_02"; }
+    if (BITMASK_IS_1(action, CONTROL_CUSTOM_ACTION_03     )) { return "CONTROL_CUSTOM_ACTION_03"; }
+    if (BITMASK_IS_1(action, CONTROL_CUSTOM_ACTION_04     )) { return "CONTROL_CUSTOM_ACTION_04"; }
+    if (BITMASK_IS_1(action, CONTROL_CUSTOM_ACTION_05     )) { return "CONTROL_CUSTOM_ACTION_05"; }
+    if (BITMASK_IS_1(action, CONTROL_CUSTOM_ACTION_06     )) { return "CONTROL_CUSTOM_ACTION_06"; }
+    if (BITMASK_IS_1(action, CONTROL_CUSTOM_ACTION_07     )) { return "CONTROL_CUSTOM_ACTION_07"; }
+    if (BITMASK_IS_1(action, CONTROL_CUSTOM_ACTION_08     )) { return "CONTROL_CUSTOM_ACTION_08"; }
+    if (BITMASK_IS_1(action, CONTROL_CUSTOM_ACTION_09     )) { return "CONTROL_CUSTOM_ACTION_09"; }
+    if (BITMASK_IS_1(action, CONTROL_CUSTOM_ACTION_10     )) { return "CONTROL_CUSTOM_ACTION_10"; }
 
     return "~";
 }
 
-BitMask_t Character::ActionFlagFromString(std::string const& str)
+BitMask_t Character::ControlFlagFromString(std::string const& str)
 {
-    if (str == "ACTION_MOVE_FORWARD"    ) { return ACTION_MOVE_FORWARD  ;}
-    if (str == "ACTION_MOVE_BACKWARD"   ) { return ACTION_MOVE_BACKWARD ;}
-    if (str == "ACTION_TURN_RIGHT"      ) { return ACTION_TURN_RIGHT    ;}
-    if (str == "ACTION_TURN_LEFT"       ) { return ACTION_TURN_LEFT     ;}
-    if (str == "ACTION_SIDESTEP_RIGHT"  ) { return ACTION_SIDESTEP_RIGHT;}
-    if (str == "ACTION_SIDESTEP_LEFT"   ) { return ACTION_SIDESTEP_LEFT ;}
-    if (str == "ACTION_RUN"             ) { return ACTION_RUN           ;}
-    if (str == "ACTION_JUMP"            ) { return ACTION_JUMP          ;}
-    if (str == "ACTION_SLOW_TURN"       ) { return ACTION_SLOW_TURN     ;}
-    if (str == "ACTION_CUSTOM_01"       ) { return ACTION_CUSTOM_01;}
-    if (str == "ACTION_CUSTOM_02"       ) { return ACTION_CUSTOM_02;}
-    if (str == "ACTION_CUSTOM_03"       ) { return ACTION_CUSTOM_03;}
-    if (str == "ACTION_CUSTOM_04"       ) { return ACTION_CUSTOM_04;}
-    if (str == "ACTION_CUSTOM_05"       ) { return ACTION_CUSTOM_05;}
-    if (str == "ACTION_CUSTOM_06"       ) { return ACTION_CUSTOM_06;}
-    if (str == "ACTION_CUSTOM_07"       ) { return ACTION_CUSTOM_07;}
-    if (str == "ACTION_CUSTOM_08"       ) { return ACTION_CUSTOM_08;}
-    if (str == "ACTION_CUSTOM_09"       ) { return ACTION_CUSTOM_09;}
-    if (str == "ACTION_CUSTOM_10"       ) { return ACTION_CUSTOM_10;}
+    if (str == "CONTROL_MOVE_FORWARD"    ) { return CONTROL_MOVE_FORWARD  ;}
+    if (str == "CONTROL_MOVE_BACKWARD"   ) { return CONTROL_MOVE_BACKWARD ;}
+    if (str == "CONTROL_TURN_RIGHT"      ) { return CONTROL_TURN_RIGHT    ;}
+    if (str == "CONTROL_TURN_LEFT"       ) { return CONTROL_TURN_LEFT     ;}
+    if (str == "CONTROL_SIDESTEP_RIGHT"  ) { return CONTROL_SIDESTEP_RIGHT;}
+    if (str == "CONTROL_SIDESTEP_LEFT"   ) { return CONTROL_SIDESTEP_LEFT ;}
+    if (str == "CONTROL_RUN"             ) { return CONTROL_RUN           ;}
+    if (str == "CONTROL_JUMP"            ) { return CONTROL_JUMP          ;}
+    if (str == "CONTROL_SLOW_TURN"       ) { return CONTROL_SLOW_TURN     ;}
+    if (str == "CONTROL_CUSTOM_ACTION_01"       ) { return CONTROL_CUSTOM_ACTION_01;}
+    if (str == "CONTROL_CUSTOM_ACTION_02"       ) { return CONTROL_CUSTOM_ACTION_02;}
+    if (str == "CONTROL_CUSTOM_ACTION_03"       ) { return CONTROL_CUSTOM_ACTION_03;}
+    if (str == "CONTROL_CUSTOM_ACTION_04"       ) { return CONTROL_CUSTOM_ACTION_04;}
+    if (str == "CONTROL_CUSTOM_ACTION_05"       ) { return CONTROL_CUSTOM_ACTION_05;}
+    if (str == "CONTROL_CUSTOM_ACTION_06"       ) { return CONTROL_CUSTOM_ACTION_06;}
+    if (str == "CONTROL_CUSTOM_ACTION_07"       ) { return CONTROL_CUSTOM_ACTION_07;}
+    if (str == "CONTROL_CUSTOM_ACTION_08"       ) { return CONTROL_CUSTOM_ACTION_08;}
+    if (str == "CONTROL_CUSTOM_ACTION_09"       ) { return CONTROL_CUSTOM_ACTION_09;}
+    if (str == "CONTROL_CUSTOM_ACTION_10"       ) { return CONTROL_CUSTOM_ACTION_10;}
     return 0;
 }
 

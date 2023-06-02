@@ -123,6 +123,80 @@ enum Lightmask
     LIGHTMASK_BLINK_WARN  = BITMASK(20), //!< warn blinker on
 };
 
+enum ControlFlags
+{
+     CONTROL_CUSTOM_ACTION_01 = BITMASK(1),
+     CONTROL_CUSTOM_ACTION_02 = BITMASK(2),
+     CONTROL_CUSTOM_ACTION_03 = BITMASK(3),
+     CONTROL_CUSTOM_ACTION_04 = BITMASK(4),
+     CONTROL_CUSTOM_ACTION_05 = BITMASK(5),
+     CONTROL_CUSTOM_ACTION_06 = BITMASK(6),
+     CONTROL_CUSTOM_ACTION_07 = BITMASK(7),
+     CONTROL_CUSTOM_ACTION_08 = BITMASK(8),
+     CONTROL_CUSTOM_ACTION_09 = BITMASK(9),
+     CONTROL_CUSTOM_ACTION_10 = BITMASK(10),
+     CONTROL_MOVE_FORWARD     = BITMASK(11),
+     CONTROL_MOVE_BACKWARD    = BITMASK(12),
+     CONTROL_TURN_RIGHT       = BITMASK(13),
+     CONTROL_TURN_LEFT        = BITMASK(14),
+     CONTROL_SIDESTEP_RIGHT   = BITMASK(15),
+     CONTROL_SIDESTEP_LEFT    = BITMASK(16),
+     CONTROL_RUN              = BITMASK(17),
+     CONTROL_JUMP             = BITMASK(18),
+     CONTROL_SLOW_TURN        = BITMASK(19),
+};
+
+enum SituationFlags
+{
+    SITUATION_CUSTOM_MODE_01   = BITMASK(1),
+    SITUATION_CUSTOM_MODE_02   = BITMASK(2),
+    SITUATION_CUSTOM_MODE_03   = BITMASK(3),
+    SITUATION_CUSTOM_MODE_04   = BITMASK(4),
+    SITUATION_CUSTOM_MODE_05   = BITMASK(5),
+    SITUATION_CUSTOM_MODE_06   = BITMASK(6),
+    SITUATION_CUSTOM_MODE_07   = BITMASK(7),
+    SITUATION_CUSTOM_MODE_08   = BITMASK(8),
+    SITUATION_CUSTOM_MODE_09   = BITMASK(9),
+    SITUATION_CUSTOM_MODE_10   = BITMASK(10),
+    SITUATION_ON_SOLID_GROUND  = BITMASK(11),
+    SITUATION_IN_SHALLOW_WATER = BITMASK(12),
+    SITUATION_IN_DEEP_WATER    = BITMASK(13),
+    SITUATION_IN_AIR           = BITMASK(14),
+    SITUATION_DRIVING          = BITMASK(15),
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // -------------------------------- structs -----------------------------------
 // Only use datatypes with defined binary sizes (avoid bool, int, wchar_t...)
 // Prefer alignment to 4 or 2 bytes (put int32/float/etc. fields on top)

@@ -42,6 +42,9 @@ namespace RoR
     static const ScriptUnitID_t SCRIPTUNITID_INVALID = -1;
     static const ScriptUnitID_t SCRIPTUNITID_DEFAULT = -2; //!< The script defined in .terrn2 [Scripts], or 'default.as' ~ classic behavior.
 
+    typedef int CharacterActionID_t; //!< Index to `CharacterDocument::actions`, use `CHARACTERACTIONID_INVALID` as empty value.
+    static const CharacterActionID_t CHARACTERACTIONID_INVALID = -1;
+
     typedef int PointidID_t; //!< index to `PointColDetector::hit_pointid_list`, use `RoR::POINTIDID_INVALID` as empty value.
     static const PointidID_t POINTIDID_INVALID = -1;
 
