@@ -26,15 +26,15 @@
 
 namespace RoR {
 
-struct CharacterAnimDbg
+struct CharacterActionDbg
 {
     bool active = false;
 
     // State diagnostic.
-    BitMask_t missing_situations = 0; // The flags from 'for_situations' mask which are not satisfied.
-    BitMask_t missing_actions = 0; // The flags from 'for_actions' mask which are not satisfied.
-    BitMask_t blocking_situations = 0; // The flags from 'except_situations' mask which block this anim.
-    BitMask_t blocking_actions = 0; // The flags from 'except_actions' mask which block this anim.
+    BitMask_t missing_situations = 0;  //!< `RoRnet::SituationFlags`; The flags from 'for_situations' mask which are not satisfied.
+    BitMask_t missing_controls = 0;    //!< `RoRnet::ControlFlags`; The flags from 'for_controls' mask which are not satisfied.
+    BitMask_t blocking_situations = 0; //!< `RoRnet::SituationFlags`; The flags from 'except_situations' mask which block this anim.
+    BitMask_t blocking_controls = 0;   //!< `RoRnet::ControlFlags`; The flags from 'except_controls' mask which block this anim.
 
     // The raw source data of anim position.
     float source_dt = 0.f;
@@ -49,8 +49,6 @@ struct CharacterAnimDbg
 
 namespace GUI {
 
-typedef std::vector<CharacterAnimDbg> CharacterAnimDbgMap;
-
 class CharacterPoseUtil
 {
 public:
@@ -64,13 +62,13 @@ public:
 
     bool IsManualPoseActive() const { return m_manual_pose_active; }
 
-    CharacterAnimDbgMap anim_dbg_states;
+    std::vector<CharacterActionDbg> action_dbg_states;
 
 private:
     void DrawAnimControls(Ogre::AnimationState* anim_state);
-    void DrawAnimDbgItemFull(CharacterActionID_t id);
-    void DrawAnimDbgItemInline(CharacterActionID_t id, Ogre::Entity* ent);
-    void DrawAnimDbgPanel(Ogre::Entity* ent);
+    void DrawActionDbgItemFull(CharacterActionID_t id);
+    void DrawActionDbgItemInline(CharacterActionID_t id, Ogre::Entity* ent);
+    void DrawActionDbgPanel(Ogre::Entity* ent);
     void DrawSkeletalPanel(Ogre::Entity* ent);
 
     bool m_is_visible = false;

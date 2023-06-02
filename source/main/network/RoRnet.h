@@ -135,6 +135,7 @@ enum ControlFlags
      CONTROL_CUSTOM_ACTION_08 = BITMASK(8),
      CONTROL_CUSTOM_ACTION_09 = BITMASK(9),
      CONTROL_CUSTOM_ACTION_10 = BITMASK(10),
+
      CONTROL_MOVE_FORWARD     = BITMASK(11),
      CONTROL_MOVE_BACKWARD    = BITMASK(12),
      CONTROL_TURN_RIGHT       = BITMASK(13),
@@ -158,6 +159,7 @@ enum SituationFlags
     SITUATION_CUSTOM_MODE_08   = BITMASK(8),
     SITUATION_CUSTOM_MODE_09   = BITMASK(9),
     SITUATION_CUSTOM_MODE_10   = BITMASK(10),
+
     SITUATION_ON_SOLID_GROUND  = BITMASK(11),
     SITUATION_IN_SHALLOW_WATER = BITMASK(12),
     SITUATION_IN_DEEP_WATER    = BITMASK(13),
@@ -165,37 +167,13 @@ enum SituationFlags
     SITUATION_DRIVING          = BITMASK(15),
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+enum CharacterCmd
+{
+    CHARACTER_CMD_INVALID,
+    CHARACTER_CMD_POSITION,
+    CHARACTER_CMD_ATTACH,
+    CHARACTER_CMD_DETACH
+};
 
 // -------------------------------- structs -----------------------------------
 // Only use datatypes with defined binary sizes (avoid bool, int, wchar_t...)
@@ -271,6 +249,28 @@ struct VehicleState                  //!< Formerly `oob_t`
     float    wheelspeed;           //!< the wheel speed value
     BitMask_t flagmask;             //!< flagmask: NETMASK_*
     BitMask_t lightmask;            //!< flagmask: LIGHTMASK_*
+};
+
+struct CharacterMsgGeneric
+{
+    int32_t   command;
+};
+
+struct CharacterMsgPos
+{
+    int32_t   command;
+    float     pos_x, pos_y, pos_z;
+    float     rot_angle;
+    BitMask_t control_flags;
+    BitMask_t situation_flags;
+};
+
+struct CharacterMsgAttach
+{
+    int32_t command;
+    int32_t source_id;
+    int32_t stream_id;
+    int32_t position;
 };
 
 struct ServerInfo

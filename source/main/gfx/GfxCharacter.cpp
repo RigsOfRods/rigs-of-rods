@@ -78,10 +78,10 @@ GfxCharacter::GfxCharacter(Character* character)
     }
 
     // setup diagnostic UI
-    App::GetGuiManager()->CharacterPoseUtil.anim_dbg_states.resize(xc_character->m_character_def->actions.size());
+    App::GetGuiManager()->CharacterPoseUtil.action_dbg_states.resize(xc_character->m_character_def->actions.size());
     for (CharacterActionDef const& def : xc_character->m_character_def->actions)
     {
-        App::GetGuiManager()->CharacterPoseUtil.anim_dbg_states[def.action_id] = CharacterAnimDbg();
+        App::GetGuiManager()->CharacterPoseUtil.action_dbg_states[def.action_id] = CharacterActionDbg();
     }
 }
 
@@ -238,7 +238,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene(float dt)
 
 void GfxCharacter::EvaluateActionDef(CharacterActionDef const& def, float dt)
 {
-    CharacterAnimDbg dbg;
+    CharacterActionDbg dbg;
 
     // Test if applicable.
     if ((!BITMASK_IS_1(xc_simbuf.simbuf_situation_flags, def.for_situations)) || // not all situation flags are satisified
@@ -247,10 +247,10 @@ void GfxCharacter::EvaluateActionDef(CharacterActionDef const& def, float dt)
         (xc_simbuf.simbuf_control_flags & def.except_controls)) // any of the forbidden situation matches
     {
         dbg.blocking_situations = xc_simbuf.simbuf_situation_flags & def.except_situations;
-        dbg.blocking_actions = xc_simbuf.simbuf_control_flags & def.except_controls;
+        dbg.blocking_controls = xc_simbuf.simbuf_control_flags & def.except_controls;
         dbg.missing_situations = def.for_situations & ~xc_simbuf.simbuf_situation_flags;
-        dbg.missing_actions = def.for_controls & ~xc_simbuf.simbuf_control_flags;
-        App::GetGuiManager()->CharacterPoseUtil.anim_dbg_states[def.action_id] = dbg;
+        dbg.missing_controls = def.for_controls & ~xc_simbuf.simbuf_control_flags;
+        App::GetGuiManager()->CharacterPoseUtil.action_dbg_states[def.action_id] = dbg;
         return;
     }
 
@@ -318,7 +318,7 @@ void GfxCharacter::EvaluateActionDef(CharacterActionDef const& def, float dt)
     as->setEnabled(true);
 
     dbg.active = true;
-    App::GetGuiManager()->CharacterPoseUtil.anim_dbg_states[def.action_id] = dbg;
+    App::GetGuiManager()->CharacterPoseUtil.action_dbg_states[def.action_id] = dbg;
 }
 
 void GfxCharacter::UpdateAnimations(float dt)
