@@ -32,6 +32,7 @@
 #include "InputEngine.h"
 #include "MovableText.h"
 #include "Network.h"
+#include "RoRnet.h"
 #include "Terrain.h"
 #include "Utils.h"
 #include "Water.h"
@@ -426,16 +427,16 @@ void Character::SendStreamData()
 
     m_net_last_update_time = m_net_timer.getMilliseconds();
 
-    NetCharacterMsgPos msg;
+    CharacterMsgPos msg;
     msg.command = CHARACTER_CMD_POSITION;
     msg.pos_x = m_character_position.x;
     msg.pos_y = m_character_position.y;
     msg.pos_z = m_character_position.z;
     msg.rot_angle = m_character_rotation.valueRadians();
-    msg.action_flags = m_control_flags;
+    msg.control_flags = m_control_flags;
     msg.situation_flags = m_situation_flags;
 
-    App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA_DISCARDABLE, sizeof(NetCharacterMsgPos), (char*)&msg);
+    App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA_DISCARDABLE, sizeof(CharacterMsgPos), (char*)&msg);
 #endif // USE_SOCKETW
 }
 
@@ -444,13 +445,13 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
 #ifdef USE_SOCKETW
     if (type == RoRnet::MSG2_STREAM_DATA && m_source_id == source && m_stream_id == streamid)
     {
-        auto* msg = reinterpret_cast<NetCharacterMsgGeneric*>(buffer);
+        auto* msg = reinterpret_cast<CharacterMsgGeneric*>(buffer);
         if (msg->command == CHARACTER_CMD_POSITION)
         {
-            auto* pos_msg = reinterpret_cast<NetCharacterMsgPos*>(buffer);
+            auto* pos_msg = reinterpret_cast<CharacterMsgPos*>(buffer);
             this->setPosition(Ogre::Vector3(pos_msg->pos_x, pos_msg->pos_y, pos_msg->pos_z));
             this->setRotation(Ogre::Radian(pos_msg->rot_angle));
-            m_control_flags = pos_msg->action_flags;
+            m_control_flags = pos_msg->control_flags;
             m_situation_flags = pos_msg->situation_flags;
         }
         else if (msg->command == CHARACTER_CMD_DETACH)
@@ -462,7 +463,7 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
         }
         else if (msg->command == CHARACTER_CMD_ATTACH)
         {
-            auto* attach_msg = reinterpret_cast<NetCharacterMsgAttach*>(buffer);
+            auto* attach_msg = reinterpret_cast<CharacterMsgAttach*>(buffer);
             ActorPtr beam = App::GetGameContext()->GetActorManager()->GetActorByNetworkLinks(attach_msg->source_id, attach_msg->stream_id);
             if (beam != nullptr)
             {
@@ -500,17 +501,17 @@ void Character::SetActorCoupling(bool enabled, ActorPtr actor)
     {
         if (enabled)
         {
-            NetCharacterMsgAttach msg;
+            CharacterMsgAttach msg;
             msg.command = CHARACTER_CMD_ATTACH;
             msg.source_id = m_actor_coupling->ar_net_source_id;
             msg.stream_id = m_actor_coupling->ar_net_stream_id;
-            App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(NetCharacterMsgAttach), (char*)&msg);
+            App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(CharacterMsgAttach), (char*)&msg);
         }
         else
         {
-            NetCharacterMsgGeneric msg;
+            CharacterMsgGeneric msg;
             msg.command = CHARACTER_CMD_DETACH;
-            App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(NetCharacterMsgGeneric), (char*)&msg);
+            App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(CharacterMsgGeneric), (char*)&msg);
         }
     }
 #endif // USE_SOCKETW

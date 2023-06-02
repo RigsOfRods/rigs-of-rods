@@ -71,15 +71,15 @@ void CharacterPoseUtil::Draw()
 
     ImGui::BeginTabBar("CharacterPoseUtilTabs");
 
-    if (ImGui::BeginTabItem("Skeletal anims"))
+    if (ImGui::BeginTabItem("Anims"))
     {
         this->DrawSkeletalPanel(ent);
         ImGui::EndTabItem();
     }
 
-    if (ImGui::BeginTabItem("Game anims"))
+    if (ImGui::BeginTabItem("Actions"))
     {
-        this->DrawAnimDbgPanel(ent);
+        this->DrawActionDbgPanel(ent);
         ImGui::EndTabItem();
     }
 
@@ -178,9 +178,9 @@ ImVec4 ExceptFlagColor(BitMask_t flags, BitMask_t mask, bool active)
         : ((BITMASK_IS_1(flags, mask)) ? theme.error_text_color : normal_text_color);
 }
 
-void CharacterPoseUtil::DrawAnimDbgItemFull(CharacterActionID_t id)
+void CharacterPoseUtil::DrawActionDbgItemFull(CharacterActionID_t id)
 {
-    CharacterAnimDbg const& dbg = anim_dbg_states[id];
+    CharacterActionDbg const& dbg = action_dbg_states[id];
     CharacterActionDef* def = &App::GetGameContext()->GetPlayerCharacter()->getCharacterDocument()->actions[id];
 
 
@@ -208,7 +208,7 @@ void CharacterPoseUtil::DrawAnimDbgItemFull(CharacterActionID_t id)
         }
         if (BITMASK_IS_1(def->for_controls, testmask))
         {
-            ImVec4 color = ForFlagColor(dbg.missing_actions, testmask, dbg.active);
+            ImVec4 color = ForFlagColor(dbg.missing_controls, testmask, dbg.active);
             if (num_flags > 0 && num_flags % MAX_FLAGS_PER_LINE == 0)
             {
                 ImGui::TextDisabled("    (more):");
@@ -238,7 +238,7 @@ void CharacterPoseUtil::DrawAnimDbgItemFull(CharacterActionID_t id)
         }
         if (BITMASK_IS_1(def->except_controls, testmask))
         {
-            ImVec4 color = ExceptFlagColor(dbg.blocking_actions, testmask, dbg.active);
+            ImVec4 color = ExceptFlagColor(dbg.blocking_controls, testmask, dbg.active);
             if (num_flags > 0 && num_flags % MAX_FLAGS_PER_LINE == 0)
             {
                 ImGui::TextDisabled("    (more):");
@@ -250,9 +250,9 @@ void CharacterPoseUtil::DrawAnimDbgItemFull(CharacterActionID_t id)
     }
 }
 
-void CharacterPoseUtil::DrawAnimDbgItemInline(CharacterActionID_t id, Ogre::Entity* ent)
+void CharacterPoseUtil::DrawActionDbgItemInline(CharacterActionID_t id, Ogre::Entity* ent)
 {
-    CharacterAnimDbg const& dbg = anim_dbg_states[id];
+    CharacterActionDbg const& dbg = action_dbg_states[id];
     CharacterActionDef* def = &App::GetGameContext()->GetPlayerCharacter()->getCharacterDocument()->actions[id];
     
     AnimationState* as = nullptr; 
@@ -279,7 +279,7 @@ void CharacterPoseUtil::DrawAnimDbgItemInline(CharacterActionID_t id, Ogre::Enti
     }
     else
     {
-        if (dbg.blocking_situations || dbg.blocking_actions)
+        if (dbg.blocking_situations || dbg.blocking_controls)
         {
             // Draw the blocking 'except_' flags, colored red.
             ImGui::SameLine();
@@ -292,7 +292,7 @@ void CharacterPoseUtil::DrawAnimDbgItemInline(CharacterActionID_t id, Ogre::Enti
                     ImGui::SameLine();
                     ImGui::TextColored(theme.error_text_color, "%s", Character::SituationFlagToString(testmask));
                 }
-                if (BITMASK_IS_1(dbg.blocking_actions, testmask))
+                if (BITMASK_IS_1(dbg.blocking_controls, testmask))
                 {
                     ImGui::SameLine();
                     ImGui::TextColored(theme.error_text_color, "%s", Character::ControlFlagToString(testmask));
@@ -314,7 +314,7 @@ void CharacterPoseUtil::DrawAnimDbgItemInline(CharacterActionID_t id, Ogre::Enti
                 }
                 if (BITMASK_IS_1(def->for_controls, testmask))
                 {
-                    ImVec4 color = ForFlagColor(dbg.missing_actions, testmask, false);
+                    ImVec4 color = ForFlagColor(dbg.missing_controls, testmask, false);
                     ImGui::SameLine();
                     ImGui::TextColored(color, "%s", Character::ControlFlagToString(testmask));
                 }
@@ -323,7 +323,7 @@ void CharacterPoseUtil::DrawAnimDbgItemInline(CharacterActionID_t id, Ogre::Enti
     }
 }
 
-void CharacterPoseUtil::DrawAnimDbgPanel(Ogre::Entity* ent)
+void CharacterPoseUtil::DrawActionDbgPanel(Ogre::Entity* ent)
 {
     const float child_height = ImGui::GetWindowHeight()
         - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
@@ -335,13 +335,13 @@ void CharacterPoseUtil::DrawAnimDbgPanel(Ogre::Entity* ent)
     {
         if (ImGui::TreeNode(&anim, "%s", anim.action_description.c_str()))
         {
-            this->DrawAnimDbgItemFull(anim.action_id);
+            this->DrawActionDbgItemFull(anim.action_id);
             ImGui::TreePop();
         }
         else
         {
             ImGui::SameLine();
-            this->DrawAnimDbgItemInline(anim.action_id, ent);
+            this->DrawActionDbgItemInline(anim.action_id, ent);
         }
     }
 

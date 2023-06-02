@@ -74,6 +74,8 @@ begin_action
     except_situation SITUATION_DRIVING
     for_control CONTROL_MOVE_FORWARD
     except_control CONTROL_RUN
+    ; when pressing both FORWARD+BACKWARD keys, FORWARD wins in game movement so let it win here also.
+    except_control CONTROL_MOVE_BACKWARD
     anim_name "Walk"
     playback_time_ratio 1.f
     playback_h_speed_ratio 1.f
@@ -84,6 +86,8 @@ begin_action
     except_situation SITUATION_IN_DEEP_WATER
     except_situation SITUATION_DRIVING
     for_control CONTROL_MOVE_BACKWARD
+    ; Do not mix the walk animation into the run animation if user presses both RUN+MOVE_BACKWARDS.
+    except_control CONTROL_RUN
     anim_name "Walk"
     playback_time_ratio -1.f
     playback_h_speed_ratio 1.f
@@ -96,8 +100,9 @@ begin_action
     for_control CONTROL_SIDESTEP_RIGHT
     except_control CONTROL_MOVE_FORWARD
     except_control CONTROL_MOVE_BACKWARD
-    except_control CONTROL_TURN_RIGHT
-    except_control CONTROL_TURN_LEFT
+    ; Pressing both SIDESTEP+TURN controls makes game combine the movements, so also combine the animations.
+    ;except_control CONTROL_TURN_RIGHT
+    ;except_control CONTROL_TURN_LEFT
     except_control CONTROL_RUN
     anim_name "Side_step"
     playback_time_ratio 1.f
@@ -111,8 +116,9 @@ begin_action
     for_control CONTROL_SIDESTEP_LEFT
     except_control CONTROL_MOVE_FORWARD
     except_control CONTROL_MOVE_BACKWARD
-    except_control CONTROL_TURN_RIGHT
-    except_control CONTROL_TURN_LEFT
+    ; Pressing both SIDESTEP+TURN controls makes game combine the movements, so also combine the animations.
+    ;except_control CONTROL_TURN_RIGHT
+    ;except_control CONTROL_TURN_LEFT
     except_control CONTROL_RUN
     anim_name "Side_step"
     playback_time_ratio -1.f
@@ -124,8 +130,9 @@ begin_action
     except_situation SITUATION_IN_DEEP_WATER
     except_situation SITUATION_DRIVING
     for_control CONTROL_TURN_LEFT
-    except_control CONTROL_SIDESTEP_LEFT
-    except_control CONTROL_SIDESTEP_RIGHT
+    ; Pressing both SIDESTEP+TURN controls makes game combine the movements, so also combine the animations.
+    ;except_control CONTROL_SIDESTEP_LEFT
+    ;except_control CONTROL_SIDESTEP_RIGHT
     except_control CONTROL_MOVE_FORWARD
     except_control CONTROL_MOVE_BACKWARD
     except_control CONTROL_RUN
@@ -139,8 +146,9 @@ begin_action
     except_situation SITUATION_IN_DEEP_WATER
     except_situation SITUATION_DRIVING
     for_control CONTROL_TURN_RIGHT
-    except_control CONTROL_SIDESTEP_LEFT
-    except_control CONTROL_SIDESTEP_RIGHT
+    ; Pressing both SIDESTEP+TURN controls makes game combine the movements, so also combine the animations.
+    ;except_control CONTROL_SIDESTEP_LEFT
+    ;except_control CONTROL_SIDESTEP_RIGHT
     except_control CONTROL_MOVE_FORWARD
     except_control CONTROL_MOVE_BACKWARD
     except_control CONTROL_RUN
