@@ -129,9 +129,17 @@ void CharacterParser::ProcessCurrentLine()
         {
             m_def->character_name = GetParam(1);
         }
+        if (StartsWith(m_cur_line, "character_description"))
+        {
+            m_def->character_description = GetParam(1);
+        }
         else if (StartsWith(m_cur_line, "mesh_name"))
         {
             m_def->mesh_name = GetParam(1);
+        }
+        else if (StartsWith(m_cur_line, "material_override"))
+        {
+            m_def->material_override = GetParam(1);
         }
         else if (StartsWith(m_cur_line, "mesh_scale"))
         {
@@ -150,6 +158,15 @@ void CharacterParser::ProcessCurrentLine()
         else if (StartsWith(m_cur_line, "begin_bone_blend_mask"))
         {
             m_ctx.in_bone_blend_mask = true;
+        }
+        else if (StartsWith(m_cur_line, "author"))
+        {
+            CharacterAuthorInfo author;
+            author.type = GetParam(1);
+            author.id = Ogre::StringConverter::parseInt(GetParam(2));
+            author.name = GetParam(3);
+            author.email = GetParam(4);
+            m_def->authors.push_back(author);
         }
     }
     else if (m_ctx.in_action)

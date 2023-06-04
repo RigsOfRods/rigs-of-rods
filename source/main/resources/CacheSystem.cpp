@@ -1077,8 +1077,19 @@ void CacheSystem::FillCharacterDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr
 {
     CharacterParser parser;
     CharacterDocumentPtr doc = parser.ProcessOgreStream(datastream);
-    
+
+    for (CharacterAuthorInfo& author: doc->authors)
+    {
+        AuthorInfo a;
+        a.id = author.id;
+        a.type = author.type;
+        a.name = author.name;
+        a.email = author.email;
+        entry.authors.push_back(a);
+    }
+
     entry.dname = doc->character_name;
+    entry.description = doc->character_description;
 }
 
 bool CacheSystem::CheckResourceLoaded(Ogre::String & filename)

@@ -79,13 +79,24 @@ enum class ForceAnimBlend //!< Should a specific `Ogre::SkeletonAnimationBlendMo
     CUMULATIVE
 };
 
+struct CharacterAuthorInfo
+{
+    int id = -1;
+    std::string name;
+    std::string type;
+    std::string email;
+};
+
 struct CharacterDocument
 {
     std::string character_name;
+    std::string character_description;
     std::string mesh_name;
+    std::string material_override; //!< Optional; overrides the material name in the mesh file.
     Ogre::Vector3 mesh_scale = Ogre::Vector3(1, 1, 1);
     std::vector<CharacterActionDef> actions;
     std::vector<BoneBlendMaskDef> bone_blend_masks;
+    std::vector<CharacterAuthorInfo> authors;
     ForceAnimBlend force_animblend = ForceAnimBlend::NONE; //!< Should a specific `Ogre::SkeletonAnimationBlendMode` be forced, or should we keep what the .skeleton file defines?
 };
 
