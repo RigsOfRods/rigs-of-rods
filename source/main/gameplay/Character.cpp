@@ -41,7 +41,7 @@ using namespace Ogre;
 using namespace RoR;
 using namespace RoRnet;
 
-Character::Character(CharacterDocumentPtr def, int source, unsigned int streamid, UTFString player_name, int color_number, bool is_remote) :
+Character::Character(CacheEntryPtr cacheEntry, CharacterDocumentPtr def, int source, unsigned int streamid, UTFString player_name, int color_number, bool is_remote) :
       m_actor_coupling(nullptr)
     , m_character_rotation(0.0f)
     , m_character_h_speed(2.0f)
@@ -53,6 +53,7 @@ Character::Character(CharacterDocumentPtr def, int source, unsigned int streamid
     , m_source_id(source)
     , m_stream_id(streamid)
     , m_character_def(def)
+    , m_cache_entry(cacheEntry)
 {
     static int id_counter = 0;
     m_instance_name = "Character#" + TOSTRING(id_counter);

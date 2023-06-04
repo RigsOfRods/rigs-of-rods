@@ -45,7 +45,10 @@ GfxCharacter::GfxCharacter(Character* character)
     : xc_character(character)
     , xc_instance_name(character->m_instance_name)
 {
-    Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(xc_instance_name + "_mesh", xc_character->m_character_def->mesh_name);
+    Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(
+        /*entityName:*/ xc_instance_name + "_mesh",
+        /*meshName:*/ xc_character->m_character_def->mesh_name,
+        /*groupName:*/ character->m_cache_entry->resource_group);
 
     // fix disappearing mesh
     AxisAlignedBox aabb;
@@ -59,16 +62,18 @@ GfxCharacter::GfxCharacter(Character* character)
     xc_scenenode->setVisible(false);
 
     // setup colour
-    MaterialPtr mat1 = MaterialManager::getSingleton().getByName("tracks/character");
-    MaterialPtr mat2 = mat1->clone("tracks/" + xc_instance_name);
-    entity->setMaterialName("tracks/" + xc_instance_name);
+    MaterialPtr sharedMat = MaterialManager::getSingleton().getByName(
+        /*name:*/ "tracks/character",
+        /*groupName:*/ character->m_cache_entry->resource_group);
+    MaterialPtr ownMat = sharedMat->clone("tracks/" + xc_instance_name);
+    entity->setMaterial(ownMat);
 
     // setup animation blend
     switch (character->getCharacterDocument()->force_animblend)
     {
     case ForceAnimBlend::CUMULATIVE: entity->getSkeleton()->setBlendMode(ANIMBLEND_CUMULATIVE); break;
     case ForceAnimBlend::AVERAGE: entity->getSkeleton()->setBlendMode(ANIMBLEND_AVERAGE); break;
-    default:; // Keep the preset defined in .skeleton file
+    default:; // Keep the preset we loaded from .skeleton file
     }
 
     // setup bone blend masks

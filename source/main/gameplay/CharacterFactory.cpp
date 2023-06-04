@@ -60,6 +60,7 @@ Character* CharacterFactory::CreateLocalCharacter()
 {
     int colourNum = -1;
     Ogre::UTFString playerName = "";
+    std::string characterFile = App::sim_player_character->getStr();
 
 #ifdef USE_SOCKETW
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
@@ -67,18 +68,19 @@ Character* CharacterFactory::CreateLocalCharacter()
         RoRnet::UserInfo info = App::GetNetwork()->GetLocalUserData();
         colourNum = info.colournum;
         playerName = tryConvertUTF(info.username);
+        characterFile = info.characterfile;
     }
 #endif // USE_SOCKETW
 
-    CacheEntryPtr cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, App::sim_player_character->getStr());
+    CacheEntryPtr cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, characterFile);
     if (!cache_entry)
     {
         // If this was a custom mod, retry with the builtin
-        if (App::sim_player_character->getStr() != CLASSIC_CHARACTER_FILE)
+        if (characterFile != DEFAULT_CHARACTER_FILE)
         {
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
-                fmt::format("Could not find configured character '{}' in mod cache, falling back to '{}'", App::sim_player_character->getStr(), CLASSIC_CHARACTER_FILE));
-            App::sim_player_character->setStr(CLASSIC_CHARACTER_FILE);
+                fmt::format("Could not find configured character '{}' in mod cache, falling back to '{}'", characterFile, DEFAULT_CHARACTER_FILE));
+            App::sim_player_character->setStr(DEFAULT_CHARACTER_FILE);
 
             cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, App::sim_player_character->getStr());
         }
@@ -99,7 +101,7 @@ Character* CharacterFactory::CreateLocalCharacter()
         return nullptr; // Error already reported
     }
 
-    m_local_character = std::unique_ptr<Character>(new Character(document, -1, 0, playerName, colourNum, false));
+    m_local_character = std::unique_ptr<Character>(new Character(cache_entry, document, -1, 0, playerName, colourNum, false));
     App::GetGfxScene()->RegisterGfxCharacter(m_local_character.get());
     return m_local_character.get();
 }
@@ -116,13 +118,11 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
 
     LOG(" new character for " + info_str);
 
-    std::string filename = App::sim_player_character->getStr(); // TBD: transmit and use the actual character used by the player
-
-    CacheEntryPtr cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, filename);
+    CacheEntryPtr cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, info.characterfile);
     if (!cache_entry)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format("Could not create character for {} - character '{}' not found in mod cache.", info_str, filename));
+            fmt::format("Could not create character for {} - character '{}' not found in mod cache.", info_str, info.characterfile));
         return;
     }
 
@@ -134,7 +134,7 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
         return;
     }
 
-    Character* ch = new Character(document, sourceid, streamid, name, colour, true);
+    Character* ch = new Character(cache_entry, document, sourceid, streamid, name, colour, true);
     App::GetGfxScene()->RegisterGfxCharacter(ch);
     m_remote_characters.push_back(std::unique_ptr<Character>(ch));
 #endif // USE_SOCKETW
