@@ -2162,7 +2162,7 @@ size_t CacheSystem::Query(CacheQuery& query)
         else if (entry->fext == "addonpart")
             add = (query.cqy_filter_type == LT_AddonPart);
         else if (entry->fext == "character")
-            add = (query.cqy_filter_type == LT_Character || LT_CharacterMP);
+            add = (query.cqy_filter_type == LT_Character || query.cqy_filter_type == LT_CharacterMP);
         else if (entry->fext == "tuneup")
             add = (query.cqy_filter_type == LT_Tuneup);
         else if (entry->fext == "assetpack")
