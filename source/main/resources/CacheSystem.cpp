@@ -1212,8 +1212,19 @@ void CacheSystem::FillCharacterDetailInfo(CacheEntryPtr& entry, Ogre::DataStream
 {
     CharacterParser parser;
     CharacterDocumentPtr doc = parser.ProcessOgreStream(datastream);
-    
-    entry->dname = doc->character_name;
+
+    for (CharacterAuthorInfo& author: doc->authors)
+    {
+        AuthorInfo a;
+        a.id = author.id;
+        a.type = author.type;
+        a.name = author.name;
+        a.email = author.email;
+        entry.authors.push_back(a);
+    }
+
+    entry.dname = doc->character_name;
+    entry.description = doc->character_description;
 }
 
 void CacheSystem::FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDocument>& skin_def)

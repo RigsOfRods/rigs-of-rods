@@ -1,6 +1,6 @@
 import * from "managed_mats.material"
 
-material tracks/character: RoR/Managed_Mats/Base
+material character: RoR/Managed_Mats/Base
 {
 	technique BaseTechnique
 	{

@@ -62,10 +62,19 @@ GfxCharacter::GfxCharacter(Character* character)
     xc_scenenode->setVisible(false);
 
     // setup colour
+    std::string sharedMatName;
+    if (xc_character->m_character_def->material_override != "")
+    {
+        sharedMatName = xc_character->m_character_def->material_override;
+    }
+    else
+    {
+        sharedMatName = entity->getMesh()->getSubMesh(0)->getMaterialName();
+    }
     MaterialPtr sharedMat = MaterialManager::getSingleton().getByName(
-        /*name:*/ "tracks/character",
+        /*name:*/ sharedMatName,
         /*groupName:*/ character->m_cache_entry->resource_group);
-    MaterialPtr ownMat = sharedMat->clone("tracks/" + xc_instance_name);
+    MaterialPtr ownMat = sharedMat->clone(sharedMatName + "@" + xc_instance_name);
     entity->setMaterial(ownMat);
 
     // setup animation blend
