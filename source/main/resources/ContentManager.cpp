@@ -253,7 +253,7 @@ void ContentManager::InitModCache(CacheValidity validity)
     std::string user = App::sys_user_dir->getStr();
     std::string base = App::sys_process_dir->getStr();
     std::string objects = PathCombine("resources", "beamobjects.zip");
-    std::string character = PathCombine("resources", "classic_character.zip");
+    std::string character = PathCombine("resources", "default_character.zip");
 
     if (!App::app_extra_mod_path->getStr().empty())
     {

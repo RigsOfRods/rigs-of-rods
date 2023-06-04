@@ -39,7 +39,7 @@
 
 #define ROR_ASSERT(_EXPR)  assert(_EXPR)
 
-#define CLASSIC_CHARACTER_FILE "classic.character"
+#define DEFAULT_CHARACTER_FILE "default.character" // Located in file 'resources/default_character.zip'
 
 // Legacy macros
 #define TOSTRING(x)     Ogre::StringConverter::toString(x)
@@ -252,6 +252,7 @@ enum LoaderType //!< Operation mode for GUI::MainSelector
 {
     LT_None,
     LT_Character, // No script alias, invoked from Settings UI.
+    LT_CharacterMP,// No script alias, invoked from Multiplayer Lobby UI.
     LT_Terrain,   // Invocable from GUI; No script alias, used in main menu
     LT_Vehicle,   // Script "vehicle",   ext: truck car
     LT_Truck,     // Script "truck",     ext: truck car
@@ -319,6 +320,7 @@ extern CVar* mp_server_password;
 extern CVar* mp_player_name;
 extern CVar* mp_player_token;
 extern CVar* mp_api_url;
+extern CVar* mp_override_character; // If empty, use `sim_default_character`
 
 // New remote API
 extern CVar* remote_query_url;

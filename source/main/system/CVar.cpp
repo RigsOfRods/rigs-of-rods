@@ -58,7 +58,7 @@ void Console::cVarSetupBuiltins()
     App::sim_gearbox_mode        = this->cVarCreate("sim_gearbox_mode",        "GearboxMode",                CVAR_ARCHIVE | CVAR_TYPE_INT);
     App::sim_soft_reset_mode     = this->cVarCreate("sim_soft_reset_mode",     "",                                          CVAR_TYPE_BOOL,    "false");
     App::sim_quickload_dialog    = this->cVarCreate("sim_quickload_dialog",    "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
-    App::sim_player_character    = this->cVarCreate("sim_player_character",    "",                           CVAR_ARCHIVE,                     CLASSIC_CHARACTER_FILE);
+    App::sim_player_character    = this->cVarCreate("sim_player_character",    "",                           CVAR_ARCHIVE,                     DEFAULT_CHARACTER_FILE);
 
     App::mp_state                = this->cVarCreate("mp_state",                "",                                          CVAR_TYPE_INT,     "0"/*(int)MpState::DISABLED*/);
     App::mp_join_on_startup      = this->cVarCreate("mp_join_on_startup",      "Auto connect",               CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
@@ -72,6 +72,7 @@ void Console::cVarSetupBuiltins()
     App::mp_player_name          = this->cVarCreate("mp_player_name",          "Nickname",                   CVAR_ARCHIVE,                     "Player");
     App::mp_player_token         = this->cVarCreate("mp_player_token",         "User Token",                 CVAR_ARCHIVE | CVAR_NO_LOG);
     App::mp_api_url              = this->cVarCreate("mp_api_url",              "Online API URL",             CVAR_ARCHIVE,                     "http://api.rigsofrods.org");
+    App::mp_override_character   = this->cVarCreate("mp_override_character",   "",                           CVAR_ARCHIVE,                     "");
     App::remote_query_url        = this->cVarCreate("remote_query_url",        "",                           CVAR_ARCHIVE,                     "https://v2.api.rigsofrods.org");
 
     App::diag_auto_spawner_report= this->cVarCreate("diag_auto_spawner_report","AutoActorSpawnerReport",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");

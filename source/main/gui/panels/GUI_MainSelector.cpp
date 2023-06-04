@@ -619,6 +619,11 @@ void MainSelector::Apply()
         this->Close();
         break;
 
+    case LT_CharacterMP: // Invoked by MultiplayerSelector UI button
+        App::mp_override_character->setStr(sd_entry.sde_entry->fname);
+        this->Close();
+        break;
+
     case LT_Terrain: // Invoked by Main menu button
         if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
         {

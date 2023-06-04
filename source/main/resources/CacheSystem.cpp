@@ -1304,7 +1304,7 @@ size_t CacheSystem::Query(CacheQuery& query)
         else if (entry.fext == "skin")
             add = (query.cqy_filter_type == LT_Skin);
         else if (entry.fext == "character")
-            add = (query.cqy_filter_type == LT_Character);
+            add = (query.cqy_filter_type == LT_Character || LT_CharacterMP);
         else if (entry.fext == "truck")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck);
         else if (entry.fext == "car")

@@ -1,4 +1,4 @@
-; The classic character (aka RoRbot)
+; The default character (aka RoRbot)
 ; -----------------------------------------------------------------------------
 ;
 ; This file format lets you compose 'actions' from one or more
@@ -19,7 +19,7 @@
 ; -----------------------------------------------------------------------------
 
 ; Name displayed in the Selector UI - required
-character_name "Classic RORBot"
+character_name "Default character"
 
 ; Name of the mesh file - required.
 mesh_name "character.mesh"
