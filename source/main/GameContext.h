@@ -194,7 +194,7 @@ private:
     CacheEntry*         m_last_cache_selection = nullptr;   //!< Vehicle/load
     CacheEntry*         m_last_skin_selection = nullptr;
     Ogre::String        m_last_section_config;
-    ActorSpawnRequest   m_current_selection;                //!< Context of the loader UI
+    ActorSpawnRequest   m_current_selection;                //!< Context of the loader UI (may also be Character!)
     CacheEntry          m_dummy_cache_selection;
 
     // Characters (simplified physics and netcode)

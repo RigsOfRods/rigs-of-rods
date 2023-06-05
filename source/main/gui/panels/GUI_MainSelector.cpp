@@ -612,46 +612,20 @@ void MainSelector::Apply()
     ROR_ASSERT(m_selected_entry > -1); // Programmer error
     DisplayEntry& sd_entry = m_display_entries[m_selected_entry];
 
-    switch (m_loader_type)
+    // Make a copy because `Close()` will reset it.
+    LoaderType orig_loader_type = m_loader_type;
+
+    // If no config was selected, use the first one.
+    std::string sectionconfig;
+    if (sd_entry.sde_entry->sectionconfigs.size() > 0)
     {
-    case LT_Character: // Invoked by Settings UI button
-        App::sim_player_character->setStr(sd_entry.sde_entry->fname);
-        this->Close();
-        break;
-
-    case LT_CharacterMP: // Invoked by MultiplayerSelector UI button
-        App::mp_override_character->setStr(sd_entry.sde_entry->fname);
-        this->Close();
-        break;
-
-    case LT_Terrain: // Invoked by Main menu button
-        if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
-        {
-            App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, sd_entry.sde_entry->fname));
-            this->Close();
-        }
-        break;
-
-    default: // Vehicle in simulation (Invoked by: top menubar, hotkey, or spawner)
-        if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
-        {
-            // Make a copy because `Close()` will reset it.
-            LoaderType orig_loader_type = m_loader_type;
-
-            // If no config was selected, use the first one.
-            std::string sectionconfig;
-            if (sd_entry.sde_entry->sectionconfigs.size() > 0)
-            {
-                sectionconfig = sd_entry.sde_entry->sectionconfigs[m_selected_sectionconfig];
-            }
-
-            // Close the UI so that GameContext can reopen it if needed (used for skins)
-            this->Close();
-
-            App::GetGameContext()->OnLoaderGuiApply(orig_loader_type, sd_entry.sde_entry, sectionconfig);
-        }
-        break;
+        sectionconfig = sd_entry.sde_entry->sectionconfigs[m_selected_sectionconfig];
     }
+
+    // Close the UI so that GameContext can reopen it if needed (used for skins)
+    this->Close();
+
+    App::GetGameContext()->OnLoaderGuiApply(orig_loader_type, sd_entry.sde_entry, sectionconfig);
 }
 
 // Static helper

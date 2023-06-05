@@ -193,6 +193,8 @@ void MultiplayerSelector::DrawSetupTab()
     DrawGCheckbox(App::mp_hide_net_labels,    _LC("MultiplayerSelector", "Hide net labels"));
     DrawGCheckbox(App::mp_hide_own_net_label, _LC("MultiplayerSelector", "Hide own net label"));
     DrawGCheckbox(App::mp_pseudo_collisions,  _LC("MultiplayerSelector", "Multiplayer collisions"));
+
+    ImGui::Separator();
     this->DrawCharacterOverrideCfg();
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
@@ -433,11 +435,18 @@ void MultiplayerSelector::UpdateServerlist(MpServerInfoVec* data)
 
 void MultiplayerSelector::DrawCharacterOverrideCfg()
 {
-    // Character
-    ImGui::Separator();
     ImGui::TextDisabled("%s:", _LC("MultiplayerSelector", "Override character"));
     ImGui::SameLine();
     ImGui::Text("%s", App::mp_override_character->getStr().c_str());
+    ImGui::SameLine();
+    if (App::mp_override_character_skin->getStr() == "")
+    {
+        ImGui::TextDisabled("(default skin)");
+    }
+    else
+    {
+        ImGui::Text("(Skin: '%s')", App::mp_override_character_skin->getStr().c_str());
+    }
     ImGui::SameLine();
     if (ImGui::SmallButton(_LC("MultiplayerSelector", "Select")))
     {

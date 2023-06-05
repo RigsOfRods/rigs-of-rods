@@ -1090,6 +1090,7 @@ void CacheSystem::FillCharacterDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr
 
     entry.dname = doc->character_name;
     entry.description = doc->character_description;
+    entry.guid = doc->character_guid;
 }
 
 bool CacheSystem::CheckResourceLoaded(Ogre::String & filename)
