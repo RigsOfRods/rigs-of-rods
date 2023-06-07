@@ -741,6 +741,7 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntryPtr entry, std::st
     case LT_AllBeam:
     case LT_Character:
     case LT_CharacterMP:
+        m_current_selector_type = type;
         m_current_selection.asr_cache_entry = entry;
         m_current_selection.asr_config = sectionconfig;
         if (App::GetGuiManager()->TopMenubar.ai_select)
@@ -803,68 +804,72 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntryPtr entry, std::st
     default:;
     }
 
-    if (selection_finished && m_current_selection.asr_cache_entry->fext == "terrn2")
+    if (selection_finished)
     {
-        if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
+        if (m_current_selection.asr_cache_entry->fext == "terrn2")
         {
-            App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, m_current_selection.asr_cache_entry->fname));
+            if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
+            {
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, m_current_selection.asr_cache_entry->fname));
+            }
         }
-    }
-    else if (selection_finished && m_current_selection.asr_cache_entry->fext == "character")
-    {
-        switch (type)
+        else if (m_current_selection.asr_cache_entry->fext == "character")
         {
-        case LT_Character: // Invoked by Settings UI button
-            App::sim_player_character->setStr(m_current_selection.asr_cache_entry->fname);
-            if (m_current_selection.asr_skin_entry)
+            switch (m_current_selector_type)
             {
-                App::sim_player_character_skin->setStr(m_current_selection.asr_skin_entry->fname);
-            }
-            else
-            {
-                App::sim_player_character_skin->setStr("");
-            }
-            break;
+            case LT_Character: // Invoked by Settings UI button
+                App::sim_player_character->setStr(m_current_selection.asr_cache_entry->fname);
+                if (m_current_selection.asr_skin_entry)
+                {
+                    App::sim_player_character_skin->setStr(m_current_selection.asr_skin_entry->fname);
+                }
+                else
+                {
+                    App::sim_player_character_skin->setStr("");
+                }
+                break;
 
-        case LT_CharacterMP: // Invoked by MultiplayerSelector UI button
-            App::mp_override_character->setStr(m_current_selection.asr_cache_entry->fname);
-            if (m_current_selection.asr_skin_entry)
-            {
-                App::mp_override_character_skin->setStr(m_current_selection.asr_skin_entry->fname);
-            }
-            else
-            {
-                App::mp_override_character_skin->setStr("");
-            }
-            break;
+            case LT_CharacterMP: // Invoked by MultiplayerSelector UI button
+                App::mp_override_character->setStr(m_current_selection.asr_cache_entry->fname);
+                if (m_current_selection.asr_skin_entry)
+                {
+                    App::mp_override_character_skin->setStr(m_current_selection.asr_skin_entry->fname);
+                }
+                else
+                {
+                    App::mp_override_character_skin->setStr("");
+                }
+                break;
 
-        default:; // uhh, what?
-        }
-    }
-    else if (selection_finished)
-    {
-        if (App::GetGuiManager()->TopMenubar.ai_select)
-        {
-            App::GetGuiManager()->TopMenubar.ai_fname = m_current_selection.asr_cache_entry->fname;
-            App::GetGuiManager()->TopMenubar.ai_dname = m_current_selection.asr_cache_entry->dname;
-            App::GetGuiManager()->TopMenubar.ai_select = false;
-            App::GetGuiManager()->TopMenubar.ai_menu = true;
-        }
-        else if (App::GetGuiManager()->TopMenubar.ai_select2)
-        {
-            App::GetGuiManager()->TopMenubar.ai_fname2 = m_current_selection.asr_cache_entry->fname;
-            App::GetGuiManager()->TopMenubar.ai_dname2 = m_current_selection.asr_cache_entry->dname;
-            App::GetGuiManager()->TopMenubar.ai_select2 = false;
-            App::GetGuiManager()->TopMenubar.ai_menu = true;
+            default:; // uhh, what?
+            }
         }
         else
         {
-            ActorSpawnRequest* rq = new ActorSpawnRequest;
-            *rq = m_current_selection;
-            this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+            if (App::GetGuiManager()->TopMenubar.ai_select)
+            {
+                App::GetGuiManager()->TopMenubar.ai_fname = m_current_selection.asr_cache_entry->fname;
+                App::GetGuiManager()->TopMenubar.ai_dname = m_current_selection.asr_cache_entry->dname;
+                App::GetGuiManager()->TopMenubar.ai_select = false;
+                App::GetGuiManager()->TopMenubar.ai_menu = true;
+            }
+            else if (App::GetGuiManager()->TopMenubar.ai_select2)
+            {
+                App::GetGuiManager()->TopMenubar.ai_fname2 = m_current_selection.asr_cache_entry->fname;
+                App::GetGuiManager()->TopMenubar.ai_dname2 = m_current_selection.asr_cache_entry->dname;
+                App::GetGuiManager()->TopMenubar.ai_select2 = false;
+                App::GetGuiManager()->TopMenubar.ai_menu = true;
+            }
+            else
+            {
+                ActorSpawnRequest* rq = new ActorSpawnRequest;
+                *rq = m_current_selection;
+                this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+            }
         }
 
         m_current_selection = ActorSpawnRequest(); // Reset
+        m_current_selector_type = LT_None;
     }
 }
 
