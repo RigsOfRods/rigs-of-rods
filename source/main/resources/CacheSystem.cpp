@@ -1297,6 +1297,28 @@ std::shared_ptr<SkinDef> CacheSystem::FetchSkinDef(CacheEntry* cache_entry)
     }
 }
 
+CharacterDocumentPtr CacheSystem::FetchCharacterDef(CacheEntry* cache_entry)
+{
+    if (!cache_entry->character_def)
+    {
+        try
+        {
+            App::GetCacheSystem()->LoadResource(*cache_entry); // Load if not already
+
+            Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().openResource(cache_entry->fname, cache_entry->resource_group);
+            CharacterParser character_parser;
+            cache_entry->character_def = character_parser.ProcessOgreStream(datastream);
+        }
+        catch (Ogre::Exception& eeh)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("Could not load character, message: {}", eeh.getFullDescription()));
+        }
+    }
+
+    return cache_entry->character_def;
+}
+
 size_t CacheSystem::Query(CacheQuery& query)
 {
     Ogre::StringUtil::toLowerCase(query.cqy_search_string);

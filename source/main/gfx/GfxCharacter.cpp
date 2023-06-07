@@ -46,13 +46,17 @@ GfxCharacter::GfxCharacter(Character* character)
     : xc_character(character)
     , xc_instance_name(character->m_instance_name)
 {
+    ROR_ASSERT(character);
+    ROR_ASSERT(character->m_cache_entry);
+    ROR_ASSERT(character->m_cache_entry->character_def);
+
     // Use the modcache bundle (ZIP) resource group.
     // This is equivalent to what `Actor`s do.
     xc_custom_resource_group = character->m_cache_entry->resource_group;
 
     Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(
         /*entityName:*/ xc_instance_name + "_mesh",
-        /*meshName:*/ xc_character->m_character_def->mesh_name,
+        /*meshName:*/ xc_character->m_cache_entry->character_def->mesh_name,
         /*groupName:*/ character->m_cache_entry->resource_group);
 
     // fix disappearing mesh
@@ -63,18 +67,17 @@ GfxCharacter::GfxCharacter(Character* character)
     // add entity to the scene node
     xc_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     xc_scenenode->attachObject(entity);
-    xc_scenenode->setScale(xc_character->m_character_def->mesh_scale);
+    xc_scenenode->setScale(xc_character->m_cache_entry->character_def->mesh_scale);
     xc_scenenode->setVisible(false);
 
-    // setup colour and resolve skins (SkinZips)
-    //  The mesh (for example Sinbad the Ogre) may use multiple materials
-    //  which means having multiple submeshes in Mesh and subentities in Entity
-    //  (each submesh/subentity can have only 1 material)
+    // setup material - resolve skins (SkinZips) and apply multiplayer color
+    // NOTE: The mesh (for example Sinbad the Ogre) may use multiple materials
+    //       which means having multiple submeshes in Mesh and subentities in Entity
+    //       (each submesh/subentity can have only 1 material)
     for (Ogre::SubEntity* subent: entity->getSubEntities())
     {
         const std::string sharedMatName = subent->getSubMesh()->getMaterialName();
-        Ogre::MaterialPtr ownMat = this->FindOrCreateCustomizedMaterial(sharedMatName);
-        subent->setMaterial(ownMat);
+        subent->setMaterial(this->FindOrCreateCustomizedMaterial(sharedMatName));
     }
 
     // setup animation blend
@@ -92,8 +95,8 @@ GfxCharacter::GfxCharacter(Character* character)
     }
 
     // setup diagnostic UI
-    App::GetGuiManager()->CharacterPoseUtil.action_dbg_states.resize(xc_character->m_character_def->actions.size());
-    for (CharacterActionDef const& def : xc_character->m_character_def->actions)
+    App::GetGuiManager()->CharacterPoseUtil.action_dbg_states.resize(xc_character->m_cache_entry->character_def->actions.size());
+    for (CharacterActionDef const& def : xc_character->m_cache_entry->character_def->actions)
     {
         App::GetGuiManager()->CharacterPoseUtil.action_dbg_states[def.action_id] = CharacterActionDbg();
     }
@@ -225,18 +228,6 @@ void RoR::GfxCharacter::UpdateCharacterInScene(float dt)
 #ifdef USE_SOCKETW
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !xc_simbuf.simbuf_actor_coupling)
     {
-        // From 'updateCharacterNetworkColor()'
-        const String materialName = "tracks/" + xc_instance_name;
-
-        MaterialPtr mat = MaterialManager::getSingleton().getByName(materialName);
-        if (!mat.isNull() && mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 1 &&
-                mat->getTechnique(0)->getPass(1)->getNumTextureUnitStates() > 1)
-        {
-            const auto& state = mat->getTechnique(0)->getPass(1)->getTextureUnitState(1);
-            Ogre::ColourValue color = App::GetNetwork()->GetPlayerColor(xc_simbuf.simbuf_color_number);
-            state->setColourOperationEx(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, color);
-        }
-
         if ((!xc_simbuf.simbuf_is_remote && !App::mp_hide_own_net_label->getBool()) ||
             (xc_simbuf.simbuf_is_remote && !App::mp_hide_net_labels->getBool()))
         {
@@ -347,7 +338,7 @@ void GfxCharacter::UpdateAnimations(float dt)
         as->setWeight(0);
     }
 
-    for (CharacterActionDef const& def : xc_character->m_character_def->actions)
+    for (CharacterActionDef const& def : xc_character->m_cache_entry->character_def->actions)
     {
         this->EvaluateActionDef(def, dt);
     }
@@ -453,5 +444,38 @@ Ogre::MaterialPtr GfxCharacter::FindOrCreateCustomizedMaterial(const std::string
         } // techniques
     }
 
+    // Apply player color
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+    {
+        this->ApplyMultiplayerColoring(ownMat, mat_lookup_name);
+    }    
+
     return ownMat;
+}
+
+void GfxCharacter::ApplyMultiplayerColoring(Ogre::MaterialPtr mat, std::string sharedMatName)
+{
+    if (!mat.isNull() && mat->getNumTechniques() > 0) // sanity check
+    {
+        Ogre::Pass* colorChangePass = mat->getTechnique(0)->getPass("ColorChange");
+        if (colorChangePass)
+        {
+            Ogre::TextureUnitState* playerColorTexUnit = colorChangePass->getTextureUnitState("PlayerColor");
+            if (playerColorTexUnit)
+            {
+                playerColorTexUnit->setColourOperationEx(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT,
+                    App::GetNetwork()->GetPlayerColor(xc_character->m_color_number));
+            }
+            else
+            {
+                std::string msg = fmt::format("Character '{}' material '{}', pass 'ColorChange' doesn't have texture unit named 'PlayerColor', cannot apply player color", xc_character->m_instance_name, sharedMatName);
+                LOG(msg);                
+            }
+        }
+        else
+        {
+            std::string msg = fmt::format("Character '{}' material '{}' doesn't have pass named 'ColorChange', cannot apply player color", xc_character->m_instance_name, sharedMatName);
+            LOG(msg);
+        }
+    }
 }

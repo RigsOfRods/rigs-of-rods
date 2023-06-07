@@ -52,6 +52,9 @@ struct GfxCharacter
     // Derived from `ActorSpawner::FindOrCreateCustomizedMaterial()`
     Ogre::MaterialPtr FindOrCreateCustomizedMaterial(const std::string& mat_lookup_name);
 
+    // Spawn helper
+    void ApplyMultiplayerColoring(Ogre::MaterialPtr mat, std::string sharedMatName);
+
     Ogre::SceneNode*          xc_scenenode;
     CharacterSB               xc_simbuf;
     CharacterSB               xc_simbuf_prev;
