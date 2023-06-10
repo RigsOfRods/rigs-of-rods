@@ -1910,13 +1910,13 @@ material tracks/skyboxcol
 		pass
 		{
 			fog_override true
-			lighting off
+			lighting on
 			depth_write off
 //			depth_check off
 
 			texture_unit
 			{
-				cubic_texture cloudy_noon.dds separateUV
+				cubic_texture hdr_sky.png separateUV
 				tex_address_mode clamp
 			}
 		}
