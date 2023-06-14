@@ -129,11 +129,11 @@ bool RoR::OTCParser::LoadPageConfig(Ogre::DataStreamPtr &ds, RoR::OTCPage& page,
 
             OTCLayer layer;
             layer.world_size = PARSEREAL(args[0]);
-            if (args.size() > 2)
+            if (args.size() > 1)
             {
                 layer.diffusespecular_filename = TrimStr(args[1]);
             }
-            if (args.size() > 1)
+            if (args.size() > 2)
             {
                 layer.normalheight_filename = TrimStr(args[2]);
             }
