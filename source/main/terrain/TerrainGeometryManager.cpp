@@ -527,13 +527,19 @@ void TerrainGeometryManager::SetupLayers(RoR::OTCPage& page, Ogre::Terrain *terr
         {
             defaultimp.layerList[layer_idx].worldSize = layer.world_size;
             defaultimp.layerList[layer_idx].textureNames.push_back(layer.diffusespecular_filename);
-            defaultimp.layerList[layer_idx].textureNames.push_back(layer.normalheight_filename);
+            if (layer.normalheight_filename != "")
+            {
+                defaultimp.layerList[layer_idx].textureNames.push_back(layer.normalheight_filename);
+            }
         }
         else
         {
             terrain->setLayerWorldSize(layer_idx, layer.world_size);
             terrain->setLayerTextureName(layer_idx, 0, layer.diffusespecular_filename);
-            terrain->setLayerTextureName(layer_idx, 1, layer.normalheight_filename);
+            if (layer.normalheight_filename != "")
+            {
+                terrain->setLayerTextureName(layer_idx, 1, layer.normalheight_filename);
+            }
         }
 
         layer_idx++;
