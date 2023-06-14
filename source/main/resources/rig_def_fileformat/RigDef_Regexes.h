@@ -101,6 +101,10 @@ namespace Regexes
 #define E_KEYWORD_INLINE(_NAME_) \
     "(^" _NAME_ E_DELIMITER_CLASSIC ".*$)?"
 
+/// Hack for `forset` which doesn't require a separator from args, see also BEWARE OF QUIRKS in `ParseDirectiveForset()`
+#define E_KEYWORD_INLINE_UNSEPARATED(_NAME_) \
+    "(^" _NAME_ ".*$)?"
+
 /// Actual regex definition macro.
 #define DEFINE_REGEX(_NAME_,_REGEXP_) \
     const std::regex _NAME_ = std::regex( _REGEXP_, std::regex::ECMAScript);
@@ -114,7 +118,6 @@ namespace Regexes
 
 // IMPORTANT! If you add a value here, you must also modify File::Keywords enum, it relies on positions in this regex
 #define IDENTIFY_KEYWORD_REGEX_STRING                             \
-    /* E_KEYWORD_BLOCK("advdrag") ~~ Not supported yet */         \
     E_KEYWORD_INLINE("add_animation")  /* Position 1 */           \
     E_KEYWORD_BLOCK("airbrakes")       /* Position 2 */           \
     E_KEYWORD_BLOCK("animators")       /* Position 3 etc... */    \
@@ -158,7 +161,7 @@ namespace Regexes
     E_KEYWORD_BLOCK("flexbodies")                                 \
     E_KEYWORD_INLINE("flexbody_camera_mode")                      \
     E_KEYWORD_BLOCK("flexbodywheels")                             \
-    E_KEYWORD_INLINE("forset")                                    \
+    E_KEYWORD_INLINE_UNSEPARATED("forset")                        \
     E_KEYWORD_BLOCK("forwardcommands")                            \
     E_KEYWORD_BLOCK("fusedrag")                                   \
     E_KEYWORD_BLOCK("globals")                                    \

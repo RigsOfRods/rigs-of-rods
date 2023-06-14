@@ -883,7 +883,8 @@ void Parser::ParseDirectiveForset()
     // --------------------------------------------------------------------------------------------
     // BEWARE OF QUIRKS in the following code (they must be preserved for backwards compatibility):
     // - a space between the 'forset' keyword and arguments is optional.
-    // - a separator at the end of line will silently add '0' to the node list.
+    // - garbage characters anywhere on the line will silently add node 0 to the set.
+    // - a separator at the end of line will silently add node 0 to the set.
     // --------------------------------------------------------------------------------------------
 
     //parsing set definition
