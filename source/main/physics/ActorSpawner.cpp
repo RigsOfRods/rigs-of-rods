@@ -89,16 +89,19 @@ using namespace RoR;
 void ActorSpawner::ConfigureSections(Ogre::String const & sectionconfig, RigDef::DocumentPtr def)
 {   
     m_selected_modules.push_back(def->root_module);
-    auto result = def->user_modules.find(sectionconfig);
+    if (sectionconfig != "")
+    {
+        auto result = def->user_modules.find(sectionconfig);
 
-    if (result != def->user_modules.end())
-    {
-        m_selected_modules.push_back(result->second);
-        LOG(" == ActorSpawner: Module added to configuration: " + sectionconfig);
-    }
-    else
-    {
-        this->AddMessage(Message::TYPE_WARNING, "Selected module not found: " + sectionconfig);
+        if (result != def->user_modules.end())
+        {
+            m_selected_modules.push_back(result->second);
+            LOG(" == ActorSpawner: Module added to configuration: " + sectionconfig);
+        }
+        else
+        {
+            this->AddMessage(Message::TYPE_WARNING, "Selected module not found: " + sectionconfig);
+        }
     }
 }
 
