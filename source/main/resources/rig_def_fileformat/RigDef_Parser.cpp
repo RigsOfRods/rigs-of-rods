@@ -880,56 +880,46 @@ void Parser::ParseDirectiveForset()
         return;
     }
 
-    // Syntax: "forset", followed by space/comma, followed by ","-separated items.
-    // Acceptable item forms:
-    // * Single node number / node name
-    // * Pair of node numbers:" 123 - 456 ". Whitespace is optional.
+    // --------------------------------------------------------------------------------------------
+    // BEWARE OF QUIRKS in the following code (they must be preserved for backwards compatibility):
+    // - a space between the 'forset' keyword and arguments is optional.
+    // - a separator at the end of line will silently add '0' to the node list.
+    // --------------------------------------------------------------------------------------------
 
-    char setdef[LINE_BUFFER_LENGTH] = ""; // strtok() is destructive, we need own buffer.
-    strncpy(setdef, m_current_line + 6, LINE_BUFFER_LENGTH - 6); // Cut away "forset"
-    const char* item = std::strtok(setdef, ",");
-
-    // TODO: Add error reporting
-    // It appears strtoul() sets no ERRNO for input 'x1' (parsed -> '0')
-
-    const ptrdiff_t MAX_ITEM_LEN = 200;
-    while (item != nullptr)
+    //parsing set definition
+    char* pos = m_current_line + 6; // 'forset' = 6 characters
+    while (*pos == ' ' || *pos == ':' || *pos == ',') { pos++; } // Skip any separators
+    char* end = pos;
+    char endwas = 'G';
+    while (endwas != 0)
     {
-        const char* hyphen = strchr(item, '-');
-        if (hyphen != nullptr)
+        int val1, val2; // Node numbers
+        end = pos;
+        while (*end != '-' && *end != ',' && *end != 0) end++;
+        endwas = *end;
+        *end = 0;
+        val1 = strtoul(pos, 0, 10);
+        if (endwas == '-')
         {
-            unsigned a = 0; 
-            char* a_end = nullptr;
-            std::string a_text;
-            std::string b_text;
-            if (hyphen != item)
-            {
-                a = ::strtoul(item, &a_end, 10);
-                size_t length = std::min(a_end - item, MAX_ITEM_LEN);
-                a_text = std::string(item, length);
-            }
-            char* b_end = nullptr;
-            const char* item2 = hyphen + 1;
-            unsigned b = ::strtoul(item2, &b_end, 10);
-            size_t length = std::min(b_end - item2, MAX_ITEM_LEN);
-            b_text = std::string(item2, length);
-
-            // Add interval [a-b]
-            m_current_module->flexbodies[m_current_module->flexbodies.size() - 1].node_list_to_import.push_back(
+            pos = end + 1;
+            end = pos;
+            while (*end != ',' && *end != 0) end++;
+            endwas = *end;
+            *end = 0;
+            val2 = strtoul(pos, 0, 10);
+            // Add interval [val1-val2]
+            m_current_module->flexbodies.back().node_list_to_import.push_back(
                 Node::Range(
-                    Node::Ref(a_text, a, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number),
-                    Node::Ref(b_text, b, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number)));
+                    Node::Ref(std::to_string(val1), val1, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number),
+                    Node::Ref(std::to_string(val2), val2, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number)));
         }
         else
         {
-            errno = 0;
-            unsigned a = 0;
-            a = ::strtoul(item, nullptr, 10);
-            // Add interval [a-a]
-            Node::Range range_a = Node::Range(Node::Ref(std::string(item), a, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number));
-            m_current_module->flexbodies[m_current_module->flexbodies.size() - 1].node_list_to_import.push_back(range_a);
+            // Add interval [val1-val1]
+            Node::Range range_a = Node::Range(Node::Ref(std::to_string(val1), val1, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number));
+            m_current_module->flexbodies.back().node_list_to_import.push_back(range_a);
         }
-        item = strtok(nullptr, ",");
+        pos = end + 1;
     }
 }
 
