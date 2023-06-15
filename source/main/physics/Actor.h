@@ -575,7 +575,6 @@ private:
     size_t            m_net_wheel_buf_size;       //!< For incoming/outgoing traffic; calculated on spawn
     size_t            m_net_propanimkey_buf_size; //!< For incoming/outgoing traffic; calculated on spawn
     size_t            m_net_total_buffer_size;    //!< For incoming/outgoing traffic; calculated on spawn
-    float             m_net_node_compression;     //!< For incoming/outgoing traffic; calculated on spawn
     int               m_net_first_wheel_node;     //!< Network attr; Determines data buffer layout; calculated on spawn
 
     Ogre::UTFString   m_net_username;
