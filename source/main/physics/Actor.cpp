@@ -69,6 +69,7 @@
 #include "VehicleAI.h"
 #include "Water.h"
 #include <fmt/format.h>
+#include "half/half.hpp"
 
 #include <sstream>
 #include <iomanip>
@@ -564,8 +565,8 @@ void Actor::calcNetwork()
         App::GetGameContext()->GetActorManager()->UpdateNetTimeOffset(ar_net_source_id, +1);
     }
 
-    short* sp1 = (short*)(netb1 + sizeof(float) * 3);
-    short* sp2 = (short*)(netb2 + sizeof(float) * 3);
+    half_float::half* halfb1 = reinterpret_cast<half_float::half*>(netb1 + sizeof(float) * 3);
+    half_float::half* halfb2 = reinterpret_cast<half_float::half*>(netb2 + sizeof(float) * 3);
     Vector3 p1ref = Vector3::ZERO;
     Vector3 p2ref = Vector3::ZERO;
     Vector3 p1 = Vector3::ZERO;
@@ -588,18 +589,14 @@ void Actor::calcNetwork()
         }
         else
         {
-            // all other nodes are compressed:
-            // short int compared to previous node
-            p1.x = (float)(sp1[(i - 1) * 3 + 0]) / m_net_node_compression;
-            p1.y = (float)(sp1[(i - 1) * 3 + 1]) / m_net_node_compression;
-            p1.z = (float)(sp1[(i - 1) * 3 + 2]) / m_net_node_compression;
-            p1 = p1 + p1ref;
+            // all other nodes are compressed as half-floats (2 bytes)
+            const int bufpos = (i - 1) * 3;
+            const Vector3 p1rel(halfb1[bufpos + 0], halfb1[bufpos + 1], halfb1[bufpos + 2]);
+            const Vector3 p2rel(halfb2[bufpos + 0], halfb2[bufpos + 1], halfb2[bufpos + 2]);
 
-            p2.x = (float)(sp2[(i - 1) * 3 + 0]) / m_net_node_compression;
-            p2.y = (float)(sp2[(i - 1) * 3 + 1]) / m_net_node_compression;
-            p2.z = (float)(sp2[(i - 1) * 3 + 2]) / m_net_node_compression;
-            p2 = p2 + p2ref;
-        }
+            p1 = p1ref + p1rel;
+            p2 = p2ref + p2rel;
+        }        
 
         // linear interpolation
         ar_nodes[i].AbsPosition = p1 + tratio * (p2 - p1);
@@ -2066,16 +2063,16 @@ void Actor::sendStreamData()
 
         ptr += sizeof(float) * 3;// plus 3 floats from above
 
-        // then copy the other nodes into a compressed short format
-        short* sbuf = (short*)ptr;
+        // then copy the other nodes into a compressed half_float format
+        half_float::half* sbuf = (half_float::half*)ptr;
         for (i = 1; i < m_net_first_wheel_node; i++)
         {
-            Vector3 relpos = ar_nodes[i].AbsPosition - refpos;
-            sbuf[(i - 1) * 3 + 0] = (short int)(relpos.x * m_net_node_compression);
-            sbuf[(i - 1) * 3 + 1] = (short int)(relpos.y * m_net_node_compression);
-            sbuf[(i - 1) * 3 + 2] = (short int)(relpos.z * m_net_node_compression);
+            Ogre::Vector3 relpos = ar_nodes[i].AbsPosition - ar_nodes[0].AbsPosition;
+            sbuf[(i-1) * 3 + 0] = static_cast<half_float::half>(relpos.x);
+            sbuf[(i-1) * 3 + 1] = static_cast<half_float::half>(relpos.y);
+            sbuf[(i-1) * 3 + 2] = static_cast<half_float::half>(relpos.z);
 
-            ptr += sizeof(short int) * 3; // increase pointer
+            ptr += sizeof(half_float::half) * 3; // increase pointer
         }
 
         // then to the wheels
