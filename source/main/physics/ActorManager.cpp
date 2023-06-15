@@ -102,15 +102,6 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
 
     actor->UpdateBoundingBoxes(); // (records the unrotated dimensions for 'veh_aab_size')
 
-    if (App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
-    {
-        // Calculate optimal node position compression (for network transfer)
-        Vector3 aabb_size = actor->ar_bounding_box.getSize();
-        float max_dimension = std::max(1.0f, aabb_size.x);
-        max_dimension = std::max(max_dimension, aabb_size.y);
-        max_dimension = std::max(max_dimension, aabb_size.z);
-        actor->m_net_node_compression = std::numeric_limits<short int>::max() / std::ceil(max_dimension * 1.5f);
-    }
     // Apply spawn position & spawn rotation
     for (int i = 0; i < actor->ar_num_nodes; i++)
     {

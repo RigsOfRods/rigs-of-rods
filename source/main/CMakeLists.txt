@@ -143,6 +143,7 @@ set(SOURCE_FILES
         network/DiscordRpc.{h,cpp}
         network/Network.{h,cpp}
         network/OutGauge.{h,cpp}
+        network/RoRnet.h
         physics/Actor.{h,cpp}
         physics/ApproxMath.h
         physics/ActorForcesEuler.cpp
