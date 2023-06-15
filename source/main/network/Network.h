@@ -44,6 +44,13 @@ namespace RoR {
 /// @addtogroup Network
 /// @{
 
+struct CurlFailInfo
+{
+    std::string title;
+    CURLcode curl_result = CURLE_OK;
+    long http_response = 0;
+};
+
 // ----------------------- Network messages (packed) -------------------------
 
 #pragma pack(push, 1)

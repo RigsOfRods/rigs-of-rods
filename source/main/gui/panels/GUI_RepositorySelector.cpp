@@ -197,8 +197,13 @@ void GetResources(std::string portal_url)
             << "[RoR|Repository] Failed to retrieve repolist;"
             << " Error: '"<< curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
 
+        CurlFailInfo* failinfo = new CurlFailInfo();
+        failinfo->title = _LC("RepositorySelector", "Could not connect to server. Please check your connection.");
+        failinfo->curl_result = curl_result;
+        failinfo->http_response = response_code;
+
         App::GetGameContext()->PushMessage(
-                Message(MSG_NET_REFRESH_REPOLIST_FAILURE, _LC("RepositorySelector", "Connection error. Please check your connection.")));
+                Message(MSG_NET_REFRESH_REPOLIST_FAILURE, failinfo));
         return;
     }
 
@@ -207,7 +212,7 @@ void GetResources(std::string portal_url)
     if (j_data_doc.HasParseError() || !j_data_doc.IsObject())
     {
         Ogre::LogManager::getSingleton().stream()
-                << "[RoR|Repository] Error parsing repolist JSON";
+                << "[RoR|Repository] Error parsing repolist JSON, code: " << j_data_doc.GetParseError();
         App::GetGameContext()->PushMessage(
                 Message(MSG_NET_REFRESH_REPOLIST_FAILURE, _LC("RepositorySelector", "Received malformed data. Please try again.")));
         return;
@@ -1112,12 +1117,31 @@ void RepositorySelector::Draw()
         LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
     }
 
-    if (!m_repolist_msg.empty())
+    if (m_repolist_msg != "")
     {
         const ImVec2 label_size = ImGui::CalcTextSize(m_repolist_msg.c_str());
+        float y = (ImGui::GetWindowSize().y / 2.f) - (ImGui::GetTextLineHeight() / 2.f);
         ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (label_size.x / 2.f));
-        ImGui::SetCursorPosY((ImGui::GetWindowSize().y / 2.f) - (label_size.y / 2.f));
+        ImGui::SetCursorPosY(y);
         ImGui::TextColored(m_repolist_msg_color, "%s", m_repolist_msg.c_str());
+        y += ImGui::GetTextLineHeightWithSpacing();
+
+        if (m_repolist_curlmsg != "")
+        {
+            const ImVec2 detail_size = ImGui::CalcTextSize(m_repolist_curlmsg.c_str());
+            ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (detail_size.x / 2.f));
+            ImGui::SetCursorPosY(y);
+            ImGui::TextDisabled("%s", m_repolist_curlmsg.c_str());
+            y += ImGui::GetTextLineHeight();
+        }
+
+        if (m_repolist_httpmsg != "")
+        {
+            const ImVec2 detail_size = ImGui::CalcTextSize(m_repolist_httpmsg.c_str());
+            ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (detail_size.x / 2.f));
+            ImGui::SetCursorPosY(y);
+            ImGui::TextDisabled("%s", m_repolist_httpmsg.c_str());
+        }
     }
 
     ImGui::End();
@@ -1199,12 +1223,16 @@ void RepositorySelector::DownloadFinished()
     m_update_cache = true;
 }
 
-void RepositorySelector::ShowError(std::string const& msg)
+void RepositorySelector::ShowError(CurlFailInfo* failinfo)
 {
-    m_repolist_msg = msg;
+    m_repolist_msg = failinfo->title;
     m_repolist_msg_color = App::GetGuiManager()->GetTheme().error_text_color;
     m_draw = false;
     m_show_spinner = false;
+    if (failinfo->curl_result != CURLE_OK)
+        m_repolist_curlmsg = curl_easy_strerror(failinfo->curl_result);
+    if (failinfo->http_response != 0)
+        m_repolist_httpmsg = fmt::format(_L("HTTP response code: {}"), failinfo->http_response);
 }
 
 void RepositorySelector::SetVisible(bool visible)
