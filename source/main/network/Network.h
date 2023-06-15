@@ -164,7 +164,7 @@ private:
     std::string          m_status_message;
     std::atomic<bool>    m_shutdown;
     std::atomic<int>     m_net_quality;
-    int                  m_stream_id = 10;
+    int                  m_stream_id = 10; //!< Counter
 
     std::mutex           m_users_mutex;
     std::mutex           m_userdata_mutex;
