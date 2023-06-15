@@ -82,8 +82,13 @@ void FetchServerlist(std::string portal_url)
             << "[RoR|Multiplayer] Failed to retrieve serverlist;"
             << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
 
+        CurlFailInfo* failinfo = new CurlFailInfo();
+        failinfo->title = _LC("MultiplayerSelector", "Error connecting to server :(");
+        failinfo->curl_result = curl_result;
+        failinfo->http_response = response_code;
+
         App::GetGameContext()->PushMessage(
-            Message(MSG_NET_REFRESH_SERVERLIST_FAILURE, _LC("MultiplayerSelector", "Error connecting to server :(")));
+            Message(MSG_NET_REFRESH_SERVERLIST_FAILURE, failinfo));
         return;
     }
 
@@ -231,9 +236,6 @@ void MultiplayerSelector::DrawServerlistTab()
 {
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
-    const char* draw_label_text = nullptr;
-    ImVec4      draw_label_color;
-
     // LOAD RESOURCES
     if (!m_lock_icon)
     {
@@ -244,13 +246,6 @@ void MultiplayerSelector::DrawServerlistTab()
                 "lock.png", ContentManager::ResourcePack::FAMICONS.resource_group_name);
         }
         catch (...) {} // Logged by OGRE
-    }
-
-    // DETERMINE WHAT TO DRAW
-    if (!m_serverlist_msg.empty())
-    {
-        draw_label_text = m_serverlist_msg.c_str();
-        draw_label_color = m_serverlist_msg_color;
     }
 
     if (m_show_spinner)
@@ -352,12 +347,31 @@ void MultiplayerSelector::DrawServerlistTab()
     }
 
     // DRAW CENTERED LABEL
-    if (draw_label_text != nullptr)
+    if (m_serverlist_msg != "")
     {
-        const ImVec2 label_size = ImGui::CalcTextSize(draw_label_text);
+        const ImVec2 label_size = ImGui::CalcTextSize(m_serverlist_msg.c_str());
+        float y = (ImGui::GetWindowSize().y / 2.f) - (ImGui::GetTextLineHeight() / 2.f);
         ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (label_size.x / 2.f));
-        ImGui::SetCursorPosY((ImGui::GetWindowSize().y / 2.f) - (label_size.y / 2.f));
-        ImGui::TextColored(draw_label_color, "%s", draw_label_text);
+        ImGui::SetCursorPosY(y);
+        ImGui::TextColored(m_serverlist_msg_color, "%s", m_serverlist_msg.c_str());
+        y += ImGui::GetTextLineHeightWithSpacing();
+
+        if (m_serverlist_curlmsg != "")
+        {
+            const ImVec2 detail_size = ImGui::CalcTextSize(m_serverlist_curlmsg.c_str());
+            ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (detail_size.x / 2.f));
+            ImGui::SetCursorPosY(y);
+            ImGui::TextDisabled("%s", m_serverlist_curlmsg.c_str());
+            y += ImGui::GetTextLineHeight();
+        }
+
+        if (m_serverlist_httpmsg != "")
+        {
+            const ImVec2 detail_size = ImGui::CalcTextSize(m_serverlist_httpmsg.c_str());
+            ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (detail_size.x / 2.f));
+            ImGui::SetCursorPosY(y);
+            ImGui::TextDisabled("%s", m_serverlist_httpmsg.c_str());
+        }
     }
 }
 
@@ -388,12 +402,16 @@ void MultiplayerSelector::SetVisible(bool visible)
     }
 }
 
-void MultiplayerSelector::DisplayRefreshFailed(std::string const& msg)
+void MultiplayerSelector::DisplayRefreshFailed(CurlFailInfo* failinfo)
 {
     m_show_spinner = false;
-    m_serverlist_msg = msg;
+    m_serverlist_msg = failinfo->title;
     m_serverlist_msg_color = App::GetGuiManager()->GetTheme().error_text_color;
     m_draw_table = false;
+    if (failinfo->curl_result != CURLE_OK)
+        m_serverlist_curlmsg = curl_easy_strerror(failinfo->curl_result);
+    if (failinfo->http_response != 0)
+        m_serverlist_httpmsg = fmt::format(_L("HTTP code: {}"), failinfo->http_response);
 }
 
 void MultiplayerSelector::UpdateServerlist(MpServerInfoVec* data)

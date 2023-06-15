@@ -102,7 +102,7 @@ public:
     void                                Refresh();
     void                                UpdateResources(ResourcesCollection* data);
     void                                UpdateFiles(ResourcesCollection* data);
-    void                                ShowError(std::string const& msg);
+    void                                ShowError(CurlFailInfo* failinfo);
     void                                DrawThumbnail(int resource_item_idx);
 
     /// Ogre::WorkQueue API
@@ -112,9 +112,6 @@ public:
 private:
     bool                                m_is_visible = false;
     bool                                m_draw = false;
-    std::string                         m_repolist_msg;
-    ImVec4                              m_repolist_msg_color;
-    std::string                         m_repofiles_msg;
     ResourcesCollection                 m_data;
     Str<500>                            m_search_input;
     std::string                         m_current_category;
@@ -132,6 +129,13 @@ private:
 #ifdef USE_CURL
     CURL                                *curl_th = curl_easy_init(); // One connection for fetching thumbnails using connection reuse
 #endif
+
+    // status or error messages
+    std::string                         m_repofiles_msg;
+    std::string                         m_repolist_msg;
+    ImVec4                              m_repolist_msg_color;
+    std::string                         m_repolist_curlmsg; //!< Displayed as dimmed text
+    std::string                         m_repolist_httpmsg; //!< Displayed as dimmed text
 };
 
 }// namespace GUI

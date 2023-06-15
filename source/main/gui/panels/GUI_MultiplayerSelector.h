@@ -63,7 +63,7 @@ public:
     inline bool         IsVisible() const { return m_is_visible; }
     void                StartAsyncRefresh(); //!< Launch refresh from main thread
     void                Draw();
-    void                DisplayRefreshFailed(std::string const& msg);
+    void                DisplayRefreshFailed(CurlFailInfo* failinfo);
     void                UpdateServerlist(MpServerInfoVec* data);
 
 private:
@@ -72,8 +72,6 @@ private:
     void                DrawServerlistTab();
 
     MpServerInfoVec     m_serverlist_data;
-    std::string         m_serverlist_msg;
-    ImVec4              m_serverlist_msg_color;
     int                 m_selected_item = -1;
     char                m_window_title[100];
     bool                m_is_visible = false;
@@ -84,6 +82,12 @@ private:
     Str<1000>           m_server_host_buf;
     Ogre::TexturePtr    m_lock_icon;
     bool                m_show_spinner = false;
+
+    // status or error messages
+    std::string         m_serverlist_msg;
+    ImVec4              m_serverlist_msg_color;
+    std::string         m_serverlist_curlmsg; //!< Displayed as dimmed text
+    std::string         m_serverlist_httpmsg; //!< Displayed as dimmed text
 };
 
 } // namespace GUI

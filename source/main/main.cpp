@@ -32,7 +32,6 @@
 #include "ErrorUtils.h"
 #include "GameContext.h"
 #include "GfxScene.h"
-#include "GUIManager.h"
 #include "GUI_DirectionArrow.h"
 #include "GUI_FrictionSettings.h"
 #include "GUI_GameControls.h"
@@ -44,6 +43,8 @@
 #include "GUI_RepositorySelector.h"
 #include "GUI_SimActorStats.h"
 #include "GUI_SurveyMap.h"
+#include "GUIManager.h"
+#include "GUIUtils.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "MumbleIntegration.h"
@@ -506,7 +507,9 @@ int main(int argc, char *argv[])
 
                 case MSG_NET_REFRESH_SERVERLIST_FAILURE:
                 {
-                    App::GetGuiManager()->MultiplayerSelector.DisplayRefreshFailed(m.description);
+                    CurlFailInfo* failinfo = static_cast<CurlFailInfo*>(m.payload);
+                    App::GetGuiManager()->MultiplayerSelector.DisplayRefreshFailed(failinfo);
+                    delete failinfo;
                     break;
                 }
 
@@ -527,8 +530,12 @@ int main(int argc, char *argv[])
                 }
 
                 case MSG_NET_REFRESH_REPOLIST_FAILURE:
-                    App::GetGuiManager()->RepositorySelector.ShowError(m.description);
+                {
+                    CurlFailInfo* failinfo = static_cast<CurlFailInfo*>(m.payload);
+                    App::GetGuiManager()->RepositorySelector.ShowError(failinfo);
+                    delete failinfo;
                     break;
+                }
 
                 case MSG_NET_REFRESH_AI_PRESETS:
                     App::GetGuiManager()->TopMenubar.Refresh(m.description);

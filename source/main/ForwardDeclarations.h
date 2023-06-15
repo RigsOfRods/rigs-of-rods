@@ -54,6 +54,7 @@ namespace RoR
     class  ConfigFile;
     class  Console;
     class  ContentManager;
+    struct CurlFailInfo;
     class  CVar;
     class  DashBoard;
     class  DashBoardManager;
