@@ -141,6 +141,7 @@ set(SOURCE_FILES
         gui/panels/GUI_VehicleDescription.{h,cpp}
         gui/panels/GUI_VehicleButtons.{h,cpp}
         network/DiscordRpc.{h,cpp}
+        network/NetStats.{h,cpp}
         network/Network.{h,cpp}
         network/OutGauge.{h,cpp}
         network/RoRnet.h

@@ -352,8 +352,10 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
     // Compress data stream by eliminating all but the last update from every consecutive group of stream data updates
     auto it = std::unique(packet_buffer.rbegin(), packet_buffer.rend(),
             [](const RoR::NetRecvPacket& a, const RoR::NetRecvPacket& b)
-            { return !memcmp(&a.header, &b.header, sizeof(RoRnet::Header)) &&
-            a.header.command == RoRnet::MSG2_STREAM_DATA; });
+            { return a.header.command == RoRnet::MSG2_STREAM_DATA
+                && a.header.source == b.header.source
+                && a.header.streamid == b.header.streamid;
+            });
     packet_buffer.erase(packet_buffer.begin(), it.base());
     for (auto& packet : packet_buffer)
     {

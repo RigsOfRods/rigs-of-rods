@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2016 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -24,6 +24,7 @@
 #ifdef USE_SOCKETW
 
 #include "Application.h"
+#include "NetStats.h"
 #include "RoRnet.h"
 
 #include <SocketW.h>
@@ -80,13 +81,16 @@ struct NetCharacterMsgAttach
 
 struct NetSendPacket
 {
-    char buffer[RORNET_MAX_MESSAGE_LENGTH];
-    int size;
+    char buffer[RORNET_MAX_MESSAGE_LENGTH] = {};
+    int size = 0;
+
+    RoRnet::Header* const GetHeader() { return reinterpret_cast<RoRnet::Header*>(buffer); }
 };
 
 struct NetRecvPacket
 {
     RoRnet::Header header;
+    RoRnet::NetTime32_t recv_queue_time;
     char buffer[RORNET_MAX_MESSAGE_LENGTH];
 };
 
@@ -119,6 +123,7 @@ public:
     bool                 GetDisconnectedUserInfo(int uid, RoRnet::UserInfo &result);
     bool                 GetAnyUserInfo(int uid, RoRnet::UserInfo &result); //!< Also considers local client
     bool                 FindUserInfo(std::string const& username, RoRnet::UserInfo &result);
+    bool                 GetUserStats(int uid, NetClientStats& result);
     Ogre::ColourValue    GetPlayerColor(int color_num);
 
     void                 BroadcastChatMsg(const char* msg);
@@ -168,13 +173,22 @@ private:
 
     std::mutex           m_users_mutex;
     std::mutex           m_userdata_mutex;
-    std::mutex           m_recv_packetqueue_mutex;
-    std::mutex           m_send_packetqueue_mutex;
+    
+    /// @name Threadsafe send packet queue
+    /// {
+    std::mutex                 m_send_packetqueue_mutex;
+    std::condition_variable    m_send_packet_available_cv;
+    std::deque<NetSendPacket>  m_send_packet_buffer;
+    Ogre::Timer                m_send_packet_timer; //!< In sync with `m_recv_packet_timer`
+    /// }
 
-    std::condition_variable m_send_packet_available_cv;
-
+    /// @name Threadsafe recv packet queue + stats
+    /// {
+    std::mutex                 m_recv_packetqueue_mutex;
     std::vector<NetRecvPacket> m_recv_packet_buffer;
-    std::deque <NetSendPacket> m_send_packet_buffer;
+    Ogre::Timer                m_recv_packet_timer; //!< In sync with `m_send_packet_timer`
+    std::unordered_map<int, NetClientStats> m_recv_client_stats;
+    /// }
 };
 
 /// @}   //addtogroup Network

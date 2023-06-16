@@ -28,6 +28,7 @@
 #pragma once
 
 #include "RoRnet.h"
+#include "Network.h"
 
 #include <Ogre.h>
 #include <imgui.h>
@@ -43,6 +44,8 @@ public:
 
 private:
     bool DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box); // Returns true if hovered
+    bool DrawPlotSmall(const char* label, const char* overlay_text, NetGraphData& graphdata, float width);
+    void DrawPlotBig(const char* label, NetGraphData& graphdata);
     void CacheIcons();
 
     std::vector<RoRnet::UserInfo> m_users; // only updated on demand to reduce mutex locking and vector allocating overhead.
