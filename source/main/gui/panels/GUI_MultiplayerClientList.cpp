@@ -65,7 +65,7 @@ void MpClientList::Draw()
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
-    const float content_width = 200.f;
+    const float content_width = 300.f;
     ImGui::SetNextWindowContentWidth(content_width);
     ImGui::SetNextWindowPos(ImVec2(
         ImGui::GetIO().DisplaySize.x - (content_width + (2*ImGui::GetStyle().WindowPadding.x) + theme.screen_edge_padding.x),
@@ -85,6 +85,8 @@ void MpClientList::Draw()
     const RoRnet::UserInfo& local_user = m_users[0]; // See `UpdateClients()`
     for (RoRnet::UserInfo const& user: m_users)
     {
+        ImGui::PushID(user.uniqueid);
+
         // Icon sizes: flag(16x11), auth(16x16), up(16x16), down(16x16)
         bool hovered = false;
         Ogre::TexturePtr flag_tex;
@@ -113,8 +115,18 @@ void MpClientList::Draw()
             default:;
             }
         }
+
+        // net graphs
+        NetClientStats stats;
+        App::GetNetwork()->GetUserStats(user.uniqueid, /*out*/stats);
+
+        hovered |= this->DrawPlotSmall("##Time", "", stats.client_time_offset, 40.f);
+        
         // Always invoke to keep usernames aligned
         hovered |= this->DrawIcon(down_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
+        hovered |= this->DrawPlotSmall("##Send", "", stats.remote_queue_delay, 25.f);
+        hovered |= this->DrawPlotSmall("##Recv", "", stats.local_queue_delay, 25.f);
+        // Always invoke to keep usernames aligned
         hovered |= this->DrawIcon(up_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
 
         // Auth icon
@@ -214,10 +226,18 @@ void MpClientList::Draw()
                 case 2: ImGui::Text("%s", _LC("MultiplayerClientList", "No Trucks loaded")); break;
                 default:; // never happens
                 }
+
+                // Stats
+                ImGui::Separator();
+                this->DrawPlotBig("Time shift (ms)", stats.client_time_offset);
+                this->DrawPlotBig("Send lag (ms)", stats.remote_queue_delay);
+                this->DrawPlotBig("Recv lag (ms)", stats.local_queue_delay);
             }
 
             ImGui::EndTooltip();
         }
+
+        ImGui::PopID(); //user.uniqueid
     }
 
     if (App::GetNetwork()->GetNetQuality() != 0)
@@ -265,4 +285,27 @@ void MpClientList::CacheIcons()
     m_icon_warn_triangle   = FetchIcon("error.png");
 
     m_icons_cached = true;
+}
+
+bool MpClientList::DrawPlotSmall(const char* label, const char* overlay_text, NetGraphData& graphdata, float width)
+{
+    graphdata.ImPlotLines(label, overlay_text, ImVec2(width, ImGui::GetTextLineHeight()));
+    ImGui::SameLine();
+    return ImGui::IsItemHovered();
+}
+
+void MpClientList::DrawPlotBig(const char* label, NetGraphData& graphdata)
+{
+    const float PLOT_WIDTH = 125.f;
+
+    // The plot widget
+    const ImVec2 cursor_start = ImGui::GetCursorPos();
+    graphdata.ImPlotLines(label, nullptr, ImVec2(PLOT_WIDTH, 35.f));
+    const ImVec2 cursor_end = ImGui::GetCursorPos();
+
+    // The plot scale text
+    const ImVec2 scale_pos = cursor_start + ImVec2(PLOT_WIDTH + 5.f, ImGui::GetTextLineHeight() + 2.f);
+    ImGui::SetCursorPos(scale_pos);
+    ImGui::TextDisabled("%5.2f - %5.2f", graphdata.plotline_smoothmin, graphdata.plotline_smoothmax);
+    ImGui::SetCursorPos(cursor_end);
 }

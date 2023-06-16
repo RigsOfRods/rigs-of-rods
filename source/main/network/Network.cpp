@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2016 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -167,7 +167,8 @@ void Network::QueueStreamData(RoRnet::Header &header, char *buffer, size_t buffe
     memcpy(packet.buffer, buffer, std::min(buffer_len, size_t(RORNET_MAX_MESSAGE_LENGTH)));
 
     std::lock_guard<std::mutex> lock(m_recv_packetqueue_mutex);
-    m_recv_packet_buffer.push_back(packet);
+    packet.recv_queue_time = m_recv_packet_timer.getMilliseconds();
+    m_recv_packet_buffer.push_back(packet);    
 }
 
 int Network::ReceiveMessage(RoRnet::Header *head, char* content, int bufferlen)
@@ -228,6 +229,7 @@ void Network::SendThread()
                 break;
             }
             packet = m_send_packet_buffer.front();
+            packet.GetHeader()->source_send_time = m_send_packet_timer.getMilliseconds();
             m_send_packet_buffer.pop_front();
         }
         SendMessageRaw(packet.buffer, packet.size);
@@ -552,6 +554,8 @@ bool Network::ConnectThread()
     m_shutdown = false;
 
     LOG("[RoR|Networking] Connect(): Creating Send/Recv threads");
+    m_send_packet_timer.reset();
+    m_recv_packet_timer.reset();
     m_send_thread = std::thread(&Network::SendThread, this);
     m_recv_thread = std::thread(&Network::RecvThread, this);
     PushNetMessage(MSG_NET_CONNECT_SUCCESS, "");
@@ -614,18 +618,15 @@ void Network::AddPacket(int streamid, int type, int len, const char *content)
     }
 
     NetSendPacket packet;
-    memset(&packet, 0, sizeof(NetSendPacket));
-
-    char *buffer = (char*)(packet.buffer);
-
-    RoRnet::Header *head = (RoRnet::Header *)buffer;
-    head->command     = type;
-    head->source      = m_uid;
-    head->size        = len;
-    head->streamid    = streamid;
+    
+    // fill in the header
+    packet.GetHeader()->command     = type;
+    packet.GetHeader()->source      = m_uid;
+    packet.GetHeader()->size        = len;
+    packet.GetHeader()->streamid    = streamid;
 
     // then copy the contents
-    char *bufferContent = (char *)(buffer + sizeof(RoRnet::Header));
+    char *bufferContent = (char *)(packet.buffer + sizeof(RoRnet::Header));
     memcpy(bufferContent, content, len);
 
     // record the packet size
@@ -633,6 +634,7 @@ void Network::AddPacket(int streamid, int type, int len, const char *content)
 
     { // Lock scope
         std::lock_guard<std::mutex> lock(m_send_packetqueue_mutex);
+
         if (type == MSG2_STREAM_DATA_DISCARDABLE)
         {
             if (m_send_packet_buffer.size() > m_packet_buffer_size)
@@ -651,6 +653,7 @@ void Network::AddPacket(int streamid, int type, int len, const char *content)
             }
         }
         //DebugPacket("send", head, buffer);
+        packet.GetHeader()->source_queue_time = m_send_packet_timer.getMilliseconds();
         m_send_packet_buffer.push_back(packet);
     }
 
@@ -674,6 +677,19 @@ std::vector<NetRecvPacket> Network::GetIncomingStreamData()
     std::lock_guard<std::mutex> lock(m_recv_packetqueue_mutex);
     std::vector<NetRecvPacket> buf_copy = m_recv_packet_buffer;
     m_recv_packet_buffer.clear();
+
+    // update stats (graphs)
+    // TODO: this should be done _after_ the packets get pruned in `HandleActorStreamData()` 
+    //      - that logic should be moved here so that characters benefit too.
+    for (const NetRecvPacket& packet: buf_copy)
+    {
+        const RoRnet::NetTime32_t cur_time = m_recv_packet_timer.getMilliseconds();
+        NetClientStats& stats = m_recv_client_stats[packet.header.source];
+        stats.remote_queue_delay.AddSample(packet.header.source_send_time - packet.header.source_queue_time);
+        stats.local_queue_delay.AddSample(cur_time - packet.recv_queue_time);
+        stats.client_time_offset.AddSample(cur_time - packet.header.source_queue_time);
+    }
+
     return buf_copy;
 }
 
@@ -768,6 +784,18 @@ bool Network::FindUserInfo(std::string const& username, RoRnet::UserInfo &result
         }
     }
     return false;
+}
+
+bool Network::GetUserStats(int uid, NetClientStats& result)
+{
+    std::lock_guard<std::mutex> lock(m_recv_packetqueue_mutex);
+    const auto it = m_recv_client_stats.find(uid);
+    const bool found = it != m_recv_client_stats.end();
+    if (found)
+    {
+        result = it->second;
+    }
+    return found;
 }
 
 void Network::BroadcastChatMsg(const char* msg)
