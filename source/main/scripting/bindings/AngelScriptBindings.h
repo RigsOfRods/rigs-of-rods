@@ -79,6 +79,10 @@ void RegisterMessageQueue(AngelScript::asIScriptEngine* engine);
 /// defined in SoundScriptAngelscript.cpp
 void RegisterSoundScript(AngelScript::asIScriptEngine* engine);
 
+/// Register class EngineSim and related enums, defined in EngineSimAngelscript.cpp
+void RegisterEngineSim(AngelScript::asIScriptEngine* engine);
+
+
 /// @}   //addtogroup Scripting
 
 } // namespace RoR

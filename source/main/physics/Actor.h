@@ -24,6 +24,7 @@
 #include "Application.h"
 #include "CmdKeyInertia.h"
 #include "Differentials.h"
+#include "EngineSim.h"
 #include "GfxActor.h"
 #include "PerVehicleCameraContext.h"
 #include "RigDef_Prerequisites.h"
@@ -206,6 +207,7 @@ public:
     Replay*           getReplay();
     TyrePressure&     getTyrePressure() { return m_tyre_pressure; }
     VehicleAIPtr      getVehicleAI() { return ar_vehicle_ai; }
+    EngineSimPtr      getEngineSim() { return ar_engine; }
     //! @}
 
     /// @name Organizational
@@ -358,7 +360,7 @@ public:
     ActorInstanceID_t ar_instance_id;              //!< Static attr; session-unique ID
     unsigned int      ar_vector_index;             //!< Sim attr; actor element index in std::vector<m_actors>
     ActorType         ar_driveable;                //!< Sim attr; marks vehicle type and features
-    EngineSim*        ar_engine;
+    EngineSimPtr      ar_engine;
     NodeNum_t         ar_cinecam_node[MAX_CAMERAS] = {NODENUM_INVALID}; //!< Sim attr; Cine-camera node indexes
     int               ar_num_cinecams;             //!< Sim attr;
     Autopilot*        ar_autopilot;

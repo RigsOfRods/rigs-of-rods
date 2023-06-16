@@ -28,6 +28,7 @@
 #include "Console.h"
 #include "ContentManager.h"
 #include "DashBoardManager.h"
+#include "EngineSim.h"
 #include "ErrorUtils.h"
 #include "GameContext.h"
 #include "GUIManager.h"

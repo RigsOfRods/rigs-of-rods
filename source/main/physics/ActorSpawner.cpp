@@ -386,7 +386,7 @@ void ActorSpawner::FinalizeRig()
         }
 
         //Gearbox
-        m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
+        m_actor->ar_engine->setAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
     }
     
     // Sanitize trigger_cmdshort and trigger_cmdlong
@@ -5251,31 +5251,23 @@ void ActorSpawner::ProcessEngoption(RigDef::Engoption & def)
 
 void ActorSpawner::ProcessEngine(RigDef::Engine & def)
 {
-    /* Process it */
+    /* This is a land vehicle */
     m_actor->ar_driveable = TRUCK;
 
-    /* Process gear list to EngineSim-compatible format */
-    /* TODO: Move this to EngineSim::EngineSim() */
-    std::vector<float> gears_compat;
-    gears_compat.reserve(2 + def.gear_ratios.size());
-    gears_compat.push_back(def.reverse_gear_ratio);
-    gears_compat.push_back(def.neutral_gear_ratio);
-    std::vector<float>::iterator itor = def.gear_ratios.begin();
-    for (; itor < def.gear_ratios.end(); itor++)
-    {
-        gears_compat.push_back(*itor);
-    }
-
+    /* Process it */
     m_actor->ar_engine = new EngineSim(
         def.shift_down_rpm,
         def.shift_up_rpm,
         def.torque,
-        gears_compat,
+        def.reverse_gear_ratio,
+        def.neutral_gear_ratio,
+        def.gear_ratios,
         def.global_gear_ratio,
         m_actor
     );
 
-    m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
+    /* Apply game configuration */
+    m_actor->ar_engine->setAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
 };
 
 void ActorSpawner::ProcessHelp(RigDef::Help & def)
@@ -6149,7 +6141,7 @@ void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
         }
         if (vehicle->ar_engine->m_engine_type == 'c')
             AddSoundSourceInstance(vehicle, "tracks/default_car", ar_exhaust_pos_node);
-        if (vehicle->ar_engine->HasTurbo())
+        if (vehicle->ar_engine->hasTurbo())
         {
             if (vehicle->ar_engine->m_turbo_inertia_factor >= 3)
                 AddSoundSourceInstance(vehicle, "tracks/default_turbo_big", ar_exhaust_pos_node);
