@@ -150,7 +150,7 @@ void RoR::ResolveInterActorCollisions(const float dt, PointColDetector &interPoi
             // To avoid repeated lookups in ActorManager, we loop actors first and skip non-matching hits.
             for (ActorInstanceID_t actorid: interPointCD.hit_list_actorset)
             {
-                ActorPtr hit_actor = App::GetGameContext()->GetActorManager()->GetActorById(actorid);
+                const ActorPtr& hit_actor = App::GetGameContext()->GetActorManager()->GetActorById(actorid);
                 for (PointidID_t h : interPointCD.hit_list)
                 {
                     // skip hits from other actors

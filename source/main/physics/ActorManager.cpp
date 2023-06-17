@@ -58,6 +58,7 @@ using namespace Ogre;
 using namespace RoR;
 
 static ActorInstanceID_t m_actor_counter = 0;
+const ActorPtr ActorManager::ACTORPTR_NULL; // Dummy value to be returned as const reference.
 
 ActorManager::ActorManager()
     : m_dt_remainder(0.0f)
@@ -550,7 +551,7 @@ int ActorManager::CheckNetRemoteStreamsOk(int sourceid)
     return result;
 }
 
-ActorPtr ActorManager::GetActorByNetworkLinks(int source_id, int stream_id)
+const ActorPtr& ActorManager::GetActorByNetworkLinks(int source_id, int stream_id)
 {
     for (ActorPtr& actor: m_actors)
     {
@@ -560,7 +561,7 @@ ActorPtr ActorManager::GetActorByNetworkLinks(int source_id, int stream_id)
         }
     }
 
-    return nullptr;
+    return ACTORPTR_NULL;
 }
 
 bool ActorManager::CheckActorCollAabbIntersect(int a, int b)
@@ -906,7 +907,7 @@ int FindPivotActorId(ActorPtr player, ActorPtr prev_player)
     return -1;
 }
 
-ActorPtr ActorManager::FetchNextVehicleOnList(ActorPtr player, ActorPtr prev_player)
+const ActorPtr& ActorManager::FetchNextVehicleOnList(ActorPtr player, ActorPtr prev_player)
 {
     int pivot_index = FindPivotActorId(player, prev_player);
 
@@ -914,7 +915,7 @@ ActorPtr ActorManager::FetchNextVehicleOnList(ActorPtr player, ActorPtr prev_pla
     {
         if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            return m_actors[i].GetRef();
+            return m_actors[i];
         }
     }
 
@@ -922,19 +923,19 @@ ActorPtr ActorManager::FetchNextVehicleOnList(ActorPtr player, ActorPtr prev_pla
     {
         if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            return m_actors[i].GetRef();
+            return m_actors[i];
         }
     }
 
     if (pivot_index >= 0 && m_actors[pivot_index]->ar_state != ActorState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
     {
-        return m_actors[pivot_index].GetRef();
+        return m_actors[pivot_index];
     }
 
-    return nullptr;
+    return ACTORPTR_NULL;
 }
 
-ActorPtr ActorManager::FetchPreviousVehicleOnList(ActorPtr player, ActorPtr prev_player)
+const ActorPtr& ActorManager::FetchPreviousVehicleOnList(ActorPtr player, ActorPtr prev_player)
 {
     int pivot_index = FindPivotActorId(player, prev_player);
 
@@ -942,7 +943,7 @@ ActorPtr ActorManager::FetchPreviousVehicleOnList(ActorPtr player, ActorPtr prev
     {
         if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            return m_actors[i].GetRef();
+            return m_actors[i];
         }
     }
 
@@ -950,19 +951,19 @@ ActorPtr ActorManager::FetchPreviousVehicleOnList(ActorPtr player, ActorPtr prev
     {
         if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
         {
-            return m_actors[i].GetRef();
+            return m_actors[i];
         }
     }
 
     if (pivot_index >= 0 && m_actors[pivot_index]->ar_state != ActorState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
     {
-        return m_actors[pivot_index].GetRef();
+        return m_actors[pivot_index];
     }
 
-    return nullptr;
+    return ACTORPTR_NULL;
 }
 
-ActorPtr ActorManager::FetchRescueVehicle()
+const ActorPtr& ActorManager::FetchRescueVehicle()
 {
     for (ActorPtr& actor: m_actors)
     {
@@ -971,7 +972,7 @@ ActorPtr ActorManager::FetchRescueVehicle()
             return actor;
         }
     }
-    return nullptr;
+    return ACTORPTR_NULL;
 }
 
 void ActorManager::UpdateActors(ActorPtr player_actor)
@@ -1090,7 +1091,7 @@ void ActorManager::UpdateActors(ActorPtr player_actor)
         m_sim_task->join();
 }
 
-ActorPtr ActorManager::GetActorById(ActorInstanceID_t actor_id)
+const ActorPtr& ActorManager::GetActorById(ActorInstanceID_t actor_id)
 {
     for (ActorPtr& actor: m_actors)
     {
@@ -1099,7 +1100,7 @@ ActorPtr ActorManager::GetActorById(ActorInstanceID_t actor_id)
             return actor;
         }
     }
-    return 0;
+    return ACTORPTR_NULL;
 }
 
 void ActorManager::UpdatePhysicsSimulation()

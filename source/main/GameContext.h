@@ -111,26 +111,26 @@ public:
 
     bool                LoadTerrain(std::string const& filename_part);
     void                UnloadTerrain();
-    TerrainPtr&         GetTerrain() { return m_terrain; }
+    const TerrainPtr&   GetTerrain() { return m_terrain; }
 
     /// @}
     /// @name Actors
     /// @{
 
-    ActorPtr              SpawnActor(ActorSpawnRequest& rq);
+    ActorPtr            SpawnActor(ActorSpawnRequest& rq);
     void                ModifyActor(ActorModifyRequest& rq);
     void                DeleteActor(ActorPtr actor);
     void                UpdateActors();
     ActorManager*       GetActorManager() { return &m_actor_manager; }
-    ActorPtr            FetchPrevVehicleOnList();
-    ActorPtr            FetchNextVehicleOnList();
+    const ActorPtr&     FetchPrevVehicleOnList();
+    const ActorPtr&     FetchNextVehicleOnList();
     ActorPtr            FindActorByCollisionBox(std::string const & ev_src_instance_name, std::string const & box_name);
     void                RespawnLastActor();
     void                SpawnPreselectedActor(std::string const& preset_vehicle, std::string const& preset_veh_config); //!< needs `Character` to exist
 
-    ActorPtr            GetPlayerActor() { return m_player_actor; }
-    ActorPtr            GetPrevPlayerActor() { return m_prev_player_actor; }
-    ActorPtr            GetLastSpawnedActor() { return m_last_spawned_actor; } //!< Last actor spawned by user and still alive.
+    const ActorPtr&     GetPlayerActor() { return m_player_actor; }
+    const ActorPtr&     GetPrevPlayerActor() { return m_prev_player_actor; }
+    const ActorPtr&     GetLastSpawnedActor() { return m_last_spawned_actor; } //!< Last actor spawned by user and still alive.
     void                SetPrevPlayerActor(ActorPtr actor) { m_prev_player_actor = actor; }
     void                ChangePlayerActor(ActorPtr actor);
 
@@ -187,9 +187,9 @@ private:
 
     // Actors (physics and netcode)
     ActorManager        m_actor_manager;
-    ActorPtr              m_player_actor = nullptr;           //!< Actor (vehicle or machine) mounted and controlled by player
-    ActorPtr              m_prev_player_actor = nullptr;      //!< Previous actor (vehicle or machine) mounted and controlled by player
-    ActorPtr              m_last_spawned_actor = nullptr;     //!< Last actor spawned by user and still alive.
+    ActorPtr            m_player_actor = nullptr;           //!< Actor (vehicle or machine) mounted and controlled by player
+    ActorPtr            m_prev_player_actor = nullptr;      //!< Previous actor (vehicle or machine) mounted and controlled by player
+    ActorPtr            m_last_spawned_actor = nullptr;     //!< Last actor spawned by user and still alive.
     
     CacheEntry*         m_last_cache_selection = nullptr;   //!< Vehicle/load
     CacheEntry*         m_last_skin_selection = nullptr;

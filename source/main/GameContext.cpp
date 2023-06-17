@@ -533,12 +533,12 @@ void GameContext::ChangePlayerActor(ActorPtr actor)
     m_actor_manager.UpdateSleepingState(m_player_actor, 0.f);
 }
 
-ActorPtr GameContext::FetchPrevVehicleOnList()
+const ActorPtr& GameContext::FetchPrevVehicleOnList()
 {
     return m_actor_manager.FetchPreviousVehicleOnList(m_player_actor, m_prev_player_actor);
 }
 
-ActorPtr GameContext::FetchNextVehicleOnList()
+const ActorPtr& GameContext::FetchNextVehicleOnList()
 {
     return m_actor_manager.FetchNextVehicleOnList(m_player_actor, m_prev_player_actor);
 }
