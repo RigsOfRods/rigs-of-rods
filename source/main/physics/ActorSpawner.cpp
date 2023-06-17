@@ -232,15 +232,6 @@ void ActorSpawner::InitializeRig()
 
     m_actor->ar_minimass.resize(req.num_nodes);
 
-    // commands contain complex data structures, do not memset them ...
-    for (int i=0;i<MAX_COMMANDS+1;i++)
-    {
-        m_actor->ar_command_key[i].commandValue=0;
-        m_actor->ar_command_key[i].beams.clear();
-        m_actor->ar_command_key[i].rotators.clear();
-        m_actor->ar_command_key[i].description="";
-    }
-
     m_actor->exhausts.clear();
     memset(m_actor->ar_custom_particles, 0, sizeof(cparticle_t) * MAX_CPARTICLES);
     m_actor->ar_num_custom_particles = 0;
@@ -3124,84 +3115,102 @@ void ActorSpawner::ProcessLockgroup(RigDef::Lockgroup & lockgroup)
 
 void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
 {
-    shock_t & shock = this->GetFreeShock();
+    float sbound = def.contraction_trigger_limit; // shortbound
+    float lbound = def.expansion_trigger_limit; // longbound
 
-    // Disable trigger on startup? (default enabled)
-    shock.trigger_enabled = BITMASK_IS_0(def.options, RigDef::Trigger::OPTION_x_START_DISABLED);
+	// options
+	bool invisible = false;
+	BitMask_t shockflag = SHOCK_FLAG_NORMAL | SHOCK_FLAG_ISTRIGGER;
+	bool shock_trigger_enabled = true;
+	bool triggerblocker = false;
+	bool triggerblocker_inverted = false;
+	bool cmdkeyblock = false;
+	bool hooktoggle = false;
+	bool enginetrigger = false;
 
-    m_actor->ar_command_key[def.shortbound_trigger_action].trigger_cmdkeyblock_state = false;
-    if (def.longbound_trigger_action != -1)
+	bool trigger_cmdkeyblock_state_short = false;
+    bool trigger_cmdkeyblock_state_long = (def.longbound_trigger_action != -1);
+
+    // now 'parse' the options
+	if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_i_INVISIBLE)) // invisible
     {
-        m_actor->ar_command_key[def.longbound_trigger_action].trigger_cmdkeyblock_state = false;
+        invisible = true;
     }
-
-    unsigned int shock_flags = SHOCK_FLAG_NORMAL | SHOCK_FLAG_ISTRIGGER;
-    float short_limit = def.contraction_trigger_limit;
-    float long_limit = def.expansion_trigger_limit;
-
-    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_B_TRIGGER_BLOCKER))
+    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_x_START_DISABLED)) // this trigger is disabled on startup, default is enabled
     {
-        BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_BLOCKER);
+        shock_trigger_enabled = false;
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_B_TRIGGER_BLOCKER)) // Blocker that enable/disable other triggers
+    {
+		shockflag |= SHOCK_FLAG_TRG_BLOCKER;
+		triggerblocker = true;
+    }
+    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_b_KEY_BLOCKER)) // Set the CommandKeys that are set in a commandkeyblocker or trigger to blocked on startup, default is released
+    {
+        cmdkeyblock = true;
     }
     if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_s_CMD_NUM_SWITCH)) // switch that exchanges cmdshort/cmdshort for all triggers with the same commandnumbers, default false
     {
-        BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_CMD_SWITCH);
+        shockflag |= SHOCK_FLAG_TRG_CMD_SWITCH;
     }
     if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_c_COMMAND_STYLE)) // trigger is set with commandstyle boundaries instead of shocksytle
     {
-        short_limit = fabs(short_limit - 1);
-        long_limit = long_limit - 1;
+		sbound = abs(sbound-1);
+		lbound = lbound-1;
     }
     if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_A_INV_TRIGGER_BLOCKER)) // Blocker that enable/disable other triggers, reversed activation method (inverted Blocker style, auto-ON)
     {
-        BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_BLOCKER_A);
+        shockflag |= SHOCK_FLAG_TRG_BLOCKER_A;
+		triggerblocker_inverted = true;
     }
     if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_h_UNLOCKS_HOOK_GROUP))
     {
-        BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_HOOK_UNLOCK);
+		shockflag |= SHOCK_FLAG_TRG_HOOK_UNLOCK;
+		hooktoggle = true;
     }
     if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_H_LOCKS_HOOK_GROUP))
     {
-        BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_HOOK_LOCK);
+		shockflag |= SHOCK_FLAG_TRG_HOOK_LOCK;
+		hooktoggle = true;
     }
-    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_t_CONTINUOUS))
+    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_t_CONTINUOUS)) // this trigger sends values between 0 and 1
     {
-        BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_CONTINUOUS); // this trigger sends values between 0 and 1
+        shockflag |= SHOCK_FLAG_TRG_CONTINUOUS;
     }
-    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER))
+    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER)) // this trigger is used to control an engine
     {
-        BITMASK_SET_1(shock_flags, SHOCK_FLAG_TRG_ENGINE);
+		shockflag |= SHOCK_FLAG_TRG_ENGINE;
+		enginetrigger = true;
     }
 
-    // Checks
-    if (!def.IsTriggerBlockerAnyType() && !def.IsHookToggleTrigger() && !BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER))
-    {
-        if (def.shortbound_trigger_action < 1 || def.shortbound_trigger_action > MAX_COMMANDS)
-        {
-            std::stringstream msg;
-            msg << "Invalid value of 'shortbound_trigger_action': '" << def.shortbound_trigger_action << "'. Must be between 1 and "<<MAX_COMMANDS<<". Ignoring trigger.";
-            AddMessage(Message::TYPE_ERROR, msg.str());
+	if (!triggerblocker && !triggerblocker_inverted && !hooktoggle && !enginetrigger)
+	{
+		// make the full check
+		if (def.shortbound_trigger_action < 1 || def.shortbound_trigger_action > MAX_COMMANDS)
+		{
+            AddMessage(Message::TYPE_ERROR, fmt::format("Wrong 'shortbound_trigger_action': '{}' - must be between 1 and {}. Trigger deactivated.", def.shortbound_trigger_action, MAX_COMMANDS));
             return;
-        }
-    }
-    else if (!def.IsHookToggleTrigger() && !BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER))
-    {
-        // this is a Trigger-Blocker, make special check
-        if (def.shortbound_trigger_action < 0 || def.longbound_trigger_action < 0)
-        {
-            AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber (Triggers). Trigger-Blocker deactivated.");
+		}
+	}
+    else if (!hooktoggle && !enginetrigger)
+	{
+		// this is a Trigger-Blocker, make special check
+		if (def.shortbound_trigger_action < 0 || def.longbound_trigger_action < 0)
+		{
+			AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber (Triggers). Trigger-Blocker deactivated.");
             return;
-        }
-    }
-    else if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER))
-    {
-        if (def.IsTriggerBlockerAnyType() || def.IsHookToggleTrigger() || BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_s_CMD_NUM_SWITCH))
-        {
-            AddMessage(Message::TYPE_ERROR, "Wrong command-eventnumber (Triggers). Engine trigger deactivated.");
-            return;
-        }
-    }
+		}
+	}
+    else if (enginetrigger)
+	{
+		if (triggerblocker || triggerblocker_inverted || hooktoggle || (shockflag & SHOCK_FLAG_TRG_CMD_SWITCH))
+		{
+			AddMessage(Message::TYPE_ERROR, "Error: Wrong command-eventnumber (Triggers). Engine trigger deactivated.");
+			return;
+		}
+	}
 
+    // `add_beam()`
     const NodeNum_t node_1_index = FindNodeIndex(def.nodes[0]);
     const NodeNum_t node_2_index = FindNodeIndex(def.nodes[1]);
     if (node_1_index == NODENUM_INVALID || node_2_index == NODENUM_INVALID)
@@ -3216,72 +3225,84 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     SetBeamSpring(beam, 0.f);
     SetBeamDamping(beam, 0.f);
     CalculateBeamLength(beam);
-    beam.shortbound = short_limit;
-    beam.longbound = long_limit;
+    beam.shortbound = sbound;
+    beam.longbound = lbound;
     beam.bounded = TRIGGER;
-    beam.shock = &shock;
 
-    if (BITMASK_IS_0(def.options, RigDef::Trigger::OPTION_i_INVISIBLE))
+    if (!invisible)
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
     }
+    // end `add_beam()`
 
     if (m_actor->m_trigger_debug_enabled)
     {
         LOG("Trigger added. BeamID " + TOSTRING(beam_index));
     }
 
+    shock_t& shock = this->GetFreeShock();
+    beam.shock = &shock;
     shock.beamid = beam_index;
     shock.trigger_switch_state = 0.0f;   // used as bool and countdowntimer, dont touch!
-
-    if (!def.IsTriggerBlockerAnyType())
-    {
-        shock.trigger_cmdshort = def.shortbound_trigger_action;
-        if (def.longbound_trigger_action != -1 || (def.longbound_trigger_action == -1 && def.IsHookToggleTrigger()))
-        {
-            // this is a trigger or a hook_toggle
-            shock.trigger_cmdlong = def.longbound_trigger_action;
-        }
+    if (!triggerblocker && !triggerblocker_inverted) // this is no triggerblocker (A/B)
+	{
+		shock.trigger_cmdshort = def.shortbound_trigger_action;
+		if (def.longbound_trigger_action != -1 || (def.longbound_trigger_action == -1 && hooktoggle))	// this is a trigger or a hooktoggle
+			shock.trigger_cmdlong = def.longbound_trigger_action;
+		else // this is a commandkeyblocker
+			shockflag |= SHOCK_FLAG_TRG_CMD_BLOCKER;
+	}
+    else // this is a triggerblocker
+	{
+		if (!triggerblocker_inverted)
+		{
+			//normal BLOCKER
+			shockflag |= SHOCK_FLAG_TRG_BLOCKER;
+			shock.trigger_cmdshort = def.shortbound_trigger_action;
+			shock.trigger_cmdlong = def.longbound_trigger_action;
+		}
         else
-        {
-            // this is a commandkeyblocker
-            shock_flags |= SHOCK_FLAG_TRG_CMD_BLOCKER;
-        }
-    } 
-    else 
-    {
-        // this is a trigger_blocker
-        if (!BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_A_INV_TRIGGER_BLOCKER))
-        {
-            //normal BLOCKER
-            shock_flags |= SHOCK_FLAG_TRG_BLOCKER;
-            shock.trigger_cmdshort = def.shortbound_trigger_action;
-            shock.trigger_cmdlong  = def.longbound_trigger_action;
-        } 
-        else
-        {
-            //inverted BLOCKER
-            shock_flags |= SHOCK_FLAG_TRG_BLOCKER_A;
-            shock.trigger_cmdshort = def.shortbound_trigger_action;
-            shock.trigger_cmdlong  = def.longbound_trigger_action;
-        }
-    }
+		{
+			//inverted BLOCKER
+			shockflag |= SHOCK_FLAG_TRG_BLOCKER_A;
+			shock.trigger_cmdshort = def.shortbound_trigger_action;
+			shock.trigger_cmdlong = def.longbound_trigger_action;
+		}
+	}
 
-    if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_b_KEY_BLOCKER) && !BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_B_TRIGGER_BLOCKER))
-    {
-        m_actor->ar_command_key[def.shortbound_trigger_action].trigger_cmdkeyblock_state = true;
-        if (def.longbound_trigger_action != -1)
-        {
-            m_actor->ar_command_key[def.longbound_trigger_action].trigger_cmdkeyblock_state = true;
-        }
-    }
+	if (cmdkeyblock && !triggerblocker)
+	{
+		trigger_cmdkeyblock_state_short = true;
+		if (def.longbound_trigger_action != -1) trigger_cmdkeyblock_state_long = true;
+	}
+	if (def.boundary_timer > 0)
+		shock.trigger_boundary_t = def.boundary_timer;
+	else
+		shock.trigger_boundary_t = 1.0f;
 
-    shock.trigger_boundary_t = def.boundary_timer;
-    shock.flags              = shock_flags;
+    shock.flags              = shockflag;
     shock.sbd_spring         = def.beam_defaults->springiness;
     shock.sbd_damp           = def.beam_defaults->damping_constant;
     shock.last_debug_state   = 0;
     
+    // submit the commandkey config with extra sanity checks - negative trigger_actions are legit under some circumstances
+    if (def.shortbound_trigger_action >= 0 && def.shortbound_trigger_action <= MAX_COMMANDS)
+    {
+        m_actor->ar_command_key[def.shortbound_trigger_action].trigger_cmdkeyblock_state = trigger_cmdkeyblock_state_short;
+    }
+    else
+    {
+        AddMessage(Message::TYPE_ERROR, fmt::format("Wrong 'shortbound_trigger_action': '{}' - must be between 1 and {}. Commandkey deactivated.", def.shortbound_trigger_action, MAX_COMMANDS));
+    }
+
+    if (def.longbound_trigger_action != -1 && def.longbound_trigger_action >= 0 && def.longbound_trigger_action <= MAX_COMMANDS)
+    {
+        m_actor->ar_command_key[def.longbound_trigger_action].trigger_cmdkeyblock_state = trigger_cmdkeyblock_state_long;
+    }
+    else
+    {
+        AddMessage(Message::TYPE_ERROR, fmt::format("Wrong 'longbound_trigger_action': '{}' - must be between 1 and {}, or exactly -1. Commandkey deactivated.", def.longbound_trigger_action, MAX_COMMANDS));    
+    }
 }
 
 void ActorSpawner::ProcessContacter(RigDef::Node::Ref & node_ref)

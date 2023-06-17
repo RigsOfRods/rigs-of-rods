@@ -575,11 +575,11 @@ struct commandbeam_t
 
 struct command_t
 {
-    int commandValueState;
-    float commandValue;
-    float triggerInputValue;
-    float playerInputValue;
-    bool trigger_cmdkeyblock_state;  //!< identifies blocked F-commands for triggers
+    int commandValueState = 0;
+    float commandValue = 0;
+    float triggerInputValue = 0.f;
+    float playerInputValue = 0.f;
+    bool trigger_cmdkeyblock_state = false;  //!< identifies blocked F-commands for triggers
     std::vector<commandbeam_t> beams;
     std::vector<int> rotators;
     Ogre::String description;

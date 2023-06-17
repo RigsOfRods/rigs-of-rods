@@ -672,7 +672,7 @@ void ActorManager::ForwardCommands(ActorPtr source_actor)
                 }
 
                 // forward commands
-                for (int j = 1; j <= MAX_COMMANDS; j++)
+                for (int j = 1; j <= MAX_COMMANDS; j++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
                 {
                     actor->ar_command_key[j].playerInputValue = std::max(source_actor->ar_command_key[j].playerInputValue,
                                                                          source_actor->ar_command_key[j].commandValue);
