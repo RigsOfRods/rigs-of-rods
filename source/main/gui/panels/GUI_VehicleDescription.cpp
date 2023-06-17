@@ -74,7 +74,7 @@ void VehicleDescription::Draw()
     if (ImGui::CollapsingHeader(_LC("VehicleDescription", "Commands"), ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::Columns(2, /*id=*/nullptr, /*border=*/true);
-        for (int i = 1; i < MAX_COMMANDS; i += 2)
+        for (int i = 1; i <= MAX_COMMANDS; i += 2) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
         {
             if (actor->ar_command_key[i].description == "hide")
                 continue;

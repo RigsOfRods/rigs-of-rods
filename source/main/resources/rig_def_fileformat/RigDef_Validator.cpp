@@ -343,7 +343,7 @@ bool Validator::CheckCommand(RigDef::Command2 & def)
 {
     bool ok = true;
 
-    if (def.extend_key > MAX_COMMANDS)
+    if (def.extend_key >= MAX_COMMANDS)
     {
         std::stringstream msg;
         msg << "Section 'commands' or 'commands2': Invalid 'extend_key': ";
@@ -353,7 +353,7 @@ bool Validator::CheckCommand(RigDef::Command2 & def)
         ok = false;
     }
 
-    if (def.contract_key > MAX_COMMANDS)
+    if (def.contract_key >= MAX_COMMANDS)
     {
         std::stringstream msg;
         msg << "Section 'commands' or 'commands2': Invalid 'contract_key': ";

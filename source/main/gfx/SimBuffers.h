@@ -133,7 +133,7 @@ struct ActorSB
     // Elements
     std::vector<NodeSB>       simbuf_nodes;
     std::vector<ScrewpropSB>  simbuf_screwprops;
-    std::vector<CommandKeySB> simbuf_commandkey;
+    std::array<CommandKeySB, MAX_COMMANDS+1> simbuf_commandkey; //!< BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
     std::vector<PropAnimKeySB> simbuf_prop_anim_keys;
     std::vector<AeroEngineSB> simbuf_aeroengines;
     std::vector<AirbrakeSB>   simbuf_airbrakes;

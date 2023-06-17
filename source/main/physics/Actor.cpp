@@ -1679,7 +1679,7 @@ void Actor::SyncReset(bool reset_position)
         this->calculateAveragePosition();
     }
 
-    for (int i = 0; i < MAX_COMMANDS; i++)
+    for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
     {
         ar_command_key[i].commandValue = 0.0;
         ar_command_key[i].triggerInputValue = 0.0f;

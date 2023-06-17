@@ -1094,9 +1094,7 @@ void GameContext::UpdateSimInputEvents(float dt)
             min_squared_distance < (nearest_actor->getMinCameraRadius()*nearest_actor->getMinCameraRadius()))
         {
             // get commands
-            // -- here we should define a maximum numbers per actor. Some actors does not have that much commands
-            // -- available, so why should we iterate till MAX_COMMANDS?
-            for (int i = 1; i <= MAX_COMMANDS + 1; i++)
+            for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
             {
                 int eventID = EV_COMMANDS_01 + (i - 1);
 
@@ -1419,7 +1417,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     }
 
     // all commands
-    for (int i = 1; i <= MAX_COMMANDS + 1; i++)
+    for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
     {
         int eventID = EV_COMMANDS_01 + (i - 1);
 

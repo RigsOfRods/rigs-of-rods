@@ -611,7 +611,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
         // Commands
         rapidjson::Value j_commands(rapidjson::kArrayType);
-        for (int i = 0; i < MAX_COMMANDS; i++)
+        for (int i = 0; i < MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS! - but to preserve compatibility we omit the last commandkey in savegames.
         {
             rapidjson::Value j_command(rapidjson::kArrayType);
             j_command.PushBack(actor->ar_command_key[i].commandValue, j_doc.GetAllocator());
@@ -893,7 +893,7 @@ void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_e
     }
 
     auto commands = j_entry["commands"].GetArray();
-    for (int i = 0; i < MAX_COMMANDS; i++)
+    for (int i = 0; i < MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS! - but to preserve compatibility we omit the last commandkey in savegames.
     {
         auto& command_key = actor->ar_command_key[i];
         command_key.commandValue = commands[i][0].GetFloat();

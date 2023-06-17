@@ -1723,40 +1723,10 @@ void Parser::ParseTriggers()
     trigger.nodes[1]                  = this->GetArgNodeRef(1);
     trigger.contraction_trigger_limit = this->GetArgFloat  (2);
     trigger.expansion_trigger_limit   = this->GetArgFloat  (3);
-    
-    int shortbound_trigger_action = this->GetArgInt(4); 
-    int longbound_trigger_action  = this->GetArgInt(5); 
+    trigger.shortbound_trigger_action = this->GetArgInt    (4); 
+    trigger.longbound_trigger_action  = this->GetArgInt    (5); 
     if (m_num_args > 6) trigger.options = this->GetArgTriggerOptions(6);
-
-    if (m_num_args > 7)
-    {
-        float boundary_timer = this->GetArgFloat(7);
-        if (boundary_timer > 0.0f)
-            trigger.boundary_timer = boundary_timer;
-    }
-
-    // Handle actions
-    if (trigger.IsHookToggleTrigger())
-    {
-        Trigger::HookToggleTrigger hook_toggle;
-        hook_toggle.contraction_trigger_hookgroup_id = shortbound_trigger_action;
-        hook_toggle.extension_trigger_hookgroup_id = longbound_trigger_action;
-        trigger.SetHookToggleTrigger(hook_toggle);
-    }
-    else if (BITMASK_IS_1(trigger.options, RigDef::Trigger::OPTION_E_ENGINE_TRIGGER))
-    {
-        Trigger::EngineTrigger engine_trigger;
-        engine_trigger.function = Trigger::EngineTrigger::Function(shortbound_trigger_action);
-        engine_trigger.motor_index = longbound_trigger_action;
-        trigger.SetEngineTrigger(engine_trigger);
-    }
-    else
-    {
-        Trigger::CommandKeyTrigger command_keys;
-        command_keys.contraction_trigger_key = shortbound_trigger_action;
-        command_keys.extension_trigger_key   = longbound_trigger_action;
-        trigger.SetCommandKeyTrigger(command_keys);
-    }
+    if (m_num_args > 7) trigger.boundary_timer = this->GetArgFloat(7);
 
     m_current_module->triggers.push_back(trigger);
 }

@@ -69,8 +69,6 @@ RoR::GfxActor::GfxActor(ActorPtr actor, ActorSpawner* spawner, std::string ogre_
     m_particles_ripple = App::GetGfxScene()->GetDustPool("ripple");
     m_particles_sparks = App::GetGfxScene()->GetDustPool("sparks");
     m_particles_clump  = App::GetGfxScene()->GetDustPool("clump");
-
-    m_simbuf.simbuf_commandkey.resize(MAX_COMMANDS + 10);
 }
 
 RoR::GfxActor::~GfxActor()
@@ -1691,8 +1689,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     }
 
     // Elements: Command keys
-    const int num_commandkeys = MAX_COMMANDS + 10;
-    for (int i = 0; i < num_commandkeys; ++i)
+    for (int i = 1; i <= MAX_COMMANDS; ++i) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
     {
         m_simbuf.simbuf_commandkey[i].simbuf_cmd_value = m_actor->ar_command_key[i].commandValue;
     }

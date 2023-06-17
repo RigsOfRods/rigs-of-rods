@@ -757,7 +757,7 @@ void Actor::CalcCommands(bool doUpdate)
         if (ar_driveable == MACHINE)
             crankfactor = 2;
 
-        for (int i = 0; i <= MAX_COMMANDS; i++)
+        for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
         {
             for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)
             {
@@ -765,7 +765,7 @@ void Actor::CalcCommands(bool doUpdate)
             }
         }
 
-        for (int i = 0; i <= MAX_COMMANDS; i++)
+        for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
         {
             float oldValue = ar_command_key[i].commandValue;
 
@@ -798,7 +798,7 @@ void Actor::CalcCommands(bool doUpdate)
         }
 
         // now process normal commands
-        for (int i = 0; i <= MAX_COMMANDS; i++)
+        for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
         {
             bool requestpower = false;
             for (int j = 0; j < (int)ar_command_key[i].beams.size(); j++)

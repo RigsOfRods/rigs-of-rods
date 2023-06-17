@@ -1087,9 +1087,9 @@ void VehicleButtons::DrawCustomLightButton(RoR::GfxActor* actorx)
 
 void VehicleButtons::DrawCommandButton(RoR::GfxActor* actorx)
 {
-    m_id.resize(MAX_COMMANDS);
-
-    for (int i = 1; i < MAX_COMMANDS; i++)
+     // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
+    m_id.resize(MAX_COMMANDS + 1);
+    for (int i = 1; i <= MAX_COMMANDS; i++)
     {
         if (actorx->GetActor()->ar_command_key[i].description == "hide")
             continue;
