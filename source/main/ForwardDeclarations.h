@@ -37,6 +37,15 @@ namespace RoR
     typedef int ScriptUnitId_t; //!< Unique sequentially generated ID of a loaded and running scriptin session. Use `ScriptEngine::getScriptUnit()`
     static const ScriptUnitId_t SCRIPTUNITID_INVALID = -1;
 
+    typedef int PointidID_t; //!< index to `PointColDetector::hit_pointid_list`, use `RoR::POINTIDID_INVALID` as empty value.
+    static const PointidID_t POINTIDID_INVALID = -1;
+
+    typedef int RefelemID_t; //!< index to `PointColDetector::m_ref_list`, use `RoR::REFELEMID_INVALID` as empty value.
+    static const RefelemID_t REFELEMID_INVALID = -1;
+
+    typedef uint16_t NodeNum_t; //!< Node position within `Actor::ar_nodes`; use RoR::NODENUM_INVALID as empty value.
+    static const NodeNum_t NODENUM_INVALID = std::numeric_limits<NodeNum_t>::max();
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;

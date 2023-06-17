@@ -33,13 +33,15 @@ class PointColDetector
 {
 public:
 
-    struct pointid_t
+    struct pointid_t // use PointidID_t for indexing
     {
-        ActorPtr actor;
-        short node_id;
+        ActorInstanceID_t actorid = ACTORINSTANCEID_INVALID;
+        NodeNum_t nodenum = NODENUM_INVALID;
     };
 
-    std::vector<pointid_t*> hit_list;
+    std::vector<PointidID_t> hit_list;
+    std::unordered_set<ActorInstanceID_t> hit_list_actorset;
+    std::vector<pointid_t> hit_pointid_list;
 
     PointColDetector(ActorPtr actor): m_actor(actor), m_object_list_size(-1) {};
 
@@ -49,10 +51,11 @@ public:
 
 private:
 
-    struct refelem_t
+    struct refelem_t // use RefelemID_t for indexing
     {
-        pointid_t* pidref;
-        const float* point;
+        PointidID_t pidrefid = POINTIDID_INVALID;
+        std::array<float, 3> point; // cached node AbsPosition
+        void setPoint(const Ogre::Vector3 pos) { point[0] = pos.x; point[1] = pos.y; point[2] = pos.z; }
     };
 
     struct kdnode_t
@@ -60,7 +63,7 @@ private:
         float min;
         int end;
         float max;
-        refelem_t* ref;
+        RefelemID_t refid = REFELEMID_INVALID;
         float middle;
         int begin;
     };
@@ -69,7 +72,7 @@ private:
     std::vector<ActorPtr>    m_linked_actors;
     std::vector<ActorPtr>    m_collision_partners; //!< IntraPoint: always just owning actor; InterPoint: all colliding actors
     std::vector<refelem_t> m_ref_list;
-    std::vector<pointid_t> m_pointid_list;
+    
     std::vector<kdnode_t>  m_kdtree;
     Ogre::Vector3          m_bbmin = Ogre::Vector3::ZERO;
     Ogre::Vector3          m_bbmax = Ogre::Vector3::ZERO;
@@ -79,6 +82,7 @@ private:
     void build_kdtree_incr(int axis, int index);
     void partintwo(const int start, const int median, const int end, const int axis, float& minex, float& maxex);
     void update_structures_for_contacters(bool ignoreinternal);
+    void refresh_node_positions();
 };
 
 /// @} // addtogroup Collisions
