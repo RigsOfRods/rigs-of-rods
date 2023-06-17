@@ -36,6 +36,8 @@ using namespace RoR;
 const float SoundScriptInstance::PITCHDOWN_FADE_FACTOR = 3.0f;
 const float SoundScriptInstance::PITCHDOWN_CUTOFF_FACTOR = 5.0f;
 
+const SoundPtr SoundScriptInstance::SOUNDPTR_NULL; // Dummy value to be returned as const reference.
+
 SoundScriptManager::SoundScriptManager() :
     disabled(true)
     , loading_base(false)
@@ -98,7 +100,7 @@ SoundScriptManager::~SoundScriptManager()
         delete sound_manager;
 }
 
-void SoundScriptManager::trigOnce(ActorPtr actor, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigOnce(const ActorPtr& actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -117,7 +119,7 @@ void SoundScriptManager::trigOnce(int actor_id, int trig, int linkType, int link
     for (int i = 0; i < free_trigs[trig]; i++)
     {
         // cycle through all instance groups
-        SoundScriptInstancePtr inst = trigs[trig + i * SS_MAX_TRIG];
+        const SoundScriptInstancePtr& inst = trigs[trig + i * SS_MAX_TRIG];
 
         if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
@@ -126,7 +128,7 @@ void SoundScriptManager::trigOnce(int actor_id, int trig, int linkType, int link
     }
 }
 
-void SoundScriptManager::trigStart(ActorPtr actor, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigStart(const ActorPtr& actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -148,7 +150,7 @@ void SoundScriptManager::trigStart(int actor_id, int trig, int linkType, int lin
 
     for (int i = 0; i < free_trigs[trig]; i++)
     {
-        SoundScriptInstancePtr inst = trigs[trig + i * SS_MAX_TRIG];
+        const SoundScriptInstancePtr& inst = trigs[trig + i * SS_MAX_TRIG];
 
         if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
@@ -157,7 +159,7 @@ void SoundScriptManager::trigStart(int actor_id, int trig, int linkType, int lin
     }
 }
 
-void SoundScriptManager::trigStop(ActorPtr actor, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigStop(const ActorPtr& actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -178,7 +180,7 @@ void SoundScriptManager::trigStop(int actor_id, int trig, int linkType, int link
     state_map[linkType][linkItemID][actor_id][trig] = false;
     for (int i = 0; i < free_trigs[trig]; i++)
     {
-        SoundScriptInstancePtr inst = trigs[trig + i * SS_MAX_TRIG];
+        const SoundScriptInstancePtr& inst = trigs[trig + i * SS_MAX_TRIG];
 
         if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
@@ -187,7 +189,7 @@ void SoundScriptManager::trigStop(int actor_id, int trig, int linkType, int link
     }
 }
 
-void SoundScriptManager::trigKill(ActorPtr actor, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigKill(const ActorPtr& actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -208,7 +210,7 @@ void SoundScriptManager::trigKill(int actor_id, int trig, int linkType, int link
     state_map[linkType][linkItemID][actor_id][trig] = false;
     for (int i = 0; i < free_trigs[trig]; i++)
     {
-        SoundScriptInstancePtr inst = trigs[trig + i * SS_MAX_TRIG];
+        const SoundScriptInstancePtr& inst = trigs[trig + i * SS_MAX_TRIG];
 
         if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
@@ -217,7 +219,7 @@ void SoundScriptManager::trigKill(int actor_id, int trig, int linkType, int link
     }
 }
 
-void SoundScriptManager::trigToggle(ActorPtr actor, int trig, int linkType, int linkItemID)
+void SoundScriptManager::trigToggle(const ActorPtr& actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -239,7 +241,7 @@ void SoundScriptManager::trigToggle(int actor_id, int trig, int linkType, int li
         trigStart(actor_id, trig, linkType, linkItemID);
 }
 
-bool SoundScriptManager::getTrigState(ActorPtr actor, int trig, int linkType, int linkItemID)
+bool SoundScriptManager::getTrigState(const ActorPtr& actor, int trig, int linkType, int linkItemID)
 {
     if (disabled)
         return false;
@@ -258,7 +260,7 @@ bool SoundScriptManager::getTrigState(int actor_id, int trig, int linkType, int 
     return state_map[linkType][linkItemID][actor_id][trig];
 }
 
-void SoundScriptManager::modulate(ActorPtr actor, int mod, float value, int linkType, int linkItemID)
+void SoundScriptManager::modulate(const ActorPtr& actor, int mod, float value, int linkType, int linkItemID)
 {
     if (disabled)
         return;
@@ -279,7 +281,7 @@ void SoundScriptManager::modulate(int actor_id, int mod, float value, int linkTy
 
     for (int i = 0; i < free_gains[mod]; i++)
     {
-        SoundScriptInstancePtr inst = gains[mod + i * SS_MAX_MOD];
+        const SoundScriptInstancePtr& inst = gains[mod + i * SS_MAX_MOD];
         if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
             // this one requires modulation
@@ -292,7 +294,7 @@ void SoundScriptManager::modulate(int actor_id, int mod, float value, int linkTy
 
     for (int i = 0; i < free_pitches[mod]; i++)
     {
-        SoundScriptInstancePtr inst = pitches[mod + i * SS_MAX_MOD];
+        const SoundScriptInstancePtr& inst = pitches[mod + i * SS_MAX_MOD];
         if (inst && inst->actor_id == actor_id && inst->sound_link_type == linkType && inst->sound_link_item_id == linkItemID)
         {
             // this one requires modulation
@@ -404,7 +406,7 @@ SoundScriptInstancePtr SoundScriptManager::createInstance(Ogre::String templaten
     return inst;
 }
 
-void SoundScriptManager::removeInstance(SoundScriptInstancePtr& ssi)
+void SoundScriptManager::removeInstance(const SoundScriptInstancePtr& ssi)
 {
     // Find lookup table entries
     int trigsPos = -1;
@@ -466,7 +468,7 @@ void SoundScriptManager::removeInstance(SoundScriptInstancePtr& ssi)
     }
 
     // Finally remove the instance from list
-    EraseIf(instances, [ssi](SoundScriptInstancePtr& instance) { return ssi == instance; });
+    EraseIf(instances, [ssi](const SoundScriptInstancePtr& instance) { return ssi == instance; });
 }
 
 void SoundScriptManager::parseScript(DataStreamPtr& stream, const String& groupName)

@@ -56,6 +56,16 @@ public:
     void           DeleteActorInternal(ActorPtr actor); //!< Do not call directly; use `GameContext::DeleteActor()`
     /// @}
 
+    /// @name Lookup
+    /// @{
+    const ActorPtr& GetActorById(ActorInstanceID_t actor_id);
+    const ActorPtr& GetActorByNetworkLinks(int source_id, int stream_id); // used by character
+    ActorPtr        FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
+    const ActorPtr& FetchNextVehicleOnList(ActorPtr player, ActorPtr prev_player);
+    const ActorPtr& FetchPreviousVehicleOnList(ActorPtr player, ActorPtr prev_player);
+    const ActorPtr& FetchRescueVehicle();
+    /// @}
+
     void           UpdateActors(ActorPtr player_actor);
     void           SyncWithSimThread();
     void           UpdatePhysicsSimulation();
@@ -77,16 +87,13 @@ public:
     void           SetSimulationPaused(bool v)             { m_simulation_paused = v; }
     float          GetTotalTime() const                    { return m_total_sim_time; }
     RoR::CmdKeyInertiaConfig& GetInertiaConfig()           { return m_inertia_config; }
-    ActorPtr         FetchNextVehicleOnList(ActorPtr player, ActorPtr prev_player);
-    ActorPtr         FetchPreviousVehicleOnList(ActorPtr player, ActorPtr prev_player);
-    ActorPtr         FetchRescueVehicle();
+
     void           CleanUpSimulation(); //!< Call this after simulation loop finishes.
-    ActorPtr         GetActorByNetworkLinks(int source_id, int stream_id); // used by character
+
     void           RepairActor(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box, bool keepPosition = false);
     void           UpdateSleepingState(ActorPtr player_actor, float dt);
     
-    ActorPtr        GetActorById(ActorInstanceID_t actor_id);
-    ActorPtr         FindActorInsideBox(Collisions* collisions, const Ogre::String& inst, const Ogre::String& box);
+
     void           UpdateInputEvents(float dt);
     RigDef::DocumentPtr   FetchActorDef(std::string filename, bool predefined_on_terrain = false);
 
@@ -107,6 +114,8 @@ public:
 
     // A list of all beams interconnecting two actors
     std::map<beam_t*, std::pair<ActorPtr, ActorPtr>> inter_actor_links;
+
+    static const ActorPtr ACTORPTR_NULL; // Dummy value to be returned as const reference.
 
 private:
 

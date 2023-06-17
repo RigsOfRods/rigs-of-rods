@@ -256,9 +256,9 @@ public:
     void kill();
 
     SoundScriptTemplatePtr getTemplate() { return templ; }
-    SoundPtr getStartSound() { return start_sound; }
-    SoundPtr getStopSound() { return stop_sound; }
-    SoundPtr getSound(int pos) { if (pos >= 0 && pos < templ->free_sound) { return sounds[pos]; } else { return nullptr; } }
+    const SoundPtr& getStartSound() { return start_sound; }
+    const SoundPtr& getStopSound() { return stop_sound; }
+    const SoundPtr& getSound(int pos) { if (pos >= 0 && pos < templ->free_sound) { return sounds[pos]; } else { return SOUNDPTR_NULL; } }
     float getStartSoundPitchgain() { return start_sound_pitchgain; }
     float getStopSoundPitchgain() { return stop_sound_pitchgain; }
     float getSoundPitchgain(int pos) { if (pos >= 0 && pos < templ->free_sound) { return sounds_pitchgain[pos]; } else { return 0.f; } }
@@ -269,6 +269,7 @@ public:
     static const float PITCHDOWN_CUTOFF_FACTOR;
     static const int ACTOR_ID_UNKNOWN = -1;
     static const int ACTOR_ID_TERRAIN_OBJECT = -2;
+    static const SoundPtr SOUNDPTR_NULL; // Dummy value to be returned as const reference.
 
 private:
 
@@ -303,26 +304,26 @@ public:
     Ogre::Real getLoadingOrder(void) const;
 
     SoundScriptInstancePtr createInstance(Ogre::String templatename, int actor_id, int soundLinkType=SL_DEFAULT, int soundLinkItemId=-1);
-    void removeInstance(SoundScriptInstancePtr& ssi);
+    void removeInstance(const SoundScriptInstancePtr& ssi);
     std::vector<SoundScriptInstancePtr>& getAllInstances() { return instances; }
     SoundScriptTemplatePtr getTemplate(Ogre::String name) { return templates[name]; }
     std::map <Ogre::String, SoundScriptTemplatePtr>& getAllTemplates() { return templates; }
 
     // functions
     void trigOnce    (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigOnce    (ActorPtr actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigOnce    (const ActorPtr& actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void trigStart   (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigStart   (ActorPtr actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigStart   (const ActorPtr& actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void trigStop    (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigStop    (ActorPtr actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigStop    (const ActorPtr& actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void trigToggle  (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void trigToggle  (ActorPtr actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void trigToggle  (const ActorPtr& actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void trigKill	 (int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
-    void trigKill    (ActorPtr actor, int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
+    void trigKill    (const ActorPtr& actor, int trig, int linkType = SL_DEFAULT, int linkItemID = -1);
     bool getTrigState(int actor_id, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
-    bool getTrigState(ActorPtr actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
+    bool getTrigState(const ActorPtr& actor, int trig, int linkType = SL_DEFAULT, int linkItemID=-1);
     void modulate    (int actor_id, int mod, float value, int linkType = SL_DEFAULT, int linkItemID=-1);
-    void modulate    (ActorPtr actor, int mod, float value, int linkType = SL_DEFAULT, int linkItemID=-1);
+    void modulate    (const ActorPtr& actor, int mod, float value, int linkType = SL_DEFAULT, int linkItemID=-1);
 
     void setEnabled(bool state);
 

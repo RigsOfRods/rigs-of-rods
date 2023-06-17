@@ -48,6 +48,7 @@ public:
 
     // Get the reference
     T *GetRef() { return m_ref; } // To be invoked from C++ only!!
+    T *GetRef() const { return m_ref; } // To be invoked from C++ only!!
     T* operator->() { return m_ref; }
     T* operator->() const { return m_ref; }
 

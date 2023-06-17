@@ -149,7 +149,7 @@ private:
     eventsource_t eventsources[MAX_EVENT_SOURCE];
     int free_eventsource;
 
-    bool permitEvent(ActorPtr actor, CollisionEventFilter filter);
+    bool permitEvent(Actor* actor, CollisionEventFilter filter);
 
     Landusemap* landuse;
     int collision_version;
