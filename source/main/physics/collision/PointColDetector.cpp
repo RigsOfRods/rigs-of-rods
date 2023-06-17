@@ -37,8 +37,12 @@ void PointColDetector::UpdateIntraPoint(bool contactables)
         m_object_list_size = contacters_size;
         update_structures_for_contacters(contactables);
     }
+    else
+    {
+        refresh_node_positions();
+    }
 
-    m_kdtree[0].ref = NULL;
+    m_kdtree[0].refid = REFELEMID_INVALID;
     m_kdtree[0].begin = 0;
     m_kdtree[0].end = -m_object_list_size;
 }
@@ -81,8 +85,12 @@ void PointColDetector::UpdateInterPoint(bool ignorestate)
         m_object_list_size = contacters_size;
         update_structures_for_contacters(false);
     }
+    else
+    {
+        refresh_node_positions();
+    }
 
-    m_kdtree[0].ref = NULL;
+    m_kdtree[0].refid = REFELEMID_INVALID;
     m_kdtree[0].begin = 0;
     m_kdtree[0].end = -m_object_list_size;
 }
@@ -90,7 +98,7 @@ void PointColDetector::UpdateInterPoint(bool ignorestate)
 void PointColDetector::update_structures_for_contacters(bool ignoreinternal)
 {
     m_ref_list.resize(m_object_list_size);
-    m_pointid_list.resize(m_object_list_size);
+    hit_pointid_list.resize(m_object_list_size);
 
     // Insert all contacters into the list of points to consider when building the kdtree
     int refi = 0;
@@ -102,10 +110,10 @@ void PointColDetector::update_structures_for_contacters(bool ignoreinternal)
         {
             if (actor->ar_nodes[i].nd_contacter || (!internal_collision && actor->ar_nodes[i].nd_contactable))
             {
-                m_pointid_list[refi].actor = actor;
-                m_pointid_list[refi].node_id = i;
-                m_ref_list[refi].pidref = &m_pointid_list[refi];
-                m_ref_list[refi].point = actor->ar_nodes[i].AbsPosition.ptr();
+                hit_pointid_list[refi].actorid = actor->ar_instance_id;
+                hit_pointid_list[refi].nodenum = static_cast<NodeNum_t>(i);
+                m_ref_list[refi].pidrefid = refi;
+                m_ref_list[refi].setPoint(actor->ar_nodes[i].AbsPosition);
                 refi++;
             }
         }
@@ -143,6 +151,7 @@ void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vec
     m_bbmax += enlargeBB;
 
     hit_list.clear();
+    hit_list_actorset.clear();
     queryrec(0, 0);
 }
 
@@ -155,14 +164,15 @@ void PointColDetector::queryrec(int kdindex, int axis)
             build_kdtree_incr(axis, kdindex);
         }
 
-        if (m_kdtree[kdindex].ref != NULL)
+        if (m_kdtree[kdindex].refid != REFELEMID_INVALID)
         {
-            const float *point = m_kdtree[kdindex].ref->point;
+            const std::array<float, 3> point = m_ref_list[m_kdtree[kdindex].refid].point;
             if (point[0] >= m_bbmin.x && point[0] <= m_bbmax.x &&
                 point[1] >= m_bbmin.y && point[1] <= m_bbmax.y &&
                 point[2] >= m_bbmin.z && point[2] <= m_bbmax.z)
             {
-                hit_list.push_back(m_kdtree[kdindex].ref->pidref);
+                hit_list.push_back(m_ref_list[m_kdtree[kdindex].refid].pidrefid);
+                hit_list_actorset.insert(hit_pointid_list[m_ref_list[m_kdtree[kdindex].refid].pidrefid].actorid);
             }
             return;
         }
@@ -213,8 +223,8 @@ void PointColDetector::build_kdtree_incr(int axis, int index)
 {
     int end = -m_kdtree[index].end;
     m_kdtree[index].end = end;
-    int begin = m_kdtree[index].begin;
-    int median;
+    RefelemID_t begin = m_kdtree[index].begin;
+    RefelemID_t median;
     int slice_size = end - begin;
     if (slice_size != 1)
     {
@@ -230,7 +240,7 @@ void PointColDetector::build_kdtree_incr(int axis, int index)
             m_kdtree[index].min = m_ref_list[begin].point[axis];
             m_kdtree[index].max = m_ref_list[median].point[axis];
             m_kdtree[index].middle = m_kdtree[index].max;
-            m_kdtree[index].ref = NULL;
+            m_kdtree[index].refid = REFELEMID_INVALID;
 
             axis++;
             if (axis >= 3)
@@ -238,15 +248,15 @@ void PointColDetector::build_kdtree_incr(int axis, int index)
                 axis = 0;
             }
 
-            m_kdtree[newindex].ref = &m_ref_list[begin];
-            m_kdtree[newindex].middle = m_kdtree[newindex].ref->point[axis];
+            m_kdtree[newindex].refid = begin;
+            m_kdtree[newindex].middle = m_ref_list[m_kdtree[newindex].refid].point[axis];
             m_kdtree[newindex].min = m_kdtree[newindex].middle;
             m_kdtree[newindex].max = m_kdtree[newindex].middle;
             m_kdtree[newindex].end = median;
             newindex++;
 
-            m_kdtree[newindex].ref = &m_ref_list[median];
-            m_kdtree[newindex].middle = m_kdtree[newindex].ref->point[axis];
+            m_kdtree[newindex].refid = median;
+            m_kdtree[newindex].middle = m_ref_list[m_kdtree[newindex].refid].point[axis];
             m_kdtree[newindex].min = m_kdtree[newindex].middle;
             m_kdtree[newindex].max = m_kdtree[newindex].middle;
             m_kdtree[newindex].end = end;
@@ -259,7 +269,7 @@ void PointColDetector::build_kdtree_incr(int axis, int index)
         }
 
         m_kdtree[index].middle = m_ref_list[median].point[axis];
-        m_kdtree[index].ref = NULL;
+        m_kdtree[index].refid = REFELEMID_INVALID;
 
         m_kdtree[newindex].begin = begin;
         m_kdtree[newindex].end = -median;
@@ -271,8 +281,8 @@ void PointColDetector::build_kdtree_incr(int axis, int index)
     }
     else
     {
-        m_kdtree[index].ref = &m_ref_list[begin];
-        m_kdtree[index].middle = m_kdtree[index].ref->point[axis];
+        m_kdtree[index].refid = begin;
+        m_kdtree[index].middle = m_ref_list[m_kdtree[index].refid].point[axis];
         m_kdtree[index].min = m_kdtree[index].middle;
         m_kdtree[index].max = m_kdtree[index].middle;
     }
@@ -325,5 +335,23 @@ void PointColDetector::partintwo(const int start, const int median, const int en
     for (int i = median+1; i < end; ++i)
     {
         maxex = std::max(maxex, m_ref_list[i].point[axis]);
+    }
+}
+
+void PointColDetector::refresh_node_positions()
+{
+    // Because the reflist contains cached node positions, we must update it on each tick.
+    // To avoid repeated lookup in actormanager, we loop actors first.
+    // ----------------------------------------------------------------------------------
+
+    for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
+    {
+        for (refelem_t& refelem: m_ref_list)
+        {
+            if (hit_pointid_list[refelem.pidrefid].actorid == actor->ar_instance_id)
+            {
+                refelem.setPoint(actor->ar_nodes[hit_pointid_list[refelem.pidrefid].nodenum].AbsPosition);
+            }
+        }
     }
 }
