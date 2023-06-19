@@ -285,7 +285,7 @@ public:
     std::vector<hook_t>       ar_hooks;
     std::vector<flare_t>      ar_flares;
     std::vector<Airbrake*>    ar_airbrakes;
-    std::array<command_t, MAX_COMMANDS + 1> ar_command_key; //!< BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
+    CmdKeyArray               ar_command_key; //!< BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
     Ogre::AxisAlignedBox      ar_bounding_box;     //!< standard bounding box (surrounds all nodes of an actor)
     Ogre::AxisAlignedBox      ar_predicted_bounding_box;
     float                     ar_initial_total_mass = 0.f;

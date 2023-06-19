@@ -661,6 +661,33 @@ struct PropAnimKeyState
     events event_id = EV_MODE_LAST; // invalid
 };
 
+/// For backwards compatibility of the 'triggers' feature, the commandkey array must support negative indices of any size without breaking memory.
+/// This class redirects the negative-indexed "virtual" commandkeys to auxiliary hashmap.
+class CmdKeyArray
+{
+public:
+    command_t& operator[](int index)
+    {
+        if (index >= 0 && index <= MAX_COMMANDS) // for backwards compatibility, we accept 0 as index too.
+        {
+            return m_commandkey[index]; // valid commandkey (indexed 1-MAX_COMMANDS!)
+        }
+        else if (index < 0)
+        {
+            return m_virtualkey[index]; // 'virtual' commandkey - if hashmap value doesn't exist, it's inserted automatically.
+        }
+        else
+        {
+            assert(false);
+            return m_dummykey; // Whatever!
+        }
+    }
+private:
+    std::array<command_t, MAX_COMMANDS + 1> m_commandkey; //!< BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
+    std::unordered_map<int, command_t> m_virtualkey; //!< Negative-indexed commandkeys.
+    command_t m_dummykey;
+};
+
 /// @}
 
 // --------------------------------
