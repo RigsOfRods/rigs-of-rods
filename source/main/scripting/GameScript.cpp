@@ -1524,7 +1524,12 @@ bool GameScript::checkResourceExists(const std::string& filename, const std::str
 {
     try
     {
-        return Ogre::ResourceGroupManager::getSingleton().resourceExists(resource_group, filename);
+        std::string resource_name = this->CheckFileAccess("checkResourceExists()", filename, resource_group);
+        if (resource_name == "")
+            return false; // Access denied - error already logged
+
+        // Actually check for the resource
+        return Ogre::ResourceGroupManager::getSingleton().resourceExists(resource_group, resource_name);
     }
     catch (Ogre::Exception& ex)
     {
@@ -1538,7 +1543,12 @@ bool GameScript::deleteResource(const std::string& filename, const std::string& 
 {
     try
     {
-        Ogre::ResourceGroupManager::getSingleton().deleteResource(filename, resource_group);
+        std::string resource_name = this->CheckFileAccess("deleteResource()", filename, resource_group);
+        if (resource_name == "")
+            return false; // Access denied - error already logged
+
+        // Actually delete the resource
+        Ogre::ResourceGroupManager::getSingleton().deleteResource(resource_name, resource_group);
         return true;
     }
     catch (Ogre::Exception& ex)
@@ -1553,13 +1563,17 @@ std::string GameScript::loadTextResourceAsString(const std::string& filename, co
 {
     try
     {
-        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename, resource_group);
+        std::string resource_name = this->CheckFileAccess("loadTextResourceAsString()", filename, resource_group);
+        if (resource_name == "")
+            return ""; // Access denied - error already logged
+
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(resource_name, resource_group);
 
         if (stream.isNull() || !stream->isReadable())
         {
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_ERROR,
                 fmt::format("loadTextResourceAsString() could not read resource '{}' in group '{}'",
-                filename, resource_group));
+                resource_name, resource_group));
             return "";
         }
 
@@ -1577,13 +1591,17 @@ bool GameScript::createTextResourceFromString(const std::string& data, const std
 {
     try
     {
-        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().createResource(filename, resource_group, overwrite);
+        std::string resource_name = this->CheckFileAccess("createTextResourceFromString()", filename, resource_group);
+        if (resource_name == "")
+            return false; // Access denied - error already logged
+
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().createResource(resource_name, resource_group, overwrite);
 
         if (stream.isNull() || !stream->isWriteable())
         {
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_ERROR,
                 fmt::format("createTextResourceFromString() could not create resource '{}' in group '{}'",
-                filename, resource_group));
+                resource_name, resource_group));
             return false;
         }
 
@@ -1629,4 +1647,22 @@ bool GameScript::HaveMainCamera(const char* func_name)
         return false;
     }
     return true;
+}
+
+std::string GameScript::CheckFileAccess(const char* func_name, const std::string& filename, const std::string& resource_group)
+{
+    // Extract filename and extension from the input, because OGRE allows absolute paths in resource system.
+    std::string basename, extension, path;
+    Ogre::StringUtil::splitFullFilename(filename, basename, extension, path);
+    if (path != "")
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("{}: access denied to '{}' with group '{}' - file paths are not allowed",
+            func_name, filename, resource_group));
+        return "";
+    }
+    else
+    {
+        return basename + "." + extension;
+    }
 }
