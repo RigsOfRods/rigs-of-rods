@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2022 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -54,6 +54,10 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "float rangeRandom(float, float)", asMETHOD(GameScript,rangeRandom), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int useOnlineAPI(const string &in, const dictionary &in, string &out)", asMETHOD(GameScript, useOnlineAPI), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "bool pushMessage(MsgType, dictionary@)", asMETHOD(GameScript, pushMessage), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "bool checkResourceExists(const string &in, const string &in)", asMETHOD(GameScript, checkResourceExists), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "bool deleteResource(const string &in, const string &in)", asMETHOD(GameScript, deleteResource), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "string loadTextResourceAsString(const string &in, const string &in)", asMETHOD(GameScript, loadTextResourceAsString), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "bool createTextResourceFromString(const string &in, const string &in, const string &in, bool=false)", asMETHOD(GameScript, createTextResourceFromString), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // > GUI
     result = engine->RegisterObjectMethod("GameScriptClass", "void flashMessage(const string &in, float, float)", asMETHOD(GameScript, flashMessage), asCALL_THISCALL); ROR_ASSERT(result >= 0);

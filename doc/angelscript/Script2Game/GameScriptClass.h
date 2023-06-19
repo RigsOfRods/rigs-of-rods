@@ -93,6 +93,39 @@ public:
     */
     bool pushMessage(MsgType type, dictionary@ dict);
     
+    /**
+    * Checks if the resource file exists in the given group.
+    * KNOWN LIMITATION: If existing file is deleted externally, this function will still report it exists until the resource group is reloaded.
+    * @see https://ogrecave.github.io/ogre/api/latest/_resource-_management.html
+    */
+    bool checkResourceExists(const string &in filename, const string &in resource_group);
+
+    /**
+    * Deletes a resource from the given group.
+    * @see https://ogrecave.github.io/ogre/api/latest/_resource-_management.html
+    */
+    bool deleteResource(const string &in filename, const string &in resource_group);
+
+    /**
+    * Loads a text file resource as string.
+    * @see https://ogrecave.github.io/ogre/api/latest/_resource-_management.html
+    * @param filename Resource name within the resource group, equivalent to filename without path.
+    * @param resource_group Name of resource group to load from
+    */
+    std::string loadTextResourceAsString(const string &in filename, const string &in resource_group);
+
+    /**
+    * Saves a string as a text file resource.
+    * @see https://ogrecave.github.io/ogre/api/latest/_resource-_management.html
+    * @param data The file data.
+    * @param filename Resource name within the resource group, equivalent to filename without path.
+    * @param resource_group Name of resource group to save to. If the group has multiple locations, first writable location is used.
+    * @param overwrite By default existing resources are not overwriten.
+    * @return True on successful write. False if file not writable or exists and overwrite is disabled.
+    */
+    bool createTextResourceFromString(const string &in, const string &in filename, const string &in resource_group, bool overwrite=false);
+    
+    
     /// @}
 
     /// @name GUI

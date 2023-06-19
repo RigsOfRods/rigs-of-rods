@@ -1520,6 +1520,84 @@ SoundScriptInstancePtr GameScript::createSoundScriptInstance(const std::string& 
     return App::GetSoundScriptManager()->createInstance(template_name, actor_instance_id);
 }
 
+bool GameScript::checkResourceExists(const std::string& filename, const std::string& resource_group)
+{
+    try
+    {
+        return Ogre::ResourceGroupManager::getSingleton().resourceExists(resource_group, filename);
+    }
+    catch (Ogre::Exception& ex)
+    {
+        // only log to logfile
+        LOG(fmt::format("[GameScript] game.checkResourceExists() failed: {}", ex.getDescription()));
+        return false;
+    }
+}
+
+bool GameScript::deleteResource(const std::string& filename, const std::string& resource_group)
+{
+    try
+    {
+        Ogre::ResourceGroupManager::getSingleton().deleteResource(filename, resource_group);
+        return true;
+    }
+    catch (Ogre::Exception& ex)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("deleteResource() failed: {}", ex.getDescription()));
+        return false;
+    }
+}
+
+std::string GameScript::loadTextResourceAsString(const std::string& filename, const std::string& resource_group)
+{
+    try
+    {
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename, resource_group);
+
+        if (stream.isNull() || !stream->isReadable())
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("loadTextResourceAsString() could not read resource '{}' in group '{}'",
+                filename, resource_group));
+            return "";
+        }
+
+        return stream->getAsString();
+    }
+    catch (Ogre::Exception& ex)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("loadTextResourceAsString() failed: {}", ex.getDescription()));
+        return "";
+    }
+}
+
+bool GameScript::createTextResourceFromString(const std::string& data, const std::string& filename, const std::string& resource_group, bool overwrite/*=false*/)
+{
+    try
+    {
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().createResource(filename, resource_group, overwrite);
+
+        if (stream.isNull() || !stream->isWriteable())
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("createTextResourceFromString() could not create resource '{}' in group '{}'",
+                filename, resource_group));
+            return false;
+        }
+
+        stream->write(data.data(), data.size());
+        return true;
+    }
+    catch (Ogre::Exception& ex)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("createTextResourceFromString() failed: {}", ex.getDescription()));
+        return false;
+    }
+}
+
 // ------------------------
 // Helpers:
 
