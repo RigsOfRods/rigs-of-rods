@@ -10,6 +10,7 @@
      * Read/Write cvars (RoR.cfg values, cli args, game state...)
      * View and update game state (current vehicle...)
      * Parse and display definition files with syntax highlighting.
+     * Load and write text files in the resource system.
      * Inspect loaded sounds and soundscript templates, and of course play sounds!
      * Post messages to game's main message queue, performing almost any operation.
      
@@ -48,6 +49,7 @@ array<string> g_terrain_tobj_files;
 SoundScriptInstanceClass@ g_playing_soundscript = null;
 SoundClass@ g_playing_sound = null;
 bool g_sound_follows_player = true;
+string g_demofile_data;
 
 /*
     ---------------------------------------------------------------------------
@@ -77,8 +79,12 @@ void frameStep(float dt)
     if (g_app_state.getInt() == 1) // main menu
     {
         drawMainMenuPanel();
+        
         ImGui::Separator();
         drawAudioButtons();
+        
+        ImGui::Separator();
+        drawTextResourceButtons();        
     }
     else if (g_app_state.getInt() == 2) // simulation
     {
@@ -194,6 +200,9 @@ void frameStep(float dt)
         
         ImGui::Separator();
         drawAudioButtons();
+        
+        ImGui::Separator();
+        drawTextResourceButtons();
     }
     
     // End window
@@ -635,5 +644,39 @@ void drawAIButtons()
         // WARNING: this doesn't save off the setup values above - you can still modify them below and change what the AI will do!
         //          If you want to launch multiple AIs in sequence, register for SE_GENERIC_NEW_TRUCK event - when it arrives, it's safe to setup and launch new AI script.
         game.pushMessage(MSG_APP_LOAD_SCRIPT_REQUESTED, { {"filename", "AI.as"} });
+    }
+}
+
+void drawTextResourceButtons()
+{    
+    ImGui::TextDisabled("Text file test: file 'demofile.txt' in group 'Cache'");
+    ImGui::TextDisabled("Location: Documents\\My Games\\Rigs of Rods\\cache\\");
+    
+    // The 'exists?' line
+    bool exists = game.checkResourceExists("demofile.txt", "Cache");
+    if (exists)
+    {
+        ImGui::Text("File exists.");
+        ImGui::SameLine();
+        if (ImGui::Button("(re)load"))
+        {
+            g_demofile_data = game.loadTextResourceAsString("demofile.txt", "Cache");
+        }
+    }
+    else
+    {
+        ImGui::Text("File does not exist yet, create it below.");
+    }
+    
+    // The text editor part
+    ImGui::InputText("demofile text", g_demofile_data);
+    if (ImGui::Button("(over)write"))
+    {
+        game.createTextResourceFromString(g_demofile_data, "demofile.txt", "Cache", /*overwrite:*/true);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("delete"))
+    {
+        game.deleteResource("demofile.txt", "Cache");
     }
 }
