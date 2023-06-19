@@ -3284,25 +3284,10 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     shock.sbd_spring         = def.beam_defaults->springiness;
     shock.sbd_damp           = def.beam_defaults->damping_constant;
     shock.last_debug_state   = 0;
-    
-    // submit the commandkey config with extra sanity checks - negative trigger_actions are legit under some circumstances
-    if (def.shortbound_trigger_action >= 0 && def.shortbound_trigger_action <= MAX_COMMANDS)
-    {
-        m_actor->ar_command_key[def.shortbound_trigger_action].trigger_cmdkeyblock_state = trigger_cmdkeyblock_state_short;
-    }
-    else
-    {
-        AddMessage(Message::TYPE_ERROR, fmt::format("Wrong 'shortbound_trigger_action': '{}' - must be between 1 and {}. Commandkey deactivated.", def.shortbound_trigger_action, MAX_COMMANDS));
-    }
 
-    if (def.longbound_trigger_action != -1 && def.longbound_trigger_action >= 0 && def.longbound_trigger_action <= MAX_COMMANDS)
-    {
-        m_actor->ar_command_key[def.longbound_trigger_action].trigger_cmdkeyblock_state = trigger_cmdkeyblock_state_long;
-    }
-    else
-    {
-        AddMessage(Message::TYPE_ERROR, fmt::format("Wrong 'longbound_trigger_action': '{}' - must be between 1 and {}, or exactly -1. Commandkey deactivated.", def.longbound_trigger_action, MAX_COMMANDS));    
-    }
+    // Note this is a special 'array' object - any negative indices are valid!
+    m_actor->ar_command_key[def.shortbound_trigger_action].trigger_cmdkeyblock_state = trigger_cmdkeyblock_state_short;
+    m_actor->ar_command_key[def.longbound_trigger_action].trigger_cmdkeyblock_state = trigger_cmdkeyblock_state_long;
 }
 
 void ActorSpawner::ProcessContacter(RigDef::Node::Ref & node_ref)
