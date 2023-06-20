@@ -505,12 +505,12 @@ bool Network::ConnectThread()
     if (App::mp_override_character->getStr() != "")
     {
         strncpy(c.character_file, App::mp_override_character->getStr().c_str(), RORNET_MAX_CHARACTER_FILE_LEN - 1);
-        strncpy(c.character_skinfile, App::mp_override_character_skin->getStr().c_str(), RORNET_MAX_CHARACTER_SKINFILE_LEN - 1);
+        strncpy(c.character_skin, App::mp_override_character_skin->getStr().c_str(), RORNET_MAX_CHARACTER_SKIN_LEN - 1);
     }
     else
     {
         strncpy(c.character_file, App::sim_player_character->getStr().c_str(), RORNET_MAX_CHARACTER_FILE_LEN - 1);
-        strncpy(c.character_skinfile, App::sim_player_character_skin->getStr().c_str(), RORNET_MAX_CHARACTER_SKINFILE_LEN - 1);
+        strncpy(c.character_skin, App::sim_player_character_skin->getStr().c_str(), RORNET_MAX_CHARACTER_SKIN_LEN - 1);
     }
 
     if (!SendNetMessage(MSG2_USER_INFO, 0, sizeof(RoRnet::UserInfo), (char*)&c))

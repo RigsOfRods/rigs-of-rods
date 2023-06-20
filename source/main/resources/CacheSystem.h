@@ -152,19 +152,20 @@ struct CacheQueryResult
 
 enum class CacheSearchMethod // Always case-insensitive
 {
-    NONE,     //!< No searching
+    NONE,     //!< Show everything
     FULLTEXT, //!< Partial match in: name, filename, description, author name/mail
-    GUID,     //!< Partial match in: guid 
+    GUID,     //!< Partial match in: guid (intentionally - for search box)
     AUTHORS,  //!< Partial match in: author name/email
     WHEELS,   //!< Wheel configuration, i.e. 4x4
-    FILENAME  //!< Partial match in file name
+    FILENAME, //!< Partial match in file name
+    NAME_FULL //!< Full match of name (case-insensitive)
 };
 
 struct CacheQuery
 {
     RoR::LoaderType                cqy_filter_type = RoR::LoaderType::LT_None;
     int                            cqy_filter_category_id = CacheCategoryId::CID_All;
-    std::string                    cqy_filter_guid; //!< Exact match; leave empty to disable
+    std::string                    cqy_filter_guid; //!< Exact match; leave empty to disable; not the same as CacheSearchMethod::GUID
     CacheSearchMethod              cqy_search_method = CacheSearchMethod::NONE;
     std::string                    cqy_search_string;
     
@@ -249,7 +250,8 @@ private:
     void GenerateFileCache(CacheEntry &entry, Ogre::String group);
     void RemoveFileCache(CacheEntry &entry);
 
-    bool Match(size_t& out_score, std::string data, std::string const& query, size_t );
+    bool Match(size_t& out_score, std::string data, std::string const& query, size_t);
+    bool MatchExact(std::string data, const std::string& query);
 
     std::time_t                          m_update_time;      //!< Ensures that all inserted files share the same timestamp
     std::string                          m_filenames_hash_loaded;   //!< hash from cachefile, for quick update detection

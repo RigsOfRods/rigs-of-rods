@@ -765,7 +765,7 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
                 App::sim_player_character->setStr(m_current_selection.asr_cache_entry->fname);
                 if (m_current_selection.asr_skin_entry)
                 {
-                    App::sim_player_character_skin->setStr(m_current_selection.asr_skin_entry->fname);
+                    App::sim_player_character_skin->setStr(m_current_selection.asr_skin_entry->dname);
                 }
                 else
                 {
@@ -777,7 +777,7 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
                 App::mp_override_character->setStr(m_current_selection.asr_cache_entry->fname);
                 if (m_current_selection.asr_skin_entry)
                 {
-                    App::mp_override_character_skin->setStr(m_current_selection.asr_skin_entry->fname);
+                    App::mp_override_character_skin->setStr(m_current_selection.asr_skin_entry->dname);
                 }
                 else
                 {

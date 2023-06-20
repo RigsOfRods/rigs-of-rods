@@ -1381,6 +1381,7 @@ size_t CacheSystem::Query(CacheQuery& query)
         Str<100> wheels_str;
         switch (query.cqy_search_method)
         {
+        // Partial case-insensitive match in: name, filename, description, author name/email
         case CacheSearchMethod::FULLTEXT:
             if (match = this->Match(score, entry.dname,       query.cqy_search_string, 0))   { break; }
             if (match = this->Match(score, entry.fname,       query.cqy_search_string, 100)) { break; }
@@ -1392,10 +1393,12 @@ size_t CacheSystem::Query(CacheQuery& query)
             }
             break;
 
+        // Partial case-insensitive match of GUID (intentionally - for search box)
         case CacheSearchMethod::GUID:
             match = this->Match(score, entry.guid, query.cqy_search_string, 0);
             break;
 
+        // Partial case-insensitive match of author name/email
         case CacheSearchMethod::AUTHORS:
             for (AuthorInfo const& author: entry.authors)
             {
@@ -1404,16 +1407,24 @@ size_t CacheSystem::Query(CacheQuery& query)
             }
             break;
 
+        // Search by wheel configuration, for example '4x4'
         case CacheSearchMethod::WHEELS:
             wheels_str << entry.wheelcount << "x" << entry.propwheelcount;
             match = this->Match(score, wheels_str.ToCStr(), query.cqy_search_string, 0);
             break;
 
+        // Partial, case-insensitive match in file name
         case CacheSearchMethod::FILENAME:
             match = this->Match(score, entry.fname, query.cqy_search_string, 100);
             break;
 
-        default: // CacheSearchMethod::NONE
+        // Full case-insensitive match in mod name (useful for skins - one .skin file can define multiple skins)
+        case CacheSearchMethod::NAME_FULL:
+            match = this->MatchExact(entry.dname, query.cqy_search_string);
+            break;
+
+        // CacheSearchMethod::NONE -> Show everything
+        default:
             match = true;
             break;
         };
@@ -1442,6 +1453,12 @@ bool CacheSystem::Match(size_t& out_score, std::string data, std::string const& 
     {
         return false;
     }
+}
+
+bool CacheSystem::MatchExact(std::string data, std::string const& query)
+{
+    Ogre::StringUtil::toLowerCase(data);
+    return data == query;
 }
 
 bool CacheQueryResult::operator<(CacheQueryResult const& other) const
