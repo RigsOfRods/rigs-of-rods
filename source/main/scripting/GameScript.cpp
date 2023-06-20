@@ -959,11 +959,12 @@ ActorPtr GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, O
             std::reverse(waypoints.begin(), waypoints.end());
         }
 
-        if (waypoints.size() < 2)
-        {
-            throw std::runtime_error("There must be at least 2 waypoints!");
-        }
-        Ogre::Vector3 dir = waypoints[0] - waypoints[1];
+        // Check if we have enough waypoints
+        Ogre::Vector3 dir = Ogre::Vector3::ZERO;
+        if (waypoints.size() >= 2)
+            dir = waypoints[0] - waypoints[1];
+        else if (waypoints.size() >= 1)
+            dir = waypoints[0];
         dir.y = 0;
         rq.asr_rotation = Ogre::Vector3::UNIT_X.getRotationTo(dir, Ogre::Vector3::UNIT_Y);
 
