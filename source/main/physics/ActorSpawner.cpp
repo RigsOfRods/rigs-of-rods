@@ -3129,7 +3129,8 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
 	bool enginetrigger = false;
 
 	bool trigger_cmdkeyblock_state_short = false;
-    bool trigger_cmdkeyblock_state_long = (def.longbound_trigger_action != -1);
+    bool trigger_cmdkeyblock_state_long = true;
+    if (def.longbound_trigger_action != -1) trigger_cmdkeyblock_state_long = false;
 
     // now 'parse' the options
 	if (BITMASK_IS_1(def.options, RigDef::Trigger::OPTION_i_INVISIBLE)) // invisible
@@ -3281,6 +3282,7 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
 		shock.trigger_boundary_t = 1.0f;
 
     shock.flags              = shockflag;
+    shock.trigger_enabled    = shock_trigger_enabled;
     shock.sbd_spring         = def.beam_defaults->springiness;
     shock.sbd_damp           = def.beam_defaults->damping_constant;
     shock.last_debug_state   = 0;
