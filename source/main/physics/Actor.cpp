@@ -3689,14 +3689,24 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t mousenode /*=NODENU
                     it->hk_lock_node = nearest_node;
                     it->hk_locked_actor = actor;
                     it->hk_locked = PRELOCK;
+                    //enable beam if not enabled yet between those 2 nodes
+                    if (it->hk_beam->bm_disabled)
+                    {
+                        it->hk_beam->p2 = it->hk_lock_node;
+                        it->hk_beam->bm_inter_actor = (it->hk_locked_actor != nullptr);
+                        it->hk_beam->L = (it->hk_hook_node->AbsPosition - it->hk_lock_node->AbsPosition).length();
+                        it->hk_beam->bm_disabled = false;
+                        this->AddInterActorBeam(it->hk_beam, this, it->hk_locked_actor);
+                    }
                 }
             }
         }
         // this is a locked or prelocked hook and its not a locking attempt or the locked actor was removed (bm_inter_actor == false)
         else if ((it->hk_locked == LOCKED || it->hk_locked == PRELOCK) && (mode != HOOK_LOCK || !it->hk_beam->bm_inter_actor))
         {
-            // we unlock ropes
-            it->hk_locked = PREUNLOCK;
+            // we unlock ropes immediatelly
+            it->hk_locked = UNLOCKED;
+            this->RemoveInterActorBeam(it->hk_beam);
             if (it->hk_group <= -2)
             {
                 it->hk_timer = it->hk_timer_preset; //timer reset for autolock nodes
