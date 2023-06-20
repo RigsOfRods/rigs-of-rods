@@ -92,7 +92,6 @@ enum BeamType: short
 enum HookState
 {
     UNLOCKED,       //!< lock not locked
-    PREUNLOCK,      //!< preunlocking, inter-actor beam deletion in progress
     PRELOCK,        //!< prelocking, attraction forces in action
     LOCKED          //!< lock locked.
 };

@@ -1716,65 +1716,45 @@ void Actor::CalcHooks()
 
         if (it->hk_lock_node && it->hk_locked == PRELOCK)
         {
-            if (it->hk_beam->bm_disabled)
+            if (it->hk_beam->L < it->hk_min_length)
             {
-                //enable beam if not enabled yet between those 2 nodes
-                it->hk_beam->p2 = it->hk_lock_node;
-                it->hk_beam->bm_inter_actor = (it->hk_locked_actor != nullptr);
-                it->hk_beam->L = (it->hk_hook_node->AbsPosition - it->hk_lock_node->AbsPosition).length();
-                it->hk_beam->bm_disabled = false;
-                AddInterActorBeam(it->hk_beam, this, it->hk_locked_actor);
+                //shortlimit reached -> status LOCKED
+                it->hk_locked = LOCKED;
             }
             else
             {
-                if (it->hk_beam->L < it->hk_min_length)
+                //shorten the connecting beam slowly to locking minrange
+                if (it->hk_beam->L > it->hk_lockspeed && fabs(it->hk_beam->stress) < it->hk_maxforce)
                 {
-                    //shortlimit reached -> status LOCKED
-                    it->hk_locked = LOCKED;
+                    it->hk_beam->L = (it->hk_beam->L - it->hk_lockspeed);
                 }
                 else
                 {
-                    //shorten the connecting beam slowly to locking minrange
-                    if (it->hk_beam->L > it->hk_lockspeed && fabs(it->hk_beam->stress) < it->hk_maxforce)
+                    if (fabs(it->hk_beam->stress) < it->hk_maxforce)
                     {
-                        it->hk_beam->L = (it->hk_beam->L - it->hk_lockspeed);
+                        it->hk_beam->L = 0.001f;
+                        //locking minrange or stress exeeded -> status LOCKED
+                        it->hk_locked = LOCKED;
                     }
                     else
                     {
-                        if (fabs(it->hk_beam->stress) < it->hk_maxforce)
+                        if (it->hk_nodisable)
                         {
-                            it->hk_beam->L = 0.001f;
-                            //locking minrange or stress exeeded -> status LOCKED
+                            //force exceed, but beam is set to nodisable, just lock it in this position
                             it->hk_locked = LOCKED;
                         }
                         else
                         {
-                            if (it->hk_nodisable)
-                            {
-                                //force exceed, but beam is set to nodisable, just lock it in this position
-                                it->hk_locked = LOCKED;
-                            }
-                            else
-                            {
-                                //force exceeded reset the hook node
-                                it->hk_locked = UNLOCKED;
-                                it->hk_lock_node = 0;
-                                it->hk_locked_actor = 0;
-                                it->hk_beam->p2 = &ar_nodes[0];
-                                it->hk_beam->bm_inter_actor = false;
-                                it->hk_beam->L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
-                                it->hk_beam->bm_disabled = true;
-                                RemoveInterActorBeam(it->hk_beam);
-                            }
+                            //force exceeded, reset the hook node
+                            ActorLinkingRequest* rq = new ActorLinkingRequest();
+                            rq->alr_actor_instance_id = ar_instance_id;
+                            rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+                            rq->alr_hook_action = HOOK_UNLOCK;
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
                         }
                     }
                 }
             }
-        }
-        if (it->hk_locked == PREUNLOCK)
-        {
-            it->hk_locked = UNLOCKED;
-            RemoveInterActorBeam(it->hk_beam);
         }
     }
 }
