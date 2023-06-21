@@ -1093,12 +1093,22 @@ void GameContext::UpdateSimInputEvents(float dt)
             nearest_actor->ar_import_commands &&
             min_squared_distance < (nearest_actor->getMinCameraRadius()*nearest_actor->getMinCameraRadius()))
         {
+            bool asleep = nearest_actor->ar_state == ActorState::LOCAL_SLEEPING;
             // get commands
             for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
             {
                 int eventID = EV_COMMANDS_01 + (i - 1);
 
-                nearest_actor->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
+                const float eventVal = RoR::App::GetInputEngine()->getEventValue(eventID);
+                if (asleep && (eventVal != nearest_actor->ar_command_key[i].playerInputValue))
+                {
+                    // Wake up
+                    nearest_actor->ar_state = ActorState::LOCAL_SIMULATED;
+                    nearest_actor->ar_sleep_counter = 0.0f;
+                    asleep = false;
+                }
+
+                nearest_actor->ar_command_key[i].playerInputValue = eventVal;
             }
         }
     }
