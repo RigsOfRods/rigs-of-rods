@@ -1165,7 +1165,16 @@ void GameContext::UpdateSimInputEvents(float dt)
             {
                 int eventID = EV_COMMANDS_01 + (i - 1);
 
-                nearest_actor->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
+                const float eventVal = RoR::App::GetInputEngine()->getEventValue(eventID);
+                if (eventVal != nearest_actor->ar_command_key[i].playerInputValue
+                    && nearest_actor->ar_state == ActorState::LOCAL_SLEEPING)
+                {
+                    // Wake up
+                    nearest_actor->ar_state = ActorState::LOCAL_SIMULATED;
+                    nearest_actor->ar_sleep_counter = 0.0f;
+                }
+
+                nearest_actor->ar_command_key[i].playerInputValue = eventVal;
             }
         }
     }
