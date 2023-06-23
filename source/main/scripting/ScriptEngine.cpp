@@ -590,6 +590,12 @@ ScriptUnitId_t ScriptEngine::loadScript(String scriptName, ScriptCategory catego
     // Perform the actual script loading, building and running main().
     int result = this->setupScriptUnit(unit_id);
 
+    // Regardless of result, add to recent script list. Running scripts are filtered out when displaying.
+    if (category == ScriptCategory::CUSTOM)
+    {
+        CvarAddFileToList(App::app_recent_scripts, scriptName);
+    }
+
     // If setup failed, remove the unit.
     if (result != 0)
     {
@@ -599,10 +605,6 @@ ScriptUnitId_t ScriptEngine::loadScript(String scriptName, ScriptCategory catego
             m_terrain_script_unit = SCRIPTUNITID_INVALID;
         }
         return SCRIPTUNITID_INVALID;
-    }
-    else if (category == ScriptCategory::CUSTOM)
-    {
-        CvarAddFileToList(App::app_recent_scripts, scriptName);
     }
 
     return unit_id;
