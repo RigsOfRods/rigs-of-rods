@@ -194,10 +194,11 @@ void GfxScene::UpdateScene(float dt_sec)
         App::GetOverlayWrapper()->UpdatePressureOverlay(m_simbuf.simbuf_player_actor->GetGfxActor());
     }
 
-    // HUD - network labels (always update)
+    // HUD - labels (always update)
     for (GfxActor* gfx_actor: m_all_gfx_actors)
     {
         gfx_actor->UpdateNetLabels(m_simbuf.simbuf_sim_speed * dt_sec);
+        gfx_actor->UpdateWalkieTalkieLabels(m_simbuf.simbuf_sim_speed * dt_sec);
     }
 
     // Player avatars
@@ -336,29 +337,26 @@ void GfxScene::RemoveGfxCharacter(RoR::GfxCharacter* remove_me)
     }
 }
 
+std::string FormatLabelWithDistance(const std::string& nick, float cam_dist)
+{
+    std::string caption;
+    if (cam_dist > 1000) // 1000 ... vlen
+    {
+        return nick + " (" + TOSTRING((float)(ceil(cam_dist / 100) / 10.0) ) + " km)";
+    }
+    else if (cam_dist > 20) // 20 ... vlen ... 1000
+    {
+        return nick + " (" + TOSTRING((int)cam_dist) + " m)";
+    }
+    else // 0 ... vlen ... 20
+    {
+        return nick;
+    }
+}
+
 void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string const& nick, int colornum)
 {
 #if USE_SOCKETW
-
-        // this ensures that the nickname is always in a readable size
-        float font_size = std::max(0.6, cam_dist / 40.0);
-        std::string caption;
-        if (cam_dist > 1000) // 1000 ... vlen
-        {
-            caption =
-                nick + " (" + TOSTRING((float)(ceil(cam_dist / 100) / 10.0) ) + " km)";
-        }
-        else if (cam_dist > 20) // 20 ... vlen ... 1000
-        {
-            caption =
-                nick + " (" + TOSTRING((int)cam_dist) + " m)";
-        }
-        else // 0 ... vlen ... 20
-        {
-            caption = nick;
-        }
-
-        // draw with DearIMGUI
 
     ImVec2 screen_size = ImGui::GetIO().DisplaySize;
     World2ScreenConverter world2screen(
@@ -372,6 +370,7 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
         // Align position to whole pixels, to minimize jitter.
         ImVec2 pos((int)pos_xyz.x+0.5, (int)pos_xyz.y+0.5);
 
+        std::string caption = FormatLabelWithDistance(nick, cam_dist);
         ImVec2 text_size = ImGui::CalcTextSize(caption.c_str());
         GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
@@ -397,3 +396,122 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
 #endif // USE_SOCKETW
 }
 
+void GfxScene::CacheWalkietalkieCommandButtons(const ActorPtr& actor)
+{
+    if (actor == m_walkietalkie_commandkeys_cache_actor)
+        return; // Cache valid
+
+    m_walkietalkie_commandkeys_cache.clear();
+    m_walkietalkie_commandkeys_screensize = ImVec2(0,0);
+    m_walkietalkie_commandkeys_cache_actor = actor;
+
+     // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
+    for (int i = 1; i <= MAX_COMMANDS; i++)
+    {
+        if (actor->ar_command_key[i].description == "hide")
+            continue;
+        if (actor->ar_command_key[i].beams.empty() && actor->ar_command_key[i].rotators.empty())
+            continue;
+
+
+        int eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", i));
+
+        for (commandbeam_t& cmdbeam: actor->ar_command_key[i].beams)
+        {
+            std::string desc = "(unknown function)";
+            if (!actor->ar_command_key[i].description.empty())
+            {
+                desc = actor->ar_command_key[i].description.c_str();
+            }
+            std::string text = fmt::format("{}: {} {}",
+                App::GetInputEngine()->getEventCommandTrimmed(eventID),
+                cmdbeam.cmb_is_contraction ? "Retract" : "Extend", 
+                desc);
+
+            auto inserted_pair = m_walkietalkie_commandkeys_cache.insert(std::make_pair(eventID, text));
+            // Only increase the size if we added a new commandkey - there may be multiple commandbeams for the same key.
+            if (inserted_pair.second)
+            {
+                ImVec2 text_size = ImGui::CalcTextSize(text.c_str());
+                m_walkietalkie_commandkeys_screensize.x = std::max(m_walkietalkie_commandkeys_screensize.x, text_size.x);
+                m_walkietalkie_commandkeys_screensize.y += text_size.y;
+            }
+        }
+    }
+}
+
+void GfxScene::DrawWalkieTalkieLabel(Ogre::Vector3 scene_pos, float cam_dist, const ActorPtr& actor)
+{
+
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+    World2ScreenConverter world2screen(
+        App::GetCameraManager()->GetCamera()->getViewMatrix(true), App::GetCameraManager()->GetCamera()->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
+
+    Ogre::Vector3 pos_xyz = world2screen.Convert(scene_pos);
+
+    // Do not draw when behind camera
+    if (pos_xyz.z > 0.f)
+        return;
+
+    // Align position to whole pixels, to minimize jitter.
+    ImVec2 pos((int)pos_xyz.x+0.5, (int)pos_xyz.y+0.5);
+
+    Ogre::TexturePtr icon = FetchIcon("walkie_talkie.png", "IconsRG");
+    ImVec2 icon_size(icon->getWidth(), icon->getHeight());
+
+    const float ICON_PAD_RIGHT = 2.f;
+    ImVec2 total_size = icon_size;
+
+    std::string caption;
+    if (actor)
+    {
+        // Cache info
+        this->CacheWalkietalkieCommandButtons(actor);
+        caption = FormatLabelWithDistance(actor->ar_design_name, cam_dist);
+
+        // Place name+commands next to the icon
+        ImVec2 namesize = ImGui::CalcTextSize(caption.c_str());
+        total_size.x += ICON_PAD_RIGHT + std::max(namesize.x, m_walkietalkie_commandkeys_screensize.x);
+        total_size.y = std::max(total_size.y, m_walkietalkie_commandkeys_screensize.y);
+    }
+
+    ImDrawList* drawlist = GetImDummyFullscreenWindow();
+    ImGuiContext* g = ImGui::GetCurrentContext();
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+
+    // Draw background rectangle
+    const float PADDING = 4.f;
+    const ImVec2 PAD2(PADDING, PADDING);
+    ImVec2 rect_min = (pos - total_size/2) - PAD2;
+    ImVec2 rect_max = (pos + total_size/2) + PAD2;
+    drawlist->AddRectFilled(
+        rect_min, rect_max,
+        ImColor(theme.semitransparent_window_bg),
+        ImGui::GetStyle().WindowRounding);
+    ImVec2 cursor = rect_min + PAD2;
+        
+    // Draw icon
+    if (icon)
+    {
+        drawlist->AddImage(reinterpret_cast<ImTextureID>(icon->getHandle()), cursor, cursor + icon_size);
+        cursor.x += icon_size.x + ICON_PAD_RIGHT;
+    }
+
+    if (actor)
+    {
+        // Draw actor name (light text)
+        drawlist->AddText(g->Font, g->FontSize, cursor, ImColor(ImGui::GetStyle().Colors[ImGuiCol_Text]), caption.c_str());
+        cursor.y += ImGui::GetTextLineHeight();
+
+        // Draw the commands (darker text, except where active)
+        const ImU32 color_lo = ImColor(ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+        const ImU32 color_hi = ImColor(theme.highlight_text_color);
+        for (auto& pair: m_walkietalkie_commandkeys_cache)
+        {
+            const ImU32 color = (actor->ar_command_key[pair.first].playerInputValue != 0) ? color_hi : color_lo;
+            drawlist->AddText(g->Font, g->FontSize, cursor, color, pair.second.c_str());
+            cursor.y += ImGui::GetTextLineHeight();
+        }
+    }
+
+}

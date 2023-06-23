@@ -454,6 +454,7 @@ ActorPtrVec                        ar_linked_actors;              //!< Sim state
     bool ar_toggle_ropes:1;     //!< Sim state
     bool ar_toggle_ties:1;      //!< Sim state
     bool ar_physics_paused:1;   //!< Sim state
+    bool ar_walkie_talkie:1;
 
 private:
 

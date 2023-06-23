@@ -338,19 +338,19 @@ void RoR::DrawGCombo(CVar* cvar, const char* label, const char* values)
     }
 }
 
-Ogre::TexturePtr RoR::FetchIcon(const char* name)
+Ogre::TexturePtr RoR::FetchIcon(const char* name, const char* resource_group/* = "FlagsRG"*/)
 {
     try
     {
         return Ogre::static_pointer_cast<Ogre::Texture>(
-            Ogre::TextureManager::getSingleton().createOrRetrieve(name, "FlagsRG").first);
+            Ogre::TextureManager::getSingleton().createOrRetrieve(name, resource_group).first);
     }
     catch (...) {}
 
     return Ogre::TexturePtr(); // null
 }
 
-ImDrawList* RoR::GetImDummyFullscreenWindow()
+ImDrawList* RoR::GetImDummyFullscreenWindow(const char* id /*= "rigsofrods/DummyWindow"*/)
 {
     ImVec2 screen_size = ImGui::GetIO().DisplaySize;
 
@@ -360,7 +360,7 @@ ImDrawList* RoR::GetImDummyFullscreenWindow()
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(screen_size);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
-    ImGui::Begin("RoR_TransparentFullscreenWindow", NULL, window_flags);
+    ImGui::Begin(id, NULL, window_flags);
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg

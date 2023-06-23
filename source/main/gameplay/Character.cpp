@@ -597,6 +597,7 @@ void RoR::GfxCharacter::BufferSimulationData()
     xc_simbuf.simbuf_actor_coupling         = xc_character->GetActorCoupling();
     xc_simbuf.simbuf_anim_name              = xc_character->GetAnimName();
     xc_simbuf.simbuf_anim_time              = xc_character->GetAnimTime();
+    xc_simbuf.simbuf_character_walkie_talkie = xc_character->cr_walkie_talkie;
 }
 
 void RoR::GfxCharacter::UpdateCharacterInScene()
@@ -686,11 +687,10 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         as_cur->setTimePosition(xc_simbuf.simbuf_anim_time);
     }
 
-    // Multiplayer label
 #ifdef USE_SOCKETW
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !xc_simbuf.simbuf_actor_coupling)
     {
-        // From 'updateCharacterNetworkColor()'
+        // Update network color
         const String materialName = "tracks/" + xc_instance_name;
 
         MaterialPtr mat = MaterialManager::getSingleton().getByName(materialName);
@@ -702,10 +702,11 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
             state->setColourOperationEx(LBX_BLEND_CURRENT_ALPHA, LBS_MANUAL, LBS_CURRENT, color);
         }
 
+        // Draw multiplayer label
         if ((!xc_simbuf.simbuf_is_remote && !App::mp_hide_own_net_label->getBool()) ||
             (xc_simbuf.simbuf_is_remote && !App::mp_hide_net_labels->getBool()))
         {
-            float camDist = (xc_scenenode->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition()).length();
+            const float camDist = (xc_scenenode->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition()).length();
             Ogre::Vector3 scene_pos = xc_scenenode->getPosition();
             scene_pos.y += (1.9f + camDist / 100.0f);
 
@@ -713,4 +714,14 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         }
     }
 #endif // USE_SOCKETW
+
+    // Walkie talkie label (forwardcommands / importcommands)
+    if (xc_simbuf.simbuf_character_walkie_talkie)
+    {
+        const float camDist = (xc_scenenode->getPosition() - App::GetCameraManager()->GetCameraNode()->getPosition()).length();
+        Ogre::Vector3 scene_pos = xc_scenenode->getPosition();
+        scene_pos.y += (1.9f + camDist / 100.0f);
+
+        App::GetGfxScene()->DrawWalkieTalkieLabel(scene_pos, camDist, nullptr);
+    }
 }

@@ -110,6 +110,7 @@ public:
     void                 UpdateCParticles();
     void                 UpdateAeroEngines();
     void                 UpdateNetLabels(float dt);
+    void                 UpdateWalkieTalkieLabels(float dt);
     void                 UpdateFlares(float dt_sec, bool is_player);
     void                 UpdateRenderdashRTT ();
 

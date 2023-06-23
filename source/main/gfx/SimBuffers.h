@@ -190,6 +190,7 @@ struct ActorSB
     // GUI
     float             simbuf_speedo_highest_kph       = 0;
     bool              simbuf_speedo_use_engine_max_rpm = false;
+    bool              simbuf_wakie_talkie = false;
 };
 
 struct GameContextSB

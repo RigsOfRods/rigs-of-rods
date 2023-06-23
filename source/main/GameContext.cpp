@@ -1078,7 +1078,7 @@ void GameContext::UpdateSimInputEvents(float dt)
         const Ogre::Vector3 position = App::GetGameContext()->GetPlayerCharacter()->getPosition();
         ActorPtr nearest_actor = nullptr;
         float min_squared_distance = std::numeric_limits<float>::max();
-        for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+        for (const ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
             float squared_distance = position.squaredDistance(actor->ar_nodes[0].AbsPosition);
             if (squared_distance < min_squared_distance)
@@ -1110,7 +1110,20 @@ void GameContext::UpdateSimInputEvents(float dt)
 
                 nearest_actor->ar_command_key[i].playerInputValue = eventVal;
             }
+            nearest_actor->ar_walkie_talkie = true;
+            App::GetGameContext()->GetPlayerCharacter()->cr_walkie_talkie = true;
         }
+        else
+        {
+            if (nearest_actor)
+                nearest_actor->ar_walkie_talkie = false;
+            App::GetGameContext()->GetPlayerCharacter()->cr_walkie_talkie = false;
+        }
+    }
+    else
+    {
+        for (const ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+            actor->ar_walkie_talkie = false;
     }
 
     // AI waypoint recording

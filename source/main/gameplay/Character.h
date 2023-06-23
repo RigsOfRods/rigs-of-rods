@@ -64,6 +64,8 @@ public:
     void           SetActorCoupling(bool enabled, ActorPtr actor);
     GfxCharacter*  SetupGfx();
 
+    bool cr_walkie_talkie = false;
+
 private:
 
     void           ReportError(const char* detail);
@@ -108,6 +110,7 @@ struct GfxCharacter
         ActorPtr             simbuf_actor_coupling;
         std::string        simbuf_anim_name;
         float              simbuf_anim_time; // Intentionally left empty = forces initial update.
+        bool               simbuf_character_walkie_talkie = false;
     };
     
     ~GfxCharacter();

@@ -4423,6 +4423,7 @@ Actor::Actor(
     , ar_toggle_ropes(false)
     , ar_toggle_ties(false)
     , ar_physics_paused(false)
+    , ar_walkie_talkie(false)
 
     // Private bit flags
     , m_hud_features_ok(false)

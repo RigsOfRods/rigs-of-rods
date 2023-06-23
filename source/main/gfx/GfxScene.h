@@ -65,6 +65,10 @@ public:
     std::vector<GfxActor*>& GetGfxActors() { return m_all_gfx_actors; }
     std::vector<GfxCharacter*>& GetGfxCharacters() { return m_all_gfx_characters; }
 
+    // Walkie talkie icon (forwardcommands / importcommands)
+    void           DrawWalkieTalkieLabel(Ogre::Vector3 scene_pos, float cam_dist, const ActorPtr& actor);
+    void           CacheWalkietalkieCommandButtons(const ActorPtr& actor);
+
 private:
 
     std::map<std::string, DustPool *> m_dustpools;
@@ -75,6 +79,11 @@ private:
     RoR::GfxEnvmap                    m_envmap;
     GameContextSB                     m_simbuf;
     SkidmarkConfig                    m_skidmark_conf;
+
+    // Walkie talkie icon (forwardcommands / importcommands)
+    std::unordered_map<int, std::string>     m_walkietalkie_commandkeys_cache;
+    ActorPtr                                 m_walkietalkie_commandkeys_cache_actor;
+    ImVec2                                   m_walkietalkie_commandkeys_screensize;
 };
 
 /// @} // addtogroup Gfx

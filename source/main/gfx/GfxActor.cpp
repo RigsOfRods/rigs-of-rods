@@ -1793,6 +1793,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
 
     m_simbuf.simbuf_speedo_highest_kph = m_actor->ar_speedo_max_kph;
     m_simbuf.simbuf_speedo_use_engine_max_rpm = m_actor->ar_gui_use_engine_max_rpm;
+    m_simbuf.simbuf_wakie_talkie = m_actor->ar_walkie_talkie;
 
     // Linked Actors
     m_linked_gfx_actors.clear();
@@ -1935,21 +1936,35 @@ void RoR::GfxActor::UpdateAeroEngines()
 
 void RoR::GfxActor::UpdateNetLabels(float dt)
 {
-        const bool is_remote = 
-            m_simbuf.simbuf_actor_state == ActorState::NETWORKED_OK ||
-            m_simbuf.simbuf_actor_state == ActorState::NETWORKED_HIDDEN;
+    const bool is_remote = 
+        m_simbuf.simbuf_actor_state == ActorState::NETWORKED_OK ||
+        m_simbuf.simbuf_actor_state == ActorState::NETWORKED_HIDDEN;
 
-        if (App::mp_hide_net_labels->getBool() || (!is_remote && App::mp_hide_own_net_label->getBool()) || App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
-        {
-            return;
-        }
+    if (App::mp_hide_net_labels->getBool() || (!is_remote && App::mp_hide_own_net_label->getBool()) || App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+    {
+        return;
+    }
 
-        float vlen = m_simbuf.simbuf_pos.distance(App::GetCameraManager()->GetCameraNode()->getPosition());
+    float vlen = m_simbuf.simbuf_pos.distance(App::GetCameraManager()->GetCameraNode()->getPosition());
 
-        float y_offset = (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_pos.y) + (vlen / 100.0);
-        Ogre::Vector3 scene_pos = m_simbuf.simbuf_pos + Ogre::Vector3::UNIT_Y * y_offset;
+    float y_offset = (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_pos.y) + (vlen / 100.0);
+    Ogre::Vector3 scene_pos = m_simbuf.simbuf_pos + Ogre::Vector3::UNIT_Y * y_offset;
 
-    App::GetGfxScene()->DrawNetLabel(scene_pos, vlen, m_simbuf.simbuf_net_username, m_simbuf.simbuf_net_colornum);
+    App::GetGfxScene()->DrawNetLabel(scene_pos, vlen,  m_simbuf.simbuf_net_username, m_simbuf.simbuf_net_colornum);
+
+}
+
+void RoR::GfxActor::UpdateWalkieTalkieLabels(float dt)
+{
+    if (!m_simbuf.simbuf_wakie_talkie)
+        return;
+
+    float vlen = m_simbuf.simbuf_pos.distance(App::GetCameraManager()->GetCameraNode()->getPosition());
+
+    float y_offset = (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_pos.y) + (vlen / 100.0);
+    Ogre::Vector3 scene_pos = m_simbuf.simbuf_pos + Ogre::Vector3::UNIT_Y * y_offset;
+
+    App::GetGfxScene()->DrawWalkieTalkieLabel(scene_pos, vlen, m_actor);
 
 }
 
