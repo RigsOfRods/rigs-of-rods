@@ -38,13 +38,13 @@ void ScriptMonitor::Draw()
     ImGui::SetColumnWidth(2, 200);
 
     // Header
-    ImGui::TextDisabled("ID");
+    ImGui::TextDisabled(_LC("ScriptMonitor", "ID"));
     ImGui::NextColumn();
-    ImGui::TextDisabled("File name");
+    ImGui::TextDisabled(_LC("ScriptMonitor", "File name"));
     ImGui::NextColumn();
-    ImGui::TextDisabled("Options");
+    ImGui::TextDisabled(_LC("ScriptMonitor", "Options"));
     
-    this->DrawCommentedSeparator("Active");
+    this->DrawCommentedSeparator(_LC("ScriptMonitor", "Active"));
 
     StringVector autoload = StringUtil::split(App::app_custom_scripts->getStr(), ",");
     for (auto& pair : App::GetScriptEngine()->getScriptUnits())
@@ -63,16 +63,16 @@ void ScriptMonitor::Draw()
         switch (unit.scriptCategory)
         {
         case ScriptCategory::ACTOR:
-            ImGui::Text("(actor [%u] '%s')", unit.associatedActor->ar_vector_index, unit.associatedActor->getTruckName().c_str());
+            ImGui::Text("({} [%u] '%s')", _LC("ScriptMonitor", "actor"), unit.associatedActor->ar_vector_index, unit.associatedActor->getTruckName().c_str());
             break;
 
         case ScriptCategory::TERRAIN:
-            ImGui::Text("(terrain)");
+            ImGui::Text("%s", _LC("ScriptMonitor", "(terrain)"));
             break;
 
         case ScriptCategory::CUSTOM:
         {
-            if (ImGui::Button("Reload"))
+            if (ImGui::Button(_LC("ScriptMonitor", "Reload")))
             {
                 App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitId_t(id)));
                 LoadScriptRequest* req = new LoadScriptRequest();
@@ -81,14 +81,14 @@ void ScriptMonitor::Draw()
                 App::GetGameContext()->ChainMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, req));
             }
             ImGui::SameLine();
-            if (ImGui::Button("Stop"))
+            if (ImGui::Button(_LC("ScriptMonitor", "Stop")))
             {
                 App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitId_t(id)));
             }
 
             ImGui::SameLine();
             bool autoload_set = std::find(autoload.begin(), autoload.end(), unit.scriptName) != autoload.end();
-            if (ImGui::Checkbox("Autoload", &autoload_set))
+            if (ImGui::Checkbox(_LC("ScriptMonitor", "Autoload"), &autoload_set))
             {
                 if (autoload_set)
                     CvarAddFileToList(App::app_custom_scripts, unit.scriptName);
@@ -124,7 +124,7 @@ void ScriptMonitor::Draw()
         // Draw recent scripts from the displaylist
         if (m_recent_displaylist.size() > 0)
         {
-            this->DrawCommentedSeparator("Recent");
+            this->DrawCommentedSeparator(_LC("ScriptMonitor", "Recent"));
 
             for (String& filename : m_recent_displaylist)
             {
@@ -135,12 +135,21 @@ void ScriptMonitor::Draw()
                 ImGui::AlignTextToFramePadding();
                 ImGui::Text("%s", filename.c_str());
                 ImGui::NextColumn();
-                if (ImGui::Button("Load"))
+                float cursorx = ImGui::GetCursorPosX();
+                if (ImGui::Button(_LC("ScriptMonitor", "Load")))
                 {
                     LoadScriptRequest* req = new LoadScriptRequest();
                     req->lsr_category = ScriptCategory::CUSTOM;
                     req->lsr_filename = filename;
                     App::GetGameContext()->PushMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, req));
+                }
+
+                ImVec2 rem_size = ImGui::CalcTextSize(_LC("ScriptMonitor", "Remove"));
+                ImGui::SameLine();
+                ImGui::SetCursorPosX(((cursorx + 190) - rem_size.x) - 2*ImGui::GetStyle().FramePadding.x);
+                if (ImGui::SmallButton(_LC("ScriptMonitor", "Remove")))
+                {
+                    CvarRemoveFileFromList(App::app_recent_scripts, filename);
                 }
 
                 ImGui::PopID(); // filename.c_str()
@@ -162,7 +171,7 @@ void ScriptMonitor::DrawCommentedSeparator(const char* text)
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImVec2 padding(5.f, 0.f);
     ImVec2 rect_max = pos + padding*2 + ImGui::CalcTextSize(text);
-    drawlist->AddRectFilled(pos, rect_max, ImColor(ImGui::GetStyle().Colors[ImGuiCol_Header]), ImGui::GetStyle().WindowRounding);
+    drawlist->AddRectFilled(pos, rect_max, ImColor(ImGui::GetStyle().Colors[ImGuiCol_PopupBg]), ImGui::GetStyle().WindowRounding);
     drawlist->AddText(pos + padding, ImColor(ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]), text);
     ImGui::NextColumn(); // skip Name column
 }
