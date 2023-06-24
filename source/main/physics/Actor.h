@@ -77,8 +77,11 @@ public:
     /// @{
     // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
     ActorState        getTruckState() { return ar_state; }
-    Ogre::Vector3     getPosition(); // AngelScript: `getVehiclePosition()`
+    Ogre::Vector3     getPosition();
+    // AngelScript alias: `getVehiclePosition()`
     float             getRotation();
+    // AngelScript alias: `getHeadingDirectionAngle()`
+    Ogre::Quaternion  getOrientation();
     float             getSpeed() { return m_avg_node_velocity.length(); };
     Ogre::Vector3     getGForces() { return m_camera_local_gforces_cur; };
     float             getTotalMass(bool withLocked=true);

@@ -182,6 +182,8 @@ void frameStep(float dt)
             ImGui::Text("Steer left/right: "
                 + inputs.getEventCommandTrimmed(EV_TRUCK_STEER_LEFT) + "/"
                 + inputs.getEventCommandTrimmed(EV_TRUCK_STEER_RIGHT));            
+                
+            drawActorAngles(actor);
             
         }
         else
@@ -680,5 +682,29 @@ void drawTextResourceButtons()
     {
         game.deleteResource("demofile.txt", "Cache");
         g_demofile_data = "";
+    }
+}
+
+string formatVector3(vector3 val, int total, int frac)
+{
+    return "X:" + formatFloat(val.x, "", total, frac)
+        + " Y:" + formatFloat(val.y, "", total, frac)
+        + " Z:" + formatFloat(val.z, "", total, frac);
+}
+
+void drawActorAngles(BeamClass@ actor)
+{
+    if (ImGui::CollapsingHeader("Actor positions/angles test"))
+    {
+        ImGui::Text("getPosition(): [vector3] " + formatVector3(actor.getPosition(), 6,2));
+        //ImGui::Text("getRotation(): [float] " + formatFloat(actor.getRotation(), "", 6,2)); // returns valid yaw in radians, but prefer using `.getOrientation.getYaw()`
+        ImGui::Text("getSpeed(): [float] " + formatFloat(actor.getSpeed(), "", 6,2));
+        ImGui::Text("getOrientation(): [quaternion]");
+        ImGui::Text("  .getYaw(): [radian] "   + formatFloat(actor.getOrientation().getYaw().valueRadians(), "", 6,2)   
+            + " (degrees: " + formatFloat(actor.getOrientation().getYaw().valueDegrees(), "", 6,2) + ")");
+        ImGui::Text("  .getPitch(): [radian] " + formatFloat(actor.getOrientation().getPitch().valueRadians(), "", 6,2) 
+            + " (degrees: " + formatFloat(actor.getOrientation().getPitch().valueDegrees(), "", 6,2) + ")");
+        ImGui::Text("  .getRoll(): [radian] "  + formatFloat(actor.getOrientation().getRoll().valueRadians(), "", 6,2)  
+            + " (degrees: " + formatFloat(actor.getOrientation().getRoll().valueDegrees(), "", 6,2) + ")");
     }
 }
