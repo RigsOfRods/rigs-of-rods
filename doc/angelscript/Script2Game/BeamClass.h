@@ -22,6 +22,14 @@ public:
     
     TruckState getTruckState();
     
+    /**
+    * Get vehicle absolute position
+    */
+    vector3 getPosition();
+    
+    /**
+    * @deprecated Alias of `getPosition()`
+    */
     vector3 getVehiclePosition();
     
 	/**
@@ -34,6 +42,14 @@ public:
 	 */
 	float getHeadingDirectionAngle();
     
+    /**
+    * Orientation on all axes packed to single quaternion. Use `getYaw()`, `getPitch()` and `getRoll()` for individual rotations in radians.
+    */
+    quaternion getOrientation()
+    
+    /**
+    * Meters per second.
+    */
     float getSpeed();
     
 	/**

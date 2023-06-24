@@ -372,6 +372,14 @@ Vector3 Actor::getPosition()
     return m_avg_node_position; //the position is already in absolute position
 }
 
+Ogre::Quaternion  Actor::getOrientation()
+{
+    Ogre::Vector3 localZ = ar_main_camera_dir_corr * -this->GetCameraDir();
+    Ogre::Vector3 localX = ar_main_camera_dir_corr * this->GetCameraRoll();
+    Ogre::Vector3 localY = localZ.crossProduct(localX);
+    return Ogre::Quaternion(localX, localY, localZ);
+}
+
 void Actor::pushNetwork(char* data, int size)
 {
 #if USE_SOCKETW
