@@ -16,7 +16,10 @@ namespace Game2Script {}
 /// @{
     
 /// @brief Pseudo-namespace; it doesn't exist in code or script runtime, only in this documentation.
-namespace Script2Game {}    
+namespace Script2Game {}
+
+/// @brief Pseudo-namespace; it doesn't exist in code or script runtime, only in this documentation.
+namespace ScriptValueTypes {}
 
 /// @}
 

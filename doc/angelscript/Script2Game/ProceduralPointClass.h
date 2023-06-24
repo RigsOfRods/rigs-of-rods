@@ -12,7 +12,7 @@ namespace Script2Game {
 /**
  * @brief Binding of RoR::ProceduralPoint;
  */
-struct ProceduralPointClass
+class ProceduralPointClass
 {
 public:
     vector3 position;

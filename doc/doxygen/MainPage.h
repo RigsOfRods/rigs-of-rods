@@ -79,7 +79,7 @@
  * ModCache is maintained by object RoR::CacheSystem (use `App::GetCacheSystem()`). The process of (re)building the database is called 'cache regen' or the like. It's done by RoR::CacheSystem::LoadModCache().
  *
  * Mods are distributed in zip archives, traditionally with extensions .zip (terrain/truck/skin) or .skinzip (skin). Loading from directiories is also possible. These locations are reffered to as 'bundles'. Each bundle may contain several mods of mixed types. Bundles are shared between mods and loaded only once, each gets it's own OGRE resource group named "bundle $FULLPATH$". To load a bundle, use RoR::CacheSystem::LoadResource(), or helper RoR::CacheSystem::CheckResourceLoaded().
- * Mods are located under 'Documents\My Games\Rigs of Rods\mods', cached files are in 'Documents\My Games\Rigs of Rods\cache' (see cvar 'sys_cache_dir').
+ * Mods are located under 'Documents\\My Games\\Rigs of Rods\\mods', cached files are in 'Documents\\My Games\\Rigs of Rods\\cache' (see cvar 'sys_cache_dir').
  * For each mod, a RoR::CacheEntry exists. To retrieve cache entries from modcache, use RoR::CacheSystem::Query() with RoR::CacheQuery, or RoR::CacheSystem::FindEntryByFilename(), or RoR::CacheSystem::FetchSkinByName().
  *
  * ## GUI and HUD
