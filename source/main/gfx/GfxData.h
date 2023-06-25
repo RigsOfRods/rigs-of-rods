@@ -122,7 +122,7 @@ struct PropAnim
     float        animratio    = 0;  //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
     PropAnimFlag animFlags    = {};
     PropAnimMode animMode     = {};
-    float        animOpt3     = 0;  //!< Various purposes
+    float        animOpt3     = 0;  //!< SHIFTER type: 0 = shifterseq, 1 = shifterman1, 2 = shifterman2, 3 = shifterlin
     float        animOpt5     = 0;
     float        lower_limit  = 0;  //!< The lower limit for the animation
     float        upper_limit  = 0;  //!< The upper limit for the animation
