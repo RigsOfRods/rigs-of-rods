@@ -127,8 +127,6 @@ public:
     // Helpers
 
     bool                 IsActorLive() const; //!< Should the visuals be updated for this actor?
-    bool                 IsActorInitialized() const  { return m_initialized; } //!< Temporary TODO: Remove once the spawn routine is fixed
-    void                 InitializeActor() { m_initialized = true; } //!< Temporary TODO: Remove once the spawn routine is fixed
     void                 CalculateDriverPos(Ogre::Vector3& out_pos, Ogre::Quaternion& out_rot);
     int                  GetActorId() const;
     int                  GetActorState() const;
@@ -163,7 +161,6 @@ private:
 
     // Game state
     std::set<GfxActor*>         m_linked_gfx_actors;
-    bool                        m_initialized = false;
     VideoCamState               m_vidcam_state = VideoCamState::VCSTATE_ENABLED_ONLINE;
     DebugViewType               m_debug_view = DebugViewType::DEBUGVIEW_NONE;
     DebugViewType               m_last_debug_view = DebugViewType::DEBUGVIEW_SKELETON; // intentional

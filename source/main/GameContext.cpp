@@ -404,8 +404,6 @@ void GameContext::DeleteActor(ActorPtr actor)
         }
     }
 
-    App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor());
-
 #ifdef USE_SOCKETW
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
     {
@@ -884,7 +882,7 @@ bool GameContext::CreatePlayerCharacter()
 
 Character* GameContext::GetPlayerCharacter() // Convenience ~ counterpart of `GetPlayerActor()`
 {
-    return m_character_factory.GetLocalCharacter();
+    return m_character_factory.getLocalCharacter();
 }
 
 // --------------------------------

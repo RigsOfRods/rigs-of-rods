@@ -266,8 +266,6 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
         actor->GetGfxActor()->FinishFlexbodyTasks(); // Sync tasks from threadpool
     }
 
-    App::GetGfxScene()->RegisterGfxActor(actor->GetGfxActor());
-
     if (actor->ar_engine)
     {
         if (!actor->m_preloaded_with_terrain && App::sim_spawn_running->getBool())

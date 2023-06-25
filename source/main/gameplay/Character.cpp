@@ -28,6 +28,7 @@
 #include "Collisions.h"
 #include "Console.h"
 #include "GameContext.h"
+#include "GfxCharacter.h"
 #include "GfxScene.h"
 #include "InputEngine.h"
 #include "MovableText.h"

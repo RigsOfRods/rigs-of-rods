@@ -1804,7 +1804,15 @@ void RoR::GfxActor::UpdateSimDataBuffer()
 
 bool RoR::GfxActor::IsActorLive() const
 {
-    return (m_actor->ar_state < ActorState::LOCAL_SLEEPING);
+    switch (m_actor->ar_state)
+    {
+    case ActorState::LOCAL_SIMULATED:  //!< simulated (local) actor
+    case ActorState::NETWORKED_OK:     //!< not simulated (remote) actor
+    case ActorState::LOCAL_REPLAY:
+        return true;
+    default:
+        return false;
+    }
 }
 
 void RoR::GfxActor::UpdateCabMesh()

@@ -282,8 +282,13 @@ void SurveyMap::Draw()
         }
 
         // Draw actor icons
-        for (GfxActor* gfx_actor: App::GetGfxScene()->GetGfxActors())
+        for (const ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
         {
+            if (actor->ar_state == ActorState::DISPOSED)
+                continue;
+
+            GfxActor* gfx_actor = actor->GetGfxActor();
+            ROR_ASSERT(gfx_actor);
             const char* type_str = this->getTypeByDriveable(gfx_actor->GetActorDriveable(), gfx_actor->GetActor());
             int truckstate = gfx_actor->GetActorState();
             Str<100> fileName;
@@ -302,9 +307,9 @@ void SurveyMap::Draw()
         }
 
         // Draw character icons
-        for (GfxCharacter* gfx_character: App::GetGfxScene()->GetGfxCharacters())
+        for (const std::unique_ptr<Character>& character: App::GetGameContext()->GetCharacterFactory()->getAllCharacters())
         {
-            auto& simbuf = gfx_character->xc_simbuf;
+            auto& simbuf = character->getGfxCharacter()->xc_simbuf;
             if (!simbuf.simbuf_actor_coupling)
             {
                 std::string caption = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";

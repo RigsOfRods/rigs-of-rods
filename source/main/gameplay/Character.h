@@ -47,10 +47,9 @@ namespace RoR {
 class Character
 {
     friend struct GfxCharacter; // visual counterpart.
+    friend class CharacterFactory;
 
 public:
-
-
 
     static const char* ControlFlagToString(BitMask_t single_flag);
     static BitMask_t ControlFlagFromString(std::string const& single_flag_str);
@@ -85,6 +84,9 @@ public:
     void           setColour(int color)                 { this->m_color_number = color; }
     Ogre::UTFString const& GetNetUsername()             { return m_net_username; }
 
+    // get visuals
+    GfxCharacter* getGfxCharacter() { return m_gfx_character.get(); }
+
 private:
 
     void           ReportError(const char* detail);
@@ -115,6 +117,9 @@ private:
     unsigned long    m_net_last_update_time;
     int              m_stream_id = 0;
     int              m_source_id = 0; // 0=local
+
+    // visuals
+    std::unique_ptr<GfxCharacter> m_gfx_character;
 };
 
 /// @} // addtogroup Character
