@@ -266,6 +266,9 @@ void GameSettings::DrawGameplaySettings()
     DrawGCheckbox(App::io_discord_rpc, _LC("GameSettings", "Discord Rich Presence"));
 
     DrawGCheckbox(App::sim_quickload_dialog, _LC("GameSettings", "Show confirm. UI dialog for quickload"));
+
+    ImGui::Separator();
+    this->DrawPlayerCharacterCfg();
 }
 
 void GameSettings::DrawAudioSettings()
@@ -530,5 +533,27 @@ void GameSettings::SetVisible(bool v)
         ImAddItemToComboboxString(m_combo_items_input_grab, ToLocalizedString(IoInputGrabMode::ALL));
         ImAddItemToComboboxString(m_combo_items_input_grab, ToLocalizedString(IoInputGrabMode::DYNAMIC));
         ImTerminateComboboxString(m_combo_items_input_grab);
+    }
+}
+
+void GameSettings::DrawPlayerCharacterCfg()
+{
+    ImGui::TextDisabled("%s:", _LC("GameSettings", "Player character"));
+    ImGui::SameLine();
+    ImGui::Text("%s", App::sim_player_character->getStr().c_str());
+    ImGui::SameLine();
+    if (App::sim_player_character_skin->getStr() == "")
+    {
+        ImGui::TextDisabled("(default skin)");
+    }
+    else
+    {
+        ImGui::Text("(Skin: '%s')", App::sim_player_character_skin->getStr().c_str());
+    }
+    ImGui::SameLine();
+    if (ImGui::SmallButton(_LC("GameSettings", "Select")))
+    {
+        LoaderType* payload = new LoaderType(LoaderType::LT_Character);
+        App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_SELECTOR_REQUESTED, (void*)payload));
     }
 }

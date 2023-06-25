@@ -42,6 +42,9 @@ private:
     void DrawControlSettings();
     void DrawDiagSettings();
 
+    // helper
+    void DrawPlayerCharacterCfg();
+
     // GUI state
     bool m_is_visible = false;
 

@@ -27,6 +27,7 @@
 #pragma once
 
 #include "Application.h"
+#include "CharacterFileFormat.h"
 #include "Language.h"
 #include "RigDef_File.h"
 #include "SimData.h"
@@ -84,6 +85,7 @@ public:
 
     RigDef::DocumentPtr actor_def; //!< Cached actor definition (aka truckfile) after first spawn
     std::shared_ptr<RoR::SkinDef> skin_def;  //!< Cached skin info, added on first use or during cache rebuild
+    CharacterDocumentPtr character_def; //!< Cached character definition
 
     // following all TRUCK detail information:
     Ogre::String description;
@@ -150,19 +152,20 @@ struct CacheQueryResult
 
 enum class CacheSearchMethod // Always case-insensitive
 {
-    NONE,     //!< No searching
+    NONE,     //!< Show everything
     FULLTEXT, //!< Partial match in: name, filename, description, author name/mail
-    GUID,     //!< Partial match in: guid 
+    GUID,     //!< Partial match in: guid (intentionally - for search box)
     AUTHORS,  //!< Partial match in: author name/email
     WHEELS,   //!< Wheel configuration, i.e. 4x4
-    FILENAME  //!< Partial match in file name
+    FILENAME, //!< Partial match in file name
+    NAME_FULL //!< Full match of name (case-insensitive)
 };
 
 struct CacheQuery
 {
     RoR::LoaderType                cqy_filter_type = RoR::LoaderType::LT_None;
     int                            cqy_filter_category_id = CacheCategoryId::CID_All;
-    std::string                    cqy_filter_guid; //!< Exact match; leave empty to disable
+    std::string                    cqy_filter_guid; //!< Exact match; leave empty to disable; not the same as CacheSearchMethod::GUID
     CacheSearchMethod              cqy_search_method = CacheSearchMethod::NONE;
     std::string                    cqy_search_string;
     
@@ -183,7 +186,7 @@ enum class CacheValidity
 /// MOTIVATION:
 ///    RoR users usually have A LOT of content installed. Traversing it all on every game startup would be a pain.
 /// HOW IT WORKS:
-///    For each recognized resource type (vehicle, terrain, skin...) an instance of 'CacheEntry' is created.
+///    For each recognized resource type (vehicle, terrain, character, skin...) an instance of 'CacheEntry' is created.
 ///       These entries are persisted in file CACHE_FILE (see above)
 ///    Associated media live in a "resource bundle" (ZIP archive or subdirectory) in content directory (ROR_HOME/mods) and subdirectories.
 ///       If multiple CacheEntries share a bundle, the bundle is loaded only once. Each bundle has dedicated OGRE resource group.
@@ -210,6 +213,7 @@ public:
     const CategoryIdNameMap         &GetCategories()     const { return m_categories; }
 
     std::shared_ptr<RoR::SkinDef> FetchSkinDef(CacheEntry* cache_entry); //!< Loads+parses the .skin file once
+    CharacterDocumentPtr          FetchCharacterDef(CacheEntry* cache_entry); //!< Loads+parses the .character file once
 
     CacheEntry *GetEntry(int modid);
     Ogre::String GetPrettyName(Ogre::String fname);
@@ -239,13 +243,15 @@ private:
 
     void FillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
     void FillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname, Ogre::String group);
+    void FillCharacterDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr ds);
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
 
     void GenerateFileCache(CacheEntry &entry, Ogre::String group);
     void RemoveFileCache(CacheEntry &entry);
 
-    bool Match(size_t& out_score, std::string data, std::string const& query, size_t );
+    bool Match(size_t& out_score, std::string data, std::string const& query, size_t);
+    bool MatchExact(std::string data, const std::string& query);
 
     std::time_t                          m_update_time;      //!< Ensures that all inserted files share the same timestamp
     std::string                          m_filenames_hash_loaded;   //!< hash from cachefile, for quick update detection

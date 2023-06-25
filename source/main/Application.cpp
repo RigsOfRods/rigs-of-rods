@@ -108,6 +108,8 @@ CVar* sim_no_self_collisions;
 CVar* sim_gearbox_mode;
 CVar* sim_soft_reset_mode;
 CVar* sim_quickload_dialog;
+CVar* sim_player_character;
+CVar* sim_player_character_skin;
 
 // Multiplayer
 CVar* mp_state;
@@ -122,6 +124,8 @@ CVar* mp_server_password;
 CVar* mp_player_name;
 CVar* mp_player_token;
 CVar* mp_api_url;
+CVar* mp_override_character;
+CVar* mp_override_character_skin;
 
 // New remote API
 CVar* remote_query_url;

@@ -70,6 +70,7 @@ private:
     void                DrawSetupTab();
     void                DrawDirectTab();
     void                DrawServerlistTab();
+    void                DrawCharacterOverrideCfg();
 
     MpServerInfoVec     m_serverlist_data;
     int                 m_selected_item = -1;

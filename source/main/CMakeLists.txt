@@ -33,6 +33,7 @@ set(SOURCE_FILES
         gfx/DustPool.{h,cpp}
         gfx/EnvironmentMap.{h,cpp}
         gfx/GfxActor.{h,cpp}
+        gfx/GfxCharacter.{h,cpp}
         gfx/GfxData.h
         gfx/GfxScene.{h,cpp}
         gfx/HydraxWater.{h,cpp}
@@ -114,6 +115,7 @@ set(SOURCE_FILES
         gui/imgui/imstb_textedit.h
         gui/imgui/imstb_truetype.h
         gui/panels/GUI_AngelScriptExamples.{h,cpp}
+        gui/panels/GUI_CharacterPoseUtil.{h,cpp}
         gui/panels/GUI_CollisionsDebug.{h,cpp}
         gui/panels/GUI_ConsoleView.{h,cpp}
         gui/panels/GUI_ConsoleWindow.{h,cpp}
@@ -191,6 +193,7 @@ set(SOURCE_FILES
         resources/skin_fileformat/SkinFileFormat.{h,cpp}
         resources/terrn2_fileformat/Terrn2FileFormat.{h,cpp}
         resources/tobj_fileformat/TObjFileFormat.{h,cpp}
+        resources/character_fileformat/CharacterFileFormat.{h,cpp}
         system/AppCommandLine.cpp
         system/AppConfig.cpp
         system/Console.{h,cpp}
@@ -341,6 +344,7 @@ target_include_directories(${BINNAME} PRIVATE
         physics/utils
         physics/water
         resources
+        resources/character_fileformat
         resources/odef_fileformat/
         resources/otc_fileformat/
         resources/rig_def_fileformat

@@ -25,26 +25,25 @@
 
 #include "CacheSystem.h"
 
-#include <OgreException.h>
 #include "Application.h"
-#include "SimData.h"
+#include "CharacterFileFormat.h"
 #include "ContentManager.h"
 #include "ErrorUtils.h"
+#include "GfxActor.h"
+#include "GfxScene.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_GameMainMenu.h"
 #include "GUIManager.h"
-#include "GfxActor.h"
-#include "GfxScene.h"
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RigDef_Parser.h"
-
+#include "SimData.h"
 #include "SkinFileFormat.h"
 #include "Terrain.h"
 #include "Terrn2FileFormat.h"
 #include "Utils.h"
 
-#include <OgreFileSystem.h>
+#include <Ogre.h>
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/ostreamwrapper.h>
@@ -111,6 +110,7 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("load");
     m_known_extensions.push_back("train");
     m_known_extensions.push_back("skin");
+    m_known_extensions.push_back("character");
 }
 
 void CacheSystem::LoadModCache(CacheValidity validity)
@@ -645,6 +645,11 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
             new_entries.resize(1);
             FillTerrainDetailInfo(new_entries.back(), ds, f.filename);
         }
+        else if (ext == "character")
+        {
+            new_entries.resize(1);
+            FillCharacterDetailInfo(new_entries.back(), ds);
+        }
         else if (ext == "skin")
         {
             auto new_skins = RoR::SkinParser::ParseSkins(ds);
@@ -1068,6 +1073,26 @@ void CacheSystem::FillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr d
     entry.version    = def.version;
 }
 
+void CacheSystem::FillCharacterDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr datastream)
+{
+    CharacterParser parser;
+    CharacterDocumentPtr doc = parser.ProcessOgreStream(datastream);
+
+    for (CharacterAuthorInfo& author: doc->authors)
+    {
+        AuthorInfo a;
+        a.id = author.id;
+        a.type = author.type;
+        a.name = author.name;
+        a.email = author.email;
+        entry.authors.push_back(a);
+    }
+
+    entry.dname = doc->character_name;
+    entry.description = doc->character_description;
+    entry.guid = doc->character_guid;
+}
+
 bool CacheSystem::CheckResourceLoaded(Ogre::String & filename)
 {
     Ogre::String group = "";
@@ -1126,6 +1151,15 @@ void CacheSystem::LoadResource(CacheEntry& t)
             // PagedGeometry is hardcoded to use `Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME`
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
             ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+            App::GetContentManager()->InitManagedMaterials(group);
+        }
+        else if (t.fext == "character")
+        {
+            // This is a character mod bundle - use `inGlobalPool=false` to prevent resource name conflicts.
+            // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
+            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
+            ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+            App::GetContentManager()->InitManagedMaterials(group);
         }
         else if (t.fext == "skin")
         {
@@ -1141,8 +1175,8 @@ void CacheSystem::LoadResource(CacheEntry& t)
             // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
             ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
-
             App::GetContentManager()->InitManagedMaterials(group);
+
             App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES, group);
             App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MATERIALS, group);
             App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES, group);
@@ -1263,6 +1297,28 @@ std::shared_ptr<SkinDef> CacheSystem::FetchSkinDef(CacheEntry* cache_entry)
     }
 }
 
+CharacterDocumentPtr CacheSystem::FetchCharacterDef(CacheEntry* cache_entry)
+{
+    if (!cache_entry->character_def)
+    {
+        try
+        {
+            App::GetCacheSystem()->LoadResource(*cache_entry); // Load if not already
+
+            Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().openResource(cache_entry->fname, cache_entry->resource_group);
+            CharacterParser character_parser;
+            cache_entry->character_def = character_parser.ProcessOgreStream(datastream);
+        }
+        catch (Ogre::Exception& eeh)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("Could not load character, message: {}", eeh.getFullDescription()));
+        }
+    }
+
+    return cache_entry->character_def;
+}
+
 size_t CacheSystem::Query(CacheQuery& query)
 {
     Ogre::StringUtil::toLowerCase(query.cqy_search_string);
@@ -1279,8 +1335,10 @@ size_t CacheSystem::Query(CacheQuery& query)
         bool add = false;
         if (entry.fext == "terrn2")
             add = (query.cqy_filter_type == LT_Terrain);
-        if (entry.fext == "skin")
+        else if (entry.fext == "skin")
             add = (query.cqy_filter_type == LT_Skin);
+        else if (entry.fext == "character")
+            add = (query.cqy_filter_type == LT_Character || query.cqy_filter_type == LT_CharacterMP);
         else if (entry.fext == "truck")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck);
         else if (entry.fext == "car")
@@ -1323,6 +1381,7 @@ size_t CacheSystem::Query(CacheQuery& query)
         Str<100> wheels_str;
         switch (query.cqy_search_method)
         {
+        // Partial case-insensitive match in: name, filename, description, author name/email
         case CacheSearchMethod::FULLTEXT:
             if (match = this->Match(score, entry.dname,       query.cqy_search_string, 0))   { break; }
             if (match = this->Match(score, entry.fname,       query.cqy_search_string, 100)) { break; }
@@ -1334,10 +1393,12 @@ size_t CacheSystem::Query(CacheQuery& query)
             }
             break;
 
+        // Partial case-insensitive match of GUID (intentionally - for search box)
         case CacheSearchMethod::GUID:
             match = this->Match(score, entry.guid, query.cqy_search_string, 0);
             break;
 
+        // Partial case-insensitive match of author name/email
         case CacheSearchMethod::AUTHORS:
             for (AuthorInfo const& author: entry.authors)
             {
@@ -1346,16 +1407,24 @@ size_t CacheSystem::Query(CacheQuery& query)
             }
             break;
 
+        // Search by wheel configuration, for example '4x4'
         case CacheSearchMethod::WHEELS:
             wheels_str << entry.wheelcount << "x" << entry.propwheelcount;
             match = this->Match(score, wheels_str.ToCStr(), query.cqy_search_string, 0);
             break;
 
+        // Partial, case-insensitive match in file name
         case CacheSearchMethod::FILENAME:
             match = this->Match(score, entry.fname, query.cqy_search_string, 100);
             break;
 
-        default: // CacheSearchMethod::NONE
+        // Full case-insensitive match in mod name (useful for skins - one .skin file can define multiple skins)
+        case CacheSearchMethod::NAME_FULL:
+            match = this->MatchExact(entry.dname, query.cqy_search_string);
+            break;
+
+        // CacheSearchMethod::NONE -> Show everything
+        default:
             match = true;
             break;
         };
@@ -1384,6 +1453,12 @@ bool CacheSystem::Match(size_t& out_score, std::string data, std::string const& 
     {
         return false;
     }
+}
+
+bool CacheSystem::MatchExact(std::string data, std::string const& query)
+{
+    Ogre::StringUtil::toLowerCase(data);
+    return data == query;
 }
 
 bool CacheQueryResult::operator<(CacheQueryResult const& other) const

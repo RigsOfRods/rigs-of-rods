@@ -404,8 +404,6 @@ void GameContext::DeleteActor(ActorPtr actor)
         }
     }
 
-    App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor());
-
 #ifdef USE_SOCKETW
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
     {
@@ -649,9 +647,14 @@ void GameContext::OnLoaderGuiCancel()
 
 void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::string sectionconfig)
 {
-    bool spawn_now = false;
+    bool selection_finished = false;
     switch (type)
     {
+    case LT_Terrain:
+        m_current_selection.asr_cache_entry = entry;
+        selection_finished = true;
+        break;
+
     case LT_Skin:
         if (entry != &m_dummy_cache_selection)
         {
@@ -665,7 +668,7 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
                 App::GetGuiManager()->TopMenubar.ai_skin2 = entry->dname;
             }
         }
-        spawn_now = true;
+        selection_finished = true;
         break;
 
     case LT_Vehicle:
@@ -678,6 +681,9 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
     case LT_Load:
     case LT_Extension:
     case LT_AllBeam:
+    case LT_Character:
+    case LT_CharacterMP:
+        m_current_selector_type = type;
         m_current_selection.asr_cache_entry = entry;
         m_current_selection.asr_config = sectionconfig;
         if (App::GetGuiManager()->TopMenubar.ai_select)
@@ -690,7 +696,7 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
         }
         m_current_selection.asr_origin = ActorSpawnRequest::Origin::USER;
         // Look for extra skins
-        if (!entry->guid.empty())
+        if (entry->guid != "")
         {
             CacheQuery skin_query;
             skin_query.cqy_filter_guid = entry->guid;
@@ -708,7 +714,7 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
                 if (!default_skin_entry)
                 {
                     App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
-                        fmt::format(_L("Default skin '{}' for actor '{}' not found!"), entry->default_skin, entry->dname));
+                        fmt::format(_L("Default skin '{}' for cache entry '{}' not found!"), entry->default_skin, entry->dname));
                 }
                 if (default_skin_entry && num_skins == 1)
                 {
@@ -728,51 +734,100 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
             }
             else
             {
-                spawn_now = true;
+                selection_finished = true;
             }
         }
         else
         {
-            spawn_now = true;
+            selection_finished = true;
         }
         break;
 
     default:;
     }
 
-    if (spawn_now)
+    if (selection_finished)
     {
-        if (App::GetGuiManager()->TopMenubar.ai_select)
+        if (m_current_selection.asr_cache_entry->fext == "terrn2")
         {
-            App::GetGuiManager()->TopMenubar.ai_fname = m_current_selection.asr_cache_entry->fname;
-            App::GetGuiManager()->TopMenubar.ai_dname = m_current_selection.asr_cache_entry->dname;
-            App::GetGuiManager()->TopMenubar.ai_select = false;
-            App::GetGuiManager()->TopMenubar.ai_menu = true;
+            if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
+            {
+                App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, m_current_selection.asr_cache_entry->fname));
+            }
         }
-        else if (App::GetGuiManager()->TopMenubar.ai_select2)
+        else if (m_current_selection.asr_cache_entry->fext == "character")
         {
-            App::GetGuiManager()->TopMenubar.ai_fname2 = m_current_selection.asr_cache_entry->fname;
-            App::GetGuiManager()->TopMenubar.ai_dname2 = m_current_selection.asr_cache_entry->dname;
-            App::GetGuiManager()->TopMenubar.ai_select2 = false;
-            App::GetGuiManager()->TopMenubar.ai_menu = true;
+            switch (m_current_selector_type)
+            {
+            case LT_Character: // Invoked by Settings UI button
+                App::sim_player_character->setStr(m_current_selection.asr_cache_entry->fname);
+                if (m_current_selection.asr_skin_entry)
+                {
+                    App::sim_player_character_skin->setStr(m_current_selection.asr_skin_entry->dname);
+                }
+                else
+                {
+                    App::sim_player_character_skin->setStr("");
+                }
+                break;
+
+            case LT_CharacterMP: // Invoked by MultiplayerSelector UI button
+                App::mp_override_character->setStr(m_current_selection.asr_cache_entry->fname);
+                if (m_current_selection.asr_skin_entry)
+                {
+                    App::mp_override_character_skin->setStr(m_current_selection.asr_skin_entry->dname);
+                }
+                else
+                {
+                    App::mp_override_character_skin->setStr("");
+                }
+                break;
+
+            default:; // uhh, what?
+            }
         }
         else
         {
-            ActorSpawnRequest* rq = new ActorSpawnRequest;
-            *rq = m_current_selection;
-            this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+            if (App::GetGuiManager()->TopMenubar.ai_select)
+            {
+                App::GetGuiManager()->TopMenubar.ai_fname = m_current_selection.asr_cache_entry->fname;
+                App::GetGuiManager()->TopMenubar.ai_dname = m_current_selection.asr_cache_entry->dname;
+                App::GetGuiManager()->TopMenubar.ai_select = false;
+                App::GetGuiManager()->TopMenubar.ai_menu = true;
+            }
+            else if (App::GetGuiManager()->TopMenubar.ai_select2)
+            {
+                App::GetGuiManager()->TopMenubar.ai_fname2 = m_current_selection.asr_cache_entry->fname;
+                App::GetGuiManager()->TopMenubar.ai_dname2 = m_current_selection.asr_cache_entry->dname;
+                App::GetGuiManager()->TopMenubar.ai_select2 = false;
+                App::GetGuiManager()->TopMenubar.ai_menu = true;
+            }
+            else
+            {
+                ActorSpawnRequest* rq = new ActorSpawnRequest;
+                *rq = m_current_selection;
+                this->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+            }
         }
 
         m_current_selection = ActorSpawnRequest(); // Reset
+        m_current_selector_type = LT_None;
     }
 }
 
 // --------------------------------
 // Characters
 
-void GameContext::CreatePlayerCharacter()
+bool GameContext::CreatePlayerCharacter()
 {
     m_character_factory.CreateLocalCharacter();
+
+    if (!this->GetPlayerCharacter())
+    {
+        App::GetGuiManager()->ShowMessageBox(_L("Terrain loading error"),
+            "Failed to create player character, see console or 'RoR.log' for more info.");
+        return false;
+    }
 
     // Adjust character position
     Ogre::Vector3 spawn_pos = m_terrain->getSpawnPos();
@@ -821,11 +876,13 @@ void GameContext::CreatePlayerCharacter()
     {
         App::GetCameraManager()->UpdateInputEvents(0.02f);
     }
+
+    return true;
 }
 
 Character* GameContext::GetPlayerCharacter() // Convenience ~ counterpart of `GetPlayerActor()`
 {
-    return m_character_factory.GetLocalCharacter();
+    return m_character_factory.getLocalCharacter();
 }
 
 // --------------------------------

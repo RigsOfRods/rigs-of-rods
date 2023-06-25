@@ -1,0 +1,200 @@
+; The default character (aka RoRbot)
+; -----------------------------------------------------------------------------
+;
+; This file format lets you compose 'actions' from one or more
+;  skeletal animations exported from a 3D modelling tool,
+;  by responding to SITUATION_ and CONTROL_ flags sent by the game.
+;  NOTE each 'action' is evaluated separately, there is no either-or relation,
+;  so you must always blacklist all non-conforming flags to avoid conflicts.
+;
+; For explanation of individual parameters,
+;  see file source/main/resources/character_fileformat/CharacterFileFormat.h
+;  NOTE ON TERMINOLOGY: 'anim' always means skeletal animation, not the 'action'.
+;
+; For authoritative list of SITUATION_ and CONTROL_ flags, see file RoRnet.h
+;
+; Tip: in game, use 'Pose Util' UI panel,
+;  open it from top menubar >> Tools >> Character pose util.
+;
+; -----------------------------------------------------------------------------
+
+; Name displayed in the Selector UI - required
+character_name "Default character"
+
+; required for skinning - use https://guidgenerator.com for your mods.
+character_guid "baef1af5-2854-48c3-af05-5087da2d773b"
+
+; Name of the mesh file - required.
+mesh_name "character.mesh"
+
+; Scaling factor of the mesh - optional, default is 1.0 on all axes.
+; NOTE: the 0.02 factor used to be hardcoded because the default character mesh is oversized like that.
+mesh_scale 0.02 0.02 0.02
+
+begin_action
+    action_description "driving"
+    for_situation SITUATION_DRIVING
+    anim_name "Driving"
+    playback_time_ratio 0.f
+    playback_steering_ratio -1.f
+    anim_continuous false
+    source_percentual true
+    anim_neutral_mid true
+    playback_trim 0.01f  
+end_action
+
+begin_action
+    action_description "swimming"
+    for_situation SITUATION_IN_DEEP_WATER
+    for_control CONTROL_MOVE_FORWARD
+    anim_name "Swim_loop"
+    playback_h_speed_ratio 1.f
+    playback_time_ratio 1.f
+end_action
+        
+begin_action
+    action_description "swimming on spot"
+    for_situation SITUATION_IN_DEEP_WATER
+    except_control CONTROL_MOVE_FORWARD
+    anim_name "Spot_swim"
+    playback_time_ratio 1.f
+end_action
+        
+begin_action
+    action_description "running"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    for_control CONTROL_MOVE_FORWARD
+    for_control CONTROL_RUN
+    anim_name "Run"
+    playback_time_ratio 1.f
+    playback_h_speed_ratio 1.f
+end_action
+        
+begin_action
+    action_description "walking forward"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    for_control CONTROL_MOVE_FORWARD
+    except_control CONTROL_RUN
+    ; when pressing both FORWARD+BACKWARD keys, FORWARD wins in game movement so let it win here also.
+    except_control CONTROL_MOVE_BACKWARD
+    anim_name "Walk"
+    playback_time_ratio 1.f
+    playback_h_speed_ratio 1.f
+end_action
+        
+begin_action
+    action_description "walking backward"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    for_control CONTROL_MOVE_BACKWARD
+    ; Do not mix the walk animation into the run animation if user presses both RUN+MOVE_BACKWARDS.
+    except_control CONTROL_RUN
+    anim_name "Walk"
+    playback_time_ratio -1.f
+    playback_h_speed_ratio 1.f
+end_action
+        
+begin_action
+    action_description "side stepping right"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    for_control CONTROL_SIDESTEP_RIGHT
+    except_control CONTROL_MOVE_FORWARD
+    except_control CONTROL_MOVE_BACKWARD
+    ; Pressing both SIDESTEP+TURN controls makes game combine the movements, so also combine the animations.
+    ;except_control CONTROL_TURN_RIGHT
+    ;except_control CONTROL_TURN_LEFT
+    except_control CONTROL_RUN
+    anim_name "Side_step"
+    playback_time_ratio 1.f
+    anim_autorestart true
+end_action
+        
+begin_action
+    action_description "side stepping left"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    for_control CONTROL_SIDESTEP_LEFT
+    except_control CONTROL_MOVE_FORWARD
+    except_control CONTROL_MOVE_BACKWARD
+    ; Pressing both SIDESTEP+TURN controls makes game combine the movements, so also combine the animations.
+    ;except_control CONTROL_TURN_RIGHT
+    ;except_control CONTROL_TURN_LEFT
+    except_control CONTROL_RUN
+    anim_name "Side_step"
+    playback_time_ratio -1.f
+    anim_autorestart true
+end_action
+        
+begin_action
+    action_description "turning left"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    for_control CONTROL_TURN_LEFT
+    ; Pressing both SIDESTEP+TURN controls makes game combine the movements, so also combine the animations.
+    ;except_control CONTROL_SIDESTEP_LEFT
+    ;except_control CONTROL_SIDESTEP_RIGHT
+    except_control CONTROL_MOVE_FORWARD
+    except_control CONTROL_MOVE_BACKWARD
+    except_control CONTROL_RUN
+    anim_name "Turn"
+    playback_time_ratio 1.f
+    anim_autorestart true
+end_action
+        
+begin_action
+    action_description "turning right"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    for_control CONTROL_TURN_RIGHT
+    ; Pressing both SIDESTEP+TURN controls makes game combine the movements, so also combine the animations.
+    ;except_control CONTROL_SIDESTEP_LEFT
+    ;except_control CONTROL_SIDESTEP_RIGHT
+    except_control CONTROL_MOVE_FORWARD
+    except_control CONTROL_MOVE_BACKWARD
+    except_control CONTROL_RUN
+    anim_name "Turn"
+    playback_time_ratio -1.f
+    anim_autorestart true
+end_action
+        
+begin_action
+    action_description "idle standing"
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING
+    except_situation SITUATION_CUSTOM_MODE_01
+    except_control CONTROL_TURN_RIGHT
+    except_control CONTROL_TURN_LEFT
+    except_control CONTROL_SIDESTEP_LEFT
+    except_control CONTROL_SIDESTEP_RIGHT
+    except_control CONTROL_MOVE_FORWARD
+    except_control CONTROL_MOVE_BACKWARD
+    except_control CONTROL_RUN
+    except_control CONTROL_CUSTOM_01
+    anim_name "Idle_sway"
+    playback_time_ratio 1.f
+end_action
+
+begin_action
+    action_description "custom action 01 test"
+    for_control CONTROL_CUSTOM_ACTION_01
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING    
+    except_situation SITUATION_CUSTOM_MODE_01
+    anim_name "Spot_swim"
+    playback_time_ratio 10.0
+    anim_continuous false
+end_action
+
+begin_action
+    action_description "custom mode 01 test"
+    for_situation SITUATION_CUSTOM_MODE_01
+    except_situation SITUATION_IN_DEEP_WATER
+    except_situation SITUATION_DRIVING    
+    anim_name "Driving"
+    playback_time_ratio 2.0    
+end_action
+
+

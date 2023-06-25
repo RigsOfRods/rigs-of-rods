@@ -21,17 +21,28 @@
 
 #include "CharacterFactory.h"
 
+#include "Actor.h"
 #include "Application.h"
+#include "CacheSystem.h"
 #include "Character.h"
+#include "Console.h"
+#include "GfxCharacter.h"
 #include "GfxScene.h"
 #include "Utils.h"
 
 using namespace RoR;
 
+CharacterFactory::CharacterFactory()
+{
+}
+
 Character* CharacterFactory::CreateLocalCharacter()
 {
     int colourNum = -1;
     Ogre::UTFString playerName = "";
+    // Singleplayer character presets
+    std::string characterFile = App::sim_player_character->getStr();
+    std::string characterSkin = App::sim_player_character_skin->getStr();
 
 #ifdef USE_SOCKETW
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
@@ -39,12 +50,58 @@ Character* CharacterFactory::CreateLocalCharacter()
         RoRnet::UserInfo info = App::GetNetwork()->GetLocalUserData();
         colourNum = info.colournum;
         playerName = tryConvertUTF(info.username);
+        // Multiplayer character presets
+        characterFile = info.character_file;
+        characterSkin = info.character_skin;
     }
 #endif // USE_SOCKETW
 
-    m_local_character = std::unique_ptr<Character>(new Character(-1, 0, playerName, colourNum, false));
-    App::GetGfxScene()->RegisterGfxCharacter(m_local_character->SetupGfx());
-    return m_local_character.get();
+    CacheEntry* cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, characterFile);
+    if (!cache_entry)
+    {
+        // If this was a custom mod, retry with the builtin
+        if (characterFile != DEFAULT_CHARACTER_FILE)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("Could not find configured character '{}' in mod cache, falling back to '{}'", characterFile, DEFAULT_CHARACTER_FILE));
+            App::sim_player_character->setStr(DEFAULT_CHARACTER_FILE);
+
+            cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, App::sim_player_character->getStr());
+        }
+    }
+    if (cache_entry)
+    {
+        CharacterDocumentPtr document = App::GetCacheSystem()->FetchCharacterDef(cache_entry); // Make sure it exists
+        if (!document)
+        {
+            return nullptr; // Error already reported
+        }
+        // The loaded document is now pinned to the CacheEntry
+    }
+    else
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not find character '{}' in mod cache.", App::sim_player_character->getStr()));
+        return nullptr;
+    }
+
+    CacheEntry* skin_entry = this->fetchCharacterSkin(characterSkin, _L("local player"));
+    Character* ch = new Character(cache_entry, skin_entry, -1, 0, playerName, colourNum, false);
+    ROR_ASSERT(m_characters.size() == 0);
+    m_characters.push_back(std::unique_ptr<Character>(ch));
+
+    // GFX setup
+    try
+    {
+        ch->m_gfx_character = std::unique_ptr<GfxCharacter>(new GfxCharacter(ch));
+    }
+    catch (Ogre::Exception& eeh) { 
+      App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+        fmt::format("error creating GfxCharacter, message:{}", eeh.getFullDescription())); 
+    }
+
+    // Done
+    return ch;
 }
 
 void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
@@ -55,22 +112,59 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
     int colour = info.colournum;
     Ogre::UTFString name = tryConvertUTF(info.username);
 
-    LOG(" new character for " + TOSTRING(sourceid) + ":" + TOSTRING(streamid) + ", colour: " + TOSTRING(colour));
+    std::string info_str = fmt::format("player '{}' ({}:{}), colour: {}", info.clientname, sourceid, streamid, colour);
 
-    Character* ch = new Character(sourceid, streamid, name, colour, true);
-    App::GetGfxScene()->RegisterGfxCharacter(ch->SetupGfx());
-    m_remote_characters.push_back(std::unique_ptr<Character>(ch));
+    LOG(" new character for " + info_str);
+
+    CacheEntry* cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, info.character_file);
+    if (!cache_entry)
+    {
+        // If this was a custom mod, retry with the builtin
+        if (std::string(info.character_file) != DEFAULT_CHARACTER_FILE)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("Could not create custom character character for {} - character '{}' not found in mod cache, falling back to '{}'", info_str, info.character_file, DEFAULT_CHARACTER_FILE));
+
+            cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, DEFAULT_CHARACTER_FILE);
+        }
+
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not create character for {} - character '{}' not found in mod cache.", info_str, info.character_file));
+        return;
+    }
+
+    CharacterDocumentPtr document = App::GetCacheSystem()->FetchCharacterDef(cache_entry);
+    if (!document)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not create character for {} - cannot load file '{}'.", info_str, cache_entry->fname));
+        return;
+    }
+
+    CacheEntry* skin_entry = this->fetchCharacterSkin(info.character_skin, info_str);
+    Character* ch = new Character(cache_entry, skin_entry, sourceid, streamid, name, colour, true);
+    m_characters.push_back(std::unique_ptr<Character>(ch));
+
+    // GFX setup
+    try
+    {
+        ch->m_gfx_character = std::unique_ptr<GfxCharacter>(new GfxCharacter(ch));
+    }
+    catch (Ogre::Exception& eeh) { 
+      App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+        fmt::format("error creating GfxCharacter, message:{}", eeh.getFullDescription())); 
+    }
 #endif // USE_SOCKETW
 }
 
 void CharacterFactory::removeStreamSource(int sourceid)
 {
-    for (auto it = m_remote_characters.begin(); it != m_remote_characters.end(); it++)
+    for (auto it = m_characters.begin(); it != m_characters.end(); it++)
     {
         if ((*it)->getSourceID() == sourceid)
         {
             (*it).reset();
-            m_remote_characters.erase(it);
+            m_characters.erase(it);
             return;
         }
     }
@@ -78,19 +172,24 @@ void CharacterFactory::removeStreamSource(int sourceid)
 
 void CharacterFactory::Update(float dt)
 {
-    m_local_character->update(dt);
+    // character at [0] is local
+    m_characters[0]->updateLocal(dt);
 
-    for (auto& c : m_remote_characters)
+#ifdef USE_SOCKETW
+    if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED))
     {
-        c->update(dt);
+        m_characters[0]->SendStreamData();
     }
+#endif // USE_SOCKETW
+
+
 }
 
 void CharacterFactory::UndoRemoteActorCoupling(ActorPtr actor)
 {
-    for (auto& c : m_remote_characters)
+    for (auto& c : m_characters)
     {
-        if (c->GetActorCoupling() == actor)
+        if (c->isRemote() && c->GetActorCoupling() == actor)
         {
             c->SetActorCoupling(false, nullptr);
         }
@@ -99,8 +198,7 @@ void CharacterFactory::UndoRemoteActorCoupling(ActorPtr actor)
 
 void CharacterFactory::DeleteAllCharacters()
 {
-    m_remote_characters.clear(); // std::unique_ptr<> will do the cleanup...
-    m_local_character.reset(); // ditto
+    m_characters.clear(); // std::unique_ptr<> will do the cleanup...
 }
 
 #ifdef USE_SOCKETW
@@ -122,11 +220,41 @@ void CharacterFactory::handleStreamData(std::vector<RoR::NetRecvPacket> packet_b
         }
         else
         {
-            for (auto& c : m_remote_characters)
+            for (auto& c : m_characters)
             {
-                c->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer);
+                if (c->isRemote())
+                    c->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer);
             }
         }
     }
 }
 #endif // USE_SOCKETW
+
+CacheEntry* CharacterFactory::fetchCharacterSkin(const std::string& skinName, const std::string& errLogPlayer)
+{
+    if (skinName == "")
+        return nullptr;
+
+    CacheQuery skinQuery;
+    skinQuery.cqy_filter_type = LT_Skin;
+    skinQuery.cqy_search_method = CacheSearchMethod::NAME_FULL;
+    skinQuery.cqy_search_string = skinName;
+    if (App::GetCacheSystem()->Query(skinQuery) == 0)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Skin '{}' requested by player player '{}' is not installed, continuing without it.",
+            skinName, errLogPlayer));
+        return nullptr;
+    }
+
+    if (!App::GetCacheSystem()->FetchSkinDef(skinQuery.cqy_results[0].cqr_entry))
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Could not load character skin '{}' for player '{}', continuing without it.",
+            skinName, errLogPlayer));
+        return nullptr;
+    }
+
+    // The loaded skin is pinned to the CacheEntry now.
+    return skinQuery.cqy_results[0].cqr_entry;
+}

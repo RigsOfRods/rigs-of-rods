@@ -253,6 +253,7 @@ void ContentManager::InitModCache(CacheValidity validity)
     std::string user = App::sys_user_dir->getStr();
     std::string base = App::sys_process_dir->getStr();
     std::string objects = PathCombine("resources", "beamobjects.zip");
+    std::string character = PathCombine("resources", "default_character.zip");
 
     if (!App::app_extra_mod_path->getStr().empty())
     {
@@ -265,6 +266,7 @@ void ContentManager::InitModCache(CacheValidity validity)
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "vehicles"), "FileSystem", RGN_CONTENT);
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, "content") , "FileSystem", RGN_CONTENT);
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, objects)   , "Zip"       , RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, character) , "Zip"       , RGN_CONTENT);
 
     ResourceGroupManager::getSingleton().createResourceGroup(RGN_TEMP, false);
     if (!App::app_extra_mod_path->getStr().empty())

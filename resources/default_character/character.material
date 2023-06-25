@@ -1,6 +1,6 @@
 import * from "managed_mats.material"
 
-material tracks/character: RoR/Managed_Mats/Base
+material character: RoR/Managed_Mats/Base
 {
 	technique BaseTechnique
 	{
@@ -12,19 +12,21 @@ material tracks/character: RoR/Managed_Mats/Base
 				texture character.dds
 			}
 		}
+        
+        // The multiplayer colorization pass - must be named "ColorChange"
 		pass ColorChange
 		{
 			scene_blend alpha_blend
+            // The alpha mask texture unit - name doesn't matter.
 			texture_unit
 			{
 				texture character-alpha.png
 			}
-			texture_unit
+            // The color texture unit - must be named "PlayerColor"
+			texture_unit "PlayerColor"
 			{
 				colour_op_ex blend_current_alpha src_manual src_current 0 0 0
 			}
 		}
 	}
 }
-
-

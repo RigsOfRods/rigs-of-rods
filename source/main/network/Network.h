@@ -55,36 +55,6 @@ struct CurlFailInfo
 
 #pragma pack(push, 1)
 
-enum NetCharacterCmd
-{
-    CHARACTER_CMD_INVALID,
-    CHARACTER_CMD_POSITION,
-    CHARACTER_CMD_ATTACH,
-    CHARACTER_CMD_DETACH
-};
-
-struct NetCharacterMsgGeneric
-{
-    int32_t command;
-};
-
-struct NetCharacterMsgPos
-{
-    int32_t command;
-    float   pos_x, pos_y, pos_z;
-    float   rot_angle;
-    float   anim_time;
-    char    anim_name[CHARACTER_ANIM_NAME_LEN];
-};
-
-struct NetCharacterMsgAttach
-{
-    int32_t command;
-    int32_t source_id;
-    int32_t stream_id;
-    int32_t position;
-};
-
 struct NetSendPacket
 {
     char buffer[RORNET_MAX_MESSAGE_LENGTH];

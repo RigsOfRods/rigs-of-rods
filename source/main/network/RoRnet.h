@@ -30,9 +30,12 @@ namespace RoRnet {
 #define RORNET_MAX_PEERS            64     //!< maximum clients connected at the same time
 #define RORNET_MAX_MESSAGE_LENGTH   8192   //!< maximum size of a RoR message. 8192 bytes = 8 kibibytes
 #define RORNET_LAN_BROADCAST_PORT   13000  //!< port used to send the broadcast announcement in LAN mode
-#define RORNET_MAX_USERNAME_LEN     40     //!< port used to send the broadcast announcement in LAN mode
+#define RORNET_MAX_USERNAME_LEN     40
+#define RORNET_MAX_CHARACTER_FILE_LEN 60
+#define RORNET_MAX_CHARACTER_SKIN_LEN 60
 
-#define RORNET_VERSION              "RoRnet_2.44"
+
+#define RORNET_VERSION              "RoRnet_2.45"
 
 enum MessageType
 {
@@ -123,6 +126,58 @@ enum Lightmask
     LIGHTMASK_BLINK_WARN  = BITMASK(20), //!< warn blinker on
 };
 
+enum ControlFlags
+{
+     CONTROL_CUSTOM_ACTION_01 = BITMASK(1),
+     CONTROL_CUSTOM_ACTION_02 = BITMASK(2),
+     CONTROL_CUSTOM_ACTION_03 = BITMASK(3),
+     CONTROL_CUSTOM_ACTION_04 = BITMASK(4),
+     CONTROL_CUSTOM_ACTION_05 = BITMASK(5),
+     CONTROL_CUSTOM_ACTION_06 = BITMASK(6),
+     CONTROL_CUSTOM_ACTION_07 = BITMASK(7),
+     CONTROL_CUSTOM_ACTION_08 = BITMASK(8),
+     CONTROL_CUSTOM_ACTION_09 = BITMASK(9),
+     CONTROL_CUSTOM_ACTION_10 = BITMASK(10),
+
+     CONTROL_MOVE_FORWARD     = BITMASK(11),
+     CONTROL_MOVE_BACKWARD    = BITMASK(12),
+     CONTROL_TURN_RIGHT       = BITMASK(13),
+     CONTROL_TURN_LEFT        = BITMASK(14),
+     CONTROL_SIDESTEP_RIGHT   = BITMASK(15),
+     CONTROL_SIDESTEP_LEFT    = BITMASK(16),
+     CONTROL_RUN              = BITMASK(17),
+     CONTROL_JUMP             = BITMASK(18),
+     CONTROL_SLOW_TURN        = BITMASK(19),
+};
+
+enum SituationFlags
+{
+    SITUATION_CUSTOM_MODE_01   = BITMASK(1),
+    SITUATION_CUSTOM_MODE_02   = BITMASK(2),
+    SITUATION_CUSTOM_MODE_03   = BITMASK(3),
+    SITUATION_CUSTOM_MODE_04   = BITMASK(4),
+    SITUATION_CUSTOM_MODE_05   = BITMASK(5),
+    SITUATION_CUSTOM_MODE_06   = BITMASK(6),
+    SITUATION_CUSTOM_MODE_07   = BITMASK(7),
+    SITUATION_CUSTOM_MODE_08   = BITMASK(8),
+    SITUATION_CUSTOM_MODE_09   = BITMASK(9),
+    SITUATION_CUSTOM_MODE_10   = BITMASK(10),
+
+    SITUATION_ON_SOLID_GROUND  = BITMASK(11),
+    SITUATION_IN_SHALLOW_WATER = BITMASK(12),
+    SITUATION_IN_DEEP_WATER    = BITMASK(13),
+    SITUATION_IN_AIR           = BITMASK(14),
+    SITUATION_DRIVING          = BITMASK(15),
+};
+
+enum CharacterCmd
+{
+    CHARACTER_CMD_INVALID,
+    CHARACTER_CMD_POSITION,
+    CHARACTER_CMD_ATTACH,
+    CHARACTER_CMD_DETACH
+};
+
 // -------------------------------- structs -----------------------------------
 // Only use datatypes with defined binary sizes (avoid bool, int, wchar_t...)
 // Prefer alignment to 4 or 2 bytes (put int32/float/etc. fields on top)
@@ -180,7 +235,8 @@ struct UserInfo
     char     clientversion[25];    //!< a version number of the client. For example 1 for RoR 0.35
     char     clientGUID[40];       //!< the clients GUID
     char     sessiontype[10];      //!< the requested session type. For example "normal", "bot", "rcon"
-    char     sessionoptions[128];  //!< reserved for future options
+    char     character_file[RORNET_MAX_CHARACTER_FILE_LEN]; //!< Filename of the chosen character
+    char     character_skin[RORNET_MAX_CHARACTER_SKIN_LEN]; //!< Skin name for the chosen character
 };
 
 struct VehicleState                  //!< Formerly `oob_t`
@@ -195,6 +251,28 @@ struct VehicleState                  //!< Formerly `oob_t`
     float    wheelspeed;           //!< the wheel speed value
     BitMask_t flagmask;             //!< flagmask: NETMASK_*
     BitMask_t lightmask;            //!< flagmask: LIGHTMASK_*
+};
+
+struct CharacterMsgGeneric
+{
+    int32_t   command;
+};
+
+struct CharacterMsgPos
+{
+    int32_t   command;
+    float     pos_x, pos_y, pos_z;
+    float     rot_angle;
+    BitMask_t control_flags;
+    BitMask_t situation_flags;
+};
+
+struct CharacterMsgAttach
+{
+    int32_t command;
+    int32_t source_id;
+    int32_t stream_id;
+    int32_t position;
 };
 
 struct ServerInfo

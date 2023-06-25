@@ -568,9 +568,9 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->LoadingWindow.SetProgress(5, _L("Loading resources"));
                     App::GetContentManager()->LoadGameplayResources();
 
-                    if (App::GetGameContext()->LoadTerrain(m.description))
+                    if (App::GetGameContext()->LoadTerrain(m.description)
+                        && App::GetGameContext()->CreatePlayerCharacter())
                     {
-                        App::GetGameContext()->CreatePlayerCharacter();
                         // Spawn preselected vehicle; commandline has precedence
                         if (App::cli_preset_vehicle->getStr() != "")
                             App::GetGameContext()->SpawnPreselectedActor(App::cli_preset_vehicle->getStr(), App::cli_preset_veh_config->getStr()); // Needs character for position
@@ -597,8 +597,8 @@ int main(int argc, char *argv[])
                         if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
                         {
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                                                  fmt::format(_LC("ChatBox", "Press {} to start chatting"),
-                                               App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_CHATMODE)), "lightbulb.png");
+                                                                    fmt::format(_LC("ChatBox", "Press {} to start chatting"),
+                                                App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_CHATMODE)), "lightbulb.png");
                         }
 #endif // USE_SOCKETW
                         if (App::io_outgauge_mode->getInt() > 0)
@@ -608,6 +608,8 @@ int main(int argc, char *argv[])
                     }
                     else
                     {
+                        // Failed to load terrain or character - messagebox is already displayed
+
                         if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
                         {
                             App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
@@ -750,7 +752,6 @@ int main(int argc, char *argv[])
                     {
                         ActorPtr actor = *actor_ptr;
                         actor->ar_state = ActorState::NETWORKED_HIDDEN; // Stop net. updates
-                        App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor()); // Remove visuals (also stops updating SimBuffer)
                         actor->GetGfxActor()->GetSimDataBuffer().simbuf_actor_state = ActorState::NETWORKED_HIDDEN; // Hack - manually propagate the new state to SimBuffer so Character can reflect it.
                         actor->GetGfxActor()->SetAllMeshesVisible(false);
                         actor->GetGfxActor()->SetCastShadows(false);
@@ -771,7 +772,6 @@ int main(int argc, char *argv[])
                     {
                         ActorPtr actor = *actor_ptr;
                         actor->ar_state = ActorState::NETWORKED_OK; // Resume net. updates
-                        App::GetGfxScene()->RegisterGfxActor(actor->GetGfxActor()); // Restore visuals (also resumes updating SimBuffer)
                         actor->GetGfxActor()->SetAllMeshesVisible(true);
                         actor->GetGfxActor()->SetCastShadows(true);
                         actor->unmuteAllSounds(); // Unmute sounds

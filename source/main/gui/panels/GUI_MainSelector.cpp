@@ -612,24 +612,20 @@ void MainSelector::Apply()
     ROR_ASSERT(m_selected_entry > -1); // Programmer error
     DisplayEntry& sd_entry = m_display_entries[m_selected_entry];
 
-    if (m_loader_type == LT_Terrain &&
-        App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
-    {
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, sd_entry.sde_entry->fname));
-        this->Close();
-    }
-    else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
-    {
-        LoaderType type = m_loader_type;
-        std::string sectionconfig;
-        if (sd_entry.sde_entry->sectionconfigs.size() > 0)
-        {
-            sectionconfig = sd_entry.sde_entry->sectionconfigs[m_selected_sectionconfig];
-        }
-        this->Close();
+    // Make a copy because `Close()` will reset it.
+    LoaderType orig_loader_type = m_loader_type;
 
-        App::GetGameContext()->OnLoaderGuiApply(type, sd_entry.sde_entry, sectionconfig);
+    // If no config was selected, use the first one.
+    std::string sectionconfig;
+    if (sd_entry.sde_entry->sectionconfigs.size() > 0)
+    {
+        sectionconfig = sd_entry.sde_entry->sectionconfigs[m_selected_sectionconfig];
     }
+
+    // Close the UI so that GameContext can reopen it if needed (used for skins)
+    this->Close();
+
+    App::GetGameContext()->OnLoaderGuiApply(orig_loader_type, sd_entry.sde_entry, sectionconfig);
 }
 
 // Static helper

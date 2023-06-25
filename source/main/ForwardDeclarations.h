@@ -37,6 +37,9 @@ namespace RoR
     typedef int ScriptUnitId_t; //!< Unique sequentially generated ID of a loaded and running scriptin session. Use `ScriptEngine::getScriptUnit()`
     static const ScriptUnitId_t SCRIPTUNITID_INVALID = -1;
 
+    typedef int CharacterActionID_t; //!< Index to `CharacterDocument::actions`, use `CHARACTERACTIONID_INVALID` as empty value.
+    static const CharacterActionID_t CHARACTERACTIONID_INVALID = -1;
+
     typedef int PointidID_t; //!< index to `PointColDetector::hit_pointid_list`, use `RoR::POINTIDID_INVALID` as empty value.
     static const PointidID_t POINTIDID_INVALID = -1;
 
