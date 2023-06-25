@@ -82,16 +82,14 @@ void Character::updateCharacterRotation()
     setRotation(m_character_rotation);
 }
 
-void Character::setPosition(Vector3 position) // TODO: updates OGRE objects --> belongs to GfxScene ~ only_a_ptr, 05/2018
+void Character::setPosition(Vector3 position)
 {
-    //ASYNCSCENE OLD m_character_scenenode->setPosition(position);
     m_character_position = position;
     m_prev_position = position;
 }
 
 Vector3 Character::getPosition()
 {
-    //ASYNCSCENE OLDreturn m_character_scenenode->getPosition();
     return m_character_position;
 }
 
@@ -145,15 +143,19 @@ void Character::update(float dt)
 
         // Trigger script events and handle mesh (ground) collision
         Vector3 query = position;
-        App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query);
+        if (App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query))
+        {
+            m_inertia = false;
+        }
 
         // Auto compensate minor height differences
-        float depth = calculate_collision_depth(position);
-        if (depth > 0.0f)
+        float terrain_depth = calculate_collision_depth(position);
+        if (terrain_depth > 0.0f)
         {
             m_can_jump = true;
             m_character_v_speed = std::max(0.0f, m_character_v_speed);
-            position.y += std::min(depth, 2.0f * dt);
+            position.y += std::min(terrain_depth, 2.0f * dt);
+            m_inertia = false;
         }
 
         // Submesh "collision"
@@ -161,8 +163,10 @@ void Character::update(float dt)
             float depth = 0.0f;
             for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
             {
+#if 0
                 if (actor->ar_bounding_box.contains(position))
                 {
+
                     for (int i = 0; i < actor->ar_num_collcabs; i++)
                     {
                         int tmpv = actor->ar_collcabs[i] * 3;
@@ -173,15 +177,79 @@ void Character::update(float dt)
                         if (result.first && result.second < 1.8f)
                         {
                             depth = std::max(depth, result.second);
+                            if (depth > 0 && m_contacting_actor == nullptr) // check fresh contacting actor also, prevents knockbacks with multiple actors that have node position overlapping
+                            {
+                                this->SetContactingActor(actor);
+                                // first contact - initialize 'prev' values to avoid big knockbacks
+                                m_prev_contacting_cab = i;
+                                m_prev_contacting_cab_matrix = CalcCabTransformMatrix(actor, i);
+                                m_prev_contacting_cab_localpos = m_prev_contacting_cab_matrix.inverse() * position;
+                            }
+                            m_contacting_cab = i;
                         }
                     }
-                }
+#endif
+
+                    if (depth > 0)
+                    {
+                        m_can_jump = true;
+                        m_character_v_speed = std::max(0.0f, m_character_v_speed);
+                        position.y += std::min(depth, 0.05f);
+                    }
+
+                    if (m_contacting_actor != nullptr)
+                    {
+                        // Calculate vehicle movement using old & new position of the same cab (the 'prev')
+                        // --------------------------------------------------------------------------------
+
+                        const Affine3 old_matrix = m_prev_contacting_cab_matrix;
+                        const Affine3 cur_matrix = CalcCabTransformMatrix(actor, m_prev_contacting_cab);
+
+                        const int tmpv = actor->ar_collcabs[m_contacting_cab] * 3;
+                        const Vector3 a = actor->ar_nodes[actor->ar_cabs[tmpv + 0]].AbsPosition;
+
+                        Vector3 old_pos = old_matrix * m_prev_contacting_cab_localpos;
+                        Vector3 projected_pos = cur_matrix * m_prev_contacting_cab_localpos;
+                        position.x = projected_pos.x + a.x;
+                        position.z = projected_pos.z + a.z;
+
+                        // Delta rot
+                    //    Ogre::Radian delta_rotation = -(cur_matrix.extractQuaternion() - old_matrix.extractQuaternion()).getYaw();
+                   //     this->setRotation(m_character_rotation + delta_rotation);
+
+                        // Activate inertia
+                        m_inertia = true;
+                        m_inertia_position = projected_pos - old_pos;
+                    //    m_inertia_rotation = delta_rotation;
+
+                    }
+                    else if (m_inertia)
+                    {
+                        //if (App::sim_character_collisions->getBool())
+                        {
+                            position += m_inertia_position;
+                            this->setRotation(m_character_rotation + m_inertia_rotation);
+                        }
+                    }
+#if 0
             }
-            if (depth > 0.0f)
+
+                else if (m_contacting_actor != nullptr && !m_contacting_actor->ar_bounding_box.contains(position)) // we lost contact, reset contacting actor
+                {
+                    this->SetContactingActor(nullptr);
+                }
+#endif
+            }
+
+            if (m_contacting_actor != nullptr)
             {
-                m_can_jump = true;
-                m_character_v_speed = std::max(0.0f, m_character_v_speed);
-                position.y += std::min(depth, 0.05f);
+                m_contacting_cab_matrix = CalcCabTransformMatrix(m_contacting_actor, m_contacting_cab);
+                
+
+                m_prev_contacting_cab = m_contacting_cab;
+                m_prev_contacting_cab_matrix = m_contacting_cab_matrix;
+                //m_prev_contacting_cab_localpos = m_contacting_cab_matrix.inverse() * position;
+                
             }
         }
 
@@ -214,6 +282,7 @@ void Character::update(float dt)
             position.y = pheight;
             m_character_v_speed = 0.0f;
             m_can_jump = true;
+            m_inertia = false;
         }
 
         // water stuff
@@ -370,9 +439,19 @@ void Character::update(float dt)
         }
 
         m_character_position = position;
+   /*     if (m_contacting_actor)
+        {
+            m_contacting_cab_localpos = m_contacting_cab_matrix.inverse() * position;
+        }*/
     }
     else if (m_actor_coupling) // The character occupies a vehicle or machine
     {
+        // Submesh collision - Prevent knockbacks on vehicle exit
+        if (m_contacting_actor != nullptr)
+        {
+            m_contacting_actor = nullptr;
+        }
+
         // Animation
         float angle = m_actor_coupling->ar_hydro_dir_wheel_display * -1.0f; // not getSteeringAngle(), but this, as its smoothed
         float anim_time_pos = ((angle + 1.0f) * 0.5f) * m_driving_anim_length;
@@ -389,6 +468,14 @@ void Character::update(float dt)
         m_anim_time = anim_time_pos;
         m_net_last_anim_time = 0.0f;
     }
+    else if (m_is_remote && m_contacting_actor)
+    {
+        // Make sure cab index from network is valid (-1 means no update arrived yet)
+        if (m_contacting_cab >= 0 && m_contacting_cab < m_contacting_actor->ar_num_cabs)
+        {
+            this->setPosition(this->CalcCabTransformMatrix(m_contacting_actor, m_contacting_cab) * m_contacting_cab_localpos);
+        }
+    }
 
 #ifdef USE_SOCKETW
     if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) && !m_is_remote)
@@ -396,6 +483,22 @@ void Character::update(float dt)
         this->SendStreamData();
     }
 #endif // USE_SOCKETW
+}
+
+Ogre::Affine3 Character::CalcCabTransformMatrix(ActorPtr& actor, int cab_index)
+{
+    const int tmpv = actor->ar_collcabs[cab_index] * 3;
+    const Vector3 a = actor->ar_nodes[actor->ar_cabs[tmpv + 0]].AbsPosition;
+    const Vector3 b = actor->ar_nodes[actor->ar_cabs[tmpv + 1]].AbsPosition;
+    const Vector3 c = actor->ar_nodes[actor->ar_cabs[tmpv + 2]].AbsPosition;
+
+    // 'a' is the reference point and 'Y' axis is up.
+    const Vector3 x_axis = b - a;
+    const Vector3 z_axis = c - a;
+    const Vector3 y_axis = x_axis.crossProduct(z_axis);
+    Quaternion rot = Quaternion(x_axis, y_axis, z_axis);
+
+    return Affine3(Vector3::ZERO, rot);
 }
 
 void Character::move(Vector3 offset)
@@ -449,17 +552,28 @@ void Character::SendStreamData()
     if (m_net_timer.getMilliseconds() - m_net_last_update_time < 100)
         return;
 
-    // do not send position data if coupled to an actor already
+    // do not send position data if coupled (seated) with an actor already
     if (m_actor_coupling)
         return;
 
     m_net_last_update_time = m_net_timer.getMilliseconds();
 
     NetCharacterMsgPos msg;
-    msg.command = CHARACTER_CMD_POSITION;
-    msg.pos_x = m_character_position.x;
-    msg.pos_y = m_character_position.y;
-    msg.pos_z = m_character_position.z;
+    if (m_contacting_actor)
+    {
+        msg.command = CHARACTER_CMD_POSITION_CAB;
+        msg.cab_index = m_contacting_cab;
+        msg.pos_x = m_contacting_cab_localpos.x;
+        msg.pos_y = m_contacting_cab_localpos.y;
+        msg.pos_z = m_contacting_cab_localpos.z;
+    }
+    else
+    {
+        msg.command = CHARACTER_CMD_POSITION_GROUND;
+        msg.pos_x = m_character_position.x;
+        msg.pos_y = m_character_position.y;
+        msg.pos_z = m_character_position.z;
+    }
     msg.rot_angle = m_character_rotation.valueRadians();
     strncpy(msg.anim_name, m_anim_name.c_str(), CHARACTER_ANIM_NAME_LEN);
     msg.anim_time = m_anim_time - m_net_last_anim_time;
@@ -476,10 +590,18 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
     if (type == RoRnet::MSG2_STREAM_DATA && m_source_id == source && m_stream_id == streamid)
     {
         auto* msg = reinterpret_cast<NetCharacterMsgGeneric*>(buffer);
-        if (msg->command == CHARACTER_CMD_POSITION)
+        if (msg->command == CHARACTER_CMD_POSITION_GROUND || msg->command == CHARACTER_CMD_POSITION_CAB)
         {
             auto* pos_msg = reinterpret_cast<NetCharacterMsgPos*>(buffer);
-            this->setPosition(Ogre::Vector3(pos_msg->pos_x, pos_msg->pos_y, pos_msg->pos_z));
+            if (msg->command == CHARACTER_CMD_POSITION_GROUND)
+            {
+                this->setPosition(Ogre::Vector3(pos_msg->pos_x, pos_msg->pos_y, pos_msg->pos_z));
+            }
+            else if (msg->command == CHARACTER_CMD_POSITION_CAB)
+            {
+                m_contacting_cab_localpos = Ogre::Vector3(pos_msg->pos_x, pos_msg->pos_y, pos_msg->pos_z);
+                m_contacting_cab = pos_msg->cab_index;
+            }
             this->setRotation(Ogre::Radian(pos_msg->rot_angle));
             if (strnlen(pos_msg->anim_name, CHARACTER_ANIM_NAME_LEN) < CHARACTER_ANIM_NAME_LEN)
             {
@@ -489,17 +611,27 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
         else if (msg->command == CHARACTER_CMD_DETACH)
         {
             if (m_actor_coupling != nullptr)
-                this->SetActorCoupling(false, nullptr);
+                this->SetActorCoupling(nullptr);
+            else if (m_contacting_actor != nullptr)
+                this->SetContactingActor(nullptr);
             else
                 this->ReportError("Received command `DETACH`, but not currently attached to a vehicle. Ignoring command.");
         }
-        else if (msg->command == CHARACTER_CMD_ATTACH)
+        else if (msg->command == CHARACTER_CMD_ATTACH_SEAT || msg->command == CHARACTER_CMD_ATTACH_CAB)
         {
             auto* attach_msg = reinterpret_cast<NetCharacterMsgAttach*>(buffer);
-            ActorPtr beam = App::GetGameContext()->GetActorManager()->GetActorByNetworkLinks(attach_msg->source_id, attach_msg->stream_id);
-            if (beam != nullptr)
+            ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorByNetworkLinks(attach_msg->source_id, attach_msg->stream_id);
+            if (actor != nullptr)
             {
-                this->SetActorCoupling(true, beam);
+                if (msg->command == CHARACTER_CMD_ATTACH_SEAT)
+                {
+                    this->SetActorCoupling(actor);
+                }
+                else if (msg->command == CHARACTER_CMD_ATTACH_CAB)
+                {
+                    this->SetContactingActor(actor);
+                    m_contacting_cab = -1; // Indicate we have no network updates yet.
+                }
             }
             else
             {
@@ -520,18 +652,42 @@ void Character::receiveStreamData(unsigned int& type, int& source, unsigned int&
 #endif
 }
 
-void Character::SetActorCoupling(bool enabled, ActorPtr actor)
+void Character::SetActorCoupling(ActorPtr actor)
 {
     m_actor_coupling = actor;
 #ifdef USE_SOCKETW
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !m_is_remote)
     {
-        if (enabled)
+        if (m_actor_coupling)
         {
             NetCharacterMsgAttach msg;
-            msg.command = CHARACTER_CMD_ATTACH;
+            msg.command = CHARACTER_CMD_ATTACH_SEAT;
             msg.source_id = m_actor_coupling->ar_net_source_id;
             msg.stream_id = m_actor_coupling->ar_net_stream_id;
+            App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(NetCharacterMsgAttach), (char*)&msg);
+        }
+        else
+        {
+            NetCharacterMsgGeneric msg;
+            msg.command = CHARACTER_CMD_DETACH;
+            App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(NetCharacterMsgGeneric), (char*)&msg);
+        }
+    }
+#endif // USE_SOCKETW
+}
+
+void Character::SetContactingActor(ActorPtr actor)
+{
+    m_contacting_actor = actor;
+#ifdef USE_SOCKETW
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !m_is_remote)
+    {
+        if (m_contacting_actor)
+        {
+            NetCharacterMsgAttach msg;
+            msg.command = CHARACTER_CMD_ATTACH_CAB;
+            msg.source_id = m_contacting_actor->ar_net_source_id;
+            msg.stream_id = m_contacting_actor->ar_net_stream_id;
             App::GetNetwork()->AddPacket(m_stream_id, RoRnet::MSG2_STREAM_DATA, sizeof(NetCharacterMsgAttach), (char*)&msg);
         }
         else
@@ -713,4 +869,55 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         }
     }
 #endif // USE_SOCKETW
+}
+
+void Character::drawCabWalkingDbg()
+{
+    ImGui::Text("Character '%s' (remote: %d)",
+        m_instance_name.c_str(), (int)m_is_remote);
+
+    if (m_contacting_actor)
+    {
+        ImGui::Text("Contacting actor: %s (%d cabs)",
+            m_contacting_actor->ar_design_name.c_str(),
+            m_contacting_actor->ar_num_cabs);
+        ImGui::Text("... cabIndex: %d, cabLocalPos X=%6.2f, Y=%6.2f, Z=%6.2f",
+            m_contacting_cab,
+            m_contacting_cab_localpos.x, m_contacting_cab_localpos.y, m_contacting_cab_localpos.z);
+        ImGui::Text("... prev_cabIndex: %d, prev_cabLocalPos X=%6.2f, Y=%6.2f, Z=%6.2f",
+            m_prev_contacting_cab,
+            m_prev_contacting_cab_localpos.x, m_prev_contacting_cab_localpos.y, m_prev_contacting_cab_localpos.z);
+    }
+    ImGui::Separator();
+
+    if (!m_is_remote)
+    {
+        for (ActorPtr actor : App::GetGameContext()->GetActorManager()->GetActors())
+        {
+            ImGui::Text("Available actor: %s (%d collcabs/%d cabs)",
+                actor->ar_design_name.c_str(),
+                actor->ar_num_collcabs,
+                actor->ar_num_cabs);
+
+            for (int collcabid = 0; collcabid < actor->ar_num_collcabs; collcabid++)
+            {
+                int cabid = actor->ar_collcabs[collcabid];
+                if (ImGui::Button(fmt::format("GlueTo {} (cab {})", collcabid, cabid).c_str()))
+                {
+                    m_contacting_actor = actor;
+                    m_contacting_cab = cabid;
+                    m_contacting_cab_localpos = Ogre::Vector3(0, 0, 0);
+
+                    // first contact - initialize 'prev' values to avoid big knockbacks
+                    m_prev_contacting_cab = cabid;
+                    m_prev_contacting_cab_matrix = CalcCabTransformMatrix(actor, cabid);
+                    m_prev_contacting_cab_localpos = Ogre::Vector3(0, 0, 0);
+                }
+                ImGui::SameLine();
+            }
+            ImGui::Separator();
+        }
+
+        ImGui::Separator();
+    }
 }

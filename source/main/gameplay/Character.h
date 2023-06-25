@@ -61,8 +61,10 @@ public:
     void           update(float dt);
     void           updateCharacterRotation();
     void           receiveStreamData(unsigned int& type, int& source, unsigned int& streamid, char* buffer);
-    void           SetActorCoupling(bool enabled, ActorPtr actor);
+    void           SetActorCoupling(ActorPtr actor); //!< Seating
+    void           SetContactingActor(ActorPtr); //!< Standing - collision
     GfxCharacter*  SetupGfx();
+    void           drawCabWalkingDbg();
 
 private:
 
@@ -71,7 +73,6 @@ private:
     void           SendStreamSetup();
     void           SetAnimState(std::string mode, float time = 0);
 
-    ActorPtr         m_actor_coupling; //!< The vehicle or machine which the character occupies
     Ogre::Radian     m_character_rotation;
     float            m_character_h_speed;
     float            m_character_v_speed;
@@ -84,13 +85,29 @@ private:
     bool             m_is_remote;
     std::string      m_anim_name;
     float            m_anim_time;
-    float            m_net_last_anim_time;
-    float            m_driving_anim_length;
+    float            m_net_last_anim_time;    
     std::string      m_instance_name;
     Ogre::UTFString  m_net_username;
     Ogre::Timer      m_net_timer;
     unsigned long    m_net_last_update_time;
     GfxCharacter*    m_gfx_character;
+
+    // Occupying an actor (seating):
+    ActorPtr         m_actor_coupling; //!< The vehicle or machine which the character occupies
+    float            m_driving_anim_length;
+
+    // Collision with actor (standing):
+    bool             m_inertia = false;
+    Ogre::Vector3    m_inertia_position;
+    Ogre::Radian     m_inertia_rotation;
+    ActorPtr         m_contacting_actor;
+    int              m_contacting_cab = 0;
+    Ogre::Affine3    m_contacting_cab_matrix;
+    Ogre::Vector3    m_contacting_cab_localpos;
+    int              m_prev_contacting_cab = 0;
+    Ogre::Affine3    m_prev_contacting_cab_matrix;
+    Ogre::Vector3    m_prev_contacting_cab_localpos;
+    Ogre::Affine3    CalcCabTransformMatrix(ActorPtr& actor, int cab_index);
 };
 
 /// @} // addtogroup Character
@@ -105,7 +122,7 @@ struct GfxCharacter
         Ogre::UTFString    simbuf_net_username;
         bool               simbuf_is_remote;
         int                simbuf_color_number;
-        ActorPtr             simbuf_actor_coupling;
+        ActorPtr           simbuf_actor_coupling;
         std::string        simbuf_anim_name;
         float              simbuf_anim_time; // Intentionally left empty = forces initial update.
     };
