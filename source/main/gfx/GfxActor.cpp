@@ -2325,15 +2325,13 @@ void RoR::GfxActor::SetBeaconsEnabled(bool beacon_light_is_active)
 }
 
 
-void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& div, float dt, const float lower_limit, const float upper_limit, const float option3)
+void RoR::GfxActor::CalcPropAnimation(PropAnim& anim, float& cstate, int& div, float dt)
 {
-    // ## DEV NOTE:
-    // ## This function is a modified copypaste of `Actor::calcAnimators()` which was used
-    // ## for both animator-beams (physics, part of softbody) and animated props (visual-only).
-    // ## ~ only_a_ptr, 06/2018
+    // Note: This is not the same as 'animators' - those run on physics thread!
+    // ------------------------------------------------------------------------
 
     //boat rudder
-    if (flag_state & PROP_ANIM_FLAG_BRUDDER)
+    if (anim.animFlags & PROP_ANIM_FLAG_BRUDDER)
     {
         size_t spi;
         float ctmp = 0.0f;
@@ -2349,7 +2347,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //boat throttle
-    if (flag_state & PROP_ANIM_FLAG_BTHROTTLE)
+    if (anim.animFlags & PROP_ANIM_FLAG_BTHROTTLE)
     {
         size_t spi;
         float ctmp = 0.0f;
@@ -2365,7 +2363,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //differential lock status
-    if (flag_state & PROP_ANIM_FLAG_DIFFLOCK)
+    if (anim.animFlags & PROP_ANIM_FLAG_DIFFLOCK)
     {
         if (m_actor->m_num_wheel_diffs > 0) // read-only attribute - safe to read from here
         {
@@ -2390,7 +2388,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //heading
-    if (flag_state & PROP_ANIM_FLAG_HEADING)
+    if (anim.animFlags & PROP_ANIM_FLAG_HEADING)
     {
         // rad2deg limitedrange  -1 to +1
         cstate = (m_simbuf.simbuf_rotation * 57.29578f) / 360.0f;
@@ -2399,7 +2397,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
 
     //torque - WRITES 
     const bool has_engine = (m_actor->ar_engine!= nullptr);
-    if (has_engine && flag_state & PROP_ANIM_FLAG_TORQUE)
+    if (has_engine && anim.animFlags & PROP_ANIM_FLAG_TORQUE)
     {
         float torque = m_simbuf.simbuf_engine_crankfactor;
         if (torque <= 0.0f)
@@ -2416,10 +2414,10 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //shifterseq, to amimate sequentiell shifting
-    if (has_engine && (flag_state & PROP_ANIM_FLAG_SHIFTER) && option3 == 3.0f)
+    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == 3.0f)
     {
         // opt1 &opt2 = 0   this is a shifter
-        if (!lower_limit && !upper_limit)
+        if (!anim.lower_limit && !anim.upper_limit)
         {
             int shifter = m_simbuf.simbuf_gear;
             if (shifter > m_prop_anim_prev_gear)
@@ -2451,13 +2449,13 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
         }
         else
         {
-            // check if lower_limit is a valid to get commandvalue, then get commandvalue
-            if (lower_limit >= 1.0f && lower_limit <= 48.0)
-                if (m_simbuf.simbuf_commandkey[int(lower_limit)].simbuf_cmd_value > 0)
+            // check if anim.lower_limit is a valid to get commandvalue, then get commandvalue
+            if (anim.lower_limit >= 1.0f && anim.lower_limit <= 48.0)
+                if (m_simbuf.simbuf_commandkey[int(anim.lower_limit)].simbuf_cmd_value > 0)
                     cstate += 1.0f;
-            // check if upper_limit is a valid to get commandvalue, then get commandvalue
-            if (upper_limit >= 1.0f && upper_limit <= 48.0)
-                if (m_simbuf.simbuf_commandkey[int(upper_limit)].simbuf_cmd_value > 0)
+            // check if anim.upper_limit is a valid to get commandvalue, then get commandvalue
+            if (anim.upper_limit >= 1.0f && anim.upper_limit <= 48.0)
+                if (m_simbuf.simbuf_commandkey[int(anim.upper_limit)].simbuf_cmd_value > 0)
                     cstate -= 1.0f;
         }
 
@@ -2465,7 +2463,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //shifterman1, left/right
-    if (has_engine && (flag_state & PROP_ANIM_FLAG_SHIFTER) && option3 == 1.0f)
+    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == 1.0f)
     {
         int shifter = m_simbuf.simbuf_gear;
         if (!shifter)
@@ -2484,7 +2482,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //shifterman2, up/down
-    if (has_engine && (flag_state & PROP_ANIM_FLAG_SHIFTER) && option3 == 2.0f)
+    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == 2.0f)
     {
         int shifter = m_simbuf.simbuf_gear;
         cstate = 0.5f;
@@ -2500,7 +2498,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //shifterlinear, to amimate cockpit gearselect gauge and autotransmission stick
-    if (has_engine && (flag_state & PROP_ANIM_FLAG_SHIFTER) && option3 == 4.0f)
+    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == 4.0f)
     {
         int shifter = m_simbuf.simbuf_gear;
         int numgears = m_simbuf.simbuf_num_gears;
@@ -2509,7 +2507,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //parking brake
-    if (flag_state & PROP_ANIM_FLAG_PBRAKE)
+    if (anim.animFlags & PROP_ANIM_FLAG_PBRAKE)
     {
         float pbrake = static_cast<float>(m_simbuf.simbuf_parking_brake); // Bool --> float
         cstate -= pbrake;
@@ -2517,7 +2515,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //speedo ( scales with speedomax )
-    if (flag_state & PROP_ANIM_FLAG_SPEEDO)
+    if (anim.animFlags & PROP_ANIM_FLAG_SPEEDO)
     {
         float speedo = m_simbuf.simbuf_wheel_speed / m_simbuf.simbuf_speedo_highest_kph;
         cstate -= speedo * 3.0f;
@@ -2525,7 +2523,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //engine tacho ( scales with maxrpm, default is 3500 )
-    if (has_engine && flag_state & PROP_ANIM_FLAG_TACHO)
+    if (has_engine && anim.animFlags & PROP_ANIM_FLAG_TACHO)
     {
         float tacho = m_simbuf.simbuf_engine_rpm / m_simbuf.simbuf_engine_max_rpm;
         cstate -= tacho;
@@ -2533,7 +2531,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //turbo
-    if (has_engine && flag_state & PROP_ANIM_FLAG_TURBO)
+    if (has_engine && anim.animFlags & PROP_ANIM_FLAG_TURBO)
     {
         float turbo = m_simbuf.simbuf_engine_turbo_psi * 3.34;
         cstate -= turbo / 67.0f;
@@ -2541,7 +2539,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //brake
-    if (flag_state & PROP_ANIM_FLAG_BRAKE)
+    if (anim.animFlags & PROP_ANIM_FLAG_BRAKE)
     {
         float brakes = m_simbuf.simbuf_brake;
         cstate -= brakes;
@@ -2549,7 +2547,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //accelerator
-    if (has_engine && flag_state & PROP_ANIM_FLAG_ACCEL)
+    if (has_engine && anim.animFlags & PROP_ANIM_FLAG_ACCEL)
     {
         float accel = m_simbuf.simbuf_engine_accel;
         cstate -= accel + 0.06f;
@@ -2558,7 +2556,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //clutch
-    if (has_engine && flag_state & PROP_ANIM_FLAG_CLUTCH)
+    if (has_engine && anim.animFlags & PROP_ANIM_FLAG_CLUTCH)
     {
         float clutch = m_simbuf.simbuf_clutch;
         cstate -= fabs(1.0f - clutch);
@@ -2566,11 +2564,11 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //aeroengines rpm + throttle + torque ( turboprop ) + pitch ( turboprop ) + status +  fire
-    // `option3` is aeroengine number (starting from 1)
-    if (option3 > 0.f && option3 <= float(m_simbuf.simbuf_aeroengines.size()))
+    // `anim.animOpt3` is aeroengine number (starting from 1)
+    if (anim.animOpt3 > 0.f && anim.animOpt3 <= float(m_simbuf.simbuf_aeroengines.size()))
     {
-        const int aenum = int(option3 - 1.f);
-        if (flag_state & PROP_ANIM_FLAG_RPM)
+        const int aenum = int(anim.animOpt3 - 1.f);
+        if (anim.animFlags & PROP_ANIM_FLAG_RPM)
         {
             float angle;
             float pcent = m_simbuf.simbuf_aeroengines[aenum].simbuf_ae_rpmpc;
@@ -2583,7 +2581,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
             cstate -= angle / 314.0f;
             div++;
         }
-        if (flag_state & PROP_ANIM_FLAG_THROTTLE)
+        if (anim.animFlags & PROP_ANIM_FLAG_THROTTLE)
         {
             float throttle = m_simbuf.simbuf_aeroengines[aenum].simbuf_ae_throttle;
             cstate -= throttle;
@@ -2592,20 +2590,20 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
 
         if (m_simbuf.simbuf_aeroengines[aenum].simbuf_ae_type == AeroEngineType::AE_XPROP)
         {
-            if (flag_state & PROP_ANIM_FLAG_AETORQUE)
+            if (anim.animFlags & PROP_ANIM_FLAG_AETORQUE)
             {
                 cstate = m_simbuf.simbuf_aeroengines[aenum].simbuf_tp_aetorque / 120.0f;
                 div++;
             }
 
-            if (flag_state & PROP_ANIM_FLAG_AEPITCH)
+            if (anim.animFlags & PROP_ANIM_FLAG_AEPITCH)
             {
                 cstate = m_simbuf.simbuf_aeroengines[aenum].simbuf_tp_aepitch / 120.0f;
                 div++;
             }
         }
 
-        if (flag_state & PROP_ANIM_FLAG_AESTATUS)
+        if (anim.animFlags & PROP_ANIM_FLAG_AESTATUS)
         {
             if (!m_simbuf.simbuf_aeroengines[aenum].simbuf_ae_ignition)
                 cstate = 0.0f;
@@ -2621,7 +2619,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     const Ogre::Vector3 node0_velo = m_simbuf.simbuf_node0_velo;
 
     //airspeed indicator
-    if (flag_state & PROP_ANIM_FLAG_AIRSPEED)
+    if (anim.animFlags & PROP_ANIM_FLAG_AIRSPEED)
     {
         float ground_speed_kt = node0_velo.length() * 1.9438;
         float altitude = node0_pos.y;
@@ -2636,7 +2634,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //vvi indicator
-    if (flag_state & PROP_ANIM_FLAG_VVI)
+    if (anim.animFlags & PROP_ANIM_FLAG_VVI)
     {
         float vvi = node0_velo.y * 196.85;
         // limit vvi scale to +/- 6m/s
@@ -2649,10 +2647,10 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //altimeter
-    if (flag_state & PROP_ANIM_FLAG_ALTIMETER)
+    if (anim.animFlags & PROP_ANIM_FLAG_ALTIMETER)
     {
         //altimeter indicator 1k oscillating
-        if (option3 == 3.0f)
+        if (anim.animOpt3 == 3.0f)
         {
             float altimeter = (node0_pos.y * 1.1811) / 360.0f;
             int alti_int = int(altimeter);
@@ -2661,7 +2659,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
         }
 
         //altimeter indicator 10k oscillating
-        if (option3 == 2.0f)
+        if (anim.animOpt3 == 2.0f)
         {
             float alti = node0_pos.y * 1.1811 / 3600.0f;
             int alti_int = int(alti);
@@ -2672,7 +2670,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
         }
 
         //altimeter indicator 100k limited
-        if (option3 == 1.0f)
+        if (anim.animOpt3 == 1.0f)
         {
             float alti = node0_pos.y * 1.1811 / 36000.0f;
             cstate -= alti;
@@ -2683,7 +2681,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //AOA
-    if (flag_state & PROP_ANIM_FLAG_AOA)
+    if (anim.animFlags & PROP_ANIM_FLAG_AOA)
     {
         float aoa = m_simbuf.simbuf_wing4_aoa / 25.f;
         if ((node0_velo.length() * 1.9438) < 10.0f)
@@ -2701,7 +2699,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     Ogre::Vector3 cam_dir  = this->GetSimNodeBuffer()[m_actor->ar_main_camera_node_dir ].AbsPosition;
 
     // roll
-    if (flag_state & PROP_ANIM_FLAG_ROLL)
+    if (anim.animFlags & PROP_ANIM_FLAG_ROLL)
     {
         Ogre::Vector3 rollv = (cam_pos - cam_roll).normalisedCopy();
         Ogre::Vector3 dirv = (cam_pos - cam_dir).normalisedCopy();
@@ -2721,7 +2719,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     // pitch
-    if (flag_state & PROP_ANIM_FLAG_PITCH)
+    if (anim.animFlags & PROP_ANIM_FLAG_PITCH)
     {
         Ogre::Vector3 dirv = (cam_pos - cam_dir).normalisedCopy();
         float pitchangle = asin(dirv.dotProduct(Ogre::Vector3::UNIT_Y));
@@ -2731,7 +2729,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     // airbrake
-    if (flag_state & PROP_ANIM_FLAG_AIRBRAKE)
+    if (anim.animFlags & PROP_ANIM_FLAG_AIRBRAKE)
     {
         float airbrake = static_cast<float>(m_simbuf.simbuf_airbrake_state);
         // cstate limited to -1.0f
@@ -2740,7 +2738,7 @@ void RoR::GfxActor::CalcPropAnimation(const int flag_state, float& cstate, int& 
     }
 
     //flaps
-    if (flag_state & PROP_ANIM_FLAG_FLAP)
+    if (anim.animFlags & PROP_ANIM_FLAG_FLAP)
     {
         float flaps = FLAP_ANGLES[m_simbuf.simbuf_aero_flap_state];
         // cstate limited to -1.0f
@@ -2764,11 +2762,8 @@ void RoR::GfxActor::UpdatePropAnimations(float dt)
         {
             float cstate = 0.0f;
             int div = 0.0f;
-            const float lower_limit = anim.lower_limit;
-            const float upper_limit = anim.upper_limit;
-            float animOpt3 = anim.animOpt3;
 
-            this->CalcPropAnimation(anim.animFlags, cstate, div, dt, lower_limit, upper_limit, animOpt3);
+            this->CalcPropAnimation(anim, cstate, div, dt);
 
             // key triggered animations - state determined in simulation
             if (anim.animFlags & ANIM_FLAG_EVENT)
@@ -2839,30 +2834,30 @@ void RoR::GfxActor::UpdatePropAnimations(float dt)
                 bool limiterchanged = false;
                 // check if a positive custom limit is set to evaluate/calc flip back
 
-                if (limiter > upper_limit)
+                if (limiter > anim.upper_limit)
                 {
                     if (anim.animMode & PROP_ANIM_MODE_NOFLIP)
                     {
-                        limiter = upper_limit; // stop at limit
+                        limiter = anim.upper_limit; // stop at limit
                         anim.animOpt5 *= -1.0f; // change cstate multiplier if bounce is set
                     }
                     else
                     {
-                        limiter = lower_limit; // flip to other side at limit
+                        limiter = anim.lower_limit; // flip to other side at limit
                     }
                     limiterchanged = true;
                 }
 
-                if (limiter < lower_limit)
+                if (limiter < anim.lower_limit)
                 {
                     if (anim.animMode & PROP_ANIM_MODE_NOFLIP)
                     {
-                        limiter = lower_limit; // stop at limit
+                        limiter = anim.lower_limit; // stop at limit
                         anim.animOpt5 *= -1.0f; // change cstate multiplier if active
                     }
                     else
                     {
-                        limiter = upper_limit; // flip to other side at limit
+                        limiter = anim.upper_limit; // flip to other side at limit
                     }
                     limiterchanged = true;
                 }
@@ -2899,29 +2894,29 @@ void RoR::GfxActor::UpdatePropAnimations(float dt)
                     float const dt_frac = dt * 2000.f;
                     autooffset = offset + cstate * dt_frac;
 
-                    if (autooffset > upper_limit)
+                    if (autooffset > anim.upper_limit)
                     {
                         if (anim.animMode & PROP_ANIM_MODE_NOFLIP)
                         {
-                            autooffset = upper_limit; // stop at limit
+                            autooffset = anim.upper_limit; // stop at limit
                             anim.animOpt5 *= -1.0f; // change cstate multiplier if active
                         }
                         else
                         {
-                            autooffset = lower_limit; // flip to other side at limit
+                            autooffset = anim.lower_limit; // flip to other side at limit
                         }
                     }
 
-                    if (autooffset < lower_limit)
+                    if (autooffset < anim.lower_limit)
                     {
                         if (anim.animMode & PROP_ANIM_MODE_NOFLIP)
                         {
-                            autooffset = lower_limit; // stop at limit
+                            autooffset = anim.lower_limit; // stop at limit
                             anim.animOpt5 *= -1.0f; // change cstate multiplier if active
                         }
                         else
                         {
-                            autooffset = upper_limit; // flip to other side at limit
+                            autooffset = anim.upper_limit; // flip to other side at limit
                         }
                     }
                 }
