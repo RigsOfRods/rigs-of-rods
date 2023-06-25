@@ -63,10 +63,6 @@
 #include <iomanip>
 #include <string>
 
-#ifdef USE_REMOTERY
-#include "Remotery.h"
-#endif //USE_REMOTERY
-
 #ifdef USE_CURL
 #   include <curl/curl.h>
 #endif //USE_CURL
@@ -322,18 +318,22 @@ int main(int argc, char *argv[])
 
         while (App::app_state->getEnum<AppState>() != AppState::SHUTDOWN)
         {
-#ifdef USE_REMOTERY
             rmt_ScopedCPUSample(MainLoop, 0);
-#endif
-            OgreBites::WindowEventUtilities::messagePump();
 
+            rmt_BeginCPUSample(MainLoop_window_messages, 0);
+            OgreBites::WindowEventUtilities::messagePump();
+            rmt_EndCPUSample(MainLoop_window_messages);
+
+            rmt_BeginCPUSample(MainLoop_sync_with_simthread, 0);
             // Halt physics (wait for async tasks to finish)
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {
                 App::GetGameContext()->GetActorManager()->SyncWithSimThread();
             }
+            rmt_EndCPUSample(MainLoop_sync_with_simthread);
 
             // Game events
+            rmt_BeginCPUSample(MainLoop_message_queue, 0);
             while (App::GetGameContext()->HasMessages())
             {
                 Message m = App::GetGameContext()->PopMessage();
@@ -970,6 +970,7 @@ int main(int argc, char *argv[])
                 }
 
             } // Game events block
+            rmt_EndCPUSample(MainLoop_message_queue);
 
             // Check FPS limit
             if (App::gfx_fps_limit->getInt() > 0)
@@ -992,6 +993,7 @@ int main(int argc, char *argv[])
             if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {
                 std::vector<RoR::NetRecvPacket> packets = App::GetNetwork()->GetIncomingStreamData();
+
                 if (!packets.empty())
                 {
                     RoR::ChatSystem::HandleStreamData(packets);
@@ -1178,6 +1180,8 @@ int main(int argc, char *argv[])
         ErrorUtils::ShowError(_L("An exception (std::runtime_error) has occured!"), e.what());
     }
 #endif
+
+    rmt_DestroyGlobalInstance(rmt);
 
     return 0;
 }

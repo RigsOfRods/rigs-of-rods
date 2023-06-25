@@ -195,6 +195,8 @@ void ScriptEngine::msgCallback(const AngelScript::asSMessageInfo *msg)
 
 int ScriptEngine::framestep(Real dt)
 {
+    rmt_ScopedCPUSample(ScriptEngine_framestep, 0);
+
     // Check if we need to execute any strings
     std::vector<String> tmpQueue;
     stringExecutionQueue.pull(tmpQueue);

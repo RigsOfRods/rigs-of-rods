@@ -31,6 +31,10 @@
 #include "ForwardDeclarations.h"
 #include "Str.h"
 
+#ifdef USE_REMOTERY
+#include "Remotery.h"
+#endif //USE_REMOTERY
+
 #include <fmt/format.h>
 #include <OgreStringConverter.h>
 

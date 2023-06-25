@@ -977,6 +977,7 @@ const ActorPtr& ActorManager::FetchRescueVehicle()
 
 void ActorManager::UpdateActors(ActorPtr player_actor)
 {
+    rmt_ScopedCPUSample(ActorManager_UpdateActors, 0);
     float dt = m_simulation_time;
 
     // do not allow dt > 1/20

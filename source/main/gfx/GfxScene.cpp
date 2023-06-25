@@ -89,6 +89,7 @@ void GfxScene::Init()
 
 void GfxScene::UpdateScene(float dt_sec)
 {
+    rmt_ScopedCPUSample(GfxScene_UpdateScene, 0);
     // Actors - start threaded tasks
     for (GfxActor* gfx_actor: m_live_gfx_actors)
     {

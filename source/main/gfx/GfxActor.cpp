@@ -577,6 +577,7 @@ const float NODE_IMMOVABLE_RADIUS    (2.8f);
 
 void RoR::GfxActor::UpdateDebugView()
 {
+    rmt_ScopedCPUSample(GfxActor_UpdateDebugView, 0);
     if (m_debug_view == DebugViewType::DEBUGVIEW_NONE && !m_actor->ar_physics_paused)
     {
         return; // Nothing to do

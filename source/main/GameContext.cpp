@@ -871,6 +871,7 @@ void GameContext::TeleportPlayer(float x, float z)
 
 void GameContext::UpdateGlobalInputEvents()
 {
+    rmt_ScopedCPUSample(GameContext_UpdateGlobalInputEvents, 0);
     // Generic escape key event
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_QUIT_GAME))
     {

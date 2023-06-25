@@ -197,6 +197,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 
 void SceneMouse::UpdateSimulation()
 {
+    rmt_ScopedCPUSample(SceneMouse_UpdateSimulation, 0);
     if (mouseGrabState == 1 && grab_truck)
     {
         // get values
