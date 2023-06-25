@@ -35,7 +35,7 @@ namespace RoRnet {
 #define RORNET_MAX_CHARACTER_SKIN_LEN 60
 
 
-#define RORNET_VERSION              "RoRnet_2.44"
+#define RORNET_VERSION              "RoRnet_2.45"
 
 enum MessageType
 {
