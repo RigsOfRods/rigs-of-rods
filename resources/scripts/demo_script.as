@@ -40,6 +40,7 @@
 int         g_total_frames = 0;
 float       g_total_seconds = 0;
 CVarClass@  g_app_state = console.cVarFind("app_state"); // 0=bootstrap, 1=main menu, 2=simulation, see AppState in Application.h
+CVarClass@  g_sys_cache_dir = console.cVarFind("sys_cache_dir");
 CVarClass@  g_sim_state = console.cVarFind("sim_state"); // 0=off, 1=running, 2=paused, 3=terrain editor, see SimState in Application.h
 CVarClass@  g_mp_state = console.cVarFind("mp_state"); // 0=disabled, 1=connecting, 2=connected, see MpState in Application.h
 CVarClass@  g_io_arcade_controls = console.cVarFind("io_arcade_controls"); // bool
@@ -650,7 +651,7 @@ void drawAIButtons()
 void drawTextResourceButtons()
 {    
     ImGui::TextDisabled("Text file test: file 'demofile.txt' in group 'Cache'");
-    ImGui::TextDisabled("Location: Documents\\My Games\\Rigs of Rods\\cache\\");
+    ImGui::TextDisabled("Location: " + g_sys_cache_dir.getStr());
     
     // The 'exists?' line
     bool exists = game.checkResourceExists("demofile.txt", "Cache");
@@ -678,5 +679,6 @@ void drawTextResourceButtons()
     if (ImGui::Button("delete"))
     {
         game.deleteResource("demofile.txt", "Cache");
+        g_demofile_data = "";
     }
 }
