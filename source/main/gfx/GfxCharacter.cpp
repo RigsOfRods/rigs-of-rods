@@ -95,10 +95,10 @@ GfxCharacter::GfxCharacter(Character* character)
     }
 
     // setup diagnostic UI
-    App::GetGuiManager()->CharacterPoseUtil.action_dbg_states.resize(xc_character->m_cache_entry->character_def->actions.size());
+    xc_action_dbg_states.resize(xc_character->m_cache_entry->character_def->actions.size());
     for (CharacterActionDef const& def : xc_character->m_cache_entry->character_def->actions)
     {
-        App::GetGuiManager()->CharacterPoseUtil.action_dbg_states[def.action_id] = CharacterActionDbg();
+        xc_action_dbg_states[def.action_id] = CharacterActionDbg();
     }
 }
 
@@ -212,7 +212,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene(float dt)
         xc_scenenode->setVisible(true);
     }
 
-    if (!App::GetGuiManager()->CharacterPoseUtil.IsManualPoseActive())
+    if (!xc_manual_pose_active)
     {
         try
         {
@@ -255,7 +255,7 @@ void GfxCharacter::EvaluateActionDef(CharacterActionDef const& def, float dt)
         dbg.blocking_controls = xc_simbuf.simbuf_control_flags & def.except_controls;
         dbg.missing_situations = def.for_situations & ~xc_simbuf.simbuf_situation_flags;
         dbg.missing_controls = def.for_controls & ~xc_simbuf.simbuf_control_flags;
-        App::GetGuiManager()->CharacterPoseUtil.action_dbg_states[def.action_id] = dbg;
+        xc_action_dbg_states[def.action_id] = dbg;
         return;
     }
 
@@ -323,7 +323,7 @@ void GfxCharacter::EvaluateActionDef(CharacterActionDef const& def, float dt)
     as->setEnabled(true);
 
     dbg.active = true;
-    App::GetGuiManager()->CharacterPoseUtil.action_dbg_states[def.action_id] = dbg;
+    xc_action_dbg_states[def.action_id] = dbg;
 }
 
 void GfxCharacter::UpdateAnimations(float dt)

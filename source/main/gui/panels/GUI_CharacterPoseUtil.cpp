@@ -36,28 +36,9 @@ using namespace Ogre;
 
 void CharacterPoseUtil::Draw()
 {
-    Character* character = App::GetGameContext()->GetPlayerCharacter();
-    if (!character)
-    {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-            "no player character, closing CharacterPoseUtil");
-        this->SetVisible(false);
-        return;
-    }
-
-    GfxCharacter* gfx_character = nullptr;
-    for (GfxCharacter* xchar : App::GetGfxScene()->GetGfxCharacters())
-    {
-        if (xchar->xc_character == character)
-            gfx_character = xchar;
-    }
+    GfxCharacter* gfx_character = this->FetchCharacter();
     if (!gfx_character)
-    {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-            "no player character visuals, closing CharacterPoseUtil");
-        this->SetVisible(false);
-        return;
-    }
+        return; // warning already logged
 
     Entity* ent = static_cast<Entity*>(gfx_character->xc_scenenode->getAttachedObject(0));
 
@@ -99,8 +80,12 @@ void CharacterPoseUtil::Draw()
 
 void CharacterPoseUtil::DrawSkeletalPanel(Ogre::Entity* ent)
 {
-    ImGui::Checkbox("Manual pose mode", &m_manual_pose_active);
-    if (!m_manual_pose_active)
+    GfxCharacter* gfx_character = this->FetchCharacter();
+    if (!gfx_character)
+        return;
+
+    ImGui::Checkbox("Manual pose mode", &gfx_character->xc_manual_pose_active);
+    if (!gfx_character->xc_manual_pose_active)
     {
         ImGui::TextDisabled("(gray text means 'disabled')");
     }
@@ -118,13 +103,17 @@ void CharacterPoseUtil::DrawSkeletalPanel(Ogre::Entity* ent)
 
 void CharacterPoseUtil::DrawAnimControls(Ogre::AnimationState* anim_state)
 {
+    GfxCharacter* gfx_character = this->FetchCharacter();
+    if (!gfx_character)
+        return;
+
     ImGui::PushID(anim_state);
 
     // anim name line
     ImVec4 color = (anim_state->getEnabled()) ? ImGui::GetStyle().Colors[ImGuiCol_Text] : ImGui::GetStyle().Colors[ImGuiCol_TextDisabled];
     const char* uses_boneblendmask_text = anim_state->getBlendMask() ? ", uses bone blend mask!" : "";
     ImGui::TextColored(color, "'%s' (%.2f sec%s)", anim_state->getAnimationName().c_str(), anim_state->getLength(), uses_boneblendmask_text);
-    if (m_manual_pose_active)
+    if (gfx_character->xc_manual_pose_active)
     {
         ImGui::SameLine();
         bool enabled = anim_state->getEnabled();
@@ -143,7 +132,7 @@ void CharacterPoseUtil::DrawAnimControls(Ogre::AnimationState* anim_state)
     }
 
     // anim progress line
-    if (m_manual_pose_active)
+    if (gfx_character->xc_manual_pose_active)
     {
         float timepos = anim_state->getTimePosition();
         if (ImGui::SliderFloat("Time pos", &timepos, 0.f, anim_state->getLength()))
@@ -180,7 +169,11 @@ ImVec4 ExceptFlagColor(BitMask_t flags, BitMask_t mask, bool active)
 
 void CharacterPoseUtil::DrawActionDbgItemFull(CharacterActionID_t id)
 {
-    CharacterActionDbg const& dbg = action_dbg_states[id];
+    GfxCharacter* gfx_character = this->FetchCharacter();
+    if (!gfx_character)
+        return;
+
+    CharacterActionDbg const& dbg = gfx_character->xc_action_dbg_states[id];
     CharacterActionDef* def = &App::GetGameContext()->GetPlayerCharacter()->getCharacterDocument()->actions[id];
 
 
@@ -252,7 +245,11 @@ void CharacterPoseUtil::DrawActionDbgItemFull(CharacterActionID_t id)
 
 void CharacterPoseUtil::DrawActionDbgItemInline(CharacterActionID_t id, Ogre::Entity* ent)
 {
-    CharacterActionDbg const& dbg = action_dbg_states[id];
+    GfxCharacter* gfx_character = this->FetchCharacter();
+    if (!gfx_character)
+        return;
+
+    CharacterActionDbg const& dbg = gfx_character->xc_action_dbg_states[id];
     CharacterActionDef* def = &App::GetGameContext()->GetPlayerCharacter()->getCharacterDocument()->actions[id];
     
     AnimationState* as = nullptr; 
@@ -350,10 +347,38 @@ void CharacterPoseUtil::DrawActionDbgPanel(Ogre::Entity* ent)
 
 void CharacterPoseUtil::SetVisible(bool v)
 {
-    m_is_visible = v;
-    m_is_hovered = false;
-    if (!v)
+    GfxCharacter* gfx_character = this->FetchCharacter();
+    if (gfx_character)
     {
-        m_manual_pose_active = false;
+        m_is_visible = v;
+        m_is_hovered = false;
+        if (!v)
+        {
+            gfx_character->xc_manual_pose_active = false;
+        }
     }
+}
+
+GfxCharacter* CharacterPoseUtil::FetchCharacter()
+{
+    Character* character = App::GetGameContext()->GetPlayerCharacter();
+    if (!character)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            "no player character, closing CharacterPoseUtil");
+        this->SetVisible(false);
+        return nullptr;
+    }
+
+    GfxCharacter* gfx_character = character->getGfxCharacter();
+
+    if (!gfx_character)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            "no player character visuals, closing CharacterPoseUtil");
+        this->SetVisible(false);
+        return nullptr;
+    }
+
+    return gfx_character;
 }

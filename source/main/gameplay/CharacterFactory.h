@@ -42,18 +42,24 @@ class CharacterFactory
 public:
     CharacterFactory();
     Character* CreateLocalCharacter();
-    Character* GetLocalCharacter() { return m_local_character.get(); }
+    
     void DeleteAllCharacters();
-    void UndoRemoteActorCoupling(ActorPtr actor);
+    
     void Update(float dt);
+
+    // get
+    std::vector<std::unique_ptr<Character>>& getAllCharacters() { return m_characters; }
+    Character* getLocalCharacter() { return (m_characters.size() > 0) ? m_characters[0].get() : nullptr; }
+
+    // net
 #ifdef USE_SOCKETW
     void handleStreamData(std::vector<RoR::NetRecvPacket> packet);
 #endif // USE_SOCKETW
+    void UndoRemoteActorCoupling(ActorPtr actor);
 
 private:
 
-    std::unique_ptr<Character>              m_local_character;
-    std::vector<std::unique_ptr<Character>> m_remote_characters;
+    std::vector<std::unique_ptr<Character>> m_characters; // local character is at [0]
 
     void createRemoteInstance(int sourceid, int streamid);
     void removeStreamSource(int sourceid);

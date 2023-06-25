@@ -33,6 +33,28 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
+/// See `GUI::CharacterPoseUtil`
+struct CharacterActionDbg
+{
+    bool active = false;
+
+    // State diagnostic.
+    BitMask_t missing_situations = 0;  //!< `RoRnet::SituationFlags`; The flags from 'for_situations' mask which are not satisfied.
+    BitMask_t missing_controls = 0;    //!< `RoRnet::ControlFlags`; The flags from 'for_controls' mask which are not satisfied.
+    BitMask_t blocking_situations = 0; //!< `RoRnet::SituationFlags`; The flags from 'except_situations' mask which block this anim.
+    BitMask_t blocking_controls = 0;   //!< `RoRnet::ControlFlags`; The flags from 'except_controls' mask which block this anim.
+
+    // The raw source data of anim position.
+    float source_dt = 0.f;
+    float source_hspeed = 0.f;
+    float source_steering = 0.f;
+
+    // The transformed inputs to anim position.
+    float input_dt = 0.f;
+    float input_hspeed = 0.f;
+    float input_steering = 0.f;
+};
+
 /// A visual counterpart to `RoR::Character`.
 /// 3D objects are loaded and updated here, but positioning and animations are determined in simulation!
 struct GfxCharacter
@@ -62,6 +84,11 @@ struct GfxCharacter
     std::string               xc_instance_name;
     SurveyMapEntity           xc_surveymap_entity;
     std::string               xc_custom_resource_group;
+    
+    // `GUI::CharacterPoseUtil` context
+    std::vector<CharacterActionDbg> xc_action_dbg_states;
+    bool                            xc_manual_pose_active = false;
+
 };
 
 /// @} // addtogroup Gfx

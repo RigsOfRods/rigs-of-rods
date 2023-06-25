@@ -27,6 +27,7 @@
 #include "CacheSystem.h"
 #include "Character.h"
 #include "Console.h"
+#include "GfxCharacter.h"
 #include "GfxScene.h"
 #include "Utils.h"
 
@@ -87,9 +88,22 @@ Character* CharacterFactory::CreateLocalCharacter()
     }
 
     CacheEntryPtr skin_entry = this->fetchCharacterSkin(characterSkin, _L("local player"));
-    m_local_character = std::unique_ptr<Character>(new Character(cache_entry, skin_entry, -1, 0, playerName, colourNum, false));
-    App::GetGfxScene()->RegisterGfxCharacter(m_local_character.get());
-    return m_local_character.get();
+    Character* ch = new Character(cache_entry, skin_entry, -1, 0, playerName, colourNum, false);
+    ROR_ASSERT(m_characters.size() == 0);
+    m_characters.push_back(std::unique_ptr<Character>(ch));
+
+    // GFX setup
+    try
+    {
+        ch->m_gfx_character = std::unique_ptr<GfxCharacter>(new GfxCharacter(ch));
+    }
+    catch (Ogre::Exception& eeh) { 
+      App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+        fmt::format("error creating GfxCharacter, message:{}", eeh.getFullDescription())); 
+    }
+
+    // Done
+    return ch;
 }
 
 void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
@@ -132,19 +146,28 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
 
     CacheEntryPtr skin_entry = this->fetchCharacterSkin(info.character_skin, info_str);
     Character* ch = new Character(cache_entry, skin_entry, sourceid, streamid, name, colour, true);
-    App::GetGfxScene()->RegisterGfxCharacter(ch);
-    m_remote_characters.push_back(std::unique_ptr<Character>(ch));
+    m_characters.push_back(std::unique_ptr<Character>(ch));
+
+    // GFX setup
+    try
+    {
+        ch->m_gfx_character = std::unique_ptr<GfxCharacter>(new GfxCharacter(ch));
+    }
+    catch (Ogre::Exception& eeh) { 
+      App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+        fmt::format("error creating GfxCharacter, message:{}", eeh.getFullDescription())); 
+    }
 #endif // USE_SOCKETW
 }
 
 void CharacterFactory::removeStreamSource(int sourceid)
 {
-    for (auto it = m_remote_characters.begin(); it != m_remote_characters.end(); it++)
+    for (auto it = m_characters.begin(); it != m_characters.end(); it++)
     {
         if ((*it)->getSourceID() == sourceid)
         {
             (*it).reset();
-            m_remote_characters.erase(it);
+            m_characters.erase(it);
             return;
         }
     }
@@ -152,12 +175,13 @@ void CharacterFactory::removeStreamSource(int sourceid)
 
 void CharacterFactory::Update(float dt)
 {
-    m_local_character->updateLocal(dt);
+    // character at [0] is local
+    m_characters[0]->updateLocal(dt);
 
 #ifdef USE_SOCKETW
-    if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) && !m_local_character->isRemote())
+    if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED))
     {
-        m_local_character->SendStreamData();
+        m_characters[0]->SendStreamData();
     }
 #endif // USE_SOCKETW
 
@@ -166,9 +190,9 @@ void CharacterFactory::Update(float dt)
 
 void CharacterFactory::UndoRemoteActorCoupling(ActorPtr actor)
 {
-    for (auto& c : m_remote_characters)
+    for (auto& c : m_characters)
     {
-        if (c->GetActorCoupling() == actor)
+        if (c->isRemote() && c->GetActorCoupling() == actor)
         {
             c->SetActorCoupling(false, nullptr);
         }
@@ -177,8 +201,7 @@ void CharacterFactory::UndoRemoteActorCoupling(ActorPtr actor)
 
 void CharacterFactory::DeleteAllCharacters()
 {
-    m_remote_characters.clear(); // std::unique_ptr<> will do the cleanup...
-    m_local_character.reset(); // ditto
+    m_characters.clear(); // std::unique_ptr<> will do the cleanup...
 }
 
 #ifdef USE_SOCKETW
@@ -200,9 +223,10 @@ void CharacterFactory::handleStreamData(std::vector<RoR::NetRecvPacket> packet_b
         }
         else
         {
-            for (auto& c : m_remote_characters)
+            for (auto& c : m_characters)
             {
-                c->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer);
+                if (c->isRemote())
+                    c->receiveStreamData(packet.header.command, packet.header.source, packet.header.streamid, packet.buffer);
             }
         }
     }

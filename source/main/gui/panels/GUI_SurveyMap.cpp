@@ -309,9 +309,15 @@ void SurveyMap::Draw()
         }
 
         // Draw actor icons
-        for (GfxActor* gfx_actor: App::GetGfxScene()->GetGfxActors())
+        for (const ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
         {
-            const char* type_str = this->getTypeByDriveable(gfx_actor->GetActor());
+            if (actor->ar_state == ActorState::DISPOSED)
+                continue;
+
+            GfxActor* gfx_actor = actor->GetGfxActor();
+            ROR_ASSERT(gfx_actor);
+
+            const char* type_str = this->getTypeByDriveable(actor);
             int truckstate = gfx_actor->GetActorState();
             Str<100> fileName;
 
@@ -344,13 +350,13 @@ void SurveyMap::Draw()
         }
 
         // Draw character icons
-        for (GfxCharacter* gfx_character: App::GetGfxScene()->GetGfxCharacters())
+        for (const std::unique_ptr<Character>& character: App::GetGameContext()->GetCharacterFactory()->getAllCharacters())
         {
-            auto& simbuf = gfx_character->xc_simbuf;
+            auto& simbuf = character->getGfxCharacter()->xc_simbuf;
             if (!simbuf.simbuf_actor_coupling)
             {
                 // Update the surveymap icon entry
-                SurveyMapEntity& e = gfx_character->xc_surveymap_entity;
+                SurveyMapEntity& e = character->getGfxCharacter()->xc_surveymap_entity;
                 e.pos = simbuf.simbuf_character_pos;
                 e.rot_angle = simbuf.simbuf_character_rot;
                 e.filename = "icon_person_activated.dds"; // green icon

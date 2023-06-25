@@ -68,10 +68,6 @@ void GfxScene::ClearScene()
     }
     m_dustpools.clear();
 
-    // Delete game elements
-    m_all_gfx_actors.clear();
-    m_all_gfx_characters.clear();
-
     // Wipe scene manager
     m_scene_manager->clearScene();
 
@@ -94,10 +90,13 @@ void GfxScene::UpdateScene(float dt)
     // ================================================================================
 
     // Actors - start threaded tasks
-    for (GfxActor* gfx_actor: m_live_gfx_actors)
+    for (const ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
     {
-        gfx_actor->UpdateFlexbodies(); // Push flexbody tasks to threadpool
-        gfx_actor->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
+        if (actor->GetGfxActor()->IsActorLive())
+        {
+            actor->GetGfxActor()->UpdateFlexbodies(); // Push flexbody tasks to threadpool
+            actor->GetGfxActor()->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
+        }
     }
 
     // Var
@@ -119,8 +118,9 @@ void GfxScene::UpdateScene(float dt)
     if (App::gfx_particles_mode->getInt() == 1)
     {
         // Generate particles as needed
-        for (GfxActor* gfx_actor: m_all_gfx_actors)
+        for (const ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
         {
+            GfxActor* gfx_actor = actor->GetGfxActor();
             float dt_actor = (!gfx_actor->GetSimDataBuffer().simbuf_physics_paused) ? dt : 0.f;
             gfx_actor->UpdateParticles(dt_actor);
         }
@@ -200,21 +200,22 @@ void GfxScene::UpdateScene(float dt)
     }
 
     // HUD - network labels (always update)
-    for (GfxActor* gfx_actor: m_all_gfx_actors)
+    for (const ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
     {
-        gfx_actor->UpdateNetLabels(dt);
+        actor->GetGfxActor()->UpdateNetLabels(dt);
     }
 
     // Player avatars
-    for (GfxCharacter* a: m_all_gfx_characters)
+    for (const std::unique_ptr<Character>& character: App::GetGameContext()->GetCharacterFactory()->getAllCharacters())
     {
-        a->UpdateCharacterInScene(dt);
+        character->getGfxCharacter()->UpdateCharacterInScene(dt);
     }
 
     // Actors - update misc visuals
-    for (GfxActor* gfx_actor: m_all_gfx_actors)
+    for (const ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
     {
-        float dt_actor = (!gfx_actor->GetSimDataBuffer().simbuf_physics_paused) ? dt : 0.f;
+        float dt_actor = (!actor->GetGfxActor()->GetSimDataBuffer().simbuf_physics_paused) ? dt : 0.f;
+        GfxActor* gfx_actor = actor->GetGfxActor();
         if (gfx_actor->IsActorLive())
         {
             gfx_actor->UpdateRods();
@@ -253,10 +254,13 @@ void GfxScene::UpdateScene(float dt)
     App::GetGameContext()->GetSceneMouse().UpdateVisuals();
 
     // Actors - finalize threaded tasks
-    for (GfxActor* gfx_actor: m_live_gfx_actors)
+    for (const ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
     {
-        gfx_actor->FinishWheelUpdates();
-        gfx_actor->FinishFlexbodyTasks();
+        if (actor->GetGfxActor()->IsActorLive())
+        {
+            actor->GetGfxActor()->FinishFlexbodyTasks(); // Wait for threaded tasks to finish
+            actor->GetGfxActor()->FinishWheelUpdates(); // Wait for threaded tasks to finish
+        }
     }
 }
 
@@ -281,13 +285,12 @@ DustPool* GfxScene::GetDustPool(const char* name)
     }
 }
 
-void GfxScene::RegisterGfxActor(RoR::GfxActor* gfx_actor)
-{
-    m_all_gfx_actors.push_back(gfx_actor);
-}
-
 void GfxScene::BufferSimulationData()
 {
+    // Sim data are buffered so that scene+GUI updates could happen in parallel with next physics step.
+    // See comments on top of 'SimBuffers.h'
+    // ------------------------------------------------------------------------------------------------
+
     m_simbuf.simbuf_player_actor = App::GetGameContext()->GetPlayerActor();
     m_simbuf.simbuf_character_pos = App::GetGameContext()->GetPlayerCharacter()->getPosition();
     m_simbuf.simbuf_sim_paused = App::GetGameContext()->GetActorManager()->IsSimulationPaused();
@@ -304,29 +307,17 @@ void GfxScene::BufferSimulationData()
     m_simbuf.simbuf_dir_arrow_text = App::GetGameContext()->GetRaceSystem().GetDirArrowText();
     m_simbuf.simbuf_dir_arrow_visible = App::GetGameContext()->GetRaceSystem().IsDirArrowVisible();
 
-    m_live_gfx_actors.clear();
-    for (GfxActor* a: m_all_gfx_actors)
+    // Actors
+    for (const ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
     {
-        if (a->IsActorLive() || !a->IsActorInitialized())
-        {
-            a->UpdateSimDataBuffer();
-            m_live_gfx_actors.push_back(a);
-            a->InitializeActor();
-        }
+        if (actor->GetGfxActor()->IsActorLive())
+            actor->GetGfxActor()->UpdateSimDataBuffer();
     }
 
-    for (GfxCharacter* a: m_all_gfx_characters)
+    // Characters
+    for (const std::unique_ptr<Character>& character: App::GetGameContext()->GetCharacterFactory()->getAllCharacters())
     {
-        a->BufferSimulationData();
-    }
-}
-
-void GfxScene::RemoveGfxActor(RoR::GfxActor* remove_me)
-{
-    auto itor = std::remove(m_all_gfx_actors.begin(), m_all_gfx_actors.end(), remove_me);
-    if (itor != m_all_gfx_actors.end())
-    {
-        m_all_gfx_actors.erase(itor, m_all_gfx_actors.end());
+        character->getGfxCharacter()->BufferSimulationData();
     }
 }
 
@@ -351,27 +342,7 @@ void GfxScene::ForceUpdateSingleGfxActor(RoR::GfxActor* gfx_actor)
     gfx_actor->FinishFlexbodyTasks();
 }
 
-void GfxScene::RegisterGfxCharacter(RoR::Character* character)
-{
-    try
-    {
-        m_all_gfx_characters.push_back(new GfxCharacter(character));
-    }
-    catch (Ogre::Exception& eeh) { 
-      App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-        fmt::format("error creating GfxCharacter, message:{}", eeh.getFullDescription())); 
-    }
-}
 
-void GfxScene::RemoveGfxCharacter(RoR::Character* remove_me)
-{
-    auto itor = std::remove_if(m_all_gfx_characters.begin(), m_all_gfx_characters.end(),
-        [remove_me](GfxCharacter* xch) { return xch->xc_character == remove_me; });
-    if (itor != m_all_gfx_characters.end())
-    {
-        m_all_gfx_characters.erase(itor, m_all_gfx_characters.end());
-    }
-}
 
 void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string const& nick, int colornum)
 {

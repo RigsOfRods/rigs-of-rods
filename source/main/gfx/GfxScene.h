@@ -57,26 +57,17 @@ public:
     void           DrawNetLabel(Ogre::Vector3 pos, float cam_dist, std::string const& nick, int colornum);
     void           UpdateScene(float dt);
     void           ClearScene();
-    void           RegisterGfxActor(RoR::GfxActor* gfx_actor);
-    void           RemoveGfxActor(RoR::GfxActor* gfx_actor);
     void           ForceUpdateSingleGfxActor(RoR::GfxActor* gfx_actor);
-    void           RegisterGfxCharacter(RoR::Character* gfx_character);
-    void           RemoveGfxCharacter(RoR::Character* gfx_character);
     void           BufferSimulationData(); //!< Run this when simulation is halted
     GameContextSB&     GetSimDataBuffer() { return m_simbuf; }
     GfxEnvmap&     GetEnvMap() { return m_envmap; }
     RoR::SkidmarkConfig* GetSkidmarkConf () { return &m_skidmark_conf; }
     Ogre::SceneManager* GetSceneManager() { return m_scene_manager; }
-    std::vector<GfxActor*>& GetGfxActors() { return m_all_gfx_actors; }
-    std::vector<GfxCharacter*>& GetGfxCharacters() { return m_all_gfx_characters; }
 
 private:
 
     std::map<std::string, DustPool *> m_dustpools;
     Ogre::SceneManager*               m_scene_manager = nullptr;
-    std::vector<GfxActor*>            m_all_gfx_actors;
-    std::vector<GfxActor*>            m_live_gfx_actors;
-    std::vector<GfxCharacter*>        m_all_gfx_characters;
     RoR::GfxEnvmap                    m_envmap;
     GameContextSB                     m_simbuf;
     SkidmarkConfig                    m_skidmark_conf;
