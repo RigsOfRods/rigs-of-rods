@@ -117,15 +117,34 @@ static const int CAMERA_MODE_ALWAYS_HIDDEN = -3;
 static const int CAMERA_MODE_ALWAYS_VISIBLE = -2;
 static const int CAMERA_MODE_3RDPERSON_ONLY = -1;
 
+enum ShifterPropAnim
+{
+    SHIFTER_INVALID = 0,
+    SHIFTERMAN1 = 1,
+    SHIFTERMAN2 = 2,
+    SHIFTERSEQ = 3,
+    SHIFTERLIN = 4
+};
+
 struct PropAnim
 {
     float        animratio    = 0;  //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
     PropAnimFlag animFlags    = {};
     PropAnimMode animMode     = {};
-    float        animOpt3     = 0;  //!< SHIFTER type: 0 = shifterseq, 1 = shifterman1, 2 = shifterman2, 3 = shifterlin
+
+    /// MULTIPURPOSE
+    /// * SHIFTER type `ShifterPropAnim` (1 = shifterman1, 2 = shifterman2, 3 = shifterseq, 4 = shifterlin)
+    /// * AEROENGINE number (starting from 1), applies to: rpm + throttle + torque ( turboprop ) + pitch ( turboprop ) + status +  fire
+    /// * ALTIMETER type (1 = 100k limited, 2 = 10k oscillating, 3 = 1k oscillating)
+    float        animOpt3     = 0;
     float        animOpt5     = 0;
     float        lower_limit  = 0;  //!< The lower limit for the animation
     float        upper_limit  = 0;  //!< The upper limit for the animation
+
+    // Only for SHIFTER
+    float        shifterSmooth = 0.f;
+    float        shifterStep = 0.f;
+    float        shifterTarget = 0.f;
 };
 
 /// A mesh attached to vehicle frame via 3 nodes

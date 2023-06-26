@@ -2319,6 +2319,32 @@ void RoR::GfxActor::SetBeaconsEnabled(bool beacon_light_is_active)
     }
 }
 
+// Returns a smoothened `cstate`
+float UpdateSmoothShift(PropAnim& anim, float dt, float new_target_cstate)
+{
+    const float SPEED = 5.f;
+
+    const float delta_cstate = new_target_cstate - anim.shifterTarget;
+    if (delta_cstate != 0)
+    {
+        anim.shifterStep = delta_cstate;
+        anim.shifterTarget = new_target_cstate;
+    }
+        
+    if (anim.shifterSmooth != anim.shifterTarget)
+    {
+        const float cstate_step = anim.shifterStep * (dt * SPEED);
+        anim.shifterSmooth += cstate_step;
+        // boundary check
+        if ((cstate_step < 0.f && anim.shifterSmooth < anim.shifterTarget) // undershot
+            || (cstate_step > 0.f) && anim.shifterSmooth > anim.shifterTarget) // overshot
+        {
+            anim.shifterSmooth = anim.shifterTarget;
+        }
+    }
+
+    return anim.shifterSmooth;
+}
 
 void RoR::GfxActor::CalcPropAnimation(PropAnim& anim, float& cstate, int& div, float dt)
 {
@@ -2409,34 +2435,35 @@ void RoR::GfxActor::CalcPropAnimation(PropAnim& anim, float& cstate, int& div, f
     }
 
     //shifterseq, to amimate sequentiell shifting
-    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == 3.0f)
+    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == ShifterPropAnim::SHIFTERSEQ)
     {
+        float shifterseq_cstate = 0;
         // opt1 &opt2 = 0   this is a shifter
         if (!anim.lower_limit && !anim.upper_limit)
         {
             int shifter = m_simbuf.simbuf_gear;
             if (shifter > m_prop_anim_prev_gear)
             {
-                cstate = 1.0f;
+                shifterseq_cstate = 1.0f;
                 m_prop_anim_shift_timer = 0.2f;
             }
             if (shifter < m_prop_anim_prev_gear)
             {
-                cstate = -1.0f;
+                shifterseq_cstate = -1.0f;
                 m_prop_anim_shift_timer = -0.2f;
             }
             m_prop_anim_prev_gear = shifter;
 
             if (m_prop_anim_shift_timer > 0.0f)
             {
-                cstate = 1.0f;
+                shifterseq_cstate = 1.0f;
                 m_prop_anim_shift_timer -= dt;
                 if (m_prop_anim_shift_timer < 0.0f)
                     m_prop_anim_shift_timer = 0.0f;
             }
             if (m_prop_anim_shift_timer < 0.0f)
             {
-                cstate = -1.0f;
+                shifterseq_cstate = -1.0f;
                 m_prop_anim_shift_timer += dt;
                 if (m_prop_anim_shift_timer > 0.0f)
                     m_prop_anim_shift_timer = 0.0f;
@@ -2447,57 +2474,68 @@ void RoR::GfxActor::CalcPropAnimation(PropAnim& anim, float& cstate, int& div, f
             // check if anim.lower_limit is a valid to get commandvalue, then get commandvalue
             if (anim.lower_limit >= 1.0f && anim.lower_limit <= 48.0)
                 if (m_simbuf.simbuf_commandkey[int(anim.lower_limit)].simbuf_cmd_value > 0)
-                    cstate += 1.0f;
+                    shifterseq_cstate = 1.0f;
             // check if anim.upper_limit is a valid to get commandvalue, then get commandvalue
             if (anim.upper_limit >= 1.0f && anim.upper_limit <= 48.0)
                 if (m_simbuf.simbuf_commandkey[int(anim.upper_limit)].simbuf_cmd_value > 0)
-                    cstate -= 1.0f;
+                    shifterseq_cstate = -1.0f;
         }
 
+
+        cstate += UpdateSmoothShift(anim, dt, shifterseq_cstate);
         div++;
     }
 
     //shifterman1, left/right
-    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == 1.0f)
+    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == ShifterPropAnim::SHIFTERMAN1)
     {
+        float shifterman1_cstate = 0.f;
         int shifter = m_simbuf.simbuf_gear;
         if (!shifter)
         {
-            cstate = -0.5f;
+            shifterman1_cstate = -0.5f;
         }
         else if (shifter < 0)
         {
-            cstate = 1.0f;
+            shifterman1_cstate = 1.0f;
         }
         else
         {
-            cstate -= int((shifter - 1.0) / 2.0);
+            shifterman1_cstate = -int((shifter - 1.0) / 2.0);
         }
+
+        cstate += UpdateSmoothShift(anim, dt, shifterman1_cstate);
         div++;
     }
 
     //shifterman2, up/down
-    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == 2.0f)
+    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == ShifterPropAnim::SHIFTERMAN2)
     {
+        float shifterman2_cstate = 0.f;
         int shifter = m_simbuf.simbuf_gear;
-        cstate = 0.5f;
+        shifterman2_cstate = 0.5f;
         if (shifter < 0)
         {
-            cstate = 1.0f;
+            shifterman2_cstate = 1.0f;
         }
         if (shifter > 0)
         {
-            cstate = shifter % 2;
+            shifterman2_cstate = shifter % 2;
         }
+
+        cstate += UpdateSmoothShift(anim, dt, shifterman2_cstate);
         div++;
     }
 
     //shifterlinear, to amimate cockpit gearselect gauge and autotransmission stick
-    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == 4.0f)
+    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == ShifterPropAnim::SHIFTERLIN)
     {
+        float shifterlin_cstate = 0.f;
         int shifter = m_simbuf.simbuf_gear;
         int numgears = m_simbuf.simbuf_num_gears;
-        cstate -= (shifter + 2.0) / (numgears + 2.0);
+        shifterlin_cstate -= (shifter + 2.0) / (numgears + 2.0);
+
+        cstate += UpdateSmoothShift(anim, dt, shifterlin_cstate);
         div++;
     }
 
