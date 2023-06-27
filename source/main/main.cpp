@@ -213,8 +213,8 @@ int main(int argc, char *argv[])
         mShaderGenerator->addSceneManager(App::GetGfxScene()->GetSceneManager());
         App::GetAppContext()->GetViewport()->setMaterialScheme(Ogre::MSN_SHADERGEN);
 
-//        auto* schemeNotFoundHandler = new OgreBites::SGTechniqueResolverListener(mShaderGenerator);
-//        Ogre::MaterialManager::getSingleton().addListener(schemeNotFoundHandler);
+        auto* schemeNotFoundHandler = new OgreBites::SGTechniqueResolverListener(mShaderGenerator);
+        Ogre::MaterialManager::getSingleton().addListener(schemeNotFoundHandler);
 
         App::CreateGuiManager(); // Needs scene manager
 
