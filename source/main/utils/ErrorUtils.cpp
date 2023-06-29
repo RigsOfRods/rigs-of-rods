@@ -43,7 +43,7 @@ using namespace Ogre;
 int ErrorUtils::ShowError(Ogre::UTFString title, Ogre::UTFString err)
 {
     Ogre::UTFString infoText = _L("An internal error occured in Rigs of Rods.\n\nTechnical details below: \n\n");
-    return ErrorUtils::ShowMsgBox(_L("FATAL ERROR"), infoText + err, 0);
+    return ErrorUtils::ShowMsgBox(_L("FATAL ERROR"), infoText + title + "\n\n" + err, 0);
 }
 
 int ErrorUtils::ShowInfo(Ogre::UTFString title, Ogre::UTFString err)
