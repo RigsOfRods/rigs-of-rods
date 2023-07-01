@@ -19,14 +19,14 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "RecoveryMode.h"
+#include "RepairMode.h"
 
 #include "GameContext.h"
 #include "InputEngine.h"
 
 using namespace RoR;
 
-void RecoveryMode::UpdateInputEvents(float dt)
+void RepairMode::UpdateInputEvents(float dt)
 {
     if (App::sim_state->getEnum<SimState>() != SimState::RUNNING &&
         App::GetGameContext()->GetPlayerActor() &&
@@ -38,21 +38,28 @@ void RecoveryMode::UpdateInputEvents(float dt)
 
     if (!App::GetGameContext()->GetPlayerActor())
     {
-        m_advanced_vehicle_repair = false;
-        m_advanced_vehicle_repair_timer = 0.0f;
+        m_live_repair_active = false;
+        m_live_repair_timer = 0.0f;
         return;
     }
 
     if (!App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
     {
-        m_advanced_vehicle_repair_timer = 0.0f;
+        m_live_repair_timer = 0.0f;
     }
 
-    if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_advanced_vehicle_repair)
+    if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_LIVE_REPAIR_MODE))
+    {
+        m_live_repair_active = true;
+        // Hack to bypass the timer - because EV_COMMON_REPAIR_TRUCK (default Alt+Backspace) may not be 'EXPL' so the below condition may execute.
+        m_live_repair_timer = App::sim_live_repair_interval->getFloat() + 1.f;
+    }
+
+    if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_live_repair_active)
     {
         if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
         {
-            m_advanced_vehicle_repair = m_advanced_vehicle_repair_timer > 1.0f;
+            m_live_repair_active = m_live_repair_timer > App::sim_live_repair_interval->getFloat();
         }
 
         Ogre::Vector3 translation = Ogre::Vector3::ZERO;
@@ -122,7 +129,7 @@ void RecoveryMode::UpdateInputEvents(float dt)
                 }
             }
 
-            m_advanced_vehicle_repair_timer = 0.0f;
+            m_live_repair_timer = 0.0f;
         }
         else if (App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
         {
@@ -137,7 +144,7 @@ void RecoveryMode::UpdateInputEvents(float dt)
         }
         else
         {
-            m_advanced_vehicle_repair_timer += dt;
+            m_live_repair_timer += dt;
         }
 
         auto reset_type = ActorModifyRequest::Type::RESET_ON_SPOT;

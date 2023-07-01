@@ -20,7 +20,7 @@ set(SOURCE_FILES
         gameplay/EngineSim.{h,cpp}
         gameplay/Landusemap.{h,cpp}
         gameplay/RaceSystem.{h,cpp}
-        gameplay/RecoveryMode.{h,cpp}
+        gameplay/RepairMode.{h,cpp}
         gameplay/Replay.{h,cpp}
         gameplay/SceneMouse.{h,cpp}
         gameplay/ScriptEvents.h

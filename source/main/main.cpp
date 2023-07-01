@@ -1024,7 +1024,7 @@ int main(int argc, char *argv[])
                         }
                         App::GetCameraManager()->UpdateInputEvents(dt);
                         App::GetOverlayWrapper()->update(dt);
-                        App::GetGameContext()->GetRecoveryMode().UpdateInputEvents(dt);
+                        App::GetGameContext()->GetRepairMode().UpdateInputEvents(dt);
                         App::GetGameContext()->GetActorManager()->UpdateInputEvents(dt);
                         if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
                         {

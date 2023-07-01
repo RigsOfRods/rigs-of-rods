@@ -303,6 +303,7 @@ extern CVar* sim_no_self_collisions;
 extern CVar* sim_gearbox_mode;
 extern CVar* sim_soft_reset_mode;
 extern CVar* sim_quickload_dialog;
+extern CVar* sim_live_repair_interval;
 
 // Multiplayer
 extern CVar* mp_state;
@@ -446,6 +447,9 @@ extern CVar* flexbody_defrag_prog_down_penalty;
 extern CVar* flexbody_defrag_reorder_indices;
 extern CVar* flexbody_defrag_reorder_texcoords;
 extern CVar* flexbody_defrag_invert_lookup;
+
+// GUI
+extern CVar* ui_show_live_repair_controls;
 
 // ------------------------------------------------------------------------------------------------
 // Global objects

@@ -80,4 +80,8 @@ ImDrawList* GetImDummyFullscreenWindow();
 void ImAddItemToComboboxString(std::string& target, std::string const& item);
 void ImTerminateComboboxString(std::string& target);
 
+// Input engine helpers
+void ImDrawEventHighlighted(events input_event);
+void ImDrawModifierKeyHighlighted(OIS::KeyCode key);
+
 } // namespace RoR

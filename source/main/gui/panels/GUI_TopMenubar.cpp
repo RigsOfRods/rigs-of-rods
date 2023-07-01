@@ -1386,17 +1386,32 @@ bool TopMenubar::ShouldDisplay(ImVec2 window_pos)
     ImVec2 box_min(0,0);
     ImVec2 box_max(ImGui::GetIO().DisplaySize.x, ImGui::GetStyle().WindowPadding.y + PANEL_HOVERBOX_HEIGHT);
     ImVec2 mouse_pos = ImGui::GetIO().MousePos;
-    bool window_hovered ((mouse_pos.x >= box_min.x) && (mouse_pos.x <= box_max.x) &&
+    const bool window_hovered ((mouse_pos.x >= box_min.x) && (mouse_pos.x <= box_max.x) &&
                             (mouse_pos.y >= box_min.y) && (mouse_pos.y <= box_max.y));
+    bool result = window_hovered;
 
-    if (m_open_menu == TopMenu::TOPMENU_NONE)
+    bool menu_hovered = false;
+    if (m_open_menu != TopMenu::TOPMENU_NONE)
     {
-        return window_hovered;
+        menu_hovered = ((mouse_pos.x >= m_open_menu_hoverbox_min.x) && (mouse_pos.x <= m_open_menu_hoverbox_max.x) &&
+                            (mouse_pos.y >= m_open_menu_hoverbox_min.y) && (mouse_pos.y <= m_open_menu_hoverbox_max.y));
+    }
+    result |= menu_hovered;
+
+    bool box_hovered = false;
+    if (m_state_box != StateBox::STATEBOX_NONE)
+    {
+        box_hovered = ((mouse_pos.x >= m_state_box_hoverbox_min.x) && (mouse_pos.x <= m_state_box_hoverbox_max.x) &&
+                            (mouse_pos.y >= m_state_box_hoverbox_min.y) && (mouse_pos.y <= m_state_box_hoverbox_max.y));
+        result |= box_hovered;
     }
 
-    bool menu_hovered ((mouse_pos.x >= m_open_menu_hoverbox_min.x) && (mouse_pos.x <= m_open_menu_hoverbox_max.x) &&
-                        (mouse_pos.y >= m_open_menu_hoverbox_min.y) && (mouse_pos.y <= m_open_menu_hoverbox_max.y));
-    return (menu_hovered || window_hovered);
+    if (box_hovered && !menu_hovered)
+    {
+        m_open_menu = TopMenu::TOPMENU_NONE;
+    }
+
+    return result;
 }
 
 void TopMenubar::DrawMpUserToActorList(RoRnet::UserInfo &user)
@@ -1529,15 +1544,16 @@ void TopMenubar::DrawActorListSinglePlayer()
 
 void TopMenubar::DrawSpecialStateBox(float top_offset)
 {
+    float content_width = 0.f;
+    // Always drawn on top:
     std::string special_text;
+    ImVec4 special_color = ImGui::GetStyle().Colors[ImGuiCol_Text]; // Regular color
+    // Only for race_box:
     std::string special_text_b;
     std::string special_text_c;
     std::string special_text_d;
-    ImVec4 special_color = ImGui::GetStyle().Colors[ImGuiCol_Text]; // Regular color
     ImVec4 special_color_c = ImVec4(0,0,0,0);
-    float content_width = 0.f;
-    bool replay_box = false;
-    bool race_box = false;
+    m_state_box = StateBox::STATEBOX_NONE;
 
     // Gather state info
     if (App::GetGameContext()->GetActorManager()->IsSimulationPaused() && !App::GetGuiManager()->IsGuiHidden())
@@ -1560,12 +1576,20 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
             App::GetGameContext()->GetPlayerActor()->ar_state == ActorState::LOCAL_REPLAY)
     {
         content_width = 300;
-        replay_box = true;
+        m_state_box = StateBox::STATEBOX_REPLAY;
         special_text = _LC("TopMenubar", "Replay");
+    }
+    else if (App::GetGameContext()->GetRepairMode().IsLiveRepairActive())
+    {
+        special_text = fmt::format(_LC("TopMenubar", "Live repair mode, hit '{}' to stop"),
+            App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_REPAIR_TRUCK));
+        content_width = 450;
+        m_state_box = StateBox::STATEBOX_LIVE_REPAIR;
+        special_color = ORANGE_TEXT;
     }
     else if (App::GetGfxScene()->GetSimDataBuffer().simbuf_dir_arrow_visible)
     {
-        race_box = true;
+        m_state_box = StateBox::STATEBOX_RACE;
 
         // Calculate distance
         GameContextSB& data = App::GetGfxScene()->GetSimDataBuffer();
@@ -1615,13 +1639,19 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         box_pos.y = top_offset;
         box_pos.x = (ImGui::GetIO().DisplaySize.x / 2) - ((content_width / 2) + ImGui::GetStyle().FramePadding.x);
         ImGui::SetNextWindowPos(box_pos);
+        ImGui::SetNextWindowSize(ImVec2(0.f, 0.f));
+        ImGui::SetNextWindowContentWidth(content_width);
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize    | ImGuiWindowFlags_NoMove |
-                                 ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize;
+                                 ImGuiWindowFlags_NoTitleBar  | ImGuiWindowFlags_NoCollapse;
         ImGui::PushStyleColor(ImGuiCol_WindowBg, App::GetGuiManager()->GetTheme().semitransparent_window_bg);
-        if (ImGui::Begin("Special state box", nullptr, flags))
+        if (ImGui::Begin(special_text.c_str(), nullptr, flags))
         {
+            // Center the text, the box may be wider
+            float text_w = ImGui::CalcTextSize(special_text.c_str()).x;
+            ImGui::SetCursorPosX((content_width / 2) - (text_w / 2));
             ImGui::TextColored(special_color, "%s", special_text.c_str());
-            if (replay_box)
+
+            if (m_state_box == StateBox::STATEBOX_REPLAY)
             {
                 ImGui::SameLine();
                 
@@ -1646,7 +1676,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
                 ImGui::TextDisabled("%s: %s", _LC("TopMenubar", "Time"), str);
                 
             }
-            else if (race_box)
+            else if (m_state_box == StateBox::STATEBOX_RACE)
             {
                 ImGui::SameLine();
                 ImGui::Text(special_text_b.c_str());
@@ -1662,6 +1692,52 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
                     ImGui::TextDisabled(text);
                 }
             }
+            else if (m_state_box == StateBox::STATEBOX_LIVE_REPAIR)
+            {
+                // Draw the checkbox on right
+                ImGui::SameLine();
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2.f, 0.f));
+                DrawGCheckbox(App::ui_show_live_repair_controls, _LC("LiveRepair", "Show controls"));
+                ImGui::PopStyleVar(); // FramePadding
+
+                const ImVec2 MINI_SPACING = ImVec2(2.f,0.f);
+                ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, MINI_SPACING);
+
+                if (App::ui_show_live_repair_controls->getBool())
+                {
+
+                    ImGui::Separator();
+                    ImGui::TextDisabled(_LC("LiveRepair", "Movement:"));
+                    ImGui::Columns(2);
+                        ImDrawEventHighlighted(EV_TRUCK_ACCELERATE); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Forward")); ImGui::NextColumn();
+                        ImDrawEventHighlighted(EV_TRUCK_BRAKE); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Backward")); ImGui::NextColumn();
+                        ImDrawEventHighlighted(EV_CHARACTER_SIDESTEP_LEFT); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Left")); ImGui::NextColumn();
+                        ImDrawEventHighlighted(EV_CHARACTER_SIDESTEP_RIGHT); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Right")); ImGui::NextColumn();
+                        ImDrawEventHighlighted(EV_CHARACTER_FORWARD); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Up")); ImGui::NextColumn();
+                        ImDrawEventHighlighted(EV_CHARACTER_BACKWARDS); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Down")); ImGui::NextColumn();
+                    ImGui::Columns(1);
+
+                    ImGui::TextDisabled(_LC("LiveRepair", "Rotation:"));
+                    ImGui::Columns(2);
+                        ImDrawEventHighlighted(EV_TRUCK_STEER_LEFT); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Rot. left")); ImGui::NextColumn();
+                        ImDrawEventHighlighted(EV_TRUCK_STEER_RIGHT); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Rot. right")); ImGui::NextColumn();
+                    ImGui::Columns(1);
+
+                    ImGui::TextDisabled(_LC("LiveRepair", "Modifiers:"));
+                      ImGui::Columns(3);
+                        ImDrawModifierKeyHighlighted(OIS::KC_LMENU); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Slow step")); ImGui::NextColumn(); // Left alt
+                        ImDrawModifierKeyHighlighted(OIS::KC_LSHIFT); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Fast step")); ImGui::NextColumn();
+                        ImDrawModifierKeyHighlighted(OIS::KC_LCONTROL); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "10x step")); ImGui::NextColumn(); // Left ctrl
+                      ImGui::Columns(1);
+                }
+                ImGui::PopStyleVar(); // ItemSpacing
+            }
+            const ImVec2 PAD = ImVec2(5, 5); // To bridge top menubar hoverbox and statebox hoverbox
+            m_state_box_hoverbox_min = box_pos - PAD;
+            m_state_box_hoverbox_max.x = box_pos.x + ImGui::GetWindowWidth();
+            m_state_box_hoverbox_max.y = box_pos.y + ImGui::GetWindowHeight();
+            m_state_box_hoverbox_max += PAD;
+            // DO NOT `RequestGuiCaptureKeyboard()` - we want to use the hotkeys through it.
             ImGui::End();
         }
         ImGui::PopStyleColor(1); // WindowBg

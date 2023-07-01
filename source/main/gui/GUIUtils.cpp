@@ -401,3 +401,30 @@ void RoR::ImTerminateComboboxString(std::string& target)
     // Make space for 2 trailing with NULs
     target.resize(prev_size + 2, '\0');
 }
+
+void RoR::ImDrawEventHighlighted(events input_event)
+{
+    ImVec4 col = ImGui::GetStyle().Colors[ImGuiCol_Text];
+    if (App::GetInputEngine()->getEventValue(input_event))
+    {
+        col = App::GetGuiManager()->GetTheme().highlight_text_color;
+    }
+    std::string text = App::GetInputEngine()->getKeyForCommand(input_event);
+    const ImVec2 PAD = ImVec2(2.f, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, PAD);
+    ImGui::BeginChildFrame(input_event, ImGui::CalcTextSize(text.c_str()) + PAD*2);
+    ImGui::TextColored(col, "%s", text.c_str());
+    ImGui::EndChildFrame();
+    ImGui::PopStyleVar(); // FramePadding
+
+}
+
+void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
+{
+    ImVec4 col = ImGui::GetStyle().Colors[ImGuiCol_Text];
+    if (App::GetInputEngine()->isKeyDown(key))
+    {
+        col = App::GetGuiManager()->GetTheme().highlight_text_color;
+    }
+    ImGui::TextColored(col, "%s", App::GetInputEngine()->getModifierKeyName(key).c_str());
+}

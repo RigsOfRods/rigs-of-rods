@@ -35,14 +35,15 @@ namespace RoR {
 
 /// Actor feat - interactive recovery and repair mode, operates on player vehicle
 ///              Aka 'advanced repair' or 'interactive reset'
-class RecoveryMode
+class RepairMode
 {
 public:
     void                UpdateInputEvents(float dt);
+    bool                IsLiveRepairActive() const { return m_live_repair_active; }
 
 private:
-    bool                m_advanced_vehicle_repair = false;
-    float               m_advanced_vehicle_repair_timer = 0.f;
+    bool                m_live_repair_active = false;
+    float               m_live_repair_timer = 0.f;
 };
 
 /// @} // addtogroup Gameplay
