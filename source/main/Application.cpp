@@ -108,6 +108,7 @@ CVar* sim_no_self_collisions;
 CVar* sim_gearbox_mode;
 CVar* sim_soft_reset_mode;
 CVar* sim_quickload_dialog;
+CVar* sim_live_repair_interval;
 
 // Multiplayer
 CVar* mp_state;
@@ -250,6 +251,9 @@ CVar* flexbody_defrag_prog_down_penalty;
 CVar* flexbody_defrag_reorder_indices;
 CVar* flexbody_defrag_reorder_texcoords;
 CVar* flexbody_defrag_invert_lookup;
+
+// GUI
+CVar* ui_show_live_repair_controls;
 
 // Instance management
 void SetCacheSystem    (CacheSystem* obj)             { g_cache_system = obj; }

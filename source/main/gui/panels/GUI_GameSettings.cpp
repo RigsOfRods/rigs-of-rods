@@ -266,6 +266,8 @@ void GameSettings::DrawGameplaySettings()
     DrawGCheckbox(App::io_discord_rpc, _LC("GameSettings", "Discord Rich Presence"));
 
     DrawGCheckbox(App::sim_quickload_dialog, _LC("GameSettings", "Show confirm. UI dialog for quickload"));
+
+    DrawGCheckbox(App::ui_show_live_repair_controls, _LC("GameSettings", "Show controls in live repair box"));
 }
 
 void GameSettings::DrawAudioSettings()

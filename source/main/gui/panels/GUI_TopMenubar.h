@@ -47,8 +47,9 @@ public:
     const ImVec4  RED_TEXT              = ImVec4(1.00f, 0.00f, 0.00f, 1.f);
 
     enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS, TOPMENU_AI };
+    enum class StateBox { STATEBOX_NONE, STATEBOX_REPLAY, STATEBOX_RACE, STATEBOX_LIVE_REPAIR };
 
-    TopMenubar(): m_open_menu(TopMenu::TOPMENU_NONE), m_daytime(0), m_quickload(false), m_confirm_remove_all(false) {}
+    TopMenubar(): m_open_menu(), m_daytime(0), m_quickload(false), m_confirm_remove_all(false) {}
 
     void Update();
     bool ShouldDisplay(ImVec2 window_pos);
@@ -93,7 +94,12 @@ private:
 
     ImVec2  m_open_menu_hoverbox_min;
     ImVec2  m_open_menu_hoverbox_max;
-    TopMenu m_open_menu;
+    TopMenu m_open_menu = TopMenu::TOPMENU_NONE;
+
+    ImVec2  m_state_box_hoverbox_min;
+    ImVec2  m_state_box_hoverbox_max;
+    StateBox m_state_box = StateBox::STATEBOX_NONE;
+
     bool    m_confirm_remove_all;
 
     float   m_daytime;

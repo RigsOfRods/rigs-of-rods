@@ -248,6 +248,7 @@ enum events
     EV_COMMON_QUICKSAVE,          //!< quicksave scene to the disk
     EV_COMMON_QUIT_GAME,          //!< exit the game
     EV_COMMON_REPAIR_TRUCK,       //!< repair truck to original condition
+    EV_COMMON_LIVE_REPAIR_MODE,   //!< toggles live repair and recovery mode, controlled by keyboard
     EV_COMMON_REPLAY_BACKWARD,
     EV_COMMON_REPLAY_FAST_BACKWARD,
     EV_COMMON_REPLAY_FAST_FORWARD,
@@ -487,6 +488,7 @@ public:
         // Event info
 
     Ogre::String        getKeyForCommand(int eventID);
+    Ogre::String        getModifierKeyName(OIS::KeyCode key);
     Ogre::String        getDeviceName(event_trigger_t const& evt);
     Ogre::String        getEventCommand(int eventID);
     std::string         getEventCommandTrimmed(int eventID);                //!< Omits 'EXPL' modifier

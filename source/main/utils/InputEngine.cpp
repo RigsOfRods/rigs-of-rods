@@ -68,6 +68,7 @@ InputEvent eventInfo[] = {
     {"COMMON_AUTOLOCK",               EV_COMMON_AUTOLOCK,               "Keyboard EXPL+ALT+L",          _LC("InputEvent", "unlock autolock hook node")},
     {"COMMON_ROPELOCK",               EV_COMMON_ROPELOCK,               "Keyboard EXPL+CTRL+L",         _LC("InputEvent", "connect a rope to a node in close proximity")},
     {"COMMON_REPAIR_TRUCK",           EV_COMMON_REPAIR_TRUCK,           "Keyboard BACK",                _LC("InputEvent", "repair truck")},
+    {"COMMON_LIVE_REPAIR_MODE",       EV_COMMON_LIVE_REPAIR_MODE,       "Keyboard ALT+BACK",            _LC("InputEvent", "toggle truck interactive repair mode")},
     {"COMMON_RESCUE_TRUCK",           EV_COMMON_RESCUE_TRUCK,           "Keyboard EXPL+R",              _LC("InputEvent", "teleport to rescue truck")},
     {"COMMON_RESET_TRUCK",            EV_COMMON_RESET_TRUCK,            "Keyboard I",                   _LC("InputEvent", "reset truck to original starting position")},
     {"COMMON_TOGGLE_RESET_MODE",      EV_COMMON_TOGGLE_RESET_MODE,      "Keyboard EXPL+APOSTROPHE",     _LC("InputEvent", "toggle reset mode")},
@@ -2165,4 +2166,20 @@ String InputEngine::getKeyForCommand(int eventID)
 
     std::vector<event_trigger_t>::iterator it2 = it->second.begin();
     return getKeyNameForKeyCode((OIS::KeyCode)it2->keyCode);
+}
+
+Ogre::String InputEngine::getModifierKeyName(OIS::KeyCode key)
+{
+    switch (key)
+    {
+    case OIS::KC_LMENU: return _LC("ModifierKey", "Left Alt");
+    case OIS::KC_LSHIFT: return _LC("ModifierKey", "Left Shift");
+    case OIS::KC_LCONTROL: return _LC("ModifierKey", "Left Ctrl");
+
+    case OIS::KC_RMENU: return _LC("ModifierKey", "Right Alt");
+    case OIS::KC_RSHIFT: return _LC("ModifierKey", "Right Shift");
+    case OIS::KC_RCONTROL: return _LC("ModifierKey", "Right Ctrl");
+
+    default: return "";
+    }
 }
