@@ -484,6 +484,16 @@ std::string ToLocalizedString(IoInputGrabMode e)
     }
 }
 
+std::string ToLocalizedString(SimResetMode e)
+{
+    switch (e)
+    {
+    case SimResetMode::HARD: return _LC("SimResetMode", "Hard");
+    case SimResetMode::SOFT: return _LC("SimResetMode", "Soft");
+    default:                 return "";
+    }
+}
+
 const char* MsgTypeToString(MsgType type)
 {
     switch (type)

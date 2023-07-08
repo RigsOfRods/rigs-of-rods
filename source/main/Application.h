@@ -241,6 +241,13 @@ enum class IoInputGrabMode
 };
 std::string ToLocalizedString(IoInputGrabMode e);
 
+enum class SimResetMode
+{
+    HARD = 0, // 'sim_soft_reset=false'
+    SOFT = 1  // 'sim_soft_reset=true'
+};
+std::string ToLocalizedString(SimResetMode e);
+
 enum VisibilityMasks
 {
     DEPTHMAP_ENABLED  = BITMASK(1),
@@ -303,7 +310,7 @@ extern CVar* sim_no_self_collisions;
 extern CVar* sim_gearbox_mode;
 extern CVar* sim_soft_reset_mode;
 extern CVar* sim_quickload_dialog;
-extern CVar* sim_live_repair_interval;
+extern CVar* sim_live_repair_interval; //!< Hold EV_COMMON_REPAIR_TRUCK to enter LiveRepair mode. 0 or negative interval disables.
 
 // Multiplayer
 extern CVar* mp_state;

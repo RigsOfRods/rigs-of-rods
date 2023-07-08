@@ -1542,12 +1542,23 @@ void TopMenubar::DrawActorListSinglePlayer()
     }
 }
 
+void DrawRepairBoxEvent(events ev, std::string const& desc)
+{
+    ImDrawEventHighlighted(ev); ImGui::SameLine(); ImGui::TextDisabled(desc.c_str()); ImGui::NextColumn();
+}
+
+void DrawRepairBoxModkey(OIS::KeyCode modkey, std::string const& desc)
+{
+    ImDrawModifierKeyHighlighted(modkey); ImGui::SameLine(); ImGui::TextDisabled(desc.c_str()); ImGui::NextColumn();
+}
+
 void TopMenubar::DrawSpecialStateBox(float top_offset)
 {
     float content_width = 0.f;
     // Always drawn on top:
     std::string special_text;
     ImVec4 special_color = ImGui::GetStyle().Colors[ImGuiCol_Text]; // Regular color
+    float special_text_centering_weight = 1.f; // 0 = no centering
     // Only for race_box:
     std::string special_text_b;
     std::string special_text_c;
@@ -1585,7 +1596,17 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
             App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_REPAIR_TRUCK));
         content_width = 450;
         m_state_box = StateBox::STATEBOX_LIVE_REPAIR;
+        special_color = GREEN_TEXT;
+        special_text_centering_weight = 0.7f;
+    }
+    else if (App::GetGameContext()->GetRepairMode().IsQuickRepairActive())
+    {
+        special_text = fmt::format(_LC("TopMenubar", "Quick repair ('{}' for Live repair)"),
+            App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_LIVE_REPAIR_MODE));
+        content_width = 450;
+        m_state_box = StateBox::STATEBOX_QUICK_REPAIR;
         special_color = ORANGE_TEXT;
+        special_text_centering_weight = 0.7f;
     }
     else if (App::GetGfxScene()->GetSimDataBuffer().simbuf_dir_arrow_visible)
     {
@@ -1648,7 +1669,7 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         {
             // Center the text, the box may be wider
             float text_w = ImGui::CalcTextSize(special_text.c_str()).x;
-            ImGui::SetCursorPosX((content_width / 2) - (text_w / 2));
+            ImGui::SetCursorPosX(((content_width / 2) - (text_w / 2)) * special_text_centering_weight);
             ImGui::TextColored(special_color, "%s", special_text.c_str());
 
             if (m_state_box == StateBox::STATEBOX_REPLAY)
@@ -1692,11 +1713,17 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
                     ImGui::TextDisabled(text);
                 }
             }
-            else if (m_state_box == StateBox::STATEBOX_LIVE_REPAIR)
+            else if (m_state_box == StateBox::STATEBOX_LIVE_REPAIR || m_state_box == StateBox::STATEBOX_QUICK_REPAIR)
             {
-                // Draw the checkbox on right
+                // Draw special element on the right
                 ImGui::SameLine();
                 ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2.f, 0.f));
+                if (m_state_box == StateBox::STATEBOX_QUICK_REPAIR && App::sim_live_repair_interval->getFloat() > 0)
+                {
+                    const float fraction = App::GetGameContext()->GetRepairMode().GetLiveRepairTimer() / App::sim_live_repair_interval->getFloat();
+                    ImGui::ProgressBar(fraction, ImVec2(15.f, ImGui::GetTextLineHeight() / 2.f), "");
+                    ImGui::SameLine();
+                }
                 DrawGCheckbox(App::ui_show_live_repair_controls, _LC("LiveRepair", "Show controls"));
                 ImGui::PopStyleVar(); // FramePadding
 
@@ -1705,30 +1732,46 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
 
                 if (App::ui_show_live_repair_controls->getBool())
                 {
-
+                    const float INDENT = 15.f;
                     ImGui::Separator();
-                    ImGui::TextDisabled(_LC("LiveRepair", "Movement:"));
-                    ImGui::Columns(2);
-                        ImDrawEventHighlighted(EV_TRUCK_ACCELERATE); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Forward")); ImGui::NextColumn();
-                        ImDrawEventHighlighted(EV_TRUCK_BRAKE); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Backward")); ImGui::NextColumn();
-                        ImDrawEventHighlighted(EV_CHARACTER_SIDESTEP_LEFT); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Left")); ImGui::NextColumn();
-                        ImDrawEventHighlighted(EV_CHARACTER_SIDESTEP_RIGHT); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Right")); ImGui::NextColumn();
-                        ImDrawEventHighlighted(EV_CHARACTER_FORWARD); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Up")); ImGui::NextColumn();
-                        ImDrawEventHighlighted(EV_CHARACTER_BACKWARDS); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Down")); ImGui::NextColumn();
-                    ImGui::Columns(1);
-
-                    ImGui::TextDisabled(_LC("LiveRepair", "Rotation:"));
-                    ImGui::Columns(2);
-                        ImDrawEventHighlighted(EV_TRUCK_STEER_LEFT); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Rot. left")); ImGui::NextColumn();
-                        ImDrawEventHighlighted(EV_TRUCK_STEER_RIGHT); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Rot. right")); ImGui::NextColumn();
-                    ImGui::Columns(1);
-
-                    ImGui::TextDisabled(_LC("LiveRepair", "Modifiers:"));
+                    ImGui::TextDisabled("%s:", _LC("LiveRepair", "Movement"));
                       ImGui::Columns(3);
-                        ImDrawModifierKeyHighlighted(OIS::KC_LMENU); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Slow step")); ImGui::NextColumn(); // Left alt
-                        ImDrawModifierKeyHighlighted(OIS::KC_LSHIFT); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "Fast step")); ImGui::NextColumn();
-                        ImDrawModifierKeyHighlighted(OIS::KC_LCONTROL); ImGui::SameLine(); ImGui::TextDisabled(_LC("LiveRepair", "10x step")); ImGui::NextColumn(); // Left ctrl
+                      ImGui::SetColumnWidth(0, INDENT);
+                        ImGui::NextColumn();
+                        DrawRepairBoxEvent(EV_CHARACTER_FORWARD,_LC("LiveRepair", "Forward"));
+                        DrawRepairBoxEvent(EV_CHARACTER_BACKWARDS,_LC("LiveRepair", "Backward"));
+                        ImGui::NextColumn();
+                        DrawRepairBoxEvent(EV_CHARACTER_SIDESTEP_LEFT,_LC("LiveRepair", "Left"));
+                        DrawRepairBoxEvent(EV_CHARACTER_SIDESTEP_RIGHT,_LC("LiveRepair", "Right"));
+                        ImGui::NextColumn();
+                        DrawRepairBoxEvent(EV_TRUCK_ACCELERATE,_LC("LiveRepair", "Up"));
+                        DrawRepairBoxEvent(EV_TRUCK_BRAKE,_LC("LiveRepair", "Down"));
                       ImGui::Columns(1);
+
+                    ImGui::TextDisabled("%s:", _LC("LiveRepair", "Rotation"));
+                      ImGui::Columns(3);
+                      ImGui::SetColumnWidth(0, INDENT);
+                        ImGui::NextColumn();
+                        DrawRepairBoxEvent(EV_TRUCK_STEER_LEFT,_LC("LiveRepair", "Rot. left"));
+                        DrawRepairBoxEvent(EV_TRUCK_STEER_RIGHT,_LC("LiveRepair", "Rot. right"));
+                      ImGui::Columns(1);
+
+                    ImGui::TextDisabled("%s:", _LC("LiveRepair", "Modifiers"));
+                      ImGui::Columns(4);
+                      ImGui::SetColumnWidth(0, INDENT);
+                      ImGui::SetColumnWidth(1, 125);
+                      ImGui::SetColumnWidth(2, 125);
+                        ImGui::NextColumn();
+                        DrawRepairBoxModkey(OIS::KC_LMENU,_LC("LiveRepair", "Slow step")); // Left alt
+                        DrawRepairBoxModkey(OIS::KC_LSHIFT,_LC("LiveRepair", "Fast step"));
+                        DrawRepairBoxModkey(OIS::KC_LCONTROL,_LC("LiveRepair", "10x step")); // Left ctrl
+                      ImGui::Columns(1);
+
+                    SimResetMode resetmode = App::sim_soft_reset_mode->getEnum<SimResetMode>();
+                    ImGui::TextDisabled("%s (%s):", _LC("LiveRepair", "Reset mode"), ToLocalizedString(resetmode).c_str());
+                      ImGui::Dummy(ImVec2(INDENT, 1.f));
+                      ImGui::SameLine();
+                      DrawRepairBoxEvent(EV_COMMON_TOGGLE_RESET_MODE,_LC("LiveRepair", "Switch reset mode"));
                 }
                 ImGui::PopStyleVar(); // ItemSpacing
             }
