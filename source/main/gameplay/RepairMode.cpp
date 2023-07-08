@@ -38,30 +38,34 @@ void RepairMode::UpdateInputEvents(float dt)
 
     if (!App::GetGameContext()->GetPlayerActor())
     {
+        m_quick_repair_active = false;
         m_live_repair_active = false;
         m_live_repair_timer = 0.0f;
         return;
     }
 
-    if (!App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
-    {
-        m_live_repair_timer = 0.0f;
-    }
-
     if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_LIVE_REPAIR_MODE))
     {
         m_live_repair_active = true;
-        // Hack to bypass the timer - because EV_COMMON_REPAIR_TRUCK (default Alt+Backspace) may not be 'EXPL' so the below condition may execute.
-        m_live_repair_timer = App::sim_live_repair_interval->getFloat() + 1.f;
+        // Hack to bypass the timer - because EV_COMMON_REPAIR_TRUCK (default Backspace) may not be 'EXPL' so the below condition may execute.
+        m_live_repair_timer = App::sim_live_repair_interval->getFloat() + 0.1f;
     }
 
-    if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK) || m_live_repair_active)
+    // Update LiveRepair timer
+    m_quick_repair_active = App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK);
+    if (m_quick_repair_active)
     {
-        if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REPAIR_TRUCK))
-        {
-            m_live_repair_active = m_live_repair_timer > App::sim_live_repair_interval->getFloat();
-        }
+        if (App::sim_live_repair_interval->getFloat() > 0)
+            m_live_repair_active = m_live_repair_timer > App::sim_live_repair_interval->getFloat();    
+    }
+    else
+    {
+        m_live_repair_timer = 0.f;
+    }
 
+    // Handle repair controls
+    if (m_quick_repair_active || m_live_repair_active)
+    {
         Ogre::Vector3 translation = Ogre::Vector3::ZERO;
         float rotation = 0.0f;
 

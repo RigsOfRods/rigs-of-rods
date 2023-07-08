@@ -33,16 +33,19 @@ namespace RoR {
 /// @addtogroup Gameplay
 /// @{
 
-/// Actor feat - interactive recovery and repair mode, operates on player vehicle
-///              Aka 'advanced repair' or 'interactive reset'
+/// Interactive recovery and repair mode, operates on player vehicle
+/// Formerly 'advanced repair' or 'interactive reset'
 class RepairMode
 {
 public:
     void                UpdateInputEvents(float dt);
     bool                IsLiveRepairActive() const { return m_live_repair_active; }
+    bool                IsQuickRepairActive() const { return m_quick_repair_active; }
+    float               GetLiveRepairTimer() const { return m_live_repair_timer; }
 
 private:
-    bool                m_live_repair_active = false;
+    bool                m_quick_repair_active = false; // Player is holding EV_COMMON_REPAIR_TRUCK
+    bool                m_live_repair_active = false; // Player pressed EV_COMMON_LIVE_REPAIR_MODE or held QuickRepair for 'sim_live_repair_interval' seconds.
     float               m_live_repair_timer = 0.f;
 };
 
