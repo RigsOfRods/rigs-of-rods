@@ -81,7 +81,7 @@ private:
     SkidmarkConfig                    m_skidmark_conf;
 
     // Walkie talkie icon (forwardcommands / importcommands)
-    std::unordered_map<int, std::string>     m_walkietalkie_commandkeys_cache;
+    std::unordered_map<int, std::string> m_walkietalkie_commandkeys_cache; // eventID -> description
     ActorPtr                                 m_walkietalkie_commandkeys_cache_actor;
     ImVec2                                   m_walkietalkie_commandkeys_screensize;
 };

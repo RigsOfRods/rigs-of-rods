@@ -1151,7 +1151,7 @@ int main(int argc, char *argv[])
                 }
             } // Render block
 
-            App::GetGuiManager()->ApplyGuiCaptureKeyboard();
+            App::GetGuiManager()->ApplyQueuedGuiRequests();
 
         } // End of main rendering/input loop
 

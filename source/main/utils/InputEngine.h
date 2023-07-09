@@ -484,6 +484,7 @@ public:
     void                ProcessKeyRelease(const OIS::KeyEvent& arg);
     void                ProcessJoystickEvent(const OIS::JoyStickEvent& arg);
     void                resetKeys();
+    void                setEventSimulatedValue(events eventID, float value);
 
         // Event info
 
@@ -513,6 +514,7 @@ public:
         // Event management
 
     void                addEvent(int eventID, event_trigger_t& t);          //!< Registers new trigger for this event.
+    void                addEvent(int eventID);                              //!< Registers new event without trigger.
     void                addEventDefault(int eventID, int deviceID = -1);    //!< Adds a new trigger with builtin value for this event.
     void                updateEvent(int eventID, const event_trigger_t& t);
     void                eraseEvent(int eventID, const event_trigger_t* t);
@@ -573,6 +575,7 @@ protected:
 
     // define event aliases
     std::map<int, std::vector<event_trigger_t>> events;
+    std::map<int, float> event_values_simulated;
     std::map<int, float> event_times;
     std::string m_loaded_configs[MAX_JOYSTICKS];
     bool loadMapping(Ogre::String fileName, int deviceID);

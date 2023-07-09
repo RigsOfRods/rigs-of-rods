@@ -81,7 +81,7 @@ void ImAddItemToComboboxString(std::string& target, std::string const& item);
 void ImTerminateComboboxString(std::string& target);
 
 // Input engine helpers
-void ImDrawEventHighlighted(events input_event);
+void ImDrawEventHighlighted(events input_event, bool force_active=false); ///!< Draws button displaying configured key combo and simulating the event when pressed.
 void ImDrawModifierKeyHighlighted(OIS::KeyCode key);
 
 } // namespace RoR

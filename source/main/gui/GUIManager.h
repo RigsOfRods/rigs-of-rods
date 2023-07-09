@@ -132,10 +132,10 @@ public:
     void ShowMessageBox(const char* title, const char* text, bool allow_close = true, const char* btn1_text = "OK", const char* btn2_text = nullptr);
     void ShowMessageBox(GUI::MessageBoxConfig const& conf);
     void RequestGuiCaptureKeyboard(bool val); //!< Pass true during frame to prevent input passing to application
+    void RequestStaticMenusBlocking(bool val); //!< Pass true during frame to prevent static menus (i.e. top menubar) from displaying
     bool IsGuiCaptureKeyboardRequested() const { return m_gui_kb_capture_requested; }
-    void ApplyGuiCaptureKeyboard(); //!< Call after rendered frame to apply queued value
+    void ApplyQueuedGuiRequests(); //!< Call after rendered frame to apply queued value
     bool AreStaticMenusAllowed(); //!< i.e. top menubar / vehicle UI buttons
-
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
     void DrawSimulationGui(float dt); //!< Touches live data; must be called in sync with sim. thread
@@ -173,6 +173,8 @@ private:
     GuiTheme             m_theme;
     bool                 m_gui_kb_capture_queued    = false; //!< Resets and accumulates every frame
     bool                 m_gui_kb_capture_requested = false; //!< Effective value, persistent
+    bool                 m_staticmenus_blocking_queued  = false; //!< Resets and accumulates every frame
+    bool                 m_staticmenus_blocking_requested = false; //!< Effective value, persistent
     Ogre::Timer          m_last_mousemove_time;
     bool                 m_is_cursor_supressed      = false; //!< True if cursor was manually hidden.
 };

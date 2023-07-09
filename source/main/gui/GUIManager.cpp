@@ -105,14 +105,16 @@ void GUIManager::ShutdownMyGUI()
     }
 }
 
-void GUIManager::ApplyGuiCaptureKeyboard()
+void GUIManager::ApplyQueuedGuiRequests()
 {
     m_gui_kb_capture_requested = m_gui_kb_capture_queued;
+    m_staticmenus_blocking_requested = m_staticmenus_blocking_queued;
 };
 
 bool GUIManager::AreStaticMenusAllowed() //!< i.e. top menubar / vehicle UI buttons
 {
     return (App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE &&
+            !m_staticmenus_blocking_requested && // For ad-hoc windows like walkie-talkie label
             !this->ConsoleWindow.IsHovered() &&
             !this->GameControls.IsHovered() &&
             !this->FrictionSettings.IsHovered() &&
@@ -317,6 +319,7 @@ void GUIManager::NewImGuiFrame(float dt)
 
     // Reset state
     m_gui_kb_capture_queued = false;
+    m_staticmenus_blocking_queued = false;
 }
 
 void GUIManager::SetupImGui()
@@ -448,6 +451,11 @@ void GUIManager::ShowMessageBox(GUI::MessageBoxConfig const& conf)
 void GUIManager::RequestGuiCaptureKeyboard(bool val) 
 { 
     m_gui_kb_capture_queued = m_gui_kb_capture_queued || val;
+}
+
+void GUIManager::RequestStaticMenusBlocking(bool val) 
+{ 
+    m_staticmenus_blocking_queued = m_staticmenus_blocking_queued || val;
 }
 
 void GUIManager::WakeUpGUI()

@@ -423,12 +423,12 @@ void GfxScene::CacheWalkietalkieCommandButtons(const ActorPtr& actor)
             {
                 desc = actor->ar_command_key[i].description.c_str();
             }
-            std::string text = fmt::format("{}: {} {}",
-                App::GetInputEngine()->getEventCommandTrimmed(eventID),
+            std::string text = fmt::format("{} {}",
                 cmdbeam.cmb_is_contraction ? "Retract" : "Extend", 
                 desc);
 
-            auto inserted_pair = m_walkietalkie_commandkeys_cache.insert(std::make_pair(eventID, text));
+            auto inserted_pair = m_walkietalkie_commandkeys_cache.insert(
+                std::make_pair(eventID, text));
             // Only increase the size if we added a new commandkey - there may be multiple commandbeams for the same key.
             if (inserted_pair.second)
             {
@@ -442,6 +442,8 @@ void GfxScene::CacheWalkietalkieCommandButtons(const ActorPtr& actor)
 
 void GfxScene::DrawWalkieTalkieLabel(Ogre::Vector3 scene_pos, float cam_dist, const ActorPtr& actor)
 {
+    // Draw a label with icon and usable command keys
+    // ----------------------------------------------
 
     ImVec2 screen_size = ImGui::GetIO().DisplaySize;
     World2ScreenConverter world2screen(
@@ -459,10 +461,11 @@ void GfxScene::DrawWalkieTalkieLabel(Ogre::Vector3 scene_pos, float cam_dist, co
     Ogre::TexturePtr icon = FetchIcon("walkie_talkie.png", "IconsRG");
     ImVec2 icon_size(icon->getWidth(), icon->getHeight());
 
-    const float ICON_PAD_RIGHT = 2.f;
+    const float ICON_PAD_RIGHT = 5.f;
     ImVec2 total_size = icon_size;
 
     std::string caption;
+    std::string id_str = "walkie talkie for character";
     if (actor)
     {
         // Cache info
@@ -473,45 +476,55 @@ void GfxScene::DrawWalkieTalkieLabel(Ogre::Vector3 scene_pos, float cam_dist, co
         ImVec2 namesize = ImGui::CalcTextSize(caption.c_str());
         total_size.x += ICON_PAD_RIGHT + std::max(namesize.x, m_walkietalkie_commandkeys_screensize.x);
         total_size.y = std::max(total_size.y, m_walkietalkie_commandkeys_screensize.y);
+
+        // Account for space between event-button and description
+        total_size + ImGui::GetStyle().ItemSpacing * ImVec2(2.f, 1.f);
+
+        id_str = fmt::format("walkie talkie for actor {}", actor->ar_instance_id).c_str();
     }
 
-    ImDrawList* drawlist = GetImDummyFullscreenWindow();
-    ImGuiContext* g = ImGui::GetCurrentContext();
-    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
-
-    // Draw background rectangle
+    // Because we want buttons in the label, it must be a window, not a fullscreen dummy for drawing
     const float PADDING = 4.f;
-    const ImVec2 PAD2(PADDING, PADDING);
-    ImVec2 rect_min = (pos - total_size/2) - PAD2;
-    ImVec2 rect_max = (pos + total_size/2) + PAD2;
-    drawlist->AddRectFilled(
-        rect_min, rect_max,
-        ImColor(theme.semitransparent_window_bg),
-        ImGui::GetStyle().WindowRounding);
-    ImVec2 cursor = rect_min + PAD2;
-        
-    // Draw icon
-    if (icon)
-    {
-        drawlist->AddImage(reinterpret_cast<ImTextureID>(icon->getHandle()), cursor, cursor + icon_size);
-        cursor.x += icon_size.x + ICON_PAD_RIGHT;
-    }
-
+    const ImVec2 BOXPAD2(PADDING, PADDING);
+    const ImVec2 BTNPAD2(2.f, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, BOXPAD2);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, BTNPAD2);
+    ImVec2 rect_min = (pos - total_size/2) - BOXPAD2;
+    ImGui::SetNextWindowPos(rect_min);
+    ImGui::SetNextWindowSize(total_size + BOXPAD2*2);
+    int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar 
+                     | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
+    ImGui::Begin(id_str.c_str(), nullptr, window_flags);
+    GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
+   
     if (actor)
     {
-        // Draw actor name (light text)
-        drawlist->AddText(g->Font, g->FontSize, cursor, ImColor(ImGui::GetStyle().Colors[ImGuiCol_Text]), caption.c_str());
-        cursor.y += ImGui::GetTextLineHeight();
+        // Draw actor name (dark text)
+        ImGui::SetCursorPosX(icon_size.x + ICON_PAD_RIGHT);
+        ImGui::TextDisabled(caption.c_str());
+        ImGui::Separator();
 
-        // Draw the commands (darker text, except where active)
-        const ImU32 color_lo = ImColor(ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
-        const ImU32 color_hi = ImColor(theme.highlight_text_color);
+        // Draw the commands (light text with activity highlight)
+        
         for (auto& pair: m_walkietalkie_commandkeys_cache)
         {
-            const ImU32 color = (actor->ar_command_key[pair.first].playerInputValue != 0) ? color_hi : color_lo;
-            drawlist->AddText(g->Font, g->FontSize, cursor, color, pair.second.c_str());
-            cursor.y += ImGui::GetTextLineHeight();
+            const bool force_active = (actor->ar_command_key[pair.first].playerInputValue != 0);
+            ImGui::SetCursorPosX(icon_size.x + ICON_PAD_RIGHT);
+            ImDrawEventHighlighted(events(pair.first), force_active);
+            ImGui::SameLine();
+            ImGui::Text(pair.second.c_str());
         }
     }
 
+    // Draw icon last
+    if (icon)
+    {
+        ImGui::SetCursorPos(BOXPAD2);
+        ImGui::Image(reinterpret_cast<ImTextureID>(icon->getHandle()), icon_size);
+    }
+
+    App::GetGuiManager()->RequestStaticMenusBlocking(ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows));
+    ImGui::End();
+    ImGui::PopStyleVar(); //ImGuiStyleVar_WindowPadding, BOXPAD2);
+    ImGui::PopStyleVar(); //ImGuiStyleVar_FramePadding, BTNPAD2);
 }
