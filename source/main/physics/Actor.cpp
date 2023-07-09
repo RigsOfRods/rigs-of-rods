@@ -1116,11 +1116,17 @@ void Actor::UpdateBoundingBoxes()
     // Reset
     ar_bounding_box = AxisAlignedBox::BOX_NULL;
     ar_predicted_bounding_box = AxisAlignedBox::BOX_NULL;
+    ar_cabnodes_bounding_box = AxisAlignedBox::BOX_NULL;
     for (size_t i = 0; i < ar_collision_bounding_boxes.size(); ++i)
     {
         ar_collision_bounding_boxes[i] = AxisAlignedBox::BOX_NULL;
         ar_predicted_coll_bounding_boxes[i] = AxisAlignedBox::BOX_NULL;
     }
+
+    // To avoid performance choking by overstretched bounding box (happens when vehicle drops some nodes),
+    // we set a maximum distance limit from the main camera.
+    const float CABNODE_MAX_CAMDIST = 15.f;
+    const Ogre::Vector3 mainCamPos = ar_nodes[ar_main_camera_node_pos].RelPosition;
 
     // Update
     for (int i = 0; i < ar_num_nodes; i++)
@@ -1130,6 +1136,11 @@ void Actor::UpdateBoundingBoxes()
         int16_t cid = ar_nodes[i].nd_coll_bbox_id;
 
         ar_bounding_box.merge(pos);                                  // Current box
+        if (ar_nodes[i].nd_cab_node                                 // Current cab-nodes box (for eventbox collisions)
+            && (mainCamPos.squaredDistance(ar_nodes[i].RelPosition)) < (CABNODE_MAX_CAMDIST*CABNODE_MAX_CAMDIST)) // ... we compare squared distance for performance
+        {
+            ar_cabnodes_bounding_box.merge(pos);
+        }
         ar_predicted_bounding_box.merge(pos);                        // Predicted box (current position)
         ar_predicted_bounding_box.merge(pos + vel);                  // Predicted box (future position)
         if (cid != node_t::INVALID_BBOX)

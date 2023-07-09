@@ -290,6 +290,7 @@ public:
     std::vector<Airbrake*>    ar_airbrakes;
     CmdKeyArray               ar_command_key; //!< BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
     Ogre::AxisAlignedBox      ar_bounding_box;     //!< standard bounding box (surrounds all nodes of an actor)
+    Ogre::AxisAlignedBox      ar_cabnodes_bounding_box; //!< bounding box around cab-triangle nodes only
     Ogre::AxisAlignedBox      ar_predicted_bounding_box;
     float                     ar_initial_total_mass = 0.f;
     std::vector<float>        ar_initial_node_masses;
