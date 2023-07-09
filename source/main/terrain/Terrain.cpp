@@ -313,8 +313,8 @@ void RoR::Terrain::initLight()
         m_main_light->setType(Light::LT_DIRECTIONAL);
         m_main_light->setDirection(Ogre::Vector3(-0.990991, -1, -0.990991).normalisedCopy());
 
-        m_main_light->setDiffuseColour(m_def.ambient_color);
-        m_main_light->setSpecularColour(m_def.ambient_color);
+        m_main_light->setDiffuseColour(m_def.ambient_color*1.5f);
+        m_main_light->setSpecularColour(m_def.ambient_color*1.5f);
         m_main_light->setCastShadows(true);
         m_main_light->setShadowFarDistance(1000.0f);
         m_main_light->setShadowNearClipDistance(-1);
