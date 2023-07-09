@@ -3376,27 +3376,7 @@ void Actor::tieToggle(int group)
             if (it->ti_locked_actor != this)
             {
                 this->RemoveInterActorBeam(it->ti_beam);
-                // update skeletonview on the untied actors
-                auto linked_actors = it->ti_locked_actor->ar_linked_actors;
-                if (!(std::find(linked_actors.begin(), linked_actors.end(), this) != linked_actors.end()))
-                {
-                    if (this == player_actor.GetRef())
-                    {
-                        it->ti_locked_actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        for (ActorPtr& actor : it->ti_locked_actor->ar_linked_actors)
-                        {
-                            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        }
-                    }
-                    else if (it->ti_locked_actor == player_actor)
-                    {
-                        m_gfx_actor->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        for (ActorPtr& actor : this->ar_linked_actors)
-                        {
-                            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        }
-                    }
-                }
+                // NOTE: updating skeletonview on the tied actors is now done in `SyncLinkedActors()`
             }
             it->ti_locked_actor = nullptr;
         }
@@ -3467,23 +3447,7 @@ void Actor::tieToggle(int group)
                     if (it->ti_beam->bm_inter_actor)
                     {
                         AddInterActorBeam(it->ti_beam, this, nearest_actor);
-                        // update skeletonview on the tied actors
-                        if (this == player_actor.GetRef())
-                        {
-                            nearest_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                            for (ActorPtr& actor : nearest_actor->ar_linked_actors)
-                            {
-                                actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                            }
-                        }
-                        else if (nearest_actor == player_actor)
-                        {
-                            m_gfx_actor->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
-                            for (ActorPtr& actor : this->ar_linked_actors)
-                            {
-                                actor->GetGfxActor()->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
-                            }
-                        }
+                        // NOTE: updating skeletonview on the tied actors is now done in `SyncLinkedActors()`
                     }
                 }
             }
@@ -3515,27 +3479,7 @@ void Actor::ropeToggle(int group)
             if (it->rp_locked_actor != this)
             {
                 this->RemoveInterActorBeam(it->rp_beam);
-                // update skeletonview on the unroped actors
-                auto linked_actors = it->rp_locked_actor->ar_linked_actors;
-                if (!(std::find(linked_actors.begin(), linked_actors.end(), this) != linked_actors.end()))
-                {
-                    if (this == player_actor.GetRef())
-                    {
-                        it->rp_locked_actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        for (ActorPtr& actor : it->rp_locked_actor->ar_linked_actors)
-                        {
-                            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        }
-                    }
-                    else if (it->rp_locked_actor == player_actor)
-                    {
-                        m_gfx_actor->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        for (ActorPtr& actor : this->ar_linked_actors)
-                        {
-                            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        }
-                    }
-                }
+                // NOTE: updating skeletonview on the unroped actors is now done in `SyncLinkedActors()`
             }
             it->rp_locked_actor = nullptr;
             it->rp_locked_ropable = nullptr;
@@ -3580,23 +3524,7 @@ void Actor::ropeToggle(int group)
                 if (nearest_actor != this)
                 {
                     AddInterActorBeam(it->rp_beam, this, nearest_actor);
-                    // update skeletonview on the roped up actors
-                    if (this == player_actor.GetRef())
-                    {
-                        nearest_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                        for (ActorPtr& actor : nearest_actor->ar_linked_actors)
-                        {
-                            actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                        }
-                    }
-                    else if (nearest_actor == player_actor)
-                    {
-                        m_gfx_actor->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
-                        for (ActorPtr& actor : this->ar_linked_actors)
-                        {
-                            actor->GetGfxActor()->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
-                        }
-                    }
+                    // NOTE: updating skeletonview on the roped up actor is now done in `SyncLinkedActors()`
                 }
             }
         }
@@ -3728,26 +3656,7 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t mousenode /*=NODENU
             it->hk_beam->bm_disabled = true;
         }
 
-        // update skeletonview on the (un)hooked actor
-        if (it->hk_locked_actor != prev_locked_actor)
-        {
-            if (it->hk_locked_actor)
-            {
-                it->hk_locked_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                for (ActorPtr& actor : it->hk_locked_actor->ar_linked_actors)
-                {
-                    actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                }
-            }
-            else if (prev_locked_actor != this)
-            {
-                prev_locked_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                for (ActorPtr& actor : prev_locked_actor->ar_linked_actors)
-                {
-                    actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                }
-            }
-        }
+        // NOTE: updating skeletonview on the (un)hooked actor is now done in `SyncLinkedActors()`
     }
 }
 

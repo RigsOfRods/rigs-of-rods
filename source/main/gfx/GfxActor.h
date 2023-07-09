@@ -137,7 +137,6 @@ public:
     Ogre::MaterialPtr&   GetCabTransMaterial() { return m_cab_mat_visual_trans; }
     VideoCamState        GetVideoCamState() const { return m_vidcam_state; }
     DebugViewType        GetDebugView() const { return m_debug_view; }
-    std::set<GfxActor*>  GetLinkedGfxActors() { return m_linked_gfx_actors; }
     Ogre::String         GetResourceGroup() { return m_custom_resource_group; }
     ActorPtr             GetActor() { return m_actor; } // Watch out for multithreading with this!
     Ogre::TexturePtr     GetHelpTex() { return m_help_tex; }
@@ -162,7 +161,6 @@ private:
     Ogre::SceneNode*            m_gfx_beams_parent_scenenode = nullptr;
 
     // Game state
-    std::set<GfxActor*>         m_linked_gfx_actors;
     bool                        m_initialized = false;
     VideoCamState               m_vidcam_state = VideoCamState::VCSTATE_ENABLED_ONLINE;
     DebugViewType               m_debug_view = DebugViewType::DEBUGVIEW_NONE;

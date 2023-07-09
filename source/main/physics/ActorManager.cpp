@@ -718,6 +718,61 @@ void ActorManager::ForwardCommands(ActorPtr source_actor)
     }
 }
 
+// Internal helper for future extensions
+void SyncSlaveActorWithMasterActor(const ActorPtr& slave, const ActorPtr& master)
+{
+    // Always sync the paused state
+    slave->ar_physics_paused = master->ar_physics_paused;
+
+    // Always sync skeletonview
+    slave->GetGfxActor()->SetDebugView(master->GetGfxActor()->GetDebugView());
+
+    // Sync live repair movement if requested
+    if (App::sim_soft_reset_mode->getBool())
+    {
+        slave->requestRotation(master->m_rotation_request, master->m_rotation_request_center);
+        slave->requestTranslation(master->m_translation_request);
+        slave->requestAngleSnap(master->m_anglesnap_request);
+    }
+}
+
+// internal helper for future extensions
+void ResetUnlinkedActor(const ActorPtr& loner)
+{
+    // Always unpause
+    loner->ar_physics_paused = false;
+
+    // Always disable skeletonview
+    loner->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
+}
+
+void ActorManager::SyncLinkedActors()
+{
+    // Sync shared state (debugviews, pause, repair) between linked actors
+    // Reset state of non-linked actors
+    // -------------------------------------------------------------------
+
+    // For now, we only sync state of player-driven actor with all it's linked actors
+    // TBD: Maintain a graph of master->slave relations so AI vehicles sync too.
+    if (App::GetGameContext()->GetPlayerActor())
+    {
+        for (const ActorPtr& actor : App::GetGameContext()->GetPlayerActor()->ar_linked_actors)
+        {
+            SyncSlaveActorWithMasterActor(actor, App::GetGameContext()->GetPlayerActor());
+        }
+    }
+
+    // Reset unlinked actors, except the player actor
+    for (const ActorPtr& actor: m_actors)
+    {
+        if (actor->ar_linked_actors.size() == 0
+            && actor != App::GetGameContext()->GetPlayerActor())
+        {
+            ResetUnlinkedActor(actor);
+        }
+    }
+}
+
 void ActorManager::UpdateSleepingState(ActorPtr player_actor, float dt)
 {
     if (!m_forced_awake)

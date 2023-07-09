@@ -123,28 +123,14 @@ void RepairMode::UpdateInputEvents(float dt)
 
             App::GetGameContext()->GetPlayerActor()->requestRotation(rotation, rotation_center);
             App::GetGameContext()->GetPlayerActor()->requestTranslation(translation);
-
-            if (App::sim_soft_reset_mode->getBool())
-            {
-                for (ActorPtr& actor : App::GetGameContext()->GetPlayerActor()->ar_linked_actors)
-                {
-                    actor->requestRotation(rotation, rotation_center);
-                    actor->requestTranslation(translation);
-                }
-            }
+            // NOTE: Syncing with linked actors is done in `SyncLinkedActors()`
 
             m_live_repair_timer = 0.0f;
         }
         else if (App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
         {
             App::GetGameContext()->GetPlayerActor()->requestAngleSnap(45);
-            if (App::sim_soft_reset_mode->getBool())
-            {
-                for (ActorPtr& actor : App::GetGameContext()->GetPlayerActor()->ar_linked_actors)
-                {
-                    actor->requestAngleSnap(45);
-                }
-            }
+            // NOTE: Syncing with linked actors is done in `SyncLinkedActors()`
         }
         else
         {
