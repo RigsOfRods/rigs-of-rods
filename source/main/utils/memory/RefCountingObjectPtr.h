@@ -52,8 +52,8 @@ public:
     T* operator->() { return m_ref; }
     T* operator->() const { return m_ref; }
 
-    // Boolean conversion (classic pointer check)
-    operator bool() const { return (bool)m_ref; }
+    // Identity conversion (classic `if (foo) {}` pointer check... and also `std::map<>` identity comparsion)
+    operator long long() const { return reinterpret_cast<long long>(m_ref); }
 
     // GC callback
     void EnumReferences(AS_NAMESPACE_QUALIFIER asIScriptEngine *engine);
