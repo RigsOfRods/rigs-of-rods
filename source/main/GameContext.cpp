@@ -1329,19 +1329,13 @@ void GameContext::UpdateCommonInputEvents(float dt)
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_DEBUG_VIEW))
     {
         m_player_actor->GetGfxActor()->ToggleDebugView();
-        for (ActorPtr& actor : m_player_actor->ar_linked_actors)
-        {
-            actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
-        }
+        // NOTE: Syncing with linked actors is done in `SyncLinkedActors()`
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CYCLE_DEBUG_VIEWS))
     {
         m_player_actor->GetGfxActor()->CycleDebugViews();
-        for (ActorPtr& actor : m_player_actor->ar_linked_actors)
-        {
-            actor->GetGfxActor()->SetDebugView(m_player_actor->GetGfxActor()->GetDebugView());
-        }
+        // NOTE: Syncing with linked actors is done in `SyncLinkedActors()`
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK, 0.5f) &&
@@ -1400,10 +1394,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
     // toggle physics
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_PHYSICS))
     {
-        for (ActorPtr& actor : App::GetGameContext()->GetPlayerActor()->ar_linked_actors)
-        {
-            actor->ar_physics_paused = !App::GetGameContext()->GetPlayerActor()->ar_physics_paused;
-        }
+        // NOTE: Syncing with linked actors is done in `SyncLinkedActors()`
         App::GetGameContext()->GetPlayerActor()->ar_physics_paused = !App::GetGameContext()->GetPlayerActor()->ar_physics_paused;
     }
 

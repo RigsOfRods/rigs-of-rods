@@ -112,8 +112,12 @@ public:
 
     std::pair<ActorPtr, float> GetNearestActor(Ogre::Vector3 position);
 
+    /// @name Actor grouping
+    /// @{
     // A list of all beams interconnecting two actors
     std::map<beam_t*, std::pair<ActorPtr, ActorPtr>> inter_actor_links;
+    void SyncLinkedActors();
+    /// @}
 
     static const ActorPtr ACTORPTR_NULL; // Dummy value to be returned as const reference.
 

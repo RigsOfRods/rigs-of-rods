@@ -1098,6 +1098,9 @@ int main(int argc, char *argv[])
             App::GetSoundScriptManager()->update(dt); // update 3d audio listener position
 #endif // USE_OPENAL
 
+            // Sync shared state (lights, brakes, debugviews, pause/reset) between linked actors.
+            App::GetGameContext()->GetActorManager()->SyncLinkedActors();
+
 #ifdef USE_ANGELSCRIPT
             App::GetScriptEngine()->framestep(dt);
 #endif // USE_ANGELSCRIPT

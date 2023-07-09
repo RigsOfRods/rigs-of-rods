@@ -1794,12 +1794,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_speedo_highest_kph = m_actor->ar_speedo_max_kph;
     m_simbuf.simbuf_speedo_use_engine_max_rpm = m_actor->ar_gui_use_engine_max_rpm;
 
-    // Linked Actors
-    m_linked_gfx_actors.clear();
-    for (ActorPtr& actor : m_actor->ar_linked_actors)
-    {
-        m_linked_gfx_actors.insert(actor->GetGfxActor());
-    }
+
 }
 
 bool RoR::GfxActor::IsActorLive() const

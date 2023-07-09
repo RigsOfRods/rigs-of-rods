@@ -423,6 +423,12 @@ ActorPtrVec                        ar_linked_actors;              //!< Sim state
     // Gameplay state
     ActorState        ar_state = ActorState::LOCAL_SIMULATED;
 
+    // Repair state
+    Ogre::Vector3     m_rotation_request_center = Ogre::Vector3::ZERO;
+    float             m_rotation_request = 0.f;         //!< Accumulator
+    int               m_anglesnap_request = 0;        //!< Accumulator
+    Ogre::Vector3     m_translation_request = Ogre::Vector3::ZERO;      //!< Accumulator
+
     // Realtime node/beam structure editing helpers
     bool                    ar_nb_initialized = false;
     std::vector<float>      ar_nb_optimum;            //!< Temporary storage of the optimum search result
@@ -532,10 +538,6 @@ private:
     float             m_mouse_grab_move_force = 0.f;
     float             m_spawn_rotation = 0.f;
     Ogre::Timer       m_reset_timer;
-    Ogre::Vector3     m_rotation_request_center = Ogre::Vector3::ZERO;
-    float             m_rotation_request = 0.f;         //!< Accumulator
-    int               m_anglesnap_request = 0;        //!< Accumulator
-    Ogre::Vector3     m_translation_request = Ogre::Vector3::ZERO;      //!< Accumulator
     Ogre::Vector3     m_camera_gforces_accu = Ogre::Vector3::ZERO;      //!< Accumulator for 'camera' G-forces
     Ogre::Vector3     m_camera_gforces = Ogre::Vector3::ZERO;           //!< Physics state (global)
     Ogre::Vector3     m_camera_local_gforces_cur = Ogre::Vector3::ZERO; //!< Physics state (camera local)
