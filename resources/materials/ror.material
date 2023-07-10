@@ -1910,7 +1910,7 @@ material tracks/skyboxcol
 		pass
 		{
 			fog_override true
-			lighting off
+			lighting on
 			depth_write off
 //			depth_check off
 

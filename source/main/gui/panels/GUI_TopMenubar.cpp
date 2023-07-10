@@ -576,6 +576,17 @@ void TopMenubar::Update()
                 }
             }       
 #endif // USE_CAELUM
+            if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SANDSTORM)
+            {
+                ImGui::Separator();
+                ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Brightness:"));
+                float diff = App::GetGfxScene()->GetSceneManager()->getAmbientLight().r;
+                if (ImGui::SliderFloat("", &diff, 0.f, 0.9f, ""))
+                {
+                    App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(diff,diff,diff));
+                }
+            }
+
             if (RoR::App::gfx_water_waves->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED && App::GetGameContext()->GetTerrain()->getWater())
             {
                 if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
