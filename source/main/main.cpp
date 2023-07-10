@@ -572,7 +572,7 @@ int main(int argc, char *argv[])
                         {
                             SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
                         }
-                        App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
+                        App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
                         App::GetDiscordRpc()->UpdatePresence();
                         App::sim_state->setVal((int)SimState::RUNNING);
                         App::app_state->setVal((int)AppState::SIMULATION);
