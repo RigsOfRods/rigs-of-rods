@@ -4658,3 +4658,105 @@ std::string Actor::getTruckFileResourceGroup()
 {
     return m_gfx_actor->GetResourceGroup();
 }
+
+void Actor::CacheWalkietalkieLightControl(events ev, const Ogre::TexturePtr& icon)
+{
+    auto inserted_pair = m_walkietalkie_lights_cache.insert(
+        std::make_pair(ev, icon));
+    // Only increase the size if we added a new commandkey - there may be multiple commandbeams for the same key.
+    if (inserted_pair.second)
+    {
+        std::string text = App::GetInputEngine()->eventIDToDescription(ev);
+        ImVec2 text_size = ImGui::CalcTextSize(text.c_str());
+        m_walkietalkie_commandkeys_screensize.x = std::max(m_walkietalkie_commandkeys_screensize.x, text_size.x);
+        m_walkietalkie_commandkeys_screensize.y += text_size.y;
+        if (icon)
+        {
+            m_walkietalkie_commandkeys_screensize.x += 24.f + ImGui::GetStyle().ItemSpacing.x;
+            m_walkietalkie_commandkeys_screensize.y = std::max(24.f, text_size.y);
+        }
+    }
+}
+
+void Actor::CacheWalkietalkieCommandButtons()
+{
+    m_walkietalkie_commandkeys_cache.clear();
+    m_walkietalkie_commandkeys_screensize = ImVec2(0,0);
+
+     // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
+    for (int i = 1; i <= MAX_COMMANDS; i++)
+    {
+        if (this->ar_command_key[i].description == "hide")
+            continue;
+        if (this->ar_command_key[i].beams.empty() && this->ar_command_key[i].rotators.empty())
+            continue;
+
+
+        int eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", i));
+
+        for (commandbeam_t& cmdbeam: this->ar_command_key[i].beams)
+        {
+            std::string desc = "(unknown function)";
+            if (!this->ar_command_key[i].description.empty())
+            {
+                desc = this->ar_command_key[i].description.c_str();
+            }
+            std::string text = fmt::format("{} {}",
+                cmdbeam.cmb_is_contraction ? "Retract" : "Extend", 
+                desc);
+
+            auto inserted_pair = m_walkietalkie_commandkeys_cache.insert(
+                std::make_pair(eventID, text));
+            // Only increase the size if we added a new commandkey - there may be multiple commandbeams for the same key.
+            if (inserted_pair.second)
+            {
+                ImVec2 text_size = ImGui::CalcTextSize(text.c_str());
+                m_walkietalkie_commandkeys_screensize.x = std::max(m_walkietalkie_commandkeys_screensize.x, text_size.x);
+                m_walkietalkie_commandkeys_screensize.y += text_size.y;
+            }
+        }
+    }
+
+    // Now also cache light controls
+    // > Low beams
+    if (this->countFlaresByType(FlareType::HEADLIGHT) + this->countFlaresByType(FlareType::TAIL_LIGHT))
+    {
+        this->CacheWalkietalkieLightControl(EV_COMMON_TOGGLE_TRUCK_LOW_BEAMS, App::GetGuiManager()->SceneLabels.rc_headlight_icon);
+    }
+
+    // > High beams
+    if (this->countFlaresByType(FlareType::HIGH_BEAM))
+    {
+        this->CacheWalkietalkieLightControl(EV_COMMON_TOGGLE_TRUCK_HIGH_BEAMS, App::GetGuiManager()->SceneLabels.rc_headlight_icon);
+    }
+
+    // > Fog lights
+    if (this->countFlaresByType(FlareType::FOG_LIGHT))
+    {
+        this->CacheWalkietalkieLightControl(EV_COMMON_TOGGLE_TRUCK_FOG_LIGHTS, App::GetGuiManager()->SceneLabels.rc_headlight_icon);
+    }
+
+    // > Left blinker
+    if (this->countFlaresByType(FlareType::BLINKER_LEFT))
+    {
+        this->CacheWalkietalkieLightControl(EV_TRUCK_BLINK_LEFT, App::GetGuiManager()->SceneLabels.rc_left_blinker_icon);
+    }
+
+    // > Left blinker
+    if (this->countFlaresByType(FlareType::BLINKER_LEFT))
+    {
+        this->CacheWalkietalkieLightControl(EV_TRUCK_BLINK_LEFT, App::GetGuiManager()->SceneLabels.rc_left_blinker_icon);
+    }
+
+    // > Warn signal
+    if (this->countFlaresByType(FlareType::BLINKER_LEFT) + this->countFlaresByType(FlareType::BLINKER_RIGHT))
+    {
+        CacheWalkietalkieLightControl(EV_TRUCK_BLINK_WARN, App::GetGuiManager()->SceneLabels.rc_warning_light_icon);
+    }
+
+    // > Beacon toggle
+    if (this->GetGfxActor()->getNumBeacons())
+    {
+        CacheWalkietalkieLightControl(EV_COMMON_TOGGLE_TRUCK_BEACONS, App::GetGuiManager()->SceneLabels.rc_beacons_icon);
+    }
+}

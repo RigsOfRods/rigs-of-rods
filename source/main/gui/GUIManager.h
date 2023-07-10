@@ -48,6 +48,7 @@
 #include "GUI_SimActorStats.h"
 #include "GUI_SimPerfStats.h"
 #include "GUI_SurveyMap.h"
+#include "GUI_SceneLabels.h"
 #include "GUI_TextureToolWindow.h"
 #include "GUI_GameControls.h"
 #include "GUI_TopMenubar.h"
@@ -126,6 +127,7 @@ public:
     GUI::DirectionArrow         DirectionArrow;
     GUI::VehicleButtons         VehicleButtons;
     GUI::FlexbodyDebug          FlexbodyDebug;
+    GUI::SceneLabels          SceneLabels;
     Ogre::Overlay*              MenuWallpaper = nullptr;
 
     // GUI manipulation

@@ -440,6 +440,13 @@ ActorPtrVec                        ar_linked_actors;              //!< Sim state
     std::pair<float, float> ar_nb_wheels_d_interval;  //!< Search interval for springiness & damping of wheel / rim beams
     std::pair<float, float> ar_nb_wheels_k_interval;  //!< Search interval for springiness & damping of wheel / rim beams
 
+    // SceneLabels UI (commands, lights, etc...)
+    void CacheWalkietalkieCommandButtons();
+    void CacheWalkietalkieLightControl(events ev, const Ogre::TexturePtr& icon);
+    std::unordered_map<int, std::string> m_walkietalkie_commandkeys_cache; // eventID -> description
+    std::unordered_map<events, Ogre::TexturePtr> m_walkietalkie_lights_cache; // eventID -> icon (descriptions are provided by InputEngine)
+    ImVec2                                   m_walkietalkie_commandkeys_screensize; // total screensize
+
     // Bit flags
     bool ar_update_physics:1; //!< Physics state; Should this actor be updated (locally) in the next physics step?
     bool ar_disable_aerodyn_turbulent_drag:1; //!< Physics state

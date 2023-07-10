@@ -437,3 +437,20 @@ void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
     ImGui::EndChildFrame();
     ImGui::PopStyleVar(); // FramePadding
 }
+
+std::string RoR::FormatLabelWithDistance(const std::string& nick, float cam_dist)
+{
+    std::string caption;
+    if (cam_dist > 1000) // 1000 ... vlen
+    {
+        return nick + " (" + TOSTRING((float)(ceil(cam_dist / 100) / 10.0) ) + " km)";
+    }
+    else if (cam_dist > 20) // 20 ... vlen ... 1000
+    {
+        return nick + " (" + TOSTRING((int)cam_dist) + " m)";
+    }
+    else // 0 ... vlen ... 20
+    {
+        return nick;
+    }
+}

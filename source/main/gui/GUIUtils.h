@@ -84,4 +84,6 @@ void ImTerminateComboboxString(std::string& target);
 void ImDrawEventHighlighted(events input_event, bool force_active=false); ///!< Draws button displaying configured key combo and simulating the event when pressed.
 void ImDrawModifierKeyHighlighted(OIS::KeyCode key);
 
+std::string FormatLabelWithDistance(const std::string& nick, float cam_dist);
+
 } // namespace RoR

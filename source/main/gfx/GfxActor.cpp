@@ -54,6 +54,8 @@
 
 #include <Ogre.h>
 
+#include <algorithm>
+
 using namespace RoR;
 
 RoR::GfxActor::GfxActor(ActorPtr actor, ActorSpawner* spawner, std::string ogre_resource_group,
@@ -1964,7 +1966,7 @@ void RoR::GfxActor::UpdateWalkieTalkieLabels(float dt)
     float y_offset = (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_pos.y) + (vlen / 100.0);
     Ogre::Vector3 scene_pos = m_simbuf.simbuf_pos + Ogre::Vector3::UNIT_Y * y_offset;
 
-    App::GetGfxScene()->DrawWalkieTalkieLabel(scene_pos, vlen, m_actor);
+    App::GetGuiManager()->SceneLabels.DrawInstance(scene_pos, vlen, m_actor);
 
 }
 
@@ -3220,4 +3222,9 @@ void RoR::GfxActor::RemoveBeam(int beam_index)
         }
         itor++;
     }
+}
+
+int RoR::GfxActor::getNumBeacons() const
+{
+    return std::count_if(m_props.begin(), m_props.end(), [](const Prop& p) { return p.pp_beacon_type != 0; });
 }

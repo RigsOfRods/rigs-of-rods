@@ -28,6 +28,7 @@
 #include "Collisions.h"
 #include "GameContext.h"
 #include "GfxScene.h"
+#include "GUIManager.h"
 #include "InputEngine.h"
 #include "MovableText.h"
 #include "Network.h"
@@ -722,6 +723,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         Ogre::Vector3 scene_pos = xc_scenenode->getPosition();
         scene_pos.y += (1.9f + camDist / 100.0f);
 
-        App::GetGfxScene()->DrawWalkieTalkieLabel(scene_pos, camDist, nullptr);
+        App::GetGuiManager()->SceneLabels.DrawInstance(scene_pos, camDist, nullptr);
+
     }
 }
