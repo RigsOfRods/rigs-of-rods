@@ -47,7 +47,19 @@
 
 #define RESOURCE_FILENAME "MyGUI_Core.xml"
 
-namespace RoR {
+using namespace RoR;
+
+/// Global list of UI Presets, selectable via Settings menu in TopMenubar
+UiPresetEntry RoR::UiPresets[] =
+{
+    // Cvar name                      | NOVICE, REGULAR, EXPERT, MINIMALLIST
+    { "gfx_declutter_map",            {"false", "true", "false", "true"} },
+    { "ui_show_live_repair_controls", {"true", "false", "false", "false"} },
+    { "sim_quickload_dialog",         {"true", "false", "false", "false"} },
+
+    // List closure
+    { nullptr, {} }
+};
 
 GUIManager::GUIManager()
 {
@@ -124,6 +136,19 @@ bool GUIManager::AreStaticMenusAllowed() //!< i.e. top menubar / vehicle UI butt
             !this->MainSelector.IsHovered() &&
             !this->SurveyMap.IsHovered() &&
             !this->FlexbodyDebug.IsHovered());
+}
+
+void GUIManager::ApplyUiPreset() //!< reads cvar 'ui_preset'
+{
+    const int preset = App::ui_preset->getInt();
+    int i = 0;
+    while (UiPresets[i].uip_cvar != nullptr)
+    {
+        App::GetConsole()->cVarSet(
+            UiPresets[i].uip_cvar,
+            UiPresets[i].uip_values[preset]);
+        i++;
+    }
 }
 
 void GUIManager::DrawSimulationGui(float dt)
@@ -532,5 +557,3 @@ void GUIManager::UpdateInputEvents(float dt)
         }
     }
 }
-
-} // namespace RoR

@@ -26,6 +26,7 @@
 
 #include "OgreImGui.h"
 #include "Application.h"
+#include "CVar.h"
 #include "GUI_MessageBox.h"
 
 // GUI panels
@@ -59,7 +60,17 @@
 #include <MyGUI_UString.h>
 #include <OgreOverlay.h>
 
+#include <string>
+
 namespace RoR {
+
+struct UiPresetEntry
+{
+    const char* uip_cvar;
+    std::string uip_values[(int)UiPreset::Count];
+};
+
+extern UiPresetEntry UiPresets[];
 
 class GUIManager
 {
@@ -131,6 +142,7 @@ public:
     bool IsGuiCaptureKeyboardRequested() const { return m_gui_kb_capture_requested; }
     void ApplyGuiCaptureKeyboard(); //!< Call after rendered frame to apply queued value
     bool AreStaticMenusAllowed(); //!< i.e. top menubar / vehicle UI buttons
+    void ApplyUiPreset(); //!< reads cvar 'ui_preset'
 
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
