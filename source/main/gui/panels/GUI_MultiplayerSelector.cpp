@@ -193,6 +193,7 @@ void MultiplayerSelector::DrawSetupTab()
     DrawGCheckbox(App::mp_hide_net_labels,    _LC("MultiplayerSelector", "Hide net labels"));
     DrawGCheckbox(App::mp_hide_own_net_label, _LC("MultiplayerSelector", "Hide own net label"));
     DrawGCheckbox(App::mp_pseudo_collisions,  _LC("MultiplayerSelector", "Multiplayer collisions"));
+    DrawGCheckbox(App::mp_cyclethru_net_actors, _LC("MultiplayerSelector", "Include remote actors when cycling via hotkeys"));
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + BUTTONS_EXTRA_SPACE);
     ImGui::Separator();

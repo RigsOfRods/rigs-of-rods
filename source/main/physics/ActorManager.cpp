@@ -953,6 +953,9 @@ void ActorManager::DeleteActorInternal(ActorPtr actor)
         m_actors[i]->ar_vector_index = i;
 }
 
+// ACTORLIST for cycling with hotkeys
+// ----------------------------------
+
 int FindPivotActorId(ActorPtr player, ActorPtr prev_player)
 {
     if (player != nullptr)
@@ -962,29 +965,42 @@ int FindPivotActorId(ActorPtr player, ActorPtr prev_player)
     return -1;
 }
 
+bool ShouldIncludeActorInList(const ActorPtr& actor)
+{
+    bool retval = !actor->isPreloadedWithTerrain();
+
+    // Exclude remote actors, if desired
+    if (!App::mp_cyclethru_net_actors->getBool())
+    {
+        if (actor->ar_state == ActorState::NETWORKED_OK || actor->ar_state == ActorState::NETWORKED_HIDDEN)
+        {
+            retval = false;
+        }
+    }
+
+    return retval;
+}
+
 const ActorPtr& ActorManager::FetchNextVehicleOnList(ActorPtr player, ActorPtr prev_player)
 {
     int pivot_index = FindPivotActorId(player, prev_player);
 
     for (int i = pivot_index + 1; i < m_actors.size(); i++)
     {
-        if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
-        {
+        if (ShouldIncludeActorInList(m_actors[i]))
             return m_actors[i];
-        }
     }
 
     for (int i = 0; i < pivot_index; i++)
     {
-        if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
-        {
+        if (ShouldIncludeActorInList(m_actors[i]))
             return m_actors[i];
-        }
     }
 
-    if (pivot_index >= 0 && m_actors[pivot_index]->ar_state != ActorState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
+    if (pivot_index >= 0)
     {
-        return m_actors[pivot_index];
+        if (ShouldIncludeActorInList(m_actors[pivot_index]))
+            return m_actors[pivot_index];
     }
 
     return ACTORPTR_NULL;
@@ -996,27 +1012,26 @@ const ActorPtr& ActorManager::FetchPreviousVehicleOnList(ActorPtr player, ActorP
 
     for (int i = pivot_index - 1; i >= 0; i--)
     {
-        if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
-        {
+        if (ShouldIncludeActorInList(m_actors[i]))
             return m_actors[i];
-        }
     }
 
     for (int i = static_cast<int>(m_actors.size()) - 1; i > pivot_index; i--)
     {
-        if (m_actors[i]->ar_state != ActorState::NETWORKED_OK && !m_actors[i]->isPreloadedWithTerrain())
-        {
+        if (ShouldIncludeActorInList(m_actors[i]))
             return m_actors[i];
-        }
     }
 
-    if (pivot_index >= 0 && m_actors[pivot_index]->ar_state != ActorState::NETWORKED_OK && !m_actors[pivot_index]->isPreloadedWithTerrain())
+    if (pivot_index >= 0)
     {
-        return m_actors[pivot_index];
+        if (ShouldIncludeActorInList(m_actors[pivot_index]))
+            return m_actors[pivot_index];
     }
 
     return ACTORPTR_NULL;
 }
+
+// END actorlist
 
 const ActorPtr& ActorManager::FetchRescueVehicle()
 {

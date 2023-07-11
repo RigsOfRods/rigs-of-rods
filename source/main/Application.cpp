@@ -123,6 +123,7 @@ CVar* mp_server_password;
 CVar* mp_player_name;
 CVar* mp_player_token;
 CVar* mp_api_url;
+CVar* mp_cyclethru_net_actors;
 
 // New remote API
 CVar* remote_query_url;

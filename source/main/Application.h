@@ -326,6 +326,7 @@ extern CVar* mp_server_password;
 extern CVar* mp_player_name;
 extern CVar* mp_player_token;
 extern CVar* mp_api_url;
+extern CVar* mp_cyclethru_net_actors; //!< Include remote actors when cycling through with CTRL + [ and CTRL + ]
 
 // New remote API
 extern CVar* remote_query_url;
