@@ -31,9 +31,8 @@
 #include "ForwardDeclarations.h"
 #include "Str.h"
 
-#ifdef USE_REMOTERY
+// Always include remotery to satisfy macros; profiling is toggled using `RMT_ENABLED` in 'main/CMakeLists.txt'
 #include "Remotery.h"
-#endif //USE_REMOTERY
 
 #include <fmt/format.h>
 #include <OgreStringConverter.h>

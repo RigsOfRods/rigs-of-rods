@@ -470,6 +470,8 @@ void Actor::pushNetwork(char* data, int size)
 
 void Actor::calcNetwork()
 {
+    rmt_ScopedCPUSample(Actor_calcNetwork, 0);
+
     using namespace RoRnet;
 
     if (m_net_updates.size() < 2)
@@ -1748,6 +1750,8 @@ void Actor::ForceFeedbackStep(int steps)
 
 void Actor::HandleAngelScriptEvents(float dt)
 {
+    rmt_ScopedCPUSample(Actor_HandleAngelScriptEvents, 0);
+
 #ifdef USE_ANGELSCRIPT
 
     if (m_water_contact && !m_water_contact_old)
@@ -1851,6 +1855,8 @@ void Actor::searchBeamDefaults()
 
 void Actor::HandleInputEvents(float dt)
 {
+    rmt_ScopedCPUSample(Actor_HandleInputEvents, 0);
+
     if (!m_ongoing_reset)
         return;
 
@@ -1920,6 +1926,8 @@ void Actor::sendStreamSetup()
 
 void Actor::sendStreamData()
 {
+    rmt_ScopedCPUSample(Actor_sendStreamData, 0);
+
     using namespace RoRnet;
 #ifdef USE_SOCKETW
     if (ar_net_timer.getMilliseconds() - ar_net_last_update_time < 100)
@@ -2882,6 +2890,8 @@ void Actor::setAirbrakeIntensity(float intensity)
 // call this once per frame in order to update the skidmarks
 void Actor::updateSkidmarks()
 {
+    rmt_ScopedCPUSample(Actor_updateSkidmarks, 0);
+
     for (int i = 0; i < ar_num_wheels; i++)
     {
         if (!m_skid_trails[i])
@@ -2975,6 +2985,8 @@ void Actor::forceAllFlaresOff()
 
 void Actor::updateFlareStates(float dt)
 {
+    rmt_ScopedCPUSample(Actor_updateFlareStates, 0);
+
     if (m_flares_mode == GfxFlaresMode::NONE) { return; }
 
     for (size_t i = 0; i < this->ar_flares.size(); i++)
@@ -3166,6 +3178,8 @@ void Actor::updateSoundSources()
 
 void Actor::updateVisual(float dt)
 {
+    rmt_ScopedCPUSample(Actor_updateVisual, 0);
+
     Vector3 ref(Vector3::UNIT_Y);
     autoBlinkReset();
     updateSoundSources();
@@ -3877,6 +3891,8 @@ bool Actor::isLocked()
 
 void Actor::updateDashBoards(float dt)
 {
+    rmt_ScopedCPUSample(Actor_updateDashBoards, 0);
+
     if (!ar_dashboard)
         return;
     // some temp vars

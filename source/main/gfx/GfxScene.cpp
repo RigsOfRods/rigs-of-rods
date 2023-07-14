@@ -90,6 +90,7 @@ void GfxScene::Init()
 void GfxScene::UpdateScene(float dt_sec)
 {
     rmt_ScopedCPUSample(GfxScene_UpdateScene, 0);
+
     // Actors - start threaded tasks
     for (GfxActor* gfx_actor: m_live_gfx_actors)
     {
@@ -281,6 +282,8 @@ void GfxScene::RegisterGfxActor(RoR::GfxActor* gfx_actor)
 
 void GfxScene::BufferSimulationData()
 {
+    rmt_ScopedCPUSample(GfxScene_BufferSimulationData, 0);
+
     m_simbuf.simbuf_player_actor = App::GetGameContext()->GetPlayerActor();
     m_simbuf.simbuf_character_pos = App::GetGameContext()->GetPlayerCharacter()->getPosition();
     m_simbuf.simbuf_sim_paused = App::GetGameContext()->GetActorManager()->IsSimulationPaused();

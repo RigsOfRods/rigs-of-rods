@@ -160,6 +160,8 @@ void GUIManager::DrawSimulationGui(float dt)
 
 void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
 {
+    rmt_ScopedCPUSample(GUIManager_DrawSimGuiBuffered, 0);
+
     this->DrawCommonGui();
 
     if (player_gfx_actor && this->SimActorStats.IsVisible())
@@ -375,6 +377,8 @@ void GUIManager::SetupImGui()
 
 void GUIManager::DrawCommonGui()
 {
+    rmt_ScopedCPUSample(GUIManager_DrawCommonGui, 0);
+
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !m_hide_gui)
     {
         this->MpClientList.Draw();

@@ -601,6 +601,8 @@ void RoR::GfxCharacter::BufferSimulationData()
 
 void RoR::GfxCharacter::UpdateCharacterInScene()
 {
+    rmt_ScopedCPUSample(GfxCharacter_UpdateCharacterInScene, 0);
+
     // Actor coupling
     if (xc_simbuf.simbuf_actor_coupling != xc_simbuf_prev.simbuf_actor_coupling)
     {

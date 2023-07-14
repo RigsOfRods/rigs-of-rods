@@ -128,10 +128,12 @@ int main(int argc, char *argv[])
         {
             return -1; // Error already displayed
         }
-#ifdef USE_REMOTERY
+
+        // Remotery profiling macros are toggled using `RMT_ENABLED` in 'main/CMakeLists.txt'
         Remotery* rmt;
         rmt_CreateGlobalInstance(&rmt);
-#endif
+        rmt_SetCurrentThreadName("Main (render) thread");
+
         // Make sure config directory exists - to save 'ogre.cfg'
         CreateFolder(App::sys_config_dir->getStr());
 
@@ -320,20 +322,16 @@ int main(int argc, char *argv[])
         {
             rmt_ScopedCPUSample(MainLoop, 0);
 
-            rmt_BeginCPUSample(MainLoop_window_messages, 0);
             OgreBites::WindowEventUtilities::messagePump();
-            rmt_EndCPUSample(MainLoop_window_messages);
 
-            rmt_BeginCPUSample(MainLoop_sync_with_simthread, 0);
             // Halt physics (wait for async tasks to finish)
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {
                 App::GetGameContext()->GetActorManager()->SyncWithSimThread();
             }
-            rmt_EndCPUSample(MainLoop_sync_with_simthread);
 
             // Game events
-            rmt_BeginCPUSample(MainLoop_message_queue, 0);
+            rmt_BeginCPUSample(MainLoop__message_queue, 0);
             while (App::GetGameContext()->HasMessages())
             {
                 Message m = App::GetGameContext()->PopMessage();
@@ -970,7 +968,7 @@ int main(int argc, char *argv[])
                 }
 
             } // Game events block
-            rmt_EndCPUSample(MainLoop_message_queue);
+            rmt_EndCPUSample(); // MainLoop__message_queue
 
             // Check FPS limit
             if (App::gfx_fps_limit->getInt() > 0)
@@ -989,6 +987,7 @@ int main(int argc, char *argv[])
             start_time = now;
 
 #ifdef USE_SOCKETW
+            rmt_BeginCPUSample(MainLoop__net_incoming, 0);
             // Process incoming network traffic
             if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {
@@ -1004,9 +1003,11 @@ int main(int argc, char *argv[])
                     }
                 }
             }
+            rmt_EndCPUSample(); //MainLoop__net_incoming
 #endif // USE_SOCKETW
 
             // Process input events
+            rmt_BeginCPUSample(MainLoop__input_events, 0);
             if (dt != 0.f)
             {
                 App::GetInputEngine()->Capture();
@@ -1073,6 +1074,7 @@ int main(int argc, char *argv[])
                     } // app state SIMULATION
                 } // interactive key binding mode
             } // dt != 0
+            rmt_EndCPUSample(); // MainLoop__input_events
 
             // Update OutGauge device
             if (App::io_outgauge_mode->getInt() > 0)
@@ -1081,6 +1083,7 @@ int main(int argc, char *argv[])
             }
 
             // Early GUI updates which require halted physics
+            rmt_BeginCPUSample(MainLoop__early_gui, 0);
             App::GetGuiManager()->NewImGuiFrame(dt);
             if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {
@@ -1098,6 +1101,7 @@ int main(int argc, char *argv[])
                     }
                 }
             }
+            rmt_EndCPUSample(); // MainLoop__early_gui
 
 #ifdef USE_MUMBLE
             if (App::GetMumble())
@@ -1149,6 +1153,7 @@ int main(int argc, char *argv[])
             }
 
             // Render!
+            rmt_BeginCPUSample(MainLoop__render, 0);
             Ogre::RenderWindow* render_window = RoR::App::GetAppContext()->GetRenderWindow();
             if (render_window->isClosed())
             {
@@ -1162,6 +1167,7 @@ int main(int argc, char *argv[])
                     render_window->update(); // update even when in background !
                 }
             } // Render block
+            rmt_EndCPUSample(); // MainLoop__render
 
             App::GetGuiManager()->ApplyGuiCaptureKeyboard();
 

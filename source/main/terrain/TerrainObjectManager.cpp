@@ -936,6 +936,8 @@ void TerrainObjectManager::LoadPredefinedActors()
 
 bool TerrainObjectManager::UpdateTerrainObjects(float dt)
 {
+    rmt_ScopedCPUSample(TerrainObjectManager_UpdateTerrainObjects, 0);
+
 #ifdef USE_PAGED
     for (auto geom : m_paged_geometry)
     {

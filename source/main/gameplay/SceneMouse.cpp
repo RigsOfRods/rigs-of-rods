@@ -211,6 +211,8 @@ void SceneMouse::UpdateSimulation()
 
 void SceneMouse::UpdateVisuals()
 {
+    rmt_ScopedCPUSample(SceneMouse_UpdateVisuals, 0);
+
     if (grab_truck == nullptr)
     {
         pickLineNode->setVisible(false);   // Hide the line     

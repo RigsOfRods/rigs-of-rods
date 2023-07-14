@@ -624,6 +624,8 @@ void Water::UpdateReflectionPlane(float h)
 
 void Water::FrameStepWater(float dt)
 {
+    rmt_ScopedCPUSample(Water_FrameStepWater, 0);
+
     if (dt)
     {
         this->UpdateWater();
