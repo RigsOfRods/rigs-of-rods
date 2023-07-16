@@ -568,7 +568,9 @@ String ScriptEngine::composeModuleName(String const& scriptName, ScriptCategory 
     return fmt::format("{}(category:{},unique ID:{})", scriptName, ScriptCategoryToString(origin), id);
 }
 
-ScriptUnitId_t ScriptEngine::loadScript(String scriptName, ScriptCategory category/* = ScriptCategory::TERRAIN*/, ActorPtr associatedActor /*= nullptr*/)
+ScriptUnitId_t ScriptEngine::loadScript(
+    String scriptName, ScriptCategory category/* = ScriptCategory::TERRAIN*/,
+    ActorPtr associatedActor /*= nullptr*/, std::string buffer /* =""*/)
 {
     // This function creates a new script unit, tries to set it up and removes it if setup fails.
     // -----------------------------------------------------------------------------------------
@@ -582,6 +584,7 @@ ScriptUnitId_t ScriptEngine::loadScript(String scriptName, ScriptCategory catego
     m_script_units[unit_id].uniqueId = unit_id;
     m_script_units[unit_id].scriptName = scriptName;
     m_script_units[unit_id].scriptCategory = category;
+    m_script_units[unit_id].scriptBuffer = buffer;
     if (category == ScriptCategory::TERRAIN)
     {
         m_terrain_script_unit = unit_id;
@@ -595,7 +598,7 @@ ScriptUnitId_t ScriptEngine::loadScript(String scriptName, ScriptCategory catego
     int result = this->setupScriptUnit(unit_id);
 
     // Regardless of result, add to recent script list. Running scripts are filtered out when displaying.
-    if (category == ScriptCategory::CUSTOM)
+    if (category == ScriptCategory::CUSTOM && buffer == "")
     {
         CvarAddFileToList(App::app_recent_scripts, scriptName);
     }
@@ -649,13 +652,27 @@ int ScriptEngine::setupScriptUnit(int unit_id)
         }
     }
 
-    // Load the script from the file system.
-    result = builder.AddSectionFromFile(m_script_units[unit_id].scriptName.c_str());
-    if ( result < 0 )
+    // If buffer is non-empty, load from memory; otherwise from filesystem as usual.
+    if (m_script_units[unit_id].scriptBuffer != "")
     {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format("Could not load script '{}' - failed to process file.", moduleName));
-        return result;
+        result = m_script_units[unit_id].scriptModule->AddScriptSection(m_script_units[unit_id].scriptName.c_str(), m_script_units[unit_id].scriptBuffer.c_str());
+        if (result < 0)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("Could not load script '{}' from buffer", moduleName));
+            return result;
+        }
+    }
+    else
+    {
+        // Load the script from the file system.
+        result = builder.AddSectionFromFile(m_script_units[unit_id].scriptName.c_str());
+        if ( result < 0 )
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("Could not load script '{}' - failed to process file.", moduleName));
+            return result;
+        }
     }
 
     // Build the AngelScript module - this loads `#include`-d scripts

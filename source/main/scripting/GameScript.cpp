@@ -1338,8 +1338,11 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
     case MSG_APP_LOAD_SCRIPT_REQUESTED:         //!< Payload = RoR::LoadScriptRequest* (owner)
     {
         LoadScriptRequest* rq = new LoadScriptRequest();
-        if (!this->GetValueFromDict(log_msg, dict, /*required:*/true, "filename", "string", rq->lsr_filename))
+        bool has_filename = this->GetValueFromDict(log_msg, dict, /*required:*/false, "filename", "string", rq->lsr_filename);
+        bool has_buffer = this->GetValueFromDict(log_msg, dict, /*required:*/false, "buffer", "string", rq->lsr_buffer);
+        if (!has_filename && !has_buffer)
         {
+            this->log(fmt::format("{}: ERROR, either 'filename' or 'buffer' must be set!", log_msg));
             delete rq;
             return false;
         }
