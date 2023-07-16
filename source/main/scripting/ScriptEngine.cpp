@@ -191,6 +191,10 @@ void ScriptEngine::msgCallback(const AngelScript::asSMessageInfo *msg)
     char tmp[1024]="";
     sprintf(tmp, "%s (%d, %d): %s = %s", msg->section, msg->row, msg->col, type, msg->message);
     SLOG(tmp);
+
+    this->triggerEvent(SE_ANGELSCRIPT_MSGCALLBACK,
+        m_currently_executing_script_unit, msg->type, msg->row, msg->col, // ints
+        msg->section, msg->message); // strings
 }
 
 int ScriptEngine::framestep(Real dt)
