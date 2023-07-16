@@ -52,8 +52,9 @@ enum scriptEvents
     SE_TRUCK_MOUSE_GRAB                = BITMASK(17), //!< triggered when the user uses the mouse to interact with the actor, the argument refers to the actor ID
 
     SE_ANGELSCRIPT_MANIPULATIONS       = BITMASK(18), //!< triggered when the user tries to dynamically use the scripting capabilities (prevent cheating)
+    SE_ANGELSCRIPT_MSGCALLBACK         = BITMASK(19), //!< The diagnostic info directly from AngelScript engine (see `asSMessageInfo`), args: #1 ScriptUnitID, #2 asEMsgType, #3 row, #4 col, #5 sectionName, #6 message
 
-    SE_GENERIC_MESSAGEBOX_CLICK        = BITMASK(19), //!< triggered when the user clicks on a message box button, the argument refers to the button pressed
+    SE_GENERIC_MESSAGEBOX_CLICK        = BITMASK(20), //!< triggered when the user clicks on a message box button, the argument refers to the button pressed
 
     SE_ALL_EVENTS                      = 0xffffffff,
 

@@ -68,6 +68,7 @@ void print(const string message);
     SE_TRUCK_MOUSE_GRAB                //!< triggered when the user uses the mouse to interact with the actor, the argument refers to the Actor Instance ID (use `game.getTruckByNum()`)
 
  	SE_ANGELSCRIPT_MANIPULATIONS       //!< triggered when the user tries to dynamically use the scripting capabilities (prevent cheating)
+    SE_ANGELSCRIPT_MSGCALLBACK         //!< The diagnostic info directly from AngelScript engine (see `asSMessageInfo`), args: #1 ScriptUnitID, #2 asEMsgType, #3 row, #4 col, #5 sectionName, #6 message
 
  	SE_GENERIC_MESSAGEBOX_CLICK        //!< triggered when the user clicks on a message box button, the argument refers to the button pressed
 
