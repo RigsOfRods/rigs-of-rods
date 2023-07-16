@@ -397,7 +397,7 @@ int main(int argc, char *argv[])
                 {
                     LoadScriptRequest* request = static_cast<LoadScriptRequest*>(m.payload);
                     ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(request->lsr_associated_actor);
-                    App::GetScriptEngine()->loadScript(request->lsr_filename, request->lsr_category, actor);
+                    App::GetScriptEngine()->loadScript(request->lsr_filename, request->lsr_category, actor, request->lsr_buffer);
                     delete request;
                     break;
                 }

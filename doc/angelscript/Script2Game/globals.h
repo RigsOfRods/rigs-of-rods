@@ -483,7 +483,7 @@ enum MsgType
     MSG_APP_MODCACHE_LOAD_REQUESTED,           //!< Internal for game startup, DO NOT PUSH MANUALLY.
     MSG_APP_MODCACHE_UPDATE_REQUESTED,         //!< Rescan installed mods and update cache. No params.
     MSG_APP_MODCACHE_PURGE_REQUESTED,          //!< Request cleanup and full rebuild of mod cache.
-    MSG_APP_LOAD_SCRIPT_REQUESTED,             //!< Request loading a script; Params 'filename' (string), 'category' (ScriptCategory), 'associated_actor' (int - only for SCRIPT_CATEGORY_ACTOR)
+    MSG_APP_LOAD_SCRIPT_REQUESTED,             //!< Request loading a script from resource(file) or memory; Params 'filename' (string)/'buffer'(string - has precedence over filename), 'category' (ScriptCategory), 'associated_actor' (int - only for SCRIPT_CATEGORY_ACTOR)
     MSG_APP_UNLOAD_SCRIPT_REQUESTED,           //!< Request unloading a script; Param 'id' (int - the ID of the script unit, see 'Script Monitor' tab in console UI.)   
     // Networking
     MSG_NET_CONNECT_REQUESTED,                 //!< Request connection to multiplayer server specified by cvars 'mp_server_host, mp_server_port, mp_server_password'. No params.

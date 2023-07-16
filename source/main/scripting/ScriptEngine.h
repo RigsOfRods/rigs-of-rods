@@ -79,13 +79,15 @@ struct ScriptUnit
     ActorPtr associatedActor; //!< For ScriptCategory::ACTOR
     Ogre::String scriptName;
     Ogre::String scriptHash;
+    Ogre::String scriptBuffer;
 };
 
 typedef std::map<ScriptUnitId_t, ScriptUnit> ScriptUnitMap;
 
 struct LoadScriptRequest
 {
-    std::string lsr_filename;
+    std::string lsr_filename; //!< Load from resource (file). If buffer is supplied, use this as display name only.
+    std::string lsr_buffer; //!< Load from memory buffer.
     ScriptCategory lsr_category = ScriptCategory::TERRAIN;
     ActorInstanceID_t lsr_associated_actor = ACTORINSTANCEID_INVALID; //!< For ScriptCategory::ACTOR
 };
@@ -113,10 +115,14 @@ public:
 
     /**
      * Loads a script
-     * @param scriptname filename to load
+     * @param scriptname filename to load; if buffer is supplied, this is only a display name.
+     * @param category How to treat the script?
+     * @param associatedActor Only for category ACTOR
+     * @param buffer String with full script body; if empty, a file will be loaded as usual.
      * @return Unique ID of the script unit (because one script file can be loaded multiple times).
      */
-    ScriptUnitId_t loadScript(Ogre::String scriptname, ScriptCategory category = ScriptCategory::TERRAIN, ActorPtr associatedActor = nullptr);
+    ScriptUnitId_t loadScript(Ogre::String scriptname, ScriptCategory category = ScriptCategory::TERRAIN,
+        ActorPtr associatedActor = nullptr, std::string buffer = "");
 
     /**
      * Unloads a script
