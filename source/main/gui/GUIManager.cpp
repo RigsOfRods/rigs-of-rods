@@ -53,9 +53,9 @@ using namespace RoR;
 UiPresetEntry RoR::UiPresets[] =
 {
     // Cvar name                      | NOVICE, REGULAR, EXPERT, MINIMALLIST
-    { "gfx_declutter_map",            {"false", "true", "false", "true"} },
-    { "ui_show_live_repair_controls", {"true", "false", "false", "false"} },
-    { "sim_quickload_dialog",         {"true", "false", "false", "false"} },
+    { "gfx_surveymap_icons",          {"true",  "true",  "true",  "false"} },
+    { "gfx_declutter_map",            {"false", "true",  "false", "true"} },
+    { "ui_show_live_repair_controls", {"true",  "false", "false", "false"} },
 
     // List closure
     { nullptr, {} }
