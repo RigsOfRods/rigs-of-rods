@@ -187,7 +187,7 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
 
     // Columns
     engine->RegisterGlobalFunction("void Columns(int = 1, const string&in = string(), bool = true)", asFUNCTIONPR([](int a, const string& b, bool c) {  
-        ImGui::Columns(a, b.empty() ? b.c_str() : 0x0, c);  }, (int, const string&, bool), void), asCALL_CDECL);
+        ImGui::Columns(a, b.c_str(), c);  }, (int, const string&, bool), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void NextColumn()", asFUNCTIONPR([]() {  ImGui::NextColumn();  }, (), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("int GetColumnIndex()", asFUNCTIONPR([]() {  return ImGui::GetColumnIndex();  }, (), int), asCALL_CDECL);
     engine->RegisterGlobalFunction("float GetColumnWidth(int = -1)", asFUNCTIONPR([](int a) {  return ImGui::GetColumnWidth(a);  }, (int), float), asCALL_CDECL);
@@ -416,32 +416,32 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterGlobalFunction("bool BeginMenuBar()", asFUNCTIONPR([]() {  return ImGui::BeginMenuBar();  }, (), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("void EndMenuBar()", asFUNCTIONPR([]() {  ImGui::EndMenuBar();  }, (), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool BeginMenu(const string&in, bool = true)", asFUNCTIONPR([](const string& a, bool b) {  
-        return ImGui::BeginMenu(a.empty() ? a.c_str() : 0x0, b);  }, (const string&, bool), bool), asCALL_CDECL);
+        return ImGui::BeginMenu(a.c_str(), b);  }, (const string&, bool), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("void EndMenu()", asFUNCTIONPR([]() {  ImGui::EndMenu();  }, (), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool MenuItem(const string&in, const string&in = string(), bool = false, bool = true)", asFUNCTIONPR([](const string& a, const string& b, bool c, bool d) {  
-        return ImGui::MenuItem(a.empty() ? a.c_str() : 0x0, b.empty() ? b.c_str() : 0x0, c, d);  }, (const string&, const string&, bool, bool), bool), asCALL_CDECL);
+        return ImGui::MenuItem(a.c_str(), b.c_str(), c, d);  }, (const string&, const string&, bool, bool), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool MenuItem(const string&in, const string&in, bool &inout, bool = true)", asFUNCTIONPR([](const string& a, const string& b, bool& c, bool d) {  
-        return ImGui::MenuItem(a.empty() ? a.c_str() : 0x0, b.empty() ? b.c_str() : 0x0, &c, d);  }, (const string&, const string&, bool&, bool), bool), asCALL_CDECL);
+        return ImGui::MenuItem(a.c_str(), b.c_str(), &c, d);  }, (const string&, const string&, bool&, bool), bool), asCALL_CDECL);
 
     // Popups
-    engine->RegisterGlobalFunction("void OpenPopup(const string&in)", asFUNCTIONPR([](const string& a) {  ImGui::OpenPopup(a.empty() ? a.c_str() : 0x0);  }, (const string&), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void OpenPopup(const string&in)", asFUNCTIONPR([](const string& a) {  ImGui::OpenPopup(a.c_str());  }, (const string&), void), asCALL_CDECL);
    /* engine->RegisterGlobalFunction("bool BeginPopup(const string&in, int = 0)", asFUNCTIONPR([](const string& a, int b) {  
-        return ImGui::BeginPopup(a.empty() ? a.c_str() : 0x0, (ImGuiWindowFlags)b);  }, (const string&, int), bool), asCALL_CDECL);*/ // FIXME: update imgui!
+        return ImGui::BeginPopup(a.c_str(), (ImGuiWindowFlags)b);  }, (const string&, int), bool), asCALL_CDECL);*/ // FIXME: update imgui!
     engine->RegisterGlobalFunction("bool BeginPopup(const string&in, int = 0)", asFUNCTIONPR([](const string& a, int b) {  
-        return ImGui::BeginPopup(a.empty() ? a.c_str() : 0x0);  }, (const string&, int), bool), asCALL_CDECL);
+        return ImGui::BeginPopup(a.c_str());  }, (const string&, int), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool BeginPopupContextItem(const string&in = string(), int = 1)", asFUNCTIONPR([](const string& a, int b) {  
-        return ImGui::BeginPopupContextItem(a.empty() ? a.c_str() : 0x0, b);  }, (const string&, int), bool), asCALL_CDECL);
+        return ImGui::BeginPopupContextItem(a.c_str(), b);  }, (const string&, int), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool BeginPopupContextWindow(const string&in = string(), int = 1, bool = true)", asFUNCTIONPR([](const string& a, int b, bool c) {  
-        return ImGui::BeginPopupContextWindow(a.empty() ? a.c_str() : 0x0, b, c);  }, (const string&, int, bool), bool), asCALL_CDECL); // FIXME: update imgui! -- swapped args
+        return ImGui::BeginPopupContextWindow(a.c_str(), b, c);  }, (const string&, int, bool), bool), asCALL_CDECL); // FIXME: update imgui! -- swapped args
     engine->RegisterGlobalFunction("bool BeginPopupContextVoid(const string&in = string(), int = 1)", asFUNCTIONPR([](const string& a, int b) {  
-        return ImGui::BeginPopupContextVoid(a.empty() ? a.c_str() : 0x0, b);  }, (const string&, int), bool), asCALL_CDECL);
+        return ImGui::BeginPopupContextVoid(a.c_str(), b);  }, (const string&, int), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool BeginPopupModal(const string&in, bool &inout = null, int = 0)", asFUNCTIONPR([](const string& a, bool& b, int c) {  
-        return ImGui::BeginPopupModal(a.empty() ? a.c_str() : 0x0, &b, (ImGuiWindowFlags)c);  }, (const string&, bool&, int), bool), asCALL_CDECL);
+        return ImGui::BeginPopupModal(a.c_str(), &b, (ImGuiWindowFlags)c);  }, (const string&, bool&, int), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("void EndPopup()", asFUNCTIONPR([]() {  ImGui::EndPopup();  }, (), void), asCALL_CDECL);
 /*    engine->RegisterGlobalFunction("bool OpenPopupOnItemClick(const string&in = string(), int = 1)", asFUNCTIONPR([](const string& a, int b) {  
-        return ImGui::OpenPopupOnItemClick(a.empty() ? a.c_str() : 0x0, b);  }, (const string&, int), bool), asCALL_CDECL);*/ // FIXME: update imgui!
+        return ImGui::OpenPopupOnItemClick(a.c_str(), b);  }, (const string&, int), bool), asCALL_CDECL);*/ // FIXME: update imgui!
  /*   engine->RegisterGlobalFunction("bool IsPopupOpen(const string&in)", asFUNCTIONPR([](const string& a) {  
-        return ImGui::IsPopupOpen(a.empty() ? a.c_str() : 0x0);  }, (const string&), bool), asCALL_CDECL); */ // FIXME: update imgui!
+        return ImGui::IsPopupOpen(a.c_str());  }, (const string&), bool), asCALL_CDECL); */ // FIXME: update imgui!
     engine->RegisterGlobalFunction("void CloseCurrentPopup()", asFUNCTIONPR([]() {  ImGui::CloseCurrentPopup();  }, (), void), asCALL_CDECL);
 
     // Clip-rects
@@ -472,7 +472,7 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterGlobalFunction("int GetFrameCount()", asFUNCTIONPR([]() {  return ImGui::GetFrameCount();  }, (), int), asCALL_CDECL);
 
     engine->RegisterGlobalFunction("vector2 CalcTextSize(const string&in, const string&in = string(), bool = false, float = -1.0f)", asFUNCTIONPR([](const string& a, const string& b, bool c, float d) {  
-        auto v = ImGui::CalcTextSize(a.empty() ? a.c_str() : 0x0, b.empty() ? b.c_str() : 0x0, c, d); return Vector2(v.x, v.y); }, (const string&, const string&, bool, float), Vector2), asCALL_CDECL);
+        auto v = ImGui::CalcTextSize(a.c_str(), b.c_str(), c, d); return Vector2(v.x, v.y); }, (const string&, const string&, bool, float), Vector2), asCALL_CDECL);
     engine->RegisterGlobalFunction("void CalcListClipping(int, float, int&inout, int&inout)", asFUNCTIONPR([](int a, float b, int& c, int& d) {  
         ImGui::CalcListClipping(a, b, &c, &d);  }, (int,float,int&,int&), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool BeginChildFrame(uint, const vector2&, int = 0)", asFUNCTIONPR([](unsigned a, const Vector2& b, int c) {  
@@ -502,7 +502,7 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
 
 
     engine->RegisterGlobalFunction("string GetClipboardText()", asFUNCTIONPR([]() { return string(ImGui::GetClipboardText());  }, (), string), asCALL_CDECL);
-    engine->RegisterGlobalFunction("void SetClipboardText(const string&in)", asFUNCTIONPR([](const string& a) {  ImGui::SetClipboardText(a.empty() ? a.c_str() : 0x0);  }, (const string&), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void SetClipboardText(const string&in)", asFUNCTIONPR([](const string& a) {  ImGui::SetClipboardText(a.c_str());  }, (const string&), void), asCALL_CDECL);
 
     // Data plotting - we wrap the 'getter func' variant to resemble the 'float*' variant.
     //                                   PlotLines(const char* label, const float* values, int values_count, int values_offset = 0, const char* overlay_text = NULL, float scale_min = FLT_MAX, float scale_max = FLT_MAX, ImVec2 graph_size = ImVec2(0, 0), int stride = sizeof(float));
