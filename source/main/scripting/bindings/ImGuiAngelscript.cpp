@@ -114,11 +114,14 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
 
     // FUNCTIONS (namespace ImGui)
     engine->SetDefaultNamespace("ImGui");
-        
+    
+    // > Windows
     engine->RegisterGlobalFunction("bool Begin(const string&in, bool, int=0)", asFUNCTIONPR([](const string& name, bool opened, int flags) { return ImGui::Begin(name.c_str(), &opened, flags); }, (const string&, bool, int), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("void End()", asFUNCTIONPR(ImGui::End, (), void), asCALL_CDECL);
-    engine->RegisterGlobalFunction("bool BeginChild(const string&in)", asFUNCTIONPR([](const string& name) { 
-        return ImGui::Begin(name.c_str()); }, (const string&), bool), asCALL_CDECL);
+
+    // > Child windows
+    engine->RegisterGlobalFunction("bool BeginChild(const string&in, const vector2&in=vector2(0,0), bool=false, int=0)", asFUNCTIONPR([](const string& name, const Ogre::Vector2& size, bool border, int flags) { return ImGui::BeginChild(name.c_str(), ImVec2(size.x, size.y), border, flags); }, (const string&, const Ogre::Vector2&, bool, int), bool), asCALL_CDECL);
+    engine->RegisterGlobalFunction("bool BeginChild(uint, const vector2&in=vector2(0,0), bool=false, int=0)", asFUNCTIONPR([](ImGuiID id, const Ogre::Vector2& size, bool border, int flags) { return ImGui::BeginChild(id, ImVec2(size.x, size.y), border, flags); }, (ImGuiID, const Ogre::Vector2&, bool, int), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("void EndChild()", asFUNCTIONPR(ImGui::EndChild, (), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("ImDrawList@ GetWindowDrawList()", asFUNCTIONPR(ImGui::GetWindowDrawList, (), ImDrawList*), asCALL_CDECL);
     engine->RegisterGlobalFunction("void PushStyleColor(int index, const color&in color)", asFUNCTIONPR([](int index, Ogre::ColourValue const& col) { ImGui::PushStyleColor(index, (ImU32)ImColor(col.r, col.g, col.b, col.a)); }, (int, Ogre::ColourValue const&), void), asCALL_CDECL);
