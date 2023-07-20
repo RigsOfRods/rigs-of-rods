@@ -38,6 +38,17 @@ void eventCallbackEx(scriptEvents ev, // Invoked by the game when a registered e
 
 class ScriptEditor
 {
+    string BUFFER_TEXTINPUT_LABEL = "bufferTextInputLbl";
+    bool drawLineNumbers=true;
+    color lineNumberColor=color(1.f,1.f,0.7f,1.f);
+    bool drawLineLengths=true;
+    color lineLenColor=color(0.4f,0.3f,0.2f,1.f);
+    
+    string buffer;
+    array<dictionary> bufferLinesMeta;
+    
+    array<dictionary> messages;
+
     void draw()
     {
         int flags = ImGuiWindowFlags_MenuBar;
@@ -49,7 +60,7 @@ class ScriptEditor
         ImGui::End();
     }
     
-    void drawMenubar()
+    protected void drawMenubar()
     {
         if (ImGui::BeginMenuBar())
         {
@@ -67,26 +78,23 @@ class ScriptEditor
         }
     }
     
-    void drawTextArea()
+    protected void drawTextArea()
     {
-        const float NUMBERSCOLUMN_WIDTH = 10;
+        const float NUMBERSCOLUMN_WIDTH = 25;
+        const float LINELENCOLUMN_WIDTH = 36;
+        const float MENUBAR_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
+        const float FOOTER_HEIGHT = ImGui::GetTextLineHeightWithSpacing() + 8; // +2x vertical spacing
     
-        vector2 textAreaSize(ImGui::GetWindowSize().x - (20+NUMBERSCOLUMN_WIDTH), ImGui::GetWindowSize().y - 50);
-        ImGui::SetNextItemWidth(textAreaSize.x);
-        // FIXME: currently we can't set height because the binding is `InputTextMultiline(const string&in, string&inout)` and thats it.
+        vector2 textAreaSize(ImGui::GetWindowSize().x - (20+NUMBERSCOLUMN_WIDTH), ImGui::GetWindowSize().y - (MENUBAR_HEIGHT + FOOTER_HEIGHT));
         vector2 screenCursor = ImGui::GetCursorScreenPos();
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + NUMBERSCOLUMN_WIDTH);
-        bool changed = ImGui::InputTextMultiline(BUFFER_TEXTINPUT_LABEL, this.buffer);
+        if (this.drawLineNumbers)
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + NUMBERSCOLUMN_WIDTH);
+        if (this.drawLineLengths)
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + LINELENCOLUMN_WIDTH);            
+        bool changed = ImGui::InputTextMultiline(BUFFER_TEXTINPUT_LABEL, this.buffer, textAreaSize);
         if (changed)
         {
-            this.bufferNumLines = 1;
-            for (uint i = 0; i < this.buffer.length(); i++)
-            {
-                if (this.buffer[i] == uint(0x0a)) // ASCII newline
-                {
-                    this.bufferNumLines++;
-                }
-            }
+            this.analyzeBuffer();
         }
         
         // Trick: re-enter the inputtext panel to scroll it; see https://github.com/ocornut/imgui/issues/1523
@@ -98,14 +106,35 @@ class ScriptEditor
         maxScrollY = ImGui::GetScrollMaxY();
         ImGui::EndChild();
         
-        // Test: line numbers
-        ImDrawList@ drawlist = ImGui::GetWindowDrawList();
+        // Line numbers (and lengths)
         vector2 linenumCursorBase = screenCursor+vector2(0.f, -scrollY) + /*frame padding:*/vector2(0.f, 4.f);
-        vector2 linenumCursor = linenumCursorBase;
-        for (int linenum = 1; linenum <= this.bufferNumLines; linenum++)
+        ImDrawList@ drawlist = ImGui::GetWindowDrawList();
+        int bufferNumLines = int(this.bufferLinesMeta.length());
+        if (this.drawLineNumbers || this.drawLineLengths)
         {
-            drawlist.AddText(linenumCursor, color(1.f,1.f,0.7f,1.f), ""+linenum);
-            linenumCursor.y += ImGui::GetTextLineHeight();
+            
+            
+            vector2 linenumCursor = linenumCursorBase;
+            
+            for (int linenum = 1; linenum <= bufferNumLines; linenum++)
+            {
+                if (this.drawLineNumbers)
+                {
+                    drawlist.AddText(linenumCursor, this.lineNumberColor, ""+linenum);
+                    linenumCursor.x += NUMBERSCOLUMN_WIDTH;
+                }
+                
+                if (this.drawLineNumbers)
+                {
+                    drawlist.AddText(linenumCursor, this.lineLenColor,
+                        ""+int(this.bufferLinesMeta[linenum-1]['len']));
+                    linenumCursor.x += LINELENCOLUMN_WIDTH;                    
+                }
+                
+                // prepare new Line
+                linenumCursor.x = linenumCursorBase.x;
+                linenumCursor.y += ImGui::GetTextLineHeight();
+            }
         }
         
         // Test: messages
@@ -136,8 +165,9 @@ class ScriptEditor
         }
         
         // footer with status info
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.f);
         ImGui::Separator();
-        ImGui::Text("lines: "+this.bufferNumLines+"; messages:"+this.messages.length()+" scroll: X="+scrollX+"/"+maxScrollX+"; Y="+scrollY+"/"+maxScrollY+"");
+        ImGui::Text("lines: "+bufferNumLines+"; messages:"+this.messages.length()+" scroll: X="+scrollX+"/"+maxScrollX+"; Y="+scrollY+"/"+maxScrollY+"");
     }
     
     void runBuffer()
@@ -160,8 +190,47 @@ class ScriptEditor
         messages.insertLast({ {'type', msgType}, {'row',row}, {'col', col}, {'sectionName', sectionName}, {'message', message} });
     }
     
-    string buffer;
-    int bufferNumLines = 1;
-    string BUFFER_TEXTINPUT_LABEL = "bufferTextInputLbl";
-    array<dictionary> messages;
+    void analyzeBuffer()
+    {
+        this.bufferLinesMeta.resize(0); // clear all
+        int startOffset = 0;
+        this.bufferLinesMeta.insertLast({ {'startOffset', startOffset} });
+        int doubleslashCommentStart = -1; // offset, includes leading "//"; -1 means None
+        int doubleslashNumSlashes = 0;
+        
+        for (uint i = 0; i < this.buffer.length(); i++)
+        {
+            if (this.buffer[i] == uint(0x2f)) // ASCII forward slash '/'
+            {
+                if (doubleslashCommentStart==-1 && doubleslashNumSlashes == 0)
+                {
+                    // no comment yet and found '/' - mark it.
+                    doubleslashCommentStart = i;
+                }
+                doubleslashNumSlashes++;
+            }
+            else
+            {
+                doubleslashNumSlashes = 0;
+            }
+        
+            if (this.buffer[i] == uint(0x0a)) // ASCII newline
+            {
+                // Finish line
+                uint lineIdx = this.bufferLinesMeta.length() - 1;
+                int endOffset = i;
+                this.bufferLinesMeta[lineIdx]['endOffset'] = endOffset;
+                int len = endOffset - startOffset;
+                this.bufferLinesMeta[lineIdx]['len'] = len;
+                this.bufferLinesMeta[lineIdx]['doubleslashCommentStart'] = doubleslashCommentStart;
+                int nonCommentLen = (doubleslashCommentStart >= 0) ? doubleslashCommentStart - startOffset : len;
+                this.bufferLinesMeta[lineIdx]['nonCommentLen'] = nonCommentLen;
+                
+                // Start new line
+                startOffset = i+1;
+                this.bufferLinesMeta.insertLast({ {'startOffset', startOffset} });
+                doubleslashCommentStart = -1; // none yet.
+            }
+        }
+    }
 }
