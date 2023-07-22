@@ -3,7 +3,42 @@
 // Documentation: http://developer.rigsofrods.org
 // ================================================
 
+// Global definitions:
+// -------------------
+
+// from <angelscript.h>
+enum asEMsgType
+{
+	asMSGTYPE_ERROR       = 0,
+	asMSGTYPE_WARNING     = 1,
+	asMSGTYPE_INFORMATION = 2
+};
+const string BUFFER_TEXTINPUT_LABEL = "##bufferTextInputLbl";
 ScriptEditor editor;
+
+// Config:
+// -------
+
+// LINE METAINFO COLUMNS
+    // Line numbers
+    bool drawLineNumbers=true;
+    color lineNumberColor=color(1.f,1.f,0.7f,1.f);
+    float lineNumColumnWidth = 25;
+    // Line char counts        
+    bool drawLineLengths=true;
+    color lineLenColor=color(0.5f,0.4f,0.3f,1.f);
+    float lineLenColumnWidth = 25;
+    // Line err counts (error may span multiple AngelScript messages!)
+    bool drawLineErrCounts = true;
+    color lineErrCountColor = color(1.f,0.3f,0.2f,1.f);
+    float errCountColumnWidth = 18;
+// END line metainfo columns
+
+// EDITOR settings
+    color errorTextColor = color(1.f,0.3f,0.2f,1.f);
+    color errorTextBgColor = color(0.4f,0.1f,0.3f,1.f);
+    bool drawErrorText = true;
+// END editor
 
 // Callback functions for the game:
 // --------------------------------
@@ -12,6 +47,8 @@ void main() // Invoked by the game on startup
 {
     game.log("Script editor started!");
     game.registerForEvent(SE_ANGELSCRIPT_MSGCALLBACK);
+    editor.buffer=TUT_SCRIPT;
+    editor.analyzeLines();
 }
 
 
@@ -38,16 +75,27 @@ void eventCallbackEx(scriptEvents ev, // Invoked by the game when a registered e
 
 class ScriptEditor
 {
-    string BUFFER_TEXTINPUT_LABEL = "bufferTextInputLbl";
-    bool drawLineNumbers=true;
-    color lineNumberColor=color(1.f,1.f,0.7f,1.f);
-    bool drawLineLengths=true;
-    color lineLenColor=color(0.4f,0.3f,0.2f,1.f);
     
-    string buffer;
-    array<dictionary> bufferLinesMeta;
+    // THE TEXT BUFFER
+        string buffer; // buffer data
+        array<dictionary> bufferLinesMeta; // metadata for lines, see `analyzeLines()`
+        array<array<uint>> bufferMessageIDs;
+    // END text buffer
+        
+    // MESSAGES FROM ANGELSCRIPT ENGINE
+        array<dictionary> messages;
+        int messagesTotalErr = 0;
+        int messagesTotalWarn = 0;
+        int messagesTotalInfo = 0;
+    // END messages from angelscript
+
     
-    array<dictionary> messages;
+    // CONTEXT
+    float scrollY = 0.f;
+    float scrollX = 0.f;
+    float scrollMaxY = 0.f;
+    float scrollMaxX = 0.f;
+    float errCountOffset=0.f;
 
     void draw()
     {
@@ -68,7 +116,16 @@ class ScriptEditor
             {
                 if (ImGui::MenuItem("Dummy menu item")) {}
                 ImGui::EndMenu();
-            }        
+            }
+            if (ImGui::BeginMenu("View"))
+            {
+                ImGui::TextDisabled("Line info:");
+                ImGui::Checkbox("Line numbers", /*inout:*/drawLineNumbers);
+                ImGui::Checkbox("Char counts", /*inout:*/drawLineLengths);
+                ImGui::Checkbox("Error counts", /*inout:*/drawLineErrCounts);
+                ImGui::Checkbox("Error text", /*inout:*/drawErrorText);
+                ImGui::EndMenu();
+            }              
             if (ImGui::Button("|> RUN"))
             {
                 this.runBuffer();
@@ -78,101 +135,162 @@ class ScriptEditor
         }
     }
     
-    protected void drawTextArea()
+    protected void drawLineInfoColumns(vector2 screenCursor)
     {
-        const float NUMBERSCOLUMN_WIDTH = 25;
-        const float LINELENCOLUMN_WIDTH = 36;
-        const float MENUBAR_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
-        const float FOOTER_HEIGHT = ImGui::GetTextLineHeightWithSpacing() + 8; // +2x vertical spacing
-    
-        vector2 textAreaSize(ImGui::GetWindowSize().x - (20+NUMBERSCOLUMN_WIDTH), ImGui::GetWindowSize().y - (MENUBAR_HEIGHT + FOOTER_HEIGHT));
-        vector2 screenCursor = ImGui::GetCursorScreenPos();
-        if (this.drawLineNumbers)
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + NUMBERSCOLUMN_WIDTH);
-        if (this.drawLineLengths)
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + LINELENCOLUMN_WIDTH);            
-        bool changed = ImGui::InputTextMultiline(BUFFER_TEXTINPUT_LABEL, this.buffer, textAreaSize);
-        if (changed)
-        {
-            this.analyzeBuffer();
-        }
+        // draws columns with info (line number etc...) on the left side of the text area
+        // ===============================================================================
         
-        // Trick: re-enter the inputtext panel to scroll it; see https://github.com/ocornut/imgui/issues/1523
-        float scrollX, scrollY, maxScrollX, maxScrollY;
-        ImGui::BeginChild(ImGui::GetID(BUFFER_TEXTINPUT_LABEL));
-        scrollX = ImGui::GetScrollX();
-        scrollY = ImGui::GetScrollY();
-        maxScrollX = ImGui::GetScrollMaxX();
-        maxScrollY = ImGui::GetScrollMaxY();
-        ImGui::EndChild();
-        
-        // Line numbers (and lengths)
-        vector2 linenumCursorBase = screenCursor+vector2(0.f, -scrollY) + /*frame padding:*/vector2(0.f, 4.f);
+        vector2 linenumCursorBase = screenCursor+vector2(0.f, -scrollY);
         ImDrawList@ drawlist = ImGui::GetWindowDrawList();
         int bufferNumLines = int(this.bufferLinesMeta.length());
-        if (this.drawLineNumbers || this.drawLineLengths)
-        {
-            
-            
-            vector2 linenumCursor = linenumCursorBase;
-            
-            for (int linenum = 1; linenum <= bufferNumLines; linenum++)
-            {
-                if (this.drawLineNumbers)
-                {
-                    drawlist.AddText(linenumCursor, this.lineNumberColor, ""+linenum);
-                    linenumCursor.x += NUMBERSCOLUMN_WIDTH;
-                }
-                
-                if (this.drawLineNumbers)
-                {
-                    drawlist.AddText(linenumCursor, this.lineLenColor,
-                        ""+int(this.bufferLinesMeta[linenum-1]['len']));
-                    linenumCursor.x += LINELENCOLUMN_WIDTH;                    
-                }
-                
-                // prepare new Line
-                linenumCursor.x = linenumCursorBase.x;
-                linenumCursor.y += ImGui::GetTextLineHeight();
-            }
-        }
         
-        // Test: messages
-        int lastTextRow = -1;
-        float lastTextRowCursorX = 0.f;
-        for (uint i = 0; i < this.messages.length(); i++)
+        vector2 linenumCursor = linenumCursorBase;
+        
+        for (int linenum = 1; linenum <= bufferNumLines; linenum++)
         {
-            int msgRow = int(this.messages[i]['row']);
-            int msgType = int(this.messages[i]['type']);
-            string msgText = string(this.messages[i]['message']);
-            if (msgType == 0) // "expected... instead found"
+            int lineIdx = linenum - 1;
+            if (drawLineNumbers)
             {
-                // Draw line marker on the left
-                vector2 msgCursor = linenumCursorBase + vector2(0.f, ImGui::GetTextLineHeight()*(msgRow-1));
-                drawlist.AddText(msgCursor, color(1.f,0.5f,0.4f,1.f), "  !!");
-                
-                // Draw message text on the right; accumulate cursor offset
-                float textCursorX = lastTextRowCursorX;
-                if (msgRow != lastTextRow)
-                {
-                    // FIXME: calculate actual line length!
-                    textCursorX = 100;
-                }
-                drawlist.AddText(msgCursor + vector2(textCursorX, 0.f), color(0.7f,0.7f,1.0f,1.f), msgText);
-                lastTextRowCursorX = textCursorX + ImGui::CalcTextSize(msgText).x;
-                lastTextRow = msgRow;
+                drawlist.AddText(linenumCursor, lineNumberColor, ""+linenum);
+                linenumCursor.x += lineNumColumnWidth;
             }
+            
+            if (drawLineLengths)
+            {
+                drawlist.AddText(linenumCursor, lineLenColor,
+                    ""+int(this.bufferLinesMeta[lineIdx]['len']));
+                linenumCursor.x += lineLenColumnWidth;                    
+            }
+            
+            // draw message count
+            if (drawLineErrCounts)
+            {
+                
+                if (bufferMessageIDs.length() > lineIdx // sanity check
+                    && bufferMessageIDs[lineIdx].length() > 0)
+                {
+                    // Draw num errors to the column
+
+                    drawlist.AddText(linenumCursor, color(1.f,0.5f,0.4f,1.f), ""+bufferMessageIDs[lineIdx].length());        
+                }
+                linenumCursor.x += errCountColumnWidth;
+            } 
+            
+            // prepare new Line
+            linenumCursor.x = linenumCursorBase.x;
+            linenumCursor.y += ImGui::GetTextLineHeight();
         }
+    
+           
+    }
+    
+    protected void drawTextAreaErrors(vector2 screenCursor)
+    {
+        // draw messages to text area
+        //===========================
+        
+        if (!drawErrorText)
+            return;
+            
+        vector2 msgCursorBase = screenCursor + vector2(4, -this.scrollY);
+        
+        int bufferNumLines = int(this.bufferLinesMeta.length());
+        ImDrawList@ drawlist = ImGui::GetWindowDrawList();
+        
+        for (int linenum = 1; linenum <= bufferNumLines; linenum++)
+        {
+            int lineIdx = linenum - 1;    
+            vector2 lineCursor = msgCursorBase  + vector2(0.f, ImGui::GetTextLineHeight()*lineIdx);
+            
+            if (this.bufferMessageIDs.length() <= lineIdx) // sanity check
+                continue;
+            
+            for (uint i = 0; i < this.bufferMessageIDs[lineIdx].length(); i++)
+            {
+                uint msgIdx = this.bufferMessageIDs[lineIdx][i];
+        
+                int msgRow = int(this.messages[msgIdx]['row']);
+                int msgCol = int(this.messages[msgIdx]['col']);
+                int msgType = int(this.messages[msgIdx]['type']);
+                int msgStartOffset = int(this.messages[msgIdx]['startOffset']);
+                string msgText = string(this.messages[msgIdx]['message']);
+  
+                // Draw message text with background
+                string errText = "^ "+msgText;
+                vector2 errTextSize = ImGui::CalcTextSize(errText);
+                vector2 tst = ImGui::CalcTextSize("calcTextSizetest");
+
+                vector2 textPos = lineCursor + vector2(
+                    ImGui::CalcTextSize(buffer.substr(msgStartOffset, msgCol)).x, // X offset - under the indicated text position
+                    ImGui::GetTextLineHeight()-2); // Y offset - slightly below the current line
+                drawlist.AddRectFilled(textPos, textPos+errTextSize, errorTextBgColor);
+                drawlist.AddText(textPos , errorTextColor, errText);
+                
+                // advance to next line
+                lineCursor.y += ImGui::GetTextLineHeight();
+            }
+        }            
+            
+
+    }
+    
+    protected void drawTextArea()
+    {
+        
+        // Reserve space for the metainfo columns
+        float metaColumnsTotalWidth = 0.f;
+        if (drawLineNumbers)
+            metaColumnsTotalWidth += lineNumColumnWidth;
+        if (drawLineLengths)
+            metaColumnsTotalWidth += lineLenColumnWidth;
+        errCountOffset = metaColumnsTotalWidth;
+        if (drawLineErrCounts)
+            metaColumnsTotalWidth += errCountColumnWidth;
+           
+        // Draw the multiline text input
+        vector2 textAreaSize(
+            ImGui::GetWindowSize().x - (metaColumnsTotalWidth + 20), 
+            ImGui::GetWindowSize().y - 90);
+        vector2 screenCursor = ImGui::GetCursorScreenPos() + /*frame padding:*/vector2(0.f, 4.f);         
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + metaColumnsTotalWidth);            
+        bool changed = ImGui::InputTextMultiline(BUFFER_TEXTINPUT_LABEL, this.buffer, textAreaSize);
+
+        
+        // Trick: re-enter the inputtext panel to scroll it; see https://github.com/ocornut/imgui/issues/1523
+        ImGui::BeginChild(ImGui::GetID(BUFFER_TEXTINPUT_LABEL));
+        this.scrollX = ImGui::GetScrollX();
+        this.scrollY = ImGui::GetScrollY();
+        this.scrollMaxX = ImGui::GetScrollMaxX();
+        this.scrollMaxY = ImGui::GetScrollMaxY();
+        ImGui::EndChild();
+        
+        if (changed)
+        {
+            this.analyzeLines();
+        }        
+        
+        this.drawLineInfoColumns(screenCursor);
+        screenCursor.x+= metaColumnsTotalWidth;
+        this.drawTextAreaErrors(screenCursor);
+        
         
         // footer with status info
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 3.f);
+        
         ImGui::Separator();
-        ImGui::Text("lines: "+bufferNumLines+"; messages:"+this.messages.length()+" scroll: X="+scrollX+"/"+maxScrollX+"; Y="+scrollY+"/"+maxScrollY+"");
+        ImGui::Text("lines: "+bufferLinesMeta.length()
+            +"; messages:"+this.messages.length()
+                +"(err:"+this.messagesTotalErr
+                +"/warn:"+this.messagesTotalWarn
+                +"/info:"+this.messagesTotalInfo
+            +") scroll: X="+scrollX+"/"+scrollMaxX
+                +"; Y="+scrollY+"/"+scrollMaxY+"");
     }
     
     void runBuffer()
     {
+        this.bufferMessageIDs.resize(0); // clear all
         this.messages.resize(0); // clear all
+        
         
         game.pushMessage(MSG_APP_LOAD_SCRIPT_REQUESTED, {
             {'filename', '(editor buffer)'}, // Because we supply the buffer, this will serve only as display name
@@ -188,9 +306,16 @@ class ScriptEditor
             + ", sectionName:" + sectionName + ", message:" + message); // strings*/
             
         messages.insertLast({ {'type', msgType}, {'row',row}, {'col', col}, {'sectionName', sectionName}, {'message', message} });
+        this.analyzeMessages();
     }
     
-    void analyzeBuffer()
+    void analyzeLines()
+    {
+        this.analyzeBuffer();
+        this.analyzeMessages();
+    }
+    
+    private void analyzeBuffer() // helper for `analyzeLines()`
     {
         this.bufferLinesMeta.resize(0); // clear all
         int startOffset = 0;
@@ -233,4 +358,76 @@ class ScriptEditor
             }
         }
     }
+ 
+    private void analyzeMessages() // helper for `analyzeLines()`
+    {
+        // reset caches
+        bufferMessageIDs.resize(0); // clear all
+        bufferMessageIDs.resize(bufferLinesMeta.length());
+    
+        // reset global stats
+        this.messagesTotalErr = 0;
+        this.messagesTotalWarn = 0;
+        this.messagesTotalInfo = 0;
+    
+        
+        for (uint i = 0; i < this.messages.length(); i++)
+        {
+            int msgRow = int(this.messages[i]['row']);
+            int msgType = int(this.messages[i]['type']);
+            string msgText = string(this.messages[i]['message']);
+            int lineIdx = msgRow-1;
+            
+            
+            
+            
+            // update line stats
+            if (msgType == asMSGTYPE_ERROR)
+            {
+                this.bufferLinesMeta[lineIdx]['messagesNumErr'] = int(this.bufferLinesMeta[lineIdx]['messagesNumErr'])+1;
+                this.bufferMessageIDs[lineIdx].insertLast(i);
+                this.messagesTotalErr++;
+            }
+            if (msgType == asMSGTYPE_WARNING)
+            {
+                this.bufferLinesMeta[lineIdx]['messagesNumWarn'] = int(this.bufferLinesMeta[lineIdx]['messagesNumWarn'])+1;
+                this.messagesTotalWarn++;
+            }
+            if (msgType == asMSGTYPE_INFORMATION)
+            {
+                this.bufferLinesMeta[lineIdx]['messagesNumInfo'] = int(this.bufferLinesMeta[lineIdx]['messagesNumInfo'])+1;
+                this.messagesTotalInfo++;
+            }
+        }
+        
+    }
+ 
 }
+
+// Tutorial scripts 
+// -----------------
+// using 'heredoc' syntax; see https://www.angelcode.com/angelscript/sdk/docs/manual/doc_datatypes_strings.html
+
+const string TUT_SCRIPT =
+"""
+// TUTORIAL SCRIPT - Shows the basics, step by step:
+// how to store data and update/draw them every frame.
+// ===================================================
+
+// total time in seconds
+float tt = 0.f;
+
+// `frameStep()` runs every frame; `dt` is delta time in seconds.
+void frameStep(float dt)
+{
+    // accumulate time
+    tt += dt;
+    
+    // format the output 
+    string ttStr = "Total time: " + formatFloat(tt, "", 5, 2) + "sec";
+    string dtStr = "Delta time: " + formatFloat(dt, "", 5, 2) + "sec";
+    
+    // draw the output to implicit window titled "Debug"
+    ImGui::Text(ttStr + "; " + dtStr);
+}
+""";
