@@ -6,6 +6,8 @@
 // Global definitions:
 // -------------------
 
+// from <imgui.h>
+const int ImGuiCol_ChildBg = 3;               // Background of child windows
 // from <angelscript.h>
 enum asEMsgType
 {
@@ -30,14 +32,17 @@ ScriptEditor editor;
     float lineLenColumnWidth = 25;
     // Line err counts (error may span multiple AngelScript messages!)
     bool drawLineErrCounts = true;
-    color lineErrCountColor = color(1.f,0.3f,0.2f,1.f);
+    color lineErrCountColor = color(1.f,0.2f,0.1f,1.f);
     float errCountColumnWidth = 18;
 // END line metainfo columns
 
 // EDITOR settings
     color errorTextColor = color(1.f,0.3f,0.2f,1.f);
-    color errorTextBgColor = color(0.4f,0.1f,0.3f,1.f);
+    color errorTextBgColor = color(0.1f,0.04f,0.08f,1.f);
     bool drawErrorText = true;
+    color warnTextColor = color(0.78f,0.66f,0.22f,1.f);
+    color warnTextBgColor = color(0.1f,0.08f,0.0f,1.f);
+    bool drawWarnText = true;    
 // END editor
 
 // Callback functions for the game:
@@ -96,16 +101,31 @@ class ScriptEditor
     float scrollMaxY = 0.f;
     float scrollMaxX = 0.f;
     float errCountOffset=0.f;
+    vector2 errorsScreenCursor(0,0);
+    vector2 errorsTextAreaSize(0,0);
 
     void draw()
     {
+    
         int flags = ImGuiWindowFlags_MenuBar;
         ImGui::Begin("Script editor", /*open:*/true, flags);
         
-        this.drawMenubar();
-        this.drawTextArea();
+            this.drawMenubar();
+            this.drawTextArea();
+            this.drawFooter();
 
+            // To draw on top of editor text, we must trick DearIMGUI using an extra invisible window
+            ImGui::SetCursorPos(errorsScreenCursor - ImGui::GetWindowPos());
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, color(0.f,0.f,0.f,0.f)); // Fully transparent background!
+            if (ImGui::BeginChild("ScriptEditorErr-child", errorsTextAreaSize,/*border:*/false, ImGuiWindowFlags_NoInputs))
+            {
+                this.drawTextAreaErrors(errorsScreenCursor);   
+            }
+            ImGui::EndChild(); // must always be called - legacy reasons
+            ImGui::PopStyleColor(1); // ChildBg  
+        
         ImGui::End();
+
     }
     
     protected void drawMenubar()
@@ -123,7 +143,9 @@ class ScriptEditor
                 ImGui::Checkbox("Line numbers", /*inout:*/drawLineNumbers);
                 ImGui::Checkbox("Char counts", /*inout:*/drawLineLengths);
                 ImGui::Checkbox("Error counts", /*inout:*/drawLineErrCounts);
+                ImGui::TextDisabled("Editor overlay:");
                 ImGui::Checkbox("Error text", /*inout:*/drawErrorText);
+                ImGui::Checkbox("Warning text", /*inout:*/drawWarnText);
                 ImGui::EndMenu();
             }              
             if (ImGui::Button("|> RUN"))
@@ -202,29 +224,36 @@ class ScriptEditor
             int lineIdx = linenum - 1;    
             vector2 lineCursor = msgCursorBase  + vector2(0.f, ImGui::GetTextLineHeight()*lineIdx);
             
-            if (this.bufferMessageIDs.length() <= lineIdx) // sanity check
+            // sanity checks
+            if (this.bufferMessageIDs.length() <= lineIdx
+                || this.bufferLinesMeta.length() <= lineIdx)
+            {
                 continue;
+            }
             
             for (uint i = 0; i < this.bufferMessageIDs[lineIdx].length(); i++)
             {
                 uint msgIdx = this.bufferMessageIDs[lineIdx][i];
+                int errStartOffset = int(this.bufferLinesMeta[lineIdx]['startOffset']);
         
                 int msgRow = int(this.messages[msgIdx]['row']);
                 int msgCol = int(this.messages[msgIdx]['col']);
                 int msgType = int(this.messages[msgIdx]['type']);
-                int msgStartOffset = int(this.messages[msgIdx]['startOffset']);
                 string msgText = string(this.messages[msgIdx]['message']);
+                
+                // Calc horizontal offset
+                string subStr = buffer.substr(errStartOffset, msgCol-1);
+                vector2 textPos = lineCursor + vector2(
+                    ImGui::CalcTextSize(subStr).x, // X offset - under the indicated text position
+                    ImGui::GetTextLineHeight()-2); // Y offset - slightly below the current line                
   
                 // Draw message text with background
                 string errText = "^ "+msgText;
                 vector2 errTextSize = ImGui::CalcTextSize(errText);
-                vector2 tst = ImGui::CalcTextSize("calcTextSizetest");
-
-                vector2 textPos = lineCursor + vector2(
-                    ImGui::CalcTextSize(buffer.substr(msgStartOffset, msgCol)).x, // X offset - under the indicated text position
-                    ImGui::GetTextLineHeight()-2); // Y offset - slightly below the current line
-                drawlist.AddRectFilled(textPos, textPos+errTextSize, errorTextBgColor);
-                drawlist.AddText(textPos , errorTextColor, errText);
+                color col = (msgType == asMSGTYPE_WARNING) ? warnTextColor : errorTextColor;
+                color bgCol = (msgType == asMSGTYPE_WARNING) ? warnTextBgColor : errorTextBgColor;
+                drawlist.AddRectFilled(textPos, textPos+errTextSize, bgCol);
+                drawlist.AddText(textPos , col, errText);
                 
                 // advance to next line
                 lineCursor.y += ImGui::GetTextLineHeight();
@@ -271,11 +300,18 @@ class ScriptEditor
         
         this.drawLineInfoColumns(screenCursor);
         screenCursor.x+= metaColumnsTotalWidth;
-        this.drawTextAreaErrors(screenCursor);
+        // Apparently drawing errors now makes them appear under the editor text;
+        // we must remember values and draw separately.
+        errorsScreenCursor = screenCursor;
+        errorsTextAreaSize = textAreaSize;
         
-        
+        // make top gap (window padding) rougly same size as bottom gap (item spacing)
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY()+2); 
+    }
+    
+    protected void drawFooter()
+    {
         // footer with status info
-        
         ImGui::Separator();
         ImGui::Text("lines: "+bufferLinesMeta.length()
             +"; messages:"+this.messages.length()
@@ -283,8 +319,8 @@ class ScriptEditor
                 +"/warn:"+this.messagesTotalWarn
                 +"/info:"+this.messagesTotalInfo
             +") scroll: X="+scrollX+"/"+scrollMaxX
-                +"; Y="+scrollY+"/"+scrollMaxY+"");
-    }
+                +"; Y="+scrollY+"/"+scrollMaxY+"");    
+    }    
     
     void runBuffer()
     {
@@ -378,9 +414,6 @@ class ScriptEditor
             string msgText = string(this.messages[i]['message']);
             int lineIdx = msgRow-1;
             
-            
-            
-            
             // update line stats
             if (msgType == asMSGTYPE_ERROR)
             {
@@ -391,6 +424,7 @@ class ScriptEditor
             if (msgType == asMSGTYPE_WARNING)
             {
                 this.bufferLinesMeta[lineIdx]['messagesNumWarn'] = int(this.bufferLinesMeta[lineIdx]['messagesNumWarn'])+1;
+                this.bufferMessageIDs[lineIdx].insertLast(i);
                 this.messagesTotalWarn++;
             }
             if (msgType == asMSGTYPE_INFORMATION)
