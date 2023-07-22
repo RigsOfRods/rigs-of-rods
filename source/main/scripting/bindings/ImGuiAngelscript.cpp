@@ -508,8 +508,8 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterGlobalFunction("float GetTime()", asFUNCTIONPR([]() {  return (float)ImGui::GetTime();  }, (), float), asCALL_CDECL);
     engine->RegisterGlobalFunction("int GetFrameCount()", asFUNCTIONPR([]() {  return ImGui::GetFrameCount();  }, (), int), asCALL_CDECL);
 
-    engine->RegisterGlobalFunction("vector2 CalcTextSize(const string&in, const string&in = string(), bool = false, float = -1.0f)", asFUNCTIONPR([](const string& a, const string& b, bool c, float d) {  
-        auto v = ImGui::CalcTextSize(a.c_str(), b.c_str(), c, d); return Vector2(v.x, v.y); }, (const string&, const string&, bool, float), Vector2), asCALL_CDECL);
+    engine->RegisterGlobalFunction("vector2 CalcTextSize(const string&in, bool hide_text_after_double_hash = false, float wrap_width = -1.0f)", asFUNCTIONPR([](const string& a, bool c, float d) {  
+        auto v = ImGui::CalcTextSize(a.c_str(), nullptr, c, d); return Vector2(v.x, v.y); }, (const string&,  bool, float), Vector2), asCALL_CDECL);
     engine->RegisterGlobalFunction("void CalcListClipping(int, float, int&inout, int&inout)", asFUNCTIONPR([](int a, float b, int& c, int& d) {  
         ImGui::CalcListClipping(a, b, &c, &d);  }, (int,float,int&,int&), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool BeginChildFrame(uint, const vector2&, int = 0)", asFUNCTIONPR([](unsigned a, const Vector2& b, int c) {  
