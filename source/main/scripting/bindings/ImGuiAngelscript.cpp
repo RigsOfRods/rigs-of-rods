@@ -80,6 +80,27 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoDecoration", ImGuiWindowFlags_NoDecoration);
     engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoInputs", ImGuiWindowFlags_NoInputs);
 
+    engine->RegisterEnum("ImGuiTabBarFlags");
+    engine->RegisterEnumValue("ImGuiTabBarFlags", "ImGuiTabBarFlags_None", ImGuiTabBarFlags_None);
+    engine->RegisterEnumValue("ImGuiTabBarFlags", "ImGuiTabBarFlags_Reorderable", ImGuiTabBarFlags_Reorderable); // // Allow manually dragging tabs to re-order them + New tabs are appended at the end of list
+    engine->RegisterEnumValue("ImGuiTabBarFlags", "ImGuiTabBarFlags_AutoSelectNewTabs", ImGuiTabBarFlags_AutoSelectNewTabs); // // Automatically select new tabs when they appear
+    engine->RegisterEnumValue("ImGuiTabBarFlags", "ImGuiTabBarFlags_TabListPopupButton", ImGuiTabBarFlags_TabListPopupButton); // // Disable buttons to open the tab list popup
+    engine->RegisterEnumValue("ImGuiTabBarFlags", "ImGuiTabBarFlags_NoCloseWithMiddleMouseButton", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton); // // Disable behavior of closing tabs (that are submitted with p_open != NULL) with middle mouse button. You can still repro this behavior on user's side with if (IsItemHovered() && IsMouseClicked(2)) *p_open = false.
+    engine->RegisterEnumValue("ImGuiTabBarFlags", "ImGuiTabBarFlags_NoTabListScrollingButtons", ImGuiTabBarFlags_NoTabListScrollingButtons); // // Disable scrolling buttons (apply when fitting policy is ImGuiTabBarFlags_FittingPolicyScroll)
+    engine->RegisterEnumValue("ImGuiTabBarFlags", "ImGuiTabBarFlags_NoTooltip", ImGuiTabBarFlags_NoTooltip); // // Disable tooltips when hovering a tab
+    engine->RegisterEnumValue("ImGuiTabBarFlags", "ImGuiTabBarFlags_FittingPolicyResizeDown", ImGuiTabBarFlags_FittingPolicyResizeDown); // // Resize tabs when they don't fit
+    engine->RegisterEnumValue("ImGuiTabBarFlags", "ImGuiTabBarFlags_FittingPolicyScroll", ImGuiTabBarFlags_FittingPolicyScroll); // // Add scroll buttons when tabs don't fit
+    engine->RegisterEnumValue("ImGuiTabBarFlags", "ImGuiTabBarFlags_FittingPolicyMask_", ImGuiTabBarFlags_FittingPolicyMask_); // ImGuiTabBarFlags_FittingPolicyResizeDown | ImGuiTabBarFlags_FittingPolicyScroll,
+    engine->RegisterEnumValue("ImGuiTabBarFlags", "ImGuiTabBarFlags_FittingPolicyDefault_", ImGuiTabBarFlags_FittingPolicyDefault_); // ImGuiTabBarFlags_FittingPolicyResizeDown
+
+    engine->RegisterEnum("ImGuiTabItemFlags");
+    engine->RegisterEnumValue("ImGuiTabItemFlags", "ImGuiTabItemFlags_None", ImGuiTabItemFlags_None);
+    engine->RegisterEnumValue("ImGuiTabItemFlags", "ImGuiTabItemFlags_UnsavedDocument", ImGuiTabItemFlags_UnsavedDocument); //  // Append '*' to title without affecting the ID, as a convenience to avoid using the ### operator. Also: tab is selected on closure and closure is deferred by one frame to allow code to undo it without flicker.
+    engine->RegisterEnumValue("ImGuiTabItemFlags", "ImGuiTabItemFlags_SetSelected", ImGuiTabItemFlags_SetSelected); // // Trigger flag to programmatically make the tab selected when calling BeginTabItem()
+    engine->RegisterEnumValue("ImGuiTabItemFlags", "ImGuiTabItemFlags_NoCloseWithMiddleMouseButton", ImGuiTabItemFlags_NoCloseWithMiddleMouseButton); //  // Disable behavior of closing tabs (that are submitted with p_open != NULL) with middle mouse button. You can still repro this behavior on user's side with if (IsItemHovered() && IsMouseClicked(2)) *p_open = false.
+    engine->RegisterEnumValue("ImGuiTabItemFlags", "ImGuiTabItemFlags_NoPushId", ImGuiTabItemFlags_NoPushId); //  // Don't call PushID(tab->ID)/PopID() on BeginTabItem()/EndTabItem()
+    
+
     // ImDrawList object (global namespace)
     engine->RegisterObjectType("ImDrawList", sizeof(ImDrawList), asOBJ_REF | asOBJ_NOCOUNT);
     engine->RegisterObjectMethod("ImDrawList", "void AddLine(const vector2&in p1, const vector2&in p2, const color&in col, float thickness = 1.f)", asFUNCTIONPR([](ImDrawList* drawlist, Ogre::Vector2 const& p1, Ogre::Vector2 const& p2, Ogre::ColourValue const& col, float thickness) { drawlist->AddLine(ImVec2(p1.x, p1.y), ImVec2(p2.x, p2.y), ImColor(col.r, col.g, col.b, col.a), thickness); }, (ImDrawList * , Ogre::Vector2 const& , Ogre::Vector2 const& , Ogre::ColourValue const& , float ), void), asCALL_CDECL_OBJFIRST);
@@ -185,7 +206,7 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
   //  engine->RegisterGlobalFunction("float GetFrameHeight()", asFUNCTIONPR(ImGui::GetFrameHeight, (), float), asCALL_CDECL);
   //  engine->RegisterGlobalFunction("float GetFrameHeightWithSpacing()", asFUNCTIONPR(ImGui::GetFrameHeightWithSpacing, (), float), asCALL_CDECL);
 
-    // Columns
+    // Columns (considered legacy in latest versions - superseded by Tables!)
     engine->RegisterGlobalFunction("void Columns(int = 1, const string&in = string(), bool = true)", asFUNCTIONPR([](int a, const string& b, bool c) {  
         ImGui::Columns(a, b.c_str(), c);  }, (int, const string&, bool), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void NextColumn()", asFUNCTIONPR([]() {  ImGui::NextColumn();  }, (), void), asCALL_CDECL);
@@ -195,6 +216,19 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterGlobalFunction("float GetColumnOffset(int = -1)", asFUNCTIONPR([](int a) {  return ImGui::GetColumnOffset(a);  }, (int), float), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetColumnOffset(int, float)", asFUNCTIONPR([](int a, float b) {  ImGui::SetColumnOffset(a, b);  }, (int,float), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("int GetColumnsCount()", asFUNCTIONPR([]() {  return ImGui::GetColumnsCount(); }, (), int), asCALL_CDECL);
+
+
+    // Tab bars, tabs
+    engine->RegisterGlobalFunction("bool BeginTabBar(const string&in, int = 0)", asFUNCTIONPR([](const string& str_id, ImGuiTabBarFlags flags) { return ImGui::BeginTabBar(str_id.c_str(), flags); }, (const string&, ImGuiTabBarFlags), bool), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void EndTabBar()", asFUNCTION(ImGui::EndTabBar), asCALL_CDECL);
+    // BeginTabItem() without X close button.
+    engine->RegisterGlobalFunction("bool BeginTabItem(const string&in, int = 0)", asFUNCTIONPR([](const string& label, ImGuiTabItemFlags flags) { return ImGui::BeginTabItem(label.c_str(), nullptr, flags); }, (const string&,  ImGuiTabItemFlags), bool), asCALL_CDECL);
+    // BeginTabItem() with X close button.
+    engine->RegisterGlobalFunction("bool BeginTabItem(const string&in, bool&inout, int = 0)", asFUNCTIONPR([](const string& label, bool& p_open, ImGuiTabItemFlags flags) { return ImGui::BeginTabItem(label.c_str(), &p_open, flags); }, (const string&, bool&, ImGuiTabItemFlags), bool), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void EndTabItem()", asFUNCTION(ImGui::EndTabItem), asCALL_CDECL);
+    //engine->RegisterGlobalFunction("bool TabItemButton(const string&in, ImGuiTabItemFlags = 0)", asFUNCTIONPR([](const string& label, ImGuiTabItemFlags flags) { return ImGui::TabItemButton(label.c_str(), flags); }, (const string&, ImGuiTabItemFlags), bool), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void SetTabItemClosed(const string&in)", asFUNCTIONPR([](const string& tab_or_docked_window_label) { ImGui::SetTabItemClosed(tab_or_docked_window_label.c_str()); }, (const string&), void), asCALL_CDECL);
+
 
     // ID scopes
     engine->RegisterGlobalFunction("void PushID(const string&in)", asFUNCTIONPR([](const string& n) { ImGui::PushID(n.c_str()); }, (const string&), void), asCALL_CDECL);
