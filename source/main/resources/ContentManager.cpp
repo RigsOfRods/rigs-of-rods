@@ -150,6 +150,8 @@ void ContentManager::InitContentManager()
         App::sys_config_dir->getStr(), "FileSystem", RGN_CONFIG, /*recursive=*/false, /*readOnly=*/false);
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_savegames_dir->getStr(), "FileSystem", RGN_SAVEGAMES, /*recursive=*/false, /*readOnly=*/false);
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_scripts_dir->getStr(), "FileSystem", RGN_SCRIPTS, /*recursive:*/false, /*readonly:*/false);
 
     Ogre::ScriptCompilerManager::getSingleton().setListener(this);
 
@@ -206,9 +208,6 @@ void ContentManager::InitContentManager()
 
     // streams path, to be processed later by the cache system
     LOG("RoR|ContentManager: Loading filesystems");
-
-    // add scripts folder
-    ResourceGroupManager::getSingleton().addResourceLocation(std::string(App::sys_user_dir->getStr()) + PATH_SLASH + "scripts", "FileSystem", "Scripts");
 
     LOG("RoR|ContentManager: Registering colored text overlay factory");
     ColoredTextAreaOverlayElementFactory* pCT = new ColoredTextAreaOverlayElementFactory();
