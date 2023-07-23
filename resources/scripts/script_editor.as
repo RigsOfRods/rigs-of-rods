@@ -7,7 +7,11 @@
 // -------------------
 
 // from <imgui.h>
-const int ImGuiCol_ChildBg = 3;               // Background of child windows
+const int    ImGuiCol_Text = 0;
+const int    ImGuiCol_TextDisabled = 1;
+const int    ImGuiCol_WindowBg = 2;              // Background of normal windows
+const int    ImGuiCol_ChildBg = 3;               // Background of child windows
+const int    ImGuiCol_PopupBg = 4;               // Background of popups, menus, tooltips windows
 // from <angelscript.h>
 enum asEMsgType
 {
@@ -33,6 +37,10 @@ ScriptEditor editor;
     bool drawLineLengths=true;
     color lineLenColor=color(0.5f,0.4f,0.3f,1.f);
     float lineLenColumnWidth = 25;
+    // Line comment offsets       
+    bool drawLineCommentOffsets=true;
+    color lineCommentOffsetColor=color(0.1f,0.9f,0.6f,0.6f);
+    float lineCommentColumnWidth = 16;    
     // Line err counts (error may span multiple AngelScript messages!)
     bool drawLineErrCounts = true;
     color lineErrCountColor = color(1.f,0.2f,0.1f,1.f);
@@ -45,7 +53,9 @@ ScriptEditor editor;
     bool drawErrorText = true;
     color warnTextColor = color(0.78f,0.66f,0.22f,1.f);
     color warnTextBgColor = color(0.1f,0.08f,0.0f,1.f);
-    bool drawWarnText = true;    
+    bool drawWarnText = true;
+    color commentHighlightColor = color(0.1f,0.9f,0.6f,0.16f);
+    bool drawCommentHighlights = true;
 // END editor
 
 // Callback functions for the game:
@@ -153,12 +163,23 @@ class ScriptEditor
             if (ImGui::BeginMenu("View"))
             {
                 ImGui::TextDisabled("Line info:");
-                ImGui::Checkbox("Line numbers", /*inout:*/drawLineNumbers);
-                ImGui::Checkbox("Char counts", /*inout:*/drawLineLengths);
-                ImGui::Checkbox("Error counts", /*inout:*/drawLineErrCounts);
+                ImGui::PushStyleColor(ImGuiCol_Text, lineNumberColor);
+                    ImGui::Checkbox("Line numbers", /*inout:*/drawLineNumbers);
+                    ImGui::PopStyleColor(1); // ImGuiCol_Text
+                ImGui::PushStyleColor(ImGuiCol_Text, lineLenColor);
+                    ImGui::Checkbox("Char counts", /*inout:*/drawLineLengths);
+                    ImGui::PopStyleColor(1); // ImGuiCol_Text
+                ImGui::PushStyleColor(ImGuiCol_Text, lineCommentOffsetColor);
+                    ImGui::Checkbox("Comment offsets", /*inout:*/drawLineCommentOffsets);
+                    ImGui::PopStyleColor(1); // ImGuiCol_Text
+                ImGui::PushStyleColor(ImGuiCol_Text, lineErrCountColor);
+                    ImGui::Checkbox("Error counts", /*inout:*/drawLineErrCounts);
+                    ImGui::PopStyleColor(1); // ImGuiCol_Text
+                    
                 ImGui::TextDisabled("Editor overlay:");
                 ImGui::Checkbox("Error text", /*inout:*/drawErrorText);
                 ImGui::Checkbox("Warning text", /*inout:*/drawWarnText);
+                ImGui::Checkbox("Comment hilight", /*inout:*/drawCommentHighlights);
                 ImGui::EndMenu();
             }
             if (this.waitingForManipEvent) // When waiting for async result of (UN)LOAD_SCRIPT_REQUESTED
@@ -214,6 +235,13 @@ class ScriptEditor
                 linenumCursor.x += lineLenColumnWidth;                    
             }
             
+            if (drawLineCommentOffsets)
+            {
+                drawlist.AddText(linenumCursor, lineCommentOffsetColor,
+                    ""+int(this.bufferLinesMeta[lineIdx]['nonCommentLen']));
+                linenumCursor.x += lineCommentColumnWidth;                    
+            }            
+            
             // draw message count
             if (drawLineErrCounts)
             {
@@ -252,16 +280,36 @@ class ScriptEditor
             vector2 lineCursor = msgCursorBase  + vector2(0.f, ImGui::GetTextLineHeight()*lineIdx);
             
             // sanity checks
-            if (this.bufferMessageIDs.length() <= lineIdx
-                || this.bufferLinesMeta.length() <= lineIdx)
-            {
+            if (this.bufferLinesMeta.length() <= lineIdx)
                 continue;
+            
+            // first draw comment highlights (semitransparent quads)
+            int startOffset = int(this.bufferLinesMeta[lineIdx]['startOffset']);
+            int lineLen = int(this.bufferLinesMeta[lineIdx]['len']);
+            int nonCommentLen = int(this.bufferLinesMeta[lineIdx]['nonCommentLen']);
+            if (lineLen != nonCommentLen && drawCommentHighlights)
+            {
+                // calc pos
+                string nonCommentStr = buffer.substr(startOffset, nonCommentLen);
+                vector2 nonCommentSize = ImGui::CalcTextSize(nonCommentStr);
+                vector2 pos = lineCursor + vector2(nonCommentSize.x, 0.f);
+                
+                // calc size
+                int doubleslashCommentStart = int(this.bufferLinesMeta[lineIdx]['doubleslashCommentStart']);
+                string commentStr = buffer.substr(doubleslashCommentStart, lineLen-nonCommentLen);
+                vector2 size = ImGui::CalcTextSize(commentStr);
+                
+                drawlist.AddRectFilled(pos, pos+size, commentHighlightColor);
             }
             
+            // sanity check
+            if (this.bufferMessageIDs.length() <= lineIdx)
+                continue;
+            
+            // then errors and warnings
             for (uint i = 0; i < this.bufferMessageIDs[lineIdx].length(); i++)
             {
                 uint msgIdx = this.bufferMessageIDs[lineIdx][i];
-                int errStartOffset = int(this.bufferLinesMeta[lineIdx]['startOffset']);
         
                 int msgRow = int(this.messages[msgIdx]['row']);
                 int msgCol = int(this.messages[msgIdx]['col']);
@@ -289,7 +337,7 @@ class ScriptEditor
                     continue;
                 
                 // Calc horizontal offset
-                string subStr = buffer.substr(errStartOffset, msgCol-1);
+                string subStr = buffer.substr(startOffset, msgCol-1);
                 vector2 textPos = lineCursor + vector2(
                     ImGui::CalcTextSize(subStr).x, // X offset - under the indicated text position
                     ImGui::GetTextLineHeight()-2); // Y offset - slightly below the current line                
@@ -317,6 +365,8 @@ class ScriptEditor
             metaColumnsTotalWidth += lineNumColumnWidth;
         if (drawLineLengths)
             metaColumnsTotalWidth += lineLenColumnWidth;
+        if (drawLineCommentOffsets)
+            metaColumnsTotalWidth += lineCommentColumnWidth;            
         errCountOffset = metaColumnsTotalWidth;
         if (drawLineErrCounts)
             metaColumnsTotalWidth += errCountColumnWidth;
