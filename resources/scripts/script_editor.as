@@ -26,6 +26,7 @@ int SCRIPTUNITID_INVALID = -1;
 const string RGN_SCRIPTS = "Scripts";
 // others
 const string BUFFER_TEXTINPUT_LABEL = "##bufferTextInputLbl";
+const color LINKCOLOR = color(0.3, 0.5, 0.9, 1.0);
 ScriptEditor editor;
 
 // Config:
@@ -43,7 +44,10 @@ ScriptEditor editor;
     // Line comment offsets       
     bool drawLineCommentOffsets=true;
     color lineCommentOffsetColor=color(0.1f,0.9f,0.6f,0.6f);
-    float lineCommentColumnWidth = 16;    
+    float lineCommentColumnWidth = 16;
+    bool drawLineHttpOffsets=false; // only visual, links don't open
+    color lineHttpOffsetColor=color(LINKCOLOR.r, LINKCOLOR.g, LINKCOLOR.a, 0.6f);
+    float lineHttpColumnWidth = 16;        
     // Line err counts (error may span multiple AngelScript messages!)
     bool drawLineErrCounts = true;
     color lineErrCountColor = color(1.f,0.2f,0.1f,1.f);
@@ -59,6 +63,8 @@ ScriptEditor editor;
     bool drawWarnText = true;
     color commentHighlightColor = color(0.1f,0.9f,0.6f,0.16f);
     bool drawCommentHighlights = true;
+    color httpHighlightColor=color(0.25, 0.3, 1, 0.3f);
+    bool drawHttpHighlights = false; // only visual, links don't open    
     
     // input output
     bool saveShouldOverwrite=false;
@@ -151,12 +157,13 @@ class ScriptEditor
         
             this.drawMenubar();
             this.drawTextArea();
-            this.drawFooter();
+            this.drawFooter();         
 
             // To draw on top of editor text, we must trick DearIMGUI using an extra invisible window
             ImGui::SetCursorPos(errorsScreenCursor - ImGui::GetWindowPos());
             ImGui::PushStyleColor(ImGuiCol_ChildBg, color(0.f,0.f,0.f,0.f)); // Fully transparent background!
-            if (ImGui::BeginChild("ScriptEditorErr-child", errorsTextAreaSize,/*border:*/false, ImGuiWindowFlags_NoInputs))
+            int childFlags = ImGuiWindowFlags_NoInputs; // Necessary, otherwise editing is blocked.
+            if (ImGui::BeginChild("ScriptEditorErr-child", errorsTextAreaSize,/*border:*/false, childFlags))
             {
                 this.drawTextAreaErrors(errorsScreenCursor);   
             }
@@ -254,6 +261,9 @@ class ScriptEditor
                 ImGui::PushStyleColor(ImGuiCol_Text, lineCommentOffsetColor);
                     ImGui::Checkbox("Comment offsets", /*inout:*/drawLineCommentOffsets);
                     ImGui::PopStyleColor(1); // ImGuiCol_Text
+                ImGui::PushStyleColor(ImGuiCol_Text, lineHttpOffsetColor);
+                    ImGui::Checkbox("Http offsets", /*inout:*/drawLineHttpOffsets);
+                    ImGui::PopStyleColor(1); // ImGuiCol_Text                    
                 ImGui::PushStyleColor(ImGuiCol_Text, lineErrCountColor);
                     ImGui::Checkbox("Error counts", /*inout:*/drawLineErrCounts);
                     ImGui::PopStyleColor(1); // ImGuiCol_Text
@@ -261,7 +271,8 @@ class ScriptEditor
                 ImGui::TextDisabled("Editor overlay:");
                 ImGui::Checkbox("Error text", /*inout:*/drawErrorText);
                 ImGui::Checkbox("Warning text", /*inout:*/drawWarnText);
-                ImGui::Checkbox("Comment hilight", /*inout:*/drawCommentHighlights);
+                ImGui::Checkbox("Comments", /*inout:*/drawCommentHighlights);
+                ImGui::Checkbox("Hyperlinks", /*inout:*/drawHttpHighlights);
                 ImGui::EndMenu();
             }
             
@@ -327,7 +338,14 @@ class ScriptEditor
                 drawlist.AddText(linenumCursor, lineCommentOffsetColor,
                     ""+int(this.bufferLinesMeta[lineIdx]['nonCommentLen']));
                 linenumCursor.x += lineCommentColumnWidth;                    
-            }            
+            }          
+
+            if (drawLineHttpOffsets)
+            {
+                drawlist.AddText(linenumCursor, lineHttpOffsetColor,
+                    ""+int(this.bufferLinesMeta[lineIdx]['nonHttpLen']));
+                linenumCursor.x += lineHttpColumnWidth;                    
+            }     
             
             // draw message count
             if (drawLineErrCounts)
@@ -384,9 +402,33 @@ class ScriptEditor
                 // calc size
                 int doubleslashCommentStart = int(this.bufferLinesMeta[lineIdx]['doubleslashCommentStart']);
                 string commentStr = buffer.substr(doubleslashCommentStart, lineLen-nonCommentLen);
-                vector2 size = ImGui::CalcTextSize(commentStr);
+                vector2 commentSize = ImGui::CalcTextSize(commentStr);
                 
-                drawlist.AddRectFilled(pos, pos+size, commentHighlightColor);
+                drawlist.AddRectFilled(pos, pos+commentSize, commentHighlightColor);
+            }
+            
+            // second - http highlights
+            int httpStart = int(this.bufferLinesMeta[lineIdx]['httpStart']);
+            int httpLen = int(this.bufferLinesMeta[lineIdx]['httpLen']);
+            if (httpStart >= 0 && httpLen >= 0 && drawHttpHighlights)
+            {
+                // calc pos
+                int nonHttpLen = httpStart - startOffset;
+                string nonHttpStr = buffer.substr(startOffset, nonHttpLen);
+                vector2 nonHttpSize = ImGui::CalcTextSize(nonHttpStr);
+                vector2 pos = lineCursor + vector2(nonHttpSize.x, 0.f);
+            
+                // calc size
+                string httpStr = buffer.substr(httpStart, httpLen);
+                vector2 httpSize = ImGui::CalcTextSize(httpStr);
+                
+                drawlist.AddRectFilled(pos, pos+httpSize, httpHighlightColor);
+                
+                // underline
+                // FIXME: draw underline when hyperlink behaviours work here
+                //        - The overlay window is 'NoInputs' so buttons don't work.
+                //        - The base window doesn't receive clicks for some reason.
+                //drawlist.AddLine(pos+vector2(0,httpSize.y), pos+httpSize, LINKCOLOR);                
             }
             
             // sanity check
@@ -453,7 +495,9 @@ class ScriptEditor
         if (drawLineLengths)
             metaColumnsTotalWidth += lineLenColumnWidth;
         if (drawLineCommentOffsets)
-            metaColumnsTotalWidth += lineCommentColumnWidth;            
+            metaColumnsTotalWidth += lineCommentColumnWidth;      
+        if (drawLineHttpOffsets)
+            metaColumnsTotalWidth += lineHttpColumnWidth;  
         errCountOffset = metaColumnsTotalWidth;
         if (drawLineErrCounts)
             metaColumnsTotalWidth += errCountColumnWidth;
@@ -586,41 +630,114 @@ class ScriptEditor
         this.bufferLinesMeta.resize(0); // clear all
         int startOffset = 0;
         this.bufferLinesMeta.insertLast({ {'startOffset', startOffset} });
-        int doubleslashCommentStart = -1; // offset, includes leading "//"; -1 means None
-        int doubleslashNumSlashes = 0;
+        
+        // pattern - comment
+        string commentPattern = "//";
+        uint commentLevel = 0;
+        int commentStart = -1;
+        bool commentFound = false;
+        
+        // pattern - hyperlink
+        string httpPattern = 'http://';
+        uint httpLevel = 0;
+        int httpStart = -1;
+        bool httpFound = false;
+        
+        string httpBreakChars = " \n\t\"'";
+        bool httpBreakFound = false;
+        int httpBreakPos = -1;
         
         for (uint i = 0; i < this.buffer.length(); i++)
         {
-            if (this.buffer[i] == uint(0x2f)) // ASCII forward slash '/'
+            uint lineIdx = this.bufferLinesMeta.length() - 1;
+        
+            // doubleslash comment
+            if (!commentFound)
             {
-                if (doubleslashCommentStart==-1 && doubleslashNumSlashes == 0)
+                if (this.buffer[i] == commentPattern[commentLevel]
+                    && (httpStart == -1 || httpBreakFound)) // Either we're not in hyperlink yet or we're after it already.)
                 {
-                    // no comment yet and found '/' - mark it.
-                    doubleslashCommentStart = i;
+                    commentLevel++;
+                    
+                    // Record the '//', but make sure it's not within hyperlink!
+                    if (commentStart == -1)
+                    {
+                        commentStart = i;
+                    }
+                    
+                    if (uint(commentLevel) == commentPattern.length())
+                    {
+                        commentFound = true;
+                    }                    
                 }
-                doubleslashNumSlashes++;
+                else
+                {
+                    commentLevel = 0;
+                }
             }
-            else
+            
+            // http protocol
+            if (!httpFound)
             {
-                doubleslashNumSlashes = 0;
+                if (this.buffer[i] == httpPattern[httpLevel])
+                {
+                    httpLevel++;
+                    
+                    if (httpStart == -1)
+                    {
+                        httpStart = i;
+                    }
+                    
+                    if (uint(httpLevel) >= httpPattern.length())
+                    {
+                        httpFound = true;
+                    }                    
+                }
+                else
+                {
+                    httpLevel = 0;
+                }
+            }
+            else if (!httpBreakFound)
+            {
+                for (uint j = 0; j < httpBreakChars.length(); j++)
+                {
+                    if (this.buffer[i] == httpBreakChars[j])
+                    {
+                        httpBreakFound = true;
+                        httpBreakPos = i;
+                    }
+                }
             }
         
             if (this.buffer[i] == uint(0x0a)) // ASCII newline
             {
                 // Finish line
-                uint lineIdx = this.bufferLinesMeta.length() - 1;
+                
                 int endOffset = i;
                 this.bufferLinesMeta[lineIdx]['endOffset'] = endOffset;
                 int len = endOffset - startOffset;
                 this.bufferLinesMeta[lineIdx]['len'] = len;
-                this.bufferLinesMeta[lineIdx]['doubleslashCommentStart'] = doubleslashCommentStart;
-                int nonCommentLen = (doubleslashCommentStart >= 0) ? doubleslashCommentStart - startOffset : len;
+                this.bufferLinesMeta[lineIdx]['doubleslashCommentStart'] = commentStart;
+                int nonCommentLen = (commentStart >= 0) ? commentStart - startOffset : len;
                 this.bufferLinesMeta[lineIdx]['nonCommentLen'] = nonCommentLen;
+                this.bufferLinesMeta[lineIdx]['httpStart'] = (httpFound) ? httpStart : -1;
+                this.bufferLinesMeta[lineIdx]['httpLen'] = (httpFound) ? httpBreakPos-httpStart : -1;
+                this.bufferLinesMeta[lineIdx]['nonHttpLen'] = (httpFound) ? httpStart - startOffset : -1;
+                
+                // reset context
+                commentFound = false;
+                commentStart = -1; // -1 means Empty
+                commentLevel = 0;
+                httpFound = false;
+                httpStart = -1; // -1 means Empty    
+                httpLevel = 0;
+                httpBreakFound = false;
+                httpBreakPos = -1; // -1 means Empty
                 
                 // Start new line
                 startOffset = i+1;
                 this.bufferLinesMeta.insertLast({ {'startOffset', startOffset} });
-                doubleslashCommentStart = -1; // none yet.
             }
         }
     }
