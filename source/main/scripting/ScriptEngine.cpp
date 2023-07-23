@@ -705,10 +705,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     auto main_func = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void main()");
     if ( main_func == nullptr )
     {
-        // The function couldn't be found. Instruct the script writer to include the
-        // expected function in the script.
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format("Could not load script '{}' - there is no function `main()`", moduleName));
+        // The function couldn't be found. Continue without invoking it - other callbacks like `frameStep()` can still run.
         return 0;
     }
 
