@@ -48,6 +48,7 @@
 #include "GUIManager.h"
 #include "GUI_TopMenubar.h"
 #include "Language.h"
+#include "PlatformUtils.h"
 #include "Network.h"
 #include "RoRVersion.h"
 #include "ScriptEngine.h"
@@ -863,6 +864,11 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 #endif // USE_CURL
 
     return 0;
+}
+
+void GameScript::openUrlInDefaultBrowser(const std::string& url)
+{
+    RoR::OpenUrlInDefaultBrowser(url); // PlatformUtils.h
 }
 
 void GameScript::boostCurrentTruck(float factor)

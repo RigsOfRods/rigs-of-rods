@@ -53,6 +53,8 @@ std::string GetParentDirectory(const char* path); //!< Returns UTF-8 path withou
 
 std::time_t GetFileLastModifiedTime(std::string const & path);
 
+void OpenUrlInDefaultBrowser(std::string const& url);
+
 /// @} // addtogroup Application
 
 } // namespace RoR

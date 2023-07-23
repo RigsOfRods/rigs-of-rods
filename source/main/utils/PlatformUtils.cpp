@@ -30,6 +30,7 @@
 #ifdef _MSC_VER
     #include <Windows.h>
     #include <shlobj.h> // SHGetFolderPathW()
+    #include <shellapi.h> // ShellExecute()
 #else
     #include <sys/types.h>
     #include <sys/stat.h>
@@ -148,6 +149,11 @@ std::string GetExecutablePath()
     return MSW_WcharToUtf8(out_wstr.c_str());
 }
 
+void OpenUrlInDefaultBrowser(std::string const& url)
+{
+    ::ShellExecute(0, 0, url.c_str(), 0, 0 , SW_SHOW );
+}
+
 #else
 
 // -------------------------- File/path utils for Linux/*nix --------------------------
@@ -188,6 +194,12 @@ std::string GetExecutablePath()
     }
 
     return std::move(buf_str);
+}
+
+void OpenUrlInDefaultBrowser(std::string const& url)
+{
+    std::string buf = "xdg-open " + url;
+    ::system(buf.c_str());
 }
 
 #endif // _MSC_VER

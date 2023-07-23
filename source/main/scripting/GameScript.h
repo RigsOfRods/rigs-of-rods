@@ -66,6 +66,8 @@ public:
 
     int useOnlineAPI(const Ogre::String& apiquery, const AngelScript::CScriptDictionary& dict, Ogre::String& result);
 
+    void openUrlInDefaultBrowser(const std::string& url);
+
     /**
     * Pushes a message to internal message queue. Parameters are listed in `Script2Game::MsgType` comments.
     * @return True if the message was pushed, false if it was rejected.
