@@ -61,5 +61,12 @@ void RoR::RegisterScriptEvents(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_MESSAGEBOX_CLICK", SE_GENERIC_MESSAGEBOX_CLICK); ROR_ASSERT(result>=0);
 
     result = engine->RegisterEnumValue("scriptEvents", "SE_ALL_EVENTS", SE_ALL_EVENTS); ROR_ASSERT(result>=0);
+
+    // enum angelScriptManipulationType
+    result = engine->RegisterEnum("angelScriptManipulationType"); ROR_ASSERT(result>=0);
+
+    result = engine->RegisterEnumValue("angelScriptManipulationType", "ASMANIP_CONSOLE_SNIPPET_EXECUTED", MANIP_CONSOLE_SNIPPET_EXECUTED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("angelScriptManipulationType", "ASMANIP_SCRIPT_LOADED", MANIP_SCRIPT_LOADED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("angelScriptManipulationType", "ASMANIP_SCRIPT_UNLOADED", MANIP_SCRIPT_UNLOADED); ROR_ASSERT(result >= 0);
     
 }

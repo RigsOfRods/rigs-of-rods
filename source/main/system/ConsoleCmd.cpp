@@ -331,7 +331,7 @@ public:
 
 #ifdef USE_ANGELSCRIPT
         // we want to notify any running scripts that we might change something (prevent cheating)
-        App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS);
+        App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS, MANIP_CONSOLE_SNIPPET_EXECUTED);
 
         // Re-compose the code snippet
         Str<1000> code;
