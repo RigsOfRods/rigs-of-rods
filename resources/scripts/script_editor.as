@@ -133,6 +133,15 @@ class ScriptEditor
     bool waitingForManipEvent = false; // When waiting for async result of (UN)LOAD_SCRIPT_REQUESTED
     string fileNameBuf;
     array<string> recentFileNames;
+    array<dictionary> @localScriptsFileInfo = null;
+
+    void refreshLocalFileList()
+    {    
+        const string RG_NAME = "Scripts";
+        const string RG_PATTERN = "*.*";
+
+        @this.localScriptsFileInfo = game.findResourceFileInfo(RG_NAME, RG_PATTERN);
+    }    
 
     void draw()
     {
@@ -162,7 +171,7 @@ class ScriptEditor
     {
         if (ImGui::BeginMenuBar())
         {
-            if (ImGui::BeginMenu("Load"))
+            if (ImGui::BeginMenu("File"))
             {
                 //string loadTextResourceAsString(const std::string& filename, const std::string& resource_group);
                 ImGui::InputText("File",/*inout:*/ fileNameBuf);
@@ -173,50 +182,66 @@ class ScriptEditor
                     if (recentFileNames.find(fileNameBuf) < 0)
                         recentFileNames.insertLast(fileNameBuf);
                 }
-                
-                if (recentFileNames.length() > 0)
-                {
-                    ImGui::Separator();
-                    ImGui::TextDisabled("Load recent:");
-                    for (uint i = 0; i < recentFileNames.length(); i++)
-                    {
-                        if (ImGui::Button(recentFileNames[i]))
-                        {
-                            this.setBuffer(game.loadTextResourceAsString(recentFileNames[i], RGN_SCRIPTS));
-                        }
-                    }
-                }
-                
-                ImGui::EndMenu();
-            }
-            if (ImGui::BeginMenu("Save"))
-            {
-                ImGui::Checkbox("Overwrite", /*inout:*/saveShouldOverwrite);
-                //bool createTextResourceFromString(const std::string& data, const std::string& filename, const std::string& resource_group, bool overwrite=false);
-                ImGui::InputText("File",/*inout:*/ fileNameBuf);
+                ImGui::SameLine();
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 100.f);
                 if (ImGui::Button("Save"))
                 {
-                    
                     game.createTextResourceFromString(this.buffer, fileNameBuf, RGN_SCRIPTS, saveShouldOverwrite);
                     if (recentFileNames.find(fileNameBuf) < 0)
                         recentFileNames.insertLast(fileNameBuf);
                 }
+                ImGui::SameLine();
+                ImGui::Checkbox("Overwrite", /*inout:*/saveShouldOverwrite);
                 
                 if (recentFileNames.length() > 0)
                 {
                     ImGui::Separator();
-                    ImGui::TextDisabled("Save as recent:");
+                    ImGui::PushID("recentS");                    
+                    ImGui::TextDisabled("Recent files:");
                     for (uint i = 0; i < recentFileNames.length(); i++)
                     {
-                        if (ImGui::Button(recentFileNames[i]))
+                        ImGui::PushID(i);
+                        ImGui::Bullet();
+                        ImGui::SameLine(); ImGui::Text(recentFileNames[i]);
+                        ImGui::SameLine();
+                        if (ImGui::SmallButton("Select"))
                         {
-                            game.createTextResourceFromString(this.buffer, recentFileNames[i], RGN_SCRIPTS, saveShouldOverwrite);
+                            fileNameBuf = recentFileNames[i];
                         }
+                        ImGui::PopID(); // i
                     }
+                    ImGui::PopID(); // "recentS"
                 }
                 
+                if (@this.localScriptsFileInfo != null)
+                {
+                    ImGui::Separator();
+                    ImGui::PushID("localS");     
+                    ImGui::TextDisabled("Local files ("+localScriptsFileInfo.length()+"):");
+                    for (uint i=0; i<localScriptsFileInfo.length(); i++)
+                    {
+                        ImGui::PushID(i);
+                        string filename = string(localScriptsFileInfo[i]['filename']);
+                        uint size = uint(localScriptsFileInfo[i]['compressedSize']);
+                        ImGui::Bullet(); 
+                        ImGui::SameLine(); ImGui::Text(filename);
+                        ImGui::SameLine(); ImGui::TextDisabled("("+float(size)/1000.f+" KB)");
+                        ImGui::SameLine();
+                        if (ImGui::SmallButton("Select"))
+                        {
+                            fileNameBuf = filename;
+                        }   
+                        ImGui::PopID(); // i                        
+                    }
+                    ImGui::PopID(); // "localS"
+                }   
+                else
+                {
+                    ImGui::TextDisabled("localScriptsFileInfo is NULL");
+                }                
+                
                 ImGui::EndMenu();
-            }            
+            }          
             if (ImGui::BeginMenu("View"))
             {
                 ImGui::TextDisabled("Line info:");
@@ -488,7 +513,8 @@ class ScriptEditor
     void setBuffer(string data)
     {
         this.buffer = data;
-        this.analyzeLines();        
+        this.analyzeLines();    
+        this.refreshLocalFileList();        
     }
     
     void runBuffer()
