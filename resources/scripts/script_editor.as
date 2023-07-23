@@ -3,6 +3,8 @@
 // Documentation: http://developer.rigsofrods.org
 // ================================================
 
+#include "imgui_utils.as" // ImHyperlink()
+
 // Global definitions:
 // -------------------
 
@@ -237,6 +239,8 @@ class ScriptEditor
                 ImGui::Checkbox("Comment hilight", /*inout:*/drawCommentHighlights);
                 ImGui::EndMenu();
             }
+            
+            ImGui::Dummy(vector2(50, 1));
             if (this.waitingForManipEvent) // When waiting for async result of (UN)LOAD_SCRIPT_REQUESTED
             {
                 ImGui::TextDisabled("WAIT...");
@@ -258,6 +262,9 @@ class ScriptEditor
                     }
                 }
             }
+            
+            ImGui::Dummy(vector2(50, 1));
+            ImHyperlink('https://developer.rigsofrods.org/d2/d42/group___script_side_a_p_is.html', "Click for documentation");
             
             ImGui::EndMenuBar();
         }
