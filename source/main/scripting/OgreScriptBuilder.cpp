@@ -26,9 +26,14 @@
 #include "OgreScriptBuilder.h"
 
 #include "Application.h"
+#include "Actor.h"
+#include "Console.h"
+#include "ContentManager.h"
 #include "Utils.h"
 
 #include <string>
+
+using namespace RoR;
 
 int OgreScriptBuilder::LoadScriptSection(const char* full_path_cstr)
 {
@@ -59,8 +64,8 @@ int OgreScriptBuilder::LoadScriptSection(const char* full_path_cstr)
     }
     catch (Ogre::Exception& e)
     {
-        LOG("[RoR|Scripting] exception upon loading script file '"+filename+"', message: " + e.getFullDescription());
-        return -1;
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, e.getDescription());
+        return -2;
     }
     // In some cases (i.e. when fed a full path with '/'-s on Windows), `openResource()` will silently return NULL for datastream. ~ only_a_ptr, 08/2017
     if (ds.isNull())

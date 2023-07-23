@@ -655,7 +655,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     // If buffer is non-empty, load from memory; otherwise from filesystem as usual.
     if (m_script_units[unit_id].scriptBuffer != "")
     {
-        result = m_script_units[unit_id].scriptModule->AddScriptSection(m_script_units[unit_id].scriptName.c_str(), m_script_units[unit_id].scriptBuffer.c_str());
+        result = builder.AddSectionFromMemory(m_script_units[unit_id].scriptName.c_str(), m_script_units[unit_id].scriptBuffer.c_str());
         if (result < 0)
         {
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
