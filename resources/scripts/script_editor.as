@@ -21,6 +21,7 @@ enum asEMsgType
 };
 // from rigs of rods
 int SCRIPTUNITID_INVALID = -1;
+const string RGN_SCRIPTS = "Scripts";
 // others
 const string BUFFER_TEXTINPUT_LABEL = "##bufferTextInputLbl";
 ScriptEditor editor;
@@ -56,6 +57,9 @@ ScriptEditor editor;
     bool drawWarnText = true;
     color commentHighlightColor = color(0.1f,0.9f,0.6f,0.16f);
     bool drawCommentHighlights = true;
+    
+    // input output
+    bool saveShouldOverwrite=false;
 // END editor
 
 // Callback functions for the game:
@@ -66,8 +70,7 @@ void main() // Invoked by the game on startup
     game.log("Script editor started!");
     game.registerForEvent(SE_ANGELSCRIPT_MSGCALLBACK);
     game.registerForEvent(SE_ANGELSCRIPT_MANIPULATIONS);
-    editor.buffer=TUT_SCRIPT;
-    editor.analyzeLines();
+    editor.setBuffer(TUT_SCRIPT);
 }
 
 
@@ -126,11 +129,13 @@ class ScriptEditor
     string bufferName = "(editor buffer)";
     int currentScriptUnitID = SCRIPTUNITID_INVALID;
     bool waitingForManipEvent = false; // When waiting for async result of (UN)LOAD_SCRIPT_REQUESTED
+    string fileNameBuf;
+    array<string> recentFileNames;
 
     void draw()
     {
     
-        int flags = ImGuiWindowFlags_MenuBar;
+        int flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar;
         ImGui::Begin("Script editor", /*open:*/true, flags);
         
             this.drawMenubar();
@@ -155,11 +160,61 @@ class ScriptEditor
     {
         if (ImGui::BeginMenuBar())
         {
-            if (ImGui::BeginMenu("File"))
+            if (ImGui::BeginMenu("Load"))
             {
-                if (ImGui::MenuItem("Dummy menu item")) {}
+                //string loadTextResourceAsString(const std::string& filename, const std::string& resource_group);
+                ImGui::InputText("File",/*inout:*/ fileNameBuf);
+                if (ImGui::Button("Load"))
+                {
+                    
+                    this.setBuffer(game.loadTextResourceAsString(fileNameBuf, RGN_SCRIPTS));
+                    if (recentFileNames.find(fileNameBuf) < 0)
+                        recentFileNames.insertLast(fileNameBuf);
+                }
+                
+                if (recentFileNames.length() > 0)
+                {
+                    ImGui::Separator();
+                    ImGui::TextDisabled("Load recent:");
+                    for (uint i = 0; i < recentFileNames.length(); i++)
+                    {
+                        if (ImGui::Button(recentFileNames[i]))
+                        {
+                            this.setBuffer(game.loadTextResourceAsString(recentFileNames[i], RGN_SCRIPTS));
+                        }
+                    }
+                }
+                
                 ImGui::EndMenu();
             }
+            if (ImGui::BeginMenu("Save"))
+            {
+                ImGui::Checkbox("Overwrite", /*inout:*/saveShouldOverwrite);
+                //bool createTextResourceFromString(const std::string& data, const std::string& filename, const std::string& resource_group, bool overwrite=false);
+                ImGui::InputText("File",/*inout:*/ fileNameBuf);
+                if (ImGui::Button("Save"))
+                {
+                    
+                    game.createTextResourceFromString(this.buffer, fileNameBuf, RGN_SCRIPTS, saveShouldOverwrite);
+                    if (recentFileNames.find(fileNameBuf) < 0)
+                        recentFileNames.insertLast(fileNameBuf);
+                }
+                
+                if (recentFileNames.length() > 0)
+                {
+                    ImGui::Separator();
+                    ImGui::TextDisabled("Save as recent:");
+                    for (uint i = 0; i < recentFileNames.length(); i++)
+                    {
+                        if (ImGui::Button(recentFileNames[i]))
+                        {
+                            game.createTextResourceFromString(this.buffer, recentFileNames[i], RGN_SCRIPTS, saveShouldOverwrite);
+                        }
+                    }
+                }
+                
+                ImGui::EndMenu();
+            }            
             if (ImGui::BeginMenu("View"))
             {
                 ImGui::TextDisabled("Line info:");
@@ -422,6 +477,12 @@ class ScriptEditor
             +") scroll: X="+scrollX+"/"+scrollMaxX
                 +"; Y="+scrollY+"/"+scrollMaxY+"");    
     }    
+    
+    void setBuffer(string data)
+    {
+        this.buffer = data;
+        this.analyzeLines();        
+    }
     
     void runBuffer()
     {
