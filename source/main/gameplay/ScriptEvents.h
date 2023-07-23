@@ -51,13 +51,20 @@ enum scriptEvents
     SE_TRUCK_TELEPORT                  = BITMASK(16), //!< triggered when the user teleports the truck, the argument refers to the actor ID of the vehicle
     SE_TRUCK_MOUSE_GRAB                = BITMASK(17), //!< triggered when the user uses the mouse to interact with the actor, the argument refers to the actor ID
 
-    SE_ANGELSCRIPT_MANIPULATIONS       = BITMASK(18), //!< triggered when the user tries to dynamically use the scripting capabilities (prevent cheating)
+    SE_ANGELSCRIPT_MANIPULATIONS       = BITMASK(18), //!< triggered when the user tries to dynamically use the scripting capabilities (prevent cheating) args: #1 angelScriptManipulationType, #2 ScriptUnitId_t, #3 RoR::ScriptCategory, #4 unused, #5 filename
     SE_ANGELSCRIPT_MSGCALLBACK         = BITMASK(19), //!< The diagnostic info directly from AngelScript engine (see `asSMessageInfo`), args: #1 ScriptUnitID, #2 asEMsgType, #3 row, #4 col, #5 sectionName, #6 message
 
     SE_GENERIC_MESSAGEBOX_CLICK        = BITMASK(20), //!< triggered when the user clicks on a message box button, the argument refers to the button pressed
 
     SE_ALL_EVENTS                      = 0xffffffff,
 
+};
+
+enum angelScriptManipulationType
+{
+    MANIP_CONSOLE_SNIPPET_EXECUTED = 0, // Backwards compat
+    MANIP_SCRIPT_LOADED,
+    MANIP_SCRIPT_UNLOADED
 };
 
 /// Args for `eventCallbackEx()` queued via `MSG_SIM_SCRIPT_EVENT_TRIGGERED`
