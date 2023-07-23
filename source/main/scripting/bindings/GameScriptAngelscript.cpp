@@ -53,6 +53,7 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "float getAvgFPS()", asMETHOD(GameScript, getAvgFPS), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "float rangeRandom(float, float)", asMETHOD(GameScript,rangeRandom), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int useOnlineAPI(const string &in, const dictionary &in, string &out)", asMETHOD(GameScript, useOnlineAPI), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void openUrlInDefaultBrowser(const string &in)", asMETHOD(GameScript, openUrlInDefaultBrowser), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "bool pushMessage(MsgType, dictionary@)", asMETHOD(GameScript, pushMessage), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "bool checkResourceExists(const string &in, const string &in)", asMETHOD(GameScript, checkResourceExists), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "bool deleteResource(const string &in, const string &in)", asMETHOD(GameScript, deleteResource), asCALL_THISCALL); ROR_ASSERT(result >= 0);
