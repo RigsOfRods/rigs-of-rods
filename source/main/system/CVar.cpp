@@ -111,6 +111,7 @@ void Console::cVarSetupBuiltins()
     App::sys_profiler_dir        = this->cVarCreate("sys_profiler_dir",        "Profiler output dir",        0);
     App::sys_savegames_dir       = this->cVarCreate("sys_savegames_dir",       "",                           0);
     App::sys_screenshot_dir      = this->cVarCreate("sys_screenshot_dir",      "",                           0);
+    App::sys_scripts_dir         = this->cVarCreate("sys_scripts_dir",         "",                           0);
 
     App::cli_server_host         = this->cVarCreate("cli_server_host",         "",                           0);
     App::cli_server_port         = this->cVarCreate("cli_server_port",         "",                                          CVAR_TYPE_INT,     "0");

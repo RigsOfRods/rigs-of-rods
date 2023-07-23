@@ -37,6 +37,7 @@
 #define RGN_CONTENT "Content"
 #define RGN_SAVEGAMES "Savegames"
 #define RGN_MANAGED_MATS "ManagedMaterials"
+#define RGN_SCRIPTS "Scripts"
 
 namespace RoR {
 
