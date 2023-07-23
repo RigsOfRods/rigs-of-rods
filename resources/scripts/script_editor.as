@@ -15,6 +15,9 @@ enum asEMsgType
 	asMSGTYPE_WARNING     = 1,
 	asMSGTYPE_INFORMATION = 2
 };
+// from rigs of rods
+int SCRIPTUNITID_INVALID = -1;
+// others
 const string BUFFER_TEXTINPUT_LABEL = "##bufferTextInputLbl";
 ScriptEditor editor;
 
@@ -52,6 +55,7 @@ void main() // Invoked by the game on startup
 {
     game.log("Script editor started!");
     game.registerForEvent(SE_ANGELSCRIPT_MSGCALLBACK);
+    game.registerForEvent(SE_ANGELSCRIPT_MANIPULATIONS);
     editor.buffer=TUT_SCRIPT;
     editor.analyzeLines();
 }
@@ -70,8 +74,14 @@ void eventCallbackEx(scriptEvents ev, // Invoked by the game when a registered e
     if (ev == SE_ANGELSCRIPT_MSGCALLBACK)
     {
         editor.onEventAngelScriptMsg(
-            /*id:*/arg1, /*eType:*/arg2ex, /*row:*/arg3ex, /*col:*/arg4ex,
-            /*sectionName:*/arg5ex, /*msg:*/arg6ex);
+            /*id:*/arg1, /*eType:*/arg2ex, /*row:*/arg3ex, /*col:*/arg4ex, // ints
+            /*sectionName:*/arg5ex, /*msg:*/arg6ex); // strings
+    }
+    else if (ev == SE_ANGELSCRIPT_MANIPULATIONS)
+    {
+        editor.onEventAngelScriptManip(
+            /*manipType:*/arg1, /*nid:*/arg2ex, /*category:*/arg3ex, // ints
+            /*name:*/arg5ex); // strings
     }
 }
 
@@ -103,6 +113,9 @@ class ScriptEditor
     float errCountOffset=0.f;
     vector2 errorsScreenCursor(0,0);
     vector2 errorsTextAreaSize(0,0);
+    string bufferName = "(editor buffer)";
+    int currentScriptUnitID = SCRIPTUNITID_INVALID;
+    bool waitingForManipEvent = false; // When waiting for async result of (UN)LOAD_SCRIPT_REQUESTED
 
     void draw()
     {
@@ -147,10 +160,27 @@ class ScriptEditor
                 ImGui::Checkbox("Error text", /*inout:*/drawErrorText);
                 ImGui::Checkbox("Warning text", /*inout:*/drawWarnText);
                 ImGui::EndMenu();
-            }              
-            if (ImGui::Button("|> RUN"))
+            }
+            if (this.waitingForManipEvent) // When waiting for async result of (UN)LOAD_SCRIPT_REQUESTED
             {
-                this.runBuffer();
+                ImGui::TextDisabled("WAIT...");
+            }
+            else
+            {
+                if (this.currentScriptUnitID == SCRIPTUNITID_INVALID)
+                {            
+                    if (ImGui::Button("[>>] RUN"))
+                    {
+                        this.runBuffer();
+                    }
+                }
+                else
+                {
+                    if (ImGui::Button("[X] STOP"))
+                    {
+                        this.stopBuffer();
+                    }
+                }
             }
             
             ImGui::EndMenuBar();
@@ -211,9 +241,6 @@ class ScriptEditor
         // draw messages to text area
         //===========================
         
-        if (!drawErrorText)
-            return;
-            
         vector2 msgCursorBase = screenCursor + vector2(4, -this.scrollY);
         
         int bufferNumLines = int(this.bufferLinesMeta.length());
@@ -241,6 +268,26 @@ class ScriptEditor
                 int msgType = int(this.messages[msgIdx]['type']);
                 string msgText = string(this.messages[msgIdx]['message']);
                 
+                color col, bgCol;
+                bool shouldDraw = false;
+                switch (msgType)
+                {
+                    case asMSGTYPE_ERROR:
+                        col = errorTextColor;
+                        bgCol = errorTextBgColor;
+                        shouldDraw = drawErrorText;
+                        break;
+                    case asMSGTYPE_WARNING:
+                        col = warnTextColor;
+                        bgCol = warnTextBgColor;
+                        shouldDraw = drawWarnText;
+                        break;
+                    default:;
+                }
+                
+                if (!shouldDraw)
+                    continue;
+                
                 // Calc horizontal offset
                 string subStr = buffer.substr(errStartOffset, msgCol-1);
                 vector2 textPos = lineCursor + vector2(
@@ -250,8 +297,6 @@ class ScriptEditor
                 // Draw message text with background
                 string errText = "^ "+msgText;
                 vector2 errTextSize = ImGui::CalcTextSize(errText);
-                color col = (msgType == asMSGTYPE_WARNING) ? warnTextColor : errorTextColor;
-                color bgCol = (msgType == asMSGTYPE_WARNING) ? warnTextBgColor : errorTextBgColor;
                 drawlist.AddRectFilled(textPos, textPos+errTextSize, bgCol);
                 drawlist.AddText(textPos , col, errText);
                 
@@ -313,7 +358,13 @@ class ScriptEditor
     {
         // footer with status info
         ImGui::Separator();
-        ImGui::Text("lines: "+bufferLinesMeta.length()
+        string runningTxt = "NOT RUNNING";
+        if (this.currentScriptUnitID != SCRIPTUNITID_INVALID)
+        {
+            runningTxt = "RUNNING (NID: "+this.currentScriptUnitID+")";
+        }
+        ImGui::Text(runningTxt
+            +"; lines: "+bufferLinesMeta.length()
             +"; messages:"+this.messages.length()
                 +"(err:"+this.messagesTotalErr
                 +"/warn:"+this.messagesTotalWarn
@@ -329,20 +380,55 @@ class ScriptEditor
         
         
         game.pushMessage(MSG_APP_LOAD_SCRIPT_REQUESTED, {
-            {'filename', '(editor buffer)'}, // Because we supply the buffer, this will serve only as display name
+            {'filename', this.bufferName}, // Because we supply the buffer, this will serve only as display name
             {'buffer', this.buffer },
             {'category', SCRIPT_CATEGORY_CUSTOM}
         });
+        waitingForManipEvent=true;
     }
+    
+    void stopBuffer()
+    {
+        game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, {
+            {'id', this.currentScriptUnitID}
+        });
+        waitingForManipEvent=true;
+    }    
     
     void onEventAngelScriptMsg(int scriptUnitId, int msgType, int row, int col, string sectionName, string message)
     {
-        /*game.log("DBG onEventAngelScriptMsg(): scriptUnitId:" + scriptUnitId
+        /*game.log("DBG '"+this.bufferName+"' onEventAngelScriptMsg(): scriptUnitId:" + scriptUnitId
             + ", msgType:" + msgType + ", row:" + row + ", col:" + col // ints
             + ", sectionName:" + sectionName + ", message:" + message); // strings*/
             
         messages.insertLast({ {'type', msgType}, {'row',row}, {'col', col}, {'sectionName', sectionName}, {'message', message} });
         this.analyzeMessages();
+    }
+    
+    void onEventAngelScriptManip(int manipType, int scriptUnitId, int scriptCategory, string scriptName)
+    {
+        /*game.log ("DBG '"+this.bufferName+"'.onEventAngelScriptManip(): manipType:"+ manipType+", scriptUnitId:"+ scriptUnitId
+            + ", scriptCategory:"+scriptCategory+", scriptName:"+scriptName+"; //this.waitingForManipEvent:"+this.waitingForManipEvent);*/
+        
+        if (this.waitingForManipEvent)
+        {        
+            if (manipType == ASMANIP_SCRIPT_LOADED
+                && this.currentScriptUnitID == SCRIPTUNITID_INVALID
+                && this.bufferName == scriptName)
+            {
+                this.currentScriptUnitID = scriptUnitId;
+                waitingForManipEvent = false;
+                /*game.log ("DBG '"+this.bufferName+"'.onEventAngelScriptManip(): Now running with NID="+this.currentScriptUnitID);*/
+            }
+            else if (manipType == ASMANIP_SCRIPT_UNLOADED
+                && this.currentScriptUnitID != SCRIPTUNITID_INVALID
+                && this.bufferName == scriptName)
+            {
+                /*game.log ("DBG '"+this.bufferName+"'.onEventAngelScriptManip(): Stopping, was using NID="+this.currentScriptUnitID);*/
+                this.currentScriptUnitID = SCRIPTUNITID_INVALID;
+                waitingForManipEvent = false;
+            }
+        }
     }
     
     void analyzeLines()
@@ -459,9 +545,10 @@ void frameStep(float dt)
     
     // format the output 
     string ttStr = "Total time: " + formatFloat(tt, "", 5, 2) + "sec";
-    string dtStr = "Delta time: " + formatFloat(dt, "", 5, 2) + "sec";
+    string dtStr = "Delta time: " + formatFloat(dt, "", 7, 4) + "sec";
     
     // draw the output to implicit window titled "Debug"
-    ImGui::Text(ttStr + "; " + dtStr);
+    ImGui::Text(ttStr);
+    ImGui::Text(dtStr);
 }
 """;
