@@ -57,6 +57,7 @@ void RoR::RegisterScriptEvents(asIScriptEngine *engine)
 
     result = engine->RegisterEnumValue("scriptEvents", "SE_ANGELSCRIPT_MANIPULATIONS", SE_ANGELSCRIPT_MANIPULATIONS); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_ANGELSCRIPT_MSGCALLBACK", SE_ANGELSCRIPT_MSGCALLBACK); ROR_ASSERT(result>=0);
+    result = engine->RegisterEnumValue("scriptEvents", "SE_ANGELSCRIPT_LINECALLBACK", SE_ANGELSCRIPT_LINECALLBACK); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_ANGELSCRIPT_THREAD_STATUS", SE_ANGELSCRIPT_THREAD_STATUS); ROR_ASSERT(result>=0);
 
     result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_MESSAGEBOX_CLICK", SE_GENERIC_MESSAGEBOX_CLICK); ROR_ASSERT(result>=0);
