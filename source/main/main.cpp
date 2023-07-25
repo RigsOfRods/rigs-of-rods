@@ -418,6 +418,15 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_APP_SCRIPT_THREAD_STATUS:
+                {
+                    ScriptEventArgs* args = static_cast<ScriptEventArgs*>(m.payload);
+                    App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_THREAD_STATUS,
+                        args->arg1, args->arg2ex, args->arg3ex, args->arg4ex, args->arg5ex, args->arg6ex, args->arg7ex);
+                    delete args;
+                    break;
+                }
+
                 // -- Network events --
 
                 case MSG_NET_CONNECT_REQUESTED:

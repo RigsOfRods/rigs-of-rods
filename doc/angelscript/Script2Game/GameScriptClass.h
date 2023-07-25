@@ -125,6 +125,15 @@ public:
     */
     bool createTextResourceFromString(const string &in, const string &in filename, const string &in resource_group, bool overwrite=false);
     
+    /**
+    * Opens URL (must start with 'http://' or 'https://') in system's default web browser.
+    */
+    void openUrlInDefaultBrowser(const std::string& url);
+
+    /**
+    * Invokes a background thread to fetch data using CURL; when finished, sends MSG_APP_SCRIPT_THREAD_STATUS + Payload = RoR::ScriptEventArgs* (owner) - see `SE_ANGELSCRIPT_THREAD_STATUS` for arguments.
+    */
+    void fetchUrlAsStringAsync(const std::string& url, const std::string& display_filename);
     
     /// @}
 
