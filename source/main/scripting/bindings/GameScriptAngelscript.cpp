@@ -60,6 +60,7 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "string loadTextResourceAsString(const string &in, const string &in)", asMETHOD(GameScript, loadTextResourceAsString), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "bool createTextResourceFromString(const string &in, const string &in, const string &in, bool=false)", asMETHOD(GameScript, createTextResourceFromString), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "array<dictionary>@ findResourceFileInfo(const string &in, const string &in, bool=false)", asMETHOD(GameScript, findResourceFileInfo), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void fetchUrlAsStringAsync(const string &in, const string &in)", asMETHOD(GameScript, fetchUrlAsStringAsync), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // > GUI
     result = engine->RegisterObjectMethod("GameScriptClass", "void flashMessage(const string &in, float, float)", asMETHOD(GameScript, flashMessage), asCALL_THISCALL); ROR_ASSERT(result >= 0);

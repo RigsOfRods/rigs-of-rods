@@ -53,8 +53,9 @@ enum scriptEvents
 
     SE_ANGELSCRIPT_MANIPULATIONS       = BITMASK(18), //!< triggered when the user tries to dynamically use the scripting capabilities (prevent cheating) args: #1 angelScriptManipulationType, #2 ScriptUnitId_t, #3 RoR::ScriptCategory, #4 unused, #5 filename
     SE_ANGELSCRIPT_MSGCALLBACK         = BITMASK(19), //!< The diagnostic info directly from AngelScript engine (see `asSMessageInfo`), args: #1 ScriptUnitID, #2 asEMsgType, #3 row, #4 col, #5 sectionName, #6 message
+    SE_ANGELSCRIPT_THREAD_STATUS       = BITMASK(20), //!< Sent by background threads (i.e. CURL) when there's something important (like finishing a download). args: #1 type, see `RoR::angelScriptThreadStatus`.
 
-    SE_GENERIC_MESSAGEBOX_CLICK        = BITMASK(20), //!< triggered when the user clicks on a message box button, the argument refers to the button pressed
+    SE_GENERIC_MESSAGEBOX_CLICK        = BITMASK(21), //!< triggered when the user clicks on a message box button, the argument refers to the button pressed    
 
     SE_ALL_EVENTS                      = 0xffffffff,
 
@@ -65,6 +66,14 @@ enum angelScriptManipulationType
     MANIP_CONSOLE_SNIPPET_EXECUTED = 0, // Backwards compat
     MANIP_SCRIPT_LOADED,
     MANIP_SCRIPT_UNLOADED
+};
+
+enum angelScriptThreadStatus
+{
+    ASTHREADSTATUS_NONE,
+    ASTHREADSTATUS_CURLSTRING_PROGRESS, //!< Args of `RoR::SE_ANGELSCRIPT_THREAD_STATUS`: arg#1 type, arg#2 percentage, arg#3 unused, arg#4 unused, arg#5 progress message (formatted by RoR)
+    ASTHREADSTATUS_CURLSTRING_SUCCESS,  //!< Args of `RoR::SE_ANGELSCRIPT_THREAD_STATUS`: arg#1 type, arg#2 HTTP code, arg#3 CURLcode, arg#4 unused, arg#5 payload
+    ASTHREADSTATUS_CURLSTRING_FAILURE,  //!< Args of `RoR::SE_ANGELSCRIPT_THREAD_STATUS`: arg#1 type, arg#2 HTTP code, arg#3 CURLcode, arg#4 unused, arg#5 message from `curl_easy_strerror()`
 };
 
 /// Args for `eventCallbackEx()` queued via `MSG_SIM_SCRIPT_EVENT_TRIGGERED`

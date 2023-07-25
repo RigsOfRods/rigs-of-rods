@@ -42,6 +42,7 @@
 #include "ChatSystem.h"
 #include "Collisions.h"
 #include "Console.h"
+#include "CurlHelpers.h"
 #include "EngineSim.h"
 #include "GameContext.h"
 #include "GfxScene.h"
@@ -869,6 +870,22 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
 void GameScript::openUrlInDefaultBrowser(const std::string& url)
 {
     RoR::OpenUrlInDefaultBrowser(url); // PlatformUtils.h
+}
+
+void GameScript::fetchUrlAsStringAsync(const std::string& url, const std::string& display_filename)
+{
+#if defined(USE_CURL)
+    CurlTaskContext task;
+    task.ctc_url = url;
+    task.ctc_displayname = display_filename;
+    // Messages to post                                     // See `RoR::angelScriptThreadStatus`
+    task.ctc_msg_progress = MSG_APP_SCRIPT_THREAD_STATUS;  // `RoR::ASTHREADSTATUS_CURLSTRING_PROGRESS`
+    task.ctc_msg_success = MSG_APP_SCRIPT_THREAD_STATUS;   // `RoR::ASTHREADSTATUS_CURLSTRING_SUCCESS`
+    task.ctc_msg_failure = MSG_APP_SCRIPT_THREAD_STATUS;   // `RoR::ASTHREADSTATUS_CURLSTRING_FAILURE`
+
+    std::packaged_task<void(CurlTaskContext)> pktask(GetUrlAsStringMQ);
+    std::thread(std::move(pktask), task).detach();
+#endif // defined(USE_CURL)
 }
 
 void GameScript::boostCurrentTruck(float factor)

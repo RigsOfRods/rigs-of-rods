@@ -73,6 +73,7 @@ enum MsgType
     MSG_APP_MODCACHE_PURGE_REQUESTED,
     MSG_APP_LOAD_SCRIPT_REQUESTED,         //!< Payload = RoR::LoadScriptRequest* (owner)
     MSG_APP_UNLOAD_SCRIPT_REQUESTED,       //!< Payload = RoR::ScriptUnitId_t* (owner)
+    MSG_APP_SCRIPT_THREAD_STATUS,          //!< Payload = RoR::ScriptEventArgs* (owner)
     // Networking
     MSG_NET_CONNECT_REQUESTED,
     MSG_NET_CONNECT_STARTED,

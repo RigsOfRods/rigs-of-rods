@@ -57,6 +57,7 @@ void RoR::RegisterScriptEvents(asIScriptEngine *engine)
 
     result = engine->RegisterEnumValue("scriptEvents", "SE_ANGELSCRIPT_MANIPULATIONS", SE_ANGELSCRIPT_MANIPULATIONS); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_ANGELSCRIPT_MSGCALLBACK", SE_ANGELSCRIPT_MSGCALLBACK); ROR_ASSERT(result>=0);
+    result = engine->RegisterEnumValue("scriptEvents", "SE_ANGELSCRIPT_THREAD_STATUS", SE_ANGELSCRIPT_THREAD_STATUS); ROR_ASSERT(result>=0);
 
     result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_MESSAGEBOX_CLICK", SE_GENERIC_MESSAGEBOX_CLICK); ROR_ASSERT(result>=0);
 
@@ -68,5 +69,13 @@ void RoR::RegisterScriptEvents(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("angelScriptManipulationType", "ASMANIP_CONSOLE_SNIPPET_EXECUTED", MANIP_CONSOLE_SNIPPET_EXECUTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("angelScriptManipulationType", "ASMANIP_SCRIPT_LOADED", MANIP_SCRIPT_LOADED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("angelScriptManipulationType", "ASMANIP_SCRIPT_UNLOADED", MANIP_SCRIPT_UNLOADED); ROR_ASSERT(result >= 0);
-    
+
+    // enum angelScriptThreadStatus
+    result = engine->RegisterEnum("angelScriptThreadStatus"); ROR_ASSERT(result>=0);
+
+    result = engine->RegisterEnumValue("angelScriptThreadStatus", "ASTHREADSTATUS_NONE", ASTHREADSTATUS_NONE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("angelScriptThreadStatus", "ASTHREADSTATUS_CURLSTRING_PROGRESS", ASTHREADSTATUS_CURLSTRING_PROGRESS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("angelScriptThreadStatus", "ASTHREADSTATUS_CURLSTRING_SUCCESS", ASTHREADSTATUS_CURLSTRING_SUCCESS ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("angelScriptThreadStatus", "ASTHREADSTATUS_CURLSTRING_FAILURE", ASTHREADSTATUS_CURLSTRING_FAILURE ); ROR_ASSERT(result >= 0);
+
 }

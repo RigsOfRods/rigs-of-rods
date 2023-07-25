@@ -66,7 +66,15 @@ public:
 
     int useOnlineAPI(const Ogre::String& apiquery, const AngelScript::CScriptDictionary& dict, Ogre::String& result);
 
+    /**
+    * Opens URL (must start with 'http://' or 'https://') in system's default web browser.
+    */
     void openUrlInDefaultBrowser(const std::string& url);
+
+    /**
+    * Invokes a background thread to fetch data using CURL; when finished, sends MSG_APP_SCRIPT_THREAD_STATUS + Payload = RoR::ScriptEventArgs* (owner) - see `SE_ANGELSCRIPT_THREAD_STATUS` for arguments.
+    */
+    void fetchUrlAsStringAsync(const std::string& url, const std::string& display_filename);
 
     /**
     * Pushes a message to internal message queue. Parameters are listed in `Script2Game::MsgType` comments.
