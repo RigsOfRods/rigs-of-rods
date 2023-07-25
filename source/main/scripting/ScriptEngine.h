@@ -222,6 +222,12 @@ protected:
      */
     void msgCallback(const AngelScript::asSMessageInfo* msg);
 
+    /**
+    * Optional callback which receives diagnostic info for every executed statement.
+    * https://www.angelcode.com/angelscript/sdk/docs/manual/classas_i_script_context.html#ae2747f643bf9a07364f922c460ef57dd
+    */
+    void lineCallback(AngelScript::asIScriptContext* ctx);
+
     Ogre::String composeModuleName(Ogre::String const& scriptName, ScriptCategory origin, ScriptUnitId_t id);
 
     /**

@@ -197,6 +197,26 @@ void ScriptEngine::msgCallback(const AngelScript::asSMessageInfo *msg)
         msg->section, msg->message); // strings
 }
 
+std::string ptr2str(const char* ptr) { if (ptr) return ptr; else return ""; }
+
+void ScriptEngine::lineCallback(AngelScript::asIScriptContext* ctx)
+{
+    std::string funcName, funcObjTypeName, objName;
+    if (ctx->GetFunction())
+    {
+        funcName = ptr2str(ctx->GetFunction()->GetName());
+        objName = ptr2str(ctx->GetFunction()->GetObjectName());
+        if (ctx->GetFunction()->GetObjectType())
+            funcObjTypeName = ptr2str(ctx->GetFunction()->GetObjectType()->GetName());
+    }
+    TRIGGER_EVENT_ASYNC(SE_ANGELSCRIPT_LINECALLBACK,
+       // ints
+        m_currently_executing_script_unit, ctx->GetLineNumber(), ctx->GetCallstackSize(), 0,
+       // strings
+        funcName, funcObjTypeName, objName
+    ); 
+}
+
 int ScriptEngine::framestep(Real dt)
 {
     // Check if we need to execute any strings
@@ -221,6 +241,10 @@ int ScriptEngine::framestep(Real dt)
 
         context->Prepare(m_script_units[id].frameStepFunctionPtr);
 
+        // Automatically attach the LineCallback if the script registered for the event.
+        if (m_script_units[id].eventMask & SE_ANGELSCRIPT_LINECALLBACK)
+            context->SetLineCallback(asMETHOD(ScriptEngine, lineCallback), this, asCALL_THISCALL);            
+
         // Set the function arguments
         context->SetArgFloat(0, dt);
 
@@ -232,6 +256,9 @@ int ScriptEngine::framestep(Real dt)
             // The return value is only valid if the execution finished successfully
             AngelScript::asDWORD ret = context->GetReturnDWord();
         }
+
+        // Clear the line callback so it doesn't intercept game callbacks (causes infinite loop).
+        context->ClearLineCallback();
     }
     return 0;
 }
