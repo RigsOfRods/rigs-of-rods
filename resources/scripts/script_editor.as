@@ -24,6 +24,7 @@ enum asEMsgType
 // from rigs of rods
 int SCRIPTUNITID_INVALID = -1;
 const string RGN_SCRIPTS = "Scripts";
+const string RGN_RESOURCES_SCRIPTS = "ScriptsRG";
 // others
 const string BUFFER_TEXTINPUT_LABEL = "##bufferTextInputLbl";
 const color LINKCOLOR = color(0.3, 0.5, 0.9, 1.0);
@@ -138,15 +139,15 @@ class ScriptEditor
     int currentScriptUnitID = SCRIPTUNITID_INVALID;
     bool waitingForManipEvent = false; // When waiting for async result of (UN)LOAD_SCRIPT_REQUESTED
     string fileNameBuf;
-    array<string> recentFileNames;
+    string exampleNameBuf;
+    array<dictionary> @recentScriptsFileInfo = array<dictionary>();
     array<dictionary> @localScriptsFileInfo = null;
+    array<dictionary> @exampleScriptsFileInfo = null;
 
     void refreshLocalFileList()
-    {    
-        const string RG_NAME = "Scripts";
-        const string RG_PATTERN = "*.*";
-
-        @this.localScriptsFileInfo = game.findResourceFileInfo(RG_NAME, RG_PATTERN);
+    {
+        @this.localScriptsFileInfo = game.findResourceFileInfo(RGN_SCRIPTS, "*.*");
+        @this.exampleScriptsFileInfo = game.findResourceFileInfo(RGN_RESOURCES_SCRIPTS, "example_*.*");
     }    
 
     void draw()
@@ -186,69 +187,38 @@ class ScriptEditor
                 {
                     
                     this.setBuffer(game.loadTextResourceAsString(fileNameBuf, RGN_SCRIPTS));
-                    if (recentFileNames.find(fileNameBuf) < 0)
-                        recentFileNames.insertLast(fileNameBuf);
+                    this.addRecentScript(fileNameBuf);
+                        
                 }
                 ImGui::SameLine();
                 ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 100.f);
                 if (ImGui::Button("Save"))
                 {
                     game.createTextResourceFromString(this.buffer, fileNameBuf, RGN_SCRIPTS, saveShouldOverwrite);
-                    if (recentFileNames.find(fileNameBuf) < 0)
-                        recentFileNames.insertLast(fileNameBuf);
+                    this.addRecentScript(fileNameBuf);
                 }
                 ImGui::SameLine();
                 ImGui::Checkbox("Overwrite", /*inout:*/saveShouldOverwrite);
                 
-                if (recentFileNames.length() > 0)
-                {
-                    ImGui::Separator();
-                    ImGui::PushID("recentS");                    
-                    ImGui::TextDisabled("Recent files:");
-                    for (uint i = 0; i < recentFileNames.length(); i++)
-                    {
-                        ImGui::PushID(i);
-                        ImGui::Bullet();
-                        ImGui::SameLine(); ImGui::Text(recentFileNames[i]);
-                        ImGui::SameLine();
-                        if (ImGui::SmallButton("Select"))
-                        {
-                            fileNameBuf = recentFileNames[i];
-                        }
-                        ImGui::PopID(); // i
-                    }
-                    ImGui::PopID(); // "recentS"
-                }
+                this.drawSelectableFileList("Recent scripts", recentScriptsFileInfo, /*&inout*/ fileNameBuf);
                 
-                if (@this.localScriptsFileInfo != null)
-                {
-                    ImGui::Separator();
-                    ImGui::PushID("localS");     
-                    ImGui::TextDisabled("Local files ("+localScriptsFileInfo.length()+"):");
-                    for (uint i=0; i<localScriptsFileInfo.length(); i++)
-                    {
-                        ImGui::PushID(i);
-                        string filename = string(localScriptsFileInfo[i]['filename']);
-                        uint size = uint(localScriptsFileInfo[i]['compressedSize']);
-                        ImGui::Bullet(); 
-                        ImGui::SameLine(); ImGui::Text(filename);
-                        ImGui::SameLine(); ImGui::TextDisabled("("+float(size)/1000.f+" KB)");
-                        ImGui::SameLine();
-                        if (ImGui::SmallButton("Select"))
-                        {
-                            fileNameBuf = filename;
-                        }   
-                        ImGui::PopID(); // i                        
-                    }
-                    ImGui::PopID(); // "localS"
-                }   
-                else
-                {
-                    ImGui::TextDisabled("localScriptsFileInfo is NULL");
-                }                
+                this.drawSelectableFileList("Local scripts", localScriptsFileInfo, /*&inout*/ fileNameBuf);
                 
                 ImGui::EndMenu();
-            }          
+            }
+            if (ImGui::BeginMenu("Examples"))
+            {
+                //string loadTextResourceAsString(const std::string& filename, const std::string& resource_group);
+                ImGui::Text("File: "+ exampleNameBuf);
+                if (ImGui::Button("Load"))
+                {
+                    this.setBuffer(game.loadTextResourceAsString(exampleNameBuf, RGN_RESOURCES_SCRIPTS));
+                }
+                
+                this.drawSelectableFileList("Example scripts", exampleScriptsFileInfo, /*&inout*/ exampleNameBuf);
+                
+                ImGui::EndMenu();
+            }               
             if (ImGui::BeginMenu("View"))
             {
                 ImGui::TextDisabled("Line info:");
@@ -781,6 +751,58 @@ class ScriptEditor
             }
         }
         
+    }
+    
+    private bool drawSelectableFileList(string title, array<dictionary>@ fileinfos, string&inout out_selection)
+    {
+        bool retval = false;
+        if (fileinfos != null)
+        {
+            ImGui::Separator();
+            ImGui::PushID(title);     
+            ImGui::TextDisabled(title+" ("+fileinfos.length()+"):");
+            for (uint i=0; i<fileinfos.length(); i++)
+            {
+                ImGui::PushID(i);
+                string filename = string(fileinfos[i]['filename']);
+                uint size = uint(fileinfos[i]['compressedSize']);
+                ImGui::Bullet(); 
+                ImGui::SameLine(); ImGui::Text(filename);
+                ImGui::SameLine(); ImGui::TextDisabled("("+formatFloat(float(size)/1000.f, "", 3, 2)+" KB)");
+                ImGui::SameLine();
+                if (ImGui::SmallButton("Select"))
+                {
+                    out_selection = filename;
+                    retval = true;
+                }   
+                ImGui::PopID(); // i                        
+            }
+            ImGui::PopID(); // title
+        }   
+        else
+        {
+            ImGui::TextDisabled(title+": no files found.");
+        } 
+         return retval;
+    }
+    
+    private void addRecentScript(string fnameBuf)
+    {
+        if (fnameBuf == "")
+            return; // nope
+            
+        for (uint i=0; i<recentScriptsFileInfo.length(); i++)
+        {
+            string filename = string(recentScriptsFileInfo[i]['filename']);
+            if (filename == fnameBuf)
+                return; // already exists
+                
+        }
+        
+        // if we got here, the name isn't in the list yet. 
+        //  Construct a pseudo-FileInfo format so we can use common helper.
+        recentScriptsFileInfo.insertLast({ {'filename', fnameBuf}, {'compressedSize',-1} } );
+            
     }
  
 }
