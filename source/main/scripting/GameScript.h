@@ -233,6 +233,21 @@ public:
     */
     int sendGameCmd(const Ogre::String& message);
 
+    /**
+    * Returns `array<int>` with active ScriptUnitIDs; check agains global var `thisScript` or use `getScriptDetails()` to get name etc...
+    */
+    AngelScript::CScriptArray* getRunningScripts();
+
+    /**
+    * Returns all info about running script; obtain the NID from `getRunningScripts()`, global var `thisScript` or event callbacks:
+    *   * "uniqueId" (int64)
+    *   * "scriptName" (string)
+    *   * "scriptCategory" (enum ScriptCategory)
+    *   * "eventMask" (int64)
+    *   * "scriptBuffer" (string)
+    */
+    AngelScript::CScriptDictionary* getScriptDetails(ScriptUnitId_t nid);
+
     /// @}
 
     /// @name Terrain

@@ -282,6 +282,26 @@ public:
 	 * Clears the event cache
 	 */
 	void clearEventCache();
+    
+    /**
+    * Multiplayer only: sends AngelScript snippet to all players.
+    */
+    int sendGameCmd(const string& message);    
+    
+    /**
+    * Returns active ScriptUnitIDs; check agains global var `thisScript` or use `getScriptDetails()` to get name etc...
+    */
+    array<int> getRunningScripts();
+
+    /**
+    * Returns all info about running script; obtain the NID from `getRunningScripts()`, global var `thisScript` or event callbacks:
+    *   * "uniqueId" (int64)
+    *   * "scriptName" (string)
+    *   * "scriptCategory" (enum ScriptCategory)
+    *   * "eventMask" (int64)
+    *   * "scriptBuffer" (string)
+    */
+    dictionary@ getScriptDetails(int nid);    
 
     /// @}
 
