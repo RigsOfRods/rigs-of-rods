@@ -85,6 +85,8 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "int deleteScriptVariable(const string &in)", asMETHOD(GameScript, deleteScriptVariable), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void clearEventCache()", asMETHOD(GameScript, clearEventCache), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int sendGameCmd(const string &in)", asMETHOD(GameScript, sendGameCmd), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "array<int>@ getRunningScripts()", asMETHOD(GameScript, getRunningScripts), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "dictionary@ getScriptDetails(int)", asMETHOD(GameScript, getScriptDetails), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // > Terrain
     result = engine->RegisterObjectMethod("GameScriptClass", "void loadTerrain(const string &in)", asMETHOD(GameScript, loadTerrain), asCALL_THISCALL); ROR_ASSERT(result >= 0);

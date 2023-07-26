@@ -710,6 +710,16 @@ int ScriptEngine::setupScriptUnit(int unit_id)
         }
     }
 
+    // add global var `thisScript` to the module (initialized in place).
+    result = m_script_units[unit_id].scriptModule->AddScriptSection(m_script_units[unit_id].scriptName.c_str(), 
+        fmt::format("const int thisScript = {};", unit_id).c_str());
+    if (result < 0)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not load script '{}' - failed to create global variable `thisScript`.", moduleName));
+        return result;
+    }
+
     // If buffer is non-empty, load from memory; otherwise from filesystem as usual.
     if (m_script_units[unit_id].scriptBuffer != "")
     {
@@ -862,6 +872,11 @@ void ScriptEngine::unloadScript(ScriptUnitId_t id)
 void ScriptEngine::activateLogging()
 {
     scriptLog->addListener(this);
+}
+
+bool ScriptEngine::scriptUnitExists(ScriptUnitId_t unique_id)
+{
+    return m_script_units.find(unique_id) != m_script_units.end();
 }
 
 ScriptUnit& ScriptEngine::getScriptUnit(ScriptUnitId_t unique_id)

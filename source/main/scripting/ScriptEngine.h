@@ -211,6 +211,7 @@ public:
     inline void SLOG(const char* msg) { this->scriptLog->logMessage(msg); } //!< Replacement of macro
     inline void SLOG(std::string msg) { this->scriptLog->logMessage(msg); } //!< Replacement of macro
 
+    bool scriptUnitExists(ScriptUnitId_t unique_id);
     ScriptUnit& getScriptUnit(ScriptUnitId_t unique_id);
     ScriptUnitId_t getTerrainScriptUnit() const { return m_terrain_script_unit; } //!< @return SCRIPTUNITID_INVALID if none exists.
     ScriptUnitId_t getCurrentlyExecutingScriptUnit() const { return m_currently_executing_script_unit; } //!< @return SCRIPTUNITID_INVALID if none is executing right now.

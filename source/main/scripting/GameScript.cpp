@@ -937,6 +937,44 @@ int GameScript::sendGameCmd(const String& message)
     return -11;
 }
 
+AngelScript::CScriptArray* GameScript::getRunningScripts()
+{
+    std::vector<ScriptUnitId_t> ids;
+    for (auto& pair: App::GetScriptEngine()->getScriptUnits())
+        ids.push_back(pair.first);
+
+    return VectorToScriptArray(ids, "int");
+}
+
+
+AngelScript::CScriptDictionary* GameScript::getScriptDetails(ScriptUnitId_t nid)
+{
+    if (!App::GetScriptEngine()->scriptUnitExists(nid))
+        return nullptr;
+
+    ScriptUnit& info = App::GetScriptEngine()->getScriptUnit(nid);
+    AngelScript::CScriptDictionary* dict = AngelScript::CScriptDictionary::Create(App::GetScriptEngine()->getEngine());
+    int stringTypeid = App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("string");
+    int scriptCategoryTypeid = App::GetScriptEngine()->getEngine()->GetTypeIdByDecl("ScriptCategory");
+
+    dict->Set("uniqueId", (asINT64)info.uniqueId);
+    dict->Set("scriptName", new std::string(info.scriptName), stringTypeid);
+    dict->Set("scriptCategory", &info.scriptCategory, scriptCategoryTypeid);
+    dict->Set("eventMask", (asINT64)info.eventMask);
+    dict->Set("scriptBuffer", new std::string(info.scriptBuffer), stringTypeid);
+
+    // TBD Some other time...
+    //AngelScript::asIScriptModule* scriptModule = nullptr;
+    //AngelScript::asIScriptFunction* frameStepFunctionPtr = nullptr; //!< script function pointer to the frameStep function
+    //AngelScript::asIScriptFunction* eventCallbackFunctionPtr = nullptr; //!< script function pointer to the event callback function
+    //AngelScript::asIScriptFunction* eventCallbackExFunctionPtr = nullptr; //!< script function pointer to the event callback function
+    //AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr = nullptr; //!< script function pointer for spawner events
+    //ActorPtr associatedActor; //!< For ScriptCategory::ACTOR
+    //Ogre::String scriptHash;
+
+    return dict;
+}
+
 VehicleAIPtr GameScript::getCurrentTruckAI()
 {
     VehicleAIPtr result = nullptr;
