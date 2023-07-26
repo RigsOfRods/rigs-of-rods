@@ -533,7 +533,6 @@ public:
     int setMaterialDiffuse(const Ogre::String& materialName, float red, float green, float blue, float alpha);
     int setMaterialSpecular(const Ogre::String& materialName, float red, float green, float blue, float alpha);
     int setMaterialEmissive(const Ogre::String& materialName, float red, float green, float blue);
-    int getSafeTextureUnitState(Ogre::TextureUnitState** tu, const Ogre::String materialName, int techniqueNum, int passNum, int textureUnitNum);
     int setMaterialTextureName(const Ogre::String& materialName, int techniqueNum, int passNum, int textureUnitNum, const Ogre::String& textureName);
     int setMaterialTextureRotate(const Ogre::String& materialName, int techniqueNum, int passNum, int textureUnitNum, float rotation);
     int setMaterialTextureScroll(const Ogre::String& materialName, int techniqueNum, int passNum, int textureUnitNum, float sx, float sy);
@@ -564,6 +563,7 @@ private:
     bool HavePlayerAvatar(const char* func_name); //!< Helper; Check if local Character instance exists, log warning if not.
     bool HaveMainCamera(const char* func_name); //!< Helper; Check if main camera exists, log warning if not.
     std::string CheckFileAccess(const char* func_name, const std::string& filename, const std::string& resource_group);
+    int getTextureUnitState(Ogre::TextureUnitState** tu, const Ogre::String materialName, int techniqueNum, int passNum, int textureUnitNum);
 
     template<typename T> bool GetValueFromDict(const std::string& log_msg, AngelScript::CScriptDictionary* dict, bool required, std::string const& key, const char* type_decl, T& out_value); //!< Helper; get value from dict safely or log warning.
 

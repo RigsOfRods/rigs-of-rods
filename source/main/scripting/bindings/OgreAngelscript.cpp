@@ -803,10 +803,9 @@ void registerOgreTexture(AngelScript::asIScriptEngine* engine)
 
     engine->RegisterObjectType("TextureManager", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
     // Convenience wrapper to omit optional parameters
-    engine->RegisterObjectMethod("TextureManager", "TexturePtr load(string file, string rg)", asFUNCTIONPR([](TextureManager& mgr, std::string const& file, std::string const& rg){
-        return mgr.load(file, rg);
-    }, (TextureManager& mgr, std::string const& file, std::string const& rg), TexturePtr), asCALL_CDECL_OBJFIRST);
-
+    engine->RegisterObjectMethod("TextureManager", "TexturePtr load( const string&in file, const string&in rg)", asFUNCTIONPR([](Ogre::TextureManager* mgr, std::string const& file, std::string const& rg){
+        try { return mgr->load(file, rg); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::TextureManager::load()"); return Ogre::TexturePtr();} }, (Ogre::TextureManager* , std::string const& , std::string const& ), TexturePtr), asCALL_CDECL_OBJFIRST);
 
     engine->SetDefaultNamespace("Ogre::TextureManager");
     engine->RegisterGlobalFunction("TextureManager& getSingleton()", asFUNCTION(TextureManager::getSingleton), asCALL_CDECL);
