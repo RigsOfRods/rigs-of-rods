@@ -28,6 +28,7 @@
 
 using namespace Ogre;
 using namespace AngelScript;
+using namespace RoR;
 
 // helper/wrapper functions first
 
