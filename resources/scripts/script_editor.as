@@ -29,6 +29,7 @@ const string RGN_RESOURCES_SCRIPTS = "ScriptsRG";
 const string BUFFER_TEXTINPUT_LABEL = "##bufferTextInputLbl";
 const color LINKCOLOR = color(0.3, 0.5, 0.9, 1.0);
 ScriptEditor editor;
+ExceptionsPanel epanel;
 
 // Config:
 // -------
@@ -79,6 +80,7 @@ void main() // Invoked by the game on startup
     game.log("Script editor started!");
     game.registerForEvent(SE_ANGELSCRIPT_MSGCALLBACK);
     game.registerForEvent(SE_ANGELSCRIPT_MANIPULATIONS);
+    game.registerForEvent(SE_GENERIC_EXCEPTION_CAUGHT);
     editor.setBuffer(TUT_SCRIPT);
 }
 
@@ -105,6 +107,10 @@ void eventCallbackEx(scriptEvents ev, // Invoked by the game when a registered e
             /*manipType:*/arg1, /*nid:*/arg2ex, /*category:*/arg3ex, // ints
             /*name:*/arg5ex); // strings
     }
+    else if (ev == SE_GENERIC_EXCEPTION_CAUGHT)
+    {
+         epanel.addException(arg1, arg5ex, arg6ex, arg7ex);
+    }    
 }
 
 // The script editor logic:
@@ -135,6 +141,7 @@ class ScriptEditor
     float errCountOffset=0.f;
     vector2 errorsScreenCursor(0,0);
     vector2 errorsTextAreaSize(0,0);
+    vector2 textAreaSize(0,0);
     string bufferName = "(editor buffer)";
     int currentScriptUnitID = SCRIPTUNITID_INVALID;
     bool waitingForManipEvent = false; // When waiting for async result of (UN)LOAD_SCRIPT_REQUESTED
@@ -158,6 +165,7 @@ class ScriptEditor
         
             this.drawMenubar();
             this.drawTextArea();
+            this.drawExceptionsPanel();
             this.drawFooter();         
 
             // To draw on top of editor text, we must trick DearIMGUI using an extra invisible window
@@ -286,9 +294,13 @@ class ScriptEditor
         int bufferNumLines = int(this.bufferLinesMeta.length());
         
         vector2 linenumCursor = linenumCursorBase;
+        float coarseClipBottomY = (screenCursor.y+textAreaSize.y)-ImGui::GetTextLineHeight()*0.6;
         
         for (int linenum = 1; linenum <= bufferNumLines; linenum++)
         {
+            if (linenumCursor.y > coarseClipBottomY)
+                break; // coarse clipping
+        
             int lineIdx = linenum - 1;
             if (drawLineNumbers)
             {
@@ -473,9 +485,10 @@ class ScriptEditor
             metaColumnsTotalWidth += errCountColumnWidth;
            
         // Draw the multiline text input
-        vector2 textAreaSize(
+        this.textAreaSize = vector2(
             ImGui::GetWindowSize().x - (metaColumnsTotalWidth + 20), 
-            ImGui::GetWindowSize().y - 90);
+            ImGui::GetWindowSize().y - (85 + epanel.getHeightToReserve()));
+
         vector2 screenCursor = ImGui::GetCursorScreenPos() + /*frame padding:*/vector2(0.f, 4.f);         
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + metaColumnsTotalWidth);            
         bool changed = ImGui::InputTextMultiline(BUFFER_TEXTINPUT_LABEL, this.buffer, textAreaSize);
@@ -501,12 +514,37 @@ class ScriptEditor
         errorsScreenCursor = screenCursor;
         errorsTextAreaSize = textAreaSize;
         
-        // make top gap (window padding) rougly same size as bottom gap (item spacing)
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY()+2); 
+    }
+    
+    protected void drawExceptionsPanel()
+    {
+        
+        if (epanel.getHeightToReserve() == 0)
+            return; // panel is empty, do not draw
+            
+        // Draw the exceptions panel
+        vector2 ePanelSize(
+            ImGui::GetWindowSize().x - (20), 
+            epanel.getHeightToReserve());     
+        ImGui::BeginChild("ExceptionsPanel", ePanelSize);
+        epanel.drawExceptions();
+        ImGui::EndChild();    // must always be called - legacy reasons
     }
     
     protected void drawFooter()
     {
+        
+        if (epanel.getHeightToReserve() == 0)
+        {
+            // make top gap (window padding) rougly same size as bottom gap (item spacing)
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY()+2); 
+        }
+        else
+        {
+            // Fix footer jumping down (??)
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY()-3); 
+        }
+    
         // footer with status info
         ImGui::Separator();
         string runningTxt = "NOT RUNNING";
@@ -516,12 +554,12 @@ class ScriptEditor
         }
         ImGui::Text(runningTxt
             +"; lines: "+bufferLinesMeta.length()
+            +" (chars: "+buffer.length()+"/4096)"
             +"; messages:"+this.messages.length()
                 +"(err:"+this.messagesTotalErr
                 +"/warn:"+this.messagesTotalWarn
                 +"/info:"+this.messagesTotalInfo
-            +") scroll: X="+scrollX+"/"+scrollMaxX
-                +"; Y="+scrollY+"/"+scrollMaxY+"");    
+            +") scrollY="+scrollY+"/"+scrollMaxY+"");    // X="+scrollX+"/"+scrollMaxX
     }    
     
     void setBuffer(string data)
@@ -535,7 +573,7 @@ class ScriptEditor
     {
         this.bufferMessageIDs.resize(0); // clear all
         this.messages.resize(0); // clear all
-        
+        epanel.enabled = true;
         
         game.pushMessage(MSG_APP_LOAD_SCRIPT_REQUESTED, {
             {'filename', this.bufferName}, // Because we supply the buffer, this will serve only as display name
@@ -550,6 +588,8 @@ class ScriptEditor
         game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, {
             {'id', this.currentScriptUnitID}
         });
+        epanel.clearExceptions();
+        epanel.enabled = false;
         waitingForManipEvent=true;
     }    
     
@@ -806,6 +846,75 @@ class ScriptEditor
     }
  
 }
+
+
+class ExceptionsPanel
+{
+    dictionary exception_stats_nid; // NID-> dictionary{ fullDesc -> num occurences }
+    int numLinesDrawn = 0;
+    // very important to keep the dict clean after requesting script unload 
+    //  - even after notification more exceptions can arrive
+    bool enabled = false;
+    
+    float getHeightToReserve()
+    { 
+        if (exception_stats_nid.isEmpty()) { return 0; }
+        else { return numLinesDrawn*ImGui::GetTextLineHeight() + 12; }
+    }
+
+    void addException(int nid, string arg5, string arg6, string arg7)
+    {
+        if (!enabled)
+            return;
+    
+        // format: FROM >> MSG (TYPE)
+        string desc=arg5+' --> '+arg7 +' ('+arg6+')';
+
+        // locate the dictionary for this script (by NID)
+        dictionary@ exception_stats = cast<dictionary@>(exception_stats_nid[''+nid]);
+        if (@exception_stats == null) { exception_stats_nid[''+nid] = dictionary();  exception_stats = cast<dictionary@>(exception_stats_nid[''+nid]); }
+        exception_stats[desc] = int(exception_stats[desc])+1;
+    }
+
+    void drawExceptions()
+    {
+        numLinesDrawn=0;
+        array<int> nids = game.getRunningScripts();
+        for (uint i=0; i<nids.length(); i++)
+        {
+            dictionary@ info = game.getScriptDetails(nids[i]);
+            dictionary@ exception_stats = cast<dictionary@>(exception_stats_nid[''+nids[i]]);
+
+            if (@exception_stats == null) {     continue; } // <----- continue, nothing to draw
+
+            
+            ImGui::TextDisabled('NID '+nids[i]+' ');
+            if (@info != null) { ImGui::SameLine(); ImGui::Text(string(info['scriptName']) ); }
+            numLinesDrawn++;
+
+            array<string>@tag_keys = exception_stats.getKeys();
+            ImGui::SameLine(); ImGui::Text(">>");
+            ImGui::SameLine(); ImGui::TextColored(  color(1,0.1, 0.2, 1), tag_keys.length() + ' exception type(s) encountered:');
+            for (uint j=0; j < tag_keys.length(); j++) 
+            { 
+                string descr = tag_keys[j];
+                int tagcount = int(exception_stats[descr]);
+                ImGui::Bullet(); 
+                ImGui::SameLine(); ImGui::TextDisabled('['+tagcount+']');
+                ImGui::SameLine(); ImGui::Text(descr);
+                numLinesDrawn++;
+            } // for (tag_keys)
+        } // for (nids)  
+
+    } // drawExceptions()
+
+    void clearExceptions()
+    {
+        exception_stats_nid.deleteAll();
+        numLinesDrawn=0;
+    }
+
+} // class ExceptionsPanel
 
 // Tutorial scripts 
 // -----------------
