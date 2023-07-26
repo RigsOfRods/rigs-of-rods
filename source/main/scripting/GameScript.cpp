@@ -445,9 +445,9 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
         const String type = "";
         App::GetGameContext()->GetTerrain()->getObjectManager()->LoadTerrainObject(objectName, pos, rot, instanceName, type, /*rendering_distance=*/0, true, handler_func_id, uniquifyMaterials);
     }
-    catch (std::exception& e)
+    catch (...)
     {
-        this->logFormat("spawnObject(): An exception occurred, message: %s", e.what());
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::spawnObject()");
         return;
     }
 }
@@ -493,9 +493,9 @@ int GameScript::setMaterialAmbient(const String& materialName, float red, float 
             return 0;
         m->setAmbient(red, green, blue);
     }
-    catch (Exception& e)
+    catch (...)
     {
-        this->log("Exception in setMaterialAmbient(): " + e.getFullDescription());
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::setMaterialAmbient()");
         return 0;
     }
     return 1;
@@ -510,9 +510,9 @@ int GameScript::setMaterialDiffuse(const String& materialName, float red, float 
             return 0;
         m->setDiffuse(red, green, blue, alpha);
     }
-    catch (Exception& e)
+    catch (...)
     {
-        this->log("Exception in setMaterialDiffuse(): " + e.getFullDescription());
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::setMaterialDiffuse()");
         return 0;
     }
     return 1;
@@ -527,9 +527,9 @@ int GameScript::setMaterialSpecular(const String& materialName, float red, float
             return 0;
         m->setSpecular(red, green, blue, alpha);
     }
-    catch (Exception& e)
+    catch (...)
     {
-        this->log("Exception in setMaterialSpecular(): " + e.getFullDescription());
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::setMaterialSpecular()");
         return 0;
     }
     return 1;
@@ -544,96 +544,123 @@ int GameScript::setMaterialEmissive(const String& materialName, float red, float
             return 0;
         m->setSelfIllumination(red, green, blue);
     }
-    catch (Exception& e)
+    catch (...)
     {
-        this->log("Exception in setMaterialEmissive(): " + e.getFullDescription());
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::setMaterialEmissive()");
         return 0;
     }
     return 1;
 }
 
-int GameScript::getSafeTextureUnitState(TextureUnitState** tu, const String materialName, int techniqueNum, int passNum, int textureUnitNum)
+int GameScript::getTextureUnitState(TextureUnitState** tu, const String materialName, int techniqueNum, int passNum, int textureUnitNum)
 {
-    try
-    {
-        MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
-        if (m.isNull())
-            return 1;
+    // Internal helper - propagate exceptions outside so that correct function names appear in exception-events
+    // ========================================================================================================
+    
+    MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
+    if (m.isNull())
+        return 1;
 
-        // verify technique
-        if (techniqueNum < 0 || techniqueNum > m->getNumTechniques())
-            return 2;
-        Technique* t = m->getTechnique(techniqueNum);
-        if (!t)
-            return 2;
+    // verify technique
+    if (techniqueNum < 0 || techniqueNum > m->getNumTechniques())
+        return 2;
+    Technique* t = m->getTechnique(techniqueNum);
+    if (!t)
+        return 2;
 
-        //verify pass
-        if (passNum < 0 || passNum > t->getNumPasses())
-            return 3;
-        Pass* p = t->getPass(passNum);
-        if (!p)
-            return 3;
+    //verify pass
+    if (passNum < 0 || passNum > t->getNumPasses())
+        return 3;
+    Pass* p = t->getPass(passNum);
+    if (!p)
+        return 3;
 
-        //verify texture unit
-        if (textureUnitNum < 0 || textureUnitNum > p->getNumTextureUnitStates())
-            return 4;
-        TextureUnitState* tut = p->getTextureUnitState(textureUnitNum);
-        if (!tut)
-            return 4;
+    //verify texture unit
+    if (textureUnitNum < 0 || textureUnitNum > p->getNumTextureUnitStates())
+        return 4;
+    TextureUnitState* tut = p->getTextureUnitState(textureUnitNum);
+    if (!tut)
+        return 4;
 
-        *tu = tut;
-        return 0;
-    }
-    catch (Exception& e)
-    {
-        this->log("Exception in getSafeTextureUnitState(): " + e.getFullDescription());
-    }
-    return 1;
+    *tu = tut;
+    return 0;
 }
 
 int GameScript::setMaterialTextureName(const String& materialName, int techniqueNum, int passNum, int textureUnitNum, const String& textureName)
 {
-    TextureUnitState* tu = 0;
-    int res = getSafeTextureUnitState(&tu, materialName, techniqueNum, passNum, textureUnitNum);
-    if (res == 0 && tu != 0)
+    try
     {
-        // finally, set it
-        tu->setTextureName(textureName);
+        TextureUnitState* tu = 0;
+        int res = getTextureUnitState(&tu, materialName, techniqueNum, passNum, textureUnitNum);
+        if (res == 0 && tu != 0)
+        {
+            // finally, set it
+            tu->setTextureName(textureName);
+        }
+        return res;
     }
-    return res;
+    catch (...)
+    {
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::setMaterialTextureName()");
+        return 0;
+    }
 }
 
 int GameScript::setMaterialTextureRotate(const String& materialName, int techniqueNum, int passNum, int textureUnitNum, float rotation)
 {
-    TextureUnitState* tu = 0;
-    int res = getSafeTextureUnitState(&tu, materialName, techniqueNum, passNum, textureUnitNum);
-    if (res == 0 && tu != 0)
+    try
     {
-        tu->setTextureRotate(Degree(rotation));
+        TextureUnitState* tu = 0;
+        int res = getTextureUnitState(&tu, materialName, techniqueNum, passNum, textureUnitNum);
+        if (res == 0 && tu != 0)
+        {
+            tu->setTextureRotate(Degree(rotation));
+        }
+        return res;
     }
-    return res;
+    catch (...)
+    {
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::setMaterialTextureRotate()");
+        return 0;
+    }
 }
 
 int GameScript::setMaterialTextureScroll(const String& materialName, int techniqueNum, int passNum, int textureUnitNum, float sx, float sy)
 {
-    TextureUnitState* tu = 0;
-    int res = getSafeTextureUnitState(&tu, materialName, techniqueNum, passNum, textureUnitNum);
-    if (res == 0 && tu != 0)
+    try
     {
-        tu->setTextureScroll(sx, sy);
+        TextureUnitState* tu = 0;
+        int res = getTextureUnitState(&tu, materialName, techniqueNum, passNum, textureUnitNum);
+        if (res == 0 && tu != 0)
+        {
+            tu->setTextureScroll(sx, sy);
+        }
+        return res;
     }
-    return res;
+    catch (...)
+    {
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::setMaterialTextureScroll()");
+        return 0;
+    }
 }
 
 int GameScript::setMaterialTextureScale(const String& materialName, int techniqueNum, int passNum, int textureUnitNum, float u, float v)
 {
-    TextureUnitState* tu = 0;
-    int res = getSafeTextureUnitState(&tu, materialName, techniqueNum, passNum, textureUnitNum);
-    if (res == 0 && tu != 0)
+    try
     {
-        tu->setTextureScale(u, v);
+        TextureUnitState* tu = 0;
+        int res = getTextureUnitState(&tu, materialName, techniqueNum, passNum, textureUnitNum);
+        if (res == 0 && tu != 0)
+        {
+            tu->setTextureScale(u, v);
+        }
+        return res;
     }
-    return res;
+    catch (...)
+    {
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::setMaterialTextureScale()");
+        return 0;
+    }
 }
 
 float GameScript::rangeRandom(float from, float to)
@@ -1038,9 +1065,9 @@ ActorPtr GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, O
         rq.asr_origin = ActorSpawnRequest::Origin::AI;
         return App::GetGameContext()->SpawnActor(rq);
     }
-    catch (std::exception& ex)
+    catch (...)
     {
-        this->log(fmt::format("Error running `spawnTruckAI()` - got exception '{}'", ex.what()));
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::setMaterialTextureScale()");
         return ActorPtr();
     }
 }
@@ -1625,10 +1652,9 @@ bool GameScript::checkResourceExists(const std::string& filename, const std::str
         // Actually check for the resource
         return Ogre::ResourceGroupManager::getSingleton().resourceExists(resource_group, resource_name);
     }
-    catch (Ogre::Exception& ex)
+    catch (...)
     {
-        // only log to logfile
-        LOG(fmt::format("[GameScript] game.checkResourceExists() failed: {}", ex.getDescription()));
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::checkResourceExists()");
         return false;
     }
 }
@@ -1645,10 +1671,9 @@ bool GameScript::deleteResource(const std::string& filename, const std::string& 
         Ogre::ResourceGroupManager::getSingleton().deleteResource(resource_name, resource_group);
         return true;
     }
-    catch (Ogre::Exception& ex)
+    catch (...)
     {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format("deleteResource() failed: {}", ex.getDescription()));
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::deleteResource()");
         return false;
     }
 }
@@ -1673,10 +1698,9 @@ std::string GameScript::loadTextResourceAsString(const std::string& filename, co
 
         return stream->getAsString();
     }
-    catch (Ogre::Exception& ex)
+    catch (...)
     {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format("loadTextResourceAsString() failed: {}", ex.getDescription()));
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::loadTextResourceAsString()");
         return "";
     }
 }
@@ -1702,10 +1726,9 @@ bool GameScript::createTextResourceFromString(const std::string& data, const std
         stream->write(data.data(), data.size());
         return true;
     }
-    catch (Ogre::Exception& ex)
+    catch (...)
     {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format("createTextResourceFromString() failed: {}", ex.getDescription()));
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::createTextResourceFromString()");
         return false;
     }
 }
@@ -1734,13 +1757,11 @@ AngelScript::CScriptArray* GameScript::findResourceFileInfo(const std::string& r
         }
         return arr;
     }
-    catch (Ogre::Exception& oex)
+    catch (...)
     {
-        LOG(fmt::format("findResourceFileInfo(): {}", oex.getDescription()));
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::findResourceFileInfo()");
         return nullptr;
     }
-
-
 }
 
 // ------------------------
