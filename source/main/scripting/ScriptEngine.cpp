@@ -217,6 +217,37 @@ void ScriptEngine::lineCallback(AngelScript::asIScriptContext* ctx)
     ); 
 }
 
+void ScriptEngine::forwardExceptionAsScriptEvent(const std::string& from)
+{
+    // Forwards useful info from C++  exceptions to script in the form of game event.
+    // AngelScript doesn't have exceptions in the `try{}catch{}` sense
+    // (in AS jargon, 'Exception' means basically 'panic' as in Lua/Rust...)
+    // and most exceptions this game encounters (`Ogre::Exception`) are trivially recoverable,
+    // so it doesn't make sense to panic AngelScript when they happen.
+    // =======================================================================================
+
+    try { throw; } // Rethrow
+
+    // OGRE
+    catch (Ogre::IOException& e                ) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from, "IOException", e.getDescription());                   }
+    catch (Ogre::InvalidStateException& e      ) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from, "InvalidStateException", e.getDescription());         }
+    catch (Ogre::InvalidParametersException& e ) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from, "InvalidParametersException", e.getDescription());    }
+    catch (Ogre::RenderingAPIException& e      ) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from, "RenderingAPIException", e.getDescription());         }
+    catch (Ogre::ItemIdentityException& e      ) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from, "ItemIdentityException", e.getDescription());         }
+    catch (Ogre::FileNotFoundException& e      ) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from, "FileNotFoundException", e.getDescription());         }
+    catch (Ogre::InternalErrorException& e     ) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from, "InternalErrorException", e.getDescription());        }
+    catch (Ogre::RuntimeAssertionException& e  ) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from, "RuntimeAssertionException", e.getDescription());     }
+    catch (Ogre::UnimplementedException& e     ) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from, "UnimplementedException", e.getDescription());        }
+    catch (Ogre::InvalidCallException& e       ) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from, "InvalidCallException", e.getDescription());          }
+    catch (Ogre::Exception& e                  ) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from, "Exception", e.getDescription());                     }
+
+    // STD
+    catch (std::exception& e) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from, "std::exception", e.what()); }
+
+    // Unrecognized
+    catch (...) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from); }
+}
+
 int ScriptEngine::framestep(Real dt)
 {
     // Check if we need to execute any strings

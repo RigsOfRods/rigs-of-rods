@@ -195,6 +195,14 @@ public:
 
     void envokeCallback(int functionId, eventsource_t* source, NodeNum_t nodenum = NODENUM_INVALID, int type = 0);
 
+    /**
+    * Forwards useful info from C++ `try{}catch{}` exceptions to script in the form of game event.
+    * AngelScript doesn't have exceptions in this sense (in AS jargon, 'Exception' means basically 'panic' as in Lua/Rust...)
+    * and most exceptions this game encounters (`Ogre::Exception`) are trivially recoverable, so it doesn't make sense
+    * to panic AngelScript when they happen.
+    */
+    void forwardExceptionAsScriptEvent(const std::string& from);
+
     AngelScript::asIScriptEngine* getEngine() { return engine; };
 
     // method from Ogre::LogListener
