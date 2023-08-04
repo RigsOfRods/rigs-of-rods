@@ -14,6 +14,9 @@ const int    ImGuiCol_TextDisabled = 1;
 const int    ImGuiCol_WindowBg = 2;              // Background of normal windows
 const int    ImGuiCol_ChildBg = 3;               // Background of child windows
 const int    ImGuiCol_PopupBg = 4;               // Background of popups, menus, tooltips windows
+const int    ImGuiCol_Border = 5;
+const int    ImGuiCol_BorderShadow = 6;
+const int    ImGuiCol_FrameBg = 7;               // Background of checkbox, radio button, plot, slider, text input
 // from <angelscript.h>
 enum asEMsgType
 {
@@ -70,6 +73,10 @@ ExceptionsPanel epanel;
     
     // input output
     bool saveShouldOverwrite=false;
+    
+    float autoSaveIntervalSec=25.f;
+    color autoSaveStatusbarBgColor = color(0.3f, 0.3f, 0.4f, 1.f);
+    bool drawAutosaveCountdown=true;
 // END editor
 
 // Callback functions for the game:
@@ -87,7 +94,7 @@ void main() // Invoked by the game on startup
 
 void frameStep(float dt) // Invoked regularly by the game; the parameter is elapsed time in seconds.
 {
-    editor.draw();
+    editor.draw(dt);
 }
 
 
@@ -150,6 +157,8 @@ class ScriptEditor
     array<dictionary> @recentScriptsFileInfo = array<dictionary>();
     array<dictionary> @localScriptsFileInfo = null;
     array<dictionary> @exampleScriptsFileInfo = null;
+    float autosaveTimeCounterSec = 0.f;
+    int autosaveResult = 0; // 0=no action, 1=success, -1=failure;
 
     void refreshLocalFileList()
     {
@@ -157,8 +166,9 @@ class ScriptEditor
         @this.exampleScriptsFileInfo = game.findResourceFileInfo(RGN_RESOURCES_SCRIPTS, "example_*.*");
     }    
 
-    void draw()
+    void draw(float dt)
     {
+        this.updateAutosave(dt);
     
         int flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar;
         ImGui::Begin("Script editor", /*open:*/true, flags);
@@ -251,6 +261,9 @@ class ScriptEditor
                 ImGui::Checkbox("Warning text", /*inout:*/drawWarnText);
                 ImGui::Checkbox("Comments", /*inout:*/drawCommentHighlights);
                 ImGui::Checkbox("Hyperlinks", /*inout:*/drawHttpHighlights);
+                
+                ImGui::TextDisabled("Misc:");
+                ImGui::Checkbox("Autosave countdown", /*inout:*/drawAutosaveCountdown);
                 ImGui::EndMenu();
             }
             
@@ -280,7 +293,9 @@ class ScriptEditor
             ImGui::Dummy(vector2(50, 1));
             ImHyperlink('https://developer.rigsofrods.org/d2/d42/group___script_side_a_p_is.html', "Click for documentation");
             
+            this.drawAutosaveStatusbar();
             ImGui::EndMenuBar();
+            
         }
     }
     
@@ -845,6 +860,36 @@ class ScriptEditor
             
     }
  
+    void updateAutosave(float dt)
+    {
+        if (autoSaveIntervalSec == 0.f)
+            return; // disabled
+            
+        this.autosaveTimeCounterSec+= dt;
+        this.autosaveResult = 0;             
+        if (this.autosaveTimeCounterSec > autoSaveIntervalSec)
+        {
+            bool result = game.createTextResourceFromString(this.buffer, '_Autosave.as', RGN_SCRIPTS, /*overwrite:*/true);
+            this.autosaveResult = (result)?1:-1;
+            this.autosaveTimeCounterSec -= autoSaveIntervalSec; // don't miss a millisecond!
+        }
+    } 
+
+    void drawAutosaveStatusbar()
+    {
+        if (drawAutosaveCountdown)
+        {
+            ImGui::Dummy(vector2(50, 1));
+            ImGui::TextDisabled("Autosave:");
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, autoSaveStatusbarBgColor);
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5.f);
+            ImGui::ProgressBar(
+                /*fraction:*/this.autosaveTimeCounterSec/autoSaveIntervalSec,
+                /*size: */vector2(55.f, 13.f),
+                /*overlay: */''+formatFloat(autoSaveIntervalSec-this.autosaveTimeCounterSec, "", 3, 1)+'sec');
+            ImGui::PopStyleColor(1); // ImGuiCol_FrameBg    
+        }
+    }
 }
 
 
