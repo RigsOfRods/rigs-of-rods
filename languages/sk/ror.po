@@ -4,13 +4,14 @@
 #
 # Translators:
 # BRN Systems <brnsystems123@gmail.com>, 2023.
+# Milan Šalka <salka.milan@googlemail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2023-05-01 00:47+0000\n"
-"Last-Translator: BRN Systems <brnsystems123@gmail.com>\n"
+"PO-Revision-Date: 2023-08-10 07:50+0000\n"
+"Last-Translator: Milan Šalka <salka.milan@googlemail.com>\n"
 "Language-Team: Slovak <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "sk/>\n"
 "Language: sk\n"
@@ -19,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n "
 ">= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);\n"
-"X-Generator: Weblate 4.18-dev\n"
+"X-Generator: Weblate 5.0-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -33,8 +34,6 @@ msgstr ""
 "cfg"
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgid "Screenshot Format:"
 msgid "Screenshot: "
 msgstr "Screenshot: "
 
