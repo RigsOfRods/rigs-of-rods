@@ -1134,7 +1134,7 @@ class ScriptEditorTab
         this.autosaveResult = 0;             
         if (this.autosaveTimeCounterSec > autoSaveIntervalSec)
         {
-            bool result = game.createTextResourceFromString(this.buffer, '_Autosave.as', RGN_SCRIPTS, /*overwrite:*/true);
+            bool result = game.createTextResourceFromString(this.buffer, this.fileNameBuf+'_Autosave.as', RGN_SCRIPTS, /*overwrite:*/true);
             this.autosaveResult = (result)?1:-1;
             this.autosaveTimeCounterSec -= autoSaveIntervalSec; // don't miss a millisecond!
         }
