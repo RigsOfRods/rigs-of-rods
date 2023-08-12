@@ -1,3 +1,10 @@
+/// \title UI tools based on DearIMGUI
+/// \brief Hyperlink drawing
+/// Functions:
+/// `void ImHyperlink(string url, string caption, bool tooltip=true)` ~ Full-featured hypertext with tooltip showing full URL.
+/// `void ImDummyHyperlink(string caption)` ~ Looks and behaves (mouuse cursor) like a hypertext, but doesn't open URL.
+// --------------------------------------------------------------------------
+
 /// Looks and behaves (mouuse cursor) like a hypertext, but doesn't open URL.
 void ImDummyHyperlink(string caption)
 {
