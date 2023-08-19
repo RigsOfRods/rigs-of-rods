@@ -86,6 +86,7 @@ void main() // Invoked by the game on startup
 {
     game.log("Script editor started!");
     game.registerForEvent(SE_ANGELSCRIPT_MSGCALLBACK);
+    game.registerForEvent(SE_ANGELSCRIPT_EXCEPTIONCALLBACK);
     game.registerForEvent(SE_ANGELSCRIPT_MANIPULATIONS);
     game.registerForEvent(SE_GENERIC_EXCEPTION_CAUGHT);
     editor.setBuffer(TUT_SCRIPT);
@@ -116,7 +117,12 @@ void eventCallbackEx(scriptEvents ev, // Invoked by the game when a registered e
     }
     else if (ev == SE_GENERIC_EXCEPTION_CAUGHT)
     {
-         epanel.addException(arg1, arg5ex, arg6ex, arg7ex);
+         epanel.onEventExceptionCaught(arg1, arg5ex, arg6ex, arg7ex);
+    }
+    else if (ev == SE_ANGELSCRIPT_EXCEPTIONCALLBACK)
+    {
+         epanel.onEventAngelscriptExceptionCallback(
+            arg1, /*arg3_linenum:*/arg3ex, /*arg5_from:*/arg5ex, /*arg6_msg:*/arg6ex);
     }    
 }
 
@@ -295,7 +301,6 @@ class ScriptEditor
             
             this.drawAutosaveStatusbar();
             ImGui::EndMenuBar();
-            
         }
     }
     
@@ -631,6 +636,9 @@ class ScriptEditor
             {
                 this.currentScriptUnitID = scriptUnitId;
                 waitingForManipEvent = false;
+                // Force registering of exception callback so that the editor can monitor exceptions.
+                game.setRegisteredEventsMask(scriptUnitId,
+                    game.getRegisteredEventsMask(scriptUnitId) | SE_ANGELSCRIPT_EXCEPTIONCALLBACK);
                 /*game.log ("DBG '"+this.bufferName+"'.onEventAngelScriptManip(): Now running with NID="+this.currentScriptUnitID);*/
             }
             else if (manipType == ASMANIP_SCRIPT_UNLOADED
@@ -811,7 +819,7 @@ class ScriptEditor
     private bool drawSelectableFileList(string title, array<dictionary>@ fileinfos, string&inout out_selection)
     {
         bool retval = false;
-        if (fileinfos != null)
+        if (@fileinfos != null)
         {
             ImGui::Separator();
             ImGui::PushID(title);     
@@ -907,17 +915,36 @@ class ExceptionsPanel
         else { return numLinesDrawn*ImGui::GetTextLineHeight() + 12; }
     }
 
-    void addException(int nid, string arg5, string arg6, string arg7)
+    void onEventExceptionCaught(int nid, string arg5, string arg6, string arg7)
+    {
+        // format: FROM >> MSG (TYPE)
+        string desc=arg5+' --> '+arg7 +' ('+arg6+')';
+        this.addExceptionInternal(nid, desc);
+    }
+    
+    void onEventAngelscriptExceptionCallback(int nid, int arg3_linenum, string arg5_from, string arg6_msg)
+    {
+        // format: FROM >> MSG (line: LINENUM)
+        string desc = arg5_from+"() --> "+arg6_msg+" (line: "+arg3_linenum+")";
+        this.addExceptionInternal(nid, desc);
+    }
+    
+    void addExceptionInternal(int nid, string desc)
     {
         if (!enabled)
             return;
-    
-        // format: FROM >> MSG (TYPE)
-        string desc=arg5+' --> '+arg7 +' ('+arg6+')';
 
         // locate the dictionary for this script (by NID)
         dictionary@ exception_stats = cast<dictionary@>(exception_stats_nid[''+nid]);
-        if (@exception_stats == null) { exception_stats_nid[''+nid] = dictionary();  exception_stats = cast<dictionary@>(exception_stats_nid[''+nid]); }
+        if (@exception_stats == null)
+        {
+            game.log("DBG addExceptionInternal(): allocating dict for NID "+nid+"; desc:"+desc);
+            exception_stats_nid[''+nid] = dictionary();
+            game.log("DBG addExceptionInternal(): casting dict for NID "+nid);
+            @exception_stats = cast<dictionary@>(exception_stats_nid[''+nid]);
+            game.log("DBG addExceptionInternal(): DONE allocating dict for NID "+nid);
+        }
+        game.log("DBG addException(): increasing stats for desc '"+desc+"'; NID: "+nid);
         exception_stats[desc] = int(exception_stats[desc])+1;
     }
 
@@ -930,7 +957,7 @@ class ExceptionsPanel
             dictionary@ info = game.getScriptDetails(nids[i]);
             dictionary@ exception_stats = cast<dictionary@>(exception_stats_nid[''+nids[i]]);
 
-            if (@exception_stats == null) {     continue; } // <----- continue, nothing to draw
+            if (@exception_stats == null) { continue; } // <----- continue, nothing to draw
 
             
             ImGui::TextDisabled('NID '+nids[i]+' ');

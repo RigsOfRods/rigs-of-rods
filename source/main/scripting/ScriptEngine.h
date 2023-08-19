@@ -133,9 +133,8 @@ public:
     /**
      * Calls the script's framestep function to be able to use timed things inside the script
      * @param dt time passed since the last call to this function in seconds
-     * @return 0 on success, everything else on error
      */
-    int framestep(Ogre::Real dt);
+    void framestep(Ogre::Real dt);
 
     void activateLogging();
 
@@ -219,15 +218,39 @@ public:
 
 protected:
 
+    /// @name Housekeeping
+    /// @{
+
     /**
      * This function initialzies the engine and registeres all types
      */
     void init();
 
     /**
-     * This is the callback function that gets called when script error occur.
-     * When the script crashes, this function will provide you with more detail
-     * @param msg arguments that contain details about the crash
+    * Packs name + important info to one string, for logging and reporting purposes.
+    */
+    Ogre::String composeModuleName(Ogre::String const& scriptName, ScriptCategory origin, ScriptUnitId_t id);
+
+    /**
+    * Helper for `loadScript()`, does the actual building without worry about unit management.
+    * @return 0 on success, anything else on error.
+    */
+    int setupScriptUnit(int unit_id);
+
+    /**
+    * Helper for executing any script function/snippet; registers Line/Exception callbacks (on demand) and set currently executed NID; The `asIScriptContext::Prepare()` and setting args must be already done.
+    * Under development - currently used only in `framestep()` for `void frameStep(float)`
+    * @return 0 on success, anything else on error.
+    */
+    int executeContextAndHandleErrors(ScriptUnitId_t nid);
+
+    /// @}
+
+    /// @name Script diagnostics
+    /// @{
+
+    /**
+     * Optional (but very recommended!) callback providing diagnostic info when things fail to start (most notably script errors).
      */
     void msgCallback(const AngelScript::asSMessageInfo* msg);
 
@@ -237,13 +260,13 @@ protected:
     */
     void lineCallback(AngelScript::asIScriptContext* ctx);
 
-    Ogre::String composeModuleName(Ogre::String const& scriptName, ScriptCategory origin, ScriptUnitId_t id);
-
     /**
-    * Helper for `loadScript()`, does the actual building without worry about unit management.
-    * @return 0 on success, anything else on error.
+    * Optional callback invoked when the script critically fails, allowing debugging.
+    * https://www.angelcode.com/angelscript/sdk/docs/manual/doc_call_script_func.html#doc_call_script_4
     */
-    int setupScriptUnit(int unit_id);
+    void exceptionCallback(AngelScript::asIScriptContext* ctx);
+
+    /// @}
 
     AngelScript::asIScriptEngine* engine; //!< instance of the scripting engine
     AngelScript::asIScriptContext* context; //!< context in which all scripting happens

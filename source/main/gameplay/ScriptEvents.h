@@ -54,10 +54,11 @@ enum scriptEvents
     SE_ANGELSCRIPT_MANIPULATIONS       = BITMASK(18), //!< triggered when the user tries to dynamically use the scripting capabilities (prevent cheating) args: #1 angelScriptManipulationType, #2 ScriptUnitId_t, #3 RoR::ScriptCategory, #4 unused, #5 filename
     SE_ANGELSCRIPT_MSGCALLBACK         = BITMASK(19), //!< The diagnostic info directly from AngelScript engine (see `asSMessageInfo`), args: #1 ScriptUnitID, #2 asEMsgType, #3 row, #4 col, #5 sectionName, #6 message
     SE_ANGELSCRIPT_LINECALLBACK        = BITMASK(20), //!< The diagnostic info directly from AngelScript engine (see `SetLineCallback()`), args: #1 ScriptUnitID, #2 LineNumber, #3 CallstackSize, #4 unused, #5 FunctionName, #6 FunctionObjectTypeName #7 ObjectName
-    SE_ANGELSCRIPT_THREAD_STATUS       = BITMASK(21), //!< Sent by background threads (i.e. CURL) when there's something important (like finishing a download). args: #1 type, see `RoR::angelScriptThreadStatus`.
+    SE_ANGELSCRIPT_EXCEPTIONCALLBACK   = BITMASK(21), //!< The diagnostic info directly from AngelScript engine (see `SetExceptionCallback()`), args: #1 ScriptUnitID, #2 unused, #3 row (`GetExceptionLineNumber()`), #4 unused, #5 funcName, #6 message (`GetExceptionString()`)
+    SE_ANGELSCRIPT_THREAD_STATUS       = BITMASK(22), //!< Sent by background threads (i.e. CURL) when there's something important (like finishing a download). args: #1 type, see `RoR::angelScriptThreadStatus`.
 
-    SE_GENERIC_MESSAGEBOX_CLICK        = BITMASK(22), //!< triggered when the user clicks on a message box button, the argument refers to the button pressed
-    SE_GENERIC_EXCEPTION_CAUGHT        = BITMASK(23), //!< Triggered when C++ exception (usually Ogre::Exception) is thrown; #1 ScriptUnitID, #5 originFuncName, #6 type, #7 message.
+    SE_GENERIC_MESSAGEBOX_CLICK        = BITMASK(23), //!< triggered when the user clicks on a message box button, the argument refers to the button pressed
+    SE_GENERIC_EXCEPTION_CAUGHT        = BITMASK(24), //!< Triggered when C++ exception (usually Ogre::Exception) is thrown; #1 ScriptUnitID, #5 originFuncName, #6 type, #7 message.
 
     SE_ALL_EVENTS                      = 0xffffffff,
 

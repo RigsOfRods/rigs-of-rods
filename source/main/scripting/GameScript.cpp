@@ -306,6 +306,20 @@ void GameScript::unRegisterEvent(int eventValue)
     }
 }
 
+BitMask_t GameScript::getRegisteredEventsMask(ScriptUnitId_t nid)
+{
+    if (App::GetScriptEngine()->scriptUnitExists(nid))
+        return App::GetScriptEngine()->getScriptUnit(nid).eventMask;
+    else
+        return BitMask_t(0);
+}
+
+void GameScript::setRegisteredEventsMask(ScriptUnitId_t nid, BitMask_t eventMask)
+{
+    if (App::GetScriptEngine()->scriptUnitExists(nid))
+        App::GetScriptEngine()->getScriptUnit(nid).eventMask = eventMask;
+}
+
 void GameScript::flashMessage(String& txt, float time, float charHeight)
 {
     RoR::App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_SCRIPT, Console::CONSOLE_SYSTEM_NOTICE, txt, "script_code_red.png");

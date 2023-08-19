@@ -78,6 +78,8 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     // > Script management
     result = engine->RegisterObjectMethod("GameScriptClass", "void registerForEvent(int)", asMETHOD(GameScript, registerForEvent), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void unRegisterEvent(int)", asMETHOD(GameScript, unRegisterEvent), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "int getRegisteredEventsMask(int)", asMETHOD(GameScript, getRegisteredEventsMask), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setRegisteredEventsMask(int, int)", asMETHOD(GameScript, setRegisteredEventsMask), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int addScriptFunction(const string &in)", asMETHOD(GameScript, addScriptFunction), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int scriptFunctionExists(const string &in)", asMETHOD(GameScript, scriptFunctionExists), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int deleteScriptFunction(const string &in)", asMETHOD(GameScript, deleteScriptFunction), asCALL_THISCALL); ROR_ASSERT(result >= 0);

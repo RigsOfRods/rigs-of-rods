@@ -217,6 +217,19 @@ void ScriptEngine::lineCallback(AngelScript::asIScriptContext* ctx)
     ); 
 }
 
+void ScriptEngine::exceptionCallback(AngelScript::asIScriptContext* ctx)
+{
+    //Disabled, too noisy//this->logExceptionDetails();
+    std::string funcName;
+    if (ctx->GetExceptionFunction())
+    {
+        funcName = ptr2str(ctx->GetExceptionFunction()->GetName());
+    }
+    this->triggerEvent(SE_ANGELSCRIPT_EXCEPTIONCALLBACK,
+        m_currently_executing_script_unit, 0, ctx->GetExceptionLineNumber(), 0, // ints
+        funcName, ctx->GetExceptionString()); // strings
+}
+
 void ScriptEngine::forwardExceptionAsScriptEvent(const std::string& from)
 {
     // Forwards useful info from C++  exceptions to script in the form of game event.
@@ -248,7 +261,78 @@ void ScriptEngine::forwardExceptionAsScriptEvent(const std::string& from)
     catch (...) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from); }
 }
 
-int ScriptEngine::framestep(Real dt)
+int ScriptEngine::executeContextAndHandleErrors(ScriptUnitId_t nid)
+{
+    // Helper for executing any script function/snippet;
+    // * sets LineCallback (on demand - when script registers for SE_ANGELSCRIPT_LINECALLBACK event)
+    // * sets ExceptionCallback (on demand - when script registers for SE_ANGELSCRIPT_EXCEPTIONCALLBACK event)
+    // * sets currently executed NID;
+    // IMPORTANT: The `asIScriptContext::Prepare()` must be already done (this enables programmer to set args).
+    // =========================================================================================================
+
+    // Automatically attach the LineCallback if the script registered for the event.
+    if (m_script_units[nid].eventMask & SE_ANGELSCRIPT_LINECALLBACK)
+    {
+        int result = context->SetLineCallback(asMETHOD(ScriptEngine, lineCallback), this, asCALL_THISCALL);
+        if (result < 0)
+        {
+            SLOG(fmt::format("Warning: Could not attach LineCallback to NID {}, error code {}; continuing without it...", result, nid));
+        }
+    }
+
+    // Ditto for ExceptionCallback
+    if (m_script_units[nid].eventMask & SE_ANGELSCRIPT_EXCEPTIONCALLBACK)
+    {
+        int result = context->SetExceptionCallback(asMETHOD(ScriptEngine, exceptionCallback), this, asCALL_THISCALL);
+        if (result < 0)
+        {
+            SLOG(fmt::format("Warning: Could not attach ExceptionCallback to NID {}, error code {}; continuing without it...", result, nid));
+        }
+    }
+
+    // Run the script
+    m_currently_executing_script_unit = nid;
+    int result = context->Execute();
+    m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
+
+    if ( result != AngelScript::asEXECUTION_FINISHED )
+    {
+        // The execution didn't complete as expected. Determine what happened.
+        if ( result == AngelScript::asEXECUTION_ABORTED )
+        {
+            SLOG("The script was aborted before it could finish. Probably it timed out.");
+        }
+        else if ( result == AngelScript::asEXECUTION_EXCEPTION )
+        {
+            // An exception occurred, let the script writer know what happened so it can be corrected.
+            // NOTE: this result is only reported if exception callback is not registered, see `SetExceptionCallback()`
+            SLOG("The script ended with exception; details below:");
+            // Write some information about the script exception
+            SLOG("\tcontext.ExceptionLineNumber: " + TOSTRING(context->GetExceptionLineNumber()));
+            SLOG("\tcontext.ExceptionString: " + ptr2str(context->GetExceptionString()));
+            AngelScript::asIScriptFunction* func = context->GetExceptionFunction();
+            if (func)
+            {
+                SLOG("\tcontext.ExceptionFunction.Declaration: " + ptr2str(func->GetDeclaration()));
+                SLOG("\tcontext.ExceptionFunction.ModuleName: " + ptr2str(func->GetModuleName()));
+                SLOG("\tcontext.ExceptionFunction.ScriptSectionName: " + ptr2str(func->GetScriptSectionName()));
+                SLOG("\tcontext.ExceptionFunction.ObjectName: " + ptr2str(func->GetObjectName()));
+            }
+        }
+        else
+        {
+            SLOG("The script ended for some unforeseen reason " + TOSTRING(result));
+        }
+    }
+
+    // Clear the callbacks so they don't intercept unrelated operations.
+    context->ClearLineCallback();
+    context->ClearExceptionCallback();
+
+    return result;
+}
+
+void ScriptEngine::framestep(Real dt)
 {
     // Check if we need to execute any strings
     std::vector<String> tmpQueue;
@@ -260,38 +344,21 @@ int ScriptEngine::framestep(Real dt)
     }
 
     // framestep stuff below
-    if (!engine || !context) return 0;
+    if (!engine || !context) return;
 
     for (auto& pair: m_script_units)
     {
-        ScriptUnitId_t id = pair.first;
-        if (!m_script_units[id].frameStepFunctionPtr)
+        ScriptUnitId_t nid = pair.first;
+        if (m_script_units[nid].frameStepFunctionPtr)
         {
-            continue;
+            // Set the function pointer and arguments
+            context->Prepare(m_script_units[nid].frameStepFunctionPtr);
+            context->SetArgFloat(0, dt);
+
+            // Run the context via helper
+            this->executeContextAndHandleErrors(nid);
         }
-
-        context->Prepare(m_script_units[id].frameStepFunctionPtr);
-
-        // Automatically attach the LineCallback if the script registered for the event.
-        if (m_script_units[id].eventMask & SE_ANGELSCRIPT_LINECALLBACK)
-            context->SetLineCallback(asMETHOD(ScriptEngine, lineCallback), this, asCALL_THISCALL);            
-
-        // Set the function arguments
-        context->SetArgFloat(0, dt);
-
-        m_currently_executing_script_unit = id;
-        int r = context->Execute();
-        m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
-        if ( r != AngelScript::asEXECUTION_FINISHED )
-        {
-            // The return value is only valid if the execution finished successfully
-            AngelScript::asDWORD ret = context->GetReturnDWord();
-        }
-
-        // Clear the line callback so it doesn't intercept game callbacks (causes infinite loop).
-        context->ClearLineCallback();
     }
-    return 0;
 }
 
 int ScriptEngine::fireEvent(std::string instanceName, float intensity)
