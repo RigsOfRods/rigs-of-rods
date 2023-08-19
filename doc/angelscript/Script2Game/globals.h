@@ -69,7 +69,9 @@ void print(const string message);
 
  	SE_ANGELSCRIPT_MANIPULATIONS       //!< triggered when the user tries to dynamically use the scripting capabilities (prevent cheating)
     SE_ANGELSCRIPT_MSGCALLBACK         //!< The diagnostic info directly from AngelScript engine (see `asSMessageInfo`), args: #1 ScriptUnitID, #2 asEMsgType, #3 row, #4 col, #5 sectionName, #6 message
-    SE_ANGELSCRIPT_THREAD_STATUS       //!< Sent by background threads (i.e. CURL) when there's something important (like finishing a download). args: #1 type, see `Script2Game::angelScriptThreadStatus`.
+    SE_ANGELSCRIPT_LINECALLBACK        //!< The diagnostic info directly from AngelScript engine (see `SetLineCallback()`), args: #1 ScriptUnitID, #2 LineNumber, #3 CallstackSize, #4 unused, #5 FunctionName, #6 FunctionObjectTypeName #7 ObjectName
+    SE_ANGELSCRIPT_EXCEPTIONCALLBACK   //!< The diagnostic info directly from AngelScript engine (see `SetExceptionCallback()`), args: #1 ScriptUnitID, #2 unused, #3 row (`GetExceptionLineNumber()`), #4 unused, #5 funcName, #6 message (`GetExceptionString()`)
+    SE_ANGELSCRIPT_THREAD_STATUS       //!< Sent by background threads (i.e. CURL) when there's something important (like finishing a download). args: #1 type, see `Script2Game::angelScriptThreadStatus`.    
 
  	SE_GENERIC_MESSAGEBOX_CLICK        //!< triggered when the user clicks on a message box button, the argument refers to the button pressed
 
