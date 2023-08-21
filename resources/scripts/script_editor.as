@@ -151,6 +151,7 @@ class ScriptEditorWindow
     // 'SAVE FILE' MENU:
         string saveFileNameBuf;
         bool saveMenuOpening = true;
+        int saveFileResult = 0; // 0=none, -1=error, 1=success
     // 'EXAMPLES' MENU:
         string exampleNameBuf;    
         array<dictionary> @exampleScriptsFileInfo = null;
@@ -261,7 +262,6 @@ class ScriptEditorWindow
             // 'OPEN FILE' menu
             if (ImGui::BeginMenu("Open file"))
             {
-                //string loadTextResourceAsString(const std::string& filename, const std::string& resource_group);
                 ImGui::InputText("File",/*inout:*/ fileNameBuf);
                 if (ImGui::Button("Load##localfile"))
                 {
@@ -283,16 +283,25 @@ class ScriptEditorWindow
                 {
                     saveFileNameBuf = this.tabs[this.currentTab].bufferName;
                     this.saveMenuOpening = false;
+                    this.saveFileResult = 0;
                 }
                 ImGui::InputText("File",/*inout:*/ saveFileNameBuf);
                 if (ImGui::Button("Save"))
                 {
-                    game.createTextResourceFromString(
+                    bool savedOk = game.createTextResourceFromString(
                         this.tabs[this.currentTab].buffer, saveFileNameBuf, RGN_SCRIPTS, saveShouldOverwrite);
-                    this.addRecentScript(saveFileNameBuf);
+                    this.saveFileResult = savedOk ? 1 : -1;
+                    if (savedOk)
+                        this.addRecentScript(saveFileNameBuf);
                 }
                 ImGui::SameLine();
                 ImGui::Checkbox("Overwrite", /*inout:*/saveShouldOverwrite);
+                
+                // Error indicator:
+                if (this.saveFileResult == 1)
+                    ImGui::TextColored(color(0.2,0.7, 0.2, 1), "File saved OK");
+                else if (this.saveFileResult == -1)
+                    ImGui::TextColored(color(1,0.1, 0.2, 1), "Error saving file!");
 
                 ImGui::EndMenu();                
             }
