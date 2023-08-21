@@ -332,14 +332,7 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
         return false;
     }, (const string&, string&), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool InputTextMultiline(const string&in, string&inout, const vector2&in = vector2(0,0))", asFUNCTIONPR([](const string& id, string& val, const Ogre::Vector2& size) {
-        memset(imgui_text_buffer, 0, sizeof(char) * 4096);
-        strcpy(imgui_text_buffer, val.c_str());
-        if (ImGui::InputTextMultiline(id.c_str(), imgui_text_buffer, 4096, ImVec2(size.x, size.y)))
-        {
-            val = imgui_text_buffer;
-            return true;
-        }
-        return false;
+        return ImGui::InputTextMultiline(id.c_str(), (char*)val.data(), val.size(), ImVec2(size.x, size.y));
     }, (const string&, string&, const Ogre::Vector2&), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool InputFloat(const string&, float&inout)", asFUNCTIONPR([](const string& id, float& val) {
         return ImGui::InputFloat(id.c_str(), &val); }, (const string&, float&), bool), asCALL_CDECL);

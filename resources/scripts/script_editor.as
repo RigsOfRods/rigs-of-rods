@@ -30,6 +30,8 @@ const string RGN_SCRIPTS = "Scripts";
 const string RGN_RESOURCES_SCRIPTS = "ScriptsRG";
 // others
 const string BUFFER_TEXTINPUT_LABEL = "##bufferTextInputLbl";
+const int BUFFER_MIN_SIZE = 10000;
+const int BUFFER_INCREMENT_SIZE = 2500;
 const color LINKCOLOR = color(0.3, 0.5, 0.9, 1.0);
 ScriptEditor editor;
 ExceptionsPanel epanel;
@@ -133,7 +135,8 @@ class ScriptEditor
 {
     
     // THE TEXT BUFFER
-        string buffer; // buffer data
+        string buffer; // The backing buffer - statically sized, determines maximum number of characters. DearIMGUI fills unused space by NULs.
+        uint totalChars; // Actual number of characters before the NUL-ified space; Important for saving. // see `analyzeLines()`
         array<dictionary> bufferLinesMeta; // metadata for lines, see `analyzeLines()`
         array<array<uint>> bufferMessageIDs;
     // END text buffer
@@ -512,7 +515,7 @@ class ScriptEditor
         vector2 screenCursor = ImGui::GetCursorScreenPos() + /*frame padding:*/vector2(0.f, 4.f);         
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + metaColumnsTotalWidth);            
         bool changed = ImGui::InputTextMultiline(BUFFER_TEXTINPUT_LABEL, this.buffer, textAreaSize);
-
+        
         
         // Trick: re-enter the inputtext panel to scroll it; see https://github.com/ocornut/imgui/issues/1523
         ImGui::BeginChild(ImGui::GetID(BUFFER_TEXTINPUT_LABEL));
@@ -525,6 +528,9 @@ class ScriptEditor
         if (changed)
         {
             this.analyzeLines();
+            // Enlarge buffer if at capacity
+            if (this.totalChars == (this.buffer.length() - 1))
+                this.buffer.resize(this.buffer.length() + BUFFER_INCREMENT_SIZE);
         }        
         
         this.drawLineInfoColumns(screenCursor);
@@ -574,17 +580,23 @@ class ScriptEditor
         }
         ImGui::Text(runningTxt
             +"; lines: "+bufferLinesMeta.length()
-            +" (chars: "+buffer.length()+"/4096)"
+            +" (chars: "+this.totalChars+"/"+(this.buffer.length()-1)+")" // Leave buffer space for one '\0'
             +"; messages:"+this.messages.length()
-                +"(err:"+this.messagesTotalErr
+                +" (err:"+this.messagesTotalErr
                 +"/warn:"+this.messagesTotalWarn
                 +"/info:"+this.messagesTotalInfo
-            +") scrollY="+scrollY+"/"+scrollMaxY+"");    // X="+scrollX+"/"+scrollMaxX
+            +"); scrollY="+scrollY+"/"+scrollMaxY+"");    // X="+scrollX+"/"+scrollMaxX
     }    
     
     void setBuffer(string data)
     {
+        // Make sure buffer is no smaller than BUFFER_MIN_SIZE
+        // and make sure it has at least BUFFER_INCREMENT_SIZE extra space.
+        // ===============================================================
         this.buffer = data;
+        this.buffer.resize(this.buffer.length() + BUFFER_INCREMENT_SIZE);
+        if (this.buffer.length() < BUFFER_MIN_SIZE)
+            this.buffer.resize(BUFFER_MIN_SIZE);
         this.analyzeLines();    
         this.refreshLocalFileList();        
     }
@@ -658,11 +670,17 @@ class ScriptEditor
         this.analyzeMessages();
     }
     
+    private bool isChar(uint c, string s)
+    {
+        return s.length() > 0 && c == s[0];
+    }
+    
     private void analyzeBuffer() // helper for `analyzeLines()`
     {
         this.bufferLinesMeta.resize(0); // clear all
         int startOffset = 0;
         this.bufferLinesMeta.insertLast({ {'startOffset', startOffset} });
+        this.totalChars = 0;
         
         // pattern - comment
         string commentPattern = "//";
@@ -681,7 +699,7 @@ class ScriptEditor
         int httpBreakPos = -1;
         
         for (uint i = 0; i < this.buffer.length(); i++)
-        {
+        {        
             uint lineIdx = this.bufferLinesMeta.length() - 1;
         
             // doubleslash comment
@@ -743,7 +761,7 @@ class ScriptEditor
                 }
             }
         
-            if (this.buffer[i] == uint(0x0a)) // ASCII newline
+            if (isChar(this.buffer[i], '\n') || isChar(this.buffer[i], '\0'))
             {
                 // Finish line
                 
@@ -757,7 +775,14 @@ class ScriptEditor
                 this.bufferLinesMeta[lineIdx]['httpStart'] = (httpFound) ? httpStart : -1;
                 this.bufferLinesMeta[lineIdx]['httpLen'] = (httpFound) ? httpBreakPos-httpStart : -1;
                 this.bufferLinesMeta[lineIdx]['nonHttpLen'] = (httpFound) ? httpStart - startOffset : -1;
+            }
                 
+            if (isChar(this.buffer[i], '\0'))
+            {
+                break; // We're done parsing the buffer - the rest is just more NULs.
+            }
+            else if (isChar(this.buffer[i], '\n'))
+            {
                 // reset context
                 commentFound = false;
                 commentStart = -1; // -1 means Empty
@@ -772,6 +797,7 @@ class ScriptEditor
                 startOffset = i+1;
                 this.bufferLinesMeta.insertLast({ {'startOffset', startOffset} });
             }
+            this.totalChars++;
         }
     }
  
@@ -1015,4 +1041,4 @@ void frameStep(float dt)
     ImGui::Text(ttStr);
     ImGui::Text(dtStr);
 }
-""";
+""";    
