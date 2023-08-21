@@ -30,11 +30,11 @@ const string RGN_SCRIPTS = "Scripts";
 const string RGN_RESOURCES_SCRIPTS = "ScriptsRG";
 // others
 const string BUFFER_TEXTINPUT_LABEL = "##bufferTextInputLbl";
+const string TABBAR_ID = "##scriptEditorTabs";
 const int BUFFER_MIN_SIZE = 10000;
 const int BUFFER_INCREMENT_SIZE = 2500;
 const color LINKCOLOR = color(0.3, 0.5, 0.9, 1.0);
-ScriptEditor editor;
-ExceptionsPanel epanel;
+ScriptEditorWindow editorWindow;
 
 // Config:
 // -------
@@ -91,13 +91,12 @@ void main() // Invoked by the game on startup
     game.registerForEvent(SE_ANGELSCRIPT_EXCEPTIONCALLBACK);
     game.registerForEvent(SE_ANGELSCRIPT_MANIPULATIONS);
     game.registerForEvent(SE_GENERIC_EXCEPTION_CAUGHT);
-    editor.setBuffer(TUT_SCRIPT);
 }
 
 
 void frameStep(float dt) // Invoked regularly by the game; the parameter is elapsed time in seconds.
 {
-    editor.draw(dt);
+    editorWindow.draw(dt);
 }
 
 
@@ -107,125 +106,168 @@ void eventCallbackEx(scriptEvents ev, // Invoked by the game when a registered e
 {
     if (ev == SE_ANGELSCRIPT_MSGCALLBACK)
     {
-        editor.onEventAngelScriptMsg(
-            /*id:*/arg1, /*eType:*/arg2ex, /*row:*/arg3ex, /*col:*/arg4ex, // ints
-            /*sectionName:*/arg5ex, /*msg:*/arg6ex); // strings
+        for (uint i=0; i<editorWindow.tabs.length(); i++)
+        {
+            editorWindow.tabs[i].onEventAngelScriptMsg(
+                /*id:*/arg1, /*eType:*/arg2ex, /*row:*/arg3ex, /*col:*/arg4ex, // ints
+                /*sectionName:*/arg5ex, /*msg:*/arg6ex); // strings
+        }
     }
     else if (ev == SE_ANGELSCRIPT_MANIPULATIONS)
     {
-        editor.onEventAngelScriptManip(
-            /*manipType:*/arg1, /*nid:*/arg2ex, /*category:*/arg3ex, // ints
-            /*name:*/arg5ex); // strings
+        for (uint i=0; i<editorWindow.tabs.length(); i++)
+        {
+            editorWindow.tabs[i].onEventAngelScriptManip(
+                /*manipType:*/arg1, /*nid:*/arg2ex, /*category:*/arg3ex, // ints
+                /*name:*/arg5ex); // strings
+        }
     }
     else if (ev == SE_GENERIC_EXCEPTION_CAUGHT)
     {
-         epanel.onEventExceptionCaught(arg1, arg5ex, arg6ex, arg7ex);
+        for (uint i=0; i<editorWindow.tabs.length(); i++)
+        {
+            editorWindow.tabs[i].epanel.onEventExceptionCaught(arg1, arg5ex, arg6ex, arg7ex);
+        }
     }
     else if (ev == SE_ANGELSCRIPT_EXCEPTIONCALLBACK)
     {
-         epanel.onEventAngelscriptExceptionCallback(
-            arg1, /*arg3_linenum:*/arg3ex, /*arg5_from:*/arg5ex, /*arg6_msg:*/arg6ex);
+        for (uint i=0; i<editorWindow.tabs.length(); i++)
+        {
+            editorWindow.tabs[i].epanel.onEventAngelscriptExceptionCallback(
+                arg1, /*arg3_linenum:*/arg3ex, /*arg5_from:*/arg5ex, /*arg6_msg:*/arg6ex);
+        }
     }    
 }
 
 // The script editor logic:
 // ------------------------
 
-class ScriptEditor
+class ScriptEditorWindow
 {
-    
-    // THE TEXT BUFFER
-        string buffer; // The backing buffer - statically sized, determines maximum number of characters. DearIMGUI fills unused space by NULs.
-        uint totalChars; // Actual number of characters before the NUL-ified space; Important for saving. // see `analyzeLines()`
-        array<dictionary> bufferLinesMeta; // metadata for lines, see `analyzeLines()`
-        array<array<uint>> bufferMessageIDs;
-    // END text buffer
+    // 'LOAD FILE' MENU:
+        string fileNameBuf;
+        array<dictionary> @recentScriptsFileInfo = array<dictionary>();
+        array<dictionary> @localScriptsFileInfo = null;
+    // 'SAVE FILE' MENU:
+        string saveFileNameBuf;
+        bool saveMenuOpening = true;
+    // 'EXAMPLES' MENU:
+        string exampleNameBuf;    
+        array<dictionary> @exampleScriptsFileInfo = null;
+    // TABS:
+        array<ScriptEditorTab@> tabs;
+        uint currentTab = 0;
+        int tabScheduledForRemoval = -1;
         
-    // MESSAGES FROM ANGELSCRIPT ENGINE
-        array<dictionary> messages;
-        int messagesTotalErr = 0;
-        int messagesTotalWarn = 0;
-        int messagesTotalInfo = 0;
-    // END messages from angelscript
-
-    
-    // CONTEXT
-    float scrollY = 0.f;
-    float scrollX = 0.f;
-    float scrollMaxY = 0.f;
-    float scrollMaxX = 0.f;
-    float errCountOffset=0.f;
-    vector2 errorsScreenCursor(0,0);
-    vector2 errorsTextAreaSize(0,0);
-    vector2 textAreaSize(0,0);
-    string bufferName = "(editor buffer)";
-    int currentScriptUnitID = SCRIPTUNITID_INVALID;
-    bool waitingForManipEvent = false; // When waiting for async result of (UN)LOAD_SCRIPT_REQUESTED
-    string fileNameBuf;
-    string exampleNameBuf;
-    array<dictionary> @recentScriptsFileInfo = array<dictionary>();
-    array<dictionary> @localScriptsFileInfo = null;
-    array<dictionary> @exampleScriptsFileInfo = null;
-    float autosaveTimeCounterSec = 0.f;
-    int autosaveResult = 0; // 0=no action, 1=success, -1=failure;
-
+        
     void refreshLocalFileList()
     {
         @this.localScriptsFileInfo = game.findResourceFileInfo(RGN_SCRIPTS, "*.*");
         @this.exampleScriptsFileInfo = game.findResourceFileInfo(RGN_RESOURCES_SCRIPTS, "example_*.*");
-    }    
+    }
 
+    void addTab(const string&in tabName, const string&in buffer)
+    {
+        ScriptEditorTab nTab;
+        nTab.bufferName = tabName;
+        nTab.setBuffer(buffer);
+        tabs.insertLast(nTab);
+    }
+    
+    void removeTab(uint i)
+    {
+        if (i < tabs.length())
+        {
+            tabs.removeAt(i);
+        }
+    }
+    
     void draw(float dt)
     {
-        this.updateAutosave(dt);
+        // Process scheduled tab closing
+        if (this.tabScheduledForRemoval != -1)
+        {
+            this.removeTab(uint(tabScheduledForRemoval));
+            this.tabScheduledForRemoval = -1;
+        }        
+    
+        // Make sure there's always a tab open ()
+        if (tabs.length() == 0)
+        {
+            this.addTab("Welcome", TUT_SCRIPT);
+            this.currentTab = 0;
+        }
+        else
+        {
+            if (this.currentTab >= tabs.length())
+                this.currentTab = tabs.length()-1;        
+        }
+    
+        this.tabs[this.currentTab].updateAutosave(dt);
     
         int flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar;
-        ImGui::Begin("Script editor", /*open:*/true, flags);
-        
+        if (ImGui::Begin("Script editor", /*open:*/true, flags))
+        {
             this.drawMenubar();
-            this.drawTextArea();
-            this.drawExceptionsPanel();
-            this.drawFooter();         
+            this.drawTabBar();
+            
+            this.tabs[this.currentTab].drawTextArea();
+            this.tabs[this.currentTab].drawExceptionsPanel();
+            this.tabs[this.currentTab].drawFooter();         
 
             // To draw on top of editor text, we must trick DearIMGUI using an extra invisible window
-            ImGui::SetCursorPos(errorsScreenCursor - ImGui::GetWindowPos());
+            ImGui::SetCursorPos(this.tabs[this.currentTab].errorsScreenCursor - ImGui::GetWindowPos());
             ImGui::PushStyleColor(ImGuiCol_ChildBg, color(0.f,0.f,0.f,0.f)); // Fully transparent background!
             int childFlags = ImGuiWindowFlags_NoInputs; // Necessary, otherwise editing is blocked.
-            if (ImGui::BeginChild("ScriptEditorErr-child", errorsTextAreaSize,/*border:*/false, childFlags))
+            if (ImGui::BeginChild("ScriptEditorErr-child", this.tabs[this.currentTab].errorsTextAreaSize,/*border:*/false, childFlags))
             {
-                this.drawTextAreaErrors(errorsScreenCursor);   
+                this.tabs[this.currentTab].drawTextAreaErrors();   
             }
             ImGui::EndChild(); // must always be called - legacy reasons
             ImGui::PopStyleColor(1); // ChildBg  
-        
+        }
         ImGui::End();
 
     }
     
-    protected void drawMenubar()
+    private void drawTabBar()
+    {
+        int tabBarFlags = 0;
+        if (ImGui::BeginTabBar(TABBAR_ID, tabBarFlags))
+        {
+            for (uint i = 0; i < this.tabs.length(); i++)
+            {
+                bool tabOpen = true;
+                int tabFlags = 0;
+                bool tabDrawn = ImGui::BeginTabItem(this.tabs[i].bufferName, /*inout:*/tabOpen, tabFlags);
+                if (tabDrawn)
+                {
+                    ImGui::EndTabItem();
+                }
+                if (!tabOpen)
+                    this.tabScheduledForRemoval = int(i);
+                else if (ImGui::IsItemClicked())
+                    this.currentTab = i;
+            }
+        
+            ImGui::EndTabBar();
+        }
+    }
+    
+    private void drawMenubar()
     {
         if (ImGui::BeginMenuBar())
         {
-            if (ImGui::BeginMenu("File"))
+            // 'OPEN FILE' menu
+            if (ImGui::BeginMenu("Open file"))
             {
                 //string loadTextResourceAsString(const std::string& filename, const std::string& resource_group);
                 ImGui::InputText("File",/*inout:*/ fileNameBuf);
-                if (ImGui::Button("Load"))
+                if (ImGui::Button("Load##localfile"))
                 {
-                    
-                    this.setBuffer(game.loadTextResourceAsString(fileNameBuf, RGN_SCRIPTS));
-                    this.addRecentScript(fileNameBuf);
-                        
+                    this.addTab(fileNameBuf, game.loadTextResourceAsString(fileNameBuf, RGN_SCRIPTS));
+                    this.addRecentScript(fileNameBuf);                        
                 }
-                ImGui::SameLine();
-                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 100.f);
-                if (ImGui::Button("Save"))
-                {
-                    game.createTextResourceFromString(this.buffer, fileNameBuf, RGN_SCRIPTS, saveShouldOverwrite);
-                    this.addRecentScript(fileNameBuf);
-                }
-                ImGui::SameLine();
-                ImGui::Checkbox("Overwrite", /*inout:*/saveShouldOverwrite);
                 
                 this.drawSelectableFileList("Recent scripts", recentScriptsFileInfo, /*&inout*/ fileNameBuf);
                 
@@ -233,19 +275,49 @@ class ScriptEditor
                 
                 ImGui::EndMenu();
             }
+            
+            // 'SAVE FILE' menu
+            if (ImGui::BeginMenu("Save file"))
+            {
+                if (this.saveMenuOpening)
+                {
+                    saveFileNameBuf = this.tabs[this.currentTab].bufferName;
+                    this.saveMenuOpening = false;
+                }
+                ImGui::InputText("File",/*inout:*/ saveFileNameBuf);
+                if (ImGui::Button("Save"))
+                {
+                    game.createTextResourceFromString(
+                        this.tabs[this.currentTab].buffer, saveFileNameBuf, RGN_SCRIPTS, saveShouldOverwrite);
+                    this.addRecentScript(saveFileNameBuf);
+                }
+                ImGui::SameLine();
+                ImGui::Checkbox("Overwrite", /*inout:*/saveShouldOverwrite);
+
+                ImGui::EndMenu();                
+            }
+            else
+            {
+                this.saveMenuOpening = true;
+            }
+            
+            // 'EXAMPLES' menu
             if (ImGui::BeginMenu("Examples"))
             {
                 //string loadTextResourceAsString(const std::string& filename, const std::string& resource_group);
                 ImGui::Text("File: "+ exampleNameBuf);
-                if (ImGui::Button("Load"))
+                if (ImGui::Button("Load##example"))
                 {
-                    this.setBuffer(game.loadTextResourceAsString(exampleNameBuf, RGN_RESOURCES_SCRIPTS));
+                    game.log("load example="+exampleNameBuf);
+                    this.addTab(exampleNameBuf, game.loadTextResourceAsString(exampleNameBuf, RGN_RESOURCES_SCRIPTS));
                 }
                 
                 this.drawSelectableFileList("Example scripts", exampleScriptsFileInfo, /*&inout*/ exampleNameBuf);
                 
                 ImGui::EndMenu();
-            }               
+            }   
+
+            // 'VIEW' menu
             if (ImGui::BeginMenu("View"))
             {
                 ImGui::TextDisabled("Line info:");
@@ -276,37 +348,136 @@ class ScriptEditor
                 ImGui::EndMenu();
             }
             
+            // START-STOP button
             ImGui::Dummy(vector2(50, 1));
-            if (this.waitingForManipEvent) // When waiting for async result of (UN)LOAD_SCRIPT_REQUESTED
-            {
-                ImGui::TextDisabled("WAIT...");
-            }
-            else
-            {
-                if (this.currentScriptUnitID == SCRIPTUNITID_INVALID)
-                {            
-                    if (ImGui::Button("[>>] RUN"))
-                    {
-                        this.runBuffer();
-                    }
-                }
-                else
-                {
-                    if (ImGui::Button("[X] STOP"))
-                    {
-                        this.stopBuffer();
-                    }
-                }
-            }
+            this.tabs[this.currentTab].drawStartStopButton();
             
+            // DOCS link
             ImGui::Dummy(vector2(50, 1));
             ImHyperlink('https://developer.rigsofrods.org/d2/d42/group___script_side_a_p_is.html', "Click for documentation");
             
-            this.drawAutosaveStatusbar();
+            // AUTOSAVE counter
+            if (drawAutosaveCountdown)
+            {
+                ImGui::Dummy(vector2(50, 1));
+                this.tabs[this.currentTab].drawAutosaveStatusbar();
+            }
             ImGui::EndMenuBar();
         }
     }
     
+    private bool drawSelectableFileList(string title, array<dictionary>@ fileinfos, string&inout out_selection)
+    {
+        bool retval = false;
+        if (@fileinfos != null)
+        {
+            ImGui::Separator();
+            ImGui::PushID(title);     
+            ImGui::TextDisabled(title+" ("+fileinfos.length()+"):");
+            for (uint i=0; i<fileinfos.length(); i++)
+            {
+                ImGui::PushID(i);
+                string filename = string(fileinfos[i]['filename']);
+                uint size = uint(fileinfos[i]['compressedSize']);
+                ImGui::Bullet(); 
+                ImGui::SameLine(); ImGui::Text(filename);
+                ImGui::SameLine(); ImGui::TextDisabled("("+formatFloat(float(size)/1000.f, "", 3, 2)+" KB)");
+                ImGui::SameLine();
+                if (ImGui::SmallButton("Select"))
+                {
+                    out_selection = filename;
+                    retval = true;
+                }   
+                ImGui::PopID(); // i                        
+            }
+            ImGui::PopID(); // title
+        }   
+        else
+        {
+            ImGui::TextDisabled(title+": no files found.");
+        } 
+         return retval;
+    }    
+    
+    private void addRecentScript(string fnameBuf)
+    {
+        if (fnameBuf == "")
+            return; // nope
+            
+        for (uint i=0; i<recentScriptsFileInfo.length(); i++)
+        {
+            string filename = string(recentScriptsFileInfo[i]['filename']);
+            if (filename == fnameBuf)
+                return; // already exists
+                
+        }
+        
+        // if we got here, the name isn't in the list yet. 
+        //  Construct a pseudo-FileInfo format so we can use common helper.
+        recentScriptsFileInfo.insertLast({ {'filename', fnameBuf}, {'compressedSize',-1} } );
+            
+    }    
+}
+
+class ScriptEditorTab
+{
+    
+    // THE TEXT BUFFER
+        string buffer; // The backing buffer - statically sized, determines maximum number of characters. DearIMGUI fills unused space by NULs.
+        uint totalChars; // Actual number of characters before the NUL-ified space; Important for saving. // see `analyzeLines()`
+        array<dictionary> bufferLinesMeta; // metadata for lines, see `analyzeLines()`
+        array<array<uint>> bufferMessageIDs;
+    // END text buffer
+        
+    // MESSAGES FROM ANGELSCRIPT ENGINE
+        array<dictionary> messages;
+        int messagesTotalErr = 0;
+        int messagesTotalWarn = 0;
+        int messagesTotalInfo = 0;
+    // END messages from angelscript
+
+    
+    // CONTEXT
+    float scrollY = 0.f;
+    float scrollX = 0.f;
+    float scrollMaxY = 0.f;
+    float scrollMaxX = 0.f;
+    float errCountOffset=0.f;
+    vector2 errorsScreenCursor(0,0);
+    vector2 errorsTextAreaSize(0,0);
+    vector2 textAreaSize(0,0);
+    string bufferName = "EditorTab"; // Also tab name
+    int currentScriptUnitID = SCRIPTUNITID_INVALID;
+    bool waitingForManipEvent = false; // When waiting for async result of (UN)LOAD_SCRIPT_REQUESTED
+    ExceptionsPanel epanel;
+    float autosaveTimeCounterSec = 0.f;
+    int autosaveResult = 0; // 0=no action, 1=success, -1=failure;
+
+    void drawStartStopButton()
+    {
+        if (this.waitingForManipEvent) // When waiting for async result of (UN)LOAD_SCRIPT_REQUESTED
+        {
+            ImGui::TextDisabled("WAIT...");
+        }
+        else
+        {
+            if (this.currentScriptUnitID == SCRIPTUNITID_INVALID)
+            {            
+                if (ImGui::Button("[>>] RUN"))
+                {
+                    this.runBuffer();
+                }
+            }
+            else
+            {
+                if (ImGui::Button("[X] STOP"))
+                {
+                    this.stopBuffer();
+                }
+            }
+        }    
+    }
+
     protected void drawLineInfoColumns(vector2 screenCursor)
     {
         // draws columns with info (line number etc...) on the left side of the text area
@@ -356,7 +527,7 @@ class ScriptEditor
             if (drawLineErrCounts)
             {
                 
-                if (bufferMessageIDs.length() > lineIdx // sanity check
+                if (bufferMessageIDs.length() > uint(lineIdx) // sanity check
                     && bufferMessageIDs[lineIdx].length() > 0)
                 {
                     // Draw num errors to the column
@@ -374,12 +545,12 @@ class ScriptEditor
            
     }
     
-    protected void drawTextAreaErrors(vector2 screenCursor)
+    void drawTextAreaErrors()
     {
         // draw messages to text area
         //===========================
         
-        vector2 msgCursorBase = screenCursor + vector2(4, -this.scrollY);
+        vector2 msgCursorBase = this.errorsScreenCursor + vector2(4, -this.scrollY);
         
         int bufferNumLines = int(this.bufferLinesMeta.length());
         ImDrawList@ drawlist = ImGui::GetWindowDrawList();
@@ -390,7 +561,7 @@ class ScriptEditor
             vector2 lineCursor = msgCursorBase  + vector2(0.f, ImGui::GetTextLineHeight()*lineIdx);
             
             // sanity checks
-            if (this.bufferLinesMeta.length() <= lineIdx)
+            if (this.bufferLinesMeta.length() <= uint(lineIdx))
                 continue;
             
             // first draw comment highlights (semitransparent quads)
@@ -408,7 +579,6 @@ class ScriptEditor
                 int doubleslashCommentStart = int(this.bufferLinesMeta[lineIdx]['doubleslashCommentStart']);
                 string commentStr = buffer.substr(doubleslashCommentStart, lineLen-nonCommentLen);
                 vector2 commentSize = ImGui::CalcTextSize(commentStr);
-                
                 drawlist.AddRectFilled(pos, pos+commentSize, commentHighlightColor);
             }
             
@@ -437,7 +607,7 @@ class ScriptEditor
             }
             
             // sanity check
-            if (this.bufferMessageIDs.length() <= lineIdx)
+            if (this.bufferMessageIDs.length() <= uint(lineIdx))
                 continue;
             
             // then errors and warnings
@@ -490,7 +660,7 @@ class ScriptEditor
 
     }
     
-    protected void drawTextArea()
+    void drawTextArea()
     {
         
         // Reserve space for the metainfo columns
@@ -510,12 +680,11 @@ class ScriptEditor
         // Draw the multiline text input
         this.textAreaSize = vector2(
             ImGui::GetWindowSize().x - (metaColumnsTotalWidth + 20), 
-            ImGui::GetWindowSize().y - (85 + epanel.getHeightToReserve()));
+            ImGui::GetWindowSize().y - (115 + epanel.getHeightToReserve()));
 
         vector2 screenCursor = ImGui::GetCursorScreenPos() + /*frame padding:*/vector2(0.f, 4.f);         
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + metaColumnsTotalWidth);            
         bool changed = ImGui::InputTextMultiline(BUFFER_TEXTINPUT_LABEL, this.buffer, textAreaSize);
-        
         
         // Trick: re-enter the inputtext panel to scroll it; see https://github.com/ocornut/imgui/issues/1523
         ImGui::BeginChild(ImGui::GetID(BUFFER_TEXTINPUT_LABEL));
@@ -537,12 +706,12 @@ class ScriptEditor
         screenCursor.x+= metaColumnsTotalWidth;
         // Apparently drawing errors now makes them appear under the editor text;
         // we must remember values and draw separately.
-        errorsScreenCursor = screenCursor;
-        errorsTextAreaSize = textAreaSize;
+        this.errorsScreenCursor = screenCursor;
+        this.errorsTextAreaSize = textAreaSize;
         
     }
     
-    protected void drawExceptionsPanel()
+    void drawExceptionsPanel()
     {
         
         if (epanel.getHeightToReserve() == 0)
@@ -557,7 +726,7 @@ class ScriptEditor
         ImGui::EndChild();    // must always be called - legacy reasons
     }
     
-    protected void drawFooter()
+    void drawFooter()
     {
         
         if (epanel.getHeightToReserve() == 0)
@@ -598,7 +767,7 @@ class ScriptEditor
         if (this.buffer.length() < BUFFER_MIN_SIZE)
             this.buffer.resize(BUFFER_MIN_SIZE);
         this.analyzeLines();    
-        this.refreshLocalFileList();        
+        editorWindow.refreshLocalFileList();        
     }
     
     void runBuffer()
@@ -841,58 +1010,6 @@ class ScriptEditor
         }
         
     }
-    
-    private bool drawSelectableFileList(string title, array<dictionary>@ fileinfos, string&inout out_selection)
-    {
-        bool retval = false;
-        if (@fileinfos != null)
-        {
-            ImGui::Separator();
-            ImGui::PushID(title);     
-            ImGui::TextDisabled(title+" ("+fileinfos.length()+"):");
-            for (uint i=0; i<fileinfos.length(); i++)
-            {
-                ImGui::PushID(i);
-                string filename = string(fileinfos[i]['filename']);
-                uint size = uint(fileinfos[i]['compressedSize']);
-                ImGui::Bullet(); 
-                ImGui::SameLine(); ImGui::Text(filename);
-                ImGui::SameLine(); ImGui::TextDisabled("("+formatFloat(float(size)/1000.f, "", 3, 2)+" KB)");
-                ImGui::SameLine();
-                if (ImGui::SmallButton("Select"))
-                {
-                    out_selection = filename;
-                    retval = true;
-                }   
-                ImGui::PopID(); // i                        
-            }
-            ImGui::PopID(); // title
-        }   
-        else
-        {
-            ImGui::TextDisabled(title+": no files found.");
-        } 
-         return retval;
-    }
-    
-    private void addRecentScript(string fnameBuf)
-    {
-        if (fnameBuf == "")
-            return; // nope
-            
-        for (uint i=0; i<recentScriptsFileInfo.length(); i++)
-        {
-            string filename = string(recentScriptsFileInfo[i]['filename']);
-            if (filename == fnameBuf)
-                return; // already exists
-                
-        }
-        
-        // if we got here, the name isn't in the list yet. 
-        //  Construct a pseudo-FileInfo format so we can use common helper.
-        recentScriptsFileInfo.insertLast({ {'filename', fnameBuf}, {'compressedSize',-1} } );
-            
-    }
  
     void updateAutosave(float dt)
     {
@@ -910,19 +1027,15 @@ class ScriptEditor
     } 
 
     void drawAutosaveStatusbar()
-    {
-        if (drawAutosaveCountdown)
-        {
-            ImGui::Dummy(vector2(50, 1));
-            ImGui::TextDisabled("Autosave:");
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, autoSaveStatusbarBgColor);
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5.f);
+    {    
+        ImGui::TextDisabled("Autosave:");
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, autoSaveStatusbarBgColor);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY()+5.f);
             ImGui::ProgressBar(
                 /*fraction:*/this.autosaveTimeCounterSec/autoSaveIntervalSec,
                 /*size: */vector2(55.f, 13.f),
                 /*overlay: */''+formatFloat(autoSaveIntervalSec-this.autosaveTimeCounterSec, "", 3, 1)+'sec');
-            ImGui::PopStyleColor(1); // ImGuiCol_FrameBg    
-        }
+        ImGui::PopStyleColor(1); // ImGuiCol_FrameBg    
     }
 }
 
@@ -964,13 +1077,9 @@ class ExceptionsPanel
         dictionary@ exception_stats = cast<dictionary@>(exception_stats_nid[''+nid]);
         if (@exception_stats == null)
         {
-            game.log("DBG addExceptionInternal(): allocating dict for NID "+nid+"; desc:"+desc);
             exception_stats_nid[''+nid] = dictionary();
-            game.log("DBG addExceptionInternal(): casting dict for NID "+nid);
             @exception_stats = cast<dictionary@>(exception_stats_nid[''+nid]);
-            game.log("DBG addExceptionInternal(): DONE allocating dict for NID "+nid);
         }
-        game.log("DBG addException(): increasing stats for desc '"+desc+"'; NID: "+nid);
         exception_stats[desc] = int(exception_stats[desc])+1;
     }
 
