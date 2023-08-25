@@ -28,6 +28,7 @@
 #include "scriptarray/scriptarray.h"
 #include "scriptbuilder/scriptbuilder.h"
 
+#include <list>
 #include <map>
 #include <string>
 #include <vector>
@@ -65,6 +66,38 @@ AngelScript::CScriptArray* MapToScriptArray(std::map<T, U>& map, const std::stri
         // Set the value of each element
         AngelScript::asUINT pos = static_cast<AngelScript::asUINT>(std::distance(map.begin(), itor));
         arr->SetValue(pos, &itor->second);
+    }
+
+    return arr;
+}
+
+// Iterables:
+
+template <typename ItorT>
+AngelScript::CScriptArray* IterableMapToScriptArray(ItorT begin, ItorT end, const std::string& decl)
+{
+    std::string arraydecl = fmt::format("array<{}>", decl);
+    AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl(arraydecl.c_str());
+    AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo);
+
+    for (auto itor = begin; itor != end; itor++)
+    {
+        arr->InsertLast(&itor->second);
+    }
+
+    return arr;
+}
+
+template <typename ItorT>
+AngelScript::CScriptArray* IterableListToScriptArray(ItorT begin, ItorT end, const std::string& decl)
+{
+    std::string arraydecl = fmt::format("array<{}>", decl);
+    AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl(arraydecl.c_str());
+    AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo);
+
+    for (auto itor = begin; itor != end; itor++)
+    {
+        arr->InsertLast(&itor);
     }
 
     return arr;
