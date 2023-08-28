@@ -22,7 +22,7 @@
 /// @file
 /// @author https://gist.github.com/JSandusky/54b85068aa30390c91a0b377703f042e
 /// @author https://discourse.urho3d.io/t/dear-imgui-w-o-steamrolling/3960
-/// @author Petr Ohlidal (enums, ImDrawList)
+/// @author Petr Ohlidal (enums, ImDrawList, tabs...)
 
 #include "OgreImGui.h"
 #include "scriptarray/scriptarray.h"
@@ -278,6 +278,8 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
         return ImGui::RadioButton(n.c_str(), &v, vv); }, (const string&, int&, int), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("void ProgressBar(float)", asFUNCTIONPR([](float v) { 
         ImGui::ProgressBar(v); }, (float), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void ProgressBar(float, vector2=vector2(-1,0), const string&in = "")", asFUNCTIONPR([](float v, Ogre::Vector2 size, const string& overlay) { 
+        ImGui::ProgressBar(v, ImVec2(size.x, size.y), (overlay != "")?overlay.c_str():nullptr); }, (float,  Ogre::Vector2, const string&), void), asCALL_CDECL);
 
 
     // Widgets: Combo Box
