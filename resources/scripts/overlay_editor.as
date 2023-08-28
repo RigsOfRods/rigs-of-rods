@@ -98,13 +98,14 @@ class OverlayEditor {
 
   void drawUI()  {
     this.drawUIMouseKnobs();
-     ImGui::Begin("Overlay editor PROTOTYPE", true, 0);
-     this.drawUIStatusInfo();
-     ImGui::Separator();
-     this.drawUIToolbox();
-     ImGui::Separator();
-     this.drawUIOverlayList();
-     ImGui::End();
+    ImGui::Begin("Overlay editor PROTOTYPE", true, 0);
+    this.drawUIStatusInfo();
+    ImGui::Separator();
+    this.drawUIToolbox();
+    ImGui::Separator();
+    this.drawUIOverlayList();
+     if (@mSelectedOverlay!=null) { this.drawUIOverlayElementList(mSelectedOverlay); }
+    ImGui::End();
   }
 
   void drawOverlayProperties(Ogre::Overlay@ ov) {
@@ -195,6 +196,57 @@ class OverlayEditor {
       ImGui::Separator();
       for (uint i=0; i<ovList.length(); i++) {
         this.drawUIOverlayListRow(ovList[i]);
+      }
+    }
+  }
+
+  protected void drawUIOverlayElementDetails(Ogre::OverlayElement@ elem) {
+    ImGui::Text("Name: "+elem.getName());
+    ImGui::Text("");
+    ImGui::Text("Visible:"+elem.isVisible());
+    ImGui::Text("(Position) Left: "+elem.getLeft()+", Top: "+elem.getTop());
+    ImGui::Text("(Size) Width: "+elem.getWidth()+", Heigh: t"+elem.getHeight());
+    ImGui::Text("Material: " + elem.getMaterialName());
+  }
+
+  protected void drawUIOverlayElementListRow(Ogre::OverlayElement@ elem) {
+
+    ImGui::Bullet();
+    ImGui::SameLine();
+    ImGui::Text(elem.getName());
+    ImGui::SameLine();
+    ImGui::TextDisabled(elem.getMaterialName());
+    
+      ImGui::SameLine();
+      ImGui::TextDisabled("(hover for info)");
+      if (ImGui::IsItemHovered()) { 
+         ImGui::BeginTooltip();
+         this.drawUIOverlayElementDetails(elem);
+         ImGui::EndTooltip();
+      }
+     
+    ImGui::SameLine();
+    // Show/hide btn
+    if (elem.isVisible()) {
+      if (ImGui::SmallButton("Hide")) { elem.hide(); }
+    } else {
+      if (ImGui::SmallButton("Show")) { elem.show(); }
+    }
+    // Select/deselect btn
+    ImGui::SameLine();
+    if (@mSelectedElement != @elem) {
+      if (ImGui::SmallButton("Select")) { @mSelectedElement = @elem; }
+    } else {
+      if (ImGui::SmallButton("Deselect")) { @mSelectedElement = null; }
+    }
+  }
+
+  protected void drawUIOverlayElementList(Ogre::Overlay@ ov) {
+    if (@ov == null) { mErrorString = "drawUIOverlayElementList(): overlay is null!"; return; }
+    array<Ogre::OverlayElement@> @oeList = ov.get2DElements();
+    if (ImGui::CollapsingHeader("Manage Elements ("+oeList.length()+")")) {
+      for (uint i=0; i<oeList.length(); i++) {
+        this.drawUIOverlayElementListRow(oeList[i]);
       }
     }
   }
