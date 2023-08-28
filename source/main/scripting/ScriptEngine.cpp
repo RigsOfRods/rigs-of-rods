@@ -225,7 +225,7 @@ void ScriptEngine::exceptionCallback(AngelScript::asIScriptContext* ctx)
     {
         funcName = ptr2str(ctx->GetExceptionFunction()->GetName());
     }
-    this->triggerEvent(SE_ANGELSCRIPT_EXCEPTIONCALLBACK,
+    TRIGGER_EVENT_ASYNC(SE_ANGELSCRIPT_EXCEPTIONCALLBACK,
         m_currently_executing_script_unit, 0, ctx->GetExceptionLineNumber(), 0, // ints
         funcName, ctx->GetExceptionString()); // strings
 }
