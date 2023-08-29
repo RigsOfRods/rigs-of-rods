@@ -6,7 +6,10 @@
 /// - [x] Diagnostic-level UI showing current state (active overlay/element etc...)
 /// - [x] UI list of list existing overlays with Show/Hide button
 /// - [x] UI button + textbox to create new overlay
+/// - [x] UI button to destroy selected overlay
+/// - [x] UI list of list existing elements with Show/Hide button
 /// - [x] Click and drag control to add new element
+/// - [x] UI button to destroy selected element
 /// - [ ] Selected element highlight with mouse-drag boxes for position+scale
 /// - [ ] Selected element properties box with material and other properties, editable or not
 /// - [ ] UI list of elements, mouse hover highlights the element on screen 
@@ -21,6 +24,7 @@
 //   .hasOverlayElement(string) --> bool
 //   .getOverlayElement(string) --> Ogre::OverlayElement      ~ will throw exception if not found
 //   .createOverlayElement(string type, string name) --> Ogre::OverlayElement          ~ throws exception if the name already exists!
+//   .destroyOverlayElement(string name, bool isTemplate=false) --> void
 //   .getOverlays() --> array<Ogre::Overlay@>@
 // Ogre::Overlay (ref, nocount)
 //   .getName() --> string
@@ -77,7 +81,7 @@ class OverlayEditor {
   protected void addPendingElement() {
     if (@mSelectedOverlay == null) { mErrorString = "addPendingElement(): no active overlay!"; return; }
     vector2 mouseCurPos = game.getMouseScreenPosition();
-    string elemName = mSelectedOverlay.getName()+"-Element"+(mElementCounter++)+"-"+mPendingElementType;
+    string elemName = this.composeUniqueElementName(mSelectedOverlay.getName(), mPendingElementType);
     @mSelectedElement = Ogre::OverlayManager::getSingleton().createOverlayElement(mPendingElementType, elemName);
     if (@mSelectedElement == null) { mErrorString = "addPendingElement(): failed to create!"; return; }
     mSelectedOverlay.add2D(mSelectedElement);
@@ -87,7 +91,7 @@ class OverlayEditor {
     mSelectedElement.setWidth(mouseCurPos.x - mMouseDragStart.x);
     mSelectedElement.setHeight(mouseCurPos.y - mMouseDragStart.y);
     mSelectedElement.setMaterialName(mNewElementMaterialNameBuf, OE_RGN_AUTODETECT);
-    
+    mSelectedElement.show();
   }
 
   protected void resetCursorMode() {
@@ -109,15 +113,16 @@ class OverlayEditor {
   }
 
   void drawOverlayProperties(Ogre::Overlay@ ov) {
-     if (@ov == null) { mErrorString="drawOverlayProperties(): overlay is null!"; }
-     ImGui::Text("Name: "+ov.getName());
-     ImGui::Text("ZOrder: "+ov.getZOrder());
-     ImGui::Text("Visible: "+ov.isVisible());
-     ImGui::Text("ScrollX: "+ov.getScrollX());
-     ImGui::Text("ScrollY: "+ov.getScrollY());
-     ImGui::Text("Rotate: "+ov.getRotate().valueRadians());
-     ImGui::Text("ScaleX: "+ov.getScaleX());
-     ImGui::Text("ScaleY: "+ov.getScaleY());     
+    if (@ov == null) { mErrorString="drawOverlayProperties(): overlay is null!"; return; }
+    ImGui::TextDisabled("Ogre::Overlay details");
+    ImGui::Text("Name: "+ov.getName());
+    ImGui::Text("ZOrder: "+ov.getZOrder());
+    ImGui::Text("Visible: "+ov.isVisible());
+    ImGui::Text("ScrollX: "+ov.getScrollX());
+    ImGui::Text("ScrollY: "+ov.getScrollY());
+    ImGui::Text("Rotate: "+ov.getRotate().valueRadians());
+    ImGui::Text("ScaleX: "+ov.getScaleX());
+    ImGui::Text("ScaleY: "+ov.getScaleY());     
   }
 
   protected void drawUIMouseKnobs() {
@@ -141,12 +146,16 @@ class OverlayEditor {
     ImGui::TextDisabled("Create new overlay");
     ImGui::InputText("Name", mNewOverlayNameBuf);
     ImGui::SameLine();
-    if (ImGui::Button("Create")) { @mSelectedOverlay = Ogre::OverlayManager::getSingleton().create(mNewOverlayNameBuf); }
+    if (ImGui::Button("Create")) { 
+      @mSelectedOverlay = Ogre::OverlayManager::getSingleton().create(mNewOverlayNameBuf);
+      mSelectedOverlay.show();
+    }
   }
 
   protected void drawUIStatusInfo() {
     ImGui::PushID("statusBox");
     ImGui::TextDisabled("Status:");
+    // active overlay
     ImGui::Text("Active overlay: "+(@mSelectedOverlay != null ? mSelectedOverlay.getName() : "~none"));
     if (@mSelectedOverlay != null) { 
       ImGui::SameLine();
@@ -159,11 +168,24 @@ class OverlayEditor {
       ImGui::SameLine();
       if (ImGui::SmallButton("Deselect")) { @mSelectedOverlay = null; }
     }
+    // active element
     ImGui::Text("Active element: "+(@mSelectedElement != null ? mSelectedElement.getName() : "~none"));
+    if (@mSelectedElement != null) {
+      ImGui::SameLine();
+      if (mSelectedElement.isVisible()) {
+        if (ImGui::SmallButton("Hide##hideActiveElem")) { mSelectedElement.hide(); }
+      } else {
+        if (ImGui::SmallButton("Show##showActiveElem")) { mSelectedElement.show(); }
+      }
+      ImGui::SameLine();
+      if (ImGui::SmallButton("Deselect##deselectActiveElem")) { @mSelectedElement = null; }
+    }
+    // cursor mode
     ImGui::Text("Cursor mode: " + mCursorModeNames[mCursorMode]);
     if (mCursorMode != OE_CURSORMODE_SELECT) {
       ImGui::SameLine(); if (ImGui::SmallButton("Reset")) { this.resetCursorMode(); }
     }
+    // other
     ImGui::Text("Mouse drag start: X="+mMouseDragStart.x+" Y="+mMouseDragStart.y);
     ImGui::Text("Pending element type: "+mPendingElementType);
     ImGui::Text("Error string: "+mErrorString);
@@ -171,6 +193,7 @@ class OverlayEditor {
   }
 
   protected void drawUIOverlayListRow(Ogre::Overlay@ ov) {
+    ImGui::PushID(ov.getName());
     ImGui::Bullet();
     ImGui::SameLine(); ImGui::Text(ov.getName());
     ImGui::SameLine();
@@ -187,46 +210,57 @@ class OverlayEditor {
     } else {
       if (ImGui::SmallButton("Deselect")) { @mSelectedOverlay = null; }
     }
+    ImGui::PopID(); // ov.getName()
   }
 
   protected void drawUIOverlayList() {
     array<Ogre::Overlay@> @ovList = Ogre::OverlayManager::getSingleton().getOverlays();
-    if (ImGui::CollapsingHeader("Manage Overlays ("+ovList.length()+")")) {
+    if (ImGui::CollapsingHeader("Manage Overlays")) {
+      this.drawUIDestroySelectedOverlay();
       this.drawUICreateOverlay();
       ImGui::Separator();
+      ImGui::TextDisabled("Total items: "+ovList.length());
       for (uint i=0; i<ovList.length(); i++) {
         this.drawUIOverlayListRow(ovList[i]);
       }
     }
   }
 
+  protected void drawUIDestroySelectedOverlay() {
+    if (@mSelectedOverlay != null && ImGui::Button("Destroy selected overlay")) {
+      Ogre::OverlayManager::getSingleton().destroy(mSelectedOverlay);
+      @mSelectedOverlay = null;
+      @mSelectedElement = null;
+    }
+  }
+
   protected void drawUIOverlayElementDetails(Ogre::OverlayElement@ elem) {
+    if (@elem == null) { mErrorString = "drawUiOverlayElementDetails(): elem is null!"; return; }
+    ImGui::TextDisabled("Ogre::OverlayElement details");
     ImGui::Text("Name: "+elem.getName());
-    ImGui::Text("");
-    ImGui::Text("Visible:"+elem.isVisible());
+    ImGui::Text("TypeName: ~TBD~");
+    ImGui::Text("Visible: "+elem.isVisible());
     ImGui::Text("(Position) Left: "+elem.getLeft()+", Top: "+elem.getTop());
-    ImGui::Text("(Size) Width: "+elem.getWidth()+", Heigh: t"+elem.getHeight());
+    ImGui::Text("(Size) Width: "+elem.getWidth()+", Height: "+elem.getHeight());
     ImGui::Text("Material: " + elem.getMaterialName());
   }
 
   protected void drawUIOverlayElementListRow(Ogre::OverlayElement@ elem) {
-
+    ImGui::PushID(elem.getName());
     ImGui::Bullet();
     ImGui::SameLine();
     ImGui::Text(elem.getName());
     ImGui::SameLine();
-    ImGui::TextDisabled(elem.getMaterialName());
-    
-      ImGui::SameLine();
-      ImGui::TextDisabled("(hover for info)");
-      if (ImGui::IsItemHovered()) { 
-         ImGui::BeginTooltip();
-         this.drawUIOverlayElementDetails(elem);
-         ImGui::EndTooltip();
-      }
-     
+    // hover text
     ImGui::SameLine();
+    ImGui::TextDisabled("(hover for info)");
+    if (ImGui::IsItemHovered()) { 
+       ImGui::BeginTooltip();
+       this.drawUIOverlayElementDetails(elem);
+       ImGui::EndTooltip();
+    }
     // Show/hide btn
+    ImGui::SameLine();
     if (elem.isVisible()) {
       if (ImGui::SmallButton("Hide")) { elem.hide(); }
     } else {
@@ -239,19 +273,40 @@ class OverlayEditor {
     } else {
       if (ImGui::SmallButton("Deselect")) { @mSelectedElement = null; }
     }
+    ImGui::PopID(); // elem.getName()
   }
 
   protected void drawUIOverlayElementList(Ogre::Overlay@ ov) {
     if (@ov == null) { mErrorString = "drawUIOverlayElementList(): overlay is null!"; return; }
-    array<Ogre::OverlayElement@> @oeList = ov.get2DElements();
-    if (ImGui::CollapsingHeader("Manage Elements ("+oeList.length()+")")) {
-      for (uint i=0; i<oeList.length(); i++) {
-        this.drawUIOverlayElementListRow(oeList[i]);
+    if (ImGui::CollapsingHeader("Manage Elements")) {
+      drawUIDestroySelectedElement();
+      array<Ogre::OverlayElement@> @elemList = ov.get2DElements();
+      ImGui::TextDisabled("Total items: "+elemList.length());
+      for (uint i=0; i<elemList.length(); i++) {
+        this.drawUIOverlayElementListRow(elemList[i]);
       }
     }
   }
 
-  ImDrawList@ getDummyFullscreenWindow(const string&in name)
+  protected void drawUIDestroySelectedElement() {
+    if (@mSelectedElement != null) {
+      if (ImGui::Button("Destroy selected element")) {
+        Ogre::OverlayManager::getSingleton().destroyOverlayElement(mSelectedElement);
+        @mSelectedElement = null;
+      }
+      ImGui::Separator();
+    }
+  }
+
+  private string composeUniqueElementName(const string&in ovName, const string&in typeName) {
+    string elemName;
+    do {
+      elemName = ovName+"-Elem"+(mElementCounter++)+"("+typeName+")";
+    } while (Ogre::OverlayManager::getSingleton().hasOverlayElement(elemName));
+    return elemName;
+  }
+
+  private ImDrawList@ getDummyFullscreenWindow(const string&in name)
   {
     // Dummy fullscreen window to draw to
     int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
