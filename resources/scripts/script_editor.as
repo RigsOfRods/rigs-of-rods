@@ -948,7 +948,7 @@ class ScriptEditorTab
                 int len = endOffset - startOffset;
                 this.bufferLinesMeta[lineIdx]['len'] = len;
                 this.bufferLinesMeta[lineIdx]['doubleslashCommentStart'] = commentStart;
-                int nonCommentLen = (commentStart >= 0) ? commentStart - startOffset : len;
+                int nonCommentLen = (commentFound && commentStart >= 0) ? commentStart - startOffset : len;
                 this.bufferLinesMeta[lineIdx]['nonCommentLen'] = nonCommentLen;
                 this.bufferLinesMeta[lineIdx]['httpStart'] = (httpFound) ? httpStart : -1;
                 this.bufferLinesMeta[lineIdx]['httpLen'] = (httpFound) ? httpBreakPos-httpStart : -1;
