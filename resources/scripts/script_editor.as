@@ -39,7 +39,7 @@ ScriptEditorWindow editorWindow;
 // Config:
 // -------
 
-// LINE METAINFO COLUMNS
+// LINE METAINFO COLUMNS (drawn by `drawLineInfoColumns()`, space calculated by `measureLineInfoColumns()`, visibility toggled by `drawMenubar()`)
     // Line numbers
     bool drawLineNumbers=true;
     color lineNumberColor=color(1.f,1.f,0.7f,1.f);
@@ -49,9 +49,10 @@ ScriptEditorWindow editorWindow;
     color lineLenColor=color(0.5f,0.4f,0.3f,1.f);
     float lineLenColumnWidth = 25;
     // Line comment offsets       
-    bool drawLineCommentOffsets=true;
+    bool drawLineCommentOffsets=false;
     color lineCommentOffsetColor=color(0.1f,0.9f,0.6f,0.6f);
     float lineCommentColumnWidth = 16;
+    // Line http offsets
     bool drawLineHttpOffsets=false; // only visual, links don't open
     color lineHttpOffsetColor=color(LINKCOLOR.r, LINKCOLOR.g, LINKCOLOR.a, 0.6f);
     float lineHttpColumnWidth = 16;        
@@ -59,6 +60,10 @@ ScriptEditorWindow editorWindow;
     bool drawLineErrCounts = true;
     color lineErrCountColor = color(1.f,0.2f,0.1f,1.f);
     float errCountColumnWidth = 18;
+    // Line region&endregion markers
+    bool drawLineRegionMarkers = true;
+    color lineRegionMarkerColor = color(0.78f,0.76f,0.32f,1.f);
+    float lineRegionMarkerColumnWidth = 12;
 // END line metainfo columns
 
 // EDITOR settings
@@ -345,6 +350,9 @@ class ScriptEditorWindow
                 ImGui::PushStyleColor(ImGuiCol_Text, lineErrCountColor);
                     ImGui::Checkbox("Error counts", /*inout:*/drawLineErrCounts);
                     ImGui::PopStyleColor(1); // ImGuiCol_Text
+                ImGui::PushStyleColor(ImGuiCol_Text, lineRegionMarkerColor);
+                    ImGui::Checkbox("Region markers", /*inout:*/drawLineRegionMarkers);
+                    ImGui::PopStyleColor(1); // ImGuiCol_Text                    
                     
                 ImGui::TextDisabled("Editor overlay:");
                 ImGui::Checkbox("Error text", /*inout:*/drawErrorText);
@@ -487,6 +495,27 @@ class ScriptEditorTab
         }    
     }
 
+    protected float measureLineInfoColumns()
+    {
+        // Reserve space for the metainfo columns
+        float metaColumnsTotalWidth = 0.f;
+        if (drawLineNumbers)
+            metaColumnsTotalWidth += lineNumColumnWidth;
+        if (drawLineLengths)
+            metaColumnsTotalWidth += lineLenColumnWidth;
+        if (drawLineCommentOffsets)
+            metaColumnsTotalWidth += lineCommentColumnWidth;      
+        if (drawLineHttpOffsets)
+            metaColumnsTotalWidth += lineHttpColumnWidth;  
+        errCountOffset = metaColumnsTotalWidth;
+        if (drawLineErrCounts)
+            metaColumnsTotalWidth += errCountColumnWidth;
+        if (drawLineRegionMarkers)
+            metaColumnsTotalWidth += lineRegionMarkerColumnWidth;
+        
+        return metaColumnsTotalWidth;
+    }
+
     protected void drawLineInfoColumns(vector2 screenCursor)
     {
         // draws columns with info (line number etc...) on the left side of the text area
@@ -498,6 +527,7 @@ class ScriptEditorTab
         
         vector2 linenumCursor = linenumCursorBase;
         float coarseClipBottomY = (screenCursor.y+textAreaSize.y)-ImGui::GetTextLineHeight()*0.6;
+        bool inRegion = false;
         
         for (int linenum = 1; linenum <= bufferNumLines; linenum++)
         {
@@ -544,7 +574,34 @@ class ScriptEditorTab
                     drawlist.AddText(linenumCursor, color(1.f,0.5f,0.4f,1.f), ""+bufferMessageIDs[lineIdx].length());        
                 }
                 linenumCursor.x += errCountColumnWidth;
-            } 
+            }
+            
+            // draw region&endregion markers
+            if (drawLineRegionMarkers)
+            {
+                if (!inRegion)
+                {
+                    if (bool(bufferLinesMeta[lineIdx]['regionFound']))
+                    {
+                        inRegion = true;
+                        drawlist.AddText(linenumCursor, lineRegionMarkerColor, "#>");
+                    }
+                }
+                else
+                {
+                    if (bool(bufferLinesMeta[lineIdx]['endregionFound']))
+                    {
+                        inRegion = false;
+                        drawlist.AddText(linenumCursor, lineRegionMarkerColor, "#~");
+                    }
+                    else
+                    {
+                        drawlist.AddText(linenumCursor, lineRegionMarkerColor, " | ");
+                    }
+                }
+                
+                linenumCursor.x += lineRegionMarkerColumnWidth;
+            }
             
             // prepare new Line
             linenumCursor.x = linenumCursorBase.x;
@@ -673,18 +730,7 @@ class ScriptEditorTab
     {
         
         // Reserve space for the metainfo columns
-        float metaColumnsTotalWidth = 0.f;
-        if (drawLineNumbers)
-            metaColumnsTotalWidth += lineNumColumnWidth;
-        if (drawLineLengths)
-            metaColumnsTotalWidth += lineLenColumnWidth;
-        if (drawLineCommentOffsets)
-            metaColumnsTotalWidth += lineCommentColumnWidth;      
-        if (drawLineHttpOffsets)
-            metaColumnsTotalWidth += lineHttpColumnWidth;  
-        errCountOffset = metaColumnsTotalWidth;
-        if (drawLineErrCounts)
-            metaColumnsTotalWidth += errCountColumnWidth;
+        float metaColumnsTotalWidth = measureLineInfoColumns();
            
         // Draw the multiline text input
         this.textAreaSize = vector2(
@@ -872,6 +918,15 @@ class ScriptEditorTab
         int httpStart = -1;
         bool httpFound = false;
         
+        // pattern - region & endregion (C#-like, inside comment)
+        string regionPattern = '#region';
+        uint regionLevel = 0;
+        int regionTitleStart = -1;
+        bool regionFound = false;        
+        string endregionPattern = '#endregion';
+        uint endregionLevel = 0;
+        bool endregionFound = false;        
+        
         string httpBreakChars = " \n\t\"'";
         bool httpBreakFound = false;
         int httpBreakPos = -1;
@@ -902,6 +957,45 @@ class ScriptEditorTab
                 else
                 {
                     commentLevel = 0;
+                }
+            }
+            else 
+            { 
+                if (!regionFound)
+                {
+                    if (regionLevel > 0)
+                        game.log("analyzeBuffer(): char="+i+", line="+lineIdx+", regionLevel="+regionLevel+"/"+regionPattern.length());
+                    if (this.buffer[i] == regionPattern[regionLevel])
+                    {
+                        regionLevel++;
+                        if (uint(regionLevel) == regionPattern.length())
+                        {
+                            regionFound = true;
+                            regionTitleStart = i;
+                        }
+                    }
+                    else
+                    {
+                        regionLevel = 0;
+                    }
+                }
+                
+                if (!endregionFound)
+                {
+                    if (endregionLevel > 0)
+                        game.log("analyzeBuffer(): char="+i+", line="+lineIdx+", endregionLevel="+endregionLevel+"/"+endregionPattern.length());            
+                    if (this.buffer[i] == endregionPattern[endregionLevel])
+                    {
+                        endregionLevel++;
+                        if (uint(endregionLevel) == endregionPattern.length())
+                        {
+                            endregionFound = true;
+                        }
+                    }
+                    else
+                    {
+                        endregionLevel = 0;
+                    }
                 }
             }
             
@@ -953,6 +1047,9 @@ class ScriptEditorTab
                 this.bufferLinesMeta[lineIdx]['httpStart'] = (httpFound) ? httpStart : -1;
                 this.bufferLinesMeta[lineIdx]['httpLen'] = (httpFound) ? httpBreakPos-httpStart : -1;
                 this.bufferLinesMeta[lineIdx]['nonHttpLen'] = (httpFound) ? httpStart - startOffset : -1;
+                this.bufferLinesMeta[lineIdx]['regionFound'] = regionFound;
+                this.bufferLinesMeta[lineIdx]['regionTitleStart'] = regionTitleStart;
+                this.bufferLinesMeta[lineIdx]['endregionFound'] = endregionFound;
             }
                 
             if (isChar(this.buffer[i], '\0'))
@@ -965,11 +1062,19 @@ class ScriptEditorTab
                 commentFound = false;
                 commentStart = -1; // -1 means Empty
                 commentLevel = 0;
+                
                 httpFound = false;
                 httpStart = -1; // -1 means Empty    
-                httpLevel = 0;
+                httpLevel = 0;                
                 httpBreakFound = false;
                 httpBreakPos = -1; // -1 means Empty
+                
+                regionFound = false;
+                regionTitleStart = -1; // -1 means Empty
+                regionLevel = 0;
+                
+                endregionFound = false;
+                endregionLevel = 0;
                 
                 // Start new line
                 startOffset = i+1;
