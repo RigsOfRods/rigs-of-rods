@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2023-01-02 00:53+0000\n"
+"PO-Revision-Date: 2023-09-01 09:51+0000\n"
 "Last-Translator: Michał Mańk <michal.090506@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "pl/>\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && ("
 "n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
 "n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
-"X-Generator: Weblate 4.15.1-dev\n"
+"X-Generator: Weblate 5.0.1-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -30,13 +30,11 @@ msgstr "Błąd przy uruchamianiu"
 
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
-msgstr ""
+msgstr "Brak wtyczki systemu renderowania. Sprawdź plik plugins.cfg"
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgid "Screenshot:"
 msgid "Screenshot: "
-msgstr "Zrzut ekranu:"
+msgstr "Zrzut ekranu: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
@@ -57,71 +55,51 @@ msgid "Faulty resource folder. Check if correctly installed."
 msgstr "Wadliwy folder zasobów. Sprawdź, czy został zainstalowany poprawnie."
 
 #: Application.cpp:359
-#, fuzzy
-#| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
 msgstr "Automatyczna zmiana biegów"
 
 #: Application.cpp:360
-#, fuzzy
-#| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr "Ręczna: Automatyczne sprzęgło"
+msgstr "Ręczna: automatyczne sprzęgło"
 
 #: Application.cpp:361
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
 msgstr "Ręczna: sekwencyjna zmiana biegów"
 
 #: Application.cpp:362
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr "Ręczna: sekwencyjna zmiana biegów"
+msgstr "Ręczna: użycie drążka"
 
 #: Application.cpp:363
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
 msgstr "Ręczna: użycie drążka (z zakresami)"
 
 #: Application.cpp:372
-#, fuzzy
-#| msgid "None (fastest)"
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
 msgstr "Brak (najszybsze)"
 
 #: Application.cpp:373
-#, fuzzy
-#| msgid "No light sources"
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr "Żadne źródła światła"
+msgstr "Bez źródeł światła"
 
 #: Application.cpp:374
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr "Wszystkie pojazdy, główne światła"
+msgstr "Tylko wybrany pojazd, główne światła"
 
 #: Application.cpp:375
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
 msgstr "Wszystkie pojazdy, główne światła"
 
 #: Application.cpp:376
-#, fuzzy
-#| msgid "All vehicles, all lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
 msgstr "Wszystkie pojazdy, wszystkie światła"
@@ -129,30 +107,24 @@ msgstr "Wszystkie pojazdy, wszystkie światła"
 #: Application.cpp:385
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "Brak"
 
 #: Application.cpp:386
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "PSSM"
 
 #: Application.cpp:395
-#, fuzzy
-#| msgid "Sandstorm (fastest)"
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
 msgstr "Sandstorm (najszybsze)"
 
 #: Application.cpp:396
-#, fuzzy
-#| msgid "Caelum (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
 msgstr "Caelum (najlepszy wygląd)"
 
 #: Application.cpp:397
-#, fuzzy
-#| msgid "SkyX (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
 msgstr "SkyX (najlepszy wygląd)"
@@ -160,45 +132,34 @@ msgstr "SkyX (najlepszy wygląd)"
 #: Application.cpp:406
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "Brak"
 
 #: Application.cpp:407
-#, fuzzy
-#| msgid "Bilinear"
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
 msgstr "Dwuliniowe"
 
 #: Application.cpp:408
-#, fuzzy
-#| msgid "Trilinear"
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
 msgstr "Trójliniowe"
 
 #: Application.cpp:409
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Anisotropy"
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
-msgstr "Anizotropia"
+msgstr "Anizotropiczne"
 
 #: Application.cpp:418
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "Brak"
 
 #: Application.cpp:419
-#, fuzzy
-#| msgid "20%"
 msgctxt "GfxVegetation"
 msgid "20%"
 msgstr "20%"
 
 #: Application.cpp:420
-#, fuzzy
-#| msgid "50%"
 msgctxt "GfxVegetation"
 msgid "50%"
 msgstr "50%"
@@ -206,57 +167,47 @@ msgstr "50%"
 #: Application.cpp:421
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "Pełna"
 
 #: Application.cpp:430
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "Brak"
 
 #: Application.cpp:431
-#, fuzzy
-#| msgid "Basic (fastest)"
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
 msgstr "Podstawowa (najszybsza)"
 
 #: Application.cpp:432
-#, fuzzy
-#| msgid "Reflection"
 msgctxt "GfxWaterMode"
 msgid "Reflection"
-msgstr "Odbijająca się"
+msgstr "Odbicie"
 
 #: Application.cpp:433
-#, fuzzy
-#| msgid "Reflection + refraction (speed optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
-msgstr "Odbijająca się z refrakcją (prędkość)"
+msgstr "Odbicie + refrakcja (zoptymalizowana)"
 
 #: Application.cpp:434
-#, fuzzy
-#| msgid "Reflection + refraction (quality optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
-msgstr "Odbijająca się z refrakcją (jakość)"
+msgstr "Odbicie + refrakcja (wygląd)"
 
 #: Application.cpp:435
-#, fuzzy
-#| msgid "Hydrax"
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr "Hydrax"
+msgstr "HydraX"
 
 #: Application.cpp:444
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "Brak"
 
 #: Application.cpp:445
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "Statyczny"
 
 #: Application.cpp:446
 msgctxt "GfxExtCamMode"
