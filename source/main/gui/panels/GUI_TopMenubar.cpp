@@ -581,7 +581,7 @@ void TopMenubar::Update()
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Brightness:"));
                 float diff = App::GetGfxScene()->GetSceneManager()->getAmbientLight().r;
-                if (ImGui::SliderFloat("", &diff, -0.8f, 0.8f, ""))
+                if (ImGui::SliderFloat("", &diff, 0.f, 1.5f, ""))
                 {
                     App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(diff,diff,diff));
                 }
