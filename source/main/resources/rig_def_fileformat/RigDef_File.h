@@ -477,11 +477,14 @@ struct Animation
 {
     struct MotorSource
     {
+        // > aeroengines
         static const BitMask_t SOURCE_AERO_THROTTLE = BITMASK(1);
         static const BitMask_t SOURCE_AERO_RPM      = BITMASK(2);
         static const BitMask_t SOURCE_AERO_TORQUE   = BITMASK(3);
         static const BitMask_t SOURCE_AERO_PITCH    = BITMASK(4);
         static const BitMask_t SOURCE_AERO_STATUS   = BITMASK(5);
+        // > forward gears (hack...)
+        static const BitMask_t SOURCE_GEAR_FORWARD  = BITMASK(6);
 
         BitMask_t source = 0;
         unsigned int motor = 0;
@@ -522,6 +525,9 @@ struct Animation
     static const BitMask64_t SOURCE_EVENT             = BITMASK64(32);
     static const BitMask64_t SOURCE_DASHBOARD         = BITMASK64(33);
     static const BitMask64_t SOURCE_SIGNALSTALK       = BITMASK64(34);
+    static const BitMask64_t SOURCE_AUTOSHIFTERLIN    = BITMASK64(35);
+    static const BitMask64_t SOURCE_GEAR_NEUTRAL      = BITMASK64(36);
+    static const BitMask64_t SOURCE_GEAR_REVERSE      = BITMASK64(37);
 
     // Mode flags
     static const BitMask_t MODE_ROTATION_X          = BITMASK(1);
@@ -538,7 +544,7 @@ struct Animation
     float ratio = 0.f;
     float lower_limit = -1.f;
     float upper_limit = -1.f;
-    BitMask64_t source = 0ull;
+    BitMask64_t source = 0;
     std::list<MotorSource> motor_sources;
     BitMask_t mode = 0;
     Ogre::String event_name;
