@@ -1166,6 +1166,7 @@ void Parser::ParseDirectiveAddAnimation()
                     else if (value == "shifterman2")   { animation.source |= Animation::SOURCE_SHIFT_BACK_FORTH;  }
                     else if (value == "sequential")    { animation.source |= Animation::SOURCE_SEQUENTIAL_SHIFT;  }
                     else if (value == "shifterlin")    { animation.source |= Animation::SOURCE_SHIFTERLIN;        }
+                    else if (value == "autoshifterlin"){ animation.source |= Animation::SOURCE_AUTOSHIFTERLIN;    }
                     else if (value == "torque")        { animation.source |= Animation::SOURCE_TORQUE;            }
                     else if (value == "heading")       { animation.source |= Animation::SOURCE_HEADING;           }
                     else if (value == "difflock")      { animation.source |= Animation::SOURCE_DIFFLOCK;          }
@@ -1177,10 +1178,13 @@ void Parser::ParseDirectiveAddAnimation()
                     else if (value == "rudderair")     { animation.source |= Animation::SOURCE_AIR_RUDDER;        }
                     else if (value == "permanent")     { animation.source |= Animation::SOURCE_PERMANENT;         }
                     else if (value == "event")         { animation.source |= Animation::SOURCE_EVENT;             }
+                    else if (value == "gearreverse")   { animation.source |= Animation::SOURCE_GEAR_REVERSE;      }
+                    else if (value == "gearneutral")   { animation.source |= Animation::SOURCE_GEAR_NEUTRAL;      }
 
                     else
                     {
                         Animation::MotorSource motor_source;
+                        // aeroengines...
                         if (entry[1].compare(0, 8, "throttle") == 0)
                         {
                             motor_source.source = Animation::MotorSource::SOURCE_AERO_THROTTLE;
@@ -1205,6 +1209,12 @@ void Parser::ParseDirectiveAddAnimation()
                         {
                             motor_source.source = Animation::MotorSource::SOURCE_AERO_STATUS;
                             motor_source.motor = this->ParseArgUint(entry[1].substr(10));
+                        }
+                        // gears... (hack)
+                        else if (entry[1].compare(0, 4, "gear") == 0)
+                        {
+                            motor_source.source = Animation::MotorSource::SOURCE_GEAR_FORWARD;
+                            motor_source.motor = this->ParseArgUint(entry[1].substr(4));
                         }
                         else
                         {

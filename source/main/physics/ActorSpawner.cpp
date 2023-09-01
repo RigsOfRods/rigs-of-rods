@@ -1821,19 +1821,23 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SHIFT_LEFT_RIGHT)) {
             BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
-            anim.animOpt3 = 1.0f;
+            anim.animOpt3 = SHIFTERMAN1;
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SHIFT_BACK_FORTH)) {
             BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
-            anim.animOpt3 = 2.0f;
+            anim.animOpt3 = SHIFTERMAN2;
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SEQUENTIAL_SHIFT)) {
             BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
-            anim.animOpt3 = 3.0f;
+            anim.animOpt3 = SHIFTERSEQ;
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SHIFTERLIN)) {
             BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
-            anim.animOpt3 = 4.0f;
+            anim.animOpt3 = SHIFTERLIN;
+        }
+        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_AUTOSHIFTERLIN)) {
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SHIFTER);
+            anim.animOpt3 = AUTOSHIFTERLIN;
         }
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_TORQUE)) {
             BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_TORQUE);
@@ -1865,11 +1869,20 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_PERMANENT)) {
             BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_PERMANENT);
         }
+        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_GEAR_REVERSE)) {
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_GEAR);
+            anim.animOpt3 = -1;
+        }
+        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_GEAR_NEUTRAL)) {
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_GEAR);
+            anim.animOpt3 = 0;
+        }
 
-        /* Motor-indexed sources */
+        /* Motor/Gear-indexed sources */
         std::list<RigDef::Animation::MotorSource>::iterator source_itor = anim_def.motor_sources.begin();
         for ( ; source_itor != anim_def.motor_sources.end(); source_itor++)
         {
+            // aeroengines
             if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_THROTTLE)) {
                 BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_THROTTLE);
                 anim.animOpt3 = static_cast<float>(source_itor->motor);
@@ -1888,6 +1901,12 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             }
             if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_AERO_STATUS)) {
                 BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_AESTATUS);
+                anim.animOpt3 = static_cast<float>(source_itor->motor);
+            }
+
+            // gears (hack)
+            if (BITMASK_IS_1(source_itor->source, RigDef::Animation::MotorSource::SOURCE_GEAR_FORWARD)) {
+                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_GEAR);
                 anim.animOpt3 = static_cast<float>(source_itor->motor);
             }
         }
