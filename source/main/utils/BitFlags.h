@@ -8,7 +8,7 @@ typedef uint32_t BitMask_t;
 typedef uint64_t BitMask64_t;
 
 #define BITMASK( OFFSET )           ( 1  << ((OFFSET) - 1) )
-#define BITMASK64( OFFSET )         ( 1ull  << ((OFFSET) - 1ull) )
+#define BITMASK64( OFFSET )         ( BitMask64_t(1)  << BitMask64_t((OFFSET) - 1) )
 
 #define BITMASK_IS_0( VAR, FLAGS )  ( ((VAR) & (FLAGS)) == 0 )
 #define BITMASK_IS_1( VAR, FLAGS )  ( ((VAR) & (FLAGS)) == (FLAGS) )
