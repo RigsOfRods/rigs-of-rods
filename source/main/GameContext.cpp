@@ -845,8 +845,8 @@ void GameContext::TeleportPlayer(float x, float z)
     Ogre::Vector3 translation = Ogre::Vector3(x, y, z) - this->GetPlayerActor()->ar_nodes[0].AbsPosition;
 
     std::vector<ActorPtr> actorsToBeamUp;
-    actorsToBeamUp.push_back(this->GetPlayerActor());
     actorsToBeamUp.assign(this->GetPlayerActor()->ar_linked_actors.begin(), this->GetPlayerActor()->ar_linked_actors.end());
+    actorsToBeamUp.push_back(this->GetPlayerActor());
 
     float src_agl = std::numeric_limits<float>::max(); 
     float dst_agl = std::numeric_limits<float>::max(); 
