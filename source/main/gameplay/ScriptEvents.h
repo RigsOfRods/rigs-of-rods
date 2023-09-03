@@ -61,6 +61,7 @@ enum scriptEvents
     SE_GENERIC_EXCEPTION_CAUGHT        = BITMASK(24), //!< Triggered when C++ exception (usually Ogre::Exception) is thrown; #1 ScriptUnitID, #5 originFuncName, #6 type, #7 message.
 
     SE_ALL_EVENTS                      = 0xffffffff,
+    SE_NO_EVENTS                       = 0
 
 };
 

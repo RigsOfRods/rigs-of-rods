@@ -238,8 +238,13 @@ protected:
     int setupScriptUnit(int unit_id);
 
     /**
+    * Helper for executing any script function/snippet; does `asIScriptContext::Prepare()` and reports any error.
+    * @return true on success, false on error.
+    */
+    bool prepareContextAndHandleErrors(ScriptUnitId_t nid, int asFunctionID);
+
+    /**
     * Helper for executing any script function/snippet; registers Line/Exception callbacks (on demand) and set currently executed NID; The `asIScriptContext::Prepare()` and setting args must be already done.
-    * Under development - currently used only in `framestep()` for `void frameStep(float)`
     * @return 0 on success, anything else on error.
     */
     int executeContextAndHandleErrors(ScriptUnitId_t nid);
@@ -275,6 +280,7 @@ protected:
     ScriptUnitMap   m_script_units;
     ScriptUnitId_t  m_terrain_script_unit = SCRIPTUNITID_INVALID;
     ScriptUnitId_t  m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
+    scriptEvents    m_currently_executing_event_trigger = SE_NO_EVENTS;
     bool            m_events_enabled = true; //!< Hack to enable fast shutdown without cleanup
 
     InterThreadStoreVector<Ogre::String> stringExecutionQueue; //!< The string execution queue \see queueStringForExecution
