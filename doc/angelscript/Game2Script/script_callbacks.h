@@ -32,7 +32,9 @@ void eventCallback(Script2Game::scriptEvents event, int param);
 */
 void eventCallbackEx(Script2Game::scriptEvents event, int arg1, int arg2ex, int arg3ex, int arg4ex, string arg5ex, string arg6ex, string arg7ex, string arg8ex);
 
-/** Optional; Invoked when a vehicle touches an eventbox which has no custom handler function.
+/** OBSOLETE, ONLY WORKS WITH TERRAIN SCRIPTS - Use `eventCallbackEx()` with event `SE_EVENTBOX_ENTER` instead, it does the same job and works with any script.
+*    Optional; Invoked when a vehicle touches an eventbox which has no custom handler function.
+*    This is a legacy feature which pre-dates generic events `SE_EVENTBOX_ENTER` and `SE_EVENTBOX_EXIT` and bundled objects like truckshop/spawners still rely on it.
 *   @param trigger_type Unused, always 0.
 *   @param inst Unique ID of the terrain object instance which created the eventbox.
 *   @param box Name of the eventbox as defined by the terrain object's ODEF file.
