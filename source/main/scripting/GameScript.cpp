@@ -444,15 +444,19 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
         int handler_func_id = -1; // no function
         if (!eventhandler.empty())
         {
-            AngelScript::asIScriptFunction* handler_func = module->GetFunctionByName(eventhandler.c_str());
+            // Let script author know (via Angelscript.log) there's a better alternative.
+            App::GetScriptEngine()->SLOG(
+                "spawnObject(): Specifying event handler function in `game.spawnObject()` (or .TOBJ file) is obsolete and only works with terrain scripts;"
+                " Use `eventCallbackEx()` with event `SE_EVENTBOX_ENTER` instead, it does the same job and works with any script."
+                " Just pass an empty string to the `game.spawnObject()` parameter.");
+
+            // Look up the function and log if not found or found with bad arguments (probably a typo).
+            AngelScript::asIScriptFunction* handler_func = App::GetScriptEngine()->getFunctionByDeclAndLogCandidates(
+                App::GetScriptEngine()->getTerrainScriptUnit(), GETFUNCFLAG_REQUIRED,
+                eventhandler, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT);
             if (handler_func != nullptr)
             {
                 handler_func_id = handler_func->GetId();
-            }
-            else
-            {
-                this->logFormat("spawnObject(): Warning; Failed to find handler function '%s' in script module '%s'",
-                    eventhandler.c_str(), module->GetName());
             }
         }
 

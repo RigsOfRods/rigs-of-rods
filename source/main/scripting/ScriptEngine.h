@@ -100,6 +100,15 @@ struct ScriptCallbackArgs
     NodeNum_t node = NODENUM_INVALID;
 };
 
+typedef BitMask_t GetFuncFlags_t; //!< Flags for `RoR::ScriptEngine::getFunctionByDeclAndLogCandidates()`
+const GetFuncFlags_t GETFUNCFLAG_OPTIONAL = 0; //!< Only logs warning if candidate is found, to help modder find a typo.
+const GetFuncFlags_t GETFUNCFLAG_REQUIRED = BITMASK(1); //!< Always logs warning that function was not found.
+const GetFuncFlags_t GETFUNCFLAG_SILENT = BITMASK(2); //!< Never logs
+
+// Params to `RoR::ScriptEngine::getFunctionByDeclAndLogCandidates()`
+const std::string GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT = "void {}(int, string, string, int)";
+const std::string GETFUNC_DEFAULTEVENTCALLBACK_NAME = "defaultEventCallback";
+
 /**
  *  @brief This class represents the angelscript scripting interface. It can load and execute scripts.
  *  @authors Thomas Fischer (thomas{AT}rigsofrods{DOT}com)
@@ -189,6 +198,12 @@ public:
      * @param arg A declaration for the variable.
     */
     int deleteVariable(const Ogre::String& arg);
+
+    /**
+    * Finds a function by full declaration, and if not found, finds candidates by name and logs them to Angelscript.log
+    * @return Angelscript function on success, null on error.
+    */
+    AngelScript::asIScriptFunction* getFunctionByDeclAndLogCandidates(ScriptUnitId_t nid, GetFuncFlags_t flags, const std::string& funcName, const std::string& fmtFuncDecl);
 
     int fireEvent(std::string instanceName, float intensity);
 

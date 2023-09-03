@@ -429,6 +429,10 @@ int ScriptEngine::fireEvent(std::string instanceName, float intensity)
 
 void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, NodeNum_t nodenum, int type)
 {
+    // THIS IS OBSOLETE - Use `eventCallbackEx()` and `SE_EVENTBOX_ENTER` instead.
+    // ################
+    // Legacy eventbox handler, specified by name in .TOBJ file or in call to `game.spawnObject()`
+    // ===========================================================================================
     if (!engine || !context)
         return;
 
@@ -523,7 +527,10 @@ int ScriptEngine::addFunction(const String &arg)
             if (m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr == nullptr)
                 m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr = func;
         }
-        else if (func == mod->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)"))
+        // THIS IS OBSOLETE - Use `eventCallbackEx()` and `SE_EVENTBOX_ENTER` instead. See commentary in `envokeCallback()`
+        else if (func == this->getFunctionByDeclAndLogCandidates(
+                m_terrain_script_unit, GETFUNCFLAG_OPTIONAL,
+                GETFUNC_DEFAULTEVENTCALLBACK_NAME, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT))
         {
             if (m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr == nullptr)
                 m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr = func;
@@ -665,6 +672,28 @@ int ScriptEngine::deleteVariable(const String &arg)
     }
 
     return index;
+}
+
+asIScriptFunction* ScriptEngine::getFunctionByDeclAndLogCandidates(ScriptUnitId_t nid, GetFuncFlags_t flags, const std::string& funcName, const std::string& fmtFuncDecl)
+{
+    std::string decl = fmt::format(fmtFuncDecl, funcName);
+    asIScriptFunction* retval = m_script_units[nid].scriptModule->GetFunctionByDecl(decl.c_str());
+    if (!retval)
+    {
+        asIScriptFunction* candidate = m_script_units[nid].scriptModule->GetFunctionByName(funcName.c_str());
+        if (candidate && BITMASK_IS_0(flags, GETFUNCFLAG_SILENT))
+        {
+            SLOG(fmt::format("Warning: a callback function with signature '{}' was not found"
+                " but a function with given name exists: '{}' - did you make a typo in arguments?",
+                decl, candidate->GetDeclaration()));
+        }
+        else if (!candidate && BITMASK_IS_1(flags, GETFUNCFLAG_REQUIRED))
+        {
+            SLOG(fmt::format("Warning: a callback function with signature '{}' was not found",
+                decl));
+        }
+    }
+    return retval;
 }
 
 void ScriptEngine::triggerEvent(scriptEvents eventnum, int arg1, int arg2ex, int arg3ex, int arg4ex, std::string arg5ex, std::string arg6ex, std::string arg7ex, std::string arg8ex)
@@ -855,7 +884,9 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     m_script_units[unit_id].eventCallbackFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void eventCallback(int, int)");
     m_script_units[unit_id].eventCallbackExFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void eventCallbackEx(scriptEvents,   int, int, int, int,   string, string, string, string)");
 
-    m_script_units[unit_id].defaultEventCallbackFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void defaultEventCallback(int, string, string, int)");
+    // THIS IS OBSOLETE - Use `eventCallbackEx()` and `SE_EVENTBOX_ENTER` instead. See commentary in `envokeCallback()`
+    m_script_units[unit_id].defaultEventCallbackFunctionPtr = this->getFunctionByDeclAndLogCandidates(
+        unit_id, GETFUNCFLAG_OPTIONAL, GETFUNC_DEFAULTEVENTCALLBACK_NAME, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT);
 
     // Find the function that is to be called.
     auto main_func = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void main()");
