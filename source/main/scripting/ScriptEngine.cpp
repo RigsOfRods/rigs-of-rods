@@ -268,10 +268,13 @@ int ScriptEngine::executeContextAndHandleErrors(ScriptUnitId_t nid)
     // * sets ExceptionCallback (on demand - when script registers for SE_ANGELSCRIPT_EXCEPTIONCALLBACK event)
     // * sets currently executed NID;
     // IMPORTANT: The `asIScriptContext::Prepare()` must be already done (this enables programmer to set args).
+    // IMPORTANT: `m_currently_executing_event_trigger` must be set externally!
     // =========================================================================================================
 
     // Automatically attach the LineCallback if the script registered for the event.
-    if (m_script_units[nid].eventMask & SE_ANGELSCRIPT_LINECALLBACK)
+    // (except if we're about to run that callback - that would trap us in loop)
+    if (m_currently_executing_event_trigger != SE_ANGELSCRIPT_LINECALLBACK
+        && m_script_units[nid].eventMask & SE_ANGELSCRIPT_LINECALLBACK)
     {
         int result = context->SetLineCallback(asMETHOD(ScriptEngine, lineCallback), this, asCALL_THISCALL);
         if (result < 0)
@@ -280,7 +283,7 @@ int ScriptEngine::executeContextAndHandleErrors(ScriptUnitId_t nid)
         }
     }
 
-    // Ditto for ExceptionCallback
+    // Attach the ExceptionCallback if the script registered for the event.
     if (m_script_units[nid].eventMask & SE_ANGELSCRIPT_EXCEPTIONCALLBACK)
     {
         int result = context->SetExceptionCallback(asMETHOD(ScriptEngine, exceptionCallback), this, asCALL_THISCALL);
@@ -319,6 +322,19 @@ int ScriptEngine::executeContextAndHandleErrors(ScriptUnitId_t nid)
                 SLOG("\tcontext.ExceptionFunction.ObjectName: " + ptr2str(func->GetObjectName()));
             }
         }
+        else if (result == AngelScript::asCONTEXT_NOT_PREPARED)
+        {
+            if (context->GetFunction())
+            {
+                SLOG(fmt::format("The script ended with error code asCONTEXT_NOT_PREPARED; Function to execute: {},currently triggered event: {}, NID: {}",
+                    context->GetFunction()->GetName(), m_currently_executing_event_trigger, nid));
+            }
+            else
+            {
+                SLOG(fmt::format("The script ended with error code asCONTEXT_NOT_PREPARED; Function to execute NOT SET,currently triggered event: {}, NID: {}",
+                    m_currently_executing_event_trigger, nid));
+            }
+        }
         else
         {
             SLOG("The script ended for some unforeseen reason " + TOSTRING(result));
@@ -330,6 +346,26 @@ int ScriptEngine::executeContextAndHandleErrors(ScriptUnitId_t nid)
     context->ClearExceptionCallback();
 
     return result;
+}
+
+bool ScriptEngine::prepareContextAndHandleErrors(ScriptUnitId_t nid, int asFunctionID)
+{
+    asIScriptFunction* scriptFunc = this->engine->GetFunctionById(asFunctionID);
+    if (!scriptFunc)
+    {
+        SLOG(fmt::format("Cannot execute script function with ID {} - not found", asFunctionID));
+        return false;
+    }
+
+    int result = this->context->Prepare(scriptFunc);
+    if (result < 0)
+    {
+        SLOG(fmt::format("Cannot execute script function '{}': `AngelScript::Context::Prepare()` reported error code {}",
+            scriptFunc->GetName(), result));
+        return false;
+    }
+
+    return true;
 }
 
 void ScriptEngine::framestep(Real dt)
@@ -405,31 +441,19 @@ void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, NodeNu
             // use the default event handler instead then
             functionId = m_script_units[id].defaultEventCallbackFunctionPtr->GetId();
         }
-        else if (functionId <= 0)
+
+        if (this->prepareContextAndHandleErrors(id, functionId))
         {
-            // no default callback available, discard the event
-            return;
-        }
+            // Set the function arguments
+            context->SetArgDWord (0, type);
+            context->SetArgObject(1, &source->es_instance_name);
+            context->SetArgObject(2, &source->es_box_name);
+            if (nodenum != NODENUM_INVALID)
+                context->SetArgDWord (3, static_cast<AngelScript::asDWORD>(nodenum));
+            else
+                context->SetArgDWord (3, static_cast<AngelScript::asDWORD>(-1));
 
-        context->Prepare(engine->GetFunctionById(functionId));
-
-        // Set the function arguments
-        context->SetArgDWord (0, type);
-        context->SetArgObject(1, &source->es_instance_name);
-        context->SetArgObject(2, &source->es_box_name);
-        if (nodenum != NODENUM_INVALID)
-            context->SetArgDWord (3, static_cast<AngelScript::asDWORD>(nodenum));
-        else
-            context->SetArgDWord (3, static_cast<AngelScript::asDWORD>(-1));
-
-        m_currently_executing_script_unit = id;
-        int r = context->Execute();
-        m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
-
-        if ( r == AngelScript::asEXECUTION_FINISHED )
-        {
-            // The return value is only valid if the execution finished successfully
-            AngelScript::asDWORD ret = context->GetReturnDWord();
+            this->executeContextAndHandleErrors(id);
         }
     }
 }
@@ -659,31 +683,28 @@ void ScriptEngine::triggerEvent(scriptEvents eventnum, int arg1, int arg2ex, int
         if (m_script_units[id].eventMask & eventnum)
         {
             // script registered for that event, so sent it
-            context->Prepare(callback);
-
-            // Set the function arguments
-            context->SetArgDWord(0, eventnum);
-            context->SetArgDWord(1, arg1);
-            if (callback == m_script_units[id].eventCallbackExFunctionPtr)
+            if (this->prepareContextAndHandleErrors(id, callback->GetId()))
             {
-                // Extended arguments
-                context->SetArgDWord(2, arg2ex);
-                context->SetArgDWord(3, arg3ex);
-                context->SetArgDWord(4, arg4ex);
-                context->SetArgObject(5, &arg5ex);
-                context->SetArgObject(6, &arg6ex);
-                context->SetArgObject(7, &arg7ex);
-                context->SetArgObject(8, &arg8ex);
+
+                // Set the function arguments
+                context->SetArgDWord(0, eventnum);
+                context->SetArgDWord(1, arg1);
+                if (callback == m_script_units[id].eventCallbackExFunctionPtr)
+                {
+                    // Extended arguments
+                    context->SetArgDWord(2, arg2ex);
+                    context->SetArgDWord(3, arg3ex);
+                    context->SetArgDWord(4, arg4ex);
+                    context->SetArgObject(5, &arg5ex);
+                    context->SetArgObject(6, &arg6ex);
+                    context->SetArgObject(7, &arg7ex);
+                    context->SetArgObject(8, &arg8ex);
+                }
             }
 
-            m_currently_executing_script_unit = id;
-            int r = context->Execute();
-            m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
-            if ( r == AngelScript::asEXECUTION_FINISHED )
-            {
-                // The return value is only valid if the execution finished successfully
-                AngelScript::asDWORD ret = context->GetReturnDWord();
-            }
+            m_currently_executing_event_trigger = eventnum;
+            this->executeContextAndHandleErrors(id);
+            m_currently_executing_event_trigger = SE_NO_EVENTS;
         }
     }
 }
