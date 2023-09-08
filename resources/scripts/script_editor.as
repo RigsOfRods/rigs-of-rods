@@ -98,7 +98,7 @@ void main() // Invoked by the game on startup
     game.registerForEvent(SE_ANGELSCRIPT_EXCEPTIONCALLBACK);
     game.registerForEvent(SE_ANGELSCRIPT_MANIPULATIONS);
     game.registerForEvent(SE_GENERIC_EXCEPTION_CAUGHT);
-    @editor.recentScriptsRecord.fileinfos = array<dictionary>(); // special - constructed manually
+    @editorWindow.recentScriptsRecord.fileinfos = array<dictionary>(); // special - constructed manually
 }
 
 
@@ -159,7 +159,9 @@ class ScriptEditorWindow
         bool saveMenuOpening = true;
         int saveFileResult = 0; // 0=none, -1=error, 1=success
     // 'EXAMPLES' MENU:
-        string exampleNameBuf;    
+        string exampleNameBuf;
+    // 'INCLUDES' MENU:
+        string includeNameBuf;            
     // TABS:
         array<ScriptEditorTab@> tabs;
         uint currentTab = 0;
@@ -283,9 +285,9 @@ class ScriptEditorWindow
                     this.addRecentScript(fileNameBuf);                        
                 }
                 
-                this.drawSelectableFileList("Recent scripts", recentScriptsFileInfo, /*&inout*/ fileNameBuf);
+                this.drawSelectableFileList("Recent scripts", recentScriptsRecord, /*&inout*/ fileNameBuf);
                 
-                this.drawSelectableFileList("Local scripts", localScriptsFileInfo, /*&inout*/ fileNameBuf);
+                this.drawSelectableFileList("Local scripts", localScriptsRecord, /*&inout*/ fileNameBuf);
                 
                 ImGui::EndMenu();
             }
@@ -339,7 +341,6 @@ class ScriptEditorWindow
                 ImGui::Text("File: "+ exampleNameBuf);
                 if (ImGui::Button("Load##example"))
                 {
-                    game.log("load example="+exampleNameBuf);
                     this.addTab(exampleNameBuf, game.loadTextResourceAsString(exampleNameBuf, RGN_RESOURCES_SCRIPTS));
                 }
                 
@@ -354,17 +355,17 @@ class ScriptEditorWindow
             if (ImGui::BeginMenu("Includes"))
             {
                 //string loadTextResourceAsString(const std::string& filename, const std::string& resource_group);
-                ImGui::Text("File: "+ exampleNameBuf);
-                if (ImGui::Button("Load"))
+                ImGui::Text("File: "+ includeNameBuf);
+                if (ImGui::Button("Load##include"))
                 {
-                    this.setBuffer(game.loadTextResourceAsString(exampleNameBuf, RGN_RESOURCES_SCRIPTS));
+                    this.addTab(includeNameBuf, game.loadTextResourceAsString(includeNameBuf, RGN_RESOURCES_SCRIPTS));
                 }
                 
                 if (!analysisDoneThisFrame)
                 {
                     analysisDoneThisFrame = includeScriptsRecord.advanceScriptAnalysis();
                 }                   
-                this.drawSelectableFileList("Include scripts", includeScriptsRecord, /*&inout*/ exampleNameBuf);
+                this.drawSelectableFileList("Include scripts", includeScriptsRecord, /*&inout*/ includeNameBuf);
                 
                 ImGui::EndMenu();
             }
@@ -421,57 +422,49 @@ class ScriptEditorWindow
         }
     }
     
-    private bool drawSelectableFileList(string title, array<dictionary>@ fileinfos, string&inout out_selection)
+    private bool drawSelectableFileList(string title, ScriptIndexerRecord@ record, string&inout out_selection)
     {
         bool retval = false;
-        if (@fileinfos != null)
+
+        ImGui::Separator();
+        ImGui::PushID(title);     
+        ImGui::TextDisabled(title+" ("+record.fileinfos.length()+"):");
+        for (uint i=0; i<record.fileinfos.length(); i++)
         {
-            ImGui::Separator();
-            ImGui::PushID(title);     
-            ImGui::TextDisabled(title+" ("+fileinfos.length()+"):");
-            for (uint i=0; i<fileinfos.length(); i++)
+            ImGui::PushID(i);
+            string filename = string(record.fileinfos[i]['filename']);
+            uint size = uint(record.fileinfos[i]['compressedSize']);
+            ImGui::Bullet(); 
+            ImGui::SameLine(); ImGui::Text(filename);
+            ImGui::SameLine(); ImGui::TextDisabled("("+formatFloat(float(size)/1000.f, "", 3, 2)+" KB)");
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Select"))
             {
-                ImGui::PushID(i);
-                string filename = string(fileinfos[i]['filename']);
-                uint size = uint(fileinfos[i]['compressedSize']);
-                ImGui::Bullet(); 
-                ImGui::SameLine(); ImGui::Text(filename);
-                ImGui::SameLine(); ImGui::TextDisabled("("+formatFloat(float(size)/1000.f, "", 3, 2)+" KB)");
-                ImGui::SameLine();
-                if (ImGui::SmallButton("Select"))
-                {
-                    out_selection = filename;
-                    retval = true;
-                }   
-                ImGui::PopID(); // i                        
-            }
-            ImGui::PopID(); // title
-        }   
-        else
-        {
-            ImGui::TextDisabled(title+": no files found.");
-        } 
-         return retval;
+                out_selection = filename;
+                retval = true;
+            }   
+            ImGui::PopID(); // i                        
+        }
+        ImGui::PopID(); // title
+        return retval;
     }    
     
     private void addRecentScript(string fnameBuf)
     {
         if (fnameBuf == "")
             return; // nope
-            
-        for (uint i=0; i<recentScriptsFileInfo.length(); i++)
+
+        for (uint i=0; i<recentScriptsRecord.fileinfos.length(); i++)
         {
-            string filename = string(recentScriptsFileInfo[i]['filename']);
+            string filename = string(recentScriptsRecord.fileinfos[i]['filename']);
             if (filename == fnameBuf)
                 return; // already exists
-                
         }
-        
+
         // if we got here, the name isn't in the list yet. 
         //  Construct a pseudo-FileInfo format so we can use common helper.
-        recentScriptsFileInfo.insertLast({ {'filename', fnameBuf}, {'compressedSize',-1} } );
-            
-    }    
+        recentScriptsRecord.fileinfos.insertLast({ {'filename', fnameBuf}, {'compressedSize',-1} } );
+    }   
 }
 
 class ScriptEditorTab
@@ -1214,23 +1207,6 @@ class ScriptEditorTab
 
          return retval;
     }
-    
-    private void addRecentScript(string fnameBuf)
-    {
-        if (fnameBuf == "")
-            return; // nope
-
-        for (uint i=0; i<recentScriptsRecord.fileinfos.length(); i++)
-        {
-            string filename = string(recentScriptsRecord.fileinfos[i]['filename']);
-            if (filename == fnameBuf)
-                return; // already exists
-        }
-
-        // if we got here, the name isn't in the list yet. 
-        //  Construct a pseudo-FileInfo format so we can use common helper.
-        recentScriptsRecord.fileinfos.insertLast({ {'filename', fnameBuf}, {'compressedSize',-1} } );
-    }
 
     void updateAutosave(float dt)
     {
@@ -1241,7 +1217,7 @@ class ScriptEditorTab
         this.autosaveResult = 0;             
         if (this.autosaveTimeCounterSec > autoSaveIntervalSec)
         {
-            bool result = game.createTextResourceFromString(this.buffer, this.fileNameBuf+'_Autosave.as', RGN_SCRIPTS, /*overwrite:*/true);
+            bool result = game.createTextResourceFromString(this.buffer, this.bufferName+'_Autosave.as', RGN_SCRIPTS, /*overwrite:*/true);
             this.autosaveResult = (result)?1:-1;
             this.autosaveTimeCounterSec -= autoSaveIntervalSec; // don't miss a millisecond!
         }
