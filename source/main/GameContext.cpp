@@ -173,16 +173,29 @@ bool GameContext::LoadMission(CacheEntry* mission_entry)
 
     // Load script
     std::string scriptname = (mission_entry->mission_script != "") ? mission_entry->mission_script : DEFAULT_MISSION_SCRIPT;
-    ScriptUnitId_t scriptID = App::GetScriptEngine()->loadScript(scriptname, ScriptCategory::MISSION, /*associatedActor:*/nullptr, "", mission_entry);
-    if (scriptID == SCRIPTUNITID_INVALID)
+    ScriptUnitId_t nid = App::GetScriptEngine()->loadScript(scriptname, ScriptCategory::MISSION, /*associatedActor:*/nullptr, "", mission_entry);
+    if (nid == SCRIPTUNITID_INVALID)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
             fmt::format(_L("Could not load mission script '{}'"), scriptname));
         return false;
     }
-    
-    // Execute the setup routine
-    return App::GetScriptEngine()->invokeLoadMission(scriptID, mission_entry->fname, mission_entry->resource_group);
+
+    // Broadcast the SCRIPT_LOADED event with the *.mission file details;
+    //  the handler script will intercept the event and process the file.
+    TRIGGER_EVENT_ASYNC(SE_ANGELSCRIPT_MANIPULATIONS, ASMANIP_SCRIPT_LOADED,
+        nid, (int)ScriptCategory::MISSION, 0, scriptname, mission_entry->fname, mission_entry->resource_group);
+    return true;
+}
+
+void GameContext::UnloadMission(ScriptUnitId_t nid)
+{
+    ScriptUnit& unit = App::GetScriptEngine()->getScriptUnit(nid);
+    // we want to notify any running scripts that we might change something (prevent cheating)
+    App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS,
+        ASMANIP_SCRIPT_UNLOADING, nid, (int)unit.scriptCategory, 0, unit.scriptName);
+    App::GetCacheSystem()->UnLoadResource(*unit.missionEntry);
+    App::GetScriptEngine()->unloadScript(nid);
 }
 
 // --------------------------------

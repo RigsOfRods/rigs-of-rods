@@ -113,6 +113,7 @@ public:
     void                UnloadTerrain();
     const TerrainPtr&   GetTerrain() { return m_terrain; }
     bool                LoadMission(CacheEntry* entry);
+    void                UnloadMission(ScriptUnitId_t nid);
 
     /// @}
     /// @name Actors
@@ -164,7 +165,7 @@ public:
     /// @{
 
     RaceSystem&         GetRaceSystem() { return m_race_system; }
-    RepairMode&       GetRepairMode() { return m_recovery_mode; }
+    RepairMode&         GetRepairMode() { return m_recovery_mode; }
     SceneMouse&         GetSceneMouse() { return m_scene_mouse; }
     void                TeleportPlayer(float x, float z);
     void                UpdateGlobalInputEvents();

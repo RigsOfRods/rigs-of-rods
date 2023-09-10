@@ -146,10 +146,9 @@ void RoR::Terrain::dispose()
             mission_script_IDs.push_back(pair.second.uniqueId);
         }
     }
-    for (ScriptUnitId_t id : mission_script_IDs)
+    for (ScriptUnitId_t nid : mission_script_IDs)
     {
-        App::GetScriptEngine()->invokeUnloadMission(id);
-        App::GetScriptEngine()->unloadScript(id);
+        App::GetGameContext()->UnloadMission(nid);
     }
 
     m_disposed = true;

@@ -903,9 +903,6 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     m_script_units[unit_id].defaultEventCallbackFunctionPtr = this->getFunctionByDeclAndLogCandidates(
         unit_id, GETFUNCFLAG_OPTIONAL, GETFUNC_DEFAULTEVENTCALLBACK_NAME, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT);
 
-    m_script_units[unit_id].loadMissionFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("bool loadMission(string, string)");
-    m_script_units[unit_id].unloadMissionFunctionPtr = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void unloadMission()");
-
     // Find the function that is to be called.
     auto main_func = m_script_units[unit_id].scriptModule->GetFunctionByDecl("void main()");
     if ( main_func == nullptr )
@@ -1028,41 +1025,6 @@ ScriptUnit& ScriptEngine::getScriptUnit(ScriptUnitId_t unique_id)
     ROR_ASSERT(unique_id != SCRIPTUNITID_INVALID);
     ROR_ASSERT(m_script_units.count(unique_id) != 0);
     return m_script_units[unique_id];
-}
-
-bool ScriptEngine::invokeLoadMission(ScriptUnitId_t id, const std::string& filename, const std::string& resource_group)
-{
-    context->Prepare(this->getScriptUnit(id).loadMissionFunctionPtr);
-    context->SetArgObject(0, (void*)&filename);
-    context->SetArgObject(1, (void*)&resource_group);
-    m_currently_executing_script_unit = id;
-    int r = context->Execute();
-    m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
-
-    if (r == AngelScript::asEXECUTION_FINISHED)
-    {
-        // The return value is only valid if the execution finished successfully
-        return static_cast<bool>(context->GetReturnDWord());
-    }
-    else
-    {
-        LOG(fmt::format("WARNING: Invoking `loadMission(filename='{}', resource_group='{}')` in '{}' ended with error code {}",
-            filename, resource_group, this->getScriptUnit(id).scriptName, r));
-        return false;
-    }
-}
-
-void ScriptEngine::invokeUnloadMission(ScriptUnitId_t id)
-{
-    context->Prepare(this->getScriptUnit(id).unloadMissionFunctionPtr);
-    m_currently_executing_script_unit = id;
-    int r = context->Execute();
-    m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
-
-    if (r != AngelScript::asEXECUTION_FINISHED)
-    {
-        LOG(fmt::format("WARNING: Invoking `unloadMission()` in '{}' ended with error code {}", this->getScriptUnit(id).scriptName, r));
-    }
 }
 
 int ScriptEngine::getNumLoadedMissions()

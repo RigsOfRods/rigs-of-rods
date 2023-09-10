@@ -16,24 +16,31 @@ MissionManager g_missions();
 /* A mandatory startup function */
 void main()
 {
+    game.registerForEvent(SE_ANGELSCRIPT_MANIPULATIONS); // Necessary to receive mission setup info
     game.log("default mission script loaded");
 }
 
-/* A mandatory callback for setting up a mission */
-bool loadMission(string filename, string resource_group)
+/* Event handler callback */
+void eventCallbackEx(scriptEvents ev,   int arg1, int arg2ex, int arg3ex, int arg4ex,   string arg5ex, string arg6ex, string arg7ex, string arg8ex)
 {
-    game.log("loading mission file '"+filename+"' (resource group '"+resource_group+"')");
-    bool result = g_missions.loadMission(filename, resource_group);
-    game.log("finished loading mission file '"+filename+"' (resource group '"+resource_group+"'), result: " + result);
-    return result;
+    if (ev == SE_ANGELSCRIPT_MANIPULATIONS)
+    {
+        // args: #1 angelScriptManipulationType, #2 ScriptUnitId_t, #3 RoR::ScriptCategory, #4 unused, #5 script file name (*.as), #6 associated file name (i.e. *.mission), #7 associated file resource group (i.e. *.mission).
+        angelScriptManipulationType manip = angelScriptManipulationType(arg1);
+        int nid = arg2ex;
+        
+        if (manip == ASMANIP_SCRIPT_LOADED && nid == thisScript)
+        {
+            bool result = g_missions.loadMission(arg6ex, arg7ex);
+            //game.log("DBG mission_default.as: finished loading mission file '"+arg6ex+"' (resource group '"+arg7ex+"'), result: " + result);
+        }
+        else if (manip == ASMANIP_SCRIPT_UNLOADING && nid == thisScript)
+        {
+            g_missions.unloadMission();
+            //game.log("DBG mission_default.as: finished unloading mission");
+        }
+    }
 }
 
-/* A mandatory callback for cleanup after a mission */
-void unloadMission()
-{
-    game.log("unloading mission");
-    g_missions.unloadMission();
-    game.log("finished unloading mission");
-}
 
 

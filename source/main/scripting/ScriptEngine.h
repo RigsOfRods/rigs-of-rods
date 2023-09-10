@@ -79,13 +79,11 @@ struct ScriptUnit
     AngelScript::asIScriptFunction* eventCallbackFunctionPtr = nullptr; //!< script function pointer to the event callback function
     AngelScript::asIScriptFunction* eventCallbackExFunctionPtr = nullptr; //!< script function pointer to the event callback function
     AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr = nullptr; //!< script function pointer for spawner events
-    AngelScript::asIScriptFunction* loadMissionFunctionPtr = nullptr; //!< only `ScriptCategory::MISSION`, called to set up the mission.
-    AngelScript::asIScriptFunction* unloadMissionFunctionPtr = nullptr; //!< only `ScriptCategory::MISSION`, called to clean up the mission.
     ActorPtr associatedActor; //!< For ScriptCategory::ACTOR
     Ogre::String scriptName;
     Ogre::String scriptHash;
     Ogre::String scriptBuffer;
-    CacheEntry* missionEntry = nullptr;
+    CacheEntry* missionEntry = nullptr; //!< For ScriptCategory::MISSION
 };
 
 typedef std::map<ScriptUnitId_t, ScriptUnit> ScriptUnitMap;
@@ -226,8 +224,6 @@ public:
 
     AngelScript::asIScriptEngine* getEngine() { return engine; };
 
-    bool invokeLoadMission(ScriptUnitId_t id, const std::string& filename, const std::string& resource_group);
-    void invokeUnloadMission(ScriptUnitId_t id);
     int getNumLoadedMissions();
 
     // method from Ogre::LogListener

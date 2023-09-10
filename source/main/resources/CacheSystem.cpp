@@ -1175,6 +1175,12 @@ void CacheSystem::LoadResource(CacheEntry& t)
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
             ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
         }
+        else if (t.fext == "mission")
+        {
+            // This is a MissionZip bundle - use `inGlobalPool=false` to prevent resource name conflicts.
+            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
+            ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+        }
         else if (t.fext == "skin")
         {
             // This is a SkinZip bundle - use `inGlobalPool=false` to prevent resource name conflicts.
