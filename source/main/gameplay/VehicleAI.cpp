@@ -32,7 +32,6 @@
 #include "ScrewProp.h"
 #include "GUIManager.h"
 #include "GUI_TopMenubar.h"
-#include "GUI_SurveyMap.h"
 
 #include "scriptdictionary/scriptdictionary.h"
 
@@ -106,12 +105,12 @@ Ogre::Vector3 VehicleAI::getTranslation(int offset, unsigned int wp)
     {
         if (App::GetGuiManager()->TopMenubar.ai_position_scheme == 0)
         {
-            Ogre::Vector3 dir = App::GetGuiManager()->SurveyMap.ai_waypoints[int(wp)-1] - App::GetGuiManager()->SurveyMap.ai_waypoints[int(wp)];
+            Ogre::Vector3 dir = App::GetGuiManager()->TopMenubar.ai_waypoints[int(wp)-1].position - App::GetGuiManager()->TopMenubar.ai_waypoints[int(wp)].position;
             translation -= offset * dir.normalisedCopy();
         }
         else if (App::GetGuiManager()->TopMenubar.ai_position_scheme == 1)
         {
-            Ogre::Vector3 dir = App::GetGuiManager()->SurveyMap.ai_waypoints[int(wp)] - App::GetGuiManager()->SurveyMap.ai_waypoints[int(wp)-1];
+            Ogre::Vector3 dir = App::GetGuiManager()->TopMenubar.ai_waypoints[int(wp)].position - App::GetGuiManager()->TopMenubar.ai_waypoints[int(wp)-1].position;
             float angle = Ogre::Vector3::UNIT_Z.angleBetween(dir.normalisedCopy()).valueRadians();
 
             if (dir.x > 0) // Direction on the right fails to produce offset in some angles, invert to have the same offset on both sides
@@ -142,7 +141,7 @@ void VehicleAI::setValueAtWaypoint(std::string const& id, int value_id, float va
         switch (value_id)
         {
         case AI_SPEED:
-            waypoint_speed.emplace(waypointid, value);
+            waypoint_speed.emplace(id, value);
             break;
         case AI_POWER:
             waypoint_power.emplace(waypointid, value);
@@ -176,7 +175,7 @@ void VehicleAI::updateWaypoint()
         }
     }
 
-    float speed = waypoint_speed[current_waypoint_id];
+    float speed = waypoint_speed[waypoint_names[current_waypoint_id]];
     if (speed)
         maxspeed = speed;
 
@@ -398,24 +397,27 @@ void VehicleAI::update(float dt, int doUpdate)
             Ogre::Vector3 pos = beam->getPosition();
             pos.y = 0;
 
-            // Turn ahead, reduce speed relative to the angle and the current speed
-            if (angle_deg > 0 && current_waypoint.distance(pos) < kmh_wheel_speed)
+            if (waypoint_speed[waypoint_names[current_waypoint_id-1]] == -1)
             {
-                // Speed limit: 10 - 180 degree angle -> 50 - 5 km/h
-                float t = ((angle_deg - 10) / (180 - 10))*1.4f; // Reduce a bit to achive ~20 km/h for a 90 degree angle
-                maxspeed = (1 - t)*50 + t*5;
-                if (maxspeed > 50) // Limit to 50 km/h
+                // Turn ahead, reduce speed relative to the angle and the current speed
+                if (angle_deg > 0 && current_waypoint.distance(pos) < kmh_wheel_speed)
                 {
-                    maxspeed = 50;
+                    // Speed limit: 10 - 180 degree angle -> 50 - 5 km/h
+                    float t = ((angle_deg - 10) / (180 - 10))*1.4f; // Reduce a bit to achive ~20 km/h for a 90 degree angle
+                    maxspeed = (1 - t)*50 + t*5;
+                    if (maxspeed > 50) // Limit to 50 km/h
+                    {
+                        maxspeed = 50;
+                    }
+                    if (maxspeed > App::GetGuiManager()->TopMenubar.ai_speed) // Respect user defined lower speed
+                    {
+                        maxspeed = App::GetGuiManager()->TopMenubar.ai_speed;
+                    }
                 }
-                if (maxspeed > App::GetGuiManager()->TopMenubar.ai_speed) // Respect user defined lower speed
+                else // Reset
                 {
                     maxspeed = App::GetGuiManager()->TopMenubar.ai_speed;
                 }
-            }
-            else // Reset
-            {
-                maxspeed = App::GetGuiManager()->TopMenubar.ai_speed;
             }
 
             // Collision avoidance with other actors
@@ -476,6 +478,15 @@ void VehicleAI::update(float dt, int doUpdate)
                         break;
                     }
                 }
+            }
+        }
+        else if (App::GetGuiManager()->TopMenubar.ai_mode == 1 || // Race driving mode
+                 App::GetGuiManager()->TopMenubar.ai_mode == 2 || // Drag race mode
+                 App::GetGuiManager()->TopMenubar.ai_mode == 3) // Crash driving mode
+        {
+            if (waypoint_speed[waypoint_names[current_waypoint_id-1]] == -1)
+            {
+                maxspeed = App::GetGuiManager()->TopMenubar.ai_speed;
             }
         }
         else if (App::GetGuiManager()->TopMenubar.ai_mode == 4) // Chase driving mode
@@ -586,6 +597,7 @@ void VehicleAI::update(float dt, int doUpdate)
     {
         Vector3 hdir = beam->GetCameraDir();
         float knots = hdir.dotProduct(beam->ar_nodes[beam->ar_main_camera_node_pos].Velocity) * 1.9438f; // 1.943 = m/s in knots/s
+        maxspeed = App::GetGuiManager()->TopMenubar.ai_speed;
 
         if (abs(mYaw) < 0.5f)
         {

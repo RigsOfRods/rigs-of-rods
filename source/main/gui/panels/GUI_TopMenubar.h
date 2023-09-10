@@ -32,6 +32,12 @@
 #include <vector>
 #include <rapidjson/document.h>
 
+struct ai_events
+{
+    Ogre::Vector3 position;
+    int speed = -1;
+};
+
 namespace RoR {
 namespace GUI {
 
@@ -57,6 +63,7 @@ public:
     bool IsVisible() { return m_open_menu != TopMenu::TOPMENU_NONE; };
 
     // Vehicle AI
+    std::vector<ai_events> ai_waypoints;
     int ai_num = 1;
     int ai_speed = 50;
     int ai_times = 1;

@@ -46,7 +46,6 @@
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
-#include "GUI_SurveyMap.h"
 #include "GUI_TopMenubar.h"
 #include "Language.h"
 #include "Network.h"
@@ -953,7 +952,11 @@ ActorPtr GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, O
         rq.asr_position = pos;
 
         // Set rotation based on first two waypoints
-        std::vector<Ogre::Vector3> waypoints = App::GetGuiManager()->SurveyMap.ai_waypoints;
+        std::vector<Ogre::Vector3> waypoints;
+        for (int i = 0; i < App::GetGuiManager()->TopMenubar.ai_waypoints.size(); i++)
+        {
+            waypoints.push_back(App::GetGuiManager()->TopMenubar.ai_waypoints[i].position);
+        }
         if (App::GetGuiManager()->TopMenubar.ai_mode == 3 && x == 1) // Crash driving mode
         {
             std::reverse(waypoints.begin(), waypoints.end());
@@ -983,7 +986,11 @@ ActorPtr GameScript::spawnTruckAI(Ogre::String& truckName, Ogre::Vector3& pos, O
 
 AngelScript::CScriptArray* GameScript::getWaypoints(int x)
 {
-    std::vector<Ogre::Vector3> vec = App::GetGuiManager()->SurveyMap.ai_waypoints;
+    std::vector<Ogre::Vector3> vec;
+    for (int i = 0; i < App::GetGuiManager()->TopMenubar.ai_waypoints.size(); i++)
+    {
+        vec.push_back(App::GetGuiManager()->TopMenubar.ai_waypoints[i].position);
+    }
     if (App::GetGuiManager()->TopMenubar.ai_mode == 3 && x == 1) // Crash driving mode
     {
         std::reverse(vec.begin(), vec.end());
@@ -1016,7 +1023,30 @@ AngelScript::CScriptArray* GameScript::getAllTrucks()
 
 void GameScript::addWaypoint(const Ogre::Vector3& pos)
 {
-    App::GetGuiManager()->SurveyMap.ai_waypoints.push_back(pos);
+    std::vector<Ogre::Vector3> waypoints;
+    for (int i = 0; i < App::GetGuiManager()->TopMenubar.ai_waypoints.size(); i++)
+    {
+        waypoints.push_back(App::GetGuiManager()->TopMenubar.ai_waypoints[i].position);
+    }
+}
+
+AngelScript::CScriptArray* GameScript::getWaypointsSpeed()
+{
+    std::vector<int> vec;
+    for (int i = 0; i < App::GetGuiManager()->TopMenubar.ai_waypoints.size(); i++)
+    {
+        vec.push_back(App::GetGuiManager()->TopMenubar.ai_waypoints[i].speed);
+    }
+
+    AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(AngelScript::asGetActiveContext()->GetEngine()->GetTypeInfoByDecl("array<int>"), vec.size());
+
+    for(AngelScript::asUINT i = 0; i < arr->GetSize(); i++)
+    {
+        // Set the value of each element
+        arr->SetValue(i, &vec[i]);
+    }
+
+    return arr;
 }
 
 int GameScript::getAIVehicleCount()

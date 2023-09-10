@@ -34,7 +34,6 @@
 #include "GUI_FrictionSettings.h"
 #include "GUI_MainSelector.h"
 #include "GUI_TopMenubar.h"
-#include "GUI_SurveyMap.h"
 #include "InputEngine.h"
 #include "OverlayWrapper.h"
 #include "Replay.h"
@@ -1112,7 +1111,14 @@ void GameContext::UpdateSimInputEvents(float dt)
             {
                 if (App::GetGameContext()->GetPlayerActor()->getPosition().distance(prev_pos) >= 5) // Skip very close positions
                 {
-                    App::GetGuiManager()->SurveyMap.ai_waypoints.push_back(App::GetGameContext()->GetPlayerActor()->getPosition());
+                    ai_events waypoint;
+                    waypoint.position = App::GetGameContext()->GetPlayerActor()->getPosition();
+                    waypoint.speed = App::GetGameContext()->GetPlayerActor()->getWheelSpeed() * 3.6;
+                    if (waypoint.speed < 5)
+                    {
+                        waypoint.speed = -1;
+                    }
+                    App::GetGuiManager()->TopMenubar.ai_waypoints.push_back(waypoint);
                 }
                 prev_pos = App::GetGameContext()->GetPlayerActor()->getPosition();
             }
@@ -1120,7 +1126,9 @@ void GameContext::UpdateSimInputEvents(float dt)
             {
                 if (App::GetGameContext()->GetPlayerCharacter()->getPosition() != prev_pos) // Skip same positions
                 {
-                    App::GetGuiManager()->SurveyMap.ai_waypoints.push_back(App::GetGameContext()->GetPlayerCharacter()->getPosition());
+                    ai_events waypoint;
+                    waypoint.position = App::GetGameContext()->GetPlayerCharacter()->getPosition();
+                    App::GetGuiManager()->TopMenubar.ai_waypoints.push_back(waypoint);
                 }
                 prev_pos = App::GetGameContext()->GetPlayerCharacter()->getPosition();
             }

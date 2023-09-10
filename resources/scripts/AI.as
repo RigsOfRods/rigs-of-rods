@@ -1,5 +1,7 @@
 #include "base.as"
 
+array<int> waypoints_speed = game.getWaypointsSpeed();
+
 void main()
 {
     int offset = 0;
@@ -50,7 +52,18 @@ void main()
         }
 
         CurrentTruckai.setActive(true);
-        CurrentTruckai.setValueAtWaypoint("way0",AI_SPEED, game.getAIVehicleSpeed());
+
+        for (uint i = 0; i < waypoints_speed.length(); i++)
+        {
+            if (waypoints_speed[i] >= 5)
+            {
+                CurrentTruckai.setValueAtWaypoint("way"+i, AI_SPEED, waypoints_speed[i]);
+            }
+            else
+            {
+                CurrentTruckai.setValueAtWaypoint("way"+i, AI_SPEED, -1);
+            }
+        }
 
         offset -= game.getAIVehicleDistance();
         translation_x = CurrentTruckai.getTranslation(offset, 0).x;

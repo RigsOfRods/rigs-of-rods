@@ -148,7 +148,7 @@ private:
     std::map<std::string, int> waypoint_ids;//!< Map with all waypoint IDs.
     std::map<int, std::string> waypoint_names;//!< Map with all waypoint names.
     std::map<int, int> waypoint_events;//!< Map with all waypoint events.
-    std::map<int, float> waypoint_speed;//!< Map with all waypoint speeds.
+    std::map<Ogre::String, float> waypoint_speed;//!< Map with all waypoint speeds.
     std::map<int, float> waypoint_power;//!< Map with all waypoint engine power.
     std::map<int, float> waypoint_wait_time;//!< Map with all waypoint wait times.
     int free_waypoints = 0;//!< The amount of waypoints.
