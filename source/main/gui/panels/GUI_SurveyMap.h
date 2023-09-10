@@ -59,8 +59,6 @@ public:
 
     const char* getTypeByDriveable(int driveable);
 
-    std::vector<Ogre::Vector3> ai_waypoints;
-
 protected:
 
     enum class SurveyMapMode

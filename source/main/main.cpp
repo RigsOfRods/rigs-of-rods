@@ -42,7 +42,6 @@
 #include "GUI_MultiplayerClientList.h"
 #include "GUI_RepositorySelector.h"
 #include "GUI_SimActorStats.h"
-#include "GUI_SurveyMap.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
 #include "InputEngine.h"
@@ -637,7 +636,7 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->MainSelector.Close();
                     App::GetGuiManager()->LoadingWindow.SetVisible(false);
                     App::GetGuiManager()->MenuWallpaper->show();
-                    App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
+                    App::GetGuiManager()->TopMenubar.ai_waypoints.clear();
                     App::sim_state->setVal((int)SimState::OFF);
                     App::app_state->setVal((int)AppState::MAIN_MENU);
                     App::GetGameContext()->UnloadTerrain();

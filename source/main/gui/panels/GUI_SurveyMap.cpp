@@ -164,9 +164,9 @@ void SurveyMap::Draw()
     }
 
     bool w_adj = false;
-    if (!ai_waypoints.empty())
+    if (!App::GetGuiManager()->TopMenubar.ai_waypoints.empty())
     {
-        for (int i = 0; i < ai_waypoints.size(); i++)
+        for (int i = 0; i < App::GetGuiManager()->TopMenubar.ai_waypoints.size(); i++)
         {
             ImVec2 cw_dist = this->CalcWaypointMapPos(tl_screen_pos, view_size, view_origin, i);
             if (abs(cw_dist.x) <= 5 && abs(cw_dist.y) <= 5)
@@ -195,7 +195,9 @@ void SurveyMap::Draw()
         if (ImGui::IsItemClicked(1)) // Set AI waypoint
         {
             float y = App::GetGameContext()->GetTerrain()->GetCollisions()->getSurfaceHeight(mouse_map_pos.x, mouse_map_pos.y);
-            ai_waypoints.push_back(Ogre::Vector3(mouse_map_pos.x, y, mouse_map_pos.y));
+            ai_events waypoint;
+            waypoint.position = Ogre::Vector3(mouse_map_pos.x, y, mouse_map_pos.y);
+            App::GetGuiManager()->TopMenubar.ai_waypoints.push_back(waypoint);
         }
         else if (!w_adj) // Teleport
         {
@@ -205,7 +207,7 @@ void SurveyMap::Draw()
     }
     else if (ImGui::IsItemClicked(2) && !w_adj) // 2 = middle click, clear AI waypoints
     {
-        ai_waypoints.clear();
+        App::GetGuiManager()->TopMenubar.ai_waypoints.clear();
     }
     else if (ImGui::IsItemHovered())
     {
@@ -222,9 +224,9 @@ void SurveyMap::Draw()
     }
 
     // Draw AI waypoints
-    if (!ai_waypoints.empty())
+    if (!App::GetGuiManager()->TopMenubar.ai_waypoints.empty())
     {
-        for (int i = 0; i < ai_waypoints.size(); i++)
+        for (int i = 0; i < App::GetGuiManager()->TopMenubar.ai_waypoints.size(); i++)
         {
             ImVec2 cw_dist = this->DrawWaypoint(tl_screen_pos, view_size, view_origin, std::to_string(i), i);
 
@@ -255,11 +257,11 @@ void SurveyMap::Draw()
                 }
 
                 float y = App::GetGameContext()->GetTerrain()->GetCollisions()->getSurfaceHeight(mouse_map_pos.x, mouse_map_pos.y);
-                ai_waypoints[mWaypointNum] = Ogre::Vector3(mouse_map_pos.x, y, mouse_map_pos.y);
+                App::GetGuiManager()->TopMenubar.ai_waypoints[mWaypointNum].position = Ogre::Vector3(mouse_map_pos.x, y, mouse_map_pos.y);
             }
             else if (abs(cw_dist.x) <= 5 && abs(cw_dist.y) <= 5 && ImGui::IsItemClicked(2))
             {
-                ai_waypoints.erase(ai_waypoints.begin() + i);
+                App::GetGuiManager()->TopMenubar.ai_waypoints.erase(App::GetGuiManager()->TopMenubar.ai_waypoints.begin() + i);
             }
         }
     }
@@ -532,8 +534,8 @@ ImVec2 SurveyMap::DrawWaypoint(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 
     }
 
     ImVec2 pos1;
-    pos1.x = view_pos.x + ((ai_waypoints[idx].x - view_origin.x) / terrn_size_adj.x) * view_size.x;
-    pos1.y = view_pos.y + ((ai_waypoints[idx].z - view_origin.y) / terrn_size_adj.y) * view_size.y;
+    pos1.x = view_pos.x + ((App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.x - view_origin.x) / terrn_size_adj.x) * view_size.x;
+    pos1.y = view_pos.y + ((App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.z - view_origin.y) / terrn_size_adj.y) * view_size.y;
 
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImVec4 col = ImVec4(1,0,0,1);
@@ -546,11 +548,11 @@ ImVec2 SurveyMap::DrawWaypoint(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 
     ImVec2 text_pos(pos1.x - (ImGui::CalcTextSize(caption.c_str()).x/2), pos1.y + 5);
     drawlist->AddText(text_pos, ImGui::GetColorU32(ImGui::GetStyle().Colors[ImGuiCol_Text]), caption.c_str());
 
-    if (ai_waypoints.size() >= 2 && idx != ai_waypoints.size() - 1)
+    if (App::GetGuiManager()->TopMenubar.ai_waypoints.size() >= 2 && idx != App::GetGuiManager()->TopMenubar.ai_waypoints.size() - 1)
     {
         ImVec2 pos2;
-        pos2.x = view_pos.x + ((ai_waypoints[idx+1].x - view_origin.x) / terrn_size_adj.x) * view_size.x;
-        pos2.y = view_pos.y + ((ai_waypoints[idx+1].z - view_origin.y) / terrn_size_adj.y) * view_size.y;
+        pos2.x = view_pos.x + ((App::GetGuiManager()->TopMenubar.ai_waypoints[idx+1].position.x - view_origin.x) / terrn_size_adj.x) * view_size.x;
+        pos2.y = view_pos.y + ((App::GetGuiManager()->TopMenubar.ai_waypoints[idx+1].position.z - view_origin.y) / terrn_size_adj.y) * view_size.y;
         drawlist->AddLine(pos1, pos2, ImGui::GetColorU32(ImVec4(1,0,0,1)));
     }
 
@@ -566,8 +568,8 @@ ImVec2 SurveyMap::CalcWaypointMapPos(ImVec2 view_pos, ImVec2 view_size, Ogre::Ve
     }
 
     ImVec2 pos;
-    pos.x = view_pos.x + ((ai_waypoints[idx].x - view_origin.x) / terrn_size_adj.x) * view_size.x;
-    pos.y = view_pos.y + ((ai_waypoints[idx].z - view_origin.y) / terrn_size_adj.y) * view_size.y;
+    pos.x = view_pos.x + ((App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.x - view_origin.x) / terrn_size_adj.x) * view_size.x;
+    pos.y = view_pos.y + ((App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.z - view_origin.y) / terrn_size_adj.y) * view_size.y;
 
     return ImGui::GetMousePos() - pos;
 }

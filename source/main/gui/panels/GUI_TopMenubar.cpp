@@ -34,7 +34,6 @@
 #include "GUIManager.h"
 #include "GUIUtils.h"
 #include "GUI_MainSelector.h"
-#include "GUI_SurveyMap.h"
 #include "InputEngine.h"
 #include "Language.h"
 #include "Network.h"
@@ -1139,7 +1138,7 @@ void TopMenubar::Update()
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
             }
 
-            if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 4) // Waypoints provided or Chase driving mode
+            if (!ai_waypoints.empty() || ai_mode == 4) // Waypoints provided or Chase driving mode
             {
                 ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
             }
@@ -1148,20 +1147,24 @@ void TopMenubar::Update()
             {
                 if (ai_mode == 4) // Chase driving mode
                 {
-                    App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
+                    ai_waypoints.clear();
                     if (App::GetGameContext()->GetPlayerActor()) // We are in vehicle
                     {
-                        App::GetGuiManager()->SurveyMap.ai_waypoints.push_back(App::GetGameContext()->GetPlayerActor()->getPosition() + Ogre::Vector3(20, 0, 0));
+                        ai_events waypoint;
+                        waypoint.position = App::GetGameContext()->GetPlayerActor()->getPosition() + Ogre::Vector3(20, 0, 0);
+                        ai_waypoints.push_back(waypoint);
                     }
                     else // We are in feet
                     {
-                        App::GetGuiManager()->SurveyMap.ai_waypoints.push_back(App::GetGameContext()->GetPlayerCharacter()->getPosition() + Ogre::Vector3(20, 0, 0));
+                        ai_events waypoint;
+                        waypoint.position = App::GetGameContext()->GetPlayerCharacter()->getPosition() + Ogre::Vector3(20, 0, 0);
+                        ai_waypoints.push_back(waypoint);
                     }
                     App::GetScriptEngine()->loadScript("AI.as", ScriptCategory::CUSTOM);
                 }
                 else
                 {
-                    if (App::GetGuiManager()->SurveyMap.ai_waypoints.empty())
+                    if (ai_waypoints.empty())
                     {
                         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                                                       fmt::format(_LC("TopMenubar", "Select a preset, record or open survey map ({}) to set waypoints."),
@@ -1174,7 +1177,7 @@ void TopMenubar::Update()
                 }
             }
 
-            if (!App::GetGuiManager()->SurveyMap.ai_waypoints.empty() || ai_mode == 4) // Waypoints provided or Chase driving mode
+            if (!ai_waypoints.empty() || ai_mode == 4) // Waypoints provided or Chase driving mode
             {
                 ImGui::PopStyleColor();
             }
@@ -1185,7 +1188,7 @@ void TopMenubar::Update()
             {
                 if (ai_mode == 4) // Chase driving mode
                 {
-                    App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
+                    ai_waypoints.clear();
                 }
 
                 for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
@@ -1217,7 +1220,7 @@ void TopMenubar::Update()
             {
                 if (!ai_rec)
                 {
-                    App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
+                    ai_waypoints.clear();
                     ai_rec = true;
                 }
                 else
@@ -1262,14 +1265,28 @@ void TopMenubar::Update()
                         count++;
                         if (ImGui::Button(j_row["preset"].GetString(), ImVec2(250, 0)))
                         {
-                            App::GetGuiManager()->SurveyMap.ai_waypoints.clear();
+                            ai_waypoints.clear();
 
                             for (size_t i = 0; i < j_row["waypoints"].Size(); i++)
                             {
                                 float x = j_row["waypoints"][i][0].GetFloat();
                                 float y = j_row["waypoints"][i][1].GetFloat();
                                 float z = j_row["waypoints"][i][2].GetFloat();
-                                App::GetGuiManager()->SurveyMap.ai_waypoints.push_back(Ogre::Vector3(x, y, z));
+
+                                ai_events waypoint;
+                                waypoint.position = Ogre::Vector3(x, y, z);
+
+                                int speed = -1;
+                                if (j_row["waypoints"][i].Size() == 4) // Custom speed defined
+                                {
+                                    speed = j_row["waypoints"][i][3].GetInt();
+                                    if (speed < 5)
+                                    {
+                                        speed = -1;
+                                    }
+                                }
+                                waypoint.speed = speed;
+                                ai_waypoints.push_back(waypoint);
                             }
                         }
                     }
@@ -1300,7 +1317,7 @@ void TopMenubar::Update()
 
             if (ImGui::CollapsingHeader(_LC("TopMenubar", "Waypoints")))
             {
-                if (App::GetGuiManager()->SurveyMap.ai_waypoints.empty())
+                if (ai_waypoints.empty())
                 {
                     ImGui::Text("%s", _LC("TopMenubar", "No waypoints defined."));
                 }
@@ -1310,10 +1327,20 @@ void TopMenubar::Update()
                     {
                         std::string s;
 
-                        for (int i = 0; i < App::GetGuiManager()->SurveyMap.ai_waypoints.size(); i++)
+                        for (int i = 0; i < ai_waypoints.size(); i++)
                         {
-                            s += "\n            [" + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].x) + ", " + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].y) + ", " + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].z) + "]";
-                            if (i != App::GetGuiManager()->SurveyMap.ai_waypoints.size() - 1)
+                            // Write position
+                            s += "\n            [" + std::to_string(ai_waypoints[i].position.x) + ", " + std::to_string(ai_waypoints[i].position.y) + ", " + std::to_string(ai_waypoints[i].position.z);
+
+                            // Write custom speed
+                            if (ai_waypoints[i].speed >= 5)
+                            {
+                                s += ", " + std::to_string(ai_waypoints[i].speed);
+                            }
+
+                            // Close
+                            s += "]";
+                            if (i != ai_waypoints.size() - 1)
                             {
                                 s += ",";
                             }
@@ -1324,22 +1351,45 @@ void TopMenubar::Update()
 
                         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                                                       fmt::format(_LC("TopMenubar", "{} waypoints exported to RoR.log"),
-                                                      App::GetGuiManager()->SurveyMap.ai_waypoints.size()), "lightbulb.png");
+                                                      ai_waypoints.size()), "lightbulb.png");
                     }
 
                     ImGui::BeginChild("waypoints-scrolling", ImVec2(0.f, 200), false);
 
-                    for (int i = 0; i < App::GetGuiManager()->SurveyMap.ai_waypoints.size(); i++)
+                    for (int i = 0; i < ai_waypoints.size(); i++)
                     {
                         ImGui::PushID(i);
                         ImGui::AlignTextToFramePadding();
                         ImGui::Text("%d", i);
                         ImGui::SameLine();
-                        std::string w = std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].x) + " " + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].y) + " " + std::to_string(App::GetGuiManager()->SurveyMap.ai_waypoints[i].z);
-                        if (ImGui::Button(w.c_str(), ImVec2(230, 0)))
+                        if (ImGui::Button("teleport", ImVec2(60, 0)))
                         {
-                            Ogre::Vector3* payload = new Ogre::Vector3(App::GetGuiManager()->SurveyMap.ai_waypoints[i]);
+                            Ogre::Vector3* payload = new Ogre::Vector3(ai_waypoints[i].position);
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_TELEPORT_PLAYER_REQUESTED, (void*)payload));
+                        }
+                        if (ImGui::IsItemHovered())
+                        {
+                            ImGui::BeginTooltip();
+                            std::string w = "x:" + std::to_string(ai_waypoints[i].position.x) + " y:" + std::to_string(ai_waypoints[i].position.y) + " z:" + std::to_string(ai_waypoints[i].position.z);
+                            ImGui::Text(w.c_str());
+                            ImGui::EndTooltip();
+                        }
+                        ImGui::SameLine();
+                        ImGui::SetNextItemWidth(90);
+
+                        if (ai_waypoints[i].speed < -1)
+                        {
+                            ai_waypoints[i].speed = -1;
+                        }
+                        ImGui::InputInt(_LC("TopMenubar", "speed"), &ai_waypoints[i].speed, 1, 100);
+                        if (ImGui::IsItemHovered())
+                        {
+                            ImGui::BeginTooltip();
+                            ImGui::Text(_LC("TopMenubar", "Set waypoint speed in km/h for land vehicles"));
+                            ImGui::Separator();
+                            ImGui::Text(_LC("TopMenubar", "Value -1: Ignore, vehicle will use default speed"));
+                            ImGui::Text(_LC("TopMenubar", "Value >= 5: Override default speed"));
+                            ImGui::EndTooltip();
                         }
                         ImGui::PopID();
                     }
