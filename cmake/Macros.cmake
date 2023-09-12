@@ -149,9 +149,22 @@ macro(better_parse_arglist opt args list_args)
     endif ()
 endmacro()
 
-
 macro(lift_var)
     foreach (varname IN ITEMS ${ARGN})
         set("${varname}" "${${varname}}" PARENT_SCOPE)
     endforeach ()
+endmacro()
+
+macro(dl_contentpack url name hash)
+    set(cname "CP_${name}")
+    FetchContent_Declare(
+            ${cname}
+            URL ${url}
+            URL_MD5 ${hash}
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+            SOURCE_DIR "${CMAKE_BINARY_DIR}/ContentPack/${name}"
+    )
+    FetchContent_MakeAvailable(${cname})
+    install(DIRECTORY "${CMAKE_BINARY_DIR}/ContentPack/${name}" DESTINATION "./content/" COMPONENT ${cname})
+    cpack_add_component(${cname} DISPLAY_NAME "${name}" GROUP "ContentPack" DISABLED TRUE DOWNLOADED TRUE)
 endmacro()
