@@ -460,7 +460,7 @@ endif ()
 #  POST-BUILD STEPS
 ####################################################################################################
 
-if (USE_PCH)
+if (ROR_USE_PCH)
     target_precompile_headers(${BINNAME} PRIVATE pch.h)
 endif ()
 
@@ -489,7 +489,7 @@ if (WIN32)
     set(CFG_OGRE_PLUGIN_CAELUM "Plugin=Caelum")
     set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=Caelum_d")
 else ()
-    if (${_PREFIX}USE_CAELUM STREQUAL "SYSTEM")
+    if (ROR_USE_CAELUM STREQUAL "SYSTEM")
         set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
         set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=../libCaelum_d.so")
     else ()
@@ -504,7 +504,7 @@ configure_file(plugins_d.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins_d.cfg)
 # Copy resources to bin directory
 # -----------------------
 recursive_zip_folder("${CMAKE_SOURCE_DIR}/resources" "${RUNTIME_OUTPUT_DIRECTORY}/resources")
-if (CREATE_CONTENT_FOLDER)
+if (ROR_CREATE_CONTENT_FOLDER)
     recursive_zip_folder("${CMAKE_SOURCE_DIR}/content" "${RUNTIME_OUTPUT_DIRECTORY}/content")
 endif ()
 
@@ -520,20 +520,20 @@ endif ()
 
 #  Install targets
 # -----------------------
-install(TARGETS ${BINNAME} DESTINATION .)
+install(TARGETS ${BINNAME} DESTINATION . COMPONENT "Base_Game")
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/resources/fonts/ DESTINATION languages)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/languages/ DESTINATION languages FILES_MATCHING PATTERN "*.mo")
-install(DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY}/resources/ DESTINATION resources)
-install(DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY}/content/ DESTINATION content)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/resources/fonts/ DESTINATION languages COMPONENT "Base_Game")
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/languages/ DESTINATION languages COMPONENT "Base_Game" FILES_MATCHING PATTERN "*.mo" )
+install(DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY}/resources/ DESTINATION resources COMPONENT "Base_Game")
+install(DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY}/content/ DESTINATION content COMPONENT "Base_Content")
 
 if (WIN32)
-    install(FILES ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg DESTINATION .)
-    install(FILES ${CMAKE_SOURCE_DIR}/tools/windows/.itch.toml DESTINATION .)
+    install(FILES ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg DESTINATION . COMPONENT "Base_Game")
+    install(FILES ${CMAKE_SOURCE_DIR}/tools/windows/.itch.toml DESTINATION . COMPONENT "Base_Game")
     install(CODE "file(GLOB files ${RUNTIME_OUTPUT_DIRECTORY}/*.dll)
-            file(INSTALL \${files} DESTINATION \${CMAKE_INSTALL_PREFIX})")
+            file(INSTALL \${files} DESTINATION \${CMAKE_INSTALL_PREFIX})" COMPONENT "Base_Game")
     install(CODE "file(GLOB files ${RUNTIME_OUTPUT_DIRECTORY}/*.exe)
-            file(INSTALL \${files} DESTINATION \${CMAKE_INSTALL_PREFIX})")
+            file(INSTALL \${files} DESTINATION \${CMAKE_INSTALL_PREFIX})" COMPONENT "Base_Game")
 else ()
     set(PLUGINS_FOLDER "lib")
     configure_file(plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins-install.cfg)
@@ -547,38 +547,42 @@ endif ()
 
 #  CPack
 # -----------------------
+set(CPACK_PACKAGE_NAME "Rigs of Rods")
+set(CPACK_PACKAGE_FILE_NAME "rigs-of-rods-${CMAKE_PROJECT_VERSION}")
 set(CPACK_PACKAGE_DESCRIPTION "Rigs of Rods soft-body physics simulator")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Rigs of Rods is an open source vehicle simulator based on soft-body physics.")
 set(CPACK_PACKAGE_CONTACT "Edgar@AnotherFoxGuy.com")
 set(CPACK_PACKAGE_VENDOR "AnotherFoxGuy")
-set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/tools/windows/license.rtf")
-set(CPACK_PACKAGE_EXECUTABLES "RoR" "Rigs of Rods Simulator")
+set(CPACK_PACKAGE_EXECUTABLES "RoR" "Rigs of Rods")
 
 
-if (WIN32)
-    #For Windows Desktop shortcuts
-    set(CPACK_CREATE_DESKTOP_LINKS "RoR" "Rigs of Rods Simulator")
+if (WIN32 AND ROR_BUILD_INSTALLER)
+    set(CPACK_GENERATOR INNOSETUP)
+    set(CPACK_ADD_REMOVE TRUE)
+    set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/tools/windows/AfterInstall.txt")
+    set(CPACK_CREATE_DESKTOP_LINKS "RoR" "Rigs of Rods")
 
-    # Windows Add or Remove Program properties
-    set(CPACK_WIX_PROGRAM_MENU_FOLDER "Rigs of Rods Simulator")
-    set(CPACK_WIX_PROPERTY_ARPCOMMENTS "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}")
-    set(CPACK_WIX_PROPERTY_ARPHELPLINK "https://discord.gg/rigsofrods")
-    set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT "https://www.rigsofrods.org/")
-    set(CPACK_WIX_PROPERTY_URLUPDATEINFO "https://github.com/RigsOfRods/rigs-of-rods/releases")
+    set(CPACK_INNOSETUP_ALLOW_CUSTOM_DIRECTORY ON)
+    set(CPACK_INNOSETUP_USE_MODERN_WIZARD ON)
+    set(CPACK_INNOSETUP_ICON_FILE "${CMAKE_CURRENT_SOURCE_DIR}/ror.ico")
+    set(CPACK_INNOSETUP_SETUP_WizardImageFile "${CMAKE_SOURCE_DIR}/tools/windows/RoRSetupLarge.bmp")
+    set(CPACK_INNOSETUP_SETUP_WizardSmallImageFile "${CMAKE_SOURCE_DIR}/tools/windows/ror-64.bmp")
+    set(CPACK_INNOSETUP_SETUP_AppId "{{EF536888-919D-47C0-8675-2F7AFA52EE27}")
 
-    set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/source/main/ror.ico")
-    set(CPACK_WIX_UI_BANNER "${CMAKE_SOURCE_DIR}/tools/windows/bannrbmp.bmp")
-    set(CPACK_WIX_UI_DIALOG "${CMAKE_SOURCE_DIR}/tools/windows/dlgbmp.bmp")
+    set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}")
 
-    set(CPACK_WIX_LICENSE_RTF "${CPACK_RESOURCE_FILE_LICENSE}")
-    set(CPACK_WIX_UPGRADE_GUID "dc178e9c-840d-443f-b249-434433ae5fd1")
+    cpack_add_component("Base_Game"     DISPLAY_NAME "Game" GROUP "Main" REQUIRED TRUE)
+    cpack_add_component("Base_Content"  DISPLAY_NAME "Starter content" GROUP "Main")
 
-    set(CPACK_PACKAGE_NAME "Rigs of Rods")
-    set(CPACK_PACKAGE_INSTALL_DIRECTORY "Rigs of Rods")
-    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}")
-    set(CPACK_GENERATOR ZIP;WIX)
-    set(CPACK_MODULE_PATH "")
+    cpack_configure_downloads("http://prdownloads.sourceforge.net/rigs-of-rods/")
+
+    dl_contentpack("http://forum.rigsofrods.org/resources/content-pack-trucks-heavy-equipment.490/download" "HeavyEquipment" "ef25dc781ad148359cbcec7a67281747")
+    dl_contentpack("http://forum.rigsofrods.org/resources/content-pack-cars-light-vehicles.491/download" "LightVehicles" "583a3056d1e84744907d83a58c99623b")
+    dl_contentpack("http://forum.rigsofrods.org/resources/content-pack-trailers-loads.492/download" "Loads" "c86e4d5c605f6c97efc4da25257061bb")
+    dl_contentpack("http://forum.rigsofrods.org/resources/content-pack-air-sea.495/download" "AirSea" "d5510617dfbc64791e4006522a5110de")
+    dl_contentpack("http://forum.rigsofrods.org/resources/content-pack-trains.494/download" "Trains" "0927db107a7d8a164f57c9b45d57f773")
+    dl_contentpack("http://forum.rigsofrods.org/resources/content-pack-terrains.496/download" "Terrains" "48374d3f90045b6cd9a8271f1531f4b4")
 else ()
     set(CPACK_GENERATOR ZIP)
 endif ()
