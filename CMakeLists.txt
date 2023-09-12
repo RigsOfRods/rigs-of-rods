@@ -28,8 +28,18 @@ option(ROR_BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(ROR_BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
 option(ROR_USE_PCH "Use a Precompiled header for speeding up the build" ON)
 option(ROR_CREATE_CONTENT_FOLDER "Create the base content folder" ON)
-option(ROR_BUILD_INSTALLER "Build the Windows installer" OFF)
 set(ROR_DEPENDENCY_DIR "${CMAKE_SOURCE_DIR}/dependencies" CACHE PATH "Path to the dependencies")
+
+set(ROR_BUILD_INSTALLER "Off" CACHE STRING
+    "Build the Windows installer. Possible values:
+    Off       - Do not build installer
+    Online    - Build fully online installer
+    Offline   - build installer without contentpack
+    Bundled   - build installer with contentpack bundled"
+)
+set_property(CACHE ROR_BUILD_INSTALLER PROPERTY STRINGS Off Online Offline Bundled)
+
+message("Create installer: ${ROR_BUILD_INSTALLER}")
 
 set(ROR_FEAT_TIMING OFF)
 set(FETCHCONTENT_QUIET OFF)

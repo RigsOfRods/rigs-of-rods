@@ -9,14 +9,7 @@ set(VERSION_DEF_H ${CMAKE_CURRENT_BINARY_DIR}/version_def.h)
 # Search for Git executable
 find_package(Git)
 
-# When packaging the installer use the version from the project 
-if(ROR_BUILD_INSTALLER)
-    set(VERSION_FLAGS 
-        -DBUILD_DEV_VERSION=OFF 
-        -DBUILD_CUSTOM_VERSION=TRUE 
-        -DCUSTOM_VERSION=${PROJECT_VERSION}
-    )
-else()
+if(ROR_BUILD_INSTALLER STREQUAL "Off")
     set(VERSION_FLAGS -DBUILD_DEV_VERSION=${ROR_BUILD_DEV_VERSION})
     if (DEFINED ROR_CUSTOM_VERSION)
         list(
@@ -25,6 +18,13 @@ else()
             -DCUSTOM_VERSION=${ROR_CUSTOM_VERSION}
         )
     endif ()
+else()
+    # When packaging the installer use the version from the project 
+    set(VERSION_FLAGS 
+        -DBUILD_DEV_VERSION=OFF 
+        -DBUILD_CUSTOM_VERSION=TRUE 
+        -DCUSTOM_VERSION=${PROJECT_VERSION}
+    )
 endif()
 
 # CMake custom targets are always out of date. Therefore the following target will update the
