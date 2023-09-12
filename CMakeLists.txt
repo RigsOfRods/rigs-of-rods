@@ -6,6 +6,8 @@ cmake_policy(SET CMP0127 OLD)
 include(CMakeDependentOption)
 include(Macros)
 include(FeatureSummary)
+include(FetchContent)
+include(CPackComponent)
 
 ################################################################################
 # Project definition
@@ -16,17 +18,21 @@ set(PROJECT_NAME_LONG "Rigs of Rods")
 
 set(REQUIRED_DEPS_VERSION 30)
 
-project(${PROJECT_NAME_UNDERSCORE})
+# The version is used by installer
+project(${PROJECT_NAME_UNDERSCORE} VERSION 2023.09)
 
 ################################################################################
 # Available build options
 ################################################################################
-option(BUILD_DEV_VERSION "Disable this for official releases" ON)
-option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
-option(USE_PCH "Use a Precompiled header for speeding up the build" ON)
-option(CREATE_CONTENT_FOLDER "Create the base content folder" ON)
+option(ROR_BUILD_DEV_VERSION "Disable this for official releases" ON)
+option(ROR_BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
+option(ROR_USE_PCH "Use a Precompiled header for speeding up the build" ON)
+option(ROR_CREATE_CONTENT_FOLDER "Create the base content folder" ON)
+option(ROR_BUILD_INSTALLER "Build the Windows installer" OFF)
 set(ROR_DEPENDENCY_DIR "${CMAKE_SOURCE_DIR}/dependencies" CACHE PATH "Path to the dependencies")
+
 set(ROR_FEAT_TIMING OFF)
+set(FETCHCONTENT_QUIET OFF)
 
 # global cmake options
 SET(BUILD_SHARED_LIBS ON)
@@ -43,7 +49,7 @@ SET(LIBRARY_OUTPUT_PATH ${RUNTIME_OUTPUT_DIRECTORY})
 
 set(CMAKE_DEBUG_POSTFIX _d)
 
-if (NOT USE_PCH)
+if (NOT ROR_USE_PCH)
     find_program(SCCACHE_PROGRAM sccache)
     if (SCCACHE_PROGRAM)
         set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE_PROGRAM}")
