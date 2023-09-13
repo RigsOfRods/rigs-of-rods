@@ -2172,6 +2172,12 @@ void ActorSpawner::ProcessFlare3(RigDef::Flare3 & def)
     // Also create unique copy of the material, so we can adjust opacity via Ogre::Material to simulate incandescence.
     f.bbs->setMaterial(f.bbs->getMaterial()->clone(f.snode->getName() + "_mat"));
 
+    // Also apply attenuation settings
+    f.light->setAttenuation(
+        def.attenuation_defaults->range,
+        def.attenuation_defaults->constant,
+        def.attenuation_defaults->linear,
+        def.attenuation_defaults->quadratic);
 }
 
 void ActorSpawner::AddBaseFlare(RigDef::FlareBase & def)
