@@ -117,6 +117,12 @@ static const int CAMERA_MODE_ALWAYS_HIDDEN = -3;
 static const int CAMERA_MODE_ALWAYS_VISIBLE = -2;
 static const int CAMERA_MODE_3RDPERSON_ONLY = -1;
 
+// Light attenuation defaults - matches defaults in `Ogre::Light::Light()` constructor.
+static const float ATTENUATION_DEFAULT_RANGE_METERS = 250.f;   //!< The absolute upper range of the light in meters.
+static const float ATTENUATION_DEFAULT_CONSTANT_FACTOR = 1.f;  //!< The constant factor in the attenuation formula: 1.0 means never attenuate, 0.0 is complete attenuation.
+static const float ATTENUATION_DEFAULT_LINEAR_FACTOR = 0.f;    //!< The linear factor in the attenuation formula: 1 means attenuate evenly over the distance.
+static const float ATTENUATION_DEFAULT_QUADRATIC_FACTOR = 0.f; //!< The quadratic factor in the attenuation formula: adds a curvature to the attenuation formula. 
+
 enum ShifterPropAnim
 {
     SHIFTER_INVALID = 0,

@@ -1997,6 +1997,13 @@ void ActorSpawner::ProcessFlare3(RigDef::Flare3 & def)
     flare_t& f = m_actor->ar_flares.back();
     f.uses_inertia = true;
     this->_ProcessSimpleInertia(*def.inertia_defaults, f.inertia);
+
+    // Also apply attenuation settings
+    f.light->setAttenuation(
+        def.attenuation_defaults->range,
+        def.attenuation_defaults->constant,
+        def.attenuation_defaults->linear,
+        def.attenuation_defaults->quadratic);
 }
 
 void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)

@@ -148,6 +148,7 @@ enum class Keyword
     SCRIPTS,
     SECTION,
     SECTIONCONFIG,
+    SET_ATTENUATION_DEFAULTS,
     SET_BEAM_DEFAULTS,
     SET_BEAM_DEFAULTS_SCALE,
     SET_COLLISION_RANGE,
@@ -404,6 +405,16 @@ struct AeroAnimator // used by Animator
 
     BitMask_t flags      = 0u;
     unsigned int engine_idx = 0u;
+};
+
+/// Sets the attenuation parameters of the light source i.e. how it diminishes with distance.
+/// See `Ogre::Light::setAttenuation()` - https://ogrecave.github.io/ogre/api/latest/class_ogre_1_1_light.html#a43f763d809bc7da9a85fec15f57380f4
+struct AttenuationDefaults // used by Flare3
+{
+    float range     = RoR::ATTENUATION_DEFAULT_RANGE_METERS;     //!< The absolute upper range of the light in meters.
+    float constant  = RoR::ATTENUATION_DEFAULT_CONSTANT_FACTOR;  //!< The constant factor in the attenuation formula: 1.0 means never attenuate, 0.0 is complete attenuation.
+    float linear    = RoR::ATTENUATION_DEFAULT_LINEAR_FACTOR;    //!< The linear factor in the attenuation formula: 1 means attenuate evenly over the distance.
+    float quadratic = RoR::ATTENUATION_DEFAULT_QUADRATIC_FACTOR; //!< The quadratic factor in the attenuation formula: adds a curvature to the attenuation formula. 
 };
 
 struct BaseWheel
@@ -882,6 +893,7 @@ struct Flare2 // Used for both 'flares' and 'flares2' sections
 struct Flare3: public Flare2
 {
     std::shared_ptr<Inertia> inertia_defaults;
+    std::shared_ptr<AttenuationDefaults> attenuation_defaults;
 };
 
 struct Flexbody
