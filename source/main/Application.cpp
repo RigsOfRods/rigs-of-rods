@@ -790,6 +790,7 @@ const char * KeywordToString(RigDef::Keyword keyword)
         case Keyword::SCREWPROPS:           return "screwprops";
         case Keyword::SECTION:              return "section";
         case Keyword::SECTIONCONFIG:        return "sectionconfig";
+        case Keyword::SET_ATTENUATION_DEFAULTS: return "set_attenuation_defaults";
         case Keyword::SET_BEAM_DEFAULTS:    return "set_beam_defaults";
         case Keyword::SET_BEAM_DEFAULTS_SCALE: return "set_beam_defaults_scale";
         case Keyword::SET_COLLISION_RANGE:  return "set_collision_range";

@@ -103,6 +103,7 @@ private:
     void ParseDirectivePropCameraMode();
     void ParseDirectiveSection();
     void ParseDirectiveSectionConfig();
+    void ParseDirectiveSetAttenuationDefaults();
     void ParseDirectiveSetBeamDefaults();
     void ParseDirectiveSetBeamDefaultsScale();
     void ParseDirectiveSetDefaultMinimass();
@@ -263,6 +264,7 @@ private:
     // Data from user directives
     // Each affected section-struct has a shared_ptr to it's respective defaults
     std::shared_ptr<Inertia>             m_user_default_inertia;
+    std::shared_ptr<AttenuationDefaults> m_user_attenuation_defaults;
     std::shared_ptr<BeamDefaults>        m_user_beam_defaults;
     std::shared_ptr<NodeDefaults>        m_user_node_defaults;
     std::shared_ptr<DefaultMinimass>     m_set_default_minimass;
