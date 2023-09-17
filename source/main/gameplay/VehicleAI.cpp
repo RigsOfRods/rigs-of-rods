@@ -84,7 +84,7 @@ void VehicleAI::addWaypoints(AngelScript::CScriptDictionary& d)
 
 Ogre::Vector3 VehicleAI::getTranslation(int offset, unsigned int wp)
 {
-    ROR_ASSERT(wp < App::GetGuiManager()->SurveyMap.ai_waypoints.size());
+    ROR_ASSERT(wp < App::GetGuiManager()->TopMenubar.ai_waypoints.size());
 
     Ogre::Vector3 translation = Ogre::Vector3::ZERO;
 
