@@ -18,6 +18,7 @@ const int    ImGuiCol_PopupBg = 4;               // Background of popups, menus,
 const int    ImGuiCol_Border = 5;
 const int    ImGuiCol_BorderShadow = 6;
 const int    ImGuiCol_FrameBg = 7;               // Background of checkbox, radio button, plot, slider, text input
+const int    ImGuiTabItemFlags_SetSelected = 1 << 1;
 // from <angelscript.h>
 enum asEMsgType
 {
@@ -255,6 +256,10 @@ class ScriptEditorWindow
             {
                 bool tabOpen = true;
                 int tabFlags = 0;
+                if (this.currentTab == i)
+                {
+                    tabFlags = ImGuiTabItemFlags_SetSelected;
+                }
                 bool tabDrawn = ImGui::BeginTabItem(this.tabs[i].bufferName, /*inout:*/tabOpen, tabFlags);
                 if (tabDrawn)
                 {
@@ -278,15 +283,20 @@ class ScriptEditorWindow
             // 'OPEN FILE' menu
             if (ImGui::BeginMenu("Open file"))
             {
-                ImGui::InputText("File",/*inout:*/ fileNameBuf);
+                ImGui::Text("File: "+ fileNameBuf);
                 if (ImGui::Button("Load##localfile"))
                 {
                     this.addTab(fileNameBuf, game.loadTextResourceAsString(fileNameBuf, RGN_SCRIPTS));
+                    this.currentTab = this.tabs.length() - 1; // Focus the new tab
                     this.addRecentScript(fileNameBuf);                        
                 }
                 
                 this.drawSelectableFileList("Recent scripts", recentScriptsRecord, /*&inout*/ fileNameBuf);
                 
+                if (!analysisDoneThisFrame)
+                {
+                    analysisDoneThisFrame = localScriptsRecord.advanceScriptAnalysis();
+                }                
                 this.drawSelectableFileList("Local scripts", localScriptsRecord, /*&inout*/ fileNameBuf);
                 
                 ImGui::EndMenu();
@@ -325,7 +335,7 @@ class ScriptEditorWindow
                 {
                     analysisDoneThisFrame = localScriptsRecord.advanceScriptAnalysis();
                 }
-                this.drawSelectableFileList("Local scripts", localScriptsRecord, /*&inout*/ fileNameBuf);
+                this.drawSelectableFileList("Local scripts", localScriptsRecord, /*&inout*/ saveFileNameBuf);
 
                 ImGui::EndMenu();                
             }
@@ -342,6 +352,7 @@ class ScriptEditorWindow
                 if (ImGui::Button("Load##example"))
                 {
                     this.addTab(exampleNameBuf, game.loadTextResourceAsString(exampleNameBuf, RGN_RESOURCES_SCRIPTS));
+                    this.currentTab = this.tabs.length() - 1; // Focus the new tab
                 }
                 
                 if (!analysisDoneThisFrame)
@@ -359,6 +370,7 @@ class ScriptEditorWindow
                 if (ImGui::Button("Load##include"))
                 {
                     this.addTab(includeNameBuf, game.loadTextResourceAsString(includeNameBuf, RGN_RESOURCES_SCRIPTS));
+                    this.currentTab = this.tabs.length() - 1; // Focus the new tab
                 }
                 
                 if (!analysisDoneThisFrame)
@@ -427,27 +439,52 @@ class ScriptEditorWindow
         bool retval = false;
 
         ImGui::Separator();
-        ImGui::PushID(title);     
+        ImGui::PushID(title);
         ImGui::TextDisabled(title+" ("+record.fileinfos.length()+"):");
         for (uint i=0; i<record.fileinfos.length(); i++)
         {
             ImGui::PushID(i);
+            ScriptInfo@ scriptinfo = record.getScriptInfo(i);
             string filename = string(record.fileinfos[i]['filename']);
             uint size = uint(record.fileinfos[i]['compressedSize']);
-            ImGui::Bullet(); 
-            ImGui::SameLine(); ImGui::Text(filename);
-            ImGui::SameLine(); ImGui::TextDisabled("("+formatFloat(float(size)/1000.f, "", 3, 2)+" KB)");
+            bool hovered=false;
+            ImGui::Bullet();
+            hovered = hovered || ImGui::IsItemHovered();
+            ImGui::SameLine(); ImGui::Text(filename); hovered = hovered || ImGui::IsItemHovered();
+            ImGui::SameLine(); ImGui::TextDisabled("("+formatFloat(float(size)/1000.f, "", 3, 2)+" KB)"); hovered = hovered || ImGui::IsItemHovered();
             ImGui::SameLine();
+            if (hovered && (@scriptinfo != null))
+            { 
+                ImGui::BeginTooltip(); 
+                ImGui::TextDisabled("Title:" + scriptinfo.title); ImGui::Separator();
+                ImGui::Text("Brief:" + scriptinfo.brief);
+                ImGui::TextWrapped(scriptinfo.text); ImGui::Dummy(vector2(300, 1));
+                ImGui::EndTooltip(); 
+            }
             if (ImGui::SmallButton("Select"))
             {
                 out_selection = filename;
                 retval = true;
-            }   
-            ImGui::PopID(); // i                        
+            }
+            // Extra line for brief description
+            if (@scriptinfo != null && scriptinfo.title != "")
+            {
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + scriptInfoIndentWidth);
+                ImGui::TextColored(lineNumberColor, scriptinfo.title);
+                hovered = hovered || ImGui::IsItemHovered();
+                if (scriptinfo.brief != "")
+                {
+                    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + scriptInfoIndentWidth);
+                    ImGui::TextDisabled(scriptinfo.brief);
+                    hovered = hovered || ImGui::IsItemHovered();
+                }
+            }
+            ImGui::PopID(); // i
         }
         ImGui::PopID(); // title
-        return retval;
-    }    
+
+         return retval;
+    }
     
     private void addRecentScript(string fnameBuf)
     {
@@ -1155,58 +1192,6 @@ class ScriptEditorTab
         }
         
     }
- 
-    private bool drawSelectableFileList(string title, ScriptIndexerRecord@ record, string&inout out_selection)
-    {
-        bool retval = false;
-
-        ImGui::Separator();
-        ImGui::PushID(title);
-        ImGui::TextDisabled(title+" ("+record.fileinfos.length()+"):");
-        for (uint i=0; i<record.fileinfos.length(); i++)
-        {
-            ImGui::PushID(i);
-            ScriptInfo@ scriptinfo = record.getScriptInfo(i);
-            string filename = string(record.fileinfos[i]['filename']);
-            uint size = uint(record.fileinfos[i]['compressedSize']);
-            bool hovered=false;
-            ImGui::Bullet();
-            hovered = hovered || ImGui::IsItemHovered();
-            ImGui::SameLine(); ImGui::Text(filename); hovered = hovered || ImGui::IsItemHovered();
-            ImGui::SameLine(); ImGui::TextDisabled("("+formatFloat(float(size)/1000.f, "", 3, 2)+" KB)"); hovered = hovered || ImGui::IsItemHovered();
-            ImGui::SameLine();
-            if (hovered && (@scriptinfo != null))
-            { 
-                ImGui::BeginTooltip(); 
-                ImGui::TextDisabled("Title:" + scriptinfo.title); ImGui::Separator();
-                ImGui::Text("Brief:" + scriptinfo.brief);
-                ImGui::TextWrapped(scriptinfo.text); ImGui::Dummy(vector2(300, 1));
-                ImGui::EndTooltip(); 
-            }
-            if (ImGui::SmallButton("Select"))
-            {
-                out_selection = filename;
-                retval = true;
-            }
-            // Extra 2 lines for title and brief description
-            if (@scriptinfo != null && scriptinfo.title != "")
-            {
-                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + scriptInfoIndentWidth);
-                ImGui::TextColored(lineNumberColor, scriptinfo.title);
-                hovered = hovered || ImGui::IsItemHovered();
-                if (scriptinfo.brief != "")
-                {
-                    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + scriptInfoIndentWidth);
-                    ImGui::TextDisabled(scriptinfo.brief);
-                    hovered = hovered || ImGui::IsItemHovered();
-                }
-            }
-            ImGui::PopID(); // i
-        }
-        ImGui::PopID(); // title
-
-         return retval;
-    }
 
     void updateAutosave(float dt)
     {
@@ -1366,8 +1351,8 @@ class ScriptIndexerRecord
         string filename = string(fileinfos[index]['filename']);
         string body = game.loadTextResourceAsString(filename, rgname);
         ScriptInfo@scriptinfo = ExtractScriptInfo(body);
-        game.log("analyzeSingleScript("+index+"): File="+filename+'/RgName='+rgname
-                +": title="+scriptinfo.title+", brief="+scriptinfo.brief+", text="+scriptinfo.text);
+        /*game.log("analyzeSingleScript("+index+"): File="+filename+'/RgName='+rgname
+                +": title="+scriptinfo.title+", brief="+scriptinfo.brief+", text="+scriptinfo.text);*/
         fileinfos[index]['scriptInfo']  = scriptinfo;
         
     }    
@@ -1400,4 +1385,4 @@ void frameStep(float dt)
     ImGui::Text(ttStr);
     ImGui::Text(dtStr);
 }
-""";    
+""";
