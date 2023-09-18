@@ -42,6 +42,7 @@ ScriptEditorWindow editorWindow;
 // -------
 
 // LINE METAINFO COLUMNS (drawn by `drawLineInfoColumns()`, space calculated by `measureLineInfoColumns()`, visibility toggled by `drawMenubar()`)
+// NOTE: most of these are early debug helpers, I kept them around (some visible by default) for the laughs.
     // Line numbers
     bool drawLineNumbers=true;
     color lineNumberColor=color(1.f,1.f,0.7f,1.f);
@@ -51,7 +52,7 @@ ScriptEditorWindow editorWindow;
     color lineLenColor=color(0.5f,0.4f,0.3f,1.f);
     float lineLenColumnWidth = 25;
     // Line comment offsets       
-    bool drawLineCommentOffsets=false;
+    bool drawLineCommentOffsets=true;
     color lineCommentOffsetColor=color(0.1f,0.9f,0.6f,0.6f);
     float lineCommentColumnWidth = 16;
     // Line http offsets
@@ -61,9 +62,9 @@ ScriptEditorWindow editorWindow;
     // Line err counts (error may span multiple AngelScript messages!)
     bool drawLineErrCounts = true;
     color lineErrCountColor = color(1.f,0.2f,0.1f,1.f);
-    float errCountColumnWidth = 18;
+    float errCountColumnWidth = 10;
     // Line region&endregion markers
-    bool drawLineRegionMarkers = true;
+    bool drawLineRegionMarkers = false; // only visual, folding is not implemented
     color lineRegionMarkerColor = color(0.78f,0.76f,0.32f,1.f);
     float lineRegionMarkerColumnWidth = 12;
 // END line metainfo columns
@@ -86,7 +87,7 @@ ScriptEditorWindow editorWindow;
     
     float autoSaveIntervalSec=25.f;
     color autoSaveStatusbarBgColor = color(0.3f, 0.3f, 0.4f, 1.f);
-    bool drawAutosaveCountdown=true;
+    bool drawAutosaveCountdown=false;
 // END editor
 
 // Callback functions for the game:
@@ -416,13 +417,22 @@ class ScriptEditorWindow
                 ImGui::EndMenu();
             }
             
+            // 'DOCS' menu
+            if (ImGui::BeginMenu("Docs"))
+            {
+                ImGui::TextDisabled("AngelScript:");
+                ImHyperlink('https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script.html', "The script language");
+                
+                ImGui::Separator();
+                ImGui::TextDisabled("Rigs of Rods:");
+                ImHyperlink('https://developer.rigsofrods.org/d2/d42/group___script_side_a_p_is.html', "Script-side APIs");
+                
+                ImGui::EndMenu();
+            }
+            
             // START-STOP button
             ImGui::Dummy(vector2(50, 1));
             this.tabs[this.currentTab].drawStartStopButton();
-            
-            // DOCS link
-            ImGui::Dummy(vector2(50, 1));
-            ImHyperlink('https://developer.rigsofrods.org/d2/d42/group___script_side_a_p_is.html', "Click for documentation");
             
             // AUTOSAVE counter
             if (drawAutosaveCountdown)
@@ -1031,8 +1041,7 @@ class ScriptEditorTab
             { 
                 if (!regionFound)
                 {
-                    if (regionLevel > 0)
-                        game.log("analyzeBuffer(): char="+i+", line="+lineIdx+", regionLevel="+regionLevel+"/"+regionPattern.length());
+                    //if (regionLevel > 0) game.log("DBG analyzeBuffer(): char="+i+", line="+lineIdx+", regionLevel="+regionLevel+"/"+regionPattern.length());
                     if (this.buffer[i] == regionPattern[regionLevel])
                     {
                         regionLevel++;
@@ -1050,8 +1059,7 @@ class ScriptEditorTab
                 
                 if (!endregionFound)
                 {
-                    if (endregionLevel > 0)
-                        game.log("analyzeBuffer(): char="+i+", line="+lineIdx+", endregionLevel="+endregionLevel+"/"+endregionPattern.length());            
+                    //if (endregionLevel > 0) game.log("DBG analyzeBuffer(): char="+i+", line="+lineIdx+", endregionLevel="+endregionLevel+"/"+endregionPattern.length());            
                     if (this.buffer[i] == endregionPattern[endregionLevel])
                     {
                         endregionLevel++;
@@ -1351,7 +1359,7 @@ class ScriptIndexerRecord
         string filename = string(fileinfos[index]['filename']);
         string body = game.loadTextResourceAsString(filename, rgname);
         ScriptInfo@scriptinfo = ExtractScriptInfo(body);
-        /*game.log("analyzeSingleScript("+index+"): File="+filename+'/RgName='+rgname
+        /*game.log("DBG analyzeSingleScript("+index+"): File="+filename+'/RgName='+rgname
                 +": title="+scriptinfo.title+", brief="+scriptinfo.brief+", text="+scriptinfo.text);*/
         fileinfos[index]['scriptInfo']  = scriptinfo;
         
