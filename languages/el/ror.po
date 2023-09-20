@@ -5,13 +5,14 @@
 # Translators:
 # f26dc946a3c9a97e25dfaeaf764d5aa3_11438aa <99f8d77593e2f043a4e5c72bc12e6d17_754573>, 2018
 # A.Panagiotou <tas750@gmail.com>, 2021.
+# Thunderstrike116 <thunderstrike116@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2021-12-13 10:52+0000\n"
-"Last-Translator: A.Panagiotou <tas750@gmail.com>\n"
+"PO-Revision-Date: 2023-09-21 07:01+0000\n"
+"Last-Translator: Thunderstrike116 <thunderstrike116@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "el/>\n"
 "Language: el\n"
@@ -19,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.10-dev\n"
+"X-Generator: Weblate 5.1-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -71,25 +72,19 @@ msgid "Manual shift with auto clutch"
 msgstr "Χειροκίνητες ταχύτητες - Αυτόματος συμπλέκτης."
 
 #: Application.cpp:361
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr "χειροκινιτο κιβωτιο (σειριακος λεβιες)"
+msgstr "Χειροκίνητο Κιβώτιο (σειριακός λεβιές)"
 
 #: Application.cpp:362
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr "χειροκινιτο κιβωτιο (σειριακος λεβιες)"
+msgstr "Χειροκίνητο Κιβώτιο (σειριακος λεβιες)"
 
 #: Application.cpp:363
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
-msgstr "Πλήρος χειροκίνητο: λεβιές ταχυτητων με σχέσεις"
+msgstr "Πλήρως χειροκίνητο: λεβιές ταχυτητων με σχέσεις"
 
 #: Application.cpp:372
 #, fuzzy
@@ -1432,12 +1427,12 @@ msgstr "Τύπος κιβωτίου ταχυτήτων"
 #: gui/panels/GUI_GameSettings.cpp:243
 msgctxt "GameSettings"
 msgid "Digital speedometer"
-msgstr "Αυτοκρατορικό σύστημα μέτρησης ταχύμετρου"
+msgstr "Ψηφιακό ταχύμετρο"
 
 #: gui/panels/GUI_GameSettings.cpp:244
 msgctxt "GameSettings"
 msgid "Imperial speedometer"
-msgstr ""
+msgstr "Βρετανικό ταχύμετρο"
 
 #. DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
 #: gui/panels/GUI_GameSettings.cpp:248
