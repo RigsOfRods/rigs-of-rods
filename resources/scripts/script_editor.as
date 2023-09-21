@@ -601,21 +601,25 @@ class ScriptEditorTab
         
         vector2 linenumCursorBase = screenCursor+vector2(0.f, -scrollY);
         ImDrawList@ drawlist = ImGui::GetWindowDrawList();
-        int bufferNumLines = int(this.bufferLinesMeta.length());
+        int bufferNumLines = int(this.bufferLinesMeta.length());        
         
-        vector2 linenumCursor = linenumCursorBase;
         float coarseClipBottomY = (screenCursor.y+textAreaSize.y)-ImGui::GetTextLineHeight()*0.6;
+        float coarseClipTopY = screenCursor.y-ImGui::GetTextLineHeight()*0.7;
         bool inRegion = false;
         
-        for (int linenum = 1; linenum <= bufferNumLines; linenum++)
+        for (int lineIdx = 0; lineIdx < bufferNumLines; lineIdx++)
         {
-            if (linenumCursor.y > coarseClipBottomY)
-                break; // coarse clipping
+            vector2 linenumCursor = linenumCursorBase + vector2(0, lineIdx*ImGui::GetTextLineHeight());
         
-            int lineIdx = linenum - 1;
+            // Coarse clipping
+            if (linenumCursor.y < coarseClipTopY)
+                continue;
+            if (linenumCursor.y > coarseClipBottomY)
+                break;        
+            
             if (drawLineNumbers)
             {
-                drawlist.AddText(linenumCursor, lineNumberColor, ""+linenum);
+                drawlist.AddText(linenumCursor, lineNumberColor, ""+(lineIdx+1));
                 linenumCursor.x += lineNumColumnWidth;
             }
             
@@ -680,13 +684,7 @@ class ScriptEditorTab
                 
                 linenumCursor.x += lineRegionMarkerColumnWidth;
             }
-            
-            // prepare new Line
-            linenumCursor.x = linenumCursorBase.x;
-            linenumCursor.y += ImGui::GetTextLineHeight();
         }
-    
-           
     }
     
     void drawTextAreaErrors()
