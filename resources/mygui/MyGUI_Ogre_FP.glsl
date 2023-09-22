@@ -3,7 +3,7 @@
 precision highp int;
 precision highp float;
 
-uniform sampler2D sampler;
+uniform sampler2D sampleTexture;
 
 in vec4 outUV0;
 in vec4 outColor;
@@ -13,5 +13,5 @@ out vec4 fragColor;
 // Texturing fragment program for GLSL
 void main()
 {
-	fragColor = outColor * texture(sampler, outUV0.xy);
+	fragColor = outColor * textureLod(sampleTexture, outUV0.xy, 0);
 }

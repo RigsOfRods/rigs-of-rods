@@ -38,14 +38,14 @@ void GameSettings::Draw()
 {
     const int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
     ImGui::SetNextWindowSize(ImVec2(670.f, 400.f), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
+    ImSetNextWindowPosCenter(ImGuiCond_Appearing);
     bool keep_open = true;
     ImGui::Begin(_LC("GameSettings", "Game settings"), &keep_open, flags);
 
     ImGui::BeginTabBar("GameSettingsTabs");
 
     const float child_height = ImGui::GetWindowHeight()
-        - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
+        - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetFrameHeightWithSpacing())
             + ImGui::GetStyle().ItemSpacing.y);
 
     if (ImGui::BeginTabItem(_LC("GameSettings", "Render System")))

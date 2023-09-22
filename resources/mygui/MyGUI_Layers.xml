@@ -18,13 +18,6 @@
 	<Layer type="SharedLayer" name="Main">
 		<Property key="Pick" value="true"/>
 	</Layer>
-
-	<Layer type="RTTLayer" name="RTTLayer1">
-		<Property key="Pick" value="false"/>
-		<Property key="TextureSize" value="1024 1024"/>
-		<Property key="TextureName" value="RTTTexture1"/>
-	</Layer>
-
 	<Layer type="OverlappedLayer" name="Popup">
 		<Property key="Pick" value="true"/>
 	</Layer>

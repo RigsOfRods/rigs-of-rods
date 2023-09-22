@@ -32,9 +32,8 @@
 #include <Ogre.h>
 #include <OgrePrerequisites.h>
 #include <Bites/OgreWindowEventUtilities.h>
+#include <Bites/OgreInput.h>
 #include <Overlay/OgreFontManager.h>
-#include <OgreUTFString.h>
-#include <OIS.h>
 #include <MyGUI.h>
 #include <imgui.h>
 #include <rapidjson/rapidjson.h>
@@ -42,6 +41,7 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <moFileReader.hpp>
+#include <SDL2/SDL_keyboard.h>
 
 
 #ifdef USE_SOCKETW

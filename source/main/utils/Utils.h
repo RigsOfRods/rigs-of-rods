@@ -33,7 +33,6 @@
 #include "utf8/unchecked.h"
 
 #include <MyGUI.h>
-#include <OgreUTFString.h>
 
 namespace RoR {
 
@@ -41,9 +40,9 @@ Ogre::String sha1sum(const char *key, int len);
 
 Ogre::String HashData(const char *key, int len);
 
-Ogre::UTFString tryConvertUTF(const char* buffer);
+std::string tryConvertUTF(const char* buffer);
 
-Ogre::UTFString formatBytes(double bytes);
+std::string formatBytes(double bytes);
 
 std::time_t getTimeStamp();
 
@@ -63,6 +62,8 @@ Ogre::Real Round(Ogre::Real value, unsigned short ndigits = 0);
 
 std::string SanitizeUtf8String(std::string const& str_in);
 std::string SanitizeUtf8CString(const char* start, const char* end = nullptr);
+
+std::wstring Utf8ToWideChar(std::string input_utf8);
 
 inline std::string& TrimStr(std::string& s) { Ogre::StringUtil::trim(s); return s; }
 std::string Sha1Hash(std::string const & data);

@@ -35,7 +35,7 @@
 
 #include <MyGUI.h>
 #include <imgui.h>
-#include <imgui_internal.h>
+
 
 using namespace RoR;
 using namespace GUI;
@@ -79,7 +79,7 @@ void MainSelector::Draw()
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
-    ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
+    ImSetNextWindowPosCenter(ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2((ImGui::GetIO().DisplaySize.x / 1.4), (ImGui::GetIO().DisplaySize.y / 1.2)), ImGuiCond_FirstUseEver);
     bool keep_open = true;
     if (!ImGui::Begin(_LC("MainSelector", "Loader"), &keep_open, win_flags))
@@ -227,7 +227,7 @@ void MainSelector::Draw()
         }
         if (is_selected && scroll_to_selected)
         {
-            ImGui::SetScrollHere();
+            ImGui::SetScrollHereY();
         }
         ImGui::PopID();
     }
@@ -243,7 +243,7 @@ void MainSelector::Draw()
     // right
     ImGui::BeginGroup();
 
-    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing())); // Leave room for 1 line below us
+    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
 
     if (m_selected_entry != -1)
     {

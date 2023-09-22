@@ -47,7 +47,7 @@ void VehicleDescription::Draw()
         return;
     }
 
-    ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
+    ImSetNextWindowPosCenter(ImGuiCond_Appearing);
     ImVec2 size(HELP_TEXTURE_WIDTH + 2*ImGui::GetStyle().WindowPadding.x, 0.f);
     ImGui::SetNextWindowSize(size, ImGuiCond_Appearing);
     if (!ImGui::Begin(actor->getTruckName().c_str(), &m_is_visible))

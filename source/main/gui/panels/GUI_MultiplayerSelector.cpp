@@ -149,7 +149,7 @@ void MultiplayerSelector::Draw()
 {
     int window_flags = ImGuiWindowFlags_NoCollapse;
     ImGui::SetNextWindowSize(ImVec2(750.f, 400.f), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowPosCenter();
+    ImSetNextWindowPosCenter();
     bool keep_open = true;
     ImGui::Begin(m_window_title, &keep_open, window_flags);
 
@@ -261,11 +261,11 @@ void MultiplayerSelector::DrawServerlistTab()
     {
         // Setup serverlist table ... the scroll area
         const float table_height = ImGui::GetWindowHeight()
-            - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetItemsLineHeightWithSpacing())
+            - ((2.f * ImGui::GetStyle().WindowPadding.y) + (3.f * ImGui::GetFrameHeightWithSpacing())
                 + ImGui::GetStyle().ItemSpacing.y);
         ImGui::BeginChild("scrolling", ImVec2(0.f, table_height), false);
         // ... and the table itself
-        const float table_width = ImGui::GetWindowContentRegionWidth();
+        const float table_width = ImGui::GetWindowContentRegionMax().x;
         ImGui::Columns(5, "mp-selector-columns");         // Col #0: Server name (and lock icon)
         ImGui::SetColumnOffset(1, 0.36f * table_width);   // Col #1: Terrain name
         ImGui::SetColumnOffset(2, 0.67f * table_width);   // Col #2: Users/Max

@@ -21,12 +21,71 @@
 
 #include "Actor.h"
 
-#include "imgui_internal.h" // ImTextCharFromUtf8
 #include <regex>
 #include <stdio.h> // sscanf
 
+#include <OgreImGuiOverlay.h>
+
 static const std::regex  TEXT_COLOR_REGEX = std::regex(R"(#[a-fA-F\d]{6})");
 static const int         TEXT_COLOR_MAX_LEN = 5000;
+
+// Copypasted from imgui.cpp:
+// --------------------------
+// Convert UTF-8 to 32-bit character, process single character input.
+// A nearly-branchless UTF-8 decoder, based on work of Christopher Wellons (https://github.com/skeeto/branchless-utf8).
+// We handle UTF-8 decoding error by skipping forward.
+int ImTextCharFromUtf8(unsigned int* out_char, const char* in_text, const char* in_text_end)
+{
+    static const char lengths[32] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 3, 3, 4, 0 };
+    static const int masks[] = { 0x00, 0x7f, 0x1f, 0x0f, 0x07 };
+    static const uint32_t mins[] = { 0x400000, 0, 0x80, 0x800, 0x10000 };
+    static const int shiftc[] = { 0, 18, 12, 6, 0 };
+    static const int shifte[] = { 0, 6, 4, 2, 0 };
+    int len = lengths[*(const unsigned char*)in_text >> 3];
+    int wanted = len + !len;
+
+    if (in_text_end == NULL)
+        in_text_end = in_text + wanted; // Max length, nulls will be taken into account.
+
+    // Copy at most 'len' bytes, stop copying at 0 or past in_text_end. Branch predictor does a good job here,
+    // so it is fast even with excessive branching.
+    unsigned char s[4];
+    s[0] = in_text + 0 < in_text_end ? in_text[0] : 0;
+    s[1] = in_text + 1 < in_text_end ? in_text[1] : 0;
+    s[2] = in_text + 2 < in_text_end ? in_text[2] : 0;
+    s[3] = in_text + 3 < in_text_end ? in_text[3] : 0;
+
+    // Assume a four-byte character and load four bytes. Unused bits are shifted out.
+    *out_char = (uint32_t)(s[0] & masks[len]) << 18;
+    *out_char |= (uint32_t)(s[1] & 0x3f) << 12;
+    *out_char |= (uint32_t)(s[2] & 0x3f) << 6;
+    *out_char |= (uint32_t)(s[3] & 0x3f) << 0;
+    *out_char >>= shiftc[len];
+
+    // Accumulate the various error conditions.
+    int e = 0;
+    e = (*out_char < mins[len]) << 6; // non-canonical encoding
+    e |= ((*out_char >> 11) == 0x1b) << 7;  // surrogate half?
+    e |= (*out_char > IM_UNICODE_CODEPOINT_MAX) << 8;  // out of range?
+    e |= (s[1] & 0xc0) >> 2;
+    e |= (s[2] & 0xc0) >> 4;
+    e |= (s[3]) >> 6;
+    e ^= 0x2a; // top two bits of each tail byte correct?
+    e >>= shifte[len];
+
+    if (e)
+    {
+        // No bytes are consumed when *in_text == 0 || in_text == in_text_end.
+        // One byte is consumed in case of invalid first byte of in_text.
+        // All available bytes (at most `len` bytes) are consumed on incomplete/invalid second to last bytes.
+        // Invalid or incomplete input may consume less bytes than wanted, therefore every byte has to be inspected in s.
+        wanted = ImMin(wanted, !!s[0] + !!s[1] + !!s[2] + !!s[3]);
+        *out_char = IM_UNICODE_CODEPOINT_INVALID;
+    }
+
+    return wanted;
+}
+// END copypaste from imgui.cpp
 
 // --------------------------------
 // ImTextFeeder
@@ -128,28 +187,15 @@ void RoR::ImTextFeeder::NextLine()
 inline void ColorToInts(ImVec4 v, int&r, int&g, int&b) { r=(int)(v.x*255); g=(int)(v.y*255); b=(int)(v.z*255); }
 
 // A nice spinner https://github.com/ocornut/imgui/issues/1901#issuecomment-444929973
+// Updated to use only public APIs
 void RoR::LoadingIndicatorCircle(const char* label, const float indicator_radius, const ImVec4& main_color, const ImVec4& backdrop_color, const int circle_count, const float speed)
 {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems)
-    {
-        return;
-    }
-
-    ImGuiContext& g = *GImGui;
-    const ImGuiID id = window->GetID(label);
-
-    const ImVec2 pos = window->DC.CursorPos;
+    const ImVec2 pos = ImGui::GetCursorScreenPos();
     const float circle_radius = indicator_radius / 10.0f;
-    const ImRect bb(pos, ImVec2(pos.x + indicator_radius * 2.0f, pos.y + indicator_radius * 2.0f));
-    ImGui::ItemSize(bb, ImGui::GetStyle().FramePadding.y);
-    if (!ImGui::ItemAdd(bb, id))
-    {
-        return;
-    }
+    ImGui::Dummy(ImVec2(indicator_radius * 2.0f, indicator_radius * 2.0f));
 
-    const float t = g.Time;
-    const auto degree_offset = 2.0f * IM_PI / circle_count;
+    const float t = ImGui::GetTime();
+    const float degree_offset = 2.0f * IM_PI / circle_count;
 
     for (int i = 0; i < circle_count; ++i)
     {
@@ -162,7 +208,7 @@ void RoR::LoadingIndicatorCircle(const char* label, const float indicator_radius
         color.z = main_color.z * growth + backdrop_color.z * (1.0f - growth);
         color.w = 1.0f;
 
-        window->DrawList->AddCircleFilled(ImVec2(pos.x + indicator_radius + x,
+        ImGui::GetWindowDrawList()->AddCircleFilled(ImVec2(pos.x + indicator_radius + x,
                                                          pos.y + indicator_radius - y),
                                                          circle_radius + growth * circle_radius,
                                                          ImGui::GetColorU32(color));
@@ -249,12 +295,9 @@ void RoR::ImTextWrappedColorMarked(std::string const& text)
                                                 text_pos,
                                                 ImGui::GetStyle().Colors[ImGuiCol_Text],
                                                 /*override_alpha=*/1.f,
-                                                ImGui::GetWindowContentRegionWidth() - ImGui::GetCursorPosX(),
+                                                ImGui::GetWindowContentRegionMax().x - ImGui::GetCursorPosX(),
                                                 text);
-    // From `ImGui::TextEx()` ...
-    ImRect bb(text_pos, text_pos + text_size);
-    ImGui::ItemSize(text_size);
-    ImGui::ItemAdd(bb, 0);
+    ImGui::Dummy(text_size);
 }
 
 void RoR::DrawGCheckbox(CVar* cvar, const char* label)
@@ -402,6 +445,12 @@ void RoR::ImTerminateComboboxString(std::string& target)
     target.resize(prev_size + 2, '\0');
 }
 
+// Substitute for `SetNextWindowPosCenter()` OBSOLETED in 1.52 (between Aug 2017 and Oct 2017)
+void RoR::ImSetNextWindowPosCenter(ImGuiCond c /*= 0*/)
+{
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), c, ImVec2(0.5f, 0.5f));
+}
+
 void RoR::ImDrawEventHighlighted(events input_event)
 {
     ImVec4 col = ImGui::GetStyle().Colors[ImGuiCol_Text];
@@ -419,7 +468,7 @@ void RoR::ImDrawEventHighlighted(events input_event)
 
 }
 
-void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
+void RoR::ImDrawModifierKeyHighlighted(OgreBites::Keycode key)
 {
     ImVec4 col = ImGui::GetStyle().Colors[ImGuiCol_Text];
     if (App::GetInputEngine()->isKeyDown(key))

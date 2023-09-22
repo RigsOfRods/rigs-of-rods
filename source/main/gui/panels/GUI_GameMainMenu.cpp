@@ -91,7 +91,7 @@ void GameMainMenu::DrawMenuPanel()
     ImVec2 display_size = ImGui::GetIO().DisplaySize;
     if ((display_size.x > 2200.f) && (display_size.y < 1100.f)) // Silly approximate values
     {
-        ImGui::SetNextWindowPosCenter();
+        ImSetNextWindowPosCenter();
     }
     else
     {
@@ -101,7 +101,7 @@ void GameMainMenu::DrawMenuPanel()
         const float top = display_size.y - window_height - margin;
         ImGui::SetNextWindowPos(ImVec2(margin, top));
     }
-    ImGui::SetNextWindowContentWidth(WINDOW_WIDTH);
+    ImGui::SetNextWindowContentSize(ImVec2(WINDOW_WIDTH, 0.f));
     int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
     if (ImGui::Begin(_LC("MainMenu", title), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
     {

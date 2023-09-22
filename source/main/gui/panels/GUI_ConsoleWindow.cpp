@@ -40,7 +40,7 @@ ConsoleWindow::ConsoleWindow()
 void ConsoleWindow::Draw()
 {
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar;
-    ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
+    ImSetNextWindowPosCenter(ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2((ImGui::GetIO().DisplaySize.x / 1.6), (ImGui::GetIO().DisplaySize.y / 1.3)), ImGuiCond_FirstUseEver);
     bool keep_open = true;
     ImGui::Begin("Console", &keep_open, win_flags);
@@ -147,14 +147,14 @@ void ConsoleWindow::doCommand(std::string msg) // All commands are processed her
     App::GetConsole()->doCommand(msg);
 }
 
-int ConsoleWindow::TextEditCallback(ImGuiTextEditCallbackData *data)
+int ConsoleWindow::TextEditCallback(ImGuiInputTextCallbackData *data)
 {
     ConsoleWindow* c = static_cast<ConsoleWindow*>(data->UserData);
     c->TextEditCallbackProc(data);
     return 0;
 }
 
-void ConsoleWindow::TextEditCallbackProc(ImGuiTextEditCallbackData *data)
+void ConsoleWindow::TextEditCallbackProc(ImGuiInputTextCallbackData *data)
 {
     if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory)
     {

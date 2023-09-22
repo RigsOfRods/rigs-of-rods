@@ -28,6 +28,9 @@ http://www.cnblogs.com/ArenAK/archive/2007/11/07/951713.html
 --------------------------------------------------------------------------------
 */
 
+#include "Actor.h"
+#include "GfxScene.h"
+
 #include <ProjectedGrid.h>
 
 #define _def_MaxFarClipDistance 99999
@@ -164,6 +167,13 @@ namespace Hydrax{namespace Module
 
 		mTmpRndrngCamera  = new Ogre::Camera("PG_TmpRndrngCamera", NULL);
 		mProjectingCamera = new Ogre::Camera("PG_ProjectingCamera", NULL);
+
+
+                Ogre::SceneNode* mTmpRndrngCamera_snode = RoR::App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+                mTmpRndrngCamera_snode->attachObject(mTmpRndrngCamera);
+
+                Ogre::SceneNode* mProjectingCamera_snode = RoR::App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+                mProjectingCamera_snode->attachObject(mProjectingCamera);
 
 		HydraxLOG(getName() + " created.");
 	}
@@ -667,12 +677,12 @@ namespace Hydrax{namespace Module
 		// Set temporal rendering camera parameters
 		mTmpRndrngCamera->setFrustumOffset(mRenderingCamera->getFrustumOffset());
 		mTmpRndrngCamera->setAspectRatio(mRenderingCamera->getAspectRatio());
-		mTmpRndrngCamera->setDirection(mRenderingCamera->getDerivedDirection());
+		mTmpRndrngCamera->getParentSceneNode()->setDirection(mRenderingCamera->getDerivedDirection());
 		mTmpRndrngCamera->setFarClipDistance(mRenderingCamera->getFarClipDistance());
 		mTmpRndrngCamera->setFOVy(mRenderingCamera->getFOVy());
 		mTmpRndrngCamera->setNearClipDistance(mRenderingCamera->getNearClipDistance());
-		mTmpRndrngCamera->setOrientation(mRenderingCamera->getDerivedOrientation());
-		mTmpRndrngCamera->setPosition(0, mRenderingCamera->getDerivedPosition().y - mHydrax->getPosition().y, 0);
+		mTmpRndrngCamera->getParentSceneNode()->setOrientation(mRenderingCamera->getDerivedOrientation());
+		mTmpRndrngCamera->getParentSceneNode()->setPosition(0, mRenderingCamera->getDerivedPosition().y - mHydrax->getPosition().y, 0);
 
 		Ogre::Matrix4 invviewproj = (mTmpRndrngCamera->getProjectionMatrixWithRSDepth()*mTmpRndrngCamera->getViewMatrix()).inverse();
 		frustum[0] = invviewproj * Ogre::Vector3(-1,-1,0);
@@ -715,12 +725,12 @@ namespace Hydrax{namespace Module
 		// Set projecting camera parameters
 		mProjectingCamera->setFrustumOffset(mTmpRndrngCamera->getFrustumOffset());
 		mProjectingCamera->setAspectRatio(mTmpRndrngCamera->getAspectRatio());
-		mProjectingCamera->setDirection(mTmpRndrngCamera->getDerivedDirection());
+		mProjectingCamera->getParentSceneNode()->setDirection(mTmpRndrngCamera->getDerivedDirection());
 		mProjectingCamera->setFarClipDistance(mTmpRndrngCamera->getFarClipDistance());
 		mProjectingCamera->setFOVy(mTmpRndrngCamera->getFOVy());
 		mProjectingCamera->setNearClipDistance(mTmpRndrngCamera->getNearClipDistance());
-		mProjectingCamera->setOrientation(mTmpRndrngCamera->getDerivedOrientation());
-		mProjectingCamera->setPosition(mTmpRndrngCamera->getDerivedPosition());
+		mProjectingCamera->getParentSceneNode()->setOrientation(mTmpRndrngCamera->getDerivedOrientation());
+		mProjectingCamera->getParentSceneNode()->setPosition(mTmpRndrngCamera->getDerivedPosition());
 
 		// Make sure the camera isn't too close to the plane
 		float height_in_plane = mBasePlane.getDistance(mProjectingCamera->getRealPosition());
@@ -735,7 +745,7 @@ namespace Hydrax{namespace Module
 
 		if (keep_it_simple)
 		{
-			mProjectingCamera->setDirection(mTmpRndrngCamera->getDerivedDirection());
+			mProjectingCamera->getParentSceneNode()->setDirection(mTmpRndrngCamera->getDerivedDirection());
 		}
 		else
 		{
@@ -745,11 +755,11 @@ namespace Hydrax{namespace Module
 			{
 				if (underwater)
 				{
-					mProjectingCamera->setPosition(mProjectingCamera->getRealPosition()+mLowerBoundPlane.normal*(mOptions.Strength + mOptions.Elevation - 2*height_in_plane));
+					mProjectingCamera->getParentSceneNode()->setPosition(mProjectingCamera->getRealPosition()+mLowerBoundPlane.normal*(mOptions.Strength + mOptions.Elevation - 2*height_in_plane));
 				}
 				else
 				{
-					mProjectingCamera->setPosition(mProjectingCamera->getRealPosition()+mLowerBoundPlane.normal*(mOptions.Strength + mOptions.Elevation - height_in_plane));
+					mProjectingCamera->getParentSceneNode()->setPosition(mProjectingCamera->getRealPosition()+mLowerBoundPlane.normal*(mOptions.Strength + mOptions.Elevation - height_in_plane));
 				}
 			}
 
@@ -787,7 +797,7 @@ namespace Hydrax{namespace Module
 			// Fade between aimpoint & aimpoint2 depending on view angle
 			aimpoint = aimpoint*af + aimpoint2*(1.0f-af);
 
-			mProjectingCamera->setDirection(aimpoint-mProjectingCamera->getRealPosition());
+			mProjectingCamera->getParentSceneNode()->setDirection(aimpoint-mProjectingCamera->getRealPosition());
 		}
 
 		for(i=0; i<n_points; i++)

@@ -112,9 +112,9 @@ void RepairMode::UpdateInputEvents(float dt)
 
         if (translation != Ogre::Vector3::ZERO || rotation != 0.0f)
         {
-            float scale = App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.1f : 1.0f;
-            scale *= App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) ? 3.0f : 1.0f;
-            scale *= App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
+            float scale = App::GetInputEngine()->isKeyDown(SDLK_LALT) ? 0.1f : 1.0f;
+            scale *= App::GetInputEngine()->isKeyDown(SDLK_LSHIFT) ? 3.0f : 1.0f;
+            scale *= App::GetInputEngine()->isKeyDown(SDLK_LCTRL) ? 10.0f : 1.0f;
 
             Ogre::Vector3 rotation_center = App::GetGameContext()->GetPlayerActor()->getRotationCenter();
 
@@ -127,7 +127,7 @@ void RepairMode::UpdateInputEvents(float dt)
 
             m_live_repair_timer = 0.0f;
         }
-        else if (App::GetInputEngine()->isKeyDownValueBounce(OIS::KC_SPACE))
+        else if (App::GetInputEngine()->isKeyDownValueBounce(OgreBites::SDLK_SPACE))
         {
             App::GetGameContext()->GetPlayerActor()->requestAngleSnap(45);
             // NOTE: Syncing with linked actors is done in `SyncLinkedActors()`

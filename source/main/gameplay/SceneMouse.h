@@ -28,9 +28,9 @@
 
 #include "Application.h"
 #include "SimData.h"
-#include <OIS.h>
 
-#include <OIS.h>
+
+
 #include <Ogre.h>
 
 namespace RoR {
@@ -41,9 +41,9 @@ public:
 
     SceneMouse();
 
-    bool mouseMoved(const OIS::MouseEvent& _arg);
-    bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
-    bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    bool mouseMoved(const OgreBites::MouseMotionEvent& _arg);
+    bool mousePressed(const OgreBites::MouseButtonEvent& _arg);
+    bool mouseReleased(const OgreBites::MouseButtonEvent& _arg);
 
     void InitializeVisuals();
     void UpdateSimulation();
@@ -61,6 +61,11 @@ protected:
     ActorPtr grab_truck;
     Ogre::Vector3 lastgrabpos;
     int lastMouseX, lastMouseY;
+
+    // Cached mouse state from OgreBites::InputListener, to minimize code changes
+    int m_mouse_x = 0;
+    int m_mouse_y = 0;
+    // END cached
 
     void releaseMousePick();
     Ogre::Ray getMouseRay();

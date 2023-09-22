@@ -478,7 +478,7 @@ void FlexbodyDebug::DrawLocatorsTable(FlexBody* flexbody, bool& locators_visible
 {
     const float content_height =
         (2.f * ImGui::GetStyle().WindowPadding.y)
-        + (5.f * ImGui::GetItemsLineHeightWithSpacing())
+        + (5.f * ImGui::GetFrameHeightWithSpacing())
         + ImGui::GetStyle().ItemSpacing.y * 5;
     const float child_height = ImGui::GetWindowHeight() - (content_height + 100);
 

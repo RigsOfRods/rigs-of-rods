@@ -40,7 +40,7 @@ using namespace RoR;
 
 #define LOGSTREAM Ogre::LogManager::getSingleton().stream()
 
-Character::Character(int source, unsigned int streamid, UTFString player_name, int color_number, bool is_remote) :
+Character::Character(int source, unsigned int streamid, std::string player_name, int color_number, bool is_remote) :
       m_actor_coupling(nullptr)
     , m_can_jump(false)
     , m_character_rotation(0.0f)
@@ -256,7 +256,7 @@ void Character::update(float dt)
         tmpJoy = RoR::App::GetInputEngine()->getEventValue(EV_CHARACTER_RIGHT);
         if (tmpJoy > 0.0f)
         {
-            float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.1f : 1.0f;
+            float scale = RoR::App::GetInputEngine()->isKeyDown(SDLK_LALT) ? 0.1f : 1.0f;
             setRotation(m_character_rotation + dt * 2.0f * scale * Radian(tmpJoy));
             if (!isswimming && not_walking)
             {
@@ -268,7 +268,7 @@ void Character::update(float dt)
         tmpJoy = RoR::App::GetInputEngine()->getEventValue(EV_CHARACTER_LEFT);
         if (tmpJoy > 0.0f)
         {
-            float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.1f : 1.0f;
+            float scale = RoR::App::GetInputEngine()->isKeyDown(SDLK_LALT) ? 0.1f : 1.0f;
             setRotation(m_character_rotation - dt * scale * 2.0f * Radian(tmpJoy));
             if (!isswimming && not_walking)
             {
@@ -407,7 +407,7 @@ void Character::move(Vector3 offset)
 void Character::ReportError(const char* detail)
 {
 #ifdef USE_SOCKETW
-    Ogre::UTFString username;
+    std::string username;
     RoRnet::UserInfo info;
     if (!App::GetNetwork()->GetUserInfo(m_source_id, info))
         username = "~~ERROR getting username~~";
@@ -417,7 +417,7 @@ void Character::ReportError(const char* detail)
     char msg_buf[300];
     snprintf(msg_buf, 300,
         "[RoR|Networking] ERROR on m_is_remote character (User: '%s', SourceID: %d, StreamID: %d): ",
-        username.asUTF8_c_str(), m_source_id, m_stream_id);
+        username.c_str(), m_source_id, m_stream_id);
 
     LOGSTREAM << msg_buf << detail;
 #endif

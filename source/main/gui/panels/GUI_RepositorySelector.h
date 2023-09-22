@@ -27,7 +27,6 @@
 #pragma once
 
 #include "Application.h"
-#include "OgreImGui.h" // ImVec4
 
 #include <future>
 #include <memory>
@@ -83,12 +82,9 @@ struct ResourcesCollection
     std::vector<ResourceFiles>          files;
 };
 
-class RepositorySelector:
-    public Ogre::WorkQueue::RequestHandler, // Processes tasks on background thread
-    public Ogre::WorkQueue::ResponseHandler // Processes task results on rendering thread
+class RepositorySelector
 {
 public:
-    const Ogre::uint16                  WORKQUEUE_ROR_REPO_THUMBNAIL = 1; // Work queue request type, named by OGRE convention.
 
     RepositorySelector();
     ~RepositorySelector();
@@ -104,10 +100,8 @@ public:
     void                                UpdateFiles(ResourcesCollection* data);
     void                                ShowError(CurlFailInfo* failinfo);
     void                                DrawThumbnail(int resource_item_idx);
-
-    /// Ogre::WorkQueue API
-    virtual Ogre::WorkQueue::Response*  handleRequest(const Ogre::WorkQueue::Request *req, const Ogre::WorkQueue *srcQ) override; //!< Processes tasks on background thread
-    virtual void                        handleResponse(const Ogre::WorkQueue::Response *req, const Ogre::WorkQueue *srcQ) override; //!< Processes task results on main thread
+    bool                                DownloadThumbnail(int item_idx); //!< To be run on background via Ogre WorkQueue
+    void                                LoadDownloadedThumbnail(int item_idx); //!< To be run on main thread
 
 private:
     bool                                m_is_visible = false;

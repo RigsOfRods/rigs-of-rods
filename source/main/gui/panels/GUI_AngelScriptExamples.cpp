@@ -57,15 +57,15 @@ void AngelScriptExamples::Draw()
 void AngelScriptExamples::DrawRowSlider(const char* nameStr, std::string codeStr, const char* descStr, float min, float max, float &var_ref)
 {
     ImGui::PushID(nameStr);
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     if (ImGui::Selectable(nameStr)) { this->ExecuteString(fmt::format(codeStr, var_ref)); }
     ImGui::NextColumn();
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     ImGui::PushItemWidth(-1);
     ImGui::SliderFloat(_LC("Console", ""), &var_ref, min, max);
     ImGui::PopItemWidth();
     ImGui::NextColumn();
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("%s", descStr);
     ImGui::PopID();
     ImGui::NextColumn();
@@ -73,26 +73,26 @@ void AngelScriptExamples::DrawRowSlider(const char* nameStr, std::string codeStr
 
 void AngelScriptExamples::DrawRowText(const char* nameStr, std::string codeStr, const char* descStr)
 {
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     if (ImGui::Selectable(nameStr)) { this->ExecuteString(codeStr); }
     ImGui::NextColumn();
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("%s", "");
     ImGui::NextColumn();
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("%s", descStr);
     ImGui::NextColumn();
 }
 
 void AngelScriptExamples::DrawRowCheckbox(const char* nameStr, std::string codeStr, const char* descStr, bool &var_ref, const char* label)
 {
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     if (ImGui::Selectable(nameStr)) { this->ExecuteString(fmt::format(codeStr, var_ref)); }
     ImGui::NextColumn();
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     ImGui::Checkbox(label, &var_ref);
     ImGui::NextColumn();
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("%s", descStr);
     ImGui::NextColumn();
 }
@@ -100,15 +100,15 @@ void AngelScriptExamples::DrawRowCheckbox(const char* nameStr, std::string codeS
 void AngelScriptExamples::DrawRowInt(const char* nameStr, std::string codeStr, const char* descStr, int &var_ref)
 {
     ImGui::PushID(nameStr);
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     if (ImGui::Selectable(nameStr)) { this->ExecuteString(fmt::format(codeStr, var_ref)); }
     ImGui::NextColumn();
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     ImGui::PushItemWidth(-1);
     ImGui::InputInt("", &var_ref, 1, 1);
     ImGui::PopItemWidth();
     ImGui::NextColumn();
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("%s", descStr);
     ImGui::PopID();
     ImGui::NextColumn();
@@ -117,15 +117,15 @@ void AngelScriptExamples::DrawRowInt(const char* nameStr, std::string codeStr, c
 void AngelScriptExamples::DrawRowIntNode(const char* nameStr, std::string codeStr, const char* descStr, int &var_ref, int &node_x, int &node_y, int &node_z)
 {
     ImGui::PushID(nameStr);
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     if (ImGui::Selectable(nameStr)) { this->ExecuteString(fmt::format(codeStr, node_x, node_y, node_z)); }
     ImGui::NextColumn();
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     ImGui::PushItemWidth(-1);
     ImGui::InputInt("", &var_ref, 1, 1);
     ImGui::PopItemWidth();
     ImGui::NextColumn();
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("%s", descStr);
     ImGui::PopID();
     ImGui::NextColumn();
@@ -134,17 +134,17 @@ void AngelScriptExamples::DrawRowIntNode(const char* nameStr, std::string codeSt
 void AngelScriptExamples::DrawRowIntCheckbox(const char* nameStr, std::string codeStr, const char* descStr, int &var_ref, bool &on, const char* label)
 {
     ImGui::PushID(nameStr);
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     if (ImGui::Selectable(nameStr)) { this->ExecuteString(fmt::format(codeStr, var_ref, on)); }
     ImGui::NextColumn();
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     ImGui::PushItemWidth(96);
     ImGui::InputInt("", &var_ref, 1, 1);
     ImGui::PopItemWidth();
     ImGui::SameLine();
     ImGui::Checkbox(label, &on);
     ImGui::NextColumn();
-    ImGui::AlignFirstTextHeightToWidgets();
+    ImGui::AlignTextToFramePadding();
     ImGui::Text("%s", descStr);
     ImGui::PopID();
     ImGui::NextColumn();

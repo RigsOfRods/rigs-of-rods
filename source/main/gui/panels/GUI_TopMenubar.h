@@ -28,7 +28,7 @@
 #include "RoRnet.h"
 
 #include <imgui.h>
-#include <imgui_internal.h>
+
 #include <vector>
 #include <rapidjson/document.h>
 

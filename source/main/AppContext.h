@@ -29,9 +29,11 @@
 #include "Application.h"
 #include "ForceFeedback.h"
 
+#include <Bites/OgreApplicationContext.h>
 #include <Bites/OgreWindowEventUtilities.h>
+#include <Bites/OgreInput.h>
 #include <Ogre.h>
-#include <OIS.h>
+
 
 namespace RoR {
 
@@ -41,11 +43,12 @@ namespace RoR {
 /// Central setup and event handler for input/windowing/rendering.
 /// Inspired by OgreBites::ApplicationContext.
 class AppContext: public OgreBites::WindowEventListener,
-                  public OIS::MouseListener,
-                  public OIS::KeyListener,
-                  public OIS::JoyStickListener
+                  public OgreBites::InputListener,
+                  public OgreBites::ApplicationContext
 {
 public:
+    AppContext(): OgreBites::ApplicationContext("Rigs of Rods") {}
+
     // Startup (in order)
     void                 SetUpThreads();
     bool                 SetUpProgramPaths();
@@ -62,7 +65,7 @@ public:
     void                 ActivateFullscreen(bool val);
 
     // Getters
-    Ogre::Root*          GetOgreRoot() { return m_ogre_root; }
+    Ogre::Root*          GetOgreRoot() { return mRoot; }
     Ogre::Viewport*      GetViewport() { return m_viewport; }
     Ogre::RenderWindow*  GetRenderWindow() { return m_render_window; }
     RoR::ForceFeedback&  GetForceFeedback() { return m_force_feedback; }
@@ -73,28 +76,25 @@ private:
     virtual void         windowResized(Ogre::RenderWindow* rw) override;
     virtual void         windowFocusChange(Ogre::RenderWindow* rw) override;
 
-    // OIS::MouseListener
-    virtual bool         mouseMoved(const OIS::MouseEvent& arg) override;
-    virtual bool         mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID id) override;
-    virtual bool         mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID id) override;
+    // OgreBites::InputListener
+    virtual bool         mouseMoved(const OgreBites::MouseMotionEvent& arg) override;
+    virtual bool         mouseWheelRolled(const OgreBites::MouseWheelEvent& evt) override;
+    virtual bool         mousePressed(const OgreBites::MouseButtonEvent& arg) override;
+    virtual bool         mouseReleased(const OgreBites::MouseButtonEvent& arg) override;
+    virtual bool         keyPressed(const OgreBites::KeyboardEvent& arg) override;
+    virtual bool         keyReleased(const OgreBites::KeyboardEvent& arg) override;
+    virtual bool         buttonPressed(const OgreBites::ButtonEvent& arg) override;
+    virtual bool         buttonReleased(const OgreBites::ButtonEvent& arg) override;
+    virtual bool         axisMoved(const OgreBites::AxisEvent& arg) override;
 
-    // OIS::KeyListener
-    virtual bool         keyPressed(const OIS::KeyEvent& arg) override;
-    virtual bool         keyReleased(const OIS::KeyEvent& arg) override;
-
-    // OIS::JoyStickListener
-    virtual bool         buttonPressed(const OIS::JoyStickEvent& arg, int button) override;
-    virtual bool         buttonReleased(const OIS::JoyStickEvent& arg, int button) override;
-    virtual bool         axisMoved(const OIS::JoyStickEvent& arg, int axis) override;
-    virtual bool         sliderMoved(const OIS::JoyStickEvent& arg, int) override;
-    virtual bool         povMoved(const OIS::JoyStickEvent& arg, int) override;
+    // OgreBites::ApplicationContext
+    virtual void         createRoot() override;
 
     // Rendering and window management
     void                 SetRenderWindowIcon(Ogre::RenderWindow* rw);
 
     // Variables
 
-    Ogre::Root*          m_ogre_root     = nullptr;
     Ogre::RenderWindow*  m_render_window = nullptr;
     Ogre::Viewport*      m_viewport      = nullptr;
     bool                 m_windowed_fix = false; //!< Workaround OGRE glitch when switching from fullscreen.

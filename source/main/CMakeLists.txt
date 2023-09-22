@@ -28,8 +28,6 @@ set(SOURCE_FILES
         gameplay/TyrePressure.{h,cpp}
         gameplay/VehicleAI.{h,cpp}
         gfx/AdvancedScreen.h
-        gfx/ColoredTextAreaOverlayElement.{h,cpp}
-        gfx/ColoredTextAreaOverlayElementFactory.h
         gfx/DustPool.{h,cpp}
         gfx/EnvironmentMap.{h,cpp}
         gfx/GfxActor.{h,cpp}
@@ -75,7 +73,6 @@ set(SOURCE_FILES
         gfx/particle/ExtinguishableFireAffectorFactory.h
         gfx/particle/FireExtinguisherAffector.{h,cpp}
         gfx/particle/FireExtinguisherAffectorFactory.h
-        gfx/particle/OgreParticleCustomParam.h
         gfx/particle/OgreShaderParticleRenderer.{h,cpp}
         gfx/skyx/AtmosphereManager.{h,cpp}
         gfx/skyx/BasicController.{h,cpp}
@@ -102,17 +99,6 @@ set(SOURCE_FILES
         gui/GUIUtils.{h,cpp}
         gui/OverlayWrapper.{h,cpp}
         gui/RTTLayer.{h,cpp}
-        gui/imgui/imgui.{h,cpp}
-        gui/imgui/imgui_demo.cpp
-        gui/imgui/imgui_draw.cpp
-        gui/imgui/imgui_widgets.cpp
-        gui/imgui/OgreImGuiOverlay.{h,cpp}
-        gui/imgui/OgreImGui.{h,cpp}
-        gui/imgui/imconfig.h
-        gui/imgui/imgui_internal.h
-        gui/imgui/imstb_rectpack.h
-        gui/imgui/imstb_textedit.h
-        gui/imgui/imstb_truetype.h
         gui/panels/GUI_AngelScriptExamples.{h,cpp}
         gui/panels/GUI_CollisionsDebug.{h,cpp}
         gui/panels/GUI_ConsoleView.{h,cpp}
@@ -330,7 +316,6 @@ target_include_directories(${BINNAME} PRIVATE
         gfx/particle
         gfx/skyx
         gui
-        gui/imgui
         gui/mygui
         gui/panels
         network
@@ -477,21 +462,7 @@ else ()
     set(PLUGINS_FOLDER ".")
 endif ()
 
-if (WIN32)
-    set(CFG_OGRE_PLUGIN_CAELUM "Plugin=Caelum")
-    set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=Caelum_d")
-else ()
-    if (${_PREFIX}USE_CAELUM STREQUAL "SYSTEM")
-        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=../libCaelum.so")
-        set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=../libCaelum_d.so")
-    else ()
-        set(CFG_OGRE_PLUGIN_CAELUM "Plugin=libCaelum.so")
-        set(CFG_OGRE_PLUGIN_CAELUM_D "Plugin=libCaelum_d.so")
-    endif ()
-endif ()
-
 configure_file(plugins.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins.cfg)
-configure_file(plugins_d.cfg.in ${RUNTIME_OUTPUT_DIRECTORY}/plugins_d.cfg)
 
 # Copy resources to bin directory
 # -----------------------

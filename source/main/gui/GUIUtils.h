@@ -22,6 +22,21 @@
 #include "Application.h"
 #include "GUIManager.h"
 
+// DearIMGUI math utils, copypasted from <imgui_internal.h>
+static inline ImVec2 operator*(const ImVec2& lhs, const float rhs) { return ImVec2(lhs.x * rhs, lhs.y * rhs); }
+static inline ImVec2 operator/(const ImVec2& lhs, const float rhs) { return ImVec2(lhs.x / rhs, lhs.y / rhs); }
+static inline ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs) { return ImVec2(lhs.x + rhs.x, lhs.y + rhs.y); }
+static inline ImVec2 operator-(const ImVec2& lhs, const ImVec2& rhs) { return ImVec2(lhs.x - rhs.x, lhs.y - rhs.y); }
+static inline ImVec2 operator*(const ImVec2& lhs, const ImVec2& rhs) { return ImVec2(lhs.x * rhs.x, lhs.y * rhs.y); }
+static inline ImVec2 operator/(const ImVec2& lhs, const ImVec2& rhs) { return ImVec2(lhs.x / rhs.x, lhs.y / rhs.y); }
+static inline ImVec2& operator+=(ImVec2& lhs, const ImVec2& rhs) { lhs.x += rhs.x; lhs.y += rhs.y; return lhs; }
+static inline ImVec2& operator-=(ImVec2& lhs, const ImVec2& rhs) { lhs.x -= rhs.x; lhs.y -= rhs.y; return lhs; }
+static inline ImVec2& operator*=(ImVec2& lhs, const float rhs) { lhs.x *= rhs; lhs.y *= rhs; return lhs; }
+static inline ImVec2& operator/=(ImVec2& lhs, const float rhs) { lhs.x /= rhs; lhs.y /= rhs; return lhs; }
+static inline ImVec2 ImRotate(const ImVec2& v, float cos_a, float sin_a) { return ImVec2(v.x * cos_a - v.y * sin_a, v.x * sin_a + v.y * cos_a); }
+template<typename T> static inline T ImMin(T lhs, T rhs) { return lhs < rhs ? lhs : rhs; }
+#define IM_PI 3.14159265358979323846f
+
 namespace RoR {
 
 struct ImTextFeeder /// Helper for drawing multiline wrapped & colored text.
@@ -80,8 +95,11 @@ ImDrawList* GetImDummyFullscreenWindow();
 void ImAddItemToComboboxString(std::string& target, std::string const& item);
 void ImTerminateComboboxString(std::string& target);
 
+// Substitute for `ImSetNextWindowPosCenter()` OBSOLETED in 1.52 (between Aug 2017 and Oct 2017)
+void ImSetNextWindowPosCenter(ImGuiCond c = 0);
+
 // Input engine helpers
 void ImDrawEventHighlighted(events input_event);
-void ImDrawModifierKeyHighlighted(OIS::KeyCode key);
+void ImDrawModifierKeyHighlighted(OgreBites::Keycode key);
 
 } // namespace RoR

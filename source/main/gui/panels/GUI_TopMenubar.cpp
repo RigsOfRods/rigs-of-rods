@@ -822,12 +822,7 @@ void TopMenubar::Update()
                 ai_num = 1;
 
 
-            if (ai_mode == 2 || ai_mode == 3) // Drag Race or Crash driving mode
-            {
-                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-            }
-
+            ImGui::BeginDisabled(ai_mode == 2 || ai_mode == 3); // Drag Race or Crash driving mode
             ImGui::InputInt(_LC("TopMenubar", "Vehicle count"), &ai_num, 1, 100);
             if (ImGui::IsItemHovered())
             {
@@ -835,25 +830,9 @@ void TopMenubar::Update()
                 ImGui::Text("%s", _LC("TopMenubar", "Number of vehicles"));
                 ImGui::EndTooltip();
             }
+            ImGui::EndDisabled();
 
-            if (ai_mode == 2 || ai_mode == 3) // Drag Race or Crash driving mode
-            {
-                ImGui::PopItemFlag();
-                ImGui::PopStyleVar();
-            }
-
-            if (ai_num < 2)
-            {
-                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-            }
-
-            if (ai_mode == 3) // Crash driving mode
-            {
-                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-            }
-
+            ImGui::BeginDisabled(ai_num < 2 || ai_mode == 3); // Single vehicle or Crash driving mode
             ImGui::InputInt(_LC("TopMenubar", "Distance"), &ai_distance, 1, 100);
             if (ImGui::IsItemHovered())
             {
@@ -861,12 +840,7 @@ void TopMenubar::Update()
                 ImGui::Text("%s", _LC("TopMenubar", "Following distance in meters"));
                 ImGui::EndTooltip();
             }
-
-            if (ai_mode == 3) // Crash driving mode
-            {
-                ImGui::PopItemFlag();
-                ImGui::PopStyleVar();
-            }
+            ImGui::EndDisabled();
 
             std::string label1 = "Behind";
             if (ai_position_scheme == 1)
@@ -878,12 +852,7 @@ void TopMenubar::Update()
                 label1 = "Opposite";
             }
 
-            if (ai_mode == 2 || ai_mode == 3) // Drag Race or Crash driving mode
-            {
-                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-            }
-
+            ImGui::BeginDisabled(ai_mode == 2 || ai_mode == 3); // Drag Race or Crash driving mode
             if (ImGui::BeginCombo("Position", label1.c_str()))
             {
                 if (ImGui::Selectable("Behind"))
@@ -905,22 +874,12 @@ void TopMenubar::Update()
                 ImGui::Text("%s", _LC("TopMenubar", "Parallel: Set vehicles in parallel, useful for certain scenarios like drag races"));
                 ImGui::EndTooltip();
             }
-
-            if (ai_num < 2)
-            {
-                ImGui::PopItemFlag();
-                ImGui::PopStyleVar();
-            }
+            ImGui::EndDisabled();
 
             if (ai_times < 1)
                 ai_times = 1;
 
-            if (ai_mode == 4) // Chase driving mode
-            {
-                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-            }
-
+            ImGui::BeginDisabled(ai_mode == 4); // Chase driving mode
             ImGui::InputInt(_LC("TopMenubar", "Repeat times"), &ai_times, 1, 100);
             if (ImGui::IsItemHovered())
             {
@@ -928,18 +887,7 @@ void TopMenubar::Update()
                 ImGui::Text("%s", _LC("TopMenubar", "How many times to loop the path"));
                 ImGui::EndTooltip();
             }
-
-            if (ai_mode == 4) // Chase driving mode
-            {
-                ImGui::PopItemFlag();
-                ImGui::PopStyleVar();
-            }
-
-            if (ai_mode == 2 || ai_mode == 3) // Drag Race or Crash driving mode
-            {
-                ImGui::PopItemFlag();
-                ImGui::PopStyleVar();
-            }
+            ImGui::EndDisabled();
 
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Vehicle options:"));
@@ -962,16 +910,15 @@ void TopMenubar::Update()
                 label2 = "Chase";
             }
 
+            int num_ai_actors = 0;
             for (auto actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
             {
                 if (actor->ar_driveable == AI)
                 {
-                    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-                    break;
+                    num_ai_actors++;
                 }
             }
-
+            ImGui::BeginDisabled(num_ai_actors > 0);
             if (ImGui::BeginCombo("Mode", label2.c_str()))
             {
                 if (ImGui::Selectable("Normal"))
@@ -1060,16 +1007,7 @@ void TopMenubar::Update()
                 ImGui::Text("%s", _LC("TopMenubar", "Chase: Follow character and player vehicle"));
                 ImGui::EndTooltip();
             }
-
-            for (auto actor : App::GetGameContext()->GetActorManager()->GetLocalActors())
-            {
-                if (actor->ar_driveable == AI)
-                {
-                    ImGui::PopItemFlag();
-                    ImGui::PopStyleVar();
-                    break;
-                }
-            }
+            ImGui::EndDisabled();
 
             if (ai_speed < 1)
                 ai_speed = 1;
@@ -1132,12 +1070,7 @@ void TopMenubar::Update()
 
             ImGui::Separator();
 
-            if (ai_rec)
-            {
-                ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-            }
-
+            ImGui::BeginDisabled(ai_rec);
             if (!ai_waypoints.empty() || ai_mode == 4) // Waypoints provided or Chase driving mode
             {
                 ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
@@ -1199,12 +1132,7 @@ void TopMenubar::Update()
                     }
                 }
             }
-
-            if (ai_rec)
-            {
-                ImGui::PopItemFlag();
-                ImGui::PopStyleVar();
-            }
+            ImGui::EndDisabled();
 
             ImGui::SameLine();
 

@@ -26,7 +26,7 @@
 #include "Application.h"
 #include "SimData.h"
 
-#include "OgreImGui.h"
+
 #include "SurveyMapTextureCreator.h"
 
 namespace RoR {
@@ -52,6 +52,7 @@ public:
 
     void CreateTerrainTextures(); //!< Init
     void Draw();
+    void Close();
     bool IsVisible() const { return mMapMode != SurveyMapMode::NONE; }
     bool IsHovered() const { return IsVisible() && mWindowMouseHovered; }
     void CycleMode();
@@ -104,6 +105,8 @@ protected:
     Ogre::TexturePtr m_middle_mouse_scroll_button;
     Ogre::TexturePtr m_right_mouse_button;
     void CacheIcons();
+
+    void UpdateTerrainTextures();
 };
 
 } // namespace GUI

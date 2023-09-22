@@ -29,6 +29,8 @@
 #include "Language.h"
 #include "Utils.h"
 
+#include <SDL2/SDL_mouse.h>
+
 using namespace Ogre;
 using namespace RoR;
 
@@ -250,6 +252,9 @@ void Replay::replayStepActor()
 
 void Replay::UpdateInputEvents()
 {
+    int mouseX = 0;
+    SDL_GetMouseState(&mouseX, nullptr);
+
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TOGGLE_REPLAY_MODE))
     {
         if (m_actor->ar_state == ActorState::LOCAL_REPLAY)
@@ -277,17 +282,17 @@ void Replay::UpdateInputEvents()
             this->ar_replay_pos -= 10;
         }
 
-        if (App::GetInputEngine()->isKeyDown(OIS::KC_LMENU))
+        if (App::GetInputEngine()->isKeyDown(SDLK_LALT))
         {
             if (this->ar_replay_pos <= 0 && this->ar_replay_pos >= -this->getNumFrames())
             {
-                if (App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) || App::GetInputEngine()->isKeyDown(OIS::KC_RSHIFT))
+                if (App::GetInputEngine()->isKeyDown(SDLK_LSHIFT) || App::GetInputEngine()->isKeyDown(SDLK_RSHIFT))
                 {
-                    this->ar_replay_pos += App::GetInputEngine()->getMouseState().X.rel * 1.5f;
+                    this->ar_replay_pos += (mouseX - prevMouseX) * 1.5f;
                 }
                 else
                 {
-                    this->ar_replay_pos += App::GetInputEngine()->getMouseState().X.rel * 0.05f;
+                    this->ar_replay_pos += (mouseX - prevMouseX) * 0.05f;
                 }
                 if (this->ar_replay_pos > 0)
                 {
@@ -300,4 +305,6 @@ void Replay::UpdateInputEvents()
             }
         }
     }
+
+    prevMouseX = mouseX;
 }

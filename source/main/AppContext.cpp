@@ -62,21 +62,20 @@ using namespace RoR;
 bool AppContext::SetUpInput()
 {
     App::CreateInputEngine();
-    App::GetInputEngine()->SetMouseListener(this);
-    App::GetInputEngine()->SetKeyboardListener(this);
-    App::GetInputEngine()->SetJoystickListener(this);
+
+    this->addInputListener(this);
 
     if (App::io_ffb_enabled->getBool())
     {
-        m_force_feedback.Setup();
+       // FIXME-SDL m_force_feedback.Setup();
     }
     return true;
 }
 
-bool AppContext::mouseMoved(const OIS::MouseEvent& arg) // overrides OIS::MouseListener
+bool AppContext::mouseMoved(const OgreBites::MouseMotionEvent& arg) // overrides OgreBites::InputListener
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().InjectMouseMoved(arg);
+    App::GetGuiManager()->GetImGuiInputListener()->mouseMoved(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
@@ -97,61 +96,66 @@ bool AppContext::mouseMoved(const OIS::MouseEvent& arg) // overrides OIS::MouseL
     return true;
 }
 
-bool AppContext::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID _id) // overrides OIS::MouseListener
+bool AppContext::mouseWheelRolled(const OgreBites::MouseWheelEvent& arg)
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().InjectMousePressed(arg, _id);
+    App::GetGuiManager()->GetImGuiInputListener()->mouseWheelRolled(arg);
+
+    if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
+    {
+        App::GetCameraManager()->mouseWheelRolled(arg);
+    }
+
+    return true;
+}
+
+bool AppContext::mousePressed(const OgreBites::MouseButtonEvent& arg) // overrides OgreBites::InputListener
+{
+    App::GetGuiManager()->WakeUpGUI();
+    App::GetGuiManager()->GetImGuiInputListener()->mousePressed(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
         bool handled = false;
         if (App::GetOverlayWrapper())
         {
-            handled = App::GetOverlayWrapper()->mousePressed(arg, _id); // update the old airplane / autopilot gui
+            handled = App::GetOverlayWrapper()->mousePressed(arg); // update the old airplane / autopilot gui
         }
 
         if (!handled && App::app_state->getEnum<AppState>() == AppState::SIMULATION)
         {
-            App::GetGameContext()->GetSceneMouse().mousePressed(arg, _id);
-            App::GetCameraManager()->mousePressed(arg, _id);
+            App::GetGameContext()->GetSceneMouse().mousePressed(arg);
+            App::GetCameraManager()->mousePressed(arg);
         }
-    }
-    else
-    {
-        App::GetInputEngine()->ProcessMouseEvent(arg);
     }
 
     return true;
 }
 
-bool AppContext::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID _id) // overrides OIS::MouseListener
+bool AppContext::mouseReleased(const OgreBites::MouseButtonEvent& arg) // overrides OgreBites::InputListener
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().InjectMouseReleased(arg, _id);
+    App::GetGuiManager()->GetImGuiInputListener()->mouseReleased(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
         bool handled = false;
         if (App::GetOverlayWrapper())
         {
-            handled = App::GetOverlayWrapper()->mouseReleased(arg, _id); // update the old airplane / autopilot gui
+            handled = App::GetOverlayWrapper()->mouseReleased(arg); // update the old airplane / autopilot gui
         }
         if (!handled && App::app_state->getEnum<AppState>() == AppState::SIMULATION)
         {
-            App::GetGameContext()->GetSceneMouse().mouseReleased(arg, _id);
+            App::GetGameContext()->GetSceneMouse().mouseReleased(arg);
         }
-    }
-    else
-    {
-        App::GetInputEngine()->ProcessMouseEvent(arg);
     }
 
     return true;
 }
 
-bool AppContext::keyPressed(const OIS::KeyEvent& arg)
+bool AppContext::keyPressed(const OgreBites::KeyboardEvent& arg)
 {
-    App::GetGuiManager()->GetImGui().InjectKeyPressed(arg);
+    App::GetGuiManager()->GetImGuiInputListener()->keyPressed(arg);
 
     if (!App::GetGuiManager()->IsGuiCaptureKeyboardRequested() &&
         !ImGui::GetIO().WantCaptureKeyboard)
@@ -162,16 +166,16 @@ bool AppContext::keyPressed(const OIS::KeyEvent& arg)
     return true;
 }
 
-bool AppContext::keyReleased(const OIS::KeyEvent& arg)
+bool AppContext::keyReleased(const OgreBites::KeyboardEvent& arg)
 {
-    App::GetGuiManager()->GetImGui().InjectKeyReleased(arg);
+    App::GetGuiManager()->GetImGuiInputListener()->keyReleased(arg);
 
     if (!App::GetGuiManager()->IsGuiCaptureKeyboardRequested() &&
         !ImGui::GetIO().WantCaptureKeyboard)
     {
         App::GetInputEngine()->ProcessKeyRelease(arg);
     }
-    else if (App::GetInputEngine()->isKeyDownEffective(arg.key))
+    else if (App::GetInputEngine()->isKeyDownEffective(arg.keysym.sym))
     {
         // If capturing is requested, still pass release events for already-pressed keys.
         App::GetInputEngine()->ProcessKeyRelease(arg);
@@ -180,15 +184,26 @@ bool AppContext::keyReleased(const OIS::KeyEvent& arg)
     return true;
 }
 
-bool AppContext::buttonPressed(const OIS::JoyStickEvent& arg, int)  { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
-bool AppContext::buttonReleased(const OIS::JoyStickEvent& arg, int) { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
-bool AppContext::axisMoved(const OIS::JoyStickEvent& arg, int)      { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
-bool AppContext::sliderMoved(const OIS::JoyStickEvent& arg, int)    { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
-bool AppContext::povMoved(const OIS::JoyStickEvent& arg, int)       { App::GetInputEngine()->ProcessJoystickEvent(arg); return true; }
+bool AppContext::buttonPressed(const OgreBites::ButtonEvent& arg)
+{
+ //FIXME-SDL   App::GetInputEngine()->ProcessJoystickEvent(arg);
+    return true;
+}
+
+bool AppContext::buttonReleased(const OgreBites::ButtonEvent& arg)
+{
+ //FIXME-SDL   App::GetInputEngine()->ProcessJoystickEvent(arg);
+    return true;
+}
+
+bool AppContext::axisMoved(const OgreBites::AxisEvent& arg)
+{
+    App::GetInputEngine()->ProcessJoystickEvent(arg);
+    return true;
+}
 
 void AppContext::windowResized(Ogre::RenderWindow* rw)
 {
-    App::GetInputEngine()->windowResized(rw); // Update mouse area
     App::GetOverlayWrapper()->windowResized();
     if (App::sim_state->getEnum<AppState>() == RoR::AppState::SIMULATION)
     {
@@ -226,76 +241,71 @@ void AppContext::SetRenderWindowIcon(Ogre::RenderWindow* rw)
 #endif // _WIN32
 }
 
-bool AppContext::SetUpRendering()
+void AppContext::createRoot()
 {
     // Create 'OGRE root' facade
     std::string log_filepath = PathCombine(App::sys_logs_dir->getStr(), "RoR.log");
     std::string cfg_filepath = PathCombine(App::sys_config_dir->getStr(), "ogre.cfg");
-    m_ogre_root = new Ogre::Root("", cfg_filepath, log_filepath);
+    mRoot = new Ogre::Root("", cfg_filepath, log_filepath);
 
     // load OGRE plugins manually
-#ifdef _DEBUG
-    std::string plugins_path = PathCombine(RoR::App::sys_process_dir->getStr(), "plugins_d.cfg");
-#else
-	std::string plugins_path = PathCombine(RoR::App::sys_process_dir->getStr(), "plugins.cfg");
-#endif
+    std::string plugins_path = PathCombine(RoR::App::sys_process_dir->getStr(), "plugins.cfg");
+
     try
     {
         Ogre::ConfigFile cfg;
         cfg.load(plugins_path);
         std::string plugin_dir = cfg.getSetting("PluginFolder", /*section=*/"", /*default=*/App::sys_process_dir->getStr());
         Ogre::StringVector plugins = cfg.getMultiSetting("Plugin");
-        for (Ogre::String plugin_filename: plugins)
+        for (Ogre::String plugin_filename : plugins)
         {
             try
             {
-                m_ogre_root->loadPlugin(PathCombine(plugin_dir, plugin_filename));
+                mRoot->loadPlugin(PathCombine(plugin_dir, plugin_filename));
             }
             catch (Ogre::Exception&) {} // Logged by OGRE
         }
     }
     catch (Ogre::Exception& e)
     {
-        ErrorUtils::ShowError (_L("Startup error"), e.getFullDescription());
-        return false;
+        ErrorUtils::ShowError(_L("Startup error"), e.getFullDescription());
+        return;
     }
 
     // Load renderer configuration
-    if (!m_ogre_root->restoreConfig())
+    if (!mRoot->restoreConfig())
     {
         const auto render_systems = App::GetAppContext()->GetOgreRoot()->getAvailableRenderers();
         if (!render_systems.empty())
-            m_ogre_root->setRenderSystem(render_systems.front());
+            mRoot->setRenderSystem(render_systems.front());
         else
-            ErrorUtils::ShowError (_L("Startup error"), _L("No render system plugin available. Check your plugins.cfg"));
+            ErrorUtils::ShowError(_L("Startup error"), _L("No render system plugin available. Check your plugins.cfg"));
     }
 
-    const auto rs = m_ogre_root->getRenderSystemByName(App::app_rendersys_override->getStr());
-    if (rs != nullptr && rs != m_ogre_root->getRenderSystem())
+    const auto rs = mRoot->getRenderSystemByName(App::app_rendersys_override->getStr());
+    if (rs != nullptr && rs != mRoot->getRenderSystem())
     {
         // The user has selected a different render system during the previous session.
-        m_ogre_root->setRenderSystem(rs);
-        m_ogre_root->saveConfig();
+        mRoot->setRenderSystem(rs);
+        mRoot->saveConfig();
     }
     App::app_rendersys_override->setStr("");
+}
+
+bool AppContext::SetUpRendering()
+{
+    this->createRoot();
 
     // Start the renderer
-    m_ogre_root->initialise(/*createWindow=*/false);
+    mRoot->initialise(/*createWindow=*/false);
 
     // Configure the render window
-    Ogre::ConfigOptionMap ropts = m_ogre_root->getRenderSystem()->getConfigOptions();
+    Ogre::ConfigOptionMap ropts = mRoot->getRenderSystem()->getConfigOptions();
     Ogre::NameValuePairList miscParams;
     miscParams["FSAA"] = ropts["FSAA"].currentValue;
     miscParams["vsync"] = ropts["VSync"].currentValue;
     miscParams["gamma"] = ropts["sRGB Gamma Conversion"].currentValue;
     miscParams["border"] = "fixed";
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    const auto rd = ropts["Rendering Device"];
-    const auto it = std::find(rd.possibleValues.begin(), rd.possibleValues.end(), rd.currentValue);
-    const int idx = std::distance(rd.possibleValues.begin(), it);
-    miscParams["monitorIndex"] = Ogre::StringConverter::toString(idx);
-    miscParams["windowProc"] = Ogre::StringConverter::toString((size_t)OgreBites::WindowEventUtilities::_WndProc);
-#endif
 
     // Validate rendering resolution
     Ogre::uint32 width, height;
@@ -309,10 +319,11 @@ bool AppContext::SetUpRendering()
     if(height < 600) height = 600;
 
     // Create render window
-    m_render_window = Ogre::Root::getSingleton().createRenderWindow (
+    // To use SDL input, we must create SDL window, otherwise we won't receive events.
+    OgreBites::NativeWindowPair window_pair = this->createWindow (
         "Rigs of Rods version " + Ogre::String (ROR_VERSION_STRING),
-        width, height, ropts["Full Screen"].currentValue == "Yes", &miscParams);
-    OgreBites::WindowEventUtilities::_addRenderWindow(m_render_window);
+        width, height, miscParams);
+    m_render_window = window_pair.render;
 
     this->SetRenderWindowIcon(m_render_window);
     m_render_window->setActive(true);
@@ -327,7 +338,7 @@ bool AppContext::SetUpRendering()
 Ogre::RenderWindow* AppContext::CreateCustomRenderWindow(std::string const& window_name, int width, int height)
 {
     Ogre::NameValuePairList misc;
-    Ogre::ConfigOptionMap ropts = m_ogre_root->getRenderSystem()->getConfigOptions();
+    Ogre::ConfigOptionMap ropts = mRoot->getRenderSystem()->getConfigOptions();
     misc["FSAA"] = Ogre::StringConverter::parseInt(ropts["FSAA"].currentValue, 0);
 
     Ogre::RenderWindow* rw = Ogre::Root::getSingleton().createRenderWindow(window_name, width, height, false, &misc);
