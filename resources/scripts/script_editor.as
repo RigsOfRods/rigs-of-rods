@@ -315,8 +315,9 @@ class ScriptEditorWindow
                 ImGui::InputText("File",/*inout:*/ saveFileNameBuf);
                 if (ImGui::Button("Save"))
                 {
+                    string strData = this.tabs[this.currentTab].buffer.substr(0, this.tabs[this.currentTab].totalChars);
                     bool savedOk = game.createTextResourceFromString(
-                        this.tabs[this.currentTab].buffer, saveFileNameBuf, RGN_SCRIPTS, saveShouldOverwrite);
+                        strData, saveFileNameBuf, RGN_SCRIPTS, saveShouldOverwrite);
                     this.saveFileResult = savedOk ? 1 : -1;
                     if (savedOk)
                         this.addRecentScript(saveFileNameBuf);
