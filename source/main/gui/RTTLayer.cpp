@@ -32,8 +32,8 @@ void RTTLayer::deserialization(xml::ElementPtr _node, Version _version)
     MyGUI::xml::ElementEnumerator propert = _node->getElementEnumerator();
     while (propert.next("Property"))
     {
-        const std::string& key = propert->findAttribute("key");
-        const std::string& value = propert->findAttribute("value");
+        const std::string& key = std::string(propert->findAttribute("key"));
+        const std::string& value = std::string(propert->findAttribute("value"));
         if (key == "TextureSize")
             setTextureSize(utility::parseValue<IntSize>(value));
         if (key == "TextureName")

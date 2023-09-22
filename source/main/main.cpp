@@ -569,6 +569,14 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->TopMenubar.Refresh(m.description);
                     break;
 
+                case MSG_NET_DOWNLOAD_REPOTHUMB_SUCCESS:
+                {
+                    int* itemidx_ptr = static_cast<int*>(m.payload);
+                    App::GetGuiManager()->RepositorySelector.LoadDownloadedThumbnail(*itemidx_ptr);
+                    delete itemidx_ptr;
+                    break;
+                }
+
                 // -- Gameplay events --
 
                 case MSG_SIM_PAUSE_REQUESTED:

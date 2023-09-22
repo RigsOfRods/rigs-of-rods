@@ -64,8 +64,7 @@ void RTSSManager::SetupRTSS()
         auto* schemRenderState = mShaderGenerator->getRenderState(Ogre::MSN_SHADERGEN);
 
         App::GetGfxScene()->GetSceneManager()->setShadowCameraSetup(ShadowCameraSetupPtr(pssmSetup));
-        auto subRenderState = mShaderGenerator->createSubRenderState<RTShader::IntegratedPSSM3>();
-        subRenderState->setSplitPoints(pssmSetup->getSplitPoints());
+        auto subRenderState = mShaderGenerator->createSubRenderState(RTShader::SRS_INTEGRATED_PSSM3);
         schemRenderState->addTemplateSubRenderState(subRenderState);
     }
 
