@@ -447,9 +447,9 @@ void DashBoard::windowResized()
 void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
 {
     std::string name = w->getName();
-    std::string anim = w->getUserString("anim");
-    std::string debug = w->getUserString("debug");
-    std::string linkArgs = w->getUserString("link");
+    std::string anim = std::string(w->getUserString("anim"));
+    std::string debug = std::string(w->getUserString("debug"));
+    std::string linkArgs = std::string(w->getUserString("link"));
 
     // make it unclickable
     w->setUserString("interactive", "0");
@@ -554,20 +554,20 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
         }
 
         // parse more attributes
-        ctrl.wmin = StringConverter::parseReal(w->getUserString("min"));
-        ctrl.wmax = StringConverter::parseReal(w->getUserString("max"));
-        ctrl.vmin = StringConverter::parseReal(w->getUserString("vmin"));
-        ctrl.vmax = StringConverter::parseReal(w->getUserString("vmax"));
+        ctrl.wmin = StringConverter::parseReal(std::string(w->getUserString("min")));
+        ctrl.wmax = StringConverter::parseReal(std::string(w->getUserString("max")));
+        ctrl.vmin = StringConverter::parseReal(std::string(w->getUserString("vmin")));
+        ctrl.vmax = StringConverter::parseReal(std::string(w->getUserString("vmax")));
 
-        String texture = w->getUserString("texture");
+        String texture = Ogre::String(w->getUserString("texture"));
         if (!texture.empty())
             strncpy(ctrl.texture, texture.c_str(), 255);
 
-        String format = w->getUserString("format");
+        String format = Ogre::String(w->getUserString("format"));
         if (!format.empty())
             strncpy(ctrl.format, format.c_str(), 255);
 
-        String direction = w->getUserString("direction");
+        String direction = Ogre::String(w->getUserString("direction"));
         if (direction == "right")
             ctrl.direction = DIRECTION_RIGHT;
         else if (direction == "left")
