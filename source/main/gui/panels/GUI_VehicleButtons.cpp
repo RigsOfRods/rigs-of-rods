@@ -166,7 +166,7 @@ void VehicleButtons::DrawHeadLightButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_headlight_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("HeadLight", reinterpret_cast<ImTextureID>(m_headlight_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->toggleHeadlights();
     }
@@ -214,7 +214,7 @@ void VehicleButtons::DrawLeftBlinkerButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_left_blinker_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("LeftBlinker", reinterpret_cast<ImTextureID>(m_left_blinker_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->toggleBlinkType(BLINK_LEFT);
     }
@@ -262,7 +262,7 @@ void VehicleButtons::DrawRightBlinkerButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_right_blinker_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("RightBlinker", reinterpret_cast<ImTextureID>(m_right_blinker_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->toggleBlinkType(BLINK_RIGHT);
     }
@@ -310,7 +310,7 @@ void VehicleButtons::DrawWarnBlinkerButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_warning_light_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("WarnBlinker", reinterpret_cast<ImTextureID>(m_warning_light_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->toggleBlinkType(BLINK_WARN);
     }
@@ -351,7 +351,7 @@ void VehicleButtons::DrawHornButton(RoR::GfxActor* actorx)
 
     if (actorx->GetActor()->ar_is_police) // Police siren
     {
-        if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_horn_icon->getHandle()), ImVec2(24, 24)))
+        if (ImGui::ImageButton("PoliceSiren", reinterpret_cast<ImTextureID>(m_horn_icon->getHandle()), ImVec2(24, 24)))
         {
             SOUND_TOGGLE(actorx->GetActor(), SS_TRIG_HORN);
         }
@@ -360,7 +360,7 @@ void VehicleButtons::DrawHornButton(RoR::GfxActor* actorx)
     {
         // Triggering continuous command every frame is sloppy
         // Set state and read it in GameContext via GetHornButtonState()
-        ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_horn_icon->getHandle()), ImVec2(24, 24));
+        ImGui::ImageButton("Horn", reinterpret_cast<ImTextureID>(m_horn_icon->getHandle()), ImVec2(24, 24));
         if (ImGui::IsItemActive())
         {
             m_horn = true;
@@ -405,7 +405,7 @@ void VehicleButtons::DrawMirrorButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_mirror_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("Mirror", reinterpret_cast<ImTextureID>(m_mirror_icon->getHandle()), ImVec2(24, 24)))
     {
         if (actorx->GetVideoCamState() == VideoCamState::VCSTATE_DISABLED)
         {
@@ -446,7 +446,7 @@ void VehicleButtons::DrawRepairButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_repair_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("Repair",reinterpret_cast<ImTextureID>(m_repair_icon->getHandle()), ImVec2(24, 24)))
     {
         ActorModifyRequest* rq = new ActorModifyRequest;
         rq->amr_actor = actorx->GetActor()->ar_instance_id;
@@ -480,7 +480,7 @@ void VehicleButtons::DrawParkingBrakeButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_parking_brake_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("ParkingBrake", reinterpret_cast<ImTextureID>(m_parking_brake_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->parkingbrakeToggle();
     }
@@ -519,7 +519,7 @@ void VehicleButtons::DrawTractionControlButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_traction_control_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("TractionControl", reinterpret_cast<ImTextureID>(m_traction_control_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->tractioncontrolToggle();
     }
@@ -558,7 +558,7 @@ void VehicleButtons::DrawAbsButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_abs_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("ABS", reinterpret_cast<ImTextureID>(m_abs_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->antilockbrakeToggle();
     }
@@ -592,7 +592,7 @@ void VehicleButtons::DrawPhysicsButton()
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_physics_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("Physics", reinterpret_cast<ImTextureID>(m_physics_icon->getHandle()), ImVec2(24, 24)))
     {
         if (App::GetGameContext()->GetActorManager()->IsSimulationPaused())
         {
@@ -625,7 +625,7 @@ void VehicleButtons::DrawActorPhysicsButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_actor_physics_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("ActorPhysics", reinterpret_cast<ImTextureID>(m_actor_physics_icon->getHandle()), ImVec2(24, 24)))
     {
         // NOTE: Syncing with linked actors is done in `SyncLinkedActors()`
         actorx->GetActor()->ar_physics_paused = !actorx->GetActor()->ar_physics_paused;
@@ -657,7 +657,7 @@ void VehicleButtons::DrawAxleDiffButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_a_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("AxleDiff", reinterpret_cast<ImTextureID>(m_a_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->toggleAxleDiffMode();
         actorx->GetActor()->displayAxleDiffMode();
@@ -697,7 +697,7 @@ void VehicleButtons::DrawWheelDiffButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_w_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("WheelDiff", reinterpret_cast<ImTextureID>(m_w_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->toggleWheelDiffMode();
         actorx->GetActor()->displayWheelDiffMode();
@@ -738,7 +738,7 @@ void VehicleButtons::DrawTransferCaseModeButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_m_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("TransferCase", reinterpret_cast<ImTextureID>(m_m_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->toggleTransferCaseMode();
         actorx->GetActor()->displayTransferCaseMode();
@@ -780,7 +780,7 @@ void VehicleButtons::DrawTransferCaseGearRatioButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_g_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("GearRatio", reinterpret_cast<ImTextureID>(m_g_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->toggleTransferCaseGearRatio();
         actorx->GetActor()->displayTransferCaseMode();
@@ -821,7 +821,7 @@ void VehicleButtons::DrawParticlesButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_particle_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("Particles", reinterpret_cast<ImTextureID>(m_particle_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->toggleCustomParticles();
     }
@@ -869,7 +869,7 @@ void VehicleButtons::DrawBeaconButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_beacons_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("Beacons", reinterpret_cast<ImTextureID>(m_beacons_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->beaconsToggle();
     }
@@ -908,7 +908,7 @@ void VehicleButtons::DrawShiftModeButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_shift_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("ShiftMode", reinterpret_cast<ImTextureID>(m_shift_icon->getHandle()), ImVec2(24, 24)))
     {
         if (actorx->GetActor()->ar_engine)
         {
@@ -996,7 +996,7 @@ void VehicleButtons::DrawEngineButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_engine_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("Engine", reinterpret_cast<ImTextureID>(m_engine_icon->getHandle()), ImVec2(24, 24)))
     {
         if (actorx->GetActor()->ar_engine && actorx->GetActor()->ar_engine->isRunning())
         {
@@ -1145,7 +1145,7 @@ void VehicleButtons::DrawCommandButton(RoR::GfxActor* actorx)
 
 void VehicleButtons::DrawCameraButton()
 {
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_camera_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("Camera", reinterpret_cast<ImTextureID>(m_camera_icon->getHandle()), ImVec2(24, 24)))
     {
         if (App::GetCameraManager()->EvaluateSwitchBehavior())
         {
@@ -1176,7 +1176,7 @@ void VehicleButtons::DrawLockButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_lock_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("Lock", reinterpret_cast<ImTextureID>(m_lock_icon->getHandle()), ImVec2(24, 24)))
     {
         //actorx->GetActor()->hookToggle(-1, HOOK_TOGGLE, -1);
         ActorLinkingRequest* hook_rq = new ActorLinkingRequest();
@@ -1226,7 +1226,7 @@ void VehicleButtons::DrawSecureButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_secure_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("Secure", reinterpret_cast<ImTextureID>(m_secure_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->ar_toggle_ties = true;
     }
@@ -1265,7 +1265,7 @@ void VehicleButtons::DrawCruiseControlButton(RoR::GfxActor* actorx)
         ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
     }
 
-    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_cruise_control_icon->getHandle()), ImVec2(24, 24)))
+    if (ImGui::ImageButton("CruiseControl", reinterpret_cast<ImTextureID>(m_cruise_control_icon->getHandle()), ImVec2(24, 24)))
     {
         actorx->GetActor()->cruisecontrolToggle();
     }

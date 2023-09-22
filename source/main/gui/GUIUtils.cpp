@@ -468,7 +468,7 @@ void RoR::ImDrawEventHighlighted(events input_event)
 
 }
 
-void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
+void RoR::ImDrawModifierKeyHighlighted(OgreBites::Keycode key)
 {
     ImVec4 col = ImGui::GetStyle().Colors[ImGuiCol_Text];
     if (App::GetInputEngine()->isKeyDown(key))

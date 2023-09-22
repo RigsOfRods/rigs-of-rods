@@ -1957,17 +1957,17 @@ String InputEngine::getKeyForCommand(int eventID)
     return this->getKeyNameForKeyCode(it->second.front().keyCode);
 }
 
-Ogre::String InputEngine::getModifierKeyName(OIS::KeyCode key)
+Ogre::String InputEngine::getModifierKeyName(OgreBites::Keycode key)
 {
     switch (key)
     {
-    case OIS::KC_LMENU: return _LC("ModifierKey", "Left Alt");
-    case OIS::KC_LSHIFT: return _LC("ModifierKey", "Left Shift");
-    case OIS::KC_LCONTROL: return _LC("ModifierKey", "Left Ctrl");
+    case SDLK_LALT: return _LC("ModifierKey", "Left Alt");
+    case SDLK_LSHIFT: return _LC("ModifierKey", "Left Shift");
+    case SDLK_LCTRL: return _LC("ModifierKey", "Left Ctrl");
 
-    case OIS::KC_RMENU: return _LC("ModifierKey", "Right Alt");
-    case OIS::KC_RSHIFT: return _LC("ModifierKey", "Right Shift");
-    case OIS::KC_RCONTROL: return _LC("ModifierKey", "Right Ctrl");
+    case SDLK_RALT: return _LC("ModifierKey", "Right Alt");
+    case SDLK_RSHIFT: return _LC("ModifierKey", "Right Shift");
+    case SDLK_RCTRL: return _LC("ModifierKey", "Right Ctrl");
 
     default: return "";
     }

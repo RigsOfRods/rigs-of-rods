@@ -473,7 +473,7 @@ public:
         // Event info
 
     Ogre::String        getKeyForCommand(int eventID);
-    Ogre::String        getModifierKeyName(OIS::KeyCode key);
+    Ogre::String        getModifierKeyName(OgreBites::Keycode key);
     Ogre::String        getDeviceName(event_trigger_t const& evt);
     Ogre::String        getEventCommand(int eventID);
     std::string         getEventCommandTrimmed(int eventID);                //!< Omits 'EXPL' modifier

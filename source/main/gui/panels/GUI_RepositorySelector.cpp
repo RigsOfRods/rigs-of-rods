@@ -373,11 +373,6 @@ void DownloadResourceFile(int resource_id, std::string filename, int id)
 
 RepositorySelector::RepositorySelector()
 {
-    Ogre::WorkQueue* wq = Ogre::Root::getSingleton().getWorkQueue();
-    m_ogre_workqueue_channel = wq->getChannel("RoR/RepoThumbnails");
-    wq->addRequestHandler(m_ogre_workqueue_channel, this);
-    wq->addResponseHandler(m_ogre_workqueue_channel, this);
-
     m_fallback_thumbnail = FetchIcon("ror.png");
 }
 
@@ -399,11 +394,11 @@ void RepositorySelector::Draw()
 
     ImGui::Begin(_LC("RepositorySelector", "Rigs of Rods Repository"), &keep_open, window_flags);
 
-    if (m_resource_view && ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex4->getHandle()), ImVec2(16, 16)))
+    if (m_resource_view && ImGui::ImageButton("GoBack", reinterpret_cast<ImTextureID>(tex4->getHandle()), ImVec2(16, 16)))
     {
         m_resource_view = false;
     }
-    else if (!m_resource_view && ImGui::ImageButton(reinterpret_cast<ImTextureID>(tex1->getHandle()), ImVec2(16, 16)))
+    else if (!m_resource_view && ImGui::ImageButton("Refresh", reinterpret_cast<ImTextureID>(tex1->getHandle()), ImVec2(16, 16)))
     {
         this->Refresh();
     }
@@ -1255,7 +1250,8 @@ void RepositorySelector::SetVisible(bool visible)
 
 // --------------------------------------------
 // Async thumbnail download via Ogre::WorkQueue
-// see https://wiki.ogre3d.org/How+to+use+the+WorkQueue
+// NOTE: The API changed in OGRE 14.0
+// see https://github.com/OGRECave/ogre/blob/master/Docs/14-Notes.md#task-based-workqueue
 
 void RepositorySelector::DrawThumbnail(int resource_item_idx)
 {
@@ -1289,7 +1285,11 @@ void RepositorySelector::DrawThumbnail(int resource_item_idx)
                 && !m_data.items[resource_item_idx].thumbnail_dl_queued)
             {
                 // Image is in visible screen area and not yet downloading.
-                Ogre::Root::getSingleton().getWorkQueue()->addRequest(m_ogre_workqueue_channel, 1234, Ogre::Any(resource_item_idx));
+                Ogre::Root::getSingleton().getWorkQueue()->addTask(
+                    [this, resource_item_idx]()
+                    {
+                        this->DownloadThumbnail(resource_item_idx);
+                    });
                 m_data.items[resource_item_idx].thumbnail_dl_queued = true;
             }
         }
@@ -1323,20 +1323,19 @@ void RepositorySelector::DrawThumbnail(int resource_item_idx)
     }
 }
 
-Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQueue::Request *req, const Ogre::WorkQueue *srcQ)
+bool RepositorySelector::DownloadThumbnail(int item_idx)
 {
     // This runs on background worker thread in Ogre::WorkQueue's thread pool.
     // Purpose: to fetch one thumbnail image using CURL.
     // -----------------------------------------------------------------------
 
-    int item_idx = Ogre::any_cast<int>(req->getData());
     std::string filename = std::to_string(m_data.items[item_idx].resource_id) + ".png";
     std::string file = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
     long response_code = 0;
 
     if (FileExists(file))
     {
-        return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(item_idx));
+        return /*success:*/false;
     }
     else
     {
@@ -1360,11 +1359,12 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
                     << "[RoR|Repository] Failed to download thumbnail;"
                     << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
 
-                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(item_idx));
+                return /*success:*/false;
             }
             else
             {
-                return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/true, Ogre::Any(item_idx));
+                App::GetGameContext()->PushMessage(Message(MSG_NET_DOWNLOAD_REPOTHUMB_SUCCESS, new int(item_idx)));
+                return /*success:*/true;
             }
         }
         catch (Ogre::Exception& oex)
@@ -1374,18 +1374,17 @@ Ogre::WorkQueue::Response* RepositorySelector::handleRequest(const Ogre::WorkQue
                 fmt::format("Repository UI: cannot download thumbnail '{}' - {}",
                     m_data.items[item_idx].icon_url, oex.getFullDescription()));
 
-            return OGRE_NEW Ogre::WorkQueue::Response(req, /*success:*/false, Ogre::Any(item_idx));
+            return /*success:*/false;
         }
     }
 }
 
-void RepositorySelector::handleResponse(const Ogre::WorkQueue::Response *req, const Ogre::WorkQueue *srcQ)
+void RepositorySelector::LoadDownloadedThumbnail(int item_idx)
 {
     // This runs on main thread.
     // It's safe to load the texture and modify GUI data.
     // --------------------------------------------------
 
-    int item_idx = Ogre::any_cast<int>(req->getData());
     std::string filename = std::to_string(m_data.items[item_idx].resource_id) + ".png";
     std::string file = PathCombine(App::sys_thumbnails_dir->getStr(), filename);
 

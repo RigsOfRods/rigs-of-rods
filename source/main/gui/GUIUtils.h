@@ -100,6 +100,6 @@ void ImSetNextWindowPosCenter(ImGuiCond c = 0);
 
 // Input engine helpers
 void ImDrawEventHighlighted(events input_event);
-void ImDrawModifierKeyHighlighted(OIS::KeyCode key);
+void ImDrawModifierKeyHighlighted(OgreBites::Keycode key);
 
 } // namespace RoR
