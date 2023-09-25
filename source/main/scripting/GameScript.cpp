@@ -1710,7 +1710,28 @@ std::string GameScript::loadTextResourceAsString(const std::string& filename, co
             return "";
         }
 
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+        // WORKAROUND: apparently `getAsString()` has some Linux-x64 issues (`eof()` triggers SIGINT):
+        // https://discord.com/channels/136544456244461568/189904947649708032/1155952230130778262
+        // Observed with OGRE 1.11.6
+        std::string str;
+        const size_t BUF_LEN = 4000;
+        char buf[BUF_LEN] = {};
+        bool eof = false;
+        while (!eof)
+        {
+            size_t read_len = stream->read(buf, BUF_LEN);
+            if (read_len < BUF_LEN)
+            {
+                buf[read_len] = 0;
+                eof = true;
+            }
+            str.append(buf, read_len);
+        }
+        return str;
+#else
         return stream->getAsString();
+#endif
     }
     catch (...)
     {
