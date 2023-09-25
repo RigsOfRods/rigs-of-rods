@@ -196,12 +196,12 @@ void SurveyMap::Draw()
         // Outline
         drawlist->AddCircle(ImVec2(p_min.x + (view_size.x * 0.5),  p_min.y + (view_size.y * 0.5)), view_size.x * 0.47, ImGui::GetColorU32(theme.semitransparent_window_bg), 96, 20);
 
-       // The texture
-       drawlist->AddCircularImage(reinterpret_cast<ImTextureID>(tex->getHandle()), p_min + p_offset, p_max + p_offset, ImVec2(0, 0), ImVec2(1, 1), ImGui::GetColorU32(ImVec4(1,1,1,1)), view_size.x * 0.5 - p_offset.x);
+        // The texture
+        drawlist->AddCircularImage(reinterpret_cast<ImTextureID>(tex->getHandle()), p_min + p_offset, p_max + p_offset, ImVec2(0, 0), ImVec2(1, 1), ImGui::GetColorU32(ImVec4(1,1,1,1)), view_size.x * 0.5 - p_offset.x);
 
-       // An invisible button so we can catch it below
-       ImGui::InvisibleButton("circle", view_size);
-   }
+        // An invisible button so we can catch it below
+        ImGui::InvisibleButton("circle", view_size);
+    }
 
     if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1)) // 0 = left click, 1 = right click
     {
