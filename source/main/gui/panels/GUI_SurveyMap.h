@@ -104,6 +104,10 @@ protected:
     Ogre::TexturePtr m_middle_mouse_scroll_button;
     Ogre::TexturePtr m_right_mouse_button;
     void CacheIcons();
+
+    // Circular minimap
+    ImVec2 m_circle_center;
+    float m_circle_radius = 0.f;
 };
 
 } // namespace GUI
