@@ -1191,6 +1191,31 @@ void ImDrawList::AddImageRounded(ImTextureID user_texture_id, const ImVec2& p_mi
         PopTextureID();
 }
 
+void ImDrawList::AddCircularImage(ImTextureID user_texture_id, const ImVec2& p_min, const ImVec2& p_max, const ImVec2& uv_min, const ImVec2& uv_max, ImU32 col, float rounding, ImDrawCornerFlags rounding_corners)
+{
+    if ((col & IM_COL32_A_MASK) == 0)
+        return;
+
+    if (rounding <= 0.0f || (rounding_corners & ImDrawCornerFlags_All) == 0)
+    {
+        AddImage(user_texture_id, p_min, p_max, uv_min, uv_max, col);
+        return;
+    }
+
+    const bool push_texture_id = _TextureIdStack.empty() || user_texture_id != _TextureIdStack.back();
+    if (push_texture_id)
+        PushTextureID(user_texture_id);
+
+    int vert_start_idx = VtxBuffer.Size;
+    AddCircleFilled(ImVec2(p_min.x + rounding, p_min.y + rounding), rounding, col, 96);
+
+    int vert_end_idx = VtxBuffer.Size;
+    ImGui::ShadeVertsLinearUV(this, vert_start_idx, vert_end_idx, p_min, p_max, uv_min, uv_max, true);
+
+    if (push_texture_id)
+        PopTextureID();
+}
+
 
 //-----------------------------------------------------------------------------
 // ImDrawListSplitter

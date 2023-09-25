@@ -108,14 +108,17 @@ void SurveyMap::Draw()
     ImGui::SetNextWindowSize(ImVec2((view_size.x + view_padding.x), (view_size.y + view_padding.y)));
 
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
 
     if (mMapMode == SurveyMapMode::BIG)
     {
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, theme.semitransparent_window_bg);
         ImGui::SetNextWindowPosCenter();
     }
     else if (mMapMode == SurveyMapMode::SMALL)
     {
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0));
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0,0,0,0));
+
         float x = ImGui::GetIO().DisplaySize.x -
             (view_size.x + App::GetGuiManager()->GetTheme().screen_edge_padding.x);
         ImGui::SetNextWindowPos(ImVec2(x, 100.f));
@@ -178,7 +181,28 @@ void SurveyMap::Draw()
 
     ImGui::BeginChild("map", ImVec2(0.f, view_size.y), false);
 
-    ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), view_size);
+    if (mMapMode == SurveyMapMode::BIG)
+    {
+        ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), view_size);
+    }
+    else if (mMapMode == SurveyMapMode::SMALL)
+    {
+        ImDrawList* drawlist = ImGui::GetWindowDrawList();
+
+        ImVec2 p_min = ImGui::GetCursorScreenPos();
+        ImVec2 p_max = ImVec2(p_min.x + view_size.x, p_min.y + view_size.y);
+        ImVec2 p_offset = ImVec2(5.f, 5.f);
+
+        // Outline
+        drawlist->AddCircle(ImVec2(p_min.x + (view_size.x * 0.5),  p_min.y + (view_size.y * 0.5)), view_size.x * 0.47, ImGui::GetColorU32(theme.semitransparent_window_bg), 96, 20);
+
+       // The texture
+       drawlist->AddCircularImage(reinterpret_cast<ImTextureID>(tex->getHandle()), p_min + p_offset, p_max + p_offset, ImVec2(0, 0), ImVec2(1, 1), ImGui::GetColorU32(ImVec4(1,1,1,1)), view_size.x * 0.5 - p_offset.x);
+
+       // An invisible button so we can catch it below
+       ImGui::InvisibleButton("circle", view_size);
+   }
+
     if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1)) // 0 = left click, 1 = right click
     {
         ImVec2 mouse_view_offset = (ImGui::GetMousePos() - tl_screen_pos) / view_size;
@@ -370,7 +394,16 @@ void SurveyMap::Draw()
     mWindowMouseHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
 
     ImGui::End();
-    ImGui::PopStyleColor(); // WindowBg
+
+    if (mMapMode == SurveyMapMode::BIG)
+    {
+        ImGui::PopStyleColor(1); // WindowBg
+    }
+    else if (mMapMode == SurveyMapMode::SMALL)
+    {
+        ImGui::PopStyleColor(2); // WindowBg, ChildBg
+    }
+
     ImGui::PopStyleVar(2); // WindowPadding, WindowRounding
 }
 
