@@ -199,6 +199,10 @@ int main(int argc, char *argv[])
 
 #ifdef USE_ANGELSCRIPT
         App::CreateScriptEngine();
+        if (!FolderExists(App::sys_scripts_dir->getStr()))
+        {
+            CreateFolder(App::sys_scripts_dir->getStr());
+        }
 #endif
 
         App::GetGuiManager()->SetUpMenuWallpaper();
