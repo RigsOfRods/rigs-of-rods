@@ -988,9 +988,16 @@ void ScriptEngine::unloadScript(ScriptUnitId_t id)
     }
 }
 
-void ScriptEngine::activateLogging()
+void ScriptEngine::setForwardScriptLogToConsole(bool doForward)
 {
-    scriptLog->addListener(this);
+    // Always remove right away, to avoid attaching twice
+    scriptLog->removeListener(this);
+
+    // Re-attach if requested
+    if (doForward)
+    {
+        scriptLog->addListener(this);
+    }
 }
 
 bool ScriptEngine::scriptUnitExists(ScriptUnitId_t unique_id)

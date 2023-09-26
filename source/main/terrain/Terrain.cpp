@@ -447,6 +447,9 @@ void RoR::Terrain::initTerrainCollisions()
 void RoR::Terrain::initScripting()
 {
 #ifdef USE_ANGELSCRIPT
+    // suspend AS logging, so we dont spam the users screen with initialization messages
+    App::GetScriptEngine()->setForwardScriptLogToConsole(false);
+
     bool loaded = false;
 
     for (std::string as_filename : m_def.as_files)
@@ -460,8 +463,9 @@ void RoR::Terrain::initScripting()
         // load a default script that does the most basic things
         App::GetScriptEngine()->loadScript(DEFAULT_TERRAIN_SCRIPT);
     }
-    // finally activate AS logging, so we dont spam the users screen with initialization messages
-    App::GetScriptEngine()->activateLogging();
+
+    // finally resume AS logging
+    App::GetScriptEngine()->setForwardScriptLogToConsole(true);
 #endif //USE_ANGELSCRIPT
 }
 
