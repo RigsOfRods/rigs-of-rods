@@ -145,7 +145,7 @@ public:
      */
     void framestep(Ogre::Real dt);
 
-    void activateLogging();
+    void setForwardScriptLogToConsole(bool doForward);
 
     /**
      * triggers an event; Not to be used by the end-user.
