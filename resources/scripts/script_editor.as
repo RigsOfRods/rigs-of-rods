@@ -37,6 +37,7 @@ const int BUFFER_MIN_SIZE = 10000;
 const int BUFFER_INCREMENT_SIZE = 2500;
 const color LINKCOLOR = color(0.3, 0.5, 0.9, 1.0);
 ScriptEditorWindow editorWindow;
+const uint FILEINFO_COMPRESSEDSIZE_UNKNOWN = uint(-1);
 
 // Config:
 // -------
@@ -212,7 +213,7 @@ class ScriptEditorWindow
         // Make sure there's always a tab open ()
         if (tabs.length() == 0)
         {
-            this.addTab("Welcome", TUT_SCRIPT);
+            this.addTab("Tutorial.as", TUT_SCRIPT);
             this.currentTab = 0;
         }
         else
@@ -284,21 +285,21 @@ class ScriptEditorWindow
             // 'OPEN FILE' menu
             if (ImGui::BeginMenu("Open file"))
             {
-                ImGui::Text("File: "+ fileNameBuf);
-                if (ImGui::Button("Load##localfile"))
-                {
-                    this.addTab(fileNameBuf, game.loadTextResourceAsString(fileNameBuf, RGN_SCRIPTS));
-                    this.currentTab = this.tabs.length() - 1; // Focus the new tab
-                    this.addRecentScript(fileNameBuf);                        
-                }
-                
-                this.drawSelectableFileList("Recent scripts", recentScriptsRecord, /*&inout*/ fileNameBuf);
-                
                 if (!analysisDoneThisFrame)
                 {
                     analysisDoneThisFrame = localScriptsRecord.advanceScriptAnalysis();
-                }                
-                this.drawSelectableFileList("Local scripts", localScriptsRecord, /*&inout*/ fileNameBuf);
+                }
+                
+                bool loadRecentFile = this.drawSelectableFileList("Recent scripts", "Load##recent", recentScriptsRecord, /*&inout*/ fileNameBuf);
+                ImGui::Separator();                
+                bool loadLocalFile = this.drawSelectableFileList("Local scripts", "Load##local", localScriptsRecord, /*&inout*/ fileNameBuf);
+                
+                if (loadRecentFile || loadLocalFile)
+                {
+                    this.addTab(fileNameBuf, game.loadTextResourceAsString(fileNameBuf, RGN_SCRIPTS));
+                    this.currentTab = this.tabs.length() - 1; // Focus the new tab
+                    this.addRecentScript(fileNameBuf);    
+                }
                 
                 ImGui::EndMenu();
             }
@@ -306,6 +307,11 @@ class ScriptEditorWindow
             // 'SAVE FILE' menu
             if (ImGui::BeginMenu("Save file"))
             {
+                if (!analysisDoneThisFrame)
+                {
+                    analysisDoneThisFrame = localScriptsRecord.advanceScriptAnalysis();
+                }            
+            
                 if (this.saveMenuOpening)
                 {
                     saveFileNameBuf = this.tabs[this.currentTab].bufferName;
@@ -331,13 +337,10 @@ class ScriptEditorWindow
                 else if (this.saveFileResult == -1)
                     ImGui::TextColored(color(1,0.1, 0.2, 1), "Error saving file!");
                 
-                this.drawSelectableFileList("Recent scripts", recentScriptsRecord, /*&inout*/ fileNameBuf);
-                
-                if (!analysisDoneThisFrame)
-                {
-                    analysisDoneThisFrame = localScriptsRecord.advanceScriptAnalysis();
-                }
-                this.drawSelectableFileList("Local scripts", localScriptsRecord, /*&inout*/ saveFileNameBuf);
+                ImGui::Separator();
+                this.drawSelectableFileList("Recent scripts", "Select##recent", recentScriptsRecord, /*&inout*/ fileNameBuf);
+                ImGui::Separator();
+                this.drawSelectableFileList("Local scripts", "Select##local", localScriptsRecord, /*&inout*/ saveFileNameBuf);
 
                 ImGui::EndMenu();                
             }
@@ -348,38 +351,36 @@ class ScriptEditorWindow
             
             // 'EXAMPLES' menu
             if (ImGui::BeginMenu("Examples"))
-            {
-                //string loadTextResourceAsString(const std::string& filename, const std::string& resource_group);
-                ImGui::Text("File: "+ exampleNameBuf);
-                if (ImGui::Button("Load##example"))
-                {
-                    this.addTab(exampleNameBuf, game.loadTextResourceAsString(exampleNameBuf, RGN_RESOURCES_SCRIPTS));
-                    this.currentTab = this.tabs.length() - 1; // Focus the new tab
-                }
-                
+            {                
                 if (!analysisDoneThisFrame)
                 {
                     analysisDoneThisFrame = exampleScriptsRecord.advanceScriptAnalysis();
                 }                
-                this.drawSelectableFileList("Example scripts", exampleScriptsRecord, /*&inout*/ exampleNameBuf);
+                
+                bool loadExampleFile = this.drawSelectableFileList("Example scripts", "Load##example", exampleScriptsRecord, /*&inout*/ exampleNameBuf);
+                
+                if (loadExampleFile)
+                {
+                    this.addTab(exampleNameBuf, game.loadTextResourceAsString(exampleNameBuf, RGN_RESOURCES_SCRIPTS));
+                    this.currentTab = this.tabs.length() - 1; // Focus the new tab
+                }                
                 
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Includes"))
             {
-                //string loadTextResourceAsString(const std::string& filename, const std::string& resource_group);
-                ImGui::Text("File: "+ includeNameBuf);
-                if (ImGui::Button("Load##include"))
-                {
-                    this.addTab(includeNameBuf, game.loadTextResourceAsString(includeNameBuf, RGN_RESOURCES_SCRIPTS));
-                    this.currentTab = this.tabs.length() - 1; // Focus the new tab
-                }
-                
                 if (!analysisDoneThisFrame)
                 {
                     analysisDoneThisFrame = includeScriptsRecord.advanceScriptAnalysis();
-                }                   
-                this.drawSelectableFileList("Include scripts", includeScriptsRecord, /*&inout*/ includeNameBuf);
+                }
+                
+                bool loadIncludeFile = this.drawSelectableFileList("Include scripts", "Load##include", includeScriptsRecord, /*&inout*/ includeNameBuf);
+                
+                if (loadIncludeFile)
+                {
+                    this.addTab(includeNameBuf, game.loadTextResourceAsString(includeNameBuf, RGN_RESOURCES_SCRIPTS));
+                    this.currentTab = this.tabs.length() - 1; // Focus the new tab
+                }                
                 
                 ImGui::EndMenu();
             }
@@ -445,11 +446,10 @@ class ScriptEditorWindow
         }
     }
     
-    private bool drawSelectableFileList(string title, ScriptIndexerRecord@ record, string&inout out_selection)
+    private bool drawSelectableFileList(string title, string btnText, ScriptIndexerRecord@ record, string&inout out_selection)
     {
         bool retval = false;
 
-        ImGui::Separator();
         ImGui::PushID(title);
         ImGui::TextDisabled(title+" ("+record.fileinfos.length()+"):");
         for (uint i=0; i<record.fileinfos.length(); i++)
@@ -462,7 +462,10 @@ class ScriptEditorWindow
             ImGui::Bullet();
             hovered = hovered || ImGui::IsItemHovered();
             ImGui::SameLine(); ImGui::Text(filename); hovered = hovered || ImGui::IsItemHovered();
-            ImGui::SameLine(); ImGui::TextDisabled("("+formatFloat(float(size)/1000.f, "", 3, 2)+" KB)"); hovered = hovered || ImGui::IsItemHovered();
+            if(size != FILEINFO_COMPRESSEDSIZE_UNKNOWN)
+            {
+                ImGui::SameLine(); ImGui::TextDisabled("("+formatFloat(float(size)/1000.f, "", 3, 2)+" KB)"); hovered = hovered || ImGui::IsItemHovered();
+            }
             ImGui::SameLine();
             if (hovered && (@scriptinfo != null))
             { 
@@ -472,7 +475,7 @@ class ScriptEditorWindow
                 ImGui::TextWrapped(scriptinfo.text); ImGui::Dummy(vector2(300, 1));
                 ImGui::EndTooltip(); 
             }
-            if (ImGui::SmallButton("Select"))
+            if (ImGui::SmallButton(btnText))
             {
                 out_selection = filename;
                 retval = true;
@@ -511,7 +514,10 @@ class ScriptEditorWindow
 
         // if we got here, the name isn't in the list yet. 
         //  Construct a pseudo-FileInfo format so we can use common helper.
-        recentScriptsRecord.fileinfos.insertLast({ {'filename', fnameBuf}, {'compressedSize',-1} } );
+        recentScriptsRecord.fileinfos.insertLast({
+            {'filename', fnameBuf},
+            {'compressedSize',FILEINFO_COMPRESSEDSIZE_UNKNOWN}
+        } );
     }   
 }
 
@@ -1177,6 +1183,11 @@ class ScriptEditorTab
             int msgType = int(this.messages[i]['type']);
             string msgText = string(this.messages[i]['message']);
             int lineIdx = msgRow-1;
+            // workaround: clamp the msgRow to known line count
+            if (lineIdx >= bufferLinesMeta.length())
+            {
+                lineIdx = bufferLinesMeta.length() - 1;
+            }
             
             // update line stats
             if (msgType == asMSGTYPE_ERROR)
