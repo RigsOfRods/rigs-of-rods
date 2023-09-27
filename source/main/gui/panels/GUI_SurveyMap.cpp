@@ -563,9 +563,13 @@ void SurveyMap::DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 vie
     DrawImageRotated(reinterpret_cast<ImTextureID>(tex->getHandle()), img_pos,
         ImVec2(tex->getWidth(), tex->getHeight()), angle);
 
-    ImDrawList* drawlist = ImGui::GetWindowDrawList();
-    ImVec2 text_pos(img_pos.x - (ImGui::CalcTextSize(caption.c_str()).x/2), img_pos.y + 5);
-    drawlist->AddText(text_pos, ImGui::GetColorU32(ImGui::GetStyle().Colors[ImGuiCol_Text]), caption.c_str());
+    ImVec2 dist = ImGui::GetMousePos() - img_pos;
+    if (!caption.empty() && abs(dist.x) <= 5 && abs(dist.y) <= 5)
+    {
+        ImGui::BeginTooltip();
+        ImGui::Text("%s", caption.c_str());
+        ImGui::EndTooltip();
+    }
 }
 
 ImVec2 SurveyMap::DrawWaypoint(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin,
@@ -587,10 +591,14 @@ ImVec2 SurveyMap::DrawWaypoint(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 
     if (abs(dist.x) <= 5 && abs(dist.y) <= 5)
     {
         col = ImVec4(1,1,0,1);
+
+        ImGui::BeginTooltip();
+        ImGui::Text("%s %s", "Waypoint", caption.c_str());
+        std::string wpos = "x:" + std::to_string(App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.x) + " y:" + std::to_string(App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.y) + " z:" + std::to_string(App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.z);
+        ImGui::TextDisabled("%s %s", "Position: ", wpos.c_str());
+        ImGui::EndTooltip();
     }
     drawlist->AddCircleFilled(pos1, 5, ImGui::GetColorU32(ImVec4(col)));
-    ImVec2 text_pos(pos1.x - (ImGui::CalcTextSize(caption.c_str()).x/2), pos1.y + 5);
-    drawlist->AddText(text_pos, ImGui::GetColorU32(ImGui::GetStyle().Colors[ImGuiCol_Text]), caption.c_str());
 
     if (App::GetGuiManager()->TopMenubar.ai_waypoints.size() >= 2 && idx != App::GetGuiManager()->TopMenubar.ai_waypoints.size() - 1)
     {
