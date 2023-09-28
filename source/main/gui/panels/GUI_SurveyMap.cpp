@@ -192,17 +192,16 @@ void SurveyMap::Draw()
         ImVec2 p_min = ImGui::GetCursorScreenPos();
         ImVec2 p_max = ImVec2(p_min.x + view_size.x, p_min.y + view_size.y);
         ImVec2 p_offset = ImVec2(5.f, 5.f);
-
-        // Outline
-        drawlist->AddCircle(ImVec2(p_min.x + (view_size.x * 0.5),  p_min.y + (view_size.y * 0.5)), view_size.x * 0.47, ImGui::GetColorU32(theme.semitransparent_window_bg), 96, 20);
-
-        // The texture
-        drawlist->AddCircularImage(reinterpret_cast<ImTextureID>(tex->getHandle()), p_min + p_offset, p_max + p_offset, ImVec2(0, 0), ImVec2(1, 1), ImGui::GetColorU32(ImVec4(1,1,1,1)), view_size.x * 0.5 - p_offset.x);
-
         ImVec2 _min(p_min + p_offset);
         ImVec2 _max(p_max + p_offset);
-        m_circle_center =_min +((_max-_min)/2);
-        m_circle_radius = view_size.x * 0.5 - 3*p_offset.x;
+        m_circle_center =_min + ((_max-_min)/2);
+        m_circle_radius = view_size.x/2 - p_offset.x;
+
+        // Outline
+        drawlist->AddCircle(ImVec2(p_min.x + view_size.x/2,  p_min.y + view_size.y/2), view_size.x/2 - 2*p_offset.x, ImGui::GetColorU32(theme.semitransparent_window_bg), 96, 20);
+
+        // The texture
+        drawlist->AddCircularImage(reinterpret_cast<ImTextureID>(tex->getHandle()), _min, _max, ImVec2(0, 0), ImVec2(1, 1), ImGui::GetColorU32(ImVec4(1,1,1,1)), m_circle_radius);
 
         // An invisible button so we can catch it below
         ImGui::InvisibleButton("circle", view_size);
@@ -553,9 +552,9 @@ void SurveyMap::DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 vie
     ImVec2 img_pos;
     img_pos.x = view_pos.x + ((pos_x - view_origin.x) / terrn_size_adj.x) * view_size.x;
     img_pos.y = view_pos.y + ((pos_y - view_origin.y) / terrn_size_adj.y) * view_size.y;
-    int img_dist = (img_pos.x - m_circle_center.x) * (img_pos.x - m_circle_center.x) + (img_pos.y - m_circle_center.y) * (img_pos.y - m_circle_center.y);
+    float img_dist = (img_pos.x - m_circle_center.x) * (img_pos.x - m_circle_center.x) + (img_pos.y - m_circle_center.y) * (img_pos.y - m_circle_center.y);
 
-    if (mMapMode == SurveyMapMode::SMALL && img_dist > m_circle_radius * m_circle_radius)
+    if (mMapMode == SurveyMapMode::SMALL && img_dist > (m_circle_radius * m_circle_radius)*0.8)
     {
         return;
     }
