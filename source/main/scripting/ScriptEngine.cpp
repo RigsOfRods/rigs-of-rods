@@ -327,12 +327,12 @@ int ScriptEngine::executeContextAndHandleErrors(ScriptUnitId_t nid)
             if (context->GetFunction())
             {
                 SLOG(fmt::format("The script ended with error code asCONTEXT_NOT_PREPARED; Function to execute: {},currently triggered event: {}, NID: {}",
-                    context->GetFunction()->GetName(), m_currently_executing_event_trigger, nid));
+                    context->GetFunction()->GetName(), fmt::underlying(m_currently_executing_event_trigger), nid));
             }
             else
             {
                 SLOG(fmt::format("The script ended with error code asCONTEXT_NOT_PREPARED; Function to execute NOT SET,currently triggered event: {}, NID: {}",
-                    m_currently_executing_event_trigger, nid));
+                    fmt::underlying(m_currently_executing_event_trigger), nid));
             }
         }
         else
