@@ -580,34 +580,59 @@ ImVec2 SurveyMap::DrawWaypoint(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 
         terrn_size_adj = mTerrainSize * (1.f - mMapZoom);
     }
 
-    ImVec2 pos1;
-    pos1.x = view_pos.x + ((App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.x - view_origin.x) / terrn_size_adj.x) * view_size.x;
-    pos1.y = view_pos.y + ((App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.z - view_origin.y) / terrn_size_adj.y) * view_size.y;
+    ImVec2 wp_pos;
+    wp_pos.x = view_pos.x + ((App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.x - view_origin.x) / terrn_size_adj.x) * view_size.x;
+    wp_pos.y = view_pos.y + ((App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.z - view_origin.y) / terrn_size_adj.y) * view_size.y;
+
+    float wp_dist = (wp_pos.x - m_circle_center.x) * (wp_pos.x - m_circle_center.x) + (wp_pos.y - m_circle_center.y) * (wp_pos.y - m_circle_center.y);
+    bool wp_draw = true;
+    if (mMapMode == SurveyMapMode::SMALL && wp_dist > (m_circle_radius * m_circle_radius)*0.8)
+    {
+        wp_draw = false;
+    }
 
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImVec4 col = ImVec4(1,0,0,1);
-    ImVec2 dist = ImGui::GetMousePos() - pos1;
+    ImVec2 dist = ImGui::GetMousePos() - wp_pos;
     if (abs(dist.x) <= 5 && abs(dist.y) <= 5)
     {
         col = ImVec4(1,1,0,1);
 
         ImGui::BeginTooltip();
         ImGui::Text("%s %s", "Waypoint", caption.c_str());
-        std::string wpos = "x:" + std::to_string(App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.x) + " y:" + std::to_string(App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.y) + " z:" + std::to_string(App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.z);
-        ImGui::TextDisabled("%s %s", "Position: ", wpos.c_str());
+        if (mMapMode == SurveyMapMode::BIG)
+        {
+            std::string wpos = "x:" + std::to_string(App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.x) + " y:" + std::to_string(App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.y) + " z:" + std::to_string(App::GetGuiManager()->TopMenubar.ai_waypoints[idx].position.z);
+            ImGui::TextDisabled("%s %s", "Position: ", wpos.c_str());
+        }
         ImGui::EndTooltip();
     }
-    drawlist->AddCircleFilled(pos1, 5, ImGui::GetColorU32(ImVec4(col)));
+
+    if (mMapMode == SurveyMapMode::BIG || (mMapMode == SurveyMapMode::SMALL && wp_draw))
+    {
+        drawlist->AddCircleFilled(wp_pos, 5, ImGui::GetColorU32(ImVec4(col)));
+    }
 
     if (App::GetGuiManager()->TopMenubar.ai_waypoints.size() >= 2 && idx != App::GetGuiManager()->TopMenubar.ai_waypoints.size() - 1)
     {
-        ImVec2 pos2;
-        pos2.x = view_pos.x + ((App::GetGuiManager()->TopMenubar.ai_waypoints[idx+1].position.x - view_origin.x) / terrn_size_adj.x) * view_size.x;
-        pos2.y = view_pos.y + ((App::GetGuiManager()->TopMenubar.ai_waypoints[idx+1].position.z - view_origin.y) / terrn_size_adj.y) * view_size.y;
-        drawlist->AddLine(pos1, pos2, ImGui::GetColorU32(ImVec4(1,0,0,1)));
+        ImVec2 next_wp_pos;
+        next_wp_pos.x = view_pos.x + ((App::GetGuiManager()->TopMenubar.ai_waypoints[idx+1].position.x - view_origin.x) / terrn_size_adj.x) * view_size.x;
+        next_wp_pos.y = view_pos.y + ((App::GetGuiManager()->TopMenubar.ai_waypoints[idx+1].position.z - view_origin.y) / terrn_size_adj.y) * view_size.y;
+
+        float next_wp_dist = (next_wp_pos.x - m_circle_center.x) * (next_wp_pos.x - m_circle_center.x) + (next_wp_pos.y - m_circle_center.y) * (next_wp_pos.y - m_circle_center.y);
+        bool next_wp_draw = true;
+        if (mMapMode == SurveyMapMode::SMALL && next_wp_dist > (m_circle_radius * m_circle_radius)*0.8)
+        {
+            next_wp_draw = false;
+        }
+
+        if (mMapMode == SurveyMapMode::BIG || (mMapMode == SurveyMapMode::SMALL && wp_draw && next_wp_draw))
+        {
+            drawlist->AddLine(wp_pos, next_wp_pos, ImGui::GetColorU32(ImVec4(1,0,0,1)));
+        }
     }
 
-    return ImGui::GetMousePos() - pos1;
+    return ImGui::GetMousePos() - wp_pos;
 }
 
 ImVec2 SurveyMap::CalcWaypointMapPos(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin, int idx)
