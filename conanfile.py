@@ -7,6 +7,8 @@ class RoR(ConanFile):
     name = "Rigs of Rods"
     settings = "os", "compiler", "build_type", "arch"
 
+    def layout(self):
+        self.folders.generators = os.path.join(self.folders.build, "generators")
 
     def requirements(self):
         self.requires("angelscript/2.35.1")
