@@ -1,12 +1,12 @@
 import os
 from conan import ConanFile
+from conan.tools.cmake import CMakeToolchain, CMakeDeps
 from conan.tools.files import copy
-
 
 class RoR(ConanFile):
     name = "Rigs of Rods"
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeToolchain", "CMakeDeps"
+
 
     def requirements(self):
         self.requires("angelscript/2.35.1")
@@ -28,6 +28,14 @@ class RoR(ConanFile):
         self.requires("zlib/1.2.13", override=True)
 
     def generate(self):
+        tc = CMakeToolchain(self)
+        tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
+        if self.settings.os == "Windows" and self.settings.build_type == "Release":
+            deps.configuration = "RelWithDebInfo"
+            deps.generate()
+
         for dep in self.dependencies.values():
             for f in dep.cpp_info.bindirs:
                 self.cp_data(f)
