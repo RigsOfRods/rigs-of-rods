@@ -14,8 +14,6 @@ set(PROJECT_NAME_SHORT "RoR")
 set(PROJECT_NAME_UNDERSCORE "Rigs_of_Rods")
 set(PROJECT_NAME_LONG "Rigs of Rods")
 
-set(REQUIRED_DEPS_VERSION 30)
-
 project(${PROJECT_NAME_UNDERSCORE})
 
 ################################################################################
@@ -25,16 +23,23 @@ option(BUILD_DEV_VERSION "Disable this for official releases" ON)
 option(BUILD_DOC_DOXYGEN "Build documentation from sources with Doxygen" OFF)
 option(USE_PCH "Use a Precompiled header for speeding up the build" ON)
 option(CREATE_CONTENT_FOLDER "Create the base content folder" ON)
-set(ROR_DEPENDENCY_DIR "${CMAKE_SOURCE_DIR}/dependencies" CACHE PATH "Path to the dependencies")
+if(NOT DEFINED DOWNLOAD_DEPS)
+    option(DOWNLOAD_DEPS "Download prebuild dependencies" ON)
+endif ()
 set(ROR_FEAT_TIMING OFF)
 
 # global cmake options
+set(FETCHCONTENT_QUIET OFF)
 SET(BUILD_SHARED_LIBS ON)
 SET(CMAKE_USE_RELATIVE_PATHS OFF)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+if(DOWNLOAD_DEPS)
+    include(cmake/DownloadDeps.cmake)
+endif ()
+
 # setup paths
-SET(CMAKE_PREFIX_PATH ${ROR_DEPENDENCY_DIR} ${CMAKE_PREFIX_PATH})
+SET(CMAKE_PREFIX_PATH ${dependencies_SOURCE_DIR} ${CMAKE_PREFIX_PATH})
 SET(RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
 SET(LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")
 SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/")
@@ -48,14 +53,6 @@ if (NOT USE_PCH)
     if (SCCACHE_PROGRAM)
         set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE_PROGRAM}")
         message("Using ${SCCACHE_PROGRAM} for speeding up build")
-    endif ()
-endif ()
-
-# Check deps version
-if (EXISTS "${ROR_DEPENDENCY_DIR}/version.cmake")
-    include("${ROR_DEPENDENCY_DIR}/version.cmake")
-    if (NOT ${REQUIRED_DEPS_VERSION} EQUAL ${DEPENDENCIES_VERSION})
-        message(FATAL_ERROR "\n The ror-dependencies version is ${DEPENDENCIES_VERSION}, while RoR requires ${REQUIRED_DEPS_VERSION} \n Please update the dependencies")
     endif ()
 endif ()
 

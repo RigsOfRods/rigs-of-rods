@@ -511,6 +511,9 @@ endif ()
 fast_copy("${CMAKE_SOURCE_DIR}/resources/managed_materials" "${RUNTIME_OUTPUT_DIRECTORY}/resources/managed_materials")
 fast_copy("${CMAKE_SOURCE_DIR}/resources/fonts" "${RUNTIME_OUTPUT_DIRECTORY}/languages")
 fast_copy("${CMAKE_SOURCE_DIR}/languages" "${RUNTIME_OUTPUT_DIRECTORY}/languages")
+if(DOWNLOAD_DEPS)
+    fast_copy("${dependencies_SOURCE_DIR}/deploy" "${RUNTIME_OUTPUT_DIRECTORY}")
+endif ()
 
 
 #  Install targets
