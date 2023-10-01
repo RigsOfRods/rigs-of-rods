@@ -262,6 +262,7 @@ CVar* flexbody_defrag_invert_lookup;
 CVar* ui_show_live_repair_controls;
 CVar* ui_show_vehicle_buttons;
 CVar* ui_preset;
+CVar* ui_hide_gui;
 
 // Instance access
 AppContext*            GetAppContext         () { return &g_app_context; };

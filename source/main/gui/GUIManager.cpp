@@ -195,7 +195,7 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
 
     if (!this->ConsoleWindow.IsVisible())
     {
-        if (!m_hide_gui)
+        if (!App::ui_hide_gui->getBool())
         {
             this->ChatBox.Draw(); // Messages must be always visible
         }
@@ -278,7 +278,7 @@ void GUIManager::SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manage
 
 void GUIManager::SetGuiHidden(bool hidden)
 {
-    m_hide_gui = hidden;
+    App::ui_hide_gui->setVal(hidden);
     App::GetOverlayWrapper()->showDashboardOverlays(!hidden, App::GetGameContext()->GetPlayerActor());
     if (hidden)
     {
@@ -390,7 +390,7 @@ void GUIManager::SetupImGui()
 
 void GUIManager::DrawCommonGui()
 {
-    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !m_hide_gui && !this->SurveyMap.IsVisible())
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !App::ui_hide_gui->getBool() && !this->SurveyMap.IsVisible())
     {
         this->MpClientList.Draw();
     }
