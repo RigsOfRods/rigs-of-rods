@@ -202,6 +202,7 @@ void Console::cVarSetupBuiltins()
     App::ui_show_live_repair_controls      = this->cVarCreate("ui_show_live_repair_controls",      "", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "true");
     App::ui_show_vehicle_buttons           = this->cVarCreate("ui_show_vehicle_buttons", "Show vehicle buttons menu", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "true");
     App::ui_preset                         = this->cVarCreate("ui_preset",                         "", CVAR_ARCHIVE | CVAR_TYPE_INT, "0"/*(int)UiPreset::NOVICE*/);
+    App::ui_hide_gui                       = this->cVarCreate("ui_hide_gui",                       "", CVAR_TYPE_BOOL, "false");
 }
 
 CVar* Console::cVarCreate(std::string const& name, std::string const& long_name,

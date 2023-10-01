@@ -533,6 +533,7 @@ extern CVar* flexbody_defrag_invert_lookup;
 extern CVar* ui_show_live_repair_controls; //!< bool
 extern CVar* ui_show_vehicle_buttons;
 extern CVar* ui_preset; //!< enum `RoR::UiPreset`
+extern CVar* ui_hide_gui; //!< bool; The 'hide GUI' hotkey state
 
 // ------------------------------------------------------------------------------------------------
 // Global objects
