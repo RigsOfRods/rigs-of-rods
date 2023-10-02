@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2020 Thomas Fischer
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -127,13 +127,13 @@ void SurveyMap::Draw()
 
     // Draw map texture
     ImVec2 tl_screen_pos = ImGui::GetCursorScreenPos();
-    Ogre::TexturePtr tex;
     Ogre::Vector2 smallmap_center;
     Ogre::Vector2 smallmap_size;
     Ogre::Vector2 view_origin;
+    Ogre::Vector2 texcoords_top_left(0,0);
+    Ogre::Vector2 texcoords_bottom_right(1,1);
     if (mMapMode == SurveyMapMode::BIG)
     {
-        tex = mMapTextureCreatorStatic->GetTexture();
         view_origin = mMapCenterOffset;
     }
     else if (mMapMode == SurveyMapMode::SMALL)
@@ -158,12 +158,8 @@ void SurveyMap::Draw()
 
         view_origin = ((smallmap_center + mMapCenterOffset) - smallmap_size / 2);
 
-        // Update texture
-        if (mMapZoom != 0.0f)
-        {
-            mMapTextureCreatorDynamic->update(smallmap_center + mMapCenterOffset, smallmap_size);
-        }
-        tex = mMapTextureCreatorDynamic->GetTexture();
+        texcoords_top_left = (smallmap_center - (smallmap_size/2)) / mTerrainSize;
+        texcoords_bottom_right = (smallmap_center + (smallmap_size/2)) / mTerrainSize;
     }
 
     bool w_adj = false;
@@ -183,7 +179,7 @@ void SurveyMap::Draw()
 
     if (mMapMode == SurveyMapMode::BIG)
     {
-        ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), view_size);
+        ImGui::Image(reinterpret_cast<ImTextureID>(mMapTexture->getHandle()), view_size);
     }
     else if (mMapMode == SurveyMapMode::SMALL)
     {
@@ -194,6 +190,8 @@ void SurveyMap::Draw()
         ImVec2 p_offset = ImVec2(5.f, 5.f);
         ImVec2 _min(p_min + p_offset);
         ImVec2 _max(p_max + p_offset);
+        ImVec2 uv_min(texcoords_top_left.x, texcoords_top_left.y);
+        ImVec2 uv_max(texcoords_bottom_right.x, texcoords_bottom_right.y);
         m_circle_center =_min + ((_max-_min)/2);
         m_circle_radius = view_size.x/2 - p_offset.x;
 
@@ -201,7 +199,7 @@ void SurveyMap::Draw()
         drawlist->AddCircle(ImVec2(p_min.x + view_size.x/2,  p_min.y + view_size.y/2), view_size.x/2 - 2*p_offset.x, ImGui::GetColorU32(theme.semitransparent_window_bg), 96, 20);
 
         // The texture
-        drawlist->AddCircularImage(reinterpret_cast<ImTextureID>(tex->getHandle()), _min, _max, ImVec2(0, 0), ImVec2(1, 1), ImGui::GetColorU32(ImVec4(1,1,1,1)), m_circle_radius);
+        drawlist->AddCircularImage(reinterpret_cast<ImTextureID>(mMapTexture->getHandle()), _min, _max, uv_min, uv_max, ImGui::GetColorU32(ImVec4(1,1,1,1)), m_circle_radius);
 
         // An invisible button so we can catch it below
         ImGui::InvisibleButton("circle", view_size);
@@ -414,6 +412,15 @@ void SurveyMap::Draw()
 void SurveyMap::CreateTerrainTextures()
 {
     mMapCenterOffset     = Ogre::Vector2::ZERO; // Reset, maybe new terrain was loaded
+    if (mMapTexture)
+    {
+        Ogre::TextureManager::getSingleton().unload(mMapTexture->getName(), mMapTexture->getGroup());
+        Ogre::TextureManager::getSingleton().remove(mMapTexture->getName(), mMapTexture->getGroup());
+        mMapTexture.setNull();
+    }
+    mMapZoom = 0.f;
+    mMapMode = SurveyMapMode::NONE;
+
     AxisAlignedBox aab   = App::GetGameContext()->GetTerrain()->getTerrainCollisionAAB();
     Vector3 terrain_size = App::GetGameContext()->GetTerrain()->getMaxTerrainSize();
     bool use_aab         = App::GetGameContext()->GetTerrain()->isFlat() && std::min(aab.getSize().x, aab.getSize().z) > 50.0f;
@@ -430,18 +437,13 @@ void SurveyMap::CreateTerrainTextures()
     Ogre::Vector2 mMapCenter = mTerrainSize / 2;
 
     ConfigOptionMap ropts = App::GetAppContext()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
-    int resolution = StringConverter::parseInt(StringUtil::split(ropts["Video Mode"].currentValue, " x ")[0], 1024);
     int fsaa = StringConverter::parseInt(ropts["FSAA"].currentValue, 0);
-    int res = std::pow(2, std::floor(std::log2(resolution)));
 
-    mMapTextureCreatorStatic = std::unique_ptr<SurveyMapTextureCreator>(new SurveyMapTextureCreator(terrain_size.y));
-    mMapTextureCreatorStatic->init(res / 1.5, fsaa);
-    mMapTextureCreatorStatic->update(mMapCenter + mMapCenterOffset, mTerrainSize);
-
-    // TODO: Find out how to zoom into the static texture instead
-    mMapTextureCreatorDynamic = std::unique_ptr<SurveyMapTextureCreator>(new SurveyMapTextureCreator(terrain_size.y));
-    mMapTextureCreatorDynamic->init(res / 4, fsaa);
-    mMapTextureCreatorDynamic->update(mMapCenter + mMapCenterOffset, mTerrainSize);
+    SurveyMapTextureCreator texCreatorStatic(terrain_size.y);
+    texCreatorStatic.init(4096, fsaa);
+    texCreatorStatic.update(mMapCenter + mMapCenterOffset, mTerrainSize);
+    mMapTexture = texCreatorStatic.convertTextureToStatic(
+        "SurveyMapStatic", App::GetGameContext()->GetTerrain()->getTerrainFileResourceGroup());
 }
 
 

@@ -34,8 +34,7 @@ public:
 
     bool init(int res, int fsaa);
     void update(Ogre::Vector2 center, Ogre::Vector2 size);
-
-    Ogre::TexturePtr GetTexture() const { return mTexture; }
+    Ogre::TexturePtr convertTextureToStatic(const std::string& texName, const std::string& rgName);
 
 protected:
 
