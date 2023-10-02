@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -50,14 +50,12 @@ public:
     const float WINDOW_PADDING = 4.f;
     const float WINDOW_ROUNDING = 2.f;
 
-    void CreateTerrainTextures(); //!< Init
+    void CreateTerrainTextures();
     void Draw();
     bool IsVisible() const { return mMapMode != SurveyMapMode::NONE; }
     bool IsHovered() const { return IsVisible() && mWindowMouseHovered; }
     void CycleMode();
     void ToggleMode();
-
-    const char* getTypeByDriveable(int driveable);
 
 protected:
 
@@ -93,9 +91,7 @@ protected:
     Ogre::Vector2 mTerrainSize = Ogre::Vector2::ZERO; // Computed reference map size (in meters)
     Ogre::Vector2 mMapCenterOffset = Ogre::Vector2::ZERO; // Displacement, in meters
     float         mMapZoom = 0.f; // Ratio: 0-1
-
-    std::unique_ptr<SurveyMapTextureCreator> mMapTextureCreatorStatic;
-    std::unique_ptr<SurveyMapTextureCreator> mMapTextureCreatorDynamic;
+    Ogre::TexturePtr mMapTexture;
 
     // Icon cache
     bool m_icons_cached = false;
