@@ -43,6 +43,8 @@ SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Real terrain_height) :
 
 SurveyMapTextureCreator::~SurveyMapTextureCreator()
 {
+    if (mRttTex)
+        mRttTex->removeAllViewports();
     if (mCamera)
         App::GetGfxScene()->GetSceneManager()->destroyCamera(mCamera);
     if (mTexture)
@@ -113,4 +115,11 @@ void SurveyMapTextureCreator::postRenderTargetUpdate(const RenderTargetEvent &ev
     {
         water->UpdateWater();
     }
+}
+
+Ogre::TexturePtr SurveyMapTextureCreator::convertTextureToStatic(const std::string& texName, const std::string& rgName)
+{
+    Ogre::Image img;
+    mTexture->convertToImage(img);
+    return Ogre::TextureManager::getSingleton().loadImage(texName, rgName, img);
 }
