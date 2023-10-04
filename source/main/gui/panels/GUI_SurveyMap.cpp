@@ -302,14 +302,15 @@ void SurveyMap::Draw()
 
             if ((visible) && (!App::gfx_declutter_map->getBool()))
             {
-                this->DrawMapIcon(tl_screen_pos, view_size, view_origin, e.filename, e.caption, e.pos.x, e.pos.z, e.rot, e.resource_group);
+                this->CacheMapIcon(e);
+                this->DrawMapIcon(e, tl_screen_pos, view_size, view_origin);
             }
         }
 
         // Draw actor icons
         for (GfxActor* gfx_actor: App::GetGfxScene()->GetGfxActors())
         {
-            const char* type_str = this->getTypeByDriveable(gfx_actor->GetActorDriveable(), gfx_actor->GetActor());
+            const char* type_str = this->getTypeByDriveable(gfx_actor->GetActor());
             int truckstate = gfx_actor->GetActorState();
             Str<100> fileName;
 
@@ -322,8 +323,16 @@ void SurveyMap::Draw()
 
             auto& simbuf = gfx_actor->GetSimDataBuffer();
             std::string caption = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
-            this->DrawMapIcon(tl_screen_pos, view_size, view_origin, fileName.ToCStr(), caption, 
-                simbuf.simbuf_pos.x, simbuf.simbuf_pos.z, simbuf.simbuf_rotation);
+
+            // Update the surveymap icon entry
+            SurveyMapEntity& e = gfx_actor->getSurveyMapEntity();
+            e.pos = simbuf.simbuf_pos;
+            e.rot_angle = Ogre::Radian(simbuf.simbuf_rotation);
+            e.filename = fileName.ToCStr();
+            e.caption = caption;
+
+            this->CacheMapIcon(e);
+            this->DrawMapIcon(e, tl_screen_pos, view_size, view_origin);
         }
 
         // Draw character icons
@@ -332,10 +341,15 @@ void SurveyMap::Draw()
             auto& simbuf = gfx_character->xc_simbuf;
             if (!simbuf.simbuf_actor_coupling)
             {
-                std::string caption = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
-                this->DrawMapIcon(tl_screen_pos, view_size, view_origin, "icon_person_activated.dds", caption, 
-                    simbuf.simbuf_character_pos.x, simbuf.simbuf_character_pos.z,
-                    simbuf.simbuf_character_rot.valueRadians());
+                // Update the surveymap icon entry
+                SurveyMapEntity& e = gfx_character->xc_surveymap_entity;
+                e.pos = simbuf.simbuf_character_pos;
+                e.rot_angle = simbuf.simbuf_character_rot;
+                e.caption = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
+                e.filename = "icon_person_activated.dds";
+
+                this->CacheMapIcon(e);
+                this->DrawMapIcon(e, tl_screen_pos, view_size, view_origin);
             }
         }
     }
@@ -461,9 +475,9 @@ void SurveyMap::setMapZoomRelative(float delta)
 }
 
 
-const char* SurveyMap::getTypeByDriveable(ActorType driveable, ActorPtr actor)
+const char* SurveyMap::getTypeByDriveable(const ActorPtr& actor)
 {
-    switch (driveable)
+    switch (actor->ar_driveable)
     {
     case NOT_DRIVEABLE:
         return "load";
@@ -482,7 +496,7 @@ const char* SurveyMap::getTypeByDriveable(ActorType driveable, ActorPtr actor)
     }
 }
 
-const char* SurveyMap::getAIType(ActorPtr actor)
+const char* SurveyMap::getAIType(const ActorPtr& actor)
 {
     if (actor->ar_engine)
     {
@@ -516,35 +530,8 @@ void SurveyMap::ToggleMode()
     mMapMode = (mMapMode == SurveyMapMode::NONE) ? mMapLastMode : SurveyMapMode::NONE;
 }
 
-void SurveyMap::DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin,
-                                      std::string const& filename, std::string const& caption, 
-                                      float pos_x, float pos_y, float angle, std::string resource_group /* ="" */)
+void SurveyMap::DrawMapIcon(const SurveyMapEntity& e, ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin)
 {
-    Ogre::TexturePtr tex;
-    if (resource_group == "")
-        resource_group = ContentManager::ResourcePack::TEXTURES.resource_group_name;
-
-    try
-    {
-        tex = Ogre::TextureManager::getSingleton().load(filename, resource_group);
-    }
-    catch (Ogre::FileNotFoundException)
-    {
-        // ignore silently and try loading substitute
-    }
-    if (!tex)
-    {
-        try
-        {
-            tex = Ogre::TextureManager::getSingleton().load(
-                "icon_missing.dds", ContentManager::ResourcePack::TEXTURES.resource_group_name);
-        }
-        catch (Ogre::FileNotFoundException)
-        {
-            return; // Draw nothing
-        }
-    }
-
     Ogre::Vector2 terrn_size_adj = mTerrainSize;
     if (mMapMode == SurveyMapMode::SMALL)
     {
@@ -552,23 +539,24 @@ void SurveyMap::DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 vie
     }
 
     ImVec2 img_pos;
-    img_pos.x = view_pos.x + ((pos_x - view_origin.x) / terrn_size_adj.x) * view_size.x;
-    img_pos.y = view_pos.y + ((pos_y - view_origin.y) / terrn_size_adj.y) * view_size.y;
+    img_pos.x = view_pos.x + ((e.pos.x - view_origin.x) / terrn_size_adj.x) * view_size.x;
+    img_pos.y = view_pos.y + ((e.pos.z - view_origin.y) / terrn_size_adj.y) * view_size.y;
     float img_dist = (img_pos.x - m_circle_center.x) * (img_pos.x - m_circle_center.x) + (img_pos.y - m_circle_center.y) * (img_pos.y - m_circle_center.y);
 
-    if (mMapMode == SurveyMapMode::SMALL && img_dist > (m_circle_radius * m_circle_radius)*0.8)
+    if (!e.cached_icon
+        || (mMapMode == SurveyMapMode::SMALL && img_dist > (m_circle_radius * m_circle_radius)*0.8))
     {
         return;
     }
 
-    DrawImageRotated(reinterpret_cast<ImTextureID>(tex->getHandle()), img_pos,
-        ImVec2(tex->getWidth(), tex->getHeight()), angle);
+    DrawImageRotated(reinterpret_cast<ImTextureID>(e.cached_icon->getHandle()), img_pos,
+        ImVec2(e.cached_icon->getWidth(), e.cached_icon->getHeight()), e.rot_angle.valueRadians());
 
     ImVec2 dist = ImGui::GetMousePos() - img_pos;
-    if (!caption.empty() && abs(dist.x) <= 5 && abs(dist.y) <= 5)
+    if (!e.caption.empty() && abs(dist.x) <= 5 && abs(dist.y) <= 5)
     {
         ImGui::BeginTooltip();
-        ImGui::Text("%s", caption.c_str());
+        ImGui::Text("%s", e.caption.c_str());
         ImGui::EndTooltip();
     }
 }
@@ -662,4 +650,44 @@ void SurveyMap::CacheIcons()
     m_right_mouse_button = FetchIcon("right-mouse-button.png");
 
     m_icons_cached = true;
+}
+
+void SurveyMap::CacheMapIcon(SurveyMapEntity& e)
+{
+    // Check if requested icon changed
+    if (e.cached_icon && e.cached_icon->getName() != e.filename)
+        e.cached_icon.setNull();
+
+    // Check if valid icon is already loaded
+    if (e.cached_icon)
+        return;
+
+    if (e.resource_group == "")
+        e.resource_group = ContentManager::ResourcePack::TEXTURES.resource_group_name;
+
+    if (e.filename != "")
+    {
+        try
+        {
+            e.cached_icon = Ogre::TextureManager::getSingleton().load(e.filename, e.resource_group);
+        }
+        catch (Ogre::FileNotFoundException)
+        {
+            // ignore silently and try loading substitute
+        }
+    }
+
+    if (!e.cached_icon)
+    {
+        try
+        {
+            e.cached_icon = Ogre::TextureManager::getSingleton().load(
+                "icon_missing.dds", ContentManager::ResourcePack::TEXTURES.resource_group_name);
+            e.filename = "icon_missing.dds"; // Prevent constant reloading
+        }
+        catch (Ogre::FileNotFoundException)
+        {
+            return; // Draw nothing
+        }
+    }
 }

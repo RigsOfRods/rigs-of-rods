@@ -36,11 +36,12 @@ namespace RoR {
     {
         std::string type; //!< informational
         std::string caption; //!< display caption
-        std::string filename;
+        std::string filename; //!< Requested icon, cached may be out of date.
         std::string resource_group; //!< if empty, defaults to TexturesRG
         Ogre::Vector3 pos; //!< world pos in meters
-        float rot; //!< world yaw in radians
+        Ogre::Radian rot_angle; //!< world yaw in radians
         int id; //!< race ID (>=0), or -1 if not a race icon. You can use larger negative numbers for custom IDs.
+        Ogre::TexturePtr cached_icon;
     };
 
     typedef std::vector<SurveyMapEntity> SurveyMapEntityVec;

@@ -566,7 +566,7 @@ std::string RoR::Terrain::getTerrainFileResourceGroup()
 
 void RoR::Terrain::addSurveyMapEntity(const std::string& type, const std::string& filename, const std::string& resource_group, const std::string& caption, const Ogre::Vector3& pos, float angle, int id)
 {
-    m_object_manager->m_map_entities.push_back({ type, caption, filename, resource_group, pos, angle, id });
+    m_object_manager->m_map_entities.push_back({ type, caption, filename, resource_group, pos, Ogre::Radian(angle), id });
 }
 
 void RoR::Terrain::delSurveyMapEntities(int id)

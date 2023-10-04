@@ -23,6 +23,7 @@
 
 #include "Actor.h"
 #include "ForwardDeclarations.h"
+#include "SurveyMapEntity.h"
 
 #include <OgreUTFString.h>
 #include <OgreMeshManager.h>
@@ -120,6 +121,7 @@ struct GfxCharacter
     SimBuffer                 xc_simbuf_prev;
     Character*                xc_character;
     std::string               xc_instance_name; // TODO: Store MaterialPtr-s directly ~only_a_ptr, 05/2018
+    SurveyMapEntity           xc_surveymap_entity;
 };
 
 } // namespace RoR
