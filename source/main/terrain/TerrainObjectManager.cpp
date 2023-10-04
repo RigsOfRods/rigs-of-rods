@@ -662,7 +662,32 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         terrainManager->GetCollisions()->loadGroundModelsConfigFile(gmodel_file);
     }
 
-    this->ProcessODefCollisionBoxes(obj, odef, object);
+    bool race_event = !object.instance_name.compare(0, 10, "checkpoint") ||
+                        !object.instance_name.compare(0,  4, "race");
+
+    if (race_event)
+    {
+        String type = "checkpoint";
+        auto res = StringUtil::split(object.instance_name, "|");
+        if ((res.size() == 4 && res[2] == "0") || !object.instance_name.compare(0, 4, "race"))
+        {
+            type = "racestart";
+        }
+        int race_id = res.size() > 1 ? StringConverter::parseInt(res[1], -1) : -1;
+        m_map_entities.push_back({type, /*caption:*/type, fmt::format("icon_{}.dds", type), /*resource_group:*/"", object.position, Ogre::Radian(object.rotation.y), race_id});
+    }
+    else if (!object.type.empty())
+    {
+        String caption = "";
+        if (object.type == "station" || object.type == "hotel" || object.type == "village" ||
+                object.type == "observatory" || object.type == "farm" || object.type == "ship")
+        {
+            caption = object.instance_name + " " + object.type;
+        }
+        m_map_entities.push_back({object.type, caption, fmt::format("icon_{}.dds", object.type), /*resource_group:*/"", object.position, Ogre::Radian(object.rotation.y), -1});
+    }
+
+    this->ProcessODefCollisionBoxes(obj, odef, object, race_event);
 
     for (ODefCollisionMesh& cmesh : odef->collision_meshes)
     {
@@ -947,13 +972,10 @@ bool TerrainObjectManager::UpdateTerrainObjects(float dt)
     return true;
 }
 
-void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile* odef, const EditorObject& params)
+void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile* odef, const EditorObject& params, bool race_event)
 {
     for (ODefCollisionBox& cbox : odef->collision_boxes)
     {
-        bool race_event = !params.instance_name.compare(0, 10, "checkpoint") ||
-                          !params.instance_name.compare(0,  4, "race");
-
         if (params.enable_collisions && (App::sim_races_enabled->getBool() || !race_event))
         {
             // Validate AABB (minimum corners must be less or equal to maximum corners)
@@ -979,28 +1001,6 @@ void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile
                 cbox.scale, cbox.direction, cbox.event_filter, params.script_handler);
 
             obj->collBoxes.push_back(boxnum);
-
-            if (race_event)
-            {
-                String type = "checkpoint";
-                auto res = StringUtil::split(params.instance_name, "|");
-                if ((res.size() == 4 && res[2] == "0") || !params.instance_name.compare(0, 4, "race"))
-                {
-                    type = "racestart";
-                }
-                int race_id = res.size() > 1 ? StringConverter::parseInt(res[1], -1) : -1;
-                m_map_entities.push_back({type, /*caption:*/type, fmt::format("icon_{}.dds", type), /*resource_group:*/"", params.position, Ogre::Radian(params.rotation.y), race_id});
-            }
-            else if (!params.type.empty())
-            {
-                String caption = "";
-                if (params.type == "station" || params.type == "hotel" || params.type == "village" ||
-                        params.type == "observatory" || params.type == "farm" || params.type == "ship")
-                {
-                    caption = params.instance_name + " " + params.type;
-                }
-                m_map_entities.push_back({params.type, caption, fmt::format("icon_{}.dds", params.type), /*resource_group:*/"", params.position, Ogre::Radian(params.rotation.y), -1});
-            }
         }
     }
 }
