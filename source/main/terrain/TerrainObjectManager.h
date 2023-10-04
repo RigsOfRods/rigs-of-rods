@@ -145,7 +145,7 @@ protected:
     // ODef processing functions
 
     RoR::ODefFile* FetchODef(std::string const & odef_name);
-    void           ProcessODefCollisionBoxes(StaticObject* obj, ODefFile* odef, const EditorObject& params);
+    void           ProcessODefCollisionBoxes(StaticObject* obj, ODefFile* odef, const EditorObject& params, bool race_event);
 
     // Misc functions
 
