@@ -418,7 +418,7 @@ void SurveyMap::CreateTerrainTextures()
         Ogre::TextureManager::getSingleton().remove(mMapTexture->getName(), mMapTexture->getGroup());
         mMapTexture.setNull();
     }
-    mMapZoom = 0.f;
+    mMapZoom = 0.5f;
     mMapMode = SurveyMapMode::NONE;
 
     AxisAlignedBox aab   = App::GetGameContext()->GetTerrain()->getTerrainCollisionAAB();
