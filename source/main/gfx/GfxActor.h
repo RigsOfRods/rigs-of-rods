@@ -33,6 +33,7 @@
 #include "GfxData.h"
 #include "RigDef_Prerequisites.h"
 #include "SimBuffers.h"
+#include "SurveyMapEntity.h"
 #include "ThreadPool.h" // class Task
 
 #include <OgreAxisAlignedBox.h>
@@ -133,7 +134,6 @@ public:
     int                  GetActorId() const;
     int                  GetActorState() const;
     std::vector<FlexBody*>& GetFlexbodies() { return m_flexbodies; };
-    ActorType            GetActorDriveable() const;
     Ogre::MaterialPtr&   GetCabTransMaterial() { return m_cab_mat_visual_trans; }
     VideoCamState        GetVideoCamState() const { return m_vidcam_state; }
     DebugViewType        GetDebugView() const { return m_debug_view; }
@@ -148,6 +148,7 @@ public:
     void                 CalcPropAnimation(PropAnim& anim, float& cstate, int& div, float dt);
     std::vector<Prop>&   getProps() { return m_props; }
     bool                 hasCamera() { return m_videocameras.size() > 0; }
+    SurveyMapEntity&     getSurveyMapEntity() { return m_surveymap_entity; }
 
 private:
 
@@ -204,6 +205,7 @@ private:
     // GUI
     Ogre::MaterialPtr           m_help_mat;
     Ogre::TexturePtr            m_help_tex;
+    SurveyMapEntity             m_surveymap_entity;
 
     ActorSB                     m_simbuf;
 };

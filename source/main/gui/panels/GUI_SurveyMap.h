@@ -26,6 +26,7 @@
 #include "Application.h"
 #include "OgreImGui.h"
 #include "SimData.h"
+#include "SurveyMapEntity.h"
 #include "SurveyMapTextureCreator.h"
 
 #include <vector>
@@ -69,12 +70,12 @@ protected:
 
     void setMapZoom(float zoom);
     void setMapZoomRelative(float dt_sec);
-    const char* getTypeByDriveable(ActorType driveable, ActorPtr actor);
-    const char* getAIType(ActorPtr actor);
+    const char* getTypeByDriveable(const ActorPtr& actor);
+    const char* getAIType(const ActorPtr& actor);
 
-    void DrawMapIcon(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin,
-                     std::string const& filename, std::string const& caption,
-                     float pos_x, float pos_y, float angle, std::string resource_group = "");
+    void CacheMapIcon(SurveyMapEntity& e);
+
+    void DrawMapIcon(const SurveyMapEntity& e, ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin);
 
     ImVec2 DrawWaypoint(ImVec2 view_pos, ImVec2 view_size, Ogre::Vector2 view_origin,
                      std::string const& caption, int idx);
