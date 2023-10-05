@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2023-09-21 07:01+0000\n"
+"PO-Revision-Date: 2023-10-05 22:11+0000\n"
 "Last-Translator: Thunderstrike116 <thunderstrike116@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "el/>\n"
@@ -32,11 +32,8 @@ msgid "No render system plugin available. Check your plugins.cfg"
 msgstr "Κανένα σύστημα rendering διαθέσιμο. Ελέγξτε το αρχείο plugins.cfg"
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Screenshot format"
 msgid "Screenshot: "
-msgstr "Μορφή αρχείου στιγμιότυπου οθόνης"
+msgstr "Στιγμιότυπο οθόνης: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
@@ -58,18 +55,14 @@ msgstr ""
 "εγκατεστημένη"
 
 #: Application.cpp:359
-#, fuzzy
-#| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
-msgstr "Αυτόματες ταχύτητες."
+msgstr "Αυτόματο κιβώτιο ταχυτήτων."
 
 #: Application.cpp:360
-#, fuzzy
-#| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr "Χειροκίνητες ταχύτητες - Αυτόματος συμπλέκτης."
+msgstr "Χειροκίνητο κιβώτιο ταχυτήτων με αυτόματο συμπλέκτη."
 
 #: Application.cpp:361
 msgctxt "SimGearboxMode"
@@ -87,40 +80,34 @@ msgid "Fully manual: stick shift with ranges"
 msgstr "Πλήρως χειροκίνητο: λεβιές ταχυτητων με σχέσεις"
 
 #: Application.cpp:372
-#, fuzzy
-#| msgid "None (fastest)"
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
 msgstr "Κανένα (γρηγορότερο)"
 
 #: Application.cpp:373
-#, fuzzy
-#| msgid "Light source effects:"
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr "Πηγή εφε φωτός"
+msgstr "Καμία πηγή εφέ φωτός"
 
 #: Application.cpp:374
-#, fuzzy
-#| msgid "Only current vehicle, main lights"
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr "μονο τα φωτα του οχηματος, τα κυρια φωτα"
+msgstr "Μόνο τρέχον όχημα, κύρια φώτα"
 
 #: Application.cpp:375
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
-msgstr ""
+msgstr "Ολα τα οχήματα, κύρια φώτα"
 
 #: Application.cpp:376
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
-msgstr ""
+msgstr "Ολα τα οχήματα, όλα τα φώτα"
 
 #: Application.cpp:385
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "Ανενεργό"
 
 #: Application.cpp:386
 msgctxt "GfxShadowType"
@@ -128,11 +115,9 @@ msgid "PSSM"
 msgstr ""
 
 #: Application.cpp:395
-#, fuzzy
-#| msgid "Sandstorm (fastest)"
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
-msgstr "αμμοθύελλα (γρηγορότερο)"
+msgstr "Αμμοθύελλα (γρηγορότερο)"
 
 #: Application.cpp:396
 #, fuzzy
@@ -142,49 +127,41 @@ msgid "Caelum (best looking, slower)"
 msgstr "Caelum (το πιο ποιοτικό, πιο αργό)"
 
 #: Application.cpp:397
-#, fuzzy
-#| msgid "Full (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
-msgstr "Πλήρης (η καλύτερη απεικόνιση, πιο αργή)"
+msgstr "SkyX (η καλύτερη απεικόνιση, πιο αργή)"
 
 #: Application.cpp:406
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "Κανένα"
 
 #: Application.cpp:407
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
-msgstr ""
+msgstr "Διγραμμικό"
 
 #: Application.cpp:408
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
-msgstr ""
+msgstr "Τριγραμμικό"
 
 #: Application.cpp:409
-#, fuzzy
-#| msgid "Drag anisotropy:"
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
-msgstr "Σύρετε ανισοτροπία"
+msgstr "Ανισοτροπία"
 
 #: Application.cpp:418
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "Κανένα"
 
 #: Application.cpp:419
-#, fuzzy
-#| msgid "20%"
 msgctxt "GfxVegetation"
 msgid "20%"
 msgstr "20%"
 
 #: Application.cpp:420
-#, fuzzy
-#| msgid "50%"
 msgctxt "GfxVegetation"
 msgid "50%"
 msgstr "50%"
@@ -192,37 +169,29 @@ msgstr "50%"
 #: Application.cpp:421
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "Πλήρες"
 
 #: Application.cpp:430
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "Κανένα"
 
 #: Application.cpp:431
-#, fuzzy
-#| msgid "Sandstorm (fastest)"
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
-msgstr "αμμοθύελλα (γρηγορότερο)"
+msgstr "Βασικό (γρηγορότερο)"
 
 #: Application.cpp:432
-#, fuzzy
-#| msgid "Reflection"
 msgctxt "GfxWaterMode"
 msgid "Reflection"
 msgstr "Αντανάκλαση"
 
 #: Application.cpp:433
-#, fuzzy
-#| msgid "Reflection + refraction (speed optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
-msgstr "Αντανάκλαση +διάθλαση (βελτιστοποιημένη ταχύτητα)"
+msgstr "Αντανάκλαση + διάθλαση (βελτιστοποιημένη ταχύτητα)"
 
 #: Application.cpp:434
-#, fuzzy
-#| msgid "Reflection + refraction (quality optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
 msgstr "Αντανάκλαση + διάθλαση (βελτιστοποιημένη ποιότητα)"
@@ -230,17 +199,17 @@ msgstr "Αντανάκλαση + διάθλαση (βελτιστοποιημέ�
 #: Application.cpp:435
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr ""
+msgstr "HydraX"
 
 #: Application.cpp:444
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "Κανένα"
 
 #: Application.cpp:445
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "Στατικό"
 
 #: Application.cpp:446
 msgctxt "GfxExtCamMode"
@@ -250,21 +219,17 @@ msgstr ""
 #: Application.cpp:455
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "Κανένα"
 
 #: Application.cpp:456
-#, fuzzy
-#| msgid "All"
 msgctxt "IoInputGrabMode"
 msgid "All"
-msgstr "Όλα"
+msgstr "Ολα"
 
 #: Application.cpp:457
-#, fuzzy
-#| msgid "Dynamically"
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr "Δυναμικά"
+msgstr "Δυναμικό"
 
 #: GameContext.cpp:107
 msgid "Terrain not found: "
@@ -332,7 +297,7 @@ msgstr "Σφάλμα κατά τη φόρτωση ρυθμίσεων χρήση�
 
 #: gfx/camera/CameraManager.cpp:302
 msgid "FOV: Limit reached"
-msgstr ""
+msgstr "Οπτικό πεδίο: Φτάσατε το όριο"
 
 #: gfx/camera/CameraManager.cpp:314
 msgid "FOV: "
@@ -408,7 +373,7 @@ msgstr "Υλικά"
 
 #: gui/OverlayWrapper.cpp:474
 msgid "Meshes: "
-msgstr ""
+msgstr "Πλέγματα: "
 
 #: gui/OverlayWrapper.cpp:476
 msgid "Skeletons: "
@@ -419,89 +384,69 @@ msgid "Memory (Ogre): "
 msgstr "Μνήμη (Ogre): "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr "Επιτάχυνε το όχημα"
+msgstr "Αλλάζει το μέγεθος του φορτηγού"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr "δέσε ενα φορτίο στο όχημα"
+msgstr "Παίρνει το όνομα του φορτηγού"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "Παίρνει το όνομα του αρχείου φορτηγού"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "Παίρνει το όνομα της φορτωμένης περιόδου για ένα φορτηγό"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr "δέσε ενα φορτίο στο όχημα"
+msgstr "Παίρνει τον τύπο του φορτηγού"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "Επιτάχυνε το όχημα"
+msgstr "Επαναφέρει το φορτηγό"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
-#, fuzzy
-#| msgid "toggle parking brake"
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
-msgstr "χειρόφρενο"
+msgstr "Εναλλαγή του χειρόφρενου"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
-#, fuzzy
-#| msgid "toggle traction control"
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr "εναλλαγή σύστημα ελέγχου πρόσφυσης"
+msgstr "Εναλλαγή συστήματος ελέγχου πρόσφυσης"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
-#, fuzzy
-#| msgid "toggle antilock brake"
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr "εναλλαγή φρένων τροχών"
+msgstr "Εναλλαγή φρένων αντιμπλοκαρίσματος τροχών"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "AngelScript"
 msgid "Toggles the beacons"
-msgstr "εμφάνιση των ραδιοσημαντήρων του οχήματος"
+msgstr "Εναλλαγή των ραδιοσημαντήρων του οχήματος"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
-#, fuzzy
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr "[χρησιμοποιεί έθιμο σωματίδια]"
+msgstr "Εναλλαγή των προσαρμοσμένων σωματιδίων"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr ""
+msgstr "Παίρνει τον συνολικό αριθμό κόμβων του φορτηγού"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr "δέσε ενα φορτίο στο όχημα"
+msgstr "Παίρνει το συνολικό βάρος του φορτηγού"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
