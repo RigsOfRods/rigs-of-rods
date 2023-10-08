@@ -26,6 +26,7 @@
 
 #include "OgreImGui.h"
 #include "Application.h"
+#include "CVar.h"
 #include "GUI_MessageBox.h"
 
 // GUI panels
@@ -61,7 +62,17 @@
 #include <MyGUI_UString.h>
 #include <OgreOverlay.h>
 
+#include <string>
+
 namespace RoR {
+
+struct UiPresetEntry
+{
+    const char* uip_cvar;
+    std::string uip_values[(int)UiPreset::Count];
+};
+
+extern UiPresetEntry UiPresets[];
 
 class GUIManager
 {
@@ -135,6 +146,7 @@ public:
     bool IsGuiCaptureKeyboardRequested() const { return m_gui_kb_capture_requested; }
     void ApplyGuiCaptureKeyboard(); //!< Call after rendered frame to apply queued value
     bool AreStaticMenusAllowed(); //!< i.e. top menubar / vehicle UI buttons
+    void ApplyUiPreset(); //!< reads cvar 'ui_preset'
 
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
@@ -143,7 +155,7 @@ public:
     void DrawCommonGui();
 
     void SetGuiHidden(bool visible);
-    bool IsGuiHidden() const { return m_hide_gui; }
+    bool IsGuiHidden() const { return App::ui_hide_gui->getBool(); }
 
     void SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager);
 
@@ -168,7 +180,6 @@ private:
 
     MyGUI::Gui*          m_mygui                    = nullptr;
     MyGUI::OgrePlatform* m_mygui_platform           = nullptr;
-    bool                 m_hide_gui                 = false;
     OgreImGui            m_imgui;
     GuiTheme             m_theme;
     bool                 m_gui_kb_capture_queued    = false; //!< Resets and accumulates every frame

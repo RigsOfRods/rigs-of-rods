@@ -256,6 +256,8 @@ CVar* flexbody_defrag_invert_lookup;
 
 // GUI
 CVar* ui_show_live_repair_controls;
+CVar* ui_preset;
+CVar* ui_hide_gui;
 
 // Instance management
 void SetCacheSystem    (CacheSystem* obj)             { g_cache_system = obj; }
@@ -493,6 +495,18 @@ std::string ToLocalizedString(SimResetMode e)
     case SimResetMode::HARD: return _LC("SimResetMode", "Hard");
     case SimResetMode::SOFT: return _LC("SimResetMode", "Soft");
     default:                 return "";
+    }
+}
+
+std::string ToLocalizedString(UiPreset e)
+{
+    switch (e)
+    {
+    case UiPreset::NOVICE:      return _LC("UiPreset", "Novice");
+    case UiPreset::REGULAR:     return _LC("UiPreset", "Regular");
+    case UiPreset::EXPERT:      return _LC("UiPreset", "Expert");
+    case UiPreset::MINIMALLIST: return _LC("UiPreset", "Minimallist");
+    default:                     return "";
     }
 }
 

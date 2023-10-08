@@ -58,7 +58,7 @@ void Console::cVarSetupBuiltins()
     App::sim_gearbox_mode        = this->cVarCreate("sim_gearbox_mode",        "GearboxMode",                CVAR_ARCHIVE | CVAR_TYPE_INT);
     App::sim_soft_reset_mode     = this->cVarCreate("sim_soft_reset_mode",     "",                                          CVAR_TYPE_BOOL,    "false");
     App::sim_quickload_dialog    = this->cVarCreate("sim_quickload_dialog",    "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
-    App::sim_live_repair_interval = this->cVarCreate("sim_live_repair_interval", "",                           CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "2.f");
+    App::sim_live_repair_interval = this->cVarCreate("sim_live_repair_interval", "",                         CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "2.f");
 
     App::mp_state                = this->cVarCreate("mp_state",                "",                                          CVAR_TYPE_INT,     "0"/*(int)MpState::DISABLED*/);
     App::mp_join_on_startup      = this->cVarCreate("mp_join_on_startup",      "Auto connect",               CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
@@ -195,7 +195,9 @@ void Console::cVarSetupBuiltins()
     App::flexbody_defrag_reorder_texcoords = this->cVarCreate("flexbody_defrag_reorder_texcoords", "", CVAR_TYPE_BOOL, "true");
     App::flexbody_defrag_invert_lookup     = this->cVarCreate("flexbody_defrag_invert_lookup",     "", CVAR_TYPE_BOOL, "true");
 
-    App::ui_show_live_repair_controls      = this->cVarCreate("ui_show_live_repair_controls",      "", CVAR_TYPE_BOOL, "true");
+    App::ui_show_live_repair_controls      = this->cVarCreate("ui_show_live_repair_controls",      "", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "true");
+    App::ui_preset                         = this->cVarCreate("ui_preset",                         "", CVAR_ARCHIVE | CVAR_TYPE_INT, "0"/*(int)UiPreset::NOVICE*/);
+    App::ui_hide_gui                       = this->cVarCreate("ui_hide_gui",                       "", CVAR_TYPE_BOOL, "false");
 }
 
 CVar* Console::cVarCreate(std::string const& name, std::string const& long_name,

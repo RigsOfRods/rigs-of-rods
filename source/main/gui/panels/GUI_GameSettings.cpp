@@ -69,6 +69,13 @@ void GameSettings::Draw()
         ImGui::EndChild();
         ImGui::EndTabItem();
     }
+    if (ImGui::BeginTabItem(_LC("GameSettings", "UI")))
+    {
+        ImGui::BeginChild("Settings-UI-scroll", ImVec2(0.f, child_height), false);
+        this->DrawUiSettings();
+        ImGui::EndChild();
+        ImGui::EndTabItem();
+    }
     if (ImGui::BeginTabItem(_LC("GameSettings", "Graphics")))
     {
         ImGui::BeginChild("Settings-Graphics-scroll", ImVec2(0.f, child_height), false);
@@ -242,9 +249,6 @@ void GameSettings::DrawGameplaySettings()
     DrawGCombo(App::sim_gearbox_mode, _LC("GameSettings", "Gearbox mode"),
         m_combo_items_gearbox_mode.c_str());
 
-    DrawGCheckbox(App::gfx_speedo_digital, _LC("GameSettings", "Digital speedometer"));
-    DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial speedometer"));
-
     //DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
 
     DrawGCheckbox(App::sim_spawn_running, _LC("GameSettings", "Engines spawn running"));
@@ -266,8 +270,6 @@ void GameSettings::DrawGameplaySettings()
     DrawGCheckbox(App::io_discord_rpc, _LC("GameSettings", "Discord Rich Presence"));
 
     DrawGCheckbox(App::sim_quickload_dialog, _LC("GameSettings", "Show confirm. UI dialog for quickload"));
-
-    DrawGCheckbox(App::ui_show_live_repair_controls, _LC("GameSettings", "Show controls in live repair box"));
 }
 
 void GameSettings::DrawAudioSettings()
@@ -298,6 +300,27 @@ void GameSettings::DrawAudioSettings()
     DrawGCheckbox(App::audio_menu_music,       _LC("GameSettings", "Main menu music"));
     DrawGFloatSlider(App::audio_master_volume, _LC("GameSettings", "Master volume"), 0, 1);
 #endif // USE_OPENAL
+}
+
+void GameSettings::DrawUiSettings()
+{
+    ImGui::TextDisabled("%s", _LC("GameSettings", "UI settings"));
+
+    this->DrawUiPresetCombo();
+
+    ImGui::Separator();
+
+    DrawGCheckbox(App::gfx_speedo_digital, _LC("GameSettings", "Digital speedometer"));
+    DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial speedometer"));
+
+    DrawGCheckbox(App::ui_show_live_repair_controls, _LC("GameSettings", "Show controls in live repair box"));
+
+    DrawGCheckbox(App::gfx_surveymap_icons,  _LC("GameSettings", "Overview map icons"));
+    if (App::gfx_surveymap_icons->getBool())
+    {
+        DrawGCheckbox(App::gfx_declutter_map,  _LC("GameSettings", "Declutter overview map"));
+    }
+
 }
 
 void GameSettings::DrawGraphicsSettings()
@@ -533,4 +556,73 @@ void GameSettings::SetVisible(bool v)
         ImAddItemToComboboxString(m_combo_items_input_grab, ToLocalizedString(IoInputGrabMode::DYNAMIC));
         ImTerminateComboboxString(m_combo_items_input_grab);
     }
+
+    if (m_cached_uipreset_combo_string == "")
+    {
+        ImAddItemToComboboxString(m_cached_uipreset_combo_string, ToLocalizedString(UiPreset::NOVICE));
+        ImAddItemToComboboxString(m_cached_uipreset_combo_string, ToLocalizedString(UiPreset::REGULAR));
+        ImAddItemToComboboxString(m_cached_uipreset_combo_string, ToLocalizedString(UiPreset::EXPERT));
+        ImAddItemToComboboxString(m_cached_uipreset_combo_string, ToLocalizedString(UiPreset::MINIMALLIST));
+        ImTerminateComboboxString(m_cached_uipreset_combo_string);
+    }
+}
+
+void GameSettings::DrawUiPresetCombo()
+{
+    ImGui::PushID("uiPreset");
+    
+
+    DrawGCombo(App::ui_preset, _LC("TopMenubar", "UI Preset"), m_cached_uipreset_combo_string.c_str());
+    if (ImGui::IsItemEdited())
+    {
+        App::GetGuiManager()->ApplyUiPreset();
+    }
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        const float COLLUMNWIDTH_NAME = 175.f;
+        const float COLLUMNWIDTH_VALUE = 60.f;
+        // Hack to make space for the table (doesn't autoresize)
+        ImGui::Dummy(ImVec2(COLLUMNWIDTH_NAME + COLLUMNWIDTH_VALUE*((int)UiPreset::Count), 1.f));
+
+        // UiPresets table
+        ImGui::Columns((int)UiPreset::Count + 1);
+        ImGui::SetColumnWidth(0, COLLUMNWIDTH_NAME);
+        for (int i = 0; i < (int)UiPreset::Count; i++)
+        {
+            ImGui::SetColumnWidth(i+1, COLLUMNWIDTH_VALUE);
+        }
+
+        // table header
+        ImGui::TextDisabled("%s", "Setting");
+        ImGui::NextColumn();
+        for (int i = 0; i < (int)UiPreset::Count; i++)
+        {
+            ImGui::TextDisabled("%s", ToLocalizedString((UiPreset)i).c_str());
+            ImGui::NextColumn();
+        }
+
+        // table body
+        ImGui::Separator();
+
+        int presetId = 0;
+        while (UiPresets[presetId].uip_cvar != nullptr)
+        {
+            ImGui::Text("%s", UiPresets[presetId].uip_cvar);
+            ImGui::NextColumn();
+            for (int i = 0; i < (int)UiPreset::Count; i++)
+            {
+                ImGui::Text("%s", UiPresets[presetId].uip_values[i].c_str());
+                ImGui::NextColumn();
+            }
+
+            presetId++;
+        }
+
+        // end table
+        ImGui::Columns(1);
+        ImGui::EndTooltip();
+    }
+
+    ImGui::PopID(); //"uiPreset"
 }
