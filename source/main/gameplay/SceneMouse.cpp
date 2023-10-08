@@ -197,6 +197,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
 
 void SceneMouse::UpdateSimulation()
 {
+    rmt_ScopedCPUSample(SceneMouse_UpdateSimulation, 0);
     if (mouseGrabState == 1 && grab_truck)
     {
         // get values
@@ -210,6 +211,8 @@ void SceneMouse::UpdateSimulation()
 
 void SceneMouse::UpdateVisuals()
 {
+    rmt_ScopedCPUSample(SceneMouse_UpdateVisuals, 0);
+
     if (grab_truck == nullptr)
     {
         pickLineNode->setVisible(false);   // Hide the line     

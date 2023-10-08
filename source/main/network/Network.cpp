@@ -671,6 +671,7 @@ void Network::AddLocalStream(RoRnet::StreamRegister *reg, int size)
 
 std::vector<NetRecvPacket> Network::GetIncomingStreamData()
 {
+    rmt_ScopedCPUSample(Network_GetIncomingStreamData, 0);
     std::lock_guard<std::mutex> lock(m_recv_packetqueue_mutex);
     std::vector<NetRecvPacket> buf_copy = m_recv_packet_buffer;
     m_recv_packet_buffer.clear();

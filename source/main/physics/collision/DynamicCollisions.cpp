@@ -121,6 +121,8 @@ void RoR::ResolveInterActorCollisions(const float dt, PointColDetector &interPoi
         const float collrange,
         ground_model_t &submesh_ground_model)
 {
+    rmt_ScopedCPUSample(ResolveInterActorCollisions, 0);
+
     for (int i=0; i<free_collcab; i++)
     {
         if (inter_collcabrate[i].rate > 0)

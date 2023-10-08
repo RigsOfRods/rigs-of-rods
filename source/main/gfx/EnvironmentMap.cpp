@@ -205,6 +205,8 @@ RoR::GfxEnvmap::~GfxEnvmap()
 
 void RoR::GfxEnvmap::UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, bool full/*=false*/)
 {
+    rmt_ScopedCPUSample(GfxEnvmap_UpdateEnvMap, 0);
+
     // how many of the 6 render planes to update at once? Use cvar 'gfx_envmap_rate', unless instructed to do full render.
     const int update_rate = full ? NUM_FACES : App::gfx_envmap_rate->getInt();
 

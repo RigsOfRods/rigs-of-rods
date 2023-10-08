@@ -406,6 +406,12 @@ if (TARGET MyGUI::OgrePlatform)
 endif ()
 target_compile_definitions(${BINNAME} PRIVATE $<$<PLATFORM_ID:WINDOWS>:MYGUI_STATIC>)
 
+# Always include remotery to satisfy macros; profiling is toggled using `RMT_ENABLED`
+target_link_libraries(${BINNAME} PRIVATE remotery)
+if (USE_REMOTERY)
+    target_compile_definitions(${BINNAME} PRIVATE RMT_ENABLED=1)
+endif ()
+
 #  OPTIONAL DEPENDENCIES
 # -----------------------
 

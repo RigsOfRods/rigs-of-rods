@@ -619,6 +619,7 @@ String InputEngine::getKeyNameForKeyCode(OIS::KeyCode keycode)
 
 void InputEngine::Capture()
 {
+    rmt_ScopedCPUSample(InputEngine_Capture, 0);
     mKeyboard->capture();
     mMouse->capture();
 
@@ -722,6 +723,7 @@ float InputEngine::getEventBounceTime(int eventID)
 
 void InputEngine::updateKeyBounces(float dt)
 {
+    rmt_ScopedCPUSample(InputEngine_updateKeyBounces, 0);
     for (std::map<int, float>::iterator it = event_times.begin(); it != event_times.end(); it++)
     {
         if (it->second > 0)

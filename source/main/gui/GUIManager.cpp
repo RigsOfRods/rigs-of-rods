@@ -126,6 +126,7 @@ bool GUIManager::AreStaticMenusAllowed() //!< i.e. top menubar / vehicle UI butt
 
 void GUIManager::DrawSimulationGui(float dt)
 {
+    rmt_ScopedCPUSample(GUIManager_DrawSimulationGui, 0);
     if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
     {
         this->TopMenubar.Update();
@@ -159,6 +160,8 @@ void GUIManager::DrawSimulationGui(float dt)
 
 void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
 {
+    rmt_ScopedCPUSample(GUIManager_DrawSimGuiBuffered, 0);
+
     this->DrawCommonGui();
 
     if (player_gfx_actor && this->SimActorStats.IsVisible())
@@ -374,6 +377,8 @@ void GUIManager::SetupImGui()
 
 void GUIManager::DrawCommonGui()
 {
+    rmt_ScopedCPUSample(GUIManager_DrawCommonGui, 0);
+
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !m_hide_gui)
     {
         this->MpClientList.Draw();
@@ -397,6 +402,7 @@ void GUIManager::DrawCommonGui()
 
 void GUIManager::DrawMainMenuGui()
 {
+    rmt_ScopedCPUSample(GUIManager_DrawMainMenuGui, 0);
     this->DrawCommonGui();
 
     if (this->MultiplayerSelector.IsVisible())
@@ -466,6 +472,7 @@ void GUIManager::SupressCursor(bool do_supress)
 
 void GUIManager::UpdateInputEvents(float dt)
 {
+    rmt_ScopedCPUSample(GUIManager_UpdateInputEvents, 0);
     // EV_COMMON_CONSOLE_TOGGLE - display console GUI (anytime)
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_CONSOLE_TOGGLE))
     {

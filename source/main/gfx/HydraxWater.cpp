@@ -151,6 +151,8 @@ void HydraxWater::WaterSetSunPosition(Ogre::Vector3 pos)
 
 void HydraxWater::FrameStepWater(float dt)
 {
+    rmt_ScopedCPUSample(HydraxWater_FrameStepWater, 0);
+
     if (mHydrax)
     {
         mHydrax->update(dt);

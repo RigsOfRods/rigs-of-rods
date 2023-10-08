@@ -66,6 +66,8 @@ void SkyManager::NotifySkyCameraChanged(Ogre::Camera* cam)
 
 void SkyManager::DetectSkyUpdate()
 {
+    rmt_ScopedCPUSample(SkyManager_DetectSkyUpdate, 0);
+
     if (!m_caelum_system || !App::GetGameContext()->GetTerrain())
     {
         return;

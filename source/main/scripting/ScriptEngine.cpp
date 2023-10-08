@@ -370,6 +370,8 @@ bool ScriptEngine::prepareContextAndHandleErrors(ScriptUnitId_t nid, int asFunct
 
 void ScriptEngine::framestep(Real dt)
 {
+    rmt_ScopedCPUSample(ScriptEngine_framestep, 0);
+
     // Check if we need to execute any strings
     std::vector<String> tmpQueue;
     stringExecutionQueue.pull(tmpQueue);

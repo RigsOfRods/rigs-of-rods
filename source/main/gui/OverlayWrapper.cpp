@@ -657,6 +657,8 @@ void OverlayWrapper::UpdatePressureOverlay(RoR::GfxActor* ga)
 
 void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
 {
+    rmt_ScopedCPUSample(GfxActor_UpdateLandVehicleHUD, 0);
+
     // gears
     int vehicle_getgear = ga->GetSimDataBuffer().simbuf_gear;
     if (vehicle_getgear > 0)
@@ -737,6 +739,8 @@ void OverlayWrapper::UpdateLandVehicleHUD(RoR::GfxActor* ga)
 
 void OverlayWrapper::UpdateAerialHUD(RoR::GfxActor* gfx_actor)
 {
+    rmt_ScopedCPUSample(GfxActor_UpdateAerialHUD, 0);
+
     RoR::ActorSB& simbuf = gfx_actor->GetSimDataBuffer();
     RoR::NodeSB* nodes = gfx_actor->GetSimNodeBuffer();
 
