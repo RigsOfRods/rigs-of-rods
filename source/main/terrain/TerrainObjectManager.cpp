@@ -674,17 +674,17 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             type = "racestart";
         }
         int race_id = res.size() > 1 ? StringConverter::parseInt(res[1], -1) : -1;
-        m_map_entities.push_back({type, /*caption:*/type, fmt::format("icon_{}.dds", type), /*resource_group:*/"", object.position, Ogre::Radian(object.rotation.y), race_id});
+        m_map_entities.push_back({type, /*caption:*/type, fmt::format("icon_{}.dds", type), /*resource_group:*/"", object.position, Ogre::Radian(0), race_id});
     }
     else if (!object.type.empty())
     {
         String caption = "";
         if (object.type == "station" || object.type == "hotel" || object.type == "village" ||
-                object.type == "observatory" || object.type == "farm" || object.type == "ship")
+                object.type == "observatory" || object.type == "farm" || object.type == "ship" || object.type == "sign")
         {
             caption = object.instance_name + " " + object.type;
         }
-        m_map_entities.push_back({object.type, caption, fmt::format("icon_{}.dds", object.type), /*resource_group:*/"", object.position, Ogre::Radian(object.rotation.y), -1});
+        m_map_entities.push_back({object.type, caption, fmt::format("icon_{}.dds", object.type), /*resource_group:*/"", object.position, Ogre::Radian(0), -1});
     }
 
     this->ProcessODefCollisionBoxes(obj, odef, object, race_event);
