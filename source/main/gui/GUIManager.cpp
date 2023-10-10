@@ -374,7 +374,7 @@ void GUIManager::SetupImGui()
 
 void GUIManager::DrawCommonGui()
 {
-    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !m_hide_gui)
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !m_hide_gui && !this->SurveyMap.IsVisible())
     {
         this->MpClientList.Draw();
     }
