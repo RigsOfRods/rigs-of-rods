@@ -322,15 +322,22 @@ void SurveyMap::Draw()
                 fileName << "icon_" << type_str << ".dds"; // gray icon
 
             auto& simbuf = gfx_actor->GetSimDataBuffer();
-            std::string caption = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
 
             // Update the surveymap icon entry
             SurveyMapEntity& e = gfx_actor->getSurveyMapEntity();
             e.pos = simbuf.simbuf_pos;
             e.rot_angle = Ogre::Radian(simbuf.simbuf_rotation);
             e.filename = fileName.ToCStr();
-            e.caption = caption;
 
+            // Update net player name
+            if (simbuf.simbuf_actor_state == ActorState::NETWORKED_OK)
+            {
+                e.caption = simbuf.simbuf_net_username;
+                e.caption_color = App::GetNetwork()->GetPlayerColor(simbuf.simbuf_net_colornum);
+                e.draw_caption = true;
+            }
+
+            // Cache and draw icon
             this->CacheMapIcon(e);
             this->DrawMapIcon(e, tl_screen_pos, view_size, view_origin);
         }
@@ -345,9 +352,18 @@ void SurveyMap::Draw()
                 SurveyMapEntity& e = gfx_character->xc_surveymap_entity;
                 e.pos = simbuf.simbuf_character_pos;
                 e.rot_angle = simbuf.simbuf_character_rot;
-                e.caption = (App::mp_state->getEnum<MpState>() == MpState::CONNECTED) ? simbuf.simbuf_net_username : "";
-                e.filename = "icon_person_activated.dds";
+                e.filename = "icon_person_activated.dds"; // green icon
 
+                // Update net player name
+                if (simbuf.simbuf_is_remote)
+                {
+                    e.filename = "icon_person_networked.dds"; // blue icon
+                    e.caption = simbuf.simbuf_net_username;
+                    e.caption_color = App::GetNetwork()->GetPlayerColor(simbuf.simbuf_color_number);
+                    e.draw_caption = true;
+                }
+
+                // Cache and draw icon
                 this->CacheMapIcon(e);
                 this->DrawMapIcon(e, tl_screen_pos, view_size, view_origin);
             }
@@ -552,12 +568,21 @@ void SurveyMap::DrawMapIcon(const SurveyMapEntity& e, ImVec2 view_pos, ImVec2 vi
     DrawImageRotated(reinterpret_cast<ImTextureID>(e.cached_icon->getHandle()), img_pos,
         ImVec2(e.cached_icon->getWidth(), e.cached_icon->getHeight()), e.rot_angle.valueRadians());
 
-    ImVec2 dist = ImGui::GetMousePos() - img_pos;
-    if (!e.caption.empty() && abs(dist.x) <= 5 && abs(dist.y) <= 5)
+    if (e.draw_caption)
     {
-        ImGui::BeginTooltip();
-        ImGui::Text("%s", e.caption.c_str());
-        ImGui::EndTooltip();
+        ImVec2 text_pos(img_pos.x - (ImGui::CalcTextSize(e.caption.c_str()).x/2), img_pos.y + 5);
+        ImVec4 text_color(e.caption_color.r, e.caption_color.g, e.caption_color.b, 1.f);
+        ImGui::GetWindowDrawList()->AddText(text_pos, ImColor(text_color), e.caption.c_str());
+    }
+    else
+    {
+        ImVec2 dist = ImGui::GetMousePos() - img_pos;
+        if (!e.caption.empty() && abs(dist.x) <= 5 && abs(dist.y) <= 5)
+        {
+            ImGui::BeginTooltip();
+            ImGui::Text("%s", e.caption.c_str());
+            ImGui::EndTooltip();
+        }
     }
 }
 

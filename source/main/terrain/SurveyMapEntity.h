@@ -42,6 +42,8 @@ namespace RoR {
         Ogre::Radian rot_angle; //!< world yaw in radians
         int id; //!< race ID (>=0), or -1 if not a race icon. You can use larger negative numbers for custom IDs.
         Ogre::TexturePtr cached_icon;
+        bool draw_caption = false; //!< By default, don't draw caption under icon, use the mouse tooltip.
+        Ogre::ColourValue caption_color = Ogre::ColourValue::White;
     };
 
     typedef std::vector<SurveyMapEntity> SurveyMapEntityVec;
