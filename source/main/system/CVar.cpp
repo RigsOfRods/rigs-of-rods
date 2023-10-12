@@ -196,6 +196,7 @@ void Console::cVarSetupBuiltins()
     App::flexbody_defrag_invert_lookup     = this->cVarCreate("flexbody_defrag_invert_lookup",     "", CVAR_TYPE_BOOL, "true");
 
     App::ui_show_live_repair_controls      = this->cVarCreate("ui_show_live_repair_controls",      "", CVAR_TYPE_BOOL, "true");
+    App::ui_show_vehicle_buttons           = this->cVarCreate("ui_show_vehicle_buttons", "Show vehicle buttons menu", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "true");
 }
 
 CVar* Console::cVarCreate(std::string const& name, std::string const& long_name,

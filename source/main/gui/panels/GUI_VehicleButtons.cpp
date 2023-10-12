@@ -57,20 +57,20 @@ void VehicleButtons::Draw(RoR::GfxActor* actorx)
     bool is_visible = false;
 
     // Show only once for 5 sec, with a notice
-    if (actorx && !m_init)
+    if (App::ui_show_vehicle_buttons->getBool() && actorx && !m_init)
     {
         m_timer.reset();
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                                       fmt::format(_LC("VehicleButtons", "Hover the mouse on the left to see controls")), "lightbulb.png");
         m_init = true;
     }
-    if (m_timer.getMilliseconds() < 5000)
+    if (App::ui_show_vehicle_buttons->getBool() && m_timer.getMilliseconds() < 5000)
     {
         is_visible = true;
     }
 
     // Show when mouse is on the left of screen
-    if (App::GetGuiManager()->AreStaticMenusAllowed() &&
+    if (App::ui_show_vehicle_buttons->getBool() && App::GetGuiManager()->AreStaticMenusAllowed() &&
         (ImGui::GetIO().MousePos.x <= window_pos.x + ImGui::GetStyle().WindowPadding.x) && ImGui::GetIO().MousePos.y <= ImGui::GetIO().DisplaySize.y && !ImGui::IsMouseDown(1))
     {
         is_visible = true;

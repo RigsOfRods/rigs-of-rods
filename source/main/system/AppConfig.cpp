@@ -416,6 +416,7 @@ void Console::saveConfig()
     WriteVarsHelper(f, "Simulation",    "sim_");
     WriteVarsHelper(f, "Input/Output",  "io_");
     WriteVarsHelper(f, "Graphics",      "gfx_");
+    WriteVarsHelper(f, "GUI",           "ui_");
     WriteVarsHelper(f, "Audio",         "audio_");
     WriteVarsHelper(f, "Diagnostics",   "diag_");
 
