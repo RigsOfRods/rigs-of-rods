@@ -460,6 +460,7 @@ extern CVar* flexbody_defrag_invert_lookup;
 
 // GUI
 extern CVar* ui_show_live_repair_controls;
+extern CVar* ui_show_vehicle_buttons;
 
 // ------------------------------------------------------------------------------------------------
 // Global objects

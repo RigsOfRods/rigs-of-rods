@@ -268,6 +268,8 @@ void GameSettings::DrawGameplaySettings()
     DrawGCheckbox(App::sim_quickload_dialog, _LC("GameSettings", "Show confirm. UI dialog for quickload"));
 
     DrawGCheckbox(App::ui_show_live_repair_controls, _LC("GameSettings", "Show controls in live repair box"));
+
+    DrawGCheckbox(App::ui_show_vehicle_buttons, _LC("GameSettings", "Show vehicle buttons menu"));
 }
 
 void GameSettings::DrawAudioSettings()

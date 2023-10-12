@@ -256,6 +256,7 @@ CVar* flexbody_defrag_invert_lookup;
 
 // GUI
 CVar* ui_show_live_repair_controls;
+CVar* ui_show_vehicle_buttons;
 
 // Instance management
 void SetCacheSystem    (CacheSystem* obj)             { g_cache_system = obj; }
