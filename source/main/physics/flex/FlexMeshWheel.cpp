@@ -66,7 +66,7 @@ FlexMeshWheel::FlexMeshWheel(
 
     // Define the vertices
     m_vertex_count = 6*(nrays+1);
-    m_vertices = new FlexMeshWheelVertex[m_vertex_count];
+    m_vertices.resize(m_vertex_count);
 
     int i;
     //textures coordinates
@@ -83,7 +83,7 @@ FlexMeshWheel::FlexMeshWheel(
     // Define triangles
     // The values in this table refer to vertices in the above table
     m_index_count = 3*10*nrays;
-    m_indices=(unsigned short*)malloc(m_index_count*sizeof(unsigned short));
+    m_indices.resize(m_index_count);
     for (i=0; i<nrays; i++)
     {
         m_indices[3*(i*10  )]=i*6;   m_indices[3*(i*10  )+1]=i*6+1;     m_indices[3*(i*10  )+2]=(i+1)*6;
@@ -131,7 +131,7 @@ FlexMeshWheel::FlexMeshWheel(
           offset, m_mesh->sharedVertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 
     // Upload the position data to the card
-    m_hw_vbuf->writeData(0, m_hw_vbuf->getSizeInBytes(), m_vertices, true);
+    m_hw_vbuf->writeData(0, m_hw_vbuf->getSizeInBytes(), m_vertices.data(), true);
 
     // Set position buffer binding so buffer 0 is bound to our position buffer
     VertexBufferBinding* bind = m_mesh->sharedVertexData->vertexBufferBinding;
@@ -146,7 +146,8 @@ FlexMeshWheel::FlexMeshWheel(
             HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 
     // Upload the index data to the card
-    ibuf->writeData(0, ibuf->getSizeInBytes(), m_indices, true);
+    ibuf->writeData(0, ibuf->getSizeInBytes(), m_indices.data(), true);
+    m_indices.clear(); // We won't need these anymore.
 
     // Set parameters of the submesh
     m_submesh->useSharedVertices = true;
@@ -163,9 +164,6 @@ FlexMeshWheel::FlexMeshWheel(
 
 FlexMeshWheel::~FlexMeshWheel()
 {
-    if (m_vertices != nullptr) { delete m_vertices; }
-    if (m_indices != nullptr) { free (m_indices); }
-
     // Rim: we own both Entity and SceneNode
     m_rim_scene_node->detachAllObjects();
     App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_rim_scene_node);
@@ -259,6 +257,6 @@ void FlexMeshWheel::flexitCompute()
 
 Vector3 FlexMeshWheel::flexitFinal()
 {
-    m_hw_vbuf->writeData(0, m_hw_vbuf->getSizeInBytes(), m_vertices, true);
+    m_hw_vbuf->writeData(0, m_hw_vbuf->getSizeInBytes(), m_vertices.data(), true);
     return m_flexit_center;
 }
