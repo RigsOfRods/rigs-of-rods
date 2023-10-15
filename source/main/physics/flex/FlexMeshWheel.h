@@ -26,6 +26,7 @@
 
 #include <Ogre.h>
 #include <string>
+#include <vector>
 
 namespace RoR {
 
@@ -98,13 +99,13 @@ private:
     // Vertices
     float            m_norm_y;
     size_t           m_vertex_count;
-    FlexMeshWheelVertex* m_vertices;
+    std::vector<FlexMeshWheelVertex> m_vertices;
     Ogre::VertexDeclaration* m_vertex_format;
     Ogre::HardwareVertexBufferSharedPtr m_hw_vbuf;
 
     // Indices
     size_t           m_index_count;
-    unsigned short*  m_indices;
+    std::vector<unsigned short>  m_indices;
 };
 
 /// @} // addtogroup Flex
