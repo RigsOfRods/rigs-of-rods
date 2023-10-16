@@ -674,7 +674,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             type = "racestart";
         }
         int race_id = res.size() > 1 ? StringConverter::parseInt(res[1], -1) : -1;
-        m_map_entities.push_back({type, /*caption:*/type, fmt::format("icon_{}.dds", type), /*resource_group:*/"", object.position, Ogre::Radian(0), race_id});
+        m_map_entities.push_back(SurveyMapEntity(type, /*caption:*/type, fmt::format("icon_{}.dds", type), /*resource_group:*/"", object.position, Ogre::Radian(0), race_id));
     }
     else if (!object.type.empty())
     {
@@ -684,7 +684,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         {
             caption = object.instance_name + " " + object.type;
         }
-        m_map_entities.push_back({object.type, caption, fmt::format("icon_{}.dds", object.type), /*resource_group:*/"", object.position, Ogre::Radian(0), -1});
+        m_map_entities.push_back(SurveyMapEntity(object.type, caption, fmt::format("icon_{}.dds", object.type), /*resource_group:*/"", object.position, Ogre::Radian(0), -1));
     }
 
     this->ProcessODefCollisionBoxes(obj, odef, object, race_event);
@@ -934,7 +934,7 @@ void TerrainObjectManager::LoadTelepoints()
 {
     for (Terrn2Telepoint& telepoint: terrainManager->GetDef().telepoints)
     {
-        m_map_entities.push_back({"telepoint", telepoint.name, "icon_telepoint.dds", /*resource_group:*/"", telepoint.position, Ogre::Radian(0)});
+        m_map_entities.push_back(SurveyMapEntity("telepoint", telepoint.name, "icon_telepoint.dds", /*resource_group:*/"", telepoint.position, Ogre::Radian(0), -1));
     }
 }
 
