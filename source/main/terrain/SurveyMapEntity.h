@@ -34,13 +34,20 @@ namespace RoR {
 
     struct SurveyMapEntity
     {
+        SurveyMapEntity()
+        {}
+
+        SurveyMapEntity(const std::string& _type, const std::string& _caption, const std::string& _filename, const std::string& _rg, Ogre::Vector3 _pos, Ogre::Radian _rot, int _id)
+            :type(_type), caption(_caption), filename(_filename), resource_group(_rg), pos(_pos), rot_angle(_rot), id(_id)
+        {}
+
         std::string type; //!< informational
         std::string caption; //!< display caption
         std::string filename; //!< Requested icon, cached may be out of date.
         std::string resource_group; //!< if empty, defaults to TexturesRG
         Ogre::Vector3 pos; //!< world pos in meters
         Ogre::Radian rot_angle; //!< world yaw in radians
-        int id; //!< race ID (>=0), or -1 if not a race icon. You can use larger negative numbers for custom IDs.
+        int id = -1; //!< race ID (>=0), or -1 if not a race icon. You can use larger negative numbers for custom IDs.
         Ogre::TexturePtr cached_icon;
         bool draw_caption = false; //!< By default, don't draw caption under icon, use the mouse tooltip.
         Ogre::ColourValue caption_color = Ogre::ColourValue::White;
