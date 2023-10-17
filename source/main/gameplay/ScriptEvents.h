@@ -65,11 +65,12 @@ enum scriptEvents
 
 };
 
+/// Argument #2 of script event `SE_ANGELSCRIPT_MANIPULATIONS`
 enum angelScriptManipulationType
 {
-    MANIP_CONSOLE_SNIPPET_EXECUTED = 0, // Backwards compat
-    MANIP_SCRIPT_LOADED,
-    MANIP_SCRIPT_UNLOADED
+    ASMANIP_CONSOLE_SNIPPET_EXECUTED = 0, // 0 for Backwards compatibility.
+    ASMANIP_SCRIPT_LOADED,                //!< Triggered after the script's `main()` completed; may trigger additional processing (for example, it delivers the *.mission file to mission system script).
+    ASMANIP_SCRIPT_UNLOADING              //!< Triggered before unloading the script to let it clean up (important for missions).
 };
 
 enum angelScriptThreadStatus
