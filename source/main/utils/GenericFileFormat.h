@@ -85,16 +85,16 @@ struct GenericDocument: public RefCountingObject<GenericDocument>
 
 typedef RefCountingObjectPtr<GenericDocument> GenericDocumentPtr;
 
-struct GenericDocReader: public RefCountingObject<GenericDocReader>
+struct GenericDocContext: public RefCountingObject<GenericDocContext>
 {
-    GenericDocReader(GenericDocumentPtr d) : doc(d) {}
-    virtual ~GenericDocReader() {};
+    GenericDocContext(GenericDocumentPtr d) : doc(d) {}
+    virtual ~GenericDocContext() {};
 
     GenericDocumentPtr doc;
     uint32_t token_pos = 0;
     uint32_t line_num = 0;
 
-    // PLEASE maintain the same order as in 'bindings/GenericFileFormatAngelscript.cpp'
+    // PLEASE maintain the same order as in 'bindings/GenericFileFormatAngelscript.cpp' and 'doc/*/GenericDocContextClass.h'
 
     bool moveNext() { token_pos++; return endOfFile(); }
     uint32_t getPos() const { return token_pos; }
@@ -120,6 +120,6 @@ struct GenericDocReader: public RefCountingObject<GenericDocReader>
     float getFloatData(int offset = 0) const { return !endOfFile(offset) ? doc->tokens[token_pos + offset].data : 0.f; }
 };
 
-typedef RefCountingObjectPtr<GenericDocReader> GenericDocReaderPtr;
+typedef RefCountingObjectPtr<GenericDocContext> GenericDocContextPtr;
 
 } // namespace RoR

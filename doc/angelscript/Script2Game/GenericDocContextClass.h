@@ -20,13 +20,13 @@ enum TokenType
 };
 
 /**
- * @brief Binding of RoR::GenericDocReader; Traverses document tokens; See 'demo_script.as' for an example.
+ * @brief Binding of RoR::GenericDocContext; Traverses document tokens; See 'demo_script.as' for an example.
  */
-class GenericDocReaderClass
+class GenericDocContextClass
 {
     // PLEASE maintain the same order as in 'GenericFileFormat.h' and 'GenericFileFormatAngelscript.cpp'
     
-    GenericDocReader(GenericDocumentPtr@ d);
+    GenericDocContext(GenericDocumentPtr@ d);
 
     bool moveNext();
     uint getPos();
