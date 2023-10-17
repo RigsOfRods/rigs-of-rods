@@ -1035,7 +1035,7 @@ bool GenericDocument::saveToResource(std::string resource_name, std::string reso
     }
 }
 
-bool GenericDocReader::seekNextLine()
+bool GenericDocContext::seekNextLine()
 {
     // Skip current line
     while (!this->endOfFile() && this->tokenType() != TokenType::LINEBREAK)
@@ -1052,7 +1052,7 @@ bool GenericDocReader::seekNextLine()
     return this->endOfFile();
 }
 
-int GenericDocReader::countLineArgs()
+int GenericDocContext::countLineArgs()
 {
     int count = 0;
     while (!endOfFile(count) && this->tokenType(count) != TokenType::LINEBREAK)

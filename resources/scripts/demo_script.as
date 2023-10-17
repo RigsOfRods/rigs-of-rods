@@ -263,7 +263,7 @@ void drawTerrainButtons()
                 // Fetch TOBJ filenames
                 if (g_terrain_tobj_files.length() == 0)
                 {
-                    GenericDocReaderClass@ reader = GenericDocReaderClass(doc);
+                    GenericDocContextClass@ reader = GenericDocContextClass(doc);
                     bool in_section_objects = false;
                     while (!reader.endOfFile())
                     {
@@ -338,7 +338,7 @@ void drawDocumentWindow()
     string caption = "Document view (" + g_displayed_doc_filename + ")";
     ImGui::Begin(caption, /*open:*/true, /*flags:*/0);
 
-    GenericDocReaderClass reader(g_displayed_document);
+    GenericDocContextClass reader(g_displayed_document);
     while (!reader.endOfFile())
     {
         switch (reader.tokenType())
