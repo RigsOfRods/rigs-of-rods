@@ -405,7 +405,7 @@ int main(int argc, char *argv[])
                     ScriptUnitId_t nid = App::GetScriptEngine()->loadScript(request->lsr_filename, request->lsr_category, actor, request->lsr_buffer);
                     // we want to notify any running scripts that we might change something (prevent cheating)
                     App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS,
-                        MANIP_SCRIPT_LOADED, nid, (int)request->lsr_category, 0, request->lsr_filename);
+                        ASMANIP_SCRIPT_LOADED, nid, (int)request->lsr_category, 0, request->lsr_filename);
                     delete request;
                     break;
                 }
@@ -416,7 +416,7 @@ int main(int argc, char *argv[])
                     ScriptUnit& unit = App::GetScriptEngine()->getScriptUnit(*id);
                     // we want to notify any running scripts that we might change something (prevent cheating)
                     App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS,
-                        MANIP_SCRIPT_UNLOADED, *id, (int)unit.scriptCategory, 0, unit.scriptName);
+                        ASMANIP_SCRIPT_UNLOADING, *id, (int)unit.scriptCategory, 0, unit.scriptName);
                     App::GetScriptEngine()->unloadScript(*id);
                     delete id;
                     break;
