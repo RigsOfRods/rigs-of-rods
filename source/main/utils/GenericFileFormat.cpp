@@ -1059,3 +1059,49 @@ int GenericDocContext::countLineArgs()
         count++;
     return count;
 }
+
+// -----------------
+// Editing functions
+
+bool GenericDocContext::insertToken(int offset)
+{
+    if (endOfFile(offset))
+       return false;
+
+    doc->tokens.insert(doc->tokens.begin() + token_pos + offset, { TokenType::NONE, 0.f });
+    return true;
+}
+
+bool GenericDocContext::eraseToken(int offset)
+{
+    if (endOfFile(offset))
+       return false;
+
+    // Just erase the token.
+    // We don't care about garbage in `string_pool` - the strings are usually just 1-6 characters long anyway.
+
+    doc->tokens.erase(doc->tokens.begin() + token_pos + offset);
+    return true;
+}
+
+bool GenericDocContext::setStringData(int offset, TokenType type, const std::string& data)
+{
+    if (endOfFile(offset))
+       return false;
+
+    // Insert the string at the end of the string_pool
+    // We don't care about order - updating string offsets in tokens would be complicated and unlikely helpful.
+    
+    doc->tokens[token_pos + offset] = { type, (float)doc->string_pool.size() };
+    std::copy(data.begin(), data.end(), std::back_inserter(doc->string_pool));
+    return true;
+}
+
+bool GenericDocContext::setFloatData(int offset, TokenType type, float data)
+{
+    if (endOfFile(offset))
+       return false;
+
+    doc->tokens[token_pos + offset] = { type, data };
+    return true;
+}
