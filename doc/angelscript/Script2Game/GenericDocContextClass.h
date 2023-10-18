@@ -46,6 +46,18 @@ class GenericDocContextClass
     bool isTokBool(int offset = 0);
     bool isTokKeyword(int offset = 0);
     bool isTokComment(int offset = 0);
+    
+    // Editing functions:
+
+    bool insertToken(int offset = 0); //!< Inserts `TokenType::NONE`; @return false if offset is beyond EOF
+    bool eraseToken(int offset = 0); //!< @return false if offset is beyond EOF
+
+    bool setTokString(int offset, const string&in str);
+    bool setTokFloat(int offset, float val);
+    bool setTokBool(int offset, bool val);
+    bool setTokKeyword(int offset, const string&in str);
+    bool setTokComment(int offset, const string&in str);
+    bool setTokLineBreak(int offset);
 };
 
 /// @}    //addtogroup Script2Game
