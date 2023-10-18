@@ -52,7 +52,7 @@ using namespace GUI;
 //   Syntax 'abcdef': searches fulltext (ingoring case) in: name, filename, description, author name/mail (in this order, with descending rank) and returns rank+string pos as score
 //   Syntax 'AREA:abcdef': searches (ignoring case) in AREA: 'guid'(guid string), 'author' (name/email), 'wheels' (string "WHEELCOUNTxPROPWHEELCOUNT"), 'file' (filename); returns string pos as score
 
-void MainSelector::Show(LoaderType type, std::string const& filter_guid, CacheEntry* advertised_entry)
+void MainSelector::Show(LoaderType type, std::string const& filter_guid, CacheEntryPtr advertised_entry)
 {
     m_loader_type = type;
     m_search_method = CacheSearchMethod::NONE;
@@ -393,7 +393,7 @@ void MainSelector::Draw()
         {
             ImGui::PushItemWidth(ImGui::GetWindowWidth() / 2);
             ImGui::Combo(_LC("MainSelector", "Configuration"), &m_selected_sectionconfig,
-                    &MainSelector::ScComboItemGetter, sd_entry.sde_entry,
+                    &MainSelector::ScComboItemGetter, &sd_entry.sde_entry,
                     static_cast<int>(sd_entry.sde_entry->sectionconfigs.size()));
             ImGui::SameLine();
         }
@@ -535,9 +535,9 @@ void MainSelector::UpdateSearchParams()
 // Static helper
 bool MainSelector::ScComboItemGetter(void* data, int idx, const char** out_text)
 {
-    CacheEntry* entry = static_cast<CacheEntry*>(data);
+    CacheEntryPtr* entry_ptr = static_cast<CacheEntryPtr*>(data);
     if (out_text)
-        *out_text = entry->sectionconfigs.at(idx).c_str();
+        *out_text = (*entry_ptr)->sectionconfigs.at(idx).c_str();
     return true;
 }
 
@@ -641,7 +641,7 @@ bool MainSelector::CatComboItemGetter(void* data, int idx, const char** out_text
     return true;
 }
 
-MainSelector::DisplayEntry::DisplayEntry(CacheEntry* entry):
+MainSelector::DisplayEntry::DisplayEntry(CacheEntryPtr entry):
     sde_entry(entry)
 {
     // Pre-format strings

@@ -219,8 +219,8 @@ public:
     Ogre::String      getSectionConfig() { return m_section_config; }
     int               getInstanceId() { return ar_instance_id; }
     // not exported to scripting:
-    CacheEntry*       getUsedSkin() { return m_used_skin_entry; }
-    void              setUsedSkin(CacheEntry* skin) { m_used_skin_entry = skin; }
+    CacheEntryPtr&    getUsedSkin();
+    void              setUsedSkin(CacheEntryPtr& skin);
     bool              isPreloadedWithTerrain() const { return m_preloaded_with_terrain; };
     std::vector<authorinfo_t> getAuthors();
     std::vector<std::string>  getDescription();
@@ -568,7 +568,7 @@ private:
     int               m_masscount = 0;             //!< Physics attr; Number of nodes loaded with l option
     float             m_dry_mass = 0.f;              //!< Physics attr;
     std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
-    CacheEntry*       m_used_skin_entry = nullptr;       //!< Graphics
+    CacheEntryPtr       m_used_skin_entry = nullptr;       //!< Graphics
     Skidmark*         m_skid_trails[MAX_WHEELS*2] = {};
     bool              m_antilockbrake = false;         //!< GUI state
     bool              m_tractioncontrol = false;       //!< GUI state

@@ -786,13 +786,13 @@ struct ActorSpawnRequest
         AI            //!< Script controlled
     };
 
-    CacheEntry*         asr_cache_entry = nullptr; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
+    CacheEntryPtr       asr_cache_entry = nullptr; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
     std::string         asr_filename;
     Ogre::String        asr_config;
     Ogre::Vector3       asr_position = Ogre::Vector3::ZERO;
     Ogre::Quaternion    asr_rotation = Ogre::Quaternion::ZERO;
     collision_box_t*    asr_spawnbox = nullptr;
-    CacheEntry*         asr_skin_entry = nullptr;
+    CacheEntryPtr       asr_skin_entry = nullptr;
     Origin              asr_origin = Origin::UNKNOWN;
     int                 asr_debugview = 0; //(int)DebugViewType::DEBUGVIEW_NONE;
     Ogre::UTFString     asr_net_username;

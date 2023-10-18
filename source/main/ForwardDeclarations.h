@@ -165,6 +165,7 @@ namespace RoR
     struct authorinfo_t;
 
     typedef RefCountingObjectPtr<Actor> ActorPtr;
+    typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
     typedef RefCountingObjectPtr<LocalStorage> LocalStoragePtr;
     typedef RefCountingObjectPtr<ProceduralPoint> ProceduralPointPtr;
     typedef RefCountingObjectPtr<ProceduralObject> ProceduralObjectPtr;

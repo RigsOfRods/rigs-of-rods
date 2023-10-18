@@ -941,11 +941,11 @@ int main(int argc, char *argv[])
                 case MSG_EDI_RELOAD_BUNDLE_REQUESTED:
                 {
                     // To reload the bundle, it's resource group must be destroyed and re-created. All actors using it must be deleted.
-                    CacheEntry* entry = static_cast<CacheEntry*>(m.payload);
+                    CacheEntryPtr* entry_ptr = static_cast<CacheEntryPtr*>(m.payload);
                     bool all_clear = true;
                     for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
                     {
-                        if (actor->GetGfxActor()->GetResourceGroup() == entry->resource_group)
+                        if (actor->GetGfxActor()->GetResourceGroup() == (*entry_ptr)->resource_group)
                         {
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
                             all_clear = false;
@@ -955,7 +955,7 @@ int main(int argc, char *argv[])
                     if (all_clear)
                     {
                         // Nobody uses the RG anymore -> destroy and re-create it.
-                        App::GetCacheSystem()->ReLoadResource(*entry);
+                        App::GetCacheSystem()->ReLoadResource(*entry_ptr);
                     }
                     else
                     {
@@ -963,7 +963,8 @@ int main(int argc, char *argv[])
                         App::GetGameContext()->PushMessage(m);
                         failed_m = true;
                     }
-                    //DO NOT `delete` the payload - it's a weak pointer, data are owned by `RoR::CacheSystem`; See `enum MsgType` in file 'Application.h'.
+
+                    delete entry_ptr;
                     break;
                 }
 
