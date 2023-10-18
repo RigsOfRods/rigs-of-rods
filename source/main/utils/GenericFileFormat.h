@@ -87,12 +87,18 @@ typedef RefCountingObjectPtr<GenericDocument> GenericDocumentPtr;
 
 struct GenericDocContext: public RefCountingObject<GenericDocContext>
 {
-    GenericDocContext(GenericDocumentPtr d) : doc(d) {}
+    GenericDocContext(GenericDocumentPtr d) : doc(d)
+    {
+        ROR_ASSERT(doc != nullptr);
+        if (doc == nullptr && AngelScript::asGetActiveContext() != nullptr)
+        {
+            AngelScript::asGetActiveContext()->SetException("Cannot create GenericDocContextClass from null GenericDocument!");
+        }
+    }
     virtual ~GenericDocContext() {};
 
     GenericDocumentPtr doc;
     uint32_t token_pos = 0;
-    uint32_t line_num = 0;
 
     // PLEASE maintain the same order as in 'bindings/GenericFileFormatAngelscript.cpp' and 'doc/*/GenericDocContextClass.h'
 
@@ -115,9 +121,24 @@ struct GenericDocContext: public RefCountingObject<GenericDocContext>
     bool isTokKeyword(int offset = 0) const { return tokenType(offset) == TokenType::KEYWORD; }
     bool isTokComment(int offset = 0) const { return tokenType(offset) == TokenType::COMMENT; }
 
+    // Editing functions:
+
+    bool insertToken(int offset = 0); //!< Inserts `TokenType::NONE`; @return false if offset is beyond EOF
+    bool eraseToken(int offset = 0); //!< @return false if offset is beyond EOF
+
+    bool setTokString(int offset, const std::string& str) { return setStringData(offset, TokenType::STRING, str); }
+    bool setTokFloat(int offset, float val) { return setFloatData(offset, TokenType::NUMBER, val); }
+    bool setTokBool(int offset, bool val) { return setFloatData(offset, TokenType::BOOL, val); }
+    bool setTokKeyword(int offset, const std::string& str) { return setStringData(offset, TokenType::KEYWORD, str); }
+    bool setTokComment(int offset, const std::string& str) { return setStringData(offset, TokenType::COMMENT, str); }
+    bool setTokLineBreak(int offset) { return setFloatData(offset, TokenType::LINEBREAK, 0.f); }
+        
     // Not exported to script:
+
     const char* getStringData(int offset = 0) const { return !endOfFile(offset) ? (doc->string_pool.data() + (uint32_t)doc->tokens[token_pos + offset].data) : nullptr; }
     float getFloatData(int offset = 0) const { return !endOfFile(offset) ? doc->tokens[token_pos + offset].data : 0.f; }
+    bool setStringData(int offset, TokenType type, const std::string& data); //!< @return false if offset is beyond EOF
+    bool setFloatData(int offset, TokenType type, float data); //!< @return false if offset is beyond EOF
 };
 
 typedef RefCountingObjectPtr<GenericDocContext> GenericDocContextPtr;

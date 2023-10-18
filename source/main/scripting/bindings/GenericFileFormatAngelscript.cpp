@@ -94,6 +94,7 @@ void RoR::RegisterGenericFileFormat(asIScriptEngine* engine)
 
 
     // class GenericDocContext
+    // (Please maintain the same order as in 'GenericFileFormat.h' and 'doc/*/GenericDocContextClass.h')
     GenericDocContext::RegisterRefCountingObject(engine, "GenericDocContextClass");
     GenericDocContextPtr::RegisterRefCountingObjectPtr(engine, "GenericDocContextClassPtr", "GenericDocContextClass");
     engine->RegisterObjectBehaviour("GenericDocContextClass", asBEHAVE_FACTORY, "GenericDocContextClass@+ f(GenericDocumentClassPtr @)", asFUNCTION(GenericDocContextFactory), asCALL_CDECL);
@@ -116,4 +117,16 @@ void RoR::RegisterGenericFileFormat(asIScriptEngine* engine)
     engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokBool(int offset = 0)", asMETHOD(GenericDocContext, isTokBool), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokKeyword(int offset = 0)", asMETHOD(GenericDocContext, isTokKeyword), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokComment(int offset = 0)", asMETHOD(GenericDocContext, isTokComment), asCALL_THISCALL);
+
+    // > Editing functions:
+    engine->RegisterObjectMethod("GenericDocContextClass", "bool insertToken(int offset = 0)", asMETHOD(GenericDocContext, insertToken), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocContextClass", "bool eraseToken(int offset = 0)", asMETHOD(GenericDocContext, eraseToken), asCALL_THISCALL);
+
+    engine->RegisterObjectMethod("GenericDocContextClass", "bool setTokString(int offset, const string &in)", asMETHOD(GenericDocContext, setTokString), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocContextClass", "bool setTokFloat(int offset, float)", asMETHOD(GenericDocContext, setTokFloat), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocContextClass", "bool setTokBool(int offset, bool)", asMETHOD(GenericDocContext, setTokBool), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocContextClass", "bool setTokKeyword(int offset, const string &in)", asMETHOD(GenericDocContext, setTokKeyword), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocContextClass", "bool setTokComment(int offset, const string &in)", asMETHOD(GenericDocContext, setTokComment), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocContextClass", "bool setTokLineBreak(int offset)", asMETHOD(GenericDocContext, setTokBool), asCALL_THISCALL);
+
 }
