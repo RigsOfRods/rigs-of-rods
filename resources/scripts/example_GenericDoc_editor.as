@@ -30,19 +30,58 @@ void drawWindow()
    ImGui::BeginChild("docBody", size);
    this.drawDocumentBody();
    ImGui::EndChild();
-}
+
+     if ( m_focused_token_pos > -1)
+     {
+        ImGui::Separator();
+        this.drawTokenEditPanel();
+     }
+   }
 
    ImGui::End();
 
 }
 
-// helper of `drawWindow()`
+    void drawTokenEditPanel()
+    {
+        GenericDocContextClass reader(g_displayed_document);
+      while (!reader.endOfFile() && reader.getPos() != uint(m_focused_token_pos)) reader.moveNext();
+     if (reader.endOfFile())
+    {
+       ImGui::Text("EOF!!");
+     }
+    else
+    {
+       ImGui::TextDisabled("Token pos: "); ImGui::SameLine(); ImGui::Text("" + reader.getPos());
+       ImGui::TextDisabled("Token type: "); ImGui::SameLine(); ImGui::Text(tokenTypeStr(reader.tokenType()));
+      }
+    }
+
+    string tokenTypeStr(TokenType t)
+   {
+      switch (t)
+      {
+        case TOKEN_TYPE_NUMBER: return "Number";
+        case TOKEN_TYPE_STRING: return "String";
+        case TOKEN_TYPE_BOOL:  return "Boolean";
+        case TOKEN_TYPE_COMMENT: return "Comment";
+        case TOKEN_TYPE_LINEBREAK: return "Line break";
+        case TOKEN_TYPE_KEYWORD: return "Keyword";
+      }
+       return "?";
+    }
+
 void drawDocumentControls()
 {
 
     if (@g_displayed_document != null)
    {
-       ImGui::TextDisabled("Document loaded OK.");
+       ImGui::TextDisabled("Click tokens with mouse to edit. When done, ");
+       ImGui::SameLine();
+       if (ImGui::SmallButton("save to 'scripts' directory"))
+      {
+         g_displayed_document.saveToResource("RigEditorOut_" + g_displayed_doc_filename, "Scripts");
+      }
     }
    else
   {
@@ -56,7 +95,7 @@ void drawDocumentControls()
             ImGui::SameLine();
             if (@g_displayed_document == null)
             {
-                if (ImGui::Button("View document"))
+                if (ImGui::SmallButton("View document"))
                 {
                     GenericDocumentClass@ doc = GenericDocumentClass();
                     int flags = GENERIC_DOCUMENT_OPTION_ALLOW_NAKED_STRINGS
@@ -83,7 +122,7 @@ void drawDocumentControls()
         }
         else
         {
-            ImGui::Text("You are on foot");
+            ImGui::Text("You are on foot. Spawn a vehicle to access it's definition file.");
          }
      }
 }
@@ -110,7 +149,12 @@ void drawDocumentBody()
             
         // Linebreak is implicit in DearIMGUI, no action needed
         case TOKEN_TYPE_LINEBREAK:
-           ImGui::SameLine();  ImGui::Text(""); // hack to fix highlight of last token on line.
+            if (reader.getPos() != 0 && reader.tokenType(-1) != TOKEN_TYPE_LINEBREAK)
+            {
+                ImGui::SameLine();
+            }
+            ImGui::TextColored(tokenColor(reader), "<br>");
+         //  ImGui::SameLine();  ImGui::Text(""); // hack to fix highlight of last token on line.
             break;
 
         // Other tokens come anywhere - delimiting logic is needed
@@ -174,10 +218,11 @@ void drawDocumentBody()
         switch (reader.tokenType())
         {
         case TOKEN_TYPE_KEYWORD:            return color(1.f, 1.f, 0.f, 1.f);
-        case TOKEN_TYPE_COMMENT:             return color(0.5f, 0.5f, 0.5f, 1.f);
+        case TOKEN_TYPE_COMMENT:               return color(0.5f, 0.5f, 0.5f, 1.f);
             case TOKEN_TYPE_STRING:               return color(0.f, 1.f, 1.f, 1.f);
             case TOKEN_TYPE_NUMBER:                return color(0.9, 0.9, 0.9, 1.f);
-            case TOKEN_TYPE_BOOL:              return color(1.f, 0.f, 1.f, 1.f);       
+            case TOKEN_TYPE_BOOL:              return color(1.f, 0.f, 1.f, 1.f);      
+           case TOKEN_TYPE_LINEBREAK:      return color(0.66f, 0.55f, 0.33f, 1.f);
          } // end switch
      return color(0.9, 0.9, 0.9, 1.f);
      } // end tokenColor()
