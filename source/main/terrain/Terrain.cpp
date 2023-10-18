@@ -48,7 +48,7 @@
 using namespace RoR;
 using namespace Ogre;
 
-RoR::Terrain::Terrain(CacheEntry* entry, Terrn2Def def)
+RoR::Terrain::Terrain(CacheEntryPtr entry, Terrn2Def def)
     : m_collisions(0)
     , m_geometry_manager(0)
     , m_object_manager(0)
@@ -582,3 +582,5 @@ SurveyMapEntityVec& RoR::Terrain::getSurveyMapEntities()
 {
     return m_object_manager->m_map_entities;
 }
+
+CacheEntryPtr RoR::Terrain::getCacheEntry() { return m_cache_entry; }

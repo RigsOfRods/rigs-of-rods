@@ -100,7 +100,7 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
     m_last_spawned_actor = nullptr;
 
     // Find terrain in modcache
-    CacheEntry* terrn_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Terrain, /*partial=*/true, filename_part);
+    CacheEntryPtr terrn_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Terrain, /*partial=*/true, filename_part);
     if (!terrn_entry)
     {
         Str<200> msg; msg << _L("Terrain not found: ") << filename_part;
@@ -110,7 +110,7 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
     }
 
     // Init resources
-    App::GetCacheSystem()->LoadResource(*terrn_entry);
+    App::GetCacheSystem()->LoadResource(terrn_entry);
 
     // Load the terrain
     Terrn2Def terrn2;
@@ -342,7 +342,7 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
     }
     else if (rq.amr_type == ActorModifyRequest::Type::RELOAD)
     {
-        CacheEntry* entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, actor->ar_filename);
+        CacheEntryPtr entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, actor->ar_filename);
         if (!entry)
         {
             Str<500> msg; msg <<"Cannot reload vehicle; file '" << actor->ar_filename << "' not found in ModCache.";
@@ -361,7 +361,7 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         srq->asr_origin     = ActorSpawnRequest::Origin::USER;
 
         // This deletes all actors using the resource bundle, including the one we're reloading.
-        this->PushMessage(Message(MSG_EDI_RELOAD_BUNDLE_REQUESTED, (void*)entry));
+        this->PushMessage(Message(MSG_EDI_RELOAD_BUNDLE_REQUESTED, new CacheEntryPtr(entry)));
 
         // Load our actor again, but only after all actors are deleted.
         this->ChainMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));
@@ -568,7 +568,7 @@ void GameContext::RespawnLastActor()
 
 void GameContext::SpawnPreselectedActor(std::string const& preset_vehicle, std::string const& preset_veh_config)
 {
-    CacheEntry* entry = App::GetCacheSystem()->FindEntryByFilename(
+    CacheEntryPtr entry = App::GetCacheSystem()->FindEntryByFilename(
         LT_AllBeam, /*partial=*/true, preset_vehicle);
 
     if (!entry)
@@ -646,13 +646,13 @@ void GameContext::OnLoaderGuiCancel()
     }
 }
 
-void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::string sectionconfig)
+void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntryPtr entry, std::string sectionconfig)
 {
     bool spawn_now = false;
     switch (type)
     {
     case LT_Skin:
-        if (entry != &m_dummy_cache_selection)
+        if (entry != m_dummy_cache_selection)
         {
             m_current_selection.asr_skin_entry = entry;
             if (App::GetGuiManager()->TopMenubar.ai_select)
@@ -696,7 +696,7 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
             skin_query.cqy_filter_type = LT_Skin;
             size_t num_skins = App::GetCacheSystem()->Query(skin_query);
             // Determine default skin
-            CacheEntry* default_skin_entry = nullptr;
+            CacheEntryPtr default_skin_entry = nullptr;
             if (entry->default_skin != "")
             {
                 for (CacheQueryResult& res : skin_query.cqy_results)
@@ -716,7 +716,7 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntry* entry, std::stri
             }
             else
             {
-                default_skin_entry = &m_dummy_cache_selection;
+                default_skin_entry = m_dummy_cache_selection;
                 default_skin_entry->dname = "Default skin";
                 default_skin_entry->description = "Original, unmodified skin";
             }

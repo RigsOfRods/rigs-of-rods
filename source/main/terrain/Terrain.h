@@ -42,7 +42,7 @@ class Terrain : public RefCountingObject<Terrain>
 public:
     static const int UNLIMITED_SIGHTRANGE = 4999;
 
-    Terrain(CacheEntry* entry, Terrn2Def def);
+    Terrain(CacheEntryPtr entry, Terrn2Def def);
     virtual ~Terrain() override;
     bool initialize();
     void dispose();
@@ -55,7 +55,7 @@ public:
     std::string             getGUID() const               { return m_def.guid; }
     int                     getCategoryID() const         { return m_def.category_id; }
     int                     getVersion() const            { return m_def.version; }
-    const CacheEntry*       getCacheEntry()               { return m_cache_entry; }
+    CacheEntryPtr           getCacheEntry();
     /// @}
 
     /// @name Terrain properties
@@ -139,7 +139,7 @@ private:
 
     // Properties
 
-    const CacheEntry*       m_cache_entry;
+    CacheEntryPtr           m_cache_entry;
     RoR::Terrn2Def          m_def;
     float                   m_paged_detail_factor;
     int                     m_sight_range;

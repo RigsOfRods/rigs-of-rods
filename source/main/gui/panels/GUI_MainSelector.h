@@ -41,7 +41,7 @@ public:
     const float LEFT_PANE_WIDTH = 250.f;
     const float PREVIEW_SIZE_RATIO = 0.7f;
 
-    void Show(LoaderType type, std::string const& filter_guid = "", CacheEntry* advertised_entry = nullptr);
+    void Show(LoaderType type, std::string const& filter_guid = "", CacheEntryPtr advertised_entry = nullptr);
     bool IsVisible() { return m_loader_type != LT_None; };
     bool IsHovered() { return IsVisible() && m_is_hovered; }
     bool m_kb_focused = true;
@@ -59,9 +59,9 @@ private:
 
     struct DisplayEntry
     {
-        DisplayEntry(CacheEntry* entry);
+        DisplayEntry(CacheEntryPtr entry);
 
-        CacheEntry* sde_entry = nullptr;
+        CacheEntryPtr sde_entry = nullptr;
         Str<50>     sde_filetime_str;  // pre-formatted
         Str<50>     sde_addtime_str;   // pre-formatted
         Str<50>     sde_driveable_str; // pre-formatted
@@ -91,7 +91,7 @@ private:
     Str<500>           m_search_input;
     bool               m_show_details = false;
     bool               m_searchbox_was_active = false;
-    CacheEntry*        m_advertised_entry = nullptr; //!< Always shown on top, even if not existing in modcache (i.e. dummy default skin)
+    CacheEntryPtr        m_advertised_entry = nullptr; //!< Always shown on top, even if not existing in modcache (i.e. dummy default skin)
     bool               m_is_hovered = false;
 
     int                m_selected_category = 0;    //!< Combobox position (uses display list)

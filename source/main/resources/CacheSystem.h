@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2019 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -28,6 +28,8 @@
 
 #include "Application.h"
 #include "Language.h"
+#include "RefCountingObject.h"
+#include "RefCountingObjectPtr.h"
 #include "RigDef_File.h"
 #include "SimData.h"
 
@@ -49,7 +51,7 @@ struct AuthorInfo
     Ogre::String email;
 };
 
-class CacheEntry
+class CacheEntry: public RefCountingObject<CacheEntry>
 {
 
 public:
@@ -126,6 +128,8 @@ public:
     std::vector<Ogre::String> sectionconfigs;
 };
 
+typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
+
 enum CacheCategoryId
 {
     CID_Max           = 9000,
@@ -138,14 +142,12 @@ enum CacheCategoryId
 
 struct CacheQueryResult
 {
-    CacheQueryResult(CacheEntry* entry, size_t score):
-        cqr_entry(entry), cqr_score(score)
-    {}
+    CacheQueryResult(CacheEntryPtr entry, size_t score);
 
     bool operator<(CacheQueryResult const& other) const;
 
-    CacheEntry* cqr_entry;
-    size_t      cqr_score;
+    CacheEntryPtr cqr_entry;
+    size_t        cqr_score;
 };
 
 enum class CacheSearchMethod // Always case-insensitive
@@ -187,6 +189,10 @@ enum class CacheValidity
 ///       These entries are persisted in file CACHE_FILE (see above)
 ///    Associated media live in a "resource bundle" (ZIP archive or subdirectory) in content directory (ROR_HOME/mods) and subdirectories.
 ///       If multiple CacheEntries share a bundle, the bundle is loaded only once. Each bundle has dedicated OGRE resource group.
+/// UPDATING THE CACHE:
+///    Historically it was a synchronous process which could only happen at main menu, in bulk.
+///    In October 2023 it became an ad-hoc process but all synchronous logic was kept, to be slowly phased out later.
+///    See https://github.com/RigsOfRods/rigs-of-rods/pull/3096
 class CacheSystem
 {
 public:
@@ -195,32 +201,32 @@ public:
     CacheSystem();
 
     void                  LoadModCache(CacheValidity validity);
-    CacheEntry*           FindEntryByFilename(RoR::LoaderType type, bool partial, std::string filename); //!< Returns NULL if none found
-    CacheEntry*           FetchSkinByName(std::string const & skin_name);
+    CacheEntryPtr         FindEntryByFilename(RoR::LoaderType type, bool partial, std::string filename); //!< Returns NULL if none found
+    CacheEntryPtr         FetchSkinByName(std::string const & skin_name);
     CacheValidity         EvaluateCacheValidity();
     size_t                Query(CacheQuery& query);
 
-    void LoadResource(CacheEntry& t); //!< Loads the associated resource bundle if not already done.
+    void LoadResource(CacheEntryPtr& t); //!< Loads the associated resource bundle if not already done.
     bool CheckResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
     bool CheckResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
-    void ReLoadResource(CacheEntry& t); //!< Forces reloading the associated bundle.
-    void UnLoadResource(CacheEntry& t); //!< Unloads associated bundle, destroying all spawned actors.
+    void ReLoadResource(CacheEntryPtr& t); //!< Forces reloading the associated bundle.
+    void UnLoadResource(CacheEntryPtr& t); //!< Unloads associated bundle, destroying all spawned actors.
 
-    const std::vector<CacheEntry>   &GetEntries()        const { return m_entries; }
+    const std::vector<CacheEntryPtr>   &GetEntries()        const { return m_entries; }
     const CategoryIdNameMap         &GetCategories()     const { return m_categories; }
 
-    std::shared_ptr<RoR::SkinDef> FetchSkinDef(CacheEntry* cache_entry); //!< Loads+parses the .skin file once
+    std::shared_ptr<RoR::SkinDef> FetchSkinDef(CacheEntryPtr& cache_entry); //!< Loads+parses the .skin file once
 
-    CacheEntry *GetEntry(int modid);
+    CacheEntryPtr GetEntry(int modid);
     Ogre::String GetPrettyName(Ogre::String fname);
     std::string ActorTypeToName(ActorType driveable);
 
 private:
 
     void WriteCacheFileJson();
-    void ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Document& j_doc, CacheEntry const & entry);
+    void ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Document& j_doc, CacheEntryPtr const & entry);
     CacheValidity LoadCacheFileJson();
-    void ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & out_entry);
+    void ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntryPtr & out_entry);
 
     static Ogre::String StripUIDfromString(Ogre::String uidstr); 
     static Ogre::String StripSHA1fromString(Ogre::String sha1str);
@@ -237,20 +243,21 @@ private:
 
     void DetectDuplicates();
 
-    void FillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
-    void FillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname, Ogre::String group);
+    void FillTerrainDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
+    void FillTruckDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds, Ogre::String fname, Ogre::String group);
+    void FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDef>& skin_def);
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
 
-    void GenerateFileCache(CacheEntry &entry, Ogre::String group);
-    void RemoveFileCache(CacheEntry &entry);
+    void GenerateFileCache(CacheEntryPtr &entry, Ogre::String group);
+    void RemoveFileCache(CacheEntryPtr &entry);
 
     bool Match(size_t& out_score, std::string data, std::string const& query, size_t );
 
     std::time_t                          m_update_time;      //!< Ensures that all inserted files share the same timestamp
     std::string                          m_filenames_hash_loaded;   //!< hash from cachefile, for quick update detection
     std::string                          m_filenames_hash_generated;   //!< stores hash over the content, for quick update detection
-    std::vector<CacheEntry>              m_entries;
+    std::vector<CacheEntryPtr>           m_entries;
     std::vector<Ogre::String>            m_known_extensions; //!< the extensions we track in the cache system
     std::set<Ogre::String>               m_resource_paths;   //!< A temporary list of existing resource paths
     std::map<int, Ogre::String>          m_categories = {

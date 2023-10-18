@@ -372,7 +372,7 @@ void TopMenubar::Update()
                     App::GetGameContext()->PushMessage(Message(MsgType::MSG_SIM_UNLOAD_TERRN_REQUESTED));
                     // Order is required - create chain.
                     App::GetGameContext()->ChainMessage(Message(MsgType::MSG_EDI_RELOAD_BUNDLE_REQUESTED,
-                        (void*)App::GetGameContext()->GetTerrain()->getCacheEntry()));
+                        new CacheEntryPtr(App::GetGameContext()->GetTerrain()->getCacheEntry())));
                     App::GetGameContext()->ChainMessage(Message(MsgType::MSG_SIM_LOAD_TERRN_REQUESTED,
                         App::GetGameContext()->GetTerrain()->getCacheEntry()->fname));
                 }

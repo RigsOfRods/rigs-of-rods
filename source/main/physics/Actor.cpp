@@ -4577,3 +4577,6 @@ std::string Actor::getTruckFileResourceGroup()
 {
     return m_gfx_actor->GetResourceGroup();
 }
+
+    CacheEntryPtr&    Actor::getUsedSkin() { return m_used_skin_entry; }
+    void              Actor::setUsedSkin(CacheEntryPtr& skin) { m_used_skin_entry = skin; }

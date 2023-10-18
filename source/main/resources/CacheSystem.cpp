@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2019 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -97,6 +97,11 @@ CacheEntry::CacheEntry() :
 {
 }
 
+CacheQueryResult::CacheQueryResult(CacheEntryPtr entry, size_t score):
+    cqr_entry(entry),
+    cqr_score(score)
+{}
+
 CacheSystem::CacheSystem()
 {
     // register the extensions
@@ -145,29 +150,29 @@ void CacheSystem::LoadModCache(CacheValidity validity)
     RoR::Log("[RoR|ModCache] Cache loaded");
 }
 
-CacheEntry* CacheSystem::FindEntryByFilename(LoaderType type, bool partial, std::string filename)
+CacheEntryPtr CacheSystem::FindEntryByFilename(LoaderType type, bool partial, std::string filename)
 {
     StringUtil::toLowerCase(filename);
     size_t partial_match_length = std::numeric_limits<size_t>::max();
-    CacheEntry* partial_match = nullptr;
-    for (CacheEntry& entry : m_entries)
+    CacheEntryPtr partial_match = nullptr;
+    for (CacheEntryPtr& entry : m_entries)
     {
-        if ((type == LT_Terrain) != (entry.fext == "terrn2") ||
-            (type == LT_AllBeam && entry.fext == "skin"))
+        if ((type == LT_Terrain) != (entry->fext == "terrn2") ||
+            (type == LT_AllBeam && entry->fext == "skin"))
             continue;
 
-        String fname = entry.fname;
-        String fname_without_uid = entry.fname_without_uid;
+        String fname = entry->fname;
+        String fname_without_uid = entry->fname_without_uid;
         StringUtil::toLowerCase(fname);
         StringUtil::toLowerCase(fname_without_uid);
         if (fname == filename || fname_without_uid == filename)
-            return &entry;
+            return entry;
 
         if (partial &&
             fname.length() < partial_match_length &&
             fname.find(filename) != std::string::npos)
         {
-            partial_match = &entry;
+            partial_match = entry;
             partial_match_length = fname.length();
         }
     }
@@ -197,13 +202,13 @@ CacheValidity CacheSystem::EvaluateCacheValidity()
 
     for (auto& entry : m_entries)
     {
-        std::string fn = entry.resource_bundle_path;
-        if (entry.resource_bundle_type == "FileSystem")
+        std::string fn = entry->resource_bundle_path;
+        if (entry->resource_bundle_type == "FileSystem")
         {
-            fn = PathCombine(fn, entry.fname);
+            fn = PathCombine(fn, entry->fname);
         }
 
-        if ((entry.filetime != RoR::GetFileLastModifiedTime(fn)))
+        if ((entry->filetime != RoR::GetFileLastModifiedTime(fn)))
         {
             return CacheValidity::NEEDS_UPDATE;
         }
@@ -213,25 +218,25 @@ CacheValidity CacheSystem::EvaluateCacheValidity()
     return CacheValidity::VALID;
 }
 
-void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & out_entry)
+void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntryPtr & out_entry)
 {
     // Common details
-    out_entry.usagecounter =           j_entry["usagecounter"].GetInt();
-    out_entry.addtimestamp =           j_entry["addtimestamp"].GetInt();
-    out_entry.resource_bundle_type =   j_entry["resource_bundle_type"].GetString();
-    out_entry.resource_bundle_path =   j_entry["resource_bundle_path"].GetString();
-    out_entry.fpath =                  j_entry["fpath"].GetString();
-    out_entry.fname =                  j_entry["fname"].GetString();
-    out_entry.fname_without_uid =      j_entry["fname_without_uid"].GetString();
-    out_entry.fext =                   j_entry["fext"].GetString();
-    out_entry.filetime =               j_entry["filetime"].GetInt();
-    out_entry.dname =                  j_entry["dname"].GetString();
-    out_entry.uniqueid =               j_entry["uniqueid"].GetString();
-    out_entry.version =                j_entry["version"].GetInt();
-    out_entry.filecachename =          j_entry["filecachename"].GetString();
+    out_entry->usagecounter =           j_entry["usagecounter"].GetInt();
+    out_entry->addtimestamp =           j_entry["addtimestamp"].GetInt();
+    out_entry->resource_bundle_type =   j_entry["resource_bundle_type"].GetString();
+    out_entry->resource_bundle_path =   j_entry["resource_bundle_path"].GetString();
+    out_entry->fpath =                  j_entry["fpath"].GetString();
+    out_entry->fname =                  j_entry["fname"].GetString();
+    out_entry->fname_without_uid =      j_entry["fname_without_uid"].GetString();
+    out_entry->fext =                   j_entry["fext"].GetString();
+    out_entry->filetime =               j_entry["filetime"].GetInt();
+    out_entry->dname =                  j_entry["dname"].GetString();
+    out_entry->uniqueid =               j_entry["uniqueid"].GetString();
+    out_entry->version =                j_entry["version"].GetInt();
+    out_entry->filecachename =          j_entry["filecachename"].GetString();
 
-    out_entry.guid = j_entry["guid"].GetString();
-    Ogre::StringUtil::trim(out_entry.guid);
+    out_entry->guid = j_entry["guid"].GetString();
+    Ogre::StringUtil::trim(out_entry->guid);
 
     // Category
     int category_id = j_entry["categoryid"].GetInt();
@@ -240,8 +245,8 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
     {
         category_itor = m_categories.find(CID_Unsorted);
     }
-    out_entry.categoryname = category_itor->second;
-    out_entry.categoryid = category_itor->first;
+    out_entry->categoryname = category_itor->second;
+    out_entry->categoryid = category_itor->first;
 
      // Common - Authors
     for (rapidjson::Value& j_author: j_entry["authors"].GetArray())
@@ -253,50 +258,50 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntry & ou
         author.email =  j_author["email"].GetString();
         author.id    =  j_author["id"].GetInt();
 
-        out_entry.authors.push_back(author);
+        out_entry->authors.push_back(author);
     }
 
     // Vehicle details
-    out_entry.description =       j_entry["description"].GetString();
-    out_entry.tags =              j_entry["tags"].GetString();
-    out_entry.default_skin =      j_entry["default_skin"].GetString();
-    out_entry.fileformatversion = j_entry["fileformatversion"].GetInt();
-    out_entry.hasSubmeshs =       j_entry["hasSubmeshs"].GetBool();
-    out_entry.nodecount =         j_entry["nodecount"].GetInt();
-    out_entry.beamcount =         j_entry["beamcount"].GetInt();
-    out_entry.shockcount =        j_entry["shockcount"].GetInt();
-    out_entry.fixescount =        j_entry["fixescount"].GetInt();
-    out_entry.hydroscount =       j_entry["hydroscount"].GetInt();
-    out_entry.wheelcount =        j_entry["wheelcount"].GetInt();
-    out_entry.propwheelcount =    j_entry["propwheelcount"].GetInt();
-    out_entry.commandscount =     j_entry["commandscount"].GetInt();
-    out_entry.flarescount =       j_entry["flarescount"].GetInt();
-    out_entry.propscount =        j_entry["propscount"].GetInt();
-    out_entry.wingscount =        j_entry["wingscount"].GetInt();
-    out_entry.turbopropscount =   j_entry["turbopropscount"].GetInt();
-    out_entry.turbojetcount =     j_entry["turbojetcount"].GetInt();
-    out_entry.rotatorscount =     j_entry["rotatorscount"].GetInt();
-    out_entry.exhaustscount =     j_entry["exhaustscount"].GetInt();
-    out_entry.flexbodiescount =   j_entry["flexbodiescount"].GetInt();
-    out_entry.soundsourcescount = j_entry["soundsourcescount"].GetInt();
-    out_entry.truckmass =         j_entry["truckmass"].GetFloat();
-    out_entry.loadmass =          j_entry["loadmass"].GetFloat();
-    out_entry.minrpm =            j_entry["minrpm"].GetFloat();
-    out_entry.maxrpm =            j_entry["maxrpm"].GetFloat();
-    out_entry.torque =            j_entry["torque"].GetFloat();
-    out_entry.customtach =        j_entry["customtach"].GetBool();
-    out_entry.custom_particles =  j_entry["custom_particles"].GetBool();
-    out_entry.forwardcommands =   j_entry["forwardcommands"].GetBool();
-    out_entry.importcommands =    j_entry["importcommands"].GetBool();
-    out_entry.rescuer =           j_entry["rescuer"].GetBool();
-    out_entry.driveable =         ActorType(j_entry["driveable"].GetInt());
-    out_entry.numgears =          j_entry["numgears"].GetInt();
-    out_entry.enginetype =        static_cast<char>(j_entry["enginetype"].GetInt());
+    out_entry->description =       j_entry["description"].GetString();
+    out_entry->tags =              j_entry["tags"].GetString();
+    out_entry->default_skin =      j_entry["default_skin"].GetString();
+    out_entry->fileformatversion = j_entry["fileformatversion"].GetInt();
+    out_entry->hasSubmeshs =       j_entry["hasSubmeshs"].GetBool();
+    out_entry->nodecount =         j_entry["nodecount"].GetInt();
+    out_entry->beamcount =         j_entry["beamcount"].GetInt();
+    out_entry->shockcount =        j_entry["shockcount"].GetInt();
+    out_entry->fixescount =        j_entry["fixescount"].GetInt();
+    out_entry->hydroscount =       j_entry["hydroscount"].GetInt();
+    out_entry->wheelcount =        j_entry["wheelcount"].GetInt();
+    out_entry->propwheelcount =    j_entry["propwheelcount"].GetInt();
+    out_entry->commandscount =     j_entry["commandscount"].GetInt();
+    out_entry->flarescount =       j_entry["flarescount"].GetInt();
+    out_entry->propscount =        j_entry["propscount"].GetInt();
+    out_entry->wingscount =        j_entry["wingscount"].GetInt();
+    out_entry->turbopropscount =   j_entry["turbopropscount"].GetInt();
+    out_entry->turbojetcount =     j_entry["turbojetcount"].GetInt();
+    out_entry->rotatorscount =     j_entry["rotatorscount"].GetInt();
+    out_entry->exhaustscount =     j_entry["exhaustscount"].GetInt();
+    out_entry->flexbodiescount =   j_entry["flexbodiescount"].GetInt();
+    out_entry->soundsourcescount = j_entry["soundsourcescount"].GetInt();
+    out_entry->truckmass =         j_entry["truckmass"].GetFloat();
+    out_entry->loadmass =          j_entry["loadmass"].GetFloat();
+    out_entry->minrpm =            j_entry["minrpm"].GetFloat();
+    out_entry->maxrpm =            j_entry["maxrpm"].GetFloat();
+    out_entry->torque =            j_entry["torque"].GetFloat();
+    out_entry->customtach =        j_entry["customtach"].GetBool();
+    out_entry->custom_particles =  j_entry["custom_particles"].GetBool();
+    out_entry->forwardcommands =   j_entry["forwardcommands"].GetBool();
+    out_entry->importcommands =    j_entry["importcommands"].GetBool();
+    out_entry->rescuer =           j_entry["rescuer"].GetBool();
+    out_entry->driveable =         ActorType(j_entry["driveable"].GetInt());
+    out_entry->numgears =          j_entry["numgears"].GetInt();
+    out_entry->enginetype =        static_cast<char>(j_entry["enginetype"].GetInt());
 
     // Vehicle 'section-configs' (aka Modules in RigDef namespace)
     for (rapidjson::Value& j_module_name: j_entry["sectionconfigs"].GetArray())
     {
-        out_entry.sectionconfigs.push_back(j_module_name.GetString());
+        out_entry->sectionconfigs.push_back(j_module_name.GetString());
     }
 }
 
@@ -321,9 +326,9 @@ CacheValidity CacheSystem::LoadCacheFileJson()
 
     for (rapidjson::Value& j_entry: j_doc["entries"].GetArray())
     {
-        CacheEntry entry;
+        CacheEntryPtr entry = new CacheEntry();
         this->ImportEntryFromJson(j_entry, entry);
-        entry.number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
+        entry->number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
         m_entries.push_back(entry);
     }
 
@@ -339,15 +344,15 @@ void CacheSystem::PruneCache()
     std::vector<String> paths;
     for (auto& entry : m_entries)
     {
-        std::string fn = entry.resource_bundle_path;
-        if (entry.resource_bundle_type == "FileSystem")
+        std::string fn = entry->resource_bundle_path;
+        if (entry->resource_bundle_type == "FileSystem")
         {
-            fn = PathCombine(fn, entry.fname);
+            fn = PathCombine(fn, entry->fname);
         }
 
-        if (!RoR::FileExists(fn.c_str()) || (entry.filetime != RoR::GetFileLastModifiedTime(fn)))
+        if (!RoR::FileExists(fn.c_str()) || (entry->filetime != RoR::GetFileLastModifiedTime(fn)))
         {
-            if (!entry.deleted)
+            if (!entry->deleted)
             {
                 if (std::find(paths.begin(), paths.end(), fn) == paths.end())
                 {
@@ -356,7 +361,7 @@ void CacheSystem::PruneCache()
                 }
                 this->RemoveFileCache(entry);
             }
-            entry.deleted = true;
+            entry->deleted = true;
         }
         else
         {
@@ -369,7 +374,7 @@ void CacheSystem::ClearResourceGroups()
 {
     for (auto& entry : m_entries)
     {
-        String group = entry.resource_group;
+        String group = entry->resource_group;
         if (!group.empty())
         {
             if (ResourceGroupManager::getSingleton().resourceGroupExists(group))
@@ -384,36 +389,40 @@ void CacheSystem::DetectDuplicates()
     std::map<String, String> possible_duplicates;
     for (int i=0; i<m_entries.size(); i++) 
     {
-        if (m_entries[i].deleted)
+        CacheEntryPtr entryA = m_entries[i];
+
+        if (entryA->deleted)
             continue;
 
-        String dnameA = m_entries[i].dname;
+        String dnameA = entryA->dname;
         StringUtil::toLowerCase(dnameA);
         StringUtil::trim(dnameA);
-        String dirA = m_entries[i].resource_bundle_path;
+        String dirA = entryA->resource_bundle_path;
         StringUtil::toLowerCase(dirA);
         String basenameA, basepathA;
         StringUtil::splitFilename(dirA, basenameA, basepathA);
-        String filenameWUIDA = m_entries[i].fname_without_uid;
+        String filenameWUIDA = entryA->fname_without_uid;
         StringUtil::toLowerCase(filenameWUIDA);
 
         for (int j=i+1; j<m_entries.size(); j++) 
         {
-            if (m_entries[j].deleted)
+            CacheEntryPtr entryB = m_entries[j];
+
+            if (entryB->deleted)
                 continue;
 
-            String filenameWUIDB = m_entries[j].fname_without_uid;
+            String filenameWUIDB = entryB->fname_without_uid;
             StringUtil::toLowerCase(filenameWUIDB);
             if (filenameWUIDA != filenameWUIDB)
                 continue;
 
-            String dnameB = m_entries[j].dname;
+            String dnameB = entryB->dname;
             StringUtil::toLowerCase(dnameB);
             StringUtil::trim(dnameB);
             if (dnameA != dnameB)
                 continue;
 
-            String dirB = m_entries[j].resource_bundle_path;
+            String dirB = entryB->resource_bundle_path;
             StringUtil::toLowerCase(dirB);
             String basenameB, basepathB;
             StringUtil::splitFilename(dirB, basenameB, basepathB);
@@ -424,17 +433,17 @@ void CacheSystem::DetectDuplicates()
             if (StripSHA1fromString(basenameA) != StripSHA1fromString(basenameB))
                 continue;
 
-            if (m_entries[i].resource_bundle_path == m_entries[j].resource_bundle_path)
+            if (entryA->resource_bundle_path == entryB->resource_bundle_path)
             {
-                LOG("- duplicate: " + m_entries[i].fpath + m_entries[i].fname
-                             + " <--> " + m_entries[j].fpath + m_entries[j].fname);
-                LOG("  - " + m_entries[j].resource_bundle_path);
-                int idx = m_entries[i].fpath.size() < m_entries[j].fpath.size() ? i : j;
-                m_entries[idx].deleted = true;
+                LOG("- duplicate: " + entryA->fpath + entryA->fname
+                             + " <--> " + entryB->fpath + entryB->fname);
+                LOG("  - " + entryB->resource_bundle_path);
+                int idx = entryA->fpath.size() < entryB->fpath.size() ? i : j;
+                m_entries[idx]->deleted = true;
             }
             else
             {
-                possible_duplicates[m_entries[i].resource_bundle_path] = m_entries[j].resource_bundle_path;
+                possible_duplicates[entryA->resource_bundle_path] = entryB->resource_bundle_path;
             }
         }
     }
@@ -446,22 +455,22 @@ void CacheSystem::DetectDuplicates()
     }
 }
 
-CacheEntry* CacheSystem::GetEntry(int modid)
+CacheEntryPtr CacheSystem::GetEntry(int modid)
 {
-    for (std::vector<CacheEntry>::iterator it = m_entries.begin(); it != m_entries.end(); it++)
+    for (CacheEntryPtr& entry: m_entries)
     {
-        if (modid == it->number)
-            return &(*it);
+        if (modid == entry->number)
+            return entry;
     }
     return 0;
 }
 
 String CacheSystem::GetPrettyName(String fname)
 {
-    for (std::vector<CacheEntry>::iterator it = m_entries.begin(); it != m_entries.end(); it++)
+    for (CacheEntryPtr& entry: m_entries)
     {
-        if (fname == it->fname)
-            return it->dname;
+        if (fname == entry->fname)
+            return entry->dname;
     }
     return "";
 }
@@ -480,30 +489,30 @@ std::string CacheSystem::ActorTypeToName(ActorType driveable)
     };
 }
 
-void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Document& j_doc, CacheEntry const & entry)
+void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Document& j_doc, CacheEntryPtr const & entry)
 {
     rapidjson::Value j_entry(rapidjson::kObjectType);
 
     // Common details
-    j_entry.AddMember("usagecounter",         entry.usagecounter,                                          j_doc.GetAllocator());
-    j_entry.AddMember("addtimestamp",         static_cast<int64_t>(entry.addtimestamp),                    j_doc.GetAllocator());
-    j_entry.AddMember("resource_bundle_type", rapidjson::StringRef(entry.resource_bundle_type.c_str()),    j_doc.GetAllocator());
-    j_entry.AddMember("resource_bundle_path", rapidjson::StringRef(entry.resource_bundle_path.c_str()),    j_doc.GetAllocator());
-    j_entry.AddMember("fpath",                rapidjson::StringRef(entry.fpath.c_str()),                   j_doc.GetAllocator());
-    j_entry.AddMember("fname",                rapidjson::StringRef(entry.fname.c_str()),                   j_doc.GetAllocator());
-    j_entry.AddMember("fname_without_uid",    rapidjson::StringRef(entry.fname_without_uid.c_str()),       j_doc.GetAllocator());
-    j_entry.AddMember("fext",                 rapidjson::StringRef(entry.fext.c_str()),                    j_doc.GetAllocator());
-    j_entry.AddMember("filetime",             static_cast<int64_t>(entry.filetime),                        j_doc.GetAllocator()); 
-    j_entry.AddMember("dname",                rapidjson::StringRef(entry.dname.c_str()),                   j_doc.GetAllocator());
-    j_entry.AddMember("categoryid",           entry.categoryid,                                            j_doc.GetAllocator());
-    j_entry.AddMember("uniqueid",             rapidjson::StringRef(entry.uniqueid.c_str()),                j_doc.GetAllocator());
-    j_entry.AddMember("guid",                 rapidjson::StringRef(entry.guid.c_str()),                    j_doc.GetAllocator());
-    j_entry.AddMember("version",              entry.version,                                               j_doc.GetAllocator());
-    j_entry.AddMember("filecachename",        rapidjson::StringRef(entry.filecachename.c_str()),           j_doc.GetAllocator());
+    j_entry.AddMember("usagecounter",         entry->usagecounter,                                          j_doc.GetAllocator());
+    j_entry.AddMember("addtimestamp",         static_cast<int64_t>(entry->addtimestamp),                    j_doc.GetAllocator());
+    j_entry.AddMember("resource_bundle_type", rapidjson::StringRef(entry->resource_bundle_type.c_str()),    j_doc.GetAllocator());
+    j_entry.AddMember("resource_bundle_path", rapidjson::StringRef(entry->resource_bundle_path.c_str()),    j_doc.GetAllocator());
+    j_entry.AddMember("fpath",                rapidjson::StringRef(entry->fpath.c_str()),                   j_doc.GetAllocator());
+    j_entry.AddMember("fname",                rapidjson::StringRef(entry->fname.c_str()),                   j_doc.GetAllocator());
+    j_entry.AddMember("fname_without_uid",    rapidjson::StringRef(entry->fname_without_uid.c_str()),       j_doc.GetAllocator());
+    j_entry.AddMember("fext",                 rapidjson::StringRef(entry->fext.c_str()),                    j_doc.GetAllocator());
+    j_entry.AddMember("filetime",             static_cast<int64_t>(entry->filetime),                        j_doc.GetAllocator()); 
+    j_entry.AddMember("dname",                rapidjson::StringRef(entry->dname.c_str()),                   j_doc.GetAllocator());
+    j_entry.AddMember("categoryid",           entry->categoryid,                                            j_doc.GetAllocator());
+    j_entry.AddMember("uniqueid",             rapidjson::StringRef(entry->uniqueid.c_str()),                j_doc.GetAllocator());
+    j_entry.AddMember("guid",                 rapidjson::StringRef(entry->guid.c_str()),                    j_doc.GetAllocator());
+    j_entry.AddMember("version",              entry->version,                                               j_doc.GetAllocator());
+    j_entry.AddMember("filecachename",        rapidjson::StringRef(entry->filecachename.c_str()),           j_doc.GetAllocator());
 
     // Common - Authors
     rapidjson::Value j_authors(rapidjson::kArrayType);
-    for (AuthorInfo const& author: entry.authors)
+    for (AuthorInfo const& author: entry->authors)
     {
         rapidjson::Value j_author(rapidjson::kObjectType);
 
@@ -517,45 +526,45 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
     j_entry.AddMember("authors", j_authors, j_doc.GetAllocator());
 
     // Vehicle details
-    j_entry.AddMember("description",         rapidjson::StringRef(entry.description.c_str()),       j_doc.GetAllocator());
-    j_entry.AddMember("tags",                rapidjson::StringRef(entry.tags.c_str()),              j_doc.GetAllocator());
-    j_entry.AddMember("default_skin",        rapidjson::StringRef(entry.default_skin.c_str()),      j_doc.GetAllocator());
-    j_entry.AddMember("fileformatversion",   entry.fileformatversion, j_doc.GetAllocator());
-    j_entry.AddMember("hasSubmeshs",         entry.hasSubmeshs,       j_doc.GetAllocator());
-    j_entry.AddMember("nodecount",           entry.nodecount,         j_doc.GetAllocator());
-    j_entry.AddMember("beamcount",           entry.beamcount,         j_doc.GetAllocator());
-    j_entry.AddMember("shockcount",          entry.shockcount,        j_doc.GetAllocator());
-    j_entry.AddMember("fixescount",          entry.fixescount,        j_doc.GetAllocator());
-    j_entry.AddMember("hydroscount",         entry.hydroscount,       j_doc.GetAllocator());
-    j_entry.AddMember("wheelcount",          entry.wheelcount,        j_doc.GetAllocator());
-    j_entry.AddMember("propwheelcount",      entry.propwheelcount,    j_doc.GetAllocator());
-    j_entry.AddMember("commandscount",       entry.commandscount,     j_doc.GetAllocator());
-    j_entry.AddMember("flarescount",         entry.flarescount,       j_doc.GetAllocator());
-    j_entry.AddMember("propscount",          entry.propscount,        j_doc.GetAllocator());
-    j_entry.AddMember("wingscount",          entry.wingscount,        j_doc.GetAllocator());
-    j_entry.AddMember("turbopropscount",     entry.turbopropscount,   j_doc.GetAllocator());
-    j_entry.AddMember("turbojetcount",       entry.turbojetcount,     j_doc.GetAllocator());
-    j_entry.AddMember("rotatorscount",       entry.rotatorscount,     j_doc.GetAllocator());
-    j_entry.AddMember("exhaustscount",       entry.exhaustscount,     j_doc.GetAllocator());
-    j_entry.AddMember("flexbodiescount",     entry.flexbodiescount,   j_doc.GetAllocator());
-    j_entry.AddMember("soundsourcescount",   entry.soundsourcescount, j_doc.GetAllocator());
-    j_entry.AddMember("truckmass",           entry.truckmass,         j_doc.GetAllocator());
-    j_entry.AddMember("loadmass",            entry.loadmass,          j_doc.GetAllocator());
-    j_entry.AddMember("minrpm",              entry.minrpm,            j_doc.GetAllocator());
-    j_entry.AddMember("maxrpm",              entry.maxrpm,            j_doc.GetAllocator());
-    j_entry.AddMember("torque",              entry.torque,            j_doc.GetAllocator());
-    j_entry.AddMember("customtach",          entry.customtach,        j_doc.GetAllocator());
-    j_entry.AddMember("custom_particles",    entry.custom_particles,  j_doc.GetAllocator());
-    j_entry.AddMember("forwardcommands",     entry.forwardcommands,   j_doc.GetAllocator());
-    j_entry.AddMember("importcommands",      entry.importcommands,    j_doc.GetAllocator());
-    j_entry.AddMember("rescuer",             entry.rescuer,           j_doc.GetAllocator());
-    j_entry.AddMember("driveable",           entry.driveable,         j_doc.GetAllocator());
-    j_entry.AddMember("numgears",            entry.numgears,          j_doc.GetAllocator());
-    j_entry.AddMember("enginetype",          entry.enginetype,        j_doc.GetAllocator());
+    j_entry.AddMember("description",         rapidjson::StringRef(entry->description.c_str()),       j_doc.GetAllocator());
+    j_entry.AddMember("tags",                rapidjson::StringRef(entry->tags.c_str()),              j_doc.GetAllocator());
+    j_entry.AddMember("default_skin",        rapidjson::StringRef(entry->default_skin.c_str()),      j_doc.GetAllocator());
+    j_entry.AddMember("fileformatversion",   entry->fileformatversion, j_doc.GetAllocator());
+    j_entry.AddMember("hasSubmeshs",         entry->hasSubmeshs,       j_doc.GetAllocator());
+    j_entry.AddMember("nodecount",           entry->nodecount,         j_doc.GetAllocator());
+    j_entry.AddMember("beamcount",           entry->beamcount,         j_doc.GetAllocator());
+    j_entry.AddMember("shockcount",          entry->shockcount,        j_doc.GetAllocator());
+    j_entry.AddMember("fixescount",          entry->fixescount,        j_doc.GetAllocator());
+    j_entry.AddMember("hydroscount",         entry->hydroscount,       j_doc.GetAllocator());
+    j_entry.AddMember("wheelcount",          entry->wheelcount,        j_doc.GetAllocator());
+    j_entry.AddMember("propwheelcount",      entry->propwheelcount,    j_doc.GetAllocator());
+    j_entry.AddMember("commandscount",       entry->commandscount,     j_doc.GetAllocator());
+    j_entry.AddMember("flarescount",         entry->flarescount,       j_doc.GetAllocator());
+    j_entry.AddMember("propscount",          entry->propscount,        j_doc.GetAllocator());
+    j_entry.AddMember("wingscount",          entry->wingscount,        j_doc.GetAllocator());
+    j_entry.AddMember("turbopropscount",     entry->turbopropscount,   j_doc.GetAllocator());
+    j_entry.AddMember("turbojetcount",       entry->turbojetcount,     j_doc.GetAllocator());
+    j_entry.AddMember("rotatorscount",       entry->rotatorscount,     j_doc.GetAllocator());
+    j_entry.AddMember("exhaustscount",       entry->exhaustscount,     j_doc.GetAllocator());
+    j_entry.AddMember("flexbodiescount",     entry->flexbodiescount,   j_doc.GetAllocator());
+    j_entry.AddMember("soundsourcescount",   entry->soundsourcescount, j_doc.GetAllocator());
+    j_entry.AddMember("truckmass",           entry->truckmass,         j_doc.GetAllocator());
+    j_entry.AddMember("loadmass",            entry->loadmass,          j_doc.GetAllocator());
+    j_entry.AddMember("minrpm",              entry->minrpm,            j_doc.GetAllocator());
+    j_entry.AddMember("maxrpm",              entry->maxrpm,            j_doc.GetAllocator());
+    j_entry.AddMember("torque",              entry->torque,            j_doc.GetAllocator());
+    j_entry.AddMember("customtach",          entry->customtach,        j_doc.GetAllocator());
+    j_entry.AddMember("custom_particles",    entry->custom_particles,  j_doc.GetAllocator());
+    j_entry.AddMember("forwardcommands",     entry->forwardcommands,   j_doc.GetAllocator());
+    j_entry.AddMember("importcommands",      entry->importcommands,    j_doc.GetAllocator());
+    j_entry.AddMember("rescuer",             entry->rescuer,           j_doc.GetAllocator());
+    j_entry.AddMember("driveable",           entry->driveable,         j_doc.GetAllocator());
+    j_entry.AddMember("numgears",            entry->numgears,          j_doc.GetAllocator());
+    j_entry.AddMember("enginetype",          entry->enginetype,        j_doc.GetAllocator());
 
     // Vehicle 'section-configs' (aka Modules in RigDef namespace)
     rapidjson::Value j_sectionconfigs(rapidjson::kArrayType);
-    for (std::string const & module_name: entry.sectionconfigs)
+    for (std::string const & module_name: entry->sectionconfigs)
     {
         j_sectionconfigs.PushBack(rapidjson::StringRef(module_name.c_str()), j_doc.GetAllocator());
     }
@@ -575,9 +584,9 @@ void CacheSystem::WriteCacheFileJson()
 
     // Entries
     rapidjson::Value j_entries(rapidjson::kArrayType);
-    for (CacheEntry const& entry : m_entries)
+    for (CacheEntryPtr const& entry : m_entries)
     {
-        if (!entry.deleted)
+        if (!entry->deleted)
         {
             this->ExportEntryToJson(j_entries, j_doc, entry);
         }
@@ -596,7 +605,7 @@ void CacheSystem::ClearCache()
     App::GetContentManager()->DeleteDiskFile(CACHE_FILE, RGN_CACHE);
     for (auto& entry : m_entries)
     {
-        String group = entry.resource_group;
+        String group = entry->resource_group;
         if (!group.empty())
         {
             if (ResourceGroupManager::getSingleton().resourceGroupExists(group))
@@ -628,8 +637,8 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
     String type = f.archive ? f.archive->getType() : "FileSystem";
     String path = f.archive ? f.archive->getName() : "";
 
-    if (std::find_if(m_entries.begin(), m_entries.end(), [&](CacheEntry& e)
-                { return !e.deleted && e.fname == f.filename && e.resource_bundle_path == path; }) != m_entries.end())
+    if (std::find_if(m_entries.begin(), m_entries.end(), [&](CacheEntryPtr& entry)
+                { return !entry->deleted && entry->fname == f.filename && entry->resource_bundle_path == path; }) != m_entries.end())
         return;
 
     RoR::LogFormat("[RoR|CacheSystem] Preparing to add file '%f'", f.filename.c_str());
@@ -639,60 +648,49 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
         DataStreamPtr ds = ResourceGroupManager::getSingleton().openResource(f.filename, group);
         // ds closes automatically, so do _not_ close it explicitly below
 
-        std::vector<CacheEntry> new_entries;
+        std::vector<CacheEntryPtr> new_entries;
         if (ext == "terrn2")
         {
-            new_entries.resize(1);
-            FillTerrainDetailInfo(new_entries.back(), ds, f.filename);
+            CacheEntryPtr entry = new CacheEntry();
+            FillTerrainDetailInfo(entry, ds, f.filename);
+            new_entries.push_back(entry);
         }
         else if (ext == "skin")
         {
             auto new_skins = RoR::SkinParser::ParseSkins(ds);
             for (auto skin_def: new_skins)
             {
-                CacheEntry entry;
-                if (!skin_def->author_name.empty())
-                {
-                    AuthorInfo a;
-                    a.id = skin_def->author_id;
-                    a.name = skin_def->author_name;
-                    entry.authors.push_back(a);
-                }
-
-                entry.dname       = skin_def->name;
-                entry.guid        = skin_def->guid;
-                entry.description = skin_def->description;
-                entry.categoryid  = -1;
-                entry.skin_def    = skin_def; // Needed to generate preview image
-
+                CacheEntryPtr entry = new CacheEntry();
+                FillSkinDetailInfo(entry, skin_def);
                 new_entries.push_back(entry);
             }
         }
         else
         {
-            new_entries.resize(1);
-            FillTruckDetailInfo(new_entries.back(), ds, f.filename, group);
+            CacheEntryPtr entry = new CacheEntry();
+            FillTruckDetailInfo(entry, ds, f.filename, group);
+            new_entries.push_back(entry);
         }
 
         for (auto& entry: new_entries)
         {
-            Ogre::StringUtil::toLowerCase(entry.guid); // Important for comparsion
-            entry.fpath = f.path;
-            entry.fname = f.filename;
-            entry.fname_without_uid = StripUIDfromString(f.filename);
-            entry.fext = ext;
+            Ogre::StringUtil::toLowerCase(entry->guid); // Important for comparsion
+            entry->fpath = f.path;
+            entry->fname = f.filename;
+            entry->fname_without_uid = StripUIDfromString(f.filename);
+            entry->fext = ext;
             if (type == "Zip")
             {
-                entry.filetime = RoR::GetFileLastModifiedTime(path);
+                entry->filetime = RoR::GetFileLastModifiedTime(path);
             }
             else
             {
-                entry.filetime = RoR::GetFileLastModifiedTime(PathCombine(path, f.filename));
+                entry->filetime = RoR::GetFileLastModifiedTime(PathCombine(path, f.filename));
             }
-            entry.resource_bundle_type = type;
-            entry.resource_bundle_path = path;
-            entry.number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
-            entry.addtimestamp = m_update_time;
+            entry->resource_bundle_type = type;
+            entry->resource_bundle_path = path;
+            entry->number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
+            entry->addtimestamp = m_update_time;
             this->GenerateFileCache(entry, group);
             m_entries.push_back(entry);
         }
@@ -704,7 +702,7 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
     }
 }
 
-void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr stream, String file_name, String group)
+void CacheSystem::FillTruckDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr stream, String file_name, String group)
 {
     /* LOAD AND PARSE THE VEHICLE */
     RigDef::Parser parser;
@@ -720,18 +718,18 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     /* Name */
     if (!def->name.empty())
     {
-        entry.dname = def->name; // Use retrieved name
+        entry->dname = def->name; // Use retrieved name
     }
     else
     {
-        entry.dname = "@" + file_name; // Fallback
+        entry->dname = "@" + file_name; // Fallback
     }
 
     /* Description */
     std::vector<Ogre::String>::iterator desc_itor = def->root_module->description.begin();
     for (; desc_itor != def->root_module->description.end(); desc_itor++)
     {
-        entry.description += *desc_itor + "\n";
+        entry->description += *desc_itor + "\n";
     }
 
     /* Authors */
@@ -744,20 +742,20 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
         author.name = author_itor->name;
         author.type = author_itor->type;
 
-        entry.authors.push_back(author);
+        entry->authors.push_back(author);
     }
 
     /* Default skin */
     if (def->root_module->default_skin.size() > 0)
     {
-        entry.default_skin = def->root_module->default_skin.back().skin_name;
+        entry->default_skin = def->root_module->default_skin.back().skin_name;
     }
 
     /* Modules (previously called "sections") */
     std::map<Ogre::String, std::shared_ptr<RigDef::Document::Module>>::iterator module_itor = def->user_modules.begin();
     for (; module_itor != def->user_modules.end(); module_itor++)
     {
-        entry.sectionconfigs.push_back(module_itor->second->name);
+        entry->sectionconfigs.push_back(module_itor->second->name);
     }
 
     /* Engine */
@@ -765,14 +763,14 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     if (def->root_module->engine.size() > 0)
     {
         RigDef::Engine& engine = def->root_module->engine[def->root_module->engine.size() - 1];
-        entry.numgears = static_cast<int>(engine.gear_ratios.size());
-        entry.minrpm = engine.shift_down_rpm;
-        entry.maxrpm = engine.shift_up_rpm;
-        entry.torque = engine.torque;
-        entry.enginetype = 't'; /* Truck (default) */
+        entry->numgears = static_cast<int>(engine.gear_ratios.size());
+        entry->minrpm = engine.shift_down_rpm;
+        entry->maxrpm = engine.shift_up_rpm;
+        entry->torque = engine.torque;
+        entry->enginetype = 't'; /* Truck (default) */
         if (def->root_module->engoption.size() > 0)
         {
-            entry.enginetype = (char)def->root_module->engoption[def->root_module->engoption.size() - 1].type;
+            entry->enginetype = (char)def->root_module->engoption[def->root_module->engoption.size() - 1].type;
         }
     }
 
@@ -781,15 +779,15 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
     {
         RigDef::Fileinfo& data = def->root_module->fileinfo[def->root_module->fileinfo.size() - 1];
 
-        entry.uniqueid = data.unique_id;
-        entry.categoryid = static_cast<int>(data.category_id);
-        entry.version = static_cast<int>(data.file_version);
+        entry->uniqueid = data.unique_id;
+        entry->categoryid = static_cast<int>(data.category_id);
+        entry->version = static_cast<int>(data.file_version);
     }
     else
     {
-        entry.uniqueid = "-1";
-        entry.categoryid = -1;
-        entry.version = -1;
+        entry->uniqueid = "-1";
+        entry->categoryid = -1;
+        entry->version = -1;
     }
 
     /* Vehicle type */
@@ -831,77 +829,77 @@ void CacheSystem::FillTruckDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr str
 
     if (def->root_module->globals.size() > 0)
     {
-        entry.truckmass = def->root_module->globals[def->root_module->globals.size() - 1].dry_mass;
-        entry.loadmass = def->root_module->globals[def->root_module->globals.size() - 1].cargo_mass;
+        entry->truckmass = def->root_module->globals[def->root_module->globals.size() - 1].dry_mass;
+        entry->loadmass = def->root_module->globals[def->root_module->globals.size() - 1].cargo_mass;
     }
     
-    entry.forwardcommands = def->forward_commands;
-    entry.importcommands = def->import_commands;
-    entry.rescuer = def->rescuer;
+    entry->forwardcommands = def->forward_commands;
+    entry->importcommands = def->import_commands;
+    entry->rescuer = def->rescuer;
     if (def->root_module->guid.size() > 0)
     {
-        entry.guid = def->root_module->guid[def->root_module->guid.size() - 1].guid;
+        entry->guid = def->root_module->guid[def->root_module->guid.size() - 1].guid;
     }
-    entry.fileformatversion = 0;
+    entry->fileformatversion = 0;
     if (def->root_module->fileformatversion.size() > 0)
     {
-        entry.fileformatversion = def->root_module->fileformatversion[def->root_module->fileformatversion.size() - 1].version;
+        entry->fileformatversion = def->root_module->fileformatversion[def->root_module->fileformatversion.size() - 1].version;
     }
-    entry.hasSubmeshs = static_cast<int>(def->root_module->submeshes.size() > 0);
-    entry.nodecount = static_cast<int>(def->root_module->nodes.size());
-    entry.beamcount = static_cast<int>(def->root_module->beams.size());
-    entry.shockcount = static_cast<int>(def->root_module->shocks.size() + def->root_module->shocks2.size());
-    entry.fixescount = static_cast<int>(def->root_module->fixes.size());
-    entry.hydroscount = static_cast<int>(def->root_module->hydros.size());
-    entry.driveable = vehicle_type;
-    entry.commandscount = static_cast<int>(def->root_module->commands2.size());
-    entry.flarescount = static_cast<int>(def->root_module->flares2.size());
-    entry.propscount = static_cast<int>(def->root_module->props.size());
-    entry.wingscount = static_cast<int>(def->root_module->wings.size());
-    entry.turbopropscount = static_cast<int>(def->root_module->turboprops2.size());
-    entry.rotatorscount = static_cast<int>(def->root_module->rotators.size() + def->root_module->rotators2.size());
-    entry.exhaustscount = static_cast<int>(def->root_module->exhausts.size());
-    entry.custom_particles = def->root_module->particles.size() > 0;
-    entry.turbojetcount = static_cast<int>(def->root_module->turbojets.size());
-    entry.flexbodiescount = static_cast<int>(def->root_module->flexbodies.size());
-    entry.soundsourcescount = static_cast<int>(def->root_module->soundsources.size() + def->root_module->soundsources.size());
+    entry->hasSubmeshs = static_cast<int>(def->root_module->submeshes.size() > 0);
+    entry->nodecount = static_cast<int>(def->root_module->nodes.size());
+    entry->beamcount = static_cast<int>(def->root_module->beams.size());
+    entry->shockcount = static_cast<int>(def->root_module->shocks.size() + def->root_module->shocks2.size());
+    entry->fixescount = static_cast<int>(def->root_module->fixes.size());
+    entry->hydroscount = static_cast<int>(def->root_module->hydros.size());
+    entry->driveable = vehicle_type;
+    entry->commandscount = static_cast<int>(def->root_module->commands2.size());
+    entry->flarescount = static_cast<int>(def->root_module->flares2.size());
+    entry->propscount = static_cast<int>(def->root_module->props.size());
+    entry->wingscount = static_cast<int>(def->root_module->wings.size());
+    entry->turbopropscount = static_cast<int>(def->root_module->turboprops2.size());
+    entry->rotatorscount = static_cast<int>(def->root_module->rotators.size() + def->root_module->rotators2.size());
+    entry->exhaustscount = static_cast<int>(def->root_module->exhausts.size());
+    entry->custom_particles = def->root_module->particles.size() > 0;
+    entry->turbojetcount = static_cast<int>(def->root_module->turbojets.size());
+    entry->flexbodiescount = static_cast<int>(def->root_module->flexbodies.size());
+    entry->soundsourcescount = static_cast<int>(def->root_module->soundsources.size() + def->root_module->soundsources.size());
 
-    entry.wheelcount = 0;
-    entry.propwheelcount = 0;
+    entry->wheelcount = 0;
+    entry->propwheelcount = 0;
     for (const auto& w : def->root_module->wheels)
     {
-        entry.wheelcount++;
+        entry->wheelcount++;
         if (w.propulsion != RigDef::WheelPropulsion::NONE)
-            entry.propwheelcount++;
+            entry->propwheelcount++;
     }
     for (const auto& w : def->root_module->wheels2)
     {
-        entry.wheelcount++;
+        entry->wheelcount++;
         if (w.propulsion != RigDef::WheelPropulsion::NONE)
-            entry.propwheelcount++;
+            entry->propwheelcount++;
     }
     for (const auto& w : def->root_module->meshwheels)
     {
-        entry.wheelcount++;
+        entry->wheelcount++;
         if (w.propulsion != RigDef::WheelPropulsion::NONE)
-            entry.propwheelcount++;
+            entry->propwheelcount++;
     }
     for (const auto& w : def->root_module->meshwheels2)
     {
-        entry.wheelcount++;
+        entry->wheelcount++;
         if (w.propulsion != RigDef::WheelPropulsion::NONE)
-            entry.propwheelcount++;
+            entry->propwheelcount++;
     }
     for (const auto& w : def->root_module->flexbodywheels)
     {
-        entry.wheelcount++;
+        entry->wheelcount++;
         if (w.propulsion != RigDef::WheelPropulsion::NONE)
-            entry.propwheelcount++;
+            entry->propwheelcount++;
     }
 
     if (!def->root_module->axles.empty())
     {
-        entry.propwheelcount = static_cast<int>(def->root_module->axles.size() * 2);
+        entry->propwheelcount = static_cast<int>(def->root_module->axles.size() * 2);
     }
 
     /* NOTE: std::shared_ptr cleans everything up. */
@@ -921,43 +919,43 @@ Ogre::String detectMiniType(String filename, String group)
     return "";
 }
 
-void CacheSystem::RemoveFileCache(CacheEntry& entry)
+void CacheSystem::RemoveFileCache(CacheEntryPtr& entry)
 {
-    if (!entry.filecachename.empty())
+    if (!entry->filecachename.empty())
     {
-        App::GetContentManager()->DeleteDiskFile(entry.filecachename, RGN_CACHE);
+        App::GetContentManager()->DeleteDiskFile(entry->filecachename, RGN_CACHE);
     }
 }
 
-void CacheSystem::GenerateFileCache(CacheEntry& entry, String group)
+void CacheSystem::GenerateFileCache(CacheEntryPtr& entry, String group)
 {
-    if (entry.fname.empty())
+    if (entry->fname.empty())
         return;
 
     String bundle_basename, bundle_path;
-    StringUtil::splitFilename(entry.resource_bundle_path, bundle_basename, bundle_path);
+    StringUtil::splitFilename(entry->resource_bundle_path, bundle_basename, bundle_path);
 
     String src_path;
     String dst_path;
-    if (entry.fext == "skin")
+    if (entry->fext == "skin")
     {
-        if (entry.skin_def->thumbnail.empty())
+        if (entry->skin_def->thumbnail.empty())
             return;
-        src_path = entry.skin_def->thumbnail;
+        src_path = entry->skin_def->thumbnail;
         String mini_fbase, minitype;
-        StringUtil::splitBaseFilename(entry.skin_def->thumbnail, mini_fbase, minitype);
+        StringUtil::splitBaseFilename(entry->skin_def->thumbnail, mini_fbase, minitype);
         dst_path = bundle_basename + "_" + mini_fbase + ".mini." + minitype;
     }
     else
     {
         String fbase, fext;
-        StringUtil::splitBaseFilename(entry.fname, fbase, fext);
+        StringUtil::splitBaseFilename(entry->fname, fbase, fext);
         String minifn = fbase + "-mini.";
         String minitype = detectMiniType(minifn, group);
         if (minitype.empty())
             return;
         src_path = minifn + minitype;
-        dst_path = bundle_basename + "_" + entry.fname + ".mini." + minitype;
+        dst_path = bundle_basename + "_" + entry->fname + ".mini." + minitype;
     }
 
     try
@@ -969,7 +967,7 @@ void CacheSystem::GenerateFileCache(CacheEntry& entry, String group)
         if (read > 0)
         {
             dst_ds->write(buf.data(), read); 
-            entry.filecachename = dst_path;
+            entry->filecachename = dst_path;
         }
     }
     catch (Ogre::Exception& e)
@@ -1047,7 +1045,7 @@ void CacheSystem::GenerateHashFromFilenames()
     m_filenames_hash_generated = HashData(filenames.c_str(), static_cast<int>(filenames.size()));
 }
 
-void CacheSystem::FillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr ds, Ogre::String fname)
+void CacheSystem::FillTerrainDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds, Ogre::String fname)
 {
     Terrn2Def def;
     Terrn2Parser parser;
@@ -1059,13 +1057,30 @@ void CacheSystem::FillTerrainDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr d
         a.id = -1;
         a.name = author.name;
         a.type = author.type;
-        entry.authors.push_back(a);
+        entry->authors.push_back(a);
     }
 
-    entry.dname      = def.name;
-    entry.categoryid = def.category_id;
-    entry.uniqueid   = def.guid;
-    entry.version    = def.version;
+    entry->dname      = def.name;
+    entry->categoryid = def.category_id;
+    entry->uniqueid   = def.guid;
+    entry->version    = def.version;
+}
+
+void CacheSystem::FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDef>& skin_def)
+{
+    if (!skin_def->author_name.empty())
+    {
+        AuthorInfo a;
+        a.id = skin_def->author_id;
+        a.name = skin_def->author_name;
+        entry->authors.push_back(a);
+    }
+
+    entry->dname       = skin_def->name;
+    entry->guid        = skin_def->guid;
+    entry->description = skin_def->description;
+    entry->categoryid  = -1;
+    entry->skin_def    = skin_def; // Needed to generate preview image
 }
 
 bool CacheSystem::CheckResourceLoaded(Ogre::String & filename)
@@ -1088,8 +1103,8 @@ bool CacheSystem::CheckResourceLoaded(Ogre::String & filename, Ogre::String& gro
         for (auto& entry : m_entries)
         {
             // case insensitive comparison
-            String fname = entry.fname;
-            String fname_without_uid = entry.fname_without_uid;
+            String fname = entry->fname;
+            String fname_without_uid = entry->fname_without_uid;
             StringUtil::toLowerCase(fname);
             StringUtil::toLowerCase(filename);
             StringUtil::toLowerCase(fname_without_uid);
@@ -1097,8 +1112,8 @@ bool CacheSystem::CheckResourceLoaded(Ogre::String & filename, Ogre::String& gro
             {
                 // we found the file, load it
                 LoadResource(entry);
-                filename = entry.fname;
-                group = entry.resource_group;
+                filename = entry->fname;
+                group = entry->resource_group;
                 return !group.empty() && ResourceGroupManager::getSingleton().resourceExists(group, filename);
             }
         }
@@ -1108,31 +1123,31 @@ bool CacheSystem::CheckResourceLoaded(Ogre::String & filename, Ogre::String& gro
     return false;
 }
 
-void CacheSystem::LoadResource(CacheEntry& t)
+void CacheSystem::LoadResource(CacheEntryPtr& entry)
 {
-    // Check if already loaded for this entry.
-    if (t.resource_group != "")
+    // Check if already loaded for this entry->
+    if (entry->resource_group != "")
     {
         return;
     }
 
-    Ogre::String group = "bundle " + t.resource_bundle_path; // Compose group name from full path.
+    Ogre::String group = "bundle " + entry->resource_bundle_path; // Compose group name from full path.
 
     // Load now.
     try
     {
-        if (t.fext == "terrn2")
+        if (entry->fext == "terrn2")
         {
             // PagedGeometry is hardcoded to use `Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME`
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
-            ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+            ResourceGroupManager::getSingleton().addResourceLocation(entry->resource_bundle_path, entry->resource_bundle_type, group);
         }
-        else if (t.fext == "skin")
+        else if (entry->fext == "skin")
         {
             // This is a SkinZip bundle - use `inGlobalPool=false` to prevent resource name conflicts.
-            // Note: this code won't execute for .skin files in vehicle-bundles because in such case the bundle is already loaded by the vehicle's CacheEntry.
+            // Note: this code won't execute for .skin files in vehicle-bundles because in such case the bundle is already loaded by the vehicle's Cacheentry->
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
-            ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+            ResourceGroupManager::getSingleton().addResourceLocation(entry->resource_bundle_path, entry->resource_bundle_type, group);
             App::GetContentManager()->InitManagedMaterials(group);
         }
         else
@@ -1140,7 +1155,7 @@ void CacheSystem::LoadResource(CacheEntry& t)
             // A vehicle bundle - use `inGlobalPool=false` to prevent resource name conflicts.
             // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
-            ResourceGroupManager::getSingleton().addResourceLocation(t.resource_bundle_path, t.resource_bundle_type, group);
+            ResourceGroupManager::getSingleton().addResourceLocation(entry->resource_bundle_path, entry->resource_bundle_type, group);
 
             App::GetContentManager()->InitManagedMaterials(group);
             App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES, group);
@@ -1150,21 +1165,21 @@ void CacheSystem::LoadResource(CacheEntry& t)
 
         ResourceGroupManager::getSingleton().initialiseResourceGroup(group);
 
-        t.resource_group = group;
+        entry->resource_group = group;
 
         // Inform other entries sharing this bundle (i.e. '.skin' entries in vehicle bundles)
-        for (CacheEntry& i_entry: m_entries)
+        for (CacheEntryPtr& i_entry: m_entries)
         {
-            if (i_entry.resource_bundle_path == t.resource_bundle_path)
+            if (i_entry->resource_bundle_path == entry->resource_bundle_path)
             {
-                i_entry.resource_group = group; // Mark as loaded
+                i_entry->resource_group = group; // Mark as loaded
             }
         }
     }
     catch (Ogre::Exception& e)
     {
         RoR::LogFormat("[RoR] Error while loading '%s', message: %s",
-            t.resource_bundle_path.c_str(), e.getFullDescription().c_str());
+            entry->resource_bundle_path.c_str(), e.getFullDescription().c_str());
         if (ResourceGroupManager::getSingleton().resourceGroupExists(group))
         {
             ResourceGroupManager::getSingleton().destroyResourceGroup(group);
@@ -1172,54 +1187,54 @@ void CacheSystem::LoadResource(CacheEntry& t)
     }
 }
 
-void CacheSystem::ReLoadResource(CacheEntry& t)
+void CacheSystem::ReLoadResource(CacheEntryPtr& entry)
 {
-    if (t.resource_group == "")
+    if (entry->resource_group == "")
     {
         return; // Not loaded - nothing to do
     }
 
     // IMPORTANT! No actors must use the bundle while reloading, use RoR::MsgType::MSG_EDI_RELOAD_BUNDLE_REQUESTED
 
-    this->UnLoadResource(t);
-    this->LoadResource(t); // Will create the same resource group again
+    this->UnLoadResource(entry);
+    this->LoadResource(entry); // Will create the same resource group again
 }
 
-void CacheSystem::UnLoadResource(CacheEntry& t)
+void CacheSystem::UnLoadResource(CacheEntryPtr& entry)
 {
-    if (t.resource_group == "")
+    if (entry->resource_group == "")
     {
         return; // Not loaded - nothing to do
     }
 
     // IMPORTANT! No actors must use the bundle after reloading, use RoR::MsgType::MSG_EDI_RELOAD_BUNDLE_REQUESTED
 
-    std::string resource_group = t.resource_group; // Keep local copy, the CacheEntry will be blanked!
-    for (CacheEntry& i_entry: m_entries)
+    std::string resource_group = entry->resource_group; // Keep local copy, the CacheEntry will be blanked!
+    for (CacheEntryPtr& i_entry: m_entries)
     {
-        if (i_entry.resource_group == resource_group)
+        if (i_entry->resource_group == resource_group)
         {
-            i_entry.actor_def = nullptr; // Delete cached truck file - force reload from disk
-            i_entry.resource_group = ""; // Mark as unloaded
+            i_entry->actor_def = nullptr; // Delete cached truck file - force reload from disk
+            i_entry->resource_group = ""; // Mark as unloaded
         }
     }
 
     Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(resource_group);
 }
 
-CacheEntry* CacheSystem::FetchSkinByName(std::string const & skin_name)
+CacheEntryPtr CacheSystem::FetchSkinByName(std::string const & skin_name)
 {
-    for (CacheEntry & entry: m_entries)
+    for (CacheEntryPtr & entry: m_entries)
     {
-        if (entry.dname == skin_name && entry.fext == "skin")
+        if (entry->dname == skin_name && entry->fext == "skin")
         {
-            return &entry;
+            return entry;
         }
     }
     return nullptr;
 }
 
-std::shared_ptr<SkinDef> CacheSystem::FetchSkinDef(CacheEntry* cache_entry)
+std::shared_ptr<SkinDef> CacheSystem::FetchSkinDef(CacheEntryPtr& cache_entry)
 {
     if (cache_entry->skin_def != nullptr) // If already parsed, re-use
     {
@@ -1228,22 +1243,22 @@ std::shared_ptr<SkinDef> CacheSystem::FetchSkinDef(CacheEntry* cache_entry)
 
     try
     {
-        App::GetCacheSystem()->LoadResource(*cache_entry); // Load if not already
+        App::GetCacheSystem()->LoadResource(cache_entry); // Load if not already
         Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton()
             .openResource(cache_entry->fname, cache_entry->resource_group);
 
         auto new_skins = RoR::SkinParser::ParseSkins(ds); // Load the '.skin' file
         for (auto def: new_skins)
         {
-            for (CacheEntry& e: m_entries)
+            for (CacheEntryPtr& entry: m_entries)
             {
-                if (e.resource_bundle_path == cache_entry->resource_bundle_path
-                    && e.resource_bundle_type == cache_entry->resource_bundle_type
-                    && e.fname == cache_entry->fname
-                    && e.dname == def->name)
+                if (entry->resource_bundle_path == cache_entry->resource_bundle_path
+                    && entry->resource_bundle_type == cache_entry->resource_bundle_type
+                    && entry->fname == cache_entry->fname
+                    && entry->dname == def->name)
                 {
-                    e.skin_def = def;
-                    e.resource_group = cache_entry->resource_group;
+                    entry->skin_def = def;
+                    entry->resource_group = cache_entry->resource_group;
                 }
             }
         }
@@ -1267,33 +1282,33 @@ size_t CacheSystem::Query(CacheQuery& query)
 {
     Ogre::StringUtil::toLowerCase(query.cqy_search_string);
     std::time_t cur_time = std::time(nullptr);
-    for (CacheEntry& entry: m_entries)
+    for (CacheEntryPtr& entry: m_entries)
     {
         // Filter by GUID
-        if (!query.cqy_filter_guid.empty() && entry.guid != query.cqy_filter_guid)
+        if (!query.cqy_filter_guid.empty() && entry->guid != query.cqy_filter_guid)
         {
             continue;
         }
 
         // Filter by entry type
         bool add = false;
-        if (entry.fext == "terrn2")
+        if (entry->fext == "terrn2")
             add = (query.cqy_filter_type == LT_Terrain);
-        if (entry.fext == "skin")
+        if (entry->fext == "skin")
             add = (query.cqy_filter_type == LT_Skin);
-        else if (entry.fext == "truck")
+        else if (entry->fext == "truck")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck);
-        else if (entry.fext == "car")
+        else if (entry->fext == "car")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck || query.cqy_filter_type == LT_Car);
-        else if (entry.fext == "boat")
+        else if (entry->fext == "boat")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Boat);
-        else if (entry.fext == "airplane")
+        else if (entry->fext == "airplane")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Airplane);
-        else if (entry.fext == "trailer")
+        else if (entry->fext == "trailer")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Trailer || query.cqy_filter_type == LT_Extension);
-        else if (entry.fext == "train")
+        else if (entry->fext == "train")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Train);
-        else if (entry.fext == "load")
+        else if (entry->fext == "load")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Load || query.cqy_filter_type == LT_Extension);
 
         if (!add)
@@ -1302,16 +1317,16 @@ size_t CacheSystem::Query(CacheQuery& query)
         }
 
         // Category usage stats
-        query.cqy_res_category_usage[entry.categoryid]++;
+        query.cqy_res_category_usage[entry->categoryid]++;
 
         query.cqy_res_category_usage[CacheCategoryId::CID_All]++;
 
-        const bool is_fresh = (cur_time - entry.addtimestamp) < CACHE_FILE_FRESHNESS;
+        const bool is_fresh = (cur_time - entry->addtimestamp) < CACHE_FILE_FRESHNESS;
         if (is_fresh)
             query.cqy_res_category_usage[CacheCategoryId::CID_Fresh]++;
 
         // Filter by category
-        if ((query.cqy_filter_category_id <= CacheCategoryId::CID_Max && query.cqy_filter_category_id != entry.categoryid) ||
+        if ((query.cqy_filter_category_id <= CacheCategoryId::CID_Max && query.cqy_filter_category_id != entry->categoryid) ||
             (query.cqy_filter_category_id == CID_Fresh && !is_fresh))
         {
             continue;
@@ -1324,10 +1339,10 @@ size_t CacheSystem::Query(CacheQuery& query)
         switch (query.cqy_search_method)
         {
         case CacheSearchMethod::FULLTEXT:
-            if (match = this->Match(score, entry.dname,       query.cqy_search_string, 0))   { break; }
-            if (match = this->Match(score, entry.fname,       query.cqy_search_string, 100)) { break; }
-            if (match = this->Match(score, entry.description, query.cqy_search_string, 200)) { break; }
-            for (AuthorInfo const& author: entry.authors)
+            if (match = this->Match(score, entry->dname,       query.cqy_search_string, 0))   { break; }
+            if (match = this->Match(score, entry->fname,       query.cqy_search_string, 100)) { break; }
+            if (match = this->Match(score, entry->description, query.cqy_search_string, 200)) { break; }
+            for (AuthorInfo const& author: entry->authors)
             {
                 if (match = this->Match(score, author.name,  query.cqy_search_string, 300)) { break; }
                 if (match = this->Match(score, author.email, query.cqy_search_string, 400)) { break; }
@@ -1335,11 +1350,11 @@ size_t CacheSystem::Query(CacheQuery& query)
             break;
 
         case CacheSearchMethod::GUID:
-            match = this->Match(score, entry.guid, query.cqy_search_string, 0);
+            match = this->Match(score, entry->guid, query.cqy_search_string, 0);
             break;
 
         case CacheSearchMethod::AUTHORS:
-            for (AuthorInfo const& author: entry.authors)
+            for (AuthorInfo const& author: entry->authors)
             {
                 if (match = this->Match(score, author.name,  query.cqy_search_string, 0)) { break; }
                 if (match = this->Match(score, author.email, query.cqy_search_string, 0)) { break; }
@@ -1347,12 +1362,12 @@ size_t CacheSystem::Query(CacheQuery& query)
             break;
 
         case CacheSearchMethod::WHEELS:
-            wheels_str << entry.wheelcount << "x" << entry.propwheelcount;
+            wheels_str << entry->wheelcount << "x" << entry->propwheelcount;
             match = this->Match(score, wheels_str.ToCStr(), query.cqy_search_string, 0);
             break;
 
         case CacheSearchMethod::FILENAME:
-            match = this->Match(score, entry.fname, query.cqy_search_string, 100);
+            match = this->Match(score, entry->fname, query.cqy_search_string, 100);
             break;
 
         default: // CacheSearchMethod::NONE
@@ -1362,8 +1377,8 @@ size_t CacheSystem::Query(CacheQuery& query)
 
         if (match)
         {
-            query.cqy_results.emplace_back(&entry, score);
-            query.cqy_res_last_update = std::max(query.cqy_res_last_update, entry.addtimestamp);
+            query.cqy_results.emplace_back(entry, score);
+            query.cqy_res_last_update = std::max(query.cqy_res_last_update, entry->addtimestamp);
         }
     }
 

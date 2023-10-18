@@ -136,7 +136,7 @@ public:
 
     void                ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box);
     void                OnLoaderGuiCancel(); //!< GUI callback
-    void                OnLoaderGuiApply(RoR::LoaderType type, CacheEntry* entry, std::string sectionconfig);  //!< GUI callback
+    void                OnLoaderGuiApply(RoR::LoaderType type, CacheEntryPtr entry, std::string sectionconfig);  //!< GUI callback
 
     /// @}
     /// @name Characters
@@ -191,11 +191,11 @@ private:
     ActorPtr            m_prev_player_actor = nullptr;      //!< Previous actor (vehicle or machine) mounted and controlled by player
     ActorPtr            m_last_spawned_actor = nullptr;     //!< Last actor spawned by user and still alive.
     
-    CacheEntry*         m_last_cache_selection = nullptr;   //!< Vehicle/load
-    CacheEntry*         m_last_skin_selection = nullptr;
+    CacheEntryPtr       m_last_cache_selection = nullptr;   //!< Vehicle/load
+    CacheEntryPtr       m_last_skin_selection = nullptr;
     Ogre::String        m_last_section_config;
     ActorSpawnRequest   m_current_selection;                //!< Context of the loader UI
-    CacheEntry          m_dummy_cache_selection;
+    CacheEntryPtr       m_dummy_cache_selection = new CacheEntry();
 
     // Characters (simplified physics and netcode)
     CharacterFactory    m_character_factory;

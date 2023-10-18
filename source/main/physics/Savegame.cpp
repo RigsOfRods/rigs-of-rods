@@ -311,7 +311,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
             continue;
         }
 
-        CacheEntry* skin = nullptr;
+        CacheEntryPtr skin = nullptr;
         if (j_entry.HasMember("skin"))
         {
             skin = App::GetCacheSystem()->FetchSkinByName(j_entry["skin"].GetString());
