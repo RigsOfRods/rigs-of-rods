@@ -560,4 +560,7 @@ void AppContext::SetUpObsoleteConfMarker()
 void AppContext::SetUpThreads()
 {
     m_mainthread_id = std::this_thread::get_id();
+
+    // This cannot be done earlier as it uses the above thread ID to assert() against invalid access.
+    App::GetGameContext()->m_dummy_cache_selection = new CacheEntry();
 }

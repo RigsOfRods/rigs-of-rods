@@ -169,11 +169,13 @@ void ScriptEngine::init()
     RegisterGameScript(engine);    // GameScriptClass
     RegisterScriptEvents(engine);  // scriptEvents
     RegisterGenericFileFormat(engine); // TokenType, GenericDocumentClass, GenericDocReaderClass
+    RegisterCacheSystem(engine);   // LoaderType, CacheEntryClass, CacheSystemClass
 
     // now the global instances
     result = engine->RegisterGlobalProperty("GameScriptClass game", &m_game_script); ROR_ASSERT(result>=0);
     result = engine->RegisterGlobalProperty("ConsoleClass console", App::GetConsole()); ROR_ASSERT(result>=0);
     result = engine->RegisterGlobalProperty("InputEngineClass inputs", App::GetInputEngine()); ROR_ASSERT(result>=0);
+    result = engine->RegisterGlobalProperty("CacheSystemClass cache", App::GetCacheSystem()); ROR_ASSERT(result>=0);
 
     SLOG("Type registrations done. If you see no error above everything should be working");
 

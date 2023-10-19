@@ -105,6 +105,7 @@ int main(int argc, char *argv[])
         App::sys_savegames_dir ->setStr(PathCombine(App::sys_user_dir->getStr(), "savegames"));
         App::sys_screenshot_dir->setStr(PathCombine(App::sys_user_dir->getStr(), "screenshots"));
         App::sys_scripts_dir   ->setStr(PathCombine(App::sys_user_dir->getStr(), "scripts"));
+        App::sys_projects_dir  ->setStr(PathCombine(App::sys_user_dir->getStr(), "projects"));
 
         // Load RoR.cfg - updates cvars
         App::GetConsole()->loadConfig();
@@ -199,10 +200,8 @@ int main(int argc, char *argv[])
 
 #ifdef USE_ANGELSCRIPT
         App::CreateScriptEngine();
-        if (!FolderExists(App::sys_scripts_dir->getStr()))
-        {
-            CreateFolder(App::sys_scripts_dir->getStr());
-        }
+        CreateFolder(App::sys_scripts_dir->getStr());
+        CreateFolder(App::sys_projects_dir->getStr());
 #endif
 
         App::GetGuiManager()->SetUpMenuWallpaper();
@@ -373,7 +372,7 @@ int main(int argc, char *argv[])
                     break;
 
                 case MSG_APP_MODCACHE_LOAD_REQUESTED:
-                    if (!App::GetCacheSystem()) // If not already loaded...
+                    if (!App::GetCacheSystem()->IsModCacheLoaded()) // If not already loaded...
                     {
                         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
                         App::GetContentManager()->InitModCache(CacheValidity::UNKNOWN);
@@ -965,6 +964,14 @@ int main(int argc, char *argv[])
                     }
 
                     delete entry_ptr;
+                    break;
+                }
+
+                case MSG_EDI_CREATE_PROJECT_REQUESTED:
+                {
+                    CreateProjectRequest* request = static_cast<CreateProjectRequest*>(m.payload);
+                    App::GetCacheSystem()->CreateProject(request);
+                    delete request;
                     break;
                 }
 

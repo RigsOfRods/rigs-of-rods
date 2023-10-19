@@ -95,6 +95,7 @@ typedef std::queue < Message, std::list<Message>> GameMsgQueue;
 
 class GameContext
 {
+    friend class AppContext;
 public:
 
     /// @name Message queue
@@ -163,7 +164,7 @@ public:
     /// @{
 
     RaceSystem&         GetRaceSystem() { return m_race_system; }
-    RepairMode&       GetRepairMode() { return m_recovery_mode; }
+    RepairMode&         GetRepairMode() { return m_recovery_mode; }
     SceneMouse&         GetSceneMouse() { return m_scene_mouse; }
     void                TeleportPlayer(float x, float z);
     void                UpdateGlobalInputEvents();
@@ -195,14 +196,14 @@ private:
     CacheEntryPtr       m_last_skin_selection = nullptr;
     Ogre::String        m_last_section_config;
     ActorSpawnRequest   m_current_selection;                //!< Context of the loader UI
-    CacheEntryPtr       m_dummy_cache_selection = new CacheEntry();
+    CacheEntryPtr       m_dummy_cache_selection;
 
     // Characters (simplified physics and netcode)
     CharacterFactory    m_character_factory;
 
     // Gameplay feats (misc.)
     RaceSystem          m_race_system;
-    RepairMode        m_recovery_mode;                     //!< Aka 'advanced repair' or 'interactive reset'
+    RepairMode          m_recovery_mode;                     //!< Aka 'advanced repair' or 'interactive reset'
     SceneMouse          m_scene_mouse;                       //!< Mouse interaction with scene
     Ogre::Timer         m_timer;
     Ogre::Vector3       prev_pos = Ogre::Vector3::ZERO;

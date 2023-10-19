@@ -106,7 +106,6 @@ private:
     // Ogre::ScriptCompilerListener
     bool handleEvent(Ogre::ScriptCompiler *compiler, Ogre::ScriptCompilerEvent *evt, void *retval) override;
 
-    CacheSystem       m_mod_cache; //!< Database of addon content
     bool              m_base_resource_loaded;
 };
 

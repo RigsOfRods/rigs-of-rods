@@ -7199,7 +7199,10 @@ void ActorSpawner::CreateCabVisual()
 
         // Process "emissive cab" materials
         auto search_itor = m_material_substitutions.find(m_cab_material_name);
-        m_actor->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
+        if (search_itor != m_material_substitutions.end())
+        {
+            m_actor->m_gfx_actor->RegisterCabMaterial(search_itor->second.material, m_cab_trans_material);
+        }
         m_actor->m_gfx_actor->SetCabLightsActive(false); // Reset emissive lights to "off" state
 
         m_actor->GetGfxActor()->RegisterCabMesh(ec, cab_scene_node, cab_mesh);

@@ -54,7 +54,7 @@ namespace App {
 
 // Object instances
 static AppContext           g_app_context;
-static CacheSystem*         g_cache_system;
+static CacheSystem          g_cache_system;
 static CameraManager*       g_camera_manager;
 static Console              g_console;
 static ContentManager       g_content_manager;
@@ -168,6 +168,7 @@ CVar* sys_profiler_dir;
 CVar* sys_savegames_dir;
 CVar* sys_screenshot_dir;
 CVar* sys_scripts_dir;
+CVar* sys_projects_dir;
 
 // OS command line
 CVar* cli_server_host;
@@ -258,9 +259,6 @@ CVar* flexbody_defrag_invert_lookup;
 CVar* ui_show_live_repair_controls;
 CVar* ui_show_vehicle_buttons;
 
-// Instance management
-void SetCacheSystem    (CacheSystem* obj)             { g_cache_system = obj; }
-
 // Instance access
 AppContext*            GetAppContext         () { return &g_app_context; };
 ContentManager*        GetContentManager     () { return &g_content_manager;}
@@ -268,7 +266,7 @@ OverlayWrapper*        GetOverlayWrapper     () { return g_overlay_wrapper;}
 GUIManager*            GetGuiManager         () { return g_gui_manager;}
 Console*               GetConsole            () { return &g_console;}
 InputEngine*           GetInputEngine        () { return g_input_engine;}
-CacheSystem*           GetCacheSystem        () { return g_cache_system;}
+CacheSystem*           GetCacheSystem        () { return &g_cache_system;}
 MumbleIntegration*     GetMumble             () { return g_mumble; }
 ThreadPool*            GetThreadPool         () { return g_thread_pool; }
 CameraManager*         GetCameraManager      () { return g_camera_manager; }
