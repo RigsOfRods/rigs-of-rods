@@ -175,7 +175,7 @@ void ScriptEngine::init()
     result = engine->RegisterGlobalProperty("GameScriptClass game", &m_game_script); ROR_ASSERT(result>=0);
     result = engine->RegisterGlobalProperty("ConsoleClass console", App::GetConsole()); ROR_ASSERT(result>=0);
     result = engine->RegisterGlobalProperty("InputEngineClass inputs", App::GetInputEngine()); ROR_ASSERT(result>=0);
-    result = engine->RegisterGlobalProperty("CacheSystemClass cache", App::GetCacheSystem()); ROR_ASSERT(result>=0);
+    result = engine->RegisterGlobalProperty("CacheSystemClass modcache", App::GetCacheSystem()); ROR_ASSERT(result>=0);
 
     SLOG("Type registrations done. If you see no error above everything should be working");
 
