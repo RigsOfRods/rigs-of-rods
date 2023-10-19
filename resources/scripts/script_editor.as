@@ -55,19 +55,27 @@ const uint FILEINFO_COMPRESSEDSIZE_UNKNOWN = uint(-1);
     // Line comment offsets       
     bool drawLineCommentOffsets=true;
     color lineCommentOffsetColor=color(0.1f,0.9f,0.6f,0.6f);
-    float lineCommentColumnWidth = 16;
+    float lineCommentColumnWidth = 25;
     // Line http offsets
     bool drawLineHttpOffsets=false; // only visual, links don't open
     color lineHttpOffsetColor=color(LINKCOLOR.r, LINKCOLOR.g, LINKCOLOR.a, 0.6f);
     float lineHttpColumnWidth = 16;        
     // Line err counts (error may span multiple AngelScript messages!)
-    bool drawLineErrCounts = true;
+    bool drawLineErrCounts = false;
     color lineErrCountColor = color(1.f,0.2f,0.1f,1.f);
     float errCountColumnWidth = 10;
     // Line region&endregion markers
     bool drawLineRegionMarkers = false; // only visual, folding is not implemented
     color lineRegionMarkerColor = color(0.78f,0.76f,0.32f,1.f);
     float lineRegionMarkerColumnWidth = 12;
+    // Auto-indentation level display
+    bool drawLineAutoIndentLevels = true;
+    color lineAutoIndentLevelsColor = color(0.55f, 0.44f, 0.55f, 1.f);
+    float lineAutoIndentLevelsColumnWidth = 16;
+    // Actual indent display
+    bool drawLineActualIndents = true;
+    color lineActualIndentsColor = color(0.55f, 0.55f, 0.44f, 1.f);
+    float lineActualIndentsColumnWidth = 16;
 // END line metainfo columns
 
 // EDITOR settings
@@ -82,6 +90,9 @@ const uint FILEINFO_COMPRESSEDSIZE_UNKNOWN = uint(-1);
     color httpHighlightColor=color(0.25, 0.3, 1, 0.3f);
     bool drawHttpHighlights = false; // only visual, links don't open    
     float scriptInfoIndentWidth = 25;
+    
+    int autoIndentNumSpaces = 4;
+    bool autoIndentOnSave = true;
     
     // input output
     bool saveShouldOverwrite=false;
@@ -321,6 +332,11 @@ class ScriptEditorWindow
                 ImGui::InputText("File",/*inout:*/ saveFileNameBuf);
                 if (ImGui::Button("Save"))
                 {
+                    // perform auto-indenting if desired
+                    if (autoIndentOnSave)
+                        this.tabs[this.currentTab].autoIndentBuffer();
+                
+                    // Write out the file
                     string strData = this.tabs[this.currentTab].buffer.substr(0, this.tabs[this.currentTab].totalChars);
                     bool savedOk = game.createTextResourceFromString(
                         strData, saveFileNameBuf, RGN_SCRIPTS, saveShouldOverwrite);
@@ -406,7 +422,13 @@ class ScriptEditorWindow
                     ImGui::PopStyleColor(1); // ImGuiCol_Text
                 ImGui::PushStyleColor(ImGuiCol_Text, lineRegionMarkerColor);
                     ImGui::Checkbox("Region markers", /*inout:*/drawLineRegionMarkers);
-                    ImGui::PopStyleColor(1); // ImGuiCol_Text                    
+                    ImGui::PopStyleColor(1); // ImGuiCol_Text  
+                ImGui::PushStyleColor(ImGuiCol_Text, lineAutoIndentLevelsColor);
+                    ImGui::Checkbox("Auto indents", /*inout:*/drawLineAutoIndentLevels);
+                    ImGui::PopStyleColor(1); // ImGuiCol_Text 
+                ImGui::PushStyleColor(ImGuiCol_Text, lineActualIndentsColor);
+                    ImGui::Checkbox("Actual indents", /*inout:*/drawLineActualIndents);
+                    ImGui::PopStyleColor(1); // ImGuiCol_Text                     
                     
                 ImGui::TextDisabled("Editor overlay:");
                 ImGui::Checkbox("Error text", /*inout:*/drawErrorText);
@@ -416,6 +438,23 @@ class ScriptEditorWindow
                 
                 ImGui::TextDisabled("Misc:");
                 ImGui::Checkbox("Autosave countdown", /*inout:*/drawAutosaveCountdown);
+                ImGui::EndMenu();
+            }
+            
+            // 'TOOLS' menu
+            if (ImGui::BeginMenu("Tools"))
+            {
+                ImGui::TextDisabled("Tools:");
+                if (ImGui::Button("Auto-indent"))
+                {
+                    this.tabs[this.currentTab].autoIndentBuffer();
+                }
+                
+                ImGui::Separator();
+                ImGui::TextDisabled("Settings");
+                ImGui::SetNextItemWidth(75.f);
+                ImGui::InputInt("Indent width", /*inout*/autoIndentNumSpaces);
+                ImGui::Checkbox("Indent on save", /*inout*/autoIndentOnSave);
                 ImGui::EndMenu();
             }
             
@@ -597,6 +636,10 @@ class ScriptEditorTab
             metaColumnsTotalWidth += errCountColumnWidth;
         if (drawLineRegionMarkers)
             metaColumnsTotalWidth += lineRegionMarkerColumnWidth;
+        if (drawLineAutoIndentLevels)
+            metaColumnsTotalWidth += lineAutoIndentLevelsColumnWidth;
+        if (drawLineActualIndents)
+            metaColumnsTotalWidth += lineActualIndentsColumnWidth;
         
         return metaColumnsTotalWidth;
     }
@@ -690,6 +733,22 @@ class ScriptEditorTab
                 }
                 
                 linenumCursor.x += lineRegionMarkerColumnWidth;
+            }
+            
+            // Auto-detected indentation level, multiplied by preset indent width.
+            if (drawLineAutoIndentLevels)
+            {
+                drawlist.AddText(linenumCursor, lineAutoIndentLevelsColor,
+                    ""+int(this.bufferLinesMeta[lineIdx]['autoIndentLevel']) * autoIndentNumSpaces);
+                linenumCursor.x += lineAutoIndentLevelsColumnWidth;                    
+            }
+
+            // Actual indentation length
+            if (drawLineActualIndents)
+            {
+                drawlist.AddText(linenumCursor, lineActualIndentsColor,
+                    ""+int(this.bufferLinesMeta[lineIdx]['actualIndentBlanks']));
+                linenumCursor.x += lineActualIndentsColumnWidth; 
             }
         }
     }
@@ -960,7 +1019,7 @@ class ScriptEditorTab
                     game.getRegisteredEventsMask(scriptUnitId) | SE_ANGELSCRIPT_EXCEPTIONCALLBACK);
                 /*game.log ("DBG '"+this.bufferName+"'.onEventAngelScriptManip(): Now running with NID="+this.currentScriptUnitID);*/
             }
-            else if (manipType == ASMANIP_SCRIPT_UNLOADED
+            else if (manipType == ASMANIP_SCRIPT_UNLOADING
                 && this.currentScriptUnitID != SCRIPTUNITID_INVALID
                 && this.bufferName == scriptName)
             {
@@ -1013,6 +1072,11 @@ class ScriptEditorTab
         string httpBreakChars = " \n\t\"'";
         bool httpBreakFound = false;
         int httpBreakPos = -1;
+        
+        int autoIndentLevelCurrent = 0;
+        int autoIndentLevelNext = 0;
+        int actualIndentBlanks = 0; // current line
+        bool actualIndentFound = false;
         
         for (uint i = 0; i < this.buffer.length(); i++)
         {        
@@ -1113,6 +1177,31 @@ class ScriptEditorTab
                     }
                 }
             }
+            
+            // Auto indentation - always execute to display the debug levels
+            if (isChar(this.buffer[i], '{'))
+            {
+                autoIndentLevelNext++;
+            }
+            else if (isChar(this.buffer[i], '}'))
+            {
+                 // Allow negative values, for debugging.
+                autoIndentLevelNext--;
+                autoIndentLevelCurrent--;
+            }
+            
+            // Actual indentation - always execute 
+            if (!actualIndentFound)
+            {
+                if (isChar(this.buffer[i], ' ') || isChar(this.buffer[i], '\t'))
+                {
+                    actualIndentBlanks++;
+                }
+                else
+                {
+                    actualIndentFound = true;
+                }
+            }
         
             if (isChar(this.buffer[i], '\n') || isChar(this.buffer[i], '\0'))
             {
@@ -1131,6 +1220,8 @@ class ScriptEditorTab
                 this.bufferLinesMeta[lineIdx]['regionFound'] = regionFound;
                 this.bufferLinesMeta[lineIdx]['regionTitleStart'] = regionTitleStart;
                 this.bufferLinesMeta[lineIdx]['endregionFound'] = endregionFound;
+                this.bufferLinesMeta[lineIdx]['autoIndentLevel'] = autoIndentLevelCurrent;
+                this.bufferLinesMeta[lineIdx]['actualIndentBlanks'] = actualIndentBlanks;
             }
                 
             if (isChar(this.buffer[i], '\0'))
@@ -1157,10 +1248,16 @@ class ScriptEditorTab
                 endregionFound = false;
                 endregionLevel = 0;
                 
+                actualIndentFound = false;
+                actualIndentBlanks = 0;
+                
+                autoIndentLevelCurrent = autoIndentLevelNext;
+                
                 // Start new line
                 startOffset = i+1;
                 this.bufferLinesMeta.insertLast({ {'startOffset', startOffset} });
             }
+            
             this.totalChars++;
         }
     }
@@ -1236,6 +1333,39 @@ class ScriptEditorTab
                 /*size: */vector2(55.f, 13.f),
                 /*overlay: */''+formatFloat(autoSaveIntervalSec-this.autosaveTimeCounterSec, "", 3, 1)+'sec');
         ImGui::PopStyleColor(1); // ImGuiCol_FrameBg    
+    }
+    
+    void autoIndentBuffer()
+    {
+        string stagingBuffer;
+        for (uint i = 0; i < bufferLinesMeta.length(); i++)
+        {
+            // insert indent
+            int autoIndentLevel = int(bufferLinesMeta[i]['autoIndentLevel']);
+            for (int j=0; j<autoIndentNumSpaces*autoIndentLevel; j++) { stagingBuffer += " "; }
+            
+            // insert the rest of line
+            int startOffset = int(bufferLinesMeta[i]['startOffset']);
+            int endOffset = int(bufferLinesMeta[i]['endOffset']);
+            int actualIndentBlanks = int(bufferLinesMeta[i]['actualIndentBlanks']);
+            stagingBuffer += this.buffer.substr(startOffset + actualIndentBlanks, endOffset - (startOffset + actualIndentBlanks));
+            
+            // Insert newline, but don't put any extra at the end of file            
+            if (i < bufferLinesMeta.length() - 1 || !isChar(stagingBuffer[stagingBuffer.length() - 1], '\n')) // if (not at EOF yet || at EOF but there's no newline) ...
+            {
+                stagingBuffer += '\n';
+            }
+        }
+        
+        // submit buffer
+        this.totalChars = stagingBuffer.length();
+        this.buffer = stagingBuffer;
+        
+        // reserve extra space
+        this.buffer.resize(this.buffer.length() + BUFFER_INCREMENT_SIZE);
+        
+        // Update the lines metainfo
+        this.analyzeBuffer();
     }
 }
 
