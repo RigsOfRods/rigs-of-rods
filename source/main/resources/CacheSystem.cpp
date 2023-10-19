@@ -45,6 +45,7 @@
 #include "Utils.h"
 
 #include <OgreFileSystem.h>
+#include <OgreFileSystemLayer.h>
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/ostreamwrapper.h>
@@ -148,10 +149,12 @@ void CacheSystem::LoadModCache(CacheValidity validity)
     }
 
     RoR::Log("[RoR|ModCache] Cache loaded");
+    m_loaded = true;
 }
 
-CacheEntryPtr CacheSystem::FindEntryByFilename(LoaderType type, bool partial, std::string filename)
+CacheEntryPtr CacheSystem::FindEntryByFilename(LoaderType type, bool partial, const std::string& _filename)
 {
+    std::string filename = _filename;
     StringUtil::toLowerCase(filename);
     size_t partial_match_length = std::numeric_limits<size_t>::max();
     CacheEntryPtr partial_match = nullptr;
@@ -1132,6 +1135,8 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
     }
 
     Ogre::String group = "bundle " + entry->resource_bundle_path; // Compose group name from full path.
+    bool readonly = entry->resource_bundle_type == "Zip"; // Make "FileSystem" (directory) bundles writable. Default is read-only.
+    bool recursive = false;
 
     // Load now.
     try
@@ -1140,14 +1145,16 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
         {
             // PagedGeometry is hardcoded to use `Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME`
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
-            ResourceGroupManager::getSingleton().addResourceLocation(entry->resource_bundle_path, entry->resource_bundle_type, group);
+            ResourceGroupManager::getSingleton().addResourceLocation(
+                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
         }
         else if (entry->fext == "skin")
         {
             // This is a SkinZip bundle - use `inGlobalPool=false` to prevent resource name conflicts.
             // Note: this code won't execute for .skin files in vehicle-bundles because in such case the bundle is already loaded by the vehicle's Cacheentry->
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
-            ResourceGroupManager::getSingleton().addResourceLocation(entry->resource_bundle_path, entry->resource_bundle_type, group);
+            ResourceGroupManager::getSingleton().addResourceLocation(
+                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
             App::GetContentManager()->InitManagedMaterials(group);
         }
         else
@@ -1155,7 +1162,8 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
             // A vehicle bundle - use `inGlobalPool=false` to prevent resource name conflicts.
             // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
-            ResourceGroupManager::getSingleton().addResourceLocation(entry->resource_bundle_path, entry->resource_bundle_type, group);
+            ResourceGroupManager::getSingleton().addResourceLocation(
+                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
 
             App::GetContentManager()->InitManagedMaterials(group);
             App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::TEXTURES, group);
@@ -1275,6 +1283,106 @@ std::shared_ptr<SkinDef> CacheSystem::FetchSkinDef(CacheEntryPtr& cache_entry)
         RoR::LogFormat("[RoR] Error loading skin file '%s', message: %s",
             cache_entry->fname.c_str(), oex.getFullDescription().c_str());
         return nullptr;
+    }
+}
+
+bool CacheSystem::CreateProject(CreateProjectRequest* request)
+{
+    try
+    {
+        // Make sure projects folder exists
+        CreateFolder(App::sys_projects_dir->getStr());
+
+        // Create subfolder
+        std::string project_path = PathCombine(App::sys_projects_dir->getStr(), request->cpr_name);
+        if (FolderExists(project_path))
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format(_LC("CacheSystem", "Project directory '{}' already exists!"), request->cpr_name));
+            return false;
+        }
+        CreateFolder(project_path);
+        if (!FolderExists(project_path))
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format(_LC("CacheSystem", "Project directory '{}' could not be created!"), request->cpr_name));
+            return false;
+        }
+
+        // Create preliminary cache entry
+        CacheEntryPtr project_entry = new CacheEntry();
+        project_entry->fext = (request->cpr_source_entry) ? request->cpr_source_entry->fext : request->cpr_ext; // Tell modcache what to do with it.
+        project_entry->resource_bundle_type = "FileSystem"; // Tell modcache how to load it.
+        project_entry->resource_bundle_path = project_path; // Tell modcache where to load it from.
+        project_entry->fname = fmt::format("{}.{}", request->cpr_name, project_entry->fext); // Compose target mod filename
+        project_entry->dname = request->cpr_name;
+        project_entry->categoryid = CID_Project; // To list projects easily from cache
+        project_entry->categoryname = "Projects";
+        this->LoadResource(project_entry); // This fills `entry.resource_group`
+     
+        if (request->cpr_source_entry)
+        {
+            // Create temporary resource group with only the data we 
+            std::string temp_rg = "TempProjectSourceRG";
+            Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+                request->cpr_source_entry->resource_bundle_path, request->cpr_source_entry->resource_bundle_type, temp_rg);
+            Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(temp_rg);
+
+            // Copy the files, one by one
+            Ogre::FileInfoListPtr filelist = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(temp_rg, "*.*");
+            for (size_t i = 0; i < filelist->size(); i++)
+            {
+                Ogre::FileInfo fileinfo = filelist->at(i);
+
+                // Render a frame with a progress window on it.
+                App::GetGuiManager()->LoadingWindow.SetProgress(
+                    (i+1)/filelist->size(),
+                    fmt::format("Creating project from existing mod...\nCopying file {}/{} '{}'", i, filelist->size(), fileinfo.filename),
+                    /*render_frame:*/true);
+            
+                // Copy one file    
+                try
+                {
+                    DataStreamPtr src_ds = ResourceGroupManager::getSingleton().openResource(fileinfo.filename, temp_rg);
+                    DataStreamPtr dst_ds = ResourceGroupManager::getSingleton().createResource(fileinfo.filename, project_entry->resource_group);
+                    std::vector<char> buf(src_ds->size());
+                    size_t read = src_ds->read(buf.data(), src_ds->size());
+                    if (read > 0)
+                    {
+                        dst_ds->write(buf.data(), read); 
+                    }
+                }
+                catch (Ogre::Exception& oex)
+                {
+                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                        fmt::format(_LC("CacheSystem", "Could not copy file '{}' to project '{}', message: {}."),
+                            fileinfo.filename, request->cpr_name, oex.getDescription()));       
+                }
+            }
+
+            App::GetGuiManager()->LoadingWindow.SetVisible(false);
+            Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(temp_rg);
+
+            // Finally rename the mod file
+            Ogre::FileSystemLayer::renameFile(
+                /*oldPath:*/ PathCombine(project_path, request->cpr_source_entry->fname),
+                /*newPath:*/ PathCombine(project_path, project_entry->fname));
+        }
+        else
+        {
+            // TBD... figure some system for project templates, or ideally example mods which users can build upon.
+        }
+
+        // Add the new entry to database
+        m_entries.push_back(project_entry);
+        return true;
+    }
+    catch (Ogre::Exception& oex)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format(_LC("CacheSystem", "Unexpected error creating project '{}', message: {}"),
+                request->cpr_name, oex.getDescription()));
+        return false;
     }
 }
 
@@ -1414,4 +1522,3 @@ bool CacheQueryResult::operator<(CacheQueryResult const& other) const
 
     return cqr_score < other.cqr_score;
 }
-

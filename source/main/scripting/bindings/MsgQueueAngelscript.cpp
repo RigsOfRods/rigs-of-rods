@@ -89,5 +89,6 @@ void RoR::RegisterMessageQueue(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("MsgType", "MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED", MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED", MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_EDI_RELOAD_BUNDLE_REQUESTED", MSG_EDI_RELOAD_BUNDLE_REQUESTED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_EDI_CREATE_PROJECT_REQUESTED", MSG_EDI_CREATE_PROJECT_REQUESTED); ROR_ASSERT(result >= 0);
 
 }

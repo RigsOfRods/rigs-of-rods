@@ -1094,6 +1094,7 @@ bool GenericDocContext::setStringData(int offset, TokenType type, const std::str
     
     doc->tokens[token_pos + offset] = { type, (float)doc->string_pool.size() };
     std::copy(data.begin(), data.end(), std::back_inserter(doc->string_pool));
+    doc->string_pool.push_back('\0');
     return true;
 }
 

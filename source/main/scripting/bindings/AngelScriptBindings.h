@@ -79,6 +79,9 @@ void RegisterMessageQueue(AngelScript::asIScriptEngine* engine);
 /// defined in SoundScriptAngelscript.cpp
 void RegisterSoundScript(AngelScript::asIScriptEngine* engine);
 
+/// defined in CacheSystemAngelscript.cpp
+void RegisterCacheSystem(AngelScript::asIScriptEngine* engine);
+
 /// @}   //addtogroup Scripting
 
 } // namespace RoR

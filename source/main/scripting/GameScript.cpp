@@ -1625,6 +1625,33 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         }
         break;
     }
+
+    case MSG_EDI_CREATE_PROJECT_REQUESTED:     //!< Payload = RoR::CreateProjectRequest* (owner)
+    {
+        CreateProjectRequest* request = new CreateProjectRequest();
+        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "name", "string", request->cpr_name))
+        {
+            this->GetValueFromDict(log_msg, dict, /*required:*/false, "ext", "string", request->cpr_ext);
+            this->GetValueFromDict(log_msg, dict, /*required:*/false, "source_entry", "CacheEntryClass@", request->cpr_source_entry);
+
+            if (request->cpr_ext != "" || request->cpr_source_entry)
+            {
+                m.payload = request;
+            }
+            else
+            {
+                this->log("MSG_EDI_CREATE_PROJECT_REQUESTED: either 'ext' or 'source_entry' params must be set!");
+                delete request;
+                return false;
+            }
+        }
+        else
+        {
+            delete request;
+            return false;
+        }
+        break;
+    }
     
     default:;
     }

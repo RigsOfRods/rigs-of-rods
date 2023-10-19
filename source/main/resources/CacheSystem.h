@@ -62,17 +62,17 @@ public:
     Ogre::String fpath;                 //!< filepath relative to the .zip file
     Ogre::String fname;                 //!< filename
     Ogre::String fname_without_uid;     //!< filename
+    Ogre::String fext;                  //!< file's extension
     Ogre::String dname;                 //!< name parsed from the file
 
     int categoryid;                     //!< category id
     Ogre::String categoryname;          //!< category name
 
     std::time_t addtimestamp;           //!< timestamp when this file was added to the cache
-
     Ogre::String uniqueid;              //!< file's unique id
     Ogre::String guid;                  //!< global unique id
     int version;                        //!< file's version
-    Ogre::String fext;                  //!< file's extension
+    
     std::string resource_bundle_type;   //!< Archive type recognized by OGRE resource system: 'FileSystem' or 'Zip'
     std::string resource_bundle_path;   //!< Path of ZIP or directory which contains the media. Shared between CacheEntries, loaded only once.
     int number;                         //!< Sequential number, assigned internally, used by Selector-GUI
@@ -132,12 +132,13 @@ typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
 
 enum CacheCategoryId
 {
-    CID_Max           = 9000,
+    CID_Project       = 8990,
+    CID_Max           = 9000, //!< Maximum allowed to be present in truck files.
     CID_Unsorted      = 9990,
     CID_All           = 9991,
     CID_Fresh         = 9992,
     CID_Hidden        = 9993,
-    CID_SearchResults = 9994
+    CID_SearchResults = 9994,
 };
 
 struct CacheQueryResult
@@ -181,6 +182,14 @@ enum class CacheValidity
     NEEDS_REBUILD,
 };
 
+/// Creates subdirectory in 'My Games\Rigs of Rods\projects', pre-populates it with files and adds modcache entry.
+struct CreateProjectRequest
+{
+    std::string cpr_name; // Directory and also the mod file.
+    std::string cpr_ext; // File extension, determines project type.
+    CacheEntryPtr cpr_source_entry; // If present, overrides `cpr_ext` but `cpr_name` applies to it.
+};
+
 /// A content database
 /// MOTIVATION:
 ///    RoR users usually have A LOT of content installed. Traversing it all on every game startup would be a pain.
@@ -195,16 +204,24 @@ enum class CacheValidity
 ///    See https://github.com/RigsOfRods/rigs-of-rods/pull/3096
 class CacheSystem
 {
+    friend class ContentManager;
 public:
     typedef std::map<int, Ogre::String> CategoryIdNameMap;
 
     CacheSystem();
 
+    /// @name Startup
+    /// @{
     void                  LoadModCache(CacheValidity validity);
-    CacheEntryPtr         FindEntryByFilename(RoR::LoaderType type, bool partial, std::string filename); //!< Returns NULL if none found
+    bool                  IsModCacheLoaded() { return m_loaded; }
+    /// @}
+
+    /// @name Lookups
+    /// @{
+    CacheEntryPtr         FindEntryByFilename(RoR::LoaderType type, bool partial, const std::string& filename); //!< Returns NULL if none found
     CacheEntryPtr         FetchSkinByName(std::string const & skin_name);
-    CacheValidity         EvaluateCacheValidity();
     size_t                Query(CacheQuery& query);
+    /// @}
 
     void LoadResource(CacheEntryPtr& t); //!< Loads the associated resource bundle if not already done.
     bool CheckResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
@@ -221,7 +238,11 @@ public:
     Ogre::String GetPrettyName(Ogre::String fname);
     std::string ActorTypeToName(ActorType driveable);
 
+    bool CreateProject(CreateProjectRequest* request); //!< Creates subdirectory in 'My Games\Rigs of Rods\projects', pre-populates it with files and adds modcache entry.
+
 private:
+
+    CacheValidity EvaluateCacheValidity(); // Called by `ContentManager` on startup only.
 
     void WriteCacheFileJson();
     void ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Document& j_doc, CacheEntryPtr const & entry);
@@ -254,6 +275,7 @@ private:
 
     bool Match(size_t& out_score, std::string data, std::string const& query, size_t );
 
+    bool                                 m_loaded = false;
     std::time_t                          m_update_time;      //!< Ensures that all inserted files share the same timestamp
     std::string                          m_filenames_hash_loaded;   //!< hash from cachefile, for quick update detection
     std::string                          m_filenames_hash_generated;   //!< stores hash over the content, for quick update detection
@@ -303,6 +325,8 @@ private:
             // note: these categories are NOT in the repository:
             {5000, _LC("ModCategory", "Official Terrains")},
             {5001, _LC("ModCategory", "Night Terrains")},
+
+            {8990, _LC("ModCategory", "Projects")},
 
             // do not use category numbers above 9000!
             {9990, _LC("ModCategory", "Unsorted")},

@@ -233,6 +233,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/ScriptUtils.h
             scripting/bindings/AngelScriptBindings.h
             scripting/bindings/ActorAngelscript.cpp
+            scripting/bindings/CacheSystemAngelscript.cpp
             scripting/bindings/ConsoleAngelscript.cpp
             scripting/bindings/GameScriptAngelscript.cpp
             scripting/bindings/GenericFileFormatAngelscript.cpp

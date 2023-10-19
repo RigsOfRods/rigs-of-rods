@@ -120,6 +120,7 @@ enum MsgType
     MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,
     MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED,
     MSG_EDI_RELOAD_BUNDLE_REQUESTED,       //!< Payload = RoR::CacheEntryPtr* (owner)
+    MSG_EDI_CREATE_PROJECT_REQUESTED,      //!< Payload = RoR::CreateProjectRequest* (owner)
 };
 
 const char* MsgTypeToString(MsgType type);
@@ -372,6 +373,7 @@ extern CVar* sys_profiler_dir;
 extern CVar* sys_savegames_dir;
 extern CVar* sys_screenshot_dir;
 extern CVar* sys_scripts_dir;
+extern CVar* sys_projects_dir;
 
 // OS command line
 extern CVar* cli_server_host;

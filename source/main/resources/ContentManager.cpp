@@ -288,10 +288,9 @@ void ContentManager::InitModCache(CacheValidity validity)
 
     if (validity == CacheValidity::UNKNOWN)
     {
-        validity = m_mod_cache.EvaluateCacheValidity();
+        validity = App::GetCacheSystem()->EvaluateCacheValidity(); // Must be called while RGN_CONTENT is alive.
     }
-    m_mod_cache.LoadModCache(validity);
-    App::SetCacheSystem(&m_mod_cache); // Temporary solution until Modcache+ContentManager are fully merged and `App::GetCacheSystem()` is removed ~ only_a_ptr, 10/2018
+    App::GetCacheSystem()->LoadModCache(validity);
 
     ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_CONTENT);
 }
