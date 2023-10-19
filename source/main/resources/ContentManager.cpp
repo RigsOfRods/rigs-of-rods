@@ -245,6 +245,9 @@ void ContentManager::InitContentManager()
 
 void ContentManager::InitModCache(CacheValidity validity)
 {
+    // Sets up RGN_CONTENT which encompasses all mods, scans it for changes and deletes it again.
+    // ------------------------------------------------------------------------------------------
+
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_cache_dir->getStr(), "FileSystem", RGN_CACHE, /*recursive=*/false, /*readOnly=*/false);
     ResourceGroupManager::getSingleton().addResourceLocation(
@@ -252,6 +255,8 @@ void ContentManager::InitModCache(CacheValidity validity)
     std::string user = App::sys_user_dir->getStr();
     std::string base = App::sys_process_dir->getStr();
     std::string objects = PathCombine("resources", "beamobjects.zip");
+
+    // Add top-level ZIPs/directories to RGN_CONTENT (non-recursive)
 
     if (!App::app_extra_mod_path->getStr().empty())
     {
@@ -262,8 +267,11 @@ void ContentManager::InitModCache(CacheValidity validity)
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "packs")   , "FileSystem", RGN_CONTENT);
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "terrains"), "FileSystem", RGN_CONTENT);
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "vehicles"), "FileSystem", RGN_CONTENT);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "projects"), "FileSystem", RGN_CONTENT);
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, "content") , "FileSystem", RGN_CONTENT);
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, objects)   , "Zip"       , RGN_CONTENT);
+    
+    // Create RGN_TEMP in recursive mode to find all subdirectories.
 
     ResourceGroupManager::getSingleton().createResourceGroup(RGN_TEMP, false);
     if (!App::app_extra_mod_path->getStr().empty())
@@ -275,16 +283,23 @@ void ContentManager::InitModCache(CacheValidity validity)
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "packs")   , "FileSystem", RGN_TEMP, true);
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "terrains"), "FileSystem", RGN_TEMP, true);
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "vehicles"), "FileSystem", RGN_TEMP, true);
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "projects"), "FileSystem", RGN_TEMP, true);
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, "content") , "FileSystem", RGN_TEMP, true);
-    FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_TEMP, "*", true);
-    for (const auto& file : *files)
+
+    // Traverse RGN_TEMP and add all subdirectories to RGN_CONTENT.
+    // (TBD: why not just make RGN_CONTENT itself recursive? -- ohlidalp, 10/2023)
+
+    FileInfoListPtr dirs = ResourceGroupManager::getSingleton().findResourceFileInfo(RGN_TEMP, "*", /*dirs:*/true);
+    for (const auto& dir_fileinfo : *dirs)
     {
-        if (!file.archive)
+        if (!dir_fileinfo.archive)
             continue;
-        String fullpath = PathCombine(file.archive->getName(), file.filename);
+        String fullpath = PathCombine(dir_fileinfo.archive->getName(), dir_fileinfo.filename);
         ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "FileSystem", RGN_CONTENT);
     }
     ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_TEMP);
+
+    // Traverse RGN_CONTENT and detect updates
 
     if (validity == CacheValidity::UNKNOWN)
     {
@@ -293,6 +308,20 @@ void ContentManager::InitModCache(CacheValidity validity)
     App::GetCacheSystem()->LoadModCache(validity);
 
     ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_CONTENT);
+
+    // Apart from `Resources` and resource groups, OGRE also keeps `Archives` in `ArchiveManager`
+    // These aren't unloaded on destroying resource groups, and keep a 'readOnly' flag (defaults to true).
+    // Upon loading/creating new resource groups, OGRE complains if the submitted flag doesn't match.
+    // Since we want to make subdirs (with upacked mods) writable, we must purge subdir-archives now.
+    
+    for (const auto& dir_fileinfo : *dirs)
+    {
+        if (!dir_fileinfo.archive)
+            continue;
+        String fullpath = PathCombine(dir_fileinfo.archive->getName(), dir_fileinfo.filename);
+        ArchiveManager::getSingleton().unload(fullpath);
+    }
+    
 }
 
 Ogre::DataStreamPtr ContentManager::resourceLoading(const Ogre::String& name, const Ogre::String& group, Ogre::Resource* resource)

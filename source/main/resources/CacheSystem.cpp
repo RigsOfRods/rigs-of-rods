@@ -1322,10 +1322,17 @@ bool CacheSystem::CreateProject(CreateProjectRequest* request)
      
         if (request->cpr_source_entry)
         {
-            // Create temporary resource group with only the data we 
+            // Create temporary resource group with only the data we want.
             std::string temp_rg = "TempProjectSourceRG";
+            // Apart from `Resources` and resource groups, OGRE also keeps `Archives` in `ArchiveManager`
+            // These aren't unloaded on destroying resource groups, and keep a 'readOnly' flag (defaults to true).
+            // Upon loading/creating new resource groups, OGRE complains if the submitted flag doesn't match.
+            // Since we want to make subdirs (with upacked mods) writable, we must purge subdir-archives now.
+            bool readonly = request->cpr_source_entry->resource_bundle_type == "Zip";
+            bool recursive = false;
             Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-                request->cpr_source_entry->resource_bundle_path, request->cpr_source_entry->resource_bundle_type, temp_rg);
+                request->cpr_source_entry->resource_bundle_path,
+                request->cpr_source_entry->resource_bundle_type, temp_rg, recursive, readonly);
             Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(temp_rg);
 
             // Copy the files, one by one
