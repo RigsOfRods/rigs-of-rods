@@ -44,8 +44,6 @@ private:
 
     static const unsigned int NUM_FACES = 6;
 
-    void InitEnvMap(Ogre::Vector3 center);
-
     Ogre::Camera*        m_cameras[NUM_FACES];
     Ogre::RenderTarget*  m_render_targets[NUM_FACES];
     Ogre::TexturePtr     m_rtt_texture;

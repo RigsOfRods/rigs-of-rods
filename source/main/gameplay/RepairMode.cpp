@@ -21,6 +21,7 @@
 
 #include "RepairMode.h"
 
+#include "Actor.h"
 #include "GameContext.h"
 #include "InputEngine.h"
 

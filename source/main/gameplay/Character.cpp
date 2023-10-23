@@ -544,6 +544,8 @@ void Character::SetActorCoupling(bool enabled, ActorPtr actor)
 #endif // USE_SOCKETW
 }
 
+ActorPtr Character::GetActorCoupling() { return m_actor_coupling; }
+
 // --------------------------------
 // GfxCharacter
 

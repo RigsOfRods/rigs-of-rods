@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include "Actor.h"
 #include "Application.h"
 #include "SimData.h"
 #include "CmdKeyInertia.h"

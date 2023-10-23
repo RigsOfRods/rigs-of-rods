@@ -33,14 +33,14 @@ set(SOURCE_FILES
         gfx/DustPool.{h,cpp}
         gfx/EnvironmentMap.{h,cpp}
         gfx/GfxActor.{h,cpp}
-        gfx/GfxData.h
+        gfx/GfxData.{h,cpp}
         gfx/GfxScene.{h,cpp}
         gfx/HydraxWater.{h,cpp}
         gfx/IWater.h
         gfx/MovableText.{h,cpp}
         gfx/Renderdash.{h,cpp}
         gfx/ShadowManager.{h,cpp}
-        gfx/SimBuffers.h
+        gfx/SimBuffers.{h,cpp}
         gfx/Skidmark.{h,cpp}
         gfx/SkyManager.{h,cpp}
         gfx/SkyXManager.{h,cpp}
@@ -156,7 +156,7 @@ set(SOURCE_FILES
         physics/Differentials.{h,cpp}
         physics/Savegame.cpp
         physics/SimConstants.h
-        physics/SimData.h
+        physics/SimData.{h,cpp}
         physics/SlideNode.{h,cpp}
         physics/air/AeroEngine.h
         physics/air/AirBrake.{h,cpp}

@@ -194,6 +194,11 @@ RoR::GfxActor::~GfxActor()
     }
 }
 
+ActorPtr RoR::GfxActor::GetActor()
+{
+    return m_actor;
+}
+
 void RoR::GfxActor::SetMaterialFlareOn(int flare_index, bool state_on)
 {
     for (FlareMaterial& entry: m_flare_materials)

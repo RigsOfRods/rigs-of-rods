@@ -24,11 +24,13 @@
 
 #include "GUIManager.h"
 
+#include "Actor.h"
 #include "AppContext.h"
 #include "ActorManager.h"
 #include "CameraManager.h"
 #include "ContentManager.h"
 #include "GameContext.h"
+#include "GfxActor.h"
 #include "GfxScene.h"
 #include "GUIUtils.h"
 #include "InputEngine.h"

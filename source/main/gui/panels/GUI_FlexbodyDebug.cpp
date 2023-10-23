@@ -22,6 +22,7 @@
 
 #include "GUI_FlexbodyDebug.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "SimData.h"
 #include "Collisions.h"

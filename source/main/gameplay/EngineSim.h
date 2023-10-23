@@ -22,7 +22,6 @@
 #pragma once
 
 #include "Application.h"
-#include "Actor.h"
 
 namespace RoR {
 

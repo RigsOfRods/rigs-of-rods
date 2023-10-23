@@ -21,6 +21,7 @@
 
 #include "CharacterFactory.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "Character.h"
 #include "GfxScene.h"

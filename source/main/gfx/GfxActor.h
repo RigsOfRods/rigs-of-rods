@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include "Actor.h"
 #include "AutoPilot.h"
 #include "Differentials.h"
 #include "ForwardDeclarations.h"
@@ -138,7 +137,7 @@ public:
     VideoCamState        GetVideoCamState() const { return m_vidcam_state; }
     DebugViewType        GetDebugView() const { return m_debug_view; }
     Ogre::String         GetResourceGroup() { return m_custom_resource_group; }
-    ActorPtr             GetActor() { return m_actor; } // Watch out for multithreading with this!
+    ActorPtr             GetActor(); // Watch out for multithreading with this!
     Ogre::TexturePtr     GetHelpTex() { return m_help_tex; }
     Ogre::MaterialPtr    GetHelpMat() { return m_help_mat; }
     int                  FetchNumBeams() const ;
@@ -156,7 +155,7 @@ private:
     float UpdateSmoothShift(PropAnim& anim, float dt, float new_target_cstate); // Helper for `CalcPropAnimation()`
 
     // Static info
-    ActorPtr                      m_actor = nullptr;
+    ActorPtr                    m_actor;
     std::string                 m_custom_resource_group;
     int                         m_driverseat_prop_index = -1;
     Ogre::SceneNode*            m_gfx_beams_parent_scenenode = nullptr;

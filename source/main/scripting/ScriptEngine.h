@@ -68,6 +68,9 @@ const char* ScriptCategoryToString(ScriptCategory c);
 /// Represents a loaded script and all associated resources/handles.
 struct ScriptUnit
 {
+    ScriptUnit();
+    ~ScriptUnit();
+
     ScriptUnitId_t uniqueId = SCRIPTUNITID_INVALID;
     ScriptCategory scriptCategory = ScriptCategory::INVALID;
     unsigned int eventMask = 0; //!< filter mask for script events

@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "Actor.h"
 #include "ActorManager.h"
 #include "CacheSystem.h"
 #include "CharacterFactory.h"
@@ -98,6 +97,9 @@ class GameContext
     friend class AppContext;
 public:
 
+    GameContext();
+    ~GameContext();
+
     /// @name Message queue
     /// @{
 
@@ -132,7 +134,7 @@ public:
     const ActorPtr&     GetPlayerActor() { return m_player_actor; }
     const ActorPtr&     GetPrevPlayerActor() { return m_prev_player_actor; }
     const ActorPtr&     GetLastSpawnedActor() { return m_last_spawned_actor; } //!< Last actor spawned by user and still alive.
-    void                SetPrevPlayerActor(ActorPtr actor) { m_prev_player_actor = actor; }
+    void                SetPrevPlayerActor(ActorPtr actor);
     void                ChangePlayerActor(ActorPtr actor);
 
     void                ShowLoaderGUI(int type, const Ogre::String& instance, const Ogre::String& box);
@@ -188,12 +190,12 @@ private:
 
     // Actors (physics and netcode)
     ActorManager        m_actor_manager;
-    ActorPtr            m_player_actor = nullptr;           //!< Actor (vehicle or machine) mounted and controlled by player
-    ActorPtr            m_prev_player_actor = nullptr;      //!< Previous actor (vehicle or machine) mounted and controlled by player
-    ActorPtr            m_last_spawned_actor = nullptr;     //!< Last actor spawned by user and still alive.
+    ActorPtr            m_player_actor;           //!< Actor (vehicle or machine) mounted and controlled by player
+    ActorPtr            m_prev_player_actor;      //!< Previous actor (vehicle or machine) mounted and controlled by player
+    ActorPtr            m_last_spawned_actor;     //!< Last actor spawned by user and still alive.
     
-    CacheEntryPtr       m_last_cache_selection = nullptr;   //!< Vehicle/load
-    CacheEntryPtr       m_last_skin_selection = nullptr;
+    CacheEntryPtr       m_last_cache_selection;   //!< Vehicle/load
+    CacheEntryPtr       m_last_skin_selection;
     Ogre::String        m_last_section_config;
     ActorSpawnRequest   m_current_selection;                //!< Context of the loader UI
     CacheEntryPtr       m_dummy_cache_selection;

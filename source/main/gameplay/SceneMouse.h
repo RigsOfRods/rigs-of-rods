@@ -28,7 +28,6 @@
 
 #include "Application.h"
 #include "SimData.h"
-#include <OIS.h>
 
 #include <OIS.h>
 #include <Ogre.h>
