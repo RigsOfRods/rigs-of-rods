@@ -22,10 +22,92 @@
 #include "Actor.h"
 #include "AngelScriptBindings.h"
 #include "CacheSystem.h"
+#include "ScriptEngine.h"
+#include "ScriptUtils.h"
 
 #include <angelscript.h>
 
 using namespace AngelScript;
+using namespace RoR;
+
+CScriptDictionary* CacheSystemQueryWrapper(CacheSystem* self, CScriptDictionary* dict)
+{
+    CacheQuery query;
+    std::string log_msg = "modcache.query(): ";
+    std::string search_expr;
+    if (!GetValueFromScriptDict(log_msg, dict, /*required:*/true, "filter_type", "LoaderType", query.cqy_filter_type))
+    {
+        return nullptr;
+    }
+    int64_t i64_filter_category_id; // AngelScript's `Dictionary` converts all ints int `int64`
+    GetValueFromScriptDict(log_msg, dict, /*required:*/false, "filter_category_id", "int64", i64_filter_category_id);
+    query.cqy_filter_category_id = i64_filter_category_id;
+    GetValueFromScriptDict(log_msg, dict, /*required:*/false, "filter_guid", "string", query.cqy_filter_guid);
+    GetValueFromScriptDict(log_msg, dict, /*required:*/false, "search_expr", "string", search_expr);
+
+    // FIXME: Copypasta of `GUI::MainSelector::UpdateSearchParams()`
+    if (search_expr.find(":") == std::string::npos)
+    {
+        query.cqy_search_method = CacheSearchMethod::FULLTEXT;
+        query.cqy_search_string = search_expr;
+    }
+    else
+    {
+        Ogre::StringVector v = Ogre::StringUtil::split(search_expr, ":");
+        if (v.size() < 2)
+        {
+            query.cqy_search_method = CacheSearchMethod::NONE;
+            query.cqy_search_string = "";
+        }
+        else if (v[0] == "guid")
+        {
+            query.cqy_search_method = CacheSearchMethod::GUID;
+            query.cqy_search_string = v[1];
+        }
+        else if (v[0] == "author")
+        {
+            query.cqy_search_method = CacheSearchMethod::AUTHORS;
+            query.cqy_search_string = v[1];
+        }
+        else if (v[0] == "wheels")
+        {
+            query.cqy_search_method = CacheSearchMethod::WHEELS;
+            query.cqy_search_string = v[1];
+        }
+        else if (v[0] == "file")
+        {
+            query.cqy_search_method = CacheSearchMethod::FILENAME;
+            query.cqy_search_string = v[1];
+        }
+        else
+        {
+            query.cqy_search_method = CacheSearchMethod::NONE;
+            query.cqy_search_string = "";
+        }
+    }
+    // END copypasta
+
+    size_t results_count = self->Query(query);
+
+    asITypeInfo* typeinfo_array_entries = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl("array<CacheEntryClass@>");
+    asITypeInfo* typeinfo_array_scores = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl("array<uint>");
+
+    CScriptArray* results_entries = CScriptArray::Create(typeinfo_array_entries);
+    CScriptArray* results_scores = CScriptArray::Create(typeinfo_array_scores);
+    for (CacheQueryResult& result: query.cqy_results)
+    {
+        CacheEntry* entry_ptr = result.cqr_entry.GetRef();
+        results_entries->InsertLast(&entry_ptr);
+        results_scores->InsertLast(&result.cqr_score);
+    }
+    
+    CScriptDictionary* results_dict = CScriptDictionary::Create(App::GetScriptEngine()->getEngine());
+    results_dict->Set("count", (asINT64)results_count);
+    results_dict->Set("entries", results_entries, typeinfo_array_entries->GetTypeId());
+    results_dict->Set("scores", results_scores, typeinfo_array_scores->GetTypeId());
+
+    return results_dict;
+}
 
 void RoR::RegisterCacheSystem(asIScriptEngine *engine)
 {
@@ -69,5 +151,7 @@ void RoR::RegisterCacheSystem(asIScriptEngine *engine)
     // class CacheSystem (non-counted reference type)
     result = engine->RegisterObjectType("CacheSystemClass", sizeof(CacheSystem), asOBJ_REF | asOBJ_NOCOUNT); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("CacheSystemClass", "CacheEntryClassPtr @findEntryByFilename(LoaderType, bool, const string &in)", asMETHOD(CacheSystem,FindEntryByFilename), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("CacheSystemClass", "CacheEntryClassPtr @getEntryByNumber(int)", asMETHOD(CacheSystem,GetEntryByNumber), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("CacheSystemClass", "dictionary@ query(dictionary@)", asFUNCTION(CacheSystemQueryWrapper), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result>=0);
 
 }

@@ -1365,45 +1365,6 @@ bool GameScript::getMousePositionOnTerrain(Ogre::Vector3& out_pos)
     return ray_result.hit;
 }
 
-template<typename T>
-bool GameScript::GetValueFromDict(const std::string& log_msg, AngelScript::CScriptDictionary* dict, bool required, std::string const& key, const char* decl, T & out_value)
-{
-    if (!dict)
-    {
-        // Dict is NULL
-        if (required)
-        {
-            this->log(fmt::format("{}: ERROR, no parameters; '{}' is required.", log_msg, key));
-        }
-        return false;
-    }
-    auto itor = dict->find(key);
-    if (itor == dict->end())
-    {
-        // Key not found
-        if (required)
-        {
-            this->log(fmt::format("{}: ERROR, required parameter '{}' not found.", log_msg, key));
-        }
-        return false;
-    }
-
-    const int expected_typeid = App::GetScriptEngine()->getEngine()->GetTypeIdByDecl(decl);
-    const int actual_typeid = itor.GetTypeId();
-    if (actual_typeid != expected_typeid)
-    {
-        // Wrong type
-        if (required)
-        {
-            this->log(fmt::format("{}: ERROR, required parameter '{}' must be a {}, instead got {}.",
-                log_msg, key, decl, App::GetScriptEngine()->getEngine()->GetTypeDeclaration(actual_typeid)));
-        }
-        return false;
-    }
-
-    return itor.GetValue(&out_value, actual_typeid); // Error will be logged to Angelscript.log
-}
-
 bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
 {
     Message m(type);
@@ -1435,7 +1396,6 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
     case MSG_GUI_OPEN_SELECTOR_REQUESTED:
         // Editing
     case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED:
-    case MSG_EDI_RELOAD_BUNDLE_REQUESTED:
         this->log(fmt::format("{} is not allowed.", log_msg));
         return false;
 
@@ -1446,19 +1406,19 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
     case MSG_APP_LOAD_SCRIPT_REQUESTED:         //!< Payload = RoR::LoadScriptRequest* (owner)
     {
         LoadScriptRequest* rq = new LoadScriptRequest();
-        bool has_filename = this->GetValueFromDict(log_msg, dict, /*required:*/false, "filename", "string", rq->lsr_filename);
-        bool has_buffer = this->GetValueFromDict(log_msg, dict, /*required:*/false, "buffer", "string", rq->lsr_buffer);
+        bool has_filename = GetValueFromScriptDict(log_msg, dict, /*required:*/false, "filename", "string", rq->lsr_filename);
+        bool has_buffer = GetValueFromScriptDict(log_msg, dict, /*required:*/false, "buffer", "string", rq->lsr_buffer);
         if (!has_filename && !has_buffer)
         {
             this->log(fmt::format("{}: ERROR, either 'filename' or 'buffer' must be set!", log_msg));
             delete rq;
             return false;
         }
-        this->GetValueFromDict(log_msg, dict, /*required:*/false, "category", "ScriptCategory", rq->lsr_category);
+        GetValueFromScriptDict(log_msg, dict, /*required:*/false, "category", "ScriptCategory", rq->lsr_category);
         if (rq->lsr_category == ScriptCategory::ACTOR)
         {
             int64_t instance_id; // AngelScript's `Dictionary` converts all ints int `int64`
-            if (!this->GetValueFromDict(log_msg, dict, /*required:*/true, "associated_actor", "int64", instance_id))
+            if (!GetValueFromScriptDict(log_msg, dict, /*required:*/true, "associated_actor", "int64", instance_id))
             {
                 this->log(fmt::format("{}: WARNING, category 'ACTOR' specified but 'associated_actor' not given.", log_msg, rq->lsr_filename));
                 delete rq;
@@ -1472,7 +1432,7 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
     case MSG_APP_UNLOAD_SCRIPT_REQUESTED:       //!< Payload = RoR::ScriptUnitId_t* (owner)
     {
         int64_t id; // AngelScript's `Dictionary` converts all ints int `int64`
-        if (!this->GetValueFromDict(log_msg, dict, /*required:*/true, "id", "int64", id))
+        if (!GetValueFromScriptDict(log_msg, dict, /*required:*/true, "id", "int64", id))
         {
             return false;
         }
@@ -1482,14 +1442,14 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
 
         // Simulation
     case MSG_SIM_LOAD_TERRN_REQUESTED:
-        if (!GetValueFromDict(log_msg, dict, /*required:*/true, "filename", "string", m.description))
+        if (!GetValueFromScriptDict(log_msg, dict, /*required:*/true, "filename", "string", m.description))
         {
             return false;
         }
         break;
 
     case MSG_SIM_LOAD_SAVEGAME_REQUESTED:
-        if (!GetValueFromDict(log_msg, dict, /*required:*/true, "filename", "string", m.description))
+        if (!GetValueFromScriptDict(log_msg, dict, /*required:*/true, "filename", "string", m.description))
         {
             return false;
         }
@@ -1500,9 +1460,9 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         ActorSpawnRequest* rq = new ActorSpawnRequest();
 
         // Get required params
-        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "filename", "string", rq->asr_filename) &&
-            this->GetValueFromDict(log_msg, dict, /*required:*/true, "position", "vector3", rq->asr_position) &&
-            this->GetValueFromDict(log_msg, dict, /*required:*/true, "rotation", "quaternion", rq->asr_rotation))
+        if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "filename", "string", rq->asr_filename) &&
+            GetValueFromScriptDict(log_msg, dict, /*required:*/true, "position", "vector3", rq->asr_position) &&
+            GetValueFromScriptDict(log_msg, dict, /*required:*/true, "rotation", "quaternion", rq->asr_rotation))
         {
             rq->asr_cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/true, rq->asr_filename);
             if (!rq->asr_cache_entry)
@@ -1513,7 +1473,7 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
             }
 
             // Set sectionconfig
-            this->GetValueFromDict(log_msg, dict, /*required:*/false, "config", "string", rq->asr_config);
+            GetValueFromScriptDict(log_msg, dict, /*required:*/false, "config", "string", rq->asr_config);
             // Make sure config exists
             if (rq->asr_config != "")
             {
@@ -1531,11 +1491,11 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
             }
 
             // Enter or not?
-            this->GetValueFromDict(log_msg, dict, /*required:*/false, "enter", "bool", rq->asr_enter);
+            GetValueFromScriptDict(log_msg, dict, /*required:*/false, "enter", "bool", rq->asr_enter);
 
             // Get skin
             std::string skin_name;
-            if (this->GetValueFromDict(log_msg, dict, /*required:*/false, "skin", "string", skin_name))
+            if (GetValueFromScriptDict(log_msg, dict, /*required:*/false, "skin", "string", skin_name))
             {
                 rq->asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(skin_name);
                 if (!rq->asr_skin_entry)
@@ -1557,8 +1517,8 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         ActorModifyRequest::Type modify_type;
         // `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
         int64_t instance_id = -1;
-        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "type", "ActorModifyRequestType", modify_type) &&
-            this->GetValueFromDict(log_msg, dict, /*required:*/true, "instance_id", "int64", instance_id))
+        if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "type", "ActorModifyRequestType", modify_type) &&
+            GetValueFromScriptDict(log_msg, dict, /*required:*/true, "instance_id", "int64", instance_id))
         {
             ActorModifyRequest* rq = new ActorModifyRequest();
             rq->amr_type = modify_type;
@@ -1578,7 +1538,7 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
     {
         // `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
         int64_t instance_id = -1;
-        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "instance_id", "int64", instance_id))
+        if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "instance_id", "int64", instance_id))
         {
             ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(instance_id);
             if (actor)
@@ -1603,7 +1563,7 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         // `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
         int64_t instance_id = -1;
         ActorPtr actor;
-        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "instance_id", "int64", instance_id)
+        if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "instance_id", "int64", instance_id)
             && instance_id > -1)
         {
             actor = App::GetGameContext()->GetActorManager()->GetActorById(instance_id);
@@ -1615,9 +1575,25 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
     case MSG_SIM_TELEPORT_PLAYER_REQUESTED:     //!< Payload = Ogre::Vector3* (owner)
     {
         Ogre::Vector3 position;
-        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "position", "vector3", position))
+        if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "position", "vector3", position))
         {
             m.payload = new Ogre::Vector3(position);
+        }
+        else
+        {
+            return false;
+        }
+        break;
+    }
+
+    case MSG_EDI_LOAD_BUNDLE_REQUESTED:        //!< Payload = RoR::CacheEntryPtr* (owner)
+    case MSG_EDI_RELOAD_BUNDLE_REQUESTED:      //!< Payload = RoR::CacheEntryPtr* (owner)
+    case MSG_EDI_UNLOAD_BUNDLE_REQUESTED:      //!< Payload = RoR::CacheEntryPtr* (owner)
+    {
+        CacheEntryPtr entry;
+        if (GetValueFromScriptDict(log_msg, dict, /*required*/true, "cache_entry", "CacheEntryClass@", entry))
+        {
+            m.payload = new CacheEntryPtr(entry);
         }
         else
         {
@@ -1629,10 +1605,10 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
     case MSG_EDI_CREATE_PROJECT_REQUESTED:     //!< Payload = RoR::CreateProjectRequest* (owner)
     {
         CreateProjectRequest* request = new CreateProjectRequest();
-        if (this->GetValueFromDict(log_msg, dict, /*required:*/true, "name", "string", request->cpr_name))
+        if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "name", "string", request->cpr_name))
         {
-            this->GetValueFromDict(log_msg, dict, /*required:*/false, "ext", "string", request->cpr_ext);
-            this->GetValueFromDict(log_msg, dict, /*required:*/false, "source_entry", "CacheEntryClass@", request->cpr_source_entry);
+            GetValueFromScriptDict(log_msg, dict, /*required:*/false, "ext", "string", request->cpr_ext);
+            GetValueFromScriptDict(log_msg, dict, /*required:*/false, "source_entry", "CacheEntryClass@", request->cpr_source_entry);
 
             if (request->cpr_ext != "" || request->cpr_source_entry)
             {

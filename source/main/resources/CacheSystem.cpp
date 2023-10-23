@@ -38,7 +38,7 @@
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RigDef_Parser.h"
-
+#include "ScriptEngine.h"
 #include "SkinFileFormat.h"
 #include "Terrain.h"
 #include "Terrn2FileFormat.h"
@@ -458,7 +458,7 @@ void CacheSystem::DetectDuplicates()
     }
 }
 
-CacheEntryPtr CacheSystem::GetEntry(int modid)
+CacheEntryPtr CacheSystem::GetEntryByNumber(int modid)
 {
     for (CacheEntryPtr& entry: m_entries)
     {
@@ -1318,6 +1318,7 @@ bool CacheSystem::CreateProject(CreateProjectRequest* request)
         project_entry->dname = request->cpr_name;
         project_entry->categoryid = CID_Project; // To list projects easily from cache
         project_entry->categoryname = "Projects";
+        project_entry->number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
         this->LoadResource(project_entry); // This fills `entry.resource_group`
      
         if (request->cpr_source_entry)
@@ -1382,6 +1383,12 @@ bool CacheSystem::CreateProject(CreateProjectRequest* request)
 
         // Add the new entry to database
         m_entries.push_back(project_entry);
+
+        // notify script
+        TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,
+            /*ints*/ MODCACHEACTIVITY_ENTRY_ADDED, project_entry->number, 0, 0,
+            /*strings*/ project_entry->fname, project_entry->fext);
+
         return true;
     }
     catch (Ogre::Exception& oex)

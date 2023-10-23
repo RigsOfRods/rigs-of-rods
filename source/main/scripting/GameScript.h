@@ -578,8 +578,6 @@ private:
     std::string CheckFileAccess(const char* func_name, const std::string& filename, const std::string& resource_group);
     int getTextureUnitState(Ogre::TextureUnitState** tu, const Ogre::String materialName, int techniqueNum, int passNum, int textureUnitNum);
 
-    template<typename T> bool GetValueFromDict(const std::string& log_msg, AngelScript::CScriptDictionary* dict, bool required, std::string const& key, const char* type_decl, T& out_value); //!< Helper; get value from dict safely or log warning.
-
     /**
      * writes a message to the games log (RoR.log)
      * @param msg string to log

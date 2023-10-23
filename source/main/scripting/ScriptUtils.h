@@ -70,6 +70,45 @@ AngelScript::CScriptArray* MapToScriptArray(std::map<T, U>& map, const std::stri
     return arr;
 }
 
+template<typename T>
+bool GetValueFromScriptDict(const std::string& log_msg, AngelScript::CScriptDictionary* dict, bool required, std::string const& key, const char* decl, T & out_value)
+{
+    if (!dict)
+    {
+        // Dict is NULL
+        if (required)
+        {
+            App::GetScriptEngine()->SLOG(fmt::format("{}: ERROR, no parameters; '{}' is required.", log_msg, key));
+        }
+        return false;
+    }
+    auto itor = dict->find(key);
+    if (itor == dict->end())
+    {
+        // Key not found
+        if (required)
+        {
+            App::GetScriptEngine()->SLOG(fmt::format("{}: ERROR, required parameter '{}' not found.", log_msg, key));
+        }
+        return false;
+    }
+
+    const int expected_typeid = App::GetScriptEngine()->getEngine()->GetTypeIdByDecl(decl);
+    const int actual_typeid = itor.GetTypeId();
+    if (actual_typeid != expected_typeid)
+    {
+        // Wrong type
+        if (required)
+        {
+            App::GetScriptEngine()->SLOG(fmt::format("{}: ERROR, required parameter '{}' must be a {}, instead got {}.",
+                log_msg, key, decl, App::GetScriptEngine()->getEngine()->GetTypeDeclaration(actual_typeid)));
+        }
+        return false;
+    }
+
+    return itor.GetValue(&out_value, actual_typeid); // Error will be logged to Angelscript.log
+}
+
 /// @}   //addtogroup Scripting
 
 } // namespace RoR
