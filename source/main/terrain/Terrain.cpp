@@ -21,6 +21,7 @@
 
 #include "Terrain.h"
 
+#include "Actor.h"
 #include "ActorManager.h"
 #include "CacheSystem.h"
 #include "Collisions.h"

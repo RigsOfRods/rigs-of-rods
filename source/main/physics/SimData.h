@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -340,39 +340,40 @@ struct node_t
 /// Simulation: An edge in the softbody structure
 struct beam_t
 {
-    beam_t() { memset(this, 0, sizeof(beam_t)); }
+    beam_t();
+    ~beam_t();
 
-    node_t*         p1;
-    node_t*         p2;
-    Ogre::Real      k;                     //!< tensile spring
-    Ogre::Real      d;                     //!< damping factor
-    Ogre::Real      L;                     //!< length
-    Ogre::Real      minmaxposnegstress;
-    Ogre::Real      maxposstress;
-    Ogre::Real      maxnegstress;
-    Ogre::Real      strength;
-    Ogre::Real      stress;
-    Ogre::Real      plastic_coef;
-    int             detacher_group;        //!< Attribute: detacher group number (integer)
-    SpecialBeam     bounded;
-    BeamType        bm_type;
-    bool            bm_inter_actor;        //!< in case p2 is on another actor
-    ActorPtr        bm_locked_actor;       //!< in case p2 is on another actor
-    bool            bm_disabled;
-    bool            bm_broken;
+    node_t*         p1 = nullptr;
+    node_t*         p2 = nullptr;
+    float           k = 0.f;                     //!< tensile spring
+    float           d = 0.f;                     //!< damping factor
+    float           L = 0.f;                     //!< length
+    float           minmaxposnegstress = 0.f;
+    float           maxposstress = 0.f;
+    float           maxnegstress = 0.f;
+    float           strength = 0.f;
+    float           stress = 0.f;
+    float           plastic_coef = 0.f;
+    int             detacher_group = DEFAULT_DETACHER_GROUP; //!< Attribute: detacher group number (integer)
+    SpecialBeam     bounded = SpecialBeam::NOSHOCK;
+    BeamType        bm_type = BeamType::BEAM_NORMAL;
+    bool            bm_inter_actor = false;      //!< in case p2 is on another actor
+    ActorPtr        bm_locked_actor;             //!< in case p2 is on another actor
+    bool            bm_disabled = false;
+    bool            bm_broken = false;
 
-    Ogre::Real      shortbound;
-    Ogre::Real      longbound;
-    Ogre::Real      refL;                  //!< reference length
+    float           shortbound = 0.f;
+    float           longbound = 0.f;
+    float           refL = 0.f;                  //!< reference length
 
-    shock_t*        shock;
+    shock_t*        shock = nullptr;
 
-    Ogre::Real      initial_beam_strength; //!< for reset
-    Ogre::Real      default_beam_deform;   //!< for reset
+    float           initial_beam_strength = 0.f; //!< for reset
+    float           default_beam_deform = 0.f;   //!< for reset
 
-    Ogre::Real      debug_k;               //!< debug shock spring_rate
-    Ogre::Real      debug_d;               //!< debug shock damping
-    Ogre::Real      debug_v;               //!< debug shock velocity
+    float           debug_k = 0.f;               //!< debug shock spring_rate
+    float           debug_d = 0.f;               //!< debug shock damping
+    float           debug_v = 0.f;               //!< debug shock velocity
 };
 
 struct shock_t
@@ -420,6 +421,9 @@ struct collcab_rate_t
 
 struct soundsource_t
 {
+    soundsource_t();
+    ~soundsource_t();
+
     SoundScriptInstancePtr ssi;
     NodeNum_t nodenum;
     int type;
@@ -480,22 +484,25 @@ struct wheeldetacher_t
 
 struct hook_t
 {
-    HookState hk_locked;
-    int     hk_group;
-    int     hk_lockgroup;
-    bool    hk_selflock;
-    bool    hk_autolock;
-    bool    hk_nodisable;
-    float   hk_maxforce;
-    float   hk_lockrange;
-    float   hk_lockspeed;
-    float   hk_timer;
-    float   hk_timer_preset;
-    float   hk_min_length; //!< Absolute value in meters
-    node_t* hk_hook_node;
-    node_t* hk_lock_node;
-    beam_t* hk_beam;
-    ActorPtr  hk_locked_actor;
+    hook_t();
+    ~hook_t();
+
+    HookState  hk_locked = HookState::UNLOCKED;
+    int        hk_group = 0;
+    int        hk_lockgroup = 0;
+    bool       hk_selflock = false;
+    bool       hk_autolock = false;
+    bool       hk_nodisable = false;
+    float      hk_maxforce = 0.f;
+    float      hk_lockrange = 0.f;
+    float      hk_lockspeed = 0.f;
+    float      hk_timer = 0.f;
+    float      hk_timer_preset = 0.f;
+    float      hk_min_length = 0.f; //!< Absolute value in meters
+    node_t*    hk_hook_node = nullptr;
+    node_t*    hk_lock_node = nullptr;
+    beam_t*    hk_beam = nullptr;
+    ActorPtr   hk_locked_actor;
 };
 
 struct ropable_t
@@ -510,22 +517,28 @@ struct ropable_t
 
 struct rope_t
 {
-    int        rp_locked;
-    int        rp_group;
-    beam_t*    rp_beam;
-    ropable_t* rp_locked_ropable;
-    ActorPtr     rp_locked_actor;
+    rope_t();
+    ~rope_t();
+
+    int        rp_locked = 0;
+    int        rp_group = 0;
+    beam_t*    rp_beam = nullptr;
+    ropable_t* rp_locked_ropable = nullptr;
+    ActorPtr   rp_locked_actor;
 };
 
 struct tie_t
 {
-    ActorPtr     ti_locked_actor;
-    beam_t*    ti_beam;
-    ropable_t* ti_locked_ropable;
-    int        ti_group;
-    float      ti_contract_speed;
-    float      ti_max_stress;
-    float      ti_min_length;       //!< Proportional to orig; length
+    tie_t();
+    ~tie_t();
+
+    ActorPtr   ti_locked_actor;
+    beam_t*    ti_beam = nullptr;
+    ropable_t* ti_locked_ropable = nullptr;
+    int        ti_group = 0;
+    float      ti_contract_speed = 0.f;
+    float      ti_max_stress = 0.f;
+    float      ti_min_length = 0.f;       //!< Proportional to orig; length
 
     bool       ti_no_self_lock:1;   //!< Attribute
     bool       ti_tied:1;           //!< State
@@ -775,6 +788,9 @@ struct authorinfo_t
 
 struct ActorSpawnRequest
 {
+    ActorSpawnRequest();
+    ~ActorSpawnRequest();
+
     enum class Origin //!< Enables special processing
     {
         UNKNOWN,
@@ -786,13 +802,13 @@ struct ActorSpawnRequest
         AI            //!< Script controlled
     };
 
-    CacheEntryPtr       asr_cache_entry = nullptr; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
+    CacheEntryPtr       asr_cache_entry; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
     std::string         asr_filename;
     Ogre::String        asr_config;
     Ogre::Vector3       asr_position = Ogre::Vector3::ZERO;
     Ogre::Quaternion    asr_rotation = Ogre::Quaternion::ZERO;
     collision_box_t*    asr_spawnbox = nullptr;
-    CacheEntryPtr       asr_skin_entry = nullptr;
+    CacheEntryPtr       asr_skin_entry;
     Origin              asr_origin = Origin::UNKNOWN;
     int                 asr_debugview = 0; //(int)DebugViewType::DEBUGVIEW_NONE;
     Ogre::UTFString     asr_net_username;

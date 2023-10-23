@@ -27,6 +27,9 @@
 
 #include "RefCountingObjectPtr.h"
 
+#include <limits>
+#include <vector>
+
 #pragma once
 
 namespace RoR
@@ -176,6 +179,8 @@ namespace RoR
     typedef RefCountingObjectPtr<SoundScriptTemplate> SoundScriptTemplatePtr;
     typedef RefCountingObjectPtr<Terrain> TerrainPtr;
     typedef RefCountingObjectPtr<VehicleAI> VehicleAIPtr;
+
+    typedef std::vector<ActorPtr> ActorPtrVec;
 
     namespace GUI
     {

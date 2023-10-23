@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "Actor.h"
 #include "ForwardDeclarations.h"
 #include "SurveyMapEntity.h"
 
@@ -53,7 +52,7 @@ public:
     std::string const &    GetAnimName() const          { return m_anim_name; }
     float          GetAnimTime() const                  { return m_anim_time; }
     Ogre::Radian   getRotation() const                  { return m_character_rotation; }
-    ActorPtr       GetActorCoupling()                   { return m_actor_coupling; }
+    ActorPtr       GetActorCoupling();
     void           setColour(int color)                 { this->m_color_number = color; }
     Ogre::Vector3  getPosition();
     void           setPosition(Ogre::Vector3 position);

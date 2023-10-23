@@ -42,8 +42,6 @@ namespace RoR {
 /// @addtogroup Physics
 /// @{
 
-typedef std::vector<ActorPtr> ActorPtrVec;
-
 /// Softbody object; can be anything from soda can to a space shuttle
 /// Former name: `Beam` (that's why scripting uses `BeamClass`)
 class Actor : public RefCountingObject<Actor>
@@ -567,8 +565,8 @@ private:
     float             m_load_mass = 0.f;             //!< Physics attr; predefined load mass in Kg
     int               m_masscount = 0;             //!< Physics attr; Number of nodes loaded with l option
     float             m_dry_mass = 0.f;              //!< Physics attr;
-    std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
-    CacheEntryPtr       m_used_skin_entry = nullptr;       //!< Graphics
+    std::unique_ptr<Buoyance> m_buoyance;              //!< Physics
+    CacheEntryPtr     m_used_skin_entry;               //!< Graphics
     Skidmark*         m_skid_trails[MAX_WHEELS*2] = {};
     bool              m_antilockbrake = false;         //!< GUI state
     bool              m_tractioncontrol = false;       //!< GUI state

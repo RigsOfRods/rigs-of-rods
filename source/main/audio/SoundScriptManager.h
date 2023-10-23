@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include "Actor.h"
 #include "AngelScriptBindings.h"
 #include "Application.h"
 #include "RefCountingObjectPtr.h"
