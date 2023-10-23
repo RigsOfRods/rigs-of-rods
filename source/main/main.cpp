@@ -937,6 +937,17 @@ int main(int argc, char *argv[])
                     }
                     break;
 
+                case MSG_EDI_LOAD_BUNDLE_REQUESTED:
+                {
+                    CacheEntryPtr* entry_ptr = static_cast<CacheEntryPtr*>(m.payload);
+                    App::GetCacheSystem()->LoadResource(*entry_ptr);
+                    TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,  
+                        /*ints*/ MODCACHEACTIVITY_BUNDLE_LOADED, (*entry_ptr)->number, 0, 0,
+                        /*strings*/ (*entry_ptr)->resource_group);
+                    delete entry_ptr;
+                    break;
+                }
+
                 case MSG_EDI_RELOAD_BUNDLE_REQUESTED:
                 {
                     // To reload the bundle, it's resource group must be destroyed and re-created. All actors using it must be deleted.
@@ -955,6 +966,43 @@ int main(int argc, char *argv[])
                     {
                         // Nobody uses the RG anymore -> destroy and re-create it.
                         App::GetCacheSystem()->ReLoadResource(*entry_ptr);
+
+                        TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,  
+                            /*ints*/ MODCACHEACTIVITY_BUNDLE_RELOADED, (*entry_ptr)->number, 0, 0,
+                            /*strings*/ (*entry_ptr)->resource_group);
+                    }
+                    else
+                    {
+                        // Re-post the same message again so that it's message chain is executed later.
+                        App::GetGameContext()->PushMessage(m);
+                        failed_m = true;
+                    }
+
+                    delete entry_ptr;
+                    break;
+                }
+
+                case MSG_EDI_UNLOAD_BUNDLE_REQUESTED:
+                {
+                    // Unloading bundle means the resource group will be destroyed. All actors using it must be deleted.
+                    CacheEntryPtr* entry_ptr = static_cast<CacheEntryPtr*>(m.payload);
+                    bool all_clear = true;
+                    for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
+                    {
+                        if (actor->GetGfxActor()->GetResourceGroup() == (*entry_ptr)->resource_group)
+                        {
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
+                            all_clear = false;
+                        }
+                    }
+
+                    if (all_clear)
+                    {
+                        // Nobody uses the RG anymore -> destroy it.
+                        App::GetCacheSystem()->UnLoadResource(*entry_ptr);
+
+                        TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,  
+                            /*ints*/ MODCACHEACTIVITY_BUNDLE_UNLOADED, (*entry_ptr)->number, 0, 0);
                     }
                     else
                     {

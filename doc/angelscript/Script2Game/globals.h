@@ -74,8 +74,11 @@ void print(const string message);
     SE_ANGELSCRIPT_THREAD_STATUS       //!< Sent by background threads (i.e. CURL) when there's something important (like finishing a download). args: #1 type, see `Script2Game::angelScriptThreadStatus`.    
 
  	SE_GENERIC_MESSAGEBOX_CLICK        //!< triggered when the user clicks on a message box button, the argument refers to the button pressed
+    SE_GENERIC_EXCEPTION_CAUGHT        //!< Triggered when C++ exception (usually Ogre::Exception) is thrown; #1 ScriptUnitID, #5 originFuncName, #6 type, #7 message.
+    SE_GENERIC_MODCACHE_ACTIVITY       //!< Triggered when status of modcache changes, args: #1 type, #2 entry number, for other args see `RoR::modCacheActivityType`    
 
  	SE_ALL_EVENTS                      = 0xffffffff,
+    SE_NO_EVENTS                       = 0
 
  };
  
@@ -86,13 +89,6 @@ enum angelScriptManipulationType
     ASMANIP_SCRIPT_LOADED,                //!< Triggered after the script's `main()` completed; may trigger additional processing (for example, it delivers the *.mission file to mission system script).
     ASMANIP_SCRIPT_UNLOADING              //!< Triggered before unloading the script to let it clean up (important for missions).
 };
- 
-enum angelScriptManipulationType
-{
-    MANIP_CONSOLE_SNIPPET_EXECUTED = 0, // Backwards compat
-    MANIP_SCRIPT_LOADED,
-    MANIP_SCRIPT_UNLOADED
-};
 
 enum angelScriptThreadStatus
 {
@@ -100,6 +96,19 @@ enum angelScriptThreadStatus
     ASTHREADSTATUS_CURLSTRING_PROGRESS, //!< Args of `RoR::SE_ANGELSCRIPT_THREAD_STATUS`: arg#1 type, arg#2 percentage, arg#3 unused, arg#4 unused, arg#5 progress message (formatted by RoR)
     ASTHREADSTATUS_CURLSTRING_SUCCESS,  //!< Args of `RoR::SE_ANGELSCRIPT_THREAD_STATUS`: arg#1 type, arg#2 HTTP code, arg#3 CURLcode, arg#4 unused, arg#5 payload
     ASTHREADSTATUS_CURLSTRING_FAILURE,  //!< Args of `RoR::SE_ANGELSCRIPT_THREAD_STATUS`: arg#1 type, arg#2 HTTP code, arg#3 CURLcode, arg#4 unused, arg#5 message from `curl_easy_strerror()`
+};
+
+/// Argument #2 of script event `RoR::SE_GENERIC_MODCACHE_ACTIVITY`
+enum modCacheActivityType
+{
+    MODCACHEACTIVITY_NONE,
+
+    MODCACHEACTIVITY_ENTRY_ADDED,      //!< Args of `RoR::SE_GENERIC_MODCACHE_NOTIFICATION`: #1 type, #2 entry number, --, --, #5 fname, #6 fext
+    MODCACHEACTIVITY_ENTRY_DELETED,    //!< Flagged as `deleted`, remains in memory until shared pointers expire; Args of `RoR::SE_GENERIC_MODCACHE_NOTIFICATION`: #1 type, #2 entry number, --, --, #5 fname, #6 fext
+
+    MODCACHEACTIVITY_BUNDLE_LOADED,    //!< Args of `RoR::SE_GENERIC_MODCACHE_NOTIFICATION`: #1 type, #2 entry number, --, --, #5 rg name
+    MODCACHEACTIVITY_BUNDLE_RELOADED,  //!< Args of `RoR::SE_GENERIC_MODCACHE_NOTIFICATION`: #1 type, #2 entry number, --, --, #5 rg name
+    MODCACHEACTIVITY_BUNDLE_UNLOADED   //!< Args of `RoR::SE_GENERIC_MODCACHE_NOTIFICATION`: #1 type, #2 entry number
 };
 
 enum inputEvents
@@ -647,7 +656,10 @@ enum MsgType
     MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,      //!< Used by Friction UI, DO NOT PUSH MANUALLY.
     MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,      //!< No params.
     MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED,      //!< No params.
-    MSG_EDI_RELOAD_BUNDLE_REQUESTED,           //!< Used internally for full reload of terrain/actor from disk, DO NOT PUSH MANUALLY.
+    MSG_EDI_LOAD_BUNDLE_REQUESTED,             //!< Load a resource bundle (= ZIP or directory) for a given cache entry. Params: 'cache_entry' (CacheEntryClass@)
+    MSG_EDI_RELOAD_BUNDLE_REQUESTED,           //!< This deletes all actors using that bundle (= ZIP or directory)! Params: 'cache_entry' (CacheEntryClass@)
+    MSG_EDI_UNLOAD_BUNDLE_REQUESTED,           //!< This deletes all actors using that bundle (= ZIP or directory)! Params: 'cache_entry' (CacheEntryClass@)
+    MSG_EDI_CREATE_PROJECT_REQUESTED,          //!< Creates a subdir under 'projects/', pre-populates it and adds to modcache. Params: 'name' (string), 'ext' (string, optional), 'source_entry' (CacheEntryClass@)
 };
 
 } // namespace Script2Game

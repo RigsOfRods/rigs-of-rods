@@ -59,6 +59,7 @@ enum scriptEvents
 
     SE_GENERIC_MESSAGEBOX_CLICK        = BITMASK(23), //!< triggered when the user clicks on a message box button, the argument refers to the button pressed
     SE_GENERIC_EXCEPTION_CAUGHT        = BITMASK(24), //!< Triggered when C++ exception (usually Ogre::Exception) is thrown; #1 ScriptUnitID, #5 originFuncName, #6 type, #7 message.
+    SE_GENERIC_MODCACHE_ACTIVITY       = BITMASK(25), //!< Triggered when status of modcache changes, args: #1 type, #2 entry number, for other args see `RoR::modCacheActivityType`
 
     SE_ALL_EVENTS                      = 0xffffffff,
     SE_NO_EVENTS                       = 0
@@ -79,6 +80,19 @@ enum angelScriptThreadStatus
     ASTHREADSTATUS_CURLSTRING_PROGRESS, //!< Args of `RoR::SE_ANGELSCRIPT_THREAD_STATUS`: arg#1 type, arg#2 percentage, arg#3 unused, arg#4 unused, arg#5 progress message (formatted by RoR)
     ASTHREADSTATUS_CURLSTRING_SUCCESS,  //!< Args of `RoR::SE_ANGELSCRIPT_THREAD_STATUS`: arg#1 type, arg#2 HTTP code, arg#3 CURLcode, arg#4 unused, arg#5 payload
     ASTHREADSTATUS_CURLSTRING_FAILURE,  //!< Args of `RoR::SE_ANGELSCRIPT_THREAD_STATUS`: arg#1 type, arg#2 HTTP code, arg#3 CURLcode, arg#4 unused, arg#5 message from `curl_easy_strerror()`
+};
+
+/// Argument #2 of script event `RoR::SE_GENERIC_MODCACHE_ACTIVITY`
+enum modCacheActivityType
+{
+    MODCACHEACTIVITY_NONE,
+
+    MODCACHEACTIVITY_ENTRY_ADDED,      //!< Args: #1 type, #2 entry number, --, --, #5 fname, #6 fext
+    MODCACHEACTIVITY_ENTRY_DELETED,    //!< Flagged as `deleted`, managed by shared pointers; Args: #1 type, #2 entry number, --, --, #5 fname, #6 fext
+
+    MODCACHEACTIVITY_BUNDLE_LOADED,    //!< Args: #1 type, #2 entry number, --, --, #5 rg name
+    MODCACHEACTIVITY_BUNDLE_RELOADED,  //!< Args: #1 type, #2 entry number, --, --, #5 rg name
+    MODCACHEACTIVITY_BUNDLE_UNLOADED   //!< Args: #1 type, #2 entry number
 };
 
 /// Args for `eventCallbackEx()` queued via `MSG_SIM_SCRIPT_EVENT_TRIGGERED`

@@ -63,8 +63,10 @@ void RoR::RegisterScriptEvents(asIScriptEngine *engine)
 
     result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_MESSAGEBOX_CLICK", SE_GENERIC_MESSAGEBOX_CLICK); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_EXCEPTION_CAUGHT", SE_GENERIC_EXCEPTION_CAUGHT); ROR_ASSERT(result>=0);
+    result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_MODCACHE_ACTIVITY", SE_GENERIC_MODCACHE_ACTIVITY); ROR_ASSERT(result>=0);
 
     result = engine->RegisterEnumValue("scriptEvents", "SE_ALL_EVENTS", SE_ALL_EVENTS); ROR_ASSERT(result>=0);
+    result = engine->RegisterEnumValue("scriptEvents", "SE_NO_EVENTS", SE_NO_EVENTS); ROR_ASSERT(result>=0);
 
     // enum angelScriptManipulationType
     result = engine->RegisterEnum("angelScriptManipulationType"); ROR_ASSERT(result>=0);
@@ -81,4 +83,12 @@ void RoR::RegisterScriptEvents(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("angelScriptThreadStatus", "ASTHREADSTATUS_CURLSTRING_SUCCESS", ASTHREADSTATUS_CURLSTRING_SUCCESS ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("angelScriptThreadStatus", "ASTHREADSTATUS_CURLSTRING_FAILURE", ASTHREADSTATUS_CURLSTRING_FAILURE ); ROR_ASSERT(result >= 0);
 
+    // enum modCacheActivityType
+    result = engine->RegisterEnum("modCacheActivityType"); ROR_ASSERT(result>=0);
+
+    result = engine->RegisterEnumValue("modCacheActivityType", "MODCACHEACTIVITY_ENTRY_ADDED", MODCACHEACTIVITY_ENTRY_ADDED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("modCacheActivityType", "MODCACHEACTIVITY_ENTRY_DELETED", MODCACHEACTIVITY_ENTRY_DELETED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("modCacheActivityType", "MODCACHEACTIVITY_BUNDLE_LOADED", MODCACHEACTIVITY_BUNDLE_LOADED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("modCacheActivityType", "MODCACHEACTIVITY_BUNDLE_RELOADED", MODCACHEACTIVITY_BUNDLE_RELOADED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("modCacheActivityType", "MODCACHEACTIVITY_BUNDLE_UNLOADED", MODCACHEACTIVITY_BUNDLE_UNLOADED); ROR_ASSERT(result >= 0);
 }

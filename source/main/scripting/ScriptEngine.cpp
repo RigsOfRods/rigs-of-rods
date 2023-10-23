@@ -977,16 +977,18 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     return 0;
 }
 
-void ScriptEngine::unloadScript(ScriptUnitId_t id)
+void ScriptEngine::unloadScript(ScriptUnitId_t nid)
 {
-    ROR_ASSERT(id != SCRIPTUNITID_INVALID);
-    ROR_ASSERT(m_currently_executing_script_unit == SCRIPTUNITID_INVALID);
+    ROR_ASSERT(this->scriptUnitExists(nid));
 
-    engine->DiscardModule(m_script_units[id].scriptModule->GetName());
-    m_script_units.erase(id);
-    if (m_terrain_script_unit == id)
+    if (this->scriptUnitExists(nid))
     {
-        m_terrain_script_unit = SCRIPTUNITID_INVALID;
+        engine->DiscardModule(m_script_units[nid].scriptModule->GetName());
+        m_script_units.erase(nid);
+        if (m_terrain_script_unit == nid)
+        {
+            m_terrain_script_unit = SCRIPTUNITID_INVALID;
+        }
     }
 }
 
@@ -1002,14 +1004,14 @@ void ScriptEngine::setForwardScriptLogToConsole(bool doForward)
     }
 }
 
-bool ScriptEngine::scriptUnitExists(ScriptUnitId_t unique_id)
+bool ScriptEngine::scriptUnitExists(ScriptUnitId_t nid)
 {
-    return m_script_units.find(unique_id) != m_script_units.end();
+    return nid != SCRIPTUNITID_INVALID 
+        && m_script_units.find(nid) != m_script_units.end();
 }
 
-ScriptUnit& ScriptEngine::getScriptUnit(ScriptUnitId_t unique_id)
+ScriptUnit& ScriptEngine::getScriptUnit(ScriptUnitId_t nid)
 {
-    ROR_ASSERT(unique_id != SCRIPTUNITID_INVALID);
-    ROR_ASSERT(m_script_units.count(unique_id) != 0);
-    return m_script_units[unique_id];
+    ROR_ASSERT(this->scriptUnitExists(nid));
+    return m_script_units[nid];
 }

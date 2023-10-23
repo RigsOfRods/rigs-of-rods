@@ -219,22 +219,25 @@ public:
     /// @name Lookups
     /// @{
     CacheEntryPtr         FindEntryByFilename(RoR::LoaderType type, bool partial, const std::string& filename); //!< Returns NULL if none found
+    CacheEntryPtr         GetEntryByNumber(int modid);
     CacheEntryPtr         FetchSkinByName(std::string const & skin_name);
     size_t                Query(CacheQuery& query);
     /// @}
 
+    /// @name Management
+    /// @{
     void LoadResource(CacheEntryPtr& t); //!< Loads the associated resource bundle if not already done.
     bool CheckResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
     bool CheckResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
     void ReLoadResource(CacheEntryPtr& t); //!< Forces reloading the associated bundle.
     void UnLoadResource(CacheEntryPtr& t); //!< Unloads associated bundle, destroying all spawned actors.
+    /// @}
 
     const std::vector<CacheEntryPtr>   &GetEntries()        const { return m_entries; }
     const CategoryIdNameMap         &GetCategories()     const { return m_categories; }
 
     std::shared_ptr<RoR::SkinDef> FetchSkinDef(CacheEntryPtr& cache_entry); //!< Loads+parses the .skin file once
 
-    CacheEntryPtr GetEntry(int modid);
     Ogre::String GetPrettyName(Ogre::String fname);
     std::string ActorTypeToName(ActorType driveable);
 
