@@ -17,6 +17,8 @@
 
 #pragma once
 
+#define PHYSICS_DT 0.0005f // fixed dt of 0.5 ms
+
 /* maximum limits */
 static const int   MAX_ACTORS                 = 5000;            //!< maximum number of actors per game session
 static const int   MAX_WHEELS                 = 64;              //!< maximum number of wheels per actor
