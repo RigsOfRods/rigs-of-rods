@@ -18,6 +18,20 @@ const int    ImGuiCol_PopupBg = 4;               // Background of popups, menus,
 const int    ImGuiCol_Border = 5;
 const int    ImGuiCol_BorderShadow = 6;
 const int    ImGuiCol_FrameBg = 7;               // Background of checkbox, radio button, plot, slider, text input
+const int    ImGuiCol_FrameBgHovered = 8;
+const int    ImGuiCol_FrameBgActive = 9;
+const int    ImGuiCol_TitleBg = 10;
+const int    ImGuiCol_TitleBgActive = 11;
+const int    ImGuiCol_TitleBgCollapsed = 12;
+const int    ImGuiCol_MenuBarBg            = 13;
+const int    ImGuiCol_ScrollbarBg          = 14;
+const int    ImGuiCol_ScrollbarGrab        = 15;
+const int    ImGuiCol_ScrollbarGrabHovered = 16;
+const int    ImGuiCol_ScrollbarGrabActive  = 17;
+const int    ImGuiCol_CheckMark            = 18;
+const int    ImGuiCol_SliderGrab           = 19;
+const int    ImGuiCol_SliderGrabActive     = 20;
+const int    ImGuiCol_Button               = 21;
 const int    ImGuiTabItemFlags_SetSelected = 1 << 1;
 // from <angelscript.h>
 enum asEMsgType
@@ -64,10 +78,6 @@ const uint FILEINFO_COMPRESSEDSIZE_UNKNOWN = uint(-1);
     bool drawLineErrCounts = false;
     color lineErrCountColor = color(1.f,0.2f,0.1f,1.f);
     float errCountColumnWidth = 10;
-    // Line region&endregion markers
-    bool drawLineRegionMarkers = false; // only visual, folding is not implemented
-    color lineRegionMarkerColor = color(0.78f,0.76f,0.32f,1.f);
-    float lineRegionMarkerColumnWidth = 12;
     // Auto-indentation level display
     bool drawLineAutoIndentLevels = true;
     color lineAutoIndentLevelsColor = color(0.55f, 0.44f, 0.55f, 1.f);
@@ -76,6 +86,10 @@ const uint FILEINFO_COMPRESSEDSIZE_UNKNOWN = uint(-1);
     bool drawLineActualIndents = true;
     color lineActualIndentsColor = color(0.55f, 0.55f, 0.44f, 1.f);
     float lineActualIndentsColumnWidth = 16;
+    // Line region&endregion markers
+    bool drawLineRegionMarkers = true;
+    color lineRegionMarkerColor = color(0.78f,0.76f,0.32f,1.f);
+    float lineRegionMarkerColumnWidth = 17;
 // END line metainfo columns
 
 // EDITOR settings
@@ -86,6 +100,7 @@ const uint FILEINFO_COMPRESSEDSIZE_UNKNOWN = uint(-1);
     color warnTextBgColor = color(0.1f,0.08f,0.0f,1.f);
     bool drawWarnText = true;
     color commentHighlightColor = color(0.1f,0.9f,0.6f,0.16f);
+    color regionCommentHighlightColor = color(0.78f,0.76f,0.32f,0.18f);
     bool drawCommentHighlights = true;
     color httpHighlightColor=color(0.25, 0.3, 1, 0.3f);
     bool drawHttpHighlights = false; // only visual, links don't open    
@@ -93,6 +108,8 @@ const uint FILEINFO_COMPRESSEDSIZE_UNKNOWN = uint(-1);
     
     int autoIndentNumSpaces = 4;
     bool autoIndentOnSave = true;
+    
+    bool killScriptOnAngelscriptException = true; // Prevent endless assert() loop "mismatched BeginChild()/EndChild()" under Visual Studio Debug, effectivelly forcing you to stop the game.
     
     // input output
     bool saveShouldOverwrite=false;
@@ -114,7 +131,6 @@ void main() // Invoked by the game on startup
     game.registerForEvent(SE_GENERIC_EXCEPTION_CAUGHT);
     @editorWindow.recentScriptsRecord.fileinfos = array<dictionary>(); // special - constructed manually
 }
-
 
 void frameStep(float dt) // Invoked regularly by the game; the parameter is elapsed time in seconds.
 {
@@ -232,8 +248,9 @@ class ScriptEditorWindow
             if (this.currentTab >= tabs.length())
                 this.currentTab = tabs.length()-1;        
         }
-    
+        
         this.tabs[this.currentTab].updateAutosave(dt);
+        this.tabs[this.currentTab].handleRequests(dt);
     
         int flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar;
         if (ImGui::Begin("Script editor", /*open:*/true, flags))
@@ -332,17 +349,7 @@ class ScriptEditorWindow
                 ImGui::InputText("File",/*inout:*/ saveFileNameBuf);
                 if (ImGui::Button("Save"))
                 {
-                    // perform auto-indenting if desired
-                    if (autoIndentOnSave)
-                        this.tabs[this.currentTab].autoIndentBuffer();
-                
-                    // Write out the file
-                    string strData = this.tabs[this.currentTab].buffer.substr(0, this.tabs[this.currentTab].totalChars);
-                    bool savedOk = game.createTextResourceFromString(
-                        strData, saveFileNameBuf, RGN_SCRIPTS, saveShouldOverwrite);
-                    this.saveFileResult = savedOk ? 1 : -1;
-                    if (savedOk)
-                        this.addRecentScript(saveFileNameBuf);
+                    this.tabs[this.currentTab].requestSaveFile = true;
                 }
                 ImGui::SameLine();
                 ImGui::Checkbox("Overwrite", /*inout:*/saveShouldOverwrite);
@@ -383,6 +390,8 @@ class ScriptEditorWindow
                 
                 ImGui::EndMenu();
             }
+            
+            // 'INCLUDES' menu
             if (ImGui::BeginMenu("Includes"))
             {
                 if (!analysisDoneThisFrame)
@@ -441,13 +450,46 @@ class ScriptEditorWindow
                 ImGui::EndMenu();
             }
             
+            // 'FOLDING' menu
+            if (ImGui::BeginMenu("Folding"))
+            {
+                if (ImGui::Button("Fold all")) { this.tabs[this.currentTab].requestFoldAll=true; }
+                if (ImGui::Button("UnFold all")) { this.tabs[this.currentTab].requestUnFoldAll=true; }
+                
+                ImGui::Separator();
+                ImGui::TextDisabled("Invalid states:");
+                ImGui::TextColored(lineRegionMarkerColor, "  Un! = Unnamed");
+                ImGui::TextColored(lineRegionMarkerColor, "  Br! = Broken (no end)");
+                ImGui::TextColored(lineRegionMarkerColor, "  Ex! = Exists already");
+                ImGui::TextColored(lineRegionMarkerColor, "  Or! = Orphan exists");
+                
+                ImGui::Separator();
+                ImGui::TextDisabled("Orphan regions");
+                array<string> regionNames = this.tabs[this.currentTab].workBufferRegions.getKeys();
+                for (uint i = 0; i< regionNames.length(); i++)
+                {
+                    RegionInfo@ regionInfo = findRegion(this.tabs[this.currentTab].workBufferRegions, regionNames[i]);
+                    if (@regionInfo != null && regionInfo.isOrphan)
+                    {
+                        ImGui::Bullet(); ImGui::SameLine(); ImGui::Text(regionNames[i]);
+                        if (ImGui::IsItemHovered())
+                        {
+                            ImGui::BeginTooltip();
+                            ImGui::Text(regionInfo.foldedOffText);
+                            ImGui::EndTooltip();
+                        }
+                    }
+                }
+                ImGui::EndMenu();
+            }
+            
             // 'TOOLS' menu
             if (ImGui::BeginMenu("Tools"))
             {
                 ImGui::TextDisabled("Tools:");
                 if (ImGui::Button("Auto-indent"))
                 {
-                    this.tabs[this.currentTab].autoIndentBuffer();
+                    this.tabs[this.currentTab].requestIndentBuffer = true;
                 }
                 
                 ImGui::Separator();
@@ -455,6 +497,8 @@ class ScriptEditorWindow
                 ImGui::SetNextItemWidth(75.f);
                 ImGui::InputInt("Indent width", /*inout*/autoIndentNumSpaces);
                 ImGui::Checkbox("Indent on save", /*inout*/autoIndentOnSave);
+                ImGui::Dummy(vector2(5,5));
+                ImGui::Checkbox("Kill script on AS exception", /*inout*/killScriptOnAngelscriptException);
                 ImGui::EndMenu();
             }
             
@@ -539,7 +583,7 @@ class ScriptEditorWindow
          return retval;
     }
     
-    private void addRecentScript(string fnameBuf)
+    void addRecentScript(string fnameBuf)
     {
         if (fnameBuf == "")
             return; // nope
@@ -562,12 +606,12 @@ class ScriptEditorWindow
 
 class ScriptEditorTab
 {
-    
     // THE TEXT BUFFER
-        string buffer; // The backing buffer - statically sized, determines maximum number of characters. DearIMGUI fills unused space by NULs.
+        string buffer; // The work buffer (doesn't contain folded regions!) - statically sized, determines maximum number of characters. DearIMGUI fills unused space by NULs.
         uint totalChars; // Actual number of characters before the NUL-ified space; Important for saving. // see `analyzeLines()`
         array<dictionary> bufferLinesMeta; // metadata for lines, see `analyzeLines()`
         array<array<uint>> bufferMessageIDs;
+        dictionary workBufferRegions; // Key: region names (must be unique, otherwise not foldable), value: RegionInfo
     // END text buffer
         
     // MESSAGES FROM ANGELSCRIPT ENGINE
@@ -593,6 +637,14 @@ class ScriptEditorTab
     ExceptionsPanel epanel;
     float autosaveTimeCounterSec = 0.f;
     int autosaveResult = 0; // 0=no action, 1=success, -1=failure;
+    
+    // REQUEST 'QUEUE'
+    string requestFoldRegion;
+    string requestUnFoldRegion;
+    bool requestFoldAll = false;
+    bool requestUnFoldAll = false;
+    bool requestIndentBuffer = false; // Only for invoking by user manually, not for use while saving!
+    bool requestSaveFile = false;
 
     void drawStartStopButton()
     {
@@ -634,18 +686,20 @@ class ScriptEditorTab
         errCountOffset = metaColumnsTotalWidth;
         if (drawLineErrCounts)
             metaColumnsTotalWidth += errCountColumnWidth;
-        if (drawLineRegionMarkers)
-            metaColumnsTotalWidth += lineRegionMarkerColumnWidth;
         if (drawLineAutoIndentLevels)
             metaColumnsTotalWidth += lineAutoIndentLevelsColumnWidth;
         if (drawLineActualIndents)
             metaColumnsTotalWidth += lineActualIndentsColumnWidth;
+        if (drawLineRegionMarkers)
+            metaColumnsTotalWidth += lineRegionMarkerColumnWidth;            
         
         return metaColumnsTotalWidth;
     }
 
     protected void drawLineInfoColumns(vector2 screenCursor)
     {
+        ImGui::PushID("lineInfoCol");
+    
         // draws columns with info (line number etc...) on the left side of the text area
         // ===============================================================================
         
@@ -655,11 +709,91 @@ class ScriptEditorTab
         
         float coarseClipBottomY = (screenCursor.y+textAreaSize.y)-ImGui::GetTextLineHeight()*0.6;
         float coarseClipTopY = screenCursor.y-ImGui::GetTextLineHeight()*0.7;
-        bool inRegion = false;
+        
+        bool inRegion = false;        // verified foldable region (`#endregion` was found -> has RegionInfo entry)
+        bool drawRegionFoldBtn = false;   // verified foldable region
+        string regionColumnStr = "";
+        int nextLineNumber = 1; // Folded regions cause jumps in numbering
         
         for (int lineIdx = 0; lineIdx < bufferNumLines; lineIdx++)
         {
             vector2 linenumCursor = linenumCursorBase + vector2(0, lineIdx*ImGui::GetTextLineHeight());
+            
+            // Update line number; No drawing yet - must be done before coarse clipping
+            // (Folded regions cause jumps in numbering) 
+            int currentLineNumber = nextLineNumber;
+            if (drawLineNumbers)
+            {
+                int lineShift = 1;
+                if (bool(this.bufferLinesMeta[lineIdx]['regionValid']))
+                {
+                    string regionName = string(this.bufferLinesMeta[lineIdx]['regionName']);
+                    RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionName);
+                    if (@regionInfo != null && regionInfo.isFolded)
+                    {
+                        lineShift = regionInfo.regionLineCount;
+                    }
+                }
+                nextLineNumber += lineShift;
+            }
+
+            // Update code folding state; no drawing yet - must be done before coarse clipping      
+            if (drawLineRegionMarkers)
+            {
+                drawRegionFoldBtn = false;
+                regionColumnStr = "";
+                if (!inRegion)
+                {
+                    string regionName = string(this.bufferLinesMeta[lineIdx]['regionName']);
+                    if (bool(bufferLinesMeta[lineIdx]['regionValid']))
+                    {  
+                        // verify it's a foldable region (`#endregion` was found -> has RegionInfo entry)
+                        
+                        RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionName);
+                        RegionInfo@ fileRegionInfo = findRegion(this.workBufferRegions, regionName);
+                        if (@regionInfo != null && @fileRegionInfo != null)
+                        {
+                            inRegion = true;
+                            drawRegionFoldBtn = true;
+                        }
+                        else
+                        {
+                            regionColumnStr = "Br!"; // Broken ('#endregion' not found)
+                        }                        
+                    }
+                    else if (bool(bufferLinesMeta[lineIdx]['regionFound']))
+                    {
+                        if (regionName == "")
+                        {
+                            regionColumnStr = "Un!"; // Unnamed
+                        }
+                        else
+                        {
+                            RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionName);
+                            if (regionInfo.isOrphan)
+                            {
+                                regionColumnStr = "Or!"; // Orphan (duplicate)
+                            }
+                            else
+                            {
+                                regionColumnStr = "Ex!"; // Exists already
+                            }
+                        }
+                    }
+                }
+                else // in foldable region
+                {
+                    if (bool(bufferLinesMeta[lineIdx]['endregionFound']))
+                    {
+                        inRegion = false;
+                        regionColumnStr = " #~";
+                    }
+                    else
+                    {
+                        regionColumnStr = " | ";
+                    }
+                }
+            }
         
             // Coarse clipping
             if (linenumCursor.y < coarseClipTopY)
@@ -667,9 +801,9 @@ class ScriptEditorTab
             if (linenumCursor.y > coarseClipBottomY)
                 break;        
             
-            if (drawLineNumbers)
+            if (drawLineNumbers) // actually draw
             {
-                drawlist.AddText(linenumCursor, lineNumberColor, ""+(lineIdx+1));
+                drawlist.AddText(linenumCursor, lineNumberColor, ""+currentLineNumber);
                 linenumCursor.x += lineNumColumnWidth;
             }
             
@@ -708,33 +842,6 @@ class ScriptEditorTab
                 linenumCursor.x += errCountColumnWidth;
             }
             
-            // draw region&endregion markers
-            if (drawLineRegionMarkers)
-            {
-                if (!inRegion)
-                {
-                    if (bool(bufferLinesMeta[lineIdx]['regionFound']))
-                    {
-                        inRegion = true;
-                        drawlist.AddText(linenumCursor, lineRegionMarkerColor, "#>");
-                    }
-                }
-                else
-                {
-                    if (bool(bufferLinesMeta[lineIdx]['endregionFound']))
-                    {
-                        inRegion = false;
-                        drawlist.AddText(linenumCursor, lineRegionMarkerColor, "#~");
-                    }
-                    else
-                    {
-                        drawlist.AddText(linenumCursor, lineRegionMarkerColor, " | ");
-                    }
-                }
-                
-                linenumCursor.x += lineRegionMarkerColumnWidth;
-            }
-            
             // Auto-detected indentation level, multiplied by preset indent width.
             if (drawLineAutoIndentLevels)
             {
@@ -749,8 +856,46 @@ class ScriptEditorTab
                 drawlist.AddText(linenumCursor, lineActualIndentsColor,
                     ""+int(this.bufferLinesMeta[lineIdx]['actualIndentBlanks']));
                 linenumCursor.x += lineActualIndentsColumnWidth; 
+            }            
+            
+            // draw region&endregion markers
+            if (drawLineRegionMarkers)
+            {
+                if (drawRegionFoldBtn)
+                {
+                    // Draw folding/unFolding button
+                    string regionName = string(this.bufferLinesMeta[lineIdx]['regionName']);
+                    RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionName);
+                    if (@regionInfo != null) // Double check
+                    {
+                        vector2 cursorBackup = ImGui::GetCursorPos();
+                        ImGui::SetCursorPos(linenumCursor - ImGui::GetWindowPos());
+                        ImGui::PushStyleColor(ImGuiCol_Button, lineRegionMarkerColor);
+                        ImGui::PushStyleColor(ImGuiCol_Text, color(0,0,0,1));
+                        ImGui::PushID(lineIdx);                        
+                        if (regionInfo.isFolded && ImGui::SmallButton("+"))
+                        {
+                            this.requestUnFoldRegion = regionName;
+                        }
+                        else if (!regionInfo.isFolded && ImGui::SmallButton("^"))
+                        {
+                            this.requestFoldRegion = regionName;
+                        }
+                        ImGui::PopID(); // lineIdx
+                        ImGui::PopStyleColor(2); // ImGuiCol_Text, ImGuiCol_Button
+                        ImGui::SetCursorPos(cursorBackup);
+                    }
+                }
+                else if (regionColumnStr != "")
+                {
+                    drawlist.AddText(linenumCursor, lineRegionMarkerColor, regionColumnStr);
+                }
+                
+                linenumCursor.x += lineRegionMarkerColumnWidth;
             }
         }
+        
+        ImGui::PopID(); //"lineInfoCol"
     }
     
     void drawTextAreaErrors()
@@ -773,9 +918,15 @@ class ScriptEditorTab
                 continue;
             
             // first draw comment highlights (semitransparent quads)
+            //   special touch: if the comments are #[end]region markers, highlight them different.
             int startOffset = int(this.bufferLinesMeta[lineIdx]['startOffset']);
             int lineLen = int(this.bufferLinesMeta[lineIdx]['len']);
             int nonCommentLen = int(this.bufferLinesMeta[lineIdx]['nonCommentLen']);
+            bool regionValid = bool(this.bufferLinesMeta[lineIdx]['regionValid']);
+            string regionName = string(this.bufferLinesMeta[lineIdx]['regionName']);
+            bool regionBroken = @findRegion(this.workBufferRegions, regionName) == null;
+            bool endregionFound = bool(this.bufferLinesMeta[lineIdx]['endregionFound']);
+            color rectColor = ((regionValid && !regionBroken) || endregionFound) ? regionCommentHighlightColor : commentHighlightColor;
             if (lineLen != nonCommentLen && drawCommentHighlights)
             {
                 // calc pos
@@ -787,7 +938,8 @@ class ScriptEditorTab
                 int doubleslashCommentStart = int(this.bufferLinesMeta[lineIdx]['doubleslashCommentStart']);
                 string commentStr = buffer.substr(doubleslashCommentStart, lineLen-nonCommentLen);
                 vector2 commentSize = ImGui::CalcTextSize(commentStr);
-                drawlist.AddRectFilled(pos, pos+commentSize, commentHighlightColor);
+                
+                drawlist.AddRectFilled(pos, pos+commentSize, rectColor);
             }
             
             // second - http highlights
@@ -963,7 +1115,7 @@ class ScriptEditorTab
         this.buffer.resize(this.buffer.length() + BUFFER_INCREMENT_SIZE);
         if (this.buffer.length() < BUFFER_MIN_SIZE)
             this.buffer.resize(BUFFER_MIN_SIZE);
-        this.analyzeLines();    
+        this.analyzeLines();
         editorWindow.refreshLocalFileList();        
     }
     
@@ -1036,11 +1188,6 @@ class ScriptEditorTab
         this.analyzeMessages();
     }
     
-    private bool isChar(uint c, string s)
-    {
-        return s.length() > 0 && c == s[0];
-    }
-    
     private void analyzeBuffer() // helper for `analyzeLines()`
     {
         this.bufferLinesMeta.resize(0); // clear all
@@ -1060,14 +1207,20 @@ class ScriptEditorTab
         int httpStart = -1;
         bool httpFound = false;
         
-        // pattern - region & endregion (C#-like, inside comment)
+        // pattern - #region & #endregion (C#-like, inside comment)
+        // NOTE: Regions cannot be nested. '#[end]region' lines are always present in `buffer` even if folded.
         string regionPattern = '#region';
         uint regionLevel = 0;
         int regionTitleStart = -1;
-        bool regionFound = false;        
+        bool regionFound = false;
         string endregionPattern = '#endregion';
         uint endregionLevel = 0;
-        bool endregionFound = false;        
+        bool endregionFound = false;
+        // Code folding
+        dictionary collectedRegions;
+        int regionFoundAtLineIdx = -1;
+        string regionFoundWithName;
+        int regionBodyStartOffset = -1;
         
         string httpBreakChars = " \n\t\"'";
         bool httpBreakFound = false;
@@ -1117,7 +1270,7 @@ class ScriptEditorTab
                         if (uint(regionLevel) == regionPattern.length())
                         {
                             regionFound = true;
-                            regionTitleStart = i;
+                            regionTitleStart = i+1;
                         }
                     }
                     else
@@ -1205,9 +1358,29 @@ class ScriptEditorTab
         
             if (isChar(this.buffer[i], '\n') || isChar(this.buffer[i], '\0'))
             {
-                // Finish line
-                
                 int endOffset = i;
+            
+                // Process #region
+                if (regionFound)
+                {
+                    regionFoundAtLineIdx = lineIdx;
+                    regionFoundWithName = trimLeft(this.buffer.substr(regionTitleStart, endOffset - regionTitleStart));
+                    regionBodyStartOffset = endOffset+1;
+                }
+                
+                // Process #endregion
+                if (endregionFound && regionFoundAtLineIdx != -1 && !collectedRegions.exists(regionFoundWithName))
+                {
+                    RegionInfo regionInfo; 
+                    regionInfo.regionLineCount = (lineIdx-1)-regionFoundAtLineIdx; // To handle jumps in line numbering
+                    regionInfo.regionBodyStartOffset = regionBodyStartOffset; // To swap regions in and out from work buffer.
+                    regionInfo.regionBodyNumChars = (int(this.bufferLinesMeta[lineIdx-1]['endOffset']) - regionBodyStartOffset)+1; // ditto
+                    collectedRegions[regionFoundWithName] = regionInfo;
+                    regionFoundAtLineIdx = -1;
+                    regionFoundWithName = "";
+                }
+            
+                // Finish line
                 this.bufferLinesMeta[lineIdx]['endOffset'] = endOffset;
                 int len = endOffset - startOffset;
                 this.bufferLinesMeta[lineIdx]['len'] = len;
@@ -1218,7 +1391,8 @@ class ScriptEditorTab
                 this.bufferLinesMeta[lineIdx]['httpLen'] = (httpFound) ? httpBreakPos-httpStart : -1;
                 this.bufferLinesMeta[lineIdx]['nonHttpLen'] = (httpFound) ? httpStart - startOffset : -1;
                 this.bufferLinesMeta[lineIdx]['regionFound'] = regionFound;
-                this.bufferLinesMeta[lineIdx]['regionTitleStart'] = regionTitleStart;
+                this.bufferLinesMeta[lineIdx]['regionValid'] = regionFound && regionFoundWithName != "" && !collectedRegions.exists(regionFoundWithName);
+                this.bufferLinesMeta[lineIdx]['regionName'] = regionFoundWithName;
                 this.bufferLinesMeta[lineIdx]['endregionFound'] = endregionFound;
                 this.bufferLinesMeta[lineIdx]['autoIndentLevel'] = autoIndentLevelCurrent;
                 this.bufferLinesMeta[lineIdx]['actualIndentBlanks'] = actualIndentBlanks;
@@ -1260,6 +1434,47 @@ class ScriptEditorTab
             
             this.totalChars++;
         }
+        
+        // prune broken regions (missing '#endregion' -> RegionInfo is null)
+        array<string>@ collectedRegionNames = collectedRegions.getKeys();
+        for (uint i = 0; i< collectedRegionNames.length(); i++)
+        {
+            RegionInfo@ regionInfo = findRegion(collectedRegions, collectedRegionNames[i]);
+            if (@regionInfo == null)
+            {
+                game.log ("DBG pruning broken region '" + collectedRegionNames[i] + "'");
+                collectedRegions.delete(collectedRegionNames[i]);
+            }
+        }        
+        
+        // Find regions that were deleted/changed
+        array<string> oldRegionNames = this.workBufferRegions.getKeys();
+        for (uint i = 0; i< oldRegionNames.length(); i++)
+        {
+            bool isGone = !collectedRegions.exists(oldRegionNames[i]);
+            RegionInfo@ oldRegionInfo = findRegion(this.workBufferRegions, oldRegionNames[i]);
+            if (isGone && oldRegionInfo.isFolded)
+            {
+                oldRegionInfo.isOrphan = true;
+            }
+        }
+        
+        // Find regions that were (re)created
+        array<string>@ newRegionNames = collectedRegions.getKeys();
+        for (uint i = 0; i < newRegionNames.length(); i++)
+        {
+            RegionInfo@ newRegionInfo = findRegion(collectedRegions, newRegionNames[i]);
+            RegionInfo@ oldRegionInfo =findRegion(this.workBufferRegions, newRegionNames[i]);
+            if (@oldRegionInfo == null)
+            {
+                this.workBufferRegions[newRegionNames[i]] = newRegionInfo;
+            }
+            else
+            {
+                oldRegionInfo.regionBodyStartOffset = newRegionInfo.regionBodyStartOffset;
+                oldRegionInfo.isOrphan = false;
+            }
+        }
     }
  
     private void analyzeMessages() // helper for `analyzeLines()`
@@ -1281,9 +1496,9 @@ class ScriptEditorTab
             string msgText = string(this.messages[i]['message']);
             int lineIdx = msgRow-1;
             // workaround: clamp the msgRow to known line count
-            if (lineIdx >= bufferLinesMeta.length())
+            if (lineIdx >= int(bufferLinesMeta.length()))
             {
-                lineIdx = bufferLinesMeta.length() - 1;
+                lineIdx = int(bufferLinesMeta.length()) - 1;
             }
             
             // update line stats
@@ -1321,7 +1536,7 @@ class ScriptEditorTab
             this.autosaveResult = (result)?1:-1;
             this.autosaveTimeCounterSec -= autoSaveIntervalSec; // don't miss a millisecond!
         }
-    } 
+    }
 
     void drawAutosaveStatusbar()
     {    
@@ -1334,9 +1549,72 @@ class ScriptEditorTab
                 /*overlay: */''+formatFloat(autoSaveIntervalSec-this.autosaveTimeCounterSec, "", 3, 1)+'sec');
         ImGui::PopStyleColor(1); // ImGuiCol_FrameBg    
     }
-    
-    void autoIndentBuffer()
+ 
+    void handleRequests(float dt)
     {
+        if (this.requestFoldRegion != "")
+        {
+            this.foldRegionInternal(this.requestFoldRegion);
+            this.requestFoldRegion = "";
+        }
+        else if (this.requestUnFoldRegion != "")
+        {
+            game.log("DBG requestUnFoldRegion: '"+ this.requestUnFoldRegion+"'");
+            this.unFoldRegionInternal(this.requestUnFoldRegion); 
+            this.requestUnFoldRegion = "";            
+        }
+        else if (this.requestFoldAll)
+        {
+            this.foldAllRegionsInternal();
+            this.requestFoldAll = false;
+        }
+        else if (this.requestUnFoldAll)
+        {
+            game.log("DBG requestUnfoldAll:"+this.requestUnFoldAll);
+            this.unFoldAllRegionsInternal();
+            this.requestUnFoldAll = false;
+        }
+        if (this.requestIndentBuffer)
+        {
+            this.indentBufferInternal();
+            this.requestIndentBuffer = false;
+        }    
+        if (this.requestSaveFile)
+        {
+            this.saveFileInternal();
+            this.requestSaveFile = false;
+        }       
+    }
+ 
+    private void saveFileInternal() // Do not invoke while drawing! use `requestSaveFile`
+    {      
+        game.log ("DBG saveFileInternal");
+        // perform auto-indenting if desired
+        if (autoIndentOnSave)
+            this.indentBufferInternal(); // OK to call here - we're already handing a request.
+            
+        this.backUpRegionFoldStates();
+        this.unFoldAllRegionsInternal(); // OK to call here - we're already handling a request.
+    
+        // Write out the file
+        string strData = this.buffer.substr(0, this.totalChars);
+        bool savedOk = game.createTextResourceFromString(
+            strData, editorWindow.saveFileNameBuf, RGN_SCRIPTS, saveShouldOverwrite);
+        editorWindow.saveFileResult = savedOk ? 1 : -1;
+        if (savedOk)
+        {
+            editorWindow.addRecentScript(editorWindow.saveFileNameBuf);    
+        }
+            
+        this.restoreRegionFoldStates();
+    }
+    
+    private void indentBufferInternal() // Do not invoke while drawing! use `requestIndentBuffer`
+    {
+        game.log("DBG indentBufferInternal");
+        this.backUpRegionFoldStates();
+        this.unFoldAllRegionsInternal();
+    
         string stagingBuffer;
         for (uint i = 0; i < bufferLinesMeta.length(); i++)
         {
@@ -1366,7 +1644,85 @@ class ScriptEditorTab
         
         // Update the lines metainfo
         this.analyzeBuffer();
+        
+        this.restoreRegionFoldStates(); // restore backup
+        this.requestIndentBuffer = false;
     }
+    
+    private void foldAllRegionsInternal() // do NOT invoke during drawing! use `requestFoldAll`
+    {
+        array<string> regionNames = this.workBufferRegions.getKeys();
+        for (uint i=0; i < regionNames.length(); i++)
+        {
+            this.foldRegionInternal(regionNames[i]);
+        }
+        
+    }    
+    
+    private void unFoldAllRegionsInternal() //  do NOT invoke during drawing! use `requestUnFoldAll`
+    {
+        game.log("DBG unFoldAllRegionsInternal()");
+        array<string> regionNames = this.workBufferRegions.getKeys();
+        for (uint i=0; i < regionNames.length(); i++)
+        {
+            this.unFoldRegionInternal(regionNames[i]);
+        }
+        this.requestUnFoldAll = false;
+    }
+    
+    private void foldRegionInternal(string regionName)  // do NOT invoke during drawing! use `foldRegionRequested`
+    {    
+        RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionName);
+        game.log("DBG foldRegionInternal() regionName='"+regionName+"', regionInfo:"+(@regionInfo == null ? "null" : 
+            "NumChars:"+regionInfo.regionBodyNumChars+", isFolded:"+regionInfo.isFolded+", regionBodyStartOffset:"+regionInfo.regionBodyStartOffset+", regionBodyNumChars:"+regionInfo.regionBodyNumChars));
+        if (@regionInfo != null && !regionInfo.isFolded) // sanity check - this means `#endregion` isn't available
+        {
+            regionInfo.foldedOffText = this.buffer.substr(regionInfo.regionBodyStartOffset, regionInfo.regionBodyNumChars);
+            this.buffer.erase(regionInfo.regionBodyStartOffset, regionInfo.regionBodyNumChars);
+            regionInfo.isFolded = true;
+            this.analyzeLines();
+        }
+    }
+    
+    private void unFoldRegionInternal(string regionName) //  do NOT invoke during drawing! use `unFoldRegionRequested`
+    {
+        RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionName);
+        game.log("DBG unFoldRegionInternal() regionName='"+regionName+"', regionInfo:"+(@regionInfo == null ? "null" :
+            "NumChars:"+regionInfo.regionBodyNumChars+", isFolded:"+regionInfo.isFolded+", regionBodyStartOffset:"+regionInfo.regionBodyStartOffset+", regionBodyNumChars:"+regionInfo.regionBodyNumChars));
+        if (@regionInfo != null && regionInfo.isFolded) // sanity check - this means `#endregion` isn't available
+        {
+            this.buffer.insert(regionInfo.regionBodyStartOffset, regionInfo.foldedOffText);
+            regionInfo.foldedOffText = "";
+            regionInfo.isFolded = false;
+            this.analyzeLines();
+        }
+    }
+
+    private void backUpRegionFoldStates()
+    {
+        array<string> regionNames = this.workBufferRegions.getKeys();
+        for (uint i=0; i < regionNames.length(); i++)
+        {
+            RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionNames[i]);
+            if (@regionInfo != null)
+            {
+                regionInfo.isFoldedBackup = regionInfo.isFolded;
+            }
+        }        
+    }
+    
+    private void restoreRegionFoldStates()
+    {
+        array<string> regionNames = this.workBufferRegions.getKeys();
+        for (uint i=0; i < regionNames.length(); i++)
+        {
+            RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionNames[i]);
+            if (@regionInfo != null)
+            {
+                regionInfo.isFolded = regionInfo.isFoldedBackup;
+            }
+        }        
+    }    
 }
 
 
@@ -1384,10 +1740,10 @@ class ExceptionsPanel
         else { return numLinesDrawn*ImGui::GetTextLineHeight() + 12; }
     }
 
-    void onEventExceptionCaught(int nid, string arg5, string arg6, string arg7)
+    void onEventExceptionCaught(int nid, string arg5_from, string arg6_type, string arg7_msg)
     {
         // format: FROM >> MSG (TYPE)
-        string desc=arg5+' --> '+arg7 +' ('+arg6+')';
+        string desc=arg5_from+' --> '+arg7_msg +' ('+arg6_type+')';
         this.addExceptionInternal(nid, desc);
     }
     
@@ -1396,6 +1752,13 @@ class ExceptionsPanel
         // format: FROM >> MSG (line: LINENUM)
         string desc = arg5_from+"() --> "+arg6_msg+" (line: "+arg3_linenum+")";
         this.addExceptionInternal(nid, desc);
+        
+        if (killScriptOnAngelscriptException)
+        {
+            dictionary@ scriptInfo = game.getScriptDetails(nid);
+            game.log("ScriptEditor: Killing script '"+string(scriptInfo['scriptName'])+"' (NID "+nid+") because it triggered an AngelScript exception; you can disable this behavior in top menu 'Tools/Settings'.");
+            game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, { {'id', nid} });
+        }        
     }
     
     void addExceptionInternal(int nid, string desc)
@@ -1453,6 +1816,19 @@ class ExceptionsPanel
 
 } // class ExceptionsPanel
 
+// Code folding with `#region`/`#endregion`
+class RegionInfo
+{
+    int regionLineCount;
+    int regionBodyStartOffset;
+    int regionBodyNumChars;
+    
+    bool isFolded;
+    bool isOrphan; // Not currently present in document, still checked for uniqueness. If re-entered as empty (no lines), can be unFolded. If conflicting, user gets notified by '{ }' invalid state marker.
+    string foldedOffText;
+    bool isFoldedBackup; // For temporary unfolding all during saving/indenting/running the buffer; use `backUpRegionFoldStates()` and `restoreRegionFoldStates()`.
+}
+
 /// Represents a pre-defined group of scripts to be displayed in menus.
 class ScriptIndexerRecord
 {
@@ -1506,6 +1882,35 @@ class ScriptIndexerRecord
     }    
 } // class ScriptIndexerRecord
 
+// Helpers
+bool isChar(uint c, string s)
+{
+    return s.length() > 0 && c == s[0];
+}
+
+bool isCharBlank(uint c)
+{
+    return isChar(c, " ") || isChar(c, "\t");
+}
+
+string trimLeft(string s)
+{
+    for (uint i = 0; i < s.length(); i++)
+    {
+        if (!isCharBlank(s[i]))
+            return s.substr(i, s.length() - i);
+    }
+    return "";
+}
+
+RegionInfo@ findRegion(dictionary@ regionDict, string name) // Helper which checks first (not inserting NULL entry)
+{
+    if (regionDict.exists(name))
+        return cast<RegionInfo>(regionDict[name]);
+    else
+        return null;
+}
+
 // Tutorial scripts 
 // -----------------
 // using 'heredoc' syntax; see https://www.angelcode.com/angelscript/sdk/docs/manual/doc_datatypes_strings.html
@@ -1514,6 +1919,7 @@ const string TUT_SCRIPT =
 """
 // TUTORIAL SCRIPT - Shows the basics, step by step:
 // how to store data and update/draw them every frame.
+// (also showcases code folding with '#[end]region')
 // ===================================================
 
 // total time in seconds
@@ -1525,12 +1931,15 @@ void frameStep(float dt)
     // accumulate time
     tt += dt;
     
-    // format the output 
+    //#region format the output 
     string ttStr = "Total time: " + formatFloat(tt, "", 5, 2) + "sec";
     string dtStr = "Delta time: " + formatFloat(dt, "", 7, 4) + "sec";
+    //#endregion
     
-    // draw the output to implicit window titled "Debug"
+    //#region render the output
+    // Note this will open an implicit window titled "Debug"
     ImGui::Text(ttStr);
     ImGui::Text(dtStr);
+    //#endregion
 }
 """;
