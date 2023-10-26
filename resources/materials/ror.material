@@ -1901,26 +1901,82 @@ material tracks/abflame
 	}
 }
 
+vertex_program SkyHLSLVertex hlsl
+{
+    source SkyHLSL.vert
+    entry_point mainVP
+    target vs_3_0
+
+    default_params
+    {
+        param_named_auto worldViewProj worldviewproj_matrix
+    }
+}
+
+fragment_program SkyHLSLFragment hlsl
+{
+    source SkyHLSL.frag
+    entry_point mainFP
+    target ps_3_0
+}
+
+vertex_program SkyGLSLVertex glsl
+{
+    source SkyGLSL.vert
+
+    default_params
+    {
+        param_named_auto worldViewProj worldviewproj_matrix
+    }
+}
+
+fragment_program SkyGLSLFragment glsl
+{
+    source SkyGLSL.frag
+}
+
+vertex_program SkyVS unified
+{
+    delegate SkyHLSLVertex
+    delegate SkyGLSLVertex
+}
+
+fragment_program SkyFS unified
+{
+    delegate SkyHLSLFragment
+    delegate SkyGLSLFragment
+}
 
 material tracks/skyboxcol
 {
-	receive_shadows off
-	technique
-	{
-		pass
-		{
-			fog_override true
-			lighting off
-			depth_write off
-//			depth_check off
+    technique
+    {
+        pass
+        {
+	    receive_shadows off
+            lighting off
+            depth_write off
+            depth_check off
 
-			texture_unit
-			{
-				cubic_texture cloudy_noon.dds separateUV
-				tex_address_mode clamp
-			}
-		}
-	}
+            vertex_program_ref SkyVS
+            {
+            }
+            fragment_program_ref SkyFS
+            {
+                param_named_auto iTime time
+                param_named_auto iResolution_x viewport_width
+                param_named_auto iResolution_y viewport_height
+
+                param_named sun_size float 1.0
+                param_named sky_yaw float 1.0
+                param_named sky_pitch float 1.0
+                param_named sky_roll float 1.0
+                param_named sky_fov float 60.0
+                param_named cloud_density float 0.0
+                param_named sky_light float 0.7
+            }
+        }
+    }
 }
 
 material Sky/EarlyMorning

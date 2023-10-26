@@ -1197,6 +1197,39 @@ void GameContext::UpdateSimInputEvents(float dt)
 
 void GameContext::UpdateSkyInputEvents(float dt)
 {
+  if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::BASIC)
+  {
+      float light = App::GetGuiManager()->TopMenubar.sky_light;
+      Ogre::MaterialPtr sky_material = Ogre::MaterialManager::getSingleton().getByName("tracks/skyboxcol", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+      Ogre::GpuProgramParametersSharedPtr sky_params = sky_material->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
+
+      if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME))
+      {
+          light += 0.001;
+      }
+      else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME))
+      {
+          light -= 0.001;
+      }
+      if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_INCREASE_TIME_FAST))
+      {
+          light += 0.01;
+      }
+      else if (RoR::App::GetInputEngine()->getEventBoolValue(EV_SKY_DECREASE_TIME_FAST))
+      {
+          light -= 0.01;
+      }
+
+      if (App::GetGuiManager()->TopMenubar.sky_light != light && light >= 0.0 && light <= 1.0)
+      {
+          App::GetGuiManager()->TopMenubar.sky_light = light;
+          sky_params->setNamedConstant("sky_light", light);
+          sky_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(sky_params);
+          App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(light, light, light));
+          App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, fmt::format("Ambient light set to {:.1f}", light), "lightbulb.png");
+      }
+}
+
 #ifdef USE_CAELUM
     if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM &&
         m_terrain->getSkyManager())
