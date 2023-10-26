@@ -92,6 +92,11 @@ public:
     int ai_times_prev = 1;
     int ai_mode_prev = 0;
 
+    // Sky
+    float sun_size = 1.0;
+    float cloud_density = 0.0;
+    float sky_light = 0.7;
+
     void Refresh(std::string payload);
 
 private:

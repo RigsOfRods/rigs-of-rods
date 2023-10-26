@@ -42,6 +42,7 @@
 
 #include <Terrain/OgreTerrainPaging.h>
 #include <Terrain/OgreTerrainGroup.h>
+#include <OgreRectangle2D.h>
 
 #include <algorithm>
 
@@ -281,17 +282,24 @@ void RoR::Terrain::initSkySubSystem()
     }
     else
     {
+        // Create background rectangle covering the whole screen
+        Rectangle2D* rect = new Rectangle2D(true);
+        rect->setCorners(-1.0, 1.0, 1.0, -1.0);
 
-        if (!m_def.cubemap_config.empty())
-        {
-            // use custom
-            App::GetGfxScene()->GetSceneManager()->setSkyBox(true, m_def.cubemap_config, 100, true);
-        }
-        else
-        {
-            // use default
-            App::GetGfxScene()->GetSceneManager()->setSkyBox(true, "tracks/skyboxcol", 100, true);
-        }
+        Ogre::MaterialPtr ptr = Ogre::MaterialManager::getSingleton().getByName("tracks/skyboxcol");
+        rect->setMaterial(ptr);
+
+        // Render the background before everything else
+        rect->setRenderQueueGroup(RENDER_QUEUE_BACKGROUND);
+
+        // Use infinite AAB to always stay visible
+        AxisAlignedBox aabInf;
+        aabInf.setInfinite();
+        rect->setBoundingBox(aabInf);
+
+        // Attach background to the scene
+        SceneNode* node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("Background");
+        node->attachObject(rect);
     }
 }
 
@@ -310,6 +318,7 @@ void RoR::Terrain::initLight()
     else
     {
         // screw caelum, we will roll our own light
+        App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.7f, 0.7f, 0.7f)); // update survey map texture
 
         // Create a light
         m_main_light = App::GetGfxScene()->GetSceneManager()->createLight("MainLight");
