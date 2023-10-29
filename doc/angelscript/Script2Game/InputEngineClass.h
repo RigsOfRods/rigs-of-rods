@@ -16,6 +16,12 @@ namespace Script2Game {
 class InputEngineClass
 {
 public:
+
+    /**
+    * Set a permanent (you must also clear it!) override for an input event; Value can be between -1 and 1; Don't forget to reset back to 0!
+    */
+    void setEventSimulatedValue(inputEvents ev, float val);
+
     /**
      * @return full configuration string for given command, including the EXPL modifier.
      */
