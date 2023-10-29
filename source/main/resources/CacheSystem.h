@@ -199,6 +199,22 @@ struct CreateProjectRequest
     bool cpr_create_tuneup;          //!< Overrides project type to "tuneup", adds a .tuneup file only.
 };
 
+enum class ModifyProjectRequestType
+{
+    NONE,
+    TUNEUP_USE_ADDONPART_SET,
+    TUNEUP_USE_ADDONPART_RESET,
+    TUNEUP_REMOVE_PROP_SET,
+    TUNEUP_REMOVE_PROP_RESET,
+};
+
+struct ModifyProjectRequest
+{
+    ActorPtr mpr_target_actor;
+    ModifyProjectRequestType mpr_type = ModifyProjectRequestType::NONE;
+    std::string mpr_subject;
+};
+
 /// A content database
 /// MOTIVATION:
 ///    RoR users usually have A LOT of content installed. Traversing it all on every game startup would be a pain.
@@ -249,6 +265,7 @@ public:
     std::string ActorTypeToName(ActorType driveable);
 
     CacheEntryPtr CreateProject(CreateProjectRequest* request); //!< Creates subdirectory in 'My Games\Rigs of Rods\projects', pre-populates it with files and adds modcache entry.
+    void ModifyProject(ModifyProjectRequest* request);
 
 private:
 

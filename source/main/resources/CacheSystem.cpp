@@ -25,7 +25,7 @@
 
 #include "CacheSystem.h"
 
-#include <OgreException.h>
+#include "Actor.h"
 #include "Application.h"
 #include "SimData.h"
 #include "ContentManager.h"
@@ -46,6 +46,7 @@
 #include "TuneupFileFormat.h"
 #include "Utils.h"
 
+#include <OgreException.h>
 #include <OgreFileSystem.h>
 #include <OgreFileSystemLayer.h>
 #include <rapidjson/document.h>
@@ -1591,6 +1592,85 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
                 request->cpr_name, oex.getDescription()));
         return nullptr;
     }
+}
+
+void CacheSystem::ModifyProject(ModifyProjectRequest* request)
+{
+    CacheEntryPtr actor_entry = this->FindEntryByFilename(LT_AllBeam, /*partial=*/false, request->mpr_target_actor->getTruckFileName());
+    if (!actor_entry)
+    {
+        Str<500> msg; msg <<"Cannot modify project; actor '" << request->mpr_subject << "' not found in ModCache.";
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
+        return;
+    }
+
+    // Make sure the actor has a default .tuneup project assigned. If not, create it.
+    CacheEntryPtr tuneup_entry = request->mpr_target_actor->getUsedTuneup();
+    if (!tuneup_entry)
+    {
+        CreateProjectRequest req;
+        req.cpr_create_tuneup = true;
+        req.cpr_source_entry = actor_entry;
+        req.cpr_name = fmt::format("Tuned {}", request->mpr_target_actor->getTruckName());
+
+        tuneup_entry = App::GetCacheSystem()->CreateProject(&req); // Do it synchronously
+    }
+
+    switch (request->mpr_type)
+    {
+    case ModifyProjectRequestType::TUNEUP_USE_ADDONPART_SET:
+        // Add the addonpart to the TuneupDef document.
+        tuneup_entry->tuneup_def->use_addonparts.push_back(request->mpr_subject);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_USE_ADDONPART_RESET:
+        // Erase the addonpart from the TuneupDef document.
+        RoR::EraseIf(tuneup_entry->tuneup_def->use_addonparts, [request](const std::string& name) { return name == request->mpr_subject; });
+        break;
+    
+    case ModifyProjectRequestType::TUNEUP_REMOVE_PROP_SET:
+        // Add the prop to the 'remove_props' in TuneupDef document.
+        tuneup_entry->tuneup_def->remove_props.insert(request->mpr_subject);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_REMOVE_PROP_RESET:
+        // Erase the prop from 'remove_props' in the TuneupDef document.
+        tuneup_entry->tuneup_def->remove_props.erase(request->mpr_subject);
+        break;
+
+    default:
+        break;
+    }
+
+    // If this is the auto-generated tuneup, immediatelly update the .tuneup file (user-saved tuneups are only modified on demand).
+    if (tuneup_entry->categoryid == CID_TuneupsAuto)
+    {
+        Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(tuneup_entry->fname, tuneup_entry->resource_group, /*overwrite:*/true);
+        Str<200> header;
+        header 
+            << "// This is a '.tuneup' mod - it's similar to '.skin' mod but deals with '.addonpart' mods.\n"
+            << "// See https://github.com/RigsOfRods/rigs-of-rods/pull/3096#issuecomment-1783976601\n\n";
+        datastream->write(header.GetBuffer(), header.GetLength());
+        RoR::TuneupParser::ExportTuneup(datastream, tuneup_entry->tuneup_def);
+    }
+
+    // Create spawn request while actor still exists
+    // Note we don't use `ActorModifyRequest::Type::RELOAD` because we don't need the bundle reloaded.
+    ActorSpawnRequest* srq = new ActorSpawnRequest;
+    srq->asr_position     = Ogre::Vector3(request->mpr_target_actor->getPosition().x, request->mpr_target_actor->getMinHeight(), request->mpr_target_actor->getPosition().z);
+    srq->asr_rotation     = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(request->mpr_target_actor->getRotation()), Ogre::Vector3::UNIT_Y);
+    srq->asr_config       = request->mpr_target_actor->getSectionConfig();
+    srq->asr_skin_entry   = request->mpr_target_actor->getUsedSkin();
+    srq->asr_tuneup_entry = tuneup_entry;
+    srq->asr_cache_entry  = actor_entry;
+    srq->asr_debugview    = (int)request->mpr_target_actor->GetGfxActor()->GetDebugView();
+    srq->asr_origin       = ActorSpawnRequest::Origin::USER;
+
+    // Remove the actor
+    App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)new ActorPtr(request->mpr_target_actor)));
+
+    // Load our actor again, but only after it was deleted.
+    App::GetGameContext()->ChainMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));
 }
 
 size_t CacheSystem::Query(CacheQuery& query)

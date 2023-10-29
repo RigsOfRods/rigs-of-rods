@@ -837,8 +837,6 @@ struct ActorModifyRequest
         SOFT_RESET,
         RESTORE_SAVED,
         WAKE_UP,
-        INSTALL_ADDONPART_AND_RELOAD,
-        REMOVE_ADDONPART_AND_RELOAD,
     };
 
     ActorInstanceID_t   amr_actor = ACTORINSTANCEID_INVALID;// not ActorPtr because it's not thread-safe

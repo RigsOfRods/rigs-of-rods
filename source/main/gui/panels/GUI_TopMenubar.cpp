@@ -1458,7 +1458,6 @@ void TopMenubar::Update()
                     else
                     {
                         ImGui::TextDisabled(_LC("TopMenubar", "Used parts:"));     
-                        std::string remove_addonpart;
                         for (const std::string& addonpart: tuneup_entry->tuneup_def->use_addonparts)
                         {
                             ImGui::PushID(addonpart.c_str());
@@ -1466,7 +1465,11 @@ void TopMenubar::Update()
                             ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
                             if (ImGui::Button(" X "))
                             {
-                                remove_addonpart = addonpart;
+                                ModifyProjectRequest* req = new ModifyProjectRequest();
+                                req->mpr_type = ModifyProjectRequestType::TUNEUP_USE_ADDONPART_RESET;
+                                req->mpr_subject = addonpart;
+                                req->mpr_target_actor = actor;
+                                App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
                             }
                             ImGui::PopStyleColor();
                             ImGui::SameLine();
@@ -1474,43 +1477,73 @@ void TopMenubar::Update()
 
                             ImGui::PopID(); // addonpart.c_str()
                         }
+                    }
 
-                        if (remove_addonpart != "")
+                    if (ImGui::Button(_LC("TopMenubar", "Select parts")))
+                    {
+                        CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, actor->getTruckFileName());
+                        if (actor_entry && !actor_entry->deleted)
                         {
-                            ActorModifyRequest* req = new ActorModifyRequest();
-                            req->amr_actor = actor;
-                            req->amr_type = ActorModifyRequest::Type::REMOVE_ADDONPART_AND_RELOAD;
-                            req->amr_addonpart_fname = remove_addonpart;
-                            req->amr_addonpart = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, remove_addonpart);
-                            if (req->amr_addonpart)
-                            {
-                                App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, req));
-                            }
-                            else
-                            {
-                                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
-                                    fmt::format(_LC("TopMenubar", "Addon part '{}' not found (likely uninstalled). Removing from the part list.")));
-                            }                        
+                            Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+                            m.payload = new LoaderType(LT_AddonPart);
+                            m.description = actor_entry->guid;
+                            App::GetGameContext()->PushMessage(m);
+                        }
+                        else
+                        {
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
+                                fmt::format(_LC("TopMenubar", "Cannot add parts to '{}' - No valid mod cache entry"), actor->getTruckName()));
                         }
                     }
-                }
 
-                ImGui::Separator();
+                    ImGui::Separator();
 
-                if (ImGui::Button(_LC("TopMenubar", "Select parts")))
-                {
-                    CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, actor->getTruckFileName());
-                    if (actor_entry && !actor_entry->deleted)
+                    ImGui::TextDisabled(_LC("TopMenubar", "Default props:"));
+                    // First draw the removed props                    
+                    for (const std::string& meshname: tuneup_entry->tuneup_def->remove_props)
                     {
-                        Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
-                        m.payload = new LoaderType(LT_AddonPart);
-                        m.description = actor_entry->guid;
-                        App::GetGameContext()->PushMessage(m);
+                        ImGui::PushID(meshname.c_str());
+
+                        bool propEnabled = false;
+                        if (ImGui::Checkbox(meshname.c_str(), &propEnabled))
+                        {
+                            ModifyProjectRequest* req = new ModifyProjectRequest();
+                            req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_PROP_RESET;
+                            req->mpr_subject = meshname;
+                            req->mpr_target_actor = actor;
+                            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+                        }
+
+                        ImGui::PopID(); // meshname
                     }
-                    else
+                    // Then draw existing props (skip aero navlights and dashboard frankenprop)
+                    for (Prop const& p: actor->GetGfxActor()->getProps())
                     {
-                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
-                            fmt::format(_LC("TopMenubar", "Cannot add parts to '{}' - No valid mod cache entry"), actor->getTruckName()));
+                        if (p.pp_beacon_type == 'L' || p.pp_beacon_type == 'R' || p.pp_beacon_type == 'w')
+                        {
+                            continue; // skip special prop - aerial nav light
+                        }
+                        else if (p.pp_wheel_mesh_obj)
+                        {
+                            continue; // skip special prop: dashboard + dirwheel
+                        }
+                        else if (p.pp_mesh_obj->getLoadedMesh()) // Skip broken props
+                        {
+                            std::string meshname = p.pp_mesh_obj->getLoadedMesh()->getName();
+                            ImGui::PushID(meshname.c_str());
+
+                            bool propEnabled = true;
+                            if (ImGui::Checkbox(meshname.c_str(), &propEnabled))
+                            {
+                                ModifyProjectRequest* req = new ModifyProjectRequest();
+                                req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_PROP_SET;
+                                req->mpr_subject = meshname;
+                                req->mpr_target_actor = actor;
+                                App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+                            }
+
+                            ImGui::PopID(); // meshname
+                        }
                     }
                 }
             }
