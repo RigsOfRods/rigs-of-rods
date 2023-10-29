@@ -442,7 +442,10 @@ void SurveyMap::CreateTerrainTextures()
     mMapCenterOffset     = Ogre::Vector2::ZERO; // Reset, maybe new terrain was loaded
     if (mMapTexture)
     {
-        Ogre::TextureManager::getSingleton().unload(mMapTexture->getName(), mMapTexture->getGroup());
+        if (mMapTexture->getLoadingState() != Ogre::Resource::LoadingState::LOADSTATE_UNLOADED)
+        {
+            Ogre::TextureManager::getSingleton().unload(mMapTexture->getName(), mMapTexture->getGroup());
+        }
         Ogre::TextureManager::getSingleton().remove(mMapTexture->getName(), mMapTexture->getGroup());
         mMapTexture.setNull();
     }

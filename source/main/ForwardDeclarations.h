@@ -138,8 +138,9 @@ namespace RoR
     struct Terrn2Def;
     class  Terrn2Parser;
     struct Terrn2Telepoint;
-    class  TorqueCurve;
     class  ThreadPool;
+    class  TorqueCurve;
+    struct TuneupDef;
     class  VehicleAI;
     class  VideoCamera;
 
@@ -178,6 +179,7 @@ namespace RoR
     typedef RefCountingObjectPtr<SoundScriptInstance> SoundScriptInstancePtr;
     typedef RefCountingObjectPtr<SoundScriptTemplate> SoundScriptTemplatePtr;
     typedef RefCountingObjectPtr<Terrain> TerrainPtr;
+    typedef RefCountingObjectPtr<TuneupDef> TuneupDefPtr;
     typedef RefCountingObjectPtr<VehicleAI> VehicleAIPtr;
 
     typedef std::vector<ActorPtr> ActorPtrVec;

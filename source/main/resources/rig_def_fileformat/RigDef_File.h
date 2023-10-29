@@ -1468,11 +1468,12 @@ struct Wing
 
 struct Document
 {
-    struct Module // represents 'section/end_section'. FIXME: flawed (each module can belong to 1 config only), to be removed.
+    struct Module // represents 'section/end_section'. Also use by 'addonparts' system.
     {
         Module(Ogre::String const & name);
 
         Ogre::String name;
+        RoR::CacheEntryPtr origin_addonpart; //!< Addon parts are spawned as fake Modules, resources must be loaded from this group.
 
         std::vector<Airbrake>              airbrakes;
         std::vector<Animator>              animators;

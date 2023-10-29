@@ -29,25 +29,6 @@
 using namespace RoR;
 using namespace AngelScript;
 
-// Wrappers
-static std::string GenericDocContext_getTokString(GenericDocContext* reader, uint32_t offset)
-{
-    const char* val = reader->getTokString(offset);
-    return (val) ? val : "";
-}
-
-static std::string GenericDocContext_getTokKeyword(GenericDocContext* reader, uint32_t offset)
-{
-    const char* val = reader->getTokKeyword(offset);
-    return (val) ? val : "";
-}
-
-static std::string GenericDocContext_getTokComment(GenericDocContext* reader, uint32_t offset)
-{
-    const char* val = reader->getTokComment(offset);
-    return (val) ? val : "";
-}
-
 // Factories
 static GenericDocument* GenericDocumentFactory()
 {
@@ -106,11 +87,11 @@ void RoR::RegisterGenericFileFormat(asIScriptEngine* engine)
     engine->RegisterObjectMethod("GenericDocContextClass", "bool endOfFile(int offset = 0)", asMETHOD(GenericDocContext, endOfFile), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "TokenType tokenType(int offset = 0)", asMETHOD(GenericDocContext, tokenType), asCALL_THISCALL);
 
-    engine->RegisterObjectMethod("GenericDocContextClass", "string getTokString(int offset = 0)", asFUNCTION(GenericDocContext_getTokString), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("GenericDocContextClass", "string getTokString(int offset = 0)", asMETHOD(GenericDocContext, getTokString), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "float getTokFloat(int offset = 0)", asMETHOD(GenericDocContext, getTokFloat), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool getTokBool(int offset = 0)", asMETHOD(GenericDocContext, getTokBool), asCALL_THISCALL);
-    engine->RegisterObjectMethod("GenericDocContextClass", "string getTokKeyword(int offset = 0)", asFUNCTION(GenericDocContext_getTokKeyword), asCALL_CDECL_OBJFIRST);
-    engine->RegisterObjectMethod("GenericDocContextClass", "string getTokComment(int offset = 0)", asFUNCTION(GenericDocContext_getTokComment), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("GenericDocContextClass", "string getTokKeyword(int offset = 0)", asMETHOD(GenericDocContext, getTokKeyword), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocContextClass", "string getTokComment(int offset = 0)", asMETHOD(GenericDocContext, getTokComment), asCALL_THISCALL);
     
     engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokString(int offset = 0)", asMETHOD(GenericDocContext, isTokString), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokFloat(int offset = 0)", asMETHOD(GenericDocContext, isTokFloat), asCALL_THISCALL);

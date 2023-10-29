@@ -43,6 +43,7 @@
 #include "SkyXManager.h"
 #include "SoundScriptManager.h"
 #include "Terrain.h"
+#include "TuneupFileFormat.h"
 #include "Utils.h"
 #include "VehicleAI.h"
 #include "GUI_VehicleButtons.h"
@@ -187,6 +188,16 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         m_last_skin_selection  = rq.asr_skin_entry;
         m_last_section_config  = rq.asr_config;
 
+        // Check and attach auto-generated .tuneup, if it exists (if not, it will be created on-demand when using top menubar 'Tuning' menu).
+        CacheQuery query;
+        query.cqy_filter_type = LT_Tuneup;
+        query.cqy_filter_category_id = CID_TuneupsAuto;
+        query.cqy_filter_guid = rq.asr_cache_entry->guid;
+        if (App::GetCacheSystem()->Query(query) > 0)
+        {
+            rq.asr_tuneup_entry = query.cqy_results[0].cqr_entry;
+        }
+
         if (rq.asr_spawnbox == nullptr)
         {
             if (m_player_actor != nullptr)
@@ -220,12 +231,21 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         return nullptr; // Error already reported
     }
 
-    if (rq.asr_skin_entry != nullptr)
+    if (rq.asr_skin_entry)
     {
-        std::shared_ptr<SkinDef> skin_def = App::GetCacheSystem()->FetchSkinDef(rq.asr_skin_entry); // Make sure it exists
-        if (skin_def == nullptr)
+        App::GetCacheSystem()->LoadResource(rq.asr_skin_entry); // Also loads associated .skin file.
+        if (!rq.asr_skin_entry->skin_def) // Make sure .skin was loaded OK.
         {
             rq.asr_skin_entry = nullptr; // Error already logged
+        }
+    }
+
+    if (rq.asr_tuneup_entry)
+    {
+        App::GetCacheSystem()->LoadResource(rq.asr_tuneup_entry); // Also loads associated .tuneup file.
+        if (!rq.asr_tuneup_entry->tuneup_def) // Make sure .tuneup was loaded OK.
+        {
+            rq.asr_tuneup_entry = nullptr; // Error already logged
         }
     }
 
@@ -366,6 +386,7 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         srq->asr_rotation   = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(actor->getRotation()), Ogre::Vector3::UNIT_Y);
         srq->asr_config     = actor->getSectionConfig();
         srq->asr_skin_entry = actor->getUsedSkin();
+        srq->asr_tuneup_entry = actor->getUsedTuneup();
         srq->asr_cache_entry= entry;
         srq->asr_debugview  = (int)actor->GetGfxActor()->GetDebugView();
         srq->asr_origin     = ActorSpawnRequest::Origin::USER;
@@ -374,6 +395,56 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         this->PushMessage(Message(MSG_EDI_RELOAD_BUNDLE_REQUESTED, new CacheEntryPtr(entry)));
 
         // Load our actor again, but only after all actors are deleted.
+        this->ChainMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));
+    }
+    else if (rq.amr_type == ActorModifyRequest::Type::INSTALL_ADDONPART_AND_RELOAD)
+    {
+        CacheEntryPtr entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, actor->ar_filename);
+        if (!entry)
+        {
+            Str<500> msg; msg <<"Cannot reload vehicle; file '" << actor->ar_filename << "' not found in ModCache.";
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
+            return;
+        }
+
+        // Make sure the actor has a default .tuneup project assigned. If not, create it.
+        CacheEntryPtr tuneup_entry = actor->getUsedTuneup();
+        if (!tuneup_entry)
+        {
+            CreateProjectRequest req;
+            req.cpr_create_tuneup = true;
+            req.cpr_source_entry = entry;
+            req.cpr_name = fmt::format("Tuned {}", actor->getTruckName());
+
+            tuneup_entry = App::GetCacheSystem()->CreateProject(&req);
+        }
+
+        // Add the requested addonpart to the TuneupDef document.
+        tuneup_entry->tuneup_def->use_addonparts.push_back(rq.amr_addonpart->fname);
+
+        // If this is the auto-generated tuneup, immediatelly update the .tuneup file (user-saved tuneups are only modified on demand).
+        if (tuneup_entry->categoryid == CID_TuneupsAuto)
+        {
+            Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().openResource(tuneup_entry->fname, tuneup_entry->resource_group);
+            RoR::TuneupParser::ExportTuneup(datastream, tuneup_entry->tuneup_def);
+        }
+
+        // Create spawn request while actor still exists
+        // Note we don't use `ActorModifyRequest::Type::RELOAD` because we don't need the bundle reloaded.
+        ActorSpawnRequest* srq = new ActorSpawnRequest;
+        srq->asr_position     = Ogre::Vector3(actor->getPosition().x, actor->getMinHeight(), actor->getPosition().z);
+        srq->asr_rotation     = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(actor->getRotation()), Ogre::Vector3::UNIT_Y);
+        srq->asr_config       = actor->getSectionConfig();
+        srq->asr_skin_entry   = actor->getUsedSkin();
+        srq->asr_tuneup_entry = tuneup_entry;
+        srq->asr_cache_entry  = entry;
+        srq->asr_debugview    = (int)actor->GetGfxActor()->GetDebugView();
+        srq->asr_origin       = ActorSpawnRequest::Origin::USER;
+
+        // Remove the actor
+        this->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)new ActorPtr(actor)));
+
+        // Load our actor again, but only after it was deleted.
         this->ChainMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));
     }
 }
@@ -661,6 +732,17 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntryPtr entry, std::st
     bool spawn_now = false;
     switch (type)
     {
+    case LT_AddonPart:
+        if (m_player_actor)
+        {
+            ActorModifyRequest* req = new ActorModifyRequest();
+            req->amr_actor = m_player_actor->ar_instance_id;
+            req->amr_addonpart = entry;
+            req->amr_type = ActorModifyRequest::Type::INSTALL_ADDONPART_AND_RELOAD;
+            this->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, req));
+        }
+        break;
+
     case LT_Skin:
         if (entry != m_dummy_cache_selection)
         {

@@ -32,7 +32,6 @@
 #include "SimData.h"
 #include "FlexFactory.h"
 #include "FlexObj.h"
-#include "GfxActor.h"
 
 #include <OgreString.h>
 #include <string>
@@ -96,6 +95,7 @@ public:
     /// @name Processing
     /// @{
     void                           ConfigureSections(Ogre::String const & sectionconfig, RigDef::DocumentPtr def);
+    void                           ConfigureAddonParts(CacheEntryPtr& tuneup_entry);
     void                           ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef::DocumentPtr def);
     static void                    SetupDefaultSoundSources(ActorPtr const& actor);
     /// @}
@@ -189,7 +189,7 @@ private:
     void ProcessNode(RigDef::Node & def);
     void ProcessParticle(RigDef::Particle & def);
     void ProcessPistonprop(RigDef::Pistonprop & def);
-    void ProcessProp(RigDef::Prop & def);
+    void ProcessProp(RigDef::Prop & def, const std::string& override_rg = ""); //!< Resource group override is used with addonparts
     void ProcessRailGroup(RigDef::RailGroup & def);
     void ProcessRopable(RigDef::Ropable & def);
     void ProcessRope(RigDef::Rope & def);

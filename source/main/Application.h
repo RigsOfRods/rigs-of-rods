@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2022 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -273,7 +273,9 @@ enum LoaderType //!< Operation mode for GUI::MainSelector
     LT_Load,      // Script "load",      ext: load
     LT_Extension, // Script "extension", ext: trailer load
     LT_Skin,      // No script alias, invoked automatically
-    LT_AllBeam    // Invocable from GUI; Script "all",  ext: truck car boat airplane train load
+    LT_AllBeam,   // Invocable from GUI; Script "all",  ext: truck car boat airplane train load
+    LT_AddonPart, // No script alias, invoked manually, ext: addonpart
+    LT_Tuneup,    // No script alias, invoked manually, ext: tuneup
 };
 
 // ------------------------------------------------------------------------------------------------

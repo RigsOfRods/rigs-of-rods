@@ -26,6 +26,7 @@
 #include "RigDef_File.h"
 
 #include "Actor.h"
+#include "CacheSystem.h"
 #include "SimConstants.h"
 
 namespace RigDef

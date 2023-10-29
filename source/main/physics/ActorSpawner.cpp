@@ -28,6 +28,7 @@
 
 #include "ActorSpawner.h"
 
+#include "AddonPartFileFormat.h"
 #include "AppContext.h"
 #include "AirBrake.h"
 #include "Airfoil.h"
@@ -65,6 +66,7 @@
 #include "SoundScriptManager.h"
 #include "Terrain.h"
 #include "TorqueCurve.h"
+#include "TuneupFileFormat.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "Utils.h"
@@ -101,6 +103,39 @@ void ActorSpawner::ConfigureSections(Ogre::String const & sectionconfig, RigDef:
         else
         {
             this->AddMessage(Message::TYPE_WARNING, "Selected module not found: " + sectionconfig);
+        }
+    }
+}
+
+void ActorSpawner::ConfigureAddonParts(CacheEntryPtr& tuneup_entry)
+{
+    if (tuneup_entry)
+    {
+        App::GetCacheSystem()->LoadResource(tuneup_entry);
+        ROR_ASSERT(tuneup_entry->resource_group != "");
+        ROR_ASSERT(tuneup_entry->tuneup_def != nullptr);
+
+        for (const std::string& addonpart: tuneup_entry->tuneup_def->use_addonparts)
+        {
+            CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, addonpart);
+            if (addonpart_entry)
+            {
+                AddonPartParser parser;
+                auto module = parser.TransformToRigDefModule(addonpart_entry);
+                if (module)
+                {
+                    m_selected_modules.push_back(module);
+                    LOG(" == ActorSpawner: Addon part added to configuration: " + addonpart);
+                }
+                else
+                {
+                    this->AddMessage(Message::TYPE_WARNING, fmt::format(_L("Could not load addon part '{}' (file '{}')", addonpart_entry->dname, addonpart_entry->fname)));
+                }
+            }
+            else
+            {
+                this->AddMessage(Message::TYPE_WARNING, fmt::format(_L("Requested addon part '{}' is not installed", addonpart_entry->dname, addonpart_entry->fname)));
+            }
         }
     }
 }
@@ -1515,8 +1550,16 @@ void ActorSpawner::ProcessMinimass(RigDef::Minimass & def)
     m_actor->ar_minimass_skip_loaded_nodes = (def.option == RigDef::MinimassOption::l_SKIP_LOADED);
 }
 
-void ActorSpawner::ProcessProp(RigDef::Prop & def)
+void ActorSpawner::ProcessProp(RigDef::Prop & def, const std::string& override_rg /*= ""*/)
 {
+    // Check if removed via .tuneup
+    CacheEntryPtr& tuneup_entry = m_actor->getUsedTuneup();
+    if (tuneup_entry && tuneup_entry->tuneup_def->remove_props.find(def.mesh_name) != tuneup_entry->tuneup_def->remove_props.end())
+    {
+        LOG(fmt::format("{}: Prop '{}' removed by tuneup '{}'", m_actor->ar_filename, def.mesh_name, tuneup_entry->fname));
+        return;
+    }
+
     RoR::Prop prop;
     int prop_index = static_cast<int>(m_actor->m_gfx_actor->m_props.size());
 
@@ -1571,9 +1614,10 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         prop.pp_wheel_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         prop.pp_wheel_pos = steering_wheel_offset;
         const std::string instance_name = this->ComposeName("SteeringWheelPropEntity", prop_index);
+        const std::string& resource_group = (override_rg != "") ? override_rg : m_custom_resource_group;
         prop.pp_wheel_mesh_obj = new MeshObject(
             def.special_prop_dashboard.mesh_name,
-            m_custom_resource_group,
+            resource_group,
             instance_name,
             prop.pp_wheel_scene_node
             );
