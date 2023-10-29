@@ -34,7 +34,11 @@ void registerInputEngineObject(asIScriptEngine* engine)
     int result = 0;
 
     result = engine->RegisterObjectType("InputEngineClass", sizeof(InputEngine), asOBJ_REF | asOBJ_NOCOUNT); ROR_ASSERT(result>=0);
+
+    // > Input processing
+    result = engine->RegisterObjectMethod("InputEngineClass", "void setEventSimulatedValue(inputEvents ev, float value)", asMETHOD(InputEngine,setEventSimulatedValue), asCALL_THISCALL); ROR_ASSERT(result>=0);
     
+    // > Event info
     result = engine->RegisterObjectMethod("InputEngineClass", "string getEventCommand(inputEvents ev)", asMETHOD(InputEngine,getEventCommand), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("InputEngineClass", "string getEventCommandTrimmed(inputEvents ev)", asMETHOD(InputEngine,getEventCommandTrimmed), asCALL_THISCALL); ROR_ASSERT(result>=0);
 
@@ -42,6 +46,7 @@ void registerInputEngineObject(asIScriptEngine* engine)
 //    result = engine->RegisterObjectMethod("InputEngineClass", "bool isKeyDown(int keycode)", asMETHOD(InputEngine,isKeyDown), asCALL_THISCALL); ROR_ASSERT(result>=0);
 //    result = engine->RegisterObjectMethod("InputEngineClass", "bool isKeyDownEffective(int keycode)", asMETHOD(InputEngine,isKeyDownEffective), asCALL_THISCALL); ROR_ASSERT(result>=0);
 
+    // > Event states
     result = engine->RegisterObjectMethod("InputEngineClass", "bool getEventBoolValue(inputEvents ev)", asMETHOD(InputEngine,getEventBoolValue), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("InputEngineClass", "bool getEventBoolValueBounce(inputEvents ev, float time = 0.2f)", asMETHOD(InputEngine,getEventBoolValueBounce), asCALL_THISCALL); ROR_ASSERT(result>=0);    
 }
