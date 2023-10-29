@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -702,6 +702,11 @@ void InputEngine::setEventSimulatedValue(RoR::events eventID, float value)
     event_values_simulated[eventID] = value;
 }
 
+void InputEngine::setEventStatusSupressed(RoR::events eventID, bool supress)
+{
+    event_states_supressed[eventID] = supress;
+}
+
 bool InputEngine::getEventBoolValue(int eventID)
 {
     return (getEventValue(eventID) > 0.5f);
@@ -908,6 +913,9 @@ float InputEngine::getEventValue(int eventID, bool pure, InputSourceType valueSo
     const float simulatedValue = event_values_simulated[eventID];
     if (simulatedValue != 0.f)
         return simulatedValue;
+
+    if (event_states_supressed[eventID])
+        return 0.f;
 
     float returnValue = 0;
     std::vector<event_trigger_t> t_vec = events[eventID];
@@ -1198,7 +1206,8 @@ void InputEngine::addEvent(int eventID)
     if (events.find(eventID) == events.end())
     {
         events[eventID] = std::vector<event_trigger_t>();
-        event_values_simulated[eventID] = false;
+        event_values_simulated[eventID] = 0.f;
+        event_states_supressed[eventID] = false;
     }
 }
 
