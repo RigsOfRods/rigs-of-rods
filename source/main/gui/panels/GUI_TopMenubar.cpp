@@ -41,6 +41,7 @@
 #include "Replay.h"
 #include "SkyManager.h"
 #include "Terrain.h"
+#include "TuneupFileFormat.h"
 #include "Water.h"
 #include "ScriptEngine.h"
 #include "Console.h"
@@ -129,11 +130,12 @@ void TopMenubar::Update()
     std::string settings_title =    _LC("TopMenubar", "Settings");
     std::string tools_title =       _LC("TopMenubar", "Tools");
     std::string ai_title =          _LC("TopMenubar", "Vehicle AI");
+    std::string tuning_title =      _LC("TopMenubar", "Tuning");
 
-    int NUM_BUTTONS = 5;
+    int NUM_BUTTONS = 6;
     if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
     {
-        NUM_BUTTONS = 6;
+        NUM_BUTTONS = 7;
     }
 
     float menubar_content_width =
@@ -143,7 +145,8 @@ void TopMenubar::Update()
         ImGui::CalcTextSize(actors_title.c_str()).x +
         ImGui::CalcTextSize(savegames_title.c_str()).x +
         ImGui::CalcTextSize(settings_title.c_str()).x +
-        ImGui::CalcTextSize(tools_title.c_str()).x;
+        ImGui::CalcTextSize(tools_title.c_str()).x +
+        ImGui::CalcTextSize(tuning_title.c_str()).x;
 
     if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
     {
@@ -183,9 +186,20 @@ void TopMenubar::Update()
         m_open_menu = TopMenu::TOPMENU_SIM;
     }
 
+    ImGui::SameLine();    
+
+    // The 'Tuning' button
+    ImVec2 tuning_cursor = ImGui::GetCursorPos();
+    ImGui::Button(tuning_title.c_str());
+    if ((m_open_menu != TopMenu::TOPMENU_TUNING) && ImGui::IsItemHovered())
+    {
+        m_open_menu = TopMenu::TOPMENU_TUNING;
+    }
+
+    ImGui::SameLine();    
+
     // The 'AI' button
     ImVec2 ai_cursor = ImVec2(0, 0);
-
     if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
     {
         ImGui::SameLine();
@@ -1399,6 +1413,108 @@ void TopMenubar::Update()
             }
 
             ImGui::PopItemWidth();
+            m_open_menu_hoverbox_min = menu_pos;
+            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();
+            App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
+            ImGui::End();
+        }
+        break;
+
+    case TopMenu::TOPMENU_TUNING:
+        menu_pos.y = window_pos.y + tuning_cursor.y + MENU_Y_OFFSET;
+        menu_pos.x = tuning_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
+        ImGui::SetNextWindowPos(menu_pos);
+        if (ImGui::Begin(_LC("TopMenubar", "Tuning menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+        {
+            const ActorPtr& actor = App::GetGameContext()->GetPlayerActor();
+            if (!actor)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
+                ImGui::Text("%s", _LC("TopMenubar", "You are on foot."));
+                ImGui::Text("%s", _LC("TopMenubar", "Enter a vehicle to tune it."));
+                ImGui::PopStyleColor();
+            }
+            else
+            {           
+                CacheEntryPtr& tuneup_entry = actor->getUsedTuneup();
+                if (!tuneup_entry)
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
+                    ImGui::Text(_LC("TopMenubar", "Not tuned yet."));
+                    ImGui::PopStyleColor();
+                }
+                else
+                {
+                    App::GetCacheSystem()->LoadResource(tuneup_entry);
+                    ROR_ASSERT(tuneup_entry->resource_group != "");
+                    ROR_ASSERT(tuneup_entry->tuneup_def != nullptr);
+                    if (tuneup_entry->tuneup_def->use_addonparts.size() == 0)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
+                        ImGui::Text(_LC("TopMenubar", "No addon parts."));
+                        ImGui::PopStyleColor();
+                    }
+                    else
+                    {
+                        ImGui::TextDisabled(_LC("TopMenubar", "Used parts:"));     
+                        std::string remove_addonpart;
+                        for (const std::string& addonpart: tuneup_entry->tuneup_def->use_addonparts)
+                        {
+                            ImGui::PushID(addonpart.c_str());
+
+                            ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
+                            if (ImGui::Button(" X "))
+                            {
+                                remove_addonpart = addonpart;
+                            }
+                            ImGui::PopStyleColor();
+                            ImGui::SameLine();
+                            ImGui::Text("%s", addonpart.c_str());
+
+                            ImGui::PopID(); // addonpart.c_str()
+                        }
+
+                        if (remove_addonpart != "")
+                        {
+                            ActorModifyRequest* req = new ActorModifyRequest();
+                            req->amr_actor = actor;
+                            req->amr_type = ActorModifyRequest::Type::REMOVE_ADDONPART_AND_RELOAD;
+                            req->amr_addonpart_fname = remove_addonpart;
+                            req->amr_addonpart = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, remove_addonpart);
+                            if (req->amr_addonpart)
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, req));
+                            }
+                            else
+                            {
+                                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                                    fmt::format(_LC("TopMenubar", "Addon part '{}' not found (likely uninstalled). Removing from the part list.")));
+                            }                        
+                        }
+                    }
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::Button(_LC("TopMenubar", "Select parts")))
+                {
+                    CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, actor->getTruckFileName());
+                    if (actor_entry && !actor_entry->deleted)
+                    {
+                        Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+                        m.payload = new LoaderType(LT_AddonPart);
+                        m.description = actor_entry->guid;
+                        App::GetGameContext()->PushMessage(m);
+                    }
+                    else
+                    {
+                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
+                            fmt::format(_LC("TopMenubar", "Cannot add parts to '{}' - No valid mod cache entry"), actor->getTruckName()));
+                    }
+                }
+            }
+
             m_open_menu_hoverbox_min = menu_pos;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth();
             m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight();

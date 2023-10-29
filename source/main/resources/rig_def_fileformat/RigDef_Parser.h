@@ -81,6 +81,10 @@ public:
 
     SequentialImporter* GetSequentialImporter() { return &m_sequential_importer; }
 
+    // Common for truckfiles and addonparts:
+    static void     ProcessForsetLine(RigDef::Flexbody& def, const std::string& line, int line_number = -1);
+    static Keyword  IdentifyKeyword(const std::string& line);
+
 private:
 
 // --------------------------------------------------------------------------
@@ -137,7 +141,6 @@ private:
     void ParseFlares3();
     void ParseFlexbody();
     void ParseFlexBodyWheel();
-    void ParseForset();
     void ParseFusedrag();
     void ParseGlobals();
     void ParseGuid();
@@ -192,7 +195,6 @@ private:
 
     void             ProcessCurrentLine();
     int              TokenizeCurrentLine();
-    Keyword          IdentifyKeywordInCurrentLine();
     bool             CheckNumArguments(int num_required_args);
     void             BeginBlock(RigDef::Keyword keyword);
     void             ProcessChangeModuleLine(Keyword keyword);
@@ -232,9 +234,6 @@ private:
     unsigned           ParseArgUint       (const char* str);
     unsigned           ParseArgUint       (const std::string& s);
     float              ParseArgFloat      (const std::string& s);
-
-    /// Keyword scan utility function. 
-    Keyword FindKeywordMatch(std::smatch& search_results);
 
     /// Adds a message to console
     void LogMessage(RoR::Console::MessageType type, std::string const& msg);

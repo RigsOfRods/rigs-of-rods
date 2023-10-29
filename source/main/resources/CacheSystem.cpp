@@ -33,6 +33,7 @@
 #include "GUI_LoadingWindow.h"
 #include "GUI_GameMainMenu.h"
 #include "GUIManager.h"
+#include "GenericFileFormat.h"
 #include "GfxActor.h"
 #include "GfxScene.h"
 #include "Language.h"
@@ -42,6 +43,7 @@
 #include "SkinFileFormat.h"
 #include "Terrain.h"
 #include "Terrn2FileFormat.h"
+#include "TuneupFileFormat.h"
 #include "Utils.h"
 
 #include <OgreFileSystem.h>
@@ -58,7 +60,7 @@ using namespace RoR;
 CacheEntry::CacheEntry() :
     addtimestamp(0),
     beamcount(0),
-    categoryid(0),
+    categoryid(CID_None),
     commandscount(0),
     custom_particles(false),
     customtach(false),
@@ -98,6 +100,11 @@ CacheEntry::CacheEntry() :
 {
 }
 
+CacheEntry::~CacheEntry()
+{
+    // Destructs `TuneupDefPtr` which is a `RefCountingObjectPtr<>` so it doesn't compile without `#include "TuneupFileFormat.h"` and thus should not be in header.
+}
+
 CacheQueryResult::CacheQueryResult(CacheEntryPtr entry, size_t score):
     cqr_entry(entry),
     cqr_score(score)
@@ -117,6 +124,8 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("load");
     m_known_extensions.push_back("train");
     m_known_extensions.push_back("skin");
+    m_known_extensions.push_back("addonpart");
+    m_known_extensions.push_back("tuneup");
 }
 
 void CacheSystem::LoadModCache(CacheValidity validity)
@@ -305,6 +314,12 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntryPtr &
     for (rapidjson::Value& j_module_name: j_entry["sectionconfigs"].GetArray())
     {
         out_entry->sectionconfigs.push_back(j_module_name.GetString());
+    }
+
+    // Addon part suggested mod guids
+    for (rapidjson::Value& j_addonguid: j_entry["addonpart_guids"].GetArray())
+    {
+        out_entry->addonpart_guids.insert(j_addonguid.GetString());
     }
 }
 
@@ -573,6 +588,14 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
     }
     j_entry.AddMember("sectionconfigs", j_sectionconfigs, j_doc.GetAllocator());
 
+    // Addon part details
+    rapidjson::Value j_addonguids(rapidjson::kArrayType);
+    for (std::string const & ag: entry->addonpart_guids)
+    {
+        j_addonguids.PushBack(rapidjson::StringRef(ag.c_str()), j_doc.GetAllocator());
+    }
+    j_entry.AddMember("addonpart_guids", j_addonguids, j_doc.GetAllocator());
+
     // Add entry to list
     j_entries.PushBack(j_entry, j_doc.GetAllocator());
 }
@@ -665,6 +688,22 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
             {
                 CacheEntryPtr entry = new CacheEntry();
                 FillSkinDetailInfo(entry, skin_def);
+                new_entries.push_back(entry);
+            }
+        }
+        else if (ext == "addonpart")
+        {
+            CacheEntryPtr entry = new CacheEntry();
+            FillAddonPartDetailInfo(entry, ds);
+            new_entries.push_back(entry);
+        }
+        else if (ext == "tuneup")
+        {
+            auto new_tuneups = RoR::TuneupParser::ParseTuneups(ds);
+            for (auto tuneup_def: new_tuneups)
+            {
+                CacheEntryPtr entry = new CacheEntry();
+                FillTuneupDetailInfo(entry, tuneup_def);
                 new_entries.push_back(entry);
             }
         }
@@ -1086,6 +1125,49 @@ void CacheSystem::FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinD
     entry->skin_def    = skin_def; // Needed to generate preview image
 }
 
+void CacheSystem::FillAddonPartDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds)
+{
+    GenericDocumentPtr doc = new GenericDocument();
+    BitMask_t options = GenericDocument::OPTION_ALLOW_SLASH_COMMENTS | GenericDocument::OPTION_ALLOW_NAKED_STRINGS;
+    doc->loadFromDataStream(ds, options);
+
+    GenericDocContextPtr ctx = new GenericDocContext(doc);
+    while (!ctx->endOfFile())
+    {
+        if (ctx->isTokKeyword() && ctx->getTokKeyword() == "addonpart_name")
+        {
+            entry->dname = ctx->getTokString(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "addonpart_description")
+        {
+            entry->description = ctx->getTokString(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "addonpart_guid")
+        {
+            entry->addonpart_guids.insert(ctx->getTokString(1));
+        }
+
+        ctx->seekNextLine();
+    }
+}
+
+void CacheSystem::FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneup_def)
+{
+    if (!tuneup_def->author_name.empty())
+    {
+        AuthorInfo a;
+        a.id = tuneup_def->author_id;
+        a.name = tuneup_def->author_name;
+        entry->authors.push_back(a);
+    }
+
+    entry->dname       = tuneup_def->name;
+    entry->guid        = tuneup_def->guid;
+    entry->description = tuneup_def->description;
+    entry->categoryid  = tuneup_def->category_id;
+    entry->tuneup_def  = tuneup_def; // Needed to generate preview image
+}
+
 bool CacheSystem::CheckResourceLoaded(Ogre::String & filename)
 {
     Ogre::String group = "";
@@ -1128,6 +1210,9 @@ bool CacheSystem::CheckResourceLoaded(Ogre::String & filename, Ogre::String& gro
 
 void CacheSystem::LoadResource(CacheEntryPtr& entry)
 {
+    if (!entry)
+        return;
+
     // Check if already loaded for this entry->
     if (entry->resource_group != "")
     {
@@ -1157,6 +1242,14 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
                 entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
             App::GetContentManager()->InitManagedMaterials(group);
         }
+        else if (entry->fext == "tuneup")
+        {
+            // This is a .tuneup bundle - use `inGlobalPool=false` to prevent resource name conflicts.
+            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
+            ResourceGroupManager::getSingleton().addResourceLocation(
+                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
+            App::GetContentManager()->InitManagedMaterials(group);
+        }
         else
         {
             // A vehicle bundle - use `inGlobalPool=false` to prevent resource name conflicts.
@@ -1171,9 +1264,19 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
             App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::MESHES, group);
         }
 
+        // Initialize resource group
         ResourceGroupManager::getSingleton().initialiseResourceGroup(group);
-
         entry->resource_group = group;
+
+        // Attach supplementary documents
+        if (entry->fext == "skin")
+        {
+            this->LoadAssociatedSkinDef(entry);
+        }
+        else if (entry->fext == "tuneup")
+        {
+            this->LoadAssociatedTuneupDef(entry);
+        }
 
         // Inform other entries sharing this bundle (i.e. '.skin' entries in vehicle bundles)
         for (CacheEntryPtr& i_entry: m_entries)
@@ -1242,11 +1345,19 @@ CacheEntryPtr CacheSystem::FetchSkinByName(std::string const & skin_name)
     return nullptr;
 }
 
-std::shared_ptr<SkinDef> CacheSystem::FetchSkinDef(CacheEntryPtr& cache_entry)
+void CacheSystem::LoadAssociatedSkinDef(CacheEntryPtr& cache_entry)
 {
+    // A .skin file defines multiple skins, so we need to locate and update all associated cache entries.
+    // --------------------------------------------------------------------------------------------------
+
+    if (!cache_entry)
+        return;
+    
+    ROR_ASSERT(cache_entry->resource_group != ""); // Must be already loaded
+
     if (cache_entry->skin_def != nullptr) // If already parsed, re-use
     {
-        return cache_entry->skin_def;
+        return;
     }
 
     try
@@ -1276,20 +1387,76 @@ std::shared_ptr<SkinDef> CacheSystem::FetchSkinDef(CacheEntryPtr& cache_entry)
             RoR::LogFormat("Definition of skin '%s' was not found in file '%s'",
                cache_entry->dname.c_str(), cache_entry->fname.c_str());
         }
-        return cache_entry->skin_def;
     }
     catch (Ogre::Exception& oex)
     {
         RoR::LogFormat("[RoR] Error loading skin file '%s', message: %s",
             cache_entry->fname.c_str(), oex.getFullDescription().c_str());
-        return nullptr;
     }
 }
 
-bool CacheSystem::CreateProject(CreateProjectRequest* request)
+void CacheSystem::LoadAssociatedTuneupDef(CacheEntryPtr& cache_entry)
+{
+    // A .tuneup file defines multiple tuneups, so we need to locate and update all associated cache entries.
+    // --------------------------------------------------------------------------------------------------
+
+    if (!cache_entry)
+        return;
+    
+    ROR_ASSERT(cache_entry->resource_group != ""); // Must be already loaded
+
+    if (cache_entry->tuneup_def != nullptr) // If already parsed, re-use
+    {
+        return;
+    }
+
+    try
+    {
+        App::GetCacheSystem()->LoadResource(cache_entry); // Load if not already
+        Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton()
+            .openResource(cache_entry->fname, cache_entry->resource_group);
+
+        auto new_tuneups = RoR::TuneupParser::ParseTuneups(ds); // Load the '.tuneup' file
+        for (auto def: new_tuneups)
+        {
+            for (CacheEntryPtr& entry: m_entries)
+            {
+                if (entry->resource_bundle_path == cache_entry->resource_bundle_path
+                    && entry->resource_bundle_type == cache_entry->resource_bundle_type
+                    && entry->fname == cache_entry->fname
+                    && entry->dname == def->name)
+                {
+                    entry->tuneup_def = def;
+                    entry->resource_group = cache_entry->resource_group;
+                }
+            }
+        }
+
+        if (cache_entry->tuneup_def == nullptr)
+        {
+            RoR::LogFormat("Definition of tuneup '%s' was not found in file '%s'",
+               cache_entry->dname.c_str(), cache_entry->fname.c_str());
+        }
+    }
+    catch (Ogre::Exception& oex)
+    {
+        RoR::LogFormat("[RoR] Error loading tuneup file '%s', message: %s",
+            cache_entry->fname.c_str(), oex.getFullDescription().c_str());
+    }
+}
+
+CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
 {
     try
     {
+        // Validate the request
+        if (!request->cpr_source_entry)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format(_LC("CacheSystem", "Cannot create project '{}' - no source mod specified!"), request->cpr_name));
+            return nullptr;
+        }
+
         // Make sure projects folder exists
         CreateFolder(App::sys_projects_dir->getStr());
 
@@ -1299,30 +1466,58 @@ bool CacheSystem::CreateProject(CreateProjectRequest* request)
         {
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
                 fmt::format(_LC("CacheSystem", "Project directory '{}' already exists!"), request->cpr_name));
-            return false;
+            return nullptr;
         }
         CreateFolder(project_path);
         if (!FolderExists(project_path))
         {
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
                 fmt::format(_LC("CacheSystem", "Project directory '{}' could not be created!"), request->cpr_name));
-            return false;
+            return nullptr;
         }
 
         // Create preliminary cache entry
         CacheEntryPtr project_entry = new CacheEntry();
-        project_entry->fext = (request->cpr_source_entry) ? request->cpr_source_entry->fext : request->cpr_ext; // Tell modcache what to do with it.
+        
+        if (request->cpr_create_tuneup)
+        {
+            project_entry->fext = "tuneup"; // Tell modcache what it is.
+            project_entry->categoryid = CID_TuneupsAuto; // For auto-loading on future spawns of the vehicle.
+        }
+        else
+        {
+            project_entry->fext = request->cpr_source_entry->fext; // Tell modcache what it is.
+            project_entry->categoryid = CID_Projects; // To list projects easily from cache
+        }
+        project_entry->categoryname = m_categories[project_entry->categoryid];
         project_entry->resource_bundle_type = "FileSystem"; // Tell modcache how to load it.
         project_entry->resource_bundle_path = project_path; // Tell modcache where to load it from.
         project_entry->fname = fmt::format("{}.{}", request->cpr_name, project_entry->fext); // Compose target mod filename
         project_entry->dname = request->cpr_name;
-        project_entry->categoryid = CID_Project; // To list projects easily from cache
-        project_entry->categoryname = "Projects";
         project_entry->number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
         this->LoadResource(project_entry); // This fills `entry.resource_group`
      
-        if (request->cpr_source_entry)
+        if (request->cpr_create_tuneup)
         {
+            // Tuneup projects don't contain any media, just the .tuneup file which lists addonparts to use.
+
+            // Prepare the .tuneup document
+            TuneupDefPtr tuneup = new TuneupDef();
+            tuneup->guid = request->cpr_source_entry->guid; // For lookup of tuneups for a vehicle.
+            tuneup->name = request->cpr_name;
+            tuneup->thumbnail = request->cpr_source_entry->filecachename;
+            tuneup->category_id = CID_TuneupsAuto;
+
+            // Write out the .tuneup file.
+            Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(project_entry->fname, project_entry->resource_group);
+            TuneupParser::ExportTuneup(datastream, tuneup);
+
+            // Attach the document to the entry in memory
+            project_entry->tuneup_def = tuneup;
+        }
+        else
+        {
+
             // Create temporary resource group with only the data we want.
             std::string temp_rg = "TempProjectSourceRG";
             // Apart from `Resources` and resource groups, OGRE also keeps `Archives` in `ArchiveManager`
@@ -1376,10 +1571,8 @@ bool CacheSystem::CreateProject(CreateProjectRequest* request)
                 /*oldPath:*/ PathCombine(project_path, request->cpr_source_entry->fname),
                 /*newPath:*/ PathCombine(project_path, project_entry->fname));
         }
-        else
-        {
-            // TBD... figure some system for project templates, or ideally example mods which users can build upon.
-        }
+
+
 
         // Add the new entry to database
         m_entries.push_back(project_entry);
@@ -1389,14 +1582,14 @@ bool CacheSystem::CreateProject(CreateProjectRequest* request)
             /*ints*/ MODCACHEACTIVITY_ENTRY_ADDED, project_entry->number, 0, 0,
             /*strings*/ project_entry->fname, project_entry->fext);
 
-        return true;
+        return project_entry;
     }
     catch (Ogre::Exception& oex)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
             fmt::format(_LC("CacheSystem", "Unexpected error creating project '{}', message: {}"),
                 request->cpr_name, oex.getDescription()));
-        return false;
+        return nullptr;
     }
 }
 
@@ -1407,9 +1600,14 @@ size_t CacheSystem::Query(CacheQuery& query)
     for (CacheEntryPtr& entry: m_entries)
     {
         // Filter by GUID
-        if (!query.cqy_filter_guid.empty() && entry->guid != query.cqy_filter_guid)
+        if (query.cqy_filter_guid != "")
         {
-            continue;
+            // Addon parts have `guid` empty
+            if ((entry->fext == "addonpart" && entry->addonpart_guids.count(query.cqy_filter_guid) == 0) ||
+                (entry->fext != "addonpart" && entry->guid != query.cqy_filter_guid))
+            {
+                continue;
+            }
         }
 
         // Filter by entry type
@@ -1418,6 +1616,10 @@ size_t CacheSystem::Query(CacheQuery& query)
             add = (query.cqy_filter_type == LT_Terrain);
         if (entry->fext == "skin")
             add = (query.cqy_filter_type == LT_Skin);
+        else if (entry->fext == "addonpart")
+            add = (query.cqy_filter_type == LT_AddonPart);
+        else if (entry->fext == "tuneup")
+            add = (query.cqy_filter_type == LT_Tuneup);
         else if (entry->fext == "truck")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck);
         else if (entry->fext == "car")

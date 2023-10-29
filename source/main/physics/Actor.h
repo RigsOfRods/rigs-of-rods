@@ -219,6 +219,8 @@ public:
     // not exported to scripting:
     CacheEntryPtr&    getUsedSkin();
     void              setUsedSkin(CacheEntryPtr& skin);
+    CacheEntryPtr&    getUsedTuneup();
+    void              setUsedTuneup(CacheEntryPtr& tuneup);
     bool              isPreloadedWithTerrain() const { return m_preloaded_with_terrain; };
     std::vector<authorinfo_t> getAuthors();
     std::vector<std::string>  getDescription();
@@ -567,6 +569,7 @@ private:
     float             m_dry_mass = 0.f;              //!< Physics attr;
     std::unique_ptr<Buoyance> m_buoyance;              //!< Physics
     CacheEntryPtr     m_used_skin_entry;               //!< Graphics
+    CacheEntryPtr     m_used_tuneup_entry;
     Skidmark*         m_skid_trails[MAX_WHEELS*2] = {};
     bool              m_antilockbrake = false;         //!< GUI state
     bool              m_tractioncontrol = false;       //!< GUI state

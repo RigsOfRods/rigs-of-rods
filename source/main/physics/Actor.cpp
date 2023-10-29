@@ -4328,6 +4328,7 @@ Actor::Actor(
     , ar_filename(rq.asr_filename)
     , m_section_config(rq.asr_config)
     , m_used_skin_entry(rq.asr_skin_entry)
+    , m_used_tuneup_entry(rq.asr_tuneup_entry)
 
     // Public bit flags
     , ar_update_physics(false)
@@ -4578,5 +4579,20 @@ std::string Actor::getTruckFileResourceGroup()
     return m_gfx_actor->GetResourceGroup();
 }
 
-    CacheEntryPtr&    Actor::getUsedSkin() { return m_used_skin_entry; }
-    void              Actor::setUsedSkin(CacheEntryPtr& skin) { m_used_skin_entry = skin; }
+CacheEntryPtr& Actor::getUsedSkin()
+{
+    return m_used_skin_entry;
+}
+void Actor::setUsedSkin(CacheEntryPtr& skin) 
+{
+    m_used_skin_entry = skin;
+}
+
+CacheEntryPtr& Actor::getUsedTuneup()
+{
+    return m_used_tuneup_entry;
+}
+void Actor::setUsedTuneup(CacheEntryPtr& tuneup) 
+{
+    m_used_tuneup_entry = tuneup;
+}

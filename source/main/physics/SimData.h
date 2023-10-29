@@ -809,6 +809,7 @@ struct ActorSpawnRequest
     Ogre::Quaternion    asr_rotation = Ogre::Quaternion::ZERO;
     collision_box_t*    asr_spawnbox = nullptr;
     CacheEntryPtr       asr_skin_entry;
+    CacheEntryPtr       asr_tuneup_entry;
     Origin              asr_origin = Origin::UNKNOWN;
     int                 asr_debugview = 0; //(int)DebugViewType::DEBUGVIEW_NONE;
     Ogre::UTFString     asr_net_username;
@@ -824,6 +825,9 @@ struct ActorSpawnRequest
 
 struct ActorModifyRequest
 {
+    ActorModifyRequest();
+    ~ActorModifyRequest();
+
     enum class Type
     {
         INVALID,
@@ -832,13 +836,17 @@ struct ActorModifyRequest
         RESET_ON_SPOT,
         SOFT_RESET,
         RESTORE_SAVED,
-        WAKE_UP
+        WAKE_UP,
+        INSTALL_ADDONPART_AND_RELOAD,
+        REMOVE_ADDONPART_AND_RELOAD,
     };
 
     ActorInstanceID_t   amr_actor = ACTORINSTANCEID_INVALID;// not ActorPtr because it's not thread-safe
     Type                amr_type;
     std::shared_ptr<rapidjson::Document>
                         amr_saved_state;
+    CacheEntryPtr       amr_addonpart; //!< Primary method of specifying cache entry.
+    std::string         amr_addonpart_fname; //!< Fallback method in case CacheEntry doesn't exist anymore - that means mod was uninstalled in the meantime. Used by REMOVE_ADDONPART_AND_RELOAD.
 };
 
 enum class ActorLinkingRequestType

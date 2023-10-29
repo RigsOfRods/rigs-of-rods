@@ -180,6 +180,7 @@ set(SOURCE_FILES
         physics/water/ScrewProp.{h,cpp}
         resources/CacheSystem.{h,cpp}
         resources/ContentManager.{h,cpp}
+        resources/addonpart_fileformat/AddonPartFileFormat.{h,cpp}
         resources/otc_fileformat/OTCFileFormat.{h,cpp}
         resources/odef_fileformat/ODefFileFormat.{h,cpp}
         resources/rig_def_fileformat/RigDef_File.{h,cpp}
@@ -193,6 +194,7 @@ set(SOURCE_FILES
         resources/skin_fileformat/SkinFileFormat.{h,cpp}
         resources/terrn2_fileformat/Terrn2FileFormat.{h,cpp}
         resources/tobj_fileformat/TObjFileFormat.{h,cpp}
+        resources/tuneup_fileformat/TuneupFileFormat.{h,cpp}
         system/AppCommandLine.cpp
         system/AppConfig.cpp
         system/Console.{h,cpp}
@@ -345,12 +347,14 @@ target_include_directories(${BINNAME} PRIVATE
         physics/utils
         physics/water
         resources
+        resources/addonpart_fileformat
         resources/odef_fileformat/
         resources/otc_fileformat/
         resources/rig_def_fileformat
         resources/skin_fileformat
         resources/terrn2_fileformat
         resources/tobj_fileformat
+        resources/tuneup_fileformat
         system
         scripting
         scripting/bindings

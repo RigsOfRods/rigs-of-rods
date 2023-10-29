@@ -31,6 +31,8 @@
 ///  - Strings cannot be multiline. Linebreak within string ends the string.
 ///  - KEYWORD tokens cannot start with a digit or special character.
 
+#pragma once
+
 #include "RefCountingObject.h"
 #include "RefCountingObjectPtr.h"
 #include "BitFlags.h"
@@ -109,11 +111,11 @@ struct GenericDocContext: public RefCountingObject<GenericDocContext>
     bool endOfFile(int offset = 0) const { return token_pos + offset >= doc->tokens.size(); }
     TokenType tokenType(int offset = 0) const { return !endOfFile(offset) ? doc->tokens[token_pos + offset].type : TokenType::NONE; }
 
-    const char* getTokString(int offset = 0) const { ROR_ASSERT(isTokString(offset)); return getStringData(offset); }
+    std::string getTokString(int offset = 0) const { ROR_ASSERT(isTokString(offset)); return getStringData(offset); }
     float getTokFloat(int offset = 0) const { ROR_ASSERT(isTokFloat(offset)); return getFloatData(offset); }
     bool getTokBool(int offset = 0) const { ROR_ASSERT(isTokBool(offset)); return getFloatData(offset) == 1.f; }
-    const char* getTokKeyword(int offset = 0) const { ROR_ASSERT(isTokKeyword(offset)); return getStringData(offset); }
-    const char* getTokComment(int offset = 0) const { ROR_ASSERT(isTokComment(offset)); return getStringData(offset); }
+    std::string getTokKeyword(int offset = 0) const { ROR_ASSERT(isTokKeyword(offset)); return getStringData(offset); }
+    std::string getTokComment(int offset = 0) const { ROR_ASSERT(isTokComment(offset)); return getStringData(offset); }
 
     bool isTokString(int offset = 0) const { return tokenType(offset) == TokenType::STRING; }
     bool isTokFloat(int offset = 0) const { return tokenType(offset) == TokenType::NUMBER; }
@@ -135,7 +137,7 @@ struct GenericDocContext: public RefCountingObject<GenericDocContext>
         
     // Not exported to script:
 
-    const char* getStringData(int offset = 0) const { return !endOfFile(offset) ? (doc->string_pool.data() + (uint32_t)doc->tokens[token_pos + offset].data) : nullptr; }
+    const char* getStringData(int offset = 0) const { return !endOfFile(offset) ? (doc->string_pool.data() + (uint32_t)doc->tokens[token_pos + offset].data) : ""; }
     float getFloatData(int offset = 0) const { return !endOfFile(offset) ? doc->tokens[token_pos + offset].data : 0.f; }
     bool setStringData(int offset, TokenType type, const std::string& data); //!< @return false if offset is beyond EOF
     bool setFloatData(int offset, TokenType type, float data); //!< @return false if offset is beyond EOF

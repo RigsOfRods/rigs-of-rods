@@ -36,9 +36,10 @@
 #include <Ogre.h>
 #include <rapidjson/document.h>
 #include <string>
+#include <set>
 
 #define CACHE_FILE "mods.cache"
-#define CACHE_FILE_FORMAT 12
+#define CACHE_FILE_FORMAT 13
 #define CACHE_FILE_FRESHNESS 86400 // 60*60*24 = one day
 
 namespace RoR {
@@ -58,6 +59,7 @@ public:
 
     /** default constructor resets the data. */
     CacheEntry();
+    ~CacheEntry();
 
     Ogre::String fpath;                 //!< filepath relative to the .zip file
     Ogre::String fname;                 //!< filename
@@ -70,7 +72,7 @@ public:
 
     std::time_t addtimestamp;           //!< timestamp when this file was added to the cache
     Ogre::String uniqueid;              //!< file's unique id
-    Ogre::String guid;                  //!< global unique id
+    Ogre::String guid;                  //!< global unique id. Type "addonpart" leaves this empty.
     int version;                        //!< file's version
     
     std::string resource_bundle_type;   //!< Archive type recognized by OGRE resource system: 'FileSystem' or 'Zip'
@@ -86,6 +88,8 @@ public:
 
     RigDef::DocumentPtr actor_def; //!< Cached actor definition (aka truckfile) after first spawn
     std::shared_ptr<RoR::SkinDef> skin_def;  //!< Cached skin info, added on first use or during cache rebuild
+    RoR::TuneupDefPtr tuneup_def;  //!< Cached tuning info, added on first use or during cache rebuild
+    std::set<std::string> addonpart_guids;
 
     // following all TRUCK detail information:
     Ogre::String description;
@@ -132,8 +136,13 @@ typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
 
 enum CacheCategoryId
 {
-    CID_Project       = 8990,
-    CID_Max           = 9000, //!< Maximum allowed to be present in truck files.
+    CID_None          = 0,
+
+    CID_Projects      = 8000, //!< For truck files under 'projects/' directory, to allow listing from editors.
+    CID_TuneupsAuto   = 8100, //!< Auto-created when top menubar 'Tuning' menu is first used. Automatically loaded on next sessions.
+    CID_TuneupsUser   = 8101, //!< Saved by user via GUI, can be loaded via GUI.
+
+    CID_Max           = 9000, //!< SPECIAL VALUE - Maximum allowed to be present in any mod files.
     CID_Unsorted      = 9990,
     CID_All           = 9991,
     CID_Fresh         = 9992,
@@ -185,9 +194,9 @@ enum class CacheValidity
 /// Creates subdirectory in 'My Games\Rigs of Rods\projects', pre-populates it with files and adds modcache entry.
 struct CreateProjectRequest
 {
-    std::string cpr_name; // Directory and also the mod file.
-    std::string cpr_ext; // File extension, determines project type.
-    CacheEntryPtr cpr_source_entry; // If present, overrides `cpr_ext` but `cpr_name` applies to it.
+    std::string cpr_name;            //!< Directory and also the mod file (without extension).
+    CacheEntryPtr cpr_source_entry;  //!< The original mod to copy files from. Determines mod file extension.
+    bool cpr_create_tuneup;          //!< Overrides project type to "tuneup", adds a .tuneup file only.
 };
 
 /// A content database
@@ -224,24 +233,22 @@ public:
     size_t                Query(CacheQuery& query);
     /// @}
 
-    /// @name Management
+    /// @name Loading
     /// @{
-    void LoadResource(CacheEntryPtr& t); //!< Loads the associated resource bundle if not already done.
-    bool CheckResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
-    bool CheckResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
-    void ReLoadResource(CacheEntryPtr& t); //!< Forces reloading the associated bundle.
-    void UnLoadResource(CacheEntryPtr& t); //!< Unloads associated bundle, destroying all spawned actors.
+    void                  LoadResource(CacheEntryPtr& t); //!< Loads the associated resource bundle if not already done.
+    bool                  CheckResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
+    bool                  CheckResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
+    void                  ReLoadResource(CacheEntryPtr& t); //!< Forces reloading the associated bundle.
+    void                  UnLoadResource(CacheEntryPtr& t); //!< Unloads associated bundle, destroying all spawned actors.
     /// @}
 
     const std::vector<CacheEntryPtr>   &GetEntries()        const { return m_entries; }
     const CategoryIdNameMap         &GetCategories()     const { return m_categories; }
 
-    std::shared_ptr<RoR::SkinDef> FetchSkinDef(CacheEntryPtr& cache_entry); //!< Loads+parses the .skin file once
-
     Ogre::String GetPrettyName(Ogre::String fname);
     std::string ActorTypeToName(ActorType driveable);
 
-    bool CreateProject(CreateProjectRequest* request); //!< Creates subdirectory in 'My Games\Rigs of Rods\projects', pre-populates it with files and adds modcache entry.
+    CacheEntryPtr CreateProject(CreateProjectRequest* request); //!< Creates subdirectory in 'My Games\Rigs of Rods\projects', pre-populates it with files and adds modcache entry.
 
 private:
 
@@ -267,9 +274,20 @@ private:
 
     void DetectDuplicates();
 
+    /// @name Document loading helpers
+    /// @{
+    void LoadAssociatedSkinDef(CacheEntryPtr& cache_entry); //!< Loads+parses the .skin file and updates all related CacheEntries
+    void LoadAssociatedTuneupDef(CacheEntryPtr& cache_entry); //!< Loads+parses the .tuneup file and updates all related CacheEntries
+    /// @}
+
+    /// @name Cache update helpers
+    /// @{
     void FillTerrainDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
     void FillTruckDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds, Ogre::String fname, Ogre::String group);
     void FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDef>& skin_def);
+    void FillAddonPartDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds);
+    void FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneup_def);
+    /// @}
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
 
@@ -329,13 +347,15 @@ private:
             {5000, _LC("ModCategory", "Official Terrains")},
             {5001, _LC("ModCategory", "Night Terrains")},
 
-            {8990, _LC("ModCategory", "Projects")},
+            {CID_Projects, _LC("ModCategory", "Projects")},
+            {CID_TuneupsAuto, _LC("ModCategory", "Tuneups (auto-generated)")},
+            {CID_TuneupsUser, _LC("ModCategory", "Tuneups (saved by user)")},
 
             // do not use category numbers above 9000!
-            {9990, _LC("ModCategory", "Unsorted")},
-            {9991, _LC("ModCategory", "All")},
-            {9992, _LC("ModCategory", "Fresh")},
-            {9993, _LC("ModCategory", "Hidden")}
+            {CID_Unsorted, _LC("ModCategory", "Unsorted")},
+            {CID_All, _LC("ModCategory", "All")},
+            {CID_Fresh, _LC("ModCategory", "Fresh")},
+            {CID_Hidden, _LC("ModCategory", "Hidden")},
         };
 };
 

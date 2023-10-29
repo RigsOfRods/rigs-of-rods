@@ -96,7 +96,13 @@ void Parser::ProcessCurrentLine()
     }
 
     // Detect keyword on current line 
-    Keyword keyword = IdentifyKeywordInCurrentLine();
+    Keyword keyword = Keyword::INVALID;
+    // Quick check - keyword always starts with ASCII letter
+    char c = tolower(m_current_line[0]); // Note: line comes in trimmed
+    if (c >= 'a' && c <= 'z')
+    {
+        keyword = Parser::IdentifyKeyword(m_current_line);
+    }
     m_log_keyword = keyword;
     switch (keyword)
     {
@@ -880,6 +886,11 @@ void Parser::ParseDirectiveForset()
         return;
     }
 
+    Parser::ProcessForsetLine(m_current_module->flexbodies.back(), m_current_line, m_current_line_number);
+}
+
+void Parser::ProcessForsetLine(RigDef::Flexbody& def, const std::string& _line, int line_number /*= -1*/)
+{
     // --------------------------------------------------------------------------------------------
     // BEWARE OF QUIRKS in the following code (they must be preserved for backwards compatibility):
     // - a space between the 'forset' keyword and arguments is optional.
@@ -888,7 +899,8 @@ void Parser::ParseDirectiveForset()
     // --------------------------------------------------------------------------------------------
 
     //parsing set definition
-    char* pos = m_current_line + 6; // 'forset' = 6 characters
+    std::string line = _line;
+    char* pos = &line[0] + 6; // 'forset' = 6 characters
     while (*pos == ' ' || *pos == ':' || *pos == ',') { pos++; } // Skip any separators
     char* end = pos;
     char endwas = 'G';
@@ -909,16 +921,16 @@ void Parser::ParseDirectiveForset()
             *end = 0;
             val2 = strtoul(pos, 0, 10);
             // Add interval [val1-val2]
-            m_current_module->flexbodies.back().node_list_to_import.push_back(
+            def.node_list_to_import.push_back(
                 Node::Range(
-                    Node::Ref(std::to_string(val1), val1, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number),
-                    Node::Ref(std::to_string(val2), val2, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number)));
+                    Node::Ref(std::to_string(val1), val1, Node::Ref::IMPORT_STATE_IS_VALID, line_number),
+                    Node::Ref(std::to_string(val2), val2, Node::Ref::IMPORT_STATE_IS_VALID, line_number)));
         }
         else
         {
             // Add interval [val1-val1]
-            Node::Range range_a = Node::Range(Node::Ref(std::to_string(val1), val1, Node::Ref::IMPORT_STATE_IS_VALID, m_current_line_number));
-            m_current_module->flexbodies.back().node_list_to_import.push_back(range_a);
+            Node::Range range_a = Node::Range(Node::Ref(std::to_string(val1), val1, Node::Ref::IMPORT_STATE_IS_VALID, line_number));
+            def.node_list_to_import.push_back(range_a);
         }
         pos = end + 1;
     }
@@ -2643,48 +2655,26 @@ void Parser::LogMessage(Console::MessageType type, std::string const& msg)
             m_filename, m_current_line_number, KeywordToString(m_log_keyword), msg));
 }
 
-Keyword Parser::IdentifyKeywordInCurrentLine()
+Keyword Parser::IdentifyKeyword(const std::string& line)
 {
-    // Quick check - keyword always starts with ASCII letter
-    char c = tolower(m_current_line[0]); // Note: line comes in trimmed
-    if (c > 'z' || c < 'a')
-    {
-        return Keyword::INVALID;
-    }
-
-    // Search with correct lettercase
-    std::smatch results;
-    std::string line(m_current_line);
-    std::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_RESPECT_CASE); // Always returns true.
-    Keyword keyword = FindKeywordMatch(results);
-    if (keyword != Keyword::INVALID)
-    {
-        return keyword;
-    }
-
     // Search and ignore lettercase
+    std::smatch results;
     std::regex_search(line, results, Regexes::IDENTIFY_KEYWORD_IGNORE_CASE); // Always returns true.
-    keyword = FindKeywordMatch(results);
-    return keyword;
-}
 
-Keyword Parser::FindKeywordMatch(std::smatch& search_results)
-{
     // The 'results' array contains a complete match at positon [0] and sub-matches starting with [1], 
     //    so we get exact positions in Regexes::IDENTIFY_KEYWORD, which again match Keyword enum members
-
-    for (unsigned int i = 1; i < search_results.size(); i++)
+    for (unsigned int i = 1; i < results.size(); i++)
     {
-        std::ssub_match sub  = search_results[i];
+        std::ssub_match sub  = results[i];
         if (sub.matched)
         {
             // Build enum value directly from result offset
             return Keyword(i);
         }
     }
+
     return Keyword::INVALID;
 }
-
 
 void Parser::Prepare()
 {
