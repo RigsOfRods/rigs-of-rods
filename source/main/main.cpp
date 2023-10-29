@@ -1023,6 +1023,14 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_EDI_MODIFY_PROJECT_REQUESTED:
+                {
+                    ModifyProjectRequest* request = static_cast<ModifyProjectRequest*>(m.payload);
+                    App::GetCacheSystem()->ModifyProject(request);
+                    delete request;
+                    break;
+                }
+
                 default:;
                 }
 

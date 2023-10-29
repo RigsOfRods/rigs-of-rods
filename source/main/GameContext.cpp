@@ -397,56 +397,6 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         // Load our actor again, but only after all actors are deleted.
         this->ChainMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));
     }
-    else if (rq.amr_type == ActorModifyRequest::Type::INSTALL_ADDONPART_AND_RELOAD)
-    {
-        CacheEntryPtr entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, actor->ar_filename);
-        if (!entry)
-        {
-            Str<500> msg; msg <<"Cannot reload vehicle; file '" << actor->ar_filename << "' not found in ModCache.";
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-            return;
-        }
-
-        // Make sure the actor has a default .tuneup project assigned. If not, create it.
-        CacheEntryPtr tuneup_entry = actor->getUsedTuneup();
-        if (!tuneup_entry)
-        {
-            CreateProjectRequest req;
-            req.cpr_create_tuneup = true;
-            req.cpr_source_entry = entry;
-            req.cpr_name = fmt::format("Tuned {}", actor->getTruckName());
-
-            tuneup_entry = App::GetCacheSystem()->CreateProject(&req);
-        }
-
-        // Add the requested addonpart to the TuneupDef document.
-        tuneup_entry->tuneup_def->use_addonparts.push_back(rq.amr_addonpart->fname);
-
-        // If this is the auto-generated tuneup, immediatelly update the .tuneup file (user-saved tuneups are only modified on demand).
-        if (tuneup_entry->categoryid == CID_TuneupsAuto)
-        {
-            Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().openResource(tuneup_entry->fname, tuneup_entry->resource_group);
-            RoR::TuneupParser::ExportTuneup(datastream, tuneup_entry->tuneup_def);
-        }
-
-        // Create spawn request while actor still exists
-        // Note we don't use `ActorModifyRequest::Type::RELOAD` because we don't need the bundle reloaded.
-        ActorSpawnRequest* srq = new ActorSpawnRequest;
-        srq->asr_position     = Ogre::Vector3(actor->getPosition().x, actor->getMinHeight(), actor->getPosition().z);
-        srq->asr_rotation     = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(actor->getRotation()), Ogre::Vector3::UNIT_Y);
-        srq->asr_config       = actor->getSectionConfig();
-        srq->asr_skin_entry   = actor->getUsedSkin();
-        srq->asr_tuneup_entry = tuneup_entry;
-        srq->asr_cache_entry  = entry;
-        srq->asr_debugview    = (int)actor->GetGfxActor()->GetDebugView();
-        srq->asr_origin       = ActorSpawnRequest::Origin::USER;
-
-        // Remove the actor
-        this->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, (void*)new ActorPtr(actor)));
-
-        // Load our actor again, but only after it was deleted.
-        this->ChainMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));
-    }
 }
 
 void GameContext::DeleteActor(ActorPtr actor)
@@ -735,11 +685,11 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntryPtr entry, std::st
     case LT_AddonPart:
         if (m_player_actor)
         {
-            ActorModifyRequest* req = new ActorModifyRequest();
-            req->amr_actor = m_player_actor->ar_instance_id;
-            req->amr_addonpart = entry;
-            req->amr_type = ActorModifyRequest::Type::INSTALL_ADDONPART_AND_RELOAD;
-            this->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, req));
+            ModifyProjectRequest* req = new ModifyProjectRequest();
+            req->mpr_type = ModifyProjectRequestType::TUNEUP_USE_ADDONPART_SET;
+            req->mpr_subject = entry->fname;
+            req->mpr_target_actor = m_player_actor;
+            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
         }
         break;
 

@@ -118,6 +118,13 @@ void RoR::TuneupParser::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& 
     Str<2000> buf;
     buf << tuneup->name << "\n";
     buf << "{\n";
+    buf << "\tpreview = "     << tuneup->thumbnail    << "\n";
+    buf << "\tdescription = " << tuneup->description  << "\n";
+    buf << "\tauthor_name = " << tuneup->author_name  << "\n";
+    buf << "\tauthor_id = "   << tuneup->author_id    << "\n";
+    buf << "\tcategory_id = " << (int)tuneup->category_id  << "\n";
+    buf << "\tguid = "        << tuneup->guid         << "\n";
+    buf << "\n";
     for (std::string& addonpart: tuneup->use_addonparts)
     {
         buf << "\tuse_addonpart = " << addonpart << "\n";
@@ -126,13 +133,12 @@ void RoR::TuneupParser::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& 
     {
         buf << "\tremove_prop = " << remove_prop << "\n";
     }
-    buf << "\tpreview = "     << tuneup->thumbnail    << "\n";
-    buf << "\tdescription = " << tuneup->description  << "\n";
-    buf << "\tauthor_name = " << tuneup->author_name  << "\n";
-    buf << "\tauthor_id = "   << tuneup->author_id    << "\n";
-    buf << "\tcategory_id = " << (int)tuneup->category_id  << "\n";
-    buf << "\tguid = "        << tuneup->guid         << "\n";
     buf << "}\n\n";
 
-    stream->write(buf.GetBuffer(), buf.GetLength());
+    size_t written = stream->write(buf.GetBuffer(), buf.GetLength());
+    if (written < buf.GetLength())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Error writing file '{}': only written {}/{} bytes", stream->getName(), written, buf.GetLength()));
+    }
 }
