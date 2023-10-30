@@ -156,9 +156,10 @@ void AddonPartParser::ProcessFlexbody()
         return;
     }
 
-    def.reference_node = Node::Ref(m_context->getStringData(0), (unsigned int)m_context->getTokFloat(0), 0, 0);
-    def.x_axis_node = Node::Ref(m_context->getTokString(1), (unsigned int)m_context->getTokFloat(1), 0, 0);
-    def.y_axis_node = Node::Ref(m_context->getTokString(2), (unsigned int)m_context->getTokFloat(2), 0, 0);
+    int importflags = Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NUMBERED;
+    def.reference_node = Node::Ref("", (unsigned int)m_context->getTokFloat(0), importflags, 0);
+    def.x_axis_node    = Node::Ref("", (unsigned int)m_context->getTokFloat(1), importflags, 0);
+    def.y_axis_node    = Node::Ref("", (unsigned int)m_context->getTokFloat(2), importflags, 0);
 
     def.offset.x = m_context->getTokFloat(3);
     def.offset.y = m_context->getTokFloat(4);

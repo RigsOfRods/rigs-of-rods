@@ -40,6 +40,7 @@ using namespace RoR;
     this->SetCurrentKeyword(_KEYWORD_);                                 \
     for (auto& m: m_selected_modules)                                   \
     {                                                                   \
+        m_current_module = m;                                           \
         for (auto& entry: m->_FIELD_)                                   \
         {                                                               \
             try {                                                       \
@@ -50,6 +51,7 @@ using namespace RoR;
                 this->HandleException();                                \
             }                                                           \
         }                                                               \
+        m_current_module.reset();                                       \
     }                                                                   \
     this->SetCurrentKeyword(RigDef::Keyword::INVALID);                  \
 }
