@@ -29,6 +29,7 @@
 #include "Actor.h"
 #include "ActorManager.h"
 #include "CameraManager.h"
+#include "FlexBody.h"
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
@@ -1544,6 +1545,45 @@ void TopMenubar::Update()
 
                             ImGui::PopID(); // meshname
                         }
+                    }
+
+                    ImGui::Separator(); // Ditto for flexbodies
+
+                    ImGui::TextDisabled(_LC("TopMenubar", "Default flexbodies:"));
+                    // Draw removed flexbodies                  
+                    for (const std::string& meshname: tuneup_entry->tuneup_def->remove_flexbodies)
+                    {
+                        ImGui::PushID(meshname.c_str());
+
+                        bool flexbEnabled = false;
+                        if (ImGui::Checkbox(meshname.c_str(), &flexbEnabled))
+                        {
+                            ModifyProjectRequest* req = new ModifyProjectRequest();
+                            req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_FLEXBODY_RESET;
+                            req->mpr_subject = meshname;
+                            req->mpr_target_actor = actor;
+                            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+                        }
+
+                        ImGui::PopID(); // meshname
+                    }
+                    // Then draw existing flexbodies
+                    for (FlexBody* flexbody: actor->GetGfxActor()->GetFlexbodies())
+                    {
+                        std::string meshname = flexbody->getOrigMeshName();
+                        ImGui::PushID(meshname.c_str());
+
+                        bool propEnabled = true;
+                        if (ImGui::Checkbox(meshname.c_str(), &propEnabled))
+                        {
+                            ModifyProjectRequest* req = new ModifyProjectRequest();
+                            req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_FLEXBODY_SET;
+                            req->mpr_subject = meshname;
+                            req->mpr_target_actor = actor;
+                            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+                        }
+
+                        ImGui::PopID(); // meshname
                     }
                 }
             }

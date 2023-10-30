@@ -1491,6 +1491,14 @@ void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
 
 void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
 {
+    // Check if disabled by .tuneup mod.
+    if (m_actor->m_used_tuneup_entry &&
+        m_actor->m_used_tuneup_entry->tuneup_def &&
+        m_actor->m_used_tuneup_entry->tuneup_def->remove_flexbodies.count(def.mesh_name) > 0)
+    {
+        return;
+    }
+
     // Collect nodes
     std::vector<unsigned int> node_indices;
     bool nodes_found = true;
@@ -1528,8 +1536,9 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
 
     try
     {
+        std::string resource_group = (m_current_module->origin_addonpart) ? m_current_module->origin_addonpart->resource_group : m_custom_resource_group;
         auto* flexbody = m_flex_factory.CreateFlexBody(
-            &def, reference_node, x_axis_node, y_axis_node, rot, node_indices, m_custom_resource_group);
+            &def, reference_node, x_axis_node, y_axis_node, rot, node_indices, resource_group);
 
         if (flexbody == nullptr)
             return; // Error already logged
@@ -1551,7 +1560,7 @@ void ActorSpawner::ProcessMinimass(RigDef::Minimass & def)
     m_actor->ar_minimass_skip_loaded_nodes = (def.option == RigDef::MinimassOption::l_SKIP_LOADED);
 }
 
-void ActorSpawner::ProcessProp(RigDef::Prop & def, const std::string& override_rg /*= ""*/)
+void ActorSpawner::ProcessProp(RigDef::Prop & def)
 {
     // Check if removed via .tuneup
     CacheEntryPtr& tuneup_entry = m_actor->getUsedTuneup();
@@ -1560,6 +1569,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def, const std::string& override_r
         LOG(fmt::format("{}: Prop '{}' removed by tuneup '{}'", m_actor->ar_filename, def.mesh_name, tuneup_entry->fname));
         return;
     }
+    std::string resource_group = (m_current_module->origin_addonpart) ? m_current_module->origin_addonpart->resource_group : m_custom_resource_group;
 
     RoR::Prop prop;
     int prop_index = static_cast<int>(m_actor->m_gfx_actor->m_props.size());
@@ -1614,8 +1624,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def, const std::string& override_r
         prop.pp_wheel_rot_degree = def.special_prop_dashboard.rotation_angle;
         prop.pp_wheel_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         prop.pp_wheel_pos = steering_wheel_offset;
-        const std::string instance_name = this->ComposeName("SteeringWheelPropEntity", prop_index);
-        const std::string& resource_group = (override_rg != "") ? override_rg : m_custom_resource_group;
+        std::string instance_name = this->ComposeName("SteeringWheelPropEntity", prop_index);
         prop.pp_wheel_mesh_obj = new MeshObject(
             def.special_prop_dashboard.mesh_name,
             resource_group,
@@ -1629,7 +1638,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def, const std::string& override_r
 
     prop.pp_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     const std::string instance_name = this->ComposeName("PropEntity", prop_index);
-    prop.pp_mesh_obj = new MeshObject(def.mesh_name, m_custom_resource_group, instance_name, prop.pp_scene_node);
+    prop.pp_mesh_obj = new MeshObject(def.mesh_name, resource_group, instance_name, prop.pp_scene_node);
 
     prop.pp_mesh_obj->setCastShadows(true); // Orig code {{ prop.pp_mesh_obj->setCastShadows(shadowmode != 0); }}, shadowmode has default value 1 and changes with undocumented directive 'set_shadows'
 
@@ -2176,7 +2185,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             }
         }
 
-        Ogre::MaterialPtr material = this->FindOrCreateCustomizedMaterial(material_name);
+        Ogre::MaterialPtr material = this->FindOrCreateCustomizedMaterial(material_name, m_custom_resource_group);
         if (!material.isNull())
         {
             flare.bbs->setMaterial(material);
@@ -2298,22 +2307,22 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
     }
 
     // Check all textures exist
-    Ogre::ResourceGroupManager& rgm = Ogre::ResourceGroupManager::getSingleton();
-    if (!rgm.resourceExists(m_custom_resource_group, def.diffuse_map))
+    std::string resource_group = (m_current_module->origin_addonpart) ? m_current_module->origin_addonpart->resource_group : m_custom_resource_group;
+    if (!Ogre::ResourceGroupManager::getSingleton().resourceExists(resource_group, def.diffuse_map))
     {
         this->AddMessage(Message::TYPE_WARNING, "Skipping managed material, missing texture file: " + def.diffuse_map);
         return;
     }
 
     if (def.damaged_diffuse_map != "" &&
-        !rgm.resourceExists(m_custom_resource_group, def.damaged_diffuse_map))
+        !Ogre::ResourceGroupManager::getSingleton().resourceExists(resource_group, def.damaged_diffuse_map))
     {
         this->AddMessage(Message::TYPE_WARNING, "Damage texture not found: " + def.damaged_diffuse_map);
         def.damaged_diffuse_map = "";
     }
 
     if (def.specular_map != "" &&
-        !rgm.resourceExists(m_custom_resource_group, def.specular_map))
+        !Ogre::ResourceGroupManager::getSingleton().resourceExists(resource_group, def.specular_map))
     {
         this->AddMessage(Message::TYPE_WARNING, "Specular texture not found: " + def.specular_map);
         def.specular_map = "";
@@ -2322,9 +2331,9 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
     // Create temporary placeholder
     // This is necessary to load meshes with original material names (= unchanged managed mat names)
     // - if not found, OGRE substitutes them with 'BaseWhite' which breaks subsequent processing.
-    if (Ogre::MaterialManager::getSingleton().getByName(def.name, m_custom_resource_group).isNull())
+    if (Ogre::MaterialManager::getSingleton().getByName(def.name, resource_group).isNull())
     {
-        m_placeholder_managedmat->clone(def.name, /*changeGroup=*/true, m_custom_resource_group);
+        m_placeholder_managedmat->clone(def.name, /*changeGroup=*/true, resource_group);
     }
 
     std::string custom_name = def.name + ACTOR_ID_TOKEN + TOSTRING(m_actor->ar_instance_id);
@@ -5926,7 +5935,7 @@ void ActorSpawner::AddExhaust(
     }
     exhaust.smoker->setVisibilityFlags(DEPTHMAP_DISABLED); // Disable particles in depthmap
 
-    Ogre::MaterialPtr mat = this->FindOrCreateCustomizedMaterial("tracks/Smoke");
+    Ogre::MaterialPtr mat = this->FindOrCreateCustomizedMaterial("tracks/Smoke", m_custom_resource_group);
     exhaust.smoker->setMaterialName(mat->getName(), mat->getGroup());
 
     exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode();
@@ -6398,7 +6407,7 @@ RigDef::VideoCamera* ActorSpawner::FindVideoCameraByMaterial(std::string const &
     return nullptr;
 }
 
-Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_lookup_name)
+Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(const std::string& mat_lookup_name, const std::string& mat_lookup_rg)
 {
     try
     {
@@ -6420,7 +6429,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
             static int mirror_counter = 0;
             const std::string new_mat_name = this->ComposeName("RenderMaterial", mirror_counter);
             ++mirror_counter;
-            lookup_entry.material = Ogre::MaterialManager::getSingleton().getByName("mirror")->clone(new_mat_name, true, m_custom_resource_group);
+            lookup_entry.material = Ogre::MaterialManager::getSingleton().getByName("mirror")->clone(new_mat_name, true, mat_lookup_rg);
             // Special case - register under generated name. This is because all mirrors use the same material 'mirror'
             m_material_substitutions.insert(std::make_pair(new_mat_name, lookup_entry));
             return lookup_entry.material; // Done!
@@ -6445,7 +6454,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
             {
                 lookup_entry.video_camera_def = videocam_def;
                 const std::string video_mat_name = this->ComposeName(videocam_def->material_name.c_str(), 0);
-                lookup_entry.material = video_mat_shared->clone(video_mat_name, true, m_custom_resource_group);
+                lookup_entry.material = video_mat_shared->clone(video_mat_name, true, mat_lookup_rg);
                 m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry));
                 return lookup_entry.material; // Done!
             }
@@ -6478,7 +6487,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
                 {
                     std::stringstream name_buf;
                     name_buf << skin_mat->getName() << ACTOR_ID_TOKEN << m_actor->ar_instance_id;
-                    lookup_entry.material = skin_mat->clone(name_buf.str(), /*changeGroup=*/true, m_custom_resource_group);
+                    lookup_entry.material = skin_mat->clone(name_buf.str(), /*changeGroup=*/true, mat_lookup_rg);
                     m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry));
                     return lookup_entry.material;
                 }
@@ -6504,7 +6513,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
         else
         {
             // Generate new substitute
-            Ogre::MaterialPtr orig_mat = Ogre::MaterialManager::getSingleton().getByName(mat_lookup_name, m_custom_resource_group);
+            Ogre::MaterialPtr orig_mat = Ogre::MaterialManager::getSingleton().getByName(mat_lookup_name, mat_lookup_rg);
             if (orig_mat.isNull())
             {
                 std::stringstream buf;
@@ -6515,7 +6524,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
 
             std::stringstream name_buf;
             name_buf << orig_mat->getName() << ACTOR_ID_TOKEN << m_actor->ar_instance_id;
-            lookup_entry.material = orig_mat->clone(name_buf.str(), true, m_custom_resource_group);
+            lookup_entry.material = orig_mat->clone(name_buf.str(), true, mat_lookup_rg);
         }
 
         // Finally, query texture replacements - .skin and builtins
@@ -6552,7 +6561,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(std::string mat_l
                             if (query != end)
                             {
                                 // Skin has replacement for this texture
-                                if (m_actor->m_used_skin_entry->resource_group != m_custom_resource_group) // The skin comes from a SkinZip bundle (different resource group)
+                                if (m_actor->m_used_skin_entry->resource_group != mat_lookup_rg) // The skin comes from a SkinZip bundle (different resource group)
                                 {
                                     Ogre::TexturePtr tex = Ogre::TextureManager::getSingleton().getByName(
                                         query->second, m_actor->m_used_skin_entry->resource_group);
@@ -6653,7 +6662,7 @@ void ActorSpawner::SetupNewEntity(Ogre::Entity* ent, Ogre::ColourValue simple_co
 
         if (!subent->getMaterial().isNull())
         {
-            Ogre::MaterialPtr own_mat = this->FindOrCreateCustomizedMaterial(subent->getMaterialName());
+            Ogre::MaterialPtr own_mat = this->FindOrCreateCustomizedMaterial(subent->getMaterialName(), subent->getSubMesh()->parent->getGroup());
             if (!own_mat.isNull())
             {
                 subent->setMaterial(own_mat);
@@ -6908,7 +6917,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
     {
         RoR::VideoCamera vcam;
 
-        vcam.vcam_material = this->FindOrCreateCustomizedMaterial(def->material_name);
+        vcam.vcam_material = this->FindOrCreateCustomizedMaterial(def->material_name, m_custom_resource_group);
         if (vcam.vcam_material.isNull())
         {
             this->AddMessage(Message::TYPE_ERROR, "Failed to create VideoCamera with material: " + def->material_name);

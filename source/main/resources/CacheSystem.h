@@ -206,6 +206,8 @@ enum class ModifyProjectRequestType
     TUNEUP_USE_ADDONPART_RESET,
     TUNEUP_REMOVE_PROP_SET,
     TUNEUP_REMOVE_PROP_RESET,
+    TUNEUP_REMOVE_FLEXBODY_SET,
+    TUNEUP_REMOVE_FLEXBODY_RESET,
 };
 
 struct ModifyProjectRequest

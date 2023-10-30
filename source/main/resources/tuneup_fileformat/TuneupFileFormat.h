@@ -37,6 +37,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
 {
     std::vector<std::string> use_addonparts; //!< Addonpart filenames
     std::unordered_set<std::string> remove_props; //!< Mesh names of props to be removed.
+    std::unordered_set<std::string> remove_flexbodies; //!< Mesh names of flexbodies to be removed.
     std::string   name;
     std::string   guid;
     std::string   thumbnail;

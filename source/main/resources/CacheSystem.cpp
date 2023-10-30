@@ -1637,6 +1637,16 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
         // Erase the prop from 'remove_props' in the TuneupDef document.
         tuneup_entry->tuneup_def->remove_props.erase(request->mpr_subject);
         break;
+    
+    case ModifyProjectRequestType::TUNEUP_REMOVE_FLEXBODY_SET:
+        // Add the flexbody to the 'remove_flexbodies' in TuneupDef document.
+        tuneup_entry->tuneup_def->remove_flexbodies.insert(request->mpr_subject);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_REMOVE_FLEXBODY_RESET:
+        // Erase the flexbody from 'remove_flexbodies' in the TuneupDef document.
+        tuneup_entry->tuneup_def->remove_flexbodies.erase(request->mpr_subject);
+        break;
 
     default:
         break;

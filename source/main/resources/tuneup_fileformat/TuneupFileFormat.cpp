@@ -104,6 +104,7 @@ void RoR::TuneupParser::ParseTuneupAttribute(const std::string& line, TuneupDefP
 
     if (attrib == "use_addonpart"   && params.size() == 2) { tuneup_def->use_addonparts.push_back(params[1]); return; }
     if (attrib == "remove_prop"     && params.size() == 2) { tuneup_def->remove_props.insert(params[1]); return; }
+    if (attrib == "remove_flexbody" && params.size() == 2) { tuneup_def->remove_flexbodies.insert(params[1]); return; }
     if (attrib == "preview"         && params.size() >= 2) { tuneup_def->thumbnail = params[1]; return; }
     if (attrib == "description"     && params.size() >= 2) { tuneup_def->description = params[1]; return; }
     if (attrib == "author_name"     && params.size() >= 2) { tuneup_def->author_name = params[1]; return; }
@@ -132,6 +133,10 @@ void RoR::TuneupParser::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& 
     for (const std::string& remove_prop: tuneup->remove_props)
     {
         buf << "\tremove_prop = " << remove_prop << "\n";
+    }
+    for (const std::string& remove_flexbody: tuneup->remove_flexbodies)
+    {
+        buf << "\tremove_flexbody = " << remove_flexbody << "\n";
     }
     buf << "}\n\n";
 

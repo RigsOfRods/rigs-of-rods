@@ -189,7 +189,7 @@ private:
     void ProcessNode(RigDef::Node & def);
     void ProcessParticle(RigDef::Particle & def);
     void ProcessPistonprop(RigDef::Pistonprop & def);
-    void ProcessProp(RigDef::Prop & def, const std::string& override_rg = ""); //!< Resource group override is used with addonparts
+    void ProcessProp(RigDef::Prop & def); //!< Resource group override is used with addonparts
     void ProcessRailGroup(RigDef::RailGroup & def);
     void ProcessRopable(RigDef::Ropable & def);
     void ProcessRope(RigDef::Rope & def);
@@ -374,7 +374,7 @@ private:
     void                          CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override="");
     void                          CreateWheelSkidmarks(unsigned int wheel_index);
     void                          FinalizeGfxSetup();
-    Ogre::MaterialPtr             FindOrCreateCustomizedMaterial(std::string orig_name);
+    Ogre::MaterialPtr             FindOrCreateCustomizedMaterial(const std::string& mat_lookup_name, const std::string& mat_lookup_rg);
     Ogre::MaterialPtr             CreateSimpleMaterial(Ogre::ColourValue color);
     Ogre::ParticleSystem*         CreateParticleSystem(std::string const & name, std::string const & template_name);
     RigDef::MaterialFlareBinding* FindFlareBindingForMaterial(std::string const & material_name); //!< Returns NULL if none found
@@ -463,7 +463,8 @@ private:
     int                            m_first_wing_index;
     std::vector<CabTexcoord>       m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>        m_oldstyle_cab_submeshes;    
-    RigDef::Keyword                m_current_keyword; //!< For error reports    
+    RigDef::Keyword                m_current_keyword; //!< For error reports
+    std::shared_ptr<RigDef::Document::Module> m_current_module; //!< For resolving addonparts
     std::map<Ogre::String, unsigned int> m_named_nodes;
     /// @}
 
