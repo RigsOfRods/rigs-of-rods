@@ -379,7 +379,7 @@ void ActorSpawner::InitializeRig()
 
     m_flex_factory.CheckAndLoadFlexbodyCache();
 
-    m_placeholder_managedmat = Ogre::MaterialManager::getSingleton().getByName("rigsofrods/managedmaterial-placeholder"); // Built-in
+    m_managedmat_placeholder_template = Ogre::MaterialManager::getSingleton().getByName("rigsofrods/managedmaterial-placeholder"); // Built-in
 
     m_apply_simple_materials = App::diag_simple_materials->getBool();
     if (m_apply_simple_materials)
@@ -1638,6 +1638,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
 
     prop.pp_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     const std::string instance_name = this->ComposeName("PropEntity", prop_index);
+    LOG(fmt::format("[RoR] DBG ActorSpawner::ProcessProp(): creating MeshObject '{}' in RG '{}'", def.mesh_name, resource_group));
     prop.pp_mesh_obj = new MeshObject(def.mesh_name, resource_group, instance_name, prop.pp_scene_node);
 
     prop.pp_mesh_obj->setCastShadows(true); // Orig code {{ prop.pp_mesh_obj->setCastShadows(shadowmode != 0); }}, shadowmode has default value 1 and changes with undocumented directive 'set_shadows'
@@ -2295,7 +2296,7 @@ Ogre::MaterialPtr ActorSpawner::InstantiateManagedMaterial(Ogre::String const & 
         return Ogre::MaterialPtr();
     }
 
-    return src_mat->clone(clone_name, true, m_custom_resource_group);
+    return src_mat->clone(clone_name);
 }
 
 void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
@@ -2328,12 +2329,17 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         def.specular_map = "";
     }
 
-    // Create temporary placeholder
+    // Create fallback placeholders
     // This is necessary to load meshes with original material names (= unchanged managed mat names)
     // - if not found, OGRE substitutes them with 'BaseWhite' which breaks subsequent processing.
     if (Ogre::MaterialManager::getSingleton().getByName(def.name, resource_group).isNull())
     {
-        m_placeholder_managedmat->clone(def.name, /*changeGroup=*/true, resource_group);
+        LOG(fmt::format("[RoR] DBG ActorSpawner::ProcessManagedMaterial(): Creating placeholder for material '{}' in group '{}'", def.name, resource_group));
+        m_managedmat_placeholder_template->clone(def.name, /*changeGroup=*/true, resource_group);
+    }
+    else
+    {
+        LOG(fmt::format("[RoR] DBG ActorSpawner::ProcessManagedMaterial(): Placeholder already exists: '{}' in group '{}'", def.name, resource_group));
     }
 
     std::string custom_name = def.name + ACTOR_ID_TOKEN + TOSTRING(m_actor->ar_instance_id);

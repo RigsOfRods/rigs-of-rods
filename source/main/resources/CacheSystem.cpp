@@ -1209,6 +1209,20 @@ bool CacheSystem::CheckResourceLoaded(Ogre::String & filename, Ogre::String& gro
     return false;
 }
 
+std::string CacheSystem::ComposeResourceGroupName(const CacheEntryPtr& entry)
+{
+    // Compose group name as "{bundle <local path>}", 
+    //  where 'local path' means under 'Documenst\My Games\Rigs of Rods'.
+    // -----------------------------------------------------------------
+    std::string name = entry->resource_bundle_path; // Start from full path
+    size_t prefix_pos = name.find_first_not_of(App::sys_user_dir->getStr());
+    if (prefix_pos != std::string::npos)
+    {
+        name = name.substr(App::sys_user_dir->getStr().length());
+    }
+    return fmt::format("{{bundle {}}}", name);
+}
+
 void CacheSystem::LoadResource(CacheEntryPtr& entry)
 {
     if (!entry)
@@ -1220,7 +1234,7 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
         return;
     }
 
-    Ogre::String group = "bundle " + entry->resource_bundle_path; // Compose group name from full path.
+    Ogre::String group = CacheSystem::ComposeResourceGroupName(entry);
     bool readonly = entry->resource_bundle_type == "Zip"; // Make "FileSystem" (directory) bundles writable. Default is read-only.
     bool recursive = false;
 
