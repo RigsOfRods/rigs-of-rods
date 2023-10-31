@@ -970,6 +970,8 @@ int main(int argc, char *argv[])
                         TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,  
                             /*ints*/ MODCACHEACTIVITY_BUNDLE_RELOADED, (*entry_ptr)->number, 0, 0,
                             /*strings*/ (*entry_ptr)->resource_group);
+
+                        delete entry_ptr;
                     }
                     else
                     {
@@ -977,8 +979,6 @@ int main(int argc, char *argv[])
                         App::GetGameContext()->PushMessage(m);
                         failed_m = true;
                     }
-
-                    delete entry_ptr;
                     break;
                 }
 
@@ -1003,6 +1003,8 @@ int main(int argc, char *argv[])
 
                         TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,  
                             /*ints*/ MODCACHEACTIVITY_BUNDLE_UNLOADED, (*entry_ptr)->number, 0, 0);
+
+                        delete entry_ptr;
                     }
                     else
                     {
@@ -1010,8 +1012,7 @@ int main(int argc, char *argv[])
                         App::GetGameContext()->PushMessage(m);
                         failed_m = true;
                     }
-
-                    delete entry_ptr;
+  
                     break;
                 }
 
