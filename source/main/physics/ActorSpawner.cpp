@@ -135,7 +135,7 @@ void ActorSpawner::ConfigureAddonParts(CacheEntryPtr& tuneup_entry)
             }
             else
             {
-                this->AddMessage(Message::TYPE_WARNING, fmt::format(_L("Requested addon part '{}' is not installed"), addonpart_entry->dname, addonpart_entry->fname));
+                this->AddMessage(Message::TYPE_WARNING, fmt::format(_L("Requested addon part '{}' is not installed"), addonpart));
             }
         }
     }
