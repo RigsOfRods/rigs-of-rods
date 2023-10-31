@@ -473,7 +473,7 @@ private:
     RoR::FlexFactory                          m_flex_factory;
     std::map<std::string, CustomMaterial>     m_material_substitutions; //!< Maps original material names (shared) to their actor-specific substitutes; There's 1 substitute per 1 material, regardless of user count.
     std::map<std::string, Ogre::MaterialPtr>  m_managed_materials;
-    Ogre::MaterialPtr                         m_placeholder_managedmat;
+    Ogre::MaterialPtr                         m_managedmat_placeholder_template; //!< An 'error marker' material (bright magenta) to generate managedmaterial placeholders from.
     Ogre::SceneNode*                          m_particles_parent_scenenode;
     Ogre::MaterialPtr                         m_cab_trans_material;
     Ogre::MaterialPtr                         m_simple_material_base;

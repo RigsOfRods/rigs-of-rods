@@ -280,6 +280,7 @@ private:
 
     static Ogre::String StripUIDfromString(Ogre::String uidstr); 
     static Ogre::String StripSHA1fromString(Ogre::String sha1str);
+    static std::string ComposeResourceGroupName(const CacheEntryPtr& entry);
 
     void ParseZipArchives(Ogre::String group);
     bool ParseKnownFiles(Ogre::String group); // returns true if no known files are found
