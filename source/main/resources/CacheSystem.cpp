@@ -1498,6 +1498,8 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
         {
             project_entry->fext = "tuneup"; // Tell modcache what it is.
             project_entry->categoryid = CID_TuneupsAuto; // For auto-loading on future spawns of the vehicle.
+            project_entry->description = request->cpr_description;
+            project_entry->guid = request->cpr_source_entry->guid; // For lookup of tuneups by vehicle GUID.
         }
         else
         {
@@ -1518,8 +1520,9 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
 
             // Prepare the .tuneup document
             TuneupDefPtr tuneup = new TuneupDef();
-            tuneup->guid = request->cpr_source_entry->guid; // For lookup of tuneups for a vehicle.
+            tuneup->guid = request->cpr_source_entry->guid; // For lookup of tuneups by vehicle GUID.
             tuneup->name = request->cpr_name;
+            tuneup->description = request->cpr_description;
             tuneup->thumbnail = request->cpr_source_entry->filecachename;
             tuneup->category_id = CID_TuneupsAuto;
 
@@ -1618,17 +1621,8 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
         return;
     }
 
-    // Make sure the actor has a default .tuneup project assigned. If not, create it.
     CacheEntryPtr tuneup_entry = request->mpr_target_actor->getUsedTuneup();
-    if (!tuneup_entry)
-    {
-        CreateProjectRequest req;
-        req.cpr_create_tuneup = true;
-        req.cpr_source_entry = actor_entry;
-        req.cpr_name = fmt::format("Tuned {}", request->mpr_target_actor->getTruckName());
-
-        tuneup_entry = App::GetCacheSystem()->CreateProject(&req); // Do it synchronously
-    }
+    ROR_ASSERT(tuneup_entry);
 
     switch (request->mpr_type)
     {

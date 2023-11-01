@@ -188,7 +188,7 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         m_last_skin_selection  = rq.asr_skin_entry;
         m_last_section_config  = rq.asr_config;
 
-        // Check and attach auto-generated .tuneup, if it exists (if not, it will be created on-demand when using top menubar 'Tuning' menu).
+        // Make sure the actor has a default .tuneup project assigned. If not, create it.
         CacheQuery query;
         query.cqy_filter_type = LT_Tuneup;
         query.cqy_filter_category_id = CID_TuneupsAuto;
@@ -196,6 +196,23 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         if (App::GetCacheSystem()->Query(query) > 0)
         {
             rq.asr_tuneup_entry = query.cqy_results[0].cqr_entry;
+        }
+        else
+        {
+            CreateProjectRequest req;
+            req.cpr_create_tuneup = true;
+            req.cpr_source_entry = rq.asr_cache_entry;
+            req.cpr_name = fmt::format("tuned_{}", rq.asr_cache_entry->fname);
+            req.cpr_description = fmt::format("Customized {}", rq.asr_cache_entry->dname);
+
+            rq.asr_tuneup_entry = App::GetCacheSystem()->CreateProject(&req); // Do it synchronously
+
+            if (!rq.asr_tuneup_entry)
+            {
+                Str<500> msg; msg <<"Cannot spawn actor; .tuneup project could not be created.";
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
+                return nullptr;
+            }     
         }
 
         if (rq.asr_spawnbox == nullptr)
