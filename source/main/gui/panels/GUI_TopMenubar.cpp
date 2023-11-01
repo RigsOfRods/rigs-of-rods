@@ -1439,145 +1439,92 @@ void TopMenubar::Update()
             else
             {           
                 CacheEntryPtr& tuneup_entry = actor->getUsedTuneup();
-                if (!tuneup_entry)
+                ROR_ASSERT(tuneup_entry); // Created by `GameContext::SpawnActor()`
+
+                App::GetCacheSystem()->LoadResource(tuneup_entry);
+                ROR_ASSERT(tuneup_entry->resource_group != "");
+                ROR_ASSERT(tuneup_entry->tuneup_def != nullptr);
+
+                ImGui::TextDisabled(fmt::format(_LC("TopMenubar", "Addon parts ({}):"), tuneup_entry->tuneup_def->use_addonparts.size()).c_str());
+                for (const std::string& addonpart: tuneup_entry->tuneup_def->use_addonparts)
                 {
-                    ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
-                    ImGui::Text(_LC("TopMenubar", "Not tuned yet."));
-                    ImGui::PopStyleColor();
-                }
-                else
-                {
-                    App::GetCacheSystem()->LoadResource(tuneup_entry);
-                    ROR_ASSERT(tuneup_entry->resource_group != "");
-                    ROR_ASSERT(tuneup_entry->tuneup_def != nullptr);
-                    if (tuneup_entry->tuneup_def->use_addonparts.size() == 0)
+                    ImGui::PushID(addonpart.c_str());
+
+                    ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
+                    if (ImGui::Button(" X "))
                     {
-                        ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
-                        ImGui::Text(_LC("TopMenubar", "No addon parts."));
-                        ImGui::PopStyleColor();
+                        ModifyProjectRequest* req = new ModifyProjectRequest();
+                        req->mpr_type = ModifyProjectRequestType::TUNEUP_USE_ADDONPART_RESET;
+                        req->mpr_subject = addonpart;
+                        req->mpr_target_actor = actor;
+                        App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+                    }
+                    ImGui::PopStyleColor();
+                    ImGui::SameLine();
+                    ImGui::Text("%s", addonpart.c_str());
+
+                    ImGui::PopID(); // addonpart.c_str()
+                }
+
+                if (ImGui::Button(_LC("TopMenubar", "Select parts")))
+                {
+                    CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, actor->getTruckFileName());
+                    if (actor_entry && !actor_entry->deleted)
+                    {
+                        Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+                        m.payload = new LoaderType(LT_AddonPart);
+                        m.description = actor_entry->guid;
+                        App::GetGameContext()->PushMessage(m);
                     }
                     else
                     {
-                        ImGui::TextDisabled(_LC("TopMenubar", "Used parts:"));     
-                        for (const std::string& addonpart: tuneup_entry->tuneup_def->use_addonparts)
-                        {
-                            ImGui::PushID(addonpart.c_str());
+                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
+                            fmt::format(_LC("TopMenubar", "Cannot add parts to '{}' - Not found in mod cache"), actor->getTruckName()));
+                    }
+                }
 
-                            ImGui::PushStyleColor(ImGuiCol_Text, RED_TEXT);
-                            if (ImGui::Button(" X "))
-                            {
-                                ModifyProjectRequest* req = new ModifyProjectRequest();
-                                req->mpr_type = ModifyProjectRequestType::TUNEUP_USE_ADDONPART_RESET;
-                                req->mpr_subject = addonpart;
-                                req->mpr_target_actor = actor;
-                                App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
-                            }
-                            ImGui::PopStyleColor();
-                            ImGui::SameLine();
-                            ImGui::Text("%s", addonpart.c_str());
+                ImGui::Separator();
 
-                            ImGui::PopID(); // addonpart.c_str()
-                        }
+                size_t total_props = tuneup_entry->tuneup_def->remove_props.size() + actor->GetGfxActor()->getProps().size();
+                ImGui::TextDisabled(fmt::format(_LC("TopMenubar", "Props ({}):"), total_props).c_str());
+                // First draw the removed props                    
+                for (const std::string& meshname: tuneup_entry->tuneup_def->remove_props)
+                {
+                    ImGui::PushID(meshname.c_str());
+
+                    bool propEnabled = false;
+                    if (ImGui::Checkbox(meshname.c_str(), &propEnabled))
+                    {
+                        ModifyProjectRequest* req = new ModifyProjectRequest();
+                        req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_PROP_RESET;
+                        req->mpr_subject = meshname;
+                        req->mpr_target_actor = actor;
+                        App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
                     }
 
-                    if (ImGui::Button(_LC("TopMenubar", "Select parts")))
+                    ImGui::PopID(); // meshname
+                }
+                // Then draw existing props (skip aero navlights and dashboard frankenprop)
+                for (Prop const& p: actor->GetGfxActor()->getProps())
+                {
+                    if (p.pp_beacon_type == 'L' || p.pp_beacon_type == 'R' || p.pp_beacon_type == 'w')
                     {
-                        CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, actor->getTruckFileName());
-                        if (actor_entry && !actor_entry->deleted)
-                        {
-                            Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
-                            m.payload = new LoaderType(LT_AddonPart);
-                            m.description = actor_entry->guid;
-                            App::GetGameContext()->PushMessage(m);
-                        }
-                        else
-                        {
-                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
-                                fmt::format(_LC("TopMenubar", "Cannot add parts to '{}' - No valid mod cache entry"), actor->getTruckName()));
-                        }
+                        continue; // skip special prop - aerial nav light
                     }
-
-                    ImGui::Separator();
-
-                    ImGui::TextDisabled(_LC("TopMenubar", "Default props:"));
-                    // First draw the removed props                    
-                    for (const std::string& meshname: tuneup_entry->tuneup_def->remove_props)
+                    else if (p.pp_wheel_mesh_obj)
                     {
-                        ImGui::PushID(meshname.c_str());
-
-                        bool propEnabled = false;
-                        if (ImGui::Checkbox(meshname.c_str(), &propEnabled))
-                        {
-                            ModifyProjectRequest* req = new ModifyProjectRequest();
-                            req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_PROP_RESET;
-                            req->mpr_subject = meshname;
-                            req->mpr_target_actor = actor;
-                            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
-                        }
-
-                        ImGui::PopID(); // meshname
+                        continue; // skip special prop: dashboard + dirwheel
                     }
-                    // Then draw existing props (skip aero navlights and dashboard frankenprop)
-                    for (Prop const& p: actor->GetGfxActor()->getProps())
+                    else if (p.pp_mesh_obj->getLoadedMesh()) // Skip broken props
                     {
-                        if (p.pp_beacon_type == 'L' || p.pp_beacon_type == 'R' || p.pp_beacon_type == 'w')
-                        {
-                            continue; // skip special prop - aerial nav light
-                        }
-                        else if (p.pp_wheel_mesh_obj)
-                        {
-                            continue; // skip special prop: dashboard + dirwheel
-                        }
-                        else if (p.pp_mesh_obj->getLoadedMesh()) // Skip broken props
-                        {
-                            std::string meshname = p.pp_mesh_obj->getLoadedMesh()->getName();
-                            ImGui::PushID(meshname.c_str());
-
-                            bool propEnabled = true;
-                            if (ImGui::Checkbox(meshname.c_str(), &propEnabled))
-                            {
-                                ModifyProjectRequest* req = new ModifyProjectRequest();
-                                req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_PROP_SET;
-                                req->mpr_subject = meshname;
-                                req->mpr_target_actor = actor;
-                                App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
-                            }
-
-                            ImGui::PopID(); // meshname
-                        }
-                    }
-
-                    ImGui::Separator(); // Ditto for flexbodies
-
-                    ImGui::TextDisabled(_LC("TopMenubar", "Default flexbodies:"));
-                    // Draw removed flexbodies                  
-                    for (const std::string& meshname: tuneup_entry->tuneup_def->remove_flexbodies)
-                    {
-                        ImGui::PushID(meshname.c_str());
-
-                        bool flexbEnabled = false;
-                        if (ImGui::Checkbox(meshname.c_str(), &flexbEnabled))
-                        {
-                            ModifyProjectRequest* req = new ModifyProjectRequest();
-                            req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_FLEXBODY_RESET;
-                            req->mpr_subject = meshname;
-                            req->mpr_target_actor = actor;
-                            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
-                        }
-
-                        ImGui::PopID(); // meshname
-                    }
-                    // Then draw existing flexbodies
-                    for (FlexBody* flexbody: actor->GetGfxActor()->GetFlexbodies())
-                    {
-                        std::string meshname = flexbody->getOrigMeshName();
+                        std::string meshname = p.pp_mesh_obj->getLoadedMesh()->getName();
                         ImGui::PushID(meshname.c_str());
 
                         bool propEnabled = true;
                         if (ImGui::Checkbox(meshname.c_str(), &propEnabled))
                         {
                             ModifyProjectRequest* req = new ModifyProjectRequest();
-                            req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_FLEXBODY_SET;
+                            req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_PROP_SET;
                             req->mpr_subject = meshname;
                             req->mpr_target_actor = actor;
                             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
@@ -1586,6 +1533,47 @@ void TopMenubar::Update()
                         ImGui::PopID(); // meshname
                     }
                 }
+
+                ImGui::Separator(); // Ditto for flexbodies
+
+                size_t total_flexbodies = tuneup_entry->tuneup_def->remove_flexbodies.size() + actor->GetGfxActor()->GetFlexbodies().size();
+                ImGui::TextDisabled(fmt::format(_LC("TopMenubar", "Flexbodies ({}):"), total_flexbodies).c_str());
+                // Draw removed flexbodies                  
+                for (const std::string& meshname: tuneup_entry->tuneup_def->remove_flexbodies)
+                {
+                    ImGui::PushID(meshname.c_str());
+
+                    bool flexbEnabled = false;
+                    if (ImGui::Checkbox(meshname.c_str(), &flexbEnabled))
+                    {
+                        ModifyProjectRequest* req = new ModifyProjectRequest();
+                        req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_FLEXBODY_RESET;
+                        req->mpr_subject = meshname;
+                        req->mpr_target_actor = actor;
+                        App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+                    }
+
+                    ImGui::PopID(); // meshname
+                }
+                // Then draw existing flexbodies
+                for (FlexBody* flexbody: actor->GetGfxActor()->GetFlexbodies())
+                {
+                    std::string meshname = flexbody->getOrigMeshName();
+                    ImGui::PushID(meshname.c_str());
+
+                    bool propEnabled = true;
+                    if (ImGui::Checkbox(meshname.c_str(), &propEnabled))
+                    {
+                        ModifyProjectRequest* req = new ModifyProjectRequest();
+                        req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_FLEXBODY_SET;
+                        req->mpr_subject = meshname;
+                        req->mpr_target_actor = actor;
+                        App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+                    }
+
+                    ImGui::PopID(); // meshname
+                }
+                
             }
 
             m_open_menu_hoverbox_min = menu_pos;

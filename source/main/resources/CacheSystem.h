@@ -195,6 +195,7 @@ enum class CacheValidity
 struct CreateProjectRequest
 {
     std::string cpr_name;            //!< Directory and also the mod file (without extension).
+    std::string cpr_description;     //!< Optional, implemented for tuneups.
     CacheEntryPtr cpr_source_entry;  //!< The original mod to copy files from. Determines mod file extension.
     bool cpr_create_tuneup;          //!< Overrides project type to "tuneup", adds a .tuneup file only.
 };
