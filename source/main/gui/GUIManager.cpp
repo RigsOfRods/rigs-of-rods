@@ -130,7 +130,7 @@ void GUIManager::DrawSimulationGui(float dt)
 {
     if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
     {
-        this->TopMenubar.Update();
+        this->TopMenubar.Draw(dt);
 
         if (this->GameMainMenu.IsVisible())
         {

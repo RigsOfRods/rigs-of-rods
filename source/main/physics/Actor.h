@@ -217,6 +217,7 @@ public:
     Ogre::String      getSectionConfig() { return m_section_config; }
     int               getInstanceId() { return ar_instance_id; }
     // not exported to scripting:
+    CacheEntryPtr&    getUsedActorEntry(); //!< The actor entry itself.
     CacheEntryPtr&    getUsedSkin();
     void              setUsedSkin(CacheEntryPtr& skin);
     CacheEntryPtr&    getUsedTuneup();
@@ -568,6 +569,7 @@ private:
     int               m_masscount = 0;             //!< Physics attr; Number of nodes loaded with l option
     float             m_dry_mass = 0.f;              //!< Physics attr;
     std::unique_ptr<Buoyance> m_buoyance;              //!< Physics
+    CacheEntryPtr     m_used_actor_entry;
     CacheEntryPtr     m_used_skin_entry;               //!< Graphics
     CacheEntryPtr     m_used_tuneup_entry;
     Skidmark*         m_skid_trails[MAX_WHEELS*2] = {};

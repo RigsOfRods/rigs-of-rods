@@ -102,7 +102,7 @@ void RoR::TuneupParser::ParseTuneupAttribute(const std::string& line, TuneupDefP
     Ogre::String& attrib = params[0];
     Ogre::StringUtil::toLowerCase(attrib);
 
-    if (attrib == "use_addonpart"   && params.size() == 2) { tuneup_def->use_addonparts.push_back(params[1]); return; }
+    if (attrib == "use_addonpart"   && params.size() == 2) { tuneup_def->use_addonparts.insert(params[1]); return; }
     if (attrib == "remove_prop"     && params.size() == 2) { tuneup_def->remove_props.insert(params[1]); return; }
     if (attrib == "remove_flexbody" && params.size() == 2) { tuneup_def->remove_flexbodies.insert(params[1]); return; }
     if (attrib == "preview"         && params.size() >= 2) { tuneup_def->thumbnail = params[1]; return; }
@@ -126,7 +126,7 @@ void RoR::TuneupParser::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& 
     buf << "\tcategory_id = " << (int)tuneup->category_id  << "\n";
     buf << "\tguid = "        << tuneup->guid         << "\n";
     buf << "\n";
-    for (std::string& addonpart: tuneup->use_addonparts)
+    for (const std::string& addonpart: tuneup->use_addonparts)
     {
         buf << "\tuse_addonpart = " << addonpart << "\n";
     }
