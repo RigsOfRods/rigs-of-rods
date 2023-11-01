@@ -4327,6 +4327,7 @@ Actor::Actor(
     , m_avg_proped_wheel_radius(0.2f)
     , ar_filename(rq.asr_filename)
     , m_section_config(rq.asr_config)
+    , m_used_actor_entry(rq.asr_cache_entry)
     , m_used_skin_entry(rq.asr_skin_entry)
     , m_used_tuneup_entry(rq.asr_tuneup_entry)
 
@@ -4577,6 +4578,11 @@ void Actor::UpdatePropAnimInputEvents()
 std::string Actor::getTruckFileResourceGroup()
 {
     return m_gfx_actor->GetResourceGroup();
+}
+
+CacheEntryPtr& Actor::getUsedActorEntry()
+{
+    return m_used_actor_entry;
 }
 
 CacheEntryPtr& Actor::getUsedSkin()

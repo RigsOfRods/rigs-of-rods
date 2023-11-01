@@ -200,7 +200,7 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         else
         {
             CreateProjectRequest req;
-            req.cpr_create_tuneup = true;
+            req.cpr_type = CreateProjectRequestType::CREATE_TUNEUP;
             req.cpr_source_entry = rq.asr_cache_entry;
             req.cpr_name = fmt::format("tuned_{}", rq.asr_cache_entry->fname);
             req.cpr_description = fmt::format("Customized {}", rq.asr_cache_entry->dname);

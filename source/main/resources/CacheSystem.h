@@ -191,24 +191,34 @@ enum class CacheValidity
     NEEDS_REBUILD,
 };
 
+enum class CreateProjectRequestType
+{
+    NONE,
+    DEFAULT,                 //!< Copy files from source mod. Source mod Determines mod file extension.
+    CREATE_TUNEUP,           //!< Overrides project type to "tuneup", adds a blank .tuneup file with `CID_TuneupAuto`.
+    SAVE_TUNEUP_ONLY_NEW,    //!< Dumps .tuneup file with `CID_TuneupUser` from source actor, will not overwrite existing.
+    SAVE_TUNEUP_OVERWRITE,   //!< Dumps .tuneup file with `CID_TuneupUser` from source actor.
+};
+
 /// Creates subdirectory in 'My Games\Rigs of Rods\projects', pre-populates it with files and adds modcache entry.
 struct CreateProjectRequest
 {
     std::string cpr_name;            //!< Directory and also the mod file (without extension).
     std::string cpr_description;     //!< Optional, implemented for tuneups.
-    CacheEntryPtr cpr_source_entry;  //!< The original mod to copy files from. Determines mod file extension.
-    bool cpr_create_tuneup;          //!< Overrides project type to "tuneup", adds a .tuneup file only.
+    CacheEntryPtr cpr_source_entry;  //!< The original mod to copy files from. 
+    CreateProjectRequestType cpr_type = CreateProjectRequestType::NONE;      
 };
 
 enum class ModifyProjectRequestType
 {
     NONE,
-    TUNEUP_USE_ADDONPART_SET,
-    TUNEUP_USE_ADDONPART_RESET,
-    TUNEUP_REMOVE_PROP_SET,
-    TUNEUP_REMOVE_PROP_RESET,
-    TUNEUP_REMOVE_FLEXBODY_SET,
-    TUNEUP_REMOVE_FLEXBODY_RESET,
+    TUNEUP_USE_ADDONPART_SET,    //!< 'subject' is addonpart filename.
+    TUNEUP_USE_ADDONPART_RESET,  //!< 'subject' is addonpart filename.
+    TUNEUP_REMOVE_PROP_SET,      //!< 'subject' is mesh name.
+    TUNEUP_REMOVE_PROP_RESET,    //!< 'subject' is mesh name.
+    TUNEUP_REMOVE_FLEXBODY_SET,  //!< 'subject' is mesh name.
+    TUNEUP_REMOVE_FLEXBODY_RESET,//!< 'subject' is mesh name.
+    PROJECT_LOAD_TUNEUP,         //!< 'subject' is tuneup filename. This overwrites the auto-generated tuneup with the save.
 };
 
 struct ModifyProjectRequest

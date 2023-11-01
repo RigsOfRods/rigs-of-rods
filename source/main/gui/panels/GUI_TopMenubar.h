@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "CacheSystem.h"
 #include "RoRnet.h"
 
 #include <imgui.h>
@@ -51,13 +52,15 @@ public:
     const ImVec4  GREEN_TEXT            = ImVec4(0.0f, 0.9f, 0.0f, 1.f);
     const ImVec4  ORANGE_TEXT           = ImVec4(0.9f, 0.6f, 0.0f, 1.f);
     const ImVec4  RED_TEXT              = ImVec4(1.00f, 0.00f, 0.00f, 1.f);
+    const ImVec2  MENU_HOVERBOX_PADDING = ImVec2(25.f, 10.f);
 
     enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS, TOPMENU_AI, TOPMENU_TUNING };
     enum class StateBox { STATEBOX_NONE, STATEBOX_REPLAY, STATEBOX_RACE, STATEBOX_LIVE_REPAIR, STATEBOX_QUICK_REPAIR };
 
-    TopMenubar(): m_open_menu(), m_daytime(0), m_quickload(false), m_confirm_remove_all(false) {}
+    TopMenubar();
+    ~TopMenubar();
 
-    void Update();
+    void Draw(float dt);
     bool ShouldDisplay(ImVec2 window_pos);
 
     bool IsVisible() { return m_open_menu != TopMenu::TOPMENU_NONE; };
@@ -94,6 +97,17 @@ public:
 
     void Refresh(std::string payload);
 
+    // Tuning menu
+    ActorPtr tuning_actor;          //!< Detecting actor change to update cached values.
+    CacheQuery tuning_addonparts;   //!< Pre-searched addonparts, to display them with checkbox like props or flexbodies.
+    CacheQuery tuning_saves;        //!< Tuneups saved by user, with category ID `RoR::CID_AddonpartUser`
+    Str<200> tuning_savebox_buf;    //!< Buffer for tuneup name to be saved
+    bool tuning_savebox_visible = false;   //!< User pressed 'save active' to open savebox.
+    bool tuning_savebox_overwrite = false; //!< Status of "Overwrite?" checkbox
+    const float TUNING_DELETEBTN_TIMELIMIT = 2.f; //!< Delete button must be held for several sec to confirm.
+    float tuning_deletebtn_time_left = 0.f; //!< Delete button must be held for several sec to confirm.
+    void RefreshTuningMenu();
+
 private:
     void DrawActorListSinglePlayer();
     void DrawMpUserToActorList(RoRnet::UserInfo &user); // Multiplayer
@@ -107,11 +121,11 @@ private:
     ImVec2  m_state_box_hoverbox_max;
     StateBox m_state_box = StateBox::STATEBOX_NONE;
 
-    bool    m_confirm_remove_all;
+    bool    m_confirm_remove_all = false;
 
-    float   m_daytime;
+    float   m_daytime = 0.f;
     float   m_waves_height;
-    bool    m_quickload;
+    bool    m_quickload = false;
     std::string m_quicksave_name;
     std::vector<std::string> m_savegame_names;
 

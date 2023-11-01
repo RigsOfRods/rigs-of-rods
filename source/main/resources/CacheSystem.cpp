@@ -1494,7 +1494,7 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
         // Create preliminary cache entry
         CacheEntryPtr project_entry = new CacheEntry();
         
-        if (request->cpr_create_tuneup)
+        if (request->cpr_type == CreateProjectRequestType::CREATE_TUNEUP)
         {
             project_entry->fext = "tuneup"; // Tell modcache what it is.
             project_entry->categoryid = CID_TuneupsAuto; // For auto-loading on future spawns of the vehicle.
@@ -1514,7 +1514,7 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
         project_entry->number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
         this->LoadResource(project_entry); // This fills `entry.resource_group`
      
-        if (request->cpr_create_tuneup)
+        if (request->cpr_type == CreateProjectRequestType::CREATE_TUNEUP)
         {
             // Tuneup projects don't contain any media, just the .tuneup file which lists addonparts to use.
 
@@ -1628,12 +1628,12 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
     {
     case ModifyProjectRequestType::TUNEUP_USE_ADDONPART_SET:
         // Add the addonpart to the TuneupDef document.
-        tuneup_entry->tuneup_def->use_addonparts.push_back(request->mpr_subject);
+        tuneup_entry->tuneup_def->use_addonparts.insert(request->mpr_subject);
         break;
 
     case ModifyProjectRequestType::TUNEUP_USE_ADDONPART_RESET:
         // Erase the addonpart from the TuneupDef document.
-        RoR::EraseIf(tuneup_entry->tuneup_def->use_addonparts, [request](const std::string& name) { return name == request->mpr_subject; });
+        tuneup_entry->tuneup_def->use_addonparts.erase(request->mpr_subject);
         break;
     
     case ModifyProjectRequestType::TUNEUP_REMOVE_PROP_SET:
