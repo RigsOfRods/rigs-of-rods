@@ -4585,20 +4585,12 @@ CacheEntryPtr& Actor::getUsedActorEntry()
     return m_used_actor_entry;
 }
 
-CacheEntryPtr& Actor::getUsedSkin()
+CacheEntryPtr& Actor::getUsedSkinEntry()
 {
     return m_used_skin_entry;
 }
-void Actor::setUsedSkin(CacheEntryPtr& skin) 
-{
-    m_used_skin_entry = skin;
-}
 
-CacheEntryPtr& Actor::getUsedTuneup()
+CacheEntryPtr& Actor::getUsedTuneupEntry()
 {
     return m_used_tuneup_entry;
-}
-void Actor::setUsedTuneup(CacheEntryPtr& tuneup) 
-{
-    m_used_tuneup_entry = tuneup;
 }

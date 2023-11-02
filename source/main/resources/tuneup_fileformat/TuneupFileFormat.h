@@ -35,6 +35,8 @@ namespace RoR {
 
 struct TuneupDef: public RefCountingObject<TuneupDef>
 {
+    TuneupDefPtr clone();
+
     std::set<std::string> use_addonparts; //!< Addonpart filenames
     std::set<std::string> remove_props; //!< Mesh names of props to be removed.
     std::set<std::string> remove_flexbodies; //!< Mesh names of flexbodies to be removed.

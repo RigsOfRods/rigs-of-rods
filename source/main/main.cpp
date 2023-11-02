@@ -1032,6 +1032,14 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_EDI_DELETE_PROJECT_REQUESTED:
+                {
+                    CacheEntryPtr* entry_ptr = static_cast<CacheEntryPtr*>(m.payload);
+                    App::GetCacheSystem()->DeleteProject(*entry_ptr);
+                    delete entry_ptr;
+                    break;
+                }
+
                 default:;
                 }
 

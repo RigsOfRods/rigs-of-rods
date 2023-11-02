@@ -33,6 +33,24 @@
 
 using namespace RoR;
 
+TuneupDefPtr TuneupDef::clone()
+{
+    TuneupDefPtr ret = new TuneupDef();
+    
+    ret->use_addonparts     =     this->use_addonparts    ; //std::set<std::string> 
+    ret->remove_props       =     this->remove_props      ; //std::set<std::string> 
+    ret->remove_flexbodies  =     this->remove_flexbodies ; //std::set<std::string> 
+    ret->name               =     this->name              ; //std::string           
+    ret->guid               =     this->guid              ; //std::string           
+    ret->thumbnail          =     this->thumbnail         ; //std::string           
+    ret->description        =     this->description       ; //std::string           
+    ret->author_name        =     this->author_name       ; //std::string           
+    ret->author_id          =     this->author_id         ; //int                   
+    ret->category_id        =     this->category_id       ; //CacheCategoryId   
+
+    return ret;
+}
+
 std::vector<TuneupDefPtr> RoR::TuneupParser::ParseTuneups(Ogre::DataStreamPtr& stream)
 {
     std::vector<TuneupDefPtr> result;
