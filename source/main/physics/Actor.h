@@ -218,10 +218,8 @@ public:
     int               getInstanceId() { return ar_instance_id; }
     // not exported to scripting:
     CacheEntryPtr&    getUsedActorEntry(); //!< The actor entry itself.
-    CacheEntryPtr&    getUsedSkin();
-    void              setUsedSkin(CacheEntryPtr& skin);
-    CacheEntryPtr&    getUsedTuneup();
-    void              setUsedTuneup(CacheEntryPtr& tuneup);
+    CacheEntryPtr&    getUsedSkinEntry();
+    CacheEntryPtr&    getUsedTuneupEntry();
     bool              isPreloadedWithTerrain() const { return m_preloaded_with_terrain; };
     std::vector<authorinfo_t> getAuthors();
     std::vector<std::string>  getDescription();

@@ -1563,7 +1563,7 @@ void ActorSpawner::ProcessMinimass(RigDef::Minimass & def)
 void ActorSpawner::ProcessProp(RigDef::Prop & def)
 {
     // Check if removed via .tuneup
-    CacheEntryPtr& tuneup_entry = m_actor->getUsedTuneup();
+    CacheEntryPtr& tuneup_entry = m_actor->getUsedTuneupEntry();
     if (tuneup_entry && tuneup_entry->tuneup_def->remove_props.find(def.mesh_name) != tuneup_entry->tuneup_def->remove_props.end())
     {
         LOG(fmt::format("{}: Prop '{}' removed by tuneup '{}'", m_actor->ar_filename, def.mesh_name, tuneup_entry->fname));

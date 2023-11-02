@@ -104,14 +104,19 @@ public:
     Str<200> tuning_savebox_buf;    //!< Buffer for tuneup name to be saved
     bool tuning_savebox_visible = false;   //!< User pressed 'save active' to open savebox.
     bool tuning_savebox_overwrite = false; //!< Status of "Overwrite?" checkbox
-    const float TUNING_DELETEBTN_TIMELIMIT = 2.f; //!< Delete button must be held for several sec to confirm.
-    float tuning_deletebtn_time_left = 0.f; //!< Delete button must be held for several sec to confirm.
+    const ImVec4 TUNING_HOLDTOCONFIRM_COLOR = ImVec4(0.25f, 0.15f, 0.2f, 0.5f);
+    const float TUNING_HOLDTOCONFIRM_TIMELIMIT = 1.5f; //!< Delete button must be held for several sec to confirm.
+    float tuning_holdtoconfirm_time_left = 0.f; //!< Delete button must be held for several sec to confirm.
+    bool tuning_force_refresh = false;
+    float tuning_delbtn_cursorx_min = 0.f; //!< Avoid drawing 'Delete' button over saved tuneup names.
     void RefreshTuningMenu();
 
 private:
     void DrawActorListSinglePlayer();
     void DrawMpUserToActorList(RoRnet::UserInfo &user); // Multiplayer
     void DrawSpecialStateBox(float top_offset);
+
+    
 
     ImVec2  m_open_menu_hoverbox_min;
     ImVec2  m_open_menu_hoverbox_max;

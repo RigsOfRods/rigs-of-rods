@@ -236,9 +236,13 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
 
     LOG(" ===== LOADING VEHICLE: " + rq.asr_filename);
 
-    if (rq.asr_cache_entry != nullptr)
+    if (rq.asr_cache_entry)
     {
         rq.asr_filename = rq.asr_cache_entry->fname;
+    }
+    else
+    {
+        rq.asr_cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, rq.asr_filename);
     }
 
     RigDef::DocumentPtr def = m_actor_manager.FetchActorDef(
@@ -402,8 +406,8 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         srq->asr_position   = Ogre::Vector3(actor->getPosition().x, actor->getMinHeight(), actor->getPosition().z);
         srq->asr_rotation   = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(actor->getRotation()), Ogre::Vector3::UNIT_Y);
         srq->asr_config     = actor->getSectionConfig();
-        srq->asr_skin_entry = actor->getUsedSkin();
-        srq->asr_tuneup_entry = actor->getUsedTuneup();
+        srq->asr_skin_entry = actor->getUsedSkinEntry();
+        srq->asr_tuneup_entry = actor->getUsedTuneupEntry();
         srq->asr_cache_entry= entry;
         srq->asr_debugview  = (int)actor->GetGfxActor()->GetDebugView();
         srq->asr_origin     = ActorSpawnRequest::Origin::USER;

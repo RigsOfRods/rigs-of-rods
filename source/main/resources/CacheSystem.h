@@ -196,17 +196,21 @@ enum class CreateProjectRequestType
     NONE,
     DEFAULT,                 //!< Copy files from source mod. Source mod Determines mod file extension.
     CREATE_TUNEUP,           //!< Overrides project type to "tuneup", adds a blank .tuneup file with `CID_TuneupAuto`.
-    SAVE_TUNEUP_ONLY_NEW,    //!< Dumps .tuneup file with `CID_TuneupUser` from source actor, will not overwrite existing.
-    SAVE_TUNEUP_OVERWRITE,   //!< Dumps .tuneup file with `CID_TuneupUser` from source actor.
+    SAVE_TUNEUP,             //!< Dumps .tuneup file with `CID_TuneupUser` from source actor, will not overwrite existing.
 };
 
 /// Creates subdirectory in 'My Games\Rigs of Rods\projects', pre-populates it with files and adds modcache entry.
 struct CreateProjectRequest
 {
+    CreateProjectRequest();
+    ~CreateProjectRequest();
+
     std::string cpr_name;            //!< Directory and also the mod file (without extension).
     std::string cpr_description;     //!< Optional, implemented for tuneups.
-    CacheEntryPtr cpr_source_entry;  //!< The original mod to copy files from. 
-    CreateProjectRequestType cpr_type = CreateProjectRequestType::NONE;      
+    CacheEntryPtr cpr_source_entry;  //!< The original mod to copy files from.
+    ActorPtr cpr_source_actor;       //!< Only for type `SAVE_TUNEUP`
+    CreateProjectRequestType cpr_type = CreateProjectRequestType::NONE;     
+    bool cpr_overwrite;
 };
 
 enum class ModifyProjectRequestType
@@ -219,6 +223,7 @@ enum class ModifyProjectRequestType
     TUNEUP_REMOVE_FLEXBODY_SET,  //!< 'subject' is mesh name.
     TUNEUP_REMOVE_FLEXBODY_RESET,//!< 'subject' is mesh name.
     PROJECT_LOAD_TUNEUP,         //!< 'subject' is tuneup filename. This overwrites the auto-generated tuneup with the save.
+    PROJECT_RESET_TUNEUP,        //!< 'subject' is empty. This resets the auto-generated tuneup to orig. values.
 };
 
 struct ModifyProjectRequest
@@ -271,14 +276,20 @@ public:
     void                  UnLoadResource(CacheEntryPtr& t); //!< Unloads associated bundle, destroying all spawned actors.
     /// @}
 
+    /// @name Loading
+    /// @{
+    CacheEntryPtr         CreateProject(CreateProjectRequest* request); //!< Creates subdirectory in 'My Games\Rigs of Rods\projects', pre-populates it with files and adds modcache entry.
+    void                  ModifyProject(ModifyProjectRequest* request);
+    void                  DeleteProject(CacheEntryPtr& entry);
+    /// @}
+
     const std::vector<CacheEntryPtr>   &GetEntries()        const { return m_entries; }
     const CategoryIdNameMap         &GetCategories()     const { return m_categories; }
 
     Ogre::String GetPrettyName(Ogre::String fname);
     std::string ActorTypeToName(ActorType driveable);
 
-    CacheEntryPtr CreateProject(CreateProjectRequest* request); //!< Creates subdirectory in 'My Games\Rigs of Rods\projects', pre-populates it with files and adds modcache entry.
-    void ModifyProject(ModifyProjectRequest* request);
+
 
 private:
 
