@@ -26,15 +26,17 @@
 #include "Console.h"
 #include "GenericFileFormat.h"
 #include "RigDef_Parser.h"
+#include "TuneupFileFormat.h"
 
 #include <Ogre.h>
 
 using namespace RoR;
 using namespace RigDef;
 
-std::shared_ptr<Document::Module> AddonPartParser::TransformToRigDefModule(CacheEntryPtr& entry)
+std::shared_ptr<Document::Module> AddonPartUtility::TransformToRigDefModule(CacheEntryPtr& entry)
 {
     App::GetCacheSystem()->LoadResource(entry);
+    m_addonpart_entry = entry;
     try
     {
         Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().openResource(entry->fname, entry->resource_group);
@@ -51,8 +53,14 @@ std::shared_ptr<Document::Module> AddonPartParser::TransformToRigDefModule(Cache
 
         while (!m_context->endOfFile())
         {
-            // Evaluate block
-            if (m_context->isTokKeyword())
+            // (ignore 'addonpart_*' directives)
+            if (m_context->isTokKeyword() && m_context->getTokKeyword().find("addonpart_") != std::string::npos)
+            {
+                m_context->seekNextLine();
+                continue;
+            }
+            // Evaluate block 
+            else if (m_context->isTokKeyword())
             {
                 keyword = Parser::IdentifyKeyword(m_context->getTokKeyword());
                 if (keyword == Keyword::MANAGEDMATERIALS ||
@@ -82,15 +90,63 @@ std::shared_ptr<Document::Module> AddonPartParser::TransformToRigDefModule(Cache
     {
         App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
-            fmt::format("Error parsing addonpart file '{}', message: {}",
+            fmt::format("Could not use addonpart: Error parsing file '{}', message: {}",
                 entry->fname, e.getFullDescription()));
         return nullptr;
     }
 }
 
+void AddonPartUtility::ResolveUnwantedElements(TuneupDefPtr& tuneup, CacheEntryPtr& addonpart_entry)
+{
+    // Evaluates 'addonpart_unwanted_*' elements, respecting 'protected_*' directives in the tuneup.
+    // ---------------------------------------------------------------------------------------------
+    App::GetCacheSystem()->LoadResource(addonpart_entry);
+    m_addonpart_entry = addonpart_entry;
+
+    try
+    {
+        Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().openResource(addonpart_entry->fname, addonpart_entry->resource_group);
+
+        m_document = new GenericDocument();
+        BitMask_t options = GenericDocument::OPTION_ALLOW_SLASH_COMMENTS | GenericDocument::OPTION_ALLOW_NAKED_STRINGS;
+        m_document->loadFromDataStream(datastream, options);
+        m_context = new GenericDocContext(m_document);
+
+        while (!m_context->endOfFile())
+        {
+            if (m_context->isTokKeyword(0) 
+                && m_context->getTokKeyword() == "addonpart_unwanted_prop" 
+                && m_context->isTokString(1))
+            {
+                if (!tuneup->isPropProtected(m_context->getTokString(1)))
+                    tuneup->remove_props.insert(m_context->getTokString(1));
+            }
+            else if (m_context->isTokKeyword(0) 
+                && m_context->getTokKeyword() == "addonpart_unwanted_flexbody" 
+                && m_context->isTokString(1))
+            {
+                if (!tuneup->isFlexbodyProtected(m_context->getTokString(1)))
+                    tuneup->remove_flexbodies.insert(m_context->getTokString(1));
+            }
+
+            m_context->seekNextLine();
+        }
+
+    }
+    catch (Ogre::Exception& e)
+    {
+        App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Addonpart unwanted elements check: Error parsing file '{}', message: {}",
+                addonpart_entry->fname, e.getFullDescription()));
+    }
+}
+
+
+// Helpers of `TransformToRigDefModule()`, they expect `m_context` to be in position:
 // These expect `m_context` to be in position:
 
-void AddonPartParser::ProcessManagedMaterial()
+void AddonPartUtility::ProcessManagedMaterial()
 {
     ManagedMaterial def;
     int n = m_context->countLineArgs();
@@ -113,7 +169,7 @@ void AddonPartParser::ProcessManagedMaterial()
     m_module->managedmaterials.push_back(def);
 }
 
-void AddonPartParser::ProcessProp()
+void AddonPartUtility::ProcessProp()
 {
     RigDef::Prop def;
     int n = m_context->countLineArgs();
@@ -122,7 +178,7 @@ void AddonPartParser::ProcessProp()
         App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
             fmt::format("Error parsing addonpart file '{}': 'install_prop' has only {} arguments, expected {}",
-                m_entry->fname, n, 10));
+                m_addonpart_entry->fname, n, 10));
         return;
     }
 
@@ -144,7 +200,7 @@ void AddonPartParser::ProcessProp()
     m_module->props.push_back(def);
 }
 
-void AddonPartParser::ProcessFlexbody()
+void AddonPartUtility::ProcessFlexbody()
 {
     Flexbody def;
     int n = m_context->countLineArgs();
@@ -152,7 +208,7 @@ void AddonPartParser::ProcessFlexbody()
     {
         App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
-            fmt::format("Error parsing addonpart file '{}': flexbody has only {} arguments, expected {}", m_entry->fname, n, 10));
+            fmt::format("Error parsing addonpart file '{}': flexbody has only {} arguments, expected {}", m_addonpart_entry->fname, n, 10));
         return;
     }
 
@@ -177,7 +233,7 @@ void AddonPartParser::ProcessFlexbody()
     {
         App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
-            fmt::format("Error parsing addonpart file '{}': flexbody is not followed by 'forset'!", m_entry->fname));
+            fmt::format("Error parsing addonpart file '{}': flexbody is not followed by 'forset'!", m_addonpart_entry->fname));
         return;
     }
 
@@ -185,3 +241,4 @@ void AddonPartParser::ProcessFlexbody()
 
     m_module->flexbodies.push_back(def);
 }
+

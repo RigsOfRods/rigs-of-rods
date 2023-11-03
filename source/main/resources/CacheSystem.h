@@ -222,6 +222,10 @@ enum class ModifyProjectRequestType
     TUNEUP_REMOVE_PROP_RESET,    //!< 'subject' is mesh name.
     TUNEUP_REMOVE_FLEXBODY_SET,  //!< 'subject' is mesh name.
     TUNEUP_REMOVE_FLEXBODY_RESET,//!< 'subject' is mesh name.
+    TUNEUP_PROTECTED_PROP_SET,      //!< 'subject' is mesh name.
+    TUNEUP_PROTECTED_PROP_RESET,    //!< 'subject' is mesh name.
+    TUNEUP_PROTECTED_FLEXBODY_SET,  //!< 'subject' is mesh name.
+    TUNEUP_PROTECTED_FLEXBODY_RESET,//!< 'subject' is mesh name.
     PROJECT_LOAD_TUNEUP,         //!< 'subject' is tuneup filename. This overwrites the auto-generated tuneup with the save.
     PROJECT_RESET_TUNEUP,        //!< 'subject' is empty. This resets the auto-generated tuneup to orig. values.
 };

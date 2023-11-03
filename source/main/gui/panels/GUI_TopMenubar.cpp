@@ -1479,13 +1479,13 @@ void TopMenubar::Draw(float dt)
 
                     // Delete button (right-aligned)
                     ImGui::SameLine();
-                    if (tuning_delbtn_cursorx_min < ImGui::GetCursorPosX()) // Make sure button won't draw over item name
-                        tuning_delbtn_cursorx_min = ImGui::GetCursorPosX();
+                    if (tuning_rwidget_cursorx_min < ImGui::GetCursorPosX()) // Make sure button won't draw over item name
+                        tuning_rwidget_cursorx_min = ImGui::GetCursorPosX();
                     std::string delbtn_text = _LC("Tuning", "Delete");
                     float delbtn_w = ImGui::CalcTextSize(delbtn_text.c_str()).x + ImGui::GetStyle().FramePadding.x * 2;
                     float delbtn_cursorx = ImGui::GetWindowContentRegionWidth() - delbtn_w;
-                    if (delbtn_cursorx < tuning_delbtn_cursorx_min)
-                        delbtn_cursorx = tuning_delbtn_cursorx_min;
+                    if (delbtn_cursorx < tuning_rwidget_cursorx_min)
+                        delbtn_cursorx = tuning_rwidget_cursorx_min;
                     ImGui::SetCursorPosX(delbtn_cursorx);
                     ImGui::PushStyleColor(ImGuiCol_Button, TUNING_HOLDTOCONFIRM_COLOR);
                     bool delbtn_pressed = RoR::ImButtonHoldToConfirm(delbtn_text, /*small:*/true,
@@ -1604,6 +1604,9 @@ void TopMenubar::Draw(float dt)
                             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
                         }
 
+                        this->DrawTuningProtectedChkRightAligned(tuneup_entry->tuneup_def, meshname, tuneup_entry->tuneup_def->isPropProtected(meshname),
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_SET, ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_RESET);
+
                         ImGui::PopID(); // meshname
                     }
                     // Then draw existing props (skip aero navlights and dashboard frankenprop)
@@ -1632,6 +1635,9 @@ void TopMenubar::Draw(float dt)
                                 App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
                             }
 
+                            this->DrawTuningProtectedChkRightAligned(tuneup_entry->tuneup_def, meshname, tuneup_entry->tuneup_def->isPropProtected(meshname),
+                                ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_SET, ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_RESET);
+
                             ImGui::PopID(); // meshname
                         }
                     }
@@ -1659,6 +1665,9 @@ void TopMenubar::Draw(float dt)
                             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
                         }
 
+                        this->DrawTuningProtectedChkRightAligned(tuneup_entry->tuneup_def, meshname, tuneup_entry->tuneup_def->isFlexbodyProtected(meshname),
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_SET, ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_RESET);
+
                         ImGui::PopID(); // meshname
                     }
                     // Then draw existing flexbodies
@@ -1676,6 +1685,9 @@ void TopMenubar::Draw(float dt)
                             req->mpr_target_actor = tuning_actor;
                             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
                         }
+
+                        this->DrawTuningProtectedChkRightAligned(tuneup_entry->tuneup_def, meshname, tuneup_entry->tuneup_def->isFlexbodyProtected(meshname),
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_SET, ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_RESET);
 
                         ImGui::PopID(); // meshname
                     }
@@ -2154,8 +2166,36 @@ void TopMenubar::RefreshTuningMenu()
         tuning_saves.cqy_results.clear();
         App::GetCacheSystem()->Query(tuning_saves);
 
-        tuning_delbtn_cursorx_min = 0.f;
+        tuning_rwidget_cursorx_min = 0.f;
     }
     tuning_actor = current_actor;
 }
 
+void TopMenubar::DrawTuningProtectedChkRightAligned(TuneupDefPtr& tuneup, const std::string& meshname, bool protectchk_value, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset)
+{
+    // > resolve the alignment
+    ImGui::SameLine();
+    if (tuning_rwidget_cursorx_min < ImGui::GetCursorPosX()) // Make sure button won't draw over item name
+        tuning_rwidget_cursorx_min = ImGui::GetCursorPosX();
+    std::string protectchk_text = _LC("Tuning", "Protected");
+    float protectchk_w = ImGui::CalcTextSize(protectchk_text.c_str()).x + ImGui::GetStyle().FramePadding.x * 2;
+    float protectchk_cursorx = (ImGui::GetWindowContentRegionWidth() - protectchk_w) - 20.f;
+    if (protectchk_cursorx < tuning_rwidget_cursorx_min)
+        protectchk_cursorx = tuning_rwidget_cursorx_min;
+    ImGui::SetCursorPosX(protectchk_cursorx);
+
+    // > set styling and draw
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+    bool chk_pressed = ImGui::Checkbox(protectchk_text.c_str(), &protectchk_value);
+    ImGui::PopStyleVar(1); // ImGuiStyleVar_FramePadding
+    
+    // > handle user action
+    if (chk_pressed)
+    {
+        ModifyProjectRequest* request = new ModifyProjectRequest();
+        request->mpr_target_actor = tuning_actor;
+        request->mpr_subject = meshname;
+        request->mpr_type = (protectchk_value) ? request_type_set : request_type_reset;
+        App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, request));
+    }
+}

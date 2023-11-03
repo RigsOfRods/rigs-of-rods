@@ -108,7 +108,7 @@ public:
     const float TUNING_HOLDTOCONFIRM_TIMELIMIT = 1.5f; //!< Delete button must be held for several sec to confirm.
     float tuning_holdtoconfirm_time_left = 0.f; //!< Delete button must be held for several sec to confirm.
     bool tuning_force_refresh = false;
-    float tuning_delbtn_cursorx_min = 0.f; //!< Avoid drawing 'Delete' button over saved tuneup names.
+    float tuning_rwidget_cursorx_min = 0.f; //!< Avoid drawing right-side widgets ('Delete' button or 'Protected' chk) over saved tuneup names.
     void RefreshTuningMenu();
 
 private:
@@ -116,7 +116,7 @@ private:
     void DrawMpUserToActorList(RoRnet::UserInfo &user); // Multiplayer
     void DrawSpecialStateBox(float top_offset);
 
-    
+    void DrawTuningProtectedChkRightAligned(TuneupDefPtr& tuneup, const std::string& meshname, bool is_protected, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset);
 
     ImVec2  m_open_menu_hoverbox_min;
     ImVec2  m_open_menu_hoverbox_max;

@@ -35,22 +35,28 @@
 
 namespace RoR {
 
-/// Modcache processes this format directly using `RoR::GenericDocument`, see `RoR::CacheSystem::FillAddonPartDetailInfo()`
-/// This utility only transforms the addonpart to `RigDef::File::Module` (fake 'section/end_section') used for spawning.
-class AddonPartParser
+/// NOTE: Modcache processes this format directly using `RoR::GenericDocument`, see `RoR::CacheSystem::FillAddonPartDetailInfo()`
+class AddonPartUtility
 {
 public:
-    std::shared_ptr<RigDef::Document::Module> TransformToRigDefModule(CacheEntryPtr& entry); //!< Returns nullptr on error
+    /// transforms the addonpart to `RigDef::File::Module` (fake 'section/end_section') used for spawning.
+    /// @return nullptr on error
+    std::shared_ptr<RigDef::Document::Module> TransformToRigDefModule(CacheEntryPtr& addonpart_entry);
+
+    /// Evaluates 'addonpart_unwanted_*' elements, respecting 'protected_*' directives in the tuneup.
+    void ResolveUnwantedElements(TuneupDefPtr& tuneup, CacheEntryPtr& addonpart_entry);
+
 private:
-    // These expect `m_context` to be in position:
+    // Helpers of `TransformToRigDefModule()`, they expect `m_context` to be in position:
     void ProcessManagedMaterial();
     void ProcessProp();
     void ProcessFlexbody();
 
+    // SHARED CONTEXT
     GenericDocumentPtr m_document;
     GenericDocContextPtr m_context;
     std::shared_ptr<RigDef::Document::Module> m_module;
-    CacheEntryPtr m_entry;
+    CacheEntryPtr m_addonpart_entry;
 };
 
 }; // namespace RoR
