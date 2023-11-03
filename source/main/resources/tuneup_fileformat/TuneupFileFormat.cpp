@@ -37,9 +37,7 @@ TuneupDefPtr TuneupDef::clone()
 {
     TuneupDefPtr ret = new TuneupDef();
     
-    ret->use_addonparts     =     this->use_addonparts    ; //std::set<std::string> 
-    ret->remove_props       =     this->remove_props      ; //std::set<std::string> 
-    ret->remove_flexbodies  =     this->remove_flexbodies ; //std::set<std::string> 
+    // General info
     ret->name               =     this->name              ; //std::string           
     ret->guid               =     this->guid              ; //std::string           
     ret->thumbnail          =     this->thumbnail         ; //std::string           
@@ -47,6 +45,13 @@ TuneupDefPtr TuneupDef::clone()
     ret->author_name        =     this->author_name       ; //std::string           
     ret->author_id          =     this->author_id         ; //int                   
     ret->category_id        =     this->category_id       ; //CacheCategoryId   
+
+    // Modding attributes
+    ret->use_addonparts     =     this->use_addonparts    ; //std::set<std::string> 
+    ret->remove_props       =     this->remove_props      ; //std::set<std::string> 
+    ret->remove_flexbodies  =     this->remove_flexbodies ; //std::set<std::string> 
+    ret->protected_props    =     this->protected_props      ; //std::set<std::string> 
+    ret->protected_flexbodies =   this->protected_flexbodies ; //std::set<std::string> 
 
     return ret;
 }
@@ -120,9 +125,7 @@ void RoR::TuneupParser::ParseTuneupAttribute(const std::string& line, TuneupDefP
     Ogre::String& attrib = params[0];
     Ogre::StringUtil::toLowerCase(attrib);
 
-    if (attrib == "use_addonpart"   && params.size() == 2) { tuneup_def->use_addonparts.insert(params[1]); return; }
-    if (attrib == "remove_prop"     && params.size() == 2) { tuneup_def->remove_props.insert(params[1]); return; }
-    if (attrib == "remove_flexbody" && params.size() == 2) { tuneup_def->remove_flexbodies.insert(params[1]); return; }
+    // General info
     if (attrib == "preview"         && params.size() >= 2) { tuneup_def->thumbnail = params[1]; return; }
     if (attrib == "description"     && params.size() >= 2) { tuneup_def->description = params[1]; return; }
     if (attrib == "author_name"     && params.size() >= 2) { tuneup_def->author_name = params[1]; return; }
@@ -130,6 +133,13 @@ void RoR::TuneupParser::ParseTuneupAttribute(const std::string& line, TuneupDefP
     if (attrib == "category_id"     && params.size() == 2) { tuneup_def->category_id = (CacheCategoryId)PARSEINT(params[1]); return; }
     if (attrib == "guid"            && params.size() >= 2) { tuneup_def->guid = params[1]; Ogre::StringUtil::trim(tuneup_def->guid); Ogre::StringUtil::toLowerCase(tuneup_def->guid); return; }
     if (attrib == "name"            && params.size() >= 2) { tuneup_def->name = params[1]; Ogre::StringUtil::trim(tuneup_def->name); return; }
+
+    // Modding attributes
+    if (attrib == "use_addonpart"   && params.size() == 2) { tuneup_def->use_addonparts.insert(params[1]); return; }
+    if (attrib == "remove_prop"     && params.size() == 2) { tuneup_def->remove_props.insert(params[1]); return; }
+    if (attrib == "remove_flexbody" && params.size() == 2) { tuneup_def->remove_flexbodies.insert(params[1]); return; }
+    if (attrib == "protected_prop"     && params.size() == 2) { tuneup_def->protected_props.insert(params[1]); return; }
+    if (attrib == "protected_flexbody" && params.size() == 2) { tuneup_def->protected_flexbodies.insert(params[1]); return; }
 }
 
 void RoR::TuneupParser::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tuneup)
@@ -137,6 +147,8 @@ void RoR::TuneupParser::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& 
     Str<2000> buf;
     buf << tuneup->name << "\n";
     buf << "{\n";
+
+    // General info:
     buf << "\tpreview = "     << tuneup->thumbnail    << "\n";
     buf << "\tdescription = " << tuneup->description  << "\n";
     buf << "\tauthor_name = " << tuneup->author_name  << "\n";
@@ -144,6 +156,8 @@ void RoR::TuneupParser::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& 
     buf << "\tcategory_id = " << (int)tuneup->category_id  << "\n";
     buf << "\tguid = "        << tuneup->guid         << "\n";
     buf << "\n";
+
+    // Modding attributes:
     for (const std::string& addonpart: tuneup->use_addonparts)
     {
         buf << "\tuse_addonpart = " << addonpart << "\n";
@@ -155,6 +169,14 @@ void RoR::TuneupParser::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& 
     for (const std::string& remove_flexbody: tuneup->remove_flexbodies)
     {
         buf << "\tremove_flexbody = " << remove_flexbody << "\n";
+    }
+    for (const std::string& protected_prop: tuneup->protected_props)
+    {
+        buf << "\tprotected_prop = " << protected_prop << "\n";
+    }
+    for (const std::string& protected_flexbody: tuneup->protected_flexbodies)
+    {
+        buf << "\tprotected_flexbody = " << protected_flexbody << "\n";
     }
     buf << "}\n\n";
 

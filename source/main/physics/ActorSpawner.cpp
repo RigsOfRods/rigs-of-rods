@@ -121,8 +121,8 @@ void ActorSpawner::ConfigureAddonParts(CacheEntryPtr& tuneup_entry)
             CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, addonpart);
             if (addonpart_entry)
             {
-                AddonPartParser parser;
-                auto module = parser.TransformToRigDefModule(addonpart_entry);
+                AddonPartUtility util;
+                auto module = util.TransformToRigDefModule(addonpart_entry);
                 if (module)
                 {
                     m_selected_modules.push_back(module);

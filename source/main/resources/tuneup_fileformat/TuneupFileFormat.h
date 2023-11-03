@@ -36,17 +36,28 @@ namespace RoR {
 struct TuneupDef: public RefCountingObject<TuneupDef>
 {
     TuneupDefPtr clone();
+    bool         isPropProtected(const std::string& meshname) { return protected_props.find(meshname) != protected_props.end(); }
+    bool         isFlexbodyProtected(const std::string& meshname) { return protected_flexbodies.find(meshname) != protected_flexbodies.end(); }
 
-    std::set<std::string> use_addonparts; //!< Addonpart filenames
-    std::set<std::string> remove_props; //!< Mesh names of props to be removed.
-    std::set<std::string> remove_flexbodies; //!< Mesh names of flexbodies to be removed.
-    std::string   name;
-    std::string   guid;
-    std::string   thumbnail;
-    std::string   description;
-    std::string   author_name;
-    int           author_id = -1;
-    CacheCategoryId category_id = CID_None;
+    /// @name General info
+    /// @{
+    std::string      name;
+    std::string      guid;
+    std::string      thumbnail;
+    std::string      description;
+    std::string      author_name;
+    int              author_id = -1;
+    CacheCategoryId  category_id = CID_None;
+    /// @}
+
+    /// @name Modding attributes
+    /// @{
+    std::set<std::string>  use_addonparts;       //!< Addonpart filenames
+    std::set<std::string>  remove_props;         //!< Mesh names of props to be removed.
+    std::set<std::string>  remove_flexbodies;    //!< Mesh names of flexbodies to be removed.
+    std::set<std::string>  protected_props;      //!< Mesh names of props which cannot be removed via 'addonpart_unwanted_*' directive.
+    std::set<std::string>  protected_flexbodies; //!< Mesh names of flexbodies which cannot be removed via 'addonpart_unwanted_*' directive.
+    /// @}
 };
 
 class TuneupParser
