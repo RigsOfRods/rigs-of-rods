@@ -1717,9 +1717,12 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         ImGui::PushStyleColor(ImGuiCol_WindowBg, App::GetGuiManager()->GetTheme().semitransparent_window_bg);
         if (ImGui::Begin(special_text.c_str(), nullptr, flags))
         {
-            // Center the text, the box may be wider
-            float text_w = ImGui::CalcTextSize(special_text.c_str()).x;
-            ImGui::SetCursorPosX(((content_width / 2) - (text_w / 2)) * special_text_centering_weight);
+            if (m_state_box == StateBox::STATEBOX_LIVE_REPAIR || m_state_box == StateBox::STATEBOX_QUICK_REPAIR)
+            {
+                // Center the text, the box may be wider
+                float text_w = ImGui::CalcTextSize(special_text.c_str()).x;
+                ImGui::SetCursorPosX(((content_width / 2) - (text_w / 2)) * special_text_centering_weight);
+            }
             ImGui::TextColored(special_color, "%s", special_text.c_str());
 
             if (m_state_box == StateBox::STATEBOX_REPLAY)
