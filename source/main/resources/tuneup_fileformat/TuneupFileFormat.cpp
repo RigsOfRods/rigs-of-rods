@@ -22,6 +22,7 @@
 #include "TuneupFileFormat.h"
 
 #include "Application.h"
+#include "CacheSystem.h"
 #include "Console.h"
 #include "Utils.h"
 
@@ -55,6 +56,56 @@ TuneupDefPtr TuneupDef::clone()
 
     return ret;
 }
+
+    // Tweaking helpers
+
+float         RoR::TuneupDef::getTweakedWheelTireRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val)
+{
+    if (!tuneup_entry)
+        return orig_val;
+
+    ROR_ASSERT(tuneup_entry->tuneup_def);
+    auto itor = tuneup_entry->tuneup_def->wheel_tweaks.find(wheel_id);
+    return (itor != tuneup_entry->tuneup_def->wheel_tweaks.end()) ? itor->second.twt_tire_radius : orig_val;
+}
+
+float         RoR::TuneupDef::getTweakedWheelRimRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val)
+{
+    if (!tuneup_entry)
+        return orig_val;
+
+    ROR_ASSERT(tuneup_entry->tuneup_def);
+    auto itor = tuneup_entry->tuneup_def->wheel_tweaks.find(wheel_id);
+    return (itor != tuneup_entry->tuneup_def->wheel_tweaks.end()) ? itor->second.twt_rim_radius : orig_val;
+}
+
+std::string   RoR::TuneupDef::getTweakedWheelRimMesh(CacheEntryPtr& tuneup_entry, int wheel_id, const std::string& orig_val)
+{
+    if (!tuneup_entry)
+        return orig_val;
+
+    ROR_ASSERT(tuneup_entry->tuneup_def);
+    auto itor = tuneup_entry->tuneup_def->wheel_tweaks.find(wheel_id);
+    return (itor != tuneup_entry->tuneup_def->wheel_tweaks.end()) ? itor->second.twt_rim_mesh : orig_val;
+}
+
+Ogre::Vector3 RoR::TuneupDef::getTweakedNodePosition(CacheEntryPtr& tuneup_entry, NodeNum_t nodenum, Ogre::Vector3 orig_val)
+{
+    if (!tuneup_entry)
+        return orig_val;
+
+    ROR_ASSERT(tuneup_entry->tuneup_def);
+    auto itor = tuneup_entry->tuneup_def->node_tweaks.find(nodenum);
+    if (itor == tuneup_entry->tuneup_def->node_tweaks.end())
+        return orig_val;
+
+    Ogre::Vector3 retval = itor->second.tnt_pos;
+    ROR_ASSERT(!isnan(retval.x));
+    ROR_ASSERT(!isnan(retval.y));
+    ROR_ASSERT(!isnan(retval.z));
+    return retval;
+}
+
 
 std::vector<TuneupDefPtr> RoR::TuneupParser::ParseTuneups(Ogre::DataStreamPtr& stream)
 {
@@ -187,3 +238,4 @@ void RoR::TuneupParser::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& 
             fmt::format("Error writing file '{}': only written {}/{} bytes", stream->getName(), written, buf.GetLength()));
     }
 }
+

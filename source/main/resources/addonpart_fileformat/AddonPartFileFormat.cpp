@@ -33,6 +33,16 @@
 using namespace RoR;
 using namespace RigDef;
 
+AddonPartUtility::AddonPartUtility()
+{
+    // Inits `RefCountingObjectPtr<>` (CacheEntryPtr, GenericDocumentPtr) - shouldn't be in header.
+}
+
+AddonPartUtility::~AddonPartUtility()
+{
+    // Destroys `RefCountingObjectPtr<>` (CacheEntryPtr, GenericDocumentPtr) - shouldn't be in header.
+}
+
 std::shared_ptr<Document::Module> AddonPartUtility::TransformToRigDefModule(CacheEntryPtr& entry)
 {
     App::GetCacheSystem()->LoadResource(entry);
@@ -96,12 +106,15 @@ std::shared_ptr<Document::Module> AddonPartUtility::TransformToRigDefModule(Cach
     }
 }
 
-void AddonPartUtility::ResolveUnwantedElements(TuneupDefPtr& tuneup, CacheEntryPtr& addonpart_entry)
+void AddonPartUtility::ResolveUnwantedAndTweakedElements(TuneupDefPtr& tuneup, CacheEntryPtr& addonpart_entry)
 {
     // Evaluates 'addonpart_unwanted_*' elements, respecting 'protected_*' directives in the tuneup.
+    // Also handles 'addonpart_tweak_*' elements, resolving possible conflicts among used parts.
     // ---------------------------------------------------------------------------------------------
+
     App::GetCacheSystem()->LoadResource(addonpart_entry);
     m_addonpart_entry = addonpart_entry;
+    m_tuneup = tuneup;
 
     try
     {
@@ -114,19 +127,16 @@ void AddonPartUtility::ResolveUnwantedElements(TuneupDefPtr& tuneup, CacheEntryP
 
         while (!m_context->endOfFile())
         {
-            if (m_context->isTokKeyword(0) 
-                && m_context->getTokKeyword() == "addonpart_unwanted_prop" 
-                && m_context->isTokString(1))
+            if (m_context->isTokKeyword())
             {
-                if (!tuneup->isPropProtected(m_context->getTokString(1)))
-                    tuneup->remove_props.insert(m_context->getTokString(1));
-            }
-            else if (m_context->isTokKeyword(0) 
-                && m_context->getTokKeyword() == "addonpart_unwanted_flexbody" 
-                && m_context->isTokString(1))
-            {
-                if (!tuneup->isFlexbodyProtected(m_context->getTokString(1)))
-                    tuneup->remove_flexbodies.insert(m_context->getTokString(1));
+                if (m_context->getTokKeyword() == "addonpart_unwanted_prop" )
+                    this->ProcessUnwantedProp();
+                else if (m_context->getTokKeyword() == "addonpart_unwanted_flexbody" )
+                    this->ProcessUnwantedFlexbody();
+                else if (m_context->getTokKeyword() == "addonpart_tweak_wheel")
+                    this->ProcessTweakWheel();
+                else if (m_context->getTokKeyword() == "addonpart_tweak_node")
+                    this->ProcessTweakNode();
             }
 
             m_context->seekNextLine();
@@ -242,3 +252,144 @@ void AddonPartUtility::ProcessFlexbody()
     m_module->flexbodies.push_back(def);
 }
 
+// Helpers of `ResolveUnwantedAndTweakedElements()`, they expect `m_context` to be in position:
+
+void AddonPartUtility::ProcessUnwantedProp()
+{
+    ROR_ASSERT(m_context->getTokKeyword() == "addonpart_unwanted_prop"); // also asserts !EOF and TokenType::KEYWORD
+
+    if (m_context->isTokString(1))
+    {
+        if (!m_tuneup->isPropProtected(m_context->getTokString(1)))
+        {
+            m_tuneup->remove_props.insert(m_context->getTokString(1));
+            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': marking prop '{}' as REMOVED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokString(1)));
+        }
+        else
+        {
+            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': skipping prop '{}' because it's marked PROTECTED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokString(1)));
+        }
+    }
+    else
+    {
+        LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', element '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+    }
+}
+
+void AddonPartUtility::ProcessUnwantedFlexbody()
+{
+    ROR_ASSERT(m_context->getTokKeyword() == "addonpart_unwanted_flexbody"); // also asserts !EOF and TokenType::KEYWORD
+
+    if (m_context->isTokString(1))
+    {
+        if (!m_tuneup->isFlexbodyProtected(m_context->getTokString(1)))
+        {
+            m_tuneup->remove_flexbodies.insert(m_context->getTokString(1));
+            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': marking flexbody '{}' as REMOVED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokString(1)));
+        }
+        else
+        {
+            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': skipping flexbody '{}' because it's marked PROTECTED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokString(1)));
+        }
+    }
+    else
+    {
+        LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', element '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+    }
+}
+
+void AddonPartUtility::ProcessTweakWheel()
+{
+    ROR_ASSERT(m_context->getTokKeyword() == "addonpart_tweak_wheel"); // also asserts !EOF and TokenType::KEYWORD
+
+    // 'addonpart_tweak_wheel <wheel ID> <rim mesh> <tire radius> <rim radius>'
+    if (m_context->isTokFloat(1) && m_context->isTokString(2))
+    {
+        const int wheel_id = (int)m_context->getTokFloat(1);
+        if (!m_tuneup->isWheelProtected(wheel_id))
+        {
+            if (m_tuneup->wheel_tweaks.find(wheel_id) == m_tuneup->wheel_tweaks.end())
+            {
+                TuneupWheelTweak data;
+                data.twt_origin = m_addonpart_entry->fname;
+                data.twt_wheel_id = wheel_id;
+                data.twt_rim_mesh = m_context->getTokString(2);
+                if (m_context->isTokFloat(3)) { data.twt_rim_radius = m_context->getTokFloat(3); }
+                if (m_context->isTokFloat(4)) {data.twt_tire_radius = m_context->getTokFloat(4); }
+                m_tuneup->wheel_tweaks.insert(std::make_pair(wheel_id, data));
+            
+                LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': tweaking wheel {}"
+                    " with params {{ rim_mesh={}, tire_radius={}, rim_radius={} }}",
+                    m_addonpart_entry->fname, m_context->getTokKeyword(), wheel_id,
+                    data.twt_rim_mesh, data.twt_tire_radius, data.twt_rim_radius));
+            }
+            else if (m_tuneup->wheel_tweaks[wheel_id].twt_origin != m_addonpart_entry->fname)
+            {
+                m_tuneup->wheel_tweaks.erase(wheel_id);
+
+                LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': Conflict of tweaks at wheel '{}', addon parts '{}' and '{}'",
+                    m_addonpart_entry->fname, m_context->getTokKeyword(), wheel_id,
+                    m_tuneup->wheel_tweaks[wheel_id].twt_origin, m_addonpart_entry->fname));
+            }
+        }
+        else
+        {
+            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': skipping wheel '{}' because it's marked PROTECTED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
+        }
+    }
+    else
+    {
+        LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', element '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+    }
+}
+
+void AddonPartUtility::ProcessTweakNode()
+{
+    ROR_ASSERT(m_context->getTokKeyword() == "addonpart_tweak_node"); // also asserts !EOF and TokenType::KEYWORD
+
+    // Data of 'addonpart_tweak_node <nodenum> <posX> <posY> <posZ>'
+    if (m_context->isTokFloat(1) && m_context->isTokFloat(1) && m_context->isTokFloat(2) && m_context->isTokFloat(3))
+    {
+        NodeNum_t nodenum = (NodeNum_t)m_context->getTokFloat(1);
+        if (!m_tuneup->isNodeProtected(nodenum))
+        {
+            if (m_tuneup->node_tweaks.find(nodenum) == m_tuneup->node_tweaks.end())
+            {
+                TuneupNodeTweak data;
+                data.tnt_origin = m_addonpart_entry->fname;
+                data.tnt_nodenum = nodenum;
+                data.tnt_pos.x = m_context->getTokFloat(2);
+                data.tnt_pos.y = m_context->getTokFloat(3);
+                data.tnt_pos.z = m_context->getTokFloat(4);
+                m_tuneup->node_tweaks.insert(std::make_pair(nodenum, data));
+            
+                LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': tweaking node {}"
+                    " with params {{ x={}, y={}, z={} }}",
+                    m_addonpart_entry->fname, m_context->getTokKeyword(), nodenum,
+                    data.tnt_pos.x, data.tnt_pos.y, data.tnt_pos.z));
+            }
+            else if (m_tuneup->node_tweaks[nodenum].tnt_origin != m_addonpart_entry->fname)
+            {
+                m_tuneup->node_tweaks.erase(nodenum);
+
+                LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': Conflict of tweaks at node '{}', addon parts '{}' and '{}'",
+                    m_addonpart_entry->fname, m_context->getTokKeyword(), nodenum,
+                    m_tuneup->node_tweaks[nodenum].tnt_origin, m_addonpart_entry->fname));
+            }
+        }
+        else
+        {
+            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': skipping node '{}' because it's marked PROTECTED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), nodenum));
+        }
+    }
+    else
+    {
+        LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', element '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+    }
+}

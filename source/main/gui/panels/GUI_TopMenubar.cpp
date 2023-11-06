@@ -1563,6 +1563,8 @@ void TopMenubar::Draw(float dt)
                 {
                     for (CacheQueryResult& addonpart_result: tuning_addonparts.cqy_results)
                     {
+                        ImGui::PushID(addonpart_result.cqr_entry->fname.c_str());
+
                         bool used = tuning_actor->getUsedTuneupEntry()->tuneup_def->use_addonparts.count(addonpart_result.cqr_entry->fname) > 0;
                         if (ImGui::Checkbox(addonpart_result.cqr_entry->dname.c_str(), &used))
                         {
@@ -1574,6 +1576,31 @@ void TopMenubar::Draw(float dt)
                             req->mpr_target_actor = tuning_actor;
                             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
                         }
+                        // Reload button
+                        ImGui::SameLine();
+                        ImGui::Dummy(ImVec2(10.f, 1.f));
+                        ImGui::SameLine();
+                        if (ImGui::SmallButton(_LC("Tuning", "Reload")))
+                        {
+                            // Create spawn request while actor still exists
+                            // Note we don't use `ActorModifyRequest::Type::RELOAD` because we don't need the bundle reloaded.
+                            ActorSpawnRequest* srq = new ActorSpawnRequest;
+                            srq->asr_position     = Ogre::Vector3(tuning_actor->getPosition().x, tuning_actor->getMinHeight(), tuning_actor->getPosition().z);
+                            srq->asr_rotation     = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(tuning_actor->getRotation()), Ogre::Vector3::UNIT_Y);
+                            srq->asr_config       = tuning_actor->getSectionConfig();
+                            srq->asr_skin_entry   = tuning_actor->getUsedSkinEntry();
+                            srq->asr_tuneup_entry = tuneup_entry;
+                            srq->asr_cache_entry  = tuning_actor->getUsedActorEntry();
+                            srq->asr_debugview    = (int)tuning_actor->GetGfxActor()->GetDebugView();
+                            srq->asr_origin       = ActorSpawnRequest::Origin::USER;
+
+                            // Request bundle reloading and chain the actor delete/spawn messages to it.
+                            App::GetGameContext()->PushMessage(Message(MSG_EDI_RELOAD_BUNDLE_REQUESTED, new CacheEntryPtr(addonpart_result.cqr_entry)));
+                            App::GetGameContext()->ChainMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, new ActorPtr(tuning_actor)));
+                            App::GetGameContext()->ChainMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, srq));
+                        }
+
+                        ImGui::PopID(); //(addonpart_result.cqr_entry->fname.c_str());
                     }
 
                     if (ImGui::Button(_LC("Tuning", "Browse all parts")))

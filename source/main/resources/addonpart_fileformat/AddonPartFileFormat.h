@@ -39,12 +39,16 @@ namespace RoR {
 class AddonPartUtility
 {
 public:
+    AddonPartUtility();
+    ~AddonPartUtility();
+
     /// transforms the addonpart to `RigDef::File::Module` (fake 'section/end_section') used for spawning.
     /// @return nullptr on error
     std::shared_ptr<RigDef::Document::Module> TransformToRigDefModule(CacheEntryPtr& addonpart_entry);
 
     /// Evaluates 'addonpart_unwanted_*' elements, respecting 'protected_*' directives in the tuneup.
-    void ResolveUnwantedElements(TuneupDefPtr& tuneup, CacheEntryPtr& addonpart_entry);
+    /// Also handles 'addonpart_tweak_*' elements, resolving possible conflicts among used parts.
+    void ResolveUnwantedAndTweakedElements(TuneupDefPtr& tuneup, CacheEntryPtr& addonpart_entry);
 
 private:
     // Helpers of `TransformToRigDefModule()`, they expect `m_context` to be in position:
@@ -52,11 +56,20 @@ private:
     void ProcessProp();
     void ProcessFlexbody();
 
-    // SHARED CONTEXT
+    // Helpers of `ResolveUnwantedAndTweakedElements()`, they expect `m_context` to be in position:
+    void ProcessUnwantedProp();
+    void ProcessUnwantedFlexbody();
+    void ProcessTweakWheel();
+    void ProcessTweakNode();
+
+    // Shared state:
     GenericDocumentPtr m_document;
     GenericDocContextPtr m_context;
-    std::shared_ptr<RigDef::Document::Module> m_module;
     CacheEntryPtr m_addonpart_entry;
+    // TransformToRigDefModule() state:
+    std::shared_ptr<RigDef::Document::Module> m_module;
+    // ResolveUnwantedAndTweakedElements() state:
+    TuneupDefPtr m_tuneup;
 };
 
 }; // namespace RoR

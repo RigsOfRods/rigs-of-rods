@@ -33,12 +33,25 @@
 
 namespace RoR {
 
+struct TuneupNodeTweak //!< Data of 'addonpart_tweak_node <nodenum> <posX> <posY> <posZ>'
+{
+    NodeNum_t       tnt_nodenum = NODENUM_INVALID; //!< Arg#1, required
+    Ogre::Vector3   tnt_pos = Ogre::Vector3::ZERO; //!< Args#234, required
+    std::string     tnt_origin; //!< Addonpart filename
+};
+
+struct TuneupWheelTweak //!< Data of 'addonpart_tweak_wheel <wheel ID> <rim mesh> <tire radius> <rim radius>'
+{
+    int             twt_wheel_id = -1;       //!< Arg#1, required
+    std::string     twt_rim_mesh;            //!< Arg#2, required
+    float           twt_tire_radius = -1.f;  //!< Arg#3, optional
+    float           twt_rim_radius = -1.f;   //!< Arg#4, optional, only applies to some wheel types
+    std::string     twt_origin;              //!< Addonpart filename
+    
+};
+
 struct TuneupDef: public RefCountingObject<TuneupDef>
 {
-    TuneupDefPtr clone();
-    bool         isPropProtected(const std::string& meshname) { return protected_props.find(meshname) != protected_props.end(); }
-    bool         isFlexbodyProtected(const std::string& meshname) { return protected_flexbodies.find(meshname) != protected_flexbodies.end(); }
-
     /// @name General info
     /// @{
     std::string      name;
@@ -50,13 +63,35 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     CacheCategoryId  category_id = CID_None;
     /// @}
 
-    /// @name Modding attributes
+    /// @name Modding attributes and overrides
     /// @{
     std::set<std::string>  use_addonparts;       //!< Addonpart filenames
     std::set<std::string>  remove_props;         //!< Mesh names of props to be removed.
     std::set<std::string>  remove_flexbodies;    //!< Mesh names of flexbodies to be removed.
     std::set<std::string>  protected_props;      //!< Mesh names of props which cannot be removed via 'addonpart_unwanted_*' directive.
     std::set<std::string>  protected_flexbodies; //!< Mesh names of flexbodies which cannot be removed via 'addonpart_unwanted_*' directive.
+    std::map<NodeNum_t, TuneupNodeTweak> node_tweaks; //!< Node position overrides via 'addonpart_tweak_node'
+    std::map<int, TuneupWheelTweak> wheel_tweaks; //!< Mesh name and radius overrides via 'addonpart_tweak_wheel'
+    std::set<NodeNum_t>    protected_nodes;      //!< Node numbers that cannot be altered via 'addonpart_tweak_node'
+    std::set<int>          protected_wheels;     //!< Wheel sequential numbers that cannot be altered via 'addonpart_tweak_wheel'
+    /// @}
+
+    TuneupDefPtr clone();
+
+    /// @name Protection helpers
+    /// @{
+    bool         isPropProtected(const std::string& meshname) { return protected_props.find(meshname) != protected_props.end(); }
+    bool         isFlexbodyProtected(const std::string& meshname) { return protected_flexbodies.find(meshname) != protected_flexbodies.end(); }
+    bool         isWheelProtected(int wheelid) const { return protected_wheels.find(wheelid) != protected_wheels.end(); }
+    bool         isNodeProtected(NodeNum_t nodenum) const { return protected_nodes.find(nodenum) != protected_nodes.end(); }
+    /// @}
+
+    /// @name Tweaking helpers
+    /// @{
+    static float        getTweakedWheelTireRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val);
+    static float        getTweakedWheelRimRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val);
+    static std::string  getTweakedWheelRimMesh(CacheEntryPtr& tuneup_entry, int wheel_id, const std::string& orig_val);
+    static Ogre::Vector3 getTweakedNodePosition(CacheEntryPtr& tuneup_entry, NodeNum_t nodenum, Ogre::Vector3 orig_val);
     /// @}
 };
 
