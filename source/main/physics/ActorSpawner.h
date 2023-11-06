@@ -402,6 +402,8 @@ private:
         unsigned int node_base_index,
         NodeNum_t axis_node_1,
         NodeNum_t axis_node_2,
+        float override_radius,
+        std::string override_mesh_name,
         RigDef::FlexBodyWheel& def);
 
     void BuildMeshWheelVisuals(
