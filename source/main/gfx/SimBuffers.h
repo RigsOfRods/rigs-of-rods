@@ -187,9 +187,10 @@ struct ActorSB
     float             simbuf_ap_ils_hdev              = 0;
     int               simbuf_ap_vs_value              = 0;
 
-    // GUI
+    // GUI ('guisettings')
     float             simbuf_speedo_highest_kph       = 0;
     bool              simbuf_speedo_use_engine_max_rpm = false;
+    float             simbuf_shifter_anim_time        = 0.f;
 };
 
 struct GameContextSB

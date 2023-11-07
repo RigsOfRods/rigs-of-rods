@@ -1791,9 +1791,9 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_ap_vs_value      = m_actor->ar_autopilot->GetVsValue();
     }
 
-    m_simbuf.simbuf_speedo_highest_kph = m_actor->ar_speedo_max_kph;
-    m_simbuf.simbuf_speedo_use_engine_max_rpm = m_actor->ar_gui_use_engine_max_rpm;
-
+    m_simbuf.simbuf_speedo_highest_kph = m_actor->ar_guisettings_speedo_max_kph;
+    m_simbuf.simbuf_speedo_use_engine_max_rpm = m_actor->ar_guisettings_use_engine_max_rpm;
+    m_simbuf.simbuf_shifter_anim_time = m_actor->ar_guisettings_shifter_anim_time;
 
 }
 
@@ -2315,24 +2315,22 @@ void RoR::GfxActor::SetBeaconsEnabled(bool beacon_light_is_active)
 }
 
 // Returns a smoothened `cstate`
-float UpdateSmoothShift(PropAnim& anim, float dt, float new_target_cstate)
+float GfxActor::UpdateSmoothShift(PropAnim& anim, float dt, float new_target_cstate)
 {
-    const float SPEED = 5.f;
-
     const float delta_cstate = new_target_cstate - anim.shifterTarget;
     if (delta_cstate != 0)
     {
         anim.shifterStep = delta_cstate;
         anim.shifterTarget = new_target_cstate;
     }
-        
+    
     if (anim.shifterSmooth != anim.shifterTarget)
     {
-        const float cstate_step = anim.shifterStep * (dt * SPEED);
+        const float cstate_step = (dt / m_simbuf.simbuf_shifter_anim_time) * anim.shifterStep;
         anim.shifterSmooth += cstate_step;
         // boundary check
-        if ((cstate_step < 0.f && anim.shifterSmooth < anim.shifterTarget) // undershot
-            || (cstate_step > 0.f) && anim.shifterSmooth > anim.shifterTarget) // overshot
+        if ((anim.shifterStep < 0.f && anim.shifterSmooth < anim.shifterTarget) // undershot
+            || (anim.shifterStep > 0.f) && anim.shifterSmooth > anim.shifterTarget) // overshot
         {
             anim.shifterSmooth = anim.shifterTarget;
         }

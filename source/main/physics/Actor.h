@@ -365,7 +365,7 @@ ActorPtrVec                        ar_linked_actors;              //!< Sim state
     int               ar_num_cinecams = 0;             //!< Sim attr;
     Autopilot*        ar_autopilot = nullptr;
     float             ar_brake_force = 0.f;              //!< Physics attr; filled at spawn
-    float             ar_speedo_max_kph = 0.f;           //!< GUI attr
+    
     Ogre::Vector3     ar_origin = Ogre::Vector3::ZERO;                   //!< Physics state; base position for softbody nodes
     int               ar_num_cameras = 0;
     Ogre::Quaternion  ar_main_camera_dir_corr = Ogre::Quaternion::IDENTITY;              //!< Sim attr;
@@ -421,6 +421,11 @@ ActorPtrVec                        ar_linked_actors;              //!< Sim state
     CollisionBoxPtrVec m_potential_eventboxes;
     std::vector<std::pair<collision_box_t*, NodeNum_t>> m_active_eventboxes;
 
+    // Guisettings
+    bool              ar_guisettings_use_engine_max_rpm = false;
+    float             ar_guisettings_speedo_max_kph = 0.f;
+    float             ar_guisettings_shifter_anim_time = 0.4f;
+
     // Gameplay state
     ActorState        ar_state = ActorState::LOCAL_SIMULATED;
 
@@ -451,7 +456,6 @@ ActorPtrVec                        ar_linked_actors;              //!< Sim state
     bool ar_update_physics:1; //!< Physics state; Should this actor be updated (locally) in the next physics step?
     bool ar_disable_aerodyn_turbulent_drag:1; //!< Physics state
     bool ar_engine_hydraulics_ready:1; //!< Sim state; does engine have enough RPM to power hydraulics?
-    bool ar_gui_use_engine_max_rpm:1;  //!< Gfx attr
     bool ar_hydro_speed_coupling:1;
     bool ar_collision_relevant:1;      //!< Physics state;
     bool ar_is_police:1;        //!< Gfx/sfx attr

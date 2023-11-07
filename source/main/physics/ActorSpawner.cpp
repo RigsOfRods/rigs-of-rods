@@ -271,7 +271,7 @@ void ActorSpawner::InitializeRig()
 
     m_actor->m_num_proped_wheels=0;
 
-    m_actor->ar_speedo_max_kph=140;
+    m_actor->ar_guisettings_speedo_max_kph=140;
     m_actor->ar_num_cameras=0;
     for (int i = 0; i < MAX_CAMERAS; ++i)
     {
@@ -1193,18 +1193,22 @@ void ActorSpawner::ProcessGuiSettings(RigDef::GuiSettings & def)
         float maxKph = PARSEREAL(def.value);
         if (maxKph > 10 && maxKph < 32000)
         {
-            m_actor->ar_speedo_max_kph = maxKph;
+            m_actor->ar_guisettings_speedo_max_kph = maxKph;
         }
         else
         {
             this->AddMessage(Message::TYPE_ERROR,
                 fmt::format("Invalid 'speedoMax' ({}), allowed range is <10 -32000>, using default ({})", maxKph, DEFAULT_SPEEDO_MAX_KPH));
-            m_actor->ar_speedo_max_kph = DEFAULT_SPEEDO_MAX_KPH;
+            m_actor->ar_guisettings_speedo_max_kph = DEFAULT_SPEEDO_MAX_KPH;
         }
     }
     else if (def.key == "useMaxRPM")
     {
-        m_actor->ar_gui_use_engine_max_rpm = true;
+        m_actor->ar_guisettings_use_engine_max_rpm = true;
+    }
+    else if (def.key == "shifterAnimTime")
+    {
+        m_actor->ar_guisettings_shifter_anim_time = PARSEREAL(def.value);
     }
 
     // NOTE: Dashboard layouts are processed later
