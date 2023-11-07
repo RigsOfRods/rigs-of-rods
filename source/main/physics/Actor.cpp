@@ -2234,7 +2234,7 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
     // speedo ( scales with speedomax )
     if (hydrobeam.hb_anim_flags & ANIM_FLAG_SPEEDO)
     {
-        float speedo = ar_wheel_speed / ar_speedo_max_kph;
+        float speedo = ar_wheel_speed / ar_guisettings_speedo_max_kph;
         cstate -= speedo * 3.0f;
         div++;
     }
@@ -4333,7 +4333,7 @@ Actor::Actor(
     , ar_update_physics(false)
     , ar_disable_aerodyn_turbulent_drag(false)
     , ar_engine_hydraulics_ready(true) // !!
-    , ar_gui_use_engine_max_rpm(false)
+    , ar_guisettings_use_engine_max_rpm(false)
     , ar_hydro_speed_coupling(false)
     , ar_collision_relevant(false)
     , ar_is_police(false)

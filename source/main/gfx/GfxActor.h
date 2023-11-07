@@ -153,6 +153,7 @@ public:
 private:
 
     static Ogre::Quaternion SpecialGetRotationTo(const Ogre::Vector3& src, const Ogre::Vector3& dest);
+    float UpdateSmoothShift(PropAnim& anim, float dt, float new_target_cstate); // Helper for `CalcPropAnimation()`
 
     // Static info
     ActorPtr                      m_actor = nullptr;
