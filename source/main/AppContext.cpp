@@ -253,21 +253,30 @@ bool AppContext::SetUpRendering()
             }
             catch (Ogre::Exception&) {} // Logged by OGRE
         }
+
     }
     catch (Ogre::Exception& e)
     {
-        ErrorUtils::ShowError (_L("Startup error"), e.getFullDescription());
+        ErrorUtils::ShowError (_L("Startup error"), e.getDescription());
         return false;
     }
 
-    // Load renderer configuration
-    if (!m_ogre_root->restoreConfig())
+    try
     {
-        const auto render_systems = App::GetAppContext()->GetOgreRoot()->getAvailableRenderers();
-        if (!render_systems.empty())
-            m_ogre_root->setRenderSystem(render_systems.front());
-        else
-            ErrorUtils::ShowError (_L("Startup error"), _L("No render system plugin available. Check your plugins.cfg"));
+        // Load renderer configuration
+        if (!m_ogre_root->restoreConfig())
+        {
+            const auto render_systems = App::GetAppContext()->GetOgreRoot()->getAvailableRenderers();
+            if (!render_systems.empty())
+                m_ogre_root->setRenderSystem(render_systems.front());
+            else
+                ErrorUtils::ShowError (_L("Startup error"), _L("No render system plugin available. Check your plugins.cfg"));
+        }
+    }
+    catch (Ogre::Exception& e)
+    {
+        ErrorUtils::ShowError (_L("Error restoring settings from 'ogre.cfg'"), e.getDescription());
+        return false;
     }
 
     const auto rs = m_ogre_root->getRenderSystemByName(App::app_rendersys_override->getStr());

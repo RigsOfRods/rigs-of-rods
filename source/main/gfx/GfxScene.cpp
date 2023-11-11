@@ -194,10 +194,11 @@ void GfxScene::UpdateScene(float dt_sec)
         App::GetOverlayWrapper()->UpdatePressureOverlay(m_simbuf.simbuf_player_actor->GetGfxActor());
     }
 
-    // HUD - network labels (always update)
+    // HUD - labels (always update)
     for (GfxActor* gfx_actor: m_all_gfx_actors)
     {
         gfx_actor->UpdateNetLabels(m_simbuf.simbuf_sim_speed * dt_sec);
+        gfx_actor->UpdateWalkieTalkieLabels(m_simbuf.simbuf_sim_speed * dt_sec);
     }
 
     // Player avatars
@@ -340,26 +341,6 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
 {
 #if USE_SOCKETW
 
-        // this ensures that the nickname is always in a readable size
-        float font_size = std::max(0.6, cam_dist / 40.0);
-        std::string caption;
-        if (cam_dist > 1000) // 1000 ... vlen
-        {
-            caption =
-                nick + " (" + TOSTRING((float)(ceil(cam_dist / 100) / 10.0) ) + " km)";
-        }
-        else if (cam_dist > 20) // 20 ... vlen ... 1000
-        {
-            caption =
-                nick + " (" + TOSTRING((int)cam_dist) + " m)";
-        }
-        else // 0 ... vlen ... 20
-        {
-            caption = nick;
-        }
-
-        // draw with DearIMGUI
-
     ImVec2 screen_size = ImGui::GetIO().DisplaySize;
     World2ScreenConverter world2screen(
         App::GetCameraManager()->GetCamera()->getViewMatrix(true), App::GetCameraManager()->GetCamera()->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
@@ -372,6 +353,7 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
         // Align position to whole pixels, to minimize jitter.
         ImVec2 pos((int)pos_xyz.x+0.5, (int)pos_xyz.y+0.5);
 
+        std::string caption = FormatLabelWithDistance(nick, cam_dist);
         ImVec2 text_size = ImGui::CalcTextSize(caption.c_str());
         GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
@@ -396,4 +378,3 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
 
 #endif // USE_SOCKETW
 }
-

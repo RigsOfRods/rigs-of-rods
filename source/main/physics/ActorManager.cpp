@@ -324,6 +324,8 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
         App::GetScriptEngine()->loadScript(script_def.filename, ScriptCategory::ACTOR, actor);
     }
 
+    actor->CacheWalkietalkieCommandButtons();
+
     LOG(" ===== DONE LOADING VEHICLE");
 
     if (App::diag_actor_dump->getBool())

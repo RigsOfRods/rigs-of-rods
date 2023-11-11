@@ -111,6 +111,7 @@ public:
     void                 UpdateCParticles();
     void                 UpdateAeroEngines();
     void                 UpdateNetLabels(float dt);
+    void                 UpdateWalkieTalkieLabels(float dt);
     void                 UpdateFlares(float dt_sec, bool is_player);
     void                 UpdateRenderdashRTT ();
 
@@ -147,6 +148,7 @@ public:
     bool                 HasDriverSeatProp() const { return m_driverseat_prop_index != -1; }
     void                 CalcPropAnimation(PropAnim& anim, float& cstate, int& div, float dt);
     std::vector<Prop>&   getProps() { return m_props; }
+    int                  getNumBeacons() const;
     bool                 hasCamera() { return m_videocameras.size() > 0; }
     SurveyMapEntity&     getSurveyMapEntity() { return m_surveymap_entity; }
 

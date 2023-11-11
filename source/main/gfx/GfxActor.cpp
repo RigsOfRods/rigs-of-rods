@@ -54,6 +54,8 @@
 
 #include <Ogre.h>
 
+#include <algorithm>
+
 using namespace RoR;
 
 RoR::GfxActor::GfxActor(ActorPtr actor, ActorSpawner* spawner, std::string ogre_resource_group,
@@ -1793,6 +1795,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
 
     m_simbuf.simbuf_speedo_highest_kph = m_actor->ar_speedo_max_kph;
     m_simbuf.simbuf_speedo_use_engine_max_rpm = m_actor->ar_gui_use_engine_max_rpm;
+    m_simbuf.simbuf_wakie_talkie = m_actor->ar_walkie_talkie;
 
 
 }
@@ -1925,21 +1928,35 @@ void RoR::GfxActor::UpdateAeroEngines()
 
 void RoR::GfxActor::UpdateNetLabels(float dt)
 {
-        const bool is_remote = 
-            m_simbuf.simbuf_actor_state == ActorState::NETWORKED_OK ||
-            m_simbuf.simbuf_actor_state == ActorState::NETWORKED_HIDDEN;
+    const bool is_remote = 
+        m_simbuf.simbuf_actor_state == ActorState::NETWORKED_OK ||
+        m_simbuf.simbuf_actor_state == ActorState::NETWORKED_HIDDEN;
 
-        if (App::mp_hide_net_labels->getBool() || (!is_remote && App::mp_hide_own_net_label->getBool()) || App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
-        {
-            return;
-        }
+    if (App::mp_hide_net_labels->getBool() || (!is_remote && App::mp_hide_own_net_label->getBool()) || App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+    {
+        return;
+    }
 
-        float vlen = m_simbuf.simbuf_pos.distance(App::GetCameraManager()->GetCameraNode()->getPosition());
+    float vlen = m_simbuf.simbuf_pos.distance(App::GetCameraManager()->GetCameraNode()->getPosition());
 
-        float y_offset = (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_pos.y) + (vlen / 100.0);
-        Ogre::Vector3 scene_pos = m_simbuf.simbuf_pos + Ogre::Vector3::UNIT_Y * y_offset;
+    float y_offset = (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_pos.y) + (vlen / 100.0);
+    Ogre::Vector3 scene_pos = m_simbuf.simbuf_pos + Ogre::Vector3::UNIT_Y * y_offset;
 
-    App::GetGfxScene()->DrawNetLabel(scene_pos, vlen, m_simbuf.simbuf_net_username, m_simbuf.simbuf_net_colornum);
+    App::GetGfxScene()->DrawNetLabel(scene_pos, vlen,  m_simbuf.simbuf_net_username, m_simbuf.simbuf_net_colornum);
+
+}
+
+void RoR::GfxActor::UpdateWalkieTalkieLabels(float dt)
+{
+    if (!m_simbuf.simbuf_wakie_talkie)
+        return;
+
+    float vlen = m_simbuf.simbuf_pos.distance(App::GetCameraManager()->GetCameraNode()->getPosition());
+
+    float y_offset = (m_simbuf.simbuf_aabb.getMaximum().y - m_simbuf.simbuf_pos.y) + (vlen / 100.0);
+    Ogre::Vector3 scene_pos = m_simbuf.simbuf_pos + Ogre::Vector3::UNIT_Y * y_offset;
+
+    App::GetGuiManager()->SceneLabels.DrawInstance(scene_pos, vlen, m_actor);
 
 }
 
@@ -3228,4 +3245,9 @@ void RoR::GfxActor::RemoveBeam(int beam_index)
         }
         itor++;
     }
+}
+
+int RoR::GfxActor::getNumBeacons() const
+{
+    return std::count_if(m_props.begin(), m_props.end(), [](const Prop& p) { return p.pp_beacon_type != 0; });
 }

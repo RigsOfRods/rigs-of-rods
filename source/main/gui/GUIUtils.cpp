@@ -338,19 +338,19 @@ void RoR::DrawGCombo(CVar* cvar, const char* label, const char* values)
     }
 }
 
-Ogre::TexturePtr RoR::FetchIcon(const char* name)
+Ogre::TexturePtr RoR::FetchIcon(const char* name, const char* resource_group/* = "FlagsRG"*/)
 {
     try
     {
         return Ogre::static_pointer_cast<Ogre::Texture>(
-            Ogre::TextureManager::getSingleton().createOrRetrieve(name, "FlagsRG").first);
+            Ogre::TextureManager::getSingleton().createOrRetrieve(name, resource_group).first);
     }
     catch (...) {}
 
     return Ogre::TexturePtr(); // null
 }
 
-ImDrawList* RoR::GetImDummyFullscreenWindow()
+ImDrawList* RoR::GetImDummyFullscreenWindow(const char* id /*= "rigsofrods/DummyWindow"*/)
 {
     ImVec2 screen_size = ImGui::GetIO().DisplaySize;
 
@@ -360,7 +360,7 @@ ImDrawList* RoR::GetImDummyFullscreenWindow()
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(screen_size);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
-    ImGui::Begin("RoR_TransparentFullscreenWindow", NULL, window_flags);
+    ImGui::Begin(id, NULL, window_flags);
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
@@ -402,21 +402,24 @@ void RoR::ImTerminateComboboxString(std::string& target)
     target.resize(prev_size + 2, '\0');
 }
 
-void RoR::ImDrawEventHighlighted(events input_event)
+void RoR::ImDrawEventHighlighted(events input_event, bool force_active /*=false*/)
 {
     ImVec4 col = ImGui::GetStyle().Colors[ImGuiCol_Text];
-    if (App::GetInputEngine()->getEventValue(input_event))
+    if (force_active || App::GetInputEngine()->getEventValue(input_event))
     {
         col = App::GetGuiManager()->GetTheme().highlight_text_color;
     }
     std::string text = App::GetInputEngine()->getKeyForCommand(input_event);
     const ImVec2 PAD = ImVec2(2.f, 0.f);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, PAD);
-    ImGui::BeginChildFrame(ImGuiID(input_event), ImGui::CalcTextSize(text.c_str()) + PAD*2);
-    ImGui::TextColored(col, "%s", text.c_str());
-    ImGui::EndChildFrame();
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, PAD); 
+    ImGui::PushStyleColor(ImGuiCol_Text, col);
+    ImGui::PushID(ImGuiID(input_event));
+    ImGui::Button(text.c_str());
+    // `Button()` only returns `true` the moment when pressed, we need continuous input from `IsItemActive()`
+    App::GetInputEngine()->setEventSimulatedValue(input_event, static_cast<float>(ImGui::IsItemActive()));
+    ImGui::PopID(); //ImGuiID(input_event)
+    ImGui::PopStyleColor(); // Text
     ImGui::PopStyleVar(); // FramePadding
-
 }
 
 void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
@@ -433,4 +436,21 @@ void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
     ImGui::TextColored(col, "%s", text.c_str());
     ImGui::EndChildFrame();
     ImGui::PopStyleVar(); // FramePadding
+}
+
+std::string RoR::FormatLabelWithDistance(const std::string& nick, float cam_dist)
+{
+    std::string caption;
+    if (cam_dist > 1000) // 1000 ... vlen
+    {
+        return nick + " (" + TOSTRING((float)(ceil(cam_dist / 100) / 10.0) ) + " km)";
+    }
+    else if (cam_dist > 20) // 20 ... vlen ... 1000
+    {
+        return nick + " (" + TOSTRING((int)cam_dist) + " m)";
+    }
+    else // 0 ... vlen ... 20
+    {
+        return nick;
+    }
 }

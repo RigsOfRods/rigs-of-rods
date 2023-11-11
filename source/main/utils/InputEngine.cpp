@@ -697,6 +697,11 @@ void InputEngine::resetKeys()
     }
 }
 
+void InputEngine::setEventSimulatedValue(RoR::events eventID, float value)
+{
+    event_values_simulated[eventID] = value;
+}
+
 bool InputEngine::getEventBoolValue(int eventID)
 {
     return (getEventValue(eventID) > 0.5f);
@@ -900,6 +905,10 @@ bool InputEngine::isEventAnalog(int eventID)
 
 float InputEngine::getEventValue(int eventID, bool pure, InputSourceType valueSource /*= InputSourceType::IST_ANY*/)
 {
+    const float simulatedValue = event_values_simulated[eventID];
+    if (simulatedValue != 0.f)
+        return simulatedValue;
+
     float returnValue = 0;
     std::vector<event_trigger_t> t_vec = events[eventID];
     float value = 0;
@@ -1175,6 +1184,12 @@ const char* InputEngine::getEventTypeName(eventtypes type)
 
 void InputEngine::addEvent(int eventID, event_trigger_t& t)
 {
+    this->addEvent(eventID);
+    events[eventID].push_back(t);
+}
+
+void InputEngine::addEvent(int eventID)
+{
     uniqueCounter++;
 
     if (eventID == -1)
@@ -1183,9 +1198,8 @@ void InputEngine::addEvent(int eventID, event_trigger_t& t)
     if (events.find(eventID) == events.end())
     {
         events[eventID] = std::vector<event_trigger_t>();
-        events[eventID].clear();
+        event_values_simulated[eventID] = false;
     }
-    events[eventID].push_back(t);
 }
 
 void InputEngine::addEventDefault(int eventID, int deviceID /*= -1*/)
@@ -1495,7 +1509,7 @@ bool InputEngine::processLine(const char* line, int deviceID)
             if (eventID == -1)
                 return false;
             // Insert event with no trigger
-            events.insert(std::make_pair(eventID, std::vector<event_trigger_t>()));
+            addEvent(eventID);
             return true;
         }
     case ET_MouseButton:

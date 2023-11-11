@@ -72,16 +72,18 @@ void DrawGTextEdit(CVar* cvar, const char* label, Str<1000>& buf);
 
 void DrawGCombo(CVar* cvar, const char* label, const char* values);
 
-Ogre::TexturePtr FetchIcon(const char* name);
+Ogre::TexturePtr FetchIcon(const char* name, const char* resource_group = "FlagsRG");
 
-ImDrawList* GetImDummyFullscreenWindow();
+ImDrawList* GetImDummyFullscreenWindow(const char* id = "rigsofrods/DummyWindow");
 
 // Helpers for coposing combobox item strings.
 void ImAddItemToComboboxString(std::string& target, std::string const& item);
 void ImTerminateComboboxString(std::string& target);
 
 // Input engine helpers
-void ImDrawEventHighlighted(events input_event);
+void ImDrawEventHighlighted(events input_event, bool force_active=false); ///!< Draws button displaying configured key combo and simulating the event when pressed.
 void ImDrawModifierKeyHighlighted(OIS::KeyCode key);
+
+std::string FormatLabelWithDistance(const std::string& nick, float cam_dist);
 
 } // namespace RoR
