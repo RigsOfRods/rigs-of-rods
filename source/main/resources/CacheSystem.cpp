@@ -711,7 +711,7 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
         }
         else if (ext == "tuneup")
         {
-            auto new_tuneups = RoR::TuneupParser::ParseTuneups(ds);
+            auto new_tuneups = RoR::TuneupUtil::ParseTuneups(ds);
             for (auto tuneup_def: new_tuneups)
             {
                 CacheEntryPtr entry = new CacheEntry();
@@ -1442,7 +1442,7 @@ void CacheSystem::LoadAssociatedTuneupDef(CacheEntryPtr& cache_entry)
         Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton()
             .openResource(cache_entry->fname, cache_entry->resource_group);
 
-        auto new_tuneups = RoR::TuneupParser::ParseTuneups(ds); // Load the '.tuneup' file
+        auto new_tuneups = RoR::TuneupUtil::ParseTuneups(ds); // Load the '.tuneup' file
         for (auto def: new_tuneups)
         {
             for (CacheEntryPtr& entry: m_entries)
@@ -1558,7 +1558,7 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
 
             // Write out the .tuneup file.
             Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(project_entry->fname, project_entry->resource_group);
-            TuneupParser::ExportTuneup(datastream, tuneup);
+            TuneupUtil::ExportTuneup(datastream, tuneup);
 
             // Attach the document to the entry in memory
             project_entry->tuneup_def = tuneup;
@@ -1761,7 +1761,7 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
         << "// This is a '.tuneup' mod - it's similar to '.skin' mod but deals with '.addonpart' mods.\n"
         << "// See https://github.com/RigsOfRods/rigs-of-rods/pull/3096#issuecomment-1783976601\n\n";
     datastream->write(header.GetBuffer(), header.GetLength());
-    RoR::TuneupParser::ExportTuneup(datastream, tuneup_entry->tuneup_def);
+    RoR::TuneupUtil::ExportTuneup(datastream, tuneup_entry->tuneup_def);
 
     // Create spawn request while actor still exists
     // Note we don't use `ActorModifyRequest::Type::RELOAD` because we don't need the bundle reloaded.

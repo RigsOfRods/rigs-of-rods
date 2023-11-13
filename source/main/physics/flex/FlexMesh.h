@@ -53,7 +53,9 @@ public:
         NodeNum_t nstart,
         int nrays,
         Ogre::String const& face_material_name,
+        Ogre::String const& face_material_rg,
         Ogre::String const& band_material_name,
+        Ogre::String const& band_material_rg,
         bool rimmed = false,
         float rimratio = 1.f
     );

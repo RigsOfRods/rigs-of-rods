@@ -21,6 +21,7 @@
 
 #include "TuneupFileFormat.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "CacheSystem.h"
 #include "Console.h"
@@ -59,37 +60,81 @@ TuneupDefPtr TuneupDef::clone()
 
     // Tweaking helpers
 
-float         RoR::TuneupDef::getTweakedWheelTireRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val)
+float RoR::TuneupUtil::getTweakedWheelTireRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val)
 {
     if (!tuneup_entry)
         return orig_val;
 
     ROR_ASSERT(tuneup_entry->tuneup_def);
     auto itor = tuneup_entry->tuneup_def->wheel_tweaks.find(wheel_id);
-    return (itor != tuneup_entry->tuneup_def->wheel_tweaks.end()) ? itor->second.twt_tire_radius : orig_val;
+    auto endi = tuneup_entry->tuneup_def->wheel_tweaks.end();
+    return (itor != endi && itor->second.twt_tire_radius > 0) 
+        ? itor->second.twt_tire_radius : orig_val;
 }
 
-float         RoR::TuneupDef::getTweakedWheelRimRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val)
+float RoR::TuneupUtil::getTweakedWheelRimRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val)
 {
     if (!tuneup_entry)
         return orig_val;
 
     ROR_ASSERT(tuneup_entry->tuneup_def);
     auto itor = tuneup_entry->tuneup_def->wheel_tweaks.find(wheel_id);
-    return (itor != tuneup_entry->tuneup_def->wheel_tweaks.end()) ? itor->second.twt_rim_radius : orig_val;
+    auto endi = tuneup_entry->tuneup_def->wheel_tweaks.end();
+    return (itor != endi && itor->second.twt_rim_radius > 0)
+        ? itor->second.twt_rim_radius : orig_val;
 }
 
-std::string   RoR::TuneupDef::getTweakedWheelRimMesh(CacheEntryPtr& tuneup_entry, int wheel_id, const std::string& orig_val)
+std::string RoR::TuneupUtil::getTweakedWheelMedia(CacheEntryPtr& tuneup_entry, int wheel_id, int media_idx, const std::string& orig_val)
 {
     if (!tuneup_entry)
         return orig_val;
 
     ROR_ASSERT(tuneup_entry->tuneup_def);
     auto itor = tuneup_entry->tuneup_def->wheel_tweaks.find(wheel_id);
-    return (itor != tuneup_entry->tuneup_def->wheel_tweaks.end()) ? itor->second.twt_rim_mesh : orig_val;
+    auto endi = tuneup_entry->tuneup_def->wheel_tweaks.end();
+    return (itor != endi && itor->second.twt_media[media_idx] != "")
+        ? itor->second.twt_media[media_idx] : orig_val;
 }
 
-Ogre::Vector3 RoR::TuneupDef::getTweakedNodePosition(CacheEntryPtr& tuneup_entry, NodeNum_t nodenum, Ogre::Vector3 orig_val)
+std::string RoR::TuneupUtil::getTweakedWheelMediaRG(ActorPtr& actor, int wheel_id, int media_idx)
+{
+    // Check there's a tuneup at all
+    ROR_ASSERT(actor);
+    if (!actor->getUsedTuneupEntry())
+        return actor->GetGfxActor()->GetResourceGroup();
+
+    // Check there's a tweak
+    TuneupDefPtr& doc = actor->getUsedTuneupEntry()->tuneup_def;
+    ROR_ASSERT(doc);
+    auto itor = doc->wheel_tweaks.find(wheel_id);
+    auto endi = doc->wheel_tweaks.end();
+    if (itor == endi || itor->second.twt_media[media_idx] == "")
+        return actor->GetGfxActor()->GetResourceGroup();
+
+    // Find the tweak addonpart
+    CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, itor->second.twt_origin);
+    if (addonpart_entry)
+        return addonpart_entry->resource_group;
+    else
+    {
+        LOG(fmt::format("[RoR|Tuneup] WARN Addonpart '{}' not found in modcache!", itor->second.twt_origin));
+        return actor->GetGfxActor()->GetResourceGroup();
+    }
+}
+
+RigDef::WheelSide RoR::TuneupUtil::getTweakedWheelSide(CacheEntryPtr& tuneup_entry, int wheel_id, RigDef::WheelSide orig_val)
+{
+    if (!tuneup_entry)
+        return orig_val;
+
+    ROR_ASSERT(tuneup_entry->tuneup_def);
+    auto itor = tuneup_entry->tuneup_def->wheel_tweaks.find(wheel_id);
+    auto endi = tuneup_entry->tuneup_def->wheel_tweaks.end();
+    return (itor != endi && itor->second.twt_side != RigDef::WheelSide::INVALID)
+        ? itor->second.twt_side : orig_val;
+}
+
+Ogre::Vector3 RoR::TuneupUtil::getTweakedNodePosition(CacheEntryPtr& tuneup_entry, NodeNum_t nodenum, Ogre::Vector3 orig_val)
 {
     if (!tuneup_entry)
         return orig_val;
@@ -107,7 +152,7 @@ Ogre::Vector3 RoR::TuneupDef::getTweakedNodePosition(CacheEntryPtr& tuneup_entry
 }
 
 
-std::vector<TuneupDefPtr> RoR::TuneupParser::ParseTuneups(Ogre::DataStreamPtr& stream)
+std::vector<TuneupDefPtr> RoR::TuneupUtil::ParseTuneups(Ogre::DataStreamPtr& stream)
 {
     std::vector<TuneupDefPtr> result;
     TuneupDefPtr curr_tuneup;
@@ -141,7 +186,7 @@ std::vector<TuneupDefPtr> RoR::TuneupParser::ParseTuneups(Ogre::DataStreamPtr& s
                 }
                 else
                 {
-                    RoR::TuneupParser::ParseTuneupAttribute(line, curr_tuneup);
+                    RoR::TuneupUtil::ParseTuneupAttribute(line, curr_tuneup);
                 }
             }
         }
@@ -166,7 +211,7 @@ std::vector<TuneupDefPtr> RoR::TuneupParser::ParseTuneups(Ogre::DataStreamPtr& s
     return result;
 }
 
-void RoR::TuneupParser::ParseTuneupAttribute(const std::string& line, TuneupDefPtr& tuneup_def) // static
+void RoR::TuneupUtil::ParseTuneupAttribute(const std::string& line, TuneupDefPtr& tuneup_def) // static
 {
     Ogre::StringVector params = Ogre::StringUtil::split(line, "\t=,;\n");
     for (unsigned int i=0; i < params.size(); i++)
@@ -193,7 +238,7 @@ void RoR::TuneupParser::ParseTuneupAttribute(const std::string& line, TuneupDefP
     if (attrib == "protected_flexbody" && params.size() == 2) { tuneup_def->protected_flexbodies.insert(params[1]); return; }
 }
 
-void RoR::TuneupParser::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tuneup)
+void RoR::TuneupUtil::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tuneup)
 {
     Str<2000> buf;
     buf << tuneup->name << "\n";

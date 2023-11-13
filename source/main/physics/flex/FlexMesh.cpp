@@ -37,8 +37,10 @@ FlexMesh::FlexMesh(
     NodeNum_t n2, 
     NodeNum_t nstart, 
     int nrays,
-    Ogre::String const & face_material_name, 
-    Ogre::String const & band_material_name, 
+    Ogre::String const& face_material_name,
+    Ogre::String const& face_material_rg,
+    Ogre::String const& band_material_name,
+    Ogre::String const& band_material_rg,
     bool rimmed, 
     float rim_ratio
 ) :
@@ -54,8 +56,8 @@ FlexMesh::FlexMesh(
     m_submesh_tiretread = m_mesh->createSubMesh();
 
     //materials
-    m_submesh_wheelface->setMaterialName(face_material_name);
-    m_submesh_tiretread->setMaterialName(band_material_name);
+    m_submesh_wheelface->setMaterialName(face_material_name, face_material_rg);
+    m_submesh_tiretread->setMaterialName(band_material_name, band_material_rg);
 
     // Define the vertices
     size_t vertex_count = 4*nrays+2; // each ray needs 4 verts (2 for sidewalls and 2 for band). The axis needs an extra 2.

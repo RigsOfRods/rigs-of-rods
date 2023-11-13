@@ -244,7 +244,7 @@ private:
     /// 'wheels', 'meshwheels'
     void BuildWheelBeams(
         unsigned int num_rays,
-        unsigned int base_node_index,
+        NodeNum_t base_node_index,
         node_t *axis_node_1,
         node_t *axis_node_2,
         float tyre_spring,
@@ -269,7 +269,8 @@ private:
     /// Sets up wheel and builds nodes for sections 'wheels', 'meshwheels' and 'meshwheels2'.
     /// @param wheel_width Width of the wheel (used in section 'wheels'). Use negative value to calculate width from axis beam.
     /// @return Wheel index.
-    unsigned int BuildWheelObjectAndNodes(
+    void BuildWheelObjectAndNodes(
+        WheelID_t wheel_id,
         unsigned int num_rays,
         node_t *axis_node_1,
         node_t *axis_node_2,
@@ -292,8 +293,9 @@ private:
     unsigned int                  AddWheelRimBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
     unsigned int                  AddTyreBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
     unsigned int                  _SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, node_t *node_1, node_t *node_2);
-    unsigned int                  AddWheel(RigDef::Wheel & wheel);
-    unsigned int                  AddWheel2(RigDef::Wheel2 & wheel_2_def); // 'wheels2'
+    WheelID_t                     AddWheel(RigDef::Wheel & wheel);
+    WheelID_t                     AddWheel2(RigDef::Wheel2 & wheel_2_def); // 'wheels2'
+    void                          GetWheelAxisNodes(RigDef::BaseWheel& def, node_t*& out_node_1, node_t*& out_node_2);
     void                          AddExhaust(NodeNum_t emitter_node_idx, NodeNum_t direction_node_idx);
     RailGroup*                    CreateRail(std::vector<RigDef::Node::Range> & node_ranges);
     void                          InitializeRig();
@@ -372,7 +374,7 @@ private:
     /// @name Visual setup
     /// @{
     void                          CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override="");
-    void                          CreateWheelSkidmarks(unsigned int wheel_index);
+    void                          CreateWheelSkidmarks(WheelID_t wheel_index);
     void                          FinalizeGfxSetup();
     Ogre::MaterialPtr             FindOrCreateCustomizedMaterial(const std::string& mat_lookup_name, const std::string& mat_lookup_rg);
     Ogre::MaterialPtr             CreateSimpleMaterial(Ogre::ColourValue color);
@@ -388,32 +390,37 @@ private:
 
     /// @param rim_ratio Percentual size of the rim.
     void CreateWheelVisuals(
-        unsigned int wheel_index, 
-        unsigned int node_base_index,
+        WheelID_t wheel_index, 
+        NodeNum_t node_base_index,
         unsigned int def_num_rays,
-        Ogre::String const & rim_material_name,
-        Ogre::String const & band_material_name,
+        Ogre::String const& face_material_name,
+        Ogre::String const& face_material_rg,
+        Ogre::String const& band_material_name,
+        Ogre::String const& band_material_rg,
         bool separate_rim,
         float rim_ratio = 1.f
     );
 
     void CreateFlexBodyWheelVisuals(
-        unsigned int wheel_index, 
-        unsigned int node_base_index,
+        WheelID_t wheel_index, 
+        NodeNum_t node_base_index,
         NodeNum_t axis_node_1,
         NodeNum_t axis_node_2,
         float override_radius,
         std::string override_mesh_name,
+        std::string override_mesh_rg,
         RigDef::FlexBodyWheel& def);
 
     void BuildMeshWheelVisuals(
-        unsigned int wheel_index,
-        unsigned int base_node_index,
-        unsigned int axis_node_1_index,
-        unsigned int axis_node_2_index,
+        WheelID_t wheel_index,
+        NodeNum_t base_node_index,
+        NodeNum_t axis_node_1_index,
+        NodeNum_t axis_node_2_index,
         unsigned int num_rays,
         Ogre::String mesh_name,
+        Ogre::String mesh_rg,
         Ogre::String material_name,
+        Ogre::String material_rg,
         float rim_radius,
         bool rim_reverse);
     /// @}

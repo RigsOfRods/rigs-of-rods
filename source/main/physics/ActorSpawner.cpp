@@ -4086,9 +4086,9 @@ void ActorSpawner::ProcessShock(RigDef::Shock & def)
 
 void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 {
-    unsigned int base_node_index = m_actor->ar_num_nodes;
-    const int wheel_id = (int)m_actor->ar_num_wheels;
-    wheel_t & wheel = m_actor->ar_wheels[m_actor->ar_num_wheels];
+    NodeNum_t base_node_index = m_actor->ar_num_nodes;
+    WheelID_t wheel_id = m_actor->ar_num_wheels;
+    wheel_t & wheel = m_actor->ar_wheels[wheel_id];
 
     node_t *axis_node_1 = &m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[0])];
     node_t *axis_node_2 = &m_actor->ar_nodes[this->GetNodeIndexOrThrow(def.nodes[1])];
@@ -4112,9 +4112,10 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     }
 
     // Tweaks
-    float override_rim_radius = TuneupDef::getTweakedWheelRimRadius(m_actor->getUsedTuneupEntry(), wheel_id, def.rim_radius);
-    float override_tire_radius = TuneupDef::getTweakedWheelTireRadius(m_actor->getUsedTuneupEntry(), wheel_id, def.tyre_radius);
-    std::string override_rim_mesh_name = TuneupDef::getTweakedWheelRimMesh(m_actor->getUsedTuneupEntry(), wheel_id, def.rim_mesh_name);
+    float override_rim_radius = TuneupUtil::getTweakedWheelRimRadius(m_actor->getUsedTuneupEntry(), wheel_id, def.rim_radius);
+    float override_tire_radius = TuneupUtil::getTweakedWheelTireRadius(m_actor->getUsedTuneupEntry(), wheel_id, def.tyre_radius);
+    std::string override_rim_mesh_name = TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, def.rim_mesh_name);
+    std::string override_rim_mesh_rg = TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0);
 
     // Node&beam generation
     Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
@@ -4337,11 +4338,10 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.wh_arm_node->RelPosition).length();
     wheel.wh_near_attach_node = (length_1 < length_2) ? axis_node_1 : axis_node_2;
 
-    // Commit the wheel
-    int wheel_index = m_actor->ar_num_wheels;
-    ++m_actor->ar_num_wheels;
+    this->CreateFlexBodyWheelVisuals(wheel_id, base_node_index, axis_node_1->pos, axis_node_2->pos, override_rim_radius, override_rim_mesh_name, override_rim_mesh_rg, def); 
 
-    this->CreateFlexBodyWheelVisuals(wheel_index, base_node_index, axis_node_1->pos, axis_node_2->pos, override_rim_radius, override_rim_mesh_name, def); 
+    // Commit the wheel
+    ++m_actor->ar_num_wheels;
 }
 
 wheel_t::BrakeCombo ActorSpawner::TranslateBrakingDef(RigDef::WheelBraking def)
@@ -4357,38 +4357,49 @@ wheel_t::BrakeCombo ActorSpawner::TranslateBrakingDef(RigDef::WheelBraking def)
     }
 }
 
-void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
+void ActorSpawner::GetWheelAxisNodes(RigDef::BaseWheel& def, node_t*& out_node_1, node_t*& out_node_2)
 {
-    unsigned int base_node_index = m_actor->ar_num_nodes;
-    node_t *axis_node_1 = GetNodePointer(meshwheel_def.nodes[0]);
-    node_t *axis_node_2 = GetNodePointer(meshwheel_def.nodes[1]);
-
-    Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
-    Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
+    node_t *def_node_1 = GetNodePointerOrThrow(def.nodes[0]);
+    node_t *def_node_2 = GetNodePointerOrThrow(def.nodes[1]);
 
     /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
-    if (pos_1.z > pos_2.z)
+    if (def_node_1->AbsPosition.z > def_node_2->AbsPosition.z)
     {
-        node_t *swap = axis_node_1;
-        axis_node_1 = axis_node_2;
-        axis_node_2 = swap;
+        out_node_1 = def_node_2;
+        out_node_2 = def_node_1;
     }
+    else
+    {
+        out_node_1 = def_node_1;
+        out_node_2 = def_node_2;
+    }
+}
 
-    unsigned int wheel_index = BuildWheelObjectAndNodes(
+void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
+{
+    WheelID_t wheel_id = m_actor->ar_num_wheels;
+
+    node_t* axis_node_1 = nullptr;
+    node_t* axis_node_2 = nullptr;
+    this->GetWheelAxisNodes(meshwheel_def, axis_node_1, axis_node_2);
+
+    NodeNum_t base_node_index = (NodeNum_t)m_actor->ar_num_nodes;
+    this->BuildWheelObjectAndNodes(
+        wheel_id,
         meshwheel_def.num_rays,
         axis_node_1,
         axis_node_2,
-        GetNodePointer(meshwheel_def.reference_arm_node),
+        GetNodePointer(meshwheel_def.reference_arm_node), /*optional*/
         meshwheel_def.num_rays * 2,
         meshwheel_def.num_rays * 8,
-        meshwheel_def.tyre_radius,
+        TuneupUtil::getTweakedWheelTireRadius(m_actor->getUsedTuneupEntry(), wheel_id, meshwheel_def.tyre_radius),
         meshwheel_def.propulsion,
         meshwheel_def.braking,
         meshwheel_def.node_defaults,
         meshwheel_def.mass
     );
 
-    BuildWheelBeams(
+    this->BuildWheelBeams(
         meshwheel_def.num_rays,
         base_node_index,
         axis_node_1,
@@ -4402,51 +4413,43 @@ void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
     );
 
     this->BuildMeshWheelVisuals(
-        wheel_index,
+        wheel_id,
         base_node_index,
         axis_node_1->pos,
         axis_node_2->pos,
         meshwheel_def.num_rays,
-        meshwheel_def.mesh_name,
-        meshwheel_def.material_name,
+        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, meshwheel_def.mesh_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 1, meshwheel_def.material_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 1),
         meshwheel_def.rim_radius,
         /*rim_reverse:*/meshwheel_def.side != RigDef::WheelSide::RIGHT
     );
 
-    CreateWheelSkidmarks(wheel_index);
+    this->CreateWheelSkidmarks(wheel_id);
+
+    m_actor->ar_num_wheels++;
 }
 
 void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
 {
-    unsigned int base_node_index = m_actor->ar_num_nodes;
-    node_t *axis_node_1 = GetNodePointer(def.nodes[0]);
-    node_t *axis_node_2 = GetNodePointer(def.nodes[1]);
+    WheelID_t wheel_id = m_actor->ar_num_wheels;
 
-    if (axis_node_1 == nullptr || axis_node_2 == nullptr)
-    {
-        this->AddMessage(Message::TYPE_ERROR, "Failed to find axis nodes, skipping meshwheel2...");
-        return;
-    }
+    node_t* axis_node_1 = nullptr;
+    node_t* axis_node_2 = nullptr;
+    this->GetWheelAxisNodes(def, axis_node_1, axis_node_2);
 
-    Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
-    Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
+    NodeNum_t base_node_index = (NodeNum_t)m_actor->ar_num_nodes;
 
-    /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
-    if (pos_1.z > pos_2.z)
-    {
-        node_t *swap = axis_node_1;
-        axis_node_1 = axis_node_2;
-        axis_node_2 = swap;
-    }	
-
-    unsigned int wheel_index = BuildWheelObjectAndNodes(
+    this->BuildWheelObjectAndNodes(
+        wheel_id,
         def.num_rays,
         axis_node_1,
         axis_node_2,
         GetNodePointer(def.reference_arm_node),
         def.num_rays * 2,
         def.num_rays * 8,
-        def.tyre_radius,
+        TuneupUtil::getTweakedWheelTireRadius(m_actor->getUsedTuneupEntry(), wheel_id, def.tyre_radius),
         def.propulsion,
         def.braking,
         def.node_defaults,
@@ -4475,28 +4478,34 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
     );
 
     this->BuildMeshWheelVisuals(
-        wheel_index,
+        wheel_id,
         base_node_index,
         axis_node_1->pos,
         axis_node_2->pos,
         def.num_rays,
-        def.mesh_name,
-        def.material_name,
+        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, def.mesh_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 1, def.material_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 1),
         def.rim_radius,
         /*rim_reverse:*/def.side != RigDef::WheelSide::RIGHT
     );
 
-    CreateWheelSkidmarks(wheel_index);
+    CreateWheelSkidmarks(wheel_id);
+
+    m_actor->ar_num_wheels++;
 }
 
 void ActorSpawner::BuildMeshWheelVisuals(
-    unsigned int wheel_index,
-    unsigned int base_node_index,
-    unsigned int axis_node_1_index,
-    unsigned int axis_node_2_index,
+    WheelID_t wheel_index,
+    NodeNum_t base_node_index,
+    NodeNum_t axis_node_1_index,
+    NodeNum_t axis_node_2_index,
     unsigned int num_rays,
     Ogre::String mesh_name,
+    Ogre::String mesh_rg,
     Ogre::String material_name,
+    Ogre::String material_rg,
     float rim_radius,
     bool rim_reverse
 )
@@ -4514,7 +4523,9 @@ void ActorSpawner::BuildMeshWheelVisuals(
             rim_radius,
             rim_reverse,
             mesh_name,
-            material_name);
+            mesh_rg,
+            material_name,
+            material_rg);
         Ogre::SceneNode* scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         scene_node->attachObject(flexmesh_wheel->GetTireEntity());
 
@@ -4526,12 +4537,13 @@ void ActorSpawner::BuildMeshWheelVisuals(
     }
     catch (Ogre::Exception& e)
     {
-        this->AddMessage(Message::TYPE_ERROR, "Failed to create meshwheel visuals, message: " + e.getFullDescription());
+        this->AddMessage(Message::TYPE_ERROR, "Failed to create meshwheel visuals: " + e.getDescription());
         return;
     }
 }
 
-unsigned int ActorSpawner::BuildWheelObjectAndNodes( 
+void ActorSpawner::BuildWheelObjectAndNodes( 
+    WheelID_t wheel_id,
     unsigned int num_rays,
     node_t *axis_node_1,
     node_t *axis_node_2,
@@ -4546,7 +4558,7 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
     float wheel_width       /* Default: -1.f */
 )
 {
-    wheel_t & wheel = m_actor->ar_wheels[m_actor->ar_num_wheels];
+    wheel_t & wheel = m_actor->ar_wheels[wheel_id];
 
     /* Axis */
     Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
@@ -4579,14 +4591,6 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
     Ogre::Vector3 ray_vector = axis_vector.perpendicular() * wheel_radius;
     Ogre::Quaternion ray_rotator = Ogre::Quaternion(Ogre::Degree(-360.0 / (num_rays * 2)), axis_vector);
 
-#ifdef DEBUG_TRUCKPARSER2013
-    // TRUCK PARSER 2013 DEBUG
-    std::stringstream msg;
-    msg << "\nDBG ActorSpawner::BuildWheelObjectAndNodes()\nDBG nodebase:" << m_actor->ar_num_nodes <<", axis-node-0:"<<axis_node_1->pos <<", axis-node-1:"<<axis_node_2->pos<<"\n";
-    msg << "DBG ==== Adding nodes ====";
-    // END
-#endif
-
     for (unsigned int i = 0; i < num_rays; i++)
     {
         /* Outer ring */
@@ -4618,28 +4622,7 @@ unsigned int ActorSpawner::BuildWheelObjectAndNodes(
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
         wheel.wh_nodes[(i * 2) + 1] = & inner_node;
-
-#ifdef DEBUG_TRUCKPARSER2013
-        // TRUCK PARSER 2013 DEBUG
-        int modifier = 0;
-        msg << "\nDBG\tN1: index=" << outer_node.pos + modifier << ", iswheel=" << WHEEL_DEFAULT 
-            <<", X=" << outer_node.AbsPosition.x <<", Y=" << outer_node.AbsPosition.y <<", Z=" << outer_node.AbsPosition.z << std::endl
-            << "DBG\tN2: index=" << inner_node.pos + modifier << ", iswheel=" << WHEEL_DEFAULT 
-            <<", X=" << inner_node.AbsPosition.x <<", Y=" << inner_node.AbsPosition.y <<", Z=" << inner_node.AbsPosition.z;
-        // END
-#endif
     }
-
-#ifdef DEBUG_TRUCKPARSER2013
-    // TRUCK PARSER 2013 DEBUG
-    LOG(msg.str());
-    // END
-#endif
-
-    /* Advance */
-    unsigned int wheel_index = m_actor->ar_num_wheels;
-    m_actor->ar_num_wheels++;
-    return wheel_index;
 }
 
 void ActorSpawner::AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, std::shared_ptr<RigDef::NodeDefaults> defaults)
@@ -4655,7 +4638,7 @@ void ActorSpawner::AdjustNodeBuoyancy(node_t & node, std::shared_ptr<RigDef::Nod
 
 void ActorSpawner::BuildWheelBeams(
     unsigned int num_rays,
-    unsigned int base_node_index,
+    NodeNum_t base_node_index,
     node_t *axis_node_1,
     node_t *axis_node_2,
     float tyre_spring,
@@ -4710,45 +4693,25 @@ void ActorSpawner::BuildWheelBeams(
     }
 }
 
-unsigned int ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
+WheelID_t ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
 {
-    const int wheel_id = m_actor->ar_num_wheels;
-    unsigned int base_node_index = m_actor->ar_num_nodes;
-    node_t *axis_node_1 = GetNodePointer(wheel_def.nodes[0]);
-    node_t *axis_node_2 = GetNodePointer(wheel_def.nodes[1]);
+    WheelID_t wheel_id = m_actor->ar_num_wheels;
 
-    if (axis_node_1 == nullptr || axis_node_2 == nullptr)
-    {
-        std::stringstream msg;
-        msg << "Error creating 'wheel': Some axis nodes were not found";
-        msg << " (Node1: " << wheel_def.nodes[0].ToString() << " => " << (axis_node_1 == nullptr) ? "NOT FOUND)" : "found)";
-        msg << " (Node2: " << wheel_def.nodes[1].ToString() << " => " << (axis_node_2 == nullptr) ? "NOT FOUND)" : "found)";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return -1;
-    }
+    node_t* axis_node_1 = nullptr;
+    node_t* axis_node_2 = nullptr;
+    this->GetWheelAxisNodes(wheel_def, axis_node_1, axis_node_2);
 
-    Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
-    Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
+    NodeNum_t base_node_index = (NodeNum_t)m_actor->ar_num_nodes;
 
-    /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
-    if (pos_1.z > pos_2.z)
-    {
-        node_t *swap = axis_node_1;
-        axis_node_1 = axis_node_2;
-        axis_node_2 = swap;
-    }
-
-    // Tweaks
-    float override_radius = TuneupDef::getTweakedWheelTireRadius(m_actor->getUsedTuneupEntry(), wheel_id, wheel_def.radius);
-
-    BuildWheelObjectAndNodes(
+    this->BuildWheelObjectAndNodes(
+        wheel_id,
         wheel_def.num_rays,
         axis_node_1,
         axis_node_2,
         GetNodePointer(wheel_def.reference_arm_node),
         wheel_def.num_rays * 2,
         wheel_def.num_rays * 8,
-        override_radius,
+        TuneupUtil::getTweakedWheelTireRadius(m_actor->getUsedTuneupEntry(), wheel_id, wheel_def.radius),
         wheel_def.propulsion,
         wheel_def.braking,
         wheel_def.node_defaults,
@@ -4756,7 +4719,7 @@ unsigned int ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
         -1.f // Set width to axis length (width in definition is ignored)
     );
 
-    BuildWheelBeams(
+    this->BuildWheelBeams(
         wheel_def.num_rays,
         base_node_index,
         axis_node_1,
@@ -4773,51 +4736,35 @@ unsigned int ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
         wheel_id,
         base_node_index,
         wheel_def.num_rays,
-        wheel_def.face_material_name,
-        wheel_def.band_material_name,
+        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, wheel_def.face_material_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 1, wheel_def.band_material_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 1),
         /*separate_rim:*/false
         );
 
     CreateWheelSkidmarks(wheel_id);
 
-    return (unsigned int)wheel_id;
+    m_actor->ar_num_wheels++;
+    return wheel_id;
 }
 
-void ActorSpawner::CreateWheelSkidmarks(unsigned int wheel_index)
+void ActorSpawner::CreateWheelSkidmarks(WheelID_t wheel_index)
 {
     // Always create, even if disabled by config
     m_actor->m_skid_trails[wheel_index] = new RoR::Skidmark(
         RoR::App::GetGfxScene()->GetSkidmarkConf(), &m_actor->ar_wheels[wheel_index], m_particles_parent_scenenode, 300, 20);
 }
 
-unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
+WheelID_t ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 {
-    const int wheel_id = m_actor->ar_num_wheels;
-    unsigned int base_node_index = m_actor->ar_num_nodes;
-    wheel_t & wheel = m_actor->ar_wheels[m_actor->ar_num_wheels];
-    node_t *axis_node_1 = GetNodePointer(wheel_2_def.nodes[0]);
-    node_t *axis_node_2 = GetNodePointer(wheel_2_def.nodes[1]);
+    WheelID_t wheel_id = m_actor->ar_num_wheels;
 
-    if (axis_node_1 == nullptr || axis_node_2 == nullptr)
-    {
-        std::stringstream msg;
-        msg << "Error creating 'wheel2': Some axis nodes were not found";
-        msg << " (Node1: " << wheel_2_def.nodes[0].ToString() << " => " << (axis_node_1 == nullptr) ? "NOT FOUND)" : "found)";
-        msg << " (Node2: " << wheel_2_def.nodes[1].ToString() << " => " << (axis_node_2 == nullptr) ? "NOT FOUND)" : "found)";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return -1;
-    }
+    node_t* axis_node_1 = nullptr;
+    node_t* axis_node_2 = nullptr;
+    this->GetWheelAxisNodes(wheel_2_def, axis_node_1, axis_node_2);
 
-    Ogre::Vector3 pos_1 = axis_node_1->AbsPosition;
-    Ogre::Vector3 pos_2 = axis_node_2->AbsPosition;
-
-    /* Enforce the "second node must have a larger Z coordinate than the first" constraint */
-    if (pos_1.z > pos_2.z)
-    {
-        node_t *swap = axis_node_1;
-        axis_node_1 = axis_node_2;
-        axis_node_2 = swap;
-    }
+    NodeNum_t base_node_index = (NodeNum_t)m_actor->ar_num_nodes;
 
     /* Find out where to connect rigidity node */
     bool rigidity_beam_side_1 = false;
@@ -4830,10 +4777,11 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     }
 
     // Tweaks
-    float override_rim_radius = TuneupDef::getTweakedWheelRimRadius(m_actor->getUsedTuneupEntry(), wheel_id, override_rim_radius);
-    float override_tire_radius = TuneupDef::getTweakedWheelTireRadius(m_actor->getUsedTuneupEntry(), wheel_id, override_tire_radius);
+    float override_rim_radius = TuneupUtil::getTweakedWheelRimRadius(m_actor->getUsedTuneupEntry(), wheel_id, wheel_2_def.rim_radius);
+    float override_tire_radius = TuneupUtil::getTweakedWheelTireRadius(m_actor->getUsedTuneupEntry(), wheel_id, wheel_2_def.tyre_radius);
 
     /* Node&beam generation */
+    wheel_t& wheel = m_actor->ar_wheels[wheel_id];
     Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
     axis_vector.normalise();
     Ogre::Vector3 rim_ray_vector = Ogre::Vector3(0, override_rim_radius, 0);
@@ -5014,18 +4962,30 @@ unsigned int ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
 
     CreateWheelSkidmarks(static_cast<unsigned>(m_actor->ar_num_wheels));
 
-    /* Advance */
-    unsigned int wheel_index = m_actor->ar_num_wheels;
+    this->CreateWheelVisuals(
+        wheel_id,
+        base_node_index,
+        wheel_2_def.num_rays,
+        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, wheel_2_def.face_material_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 1, wheel_2_def.band_material_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 1),
+        /*separate_rim:*/true,
+        /*rim_ratio:*/override_rim_radius / override_tire_radius
+        );
+
     m_actor->ar_num_wheels++;
-    return wheel_index;
+    return wheel_id;
 }
 
 void ActorSpawner::CreateWheelVisuals(
-    unsigned int wheel_index, 
-    unsigned int node_base_index,
+    WheelID_t wheel_index, 
+    NodeNum_t node_base_index,
     unsigned int num_rays,
-    Ogre::String const & rim_material_name,
-    Ogre::String const & band_material_name,
+    Ogre::String const& face_material_name,
+    Ogre::String const& face_material_rg,
+    Ogre::String const& band_material_name,
+    Ogre::String const& band_material_rg,
     bool separate_rim,
     float rim_ratio
 )
@@ -5047,8 +5007,8 @@ void ActorSpawner::CreateWheelVisuals(
             wheel.wh_axis_node_1->pos,
             static_cast<NodeNum_t>(node_base_index), // FIXME - node_base_index should be also NodeNum_t
             num_rays,
-            rim_material_name,
-            band_material_name,
+            face_material_name, face_material_rg,
+            band_material_name, band_material_rg,
             separate_rim,
             rim_ratio
         );
@@ -5068,12 +5028,13 @@ void ActorSpawner::CreateWheelVisuals(
 }
 
 void ActorSpawner::CreateFlexBodyWheelVisuals(
-    unsigned int wheel_index, 
-    unsigned int node_base_index,
+    WheelID_t wheel_index, 
+    NodeNum_t node_base_index,
     NodeNum_t axis_node_1,
     NodeNum_t axis_node_2,
     float override_radius,
     std::string override_mesh_name,
+    std::string override_mesh_rg,
     RigDef::FlexBodyWheel& def)
 {
     m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill all current nodes - needed to setup flexing meshes
@@ -5085,7 +5046,9 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
         axis_node_2,
         def.num_rays,
         override_mesh_name,
+        override_mesh_rg,
         "tracks/trans", // Rim material name. Original parser: was hardcoded in BTS_FLEXBODYWHEELS
+        m_actor->GetGfxActor()->GetResourceGroup(),
         override_radius,
         def.side != RigDef::WheelSide::RIGHT
         );
@@ -5117,7 +5080,7 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
         if (flexbody == nullptr)
             return; // Error already logged
 
-        this->CreateWheelSkidmarks(static_cast<unsigned>(wheel_index));
+        this->CreateWheelSkidmarks(wheel_index);
 
         m_actor->m_gfx_actor->m_flexbodies.push_back(flexbody);
     }
@@ -5189,22 +5152,12 @@ unsigned int ActorSpawner::_SectionWheels2AddBeam(RigDef::Wheel2 & wheel_2_def, 
 
 void ActorSpawner::ProcessWheel2(RigDef::Wheel2 & def)
 {
-    unsigned int node_base_index = m_actor->ar_num_nodes;
-    unsigned int wheel_index = AddWheel2(def);
-    this->CreateWheelVisuals(
-        wheel_index,
-        node_base_index,
-        def.num_rays,
-        def.face_material_name,
-        def.band_material_name,
-        /*separate_rim:*/true,
-        /*rim_ratio:*/def.rim_radius / def.tyre_radius
-        );
+    this->AddWheel2(def);
 };
 
 void ActorSpawner::ProcessWheel(RigDef::Wheel & def)
 {
-    AddWheel(def);
+    this->AddWheel(def);
 };
 
 void ActorSpawner::ProcessWheelDetacher(RigDef::WheelDetacher & def)
@@ -5827,7 +5780,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     node.pos = inserted_node.first; /* Node index */
 
     /* Positioning */
-    Ogre::Vector3 node_position = m_spawn_position + TuneupDef::getTweakedNodePosition(m_actor->getUsedTuneupEntry(), node.pos, def.position);
+    Ogre::Vector3 node_position = m_spawn_position + TuneupUtil::getTweakedNodePosition(m_actor->getUsedTuneupEntry(), node.pos, def.position);
     ROR_ASSERT(!isnan(node_position.x));
     ROR_ASSERT(!isnan(node_position.y));
     ROR_ASSERT(!isnan(node_position.z));
