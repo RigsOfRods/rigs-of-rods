@@ -116,6 +116,8 @@ void ActorSpawner::ConfigureAddonParts(CacheEntryPtr& tuneup_entry)
         ROR_ASSERT(tuneup_entry->resource_group != "");
         ROR_ASSERT(tuneup_entry->tuneup_def != nullptr);
 
+        AddonPartUtility::ResetUnwantedAndTweakedElements(tuneup_entry->tuneup_def);
+
         for (const std::string& addonpart: tuneup_entry->tuneup_def->use_addonparts)
         {
             CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, addonpart);
