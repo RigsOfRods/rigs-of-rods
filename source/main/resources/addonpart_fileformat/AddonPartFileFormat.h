@@ -50,6 +50,8 @@ public:
     /// Also handles 'addonpart_tweak_*' elements, resolving possible conflicts among used parts.
     void ResolveUnwantedAndTweakedElements(TuneupDefPtr& tuneup, CacheEntryPtr& addonpart_entry);
 
+    static void ResetUnwantedAndTweakedElements(TuneupDefPtr& tuneup);
+
 private:
     // Helpers of `TransformToRigDefModule()`, they expect `m_context` to be in position:
     void ProcessManagedMaterial();

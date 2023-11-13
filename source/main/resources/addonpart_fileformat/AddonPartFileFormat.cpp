@@ -152,6 +152,17 @@ void AddonPartUtility::ResolveUnwantedAndTweakedElements(TuneupDefPtr& tuneup, C
     }
 }
 
+void AddonPartUtility::ResetUnwantedAndTweakedElements(TuneupDefPtr& tuneup)
+{
+    ROR_ASSERT(tuneup);
+    // Unwanted
+    tuneup->remove_flexbodies.clear();
+    tuneup->remove_props.clear();
+    // Tweaked
+    tuneup->node_tweaks.clear();
+    tuneup->wheel_tweaks.clear();
+}
+
 
 // Helpers of `TransformToRigDefModule()`, they expect `m_context` to be in position:
 // These expect `m_context` to be in position:
