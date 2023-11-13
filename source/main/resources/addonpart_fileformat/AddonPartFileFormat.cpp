@@ -317,15 +317,17 @@ void AddonPartUtility::ProcessTweakWheel()
                 TuneupWheelTweak data;
                 data.twt_origin = m_addonpart_entry->fname;
                 data.twt_wheel_id = wheel_id;
-                data.twt_rim_mesh = m_context->getTokString(2);
-                if (m_context->isTokFloat(3)) { data.twt_rim_radius = m_context->getTokFloat(3); }
-                if (m_context->isTokFloat(4)) {data.twt_tire_radius = m_context->getTokFloat(4); }
+                data.twt_media[0] = m_context->getTokString(2);
+                if (m_context->isTokString(3)) { data.twt_media[1] = m_context->getTokString(3); }
+                if (m_context->isTokString(4)) { data.twt_side = (m_context->getTokString(4)[0] == 'l') ? RigDef::WheelSide::LEFT : RigDef::WheelSide::RIGHT; }
+                if (m_context->isTokFloat(5)) { data.twt_rim_radius = m_context->getTokFloat(5); }
+                if (m_context->isTokFloat(6)) { data.twt_tire_radius = m_context->getTokFloat(6); }
                 m_tuneup->wheel_tweaks.insert(std::make_pair(wheel_id, data));
             
                 LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': tweaking wheel {}"
-                    " with params {{ rim_mesh={}, tire_radius={}, rim_radius={} }}",
+                    " with params {{ media1={}, media2={}, side={}, tire_radius={}, rim_radius={} }}",
                     m_addonpart_entry->fname, m_context->getTokKeyword(), wheel_id,
-                    data.twt_rim_mesh, data.twt_tire_radius, data.twt_rim_radius));
+                    data.twt_media[0], data.twt_media[1], (char)data.twt_side, data.twt_tire_radius, data.twt_rim_radius));
             }
             else if (m_tuneup->wheel_tweaks[wheel_id].twt_origin != m_addonpart_entry->fname)
             {

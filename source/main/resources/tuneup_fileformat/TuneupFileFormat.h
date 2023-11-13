@@ -27,6 +27,7 @@
 
 #include <OgreResourceManager.h>
 
+#include <array>
 #include <vector>
 #include <string>
 #include <set>
@@ -40,13 +41,16 @@ struct TuneupNodeTweak //!< Data of 'addonpart_tweak_node <nodenum> <posX> <posY
     std::string     tnt_origin; //!< Addonpart filename
 };
 
-struct TuneupWheelTweak //!< Data of 'addonpart_tweak_wheel <wheel ID> <rim mesh> <tire radius> <rim radius>'
+struct TuneupWheelTweak //!< Data of 'addonpart_tweak_wheel <wheel ID> <media1> <media2> <side flag> <tire radius> <rim radius>'
 {
-    int             twt_wheel_id = -1;       //!< Arg#1, required
-    std::string     twt_rim_mesh;            //!< Arg#2, required
-    float           twt_tire_radius = -1.f;  //!< Arg#3, optional
-    float           twt_rim_radius = -1.f;   //!< Arg#4, optional, only applies to some wheel types
-    std::string     twt_origin;              //!< Addonpart filename
+    int                twt_wheel_id = -1;       //!< Arg#1, required
+    /// `twt_media[0]` Arg#2, required ('wheels[2]': face material, 'meshwheels[2]/flexbodywheels': rim mesh)
+    /// `twt_media[1]` Arg#3, optional ('wheels[2]': band material, 'meshwheels[2]/flexbodywheels': tire material)
+    std::array<std::string, 2> twt_media;      
+    RigDef::WheelSide  twt_side = RigDef::WheelSide::INVALID; //!< Arg#4, optional, default LEFT (Only applicable to mesh/flexbody wheels)
+    float              twt_tire_radius = -1.f;  //!< Arg#5, optional
+    float              twt_rim_radius = -1.f;   //!< Arg#6, optional, only applies to some wheel types
+    std::string        twt_origin;              //!< Addonpart filename
     
 };
 
@@ -85,22 +89,24 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     bool         isWheelProtected(int wheelid) const { return protected_wheels.find(wheelid) != protected_wheels.end(); }
     bool         isNodeProtected(NodeNum_t nodenum) const { return protected_nodes.find(nodenum) != protected_nodes.end(); }
     /// @}
-
-    /// @name Tweaking helpers
-    /// @{
-    static float        getTweakedWheelTireRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val);
-    static float        getTweakedWheelRimRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val);
-    static std::string  getTweakedWheelRimMesh(CacheEntryPtr& tuneup_entry, int wheel_id, const std::string& orig_val);
-    static Ogre::Vector3 getTweakedNodePosition(CacheEntryPtr& tuneup_entry, NodeNum_t nodenum, Ogre::Vector3 orig_val);
-    /// @}
 };
 
-class TuneupParser
+class TuneupUtil
 {
 public:
 
     static std::vector<TuneupDefPtr> ParseTuneups(Ogre::DataStreamPtr& stream);
     static void ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tuneup);
+
+    /// @name Tweaking helpers
+    /// @{
+    static float              getTweakedWheelTireRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val);
+    static float              getTweakedWheelRimRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val);
+    static std::string        getTweakedWheelMedia(CacheEntryPtr& tuneup_entry, int wheel_id, int media_idx, const std::string& orig_val);
+    static std::string        getTweakedWheelMediaRG(ActorPtr& actor, int wheel_id, int media_idx);
+    static RigDef::WheelSide  getTweakedWheelSide(CacheEntryPtr& tuneup_entry, int wheel_id, RigDef::WheelSide orig_val);
+    static Ogre::Vector3      getTweakedNodePosition(CacheEntryPtr& tuneup_entry, NodeNum_t nodenum, Ogre::Vector3 orig_val);
+    /// @}
 
 private:
 

@@ -39,7 +39,9 @@ FlexMeshWheel::FlexMeshWheel(
     int nstart, 
     int nrays, 
     std::string const& tire_mesh_name,
+    std::string const& tire_mesh_rg,
     std::string const& tire_material_name,
+    std::string const& tire_material_rg,
     float rimradius, 
     bool rimreverse
 ) :
@@ -56,13 +58,13 @@ FlexMeshWheel::FlexMeshWheel(
     m_rim_scene_node->attachObject(m_rim_entity);
 
     // Create the tire mesh via the MeshManager
-    m_mesh = MeshManager::getSingleton().createManual(tire_mesh_name, gfx_actor->GetResourceGroup());
+    m_mesh = MeshManager::getSingleton().createManual(tire_mesh_name, tire_mesh_rg);
 
     // Create submeshes
     m_submesh = m_mesh->createSubMesh();
 
     //materials
-    m_submesh->setMaterialName(tire_material_name);
+    m_submesh->setMaterialName(tire_material_name, tire_material_rg);
 
     // Define the vertices
     m_vertex_count = 6*(nrays+1);

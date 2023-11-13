@@ -67,7 +67,9 @@ private:
         int nstart,
         int nrays,
         std::string const& tire_mesh_name,
+        std::string const& tire_mesh_rg,
         std::string const& tire_material_name,
+        std::string const& tire_material_rg,
         float rimradius,
         bool rimreverse
     );

@@ -185,7 +185,9 @@ public:
         float rim_radius,
         bool rim_reverse,
         std::string const & rim_mesh_name,
-        std::string const & tire_material_name);
+        std::string const & rim_mesh_rg,
+        std::string const & tire_material_name,
+        std::string const & tire_material_rg);
 
     void  CheckAndLoadFlexbodyCache();
     void  SaveFlexbodiesToCache();
