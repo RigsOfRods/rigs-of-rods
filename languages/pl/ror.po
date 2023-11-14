@@ -5,13 +5,14 @@
 # Translators:
 # Karol Bieńkowski <karlossss1996@gmail.com>, 2019
 # Michał Mańk <michal.090506@gmail.com>, 2023.
+# Crystal Hammer <cryham@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2023-09-01 09:51+0000\n"
-"Last-Translator: Michał Mańk <michal.090506@gmail.com>\n"
+"PO-Revision-Date: 2023-11-15 12:04+0000\n"
+"Last-Translator: Crystal Hammer <cryham@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "pl/>\n"
 "Language: pl\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && ("
 "n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
 "n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
-"X-Generator: Weblate 5.0.1-dev\n"
+"X-Generator: Weblate 5.2-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -217,7 +218,7 @@ msgstr ""
 #: Application.cpp:455
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "Brak"
 
 #: Application.cpp:456
 #, fuzzy
@@ -2722,7 +2723,7 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:535
 msgctxt "RepositorySelector"
 msgid "Title:"
-msgstr ""
+msgstr "Tytuł:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:541
 msgctxt "RepositorySelector"
@@ -2732,7 +2733,7 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:547
 msgctxt "RepositorySelector"
 msgid "Category:"
-msgstr ""
+msgstr "Kategoria:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:561
 #, fuzzy
@@ -2744,7 +2745,7 @@ msgstr "Opis: "
 #: gui/panels/GUI_RepositorySelector.cpp:567
 msgctxt "RepositorySelector"
 msgid "Downloads:"
-msgstr ""
+msgstr "Pobrania:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:573
 #, fuzzy
@@ -2770,12 +2771,12 @@ msgstr "Liczba trójkątów: "
 #: gui/panels/GUI_RepositorySelector.cpp:591
 msgctxt "RepositorySelector"
 msgid "Date Added:"
-msgstr ""
+msgstr "Data dodania:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:598
 msgctxt "RepositorySelector"
 msgid "Last Update:"
-msgstr ""
+msgstr "Ostatnia zmiana:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:605
 #, fuzzy
@@ -2820,18 +2821,18 @@ msgstr "Aktualizacje"
 #: gui/panels/GUI_RepositorySelector.cpp:706
 msgctxt "RepositorySelector"
 msgid "Reinstall"
-msgstr ""
+msgstr "Przeinstaluj"
 
 #: gui/panels/GUI_RepositorySelector.cpp:710
 msgctxt "RepositorySelector"
 msgid "Install"
-msgstr ""
+msgstr "Zainstaluj"
 
 #: gui/panels/GUI_RepositorySelector.cpp:720
 #: gui/panels/GUI_RepositorySelector.cpp:730
 msgctxt "RepositorySelector"
 msgid "Remove"
-msgstr ""
+msgstr "Usuń"
 
 #: gui/panels/GUI_RepositorySelector.cpp:758
 #: gui/panels/GUI_RepositorySelector.cpp:987
@@ -2859,7 +2860,7 @@ msgstr "Opis: "
 #: gui/panels/GUI_RepositorySelector.cpp:994
 msgctxt "RepositorySelector"
 msgid "Downloaded"
-msgstr ""
+msgstr "Pobrano"
 
 #: gui/panels/GUI_RepositorySelector.cpp:994
 msgctxt "RepositorySelector"
@@ -2874,7 +2875,7 @@ msgstr ""
 #: gui/panels/GUI_RepositorySelector.cpp:1135
 msgctxt "RepositorySelector"
 msgid "No files available :("
-msgstr ""
+msgstr "Brak dostępnych plików :("
 
 #: gui/panels/GUI_SimActorStats.cpp:53
 #, fuzzy
@@ -3111,7 +3112,7 @@ msgstr "Ustawienia"
 #: gui/panels/GUI_TopMenubar.cpp:119
 msgctxt "TopMenubar"
 msgid "Tools"
-msgstr ""
+msgstr "Narzędzia"
 
 #: gui/panels/GUI_TopMenubar.cpp:120
 #, fuzzy
@@ -3179,7 +3180,7 @@ msgstr "usuń aktualny pojazd"
 #: gui/panels/GUI_TopMenubar.cpp:318
 msgctxt "TopMenubar"
 msgid "Remove all vehicles"
-msgstr ""
+msgstr "Usuń wszystkie pojazdy"
 
 #: gui/panels/GUI_TopMenubar.cpp:325
 msgctxt "TopMenubar"
@@ -3199,7 +3200,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:351
 msgctxt "TopMenubar"
 msgid "Send all vehicles to sleep"
-msgstr ""
+msgstr "Uśpij wszystkie pojazdy"
 
 #: gui/panels/GUI_TopMenubar.cpp:359
 #, fuzzy
@@ -3211,12 +3212,12 @@ msgstr "Tylko obecny pojazd, główne światła"
 #: gui/panels/GUI_TopMenubar.cpp:372
 msgctxt "TopMenubar"
 msgid "Back to menu"
-msgstr ""
+msgstr "Powrót do menu"
 
 #: gui/panels/GUI_TopMenubar.cpp:382
 msgctxt "TopMenubar"
 msgid "Exit"
-msgstr ""
+msgstr "Wyjście"
 
 #: gui/panels/GUI_TopMenubar.cpp:399
 msgctxt "TopMenubar"
@@ -3233,12 +3234,12 @@ msgstr "zapisz jako PNG"
 #: gui/panels/GUI_TopMenubar.cpp:432
 msgctxt "TopMenubar"
 msgid "Quicksave"
-msgstr ""
+msgstr "Szybki zapis"
 
 #: gui/panels/GUI_TopMenubar.cpp:442
 msgctxt "TopMenubar"
 msgid "Quickload"
-msgstr ""
+msgstr "Szybkie wczytanie"
 
 #: gui/panels/GUI_TopMenubar.cpp:453
 msgctxt "TopMenubar"
@@ -3295,7 +3296,7 @@ msgstr "Odbijająca się"
 #: gui/panels/GUI_TopMenubar.cpp:509
 msgctxt "TopMenubar"
 msgid "Game"
-msgstr ""
+msgstr "Gra"
 
 #: gui/panels/GUI_TopMenubar.cpp:512
 #, fuzzy
@@ -3320,7 +3321,7 @@ msgstr "Czas ustawiony na"
 #: gui/panels/GUI_TopMenubar.cpp:526 gui/panels/GUI_TopMenubar.cpp:533
 msgctxt "TopMenubar"
 msgid "Camera:"
-msgstr ""
+msgstr "Kamera:"
 
 #: gui/panels/GUI_TopMenubar.cpp:527 gui/panels/GUI_TopMenubar.cpp:537
 #: gui/panels/GUI_TopMenubar.cpp:545
@@ -3346,17 +3347,17 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:559
 msgctxt "TopMenubar"
 msgid "Time of day:"
-msgstr ""
+msgstr "Pora dnia:"
 
 #: gui/panels/GUI_TopMenubar.cpp:566
 msgctxt "TopMenubar"
 msgid "Cycle"
-msgstr ""
+msgstr "Cykl"
 
 #: gui/panels/GUI_TopMenubar.cpp:569 gui/panels/GUI_TopMenubar.cpp:867
 msgctxt "TopMenubar"
 msgid "Speed"
-msgstr ""
+msgstr "Szybkość"
 
 #: gui/panels/GUI_TopMenubar.cpp:578
 #, fuzzy
@@ -3394,12 +3395,12 @@ msgstr "Debuguj kolizje"
 #: gui/panels/GUI_TopMenubar.cpp:598
 msgctxt "TopMenubar"
 msgid "Hide labels"
-msgstr ""
+msgstr "Ukryj etykiety"
 
 #: gui/panels/GUI_TopMenubar.cpp:613
 msgctxt "TopMenubar"
 msgid "Tools menu"
-msgstr ""
+msgstr "Menu narzędzi"
 
 #: gui/panels/GUI_TopMenubar.cpp:615
 #, fuzzy
@@ -3514,7 +3515,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:724
 msgctxt "TopMenubar"
 msgid "Normal view"
-msgstr ""
+msgstr "Normalny widok"
 
 #: gui/panels/GUI_TopMenubar.cpp:725
 #, fuzzy
@@ -3580,17 +3581,17 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:760
 msgctxt "TopMenubar"
 msgid "Hide wheels"
-msgstr ""
+msgstr "Ukryj koła"
 
 #: gui/panels/GUI_TopMenubar.cpp:761
 msgctxt "TopMenubar"
 msgid "Hide nodes"
-msgstr ""
+msgstr "Ukryj węzły"
 
 #: gui/panels/GUI_TopMenubar.cpp:764
 msgctxt "TopMenubar"
 msgid "Hide wheel info"
-msgstr ""
+msgstr "Ukryj info. koła"
 
 #: gui/panels/GUI_TopMenubar.cpp:781
 #, fuzzy
@@ -3626,7 +3627,7 @@ msgstr " stwórz nowy pojazd:"
 #: gui/panels/GUI_TopMenubar.cpp:808
 msgctxt "TopMenubar"
 msgid "Distance"
-msgstr ""
+msgstr "Odległość"
 
 #: gui/panels/GUI_TopMenubar.cpp:812
 msgctxt "TopMenubar"
@@ -3653,7 +3654,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:853
 msgctxt "TopMenubar"
 msgid "Repeat times"
-msgstr ""
+msgstr "Ilość powtórzeń"
 
 #: gui/panels/GUI_TopMenubar.cpp:857
 msgctxt "TopMenubar"
@@ -3726,7 +3727,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:990
 msgctxt "TopMenubar"
 msgid "Stop"
-msgstr ""
+msgstr "Zatrzymaj"
 
 #: gui/panels/GUI_TopMenubar.cpp:1038
 msgctxt "TopMenubar"
@@ -3751,7 +3752,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:1091
 msgctxt "TopMenubar"
 msgid "Export"
-msgstr ""
+msgstr "Eksport"
 
 #: gui/panels/GUI_TopMenubar.cpp:1099
 msgctxt "TopMenubar"
@@ -3791,7 +3792,7 @@ msgstr "Ogólne"
 #: gui/panels/GUI_TopMenubar.cpp:1357
 msgctxt "DirectionArrow"
 msgid "meter"
-msgstr ""
+msgstr "metr"
 
 #: gui/panels/GUI_TopMenubar.cpp:1376
 msgctxt "TopMenubar"
@@ -3801,7 +3802,7 @@ msgstr ""
 #: gui/panels/GUI_TopMenubar.cpp:1416
 msgctxt "TopMenubar"
 msgid "Time"
-msgstr ""
+msgstr "Czas"
 
 #: gui/panels/GUI_VehicleButtons.cpp:64
 msgctxt "VehicleButtons"
@@ -4011,7 +4012,7 @@ msgstr "Ustanawianie sesji sieciowej: błąd przy uzyskiwaniu hello serwera"
 #: network/Network.cpp:485
 msgctxt "Network"
 msgid "Authorizing..."
-msgstr ""
+msgstr "Autoryzacja..."
 
 #: network/Network.cpp:506
 msgid "Establishing network session: error sending user info"
@@ -4048,7 +4049,7 @@ msgstr "Ustanawianie sesji sieciowej: przykro nam, nieznana odpowiedź serwera"
 #: network/Network.cpp:545
 msgctxt "Network"
 msgid "Finishing..."
-msgstr ""
+msgstr "Kończenie..."
 
 #: network/Network.cpp:798
 msgctxt "NetUserAuth"
@@ -4080,7 +4081,7 @@ msgstr ""
 #: network/Network.cpp:803 network/Network.cpp:813
 msgctxt "NetUserAuth"
 msgid "Guest"
-msgstr ""
+msgstr "Gość"
 
 #: network/Network.cpp:808
 #, fuzzy
@@ -4187,7 +4188,7 @@ msgstr "Otwarty"
 
 #: physics/Differentials.cpp:58
 msgid "Viscous"
-msgstr ""
+msgstr "Lepki"
 
 #: physics/Differentials.cpp:59
 msgid "Locked"
@@ -4347,7 +4348,7 @@ msgstr ""
 #: resources/CacheSystem.h:265
 msgctxt "ModCategory"
 msgid "Bikes"
-msgstr ""
+msgstr "Motory"
 
 #: resources/CacheSystem.h:266
 msgctxt "ModCategory"
@@ -4372,7 +4373,7 @@ msgstr ""
 #: resources/CacheSystem.h:272
 msgctxt "ModCategory"
 msgid "Buses"
-msgstr ""
+msgstr "Autobusy"
 
 #: resources/CacheSystem.h:273
 msgctxt "ModCategory"
@@ -4418,12 +4419,12 @@ msgstr "Łódź"
 #: resources/CacheSystem.h:282
 msgctxt "ModCategory"
 msgid "Helicopters"
-msgstr ""
+msgstr "Helikoptery"
 
 #: resources/CacheSystem.h:283
 msgctxt "ModCategory"
 msgid "Aircraft"
-msgstr ""
+msgstr "Samoloty"
 
 #: resources/CacheSystem.h:285
 msgctxt "ModCategory"
@@ -4446,12 +4447,12 @@ msgstr "Ładowanie terenu"
 #: resources/CacheSystem.h:291
 msgctxt "ModCategory"
 msgid "Container"
-msgstr ""
+msgstr "Kontenery"
 
 #: resources/CacheSystem.h:293
 msgctxt "ModCategory"
 msgid "Submarine"
-msgstr ""
+msgstr "Podwodne"
 
 #. note: these categories are NOT in the repository:
 #: resources/CacheSystem.h:296
@@ -4482,12 +4483,12 @@ msgstr "Wszystko"
 #: resources/CacheSystem.h:302
 msgctxt "ModCategory"
 msgid "Fresh"
-msgstr ""
+msgstr "Nowe"
 
 #: resources/CacheSystem.h:303
 msgctxt "ModCategory"
 msgid "Hidden"
-msgstr ""
+msgstr "Ukryte"
 
 #: scripting/GameScript.cpp:823
 msgid "using Online API..."
@@ -4804,15 +4805,15 @@ msgstr "Ładowanie obiektów terenowych"
 
 #: terrain/TerrainEditor.cpp:121 terrain/TerrainEditor.cpp:124
 msgid "ry"
-msgstr ""
+msgstr "ry"
 
 #: terrain/TerrainEditor.cpp:129
 msgid "rz"
-msgstr ""
+msgstr "rz"
 
 #: terrain/TerrainEditor.cpp:134
 msgid "rx"
-msgstr ""
+msgstr "rx"
 
 #: terrain/TerrainEditor.cpp:137
 msgid "Rotating: "
@@ -7005,7 +7006,7 @@ msgstr "załaduj pojazd ponownie"
 
 #: utils/InputEngine.cpp:1707
 msgid "(Please press a key)"
-msgstr ""
+msgstr "(Proszę naciśnij klawisz)"
 
 #~ msgctxt "GameSettings"
 #~ msgid "Debug collisions"
