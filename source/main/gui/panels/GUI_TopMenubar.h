@@ -116,7 +116,9 @@ private:
     void DrawMpUserToActorList(RoRnet::UserInfo &user); // Multiplayer
     void DrawSpecialStateBox(float top_offset);
 
-    void DrawTuningProtectedChkRightAligned(TuneupDefPtr& tuneup, const std::string& meshname, bool is_protected, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset);
+    // Tuning menu helpers
+    void DrawTuningBoxedSubjectIdInline(int subject_id);
+    void DrawTuningProtectedChkRightAligned(int subject_id, bool is_protected, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset);
 
     ImVec2  m_open_menu_hoverbox_min;
     ImVec2  m_open_menu_hoverbox_max;

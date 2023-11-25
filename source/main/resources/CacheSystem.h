@@ -234,7 +234,13 @@ struct ModifyProjectRequest
 {
     ActorPtr mpr_target_actor;
     ModifyProjectRequestType mpr_type = ModifyProjectRequestType::NONE;
-    std::string mpr_subject;
+
+    // Subject (either name or ID applies depending on type)
+    std::string mpr_subject; // addonpart
+    int mpr_subject_id = -1; // wheel, prop, flexbody, node
+
+    // Protected state prevents addonparts from evaluating, which would undo user's selections.
+    bool mpr_subject_set_protected = false;
 };
 
 /// A content database

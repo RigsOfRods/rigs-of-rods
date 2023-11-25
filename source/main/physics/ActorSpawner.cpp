@@ -1494,11 +1494,13 @@ void ActorSpawner::ProcessSubmesh(RigDef::Submesh & def)
 
 void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
 {
+    const FlexbodyID_t flexbody_id = (FlexbodyID_t)m_actor->m_gfx_actor->m_flexbodies.size();
+
     // Check if disabled by .tuneup mod.
-    if (m_actor->m_used_tuneup_entry &&
-        m_actor->m_used_tuneup_entry->tuneup_def &&
-        m_actor->m_used_tuneup_entry->tuneup_def->remove_flexbodies.count(def.mesh_name) > 0)
+    if (TuneupUtil::isFlexbodyRemoved(m_actor, flexbody_id))
     {
+        // Create placeholder
+        m_actor->m_gfx_actor->m_flexbodies.emplace_back(new FlexBody(FlexBody::TUNING_PLACEHOLDER));
         return;
     }
 
@@ -1522,26 +1524,23 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
         return;
     }
 
-    const NodeNum_t reference_node = this->FindNodeIndex(def.reference_node);
-    const NodeNum_t x_axis_node    = this->FindNodeIndex(def.x_axis_node);
-    const NodeNum_t y_axis_node    = this->FindNodeIndex(def.y_axis_node);
-    if (reference_node == -1 || x_axis_node == -1 || y_axis_node == -1)
-    {
-        this->AddMessage(Message::TYPE_ERROR, "Failed to find required nodes, skipping flexbody '" + def.mesh_name + "'");
-        return;
-    }
 
-    Ogre::Quaternion rot=Ogre::Quaternion(Ogre::Degree(def.rotation.z), Ogre::Vector3::UNIT_Z);
-    rot=rot*Ogre::Quaternion(Ogre::Degree(def.rotation.y), Ogre::Vector3::UNIT_Y);
-    rot=rot*Ogre::Quaternion(Ogre::Degree(def.rotation.x), Ogre::Vector3::UNIT_X);
 
     m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill all current nodes - needed to setup flexing meshes
 
     try
     {
-        std::string resource_group = (m_current_module->origin_addonpart) ? m_current_module->origin_addonpart->resource_group : m_custom_resource_group;
         auto* flexbody = m_flex_factory.CreateFlexBody(
-            &def, reference_node, x_axis_node, y_axis_node, rot, node_indices, resource_group);
+            (FlexbodyID_t)m_actor->m_gfx_actor->m_flexbodies.size(),
+            this->GetNodeIndexOrThrow(def.reference_node),
+            this->GetNodeIndexOrThrow(def.x_axis_node),
+            this->GetNodeIndexOrThrow(def.y_axis_node),
+            TuneupUtil::getTweakedFlexbodyOffset(m_actor->getUsedTuneupEntry(), flexbody_id, def.offset),
+            TuneupUtil::getTweakedFlexbodyRotation(m_actor->getUsedTuneupEntry(), flexbody_id, def.rotation),
+            node_indices,
+            TuneupUtil::getTweakedFlexbodyMedia(m_actor->getUsedTuneupEntry(), flexbody_id, 0, def.mesh_name),
+            TuneupUtil::getTweakedFlexbodyMediaRG(m_actor, flexbody_id, 0)
+        );
 
         if (flexbody == nullptr)
             return; // Error already logged
@@ -1565,31 +1564,31 @@ void ActorSpawner::ProcessMinimass(RigDef::Minimass & def)
 
 void ActorSpawner::ProcessProp(RigDef::Prop & def)
 {
+    PropID_t prop_id = static_cast<int>(m_actor->m_gfx_actor->m_props.size());
+
     // Check if removed via .tuneup
-    CacheEntryPtr& tuneup_entry = m_actor->getUsedTuneupEntry();
-    if (tuneup_entry && tuneup_entry->tuneup_def->remove_props.find(def.mesh_name) != tuneup_entry->tuneup_def->remove_props.end())
+    if (TuneupUtil::isPropRemoved(m_actor, prop_id))
     {
-        LOG(fmt::format("{}: Prop '{}' removed by tuneup '{}'", m_actor->ar_filename, def.mesh_name, tuneup_entry->fname));
+        RoR::Prop pprop; // placeholder
+        pprop.pp_id = prop_id;
+        pprop.pp_camera_mode_orig = CAMERA_MODE_ALWAYS_HIDDEN;
+        pprop.pp_camera_mode_active = CAMERA_MODE_ALWAYS_HIDDEN;
+        pprop.pp_media[0] = TuneupUtil::getTweakedPropMedia(m_actor->getUsedTuneupEntry(), prop_id, 0, def.mesh_name);
+        m_actor->m_gfx_actor->m_props.push_back(pprop);
         return;
     }
-    std::string resource_group = (m_current_module->origin_addonpart) ? m_current_module->origin_addonpart->resource_group : m_custom_resource_group;
 
     RoR::Prop prop;
-    int prop_index = static_cast<int>(m_actor->m_gfx_actor->m_props.size());
-
-    prop.pp_node_ref         = GetNodeIndexOrThrow(def.reference_node);
-    prop.pp_node_x           = FindNodeIndex(def.x_axis_node);
-    prop.pp_node_y           = FindNodeIndex(def.y_axis_node);
-    if (prop.pp_node_x == NODENUM_INVALID || prop.pp_node_y == NODENUM_INVALID)
-    {
-        return; // Error alredy logged by `FindNodeIndex()`
-    }
-    prop.pp_offset       = def.offset;
-    prop.pp_offset_orig  = def.offset;
-    prop.pp_rot          = Ogre::Quaternion(Ogre::Degree(def.rotation.z), Ogre::Vector3::UNIT_Z)
-                           * Ogre::Quaternion(Ogre::Degree(def.rotation.y), Ogre::Vector3::UNIT_Y)
-                           * Ogre::Quaternion(Ogre::Degree(def.rotation.x), Ogre::Vector3::UNIT_X);
-    prop.pp_rota         = def.rotation;
+    prop.pp_id           = prop_id;
+    prop.pp_node_ref     = this->GetNodeIndexOrThrow(def.reference_node);
+    prop.pp_node_x       = this->GetNodeIndexOrThrow(def.x_axis_node);
+    prop.pp_node_y       = this->GetNodeIndexOrThrow(def.y_axis_node);
+    prop.pp_offset       = TuneupUtil::getTweakedPropOffset(m_actor->getUsedTuneupEntry(), prop_id, def.offset);
+    prop.pp_offset_orig  = prop.pp_offset;
+    prop.pp_rota         = TuneupUtil::getTweakedPropRotation(m_actor->getUsedTuneupEntry(), prop_id, def.rotation);
+    prop.pp_rot          =   Ogre::Quaternion(Ogre::Degree(prop.pp_rota.z), Ogre::Vector3::UNIT_Z)
+                           * Ogre::Quaternion(Ogre::Degree(prop.pp_rota.y), Ogre::Vector3::UNIT_Y)
+                           * Ogre::Quaternion(Ogre::Degree(prop.pp_rota.x), Ogre::Vector3::UNIT_X);
     prop.pp_camera_mode_active = def.camera_settings.mode; /* Handles default value */
     prop.pp_camera_mode_orig = def.camera_settings.mode; /* Handles default value */
     prop.pp_wheel_rot_degree  = 160.f; // ??
@@ -1627,11 +1626,11 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         prop.pp_wheel_rot_degree = def.special_prop_dashboard.rotation_angle;
         prop.pp_wheel_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         prop.pp_wheel_pos = steering_wheel_offset;
-        std::string instance_name = this->ComposeName("SteeringWheelPropEntity", prop_index);
+        prop.pp_media[1] = TuneupUtil::getTweakedPropMedia(m_actor->getUsedTuneupEntry(), prop_id, 1, def.special_prop_dashboard.mesh_name);
         prop.pp_wheel_mesh_obj = new MeshObject(
-            def.special_prop_dashboard.mesh_name,
-            resource_group,
-            instance_name,
+            prop.pp_media[1],
+            TuneupUtil::getTweakedPropMediaRG(m_actor, prop_id, 1),
+            this->ComposeName("SteeringWheelPropEntity", prop_id),
             prop.pp_wheel_scene_node
             );
         this->SetupNewEntity(prop.pp_wheel_mesh_obj->getEntity(), Ogre::ColourValue(0, 0.5, 0.5));
@@ -1640,9 +1639,12 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     /* CREATE THE PROP */
 
     prop.pp_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-    const std::string instance_name = this->ComposeName("PropEntity", prop_index);
-    LOG(fmt::format("[RoR] DBG ActorSpawner::ProcessProp(): creating MeshObject '{}' in RG '{}'", def.mesh_name, resource_group));
-    prop.pp_mesh_obj = new MeshObject(def.mesh_name, resource_group, instance_name, prop.pp_scene_node);
+    prop.pp_media[0] = TuneupUtil::getTweakedPropMedia(m_actor->getUsedTuneupEntry(), prop_id, 0, def.mesh_name);
+    prop.pp_mesh_obj = new MeshObject(//def.mesh_name, resource_group, instance_name, prop.pp_scene_node);
+            prop.pp_media[0],
+            TuneupUtil::getTweakedPropMediaRG(m_actor, prop_id, 1),
+            this->ComposeName("PropEntity", prop_id),
+            prop.pp_scene_node);
 
     prop.pp_mesh_obj->setCastShadows(true); // Orig code {{ prop.pp_mesh_obj->setCastShadows(shadowmode != 0); }}, shadowmode has default value 1 and changes with undocumented directive 'set_shadows'
 
@@ -1661,7 +1663,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         //driver seat, used to position the driver and make the seat translucent at times
         if (m_actor->m_gfx_actor->m_driverseat_prop_index == -1)
         {
-            m_actor->m_gfx_actor->m_driverseat_prop_index = prop_index;
+            m_actor->m_gfx_actor->m_driverseat_prop_index = prop_id;
             prop.pp_mesh_obj->setMaterialName("driversseat");
         }
         else
@@ -1674,7 +1676,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         // Same as DRIVER_SEAT, except it doesn't force the "driversseat" material
         if (m_actor->m_gfx_actor->m_driverseat_prop_index == -1)
         {
-            m_actor->m_gfx_actor->m_driverseat_prop_index = prop_index;
+            m_actor->m_gfx_actor->m_driverseat_prop_index = prop_id;
         }
         else
         {
@@ -1698,12 +1700,13 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             pp_beacon_light->setCastShadows(false);
             pp_beacon_light->setVisible(false);
             /* the flare billboard */
+            prop.pp_media[1] = TuneupUtil::getTweakedPropMedia(m_actor->getUsedTuneupEntry(), prop_id, 1, def.special_prop_beacon.flare_material_name);
             auto flare_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
             auto flare_billboard_sys = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1); //(propname,1);
             if (flare_billboard_sys)
             {
                 flare_billboard_sys->createBillboard(0,0,0);
-                flare_billboard_sys->setMaterialName(def.special_prop_beacon.flare_material_name);
+                flare_billboard_sys->setMaterialName(prop.pp_media[1]);
                 flare_billboard_sys->setVisibilityFlags(DEPTHMAP_DISABLED);
                 flare_scene_node->attachObject(flare_billboard_sys);
             }
@@ -4116,8 +4119,6 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     // Tweaks
     float override_rim_radius = TuneupUtil::getTweakedWheelRimRadius(m_actor->getUsedTuneupEntry(), wheel_id, def.rim_radius);
     float override_tire_radius = TuneupUtil::getTweakedWheelTireRadius(m_actor->getUsedTuneupEntry(), wheel_id, def.tyre_radius);
-    std::string override_rim_mesh_name = TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, def.rim_mesh_name);
-    std::string override_rim_mesh_rg = TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0);
 
     // Node&beam generation
     Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
@@ -4340,7 +4341,18 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     Ogre::Real length_2 = (axis_node_2->RelPosition - wheel.wh_arm_node->RelPosition).length();
     wheel.wh_near_attach_node = (length_1 < length_2) ? axis_node_1 : axis_node_2;
 
-    this->CreateFlexBodyWheelVisuals(wheel_id, base_node_index, axis_node_1->pos, axis_node_2->pos, override_rim_radius, override_rim_mesh_name, override_rim_mesh_rg, def); 
+    this->CreateFlexBodyWheelVisuals(wheel_id,
+        base_node_index,
+        axis_node_1->pos,
+        axis_node_2->pos,
+        def.num_rays,
+        override_rim_radius,
+        TuneupUtil::getTweakedWheelSide(m_actor->getUsedTuneupEntry(), wheel_id, def.side),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, def.rim_mesh_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 1, def.rim_mesh_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 1)
+    ); 
 
     // Commit the wheel
     ++m_actor->ar_num_wheels;
@@ -5030,32 +5042,40 @@ void ActorSpawner::CreateWheelVisuals(
 }
 
 void ActorSpawner::CreateFlexBodyWheelVisuals(
-    WheelID_t wheel_index, 
+    WheelID_t wheel_id, 
     NodeNum_t node_base_index,
     NodeNum_t axis_node_1,
     NodeNum_t axis_node_2,
-    float override_radius,
-    std::string override_mesh_name,
-    std::string override_mesh_rg,
-    RigDef::FlexBodyWheel& def)
+    int num_rays,
+    float radius,
+    RigDef::WheelSide side,
+    std::string rim_mesh_name,
+    std::string rim_mesh_rg,
+    std::string tire_mesh_name,
+    std::string tire_mesh_rg)
 {
     m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill all current nodes - needed to setup flexing meshes
 
-    this->BuildMeshWheelVisuals(
+    /*this->BuildMeshWheelVisuals(
         wheel_index,
         node_base_index,
         axis_node_1,
         axis_node_2,
-        def.num_rays,
+        num_rays,
         override_mesh_name,
         override_mesh_rg,
-        "tracks/trans", // Rim material name. Original parser: was hardcoded in BTS_FLEXBODYWHEELS
+        "tracks/trans", // Use a builtin transparent material for the generated tire mesh, to effectively disable it.
         m_actor->GetGfxActor()->GetResourceGroup(),
-        override_radius,
-        def.side != RigDef::WheelSide::RIGHT
-        );
+        radius,
+        side != RigDef::WheelSide::RIGHT
+        );*/
 
-    int num_nodes = def.num_rays * 4;
+    // Just create the static rim entity directly (may be located in addonpart ZIP-bundle!)
+    const std::string rim_entity_name = this->ComposeName("MeshWheelRim", wheel_id);
+    Ogre::Entity* rim_prop_entity = App::GetGfxScene()->GetSceneManager()->createEntity(rim_entity_name, rim_mesh_name, rim_mesh_rg);
+    this->SetupNewEntity(rim_prop_entity, Ogre::ColourValue(0, 0.5, 0.8));
+
+    int num_nodes = num_rays * 4;
     std::vector<unsigned int> node_indices;
     node_indices.reserve(num_nodes);
     for (int i = 0; i < num_nodes; ++i)
@@ -5063,33 +5083,31 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
         node_indices.push_back( node_base_index + i );
     }
 
-    RigDef::Flexbody flexbody_def;
-    flexbody_def.mesh_name = def.tyre_mesh_name;
-    flexbody_def.offset = Ogre::Vector3(0.5,0,0);
-
     try
     {
         auto* flexbody = m_flex_factory.CreateFlexBody(
-            &flexbody_def,
+            (FlexbodyID_t)m_actor->m_gfx_actor->m_flexbodies.size(),
+            node_base_index,
             axis_node_1,
             axis_node_2,
-            static_cast<int>(node_base_index),
-            Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y),
+            Ogre::Vector3(0.5,0,0),
+            Ogre::Vector3(Ogre::Degree(90).valueRadians(), 0, 0), // ?? Orig: Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y)
             node_indices,
-            m_custom_resource_group
+            tire_mesh_name,
+            tire_mesh_rg
             );
 
         if (flexbody == nullptr)
             return; // Error already logged
 
-        this->CreateWheelSkidmarks(wheel_index);
+        this->CreateWheelSkidmarks(wheel_id);
 
         m_actor->m_gfx_actor->m_flexbodies.push_back(flexbody);
     }
     catch (Ogre::Exception& e)
     {
         this->AddMessage(Message::TYPE_ERROR, 
-            "Failed to create flexbodywheel visuals '" + def.tyre_mesh_name + "', reason:" + e.getFullDescription());
+            "Failed to create flexbodywheel visuals '" + tire_mesh_name + "', reason:" + e.getDescription());
     }
 }
 

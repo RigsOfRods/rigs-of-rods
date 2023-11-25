@@ -390,7 +390,7 @@ private:
 
     /// @param rim_ratio Percentual size of the rim.
     void CreateWheelVisuals(
-        WheelID_t wheel_index, 
+        WheelID_t wheel_id, 
         NodeNum_t node_base_index,
         unsigned int def_num_rays,
         Ogre::String const& face_material_name,
@@ -402,17 +402,20 @@ private:
     );
 
     void CreateFlexBodyWheelVisuals(
-        WheelID_t wheel_index, 
+        WheelID_t wheel_id, 
         NodeNum_t node_base_index,
         NodeNum_t axis_node_1,
         NodeNum_t axis_node_2,
-        float override_radius,
-        std::string override_mesh_name,
-        std::string override_mesh_rg,
-        RigDef::FlexBodyWheel& def);
+        int num_rays,
+        float radius,
+        RigDef::WheelSide side,
+        std::string rim_mesh_name,
+        std::string rim_mesh_rg,
+        std::string tire_mesh_name,
+        std::string tire_mesh_rg);
 
     void BuildMeshWheelVisuals(
-        WheelID_t wheel_index,
+        WheelID_t wheel_id,
         NodeNum_t base_node_index,
         NodeNum_t axis_node_1_index,
         NodeNum_t axis_node_2_index,
