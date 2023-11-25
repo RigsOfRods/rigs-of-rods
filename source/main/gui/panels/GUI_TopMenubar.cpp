@@ -1461,6 +1461,7 @@ void TopMenubar::Draw(float dt)
                 {
                     ImGui::PushID(tuneup_result.cqr_entry->fname.c_str());
 
+                    ImGui::AlignTextToFramePadding();
                     ImGui::Bullet();
 
                     // Load button (with tuneup name)
@@ -1495,6 +1496,8 @@ void TopMenubar::Draw(float dt)
                     {
                         App::GetGameContext()->PushMessage(Message(MSG_EDI_DELETE_PROJECT_REQUESTED, new CacheEntryPtr(tuneup_result.cqr_entry)));
                     }
+
+                    ImGui::PopID(); // tuneup_result.cqr_entry->fname.c_str()
                 }
 
                 // WORKING TUNEUP
@@ -1519,9 +1522,14 @@ void TopMenubar::Draw(float dt)
                     ImGui::Checkbox(_LC("Tuning", "Overwrite"), &tuning_savebox_overwrite);
 
                     // Cancel button (right-aligned)
+                    if (tuning_rwidget_cursorx_min < ImGui::GetCursorPosX()) // Make sure button won't draw over save button
+                        tuning_rwidget_cursorx_min = ImGui::GetCursorPosX();
                     std::string cancelbtn_text = _LC("Tuning", "Cancel");
                     float cancelbtn_w = ImGui::CalcTextSize(cancelbtn_text.c_str()).x + ImGui::GetStyle().FramePadding.x * 2;
-                    ImGui::SetCursorPosX(ImGui::GetWindowContentRegionWidth() - cancelbtn_w);
+                    float cancelbtn_cursorx = ImGui::GetWindowContentRegionWidth() - cancelbtn_w;
+                    if (cancelbtn_cursorx < tuning_rwidget_cursorx_min)
+                        cancelbtn_cursorx = tuning_rwidget_cursorx_min;
+                    ImGui::SetCursorPosX(cancelbtn_cursorx);
                     if (ImGui::SmallButton(_LC("Tuning", "Cancel")))
                     {
                         tuning_savebox_visible = false;
@@ -1538,10 +1546,15 @@ void TopMenubar::Draw(float dt)
 
                     // Reset button (right-aligned)
                     ImGui::SameLine();
+                    if (tuning_rwidget_cursorx_min < ImGui::GetCursorPosX()) // Make sure button won't draw over save button
+                        tuning_rwidget_cursorx_min = ImGui::GetCursorPosX();
                     ImGui::AlignTextToFramePadding();
                     std::string resetbtn_text = _LC("Tuning", "Reset");
                     float delbtn_w = ImGui::CalcTextSize(resetbtn_text.c_str()).x + ImGui::GetStyle().FramePadding.x * 2;
-                    ImGui::SetCursorPosX(ImGui::GetWindowContentRegionWidth() - delbtn_w);
+                    float delbtn_cursorx = ImGui::GetWindowContentRegionWidth() - delbtn_w;
+                    if (delbtn_cursorx < tuning_rwidget_cursorx_min)
+                        delbtn_cursorx = tuning_rwidget_cursorx_min;
+                    ImGui::SetCursorPosX(delbtn_cursorx);
                     ImGui::PushStyleColor(ImGuiCol_Button, TUNING_HOLDTOCONFIRM_COLOR);
                     bool resetbtn_pressed = ImButtonHoldToConfirm(resetbtn_text, /*small:*/false,
                         TUNING_HOLDTOCONFIRM_TIMELIMIT, /*[by ref]:*/tuning_holdtoconfirm_time_left, dt);
@@ -1616,57 +1629,57 @@ void TopMenubar::Draw(float dt)
                 std::string props_title = fmt::format(_LC("TopMenubar", "Props ({})"), total_props);
                 if (ImGui::CollapsingHeader(props_title.c_str()))
                 {
-                    // First draw the removed props                    
-                    for (const std::string& meshname: tuneup_entry->tuneup_def->remove_props)
+                    // Draw all props (those removed by addonparts are also present as placeholders)
+                    for (Prop const& p: tuning_actor->GetGfxActor()->getProps())
                     {
-                        ImGui::PushID(meshname.c_str());
+                        ImGui::PushID(p.pp_id);
+                        ImGui::AlignTextToFramePadding();
 
-                        bool propEnabled = false;
-                        if (ImGui::Checkbox(meshname.c_str(), &propEnabled))
+                        this->DrawTuningBoxedSubjectIdInline(p.pp_id);
+
+                        // Draw the checkbox for removing/remounting.
+                        bool propEnabled = tuneup_entry->tuneup_def->remove_props.find(p.pp_id) == tuneup_entry->tuneup_def->remove_props.end();
+                        if (ImGui::Checkbox(p.pp_media[0].c_str(), &propEnabled))
                         {
                             ModifyProjectRequest* req = new ModifyProjectRequest();
-                            req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_PROP_RESET;
-                            req->mpr_subject = meshname;
+                            req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_PROP_SET;
+                            req->mpr_subject_id = p.pp_id;
                             req->mpr_target_actor = tuning_actor;
+                            req->mpr_subject_set_protected = true; // stop evaluating addonparts for the prop (that would undo the user selection).
                             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
                         }
 
-                        this->DrawTuningProtectedChkRightAligned(tuneup_entry->tuneup_def, meshname, tuneup_entry->tuneup_def->isPropProtected(meshname),
-                            ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_SET, ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_RESET);
-
-                        ImGui::PopID(); // meshname
-                    }
-                    // Then draw existing props (skip aero navlights and dashboard frankenprop)
-                    for (Prop const& p: tuning_actor->GetGfxActor()->getProps())
-                    {
                         if (p.pp_beacon_type == 'L' || p.pp_beacon_type == 'R' || p.pp_beacon_type == 'w')
                         {
-                            continue; // skip special prop - aerial nav light
+                            ImGui::SameLine();
+                            ImGui::TextDisabled("(!)");
+                            if (ImGui::IsItemHovered())
+                            {
+                                ImGui::BeginTooltip();
+                                ImGui::Text("special prop - aerial nav light");
+                                ImGui::EndTooltip();
+                            }
                         }
                         else if (p.pp_wheel_mesh_obj)
                         {
-                            continue; // skip special prop: dashboard + dirwheel
-                        }
-                        else if (p.pp_mesh_obj->getLoadedMesh()) // Skip broken props
-                        {
-                            std::string meshname = p.pp_mesh_obj->getLoadedMesh()->getName();
-                            ImGui::PushID(meshname.c_str());
-
-                            bool propEnabled = true;
-                            if (ImGui::Checkbox(meshname.c_str(), &propEnabled))
+                            ImGui::SameLine();
+                            ImGui::TextDisabled("(!)");
+                            if (ImGui::IsItemHovered())
                             {
-                                ModifyProjectRequest* req = new ModifyProjectRequest();
-                                req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_PROP_SET;
-                                req->mpr_subject = meshname;
-                                req->mpr_target_actor = tuning_actor;
-                                App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+                                ImGui::BeginTooltip();
+                                ImGui::Text("special prop - dashboard + dirwheel");
+                                ImGui::EndTooltip();
                             }
-
-                            this->DrawTuningProtectedChkRightAligned(tuneup_entry->tuneup_def, meshname, tuneup_entry->tuneup_def->isPropProtected(meshname),
-                                ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_SET, ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_RESET);
-
-                            ImGui::PopID(); // meshname
+                            
                         }
+
+                        this->DrawTuningProtectedChkRightAligned(
+                            p.pp_id,
+                            tuneup_entry->tuneup_def->isPropProtected(p.pp_id),
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_SET,
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_RESET);
+
+                        ImGui::PopID(); // p.pp_id
                     }
 
                     ImGui::Separator();
@@ -1677,46 +1690,35 @@ void TopMenubar::Draw(float dt)
                 std::string flexbodies_title = fmt::format(_LC("TopMenubar", "Flexbodies ({})"), total_flexbodies);
                 if (ImGui::CollapsingHeader(flexbodies_title.c_str()))
                 {
-                    // Draw removed flexbodies                  
-                    for (const std::string& meshname: tuneup_entry->tuneup_def->remove_flexbodies)
-                    {
-                        ImGui::PushID(meshname.c_str());
-
-                        bool flexbEnabled = false;
-                        if (ImGui::Checkbox(meshname.c_str(), &flexbEnabled))
-                        {
-                            ModifyProjectRequest* req = new ModifyProjectRequest();
-                            req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_FLEXBODY_RESET;
-                            req->mpr_subject = meshname;
-                            req->mpr_target_actor = tuning_actor;
-                            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
-                        }
-
-                        this->DrawTuningProtectedChkRightAligned(tuneup_entry->tuneup_def, meshname, tuneup_entry->tuneup_def->isFlexbodyProtected(meshname),
-                            ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_SET, ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_RESET);
-
-                        ImGui::PopID(); // meshname
-                    }
-                    // Then draw existing flexbodies
+                    // Draw all flexbodies (those removed by addonparts are also present as placeholders)
                     for (FlexBody* flexbody: tuning_actor->GetGfxActor()->GetFlexbodies())
                     {
-                        std::string meshname = flexbody->getOrigMeshName();
-                        ImGui::PushID(meshname.c_str());
+                        ImGui::PushID(flexbody->getID());
+                        ImGui::AlignTextToFramePadding();
 
-                        bool propEnabled = true;
-                        if (ImGui::Checkbox(meshname.c_str(), &propEnabled))
+                        this->DrawTuningBoxedSubjectIdInline(flexbody->getID());
+
+                        // Draw the checkbox for removing/remounting.
+                        bool flexbodyEnabled = tuneup_entry->tuneup_def->remove_flexbodies.find(flexbody->getID()) == tuneup_entry->tuneup_def->remove_flexbodies.end();
+                        if (ImGui::Checkbox(flexbody->getOrigMeshName().c_str(), &flexbodyEnabled))
                         {
+
+
                             ModifyProjectRequest* req = new ModifyProjectRequest();
                             req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_FLEXBODY_SET;
-                            req->mpr_subject = meshname;
+                            req->mpr_subject_id = flexbody->getID();
                             req->mpr_target_actor = tuning_actor;
+                            req->mpr_subject_set_protected = true; // stop evaluating addonparts for the flexbody (that would undo the user selection).
                             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
                         }
 
-                        this->DrawTuningProtectedChkRightAligned(tuneup_entry->tuneup_def, meshname, tuneup_entry->tuneup_def->isFlexbodyProtected(meshname),
-                            ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_SET, ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_RESET);
+                        this->DrawTuningProtectedChkRightAligned(
+                            flexbody->getID(),
+                            tuneup_entry->tuneup_def->isFlexbodyProtected(flexbody->getID()),
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_SET,
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_RESET);
 
-                        ImGui::PopID(); // meshname
+                        ImGui::PopID(); // flexbody->getID()
                     }
                 }
             }
@@ -2198,7 +2200,7 @@ void TopMenubar::RefreshTuningMenu()
     tuning_actor = current_actor;
 }
 
-void TopMenubar::DrawTuningProtectedChkRightAligned(TuneupDefPtr& tuneup, const std::string& meshname, bool protectchk_value, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset)
+void TopMenubar::DrawTuningProtectedChkRightAligned(int subject_id, bool protectchk_value, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset)
 {
     // > resolve the alignment
     ImGui::SameLine();
@@ -2221,8 +2223,23 @@ void TopMenubar::DrawTuningProtectedChkRightAligned(TuneupDefPtr& tuneup, const 
     {
         ModifyProjectRequest* request = new ModifyProjectRequest();
         request->mpr_target_actor = tuning_actor;
-        request->mpr_subject = meshname;
+        request->mpr_subject_id = subject_id;
         request->mpr_type = (protectchk_value) ? request_type_set : request_type_reset;
         App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, request));
     }
+}
+
+void TopMenubar::DrawTuningBoxedSubjectIdInline(int subject_id)
+{
+    // Draw subject ID in outlined box
+    // -------------------------------
+    ImGui::GetWindowDrawList()->AddRect(
+        ImGui::GetCursorScreenPos(), 
+        ImGui::GetCursorScreenPos() + ImGui::CalcTextSize("00") + ImGui::GetStyle().FramePadding*2,
+        ImColor(ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]),
+        ImGui::GetStyle().FrameRounding);
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetStyle().FramePadding.x);
+    ImGui::Text("%02d", subject_id);
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetStyle().FramePadding.x); 
 }

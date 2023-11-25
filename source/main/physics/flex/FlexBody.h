@@ -45,19 +45,23 @@ class FlexBody
     friend class RoR::FlexBodyFileIO;
 
     FlexBody( // Private, for FlexFactory
-        RigDef::Flexbody* def,
         RoR::FlexBodyCacheData* preloaded_from_cache,
         RoR::GfxActor* gfx_actor,
         Ogre::Entity* entity,
         NodeNum_t ref, 
         NodeNum_t nx, 
         NodeNum_t ny,
+        Ogre::Vector3 offset,
         Ogre::Quaternion const & rot, 
         std::vector<unsigned int> & node_indices
     );
 
 public:
 
+    typedef int FlexBodyPlaceholder_t;
+    static const FlexBodyPlaceholder_t TUNING_PLACEHOLDER = -11;
+
+    FlexBody(FlexBodyPlaceholder_t);
     ~FlexBody();
 
     void reset();
@@ -89,43 +93,46 @@ public:
     NodeNum_t getXNode() { return m_node_x; }
     NodeNum_t getYNode() { return m_node_y; }
 
+    FlexbodyID_t getID() const { return m_id; }
+
 private:
 
     void defragmentFlexbodyMesh();
 
-    RoR::GfxActor*    m_gfx_actor;
-    size_t            m_vertex_count;
-    Ogre::Vector3     m_flexit_center; //!< Updated per frame
+    RoR::GfxActor*    m_gfx_actor = nullptr;
+    size_t            m_vertex_count = 0;
+    Ogre::Vector3     m_flexit_center = Ogre::Vector3::ZERO; //!< Updated per frame
+    FlexbodyID_t      m_id = FLEXBODYID_INVALID; // Filled by FlexFactory
 
-    Ogre::Vector3*    m_dst_pos;
-    Ogre::Vector3*    m_src_normals;
-    Ogre::Vector3*    m_dst_normals;
-    Ogre::ARGB*       m_src_colors;
-    Locator_t*        m_locators; //!< 1 loc per vertex
+    Ogre::Vector3*    m_dst_pos = nullptr;
+    Ogre::Vector3*    m_src_normals = nullptr;
+    Ogre::Vector3*    m_dst_normals = nullptr;
+    Ogre::ARGB*       m_src_colors = nullptr;
+    Locator_t*        m_locators = nullptr; //!< 1 loc per vertex
 
-    NodeNum_t         m_node_center;
-    NodeNum_t         m_node_x;
-    NodeNum_t         m_node_y;
-    Ogre::Vector3     m_center_offset;
-    Ogre::SceneNode*  m_scene_node;
-    Ogre::Entity*     m_scene_entity;
-    int               m_camera_mode; //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
+    NodeNum_t         m_node_center = NODENUM_INVALID;
+    NodeNum_t         m_node_x = NODENUM_INVALID;
+    NodeNum_t         m_node_y = NODENUM_INVALID;
+    Ogre::Vector3     m_center_offset = Ogre::Vector3::ZERO;
+    Ogre::SceneNode*  m_scene_node = nullptr;
+    Ogre::Entity*     m_scene_entity = nullptr;
+    int               m_camera_mode = CAMERA_MODE_ALWAYS_VISIBLE; //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
 
-    int                                 m_shared_buf_num_verts;
+    int                                 m_shared_buf_num_verts = 0;
     Ogre::HardwareVertexBufferSharedPtr m_shared_vbuf_pos;
     Ogre::HardwareVertexBufferSharedPtr m_shared_vbuf_norm;
     Ogre::HardwareVertexBufferSharedPtr m_shared_vbuf_color;
 
-    int                                 m_num_submesh_vbufs;
+    int                                 m_num_submesh_vbufs = 0;
     int                                 m_submesh_vbufs_vertex_counts[16];
     Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_pos[16];   //!< positions
     Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_norm[16];  //!< normals
     Ogre::HardwareVertexBufferSharedPtr m_submesh_vbufs_color[16]; //!< colors
 
-    bool m_uses_shared_vertex_data;
-    bool m_has_texture;
-    bool m_has_texture_blend;
-    bool m_blend_changed;
+    bool m_uses_shared_vertex_data = false;
+    bool m_has_texture = true;
+    bool m_has_texture_blend = true;
+    bool m_blend_changed = false;
 
     // Diagnostic data, not used for calculations
     std::vector<NodeNum_t> m_forset_nodes;

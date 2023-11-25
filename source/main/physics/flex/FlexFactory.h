@@ -168,13 +168,15 @@ public:
     FlexFactory(ActorSpawner* spawner);
 
     FlexBody* CreateFlexBody(
-        RigDef::Flexbody* def,
-        const int ref_node, 
-        const int x_node, 
-        const int y_node, 
-        Ogre::Quaternion const & rot, 
+        FlexbodyID_t flexbody_id,
+        const NodeNum_t ref_node, 
+        const NodeNum_t x_node, 
+        const NodeNum_t y_node, 
+        Ogre::Vector3 offset,
+        Ogre::Vector3 rotation, 
         std::vector<unsigned int> & node_indices,
-        std::string resource_group_name);
+        const std::string& mesh_name,
+        const std::string& resource_group_name);
 
     FlexMeshWheel* CreateFlexMeshWheel(
         unsigned int wheel_index,

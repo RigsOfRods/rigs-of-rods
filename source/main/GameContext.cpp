@@ -75,12 +75,15 @@ void GameContext::ChainMessage(Message m)
     std::lock_guard<std::mutex> lock(m_msg_mutex);
     if (m_msg_chain_end)
     {
+        
         m_msg_chain_end->chain.push_back(m);
         m_msg_chain_end = &m_msg_chain_end->chain.back();
     }
     else
     {
-        this->PushMessage(m);
+        // Regular `PushMessage()`, just without the lock.
+        m_msg_queue.push(m);
+        m_msg_chain_end = &m_msg_queue.back();
     }
 }
 

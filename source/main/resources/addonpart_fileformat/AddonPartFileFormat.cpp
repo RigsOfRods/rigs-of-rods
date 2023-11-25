@@ -152,12 +152,27 @@ void AddonPartUtility::ResolveUnwantedAndTweakedElements(TuneupDefPtr& tuneup, C
     }
 }
 
+// Internal helper for `ResetUnwantedAndTweakedElements()`
+template <typename T> void EraseUnprotected(std::set<T>& all, std::set<T>& safe)
+{
+    auto itor = all.begin();
+    while (itor != all.end())
+    {
+        if (safe.find(*itor) == safe.end())
+            itor = all.erase(itor);
+        else
+            ++itor;
+    }
+}
+
 void AddonPartUtility::ResetUnwantedAndTweakedElements(TuneupDefPtr& tuneup)
 {
     ROR_ASSERT(tuneup);
-    // Unwanted
-    tuneup->remove_flexbodies.clear();
-    tuneup->remove_props.clear();
+
+    // Unwanted (These can be either from addonpart or UI, we must respect protected elements);
+    EraseUnprotected(tuneup->remove_flexbodies, tuneup->protected_flexbodies);
+    EraseUnprotected(tuneup->remove_props, tuneup->protected_props);
+
     // Tweaked
     tuneup->node_tweaks.clear();
     tuneup->wheel_tweaks.clear();
@@ -271,11 +286,11 @@ void AddonPartUtility::ProcessUnwantedProp()
 
     if (m_context->isTokString(1))
     {
-        if (!m_tuneup->isPropProtected(m_context->getTokString(1)))
+        if (!m_tuneup->isPropProtected((PropID_t)m_context->getTokFloat(1)))
         {
-            m_tuneup->remove_props.insert(m_context->getTokString(1));
+            m_tuneup->remove_props.insert((PropID_t)m_context->getTokFloat(1));
             LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': marking prop '{}' as REMOVED",
-                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokString(1)));
+                m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
         }
         else
         {
@@ -293,13 +308,13 @@ void AddonPartUtility::ProcessUnwantedFlexbody()
 {
     ROR_ASSERT(m_context->getTokKeyword() == "addonpart_unwanted_flexbody"); // also asserts !EOF and TokenType::KEYWORD
 
-    if (m_context->isTokString(1))
+    if (m_context->isTokFloat(1))
     {
-        if (!m_tuneup->isFlexbodyProtected(m_context->getTokString(1)))
+        if (!m_tuneup->isFlexbodyProtected((FlexbodyID_t)m_context->getTokFloat(1)))
         {
-            m_tuneup->remove_flexbodies.insert(m_context->getTokString(1));
+            m_tuneup->remove_flexbodies.insert((FlexbodyID_t)m_context->getTokFloat(1));
             LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': marking flexbody '{}' as REMOVED",
-                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokString(1)));
+                m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
         }
         else
         {

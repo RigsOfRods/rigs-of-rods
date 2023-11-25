@@ -36,38 +36,28 @@ using namespace Ogre;
 using namespace RoR;
 
 FlexBody::FlexBody(
-    RigDef::Flexbody* def,
     RoR::FlexBodyCacheData* preloaded_from_cache,
     RoR::GfxActor* gfx_actor,
     Ogre::Entity* ent,
     NodeNum_t ref,
     NodeNum_t nx,
     NodeNum_t ny,
+    Ogre::Vector3 offset,
     Ogre::Quaternion const & rot,
     std::vector<unsigned int> & node_indices
 ):
-      m_camera_mode(-2)
-    , m_center_offset(def->offset)
+      m_center_offset(offset)
     , m_node_center(ref)
     , m_node_x(nx)
     , m_node_y(ny)
-    , m_has_texture_blend(true)
-    , m_scene_node(nullptr)
     , m_scene_entity(ent)
-    , m_shared_buf_num_verts(0)
-    , m_has_texture(true)
-    , m_blend_changed(false)
-    , m_locators(nullptr)
-    , m_src_normals(nullptr)
-    , m_dst_normals(nullptr)
-    , m_dst_pos(nullptr)
-    , m_src_colors(nullptr)
     , m_gfx_actor(gfx_actor)
 {
     ROR_ASSERT(m_node_x != NODENUM_INVALID);
     ROR_ASSERT(m_node_y != NODENUM_INVALID);
 
     Ogre::Vector3* vertices = nullptr;
+    std::string mesh_name = ent->getMesh()->getName();
 
     Vector3 normal = Vector3::UNIT_Y;
     Vector3 position = Vector3::ZERO;
@@ -83,8 +73,8 @@ FlexBody::FlexBody(
         normal = (diffY.crossProduct(diffX)).normalisedCopy();
 
         // position
-        position = nodes[ref].AbsPosition + def->offset.x * diffX + def->offset.y * diffY;
-        position = position + def->offset.z * normal;
+        position = nodes[ref].AbsPosition + offset.x * diffX + offset.y * diffY;
+        position = position + offset.z * normal;
 
         // orientation
         Vector3 refX = diffX.normalisedCopy();
@@ -95,7 +85,7 @@ FlexBody::FlexBody(
     {
         // special case!
         normal = Vector3::UNIT_Y;
-        position = nodes[0].AbsPosition + def->offset;
+        position = nodes[0].AbsPosition + offset;
         orientation = rot;
     }
 
@@ -396,7 +386,7 @@ FlexBody::FlexBody(
             }
             if (closest_node_index == -1)
             {
-                LOG("FLEXBODY ERROR on mesh "+def->mesh_name+": REF node not found");
+                LOG("FLEXBODY ERROR on mesh "+mesh_name+": REF node not found");
                 closest_node_index = 0;
             }
             m_locators[i].ref=closest_node_index;
@@ -419,7 +409,7 @@ FlexBody::FlexBody(
             }
             if (closest_node_index == -1)
             {
-                LOG("FLEXBODY ERROR on mesh "+def->mesh_name+": VX node not found");
+                LOG("FLEXBODY ERROR on mesh "+mesh_name+": VX node not found");
                 closest_node_index = 0;
             }
             m_locators[i].nx=closest_node_index;
@@ -449,7 +439,7 @@ FlexBody::FlexBody(
             }
             if (closest_node_index == -1)
             {
-                LOG("FLEXBODY ERROR on mesh "+def->mesh_name+": VY node not found");
+                LOG("FLEXBODY ERROR on mesh "+mesh_name+": VY node not found");
                 closest_node_index = 0;
             }
             m_locators[i].ny=closest_node_index;
@@ -529,6 +519,11 @@ FlexBody::FlexBody(
     }
 }
 
+FlexBody::FlexBody(FlexBodyPlaceholder_t ticket)
+{
+    m_camera_mode = CAMERA_MODE_ALWAYS_HIDDEN;
+}
+
 FlexBody::~FlexBody()
 {
     // Stuff using <new>
@@ -540,17 +535,23 @@ FlexBody::~FlexBody()
     if (m_src_colors  != nullptr) { free(m_src_colors ); }
 
     // OGRE resource - scene node
-    m_scene_node->getParentSceneNode()->removeChild(m_scene_node);
-    App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_scene_node);
+    if (m_scene_node != nullptr)
+    {
+        m_scene_node->getParentSceneNode()->removeChild(m_scene_node);
+        App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_scene_node);
+    }
     m_scene_node = nullptr;
 
     // OGRE resource - scene entity
-    Ogre::MeshPtr mesh = m_scene_entity->getMesh();
-    App::GetGfxScene()->GetSceneManager()->destroyEntity(m_scene_entity);
-    m_scene_entity = nullptr;
+    if (m_scene_entity != nullptr)
+    {
+        Ogre::MeshPtr mesh = m_scene_entity->getMesh();
+        App::GetGfxScene()->GetSceneManager()->destroyEntity(m_scene_entity);
 
-    // OGRE resource - mesh (unique copy - should be destroyed)
-    Ogre::MeshManager::getSingleton().remove(mesh->getHandle());
+        // OGRE resource - mesh (unique copy - should be destroyed)
+        Ogre::MeshManager::getSingleton().remove(mesh->getHandle());
+    }
+    m_scene_entity = nullptr;
 }
 
 void FlexBody::setVisible(bool visible)

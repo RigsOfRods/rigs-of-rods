@@ -112,7 +112,7 @@ enum class DebugViewType
     DEBUGVIEW_SUBMESH,
 };
 
-// Dynamic visibility control (value 0 and higher is cinecam index)
+// Dynamic visibility control (value 0 and higher is cinecam index) - common to 'props' and 'flexbodies'
 static const int CAMERA_MODE_ALWAYS_HIDDEN = -3;
 static const int CAMERA_MODE_ALWAYS_VISIBLE = -2;
 static const int CAMERA_MODE_3RDPERSON_ONLY = -1;
@@ -150,11 +150,7 @@ struct PropAnim
 /// A mesh attached to vehicle frame via 3 nodes
 struct Prop
 {
-    Prop()
-        : pp_aero_propeller_blade(false)
-        , pp_aero_propeller_spin(false)
-    {}
-
+    PropID_t              pp_id                   = PROPID_INVALID;
     NodeNum_t             pp_node_ref             = NODENUM_INVALID;
     NodeNum_t             pp_node_x               = NODENUM_INVALID;
     NodeNum_t             pp_node_y               = NODENUM_INVALID;
@@ -163,12 +159,13 @@ struct Prop
     Ogre::Vector3         pp_rota                 = Ogre::Vector3::ZERO;
     Ogre::Quaternion      pp_rot                  = Ogre::Quaternion::IDENTITY;
     Ogre::SceneNode*      pp_scene_node           = nullptr;             //!< The pivot scene node (parented to root-node).
-    MeshObject*           pp_mesh_obj             = nullptr;
+    MeshObject*           pp_mesh_obj             = nullptr;             //!< Optional; NULL if removed via tuneup/addonpart
+    std::string           pp_media[2];                                   //!< Redundant, for Tuning UI. Media1 = prop mesh name, Media2 = steeringwheel mesh/beaconprop flare mat.
     std::vector<PropAnim> pp_animations;
 
     // Visibility control
-    int                   pp_camera_mode_active = CAMERA_MODE_ALWAYS_VISIBLE;           //!< Dynamic visibility mode {0 and higher = cinecam index}
-    int                   pp_camera_mode_orig = CAMERA_MODE_ALWAYS_VISIBLE;             //!< Dynamic visibility mode {0 and higher = cinecam index}
+    int                   pp_camera_mode_active = CAMERA_MODE_ALWAYS_VISIBLE; //!< Dynamic visibility mode {0 and higher = cinecam index}
+    int                   pp_camera_mode_orig = CAMERA_MODE_ALWAYS_VISIBLE;   //!< Dynamic visibility mode {0 and higher = cinecam index}
 
     // Special prop - steering wheel
     MeshObject*           pp_wheel_mesh_obj       = nullptr;
@@ -186,8 +183,8 @@ struct Prop
     
     // Special prop - aero engine
     int                   pp_aero_engine_idx      = -1;                  //!< Special - a turboprop/pistonprop reference
-    bool                  pp_aero_propeller_blade:1;                     //!< Special - single blade mesh
-    bool                  pp_aero_propeller_spin:1;                      //!< Special - blurred spinning propeller effect
+    bool                  pp_aero_propeller_blade = false;               //!< Special - single blade mesh
+    bool                  pp_aero_propeller_spin  = false;               //!< Special - blurred spinning propeller effect
 
     void setPropMeshesVisible(bool visible)
     {

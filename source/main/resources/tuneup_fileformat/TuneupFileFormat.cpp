@@ -152,6 +152,168 @@ Ogre::Vector3 RoR::TuneupUtil::getTweakedNodePosition(CacheEntryPtr& tuneup_entr
 }
 
 
+// > prop
+bool RoR::TuneupUtil::isPropRemoved(ActorPtr& actor, PropID_t prop_id)
+{
+    return actor->getUsedTuneupEntry()
+        && actor->getUsedTuneupEntry()->tuneup_def
+        && actor->getUsedTuneupEntry()->tuneup_def->remove_props.find(prop_id) != actor->getUsedTuneupEntry()->tuneup_def->remove_props.end();
+}
+
+Ogre::Vector3 RoR::TuneupUtil::getTweakedPropOffset(CacheEntryPtr& tuneup_entry, PropID_t prop_id, Ogre::Vector3 orig_val)
+{
+    if (!tuneup_entry)
+        return orig_val;
+
+    ROR_ASSERT(tuneup_entry->tuneup_def);
+    auto itor = tuneup_entry->tuneup_def->prop_tweaks.find(prop_id);
+    if (itor == tuneup_entry->tuneup_def->prop_tweaks.end())
+        return orig_val;
+
+    Ogre::Vector3 retval = itor->second.tpt_offset;
+    ROR_ASSERT(!isnan(retval.x));
+    ROR_ASSERT(!isnan(retval.y));
+    ROR_ASSERT(!isnan(retval.z));
+    return retval;
+}
+
+Ogre::Vector3 RoR::TuneupUtil::getTweakedPropRotation(CacheEntryPtr& tuneup_entry, PropID_t prop_id, Ogre::Vector3 orig_val)
+{
+    if (!tuneup_entry)
+        return orig_val;
+
+    ROR_ASSERT(tuneup_entry->tuneup_def);
+    auto itor = tuneup_entry->tuneup_def->prop_tweaks.find(prop_id);
+    if (itor == tuneup_entry->tuneup_def->prop_tweaks.end())
+        return orig_val;
+
+    Ogre::Vector3 retval = itor->second.tpt_rot;
+    ROR_ASSERT(!isnan(retval.x));
+    ROR_ASSERT(!isnan(retval.y));
+    ROR_ASSERT(!isnan(retval.z));
+    return retval;
+}
+
+std::string RoR::TuneupUtil::getTweakedPropMedia(CacheEntryPtr& tuneup_entry, PropID_t prop_id, int media_idx, const std::string& orig_val)
+{
+    if (!tuneup_entry)
+        return orig_val;
+
+    ROR_ASSERT(tuneup_entry->tuneup_def);
+    auto itor = tuneup_entry->tuneup_def->prop_tweaks.find(prop_id);
+    auto endi = tuneup_entry->tuneup_def->prop_tweaks.end();
+    return (itor != endi && itor->second.tpt_media[media_idx] != "")
+        ? itor->second.tpt_media[media_idx] : orig_val;
+}
+
+std::string RoR::TuneupUtil::getTweakedPropMediaRG(ActorPtr& actor, PropID_t prop_id, int media_idx)
+{
+    // Check there's a tuneup at all
+    ROR_ASSERT(actor);
+    if (!actor->getUsedTuneupEntry())
+        return actor->GetGfxActor()->GetResourceGroup();
+
+    // Check there's a tweak
+    TuneupDefPtr& doc = actor->getUsedTuneupEntry()->tuneup_def;
+    ROR_ASSERT(doc);
+    auto itor = doc->prop_tweaks.find(prop_id);
+    auto endi = doc->prop_tweaks.end();
+    if (itor == endi || itor->second.tpt_media[media_idx] == "")
+        return actor->GetGfxActor()->GetResourceGroup();
+
+    // Find the tweak addonpart
+    CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, itor->second.tpt_origin);
+    if (addonpart_entry)
+        return addonpart_entry->resource_group;
+    else
+    {
+        LOG(fmt::format("[RoR|Tuneup] WARN Addonpart '{}' not found in modcache!", itor->second.tpt_origin));
+        return actor->GetGfxActor()->GetResourceGroup();
+    }
+}
+
+
+// > flexbody
+bool RoR::TuneupUtil::isFlexbodyRemoved(ActorPtr& actor, FlexbodyID_t flexbody_id)
+{
+    return actor->getUsedTuneupEntry()
+        && actor->getUsedTuneupEntry()->tuneup_def
+        && actor->getUsedTuneupEntry()->tuneup_def->remove_flexbodies.find(flexbody_id) != actor->getUsedTuneupEntry()->tuneup_def->remove_flexbodies.end();
+}
+
+Ogre::Vector3 RoR::TuneupUtil::getTweakedFlexbodyOffset(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val)
+{
+    if (!tuneup_entry)
+        return orig_val;
+
+    ROR_ASSERT(tuneup_entry->tuneup_def);
+    auto itor = tuneup_entry->tuneup_def->flexbody_tweaks.find(flexbody_id);
+    if (itor == tuneup_entry->tuneup_def->flexbody_tweaks.end())
+        return orig_val;
+
+    Ogre::Vector3 retval = itor->second.tft_offset;
+    ROR_ASSERT(!isnan(retval.x));
+    ROR_ASSERT(!isnan(retval.y));
+    ROR_ASSERT(!isnan(retval.z));
+    return retval;
+}
+
+Ogre::Vector3 RoR::TuneupUtil::getTweakedFlexbodyRotation(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val)
+{
+    if (!tuneup_entry)
+        return orig_val;
+
+    ROR_ASSERT(tuneup_entry->tuneup_def);
+    auto itor = tuneup_entry->tuneup_def->flexbody_tweaks.find(flexbody_id);
+    if (itor == tuneup_entry->tuneup_def->flexbody_tweaks.end())
+        return orig_val;
+
+    Ogre::Vector3 retval = itor->second.tft_rot;
+    ROR_ASSERT(!isnan(retval.x));
+    ROR_ASSERT(!isnan(retval.y));
+    ROR_ASSERT(!isnan(retval.z));
+    return retval;
+}
+
+std::string RoR::TuneupUtil::getTweakedFlexbodyMedia(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val)
+{
+    if (!tuneup_entry)
+        return orig_val;
+
+    ROR_ASSERT(tuneup_entry->tuneup_def);
+    auto itor = tuneup_entry->tuneup_def->flexbody_tweaks.find(flexbody_id);
+    auto endi = tuneup_entry->tuneup_def->flexbody_tweaks.end();
+    return (itor != endi && itor->second.tft_media != "")
+        ? itor->second.tft_media : orig_val;
+}
+
+std::string RoR::TuneupUtil::getTweakedFlexbodyMediaRG(ActorPtr& actor, FlexbodyID_t flexbody_id, int media_idx)
+{
+    // Check there's a tuneup at all
+    ROR_ASSERT(actor);
+    if (!actor->getUsedTuneupEntry())
+        return actor->GetGfxActor()->GetResourceGroup();
+
+    // Check there's a tweak
+    TuneupDefPtr& doc = actor->getUsedTuneupEntry()->tuneup_def;
+    ROR_ASSERT(doc);
+    auto itor = doc->flexbody_tweaks.find(flexbody_id);
+    auto endi = doc->flexbody_tweaks.end();
+    if (itor == endi || itor->second.tft_media == "")
+        return actor->GetGfxActor()->GetResourceGroup();
+
+    // Find the tweak addonpart
+    CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, itor->second.tft_origin);
+    if (addonpart_entry)
+        return addonpart_entry->resource_group;
+    else
+    {
+        LOG(fmt::format("[RoR|Tuneup] WARN Addonpart '{}' not found in modcache!", itor->second.tft_origin));
+        return actor->GetGfxActor()->GetResourceGroup();
+    }
+}
+
+
 std::vector<TuneupDefPtr> RoR::TuneupUtil::ParseTuneups(Ogre::DataStreamPtr& stream)
 {
     std::vector<TuneupDefPtr> result;
@@ -232,10 +394,10 @@ void RoR::TuneupUtil::ParseTuneupAttribute(const std::string& line, TuneupDefPtr
 
     // Modding attributes
     if (attrib == "use_addonpart"   && params.size() == 2) { tuneup_def->use_addonparts.insert(params[1]); return; }
-    if (attrib == "remove_prop"     && params.size() == 2) { tuneup_def->remove_props.insert(params[1]); return; }
-    if (attrib == "remove_flexbody" && params.size() == 2) { tuneup_def->remove_flexbodies.insert(params[1]); return; }
-    if (attrib == "protected_prop"     && params.size() == 2) { tuneup_def->protected_props.insert(params[1]); return; }
-    if (attrib == "protected_flexbody" && params.size() == 2) { tuneup_def->protected_flexbodies.insert(params[1]); return; }
+    if (attrib == "remove_prop"     && params.size() == 2) { tuneup_def->remove_props.insert(PARSEINT(params[1])); return; }
+    if (attrib == "remove_flexbody" && params.size() == 2) { tuneup_def->remove_flexbodies.insert(PARSEINT(params[1])); return; }
+    if (attrib == "protected_prop"     && params.size() == 2) { tuneup_def->protected_props.insert(PARSEINT(params[1])); return; }
+    if (attrib == "protected_flexbody" && params.size() == 2) { tuneup_def->protected_flexbodies.insert(PARSEINT(params[1])); return; }
 }
 
 void RoR::TuneupUtil::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tuneup)
@@ -258,21 +420,21 @@ void RoR::TuneupUtil::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tu
     {
         buf << "\tuse_addonpart = " << addonpart << "\n";
     }
-    for (const std::string& remove_prop: tuneup->remove_props)
+    for (PropID_t remove_prop: tuneup->remove_props)
     {
-        buf << "\tremove_prop = " << remove_prop << "\n";
+        buf << "\tremove_prop = " << (int)remove_prop << "\n";
     }
-    for (const std::string& remove_flexbody: tuneup->remove_flexbodies)
+    for (FlexbodyID_t remove_flexbody: tuneup->remove_flexbodies)
     {
-        buf << "\tremove_flexbody = " << remove_flexbody << "\n";
+        buf << "\tremove_flexbody = " << (int)remove_flexbody << "\n";
     }
-    for (const std::string& protected_prop: tuneup->protected_props)
+    for (PropID_t protected_prop: tuneup->protected_props)
     {
-        buf << "\tprotected_prop = " << protected_prop << "\n";
+        buf << "\tprotected_prop = " << (int)protected_prop << "\n";
     }
-    for (const std::string& protected_flexbody: tuneup->protected_flexbodies)
+    for (FlexbodyID_t protected_flexbody: tuneup->protected_flexbodies)
     {
-        buf << "\tprotected_flexbody = " << protected_flexbody << "\n";
+        buf << "\tprotected_flexbody = " << (int)protected_flexbody << "\n";
     }
     buf << "}\n\n";
 

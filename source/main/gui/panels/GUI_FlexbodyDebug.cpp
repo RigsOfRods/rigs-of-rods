@@ -221,7 +221,7 @@ void FlexbodyDebug::AnalyzeFlexbodies()
                     caption = "(corrupted dashboard prop - no meshes loaded)";
                 }
             }
-            else if (p.pp_mesh_obj->getLoadedMesh())
+            else if (p.pp_mesh_obj && p.pp_mesh_obj->getLoadedMesh())
             {
                 caption = fmt::format("{} (prop)", p.pp_mesh_obj->getLoadedMesh()->getName());
             }

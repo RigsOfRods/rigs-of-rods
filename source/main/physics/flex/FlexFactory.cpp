@@ -61,17 +61,18 @@ FlexFactory::FlexFactory(ActorSpawner* rig_spawner):
 }
 
 FlexBody* FlexFactory::CreateFlexBody(
-    RigDef::Flexbody* def,
-    const int ref_node, 
-    const int x_node, 
-    const int y_node, 
-    Ogre::Quaternion const & rot, 
+    FlexbodyID_t flexbody_id,
+    const NodeNum_t ref_node, 
+    const NodeNum_t x_node, 
+    const NodeNum_t y_node, 
+    Ogre::Vector3 offset,
+    Ogre::Vector3 rotation, 
     std::vector<unsigned int> & node_indices,
-    std::string resource_group_name)
+    const std::string& mesh_name,
+    const std::string& resource_group_name)
 {
-    Ogre::MeshPtr common_mesh = Ogre::MeshManager::getSingleton().load(def->mesh_name, resource_group_name);
-    int flexbody_id = (int)m_rig_spawner->GetActor()->GetGfxActor()->GetFlexbodies().size();
-    const std::string mesh_unique_name = m_rig_spawner->ComposeName(fmt::format("{}_FlexBody", def->mesh_name).c_str(), flexbody_id);
+    Ogre::MeshPtr common_mesh = Ogre::MeshManager::getSingleton().load(mesh_name, resource_group_name);
+    const std::string mesh_unique_name = m_rig_spawner->ComposeName(fmt::format("{}_FlexBody", mesh_name).c_str(), flexbody_id);
     Ogre::MeshPtr mesh = common_mesh->clone(mesh_unique_name);
     const std::string flexbody_name = m_rig_spawner->ComposeName("Flexbody", flexbody_id);
     Ogre::Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(flexbody_name, mesh_unique_name, resource_group_name);
@@ -86,14 +87,18 @@ FlexBody* FlexFactory::CreateFlexBody(
         m_flexbody_cache_next_index++;
     }
 
+    Ogre::Quaternion rot=Ogre::Quaternion(Ogre::Degree(rotation.z), Ogre::Vector3::UNIT_Z);
+    rot=rot*Ogre::Quaternion(Ogre::Degree(rotation.y), Ogre::Vector3::UNIT_Y);
+    rot=rot*Ogre::Quaternion(Ogre::Degree(rotation.x), Ogre::Vector3::UNIT_X);
+
     FlexBody* new_flexbody = new FlexBody(
-        def,
         from_cache,
         m_rig_spawner->GetActor()->GetGfxActor(),
         entity,
         ref_node,
         x_node,
         y_node,
+        offset,
         rot,
         node_indices);
 
@@ -101,6 +106,7 @@ FlexBody* FlexFactory::CreateFlexBody(
     {
         m_flexbody_cache.AddItemToSave(new_flexbody);
     }
+    new_flexbody->m_id = flexbody_id;
     return new_flexbody;
 }
 
