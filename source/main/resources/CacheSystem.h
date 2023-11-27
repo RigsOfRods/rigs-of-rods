@@ -218,14 +218,14 @@ enum class ModifyProjectRequestType
     NONE,
     TUNEUP_USE_ADDONPART_SET,    //!< 'subject' is addonpart filename.
     TUNEUP_USE_ADDONPART_RESET,  //!< 'subject' is addonpart filename.
-    TUNEUP_REMOVE_PROP_SET,      //!< 'subject' is mesh name.
-    TUNEUP_REMOVE_PROP_RESET,    //!< 'subject' is mesh name.
-    TUNEUP_REMOVE_FLEXBODY_SET,  //!< 'subject' is mesh name.
-    TUNEUP_REMOVE_FLEXBODY_RESET,//!< 'subject' is mesh name.
-    TUNEUP_PROTECTED_PROP_SET,      //!< 'subject' is mesh name.
-    TUNEUP_PROTECTED_PROP_RESET,    //!< 'subject' is mesh name.
-    TUNEUP_PROTECTED_FLEXBODY_SET,  //!< 'subject' is mesh name.
-    TUNEUP_PROTECTED_FLEXBODY_RESET,//!< 'subject' is mesh name.
+    TUNEUP_REMOVE_PROP_SET,      //!< 'subject_id' is prop ID.
+    TUNEUP_REMOVE_PROP_RESET,    //!< 'subject_id' is prop ID.
+    TUNEUP_REMOVE_FLEXBODY_SET,  //!< 'subject_id' is flexbody ID.
+    TUNEUP_REMOVE_FLEXBODY_RESET,//!< 'subject_id' is flexbody ID.
+    TUNEUP_PROTECTED_PROP_SET,      //!< 'subject' is prop ID.
+    TUNEUP_PROTECTED_PROP_RESET,    //!< 'subject' is prop ID.
+    TUNEUP_PROTECTED_FLEXBODY_SET,  //!< 'subject' is flexbody ID.
+    TUNEUP_PROTECTED_FLEXBODY_RESET,//!< 'subject' is flexbody ID.
     PROJECT_LOAD_TUNEUP,         //!< 'subject' is tuneup filename. This overwrites the auto-generated tuneup with the save.
     PROJECT_RESET_TUNEUP,        //!< 'subject' is empty. This resets the auto-generated tuneup to orig. values.
 };

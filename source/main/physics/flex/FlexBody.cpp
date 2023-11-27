@@ -519,9 +519,11 @@ FlexBody::FlexBody(
     }
 }
 
-FlexBody::FlexBody(FlexBodyPlaceholder_t ticket)
+FlexBody::FlexBody(FlexBodyPlaceholder_t ticket, FlexbodyID_t id, const std::string& orig_meshname)
 {
     m_camera_mode = CAMERA_MODE_ALWAYS_HIDDEN;
+    m_id = id;
+    m_orig_mesh_name = orig_meshname;
 }
 
 FlexBody::~FlexBody()
@@ -552,6 +554,15 @@ FlexBody::~FlexBody()
         Ogre::MeshManager::getSingleton().remove(mesh->getHandle());
     }
     m_scene_entity = nullptr;
+}
+
+bool FlexBody::isVisible() const
+{
+    // Scene node is NULL if disabled via addonpart/tuneup.
+    return m_scene_node
+        && m_scene_node->isInSceneGraph()
+        && m_scene_node->getAttachedObject(0)->isVisible();
+        
 }
 
 void FlexBody::setVisible(bool visible)
@@ -608,6 +619,9 @@ void FlexBody::computeFlexbody()
 
 void FlexBody::updateFlexbodyVertexBuffers()
 {
+    if (!m_scene_node) // Disabled via addonpart/tuneup
+        return;
+
     Vector3 *ppt = m_dst_pos;
     Vector3 *npt = m_dst_normals;
     if (m_uses_shared_vertex_data)
@@ -677,19 +691,6 @@ void FlexBody::updateBlend() //so easy!
             m_blend_changed = true;
         }
     }
-}
-
-std::string FlexBody::getOrigMeshName()
-{
-    std::string meshname = m_scene_entity->getMesh()->getName();
-    // Cut off the generated '_FlexBody_#@Actor_#' part
-    // TODO: fix the resource management to create resource group for each actor (currently done for each repo ZIP) - then we won't need those unique tokens anymore.
-    size_t pos = meshname.find("_FlexBody_");
-    if (pos != std::string::npos)
-    {
-        meshname = meshname.substr(0, pos);
-    }
-    return meshname;
 }
 
 int evalNodeDistance(NodeNum_t a, NodeNum_t b)

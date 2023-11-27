@@ -1740,6 +1740,9 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
         tuneup_entry->tuneup_def->use_addonparts.clear();
         tuneup_entry->tuneup_def->wheel_tweaks.clear();
         tuneup_entry->tuneup_def->node_tweaks.clear();
+        tuneup_entry->tuneup_def->protected_flexbodies.clear();
+        tuneup_entry->tuneup_def->protected_props.clear();
+        tuneup_entry->tuneup_def->protected_wheels.clear();
         break;
 
     default:

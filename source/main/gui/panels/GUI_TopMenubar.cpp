@@ -1652,7 +1652,7 @@ void TopMenubar::Draw(float dt)
                         if (p.pp_beacon_type == 'L' || p.pp_beacon_type == 'R' || p.pp_beacon_type == 'w')
                         {
                             ImGui::SameLine();
-                            ImGui::TextDisabled("(!)");
+                            ImGui::TextDisabled("(special!)");
                             if (ImGui::IsItemHovered())
                             {
                                 ImGui::BeginTooltip();
@@ -1663,7 +1663,7 @@ void TopMenubar::Draw(float dt)
                         else if (p.pp_wheel_mesh_obj)
                         {
                             ImGui::SameLine();
-                            ImGui::TextDisabled("(!)");
+                            ImGui::TextDisabled("(special!)");
                             if (ImGui::IsItemHovered())
                             {
                                 ImGui::BeginTooltip();

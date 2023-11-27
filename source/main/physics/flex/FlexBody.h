@@ -61,7 +61,7 @@ public:
     typedef int FlexBodyPlaceholder_t;
     static const FlexBodyPlaceholder_t TUNING_PLACEHOLDER = -11;
 
-    FlexBody(FlexBodyPlaceholder_t);
+    FlexBody(FlexBodyPlaceholder_t, FlexbodyID_t id, const std::string& orig_meshname);
     ~FlexBody();
 
     void reset();
@@ -76,6 +76,7 @@ public:
     void computeFlexbody(); //!< Updates mesh deformation; works on CPU using local copy of vertex data.
     void updateFlexbodyVertexBuffers();
 
+    bool isVisible() const;
     void setVisible(bool visible);
 
     void setFlexbodyCastShadow(bool val);
@@ -84,7 +85,7 @@ public:
     Locator_t& getVertexLocator(int vert) { ROR_ASSERT((size_t)vert < m_vertex_count); return m_locators[vert]; }
     Ogre::Vector3 getVertexPos(int vert) { ROR_ASSERT((size_t)vert < m_vertex_count); return m_dst_pos[vert] + m_flexit_center; }
     Ogre::Entity* getEntity() { return m_scene_entity; }
-    std::string getOrigMeshName();
+    const std::string& getOrigMeshName() const { return m_orig_mesh_name; }
     std::vector<NodeNum_t>& getForsetNodes() { return m_forset_nodes; };
     std::string getOrigMeshInfo() { return m_orig_mesh_info; }
     std::string getLiveMeshInfo() { return RoR::PrintMeshInfo("Live", m_scene_entity->getMesh()); }
@@ -137,6 +138,7 @@ private:
     // Diagnostic data, not used for calculations
     std::vector<NodeNum_t> m_forset_nodes;
     std::string m_orig_mesh_info;
+    std::string m_orig_mesh_name;
 };
 
 /// @} // addtogroup Flex

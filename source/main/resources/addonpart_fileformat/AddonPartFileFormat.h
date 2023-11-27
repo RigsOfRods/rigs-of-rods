@@ -57,12 +57,14 @@ private:
     void ProcessManagedMaterial();
     void ProcessProp();
     void ProcessFlexbody();
+    void ProcessTweakWheel();
+    void ProcessTweakNode();
+    void ProcessTweakFlexbody();
+    void ProcessTweakProp();
 
     // Helpers of `ResolveUnwantedAndTweakedElements()`, they expect `m_context` to be in position:
     void ProcessUnwantedProp();
     void ProcessUnwantedFlexbody();
-    void ProcessTweakWheel();
-    void ProcessTweakNode();
 
     // Shared state:
     GenericDocumentPtr m_document;

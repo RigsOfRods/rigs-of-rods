@@ -137,6 +137,10 @@ void AddonPartUtility::ResolveUnwantedAndTweakedElements(TuneupDefPtr& tuneup, C
                     this->ProcessTweakWheel();
                 else if (m_context->getTokKeyword() == "addonpart_tweak_node")
                     this->ProcessTweakNode();
+                else if (m_context->getTokKeyword() == "addonpart_tweak_prop")
+                    this->ProcessTweakProp();
+                else if (m_context->getTokKeyword() == "addonpart_tweak_flexbody")
+                    this->ProcessTweakFlexbody();
             }
 
             m_context->seekNextLine();
@@ -332,7 +336,6 @@ void AddonPartUtility::ProcessTweakWheel()
 {
     ROR_ASSERT(m_context->getTokKeyword() == "addonpart_tweak_wheel"); // also asserts !EOF and TokenType::KEYWORD
 
-    // 'addonpart_tweak_wheel <wheel ID> <rim mesh> <tire radius> <rim radius>'
     if (m_context->isTokFloat(1) && m_context->isTokString(2))
     {
         const int wheel_id = (int)m_context->getTokFloat(1);
@@ -380,7 +383,6 @@ void AddonPartUtility::ProcessTweakNode()
 {
     ROR_ASSERT(m_context->getTokKeyword() == "addonpart_tweak_node"); // also asserts !EOF and TokenType::KEYWORD
 
-    // Data of 'addonpart_tweak_node <nodenum> <posX> <posY> <posZ>'
     if (m_context->isTokFloat(1) && m_context->isTokFloat(1) && m_context->isTokFloat(2) && m_context->isTokFloat(3))
     {
         NodeNum_t nodenum = (NodeNum_t)m_context->getTokFloat(1);
@@ -414,6 +416,117 @@ void AddonPartUtility::ProcessTweakNode()
         {
             LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': skipping node '{}' because it's marked PROTECTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), nodenum));
+        }
+    }
+    else
+    {
+        LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', element '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+    }
+}
+
+void AddonPartUtility::ProcessTweakFlexbody()
+{
+    ROR_ASSERT(m_context->getTokKeyword() == "addonpart_tweak_flexbody"); // also asserts !EOF and TokenType::KEYWORD
+
+    // TBD: add `null` token type to GenericDocument, so these params can be made optional
+    if (m_context->isTokFloat(1) && // ID
+        m_context->isTokFloat(2) && m_context->isTokFloat(3) && m_context->isTokFloat(4) && // offset
+        m_context->isTokFloat(5) && m_context->isTokFloat(6) && m_context->isTokFloat(7) && // rotation
+        m_context->isTokString(8)) // media
+    {
+        const int flexbody_id = (int)m_context->getTokFloat(1);
+        if (!m_tuneup->isFlexbodyProtected(flexbody_id))
+        {
+            if (m_tuneup->flexbody_tweaks.find(flexbody_id) == m_tuneup->flexbody_tweaks.end())
+            {
+                TuneupFlexbodyTweak data;
+                data.tft_origin = m_addonpart_entry->fname;
+                data.tft_flexbody_id = flexbody_id;
+                data.tft_offset.x = m_context->getTokFloat(2);
+                data.tft_offset.y = m_context->getTokFloat(3);
+                data.tft_offset.z = m_context->getTokFloat(4);
+                data.tft_rotation.x = m_context->getTokFloat(5);
+                data.tft_rotation.y = m_context->getTokFloat(6);
+                data.tft_rotation.z = m_context->getTokFloat(7);
+                data.tft_media = m_context->getTokString(8);
+                m_tuneup->flexbody_tweaks.insert(std::make_pair(flexbody_id, data));
+            
+                LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': tweaking flexbody {}"
+                    " with params {{ offsetX={}, offsetY={}, offsetZ={}, rotX={}, rotY={}, rotZ={}, media={} }}",
+                    m_addonpart_entry->fname, m_context->getTokKeyword(), flexbody_id, 
+                    data.tft_offset.x, data.tft_offset.y, data.tft_offset.z,
+                    data.tft_rotation.x, data.tft_rotation.y, data.tft_rotation.z, data.tft_media[0]));
+            }
+            else if (m_tuneup->flexbody_tweaks[flexbody_id].tft_origin != m_addonpart_entry->fname)
+            {
+                m_tuneup->flexbody_tweaks.erase(flexbody_id);
+
+                LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': Conflict of tweaks at flexbody '{}', addon parts '{}' and '{}'",
+                    m_addonpart_entry->fname, m_context->getTokKeyword(), flexbody_id,
+                    m_tuneup->flexbody_tweaks[flexbody_id].tft_origin, m_addonpart_entry->fname));
+            }
+        }
+        else
+        {
+            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': skipping flexbody '{}' because it's marked PROTECTED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
+        }
+    }
+    else
+    {
+        LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', element '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+    }
+}
+
+void AddonPartUtility::ProcessTweakProp()
+{
+    ROR_ASSERT(m_context->getTokKeyword() == "addonpart_tweak_prop"); // also asserts !EOF and TokenType::KEYWORD
+
+    // TBD: add `null` token type to GenericDocument, so these params can be made optional
+    if (m_context->isTokFloat(1) && // ID
+        m_context->isTokFloat(2) && m_context->isTokFloat(3) && m_context->isTokFloat(4) && // offset
+        m_context->isTokFloat(5) && m_context->isTokFloat(6) && m_context->isTokFloat(7) && // rotation
+        m_context->isTokString(8)) // media
+    {
+        const int prop_id = (int)m_context->getTokFloat(1);
+        if (!m_tuneup->isFlexbodyProtected(prop_id))
+        {
+            if (m_tuneup->prop_tweaks.find(prop_id) == m_tuneup->prop_tweaks.end())
+            {
+                TuneupPropTweak data;
+                data.tpt_origin = m_addonpart_entry->fname;
+                data.tpt_prop_id = prop_id;
+                
+                data.tpt_offset.x = m_context->getTokFloat(2);
+                data.tpt_offset.y = m_context->getTokFloat(3);
+                data.tpt_offset.z = m_context->getTokFloat(4);
+                data.tpt_rotation.x = m_context->getTokFloat(5);
+                data.tpt_rotation.y = m_context->getTokFloat(6);
+                data.tpt_rotation.z = m_context->getTokFloat(7);
+                data.tpt_media[0] = m_context->getTokString(8);
+                if (m_context->isTokString(9)) data.tpt_media[1] = m_context->getTokString(9); // <== Optional Media2 is specific for prop
+                m_tuneup->prop_tweaks.insert(std::make_pair(prop_id, data));
+            
+                LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': tweaking prop {}"
+                    " with params {{ media1={}, offsetX={}, offsetY={}, offsetZ={}, rotX={}, rotY={}, rotZ={}, media2={} }}",
+                    m_addonpart_entry->fname, m_context->getTokKeyword(), prop_id, data.tpt_media[0], 
+                    data.tpt_offset.x, data.tpt_offset.y, data.tpt_offset.z,
+                    data.tpt_rotation.x, data.tpt_rotation.y, data.tpt_rotation.z,
+                    data.tpt_media[1]));
+            }
+            else if (m_tuneup->prop_tweaks[prop_id].tpt_origin != m_addonpart_entry->fname)
+            {
+                m_tuneup->prop_tweaks.erase(prop_id);
+
+                LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': Conflict of tweaks at prop '{}', addon parts '{}' and '{}'",
+                    m_addonpart_entry->fname, m_context->getTokKeyword(), prop_id,
+                    m_tuneup->prop_tweaks[prop_id].tpt_origin, m_addonpart_entry->fname));
+            }
+        }
+        else
+        {
+            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': skipping prop '{}' because it's marked PROTECTED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
         }
     }
     else

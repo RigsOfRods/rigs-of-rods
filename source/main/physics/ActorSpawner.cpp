@@ -1500,7 +1500,7 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
     if (TuneupUtil::isFlexbodyRemoved(m_actor, flexbody_id))
     {
         // Create placeholder
-        m_actor->m_gfx_actor->m_flexbodies.emplace_back(new FlexBody(FlexBody::TUNING_PLACEHOLDER));
+        m_actor->m_gfx_actor->m_flexbodies.emplace_back(new FlexBody(FlexBody::TUNING_PLACEHOLDER, flexbody_id, def.mesh_name));
         return;
     }
 

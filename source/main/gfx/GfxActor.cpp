@@ -2996,8 +2996,13 @@ void RoR::GfxActor::UpdateFlexbodies()
 
     for (FlexBody* fb: m_flexbodies)
     {
-        const int camera_mode = fb->getCameraMode();
-        if ((camera_mode == -2) || (camera_mode == m_simbuf.simbuf_cur_cinecam))
+        // Update visibility
+        fb->setVisible(
+            fb->getCameraMode() == CAMERA_MODE_ALWAYS_VISIBLE
+            || fb->getCameraMode() == m_simbuf.simbuf_cur_cinecam);
+
+        // Update visible on background thread
+        if (fb->isVisible())
         {
             auto func = std::function<void()>([fb]()
                 {
@@ -3005,10 +3010,6 @@ void RoR::GfxActor::UpdateFlexbodies()
                 });
             auto task_handle = App::GetThreadPool()->RunTask(func);
             m_flexbody_tasks.push_back(task_handle);
-        }
-        else
-        {
-            fb->setVisible(false);
         }
     }
 }
@@ -3037,7 +3038,10 @@ void RoR::GfxActor::FinishFlexbodyTasks()
     }
     for (FlexBody* fb: m_flexbodies)
     {
-        fb->updateFlexbodyVertexBuffers();
+        if (fb->isVisible())
+        {
+            fb->updateFlexbodyVertexBuffers();
+        }
     }
 }
 

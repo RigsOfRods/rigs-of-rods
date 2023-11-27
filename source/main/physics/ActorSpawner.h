@@ -475,7 +475,7 @@ private:
     int                            m_first_wing_index;
     std::vector<CabTexcoord>       m_oldstyle_cab_texcoords;
     std::vector<CabSubmesh>        m_oldstyle_cab_submeshes;    
-    RigDef::Keyword                m_current_keyword; //!< For error reports
+    RigDef::Keyword                m_current_keyword = RigDef::Keyword::INVALID; //!< For error reports
     std::shared_ptr<RigDef::Document::Module> m_current_module; //!< For resolving addonparts
     std::map<Ogre::String, unsigned int> m_named_nodes;
     /// @}
