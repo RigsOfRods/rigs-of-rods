@@ -107,6 +107,7 @@ FlexBody* FlexFactory::CreateFlexBody(
         m_flexbody_cache.AddItemToSave(new_flexbody);
     }
     new_flexbody->m_id = flexbody_id;
+    new_flexbody->m_orig_mesh_name = common_mesh->getName();
     return new_flexbody;
 }
 

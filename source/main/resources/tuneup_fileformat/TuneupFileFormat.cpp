@@ -187,7 +187,7 @@ Ogre::Vector3 RoR::TuneupUtil::getTweakedPropRotation(CacheEntryPtr& tuneup_entr
     if (itor == tuneup_entry->tuneup_def->prop_tweaks.end())
         return orig_val;
 
-    Ogre::Vector3 retval = itor->second.tpt_rot;
+    Ogre::Vector3 retval = itor->second.tpt_rotation;
     ROR_ASSERT(!isnan(retval.x));
     ROR_ASSERT(!isnan(retval.y));
     ROR_ASSERT(!isnan(retval.z));
@@ -268,7 +268,7 @@ Ogre::Vector3 RoR::TuneupUtil::getTweakedFlexbodyRotation(CacheEntryPtr& tuneup_
     if (itor == tuneup_entry->tuneup_def->flexbody_tweaks.end())
         return orig_val;
 
-    Ogre::Vector3 retval = itor->second.tft_rot;
+    Ogre::Vector3 retval = itor->second.tft_rotation;
     ROR_ASSERT(!isnan(retval.x));
     ROR_ASSERT(!isnan(retval.y));
     ROR_ASSERT(!isnan(retval.z));

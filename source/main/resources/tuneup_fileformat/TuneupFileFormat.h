@@ -59,7 +59,7 @@ struct TuneupPropTweak //!< Data of 'addonpart_tweak_prop <prop ID> <offsetX> <o
     PropID_t        tpt_prop_id = PROPID_INVALID;
     std::string     tpt_media[2];                     //!< Media1 = prop mesh; Media2: Steering wheel mesh or beacon flare material.
     Ogre::Vector3   tpt_offset = Ogre::Vector3::ZERO;
-    Ogre::Vector3   tpt_rot = Ogre::Vector3::ZERO;
+    Ogre::Vector3   tpt_rotation = Ogre::Vector3::ZERO;
     std::string     tpt_origin;                       //!< Addonpart filename
 };
 
@@ -68,7 +68,7 @@ struct TuneupFlexbodyTweak //!< Data of 'addonpart_tweak_flexbody <flexbody ID> 
     FlexbodyID_t    tft_flexbody_id = FLEXBODYID_INVALID;
     std::string     tft_media;
     Ogre::Vector3   tft_offset = Ogre::Vector3::ZERO;
-    Ogre::Vector3   tft_rot = Ogre::Vector3::ZERO;
+    Ogre::Vector3   tft_rotation = Ogre::Vector3::ZERO;
     std::string     tft_origin;                       //!< Addonpart filename
 };
 
