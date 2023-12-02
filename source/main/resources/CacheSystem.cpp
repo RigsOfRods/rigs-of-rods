@@ -1691,6 +1691,18 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
             tuneup_entry->tuneup_def->protected_flexbodies.insert(request->mpr_subject_id);
         break;
 
+    case ModifyProjectRequestType::TUNEUP_FORCED_WHEEL_SIDE_SET:
+        tuneup_entry->tuneup_def->wheel_forced_sides[request->mpr_subject_id] = (WheelSide)request->mpr_value_int;
+        if (request->mpr_subject_set_protected)
+            tuneup_entry->tuneup_def->protected_wheels.insert(request->mpr_subject_id);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_FORCED_WHEEL_SIDE_RESET:
+        tuneup_entry->tuneup_def->wheel_forced_sides.erase(request->mpr_subject_id);
+        if (request->mpr_subject_set_protected)
+            tuneup_entry->tuneup_def->protected_wheels.insert(request->mpr_subject_id);
+        break;
+
     case ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_SET:
         tuneup_entry->tuneup_def->protected_props.insert(request->mpr_subject_id);
         break;
@@ -1705,6 +1717,15 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
 
     case ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_RESET:
         tuneup_entry->tuneup_def->protected_flexbodies.erase(request->mpr_subject_id);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_PROTECTED_WHEEL_SET:
+        tuneup_entry->tuneup_def->protected_wheels.insert(request->mpr_subject_id);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_PROTECTED_WHEEL_RESET:
+        tuneup_entry->tuneup_def->protected_wheels.erase(request->mpr_subject_id);
+        tuneup_entry->tuneup_def->wheel_forced_sides.erase(request->mpr_subject_id); // Unlike props and flexbodies, forced sides are not updated from addonparts - we must clear manually.
         break;
 
     case ModifyProjectRequestType::PROJECT_LOAD_TUNEUP:

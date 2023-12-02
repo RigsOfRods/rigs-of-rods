@@ -1859,14 +1859,6 @@ void RoR::GfxActor::SetWheelsVisible(bool value)
         if (w.wx_flex_mesh != nullptr)
         {
             w.wx_flex_mesh->setVisible(value);
-            if (w.wx_is_meshwheel)
-            {
-                Ogre::Entity* e = ((FlexMeshWheel*)(w.wx_flex_mesh))->getRimEntity();
-                if (e != nullptr)
-                {
-                    e->setVisible(false);
-                }
-            }
         }
     }
 }

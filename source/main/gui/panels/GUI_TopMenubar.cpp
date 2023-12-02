@@ -1625,7 +1625,7 @@ void TopMenubar::Draw(float dt)
                 }
 
                 // Draw props
-                size_t total_props = tuneup_entry->tuneup_def->remove_props.size() + tuning_actor->GetGfxActor()->getProps().size();
+                size_t total_props = tuning_actor->GetGfxActor()->getProps().size();
                 std::string props_title = fmt::format(_LC("TopMenubar", "Props ({})"), total_props);
                 if (ImGui::CollapsingHeader(props_title.c_str()))
                 {
@@ -1686,7 +1686,7 @@ void TopMenubar::Draw(float dt)
                 }
 
                 // Ditto for flexbodies
-                size_t total_flexbodies = tuneup_entry->tuneup_def->remove_flexbodies.size() + tuning_actor->GetGfxActor()->GetFlexbodies().size();
+                size_t total_flexbodies = tuning_actor->GetGfxActor()->GetFlexbodies().size();
                 std::string flexbodies_title = fmt::format(_LC("TopMenubar", "Flexbodies ({})"), total_flexbodies);
                 if (ImGui::CollapsingHeader(flexbodies_title.c_str()))
                 {
@@ -1719,6 +1719,55 @@ void TopMenubar::Draw(float dt)
                             ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_RESET);
 
                         ImGui::PopID(); // flexbody->getID()
+                    }
+                }
+
+                // Draw wheels
+                const int total_wheels = tuning_actor->ar_num_wheels;
+                std::string wheels_title = fmt::format(_LC("TopMenubar", "Wheels ({})"), total_wheels);
+                if (ImGui::CollapsingHeader(wheels_title.c_str()))
+                {
+                    for (WheelID_t i = 0; i < total_wheels; i++)
+                    {
+                        ImGui::PushID(i);
+                        ImGui::AlignTextToFramePadding();
+
+                        this->DrawTuningBoxedSubjectIdInline(i);
+
+                        // Draw R/L radio buttons
+                        const RoR::WheelSide active_side = TuneupUtil::getTweakedWheelSide(tuneup_entry, i, tuning_actor->GetGfxActor()->getWheelSide(i));
+                        RoR::WheelSide selected_side = active_side;
+                        if (ImGui::RadioButton("##L", active_side == WheelSide::LEFT))
+                            selected_side = WheelSide::LEFT;
+                        ImGui::SameLine();
+                        ImGui::TextDisabled("|");
+                        ImGui::SameLine();
+                        if (ImGui::RadioButton("##R", active_side == WheelSide::RIGHT))
+                            selected_side = WheelSide::RIGHT;
+
+                        // Apply selection
+                        if (selected_side != active_side)
+                        {
+                            ModifyProjectRequest* req = new ModifyProjectRequest();
+                            req->mpr_type = ModifyProjectRequestType::TUNEUP_FORCED_WHEEL_SIDE_SET;
+                            req->mpr_subject_id = i;
+                            req->mpr_value_int = (int)selected_side;
+                            req->mpr_target_actor = tuning_actor;
+                            req->mpr_subject_set_protected = true; // stop evaluating addonparts for the wheel (that would undo the user selection).
+                            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));                        
+                        }
+
+                        // Draw rim mesh name
+                        ImGui::SameLine();
+                        ImGui::Text("%s", tuning_actor->GetGfxActor()->getWheelRimMeshName(i).c_str());
+
+                        this->DrawTuningProtectedChkRightAligned(
+                            i,
+                            tuneup_entry->tuneup_def->isWheelProtected(i),
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_WHEEL_SET,
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_WHEEL_RESET);
+
+                        ImGui::PopID(); // i
                     }
                 }
             }

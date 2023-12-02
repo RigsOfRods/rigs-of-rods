@@ -112,6 +112,14 @@ enum class DebugViewType
     DEBUGVIEW_SUBMESH,
 };
 
+/// Used by rig-def/addonpart/tuneup formats to specify wheel rim mesh orientation.
+enum class WheelSide: char
+{
+    INVALID   = 'n',
+    RIGHT     = 'r',
+    LEFT      = 'l'
+};
+
 // Dynamic visibility control (value 0 and higher is cinecam index) - common to 'props' and 'flexbodies'
 static const int CAMERA_MODE_ALWAYS_HIDDEN = -3;
 static const int CAMERA_MODE_ALWAYS_VISIBLE = -2;
@@ -278,9 +286,11 @@ struct BeamGfx
 
 struct WheelGfx
 {
-    Flexable*        wx_flex_mesh        = nullptr;
-    Ogre::SceneNode* wx_scenenode        = nullptr;
-    bool             wx_is_meshwheel     = false;
+    WheelID_t          wx_wheel_id         = WHEELID_INVALID;
+    Flexable*          wx_flex_mesh        = nullptr;
+    Ogre::SceneNode*   wx_scenenode        = nullptr;
+    WheelSide          wx_side             = WheelSide::INVALID;
+    std::string        wx_rim_mesh_name;                         //!< Redundant, for Tuning UI. Only for 'meshwheels[2]' and 'flexbodywheels'
 };
 
 struct AirbrakeGfx

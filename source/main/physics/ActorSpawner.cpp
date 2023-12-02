@@ -4426,18 +4426,18 @@ void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
         meshwheel_def.rigidity_node
     );
 
-    this->BuildMeshWheelVisuals(
+    this->CreateMeshWheelVisuals(
         wheel_id,
         base_node_index,
         axis_node_1->pos,
         axis_node_2->pos,
         meshwheel_def.num_rays,
+        TuneupUtil::getTweakedWheelSide(m_actor->getUsedTuneupEntry(), wheel_id, meshwheel_def.side),
         TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, meshwheel_def.mesh_name),
         TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0),
         TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 1, meshwheel_def.material_name),
         TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 1),
-        meshwheel_def.rim_radius,
-        /*rim_reverse:*/meshwheel_def.side != RigDef::WheelSide::RIGHT
+        meshwheel_def.rim_radius
     );
 
     this->CreateWheelSkidmarks(wheel_id);
@@ -4491,18 +4491,18 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
         0.15 // max_extension
     );
 
-    this->BuildMeshWheelVisuals(
+    this->CreateMeshWheelVisuals(
         wheel_id,
         base_node_index,
         axis_node_1->pos,
         axis_node_2->pos,
         def.num_rays,
+        TuneupUtil::getTweakedWheelSide(m_actor->getUsedTuneupEntry(), wheel_id, def.side),
         TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, def.mesh_name),
         TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0),
         TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 1, def.material_name),
         TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 1),
-        def.rim_radius,
-        /*rim_reverse:*/def.side != RigDef::WheelSide::RIGHT
+        def.rim_radius
     );
 
     CreateWheelSkidmarks(wheel_id);
@@ -4510,18 +4510,18 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
     m_actor->ar_num_wheels++;
 }
 
-void ActorSpawner::BuildMeshWheelVisuals(
+void ActorSpawner::CreateMeshWheelVisuals(
     WheelID_t wheel_index,
     NodeNum_t base_node_index,
     NodeNum_t axis_node_1_index,
     NodeNum_t axis_node_2_index,
     unsigned int num_rays,
+    WheelSide side,
     Ogre::String mesh_name,
     Ogre::String mesh_rg,
     Ogre::String material_name,
     Ogre::String material_rg,
-    float rim_radius,
-    bool rim_reverse
+    float rim_radius
 )
 {
     m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill all current nodes - needed to setup flexing meshes
@@ -4535,7 +4535,7 @@ void ActorSpawner::BuildMeshWheelVisuals(
             base_node_index,
             num_rays,
             rim_radius,
-            rim_reverse,
+            side != WheelSide::RIGHT,
             mesh_name,
             mesh_rg,
             material_name,
@@ -4544,9 +4544,11 @@ void ActorSpawner::BuildMeshWheelVisuals(
         scene_node->attachObject(flexmesh_wheel->GetTireEntity());
 
         WheelGfx visual_wheel;
-        visual_wheel.wx_is_meshwheel = false;
+        visual_wheel.wx_wheel_id = wheel_index;
         visual_wheel.wx_flex_mesh = flexmesh_wheel;
         visual_wheel.wx_scenenode = scene_node;
+        visual_wheel.wx_side = side;
+        visual_wheel.wx_rim_mesh_name = mesh_name;
         m_actor->m_gfx_actor->m_wheels.push_back(visual_wheel);
     }
     catch (Ogre::Exception& e)
@@ -5013,7 +5015,6 @@ void ActorSpawner::CreateWheelVisuals(
         WheelGfx visual_wheel;
 
         const std::string wheel_mesh_name = this->ComposeName("WheelMesh", wheel_index);
-        visual_wheel.wx_is_meshwheel = false;
         visual_wheel.wx_flex_mesh = new FlexMesh(
             wheel_mesh_name,
             m_actor->m_gfx_actor.get(),
@@ -5048,7 +5049,7 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
     NodeNum_t axis_node_2,
     int num_rays,
     float radius,
-    RigDef::WheelSide side,
+    WheelSide side,
     std::string rim_mesh_name,
     std::string rim_mesh_rg,
     std::string tire_mesh_name,
@@ -5056,24 +5057,19 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
 {
     m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill all current nodes - needed to setup flexing meshes
 
-    /*this->BuildMeshWheelVisuals(
-        wheel_index,
+    this->CreateMeshWheelVisuals(
+        wheel_id,
         node_base_index,
         axis_node_1,
         axis_node_2,
         num_rays,
-        override_mesh_name,
-        override_mesh_rg,
+        side,
+        rim_mesh_name,
+        rim_mesh_rg,
         "tracks/trans", // Use a builtin transparent material for the generated tire mesh, to effectively disable it.
         m_actor->GetGfxActor()->GetResourceGroup(),
-        radius,
-        side != RigDef::WheelSide::RIGHT
-        );*/
-
-    // Just create the static rim entity directly (may be located in addonpart ZIP-bundle!)
-    const std::string rim_entity_name = this->ComposeName("MeshWheelRim", wheel_id);
-    Ogre::Entity* rim_prop_entity = App::GetGfxScene()->GetSceneManager()->createEntity(rim_entity_name, rim_mesh_name, rim_mesh_rg);
-    this->SetupNewEntity(rim_prop_entity, Ogre::ColourValue(0, 0.5, 0.8));
+        radius
+        );
 
     int num_nodes = num_rays * 4;
     std::vector<unsigned int> node_indices;

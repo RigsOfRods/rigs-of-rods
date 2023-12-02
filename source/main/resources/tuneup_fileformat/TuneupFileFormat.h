@@ -47,7 +47,7 @@ struct TuneupWheelTweak //!< Data of 'addonpart_tweak_wheel <wheel ID> <media1> 
     /// `twt_media[0]` Arg#2, required ('wheels[2]': face material, 'meshwheels[2]/flexbodywheels': rim mesh)
     /// `twt_media[1]` Arg#3, optional ('wheels[2]': band material, 'meshwheels[2]/flexbodywheels': tire material)
     std::array<std::string, 2> twt_media;      
-    RigDef::WheelSide  twt_side = RigDef::WheelSide::INVALID; //!< Arg#4, optional, default LEFT (Only applicable to mesh/flexbody wheels)
+    WheelSide  twt_side = WheelSide::INVALID; //!< Arg#4, optional, default LEFT (Only applicable to mesh/flexbody wheels)
     float              twt_tire_radius = -1.f;  //!< Arg#5, optional
     float              twt_rim_radius = -1.f;   //!< Arg#6, optional, only applies to some wheel types
     std::string        twt_origin;              //!< Addonpart filename
@@ -87,20 +87,21 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
 
     /// @name Modding attributes and overrides
     /// @{
-    std::set<std::string>  use_addonparts;       //!< Addonpart filenames
+    std::set<std::string>                         use_addonparts;        //!< Addonpart filenames
 
-    std::map<NodeNum_t, TuneupNodeTweak> node_tweaks; //!< Node position overrides via 'addonpart_tweak_node'
-    std::map<WheelID_t, TuneupWheelTweak> wheel_tweaks; //!< Mesh name and radius overrides via 'addonpart_tweak_wheel'
-    std::map<PropID_t, TuneupPropTweak> prop_tweaks;
-    std::map<FlexbodyID_t, TuneupFlexbodyTweak> flexbody_tweaks;
+    std::map<NodeNum_t, TuneupNodeTweak>          node_tweaks;           //!< Node position overrides via 'addonpart_tweak_node'
+    std::map<WheelID_t, TuneupWheelTweak>         wheel_tweaks;          //!< Mesh name and radius overrides via 'addonpart_tweak_wheel'
+    std::map<PropID_t, TuneupPropTweak>           prop_tweaks;
+    std::map<FlexbodyID_t, TuneupFlexbodyTweak>   flexbody_tweaks;
 
-    std::set<PropID_t>     remove_props;
-    std::set<FlexbodyID_t> remove_flexbodies;
+    std::set<PropID_t>                            remove_props;          //!< Either UI overrides or 'addonpart_unwanted_prop' directives.
+    std::set<FlexbodyID_t>                        remove_flexbodies;     //!< Either UI overrides or 'addonpart_unwanted_flexbody' directives.
+    std::map<WheelID_t, WheelSide>                wheel_forced_sides;    //!< UI overrides only, not affected by addonparts.
 
-    std::set<NodeNum_t>    protected_nodes;      //!< Nodes that cannot be altered via 'addonpart_tweak_node'
-    std::set<WheelID_t>    protected_wheels;     //!< Wheels that cannot be altered via 'addonpart_tweak_wheel'
-    std::set<PropID_t>     protected_props;      //!< Props which cannot be altered via 'addonpart_tweak_prop' or 'addonpart_remove_prop' directive.
-    std::set<FlexbodyID_t> protected_flexbodies; //!< Flexbodies which cannot be removed via 'addonpart_tweak_flexbody' or 'addonpart_remove_flexbody' directive.
+    std::set<NodeNum_t>                           protected_nodes;       //!< Nodes that cannot be altered via 'addonpart_tweak_node'
+    std::set<WheelID_t>                           protected_wheels;      //!< Wheels that cannot be altered via 'addonpart_tweak_wheel'
+    std::set<PropID_t>                            protected_props;       //!< Props which cannot be altered via 'addonpart_tweak_prop' or 'addonpart_remove_prop' directive.
+    std::set<FlexbodyID_t>                        protected_flexbodies;  //!< Flexbodies which cannot be removed via 'addonpart_tweak_flexbody' or 'addonpart_remove_flexbody' directive.
     /// @}
 
     TuneupDefPtr clone();
@@ -128,7 +129,7 @@ public:
     static float              getTweakedWheelRimRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val);
     static std::string        getTweakedWheelMedia(CacheEntryPtr& tuneup_entry, int wheel_id, int media_idx, const std::string& orig_val);
     static std::string        getTweakedWheelMediaRG(ActorPtr& actor, int wheel_id, int media_idx);
-    static RigDef::WheelSide  getTweakedWheelSide(CacheEntryPtr& tuneup_entry, int wheel_id, RigDef::WheelSide orig_val);
+    static WheelSide  getTweakedWheelSide(CacheEntryPtr& tuneup_entry, int wheel_id, WheelSide orig_val);
     // > node
     static Ogre::Vector3      getTweakedNodePosition(CacheEntryPtr& tuneup_entry, NodeNum_t nodenum, Ogre::Vector3 orig_val);
     // > prop
