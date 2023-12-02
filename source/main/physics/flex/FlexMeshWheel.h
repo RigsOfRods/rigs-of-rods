@@ -45,7 +45,6 @@ public:
 
     ~FlexMeshWheel();
 
-    Ogre::Entity* getRimEntity() { return m_rim_entity; };
     Ogre::Entity* GetTireEntity() { return m_tire_entity; }
 
     Ogre::Vector3 updateVertices();

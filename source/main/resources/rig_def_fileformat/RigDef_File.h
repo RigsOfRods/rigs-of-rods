@@ -273,13 +273,6 @@ enum class WingControlSurface: char
     j_LEFT_RUDDERVATOR       = 'j',
 };
 
-enum class WheelSide: char
-{
-    INVALID   = 0,
-    RIGHT     = 'r',
-    LEFT      = 'l'
-};
-
 // --------------------------------
 // Enums which only specify flag letters, values are carried by bit masks
 
@@ -422,7 +415,7 @@ struct BaseWheel
 
 struct BaseMeshWheel: public BaseWheel // common to 'meshwheels' and 'meshwheels2'
 {
-    WheelSide side = WheelSide::INVALID;
+    RoR::WheelSide side = RoR::WheelSide::INVALID;
     Ogre::String mesh_name;
     Ogre::String material_name;
     float rim_radius = 0.f;
@@ -900,7 +893,7 @@ struct Flexbody
 
 struct FlexBodyWheel: public BaseWheel2
 {
-    WheelSide side = WheelSide::INVALID;
+    RoR::WheelSide side = RoR::WheelSide::INVALID;
     float rim_springiness = 0.f;
     float rim_damping = 0.f;
     Ogre::String rim_mesh_name;

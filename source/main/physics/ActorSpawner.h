@@ -408,24 +408,24 @@ private:
         NodeNum_t axis_node_2,
         int num_rays,
         float radius,
-        RigDef::WheelSide side,
+        WheelSide side,
         std::string rim_mesh_name,
         std::string rim_mesh_rg,
         std::string tire_mesh_name,
         std::string tire_mesh_rg);
 
-    void BuildMeshWheelVisuals(
+    void CreateMeshWheelVisuals(
         WheelID_t wheel_id,
         NodeNum_t base_node_index,
         NodeNum_t axis_node_1_index,
         NodeNum_t axis_node_2_index,
         unsigned int num_rays,
+        WheelSide side,
         Ogre::String mesh_name,
         Ogre::String mesh_rg,
         Ogre::String material_name,
         Ogre::String material_rg,
-        float rim_radius,
-        bool rim_reverse);
+        float rim_radius);
     /// @}
 
     /// @name Audio setup

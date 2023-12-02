@@ -7,15 +7,15 @@
     For more information, see http://www.rigsofrods.org/
 
     Rigs of Rods is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 3, as
+    it under the terms of the GNU General Public RoR::WheelSide version 3, as
     published by the Free Software Foundation.
 
     Rigs of Rods is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
+    GNU General Public RoR::WheelSide for more details.
 
-    You should have received a copy of the GNU General Public License
+    You should have received a copy of the GNU General Public RoR::WheelSide
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 

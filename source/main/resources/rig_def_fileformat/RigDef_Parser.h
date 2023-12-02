@@ -211,7 +211,7 @@ private:
     Node::Ref          GetArgNodeRef      (int index);
     Node::Ref          GetArgRigidityNode (int index);
     Node::Ref          GetArgNullableNode (int index);
-    WheelSide          GetArgWheelSide    (int index);
+    RoR::WheelSide     GetArgWheelSide    (int index);
     WingControlSurface GetArgWingSurface  (int index);
     RoR::FlareType     GetArgFlareType    (int index);
     RoR::ExtCameraMode GetArgExtCameraMode(int index);

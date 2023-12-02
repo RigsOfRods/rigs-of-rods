@@ -348,7 +348,7 @@ void AddonPartUtility::ProcessTweakWheel()
                 data.twt_wheel_id = wheel_id;
                 data.twt_media[0] = m_context->getTokString(2);
                 if (m_context->isTokString(3)) { data.twt_media[1] = m_context->getTokString(3); }
-                if (m_context->isTokString(4)) { data.twt_side = (m_context->getTokString(4)[0] == 'l') ? RigDef::WheelSide::LEFT : RigDef::WheelSide::RIGHT; }
+                if (m_context->isTokString(4)) { data.twt_side = (m_context->getTokString(4)[0] == 'l') ? WheelSide::LEFT : WheelSide::RIGHT; }
                 if (m_context->isTokFloat(5)) { data.twt_rim_radius = m_context->getTokFloat(5); }
                 if (m_context->isTokFloat(6)) { data.twt_tire_radius = m_context->getTokFloat(6); }
                 m_tuneup->wheel_tweaks.insert(std::make_pair(wheel_id, data));

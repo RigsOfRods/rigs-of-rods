@@ -216,18 +216,22 @@ struct CreateProjectRequest
 enum class ModifyProjectRequestType
 {
     NONE,
-    TUNEUP_USE_ADDONPART_SET,    //!< 'subject' is addonpart filename.
-    TUNEUP_USE_ADDONPART_RESET,  //!< 'subject' is addonpart filename.
-    TUNEUP_REMOVE_PROP_SET,      //!< 'subject_id' is prop ID.
-    TUNEUP_REMOVE_PROP_RESET,    //!< 'subject_id' is prop ID.
-    TUNEUP_REMOVE_FLEXBODY_SET,  //!< 'subject_id' is flexbody ID.
-    TUNEUP_REMOVE_FLEXBODY_RESET,//!< 'subject_id' is flexbody ID.
-    TUNEUP_PROTECTED_PROP_SET,      //!< 'subject' is prop ID.
-    TUNEUP_PROTECTED_PROP_RESET,    //!< 'subject' is prop ID.
-    TUNEUP_PROTECTED_FLEXBODY_SET,  //!< 'subject' is flexbody ID.
-    TUNEUP_PROTECTED_FLEXBODY_RESET,//!< 'subject' is flexbody ID.
-    PROJECT_LOAD_TUNEUP,         //!< 'subject' is tuneup filename. This overwrites the auto-generated tuneup with the save.
-    PROJECT_RESET_TUNEUP,        //!< 'subject' is empty. This resets the auto-generated tuneup to orig. values.
+    TUNEUP_USE_ADDONPART_SET,          //!< 'subject' is addonpart filename.
+    TUNEUP_USE_ADDONPART_RESET,        //!< 'subject' is addonpart filename.
+    TUNEUP_REMOVE_PROP_SET,            //!< 'subject_id' is prop ID.
+    TUNEUP_REMOVE_PROP_RESET,          //!< 'subject_id' is prop ID.
+    TUNEUP_REMOVE_FLEXBODY_SET,        //!< 'subject_id' is flexbody ID.
+    TUNEUP_REMOVE_FLEXBODY_RESET,      //!< 'subject_id' is flexbody ID.
+    TUNEUP_FORCED_WHEEL_SIDE_SET,      //!< 'subject_id' is wheel ID, 'value_int' is RoR::WheelSide
+    TUNEUP_FORCED_WHEEL_SIDE_RESET,    //!< 'subject_id' is wheel ID.
+    TUNEUP_PROTECTED_PROP_SET,         //!< 'subject_id' is prop ID.
+    TUNEUP_PROTECTED_PROP_RESET,       //!< 'subject_id' is prop ID.
+    TUNEUP_PROTECTED_FLEXBODY_SET,     //!< 'subject_id' is flexbody ID.
+    TUNEUP_PROTECTED_FLEXBODY_RESET,   //!< 'subject_id' is flexbody ID.  
+    TUNEUP_PROTECTED_WHEEL_SET,        //!< 'subject_id' is wheel ID.
+    TUNEUP_PROTECTED_WHEEL_RESET,      //!< 'subject_id' is wheel ID.
+    PROJECT_LOAD_TUNEUP,               //!< 'subject' is tuneup filename. This overwrites the auto-generated tuneup with the save.
+    PROJECT_RESET_TUNEUP,              //!< 'subject' is empty. This resets the auto-generated tuneup to orig. values.
 };
 
 struct ModifyProjectRequest
@@ -238,6 +242,7 @@ struct ModifyProjectRequest
     // Subject (either name or ID applies depending on type)
     std::string mpr_subject; // addonpart
     int mpr_subject_id = -1; // wheel, prop, flexbody, node
+    int mpr_value_int;       // forced wheel side
 
     // Protected state prevents addonparts from evaluating, which would undo user's selections.
     bool mpr_subject_set_protected = false;

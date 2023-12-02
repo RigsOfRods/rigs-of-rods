@@ -122,16 +122,30 @@ std::string RoR::TuneupUtil::getTweakedWheelMediaRG(ActorPtr& actor, int wheel_i
     }
 }
 
-RigDef::WheelSide RoR::TuneupUtil::getTweakedWheelSide(CacheEntryPtr& tuneup_entry, int wheel_id, RigDef::WheelSide orig_val)
+WheelSide RoR::TuneupUtil::getTweakedWheelSide(CacheEntryPtr& tuneup_entry, int wheel_id, WheelSide orig_val)
 {
     if (!tuneup_entry)
         return orig_val;
 
     ROR_ASSERT(tuneup_entry->tuneup_def);
-    auto itor = tuneup_entry->tuneup_def->wheel_tweaks.find(wheel_id);
-    auto endi = tuneup_entry->tuneup_def->wheel_tweaks.end();
-    return (itor != endi && itor->second.twt_side != RigDef::WheelSide::INVALID)
-        ? itor->second.twt_side : orig_val;
+
+    // First query the UI overrides
+    {
+        auto itor = tuneup_entry->tuneup_def->wheel_forced_sides.find(wheel_id);
+        auto endi = tuneup_entry->tuneup_def->wheel_forced_sides.end();
+        if (itor != endi)
+            return itor->second;
+    }
+    
+    // Then query tweaks
+    {
+        auto itor = tuneup_entry->tuneup_def->wheel_tweaks.find(wheel_id);
+        auto endi = tuneup_entry->tuneup_def->wheel_tweaks.end();
+        if (itor != endi && itor->second.twt_side != WheelSide::INVALID)
+            return itor->second.twt_side;
+    }
+
+    return orig_val;
 }
 
 Ogre::Vector3 RoR::TuneupUtil::getTweakedNodePosition(CacheEntryPtr& tuneup_entry, NodeNum_t nodenum, Ogre::Vector3 orig_val)
