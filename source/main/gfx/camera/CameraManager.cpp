@@ -944,6 +944,7 @@ bool CameraManager::CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg)
 
     if (ms.buttonDown(OIS::MB_Right))
     {
+        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
         float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.002f : 0.02f;
         if (App::io_invert_orbitcam->getBool() && this->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
         {
