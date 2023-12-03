@@ -319,6 +319,7 @@ extern CVar* sim_gearbox_mode;
 extern CVar* sim_soft_reset_mode;
 extern CVar* sim_quickload_dialog;
 extern CVar* sim_live_repair_interval; //!< Hold EV_COMMON_REPAIR_TRUCK to enter LiveRepair mode. 0 or negative interval disables.
+extern CVar* sim_tuning_enabled;
 
 // Multiplayer
 extern CVar* mp_state;

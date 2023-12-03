@@ -1450,12 +1450,34 @@ void TopMenubar::Draw(float dt)
             {
                 ROR_ASSERT(tuning_actor->getUsedActorEntry());
                 CacheEntryPtr& tuneup_entry = tuning_actor->getUsedTuneupEntry();
-                ROR_ASSERT(tuneup_entry); // Created by `GameContext::SpawnActor()`
-                ROR_ASSERT(tuneup_entry->resource_group != "");
-                ROR_ASSERT(tuneup_entry->tuneup_def != nullptr);
+                if (tuneup_entry)
+                {
+                    ROR_ASSERT(tuneup_entry->resource_group != "");
+                    ROR_ASSERT(tuneup_entry->tuneup_def != nullptr);
+                }
+
+                // KILL SWITCH
+
+                if (DrawGCheckbox(App::sim_tuning_enabled, _LC("Tuning", "Enable tuning")))
+                {
+                    // Create spawn request while actor still exists
+                    // Note we don't use `ActorModifyRequest::Type::RELOAD` because we don't need the bundle reloaded.
+                    ActorSpawnRequest* srq = new ActorSpawnRequest;
+                    srq->asr_position     = Ogre::Vector3(tuning_actor->getPosition().x, tuning_actor->getMinHeight(), tuning_actor->getPosition().z);
+                    srq->asr_rotation     = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(tuning_actor->getRotation()), Ogre::Vector3::UNIT_Y);
+                    srq->asr_config       = tuning_actor->getSectionConfig();
+                    srq->asr_skin_entry   = tuning_actor->getUsedSkinEntry();
+                    srq->asr_cache_entry  = tuning_actor->getUsedActorEntry();
+                    srq->asr_debugview    = (int)tuning_actor->GetGfxActor()->GetDebugView();
+                    srq->asr_origin       = ActorSpawnRequest::Origin::USER;
+
+                    // Request actor delete and chain the actor spawn message to it.
+                    App::GetGameContext()->ChainMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, new ActorPtr(tuning_actor)));
+                    App::GetGameContext()->ChainMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, srq));
+                }
 
                 // SAVED TUNEUPS
-
+                ImGui::Separator();
                 ImGui::TextDisabled(fmt::format(_LC("Tuning", "Saved tuneups ({})"), tuning_saves.cqy_results.size()).c_str());
                 for (CacheQueryResult& tuneup_result: tuning_saves.cqy_results)
                 {
@@ -1627,7 +1649,7 @@ void TopMenubar::Draw(float dt)
                 // Draw props
                 size_t total_props = tuning_actor->GetGfxActor()->getProps().size();
                 std::string props_title = fmt::format(_LC("TopMenubar", "Props ({})"), total_props);
-                if (ImGui::CollapsingHeader(props_title.c_str()))
+                if (ImGui::CollapsingHeader(props_title.c_str()) && tuneup_entry)
                 {
                     // Draw all props (those removed by addonparts are also present as placeholders)
                     for (Prop const& p: tuning_actor->GetGfxActor()->getProps())
@@ -1688,7 +1710,7 @@ void TopMenubar::Draw(float dt)
                 // Ditto for flexbodies
                 size_t total_flexbodies = tuning_actor->GetGfxActor()->GetFlexbodies().size();
                 std::string flexbodies_title = fmt::format(_LC("TopMenubar", "Flexbodies ({})"), total_flexbodies);
-                if (ImGui::CollapsingHeader(flexbodies_title.c_str()))
+                if (ImGui::CollapsingHeader(flexbodies_title.c_str()) && tuneup_entry)
                 {
                     // Draw all flexbodies (those removed by addonparts are also present as placeholders)
                     for (FlexBody* flexbody: tuning_actor->GetGfxActor()->GetFlexbodies())
@@ -1725,7 +1747,7 @@ void TopMenubar::Draw(float dt)
                 // Draw wheels
                 const int total_wheels = tuning_actor->ar_num_wheels;
                 std::string wheels_title = fmt::format(_LC("TopMenubar", "Wheels ({})"), total_wheels);
-                if (ImGui::CollapsingHeader(wheels_title.c_str()))
+                if (ImGui::CollapsingHeader(wheels_title.c_str()) && tuneup_entry)
                 {
                     for (WheelID_t i = 0; i < total_wheels; i++)
                     {
@@ -2229,22 +2251,27 @@ void TopMenubar::GetPresets()
 void TopMenubar::RefreshTuningMenu()
 {
     const ActorPtr& current_actor = App::GetGameContext()->GetPlayerActor();
-    if (current_actor && (tuning_actor != current_actor || tuning_force_refresh))
+    if (App::sim_tuning_enabled->getBool() && current_actor && (tuning_actor != current_actor || tuning_force_refresh))
     {
         ROR_ASSERT(current_actor->getUsedActorEntry());
 
         tuning_addonparts.cqy_filter_type = LT_AddonPart;
         tuning_addonparts.cqy_filter_guid = current_actor->getUsedActorEntry()->guid;
-        tuning_addonparts.cqy_results.clear();
+        tuning_addonparts.resetResults();
         App::GetCacheSystem()->Query(tuning_addonparts);
 
         tuning_saves.cqy_filter_type = LT_Tuneup;
         tuning_saves.cqy_filter_guid = current_actor->getUsedActorEntry()->guid;
         tuning_saves.cqy_filter_category_id = CID_TuneupsUser; // Exclude auto-generated entries
-        tuning_saves.cqy_results.clear();
+        tuning_saves.resetResults();
         App::GetCacheSystem()->Query(tuning_saves);
 
         tuning_rwidget_cursorx_min = 0.f;
+    }
+    else if (!App::sim_tuning_enabled->getBool())
+    {
+        tuning_addonparts.resetResults();
+        tuning_saves.resetResults();
     }
     tuning_actor = current_actor;
 }

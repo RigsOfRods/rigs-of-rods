@@ -109,6 +109,7 @@ CVar* sim_gearbox_mode;
 CVar* sim_soft_reset_mode;
 CVar* sim_quickload_dialog;
 CVar* sim_live_repair_interval;
+CVar* sim_tuning_enabled;
 
 // Multiplayer
 CVar* mp_state;
