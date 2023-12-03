@@ -56,7 +56,7 @@ std::string StripColorMarksFromText(std::string const& text);
 /// Prints multiline text with '#rrggbb' color markers. Behaves like `ImGui::Text*` functions.
 void ImTextWrappedColorMarked(std::string const& text);
 
-void DrawGCheckbox(CVar* cvar, const char* label);
+bool DrawGCheckbox(CVar* cvar, const char* label);
 
 void DrawGIntCheck(CVar* cvar, const char* label);
 

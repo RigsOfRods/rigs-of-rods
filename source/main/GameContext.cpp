@@ -192,30 +192,33 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         m_last_section_config  = rq.asr_config;
 
         // Make sure the actor has a default .tuneup project assigned. If not, create it.
-        CacheQuery query;
-        query.cqy_filter_type = LT_Tuneup;
-        query.cqy_filter_category_id = CID_TuneupsAuto;
-        query.cqy_filter_guid = rq.asr_cache_entry->guid;
-        if (App::GetCacheSystem()->Query(query) > 0)
+        if (App::sim_tuning_enabled->getBool())
         {
-            rq.asr_tuneup_entry = query.cqy_results[0].cqr_entry;
-        }
-        else
-        {
-            CreateProjectRequest req;
-            req.cpr_type = CreateProjectRequestType::CREATE_TUNEUP;
-            req.cpr_source_entry = rq.asr_cache_entry;
-            req.cpr_name = fmt::format("tuned_{}", rq.asr_cache_entry->fname);
-            req.cpr_description = fmt::format("Customized {}", rq.asr_cache_entry->dname);
-
-            rq.asr_tuneup_entry = App::GetCacheSystem()->CreateProject(&req); // Do it synchronously
-
-            if (!rq.asr_tuneup_entry)
+            CacheQuery query;
+            query.cqy_filter_type = LT_Tuneup;
+            query.cqy_filter_category_id = CID_TuneupsAuto;
+            query.cqy_filter_guid = rq.asr_cache_entry->guid;
+            if (App::GetCacheSystem()->Query(query) > 0)
             {
-                Str<500> msg; msg <<"Cannot spawn actor; .tuneup project could not be created.";
-                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-                return nullptr;
-            }     
+                rq.asr_tuneup_entry = query.cqy_results[0].cqr_entry;
+            }
+            else
+            {
+                CreateProjectRequest req;
+                req.cpr_type = CreateProjectRequestType::CREATE_TUNEUP;
+                req.cpr_source_entry = rq.asr_cache_entry;
+                req.cpr_name = fmt::format("tuned_{}", rq.asr_cache_entry->fname);
+                req.cpr_description = fmt::format("Customized {}", rq.asr_cache_entry->dname);
+
+                rq.asr_tuneup_entry = App::GetCacheSystem()->CreateProject(&req); // Do it synchronously
+
+                if (!rq.asr_tuneup_entry)
+                {
+                    Str<500> msg; msg <<"Cannot spawn actor; .tuneup project could not be created.";
+                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
+                    return nullptr;
+                }     
+            }
         }
 
         if (rq.asr_spawnbox == nullptr)

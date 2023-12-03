@@ -181,6 +181,13 @@ struct CacheQuery
     std::vector<CacheQueryResult>  cqy_results;
     std::map<int, size_t>          cqy_res_category_usage; //!< Total usage (ignores search params + category filter)
     std::time_t                    cqy_res_last_update = std::time_t();
+
+    void resetResults()
+    {
+        cqy_results.clear();
+        cqy_res_category_usage.clear();
+        cqy_res_last_update = std::time_t();
+    }
 };
 
 enum class CacheValidity

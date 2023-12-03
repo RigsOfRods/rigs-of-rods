@@ -58,7 +58,8 @@ void Console::cVarSetupBuiltins()
     App::sim_gearbox_mode        = this->cVarCreate("sim_gearbox_mode",        "GearboxMode",                CVAR_ARCHIVE | CVAR_TYPE_INT);
     App::sim_soft_reset_mode     = this->cVarCreate("sim_soft_reset_mode",     "",                                          CVAR_TYPE_BOOL,    "false");
     App::sim_quickload_dialog    = this->cVarCreate("sim_quickload_dialog",    "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
-    App::sim_live_repair_interval = this->cVarCreate("sim_live_repair_interval", "",                           CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "2.f");
+    App::sim_live_repair_interval = this->cVarCreate("sim_live_repair_interval", "",                         CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "2.f");
+    App::sim_tuning_enabled      = this->cVarCreate("sim_tuning_enabled",      "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
 
     App::mp_state                = this->cVarCreate("mp_state",                "",                                          CVAR_TYPE_INT,     "0"/*(int)MpState::DISABLED*/);
     App::mp_join_on_startup      = this->cVarCreate("mp_join_on_startup",      "Auto connect",               CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");

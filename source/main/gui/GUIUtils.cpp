@@ -257,13 +257,15 @@ void RoR::ImTextWrappedColorMarked(std::string const& text)
     ImGui::ItemAdd(bb, 0);
 }
 
-void RoR::DrawGCheckbox(CVar* cvar, const char* label)
+bool RoR::DrawGCheckbox(CVar* cvar, const char* label)
 {
     bool val = cvar->getBool();
     if (ImGui::Checkbox(label, &val))
     {
         cvar->setVal(val);
+        return true;
     }
+    return false;
 }
 
 void RoR::DrawGIntCheck(CVar* cvar, const char* label)
