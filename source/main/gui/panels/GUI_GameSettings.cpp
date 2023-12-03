@@ -423,6 +423,7 @@ void GameSettings::DrawControlSettings()
     DrawGFloatSlider(App::io_blink_lock_range,   _LC("GameSettings", "Blinker Lock Range"),       0.1f, 1.0f);
 
     DrawGCheckbox(App::io_arcade_controls, _LC("GameSettings", "Use arcade controls"));
+    DrawGCheckbox(App::io_invert_orbitcam, _LC("GameSettings", "Invert orbit camera"));
 
     DrawGCheckbox(App::io_ffb_enabled, _LC("GameSettings", "Enable ForceFeedback"));
     if (App::io_ffb_enabled->getBool())

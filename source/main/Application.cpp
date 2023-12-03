@@ -200,6 +200,7 @@ CVar* io_outgauge_port;
 CVar* io_outgauge_delay;
 CVar* io_outgauge_id;
 CVar* io_discord_rpc;
+CVar* io_invert_orbitcam;
               
 // Audio
 CVar* audio_master_volume;
