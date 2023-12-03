@@ -827,9 +827,16 @@ void CameraManager::CameraBehaviorOrbitUpdate()
         }
     }
 
-    m_cam_rot_x += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT)) * m_cct_rot_scale;
-    m_cam_rot_y += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN)) * m_cct_rot_scale;
-
+    if (App::io_invert_orbitcam->getBool() && this->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+    {
+        m_cam_rot_x += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT)) * m_cct_rot_scale;
+        m_cam_rot_y += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP)) * m_cct_rot_scale;
+    }
+    else
+    {
+        m_cam_rot_x += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_RIGHT) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_LEFT)) * m_cct_rot_scale;
+        m_cam_rot_y += (RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_UP) - RoR::App::GetInputEngine()->getEventValue(EV_CAMERA_ROTATE_DOWN)) * m_cct_rot_scale;
+    }
     m_cam_rot_y = std::max((Radian)Degree(-80), m_cam_rot_y);
     m_cam_rot_y = std::min(m_cam_rot_y, (Radian)Degree(88));
 
@@ -938,8 +945,16 @@ bool CameraManager::CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg)
     if (ms.buttonDown(OIS::MB_Right))
     {
         float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.002f : 0.02f;
-        m_cam_rot_x += Degree(ms.X.rel * 0.13f);
-        m_cam_rot_y += Degree(-ms.Y.rel * 0.13f);
+        if (App::io_invert_orbitcam->getBool() && this->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
+        {
+            m_cam_rot_x += Degree(ms.X.rel * -0.13f);
+            m_cam_rot_y += Degree(-ms.Y.rel * -0.13f);
+        }
+        else
+        {
+            m_cam_rot_x += Degree(ms.X.rel * 0.13f);
+            m_cam_rot_y += Degree(-ms.Y.rel * 0.13f);
+        }
         m_cam_dist += -ms.Z.rel * scale;
         return true;
     }

@@ -404,6 +404,7 @@ extern CVar* io_outgauge_port;
 extern CVar* io_outgauge_delay;
 extern CVar* io_outgauge_id;
 extern CVar* io_discord_rpc;
+extern CVar* io_invert_orbitcam;
 
 // Audio
 extern CVar* audio_master_volume;
