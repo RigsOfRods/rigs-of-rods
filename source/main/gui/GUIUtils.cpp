@@ -440,34 +440,31 @@ void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
 bool RoR::ImButtonHoldToConfirm(const std::string& btn_caption, bool small, float time_limit, float& time_left_var, float dt)
 {
 
-    bool btn_pressed = false;
     if (small)
-        btn_pressed = ImGui::SmallButton(btn_caption.c_str());
+        ImGui::SmallButton(btn_caption.c_str());
     else
-        btn_pressed = ImGui::Button(btn_caption.c_str());
+        ImGui::Button(btn_caption.c_str());
 
-    if (btn_pressed)
+    if (ImGui::IsItemActive() && time_left_var > 0.f)
     {
-        time_left_var = time_limit; // Initialize
-    }
-    else
-    {
-        if (ImGui::IsItemActive() && time_left_var > 0.f)
+        time_left_var -= dt;
+        if (time_left_var > 0.f)
         {
-            time_left_var -= dt;
-            if (time_left_var > 0.f)
-            {
-                ImGui::BeginTooltip();
-                std::string text = _L("Hold to confirm");
-                ImGui::TextDisabled(text.c_str());
-                ImGui::ProgressBar(time_left_var/time_limit, ImVec2(ImGui::CalcTextSize(text.c_str()).x, 8.f), "");
-                ImGui::EndTooltip();
-            }
-            else
-            {
-                return true;
-            }
+            ImGui::BeginTooltip();
+            std::string text = _L("Hold to confirm");
+            ImGui::TextDisabled(text.c_str());
+            ImGui::ProgressBar(time_left_var/time_limit, ImVec2(ImGui::CalcTextSize(text.c_str()).x, 8.f), "");
+            ImGui::EndTooltip();
+        }
+        else
+        {
+            return true;
         }
     }
+    else
+    {
+        time_left_var = time_limit;
+    }
+
     return false;
 }
