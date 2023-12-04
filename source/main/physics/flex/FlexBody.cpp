@@ -573,7 +573,9 @@ void FlexBody::setVisible(bool visible)
 
 void FlexBody::setFlexbodyCastShadow(bool val)
 {
-    m_scene_entity->setCastShadows(val);
+    // Scene entity is NULL if disabled via addonpart/tuneup.
+    if (m_scene_entity)
+        m_scene_entity->setCastShadows(val);
 }
 
 void FlexBody::computeFlexbody()

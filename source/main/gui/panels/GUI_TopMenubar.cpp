@@ -1594,13 +1594,13 @@ void TopMenubar::Draw(float dt)
 
                 ImGui::SetNextItemOpen(true, ImGuiCond_FirstUseEver);
                 std::string addonparts_title = fmt::format(_LC("TopMenubar", "Addon parts ({})"), tuning_addonparts.cqy_results.size());
-                if (ImGui::CollapsingHeader(addonparts_title.c_str()))
+                if (ImGui::CollapsingHeader(addonparts_title.c_str()) && tuneup_entry)
                 {
                     for (CacheQueryResult& addonpart_result: tuning_addonparts.cqy_results)
                     {
                         ImGui::PushID(addonpart_result.cqr_entry->fname.c_str());
 
-                        bool used = tuning_actor->getUsedTuneupEntry()->tuneup_def->use_addonparts.count(addonpart_result.cqr_entry->fname) > 0;
+                        bool used = tuneup_entry->tuneup_def->use_addonparts.count(addonpart_result.cqr_entry->fname) > 0;
                         if (ImGui::Checkbox(addonpart_result.cqr_entry->dname.c_str(), &used))
                         {
                             ModifyProjectRequest* req = new ModifyProjectRequest();

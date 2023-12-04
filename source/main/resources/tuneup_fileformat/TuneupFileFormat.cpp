@@ -412,6 +412,7 @@ void RoR::TuneupUtil::ParseTuneupAttribute(const std::string& line, TuneupDefPtr
     if (attrib == "remove_flexbody" && params.size() == 2) { tuneup_def->remove_flexbodies.insert(PARSEINT(params[1])); return; }
     if (attrib == "protected_prop"     && params.size() == 2) { tuneup_def->protected_props.insert(PARSEINT(params[1])); return; }
     if (attrib == "protected_flexbody" && params.size() == 2) { tuneup_def->protected_flexbodies.insert(PARSEINT(params[1])); return; }
+    if (attrib == "forced_wheel_side" && params.size() == 3) { tuneup_def->wheel_forced_sides[PARSEINT(params[1])] = (WheelSide)PARSEINT(params[2]); return; }
 }
 
 void RoR::TuneupUtil::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tuneup)
@@ -449,6 +450,10 @@ void RoR::TuneupUtil::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tu
     for (FlexbodyID_t protected_flexbody: tuneup->protected_flexbodies)
     {
         buf << "\tprotected_flexbody = " << (int)protected_flexbody << "\n";
+    }
+    for (auto& pair: tuneup->wheel_forced_sides)
+    {
+        buf << "\tforced_wheel_side = " << pair.first << ", " << (int)pair.second << "\n";
     }
     buf << "}\n\n";
 

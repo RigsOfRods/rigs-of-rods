@@ -1351,8 +1351,12 @@ void CacheSystem::UnLoadResource(CacheEntryPtr& entry)
     {
         if (i_entry->resource_group == resource_group)
         {
-            i_entry->actor_def = nullptr; // Delete cached truck file - force reload from disk
-            i_entry->resource_group = ""; // Mark as unloaded
+            // Delete cached documents - force reload from disk
+            i_entry->actor_def = nullptr;
+            i_entry->tuneup_def = nullptr;
+            i_entry->skin_def = nullptr;
+            // Mark as unloaded
+            i_entry->resource_group = "";
         }
     }
 

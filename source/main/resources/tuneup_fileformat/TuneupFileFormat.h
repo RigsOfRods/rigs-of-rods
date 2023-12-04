@@ -91,8 +91,8 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
 
     std::map<NodeNum_t, TuneupNodeTweak>          node_tweaks;           //!< Node position overrides via 'addonpart_tweak_node'
     std::map<WheelID_t, TuneupWheelTweak>         wheel_tweaks;          //!< Mesh name and radius overrides via 'addonpart_tweak_wheel'
-    std::map<PropID_t, TuneupPropTweak>           prop_tweaks;
-    std::map<FlexbodyID_t, TuneupFlexbodyTweak>   flexbody_tweaks;
+    std::map<PropID_t, TuneupPropTweak>           prop_tweaks;           //!< Mesh name(s), offset and rotation overrides via 'addonpart_tweak_prop'
+    std::map<FlexbodyID_t, TuneupFlexbodyTweak>   flexbody_tweaks;       //!< Mesh name, offset and rotation overrides via 'addonpart_tweak_flexbody'
 
     std::set<PropID_t>                            remove_props;          //!< Either UI overrides or 'addonpart_unwanted_prop' directives.
     std::set<FlexbodyID_t>                        remove_flexbodies;     //!< Either UI overrides or 'addonpart_unwanted_flexbody' directives.
