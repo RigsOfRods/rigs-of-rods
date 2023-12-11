@@ -1234,6 +1234,27 @@ std::string CacheSystem::ComposeResourceGroupName(const CacheEntryPtr& entry)
     return fmt::format("{{bundle {}}}", name);
 }
 
+void CacheSystem::LoadSupplementaryDocuments(CacheEntryPtr& entry)
+{
+    // Because we use one resource group per bundle and multiple entries can share the same bundle,
+    //  we need to load the supplementary documents even if the bundle is already loaded.
+    // -------------------------------------------------------------------------------------------
+
+    if (!entry)
+        return;
+
+    ROR_ASSERT(entry->resource_group != "");
+
+    if (entry->fext == "skin")
+    {
+        this->LoadAssociatedSkinDef(entry);
+    }
+    else if (entry->fext == "tuneup")
+    {
+        this->LoadAssociatedTuneupDef(entry);
+    }
+}
+
 void CacheSystem::LoadResource(CacheEntryPtr& entry)
 {
     if (!entry)
@@ -1242,6 +1263,7 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
     // Check if already loaded for this entry->
     if (entry->resource_group != "")
     {
+        this->LoadSupplementaryDocuments(entry);
         return;
     }
 
@@ -1294,15 +1316,7 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
         ResourceGroupManager::getSingleton().initialiseResourceGroup(group);
         entry->resource_group = group;
 
-        // Attach supplementary documents
-        if (entry->fext == "skin")
-        {
-            this->LoadAssociatedSkinDef(entry);
-        }
-        else if (entry->fext == "tuneup")
-        {
-            this->LoadAssociatedTuneupDef(entry);
-        }
+        this->LoadSupplementaryDocuments(entry);
 
         // Inform other entries sharing this bundle (i.e. '.skin' entries in vehicle bundles)
         for (CacheEntryPtr& i_entry: m_entries)
@@ -1392,7 +1406,6 @@ void CacheSystem::LoadAssociatedSkinDef(CacheEntryPtr& cache_entry)
 
     try
     {
-        App::GetCacheSystem()->LoadResource(cache_entry); // Load if not already
         Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton()
             .openResource(cache_entry->fname, cache_entry->resource_group);
 
@@ -1442,7 +1455,6 @@ void CacheSystem::LoadAssociatedTuneupDef(CacheEntryPtr& cache_entry)
 
     try
     {
-        App::GetCacheSystem()->LoadResource(cache_entry); // Load if not already
         Ogre::DataStreamPtr ds = Ogre::ResourceGroupManager::getSingleton()
             .openResource(cache_entry->fname, cache_entry->resource_group);
 
@@ -1671,40 +1683,28 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
         tuneup_entry->tuneup_def->use_addonparts.erase(request->mpr_subject);
         break;
     
-    case ModifyProjectRequestType::TUNEUP_REMOVE_PROP_SET:
-        tuneup_entry->tuneup_def->remove_props.insert(request->mpr_subject_id);
-        if (request->mpr_subject_set_protected)
-            tuneup_entry->tuneup_def->protected_props.insert(request->mpr_subject_id);
+    case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_PROP_SET:
+        tuneup_entry->tuneup_def->force_remove_props.insert(request->mpr_subject_id);
         break;
 
-    case ModifyProjectRequestType::TUNEUP_REMOVE_PROP_RESET:
-        tuneup_entry->tuneup_def->remove_props.erase(request->mpr_subject_id);
-        if (request->mpr_subject_set_protected)
-            tuneup_entry->tuneup_def->protected_props.insert(request->mpr_subject_id);
+    case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_PROP_RESET:
+        tuneup_entry->tuneup_def->force_remove_props.erase(request->mpr_subject_id);
         break;
     
-    case ModifyProjectRequestType::TUNEUP_REMOVE_FLEXBODY_SET:
-        tuneup_entry->tuneup_def->remove_flexbodies.insert(request->mpr_subject_id);
-        if (request->mpr_subject_set_protected)
-            tuneup_entry->tuneup_def->protected_flexbodies.insert(request->mpr_subject_id);
+    case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLEXBODY_SET:
+        tuneup_entry->tuneup_def->force_remove_flexbodies.insert(request->mpr_subject_id);
         break;
 
-    case ModifyProjectRequestType::TUNEUP_REMOVE_FLEXBODY_RESET:
-        tuneup_entry->tuneup_def->remove_flexbodies.erase(request->mpr_subject_id);
-        if (request->mpr_subject_set_protected)
-            tuneup_entry->tuneup_def->protected_flexbodies.insert(request->mpr_subject_id);
+    case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLEXBODY_RESET:
+        tuneup_entry->tuneup_def->force_remove_flexbodies.erase(request->mpr_subject_id);
         break;
 
     case ModifyProjectRequestType::TUNEUP_FORCED_WHEEL_SIDE_SET:
-        tuneup_entry->tuneup_def->wheel_forced_sides[request->mpr_subject_id] = (WheelSide)request->mpr_value_int;
-        if (request->mpr_subject_set_protected)
-            tuneup_entry->tuneup_def->protected_wheels.insert(request->mpr_subject_id);
+        tuneup_entry->tuneup_def->force_wheel_sides[request->mpr_subject_id] = (WheelSide)request->mpr_value_int;
         break;
 
     case ModifyProjectRequestType::TUNEUP_FORCED_WHEEL_SIDE_RESET:
-        tuneup_entry->tuneup_def->wheel_forced_sides.erase(request->mpr_subject_id);
-        if (request->mpr_subject_set_protected)
-            tuneup_entry->tuneup_def->protected_wheels.insert(request->mpr_subject_id);
+        tuneup_entry->tuneup_def->force_wheel_sides.erase(request->mpr_subject_id);
         break;
 
     case ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_SET:
@@ -1729,7 +1729,6 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
 
     case ModifyProjectRequestType::TUNEUP_PROTECTED_WHEEL_RESET:
         tuneup_entry->tuneup_def->protected_wheels.erase(request->mpr_subject_id);
-        tuneup_entry->tuneup_def->wheel_forced_sides.erase(request->mpr_subject_id); // Unlike props and flexbodies, forced sides are not updated from addonparts - we must clear manually.
         break;
 
     case ModifyProjectRequestType::PROJECT_LOAD_TUNEUP:
@@ -1746,10 +1745,10 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
         this->LoadResource(save_entry);
         ROR_ASSERT(save_entry->tuneup_def);
 
-        tuneup_entry->tuneup_def->remove_flexbodies.clear();
-        tuneup_entry->tuneup_def->remove_flexbodies = save_entry->tuneup_def->remove_flexbodies;
-        tuneup_entry->tuneup_def->remove_props.clear();
-        tuneup_entry->tuneup_def->remove_props = save_entry->tuneup_def->remove_props;
+        tuneup_entry->tuneup_def->unwanted_flexbodies.clear();
+        tuneup_entry->tuneup_def->unwanted_flexbodies = save_entry->tuneup_def->unwanted_flexbodies;
+        tuneup_entry->tuneup_def->unwanted_props.clear();
+        tuneup_entry->tuneup_def->unwanted_props = save_entry->tuneup_def->unwanted_props;
         tuneup_entry->tuneup_def->use_addonparts.clear();
         tuneup_entry->tuneup_def->use_addonparts = save_entry->tuneup_def->use_addonparts;
         tuneup_entry->tuneup_def->wheel_tweaks.clear();
@@ -1760,8 +1759,8 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
     }
 
     case ModifyProjectRequestType::PROJECT_RESET_TUNEUP:
-        tuneup_entry->tuneup_def->remove_flexbodies.clear();
-        tuneup_entry->tuneup_def->remove_props.clear();
+        tuneup_entry->tuneup_def->unwanted_flexbodies.clear();
+        tuneup_entry->tuneup_def->unwanted_props.clear();
         tuneup_entry->tuneup_def->use_addonparts.clear();
         tuneup_entry->tuneup_def->wheel_tweaks.clear();
         tuneup_entry->tuneup_def->node_tweaks.clear();

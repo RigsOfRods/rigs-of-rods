@@ -85,7 +85,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     CacheCategoryId  category_id = CID_None;
     /// @}
 
-    /// @name Modding attributes and overrides
+    /// @name Addonparts and extracted data
     /// @{
     std::set<std::string>                         use_addonparts;        //!< Addonpart filenames
 
@@ -93,11 +93,19 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     std::map<WheelID_t, TuneupWheelTweak>         wheel_tweaks;          //!< Mesh name and radius overrides via 'addonpart_tweak_wheel'
     std::map<PropID_t, TuneupPropTweak>           prop_tweaks;           //!< Mesh name(s), offset and rotation overrides via 'addonpart_tweak_prop'
     std::map<FlexbodyID_t, TuneupFlexbodyTweak>   flexbody_tweaks;       //!< Mesh name, offset and rotation overrides via 'addonpart_tweak_flexbody'
+    std::set<PropID_t>                            unwanted_props;          //!< 'addonpart_unwanted_prop' directives.
+    std::set<FlexbodyID_t>                        unwanted_flexbodies;     //!< 'addonpart_unwanted_flexbody' directives.
+    /// @}
 
-    std::set<PropID_t>                            remove_props;          //!< Either UI overrides or 'addonpart_unwanted_prop' directives.
-    std::set<FlexbodyID_t>                        remove_flexbodies;     //!< Either UI overrides or 'addonpart_unwanted_flexbody' directives.
-    std::map<WheelID_t, WheelSide>                wheel_forced_sides;    //!< UI overrides only, not affected by addonparts.
+    /// @name UI-controlled forced changes (override addonparts)
+    /// @{
+    std::set<PropID_t>                            force_remove_props;      //!< UI overrides
+    std::set<FlexbodyID_t>                        force_remove_flexbodies; //!< UI overrides
+    std::map<WheelID_t, WheelSide>                force_wheel_sides;       //!< UI overrides
+    /// @}
 
+    /// @name UI-controlled protection from addonpart tweaks
+    /// @{
     std::set<NodeNum_t>                           protected_nodes;       //!< Nodes that cannot be altered via 'addonpart_tweak_node'
     std::set<WheelID_t>                           protected_wheels;      //!< Wheels that cannot be altered via 'addonpart_tweak_wheel'
     std::set<PropID_t>                            protected_props;       //!< Props which cannot be altered via 'addonpart_tweak_prop' or 'addonpart_remove_prop' directive.
@@ -112,6 +120,19 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     bool         isFlexbodyProtected(FlexbodyID_t flexbodyid) { return protected_flexbodies.find(flexbodyid) != protected_flexbodies.end(); }
     bool         isWheelProtected(int wheelid) const { return protected_wheels.find(wheelid) != protected_wheels.end(); }
     bool         isNodeProtected(NodeNum_t nodenum) const { return protected_nodes.find(nodenum) != protected_nodes.end(); }
+    /// @}
+
+    /// @name Unwanted-state helpers
+    /// @{
+    bool         isPropUnwanted(PropID_t propid) { return unwanted_props.find(propid) != unwanted_props.end(); }
+    bool         isFlexbodyUnwanted(FlexbodyID_t flexbodyid) { return unwanted_flexbodies.find(flexbodyid) != unwanted_flexbodies.end(); }
+    /// @}
+
+    /// @name Forced-state helpers
+    /// @{
+    bool         isPropForceRemoved(PropID_t propid) { return force_remove_props.find(propid) != force_remove_props.end(); }
+    bool         isFlexbodyForceRemoved(FlexbodyID_t flexbodyid) { return force_remove_flexbodies.find(flexbodyid) != force_remove_flexbodies.end(); }
+    bool         isWheelSideForced(int wheelid) const { return force_wheel_sides.find(wheelid) != force_wheel_sides.end(); }
     /// @}
 };
 

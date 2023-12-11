@@ -73,6 +73,7 @@ public:
     std::time_t addtimestamp;           //!< timestamp when this file was added to the cache
     Ogre::String uniqueid;              //!< file's unique id
     Ogre::String guid;                  //!< global unique id. Type "addonpart" leaves this empty.
+    std::set<std::string> addonpart_guids; //!< GUIDs of all vehicles this addonpart is used in. Empty for non-addonpart entries.
     int version;                        //!< file's version
     
     std::string resource_bundle_type;   //!< Archive type recognized by OGRE resource system: 'FileSystem' or 'Zip'
@@ -86,10 +87,10 @@ public:
 
     Ogre::String resource_group;        //!< Resource group of the loaded bundle. Empty if not loaded yet.
 
-    RigDef::DocumentPtr actor_def; //!< Cached actor definition (aka truckfile) after first spawn
+    RigDef::DocumentPtr actor_def; //!< Cached actor definition (aka truckfile) after first spawn.
     std::shared_ptr<RoR::SkinDef> skin_def;  //!< Cached skin info, added on first use or during cache rebuild
     RoR::TuneupDefPtr tuneup_def;  //!< Cached tuning info, added on first use or during cache rebuild
-    std::set<std::string> addonpart_guids;
+    // TBD: Make Terrn2Def a RefcountingObjectPtr<> and cache it here too.
 
     // following all TRUCK detail information:
     Ogre::String description;
@@ -225,10 +226,10 @@ enum class ModifyProjectRequestType
     NONE,
     TUNEUP_USE_ADDONPART_SET,          //!< 'subject' is addonpart filename.
     TUNEUP_USE_ADDONPART_RESET,        //!< 'subject' is addonpart filename.
-    TUNEUP_REMOVE_PROP_SET,            //!< 'subject_id' is prop ID.
-    TUNEUP_REMOVE_PROP_RESET,          //!< 'subject_id' is prop ID.
-    TUNEUP_REMOVE_FLEXBODY_SET,        //!< 'subject_id' is flexbody ID.
-    TUNEUP_REMOVE_FLEXBODY_RESET,      //!< 'subject_id' is flexbody ID.
+    TUNEUP_FORCEREMOVE_PROP_SET,       //!< 'subject_id' is prop ID.
+    TUNEUP_FORCEREMOVE_PROP_RESET,     //!< 'subject_id' is prop ID.
+    TUNEUP_FORCEREMOVE_FLEXBODY_SET,   //!< 'subject_id' is flexbody ID.
+    TUNEUP_FORCEREMOVE_FLEXBODY_RESET, //!< 'subject_id' is flexbody ID.
     TUNEUP_FORCED_WHEEL_SIDE_SET,      //!< 'subject_id' is wheel ID, 'value_int' is RoR::WheelSide
     TUNEUP_FORCED_WHEEL_SIDE_RESET,    //!< 'subject_id' is wheel ID.
     TUNEUP_PROTECTED_PROP_SET,         //!< 'subject_id' is prop ID.
@@ -250,9 +251,6 @@ struct ModifyProjectRequest
     std::string mpr_subject; // addonpart
     int mpr_subject_id = -1; // wheel, prop, flexbody, node
     int mpr_value_int;       // forced wheel side
-
-    // Protected state prevents addonparts from evaluating, which would undo user's selections.
-    bool mpr_subject_set_protected = false;
 };
 
 /// A content database
@@ -296,6 +294,7 @@ public:
     bool                  CheckResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
     void                  ReLoadResource(CacheEntryPtr& t); //!< Forces reloading the associated bundle.
     void                  UnLoadResource(CacheEntryPtr& t); //!< Unloads associated bundle, destroying all spawned actors.
+    void                  LoadSupplementaryDocuments(CacheEntryPtr& t); //!< Loads the associated .truck*, .skin and .tuneup files.
     /// @}
 
     /// @name Loading
