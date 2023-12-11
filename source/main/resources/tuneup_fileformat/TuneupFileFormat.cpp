@@ -49,10 +49,10 @@ TuneupDefPtr TuneupDef::clone()
     ret->category_id        =     this->category_id       ; //CacheCategoryId   
 
     // Modding attributes
-    ret->use_addonparts     =     this->use_addonparts    ; //std::set<std::string> 
-    ret->remove_props       =     this->remove_props      ; //std::set<std::string> 
-    ret->remove_flexbodies  =     this->remove_flexbodies ; //std::set<std::string> 
-    ret->protected_props    =     this->protected_props      ; //std::set<std::string> 
+    ret->use_addonparts       =   this->use_addonparts    ; //std::set<std::string> 
+    ret->unwanted_props       =   this->unwanted_props      ; //std::set<std::string> 
+    ret->unwanted_flexbodies  =   this->unwanted_flexbodies ; //std::set<std::string> 
+    ret->protected_props      =   this->protected_props      ; //std::set<std::string> 
     ret->protected_flexbodies =   this->protected_flexbodies ; //std::set<std::string> 
 
     return ret;
@@ -131,8 +131,8 @@ WheelSide RoR::TuneupUtil::getTweakedWheelSide(CacheEntryPtr& tuneup_entry, int 
 
     // First query the UI overrides
     {
-        auto itor = tuneup_entry->tuneup_def->wheel_forced_sides.find(wheel_id);
-        auto endi = tuneup_entry->tuneup_def->wheel_forced_sides.end();
+        auto itor = tuneup_entry->tuneup_def->force_wheel_sides.find(wheel_id);
+        auto endi = tuneup_entry->tuneup_def->force_wheel_sides.end();
         if (itor != endi)
             return itor->second;
     }
@@ -171,7 +171,7 @@ bool RoR::TuneupUtil::isPropRemoved(ActorPtr& actor, PropID_t prop_id)
 {
     return actor->getUsedTuneupEntry()
         && actor->getUsedTuneupEntry()->tuneup_def
-        && actor->getUsedTuneupEntry()->tuneup_def->remove_props.find(prop_id) != actor->getUsedTuneupEntry()->tuneup_def->remove_props.end();
+        && actor->getUsedTuneupEntry()->tuneup_def->unwanted_props.find(prop_id) != actor->getUsedTuneupEntry()->tuneup_def->unwanted_props.end();
 }
 
 Ogre::Vector3 RoR::TuneupUtil::getTweakedPropOffset(CacheEntryPtr& tuneup_entry, PropID_t prop_id, Ogre::Vector3 orig_val)
@@ -252,7 +252,7 @@ bool RoR::TuneupUtil::isFlexbodyRemoved(ActorPtr& actor, FlexbodyID_t flexbody_i
 {
     return actor->getUsedTuneupEntry()
         && actor->getUsedTuneupEntry()->tuneup_def
-        && actor->getUsedTuneupEntry()->tuneup_def->remove_flexbodies.find(flexbody_id) != actor->getUsedTuneupEntry()->tuneup_def->remove_flexbodies.end();
+        && actor->getUsedTuneupEntry()->tuneup_def->unwanted_flexbodies.find(flexbody_id) != actor->getUsedTuneupEntry()->tuneup_def->unwanted_flexbodies.end();
 }
 
 Ogre::Vector3 RoR::TuneupUtil::getTweakedFlexbodyOffset(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val)
@@ -406,13 +406,17 @@ void RoR::TuneupUtil::ParseTuneupAttribute(const std::string& line, TuneupDefPtr
     if (attrib == "guid"            && params.size() >= 2) { tuneup_def->guid = params[1]; Ogre::StringUtil::trim(tuneup_def->guid); Ogre::StringUtil::toLowerCase(tuneup_def->guid); return; }
     if (attrib == "name"            && params.size() >= 2) { tuneup_def->name = params[1]; Ogre::StringUtil::trim(tuneup_def->name); return; }
 
-    // Modding attributes
+    // Addonparts and extracted data
     if (attrib == "use_addonpart"   && params.size() == 2) { tuneup_def->use_addonparts.insert(params[1]); return; }
-    if (attrib == "remove_prop"     && params.size() == 2) { tuneup_def->remove_props.insert(PARSEINT(params[1])); return; }
-    if (attrib == "remove_flexbody" && params.size() == 2) { tuneup_def->remove_flexbodies.insert(PARSEINT(params[1])); return; }
+    if (attrib == "unwanted_prop"     && params.size() == 2) { tuneup_def->unwanted_props.insert(PARSEINT(params[1])); return; }
+    if (attrib == "unwanted_flexbody" && params.size() == 2) { tuneup_def->unwanted_flexbodies.insert(PARSEINT(params[1])); return; }
     if (attrib == "protected_prop"     && params.size() == 2) { tuneup_def->protected_props.insert(PARSEINT(params[1])); return; }
     if (attrib == "protected_flexbody" && params.size() == 2) { tuneup_def->protected_flexbodies.insert(PARSEINT(params[1])); return; }
-    if (attrib == "forced_wheel_side" && params.size() == 3) { tuneup_def->wheel_forced_sides[PARSEINT(params[1])] = (WheelSide)PARSEINT(params[2]); return; }
+
+    // UI overrides
+    if (attrib == "forced_wheel_side" && params.size() == 3) { tuneup_def->force_wheel_sides[PARSEINT(params[1])] = (WheelSide)PARSEINT(params[2]); return; }
+    if (attrib == "force_remove_prop" && params.size() == 2) { tuneup_def->force_remove_props.insert(PARSEINT(params[1])); return; }
+    if (attrib == "force_remove_flexbody" && params.size() == 2) { tuneup_def->force_remove_flexbodies.insert(PARSEINT(params[1])); return; }
 }
 
 void RoR::TuneupUtil::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tuneup)
@@ -430,18 +434,18 @@ void RoR::TuneupUtil::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tu
     buf << "\tguid = "        << tuneup->guid         << "\n";
     buf << "\n";
 
-    // Modding attributes:
+    // Addonparts and extracted data:
     for (const std::string& addonpart: tuneup->use_addonparts)
     {
         buf << "\tuse_addonpart = " << addonpart << "\n";
     }
-    for (PropID_t remove_prop: tuneup->remove_props)
+    for (PropID_t unwanted_prop: tuneup->unwanted_props)
     {
-        buf << "\tremove_prop = " << (int)remove_prop << "\n";
+        buf << "\tunwanted_prop = " << (int)unwanted_prop << "\n";
     }
-    for (FlexbodyID_t remove_flexbody: tuneup->remove_flexbodies)
+    for (FlexbodyID_t unwanted_flexbody: tuneup->unwanted_flexbodies)
     {
-        buf << "\tremove_flexbody = " << (int)remove_flexbody << "\n";
+        buf << "\tunwanted_flexbody = " << (int)unwanted_flexbody << "\n";
     }
     for (PropID_t protected_prop: tuneup->protected_props)
     {
@@ -451,7 +455,17 @@ void RoR::TuneupUtil::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tu
     {
         buf << "\tprotected_flexbody = " << (int)protected_flexbody << "\n";
     }
-    for (auto& pair: tuneup->wheel_forced_sides)
+
+    // UI overrides:
+    for (PropID_t prop: tuneup->force_remove_props)
+    {
+        buf << "\tforce_remove_prop = " << (int)prop << "\n";
+    }
+    for (FlexbodyID_t flexbody: tuneup->force_remove_flexbodies)
+    {
+        buf << "\tforce_remove_flexbody = " << (int)flexbody << "\n";
+    }
+    for (auto& pair: tuneup->force_wheel_sides)
     {
         buf << "\tforced_wheel_side = " << pair.first << ", " << (int)pair.second << "\n";
     }

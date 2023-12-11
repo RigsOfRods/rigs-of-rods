@@ -1648,7 +1648,7 @@ void TopMenubar::Draw(float dt)
 
                 // Draw props
                 size_t total_props = tuning_actor->GetGfxActor()->getProps().size();
-                std::string props_title = fmt::format(_LC("TopMenubar", "Props ({})"), total_props);
+                std::string props_title = fmt::format(_LC("Tuning", "Props ({})"), total_props);
                 if (ImGui::CollapsingHeader(props_title.c_str()) && tuneup_entry)
                 {
                     // Draw all props (those removed by addonparts are also present as placeholders)
@@ -1660,14 +1660,13 @@ void TopMenubar::Draw(float dt)
                         this->DrawTuningBoxedSubjectIdInline(p.pp_id);
 
                         // Draw the checkbox for removing/remounting.
-                        bool propEnabled = tuneup_entry->tuneup_def->remove_props.find(p.pp_id) == tuneup_entry->tuneup_def->remove_props.end();
+                        bool propEnabled = !tuneup_entry->tuneup_def->isPropUnwanted(p.pp_id) && !tuneup_entry->tuneup_def->isPropForceRemoved(p.pp_id);
                         if (ImGui::Checkbox(p.pp_media[0].c_str(), &propEnabled))
                         {
                             ModifyProjectRequest* req = new ModifyProjectRequest();
-                            req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_PROP_SET;
+                            req->mpr_type = ModifyProjectRequestType::TUNEUP_FORCEREMOVE_PROP_SET;
                             req->mpr_subject_id = p.pp_id;
                             req->mpr_target_actor = tuning_actor;
-                            req->mpr_subject_set_protected = true; // stop evaluating addonparts for the prop (that would undo the user selection).
                             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
                         }
 
@@ -1709,7 +1708,7 @@ void TopMenubar::Draw(float dt)
 
                 // Ditto for flexbodies
                 size_t total_flexbodies = tuning_actor->GetGfxActor()->GetFlexbodies().size();
-                std::string flexbodies_title = fmt::format(_LC("TopMenubar", "Flexbodies ({})"), total_flexbodies);
+                std::string flexbodies_title = fmt::format(_LC("Tuning", "Flexbodies ({})"), total_flexbodies);
                 if (ImGui::CollapsingHeader(flexbodies_title.c_str()) && tuneup_entry)
                 {
                     // Draw all flexbodies (those removed by addonparts are also present as placeholders)
@@ -1720,17 +1719,40 @@ void TopMenubar::Draw(float dt)
 
                         this->DrawTuningBoxedSubjectIdInline(flexbody->getID());
 
-                        // Draw the checkbox for removing/remounting.
-                        bool flexbodyEnabled = tuneup_entry->tuneup_def->remove_flexbodies.find(flexbody->getID()) == tuneup_entry->tuneup_def->remove_flexbodies.end();
-                        if (ImGui::Checkbox(flexbody->getOrigMeshName().c_str(), &flexbodyEnabled))
+                        // Draw the checkbox for force-removing.
+                        bool flexbodyEnabled = !tuneup_entry->tuneup_def->isFlexbodyUnwanted(flexbody->getID()) && !tuneup_entry->tuneup_def->isFlexbodyForceRemoved(flexbody->getID());
+                        if (tuneup_entry->tuneup_def->isFlexbodyForceRemoved(flexbody->getID()))
                         {
+                            ImGui::PushStyleColor(ImGuiCol_Border, ORANGE_TEXT);
+                            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
+                        }
+                        bool chkPressed = ImGui::Checkbox(flexbody->getOrigMeshName().c_str(), &flexbodyEnabled);
+                        bool resetPressed = false;
+                        if (tuneup_entry->tuneup_def->isFlexbodyForceRemoved(flexbody->getID()))
+                        {
+                            ImGui::SameLine();
+                            ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
+                            resetPressed = ImGui::SmallButton(_LC("Tuning", "Reset"));
+                            ImGui::PopStyleColor(); //ImGuiCol_Text, GRAY_HINT_TEXT
+                            ImGui::PopStyleVar(); //ImGuiStyleVar_FrameBorderSize, 1.f
+                            ImGui::PopStyleColor(); //ImGuiCol_Border, ORANGE_TEXT
+                        }
 
-
+                        // perform project modification if needed
+                        if (chkPressed && !flexbodyEnabled)
+                        {
                             ModifyProjectRequest* req = new ModifyProjectRequest();
-                            req->mpr_type = ModifyProjectRequestType::TUNEUP_REMOVE_FLEXBODY_SET;
+                            req->mpr_type = ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLEXBODY_SET;
                             req->mpr_subject_id = flexbody->getID();
                             req->mpr_target_actor = tuning_actor;
-                            req->mpr_subject_set_protected = true; // stop evaluating addonparts for the flexbody (that would undo the user selection).
+                            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+                        }
+                        else if ((chkPressed && flexbodyEnabled) || resetPressed)
+                        {
+                            ModifyProjectRequest* req = new ModifyProjectRequest();
+                            req->mpr_type = ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLEXBODY_RESET;
+                            req->mpr_subject_id = flexbody->getID();
+                            req->mpr_target_actor = tuning_actor;
                             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
                         }
 
@@ -1757,6 +1779,11 @@ void TopMenubar::Draw(float dt)
                         this->DrawTuningBoxedSubjectIdInline(i);
 
                         // Draw R/L radio buttons
+                        if (tuneup_entry->tuneup_def->isWheelSideForced(i))
+                        {
+                            ImGui::PushStyleColor(ImGuiCol_Border, ORANGE_TEXT);
+                            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
+                        }
                         const RoR::WheelSide active_side = TuneupUtil::getTweakedWheelSide(tuneup_entry, i, tuning_actor->GetGfxActor()->getWheelSide(i));
                         RoR::WheelSide selected_side = active_side;
                         if (ImGui::RadioButton("##L", active_side == WheelSide::LEFT))
@@ -1767,7 +1794,25 @@ void TopMenubar::Draw(float dt)
                         if (ImGui::RadioButton("##R", active_side == WheelSide::RIGHT))
                             selected_side = WheelSide::RIGHT;
 
-                        // Apply selection
+                        // Draw rim mesh name
+                        ImGui::SameLine();
+                        ImGui::Text("%s", tuning_actor->GetGfxActor()->getWheelRimMeshName(i).c_str());
+
+                        // Draw reset button
+
+                        bool resetPressed = false;
+                        if (tuneup_entry->tuneup_def->isWheelSideForced(i))
+                        {
+                            ImGui::SameLine();
+                            ImGui::SameLine();
+                            ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
+                            resetPressed = ImGui::SmallButton(_LC("Tuning", "Reset"));
+                            ImGui::PopStyleColor(); //ImGuiCol_Text, GRAY_HINT_TEXT
+                            ImGui::PopStyleVar(); //ImGuiStyleVar_FrameBorderSize, 1.f
+                            ImGui::PopStyleColor(); //ImGuiCol_Border, ORANGE_TEXT
+                        }
+
+                        // modify project if needed
                         if (selected_side != active_side)
                         {
                             ModifyProjectRequest* req = new ModifyProjectRequest();
@@ -1775,13 +1820,16 @@ void TopMenubar::Draw(float dt)
                             req->mpr_subject_id = i;
                             req->mpr_value_int = (int)selected_side;
                             req->mpr_target_actor = tuning_actor;
-                            req->mpr_subject_set_protected = true; // stop evaluating addonparts for the wheel (that would undo the user selection).
                             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));                        
                         }
-
-                        // Draw rim mesh name
-                        ImGui::SameLine();
-                        ImGui::Text("%s", tuning_actor->GetGfxActor()->getWheelRimMeshName(i).c_str());
+                        else if (resetPressed)
+                        {
+                            ModifyProjectRequest* req = new ModifyProjectRequest();
+                            req->mpr_type = ModifyProjectRequestType::TUNEUP_FORCED_WHEEL_SIDE_RESET;
+                            req->mpr_subject_id = i;
+                            req->mpr_target_actor = tuning_actor;
+                            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+                        }
 
                         this->DrawTuningProtectedChkRightAligned(
                             i,
