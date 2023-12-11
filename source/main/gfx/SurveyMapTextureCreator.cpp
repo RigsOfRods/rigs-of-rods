@@ -35,7 +35,7 @@ static int counter = 0;
 SurveyMapTextureCreator::SurveyMapTextureCreator(Ogre::Real terrain_height) :
     mCamera(nullptr),
     mRttTex(nullptr),
-    mTerrainHeight(Math::Clamp(terrain_height + 100.0f, 150.0f, 420.0f))
+    mTerrainHeight(Math::Clamp(terrain_height + 100.0f, 150.0f, 2500.0f))
 {
     counter++;
     mTextureName = "MapRttTex-" + TOSTRING(counter);
