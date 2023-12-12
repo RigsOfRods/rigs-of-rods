@@ -167,11 +167,11 @@ Ogre::Vector3 RoR::TuneupUtil::getTweakedNodePosition(CacheEntryPtr& tuneup_entr
 
 
 // > prop
-bool RoR::TuneupUtil::isPropRemoved(ActorPtr& actor, PropID_t prop_id)
+bool RoR::TuneupUtil::isPropAnyhowRemoved(ActorPtr& actor, PropID_t prop_id)
 {
     return actor->getUsedTuneupEntry()
         && actor->getUsedTuneupEntry()->tuneup_def
-        && actor->getUsedTuneupEntry()->tuneup_def->unwanted_props.find(prop_id) != actor->getUsedTuneupEntry()->tuneup_def->unwanted_props.end();
+        && (actor->getUsedTuneupEntry()->tuneup_def->isPropUnwanted(prop_id) || actor->getUsedTuneupEntry()->tuneup_def->isPropForceRemoved(prop_id));
 }
 
 Ogre::Vector3 RoR::TuneupUtil::getTweakedPropOffset(CacheEntryPtr& tuneup_entry, PropID_t prop_id, Ogre::Vector3 orig_val)
@@ -248,11 +248,11 @@ std::string RoR::TuneupUtil::getTweakedPropMediaRG(ActorPtr& actor, PropID_t pro
 
 
 // > flexbody
-bool RoR::TuneupUtil::isFlexbodyRemoved(ActorPtr& actor, FlexbodyID_t flexbody_id)
+bool RoR::TuneupUtil::isFlexbodyAnyhowRemoved(ActorPtr& actor, FlexbodyID_t flexbody_id)
 {
     return actor->getUsedTuneupEntry()
         && actor->getUsedTuneupEntry()->tuneup_def
-        && actor->getUsedTuneupEntry()->tuneup_def->unwanted_flexbodies.find(flexbody_id) != actor->getUsedTuneupEntry()->tuneup_def->unwanted_flexbodies.end();
+        && (actor->getUsedTuneupEntry()->tuneup_def->isFlexbodyUnwanted(flexbody_id) || actor->getUsedTuneupEntry()->tuneup_def->isFlexbodyForceRemoved(flexbody_id));
 }
 
 Ogre::Vector3 RoR::TuneupUtil::getTweakedFlexbodyOffset(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val)
