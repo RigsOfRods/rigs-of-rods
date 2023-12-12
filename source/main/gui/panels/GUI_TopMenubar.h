@@ -119,6 +119,7 @@ private:
     // Tuning menu helpers
     void DrawTuningBoxedSubjectIdInline(int subject_id);
     void DrawTuningProtectedChkRightAligned(int subject_id, bool is_protected, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset);
+    void DrawTuningForceRemoveControls(const int subject_id, const std::string& name, const bool is_unwanted, const bool is_force_removed, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset);
 
     ImVec2  m_open_menu_hoverbox_min;
     ImVec2  m_open_menu_hoverbox_max;

@@ -1659,17 +1659,15 @@ void TopMenubar::Draw(float dt)
 
                         this->DrawTuningBoxedSubjectIdInline(p.pp_id);
 
-                        // Draw the checkbox for removing/remounting.
-                        bool propEnabled = !tuneup_entry->tuneup_def->isPropUnwanted(p.pp_id) && !tuneup_entry->tuneup_def->isPropForceRemoved(p.pp_id);
-                        if (ImGui::Checkbox(p.pp_media[0].c_str(), &propEnabled))
-                        {
-                            ModifyProjectRequest* req = new ModifyProjectRequest();
-                            req->mpr_type = ModifyProjectRequestType::TUNEUP_FORCEREMOVE_PROP_SET;
-                            req->mpr_subject_id = p.pp_id;
-                            req->mpr_target_actor = tuning_actor;
-                            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
-                        }
+                        this->DrawTuningForceRemoveControls(
+                            p.pp_id,
+                            p.pp_media[0],
+                            tuneup_entry->tuneup_def->isPropUnwanted(p.pp_id),
+                            tuneup_entry->tuneup_def->isPropForceRemoved(p.pp_id),
+                            ModifyProjectRequestType::TUNEUP_FORCEREMOVE_PROP_SET,
+                            ModifyProjectRequestType::TUNEUP_FORCEREMOVE_PROP_RESET);
 
+                        // Draw special prop tooltip
                         if (p.pp_beacon_type == 'L' || p.pp_beacon_type == 'R' || p.pp_beacon_type == 'w')
                         {
                             ImGui::SameLine();
@@ -1719,42 +1717,13 @@ void TopMenubar::Draw(float dt)
 
                         this->DrawTuningBoxedSubjectIdInline(flexbody->getID());
 
-                        // Draw the checkbox for force-removing.
-                        bool flexbodyEnabled = !tuneup_entry->tuneup_def->isFlexbodyUnwanted(flexbody->getID()) && !tuneup_entry->tuneup_def->isFlexbodyForceRemoved(flexbody->getID());
-                        if (tuneup_entry->tuneup_def->isFlexbodyForceRemoved(flexbody->getID()))
-                        {
-                            ImGui::PushStyleColor(ImGuiCol_Border, ORANGE_TEXT);
-                            ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
-                        }
-                        bool chkPressed = ImGui::Checkbox(flexbody->getOrigMeshName().c_str(), &flexbodyEnabled);
-                        bool resetPressed = false;
-                        if (tuneup_entry->tuneup_def->isFlexbodyForceRemoved(flexbody->getID()))
-                        {
-                            ImGui::SameLine();
-                            ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
-                            resetPressed = ImGui::SmallButton(_LC("Tuning", "Reset"));
-                            ImGui::PopStyleColor(); //ImGuiCol_Text, GRAY_HINT_TEXT
-                            ImGui::PopStyleVar(); //ImGuiStyleVar_FrameBorderSize, 1.f
-                            ImGui::PopStyleColor(); //ImGuiCol_Border, ORANGE_TEXT
-                        }
-
-                        // perform project modification if needed
-                        if (chkPressed && !flexbodyEnabled)
-                        {
-                            ModifyProjectRequest* req = new ModifyProjectRequest();
-                            req->mpr_type = ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLEXBODY_SET;
-                            req->mpr_subject_id = flexbody->getID();
-                            req->mpr_target_actor = tuning_actor;
-                            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
-                        }
-                        else if ((chkPressed && flexbodyEnabled) || resetPressed)
-                        {
-                            ModifyProjectRequest* req = new ModifyProjectRequest();
-                            req->mpr_type = ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLEXBODY_RESET;
-                            req->mpr_subject_id = flexbody->getID();
-                            req->mpr_target_actor = tuning_actor;
-                            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
-                        }
+                        this->DrawTuningForceRemoveControls(
+                            flexbody->getID(),
+                            flexbody->getOrigMeshName(),
+                            tuneup_entry->tuneup_def->isFlexbodyUnwanted(flexbody->getID()),
+                            tuneup_entry->tuneup_def->isFlexbodyForceRemoved(flexbody->getID()),
+                            ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLEXBODY_SET,
+                            ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLEXBODY_RESET);
 
                         this->DrawTuningProtectedChkRightAligned(
                             flexbody->getID(),
@@ -2366,4 +2335,48 @@ void TopMenubar::DrawTuningBoxedSubjectIdInline(int subject_id)
     ImGui::Text("%02d", subject_id);
     ImGui::SameLine();
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetStyle().FramePadding.x); 
+}
+
+void TopMenubar::DrawTuningForceRemoveControls(const int subject_id, const std::string& name, const bool is_unwanted, const bool is_force_removed, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset)
+{
+    // Common for props and flexbodies: draws the force-remove checkbox and the reset button
+    // ------------------------------------------------------------------------------------
+
+    // Draw the checkbox for force-removing.
+    bool isEnabled = !is_unwanted && !is_force_removed;
+    if (is_force_removed)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Border, ORANGE_TEXT);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
+    }
+    bool chkPressed = ImGui::Checkbox(name.c_str(), &isEnabled);
+    bool resetPressed = false;
+    if (is_force_removed)
+    {
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
+        resetPressed = ImGui::SmallButton(_LC("Tuning", "Reset"));
+        ImGui::PopStyleColor(); //ImGuiCol_Text, GRAY_HINT_TEXT
+        ImGui::PopStyleVar(); //ImGuiStyleVar_FrameBorderSize, 1.f
+        ImGui::PopStyleColor(); //ImGuiCol_Border, ORANGE_TEXT
+    }
+
+    // perform project modification if needed
+    if (chkPressed && !isEnabled)
+    {
+        ModifyProjectRequest* req = new ModifyProjectRequest();
+        req->mpr_type = request_type_set;
+        req->mpr_subject_id = subject_id;
+        req->mpr_target_actor = tuning_actor;
+        App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+    }
+    else if ((chkPressed && isEnabled) || resetPressed)
+    {
+        ModifyProjectRequest* req = new ModifyProjectRequest();
+        req->mpr_type = request_type_reset;
+        req->mpr_subject_id = subject_id;
+        req->mpr_target_actor = tuning_actor;
+        App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+    }
+
 }

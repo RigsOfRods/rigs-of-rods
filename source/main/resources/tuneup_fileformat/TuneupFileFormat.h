@@ -143,24 +143,32 @@ public:
     static std::vector<TuneupDefPtr> ParseTuneups(Ogre::DataStreamPtr& stream);
     static void ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tuneup);
 
-    /// @name Tweaking helpers
+    /// @name Wheel helpers
     /// @{
-    // > wheel
     static float              getTweakedWheelTireRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val);
     static float              getTweakedWheelRimRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val);
     static std::string        getTweakedWheelMedia(CacheEntryPtr& tuneup_entry, int wheel_id, int media_idx, const std::string& orig_val);
     static std::string        getTweakedWheelMediaRG(ActorPtr& actor, int wheel_id, int media_idx);
-    static WheelSide  getTweakedWheelSide(CacheEntryPtr& tuneup_entry, int wheel_id, WheelSide orig_val);
-    // > node
+    static WheelSide          getTweakedWheelSide(CacheEntryPtr& tuneup_entry, int wheel_id, WheelSide orig_val);
+    /// @}
+
+    /// @name Node helpers
+    /// @{
     static Ogre::Vector3      getTweakedNodePosition(CacheEntryPtr& tuneup_entry, NodeNum_t nodenum, Ogre::Vector3 orig_val);
-    // > prop
-    static bool               isPropRemoved(ActorPtr& actor, PropID_t prop_id);
+    /// @}
+
+    /// @name Prop helpers
+    /// @{
+    static bool               isPropAnyhowRemoved(ActorPtr& actor, PropID_t prop_id);
     static Ogre::Vector3      getTweakedPropOffset(CacheEntryPtr& tuneup_entry, PropID_t prop_id, Ogre::Vector3 orig_val);
     static Ogre::Vector3      getTweakedPropRotation(CacheEntryPtr& tuneup_entry, PropID_t prop_id, Ogre::Vector3 orig_val);
     static std::string        getTweakedPropMedia(CacheEntryPtr& tuneup_entry, PropID_t prop_id, int media_idx, const std::string& orig_val);
     static std::string        getTweakedPropMediaRG(ActorPtr& actor, PropID_t prop_id, int media_idx);
-    // > flexbody
-    static bool               isFlexbodyRemoved(ActorPtr& actor, FlexbodyID_t flexbody_id);
+    /// @}
+
+    /// @name Flexbody helpers
+    /// @{
+    static bool               isFlexbodyAnyhowRemoved(ActorPtr& actor, FlexbodyID_t flexbody_id);
     static Ogre::Vector3      getTweakedFlexbodyOffset(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val);
     static Ogre::Vector3      getTweakedFlexbodyRotation(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val);
     static std::string        getTweakedFlexbodyMedia(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val);

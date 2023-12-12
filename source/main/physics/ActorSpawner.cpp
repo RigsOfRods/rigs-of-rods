@@ -1497,7 +1497,7 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
     const FlexbodyID_t flexbody_id = (FlexbodyID_t)m_actor->m_gfx_actor->m_flexbodies.size();
 
     // Check if disabled by .tuneup mod.
-    if (TuneupUtil::isFlexbodyRemoved(m_actor, flexbody_id))
+    if (TuneupUtil::isFlexbodyAnyhowRemoved(m_actor, flexbody_id))
     {
         // Create placeholder
         m_actor->m_gfx_actor->m_flexbodies.emplace_back(new FlexBody(FlexBody::TUNING_PLACEHOLDER, flexbody_id, def.mesh_name));
@@ -1567,7 +1567,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     PropID_t prop_id = static_cast<int>(m_actor->m_gfx_actor->m_props.size());
 
     // Check if removed via .tuneup
-    if (TuneupUtil::isPropRemoved(m_actor, prop_id))
+    if (TuneupUtil::isPropAnyhowRemoved(m_actor, prop_id))
     {
         RoR::Prop pprop; // placeholder
         pprop.pp_id = prop_id;
