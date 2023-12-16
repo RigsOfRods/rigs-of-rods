@@ -4350,7 +4350,7 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         TuneupUtil::getTweakedWheelSide(m_actor->getUsedTuneupEntry(), wheel_id, def.side),
         TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, def.rim_mesh_name),
         TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0),
-        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 1, def.rim_mesh_name),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 1, def.tyre_mesh_name),
         TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 1)
     ); 
 
@@ -5086,8 +5086,8 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
             node_base_index,
             axis_node_1,
             axis_node_2,
-            Ogre::Vector3(0.5,0,0),
-            Ogre::Vector3(Ogre::Degree(90).valueRadians(), 0, 0), // ?? Orig: Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3::UNIT_Y)
+            Ogre::Vector3(0.5f, 0.5f, 0.f),
+            Ogre::Vector3(0.f, 0.f, 0.f),
             node_indices,
             tire_mesh_name,
             tire_mesh_rg
