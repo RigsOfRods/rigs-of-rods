@@ -116,12 +116,6 @@ void AddonPartUtility::ResolveUnwantedAndTweakedElements(TuneupDefPtr& tuneup, C
     m_addonpart_entry = addonpart_entry;
     m_tuneup = tuneup;
 
-    // Reset tweak data - to be reloaded from addonpart
-    m_tuneup->prop_tweaks.clear();
-    m_tuneup->flexbody_tweaks.clear();
-    m_tuneup->wheel_tweaks.clear();
-    m_tuneup->node_tweaks.clear();
-
     try
     {
         Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().openResource(addonpart_entry->fname, addonpart_entry->resource_group);
@@ -173,6 +167,8 @@ void AddonPartUtility::ResetUnwantedAndTweakedElements(TuneupDefPtr& tuneup)
     // Tweaked
     tuneup->node_tweaks.clear();
     tuneup->wheel_tweaks.clear();
+    tuneup->prop_tweaks.clear();
+    tuneup->flexbody_tweaks.clear();
 }
 
 
