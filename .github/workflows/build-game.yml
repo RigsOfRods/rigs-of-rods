@@ -68,7 +68,7 @@ jobs:
         shell: bash
 
       - name: Upload redist folder
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ror-linux
           path: redist
@@ -124,7 +124,7 @@ jobs:
         shell: cmd
 
       - name: Upload redist folder
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ror-win
           path: redist
