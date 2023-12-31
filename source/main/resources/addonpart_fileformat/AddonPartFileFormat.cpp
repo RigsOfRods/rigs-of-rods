@@ -333,13 +333,14 @@ void AddonPartUtility::ProcessTweakWheel()
             if (m_tuneup->wheel_tweaks.find(wheel_id) == m_tuneup->wheel_tweaks.end())
             {
                 TuneupWheelTweak data;
+                bool stop = false;
                 data.twt_origin = m_addonpart_entry->fname;
                 data.twt_wheel_id = wheel_id;
                 data.twt_media[0] = m_context->getTokString(2);
-                if (m_context->isTokString(3)) { data.twt_media[1] = m_context->getTokString(3); }
-                if (m_context->isTokString(4)) { data.twt_side = (m_context->getTokString(4)[0] == 'l') ? WheelSide::LEFT : WheelSide::RIGHT; }
-                if (m_context->isTokFloat(5)) { data.twt_rim_radius = m_context->getTokFloat(5); }
-                if (m_context->isTokFloat(6)) { data.twt_tire_radius = m_context->getTokFloat(6); }
+                if (!stop && m_context->isTokString(3)) { data.twt_media[1] = m_context->getTokString(3); } else { stop=true; }
+                if (!stop && m_context->isTokString(4)) { data.twt_side = (m_context->getTokString(4)[0] == 'l') ? WheelSide::LEFT : WheelSide::RIGHT; } else { stop=true; }
+                if (!stop && m_context->isTokFloat(5)) { data.twt_tire_radius = m_context->getTokFloat(5); } else { stop=true; }
+                if (!stop && m_context->isTokFloat(6)) { data.twt_rim_radius = m_context->getTokFloat(6); } else { stop=true; }
                 m_tuneup->wheel_tweaks.insert(std::make_pair(wheel_id, data));
             
                 LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': tweaking wheel {}"
