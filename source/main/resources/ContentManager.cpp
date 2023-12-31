@@ -246,6 +246,12 @@ void ContentManager::InitContentManager()
 void ContentManager::InitModCache(CacheValidity validity)
 {
     // Sets up RGN_CONTENT which encompasses all mods, scans it for changes and deletes it again.
+    // IMPORTANT NOTE ON 'readOnly' FLAG:
+    //   We need mods in subdirs to be writable for the Tuning menu to work.
+    //   Apart from `Resources` and resource groups, OGRE also keeps `Archives` in `ArchiveManager`
+    //   These aren't unloaded on destroying resource groups, and keep a 'readOnly' flag (defaults to true).
+    //   Upon loading/creating new resource groups, OGRE complains (=assert on Debug, exception on Release) if the submitted flag doesn't match.
+    //   It's possible to manually unload archives to reset the flag, but for simplicity we just always load subdirs as 'writable', even during modcache update.
     // ------------------------------------------------------------------------------------------
 
     ResourceGroupManager::getSingleton().addResourceLocation(
@@ -295,7 +301,7 @@ void ContentManager::InitModCache(CacheValidity validity)
         if (!dir_fileinfo.archive)
             continue;
         String fullpath = PathCombine(dir_fileinfo.archive->getName(), dir_fileinfo.filename);
-        ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "FileSystem", RGN_CONTENT);
+        ResourceGroupManager::getSingleton().addResourceLocation(fullpath, "FileSystem", RGN_CONTENT, /*recursive:*/false, /*readonly:*/false);
     }
     ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_TEMP);
 
@@ -308,19 +314,6 @@ void ContentManager::InitModCache(CacheValidity validity)
     App::GetCacheSystem()->LoadModCache(validity);
 
     ResourceGroupManager::getSingleton().destroyResourceGroup(RGN_CONTENT);
-
-    // Apart from `Resources` and resource groups, OGRE also keeps `Archives` in `ArchiveManager`
-    // These aren't unloaded on destroying resource groups, and keep a 'readOnly' flag (defaults to true).
-    // Upon loading/creating new resource groups, OGRE complains if the submitted flag doesn't match.
-    // Since we want to make subdirs (with upacked mods) writable, we must purge subdir-archives now.
-    
-    for (const auto& dir_fileinfo : *dirs)
-    {
-        if (!dir_fileinfo.archive)
-            continue;
-        String fullpath = PathCombine(dir_fileinfo.archive->getName(), dir_fileinfo.filename);
-        ArchiveManager::getSingleton().unload(fullpath);
-    }
     
 }
 
