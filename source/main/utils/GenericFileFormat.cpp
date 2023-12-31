@@ -66,6 +66,9 @@ struct DocumentParser
     PartialToken partial_tok_type = PartialToken::NONE;
     bool title_found = false; // Only for OPTION_FIRST_LINE_IS_TITLE
 
+    void ProcessChar(const char c);
+    void ProcessEOF();
+
     void BeginToken(const char c);
     void UpdateComment(const char c);
     void UpdateString(const char c);
@@ -872,6 +875,81 @@ void DocumentParser::FlushNumericToken()
     partial_tok_type = PartialToken::NONE;
 }
 
+void DocumentParser::ProcessChar(const char c)
+{
+    switch (partial_tok_type)
+    {
+    case PartialToken::NONE:
+        this->BeginToken(c);
+        break;
+
+    case PartialToken::COMMENT_SEMICOLON:
+    case PartialToken::COMMENT_SLASH:
+    case PartialToken::COMMENT_HASH:
+        this->UpdateComment(c);
+        break;
+
+    case PartialToken::STRING_QUOTED:
+    case PartialToken::STRING_NAKED:
+    case PartialToken::STRING_NAKED_CAPTURING_SPACES:
+        this->UpdateString(c);
+        break;
+
+    case PartialToken::NUMBER_INTEGER:
+    case PartialToken::NUMBER_DECIMAL:
+    case PartialToken::NUMBER_SCIENTIFIC:
+    case PartialToken::NUMBER_SCIENTIFIC_STUB:
+    case PartialToken::NUMBER_SCIENTIFIC_STUB_MINUS:
+        this->UpdateNumber(c);
+        break;
+
+    case PartialToken::BOOL_TRUE:
+    case PartialToken::BOOL_FALSE:
+        this->UpdateBool(c);
+        break;
+
+    case PartialToken::KEYWORD:
+    case PartialToken::KEYWORD_BRACED:
+        this->UpdateKeyword(c);
+        break;
+
+    case PartialToken::TITLE_STRING:
+        this->UpdateTitle(c);
+        break;
+
+    case PartialToken::GARBAGE:
+        this->UpdateGarbage(c);
+        break;
+    }
+}
+
+void DocumentParser::ProcessEOF()
+{
+    // Flush any partial token
+    switch (partial_tok_type)
+    {
+    case PartialToken::STRING_QUOTED:
+    case PartialToken::STRING_NAKED_CAPTURING_SPACES:
+    case PartialToken::TITLE_STRING:
+        this->FlushStringishToken(TokenType::STRING);
+        break;
+
+    case PartialToken::KEYWORD_BRACED:
+        this->FlushStringishToken(TokenType::KEYWORD);
+        break;
+
+    default:
+        this->ProcessChar(' '); // Pretend processing a separator to flush any partial whitespace-incompatible token.
+        break;
+    }
+
+    // Ensure newline at end of file
+    if (doc.tokens.size() == 0 || doc.tokens.back().type != TokenType::LINEBREAK)
+    {
+        doc.tokens.push_back({ TokenType::LINEBREAK, 0.f });
+    }
+}
+
 void GenericDocument::loadFromDataStream(Ogre::DataStreamPtr datastream, const BitMask_t options)
 {
     // Reset the document
@@ -891,58 +969,10 @@ void GenericDocument::loadFromDataStream(Ogre::DataStreamPtr datastream, const B
         {
             const char c = buf[i];
 
-            switch (parser.partial_tok_type)
-            {
-            case PartialToken::NONE:
-                parser.BeginToken(c);
-                break;
-
-            case PartialToken::COMMENT_SEMICOLON:
-            case PartialToken::COMMENT_SLASH:
-            case PartialToken::COMMENT_HASH:
-                parser.UpdateComment(c);
-                break;
-
-            case PartialToken::STRING_QUOTED:
-            case PartialToken::STRING_NAKED:
-            case PartialToken::STRING_NAKED_CAPTURING_SPACES:
-                parser.UpdateString(c);
-                break;
-
-            case PartialToken::NUMBER_INTEGER:
-            case PartialToken::NUMBER_DECIMAL:
-            case PartialToken::NUMBER_SCIENTIFIC:
-            case PartialToken::NUMBER_SCIENTIFIC_STUB:
-            case PartialToken::NUMBER_SCIENTIFIC_STUB_MINUS:
-                parser.UpdateNumber(c);
-                break;
-
-            case PartialToken::BOOL_TRUE:
-            case PartialToken::BOOL_FALSE:
-                parser.UpdateBool(c);
-                break;
-
-            case PartialToken::KEYWORD:
-            case PartialToken::KEYWORD_BRACED:
-                parser.UpdateKeyword(c);
-                break;
-
-            case PartialToken::TITLE_STRING:
-                parser.UpdateTitle(c);
-                break;
-
-            case PartialToken::GARBAGE:
-                parser.UpdateGarbage(c);
-                break;
-            }
+            parser.ProcessChar(c);
         }
     }
-
-    // Ensure newline at end of file
-    if (tokens.size() == 0 || tokens.back().type != TokenType::LINEBREAK)
-    {
-        tokens.push_back({ TokenType::LINEBREAK, 0.f });
-    }
+    parser.ProcessEOF();
 }
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
