@@ -885,8 +885,9 @@ struct Flexbody
     Ogre::Vector3 offset = Ogre::Vector3::ZERO;
     Ogre::Vector3 rotation = Ogre::Vector3::ZERO;
     Ogre::String mesh_name;
+    Ogre::String _mesh_rg_override; //!< Needed for addonparts
     std::list<Animation> animations;
-    std::vector<Node::Range> node_list_to_import; //!< Node ranges are disallowed in fileformatversion >=450
+    std::vector<Node::Range> node_list_to_import;
     std::vector<Node::Ref> node_list;
     CameraSettings camera_settings;
 };
@@ -1094,6 +1095,7 @@ struct Prop
     Ogre::Vector3 offset = Ogre::Vector3::ZERO;
     Ogre::Vector3 rotation = Ogre::Vector3::ZERO;
     Ogre::String mesh_name;
+    Ogre::String _mesh_rg_override; //!< Needed for addonparts
     std::list<Animation> animations;
     CameraSettings camera_settings;
     SpecialProp special = SpecialProp::NONE;
