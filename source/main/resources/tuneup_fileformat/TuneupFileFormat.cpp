@@ -220,12 +220,12 @@ std::string RoR::TuneupUtil::getTweakedPropMedia(CacheEntryPtr& tuneup_entry, Pr
         ? itor->second.tpt_media[media_idx] : orig_val;
 }
 
-std::string RoR::TuneupUtil::getTweakedPropMediaRG(ActorPtr& actor, PropID_t prop_id, int media_idx)
+std::string RoR::TuneupUtil::getTweakedPropMediaRG(ActorPtr& actor, PropID_t prop_id, int media_idx, const std::string& orig_val)
 {
     // Check there's a tuneup at all
     ROR_ASSERT(actor);
     if (!actor->getUsedTuneupEntry())
-        return actor->GetGfxActor()->GetResourceGroup();
+        return orig_val;
 
     // Check there's a tweak
     TuneupDefPtr& doc = actor->getUsedTuneupEntry()->tuneup_def;
@@ -233,7 +233,7 @@ std::string RoR::TuneupUtil::getTweakedPropMediaRG(ActorPtr& actor, PropID_t pro
     auto itor = doc->prop_tweaks.find(prop_id);
     auto endi = doc->prop_tweaks.end();
     if (itor == endi || itor->second.tpt_media[media_idx] == "")
-        return actor->GetGfxActor()->GetResourceGroup();
+        return orig_val;
 
     // Find the tweak addonpart
     CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, itor->second.tpt_origin);
@@ -242,7 +242,7 @@ std::string RoR::TuneupUtil::getTweakedPropMediaRG(ActorPtr& actor, PropID_t pro
     else
     {
         LOG(fmt::format("[RoR|Tuneup] WARN Addonpart '{}' not found in modcache!", itor->second.tpt_origin));
-        return actor->GetGfxActor()->GetResourceGroup();
+        return orig_val;
     }
 }
 
@@ -301,12 +301,12 @@ std::string RoR::TuneupUtil::getTweakedFlexbodyMedia(CacheEntryPtr& tuneup_entry
         ? itor->second.tft_media : orig_val;
 }
 
-std::string RoR::TuneupUtil::getTweakedFlexbodyMediaRG(ActorPtr& actor, FlexbodyID_t flexbody_id, int media_idx)
+std::string RoR::TuneupUtil::getTweakedFlexbodyMediaRG(ActorPtr& actor, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val)
 {
     // Check there's a tuneup at all
     ROR_ASSERT(actor);
     if (!actor->getUsedTuneupEntry())
-        return actor->GetGfxActor()->GetResourceGroup();
+        return orig_val;
 
     // Check there's a tweak
     TuneupDefPtr& doc = actor->getUsedTuneupEntry()->tuneup_def;
@@ -314,7 +314,7 @@ std::string RoR::TuneupUtil::getTweakedFlexbodyMediaRG(ActorPtr& actor, Flexbody
     auto itor = doc->flexbody_tweaks.find(flexbody_id);
     auto endi = doc->flexbody_tweaks.end();
     if (itor == endi || itor->second.tft_media == "")
-        return actor->GetGfxActor()->GetResourceGroup();
+        return orig_val;
 
     // Find the tweak addonpart
     CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, itor->second.tft_origin);
@@ -323,7 +323,7 @@ std::string RoR::TuneupUtil::getTweakedFlexbodyMediaRG(ActorPtr& actor, Flexbody
     else
     {
         LOG(fmt::format("[RoR|Tuneup] WARN Addonpart '{}' not found in modcache!", itor->second.tft_origin));
-        return actor->GetGfxActor()->GetResourceGroup();
+        return orig_val;
     }
 }
 

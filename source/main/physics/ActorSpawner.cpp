@@ -1530,6 +1530,7 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
 
     try
     {
+        std::string mesh_rg = (def._mesh_rg_override != "") ? def._mesh_rg_override : m_actor->GetGfxActor()->GetResourceGroup();
         auto* flexbody = m_flex_factory.CreateFlexBody(
             (FlexbodyID_t)m_actor->m_gfx_actor->m_flexbodies.size(),
             this->GetNodeIndexOrThrow(def.reference_node),
@@ -1539,7 +1540,7 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
             TuneupUtil::getTweakedFlexbodyRotation(m_actor->getUsedTuneupEntry(), flexbody_id, def.rotation),
             node_indices,
             TuneupUtil::getTweakedFlexbodyMedia(m_actor->getUsedTuneupEntry(), flexbody_id, 0, def.mesh_name),
-            TuneupUtil::getTweakedFlexbodyMediaRG(m_actor, flexbody_id, 0)
+            TuneupUtil::getTweakedFlexbodyMediaRG(m_actor, flexbody_id, 0, mesh_rg)
         );
 
         if (flexbody == nullptr)
@@ -1623,13 +1624,14 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         {
             steering_wheel_offset = def.special_prop_dashboard.offset;
         }
+        std::string media1_rg = (def._mesh_rg_override != "") ? def._mesh_rg_override : m_actor->GetGfxActor()->GetResourceGroup();
         prop.pp_wheel_rot_degree = def.special_prop_dashboard.rotation_angle;
         prop.pp_wheel_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         prop.pp_wheel_pos = steering_wheel_offset;
         prop.pp_media[1] = TuneupUtil::getTweakedPropMedia(m_actor->getUsedTuneupEntry(), prop_id, 1, def.special_prop_dashboard.mesh_name);
         prop.pp_wheel_mesh_obj = new MeshObject(
             prop.pp_media[1],
-            TuneupUtil::getTweakedPropMediaRG(m_actor, prop_id, 1),
+            TuneupUtil::getTweakedPropMediaRG(m_actor, prop_id, 1, media1_rg),
             this->ComposeName("SteeringWheelPropEntity", prop_id),
             prop.pp_wheel_scene_node
             );
@@ -1637,12 +1639,12 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     }
 
     /* CREATE THE PROP */
-
+    std::string media0_rg = (def._mesh_rg_override != "") ? def._mesh_rg_override : m_actor->GetGfxActor()->GetResourceGroup();
     prop.pp_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
     prop.pp_media[0] = TuneupUtil::getTweakedPropMedia(m_actor->getUsedTuneupEntry(), prop_id, 0, def.mesh_name);
     prop.pp_mesh_obj = new MeshObject(//def.mesh_name, resource_group, instance_name, prop.pp_scene_node);
             prop.pp_media[0],
-            TuneupUtil::getTweakedPropMediaRG(m_actor, prop_id, 1),
+            TuneupUtil::getTweakedPropMediaRG(m_actor, prop_id, 1, media0_rg),
             this->ComposeName("PropEntity", prop_id),
             prop.pp_scene_node);
 

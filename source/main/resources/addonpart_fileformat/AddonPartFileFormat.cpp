@@ -225,6 +225,7 @@ void AddonPartUtility::ProcessProp()
     def.rotation.z = m_context->getTokFloat(8);
 
     def.mesh_name = m_context->getTokString(9);
+    def._mesh_rg_override = m_addonpart_entry->resource_group;
 
     m_module->props.push_back(def);
 }
@@ -255,6 +256,7 @@ void AddonPartUtility::ProcessFlexbody()
     def.rotation.z = m_context->getTokFloat(8);
 
     def.mesh_name = m_context->getTokString(9);
+    def._mesh_rg_override = m_addonpart_entry->resource_group;
 
     m_context->seekNextLine();
 

@@ -163,7 +163,7 @@ public:
     static Ogre::Vector3      getTweakedPropOffset(CacheEntryPtr& tuneup_entry, PropID_t prop_id, Ogre::Vector3 orig_val);
     static Ogre::Vector3      getTweakedPropRotation(CacheEntryPtr& tuneup_entry, PropID_t prop_id, Ogre::Vector3 orig_val);
     static std::string        getTweakedPropMedia(CacheEntryPtr& tuneup_entry, PropID_t prop_id, int media_idx, const std::string& orig_val);
-    static std::string        getTweakedPropMediaRG(ActorPtr& actor, PropID_t prop_id, int media_idx);
+    static std::string        getTweakedPropMediaRG(ActorPtr& actor, PropID_t prop_id, int media_idx, const std::string& orig_val);
     /// @}
 
     /// @name Flexbody helpers
@@ -172,7 +172,7 @@ public:
     static Ogre::Vector3      getTweakedFlexbodyOffset(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val);
     static Ogre::Vector3      getTweakedFlexbodyRotation(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val);
     static std::string        getTweakedFlexbodyMedia(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val);
-    static std::string        getTweakedFlexbodyMediaRG(ActorPtr& actor, FlexbodyID_t flexbody_id, int media_idx);
+    static std::string        getTweakedFlexbodyMediaRG(ActorPtr& actor, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val);
     /// @}
 
 private:
