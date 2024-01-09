@@ -270,6 +270,16 @@ void AddonPartUtility::ProcessFlexbody()
 
     Parser::ProcessForsetLine(def, m_context->getTokString());
 
+    // Resolve `forset` ranges:
+    for (RigDef::Node::Range const& range: def.node_list_to_import)
+    {
+        for (unsigned int i = range.start.Num(); i <= range.end.Num(); ++i)
+        {
+            Node::Ref ref("", i, Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NUMBERED, 0);
+            def.node_list.push_back(ref);
+        }
+    }
+
     m_module->flexbodies.push_back(def);
 }
 
