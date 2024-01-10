@@ -55,6 +55,7 @@ public:
 private:
     // Helpers of `TransformToRigDefModule()`, they expect `m_context` to be in position:
     void ProcessManagedMaterial();
+    void ProcessDirectiveSetManagedMaterialsOptions();
     void ProcessProp();
     void ProcessFlexbody();
     void ProcessTweakWheel();
@@ -72,6 +73,7 @@ private:
     CacheEntryPtr m_addonpart_entry;
     // TransformToRigDefModule() state:
     std::shared_ptr<RigDef::Document::Module> m_module;
+    RigDef::ManagedMaterialsOptions m_managedmaterials_options;
     // ResolveUnwantedAndTweakedElements() state:
     TuneupDefPtr m_tuneup;
 };

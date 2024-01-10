@@ -63,33 +63,37 @@ std::shared_ptr<Document::Module> AddonPartUtility::TransformToRigDefModule(Cach
 
         while (!m_context->endOfFile())
         {
-            // (ignore 'addonpart_*' directives)
-            if (m_context->isTokKeyword() && m_context->getTokKeyword().find("addonpart_") != std::string::npos)
+            if (m_context->isTokKeyword())
             {
-                m_context->seekNextLine();
-                continue;
-            }
-            // Evaluate block 
-            else if (m_context->isTokKeyword())
-            {
-                keyword = Parser::IdentifyKeyword(m_context->getTokKeyword());
-                if (keyword == Keyword::MANAGEDMATERIALS ||
-                    keyword == Keyword::PROPS ||
-                    keyword == Keyword::FLEXBODIES)
+                // (ignore 'addonpart_*' directives)
+                if (m_context->getTokKeyword().find("addonpart_") == std::string::npos)
                 {
-                    block = keyword;
-                    m_context->seekNextLine();
-                    continue; // !! go to next line
+                    keyword = Parser::IdentifyKeyword(m_context->getTokKeyword());
+                    switch (keyword)
+                    {
+                        // Handle blocks (data start on next line)
+                        case Keyword::MANAGEDMATERIALS:
+                        case Keyword::PROPS:
+                        case Keyword::FLEXBODIES:
+                            block = keyword;
+                            break;
+
+                        // Handle directives (data are on the same line)
+                        case  Keyword::SET_MANAGEDMATERIALS_OPTIONS:
+                            this->ProcessDirectiveSetManagedMaterialsOptions();
+                            break;
+                    }
                 }
             }
-
-            // Process data in block
-            switch (block)
+            else if (block != Keyword::INVALID && !m_context->isTokComment() && !m_context->isTokLineBreak())
             {
-            case Keyword::MANAGEDMATERIALS: this->ProcessManagedMaterial(); break;
-            case Keyword::PROPS: this->ProcessProp(); break;
-            case Keyword::FLEXBODIES: this->ProcessFlexbody(); break;
-            default: break;
+                switch (block)
+                {
+                case Keyword::MANAGEDMATERIALS: this->ProcessManagedMaterial(); break;
+                case Keyword::PROPS: this->ProcessProp(); break;
+                case Keyword::FLEXBODIES: this->ProcessFlexbody(); break;
+                default: break;
+                }
             }
 
             m_context->seekNextLine();
@@ -195,7 +199,19 @@ void AddonPartUtility::ProcessManagedMaterial()
     if (n > 3) def.specular_map = m_context->getTokString(3);
     if (n > 4) def.damaged_diffuse_map = m_context->getTokString(4);
 
+    // Options:
+    def.options = m_managedmaterials_options;
+
     m_module->managedmaterials.push_back(def);
+}
+
+void AddonPartUtility::ProcessDirectiveSetManagedMaterialsOptions()
+{
+    int n = m_context->countLineArgs();
+    if (n > 1)
+    {
+        m_managedmaterials_options.double_sided = m_context->getTokBool(1);
+    }
 }
 
 void AddonPartUtility::ProcessProp()
