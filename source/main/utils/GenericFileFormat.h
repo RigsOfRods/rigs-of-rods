@@ -122,6 +122,7 @@ struct GenericDocContext: public RefCountingObject<GenericDocContext>
     bool isTokBool(int offset = 0) const { return tokenType(offset) == TokenType::BOOL; }
     bool isTokKeyword(int offset = 0) const { return tokenType(offset) == TokenType::KEYWORD; }
     bool isTokComment(int offset = 0) const { return tokenType(offset) == TokenType::COMMENT; }
+    bool isTokLineBreak(int offset = 0) const { return tokenType(offset) == TokenType::LINEBREAK; }
 
     // Editing functions:
 
