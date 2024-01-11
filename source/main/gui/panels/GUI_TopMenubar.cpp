@@ -1593,21 +1593,21 @@ void TopMenubar::Draw(float dt)
                 // ADDONPARTS
 
                 ImGui::SetNextItemOpen(true, ImGuiCond_FirstUseEver);
-                std::string addonparts_title = fmt::format(_LC("TopMenubar", "Addon parts ({})"), tuning_addonparts.cqy_results.size());
+                std::string addonparts_title = fmt::format(_LC("TopMenubar", "Addon parts ({})"), tuning_addonparts.size());
                 if (ImGui::CollapsingHeader(addonparts_title.c_str()) && tuneup_entry)
                 {
-                    for (CacheQueryResult& addonpart_result: tuning_addonparts.cqy_results)
+                    for (CacheEntryPtr& addonpart_entry: tuning_addonparts)
                     {
-                        ImGui::PushID(addonpart_result.cqr_entry->fname.c_str());
+                        ImGui::PushID(addonpart_entry->fname.c_str());
 
-                        bool used = tuneup_entry->tuneup_def->use_addonparts.count(addonpart_result.cqr_entry->fname) > 0;
-                        if (ImGui::Checkbox(addonpart_result.cqr_entry->dname.c_str(), &used))
+                        bool used = tuneup_entry->tuneup_def->use_addonparts.count(addonpart_entry->fname) > 0;
+                        if (ImGui::Checkbox(addonpart_entry->dname.c_str(), &used))
                         {
                             ModifyProjectRequest* req = new ModifyProjectRequest();
                             req->mpr_type = (used)
                                 ? ModifyProjectRequestType::TUNEUP_USE_ADDONPART_SET
                                 : ModifyProjectRequestType::TUNEUP_USE_ADDONPART_RESET;
-                            req->mpr_subject = addonpart_result.cqr_entry->fname;
+                            req->mpr_subject = addonpart_entry->fname;
                             req->mpr_target_actor = tuning_actor;
                             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
                         }
@@ -1630,12 +1630,12 @@ void TopMenubar::Draw(float dt)
                             srq->asr_origin       = ActorSpawnRequest::Origin::USER;
 
                             // Request bundle reloading and chain the actor delete/spawn messages to it.
-                            App::GetGameContext()->PushMessage(Message(MSG_EDI_RELOAD_BUNDLE_REQUESTED, new CacheEntryPtr(addonpart_result.cqr_entry)));
+                            App::GetGameContext()->PushMessage(Message(MSG_EDI_RELOAD_BUNDLE_REQUESTED, new CacheEntryPtr(addonpart_entry)));
                             App::GetGameContext()->ChainMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, new ActorPtr(tuning_actor)));
                             App::GetGameContext()->ChainMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, srq));
                         }
 
-                        ImGui::PopID(); //(addonpart_result.cqr_entry->fname.c_str());
+                        ImGui::PopID(); //(addonpart_entry->fname.c_str());
                     }
 
                     if (ImGui::Button(_LC("Tuning", "Browse all parts")))
@@ -2271,11 +2271,36 @@ void TopMenubar::RefreshTuningMenu()
     if (App::sim_tuning_enabled->getBool() && current_actor && (tuning_actor != current_actor || tuning_force_refresh))
     {
         ROR_ASSERT(current_actor->getUsedActorEntry());
+        ROR_ASSERT(current_actor->getUsedTuneupEntry());
 
-        tuning_addonparts.cqy_filter_type = LT_AddonPart;
-        tuning_addonparts.cqy_filter_guid = current_actor->getUsedActorEntry()->guid;
-        tuning_addonparts.resetResults();
-        App::GetCacheSystem()->Query(tuning_addonparts);
+        tuning_addonparts.clear();
+        tuning_saves.resetResults();
+
+        // Addonparts matched by GUID
+        if (current_actor->getUsedActorEntry()->guid != "")
+        {
+            CacheQuery query_addonparts;
+            query_addonparts.cqy_filter_type = LT_AddonPart;
+            query_addonparts.cqy_filter_guid = current_actor->getUsedActorEntry()->guid;
+            App::GetCacheSystem()->Query(query_addonparts);
+            for (CacheQueryResult& res: query_addonparts.cqy_results)
+            {
+                tuning_addonparts.push_back(res.cqr_entry);
+            }
+        }
+
+        // Addonparts force-installed via [browse all] button; watch for duplicates.
+        for (std::string const& use_addonpart_fname: current_actor->getUsedTuneupEntry()->tuneup_def->use_addonparts)
+        {
+            CacheEntryPtr entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, use_addonpart_fname);
+            if (entry)
+            {
+                if (std::find(tuning_addonparts.begin(), tuning_addonparts.end(), entry) == tuning_addonparts.end())
+                {
+                    tuning_addonparts.push_back(entry);
+                }
+            }
+        }
 
         tuning_saves.cqy_filter_type = LT_Tuneup;
         tuning_saves.cqy_filter_guid = current_actor->getUsedActorEntry()->guid;
@@ -2285,10 +2310,11 @@ void TopMenubar::RefreshTuningMenu()
 
         tuning_rwidget_cursorx_min = 0.f;
     }
-    else if (!App::sim_tuning_enabled->getBool())
+    else if (!App::sim_tuning_enabled->getBool() || !current_actor)
     {
-        tuning_addonparts.resetResults();
+        tuning_addonparts.clear();
         tuning_saves.resetResults();
+        tuning_actor = nullptr;
     }
     tuning_actor = current_actor;
 }
