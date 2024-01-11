@@ -99,7 +99,7 @@ public:
 
     // Tuning menu
     ActorPtr tuning_actor;          //!< Detecting actor change to update cached values.
-    CacheQuery tuning_addonparts;   //!< Pre-searched addonparts, to display them with checkbox like props or flexbodies.
+    std::vector<CacheEntryPtr> tuning_addonparts;   //!< Addonparts of current actor, both matched by GUID and force-installed by user via [browse all] button.
     CacheQuery tuning_saves;        //!< Tuneups saved by user, with category ID `RoR::CID_AddonpartUser`
     Str<200> tuning_savebox_buf;    //!< Buffer for tuneup name to be saved
     bool tuning_savebox_visible = false;   //!< User pressed 'save active' to open savebox.
