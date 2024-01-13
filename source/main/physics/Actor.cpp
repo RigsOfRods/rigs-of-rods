@@ -62,6 +62,7 @@
 #include "SlideNode.h"
 #include "SoundScriptManager.h"
 #include "Terrain.h"
+#include "TuneupFileFormat.h"
 #include "TurboJet.h"
 #include "TurboProp.h"
 #include "Utils.h"
@@ -4329,7 +4330,7 @@ Actor::Actor(
     , m_section_config(rq.asr_config)
     , m_used_actor_entry(rq.asr_cache_entry)
     , m_used_skin_entry(rq.asr_skin_entry)
-    , m_used_tuneup_entry(rq.asr_tuneup_entry)
+    , m_working_tuneup_def(rq.asr_working_tuneup)
 
     // Public bit flags
     , ar_update_physics(false)
@@ -4590,7 +4591,15 @@ CacheEntryPtr& Actor::getUsedSkinEntry()
     return m_used_skin_entry;
 }
 
-CacheEntryPtr& Actor::getUsedTuneupEntry()
+TuneupDefPtr& Actor::getWorkingTuneupDef()
 {
-    return m_used_tuneup_entry;
+    return m_working_tuneup_def;
+}
+
+void Actor::ensureWorkingTuneupDef()
+{
+    if (!m_working_tuneup_def)
+    {
+        m_working_tuneup_def = new TuneupDef();
+    }
 }

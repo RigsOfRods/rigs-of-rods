@@ -46,6 +46,9 @@ namespace RoR
     typedef int RefelemID_t; //!< index to `PointColDetector::m_ref_list`, use `RoR::REFELEMID_INVALID` as empty value.
     static const RefelemID_t REFELEMID_INVALID = -1;
 
+    typedef int CacheEntryID_t; //!< index to `CacheSystem::m_cache_entries`, use `RoR::CACHEENTRYNUM_INVALID` as empty value.
+    static const CacheEntryID_t CACHEENTRYID_INVALID = -1;
+
     typedef uint16_t NodeNum_t; //!< Node position within `Actor::ar_nodes`; use RoR::NODENUM_INVALID as empty value.
     static const NodeNum_t NODENUM_INVALID = std::numeric_limits<NodeNum_t>::max();
 

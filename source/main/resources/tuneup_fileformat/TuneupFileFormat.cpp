@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2023 Petr Ohlidal
+    Copyright 2013-2024 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -48,285 +48,408 @@ TuneupDefPtr TuneupDef::clone()
     ret->author_id          =     this->author_id         ; //int                   
     ret->category_id        =     this->category_id       ; //CacheCategoryId   
 
-    // Modding attributes
-    ret->use_addonparts       =   this->use_addonparts    ; //std::set<std::string> 
-    ret->unwanted_props       =   this->unwanted_props      ; //std::set<std::string> 
-    ret->unwanted_flexbodies  =   this->unwanted_flexbodies ; //std::set<std::string> 
-    ret->protected_props      =   this->protected_props      ; //std::set<std::string> 
-    ret->protected_flexbodies =   this->protected_flexbodies ; //std::set<std::string> 
+    // addonparts
+    ret->use_addonparts       =   this->use_addonparts    ;
 
+    // props
+    ret->protected_props = this->protected_props;
+    ret->unwanted_props = this->unwanted_props;
+    ret->force_remove_props = this->force_remove_props;
+    ret->prop_tweaks = this->prop_tweaks;
+
+    // flexbodies
+    ret->protected_flexbodies = this->protected_flexbodies;
+    ret->unwanted_flexbodies = this->unwanted_flexbodies;
+    ret->force_remove_flexbodies = this->force_remove_flexbodies;
+    ret->flexbody_tweaks = this->flexbody_tweaks;
+
+    // wheels
+    ret->protected_wheels = this->protected_wheels;
+    ret->force_wheel_sides = this->force_wheel_sides;
+    ret->wheel_tweaks = this->wheel_tweaks;
+
+    // nodes
+    ret->protected_nodes = this->protected_nodes;
+    ret->node_tweaks = this->node_tweaks;
+    
     return ret;
+}
+
+void TuneupDef::reset()
+{
+    // addonparts
+    this->use_addonparts.clear();
+
+    // props
+    this->protected_props.clear();
+    this->unwanted_props.clear();
+    this->force_remove_props.clear();
+    this->prop_tweaks.clear();
+
+    // flexbodies
+    this->protected_flexbodies.clear();
+    this->unwanted_flexbodies.clear();
+    this->force_remove_flexbodies.clear();
+    this->flexbody_tweaks.clear();
+
+    // wheels
+    this->protected_wheels.clear();
+    this->force_wheel_sides.clear();
+    this->wheel_tweaks.clear();
+
+    // nodes
+    this->protected_nodes.clear();
+    this->node_tweaks.clear();
+    
+}
+
+bool TuneupDef::isWheelSideForced(WheelID_t wheelid, WheelSide& out_val) const
+{
+    auto itor = force_wheel_sides.find(wheelid);
+    if (itor != force_wheel_sides.end())
+    {
+        out_val = itor->second;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
     // Tweaking helpers
 
-float RoR::TuneupUtil::getTweakedWheelTireRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val)
+float RoR::TuneupUtil::getTweakedWheelTireRadius(TuneupDefPtr& tuneup_def, WheelID_t wheel_id, float orig_val)
 {
-    if (!tuneup_entry)
-        return orig_val;
-
-    ROR_ASSERT(tuneup_entry->tuneup_def);
-    auto itor = tuneup_entry->tuneup_def->wheel_tweaks.find(wheel_id);
-    auto endi = tuneup_entry->tuneup_def->wheel_tweaks.end();
-    return (itor != endi && itor->second.twt_tire_radius > 0) 
-        ? itor->second.twt_tire_radius : orig_val;
-}
-
-float RoR::TuneupUtil::getTweakedWheelRimRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val)
-{
-    if (!tuneup_entry)
-        return orig_val;
-
-    ROR_ASSERT(tuneup_entry->tuneup_def);
-    auto itor = tuneup_entry->tuneup_def->wheel_tweaks.find(wheel_id);
-    auto endi = tuneup_entry->tuneup_def->wheel_tweaks.end();
-    return (itor != endi && itor->second.twt_rim_radius > 0)
-        ? itor->second.twt_rim_radius : orig_val;
-}
-
-std::string RoR::TuneupUtil::getTweakedWheelMedia(CacheEntryPtr& tuneup_entry, int wheel_id, int media_idx, const std::string& orig_val)
-{
-    if (!tuneup_entry)
-        return orig_val;
-
-    ROR_ASSERT(tuneup_entry->tuneup_def);
-    auto itor = tuneup_entry->tuneup_def->wheel_tweaks.find(wheel_id);
-    auto endi = tuneup_entry->tuneup_def->wheel_tweaks.end();
-    return (itor != endi && itor->second.twt_media[media_idx] != "")
-        ? itor->second.twt_media[media_idx] : orig_val;
-}
-
-std::string RoR::TuneupUtil::getTweakedWheelMediaRG(ActorPtr& actor, int wheel_id, int media_idx)
-{
-    // Check there's a tuneup at all
-    ROR_ASSERT(actor);
-    if (!actor->getUsedTuneupEntry())
-        return actor->GetGfxActor()->GetResourceGroup();
-
-    // Check there's a tweak
-    TuneupDefPtr& doc = actor->getUsedTuneupEntry()->tuneup_def;
-    ROR_ASSERT(doc);
-    auto itor = doc->wheel_tweaks.find(wheel_id);
-    auto endi = doc->wheel_tweaks.end();
-    if (itor == endi || itor->second.twt_media[media_idx] == "")
-        return actor->GetGfxActor()->GetResourceGroup();
-
-    // Find the tweak addonpart
-    CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, itor->second.twt_origin);
-    if (addonpart_entry)
-        return addonpart_entry->resource_group;
+    TuneupWheelTweak* tweak = nullptr;
+    if (TuneupUtil::isWheelTweaked(tuneup_def, wheel_id, /*out:*/ tweak))
+    {
+        ROR_ASSERT(tweak);
+        return (tweak->twt_tire_radius > 0) ? tweak->twt_tire_radius : orig_val;
+    }
     else
     {
-        LOG(fmt::format("[RoR|Tuneup] WARN Addonpart '{}' not found in modcache!", itor->second.twt_origin));
-        return actor->GetGfxActor()->GetResourceGroup();
+        return orig_val;
     }
 }
 
-WheelSide RoR::TuneupUtil::getTweakedWheelSide(CacheEntryPtr& tuneup_entry, int wheel_id, WheelSide orig_val)
+float RoR::TuneupUtil::getTweakedWheelRimRadius(TuneupDefPtr& tuneup_def, WheelID_t wheel_id, float orig_val)
 {
-    if (!tuneup_entry)
-        return orig_val;
-
-    ROR_ASSERT(tuneup_entry->tuneup_def);
-
-    // First query the UI overrides
+    TuneupWheelTweak* tweak = nullptr;
+    if (TuneupUtil::isWheelTweaked(tuneup_def, wheel_id, tweak))
     {
-        auto itor = tuneup_entry->tuneup_def->force_wheel_sides.find(wheel_id);
-        auto endi = tuneup_entry->tuneup_def->force_wheel_sides.end();
-        if (itor != endi)
-            return itor->second;
+        ROR_ASSERT(tweak);
+        return (tweak->twt_rim_radius > 0) ? tweak->twt_rim_radius : orig_val;
+    }
+    else
+    {
+        return orig_val;
+    }
+}
+
+std::string RoR::TuneupUtil::getTweakedWheelMedia(TuneupDefPtr& tuneup_def, WheelID_t wheel_id, int media_idx, const std::string& orig_val)
+{
+    TuneupWheelTweak* tweak = nullptr;
+    if (TuneupUtil::isWheelTweaked(tuneup_def, wheel_id, tweak))
+    {
+        ROR_ASSERT(tweak);
+        ROR_ASSERT(tweak->twt_media.size() > media_idx);
+        return (tweak->twt_media[media_idx] != "") ? tweak->twt_media[media_idx] : orig_val;
+    }
+    else
+    {
+        return orig_val;
+    }
+}
+
+std::string RoR::TuneupUtil::getTweakedWheelMediaRG(TuneupDefPtr& tuneup_def, WheelID_t wheel_id, int media_idx, const std::string& orig_val)
+{
+    TuneupWheelTweak* tweak = nullptr;
+    if (TuneupUtil::isWheelTweaked(tuneup_def, wheel_id, tweak))
+    {
+        ROR_ASSERT(tweak);
+        ROR_ASSERT(tweak->twt_media.size() > media_idx);
+        if (tweak->twt_media[media_idx] != "")
+        {
+            // Find the tweak addonpart
+            CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*'partial':*/false, tweak->twt_origin);
+            if (addonpart_entry)
+            {
+                return addonpart_entry->resource_group;
+            }
+            else
+            {
+                LOG(fmt::format("[RoR|Tuneup] WARN Addonpart '{}' not found in modcache!", tweak->twt_origin));
+                return orig_val;
+            }
+        }
     }
     
-    // Then query tweaks
+    return orig_val;
+    
+}
+
+WheelSide RoR::TuneupUtil::getTweakedWheelSide(TuneupDefPtr& tuneup_def, WheelID_t wheel_id, WheelSide orig_val)
+{
+    
+
+    if (tuneup_def)
     {
-        auto itor = tuneup_entry->tuneup_def->wheel_tweaks.find(wheel_id);
-        auto endi = tuneup_entry->tuneup_def->wheel_tweaks.end();
-        if (itor != endi && itor->second.twt_side != WheelSide::INVALID)
-            return itor->second.twt_side;
+        WheelSide forced_side = WheelSide::INVALID;
+        if (tuneup_def->isWheelSideForced(wheel_id, forced_side))
+        {
+            return forced_side;
+        }
+
+        TuneupWheelTweak* tweak = nullptr;
+        if (TuneupUtil::isWheelTweaked(tuneup_def, wheel_id, tweak))
+        {
+            ROR_ASSERT(tweak);
+            if (tweak->twt_side != WheelSide::INVALID)
+            {
+                return tweak->twt_side;
+            }
+        }
     }
 
     return orig_val;
 }
 
-Ogre::Vector3 RoR::TuneupUtil::getTweakedNodePosition(CacheEntryPtr& tuneup_entry, NodeNum_t nodenum, Ogre::Vector3 orig_val)
+bool RoR::TuneupUtil::isWheelTweaked(TuneupDefPtr& tuneup_def, WheelID_t wheel_id, TuneupWheelTweak*& out_tweak)
 {
-    if (!tuneup_entry)
-        return orig_val;
+    
 
-    ROR_ASSERT(tuneup_entry->tuneup_def);
-    auto itor = tuneup_entry->tuneup_def->node_tweaks.find(nodenum);
-    if (itor == tuneup_entry->tuneup_def->node_tweaks.end())
-        return orig_val;
+    if (tuneup_def)
+    {
+        auto itor = tuneup_def->wheel_tweaks.find(wheel_id);
+        if (itor != tuneup_def->wheel_tweaks.end())
+        {
+            out_tweak = &itor->second;
+            return true;
+        }
+    }
 
-    Ogre::Vector3 retval = itor->second.tnt_pos;
-    ROR_ASSERT(!isnan(retval.x));
-    ROR_ASSERT(!isnan(retval.y));
-    ROR_ASSERT(!isnan(retval.z));
-    return retval;
+    return false;
+}
+
+Ogre::Vector3 RoR::TuneupUtil::getTweakedNodePosition(TuneupDefPtr& tuneup_def, NodeNum_t nodenum, Ogre::Vector3 orig_val)
+{
+    TuneupNodeTweak* tweak = nullptr;
+    if (TuneupUtil::isNodeTweaked(tuneup_def, nodenum, tweak))
+    {
+        ROR_ASSERT(tweak);
+        return tweak->tnt_pos;
+    }
+    else
+    {
+        return orig_val;
+    }
+}
+
+bool RoR::TuneupUtil::isNodeTweaked(TuneupDefPtr& tuneup_def, NodeNum_t nodenum, TuneupNodeTweak*& out_tweak)
+{
+    if (tuneup_def)
+    {
+        auto itor = tuneup_def->node_tweaks.find(nodenum);
+        if (itor != tuneup_def->node_tweaks.end())
+        {
+            out_tweak = &itor->second;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 
 // > prop
-bool RoR::TuneupUtil::isPropAnyhowRemoved(ActorPtr& actor, PropID_t prop_id)
-{
-    return actor->getUsedTuneupEntry()
-        && actor->getUsedTuneupEntry()->tuneup_def
-        && (actor->getUsedTuneupEntry()->tuneup_def->isPropUnwanted(prop_id) || actor->getUsedTuneupEntry()->tuneup_def->isPropForceRemoved(prop_id));
+bool RoR::TuneupUtil::isPropAnyhowRemoved(TuneupDefPtr& tuneup_def, PropID_t prop_id)
+{    
+    return tuneup_def 
+        && (tuneup_def->isPropUnwanted(prop_id) || tuneup_def->isPropForceRemoved(prop_id));   
 }
 
-Ogre::Vector3 RoR::TuneupUtil::getTweakedPropOffset(CacheEntryPtr& tuneup_entry, PropID_t prop_id, Ogre::Vector3 orig_val)
+Ogre::Vector3 RoR::TuneupUtil::getTweakedPropOffset(TuneupDefPtr& tuneup_def, PropID_t prop_id, Ogre::Vector3 orig_val)
 {
-    if (!tuneup_entry)
-        return orig_val;
-
-    ROR_ASSERT(tuneup_entry->tuneup_def);
-    auto itor = tuneup_entry->tuneup_def->prop_tweaks.find(prop_id);
-    if (itor == tuneup_entry->tuneup_def->prop_tweaks.end())
-        return orig_val;
-
-    Ogre::Vector3 retval = itor->second.tpt_offset;
-    ROR_ASSERT(!isnan(retval.x));
-    ROR_ASSERT(!isnan(retval.y));
-    ROR_ASSERT(!isnan(retval.z));
-    return retval;
-}
-
-Ogre::Vector3 RoR::TuneupUtil::getTweakedPropRotation(CacheEntryPtr& tuneup_entry, PropID_t prop_id, Ogre::Vector3 orig_val)
-{
-    if (!tuneup_entry)
-        return orig_val;
-
-    ROR_ASSERT(tuneup_entry->tuneup_def);
-    auto itor = tuneup_entry->tuneup_def->prop_tweaks.find(prop_id);
-    if (itor == tuneup_entry->tuneup_def->prop_tweaks.end())
-        return orig_val;
-
-    Ogre::Vector3 retval = itor->second.tpt_rotation;
-    ROR_ASSERT(!isnan(retval.x));
-    ROR_ASSERT(!isnan(retval.y));
-    ROR_ASSERT(!isnan(retval.z));
-    return retval;
-}
-
-std::string RoR::TuneupUtil::getTweakedPropMedia(CacheEntryPtr& tuneup_entry, PropID_t prop_id, int media_idx, const std::string& orig_val)
-{
-    if (!tuneup_entry)
-        return orig_val;
-
-    ROR_ASSERT(tuneup_entry->tuneup_def);
-    auto itor = tuneup_entry->tuneup_def->prop_tweaks.find(prop_id);
-    auto endi = tuneup_entry->tuneup_def->prop_tweaks.end();
-    return (itor != endi && itor->second.tpt_media[media_idx] != "")
-        ? itor->second.tpt_media[media_idx] : orig_val;
-}
-
-std::string RoR::TuneupUtil::getTweakedPropMediaRG(ActorPtr& actor, PropID_t prop_id, int media_idx, const std::string& orig_val)
-{
-    // Check there's a tuneup at all
-    ROR_ASSERT(actor);
-    if (!actor->getUsedTuneupEntry())
-        return orig_val;
-
-    // Check there's a tweak
-    TuneupDefPtr& doc = actor->getUsedTuneupEntry()->tuneup_def;
-    ROR_ASSERT(doc);
-    auto itor = doc->prop_tweaks.find(prop_id);
-    auto endi = doc->prop_tweaks.end();
-    if (itor == endi || itor->second.tpt_media[media_idx] == "")
-        return orig_val;
-
-    // Find the tweak addonpart
-    CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, itor->second.tpt_origin);
-    if (addonpart_entry)
-        return addonpart_entry->resource_group;
+    TuneupPropTweak* tweak = nullptr;
+    if (TuneupUtil::isPropTweaked(tuneup_def, prop_id, tweak))
+    {
+        ROR_ASSERT(tweak);
+        return tweak->tpt_offset;
+    }
     else
     {
-        LOG(fmt::format("[RoR|Tuneup] WARN Addonpart '{}' not found in modcache!", itor->second.tpt_origin));
         return orig_val;
     }
 }
 
+Ogre::Vector3 RoR::TuneupUtil::getTweakedPropRotation(TuneupDefPtr& tuneup_def, PropID_t prop_id, Ogre::Vector3 orig_val)
+{
+    TuneupPropTweak* tweak = nullptr;
+    if (TuneupUtil::isPropTweaked(tuneup_def, prop_id, tweak))
+    {
+        ROR_ASSERT(tweak);
+        return tweak->tpt_rotation;
+    }
+    else
+    {
+        return orig_val;
+    }
+}
+
+std::string RoR::TuneupUtil::getTweakedPropMedia(TuneupDefPtr& tuneup_def, PropID_t prop_id, int media_idx, const std::string& orig_val)
+{
+    TuneupPropTweak* tweak = nullptr;
+    if (TuneupUtil::isPropTweaked(tuneup_def, prop_id, tweak))
+    {
+        ROR_ASSERT(tweak);
+        ROR_ASSERT(tweak->tpt_media.size() > media_idx);
+        return (tweak->tpt_media[media_idx] != "") ? tweak->tpt_media[media_idx] : orig_val;
+    }
+    else
+    {
+        return orig_val;
+    }
+}
+
+std::string RoR::TuneupUtil::getTweakedPropMediaRG(TuneupDefPtr& tuneup_def, PropID_t prop_id, int media_idx, const std::string& orig_val)
+{
+    TuneupPropTweak* tweak = nullptr;
+    if (TuneupUtil::isPropTweaked(tuneup_def, prop_id, tweak))
+    {
+        ROR_ASSERT(tweak);
+        ROR_ASSERT(tweak->tpt_media.size() > media_idx);
+        if (tweak->tpt_media[media_idx] != "")
+        {
+            // Find the tweak addonpart
+            CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, tweak->tpt_origin);
+            if (addonpart_entry)
+            {
+                return addonpart_entry->resource_group;
+            }
+            else
+            {
+                LOG(fmt::format("[RoR|Tuneup] WARN Addonpart '{}' not found in modcache!", tweak->tpt_origin));
+            }
+        }
+    }
+
+    return orig_val;
+}
+
+bool RoR::TuneupUtil::isPropTweaked(TuneupDefPtr& tuneup_def, PropID_t prop_id, TuneupPropTweak*& out_tweak)
+{
+    
+
+    if (tuneup_def)
+    {
+        auto itor = tuneup_def->prop_tweaks.find(prop_id);
+        if (itor != tuneup_def->prop_tweaks.end())
+        {
+            out_tweak = &itor->second;
+            return true;
+        }
+    }
+
+    return false;
+}
 
 // > flexbody
-bool RoR::TuneupUtil::isFlexbodyAnyhowRemoved(ActorPtr& actor, FlexbodyID_t flexbody_id)
+bool RoR::TuneupUtil::isFlexbodyAnyhowRemoved(TuneupDefPtr& tuneup_def, FlexbodyID_t flexbody_id)
 {
-    return actor->getUsedTuneupEntry()
-        && actor->getUsedTuneupEntry()->tuneup_def
-        && (actor->getUsedTuneupEntry()->tuneup_def->isFlexbodyUnwanted(flexbody_id) || actor->getUsedTuneupEntry()->tuneup_def->isFlexbodyForceRemoved(flexbody_id));
+    return tuneup_def && 
+        (tuneup_def->isFlexbodyUnwanted(flexbody_id) || tuneup_def->isFlexbodyForceRemoved(flexbody_id));
 }
 
-Ogre::Vector3 RoR::TuneupUtil::getTweakedFlexbodyOffset(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val)
+Ogre::Vector3 RoR::TuneupUtil::getTweakedFlexbodyOffset(TuneupDefPtr& tuneup_def, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val)
 {
-    if (!tuneup_entry)
-        return orig_val;
-
-    ROR_ASSERT(tuneup_entry->tuneup_def);
-    auto itor = tuneup_entry->tuneup_def->flexbody_tweaks.find(flexbody_id);
-    if (itor == tuneup_entry->tuneup_def->flexbody_tweaks.end())
-        return orig_val;
-
-    Ogre::Vector3 retval = itor->second.tft_offset;
-    ROR_ASSERT(!isnan(retval.x));
-    ROR_ASSERT(!isnan(retval.y));
-    ROR_ASSERT(!isnan(retval.z));
-    return retval;
-}
-
-Ogre::Vector3 RoR::TuneupUtil::getTweakedFlexbodyRotation(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val)
-{
-    if (!tuneup_entry)
-        return orig_val;
-
-    ROR_ASSERT(tuneup_entry->tuneup_def);
-    auto itor = tuneup_entry->tuneup_def->flexbody_tweaks.find(flexbody_id);
-    if (itor == tuneup_entry->tuneup_def->flexbody_tweaks.end())
-        return orig_val;
-
-    Ogre::Vector3 retval = itor->second.tft_rotation;
-    ROR_ASSERT(!isnan(retval.x));
-    ROR_ASSERT(!isnan(retval.y));
-    ROR_ASSERT(!isnan(retval.z));
-    return retval;
-}
-
-std::string RoR::TuneupUtil::getTweakedFlexbodyMedia(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val)
-{
-    if (!tuneup_entry)
-        return orig_val;
-
-    ROR_ASSERT(tuneup_entry->tuneup_def);
-    auto itor = tuneup_entry->tuneup_def->flexbody_tweaks.find(flexbody_id);
-    auto endi = tuneup_entry->tuneup_def->flexbody_tweaks.end();
-    return (itor != endi && itor->second.tft_media != "")
-        ? itor->second.tft_media : orig_val;
-}
-
-std::string RoR::TuneupUtil::getTweakedFlexbodyMediaRG(ActorPtr& actor, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val)
-{
-    // Check there's a tuneup at all
-    ROR_ASSERT(actor);
-    if (!actor->getUsedTuneupEntry())
-        return orig_val;
-
-    // Check there's a tweak
-    TuneupDefPtr& doc = actor->getUsedTuneupEntry()->tuneup_def;
-    ROR_ASSERT(doc);
-    auto itor = doc->flexbody_tweaks.find(flexbody_id);
-    auto endi = doc->flexbody_tweaks.end();
-    if (itor == endi || itor->second.tft_media == "")
-        return orig_val;
-
-    // Find the tweak addonpart
-    CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, itor->second.tft_origin);
-    if (addonpart_entry)
-        return addonpart_entry->resource_group;
+    TuneupFlexbodyTweak* tweak = nullptr;
+    if (TuneupUtil::isFlexbodyTweaked(tuneup_def, flexbody_id, tweak))
+    {
+        ROR_ASSERT(tweak);
+        return tweak->tft_offset;
+    }
     else
     {
-        LOG(fmt::format("[RoR|Tuneup] WARN Addonpart '{}' not found in modcache!", itor->second.tft_origin));
         return orig_val;
     }
 }
 
+Ogre::Vector3 RoR::TuneupUtil::getTweakedFlexbodyRotation(TuneupDefPtr& tuneup_def, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val)
+{
+    TuneupFlexbodyTweak* tweak = nullptr;
+    if (TuneupUtil::isFlexbodyTweaked(tuneup_def, flexbody_id, tweak))
+    {
+        ROR_ASSERT(tweak);
+        return tweak->tft_rotation;
+    }
+    else
+    {
+        return orig_val;
+    }
+}
+
+std::string RoR::TuneupUtil::getTweakedFlexbodyMedia(TuneupDefPtr& tuneup_def, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val)
+{
+    TuneupFlexbodyTweak* tweak = nullptr;
+    if (TuneupUtil::isFlexbodyTweaked(tuneup_def, flexbody_id, tweak))
+    {
+        ROR_ASSERT(tweak);
+        return (tweak->tft_media != "") ? tweak->tft_media : orig_val;
+    }
+    else
+    {
+        return orig_val;
+    }
+}
+
+std::string RoR::TuneupUtil::getTweakedFlexbodyMediaRG(TuneupDefPtr& tuneup_def, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val)
+{
+    TuneupFlexbodyTweak* tweak = nullptr;
+    if (TuneupUtil::isFlexbodyTweaked(tuneup_def, flexbody_id, tweak))
+    {
+        ROR_ASSERT(tweak);
+        if (tweak->tft_media != "")
+        {
+            // Find the tweak addonpart
+            CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, tweak->tft_origin);
+            if (addonpart_entry)
+            {
+                return addonpart_entry->resource_group;
+            }
+            else
+            {
+                LOG(fmt::format("[RoR|Tuneup] WARN Addonpart '{}' not found in modcache!", tweak->tft_origin));
+                return orig_val;
+            }
+        }
+    }
+
+    return orig_val;
+}
+
+bool RoR::TuneupUtil::isFlexbodyTweaked(TuneupDefPtr& tuneup_def, FlexbodyID_t flexbody_id, TuneupFlexbodyTweak*& out_tweak)
+{
+    
+
+    if (tuneup_def)
+    {
+        auto itor = tuneup_def->flexbody_tweaks.find(flexbody_id);
+        if (itor != tuneup_def->flexbody_tweaks.end())
+        {
+            out_tweak = &itor->second;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool RoR::TuneupUtil::isAddonPartUsed(TuneupDefPtr& tuneup_entry, const std::string& filename)
+{
+    return tuneup_entry
+        && tuneup_entry->use_addonparts.find(filename) != tuneup_entry->use_addonparts.end();
+}
 
 std::vector<TuneupDefPtr> RoR::TuneupUtil::ParseTuneups(Ogre::DataStreamPtr& stream)
 {
@@ -421,7 +544,7 @@ void RoR::TuneupUtil::ParseTuneupAttribute(const std::string& line, TuneupDefPtr
 
 void RoR::TuneupUtil::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tuneup)
 {
-    Str<2000> buf;
+    Str<TUNEUP_BUF_SIZE> buf;
     buf << tuneup->name << "\n";
     buf << "{\n";
 

@@ -1520,17 +1520,11 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
 
         // Create preliminary cache entry
         CacheEntryPtr project_entry = new CacheEntry();
-        
-        if (request->cpr_type == CreateProjectRequestType::CREATE_TUNEUP)
+
+        if (request->cpr_type == CreateProjectRequestType::SAVE_TUNEUP)
         {
             project_entry->fext = "tuneup"; // Tell modcache what it is.
-            project_entry->categoryid = CID_TuneupsAuto; // For auto-loading on future spawns of the vehicle.
-            project_entry->guid = request->cpr_source_entry->guid; // For lookup of tuneups by vehicle GUID.
-        }
-        else if (request->cpr_type == CreateProjectRequestType::SAVE_TUNEUP)
-        {
-            project_entry->fext = "tuneup"; // Tell modcache what it is.
-            project_entry->categoryid = CID_TuneupsUser; // For display in modcache            
+            project_entry->categoryid = CID_Tuneups; // For display in modcache            
             project_entry->guid = request->cpr_source_entry->guid; // For lookup of tuneups by vehicle GUID.
         }
         else
@@ -1547,30 +1541,20 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
         project_entry->number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
         this->LoadResource(project_entry); // This fills `entry.resource_group`
      
-        if (request->cpr_type == CreateProjectRequestType::CREATE_TUNEUP ||
-            request->cpr_type == CreateProjectRequestType::SAVE_TUNEUP)
+        if (request->cpr_type == CreateProjectRequestType::SAVE_TUNEUP)
         {
             // Tuneup projects don't contain any media, just the .tuneup file which lists addonparts to use.
 
             // Prepare the .tuneup document
-            TuneupDefPtr tuneup;
-            if (request->cpr_type == CreateProjectRequestType::SAVE_TUNEUP)
-            {
-                ROR_ASSERT(request->cpr_source_actor);
-                ROR_ASSERT(request->cpr_source_actor->getUsedTuneupEntry());
-                tuneup = request->cpr_source_actor->getUsedTuneupEntry()->tuneup_def->clone();
-            }
-            else
-            {
-                 tuneup = new TuneupDef();
-            }
+            ROR_ASSERT(request->cpr_source_actor);
+            ROR_ASSERT(request->cpr_source_actor->getWorkingTuneupDef());
+
+            TuneupDefPtr tuneup = request->cpr_source_actor->getWorkingTuneupDef()->clone();
             tuneup->guid = request->cpr_source_entry->guid; // For lookup of tuneups by vehicle GUID.
             tuneup->name = request->cpr_name;
             tuneup->description = request->cpr_description;
             tuneup->thumbnail = request->cpr_source_entry->filecachename;
             tuneup->category_id = (CacheCategoryId)project_entry->categoryid;
-            
-            
 
             // Write out the .tuneup file.
             Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(project_entry->fname, project_entry->resource_group);
@@ -1668,67 +1652,78 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
 {
     ROR_ASSERT(request->mpr_target_actor);
     ROR_ASSERT(request->mpr_target_actor->ar_state != ActorState::DISPOSED);
-    CacheEntryPtr tuneup_entry = request->mpr_target_actor->getUsedTuneupEntry();
-    ROR_ASSERT(tuneup_entry);
-    ROR_ASSERT(tuneup_entry->tuneup_def);
-    ROR_ASSERT(tuneup_entry->categoryid == CID_TuneupsAuto); // We never want to modify saved tuneups, only the working (auto-generated) one.
+    
 
     switch (request->mpr_type)
     {
     case ModifyProjectRequestType::TUNEUP_USE_ADDONPART_SET:
-        tuneup_entry->tuneup_def->use_addonparts.insert(request->mpr_subject);
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->use_addonparts.insert(request->mpr_subject);
         break;
 
     case ModifyProjectRequestType::TUNEUP_USE_ADDONPART_RESET:
-        tuneup_entry->tuneup_def->use_addonparts.erase(request->mpr_subject);
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->use_addonparts.erase(request->mpr_subject);
         break;
     
     case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_PROP_SET:
-        tuneup_entry->tuneup_def->force_remove_props.insert(request->mpr_subject_id);
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->force_remove_props.insert(request->mpr_subject_id);
         break;
 
     case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_PROP_RESET:
-        tuneup_entry->tuneup_def->force_remove_props.erase(request->mpr_subject_id);
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->force_remove_props.erase(request->mpr_subject_id);
         break;
     
     case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLEXBODY_SET:
-        tuneup_entry->tuneup_def->force_remove_flexbodies.insert(request->mpr_subject_id);
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->force_remove_flexbodies.insert(request->mpr_subject_id);
         break;
 
     case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLEXBODY_RESET:
-        tuneup_entry->tuneup_def->force_remove_flexbodies.erase(request->mpr_subject_id);
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->force_remove_flexbodies.erase(request->mpr_subject_id);
         break;
 
     case ModifyProjectRequestType::TUNEUP_FORCED_WHEEL_SIDE_SET:
-        tuneup_entry->tuneup_def->force_wheel_sides[request->mpr_subject_id] = (WheelSide)request->mpr_value_int;
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->force_wheel_sides[request->mpr_subject_id] = (WheelSide)request->mpr_value_int;
         break;
 
     case ModifyProjectRequestType::TUNEUP_FORCED_WHEEL_SIDE_RESET:
-        tuneup_entry->tuneup_def->force_wheel_sides.erase(request->mpr_subject_id);
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->force_wheel_sides.erase(request->mpr_subject_id);
         break;
 
     case ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_SET:
-        tuneup_entry->tuneup_def->protected_props.insert(request->mpr_subject_id);
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->protected_props.insert(request->mpr_subject_id);
         break;
 
     case ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_RESET:
-        tuneup_entry->tuneup_def->protected_props.erase(request->mpr_subject_id);
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->protected_props.erase(request->mpr_subject_id);
         break;
     
     case ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_SET:
-        tuneup_entry->tuneup_def->protected_flexbodies.insert(request->mpr_subject_id);
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->protected_flexbodies.insert(request->mpr_subject_id);
         break;
 
     case ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_RESET:
-        tuneup_entry->tuneup_def->protected_flexbodies.erase(request->mpr_subject_id);
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->protected_flexbodies.erase(request->mpr_subject_id);
         break;
 
     case ModifyProjectRequestType::TUNEUP_PROTECTED_WHEEL_SET:
-        tuneup_entry->tuneup_def->protected_wheels.insert(request->mpr_subject_id);
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->protected_wheels.insert(request->mpr_subject_id);
         break;
 
     case ModifyProjectRequestType::TUNEUP_PROTECTED_WHEEL_RESET:
-        tuneup_entry->tuneup_def->protected_wheels.erase(request->mpr_subject_id);
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->protected_wheels.erase(request->mpr_subject_id);
         break;
 
     case ModifyProjectRequestType::PROJECT_LOAD_TUNEUP:
@@ -1744,43 +1739,20 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
         }
         this->LoadResource(save_entry);
         ROR_ASSERT(save_entry->tuneup_def);
-
-        tuneup_entry->tuneup_def->unwanted_flexbodies.clear();
-        tuneup_entry->tuneup_def->unwanted_flexbodies = save_entry->tuneup_def->unwanted_flexbodies;
-        tuneup_entry->tuneup_def->unwanted_props.clear();
-        tuneup_entry->tuneup_def->unwanted_props = save_entry->tuneup_def->unwanted_props;
-        tuneup_entry->tuneup_def->use_addonparts.clear();
-        tuneup_entry->tuneup_def->use_addonparts = save_entry->tuneup_def->use_addonparts;
-        tuneup_entry->tuneup_def->wheel_tweaks.clear();
-        tuneup_entry->tuneup_def->wheel_tweaks = save_entry->tuneup_def->wheel_tweaks;
-        tuneup_entry->tuneup_def->node_tweaks.clear();
-        tuneup_entry->tuneup_def->node_tweaks = save_entry->tuneup_def->node_tweaks;
+        request->mpr_target_actor->getWorkingTuneupDef() = save_entry->tuneup_def->clone();
+        ROR_ASSERT(request->mpr_target_actor->getWorkingTuneupDef());
         break;
     }
 
     case ModifyProjectRequestType::PROJECT_RESET_TUNEUP:
-        tuneup_entry->tuneup_def->unwanted_flexbodies.clear();
-        tuneup_entry->tuneup_def->unwanted_props.clear();
-        tuneup_entry->tuneup_def->use_addonparts.clear();
-        tuneup_entry->tuneup_def->wheel_tweaks.clear();
-        tuneup_entry->tuneup_def->node_tweaks.clear();
-        tuneup_entry->tuneup_def->protected_flexbodies.clear();
-        tuneup_entry->tuneup_def->protected_props.clear();
-        tuneup_entry->tuneup_def->protected_wheels.clear();
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        ROR_ASSERT(request->mpr_target_actor->getWorkingTuneupDef());
+        request->mpr_target_actor->getWorkingTuneupDef()->reset();
         break;
 
     default:
         break;
     }
-
-    // Update the .tuneup file (rembember this is the 'working' aka 'autogenerated' tuneup)
-    Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(tuneup_entry->fname, tuneup_entry->resource_group, /*overwrite:*/true);
-    Str<200> header;
-    header 
-        << "// This is a '.tuneup' mod - it's similar to '.skin' mod but deals with '.addonpart' mods.\n"
-        << "// See https://github.com/RigsOfRods/rigs-of-rods/pull/3096#issuecomment-1783976601\n\n";
-    datastream->write(header.GetBuffer(), header.GetLength());
-    RoR::TuneupUtil::ExportTuneup(datastream, tuneup_entry->tuneup_def);
 
     // Create spawn request while actor still exists
     // Note we don't use `ActorModifyRequest::Type::RELOAD` because we don't need the bundle reloaded.
@@ -1789,7 +1761,7 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
     srq->asr_rotation     = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(request->mpr_target_actor->getRotation()), Ogre::Vector3::UNIT_Y);
     srq->asr_config       = request->mpr_target_actor->getSectionConfig();
     srq->asr_skin_entry   = request->mpr_target_actor->getUsedSkinEntry();
-    srq->asr_tuneup_entry = tuneup_entry;
+    srq->asr_working_tuneup = request->mpr_target_actor->getWorkingTuneupDef();
     srq->asr_cache_entry  = request->mpr_target_actor->getUsedActorEntry();
     srq->asr_debugview    = (int)request->mpr_target_actor->GetGfxActor()->GetDebugView();
     srq->asr_origin       = ActorSpawnRequest::Origin::USER;

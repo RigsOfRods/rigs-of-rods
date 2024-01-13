@@ -51,6 +51,7 @@
 #include "SoundScriptManager.h"
 #include "Terrain.h"
 #include "ThreadPool.h"
+#include "TuneupFileFormat.h"
 #include "Utils.h"
 #include "VehicleAI.h"
 
@@ -88,7 +89,7 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
 
     ActorSpawner spawner;
     spawner.ConfigureSections(actor->m_section_config, def);
-    spawner.ConfigureAddonParts(actor->m_used_tuneup_entry);
+    spawner.ConfigureAddonParts(actor->m_working_tuneup_def);
     spawner.ProcessNewActor(actor, rq, def);
 
     if (App::diag_actor_dump->getBool())

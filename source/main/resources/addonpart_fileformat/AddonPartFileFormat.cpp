@@ -66,26 +66,34 @@ std::shared_ptr<Document::Module> AddonPartUtility::TransformToRigDefModule(Cach
             if (m_context->isTokKeyword())
             {
                 // (ignore 'addonpart_*' directives)
-                if (m_context->getTokKeyword().find("addonpart_") == std::string::npos)
+                if (m_context->getTokKeyword().find("addonpart_") != std::string::npos)
                 {
-                    keyword = Parser::IdentifyKeyword(m_context->getTokKeyword());
-                    switch (keyword)
-                    {
-                        // Handle blocks (data start on next line)
-                        case Keyword::MANAGEDMATERIALS:
-                        case Keyword::PROPS:
-                        case Keyword::FLEXBODIES:
-                            block = keyword;
-                            break;
+                    m_context->seekNextLine();
+                    continue;
+                }
 
-                        // Handle directives (data are on the same line)
-                        case  Keyword::SET_MANAGEDMATERIALS_OPTIONS:
-                            this->ProcessDirectiveSetManagedMaterialsOptions();
-                            break;
+                keyword = Parser::IdentifyKeyword(m_context->getTokKeyword());
+                if (keyword != Keyword::INVALID)
+                {
+                    if (keyword == Keyword::SET_MANAGEDMATERIALS_OPTIONS)
+                    {
+                        this->ProcessDirectiveSetManagedMaterialsOptions();
+                        m_context->seekNextLine();
+                        continue;
                     }
+                    else if (keyword == Keyword::MANAGEDMATERIALS
+                        || keyword == Keyword::PROPS
+                        || keyword == Keyword::FLEXBODIES)
+                    {
+                        block = keyword;
+                        m_context->seekNextLine();
+                        continue;
+                    }
+
                 }
             }
-            else if (block != Keyword::INVALID && !m_context->isTokComment() && !m_context->isTokLineBreak())
+                
+            if (block != Keyword::INVALID && !m_context->isTokComment() && !m_context->isTokLineBreak())
             {
                 switch (block)
                 {
