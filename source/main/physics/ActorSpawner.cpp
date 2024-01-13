@@ -108,23 +108,19 @@ void ActorSpawner::ConfigureSections(Ogre::String const & sectionconfig, RigDef:
     }
 }
 
-void ActorSpawner::ConfigureAddonParts(CacheEntryPtr& tuneup_entry)
+void ActorSpawner::ConfigureAddonParts(TuneupDefPtr& tuneup_def)
 {
-    if (tuneup_entry)
+    if (tuneup_def)
     {
-        App::GetCacheSystem()->LoadResource(tuneup_entry);
-        ROR_ASSERT(tuneup_entry->resource_group != "");
-        ROR_ASSERT(tuneup_entry->tuneup_def != nullptr);
+        AddonPartUtility::ResetUnwantedAndTweakedElements(tuneup_def);
 
-        AddonPartUtility::ResetUnwantedAndTweakedElements(tuneup_entry->tuneup_def);
-
-        for (const std::string& addonpart: tuneup_entry->tuneup_def->use_addonparts)
+        for (const std::string& addonpart: tuneup_def->use_addonparts)
         {
             CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, addonpart);
             if (addonpart_entry)
             {
                 AddonPartUtility util;
-                util.ResolveUnwantedAndTweakedElements(tuneup_entry->tuneup_def, addonpart_entry);
+                util.ResolveUnwantedAndTweakedElements(tuneup_def, addonpart_entry);
                 auto module = util.TransformToRigDefModule(addonpart_entry);
                 if (module)
                 {
@@ -1497,7 +1493,7 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
     const FlexbodyID_t flexbody_id = (FlexbodyID_t)m_actor->m_gfx_actor->m_flexbodies.size();
 
     // Check if disabled by .tuneup mod.
-    if (TuneupUtil::isFlexbodyAnyhowRemoved(m_actor, flexbody_id))
+    if (TuneupUtil::isFlexbodyAnyhowRemoved(m_actor->getWorkingTuneupDef(), flexbody_id))
     {
         // Create placeholder
         m_actor->m_gfx_actor->m_flexbodies.emplace_back(new FlexBody(FlexBody::TUNING_PLACEHOLDER, flexbody_id, def.mesh_name));
@@ -1530,17 +1526,17 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
 
     try
     {
-        std::string mesh_rg = (def._mesh_rg_override != "") ? def._mesh_rg_override : m_actor->GetGfxActor()->GetResourceGroup();
+        std::string mesh_rg = (def._mesh_rg_override != "") ? def._mesh_rg_override : m_actor->getTruckFileResourceGroup();
         auto* flexbody = m_flex_factory.CreateFlexBody(
             (FlexbodyID_t)m_actor->m_gfx_actor->m_flexbodies.size(),
             this->GetNodeIndexOrThrow(def.reference_node),
             this->GetNodeIndexOrThrow(def.x_axis_node),
             this->GetNodeIndexOrThrow(def.y_axis_node),
-            TuneupUtil::getTweakedFlexbodyOffset(m_actor->getUsedTuneupEntry(), flexbody_id, def.offset),
-            TuneupUtil::getTweakedFlexbodyRotation(m_actor->getUsedTuneupEntry(), flexbody_id, def.rotation),
+            TuneupUtil::getTweakedFlexbodyOffset(m_actor->getWorkingTuneupDef(), flexbody_id, def.offset),
+            TuneupUtil::getTweakedFlexbodyRotation(m_actor->getWorkingTuneupDef(), flexbody_id, def.rotation),
             node_indices,
-            TuneupUtil::getTweakedFlexbodyMedia(m_actor->getUsedTuneupEntry(), flexbody_id, 0, def.mesh_name),
-            TuneupUtil::getTweakedFlexbodyMediaRG(m_actor, flexbody_id, 0, mesh_rg)
+            TuneupUtil::getTweakedFlexbodyMedia(m_actor->getWorkingTuneupDef(), flexbody_id, 0, def.mesh_name),
+            TuneupUtil::getTweakedFlexbodyMediaRG(m_actor->getWorkingTuneupDef(), flexbody_id, 0, mesh_rg)
         );
 
         if (flexbody == nullptr)
@@ -1568,13 +1564,13 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     PropID_t prop_id = static_cast<int>(m_actor->m_gfx_actor->m_props.size());
 
     // Check if removed via .tuneup
-    if (TuneupUtil::isPropAnyhowRemoved(m_actor, prop_id))
+    if (TuneupUtil::isPropAnyhowRemoved(m_actor->getWorkingTuneupDef(), prop_id))
     {
         RoR::Prop pprop; // placeholder
         pprop.pp_id = prop_id;
         pprop.pp_camera_mode_orig = CAMERA_MODE_ALWAYS_HIDDEN;
         pprop.pp_camera_mode_active = CAMERA_MODE_ALWAYS_HIDDEN;
-        pprop.pp_media[0] = TuneupUtil::getTweakedPropMedia(m_actor->getUsedTuneupEntry(), prop_id, 0, def.mesh_name);
+        pprop.pp_media[0] = TuneupUtil::getTweakedPropMedia(m_actor->getWorkingTuneupDef(), prop_id, 0, def.mesh_name);
         m_actor->m_gfx_actor->m_props.push_back(pprop);
         return;
     }
@@ -1584,9 +1580,9 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     prop.pp_node_ref     = this->GetNodeIndexOrThrow(def.reference_node);
     prop.pp_node_x       = this->GetNodeIndexOrThrow(def.x_axis_node);
     prop.pp_node_y       = this->GetNodeIndexOrThrow(def.y_axis_node);
-    prop.pp_offset       = TuneupUtil::getTweakedPropOffset(m_actor->getUsedTuneupEntry(), prop_id, def.offset);
+    prop.pp_offset       = TuneupUtil::getTweakedPropOffset(m_actor->getWorkingTuneupDef(), prop_id, def.offset);
     prop.pp_offset_orig  = prop.pp_offset;
-    prop.pp_rota         = TuneupUtil::getTweakedPropRotation(m_actor->getUsedTuneupEntry(), prop_id, def.rotation);
+    prop.pp_rota         = TuneupUtil::getTweakedPropRotation(m_actor->getWorkingTuneupDef(), prop_id, def.rotation);
     prop.pp_rot          =   Ogre::Quaternion(Ogre::Degree(prop.pp_rota.z), Ogre::Vector3::UNIT_Z)
                            * Ogre::Quaternion(Ogre::Degree(prop.pp_rota.y), Ogre::Vector3::UNIT_Y)
                            * Ogre::Quaternion(Ogre::Degree(prop.pp_rota.x), Ogre::Vector3::UNIT_X);
@@ -1624,14 +1620,14 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         {
             steering_wheel_offset = def.special_prop_dashboard.offset;
         }
-        std::string media1_rg = (def._mesh_rg_override != "") ? def._mesh_rg_override : m_actor->GetGfxActor()->GetResourceGroup();
+        std::string media1_rg = (def._mesh_rg_override != "") ? def._mesh_rg_override : m_actor->getTruckFileResourceGroup();
         prop.pp_wheel_rot_degree = def.special_prop_dashboard.rotation_angle;
         prop.pp_wheel_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
         prop.pp_wheel_pos = steering_wheel_offset;
-        prop.pp_media[1] = TuneupUtil::getTweakedPropMedia(m_actor->getUsedTuneupEntry(), prop_id, 1, def.special_prop_dashboard.mesh_name);
+        prop.pp_media[1] = TuneupUtil::getTweakedPropMedia(m_actor->getWorkingTuneupDef(), prop_id, 1, def.special_prop_dashboard.mesh_name);
         prop.pp_wheel_mesh_obj = new MeshObject(
             prop.pp_media[1],
-            TuneupUtil::getTweakedPropMediaRG(m_actor, prop_id, 1, media1_rg),
+            TuneupUtil::getTweakedPropMediaRG(m_actor->getWorkingTuneupDef(), prop_id, 1, media1_rg),
             this->ComposeName("SteeringWheelPropEntity", prop_id),
             prop.pp_wheel_scene_node
             );
@@ -1639,12 +1635,12 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     }
 
     /* CREATE THE PROP */
-    std::string media0_rg = (def._mesh_rg_override != "") ? def._mesh_rg_override : m_actor->GetGfxActor()->GetResourceGroup();
+    std::string media0_rg = (def._mesh_rg_override != "") ? def._mesh_rg_override : m_actor->getTruckFileResourceGroup();
     prop.pp_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-    prop.pp_media[0] = TuneupUtil::getTweakedPropMedia(m_actor->getUsedTuneupEntry(), prop_id, 0, def.mesh_name);
+    prop.pp_media[0] = TuneupUtil::getTweakedPropMedia(m_actor->getWorkingTuneupDef(), prop_id, 0, def.mesh_name);
     prop.pp_mesh_obj = new MeshObject(//def.mesh_name, resource_group, instance_name, prop.pp_scene_node);
             prop.pp_media[0],
-            TuneupUtil::getTweakedPropMediaRG(m_actor, prop_id, 1, media0_rg),
+            TuneupUtil::getTweakedPropMediaRG(m_actor->getWorkingTuneupDef(), prop_id, 1, media0_rg),
             this->ComposeName("PropEntity", prop_id),
             prop.pp_scene_node);
 
@@ -1702,7 +1698,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             pp_beacon_light->setCastShadows(false);
             pp_beacon_light->setVisible(false);
             /* the flare billboard */
-            prop.pp_media[1] = TuneupUtil::getTweakedPropMedia(m_actor->getUsedTuneupEntry(), prop_id, 1, def.special_prop_beacon.flare_material_name);
+            prop.pp_media[1] = TuneupUtil::getTweakedPropMedia(m_actor->getWorkingTuneupDef(), prop_id, 1, def.special_prop_beacon.flare_material_name);
             auto flare_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
             auto flare_billboard_sys = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1); //(propname,1);
             if (flare_billboard_sys)
@@ -4119,8 +4115,8 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
     }
 
     // Tweaks
-    float override_rim_radius = TuneupUtil::getTweakedWheelRimRadius(m_actor->getUsedTuneupEntry(), wheel_id, def.rim_radius);
-    float override_tire_radius = TuneupUtil::getTweakedWheelTireRadius(m_actor->getUsedTuneupEntry(), wheel_id, def.tyre_radius);
+    float override_rim_radius = TuneupUtil::getTweakedWheelRimRadius(m_actor->getWorkingTuneupDef(), wheel_id, def.rim_radius);
+    float override_tire_radius = TuneupUtil::getTweakedWheelTireRadius(m_actor->getWorkingTuneupDef(), wheel_id, def.tyre_radius);
 
     // Node&beam generation
     Ogre::Vector3 axis_vector = axis_node_2->RelPosition - axis_node_1->RelPosition;
@@ -4349,11 +4345,11 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
         axis_node_2->pos,
         def.num_rays,
         override_rim_radius,
-        TuneupUtil::getTweakedWheelSide(m_actor->getUsedTuneupEntry(), wheel_id, def.side),
-        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, def.rim_mesh_name),
-        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0),
-        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 1, def.tyre_mesh_name),
-        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 1)
+        TuneupUtil::getTweakedWheelSide(m_actor->getWorkingTuneupDef(), wheel_id, def.side),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getWorkingTuneupDef(), wheel_id, 0, def.rim_mesh_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor->getWorkingTuneupDef(), wheel_id, 0, m_actor->getTruckFileResourceGroup()),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getWorkingTuneupDef(), wheel_id, 1, def.tyre_mesh_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor->getWorkingTuneupDef(), wheel_id, 1, m_actor->getTruckFileResourceGroup())
     ); 
 
     // Commit the wheel
@@ -4408,7 +4404,7 @@ void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
         GetNodePointer(meshwheel_def.reference_arm_node), /*optional*/
         meshwheel_def.num_rays * 2,
         meshwheel_def.num_rays * 8,
-        TuneupUtil::getTweakedWheelTireRadius(m_actor->getUsedTuneupEntry(), wheel_id, meshwheel_def.tyre_radius),
+        TuneupUtil::getTweakedWheelTireRadius(m_actor->getWorkingTuneupDef(), wheel_id, meshwheel_def.tyre_radius),
         meshwheel_def.propulsion,
         meshwheel_def.braking,
         meshwheel_def.node_defaults,
@@ -4434,11 +4430,11 @@ void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
         axis_node_1->pos,
         axis_node_2->pos,
         meshwheel_def.num_rays,
-        TuneupUtil::getTweakedWheelSide(m_actor->getUsedTuneupEntry(), wheel_id, meshwheel_def.side),
-        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, meshwheel_def.mesh_name),
-        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0),
-        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 1, meshwheel_def.material_name),
-        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 1),
+        TuneupUtil::getTweakedWheelSide(m_actor->getWorkingTuneupDef(), wheel_id, meshwheel_def.side),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getWorkingTuneupDef(), wheel_id, 0, meshwheel_def.mesh_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor->getWorkingTuneupDef(), wheel_id, 0, m_actor->getTruckFileResourceGroup()),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getWorkingTuneupDef(), wheel_id, 1, meshwheel_def.material_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor->getWorkingTuneupDef(), wheel_id, 1, m_actor->getTruckFileResourceGroup()),
         meshwheel_def.rim_radius
     );
 
@@ -4465,7 +4461,7 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
         GetNodePointer(def.reference_arm_node),
         def.num_rays * 2,
         def.num_rays * 8,
-        TuneupUtil::getTweakedWheelTireRadius(m_actor->getUsedTuneupEntry(), wheel_id, def.tyre_radius),
+        TuneupUtil::getTweakedWheelTireRadius(m_actor->getWorkingTuneupDef(), wheel_id, def.tyre_radius),
         def.propulsion,
         def.braking,
         def.node_defaults,
@@ -4499,11 +4495,11 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
         axis_node_1->pos,
         axis_node_2->pos,
         def.num_rays,
-        TuneupUtil::getTweakedWheelSide(m_actor->getUsedTuneupEntry(), wheel_id, def.side),
-        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, def.mesh_name),
-        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0),
-        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 1, def.material_name),
-        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 1),
+        TuneupUtil::getTweakedWheelSide(m_actor->getWorkingTuneupDef(), wheel_id, def.side),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getWorkingTuneupDef(), wheel_id, 0, def.mesh_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor->getWorkingTuneupDef(), wheel_id, 0, m_actor->getTruckFileResourceGroup()),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getWorkingTuneupDef(), wheel_id, 1, def.material_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor->getWorkingTuneupDef(), wheel_id, 1, m_actor->getTruckFileResourceGroup()),
         def.rim_radius
     );
 
@@ -4729,7 +4725,7 @@ WheelID_t ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
         GetNodePointer(wheel_def.reference_arm_node),
         wheel_def.num_rays * 2,
         wheel_def.num_rays * 8,
-        TuneupUtil::getTweakedWheelTireRadius(m_actor->getUsedTuneupEntry(), wheel_id, wheel_def.radius),
+        TuneupUtil::getTweakedWheelTireRadius(m_actor->getWorkingTuneupDef(), wheel_id, wheel_def.radius),
         wheel_def.propulsion,
         wheel_def.braking,
         wheel_def.node_defaults,
@@ -4754,10 +4750,10 @@ WheelID_t ActorSpawner::AddWheel(RigDef::Wheel & wheel_def)
         wheel_id,
         base_node_index,
         wheel_def.num_rays,
-        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, wheel_def.face_material_name),
-        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0),
-        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 1, wheel_def.band_material_name),
-        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 1),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getWorkingTuneupDef(), wheel_id, 0, wheel_def.face_material_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor->getWorkingTuneupDef(), wheel_id, 0, m_actor->getTruckFileResourceGroup()),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getWorkingTuneupDef(), wheel_id, 1, wheel_def.band_material_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor->getWorkingTuneupDef(), wheel_id, 1, m_actor->getTruckFileResourceGroup()),
         /*separate_rim:*/false
         );
 
@@ -4795,8 +4791,8 @@ WheelID_t ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
     }
 
     // Tweaks
-    float override_rim_radius = TuneupUtil::getTweakedWheelRimRadius(m_actor->getUsedTuneupEntry(), wheel_id, wheel_2_def.rim_radius);
-    float override_tire_radius = TuneupUtil::getTweakedWheelTireRadius(m_actor->getUsedTuneupEntry(), wheel_id, wheel_2_def.tyre_radius);
+    float override_rim_radius = TuneupUtil::getTweakedWheelRimRadius(m_actor->getWorkingTuneupDef(), wheel_id, wheel_2_def.rim_radius);
+    float override_tire_radius = TuneupUtil::getTweakedWheelTireRadius(m_actor->getWorkingTuneupDef(), wheel_id, wheel_2_def.tyre_radius);
 
     /* Node&beam generation */
     wheel_t& wheel = m_actor->ar_wheels[wheel_id];
@@ -4984,10 +4980,10 @@ WheelID_t ActorSpawner::AddWheel2(RigDef::Wheel2 & wheel_2_def)
         wheel_id,
         base_node_index,
         wheel_2_def.num_rays,
-        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 0, wheel_2_def.face_material_name),
-        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 0),
-        TuneupUtil::getTweakedWheelMedia(m_actor->getUsedTuneupEntry(), wheel_id, 1, wheel_2_def.band_material_name),
-        TuneupUtil::getTweakedWheelMediaRG(m_actor, wheel_id, 1),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getWorkingTuneupDef(), wheel_id, 0, wheel_2_def.face_material_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor->getWorkingTuneupDef(), wheel_id, 0, m_actor->getTruckFileResourceGroup()),
+        TuneupUtil::getTweakedWheelMedia(m_actor->getWorkingTuneupDef(), wheel_id, 1, wheel_2_def.band_material_name),
+        TuneupUtil::getTweakedWheelMediaRG(m_actor->getWorkingTuneupDef(), wheel_id, 1, m_actor->getTruckFileResourceGroup()),
         /*separate_rim:*/true,
         /*rim_ratio:*/override_rim_radius / override_tire_radius
         );
@@ -5069,7 +5065,7 @@ void ActorSpawner::CreateFlexBodyWheelVisuals(
         rim_mesh_name,
         rim_mesh_rg,
         "tracks/trans", // Use a builtin transparent material for the generated tire mesh, to effectively disable it.
-        m_actor->GetGfxActor()->GetResourceGroup(),
+        m_actor->getTruckFileResourceGroup(),
         radius
         );
 
@@ -5798,7 +5794,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     node.pos = inserted_node.first; /* Node index */
 
     /* Positioning */
-    Ogre::Vector3 node_position = m_spawn_position + TuneupUtil::getTweakedNodePosition(m_actor->getUsedTuneupEntry(), node.pos, def.position);
+    Ogre::Vector3 node_position = m_spawn_position + TuneupUtil::getTweakedNodePosition(m_actor->getWorkingTuneupDef(), node.pos, def.position);
     ROR_ASSERT(!isnan(node_position.x));
     ROR_ASSERT(!isnan(node_position.y));
     ROR_ASSERT(!isnan(node_position.z));

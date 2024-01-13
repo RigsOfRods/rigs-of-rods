@@ -189,37 +189,8 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
     {
         m_last_cache_selection = rq.asr_cache_entry;
         m_last_skin_selection  = rq.asr_skin_entry;
+        m_last_tuneup_selection = rq.asr_tuneup_entry;
         m_last_section_config  = rq.asr_config;
-
-        // Make sure the actor has a default .tuneup project assigned. If not, create it.
-        if (App::sim_tuning_enabled->getBool())
-        {
-            CacheQuery query;
-            query.cqy_filter_type = LT_Tuneup;
-            query.cqy_filter_category_id = CID_TuneupsAuto;
-            query.cqy_filter_guid = rq.asr_cache_entry->guid;
-            if (App::GetCacheSystem()->Query(query) > 0)
-            {
-                rq.asr_tuneup_entry = query.cqy_results[0].cqr_entry;
-            }
-            else
-            {
-                CreateProjectRequest req;
-                req.cpr_type = CreateProjectRequestType::CREATE_TUNEUP;
-                req.cpr_source_entry = rq.asr_cache_entry;
-                req.cpr_name = fmt::format("tuned_{}", rq.asr_cache_entry->fname);
-                req.cpr_description = fmt::format("Customized {}", rq.asr_cache_entry->dname);
-
-                rq.asr_tuneup_entry = App::GetCacheSystem()->CreateProject(&req); // Do it synchronously
-
-                if (!rq.asr_tuneup_entry)
-                {
-                    Str<500> msg; msg <<"Cannot spawn actor; .tuneup project could not be created.";
-                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-                    return nullptr;
-                }     
-            }
-        }
 
         if (rq.asr_spawnbox == nullptr)
         {
@@ -267,12 +238,15 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         }
     }
 
-    if (rq.asr_tuneup_entry)
+    if (App::sim_tuning_enabled->getBool())
     {
-        App::GetCacheSystem()->LoadResource(rq.asr_tuneup_entry); // Also loads associated .tuneup file.
-        if (!rq.asr_tuneup_entry->tuneup_def) // Make sure .tuneup was loaded OK.
+        if (rq.asr_tuneup_entry)
         {
-            rq.asr_tuneup_entry = nullptr; // Error already logged
+            App::GetCacheSystem()->LoadResource(rq.asr_tuneup_entry); // Also loads associated .tuneup file.
+            if (!rq.asr_tuneup_entry->tuneup_def)
+            {
+                rq.asr_tuneup_entry = nullptr; // Error already logged
+            }
         }
     }
 
@@ -413,7 +387,7 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         srq->asr_rotation   = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(actor->getRotation()), Ogre::Vector3::UNIT_Y);
         srq->asr_config     = actor->getSectionConfig();
         srq->asr_skin_entry = actor->getUsedSkinEntry();
-        srq->asr_tuneup_entry = actor->getUsedTuneupEntry();
+        srq->asr_working_tuneup = actor->getWorkingTuneupDef();
         srq->asr_cache_entry= entry;
         srq->asr_debugview  = (int)actor->GetGfxActor()->GetDebugView();
         srq->asr_origin     = ActorSpawnRequest::Origin::USER;

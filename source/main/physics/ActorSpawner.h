@@ -95,7 +95,7 @@ public:
     /// @name Processing
     /// @{
     void                           ConfigureSections(Ogre::String const & sectionconfig, RigDef::DocumentPtr def);
-    void                           ConfigureAddonParts(CacheEntryPtr& tuneup_entry);
+    void                           ConfigureAddonParts(TuneupDefPtr& tuneup_def);
     void                           ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef::DocumentPtr def);
     static void                    SetupDefaultSoundSources(ActorPtr const& actor);
     /// @}

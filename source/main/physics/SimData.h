@@ -809,7 +809,8 @@ struct ActorSpawnRequest
     Ogre::Quaternion    asr_rotation = Ogre::Quaternion::ZERO;
     collision_box_t*    asr_spawnbox = nullptr;
     CacheEntryPtr       asr_skin_entry;
-    CacheEntryPtr       asr_tuneup_entry;
+    CacheEntryPtr       asr_tuneup_entry; //!< Only filled when user selected a saved/downloaded .tuneup mod in SelectorUI.
+    TuneupDefPtr        asr_working_tuneup; //!< Only filled when editing tuneup via Tuning menu.
     Origin              asr_origin = Origin::UNKNOWN;
     int                 asr_debugview = 0; //(int)DebugViewType::DEBUGVIEW_NONE;
     Ogre::UTFString     asr_net_username;

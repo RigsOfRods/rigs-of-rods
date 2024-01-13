@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2023 Petr Ohlidal
+    Copyright 2013-2024 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -21,6 +21,11 @@
 
 #pragma once
 
+/** @file
+*   @brief  The vehicle tuning system; applies addonparts and user overrides to vehicles.
+*   @see    `RoR::ActorSpawner::ConfigureAddonParts()`
+*/
+
 #include "Application.h"
 #include "CacheSystem.h"
 #include "RefCountingObject.h"
@@ -33,6 +38,8 @@
 #include <set>
 
 namespace RoR {
+
+const size_t TUNEUP_BUF_SIZE = 2000;
 
 struct TuneupNodeTweak //!< Data of 'addonpart_tweak_node <nodenum> <posX> <posY> <posZ>'
 {
@@ -57,7 +64,7 @@ struct TuneupWheelTweak //!< Data of 'addonpart_tweak_wheel <wheel ID> <media1> 
 struct TuneupPropTweak //!< Data of 'addonpart_tweak_prop <prop ID> <offsetX> <offsetY> <offsetZ> <rotX> <rotY> <rotZ> <media1> <media2>'
 {
     PropID_t        tpt_prop_id = PROPID_INVALID;
-    std::string     tpt_media[2];                     //!< Media1 = prop mesh; Media2: Steering wheel mesh or beacon flare material.
+    std::array<std::string, 2> tpt_media;                     //!< Media1 = prop mesh; Media2: Steering wheel mesh or beacon flare material.
     Ogre::Vector3   tpt_offset = Ogre::Vector3::ZERO;
     Ogre::Vector3   tpt_rotation = Ogre::Vector3::ZERO;
     std::string     tpt_origin;                       //!< Addonpart filename
@@ -113,6 +120,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     /// @}
 
     TuneupDefPtr clone();
+    void reset();
 
     /// @name Protection helpers
     /// @{
@@ -132,7 +140,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     /// @{
     bool         isPropForceRemoved(PropID_t propid) { return force_remove_props.find(propid) != force_remove_props.end(); }
     bool         isFlexbodyForceRemoved(FlexbodyID_t flexbodyid) { return force_remove_flexbodies.find(flexbodyid) != force_remove_flexbodies.end(); }
-    bool         isWheelSideForced(int wheelid) const { return force_wheel_sides.find(wheelid) != force_wheel_sides.end(); }
+    bool         isWheelSideForced(WheelID_t wheelid, WheelSide& out_val) const;
     /// @}
 };
 
@@ -143,36 +151,45 @@ public:
     static std::vector<TuneupDefPtr> ParseTuneups(Ogre::DataStreamPtr& stream);
     static void ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tuneup);
 
+    /// @name AddonPart helpers
+    /// @{
+    static bool               isAddonPartUsed(TuneupDefPtr& tuneup_entry, const std::string& filename);
+    /// @}
+
     /// @name Wheel helpers
     /// @{
-    static float              getTweakedWheelTireRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val);
-    static float              getTweakedWheelRimRadius(CacheEntryPtr& tuneup_entry, int wheel_id, float orig_val);
-    static std::string        getTweakedWheelMedia(CacheEntryPtr& tuneup_entry, int wheel_id, int media_idx, const std::string& orig_val);
-    static std::string        getTweakedWheelMediaRG(ActorPtr& actor, int wheel_id, int media_idx);
-    static WheelSide          getTweakedWheelSide(CacheEntryPtr& tuneup_entry, int wheel_id, WheelSide orig_val);
+    static float              getTweakedWheelTireRadius(TuneupDefPtr& tuneup_entry, WheelID_t wheel_id, float orig_val);
+    static float              getTweakedWheelRimRadius(TuneupDefPtr& tuneup_entry, WheelID_t wheel_id, float orig_val);
+    static std::string        getTweakedWheelMedia(TuneupDefPtr& tuneup_entry, WheelID_t wheel_id, int media_idx, const std::string& orig_val);
+    static std::string        getTweakedWheelMediaRG(TuneupDefPtr& tuneup_def, WheelID_t wheel_id, int media_idx, const std::string& orig_val);
+    static WheelSide          getTweakedWheelSide(TuneupDefPtr& tuneup_entry, WheelID_t wheel_id, WheelSide orig_val);
+    static bool               isWheelTweaked(TuneupDefPtr& tuneup_entry, WheelID_t wheel_id, TuneupWheelTweak*& out_tweak);
     /// @}
 
     /// @name Node helpers
     /// @{
-    static Ogre::Vector3      getTweakedNodePosition(CacheEntryPtr& tuneup_entry, NodeNum_t nodenum, Ogre::Vector3 orig_val);
+    static Ogre::Vector3      getTweakedNodePosition(TuneupDefPtr& tuneup_entry, NodeNum_t nodenum, Ogre::Vector3 orig_val);
+    static bool               isNodeTweaked(TuneupDefPtr& tuneup_entry, NodeNum_t nodenum, TuneupNodeTweak*& out_tweak);
     /// @}
 
     /// @name Prop helpers
     /// @{
-    static bool               isPropAnyhowRemoved(ActorPtr& actor, PropID_t prop_id);
-    static Ogre::Vector3      getTweakedPropOffset(CacheEntryPtr& tuneup_entry, PropID_t prop_id, Ogre::Vector3 orig_val);
-    static Ogre::Vector3      getTweakedPropRotation(CacheEntryPtr& tuneup_entry, PropID_t prop_id, Ogre::Vector3 orig_val);
-    static std::string        getTweakedPropMedia(CacheEntryPtr& tuneup_entry, PropID_t prop_id, int media_idx, const std::string& orig_val);
-    static std::string        getTweakedPropMediaRG(ActorPtr& actor, PropID_t prop_id, int media_idx, const std::string& orig_val);
+    static bool               isPropAnyhowRemoved(TuneupDefPtr& tuneup_def, PropID_t prop_id);
+    static Ogre::Vector3      getTweakedPropOffset(TuneupDefPtr& tuneup_entry, PropID_t prop_id, Ogre::Vector3 orig_val);
+    static Ogre::Vector3      getTweakedPropRotation(TuneupDefPtr& tuneup_entry, PropID_t prop_id, Ogre::Vector3 orig_val);
+    static std::string        getTweakedPropMedia(TuneupDefPtr& tuneup_entry, PropID_t prop_id, int media_idx, const std::string& orig_val);
+    static std::string        getTweakedPropMediaRG(TuneupDefPtr& tuneup_def, PropID_t prop_id, int media_idx, const std::string& orig_val);
+    static bool               isPropTweaked(TuneupDefPtr& tuneup_entry, PropID_t flexbody_id, TuneupPropTweak*& out_tweak);
     /// @}
 
     /// @name Flexbody helpers
     /// @{
-    static bool               isFlexbodyAnyhowRemoved(ActorPtr& actor, FlexbodyID_t flexbody_id);
-    static Ogre::Vector3      getTweakedFlexbodyOffset(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val);
-    static Ogre::Vector3      getTweakedFlexbodyRotation(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val);
-    static std::string        getTweakedFlexbodyMedia(CacheEntryPtr& tuneup_entry, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val);
-    static std::string        getTweakedFlexbodyMediaRG(ActorPtr& actor, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val);
+    static bool               isFlexbodyAnyhowRemoved(TuneupDefPtr& tuneup_def, FlexbodyID_t flexbody_id);
+    static Ogre::Vector3      getTweakedFlexbodyOffset(TuneupDefPtr& tuneup_entry, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val);
+    static Ogre::Vector3      getTweakedFlexbodyRotation(TuneupDefPtr& tuneup_entry, FlexbodyID_t flexbody_id, Ogre::Vector3 orig_val);
+    static std::string        getTweakedFlexbodyMedia(TuneupDefPtr& tuneup_entry, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val);
+    static std::string        getTweakedFlexbodyMediaRG(TuneupDefPtr& tuneup_def, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val);
+    static bool               isFlexbodyTweaked(TuneupDefPtr& tuneup_entry, FlexbodyID_t flexbody_id, TuneupFlexbodyTweak*& out_tweak);
     /// @}
 
 private:

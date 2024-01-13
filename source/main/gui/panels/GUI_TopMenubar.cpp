@@ -1449,12 +1449,8 @@ void TopMenubar::Draw(float dt)
             else
             {
                 ROR_ASSERT(tuning_actor->getUsedActorEntry());
-                CacheEntryPtr& tuneup_entry = tuning_actor->getUsedTuneupEntry();
-                if (tuneup_entry)
-                {
-                    ROR_ASSERT(tuneup_entry->resource_group != "");
-                    ROR_ASSERT(tuneup_entry->tuneup_def != nullptr);
-                }
+                TuneupDefPtr& tuneup_def = tuning_actor->getWorkingTuneupDef();
+
 
                 // KILL SWITCH
 
@@ -1594,13 +1590,13 @@ void TopMenubar::Draw(float dt)
 
                 ImGui::SetNextItemOpen(true, ImGuiCond_FirstUseEver);
                 std::string addonparts_title = fmt::format(_LC("TopMenubar", "Addon parts ({})"), tuning_addonparts.size());
-                if (ImGui::CollapsingHeader(addonparts_title.c_str()) && tuneup_entry)
+                if (ImGui::CollapsingHeader(addonparts_title.c_str()))
                 {
                     for (CacheEntryPtr& addonpart_entry: tuning_addonparts)
                     {
                         ImGui::PushID(addonpart_entry->fname.c_str());
 
-                        bool used = tuneup_entry->tuneup_def->use_addonparts.count(addonpart_entry->fname) > 0;
+                        bool used = TuneupUtil::isAddonPartUsed(tuneup_def, addonpart_entry->fname);
                         if (ImGui::Checkbox(addonpart_entry->dname.c_str(), &used))
                         {
                             ModifyProjectRequest* req = new ModifyProjectRequest();
@@ -1624,7 +1620,7 @@ void TopMenubar::Draw(float dt)
                             srq->asr_rotation     = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(tuning_actor->getRotation()), Ogre::Vector3::UNIT_Y);
                             srq->asr_config       = tuning_actor->getSectionConfig();
                             srq->asr_skin_entry   = tuning_actor->getUsedSkinEntry();
-                            srq->asr_tuneup_entry = tuneup_entry;
+                            srq->asr_working_tuneup = tuning_actor->getWorkingTuneupDef();
                             srq->asr_cache_entry  = tuning_actor->getUsedActorEntry();
                             srq->asr_debugview    = (int)tuning_actor->GetGfxActor()->GetDebugView();
                             srq->asr_origin       = ActorSpawnRequest::Origin::USER;
@@ -1649,7 +1645,7 @@ void TopMenubar::Draw(float dt)
                 // Draw props
                 size_t total_props = tuning_actor->GetGfxActor()->getProps().size();
                 std::string props_title = fmt::format(_LC("Tuning", "Props ({})"), total_props);
-                if (ImGui::CollapsingHeader(props_title.c_str()) && tuneup_entry)
+                if (ImGui::CollapsingHeader(props_title.c_str()))
                 {
                     // Draw all props (those removed by addonparts are also present as placeholders)
                     for (Prop const& p: tuning_actor->GetGfxActor()->getProps())
@@ -1662,8 +1658,8 @@ void TopMenubar::Draw(float dt)
                         this->DrawTuningForceRemoveControls(
                             p.pp_id,
                             p.pp_media[0],
-                            tuneup_entry->tuneup_def->isPropUnwanted(p.pp_id),
-                            tuneup_entry->tuneup_def->isPropForceRemoved(p.pp_id),
+                            tuneup_def && tuneup_def->isPropUnwanted(p.pp_id),
+                            tuneup_def && tuneup_def->isPropForceRemoved(p.pp_id),
                             ModifyProjectRequestType::TUNEUP_FORCEREMOVE_PROP_SET,
                             ModifyProjectRequestType::TUNEUP_FORCEREMOVE_PROP_RESET);
 
@@ -1694,7 +1690,7 @@ void TopMenubar::Draw(float dt)
 
                         this->DrawTuningProtectedChkRightAligned(
                             p.pp_id,
-                            tuneup_entry->tuneup_def->isPropProtected(p.pp_id),
+                            tuneup_def && tuneup_def->isPropProtected(p.pp_id),
                             ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_SET,
                             ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_RESET);
 
@@ -1707,7 +1703,7 @@ void TopMenubar::Draw(float dt)
                 // Ditto for flexbodies
                 size_t total_flexbodies = tuning_actor->GetGfxActor()->GetFlexbodies().size();
                 std::string flexbodies_title = fmt::format(_LC("Tuning", "Flexbodies ({})"), total_flexbodies);
-                if (ImGui::CollapsingHeader(flexbodies_title.c_str()) && tuneup_entry)
+                if (ImGui::CollapsingHeader(flexbodies_title.c_str()))
                 {
                     // Draw all flexbodies (those removed by addonparts are also present as placeholders)
                     for (FlexBody* flexbody: tuning_actor->GetGfxActor()->GetFlexbodies())
@@ -1720,14 +1716,14 @@ void TopMenubar::Draw(float dt)
                         this->DrawTuningForceRemoveControls(
                             flexbody->getID(),
                             flexbody->getOrigMeshName(),
-                            tuneup_entry->tuneup_def->isFlexbodyUnwanted(flexbody->getID()),
-                            tuneup_entry->tuneup_def->isFlexbodyForceRemoved(flexbody->getID()),
+                            tuneup_def && tuneup_def->isFlexbodyUnwanted(flexbody->getID()),
+                            tuneup_def && tuneup_def->isFlexbodyForceRemoved(flexbody->getID()),
                             ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLEXBODY_SET,
                             ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLEXBODY_RESET);
 
                         this->DrawTuningProtectedChkRightAligned(
                             flexbody->getID(),
-                            tuneup_entry->tuneup_def->isFlexbodyProtected(flexbody->getID()),
+                            tuneup_def && tuneup_def->isFlexbodyProtected(flexbody->getID()),
                             ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_SET,
                             ModifyProjectRequestType::TUNEUP_PROTECTED_FLEXBODY_RESET);
 
@@ -1738,7 +1734,7 @@ void TopMenubar::Draw(float dt)
                 // Draw wheels
                 const int total_wheels = tuning_actor->ar_num_wheels;
                 std::string wheels_title = fmt::format(_LC("TopMenubar", "Wheels ({})"), total_wheels);
-                if (ImGui::CollapsingHeader(wheels_title.c_str()) && tuneup_entry)
+                if (ImGui::CollapsingHeader(wheels_title.c_str()))
                 {
                     for (WheelID_t i = 0; i < total_wheels; i++)
                     {
@@ -1748,12 +1744,13 @@ void TopMenubar::Draw(float dt)
                         this->DrawTuningBoxedSubjectIdInline(i);
 
                         // Draw R/L radio buttons
-                        if (tuneup_entry->tuneup_def->isWheelSideForced(i))
+                        WheelSide forced_side = WheelSide::INVALID;
+                        if (tuneup_def && tuneup_def->isWheelSideForced(i, /*[out]*/forced_side))
                         {
                             ImGui::PushStyleColor(ImGuiCol_Border, ORANGE_TEXT);
                             ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
                         }
-                        const RoR::WheelSide active_side = TuneupUtil::getTweakedWheelSide(tuneup_entry, i, tuning_actor->GetGfxActor()->getWheelSide(i));
+                        const RoR::WheelSide active_side = TuneupUtil::getTweakedWheelSide(tuneup_def, i, tuning_actor->GetGfxActor()->getWheelSide(i));
                         RoR::WheelSide selected_side = active_side;
                         if (ImGui::RadioButton("##L", active_side == WheelSide::LEFT))
                             selected_side = WheelSide::LEFT;
@@ -1770,7 +1767,7 @@ void TopMenubar::Draw(float dt)
                         // Draw reset button
 
                         bool resetPressed = false;
-                        if (tuneup_entry->tuneup_def->isWheelSideForced(i))
+                        if (tuneup_def && tuneup_def->isWheelSideForced(i, forced_side))
                         {
                             ImGui::SameLine();
                             ImGui::SameLine();
@@ -1802,7 +1799,7 @@ void TopMenubar::Draw(float dt)
 
                         this->DrawTuningProtectedChkRightAligned(
                             i,
-                            tuneup_entry->tuneup_def->isWheelProtected(i),
+                            tuneup_def && tuneup_def->isWheelProtected(i),
                             ModifyProjectRequestType::TUNEUP_PROTECTED_WHEEL_SET,
                             ModifyProjectRequestType::TUNEUP_PROTECTED_WHEEL_RESET);
 
@@ -2268,10 +2265,11 @@ void TopMenubar::GetPresets()
 void TopMenubar::RefreshTuningMenu()
 {
     const ActorPtr& current_actor = App::GetGameContext()->GetPlayerActor();
-    if (App::sim_tuning_enabled->getBool() && current_actor && (tuning_actor != current_actor || tuning_force_refresh))
+    if (App::sim_tuning_enabled->getBool() 
+        && current_actor 
+        && (tuning_actor != current_actor || tuning_force_refresh))
     {
         ROR_ASSERT(current_actor->getUsedActorEntry());
-        ROR_ASSERT(current_actor->getUsedTuneupEntry());
 
         tuning_addonparts.clear();
         tuning_saves.resetResults();
@@ -2290,21 +2288,24 @@ void TopMenubar::RefreshTuningMenu()
         }
 
         // Addonparts force-installed via [browse all] button; watch for duplicates.
-        for (std::string const& use_addonpart_fname: current_actor->getUsedTuneupEntry()->tuneup_def->use_addonparts)
+        if (current_actor->getWorkingTuneupDef())
         {
-            CacheEntryPtr entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, use_addonpart_fname);
-            if (entry)
+            for (std::string const& use_addonpart_fname: current_actor->getWorkingTuneupDef()->use_addonparts)
             {
-                if (std::find(tuning_addonparts.begin(), tuning_addonparts.end(), entry) == tuning_addonparts.end())
+                CacheEntryPtr entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, use_addonpart_fname);
+                if (entry)
                 {
-                    tuning_addonparts.push_back(entry);
+                    if (std::find(tuning_addonparts.begin(), tuning_addonparts.end(), entry) == tuning_addonparts.end())
+                    {
+                        tuning_addonparts.push_back(entry);
+                    }
                 }
             }
         }
 
         tuning_saves.cqy_filter_type = LT_Tuneup;
         tuning_saves.cqy_filter_guid = current_actor->getUsedActorEntry()->guid;
-        tuning_saves.cqy_filter_category_id = CID_TuneupsUser; // Exclude auto-generated entries
+        tuning_saves.cqy_filter_category_id = CID_Tuneups; // Exclude auto-generated entries
         tuning_saves.resetResults();
         App::GetCacheSystem()->Query(tuning_saves);
 

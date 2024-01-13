@@ -39,6 +39,7 @@
 #include "Skidmark.h"
 #include "SkyManager.h"
 #include "Terrain.h"
+#include "TuneupFileFormat.h"
 
 #include <rapidjson/rapidjson.h>
 #include <fstream>
@@ -235,11 +236,11 @@ void GameContext::HandleSavegameHotkeys()
 // --------------------------------
 // ActorManager functions
 
-bool ActorManager::LoadScene(Ogre::String filename)
+bool ActorManager::LoadScene(Ogre::String save_filename)
 {
     // Read from disk
     rapidjson::Document j_doc;
-    if (!App::GetContentManager()->LoadAndParseJson(filename, RGN_SAVEGAMES, j_doc) ||
+    if (!App::GetContentManager()->LoadAndParseJson(save_filename, RGN_SAVEGAMES, j_doc) ||
         !j_doc.IsObject() || !j_doc.HasMember("format_version") || !j_doc["format_version"].IsNumber())
     {
         App::GetConsole()->putMessage(
@@ -258,7 +259,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
 
     if (App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
     {
-        if (filename == "autosave.sav")
+        if (save_filename == "autosave.sav")
             return false;
         if (terrain_name != App::sim_terrain_name->getStr())
         {
@@ -302,10 +303,10 @@ bool ActorManager::LoadScene(Ogre::String filename)
     std::vector<ActorPtr> x_actors = GetLocalActors();
     for (rapidjson::Value& j_entry: j_doc["actors"].GetArray())
     {
-        String filename = j_entry["filename"].GetString();
-        if (!App::GetCacheSystem()->CheckResourceLoaded(filename))
+        String rigdef_filename = j_entry["filename"].GetString();
+        if (!App::GetCacheSystem()->CheckResourceLoaded(rigdef_filename))
         {
-            Str<600> msg; msg << _L("Error while loading scene: Missing content (probably not installed)") << " '" << filename << "'";
+            Str<600> msg; msg << _L("Error while loading scene: Missing content (probably not installed)") << " '" << rigdef_filename << "'";
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
             actors.push_back(nullptr);
             continue;
@@ -315,6 +316,17 @@ bool ActorManager::LoadScene(Ogre::String filename)
         if (j_entry.HasMember("skin"))
         {
             skin = App::GetCacheSystem()->FetchSkinByName(j_entry["skin"].GetString());
+        }
+
+        TuneupDefPtr working_tuneup = nullptr;
+        if (j_entry.HasMember("tuneup_document"))
+        {
+            const char* tuneup_str = j_entry["tuneup_document"].GetString();
+            size_t tuneup_len = j_entry["tuneup_document"].GetStringLength();
+            Ogre::DataStreamPtr datastream(new Ogre::MemoryDataStream((void*)tuneup_str, tuneup_len));
+            std::vector<TuneupDefPtr> tuneups = TuneupUtil::ParseTuneups(datastream);
+            ROR_ASSERT(tuneups.size() > 0);
+            working_tuneup = tuneups[0];
         }
 
         String section_config = j_entry["section_config"].GetString();
@@ -350,12 +362,13 @@ bool ActorManager::LoadScene(Ogre::String filename)
             bool preloaded = j_entry["preloaded_with_terrain"].GetBool();
 
             ActorSpawnRequest* rq = new ActorSpawnRequest;
-            rq->asr_filename      = filename;
+            rq->asr_filename      = rigdef_filename;
             rq->asr_position.x    = j_entry["position"][0].GetFloat();
             rq->asr_position.y    = preloaded ? j_entry["position"][1].GetFloat() : j_entry["min_height"].GetFloat();
             rq->asr_position.z    = j_entry["position"][2].GetFloat();
             rq->asr_rotation      = Quaternion(Degree(270) - Radian(j_entry["rotation"].GetFloat()), Vector3::UNIT_Y);
             rq->asr_skin_entry    = skin;
+            rq->asr_working_tuneup = working_tuneup;
             rq->asr_config        = section_config;
             rq->asr_origin        = preloaded ? ActorSpawnRequest::Origin::TERRN_DEF : ActorSpawnRequest::Origin::SAVEGAME;
             rq->asr_free_position = preloaded;
@@ -396,7 +409,7 @@ bool ActorManager::LoadScene(Ogre::String filename)
         this->RestoreSavedState(actor, j_entry);
     }
 
-    if (filename != "autosave.sav")
+    if (save_filename != "autosave.sav")
     {
         App::GetConsole()->putMessage(
             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Scene loaded"));
@@ -488,6 +501,17 @@ bool ActorManager::SaveScene(Ogre::String filename)
         if (actor->m_used_skin_entry)
         {
             j_entry.AddMember("skin", rapidjson::StringRef(actor->m_used_skin_entry->dname.c_str()), j_doc.GetAllocator());
+        }
+
+        if (actor->getWorkingTuneupDef())
+        {
+            // Include the entire .tuneup file in the savegame.
+            rapidjson::Value j_tuneup_document(rapidjson::kStringType);
+            Str<TUNEUP_BUF_SIZE> tuneup_buf; // `Ogre::MemoryDataStream` doesn't zero-out the buffer it creates; we must supply our own zeroed memory.
+            Ogre::DataStreamPtr datastream(new Ogre::MemoryDataStream(tuneup_buf.GetBuffer(), tuneup_buf.GetCapacity()));
+            TuneupUtil::ExportTuneup(datastream, actor->getWorkingTuneupDef());
+            j_tuneup_document.SetString(datastream->getAsString().c_str(), j_doc.GetAllocator());
+            j_entry.AddMember("tuneup_document", j_tuneup_document, j_doc.GetAllocator());
         }
 
         j_entry.AddMember("section_config", rapidjson::StringRef(actor->m_section_config.c_str()), j_doc.GetAllocator());

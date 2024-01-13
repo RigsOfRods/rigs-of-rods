@@ -61,6 +61,8 @@ public:
     CacheEntry();
     ~CacheEntry();
 
+    CacheEntryID_t number;              //!< Sequential number, assigned internally, used by Selector-GUI
+
     Ogre::String fpath;                 //!< filepath relative to the .zip file
     Ogre::String fname;                 //!< filename
     Ogre::String fname_without_uid;     //!< filename
@@ -78,7 +80,7 @@ public:
     
     std::string resource_bundle_type;   //!< Archive type recognized by OGRE resource system: 'FileSystem' or 'Zip'
     std::string resource_bundle_path;   //!< Path of ZIP or directory which contains the media. Shared between CacheEntries, loaded only once.
-    int number;                         //!< Sequential number, assigned internally, used by Selector-GUI
+    
     std::time_t filetime;               //!< filetime
     bool deleted;                       //!< is this mod deleted?
     int usagecounter;                   //!< how much it was used already
@@ -140,8 +142,7 @@ enum CacheCategoryId
     CID_None          = 0,
 
     CID_Projects      = 8000, //!< For truck files under 'projects/' directory, to allow listing from editors.
-    CID_TuneupsAuto   = 8100, //!< Auto-created when top menubar 'Tuning' menu is first used. Automatically loaded on next sessions.
-    CID_TuneupsUser   = 8101, //!< Saved by user via GUI, can be loaded via GUI.
+    CID_Tuneups       = 8001, //!< For unsorted tuneup files.
 
     CID_Max           = 9000, //!< SPECIAL VALUE - Maximum allowed to be present in any mod files.
     CID_Unsorted      = 9990,
@@ -203,8 +204,7 @@ enum class CreateProjectRequestType
 {
     NONE,
     DEFAULT,                 //!< Copy files from source mod. Source mod Determines mod file extension.
-    CREATE_TUNEUP,           //!< Overrides project type to "tuneup", adds a blank .tuneup file with `CID_TuneupAuto`.
-    SAVE_TUNEUP,             //!< Dumps .tuneup file with `CID_TuneupUser` from source actor, will not overwrite existing.
+    SAVE_TUNEUP,             //!< Dumps .tuneup file with `CID_Tuneup` from source actor, will not overwrite existing unless explicitly instructed.
 };
 
 /// Creates subdirectory in 'My Games\Rigs of Rods\projects', pre-populates it with files and adds modcache entry.
@@ -411,8 +411,7 @@ private:
             {5001, _LC("ModCategory", "Night Terrains")},
 
             {CID_Projects, _LC("ModCategory", "Projects")},
-            {CID_TuneupsAuto, _LC("ModCategory", "Tuneups (auto-generated)")},
-            {CID_TuneupsUser, _LC("ModCategory", "Tuneups (saved by user)")},
+            {CID_Tuneups, _LC("ModCategory", "Tuneups")},
 
             // do not use category numbers above 9000!
             {CID_Unsorted, _LC("ModCategory", "Unsorted")},

@@ -219,7 +219,8 @@ public:
     // not exported to scripting:
     CacheEntryPtr&    getUsedActorEntry(); //!< The actor entry itself.
     CacheEntryPtr&    getUsedSkinEntry();
-    CacheEntryPtr&    getUsedTuneupEntry();
+    TuneupDefPtr&     getWorkingTuneupDef();
+    void              ensureWorkingTuneupDef();
     bool              isPreloadedWithTerrain() const { return m_preloaded_with_terrain; };
     std::vector<authorinfo_t> getAuthors();
     std::vector<std::string>  getDescription();
@@ -296,7 +297,7 @@ public:
     std::vector<Ogre::Vector3>     ar_initial_node_positions;
     std::vector<std::pair<float, float>> ar_initial_beam_defaults;
     std::vector<wheeldetacher_t>   ar_wheeldetachers;
-ActorPtrVec                        ar_linked_actors;              //!< Sim state; other actors linked using 'hooks'
+    ActorPtrVec                    ar_linked_actors;              //!< Sim state; other actors linked using 'hooks'
     std::vector<std::vector<int>>  ar_node_to_node_connections;
     std::vector<std::vector<int>>  ar_node_to_beam_connections;
     std::vector<Ogre::AxisAlignedBox>  ar_collision_bounding_boxes; //!< smart bounding boxes, used for determining the state of an actor (every box surrounds only a subset of nodes)
@@ -569,7 +570,7 @@ private:
     std::unique_ptr<Buoyance> m_buoyance;              //!< Physics
     CacheEntryPtr     m_used_actor_entry;
     CacheEntryPtr     m_used_skin_entry;               //!< Graphics
-    CacheEntryPtr     m_used_tuneup_entry;
+    TuneupDefPtr      m_working_tuneup_def;            //!< Each actor gets unique instance, even if loaded from .tuneup file in modcache.
     Skidmark*         m_skid_trails[MAX_WHEELS*2] = {};
     bool              m_antilockbrake = false;         //!< GUI state
     bool              m_tractioncontrol = false;       //!< GUI state
