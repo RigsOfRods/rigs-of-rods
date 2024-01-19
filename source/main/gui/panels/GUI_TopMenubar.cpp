@@ -743,8 +743,8 @@ void TopMenubar::Update()
                 ImGui::Separator();
 
                 ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Live diagnostic views:"));
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "(Toggle with %s)"), App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_DEBUG_VIEW).c_str());
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "(Cycle with %s)"), App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_CYCLE_DEBUG_VIEWS).c_str());
+                ImGui::TextColored(GRAY_HINT_TEXT, "%s", fmt::format(_LC("TopMenubar", "(Toggle with {})"), App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_DEBUG_VIEW)).c_str());
+                ImGui::TextColored(GRAY_HINT_TEXT, "%s", fmt::format(_LC("TopMenubar", "(Cycle with {})"), App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_CYCLE_DEBUG_VIEWS)).c_str());
 
                 int debug_view_type = static_cast<int>(DebugViewType::DEBUGVIEW_NONE);
                 if (current_actor != nullptr)
