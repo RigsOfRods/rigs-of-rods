@@ -4601,5 +4601,6 @@ void Actor::ensureWorkingTuneupDef()
     if (!m_working_tuneup_def)
     {
         m_working_tuneup_def = new TuneupDef();
+        m_working_tuneup_def->name = fmt::format("Tuned {}", ar_filename);
     }
 }
