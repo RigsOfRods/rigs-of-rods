@@ -73,6 +73,10 @@ std::shared_ptr<Document::Module> AddonPartUtility::TransformToRigDefModule(Cach
                 }
 
                 keyword = Parser::IdentifyKeyword(m_context->getTokKeyword());
+                if (keyword == Keyword::INVALID && m_context->getTokKeyword() == "set_managedmaterials_options")
+                {
+                    keyword = Keyword::SET_MANAGEDMATERIALS_OPTIONS; // Workaround, don't ask me why the regex doesn't match this.
+                }
                 if (keyword != Keyword::INVALID)
                 {
                     if (keyword == Keyword::SET_MANAGEDMATERIALS_OPTIONS)
@@ -218,7 +222,7 @@ void AddonPartUtility::ProcessDirectiveSetManagedMaterialsOptions()
     int n = m_context->countLineArgs();
     if (n > 1)
     {
-        m_managedmaterials_options.double_sided = m_context->getTokBool(1);
+        m_managedmaterials_options.double_sided = m_context->getFloatData(1) == 1.f;
     }
 }
 
