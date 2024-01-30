@@ -36,7 +36,7 @@
 #include <string>
 
 #define CACHE_FILE "mods.cache"
-#define CACHE_FILE_FORMAT 12
+#define CACHE_FILE_FORMAT 13
 #define CACHE_FILE_FRESHNESS 86400 // 60*60*24 = one day
 
 namespace RoR {
@@ -68,7 +68,7 @@ public:
     std::time_t addtimestamp;           //!< timestamp when this file was added to the cache
 
     Ogre::String uniqueid;              //!< file's unique id
-    Ogre::String guid;                  //!< global unique id
+    Ogre::String guid;                  //!< global unique id (NOTE: Only vehicles and terrains have their own GUIDs; For skins and missions, this is the GUID of associated vehicle or terrain)
     int version;                        //!< file's version
     Ogre::String fext;                  //!< file's extension
     std::string resource_bundle_type;   //!< Archive type recognized by OGRE resource system: 'FileSystem' or 'Zip'
@@ -79,14 +79,18 @@ public:
     int usagecounter;                   //!< how much it was used already
     std::vector<AuthorInfo> authors;    //!< authors
     Ogre::String filecachename;         //!< preview image filename
+    Ogre::String description;
 
     Ogre::String resource_group;        //!< Resource group of the loaded bundle. Empty if not loaded yet.
 
     RigDef::DocumentPtr actor_def; //!< Cached actor definition (aka truckfile) after first spawn
     std::shared_ptr<RoR::SkinDef> skin_def;  //!< Cached skin info, added on first use or during cache rebuild
 
+    // following all MISSION detail information:
+    std::string mission_type;
+    std::string mission_script;         //!< Handler script override
+
     // following all TRUCK detail information:
-    Ogre::String description;
     Ogre::String tags;
     std::string default_skin;
     int fileformatversion;
@@ -239,6 +243,7 @@ private:
 
     void FillTerrainDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
     void FillTruckDetailInfo(CacheEntry &entry, Ogre::DataStreamPtr ds, Ogre::String fname, Ogre::String group);
+    void FillMissionDetailInfo(CacheEntry& entry, Ogre::DataStreamPtr ds, Ogre::String fname);
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
 

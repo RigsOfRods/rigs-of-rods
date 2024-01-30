@@ -51,7 +51,7 @@ enum scriptEvents
     SE_TRUCK_TELEPORT                  = BITMASK(16), //!< triggered when the user teleports the truck, the argument refers to the actor ID of the vehicle
     SE_TRUCK_MOUSE_GRAB                = BITMASK(17), //!< triggered when the user uses the mouse to interact with the actor, the argument refers to the actor ID
 
-    SE_ANGELSCRIPT_MANIPULATIONS       = BITMASK(18), //!< triggered when the user tries to dynamically use the scripting capabilities (prevent cheating) args: #1 angelScriptManipulationType, #2 ScriptUnitId_t, #3 RoR::ScriptCategory, #4 unused, #5 filename
+    SE_ANGELSCRIPT_MANIPULATIONS       = BITMASK(18), //!< triggered when the user tries to dynamically use the scripting capabilities (prevent cheating) args: #1 angelScriptManipulationType, #2 ScriptUnitId_t, #3 RoR::ScriptCategory, #4 unused, #5 script file name (*.as), #6 associated file name (i.e. *.mission), #7 associated file resource group (i.e. *.mission).
     SE_ANGELSCRIPT_MSGCALLBACK         = BITMASK(19), //!< The diagnostic info directly from AngelScript engine (see `asSMessageInfo`), args: #1 ScriptUnitID, #2 asEMsgType, #3 row, #4 col, #5 sectionName, #6 message
     SE_ANGELSCRIPT_LINECALLBACK        = BITMASK(20), //!< The diagnostic info directly from AngelScript engine (see `SetLineCallback()`), args: #1 ScriptUnitID, #2 LineNumber, #3 CallstackSize, #4 unused, #5 FunctionName, #6 FunctionObjectTypeName #7 ObjectName
     SE_ANGELSCRIPT_EXCEPTIONCALLBACK   = BITMASK(21), //!< The diagnostic info directly from AngelScript engine (see `SetExceptionCallback()`), args: #1 ScriptUnitID, #2 unused, #3 row (`GetExceptionLineNumber()`), #4 unused, #5 funcName, #6 message (`GetExceptionString()`)
@@ -65,11 +65,12 @@ enum scriptEvents
 
 };
 
+/// Argument #2 of script event `SE_ANGELSCRIPT_MANIPULATIONS`
 enum angelScriptManipulationType
 {
-    MANIP_CONSOLE_SNIPPET_EXECUTED = 0, // Backwards compat
-    MANIP_SCRIPT_LOADED,
-    MANIP_SCRIPT_UNLOADED
+    ASMANIP_CONSOLE_SNIPPET_EXECUTED = 0, // 0 for Backwards compatibility.
+    ASMANIP_SCRIPT_LOADED,                //!< Triggered after the script's `main()` completed; may trigger additional processing (for example, it delivers the *.mission file to mission system script).
+    ASMANIP_SCRIPT_UNLOADING              //!< Triggered before unloading the script to let it clean up (important for missions).
 };
 
 enum angelScriptThreadStatus

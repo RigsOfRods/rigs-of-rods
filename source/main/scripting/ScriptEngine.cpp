@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -69,6 +69,7 @@ const char* RoR::ScriptCategoryToString(ScriptCategory c)
     case ScriptCategory::INVALID: return "INVALID";
     case ScriptCategory::ACTOR: return "ACTOR";
     case ScriptCategory::TERRAIN: return "TERRAIN";
+    case ScriptCategory::MISSION: return "MISSION";
     case ScriptCategory::CUSTOM: return "CUSTOM";
     default: return "";
     }
@@ -490,14 +491,19 @@ int ScriptEngine::addFunction(const String &arg)
     if (!engine || !context)
         return 1;
 
-    if (!context)
+    // Determine script unit to use
+    // - if a script is currently being executed, use it (added for mission scripts).
+    // - otherwise use terrain script module (classic behavior)
+    ScriptUnitId_t unitID = this->getCurrentlyExecutingScriptUnit();
+    if (unitID == SCRIPTUNITID_INVALID)
+        unitID = m_terrain_script_unit;
+    if (unitID == SCRIPTUNITID_INVALID)
+    {
+        SLOG("addFunction(): no current or terrain script available.");
+        return 1; // No terrain script loaded
+    }
         
-
-    // Only works with terrain script module (classic behavior)
-    if (m_terrain_script_unit == SCRIPTUNITID_INVALID)
-        return 1;
-
-    AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
+    AngelScript::asIScriptModule* mod = m_script_units[unitID].scriptModule;
 
     AngelScript::asIScriptFunction *func = 0;
     int r = mod->CompileFunction("addfunc", arg.c_str(), 0, AngelScript::asCOMP_ADD_TO_MODULE, &func);
@@ -514,13 +520,13 @@ int ScriptEngine::addFunction(const String &arg)
 
         if (func == mod->GetFunctionByDecl("void frameStep(float)"))
         {
-            if (m_script_units[m_terrain_script_unit].frameStepFunctionPtr == nullptr)
-                m_script_units[m_terrain_script_unit].frameStepFunctionPtr = func;
+            if (m_script_units[unitID].frameStepFunctionPtr == nullptr)
+                m_script_units[unitID].frameStepFunctionPtr = func;
         }
         else if (func == mod->GetFunctionByDecl("void eventCallback(int, int)"))
         {
-            if (m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr == nullptr)
-                m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr = func;
+            if (m_script_units[unitID].eventCallbackFunctionPtr == nullptr)
+                m_script_units[unitID].eventCallbackFunctionPtr = func;
         }
         else if (func == mod->GetFunctionByDecl("void eventCallbackEx(scriptEvents,   int, int, int, int,   string, string, string, string)"))
         {
@@ -532,8 +538,8 @@ int ScriptEngine::addFunction(const String &arg)
                 m_terrain_script_unit, GETFUNCFLAG_OPTIONAL,
                 GETFUNC_DEFAULTEVENTCALLBACK_NAME, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT))
         {
-            if (m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr == nullptr)
-                m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr = func;
+            if (m_script_units[unitID].defaultEventCallbackFunctionPtr == nullptr)
+                m_script_units[unitID].defaultEventCallbackFunctionPtr = func;
         }
     }
 
@@ -745,7 +751,7 @@ String ScriptEngine::composeModuleName(String const& scriptName, ScriptCategory 
 
 ScriptUnitId_t ScriptEngine::loadScript(
     String scriptName, ScriptCategory category/* = ScriptCategory::TERRAIN*/,
-    ActorPtr associatedActor /*= nullptr*/, std::string buffer /* =""*/)
+    ActorPtr associatedActor /*= nullptr*/, std::string buffer /* =""*/, CacheEntry* missionEntry /*= nullptr*/)
 {
     // This function creates a new script unit, tries to set it up and removes it if setup fails.
     // -----------------------------------------------------------------------------------------
@@ -767,6 +773,15 @@ ScriptUnitId_t ScriptEngine::loadScript(
     else if (category == ScriptCategory::ACTOR)
     {
         m_script_units[unit_id].associatedActor = associatedActor;
+    }
+    else if (category == ScriptCategory::MISSION)
+    {
+        if (missionEntry == nullptr)
+        {
+            LOG("loadScript(): FATAL ERROR - mission cache entry not available, likely programmer error.");
+            return SCRIPTUNITID_INVALID;
+        }
+        m_script_units[unit_id].missionEntry = missionEntry;
     }
 
     // Perform the actual script loading, building and running main().
@@ -1010,4 +1025,15 @@ ScriptUnit& ScriptEngine::getScriptUnit(ScriptUnitId_t unique_id)
     ROR_ASSERT(unique_id != SCRIPTUNITID_INVALID);
     ROR_ASSERT(m_script_units.count(unique_id) != 0);
     return m_script_units[unique_id];
+}
+
+int ScriptEngine::getNumLoadedMissions()
+{
+    int count = 0;
+    for (auto& pair : m_script_units)
+    {
+        if (pair.second.scriptCategory == ScriptCategory::MISSION)
+            count++;
+    }
+    return count;
 }

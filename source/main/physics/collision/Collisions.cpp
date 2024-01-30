@@ -28,12 +28,17 @@
 #include "ErrorUtils.h"
 #include "GameContext.h"
 #include "GfxScene.h"
+#include "GUIManager.h"
 #include "Landusemap.h"
 #include "Language.h"
 #include "MovableText.h"
 #include "PlatformUtils.h"
 #include "ScriptEngine.h"
 #include "Terrain.h"
+#include "Utils.h"
+
+#include <algorithm>
+#include <vector>
 
 using namespace RoR;
 
@@ -350,6 +355,8 @@ void Collisions::removeCollisionBox(int number)
             eventsources[m_collision_boxes[number].eventsourcenum].es_enabled = false;
         }
         // Is it worth to update the hashmap? ~ ulteq 01/19
+        // Eventually yes to tidy up debug views ~ only_a_ptr, 02/23
+        m_collision_boxes[number].pending_delete = true;
     }
 }
 
@@ -359,6 +366,32 @@ void Collisions::removeCollisionTri(int number)
     {
         m_collision_tris[number].enabled = false;
         // Is it worth to update the hashmap? ~ ulteq 01/19
+        // Eventually yes to tidy up debug views ~ only_a_ptr, 02/23
+        m_collision_tris[number].pending_delete = true;
+    }
+}
+
+void Collisions::pruneCollisionElements()
+{
+    // Clear the lookup grid
+    this->hash_purge();
+
+    // Dump outdated debug meshes
+    App::GetGuiManager()->CollisionsDebug.ClearEventBoxVisuals();
+    App::GetGuiManager()->CollisionsDebug.ClearCollisionMeshVisuals();
+
+    // Prune collision elements
+    EraseIf(m_collision_boxes, [](collision_box_t const& cbox) { return cbox.pending_delete; });
+    EraseIf(m_collision_tris, [](collision_tri_t const& ctri) {return ctri.pending_delete; });
+
+    // Rebuild hash map
+    for (size_t i = 0; i < m_collision_boxes.size(); i++)
+    {
+        hash_add_bounding_box(m_collision_boxes[i].lo, m_collision_boxes[i].hi, i);
+    }
+    for (size_t i = 0; i < m_collision_tris.size(); i++)
+    {
+        hash_add_bounding_box(m_collision_tris[i].aab.getMinimum(), m_collision_tris[i].aab.getMaximum(),  i + hash_coll_element_t::ELEMENT_TRI_BASE_INDEX);
     }
 }
 
@@ -379,6 +412,34 @@ unsigned int Collisions::hashfunc(unsigned int cellid)
         hash *= 3;
     }
     return hash&hashmask;
+}
+
+void Collisions::hash_purge()
+{
+    for (size_t i = 0; i < HASH_SIZE; i++)
+    {
+        hashtable[i].clear();
+    }
+}
+
+void Collisions::hash_add_bounding_box(Ogre::Vector3 const& lo, Ogre::Vector3 const& hi, int value)
+{
+    Vector3 ilo = Ogre::Vector3(lo / Ogre::Real(CELL_SIZE));
+    Vector3 ihi = Ogre::Vector3(hi / Ogre::Real(CELL_SIZE));
+
+    // clamp between 0 and MAXIMUM_CELL;
+    ilo.makeCeil(Ogre::Vector3(0.0f));
+    ilo.makeFloor(Ogre::Vector3(MAXIMUM_CELL));
+    ihi.makeCeil(Ogre::Vector3(0.0f));
+    ihi.makeFloor(Ogre::Vector3(MAXIMUM_CELL));
+
+    for (int i = ilo.x; i <= ihi.x; i++)
+    {
+        for (int j = ilo.z; j <= ihi.z; j++)
+        {
+            hash_add(i, j, value, hi.y);
+        }
+    }
 }
 
 void Collisions::hash_add(int cell_x, int cell_z, int value, float h)
@@ -406,6 +467,7 @@ int Collisions::addCollisionBox(bool rotating, bool virt, Vector3 pos, Ogre::Vec
     collision_box_t coll_box;
 
     coll_box.enabled = true;
+    coll_box.pending_delete = false;
     
     // set refined box anyway
     coll_box.relo = l*sc;
@@ -526,22 +588,7 @@ int Collisions::addCollisionBox(bool rotating, bool virt, Vector3 pos, Ogre::Vec
     }
 
     // register this collision box in the index
-    Vector3 ilo = Ogre::Vector3(coll_box.lo / Ogre::Real(CELL_SIZE));
-    Vector3 ihi = Ogre::Vector3(coll_box.hi / Ogre::Real(CELL_SIZE));
-    
-    // clamp between 0 and MAXIMUM_CELL;
-    ilo.makeCeil(Ogre::Vector3(0.0f));
-    ilo.makeFloor(Ogre::Vector3(MAXIMUM_CELL));
-    ihi.makeCeil(Ogre::Vector3(0.0f));
-    ihi.makeFloor(Ogre::Vector3(MAXIMUM_CELL));
-
-    for (int i = ilo.x; i <= ihi.x; i++)
-    {
-        for (int j = ilo.z; j <= ihi.z; j++)
-        {
-            hash_add(i, j, coll_box_index,coll_box.hi.y);
-        }
-    }
+    this->hash_add_bounding_box(coll_box.lo, coll_box.hi, coll_box_index);
 
     m_collision_aab.merge(AxisAlignedBox(coll_box.lo, coll_box.hi));
     m_collision_boxes.push_back(coll_box);
@@ -557,6 +604,7 @@ int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, ground_model
     new_tri.c=p3;
     new_tri.gm=gm;
     new_tri.enabled=true;
+    new_tri.pending_delete = false;
     // compute transformations
     // base construction
     Vector3 bx=p2-p1;
@@ -577,22 +625,8 @@ int Collisions::addCollisionTri(Vector3 p1, Vector3 p2, Vector3 p3, ground_model
     new_tri.aab.setMaximum(new_tri.aab.getMaximum() + 0.1f);
     
     // register this collision tri in the index
-    Ogre::Vector3 ilo(new_tri.aab.getMinimum() / Ogre::Real(CELL_SIZE));
-    Ogre::Vector3 ihi(new_tri.aab.getMaximum() / Ogre::Real(CELL_SIZE));
-    
-    // clamp between 0 and MAXIMUM_CELL;
-    ilo.makeCeil(Ogre::Vector3(0.0f));
-    ilo.makeFloor(Ogre::Vector3(MAXIMUM_CELL));
-    ihi.makeCeil(Ogre::Vector3(0.0f));
-    ihi.makeFloor(Ogre::Vector3(MAXIMUM_CELL));
-    
-    for (int i = ilo.x; i <= ihi.x; i++)
-    {
-        for (int j = ilo.z; j<=ihi.z; j++)
-        {
-            hash_add(i, j, new_tri_index + hash_coll_element_t::ELEMENT_TRI_BASE_INDEX, new_tri.aab.getMaximum().y);
-        }
-    }
+    this->hash_add_bounding_box(new_tri.aab.getMinimum(), new_tri.aab.getMaximum(),
+        new_tri_index + hash_coll_element_t::ELEMENT_TRI_BASE_INDEX);
 
     m_collision_aab.merge(new_tri.aab);
     m_collision_tris.push_back(new_tri);
@@ -1465,6 +1499,12 @@ void Collisions::registerCollisionMesh(Ogre::String const& srcname, Ogre::String
     rec.collision_tri_count = ctri_count;
     rec.bounding_box = bounding_box;
     m_collision_meshes.push_back(rec);
+}
+
+void Collisions::unregisterCollisionMesh(Ogre::String const& meshname)
+{
+    // This only erases the mesh record, but doesn't actually remove the collision triangles!
+    EraseIf(m_collision_meshes, [meshname](collision_mesh_t const& cmesh) { return cmesh.mesh_name == meshname; });
 }
 
 void Collisions::getMeshInformation(Mesh* mesh,size_t &vertex_count,Ogre::Vector3* &vertices,

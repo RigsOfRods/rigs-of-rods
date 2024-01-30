@@ -57,6 +57,7 @@ struct collision_tri_t
     Ogre::Matrix3 reverse;
     ground_model_t* gm;
     bool enabled;
+    bool pending_delete;
 };
 typedef std::vector<collision_tri_t> CollisionTriVec;
 
@@ -157,6 +158,8 @@ private:
 
     const Ogre::Vector3 m_terrain_size;
 
+    void hash_purge(); //!< Remove everything from hashmap
+    void hash_add_bounding_box(Ogre::Vector3 const& lo, Ogre::Vector3 const& hi, int value);
     void hash_add(int cell_x, int cell_z, int value, float h);
     int hash_find(int cell_x, int cell_z); /// Returns index to 'hashtable'
     unsigned int hashfunc(unsigned int cellid);
@@ -194,10 +197,12 @@ public:
     int addCollisionBox(bool rotating, bool virt, Ogre::Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String& eventname, const Ogre::String& instancename, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc = Ogre::Vector3::UNIT_SCALE, Ogre::Vector3 dr = Ogre::Vector3::ZERO, CollisionEventFilter event_filter = EVENT_ALL, int scripthandler = -1);
     void addCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::Quaternion const& q, Ogre::Vector3 const& scale, ground_model_t* gm = 0, std::vector<int>* collTris = 0); //!< generate collision tris from existing mesh resource
     void registerCollisionMesh(Ogre::String const& srcname, Ogre::String const& meshname, Ogre::Vector3 const& pos, Ogre::AxisAlignedBox bounding_box, ground_model_t* gm, int ctri_start, int ctri_count); //!< Mark already generated collision tris as belonging to (virtual) mesh.
+    void unregisterCollisionMesh(Ogre::String const& meshname); //!< This only erases the mesh record, but doesn't actually remove the collision triangles!
     int addCollisionTri(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, ground_model_t* gm);
     void createCollisionDebugVisualization(Ogre::SceneNode* root_node, Ogre::AxisAlignedBox const& area_limit, std::vector<Ogre::SceneNode*>& out_nodes);
-    void removeCollisionBox(int number);
-    void removeCollisionTri(int number);
+    void removeCollisionBox(int number); //!< Only marks it `pending_delete`, call `pruneCollisionElements()` afterwards!
+    void removeCollisionTri(int number); //!< Only marks it `pending_delete`, call `pruneCollisionElements()` afterwards!
+    void pruneCollisionElements(); //!< Deletes `pending_delete` elements and rebuilds the hashmap.
     void clearEventCache() { m_last_called_cboxes.clear(); }
 
     Ogre::AxisAlignedBox getCollisionAAB() { return m_collision_aab; };

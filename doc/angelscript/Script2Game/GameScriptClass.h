@@ -339,11 +339,6 @@ public:
 	int getLoadedTerrain(string result);
     
 	/**
-	 * Gets the currently loaded terrain instance
-	 */    
-	TerrainClass@ getTerrain();
-    
-	/**
 	 * Checks if Caleum is enabled.
 	 * @return true if Caleum is available
 	 */
@@ -424,6 +419,17 @@ public:
     * @return true if mouse points to the terrain and output coordinates are valid.
     */
     bool getMousePositionOnTerrain(vector3 &out);
+    
+	/**
+	 * Gets the currently loaded terrain instance
+	 */    
+	TerrainClass@ getTerrain();    
+    
+    /**
+    * Erases collision elements marked `pending_delete` and rebuilds lookup grid.
+    * Call this once after you've unloaded a mission or moved/removed things using editor.
+    */
+    void pruneCollisionElements();    
 
     /// @}
 
@@ -623,6 +629,15 @@ public:
 	 * @see stopTimer
 	 */
 	void startTimer();
+    
+	/**
+	 * @return The time that passed since the timer started
+	 */
+	float getElapsedTime();  
+
+    void setTimeDiff(float diff);
+    
+    void setBestLapTime(float time);
 
     ///@}
 

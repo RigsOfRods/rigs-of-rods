@@ -331,7 +331,7 @@ public:
 
 #ifdef USE_ANGELSCRIPT
         // we want to notify any running scripts that we might change something (prevent cheating)
-        App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS, MANIP_CONSOLE_SNIPPET_EXECUTED);
+        App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS, ASMANIP_CONSOLE_SNIPPET_EXECUTED);
 
         // Re-compose the code snippet
         Str<1000> code;
@@ -429,6 +429,55 @@ public:
         reply << _L("Scripting disabled in this build");
 #endif
         
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
+    }
+};
+
+class LoadmissionCmd : public ConsoleCmd
+{
+public:
+    LoadmissionCmd() : ConsoleCmd("loadmission", "[filename]", _L("Loads a *.mission file")) {}
+
+    void Run(Ogre::StringVector const& args) override
+    {
+        if (!this->CheckAppState(AppState::SIMULATION))
+            return;
+
+        Str<200> reply;
+        reply << m_name << ": ";
+        Console::MessageType reply_type;
+
+#ifdef USE_ANGELSCRIPT
+        if (args.size() == 1)
+        {
+            reply_type = Console::CONSOLE_SYSTEM_ERROR;
+            reply << _L("Missing parameter: ") << m_usage;
+        }
+        else
+        {
+            // Find mission in modcache
+            CacheEntry* mission_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Mission, /*partial=*/true, args[1]);
+            if (!mission_entry)
+            {
+                reply_type = Console::CONSOLE_SYSTEM_ERROR;
+                reply << _L("Mission not found: ") << args[1];
+            }
+            else if (!App::GetGameContext()->LoadMission(mission_entry))
+            {
+                reply_type = Console::CONSOLE_SYSTEM_ERROR;
+                reply << _L("The mission could not be loaded");
+            }
+            else
+            {
+                reply_type = Console::CONSOLE_SYSTEM_REPLY;
+                reply << _L("The mission was loaded successfully");
+            }
+        }
+#else
+        reply_type = Console::CONSOLE_SYSTEM_ERROR;
+        reply << _L("Scripting disabled in this build");
+#endif
+
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
     }
 };
@@ -666,6 +715,7 @@ void Console::regBuiltinCommands()
     // Additions
     cmd = new ClearCmd();                 m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new LoadScriptCmd();            m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new LoadmissionCmd();           m_commands.insert(std::make_pair(cmd->getName(), cmd));
     // CVars
     cmd = new SetCmd();                   m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new SetstringCmd();             m_commands.insert(std::make_pair(cmd->getName(), cmd));

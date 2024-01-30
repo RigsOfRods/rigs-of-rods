@@ -1,3 +1,5 @@
+/// \title Race and mission system
+/// \brief Extension of original race scripting by Neorej16
 /*
 Hi,
 
@@ -30,6 +32,23 @@ edit! (racesManager::raceManagerVersion and
 raceBuilder::raceBuilderVersion)
 
 -- neorej16
+*/
+
+/*
+Following are dev notes from 2023's mission system project.
+This involved thorough study of the existing logic, as original devs are no longer on the project.
+
+Terminology:
+- Instance name = unique label assigned to whole object in .TOBJ file or `game.spawnObject()` call.
+- Box name = desired operation type specified as `event <boxname> [<filter>]` for each box in .ODEF file.
+
+Instance name schemes = their meaning:
+- "checkpoint|$RaceID|$ChpNumber|$SplitTrailNumber"   = Start/Checkpoint/Finish. Use `races.addCheckpoint()` to create.
+- "race_abort|$RaceID(-1 = any race)|$ChpNumber(??)"  = Abort point (box name must be 'race_abort'). Cannot be added via `races` :(
+- "race_cancel|$RaceID(-1 = any race)|$UniqueNum"     = Abort point (box name doesn't matter). Use `races.addCancelPoint()` to create.
+- "race_penalty|$RaceID(-1 = any race)|$ChpNumber(??) = Time penalization. Cannot be added via `races` :(
+
+-- Petr Ohlidal
 */
 
 // Define a function signature for the callback pointers
@@ -120,7 +139,7 @@ class racesManager {
 				
 		// we initialize the callbacks dictionary
 		this.callbacks.set("RaceFinish", null); // when a race was finished
-		this.callbacks.set("RaceCancel", null); // when a race was canceled
+		this.callbacks.set("RaceCancel", null); // when a race was canceled by any means (race_abort box or forbidden user action)
 		this.callbacks.set("RaceStart",  null); // when a race starts
 		this.callbacks.set("AdvanceLap", null); // when a lap is done, but not when the race is done
 		this.callbacks.set("Checkpoint", null); // when a checkpoint is taken (excluding start and finish)
@@ -151,7 +170,7 @@ class racesManager {
 		this.lastCheckpoint  = -1;
 		this.raceStartTime   = 0.0;
 		this.lapStartTime    = 0.0;
-		this.cancelPointCount= 0;
+        this.cancelPointCount= 0;
 		this.lastCheckpointInstance = "";
 		this.lastRaceEventInstance = ""; // we only use this to boost the FPS
 		this.raceManagerVersion = "RoR_raceManager_v0.02";
@@ -943,69 +962,31 @@ class racesManager {
 		this.raceList[raceID].deleteCheckpoint(number, instance);
 	}
 		
-	// if the user comes in this event box, the current race will be cancelled
-	// example usage: if the users drives off the track
-	// (race will be stopped)
-	void addCancelPoint(int raceID, const string &in objName, const vector3 &in pos, const vector3 &in rot, RACE_EVENT_CALLBACK @callback)
+	// if the user comes in this event box, the current race will be cancelled.
+    // The `raceID` parameter can be -1 to abort any race or an existing raceID to abort only that.
+	// The optional callback parameter will be set as "AbortEvent" callback.
+	void addCancelPoint(int raceID, const string &in objName, const vector3 &in pos, const vector3 &in rot, RACE_EVENT_CALLBACK @callback = null)
 	{
-		dictionary dict;
-		dict.set("raceID", raceID);
-		dict.set("oname", ""+objName);
-		// dict.set("position", vector3(pos));
-		// dict.set("rotation", vector3(rot));
-		dict.set("callback", @callback);
-		this.callbacks.set("race_cancel_"+cancelPointCount, dict);
-		game.spawnObject(objName, "race_cancel_"+cancelPointCount, pos, rot, "raceCancelPointHandler", false);
+        if (@callback != null)
+            this.setCallback("AbortEvent", callback);
+        
+		game.spawnObject(objName, "race_cancel|"+raceID+"|-1|"+cancelPointCount++, pos, rot, "raceCancelPointHandler", false);
 	}
-	void addCancelPoint(int raceID, const string &in objName, const double[] &in v, RACE_EVENT_CALLBACK @callback)
+    
+    // Convenience overload with pos+rot specified as double[]
+	void addCancelPoint(int raceID, const string &in objName, const double[] &in v, RACE_EVENT_CALLBACK @callback = null)
 	{
 		addCancelPoint(raceID, objName, vector3(v[0], v[1], v[2]), vector3(v[3], v[4], v[5]), @callback);
 	}
-	void addCancelPoint(int raceID, const string &in objName, const vector3 &in pos, const vector3 &in rot)
-	{
-		dictionary dict;
-		dict.set("raceID", raceID);
-		dict.set("oname", ""+objName);
-		// dict.set("position", vector3(pos));
-		// dict.set("rotation", vector3(rot));
-		dict.set("callback", null);
-		this.callbacks.set("race_cancel_"+cancelPointCount, dict);
-		game.spawnObject(objName, "race_cancel_"+cancelPointCount, pos, rot, "raceCancelPointHandler", false);
-	}
-	void addCancelPoint(int raceID, const string &in objName, const double[] &in v)
-	{
-		addCancelPoint(raceID, objName, vector3(v[0], v[1], v[2]), vector3(v[3], v[4], v[5]));
-	}
 	
+    // Special callback, invoked from event boxes added via `races.addCancelPoint()`.
+    // It works exactly like a "race_abort" event box, except the box name (specified as `event` in .ODEF file) can be anything.
+    // This is required for backwards compatibility with older terrains.
+    // (For example: Auriga Proving Grounds uses event box named "checkpoint", see '31-trigger10x10.odef').
 	void raceCancelPointHandler(int trigger_type, const string &in inst, const string &in box, int nodeid)
 	{
-		if( this.state == this.STATE_NotInRace )
-			return;
-
-		dictionary dict;
-		if( not this.callbacks.get(inst, dict) )
-			return;
-
-		int raceID;
-		dict.get("raceID", raceID);
-		if( raceID != -1 and this.currentRace != raceID )
-			return;
-		
-		this.cancelCurrentRace();
-		
-		// call the callback function
-		RACE_EVENT_CALLBACK @handle;
-		if( dict.get("callback", @handle) and not (handle is null) )
-		{
-			dictionary args;
-			args.set("event", "cancel_point");
-			args.set("raceID", this.currentRace);
-			args.set("inst", ""+inst);
-			args.set("trigger_type", trigger_type);
-			args.set("box", ""+box);
-			args.set("nodeid", nodeid);
-			handle(args);
-		}
+        game.log("DBG raceManager.raceCancelPointHandler() called; trigger:"+trigger_type+", inst:"+inst+", box:"+box+", nodeid:"+nodeid);
+		this.raceEvent(trigger_type, inst, "race_abort", nodeid);
 	}
 	
 	void recalcArrow()

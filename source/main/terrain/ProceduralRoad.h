@@ -112,6 +112,7 @@ private:
     int mid = 0;
     bool collision = true; //!< Register collision triangles?
     std::vector<int> registeredCollTris;
+    std::string m_registered_coll_mesh_name;
 };
 
 /// @} // addtogroup Terrain

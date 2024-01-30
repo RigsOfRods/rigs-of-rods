@@ -105,6 +105,8 @@ enum MsgType
     MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED,    //!< Payload = ActorPtr* (owner)
     MSG_SIM_SCRIPT_EVENT_TRIGGERED,        //!< Payload = RoR::ScriptEventArgs* (owner)
     MSG_SIM_SCRIPT_CALLBACK_QUEUED,        //!< Payload = RoR::ScriptCallbackArgs* (owner)
+    MSG_SIM_LOAD_MISSION_REQUESTED,        //!< Payload = RoR::CacheEntry* (weak)
+    MSG_SIM_UNLOAD_MISSION_REQUESTED,      //!< Payload = RoR::ScriptUnitId_t (owner)
     MSG_SIM_ACTOR_LINKING_REQUESTED,       //!< Payload = RoR::ActorLinkingRequest* (owner)
     // GUI
     MSG_GUI_OPEN_MENU_REQUESTED,
@@ -260,6 +262,7 @@ enum LoaderType //!< Operation mode for GUI::MainSelector
 {
     LT_None,
     LT_Terrain,   // Invocable from GUI; No script alias, used in main menu
+    LT_Mission,   // Invocable from GUI; No script alias, used in simulation top menubar
     LT_Vehicle,   // Script "vehicle",   ext: truck car
     LT_Truck,     // Script "truck",     ext: truck car
     LT_Car,       // Script "car",       ext: car

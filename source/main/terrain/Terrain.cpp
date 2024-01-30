@@ -137,6 +137,20 @@ void RoR::Terrain::dispose()
         App::GetScriptEngine()->unloadScript(App::GetScriptEngine()->getTerrainScriptUnit());
     }
 
+    // Unload missions
+    std::vector<ScriptUnitId_t> mission_script_IDs;
+    for (auto& pair : App::GetScriptEngine()->getScriptUnits())
+    {
+        if (pair.second.scriptCategory == ScriptCategory::MISSION)
+        {
+            mission_script_IDs.push_back(pair.second.uniqueId);
+        }
+    }
+    for (ScriptUnitId_t nid : mission_script_IDs)
+    {
+        App::GetGameContext()->UnloadMission(nid);
+    }
+
     m_disposed = true;
 }
 

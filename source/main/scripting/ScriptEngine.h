@@ -27,7 +27,9 @@
 
 #ifdef USE_ANGELSCRIPT
 
-#define DEFAULT_TERRAIN_SCRIPT "default.as" // Used when map creator doesn't provide custom script.
+#define DEFAULT_TERRAIN_SCRIPT "terrain_default.as" // Used when map creator doesn't provide custom script.
+#define DEFAULT_MISSION_SCRIPT "mission_default.as" // Used when mission creator doesn't provide custom script.
+
 
 #include "AngelScriptBindings.h"
 #include "Application.h"
@@ -60,6 +62,7 @@ enum class ScriptCategory
     INVALID,
     ACTOR,   //!< Defined in truck file under 'scripts', contains global variable `BeamClass@ thisActor`.
     TERRAIN, //!< Defined in terrn2 file under '[Scripts]', receives terrain eventbox notifications.
+    MISSION, //!< Defined in mission file as 'mission_script', must specify functions `loadMission()` and `unloadMission()`
     CUSTOM   //!< Loaded by user via either: A) ingame console 'loadscript'; B) RoR.cfg 'app_custom_scripts'; C) commandline '-runscript'.
 };
 
@@ -80,6 +83,7 @@ struct ScriptUnit
     Ogre::String scriptName;
     Ogre::String scriptHash;
     Ogre::String scriptBuffer;
+    CacheEntry* missionEntry = nullptr; //!< For ScriptCategory::MISSION
 };
 
 typedef std::map<ScriptUnitId_t, ScriptUnit> ScriptUnitMap;
@@ -128,10 +132,11 @@ public:
      * @param category How to treat the script?
      * @param associatedActor Only for category ACTOR
      * @param buffer String with full script body; if empty, a file will be loaded as usual.
+     * @param missionEntry Required for `ScriptCategory::MISSION`, otherwise unused.
      * @return Unique ID of the script unit (because one script file can be loaded multiple times).
      */
     ScriptUnitId_t loadScript(Ogre::String scriptname, ScriptCategory category = ScriptCategory::TERRAIN,
-        ActorPtr associatedActor = nullptr, std::string buffer = "");
+        ActorPtr associatedActor = nullptr, std::string buffer = "", CacheEntry* missionEntry = nullptr);
 
     /**
      * Unloads a script
@@ -218,6 +223,8 @@ public:
     void forwardExceptionAsScriptEvent(const std::string& from);
 
     AngelScript::asIScriptEngine* getEngine() { return engine; };
+
+    int getNumLoadedMissions();
 
     // method from Ogre::LogListener
     void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);

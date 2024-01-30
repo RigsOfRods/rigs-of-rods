@@ -188,9 +188,16 @@ bool GameScript::getCaelumAvailable()
     return result;
 }
 
-void GameScript::stopTimer()
+float GameScript::getElapsedTime()
 {
+    return App::GetGameContext()->GetRaceSystem().GetRaceTime();
+}
+
+float GameScript::stopTimer()
+{
+    float elapsedTime = this->getElapsedTime();
     App::GetGameContext()->GetRaceSystem().StopRaceTimer();
+    return elapsedTime;
 }
 
 void GameScript::startTimer(int id)
@@ -426,7 +433,13 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
         return;
     }
 
-    if (App::GetScriptEngine()->getTerrainScriptUnit() == -1)
+    // Determine script unit to use
+    // - if a script is currently being executed, use it (added for mission scripts).
+    // - otherwise use terrain script module (classic behavior)
+    ScriptUnitId_t unitID = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+    if (unitID == SCRIPTUNITID_INVALID)
+        unitID = App::GetScriptEngine()->getTerrainScriptUnit();
+    if (unitID == SCRIPTUNITID_INVALID)
     {
         this->logFormat("spawnObject(): Cannot spawn object, no terrain script loaded!");
         return;
@@ -434,7 +447,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 
     try
     {
-        AngelScript::asIScriptModule* module = App::GetScriptEngine()->getScriptUnit(App::GetScriptEngine()->getTerrainScriptUnit()).scriptModule;
+        AngelScript::asIScriptModule* module = App::GetScriptEngine()->getScriptUnit(unitID).scriptModule;
         if (module == nullptr)
         {
             this->logFormat("spawnObject(): Failed to fetch/create script module");
@@ -454,7 +467,7 @@ void GameScript::spawnObject(const String& objectName, const String& instanceNam
 
             // Look up the function and log if not found or found with bad arguments (probably a typo).
             AngelScript::asIScriptFunction* handler_func = App::GetScriptEngine()->getFunctionByDeclAndLogCandidates(
-                App::GetScriptEngine()->getTerrainScriptUnit(), GETFUNCFLAG_REQUIRED,
+                unitID, GETFUNCFLAG_REQUIRED,
                 eventhandler, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT);
             if (handler_func != nullptr)
             {
@@ -890,7 +903,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
             curl_easy_setopt(curl, CURLOPT_URL,           url.c_str());
             curl_easy_setopt(curl, CURLOPT_HTTPHEADER,    slist);
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS,    json.c_str());
-            
+
             CURLcode curl_result = curl_easy_perform(curl);
             curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
 
@@ -1854,4 +1867,12 @@ std::string GameScript::CheckFileAccess(const char* func_name, const std::string
     {
         return basename + "." + extension;
     }
+}
+
+void GameScript::pruneCollisionElements()
+{
+    if (!HaveSimTerrain(__FUNCTION__))
+        return;
+
+    App::GetGameContext()->GetTerrain()->GetCollisions()->pruneCollisionElements();
 }
