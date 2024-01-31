@@ -15,7 +15,7 @@ jobs:
       - name: Cache conan
         uses: actions/cache@v5
         with:
-          key: conan-ubuntu-22-${{ hashFiles('conanfile.py') }}
+          key: conan-ubuntu-${{ hashFiles('conanfile.py') }}
           path: ~/.conan2/
 
       - name: Install dependencies
@@ -45,7 +45,7 @@ jobs:
           conan profile detect --force
           echo "tools.system.package_manager:mode = install" > ~/.conan2/global.conf
           echo "tools.system.package_manager:sudo = True" >> ~/.conan2/global.conf
-          conan remote add ror-conan https://git.anotherfoxguy.com/api/packages/rorbot/conan -f
+          conan remote add rigs-of-rods-deps https://conan.cloudsmith.io/rigs-of-rods/deps/ -f
           cmake . -GNinja -DCMAKE_BUILD_TYPE=Release -Bbuild -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=cmake/conan_provider.cmake -DCMAKE_INSTALL_PREFIX=redist -DCREATE_CONTENT_FOLDER=ON
         shell: bash
 
@@ -106,7 +106,7 @@ jobs:
 
       - name: Configure
         run: |
-          conan remote add ror-conan https://git.anotherfoxguy.com/api/packages/rorbot/conan -f
+          conan remote add rigs-of-rods-deps https://conan.cloudsmith.io/rigs-of-rods/deps/ -f
           cmake . -GNinja -DCMAKE_BUILD_TYPE=Release -Bbuild -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=cmake/conan_provider.cmake -DCMAKE_INSTALL_PREFIX=redist -DCREATE_CONTENT_FOLDER=ON
         shell: cmd
 
@@ -134,3 +134,4 @@ jobs:
       - name: Clean Conan pkgs
         run: conan cache clean "*" -sbd
         shell: cmd
+
