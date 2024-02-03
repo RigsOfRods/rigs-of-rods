@@ -1507,8 +1507,7 @@ void TopMenubar::Draw(float dt)
                         delbtn_cursorx = tuning_rwidget_cursorx_min;
                     ImGui::SetCursorPosX(delbtn_cursorx);
                     ImGui::PushStyleColor(ImGuiCol_Button, TUNING_HOLDTOCONFIRM_COLOR);
-                    bool delbtn_pressed = RoR::ImButtonHoldToConfirm(delbtn_text, /*small:*/true,
-                        TUNING_HOLDTOCONFIRM_TIMELIMIT, /*[by ref]:*/tuning_holdtoconfirm_time_left, dt);
+                    bool delbtn_pressed = RoR::ImButtonHoldToConfirm(delbtn_text, /*small:*/true, TUNING_HOLDTOCONFIRM_TIMELIMIT);
                     ImGui::PopStyleColor(); //ImGuiCol_Button
                     if (delbtn_pressed)
                     {
@@ -1574,8 +1573,7 @@ void TopMenubar::Draw(float dt)
                         delbtn_cursorx = tuning_rwidget_cursorx_min;
                     ImGui::SetCursorPosX(delbtn_cursorx);
                     ImGui::PushStyleColor(ImGuiCol_Button, TUNING_HOLDTOCONFIRM_COLOR);
-                    bool resetbtn_pressed = ImButtonHoldToConfirm(resetbtn_text, /*small:*/false,
-                        TUNING_HOLDTOCONFIRM_TIMELIMIT, /*[by ref]:*/tuning_holdtoconfirm_time_left, dt);
+                    bool resetbtn_pressed = ImButtonHoldToConfirm(resetbtn_text, /*small:*/false, TUNING_HOLDTOCONFIRM_TIMELIMIT);
                     ImGui::PopStyleColor(); //ImGuiCol_Button
                     if (resetbtn_pressed)
                     {

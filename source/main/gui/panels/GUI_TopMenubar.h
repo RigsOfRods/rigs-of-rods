@@ -106,7 +106,6 @@ public:
     bool tuning_savebox_overwrite = false; //!< Status of "Overwrite?" checkbox
     const ImVec4 TUNING_HOLDTOCONFIRM_COLOR = ImVec4(0.25f, 0.15f, 0.2f, 0.5f);
     const float TUNING_HOLDTOCONFIRM_TIMELIMIT = 1.5f; //!< Delete button must be held for several sec to confirm.
-    float tuning_holdtoconfirm_time_left = 0.f; //!< Delete button must be held for several sec to confirm.
     bool tuning_force_refresh = false;
     float tuning_rwidget_cursorx_min = 0.f; //!< Avoid drawing right-side widgets ('Delete' button or 'Protected' chk) over saved tuneup names.
     void RefreshTuningMenu();
