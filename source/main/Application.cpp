@@ -196,6 +196,7 @@ CVar* io_ffb_stress_gain;
 CVar* io_input_grab_mode;
 CVar* io_arcade_controls;
 CVar* io_hydro_coupling;
+CVar* io_hydro_sensivity;
 CVar* io_outgauge_mode;
 CVar* io_outgauge_ip;
 CVar* io_outgauge_port;

@@ -661,6 +661,9 @@ void TopMenubar::Draw(float dt)
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Vehicle control options:"));
                 DrawGCheckbox(App::io_hydro_coupling, _LC("TopMenubar", "Keyboard steering speed coupling"));
+                ImGui::Separator();
+                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Keyboard steering:"));
+                DrawGFloatSlider(App::io_hydro_sensivity, _LC("TopMenubar", "Sensitivity"), 0.3, 5);
             }
             if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {
