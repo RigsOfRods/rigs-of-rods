@@ -297,7 +297,7 @@ public:
     void                  LoadSupplementaryDocuments(CacheEntryPtr& t); //!< Loads the associated .truck*, .skin and .tuneup files.
     /// @}
 
-    /// @name Loading
+    /// @name Projects
     /// @{
     CacheEntryPtr         CreateProject(CreateProjectRequest* request); //!< Creates subdirectory in 'My Games\Rigs of Rods\projects', pre-populates it with files and adds modcache entry.
     void                  ModifyProject(ModifyProjectRequest* request);
