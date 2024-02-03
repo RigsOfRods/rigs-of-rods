@@ -85,6 +85,6 @@ void ImDrawEventHighlighted(events input_event);
 void ImDrawModifierKeyHighlighted(OIS::KeyCode key);
 
 // Draws button which must be held for a period to report "clicked" - shows a tooltip with countdown progressbar.
-bool ImButtonHoldToConfirm(const std::string& btn_caption, bool small, float time_limit, float& time_left_var, float dt);
+bool ImButtonHoldToConfirm(const std::string& btn_idstr, const bool smallbutton, const float time_limit);
 
 } // namespace RoR

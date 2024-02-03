@@ -437,33 +437,45 @@ void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
     ImGui::PopStyleVar(); // FramePadding
 }
 
-bool RoR::ImButtonHoldToConfirm(const std::string& btn_caption, bool small, float time_limit, float& time_left_var, float dt)
+bool RoR::ImButtonHoldToConfirm(const std::string& btn_idstr, const bool smallbutton, const float time_limit)
 {
-
-    if (small)
-        ImGui::SmallButton(btn_caption.c_str());
+    if (smallbutton)
+        ImGui::SmallButton(btn_idstr.c_str());
     else
-        ImGui::Button(btn_caption.c_str());
+        ImGui::Button(btn_idstr.c_str());
 
-    if (ImGui::IsItemActive() && time_left_var > 0.f)
+    // When recording the active button, take full ID stack into account
+    static const ImGuiID IMGUIID_INVALID = 0u;
+    static ImGuiID active_id = IMGUIID_INVALID;
+    static float active_time_left = 0.f;
+    const ImGuiID btn_id = ImGui::GetCurrentWindow()->GetID(btn_idstr.c_str());
+
+    if (ImGui::IsItemActive())
     {
-        time_left_var -= dt;
-        if (time_left_var > 0.f)
+        if (active_id != btn_id)
         {
-            ImGui::BeginTooltip();
-            std::string text = _L("Hold to confirm");
-            ImGui::TextDisabled(text.c_str());
-            ImGui::ProgressBar(time_left_var/time_limit, ImVec2(ImGui::CalcTextSize(text.c_str()).x, 8.f), "");
-            ImGui::EndTooltip();
+            active_id = btn_id;
+            active_time_left = time_limit;
         }
         else
         {
-            return true;
+            active_time_left -= ImGui::GetIO().DeltaTime;
+            if (active_time_left <= 0.f)
+            {
+                active_id = IMGUIID_INVALID;
+                return true;
+            }
         }
+
+        ImGui::BeginTooltip();
+        std::string text = _L("Hold to confirm");
+        ImGui::TextDisabled(text.c_str());
+        ImGui::ProgressBar(active_time_left/time_limit, ImVec2(ImGui::CalcTextSize(text.c_str()).x, 8.f), "");
+        ImGui::EndTooltip();
     }
-    else
+    else if (btn_id == active_id)
     {
-        time_left_var = time_limit;
+        active_id = IMGUIID_INVALID;
     }
 
     return false;
