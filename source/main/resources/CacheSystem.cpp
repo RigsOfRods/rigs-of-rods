@@ -1775,32 +1775,49 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
 
 void CacheSystem::DeleteProject(CacheEntryPtr& entry)
 {
-    this->LoadResource(entry);
-
-    // Delete the files, one by one
-    Ogre::FileInfoListPtr filelist = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(entry->resource_group, "*.*");
-    for (size_t i = 0; i < filelist->size(); i++)
+    try
     {
-        Ogre::FileInfo fileinfo = filelist->at(i);
-        if (!Ogre::FileSystemLayer::removeFile(fileinfo.path + fileinfo.filename))
+        this->UnLoadResource(entry);
+
+        // Delete the files, one by one
+        const std::string DELETEPROJ_TEMP_RG = "DeleteProjectTempRG";
+        Ogre::ResourceGroupManager::getSingleton().createResourceGroup(DELETEPROJ_TEMP_RG, /*inGlobalPool=*/false);
+        Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+            entry->resource_bundle_path, entry->resource_bundle_type, DELETEPROJ_TEMP_RG, /*recursive=*/false, /*readOnly=*/false);
+        Ogre::FileInfoListPtr filelist = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(DELETEPROJ_TEMP_RG, "*.*");
+        LOG(fmt::format("[RoR|ModCache] Deleting project '{}' (resource group '{}'), found {} files to erase.", entry->fname, entry->resource_group, filelist->size()));
+        for (size_t i = 0; i < filelist->size(); i++)
+        {
+            Ogre::FileInfo fileinfo = filelist->at(i);
+            if (!Ogre::FileSystemLayer::removeFile(PathCombine(entry->resource_bundle_path, fileinfo.filename)))
+            {
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                    fmt::format(_LC("CacheSystem", "Problem deleting project '{}' - could not delete file '{}'"), entry->fname, fileinfo.filename));
+            }
+        }
+
+        Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(DELETEPROJ_TEMP_RG);
+
+        // Delete the directory itself
+        if (!Ogre::FileSystemLayer::removeDirectory(entry->resource_bundle_path))
         {
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-                fmt::format(_LC("CacheSystem", "Problem deleting project '{}' - could not delete file '{}'"), entry->fname, fileinfo.filename));
+                fmt::format(_LC("CacheSystem", "Problem deleting project '{}' - could not delete directory '{}'"), entry->fname, entry->resource_bundle_path));
         }
-    }
 
-    // Delete the directory itself
-    if (!Ogre::FileSystemLayer::removeFile(entry->resource_bundle_path))
+        // Remove the entry
+        RoR::EraseIf(m_entries, [entry](CacheEntryPtr& e) { return e == entry; });
+
+        // Force update of Tuning menu in TopMenubarUI.
+        App::GetGuiManager()->TopMenubar.tuning_actor = nullptr;
+
+    }
+    catch (...)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format(_LC("CacheSystem", "Problem deleting project '{}' - could not delete directory '{}'"), entry->fname, entry->resource_bundle_path));
+            fmt::format(_LC("CacheSystem", "Unexpected error deleting project '{}'"), entry->dname));
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("MSG_EDI_DELETE_PROJECT_REQUESTED");
     }
-
-    // Remove the entry
-    RoR::EraseIf(m_entries, [entry](CacheEntryPtr& e) { return e == entry; });
-
-    // Force update of Tuning menu in TopMenubarUI.
-    App::GetGuiManager()->TopMenubar.tuning_actor = nullptr;
 }
 
 size_t CacheSystem::Query(CacheQuery& query)
