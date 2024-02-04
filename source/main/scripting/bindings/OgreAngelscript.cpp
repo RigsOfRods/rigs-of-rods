@@ -25,6 +25,7 @@
 
 #include "Application.h"
 #include "ScriptEngine.h"
+#include "ScriptUtils.h"
 
 // AS addons start
 #include "scriptstdstring/scriptstdstring.h"
@@ -39,6 +40,8 @@ using namespace AngelScript;
 using namespace RoR;
 
 // helper/wrapper functions first
+
+
 
 static void HandleException(const char* functionName)
 {
@@ -240,6 +243,11 @@ static void TexturePtrDestructor(TexturePtr* self)
     (self)->~TexturePtr();
 }
 
+static void TexturePtrAssignOperator(const TexturePtr& other, TexturePtr* self)
+{
+    (self)->operator=(other);
+}
+
 /***SCENEMANAGER***/
 static Entity* SceneManagerCreateEntity(const std::string& entityName, const std::string& meshName, const std::string& meshRG, Ogre::SceneManager* self)
 {
@@ -254,11 +262,6 @@ static Entity* SceneManagerCreateEntity(const std::string& entityName, const std
     }
 }
 
-static void TexturePtrAssignOperator(const TexturePtr& other, TexturePtr* self)
-{
-    (self)->operator=(other);
-}
-
 // forward declarations, defined below
 void registerOgreVector3(AngelScript::asIScriptEngine* engine);
 void registerOgreVector2(AngelScript::asIScriptEngine* engine);
@@ -268,6 +271,8 @@ void registerOgreQuaternion(AngelScript::asIScriptEngine* engine);
 void registerOgreTexture(AngelScript::asIScriptEngine* engine);
 void registerOgreColourValue(AngelScript::asIScriptEngine* engine);
 void registerOgreEntity(AngelScript::asIScriptEngine* engine);
+void registerOgreNode(AngelScript::asIScriptEngine* engine);
+void registerOgreSceneNode(AngelScript::asIScriptEngine* engine);
 void registerOgreSceneManager(AngelScript::asIScriptEngine* engine);
 void registerOgreRoot(AngelScript::asIScriptEngine* engine);
 
@@ -302,6 +307,8 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("color", sizeof(ColourValue), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
     ROR_ASSERT( r >= 0 );
 
+    // Now we register the object properties and methods
+
     registerOgreRadian(engine);
     registerOgreDegree(engine);
     registerOgreVector3(engine);
@@ -311,9 +318,22 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     registerOgreColourValue(engine);
 
     // The low-level OGRE exports
+
     registerOgreEntity(engine);
+    registerOgreNode(engine);
+    registerOgreSceneNode(engine);
     registerOgreSceneManager(engine);
     registerOgreRoot(engine);
+
+    // To estabilish class hierarchy in AngelScript you need to register the reference cast operators opCast and opImplCast.
+
+    // - `SceneNode` derives from `Node`
+    r = engine->RegisterObjectMethod("Ogre::Node", "Ogre::SceneNode@ opCast()", asFUNCTION((ScriptRefCastNoCount<Ogre::Node, Ogre::SceneNode>)), asCALL_CDECL_OBJLAST); assert(r >= 0);
+    r = engine->RegisterObjectMethod("Ogre::SceneNode", "Ogre::Node@ opImplCast()", asFUNCTION((ScriptRefCastNoCount<Ogre::SceneNode, Ogre::Node>)), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
+    // Also register the const overloads so the cast works also when the handle is read only 
+    r = engine->RegisterObjectMethod("Ogre::Node", "const Ogre::SceneNode@ opCast() const", asFUNCTION((ScriptRefCastNoCount<Ogre::Node, Ogre::SceneNode>)), asCALL_CDECL_OBJLAST); assert(r >= 0);
+    r = engine->RegisterObjectMethod("Ogre::SceneNode", "const Ogre::Node@ opImplCast() const", asFUNCTION((ScriptRefCastNoCount<Ogre::SceneNode, Ogre::Node>)), asCALL_CDECL_OBJLAST); assert(r >= 0);
 }
 
 // register Ogre::Vector3
@@ -871,7 +891,72 @@ void registerOgreEntity(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("Entity", sizeof(Entity), asOBJ_REF | asOBJ_NOCOUNT);
     r = engine->RegisterObjectMethod("Entity", "void setCastShadows(bool b)", asMETHOD(Entity, setCastShadows), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Entity", "void setMaterialName(const string &in name, const string &in rg = \"OgreAutodetect\")", asMETHOD(Entity, setMaterialName), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    
     r = engine->RegisterObjectMethod("Entity", "const string& getName()", asMETHOD(Entity, getName), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Entity", "bool isVisible() const", asMETHOD(Entity, isVisible), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "void setVisible(bool)", asMETHOD(Entity, setVisible), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+// A wrapper for `typedef std::vector<Node*> ChildNodeMap`
+typedef CReadonlyScriptArrayView<Ogre::Node*> ChildNodeArray;
+const char* ChildNodeArray::VALUE_DECL = "Node";
+
+static ChildNodeArray* NodeGetChildren(Ogre::Node* self)
+{
+    return new ChildNodeArray(self->getChildren());
+}
+
+static std::string NodeGetUniqueIdMixin(Ogre::Node* self)
+{
+    // Node names are optional and largely unused by RoR, so always append the memory address (libfmt adds the '0x' prefix)
+    return fmt::format("\"{}\" ({})", self->getName(), static_cast<void*>(self));
+}
+
+void registerOgreNode(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("Node", sizeof(Node), asOBJ_REF | asOBJ_NOCOUNT);
+
+    r = engine->RegisterObjectMethod("Node", "const vector3& getPosition() const", asMETHOD(Node, getPosition), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Node", "void setPosition(const vector3 &in)", asMETHOD(Node, getPosition), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Node", "const vector3& getScale() const", asMETHOD(Node, getScale), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Node", "void setScale(const vector3 &in)", asMETHODPR(Node, setScale, (const Ogre::Vector3&), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Node", "const string& getName() const", asMETHOD(Node, getName), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Node", "Node@ getParent() const", asMETHOD(Node, getParent), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Node", "string __getUniqueId() const", asFUNCTION(NodeGetUniqueIdMixin), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+
+    ChildNodeArray::RegisterReadonlyScriptArrayView(engine, "ChildNodeArray");
+    r = engine->RegisterObjectMethod("Node", "const ChildNodeArray@ getChildren() const", asFUNCTION(NodeGetChildren), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+void registerOgreSceneNode(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("SceneNode", sizeof(SceneNode), asOBJ_REF | asOBJ_NOCOUNT);
+    r = engine->RegisterObjectMethod("SceneNode", "const vector3& getPosition() const", asMETHOD(SceneNode, getPosition), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneNode", "void setPosition(const vector3 &in)", asMETHOD(SceneNode, getPosition), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("SceneNode", "const vector3& getScale() const", asMETHOD(SceneNode, getScale), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneNode", "void setScale(const vector3 &in)", asMETHODPR(SceneNode, setScale, (const Ogre::Vector3&), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("SceneNode", "const string& getName() const", asMETHOD(SceneNode, getName), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneNode", "SceneNode@ getParentSceneNode() const", asMETHOD(SceneNode, getParentSceneNode), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    // Methods inherited from `Ogre::Node`
+    r = engine->RegisterObjectMethod("SceneNode", "string __getUniqueId() const", asFUNCTION(NodeGetUniqueIdMixin), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneNode", "const ChildNodeArray@ getChildren() const", asFUNCTION(NodeGetChildren), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
@@ -884,121 +969,17 @@ void registerOgreSceneManager(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("SceneManager", sizeof(SceneManager), asOBJ_REF | asOBJ_NOCOUNT);
     r = engine->RegisterObjectMethod("SceneManager", "Entity@ createEntity(const string&in ent_name, const string &in mesh_name, const string &in mesh_rg)", asFUNCTION(SceneManagerCreateEntity), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneManager", "const string& getName() const", asMETHOD(SceneManager, getName), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneManager", "SceneNode@ getRootSceneNode()", asMETHOD(SceneManager, getRootSceneNode), asCALL_THISCALL); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
 
-// Proof of concept: a read-only Dictionary view of a `std::map`-like container. 
-//    Assumed to always use `std::string` for key.
-//    Not using RefCountingObject because this is only for use in the script, not C++
-//    Adopted from 'scriptdictionary.cpp' bundled with AngelScript SDK
-template<typename T>
-class CReadonlyScriptDictView
-{
-public:
-    static const char* VALUE_DECL;
 
-    CReadonlyScriptDictView(const std::map<std::string, T>& map) : m_map(map), m_refcount(1) {}
-
-    // Gets the stored value. Returns false if the value isn't compatible with the informed typeId
-    bool Get(const std::string& key, void* value, int typeId) const
-    {
-        if (typeId != AngelScript::asGetActiveContext()->GetEngine()->GetTypeIdByDecl(VALUE_DECL))
-            return false;
-
-        auto it = m_map.find(key);
-        if (it == m_map.end())
-            return false;
-
-        *(void**)value = it->second;
-        return true;
-    }
-
-    bool Get(const std::string& key, asINT64& value) const
-    {
-        return Get(key, &value, asTYPEID_INT64);
-    }
-
-    bool Get(const std::string& key, double& value) const
-    {
-        return Get(key, &value, asTYPEID_DOUBLE);
-    }
-
-    bool Exists(const std::string& key) const
-    {
-        return (m_map.find(key) != m_map.end());
-    }
-
-    bool IsEmpty() const
-    {
-        if (m_map.size() == 0)
-            return true;
-
-        return false;
-    }
-
-    asUINT GetSize() const
-    {
-        return asUINT(m_map.size());
-    }
-
-    T OpIndex(const std::string& key) const
-    {
-        auto it = m_map.find(key);
-        if (it != m_map.end())
-            return it->second;
-        else
-            return T{};
-    }
-
-    CScriptArray* GetKeys() const
-    {
-        // Create the array object
-        CScriptArray* array = CScriptArray::Create(AngelScript::asGetActiveContext()->GetEngine()->GetTypeInfoByDecl("array<string>"), asUINT(m_map.size()));
-        long current = -1;
-        for (auto it = m_map.begin(); it != m_map.end(); it++)
-        {
-            current++;
-            *(std::string*)array->At(current) = it->first;
-        }
-
-        return array;
-    }
-
-    static void RegisterReadonlyScriptDictView(AngelScript::asIScriptEngine* engine, const char* decl)
-    {
-        int r;
-
-        r = engine->RegisterObjectType(decl, sizeof(CReadonlyScriptDictView<T>), asOBJ_REF); ROR_ASSERT(r >= 0);
-        r = engine->RegisterObjectBehaviour(decl, asBEHAVE_ADDREF, "void f()", asMETHOD(CReadonlyScriptDictView<T>, AddRef), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-        r = engine->RegisterObjectBehaviour(decl, asBEHAVE_RELEASE, "void f()", asMETHOD(CReadonlyScriptDictView <T>, Release), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-
-        r = engine->RegisterObjectMethod(decl, "bool exists(const string &in) const", asMETHOD(CReadonlyScriptDictView<T>, Exists), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-        r = engine->RegisterObjectMethod(decl, "bool isEmpty() const", asMETHOD(CReadonlyScriptDictView<T>, IsEmpty), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-        r = engine->RegisterObjectMethod(decl, "uint getSize() const", asMETHOD(CReadonlyScriptDictView<T>, GetSize), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-        r = engine->RegisterObjectMethod(decl, "array<string> @getKeys() const", asMETHOD(CReadonlyScriptDictView<T>, GetKeys), asCALL_THISCALL); assert(r >= 0);
-
-        r = engine->RegisterObjectMethod(decl, "bool get(const string &in, ?&out) const", asMETHODPR(CReadonlyScriptDictView<T>, Get, (const std::string&, void*, int) const, bool), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-        r = engine->RegisterObjectMethod(decl, "bool get(const string &in, int64&out) const", asMETHODPR(CReadonlyScriptDictView<T>, Get, (const std::string&, asINT64&) const, bool), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-        r = engine->RegisterObjectMethod(decl, "bool get(const string &in, double&out) const", asMETHODPR(CReadonlyScriptDictView<T>, Get, (const std::string&, double&) const, bool), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-
-        std::string opIndexDecl = fmt::format("{} opIndex(const string &in) const", VALUE_DECL);
-        r = engine->RegisterObjectMethod(decl, opIndexDecl.c_str(), asMETHOD(CReadonlyScriptDictView<T>, OpIndex), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-
-    }
-
-    // Angelscript refcounting
-    void AddRef() { m_refcount++; }
-    void Release() { m_refcount--; if (m_refcount == 0) { delete this; /* Comit suicide! This is legit in C++ and AngelScript relies on it. */ } }
-private:
-    const std::map<std::string, T>& m_map;
-    int m_refcount;
-};
 
 
 // A wrapper for `typedef std::map<String, SceneManager*> Ogre::SceneManagerEnumerator::Instances`;
 typedef CReadonlyScriptDictView<SceneManager*> SceneManagerInstanceDict;
-const char* SceneManagerInstanceDict::VALUE_DECL = "SceneManager@";
+const char* SceneManagerInstanceDict::VALUE_DECL = "SceneManager";
 
 static SceneManagerInstanceDict* RootGetSceneManagers(Root* self)
 {
@@ -1009,10 +990,10 @@ void registerOgreRoot(AngelScript::asIScriptEngine* engine)
 {
     engine->SetDefaultNamespace("Ogre");
 
-    SceneManagerInstanceDict::RegisterReadonlyScriptDictView(engine, "SceneManagerInstanceDict");
-
     engine->RegisterObjectType("Root", sizeof(Root), asOBJ_REF | asOBJ_NOCOUNT);
     engine->RegisterObjectMethod("Root", "SceneManager@ _getCurrentSceneManager()", asMETHOD(Root, _getCurrentSceneManager), asCALL_THISCALL);
+
+    SceneManagerInstanceDict::RegisterReadonlyScriptDictView(engine, "SceneManagerInstanceDict");
     engine->RegisterObjectMethod("Root", "SceneManagerInstanceDict@ getSceneManagers()", asFUNCTION(RootGetSceneManagers), asCALL_CDECL_OBJLAST);
 
     engine->SetDefaultNamespace("Ogre::Root");
