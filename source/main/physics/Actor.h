@@ -220,7 +220,8 @@ public:
     CacheEntryPtr&    getUsedActorEntry(); //!< The actor entry itself.
     CacheEntryPtr&    getUsedSkinEntry();
     TuneupDefPtr&     getWorkingTuneupDef();
-    void              ensureWorkingTuneupDef();
+    void              ensureWorkingTuneupDef(); //!< Creates a working tuneup def if it doesn't exist yet.
+    void              removeWorkingTuneupDef(); //!< Deletes the working tuneup def object if it exists.
     bool              isPreloadedWithTerrain() const { return m_preloaded_with_terrain; };
     std::vector<authorinfo_t> getAuthors();
     std::vector<std::string>  getDescription();

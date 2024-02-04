@@ -1763,9 +1763,8 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
     }
 
     case ModifyProjectRequestType::PROJECT_RESET_TUNEUP:
-        request->mpr_target_actor->ensureWorkingTuneupDef();
-        ROR_ASSERT(request->mpr_target_actor->getWorkingTuneupDef());
-        request->mpr_target_actor->getWorkingTuneupDef()->reset();
+        request->mpr_target_actor->removeWorkingTuneupDef();
+        ROR_ASSERT(!request->mpr_target_actor->getWorkingTuneupDef());
         break;
 
     default:

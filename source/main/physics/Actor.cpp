@@ -4604,3 +4604,8 @@ void Actor::ensureWorkingTuneupDef()
         m_working_tuneup_def->name = fmt::format("Tuned {}", ar_filename);
     }
 }
+
+void Actor::removeWorkingTuneupDef()
+{
+    m_working_tuneup_def = nullptr;
+}
