@@ -109,6 +109,185 @@ bool GetValueFromScriptDict(const std::string& log_msg, AngelScript::CScriptDict
     return itor.GetValue(&out_value, actual_typeid); // Error will be logged to Angelscript.log
 }
 
+// Proof of concept: a read-only Dictionary view of a `std::map`-like container. 
+//    Assumed to always use `std::string` for key.
+//    Not using RefCountingObject because this is only for use in the script, not C++
+//    Adopted from 'scriptdictionary.cpp' bundled with AngelScript SDK
+template<typename T>
+class CReadonlyScriptDictView
+{
+public:
+    static const char* VALUE_DECL;
+
+    CReadonlyScriptDictView(const std::map<std::string, T>& map) : m_map(map), m_refcount(1) {}
+
+    // Gets the stored value. Returns false if the value isn't compatible with the informed typeId
+    bool Get(const std::string& key, void* value, int typeId) const
+    {
+        if (typeId != AngelScript::asGetActiveContext()->GetEngine()->GetTypeIdByDecl(VALUE_DECL))
+            return false;
+
+        auto it = m_map.find(key);
+        if (it == m_map.end())
+            return false;
+
+        *(void**)value = it->second;
+        return true;
+    }
+
+    bool Get(const std::string& key, AngelScript::asINT64& value) const
+    {
+        return Get(key, &value, AngelScript::asTYPEID_INT64);
+    }
+
+    bool Get(const std::string& key, double& value) const
+    {
+        return Get(key, &value, AngelScript::asTYPEID_DOUBLE);
+    }
+
+    bool Exists(const std::string& key) const
+    {
+        return (m_map.find(key) != m_map.end());
+    }
+
+    bool IsEmpty() const
+    {
+        if (m_map.size() == 0)
+            return true;
+
+        return false;
+    }
+
+    AngelScript::asUINT GetSize() const
+    {
+        return AngelScript::asUINT(m_map.size());
+    }
+
+    T OpIndex(const std::string& key) const
+    {
+        auto it = m_map.find(key);
+        if (it != m_map.end())
+            return it->second;
+        else
+            return T{};
+    }
+
+    AngelScript::CScriptArray* GetKeys() const
+    {
+        // Create the array object
+        AngelScript::CScriptArray* array = AngelScript::CScriptArray::Create(AngelScript::asGetActiveContext()->GetEngine()->GetTypeInfoByDecl("array<string>"), AngelScript::asUINT(m_map.size()));
+        long current = -1;
+        for (auto it = m_map.begin(); it != m_map.end(); it++)
+        {
+            current++;
+            *(std::string*)array->At(current) = it->first;
+        }
+
+        return array;
+    }
+
+    static void RegisterReadonlyScriptDictView(AngelScript::asIScriptEngine* engine, const char* decl)
+    {
+        using namespace AngelScript;
+
+        int r;
+
+        r = engine->RegisterObjectType(decl, sizeof(CReadonlyScriptDictView<T>), asOBJ_REF); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectBehaviour(decl, asBEHAVE_ADDREF, "void f()", asMETHOD(CReadonlyScriptDictView<T>, AddRef), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectBehaviour(decl, asBEHAVE_RELEASE, "void f()", asMETHOD(CReadonlyScriptDictView <T>, Release), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+        r = engine->RegisterObjectMethod(decl, "bool exists(const string &in) const", asMETHOD(CReadonlyScriptDictView<T>, Exists), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectMethod(decl, "bool isEmpty() const", asMETHOD(CReadonlyScriptDictView<T>, IsEmpty), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectMethod(decl, "uint getSize() const", asMETHOD(CReadonlyScriptDictView<T>, GetSize), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectMethod(decl, "array<string> @getKeys() const", asMETHOD(CReadonlyScriptDictView<T>, GetKeys), asCALL_THISCALL); assert(r >= 0);
+
+        r = engine->RegisterObjectMethod(decl, "bool get(const string &in, ?&out) const", asMETHODPR(CReadonlyScriptDictView<T>, Get, (const std::string&, void*, int) const, bool), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectMethod(decl, "bool get(const string &in, int64&out) const", asMETHODPR(CReadonlyScriptDictView<T>, Get, (const std::string&, asINT64&) const, bool), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectMethod(decl, "bool get(const string &in, double&out) const", asMETHODPR(CReadonlyScriptDictView<T>, Get, (const std::string&, double&) const, bool), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+        std::string opIndexDecl = fmt::format("{}@ opIndex(const string &in)", VALUE_DECL);
+        r = engine->RegisterObjectMethod(decl, opIndexDecl.c_str(), asMETHOD(CReadonlyScriptDictView<T>, OpIndex), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+        std::string opIndexConstDecl = fmt::format("const {}@ opIndex(const string &in) const", VALUE_DECL);
+        r = engine->RegisterObjectMethod(decl, opIndexConstDecl.c_str(), asMETHOD(CReadonlyScriptDictView<T>, OpIndex), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    }
+
+    // Angelscript refcounting
+    void AddRef() { m_refcount++; }
+    void Release() { m_refcount--; if (m_refcount == 0) { delete this; /* Comit suicide! This is legit in C++ and AngelScript relies on it. */ } }
+private:
+    const std::map<std::string, T>& m_map;
+    int m_refcount;
+};
+
+template <typename T>
+class CReadonlyScriptArrayView
+{
+public:
+    static const char* VALUE_DECL;
+
+    CReadonlyScriptArrayView(const std::vector<T>& vec) : m_vec(vec), m_refcount(1) {}
+
+    bool IsEmpty() const { return m_vec.empty(); }
+    unsigned GetSize() const { return m_vec.size(); }
+    T OpIndex(unsigned pos) { return m_vec.at(pos); }
+
+    static void RegisterReadonlyScriptArrayView(AngelScript::asIScriptEngine* engine, const char* decl)
+    {
+        using namespace AngelScript;
+
+        int r;
+
+        r = engine->RegisterObjectType(decl, sizeof(CReadonlyScriptArrayView<T>), asOBJ_REF); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectBehaviour(decl, asBEHAVE_ADDREF, "void f()", asMETHOD(CReadonlyScriptArrayView<T>, AddRef), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectBehaviour(decl, asBEHAVE_RELEASE, "void f()", asMETHOD(CReadonlyScriptArrayView <T>, Release), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+        r = engine->RegisterObjectMethod(decl, "bool isEmpty() const", asMETHOD(CReadonlyScriptArrayView<T>, IsEmpty), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+        r = engine->RegisterObjectMethod(decl, "uint length() const", asMETHOD(CReadonlyScriptArrayView<T>, GetSize), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+        
+        std::string opIndexDecl = fmt::format("{}@ opIndex(uint pos)", VALUE_DECL);
+        r = engine->RegisterObjectMethod(decl, opIndexDecl.c_str(), asMETHOD(CReadonlyScriptArrayView<T>, OpIndex), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+        std::string opIndexConstDecl = fmt::format("const {}@ opIndex(uint pos) const", VALUE_DECL);
+        r = engine->RegisterObjectMethod(decl, opIndexConstDecl.c_str(), asMETHOD(CReadonlyScriptArrayView<T>, OpIndex), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    }
+
+    // Angelscript refcounting
+    void AddRef() { m_refcount++; }
+    void Release() { m_refcount--; if (m_refcount == 0) { delete this; /* Comit suicide! This is legit in C++ and AngelScript relies on it. */ } }
+private:
+    const std::vector<T>& m_vec;
+    int m_refcount;
+};
+
+// Example opCast behaviour
+template<class A, class B>
+B* ScriptRefCast(A* a)
+{
+    // If the handle already is a null handle, then just return the null handle
+    if (!a) return 0;
+
+    // Now try to dynamically cast the pointer to the wanted type
+    B* b = dynamic_cast<B*>(a);
+    if (b != 0)
+    {
+        // Since the cast was made, we need to increase the ref counter for the returned handle
+        b->AddRef();
+    }
+    return b;
+}
+
+// Example opCast behaviour - for objects with asOBJ_NOCOUNT
+template<class A, class B>
+B* ScriptRefCastNoCount(A* a)
+{
+    // If the handle already is a null handle, then just return the null handle
+    if (!a) return 0;
+
+    // Now try to dynamically cast the pointer to the wanted type
+    return dynamic_cast<B*>(a);
+}
+
 /// @}   //addtogroup Scripting
 
 } // namespace RoR

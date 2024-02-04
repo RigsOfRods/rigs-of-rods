@@ -80,6 +80,12 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoDecoration", ImGuiWindowFlags_NoDecoration);
     engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoInputs", ImGuiWindowFlags_NoInputs);
 
+    engine->RegisterEnum("ImGuiCond");
+    engine->RegisterEnumValue("ImGuiCond", "ImGuiCond_Always", ImGuiCond_Always);
+    engine->RegisterEnumValue("ImGuiCond", "ImGuiCond_Once", ImGuiCond_Once); // Set the variable once per runtime session (only the first call with succeed)
+    engine->RegisterEnumValue("ImGuiCond", "ImGuiCond_FirstUseEver", ImGuiCond_FirstUseEver); // Set the variable if the object/window has no persistently saved data (no entry in .ini file)
+    engine->RegisterEnumValue("ImGuiCond", "ImGuiCond_Appearing", ImGuiCond_Appearing); // Set the variable if the object/window is appearing after being hidden/inactive (or the first time)
+
     engine->RegisterEnum("ImGuiTabBarFlags");
     engine->RegisterEnumValue("ImGuiTabBarFlags", "ImGuiTabBarFlags_None", ImGuiTabBarFlags_None);
     engine->RegisterEnumValue("ImGuiTabBarFlags", "ImGuiTabBarFlags_Reorderable", ImGuiTabBarFlags_Reorderable); // // Allow manually dragging tabs to re-order them + New tabs are appended at the end of list
@@ -127,6 +133,7 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterGlobalFunction("void PushStyleColor(int index, const color&in color)", asFUNCTIONPR([](int index, Ogre::ColourValue const& col) { ImGui::PushStyleColor(index, (ImU32)ImColor(col.r, col.g, col.b, col.a)); }, (int, Ogre::ColourValue const&), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void PopStyleColor(int count)", asFUNCTIONPR(ImGui::PopStyleColor, (int), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetNextItemWidth(float)", asFUNCTIONPR(ImGui::SetNextItemWidth, (float), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void SetNextItemOpen(bool, ImGuiCond)", asFUNCTIONPR(ImGui::SetNextItemOpen, (bool, int), void), asCALL_CDECL);
 
     engine->RegisterGlobalFunction("vector2 GetContentRegionMax()", asFUNCTIONPR([]() { 
         auto v = ImGui::GetContentRegionMax(); return Vector2(v.x, v.y); }, (), Vector2), asCALL_CDECL);
