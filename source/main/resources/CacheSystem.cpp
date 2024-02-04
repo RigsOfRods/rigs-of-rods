@@ -1523,8 +1523,7 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
         bool project_entry_created = false;
         if (request->cpr_overwrite)
         {
-            // `partial=true` because `cpr_name` is without extension
-            project_entry = this->FindEntryByFilename(LT_Tuneup, /*partial:*/true, request->cpr_name);
+            project_entry = this->FindEntryByFilename(LT_Tuneup, /*partial:*/false, fmt::format("{}.tuneup", request->cpr_name));
             this->LoadResource(project_entry); // This fills `entry.resource_group`
         }
 
