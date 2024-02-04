@@ -1518,28 +1518,42 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
             return nullptr;
         }
 
-        // Create preliminary cache entry
-        CacheEntryPtr project_entry = new CacheEntry();
+        // Check if a project with the same name already exists
+        CacheEntryPtr project_entry;
+        bool project_entry_created = false;
+        if (request->cpr_overwrite)
+        {
+            // `partial=true` because `cpr_name` is without extension
+            project_entry = this->FindEntryByFilename(LT_Tuneup, /*partial:*/true, request->cpr_name);
+            this->LoadResource(project_entry); // This fills `entry.resource_group`
+        }
 
-        if (request->cpr_type == CreateProjectRequestType::SAVE_TUNEUP)
+        if (!project_entry)
         {
-            project_entry->fext = "tuneup"; // Tell modcache what it is.
-            project_entry->categoryid = CID_Tuneups; // For display in modcache            
-            project_entry->guid = request->cpr_source_entry->guid; // For lookup of tuneups by vehicle GUID.
+            // Create preliminary cache entry
+            project_entry = new CacheEntry();
+            project_entry_created = true;
+
+            if (request->cpr_type == CreateProjectRequestType::SAVE_TUNEUP)
+            {
+                project_entry->fext = "tuneup"; // Tell modcache what it is.
+                project_entry->categoryid = CID_Tuneups; // For display in modcache            
+                project_entry->guid = request->cpr_source_entry->guid; // For lookup of tuneups by vehicle GUID.
+            }
+            else
+            {
+                project_entry->fext = request->cpr_source_entry->fext; // Tell modcache what it is.
+                project_entry->categoryid = CID_Projects; // To list projects easily from cache
+            }
+            project_entry->categoryname = m_categories[project_entry->categoryid];
+            project_entry->resource_bundle_type = "FileSystem"; // Tell modcache how to load it.
+            project_entry->resource_bundle_path = project_path; // Tell modcache where to load it from.
+            project_entry->fname = fmt::format("{}.{}", request->cpr_name, project_entry->fext); // Compose target mod filename
+            project_entry->dname = request->cpr_name;
+            project_entry->description = request->cpr_description;
+            project_entry->number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
+            this->LoadResource(project_entry); // This fills `entry.resource_group`
         }
-        else
-        {
-            project_entry->fext = request->cpr_source_entry->fext; // Tell modcache what it is.
-            project_entry->categoryid = CID_Projects; // To list projects easily from cache
-        }
-        project_entry->categoryname = m_categories[project_entry->categoryid];
-        project_entry->resource_bundle_type = "FileSystem"; // Tell modcache how to load it.
-        project_entry->resource_bundle_path = project_path; // Tell modcache where to load it from.
-        project_entry->fname = fmt::format("{}.{}", request->cpr_name, project_entry->fext); // Compose target mod filename
-        project_entry->dname = request->cpr_name;
-        project_entry->description = request->cpr_description;
-        project_entry->number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
-        this->LoadResource(project_entry); // This fills `entry.resource_group`
      
         if (request->cpr_type == CreateProjectRequestType::SAVE_TUNEUP)
         {
@@ -1557,7 +1571,8 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
             tuneup->category_id = (CacheCategoryId)project_entry->categoryid;
 
             // Write out the .tuneup file.
-            Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(project_entry->fname, project_entry->resource_group);
+            Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(
+                project_entry->fname, project_entry->resource_group, request->cpr_overwrite);
             TuneupUtil::ExportTuneup(datastream, tuneup);
 
             // Attach the document to the entry in memory
@@ -1628,13 +1643,16 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
         }
 
 
-
-        // Add the new entry to database
-        m_entries.push_back(project_entry);
+        if (project_entry_created)
+        {
+            // Add the new entry to database
+            m_entries.push_back(project_entry);
+        }
 
         // notify script
+        modCacheActivityType activity_type = (project_entry_created) ? MODCACHEACTIVITY_ENTRY_ADDED : MODCACHEACTIVITY_ENTRY_MODIFIED;
         TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,
-            /*ints*/ MODCACHEACTIVITY_ENTRY_ADDED, project_entry->number, 0, 0,
+            /*ints*/ activity_type, project_entry->number, 0, 0,
             /*strings*/ project_entry->fname, project_entry->fext);
 
         return project_entry;

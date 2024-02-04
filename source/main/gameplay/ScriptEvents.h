@@ -88,6 +88,7 @@ enum modCacheActivityType
     MODCACHEACTIVITY_NONE,
 
     MODCACHEACTIVITY_ENTRY_ADDED,      //!< Args: #1 type, #2 entry number, --, --, #5 fname, #6 fext
+    MODCACHEACTIVITY_ENTRY_MODIFIED,   //!< Args: #1 type, #2 entry number, --, --, #5 fname, #6 fext
     MODCACHEACTIVITY_ENTRY_DELETED,    //!< Flagged as `deleted`, managed by shared pointers; Args: #1 type, #2 entry number, --, --, #5 fname, #6 fext
 
     MODCACHEACTIVITY_BUNDLE_LOADED,    //!< Args: #1 type, #2 entry number, --, --, #5 rg name
