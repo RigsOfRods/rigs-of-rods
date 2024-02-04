@@ -37,6 +37,7 @@ enum class PartialToken
     STRING_NAKED,                  // String without '"' on either end
     STRING_NAKED_CAPTURING_SPACES, // Only for OPTION_PARENTHESES_CAPTURE_SPACES - A naked string seeking the closing ')'.
     TITLE_STRING,                  // A whole-line string, with spaces
+    NUMBER_STUB_MINUS,             // Sole '-' character, may start a number or a naked string.
     NUMBER_INTEGER,                // Just digits and optionally leading '-'
     NUMBER_DECIMAL,                // Like INTEGER but already containing '.'
     NUMBER_SCIENTIFIC_STUB,        // Like DECIMAL, already containing 'e' or 'E' but not the exponent value.
@@ -222,8 +223,13 @@ void DocumentParser::BeginToken(const char c)
     case '7':
     case '8':
     case '9':
-    case '-':
         partial_tok_type = PartialToken::NUMBER_INTEGER;
+        tok.push_back(c);
+        line_pos++;
+        break;
+
+    case '-':
+        partial_tok_type = PartialToken::NUMBER_STUB_MINUS;
         tok.push_back(c);
         line_pos++;
         break;
@@ -424,12 +430,28 @@ void DocumentParser::UpdateNumber(const char c)
     case ' ':
     case ',':
     case '\t':
-        this->FlushNumericToken();
+        if (partial_tok_type == PartialToken::NUMBER_STUB_MINUS 
+            && options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
+        {
+            this->FlushStringishToken(TokenType::STRING);
+        }
+        else
+        {
+            this->FlushNumericToken();
+        }
         line_pos++;
         break;
 
     case '\n':
-        this->FlushNumericToken();
+        if (partial_tok_type == PartialToken::NUMBER_STUB_MINUS 
+            && options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
+        {
+            this->FlushStringishToken(TokenType::STRING);
+        }
+        else
+        {
+            this->FlushNumericToken();
+        }
         // Break line
         doc.tokens.push_back({ TokenType::LINEBREAK, 0.f });
         line_num++;
@@ -439,7 +461,15 @@ void DocumentParser::UpdateNumber(const char c)
     case ':':
         if (options & GenericDocument::OPTION_ALLOW_SEPARATOR_COLON)
         {
-            this->FlushNumericToken();
+            if (partial_tok_type == PartialToken::NUMBER_STUB_MINUS 
+                && options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
+            {
+                this->FlushStringishToken(TokenType::STRING);
+            }
+            else
+            {
+                this->FlushNumericToken();
+            }
         }
         else
         {
@@ -452,7 +482,15 @@ void DocumentParser::UpdateNumber(const char c)
     case '=':
         if (options & GenericDocument::OPTION_ALLOW_SEPARATOR_EQUALS)
         {
-            this->FlushNumericToken();
+            if (partial_tok_type == PartialToken::NUMBER_STUB_MINUS 
+                && options & GenericDocument::OPTION_ALLOW_NAKED_STRINGS)
+            {
+                this->FlushStringishToken(TokenType::STRING);
+            }
+            else
+            {
+                this->FlushNumericToken();
+            }
         }
         else
         {
@@ -463,7 +501,8 @@ void DocumentParser::UpdateNumber(const char c)
         break;
 
     case '.':
-        if (partial_tok_type == PartialToken::NUMBER_INTEGER)
+        if (partial_tok_type == PartialToken::NUMBER_INTEGER
+            || partial_tok_type == PartialToken::NUMBER_STUB_MINUS)
         {
             partial_tok_type = PartialToken::NUMBER_DECIMAL;
         }
@@ -517,6 +556,10 @@ void DocumentParser::UpdateNumber(const char c)
             || partial_tok_type == PartialToken::NUMBER_SCIENTIFIC_STUB_MINUS)
         {
             partial_tok_type = PartialToken::NUMBER_SCIENTIFIC;
+        }
+        else if (partial_tok_type == PartialToken::NUMBER_STUB_MINUS)
+        {
+            partial_tok_type = PartialToken::NUMBER_INTEGER;
         }
         tok.push_back(c);
         line_pos++;
@@ -896,6 +939,7 @@ void DocumentParser::ProcessChar(const char c)
         break;
 
     case PartialToken::NUMBER_INTEGER:
+    case PartialToken::NUMBER_STUB_MINUS:
     case PartialToken::NUMBER_DECIMAL:
     case PartialToken::NUMBER_SCIENTIFIC:
     case PartialToken::NUMBER_SCIENTIFIC_STUB:
