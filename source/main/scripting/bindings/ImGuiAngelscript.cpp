@@ -312,9 +312,7 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
         return ImGui::RadioButton(n.c_str(), v); }, (const string&, bool), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("bool RadioButton(const string&in, int&inout, int)", asFUNCTIONPR([](const string& n, int& v, int vv) { 
         return ImGui::RadioButton(n.c_str(), &v, vv); }, (const string&, int&, int), bool), asCALL_CDECL);
-    engine->RegisterGlobalFunction("void ProgressBar(float)", asFUNCTIONPR([](float v) { 
-        ImGui::ProgressBar(v); }, (float), void), asCALL_CDECL);
-    engine->RegisterGlobalFunction("void ProgressBar(float, vector2=vector2(-1,0), const string&in = "")", asFUNCTIONPR([](float v, Ogre::Vector2 size, const string& overlay) { 
+    engine->RegisterGlobalFunction("void ProgressBar(float, vector2=vector2(-1,0), const string&in = \"\")", asFUNCTIONPR([](float v, Ogre::Vector2 size, const string& overlay) { 
         ImGui::ProgressBar(v, ImVec2(size.x, size.y), (overlay != "")?overlay.c_str():nullptr); }, (float,  Ogre::Vector2, const string&), void), asCALL_CDECL);
 
 
