@@ -210,6 +210,9 @@ void AddonPartUtility::ProcessManagedMaterial()
     def.diffuse_map = m_context->getTokString(2);
     if (n > 3) def.specular_map = m_context->getTokString(3);
     if (n > 4) def.damaged_diffuse_map = m_context->getTokString(4);
+    // (placeholders)
+    if (def.specular_map == "-") def.specular_map = "";
+    if (def.damaged_diffuse_map == "-") def.damaged_diffuse_map = "";
 
     // Options:
     def.options = m_managedmaterials_options;
@@ -317,12 +320,12 @@ void AddonPartUtility::ProcessUnwantedProp()
 {
     ROR_ASSERT(m_context->getTokKeyword() == "addonpart_unwanted_prop"); // also asserts !EOF and TokenType::KEYWORD
 
-    if (m_context->isTokString(1))
+    if (m_context->isTokFloat(1))
     {
         if (!m_tuneup->isPropProtected((PropID_t)m_context->getTokFloat(1)))
         {
             m_tuneup->unwanted_props.insert((PropID_t)m_context->getTokFloat(1));
-            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': marking prop '{}' as REMOVED",
+            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': marking prop '{}' as UNWANTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
         }
         else
@@ -346,7 +349,7 @@ void AddonPartUtility::ProcessUnwantedFlexbody()
         if (!m_tuneup->isFlexbodyProtected((FlexbodyID_t)m_context->getTokFloat(1)))
         {
             m_tuneup->unwanted_flexbodies.insert((FlexbodyID_t)m_context->getTokFloat(1));
-            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': marking flexbody '{}' as REMOVED",
+            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', element '{}': marking flexbody '{}' as UNWANTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
         }
         else
