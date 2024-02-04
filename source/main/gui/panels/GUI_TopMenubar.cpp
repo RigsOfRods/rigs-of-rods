@@ -1535,7 +1535,7 @@ void TopMenubar::Draw(float dt)
                     }
                     ImGui::Separator();
                 }
-                else
+                else if (tuneup_def)
                 {
                     ImGui::SameLine();
                     if (ImGui::Button(_LC("Tuning", "Save as...")))
