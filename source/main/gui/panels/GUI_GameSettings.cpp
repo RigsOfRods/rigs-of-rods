@@ -270,6 +270,8 @@ void GameSettings::DrawGameplaySettings()
     DrawGCheckbox(App::ui_show_live_repair_controls, _LC("GameSettings", "Show controls in live repair box"));
 
     DrawGCheckbox(App::ui_show_vehicle_buttons, _LC("GameSettings", "Show vehicle buttons menu"));
+
+    DrawGCheckbox(App::sim_tuning_enabled, _LC("GameSettings", "Enable vehicle tuning"));
 }
 
 void GameSettings::DrawAudioSettings()

@@ -143,26 +143,29 @@ void TopMenubar::Draw(float dt)
     std::string ai_title =          _LC("TopMenubar", "Vehicle AI");
     std::string tuning_title =      _LC("TopMenubar", "Tuning");
 
-    int NUM_BUTTONS = 6;
-    if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
-    {
-        NUM_BUTTONS = 7;
-    }
-
+    int menubar_num_buttons = 5;
     float menubar_content_width =
-        (ImGui::GetStyle().ItemSpacing.x * (NUM_BUTTONS - 1)) +
-        (ImGui::GetStyle().FramePadding.x * (NUM_BUTTONS * 2)) +
         ImGui::CalcTextSize(sim_title.c_str()).x +
         ImGui::CalcTextSize(actors_title.c_str()).x +
         ImGui::CalcTextSize(savegames_title.c_str()).x +
         ImGui::CalcTextSize(settings_title.c_str()).x +
-        ImGui::CalcTextSize(tools_title.c_str()).x +
-        ImGui::CalcTextSize(tuning_title.c_str()).x;
+        ImGui::CalcTextSize(tools_title.c_str()).x;
 
     if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
     {
+        menubar_num_buttons += 1;
         menubar_content_width += ImGui::CalcTextSize(ai_title.c_str()).x;
     }
+
+    if (App::sim_tuning_enabled->getBool())
+    {
+        menubar_num_buttons += 1;
+        menubar_content_width += ImGui::CalcTextSize(tuning_title.c_str()).x;
+    }
+
+    menubar_content_width +=
+        (ImGui::GetStyle().ItemSpacing.x * (menubar_num_buttons - 1)) +
+        (ImGui::GetStyle().FramePadding.x * (menubar_num_buttons * 2));
 
     ImVec2 window_target_pos = ImVec2((ImGui::GetIO().DisplaySize.x/2.f) - (menubar_content_width / 2.f), theme.screen_edge_padding.y);
     if (!this->ShouldDisplay(window_target_pos))
@@ -197,19 +200,20 @@ void TopMenubar::Draw(float dt)
         m_open_menu = TopMenu::TOPMENU_SIM;
     }
 
-    ImGui::SameLine();    
-
-    // The 'Tuning' button
-    ImVec2 tuning_cursor = ImGui::GetCursorPos();
-    ImGui::Button(tuning_title.c_str());
-    if ((m_open_menu != TopMenu::TOPMENU_TUNING) && ImGui::IsItemHovered())
+    // The 'Tuning' button - only shown if enabled
+    ImVec2 tuning_cursor = ImVec2(0, 0);
+    if (App::sim_tuning_enabled->getBool())
     {
-        m_open_menu = TopMenu::TOPMENU_TUNING;
-    }
+        ImGui::SameLine(); 
+        tuning_cursor = ImGui::GetCursorPos();
+        ImGui::Button(tuning_title.c_str());
+        if ((m_open_menu != TopMenu::TOPMENU_TUNING) && ImGui::IsItemHovered())
+        {
+            m_open_menu = TopMenu::TOPMENU_TUNING;
+        }
+    } 
 
-    ImGui::SameLine();    
-
-    // The 'AI' button
+    // The 'AI' button - only shown in singleplayer
     ImVec2 ai_cursor = ImVec2(0, 0);
     if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
     {
@@ -1451,29 +1455,7 @@ void TopMenubar::Draw(float dt)
                 ROR_ASSERT(tuning_actor->getUsedActorEntry());
                 TuneupDefPtr& tuneup_def = tuning_actor->getWorkingTuneupDef();
 
-
-                // KILL SWITCH
-
-                if (DrawGCheckbox(App::sim_tuning_enabled, _LC("Tuning", "Enable tuning")))
-                {
-                    // Create spawn request while actor still exists
-                    // Note we don't use `ActorModifyRequest::Type::RELOAD` because we don't need the bundle reloaded.
-                    ActorSpawnRequest* srq = new ActorSpawnRequest;
-                    srq->asr_position     = Ogre::Vector3(tuning_actor->getPosition().x, tuning_actor->getMinHeight(), tuning_actor->getPosition().z);
-                    srq->asr_rotation     = Ogre::Quaternion(Ogre::Degree(270) - Ogre::Radian(tuning_actor->getRotation()), Ogre::Vector3::UNIT_Y);
-                    srq->asr_config       = tuning_actor->getSectionConfig();
-                    srq->asr_skin_entry   = tuning_actor->getUsedSkinEntry();
-                    srq->asr_cache_entry  = tuning_actor->getUsedActorEntry();
-                    srq->asr_debugview    = (int)tuning_actor->GetGfxActor()->GetDebugView();
-                    srq->asr_origin       = ActorSpawnRequest::Origin::USER;
-
-                    // Request actor delete and chain the actor spawn message to it.
-                    App::GetGameContext()->ChainMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, new ActorPtr(tuning_actor)));
-                    App::GetGameContext()->ChainMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, srq));
-                }
-
                 // SAVED TUNEUPS
-                ImGui::Separator();
                 ImGui::TextDisabled(fmt::format(_LC("Tuning", "Saved tuneups ({})"), tuning_saves.cqy_results.size()).c_str());
                 for (CacheQueryResult& tuneup_result: tuning_saves.cqy_results)
                 {

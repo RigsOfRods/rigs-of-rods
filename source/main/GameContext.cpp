@@ -249,6 +249,10 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
             }
         }
     }
+    else
+    {
+        rq.asr_working_tuneup = nullptr; // Make sure no tuneup is used
+    }
 
 #ifdef USE_SOCKETW
     if (rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
