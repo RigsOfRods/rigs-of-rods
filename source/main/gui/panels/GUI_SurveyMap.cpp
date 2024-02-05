@@ -494,9 +494,6 @@ void SurveyMap::UpdateTerrainTextures()
 
     mTerrainSize = Vector2(terrain_size.x, terrain_size.z);
     Ogre::Vector2 mMapCenter = mTerrainSize / 2;
-
-    mMapTextureCreatorStatic->update(mMapCenter + mMapCenterOffset, mTerrainSize);
-    mMapTextureCreatorDynamic->update(mMapCenter + mMapCenterOffset, mTerrainSize);
 }
 
 void SurveyMap::setMapZoom(float zoom)

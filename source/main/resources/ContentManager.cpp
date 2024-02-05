@@ -207,10 +207,6 @@ void ContentManager::InitContentManager()
     // streams path, to be processed later by the cache system
     LOG("RoR|ContentManager: Loading filesystems");
 
-    LOG("RoR|ContentManager: Registering colored text overlay factory");
-    ColoredTextAreaOverlayElementFactory* pCT = new ColoredTextAreaOverlayElementFactory();
-    OverlayManager::getSingleton().addOverlayElementFactory(pCT);
-
     // set default mipmap level (NB some APIs ignore this)
     if (TextureManager::getSingletonPtr())
         TextureManager::getSingleton().setDefaultNumMipmaps(5);
