@@ -127,19 +127,21 @@ FlexMeshWheel* FlexFactory::CreateFlexMeshWheel(
     const ActorPtr& actor = m_rig_spawner->GetActor();
 
     // Load+instantiate static mesh for rim (may be located in addonpart ZIP-bundle!)
-    const std::string rim_entity_name = m_rig_spawner->ComposeName("MeshWheelRim", wheel_index);
+    const std::string rim_entity_name = m_rig_spawner->ComposeName("rim @ *wheel*", wheel_index);
     Ogre::Entity* rim_prop_entity = App::GetGfxScene()->GetSceneManager()->createEntity(rim_entity_name, rim_mesh_name, rim_mesh_rg);
     m_rig_spawner->SetupNewEntity(rim_prop_entity, Ogre::ColourValue(0, 0.5, 0.8));
 
     // Create dynamic mesh for tire (always located in the actor resource group)
-    const std::string tire_mesh_name = m_rig_spawner->ComposeName("MWheelTireMesh", wheel_index);
+    const std::string tire_mesh_name = m_rig_spawner->ComposeName("tire @ *wheel*", wheel_index);
     FlexMeshWheel* flex_mesh_wheel = new FlexMeshWheel(
-        rim_prop_entity, m_rig_spawner->GetActor()->GetGfxActor(), axis_node_1_index, axis_node_2_index, nstart, nrays,
+        rim_prop_entity,
+        m_rig_spawner->m_wheels_parent_scenenode->createChildSceneNode(m_rig_spawner->ComposeName("*wheel*", wheel_index)), // Friend access
+        m_rig_spawner->GetActor()->GetGfxActor(), axis_node_1_index, axis_node_2_index, nstart, nrays,
         tire_mesh_name, actor->GetGfxActor()->GetResourceGroup(),
         tire_material_name, tire_material_rg, rim_radius, rim_reverse);
 
     // Instantiate the dynamic tire mesh (always located in the actor resource group)
-    const std::string tire_instance_name = m_rig_spawner->ComposeName("MWheelTireEntity", wheel_index);
+    const std::string tire_instance_name = m_rig_spawner->ComposeName("tire entity @ *wheel*", wheel_index);
     Ogre::Entity *tire_entity = App::GetGfxScene()->GetSceneManager()->createEntity(
         tire_instance_name, tire_mesh_name, actor->GetGfxActor()->GetResourceGroup());
     m_rig_spawner->SetupNewEntity(tire_entity, Ogre::ColourValue(0, 0.5, 0.8));

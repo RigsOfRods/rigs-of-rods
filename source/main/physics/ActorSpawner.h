@@ -319,8 +319,8 @@ private:
     void                          SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<RigDef::BeamDefaults> beam_defaults);
     void                          ValidateRotator(int id, int axis1, int axis2, NodeNum_t *nodes1, NodeNum_t *nodes2);
 
-    /// Creates name containing actor ID token, i.e. "Object_1@Actor_2"
-    std::string                   ComposeName(const char* base, int number);
+    /// Creates name containing actor ID token, i.e. "Object#1 (filename.truck [Instance ID 1])".
+    std::string                   ComposeName(const std::string& object, int number = -1);
 
     /// Finds wheel with given axle nodes and returns it's index.
     /// @param _out_axle_wheel Index of the found wheel.
@@ -487,12 +487,18 @@ private:
     std::map<std::string, CustomMaterial>     m_material_substitutions; //!< Maps original material names (shared) to their actor-specific substitutes; There's 1 substitute per 1 material, regardless of user count.
     std::map<std::string, Ogre::MaterialPtr>  m_managed_materials;
     Ogre::MaterialPtr                         m_managedmat_placeholder_template; //!< An 'error marker' material (bright magenta) to generate managedmaterial placeholders from.
-    Ogre::SceneNode*                          m_particles_parent_scenenode;
     Ogre::MaterialPtr                         m_cab_trans_material;
     Ogre::MaterialPtr                         m_simple_material_base;
     RoR::Renderdash*                          m_oldstyle_renderdash;
     CustomMaterial::MirrorPropType            m_curr_mirror_prop_type;
     Ogre::SceneNode*                          m_curr_mirror_prop_scenenode;
+    // Grouping nodes for diagnostics:
+    Ogre::SceneNode*                          m_actor_grouping_scenenode = nullptr; //!< Topmost common parent; this isn't used for moving things, just helps developers inspect the scene graph.
+    Ogre::SceneNode*                          m_wheels_parent_scenenode = nullptr; //!< this isn't used for moving/hiding things, just helps developers inspect the scene graph.
+    Ogre::SceneNode*                          m_props_parent_scenenode = nullptr; //!< this isn't used for moving/hiding things, just helps developers inspect the scene graph.
+    Ogre::SceneNode*                          m_flexbodies_parent_scenenode = nullptr; //!< this isn't used for moving/hiding things, just helps developers inspect the scene graph.
+    Ogre::SceneNode*                          m_flares_parent_scenenode = nullptr; //!< this isn't used for moving/hiding things, just helps developers inspect the scene graph.
+    Ogre::SceneNode*                          m_particles_parent_scenenode = nullptr; //!< this isn't used for moving/hiding things, just helps developers inspect the scene graph.
     /// @}
 };
 

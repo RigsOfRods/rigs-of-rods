@@ -61,7 +61,14 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
     m_actor = actor;
     m_file = def;
 
-    m_particles_parent_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    // Under OGRE, every scenenode must have globally unique name.
+    m_actor_grouping_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode(this->ComposeName("Actor"));
+    m_particles_parent_scenenode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("Particles"));
+    m_wheels_parent_scenenode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("Wheels"));
+    m_flexbodies_parent_scenenode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("Flexbodies"));
+    m_props_parent_scenenode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("Props"));
+    m_flares_parent_scenenode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("Flares"));
+
     m_spawn_position = rq.asr_position;
     m_current_keyword = RigDef::Keyword::INVALID;
     m_wing_area = 0.f;

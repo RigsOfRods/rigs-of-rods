@@ -81,8 +81,6 @@
 #include <climits>
 #include <fmt/format.h>
 
-const char* ACTOR_ID_TOKEN = "@Actor_"; // Appended to material name, followed by actor ID (aka 'trucknum')
-
 using namespace RoR;
 
 /* -------------------------------------------------------------------------- */
@@ -669,17 +667,17 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     Turbojet *tj = new Turbojet(m_actor, front, back, ref, def);
 
     // Visuals
-    std::string nozzle_name = this->ComposeName("TurbojetNozzle", m_actor->ar_num_aeroengines);
+    std::string nozzle_name = this->ComposeName("nozzle @ turbojet", m_actor->ar_num_aeroengines);
     Ogre::Entity* nozzle_ent = App::GetGfxScene()->GetSceneManager()->createEntity(nozzle_name, "nozzle.mesh", m_custom_resource_group);
     this->SetupNewEntity(nozzle_ent, Ogre::ColourValue(1, 0.5, 0.5));
     Ogre::Entity* afterburn_ent = nullptr;
     if (def.wet_thrust > 0.f)
     {
-        std::string flame_name = this->ComposeName("AfterburnerFlame", m_actor->ar_num_aeroengines);
+        std::string flame_name = this->ComposeName("ab flame @ turbojet", m_actor->ar_num_aeroengines);
         afterburn_ent = App::GetGfxScene()->GetSceneManager()->createEntity(flame_name, "abflame.mesh", m_custom_resource_group);
         this->SetupNewEntity(afterburn_ent, Ogre::ColourValue(1, 1, 0));
     }
-    std::string propname = this->ComposeName("Turbojet", m_actor->ar_num_aeroengines);
+    std::string propname = this->ComposeName("turbojet", m_actor->ar_num_aeroengines);
     tj->tjet_visual.SetNodes(front, back, ref);
     tj->tjet_visual.SetupVisuals(def, m_actor->ar_num_aeroengines,
         propname, nozzle_ent, afterburn_ent);
@@ -698,11 +696,22 @@ void ActorSpawner::ProcessTurbojet(RigDef::Turbojet & def)
     m_actor->ar_num_aeroengines++;
 }
 
-std::string ActorSpawner::ComposeName(const char* type, int number)
+std::string ActorSpawner::ComposeName(const std::string& object, int number /* = -1 */)
 {
-    char buf[500];
-    snprintf(buf, 500, "%s_%d%s%d", type, number, ACTOR_ID_TOKEN, m_actor->ar_instance_id);
-    return buf;
+    // Under OGRE, each scene node must have a GLOBALLY unique name, even if under different parents.
+    // For that reason the names are intentionally repetitive - the critical part is the Instance ID.
+    // ----------------------------------------------------------------------------------------------
+
+    if (number != -1)
+    {
+        return fmt::format("{}#{} ({} [Instance ID {}])",
+            object, number, m_actor->getTruckFileName(), m_actor->getInstanceId());
+    }
+    else
+    {
+        return fmt::format("{} ({} [Instance ID {}])",
+            object, m_actor->getTruckFileName(), m_actor->getInstanceId());
+    }
 }
 
 void ActorSpawner::ProcessScrewprop(RigDef::Screwprop & def)
@@ -779,7 +788,7 @@ void ActorSpawner::BuildAeroEngine(
 
     Turboprop *turbo_prop = new Turboprop(
         m_actor,
-        this->ComposeName("Turboprop", aeroengine_index).c_str(),
+        this->ComposeName("turboprop", aeroengine_index).c_str(),
         ref_node_index,
         back_node_index,
         blade_1_node_index,
@@ -868,7 +877,7 @@ void ActorSpawner::ProcessAirbrake(RigDef::Airbrake & def)
     const int airbrake_idx = static_cast<int>(m_actor->ar_airbrakes.size());
     Airbrake* ab = new Airbrake(
         m_actor,
-        this->ComposeName("Airbrake", airbrake_idx).c_str(),
+        this->ComposeName("airbrake", airbrake_idx).c_str(),
         airbrake_idx,
         GetNodePointerOrThrow(def.reference_node),
         GetNodePointerOrThrow(def.x_axis_node),
@@ -926,7 +935,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
 
     NodeNum_t node1 = this->GetNodeIndexOrThrow(def.nodes[1]);
 
-    const std::string wing_name = this->ComposeName("Wing", m_actor->ar_num_wings);
+    const std::string wing_name = this->ComposeName("wing", m_actor->ar_num_wings);
     auto flex_airfoil = new FlexAirfoil(
         wing_name,
         m_actor,
@@ -955,7 +964,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
     Ogre::Entity* entity = nullptr;
     try
     {
-        const std::string wing_instance_name = this->ComposeName("WingEntity", m_actor->ar_num_wings);
+        const std::string wing_instance_name = this->ComposeName("entity @ wing", m_actor->ar_num_wings);
         entity = App::GetGfxScene()->GetSceneManager()->createEntity(wing_instance_name, wing_name);
         m_actor->m_deletion_entities.emplace_back(entity);
         this->SetupNewEntity(entity, Ogre::ColourValue(0.5, 1, 0));
@@ -1009,8 +1018,8 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_green_prop.pp_beacon_type='L';
                 left_green_prop.pp_beacon_light[0]=nullptr; //no light
                 //the flare billboard
-                left_green_prop.pp_beacon_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                left_green_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size())+1),1);
+                left_green_prop.pp_beacon_scene_node[0] = m_flares_parent_scenenode->createChildSceneNode(this->ComposeName("left green flare @ wing", m_actor->ar_num_wings));
+                left_green_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("left green flare bbs @ wing", m_actor->ar_num_wings),1);
                 left_green_prop.pp_beacon_bbs[0]->createBillboard(0,0,0);
                 if (left_green_prop.pp_beacon_bbs[0])
                 {
@@ -1035,8 +1044,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_flash_prop.pp_beacon_rot_rate[0]=1.0;
                 left_flash_prop.pp_beacon_type='w';
                 //light
-                std::string prop_name = this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size())+1);
-                left_flash_prop.pp_beacon_light[0]=App::GetGfxScene()->GetSceneManager()->createLight(prop_name);
+                left_flash_prop.pp_beacon_light[0]=App::GetGfxScene()->GetSceneManager()->createLight(this->ComposeName("left flash light @ wing", m_actor->ar_num_wings));
                 left_flash_prop.pp_beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 left_flash_prop.pp_beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
                 left_flash_prop.pp_beacon_light[0]->setSpecularColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1044,8 +1052,8 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 left_flash_prop.pp_beacon_light[0]->setCastShadows(false);
                 left_flash_prop.pp_beacon_light[0]->setVisible(false);
                 //the flare billboard
-                left_flash_prop.pp_beacon_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                left_flash_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(prop_name,1);
+                left_flash_prop.pp_beacon_scene_node[0] = m_flares_parent_scenenode->createChildSceneNode(this->ComposeName("left flash flare @ wing", m_actor->ar_num_wings));
+                left_flash_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("left flash flare bbs @ wing", m_actor->ar_num_wings),1);
                 left_flash_prop.pp_beacon_bbs[0]->createBillboard(0,0,0);
                 if (left_flash_prop.pp_beacon_bbs[0])
                 {
@@ -1073,8 +1081,8 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_red_prop.pp_beacon_type='R';
                 right_red_prop.pp_beacon_light[0]=nullptr; /* No light */
                 //the flare billboard
-                right_red_prop.pp_beacon_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                right_red_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size())+1),1);
+                right_red_prop.pp_beacon_scene_node[0] = m_flares_parent_scenenode->createChildSceneNode(this->ComposeName("right red flare @ wing", m_actor->ar_num_wings));
+                right_red_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("right red flare bbs @ wing", m_actor->ar_num_wings),1);
                 right_red_prop.pp_beacon_bbs[0]->createBillboard(0,0,0);
                 if (right_red_prop.pp_beacon_bbs[0])
                 {
@@ -1099,8 +1107,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.pp_beacon_rot_rate[0]=1.0;
                 right_flash_prop.pp_beacon_type='w';
                 //light
-                prop_name = this->ComposeName("Prop", static_cast<int>(m_actor->m_gfx_actor->m_props.size())+1);
-                right_flash_prop.pp_beacon_light[0]=App::GetGfxScene()->GetSceneManager()->createLight(prop_name);
+                right_flash_prop.pp_beacon_light[0]=App::GetGfxScene()->GetSceneManager()->createLight(this->ComposeName("right flash flare light @ wing", m_actor->ar_num_wings));
                 right_flash_prop.pp_beacon_light[0]->setType(Ogre::Light::LT_POINT);
                 right_flash_prop.pp_beacon_light[0]->setDiffuseColour( Ogre::ColourValue(1.0, 1.0, 1.0));
                 right_flash_prop.pp_beacon_light[0]->setSpecularColour( Ogre::ColourValue(1.0, 1.0, 1.0));
@@ -1108,8 +1115,8 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
                 right_flash_prop.pp_beacon_light[0]->setCastShadows(false);
                 right_flash_prop.pp_beacon_light[0]->setVisible(false);
                 //the flare billboard
-                right_flash_prop.pp_beacon_scene_node[0] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
-                right_flash_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(prop_name,1);
+                right_flash_prop.pp_beacon_scene_node[0] = m_flares_parent_scenenode->createChildSceneNode(this->ComposeName("right flash flare @ wing", m_actor->ar_num_wings));
+                right_flash_prop.pp_beacon_bbs[0]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(this->ComposeName("right flash flare bbs @ wing", m_actor->ar_num_wings),1);
                 right_flash_prop.pp_beacon_bbs[0]->createBillboard(0,0,0);
                 if (right_flash_prop.pp_beacon_bbs[0] != nullptr)
                 {
@@ -1141,7 +1148,7 @@ void ActorSpawner::ProcessWing(RigDef::Wing & def)
 
     // Add new wing to rig
     m_actor->ar_wings[m_actor->ar_num_wings].fa = flex_airfoil;
-    m_actor->ar_wings[m_actor->ar_num_wings].cnode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    m_actor->ar_wings[m_actor->ar_num_wings].cnode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("wing", m_actor->ar_num_wings));
     m_actor->ar_wings[m_actor->ar_num_wings].cnode->attachObject(entity);
 
     ++m_actor->ar_num_wings;
@@ -1285,7 +1292,7 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
         template_name = "tracks/Smoke"; // defined in `particles/smoke.particle`
     }
 
-    std::string name = this->ComposeName(template_name.c_str(), static_cast<int>(m_actor->exhausts.size()));
+    std::string name = this->ComposeName(template_name.c_str(), (int)m_actor->exhausts.size());
     exhaust.smoker = this->CreateParticleSystem(name, template_name);
     if (exhaust.smoker == nullptr)
     {
@@ -1295,7 +1302,7 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
         return;
     }
 
-    exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode();
+    exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("exhaust", (int)m_actor->exhausts.size()));
     exhaust.smokeNode->attachObject(exhaust.smoker);
     exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
 
@@ -1635,13 +1642,13 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         }
         std::string media1_rg = (def._mesh_rg_override != "") ? def._mesh_rg_override : m_actor->getTruckFileResourceGroup();
         prop.pp_wheel_rot_degree = def.special_prop_dashboard.rotation_angle;
-        prop.pp_wheel_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        prop.pp_wheel_scene_node = m_props_parent_scenenode->createChildSceneNode(this->ComposeName("steering wheel @ prop", prop_id));
         prop.pp_wheel_pos = steering_wheel_offset;
         prop.pp_media[1] = TuneupUtil::getTweakedPropMedia(m_actor->getWorkingTuneupDef(), prop_id, 1, def.special_prop_dashboard.mesh_name);
         prop.pp_wheel_mesh_obj = new MeshObject(
             prop.pp_media[1],
             TuneupUtil::getTweakedPropMediaRG(m_actor->getWorkingTuneupDef(), prop_id, 1, media1_rg),
-            this->ComposeName("SteeringWheelPropEntity", prop_id),
+            this->ComposeName("steering wheel entity @ prop", prop_id),
             prop.pp_wheel_scene_node
             );
         this->SetupNewEntity(prop.pp_wheel_mesh_obj->getEntity(), Ogre::ColourValue(0, 0.5, 0.5));
@@ -1649,12 +1656,12 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
 
     /* CREATE THE PROP */
     std::string media0_rg = (def._mesh_rg_override != "") ? def._mesh_rg_override : m_actor->getTruckFileResourceGroup();
-    prop.pp_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    prop.pp_scene_node = m_props_parent_scenenode->createChildSceneNode(this->ComposeName("prop", prop_id));
     prop.pp_media[0] = TuneupUtil::getTweakedPropMedia(m_actor->getWorkingTuneupDef(), prop_id, 0, def.mesh_name);
     prop.pp_mesh_obj = new MeshObject(//def.mesh_name, resource_group, instance_name, prop.pp_scene_node);
             prop.pp_media[0],
             TuneupUtil::getTweakedPropMediaRG(m_actor->getWorkingTuneupDef(), prop_id, 0, media0_rg),
-            this->ComposeName("PropEntity", prop_id),
+            this->ComposeName("prop entity", prop_id),
             prop.pp_scene_node);
 
     prop.pp_mesh_obj->setCastShadows(true); // Orig code {{ prop.pp_mesh_obj->setCastShadows(shadowmode != 0); }}, shadowmode has default value 1 and changes with undocumented directive 'set_shadows'
@@ -1712,7 +1719,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             pp_beacon_light->setVisible(false);
             /* the flare billboard */
             prop.pp_media[1] = TuneupUtil::getTweakedPropMedia(m_actor->getWorkingTuneupDef(), prop_id, 1, def.special_prop_beacon.flare_material_name);
-            auto flare_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+            auto flare_scene_node = m_flares_parent_scenenode->createChildSceneNode(this->ComposeName("beacon @ prop", prop_id));
             auto flare_billboard_sys = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1); //(propname,1);
             if (flare_billboard_sys)
             {
@@ -1742,7 +1749,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
             pp_beacon_light->setCastShadows(false);
             pp_beacon_light->setVisible(false);
             //the flare billboard
-            auto flare_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+            auto flare_scene_node = m_flares_parent_scenenode->createChildSceneNode(this->ComposeName("redbeacon @ prop", prop_id));
             auto flare_billboard_sys = App::GetGfxScene()->GetSceneManager()->createBillboardSet(1); //propname,1);
             if (flare_billboard_sys)
             {
@@ -1787,7 +1794,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
                 prop.pp_beacon_light[k]->setCastShadows(false);
                 prop.pp_beacon_light[k]->setVisible(false);
                 //the flare billboard
-                prop.pp_beacon_scene_node[k] = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+                prop.pp_beacon_scene_node[k] = m_flares_parent_scenenode->createChildSceneNode(this->ComposeName(fmt::format("lightbar {}/4 @ prop", k), prop_id));
                 prop.pp_beacon_bbs[k]=App::GetGfxScene()->GetSceneManager()->createBillboardSet(1);
                 prop.pp_beacon_bbs[k]->createBillboard(0,0,0);
                 if (prop.pp_beacon_bbs[k])
@@ -2158,7 +2165,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     }
 
     /* Visuals */
-    flare.snode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    flare.snode = m_flares_parent_scenenode->createChildSceneNode(this->ComposeName("flareX", (int)m_actor->ar_flares.size()));
     std::string flare_name = this->ComposeName("Flare", static_cast<int>(m_actor->ar_flares.size()));
     flare.bbs = App::GetGfxScene()->GetSceneManager()->createBillboardSet(flare_name, 1);
 
@@ -2359,7 +2366,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         LOG(fmt::format("[RoR] DBG ActorSpawner::ProcessManagedMaterial(): Placeholder already exists: '{}' in group '{}'", def.name, resource_group));
     }
 
-    std::string custom_name = def.name + ACTOR_ID_TOKEN + TOSTRING(m_actor->ar_instance_id);
+    std::string custom_name = this->ComposeName(def.name);
     Ogre::MaterialPtr material;
     if (def.type == RigDef::ManagedMaterialType::FLEXMESH_STANDARD || def.type == RigDef::ManagedMaterialType::FLEXMESH_TRANSPARENT)
     {
@@ -2806,7 +2813,7 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
         return;
     }
 
-    particle.snode = m_particles_parent_scenenode->createChildSceneNode();
+    particle.snode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("cparticles", m_actor->ar_num_custom_particles));
     particle.snode->attachObject(particle.psys);
     particle.snode->setPosition(m_actor->ar_nodes[particle.emitterNode].AbsPosition);
 
@@ -4551,7 +4558,7 @@ void ActorSpawner::CreateMeshWheelVisuals(
             mesh_rg,
             material_name,
             material_rg);
-        Ogre::SceneNode* scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        Ogre::SceneNode* scene_node = m_wheels_parent_scenenode->createChildSceneNode(this->ComposeName("meshwheel*", wheel_index));
         scene_node->attachObject(flexmesh_wheel->GetTireEntity());
 
         WheelGfx visual_wheel;
@@ -5025,7 +5032,7 @@ void ActorSpawner::CreateWheelVisuals(
     {
         WheelGfx visual_wheel;
 
-        const std::string wheel_mesh_name = this->ComposeName("WheelMesh", wheel_index);
+        const std::string wheel_mesh_name = this->ComposeName("mesh @ wheel*", wheel_index);
         visual_wheel.wx_flex_mesh = new FlexMesh(
             wheel_mesh_name,
             m_actor->m_gfx_actor.get(),
@@ -5039,10 +5046,10 @@ void ActorSpawner::CreateWheelVisuals(
             rim_ratio
         );
 
-        const std::string instance_name = this->ComposeName("WheelEntity", wheel_index);
+        const std::string instance_name = this->ComposeName("entity @ wheel*", wheel_index);
         Ogre::Entity *ec = App::GetGfxScene()->GetSceneManager()->createEntity(instance_name, wheel_mesh_name);
         this->SetupNewEntity(ec, Ogre::ColourValue(0, 0.5, 0.5));
-        visual_wheel.wx_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        visual_wheel.wx_scenenode = m_wheels_parent_scenenode->createChildSceneNode(this->ComposeName("wheel", wheel_index));
         m_actor->m_deletion_entities.emplace_back(ec);
         visual_wheel.wx_scenenode->attachObject(ec);
         m_actor->m_gfx_actor->m_wheels.push_back(visual_wheel);
@@ -5610,8 +5617,7 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
 
     if (m_actor->m_gfx_actor->m_gfx_beams_parent_scenenode == nullptr)
     {
-        m_actor->m_gfx_actor->m_gfx_beams_parent_scenenode
-            = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+        m_actor->m_gfx_actor->m_gfx_beams_parent_scenenode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("beams"));
     }
 
     try
@@ -5627,7 +5633,7 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
         beamx.rod_target_actor = m_actor;
         beamx.rod_is_visible = false;
 
-        beamx.rod_scenenode = m_actor->m_gfx_actor->m_gfx_beams_parent_scenenode->createChildSceneNode();
+        beamx.rod_scenenode = m_actor->m_gfx_actor->m_gfx_beams_parent_scenenode->createChildSceneNode(this->ComposeName("beam", (int)m_actor->m_gfx_actor->m_gfx_beams.size()));
         beamx.rod_scenenode->attachObject(entity);
         beamx.rod_scenenode->setVisible(visible, /*cascade:*/ false);
         beamx.rod_scenenode->setScale(beam_defaults->visual_beam_diameter, -1, beam_defaults->visual_beam_diameter);
@@ -5930,7 +5936,7 @@ void ActorSpawner::AddExhaust(
     exhaust.directionNode = direction_node_idx;
 
     exhaust.smoker = App::GetGfxScene()->GetSceneManager()->createParticleSystem(
-        this->ComposeName("Exhaust", static_cast<int>(m_actor->exhausts.size())),
+        this->ComposeName("exhaust", (int)m_actor->exhausts.size()),
         /*quota=*/500, // Default value
         m_custom_resource_group);
 
@@ -5944,7 +5950,7 @@ void ActorSpawner::AddExhaust(
     Ogre::MaterialPtr mat = this->FindOrCreateCustomizedMaterial("tracks/Smoke", m_custom_resource_group);
     exhaust.smoker->setMaterialName(mat->getName(), mat->getGroup());
 
-    exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode();
+    exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("exhaust", (int)m_actor->exhausts.size()));
     exhaust.smokeNode->attachObject(exhaust.smoker);
     exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
 
@@ -6459,7 +6465,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(const std::string
             if (!video_mat_shared.isNull())
             {
                 lookup_entry.video_camera_def = videocam_def;
-                const std::string video_mat_name = this->ComposeName(videocam_def->material_name.c_str(), 0);
+                const std::string video_mat_name = this->ComposeName(videocam_def->material_name);
                 lookup_entry.material = video_mat_shared->clone(video_mat_name, true, mat_lookup_rg);
                 m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry));
                 return lookup_entry.material; // Done!
@@ -6491,9 +6497,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(const std::string
                     skin_res->second, m_actor->m_used_skin_entry->resource_group);
                 if (!skin_mat.isNull())
                 {
-                    std::stringstream name_buf;
-                    name_buf << skin_mat->getName() << ACTOR_ID_TOKEN << m_actor->ar_instance_id;
-                    lookup_entry.material = skin_mat->clone(name_buf.str(), /*changeGroup=*/true, mat_lookup_rg);
+                    lookup_entry.material = skin_mat->clone(this->ComposeName(skin_mat->getName()), /*changeGroup=*/true, mat_lookup_rg);
                     m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry));
                     return lookup_entry.material;
                 }
@@ -6528,9 +6532,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(const std::string
                 return Ogre::MaterialPtr(); // NULL
             }
 
-            std::stringstream name_buf;
-            name_buf << orig_mat->getName() << ACTOR_ID_TOKEN << m_actor->ar_instance_id;
-            lookup_entry.material = orig_mat->clone(name_buf.str(), true, mat_lookup_rg);
+            lookup_entry.material = orig_mat->clone(this->ComposeName(orig_mat->getName()), true, mat_lookup_rg);
         }
 
         // Finally, query texture replacements - .skin and builtins
@@ -6610,10 +6612,7 @@ Ogre::MaterialPtr ActorSpawner::CreateSimpleMaterial(Ogre::ColourValue color)
     ROR_ASSERT(!m_simple_material_base.isNull());
 
     static unsigned int simple_mat_counter = 0;
-    char name_buf[300];
-    snprintf(name_buf, 300, "SimpleMaterial-%u%s%d", simple_mat_counter, ACTOR_ID_TOKEN, m_actor->ar_instance_id);
-    Ogre::MaterialPtr newmat = m_simple_material_base->clone(name_buf);
-    ++simple_mat_counter;
+    Ogre::MaterialPtr newmat = m_simple_material_base->clone(this->ComposeName("simple material", simple_mat_counter++));
     newmat->getTechnique(0)->getPass(0)->setAmbient(color);
 
     return newmat;
@@ -7035,7 +7034,8 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         if (App::diag_videocameras->getBool())
         {
             Ogre::ManualObject* mo = CreateVideocameraDebugMesh(); // local helper function
-            vcam.vcam_debug_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+            vcam.vcam_debug_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode(
+                this->ComposeName("debug @ videocamera", (int)m_actor->m_gfx_actor->m_videocameras.size()));
             vcam.vcam_debug_node->attachObject(mo);
         }
 
@@ -7054,7 +7054,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
 void ActorSpawner::CreateMirrorPropVideoCam(
     Ogre::MaterialPtr custom_mat, CustomMaterial::MirrorPropType type, Ogre::SceneNode* prop_scenenode)
 {
-    static size_t mprop_counter = 0;
+    static int mprop_counter = 0;
     try
     {
         // Prepare videocamera entry
@@ -7077,8 +7077,8 @@ void ActorSpawner::CreateMirrorPropVideoCam(
         }
 
         // Create rendering texture
-        const std::string mirror_tex_name = this->ComposeName("MirrorPropTexture-", static_cast<int>(mprop_counter));
-        vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(mirror_tex_name
+        vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(
+            this->ComposeName("texture @ mirror", mprop_counter)
             , m_custom_resource_group
             , Ogre::TEX_TYPE_2D
             , 128
@@ -7088,7 +7088,7 @@ void ActorSpawner::CreateMirrorPropVideoCam(
             , Ogre::TU_RENDERTARGET);
 
         // Create OGRE camera
-        vcam.vcam_ogre_camera = App::GetGfxScene()->GetSceneManager()->createCamera(this->ComposeName("MirrorPropCamera-", static_cast<int>(mprop_counter)));
+        vcam.vcam_ogre_camera = App::GetGfxScene()->GetSceneManager()->createCamera(this->ComposeName("camera @ mirror prop", mprop_counter));
         vcam.vcam_ogre_camera->setNearClipDistance(0.2f);
         vcam.vcam_ogre_camera->setFarClipDistance(App::GetCameraManager()->GetCamera()->getFarClipDistance());
         vcam.vcam_ogre_camera->setFOVy(Ogre::Degree(50));
@@ -7232,7 +7232,7 @@ void ActorSpawner::CreateCabVisual()
 
     char cab_material_name_cstr[1000] = {};
     strncpy(cab_material_name_cstr, m_cab_material_name.c_str(), 999);
-    std::string mesh_name = this->ComposeName("VehicleCabMesh", 0);
+    std::string mesh_name = this->ComposeName("mesh @ cab");
     FlexObj* cab_mesh =new FlexObj(
         m_actor->m_gfx_actor.get(),
         m_actor->ar_nodes,
@@ -7246,11 +7246,11 @@ void ActorSpawner::CreateCabVisual()
         transmatname
     );
 
-    Ogre::SceneNode* cab_scene_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    Ogre::SceneNode* cab_scene_node = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("cab"));
     Ogre::Entity *ec = nullptr;
     try
     {
-        ec = App::GetGfxScene()->GetSceneManager()->createEntity(this->ComposeName("VehicleCabEntity", 0), mesh_name);
+        ec = App::GetGfxScene()->GetSceneManager()->createEntity(this->ComposeName("entity @ cab"), mesh_name);
         this->SetupNewEntity(ec, Ogre::ColourValue(0.5, 1, 0.5));
         if (ec)
         {
