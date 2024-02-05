@@ -60,6 +60,7 @@ private:
 
     FlexMeshWheel( // Use FlexFactory
         Ogre::Entity* rim_prop_entity,
+        Ogre::SceneNode* rim_scene_node,
         RoR::GfxActor* gfx_actor,
         int axis_node_1_index,
         int axis_node_2_index,

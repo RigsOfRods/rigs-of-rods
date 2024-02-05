@@ -33,6 +33,7 @@ using namespace RoR;
 
 FlexMeshWheel::FlexMeshWheel(
     Ogre::Entity* rim_prop_entity,
+    Ogre::SceneNode* rim_scene_node,
     RoR::GfxActor* gfx_actor,
     int axis_node_1_index, 
     int axis_node_2_index, 
@@ -54,7 +55,7 @@ FlexMeshWheel::FlexMeshWheel(
     , m_rim_radius(rimradius)
 {
     m_rim_entity = rim_prop_entity;
-    m_rim_scene_node=App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    m_rim_scene_node = rim_scene_node;
     m_rim_scene_node->attachObject(m_rim_entity);
 
     // Create the tire mesh via the MeshManager
