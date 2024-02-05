@@ -61,6 +61,11 @@ void ProceduralObject::deletePoint(int pos)
 
 #pragma region ProceduralManager
 
+ProceduralManager::ProceduralManager(Ogre::SceneNode* groupingSceneNode)
+    : pGroupingSceneNode(groupingSceneNode)
+{
+}
+
 ProceduralManager::~ProceduralManager()
 {
     this->removeAllObjects();
@@ -163,7 +168,7 @@ void ProceduralManager::updateObject(ProceduralObjectPtr po)
             po->road->addBlock(pp->position, pp->rotation, pp->type, pp->width, pp->bwidth, pp->bheight, pp->pillartype);
         }
     }
-    po->road->finish();
+    po->road->finish(pGroupingSceneNode);
 }
 
 void ProceduralManager::addObject(ProceduralObjectPtr po)

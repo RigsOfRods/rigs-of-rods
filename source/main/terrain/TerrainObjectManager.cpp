@@ -21,6 +21,7 @@
 
 #include "TerrainObjectManager.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "AutoPilot.h"
 #include "CacheSystem.h"
@@ -36,6 +37,7 @@
 #include "ODefFileFormat.h"
 #include "PlatformUtils.h"
 #include "ProceduralRoad.h"
+#include "ScriptEngine.h"
 #include "SoundScriptManager.h"
 #include "TerrainGeometryManager.h"
 #include "Terrain.h"
@@ -65,7 +67,9 @@ inline float getTerrainHeight(Real x, Real z, void* unused = 0)
 TerrainObjectManager::TerrainObjectManager(Terrain* terrainManager) :
     terrainManager(terrainManager)
 {
-    m_procedural_manager = new ProceduralManager();
+    m_terrn2_grouping_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode(fmt::format("Terrain: {}", terrainManager->GetDef().name));
+
+    m_procedural_manager = new ProceduralManager(m_terrn2_grouping_node->createChildSceneNode("Procedural Roads"));
 }
 
 TerrainObjectManager::~TerrainObjectManager()
@@ -84,6 +88,8 @@ TerrainObjectManager::~TerrainObjectManager()
 #endif //USE_PAGED
 
     App::GetGfxScene()->GetSceneManager()->destroyAllEntities();
+
+    App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_terrn2_grouping_node);
 }
 
 void GenerateGridAndPutToScene(Ogre::Vector3 position)
@@ -134,7 +140,7 @@ void GenerateGridAndPutToScene(Ogre::Vector3 position)
 
     mo->end();
     mo->setCastShadows(false);
-    Ogre::SceneNode *n = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    Ogre::SceneNode *n = App::GetGameContext()->GetTerrain()->getObjectManager()->getGroupingSceneNode()->createChildSceneNode();
     n->setPosition(position);
     n->attachObject(mo);
     n->setVisible(true);
@@ -142,11 +148,15 @@ void GenerateGridAndPutToScene(Ogre::Vector3 position)
 
 void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
 {
+    ROR_ASSERT(this->terrainManager);
+    ROR_ASSERT(this->terrainManager->getCacheEntry());
+    ROR_ASSERT(this->terrainManager->getCacheEntry()->resource_group != "");
+
     std::shared_ptr<TObjFile> tobj;
     try
     {
         DataStreamPtr stream_ptr = ResourceGroupManager::getSingleton().openResource(
-            tobj_name, Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME);
+            tobj_name, this->terrainManager->getCacheEntry()->resource_group);
         TObjParser parser;
         parser.Prepare();
         parser.ProcessOgreStream(stream_ptr.get());
@@ -162,6 +172,9 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
         LOG("[RoR|Terrain] Error reading TObj file: " + tobj_name + "\nMessage" + e.what());
         return;
     }
+
+    ROR_ASSERT(m_terrn2_grouping_node);
+    m_tobj_grouping_node = m_terrn2_grouping_node->createChildSceneNode(tobj_name);
 
     int mapsizex = terrainManager->getGeometryManager()->getMaxTerrainSize().x;
     int mapsizez = terrainManager->getGeometryManager()->getMaxTerrainSize().z;
@@ -243,6 +256,8 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     {
         m_procedural_manager->logDiagnostics();
     }
+
+    m_tobj_grouping_node = nullptr;
 }
 
 void TerrainObjectManager::ProcessTree(
@@ -560,7 +575,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         return false;
     }
 
-    SceneNode* tenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode();
+    SceneNode* tenode = this->getGroupingSceneNode()->createChildSceneNode();
 
     MeshObject* mo = nullptr;
     if (odef->header.mesh_name != "none")
@@ -905,6 +920,17 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     return true;
 }
 
+bool TerrainObjectManager::LoadTerrainScript(const Ogre::String& filename)
+{
+    ROR_ASSERT(!m_angelscript_grouping_node);
+
+    m_angelscript_grouping_node = m_terrn2_grouping_node->createChildSceneNode(filename);
+    ScriptUnitId_t result = App::GetScriptEngine()->loadScript(filename);
+    m_angelscript_grouping_node = nullptr;
+    
+    return result != SCRIPTUNITID_INVALID;
+}
+
 bool TerrainObjectManager::UpdateAnimatedObjects(float dt)
 {
     if (m_animated_objects.size() == 0)
@@ -996,4 +1022,19 @@ void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile
             obj->collBoxes.push_back(boxnum);
         }
     }
+}
+
+Ogre::SceneNode* TerrainObjectManager::getGroupingSceneNode()
+{
+    // This has no effect on rendering, it just helps users to diagnose the scene graph.
+    // --------------------------------------------------------------------------------
+
+    if (m_angelscript_grouping_node)
+        return m_angelscript_grouping_node;
+    else if (m_tobj_grouping_node)
+        return m_tobj_grouping_node;
+    else if (m_terrn2_grouping_node)
+        return m_terrn2_grouping_node;
+    else
+        return App::GetGfxScene()->GetSceneManager()->getRootSceneNode();
 }

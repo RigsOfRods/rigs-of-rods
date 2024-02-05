@@ -71,6 +71,7 @@ public:
     std::vector<EditorObject>& GetEditorObjects() { return m_editor_objects; }
     void           LoadTObjFile(Ogre::String filename);
     bool           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, float rendering_distance = 0, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
+    bool           LoadTerrainScript(const Ogre::String& filename);
     void           MoveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
     void           unloadObject(const Ogre::String& instancename);
     void           LoadTelepoints();
@@ -111,6 +112,7 @@ public:
     std::vector<localizer_t> GetLocalizers() { return localizers; }
 
     ProceduralManagerPtr& getProceduralManager() { return m_procedural_manager; }
+    Ogre::SceneNode* getGroupingSceneNode();
 
 protected:
 
@@ -164,6 +166,9 @@ protected:
     Terrain*           terrainManager;
     ProceduralManagerPtr      m_procedural_manager;
     int                       m_entity_counter = 0;
+    Ogre::SceneNode*          m_terrn2_grouping_node = nullptr; //!< For a readable scene graph (via inspector script)
+    Ogre::SceneNode*          m_tobj_grouping_node = nullptr; //!< For even more readable scene graph (via inspector script)
+    Ogre::SceneNode*          m_angelscript_grouping_node = nullptr; //!< For even more readable scene graph (via inspector script)
 
 #ifdef USE_PAGED
     std::vector<Forests::PagedGeometry*> m_paged_geometry;
