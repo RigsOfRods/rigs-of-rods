@@ -73,7 +73,7 @@ public:
     void addCollisionQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, ground_model_t* gm, bool flip = false);
     void addCollisionQuad(Ogre::Vector3 p1, Ogre::Vector3 p2, Ogre::Vector3 p3, Ogre::Vector3 p4, std::string const& gm_name, bool flip = false);
     void createMesh();
-    void finish();
+    void finish(Ogre::SceneNode* snode);
     void setCollisionEnabled(bool v) { collision = v; }
 
     static const unsigned int MAX_VERTEX = 50000;

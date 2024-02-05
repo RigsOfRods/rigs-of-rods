@@ -148,14 +148,14 @@ bool RoR::Terrain::initialize()
 
     this->setGravity(this->m_def.gravity);
 
-    loading_window->SetProgress(15, _L("Initializing Shadow Subsystem"));
+    loading_window->SetProgress(10, _L("Initializing Object Subsystem"));
+    this->initObjects(); // *.odef files
+
+    loading_window->SetProgress(14, _L("Initializing Shadow Subsystem"));
     this->initShadows();
 
     loading_window->SetProgress(17, _L("Initializing Geometry Subsystem"));
     this->m_geometry_manager = new TerrainGeometryManager(this);
-
-    loading_window->SetProgress(19, _L("Initializing Object Subsystem"));
-    this->initObjects(); // *.odef files
 
     loading_window->SetProgress(23, _L("Initializing Camera Subsystem"));
     this->initCamera();
@@ -464,14 +464,13 @@ void RoR::Terrain::initScripting()
 
     for (std::string as_filename : m_def.as_files)
     {
-        if (App::GetScriptEngine()->loadScript(as_filename) == 0)
-            loaded = true;
+        loaded |= this->getObjectManager()->LoadTerrainScript(as_filename);
     }
 
     if (!loaded)
     {
         // load a default script that does the most basic things
-        App::GetScriptEngine()->loadScript(DEFAULT_TERRAIN_SCRIPT);
+        this->getObjectManager()->LoadTerrainScript(DEFAULT_TERRAIN_SCRIPT);
     }
 
     // finally resume AS logging

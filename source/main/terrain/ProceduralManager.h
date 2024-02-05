@@ -79,6 +79,7 @@ struct ProceduralObject: public RefCountingObject<ProceduralObject>
 class ProceduralManager: public RefCountingObject<ProceduralManager>
 {
 public:
+    ProceduralManager(Ogre::SceneNode* groupingSceneNode);
     virtual ~ProceduralManager() override;
 
     /// Generates road mesh and adds to internal list
@@ -102,6 +103,7 @@ private:
     void deleteObject(ProceduralObjectPtr po);
 
     std::vector<ProceduralObjectPtr> pObjects;
+    Ogre::SceneNode* pGroupingSceneNode = nullptr;
 };
 
 /// @} // addtogroup Terrain
