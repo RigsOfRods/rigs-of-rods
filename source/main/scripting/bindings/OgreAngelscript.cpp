@@ -331,6 +331,7 @@ void registerOgreAnimationState(AngelScript::asIScriptEngine* engine);
 void registerOgreAnimationStateSet(AngelScript::asIScriptEngine* engine);
 void registerOgreTexture(AngelScript::asIScriptEngine* engine);
 void registerOgreTextureManager(AngelScript::asIScriptEngine* engine);
+void registerOgreManualObject(AngelScript::asIScriptEngine* engine);
 
 // main registration method
 void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
@@ -397,6 +398,8 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("TextureManager", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectType("ManualObject", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
     // dictionary/array view types, also under namespace `Ogre`
 
     SceneManagerInstanceDict::RegisterReadonlyScriptDictView(engine, "SceneManagerInstanceDict", "SceneManager");
@@ -410,6 +413,14 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterEnumValue("TransformSpace", "TS_LOCAL", Node::TS_LOCAL); /// Transform is relative to the local space
     r = engine->RegisterEnumValue("TransformSpace", "TS_PARENT", Node::TS_PARENT); /// Transform is relative to the space of the parent node
     r = engine->RegisterEnumValue("TransformSpace", "TS_WORLD", Node::TS_WORLD); /// Transform is relative to world space
+
+    r = engine->RegisterEnum("RenderOperation"); ROR_ASSERT(r >= 0); // NOTE: `Ogre::RenderOperation` is a wrapper class - the enum is `OperationType`                                                          
+    r = engine->RegisterEnumValue("RenderOperation", "OT_POINT_LIST",  Ogre::RenderOperation::OT_POINT_LIST);         /// A list of points, 1 vertex per point
+    r = engine->RegisterEnumValue("RenderOperation", "OT_LINE_LIST",  Ogre::RenderOperation::OT_LINE_LIST);           /// A list of lines, 2 vertices per line
+    r = engine->RegisterEnumValue("RenderOperation", "OT_LINE_STRIP",  Ogre::RenderOperation::OT_LINE_STRIP);         /// A strip of connected lines, 1 vertex per line plus 1 start vertex
+    r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_LIST",  Ogre::RenderOperation::OT_TRIANGLE_LIST);   /// A list of triangles, 3 vertices per triangle
+    r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_STRIP",  Ogre::RenderOperation::OT_TRIANGLE_STRIP); /// A strip of triangles, 3 vertices for the first triangle, and 1 per triangle after that
+    r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_FAN",  Ogre::RenderOperation::OT_TRIANGLE_FAN);     /// A fan of triangles, 3 vertices for the first triangle, and 1 per triangle after that
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 
@@ -433,6 +444,7 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     registerOgreTexture(engine);
     registerOgreTextureManager(engine);
     registerOgreOverlay(engine);
+    registerOgreManualObject(engine);
 
     // To estabilish class hierarchy in AngelScript you need to register the reference cast operators opCast and opImplCast.
 
@@ -442,6 +454,10 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     // - `Entity` derives from `MovableObject`
     r = engine->RegisterObjectMethod("Ogre::MovableObject", "Ogre::Entity@ opCast()", asFUNCTION((ScriptRefCastNoCount<Ogre::MovableObject, Ogre::Entity>)), asCALL_CDECL_OBJLAST); assert(r >= 0);
     r = engine->RegisterObjectMethod("Ogre::Entity", "Ogre::MovableObject@ opImplCast()", asFUNCTION((ScriptRefCastNoCount<Ogre::Entity, Ogre::MovableObject>)), asCALL_CDECL_OBJLAST); assert(r >= 0);
+    // - `ManualObject` derives from `MovableObject`
+    r = engine->RegisterObjectMethod("Ogre::MovableObject", "Ogre::ManualObject@ opCast()", asFUNCTION((ScriptRefCastNoCount<Ogre::MovableObject, Ogre::ManualObject>)), asCALL_CDECL_OBJLAST); assert(r >= 0);
+    r = engine->RegisterObjectMethod("Ogre::ManualObject", "Ogre::MovableObject@ opImplCast()", asFUNCTION((ScriptRefCastNoCount<Ogre::ManualObject, Ogre::MovableObject>)), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
 
     // Also register the const overloads so the cast works also when the handle is read only
  
@@ -451,6 +467,9 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     // - `Entity` derives from `MovableObject`
     r = engine->RegisterObjectMethod("Ogre::MovableObject", "const Ogre::Entity@ opCast() const", asFUNCTION((ScriptRefCastNoCount<Ogre::MovableObject, Ogre::Entity>)), asCALL_CDECL_OBJLAST); assert(r >= 0);
     r = engine->RegisterObjectMethod("Ogre::Entity", "const Ogre::MovableObject@ opImplCast() const", asFUNCTION((ScriptRefCastNoCount<Ogre::Entity, Ogre::MovableObject>)), asCALL_CDECL_OBJLAST); assert(r >= 0);
+    // - `ManualObject` derives from `MovableObject`
+    r = engine->RegisterObjectMethod("Ogre::MovableObject", "const Ogre::ManualObject@ opCast() const", asFUNCTION((ScriptRefCastNoCount<Ogre::MovableObject, Ogre::ManualObject>)), asCALL_CDECL_OBJLAST); assert(r >= 0);
+    r = engine->RegisterObjectMethod("Ogre::ManualObject", "const Ogre::MovableObject@ opImplCast() const", asFUNCTION((ScriptRefCastNoCount<Ogre::ManualObject, Ogre::MovableObject>)), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
 }
 
@@ -1161,6 +1180,12 @@ void registerOgreSceneManager(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("SceneManager", "void destroySceneNode(SceneNode@)", asMETHODPR(SceneManager, destroySceneNode, (SceneNode*), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneManager", "void destroySceneNode(const string &in)", asMETHODPR(SceneManager, destroySceneNode, (const Ogre::String&), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
 
+    // ManualObject:
+    r = engine->RegisterObjectMethod("SceneManager", "ManualObject@ createManualObject(const string &in)", asMETHODPR(SceneManager, createManualObject, (const Ogre::String&), Ogre::ManualObject*), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneManager", "ManualObject@ getManualObject(const string &in)", asMETHODPR(SceneManager, getManualObject, (const Ogre::String&) const, Ogre::ManualObject*), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneManager", "ManualObject@ destroyManualObject(const string &in)", asMETHODPR(SceneManager, destroyManualObject, (const Ogre::String&), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneManager", "void destroyManualObject(ManualObject@)", asMETHODPR(SceneManager, destroyManualObject, (Ogre::ManualObject*), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
 
@@ -1406,4 +1431,24 @@ void registerOgreOverlay(AngelScript::asIScriptEngine* engine)
 
     engine->SetDefaultNamespace("");
 
+}
+
+void registerOgreManualObject(AngelScript::asIScriptEngine* engine)
+{
+    engine->SetDefaultNamespace("Ogre");
+
+    // Register the ManualObject class
+    engine->RegisterObjectType("ManualObject", 0, asOBJ_REF | asOBJ_NOCOUNT);
+    engine->RegisterObjectMethod("ManualObject", "void begin(const string&in, RenderOperation, const string&in)", asMETHODPR(Ogre::ManualObject, begin, (const String&, Ogre::RenderOperation::OperationType, const String&), void), asCALL_THISCALL);
+    engine->RegisterObjectMethod("ManualObject", "void beginUpdate()", asMETHOD(Ogre::ManualObject, beginUpdate), asCALL_THISCALL);
+    engine->RegisterObjectMethod("ManualObject", "void position(const vector3&in)", asMETHODPR(Ogre::ManualObject, position, (const Ogre::Vector3&), void), asCALL_THISCALL);
+    engine->RegisterObjectMethod("ManualObject", "void normal(const vector3&in)", asMETHODPR(Ogre::ManualObject, normal, (const Ogre::Vector3&), void), asCALL_THISCALL);
+    engine->RegisterObjectMethod("ManualObject", "void textureCoord(float, float)", asMETHODPR(Ogre::ManualObject, textureCoord, (float, float), void), asCALL_THISCALL);
+    engine->RegisterObjectMethod("ManualObject", "void textureCoord(const vector2&in)", asMETHODPR(Ogre::ManualObject, textureCoord, (const Ogre::Vector2&), void), asCALL_THISCALL);
+    engine->RegisterObjectMethod("ManualObject", "void textureCoord(const vector3&in)", asMETHODPR(Ogre::ManualObject, textureCoord, (const Ogre::Vector3&), void), asCALL_THISCALL);
+    engine->RegisterObjectMethod("ManualObject", "void colour(const color&in)", asMETHODPR(Ogre::ManualObject, colour, (const Ogre::ColourValue&), void), asCALL_THISCALL);
+    engine->RegisterObjectMethod("ManualObject", "void index(uint32)", asMETHOD(Ogre::ManualObject, index), asCALL_THISCALL);
+    engine->RegisterObjectMethod("ManualObject", "void end()", asMETHOD(Ogre::ManualObject, end), asCALL_THISCALL);
+    
+    engine->SetDefaultNamespace("");
 }

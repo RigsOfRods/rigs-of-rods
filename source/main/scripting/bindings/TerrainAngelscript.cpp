@@ -45,6 +45,7 @@ void RoR::RegisterTerrain(asIScriptEngine* engine)
     
     // > Landscape
     result = engine->RegisterObjectMethod("TerrainClass", "bool isFlat()", asMETHOD(RoR::Terrain,isFlat), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("TerrainClass", "float getHeightAt(float x, float z)", asMETHOD(RoR::Terrain,GetHeightAt), asCALL_THISCALL); ROR_ASSERT(result>=0);
     
     // > Gameplay
     result = engine->RegisterObjectMethod("TerrainClass", "vector3 getSpawnPos()", asMETHOD(RoR::Terrain,getSpawnPos), asCALL_THISCALL); ROR_ASSERT(result>=0);
