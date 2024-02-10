@@ -1,44 +1,44 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="ImageBox" skin="ImageBox" position="0 114 1024 795" align="Strech" layer="Back" name="_Main">
+    <Widget type="ImageBox" skin="ImageBox" position="0 314 1024 795" align="Strech" layer="Back" name="_Main">
         <Widget type="ImageBox" skin="ImageBox" position="729 557 26 101" align="Right Bottom" layer="Back" name="autoGearImage">
             <Property key="ImageTexture" value="autogears.png"/>
             <UserString key="link" value="engine_autogear_string"/>
         </Widget>
-        <Widget type="ImageBox" skin="ImageBox" position="687 543 333 250" align="Right Bottom" layer="Back" name="SpeedoGauge">
+        <Widget type="ImageBox" skin="ImageBox" position="660 543 360 250" align="Right Bottom" layer="Back" name="SpeedoGauge">
             <Property key="ImageTexture" value="tacho8000_digital_v2.png"/>
             <UserString key="link" value="rpm"/>
-            <Widget type="ImageBox" skin="ImageBox" position="181 64 55 55" name="lightsParkingBrake">
+            <Widget type="ImageBox" skin="ImageBox" position="208 64 55 55" name="lightsParkingBrake">
                 <Property key="ImageTexture" value="pbrake_v2-off.png"/>
                 <UserString key="anim" value="lamp"/>
                 <UserString key="link" value="parkingbrake"/>
                 <UserString key="texture" value="pbrake_v2"/>
             </Widget>
-            <Widget type="ImageBox" skin="ImageBox" position="152 74 31 40" name="turn_signal_left">
+            <Widget type="ImageBox" skin="ImageBox" position="179 74 31 40" name="turn_signal_left">
                 <Property key="ImageTexture" value="turn_signal_left-off.png"/>
                 <UserString key="link" value="signal_turnleft"/>
                 <UserString key="anim" value="lamp"/>
                 <UserString key="texture" value="turn_signal_left"/>
             </Widget>
-            <Widget type="ImageBox" skin="ImageBox" position="234 74 31 40" name="turn_signal_right">
+            <Widget type="ImageBox" skin="ImageBox" position="261 74 31 40" name="turn_signal_right">
                 <Property key="ImageTexture" value="turn_signal_right-off.png"/>
                 <UserString key="link" value="signal_turnright"/>
                 <UserString key="anim" value="lamp"/>
                 <UserString key="texture" value="turn_signal_right"/>
             </Widget>
-            <Widget type="ImageBox" skin="ImageBox" position="181 159 25 25" name="tractionControlLight">
+            <Widget type="ImageBox" skin="ImageBox" position="208 159 25 25" name="tractionControlLight">
                 <Property key="ImageTexture" value="tractioncontrol-0.png"/>
                 <UserString key="texture" value="tractioncontrol"/>
                 <UserString key="link" value="tractioncontrol_mode"/>
                 <UserString key="anim" value="series"/>
             </Widget>
-            <Widget type="ImageBox" skin="ImageBox" position="211 159 25 25" name="antilockbrakeLight">
+            <Widget type="ImageBox" skin="ImageBox" position="238 159 25 25" name="antilockbrakeLight">
                 <Property key="ImageTexture" value="antilockbrake_v2-0.png"/>
                 <UserString key="anim" value="series"/>
                 <UserString key="texture" value="antilockbrake_v2"/>
                 <UserString key="link" value="antilockbrake_mode"/>
             </Widget>
-            <Widget type="TextBox" skin="TextBox" position="246 169 46 26" name="textGear">
+            <Widget type="TextBox" skin="TextBox" position="273 169 46 26" name="textGear">
                 <Property key="Caption" value="1/12"/>
                 <Property key="FontHeight" value="20"/>
                 <Property key="TextColour" value="1 1 1"/>
@@ -47,7 +47,7 @@
                 <UserString key="anim" value="textstring"/>
                 <UserString key="link" value="engine_gear_string"/>
             </Widget>
-            <Widget type="TextBox" skin="TextBox" position="236 112 73 40" name="Speedo">
+            <Widget type="TextBox" skin="TextBox" position="263 112 73 40" name="Speedo">
                 <Property key="FontName" value="Digital-7"/>
                 <Property key="FontHeight" value="48"/>
                 <Property key="TextAlign" value="Right VCenter"/>
@@ -56,43 +56,67 @@
                 <UserString key="anim" value="textformat"/>
                 <UserString key="format" value="%2.0f"/>
             </Widget>
-            <Widget type="ImageBox" skin="ImageBox" position="48 131 35 35" name="lightsFrontLights">
-                <Property key="ImageTexture" value="lights_v2-off.png"/>
+            <Widget type="ImageBox" skin="ImageBox" position="46 131 35 35" name="lightsSidelights">
+                <Property key="ImageTexture" value="sidelights-off.png"/>
                 <UserString key="anim" value="lamp"/>
-                <UserString key="link" value="lights"/>
-                <UserString key="texture" value="lights_v2"/>
+                <UserString key="link" value="sidelights"/>
+                <UserString key="texture" value="sidelights"/>
             </Widget>
-            <Widget type="ImageBox" skin="ImageBox" position="28 176 25 25" name="lightsLocked">
+            <Widget type="ImageBox" skin="ImageBox" position="77 130 35 35" name="lightsHeadlights">
+                <Property key="ImageTexture" value="headlights-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="link" value="headlights"/>
+                <UserString key="texture" value="headlights"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="13 171 35 35" name="lightsHighbeams">
+                <Property key="ImageTexture" value="highbeams-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="link" value="highbeams"/>
+                <UserString key="texture" value="highbeams"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="41 170 35 35" name="lightsFogFront">
+                <Property key="ImageTexture" value="foglights_front-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="link" value="foglights"/>
+                <UserString key="texture" value="foglights_front"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="13 207 35 35" name="cruiseControl">
+                <Property key="ImageTexture" value="cruisecontrol-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="link" value="cruisecontrol_active"/>
+                <UserString key="texture" value="cruisecontrol"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="73 176 25 25" name="lightsLocked">
                 <Property key="ImageTexture" value="secured_v2-off.png"/>
                 <UserString key="anim" value="lamp"/>
                 <UserString key="texture" value="secured_v2"/>
                 <UserString key="link" value="locked"/>
             </Widget>
-            <Widget type="ImageBox" skin="ImageBox" position="59 173 30 30" name="lightsTies">
+            <Widget type="ImageBox" skin="ImageBox" position="99 173 30 30" name="lightsTies">
                 <Property key="ImageTexture" value="locked_v2-0.png"/>
                 <UserString key="texture" value="locked_v2"/>
                 <UserString key="link" value="ties_mode"/>
                 <UserString key="anim" value="series"/>
             </Widget>
-            <Widget type="ImageBox" skin="ImageBox" position="16 214 25 25" name="lightsClutch">
+            <Widget type="ImageBox" skin="ImageBox" position="42 213 25 25" name="lightsClutch">
                 <Property key="ImageTexture" value="clutch_v2-off.png"/>
                 <UserString key="anim" value="lamp"/>
                 <UserString key="link" value="engine_clutch_warning"/>
                 <UserString key="texture" value="clutch_v2"/>
             </Widget>
-            <Widget type="ImageBox" skin="ImageBox" position="67 209 35 35" name="lightsBattery">
+            <Widget type="ImageBox" skin="ImageBox" position="93 208 35 35" name="lightsBattery">
                 <Property key="ImageTexture" value="batt_v2-off.png"/>
                 <UserString key="anim" value="lamp"/>
                 <UserString key="texture" value="batt_v2"/>
                 <UserString key="link" value="engine_battery"/>
             </Widget>
-            <Widget type="ImageBox" skin="ImageBox" position="100 209 35 35" name="ign">
+            <Widget type="ImageBox" skin="ImageBox" position="126 208 35 35" name="ign">
                 <Property key="ImageTexture" value="ign_v2-off.png"/>
                 <UserString key="anim" value="lamp"/>
                 <UserString key="texture" value="ign_v2"/>
                 <UserString key="link" value="engine_ignition"/>
             </Widget>
-            <Widget type="ImageBox" skin="ImageBox" position="42 214 25 25" name="lightsPressure">
+            <Widget type="ImageBox" skin="ImageBox" position="68 213 25 25" name="lightsPressure">
                 <Property key="ImageTexture" value="lopress_v2-off.png"/>
                 <UserString key="anim" value="lamp"/>
                 <UserString key="texture" value="lopress_v2"/>
