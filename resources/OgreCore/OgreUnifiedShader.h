@@ -15,7 +15,7 @@
 // }
 
 /// configuration
-// use macros that will be default with Ogre 14
+// use macros that will be default with Ogre 15
 // #define USE_OGRE_FROM_FUTURE
 
 // @public-api
@@ -49,6 +49,7 @@ vec4 textureCubeLod(samplerCube s, vec3 v, float lod) { return texCUBElod(s, vec
 
 #define mix lerp
 #define fract frac
+#define inversesqrt rsqrt
 
 float mod(float _a, float _b) { return _a - _b * floor(_a / _b); }
 vec2  mod(vec2  _a, vec2  _b) { return _a - _b * floor(_a / _b); }
@@ -101,9 +102,7 @@ mat3 mtxFromCols(vec3 a, vec3 b, vec3 c)
 // GLSL
 #include "GLSL_GL3Support.glsl"
 
-#ifndef USE_OGRE_FROM_FUTURE
-#define _UNIFORM_BINDING(b)
-#elif defined(VULKAN)
+#ifdef VULKAN
 #define _UNIFORM_BINDING(b) layout(binding = b + 2) uniform
 #elif __VERSION__ >= 420
 #define _UNIFORM_BINDING(b) layout(binding = b) uniform
