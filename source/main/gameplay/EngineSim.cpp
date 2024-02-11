@@ -435,7 +435,7 @@ void EngineSim::UpdateEngineSim(float dt, int doUpdate)
         totaltorque += m_braking_torque;
     }
 
-    // braking by m_hydropump_state
+    // braking by hydropump
     if (m_cur_engine_rpm > 100.0f)
     {
         totaltorque -= 8.0f * m_hydropump_state / (m_cur_engine_rpm * 0.105f * dt);
