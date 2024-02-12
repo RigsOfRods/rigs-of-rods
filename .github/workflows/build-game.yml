@@ -86,7 +86,7 @@ jobs:
           conan profile detect --force
           echo "tools.system.package_manager:mode = install" > ~/.conan2/global.conf
           echo "tools.system.package_manager:sudo = True" >> ~/.conan2/global.conf
-          conan remote add ror-conan https://git.anotherfoxguy.com/api/packages/rorbot/conan -f
+          conan remote add rigs-of-rods-deps https://conan.cloudsmith.io/rigs-of-rods/deps/ -f
           conan install . -s build_type=Release -b missing -pr:b=default -c tools.cmake.cmaketoolchain:generator="Ninja"
           cmake --preset conan-release -DCMAKE_INSTALL_PREFIX=redist -DCREATE_CONTENT_FOLDER=ON
         shell: bash
@@ -146,7 +146,7 @@ jobs:
 
       - name: Configure
         run: |
-          conan remote add ror-conan https://git.anotherfoxguy.com/api/packages/rorbot/conan -f
+          conan remote add rigs-of-rods-deps https://conan.cloudsmith.io/rigs-of-rods/deps/ -f
           conan install . -b missing -pr:b=tools/conan-profiles/vs-19-release-ninja -pr=tools/conan-profiles/vs-19-release-ninja
           cmake --preset conan-release -DCMAKE_INSTALL_PREFIX=redist -DCREATE_CONTENT_FOLDER=ON
         shell: cmd
