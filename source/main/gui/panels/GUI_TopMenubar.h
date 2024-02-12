@@ -139,7 +139,9 @@ private:
     void GetPresets();
     rapidjson::Document j_doc;
 
-    float m_color[3] = { 0.0, 0.0, 0.0 };
+    // [Settings] Shader params; Key = fmt("{}:{}", iMat, managedMatNames[iMat])
+    std::map<std::string, float> m_known_constants_float;
+    std::map<std::string, Ogre::Vector3> m_known_constants_color;
 };
 
 } // namespace GUI

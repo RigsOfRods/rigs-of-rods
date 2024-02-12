@@ -630,14 +630,73 @@ void TopMenubar::Draw(float dt)
                 ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Vehicle control options:"));
                 DrawGCheckbox(App::io_hydro_coupling, _LC("TopMenubar", "Keyboard steering speed coupling"));
 
-                if (ImGui::ColorPicker3("Color", m_color))
-                {
-                    Ogre::MaterialPtr cg_material = Ogre::MaterialManager::getSingleton().getByName("managed/mesh_standard/specular_nicemetal", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-                    Ogre::GpuProgramParametersSharedPtr cg_params = cg_material->getTechnique("BaseTechnique")->getPass("BaseRender")->getFragmentProgramParameters();
+                // port of 'resources/scripts/example_game_getManagedMaterials.as' from https://github.com/RigsOfRods/rigs-of-rods/pull/3030
 
-                    cg_params->setNamedConstant("color", Ogre::Vector3(m_color[0], m_color[1], m_color[2]));
-                    cg_material->getTechnique("BaseTechnique")->getPass("BaseRender")->setFragmentProgramParameters(cg_params);
-                }
+                ImGui::Separator();
+                const auto& managedMatNames = current_actor->getManagedMaterialNames();
+                ImGui::TextDisabled("Managed materials (%d)", (int)managedMatNames.size());
+                for (size_t iMat = 0; iMat < managedMatNames.size(); iMat++)
+                {
+                    ImGui::PushID(iMat);
+                    Ogre::MaterialPtr mat = current_actor->getManagedMaterialInstance(managedMatNames[iMat]);
+                    if (ImGui::TreeNode(managedMatNames[iMat].c_str()))
+                    {
+                        try
+                        {
+                            if (!mat) { ImGui::TextDisabled("null"); continue; }
+                            if (mat->getTechniques().size() < 1) { ImGui::TextDisabled("no `Techniques` in mat");ImGui::TreePop(); continue; }
+                            Ogre::Technique* matTech = mat->getTechniques()[0];
+                            if (matTech->getPasses().size() < 1) { ImGui::TextDisabled("no `Passes` in mat"); ImGui::TreePop(); continue; }
+                            Ogre::Pass* matPass = matTech->getPasses()[0];       
+                            if (!matPass) { ImGui::TextDisabled("null `Pass #0` in mat"); ImGui::TreePop(); continue; }   // paranoia
+                            if (!matPass->hasFragmentProgram()) { ImGui::TextDisabled("no fragment shader in mat"); ImGui::TreePop(); continue; }
+                            Ogre::GpuProgramParametersPtr fragParams = matPass->getFragmentProgramParameters();
+                            if (!fragParams) { { ImGui::TextDisabled("no fragment params in mat"); ImGui::TreePop(); continue; } }
+                            const Ogre::GpuNamedConstants& namedConstants = fragParams->getConstantDefinitions();
+                            for (auto& namedConPair : namedConstants.map)
+                            {
+                                ImGui::PushID(namedConPair.first.c_str());
+
+                                std::string key = fmt::format("{}:{}", iMat, namedConPair.first);
+                                if (namedConPair.first == "color")
+                                {
+                                    if (m_known_constants_color.find(key) == m_known_constants_color.end())
+                                    {
+                                        m_known_constants_color[key] = Ogre::Vector3(1, 1, 1); // Default to white
+                                    }
+                                    Ogre::Vector3 tempColor = m_known_constants_color[key];
+
+                                    if (ImGui::ColorPicker3("Color", (float*)&tempColor))
+                                    {
+                                        m_known_constants_color[key] = tempColor;
+                                        fragParams->setNamedConstant("color", tempColor);
+                                    }
+                                }
+                                else
+                                {
+                                    float valMin = -1.f;
+                                    float valMax = 1.f;
+                                    float tmpVal = m_known_constants_float[key];
+                                    if (ImGui::SliderFloat(namedConPair.first.c_str(), &tmpVal, valMin, valMax))
+                                    {
+                                        m_known_constants_float[key] = tmpVal;
+                                        fragParams->setNamedConstant(namedConPair.first, tmpVal);
+                                    }                                
+                                }
+
+                                ImGui::PopID(); // namedConPair.first                
+                            }
+                        }
+                        catch (const std::exception& e)
+                        {
+                            ImGui::TextDisabled("Exception: %s", e.what());
+                        }
+            
+                        ImGui::TreePop();
+                    } // TreeNode())
+        
+                    ImGui::PopID(); // iMat
+                } // for (iMat)
             }
             if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {

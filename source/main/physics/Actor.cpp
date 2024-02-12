@@ -4479,6 +4479,25 @@ Replay* Actor::getReplay()
         return nullptr;
 }
 
+Ogre::MaterialPtr Actor::getManagedMaterialInstance(const std::string& orig_name)
+{
+    auto it = ar_managed_materials.find(orig_name);
+    if (it != ar_managed_materials.end())
+        return it->second;
+    else
+        return Ogre::MaterialPtr(); // null
+}
+
+std::vector<std::string> Actor::getManagedMaterialNames()
+{
+    std::vector<std::string> names;
+    for (auto it = ar_managed_materials.begin(); it != ar_managed_materials.end(); ++it)
+    {
+        names.push_back(it->first);
+    }
+    return names;
+}
+
 Vector3 Actor::getNodePosition(int nodeNumber)
 {
     if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
