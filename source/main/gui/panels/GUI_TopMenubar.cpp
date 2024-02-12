@@ -629,6 +629,15 @@ void TopMenubar::Draw(float dt)
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Vehicle control options:"));
                 DrawGCheckbox(App::io_hydro_coupling, _LC("TopMenubar", "Keyboard steering speed coupling"));
+
+                if (ImGui::ColorPicker3("Color", m_color))
+                {
+                    Ogre::MaterialPtr cg_material = Ogre::MaterialManager::getSingleton().getByName("managed/mesh_standard/specular_nicemetal", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+                    Ogre::GpuProgramParametersSharedPtr cg_params = cg_material->getTechnique("BaseTechnique")->getPass("BaseRender")->getFragmentProgramParameters();
+
+                    cg_params->setNamedConstant("color", Ogre::Vector3(m_color[0], m_color[1], m_color[2]));
+                    cg_material->getTechnique("BaseTechnique")->getPass("BaseRender")->setFragmentProgramParameters(cg_params);
+                }
             }
             if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {

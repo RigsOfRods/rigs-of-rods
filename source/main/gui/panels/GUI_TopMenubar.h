@@ -138,6 +138,8 @@ private:
 
     void GetPresets();
     rapidjson::Document j_doc;
+
+    float m_color[3] = { 0.0, 0.0, 0.0 };
 };
 
 } // namespace GUI

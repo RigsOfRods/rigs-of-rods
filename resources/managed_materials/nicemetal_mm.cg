@@ -240,6 +240,7 @@ void main_simplemetal_fp(
             uniform float4 lightSpecular,
             uniform float exponent,
             uniform float4 ambient,
+            uniform float3 color,
             
             uniform sampler2D Diffuse_Map: register(s0),
             uniform sampler2D Specular_Map: register(s1),
@@ -257,7 +258,7 @@ void main_simplemetal_fp(
     float4 textColour = tex2D(Diffuse_Map, uv);
     float4 specColour = tex2D(Specular_Map, uv);
 //    oColor = lightDiffuse * textColour * Lit.y + lightSpecular * specColour * Lit.z + textColour*ambient;
-    oColor = lerp(lightDiffuse * textColour * Lit.y + textColour*ambient, lightSpecular * Lit.z, specColour);
+    oColor = lerp(lightDiffuse * textColour * Lit.y + textColour*ambient, lightSpecular * Lit.z, specColour) * float4(color.x, color.y, color.z, 1.0);
     oColor.a=1;
 }
 
