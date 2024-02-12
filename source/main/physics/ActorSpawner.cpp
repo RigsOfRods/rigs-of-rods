@@ -80,6 +80,7 @@
 #include <OgreParticleSystemRenderer.h>
 #include <OgreEntity.h>
 #include <climits>
+#include <cmath>
 #include <fmt/format.h>
 
 const char* ACTOR_ID_TOKEN = "@Actor_"; // Appended to material name, followed by actor ID (aka 'trucknum')
@@ -5813,9 +5814,9 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
 
     /* Positioning */
     Ogre::Vector3 node_position = m_spawn_position + TuneupUtil::getTweakedNodePosition(m_actor->getWorkingTuneupDef(), node.pos, def.position);
-    ROR_ASSERT(!isnan(node_position.x));
-    ROR_ASSERT(!isnan(node_position.y));
-    ROR_ASSERT(!isnan(node_position.z));
+    ROR_ASSERT(!std::isnan(node_position.x));
+    ROR_ASSERT(!std::isnan(node_position.y));
+    ROR_ASSERT(!std::isnan(node_position.z));
     node.AbsPosition = node_position; 
     node.RelPosition = node_position - m_actor->ar_origin;
 

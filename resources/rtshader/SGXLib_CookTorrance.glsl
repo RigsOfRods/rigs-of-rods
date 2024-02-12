@@ -2,7 +2,11 @@
 // code adapted from Google Filament
 // SPDX-License-Identifier: Apache-2.0
 
-#define PI 3.14159265359
+#include "RTSLib_Lighting.glsl"
+
+#ifdef HAVE_AREA_LIGHTS
+#include "RTSLib_LTC.glsl"
+#endif
 
 #ifdef OGRE_GLSLES
     // min roughness such that (MIN_PERCEPTUAL_ROUGHNESS^4) > 0 in fp16 (i.e. 2^(-14/4), rounded up)
@@ -40,7 +44,7 @@ float pow5(float x) {
 
 // https://google.github.io/filament/Filament.md.html#materialsystem/diffusebrdf
 float Fd_Lambert() {
-    return 1.0 / PI;
+    return 1.0 / M_PI;
 }
 
 // https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf/fresnel(specularf)
@@ -99,23 +103,11 @@ float D_GGX(float roughness, float NoH, const vec3 h, const vec3 n) {
 
     float a = NoH * roughness;
     float k = roughness / (oneMinusNoHSquared + a * a);
-    float d = k * k * (1.0 / PI);
+    float d = k * k * (1.0 / M_PI);
     return saturateMediump(d);
 }
 
-float getDistanceAttenuation(const vec3 params, float distance)
-{
-    return 1.0 / (params.x + params.y * distance + params.z * distance * distance);
-}
-
-float getAngleAttenuation(const vec3 params, const vec3 lightDir, const vec3 toLight)
-{
-    float rho		= dot(-lightDir, toLight);
-    float fSpotE	= saturate((rho - params.y) / (params.x - params.y));
-    return pow(fSpotE, params.z);
-}
-
-void evaluateLight(
+vec3 evaluateLight(
                 in vec3 vNormal,
                 in vec3 viewPos,
                 in vec4 lightPos,
@@ -123,8 +115,7 @@ void evaluateLight(
                 in vec4 pointParams,
                 in vec4 vLightDirView,
                 in vec4 spotParams,
-                in PixelParams pixel,
-                inout vec3 vOutColour)
+                in PixelParams pixel)
 {
     vec3 vLightView = lightPos.xyz;
     float fLightD = 0.0;
@@ -135,7 +126,7 @@ void evaluateLight(
         fLightD     = length(vLightView);
 
         if(fLightD > pointParams.x)
-            return;
+            return vec3_splat(0.0);
     }
 
 	vLightView		   = normalize(vLightView);
@@ -144,7 +135,7 @@ void evaluateLight(
 	float NoL		 = saturate(dot(vNormalView, vLightView));
 
     if(NoL <= 0.0)
-        return; // not lit by this light
+        return vec3_splat(0.0); // not lit by this light
 
     // https://google.github.io/filament/Filament.md.html#toc5.6.2
     float f90 = saturate(dot(pixel.f0, vec3_splat(50.0 * 0.33)));
@@ -173,14 +164,11 @@ void evaluateLight(
         color *= getAngleAttenuation(spotParams.xyz, vLightDirView.xyz, vLightView);
     }
 
-    vOutColour += color;
+    return color;
 }
 
 void PBR_MakeParams(in vec3 baseColor, in vec2 mrParam, inout PixelParams pixel)
 {
-#ifdef DEBUG_PSSM
-	baseColor += pssm_lod_info;
-#endif
     baseColor = pow(baseColor, vec3_splat(2.2));
     pixel.baseColor = baseColor;
 
@@ -200,8 +188,12 @@ void PBR_MakeParams(in vec3 baseColor, in vec2 mrParam, inout PixelParams pixel)
 
 #if LIGHT_COUNT > 0
 void PBR_Lights(
-#ifdef HAVE_SHADOW_FACTOR
-                in float shadowFactor,
+#ifdef SHADOWLIGHT_COUNT
+                in float shadowFactor[SHADOWLIGHT_COUNT],
+#endif
+#ifdef HAVE_AREA_LIGHTS
+                in sampler2D ltcLUT1,
+                in sampler2D ltcLUT2,
 #endif
                 in vec3 vNormal,
                 in vec3 viewPos,
@@ -222,13 +214,26 @@ void PBR_Lights(
 
     for(int i = 0; i < LIGHT_COUNT; i++)
     {
-        evaluateLight(vNormal, viewPos, lightPos[i], lightColor[i].xyz, pointParams[i], vLightDirView[i], spotParams[i],
-                      pixel, vOutColour);
-
-#ifdef HAVE_SHADOW_FACTOR
-        if(i == 0) // directional lights always come first
-            vOutColour *= shadowFactor;
+#ifdef HAVE_AREA_LIGHTS
+        if(spotParams[i].w == 2.0)
+        {
+            // rect area light
+            vec3 dcol = pixel.diffuseColor;
+            vec3 scol = pixel.f0;
+            evaluateRectLight(ltcLUT1, ltcLUT2, pixel.roughness, normalize(vNormal), viewPos,
+                              lightPos[i].xyz, spotParams[i].xyz, pointParams[i].xyz, scol, dcol);
+            vOutColour += lightColor[i].xyz * (scol + dcol) * 4.0;
+            continue;
+        }
 #endif
+        vec3 lightVal = evaluateLight(vNormal, viewPos, lightPos[i], lightColor[i].xyz, pointParams[i], vLightDirView[i], spotParams[i],
+                        pixel);
+
+#ifdef SHADOWLIGHT_COUNT
+        if(i < SHADOWLIGHT_COUNT)
+            lightVal *= shadowFactor[i];
+#endif
+        vOutColour += lightVal;
     }
 
     vOutColour += pixel.baseColor * pow(ambient.rgb, vec3_splat(2.2));
