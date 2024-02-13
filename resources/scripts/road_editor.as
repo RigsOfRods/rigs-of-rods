@@ -8,9 +8,7 @@
     Splines can be defined in .tobj files which come with terrain (.terrn2),
     but can also be created programmatically.
     
-    INSTALLATION
-        Put the script to Documents/My Games/Rigs of Rods/scripts
-        and in game console, say `loadscript road_editor.as`.
+    To run, open in-game console (Hotkey ~) and say 'loadscript road_editor.as'
     
     Procedural roads .tobj documentation:
     https://docs.rigsofrods.org/terrain-creation/old-terrn-subsystem/#procedural-roads
