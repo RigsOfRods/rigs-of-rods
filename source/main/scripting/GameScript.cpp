@@ -1802,6 +1802,24 @@ AngelScript::CScriptArray* GameScript::findResourceFileInfo(const std::string& r
     }
 }
 
+Ogre::Image GameScript::loadImageResource(const std::string& filename, const std::string& resource_group)
+{
+    try
+    {
+        std::string resource_name = this->CheckFileAccess("loadImageResource()", filename, resource_group);
+        if (resource_name == "")
+            return Ogre::Image(); // Access denied - error already logged
+
+        Ogre::Image img;
+        return img.load(resource_name, resource_group);
+    }
+    catch (...)
+    {
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::loadImageResource()");
+        return Ogre::Image();
+    }
+}
+
 // ------------------------
 // Helpers:
 

@@ -35,6 +35,8 @@
 #include "scripthelper/scripthelper.h"
 // AS addons end
 
+#include <OgreRenderOperation.h>
+
 #include <Overlay/OgreOverlaySystem.h>
 #include <Overlay/OgreOverlayManager.h>
 #include <Overlay/OgreOverlay.h>
@@ -232,6 +234,32 @@ static void ColourValueCopyConstructor(const ColourValue& other, ColourValue* se
     new(self) ColourValue(other.r, other.g, other.b, other.a);
 }
 
+/***BOX***/
+static void BoxDefaultConstructor(Box* self)
+{
+    new(self) Box();
+}
+
+static void BoxInitConstructor(asUINT l, asUINT t, asUINT r, asUINT b, Box* self)
+{
+    new(self) Box(l, t, r, b);
+}
+
+static void BoxCopyConstructor(const Box& other, Box* self)
+{
+    new(self) Box(other);
+}
+
+static void BoxDestructor(Box* self)
+{
+    (self)->~Box();
+}
+
+static void BoxAssignOperator(const Box& other, Box* self)
+{
+    (self)->operator=(other);
+}
+
 /***TEXTURE***/
 static void TexturePtrDefaultConstructor(TexturePtr* self)
 {
@@ -249,6 +277,70 @@ static void TexturePtrDestructor(TexturePtr* self)
 }
 
 static void TexturePtrAssignOperator(const TexturePtr& other, TexturePtr* self)
+{
+    (self)->operator=(other);
+}
+
+/***HARDWAREPIXELBUFFER***/
+// NOTE: The `*SharedPtr` is a deprecated alias of `*Ptr` in OGRE 14, but it's not yet present in the version we use.
+static void HardwarePixelBufferPtrDefaultConstructor(HardwarePixelBufferSharedPtr* self)
+{
+    new (self) HardwarePixelBufferSharedPtr();
+}
+
+static void HardwarePixelBufferPtrCopyConstructor(const HardwarePixelBufferSharedPtr& other, HardwarePixelBufferSharedPtr* self)
+{
+    new (self) HardwarePixelBufferSharedPtr(other);
+}
+
+static void HardwarePixelBufferPtrDestructor(HardwarePixelBufferSharedPtr* self)
+{
+    (self)->~HardwarePixelBufferSharedPtr();
+}
+
+static void HardwarePixelBufferPtrAssignOperator(const HardwarePixelBufferSharedPtr& other, HardwarePixelBufferSharedPtr* self)
+{
+    (self)->operator=(other);
+}
+
+/***PIXELBOX***/
+static void PixelBoxDefaultConstructor(PixelBox* self)
+{
+    new (self) PixelBox();
+}
+
+static void PixelBoxCopyConstructor(const PixelBox& other, PixelBox* self)
+{
+    new (self) PixelBox(other);
+}
+
+static void PixelBoxDestructor(PixelBox* self)
+{
+    (self)->~PixelBox();
+}
+
+static void PixelBoxAssignOperator(const PixelBox& other, PixelBox* self)
+{
+    (self)->operator=(other);
+}
+
+/***IMAGE***/
+static void ImageDefaultConstructor(Image* self)
+{
+    new (self) Image();
+}
+
+static void ImageCopyConstructor(const Image& other, Image* self)
+{
+    new (self) Image(other);
+}
+
+static void ImageDestructor(PixelBox* self)
+{
+    (self)->~PixelBox();
+}
+
+static void ImageAssignOperator(const PixelBox& other, PixelBox* self)
 {
     (self)->operator=(other);
 }
@@ -320,6 +412,7 @@ void registerOgreDegree(AngelScript::asIScriptEngine* engine);
 void registerOgreQuaternion(AngelScript::asIScriptEngine* engine);
 void registerOgreOverlay(AngelScript::asIScriptEngine* engine);
 void registerOgreColourValue(AngelScript::asIScriptEngine* engine);
+void registerOgreBox(AngelScript::asIScriptEngine* engine);
 
 void registerOgreMovableObject(AngelScript::asIScriptEngine* engine);
 void registerOgreEntity(AngelScript::asIScriptEngine* engine);
@@ -332,6 +425,9 @@ void registerOgreAnimationStateSet(AngelScript::asIScriptEngine* engine);
 void registerOgreTexture(AngelScript::asIScriptEngine* engine);
 void registerOgreTextureManager(AngelScript::asIScriptEngine* engine);
 void registerOgreManualObject(AngelScript::asIScriptEngine* engine);
+void registerOgreHardwarePixelBuffer(AngelScript::asIScriptEngine* engine);
+void registerOgrePixelBox(AngelScript::asIScriptEngine* engine);
+void registerOgreImage(AngelScript::asIScriptEngine* engine);
 
 // main registration method
 void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
@@ -362,6 +458,10 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
 
     // Ogre::ColourValue
     r = engine->RegisterObjectType("color", sizeof(ColourValue), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLFLOATS);
+    ROR_ASSERT( r >= 0 );
+
+    // Ogre::Box
+    r = engine->RegisterObjectType("box", sizeof(Box), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA | asOBJ_APP_CLASS_ALLINTS);
     ROR_ASSERT( r >= 0 );
 
     // More data types - the low-level scene API, under namespace `Ogre`
@@ -400,6 +500,17 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
 
     r = engine->RegisterObjectType("ManualObject", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("Image", sizeof(Image), asOBJ_VALUE | asGetTypeTraits<Image>());
+    ROR_ASSERT(r >= 0);
+
+    // NOTE: The `*SharedPtr` is a deprecated alias of `*Ptr` in OGRE 14, but in the version we're using it doesn't exist yet.
+    r = engine->RegisterObjectType("HardwarePixelBufferPtr", sizeof(HardwarePixelBufferSharedPtr), asOBJ_VALUE | asGetTypeTraits<HardwarePixelBufferSharedPtr>());
+    ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("PixelBox", sizeof(PixelBox), asOBJ_VALUE | asGetTypeTraits<PixelBox>());
+    ROR_ASSERT(r >= 0);
+
     // dictionary/array view types, also under namespace `Ogre`
 
     SceneManagerInstanceDict::RegisterReadonlyScriptDictView(engine, "SceneManagerInstanceDict", "SceneManager");
@@ -422,6 +533,18 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_STRIP",  Ogre::RenderOperation::OT_TRIANGLE_STRIP); /// A strip of triangles, 3 vertices for the first triangle, and 1 per triangle after that
     r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_FAN",  Ogre::RenderOperation::OT_TRIANGLE_FAN);     /// A fan of triangles, 3 vertices for the first triangle, and 1 per triangle after that
 
+    r = engine->RegisterEnum("ImageFilter"); ROR_ASSERT(r >= 0); // Only registering those which are in OGRE14 docs, even though our older version has more
+    r = engine->RegisterEnumValue("ImageFilter", "FILTER_NEAREST", Image::Filter::FILTER_NEAREST);
+    r = engine->RegisterEnumValue("ImageFilter", "FILTER_LINEAR", Image::Filter::FILTER_LINEAR);
+    r = engine->RegisterEnumValue("ImageFilter", "FILTER_BILINEAR", Image::Filter::FILTER_BILINEAR);
+
+    r = engine->RegisterEnum("HardwareBufferLockOptions"); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_NORMAL", HardwareBuffer::LockOptions::HBL_NORMAL);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_DISCARD", HardwareBuffer::LockOptions::HBL_DISCARD);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_READ_ONLY", HardwareBuffer::LockOptions::HBL_READ_ONLY);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_NO_OVERWRITE", HardwareBuffer::LockOptions::HBL_NO_OVERWRITE);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_WRITE_ONLY", HardwareBuffer::LockOptions::HBL_WRITE_ONLY);
+
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 
     // Now we register the object properties and methods
@@ -432,6 +555,7 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     registerOgreVector2(engine);
     registerOgreQuaternion(engine);
     registerOgreColourValue(engine);
+    registerOgreBox(engine);
 
     registerOgreNode(engine);
     registerOgreMovableObject(engine);
@@ -445,6 +569,9 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     registerOgreTextureManager(engine);
     registerOgreOverlay(engine);
     registerOgreManualObject(engine);
+    registerOgreHardwarePixelBuffer(engine);
+    registerOgrePixelBox(engine);
+    registerOgreImage(engine);
 
     // To estabilish class hierarchy in AngelScript you need to register the reference cast operators opCast and opImplCast.
 
@@ -991,6 +1118,38 @@ void registerOgreColourValue(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectBehaviour("color", asBEHAVE_CONSTRUCT, "void f(const color &other)", asFUNCTION(QuaternionCopyConstructor), asCALL_CDECL_OBJLAST);
 }
 
+void registerOgreBox(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+
+    // Register the object properties
+    r = engine->RegisterObjectProperty("box", "uint left", offsetof(Box, left));
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("box", "uint top", offsetof(Box, top));
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("box", "uint right", offsetof(Box, right));
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("box", "uint bottom", offsetof(Box, bottom));
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("box", "uint front", offsetof(Box, front));
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectProperty("box", "uint back", offsetof(Box, back));
+    ROR_ASSERT( r >= 0 );
+
+    // Register the object constructors
+    r = engine->RegisterObjectBehaviour("box", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(BoxDefaultConstructor), asCALL_CDECL_OBJLAST);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("box", asBEHAVE_CONSTRUCT, "void f(uint32 l, uint32 t, uint32 r, uint32 b)", asFUNCTION(BoxInitConstructor), asCALL_CDECL_OBJLAST);
+    ROR_ASSERT( r >= 0 );
+    r = engine->RegisterObjectBehaviour("box", asBEHAVE_CONSTRUCT, "void f(const box &other)", asFUNCTION(BoxCopyConstructor), asCALL_CDECL_OBJLAST);
+
+    // Register other behaviors
+    r = engine->RegisterObjectBehaviour("box", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(BoxDestructor), asCALL_CDECL_OBJLAST);
+    ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("box", "box& opAssign(const box&in)", asFUNCTION(BoxAssignOperator), asCALL_CDECL_OBJLAST);
+    ROR_ASSERT(r >= 0);
+}
+
 void registerOgreTexture(AngelScript::asIScriptEngine* engine)
 {
     int r;
@@ -1003,11 +1162,17 @@ void registerOgreTexture(AngelScript::asIScriptEngine* engine)
 
     // Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
     r = engine->RegisterObjectMethod("TexturePtr", "uint getWidth()", asFUNCTIONPR([](TexturePtr const& self) {
-        return (Ogre::uint32)self->getWidth();
+        return (asUINT)self->getWidth();
         }, (TexturePtr const&), Ogre::uint32), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("TexturePtr", "uint getHeight()", asFUNCTIONPR([](TexturePtr const& self) {
-        return (Ogre::uint32)self->getHeight();
+        return (asUINT)self->getHeight();
         }, (TexturePtr const&), Ogre::uint32), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TexturePtr", "uint getNumMipmaps()", asFUNCTIONPR([](TexturePtr const& self) {
+        return (asUINT)self->getNumMipmaps();
+        }, (TexturePtr const&), Ogre::uint32), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TexturePtr", "HardwarePixelBufferPtr getBuffer(uint, uint)", asFUNCTIONPR([](TexturePtr const& self, asUINT face, asUINT mipmap) {
+        return self->getBuffer(face, mipmap);
+        }, (TexturePtr const&, asUINT, asUINT), HardwarePixelBufferSharedPtr), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
@@ -1451,4 +1616,108 @@ void registerOgreManualObject(AngelScript::asIScriptEngine* engine)
     engine->RegisterObjectMethod("ManualObject", "void end()", asMETHOD(Ogre::ManualObject, end), asCALL_THISCALL);
     
     engine->SetDefaultNamespace("");
+}
+
+static PixelBox PIXELBOX_DUMMY = PixelBox(); // for returning as `const&`
+
+void registerOgreHardwarePixelBuffer(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectBehaviour("HardwarePixelBufferPtr", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(HardwarePixelBufferPtrDefaultConstructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("HardwarePixelBufferPtr", asBEHAVE_CONSTRUCT, "void f(const HardwarePixelBufferPtr&in)", asFUNCTION(HardwarePixelBufferPtrCopyConstructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("HardwarePixelBufferPtr", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(HardwarePixelBufferPtrDestructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "HardwarePixelBufferPtr& opAssign(const HardwarePixelBufferPtr&in)", asFUNCTION(HardwarePixelBufferPtrAssignOperator), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "const PixelBox& getCurrentLock()", asFUNCTIONPR([](HardwarePixelBufferSharedPtr const& self) -> const PixelBox& {
+        try { return self->getCurrentLock(); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::getCurrentLock()"); return PIXELBOX_DUMMY;} 
+        }, (HardwarePixelBufferSharedPtr const&), const PixelBox&), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "const PixelBox& lock(const box& lockbox, HardwareBufferLockOptions opt)", asFUNCTIONPR([](HardwarePixelBufferSharedPtr const& self, const Box& lockbox, HardwareBuffer::LockOptions opt) -> const PixelBox& {
+        try { return self->lock(lockbox, opt); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::lock()"); return PIXELBOX_DUMMY;} 
+        }, (HardwarePixelBufferSharedPtr const&, const Box&, HardwareBuffer::LockOptions), const PixelBox&), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);   
+
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "uint getWidth()", asFUNCTIONPR([](HardwarePixelBufferSharedPtr const& self) -> asUINT {
+        try { return self->getWidth(); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::getWidth()"); return 0;} 
+        }, (HardwarePixelBufferSharedPtr const&), asUINT), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "uint getHeight()", asFUNCTIONPR([](HardwarePixelBufferSharedPtr const& self) -> asUINT {
+        try { return self->getHeight(); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::getHeight()"); return 0;}
+        }, (HardwarePixelBufferSharedPtr const&), asUINT), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "void blitFromMemory(const PixelBox& src, const box& dst)", asFUNCTIONPR([](HardwarePixelBufferSharedPtr const& self, const PixelBox& src, const Box& dstBox){
+        try { self->blitFromMemory(src, dstBox); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::blitFromMemory()"); }
+        }, (HardwarePixelBufferSharedPtr const&, const PixelBox&, const Box&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "void blitToMemory(const box& src, const PixelBox& dst)", asFUNCTIONPR([](HardwarePixelBufferSharedPtr const& self, const Box& srcBox, const PixelBox& dst){
+        try { self->blitToMemory(srcBox, dst); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::blitToMemory()"); }
+        }, (HardwarePixelBufferSharedPtr const&, const Box&, const PixelBox&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("HardwarePixelBufferPtr", "void unlock()", asFUNCTIONPR([](HardwarePixelBufferSharedPtr const& self){
+        try { self->unlock(); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::HardwarePixelBuffer::unlock()"); }
+        }, (HardwarePixelBufferSharedPtr const&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    engine->SetDefaultNamespace("");
+}
+
+void registerOgrePixelBox(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectBehaviour("PixelBox", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(PixelBoxDefaultConstructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("PixelBox", asBEHAVE_CONSTRUCT, "void f(const PixelBox&in)", asFUNCTION(PixelBoxCopyConstructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("PixelBox", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(PixelBoxDestructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("PixelBox", "PixelBox& opAssign(const PixelBox&in)", asFUNCTION(PixelBoxAssignOperator), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("PixelBox", "color getColourAt(uint32 x, uint32 y, uint32 z)", asMETHOD(PixelBox, getColourAt), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("PixelBox", "void setColourAt(const color& c, uint32 x, uint32 y, uint32 z)", asMETHOD(PixelBox, setColourAt), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    // Inherited methods must have wrappers - see AngelScript doc
+    r = engine->RegisterObjectMethod("PixelBox", "uint getWidth()",  asFUNCTIONPR([](const Ogre::PixelBox& self) -> asUINT {
+        return self.getWidth();
+        }, (const Ogre::PixelBox&), asUINT), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("PixelBox", "uint getHeight()", asFUNCTIONPR([](const Ogre::PixelBox& self) -> asUINT {
+        return self.getHeight();
+        }, (const Ogre::PixelBox&), asUINT), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("PixelBox", "uint getDepth()",  asFUNCTIONPR([](const Ogre::PixelBox& self) -> asUINT {
+        return self.getDepth();
+        } , (const Ogre::PixelBox&), asUINT), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+void registerOgreImage(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectBehaviour("Image", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ImageDefaultConstructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("Image", asBEHAVE_CONSTRUCT, "void f(const Image&in)", asFUNCTION(ImageCopyConstructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("Image", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(ImageDestructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "Image& opAssign(const Image&in)", asFUNCTION(ImageAssignOperator), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Image", "color getColourAt(uint32 x, uint32 y, uint32 z)", asMETHOD(Image, getColourAt), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "void setColourAt(const color& c, uint32 x, uint32 y, uint32 z)", asMETHOD(Image, setColourAt), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "Image& flipAroundX()", asMETHOD(Ogre::Image, flipAroundX), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "Image& flipAroundY()", asMETHOD(Ogre::Image, flipAroundY), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "uint getNumMipmaps()", asMETHOD(Ogre::Image, getNumMipmaps), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "uint getNumFaces()", asMETHOD(Ogre::Image, getNumFaces), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "PixelBox getPixelBox(uint face, uint mipmap)", asMETHOD(Ogre::Image, getPixelBox), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "uint getSize()", asMETHOD(Ogre::Image, getSize), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "uint getWidth()", asMETHOD(Ogre::Image, getWidth), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "uint getHeight()", asMETHOD(Ogre::Image, getHeight), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Image", "void resize(uint16 width, uint16 height, ImageFilter filter)", asMETHOD(Ogre::Image, resize), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }

@@ -121,6 +121,11 @@ public:
     */
     AngelScript::CScriptArray* findResourceFileInfo(const std::string& resource_group, const std::string& pattern, bool dirs = false);
 
+    /**
+    * Loads an image in any format recognized by OGRE.
+    */
+    Ogre::Image loadImageResource(const std::string& filename, const std::string& resource_group);
+
     /// @}
 
     /// @name GUI
@@ -577,7 +582,7 @@ private:
     bool HaveSimTerrain(const char* func_name); //!< Helper; Check if SimController instance exists, log warning if not.
     bool HavePlayerAvatar(const char* func_name); //!< Helper; Check if local Character instance exists, log warning if not.
     bool HaveMainCamera(const char* func_name); //!< Helper; Check if main camera exists, log warning if not.
-    std::string CheckFileAccess(const char* func_name, const std::string& filename, const std::string& resource_group);
+    std::string CheckFileAccess(const char* func_name, const std::string& filename, const std::string& resource_group); //!< Extract filename and extension from the input, because OGRE allows absolute paths in resource system.
     int getTextureUnitState(Ogre::TextureUnitState** tu, const Ogre::String materialName, int techniqueNum, int passNum, int textureUnitNum);
 
     /**

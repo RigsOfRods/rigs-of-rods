@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2023 Petr Ohlidal
+    Copyright 2013-2024 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -62,6 +62,7 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "Ogre::SceneManager@ getSceneManager()", asMETHOD(GameScript, getSceneManager), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "array<dictionary>@ findResourceFileInfo(const string &in, const string &in, bool=false)", asMETHOD(GameScript, findResourceFileInfo), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void fetchUrlAsStringAsync(const string &in, const string &in)", asMETHOD(GameScript, fetchUrlAsStringAsync), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "Ogre::Image loadImageResource(const string &in, const string &in)", asMETHOD(GameScript, loadImageResource), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // > GUI
     result = engine->RegisterObjectMethod("GameScriptClass", "void flashMessage(const string &in, float, float)", asMETHOD(GameScript, flashMessage), asCALL_THISCALL); ROR_ASSERT(result >= 0);
