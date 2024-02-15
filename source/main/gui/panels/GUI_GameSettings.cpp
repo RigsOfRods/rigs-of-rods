@@ -405,6 +405,7 @@ void GameSettings::DrawDiagSettings()
     DrawGCheckbox(App::diag_log_beam_break,      _LC("GameSettings", "Log beam breaking"));
     DrawGCheckbox(App::diag_log_beam_deform,     _LC("GameSettings", "Log beam deforming"));
     DrawGCheckbox(App::diag_log_beam_trigger,    _LC("GameSettings", "Log beam triggers"));
+    DrawGCheckbox(App::diag_allow_window_resize, _LC("GameSettings", "Allow game window resizing"));
     if (ImGui::Button(_LC("GameSettings", "Rebuild cache")))
     {
         App::GetGuiManager()->GameSettings.SetVisible(false);
