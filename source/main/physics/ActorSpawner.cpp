@@ -142,6 +142,17 @@ void ActorSpawner::ConfigureAddonParts(TuneupDefPtr& tuneup_def)
     }
 }
 
+void ActorSpawner::ConfigureAssetPacks(ActorPtr actor, RigDef::DocumentPtr def)
+{
+    for (auto& module: m_selected_modules)
+    {
+        for (RigDef::Assetpack const& assetpack: module->assetpacks)
+        {
+            App::GetCacheSystem()->LoadAssetPack(actor->getUsedActorEntry(), assetpack.filename);
+        }
+    }
+}
+
 void ActorSpawner::CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::Document::Module* module_def)
 {
     // 'nodes'

@@ -96,6 +96,7 @@ public:
     /// @{
     void                           ConfigureSections(Ogre::String const & sectionconfig, RigDef::DocumentPtr def);
     void                           ConfigureAddonParts(TuneupDefPtr& tuneup_def);
+    void                           ConfigureAssetPacks(ActorPtr actor, RigDef::DocumentPtr def);
     void                           ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef::DocumentPtr def);
     static void                    SetupDefaultSoundSources(ActorPtr const& actor);
     /// @}

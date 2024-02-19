@@ -116,6 +116,7 @@ private:
     void ParseAirbrakes();
     void ParseAnimator();
     void ParseAntiLockBrakes();
+    void ParseAssetpacks();
     void ParseAuthor();
     void ParseAxles();
     void ParseBeams();

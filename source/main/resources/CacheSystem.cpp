@@ -138,6 +138,7 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("skin");
     m_known_extensions.push_back("addonpart");
     m_known_extensions.push_back("tuneup");
+    m_known_extensions.push_back("assetpack");
 }
 
 void CacheSystem::LoadModCache(CacheValidity validity)
@@ -719,6 +720,12 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
                 new_entries.push_back(entry);
             }
         }
+        else if (ext == "assetpack")
+        {
+            CacheEntryPtr entry = new CacheEntry();
+            FillAssetPackDetailInfo(entry, ds);
+            new_entries.push_back(entry);
+        }
         else
         {
             CacheEntryPtr entry = new CacheEntry();
@@ -1163,6 +1170,38 @@ void CacheSystem::FillAddonPartDetailInfo(CacheEntryPtr &entry, Ogre::DataStream
     }
 }
 
+void CacheSystem::FillAssetPackDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds)
+{
+    GenericDocumentPtr doc = new GenericDocument();
+    BitMask_t options = GenericDocument::OPTION_ALLOW_SLASH_COMMENTS | GenericDocument::OPTION_ALLOW_NAKED_STRINGS;
+    doc->loadFromDataStream(ds, options);
+
+    GenericDocContextPtr ctx = new GenericDocContext(doc);
+    while (!ctx->endOfFile())
+    {
+        if (ctx->isTokKeyword() && ctx->getTokKeyword() == "assetpack_name")
+        {
+            entry->dname = ctx->getTokString(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "assetpack_description")
+        {
+            entry->description = ctx->getTokString(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "assetpack_author")
+        {
+            int n = ctx->countLineArgs();
+            AuthorInfo author;
+            if (n > 1) { author.type             = ctx->getTokString(1); }
+            if (n > 2) { author.id               = (int)ctx->getTokFloat(2); }
+            if (n > 3) { author.name             = ctx->getTokString(3); }
+            if (n > 4) { author.email            = ctx->getTokString(4); }
+            entry->authors.push_back(author);
+        }
+
+        ctx->seekNextLine();
+    }
+}
+
 void CacheSystem::FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneup_def)
 {
     if (!tuneup_def->author_name.empty())
@@ -1178,6 +1217,45 @@ void CacheSystem::FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneu
     entry->description = tuneup_def->description;
     entry->categoryid  = tuneup_def->category_id;
     entry->tuneup_def  = tuneup_def; // Needed to generate preview image
+}
+
+void CacheSystem::LoadAssetPack(CacheEntryPtr& target_entry, Ogre::String const & assetpack_filename)
+{
+    // Load asset packs into the mod-bundle's resource group (quick & dirty approach).
+    // See also `ContentManager::resourceCollision()` - we always keep the original file and dump the colliding one.
+    // --------------------------------------------------------------------------------------------------------------
+
+    ROR_ASSERT(!target_entry->deleted);
+    ROR_ASSERT(target_entry->resource_group != "");
+    ROR_ASSERT(assetpack_filename != "");
+
+    CacheEntryPtr assetpack_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AssetPack, /*partial=*/false, assetpack_filename);
+    if (assetpack_entry)
+    {
+        try
+        {
+            Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+                assetpack_entry->resource_bundle_path, // name (source)
+                assetpack_entry->resource_bundle_type, // type (source)
+                target_entry->resource_group, // resGroup (target)
+                false, // recursive
+                assetpack_entry->resource_bundle_type != "FileSystem"); // readOnly
+
+            // This is messy but there's no other way - OGRE resource groups cannot update incrementally.
+            Ogre::ResourceGroupManager::getSingleton().clearResourceGroup(target_entry->resource_group);
+            Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(target_entry->resource_group);
+        }
+        catch (std::exception const& e)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format(_L("Failed to load asset pack '{}' (requested by '{}'): {}"), assetpack_entry->fname, target_entry->fname, e.what()));
+        }
+    }
+    else
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING, 
+            fmt::format(_L("Asset pack '{}' (requested by '{}') not found"), assetpack_filename, target_entry->fname));
+    }
 }
 
 bool CacheSystem::CheckResourceLoaded(Ogre::String & filename)
@@ -1863,6 +1941,8 @@ size_t CacheSystem::Query(CacheQuery& query)
             add = (query.cqy_filter_type == LT_AddonPart);
         else if (entry->fext == "tuneup")
             add = (query.cqy_filter_type == LT_Tuneup);
+        else if (entry->fext == "assetpack")
+            add = (query.cqy_filter_type == LT_AssetPack);
         else if (entry->fext == "truck")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck);
         else if (entry->fext == "car")

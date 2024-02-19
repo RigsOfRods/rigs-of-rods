@@ -46,7 +46,7 @@ namespace RoR {
 
 struct AuthorInfo
 {
-    int id;
+    int id = -1;
     Ogre::String type;
     Ogre::String name;
     Ogre::String email;
@@ -295,6 +295,7 @@ public:
     void                  ReLoadResource(CacheEntryPtr& t); //!< Forces reloading the associated bundle.
     void                  UnLoadResource(CacheEntryPtr& t); //!< Unloads associated bundle, destroying all spawned actors.
     void                  LoadSupplementaryDocuments(CacheEntryPtr& t); //!< Loads the associated .truck*, .skin and .tuneup files.
+    void                  LoadAssetPack(CacheEntryPtr& t_dest, Ogre::String const & assetpack_filename); //!< Adds asset pack to the requesting cache entry's resource group.
     /// @}
 
     /// @name Projects
@@ -350,6 +351,7 @@ private:
     void FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDef>& skin_def);
     void FillAddonPartDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds);
     void FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneup_def);
+    void FillAssetPackDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds);
     /// @}
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content

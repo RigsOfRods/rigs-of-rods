@@ -330,7 +330,9 @@ bool ContentManager::resourceCollision(Ogre::Resource* resource, Ogre::ResourceM
 {
     // RoR loads each resource bundle (see CacheSystem.h for info)
     // into dedicated resource group outside the global pool [see CacheSystem::LoadResource()]
-    // This means resource collision is entirely content creator's fault.
+    // This means resource collision is pretty much content creator's fault, with 2 exceptions:
+    // * asset packs (introduced 2024) are mixed into the requesting mod's resource group.
+    // * bundled resources (e.g. beamobjects.zip) are also mixed into the mod's resource group.
     RoR::LogFormat("[RoR|ContentManager] Skipping resource with duplicate name: '%s' (origin: '%s')",
         resource->getName().c_str(), resource->getOrigin().c_str());
     return false; // Instruct OGRE to drop the new resource and keep the original.

@@ -70,6 +70,7 @@ enum class Keyword
     AIRBRAKES,
     ANIMATORS,
     ANTILOCKBRAKES,
+    ASSETPACKS,
     AUTHOR,
     AXLES,
     BACKMESH,
@@ -397,6 +398,11 @@ struct AeroAnimator // used by Animator
 
     BitMask_t flags      = 0u;
     unsigned int engine_idx = 0u;
+};
+
+struct Assetpack
+{
+    std::string filename;
 };
 
 struct BaseWheel
@@ -1473,6 +1479,7 @@ struct Document
         std::vector<Airbrake>              airbrakes;
         std::vector<Animator>              animators;
         std::vector<AntiLockBrakes>        antilockbrakes;
+        std::vector<Assetpack>             assetpacks;
         std::vector<Author>                author;
         std::vector<Axle>                  axles;
         std::vector<Beam>                  beams;

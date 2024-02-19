@@ -126,7 +126,7 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
     // Init resources
     App::GetCacheSystem()->LoadResource(terrn_entry);
 
-    // Load the terrain
+    // Load the terrain def file
     Terrn2Def terrn2;
     std::string const& filename = terrn_entry->fname;
     try
@@ -143,6 +143,11 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
     {
         App::GetGuiManager()->ShowMessageBox(_L("Terrain loading error"), e.getFullDescription().c_str());
         return false;
+    }
+
+    for (std::string const& assetpack_filename: terrn2.assetpack_files)
+    {
+        App::GetCacheSystem()->LoadAssetPack(terrn_entry, assetpack_filename);
     }
 
     // CAUTION - the global instance must be set during init! Needed by:
