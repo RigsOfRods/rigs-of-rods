@@ -62,8 +62,8 @@ void drawTexGridViewer(GridViewer@ aThisViewer, vector2 aViewerSize, Ogre::Textu
     aThisViewer.begin(aViewerSize);
     
     // draw the image
-    vector2 imgImgMin = aThisViewer.projectPos(vector3(0,0,0));
-    vector2 imgImgMax = aThisViewer.projectPos(vector3(imgTex.getWidth(),imgTex.getHeight(),1));
+    vector2 imgImgMin = aThisViewer.localToScreenPos(vector3(0,0,0));
+    vector2 imgImgMax = aThisViewer.localToScreenPos(vector3(imgTex.getWidth(),imgTex.getHeight(),1));
     ImGui::GetWindowDrawList().AddImage(imgTex, imgImgMin, imgImgMax, vector2(0,0), vector2(1,1), gColorViewerImageTint);
     
     // draw debug rect where image should be; thick orange
@@ -96,8 +96,8 @@ void drawTexGridViewer(GridViewer@ aThisViewer, vector2 aViewerSize, Ogre::Textu
     }  
     
     // for contrast, draw thick black and then thin yellow
-    vector2 boxTL = aThisViewer.projectPos(vector3(aThisBox.left, aThisBox.top, 0));
-    vector2 boxBR = aThisViewer.projectPos(vector3(aThisBox.right, aThisBox.bottom, 0));
+    vector2 boxTL = aThisViewer.localToScreenPos(vector3(aThisBox.left, aThisBox.top, 0));
+    vector2 boxBR = aThisViewer.localToScreenPos(vector3(aThisBox.right, aThisBox.bottom, 0));
     ImGui::GetWindowDrawList().AddRect(boxTL, boxBR, color(0,0,0,1), 0.f, 0, 5.f);
     ImGui::GetWindowDrawList().AddRect(boxTL, boxBR, color(0.9, 1, 0.1, 1), 0.f, 0, 1.f);
     
