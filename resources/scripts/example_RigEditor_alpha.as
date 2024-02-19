@@ -425,7 +425,7 @@ class RigEditor
                 node_pos.x = ctx.getTokFloat(1);
                 node_pos.y = ctx.getTokFloat(2);
                 node_pos.z = ctx.getTokFloat(3);
-                ImGui::GetWindowDrawList().AddCircleFilled( viewer.projectPos(node_pos), node_radius, node_color);
+                ImGui::GetWindowDrawList().AddCircleFilled( viewer.localToScreenPos(node_pos), node_radius, node_color);
             }
             
             ctx.seekNextLine();

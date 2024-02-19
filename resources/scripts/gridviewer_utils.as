@@ -48,7 +48,7 @@ array<color> axisLineColors = { color(1,0,0,1), color(0.2,0.3,1,1), color(0.1, 0
         ImGui::SliderInt("Grid", gridSize, gridSizeMin, gridSizeMax);
     }
     
-    vector2 projectPos(vector3 posIn) {
+    vector2 localToScreenPos(vector3 posIn) {
         // zoom only, without scrolling
         vector2 pos= midWindowScreenPos+vector2(posIn[hAxis], posIn[vAxis])*zoom;
         nodesMin=vector2(fmin(nodesMin.x, pos.x), fmin(nodesMin.y, pos.y));
@@ -57,6 +57,7 @@ array<color> axisLineColors = { color(1,0,0,1), color(0.2,0.3,1,1), color(0.1, 0
         pos += vector2(
         ImGui::GetScrollMaxX() - 2*ImGui::GetScrollX(),
         ImGui::GetScrollMaxY() - 2*ImGui::GetScrollY());
+        
         return pos;
     }
     
@@ -72,12 +73,11 @@ array<color> axisLineColors = { color(1,0,0,1), color(0.2,0.3,1,1), color(0.1, 0
         setAxisVal(localPos, hAxis, localXY.x);
         setAxisVal(localPos, vAxis, localXY.y);
         
-        
         return localPos;
     }
     
     void drawAxisLines() {
-        vector2 origin = this.projectPos(vector3(0,0,0));
+        vector2 origin = this.localToScreenPos(vector3(0,0,0));
         ImGui::GetWindowDrawList().AddLine(origin+vector2(0, -9999), origin+vector2(0,9999), axisLineColors[vAxis]);
         ImGui::GetWindowDrawList().AddLine(origin+vector2(-9999, 0), origin+vector2(9999, 0), axisLineColors[hAxis]);
     }
