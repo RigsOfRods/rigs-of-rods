@@ -62,6 +62,7 @@ struct Terrn2Def
     std::list<Terrn2Author>  authors;
     std::list<std::string>   tobj_files;
     std::list<std::string>   as_files;
+    std::list<std::string>   assetpack_files;
     std::list<Terrn2Telepoint> telepoints;
     std::string              caelum_config;
     int                      caelum_fog_start;

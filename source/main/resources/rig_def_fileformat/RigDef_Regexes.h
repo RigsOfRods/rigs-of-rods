@@ -122,6 +122,7 @@ namespace Regexes
     E_KEYWORD_BLOCK("airbrakes")       /* Position 2 */           \
     E_KEYWORD_BLOCK("animators")       /* Position 3 etc... */    \
     E_KEYWORD_INLINE("AntiLockBrakes")                            \
+    E_KEYWORD_BLOCK("assetpacks")                                 \
     E_KEYWORD_INLINE("author")                                    \
     E_KEYWORD_BLOCK("axles")                                      \
     E_KEYWORD_BLOCK("backmesh")                                   \

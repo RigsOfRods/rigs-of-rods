@@ -235,6 +235,7 @@ void Parser::ProcessCurrentLine()
     {
         case Keyword::AIRBRAKES:            this->ParseAirbrakes();               return;
         case Keyword::ANIMATORS:            this->ParseAnimator();                return;
+        case Keyword::ASSETPACKS:           this->ParseAssetpacks();              return;
         case Keyword::AXLES:                this->ParseAxles();                   return;
         case Keyword::BEAMS:                this->ParseBeams();                   return;
         case Keyword::BRAKES:               this->ParseBrakes();                  return;
@@ -1631,6 +1632,17 @@ void Parser::ParseAirbrakes()
     airbrake.texcoord_y2           = this->GetArgFloat  (13);
 
     m_current_module->airbrakes.push_back(airbrake);
+}
+
+void Parser::ParseAssetpacks()
+{
+    if (! this->CheckNumArguments(1)) { return; }
+
+    Assetpack assetpack;
+
+    assetpack.filename = this->GetArgStr(0);
+
+    m_current_module->assetpacks.push_back(assetpack);
 }
 
 void Parser::ParseVideoCamera()

@@ -112,6 +112,15 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
         }
     }
 
+    if (file.HasSection("AssetPacks"))
+    {
+        for (auto& assetpack: file.getSettings("AssetPacks"))
+        {
+            Ogre::String assetpack_filename = SanitizeUtf8String(assetpack.first);
+            def.assetpack_files.push_back(TrimStr(assetpack_filename));
+        }
+    }
+
     this->ProcessTeleport(def, &file);
 
     return true;

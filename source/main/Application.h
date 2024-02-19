@@ -261,7 +261,7 @@ enum VisibilityMasks
     HIDE_MIRROR       = BITMASK(3),
 };
 
-enum LoaderType //!< Operation mode for GUI::MainSelector
+enum LoaderType //!< Search mode for `ModCache::Query()` & Operation mode for `GUI::MainSelector`
 {
     LT_None,
     LT_Terrain,   // Invocable from GUI; No script alias, used in main menu
@@ -278,6 +278,7 @@ enum LoaderType //!< Operation mode for GUI::MainSelector
     LT_AllBeam,   // Invocable from GUI; Script "all",  ext: truck car boat airplane train load
     LT_AddonPart, // No script alias, invoked manually, ext: addonpart
     LT_Tuneup,    // No script alias, invoked manually, ext: tuneup
+    LT_AssetPack, // No script alias, invoked manually, ext: assetpack
 };
 
 // ------------------------------------------------------------------------------------------------
