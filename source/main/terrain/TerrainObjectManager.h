@@ -164,7 +164,6 @@ protected:
     Terrain*           terrainManager;
     ProceduralManagerPtr      m_procedural_manager;
     int                       m_entity_counter = 0;
-    std::string               m_resource_group;
 
 #ifdef USE_PAGED
     std::vector<Forests::PagedGeometry*> m_paged_geometry;
