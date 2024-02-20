@@ -281,6 +281,11 @@ static void TexturePtrAssignOperator(const TexturePtr& other, TexturePtr* self)
     (self)->operator=(other);
 }
 
+static bool TexturePtrIsNull(TexturePtr* self)
+{
+    return !(self)->operator bool();
+}
+
 /***HARDWAREPIXELBUFFER***/
 // NOTE: The `*SharedPtr` is a deprecated alias of `*Ptr` in OGRE 14, but it's not yet present in the version we use.
 static void HardwarePixelBufferPtrDefaultConstructor(HardwarePixelBufferSharedPtr* self)
@@ -343,6 +348,112 @@ static void ImageDestructor(PixelBox* self)
 static void ImageAssignOperator(const PixelBox& other, PixelBox* self)
 {
     (self)->operator=(other);
+}
+
+/***MESH***/
+typedef CReadonlyScriptArrayView<Ogre::SubMesh*> SubMeshArray;
+
+static SubMeshArray* MeshPtrGetSubmeshes(const MeshPtr& self)
+{
+    return new SubMeshArray(self->getSubMeshes());
+}
+
+static void MeshPtrDefaultConstructor(MeshPtr* self)
+{
+    new (self) MeshPtr();
+}
+
+static void MeshPtrCopyConstructor(const MeshPtr& other, MeshPtr* self)
+{
+    new (self) MeshPtr(other);
+}
+
+static void MeshPtrDestructor(MeshPtr* self)
+{
+    (self)->~MeshPtr();
+}
+
+static void MeshPtrAssignOperator(const MeshPtr& other, MeshPtr* self)
+{
+    (self)->operator=(other);
+}
+
+static bool MeshPtrIsNull(MeshPtr* self)
+{
+    return !(self)->operator bool();
+}
+
+/***SUBMESH***/
+static AngelScript::CScriptArray* SubMesh__getVertexPositions(SubMesh* self)
+{
+    VertexData* vertData = (self->useSharedVertices) ? self->parent->sharedVertexData : self->vertexData;
+    if (!vertData)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getVertexPositions(): No vertex data found");
+        return nullptr;
+    }
+    const Ogre::VertexElement* posElem = vertData->vertexDeclaration->findElementBySemantic(Ogre::VES_POSITION);
+    if (!posElem)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getVertexPositions(): No POSITION element found");
+        return nullptr;
+    }
+    Ogre::HardwareVertexBufferSharedPtr vbuf = vertData->vertexBufferBinding->getBuffer(posElem->getSource());
+    if (!vbuf)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getVertexPositions(): No vertex buffer found");
+        return nullptr;
+    }
+    AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl("array<vector3>");
+    AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo, vertData->vertexCount);
+    uint8_t* pStart = static_cast<uint8_t*>(vbuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+    for (size_t i = 0; i < vertData->vertexCount; i++)
+    {
+        uint8_t* pVert = pStart + (i * vertData->vertexDeclaration->getVertexSize(posElem->getSource()));
+        float* pPos = nullptr;
+        posElem->baseVertexPointerToElement(pVert, &pPos);
+        Vector3 pos(*pPos, *(pPos+1), *(pPos+2));
+        arr->SetValue(i, &pos);
+    }
+    vbuf->unlock();
+    return arr;
+}
+
+static AngelScript::CScriptArray* SubMesh__getVertexTexcoords(SubMesh* self, asUINT index)
+{
+    VertexData* vertData = (self->useSharedVertices) ? self->parent->sharedVertexData : self->vertexData;
+    if (!vertData)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getVertexTexcoords(): No vertex data found");
+        return nullptr;
+    }
+    const Ogre::VertexElement* texcoordElem = vertData->vertexDeclaration->findElementBySemantic(Ogre::VES_TEXTURE_COORDINATES, (unsigned short)index);
+    if (!texcoordElem)
+    {
+        App::GetScriptEngine()->SLOG(fmt::format("SubMesh::__getVertexTexcoords(): TEXCOORD element with index {} not found", index));
+        return nullptr;
+    }
+    Ogre::HardwareVertexBufferSharedPtr vbuf = vertData->vertexBufferBinding->getBuffer(texcoordElem->getSource());
+    if (!vbuf)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getVertexTexcoords(): No vertex buffer found");
+        return nullptr;
+    }
+    AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl("array<vector2>");
+    AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo, vertData->vertexCount);
+    uint8_t* pStart = static_cast<uint8_t*>(vbuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+    const size_t vertSize = vertData->vertexDeclaration->getVertexSize(texcoordElem->getSource());
+    ROR_ASSERT(texcoordElem->getType() == Ogre::VET_FLOAT2);
+    for (size_t i = 0; i < vertData->vertexCount; i++)
+    {
+        uint8_t* pVert = pStart + ((i + vertData->vertexStart) * vertSize);
+        float* pTexcoord = nullptr;
+        texcoordElem->baseVertexPointerToElement(pVert, &pTexcoord);
+        Vector2 texcoord(*pTexcoord, *(pTexcoord+1));
+        arr->SetValue(i, &texcoord);
+    }
+    vbuf->unlock();
+    return arr;
 }
 
 /***NODE***/
@@ -428,6 +539,9 @@ void registerOgreManualObject(AngelScript::asIScriptEngine* engine);
 void registerOgreHardwarePixelBuffer(AngelScript::asIScriptEngine* engine);
 void registerOgrePixelBox(AngelScript::asIScriptEngine* engine);
 void registerOgreImage(AngelScript::asIScriptEngine* engine);
+void registerOgreMeshManager(AngelScript::asIScriptEngine* engine);
+void registerOgreMesh(AngelScript::asIScriptEngine* engine);
+void registerOgreSubMesh(AngelScript::asIScriptEngine* engine);
 
 // main registration method
 void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
@@ -511,12 +625,22 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("PixelBox", sizeof(PixelBox), asOBJ_VALUE | asGetTypeTraits<PixelBox>());
     ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectType("MeshPtr", sizeof(MeshPtr), asOBJ_VALUE | asGetTypeTraits<TexturePtr>());
+    ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("SubMesh", sizeof(SubMesh), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("MeshManager", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
     // dictionary/array view types, also under namespace `Ogre`
 
     SceneManagerInstanceDict::RegisterReadonlyScriptDictView(engine, "SceneManagerInstanceDict", "SceneManager");
     MovableObjectArray::RegisterReadonlyScriptArrayView(engine, "MovableObjectArray", "MovableObject");
     ChildNodeArray::RegisterReadonlyScriptArrayView(engine, "ChildNodeArray", "Node");
     AnimationStateDict::RegisterReadonlyScriptDictView(engine, "AnimationStateDict", "AnimationState");
+    SubMeshArray::RegisterReadonlyScriptArrayView(engine, "SubMeshArray", "SubMesh");
 
     // enums, also under namespace `Ogre`
 
@@ -572,6 +696,9 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     registerOgreHardwarePixelBuffer(engine);
     registerOgrePixelBox(engine);
     registerOgreImage(engine);
+    registerOgreMesh(engine);
+    registerOgreSubMesh(engine);
+    registerOgreMeshManager(engine);
 
     // To estabilish class hierarchy in AngelScript you need to register the reference cast operators opCast and opImplCast.
 
@@ -1159,6 +1286,7 @@ void registerOgreTexture(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectBehaviour("TexturePtr", asBEHAVE_CONSTRUCT, "void f(const TexturePtr&in)", asFUNCTION(TexturePtrCopyConstructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectBehaviour("TexturePtr", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(TexturePtrDestructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("TexturePtr", "TexturePtr& opAssign(const TexturePtr&in)", asFUNCTION(TexturePtrAssignOperator), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("TexturePtr", "bool isNull()", asFUNCTION(TexturePtrIsNull), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
 
     // Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
     r = engine->RegisterObjectMethod("TexturePtr", "uint getWidth()", asFUNCTIONPR([](TexturePtr const& self) {
@@ -1718,6 +1846,68 @@ void registerOgreImage(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("Image", "uint getWidth()", asMETHOD(Ogre::Image, getWidth), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Image", "uint getHeight()", asMETHOD(Ogre::Image, getHeight), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Image", "void resize(uint16 width, uint16 height, ImageFilter filter)", asMETHOD(Ogre::Image, resize), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+void registerOgreSubMesh(AngelScript::asIScriptEngine* engine)
+{
+    engine->SetDefaultNamespace("Ogre");
+
+    // Register the SubMesh class
+    engine->RegisterObjectType("SubMesh", 0, asOBJ_REF | asOBJ_NOCOUNT);
+    engine->RegisterObjectMethod("SubMesh", "const string& getMaterialName()", asMETHOD(Ogre::SubMesh, getMaterialName), asCALL_THISCALL);
+    engine->RegisterObjectMethod("SubMesh", "void setMaterialName(const string&in, const string&in)", asMETHOD(Ogre::SubMesh, setMaterialName), asCALL_THISCALL);
+
+    engine->RegisterObjectMethod("SubMesh", "array<vector3>@ __getVertexPositions()", asFUNCTION(SubMesh__getVertexPositions), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("SubMesh", "array<vector2>@ __getVertexTexcoords(uint index)", asFUNCTION(SubMesh__getVertexTexcoords), asCALL_CDECL_OBJFIRST);
+    
+    engine->SetDefaultNamespace("");
+}
+
+void registerOgreMesh(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectBehaviour("MeshPtr", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(MeshPtrDefaultConstructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("MeshPtr", asBEHAVE_CONSTRUCT, "void f(const MeshPtr&in)", asFUNCTION(MeshPtrCopyConstructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("MeshPtr", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(MeshPtrDestructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MeshPtr", "MeshPtr& opAssign(const MeshPtr&in)", asFUNCTION(MeshPtrAssignOperator), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MeshPtr", "bool isNull()", asFUNCTION(MeshPtrIsNull), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+
+    // Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
+    r = engine->RegisterObjectMethod("MeshPtr", "SubMeshArray@ getSubMeshes()", asFUNCTION(MeshPtrGetSubmeshes), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MeshPtr", "string getName()", asFUNCTIONPR([](MeshPtr const& self) {
+        return self->getName();
+        }, (MeshPtr const&), Ogre::String), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MeshPtr", "SubMesh@ createSubMesh(const string&in name)", asFUNCTIONPR([](MeshPtr const& self, const Ogre::String& name) {
+        return self->createSubMesh(name);
+        }, (MeshPtr const&, const Ogre::String&), Ogre::SubMesh*), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MeshPtr", "void destroySubMesh(const string&in name)", asFUNCTIONPR([](MeshPtr const& self, const Ogre::String& name) {
+        self->createSubMesh(name);
+        }, (MeshPtr const&, const Ogre::String&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+void registerOgreMeshManager(AngelScript::asIScriptEngine * engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("MeshManager", "MeshPtr load(const string&in file, const string&in rg)", asFUNCTIONPR([](MeshManager& mgr, std::string const& file, std::string const& rg){
+        try { return mgr.load(file, rg); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::MeshManager::load()"); return Ogre::MeshPtr();} 
+    }, (MeshManager& mgr, std::string const& file, std::string const& rg), MeshPtr), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("MeshManager", "void remove(const string&in file, const string&in rg)", asFUNCTIONPR([](MeshManager& mgr, std::string const& file, std::string const& rg){
+        try { mgr.remove(file, rg); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::MeshManager::remove()"); } 
+    }, (MeshManager& mgr, std::string const& file, std::string const& rg), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace("Ogre::MeshManager"); ROR_ASSERT(r >= 0);
+    r = engine->RegisterGlobalFunction("MeshManager& getSingleton()", asFUNCTION(MeshManager::getSingleton), asCALL_CDECL); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
