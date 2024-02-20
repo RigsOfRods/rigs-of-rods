@@ -65,11 +65,6 @@ inline float getTerrainHeight(Real x, Real z, void* unused = 0)
 TerrainObjectManager::TerrainObjectManager(Terrain* terrainManager) :
     terrainManager(terrainManager)
 {
-
-    // terrain custom group
-    m_resource_group = terrainManager->GetDef().name + "-TerrnObjects";
-    Ogre::ResourceGroupManager::getSingleton().createResourceGroup(m_resource_group);
-
     m_procedural_manager = new ProceduralManager();
 }
 
@@ -89,8 +84,6 @@ TerrainObjectManager::~TerrainObjectManager()
 #endif //USE_PAGED
 
     App::GetGfxScene()->GetSceneManager()->destroyAllEntities();
-
-    Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(m_resource_group);
 }
 
 void GenerateGridAndPutToScene(Ogre::Vector3 position)
@@ -573,7 +566,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     if (odef->header.mesh_name != "none")
     {
         Str<100> ebuf; ebuf << m_entity_counter++ << "-" << odef->header.mesh_name;
-        mo = new MeshObject(odef->header.mesh_name, m_resource_group, ebuf.ToCStr(), tenode);
+        mo = new MeshObject(odef->header.mesh_name, terrainManager->getTerrainFileResourceGroup(), ebuf.ToCStr(), tenode);
         if (mo->getEntity())
         {
             mo->getEntity()->setCastShadows(odef->header.cast_shadows);
