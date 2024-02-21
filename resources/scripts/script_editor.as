@@ -1366,6 +1366,7 @@ class ScriptEditorTab
                     regionFoundAtLineIdx = lineIdx;
                     regionFoundWithName = trimLeft(this.buffer.substr(regionTitleStart, endOffset - regionTitleStart));
                     regionBodyStartOffset = endOffset+1;
+                    game.log("DBG analyzeBuffer(): regionFound: withName="+regionFoundWithName+" atLineIdx="+regionFoundAtLineIdx+" bodyStartOffset="+regionBodyStartOffset);
                 }
                 
                 // Process #endregion
@@ -1376,6 +1377,7 @@ class ScriptEditorTab
                     regionInfo.regionBodyStartOffset = regionBodyStartOffset; // To swap regions in and out from work buffer.
                     regionInfo.regionBodyNumChars = (int(this.bufferLinesMeta[lineIdx-1]['endOffset']) - regionBodyStartOffset)+1; // ditto
                     collectedRegions[regionFoundWithName] = regionInfo;
+                    game.log("DBG analyzeBuffer(): endregionFound: withName="+regionFoundWithName+" lineCount="+regionInfo.regionLineCount+" bodyStartOffset="+regionInfo.regionBodyStartOffset+" numChars="+regionInfo.regionBodyNumChars);
                     regionFoundAtLineIdx = -1;
                     regionFoundWithName = "";
                 }
@@ -1455,6 +1457,7 @@ class ScriptEditorTab
             RegionInfo@ oldRegionInfo = findRegion(this.workBufferRegions, oldRegionNames[i]);
             if (isGone && oldRegionInfo.isFolded)
             {
+                game.log ("DBG analyzeBuffer(): region '" + oldRegionNames[i] + "' has gone orphan.");
                 oldRegionInfo.isOrphan = true;
             }
         }
@@ -1464,15 +1467,31 @@ class ScriptEditorTab
         for (uint i = 0; i < newRegionNames.length(); i++)
         {
             RegionInfo@ newRegionInfo = findRegion(collectedRegions, newRegionNames[i]);
-            RegionInfo@ oldRegionInfo =findRegion(this.workBufferRegions, newRegionNames[i]);
+            RegionInfo@ oldRegionInfo = findRegion(this.workBufferRegions, newRegionNames[i]);
             if (@oldRegionInfo == null)
             {
+                game.log("DBG analyzeBuffer(): A brand new region '"+newRegionNames[i]+"' was created");
                 this.workBufferRegions[newRegionNames[i]] = newRegionInfo;
             }
             else
             {
-                oldRegionInfo.regionBodyStartOffset = newRegionInfo.regionBodyStartOffset;
-                oldRegionInfo.isOrphan = false;
+                game.log("DBG analyzeBuffer(): Region '"+newRegionNames[i]+"' already exists:"
+                    +" lineCount="+oldRegionInfo.regionLineCount+" (new:"+newRegionInfo.regionLineCount+")"
+                    +" regionBodyStartOffset="+oldRegionInfo.regionBodyStartOffset+" (new:"+newRegionInfo.regionBodyStartOffset+")"
+                    +" regionBodyNumChars="+oldRegionInfo.regionBodyNumChars+" (new:"+newRegionInfo.regionBodyNumChars+")"
+                    +" isOrphan="+oldRegionInfo.isOrphan+" isFolded="+newRegionInfo.isFolded);
+                    
+                if (oldRegionInfo.isOrphan && newRegionInfo.regionLineCount == 0)
+                {
+                    game.log("DBG analyzeBuffer(): An orphan region '"+newRegionNames[i]+"' has resurfaced");
+                    oldRegionInfo.regionBodyStartOffset = newRegionInfo.regionBodyStartOffset;
+                    oldRegionInfo.isOrphan = false;
+                }
+                else if (!oldRegionInfo.isFolded)
+                {
+                    game.log("DBG analyzeBuffer(): An existing region '"+newRegionNames[i]+"' was updated");
+                    this.workBufferRegions[newRegionNames[i]] = newRegionInfo;
+                }
             }
         }
     }
