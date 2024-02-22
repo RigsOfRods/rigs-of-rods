@@ -354,9 +354,9 @@ void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 c
 
 Ogre::Quaternion TObjParser::CalcRotation(Ogre::Vector3 const& rot) const
 {
-    return Quaternion(Degree(rot.x), Vector3::UNIT_X) *
-           Quaternion(Degree(rot.y), Vector3::UNIT_Y) *
-           Quaternion(Degree(rot.z), Vector3::UNIT_Z);
+    return Quaternion(Degree(rot.y), Vector3::UNIT_Y) *  // y global
+           Quaternion(Degree(rot.x), Vector3::UNIT_X) *  // x local
+           Quaternion(Degree(rot.z), Vector3::UNIT_Z);   // z local
 }
 
 bool TObjParser::ParseObjectLine(TObjEntry& object)
