@@ -341,7 +341,6 @@ extern CVar* mp_cyclethru_net_actors; //!< Include remote actors when cycling th
 extern CVar* remote_query_url;
 
 // Diagnostic
-extern CVar* diag_auto_spawner_report;
 extern CVar* diag_camera;
 extern CVar* diag_trace_globals;
 extern CVar* diag_rig_log_node_import;
