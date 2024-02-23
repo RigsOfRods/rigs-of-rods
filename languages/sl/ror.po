@@ -3,82 +3,84 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# Saš Žnidarič <slayfan123@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-13 14:29+0200\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: Slovenian (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/sl/)\n"
+"PO-Revision-Date: 2024-02-24 08:01+0000\n"
+"Last-Translator: Saš Žnidarič <slayfan123@gmail.com>\n"
+"Language-Team: Slovenian <https://hosted.weblate.org/projects/rigs-of-rods/"
+"game/sl/>\n"
 "Language: sl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n"
-"%100==4 ? 2 : 3);\n"
+"Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
+"n%100==4 ? 2 : 3;\n"
+"X-Generator: Weblate 5.5-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
 msgid "Startup error"
-msgstr ""
+msgstr "Začetna napaka"
 
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
-msgstr ""
+msgstr "Ni upodabljatni sistem plugin na voljo. Preverite vaš plugins.cfg"
 
 #: AppContext.cpp:378
 #, fuzzy
 #| msgid "Screenshot Format:"
 msgid "Screenshot: "
-msgstr "Format zajema slike:"
+msgstr "Format zajema slike: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Napaka pri pridobivanju poti imenika programa"
 
 #: AppContext.cpp:426
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Napaka med pridobivanjem uporabniškega imenika poti"
 
 #: AppContext.cpp:477
 msgid "Resources folder not found. Check if correctly installed."
-msgstr ""
+msgstr "Mapa za resources ni bila najdena. Preverite če je pravilno naložena."
 
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
-msgstr ""
+msgstr "Pokvarjena resource mapa. Preverite če je pravilno naložena."
 
 #: Application.cpp:359
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
-msgstr ""
+msgstr "Avtomatična prestava"
 
 #: Application.cpp:360
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr ""
+msgstr "Ročna prestava z avtomatičnim sklopkom"
 
 #: Application.cpp:361
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr ""
+msgstr "Celotna ročna: zaporedna prestava"
 
 #: Application.cpp:362
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr ""
+msgstr "Celotna ročna: pretava"
 
 #: Application.cpp:363
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
-msgstr ""
+msgstr "Celotna ročna: prestava z razponi"
 
 #: Application.cpp:372
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
-msgstr ""
+msgstr "Nobeno (Najhitrejše)"
 
 #: Application.cpp:373
 #, fuzzy
@@ -90,22 +92,22 @@ msgstr "Svetlobni efekti:"
 #: Application.cpp:374
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr ""
+msgstr "Samo trenutno vozilo: glavne luči"
 
 #: Application.cpp:375
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
-msgstr ""
+msgstr "Vsa vozila: glavne luči"
 
 #: Application.cpp:376
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
-msgstr ""
+msgstr "Vsa vozila: vse luči"
 
 #: Application.cpp:385
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "Onemogočeno"
 
 #: Application.cpp:386
 msgctxt "GfxShadowType"
@@ -115,22 +117,22 @@ msgstr ""
 #: Application.cpp:395
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
-msgstr ""
+msgstr "Peščeni vihar (Najhitrejši)"
 
 #: Application.cpp:396
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
-msgstr ""
+msgstr "Caelum (Najboljši izgled, počasnejši)"
 
 #: Application.cpp:397
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
-msgstr ""
+msgstr "SkyX (Najboljši izgled, počasnejši)"
 
 #: Application.cpp:406
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "Ničesar"
 
 #: Application.cpp:407
 msgctxt "GfxTexFilter"
@@ -150,7 +152,7 @@ msgstr ""
 #: Application.cpp:418
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "Ničesar"
 
 #: Application.cpp:419
 msgctxt "GfxVegetation"
@@ -165,32 +167,32 @@ msgstr ""
 #: Application.cpp:421
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "Polno"
 
 #: Application.cpp:430
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "Ničesar"
 
 #: Application.cpp:431
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
-msgstr ""
+msgstr "Osnovno (Najhitrejše)"
 
 #: Application.cpp:432
 msgctxt "GfxWaterMode"
 msgid "Reflection"
-msgstr ""
+msgstr "Refleksija"
 
 #: Application.cpp:433
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
-msgstr ""
+msgstr "Refleksija + lomnost (Hitrost optimizirana)"
 
 #: Application.cpp:434
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
-msgstr ""
+msgstr "Reflekcija + lomnost (kakovost optimizirana)"
 
 #: Application.cpp:435
 msgctxt "GfxWaterMode"
@@ -200,100 +202,100 @@ msgstr ""
 #: Application.cpp:444
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "Ničesar"
 
 #: Application.cpp:445
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "Statično"
 
 #: Application.cpp:446
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "Nagibanje"
 
 #: Application.cpp:455
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "Ničesar"
 
 #: Application.cpp:456
 msgctxt "IoInputGrabMode"
 msgid "All"
-msgstr ""
+msgstr "Vse"
 
 #: Application.cpp:457
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr ""
+msgstr "Dynamično"
 
 #: GameContext.cpp:107
 msgid "Terrain not found: "
-msgstr ""
+msgstr "Teren ni bil najden:- "
 
 #: GameContext.cpp:109 terrain/Terrain.cpp:147
 msgid "Terrain loading error"
-msgstr ""
+msgstr "Teren nalaganje napaka"
 
 #: GameContext.cpp:572
 msgid "Please clear the place first"
-msgstr ""
+msgstr "Prosim očiščite mesto prvo"
 
 #: GameContext.cpp:874
 msgid "Enabled hard reset mode"
-msgstr ""
+msgstr "Omogočilo trdi ponostavitveni način"
 
 #: GameContext.cpp:874
 msgid "Enabled soft reset mode"
-msgstr ""
+msgstr "Omogočilo mehki ponostavitveni način"
 
 #: GameContext.cpp:1061
 msgid "Time set to "
-msgstr ""
+msgstr "Čas nastavljen na- "
 
 #: GameContext.cpp:1203
 msgid "No rescue truck found!"
-msgstr ""
+msgstr "Reševalni tovornjak ni bil najden!"
 
 #: GameContext.cpp:1279
 msgid "forwardcommands enabled"
-msgstr ""
+msgstr "forwardcommands omogočeni"
 
 #: GameContext.cpp:1283
 msgid "forwardcommands disabled"
-msgstr ""
+msgstr "forwardcommands onemogočeni"
 
 #: GameContext.cpp:1292
 msgid "importcommands enabled"
-msgstr ""
+msgstr "importcommands omogočeni"
 
 #: GameContext.cpp:1296
 msgid "importcommands disabled"
-msgstr ""
+msgstr "importcommands onemogočeni"
 
 #: gameplay/ChatSystem.cpp:55
 msgid " [whispered] "
-msgstr ""
+msgstr " -[zašepetato]- "
 
 #: gameplay/EngineSim.cpp:1437
 msgid "Low range selected"
-msgstr ""
+msgstr "Nizki razpon izbran"
 
 #: gameplay/EngineSim.cpp:1443
 msgid "Mid range selected"
-msgstr ""
+msgstr "Sredinski razpon izbran"
 
 #: gameplay/EngineSim.cpp:1449
 msgid "High range selected"
-msgstr ""
+msgstr "Visoki razpon izbran"
 
 #: gameplay/Landusemap.cpp:99
 msgid "Error while loading landuse config"
-msgstr ""
+msgstr "Napaka med nalaganjem landuse config"
 
 #: gfx/camera/CameraManager.cpp:302
 msgid "FOV: Limit reached"
-msgstr ""
+msgstr "FOV: omejitev dosežena"
 
 #: gfx/camera/CameraManager.cpp:314
 msgid "FOV: "
@@ -301,39 +303,39 @@ msgstr ""
 
 #: gfx/camera/CameraManager.cpp:384
 msgid "Free camera"
-msgstr ""
+msgstr "Prosta kamera"
 
 #: gfx/camera/CameraManager.cpp:389
 msgid "Fixed camera"
-msgstr ""
+msgstr "Fiksna kamera"
 
 #: gfx/camera/CameraManager.cpp:863
 msgid "Limited camera movement enabled"
-msgstr ""
+msgstr "Omejen kamera premik omogočen"
 
 #: gfx/camera/CameraManager.cpp:867
 msgid "Limited camera movement disabled"
-msgstr ""
+msgstr "Omejen kamera premik onemogočen"
 
 #: gfx/camera/CameraManager.cpp:1142
 msgid "Auto tracking enabled"
-msgstr ""
+msgstr "Avtomatično sledenje omogočeno"
 
 #: gfx/camera/CameraManager.cpp:1146
 msgid "Auto tracking disabled"
-msgstr ""
+msgstr "Avtomatično sledenje onemogočeno"
 
 #: gui/OverlayWrapper.cpp:431
 msgid "Current FPS: "
-msgstr ""
+msgstr "Trenutni FPS: "
 
 #: gui/OverlayWrapper.cpp:432
 msgid "Average FPS: "
-msgstr ""
+msgstr "Povprečni FPS:- "
 
 #: gui/OverlayWrapper.cpp:433
 msgid "Best FPS: "
-msgstr ""
+msgstr "Najboljši FPS: "
 
 #: gui/OverlayWrapper.cpp:434
 msgid "Worst FPS: "
@@ -341,19 +343,19 @@ msgstr "Najmanj sličic na sekundo: "
 
 #: gui/OverlayWrapper.cpp:435
 msgid "Triangle Count: "
-msgstr ""
+msgstr "Triknotno štetje: "
 
 #: gui/OverlayWrapper.cpp:462
 msgid "Textures: "
-msgstr ""
+msgstr "Teksture: "
 
 #: gui/OverlayWrapper.cpp:464
 msgid "Compositors: "
-msgstr ""
+msgstr "Skladatelji "
 
 #: gui/OverlayWrapper.cpp:466
 msgid "Fonts: "
-msgstr ""
+msgstr "Pisave: "
 
 #: gui/OverlayWrapper.cpp:468
 msgid "GPU Program: "
@@ -365,74 +367,74 @@ msgstr ""
 
 #: gui/OverlayWrapper.cpp:472 gui/OverlayWrapper.cpp:478
 msgid "Materials: "
-msgstr ""
+msgstr "Materiali: "
 
 #: gui/OverlayWrapper.cpp:474
 msgid "Meshes: "
-msgstr ""
+msgstr "Meshi: "
 
 #: gui/OverlayWrapper.cpp:476
 msgid "Skeletons: "
-msgstr ""
+msgstr "Skeletoni: "
 
 #: gui/OverlayWrapper.cpp:485
 msgid "Memory (Ogre): "
-msgstr ""
+msgstr "Spomin (Ogre):- "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr ""
+msgstr "Poveča tovornjak"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr ""
+msgstr "Dobi ime tovornjaka"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "Dobi ime tovornjak mape"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "Dobi ime naložene sekcije tovornjaka"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr ""
+msgstr "Dobi vrsto tovornjaka"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr ""
+msgstr "Ponastavi tovornjak"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
-msgstr ""
+msgstr "Preklopi ročno zavoro"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr ""
+msgstr "Preklopi oprijemski nadzor"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr ""
+msgstr "Preklopi anti-zakljeni zavore"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
 msgctxt "AngelScript"
 msgid "Toggles the beacons"
-msgstr ""
+msgstr "Preklopi beacone"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr ""
+msgstr "Preklopi delce po meri"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
