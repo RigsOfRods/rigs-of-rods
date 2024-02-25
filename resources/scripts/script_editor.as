@@ -645,6 +645,8 @@ class ScriptEditorTab
     bool requestUnFoldAll = false;
     bool requestIndentBuffer = false; // Only for invoking by user manually, not for use while saving!
     bool requestSaveFile = false;
+    bool requestRunBuffer = false;
+    bool requestStopBuffer = false;
 
     void drawStartStopButton()
     {
@@ -658,14 +660,14 @@ class ScriptEditorTab
             {            
                 if (ImGui::Button("[>>] RUN"))
                 {
-                    this.runBuffer();
+                    this.requestRunBuffer = true;
                 }
             }
             else
             {
                 if (ImGui::Button("[X] STOP"))
                 {
-                    this.stopBuffer();
+                    this.requestStopBuffer = true;
                 }
             }
         }    
@@ -1119,11 +1121,14 @@ class ScriptEditorTab
         editorWindow.refreshLocalFileList();        
     }
     
-    void runBuffer()
+    void runBufferInternal() // do not invoke during drawing ~ use `requestRunBuffer`
     {
         this.bufferMessageIDs.resize(0); // clear all
         this.messages.resize(0); // clear all
         epanel.enabled = true;
+        
+        this.backUpRegionFoldStates();
+        this.unFoldAllRegionsInternal(); // OK to call here - we're already handling a request.        
         
         game.pushMessage(MSG_APP_LOAD_SCRIPT_REQUESTED, {
             {'filename', this.bufferName}, // Because we supply the buffer, this will serve only as display name
@@ -1131,9 +1136,11 @@ class ScriptEditorTab
             {'category', SCRIPT_CATEGORY_CUSTOM}
         });
         waitingForManipEvent=true;
+        
+        this.restoreRegionFoldStates();
     }
     
-    void stopBuffer()
+    void stopBufferInternal() // do not invoke during drawing ~ use `requestStopBuffer`
     {
         game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, {
             {'id', this.currentScriptUnitID}
@@ -1366,7 +1373,7 @@ class ScriptEditorTab
                     regionFoundAtLineIdx = lineIdx;
                     regionFoundWithName = trimLeft(this.buffer.substr(regionTitleStart, endOffset - regionTitleStart));
                     regionBodyStartOffset = endOffset+1;
-                    game.log("DBG analyzeBuffer(): regionFound: withName="+regionFoundWithName+" atLineIdx="+regionFoundAtLineIdx+" bodyStartOffset="+regionBodyStartOffset);
+                    //game.log("DBG analyzeBuffer(): regionFound: withName="+regionFoundWithName+" atLineIdx="+regionFoundAtLineIdx+" bodyStartOffset="+regionBodyStartOffset);
                 }
                 
                 // Process #endregion
@@ -1377,7 +1384,7 @@ class ScriptEditorTab
                     regionInfo.regionBodyStartOffset = regionBodyStartOffset; // To swap regions in and out from work buffer.
                     regionInfo.regionBodyNumChars = (int(this.bufferLinesMeta[lineIdx-1]['endOffset']) - regionBodyStartOffset)+1; // ditto
                     collectedRegions[regionFoundWithName] = regionInfo;
-                    game.log("DBG analyzeBuffer(): endregionFound: withName="+regionFoundWithName+" lineCount="+regionInfo.regionLineCount+" bodyStartOffset="+regionInfo.regionBodyStartOffset+" numChars="+regionInfo.regionBodyNumChars);
+                    //game.log("DBG analyzeBuffer(): endregionFound: withName="+regionFoundWithName+" lineCount="+regionInfo.regionLineCount+" bodyStartOffset="+regionInfo.regionBodyStartOffset+" numChars="+regionInfo.regionBodyNumChars);
                     regionFoundAtLineIdx = -1;
                     regionFoundWithName = "";
                 }
@@ -1457,7 +1464,7 @@ class ScriptEditorTab
             RegionInfo@ oldRegionInfo = findRegion(this.workBufferRegions, oldRegionNames[i]);
             if (isGone && oldRegionInfo.isFolded)
             {
-                game.log ("DBG analyzeBuffer(): region '" + oldRegionNames[i] + "' has gone orphan.");
+                //game.log ("DBG analyzeBuffer(): region '" + oldRegionNames[i] + "' has gone orphan.");
                 oldRegionInfo.isOrphan = true;
             }
         }
@@ -1470,26 +1477,28 @@ class ScriptEditorTab
             RegionInfo@ oldRegionInfo = findRegion(this.workBufferRegions, newRegionNames[i]);
             if (@oldRegionInfo == null)
             {
-                game.log("DBG analyzeBuffer(): A brand new region '"+newRegionNames[i]+"' was created");
+                //game.log("DBG analyzeBuffer(): A brand new region '"+newRegionNames[i]+"' was created");
                 this.workBufferRegions[newRegionNames[i]] = newRegionInfo;
             }
             else
             {
-                game.log("DBG analyzeBuffer(): Region '"+newRegionNames[i]+"' already exists:"
+                /*game.log("DBG analyzeBuffer(): Region '"+newRegionNames[i]+"' already exists:"
                     +" lineCount="+oldRegionInfo.regionLineCount+" (new:"+newRegionInfo.regionLineCount+")"
                     +" regionBodyStartOffset="+oldRegionInfo.regionBodyStartOffset+" (new:"+newRegionInfo.regionBodyStartOffset+")"
                     +" regionBodyNumChars="+oldRegionInfo.regionBodyNumChars+" (new:"+newRegionInfo.regionBodyNumChars+")"
                     +" isOrphan="+oldRegionInfo.isOrphan+" isFolded="+newRegionInfo.isFolded);
+                    */
                     
                 if (oldRegionInfo.isOrphan && newRegionInfo.regionLineCount == 0)
                 {
-                    game.log("DBG analyzeBuffer(): An orphan region '"+newRegionNames[i]+"' has resurfaced");
+                    //game.log("DBG analyzeBuffer(): An orphan region '"+newRegionNames[i]+"' has resurfaced");
                     oldRegionInfo.regionBodyStartOffset = newRegionInfo.regionBodyStartOffset;
                     oldRegionInfo.isOrphan = false;
                 }
                 else if (!oldRegionInfo.isFolded)
                 {
-                    game.log("DBG analyzeBuffer(): An existing region '"+newRegionNames[i]+"' was updated");
+                    //game.log("DBG analyzeBuffer(): An existing region '"+newRegionNames[i]+"' was updated");
+                    newRegionInfo.isFoldedBackup = oldRegionInfo.isFoldedBackup; // don't lose backups!
                     this.workBufferRegions[newRegionNames[i]] = newRegionInfo;
                 }
             }
@@ -1602,7 +1611,17 @@ class ScriptEditorTab
         {
             this.saveFileInternal();
             this.requestSaveFile = false;
-        }       
+        }    
+        if (this.requestRunBuffer)
+        {
+            this.runBufferInternal();
+            this.requestRunBuffer = false;
+        }
+        if (this.requestStopBuffer)
+        {
+            this.stopBufferInternal();
+            this.requestStopBuffer = false;
+        }
     }
  
     private void saveFileInternal() // Do not invoke while drawing! use `requestSaveFile`
@@ -1719,6 +1738,7 @@ class ScriptEditorTab
 
     private void backUpRegionFoldStates()
     {
+        //game.log("DBG backUpRegionFoldStates()");
         array<string> regionNames = this.workBufferRegions.getKeys();
         for (uint i=0; i < regionNames.length(); i++)
         {
@@ -1726,22 +1746,33 @@ class ScriptEditorTab
             if (@regionInfo != null)
             {
                 regionInfo.isFoldedBackup = regionInfo.isFolded;
+                //game.log("DBG backUpRegionFoldStates() ~ region '"+regionNames[i]+"': isFolded="+regionInfo.isFolded+" (backup: "+regionInfo.isFoldedBackup+")");
             }
         }        
     }
     
     private void restoreRegionFoldStates()
     {
+        //game.log("DBG restoreRegionFoldStates()");
         array<string> regionNames = this.workBufferRegions.getKeys();
         for (uint i=0; i < regionNames.length(); i++)
         {
             RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionNames[i]);
             if (@regionInfo != null)
             {
+                //game.log("DBG restoreRegionFoldStates() ~ region '"+regionNames[i]+"': isFolded="+regionInfo.isFolded+" (backup: "+regionInfo.isFoldedBackup+")");
+                if (regionInfo.isFolded && !regionInfo.isFoldedBackup)
+                {
+                    this.unFoldRegionInternal(regionNames[i]);
+                }
+                else if (!regionInfo.isFolded && regionInfo.isFoldedBackup)
+                {
+                    this.foldRegionInternal(regionNames[i]);
+                }
                 regionInfo.isFolded = regionInfo.isFoldedBackup;
             }
         }        
-    }    
+    }
 }
 
 
