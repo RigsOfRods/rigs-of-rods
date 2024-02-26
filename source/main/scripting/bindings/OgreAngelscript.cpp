@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2023 Petr Ohlidal
+    Copyright 2013-2024 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -515,6 +515,63 @@ static AnimationStateDict* AnimationStateSetGetAnimationStates(AnimationStateSet
     return new AnimationStateDict(self->getAnimationStates());
 }
 
+/***MATERIAL***/
+typedef CReadonlyScriptArrayView<Ogre::Technique*> TechniqueArray;
+
+static TechniqueArray* MaterialPtrGetTechniques(const MaterialPtr& self)
+{
+    return new TechniqueArray(self->getTechniques());
+}
+
+static void MaterialPtrDefaultConstructor(MaterialPtr* self)
+{
+    new (self) MaterialPtr();
+}
+
+static void MaterialPtrCopyConstructor(const MaterialPtr& other, MaterialPtr* self)
+{
+    new (self) MaterialPtr(other);
+}
+
+static void MaterialPtrDestructor(MaterialPtr* self)
+{
+    (self)->~MaterialPtr();
+}
+
+static void MaterialPtrAssignOperator(const MaterialPtr& other, MaterialPtr* self)
+{
+    (self)->operator=(other);
+}
+
+static bool MaterialPtrIsNull(MaterialPtr* self)
+{
+    return !(self)->operator bool();
+}
+
+/***TECHNIQUE***/
+typedef CReadonlyScriptArrayView<Ogre::Pass*> PassArray;
+
+static PassArray* TechniqueGetPasses(Technique* self)
+{
+    return new PassArray(self->getPasses());
+}
+
+/***PASS***/
+typedef CReadonlyScriptArrayView<Ogre::TextureUnitState*> TextureUnitStateArray;
+
+static TextureUnitStateArray* PassGetTextureUnitStates(Pass* self)
+{
+    return new TextureUnitStateArray(self->getTextureUnitStates());
+}
+
+/***SUBENTITY***/
+typedef CReadonlyScriptArrayView<Ogre::SubEntity*> SubEntityArray;
+
+static SubEntityArray* EntityGetSubEntities(Entity* self)
+{
+    return new SubEntityArray(self->getSubEntities());
+}
+
 // forward declarations, defined below
 void registerOgreVector3(AngelScript::asIScriptEngine* engine);
 void registerOgreVector2(AngelScript::asIScriptEngine* engine);
@@ -527,6 +584,7 @@ void registerOgreBox(AngelScript::asIScriptEngine* engine);
 
 void registerOgreMovableObject(AngelScript::asIScriptEngine* engine);
 void registerOgreEntity(AngelScript::asIScriptEngine* engine);
+void registerOgreSubEntity(AngelScript::asIScriptEngine* engine);
 void registerOgreNode(AngelScript::asIScriptEngine* engine);
 void registerOgreSceneNode(AngelScript::asIScriptEngine* engine);
 void registerOgreSceneManager(AngelScript::asIScriptEngine* engine);
@@ -542,6 +600,11 @@ void registerOgreImage(AngelScript::asIScriptEngine* engine);
 void registerOgreMeshManager(AngelScript::asIScriptEngine* engine);
 void registerOgreMesh(AngelScript::asIScriptEngine* engine);
 void registerOgreSubMesh(AngelScript::asIScriptEngine* engine);
+void registerOgreMaterialManager(AngelScript::asIScriptEngine* engine);
+void registerOgreMaterial(AngelScript::asIScriptEngine* engine);
+void registerOgreTechnique(AngelScript::asIScriptEngine* engine);
+void registerOgrePass(AngelScript::asIScriptEngine* engine);
+void registerOgreTextureUnitState(AngelScript::asIScriptEngine* engine);
 
 // main registration method
 void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
@@ -586,6 +649,9 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("Entity", sizeof(Entity), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("SubEntity", sizeof(Entity), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectType("Node", sizeof(Node), asOBJ_REF | asOBJ_NOCOUNT);
@@ -634,6 +700,21 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("MeshManager", sizeof(TextureManager), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectType("MaterialManager", sizeof(MaterialManager), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("MaterialPtr", sizeof(MeshPtr), asOBJ_VALUE | asGetTypeTraits<TexturePtr>());
+    ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("Technique", sizeof(SubMesh), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("Pass", sizeof(SubMesh), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectType("TextureUnitState", sizeof(SubMesh), asOBJ_REF | asOBJ_NOCOUNT);
+    ROR_ASSERT(r >= 0);
+
     // dictionary/array view types, also under namespace `Ogre`
 
     SceneManagerInstanceDict::RegisterReadonlyScriptDictView(engine, "SceneManagerInstanceDict", "SceneManager");
@@ -641,6 +722,10 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     ChildNodeArray::RegisterReadonlyScriptArrayView(engine, "ChildNodeArray", "Node");
     AnimationStateDict::RegisterReadonlyScriptDictView(engine, "AnimationStateDict", "AnimationState");
     SubMeshArray::RegisterReadonlyScriptArrayView(engine, "SubMeshArray", "SubMesh");
+    TechniqueArray::RegisterReadonlyScriptArrayView(engine, "TechniqueArray", "Technique");
+    PassArray::RegisterReadonlyScriptArrayView(engine, "PassArray", "Pass");
+    TextureUnitStateArray::RegisterReadonlyScriptArrayView(engine, "TextureUnitStateArray", "TextureUnitState");
+    SubEntityArray::RegisterReadonlyScriptArrayView(engine, "SubEntityArray", "SubEntity");
 
     // enums, also under namespace `Ogre`
 
@@ -684,6 +769,7 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     registerOgreNode(engine);
     registerOgreMovableObject(engine);
     registerOgreEntity(engine);
+    registerOgreSubEntity(engine);
     registerOgreSceneNode(engine);
     registerOgreSceneManager(engine);
     registerOgreRoot(engine);
@@ -699,6 +785,11 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     registerOgreMesh(engine);
     registerOgreSubMesh(engine);
     registerOgreMeshManager(engine);
+    registerOgreMaterial(engine);
+    registerOgreTechnique(engine);
+    registerOgrePass(engine);
+    registerOgreTextureUnitState(engine);
+    registerOgreMaterialManager(engine);
 
     // To estabilish class hierarchy in AngelScript you need to register the reference cast operators opCast and opImplCast.
 
@@ -1289,6 +1380,9 @@ void registerOgreTexture(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("TexturePtr", "bool isNull()", asFUNCTION(TexturePtrIsNull), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
 
     // Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
+    r = engine->RegisterObjectMethod("TexturePtr", "string getName() const", asFUNCTIONPR([](TexturePtr const& self) {
+        return self->getName();
+        }, (TexturePtr const&), Ogre::String), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("TexturePtr", "uint getWidth()", asFUNCTIONPR([](TexturePtr const& self) {
         return (asUINT)self->getWidth();
         }, (TexturePtr const&), Ogre::uint32), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
@@ -1369,7 +1463,6 @@ void registerOgreEntity(AngelScript::asIScriptEngine* engine)
     int r;
     r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("Entity", "void setMaterialName(const string &in name, const string &in rg = \"OgreAutodetect\")", asMETHOD(Entity, setMaterialName), asCALL_THISCALL);  ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Entity", "AnimationState @getAnimationState(const string &in) const", asMETHOD(Entity, getAnimationState), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Entity", "AnimationStateSet @getAllAnimationStates()", asMETHOD(Entity, getAllAnimationStates), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Entity", "void setDisplaySkeleton(bool)", asMETHOD(Entity, setDisplaySkeleton), asCALL_THISCALL); ROR_ASSERT(r >= 0);
@@ -1379,8 +1472,21 @@ void registerOgreEntity(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectMethod("Entity", "Entity @getManualLodLevel(uint64) const", asMETHOD(Entity, getManualLodLevel), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Entity", "void setMeshLodBias(float, uint16, uint16)", asMETHOD(Entity, setMeshLodBias), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Entity", "void setMaterialLodBias(float, uint16, uint16)", asMETHOD(Entity, setMaterialLodBias), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "SubEntityArray @getSubEntities() const", asFUNCTION(EntityGetSubEntities), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Entity", "const MeshPtr& getMesh() const", asMETHOD(Entity, getMesh), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     
     registerOgreMovableObjectBase<MovableObject>(engine, "Entity");
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+void registerOgreSubEntity(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("SubEntity", "const MaterialPtr& getMaterial() const", asMETHOD(SubEntity, getMaterial), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SubEntity", "void setMaterial(const MaterialPtr&in)", asMETHOD(SubEntity, setMaterial), asCALL_THISCALL); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
@@ -1855,7 +1961,6 @@ void registerOgreSubMesh(AngelScript::asIScriptEngine* engine)
     engine->SetDefaultNamespace("Ogre");
 
     // Register the SubMesh class
-    engine->RegisterObjectType("SubMesh", 0, asOBJ_REF | asOBJ_NOCOUNT);
     engine->RegisterObjectMethod("SubMesh", "const string& getMaterialName()", asMETHOD(Ogre::SubMesh, getMaterialName), asCALL_THISCALL);
     engine->RegisterObjectMethod("SubMesh", "void setMaterialName(const string&in, const string&in)", asMETHOD(Ogre::SubMesh, setMaterialName), asCALL_THISCALL);
 
@@ -1910,4 +2015,90 @@ void registerOgreMeshManager(AngelScript::asIScriptEngine * engine)
     r = engine->RegisterGlobalFunction("MeshManager& getSingleton()", asFUNCTION(MeshManager::getSingleton), asCALL_CDECL); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+void registerOgreMaterialManager(AngelScript::asIScriptEngine * engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("MaterialManager", "MaterialPtr getByName(const string&in file, const string&in rg)", asFUNCTIONPR([](MaterialManager& mgr, std::string const& file, std::string const& rg){
+        try { return mgr.getByName(file, rg); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::MaterialManager::getByName()"); return Ogre::MaterialPtr();} 
+    }, (MaterialManager& mgr, std::string const& file, std::string const& rg), MaterialPtr), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("MaterialManager", "void create(const string&in file, const string&in rg)", asFUNCTIONPR([](MaterialManager& mgr, std::string const& file, std::string const& rg){
+        try { return mgr.create(file, rg); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::MaterialManager::create()"); return Ogre::MaterialPtr(); } 
+    }, (MaterialManager& mgr, std::string const& file, std::string const& rg), MaterialPtr), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace("Ogre::MaterialManager"); ROR_ASSERT(r >= 0);
+    r = engine->RegisterGlobalFunction("MaterialManager& getSingleton()", asFUNCTION(MaterialManager::getSingleton), asCALL_CDECL); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+void registerOgreMaterial(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectBehaviour("MaterialPtr", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(MaterialPtrDefaultConstructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("MaterialPtr", asBEHAVE_CONSTRUCT, "void f(const MaterialPtr&in)", asFUNCTION(MaterialPtrCopyConstructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("MaterialPtr", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(MaterialPtrDestructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MaterialPtr", "MaterialPtr& opAssign(const MaterialPtr&in)", asFUNCTION(MaterialPtrAssignOperator), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("MaterialPtr", "bool isNull()", asFUNCTION(MaterialPtrIsNull), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+
+    // Wrappers are inevitable, see https://www.gamedev.net/forums/topic/540419-custom-smartpointers-and-angelscript-/
+    r = engine->RegisterObjectMethod("MaterialPtr", "TechniqueArray@ getTechniques()", asFUNCTION(MaterialPtrGetTechniques), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+    
+    r = engine->RegisterObjectMethod("MaterialPtr", "string getName()", asFUNCTIONPR([](MaterialPtr const& self) {
+        return self->getName();
+        }, (MaterialPtr const&), Ogre::String), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("MaterialPtr", "Technique@ createTechnique()", asFUNCTIONPR([](MaterialPtr const& self) {
+        try { return self->createTechnique(); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Material::createTechnique()"); return (Ogre::Technique*)nullptr;} 
+        }, (MaterialPtr const&), Ogre::Technique*), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("MaterialPtr", "void removeTechnique()", asFUNCTIONPR([](MaterialPtr const& self, uint16_t index) {
+        try { self->removeTechnique(index); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Material::removeTechnique()"); } 
+        }, (MaterialPtr const&, uint16_t), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
+}
+
+void registerOgreTechnique(AngelScript::asIScriptEngine* engine)
+{
+    engine->SetDefaultNamespace("Ogre");
+
+    engine->RegisterObjectMethod("Technique", "PassArray @getPasses()", asFUNCTION(TechniqueGetPasses), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("Technique", "Pass @createPass()", asMETHOD(Ogre::Technique, createPass), asCALL_THISCALL);
+    engine->RegisterObjectMethod("Technique", "void removePass(uint16 index)", asMETHOD(Ogre::Technique, removePass), asCALL_THISCALL);
+    engine->RegisterObjectMethod("Technique", "const string& getName() const", asMETHOD(Ogre::Technique, getName), asCALL_THISCALL);
+
+    engine->SetDefaultNamespace("");
+}
+
+void registerOgrePass(AngelScript::asIScriptEngine* engine)
+{
+    engine->SetDefaultNamespace("Ogre");
+
+    engine->RegisterObjectMethod("Pass", "const string& getName() const", asMETHOD(Ogre::Pass, getName), asCALL_THISCALL);
+    engine->RegisterObjectMethod("Pass", "TextureUnitStateArray @getTextureUnitStates()", asFUNCTION(PassGetTextureUnitStates), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("Pass", "void removeTextureUnitState(uint16 index)", asMETHOD(Ogre::Pass, removeTextureUnitState), asCALL_THISCALL);
+
+    engine->SetDefaultNamespace("");
+}
+
+void registerOgreTextureUnitState(AngelScript::asIScriptEngine* engine)
+{
+    engine->SetDefaultNamespace("Ogre");
+
+    engine->RegisterObjectMethod("TextureUnitState", "const string& getName() const", asMETHOD(Ogre::TextureUnitState, getName), asCALL_THISCALL);
+    engine->RegisterObjectMethod("TextureUnitState", "void setTexture(const TexturePtr&in)", asMETHODPR(Ogre::TextureUnitState, setTexture, (const TexturePtr&), void), asCALL_THISCALL);
+    engine->RegisterObjectMethod("TextureUnitState", "const TexturePtr& _getTexturePtr() const", asMETHODPR(Ogre::TextureUnitState, _getTexturePtr, (void) const, const TexturePtr&), asCALL_THISCALL);
+
+    engine->SetDefaultNamespace("");
 }
