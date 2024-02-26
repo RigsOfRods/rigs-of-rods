@@ -1452,6 +1452,16 @@ class ScriptEditorTab
             this.totalChars++;
         }
         
+        this.mergeCollectedFoldingRegionsWithExisting(collectedRegions);
+    }
+    
+    private void mergeCollectedFoldingRegionsWithExisting(dictionary&in collectedRegions) // helper for `analyzeBuffer()`
+    {
+        // The `ImGui::TextInputMultiline()` doesn't provide info on where new characters were inserted/removed (or does it? TODO research ImGuiInputTextCallbackData)
+        // Either way, we simply scan the buffer again, collect the regions and then match them with those already existing.
+        // This relies on the #region/#endregion tags always being in the buffer, even if folded.
+        // ---------------------------------------------------------------------------------------------------------------
+        
         // prune broken regions (missing '#endregion' -> RegionInfo is null)
         array<string>@ collectedRegionNames = collectedRegions.getKeys();
         for (uint i = 0; i< collectedRegionNames.length(); i++)
@@ -1459,7 +1469,7 @@ class ScriptEditorTab
             RegionInfo@ regionInfo = findRegion(collectedRegions, collectedRegionNames[i]);
             if (@regionInfo == null)
             {
-                game.log ("DBG pruning broken region '" + collectedRegionNames[i] + "'");
+                //game.log ("DBG mergeCollectedFoldingRegionsWithExisting(): pruning broken region '" + collectedRegionNames[i] + "'");
                 collectedRegions.delete(collectedRegionNames[i]);
             }
         }        
@@ -1472,7 +1482,7 @@ class ScriptEditorTab
             RegionInfo@ oldRegionInfo = findRegion(this.workBufferRegions, oldRegionNames[i]);
             if (isGone && oldRegionInfo.isFolded)
             {
-                //game.log ("DBG analyzeBuffer(): region '" + oldRegionNames[i] + "' has gone orphan.");
+                //game.log ("DBG mergeCollectedFoldingRegionsWithExisting(): region '" + oldRegionNames[i] + "' has gone orphan.");
                 oldRegionInfo.isOrphan = true;
             }
         }
@@ -1482,32 +1492,34 @@ class ScriptEditorTab
         for (uint i = 0; i < newRegionNames.length(); i++)
         {
             RegionInfo@ newRegionInfo = findRegion(collectedRegions, newRegionNames[i]);
-            RegionInfo@ oldRegionInfo = findRegion(this.workBufferRegions, newRegionNames[i]);
-            if (@oldRegionInfo == null)
+            RegionInfo@ existingRegionInfo = findRegion(this.workBufferRegions, newRegionNames[i]);
+            if (@existingRegionInfo == null)
             {
-                //game.log("DBG analyzeBuffer(): A brand new region '"+newRegionNames[i]+"' was created");
+                //game.log("DBG mergeCollectedFoldingRegionsWithExisting(): A brand new region '"+newRegionNames[i]+"' was created");
                 this.workBufferRegions[newRegionNames[i]] = newRegionInfo;
             }
             else
             {
-                /*game.log("DBG analyzeBuffer(): Region '"+newRegionNames[i]+"' already exists:"
-                    +" lineCount="+oldRegionInfo.regionLineCount+" (new:"+newRegionInfo.regionLineCount+")"
-                    +" regionBodyStartOffset="+oldRegionInfo.regionBodyStartOffset+" (new:"+newRegionInfo.regionBodyStartOffset+")"
-                    +" regionBodyNumChars="+oldRegionInfo.regionBodyNumChars+" (new:"+newRegionInfo.regionBodyNumChars+")"
-                    +" isOrphan="+oldRegionInfo.isOrphan+" isFolded="+newRegionInfo.isFolded);
+                /*game.log("DBG mergeCollectedFoldingRegionsWithExisting(): Region '"+newRegionNames[i]+"' already exists:"
+                    +" lineCount="+existingRegionInfo.regionLineCount+" (new:"+newRegionInfo.regionLineCount+")"
+                    +" regionBodyStartOffset="+existingRegionInfo.regionBodyStartOffset+" (new:"+newRegionInfo.regionBodyStartOffset+")"
+                    +" regionBodyNumChars="+existingRegionInfo.regionBodyNumChars+" (new:"+newRegionInfo.regionBodyNumChars+")"
+                    +" isOrphan="+existingRegionInfo.isOrphan+" isFolded="+newRegionInfo.isFolded);
                     */
                     
-                if (oldRegionInfo.isOrphan && newRegionInfo.regionLineCount == 0)
+                existingRegionInfo.regionBodyStartOffset = newRegionInfo.regionBodyStartOffset;
+                
+                if (!existingRegionInfo.isFolded)
                 {
-                    //game.log("DBG analyzeBuffer(): An orphan region '"+newRegionNames[i]+"' has resurfaced");
-                    oldRegionInfo.regionBodyStartOffset = newRegionInfo.regionBodyStartOffset;
-                    oldRegionInfo.isOrphan = false;
+                    //game.log("DBG mergeCollectedFoldingRegionsWithExisting(): An existing UNFOLDED region '"+newRegionNames[i]+"' was updated ~ text may have changed");
+                    existingRegionInfo.regionLineCount = newRegionInfo.regionLineCount;
+                    existingRegionInfo.regionBodyNumChars = newRegionInfo.regionBodyNumChars;
+                    existingRegionInfo.regionStartsAtLineIndex = newRegionInfo.regionStartsAtLineIndex;
                 }
-                else if (!oldRegionInfo.isFolded)
+                else if (existingRegionInfo.isOrphan && newRegionInfo.regionLineCount == 0)
                 {
-                    //game.log("DBG analyzeBuffer(): An existing region '"+newRegionNames[i]+"' was updated");
-                    newRegionInfo.isFoldedBackup = oldRegionInfo.isFoldedBackup; // don't lose backups!
-                    this.workBufferRegions[newRegionNames[i]] = newRegionInfo;
+                    //game.log("DBG mergeCollectedFoldingRegionsWithExisting(): An orphan (so logically FOLDED) region '"+newRegionNames[i]+"' has resurfaced");
+                    existingRegionInfo.isOrphan = false;
                 }
             }
         }      
