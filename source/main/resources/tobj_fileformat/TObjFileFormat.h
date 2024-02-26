@@ -208,6 +208,8 @@ private:
     Ogre::Vector3              m_road2_last_pos;
     Ogre::Vector3              m_road2_last_rot;
     int                        m_road2_num_blocks;
+    
+    bool                       m_rot_yxz;
 };
 
 } // namespace RoR
