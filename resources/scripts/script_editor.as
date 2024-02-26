@@ -981,6 +981,7 @@ class ScriptEditorTab
                 int msgCol = int(this.messages[msgIdx]['col']);
                 int msgType = int(this.messages[msgIdx]['type']);
                 string msgText = string(this.messages[msgIdx]['message']);
+                string containingFoldedRegionName = string(this.messages[msgIdx]['inFoldedRegion']); // HACK: dynamic field inserted by `analyzeMessages()`
                 
                 color col, bgCol;
                 bool shouldDraw = false;
@@ -1009,7 +1010,13 @@ class ScriptEditorTab
                     ImGui::GetTextLineHeight()-2); // Y offset - slightly below the current line                
   
                 // Draw message text with background
-                string errText = "^ "+msgText;
+                string errText = " ^ "+msgText;
+                if (containingFoldedRegionName != "")
+                {
+                    // Special handling for folded regions - place message in-between lines, after region name (expect #endregion to be 'named' too!)
+                    errText = " } "+msgText;
+                    textPos += vector2(ImGui::CalcTextSize("// #***region "+containingFoldedRegionName).x, ImGui::GetTextLineHeight()/2);
+                }
                 vector2 errTextSize = ImGui::CalcTextSize(errText);
                 drawlist.AddRectFilled(textPos, textPos+errTextSize, bgCol);
                 drawlist.AddText(textPos , col, errText);
@@ -1121,7 +1128,7 @@ class ScriptEditorTab
         editorWindow.refreshLocalFileList();        
     }
     
-    void runBufferInternal() // do not invoke during drawing ~ use `requestRunBuffer`
+    private void runBufferInternal() // do not invoke during drawing ~ use `requestRunBuffer`
     {
         this.bufferMessageIDs.resize(0); // clear all
         this.messages.resize(0); // clear all
@@ -1140,7 +1147,7 @@ class ScriptEditorTab
         this.restoreRegionFoldStates();
     }
     
-    void stopBufferInternal() // do not invoke during drawing ~ use `requestStopBuffer`
+    private void stopBufferInternal() // do not invoke during drawing ~ use `requestStopBuffer`
     {
         game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, {
             {'id', this.currentScriptUnitID}
@@ -1227,7 +1234,7 @@ class ScriptEditorTab
         dictionary collectedRegions;
         int regionFoundAtLineIdx = -1;
         string regionFoundWithName;
-        int regionBodyStartOffset = -1;
+        int regionBodyStartOffset = -1; 
         
         string httpBreakChars = " \n\t\"'";
         bool httpBreakFound = false;
@@ -1383,6 +1390,7 @@ class ScriptEditorTab
                     regionInfo.regionLineCount = (lineIdx-1)-regionFoundAtLineIdx; // To handle jumps in line numbering
                     regionInfo.regionBodyStartOffset = regionBodyStartOffset; // To swap regions in and out from work buffer.
                     regionInfo.regionBodyNumChars = (int(this.bufferLinesMeta[lineIdx-1]['endOffset']) - regionBodyStartOffset)+1; // ditto
+                    regionInfo.regionStartsAtLineIndex = regionFoundAtLineIdx;
                     collectedRegions[regionFoundWithName] = regionInfo;
                     //game.log("DBG analyzeBuffer(): endregionFound: withName="+regionFoundWithName+" lineCount="+regionInfo.regionLineCount+" bodyStartOffset="+regionInfo.regionBodyStartOffset+" numChars="+regionInfo.regionBodyNumChars);
                     regionFoundAtLineIdx = -1;
@@ -1502,7 +1510,7 @@ class ScriptEditorTab
                     this.workBufferRegions[newRegionNames[i]] = newRegionInfo;
                 }
             }
-        }
+        }      
     }
  
     private void analyzeMessages() // helper for `analyzeLines()`
@@ -1519,36 +1527,88 @@ class ScriptEditorTab
         
         for (uint i = 0; i < this.messages.length(); i++)
         {
-            int msgRow = int(this.messages[i]['row']);
             int msgType = int(this.messages[i]['type']);
             string msgText = string(this.messages[i]['message']);
-            int lineIdx = msgRow-1;
-            // workaround: clamp the msgRow to known line count
-            if (lineIdx >= int(bufferLinesMeta.length()))
-            {
-                lineIdx = int(bufferLinesMeta.length()) - 1;
-            }
-            
+            string inFoldedRegion = "";
+            uint lineIdx = this.determineLineIdxForMessage(i, /*[out]:*/inFoldedRegion);
+            this.messages[i]['inFoldedRegion'] = inFoldedRegion; // HACK: add extra dynamic field where only constant data from AngelScript should be
+
             // update line stats
             if (msgType == asMSGTYPE_ERROR)
             {
-                this.bufferLinesMeta[lineIdx]['messagesNumErr'] = int(this.bufferLinesMeta[lineIdx]['messagesNumErr'])+1;
                 this.bufferMessageIDs[lineIdx].insertLast(i);
                 this.messagesTotalErr++;
             }
             if (msgType == asMSGTYPE_WARNING)
             {
-                this.bufferLinesMeta[lineIdx]['messagesNumWarn'] = int(this.bufferLinesMeta[lineIdx]['messagesNumWarn'])+1;
                 this.bufferMessageIDs[lineIdx].insertLast(i);
                 this.messagesTotalWarn++;
             }
             if (msgType == asMSGTYPE_INFORMATION)
             {
-                this.bufferLinesMeta[lineIdx]['messagesNumInfo'] = int(this.bufferLinesMeta[lineIdx]['messagesNumInfo'])+1;
                 this.messagesTotalInfo++;
             }
         }
+    }
+    
+    private uint determineLineIdxForMessage(uint msgIndex, string&inout inFoldedRegion) // helper for `analyzeMessages()`
+    {
+        // AngelScript reports line numbers from complete file, but `this.buffer` doesn't contain folded regions so line indices in `this.bufferLinesMeta` don't match.
+        // To determine the message's lineindex in the sparse `this.buffer`, we must go through region records and adjust the reported line number.
+        // Note the `this.workBufferRegions` set isn't ordered, we must process all regions that precede the message, and only then the region which contains it (if any).
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------
         
+        int msgRow = int(this.messages[msgIndex]['row']);
+        int lineIdx = msgRow-1;
+        
+        //game.log("DBG determineLineIdxForMessage("+msgIndex+"): initial lineIdx="+lineIdx);
+        
+        array<string> regionKeys = this.workBufferRegions.getKeys();
+        RegionInfo@ containingRegion = null;
+        string containingRegionName = "";
+        for (uint i = 0; i < regionKeys.length(); i++)
+        {
+            RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionKeys[i]);
+            if (@regionInfo != null)
+            {
+                //game.log("DBG determineLineIdxForMessage("+msgIndex+"): considering region "+i+"/"+regionKeys.length()+" '"+regionKeys[i]+"' (isFolded="+regionInfo.isFolded+" startsAtLineIndex="+regionInfo.regionStartsAtLineIndex+" lineCount="+regionInfo.regionLineCount+")");
+                    
+                bool lowerBoundReached = (regionInfo.regionStartsAtLineIndex < lineIdx);
+                bool upperBoundReached = ((regionInfo.regionStartsAtLineIndex + regionInfo.regionLineCount) < lineIdx);
+                
+                if (regionInfo.isFolded)
+                {
+                    if (!lowerBoundReached)
+                    {
+                        // This region precedes the message
+                        lineIdx -= regionInfo.regionLineCount;
+                    }
+                    else if (lowerBoundReached && !upperBoundReached)
+                    {
+                        // This region contains the message - we must account it last to stay in sync.
+                        @containingRegion = @regionInfo;
+                        containingRegionName = regionKeys[i];
+                    }
+                }
+                
+                //game.log("DBG ... lowerBoundReached:"+lowerBoundReached+" upperBoundReached:"+upperBoundReached+" <is it containingRegion?>="+(@containingRegion == @regionInfo)+"; new lineIdx="+lineIdx);
+            }
+        }
+        
+        if (@containingRegion!=null && containingRegion.isFolded)
+        {
+            lineIdx -= 1 + (lineIdx - containingRegion.regionStartsAtLineIndex);
+            inFoldedRegion = containingRegionName;
+        }
+        
+        // workaround: clamp the msgRow to known line count
+        if (lineIdx >= int(bufferLinesMeta.length()))
+        {
+            lineIdx = int(bufferLinesMeta.length()) - 1;
+        }               
+        
+        //game.log("DBG determineLineIdxForMessage("+msgIndex+"): final lineIdx="+lineIdx);
+        return lineIdx;
     }
 
     void updateAutosave(float dt)
@@ -1587,7 +1647,7 @@ class ScriptEditorTab
         }
         else if (this.requestUnFoldRegion != "")
         {
-            game.log("DBG requestUnFoldRegion: '"+ this.requestUnFoldRegion+"'");
+            //game.log("DBG requestUnFoldRegion: '"+ this.requestUnFoldRegion+"'");
             this.unFoldRegionInternal(this.requestUnFoldRegion); 
             this.requestUnFoldRegion = "";            
         }
@@ -1598,7 +1658,7 @@ class ScriptEditorTab
         }
         else if (this.requestUnFoldAll)
         {
-            game.log("DBG requestUnfoldAll:"+this.requestUnFoldAll);
+            //game.log("DBG requestUnfoldAll:"+this.requestUnFoldAll);
             this.unFoldAllRegionsInternal();
             this.requestUnFoldAll = false;
         }
@@ -1711,28 +1771,33 @@ class ScriptEditorTab
     private void foldRegionInternal(string regionName)  // do NOT invoke during drawing! use `foldRegionRequested`
     {    
         RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionName);
+        /*
         game.log("DBG foldRegionInternal() regionName='"+regionName+"', regionInfo:"+(@regionInfo == null ? "null" : 
             "NumChars:"+regionInfo.regionBodyNumChars+", isFolded:"+regionInfo.isFolded+", regionBodyStartOffset:"+regionInfo.regionBodyStartOffset+", regionBodyNumChars:"+regionInfo.regionBodyNumChars));
+            */
         if (@regionInfo != null && !regionInfo.isFolded) // sanity check - this means `#endregion` isn't available
         {
             regionInfo.foldedOffText = this.buffer.substr(regionInfo.regionBodyStartOffset, regionInfo.regionBodyNumChars);
             this.buffer.erase(regionInfo.regionBodyStartOffset, regionInfo.regionBodyNumChars);
             regionInfo.isFolded = true;
             this.analyzeLines();
+            this.analyzeMessages(); // Determine which errors are in folded region, for correct drawing
         }
     }
     
     private void unFoldRegionInternal(string regionName) //  do NOT invoke during drawing! use `unFoldRegionRequested`
     {
         RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionName);
-        game.log("DBG unFoldRegionInternal() regionName='"+regionName+"', regionInfo:"+(@regionInfo == null ? "null" :
+        /*game.log("DBG unFoldRegionInternal() regionName='"+regionName+"', regionInfo:"+(@regionInfo == null ? "null" :
             "NumChars:"+regionInfo.regionBodyNumChars+", isFolded:"+regionInfo.isFolded+", regionBodyStartOffset:"+regionInfo.regionBodyStartOffset+", regionBodyNumChars:"+regionInfo.regionBodyNumChars));
+            */
         if (@regionInfo != null && regionInfo.isFolded) // sanity check - this means `#endregion` isn't available
         {
             this.buffer.insert(regionInfo.regionBodyStartOffset, regionInfo.foldedOffText);
             regionInfo.foldedOffText = "";
             regionInfo.isFolded = false;
             this.analyzeLines();
+            this.analyzeMessages(); // Determine which errors are in folded region, for correct drawing
         }
     }
 
@@ -1771,7 +1836,9 @@ class ScriptEditorTab
                 }
                 regionInfo.isFolded = regionInfo.isFoldedBackup;
             }
-        }        
+        }
+
+        // Determine which messages are in folded-off regions - important for correct drawing
     }
 }
 
@@ -1872,6 +1939,7 @@ class RegionInfo
     int regionLineCount;
     int regionBodyStartOffset;
     int regionBodyNumChars;
+    int regionStartsAtLineIndex;
     
     bool isFolded;
     bool isOrphan; // Not currently present in document, still checked for uniqueness. If re-entered as empty (no lines), can be unFolded. If conflicting, user gets notified by '{ }' invalid state marker.
