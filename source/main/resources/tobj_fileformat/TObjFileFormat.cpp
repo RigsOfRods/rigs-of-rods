@@ -62,8 +62,9 @@ void TObjParser::Prepare()
     m_in_procedural_road = false;
     m_cur_procedural_obj = new ProceduralObject();
     m_cur_procedural_obj_start_line = -1;
-    m_road2_num_blocks = 0;
+    m_road2_num_blocks   = 0;
     m_default_rendering_distance = 0.f;
+    m_rot_yxz            = false;
     
     m_def = std::shared_ptr<TObjFile>(new TObjFile());
 }
@@ -120,6 +121,11 @@ bool TObjParser::ProcessCurrentLine()
         {
             LOG(fmt::format("too few parameters on line: '{}'", m_cur_line));
         }
+        return true;
+    }
+    if (strncmp(m_cur_line, "rot_yxz", 7) == 0)
+    {
+        m_rot_yxz = true;
         return true;
     }
     if (strncmp("begin_procedural_roads", m_cur_line, 22) == 0)
@@ -354,9 +360,18 @@ void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 c
 
 Ogre::Quaternion TObjParser::CalcRotation(Ogre::Vector3 const& rot) const
 {
-    return Quaternion(Degree(rot.y), Vector3::UNIT_Y) *  // y global
-           Quaternion(Degree(rot.x), Vector3::UNIT_X) *  // x local
-           Quaternion(Degree(rot.z), Vector3::UNIT_Z);   // z local
+    if (m_rot_yxz)
+    {
+        return Quaternion(Degree(rot.y), Vector3::UNIT_Y) *  // y global
+               Quaternion(Degree(rot.x), Vector3::UNIT_X) *  // x local
+               Quaternion(Degree(rot.z), Vector3::UNIT_Z);   // z local
+    }
+    else
+    {
+        return Quaternion(Degree(rot.x), Vector3::UNIT_X) *
+               Quaternion(Degree(rot.y), Vector3::UNIT_Y) *
+               Quaternion(Degree(rot.z), Vector3::UNIT_Z);
+    }
 }
 
 bool TObjParser::ParseObjectLine(TObjEntry& object)
