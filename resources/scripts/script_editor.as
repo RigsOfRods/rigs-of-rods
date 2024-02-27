@@ -1204,9 +1204,15 @@ class ScriptEditorTab
     
     private void analyzeBuffer() // helper for `analyzeLines()`
     {
+        // [profiling]
+        Ogre::Timer timer;
+        uint totalMicrosecDict = 0; // the `bufferLinesMeta` array of dicts
+        uint totalMicrosecCpuDict = 0;
+        uint totalMicrosecRegions = 0;
+        uint totalMicrosecCpuRegions = 0;
+    
         this.bufferLinesMeta.resize(0); // clear all
         int startOffset = 0;
-        this.bufferLinesMeta.insertLast({ {'startOffset', startOffset} });
         this.totalChars = 0;
         
         // pattern - comment
@@ -1245,9 +1251,20 @@ class ScriptEditorTab
         int actualIndentBlanks = 0; // current line
         bool actualIndentFound = false;
         
+        string SPECIALCHARS = "{}\n\t \0";
+        
         for (uint i = 0; i < this.buffer.length(); i++)
         {        
-            uint lineIdx = this.bufferLinesMeta.length() - 1;
+            uint lineIdx = this.bufferLinesMeta.length();
+            
+            // analyze the character
+            uint theChar = this.buffer[i];
+            bool isCharOpenBrace = theChar == SPECIALCHARS[0];
+            bool isCharCloseBrace = theChar == SPECIALCHARS[1];
+            bool isCharNewline = theChar == SPECIALCHARS[2];
+            bool isCharTab = theChar == SPECIALCHARS[3];
+            bool isCharSpace = theChar == SPECIALCHARS[4];
+            bool isCharNul = theChar == SPECIALCHARS[5];
         
             // doubleslash comment
             if (!commentFound)
@@ -1346,11 +1363,11 @@ class ScriptEditorTab
             }
             
             // Auto indentation - always execute to display the debug levels
-            if (isChar(this.buffer[i], '{'))
+            if (isCharOpenBrace)
             {
                 autoIndentLevelNext++;
             }
-            else if (isChar(this.buffer[i], '}'))
+            else if (isCharCloseBrace)
             {
                  // Allow negative values, for debugging.
                 autoIndentLevelNext--;
@@ -1360,7 +1377,7 @@ class ScriptEditorTab
             // Actual indentation - always execute 
             if (!actualIndentFound)
             {
-                if (isChar(this.buffer[i], ' ') || isChar(this.buffer[i], '\t'))
+                if (isCharSpace || isCharTab)
                 {
                     actualIndentBlanks++;
                 }
@@ -1370,9 +1387,12 @@ class ScriptEditorTab
                 }
             }
         
-            if (isChar(this.buffer[i], '\n') || isChar(this.buffer[i], '\0'))
+            if (isCharNewline || isCharNul)
             {
                 int endOffset = i;
+                
+                uint microsecBeforeRegions = timer.getMicroseconds();
+                uint microsecCpuBeforeRegions = timer.getMicrosecondsCPU();
             
                 // Process #region
                 if (regionFound)
@@ -1396,8 +1416,15 @@ class ScriptEditorTab
                     regionFoundAtLineIdx = -1;
                     regionFoundWithName = "";
                 }
+                
+                totalMicrosecRegions += timer.getMicroseconds() - microsecBeforeRegions;
+                totalMicrosecCpuRegions += timer.getMicrosecondsCPU() - microsecCpuBeforeRegions;
             
                 // Finish line
+                uint microsecBeforeDict = timer.getMicroseconds();
+                uint microsecCpuBeforeDict = timer.getMicrosecondsCPU();
+                
+                this.bufferLinesMeta.insertLast({ {'startOffset', startOffset} });
                 this.bufferLinesMeta[lineIdx]['endOffset'] = endOffset;
                 int len = endOffset - startOffset;
                 this.bufferLinesMeta[lineIdx]['len'] = len;
@@ -1413,13 +1440,16 @@ class ScriptEditorTab
                 this.bufferLinesMeta[lineIdx]['endregionFound'] = endregionFound;
                 this.bufferLinesMeta[lineIdx]['autoIndentLevel'] = autoIndentLevelCurrent;
                 this.bufferLinesMeta[lineIdx]['actualIndentBlanks'] = actualIndentBlanks;
+                
+                totalMicrosecDict += timer.getMicroseconds() - microsecBeforeDict;
+                totalMicrosecCpuDict += timer.getMicrosecondsCPU() - microsecCpuBeforeDict;
             }
                 
-            if (isChar(this.buffer[i], '\0'))
+            if (isCharNul)
             {
                 break; // We're done parsing the buffer - the rest is just more NULs.
             }
-            else if (isChar(this.buffer[i], '\n'))
+            else if (isCharNewline)
             {
                 // reset context
                 commentFound = false;
@@ -1446,13 +1476,26 @@ class ScriptEditorTab
                 
                 // Start new line
                 startOffset = i+1;
-                this.bufferLinesMeta.insertLast({ {'startOffset', startOffset} });
             }
             
             this.totalChars++;
         }
+
+        // [profiling]
+        uint microsecBeforeMerging = timer.getMicroseconds();
+        uint microsecCpuBeforeMerging = timer.getMicrosecondsCPU();
         
         this.mergeCollectedFoldingRegionsWithExisting(collectedRegions);
+        
+        // [profiling]
+        uint totalMicrosecMerging = timer.getMicroseconds() - microsecBeforeMerging;
+        uint totalMicrosecCpuMerging = timer.getMicrosecondsCPU() - microsecCpuBeforeMerging;
+        game.log("PROFILING analyzeBuffer() [in microseconds]:"
+            +" total "+timer.getMicroseconds()+"us (CPU "+timer.getMicrosecondsCPU()+"us)"
+            +" regions "+totalMicrosecRegions+"us (CPU "+totalMicrosecCpuRegions+"us)"
+            +" dict "+totalMicrosecDict+"us (CPU "+totalMicrosecCpuDict+"us)"
+            +" merging "+totalMicrosecMerging+"us (CPU "+totalMicrosecCpuMerging+"us)"
+            );
     }
     
     private void mergeCollectedFoldingRegionsWithExisting(dictionary&in collectedRegions) // helper for `analyzeBuffer()`
