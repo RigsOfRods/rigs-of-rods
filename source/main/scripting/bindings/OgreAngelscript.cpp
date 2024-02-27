@@ -572,6 +572,27 @@ static SubEntityArray* EntityGetSubEntities(Entity* self)
     return new SubEntityArray(self->getSubEntities());
 }
 
+/***TIMER***/
+static void TimerDefaultConstructor(Timer* self)
+{
+    new(self) Timer();
+}
+
+static void TimerDefaultDestructor(Timer* self)
+{
+    self->~Timer();
+}
+
+static void TimerCopyConstructor(const Timer& other, Timer* self)
+{
+    new(self) Timer(other);
+}
+
+static void TimerAssignOperator(const Timer& other, Timer* self)
+{
+    (self)->operator=(other);
+}
+
 // forward declarations, defined below
 void registerOgreVector3(AngelScript::asIScriptEngine* engine);
 void registerOgreVector2(AngelScript::asIScriptEngine* engine);
@@ -605,6 +626,7 @@ void registerOgreMaterial(AngelScript::asIScriptEngine* engine);
 void registerOgreTechnique(AngelScript::asIScriptEngine* engine);
 void registerOgrePass(AngelScript::asIScriptEngine* engine);
 void registerOgreTextureUnitState(AngelScript::asIScriptEngine* engine);
+void registerOgreTimer(AngelScript::asIScriptEngine* engine);
 
 // main registration method
 void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
@@ -715,6 +737,9 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     r = engine->RegisterObjectType("TextureUnitState", sizeof(SubMesh), asOBJ_REF | asOBJ_NOCOUNT);
     ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectType("Timer", sizeof(Timer), asOBJ_VALUE | asGetTypeTraits<Timer>());
+    ROR_ASSERT(r >= 0);
+
     // dictionary/array view types, also under namespace `Ogre`
 
     SceneManagerInstanceDict::RegisterReadonlyScriptDictView(engine, "SceneManagerInstanceDict", "SceneManager");
@@ -790,6 +815,7 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
     registerOgrePass(engine);
     registerOgreTextureUnitState(engine);
     registerOgreMaterialManager(engine);
+    registerOgreTimer(engine);
 
     // To estabilish class hierarchy in AngelScript you need to register the reference cast operators opCast and opImplCast.
 
@@ -2101,4 +2127,23 @@ void registerOgreTextureUnitState(AngelScript::asIScriptEngine* engine)
     engine->RegisterObjectMethod("TextureUnitState", "const TexturePtr& _getTexturePtr() const", asMETHODPR(Ogre::TextureUnitState, _getTexturePtr, (void) const, const TexturePtr&), asCALL_THISCALL);
 
     engine->SetDefaultNamespace("");
+}
+
+void registerOgreTimer(AngelScript::asIScriptEngine* engine)
+{
+    int r;
+    r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectBehaviour("Timer", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(TimerDefaultConstructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("Timer", asBEHAVE_CONSTRUCT, "void f(const Timer&in)", asFUNCTION(TimerCopyConstructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectBehaviour("Timer", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(TimerDefaultDestructor), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Timer", "Timer& opAssign(const Timer&in)", asFUNCTION(TimerAssignOperator), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Timer", "void reset()", asMETHOD(Timer, reset), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Timer", "uint getMilliseconds()", asMETHOD(Timer, getMilliseconds), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Timer", "uint getMicroseconds()", asMETHOD(Timer, getMicroseconds), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Timer", "uint getMillisecondsCPU()", asMETHOD(Timer, getMillisecondsCPU), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("Timer", "uint getMicrosecondsCPU()", asMETHOD(Timer, getMicrosecondsCPU), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
