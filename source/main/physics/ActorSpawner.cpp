@@ -6819,6 +6819,8 @@ void ActorSpawner::FinalizeGfxSetup()
                 "Failed to load `help` material '" + m_help_material_name + "', message:" + e.getFullDescription());
         }
     }
+
+    m_actor->ar_managed_materials = m_managed_materials;
 }
 
 void ActorSpawner::ValidateRotator(int id, int axis1, int axis2, NodeNum_t *nodes1, NodeNum_t *nodes2)
