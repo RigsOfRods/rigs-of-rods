@@ -2140,18 +2140,42 @@ void registerOgreTechnique(AngelScript::asIScriptEngine* engine)
 
 void registerOgrePass(AngelScript::asIScriptEngine* engine)
 {
+    int r = 0;
     engine->SetDefaultNamespace("Ogre");
 
     engine->RegisterObjectMethod("Pass", "const string& getName() const", asMETHOD(Ogre::Pass, getName), asCALL_THISCALL);
     engine->RegisterObjectMethod("Pass", "TextureUnitStateArray @getTextureUnitStates()", asFUNCTION(PassGetTextureUnitStates), asCALL_CDECL_OBJFIRST);
     engine->RegisterObjectMethod("Pass", "void removeTextureUnitState(uint16 index)", asMETHOD(Ogre::Pass, removeTextureUnitState), asCALL_THISCALL);
     
-    engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getVertexProgramParameters()", asMETHOD(Ogre::Pass, getVertexProgramParameters), asCALL_THISCALL);
-    engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getFragmentProgramParameters()", asMETHOD(Ogre::Pass, getFragmentProgramParameters), asCALL_THISCALL);
-    engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getGeometryProgramParameters()", asMETHOD(Ogre::Pass, getGeometryProgramParameters), asCALL_THISCALL);
-    engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getTessellationHullProgramParameters()", asMETHOD(Ogre::Pass, getTessellationHullProgramParameters), asCALL_THISCALL);
-    engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getTessellationDomainProgramParameters()", asMETHOD(Ogre::Pass, getTessellationDomainProgramParameters), asCALL_THISCALL);
-    engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getComputeProgramParameters()", asMETHOD(Ogre::Pass, getComputeProgramParameters), asCALL_THISCALL);
+    r = engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getVertexProgramParameters()", asFUNCTIONPR([](Ogre::Pass* self) -> Ogre::GpuProgramParametersPtr {
+        try { return self->getVertexProgramParameters(); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Pass::getVertexProgramParameters()"); return Ogre::GpuProgramParametersPtr(); }
+    }, (Ogre::Pass*), Ogre::GpuProgramParametersPtr), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getFragmentProgramParameters()", asFUNCTIONPR([](Ogre::Pass* self) -> Ogre::GpuProgramParametersPtr {
+        try { return self->getFragmentProgramParameters(); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Pass::getFragmentProgramParameters()"); return Ogre::GpuProgramParametersPtr(); }
+    }, (Ogre::Pass*), Ogre::GpuProgramParametersPtr), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getGeometryProgramParameters()", asFUNCTIONPR([](Ogre::Pass* self) -> Ogre::GpuProgramParametersPtr {
+        try { return self->getGeometryProgramParameters(); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Pass::getGeometryProgramParameters()"); return Ogre::GpuProgramParametersPtr(); }
+    }, (Ogre::Pass*), Ogre::GpuProgramParametersPtr), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getTessellationHullProgramParameters()", asFUNCTIONPR([](Ogre::Pass* self) -> Ogre::GpuProgramParametersPtr {
+        try { return self->getTessellationHullProgramParameters(); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Pass::getTessellationHullProgramParameters()"); return Ogre::GpuProgramParametersPtr(); }
+    }, (Ogre::Pass*), Ogre::GpuProgramParametersPtr), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getTessellationDomainProgramParameters()", asFUNCTIONPR([](Ogre::Pass* self) -> Ogre::GpuProgramParametersPtr {
+        try { return self->getTessellationDomainProgramParameters(); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Pass::getTessellationDomainProgramParameters()"); return Ogre::GpuProgramParametersPtr(); }
+    }, (Ogre::Pass*), Ogre::GpuProgramParametersPtr), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("Pass", "GpuProgramParametersPtr getComputeProgramParameters()", asFUNCTIONPR([](Ogre::Pass* self) -> Ogre::GpuProgramParametersPtr {
+        try { return self->getComputeProgramParameters(); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Pass::getComputeProgramParameters()"); return Ogre::GpuProgramParametersPtr(); }
+    }, (Ogre::Pass*), Ogre::GpuProgramParametersPtr), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
     engine->RegisterObjectMethod("Pass", "void setVertexProgramParameters(GpuProgramParametersPtr)", asMETHOD(Ogre::Pass, setVertexProgramParameters), asCALL_THISCALL);
     engine->RegisterObjectMethod("Pass", "void setFragmentProgramParameters(GpuProgramParametersPtr)", asMETHOD(Ogre::Pass, setFragmentProgramParameters), asCALL_THISCALL);
@@ -2287,6 +2311,19 @@ void registerOgreGpuProgramParameters(AngelScript::asIScriptEngine* engine)
         try { self->setNamedConstant(name, (float*)vals->GetBuffer(), vals->GetSize()*4); }
         catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::setNamedConstant(string, array<color>)"); }
         }, (GpuProgramParametersPtr const&, const std::string&, CScriptArray*), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod("GpuProgramParametersPtr", "array<string>@ __getNamedConstants()", asFUNCTIONPR([](GpuProgramParametersPtr const& self) -> CScriptArray* {
+        try { 
+            std::vector<std::string> keys;
+            const Ogre::GpuNamedConstants& namedConstants = self->getConstantDefinitions();
+            for (auto& pair : namedConstants.map)
+                keys.push_back(pair.first);
+            return RoR::VectorToScriptArray(keys, "string");
+        }
+        catch (...) {
+            App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::GpuProgramParameters::__getNamedConstants()");
+            return nullptr; }
+        }, (GpuProgramParametersPtr const&), CScriptArray*), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);

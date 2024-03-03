@@ -202,9 +202,12 @@ public:
 
     /// @name Subsystems
     /// @{
+    VehicleAIPtr      getVehicleAI() { return ar_vehicle_ai; }
+    Ogre::MaterialPtr        getManagedMaterialInstance(const std::string& orig_name);
+    std::vector<std::string> getManagedMaterialNames();
+    // not exported to scripting:
     Replay*           getReplay();
     TyrePressure&     getTyrePressure() { return m_tyre_pressure; }
-    VehicleAIPtr      getVehicleAI() { return ar_vehicle_ai; }
     //! @}
 
     /// @name Organizational
@@ -303,6 +306,7 @@ public:
     std::vector<std::vector<int>>  ar_node_to_beam_connections;
     std::vector<Ogre::AxisAlignedBox>  ar_collision_bounding_boxes; //!< smart bounding boxes, used for determining the state of an actor (every box surrounds only a subset of nodes)
     std::vector<Ogre::AxisAlignedBox>  ar_predicted_coll_bounding_boxes;
+    std::map<std::string, Ogre::MaterialPtr>  ar_managed_materials;
     int               ar_num_contactable_nodes = 0; //!< Total number of nodes which can contact ground or cabs
     int               ar_num_contacters = 0; //!< Total number of nodes which can selfcontact cabs
     wheel_t           ar_wheels[MAX_WHEELS] = {};

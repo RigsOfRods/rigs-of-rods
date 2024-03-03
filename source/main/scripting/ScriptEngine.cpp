@@ -53,6 +53,7 @@
 #include "OgreScriptBuilder.h"
 #include "PlatformUtils.h"
 #include "ScriptEvents.h"
+#include "ScriptUtils.h"
 #include "Utils.h"
 #include "VehicleAI.h"
 

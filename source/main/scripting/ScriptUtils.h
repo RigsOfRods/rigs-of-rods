@@ -39,7 +39,7 @@ namespace RoR {
 /// @{
 
 template <typename T>
-AngelScript::CScriptArray* VectorToScriptArray(std::vector<T>& vec, const std::string& decl)
+AngelScript::CScriptArray* VectorToScriptArray(const std::vector<T>& vec, const std::string& decl)
 {
     std::string arraydecl = fmt::format("array<{}>", decl);
     AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl(arraydecl.c_str());
@@ -48,7 +48,8 @@ AngelScript::CScriptArray* VectorToScriptArray(std::vector<T>& vec, const std::s
     for (AngelScript::asUINT i = 0; i < arr->GetSize(); i++)
     {
         // Set the value of each element
-        arr->SetValue(i, &vec[i]);
+        T tempval = vec[i];
+        arr->SetValue(i, &tempval);
     }
 
     return arr;
