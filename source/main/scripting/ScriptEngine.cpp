@@ -989,16 +989,19 @@ int ScriptEngine::setupScriptUnit(int unit_id)
 
 void ScriptEngine::unloadScript(ScriptUnitId_t nid)
 {
-    ROR_ASSERT(this->scriptUnitExists(nid));
-
     if (this->scriptUnitExists(nid))
     {
-        engine->DiscardModule(m_script_units[nid].scriptModule->GetName());
-        m_script_units.erase(nid);
-        if (m_terrain_script_unit == nid)
+        if (m_script_units[nid].scriptModule != nullptr)
         {
-            m_terrain_script_unit = SCRIPTUNITID_INVALID;
+            engine->DiscardModule(m_script_units[nid].scriptModule->GetName());
+            m_script_units[nid].scriptModule = nullptr;
         }
+        m_script_units.erase(nid);
+    }
+
+    if (m_terrain_script_unit == nid)
+    {
+        m_terrain_script_unit = SCRIPTUNITID_INVALID;
     }
 }
 
