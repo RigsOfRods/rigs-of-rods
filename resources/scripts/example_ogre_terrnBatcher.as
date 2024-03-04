@@ -37,9 +37,17 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
     // * We keep a dictionary "scenenode name" -> child node indices
     dictionary tbuiSelection;
     
+    bool tbuiHideOriginal = true;
+    bool tbuiShowNew = true;
+    
+    uint tbuiNumBatchesCreated = 0;
+    
+    string tbuiOutputsNodeName = "TerrnBatcher outputs";
+    
     //#region Draw UI - main
     void draw()
     {
+        
         ImGui::Text("shows how you can traverse scene and merge meshes/textures together for better FPS");
         ImGui::Text("Note that all element names are just simple strings, even if they contain '/'.");
         
@@ -79,19 +87,39 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
             return;
         }
         
-        ImGui::Separator();
-        this.drawSelectionBasket(terrnNode);
-        ImGui::Separator();
+        Ogre::SceneNode@ outputsNode = this.findChildSceneNode(terrnNode, tbuiOutputsNodeName);
+        if (@outputsNode==null)
+        {
+            terrnNode.createChildSceneNode(tbuiOutputsNodeName);
+        }
         
+        ImGui::Separator();
+        ImGui::TextDisabled(" S E L E C T I O N :");
+        this.drawSelectionBasket(terrnNode);
+        this.drawSelectionBatchControls(terrnNode);
+        
+        ImGui::Separator();
+        ImGui::TextDisabled(" S C E N E   G R A P H :");
         this.drawTreeNodeOgreSceneNodeRecursive(terrnNode);
     }
     //#endregion Draw UI - main
     
     //#region Draw UI - schedule
+    void drawSelectionBatchControls(Ogre::SceneNode@ terrnNode)
+    {
+        if (ImGui::Button(" > > >    B A T C H    < < < "))
+        {
+            this.batchSelectedMeshes(terrnNode);
+        }
+        ImGui::SameLine();
+        ImGui::Checkbox("hide origial", /*[inout]*/ tbuiHideOriginal);
+        ImGui::SameLine();
+        ImGui::Checkbox("show new", /*[inout]*/ tbuiShowNew);
+    }
+    
     void drawSelectionBasket(Ogre::SceneNode@ terrnNode)
     {
         array<string> tobjNodes = tbuiSelection.getKeys();
-        ImGui::TextDisabled("Selection:");
         
         if (tobjNodes.length() == 0)
         {
@@ -101,8 +129,9 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
         
         // totals
         dictionary materialSet; // material name => int numHits (-1 means not trivial - not supported)
+        
     dictionary uniqueSubmeshSet; // dictionary { mesh name + ':' + submesh index => uint numVerts }
-    dictionary uniqueSubmeshSetHits; // dictionary { mesh name + ':' + submesh index => int numHits }
+    dictionary uniqueSubmeshSetHits; // dictionary { mesh name + ':' + submesh index => int numHits } 
         
         
         for (uint i=0; i<tobjNodes.length(); i++)
@@ -188,36 +217,44 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
         // traverse Entities/subentities and collect materials.
         Ogre::SceneNode@ pickedNode = cast<Ogre::SceneNode>(children[nodeIndices[childIndex]]);
         Ogre::MovableObjectArray@ movables = pickedNode.getAttachedObjects();
-        // just assume trivial case - single attached entity
-        Ogre::Entity@ ent = cast<Ogre::Entity>(movables[0]);
-        Ogre::SubEntityArray@ subEntities = ent.getSubEntities();
-        for (uint k=0; k<subEntities.length(); k++)
+        if (movables.length() == 1 && movables[0].getMovableType() == "ManualObject")
         {
-            Ogre::MaterialPtr mat = subEntities[k].getMaterial();
-            if (mat.isNull())
+            // Trivial case - single attached manual object (probably previous terrnbatcher result)
+            ImGui::Text("ManualObject="+movables[0].getName());
+        }
+        else if (movables.length() == 1 && movables[0].getMovableType() == "Entity")
+        {
+            //  trivial case - single attached entity
+            Ogre::Entity@ ent = cast<Ogre::Entity>(movables[0]);
+            Ogre::SubEntityArray@ subEntities = ent.getSubEntities();
+            for (uint k=0; k<subEntities.length(); k++)
             {
-                game.log("ERROR - material is NULL");
-            }
-            else
-            {
-                materialSet[mat.getName()] = (this.isMaterialTrivialCase(mat)) ? int(materialSet[mat.getName()])+1 : -1; 
-                
-                // submesh set
-                Ogre::MeshPtr mesh = ent.getMesh();
-                string submeshKey = mesh.getName() + ':' + k;
-                
-                for (uint l = 0; l < mesh.getSubMeshes().length(); l++)
+                Ogre::MaterialPtr mat = subEntities[k].getMaterial();
+                if (mat.isNull())
                 {
+                    game.log("ERROR - material is NULL");
+                }
+                else
+                {
+                    materialSet[mat.getName()] = (this.isMaterialTrivialCase(mat)) ? int(materialSet[mat.getName()])+1 : -1; 
                     
-                    Ogre::SubMesh@ submesh = mesh.getSubMeshes()[l];
-                    uint numVerts = submesh.__getVertexPositions().length();
-                    subMeshSet[submeshKey] = numVerts;
-                    subMeshSetHits[submeshKey] =  int(subMeshSetHits[submeshKey] )+1;
+                    // submesh set
+                    Ogre::MeshPtr mesh = ent.getMesh();
+                    string submeshKey = mesh.getName() + ':' + k;
+                    
+                    for (uint l = 0; l < mesh.getSubMeshes().length(); l++)
+                    {
+                        
+                        Ogre::SubMesh@ submesh = mesh.getSubMeshes()[l];
+                        uint numVerts = submesh.__getVertexPositions().length();
+                        subMeshSet[submeshKey] = numVerts;
+                        subMeshSetHits[submeshKey] =  int(subMeshSetHits[submeshKey] )+1;
+                    }
+                    
                 }
                 
-            }
-            
-        }
+            }  // END for (subEntities)
+        } // END if (single attached entity)
         
     }
     //#endregion Draw UI - schedule
@@ -316,7 +353,14 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
         
         // The `__getUniqueName()` is a Rigs of Rods extension (that's why double leading underscores), 
         // because names are optional and usually not set, and imgui tree nodes require unique IDs.
-        if (ImGui::TreeNode(snode.__getUniqueName()))
+        ImGui::PushID(snode.__getUniqueName());
+        string treeNodeCaption = snode.getName();
+        if (treeNodeCaption == "")
+        {
+            treeNodeCaption = "["+(indexUnderParent+1)+"]";
+        }
+        
+        if (ImGui::TreeNode(treeNodeCaption))
         {
             // Tree node open, draw children recursively
             ImGui::TextDisabled("Ogre::Node ["+children.length()+"]");
@@ -340,48 +384,22 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
         }
         else
         {
-            ImGui::PushID(snode.__getUniqueName());
+            
             
             // Tree node closed, draw info (context-sensitive)
             ImGui::SameLine();
             if (children.length() == 0 && movables.length() == 1)
             {
-                //the most usual case - a node with an entity. display the mesh name.
-                ImGui::TextDisabled("-->");
-                ImGui::SameLine();
-                ImGui::Text(movables[0].__getUniqueName());
-                ImGui::SameLine();
-                if (ImGui::SmallButton("go to")) 
-                {
-                    game.setPersonPosition(snode.getPosition());
-                }
-                ImGui::SameLine();
-                // +terrnBatcher - selection
-                
-                if (this.isSceneNodePicked(snode.getParentSceneNode().getName(), indexUnderParent))
-                {
-                    if(ImGui::SmallButton("-UnPick"))
-                    {
-                        this.unPickSceneNode(snode.getParentSceneNode().getName(), indexUnderParent);
-                    }
-                }
-                else
-                {
-                    if (ImGui::SmallButton("+Pick!")) 
-                    {
-                        
-                        this.pickSceneNode(snode.getParentSceneNode().getName(), indexUnderParent);
-                    }
-                }
-                // END terrnBatcher
+                this. drawInlineSceneNodeControlsToInspector(snode, indexUnderParent);
             }
             else 
             {
                 ImGui::Text("("+children.length()+" children, "+movables.length()+" movables)");
             }
             
-            ImGui::PopID(); //snode.__getUniqueName()
+            
         }
+        ImGui::PopID(); //snode.__getUniqueName()
     }
     
     void drawTreeNodeOgreMovableObject(Ogre::MovableObject@ movable)
@@ -444,6 +462,56 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
     }
     //#endregion Inspector tree nodes
     
+    // #region TerrnBatcher controls for inspector
+    
+    void drawInlineSceneNodeControlsToInspector(Ogre::SceneNode@ snode, uint indexUnderParent)
+    {
+        //the most usual case - a node with a single entity.  Draw name and controls inline
+        // ------------------------------------------------
+        Ogre::MovableObjectArray@ movables = snode.getAttachedObjects();
+        ImGui::TextDisabled("-->");
+        ImGui::SameLine();
+        ImGui::Text(movables[0].getName());
+        ImGui::SameLine();
+        
+        // Inspector: go to
+        if (ImGui::SmallButton("go to")) 
+        {
+            game.setPersonPosition(snode.getPosition());
+        }                
+        
+        // +TerrnBatcher - visibility
+        ImGui::SameLine();
+        bool visible = movables[0].isVisible();
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, vector2(2,0));
+        if (ImGui::Checkbox("Visible", visible))
+        {
+            movables[0].setVisible(visible);
+        }
+        ImGui::PopStyleVar(); //ImGuiStyleVar_FramePadding
+        
+        // +terrnBatcher - selection
+        ImGui::SameLine();
+        if (this.isSceneNodePicked(snode.getParentSceneNode().getName(), indexUnderParent))
+        {
+            if(ImGui::SmallButton("-UnPick"))
+            {
+                this.unPickSceneNode(snode.getParentSceneNode().getName(), indexUnderParent);
+            }
+        }
+        else
+        {
+            if (ImGui::SmallButton("+Pick!")) 
+            {
+                
+                this.pickSceneNode(snode.getParentSceneNode().getName(), indexUnderParent);
+            }
+        }
+        // END terrnBatcher selection
+    }
+    
+    // #endregion TerrnBatcher controls for inspector
+    
     // #region Material helpers
     
     Ogre::TexturePtr getTrivialCaseMaterialTexture(Ogre::MaterialPtr mat)
@@ -501,4 +569,174 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
             ImGui::Text("no material");
         }
     }
+    
+    // #region The actual magic - merging meshes
+    void addSingleSubMeshToBatch(Ogre::ManualObject@ mo, Ogre::SubMesh@ subMesh, vector3 pos, quaternion rot, vector3 scale)
+    {
+        // Proof of concept: make it a world-space mesh. Assume tri-list type mesh with  1 UV (=texcoords) layer
+        // ------------------------------------------------------------------------
+        
+        uint dbgVertsAdded = 0;
+        uint dbgIndsAdded = 0;
+        
+        array<vector3> vertPos = subMesh.__getVertexPositions();
+        array<vector2> vertUVs = subMesh.__getVertexTexcoords(0);
+        for (uint iVert = 0; iVert < vertPos.length(); iVert++)
+        {
+            mo.position((rot * vertPos[iVert]) * scale + pos);
+            mo.textureCoord(vertUVs[iVert]);
+            dbgVertsAdded++;
+        }
+        
+        if (subMesh.__getIndexType() == Ogre::IndexType::IT_16BIT)
+        {
+            array<uint16> indexBuf = subMesh.__getIndexBuffer16bit();
+            for (uint iIndex = 0; iIndex < indexBuf.length(); iIndex++)
+            {
+                mo.index(indexBuf[iIndex]);
+                dbgIndsAdded++;
+            }
+        }
+        else
+        {
+            game.log("ERROR appendMeshInstanceToManualObject(): mesh is not supported - not 16-bit indexed");
+        }
+        
+        game.log("DBG addSingleSubMeshToBatch() dbgVertsAdded="+dbgVertsAdded+", dbgIndsAdded="+dbgIndsAdded);
+    }
+    
+    void addSceneNodeAttachedMeshesToBatch(Ogre::ManualObject@ mo, Ogre::SceneNode@ pickedNode, string&inout foundMatName)
+    {
+        Ogre::MovableObjectArray@ movables = pickedNode.getAttachedObjects();
+        for (uint iMovas = 0; iMovas < movables.length(); iMovas++)
+        {
+            game.log("DBG addSceneNodeAttachedMeshesToBatch(): iMovas="+iMovas+"/"+movables.length());
+            if (movables[iMovas].getMovableType() != "Entity")
+            {
+                game.log("DBG batchSelectedMeshes(): skipping movable of type '"+movables[iMovas].getMovableType()+"' - not suported!");
+                continue;
+            }
+            Ogre::Entity @ent = cast<Ogre::Entity>(movables[iMovas]);
+            
+            Ogre::SubEntityArray@ subEntities = ent.getSubEntities();
+            for (uint iSubent=0; iSubent<subEntities.length(); iSubent++)
+            {
+                game.log("DBG addSceneNodeAttachedMeshesToBatch(): iSubent="+iSubent+"/"+subEntities.length());
+                Ogre::MaterialPtr mat = subEntities[iSubent].getMaterial();
+                if (mat.isNull())
+                {
+                    game.log("DBG batchSelectedMeshes(): skipping subEntity - material is NULL");
+                    continue;
+                }
+                if (foundMatName == "")
+                {
+                    foundMatName = mat.getName();
+                    mo.begin(foundMatName, Ogre::OT_TRIANGLE_LIST, game.getTerrain().getHandle().getTerrainFileResourceGroup());
+                    game.log ("DBG  addSceneNodeAttachedMeshesToBatch(): Manual object initialized with material '"+foundMatName+"'");
+                }
+                else if (foundMatName != mat.getName())
+                {
+                    game.log("DBG WARNING batchSelectedMeshes(): ignoring mat '"+mat.getName()+"', already using '"+foundMatName+"'");
+                }
+                Ogre::SubMesh@ subMesh = subEntities[iSubent].getSubMesh();
+                if (@subMesh == null)
+                {
+                    game.log("DBG ERROR batchSelectedMeshes(): skipping subEntity - submesh is NULL");
+                    continue;
+                }
+                
+                this.addSingleSubMeshToBatch(mo, subMesh, pickedNode.getPosition(), pickedNode.getOrientation(), pickedNode.getScale());
+            }            
+            
+        }
+    }
+    
+    void batchSelectedMeshes(Ogre::SceneNode@ terrnNode)
+    {
+        // proof of concept - only merge meshes, do nothing about the material.
+        // Assume full transform (relative to world origin) is equal to local transform (relative to terrain grouping scenenode)
+        // ----------------------------------------------------------------------------------------------------------------------
+        
+        string moName = this.composeUniqueId("batch #" + tbuiNumBatchesCreated++);
+        game.log("DBG batchSelectedMeshes(): moName='"+moName+"'");
+        Ogre::ManualObject@ mo = game.getSceneManager().createManualObject(moName);
+        string foundMatName = "";
+        if (@mo == null)
+        {
+            game.log("ERROR batchSelectedMeshes(): could not create manual object");
+            return;
+        }
+        
+        // Loop through selected 'grouping' nodes (1 for each .tobj / .as) file
+        
+        array<string> tobjNodes = tbuiSelection.getKeys();
+        if (tobjNodes.length() == 0) 
+        { 
+            game.log("ERROR batchSelectedMeshes(): nothing selected. Use 'pick' buttons in tree below.");
+            return;
+        }      
+        
+        game.log("DBG batchSelectedMeshes(): num selected nodes='"+tobjNodes.length()+"'");
+        for (uint iNode=0; iNode<tobjNodes.length(); iNode++)
+        {
+            Ogre::SceneNode@ tobjNode = this.findChildSceneNode(terrnNode, tobjNodes[iNode]);
+            if (@tobjNode == null)
+            {
+                game.log("DBG batchSelectedMeshes(): '"+tobjNodes[iNode]+"' - not found in scene graph!");
+                continue;
+            }
+            
+            // Loop through list of scene nodes selected under this grouping node
+            array<uint>@ nodeIndices = cast<array<uint>>(tbuiSelection[tobjNodes[iNode]]);
+            
+            game.log("DBG batchSelectedMeshes(): processing node "+uint(iNode+1)+"/"+tobjNodes.length()+" ("+tobjNodes[iNode]+") - "+nodeIndices.length()+" nodes picked");
+            
+            for (uint iChild=0; iChild<nodeIndices.length(); iChild++)
+            {
+                Ogre::ChildNodeArray@ children = tobjNode.getChildren();
+                
+                if (nodeIndices[iChild] >= children.length())
+                {
+                    game.log("ERROR: '"+tobjNode.getName()+"' has only "+children.length()+"children, requested index"+nodeIndices[iChild]);
+                    continue;
+                }   
+                
+                // Process the entities attached to this scene node
+                Ogre::SceneNode@ childNode = cast<Ogre::SceneNode>(children[nodeIndices[iChild]]);
+                
+                game.log("DBG batchSelectedMeshes(): iChild="+iChild+"/"+nodeIndices.length()+", uniqueName()="+childNode.__getUniqueName());
+                this.addSceneNodeAttachedMeshesToBatch(mo, childNode, /*[inout]*/foundMatName);
+                if (tbuiHideOriginal)
+                {
+                    childNode.setVisible(false);
+                }
+            } // END loop (list of picked nodes)
+        } // END loop (grouping nodes)
+        
+        if (foundMatName != "")
+        {
+            mo.end();
+            
+            Ogre::SceneNode@ outputsNode = this.findChildSceneNode(terrnNode, tbuiOutputsNodeName);
+            Ogre::SceneNode@ snode = outputsNode.createChildSceneNode(moName+"-node");
+            snode.attachObject(cast<Ogre::MovableObject@>(mo));
+            snode.setVisible(tbuiShowNew);
+            // unlike the ManualObject example, we don't position the node - verts are already in world position.     
+        }
+        else
+        {
+            game.log("DBG batchSelectedMeshes(): material not found, mesh not generated");
+        }
+    }
+    
+    // Helpers to make magic happen
+    string composeUniqueId(string name)
+    {
+        // to avoid clash with leftover scene nodes created before, we include the NID in the name - using automatic global var `thisScript`.
+        return "TerrnBatcher(NID:"+thisScript+"): "+name;
+    }
+    
+    // #endregion The actual magic - merging meshes
+    
 }
+
