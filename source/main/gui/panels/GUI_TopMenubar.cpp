@@ -142,6 +142,7 @@ void TopMenubar::Draw(float dt)
     std::string tools_title =       _LC("TopMenubar", "Tools");
     std::string ai_title =          _LC("TopMenubar", "Vehicle AI");
     std::string tuning_title =      _LC("TopMenubar", "Tuning");
+    std::string styling_title =     _LC("TopMenubar", "Styling");
 
     int menubar_num_buttons = 5;
     float menubar_content_width =
@@ -161,6 +162,12 @@ void TopMenubar::Draw(float dt)
     {
         menubar_num_buttons += 1;
         menubar_content_width += ImGui::CalcTextSize(tuning_title.c_str()).x;
+    }
+
+    if (App::sim_styling_enabled->getBool())
+    {
+        menubar_num_buttons += 1;
+        menubar_content_width += ImGui::CalcTextSize(styling_title.c_str()).x;
     }
 
     menubar_content_width +=
@@ -212,6 +219,19 @@ void TopMenubar::Draw(float dt)
             m_open_menu = TopMenu::TOPMENU_TUNING;
         }
     } 
+
+    // The 'Styling' button - only shown if enabled
+    ImVec2 styling_cursor = ImVec2(0, 0);
+    if (App::sim_styling_enabled->getBool())
+    {
+        ImGui::SameLine();
+        styling_cursor = ImGui::GetCursorPos();
+        ImGui::Button(styling_title.c_str());
+        if ((m_open_menu != TopMenu::TOPMENU_STYLING) && ImGui::IsItemHovered())
+        {
+            m_open_menu = TopMenu::TOPMENU_STYLING;
+        }
+    }
 
     // The 'AI' button - only shown in singleplayer
     ImVec2 ai_cursor = ImVec2(0, 0);
@@ -629,74 +649,6 @@ void TopMenubar::Draw(float dt)
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Vehicle control options:"));
                 DrawGCheckbox(App::io_hydro_coupling, _LC("TopMenubar", "Keyboard steering speed coupling"));
-
-                // port of 'resources/scripts/example_game_getManagedMaterials.as' from https://github.com/RigsOfRods/rigs-of-rods/pull/3030
-
-                ImGui::Separator();
-                const auto& managedMatNames = current_actor->getManagedMaterialNames();
-                ImGui::TextDisabled("Managed materials (%d)", (int)managedMatNames.size());
-                for (size_t iMat = 0; iMat < managedMatNames.size(); iMat++)
-                {
-                    ImGui::PushID(iMat);
-                    Ogre::MaterialPtr mat = current_actor->getManagedMaterialInstance(managedMatNames[iMat]);
-                    if (ImGui::TreeNode(managedMatNames[iMat].c_str()))
-                    {
-                        try
-                        {
-                            if (!mat) { ImGui::TextDisabled("null"); continue; }
-                            if (mat->getTechniques().size() < 1) { ImGui::TextDisabled("no `Techniques` in mat");ImGui::TreePop(); continue; }
-                            Ogre::Technique* matTech = mat->getTechniques()[0];
-                            if (matTech->getPasses().size() < 1) { ImGui::TextDisabled("no `Passes` in mat"); ImGui::TreePop(); continue; }
-                            Ogre::Pass* matPass = matTech->getPasses()[0];       
-                            if (!matPass) { ImGui::TextDisabled("null `Pass #0` in mat"); ImGui::TreePop(); continue; }   // paranoia
-                            if (!matPass->hasFragmentProgram()) { ImGui::TextDisabled("no fragment shader in mat"); ImGui::TreePop(); continue; }
-                            Ogre::GpuProgramParametersPtr fragParams = matPass->getFragmentProgramParameters();
-                            if (!fragParams) { { ImGui::TextDisabled("no fragment params in mat"); ImGui::TreePop(); continue; } }
-                            const Ogre::GpuNamedConstants& namedConstants = fragParams->getConstantDefinitions();
-                            for (auto& namedConPair : namedConstants.map)
-                            {
-                                ImGui::PushID(namedConPair.first.c_str());
-
-                                std::string key = fmt::format("{}:{}", iMat, namedConPair.first);
-                                if (namedConPair.first == "color")
-                                {
-                                    if (m_known_constants_color.find(key) == m_known_constants_color.end())
-                                    {
-                                        m_known_constants_color[key] = Ogre::Vector3(1, 1, 1); // Default to white
-                                    }
-                                    Ogre::Vector3 tempColor = m_known_constants_color[key];
-
-                                    if (ImGui::ColorPicker3("Color", (float*)&tempColor))
-                                    {
-                                        m_known_constants_color[key] = tempColor;
-                                        fragParams->setNamedConstant("color", tempColor);
-                                    }
-                                }
-                                else
-                                {
-                                    float valMin = -1.f;
-                                    float valMax = 1.f;
-                                    float tmpVal = m_known_constants_float[key];
-                                    if (ImGui::SliderFloat(namedConPair.first.c_str(), &tmpVal, valMin, valMax))
-                                    {
-                                        m_known_constants_float[key] = tmpVal;
-                                        fragParams->setNamedConstant(namedConPair.first, tmpVal);
-                                    }                                
-                                }
-
-                                ImGui::PopID(); // namedConPair.first                
-                            }
-                        }
-                        catch (const std::exception& e)
-                        {
-                            ImGui::TextDisabled("Exception: %s", e.what());
-                        }
-            
-                        ImGui::TreePop();
-                    } // TreeNode())
-        
-                    ImGui::PopID(); // iMat
-                } // for (iMat)
             }
             if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {
@@ -1338,7 +1290,7 @@ void TopMenubar::Draw(float dt)
                 }
                 else
                 {
-                    this->GetPresets();
+                    this->GetAiPresets();
                 }
             }
 
@@ -1864,6 +1816,98 @@ void TopMenubar::Draw(float dt)
         }
         break;
 
+    case TopMenu::TOPMENU_STYLING:
+        menu_pos.y = window_pos.y + tuning_cursor.y + MENU_Y_OFFSET;
+        menu_pos.x = tuning_cursor.x + window_pos.x - ImGui::GetStyle().WindowPadding.x;
+        ImGui::SetNextWindowPos(menu_pos);
+        if (ImGui::Begin(_LC("TopMenubar", "Tuning menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
+        {
+            this->RefreshTuningMenu(); // make sure our local context is valid
+            if (!tuning_actor)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
+                ImGui::Text("%s", _LC("Styling", "You are on foot."));
+                ImGui::Text("%s", _LC("Styling", "Enter a vehicle to style it."));
+                ImGui::PopStyleColor();
+            }
+            else
+            {
+                // port of 'resources/scripts/example_game_getManagedMaterials.as' from https://github.com/RigsOfRods/rigs-of-rods/pull/3030
+
+                ImGui::Separator();
+                const auto& managedMatNames = current_actor->getManagedMaterialNames();
+                ImGui::TextDisabled("Managed materials (%d)", (int)managedMatNames.size());
+                for (size_t iMat = 0; iMat < managedMatNames.size(); iMat++)
+                {
+                    ImGui::PushID(iMat);
+                    Ogre::MaterialPtr mat = current_actor->getManagedMaterialInstance(managedMatNames[iMat]);
+                    if (ImGui::TreeNode(managedMatNames[iMat].c_str()))
+                    {
+                        try
+                        {
+                            if (!mat) { ImGui::TextDisabled("null"); continue; }
+                            if (mat->getTechniques().size() < 1) { ImGui::TextDisabled("no `Techniques` in mat");ImGui::TreePop(); continue; }
+                            Ogre::Technique* matTech = mat->getTechniques()[0];
+                            if (matTech->getPasses().size() < 1) { ImGui::TextDisabled("no `Passes` in mat"); ImGui::TreePop(); continue; }
+                            Ogre::Pass* matPass = matTech->getPasses()[0];       
+                            if (!matPass) { ImGui::TextDisabled("null `Pass #0` in mat"); ImGui::TreePop(); continue; }   // paranoia
+                            if (!matPass->hasFragmentProgram()) { ImGui::TextDisabled("no fragment shader in mat"); ImGui::TreePop(); continue; }
+                            Ogre::GpuProgramParametersPtr fragParams = matPass->getFragmentProgramParameters();
+                            if (!fragParams) { { ImGui::TextDisabled("no fragment params in mat"); ImGui::TreePop(); continue; } }
+                            const Ogre::GpuNamedConstants& namedConstants = fragParams->getConstantDefinitions();
+                            for (auto& namedConPair : namedConstants.map)
+                            {
+                                ImGui::PushID(namedConPair.first.c_str());
+
+                                std::string key = fmt::format("{}:{}", iMat, namedConPair.first);
+                                if (namedConPair.first == "color")
+                                {
+                                    if (styling_mm_constants_vector3.find(key) == styling_mm_constants_vector3.end())
+                                    {
+                                        styling_mm_constants_vector3[key] = Ogre::Vector3(1, 1, 1); // Default to white
+                                    }
+                                    Ogre::Vector3 tempColor = styling_mm_constants_vector3[key];
+
+                                    if (ImGui::ColorPicker3("Color", (float*)&tempColor))
+                                    {
+                                        styling_mm_constants_vector3[key] = tempColor;
+                                        fragParams->setNamedConstant("color", tempColor);
+                                    }
+                                }
+                                else
+                                {
+                                    float valMin = -1.f;
+                                    float valMax = 1.f;
+                                    float tmpVal = styling_mm_constants_float[key];
+                                    if (ImGui::SliderFloat(namedConPair.first.c_str(), &tmpVal, valMin, valMax))
+                                    {
+                                        styling_mm_constants_float[key] = tmpVal;
+                                        fragParams->setNamedConstant(namedConPair.first, tmpVal);
+                                    }                                
+                                }
+
+                                ImGui::PopID(); // namedConPair.first                
+                            }
+                        }
+                        catch (const std::exception& e)
+                        {
+                            ImGui::TextDisabled("Exception: %s", e.what());
+                        }
+            
+                        ImGui::TreePop();
+                    } // TreeNode())
+        
+                    ImGui::PopID(); // iMat
+                } // for (iMat)
+            }
+            m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
+            m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x;
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y;
+            App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
+            ImGui::End();
+        }
+        break;
+
     default:
         m_open_menu_hoverbox_min = ImVec2(0,0);
         m_open_menu_hoverbox_max = ImVec2(0,0);
@@ -2297,12 +2341,12 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
     }
 }
 
-void TopMenubar::Refresh(std::string payload)
+void TopMenubar::RefreshAiPresets(std::string payload)
 {
     j_doc.Parse(payload.c_str());
 }
 
-void TopMenubar::GetPresets()
+void TopMenubar::GetAiPresets()
 {
 #if defined(USE_CURL)
     std::packaged_task<void()> task(GetJson);

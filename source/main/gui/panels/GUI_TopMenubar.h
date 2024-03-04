@@ -54,7 +54,7 @@ public:
     const ImVec4  RED_TEXT              = ImVec4(1.00f, 0.00f, 0.00f, 1.f);
     const ImVec2  MENU_HOVERBOX_PADDING = ImVec2(25.f, 10.f);
 
-    enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS, TOPMENU_AI, TOPMENU_TUNING };
+    enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS, TOPMENU_AI, TOPMENU_TUNING, TOPMENU_STYLING };
     enum class StateBox { STATEBOX_NONE, STATEBOX_REPLAY, STATEBOX_RACE, STATEBOX_LIVE_REPAIR, STATEBOX_QUICK_REPAIR };
 
     TopMenubar();
@@ -65,7 +65,8 @@ public:
 
     bool IsVisible() { return m_open_menu != TopMenu::TOPMENU_NONE; };
 
-    // Vehicle AI
+    /// @name [Vehicle AI] menu
+    /// @{
     std::vector<ai_events> ai_waypoints;
     int ai_num = 1;
     int ai_speed = 50;
@@ -95,9 +96,11 @@ public:
     int ai_times_prev = 1;
     int ai_mode_prev = 0;
 
-    void Refresh(std::string payload);
+    void RefreshAiPresets(std::string payload);
+    /// @}
 
-    // Tuning menu
+    /// @name [Tuning] menu
+    /// @{
     ActorPtr tuning_actor;          //!< Detecting actor change to update cached values.
     std::vector<CacheEntryPtr> tuning_addonparts;   //!< Addonparts of current actor, both matched by GUID and force-installed by user via [browse all] button.
     CacheQuery tuning_saves;        //!< Tuneups saved by user, with category ID `RoR::CID_AddonpartUser`
@@ -109,6 +112,14 @@ public:
     bool tuning_force_refresh = false;
     float tuning_rwidget_cursorx_min = 0.f; //!< Avoid drawing right-side widgets ('Delete' button or 'Protected' chk) over saved tuneup names.
     void RefreshTuningMenu();
+    /// @}
+
+    /// @name [Styling] menu
+    /// @{
+    // Managed material constants; key: "{managedmat index}:{managedmat name}"
+    std::map<std::string, float> styling_mm_constants_float;
+    std::map<std::string, Ogre::Vector3> styling_mm_constants_vector3;
+    /// @}
 
 private:
     void DrawActorListSinglePlayer();
@@ -136,12 +147,8 @@ private:
     std::string m_quicksave_name;
     std::vector<std::string> m_savegame_names;
 
-    void GetPresets();
     rapidjson::Document j_doc;
-
-    // [Settings] Shader params; Key = fmt("{}:{}", iMat, managedMatNames[iMat])
-    std::map<std::string, float> m_known_constants_float;
-    std::map<std::string, Ogre::Vector3> m_known_constants_color;
+    void GetAiPresets();
 };
 
 } // namespace GUI
