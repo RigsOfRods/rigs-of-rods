@@ -456,6 +456,66 @@ static AngelScript::CScriptArray* SubMesh__getVertexTexcoords(SubMesh* self, asU
     return arr;
 }
 
+static Ogre::HardwareIndexBuffer::IndexType SubMesh__getIndexType(SubMesh* self)
+{
+    if (!self->indexData)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getIndexType(): No index data found");
+        return Ogre::HardwareIndexBuffer::IT_16BIT;
+    }
+    Ogre::HardwareIndexBufferSharedPtr ibuf = self->indexData->indexBuffer;
+    if (!ibuf)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getIndexType(): No index buffer found");
+        return Ogre::HardwareIndexBuffer::IT_16BIT;
+    }
+    return ibuf->getType();
+}
+
+static AngelScript::CScriptArray* SubMesh__getIndexBufferHelper(Ogre::SubMesh* self, Ogre::HardwareIndexBuffer::IndexType desiredType)
+{
+    if (!self->indexData)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getIndexBufferHelper(): No index data found");
+        return nullptr;
+    }
+    Ogre::HardwareIndexBufferSharedPtr ibuf = self->indexData->indexBuffer;
+    if (!ibuf)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getIndexBufferHelper(): No index buffer found");
+        return nullptr;
+    }
+    if (ibuf->getType() != desiredType)
+    {
+        App::GetScriptEngine()->SLOG("SubMesh::__getIndexBufferHelper(): Index buffer type mismatch");
+        return nullptr;
+    }
+    AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl("array<uint16>");
+    AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo, self->indexData->indexCount);
+    uint8_t* pStart = static_cast<uint8_t*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+    for (size_t i = self->indexData->indexStart; i < self->indexData->indexCount; i++)
+    {
+        uint8_t* pIndex = pStart + (i * ibuf->getIndexSize());
+        if (ibuf->getType() == Ogre::HardwareIndexBuffer::IT_16BIT)
+        {
+            uint16_t index = *reinterpret_cast<uint16_t*>(pIndex);
+            arr->SetValue(i, &index);
+        }
+        else if (ibuf->getType() == Ogre::HardwareIndexBuffer::IT_32BIT)
+        {
+            uint32_t index = *reinterpret_cast<uint32_t*>(pIndex);
+            arr->SetValue(i, &index);
+        }
+        else
+        {
+            App::GetScriptEngine()->SLOG("SubMesh::__getIndexBufferHelper(): Unknown index buffer type");
+            return nullptr;
+        }
+    }
+    ibuf->unlock();
+    return arr;
+}
+
 /***NODE***/
 typedef CReadonlyScriptArrayView<Ogre::Node*> ChildNodeArray;
 
@@ -784,30 +844,34 @@ void RoR::RegisterOgreObjects(AngelScript::asIScriptEngine* engine)
 
     // enums, also under namespace `Ogre`
 
+    r = engine->RegisterEnum("IndexType"); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("IndexType", "IT_16BIT", Ogre::HardwareIndexBuffer::IT_16BIT); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("IndexType", "IT_32BIT", Ogre::HardwareIndexBuffer::IT_32BIT); ROR_ASSERT(r >= 0);
+
     r = engine->RegisterEnum("TransformSpace"); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("TransformSpace", "TS_LOCAL", Node::TS_LOCAL); /// Transform is relative to the local space
-    r = engine->RegisterEnumValue("TransformSpace", "TS_PARENT", Node::TS_PARENT); /// Transform is relative to the space of the parent node
-    r = engine->RegisterEnumValue("TransformSpace", "TS_WORLD", Node::TS_WORLD); /// Transform is relative to world space
+    r = engine->RegisterEnumValue("TransformSpace", "TS_LOCAL", Node::TS_LOCAL); ROR_ASSERT(r >= 0); // Transform is relative to the local space
+    r = engine->RegisterEnumValue("TransformSpace", "TS_PARENT", Node::TS_PARENT); ROR_ASSERT(r >= 0); // Transform is relative to the space of the parent node
+    r = engine->RegisterEnumValue("TransformSpace", "TS_WORLD", Node::TS_WORLD); ROR_ASSERT(r >= 0); // Transform is relative to world space
 
     r = engine->RegisterEnum("RenderOperation"); ROR_ASSERT(r >= 0); // NOTE: `Ogre::RenderOperation` is a wrapper class - the enum is `OperationType`                                                          
-    r = engine->RegisterEnumValue("RenderOperation", "OT_POINT_LIST",  Ogre::RenderOperation::OT_POINT_LIST);         /// A list of points, 1 vertex per point
-    r = engine->RegisterEnumValue("RenderOperation", "OT_LINE_LIST",  Ogre::RenderOperation::OT_LINE_LIST);           /// A list of lines, 2 vertices per line
-    r = engine->RegisterEnumValue("RenderOperation", "OT_LINE_STRIP",  Ogre::RenderOperation::OT_LINE_STRIP);         /// A strip of connected lines, 1 vertex per line plus 1 start vertex
-    r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_LIST",  Ogre::RenderOperation::OT_TRIANGLE_LIST);   /// A list of triangles, 3 vertices per triangle
-    r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_STRIP",  Ogre::RenderOperation::OT_TRIANGLE_STRIP); /// A strip of triangles, 3 vertices for the first triangle, and 1 per triangle after that
-    r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_FAN",  Ogre::RenderOperation::OT_TRIANGLE_FAN);     /// A fan of triangles, 3 vertices for the first triangle, and 1 per triangle after that
+    r = engine->RegisterEnumValue("RenderOperation", "OT_POINT_LIST",  Ogre::RenderOperation::OT_POINT_LIST); ROR_ASSERT(r >= 0);        // A list of points, 1 vertex per point
+    r = engine->RegisterEnumValue("RenderOperation", "OT_LINE_LIST",  Ogre::RenderOperation::OT_LINE_LIST); ROR_ASSERT(r >= 0);          // A list of lines, 2 vertices per line
+    r = engine->RegisterEnumValue("RenderOperation", "OT_LINE_STRIP",  Ogre::RenderOperation::OT_LINE_STRIP); ROR_ASSERT(r >= 0);        // A strip of connected lines, 1 vertex per line plus 1 start vertex
+    r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_LIST",  Ogre::RenderOperation::OT_TRIANGLE_LIST); ROR_ASSERT(r >= 0);  // A list of triangles, 3 vertices per triangle
+    r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_STRIP",  Ogre::RenderOperation::OT_TRIANGLE_STRIP); ROR_ASSERT(r >= 0);// A strip of triangles, 3 vertices for the first triangle, and 1 per triangle after that
+    r = engine->RegisterEnumValue("RenderOperation", "OT_TRIANGLE_FAN",  Ogre::RenderOperation::OT_TRIANGLE_FAN); ROR_ASSERT(r >= 0);    // A fan of triangles, 3 vertices for the first triangle, and 1 per triangle after that
 
     r = engine->RegisterEnum("ImageFilter"); ROR_ASSERT(r >= 0); // Only registering those which are in OGRE14 docs, even though our older version has more
-    r = engine->RegisterEnumValue("ImageFilter", "FILTER_NEAREST", Image::Filter::FILTER_NEAREST);
-    r = engine->RegisterEnumValue("ImageFilter", "FILTER_LINEAR", Image::Filter::FILTER_LINEAR);
-    r = engine->RegisterEnumValue("ImageFilter", "FILTER_BILINEAR", Image::Filter::FILTER_BILINEAR);
+    r = engine->RegisterEnumValue("ImageFilter", "FILTER_NEAREST", Image::Filter::FILTER_NEAREST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("ImageFilter", "FILTER_LINEAR", Image::Filter::FILTER_LINEAR); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("ImageFilter", "FILTER_BILINEAR", Image::Filter::FILTER_BILINEAR); ROR_ASSERT(r >= 0);
 
     r = engine->RegisterEnum("HardwareBufferLockOptions"); ROR_ASSERT(r >= 0);
-    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_NORMAL", HardwareBuffer::LockOptions::HBL_NORMAL);
-    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_DISCARD", HardwareBuffer::LockOptions::HBL_DISCARD);
-    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_READ_ONLY", HardwareBuffer::LockOptions::HBL_READ_ONLY);
-    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_NO_OVERWRITE", HardwareBuffer::LockOptions::HBL_NO_OVERWRITE);
-    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_WRITE_ONLY", HardwareBuffer::LockOptions::HBL_WRITE_ONLY);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_NORMAL", HardwareBuffer::LockOptions::HBL_NORMAL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_DISCARD", HardwareBuffer::LockOptions::HBL_DISCARD); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_READ_ONLY", HardwareBuffer::LockOptions::HBL_READ_ONLY); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_NO_OVERWRITE", HardwareBuffer::LockOptions::HBL_NO_OVERWRITE); ROR_ASSERT(r >= 0);
+    r = engine->RegisterEnumValue("HardwareBufferLockOptions", "HBL_WRITE_ONLY", HardwareBuffer::LockOptions::HBL_WRITE_ONLY); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 
@@ -1544,6 +1608,7 @@ void registerOgreSubEntity(AngelScript::asIScriptEngine* engine)
 
     r = engine->RegisterObjectMethod("SubEntity", "const MaterialPtr& getMaterial() const", asMETHOD(SubEntity, getMaterial), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SubEntity", "void setMaterial(const MaterialPtr&in)", asMETHOD(SubEntity, setMaterial), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SubEntity", "SubMesh@ getSubMesh()", asMETHOD(SubEntity, getSubMesh), asCALL_THISCALL); ROR_ASSERT(r >= 0);
 
     r = engine->SetDefaultNamespace(""); ROR_ASSERT(r >= 0);
 }
@@ -1562,6 +1627,11 @@ void registerOgreNodeBase(AngelScript::asIScriptEngine* engine, const char* obj)
 
     r = engine->RegisterObjectMethod(obj, "const string& getName() const", asMETHOD(T, getName), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod(obj, "Node@ getParent()", asMETHOD(T, getParent), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+
+    r = engine->RegisterObjectMethod(obj, "const quaternion& getOrientation() const", asMETHOD(T, getOrientation), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod(obj, "void setOrientation(const quaternion&in)", asFUNCTIONPR([](T* self, const Ogre::Quaternion& q){
+        self->setOrientation(q);
+        }, (T*, const Quaternion&), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
 
     r = engine->RegisterObjectMethod(obj, "string __getUniqueName() const", asFUNCTION(NodeGetUniqueNameMixin), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
     
@@ -2021,8 +2091,22 @@ void registerOgreSubMesh(AngelScript::asIScriptEngine* engine)
     engine->RegisterObjectMethod("SubMesh", "const string& getMaterialName()", asMETHOD(Ogre::SubMesh, getMaterialName), asCALL_THISCALL);
     engine->RegisterObjectMethod("SubMesh", "void setMaterialName(const string&in, const string&in)", asMETHOD(Ogre::SubMesh, setMaterialName), asCALL_THISCALL);
 
+    // > Vertex buffer
     engine->RegisterObjectMethod("SubMesh", "array<vector3>@ __getVertexPositions()", asFUNCTION(SubMesh__getVertexPositions), asCALL_CDECL_OBJFIRST);
     engine->RegisterObjectMethod("SubMesh", "array<vector2>@ __getVertexTexcoords(uint index)", asFUNCTION(SubMesh__getVertexTexcoords), asCALL_CDECL_OBJFIRST);
+
+    // > Index buffer
+    engine->RegisterObjectMethod("SubMesh", "array<uint16>@ __getIndexBuffer16bit()", asFUNCTIONPR([](Ogre::SubMesh* self) {
+        const Ogre::HardwareIndexBuffer::IndexType desiredType = Ogre::HardwareIndexBuffer::IndexType::IT_16BIT;
+        if (SubMesh__getIndexType(self) == desiredType) { return SubMesh__getIndexBufferHelper(self, desiredType); }
+        else { App::GetScriptEngine()->SLOG("SubMesh::__getIndexBuffer16bit(): The buffer format isn't 16bit."); return (CScriptArray*)nullptr; }
+    }, (Ogre::SubMesh*), CScriptArray*), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("SubMesh", "array<uint>@ __getIndexBuffer32bit()", asFUNCTIONPR([](Ogre::SubMesh* self) {
+        const Ogre::HardwareIndexBuffer::IndexType desiredType = Ogre::HardwareIndexBuffer::IndexType::IT_32BIT;
+        if (SubMesh__getIndexType(self) == desiredType) { return SubMesh__getIndexBufferHelper(self, desiredType); }
+        else { App::GetScriptEngine()->SLOG("SubMesh::__getIndexBuffer32bit(): The buffer format isn't 32bit."); return (CScriptArray*)nullptr; }
+    }, (Ogre::SubMesh*), CScriptArray*), asCALL_CDECL_OBJFIRST);
+    engine->RegisterObjectMethod("SubMesh", "IndexType __getIndexType()", asFUNCTION(SubMesh__getIndexType), asCALL_CDECL_OBJFIRST);
     
     engine->SetDefaultNamespace("");
 }
