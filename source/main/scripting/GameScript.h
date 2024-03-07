@@ -126,6 +126,11 @@ public:
     */
     Ogre::Image loadImageResource(const std::string& filename, const std::string& resource_group);
 
+    /**
+    * Uses `Ogre::MeshSerializer` to save binary .mesh file (latest format, native endianness).
+    */
+    bool serializeMeshResource(const std::string& filename, const std::string& resource_group, const Ogre::MeshPtr& mesh);
+
     /// @}
 
     /// @name GUI

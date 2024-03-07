@@ -37,11 +37,18 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
     // * We keep a dictionary "scenenode name" -> child node indices
     dictionary tbuiSelection;
     
+    // Checkboxes in 'batch controls'
     bool tbuiHideOriginal = true;
     bool tbuiShowNew = true;
     
-    uint tbuiNumBatchesCreated = 0;
+    // Checkboxes in 'inspector'
+    bool tbuiShowDumpButton = false;
     
+    // Counters
+    uint tbuiNumBatchesCreated = 0;
+    uint tbuiNumMeshesDumped = 0;
+    
+    // Constants
     string tbuiOutputsNodeName = "TerrnBatcher outputs";
     
     //#region Draw UI - main
@@ -100,6 +107,7 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
         
         ImGui::Separator();
         ImGui::TextDisabled(" S C E N E   G R A P H :");
+        ImGui::Checkbox("Enable mesh dumping (write .mesh file to logs directory)", tbuiShowDumpButton);
         this.drawTreeNodeOgreSceneNodeRecursive(terrnNode);
     }
     //#endregion Draw UI - main
@@ -507,7 +515,46 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
                 this.pickSceneNode(snode.getParentSceneNode().getName(), indexUnderParent);
             }
         }
-        // END terrnBatcher selection
+        
+        // +TerrnBatcher - mesh serialization
+        if (tbuiShowDumpButton)
+        {
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Dump"))
+            {
+                if (this.dumpMesh(movables[0]))
+                {
+                    game.log("TerrnBatcher: Mesh dumped successfully");
+                }
+            }
+        }
+    }
+    
+    bool dumpMesh(Ogre::MovableObject@ movable)
+    {
+        // Save to 'logs' directory - Make sure filenames dont clash
+        // ----------------------------------------------------------
+        string fileName = "TerrnBatcher(NID" + thisScript + ")_Dump" + (tbuiNumMeshesDumped++) + "_";
+        Ogre::MeshPtr mesh;
+        if (movable.getMovableType() == "Entity")
+        {
+            Ogre::Entity@ ent = cast<Ogre::Entity>(movable);
+            mesh = ent.getMesh();
+            fileName += mesh.getName();
+        }
+        else if (movable.getMovableType() == "ManualObject")
+        {
+            Ogre::ManualObject@ mo = cast<Ogre::ManualObject>(movable);
+            mesh = mo.convertToMesh(fileName, "Logs");
+            fileName += "batch.mesh";
+        }
+        else
+        {
+            game.log("ERROR dumpMesh(): unrecognized MovableObject type '" + movable.getMovableType() + "'");
+            return false;
+        }
+        
+        return game.serializeMeshResource(fileName, "Logs", mesh);
     }
     
     // #endregion TerrnBatcher controls for inspector
@@ -576,8 +623,8 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
         // Proof of concept: make it a world-space mesh. Assume tri-list type mesh with  1 UV (=texcoords) layer
         // ------------------------------------------------------------------------
         
-        uint dbgVertsAdded = 0;
-        uint dbgIndsAdded = 0;
+        
+        uint indexBase = mo.getCurrentVertexCount();
         
         array<vector3> vertPos = subMesh.__getVertexPositions();
         array<vector2> vertUVs = subMesh.__getVertexTexcoords(0);
@@ -585,7 +632,6 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
         {
             mo.position((rot * vertPos[iVert]) * scale + pos);
             mo.textureCoord(vertUVs[iVert]);
-            dbgVertsAdded++;
         }
         
         if (subMesh.__getIndexType() == Ogre::IndexType::IT_16BIT)
@@ -593,16 +639,13 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
             array<uint16> indexBuf = subMesh.__getIndexBuffer16bit();
             for (uint iIndex = 0; iIndex < indexBuf.length(); iIndex++)
             {
-                mo.index(indexBuf[iIndex]);
-                dbgIndsAdded++;
+                mo.index(indexBase + indexBuf[iIndex]);
             }
         }
         else
         {
             game.log("ERROR appendMeshInstanceToManualObject(): mesh is not supported - not 16-bit indexed");
         }
-        
-        game.log("DBG addSingleSubMeshToBatch() dbgVertsAdded="+dbgVertsAdded+", dbgIndsAdded="+dbgIndsAdded);
     }
     
     void addSceneNodeAttachedMeshesToBatch(Ogre::ManualObject@ mo, Ogre::SceneNode@ pickedNode, string&inout foundMatName)
@@ -610,7 +653,7 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
         Ogre::MovableObjectArray@ movables = pickedNode.getAttachedObjects();
         for (uint iMovas = 0; iMovas < movables.length(); iMovas++)
         {
-            game.log("DBG addSceneNodeAttachedMeshesToBatch(): iMovas="+iMovas+"/"+movables.length());
+            //game.log("DBG addSceneNodeAttachedMeshesToBatch(): iMovas="+iMovas+"/"+movables.length());
             if (movables[iMovas].getMovableType() != "Entity")
             {
                 game.log("DBG batchSelectedMeshes(): skipping movable of type '"+movables[iMovas].getMovableType()+"' - not suported!");
@@ -621,7 +664,7 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
             Ogre::SubEntityArray@ subEntities = ent.getSubEntities();
             for (uint iSubent=0; iSubent<subEntities.length(); iSubent++)
             {
-                game.log("DBG addSceneNodeAttachedMeshesToBatch(): iSubent="+iSubent+"/"+subEntities.length());
+                //game.log("DBG addSceneNodeAttachedMeshesToBatch(): iSubent="+iSubent+"/"+subEntities.length());
                 Ogre::MaterialPtr mat = subEntities[iSubent].getMaterial();
                 if (mat.isNull())
                 {
@@ -658,7 +701,7 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
         // ----------------------------------------------------------------------------------------------------------------------
         
         string moName = this.composeUniqueId("batch #" + tbuiNumBatchesCreated++);
-        game.log("DBG batchSelectedMeshes(): moName='"+moName+"'");
+        //game.log("DBG batchSelectedMeshes(): moName='"+moName+"'");
         Ogre::ManualObject@ mo = game.getSceneManager().createManualObject(moName);
         string foundMatName = "";
         if (@mo == null)
@@ -689,7 +732,7 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
             // Loop through list of scene nodes selected under this grouping node
             array<uint>@ nodeIndices = cast<array<uint>>(tbuiSelection[tobjNodes[iNode]]);
             
-            game.log("DBG batchSelectedMeshes(): processing node "+uint(iNode+1)+"/"+tobjNodes.length()+" ("+tobjNodes[iNode]+") - "+nodeIndices.length()+" nodes picked");
+            //game.log("DBG batchSelectedMeshes(): processing node "+uint(iNode+1)+"/"+tobjNodes.length()+" ("+tobjNodes[iNode]+") - "+nodeIndices.length()+" nodes picked");
             
             for (uint iChild=0; iChild<nodeIndices.length(); iChild++)
             {
@@ -704,7 +747,7 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
                 // Process the entities attached to this scene node
                 Ogre::SceneNode@ childNode = cast<Ogre::SceneNode>(children[nodeIndices[iChild]]);
                 
-                game.log("DBG batchSelectedMeshes(): iChild="+iChild+"/"+nodeIndices.length()+", uniqueName()="+childNode.__getUniqueName());
+                //game.log("DBG batchSelectedMeshes(): iChild="+iChild+"/"+nodeIndices.length()+", uniqueName()="+childNode.__getUniqueName());
                 this.addSceneNodeAttachedMeshesToBatch(mo, childNode, /*[inout]*/foundMatName);
                 if (tbuiHideOriginal)
                 {
@@ -729,14 +772,14 @@ class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare S
         }
     }
     
-    // Helpers to make magic happen
+    // #endregion The actual magic - merging meshes
+    
+    // #region Generic helpers
     string composeUniqueId(string name)
     {
         // to avoid clash with leftover scene nodes created before, we include the NID in the name - using automatic global var `thisScript`.
         return "TerrnBatcher(NID:"+thisScript+"): "+name;
     }
-    
-    // #endregion The actual magic - merging meshes
-    
+    // #endregion Generic helpers    
 }
 

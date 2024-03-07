@@ -4562,15 +4562,10 @@ void Actor::WriteDiagnosticDump(std::string const& fileName)
             << std::endl;
     }
 
-    // Write out to 'logs' using OGRE resource system - complicated, but works with Unicode paths on Windows
-    Ogre::String rgName = "dumpRG";
-    Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-        App::sys_logs_dir->getStr(), "FileSystem", rgName, /*recursive=*/false, /*readOnly=*/false);
-    Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(rgName);
-    Ogre::DataStreamPtr outStream = Ogre::ResourceGroupManager::getSingleton().createResource(fileName, rgName, /*overwrite=*/true);
+    // Write out to 'logs' using OGRE resource system - works with Unicode paths on Windows
+    Ogre::DataStreamPtr outStream = Ogre::ResourceGroupManager::getSingleton().createResource(fileName, RGN_LOGS, /*overwrite=*/true);
     std::string text = buf.str();
     outStream->write(text.c_str(), text.length());
-    Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(rgName);
 }
 
 void Actor::UpdatePropAnimInputEvents()

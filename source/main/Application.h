@@ -41,6 +41,17 @@
 
 #define CHARACTER_ANIM_NAME_LEN 10 // Restricted for networking
 
+// OGRE resource group names
+#define RGN_TEMP "Temp"
+#define RGN_CACHE "Cache"
+#define RGN_REPO "Repo"
+#define RGN_CONFIG "Config"
+#define RGN_CONTENT "Content"
+#define RGN_SAVEGAMES "Savegames"
+#define RGN_MANAGED_MATS "ManagedMaterials"
+#define RGN_SCRIPTS "Scripts"
+#define RGN_LOGS "Logs"
+
 // Legacy macros
 #define TOSTRING(x)     Ogre::StringConverter::toString(x)
 #define PARSEINT(x)     Ogre::StringConverter::parseInt(x)
