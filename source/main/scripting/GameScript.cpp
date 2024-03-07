@@ -1820,6 +1820,26 @@ Ogre::Image GameScript::loadImageResource(const std::string& filename, const std
     }
 }
 
+bool GameScript::serializeMeshResource(const std::string& filename, const std::string& resource_group, const Ogre::MeshPtr& mesh)
+{
+    try
+    {
+        std::string resource_name = this->CheckFileAccess("serializeMeshResource()", filename, resource_group);
+        if (resource_name == "")
+            return false; // Access denied - error already logged
+
+        Ogre::MeshSerializer ser;
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().createResource(resource_name, resource_group);
+        ser.exportMesh(mesh.get(), stream);
+        return true;
+    }
+    catch (...)
+    {
+        App::GetScriptEngine()->forwardExceptionAsScriptEvent("GameScript::serializeMeshResource()");
+        return false;
+    }
+}
+
 // ------------------------
 // Helpers:
 
@@ -1856,6 +1876,8 @@ bool GameScript::HaveMainCamera(const char* func_name)
 std::string GameScript::CheckFileAccess(const char* func_name, const std::string& filename, const std::string& resource_group)
 {
     // Extract filename and extension from the input, because OGRE allows absolute paths in resource system.
+    // -----------------------------------------------------------------------------------------------------
+
     std::string basename, extension, path;
     Ogre::StringUtil::splitFullFilename(filename, basename, extension, path);
     if (path != "")

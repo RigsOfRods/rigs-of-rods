@@ -30,15 +30,6 @@
 #include <OgreScriptCompiler.h>
 #include <rapidjson/document.h>
 
-#define RGN_TEMP "Temp"
-#define RGN_CACHE "Cache"
-#define RGN_REPO "Repo"
-#define RGN_CONFIG "Config"
-#define RGN_CONTENT "Content"
-#define RGN_SAVEGAMES "Savegames"
-#define RGN_MANAGED_MATS "ManagedMaterials"
-#define RGN_SCRIPTS "Scripts"
-
 namespace RoR {
 
 class ContentManager:

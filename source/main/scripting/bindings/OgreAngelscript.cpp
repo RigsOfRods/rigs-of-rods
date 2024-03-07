@@ -1975,6 +1975,11 @@ void registerOgreManualObject(AngelScript::asIScriptEngine* engine)
     engine->RegisterObjectMethod("ManualObject", "void colour(const color&in)", asMETHODPR(Ogre::ManualObject, colour, (const Ogre::ColourValue&), void), asCALL_THISCALL);
     engine->RegisterObjectMethod("ManualObject", "void index(uint32)", asMETHOD(Ogre::ManualObject, index), asCALL_THISCALL);
     engine->RegisterObjectMethod("ManualObject", "void end()", asMETHOD(Ogre::ManualObject, end), asCALL_THISCALL);
+
+    engine->RegisterObjectMethod("ManualObject", "uint getCurrentVertexCount()", asMETHOD(Ogre::ManualObject, getCurrentVertexCount), asCALL_THISCALL);
+    engine->RegisterObjectMethod("ManualObject", "void getCurrentIndexCount()", asMETHOD(Ogre::ManualObject, getCurrentIndexCount), asCALL_THISCALL);
+
+    engine->RegisterObjectMethod("ManualObject", "MeshPtr convertToMesh(const string&in name, const string&in group = 'General')", asMETHOD(Ogre::ManualObject, convertToMesh), asCALL_THISCALL);
     
     engine->SetDefaultNamespace("");
 }
