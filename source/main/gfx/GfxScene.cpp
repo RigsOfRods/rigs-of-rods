@@ -153,7 +153,14 @@ void GfxScene::UpdateScene(float dt_sec)
         {
             water->SetReflectionPlaneHeight(water->GetStaticWaterHeight());
         }
-        water->FrameStepWater(dt_sec);
+        if (!App::GetGameContext()->GetActorManager()->IsSimulationPaused())
+        {
+            water->FrameStepWater((App::GetGameContext()->GetActorManager()->GetSimulationSpeed())*dt_sec);
+        }
+        else
+        {
+            water->FrameStepWater(0*dt_sec);
+        }
     }
 
     // Terrain - sky
