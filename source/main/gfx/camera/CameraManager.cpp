@@ -1365,3 +1365,20 @@ void CameraManager::CameraBehaviorVehicleSplineUpdateSplineDisplay()
     }
     m_splinecam_mo->end();
 }
+
+std::string ToLocalizedString(CameraManager::CameraBehaviors behavior)
+{
+    switch (behavior)
+    {
+    case CameraManager::CAMERA_BEHAVIOR_CHARACTER:       return _LC("CameraBehavior", "Character");
+    case CameraManager::CAMERA_BEHAVIOR_STATIC:          return _LC("CameraBehavior", "Static");
+    case CameraManager::CAMERA_BEHAVIOR_VEHICLE:         return _LC("CameraBehavior", "Vehicle");
+    case CameraManager::CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return _LC("CameraBehavior", "Vehicle Spline");
+    case CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM: return _LC("CameraBehavior", "Vehicle CineCam");
+    case CameraManager::CAMERA_BEHAVIOR_FREE:            return _LC("CameraBehavior", "Free");
+    case CameraManager::CAMERA_BEHAVIOR_FIXED:           return _LC("CameraBehavior", "Fixed");
+    case CameraManager::CAMERA_BEHAVIOR_ISOMETRIC:       return _LC("CameraBehavior", "Isometric");
+    case CameraManager::CAMERA_BEHAVIOR_INVALID:         return _LC("CameraBehavior", "Invalid");
+    default:                                             return "";
+    }
+}

@@ -119,6 +119,7 @@ private:
     void DrawActorListSinglePlayer();
     void DrawMpUserToActorList(RoRnet::UserInfo &user); // Multiplayer
     void DrawSpecialStateBox(float top_offset);
+    void DrawCameraControlsBox();
 
     // Tuning menu helpers
     void DrawTuningBoxedSubjectIdInline(int subject_id);

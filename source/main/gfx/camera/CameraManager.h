@@ -152,4 +152,6 @@ protected:
 /// @} // addtogroup Camera
 /// @} // addtogroup Gfx
 
+std::string ToLocalizedString(CameraManager::CameraBehaviors behavior);
+
 } // namespace RoR

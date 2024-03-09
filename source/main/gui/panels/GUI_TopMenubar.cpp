@@ -560,38 +560,10 @@ void TopMenubar::Draw(float dt)
             {
                 App::GetGameContext()->GetActorManager()->SetSimulationSpeed(timelapse);
             }
-            if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Camera:"));
-                DrawGFloatSlider(App::gfx_static_cam_fov_exp, _LC("TopMenubar", "FOV"), 0.8f, 1.5f);
-                DrawGIntSlider(App::gfx_camera_height, _LC("TopMenubar", "Height"), 1, 50);
-            }
-            else
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Camera:"));
-                if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
-                {
-                    int fov = App::gfx_fov_internal->getInt();
-                    if (ImGui::SliderInt(_LC("TopMenubar", "FOV"), &fov, 10, 120))
-                    {
-                        App::gfx_fov_internal->setVal(fov);
-                    }
-                }
-                else
-                {
-                    int fov = App::gfx_fov_external->getInt();
-                    if (ImGui::SliderInt(_LC("TopMenubar", "FOV"), &fov, 10, 120))
-                    {
-                        App::gfx_fov_external->setVal(fov);
-                    }
-                }
-                if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FIXED)
-                {
-                    DrawGCheckbox(App::gfx_fixed_cam_tracking, _LC("TopMenubar", "Tracking"));
-                }
-            }
+
+            ImGui::Separator();
+            ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Camera:"));
+            this->DrawCameraControlsBox();
 #ifdef USE_CAELUM
             if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
             {
@@ -2418,4 +2390,42 @@ void TopMenubar::DrawTuningForceRemoveControls(const int subject_id, const std::
         App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
     }
 
+}
+
+void TopMenubar::DrawCameraControlsBox()
+{
+    // We have multiple presets:
+    // * `gfx_static_cam_fov_exp` (float) ~ A "zoom factor" of static camera; Adjust by 'Ctrl+mouse wheel' or TopMenubar/Settings.
+    // * `gfx_fov_internal` (int) ~ FOV of cinecam; Adjust by hotkeys EV_COMMON_FOV_{LESS/MORE/RESET}.
+    // * `gfx_fov_external` (int) ~ FOV of exterior cameras (3rd person, free cam, freefixed cam), adjustable by hotkeys EV_COMMON_FOV_{LESS/MORE/RESET}.
+    // -------------------------------------------------------------------------------------------------
+
+    switch (App::GetCameraManager()->GetCurrentBehavior())
+    {
+        case CameraManager::CAMERA_BEHAVIOR_STATIC:
+        {
+            DrawGFloatSlider(App::gfx_static_cam_fov_exp, _LC("TopMenubar", "FOV"), 0.8f, 1.5f);
+            DrawGIntSlider(App::gfx_camera_height, _LC("TopMenubar", "Height"), 1, 50);
+            break;
+        }
+
+        case CameraManager::CAMERA_BEHAVIOR_FIXED:
+        {
+            DrawGIntSlider(App::gfx_fov_external, _LC("TopMenubar", "FOV"), 10, 120);
+            DrawGCheckbox(App::gfx_fixed_cam_tracking, _LC("TopMenubar", "Tracking"));
+            break;
+        }
+
+        case CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM:
+        {
+            DrawGIntSlider(App::gfx_fov_internal, _LC("TopMenubar", "FOV"), 10, 120);
+            break;
+        }
+
+        default:
+        {
+            DrawGIntSlider(App::gfx_fov_external, _LC("TopMenubar", "FOV"), 10, 120);
+            break;
+        }
+    }
 }
