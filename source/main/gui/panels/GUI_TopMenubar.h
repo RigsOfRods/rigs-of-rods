@@ -53,6 +53,7 @@ public:
     const ImVec4  ORANGE_TEXT           = ImVec4(0.9f, 0.6f, 0.0f, 1.f);
     const ImVec4  RED_TEXT              = ImVec4(1.00f, 0.00f, 0.00f, 1.f);
     const ImVec2  MENU_HOVERBOX_PADDING = ImVec2(25.f, 10.f);
+    const float   SETTINGS_ITEMWIDTH    = 150.f;
 
     enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS, TOPMENU_AI, TOPMENU_TUNING };
     enum class StateBox { STATEBOX_NONE, STATEBOX_REPLAY, STATEBOX_RACE, STATEBOX_LIVE_REPAIR, STATEBOX_QUICK_REPAIR };
@@ -119,7 +120,10 @@ private:
     void DrawActorListSinglePlayer();
     void DrawMpUserToActorList(RoRnet::UserInfo &user); // Multiplayer
     void DrawSpecialStateBox(float top_offset);
-    void DrawCameraControlsBox();
+
+    // Settings menu helpers
+    void DrawCameraBehaviorSelectionBox();
+    void DrawCameraContextSensitiveBox();
 
     // Tuning menu helpers
     void DrawTuningBoxedSubjectIdInline(int subject_id);

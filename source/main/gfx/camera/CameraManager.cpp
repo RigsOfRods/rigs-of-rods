@@ -145,7 +145,7 @@ void CameraManager::ReCreateCameraNode()
     this->CreateCameraNode();
 }
 
-bool CameraManager::EvaluateSwitchBehavior()
+bool CameraManager::evaluateSwitchBehavior()
 {
     switch(m_current_behavior)
     {
@@ -255,7 +255,7 @@ void CameraManager::UpdateInputEvents(float dt) // Called every frame
 
     if ( m_current_behavior < CAMERA_BEHAVIOR_END && App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
     {
-        if ( (m_current_behavior == CAMERA_BEHAVIOR_INVALID) || this->EvaluateSwitchBehavior() )
+        if ( (m_current_behavior == CAMERA_BEHAVIOR_INVALID) || this->evaluateSwitchBehavior() )
         {
             this->switchToNextBehavior();
         }
@@ -1366,7 +1366,31 @@ void CameraManager::CameraBehaviorVehicleSplineUpdateSplineDisplay()
     m_splinecam_mo->end();
 }
 
-std::string ToLocalizedString(CameraManager::CameraBehaviors behavior)
+void CameraManager::switchDirectlyToBehavior(CameraBehaviors new_behavior, int index)
+{
+    // Not all behaviors are the same; some are 'toggled' and some 'cycled'.
+    // * Cycled (see `EV_COMMON_CAMERA_BEHAVIOR_CYCLE`): Character, Static, Vehicle, Vehicle Spline ~ can be changed freely via `switchBehavior()`
+    // * Toggled (see `EV_COMMON_CAMERA_BEHAVIOR_TOGGLE`): Free, Fixed ~ must be changed via `ToggleCameraBehavior()` to keep history for hotkeys.
+    // --------------------------------------------------------------------------------------------------
+
+    switch (new_behavior)
+    {
+    case CameraManager::CAMERA_BEHAVIOR_FREE:
+    case CameraManager::CAMERA_BEHAVIOR_FIXED:
+        this->ToggleCameraBehavior(new_behavior);
+        break;
+
+    case CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM:
+        this->switchBehavior(new_behavior);
+        break;
+
+    default:
+        this->switchBehavior(new_behavior);
+        break;
+    }
+}
+
+std::string RoR::ToLocalizedString(CameraManager::CameraBehaviors behavior)
 {
     switch (behavior)
     {

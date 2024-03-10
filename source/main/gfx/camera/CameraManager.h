@@ -77,7 +77,8 @@ public:
     void ReCreateCameraNode(); //!< Needed since we call `Ogre::SceneManager::ClearScene()` after end of sim. session
 
     void switchToNextBehavior();
-    bool EvaluateSwitchBehavior();
+    bool evaluateSwitchBehavior();
+    void switchDirectlyToBehavior(CameraBehaviors new_behavior, int index = -1);
 
 protected:
 
