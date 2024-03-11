@@ -96,7 +96,6 @@ CameraManager::CameraManager() :
     , m_splinecam_mo(0)
     , m_splinecam_spline_pos(0.5f)
     , m_staticcam_force_update(false)
-    , m_staticcam_fov_exponent(1.0f)
     , m_cam_rot_x(0.0f)
     , m_cam_rot_y(0.3f)
     , m_cam_dist(5.f)
@@ -104,7 +103,6 @@ CameraManager::CameraManager() :
     , m_cam_dist_max(0.f)
     , m_cam_target_direction(0.f)
     , m_cam_target_pitch(0.f)
-    , m_cam_ratio (11.f)
     , m_cam_look_at(Ogre::Vector3::ZERO)
     , m_cam_look_at_last(Ogre::Vector3::ZERO)
     , m_cam_look_at_smooth(Ogre::Vector3::ZERO)
@@ -199,7 +197,6 @@ void CameraManager::UpdateCurrentBehavior()
     }
 
     case CAMERA_BEHAVIOR_STATIC:
-        m_staticcam_fov_exponent = App::gfx_static_cam_fov_exp->getFloat();
         this->UpdateCameraBehaviorStatic();
         return;
 
@@ -335,13 +332,11 @@ void CameraManager::ResetCurrentBehavior()
         {
             m_cam_rot_y = 0.1f;
             m_cam_dist = 0.1f;
-            m_cam_ratio = 0.0f;
         }
         else
         {
             m_cam_rot_y = 0.3f;
             m_cam_dist = 5.0f;
-            m_cam_ratio = 11.0f;
         }
         m_cam_dist_min = 0;
         m_cam_target_pitch = 0.0f;
@@ -349,7 +344,7 @@ void CameraManager::ResetCurrentBehavior()
     }
 
     case CAMERA_BEHAVIOR_STATIC:
-        m_staticcam_fov_exponent = 1.0f;
+        m_staticcam_fov_exp_current = 1.0f;
         App::gfx_static_cam_fov_exp->setVal(1.0f);
         return;
 
@@ -564,7 +559,24 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
 
         return CameraManager::CameraBehaviorOrbitMouseMoved(_arg);
     }
-    case CAMERA_BEHAVIOR_STATIC:          return CameraBehaviorStaticMouseMoved(_arg);
+    case CAMERA_BEHAVIOR_STATIC:
+    {
+        const OIS::MouseState ms = _arg.state;
+
+        if (ms.buttonDown(OIS::MB_Right))
+        {
+            // Note: `gfx_static_cam_fov_exp` is the desired (target) value; current (smooth) value is `m_staticcam_fov_exp_current`
+
+            float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.00002f : 0.0002f;
+            float exp = App::gfx_static_cam_fov_exp->getFloat();
+            exp += ms.Z.rel * scale;
+            exp = Math::Clamp(exp, 0.8f, 1.50f);
+            App::gfx_static_cam_fov_exp->setVal(exp);
+            return true;
+        }
+
+        return false;
+    }
     case CAMERA_BEHAVIOR_VEHICLE:         return CameraBehaviorOrbitMouseMoved(_arg);
     case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return this->CameraBehaviorVehicleSplineMouseMoved(_arg);
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return CameraBehaviorOrbitMouseMoved(_arg);
@@ -786,31 +798,13 @@ void CameraManager::UpdateCameraBehaviorStatic()
         }
     }
 
-    static float fovExp = m_staticcam_fov_exponent;
-    fovExp = (1.0f / (m_cam_ratio + 1.0f)) * m_staticcam_fov_exponent + (m_cam_ratio / (m_cam_ratio + 1.0f)) * fovExp;
-
+    float fovExp = this->smoothFloat(m_staticcam_fov_exp_current, App::gfx_static_cam_fov_exp->getFloat(), m_cct_dt, App::gfx_camera_speed->getFloat());
     float camDist = m_staticcam_position.distance(m_staticcam_look_at);
     float fov = atan2(20.0f, std::pow(camDist, fovExp));
 
     this->GetCameraNode()->setPosition(m_staticcam_position);
     App::GetCameraManager()->GetCameraNode()->lookAt(m_staticcam_look_at, Ogre::Node::TS_WORLD);
     App::GetCameraManager()->GetCamera()->setFOVy(Radian(fov));
-}
-
-bool CameraManager::CameraBehaviorStaticMouseMoved(const OIS::MouseEvent& _arg)
-{
-    const OIS::MouseState ms = _arg.state;
-
-    if (ms.buttonDown(OIS::MB_Right))
-    {
-        float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.00002f : 0.0002f;
-        m_staticcam_fov_exponent += ms.Z.rel * scale;
-        m_staticcam_fov_exponent = Math::Clamp(m_staticcam_fov_exponent, 0.8f, 1.50f);
-        App::gfx_static_cam_fov_exp->setVal(m_staticcam_fov_exponent);
-        return true;
-    }
-
-    return false;
 }
 
 void CameraManager::CameraBehaviorOrbitUpdate()
@@ -916,7 +910,7 @@ void CameraManager::CameraBehaviorOrbitUpdate()
     Vector3 precedingLookAt = m_cam_look_at_smooth_last + camDisplacement;
     Vector3 precedingPosition = this->GetCameraNode()->getPosition() + camDisplacement;
 
-    Vector3 camPosition = (1.0f / (m_cam_ratio + 1.0f)) * desiredPosition + (m_cam_ratio / (m_cam_ratio + 1.0f)) * precedingPosition;
+    Vector3 camPosition = this->smoothVector3(precedingPosition, desiredPosition, m_cct_dt, App::gfx_camera_speed->getFloat());
 
     if (App::GetGameContext()->GetTerrain()->GetCollisions() && App::GetGameContext()->GetTerrain()->GetCollisions()->forcecam)
     {
@@ -931,7 +925,7 @@ void CameraManager::CameraBehaviorOrbitUpdate()
             this->GetCameraNode()->setPosition(camPosition);
     }
 
-    m_cam_look_at_smooth = (1.0f / (m_cam_ratio + 1.0f)) * m_cam_look_at + (m_cam_ratio / (m_cam_ratio + 1.0f)) * precedingLookAt;
+    m_cam_look_at_smooth = this->smoothVector3(precedingLookAt, m_cam_look_at, m_cct_dt, App::gfx_camera_speed->getFloat());
 
     m_cam_look_at_last = m_cam_look_at;
     m_cam_look_at_smooth_last = m_cam_look_at_smooth;
@@ -1068,8 +1062,6 @@ void CameraManager::UpdateCameraBehaviorVehicle()
 		m_cam_target_pitch = -asin(dir.dotProduct(Vector3::UNIT_Y));
 	}
 
-	m_cam_ratio = 1.0f / (m_cct_dt * 4.0f);
-
 	m_cam_dist_min = std::min(m_cct_player_actor->getMinimalCameraRadius() * 2.0f, 33.0f);
 
 	m_cam_look_at = m_cct_player_actor->getPosition();
@@ -1184,8 +1176,6 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
 bool CameraManager::CameraBehaviorVehicleSplineMouseMoved(  const OIS::MouseEvent& _arg)
 {
     const OIS::MouseState ms = _arg.state;
-
-    m_cam_ratio = 1.0f / (m_cct_dt * 4.0f);
 
     if (RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) && ms.buttonDown(OIS::MB_Right))
     {
@@ -1388,6 +1378,16 @@ void CameraManager::switchDirectlyToBehavior(CameraBehaviors new_behavior, int i
         this->switchBehavior(new_behavior);
         break;
     }
+}
+
+float CameraManager::smoothFloat(float current, float target, float dt, float speed) const
+{
+    return current + (target - current) * speed * dt;
+}
+
+Ogre::Vector3 CameraManager::smoothVector3(const Ogre::Vector3& current, const Ogre::Vector3& target, float dt, float speed) const
+{
+    return current + (target - current) * speed * dt;
 }
 
 std::string RoR::ToLocalizedString(CameraManager::CameraBehaviors behavior)

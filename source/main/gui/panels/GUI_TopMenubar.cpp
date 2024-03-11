@@ -2464,6 +2464,8 @@ void TopMenubar::DrawCameraContextSensitiveBox()
     // * `gfx_fov_external` (int) ~ FOV of exterior cameras (3rd person, free cam, freefixed cam), adjustable by hotkeys EV_COMMON_FOV_{LESS/MORE/RESET}.
     // -------------------------------------------------------------------------------------------------
 
+    DrawGFloatSlider(App::gfx_camera_speed, _LC("TopMenubar", "Speed"), 1.0f, 10.0f);
+
     switch (App::GetCameraManager()->GetCurrentBehavior())
     {
         case CameraManager::CAMERA_BEHAVIOR_STATIC:

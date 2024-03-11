@@ -234,6 +234,7 @@ CVar* gfx_shadow_quality;
 CVar* gfx_skidmarks_mode;
 CVar* gfx_sight_range;
 CVar* gfx_camera_height;
+CVar* gfx_camera_speed;
 CVar* gfx_fov_external;
 CVar* gfx_fov_external_default;
 CVar* gfx_fov_internal;
