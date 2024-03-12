@@ -1294,32 +1294,36 @@ void TopMenubar::Draw(float dt)
             ImGui::Separator();
 
             bool is_open = ImGui::CollapsingHeader(_LC("TopMenubar", "Presets"));
-            if (ImGui::IsItemActivated() && !is_open && j_doc.Empty()) // Fetch once
+            if (ImGui::IsItemActivated() && !is_open && ai_presets_all.Empty()) // Rebuild the preset list if blank
             {
-                if (FileExists(PathCombine(App::sys_savegames_dir->getStr(), "waypoints.json")))
+                if (ai_presets_extern.Empty()) // Fetch once
                 {
-                    App::GetContentManager()->LoadAndParseJson("waypoints.json", RGN_SAVEGAMES, j_doc);
-                }
-                else
-                {
-                    this->GetPresets();
+                    if (FileExists(PathCombine(App::sys_savegames_dir->getStr(), "waypoints.json")))
+                    {
+                        App::GetContentManager()->LoadAndParseJson("waypoints.json", RGN_SAVEGAMES, ai_presets_extern);
+                        this->RefreshAiPresets();
+                    }
+                    else
+                    {
+                        this->DownloadAiPresets();
+                    }
                 }
             }
 
-            if (is_open && j_doc.Empty())
+            if (is_open && ai_presets_all.Empty())
             {
                 float spinner_size = 8.f;
                 ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - spinner_size);
                 LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
             }
 
-            if (is_open && !j_doc.Empty())
+            if (is_open && !ai_presets_all.Empty())
             {
-                size_t num_rows = j_doc.GetArray().Size();
+                size_t num_rows = ai_presets_all.GetArray().Size();
                 int count = 0;
                 for (size_t i = 0; i < num_rows; i++)
                 {
-                    rapidjson::Value& j_row = j_doc[static_cast<rapidjson::SizeType>(i)];
+                    rapidjson::Value& j_row = ai_presets_all[static_cast<rapidjson::SizeType>(i)];
 
                     if (j_row.HasMember("terrain") && App::sim_terrain_name->getStr() == j_row["terrain"].GetString())
                     {
@@ -1362,7 +1366,7 @@ void TopMenubar::Draw(float dt)
 
                     for (size_t i = 0; i < num_rows; i++)
                     {
-                        rapidjson::Value& j_row_terrains = j_doc[static_cast<rapidjson::SizeType>(i)];
+                        rapidjson::Value& j_row_terrains = ai_presets_all[static_cast<rapidjson::SizeType>(i)];
                         if (j_row_terrains.HasMember("terrains"))
                         {
                             for (size_t i = 0; i < j_row_terrains["terrains"].Size(); i++)
@@ -2261,17 +2265,33 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
     }
 }
 
-void TopMenubar::Refresh(std::string payload)
-{
-    j_doc.Parse(payload.c_str());
-}
-
-void TopMenubar::GetPresets()
+void TopMenubar::DownloadAiPresets()
 {
 #if defined(USE_CURL)
     std::packaged_task<void()> task(GetJson);
     std::thread(std::move(task)).detach();
 #endif // defined(USE_CURL)
+}
+
+void TopMenubar::RefreshAiPresets()
+{
+    // Combine external and bundled presets into one JSON doc
+    // -------------------------------------------------------
+
+    ai_presets_all.Clear();
+    ai_presets_all.SetArray();
+
+    for (rapidjson::Value& bundled_preset: ai_presets_bundled.GetArray())
+    {
+        rapidjson::Value preset_copy(bundled_preset, ai_presets_all.GetAllocator());
+        ai_presets_all.PushBack(preset_copy, ai_presets_all.GetAllocator());
+    }
+
+    for (const rapidjson::Value& extern_preset: ai_presets_extern.GetArray())
+    {
+        rapidjson::Value preset_copy(extern_preset, ai_presets_all.GetAllocator());
+        ai_presets_all.PushBack(preset_copy, ai_presets_all.GetAllocator());
+    }
 }
 
 void TopMenubar::RefreshTuningMenu()

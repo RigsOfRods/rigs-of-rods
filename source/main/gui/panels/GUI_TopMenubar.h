@@ -95,12 +95,17 @@ public:
     int ai_times_prev = 1;
     int ai_mode_prev = 0;
 
+    // AI waypoint presets
+    void DownloadAiPresets(); //!< Initiate threaded download of 'extern' waypoints from GitHub repo.
+    void RefreshAiPresets();  //!< Refresh the list of presets, used for display. Needs to be called when terrain is loaded.
+    rapidjson::Document ai_presets_all; //!< The full list of presets, used for display. Needs to be refreshed when terrain is loaded.
+    rapidjson::Document ai_presets_extern; //!< Externally provided presets (GitHub repo or local 'savegames/waypoints.json' file).
+    rapidjson::Document ai_presets_bundled; //!< Presets bundled with the terrain, see `[AI Presets]` section in .terrn2 file format.
+
     // Sky
     float sun_size = 1.0;
     float cloud_density = 0.0;
     float sky_light = 0.7;
-
-    void Refresh(std::string payload);
 
     // Tuning menu
     ActorPtr tuning_actor;          //!< Detecting actor change to update cached values.
@@ -140,9 +145,6 @@ private:
     bool    m_quickload = false;
     std::string m_quicksave_name;
     std::vector<std::string> m_savegame_names;
-
-    void GetPresets();
-    rapidjson::Document j_doc;
 };
 
 } // namespace GUI

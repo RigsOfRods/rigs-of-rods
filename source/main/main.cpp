@@ -561,7 +561,8 @@ int main(int argc, char *argv[])
                 }
 
                 case MSG_NET_REFRESH_AI_PRESETS:
-                    App::GetGuiManager()->TopMenubar.Refresh(m.description);
+                    App::GetGuiManager()->TopMenubar.ai_presets_extern.Parse(m.description.c_str());
+                    App::GetGuiManager()->TopMenubar.RefreshAiPresets();
                     break;
 
                 // -- Gameplay events --
