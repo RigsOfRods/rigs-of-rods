@@ -116,7 +116,7 @@ void GfxScene::UpdateScene(float dt_sec)
     {
         for (GfxActor* gfx_actor: m_all_gfx_actors)
         {
-            if (!m_simbuf.simbuf_sim_paused && !gfx_actor->GetSimDataBuffer().simbuf_physics_paused)
+            if (!gfx_actor->GetSimDataBuffer().simbuf_physics_paused)
             {
                 gfx_actor->UpdateParticles(m_simbuf.simbuf_sim_speed * dt_sec);
             }
