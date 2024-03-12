@@ -117,6 +117,7 @@ private:
     void initLight();
     void initObjects();
     void initScripting();
+    void initAiPresets();
     void initShadows();
     void initSkySubSystem();
     void initVegetation();

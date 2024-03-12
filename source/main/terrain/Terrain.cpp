@@ -25,6 +25,7 @@
 #include "ActorManager.h"
 #include "CacheSystem.h"
 #include "Collisions.h"
+#include "ContentManager.h"
 #include "Renderdash.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
@@ -189,6 +190,7 @@ bool RoR::Terrain::initialize()
 
     loading_window->SetProgress(75, _L("Initializing Script Subsystem"));
     this->initScripting();
+    this->initAiPresets();
 
     loading_window->SetProgress(77, _L("Initializing Water Subsystem"));
     this->initWater();
@@ -476,6 +478,36 @@ void RoR::Terrain::initScripting()
     // finally resume AS logging
     App::GetScriptEngine()->setForwardScriptLogToConsole(true);
 #endif //USE_ANGELSCRIPT
+}
+
+void RoR::Terrain::initAiPresets()
+{
+    // Load 'bundled' AI presets - see section `[AI Presets]` in terrn2 file format
+    // ----------------------------------------------------------------------------
+
+    for (const std::string& filename: m_def.ai_presets_files)
+    {
+        // assume there's just one file - load directly into the `ai_presets_bundled` variable
+        if (Ogre::ResourceGroupManager::getSingleton().resourceExists(this->getTerrainFileResourceGroup(), filename))
+        {
+            App::GetContentManager()->LoadAndParseJson(filename, this->getTerrainFileResourceGroup(), App::GetGuiManager()->TopMenubar.ai_presets_bundled);
+        }
+        else
+        {
+            LOG(fmt::format("[RoR|Terrain] AI presets file '{}' declared in '{}' not found!", filename, this->getTerrainFileName()));
+        }
+
+        // Ensure the format is about right
+        if (!App::GetGuiManager()->TopMenubar.ai_presets_bundled.IsArray())
+        {
+            LOG(fmt::format("[RoR|Terrain] AI presets file '{}' declared in '{}' has wrong format - the root element is not an array!",
+                    filename, this->getTerrainFileName()));
+            App::GetGuiManager()->TopMenubar.ai_presets_bundled.Clear();
+        }
+    }
+
+    // Force refresh - this is needed because the 'extern' AI presets are loaded later.
+    App::GetGuiManager()->TopMenubar.ai_presets_all.Clear();
 }
 
 void RoR::Terrain::setGravity(float value)

@@ -121,6 +121,15 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
         }
     }
 
+    if (file.HasSection("AI Presets"))
+    {
+        for (auto& presets: file.getSettings("AI Presets"))
+        {
+            Ogre::String presets_filename = SanitizeUtf8String(presets.first);
+            def.ai_presets_files.push_back(TrimStr(presets_filename));
+        }
+    }
+
     this->ProcessTeleport(def, &file);
 
     return true;
