@@ -77,7 +77,8 @@ public:
     void ReCreateCameraNode(); //!< Needed since we call `Ogre::SceneManager::ClearScene()` after end of sim. session
 
     void switchToNextBehavior();
-    bool EvaluateSwitchBehavior();
+    bool evaluateSwitchBehavior();
+    void switchDirectlyToBehavior(CameraBehaviors new_behavior, int index = -1);
 
 protected:
 
@@ -89,7 +90,6 @@ protected:
     void ResetCurrentBehavior();
     void DeactivateCurrentBehavior();
     void UpdateCameraBehaviorStatic();
-    bool CameraBehaviorStaticMouseMoved(const OIS::MouseEvent& _arg);
     void UpdateCameraBehaviorFree();
     void UpdateCameraBehaviorFixed();
     void UpdateCameraBehaviorVehicle();
@@ -102,6 +102,10 @@ protected:
     void CameraBehaviorVehicleSplineUpdateSpline();
     void CameraBehaviorVehicleSplineUpdateSplineDisplay();
     void CreateCameraNode();
+
+    // Helper functions
+    float smoothFloat(float current, float target, float dt, float speed) const;
+    Ogre::Vector3 smoothVector3(const Ogre::Vector3& current, const Ogre::Vector3& target, float dt, float speed) const;
 
     Ogre::Camera*        m_camera;
     Ogre::SceneNode*     m_camera_node;
@@ -123,7 +127,6 @@ protected:
     float                m_cam_dist;
     float                m_cam_dist_min;
     float                m_cam_dist_max;
-    float                m_cam_ratio;
     Ogre::Vector3        m_cam_look_at;
     bool                 m_cam_limit_movement;
     Ogre::Vector3        m_cam_look_at_last;
@@ -131,7 +134,7 @@ protected:
     Ogre::Vector3        m_cam_look_at_smooth_last;
     // Static cam attributes
     bool                 m_staticcam_force_update;
-    float                m_staticcam_fov_exponent;
+    float                m_staticcam_fov_exp_current = 1.f; //!< Smoothed value; target is cvar `gfx_static_cam_fox_exp`
     Ogre::Radian         m_staticcam_previous_fov;
     Ogre::Vector3        m_staticcam_look_at;
     Ogre::Vector3        m_staticcam_position;
@@ -151,5 +154,7 @@ protected:
 
 /// @} // addtogroup Camera
 /// @} // addtogroup Gfx
+
+std::string ToLocalizedString(CameraManager::CameraBehaviors behavior);
 
 } // namespace RoR

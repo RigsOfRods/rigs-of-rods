@@ -1147,7 +1147,7 @@ void VehicleButtons::DrawCameraButton()
 {
     if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_camera_icon->getHandle()), ImVec2(24, 24)))
     {
-        if (App::GetCameraManager()->EvaluateSwitchBehavior())
+        if (App::GetCameraManager()->evaluateSwitchBehavior())
         {
             App::GetCameraManager()->switchToNextBehavior();
         }
