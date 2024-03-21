@@ -103,6 +103,7 @@ void Console::cVarSetupBuiltins()
     App::diag_hide_nodes         = this->cVarCreate("diag_hide_nodes",         "Hide nodes",                 CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_terrn_log_roads    = this->cVarCreate("diag_terrn_log_roads",    "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_actor_dump         = this->cVarCreate("diag_actor_dump",         "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::diag_allow_window_resize= this->cVarCreate("diag_allow_window_resize","",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
 
     App::sys_process_dir         = this->cVarCreate("sys_process_dir",         "",                           0);
     App::sys_user_dir            = this->cVarCreate("sys_user_dir",            "",                           0);

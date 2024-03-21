@@ -379,6 +379,7 @@ extern CVar* diag_hide_wheels;
 extern CVar* diag_hide_nodes;
 extern CVar* diag_terrn_log_roads;
 extern CVar* diag_actor_dump;
+extern CVar* diag_allow_window_resize;
 
 // System
 extern CVar* sys_process_dir;

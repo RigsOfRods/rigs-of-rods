@@ -156,6 +156,7 @@ CVar* diag_hide_wheels;
 CVar* diag_hide_nodes;
 CVar* diag_terrn_log_roads;
 CVar* diag_actor_dump;
+CVar* diag_allow_window_resize;
 
 // System
 CVar* sys_process_dir;
