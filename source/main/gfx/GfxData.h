@@ -39,57 +39,54 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
-enum PropAnimFlag
-{
-    PROP_ANIM_FLAG_AIRSPEED      = BITMASK(1),
-    PROP_ANIM_FLAG_VVI           = BITMASK(2),
-    PROP_ANIM_FLAG_ALTIMETER     = BITMASK(3),
-    PROP_ANIM_FLAG_AOA           = BITMASK(4),
-    PROP_ANIM_FLAG_FLAP          = BITMASK(5),
-    PROP_ANIM_FLAG_AIRBRAKE      = BITMASK(6),
-    PROP_ANIM_FLAG_ROLL          = BITMASK(7),
-    PROP_ANIM_FLAG_PITCH         = BITMASK(8),
-    PROP_ANIM_FLAG_THROTTLE      = BITMASK(9),
-    PROP_ANIM_FLAG_RPM           = BITMASK(10),
-    PROP_ANIM_FLAG_ACCEL         = BITMASK(11),
-    PROP_ANIM_FLAG_BRAKE         = BITMASK(12),
-    PROP_ANIM_FLAG_CLUTCH        = BITMASK(13),
-    PROP_ANIM_FLAG_TACHO         = BITMASK(14),
-    PROP_ANIM_FLAG_SPEEDO        = BITMASK(15),
-    PROP_ANIM_FLAG_PBRAKE        = BITMASK(16),
-    PROP_ANIM_FLAG_TURBO         = BITMASK(17),
-    PROP_ANIM_FLAG_SHIFTER       = BITMASK(18),
-    PROP_ANIM_FLAG_AETORQUE      = BITMASK(19),
-    PROP_ANIM_FLAG_AEPITCH       = BITMASK(20),
-    PROP_ANIM_FLAG_AESTATUS      = BITMASK(21),
-    PROP_ANIM_FLAG_TORQUE        = BITMASK(22),
-    PROP_ANIM_FLAG_HEADING       = BITMASK(23),
-    PROP_ANIM_FLAG_DIFFLOCK      = BITMASK(24),
-    PROP_ANIM_FLAG_STEERING      = BITMASK(25),
-    PROP_ANIM_FLAG_EVENT         = BITMASK(26),
-    PROP_ANIM_FLAG_AILERONS      = BITMASK(27),
-    PROP_ANIM_FLAG_ARUDDER       = BITMASK(28),
-    PROP_ANIM_FLAG_BRUDDER       = BITMASK(29),
-    PROP_ANIM_FLAG_BTHROTTLE     = BITMASK(30),
-    PROP_ANIM_FLAG_PERMANENT     = BITMASK(31),
-    PROP_ANIM_FLAG_ELEVATORS     = BITMASK(32),
-};
+typedef BitMask64_t PropAnimFlag_t;
 
-enum PropAnimMode
-{
-    PROP_ANIM_MODE_ROTA_X        = BITMASK(1),
-    PROP_ANIM_MODE_ROTA_Y        = BITMASK(2),
-    PROP_ANIM_MODE_ROTA_Z        = BITMASK(3),
-    PROP_ANIM_MODE_OFFSET_X      = BITMASK(4),
-    PROP_ANIM_MODE_OFFSET_Y      = BITMASK(5),
-    PROP_ANIM_MODE_OFFSET_Z      = BITMASK(6),
-    PROP_ANIM_MODE_AUTOANIMATE   = BITMASK(7),
-    PROP_ANIM_MODE_NOFLIP        = BITMASK(8),
-    PROP_ANIM_MODE_BOUNCE        = BITMASK(9),
-};
+const PropAnimFlag_t PROP_ANIM_FLAG_AIRSPEED      = BITMASK64(1);
+const PropAnimFlag_t PROP_ANIM_FLAG_VVI           = BITMASK64(2);
+const PropAnimFlag_t PROP_ANIM_FLAG_ALTIMETER     = BITMASK64(3);
+const PropAnimFlag_t PROP_ANIM_FLAG_AOA           = BITMASK64(4);
+const PropAnimFlag_t PROP_ANIM_FLAG_FLAP          = BITMASK64(5);
+const PropAnimFlag_t PROP_ANIM_FLAG_AIRBRAKE      = BITMASK64(6);
+const PropAnimFlag_t PROP_ANIM_FLAG_ROLL          = BITMASK64(7);
+const PropAnimFlag_t PROP_ANIM_FLAG_PITCH         = BITMASK64(8);
+const PropAnimFlag_t PROP_ANIM_FLAG_THROTTLE      = BITMASK64(9);
+const PropAnimFlag_t PROP_ANIM_FLAG_RPM           = BITMASK64(10);
+const PropAnimFlag_t PROP_ANIM_FLAG_ACCEL         = BITMASK64(11);
+const PropAnimFlag_t PROP_ANIM_FLAG_BRAKE         = BITMASK64(12);
+const PropAnimFlag_t PROP_ANIM_FLAG_CLUTCH        = BITMASK64(13);
+const PropAnimFlag_t PROP_ANIM_FLAG_TACHO         = BITMASK64(14);
+const PropAnimFlag_t PROP_ANIM_FLAG_SPEEDO        = BITMASK64(15);
+const PropAnimFlag_t PROP_ANIM_FLAG_PBRAKE        = BITMASK64(16);
+const PropAnimFlag_t PROP_ANIM_FLAG_TURBO         = BITMASK64(17);
+const PropAnimFlag_t PROP_ANIM_FLAG_SHIFTER       = BITMASK64(18); //!< 'shifterman1, shifterman2, sequential, shifterlin, autoshifterlin'; animOpt3: see `RoR::ShifterPropAnim`
+const PropAnimFlag_t PROP_ANIM_FLAG_AETORQUE      = BITMASK64(19);
+const PropAnimFlag_t PROP_ANIM_FLAG_AEPITCH       = BITMASK64(20);
+const PropAnimFlag_t PROP_ANIM_FLAG_AESTATUS      = BITMASK64(21);
+const PropAnimFlag_t PROP_ANIM_FLAG_TORQUE        = BITMASK64(22);
+const PropAnimFlag_t PROP_ANIM_FLAG_HEADING       = BITMASK64(23);
+const PropAnimFlag_t PROP_ANIM_FLAG_DIFFLOCK      = BITMASK64(24);
+const PropAnimFlag_t PROP_ANIM_FLAG_STEERING      = BITMASK64(25);
+const PropAnimFlag_t PROP_ANIM_FLAG_EVENT         = BITMASK64(26);
+const PropAnimFlag_t PROP_ANIM_FLAG_AILERONS      = BITMASK64(27);
+const PropAnimFlag_t PROP_ANIM_FLAG_ARUDDER       = BITMASK64(28);
+const PropAnimFlag_t PROP_ANIM_FLAG_BRUDDER       = BITMASK64(29);
+const PropAnimFlag_t PROP_ANIM_FLAG_BTHROTTLE     = BITMASK64(30);
+const PropAnimFlag_t PROP_ANIM_FLAG_PERMANENT     = BITMASK64(31);
+const PropAnimFlag_t PROP_ANIM_FLAG_ELEVATORS     = BITMASK64(32);
+const PropAnimFlag_t PROP_ANIM_FLAG_GEAR          = BITMASK64(33); //!< 'gearreverse' (animOpt3=-1), 'gearneutral' (animOpt3=0), 'gear#' (animOpt3=#)
 
-inline PropAnimFlag operator|=(PropAnimFlag& dst, PropAnimFlag const& arg) { dst = static_cast<PropAnimFlag>(dst|arg); return dst; }
-inline PropAnimMode operator|=(PropAnimMode& dst, PropAnimMode const& arg) { dst = static_cast<PropAnimMode>(dst|arg); return dst; }
+typedef BitMask_t PropAnimMode_t;
+
+const PropAnimMode_t PROP_ANIM_MODE_ROTA_X        = BITMASK(1);
+const PropAnimMode_t PROP_ANIM_MODE_ROTA_Y        = BITMASK(2);
+const PropAnimMode_t PROP_ANIM_MODE_ROTA_Z        = BITMASK(3);
+const PropAnimMode_t PROP_ANIM_MODE_OFFSET_X      = BITMASK(4);
+const PropAnimMode_t PROP_ANIM_MODE_OFFSET_Y      = BITMASK(5);
+const PropAnimMode_t PROP_ANIM_MODE_OFFSET_Z      = BITMASK(6);
+const PropAnimMode_t PROP_ANIM_MODE_AUTOANIMATE   = BITMASK(7);
+const PropAnimMode_t PROP_ANIM_MODE_NOFLIP        = BITMASK(8);
+const PropAnimMode_t PROP_ANIM_MODE_BOUNCE        = BITMASK(9);
+
 
 enum class VideoCamState
 {
@@ -125,25 +122,27 @@ static const int CAMERA_MODE_ALWAYS_HIDDEN = -3;
 static const int CAMERA_MODE_ALWAYS_VISIBLE = -2;
 static const int CAMERA_MODE_3RDPERSON_ONLY = -1;
 
-enum ShifterPropAnim
+enum ShifterPropAnim //!< `PropAnim::animOpt3` values for PROP_ANIM_FLAG_SHIFTER
 {
     SHIFTER_INVALID = 0,
     SHIFTERMAN1 = 1,
     SHIFTERMAN2 = 2,
     SHIFTERSEQ = 3,
-    SHIFTERLIN = 4
+    SHIFTERLIN = 4,
+    AUTOSHIFTERLIN = 5
 };
 
 struct PropAnim
 {
-    float        animratio    = 0;  //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
-    PropAnimFlag animFlags    = {};
-    PropAnimMode animMode     = {};
+    float          animratio    = 0;  //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
+    PropAnimFlag_t animFlags    = 0;
+    PropAnimMode_t animMode     = 0;
 
     /// MULTIPURPOSE
-    /// * SHIFTER type `ShifterPropAnim` (1 = shifterman1, 2 = shifterman2, 3 = shifterseq, 4 = shifterlin)
+    /// * SHIFTER type `ShifterPropAnim` (1 = shifterman1, 2 = shifterman2, 3 = shifterseq, 4 = shifterlin, 5 = autoshifterlin)
     /// * AEROENGINE number (starting from 1), applies to: rpm + throttle + torque ( turboprop ) + pitch ( turboprop ) + status +  fire
     /// * ALTIMETER type (1 = 100k limited, 2 = 10k oscillating, 3 = 1k oscillating)
+    /// * GEAR number (-1 = reverse, 0 = neutral, 1+ = forward)
     float        animOpt3     = 0;
     float        animOpt5     = 0;
     float        lower_limit  = 0;  //!< The lower limit for the animation
