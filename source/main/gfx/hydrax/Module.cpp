@@ -98,20 +98,13 @@ namespace Hydrax{namespace Module
 
 	void Module::saveCfg(Ogre::String &Data)
 	{
-		Data += "#Module options\n";
-		Data += "Module="+mName+"\n\n";
+		// RIGS OF RODS: nothing to do here - the module type is hardcoded in file 'HydraxWater.cpp'
 	}
 
 	bool Module::loadCfg(Ogre::ConfigFile &CfgFile)
 	{
-		if (CfgFile.getSetting("Module") == mName)
-		{
-		    HydraxLOG(mName + " options entry found.");
-			return true;
-		}
-
-        HydraxLOG("Error (Module::loadCfg):\t" + mName + " options entry can not be found.");
-		return false;
+		// RIGS OF RODS: Nothing to do here - the module type is hardcoded in file 'HydraxWater.cpp'
+		return true;
 	}
 
 	float Module::getHeigth(const Ogre::Vector2 &Position)

@@ -47,9 +47,7 @@ Components=Foam|Depth|Smooth|Caustics|Underwater|UnderwaterReflections
 <size>Rtt_Quality_URDepth=0x0
 <size>Rtt_Quality_GPUNormalMap=0x0
 
-#Module options
-Module=ProjectedGridVertex
-
+#ProjectedGrid (PG) Module options
 <float>PG_ChoopyStrength=0.375
 <bool>PG_ChoppyWaves=true
 <int>PG_Complexity=200
