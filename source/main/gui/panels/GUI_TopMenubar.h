@@ -96,10 +96,6 @@ public:
     int ai_times_prev = 1;
     int ai_mode_prev = 0;
 
-    // Water
-    Hydrax::Module::ProjectedGrid::Options water_pgrid_options;
-    int water_pgrid_complexity_exp = 8; // 2^8 = 256 = hydrax default
-
     // Sky
     float sun_size = 1.0;
     float cloud_density = 0.0;
