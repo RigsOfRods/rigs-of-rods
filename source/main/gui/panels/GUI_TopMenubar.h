@@ -98,10 +98,6 @@ public:
     int ai_times_prev = 1;
     int ai_mode_prev = 0;
 
-    // Water
-    Hydrax::Module::ProjectedGrid::Options water_pgrid_options;
-    int water_pgrid_complexity_exp = 8; // 2^8 = 256 = hydrax default
-
     // AI waypoint presets
     void FetchExternAiPresetsOnBackground(); //!< Initiate threaded (down)load of 'extern' waypoints from GitHub repo.
     void LoadBundledAiPresets(TerrainPtr terrain); //!< Loads JSON files from `[AI Presets]` section in .terrn2 file format.

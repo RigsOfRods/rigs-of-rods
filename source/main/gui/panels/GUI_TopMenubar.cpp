@@ -642,6 +642,33 @@ void TopMenubar::Draw(float dt)
                 }
             }       
 #endif // USE_CAELUM
+
+
+            if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
+            {
+                ImGui::Separator();
+                ImGui::PushID("hydrax");
+                ImGui::TextDisabled("%s", _LC("TopMenubar", "Water:"));
+
+                Hydrax::Module::ProjectedGrid* pgrid = static_cast<Hydrax::Module::ProjectedGrid*>(App::GetGameContext()->GetTerrain()->getHydraxManager()->GetHydrax()->getModule());
+                Hydrax::Module::ProjectedGrid::Options water_pgrid_options = pgrid->getOptions();
+
+                bool changed = false;
+                changed |= ImGui::SliderInt(_LC("TopMenubar", "Grid complexity"), &water_pgrid_options.Complexity, 32, 1024);
+                changed |= ImGui::SliderFloat(_LC("TopMenubar", "Strength"), &water_pgrid_options.Strength, 1.f, 50.f);
+                changed |= ImGui::SliderFloat(_LC("TopMenubar", "Elevation"), &water_pgrid_options.Elevation, 1.f, 50.f);
+                changed |= ImGui::Checkbox(_LC("TopMenubar", "Smooth"), &water_pgrid_options.Smooth);
+                changed |= ImGui::Checkbox(_LC("TopMenubar", "Recalc. geom. each frame"), &water_pgrid_options.ForceRecalculateGeometry);
+                changed |= ImGui::Checkbox(_LC("TopMenubar", "Choppy waves"), &water_pgrid_options.ChoppyWaves);
+                changed |= ImGui::SliderFloat(_LC("TopMenubar", "Choppy w. strength"), &water_pgrid_options.ChoppyStrength, 1.f, 50.f);
+                if (changed)
+                {
+                    pgrid->setOptions(water_pgrid_options);
+                }
+
+                ImGui::PopID(); // "hydrax"
+            }
+
             if (RoR::App::gfx_water_waves->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED && App::GetGameContext()->GetTerrain()->getWater())
             {
                 if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
@@ -654,63 +681,6 @@ void TopMenubar::Draw(float dt)
                     }
                     ImGui::PopID();
                 }
-            }
-            if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
-            {
-                ImGui::PushID("hydrax");
-                ImGui::TextDisabled("Water (HydraX)");
-
-                Hydrax::Module::ProjectedGrid* pgrid = static_cast<Hydrax::Module::ProjectedGrid*>(App::GetGameContext()->GetTerrain()->getHydraxManager()->GetHydrax()->getModule());
-
-			    /// Projected grid complexity (N*N)
-                ImGui::AlignTextToFramePadding();
-                ImGui::Text("*%d*   ", water_pgrid_options.Complexity);
-                ImGui::SameLine();
-
-                if (ImGui::InputInt("Grid complexity", &water_pgrid_complexity_exp, 1, 2))
-                {
-                    water_pgrid_complexity_exp = std::max(1, std::min(10, water_pgrid_complexity_exp));
-                    water_pgrid_options.Complexity = (int)std::pow(2, water_pgrid_complexity_exp);
-                    pgrid->setOptions(water_pgrid_options);
-                }
-
-			    /// Strength
-			    if (ImGui::SliderFloat("Strength", &water_pgrid_options.Strength, 1.f, 150.f))
-                {
-                    pgrid->setOptions(water_pgrid_options);
-                }
-
-			    /// Elevation
-			    if (ImGui::SliderFloat("Elevation", &water_pgrid_options.Elevation, 1.f, 200.f))
-                {
-                    pgrid->setOptions(water_pgrid_options);
-                }
-			    
-			    /// Smooth
-                if (ImGui::Checkbox("Smooth", &water_pgrid_options.Smooth))
-                {
-                    pgrid->setOptions(water_pgrid_options);
-                }
-			    
-			    /// Force recalculate mesh geometry each frame
-                if (ImGui::Checkbox("Force recalc", &water_pgrid_options.ForceRecalculateGeometry))
-                {
-                    pgrid->setOptions(water_pgrid_options);
-                }
-
-			    /// Choppy waves
-                if (ImGui::Checkbox("Choppy waves", &water_pgrid_options.ChoppyWaves))
-                {
-                    pgrid->setOptions(water_pgrid_options);
-                }
-
-			    /// Choppy waves strength
-                if (ImGui::SliderFloat("Choppy strength", &water_pgrid_options.ChoppyStrength, 1.f, 25.f))
-                {
-                    pgrid->setOptions(water_pgrid_options);
-                }
-
-                ImGui::PopID(); // "hydrax"
             }
             
             if (current_actor != nullptr)
