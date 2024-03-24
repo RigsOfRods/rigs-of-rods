@@ -28,6 +28,7 @@
 #include "AddonPartFileFormat.h"
 #include "CacheSystem.h"
 #include "RoRnet.h"
+#include "hydrax/ProjectedGrid.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -96,6 +97,10 @@ public:
     int ai_position_scheme_prev = 0;
     int ai_times_prev = 1;
     int ai_mode_prev = 0;
+
+    // Water
+    Hydrax::Module::ProjectedGrid::Options water_pgrid_options;
+    int water_pgrid_complexity_exp = 8; // 2^8 = 256 = hydrax default
 
     // AI waypoint presets
     void FetchExternAiPresetsOnBackground(); //!< Initiate threaded (down)load of 'extern' waypoints from GitHub repo.

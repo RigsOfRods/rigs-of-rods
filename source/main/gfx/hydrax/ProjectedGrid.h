@@ -177,8 +177,7 @@ namespace Hydrax{ namespace Module
 		 */
 		void update(const Ogre::Real &timeSinceLastFrame);
 
-		/** Set options
-		    @param Options Options
+		/** Set options - recreates geometry if needed
 		 */
 		void setOptions(const Options &Options);
 
