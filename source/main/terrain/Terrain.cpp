@@ -194,8 +194,6 @@ bool RoR::Terrain::initialize()
 
     loading_window->SetProgress(77, _L("Initializing Water Subsystem"));
     this->initWater();
-    App::GetGuiManager()->TopMenubar.water_pgrid_options = static_cast<Hydrax::Module::ProjectedGrid*>(this->getHydraxManager()->GetHydrax()->getModule())->getOptions();
-    App::GetGuiManager()->TopMenubar.water_pgrid_complexity_exp = (int)std::sqrt(App::GetGuiManager()->TopMenubar.water_pgrid_options.Complexity);
 
     loading_window->SetProgress(80, _L("Loading Terrain Objects"));
     this->loadTerrainObjects(); // *.tobj files
