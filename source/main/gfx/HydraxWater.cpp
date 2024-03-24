@@ -74,14 +74,14 @@ void HydraxWater::InitHydrax()
 
     mHydrax->loadCfg(CurrentConfigFile);
 
-    // Choose shader language based on renderer (HLSL=0, CG=1, GLSL=2)
+    // Choose shader language based on renderer
     if (Root::getSingleton().getRenderSystem()->getName() == "Direct3D9 Rendering Subsystem" || Root::getSingleton().getRenderSystem()->getName() == "Direct3D11 Rendering Subsystem")
     {
-        mHydrax->setShaderMode(static_cast<Hydrax::MaterialManager::ShaderMode>(0));
+        mHydrax->setShaderMode(Hydrax::MaterialManager::SM_HLSL);
     }
     else
     {
-        mHydrax->setShaderMode(static_cast<Hydrax::MaterialManager::ShaderMode>(2));
+        mHydrax->setShaderMode(Hydrax::MaterialManager::SM_GLSL);
     }
 
     mHydrax->create();
