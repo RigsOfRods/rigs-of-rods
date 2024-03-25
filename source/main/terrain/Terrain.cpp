@@ -574,3 +574,14 @@ SurveyMapEntityVec& RoR::Terrain::getSurveyMapEntities()
 }
 
 CacheEntryPtr RoR::Terrain::getCacheEntry() { return m_cache_entry; }
+
+void RoR::Terrain::reInitWater()
+{
+    if (m_water)
+    {
+        m_water = nullptr;
+        m_hydrax_water = nullptr;
+    }
+
+    this->initWater();
+}

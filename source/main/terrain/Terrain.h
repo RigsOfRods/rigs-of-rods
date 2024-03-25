@@ -82,6 +82,7 @@ public:
     TerrainEditor*          GetTerrainEditor()            { return &m_terrain_editor; }
     Collisions*             GetCollisions()               { return m_collisions; }
     IWater*                 getWater()                    { return m_water.get(); }
+    void                    reInitWater();
     /// @}
 
     /// @name Visuals

@@ -150,6 +150,7 @@ private:
     bool    m_quickload = false;
     std::string m_quicksave_name;
     std::vector<std::string> m_savegame_names;
+    std::string water_mode_combostring;
 };
 
 } // namespace GUI

@@ -642,45 +642,61 @@ void TopMenubar::Draw(float dt)
                 }
             }       
 #endif // USE_CAELUM
-
-
-            if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
+            if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
             {
                 ImGui::Separator();
-                ImGui::PushID("hydrax");
+                ImGui::PushID("water");
                 ImGui::TextDisabled("%s", _LC("TopMenubar", "Water:"));
 
-                Hydrax::Module::ProjectedGrid* pgrid = static_cast<Hydrax::Module::ProjectedGrid*>(App::GetGameContext()->GetTerrain()->getHydraxManager()->GetHydrax()->getModule());
-                Hydrax::Module::ProjectedGrid::Options water_pgrid_options = pgrid->getOptions();
-
-                bool changed = false;
-                changed |= ImGui::SliderInt(_LC("TopMenubar", "Grid complexity"), &water_pgrid_options.Complexity, 32, 1024);
-                changed |= ImGui::SliderFloat(_LC("TopMenubar", "Strength"), &water_pgrid_options.Strength, 1.f, 50.f);
-                changed |= ImGui::SliderFloat(_LC("TopMenubar", "Elevation"), &water_pgrid_options.Elevation, 1.f, 50.f);
-                changed |= ImGui::Checkbox(_LC("TopMenubar", "Smooth"), &water_pgrid_options.Smooth);
-                changed |= ImGui::Checkbox(_LC("TopMenubar", "Recalc. geom. each frame"), &water_pgrid_options.ForceRecalculateGeometry);
-                changed |= ImGui::Checkbox(_LC("TopMenubar", "Choppy waves"), &water_pgrid_options.ChoppyWaves);
-                changed |= ImGui::SliderFloat(_LC("TopMenubar", "Choppy w. strength"), &water_pgrid_options.ChoppyStrength, 1.f, 50.f);
-                if (changed)
+                if (water_mode_combostring == "")
                 {
-                    pgrid->setOptions(water_pgrid_options);
+                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::NONE));
+                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::BASIC));
+                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::REFLECT));
+                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::FULL_FAST));
+                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::FULL_HQ));
+                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::HYDRAX));
+                    ImTerminateComboboxString(water_mode_combostring);
+                }
+    
+                if (DrawGCombo(App::gfx_water_mode, _LC("TopMenubar", "Mode"), water_mode_combostring.c_str()))
+                {
+                    App::GetGameContext()->GetTerrain()->reInitWater();
                 }
 
-                ImGui::PopID(); // "hydrax"
-            }
+                DrawGCheckbox(App::gfx_water_waves, _LC("TopMenubar", "Waves"));
 
-            if (RoR::App::gfx_water_waves->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED && App::GetGameContext()->GetTerrain()->getWater())
-            {
-                if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
+                if (RoR::App::gfx_water_waves->getBool() && App::GetGameContext()->GetTerrain()->getWater())
                 {
-                    ImGui::PushID("waves");
-                    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Waves Height:"));
-                    if(ImGui::SliderFloat("", &m_waves_height, 0.f, 4.f, ""))
+                    if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
                     {
-                        App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(m_waves_height);
+                        if(ImGui::SliderFloat(_LC("TopMenubar", "Waves height"), &m_waves_height, 0.f, 4.f, ""))
+                        {
+                            App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(m_waves_height);
+                        }
                     }
-                    ImGui::PopID();
                 }
+
+                if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
+                {
+                    Hydrax::Module::ProjectedGrid* pgrid = static_cast<Hydrax::Module::ProjectedGrid*>(App::GetGameContext()->GetTerrain()->getHydraxManager()->GetHydrax()->getModule());
+                    Hydrax::Module::ProjectedGrid::Options water_pgrid_options = pgrid->getOptions();
+
+                    bool changed = false;
+                    changed |= ImGui::SliderInt(_LC("TopMenubar", "Grid complexity"), &water_pgrid_options.Complexity, 32, 1024);
+                    changed |= ImGui::SliderFloat(_LC("TopMenubar", "Strength"), &water_pgrid_options.Strength, 1.f, 50.f);
+                    changed |= ImGui::SliderFloat(_LC("TopMenubar", "Elevation"), &water_pgrid_options.Elevation, 1.f, 50.f);
+                    changed |= ImGui::Checkbox(_LC("TopMenubar", "Smooth"), &water_pgrid_options.Smooth);
+                    changed |= ImGui::Checkbox(_LC("TopMenubar", "Recalc. geom. each frame"), &water_pgrid_options.ForceRecalculateGeometry);
+                    changed |= ImGui::Checkbox(_LC("TopMenubar", "Choppy waves"), &water_pgrid_options.ChoppyWaves);
+                    changed |= ImGui::SliderFloat(_LC("TopMenubar", "Choppy w. strength"), &water_pgrid_options.ChoppyStrength, 1.f, 50.f);
+                    if (changed)
+                    {
+                        pgrid->setOptions(water_pgrid_options);
+                    }
+                }
+
+                ImGui::PopID(); // "water"
             }
             
             if (current_actor != nullptr)
@@ -699,7 +715,8 @@ void TopMenubar::Draw(float dt)
             ImGui::PopItemWidth();
             m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
             m_open_menu_hoverbox_max.x = menu_pos.x + ImGui::GetWindowWidth() + MENU_HOVERBOX_PADDING.x;
-            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y;
+            float extra_watercombo_padding = 75.f; // The water combo is big and reaches out of the menu.
+            m_open_menu_hoverbox_max.y = menu_pos.y + ImGui::GetWindowHeight() + MENU_HOVERBOX_PADDING.y + extra_watercombo_padding;
             App::GetGuiManager()->RequestGuiCaptureKeyboard(ImGui::IsWindowHovered());
             ImGui::End();
         }
