@@ -27,6 +27,7 @@
 
 #include "CacheSystem.h"
 #include "RoRnet.h"
+#include "hydrax/ProjectedGrid.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -140,6 +141,7 @@ private:
     bool    m_quickload = false;
     std::string m_quicksave_name;
     std::vector<std::string> m_savegame_names;
+    std::string water_mode_combostring;
 
     void GetPresets();
     rapidjson::Document j_doc;
