@@ -1088,11 +1088,11 @@ bool Collisions::nodeCollision(node_t *node, float dt)
 
 void Collisions::findPotentialEventBoxes(Actor* actor, CollisionBoxPtrVec& out_boxes)
 {
-    // NOTE: Only collision-cab nodes are considered for eventbox triggering!
+    // Find collision cells occupied by the actor (remember 'Y' is 'up').
+    // Remember there's a dedicated bounding box `ar_evboxes_bounding_box`.
     // ----------------------------------------------------------------------
 
-    // Find collision cells occupied by the actor (remember 'Y' is 'up').
-    const AxisAlignedBox aabb = actor->ar_cabnodes_bounding_box;
+    const AxisAlignedBox aabb = actor->ar_evboxes_bounding_box;
     const int cell_lo_x = (int)(aabb.getMinimum().x / (float)CELL_SIZE);
     const int cell_lo_z = (int)(aabb.getMinimum().z / (float)CELL_SIZE);
     const int cell_hi_x = (int)(aabb.getMaximum().x / (float)CELL_SIZE);
