@@ -287,31 +287,27 @@ void Water::PrepareWater()
             // Also clip
             m_reflect_cam->enableCustomNearClipPlane(m_reflect_plane);
         }
+    }
 
-        m_waterplane_mesh = MeshManager::getSingleton().createPlane("ReflectPlane",
+    // Water plane
+    m_waterplane_mesh = MeshManager::getSingleton().createPlane("WaterPlane",
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             m_water_plane,
             m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, WAVEREZ, WAVEREZ, true, 1, 50, 50, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+    m_waterplane_entity = App::GetGfxScene()->GetSceneManager()->createEntity("plane", "WaterPlane");
 
-        m_waterplane_entity = App::GetGfxScene()->GetSceneManager()->createEntity("plane", "ReflectPlane");
-        if (full_gfx)
-            m_waterplane_entity->setMaterialName("Examples/FresnelReflectionRefraction");
-        else
-            m_waterplane_entity->setMaterialName("Examples/FresnelReflection");
-    }
+    // Water plane material
+    if (full_gfx)
+        m_waterplane_entity->setMaterialName("Examples/FresnelReflectionRefraction");
+    else if (type == GfxWaterMode::REFLECT)
+        m_waterplane_entity->setMaterialName("Examples/FresnelReflection");
     else
-    {
-        m_waterplane_mesh = MeshManager::getSingleton().createPlane("WaterPlane",
-            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-            m_water_plane,
-            m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, WAVEREZ, WAVEREZ, true, 1, 50, 50, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-        m_waterplane_entity = App::GetGfxScene()->GetSceneManager()->createEntity("plane", "WaterPlane");
         m_waterplane_entity->setMaterialName("tracks/basicwater");
-    }
 
     m_waterplane_entity->setCastShadows(false);
     m_reflect_listener.waterplane_entity = m_waterplane_entity;
     m_refract_listener.waterplane_entity = m_waterplane_entity;
+
     //position
     m_waterplane_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode("WaterPlane");
     m_waterplane_node->attachObject(m_waterplane_entity);
