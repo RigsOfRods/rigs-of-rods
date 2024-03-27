@@ -337,74 +337,144 @@ int main(int argc, char *argv[])
                 // -- Application events --
 
                 case MSG_APP_SHUTDOWN_REQUESTED:
-                    if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                {
+                    try
                     {
-                        App::GetGameContext()->SaveScene("autosave.sav");
+                        if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                        {
+                            App::GetGameContext()->SaveScene("autosave.sav");
+                        }
+                        App::GetConsole()->saveConfig(); // RoR.cfg
+                        App::GetDiscordRpc()->Shutdown();
+    #ifdef USE_SOCKETW
+                        if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+                        {
+                            App::GetNetwork()->Disconnect();
+                        }
+    #endif // USE_SOCKETW
+                        App::app_state->setVal((int)AppState::SHUTDOWN);
+                        App::GetScriptEngine()->setEventsEnabled(false); // Hack to enable fast shutdown without cleanup.
                     }
-                    App::GetConsole()->saveConfig(); // RoR.cfg
-                    App::GetDiscordRpc()->Shutdown();
-#ifdef USE_SOCKETW
-                    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+                    catch (...) 
                     {
-                        App::GetNetwork()->Disconnect();
+                        HandleMsgQueueException(m.type);
                     }
-#endif // USE_SOCKETW
-                    App::app_state->setVal((int)AppState::SHUTDOWN);
-                    App::GetScriptEngine()->setEventsEnabled(false); // Hack to enable fast shutdown without cleanup.
                     break;
+                }
 
                 case MSG_APP_SCREENSHOT_REQUESTED:
-                    App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-                    App::GetAppContext()->CaptureScreenshot();
-                    App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::VISIBLE);
+                {
+                    try
+                    {
+                        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+                        App::GetAppContext()->CaptureScreenshot();
+                        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::VISIBLE);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_APP_DISPLAY_FULLSCREEN_REQUESTED:
-                    App::GetAppContext()->ActivateFullscreen(true);
-                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                                  _L("Display mode changed to fullscreen"));
+                {
+                    try
+                    {
+                        App::GetAppContext()->ActivateFullscreen(true);
+                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                      _L("Display mode changed to fullscreen"));
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_APP_DISPLAY_WINDOWED_REQUESTED:
-                    App::GetAppContext()->ActivateFullscreen(false);
-                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                                  _L("Display mode changed to windowed"));
+                {
+                    try
+                    {
+                        App::GetAppContext()->ActivateFullscreen(false);
+                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                      _L("Display mode changed to windowed"));
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_APP_MODCACHE_LOAD_REQUESTED:
-                    if (!App::GetCacheSystem()->IsModCacheLoaded()) // If not already loaded...
+                {
+                    try
                     {
-                        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-                        App::GetContentManager()->InitModCache(CacheValidity::UNKNOWN);
+                        if (!App::GetCacheSystem()->IsModCacheLoaded()) // If not already loaded...
+                        {
+                            App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+                            App::GetContentManager()->InitModCache(CacheValidity::UNKNOWN);
+                        }
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     break;
+                }
 
                 case MSG_APP_MODCACHE_UPDATE_REQUESTED:
-                    if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU) // No actors must be spawned; they keep pointers to CacheEntries
+                {
+                    try
                     {
-                        RoR::Log("[RoR|ModCache] Cache update requested");
-                        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-                        App::GetContentManager()->InitModCache(CacheValidity::NEEDS_UPDATE);
+                        if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU) // No actors must be spawned; they keep pointers to CacheEntries
+                        {
+                            RoR::Log("[RoR|ModCache] Cache update requested");
+                            App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+                            App::GetContentManager()->InitModCache(CacheValidity::NEEDS_UPDATE);
+                        }
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     break;
+                }
 
                 case MSG_APP_MODCACHE_PURGE_REQUESTED:
-                    if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU) // No actors must be spawned; they keep pointers to CacheEntries
+                {
+                    try
                     {
-                        RoR::Log("[RoR|ModCache] Cache rebuild requested");
-                        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-                        App::GetContentManager()->InitModCache(CacheValidity::NEEDS_REBUILD);
+                        if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU) // No actors must be spawned; they keep pointers to CacheEntries
+                        {
+                            RoR::Log("[RoR|ModCache] Cache rebuild requested");
+                            App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+                            App::GetContentManager()->InitModCache(CacheValidity::NEEDS_REBUILD);
+                        }
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     break;
+                }
 
                 case MSG_APP_LOAD_SCRIPT_REQUESTED:
                 {
                     LoadScriptRequest* request = static_cast<LoadScriptRequest*>(m.payload);
-                    ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(request->lsr_associated_actor);
-                    ScriptUnitId_t nid = App::GetScriptEngine()->loadScript(request->lsr_filename, request->lsr_category, actor, request->lsr_buffer);
-                    // we want to notify any running scripts that we might change something (prevent cheating)
-                    App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS,
-                        ASMANIP_SCRIPT_LOADED, nid, (int)request->lsr_category, 0, request->lsr_filename);
+                    try
+                    {
+                        ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(request->lsr_associated_actor);
+                        ScriptUnitId_t nid = App::GetScriptEngine()->loadScript(request->lsr_filename, request->lsr_category, actor, request->lsr_buffer);
+                        // we want to notify any running scripts that we might change something (prevent cheating)
+                        App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS,
+                            ASMANIP_SCRIPT_LOADED, nid, (int)request->lsr_category, 0, request->lsr_filename);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete request;
                     break;
                 }
@@ -412,11 +482,18 @@ int main(int argc, char *argv[])
                 case MSG_APP_UNLOAD_SCRIPT_REQUESTED:
                 {
                     ScriptUnitId_t* id = static_cast<ScriptUnitId_t*>(m.payload);
-                    ScriptUnit& unit = App::GetScriptEngine()->getScriptUnit(*id);
-                    // we want to notify any running scripts that we might change something (prevent cheating)
-                    App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS,
-                        ASMANIP_SCRIPT_UNLOADING, *id, (int)unit.scriptCategory, 0, unit.scriptName);
-                    App::GetScriptEngine()->unloadScript(*id);
+                    try
+                    {
+                        ScriptUnit& unit = App::GetScriptEngine()->getScriptUnit(*id);
+                        // we want to notify any running scripts that we might change something (prevent cheating)
+                        App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS,
+                            ASMANIP_SCRIPT_UNLOADING, *id, (int)unit.scriptCategory, 0, unit.scriptName);
+                        App::GetScriptEngine()->unloadScript(*id);
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete id;
                     break;
                 }
@@ -424,106 +501,190 @@ int main(int argc, char *argv[])
                 case MSG_APP_SCRIPT_THREAD_STATUS:
                 {
                     ScriptEventArgs* args = static_cast<ScriptEventArgs*>(m.payload);
-                    App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_THREAD_STATUS,
-                        args->arg1, args->arg2ex, args->arg3ex, args->arg4ex, args->arg5ex, args->arg6ex, args->arg7ex);
-                    delete args;
+                    try
+                    {
+                        App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_THREAD_STATUS,
+                            args->arg1, args->arg2ex, args->arg3ex, args->arg4ex, args->arg5ex, args->arg6ex, args->arg7ex);
+                        delete args;
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
                 }
 
                 // -- Network events --
 
                 case MSG_NET_CONNECT_REQUESTED:
+                {
 #if USE_SOCKETW
-                    App::GetNetwork()->StartConnecting();
+                    try
+                    {
+                        App::GetNetwork()->StartConnecting();
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
 #endif
                     break;
+                }
 
                 case MSG_NET_DISCONNECT_REQUESTED:
+                {
 #if USE_SOCKETW
-                    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+                    try
                     {
-                        App::GetNetwork()->Disconnect();
-                        if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
+                        if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
                         {
-                            App::GetGuiManager()->MainSelector.Close(); // We may get disconnected while still in map selection
-                            App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                            App::GetNetwork()->Disconnect();
+                            if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
+                            {
+                                App::GetGuiManager()->MainSelector.Close(); // We may get disconnected while still in map selection
+                                App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                            }
                         }
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
                     }
 #endif // USE_SOCKETW
                     break;
+                }
 
                 case MSG_NET_SERVER_KICK:
-                    App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
-                    App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
-                    App::GetGuiManager()->ShowMessageBox(
-                        _LC("Network", "Network disconnected"), m.description.c_str());
+                {
+                    try
+                    {
+                        App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
+                        App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                        App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                        App::GetGuiManager()->ShowMessageBox(_LC("Network", "Network disconnected"), m.description.c_str());
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_NET_RECV_ERROR:
-                    App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
-                    App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
-                    App::GetGuiManager()->ShowMessageBox(
-                        _L("Network fatal error: "), m.description.c_str());
+                {
+                    try
+                    {
+                        App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
+                        App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                        App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                        App::GetGuiManager()->ShowMessageBox(_L("Network fatal error: "), m.description.c_str());
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_NET_CONNECT_STARTED:
-                    App::GetGuiManager()->LoadingWindow.SetProgressNetConnect(m.description);
-                    App::GetGuiManager()->MultiplayerSelector.SetVisible(false);
-                    App::GetGameContext()->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
+                {
+                    try
+                    {
+                        App::GetGuiManager()->LoadingWindow.SetProgressNetConnect(m.description);
+                        App::GetGuiManager()->MultiplayerSelector.SetVisible(false);
+                        App::GetGameContext()->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_NET_CONNECT_PROGRESS:
-                    App::GetGuiManager()->LoadingWindow.SetProgressNetConnect(m.description);
+                {
+                    try
+                    {
+                        App::GetGuiManager()->LoadingWindow.SetProgressNetConnect(m.description);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_NET_CONNECT_SUCCESS:
+                {
 #if USE_SOCKETW
-                    App::GetGuiManager()->LoadingWindow.SetVisible(false);
-                    App::GetNetwork()->StopConnecting();
-                    App::mp_state->setVal((int)RoR::MpState::CONNECTED);
-                    RoR::ChatSystem::SendStreamSetup();
-                    if (!App::GetMumble())
+                    try
                     {
-                        App::CreateMumble();
-                    }
-                    if (App::GetNetwork()->GetTerrainName() != "any")
-                    {
-                        App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::GetNetwork()->GetTerrainName()));
-                    }
-                    else
-                    {
-                        // Connected -> go directly to map selector
-                        if (App::diag_preset_terrain->getStr().empty())
+                        App::GetGuiManager()->LoadingWindow.SetVisible(false);
+                        App::GetNetwork()->StopConnecting();
+                        App::mp_state->setVal((int)RoR::MpState::CONNECTED);
+                        RoR::ChatSystem::SendStreamSetup();
+                        if (!App::GetMumble())
                         {
-                            RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
-                            m.payload = reinterpret_cast<void*>(new LoaderType(LT_Terrain));
-                            App::GetGameContext()->PushMessage(m);
+                            App::CreateMumble();
+                        }
+                        if (App::GetNetwork()->GetTerrainName() != "any")
+                        {
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::GetNetwork()->GetTerrainName()));
                         }
                         else
                         {
-                            App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->getStr()));
+                            // Connected -> go directly to map selector
+                            if (App::diag_preset_terrain->getStr().empty())
+                            {
+                                RoR::Message m(MSG_GUI_OPEN_SELECTOR_REQUESTED);
+                                m.payload = reinterpret_cast<void*>(new LoaderType(LT_Terrain));
+                                App::GetGameContext()->PushMessage(m);
+                            }
+                            else
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, App::diag_preset_terrain->getStr()));
+                            }
                         }
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
                     }
 #endif // USE_SOCKETW
                     break;
+                }
 
                 case MSG_NET_CONNECT_FAILURE:
+                {
 #if USE_SOCKETW
-                    App::GetGuiManager()->LoadingWindow.SetVisible(false);
-                    App::GetNetwork()->StopConnecting();
-                    App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
-                    App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
-                    App::GetGuiManager()->ShowMessageBox(
-                        _LC("Network", "Multiplayer: connection failed"), m.description.c_str());
+                    try
+                    {
+                        App::GetGuiManager()->LoadingWindow.SetVisible(false);
+                        App::GetNetwork()->StopConnecting();
+                        App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
+                        App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                        App::GetGuiManager()->ShowMessageBox(
+                            _LC("Network", "Multiplayer: connection failed"), m.description.c_str());
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
 #endif // USE_SOCKETW
                     break;
+                }
 
                 case MSG_NET_REFRESH_SERVERLIST_SUCCESS:
                 {
                     GUI::MpServerInfoVec* data = static_cast<GUI::MpServerInfoVec*>(m.payload);
-                    App::GetGuiManager()->MultiplayerSelector.UpdateServerlist(data);
+                    try
+                    {
+                        App::GetGuiManager()->MultiplayerSelector.UpdateServerlist(data);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete data;
                     break;
                 }
@@ -531,7 +692,14 @@ int main(int argc, char *argv[])
                 case MSG_NET_REFRESH_SERVERLIST_FAILURE:
                 {
                     CurlFailInfo* failinfo = static_cast<CurlFailInfo*>(m.payload);
-                    App::GetGuiManager()->MultiplayerSelector.DisplayRefreshFailed(failinfo);
+                    try
+                    {
+                        App::GetGuiManager()->MultiplayerSelector.DisplayRefreshFailed(failinfo);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete failinfo;
                     break;
                 }
@@ -539,7 +707,14 @@ int main(int argc, char *argv[])
                 case MSG_NET_REFRESH_REPOLIST_SUCCESS:
                 {
                     GUI::ResourcesCollection* data = static_cast<GUI::ResourcesCollection*>(m.payload);
-                    App::GetGuiManager()->RepositorySelector.UpdateResources(data);
+                    try
+                    {
+                        App::GetGuiManager()->RepositorySelector.UpdateResources(data);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete data;
                     break;
                 }
@@ -547,7 +722,14 @@ int main(int argc, char *argv[])
                 case MSG_NET_OPEN_RESOURCE_SUCCESS:
                 {
                     GUI::ResourcesCollection* data = static_cast<GUI::ResourcesCollection*>(m.payload);
-                    App::GetGuiManager()->RepositorySelector.UpdateFiles(data);
+                    try
+                    {
+                        App::GetGuiManager()->RepositorySelector.UpdateFiles(data);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete data;
                     break;
                 }
@@ -555,151 +737,217 @@ int main(int argc, char *argv[])
                 case MSG_NET_REFRESH_REPOLIST_FAILURE:
                 {
                     CurlFailInfo* failinfo = static_cast<CurlFailInfo*>(m.payload);
-                    App::GetGuiManager()->RepositorySelector.ShowError(failinfo);
+                    try
+                    {
+                        App::GetGuiManager()->RepositorySelector.ShowError(failinfo);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete failinfo;
                     break;
                 }
 
                 case MSG_NET_REFRESH_AI_PRESETS:
-                    App::GetGuiManager()->TopMenubar.ai_presets_extern.Parse(m.description.c_str());
-                    App::GetGuiManager()->TopMenubar.RefreshAiPresets();
+                {
+                    try
+                    {
+                        App::GetGuiManager()->TopMenubar.ai_presets_extern.Parse(m.description.c_str());
+                        App::GetGuiManager()->TopMenubar.RefreshAiPresets();
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 // -- Gameplay events --
 
                 case MSG_SIM_PAUSE_REQUESTED:
-                    for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
+                {
+                    try
                     {
-                        actor->muteAllSounds();
+                        for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
+                        {
+                            actor->muteAllSounds();
+                        }
+                        App::sim_state->setVal((int)SimState::PAUSED);
                     }
-                    App::sim_state->setVal((int)SimState::PAUSED);
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_SIM_UNPAUSE_REQUESTED:
-                    for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
+                {
+                    try
                     {
-                        actor->unmuteAllSounds();
+                        for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
+                        {
+                            actor->unmuteAllSounds();
+                        }
+                        App::sim_state->setVal((int)SimState::RUNNING);
                     }
-                    App::sim_state->setVal((int)SimState::RUNNING);
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_SIM_LOAD_TERRN_REQUESTED:
-                    App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-                    App::GetGuiManager()->LoadingWindow.SetProgress(5, _L("Loading resources"));
-                    App::GetContentManager()->LoadGameplayResources();
+                {
+                    try
+                    {
+                        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+                        App::GetGuiManager()->LoadingWindow.SetProgress(5, _L("Loading resources"));
+                        App::GetContentManager()->LoadGameplayResources();
 
-                    if (App::GetGameContext()->LoadTerrain(m.description))
-                    {
-                        App::GetGameContext()->CreatePlayerCharacter();
-                        // Spawn preselected vehicle; commandline has precedence
-                        if (App::cli_preset_vehicle->getStr() != "")
-                            App::GetGameContext()->SpawnPreselectedActor(App::cli_preset_vehicle->getStr(), App::cli_preset_veh_config->getStr()); // Needs character for position
-                        else if (App::diag_preset_vehicle->getStr() != "")
-                            App::GetGameContext()->SpawnPreselectedActor(App::diag_preset_vehicle->getStr(), App::diag_preset_veh_config->getStr()); // Needs character for position
-                        App::GetGameContext()->GetSceneMouse().InitializeVisuals();
-                        App::CreateOverlayWrapper();
-                        App::GetGuiManager()->DirectionArrow.LoadOverlay();
-                        if (App::audio_menu_music->getBool())
+                        if (App::GetGameContext()->LoadTerrain(m.description))
                         {
-                            SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
-                        }
-                        App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
-                        App::GetDiscordRpc()->UpdatePresence();
-                        App::sim_state->setVal((int)SimState::RUNNING);
-                        App::app_state->setVal((int)AppState::SIMULATION);
-                        App::GetGuiManager()->GameMainMenu .SetVisible(false);
-                        App::GetGuiManager()->MenuWallpaper->hide();
-                        App::GetGuiManager()->LoadingWindow.SetVisible(false);
-                        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::VISIBLE);
-                        App::gfx_fov_external->setVal(App::gfx_fov_external_default->getInt());
-                        App::gfx_fov_internal->setVal(App::gfx_fov_internal_default->getInt());
-#ifdef USE_SOCKETW
-                        if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
-                        {
-                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                                                  fmt::format(_LC("ChatBox", "Press {} to start chatting"),
-                                               App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_CHATMODE)), "lightbulb.png");
-                        }
-#endif // USE_SOCKETW
-                        if (App::io_outgauge_mode->getInt() > 0)
-                        {
-                            App::GetOutGauge()->Connect();
-                        }
-                    }
-                    else
-                    {
-                        if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
-                        {
-                            App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
+                            App::GetGameContext()->CreatePlayerCharacter();
+                            // Spawn preselected vehicle; commandline has precedence
+                            if (App::cli_preset_vehicle->getStr() != "")
+                                App::GetGameContext()->SpawnPreselectedActor(App::cli_preset_vehicle->getStr(), App::cli_preset_veh_config->getStr()); // Needs character for position
+                            else if (App::diag_preset_vehicle->getStr() != "")
+                                App::GetGameContext()->SpawnPreselectedActor(App::diag_preset_vehicle->getStr(), App::diag_preset_veh_config->getStr()); // Needs character for position
+                            App::GetGameContext()->GetSceneMouse().InitializeVisuals();
+                            App::CreateOverlayWrapper();
+                            App::GetGuiManager()->DirectionArrow.LoadOverlay();
+                            if (App::audio_menu_music->getBool())
+                            {
+                                SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
+                            }
+                            if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SANDSTORM)
+                            {
+                                App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.7f, 0.7f, 0.7f));
+                            }
+                            else
+                            {
+                                App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
+                            }
+                            App::GetDiscordRpc()->UpdatePresence();
+                            App::sim_state->setVal((int)SimState::RUNNING);
+                            App::app_state->setVal((int)AppState::SIMULATION);
+                            App::GetGuiManager()->GameMainMenu .SetVisible(false);
+                            App::GetGuiManager()->MenuWallpaper->hide();
+                            App::GetGuiManager()->LoadingWindow.SetVisible(false);
+                            App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::VISIBLE);
+                            App::gfx_fov_external->setVal(App::gfx_fov_external_default->getInt());
+                            App::gfx_fov_internal->setVal(App::gfx_fov_internal_default->getInt());
+    #ifdef USE_SOCKETW
+                            if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+                            {
+                                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                                      fmt::format(_LC("ChatBox", "Press {} to start chatting"),
+                                                   App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_CHATMODE)), "lightbulb.png");
+                            }
+    #endif // USE_SOCKETW
+                            if (App::io_outgauge_mode->getInt() > 0)
+                            {
+                                App::GetOutGauge()->Connect();
+                            }
                         }
                         else
                         {
-                            App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                            if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_NET_DISCONNECT_REQUESTED));
+                            }
+                            else
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                            }
+                            App::GetGuiManager()->LoadingWindow.SetVisible(false);
+                            failed_m = true;
                         }
-                        App::GetGuiManager()->LoadingWindow.SetVisible(false);
-                        failed_m = true;
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     break;
+                }
 
                 case MSG_SIM_UNLOAD_TERRN_REQUESTED:
-                    if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
+                {
+                    try
                     {
-                        App::GetGameContext()->GetTerrain()->GetTerrainEditor()->WriteOutputFile();
+                        if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
+                        {
+                            App::GetGameContext()->GetTerrain()->GetTerrainEditor()->WriteOutputFile();
+                        }
+                        App::GetGameContext()->SaveScene("autosave.sav");
+                        App::GetGameContext()->ChangePlayerActor(nullptr);
+                        App::GetGameContext()->GetActorManager()->CleanUpSimulation();
+                        App::GetGameContext()->GetCharacterFactory()->DeleteAllCharacters();
+                        App::GetGameContext()->GetSceneMouse().DiscardVisuals();
+                        App::DestroyOverlayWrapper();
+                        App::GetCameraManager()->ResetAllBehaviors();
+                        App::GetGuiManager()->CollisionsDebug.CleanUp();
+                        App::GetGuiManager()->MainSelector.Close();
+                        App::GetGuiManager()->LoadingWindow.SetVisible(false);
+                        App::GetGuiManager()->MenuWallpaper->show();
+                        App::GetGuiManager()->TopMenubar.ai_waypoints.clear();
+                        App::sim_state->setVal((int)SimState::OFF);
+                        App::app_state->setVal((int)AppState::MAIN_MENU);
+                        App::GetGameContext()->UnloadTerrain();
+                        App::GetGfxScene()->ClearScene();
+                        App::sim_terrain_name->setStr("");
+                        App::sim_terrain_gui_name->setStr("");
+                        App::GetOutGauge()->Close();
+                        App::GetSoundScriptManager()->setCamera(/*position:*/Ogre::Vector3::ZERO, /*direction:*/Ogre::Vector3::ZERO, /*up:*/Ogre::Vector3::UNIT_Y, /*velocity:*/Ogre::Vector3::ZERO);
                     }
-                    App::GetGameContext()->SaveScene("autosave.sav");
-                    App::GetGameContext()->ChangePlayerActor(nullptr);
-                    App::GetGameContext()->GetActorManager()->CleanUpSimulation();
-                    App::GetGameContext()->GetCharacterFactory()->DeleteAllCharacters();
-                    App::GetGameContext()->GetSceneMouse().DiscardVisuals();
-                    App::DestroyOverlayWrapper();
-                    App::GetCameraManager()->ResetAllBehaviors();
-                    App::GetGuiManager()->CollisionsDebug.CleanUp();
-                    App::GetGuiManager()->MainSelector.Close();
-                    App::GetGuiManager()->LoadingWindow.SetVisible(false);
-                    App::GetGuiManager()->MenuWallpaper->show();
-                    App::GetGuiManager()->TopMenubar.ai_waypoints.clear();
-                    App::sim_state->setVal((int)SimState::OFF);
-                    App::app_state->setVal((int)AppState::MAIN_MENU);
-                    App::GetGameContext()->UnloadTerrain();
-                    App::GetGfxScene()->ClearScene();
-                    App::sim_terrain_name->setStr("");
-                    App::sim_terrain_gui_name->setStr("");
-                    App::GetOutGauge()->Close();
-                    App::GetSoundScriptManager()->setCamera(/*position:*/Ogre::Vector3::ZERO, /*direction:*/Ogre::Vector3::ZERO, /*up:*/Ogre::Vector3::UNIT_Y, /*velocity:*/Ogre::Vector3::ZERO);
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_SIM_LOAD_SAVEGAME_REQUESTED:
                 {
-                    std::string terrn_filename = App::GetGameContext()->ExtractSceneTerrain(m.description);
-                    if (terrn_filename == "")
+                    try
                     {
-                        Str<400> msg; msg << _L("Could not read savegame file") << "'" << m.description << "'";
-                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-                        if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
+                        std::string terrn_filename = App::GetGameContext()->ExtractSceneTerrain(m.description);
+                        if (terrn_filename == "")
                         {
-                            App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                            Str<400> msg; msg << _L("Could not read savegame file") << "'" << m.description << "'";
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
+                            if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_MENU_REQUESTED));
+                            }
                         }
-                    }
-                    else if (terrn_filename == App::sim_terrain_name->getStr())
-                    {
-                        App::GetGameContext()->LoadScene(m.description);
-                    }
-                    else if (terrn_filename != App::sim_terrain_name->getStr() && App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
-                    {
-                        Str<400> msg; msg << _L("Error while loading scene: Terrain mismatch");
-                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-                    }
-                    else
-                    {
-                        if (App::sim_terrain_name->getStr() != "")
+                        else if (terrn_filename == App::sim_terrain_name->getStr())
                         {
-                            App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                            App::GetGameContext()->LoadScene(m.description);
                         }
+                        else if (terrn_filename != App::sim_terrain_name->getStr() && App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+                        {
+                            Str<400> msg; msg << _L("Error while loading scene: Terrain mismatch");
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
+                        }
+                        else
+                        {
+                            if (App::sim_terrain_name->getStr() != "")
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_SIM_UNLOAD_TERRN_REQUESTED));
+                            }
 
-                        RoR::LogFormat("[RoR|Savegame] Loading terrain '%s' ...", terrn_filename.c_str());
-                        App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, terrn_filename));
-                        // Loading terrain may produce actor-spawn requests; the savegame-request must be posted after them.
-                        App::GetGameContext()->ChainMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, m.description));
+                            RoR::LogFormat("[RoR|Savegame] Loading terrain '%s' ...", terrn_filename.c_str());
+                            App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, terrn_filename));
+                            // Loading terrain may produce actor-spawn requests; the savegame-request must be posted after them.
+                            App::GetGameContext()->ChainMessage(Message(MSG_SIM_LOAD_SAVEGAME_REQUESTED, m.description));
+                        }
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     break;
                 }
@@ -707,9 +955,16 @@ int main(int argc, char *argv[])
                 case MSG_SIM_SPAWN_ACTOR_REQUESTED:
                 {
                     ActorSpawnRequest* rq = static_cast<ActorSpawnRequest*>(m.payload);
-                    if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                    try
                     {
-                        App::GetGameContext()->SpawnActor(*rq);
+                        if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                        {
+                            App::GetGameContext()->SpawnActor(*rq);
+                        }
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     delete rq;
                     break;
@@ -718,9 +973,16 @@ int main(int argc, char *argv[])
                 case MSG_SIM_MODIFY_ACTOR_REQUESTED:
                 {
                     ActorModifyRequest* rq = static_cast<ActorModifyRequest*>(m.payload);
-                    if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                    try
                     {
-                        App::GetGameContext()->ModifyActor(*rq);
+                        if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                        {
+                            App::GetGameContext()->ModifyActor(*rq);
+                        }
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     delete rq;
                     break;
@@ -729,10 +991,17 @@ int main(int argc, char *argv[])
                 case MSG_SIM_DELETE_ACTOR_REQUESTED:
                 {
                     ActorPtr* actor_ptr = static_cast<ActorPtr*>(m.payload);
-                    ROR_ASSERT(actor_ptr);
-                    if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                    try
                     {
-                        App::GetGameContext()->DeleteActor(*actor_ptr);
+                        ROR_ASSERT(actor_ptr);
+                        if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                        {
+                            App::GetGameContext()->DeleteActor(*actor_ptr);
+                        }
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     delete actor_ptr;
                     break;
@@ -741,10 +1010,17 @@ int main(int argc, char *argv[])
                 case MSG_SIM_SEAT_PLAYER_REQUESTED:
                 {
                     ActorPtr* actor_ptr = static_cast<ActorPtr*>(m.payload);
-                    ROR_ASSERT(actor_ptr); // Even if leaving vehicle, the pointer must be valid.
-                    if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                    try
                     {
-                        App::GetGameContext()->ChangePlayerActor(*actor_ptr);
+                        ROR_ASSERT(actor_ptr); // Even if leaving vehicle, the pointer must be valid.
+                        if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                        {
+                            App::GetGameContext()->ChangePlayerActor(*actor_ptr);
+                        }
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     delete actor_ptr;
                     break;
@@ -753,9 +1029,16 @@ int main(int argc, char *argv[])
                 case MSG_SIM_TELEPORT_PLAYER_REQUESTED:
                 {
                     Ogre::Vector3* pos = static_cast<Ogre::Vector3*>(m.payload);
-                    if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                    try
                     {
-                        App::GetGameContext()->TeleportPlayer(pos->x, pos->z);
+                        if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+                        {
+                            App::GetGameContext()->TeleportPlayer(pos->x, pos->z);
+                        }
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     delete pos;
                     break;
@@ -764,19 +1047,26 @@ int main(int argc, char *argv[])
                 case MSG_SIM_HIDE_NET_ACTOR_REQUESTED:
                 {
                     ActorPtr* actor_ptr = static_cast<ActorPtr*>(m.payload);
-                    ROR_ASSERT(actor_ptr);
-                    if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) &&
-                        ((*actor_ptr)->ar_state == ActorState::NETWORKED_OK))
+                    try
                     {
-                        ActorPtr actor = *actor_ptr;
-                        actor->ar_state = ActorState::NETWORKED_HIDDEN; // Stop net. updates
-                        App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor()); // Remove visuals (also stops updating SimBuffer)
-                        actor->GetGfxActor()->GetSimDataBuffer().simbuf_actor_state = ActorState::NETWORKED_HIDDEN; // Hack - manually propagate the new state to SimBuffer so Character can reflect it.
-                        actor->GetGfxActor()->SetAllMeshesVisible(false);
-                        actor->GetGfxActor()->SetCastShadows(false);
-                        actor->muteAllSounds(); // Stop sounds
-                        actor->forceAllFlaresOff();
-                        actor->setSmokeEnabled(false);
+                        ROR_ASSERT(actor_ptr);
+                        if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) &&
+                            ((*actor_ptr)->ar_state == ActorState::NETWORKED_OK))
+                        {
+                            ActorPtr actor = *actor_ptr;
+                            actor->ar_state = ActorState::NETWORKED_HIDDEN; // Stop net. updates
+                            App::GetGfxScene()->RemoveGfxActor(actor->GetGfxActor()); // Remove visuals (also stops updating SimBuffer)
+                            actor->GetGfxActor()->GetSimDataBuffer().simbuf_actor_state = ActorState::NETWORKED_HIDDEN; // Hack - manually propagate the new state to SimBuffer so Character can reflect it.
+                            actor->GetGfxActor()->SetAllMeshesVisible(false);
+                            actor->GetGfxActor()->SetCastShadows(false);
+                            actor->muteAllSounds(); // Stop sounds
+                            actor->forceAllFlaresOff();
+                            actor->setSmokeEnabled(false);
+                        }
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     delete actor_ptr;
                     break;
@@ -785,17 +1075,24 @@ int main(int argc, char *argv[])
                 case MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED:
                 {
                     ActorPtr* actor_ptr = static_cast<ActorPtr*>(m.payload);
-                    ROR_ASSERT(actor_ptr);
-                    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED &&
-                        ((*actor_ptr)->ar_state == ActorState::NETWORKED_HIDDEN))
+                    try
                     {
-                        ActorPtr actor = *actor_ptr;
-                        actor->ar_state = ActorState::NETWORKED_OK; // Resume net. updates
-                        App::GetGfxScene()->RegisterGfxActor(actor->GetGfxActor()); // Restore visuals (also resumes updating SimBuffer)
-                        actor->GetGfxActor()->SetAllMeshesVisible(true);
-                        actor->GetGfxActor()->SetCastShadows(true);
-                        actor->unmuteAllSounds(); // Unmute sounds
-                        actor->setSmokeEnabled(true);
+                        ROR_ASSERT(actor_ptr);
+                        if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED &&
+                            ((*actor_ptr)->ar_state == ActorState::NETWORKED_HIDDEN))
+                        {
+                            ActorPtr actor = *actor_ptr;
+                            actor->ar_state = ActorState::NETWORKED_OK; // Resume net. updates
+                            App::GetGfxScene()->RegisterGfxActor(actor->GetGfxActor()); // Restore visuals (also resumes updating SimBuffer)
+                            actor->GetGfxActor()->SetAllMeshesVisible(true);
+                            actor->GetGfxActor()->SetCastShadows(true);
+                            actor->unmuteAllSounds(); // Unmute sounds
+                            actor->setSmokeEnabled(true);
+                        }
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     delete actor_ptr;
                     break;
@@ -804,7 +1101,14 @@ int main(int argc, char *argv[])
                 case MSG_SIM_SCRIPT_EVENT_TRIGGERED:
                 {
                     ScriptEventArgs* args = static_cast<ScriptEventArgs*>(m.payload);
-                    App::GetScriptEngine()->triggerEvent(args->type, args->arg1, args->arg2ex, args->arg3ex, args->arg4ex, args->arg5ex, args->arg6ex, args->arg7ex, args->arg8ex);
+                    try
+                    {
+                        App::GetScriptEngine()->triggerEvent(args->type, args->arg1, args->arg2ex, args->arg3ex, args->arg4ex, args->arg5ex, args->arg6ex, args->arg7ex, args->arg8ex);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete args;
                     break;
                 }
@@ -812,7 +1116,14 @@ int main(int argc, char *argv[])
                 case MSG_SIM_SCRIPT_CALLBACK_QUEUED:
                 {
                     ScriptCallbackArgs* args = static_cast<ScriptCallbackArgs*>(m.payload);
-                    App::GetScriptEngine()->envokeCallback(args->eventsource->es_script_handler, args->eventsource, args->node);
+                    try
+                    {
+                        App::GetScriptEngine()->envokeCallback(args->eventsource->es_script_handler, args->eventsource, args->node);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete args;
                     break;
                 }
@@ -824,32 +1135,38 @@ int main(int argc, char *argv[])
                     // so it has to be done sequentially on main thread.
                     // ---------------------------------------------------------------------------------
                     ActorLinkingRequest* request = static_cast<ActorLinkingRequest*>(m.payload);
-                    ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(request->alr_actor_instance_id);
-                    if (actor)
+                    try
                     {
-                        switch (request->alr_type)
+                        ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(request->alr_actor_instance_id);
+                        if (actor)
                         {
-                        case ActorLinkingRequestType::HOOK_ACTION:
-                            actor->hookToggle(request->alr_hook_group, request->alr_hook_action, request->alr_hook_mousenode);
-                            if (request->alr_hook_action == MOUSE_HOOK_TOGGLE)
+                            switch (request->alr_type)
                             {
-                                TRIGGER_EVENT_ASYNC(SE_TRUCK_MOUSE_GRAB, request->alr_actor_instance_id);
+                            case ActorLinkingRequestType::HOOK_ACTION:
+                                actor->hookToggle(request->alr_hook_group, request->alr_hook_action, request->alr_hook_mousenode);
+                                if (request->alr_hook_action == MOUSE_HOOK_TOGGLE)
+                                {
+                                    TRIGGER_EVENT_ASYNC(SE_TRUCK_MOUSE_GRAB, request->alr_actor_instance_id);
+                                }
+                                break;
+
+                            case ActorLinkingRequestType::TIE_ACTION:
+                                actor->tieToggle(request->alr_tie_group);
+                                break;
+
+                            case ActorLinkingRequestType::ROPE_ACTION:
+                                actor->ropeToggle(request->alr_rope_group);
+                                break;
+
+                            case ActorLinkingRequestType::SLIDENODE_ACTION:
+                                actor->toggleSlideNodeLock();
+                                break;
                             }
-                            break;
-
-                        case ActorLinkingRequestType::TIE_ACTION:
-                            actor->tieToggle(request->alr_tie_group);
-                            break;
-
-                        case ActorLinkingRequestType::ROPE_ACTION:
-                            actor->ropeToggle(request->alr_rope_group);
-                            break;
-
-                        case ActorLinkingRequestType::SLIDENODE_ACTION:
-                            actor->toggleSlideNodeLock();
-                            break;
                         }
-                        
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     delete request;
                     break;
@@ -858,51 +1175,117 @@ int main(int argc, char *argv[])
                 // -- GUI events ---
 
                 case MSG_GUI_OPEN_MENU_REQUESTED:
-                    App::GetGuiManager()->GameMainMenu.SetVisible(true);
+                {
+                    try
+                    {
+                        App::GetGuiManager()->GameMainMenu.SetVisible(true);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_GUI_CLOSE_MENU_REQUESTED:
-                    App::GetGuiManager()->GameMainMenu.SetVisible(false);
+                {
+                    try
+                    {
+                        App::GetGuiManager()->GameMainMenu.SetVisible(false);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_GUI_OPEN_SELECTOR_REQUESTED:
                 {
                     LoaderType* type = static_cast<LoaderType*>(m.payload);
-                    App::GetGuiManager()->MainSelector.Show(*type, m.description);
+                    try
+                    {
+                        App::GetGuiManager()->MainSelector.Show(*type, m.description);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete type;
                     break;
                 }
 
                 case MSG_GUI_CLOSE_SELECTOR_REQUESTED:
-                    App::GetGuiManager()->MainSelector.Close();
+                {
+                    try
+                    {
+                        App::GetGuiManager()->MainSelector.Close();
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_GUI_MP_CLIENTS_REFRESH:
-                    App::GetGuiManager()->MpClientList.UpdateClients();
+                {
+                    try
+                    {
+                        App::GetGuiManager()->MpClientList.UpdateClients();
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED:
                 {
                     GUI::MessageBoxConfig* conf = static_cast<GUI::MessageBoxConfig*>(m.payload);
-                    App::GetGuiManager()->ShowMessageBox(*conf);
+                    try
+                    {
+                        App::GetGuiManager()->ShowMessageBox(*conf);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete conf;
                     break;
                 }
 
                 case MSG_GUI_DOWNLOAD_PROGRESS:
                 {
-                    App::GetGameContext()->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
                     int* percentage = static_cast<int*>(m.payload);
-                    App::GetGuiManager()->LoadingWindow.SetProgress(*percentage, m.description, false);
+                    try
+                    {
+                        App::GetGameContext()->PushMessage(Message(MSG_GUI_CLOSE_MENU_REQUESTED));
+                        App::GetGuiManager()->LoadingWindow.SetProgress(*percentage, m.description, false);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete percentage;
                     break;
                 }
 
                 case MSG_GUI_DOWNLOAD_FINISHED:
-                    App::GetGuiManager()->LoadingWindow.SetVisible(false);
-                    App::GetGuiManager()->RepositorySelector.SetVisible(true);
-                    App::GetGuiManager()->RepositorySelector.DownloadFinished();
+                {
+                    try
+                    {
+                        App::GetGuiManager()->LoadingWindow.SetVisible(false);
+                        App::GetGuiManager()->RepositorySelector.SetVisible(true);
+                        App::GetGuiManager()->RepositorySelector.DownloadFinished();
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
+                }
 
                 case MSG_GUI_REFRESH_TUNING_MENU_REQUESTED:
                 {
@@ -914,43 +1297,75 @@ int main(int argc, char *argv[])
 
                 case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED:
                 {
-                    ground_model_t* modified_gm = static_cast<ground_model_t*>(m.payload);
-                    ground_model_t* live_gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString(modified_gm->name);
-                    *live_gm = *modified_gm; // Copy over
-                    //DO NOT `delete` the payload - it's a weak pointer, the data are owned by `RoR::Collisions`; See `enum MsgType` in file 'Application.h'.
+                    try
+                    {
+                        ground_model_t* modified_gm = static_cast<ground_model_t*>(m.payload);
+                        ground_model_t* live_gm = App::GetGameContext()->GetTerrain()->GetCollisions()->getGroundModelByString(modified_gm->name);
+                        *live_gm = *modified_gm; // Copy over
+                        //DO NOT `delete` the payload - it's a weak pointer, the data are owned by `RoR::Collisions`; See `enum MsgType` in file 'Application.h'.
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
                 }
 
                 case MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED:
-                    if (App::sim_state->getEnum<SimState>() != SimState::EDITOR_MODE)
+                {
+                    try
                     {
-                        App::sim_state->setVal((int)SimState::EDITOR_MODE);
-                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                                      _L("Entered terrain editing mode"));
-                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                                      fmt::format(_L("Press {} or middle mouse click to select an object"),
-                                   App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_OR_EXIT_TRUCK)), "lightbulb.png");
+                        if (App::sim_state->getEnum<SimState>() != SimState::EDITOR_MODE)
+                        {
+                            App::sim_state->setVal((int)SimState::EDITOR_MODE);
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                          _L("Entered terrain editing mode"));
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                          fmt::format(_L("Press {} or middle mouse click to select an object"),
+                                       App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_OR_EXIT_TRUCK)), "lightbulb.png");
+                        }
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     break;
+                }
 
                 case MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED:
-                    if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
+                {
+                    try
                     {
-                        App::GetGameContext()->GetTerrain()->GetTerrainEditor()->WriteOutputFile();
-                        App::GetGameContext()->GetTerrain()->GetTerrainEditor()->ClearSelection();
-                        App::sim_state->setVal((int)SimState::RUNNING);
-                        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                                      _L("Left terrain editing mode"));
+                        if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
+                        {
+                            App::GetGameContext()->GetTerrain()->GetTerrainEditor()->WriteOutputFile();
+                            App::GetGameContext()->GetTerrain()->GetTerrainEditor()->ClearSelection();
+                            App::sim_state->setVal((int)SimState::RUNNING);
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                                          _L("Left terrain editing mode"));
+                        }
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     break;
+                }
 
                 case MSG_EDI_LOAD_BUNDLE_REQUESTED:
                 {
                     CacheEntryPtr* entry_ptr = static_cast<CacheEntryPtr*>(m.payload);
-                    App::GetCacheSystem()->LoadResource(*entry_ptr);
-                    TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,  
-                        /*ints*/ MODCACHEACTIVITY_BUNDLE_LOADED, (*entry_ptr)->number, 0, 0,
-                        /*strings*/ (*entry_ptr)->resource_group);
+                    try
+                    {
+                        App::GetCacheSystem()->LoadResource(*entry_ptr);
+                        TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,  
+                            /*ints*/ MODCACHEACTIVITY_BUNDLE_LOADED, (*entry_ptr)->number, 0, 0,
+                            /*strings*/ (*entry_ptr)->resource_group);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete entry_ptr;
                     break;
                 }
@@ -959,32 +1374,39 @@ int main(int argc, char *argv[])
                 {
                     // To reload the bundle, it's resource group must be destroyed and re-created. All actors using it must be deleted.
                     CacheEntryPtr* entry_ptr = static_cast<CacheEntryPtr*>(m.payload);
-                    bool all_clear = true;
-                    for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
+                    try
                     {
-                        if (actor->GetGfxActor()->GetResourceGroup() == (*entry_ptr)->resource_group)
+                        bool all_clear = true;
+                        for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
                         {
-                            App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
-                            all_clear = false;
+                            if (actor->GetGfxActor()->GetResourceGroup() == (*entry_ptr)->resource_group)
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
+                                all_clear = false;
+                            }
+                        }
+
+                        if (all_clear)
+                        {
+                            // Nobody uses the RG anymore -> destroy and re-create it.
+                            App::GetCacheSystem()->ReLoadResource(*entry_ptr);
+
+                            TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,  
+                                /*ints*/ MODCACHEACTIVITY_BUNDLE_RELOADED, (*entry_ptr)->number, 0, 0,
+                                /*strings*/ (*entry_ptr)->resource_group);
+
+                            delete entry_ptr;
+                        }
+                        else
+                        {
+                            // Re-post the same message again so that it's message chain is executed later.
+                            App::GetGameContext()->PushMessage(m);
+                            failed_m = true;
                         }
                     }
-
-                    if (all_clear)
+                    catch (...) 
                     {
-                        // Nobody uses the RG anymore -> destroy and re-create it.
-                        App::GetCacheSystem()->ReLoadResource(*entry_ptr);
-
-                        TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,  
-                            /*ints*/ MODCACHEACTIVITY_BUNDLE_RELOADED, (*entry_ptr)->number, 0, 0,
-                            /*strings*/ (*entry_ptr)->resource_group);
-
-                        delete entry_ptr;
-                    }
-                    else
-                    {
-                        // Re-post the same message again so that it's message chain is executed later.
-                        App::GetGameContext()->PushMessage(m);
-                        failed_m = true;
+                        HandleMsgQueueException(m.type);
                     }
                     break;
                 }
@@ -993,31 +1415,38 @@ int main(int argc, char *argv[])
                 {
                     // Unloading bundle means the resource group will be destroyed. All actors using it must be deleted.
                     CacheEntryPtr* entry_ptr = static_cast<CacheEntryPtr*>(m.payload);
-                    bool all_clear = true;
-                    for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
+                    try
                     {
-                        if (actor->GetGfxActor()->GetResourceGroup() == (*entry_ptr)->resource_group)
+                        bool all_clear = true;
+                        for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
                         {
-                            App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
-                            all_clear = false;
+                            if (actor->GetGfxActor()->GetResourceGroup() == (*entry_ptr)->resource_group)
+                            {
+                                App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, static_cast<void*>(new ActorPtr(actor))));
+                                all_clear = false;
+                            }
+                        }
+
+                        if (all_clear)
+                        {
+                            // Nobody uses the RG anymore -> destroy it.
+                            App::GetCacheSystem()->UnLoadResource(*entry_ptr);
+
+                            TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,  
+                                /*ints*/ MODCACHEACTIVITY_BUNDLE_UNLOADED, (*entry_ptr)->number, 0, 0);
+
+                            delete entry_ptr;
+                        }
+                        else
+                        {
+                            // Re-post the same message again so that it's message chain is executed later.
+                            App::GetGameContext()->PushMessage(m);
+                            failed_m = true;
                         }
                     }
-
-                    if (all_clear)
+                    catch (...) 
                     {
-                        // Nobody uses the RG anymore -> destroy it.
-                        App::GetCacheSystem()->UnLoadResource(*entry_ptr);
-
-                        TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,  
-                            /*ints*/ MODCACHEACTIVITY_BUNDLE_UNLOADED, (*entry_ptr)->number, 0, 0);
-
-                        delete entry_ptr;
-                    }
-                    else
-                    {
-                        // Re-post the same message again so that it's message chain is executed later.
-                        App::GetGameContext()->PushMessage(m);
-                        failed_m = true;
+                        HandleMsgQueueException(m.type);
                     }
   
                     break;
@@ -1026,7 +1455,14 @@ int main(int argc, char *argv[])
                 case MSG_EDI_CREATE_PROJECT_REQUESTED:
                 {
                     CreateProjectRequest* request = static_cast<CreateProjectRequest*>(m.payload);
-                    App::GetCacheSystem()->CreateProject(request);
+                    try 
+                    {
+                        App::GetCacheSystem()->CreateProject(request);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete request;
                     break;
                 }
@@ -1034,9 +1470,16 @@ int main(int argc, char *argv[])
                 case MSG_EDI_MODIFY_PROJECT_REQUESTED:
                 {
                     ModifyProjectRequest* request = static_cast<ModifyProjectRequest*>(m.payload);
-                    if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED) // Do not allow tuning in multiplayer
+                    try
                     {
-                        App::GetCacheSystem()->ModifyProject(request);
+                        if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED) // Do not allow tuning in multiplayer
+                        {
+                            App::GetCacheSystem()->ModifyProject(request);
+                        }
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
                     }
                     delete request;
                     break;
@@ -1045,7 +1488,14 @@ int main(int argc, char *argv[])
                 case MSG_EDI_DELETE_PROJECT_REQUESTED:
                 {
                     CacheEntryPtr* entry_ptr = static_cast<CacheEntryPtr*>(m.payload);
-                    App::GetCacheSystem()->DeleteProject(*entry_ptr);
+                    try
+                    {
+                        App::GetCacheSystem()->DeleteProject(*entry_ptr);
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     delete entry_ptr;
                     break;
                 }

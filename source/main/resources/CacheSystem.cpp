@@ -1626,184 +1626,175 @@ void CacheSystem::LoadAssociatedTuneupDef(CacheEntryPtr& cache_entry)
 
 CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
 {
-    try
+
+    // Validate the request
+    if (!request->cpr_source_entry)
     {
-        // Validate the request
-        if (!request->cpr_source_entry)
-        {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-                fmt::format(_LC("CacheSystem", "Cannot create project '{}' - no source mod specified!"), request->cpr_name));
-            return nullptr;
-        }
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format(_LC("CacheSystem", "Cannot create project '{}' - no source mod specified!"), request->cpr_name));
+        return nullptr;
+    }
 
-        // Make sure projects folder exists
-        CreateFolder(App::sys_projects_dir->getStr());
+    // Make sure projects folder exists
+    CreateFolder(App::sys_projects_dir->getStr());
 
-        // Create subfolder
-        std::string project_path = PathCombine(App::sys_projects_dir->getStr(), request->cpr_name);
-        if (FolderExists(project_path) && !request->cpr_overwrite)
-        {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-                fmt::format(_LC("CacheSystem", "Project directory '{}' already exists!"), request->cpr_name));
-            return nullptr;
-        }
-        CreateFolder(project_path);
-        if (!FolderExists(project_path))
-        {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-                fmt::format(_LC("CacheSystem", "Project directory '{}' could not be created!"), request->cpr_name));
-            return nullptr;
-        }
+    // Create subfolder
+    std::string project_path = PathCombine(App::sys_projects_dir->getStr(), request->cpr_name);
+    if (FolderExists(project_path) && !request->cpr_overwrite)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format(_LC("CacheSystem", "Project directory '{}' already exists!"), request->cpr_name));
+        return nullptr;
+    }
+    CreateFolder(project_path);
+    if (!FolderExists(project_path))
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format(_LC("CacheSystem", "Project directory '{}' could not be created!"), request->cpr_name));
+        return nullptr;
+    }
 
-        // Check if a project with the same name already exists
-        CacheEntryPtr project_entry;
-        bool project_entry_created = false;
-        if (request->cpr_overwrite)
-        {
-            project_entry = this->FindEntryByFilename(LT_Tuneup, /*partial:*/false, fmt::format("{}.tuneup", request->cpr_name));
-            this->LoadResource(project_entry); // This fills `entry.resource_group`
-        }
+    // Check if a project with the same name already exists
+    CacheEntryPtr project_entry;
+    bool project_entry_created = false;
+    if (request->cpr_overwrite)
+    {
+        project_entry = this->FindEntryByFilename(LT_Tuneup, /*partial:*/false, fmt::format("{}.tuneup", request->cpr_name));
+        this->LoadResource(project_entry); // This fills `entry.resource_group`
+    }
 
-        if (!project_entry)
-        {
-            // Create preliminary cache entry
-            project_entry = new CacheEntry();
-            project_entry_created = true;
+    if (!project_entry)
+    {
+        // Create preliminary cache entry
+        project_entry = new CacheEntry();
+        project_entry_created = true;
 
-            if (request->cpr_type == CreateProjectRequestType::SAVE_TUNEUP)
-            {
-                project_entry->fext = "tuneup"; // Tell modcache what it is.
-                project_entry->categoryid = CID_Tuneups; // For display in modcache            
-                project_entry->guid = request->cpr_source_entry->guid; // For lookup of tuneups by vehicle GUID.
+        if (request->cpr_type == CreateProjectRequestType::SAVE_TUNEUP)
+        {
+            project_entry->fext = "tuneup"; // Tell modcache what it is.
+            project_entry->categoryid = CID_Tuneups; // For display in modcache            
+            project_entry->guid = request->cpr_source_entry->guid; // For lookup of tuneups by vehicle GUID.
                 Ogre::StringUtil::toLowerCase(project_entry->guid);
                 project_entry->tuneup_associated_filename = request->cpr_source_entry->fname; // For additional filtering of results (GUID marks a family, not individual mod).
                 Ogre::StringUtil::toLowerCase(project_entry->tuneup_associated_filename);
-            }
-            else
-            {
-                project_entry->fext = request->cpr_source_entry->fext; // Tell modcache what it is.
-                project_entry->categoryid = CID_Projects; // To list projects easily from cache
-            }
-            project_entry->categoryname = m_categories[project_entry->categoryid];
-            project_entry->resource_bundle_type = "FileSystem"; // Tell modcache how to load it.
-            project_entry->resource_bundle_path = project_path; // Tell modcache where to load it from.
-            project_entry->fname = fmt::format("{}.{}", request->cpr_name, project_entry->fext); // Compose target mod filename
-            project_entry->dname = request->cpr_name;
-            project_entry->description = request->cpr_description;
-            project_entry->number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
-            this->LoadResource(project_entry); // This fills `entry.resource_group`
-        }
-     
-        if (request->cpr_type == CreateProjectRequestType::SAVE_TUNEUP)
-        {
-            // Tuneup projects don't contain any media, just the .tuneup file which lists addonparts to use.
-
-            // Prepare the .tuneup document
-            ROR_ASSERT(request->cpr_source_actor);
-            ROR_ASSERT(request->cpr_source_actor->getWorkingTuneupDef());
-
-            TuneupDefPtr tuneup = request->cpr_source_actor->getWorkingTuneupDef()->clone();
-            tuneup->guid = request->cpr_source_entry->guid; // For lookup of tuneups by vehicle GUID.
-            tuneup->filename = request->cpr_source_entry->fname; // For additional filtering of results (GUID marks a family, not individual mod).
-            tuneup->name = request->cpr_name;
-            tuneup->description = request->cpr_description;
-            tuneup->thumbnail = request->cpr_source_entry->filecachename;
-            tuneup->category_id = (CacheCategoryId)project_entry->categoryid;
-
-            // Write out the .tuneup file.
-            Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(
-                project_entry->fname, project_entry->resource_group, request->cpr_overwrite);
-            TuneupUtil::ExportTuneup(datastream, tuneup);
-
-            // Attach the document to the entry in memory
-            project_entry->tuneup_def = tuneup;
-
-            // In the likely case this was invoked from TopMenubarUI, update it.
-            if (App::GetGuiManager()->TopMenubar.tuning_savebox_visible)
-            {
-                App::GetGuiManager()->TopMenubar.tuning_savebox_visible = false;
-                App::GetGuiManager()->TopMenubar.tuning_actor = nullptr; // Force refresh
-            }
         }
         else
         {
+            project_entry->fext = request->cpr_source_entry->fext; // Tell modcache what it is.
+            project_entry->categoryid = CID_Projects; // To list projects easily from cache
+        }
+        project_entry->categoryname = m_categories[project_entry->categoryid];
+        project_entry->resource_bundle_type = "FileSystem"; // Tell modcache how to load it.
+        project_entry->resource_bundle_path = project_path; // Tell modcache where to load it from.
+        project_entry->fname = fmt::format("{}.{}", request->cpr_name, project_entry->fext); // Compose target mod filename
+        project_entry->dname = request->cpr_name;
+        project_entry->description = request->cpr_description;
+        project_entry->number = static_cast<int>(m_entries.size() + 1); // Let's number mods from 1
+        this->LoadResource(project_entry); // This fills `entry.resource_group`
+    }
+     
+    if (request->cpr_type == CreateProjectRequestType::SAVE_TUNEUP)
+    {
+        // Tuneup projects don't contain any media, just the .tuneup file which lists addonparts to use.
 
-            // Create temporary resource group with only the data we want.
-            std::string temp_rg = "TempProjectSourceRG";
-            // Apart from `Resources` and resource groups, OGRE also keeps `Archives` in `ArchiveManager`
-            // These aren't unloaded on destroying resource groups, and keep a 'readOnly' flag (defaults to true).
-            // Upon loading/creating new resource groups, OGRE complains if the submitted flag doesn't match.
-            // Since we want to make subdirs (with upacked mods) writable, we must purge subdir-archives now.
-            bool readonly = request->cpr_source_entry->resource_bundle_type == "Zip";
-            bool recursive = false;
-            Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-                request->cpr_source_entry->resource_bundle_path,
-                request->cpr_source_entry->resource_bundle_type, temp_rg, recursive, readonly);
-            Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(temp_rg);
+        // Prepare the .tuneup document
+        ROR_ASSERT(request->cpr_source_actor);
+        ROR_ASSERT(request->cpr_source_actor->getWorkingTuneupDef());
 
-            // Copy the files, one by one
-            Ogre::FileInfoListPtr filelist = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(temp_rg, "*.*");
-            for (size_t i = 0; i < filelist->size(); i++)
-            {
-                Ogre::FileInfo fileinfo = filelist->at(i);
+        TuneupDefPtr tuneup = request->cpr_source_actor->getWorkingTuneupDef()->clone();
+        tuneup->guid = request->cpr_source_entry->guid; // For lookup of tuneups by vehicle GUID.
+            tuneup->filename = request->cpr_source_entry->fname; // For additional filtering of results (GUID marks a family, not individual mod).
+        tuneup->name = request->cpr_name;
+        tuneup->description = request->cpr_description;
+        tuneup->thumbnail = request->cpr_source_entry->filecachename;
+        tuneup->category_id = (CacheCategoryId)project_entry->categoryid;
 
-                // Render a frame with a progress window on it.
-                App::GetGuiManager()->LoadingWindow.SetProgress(
-                    (i+1)/filelist->size(),
-                    fmt::format("Creating project from existing mod...\nCopying file {}/{} '{}'", i, filelist->size(), fileinfo.filename),
-                    /*render_frame:*/true);
+        // Write out the .tuneup file.
+        Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(
+            project_entry->fname, project_entry->resource_group, request->cpr_overwrite);
+        TuneupUtil::ExportTuneup(datastream, tuneup);
+
+        // Attach the document to the entry in memory
+        project_entry->tuneup_def = tuneup;
+
+        // In the likely case this was invoked from TopMenubarUI, update it.
+        if (App::GetGuiManager()->TopMenubar.tuning_savebox_visible)
+        {
+            App::GetGuiManager()->TopMenubar.tuning_savebox_visible = false;
+            App::GetGuiManager()->TopMenubar.tuning_actor = nullptr; // Force refresh
+        }
+    }
+    else
+    {
+
+        // Create temporary resource group with only the data we want.
+        std::string temp_rg = "TempProjectSourceRG";
+        // Apart from `Resources` and resource groups, OGRE also keeps `Archives` in `ArchiveManager`
+        // These aren't unloaded on destroying resource groups, and keep a 'readOnly' flag (defaults to true).
+        // Upon loading/creating new resource groups, OGRE complains if the submitted flag doesn't match.
+        // Since we want to make subdirs (with upacked mods) writable, we must purge subdir-archives now.
+        bool readonly = request->cpr_source_entry->resource_bundle_type == "Zip";
+        bool recursive = false;
+        Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+            request->cpr_source_entry->resource_bundle_path,
+            request->cpr_source_entry->resource_bundle_type, temp_rg, recursive, readonly);
+        Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup(temp_rg);
+
+        // Copy the files, one by one
+        Ogre::FileInfoListPtr filelist = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(temp_rg, "*.*");
+        for (size_t i = 0; i < filelist->size(); i++)
+        {
+            Ogre::FileInfo fileinfo = filelist->at(i);
+
+            // Render a frame with a progress window on it.
+            App::GetGuiManager()->LoadingWindow.SetProgress(
+                (i+1)/filelist->size(),
+                fmt::format("Creating project from existing mod...\nCopying file {}/{} '{}'", i, filelist->size(), fileinfo.filename),
+                /*render_frame:*/true);
             
-                // Copy one file    
-                try
+            // Copy one file    
+            try
+            {
+                DataStreamPtr src_ds = ResourceGroupManager::getSingleton().openResource(fileinfo.filename, temp_rg);
+                DataStreamPtr dst_ds = ResourceGroupManager::getSingleton().createResource(fileinfo.filename, project_entry->resource_group);
+                std::vector<char> buf(src_ds->size());
+                size_t read = src_ds->read(buf.data(), src_ds->size());
+                if (read > 0)
                 {
-                    DataStreamPtr src_ds = ResourceGroupManager::getSingleton().openResource(fileinfo.filename, temp_rg);
-                    DataStreamPtr dst_ds = ResourceGroupManager::getSingleton().createResource(fileinfo.filename, project_entry->resource_group);
-                    std::vector<char> buf(src_ds->size());
-                    size_t read = src_ds->read(buf.data(), src_ds->size());
-                    if (read > 0)
-                    {
-                        dst_ds->write(buf.data(), read); 
-                    }
-                }
-                catch (Ogre::Exception& oex)
-                {
-                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
-                        fmt::format(_LC("CacheSystem", "Could not copy file '{}' to project '{}', message: {}."),
-                            fileinfo.filename, request->cpr_name, oex.getDescription()));       
+                    dst_ds->write(buf.data(), read); 
                 }
             }
-
-            App::GetGuiManager()->LoadingWindow.SetVisible(false);
-            Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(temp_rg);
-
-            // Finally rename the mod file
-            Ogre::FileSystemLayer::renameFile(
-                /*oldPath:*/ PathCombine(project_path, request->cpr_source_entry->fname),
-                /*newPath:*/ PathCombine(project_path, project_entry->fname));
+            catch (Ogre::Exception& oex)
+            {
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                    fmt::format(_LC("CacheSystem", "Could not copy file '{}' to project '{}', message: {}."),
+                        fileinfo.filename, request->cpr_name, oex.getDescription()));       
+            }
         }
 
+        App::GetGuiManager()->LoadingWindow.SetVisible(false);
+        Ogre::ResourceGroupManager::getSingleton().destroyResourceGroup(temp_rg);
 
-        if (project_entry_created)
-        {
-            // Add the new entry to database
-            m_entries.push_back(project_entry);
-        }
-
-        // notify script
-        modCacheActivityType activity_type = (project_entry_created) ? MODCACHEACTIVITY_ENTRY_ADDED : MODCACHEACTIVITY_ENTRY_MODIFIED;
-        TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,
-            /*ints*/ activity_type, project_entry->number, 0, 0,
-            /*strings*/ project_entry->fname, project_entry->fext);
-
-        return project_entry;
+        // Finally rename the mod file
+        Ogre::FileSystemLayer::renameFile(
+            /*oldPath:*/ PathCombine(project_path, request->cpr_source_entry->fname),
+            /*newPath:*/ PathCombine(project_path, project_entry->fname));
     }
-    catch (Ogre::Exception& oex)
+
+
+    if (project_entry_created)
     {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format(_LC("CacheSystem", "Unexpected error creating project '{}', message: {}"),
-                request->cpr_name, oex.getDescription()));
-        return nullptr;
+        // Add the new entry to database
+        m_entries.push_back(project_entry);
     }
+
+    // notify script
+    modCacheActivityType activity_type = (project_entry_created) ? MODCACHEACTIVITY_ENTRY_ADDED : MODCACHEACTIVITY_ENTRY_MODIFIED;
+    TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,
+        /*ints*/ activity_type, project_entry->number, 0, 0,
+        /*strings*/ project_entry->fname, project_entry->fext);
+
+    return project_entry;
 }
 
 void CacheSystem::ModifyProject(ModifyProjectRequest* request)
@@ -2017,8 +2008,7 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
 
 void CacheSystem::DeleteProject(CacheEntryPtr& entry)
 {
-    try
-    {
+
         this->UnLoadResource(entry);
 
         // Delete the files, one by one
@@ -2052,14 +2042,6 @@ void CacheSystem::DeleteProject(CacheEntryPtr& entry)
 
         // Force update of Tuning menu in TopMenubarUI.
         App::GetGuiManager()->TopMenubar.tuning_actor = nullptr;
-
-    }
-    catch (...)
-    {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format(_LC("CacheSystem", "Unexpected error deleting project '{}'"), entry->dname));
-        App::GetScriptEngine()->forwardExceptionAsScriptEvent("MSG_EDI_DELETE_PROJECT_REQUESTED");
-    }
 }
 
 size_t CacheSystem::Query(CacheQuery& query)
