@@ -105,7 +105,6 @@ public:
     void                    LoadTelepoints();
     void                    LoadPredefinedActors();
     bool                    HasPredefinedActors();
-    void                    HandleException(const char* summary);
     /// @}
 
 private:

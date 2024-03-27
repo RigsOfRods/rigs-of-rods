@@ -100,7 +100,6 @@ public:
     std::shared_ptr<OTCFile>  GetDefinition() { return m_def; };
 
 private:
-    void                      HandleException(const char* filename);
 
     std::shared_ptr<OTCFile>  m_def;
 };

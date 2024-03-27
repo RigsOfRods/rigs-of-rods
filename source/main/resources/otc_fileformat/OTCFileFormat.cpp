@@ -97,7 +97,7 @@ bool RoR::OTCParser::LoadMasterConfig(Ogre::DataStreamPtr &ds, const char* filen
     }
     catch (...)
     {
-        this->HandleException(filename);
+        RoR::HandleGenericException(fmt::format("OTCParser::LoadMasterConfig({})", filename));
         return false;
     }
     return true;
@@ -168,23 +168,10 @@ bool RoR::OTCParser::LoadPageConfig(Ogre::DataStreamPtr &ds, RoR::OTCPage& page,
     }
     catch (...)
     {
-        this->HandleException(filename);
+        RoR::HandleGenericException(fmt::format("OTCParser::LoadPageConfig({})", filename));
         return false;
     }
     return true;
-}
-
-void RoR::OTCParser::HandleException(const char* filename)
-{
-    try { throw; } // Rethrow
-    catch (Ogre::Exception& e)
-    {
-        LOG(std::string("[RoR|Terrain] Error reading OTC file '") + filename + "', message: " + e.getFullDescription());
-    }
-    catch (std::exception& e)
-    {
-        LOG(std::string("[RoR|Terrain] Error reading OTC file '") + filename + "', Message: " + e.what());
-    }
 }
 
 RoR::OTCFile::OTCFile():
