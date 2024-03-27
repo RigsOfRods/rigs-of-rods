@@ -287,6 +287,8 @@ void DustPool::update()
             emit->setTimeToLive(vel * 0.04 / 0.1);
         }
 
+        pss[i]->setSpeedFactor(App::GetGameContext()->GetActorManager()->GetSimulationSpeed());
+
         emit->setColour(col);
     }
     for (int i = allocated; i < size; i++)
