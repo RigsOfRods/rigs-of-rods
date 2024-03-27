@@ -357,6 +357,55 @@ void DestroyOverlayWrapper()
 } // namespace App
 
 // ------------------------------------------------------------------------------------------------
+// Global exception handling
+// ------------------------------------------------------------------------------------------------
+
+void HandleGenericException(const std::string& from, BitMask_t flags)
+{
+    try
+    {
+        throw; // rethrow
+    }
+    catch (Ogre::Exception& oex)
+    {
+        if (flags & HANDLEGENERICEXCEPTION_CONSOLE)
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, fmt::format("{}: {}", from, oex.what()));
+        // Ignoring flag HANDLEGENERICEXCEPTION_LOGFILE - Already logged to RoR.log in full by OGRE
+#ifdef USE_ANGELSCRIPT
+        if (flags & HANDLEGENERICEXCEPTION_SCRIPTEVENT)
+            App::GetScriptEngine()->forwardExceptionAsScriptEvent(from);
+#endif
+    }
+    catch (std::exception& stex)
+    {
+        if (flags & HANDLEGENERICEXCEPTION_CONSOLE)
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, fmt::format("{}: {}", from, stex.what()));
+        else if (flags & HANDLEGENERICEXCEPTION_LOGFILE)
+            LOG(fmt::format("{}: {}", from, stex.what()));
+#ifdef USE_ANGELSCRIPT
+        if (flags & HANDLEGENERICEXCEPTION_SCRIPTEVENT)
+            App::GetScriptEngine()->forwardExceptionAsScriptEvent(from);
+#endif
+    }
+    catch (...)
+    {
+        if (flags & HANDLEGENERICEXCEPTION_CONSOLE)
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, fmt::format("{}: Unknown exception", from));
+        else if (flags & HANDLEGENERICEXCEPTION_LOGFILE)
+            LOG(fmt::format("{}: Unknown exception", from));
+#ifdef USE_ANGELSCRIPT
+        if (flags & HANDLEGENERICEXCEPTION_SCRIPTEVENT)
+            App::GetScriptEngine()->forwardExceptionAsScriptEvent(from);
+#endif
+    }
+}
+
+void HandleMsgQueueException(MsgType from)
+{
+    HandleGenericException(MsgTypeToString(from), HANDLEGENERICEXCEPTION_CONSOLE | HANDLEGENERICEXCEPTION_SCRIPTEVENT);
+}
+
+// ------------------------------------------------------------------------------------------------
 // Global logging
 // ------------------------------------------------------------------------------------------------
 
