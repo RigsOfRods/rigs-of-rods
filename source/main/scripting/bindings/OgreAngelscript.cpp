@@ -48,28 +48,6 @@ using namespace RoR;
 
 // helper/wrapper functions first
 
-
-
-static void HandleException(const char* functionName)
-{
-    try
-    {
-        throw; // rethrow
-    }
-    catch (Ogre::Exception& oex)
-    {
-        App::GetScriptEngine()->SLOG(fmt::format("{}: {}", functionName, oex.getDescription()));
-    }
-    catch (std::exception& stex)
-    {
-        App::GetScriptEngine()->SLOG(fmt::format("{}: {}", functionName, stex.what()));
-    }
-    catch (...)
-    {
-        App::GetScriptEngine()->SLOG(fmt::format("{}: Unknown exception was encountered", functionName));
-    }
-}
-
 /***VECTOR3***/
 static void Vector3DefaultConstructor(Vector3* self)
 {
@@ -543,20 +521,6 @@ static std::string MovableObjectGetUniqueNameMixin(Ogre::MovableObject* self)
 {
     // names are optional and largely unused by RoR, so always append the type and memory address (libfmt adds the '0x' prefix)
     return fmt::format("\"{}\" ({} {})", self->getName(), self->getMovableType(), static_cast<void*>(self));
-}
-
-/***SCENEMANAGER***/
-static Entity* SceneManagerCreateEntity(const std::string& entityName, const std::string& meshName, const std::string& meshRG, Ogre::SceneManager* self)
-{
-    try
-    {
-        return self->createEntity(entityName, meshName, meshRG);
-    }
-    catch (...)
-    {
-        HandleException(__FUNCTION__);
-        return nullptr;
-    }
 }
 
 /***ROOT***/
@@ -1698,7 +1662,10 @@ void registerOgreSceneManager(AngelScript::asIScriptEngine* engine)
     int r;
     r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
 
-    r = engine->RegisterObjectMethod("SceneManager", "Entity@ createEntity(const string&in ent_name, const string &in mesh_name, const string &in mesh_rg = \"OgreAutodetect\")", asFUNCTION(SceneManagerCreateEntity), asCALL_CDECL_OBJLAST); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("SceneManager", "Entity@ createEntity(const string&in ent_name, const string &in mesh_name, const string &in mesh_rg = \"OgreAutodetect\")", asFUNCTIONPR([](Ogre::SceneManager* self, const std::string& entityName, const std::string& meshName, const std::string& meshRG) -> Ogre::Entity* {
+        try { return self->createEntity(entityName, meshName, meshRG); }
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::SceneManager::createEntity()"); return nullptr; }
+    }, (Ogre::SceneManager* , const std::string& , const std::string& , const std::string& ), Ogre::Entity*), asCALL_CDECL_OBJFIRST); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneManager", "const string& getName() const", asMETHOD(SceneManager, getName), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneManager", "SceneNode@ getRootSceneNode()", asMETHOD(SceneManager, getRootSceneNode), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("SceneManager", "void destroyEntity(Entity@)", asMETHODPR(SceneManager, destroyEntity, (Entity*), void), asCALL_THISCALL); ROR_ASSERT(r >= 0);
@@ -1785,7 +1752,7 @@ AngelScript::CScriptArray* get2DElementsHelper(Ogre::Overlay* self)
         }
         return arr;
     }
-    catch (...) { /*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Overlay::get2DElements()");*/ return (CScriptArray*)nullptr; }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Overlay::get2DElements()"); return (CScriptArray*)nullptr; }
 }
 
 AngelScript::CScriptArray* getElementTemplatesHelper(Ogre::OverlayManager* self)
@@ -1800,7 +1767,7 @@ AngelScript::CScriptArray* getElementTemplatesHelper(Ogre::OverlayManager* self)
             arr->InsertLast(&elem);  // TORN HAIR HERE!! Don't forget to pass ref-types as pointer-to-pointer!!
         }
         return arr; }
-    catch (...) { /*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::getTemplates()");*/ return (CScriptArray*)nullptr; }
+    catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::getTemplates()"); return (CScriptArray*)nullptr; }
 }
 
 void registerOgreOverlay(AngelScript::asIScriptEngine* engine)
@@ -1873,10 +1840,10 @@ void registerOgreOverlay(AngelScript::asIScriptEngine* engine)
     // > 2D elements
     engine->RegisterObjectMethod("Overlay", "void add2D(OverlayElement@)", asFUNCTIONPR([](Ogre::Overlay* self, Ogre::OverlayElement* elem) {
         try { self->add2D(dynamic_cast<Ogre::OverlayContainer*>(elem)); }
-        catch (...) {/* App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Overlay::add2D()"); */} }, (Ogre::Overlay* , Ogre::OverlayElement* ), void), asCALL_CDECL_OBJFIRST);
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Overlay::add2D()"); } }, (Ogre::Overlay* , Ogre::OverlayElement* ), void), asCALL_CDECL_OBJFIRST);
     engine->RegisterObjectMethod("Overlay", "void remove2D(OverlayElement@)", asFUNCTIONPR([](Ogre::Overlay* self, Ogre::OverlayElement* elem) {
         try { self->remove2D(dynamic_cast<Ogre::OverlayContainer*>(elem)); }
-        catch (...) { /*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Overlay::remove2D()"); */} }, (Ogre::Overlay* , Ogre::OverlayElement* ), void), asCALL_CDECL_OBJFIRST);
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::Overlay::remove2D()"); } }, (Ogre::Overlay* , Ogre::OverlayElement* ), void), asCALL_CDECL_OBJFIRST);
     // > scrolling
     engine->RegisterObjectMethod("Overlay", "void setScroll(float, float)", asMETHOD(Ogre::Overlay, setScroll), asCALL_THISCALL);
     engine->RegisterObjectMethod("Overlay", "float getScrollX() const", asMETHOD(Ogre::Overlay, getScrollX), asCALL_THISCALL);
@@ -1900,56 +1867,56 @@ void registerOgreOverlay(AngelScript::asIScriptEngine* engine)
     // > overlay management
     engine->RegisterObjectMethod("OverlayManager", "Overlay@ create(const string&in)", asFUNCTIONPR([](Ogre::OverlayManager* self, const std::string& name) {
         try {return self->create(name);}
-        catch(...) {/*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::create()");*/ return (Ogre::Overlay*)nullptr;}}, (Ogre::OverlayManager*, const std::string&), Ogre::Overlay*), asCALL_CDECL_OBJFIRST);
+        catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::create()"); return (Ogre::Overlay*)nullptr;}}, (Ogre::OverlayManager*, const std::string&), Ogre::Overlay*), asCALL_CDECL_OBJFIRST);
     engine->RegisterObjectMethod("OverlayManager", "Overlay@ getByName(const string&in)", asFUNCTIONPR([](Ogre::OverlayManager* self, const std::string& name) {
         try {return self->getByName(name);} // Doesn't seem to throw, but just to be sure...
-        catch(...) {/*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::getByName()");*/ return (Ogre::Overlay*)nullptr;}}, (Ogre::OverlayManager*, const std::string&), Ogre::Overlay*), asCALL_CDECL_OBJFIRST);
+        catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::getByName()"); return (Ogre::Overlay*)nullptr;}}, (Ogre::OverlayManager*, const std::string&), Ogre::Overlay*), asCALL_CDECL_OBJFIRST);
     engine->RegisterObjectMethod("OverlayManager", "void destroy(const string&in)", asFUNCTIONPR([](Ogre::OverlayManager* self, const std::string& name) {
         try {return self->destroy(name);}
-        catch(...) {/*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroy(string)");*/ }}, (Ogre::OverlayManager*, const std::string&), void), asCALL_CDECL_OBJFIRST);
+        catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroy(string)"); }}, (Ogre::OverlayManager*, const std::string&), void), asCALL_CDECL_OBJFIRST);
     engine->RegisterObjectMethod("OverlayManager", "void destroy(Overlay@)", asFUNCTIONPR([](Ogre::OverlayManager* self, Ogre::Overlay* ov) {
         try {return self->destroy(ov);}
-        catch(...) {/*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroy(Overlay@)");*/ }}, (Ogre::OverlayManager*, Ogre::Overlay*), void), asCALL_CDECL_OBJFIRST);
+        catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroy(Overlay@)"); }}, (Ogre::OverlayManager*, Ogre::Overlay*), void), asCALL_CDECL_OBJFIRST);
     engine->RegisterObjectMethod("OverlayManager", "void destroyAll()", asFUNCTIONPR([](Ogre::OverlayManager* self) {
         try {return self->destroyAll();}
-        catch(...) {/*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroyAll()");*/ }}, (Ogre::OverlayManager*), void), asCALL_CDECL_OBJFIRST);
+        catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroyAll()"); }}, (Ogre::OverlayManager*), void), asCALL_CDECL_OBJFIRST);
     //    NOTE: we have `getOverlays()` instead of `getOverlayIterator()`
     engine->RegisterObjectMethod("OverlayManager", "array<Overlay@>@ getOverlays()", asFUNCTIONPR([](Ogre::OverlayManager* self) {
         try {auto iterable = self->getOverlayIterator();
             return IterableMapToScriptArray(iterable.begin(), iterable.end(), "Ogre::Overlay@"); }
-        catch (...) { /*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::getOverlays()"); */return (CScriptArray*)nullptr; } }, (Ogre::OverlayManager*), CScriptArray*), asCALL_CDECL_OBJFIRST);
+        catch (...) { App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::getOverlays()"); return (CScriptArray*)nullptr; } }, (Ogre::OverlayManager*), CScriptArray*), asCALL_CDECL_OBJFIRST);
     // > viewport info
     engine->RegisterObjectMethod("OverlayManager", "float getViewportHeight() const", asMETHOD(Ogre::OverlayManager, getViewportHeight), asCALL_THISCALL);
     engine->RegisterObjectMethod("OverlayManager", "float getViewportWidth() const", asMETHOD(Ogre::OverlayManager, getViewportWidth), asCALL_THISCALL);
     // > overlay element management
     engine->RegisterObjectMethod("OverlayManager", "OverlayElement@ createOverlayElement(const string&in, const string&in, bool=false)", asFUNCTIONPR([](Ogre::OverlayManager* self, const std::string& type, const std::string& name, bool isTemplate) {
         try {return dynamic_cast<Ogre::OverlayElement*>(self->createOverlayElement(type,name,isTemplate));}
-        catch(...) {/*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::createOverlayElement()");*/ return (Ogre::OverlayElement*)nullptr;}}, (Ogre::OverlayManager*, const std::string&, const std::string&, bool), Ogre::OverlayElement*), asCALL_CDECL_OBJFIRST);
+        catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::createOverlayElement()"); return (Ogre::OverlayElement*)nullptr;}}, (Ogre::OverlayManager*, const std::string&, const std::string&, bool), Ogre::OverlayElement*), asCALL_CDECL_OBJFIRST);
     engine->RegisterObjectMethod("OverlayManager", "OverlayElement@ getOverlayElement(const string&in) const", asFUNCTIONPR([](Ogre::OverlayManager* self, const std::string& name) {
         try {return dynamic_cast<Ogre::OverlayElement*>(self->getOverlayElement(name));}
-        catch(...) {/*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::getOverlayElement()");*/ return (Ogre::OverlayElement*)nullptr;}}, (Ogre::OverlayManager*, const std::string&), Ogre::OverlayElement*), asCALL_CDECL_OBJFIRST);    
+        catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::getOverlayElement()"); return (Ogre::OverlayElement*)nullptr;}}, (Ogre::OverlayManager*, const std::string&), Ogre::OverlayElement*), asCALL_CDECL_OBJFIRST);    
     engine->RegisterObjectMethod("OverlayManager", "bool hasOverlayElement(const string&in) const", asMETHOD(Ogre::OverlayManager, hasOverlayElement), asCALL_THISCALL);
     engine->RegisterObjectMethod("OverlayManager", "void destroyOverlayElement(const string&in, bool isTemplate=false) const", asFUNCTIONPR([](Ogre::OverlayManager* self, const std::string& name, bool isTemplate) {
         try { self->destroyOverlayElement(name, isTemplate);}
-        catch(...) {/*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroyOverlayElement(string)");*/ }}, (Ogre::OverlayManager*, const std::string&, bool), void), asCALL_CDECL_OBJFIRST);
+        catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroyOverlayElement(string)"); }}, (Ogre::OverlayManager*, const std::string&, bool), void), asCALL_CDECL_OBJFIRST);
     engine->RegisterObjectMethod("OverlayManager", "void destroyOverlayElement(OverlayElement@, bool isTemplate=false) const", asFUNCTIONPR([](Ogre::OverlayManager* self, Ogre::OverlayElement* oe, bool isTemplate) {
         try { self->destroyOverlayElement(oe, isTemplate);}
-        catch(...) {/*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroyOverlayElement(OverlayElement@)");*/ }}, (Ogre::OverlayManager*, Ogre::OverlayElement*, bool), void), asCALL_CDECL_OBJFIRST);
+        catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroyOverlayElement(OverlayElement@)"); }}, (Ogre::OverlayManager*, Ogre::OverlayElement*, bool), void), asCALL_CDECL_OBJFIRST);
     engine->RegisterObjectMethod("OverlayManager", "void destroyAllOverlayElements(bool isTemplate=false) const", asFUNCTIONPR([](Ogre::OverlayManager* self, bool isTemplate) {
         try { self->destroyAllOverlayElements(isTemplate);}
-        catch(...) {/*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroyAllOverlayElements()");*/ }}, (Ogre::OverlayManager*, bool), void), asCALL_CDECL_OBJFIRST);
+        catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::destroyAllOverlayElements()"); }}, (Ogre::OverlayManager*, bool), void), asCALL_CDECL_OBJFIRST);
     // > template management
     engine->RegisterObjectMethod("OverlayManager", "OverlayElement@ createOverlayElementFromTemplate(const string&in, const string&in, const string&in, bool=false)", asFUNCTIONPR([](Ogre::OverlayManager* self,  const std::string& templateName, const std::string& typeName, const std::string& instanceName, bool isTemplate) {
         try {return dynamic_cast<Ogre::OverlayElement*>(self->createOverlayElementFromTemplate(templateName, typeName, instanceName, isTemplate));}
-        catch(...) {/*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::createOverlayElementFromTemplate()");*/ return (Ogre::OverlayElement*)nullptr;}}, (Ogre::OverlayManager*, const std::string&, const std::string&, const std::string&, bool), Ogre::OverlayElement*), asCALL_CDECL_OBJFIRST);
+        catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::createOverlayElementFromTemplate()"); return (Ogre::OverlayElement*)nullptr;}}, (Ogre::OverlayManager*, const std::string&, const std::string&, const std::string&, bool), Ogre::OverlayElement*), asCALL_CDECL_OBJFIRST);
     engine->RegisterObjectMethod("OverlayManager", "OverlayElement@ cloneOverlayElementFromTemplate(const string&in, const string&in)", asFUNCTIONPR([](Ogre::OverlayManager* self,  const std::string& templateName, const std::string& instanceName) {
         try {return dynamic_cast<Ogre::OverlayElement*>(self->cloneOverlayElementFromTemplate(templateName, instanceName));}
-        catch(...) {/*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::cloneOverlayElementFromTemplate()");*/ return (Ogre::OverlayElement*)nullptr;}}, (Ogre::OverlayManager*, const std::string&, const std::string&), Ogre::OverlayElement*), asCALL_CDECL_OBJFIRST);
+        catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::cloneOverlayElementFromTemplate()"); return (Ogre::OverlayElement*)nullptr;}}, (Ogre::OverlayManager*, const std::string&, const std::string&), Ogre::OverlayElement*), asCALL_CDECL_OBJFIRST);
     //    NOTE: we have `getTemplates()` instead of `getTemplateIterator()`
     engine->RegisterObjectMethod("OverlayManager", "array<OverlayElement@>@ getTemplates()", asFUNCTION(getElementTemplatesHelper), asCALL_CDECL_OBJFIRST);
     engine->RegisterObjectMethod("OverlayManager", "bool isTemplate(const string&in)", asFUNCTIONPR([](Ogre::OverlayManager* self, const std::string& name) {
         try {return self->isTemplate(name);}
-        catch(...) {/*App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::isTemplate()");*/ return false;}}, (Ogre::OverlayManager*, const std::string&), bool), asCALL_CDECL_OBJFIRST);
+        catch(...) {App::GetScriptEngine()->forwardExceptionAsScriptEvent("Ogre::OverlayManager::isTemplate()"); return false;}}, (Ogre::OverlayManager*, const std::string&), bool), asCALL_CDECL_OBJFIRST);
 
 
     engine->SetDefaultNamespace("Ogre::OverlayManager");
