@@ -272,7 +272,7 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
     }
     catch (...)
     {
-        terrainManager->HandleException("Error reading main *.otc file");
+        RoR::HandleGenericException(fmt::format("TerrainGeometryManager::InitTerrain({})", otc_filename));
         // If we stop parsing we might break some legacy maps
         //return false;
     }
@@ -302,7 +302,7 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
         }
         catch (...)
         {
-            terrainManager->HandleException("Error reading page config *.otc file");
+            RoR::HandleGenericException(fmt::format("TerrainGeometryManager::InitTerrain({})", page.pageconf_filename));
             // If we stop parsing we might break some legacy maps
             // return false;
         }

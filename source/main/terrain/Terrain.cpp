@@ -564,26 +564,6 @@ bool RoR::Terrain::HasPredefinedActors()
     return false;
 }
 
-void RoR::Terrain::HandleException(const char* summary)
-{
-    try
-    {
-        throw; // rethrow
-    }
-    catch (Ogre::Exception& oex)
-    {
-        RoR::LogFormat("[RoR|Terrain] %s, message: '%s', type: <Ogre::Exception>.", summary, oex.getFullDescription().c_str());
-    }
-    catch (std::exception& stex)
-    {
-        RoR::LogFormat("[RoR|Terrain] %s, message: '%s', type: <std::exception>.", summary, stex.what());
-    }
-    catch (...)
-    {
-        RoR::LogFormat("[RoR|Terrain] %s, unknown error occurred.", summary);
-    }
-}
-
 ProceduralManagerPtr RoR::Terrain::getProceduralManager()
 {
     return m_object_manager->getProceduralManager();
