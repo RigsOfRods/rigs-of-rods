@@ -229,8 +229,11 @@ void AppContext::SetRenderWindowIcon(Ogre::RenderWindow* rw)
 bool AppContext::SetUpRendering()
 {
     // Create 'OGRE root' facade
+    // * leave 'plugins' param empty, we load manually below
+    // * note file 'ogre.cfg' isn't read immediatelly but only after calling 'restoreConfig()' below.
     std::string log_filepath = PathCombine(App::sys_logs_dir->getStr(), "RoR.log");
     std::string cfg_filepath = PathCombine(App::sys_config_dir->getStr(), "ogre.cfg");
+    LOG(fmt::format("[RoR|Startup|Rendering] Creating OGRE renderer Root object, config='{}'", cfg_filepath));
     m_ogre_root = new Ogre::Root("", cfg_filepath, log_filepath);
 
     // load OGRE plugins manually
@@ -239,6 +242,7 @@ bool AppContext::SetUpRendering()
 #else
 	std::string plugins_path = PathCombine(RoR::App::sys_process_dir->getStr(), "plugins.cfg");
 #endif
+    LOG(fmt::format("[RoR|Startup|Rendering] Loading OGRE renderer plugins config '{}'.", plugins_path));
     try
     {
         Ogre::ConfigFile cfg;
@@ -256,23 +260,34 @@ bool AppContext::SetUpRendering()
     }
     catch (Ogre::Exception& e)
     {
-        ErrorUtils::ShowError (_L("Startup error"), e.getFullDescription());
+        ErrorUtils::ShowError (
+            _L("Startup error"), 
+            fmt::format(_L("Could not load file '{}' - make sure the game is installed correctly.\n\nDetailed info: {}"), plugins_path, e.getDescription()));
         return false;
     }
 
     // Load renderer configuration
     if (!m_ogre_root->restoreConfig())
     {
+        LOG(fmt::format("[RoR|Startup|Rendering] WARNING - invalid 'ogre.cfg', selecting render plugin manually..."));
+
         const auto render_systems = App::GetAppContext()->GetOgreRoot()->getAvailableRenderers();
         if (!render_systems.empty())
+        {
+            LOG(fmt::format("[RoR|Startup|Rendering] Auto-selected renderer plugin '{}'", render_systems.front()->getName()));
             m_ogre_root->setRenderSystem(render_systems.front());
+        }
         else
+        {
             ErrorUtils::ShowError (_L("Startup error"), _L("No render system plugin available. Check your plugins.cfg"));
+            return false;
+        }
     }
 
     const auto rs = m_ogre_root->getRenderSystemByName(App::app_rendersys_override->getStr());
     if (rs != nullptr && rs != m_ogre_root->getRenderSystem())
     {
+        LOG(fmt::format("[RoR|Startup|Rendering] Setting renderer '{}' on behalf of 'app_rendersys_override' (user selection via Settings UI)", rs->getName()));
         // The user has selected a different render system during the previous session.
         m_ogre_root->setRenderSystem(rs);
         m_ogre_root->saveConfig();
@@ -280,10 +295,24 @@ bool AppContext::SetUpRendering()
     App::app_rendersys_override->setStr("");
 
     // Start the renderer
+    LOG(fmt::format("[RoR|Startup|Rendering] Starting renderer '{}' (without auto-creating render window)", m_ogre_root->getRenderSystem()->getName()));
     m_ogre_root->initialise(/*createWindow=*/false);
 
-    // Configure the render window
+    // Review configuration options
     Ogre::ConfigOptionMap ropts = m_ogre_root->getRenderSystem()->getConfigOptions();
+    std::stringstream ropts_log;
+    for (auto& pair: ropts)
+    {
+        ropts_log << "  " << pair.first << " = " << pair.second.currentValue << " (";
+        for (auto& val: pair.second.possibleValues)
+        {
+            ropts_log << val << ", ";
+        }
+        ropts_log << ")\n";
+    }
+    LOG(fmt::format("[RoR|Startup|Rendering] Renderer options as reported by OGRE:\n{}", ropts_log.str()));
+
+    // Configure the render window
     Ogre::NameValuePairList miscParams;
     miscParams["FSAA"] = ropts["FSAA"].currentValue;
     miscParams["vsync"] = ropts["VSync"].currentValue;
@@ -310,6 +339,14 @@ bool AppContext::SetUpRendering()
     
     if(width < 800) width = 800;
     if(height < 600) height = 600;
+
+    // Review render window settings
+    std::stringstream miscParams_log;
+    for (auto& pair: miscParams)
+    {
+        miscParams_log << "  " << pair.first << " = " << pair.second << "\n";
+    }
+    LOG(fmt::format("[RoR|Startup|Rendering] Creating render window with settings:\n{}", miscParams_log.str()));
 
     // Create render window
     m_render_window = Ogre::Root::getSingleton().createRenderWindow (
