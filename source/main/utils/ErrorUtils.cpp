@@ -42,6 +42,7 @@ using namespace Ogre;
 
 int ErrorUtils::ShowError(Ogre::UTFString title, Ogre::UTFString err)
 {
+    LOG(fmt::format("[RoR|ErrorPopupDialog] {}: {}", title.asUTF8(), err.asUTF8()));
     Ogre::UTFString infoText = _L("An internal error occured in Rigs of Rods.\n\nTechnical details below: \n\n");
     return ErrorUtils::ShowMsgBox(_L("FATAL ERROR"), infoText + err, 0);
 }
