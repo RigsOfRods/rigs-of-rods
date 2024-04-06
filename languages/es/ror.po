@@ -9,15 +9,15 @@
 # Joaquin Gomez <joa97@hotmail.com.ar>, 2021, 2022.
 # Mxt Apps <mxtapps@gmail.com>, 2021, 2022.
 # Jhaltzkers Jhaltzkers <jhaltzkers@gmail.com>, 2022.
-# gallegonovato <fran-carro@hotmail.es>, 2023.
+# gallegonovato <fran-carro@hotmail.es>, 2023, 2024.
 # Santiago Perez <ambulanciaperez0091@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2024-04-05 19:01+0000\n"
-"Last-Translator: Santiago Perez <ambulanciaperez0091@gmail.com>\n"
+"PO-Revision-Date: 2024-04-07 08:01+0000\n"
+"Last-Translator: gallegonovato <fran-carro@hotmail.es>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/es/>\n"
 "Language: es\n"
@@ -2588,12 +2588,9 @@ msgid "Load"
 msgstr "Cargar"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:147 gui/panels/GUI_ScriptMonitor.cpp:150
-#, fuzzy
-#| msgctxt "RepositorySelector"
-#| msgid "Remove"
 msgctxt "ScriptMonitor"
 msgid "Remove"
-msgstr "Remover"
+msgstr "Quitar"
 
 #: gui/panels/GUI_SimActorStats.cpp:53
 msgctxt "SimActorStats"
@@ -3374,12 +3371,9 @@ msgid "{} waypoints exported to RoR.log"
 msgstr "Se han exportado {} puntos de la ruta a RoR.log"
 
 #: gui/panels/GUI_TopMenubar.cpp:1413
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Speed"
 msgctxt "TopMenubar"
 msgid "speed"
-msgstr "Velocidad"
+msgstr "velocidad"
 
 #: gui/panels/GUI_TopMenubar.cpp:1417
 msgctxt "TopMenubar"
@@ -3420,9 +3414,6 @@ msgid "Saved tuneups ({})"
 msgstr "Afinaciones guardadas ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1485
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Delete"
 msgctxt "Tuning"
 msgid "Delete"
 msgstr "Borrar"
@@ -3433,9 +3424,6 @@ msgid "Working tuneup"
 msgstr "puesta a punto de trabajo"
 
 #: gui/panels/GUI_TopMenubar.cpp:1508
-#, fuzzy
-#| msgctxt "MultiplayerSelector"
-#| msgid "Name"
 msgctxt "Tuning"
 msgid "Name"
 msgstr "Nombre"
@@ -3451,9 +3439,6 @@ msgid "Overwrite"
 msgstr "Sobrescribir"
 
 #: gui/panels/GUI_TopMenubar.cpp:1526 gui/panels/GUI_TopMenubar.cpp:1532
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Cancel"
 msgctxt "Tuning"
 msgid "Cancel"
 msgstr "Cancelar"
@@ -3555,9 +3540,6 @@ msgid "Show controls"
 msgstr "Mostrar controles"
 
 #: gui/panels/GUI_TopMenubar.cpp:2179
-#, fuzzy
-#| msgctxt "NodeBeamUtils"
-#| msgid "Movement"
 msgctxt "LiveRepair"
 msgid "Movement"
 msgstr "Movimiento"
