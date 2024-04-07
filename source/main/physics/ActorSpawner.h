@@ -385,7 +385,7 @@ private:
     void                          CreateVideoCamera(RigDef::VideoCamera* def);
     void                          CreateMirrorPropVideoCam(Ogre::MaterialPtr custom_mat, CustomMaterial::MirrorPropType type, Ogre::SceneNode* prop_scenenode);
     void                          SetupNewEntity(Ogre::Entity* e, Ogre::ColourValue simple_color); //!< Full texture and material setup
-    Ogre::MaterialPtr             InstantiateManagedMaterial(Ogre::String const & source_name, Ogre::String const & clone_name);
+    Ogre::MaterialPtr             InstantiateManagedMaterial(Ogre::String const & rg_name, Ogre::String const & source_name, Ogre::String const & clone_name);
     void                          CreateCabVisual();
     void                          CreateMaterialFlare(int flare_index, Ogre::MaterialPtr mat);
 

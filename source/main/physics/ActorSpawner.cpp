@@ -21,7 +21,7 @@
 
 
 ///    @file
-///    @brief  Vehicle spawning logic.
+///    @brief  Setup instance of `Actor` from a `RigDef` document.
 ///    @author Petr Ohlidal
 ///    @date   12/2013
 
@@ -2309,9 +2309,9 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     m_actor->ar_flares.push_back(flare);
 }
 
-Ogre::MaterialPtr ActorSpawner::InstantiateManagedMaterial(Ogre::String const & source_name, Ogre::String const & clone_name)
+Ogre::MaterialPtr ActorSpawner::InstantiateManagedMaterial(const Ogre::String& rg_name, Ogre::String const & source_name, Ogre::String const & clone_name)
 {
-    Ogre::MaterialPtr src_mat = Ogre::MaterialManager::getSingleton().getByName(source_name);
+    Ogre::MaterialPtr src_mat = Ogre::MaterialManager::getSingleton().getByName(source_name, rg_name);
     if (src_mat.isNull())
     {
         std::stringstream msg;
@@ -2382,11 +2382,11 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
                 /* FLEXMESH, damage, specular */
                 if (App::gfx_alt_actor_materials->getBool())
                 {
-                    material = this->InstantiateManagedMaterial(mat_name_base + "/speculardamage", custom_name);
+                    material = this->InstantiateManagedMaterial(resource_group, mat_name_base + "/speculardamage", custom_name);
                 }
                 else
                 {
-                    material = this->InstantiateManagedMaterial(mat_name_base + "/speculardamage_nicemetal", custom_name);
+                    material = this->InstantiateManagedMaterial(resource_group, mat_name_base + "/speculardamage_nicemetal", custom_name);
                 }
 
                 if (material.isNull())
@@ -2411,7 +2411,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             else
             {
                 /* FLEXMESH, damage, no_specular */
-                material = this->InstantiateManagedMaterial(mat_name_base + "/damageonly", custom_name);
+                material = this->InstantiateManagedMaterial(resource_group, mat_name_base + "/damageonly", custom_name);
                 if (material.isNull())
                 {
                     return;
@@ -2427,11 +2427,11 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
                 /* FLEXMESH, no_damage, specular */
                 if (App::gfx_alt_actor_materials->getBool())
                 {
-                    material = this->InstantiateManagedMaterial(mat_name_base + "/specularonly", custom_name);
+                    material = this->InstantiateManagedMaterial(resource_group, mat_name_base + "/specularonly", custom_name);
                 }
                 else
                 {
-                    material = this->InstantiateManagedMaterial(mat_name_base + "/specularonly_nicemetal", custom_name);
+                    material = this->InstantiateManagedMaterial(resource_group, mat_name_base + "/specularonly_nicemetal", custom_name);
                 }
 
                 if (material.isNull())
@@ -2454,7 +2454,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             else
             {
                 /* FLEXMESH, no_damage, no_specular */
-                material = this->InstantiateManagedMaterial(mat_name_base + "/simple", custom_name);
+                material = this->InstantiateManagedMaterial(resource_group, mat_name_base + "/simple", custom_name);
                 if (material.isNull())
                 {
                     return;
@@ -2475,11 +2475,11 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             /* MESH, specular */
             if (App::gfx_alt_actor_materials->getBool())
             {
-                material = this->InstantiateManagedMaterial(mat_name_base + "/specular", custom_name);
+                material = this->InstantiateManagedMaterial(resource_group, mat_name_base + "/specular", custom_name);
             }
             else
             {
-                material = this->InstantiateManagedMaterial(mat_name_base + "/specular_nicemetal", custom_name);
+                material = this->InstantiateManagedMaterial(resource_group, mat_name_base + "/specular_nicemetal", custom_name);
             }
 
             if (material.isNull())
@@ -2502,7 +2502,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
         else
         {
             /* MESH, no_specular */
-            material = this->InstantiateManagedMaterial(mat_name_base + "/simple", custom_name);
+            material = this->InstantiateManagedMaterial(resource_group, mat_name_base + "/simple", custom_name);
             if (material.isNull())
             {
                 return;
