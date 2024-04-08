@@ -77,7 +77,7 @@ const char* CONF_WATER_HYDRAX       = "Hydrax";
 
 const char* CONF_SKY_CAELUM         = "Caelum (best looking, slower)";
 const char* CONF_SKY_SKYX           = "SkyX (best looking, slower)";
-const char* CONF_SKY_BASIC      = "Basic (fastest)";
+const char* CONF_SKY_SANDSTORM      = "Sandstorm (fastest)";
 
 const char* CONF_INPUT_GRAB_DYNAMIC = "Dynamically";
 const char* CONF_INPUT_GRAB_NONE    = "None";
@@ -154,10 +154,10 @@ GfxWaterMode ParseGfxWaterMode(std::string const & s)
 
 GfxSkyMode ParseGfxSkyMode(std::string const & s)
 {
-    if (s == CONF_SKY_BASIC)      { return GfxSkyMode::BASIC ; }
+    if (s == CONF_SKY_SANDSTORM)      { return GfxSkyMode::SANDSTORM ; }
     if (s == CONF_SKY_CAELUM   )      { return GfxSkyMode::CAELUM    ; }
     if (s == CONF_SKY_SKYX     )      { return GfxSkyMode::SKYX      ; }
-    else                              { return GfxSkyMode::BASIC ; } 
+    else                              { return GfxSkyMode::SANDSTORM ; }
 }
 
 const char* IoInputGrabModeToStr(IoInputGrabMode v)
@@ -262,7 +262,7 @@ const char* GfxSkyModeToStr(GfxSkyMode v)
     {
     case GfxSkyMode::CAELUM   : return CONF_SKY_CAELUM;
     case GfxSkyMode::SKYX     : return CONF_SKY_SKYX;
-    case GfxSkyMode::BASIC: return CONF_SKY_BASIC;
+    case GfxSkyMode::SANDSTORM: return CONF_SKY_SANDSTORM;
     default                   : return "";
     }
 }

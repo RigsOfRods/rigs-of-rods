@@ -488,7 +488,7 @@ void GameSettings::SetVisible(bool v)
 
     if (m_combo_items_sky_mode == "")
     {
-        ImAddItemToComboboxString(m_combo_items_sky_mode, ToLocalizedString(GfxSkyMode::BASIC));
+        ImAddItemToComboboxString(m_combo_items_sky_mode, ToLocalizedString(GfxSkyMode::SANDSTORM));
         ImAddItemToComboboxString(m_combo_items_sky_mode, ToLocalizedString(GfxSkyMode::CAELUM));
         ImAddItemToComboboxString(m_combo_items_sky_mode, ToLocalizedString(GfxSkyMode::SKYX));
         ImTerminateComboboxString(m_combo_items_sky_mode);

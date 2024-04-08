@@ -244,7 +244,7 @@ std::string ToLocalizedString(GfxWaterMode e);
 
 enum class GfxSkyMode
 {
-    BASIC,  //!< Basic (fastest)
+    SANDSTORM,  //!< Sandstorm (fastest)
     CAELUM,     //!< Caelum (best looking, slower)
     SKYX,       //!< SkyX (best looking, slower)
 };

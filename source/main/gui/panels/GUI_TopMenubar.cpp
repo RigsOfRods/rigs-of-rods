@@ -610,38 +610,6 @@ void TopMenubar::Draw(float dt)
                 }
             }       
 #endif // USE_CAELUM
-            if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::BASIC)
-            {
-                ImGui::Separator();
-                ImGui::TextColored(GRAY_HINT_TEXT, _LC("TopMenubar", "Sky:"));
-
-                Ogre::MaterialPtr sky_material = Ogre::MaterialManager::getSingleton().getByName("tracks/skyboxcol", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-                Ogre::GpuProgramParametersSharedPtr sky_params = sky_material->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
-
-                if (ImGui::SliderFloat("Sun size", &sun_size, 0.1f, 3.0f, ""))
-                {
-                    ImGui::PushID("sun_size");
-                    sky_params->setNamedConstant("sun_size", sun_size);
-                    sky_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(sky_params);
-                    ImGui::PopID();
-                }
-                if (ImGui::SliderFloat("Cloud density", &cloud_density, -0.3f, 0.3f, ""))
-                {
-                    ImGui::PushID("cloud_density");
-                    sky_params->setNamedConstant("cloud_density", cloud_density);
-                    sky_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(sky_params);
-                    ImGui::PopID();
-                }
-                if (ImGui::SliderFloat("Ambient light", &sky_light, 0.0f, 0.9f, ""))
-                {
-                    ImGui::PushID("sky_light");
-                    sky_params->setNamedConstant("sky_light", sky_light);
-                    sky_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(sky_params);
-                    App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(sky_light, sky_light, sky_light));
-                    ImGui::PopID();
-                }
-            }
-
             if (RoR::App::gfx_water_waves->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED && App::GetGameContext()->GetTerrain()->getWater())
             {
                 if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)

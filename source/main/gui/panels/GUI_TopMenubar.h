@@ -102,11 +102,6 @@ public:
     rapidjson::Document ai_presets_extern; //!< Externally provided presets (GitHub repo or local 'savegames/waypoints.json' file).
     rapidjson::Document ai_presets_bundled; //!< Presets bundled with the terrain, see `[AI Presets]` section in .terrn2 file format.
 
-    // Sky
-    float sun_size = 1.0;
-    float cloud_density = 0.0;
-    float sky_light = 0.7;
-
     // Tuning menu
     ActorPtr tuning_actor;          //!< Detecting actor change to update cached values.
     std::vector<CacheEntryPtr> tuning_addonparts;   //!< Addonparts of current actor, both matched by GUID and force-installed by user via [browse all] button.

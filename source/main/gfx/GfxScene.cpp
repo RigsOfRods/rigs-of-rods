@@ -157,35 +157,6 @@ void GfxScene::UpdateScene(float dt_sec)
     }
 
     // Terrain - sky
-    if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::BASIC)
-    {
-        Ogre::Matrix3 m;
-        App::GetCameraManager()->GetCameraNode()->getOrientation().ToRotationMatrix(m);
-        Ogre::Radian yaw, pitch, roll;
-        m.ToEulerAnglesYXZ(yaw, pitch, roll);
-
-        Ogre::MaterialPtr sky_material = Ogre::MaterialManager::getSingleton().getByName("tracks/skyboxcol", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-        Ogre::GpuProgramParametersSharedPtr sky_params = sky_material->getTechnique(0)->getPass(0)->getFragmentProgramParameters();
-
-        if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
-        {
-            // We don't have orientation (see CameraManager::UpdateCameraBehaviorStatic()), set fixed values
-            yaw = roll = 0.0;
-            pitch = 1.0;
-            sky_params->setNamedConstant("sky_fov", -App::GetCameraManager()->GetCamera()->getFOVy().valueDegrees());
-        }
-        else
-        {
-            sky_params->setNamedConstant("sky_fov", App::GetCameraManager()->GetCamera()->getFOVy().valueDegrees());
-        }
-
-        sky_params->setNamedConstant("sky_yaw", yaw.valueRadians());
-        sky_params->setNamedConstant("sky_pitch", pitch.valueRadians());
-        sky_params->setNamedConstant("sky_roll", roll.valueRadians());
-
-        sky_material->getTechnique(0)->getPass(0)->setFragmentProgramParameters(sky_params);
-    }
-
 #ifdef USE_CAELUM
     SkyManager* sky = App::GetGameContext()->GetTerrain()->getSkyManager();
     if (sky != nullptr)

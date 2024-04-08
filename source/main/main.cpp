@@ -603,14 +603,7 @@ int main(int argc, char *argv[])
                         {
                             SOUND_KILL(-1, SS_TRIG_MAIN_MENU);
                         }
-                        if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::BASIC)
-                        {
-                            App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.7f, 0.7f, 0.7f));
-                        }
-                        else
-                        {
-                            App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
-                        } 
+                        App::GetGfxScene()->GetSceneManager()->setAmbientLight(Ogre::ColourValue(0.3f, 0.3f, 0.3f));
                         App::GetDiscordRpc()->UpdatePresence();
                         App::sim_state->setVal((int)SimState::RUNNING);
                         App::app_state->setVal((int)AppState::SIMULATION);
