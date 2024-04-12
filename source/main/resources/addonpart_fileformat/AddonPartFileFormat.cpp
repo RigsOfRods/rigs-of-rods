@@ -522,7 +522,7 @@ void AddonPartUtility::ProcessTweakProp()
         m_context->isTokString(8)) // media
     {
         const int prop_id = (int)m_context->getTokFloat(1);
-        if (!m_tuneup->isFlexbodyProtected(prop_id))
+        if (!m_tuneup->isPropProtected(prop_id))
         {
             if (m_tuneup->prop_tweaks.find(prop_id) == m_tuneup->prop_tweaks.end())
             {
