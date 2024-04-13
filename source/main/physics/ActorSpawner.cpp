@@ -1562,7 +1562,9 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
         if (flexbody == nullptr)
             return; // Error already logged
 
-        flexbody->setCameraMode(def.camera_settings.mode);
+        // Dynamic visibility - same as with props
+        flexbody->fb_camera_mode_orig = def.camera_settings.mode;
+        flexbody->fb_camera_mode_active = def.camera_settings.mode;
 
         m_actor->m_gfx_actor->m_flexbodies.emplace_back(flexbody);
     }

@@ -426,6 +426,9 @@ void FlexbodyDebug::DrawDebugView(FlexBody* flexbody, Prop* prop, NodeNum_t node
 
 void FlexbodyDebug::UpdateVisibility()
 {
+    // Both flexbodies and props use the same dynamic visibility mode, see `CameraMode_t` typedef and constants in file GfxData.h
+    // ---------------------------------------------------------------------------------------------------------------------------
+
     ActorPtr actor = App::GetGameContext()->GetPlayerActor();
     if (!actor)
     {
@@ -442,13 +445,18 @@ void FlexbodyDebug::UpdateVisibility()
         {
             prop.pp_camera_mode_active = CAMERA_MODE_ALWAYS_HIDDEN;
         }
+        // Override flexbody dynamic visibility mode
+        for (FlexBody* flexbody: actor->GetGfxActor()->GetFlexbodies())
+        {
+            flexbody->fb_camera_mode_active = CAMERA_MODE_ALWAYS_HIDDEN;
+        }
 
         // Then re-display what we need manually.
         auto& flexbody_vec = actor->GetGfxActor()->GetFlexbodies();
         const int combo_flexbody_selection = m_combo_selection;
         if (combo_flexbody_selection >= 0 && combo_flexbody_selection < (int)flexbody_vec.size())
         {
-            flexbody_vec[combo_flexbody_selection]->setVisible(true);
+            flexbody_vec[combo_flexbody_selection]->fb_camera_mode_active = CAMERA_MODE_ALWAYS_VISIBLE;
         }
 
         auto& prop_vec = actor->GetGfxActor()->getProps();
@@ -471,6 +479,11 @@ void FlexbodyDebug::UpdateVisibility()
         for (Prop& prop : actor->GetGfxActor()->getProps())
         {
             prop.pp_camera_mode_active = prop.pp_camera_mode_orig;
+        }
+        // Restore flexbody dynamic visibility mode
+        for (FlexBody* flexbody: actor->GetGfxActor()->GetFlexbodies())
+        {
+            flexbody->fb_camera_mode_active = flexbody->fb_camera_mode_orig;
         }
     }
 }

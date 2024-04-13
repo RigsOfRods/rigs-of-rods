@@ -3010,10 +3010,9 @@ void RoR::GfxActor::UpdateFlexbodies()
 
     for (FlexBody* fb: m_flexbodies)
     {
-        // Update visibility
-        fb->setVisible(
-            fb->getCameraMode() == CAMERA_MODE_ALWAYS_VISIBLE
-            || fb->getCameraMode() == m_simbuf.simbuf_cur_cinecam);
+        // Update visibility (same logic as props)
+        const bool visible = (fb->fb_camera_mode_active == CAMERA_MODE_ALWAYS_VISIBLE || fb->fb_camera_mode_active == m_simbuf.simbuf_cur_cinecam);
+        fb->setVisible(visible);
 
         // Update visible on background thread
         if (fb->isVisible())

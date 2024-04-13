@@ -567,6 +567,7 @@ bool FlexBody::isVisible() const
 
 void FlexBody::setVisible(bool visible)
 {
+    // Scene node is NULL if disabled via addonpart/tuneup.
     if (m_scene_node)
         m_scene_node->setVisible(visible);
 }

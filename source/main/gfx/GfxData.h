@@ -120,9 +120,10 @@ enum class WheelSide: char
 };
 
 // Dynamic visibility control (value 0 and higher is cinecam index) - common to 'props' and 'flexbodies'
-static const int CAMERA_MODE_ALWAYS_HIDDEN = -3;
-static const int CAMERA_MODE_ALWAYS_VISIBLE = -2;
-static const int CAMERA_MODE_3RDPERSON_ONLY = -1;
+typedef int CameraMode_t;
+static CameraMode_t CAMERA_MODE_ALWAYS_HIDDEN = -3;
+static CameraMode_t CAMERA_MODE_ALWAYS_VISIBLE = -2;
+static CameraMode_t CAMERA_MODE_3RDPERSON_ONLY = -1;
 
 enum ShifterPropAnim
 {
@@ -171,9 +172,11 @@ struct Prop
     std::string           pp_media[2];                                   //!< Redundant, for Tuning UI. Media1 = prop mesh name, Media2 = steeringwheel mesh/beaconprop flare mat.
     std::vector<PropAnim> pp_animations;
 
-    // Visibility control
-    int                   pp_camera_mode_active = CAMERA_MODE_ALWAYS_VISIBLE; //!< Dynamic visibility mode {0 and higher = cinecam index}
-    int                   pp_camera_mode_orig = CAMERA_MODE_ALWAYS_VISIBLE;   //!< Dynamic visibility mode {0 and higher = cinecam index}
+    /// @name Visibility control (same as flexbody - see file FlexBody.h)
+    /// @{
+    CameraMode_t          pp_camera_mode_active = CAMERA_MODE_ALWAYS_VISIBLE; //!< Dynamic visibility mode {0 and higher = cinecam index}
+    CameraMode_t          pp_camera_mode_orig = CAMERA_MODE_ALWAYS_VISIBLE;   //!< Dynamic visibility mode {0 and higher = cinecam index}
+    /// @}
 
     // Special prop - steering wheel
     MeshObject*           pp_wheel_mesh_obj       = nullptr;

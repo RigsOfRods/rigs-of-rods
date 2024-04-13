@@ -25,6 +25,7 @@
 #include "Application.h"
 #include "Locator_t.h"
 #include "SimData.h"
+#include "GfxData.h"
 #include "RigDef_File.h"
 #include "Utils.h"
 
@@ -61,17 +62,18 @@ public:
     typedef int FlexBodyPlaceholder_t;
     static const FlexBodyPlaceholder_t TUNING_PLACEHOLDER = -11;
 
+    /// @name Visibility control (same as prop - see file GfxData.h)
+    /// @{
+    CameraMode_t          fb_camera_mode_active = CAMERA_MODE_ALWAYS_VISIBLE; //!< Dynamic visibility mode {0 and higher = cinecam index}
+    CameraMode_t          fb_camera_mode_orig = CAMERA_MODE_ALWAYS_VISIBLE;   //!< Dynamic visibility mode {0 and higher = cinecam index}
+    /// @}
+
     FlexBody(FlexBodyPlaceholder_t, FlexbodyID_t id, const std::string& orig_meshname);
     ~FlexBody();
 
     void reset();
     void updateBlend();
     void writeBlend();
-
-    /// Visibility control 
-    /// @param mode {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
-    void setCameraMode(int mode) { m_camera_mode = mode; };
-    int getCameraMode() { return m_camera_mode; };
 
     void computeFlexbody(); //!< Updates mesh deformation; works on CPU using local copy of vertex data.
     void updateFlexbodyVertexBuffers();
