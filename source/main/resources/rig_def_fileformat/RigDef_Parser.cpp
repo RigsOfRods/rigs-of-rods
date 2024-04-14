@@ -1125,7 +1125,7 @@ void Parser::ParseDirectiveAddAnimation()
 
             else { snprintf(warn_msg, WARN_LEN, "Invalid keyword: %s", entry[0].c_str()); }
         }
-        else if (entry.size() == 2 && (entry[0] == "mode" || entry[0] == "event" || entry[0] == "source"))
+        else if (entry.size() == 2 && (entry[0] == "mode" || entry[0] == "event" || entry[0] == "source" || entry[0] == "link"))
         {
             Ogre::StringVector values = Ogre::StringUtil::split(entry[1], "|");
             if (entry[0] == "mode")
@@ -1150,6 +1150,11 @@ void Parser::ParseDirectiveAddAnimation()
                 animation.event_name = entry[1];
                 Ogre::StringUtil::trim(animation.event_name);
                 Ogre::StringUtil::toUpperCase(animation.event_name);
+            }
+            else if (entry[0] == "link")
+            {
+                animation.dash_link_name = entry[1];
+                Ogre::StringUtil::trim(animation.dash_link_name);
             }
             else if (entry[0] == "source")
             {
@@ -1190,6 +1195,7 @@ void Parser::ParseDirectiveAddAnimation()
                     else if (value == "rudderair")     { animation.source |= Animation::SOURCE_AIR_RUDDER;        }
                     else if (value == "permanent")     { animation.source |= Animation::SOURCE_PERMANENT;         }
                     else if (value == "event")         { animation.source |= Animation::SOURCE_EVENT;             }
+                    else if (value == "dashboard")     { animation.source |= Animation::SOURCE_DASHBOARD;         }
 
                     else
                     {

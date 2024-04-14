@@ -25,6 +25,7 @@
 #include "AirBrake.h"
 #include "Actor.h"
 #include "Collisions.h"
+#include "DashBoardManager.h"
 #include "DustPool.h" // General particle gfx
 #include "EngineSim.h"
 #include "GameContext.h"
@@ -2789,11 +2790,19 @@ void RoR::GfxActor::UpdatePropAnimations(float dt)
             this->CalcPropAnimation(anim, cstate, div, dt);
 
             // key triggered animations - state determined in simulation
-            if (anim.animFlags & ANIM_FLAG_EVENT)
+            if (anim.animFlags & PROP_ANIM_FLAG_EVENT)
             {
                 ROR_ASSERT(prop_anim_key_index < (int)m_simbuf.simbuf_prop_anim_keys.size());
                 const bool anim_active = m_simbuf.simbuf_prop_anim_keys[prop_anim_key_index++].simbuf_anim_active;
                 cstate += (float)anim_active;
+            }
+
+            // dashboard animations - state determined in simulation
+            if (anim.animFlags & PROP_ANIM_FLAG_DASHBOARD)
+            {
+                int link_id = (int)anim.animOpt3;
+                ROR_ASSERT(link_id < DD_MAX);
+                cstate += m_actor->ar_dashboard->getNumeric(link_id);
             }
 
             //propanimation placed here to avoid interference with existing hydros(cstate) and permanent prop animation

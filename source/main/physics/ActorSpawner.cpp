@@ -1974,9 +1974,45 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
                 anim.animOpt3 = static_cast<float>(source_itor->motor);
             }
         }
+
+        // Source 'event' - make sure there is parameter 'event:'
+        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_EVENT) &&
+            anim_def.event_name != "")
+        {
+            int event_id = RoR::App::GetInputEngine()->resolveEventName(anim_def.event_name);
+            if (event_id == -1)
+            {
+                AddMessage(Message::TYPE_ERROR, "Unknown animation event: " + anim_def.event_name);
+            }
+            else
+            {
+                PropAnimKeyState state;
+                state.eventlock_present = BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_EVENT_LOCK);
+                state.event_id = static_cast<events>(event_id);
+                m_actor->m_prop_anim_key_states.push_back(state);
+                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_EVENT);
+            }
+        }
+
+        // Source 'dashboard' - make sure there is parameter 'link:'
+        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_DASHBOARD) &&
+            anim_def.dash_link_name != "")
+        {
+            int link_id = m_actor->ar_dashboard->getLinkIDForName(anim_def.dash_link_name);
+            if (link_id == -1)
+            {
+                AddMessage(Message::TYPE_ERROR, "Unknown animation dashboard link: " + anim_def.dash_link_name);
+            }
+            else
+            {
+                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_DASHBOARD);
+                anim.animOpt3 = static_cast<float>(link_id);
+            }
+        }
+
         if (anim.animFlags == 0)
         {
-            AddMessage(Message::TYPE_ERROR, "Failed to identify animation source");
+            AddMessage(Message::TYPE_ERROR, fmt::format("Prop (mesh: '{}') will not be animated, no valid `source` was set.", def.mesh_name));
         }
 
         /* Anim modes */
@@ -2000,7 +2036,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         }
         if (anim.animMode == 0)
         {
-            AddMessage(Message::TYPE_ERROR, "Failed to identify animation mode");
+            AddMessage(Message::TYPE_ERROR, fmt::format("Prop (mesh: '{}') will not be animated, no valid `mode` was set.", def.mesh_name));
         }
 
         if (BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_AUTO_ANIMATE)) 
@@ -2044,25 +2080,6 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         {
             BITMASK_SET_1(anim.animMode, PROP_ANIM_MODE_BOUNCE);
             anim.animOpt5 = 1.f;
-        }
-
-        // Parameter 'event:'
-        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_EVENT) &&
-            anim_def.event_name != "")
-        {
-            int event_id = RoR::App::GetInputEngine()->resolveEventName(anim_def.event_name);
-            if (event_id == -1)
-            {
-                AddMessage(Message::TYPE_ERROR, "Unknown animation event: " + anim_def.event_name);
-            }
-            else
-            {
-                PropAnimKeyState state;
-                state.eventlock_present = BITMASK_IS_1(anim_def.mode, RigDef::Animation::MODE_EVENT_LOCK);
-                state.event_id = static_cast<events>(event_id);
-                m_actor->m_prop_anim_key_states.push_back(state);
-                BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_EVENT);
-            }
         }
 
         prop.pp_animations.push_back(anim);
