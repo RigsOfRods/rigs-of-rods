@@ -536,6 +536,14 @@ FlexBody::~FlexBody()
     if (m_dst_pos     != nullptr) { free(m_dst_pos    ); }
     if (m_src_colors  != nullptr) { free(m_src_colors ); }
 
+    this->destroyOgreObjects();
+}
+
+void FlexBody::destroyOgreObjects()
+{
+    // Separated out from destructor so that exceptions can be handled separately (C++ destructor cannot propagate exceptions)
+    // -----------------------------------------------------------------------------------------------------------------------
+
     // OGRE resource - scene node
     if (m_scene_node != nullptr)
     {

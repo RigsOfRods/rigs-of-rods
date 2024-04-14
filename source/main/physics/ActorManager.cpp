@@ -925,7 +925,7 @@ void ActorManager::CleanUpSimulation() // Called after simulation finishes
 
 void ActorManager::DeleteActorInternal(ActorPtr actor)
 {
-    if (actor == nullptr)
+    if (actor == nullptr || actor->ar_state == ActorState::DISPOSED)
         return;
 
     this->SyncWithSimThread();

@@ -73,17 +73,33 @@ RoR::GfxActor::GfxActor(ActorPtr actor, ActorSpawner* spawner, std::string ogre_
     m_particles_clump  = App::GetGfxScene()->GetDustPool("clump");
 }
 
+std::string WhereFrom(GfxActor* gfx_actor, const std::string& doing_what)
+{
+    return fmt::format("GfxActor::~GfxActor(); instanceID:{}, streamID:{}, filename:{}; {}",
+        gfx_actor->getOwningActor()->ar_instance_id,
+        gfx_actor->getOwningActor()->ar_net_stream_id,
+        gfx_actor->getOwningActor()->ar_filename,
+        doing_what);
+}
+
 RoR::GfxActor::~GfxActor()
 {
     // Dispose videocameras
     this->SetVideoCamState(VideoCamState::VCSTATE_DISABLED);
     while (!m_videocameras.empty())
     {
-        VideoCamera& vcam = m_videocameras.back();
-        Ogre::TextureManager::getSingleton().remove(vcam.vcam_render_tex->getHandle());
-        vcam.vcam_render_tex.setNull();
-        vcam.vcam_render_target = nullptr; // Invalidated with parent texture
-        App::GetGfxScene()->GetSceneManager()->destroyCamera(vcam.vcam_ogre_camera);
+        try
+        {
+            VideoCamera& vcam = m_videocameras.back();
+            Ogre::TextureManager::getSingleton().remove(vcam.vcam_render_tex->getHandle());
+            vcam.vcam_render_tex.setNull();
+            vcam.vcam_render_target = nullptr; // Invalidated with parent texture
+            App::GetGfxScene()->GetSceneManager()->destroyCamera(vcam.vcam_ogre_camera);
+        }
+        catch (...)
+        {
+            HandleGenericException(WhereFrom(this, fmt::format("destroying videocamera {}", m_videocameras.size())), HANDLEGENERICEXCEPTION_LOGFILE);
+        }
 
         m_videocameras.pop_back();
     }
@@ -91,108 +107,181 @@ RoR::GfxActor::~GfxActor()
     // Dispose rods
     if (m_gfx_beams_parent_scenenode != nullptr)
     {
-        for (BeamGfx& rod: m_gfx_beams)
+        try
         {
-            Ogre::MovableObject* ogre_object = rod.rod_scenenode->getAttachedObject(0);
-            rod.rod_scenenode->detachAllObjects();
-            App::GetGfxScene()->GetSceneManager()->destroyEntity(static_cast<Ogre::Entity*>(ogre_object));
-        }
-        m_gfx_beams.clear();
+            for (BeamGfx& rod: m_gfx_beams)
+            {
+                Ogre::MovableObject* ogre_object = rod.rod_scenenode->getAttachedObject(0);
+                rod.rod_scenenode->detachAllObjects();
+                App::GetGfxScene()->GetSceneManager()->destroyEntity(static_cast<Ogre::Entity*>(ogre_object));
+            }
+            m_gfx_beams.clear();
 
-        m_gfx_beams_parent_scenenode->removeAndDestroyAllChildren();
-        App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_gfx_beams_parent_scenenode);
-        m_gfx_beams_parent_scenenode = nullptr;
+            m_gfx_beams_parent_scenenode->removeAndDestroyAllChildren();
+            App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_gfx_beams_parent_scenenode);
+            m_gfx_beams_parent_scenenode = nullptr;
+        }
+        catch (...)
+        {
+            HandleGenericException(WhereFrom(this, "destroying beams"), HANDLEGENERICEXCEPTION_LOGFILE);
+        }
     }
 
     // delete meshwheels
     for (size_t i = 0; i < m_wheels.size(); i++)
     {
-        if (m_wheels[i].wx_flex_mesh != nullptr)
+        try
         {
-            delete m_wheels[i].wx_flex_mesh;
+            if (m_wheels[i].wx_flex_mesh != nullptr)
+            {
+                delete m_wheels[i].wx_flex_mesh;
+            }
+            if (m_wheels[i].wx_scenenode != nullptr)
+            {
+                m_wheels[i].wx_scenenode->removeAndDestroyAllChildren();
+                App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_wheels[i].wx_scenenode);
+            }
         }
-        if (m_wheels[i].wx_scenenode != nullptr)
+        catch (...)
         {
-            m_wheels[i].wx_scenenode->removeAndDestroyAllChildren();
-            App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_wheels[i].wx_scenenode);
+            HandleGenericException(WhereFrom(this, fmt::format("destroying wheel {}", i)), HANDLEGENERICEXCEPTION_LOGFILE);
         }
     }
 
     // delete airbrakes
+    int i_airbrake = 0;
     for (AirbrakeGfx& abx: m_gfx_airbrakes)
     {
-        // scene node
-        abx.abx_scenenode->detachAllObjects();
-        App::GetGfxScene()->GetSceneManager()->destroySceneNode(abx.abx_scenenode);
-        // entity
-        App::GetGfxScene()->GetSceneManager()->destroyEntity(abx.abx_entity);
-        // mesh
-        Ogre::MeshManager::getSingleton().remove(abx.abx_mesh);
+        try
+        {
+            // scene node
+            abx.abx_scenenode->detachAllObjects();
+            App::GetGfxScene()->GetSceneManager()->destroySceneNode(abx.abx_scenenode);
+            // entity
+            App::GetGfxScene()->GetSceneManager()->destroyEntity(abx.abx_entity);
+            // mesh
+            Ogre::MeshManager::getSingleton().remove(abx.abx_mesh);
+            
+            i_airbrake++;
+        }
+        catch (...)
+        {
+            HandleGenericException(WhereFrom(this, fmt::format("destroying airbrake {}", i_airbrake)), HANDLEGENERICEXCEPTION_LOGFILE);
+        }
     }
     m_gfx_airbrakes.clear();
 
     // Delete props
+    int i_prop = 0;
     for (Prop & prop: m_props)
     {
-        for (int k = 0; k < 4; ++k)
+        try
         {
-            if (prop.pp_beacon_scene_node[k])
+            for (int k = 0; k < 4; ++k)
             {
-                Ogre::SceneNode* scene_node = prop.pp_beacon_scene_node[k];
-                scene_node->removeAndDestroyAllChildren();
-                App::GetGfxScene()->GetSceneManager()->destroySceneNode(scene_node);
+                if (prop.pp_beacon_scene_node[k])
+                {
+                    Ogre::SceneNode* scene_node = prop.pp_beacon_scene_node[k];
+                    scene_node->removeAndDestroyAllChildren();
+                    App::GetGfxScene()->GetSceneManager()->destroySceneNode(scene_node);
+                }
+                if (prop.pp_beacon_light[k])
+                {
+                    App::GetGfxScene()->GetSceneManager()->destroyLight(prop.pp_beacon_light[k]);
+                }
             }
-            if (prop.pp_beacon_light[k])
-            {
-                App::GetGfxScene()->GetSceneManager()->destroyLight(prop.pp_beacon_light[k]);
-            }
+        }
+        catch (...)
+        {
+            HandleGenericException(WhereFrom(this, fmt::format("destroying beacon {} beacons", i_prop)), HANDLEGENERICEXCEPTION_LOGFILE);
         }
 
-        if (prop.pp_scene_node)
+        try
         {
-            prop.pp_scene_node->removeAndDestroyAllChildren();
-            App::GetGfxScene()->GetSceneManager()->destroySceneNode(prop.pp_scene_node);
+            if (prop.pp_scene_node)
+            {
+                prop.pp_scene_node->removeAndDestroyAllChildren();
+                App::GetGfxScene()->GetSceneManager()->destroySceneNode(prop.pp_scene_node);
+            }
+            if (prop.pp_wheel_scene_node)
+            {
+                prop.pp_wheel_scene_node->removeAndDestroyAllChildren();
+                App::GetGfxScene()->GetSceneManager()->destroySceneNode(prop.pp_wheel_scene_node);
+            }
         }
-        if (prop.pp_wheel_scene_node)
+        catch (...)
         {
-            prop.pp_wheel_scene_node->removeAndDestroyAllChildren();
-            App::GetGfxScene()->GetSceneManager()->destroySceneNode(prop.pp_wheel_scene_node);
+            HandleGenericException(WhereFrom(this, fmt::format("destroying prop {} scene nodes", i_prop)), HANDLEGENERICEXCEPTION_LOGFILE);
         }
-        if (prop.pp_mesh_obj)
+
+        try
         {
-            delete prop.pp_mesh_obj;
+            if (prop.pp_mesh_obj)
+            {
+                delete prop.pp_mesh_obj;
+            }
+            if (prop.pp_wheel_mesh_obj)
+            {
+                delete prop.pp_wheel_mesh_obj;
+            }
         }
-        if (prop.pp_wheel_mesh_obj)
+        catch (...)
         {
-            delete prop.pp_wheel_mesh_obj;
+            HandleGenericException(WhereFrom(this, fmt::format("destroying prop {} mesh objects", i_prop)), HANDLEGENERICEXCEPTION_LOGFILE);
         }
+
+        i_prop++;
     }
     m_props.clear();
 
     // Delete flexbodies
+    int i_flexbody = 0;
     for (FlexBody* fb: m_flexbodies)
     {
-        delete fb;
+        try
+        {
+            fb->destroyOgreObjects();
+            delete fb;
+        }
+        catch (...)
+        {
+             HandleGenericException(WhereFrom(this, fmt::format("destroying flexbody {}", i_flexbody)), HANDLEGENERICEXCEPTION_LOGFILE);
+        }
+        i_flexbody++;
     }
 
     // Delete old cab mesh
     if (m_cab_mesh != nullptr)
     {
-        m_cab_scene_node->detachAllObjects();
-        m_cab_scene_node->getParentSceneNode()->removeAndDestroyChild(m_cab_scene_node);
-        m_cab_scene_node = nullptr;
+        try
+        {
+            m_cab_scene_node->detachAllObjects();
+            m_cab_scene_node->getParentSceneNode()->removeAndDestroyChild(m_cab_scene_node);
+            m_cab_scene_node = nullptr;
 
-        m_cab_entity->_getManager()->destroyEntity(m_cab_entity);
-        m_cab_entity = nullptr;
+            m_cab_entity->_getManager()->destroyEntity(m_cab_entity);
+            m_cab_entity = nullptr;
 
-        delete m_cab_mesh; // Unloads the ManualMesh resource; do this last
-        m_cab_mesh = nullptr;
+            delete m_cab_mesh; // Unloads the ManualMesh resource; do this last
+            m_cab_mesh = nullptr;
+        }
+        catch (...)
+        {
+            HandleGenericException(WhereFrom(this, "destroying cab mesh"), HANDLEGENERICEXCEPTION_LOGFILE);
+        }
     }
 
     // Delete old dashboard RTT
     if (m_renderdash != nullptr)
     {
-        delete m_renderdash;
+        try
+        {
+            delete m_renderdash;
+        }
+        catch (...)
+        {
+            HandleGenericException(WhereFrom(this, "destroying renderdash"), HANDLEGENERICEXCEPTION_LOGFILE);
+        }
     }
 }
 

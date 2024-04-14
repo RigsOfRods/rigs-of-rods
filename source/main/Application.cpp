@@ -370,7 +370,8 @@ void HandleGenericException(const std::string& from, BitMask_t flags)
     {
         if (flags & HANDLEGENERICEXCEPTION_CONSOLE)
             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, fmt::format("{}: {}", from, oex.what()));
-        // Ignoring flag HANDLEGENERICEXCEPTION_LOGFILE - Already logged to RoR.log in full by OGRE
+        else if (flags & HANDLEGENERICEXCEPTION_LOGFILE)
+            LOG(fmt::format("{}: {}", from, oex.getDescription()));
 #ifdef USE_ANGELSCRIPT
         if (flags & HANDLEGENERICEXCEPTION_SCRIPTEVENT)
             App::GetScriptEngine()->forwardExceptionAsScriptEvent(from);

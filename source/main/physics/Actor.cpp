@@ -147,10 +147,18 @@ void Actor::dispose()
     {
         for (unsigned int i = 0; i < m_deletion_scene_nodes.size(); i++)
         {
-            if (!m_deletion_scene_nodes[i])
-                continue;
-            m_deletion_scene_nodes[i]->removeAndDestroyAllChildren();
-            App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_deletion_scene_nodes[i]);
+            try
+            {
+                if (!m_deletion_scene_nodes[i])
+                    continue;
+                m_deletion_scene_nodes[i]->removeAndDestroyAllChildren();
+                App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_deletion_scene_nodes[i]);
+            }
+            catch (...)
+            {
+                HandleGenericException(fmt::format("Actor::dispose(); instanceID:{}, streamID:{}, filename:{}; deleting scenenode {}/{} from `deletion list`.",
+                    ar_instance_id, ar_net_stream_id, ar_filename, i, m_deletion_scene_nodes.size()), HANDLEGENERICEXCEPTION_LOGFILE);
+            }
         }
         m_deletion_scene_nodes.clear();
     }
@@ -159,26 +167,43 @@ void Actor::dispose()
     {
         for (unsigned int i = 0; i < m_deletion_entities.size(); i++)
         {
-            if (!m_deletion_entities[i])
-                continue;
-            m_deletion_entities[i]->detachAllObjectsFromBone();
-            App::GetGfxScene()->GetSceneManager()->destroyEntity(m_deletion_entities[i]->getName());
+            try
+            {
+                if (!m_deletion_entities[i])
+                    continue;
+                m_deletion_entities[i]->detachAllObjectsFromBone();
+                App::GetGfxScene()->GetSceneManager()->destroyEntity(m_deletion_entities[i]->getName());
+            }
+            catch (...)
+            {
+                HandleGenericException(fmt::format("Actor::dispose(); instanceID:{}, streamID:{}, filename:{}; deleting entity {}/{} from `deletion list`.",
+                    ar_instance_id, ar_net_stream_id, ar_filename, i, m_deletion_entities.size()), HANDLEGENERICEXCEPTION_LOGFILE);
+            }
         }
         m_deletion_entities.clear();
     }
+
     // delete GfxActor
     m_gfx_actor.reset();
 
     // delete wings
     for (int i = 0; i < ar_num_wings; i++)
     {
-        // flexAirfoil, airfoil
-        if (ar_wings[i].fa)
-            delete ar_wings[i].fa;
-        if (ar_wings[i].cnode)
+        try
         {
-            ar_wings[i].cnode->removeAndDestroyAllChildren();
-            App::GetGfxScene()->GetSceneManager()->destroySceneNode(ar_wings[i].cnode);
+            // flexAirfoil, airfoil
+            if (ar_wings[i].fa)
+                delete ar_wings[i].fa;
+            if (ar_wings[i].cnode)
+            {
+                ar_wings[i].cnode->removeAndDestroyAllChildren();
+                App::GetGfxScene()->GetSceneManager()->destroySceneNode(ar_wings[i].cnode);
+            }
+        }
+        catch (...)
+        {
+            HandleGenericException(fmt::format("Actor::dispose(); instanceID:{}, streamID:{}, filename:{}; deleting wing {}/{}.",
+                ar_instance_id, ar_net_stream_id, ar_filename, i, ar_num_wings), HANDLEGENERICEXCEPTION_LOGFILE);
         }
     }
 
@@ -216,47 +241,71 @@ void Actor::dispose()
     // delete flares
     for (size_t i = 0; i < this->ar_flares.size(); i++)
     {
-        if (ar_flares[i].snode)
+        try
         {
-            ar_flares[i].snode->removeAndDestroyAllChildren();
-            App::GetGfxScene()->GetSceneManager()->destroySceneNode(ar_flares[i].snode);
+            if (ar_flares[i].snode)
+            {
+                ar_flares[i].snode->removeAndDestroyAllChildren();
+                App::GetGfxScene()->GetSceneManager()->destroySceneNode(ar_flares[i].snode);
+            }
+            if (ar_flares[i].bbs)
+                App::GetGfxScene()->GetSceneManager()->destroyBillboardSet(ar_flares[i].bbs);
+            if (ar_flares[i].light)
+                App::GetGfxScene()->GetSceneManager()->destroyLight(ar_flares[i].light);
         }
-        if (ar_flares[i].bbs)
-            App::GetGfxScene()->GetSceneManager()->destroyBillboardSet(ar_flares[i].bbs);
-        if (ar_flares[i].light)
-            App::GetGfxScene()->GetSceneManager()->destroyLight(ar_flares[i].light);
+        catch (...)
+        {
+            HandleGenericException(fmt::format("Actor::dispose(); instanceID:{}, streamID:{}, filename:{}; deleting flare {}/{}.",
+                ar_instance_id, ar_net_stream_id, ar_filename, i, ar_flares.size()), HANDLEGENERICEXCEPTION_LOGFILE);
+        }
     }
     this->ar_flares.clear();
 
     // delete exhausts
     for (std::vector<exhaust_t>::iterator it = exhausts.begin(); it != exhausts.end(); it++)
     {
-        if (it->smokeNode)
+        try
         {
-            it->smokeNode->removeAndDestroyAllChildren();
-            App::GetGfxScene()->GetSceneManager()->destroySceneNode(it->smokeNode);
+            if (it->smokeNode)
+            {
+                it->smokeNode->removeAndDestroyAllChildren();
+                App::GetGfxScene()->GetSceneManager()->destroySceneNode(it->smokeNode);
+            }
+            if (it->smoker)
+            {
+                it->smoker->removeAllAffectors();
+                it->smoker->removeAllEmitters();
+                App::GetGfxScene()->GetSceneManager()->destroyParticleSystem(it->smoker);
+            }
         }
-        if (it->smoker)
+        catch (...)
         {
-            it->smoker->removeAllAffectors();
-            it->smoker->removeAllEmitters();
-            App::GetGfxScene()->GetSceneManager()->destroyParticleSystem(it->smoker);
+            HandleGenericException(fmt::format("Actor::dispose(); instanceID:{}, streamID:{}, filename:{}; deleting exhaust {}/{}.",
+                ar_instance_id, ar_net_stream_id, ar_filename, std::distance(exhausts.begin(), it), exhausts.size()), HANDLEGENERICEXCEPTION_LOGFILE);
         }
     }
 
-    // delete ar_custom_particles
+    // delete custom particles
     for (int i = 0; i < ar_num_custom_particles; i++)
     {
-        if (ar_custom_particles[i].snode)
+        try
         {
-            ar_custom_particles[i].snode->removeAndDestroyAllChildren();
-            App::GetGfxScene()->GetSceneManager()->destroySceneNode(ar_custom_particles[i].snode);
+            if (ar_custom_particles[i].snode)
+            {
+                ar_custom_particles[i].snode->removeAndDestroyAllChildren();
+                App::GetGfxScene()->GetSceneManager()->destroySceneNode(ar_custom_particles[i].snode);
+            }
+            if (ar_custom_particles[i].psys)
+            {
+                ar_custom_particles[i].psys->removeAllAffectors();
+                ar_custom_particles[i].psys->removeAllEmitters();
+                App::GetGfxScene()->GetSceneManager()->destroyParticleSystem(ar_custom_particles[i].psys);
+            }
         }
-        if (ar_custom_particles[i].psys)
+        catch (...)
         {
-            ar_custom_particles[i].psys->removeAllAffectors();
-            ar_custom_particles[i].psys->removeAllEmitters();
-            App::GetGfxScene()->GetSceneManager()->destroyParticleSystem(ar_custom_particles[i].psys);
+            HandleGenericException(fmt::format("Actor::dispose(); instanceID:{}, streamID:{}, filename:{}; deleting custom particle {}/{}.",
+                ar_instance_id, ar_net_stream_id, ar_filename, i, ar_num_custom_particles), HANDLEGENERICEXCEPTION_LOGFILE);
         }
     }
 

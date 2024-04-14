@@ -1662,7 +1662,7 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     /* CREATE THE PROP */
     prop.pp_scene_node = m_props_parent_scenenode->createChildSceneNode(this->ComposeName("prop", prop_id));
     prop.pp_media[0] = TuneupUtil::getTweakedPropMedia(m_actor->getWorkingTuneupDef(), prop_id, 0, def.mesh_name);
-    prop.pp_mesh_obj = new MeshObject(//def.mesh_name, resource_group, instance_name, prop.pp_scene_node);
+    prop.pp_mesh_obj = new MeshObject(
             prop.pp_media[0],
             TuneupUtil::getTweakedPropMediaRG(m_actor->getWorkingTuneupDef(), prop_id, 0, this->GetCurrentElementMediaRG()),
             this->ComposeName("prop entity", prop_id),
