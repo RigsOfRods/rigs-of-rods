@@ -39,41 +39,40 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
-enum PropAnimFlag
-{
-    PROP_ANIM_FLAG_AIRSPEED      = BITMASK(1),
-    PROP_ANIM_FLAG_VVI           = BITMASK(2),
-    PROP_ANIM_FLAG_ALTIMETER     = BITMASK(3),
-    PROP_ANIM_FLAG_AOA           = BITMASK(4),
-    PROP_ANIM_FLAG_FLAP          = BITMASK(5),
-    PROP_ANIM_FLAG_AIRBRAKE      = BITMASK(6),
-    PROP_ANIM_FLAG_ROLL          = BITMASK(7),
-    PROP_ANIM_FLAG_PITCH         = BITMASK(8),
-    PROP_ANIM_FLAG_THROTTLE      = BITMASK(9),
-    PROP_ANIM_FLAG_RPM           = BITMASK(10),
-    PROP_ANIM_FLAG_ACCEL         = BITMASK(11),
-    PROP_ANIM_FLAG_BRAKE         = BITMASK(12),
-    PROP_ANIM_FLAG_CLUTCH        = BITMASK(13),
-    PROP_ANIM_FLAG_TACHO         = BITMASK(14),
-    PROP_ANIM_FLAG_SPEEDO        = BITMASK(15),
-    PROP_ANIM_FLAG_PBRAKE        = BITMASK(16),
-    PROP_ANIM_FLAG_TURBO         = BITMASK(17),
-    PROP_ANIM_FLAG_SHIFTER       = BITMASK(18),
-    PROP_ANIM_FLAG_AETORQUE      = BITMASK(19),
-    PROP_ANIM_FLAG_AEPITCH       = BITMASK(20),
-    PROP_ANIM_FLAG_AESTATUS      = BITMASK(21),
-    PROP_ANIM_FLAG_TORQUE        = BITMASK(22),
-    PROP_ANIM_FLAG_HEADING       = BITMASK(23),
-    PROP_ANIM_FLAG_DIFFLOCK      = BITMASK(24),
-    PROP_ANIM_FLAG_STEERING      = BITMASK(25),
-    PROP_ANIM_FLAG_EVENT         = BITMASK(26),
-    PROP_ANIM_FLAG_AILERONS      = BITMASK(27),
-    PROP_ANIM_FLAG_ARUDDER       = BITMASK(28),
-    PROP_ANIM_FLAG_BRUDDER       = BITMASK(29),
-    PROP_ANIM_FLAG_BTHROTTLE     = BITMASK(30),
-    PROP_ANIM_FLAG_PERMANENT     = BITMASK(31),
-    PROP_ANIM_FLAG_ELEVATORS     = BITMASK(32),
-};
+
+static const BitMask64_t    PROP_ANIM_FLAG_AIRSPEED      = BITMASK64(1);
+static const BitMask64_t    PROP_ANIM_FLAG_VVI           = BITMASK64(2);
+static const BitMask64_t    PROP_ANIM_FLAG_ALTIMETER     = BITMASK64(3);
+static const BitMask64_t    PROP_ANIM_FLAG_AOA           = BITMASK64(4);
+static const BitMask64_t    PROP_ANIM_FLAG_FLAP          = BITMASK64(5);
+static const BitMask64_t    PROP_ANIM_FLAG_AIRBRAKE      = BITMASK64(6);
+static const BitMask64_t    PROP_ANIM_FLAG_ROLL          = BITMASK64(7);
+static const BitMask64_t    PROP_ANIM_FLAG_PITCH         = BITMASK64(8);
+static const BitMask64_t    PROP_ANIM_FLAG_THROTTLE      = BITMASK64(9);
+static const BitMask64_t    PROP_ANIM_FLAG_RPM           = BITMASK64(10);
+static const BitMask64_t    PROP_ANIM_FLAG_ACCEL         = BITMASK64(11);
+static const BitMask64_t    PROP_ANIM_FLAG_BRAKE         = BITMASK64(12);
+static const BitMask64_t    PROP_ANIM_FLAG_CLUTCH        = BITMASK64(13);
+static const BitMask64_t    PROP_ANIM_FLAG_TACHO         = BITMASK64(14);
+static const BitMask64_t    PROP_ANIM_FLAG_SPEEDO        = BITMASK64(15);
+static const BitMask64_t    PROP_ANIM_FLAG_PBRAKE        = BITMASK64(16);
+static const BitMask64_t    PROP_ANIM_FLAG_TURBO         = BITMASK64(17);
+static const BitMask64_t    PROP_ANIM_FLAG_SHIFTER       = BITMASK64(18);
+static const BitMask64_t    PROP_ANIM_FLAG_AETORQUE      = BITMASK64(19);
+static const BitMask64_t    PROP_ANIM_FLAG_AEPITCH       = BITMASK64(20);
+static const BitMask64_t    PROP_ANIM_FLAG_AESTATUS      = BITMASK64(21);
+static const BitMask64_t    PROP_ANIM_FLAG_TORQUE        = BITMASK64(22);
+static const BitMask64_t    PROP_ANIM_FLAG_HEADING       = BITMASK64(23);
+static const BitMask64_t    PROP_ANIM_FLAG_DIFFLOCK      = BITMASK64(24);
+static const BitMask64_t    PROP_ANIM_FLAG_STEERING      = BITMASK64(25);
+static const BitMask64_t    PROP_ANIM_FLAG_EVENT         = BITMASK64(26);
+static const BitMask64_t    PROP_ANIM_FLAG_AILERONS      = BITMASK64(27);
+static const BitMask64_t    PROP_ANIM_FLAG_ARUDDER       = BITMASK64(28);
+static const BitMask64_t    PROP_ANIM_FLAG_BRUDDER       = BITMASK64(29);
+static const BitMask64_t    PROP_ANIM_FLAG_BTHROTTLE     = BITMASK64(30);
+static const BitMask64_t    PROP_ANIM_FLAG_PERMANENT     = BITMASK64(31);
+static const BitMask64_t    PROP_ANIM_FLAG_ELEVATORS     = BITMASK64(32);
+static const BitMask64_t    PROP_ANIM_FLAG_DASHBOARD     = BITMASK64(33); //!< Used with dashboard system inputs, see `enum DashData` in file DashBoardManager.h
 
 enum PropAnimMode
 {
@@ -88,7 +87,6 @@ enum PropAnimMode
     PROP_ANIM_MODE_BOUNCE        = BITMASK(9),
 };
 
-inline PropAnimFlag operator|=(PropAnimFlag& dst, PropAnimFlag const& arg) { dst = static_cast<PropAnimFlag>(dst|arg); return dst; }
 inline PropAnimMode operator|=(PropAnimMode& dst, PropAnimMode const& arg) { dst = static_cast<PropAnimMode>(dst|arg); return dst; }
 
 enum class VideoCamState
@@ -137,13 +135,14 @@ enum ShifterPropAnim
 struct PropAnim
 {
     float        animratio    = 0;  //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
-    PropAnimFlag animFlags    = {};
+    BitMask64_t  animFlags    = 0ull;
     PropAnimMode animMode     = {};
 
     /// MULTIPURPOSE
     /// * SHIFTER type `ShifterPropAnim` (1 = shifterman1, 2 = shifterman2, 3 = shifterseq, 4 = shifterlin)
     /// * AEROENGINE number (starting from 1), applies to: rpm + throttle + torque ( turboprop ) + pitch ( turboprop ) + status +  fire
     /// * ALTIMETER type (1 = 100k limited, 2 = 10k oscillating, 3 = 1k oscillating)
+    /// * DASHBOARD input (see `enum DashData` in file DashBoardManager.h)
     float        animOpt3     = 0;
     float        animOpt5     = 0;
     float        lower_limit  = 0;  //!< The lower limit for the animation
