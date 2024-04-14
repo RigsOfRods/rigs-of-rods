@@ -150,6 +150,7 @@ public:
     SurveyMapEntity&     getSurveyMapEntity() { return m_surveymap_entity; }
     WheelSide            getWheelSide(WheelID_t wheel_id) { return (wheel_id >= 0 && (size_t)wheel_id < m_wheels.size()) ? m_wheels[wheel_id].wx_side : WheelSide::INVALID; }
     std::string          getWheelRimMeshName(WheelID_t wheel_id) { return (wheel_id >= 0 && (size_t)wheel_id < m_wheels.size()) ? m_wheels[wheel_id].wx_rim_mesh_name : ""; }
+    const ActorPtr&      getOwningActor() { return m_actor; }
 
 private:
 

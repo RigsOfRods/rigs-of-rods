@@ -536,7 +536,7 @@ void DestroyOverlayWrapper();
 
 enum HandleGenericExceptionFlags //!< Flags for `HandleGenericException()`
 {
-    HANDLEGENERICEXCEPTION_LOGFILE      = BITMASK(1), // Log to 'RoR.log', except OGRE exceptions which are auto-logged in full by OGRE.
+    HANDLEGENERICEXCEPTION_LOGFILE      = BITMASK(1), // Log to 'RoR.log'; Note OGRE exceptions are logged by OGRE but we still want the 'from' argument.
     HANDLEGENERICEXCEPTION_SCRIPTEVENT  = BITMASK(2), // Forward to script engine as game event `SE_GENERIC_EXCEPTION_CAUGHT`.
     HANDLEGENERICEXCEPTION_CONSOLE      = BITMASK(3), // Print to console, which auto-logs to RoR.log.
 

@@ -97,6 +97,7 @@ public:
     NodeNum_t getYNode() { return m_node_y; }
 
     FlexbodyID_t getID() const { return m_id; }
+    void destroyOgreObjects();
 
 private:
 
