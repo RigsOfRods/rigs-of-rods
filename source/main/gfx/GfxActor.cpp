@@ -42,6 +42,7 @@
 #include "MovableText.h"
 #include "OgreImGui.h"
 #include "Renderdash.h" // classic 'renderdash' material
+#include "RoRnet.h"
 #include "ActorSpawner.h"
 #include "SlideNode.h"
 #include "SkyManager.h"
@@ -2584,6 +2585,18 @@ void RoR::GfxActor::CalcPropAnimation(PropAnim& anim, float& cstate, int& div, f
     {
         float clutch = m_simbuf.simbuf_clutch;
         cstate -= fabs(1.0f - clutch);
+        div++;
+    }
+
+    //turn indicator stalk
+    if (anim.animFlags & PROP_ANIM_FLAG_SIGNALSTALK)
+    {
+        float signal = 0.0f;
+        if (m_simbuf.simbuf_lightmask & RoRnet::LIGHTMASK_BLINK_LEFT)
+            signal = -1.0f;
+        if (m_simbuf.simbuf_lightmask & RoRnet::LIGHTMASK_BLINK_RIGHT)
+            signal = 1.0f;
+        cstate -= signal;
         div++;
     }
 

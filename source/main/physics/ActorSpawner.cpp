@@ -1948,6 +1948,9 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_PERMANENT)) {
             BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_PERMANENT);
         }
+        if (BITMASK_IS_1(anim_def.source, RigDef::Animation::SOURCE_SIGNALSTALK)) {
+            BITMASK_SET_1(anim.animFlags, PROP_ANIM_FLAG_SIGNALSTALK);
+        }
 
         /* Motor-indexed sources */
         std::list<RigDef::Animation::MotorSource>::iterator source_itor = anim_def.motor_sources.begin();

@@ -73,6 +73,7 @@ static const BitMask64_t    PROP_ANIM_FLAG_BTHROTTLE     = BITMASK64(30);
 static const BitMask64_t    PROP_ANIM_FLAG_PERMANENT     = BITMASK64(31);
 static const BitMask64_t    PROP_ANIM_FLAG_ELEVATORS     = BITMASK64(32);
 static const BitMask64_t    PROP_ANIM_FLAG_DASHBOARD     = BITMASK64(33); //!< Used with dashboard system inputs, see `enum DashData` in file DashBoardManager.h
+static const BitMask64_t    PROP_ANIM_FLAG_SIGNALSTALK   = BITMASK64(34); //!< Turn indicator stalk position (-1=left, 0=off, 1=right)
 
 enum PropAnimMode
 {
