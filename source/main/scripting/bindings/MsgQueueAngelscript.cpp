@@ -22,6 +22,7 @@
 #include "ScriptEvents.h"
 #include "AngelScriptBindings.h"
 #include "Application.h"
+#include "SimData.h"
 #include <angelscript.h>
 
 using namespace AngelScript;
@@ -75,6 +76,9 @@ void RoR::RegisterMessageQueue(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_TELEPORT_PLAYER_REQUESTED", MSG_SIM_TELEPORT_PLAYER_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_HIDE_NET_ACTOR_REQUESTED", MSG_SIM_HIDE_NET_ACTOR_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED", MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_SIM_ADD_FREEFORCE_REQUESTED", MSG_SIM_ADD_FREEFORCE_REQUESTED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_SIM_MODIFY_FREEFORCE_REQUESTED", MSG_SIM_MODIFY_FREEFORCE_REQUESTED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_SIM_REMOVE_FREEFORCE_REQUESTED", MSG_SIM_REMOVE_FREEFORCE_REQUESTED); ROR_ASSERT(result >= 0);
     // GUI
     result = engine->RegisterEnumValue("MsgType", "MSG_GUI_OPEN_MENU_REQUESTED", MSG_GUI_OPEN_MENU_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_GUI_CLOSE_MENU_REQUESTED", MSG_GUI_CLOSE_MENU_REQUESTED); ROR_ASSERT(result >= 0);
@@ -92,5 +96,13 @@ void RoR::RegisterMessageQueue(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("MsgType", "MSG_EDI_RELOAD_BUNDLE_REQUESTED", MSG_EDI_RELOAD_BUNDLE_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_EDI_UNLOAD_BUNDLE_REQUESTED", MSG_EDI_UNLOAD_BUNDLE_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_EDI_CREATE_PROJECT_REQUESTED", MSG_EDI_CREATE_PROJECT_REQUESTED); ROR_ASSERT(result >= 0);
+
+    // enum FreeForceType
+    result = engine->RegisterEnum("FreeForceType"); ROR_ASSERT(result>=0);
+
+    result = engine->RegisterEnumValue("FreeForceType", "FREEFORCETYPE_DUMMY", (int)FreeForceType::DUMMY); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FreeForceType", "FREEFORCETYPE_CONSTANT", (int)FreeForceType::CONSTANT); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FreeForceType", "FREEFORCETYPE_TOWARDS_COORDS", (int)FreeForceType::TOWARDS_COORDS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("FreeForceType", "FREEFORCETYPE_TOWARDS_NODE", (int)FreeForceType::TOWARDS_NODE); ROR_ASSERT(result >= 0);
 
 }
