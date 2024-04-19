@@ -130,6 +130,9 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "void removeVehicle(const string &in, const string &in)", asMETHOD(GameScript, removeVehicle), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int getNumTrucksByFlag(int)", asMETHOD(GameScript, getNumTrucksByFlag), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
+    // > FreeForces
+    result = engine->RegisterObjectMethod("GameScriptClass", "int getFreeForceNextId()", asMETHOD(GameScript, getFreeForceNextId), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+
     // > Waypoint AI for actors
     result = engine->RegisterObjectMethod("GameScriptClass", "BeamClassPtr @spawnTruckAI(string &in, vector3 &in, string &in, string &in, int x)", AngelScript::asMETHOD(GameScript, spawnTruckAI), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "array<vector3> @getWaypoints(int x)", AngelScript::asMETHOD(GameScript, getWaypoints), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);

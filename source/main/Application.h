@@ -117,6 +117,9 @@ enum MsgType
     MSG_SIM_SCRIPT_EVENT_TRIGGERED,        //!< Payload = RoR::ScriptEventArgs* (owner)
     MSG_SIM_SCRIPT_CALLBACK_QUEUED,        //!< Payload = RoR::ScriptCallbackArgs* (owner)
     MSG_SIM_ACTOR_LINKING_REQUESTED,       //!< Payload = RoR::ActorLinkingRequest* (owner)
+    MSG_SIM_ADD_FREEFORCE_REQUESTED,       //!< Payload = RoR::FreeForceRequest* (owner)
+    MSG_SIM_MODIFY_FREEFORCE_REQUESTED,    //!< Payload = RoR::FreeForceRequest* (owner)
+    MSG_SIM_REMOVE_FREEFORCE_REQUESTED,    //!< Payload = RoR::FreeForceID_t* (owner)
     // GUI
     MSG_GUI_OPEN_MENU_REQUESTED,
     MSG_GUI_CLOSE_MENU_REQUESTED,
