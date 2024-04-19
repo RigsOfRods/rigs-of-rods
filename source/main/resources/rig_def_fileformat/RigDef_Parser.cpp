@@ -1196,6 +1196,7 @@ void Parser::ParseDirectiveAddAnimation()
                     else if (value == "permanent")     { animation.source |= Animation::SOURCE_PERMANENT;         }
                     else if (value == "event")         { animation.source |= Animation::SOURCE_EVENT;             }
                     else if (value == "dashboard")     { animation.source |= Animation::SOURCE_DASHBOARD;         }
+                    else if (value == "signalstalk")   { animation.source |= Animation::SOURCE_SIGNALSTALK;       }
 
                     else
                     {

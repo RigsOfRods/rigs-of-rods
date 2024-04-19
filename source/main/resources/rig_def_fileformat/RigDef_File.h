@@ -521,6 +521,7 @@ struct Animation
     static const BitMask64_t SOURCE_PERMANENT         = BITMASK64(31);
     static const BitMask64_t SOURCE_EVENT             = BITMASK64(32);
     static const BitMask64_t SOURCE_DASHBOARD         = BITMASK64(33);
+    static const BitMask64_t SOURCE_SIGNALSTALK       = BITMASK64(34);
 
     // Mode flags
     static const BitMask_t MODE_ROTATION_X          = BITMASK(1);
