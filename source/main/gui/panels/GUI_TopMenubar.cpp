@@ -1608,15 +1608,19 @@ void TopMenubar::Draw(float dt)
                 std::string addonparts_title = fmt::format(_LC("TopMenubar", "Addon parts ({})"), tuning_addonparts.size());
                 if (ImGui::CollapsingHeader(addonparts_title.c_str()))
                 {
-                    for (CacheEntryPtr& addonpart_entry: tuning_addonparts)
+                    for (size_t i = 0; i < tuning_addonparts.size(); i++)
                     {
+                        CacheEntryPtr& addonpart_entry = tuning_addonparts[i];
+
                         ImGui::PushID(addonpart_entry->fname.c_str());
-                        bool conflict = tuning_hovered_addonpart 
+                        const bool conflict_w_hovered = tuning_hovered_addonpart 
                             && (addonpart_entry != tuning_hovered_addonpart)
                             && AddonPartUtility::CheckForAddonpartConflict(tuning_hovered_addonpart, addonpart_entry, tuning_conflicts);
                         bool used = TuneupUtil::isAddonPartUsed(tuneup_def, addonpart_entry->fname);
-                        ImVec2 checkbox_cursor = ImGui::GetCursorScreenPos();
-                        if (ImGui::Checkbox(addonpart_entry->dname.c_str(), &used) && !conflict)
+                        const ImVec2 checkbox_cursor = ImGui::GetCursorScreenPos();
+                        if (ImGui::Checkbox(addonpart_entry->dname.c_str(), &used) 
+                            && !conflict_w_hovered
+                            && !tuning_addonparts_conflict_w_used[i])
                         {
                             ModifyProjectRequest* req = new ModifyProjectRequest();
                             req->mpr_type = (used)
@@ -1626,12 +1630,25 @@ void TopMenubar::Draw(float dt)
                             req->mpr_target_actor = tuning_actor;
                             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
                         }
-                        // Draw conflict marker
-                        if (conflict)
+                        // Draw conflict markers
+                        if (tuning_addonparts_conflict_w_used[i])
                         {
-                            ImVec2 min = checkbox_cursor + ImGui::GetStyle().FramePadding;
-                            ImVec2 max = min + ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight());
-                            ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(0.7f, 0.1f, 0.f));
+                            // Gray-ish X inside the checkbox
+                            const float square_sz = ImGui::GetFrameHeight();
+                            const ImVec2 min = checkbox_cursor + ImGui::GetStyle().FramePadding*1.4f;
+                            const ImVec2 max = checkbox_cursor + (ImVec2(square_sz, square_sz) - ImGui::GetStyle().FramePadding*1.5f);
+                            const ImColor X_COLOR(0.5f, 0.48f, 0.45f);
+                            ImGui::GetWindowDrawList()->AddLine(min, max, X_COLOR, 4.f);
+                            ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, max.y), ImVec2(max.x, min.y), X_COLOR, 4.f);
+                        }
+                        if (conflict_w_hovered)
+                        {
+                            // Red unrounded square around the checkbox
+                            const float square_sz = ImGui::GetFrameHeight();
+                            const ImVec2 min = checkbox_cursor;
+                            const ImVec2 max = checkbox_cursor + ImVec2(square_sz + 0.5f, square_sz);
+                            const ImColor SQ_COLOR(0.7f, 0.1f, 0.f);
+                            ImGui::GetWindowDrawList()->AddRect(min, max, SQ_COLOR, 0.f, ImDrawCornerFlags_None, 3.f);
                         }                        
                         // Record when checkbox is hovered - for drawing conflict markers
                         if (ImGui::IsItemHovered())
@@ -2361,13 +2378,32 @@ void TopMenubar::RefreshTuningMenu()
         tuning_saves.resetResults();
         App::GetCacheSystem()->Query(tuning_saves);
 
-        // Refresh `tuning_conflicts` database ~ test addonparts each with each once.
+        // Refresh `tuning_conflicts` database ~ test eligible addonparts each with each once.
         tuning_conflicts.clear();
         for (size_t i1 = 0; i1 < tuning_addonparts.size(); i1++)
         {
             for (size_t i2 = i1; i2 < tuning_addonparts.size(); i2++)
             {
                 AddonPartUtility::RecordAddonpartConflicts(tuning_addonparts[i1], tuning_addonparts[i2], tuning_conflicts);
+            }
+        }
+
+        // Refresh `tuning_addonparts_conflicting` listing ~ test used addonparts against unused.
+        tuning_addonparts_conflict_w_used.clear();
+        tuning_addonparts_conflict_w_used.resize(tuning_addonparts.size(), false);
+        if (current_actor->getWorkingTuneupDef())
+        {
+            for (const std::string& use_addonpart_fname: tuning_actor->getWorkingTuneupDef()->use_addonparts)
+            {
+                CacheEntryPtr use_addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, use_addonpart_fname);
+                for (size_t i = 0; i < tuning_addonparts.size(); i++)
+                {
+                    if (tuning_addonparts[i] != use_addonpart_entry)
+                    {
+                        tuning_addonparts_conflict_w_used[i] = tuning_addonparts_conflict_w_used[i]
+                            || AddonPartUtility::CheckForAddonpartConflict(tuning_addonparts[i], use_addonpart_entry, tuning_conflicts);
+                    }
+                }
             }
         }
 

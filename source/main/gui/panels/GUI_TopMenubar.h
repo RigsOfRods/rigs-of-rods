@@ -111,6 +111,7 @@ public:
     // Tuning menu
     ActorPtr tuning_actor;          //!< Detecting actor change to update cached values.
     std::vector<CacheEntryPtr> tuning_addonparts;   //!< Addonparts eligible for current actor, both matched by GUID and force-installed by user via [browse all] button.
+    std::vector<bool> tuning_addonparts_conflict_w_used; //!< 1:1 with `tuning_addonparts`; True means the eligible (not used) addonpart conflicts with an used addonpart.
     AddonPartConflictVec tuning_conflicts; //!< Conflicts between eligible addonparts tweaking the same element.
     CacheQuery tuning_saves;        //!< Tuneups saved by user, with category ID `RoR::CID_AddonpartUser`
     Str<200> tuning_savebox_buf;    //!< Buffer for tuneup name to be saved
