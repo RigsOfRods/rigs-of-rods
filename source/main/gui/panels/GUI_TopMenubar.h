@@ -124,6 +124,8 @@ public:
     void RefreshTuningMenu();
 
 private:
+    bool IsMenuEnabled(TopMenu which);
+
     void DrawActorListSinglePlayer();
     void DrawMpUserToActorList(RoRnet::UserInfo &user); // Multiplayer
     void DrawSpecialStateBox(float top_offset);

@@ -243,7 +243,7 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         }
     }
 
-    if (App::sim_tuning_enabled->getBool())
+    if (App::sim_tuning_enabled->getBool() && (App::mp_state->getEnum<MpState>() != MpState::CONNECTED))
     {
         if (rq.asr_tuneup_entry)
         {

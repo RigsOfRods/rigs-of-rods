@@ -1035,7 +1035,10 @@ int main(int argc, char *argv[])
                 case MSG_EDI_MODIFY_PROJECT_REQUESTED:
                 {
                     ModifyProjectRequest* request = static_cast<ModifyProjectRequest*>(m.payload);
-                    App::GetCacheSystem()->ModifyProject(request);
+                    if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED) // Do not allow tuning in multiplayer
+                    {
+                        App::GetCacheSystem()->ModifyProject(request);
+                    }
                     delete request;
                     break;
                 }
