@@ -49,7 +49,7 @@ typedef std::vector<AddonPartConflict> AddonPartConflictVec;
 class AddonPartUtility
 {
 public:
-    AddonPartUtility();
+    AddonPartUtility(bool silent_mode = false);
     ~AddonPartUtility();
 
     /// transforms the addonpart to `RigDef::File::Module` (fake 'section/end_section') used for spawning.
@@ -81,6 +81,8 @@ private:
     void ProcessUnwantedProp();
     void ProcessUnwantedFlexbody();
 
+    void Log(const std::string& text);
+
     // Shared state:
     GenericDocumentPtr m_document;
     GenericDocContextPtr m_context;
@@ -90,6 +92,7 @@ private:
     RigDef::ManagedMaterialsOptions m_managedmaterials_options;
     // ResolveUnwantedAndTweakedElements() state:
     TuneupDefPtr m_tuneup;
+    bool m_silent_mode;
 };
 
 }; // namespace RoR

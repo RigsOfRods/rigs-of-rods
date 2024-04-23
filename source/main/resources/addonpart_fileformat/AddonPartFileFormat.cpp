@@ -33,7 +33,7 @@
 using namespace RoR;
 using namespace RigDef;
 
-AddonPartUtility::AddonPartUtility()
+AddonPartUtility::AddonPartUtility(bool silent_mode)
 {
     // Inits `RefCountingObjectPtr<>` (CacheEntryPtr, GenericDocumentPtr) - shouldn't be in header.
 }
@@ -325,18 +325,18 @@ void AddonPartUtility::ProcessUnwantedProp()
         if (!m_tuneup->isPropProtected((PropID_t)m_context->getTokFloat(1)))
         {
             m_tuneup->unwanted_props.insert((PropID_t)m_context->getTokFloat(1));
-            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': marking prop '{}' as UNWANTED",
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': marking prop '{}' as UNWANTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
         }
         else
         {
-            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping prop '{}' because it's marked PROTECTED",
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping prop '{}' because it's marked PROTECTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokString(1)));
         }
     }
     else
     {
-        LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+        this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
     }
 }
 
@@ -349,18 +349,18 @@ void AddonPartUtility::ProcessUnwantedFlexbody()
         if (!m_tuneup->isFlexbodyProtected((FlexbodyID_t)m_context->getTokFloat(1)))
         {
             m_tuneup->unwanted_flexbodies.insert((FlexbodyID_t)m_context->getTokFloat(1));
-            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': marking flexbody '{}' as UNWANTED",
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': marking flexbody '{}' as UNWANTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
         }
         else
         {
-            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping flexbody '{}' because it's marked PROTECTED",
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping flexbody '{}' because it's marked PROTECTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokString(1)));
         }
     }
     else
     {
-        LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+        this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
     }
 }
 
@@ -386,14 +386,14 @@ void AddonPartUtility::ProcessTweakWheel()
                 if (!stop && m_context->isTokFloat(6)) { data.twt_rim_radius = m_context->getTokFloat(6); } else { stop=true; }
                 m_tuneup->wheel_tweaks.insert(std::make_pair(wheel_id, data));
             
-                LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': Sheduling tweak for wheel '{}'"
+                this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': Sheduling tweak for wheel '{}'"
                     " with params {{ media1={}, media2={}, side={}, tire_radius={}, rim_radius={} }}",
                     m_addonpart_entry->fname, m_context->getTokKeyword(), wheel_id,
                     data.twt_media[0], data.twt_media[1], (char)data.twt_side, data.twt_tire_radius, data.twt_rim_radius));
             }
             else if (m_tuneup->wheel_tweaks[wheel_id].twt_origin != m_addonpart_entry->fname)
             {
-                LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': Resetting tweaks for wheel '{}' due to conflict with '{}'",
+                this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': Resetting tweaks for wheel '{}' due to conflict with '{}'",
                     m_addonpart_entry->fname, m_context->getTokKeyword(), wheel_id,
                     m_tuneup->wheel_tweaks[wheel_id].twt_origin));
 
@@ -402,13 +402,13 @@ void AddonPartUtility::ProcessTweakWheel()
         }
         else
         {
-            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping wheel '{}' because it's marked PROTECTED",
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping wheel '{}' because it's marked PROTECTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
         }
     }
     else
     {
-        LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+        this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
     }
 }
 
@@ -431,14 +431,14 @@ void AddonPartUtility::ProcessTweakNode()
                 data.tnt_pos.z = m_context->getTokFloat(4);
                 m_tuneup->node_tweaks.insert(std::make_pair(nodenum, data));
             
-                LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': Scheduling tweak for node '{}'"
+                this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': Scheduling tweak for node '{}'"
                     " with params {{ x={}, y={}, z={} }}",
                     m_addonpart_entry->fname, m_context->getTokKeyword(), nodenum,
                     data.tnt_pos.x, data.tnt_pos.y, data.tnt_pos.z));
             }
             else if (m_tuneup->node_tweaks[nodenum].tnt_origin != m_addonpart_entry->fname)
             {
-                LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': Resetting tweaks for node '{}' due to conflict with '{}'",
+                this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': Resetting tweaks for node '{}' due to conflict with '{}'",
                     m_addonpart_entry->fname, m_context->getTokKeyword(), nodenum,
                     m_tuneup->node_tweaks[nodenum].tnt_origin));
 
@@ -447,13 +447,13 @@ void AddonPartUtility::ProcessTweakNode()
         }
         else
         {
-            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping node '{}' because it's marked PROTECTED",
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping node '{}' because it's marked PROTECTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), nodenum));
         }
     }
     else
     {
-        LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+        this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
     }
 }
 
@@ -484,7 +484,7 @@ void AddonPartUtility::ProcessTweakFlexbody()
                 data.tft_media = m_context->getTokString(8);
                 m_tuneup->flexbody_tweaks.insert(std::make_pair(flexbody_id, data));
             
-                LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': Scheduling tweak for flexbody '{}'"
+                this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': Scheduling tweak for flexbody '{}'"
                     " with params {{ offsetX={}, offsetY={}, offsetZ={}, rotX={}, rotY={}, rotZ={}, media={} }}",
                     m_addonpart_entry->fname, m_context->getTokKeyword(), flexbody_id, 
                     data.tft_offset.x, data.tft_offset.y, data.tft_offset.z,
@@ -492,7 +492,7 @@ void AddonPartUtility::ProcessTweakFlexbody()
             }
             else if (m_tuneup->flexbody_tweaks[flexbody_id].tft_origin != m_addonpart_entry->fname)
             {
-                LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': Resetting tweaks for flexbody '{}' due to conflict with '{}'",
+                this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': Resetting tweaks for flexbody '{}' due to conflict with '{}'",
                     m_addonpart_entry->fname, m_context->getTokKeyword(), flexbody_id,
                     m_tuneup->flexbody_tweaks[flexbody_id].tft_origin));
 
@@ -501,13 +501,13 @@ void AddonPartUtility::ProcessTweakFlexbody()
         }
         else
         {
-            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping flexbody '{}' because it's marked PROTECTED",
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping flexbody '{}' because it's marked PROTECTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
         }
     }
     else
     {
-        LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+        this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
     }
 }
 
@@ -540,7 +540,7 @@ void AddonPartUtility::ProcessTweakProp()
                 if (m_context->isTokString(9)) data.tpt_media[1] = m_context->getTokString(9); // <== Optional Media2 is specific for prop
                 m_tuneup->prop_tweaks.insert(std::make_pair(prop_id, data));
             
-                LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': Scheduling tweak for prop '{}'"
+                this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': Scheduling tweak for prop '{}'"
                     " with params {{ media1={}, offsetX={}, offsetY={}, offsetZ={}, rotX={}, rotY={}, rotZ={}, media2={} }}",
                     m_addonpart_entry->fname, m_context->getTokKeyword(), prop_id, data.tpt_media[0], 
                     data.tpt_offset.x, data.tpt_offset.y, data.tpt_offset.z,
@@ -549,7 +549,7 @@ void AddonPartUtility::ProcessTweakProp()
             }
             else if (m_tuneup->prop_tweaks[prop_id].tpt_origin != m_addonpart_entry->fname)
             {
-                LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': Resetting tweaks for prop '{}' due to conflict with '{}'",
+                this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': Resetting tweaks for prop '{}' due to conflict with '{}'",
                     m_addonpart_entry->fname, m_context->getTokKeyword(), prop_id,
                     m_tuneup->prop_tweaks[prop_id].tpt_origin));
 
@@ -558,13 +558,13 @@ void AddonPartUtility::ProcessTweakProp()
         }
         else
         {
-            LOG(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping prop '{}' because it's marked PROTECTED",
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping prop '{}' because it's marked PROTECTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
         }
     }
     else
     {
-        LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+        this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
     }
 }
 
@@ -572,23 +572,29 @@ void AddonPartUtility::RecordAddonpartConflicts(CacheEntryPtr addonpart1, CacheE
 {
     LOG(fmt::format("[RoR|Addonpart] -- Performing `RecordAddonpartConflicts()` between '{}' and '{}' ~ this involves generating dummy tuneups (hence messages below) --", addonpart1->fname, addonpart2->fname));
 
-    // Load both addonparts to dummy Tuneup instances    
-    TuneupDefPtr dummy_t1 = new TuneupDef();
+    // Make sure both addonparts are loaded and cached.
     App::GetCacheSystem()->LoadResource(addonpart1);
-    AddonPartUtility util_t1;
-    util_t1.ResolveUnwantedAndTweakedElements(dummy_t1, addonpart1);
+    if (!addonpart1->addonpart_data_only)
+    {
+        addonpart1->addonpart_data_only = new TuneupDef();
+        AddonPartUtility util(/*silent mode:*/true);
+        util.ResolveUnwantedAndTweakedElements(addonpart1->addonpart_data_only, addonpart1);
+    }
 
-    TuneupDefPtr dummy_t2 = new TuneupDef();
     App::GetCacheSystem()->LoadResource(addonpart2);
-    AddonPartUtility util_t2;
-    util_t2.ResolveUnwantedAndTweakedElements(dummy_t2, addonpart2);
+    if (!addonpart2->addonpart_data_only)
+    {
+        addonpart2->addonpart_data_only = new TuneupDef();
+        AddonPartUtility util(/*silent mode:*/true);
+        util.ResolveUnwantedAndTweakedElements(addonpart2->addonpart_data_only, addonpart2);
+    }
 
     // NODE TWEAKS:
-    for (size_t i = 0; i < dummy_t1->node_tweaks.size(); i++)
+    for (size_t i = 0; i < addonpart1->addonpart_data_only->node_tweaks.size(); i++)
     {
-        NodeNum_t suspect = dummy_t1->node_tweaks[i].tnt_nodenum;
+        NodeNum_t suspect = addonpart1->addonpart_data_only->node_tweaks[i].tnt_nodenum;
         TuneupNodeTweak* offender = nullptr;
-        if (TuneupUtil::isNodeTweaked(dummy_t2, suspect, offender))
+        if (TuneupUtil::isNodeTweaked(addonpart2->addonpart_data_only, suspect, offender))
         {
             conflicts.push_back(AddonPartConflict{addonpart1, addonpart2, "addonpart_tweak_node", (int)suspect});
             LOG(fmt::format("[RoR|Addonpart] Found conflict between '{}' and '{}' - node {} is tweaked by both", addonpart1->fname, addonpart2->fname, (int)suspect));
@@ -596,11 +602,11 @@ void AddonPartUtility::RecordAddonpartConflicts(CacheEntryPtr addonpart1, CacheE
     }
 
     // WHEEL TWEAKS:
-    for (size_t i = 0; i < dummy_t1->wheel_tweaks.size(); i++)
+    for (size_t i = 0; i < addonpart1->addonpart_data_only->wheel_tweaks.size(); i++)
     {
-        WheelID_t suspect = dummy_t1->wheel_tweaks[i].twt_wheel_id;
+        WheelID_t suspect = addonpart1->addonpart_data_only->wheel_tweaks[i].twt_wheel_id;
         TuneupWheelTweak* offender = nullptr;
-        if (TuneupUtil::isWheelTweaked(dummy_t2, suspect, offender))
+        if (TuneupUtil::isWheelTweaked(addonpart2->addonpart_data_only, suspect, offender))
         {
             conflicts.push_back(AddonPartConflict{addonpart1, addonpart2, "addonpart_tweak_wheel", (int)suspect});
             LOG(fmt::format("[RoR|Addonpart] Found conflict between '{}' and '{}' - wheel {} is tweaked by both", addonpart1->fname, addonpart2->fname, (int)suspect));
@@ -608,11 +614,11 @@ void AddonPartUtility::RecordAddonpartConflicts(CacheEntryPtr addonpart1, CacheE
     }
 
     // PROP TWEAKS:
-    for (size_t i = 0; i < dummy_t1->prop_tweaks.size(); i++)
+    for (size_t i = 0; i < addonpart1->addonpart_data_only->prop_tweaks.size(); i++)
     {
-        PropID_t suspect = dummy_t1->prop_tweaks[i].tpt_prop_id;
+        PropID_t suspect = addonpart1->addonpart_data_only->prop_tweaks[i].tpt_prop_id;
         TuneupPropTweak* offender = nullptr;
-        if (TuneupUtil::isPropTweaked(dummy_t2, suspect, offender))
+        if (TuneupUtil::isPropTweaked(addonpart2->addonpart_data_only, suspect, offender))
         {
             conflicts.push_back(AddonPartConflict{addonpart1, addonpart2, "addonpart_tweak_prop", (int)suspect});
             LOG(fmt::format("[RoR|Addonpart] Found conflict between '{}' and '{}' - prop {} is tweaked by both", addonpart1->fname, addonpart2->fname, (int)suspect));
@@ -620,11 +626,11 @@ void AddonPartUtility::RecordAddonpartConflicts(CacheEntryPtr addonpart1, CacheE
     }
 
     // FLEXBODY TWEAKS:
-    for (size_t i = 0; i < dummy_t1->flexbody_tweaks.size(); i++)
+    for (size_t i = 0; i < addonpart1->addonpart_data_only->flexbody_tweaks.size(); i++)
     {
-        FlexbodyID_t suspect = dummy_t1->flexbody_tweaks[i].tft_flexbody_id;
+        FlexbodyID_t suspect = addonpart1->addonpart_data_only->flexbody_tweaks[i].tft_flexbody_id;
         TuneupFlexbodyTweak* offender = nullptr;
-        if (TuneupUtil::isFlexbodyTweaked(dummy_t2, suspect, offender))
+        if (TuneupUtil::isFlexbodyTweaked(addonpart2->addonpart_data_only, suspect, offender))
         {
             conflicts.push_back(AddonPartConflict{addonpart1, addonpart2, "addonpart_tweak_flexbody", (int)suspect});
             LOG(fmt::format("[RoR|Addonpart] Found conflict between '{}' and '{}' - flexbody {} is tweaked by both", addonpart1->fname, addonpart2->fname, (int)suspect));
@@ -650,4 +656,12 @@ bool AddonPartUtility::CheckForAddonpartConflict(CacheEntryPtr addonpart1, Cache
         }
     }
     return false;
+}
+
+void AddonPartUtility::Log(const std::string& text)
+{
+    if (!m_silent_mode)
+    {
+        LOG(text);
+    }
 }
