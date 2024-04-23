@@ -567,3 +567,87 @@ void AddonPartUtility::ProcessTweakProp()
         LOG(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
     }
 }
+
+void AddonPartUtility::RecordAddonpartConflicts(CacheEntryPtr addonpart1, CacheEntryPtr addonpart2, AddonPartConflictVec& conflicts)
+{
+    LOG(fmt::format("[RoR|Addonpart] -- Performing `RecordAddonpartConflicts()` between '{}' and '{}' ~ this involves generating dummy tuneups (hence messages below) --", addonpart1->fname, addonpart2->fname));
+
+    // Load both addonparts to dummy Tuneup instances    
+    TuneupDefPtr dummy_t1 = new TuneupDef();
+    App::GetCacheSystem()->LoadResource(addonpart1);
+    AddonPartUtility util_t1;
+    util_t1.ResolveUnwantedAndTweakedElements(dummy_t1, addonpart1);
+
+    TuneupDefPtr dummy_t2 = new TuneupDef();
+    App::GetCacheSystem()->LoadResource(addonpart2);
+    AddonPartUtility util_t2;
+    util_t2.ResolveUnwantedAndTweakedElements(dummy_t2, addonpart2);
+
+    // NODE TWEAKS:
+    for (size_t i = 0; i < dummy_t1->node_tweaks.size(); i++)
+    {
+        NodeNum_t suspect = dummy_t1->node_tweaks[i].tnt_nodenum;
+        TuneupNodeTweak* offender = nullptr;
+        if (TuneupUtil::isNodeTweaked(dummy_t2, suspect, offender))
+        {
+            conflicts.push_back(AddonPartConflict{addonpart1, addonpart2, "addonpart_tweak_node", (int)suspect});
+            LOG(fmt::format("[RoR|Addonpart] Found conflict between '{}' and '{}' - node {} is tweaked by both", addonpart1->fname, addonpart2->fname, (int)suspect));
+        }
+    }
+
+    // WHEEL TWEAKS:
+    for (size_t i = 0; i < dummy_t1->wheel_tweaks.size(); i++)
+    {
+        WheelID_t suspect = dummy_t1->wheel_tweaks[i].twt_wheel_id;
+        TuneupWheelTweak* offender = nullptr;
+        if (TuneupUtil::isWheelTweaked(dummy_t2, suspect, offender))
+        {
+            conflicts.push_back(AddonPartConflict{addonpart1, addonpart2, "addonpart_tweak_wheel", (int)suspect});
+            LOG(fmt::format("[RoR|Addonpart] Found conflict between '{}' and '{}' - wheel {} is tweaked by both", addonpart1->fname, addonpart2->fname, (int)suspect));
+        }
+    }
+
+    // PROP TWEAKS:
+    for (size_t i = 0; i < dummy_t1->prop_tweaks.size(); i++)
+    {
+        PropID_t suspect = dummy_t1->prop_tweaks[i].tpt_prop_id;
+        TuneupPropTweak* offender = nullptr;
+        if (TuneupUtil::isPropTweaked(dummy_t2, suspect, offender))
+        {
+            conflicts.push_back(AddonPartConflict{addonpart1, addonpart2, "addonpart_tweak_prop", (int)suspect});
+            LOG(fmt::format("[RoR|Addonpart] Found conflict between '{}' and '{}' - prop {} is tweaked by both", addonpart1->fname, addonpart2->fname, (int)suspect));
+        }
+    }
+
+    // FLEXBODY TWEAKS:
+    for (size_t i = 0; i < dummy_t1->flexbody_tweaks.size(); i++)
+    {
+        FlexbodyID_t suspect = dummy_t1->flexbody_tweaks[i].tft_flexbody_id;
+        TuneupFlexbodyTweak* offender = nullptr;
+        if (TuneupUtil::isFlexbodyTweaked(dummy_t2, suspect, offender))
+        {
+            conflicts.push_back(AddonPartConflict{addonpart1, addonpart2, "addonpart_tweak_flexbody", (int)suspect});
+            LOG(fmt::format("[RoR|Addonpart] Found conflict between '{}' and '{}' - flexbody {} is tweaked by both", addonpart1->fname, addonpart2->fname, (int)suspect));
+        }
+    }
+
+    LOG(fmt::format("[RoR|Addonpart] -- Done with `RecordAddonpartConflicts()` between '{}' and '{}' --", addonpart1->fname, addonpart2->fname));
+}
+
+bool AddonPartUtility::CheckForAddonpartConflict(CacheEntryPtr addonpart1, CacheEntryPtr addonpart2, AddonPartConflictVec& conflicts)
+{
+    if (!addonpart1 || !addonpart2)
+    {
+        return false;
+    }
+
+    for (AddonPartConflict& conflict: conflicts)
+    {
+        if ((conflict.atc_addonpart1 == addonpart1 && conflict.atc_addonpart2 == addonpart2) ||
+            (conflict.atc_addonpart1 == addonpart2 && conflict.atc_addonpart2 == addonpart1))
+        {
+            return true;
+        }
+    }
+    return false;
+}

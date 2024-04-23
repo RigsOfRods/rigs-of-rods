@@ -1579,9 +1579,12 @@ void TopMenubar::Draw(float dt)
                     for (CacheEntryPtr& addonpart_entry: tuning_addonparts)
                     {
                         ImGui::PushID(addonpart_entry->fname.c_str());
-
+                        bool conflict = tuning_hovered_addonpart 
+                            && (addonpart_entry != tuning_hovered_addonpart)
+                            && AddonPartUtility::CheckForAddonpartConflict(tuning_hovered_addonpart, addonpart_entry, tuning_conflicts);
                         bool used = TuneupUtil::isAddonPartUsed(tuneup_def, addonpart_entry->fname);
-                        if (ImGui::Checkbox(addonpart_entry->dname.c_str(), &used))
+                        ImVec2 checkbox_cursor = ImGui::GetCursorScreenPos();
+                        if (ImGui::Checkbox(addonpart_entry->dname.c_str(), &used) && !conflict)
                         {
                             ModifyProjectRequest* req = new ModifyProjectRequest();
                             req->mpr_type = (used)
@@ -1590,6 +1593,22 @@ void TopMenubar::Draw(float dt)
                             req->mpr_subject = addonpart_entry->fname;
                             req->mpr_target_actor = tuning_actor;
                             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+                        }
+                        // Draw conflict marker
+                        if (conflict)
+                        {
+                            ImVec2 min = checkbox_cursor + ImGui::GetStyle().FramePadding;
+                            ImVec2 max = min + ImVec2(ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight());
+                            ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImColor(0.7f, 0.1f, 0.f));
+                        }                        
+                        // Record when checkbox is hovered - for drawing conflict markers
+                        if (ImGui::IsItemHovered())
+                        {
+                            tuning_hovered_addonpart = addonpart_entry;
+                        }
+                        else if (tuning_hovered_addonpart == addonpart_entry)
+                        {
+                            tuning_hovered_addonpart = nullptr;
                         }
                         // Reload button
                         ImGui::SameLine();
@@ -2308,6 +2327,16 @@ void TopMenubar::RefreshTuningMenu()
         tuning_saves.cqy_filter_category_id = CID_Tuneups; // Exclude auto-generated entries
         tuning_saves.resetResults();
         App::GetCacheSystem()->Query(tuning_saves);
+
+        // Refresh `tuning_conflicts` database ~ test addonparts each with each once.
+        tuning_conflicts.clear();
+        for (size_t i1 = 0; i1 < tuning_addonparts.size(); i1++)
+        {
+            for (size_t i2 = i1; i2 < tuning_addonparts.size(); i2++)
+            {
+                AddonPartUtility::RecordAddonpartConflicts(tuning_addonparts[i1], tuning_addonparts[i2], tuning_conflicts);
+            }
+        }
 
         tuning_rwidget_cursorx_min = 0.f;
     }
