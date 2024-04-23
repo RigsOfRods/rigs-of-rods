@@ -151,13 +151,13 @@ void TopMenubar::Draw(float dt)
         ImGui::CalcTextSize(settings_title.c_str()).x +
         ImGui::CalcTextSize(tools_title.c_str()).x;
 
-    if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+    if (this->IsMenuEnabled(TopMenu::TOPMENU_AI))
     {
         menubar_num_buttons += 1;
         menubar_content_width += ImGui::CalcTextSize(ai_title.c_str()).x;
     }
 
-    if (App::sim_tuning_enabled->getBool())
+    if (this->IsMenuEnabled(TopMenu::TOPMENU_TUNING))
     {
         menubar_num_buttons += 1;
         menubar_content_width += ImGui::CalcTextSize(tuning_title.c_str()).x;
@@ -202,7 +202,7 @@ void TopMenubar::Draw(float dt)
 
     // The 'Tuning' button - only shown if enabled
     ImVec2 tuning_cursor = ImVec2(0, 0);
-    if (App::sim_tuning_enabled->getBool())
+    if (this->IsMenuEnabled(TopMenu::TOPMENU_TUNING))
     {
         ImGui::SameLine(); 
         tuning_cursor = ImGui::GetCursorPos();
@@ -215,7 +215,7 @@ void TopMenubar::Draw(float dt)
 
     // The 'AI' button - only shown in singleplayer
     ImVec2 ai_cursor = ImVec2(0, 0);
-    if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+    if (this->IsMenuEnabled(TopMenu::TOPMENU_AI))
     {
         ImGui::SameLine();
         ai_cursor = ImGui::GetCursorPos();
@@ -2285,6 +2285,7 @@ void TopMenubar::RefreshTuningMenu()
 {
     const ActorPtr& current_actor = App::GetGameContext()->GetPlayerActor();
     if (App::sim_tuning_enabled->getBool() 
+        && (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
         && current_actor 
         && (tuning_actor != current_actor || tuning_force_refresh))
     {
@@ -2435,4 +2436,17 @@ void TopMenubar::DrawTuningForceRemoveControls(const int subject_id, const std::
         App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
     }
 
+}
+
+bool TopMenubar::IsMenuEnabled(TopMenu which)
+{
+    switch (which)
+    {
+    case TopMenu::TOPMENU_AI:
+        return App::mp_state->getEnum<MpState>() != MpState::CONNECTED;
+    case TopMenu::TOPMENU_TUNING:
+        return App::sim_tuning_enabled->getBool() && (App::mp_state->getEnum<MpState>() != MpState::CONNECTED);
+    default:
+        return true;
+    }
 }
