@@ -79,6 +79,9 @@ struct TuneupFlexbodyTweak //!< Data of 'addonpart_tweak_flexbody <flexbody ID> 
     std::string     tft_origin;                       //!< Addonpart filename
 };
 
+/// Dual purpose:
+///  1. representing a .tuneup file, see `CacheEntry::tuneup_def` (the obvious use)
+///  2. holding addonpart data for conflict resolution, see `CacheEntry::addonpart_data_only` (an additional hack)
 struct TuneupDef: public RefCountingObject<TuneupDef>
 {
     /// @name General info

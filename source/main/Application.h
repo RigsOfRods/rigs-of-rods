@@ -126,6 +126,7 @@ enum MsgType
     MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED,    //!< Payload = MessageBoxConfig* (owner)
     MSG_GUI_DOWNLOAD_PROGRESS,
     MSG_GUI_DOWNLOAD_FINISHED,
+    MSG_GUI_REFRESH_TUNING_MENU_REQUESTED,
     // Editing
     MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  //!< Payload = RoR::ground_model_t* (weak)
     MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,

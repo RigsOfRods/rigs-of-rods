@@ -272,6 +272,7 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
 #endif //SOCKETW
 
     ActorPtr fresh_actor = m_actor_manager.CreateNewActor(rq, def);
+    bool fresh_actor_seat_player = false;
 
     // lock slide nodes after spawning the actor?
     if (def->slide_nodes_connect_instantly)
@@ -284,7 +285,7 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         m_last_spawned_actor = fresh_actor;
         if (fresh_actor->ar_driveable != NOT_DRIVEABLE)
         {
-            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(fresh_actor))));
+            fresh_actor_seat_player = true;
         }
         if (rq.asr_spawnbox == nullptr)
         {
@@ -298,13 +299,7 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
             fresh_actor->ar_num_nodes > 0 &&
             App::diag_preset_veh_enter->getBool())
         {
-            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(fresh_actor))));
-        }
-        if (fresh_actor->ar_driveable != NOT_DRIVEABLE &&
-            fresh_actor->ar_num_nodes > 0 &&
-            App::cli_preset_veh_enter->getBool())
-        {
-            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(fresh_actor))));
+            fresh_actor_seat_player = true;
         }
     }
     else if (rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF)
@@ -347,8 +342,15 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
             rq.asr_origin != ActorSpawnRequest::Origin::NETWORK &&
             rq.asr_enter)
         {
-            this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, static_cast<void*>(new ActorPtr(fresh_actor))));
+            fresh_actor_seat_player = true;
         }
+    }
+
+    if (fresh_actor_seat_player)
+    {
+        this->PushMessage(Message(MSG_SIM_SEAT_PLAYER_REQUESTED, new ActorPtr(fresh_actor)));
+        // Loading all addonparts to resolve conflicts is slow and would cause huge UI lag if not forced now. Do it right after player was seated in the actor.
+        this->ChainMessage(Message(MSG_GUI_REFRESH_TUNING_MENU_REQUESTED));
     }
 
     return fresh_actor;

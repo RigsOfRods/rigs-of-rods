@@ -904,6 +904,12 @@ int main(int argc, char *argv[])
                     App::GetGuiManager()->RepositorySelector.DownloadFinished();
                     break;
 
+                case MSG_GUI_REFRESH_TUNING_MENU_REQUESTED:
+                {
+                    App::GetGuiManager()->TopMenubar.RefreshTuningMenu();
+                    break;
+                }
+
                 // -- Editing events --
 
                 case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED:

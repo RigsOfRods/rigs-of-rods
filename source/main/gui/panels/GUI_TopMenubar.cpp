@@ -2287,7 +2287,7 @@ void TopMenubar::RefreshTuningMenu()
     if (App::sim_tuning_enabled->getBool() 
         && (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
         && current_actor 
-        && (tuning_actor != current_actor || tuning_force_refresh))
+        && (tuning_actor != current_actor))
     {
         ROR_ASSERT(current_actor->getUsedActorEntry());
 
