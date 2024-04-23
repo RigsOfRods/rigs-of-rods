@@ -35,6 +35,16 @@
 
 namespace RoR {
 
+struct AddonPartConflict //!< Conflict between two addonparts tweaking the same element
+{
+    CacheEntryPtr   atc_addonpart1;
+    CacheEntryPtr   atc_addonpart2;
+    std::string     atc_keyword;
+    int             atc_element_id = -1;
+};
+
+typedef std::vector<AddonPartConflict> AddonPartConflictVec;
+
 /// NOTE: Modcache processes this format directly using `RoR::GenericDocument`, see `RoR::CacheSystem::FillAddonPartDetailInfo()`
 class AddonPartUtility
 {
@@ -51,6 +61,10 @@ public:
     void ResolveUnwantedAndTweakedElements(TuneupDefPtr& tuneup, CacheEntryPtr& addonpart_entry);
 
     static void ResetUnwantedAndTweakedElements(TuneupDefPtr& tuneup);
+
+    static void RecordAddonpartConflicts(CacheEntryPtr addonpart1, CacheEntryPtr addonpart2, AddonPartConflictVec& conflicts);
+
+    static bool CheckForAddonpartConflict(CacheEntryPtr addonpart1, CacheEntryPtr addonpart2, AddonPartConflictVec& conflicts);
 
 private:
     // Helpers of `TransformToRigDefModule()`, they expect `m_context` to be in position:

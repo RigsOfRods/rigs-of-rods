@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "AddonPartFileFormat.h"
 #include "CacheSystem.h"
 #include "RoRnet.h"
 
@@ -109,7 +110,8 @@ public:
 
     // Tuning menu
     ActorPtr tuning_actor;          //!< Detecting actor change to update cached values.
-    std::vector<CacheEntryPtr> tuning_addonparts;   //!< Addonparts of current actor, both matched by GUID and force-installed by user via [browse all] button.
+    std::vector<CacheEntryPtr> tuning_addonparts;   //!< Addonparts eligible for current actor, both matched by GUID and force-installed by user via [browse all] button.
+    AddonPartConflictVec tuning_conflicts; //!< Conflicts between eligible addonparts tweaking the same element.
     CacheQuery tuning_saves;        //!< Tuneups saved by user, with category ID `RoR::CID_AddonpartUser`
     Str<200> tuning_savebox_buf;    //!< Buffer for tuneup name to be saved
     bool tuning_savebox_visible = false;   //!< User pressed 'save active' to open savebox.
@@ -118,6 +120,7 @@ public:
     const float TUNING_HOLDTOCONFIRM_TIMELIMIT = 1.5f; //!< Delete button must be held for several sec to confirm.
     bool tuning_force_refresh = false;
     float tuning_rwidget_cursorx_min = 0.f; //!< Avoid drawing right-side widgets ('Delete' button or 'Protected' chk) over saved tuneup names.
+    CacheEntryPtr tuning_hovered_addonpart;
     void RefreshTuningMenu();
 
 private:
