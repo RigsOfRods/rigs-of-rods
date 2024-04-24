@@ -39,7 +39,7 @@
 #include <set>
 
 #define CACHE_FILE "mods.cache"
-#define CACHE_FILE_FORMAT 13
+#define CACHE_FILE_FORMAT 3151 // TBD bump to 14 when merging pull request #3151
 #define CACHE_FILE_FRESHNESS 86400 // 60*60*24 = one day
 
 namespace RoR {
@@ -74,8 +74,7 @@ public:
 
     std::time_t addtimestamp;           //!< timestamp when this file was added to the cache
     Ogre::String uniqueid;              //!< file's unique id
-    Ogre::String guid;                  //!< global unique id. Type "addonpart" leaves this empty.
-    std::set<std::string> addonpart_guids; //!< GUIDs of all vehicles this addonpart is used in. Empty for non-addonpart entries.
+    Ogre::String guid;                  //!< global unique id. Type "addonpart" leaves this empty and uses `addonpart_guids`.
     int version;                        //!< file's version
     
     std::string resource_bundle_type;   //!< Archive type recognized by OGRE resource system: 'FileSystem' or 'Zip'
@@ -94,6 +93,10 @@ public:
     RoR::TuneupDefPtr tuneup_def;  //!< Cached tuning info, added on first use or during cache rebuild
     RoR::TuneupDefPtr addonpart_data_only; //!< Cached addonpart data (dummy tuneup), only used for evaluating conflicts, see `AddonPartUtility::RecordAddonpartConflicts()`
     // TBD: Make Terrn2Def a RefcountingObjectPtr<> and cache it here too.
+
+    // following all ADDONPART detail information:
+    std::set<std::string> addonpart_guids; //!< GUIDs of all vehicles this addonpart is used with.
+    std::set<std::string> addonpart_filenames; //!< File names of all vehicles this addonpart is used with. If empty, any filename goes.
 
     // following all TRUCK detail information:
     Ogre::String description;
@@ -165,7 +168,7 @@ struct CacheQueryResult
 
 enum class CacheSearchMethod // Always case-insensitive
 {
-    NONE,     //!< No searching
+    NONE,     //!< Ignore the search string and find all
     FULLTEXT, //!< Partial match in: name, filename, description, author name/mail
     GUID,     //!< Partial match in: guid 
     AUTHORS,  //!< Partial match in: author name/email
@@ -177,7 +180,8 @@ struct CacheQuery
 {
     RoR::LoaderType                cqy_filter_type = RoR::LoaderType::LT_None;
     int                            cqy_filter_category_id = CacheCategoryId::CID_All;
-    std::string                    cqy_filter_guid; //!< Exact match; leave empty to disable
+    std::string                    cqy_filter_guid; //!< Exact match (case-insensitive); leave empty to disable
+    std::string                    cqy_filter_target_filename; //!< Exact match (case-insensitive); leave empty to disable (currently only used with addonparts)
     CacheSearchMethod              cqy_search_method = CacheSearchMethod::NONE;
     std::string                    cqy_search_string;
     
