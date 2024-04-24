@@ -334,6 +334,12 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntryPtr &
     {
         out_entry->addonpart_guids.insert(j_addonguid.GetString());
     }
+
+    // Addon part suggested mod filenames
+    for (rapidjson::Value& j_addonfname: j_entry["addonpart_filenames"].GetArray())
+    {
+        out_entry->addonpart_filenames.insert(j_addonfname.GetString());
+    }
 }
 
 CacheValidity CacheSystem::LoadCacheFileJson()
@@ -608,6 +614,13 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
         j_addonguids.PushBack(rapidjson::StringRef(ag.c_str()), j_doc.GetAllocator());
     }
     j_entry.AddMember("addonpart_guids", j_addonguids, j_doc.GetAllocator());
+
+    rapidjson::Value j_addonfnames(rapidjson::kArrayType);
+    for (std::string const & ag: entry->addonpart_filenames)
+    {
+        j_addonfnames.PushBack(rapidjson::StringRef(ag.c_str()), j_doc.GetAllocator());
+    }
+    j_entry.AddMember("addonpart_filenames", j_addonfnames, j_doc.GetAllocator());
 
     // Add entry to list
     j_entries.PushBack(j_entry, j_doc.GetAllocator());
@@ -900,6 +913,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr 
     if (def->root_module->guid.size() > 0)
     {
         entry->guid = def->root_module->guid[def->root_module->guid.size() - 1].guid;
+        Ogre::StringUtil::toLowerCase(entry->guid);
     }
     entry->fileformatversion = 0;
     if (def->root_module->fileformatversion.size() > 0)
@@ -1142,6 +1156,8 @@ void CacheSystem::FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinD
     entry->description = skin_def->description;
     entry->categoryid  = -1;
     entry->skin_def    = skin_def; // Needed to generate preview image
+
+    Ogre::StringUtil::toLowerCase(entry->guid);
 }
 
 void CacheSystem::FillAddonPartDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds)
@@ -1163,7 +1179,15 @@ void CacheSystem::FillAddonPartDetailInfo(CacheEntryPtr &entry, Ogre::DataStream
         }
         else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "addonpart_guid")
         {
-            entry->addonpart_guids.insert(ctx->getTokString(1));
+            std::string guid = ctx->getTokString(1);
+            Ogre::StringUtil::toLowerCase(guid);
+            entry->addonpart_guids.insert(guid);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "addonpart_filename")
+        {
+            std::string fname = ctx->getTokString(1);
+            Ogre::StringUtil::toLowerCase(fname);
+            entry->addonpart_filenames.insert(fname);
         }
 
         ctx->seekNextLine();
@@ -1217,6 +1241,8 @@ void CacheSystem::FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneu
     entry->description = tuneup_def->description;
     entry->categoryid  = tuneup_def->category_id;
     entry->tuneup_def  = tuneup_def; // Needed to generate preview image
+
+    Ogre::StringUtil::toLowerCase(entry->guid);
 }
 
 void CacheSystem::LoadAssetPack(CacheEntryPtr& target_entry, Ogre::String const & assetpack_filename)
@@ -1917,6 +1943,8 @@ void CacheSystem::DeleteProject(CacheEntryPtr& entry)
 size_t CacheSystem::Query(CacheQuery& query)
 {
     Ogre::StringUtil::toLowerCase(query.cqy_search_string);
+    Ogre::StringUtil::toLowerCase(query.cqy_filter_guid);
+    Ogre::StringUtil::toLowerCase(query.cqy_filter_target_filename);
     std::time_t cur_time = std::time(nullptr);
     for (CacheEntryPtr& entry: m_entries)
     {
@@ -1926,6 +1954,17 @@ size_t CacheSystem::Query(CacheQuery& query)
             // Addon parts have `guid` empty
             if ((entry->fext == "addonpart" && entry->addonpart_guids.count(query.cqy_filter_guid) == 0) ||
                 (entry->fext != "addonpart" && entry->guid != query.cqy_filter_guid))
+            {
+                continue;
+            }
+        }
+
+        // Filter by target filename (currently only `addonpart_filenames`); pass items which have no target filenames listed.
+        if (query.cqy_filter_target_filename != "")
+        {
+            if (entry->fext == "addonpart" 
+                && entry->addonpart_filenames.size() > 0
+                && entry->addonpart_filenames.count(query.cqy_filter_target_filename) == 0)
             {
                 continue;
             }
@@ -2017,7 +2056,7 @@ size_t CacheSystem::Query(CacheQuery& query)
             match = this->Match(score, entry->fname, query.cqy_search_string, 100);
             break;
 
-        default: // CacheSearchMethod::NONE
+        default: // CacheSearchMethod::
             match = true;
             break;
         };

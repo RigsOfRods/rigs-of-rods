@@ -2349,6 +2349,7 @@ void TopMenubar::RefreshTuningMenu()
             CacheQuery query_addonparts;
             query_addonparts.cqy_filter_type = LT_AddonPart;
             query_addonparts.cqy_filter_guid = current_actor->getUsedActorEntry()->guid;
+            query_addonparts.cqy_filter_target_filename = current_actor->getTruckFileName(); // Addonparts without any filenames listed will just pass.
             App::GetCacheSystem()->Query(query_addonparts);
             for (CacheQueryResult& res: query_addonparts.cqy_results)
             {
