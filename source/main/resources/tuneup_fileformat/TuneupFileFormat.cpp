@@ -452,6 +452,13 @@ bool RoR::TuneupUtil::isFlareAnyhowRemoved(TuneupDefPtr& tuneup_def, FlareID_t f
         && (tuneup_def->isFlareUnwanted(flare_id) || tuneup_def->isFlareForceRemoved(flare_id));   
 }
 
+// > exhaust
+bool RoR::TuneupUtil::isExhaustAnyhowRemoved(TuneupDefPtr& tuneup_def, ExhaustID_t exhaust_id)
+{    
+    return tuneup_def 
+        && (tuneup_def->isExhaustUnwanted(exhaust_id) || tuneup_def->isExhaustForceRemoved(exhaust_id));   
+}
+
 bool RoR::TuneupUtil::isAddonPartUsed(TuneupDefPtr& tuneup_entry, const std::string& filename)
 {
     return tuneup_entry

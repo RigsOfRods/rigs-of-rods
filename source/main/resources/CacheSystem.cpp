@@ -1827,6 +1827,16 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
         request->mpr_target_actor->getWorkingTuneupDef()->force_wheel_sides.erase(request->mpr_subject_id);
         break;
 
+    case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_EXHAUST_SET:
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->force_remove_exhausts.insert(request->mpr_subject_id);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_EXHAUST_RESET:
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->force_remove_exhausts.erase(request->mpr_subject_id);
+        break;
+
     case ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_SET:
         request->mpr_target_actor->ensureWorkingTuneupDef();
         request->mpr_target_actor->getWorkingTuneupDef()->protected_props.insert(request->mpr_subject_id);
@@ -1865,6 +1875,16 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
     case ModifyProjectRequestType::TUNEUP_PROTECTED_FLARE_RESET:
         request->mpr_target_actor->ensureWorkingTuneupDef();
         request->mpr_target_actor->getWorkingTuneupDef()->protected_flares.erase(request->mpr_subject_id);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_PROTECTED_EXHAUST_SET:
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->protected_exhausts.insert(request->mpr_subject_id);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_PROTECTED_EXHAUST_RESET:
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->protected_exhausts.erase(request->mpr_subject_id);
         break;
 
     case ModifyProjectRequestType::PROJECT_LOAD_TUNEUP:

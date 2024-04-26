@@ -64,6 +64,9 @@ namespace RoR
     typedef int FlareID_t; //!< Index into `Actor::ar_flares`, use `RoR::FLAREID_INVALID` as empty value
     static const FlareID_t FLAREID_INVALID = -1;
 
+    typedef int ExhaustID_t; //!< Index into `Actor::exhausts`, use `RoR::EXHAUSTID_INVALID` as empty value
+    static const ExhaustID_t EXHAUSTID_INVALID = -1;
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;

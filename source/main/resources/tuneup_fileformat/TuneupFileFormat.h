@@ -106,6 +106,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     std::set<PropID_t>                            unwanted_props;          //!< 'addonpart_unwanted_prop' directives.
     std::set<FlexbodyID_t>                        unwanted_flexbodies;     //!< 'addonpart_unwanted_flexbody' directives.
     std::set<FlareID_t>                           unwanted_flares;         //!< 'addonpart_unwanted_flare' directives.
+    std::set<ExhaustID_t>                         unwanted_exhausts;       //!< 'addonpart_unwanted_exhaust' directives.
     /// @}
 
     /// @name UI-controlled forced changes (override addonparts)
@@ -114,6 +115,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     std::set<FlexbodyID_t>                        force_remove_flexbodies; //!< UI overrides
     std::map<WheelID_t, WheelSide>                force_wheel_sides;       //!< UI overrides
     std::set<FlareID_t>                           force_remove_flares;     //!< User unticked an UI checkbox in Tuning menu, section Flares.
+    std::set<ExhaustID_t>                         force_remove_exhausts;   //!< User unticked an UI checkbox in Tuning menu, section Exhausts.
     /// @}
 
     /// @name UI-controlled protection from addonpart tweaks
@@ -123,6 +125,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     std::set<PropID_t>                            protected_props;       //!< Props which cannot be altered via 'addonpart_tweak_prop' or 'addonpart_unwanted_prop' directive.
     std::set<FlexbodyID_t>                        protected_flexbodies;  //!< Flexbodies which cannot be altered via 'addonpart_tweak_flexbody' or 'addonpart_unwanted_flexbody' directive.
     std::set<FlareID_t>                           protected_flares;      //!< Flares which cannot be altered via 'addonpart_unwanted_flare' directive.
+    std::set<ExhaustID_t>                         protected_exhausts;    //!< Exhausts which cannot be altered via 'addonpart_unwanted_exhaust' directive.
     /// @}
 
     TuneupDefPtr clone();
@@ -135,6 +138,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     bool         isWheelProtected(WheelID_t wheelid) const { return protected_wheels.find(wheelid) != protected_wheels.end(); }
     bool         isNodeProtected(NodeNum_t nodenum) const { return protected_nodes.find(nodenum) != protected_nodes.end(); }
     bool         isFlareProtected(FlareID_t flareid) const { return protected_flares.find(flareid) != protected_flares.end(); }
+    bool         isExhaustProtected(ExhaustID_t exhaustid) const { return protected_exhausts.find(exhaustid) != protected_exhausts.end(); }
     /// @}
 
     /// @name Unwanted-state helpers
@@ -142,6 +146,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     bool         isPropUnwanted(PropID_t propid) { return unwanted_props.find(propid) != unwanted_props.end(); }
     bool         isFlexbodyUnwanted(FlexbodyID_t flexbodyid) { return unwanted_flexbodies.find(flexbodyid) != unwanted_flexbodies.end(); }
     bool         isFlareUnwanted(FlareID_t flareid) { return unwanted_flares.find(flareid) != unwanted_flares.end(); }
+    bool         isExhaustUnwanted(ExhaustID_t exhaustid) { return unwanted_exhausts.find(exhaustid) != unwanted_exhausts.end(); }
     /// @}
 
     /// @name Forced-state helpers
@@ -150,6 +155,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     bool         isFlexbodyForceRemoved(FlexbodyID_t flexbodyid) { return force_remove_flexbodies.find(flexbodyid) != force_remove_flexbodies.end(); }
     bool         isWheelSideForced(WheelID_t wheelid, WheelSide& out_val) const;
     bool         isFlareForceRemoved(FlareID_t flareid) { return force_remove_flares.find(flareid) != force_remove_flares.end(); }
+    bool         isExhaustForceRemoved(ExhaustID_t exhaustid) { return force_remove_exhausts.find(exhaustid) != force_remove_exhausts.end(); }
     /// @}
 };
 
@@ -204,6 +210,11 @@ public:
     /// @name Flare helpers
     /// @{
     static bool               isFlareAnyhowRemoved(TuneupDefPtr& tuneup_def, FlareID_t flare_id);
+    /// @}
+
+    /// @name Exhaust helpers
+    /// @{
+    static bool               isExhaustAnyhowRemoved(TuneupDefPtr& tuneup_def, ExhaustID_t exhaust_id);
     /// @}
 
 private:

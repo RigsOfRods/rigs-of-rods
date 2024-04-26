@@ -74,7 +74,6 @@ private:
     void ProcessFlexbody();
     void ProcessFlare();
     void ProcessFlare2();
-    void ProcessFlare3();
     void ProcessTweakWheel();
     void ProcessTweakNode();
     void ProcessTweakFlexbody();
@@ -84,6 +83,7 @@ private:
     void ProcessUnwantedProp();
     void ProcessUnwantedFlexbody();
     void ProcessUnwantedFlare();
+    void ProcessUnwantedExhaust();
 
     void Log(const std::string& text);
 
