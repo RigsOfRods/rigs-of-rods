@@ -1908,6 +1908,37 @@ void TopMenubar::Draw(float dt)
                         ImGui::PopID(); // flareid
                     }
                 }
+
+                // Draw exhausts
+                size_t total_exhausts = tuning_actor->exhausts.size();
+                std::string exhausts_title = fmt::format(_LC("Tuning", "Exhausts ({})"), total_exhausts);
+                if (ImGui::CollapsingHeader(exhausts_title.c_str()))
+                {
+                    // Draw all exhausts (those removed by addonparts are also present as placeholders)
+                    for (ExhaustID_t exhaustid = 0; exhaustid < (int)tuning_actor->exhausts.size(); exhaustid++)
+                    {
+                        ImGui::PushID(exhaustid);
+                        ImGui::AlignTextToFramePadding();
+
+                        this->DrawTuningBoxedSubjectIdInline(exhaustid);
+
+                        this->DrawTuningForceRemoveControls(
+                            exhaustid,
+                            tuning_actor->exhausts[exhaustid].particleSystemName,
+                            tuneup_def && tuneup_def->isExhaustUnwanted(exhaustid),
+                            tuneup_def && tuneup_def->isExhaustForceRemoved(exhaustid),
+                            ModifyProjectRequestType::TUNEUP_FORCEREMOVE_EXHAUST_SET,
+                            ModifyProjectRequestType::TUNEUP_FORCEREMOVE_EXHAUST_RESET);
+
+                        this->DrawTuningProtectedChkRightAligned(
+                            exhaustid,
+                            tuneup_def && tuneup_def->isExhaustProtected(exhaustid),
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_EXHAUST_SET,
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_EXHAUST_RESET);
+
+                        ImGui::PopID(); // exhaustid
+                    }
+                }
             }
 
             m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;

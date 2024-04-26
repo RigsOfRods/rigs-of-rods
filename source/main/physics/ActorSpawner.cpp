@@ -1282,32 +1282,37 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
         return;
     }
 
+    const ExhaustID_t exhaust_id = (ExhaustID_t)m_actor->exhausts.size();
     exhaust_t exhaust;
     exhaust.emitterNode   = this->GetNodeIndexOrThrow(def.reference_node);
     exhaust.directionNode = this->GetNodeIndexOrThrow(def.direction_node);
 
     std::string template_name = def.particle_name;
-    if (template_name.empty() || template_name == "default")
+    if (template_name == "" || template_name == "default")
     {
         template_name = "tracks/Smoke"; // defined in `particles/smoke.particle`
     }
+    exhaust.particleSystemName = template_name;
 
-    std::string name = this->ComposeName(template_name.c_str(), (int)m_actor->exhausts.size());
-    exhaust.smoker = this->CreateParticleSystem(name, template_name);
-    if (exhaust.smoker == nullptr)
+    if (!TuneupUtil::isExhaustAnyhowRemoved(m_actor->getWorkingTuneupDef(), exhaust_id))
     {
-        std::stringstream msg;
-        msg << "Failed to create particle system '" << name << "' (template: '" << template_name <<"')";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return;
+        std::string name = this->ComposeName(template_name.c_str(), (int)m_actor->exhausts.size());
+        exhaust.smoker = this->CreateParticleSystem(name, template_name);
+        if (exhaust.smoker == nullptr)
+        {
+            std::stringstream msg;
+            msg << "Failed to create particle system '" << name << "' (template: '" << template_name <<"')";
+            AddMessage(Message::TYPE_ERROR, msg.str());
+            return;
+        }
+
+        exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("exhaust", (int)m_actor->exhausts.size()));
+        exhaust.smokeNode->attachObject(exhaust.smoker);
+        exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
+
+        m_actor->m_gfx_actor->SetNodeHot(exhaust.emitterNode, true);
+        m_actor->m_gfx_actor->SetNodeHot(exhaust.directionNode, true);
     }
-
-    exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("exhaust", (int)m_actor->exhausts.size()));
-    exhaust.smokeNode->attachObject(exhaust.smoker);
-    exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
-
-    m_actor->m_gfx_actor->SetNodeHot(exhaust.emitterNode, true);
-    m_actor->m_gfx_actor->SetNodeHot(exhaust.directionNode, true);
 
     m_actor->exhausts.push_back(exhaust);
 }

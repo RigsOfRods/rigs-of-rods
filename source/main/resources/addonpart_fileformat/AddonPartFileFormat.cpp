@@ -155,6 +155,8 @@ void AddonPartUtility::ResolveUnwantedAndTweakedElements(TuneupDefPtr& tuneup, C
                     this->ProcessUnwantedFlexbody();
                 else if (m_context->getTokKeyword() == "addonpart_unwanted_flare" )
                     this->ProcessUnwantedFlare();
+                else if (m_context->getTokKeyword() == "addonpart_unwanted_exhaust" )
+                    this->ProcessUnwantedExhaust();
                 else if (m_context->getTokKeyword() == "addonpart_tweak_wheel")
                     this->ProcessTweakWheel();
                 else if (m_context->getTokKeyword() == "addonpart_tweak_node")
@@ -463,6 +465,30 @@ void AddonPartUtility::ProcessUnwantedFlare()
         else
         {
             this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping flare '{}' because it's marked PROTECTED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokString(1)));
+        }
+    }
+    else
+    {
+        this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+    }
+}
+
+void AddonPartUtility::ProcessUnwantedExhaust()
+{
+    ROR_ASSERT(m_context->getTokKeyword() == "addonpart_unwanted_exhaust"); // also asserts !EOF and TokenType::KEYWORD
+
+    if (m_context->isTokFloat(1))
+    {
+        if (!m_tuneup->isExhaustProtected((ExhaustID_t)m_context->getTokFloat(1)))
+        {
+            m_tuneup->unwanted_exhausts.insert((ExhaustID_t)m_context->getTokFloat(1));
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': marking exhaust '{}' as UNWANTED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
+        }
+        else
+        {
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping exhaust '{}' because it's marked PROTECTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokString(1)));
         }
     }
