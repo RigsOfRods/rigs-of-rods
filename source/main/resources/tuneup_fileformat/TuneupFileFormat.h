@@ -105,6 +105,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     std::map<FlexbodyID_t, TuneupFlexbodyTweak>   flexbody_tweaks;       //!< Mesh name, offset and rotation overrides via 'addonpart_tweak_flexbody'
     std::set<PropID_t>                            unwanted_props;          //!< 'addonpart_unwanted_prop' directives.
     std::set<FlexbodyID_t>                        unwanted_flexbodies;     //!< 'addonpart_unwanted_flexbody' directives.
+    std::set<FlareID_t>                           unwanted_flares;         //!< 'addonpart_unwanted_flare' directives.
     /// @}
 
     /// @name UI-controlled forced changes (override addonparts)
@@ -112,14 +113,16 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     std::set<PropID_t>                            force_remove_props;      //!< UI overrides
     std::set<FlexbodyID_t>                        force_remove_flexbodies; //!< UI overrides
     std::map<WheelID_t, WheelSide>                force_wheel_sides;       //!< UI overrides
+    std::set<FlareID_t>                           force_remove_flares;     //!< User unticked an UI checkbox in Tuning menu, section Flares.
     /// @}
 
     /// @name UI-controlled protection from addonpart tweaks
     /// @{
     std::set<NodeNum_t>                           protected_nodes;       //!< Nodes that cannot be altered via 'addonpart_tweak_node'
     std::set<WheelID_t>                           protected_wheels;      //!< Wheels that cannot be altered via 'addonpart_tweak_wheel'
-    std::set<PropID_t>                            protected_props;       //!< Props which cannot be altered via 'addonpart_tweak_prop' or 'addonpart_remove_prop' directive.
-    std::set<FlexbodyID_t>                        protected_flexbodies;  //!< Flexbodies which cannot be removed via 'addonpart_tweak_flexbody' or 'addonpart_remove_flexbody' directive.
+    std::set<PropID_t>                            protected_props;       //!< Props which cannot be altered via 'addonpart_tweak_prop' or 'addonpart_unwanted_prop' directive.
+    std::set<FlexbodyID_t>                        protected_flexbodies;  //!< Flexbodies which cannot be altered via 'addonpart_tweak_flexbody' or 'addonpart_unwanted_flexbody' directive.
+    std::set<FlareID_t>                           protected_flares;      //!< Flares which cannot be altered via 'addonpart_unwanted_flare' directive.
     /// @}
 
     TuneupDefPtr clone();
@@ -127,16 +130,18 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
 
     /// @name Protection helpers
     /// @{
-    bool         isPropProtected(PropID_t propid) { return protected_props.find(propid) != protected_props.end(); }
-    bool         isFlexbodyProtected(FlexbodyID_t flexbodyid) { return protected_flexbodies.find(flexbodyid) != protected_flexbodies.end(); }
-    bool         isWheelProtected(int wheelid) const { return protected_wheels.find(wheelid) != protected_wheels.end(); }
+    bool         isPropProtected(PropID_t propid) const { return protected_props.find(propid) != protected_props.end(); }
+    bool         isFlexbodyProtected(FlexbodyID_t flexbodyid) const { return protected_flexbodies.find(flexbodyid) != protected_flexbodies.end(); }
+    bool         isWheelProtected(WheelID_t wheelid) const { return protected_wheels.find(wheelid) != protected_wheels.end(); }
     bool         isNodeProtected(NodeNum_t nodenum) const { return protected_nodes.find(nodenum) != protected_nodes.end(); }
+    bool         isFlareProtected(FlareID_t flareid) const { return protected_flares.find(flareid) != protected_flares.end(); }
     /// @}
 
     /// @name Unwanted-state helpers
     /// @{
     bool         isPropUnwanted(PropID_t propid) { return unwanted_props.find(propid) != unwanted_props.end(); }
     bool         isFlexbodyUnwanted(FlexbodyID_t flexbodyid) { return unwanted_flexbodies.find(flexbodyid) != unwanted_flexbodies.end(); }
+    bool         isFlareUnwanted(FlareID_t flareid) { return unwanted_flares.find(flareid) != unwanted_flares.end(); }
     /// @}
 
     /// @name Forced-state helpers
@@ -144,6 +149,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     bool         isPropForceRemoved(PropID_t propid) { return force_remove_props.find(propid) != force_remove_props.end(); }
     bool         isFlexbodyForceRemoved(FlexbodyID_t flexbodyid) { return force_remove_flexbodies.find(flexbodyid) != force_remove_flexbodies.end(); }
     bool         isWheelSideForced(WheelID_t wheelid, WheelSide& out_val) const;
+    bool         isFlareForceRemoved(FlareID_t flareid) { return force_remove_flares.find(flareid) != force_remove_flares.end(); }
     /// @}
 };
 
@@ -193,6 +199,11 @@ public:
     static std::string        getTweakedFlexbodyMedia(TuneupDefPtr& tuneup_entry, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val);
     static std::string        getTweakedFlexbodyMediaRG(TuneupDefPtr& tuneup_def, FlexbodyID_t flexbody_id, int media_idx, const std::string& orig_val);
     static bool               isFlexbodyTweaked(TuneupDefPtr& tuneup_entry, FlexbodyID_t flexbody_id, TuneupFlexbodyTweak*& out_tweak);
+    /// @}
+
+    /// @name Flare helpers
+    /// @{
+    static bool               isFlareAnyhowRemoved(TuneupDefPtr& tuneup_def, FlareID_t flare_id);
     /// @}
 
 private:

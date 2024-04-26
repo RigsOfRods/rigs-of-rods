@@ -1797,6 +1797,16 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
         request->mpr_target_actor->getWorkingTuneupDef()->force_remove_props.erase(request->mpr_subject_id);
         break;
     
+    case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLARE_SET:
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->force_remove_flares.insert(request->mpr_subject_id);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLARE_RESET:
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->force_remove_flares.erase(request->mpr_subject_id);
+        break;
+    
     case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLEXBODY_SET:
         request->mpr_target_actor->ensureWorkingTuneupDef();
         request->mpr_target_actor->getWorkingTuneupDef()->force_remove_flexbodies.insert(request->mpr_subject_id);
@@ -1845,6 +1855,16 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
     case ModifyProjectRequestType::TUNEUP_PROTECTED_WHEEL_RESET:
         request->mpr_target_actor->ensureWorkingTuneupDef();
         request->mpr_target_actor->getWorkingTuneupDef()->protected_wheels.erase(request->mpr_subject_id);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_PROTECTED_FLARE_SET:
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->protected_flares.insert(request->mpr_subject_id);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_PROTECTED_FLARE_RESET:
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->protected_flares.erase(request->mpr_subject_id);
         break;
 
     case ModifyProjectRequestType::PROJECT_LOAD_TUNEUP:

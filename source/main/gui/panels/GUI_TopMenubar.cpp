@@ -29,6 +29,7 @@
 #include "Actor.h"
 #include "ActorManager.h"
 #include "CameraManager.h"
+#include "DashBoardManager.h"
 #include "FlexBody.h"
 #include "GameContext.h"
 #include "GfxScene.h"
@@ -1824,6 +1825,55 @@ void TopMenubar::Draw(float dt)
                             ModifyProjectRequestType::TUNEUP_PROTECTED_WHEEL_RESET);
 
                         ImGui::PopID(); // i
+                    }
+                }
+
+                // Draw flares
+                size_t total_flares = tuning_actor->ar_flares.size();
+                std::string flares_title = fmt::format(_LC("Tuning", "Flares ({})"), total_flares);
+                if (ImGui::CollapsingHeader(flares_title.c_str()))
+                {
+                    // Draw all flares (those removed by addonparts are also present as placeholders)
+                    for (FlareID_t flareid = 0; flareid < (int)tuning_actor->ar_flares.size(); flareid++)
+                    {
+                        ImGui::PushID(flareid);
+                        ImGui::AlignTextToFramePadding();
+
+                        this->DrawTuningBoxedSubjectIdInline(flareid);
+
+                        // Compose flare description string
+                        const FlareType flaretype = tuning_actor->ar_flares[flareid].fl_type;
+                        std::string flarename;
+                        if (flaretype == FlareType::USER)
+                        {
+                            int controlnumber = tuning_actor->ar_flares[flareid].controlnumber + 1; // Convert range 0-9 to 1-10
+                            flarename = fmt::format("{} {}", (char)flaretype, controlnumber);
+                        }
+                        else if (flaretype == FlareType::DASHBOARD)
+                        {
+                            std::string linkname = tuning_actor->ar_dashboard->getLinkNameForID((DashData)tuning_actor->ar_flares[flareid].dashboard_link);
+                            flarename = fmt::format("{} {}", (char)flaretype, linkname);
+                        }
+                        else
+                        {
+                            flarename = fmt::format("{}", (char)flaretype);
+                        }
+
+                        this->DrawTuningForceRemoveControls(
+                            flareid,
+                            flarename,
+                            tuneup_def && tuneup_def->isFlareUnwanted(flareid),
+                            tuneup_def && tuneup_def->isFlareForceRemoved(flareid),
+                            ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLARE_SET,
+                            ModifyProjectRequestType::TUNEUP_FORCEREMOVE_FLARE_RESET);
+
+                        this->DrawTuningProtectedChkRightAligned(
+                            flareid,
+                            tuneup_def && tuneup_def->isFlareProtected(flareid),
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_FLARE_SET,
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_FLARE_RESET);
+
+                        ImGui::PopID(); // flareid
                     }
                 }
             }

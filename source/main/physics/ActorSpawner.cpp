@@ -2106,10 +2106,15 @@ void ActorSpawner::ProcessFlare3(RigDef::Flare3 & def)
 
 void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
 {
+    // This processes both 'flares' and 'flares2' (the parser auto-imports 'flares' as `RigDef::Flare2`)
+    // -------------------------------------------------------------------------------------------------
+
     if (m_actor->m_flares_mode == GfxFlaresMode::NONE) { return; }
 
     int blink_delay = def.blink_delay_milis;
     float size = def.size;
+    const FlareID_t flare_id = static_cast<FlareID_t>(m_actor->ar_flares.size());
+    const bool is_placeholder = TuneupUtil::isFlareAnyhowRemoved(m_actor->getWorkingTuneupDef(), flare_id);
 
     /* Backwards compatibility */
     if (blink_delay == -2) 
@@ -2187,9 +2192,12 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     }
 
     /* Visuals */
-    flare.snode = m_flares_parent_scenenode->createChildSceneNode(this->ComposeName("flareX", (int)m_actor->ar_flares.size()));
-    std::string flare_name = this->ComposeName("Flare", static_cast<int>(m_actor->ar_flares.size()));
-    flare.bbs = App::GetGfxScene()->GetSceneManager()->createBillboardSet(flare_name, 1);
+    std::string flare_name = this->ComposeName("Flare", flare_id);
+    if (!is_placeholder)
+    {
+        flare.snode = m_flares_parent_scenenode->createChildSceneNode(this->ComposeName("flareX", flare_id));        
+        flare.bbs = App::GetGfxScene()->GetSceneManager()->createBillboardSet(flare_name, 1);
+    }
 
     // Backwards compatibility:
     // before 't' (tail light) was introduced in 2022, tail lights were indicated as 'f' (headlight) + custom material.
@@ -2242,7 +2250,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     flare.intensity = 1.f;
     flare.light = nullptr;
 
-    if ((App::gfx_flares_mode->getEnum<GfxFlaresMode>() >= GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && size > 0.001)
+    if ((App::gfx_flares_mode->getEnum<GfxFlaresMode>() >= GfxFlaresMode::CURR_VEHICLE_HEAD_ONLY) && size > 0.001 && !is_placeholder)
     {
         if (flare.fl_type == FlareType::HEADLIGHT)
         {
@@ -2275,7 +2283,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             flare.light->setCastShadows(false);
         }
     }
-    if ((App::gfx_flares_mode->getEnum<GfxFlaresMode>() >= GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS) && size > 0.001)
+    if ((App::gfx_flares_mode->getEnum<GfxFlaresMode>() >= GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS) && size > 0.001 && !is_placeholder)
     {
         if (flare.fl_type == FlareType::TAIL_LIGHT)
         {

@@ -158,6 +158,18 @@ int DashBoardManager::getLinkIDForName(Ogre::String& str)
     return -1;
 }
 
+std::string DashBoardManager::getLinkNameForID(DashData id)
+{
+    if (id > 0 && id < DD_MAX)
+    {
+        return data[id].name;
+    }
+    else
+    {
+        return "";
+    }
+}
+
 int DashBoardManager::loadDashBoard(Ogre::String filename, bool textureLayer)
 {
 

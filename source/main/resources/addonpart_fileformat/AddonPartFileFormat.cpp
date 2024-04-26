@@ -87,7 +87,9 @@ std::shared_ptr<Document::Module> AddonPartUtility::TransformToRigDefModule(Cach
                     }
                     else if (keyword == Keyword::MANAGEDMATERIALS
                         || keyword == Keyword::PROPS
-                        || keyword == Keyword::FLEXBODIES)
+                        || keyword == Keyword::FLEXBODIES
+                        || keyword == Keyword::FLARES
+                        || keyword == Keyword::FLARES2)
                     {
                         block = keyword;
                         m_context->seekNextLine();
@@ -104,6 +106,8 @@ std::shared_ptr<Document::Module> AddonPartUtility::TransformToRigDefModule(Cach
                 case Keyword::MANAGEDMATERIALS: this->ProcessManagedMaterial(); break;
                 case Keyword::PROPS: this->ProcessProp(); break;
                 case Keyword::FLEXBODIES: this->ProcessFlexbody(); break;
+                case Keyword::FLARES: this->ProcessFlare(); break;
+                case Keyword::FLARES2: this->ProcessFlare2(); break;
                 default: break;
                 }
             }
@@ -149,6 +153,8 @@ void AddonPartUtility::ResolveUnwantedAndTweakedElements(TuneupDefPtr& tuneup, C
                     this->ProcessUnwantedProp();
                 else if (m_context->getTokKeyword() == "addonpart_unwanted_flexbody" )
                     this->ProcessUnwantedFlexbody();
+                else if (m_context->getTokKeyword() == "addonpart_unwanted_flare" )
+                    this->ProcessUnwantedFlare();
                 else if (m_context->getTokKeyword() == "addonpart_tweak_wheel")
                     this->ProcessTweakWheel();
                 else if (m_context->getTokKeyword() == "addonpart_tweak_node")
@@ -179,6 +185,7 @@ void AddonPartUtility::ResetUnwantedAndTweakedElements(TuneupDefPtr& tuneup)
     // Unwanted
     tuneup->unwanted_flexbodies.clear();
     tuneup->unwanted_props.clear();
+    tuneup->unwanted_flares.clear();
     
     // Tweaked
     tuneup->node_tweaks.clear();
@@ -314,6 +321,83 @@ void AddonPartUtility::ProcessFlexbody()
     m_module->flexbodies.push_back(def);
 }
 
+void AddonPartUtility::ProcessFlare()
+{
+    int n = m_context->countLineArgs();
+    if (n < 5)
+    {
+        App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Error parsing addonpart file '{}': flare has only {} arguments, expected {}", m_addonpart_entry->fname, n, 5));
+        return;
+    }
+
+    Flare2 def; // We auto-import 'flares' as 'flares2', leaving the `offset.z` at 0.
+    int importflags = Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NUMBERED;
+    def.reference_node = Node::Ref("", (unsigned int)m_context->getTokFloat(0), importflags, 0);
+    def.node_axis_x    = Node::Ref("", (unsigned int)m_context->getTokFloat(1), importflags, 0);
+    def.node_axis_y    = Node::Ref("", (unsigned int)m_context->getTokFloat(2), importflags, 0);
+    def.offset.x       = m_context->getTokFloat(3);
+    def.offset.y       = m_context->getTokFloat(4);
+
+    if (n > 5) def.type = (FlareType)m_context->getTokString(5)[0];
+
+    if (n > 6)
+    {
+        switch (def.type)
+        {
+            case FlareType::USER:      def.control_number = (int)m_context->getTokFloat(6); break;
+            case FlareType::DASHBOARD: def.dashboard_link = m_context->getTokString(6); break;
+            default: break;
+        }
+    }
+
+    if (n > 7) { def.blink_delay_milis = (int)m_context->getTokFloat(7); }
+    if (n > 8) { def.size              = m_context->getTokFloat(8); }
+    if (n > 9) { def.material_name     = m_context->getTokString(9); }
+
+    m_module->flares2.push_back(def);
+}
+
+void AddonPartUtility::ProcessFlare2()
+{
+    int n = m_context->countLineArgs();
+    if (n < 6)
+    {
+        App::GetConsole()->putMessage(
+            Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Error parsing addonpart file '{}': flare2 has only {} arguments, expected {}", m_addonpart_entry->fname, n, 6));
+        return;
+    }
+
+    Flare2 def;
+    int importflags = Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NUMBERED;
+    def.reference_node = Node::Ref("", (unsigned int)m_context->getTokFloat(0), importflags, 0);
+    def.node_axis_x    = Node::Ref("", (unsigned int)m_context->getTokFloat(1), importflags, 0);
+    def.node_axis_y    = Node::Ref("", (unsigned int)m_context->getTokFloat(2), importflags, 0);
+    def.offset.x       = m_context->getTokFloat(3);
+    def.offset.y       = m_context->getTokFloat(4);
+    def.offset.z       = m_context->getTokFloat(5); // <-- Specific to 'flares2' (the only difference)
+
+    if (n > 6) def.type = (FlareType)m_context->getTokString(6)[0];
+
+    if (n > 7)
+    {
+        switch (def.type)
+        {
+            case FlareType::USER:      def.control_number = (int)m_context->getTokFloat(7); break;
+            case FlareType::DASHBOARD: def.dashboard_link = m_context->getTokString(7); break;
+            default: break;
+        }
+    }
+
+    if (n > 8) { def.blink_delay_milis = (int)m_context->getTokFloat(8); }
+    if (n > 9) { def.size              = m_context->getTokFloat(9); }
+    if (n > 10) { def.material_name     = m_context->getTokString(10); }
+
+    m_module->flares2.push_back(def);
+}
+
 // Helpers of `ResolveUnwantedAndTweakedElements()`, they expect `m_context` to be in position:
 
 void AddonPartUtility::ProcessUnwantedProp()
@@ -355,6 +439,30 @@ void AddonPartUtility::ProcessUnwantedFlexbody()
         else
         {
             this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping flexbody '{}' because it's marked PROTECTED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokString(1)));
+        }
+    }
+    else
+    {
+        this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+    }
+}
+
+void AddonPartUtility::ProcessUnwantedFlare()
+{
+    ROR_ASSERT(m_context->getTokKeyword() == "addonpart_unwanted_flare"); // also asserts !EOF and TokenType::KEYWORD
+
+    if (m_context->isTokFloat(1))
+    {
+        if (!m_tuneup->isFlareProtected((FlareID_t)m_context->getTokFloat(1)))
+        {
+            m_tuneup->unwanted_flexbodies.insert((FlareID_t)m_context->getTokFloat(1));
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': marking flare '{}' as UNWANTED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
+        }
+        else
+        {
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping flare '{}' because it's marked PROTECTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokString(1)));
         }
     }
