@@ -72,6 +72,9 @@ private:
     void ProcessDirectiveSetManagedMaterialsOptions();
     void ProcessProp();
     void ProcessFlexbody();
+    void ProcessFlare();
+    void ProcessFlare2();
+    void ProcessFlare3();
     void ProcessTweakWheel();
     void ProcessTweakNode();
     void ProcessTweakFlexbody();
@@ -80,6 +83,7 @@ private:
     // Helpers of `ResolveUnwantedAndTweakedElements()`, they expect `m_context` to be in position:
     void ProcessUnwantedProp();
     void ProcessUnwantedFlexbody();
+    void ProcessUnwantedFlare();
 
     void Log(const std::string& text);
 

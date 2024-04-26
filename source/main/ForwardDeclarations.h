@@ -61,6 +61,9 @@ namespace RoR
     typedef int FlexbodyID_t; //!< Index to `GfxActor::m_flexbodies`, `use RoR::FLEXBODYID_INVALID` as empty value
     static const FlexbodyID_t FLEXBODYID_INVALID = -1;
 
+    typedef int FlareID_t; //!< Index into `Actor::ar_flares`, use `RoR::FLAREID_INVALID` as empty value
+    static const FlareID_t FLAREID_INVALID = -1;
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;

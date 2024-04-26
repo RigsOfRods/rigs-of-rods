@@ -3085,6 +3085,12 @@ void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
     for (int i=0; i<num_flares; ++i)
     {
         flare_t& flare = m_actor->ar_flares[i];
+
+        // Skip placeholder flares (removed via Tuning system)
+        if (!flare.bbs)
+        {
+            continue;
+        }
         
         this->SetMaterialFlareOn(i, flare.intensity > 0.3);
 

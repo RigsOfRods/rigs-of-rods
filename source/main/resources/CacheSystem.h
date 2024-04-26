@@ -237,12 +237,16 @@ enum class ModifyProjectRequestType
     TUNEUP_FORCEREMOVE_FLEXBODY_RESET, //!< 'subject_id' is flexbody ID.
     TUNEUP_FORCED_WHEEL_SIDE_SET,      //!< 'subject_id' is wheel ID, 'value_int' is RoR::WheelSide
     TUNEUP_FORCED_WHEEL_SIDE_RESET,    //!< 'subject_id' is wheel ID.
+    TUNEUP_FORCEREMOVE_FLARE_SET,       //!< 'subject_id' is flare ID.
+    TUNEUP_FORCEREMOVE_FLARE_RESET,     //!< 'subject_id' is flare ID.
     TUNEUP_PROTECTED_PROP_SET,         //!< 'subject_id' is prop ID.
     TUNEUP_PROTECTED_PROP_RESET,       //!< 'subject_id' is prop ID.
     TUNEUP_PROTECTED_FLEXBODY_SET,     //!< 'subject_id' is flexbody ID.
     TUNEUP_PROTECTED_FLEXBODY_RESET,   //!< 'subject_id' is flexbody ID.  
     TUNEUP_PROTECTED_WHEEL_SET,        //!< 'subject_id' is wheel ID.
     TUNEUP_PROTECTED_WHEEL_RESET,      //!< 'subject_id' is wheel ID.
+    TUNEUP_PROTECTED_FLARE_SET,        //!< 'subject_id' is flare ID.
+    TUNEUP_PROTECTED_FLARE_RESET,      //!< 'subject_id' is flare ID.
     PROJECT_LOAD_TUNEUP,               //!< 'subject' is tuneup filename. This overwrites the auto-generated tuneup with the save.
     PROJECT_RESET_TUNEUP,              //!< 'subject' is empty. This resets the auto-generated tuneup to orig. values.
 };

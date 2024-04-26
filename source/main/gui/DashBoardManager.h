@@ -226,6 +226,7 @@ public:
     int getDataType(size_t key) { return data[key].type; };
 
     int getLinkIDForName(Ogre::String& str);
+    std::string getLinkNameForID(DashData id);
 
     int loadDashBoard(Ogre::String filename, bool textureLayer);
 

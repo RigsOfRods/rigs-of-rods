@@ -445,6 +445,13 @@ bool RoR::TuneupUtil::isFlexbodyTweaked(TuneupDefPtr& tuneup_def, FlexbodyID_t f
     return false;
 }
 
+// > flare
+bool RoR::TuneupUtil::isFlareAnyhowRemoved(TuneupDefPtr& tuneup_def, FlareID_t flare_id)
+{    
+    return tuneup_def 
+        && (tuneup_def->isFlareUnwanted(flare_id) || tuneup_def->isFlareForceRemoved(flare_id));   
+}
+
 bool RoR::TuneupUtil::isAddonPartUsed(TuneupDefPtr& tuneup_entry, const std::string& filename)
 {
     return tuneup_entry

@@ -631,9 +631,9 @@ struct flare_t
     float offsetx;
     float offsety;
     float offsetz;
-    Ogre::SceneNode *snode;
-    Ogre::BillboardSet *bbs;
-    Ogre::Light *light;
+    Ogre::SceneNode *snode = nullptr;
+    Ogre::BillboardSet *bbs = nullptr; //!< This remains `nullptr` if removed via `addonpart_unwanted_flare` or Tuning UI.
+    Ogre::Light *light = nullptr;
     FlareType fl_type;
     int controlnumber; //!< Only 'u' type flares, valid values 0-9, maps to EV_TRUCK_LIGHTTOGGLE01 to 10.
     int dashboard_link; //!< Only 'd' type flares, valid values are DD_*
