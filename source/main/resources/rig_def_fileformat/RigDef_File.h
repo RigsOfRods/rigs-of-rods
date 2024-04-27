@@ -879,6 +879,7 @@ struct Flare2 // Used for both 'flares' and 'flares2' sections
     int blink_delay_milis = -2;
     float size = -1.f;
     Ogre::String material_name;
+    Ogre::String _material_rg_override; //!< Needed for addonparts
 };
 
 struct Flare3: public Flare2

@@ -358,6 +358,8 @@ void AddonPartUtility::ProcessFlare()
     if (n > 8) { def.size              = m_context->getTokFloat(8); }
     if (n > 9) { def.material_name     = m_context->getTokString(9); }
 
+    def._material_rg_override = m_addonpart_entry->resource_group;
+
     m_module->flares2.push_back(def);
 }
 
@@ -396,6 +398,8 @@ void AddonPartUtility::ProcessFlare2()
     if (n > 8) { def.blink_delay_milis = (int)m_context->getTokFloat(8); }
     if (n > 9) { def.size              = m_context->getTokFloat(9); }
     if (n > 10) { def.material_name     = m_context->getTokString(10); }
+
+    def._material_rg_override = m_addonpart_entry->resource_group;
 
     m_module->flares2.push_back(def);
 }

@@ -2245,7 +2245,8 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             }
         }
 
-        Ogre::MaterialPtr material = this->FindOrCreateCustomizedMaterial(material_name, m_custom_resource_group);
+        std::string material_rg = (def._material_rg_override != "") ? def._material_rg_override : m_actor->getTruckFileResourceGroup();
+        Ogre::MaterialPtr material = this->FindOrCreateCustomizedMaterial(material_name, material_rg);
         if (!material.isNull())
         {
             flare.bbs->setMaterial(material);
