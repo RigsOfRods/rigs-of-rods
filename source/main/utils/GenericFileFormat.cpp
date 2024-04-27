@@ -69,6 +69,7 @@ struct DocumentParser
 
     void ProcessChar(const char c);
     void ProcessEOF();
+    void ProcessSeparatorWithinBool();
 
     void BeginToken(const char c);
     void UpdateComment(const char c);
@@ -580,6 +581,28 @@ void DocumentParser::UpdateNumber(const char c)
     }
 }
 
+void DocumentParser::ProcessSeparatorWithinBool()
+{
+    this->DiscontinueBool();
+    switch (partial_tok_type)
+    {
+        case PartialToken::KEYWORD:
+            this->FlushStringishToken(TokenType::KEYWORD);
+            break;
+        case PartialToken::STRING_NAKED:
+            this->FlushStringishToken(TokenType::STRING);
+            break;
+        default:
+            // Discard token
+            tok.push_back('\0');
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("{}, line {}, pos {}: discarding incomplete boolean token '{}'", datastream->getName(), line_num, line_pos, tok.data()));
+            tok.clear();
+            partial_tok_type = PartialToken::NONE;
+            break;
+    }
+}
+
 void DocumentParser::UpdateBool(const char c)
 {
     switch (c)
@@ -590,22 +613,12 @@ void DocumentParser::UpdateBool(const char c)
     case ' ':
     case ',':
     case '\t':
-        // Discard token
-        tok.push_back('\0');
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
-            fmt::format("{}, line {}, pos {}: discarding incomplete boolean token '{}'", datastream->getName(), line_num, line_pos, tok.data()));
-        tok.clear();
-        partial_tok_type = PartialToken::NONE;
+        this->ProcessSeparatorWithinBool();
         line_pos++;
         break;
 
     case '\n':
-        // Discard token
-        tok.push_back('\0');
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
-            fmt::format("{}, line {}, pos {}: discarding incomplete boolean token '{}'", datastream->getName(), line_num, line_pos, tok.data()));
-        tok.clear();
-        partial_tok_type = PartialToken::NONE;
+        this->ProcessSeparatorWithinBool();
         // Break line
         doc.tokens.push_back({ TokenType::LINEBREAK, 0.f });
         line_num++;
@@ -615,16 +628,11 @@ void DocumentParser::UpdateBool(const char c)
     case ':':
         if (options & GenericDocument::OPTION_ALLOW_SEPARATOR_COLON)
         {
-            // Discard token
-            tok.push_back('\0');
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
-                fmt::format("{}, line {}, pos {}: discarding incomplete boolean token '{}'", datastream->getName(), line_num, line_pos, tok.data()));
-            tok.clear();
-            partial_tok_type = PartialToken::NONE;
+            this->ProcessSeparatorWithinBool();
         }
         else
         {
-            partial_tok_type = PartialToken::GARBAGE;
+            this->DiscontinueBool();
             tok.push_back(c);
         }
         line_pos++;
@@ -633,16 +641,11 @@ void DocumentParser::UpdateBool(const char c)
     case '=':
         if (options & GenericDocument::OPTION_ALLOW_SEPARATOR_EQUALS)
         {
-            // Discard token
-            tok.push_back('\0');
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
-                fmt::format("{}, line {}, pos {}: discarding incomplete boolean token '{}'", datastream->getName(), line_num, line_pos, tok.data()));
-            tok.clear();
-            partial_tok_type = PartialToken::NONE;
+            this->ProcessSeparatorWithinBool();
         }
         else
         {
-            partial_tok_type = PartialToken::GARBAGE;
+            this->DiscontinueBool();
             tok.push_back(c);
         }
         line_pos++;
