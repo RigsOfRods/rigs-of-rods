@@ -1579,7 +1579,7 @@ void TopMenubar::Draw(float dt)
                 {
                     for (size_t i = 0; i < tuning_addonparts.size(); i++)
                     {
-                        CacheEntryPtr& addonpart_entry = tuning_addonparts[i];
+                        const CacheEntryPtr& addonpart_entry = tuning_addonparts[i];
 
                         ImGui::PushID(addonpart_entry->fname.c_str());
                         const bool conflict_w_hovered = tuning_hovered_addonpart 
@@ -1628,11 +1628,17 @@ void TopMenubar::Draw(float dt)
                         {
                             tuning_hovered_addonpart = nullptr;
                         }
-                        // Reload button
+                        // Reload button (right-aligned)
                         ImGui::SameLine();
-                        ImGui::Dummy(ImVec2(10.f, 1.f));
-                        ImGui::SameLine();
-                        if (ImGui::SmallButton(_LC("Tuning", "Reload")))
+                        if (tuning_rwidget_cursorx_min < ImGui::GetCursorPosX()) // Make sure button won't draw over save button
+                            tuning_rwidget_cursorx_min = ImGui::GetCursorPosX();
+                        ImGui::AlignTextToFramePadding();
+                        std::string reloadbtn_text = _LC("Tuning", "Reload");
+                        const float reloadbtn_w = ImGui::CalcTextSize(reloadbtn_text.c_str()).x + ImGui::GetStyle().FramePadding.x * 2;
+                        const float reloadbtn_cursorx = std::max(ImGui::GetWindowContentRegionWidth() - reloadbtn_w, tuning_rwidget_cursorx_min);
+                        ImGui::SetCursorPosX(reloadbtn_cursorx);
+                        const bool reloadbtn_pressed = ImGui::SmallButton(reloadbtn_text.c_str());
+                        if (reloadbtn_pressed)
                         {
                             // Create spawn request while actor still exists
                             // Note we don't use `ActorModifyRequest::Type::RELOAD` because we don't need the bundle reloaded.
