@@ -2413,24 +2413,27 @@ void TopMenubar::RefreshAiPresets()
 
 void TopMenubar::RefreshTuningMenu()
 {
-    const ActorPtr& current_actor = App::GetGameContext()->GetPlayerActor();
+    // Updates/resets the tuning menu for the current vehicle driven by player (if any).
+    // -------------------------------------------------------------------------------
+
     if (App::sim_tuning_enabled->getBool() 
         && (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
-        && current_actor 
-        && (tuning_actor != current_actor))
+        && App::GetGameContext()->GetPlayerActor() 
+        && (tuning_actor != App::GetGameContext()->GetPlayerActor()))
     {
-        ROR_ASSERT(current_actor->getUsedActorEntry());
+        tuning_actor = App::GetGameContext()->GetPlayerActor();
+        ROR_ASSERT(tuning_actor->getUsedActorEntry());
 
         tuning_addonparts.clear();
         tuning_saves.resetResults();
 
         // Addonparts matched by GUID
-        if (current_actor->getUsedActorEntry()->guid != "")
+        if (tuning_actor->getUsedActorEntry()->guid != "")
         {
             CacheQuery query_addonparts;
             query_addonparts.cqy_filter_type = LT_AddonPart;
-            query_addonparts.cqy_filter_guid = current_actor->getUsedActorEntry()->guid;
-            query_addonparts.cqy_filter_target_filename = current_actor->getTruckFileName(); // Addonparts without any filenames listed will just pass.
+            query_addonparts.cqy_filter_guid = tuning_actor->getUsedActorEntry()->guid;
+            query_addonparts.cqy_filter_target_filename = tuning_actor->getTruckFileName(); // Addonparts without any filenames listed will just pass.
             App::GetCacheSystem()->Query(query_addonparts);
             for (CacheQueryResult& res: query_addonparts.cqy_results)
             {
@@ -2439,9 +2442,9 @@ void TopMenubar::RefreshTuningMenu()
         }
 
         // Addonparts force-installed via [browse all] button; watch for duplicates.
-        if (current_actor->getWorkingTuneupDef())
+        if (tuning_actor->getWorkingTuneupDef())
         {
-            for (std::string const& use_addonpart_fname: current_actor->getWorkingTuneupDef()->use_addonparts)
+            for (std::string const& use_addonpart_fname: tuning_actor->getWorkingTuneupDef()->use_addonparts)
             {
                 CacheEntryPtr entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, use_addonpart_fname);
                 if (entry)
@@ -2455,7 +2458,7 @@ void TopMenubar::RefreshTuningMenu()
         }
 
         tuning_saves.cqy_filter_type = LT_Tuneup;
-        tuning_saves.cqy_filter_guid = current_actor->getUsedActorEntry()->guid;
+        tuning_saves.cqy_filter_guid = tuning_actor->getUsedActorEntry()->guid;
         tuning_saves.cqy_filter_category_id = CID_Tuneups; // Exclude auto-generated entries
         tuning_saves.resetResults();
         App::GetCacheSystem()->Query(tuning_saves);
@@ -2473,7 +2476,7 @@ void TopMenubar::RefreshTuningMenu()
         // Refresh `tuning_addonparts_conflicting` listing ~ test used addonparts against unused.
         tuning_addonparts_conflict_w_used.clear();
         tuning_addonparts_conflict_w_used.resize(tuning_addonparts.size(), false);
-        if (current_actor->getWorkingTuneupDef())
+        if (tuning_actor->getWorkingTuneupDef())
         {
             for (const std::string& use_addonpart_fname: tuning_actor->getWorkingTuneupDef()->use_addonparts)
             {
@@ -2491,13 +2494,12 @@ void TopMenubar::RefreshTuningMenu()
 
         tuning_rwidget_cursorx_min = 0.f;
     }
-    else if (!App::sim_tuning_enabled->getBool() || !current_actor)
+    else if (!App::sim_tuning_enabled->getBool() || !App::GetGameContext()->GetPlayerActor())
     {
         tuning_addonparts.clear();
         tuning_saves.resetResults();
         tuning_actor = nullptr;
     }
-    tuning_actor = current_actor;
 }
 
 void TopMenubar::DrawTuningProtectedChkRightAligned(int subject_id, bool protectchk_value, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset)
