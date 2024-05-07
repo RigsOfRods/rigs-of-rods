@@ -459,6 +459,83 @@ bool RoR::TuneupUtil::isExhaustAnyhowRemoved(TuneupDefPtr& tuneup_def, ExhaustID
         && (tuneup_def->isExhaustUnwanted(exhaust_id) || tuneup_def->isExhaustForceRemoved(exhaust_id));   
 }
 
+// > managedmaterials
+bool RoR::TuneupUtil::isManagedMatAnyhowRemoved(TuneupDefPtr& tuneup_def, const std::string& material_name)
+{
+    return tuneup_def
+        && (tuneup_def->isManagedMatUnwanted(material_name) || tuneup_def->isManagedMatForceRemoved(material_name));
+}
+
+bool RoR::TuneupUtil::isManagedMatTweaked(TuneupDefPtr& tuneup_def, const std::string& material_name, TuneupManagedMatTweak*& out_tweak)
+{
+    if (tuneup_def)
+    {
+        auto itor = tuneup_def->managedmat_tweaks.find(material_name);
+        if (itor != tuneup_def->managedmat_tweaks.end())
+        {
+            out_tweak = &itor->second;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+std::string RoR::TuneupUtil::getTweakedManagedMatType(TuneupDefPtr& tuneup_def, const std::string& material_name, const std::string& orig_val)
+{
+    TuneupManagedMatTweak* tweak = nullptr;
+    if (TuneupUtil::isManagedMatTweaked(tuneup_def, material_name, tweak))
+    {
+        ROR_ASSERT(tweak);
+        return (tweak->tmt_type != "") ? tweak->tmt_type : orig_val;
+    }
+    else
+    {
+        return orig_val;
+    }
+}
+
+std::string RoR::TuneupUtil::getTweakedManagedMatMedia(TuneupDefPtr& tuneup_def, const std::string& material_name, int media_idx, const std::string& orig_val)
+{
+    TuneupManagedMatTweak* tweak = nullptr;
+    if (TuneupUtil::isManagedMatTweaked(tuneup_def, material_name, tweak))
+    {
+        ROR_ASSERT(tweak);
+        ROR_ASSERT(tweak->tmt_media.size() > media_idx);
+        return (tweak->tmt_media[media_idx] != "") ? tweak->tmt_media[media_idx] : orig_val;
+    }
+    else
+    {
+        return orig_val;
+    }
+}
+
+std::string RoR::TuneupUtil::getTweakedManagedMatMediaRG(TuneupDefPtr& tuneup_def, const std::string& material_name, int media_idx, const std::string& orig_val)
+{
+    TuneupManagedMatTweak* tweak = nullptr;
+    if (TuneupUtil::isManagedMatTweaked(tuneup_def, material_name, tweak))
+    {
+        ROR_ASSERT(tweak);
+        ROR_ASSERT(tweak->tmt_media.size() > media_idx);
+        if (tweak->tmt_media[media_idx] != "")
+        {
+            // Find the tweak addonpart
+            CacheEntryPtr addonpart_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial:*/false, tweak->tmt_origin);
+            if (addonpart_entry)
+            {
+                return addonpart_entry->resource_group;
+            }
+            else
+            {
+                LOG(fmt::format("[RoR|Tuneup] WARN managedmaterial '{}': Addonpart '{}' not found in modcache!", material_name, tweak->tmt_origin));
+                return orig_val;
+            }
+        }
+    }
+
+    return orig_val;
+}
+
 bool RoR::TuneupUtil::isAddonPartUsed(TuneupDefPtr& tuneup_entry, const std::string& filename)
 {
     return tuneup_entry

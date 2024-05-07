@@ -241,6 +241,8 @@ enum class ModifyProjectRequestType
     TUNEUP_FORCEREMOVE_FLARE_RESET,    //!< 'subject_id' is flare ID.
     TUNEUP_FORCEREMOVE_EXHAUST_SET,    //!< 'subject_id' is exhaust ID.
     TUNEUP_FORCEREMOVE_EXHAUST_RESET,  //!< 'subject_id' is exhaust ID.
+    TUNEUP_FORCEREMOVE_MANAGEDMAT_SET, //!< 'subject' is managed material name.
+    TUNEUP_FORCEREMOVE_MANAGEDMAT_RESET,//!< 'subject' is managed material name.
     TUNEUP_PROTECTED_PROP_SET,         //!< 'subject_id' is prop ID.
     TUNEUP_PROTECTED_PROP_RESET,       //!< 'subject_id' is prop ID.
     TUNEUP_PROTECTED_FLEXBODY_SET,     //!< 'subject_id' is flexbody ID.
@@ -251,6 +253,8 @@ enum class ModifyProjectRequestType
     TUNEUP_PROTECTED_FLARE_RESET,      //!< 'subject_id' is flare ID.
     TUNEUP_PROTECTED_EXHAUST_SET,      //!< 'subject_id' is exhaust ID.
     TUNEUP_PROTECTED_EXHAUST_RESET,    //!< 'subject_id' is exhaust ID.
+    TUNEUP_PROTECTED_MANAGEDMAT_SET,   //!< 'subject' is managed material name.
+    TUNEUP_PROTECTED_MANAGEDMAT_RESET, //!< 'subject' is managed material name.
     PROJECT_LOAD_TUNEUP,               //!< 'subject' is tuneup filename. This overwrites the auto-generated tuneup with the save.
     PROJECT_RESET_TUNEUP,              //!< 'subject' is empty. This resets the auto-generated tuneup to orig. values.
 };

@@ -157,6 +157,8 @@ void AddonPartUtility::ResolveUnwantedAndTweakedElements(TuneupDefPtr& tuneup, C
                     this->ProcessUnwantedFlare();
                 else if (m_context->getTokKeyword() == "addonpart_unwanted_exhaust" )
                     this->ProcessUnwantedExhaust();
+                else if (m_context->getTokKeyword() == "addonpart_unwanted_managedmaterial")
+                    this->ProcessUnwantedManagedMat();
                 else if (m_context->getTokKeyword() == "addonpart_tweak_wheel")
                     this->ProcessTweakWheel();
                 else if (m_context->getTokKeyword() == "addonpart_tweak_node")
@@ -165,6 +167,8 @@ void AddonPartUtility::ResolveUnwantedAndTweakedElements(TuneupDefPtr& tuneup, C
                     this->ProcessTweakProp();
                 else if (m_context->getTokKeyword() == "addonpart_tweak_flexbody")
                     this->ProcessTweakFlexbody();
+                else if (m_context->getTokKeyword() == "addonpart_tweak_managedmaterial")
+                    this->ProcessTweakManagedMat();
             }
 
             m_context->seekNextLine();
@@ -496,6 +500,31 @@ void AddonPartUtility::ProcessUnwantedExhaust()
     }
 }
 
+void AddonPartUtility::ProcessUnwantedManagedMat()
+{
+    ROR_ASSERT(m_context->getTokKeyword() == "addonpart_unwanted_managedmaterial"); // also asserts !EOF and TokenType::KEYWORD
+
+    if (m_context->isTokString(1))
+    {
+        std::string mat_name = m_context->getTokString(1);
+        if (!m_tuneup->isManagedMatProtected(mat_name))
+        {
+            m_tuneup->unwanted_managedmats.insert(mat_name);
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': marking managedmaterial '{}' as UNWANTED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), mat_name));
+        }
+        else
+        {
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping managedmaterial '{}' because it's marked PROTECTED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), mat_name));
+        }
+    }
+    else
+    {
+        this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+    }
+}
+
 void AddonPartUtility::ProcessTweakWheel()
 {
     ROR_ASSERT(m_context->getTokKeyword() == "addonpart_tweak_wheel"); // also asserts !EOF and TokenType::KEYWORD
@@ -697,6 +726,48 @@ void AddonPartUtility::ProcessTweakProp()
     else
     {
         this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': bad arguments", m_addonpart_entry->fname, m_context->getTokKeyword()));
+    }
+}
+
+void AddonPartUtility::ProcessTweakManagedMat()
+{
+    ROR_ASSERT(m_context->getTokKeyword() == "addonpart_tweak_managedmaterial"); // also asserts !EOF and TokenType::KEYWORD
+
+    if (m_context->isTokString(1) && m_context->isTokString(2))
+    {
+        const std::string& mat_name = m_context->getTokString(1);
+        if (!m_tuneup->isManagedMatProtected(mat_name))
+        {
+            if (m_tuneup->managedmat_tweaks.find(mat_name) == m_tuneup->managedmat_tweaks.end())
+            {
+                TuneupManagedMatTweak data;
+                bool stop=false;
+                data.tmt_origin = m_addonpart_entry->fname;
+                data.tmt_name = mat_name;
+                data.tmt_type = m_context->getTokString(2);
+                if (!stop && m_context->isTokString(3)) { data.tmt_media[0] = m_context->getTokString(3); } else {stop=true;}
+                if (!stop && m_context->isTokString(4)) { data.tmt_media[1] = m_context->getTokString(4); } else {stop=true;}
+                if (!stop && m_context->isTokString(5)) { data.tmt_media[2] = m_context->getTokString(5); } else {stop=true;}
+                m_tuneup->managedmat_tweaks.insert(std::make_pair(mat_name, data));
+            
+                this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': Scheduling tweak for managed material '{}'"
+                    " with params {{ type={}, media1={}, media2={}, media3={} }}",
+                    m_addonpart_entry->fname, m_context->getTokKeyword(), mat_name, data.tmt_type, data.tmt_media[0], data.tmt_media[1], data.tmt_media[2]));
+            }
+            else if (m_tuneup->managedmat_tweaks[mat_name].tmt_origin != m_addonpart_entry->fname)
+            {
+                this->Log(fmt::format("[RoR|Addonpart] WARNING: file '{}', directive '{}': Resetting tweaks for managed material '{}' due to conflict with '{}'",
+                    m_addonpart_entry->fname, m_context->getTokKeyword(), mat_name,
+                    m_tuneup->managedmat_tweaks[mat_name].tmt_origin));
+
+                m_tuneup->managedmat_tweaks.erase(mat_name);
+            }
+        }
+        else
+        {
+            this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping managed material '{}' because it's marked PROTECTED",
+                m_addonpart_entry->fname, m_context->getTokKeyword(), mat_name));
+        }
     }
 }
 

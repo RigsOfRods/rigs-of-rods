@@ -54,6 +54,7 @@ public:
     const ImVec4  ORANGE_TEXT           = ImVec4(0.9f, 0.6f, 0.0f, 1.f);
     const ImVec4  RED_TEXT              = ImVec4(1.00f, 0.00f, 0.00f, 1.f);
     const ImVec2  MENU_HOVERBOX_PADDING = ImVec2(25.f, 10.f);
+    const int     TUNING_SUBJECTID_USE_NAME = -2;
 
     enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS, TOPMENU_AI, TOPMENU_TUNING };
     enum class StateBox { STATEBOX_NONE, STATEBOX_REPLAY, STATEBOX_RACE, STATEBOX_LIVE_REPAIR, STATEBOX_QUICK_REPAIR };
@@ -132,7 +133,7 @@ private:
 
     // Tuning menu helpers
     void DrawTuningBoxedSubjectIdInline(int subject_id);
-    void DrawTuningProtectedChkRightAligned(int subject_id, bool is_protected, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset);
+    void DrawTuningProtectedChkRightAligned(const int subject_id, bool is_protected, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset, const std::string& subject = "");
     void DrawTuningForceRemoveControls(const int subject_id, const std::string& name, const bool is_unwanted, const bool is_force_removed, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset);
 
     ImVec2  m_open_menu_hoverbox_min;
