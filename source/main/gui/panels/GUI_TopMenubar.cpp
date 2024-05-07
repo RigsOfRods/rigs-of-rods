@@ -1913,6 +1913,37 @@ void TopMenubar::Draw(float dt)
                         ImGui::PopID(); // exhaustid
                     }
                 }
+
+                // Draw managed materials
+                size_t total_materials = tuning_actor->ar_managed_materials.size();
+                std::string materials_title = fmt::format(_LC("Tuning", "Managed Materials ({})"), total_materials);
+                if (ImGui::CollapsingHeader(materials_title.c_str()))
+                {
+                    // Draw all materials (those removed by addonparts are also present as placeholders)
+                    for (auto mm_pair: tuning_actor->ar_managed_materials)
+                    {
+                        const std::string& material_name = mm_pair.first;
+                        ImGui::PushID(material_name.c_str());
+                        ImGui::AlignTextToFramePadding();
+
+                        this->DrawTuningForceRemoveControls(
+                            TUNING_SUBJECTID_USE_NAME,
+                            material_name,
+                            tuneup_def && tuneup_def->isManagedMatUnwanted(material_name),
+                            tuneup_def && tuneup_def->isManagedMatForceRemoved(material_name),
+                            ModifyProjectRequestType::TUNEUP_FORCEREMOVE_MANAGEDMAT_SET,
+                            ModifyProjectRequestType::TUNEUP_FORCEREMOVE_MANAGEDMAT_RESET);
+
+                        this->DrawTuningProtectedChkRightAligned(
+                            TUNING_SUBJECTID_USE_NAME,
+                            tuneup_def && tuneup_def->isManagedMatProtected(material_name),
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_MANAGEDMAT_SET,
+                            ModifyProjectRequestType::TUNEUP_PROTECTED_MANAGEDMAT_RESET,
+                            material_name);
+
+                        ImGui::PopID(); // material_name.c_str()
+                    }
+                }
             }
 
             m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
@@ -2476,7 +2507,7 @@ void TopMenubar::RefreshTuningMenu()
     }
 }
 
-void TopMenubar::DrawTuningProtectedChkRightAligned(int subject_id, bool protectchk_value, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset)
+void TopMenubar::DrawTuningProtectedChkRightAligned(const int subject_id, bool protectchk_value, ModifyProjectRequestType request_type_set,  ModifyProjectRequestType request_type_reset, const std::string& subject /* ="" */)
 {
     // > resolve the alignment
     ImGui::SameLine();
@@ -2499,7 +2530,14 @@ void TopMenubar::DrawTuningProtectedChkRightAligned(int subject_id, bool protect
     {
         ModifyProjectRequest* request = new ModifyProjectRequest();
         request->mpr_target_actor = tuning_actor;
-        request->mpr_subject_id = subject_id;
+        if (subject_id == TUNING_SUBJECTID_USE_NAME)
+        {
+            request->mpr_subject = subject;
+        }
+        else
+        {
+            request->mpr_subject_id = subject_id;
+        }
         request->mpr_type = (protectchk_value) ? request_type_set : request_type_reset;
         App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, request));
     }
@@ -2549,7 +2587,14 @@ void TopMenubar::DrawTuningForceRemoveControls(const int subject_id, const std::
     {
         ModifyProjectRequest* req = new ModifyProjectRequest();
         req->mpr_type = request_type_set;
-        req->mpr_subject_id = subject_id;
+        if (subject_id == TUNING_SUBJECTID_USE_NAME)
+        {
+            req->mpr_subject = name;
+        }
+        else
+        {
+            req->mpr_subject_id = subject_id;
+        }
         req->mpr_target_actor = tuning_actor;
         App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
     }
@@ -2557,7 +2602,14 @@ void TopMenubar::DrawTuningForceRemoveControls(const int subject_id, const std::
     {
         ModifyProjectRequest* req = new ModifyProjectRequest();
         req->mpr_type = request_type_reset;
-        req->mpr_subject_id = subject_id;
+        if (subject_id == TUNING_SUBJECTID_USE_NAME)
+        {
+            req->mpr_subject = name;
+        }
+        else
+        {
+            req->mpr_subject_id = subject_id;
+        }
         req->mpr_target_actor = tuning_actor;
         App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
     }

@@ -74,16 +74,18 @@ private:
     void ProcessFlexbody();
     void ProcessFlare();
     void ProcessFlare2();
+
+    // Helpers of `ResolveUnwantedAndTweakedElements()`, they expect `m_context` to be in position:
     void ProcessTweakWheel();
     void ProcessTweakNode();
     void ProcessTweakFlexbody();
     void ProcessTweakProp();
-
-    // Helpers of `ResolveUnwantedAndTweakedElements()`, they expect `m_context` to be in position:
+    void ProcessTweakManagedMat();
     void ProcessUnwantedProp();
     void ProcessUnwantedFlexbody();
     void ProcessUnwantedFlare();
     void ProcessUnwantedExhaust();
+    void ProcessUnwantedManagedMat();
 
     void Log(const std::string& text);
 

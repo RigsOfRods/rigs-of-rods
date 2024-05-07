@@ -2357,6 +2357,12 @@ Ogre::MaterialPtr ActorSpawner::InstantiateManagedMaterial(const Ogre::String& r
 
 void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 {
+    // This is how textures map between `RigDef::Document` (*.truck etc...) and `RoR::TuneupDef` (*.tuneup):
+    //   def.diffuse_map           ~~   tuneup.media[0]
+    //   def.specular_map          ~~   tuneup.media[1]
+    //   def.damaged_diffuse_map   ~~   tuneup.media[2]
+    // ==========================================================================
+
     if (m_managed_materials.find(def.name) != m_managed_materials.end())
     {
         this->AddMessage(Message::TYPE_ERROR, "Duplicate managed material name: '" + def.name + "'. Ignoring definition...");
@@ -2400,7 +2406,12 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 
     std::string custom_name = this->ComposeName(def.name);
     Ogre::MaterialPtr material;
-    if (def.type == RigDef::ManagedMaterialType::FLEXMESH_STANDARD || def.type == RigDef::ManagedMaterialType::FLEXMESH_TRANSPARENT)
+    if (TuneupUtil::isManagedMatAnyhowRemoved(m_actor->getWorkingTuneupDef(), def.name))
+    {
+        // Create a placeholder material
+        material = Ogre::MaterialManager::getSingleton().getByName("tracks/transred")->clone(custom_name, /*changeGroup:*/true, resource_group);
+    }
+    else if (def.type == RigDef::ManagedMaterialType::FLEXMESH_STANDARD || def.type == RigDef::ManagedMaterialType::FLEXMESH_TRANSPARENT)
     {
         std::string mat_name_base
             = (def.type == RigDef::ManagedMaterialType::FLEXMESH_STANDARD)
@@ -2428,16 +2439,16 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 
                 if (App::gfx_alt_actor_materials->getBool())
                 {
-                    material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
-                    material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map")->setTextureName(def.damaged_diffuse_map);
-                    material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map"), def.name, 0, def.diffuse_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map"), def.name, 2, def.damaged_diffuse_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex"), def.name, 1, def.specular_map);
                 }
                 else
                 {
-                    material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
-                    material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map")->setTextureName(def.damaged_diffuse_map);
-                    material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
-                    material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map"), def.name, 0, def.diffuse_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map"), def.name, 2, def.damaged_diffuse_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map"), def.name, 1, def.specular_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map"), def.name, 1, def.specular_map);
                 }
             }
             else
@@ -2448,8 +2459,8 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
                 {
                     return;
                 }
-                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
-                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map")->setTextureName(def.damaged_diffuse_map);
+                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map"), def.name, 0, def.diffuse_map);
+                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Dmg_Diffuse_Map"), def.name, 2, def.damaged_diffuse_map);
             }
         }
         else
@@ -2473,14 +2484,14 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 
                 if (App::gfx_alt_actor_materials->getBool())
                 {
-                    material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
-                    material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map"), def.name, 0, def.diffuse_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex"), def.name, 1, def.specular_map);
                 }
                 else
                 {
-                    material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
-                    material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
-                    material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map") , def.name, 0, def.diffuse_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map"), def.name, 1, def.specular_map);
+                    this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map")  , def.name, 1, def.specular_map);
                 }
             }
             else
@@ -2491,7 +2502,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
                 {
                     return;
                 }
-                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map"), def.name, 0, def.diffuse_map);
             }
         }
     }
@@ -2521,14 +2532,14 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
 
             if (App::gfx_alt_actor_materials->getBool())
             {
-                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
-                material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex")->setTextureName(def.specular_map);
+                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map"), def.name, 0, def.diffuse_map);
+                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("SpecularMapping1")->getTextureUnitState("SpecularMapping1_Tex"), def.name, 1, def.specular_map);
             }
             else
             {
-                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
-                material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
-                material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map")->setTextureName(def.specular_map);
+                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map") ,def.name, 0, def.diffuse_map);
+                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Specular_Map"),def.name, 1, def.specular_map);
+                this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("Specular")->getTextureUnitState("Specular_Map")  ,def.name, 1, def.specular_map);
             }
         }
         else
@@ -2539,12 +2550,13 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             {
                 return;
             }
-            material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map")->setTextureName(def.diffuse_map);
+            this->AssignManagedMaterialTexture(material->getTechnique("BaseTechnique")->getPass("BaseRender")->getTextureUnitState("Diffuse_Map"), def.name, 0, def.diffuse_map);
 
         }
     }
 
-    if (def.type != RigDef::ManagedMaterialType::INVALID)
+    if (!TuneupUtil::isManagedMatAnyhowRemoved(m_actor->getWorkingTuneupDef(), def.name) 
+        && def.type != RigDef::ManagedMaterialType::INVALID)
     {
         if (def.options.double_sided)
         {
@@ -2562,8 +2574,6 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
             }
         }
     }
-
-    /* Finalize */
 
     material->compile();
     m_managed_materials.insert(std::make_pair(def.name, material));
@@ -6565,7 +6575,15 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(const std::string
             }
 
             lookup_entry.material = orig_mat->clone(this->ComposeName(orig_mat->getName()), true, mat_lookup_rg);
+            /*
+            02:53:47: [RoR|Actor|Error] (Keyword: managedmaterials) Ogre::ItemIdentityException::ItemIdentityException: Texture Pointer is empty. in TextureUnitState::setTexture at C:\Users\Petr\.conan2\p\b\ogre3ff3740bbb9785\b\OgreMain\src\OgreTextureUnitState.cpp (line 271)
+            02:55:17: [RoR|ContentManager] Skipping resource with duplicate name: 'pushbar1 (gavrilmv4.truck [Instance ID 1])' (origin: '')
+            */
+            ROR_ASSERT(lookup_entry.material);
         }
+
+        // Register the substitute
+        m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry));
 
         // Finally, query texture replacements - .skin and builtins
         for (auto& technique: lookup_entry.material->getTechniques())
@@ -6627,7 +6645,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(const std::string
             } // passes
         } // techniques
 
-        m_material_substitutions.insert(std::make_pair(mat_lookup_name, lookup_entry)); // Register the substitute
+        
         return lookup_entry.material;
     }
     catch (Ogre::Exception& e)
@@ -7344,5 +7362,30 @@ std::string ActorSpawner::GetCurrentElementMediaRG()
     else
     {
         return m_actor->getTruckFileResourceGroup();
+    }
+}
+
+void ActorSpawner::AssignManagedMaterialTexture(Ogre::TextureUnitState* tus, const std::string & mm_name, int media_id, const std::string& tex_name)
+{
+    // Helper for `ProcessManagedMaterial()`, resolves tweaks
+    // ======================================================
+
+    try
+    {
+        ROR_ASSERT(tus);
+        if (tus)
+        {
+            Ogre::TexturePtr tex = Ogre::TextureManager::getSingleton().load(
+                TuneupUtil::getTweakedManagedMatMedia(m_actor->getWorkingTuneupDef(), mm_name, media_id, tex_name),
+                TuneupUtil::getTweakedManagedMatMediaRG(m_actor->getWorkingTuneupDef(), mm_name, media_id, this->GetCurrentElementMediaRG()));
+
+            if (tex)
+            {
+                tus->setTexture(tex);
+            }
+        }
+    }
+    catch (...) // Exception is already logged by OGRE
+    {
     }
 }

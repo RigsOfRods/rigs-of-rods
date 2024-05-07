@@ -1837,6 +1837,16 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
         request->mpr_target_actor->getWorkingTuneupDef()->force_remove_exhausts.erase(request->mpr_subject_id);
         break;
 
+    case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_MANAGEDMAT_SET:
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->force_remove_managedmats.insert(request->mpr_subject);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_FORCEREMOVE_MANAGEDMAT_RESET:
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->force_remove_managedmats.erase(request->mpr_subject);
+        break;
+
     case ModifyProjectRequestType::TUNEUP_PROTECTED_PROP_SET:
         request->mpr_target_actor->ensureWorkingTuneupDef();
         request->mpr_target_actor->getWorkingTuneupDef()->protected_props.insert(request->mpr_subject_id);
@@ -1885,6 +1895,16 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
     case ModifyProjectRequestType::TUNEUP_PROTECTED_EXHAUST_RESET:
         request->mpr_target_actor->ensureWorkingTuneupDef();
         request->mpr_target_actor->getWorkingTuneupDef()->protected_exhausts.erase(request->mpr_subject_id);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_PROTECTED_MANAGEDMAT_SET:
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->protected_managedmats.insert(request->mpr_subject);
+        break;
+
+    case ModifyProjectRequestType::TUNEUP_PROTECTED_MANAGEDMAT_RESET:
+        request->mpr_target_actor->ensureWorkingTuneupDef();
+        request->mpr_target_actor->getWorkingTuneupDef()->protected_managedmats.erase(request->mpr_subject);
         break;
 
     case ModifyProjectRequestType::PROJECT_LOAD_TUNEUP:
