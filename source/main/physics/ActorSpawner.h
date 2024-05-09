@@ -388,6 +388,7 @@ private:
     Ogre::MaterialPtr             InstantiateManagedMaterial(Ogre::String const & rg_name, Ogre::String const & source_name, Ogre::String const & clone_name);
     void                          CreateCabVisual();
     void                          CreateMaterialFlare(int flare_index, Ogre::MaterialPtr mat);
+    std::string                   GetCurrentElementMediaRG(); //!< Where to load media from (the addonpart's bundle or vehicle's bundle?)
 
     /// @param rim_ratio Percentual size of the rim.
     void CreateWheelVisuals(

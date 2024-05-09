@@ -879,7 +879,6 @@ struct Flare2 // Used for both 'flares' and 'flares2' sections
     int blink_delay_milis = -2;
     float size = -1.f;
     Ogre::String material_name;
-    Ogre::String _material_rg_override; //!< Needed for addonparts
 };
 
 struct Flare3: public Flare2
@@ -895,7 +894,6 @@ struct Flexbody
     Ogre::Vector3 offset = Ogre::Vector3::ZERO;
     Ogre::Vector3 rotation = Ogre::Vector3::ZERO;
     Ogre::String mesh_name;
-    Ogre::String _mesh_rg_override; //!< Needed for addonparts
     std::list<Animation> animations;
     std::vector<Node::Range> node_list_to_import;
     std::vector<Node::Ref> node_list;
@@ -1105,7 +1103,6 @@ struct Prop
     Ogre::Vector3 offset = Ogre::Vector3::ZERO;
     Ogre::Vector3 rotation = Ogre::Vector3::ZERO;
     Ogre::String mesh_name;
-    Ogre::String _mesh_rg_override; //!< Needed for addonparts
     std::list<Animation> animations;
     CameraSettings camera_settings;
     SpecialProp special = SpecialProp::NONE;
