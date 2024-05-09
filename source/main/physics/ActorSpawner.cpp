@@ -1551,7 +1551,6 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
 
     try
     {
-        std::string mesh_rg = (def._mesh_rg_override != "") ? def._mesh_rg_override : m_actor->getTruckFileResourceGroup();
         auto* flexbody = m_flex_factory.CreateFlexBody(
             (FlexbodyID_t)m_actor->m_gfx_actor->m_flexbodies.size(),
             this->GetNodeIndexOrThrow(def.reference_node),
@@ -1561,7 +1560,7 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
             TuneupUtil::getTweakedFlexbodyRotation(m_actor->getWorkingTuneupDef(), flexbody_id, def.rotation),
             node_indices,
             TuneupUtil::getTweakedFlexbodyMedia(m_actor->getWorkingTuneupDef(), flexbody_id, 0, def.mesh_name),
-            TuneupUtil::getTweakedFlexbodyMediaRG(m_actor->getWorkingTuneupDef(), flexbody_id, 0, mesh_rg)
+            TuneupUtil::getTweakedFlexbodyMediaRG(m_actor->getWorkingTuneupDef(), flexbody_id, 0, this->GetCurrentElementMediaRG())
         );
 
         if (flexbody == nullptr)
@@ -1647,14 +1646,13 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
         {
             steering_wheel_offset = def.special_prop_dashboard.offset;
         }
-        std::string media1_rg = (def._mesh_rg_override != "") ? def._mesh_rg_override : m_actor->getTruckFileResourceGroup();
         prop.pp_wheel_rot_degree = def.special_prop_dashboard.rotation_angle;
         prop.pp_wheel_scene_node = m_props_parent_scenenode->createChildSceneNode(this->ComposeName("steering wheel @ prop", prop_id));
         prop.pp_wheel_pos = steering_wheel_offset;
         prop.pp_media[1] = TuneupUtil::getTweakedPropMedia(m_actor->getWorkingTuneupDef(), prop_id, 1, def.special_prop_dashboard.mesh_name);
         prop.pp_wheel_mesh_obj = new MeshObject(
             prop.pp_media[1],
-            TuneupUtil::getTweakedPropMediaRG(m_actor->getWorkingTuneupDef(), prop_id, 1, media1_rg),
+            TuneupUtil::getTweakedPropMediaRG(m_actor->getWorkingTuneupDef(), prop_id, 1, this->GetCurrentElementMediaRG()),
             this->ComposeName("steering wheel entity @ prop", prop_id),
             prop.pp_wheel_scene_node
             );
@@ -1662,12 +1660,11 @@ void ActorSpawner::ProcessProp(RigDef::Prop & def)
     }
 
     /* CREATE THE PROP */
-    std::string media0_rg = (def._mesh_rg_override != "") ? def._mesh_rg_override : m_actor->getTruckFileResourceGroup();
     prop.pp_scene_node = m_props_parent_scenenode->createChildSceneNode(this->ComposeName("prop", prop_id));
     prop.pp_media[0] = TuneupUtil::getTweakedPropMedia(m_actor->getWorkingTuneupDef(), prop_id, 0, def.mesh_name);
     prop.pp_mesh_obj = new MeshObject(//def.mesh_name, resource_group, instance_name, prop.pp_scene_node);
             prop.pp_media[0],
-            TuneupUtil::getTweakedPropMediaRG(m_actor->getWorkingTuneupDef(), prop_id, 0, media0_rg),
+            TuneupUtil::getTweakedPropMediaRG(m_actor->getWorkingTuneupDef(), prop_id, 0, this->GetCurrentElementMediaRG()),
             this->ComposeName("prop entity", prop_id),
             prop.pp_scene_node);
 
@@ -2245,8 +2242,7 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
             }
         }
 
-        std::string material_rg = (def._material_rg_override != "") ? def._material_rg_override : m_actor->getTruckFileResourceGroup();
-        Ogre::MaterialPtr material = this->FindOrCreateCustomizedMaterial(material_name, material_rg);
+        Ogre::MaterialPtr material = this->FindOrCreateCustomizedMaterial(material_name, this->GetCurrentElementMediaRG());
         if (!material.isNull())
         {
             flare.bbs->setMaterial(material);
@@ -2368,7 +2364,7 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
     }
 
     // Check all textures exist
-    std::string resource_group = (m_current_module->origin_addonpart) ? m_current_module->origin_addonpart->resource_group : m_custom_resource_group;
+    std::string resource_group = this->GetCurrentElementMediaRG();
     if (!Ogre::ResourceGroupManager::getSingleton().resourceExists(resource_group, def.diffuse_map))
     {
         this->AddMessage(Message::TYPE_WARNING, "Skipping managed material, missing texture file: " + def.diffuse_map);
@@ -7334,4 +7330,19 @@ void ActorSpawner::CreateMaterialFlare(int flareid, Ogre::MaterialPtr m)
     p->setSelfIllumination(Ogre::ColourValue::ZERO);
 
     m_actor->m_gfx_actor->m_flare_materials.push_back(binding);
+}
+
+std::string ActorSpawner::GetCurrentElementMediaRG()
+{
+    // Media (Textures/Materials/meshes) can be either in AddonPart bundle or the vehicle bundle.
+    // =========================================================================================
+
+    if (m_current_module->origin_addonpart)
+    {
+        return m_current_module->origin_addonpart->resource_group;
+    }
+    else
+    {
+        return m_actor->getTruckFileResourceGroup();
+    }
 }

@@ -4591,7 +4591,7 @@ void Actor::UpdatePropAnimInputEvents()
 
 std::string Actor::getTruckFileResourceGroup()
 {
-    return m_gfx_actor->GetResourceGroup();
+    return m_used_actor_entry->resource_group;
 }
 
 CacheEntryPtr& Actor::getUsedActorEntry()
