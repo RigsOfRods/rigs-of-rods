@@ -85,6 +85,8 @@ public:
     float             getTotalMass(bool withLocked=true);
     int               getNodeCount() { return ar_num_nodes; }
     Ogre::Vector3     getNodePosition(int nodeNumber);     //!< Returns world position of node
+    bool              isNodeWheelRim(int nodeNumber);      //!< Is node marked as wheel rim? Note some wheel models use only tire nodes. See https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/#wheels
+    bool              isNodeWheelTire(int nodeNumber);     //!< Is node marked as wheel tire? Note some wheel models use only tire nodes. See https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/#wheels
     int               getWheelNodeCount() const;
     float             getWheelSpeed() const { return ar_wheel_speed; }
     void              reset(bool keep_position = false);   //!< call this one to reset a truck from any context

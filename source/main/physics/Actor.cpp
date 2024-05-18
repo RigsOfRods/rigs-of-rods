@@ -4509,6 +4509,30 @@ Vector3 Actor::getNodePosition(int nodeNumber)
     }
 }
 
+bool Actor::isNodeWheelRim(int nodeNumber)
+{
+    if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
+    {
+        return ar_nodes[nodeNumber].nd_rim_node;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool Actor::isNodeWheelTire(int nodeNumber)
+{
+    if (nodeNumber >= 0 && nodeNumber < ar_num_nodes)
+    {
+        return ar_nodes[nodeNumber].nd_tyre_node;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 void Actor::WriteDiagnosticDump(std::string const& fileName)
 {
     // Purpose: to diff against output from https://github.com/only-a-ptr/rigs-of-rods/tree/retro-0407

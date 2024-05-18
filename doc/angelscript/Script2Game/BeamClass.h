@@ -71,10 +71,24 @@ public:
     
    /**
 	* Returns the position of the node
-	* @param the nuber of the node
+	* @param the number of the node (counts from 0, see `getNodeCount()`)
     * @return vector3 of the world position for the node
 	*/	
-	vector3 getNodePosition(int nodeNumber);    
+	vector3 getNodePosition(int nodeNumber);   
+
+   /**
+	* Is node marked as wheel rim? Note some wheel models use only tire nodes. See https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/#wheels
+	* @param the number of the node (counts from 0, see `getNodeCount()`)
+    * @return True if the node is a wheel rim.
+	*/	
+	vector3 isNodeWheelRim(int nodeNumber);     
+    
+   /**
+	* Is node marked as wheel tire? Note some wheel models use only tire nodes. See https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/#wheels
+	* @param the number of the node (counts from 0, see `getNodeCount()`)
+    * @return True if this is a tire node.
+	*/	
+	vector3 isNodeWheelTire(int nodeNumber);         
     
 	/**
 	 * Gets the total amount of nodes of the wheels of the truck.
