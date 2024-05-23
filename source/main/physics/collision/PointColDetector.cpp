@@ -152,7 +152,6 @@ void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vec
     m_bbmax += enlargeBB;
 
     hit_list.clear();
-    hit_list_actorset.clear();
     queryrec(0, 0);
 }
 
@@ -173,7 +172,6 @@ void PointColDetector::queryrec(int kdindex, int axis)
                 point[2] >= m_bbmin.z && point[2] <= m_bbmax.z)
             {
                 hit_list.push_back(m_ref_list[m_kdtree[kdindex].refid].pidrefid);
-                hit_list_actorset.insert(hit_pointid_list[m_ref_list[m_kdtree[kdindex].refid].pidrefid].actorid);
             }
             return;
         }

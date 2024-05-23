@@ -40,7 +40,6 @@ public:
     };
 
     std::vector<PointidID_t> hit_list;
-    std::unordered_set<ActorInstanceID_t> hit_list_actorset;
     std::vector<pointid_t> hit_pointid_list;
 
     PointColDetector(ActorPtr actor): m_actor(actor), m_object_list_size(-1) {};
