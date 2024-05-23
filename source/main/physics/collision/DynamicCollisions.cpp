@@ -147,9 +147,9 @@ void RoR::ResolveInterActorCollisions(const float dt, PointColDetector &interPoi
             const Triangle triangle(na->AbsPosition, nb->AbsPosition, no->AbsPosition);
             const CartesianToTriangleTransform transform(triangle);
 
-            for (PointidID_t i_hit : interPointCD.hit_list)
+            for (ColPointID_t i_hit : interPointCD.hit_list)
             {
-                const PointColDetector::pointid_t& h = interPointCD.hit_pointid_list[i_hit];
+                const PointColDetector::ColPoint& h = interPointCD.contactable_point_pool[i_hit];
                 const ActorPtr& hit_actor = App::GetGameContext()->GetActorManager()->GetActorById(h.actorid);
                 node_t& hitnode = hit_actor->ar_nodes[h.nodenum];
 
@@ -236,9 +236,9 @@ void RoR::ResolveIntraActorCollisions(const float dt, PointColDetector &intraPoi
             const Triangle triangle(na->AbsPosition, nb->AbsPosition, no->AbsPosition);
             const CartesianToTriangleTransform transform(triangle);
 
-            for (PointidID_t i_hit : intraPointCD.hit_list)
+            for (ColPointID_t i_hit : intraPointCD.hit_list)
             {
-                const PointColDetector::pointid_t& h = intraPointCD.hit_pointid_list[i_hit];
+                const PointColDetector::ColPoint& h = intraPointCD.contactable_point_pool[i_hit];
                 const ActorPtr& hit_actor = App::GetGameContext()->GetActorManager()->GetActorById(h.actorid);
                 node_t& hitnode = hit_actor->ar_nodes[h.nodenum];
 

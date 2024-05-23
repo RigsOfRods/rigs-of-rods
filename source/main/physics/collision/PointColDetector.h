@@ -29,56 +29,47 @@ namespace RoR {
 /// @addtogroup Collisions
 /// @{
 
+/// Detects collisions between points (nodes) and triangles (collision cabs).
+/// It has two modes of operation: IntraPoint (actor's self-collision) and InterPoint (collision between actors).
+/// How it operates:
+///  1. Buffering of points: all contactable nodes from all collision partners are buffered into `contactable_point_pool`.
+///     Done by `update_structures_for_contacters()`, invoked from either `UpdateIntraPoint()` or `UpdateInterPoint()`.
+///  2. Broadphase collision detection: collcabs of partners are checked against contactable nodes. 
+///     Done by `query()`, invoked from either `RoR::ResolveInterActorCollisions()` or `RoR::ResolveIntraActorCollisions()`, see file DynamicCollisions.cpp
+///  3. Narrowphase collision detection: for each hit, the exact point-triangle collision is checked.
+///     Done by `RoR::InsideTriangleTest()`, invoked from either `RoR::ResolveInterActorCollisions()` or `RoR::ResolveIntraActorCollisions()`, see file DynamicCollisions.cpp
+///  4. Collision force calculation: for each triangle collision, resulting forces for the colliding node and cab-triangle nodes are calculated.
+///     Done by 'RoR::ResolveCollisionForces()`, invoked from either `RoR::ResolveInterActorCollisions()` or `RoR::ResolveIntraActorCollisions()`, see file DynamicCollisions.cpp
 class PointColDetector
 {
 public:
 
-    struct pointid_t // use PointidID_t for indexing
+    /// Buffered contactable node from a collision partner; use ColPointID_t for indexing
+    struct ColPoint
     {
         ActorInstanceID_t actorid = ACTORINSTANCEID_INVALID;
         NodeNum_t nodenum = NODENUM_INVALID;
+        Ogre::Vector3 nodepos = Ogre::Vector3::ZERO; // Cached node AbsPosition
     };
 
-    std::vector<PointidID_t> hit_list;
-    std::vector<pointid_t> hit_pointid_list;
+    std::vector<ColPointID_t> hit_list;
+    std::vector<ColPoint> contactable_point_pool;
 
     PointColDetector(ActorPtr actor): m_actor(actor), m_object_list_size(-1) {};
 
-    void UpdateIntraPoint(bool contactables = false);
-    void UpdateInterPoint(bool ignorestate = false);
+    void UpdateIntraPoint(bool contactables = false); //<! Buffers contactable nodes for self-collision
+    void UpdateInterPoint(bool ignorestate = false); //<! Buffers contactable nodes for inter-actor collision
     void query(const Ogre::Vector3& vec1, const Ogre::Vector3& vec2, const Ogre::Vector3& vec3, const float enlargeBB);
 
 private:
 
-    struct refelem_t // use RefelemID_t for indexing
-    {
-        PointidID_t pidrefid = POINTIDID_INVALID;
-        std::array<float, 3> point; // cached node AbsPosition
-        void setPoint(const Ogre::Vector3 pos) { point[0] = pos.x; point[1] = pos.y; point[2] = pos.z; }
-    };
-
-    struct kdnode_t
-    {
-        float min;
-        int end;
-        float max;
-        RefelemID_t refid = REFELEMID_INVALID;
-        float middle;
-        int begin;
-    };
-
     ActorPtr                 m_actor;
     std::vector<ActorInstanceID_t>    m_collision_partners; //!< IntraPoint: always just owning actor; InterPoint: all colliding actors
-    std::vector<refelem_t> m_ref_list;
-    
-    std::vector<kdnode_t>  m_kdtree;
+
     Ogre::Vector3          m_bbmin = Ogre::Vector3::ZERO;
     Ogre::Vector3          m_bbmax = Ogre::Vector3::ZERO;
     int                    m_object_list_size = 0;
 
-    void queryrec(int kdindex, int axis);
-    void build_kdtree_incr(int axis, int index);
-    void partintwo(const int start, const int median, const int end, const int axis, float& minex, float& maxex);
     void update_structures_for_contacters(bool ignoreinternal);
     void refresh_node_positions();
 };
