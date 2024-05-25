@@ -938,12 +938,13 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
                     node_t* na = &actor->ar_nodes[actor->ar_cabs[tmpv + 1]];
                     node_t* nb = &actor->ar_nodes[actor->ar_cabs[tmpv + 2]];
 
-                    m_intra_point_col_detector->query(no->AbsPosition - collision_offset,
+                    collision = m_intra_point_col_detector->QueryCollisionsWithAllPartners(
+                        no->AbsPosition - collision_offset,
                         na->AbsPosition - collision_offset,
                         nb->AbsPosition - collision_offset,
                         actor->ar_collision_range * 3.0f);
 
-                    if (collision = !m_intra_point_col_detector->hit_list.empty())
+                    if (collision)
                         break;
                 }
 
@@ -988,12 +989,13 @@ Vector3 Actor::calculateCollisionOffset(Vector3 direction)
                 node_t* na = &ar_nodes[ar_cabs[tmpv + 1]];
                 node_t* nb = &ar_nodes[ar_cabs[tmpv + 2]];
 
-                m_inter_point_col_detector->query(no->AbsPosition + collision_offset,
+                collision = m_inter_point_col_detector->QueryCollisionsWithAllPartners(
+                    no->AbsPosition + collision_offset,
                     na->AbsPosition + collision_offset,
                     nb->AbsPosition + collision_offset,
                     ar_collision_range * 3.0f);
 
-                if (collision = !m_inter_point_col_detector->hit_list.empty())
+                if (collision)
                     break;
             }
         }

@@ -33,6 +33,7 @@ namespace RoR {
 /// It has two modes of operation: IntraPoint (actor's self-collision) and InterPoint (collision between actors).
 /// How it operates:
 ///  1. Buffering of points: all contactable nodes from all collision partners are buffered into `contactable_point_pool`.
+///  1. Finding collision partners (actors whose nodes will colide with `m_actor`)
 ///     Done by `update_structures_for_contacters()`, invoked from either `UpdateIntraPoint()` or `UpdateInterPoint()`.
 ///  2. Broadphase collision detection: collcabs of partners are checked against contactable nodes. 
 ///     Done by `query()`, invoked from either `RoR::ResolveInterActorCollisions()` or `RoR::ResolveIntraActorCollisions()`, see file DynamicCollisions.cpp
@@ -47,31 +48,47 @@ public:
     /// Buffered contactable node from a collision partner; use ColPointID_t for indexing
     struct ColPoint
     {
-        ActorInstanceID_t actorid = ACTORINSTANCEID_INVALID;
         NodeNum_t nodenum = NODENUM_INVALID;
         Ogre::Vector3 nodepos = Ogre::Vector3::ZERO; // Cached node AbsPosition
     };
 
-    std::vector<ColPointID_t> hit_list;
+    struct ColActor
+    {
+        ColActor(Actor* _actor): actor(_actor) {};
+        bool operator==(const ColActor& other) const { return actor == other.actor; }
+        Actor* actor = nullptr;
+        int point_pool_start = -1;
+        int point_pool_count = -1;
+    };
+
+    std::vector<NodeNum_t> hit_list;
+    std::vector<ColActor>    collision_partners; //!< Actors whose contactable nodes will collide; IntraPoint: always just owning actor; InterPoint: all colliding actors
     std::vector<ColPoint> contactable_point_pool;
+    PointColDetector(ActorPtr actor): m_actor(actor) {};
+    bool QueryCollisionsWithSinglePartner(const Ogre::AxisAlignedBox collcab_aabb, const ColActor& partner); //!< Fills `hit_list`; returns true if there are any collisions
+    bool QueryCollisionsWithAllPartners(const Ogre::Vector3& vec1, const Ogre::Vector3& vec2, const Ogre::Vector3& vec3, const float enlargeBB); //!< Only returns true if there are any collisions, doesn't record hits.
 
-    PointColDetector(ActorPtr actor): m_actor(actor), m_object_list_size(-1) {};
+protected:
 
-    void UpdateIntraPoint(bool contactables = false); //<! Buffers contactable nodes for self-collision
-    void UpdateInterPoint(bool ignorestate = false); //<! Buffers contactable nodes for inter-actor collision
-    void query(const Ogre::Vector3& vec1, const Ogre::Vector3& vec2, const Ogre::Vector3& vec3, const float enlargeBB);
-
-private:
-
-    ActorPtr                 m_actor;
-    std::vector<ActorInstanceID_t>    m_collision_partners; //!< IntraPoint: always just owning actor; InterPoint: all colliding actors
-
-    Ogre::Vector3          m_bbmin = Ogre::Vector3::ZERO;
-    Ogre::Vector3          m_bbmax = Ogre::Vector3::ZERO;
-    int                    m_object_list_size = 0;
+    ActorPtr               m_actor; //!< The actor whose collcabs will collide
+    int                    m_object_list_size = -1;
 
     void update_structures_for_contacters(bool ignoreinternal);
     void refresh_node_positions();
+};
+
+class IntraPointColDetector : public PointColDetector
+{
+public:
+    IntraPointColDetector(ActorPtr actor): PointColDetector(actor) {};
+    void UpdateIntraPoint(bool contactables = false);
+};
+
+class InterPointColDetector : public PointColDetector
+{
+public:
+    InterPointColDetector(ActorPtr actor): PointColDetector(actor) {};
+    void UpdateInterPoint(bool ignorestate = false);
 };
 
 /// @} // addtogroup Collisions

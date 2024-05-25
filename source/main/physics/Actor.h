@@ -533,8 +533,8 @@ private:
     int               m_num_proped_wheels = 0;          //!< Physics attr, filled at spawn - Number of propelled wheels.
     float             m_avg_proped_wheel_radius = 0.f;    //!< Physics attr, filled at spawn - Average proped wheel radius.
     float             m_avionic_chatter_timer = 11.f;      //!< Sound fx state (some pseudo random number,  doesn't matter)
-    PointColDetector* m_inter_point_col_detector = nullptr;   //!< Physics
-    PointColDetector* m_intra_point_col_detector = nullptr;   //!< Physics
+    InterPointColDetector* m_inter_point_col_detector = nullptr;   //!< Physics
+    IntraPointColDetector* m_intra_point_col_detector = nullptr;   //!< Physics
     
     Ogre::Vector3     m_avg_node_position = Ogre::Vector3::ZERO;          //!< average node position
     Ogre::Real        m_min_camera_radius = 0.f;

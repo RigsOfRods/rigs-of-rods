@@ -114,8 +114,8 @@ void ResolveCollisionForces(const float penetration_depth,
     no.Forces      -= forcevec * gamma;
 }
 
-
-void RoR::ResolveInterActorCollisions(const float dt, PointColDetector &interPointCD,
+// STUPID OLD CODE: all the following params always belong to the same actor, see `ActorManager::UpdatePhysicsSimulation()`
+void RoR::ResolveInterActorCollisions(const float dt, InterPointColDetector &interPointCD,
         const int free_collcab, int collcabs[], int cabs[],
         collcab_rate_t inter_collcabrate[], node_t nodes[],
         const float collrange,
@@ -137,69 +137,73 @@ void RoR::ResolveInterActorCollisions(const float dt, PointColDetector &interPoi
         const auto na = &nodes[cabs[tmpv+1]];
         const auto nb = &nodes[cabs[tmpv+2]];
 
-        interPointCD.query(no->AbsPosition
-                , na->AbsPosition
-                , nb->AbsPosition, collrange);
+        Ogre::AxisAlignedBox collcab_box;
+        collcab_box.merge(no->AbsPosition);
+        collcab_box.merge(na->AbsPosition);
+        collcab_box.merge(nb->AbsPosition);
+        collcab_box.setMinimum(collcab_box.getMinimum() - collrange);
+        collcab_box.setMaximum(collcab_box.getMaximum() + collrange);
 
-        if (!interPointCD.hit_list.empty())
+        for (const PointColDetector::ColActor& partner: interPointCD.collision_partners)
         {
-            // setup transformation of points to triangle local coordinates
-            const Triangle triangle(na->AbsPosition, nb->AbsPosition, no->AbsPosition);
-            const CartesianToTriangleTransform transform(triangle);
-
-            for (ColPointID_t i_hit : interPointCD.hit_list)
+            if (interPointCD.QueryCollisionsWithSinglePartner(collcab_box, partner))
             {
-                const PointColDetector::ColPoint& h = interPointCD.contactable_point_pool[i_hit];
-                const ActorPtr& hit_actor = App::GetGameContext()->GetActorManager()->GetActorById(h.actorid);
-                node_t& hitnode = hit_actor->ar_nodes[h.nodenum];
+                // setup transformation of points to triangle local coordinates
+                const Triangle triangle(na->AbsPosition, nb->AbsPosition, no->AbsPosition);
+                const CartesianToTriangleTransform transform(triangle);
 
-                // transform point to triangle local coordinates
-                const auto local_point = transform(hitnode.AbsPosition);
-
-                // collision test
-                const bool is_colliding = InsideTriangleTest(local_point, collrange);
-                if (is_colliding)
+                for (NodeNum_t hitnode_num: interPointCD.hit_list)
                 {
-                    inter_collcabrate[i].rate = 0;
+                    node_t& hitnode = partner.actor->ar_nodes[hitnode_num];
 
-                    const auto coord = local_point.barycentric;
-                    auto distance   = local_point.distance;
-                    auto normal     = triangle.normal();
+                    // transform point to triangle local coordinates
+                    const auto local_point = transform(hitnode.AbsPosition);
 
-                    // adapt in case the collision is occuring on the backface of the triangle
-                    const auto neighbour_node_ids = hit_actor->ar_node_to_node_connections[h.nodenum];
-                    const bool is_backface = BackfaceCollisionTest(distance, normal, *no, neighbour_node_ids, hit_actor->ar_nodes);
-                    if (is_backface)
+                    // collision test
+                    const bool is_colliding = InsideTriangleTest(local_point, collrange);
+                    if (is_colliding)
                     {
-                        // flip surface normal and distance to triangle plane
-                        normal   = -normal;
-                        distance = -distance;
+                        inter_collcabrate[i].rate = 0;
+
+                        const auto coord = local_point.barycentric;
+                        auto distance   = local_point.distance;
+                        auto normal     = triangle.normal();
+
+                        // adapt in case the collision is occuring on the backface of the triangle
+                        const auto neighbour_node_ids = partner.actor->ar_node_to_node_connections[hitnode_num];
+                        const bool is_backface = BackfaceCollisionTest(distance, normal, *no, neighbour_node_ids, partner.actor->ar_nodes);
+                        if (is_backface)
+                        {
+                            // flip surface normal and distance to triangle plane
+                            normal   = -normal;
+                            distance = -distance;
+                        }
+
+                        const auto penetration_depth = collrange - distance;
+
+                        const bool remote = (partner.actor->ar_state == ActorState::NETWORKED_OK);
+
+                        ResolveCollisionForces(penetration_depth, hitnode, *na, *nb, *no, coord.alpha,
+                                coord.beta, coord.gamma, normal, dt, remote, submesh_ground_model);
+
+                        hitnode.nd_last_collision_gm = &submesh_ground_model;
+                        hitnode.nd_has_mesh_contact = true;
+                        na->nd_has_mesh_contact = true;
+                        nb->nd_has_mesh_contact = true;
+                        no->nd_has_mesh_contact = true;
                     }
-
-                    const auto penetration_depth = collrange - distance;
-
-                    const bool remote = (hit_actor->ar_state == ActorState::NETWORKED_OK);
-
-                    ResolveCollisionForces(penetration_depth, hitnode, *na, *nb, *no, coord.alpha,
-                            coord.beta, coord.gamma, normal, dt, remote, submesh_ground_model);
-
-                    hitnode.nd_last_collision_gm = &submesh_ground_model;
-                    hitnode.nd_has_mesh_contact = true;
-                    na->nd_has_mesh_contact = true;
-                    nb->nd_has_mesh_contact = true;
-                    no->nd_has_mesh_contact = true;
                 }
             }
-        }
-        else
-        {
-            inter_collcabrate[i].rate++;
+            else
+            {
+                inter_collcabrate[i].rate++;
+            }
         }
     }
 }
 
-
-void RoR::ResolveIntraActorCollisions(const float dt, PointColDetector &intraPointCD,
+// STUPID OLD CODE: all the following params always belong to the same actor, see `Actor::CalcCabCollisions()`
+void RoR::ResolveIntraActorCollisions(const float dt, IntraPointColDetector &intraPointCD,
         const int free_collcab, int collcabs[], int cabs[],
         collcab_rate_t intra_collcabrate[], node_t nodes[],
         const float collrange,
@@ -224,64 +228,67 @@ void RoR::ResolveIntraActorCollisions(const float dt, PointColDetector &intraPoi
         const auto na = &nodes[cabs[tmpv+1]];
         const auto nb = &nodes[cabs[tmpv+2]];
 
-        intraPointCD.query(no->AbsPosition
-                , na->AbsPosition
-                , nb->AbsPosition, collrange);
+        Ogre::AxisAlignedBox collcab_box;
+        collcab_box.merge(no->AbsPosition);
+        collcab_box.merge(na->AbsPosition);
+        collcab_box.merge(nb->AbsPosition);
+        collcab_box.setMinimum(collcab_box.getMinimum() - collrange);
+        collcab_box.setMaximum(collcab_box.getMaximum() + collrange);
 
         bool collision = false;
-
-        if (!intraPointCD.hit_list.empty())
+        for (const PointColDetector::ColActor& partner: intraPointCD.collision_partners)
         {
-            // setup transformation of points to triangle local coordinates
-            const Triangle triangle(na->AbsPosition, nb->AbsPosition, no->AbsPosition);
-            const CartesianToTriangleTransform transform(triangle);
-
-            for (ColPointID_t i_hit : intraPointCD.hit_list)
+            if (intraPointCD.QueryCollisionsWithSinglePartner(collcab_box, partner))
             {
-                const PointColDetector::ColPoint& h = intraPointCD.contactable_point_pool[i_hit];
-                const ActorPtr& hit_actor = App::GetGameContext()->GetActorManager()->GetActorById(h.actorid);
-                node_t& hitnode = hit_actor->ar_nodes[h.nodenum];
+                // setup transformation of points to triangle local coordinates
+                const Triangle triangle(na->AbsPosition, nb->AbsPosition, no->AbsPosition);
+                const CartesianToTriangleTransform transform(triangle);
 
-                //ignore wheel/chassis self contact
-                if (hitnode.nd_tyre_node) continue;
-                if (no == &hitnode || na == &hitnode || nb == &hitnode) continue;
-
-                // transform point to triangle local coordinates
-                const auto local_point = transform(hitnode.AbsPosition);
-
-                // collision test
-                const bool is_colliding = InsideTriangleTest(local_point, collrange);
-                if (is_colliding)
+                for (NodeNum_t hitnode_num: intraPointCD.hit_list)
                 {
-                    collision = true;
+                    node_t& hitnode = partner.actor->ar_nodes[hitnode_num];
 
-                    const auto coord = local_point.barycentric;
-                    auto distance = local_point.distance;
-                    auto normal   = triangle.normal();
+                    //ignore wheel/chassis self contact
+                    if (hitnode.nd_tyre_node) continue;
+                    if (no == &hitnode || na == &hitnode || nb == &hitnode) continue;
 
-                    // adapt in case the collision is occuring on the backface of the triangle
-                    if (distance < 0) 
+                    // transform point to triangle local coordinates
+                    const auto local_point = transform(hitnode.AbsPosition);
+
+                    // collision test
+                    const bool is_colliding = InsideTriangleTest(local_point, collrange);
+                    if (is_colliding)
                     {
-                        // flip surface normal and distance to triangle plane
-                        normal   = -normal;
-                        distance = -distance;
+                        collision = true;
+
+                        const auto coord = local_point.barycentric;
+                        auto distance = local_point.distance;
+                        auto normal   = triangle.normal();
+
+                        // adapt in case the collision is occuring on the backface of the triangle
+                        if (distance < 0) 
+                        {
+                            // flip surface normal and distance to triangle plane
+                            normal   = -normal;
+                            distance = -distance;
+                        }
+
+                        const auto penetration_depth = collrange - distance;
+
+                        ResolveCollisionForces(penetration_depth, hitnode, *na, *nb, *no, coord.alpha,
+                                coord.beta, coord.gamma, normal, dt, false, submesh_ground_model);
                     }
-
-                    const auto penetration_depth = collrange - distance;
-
-                    ResolveCollisionForces(penetration_depth, hitnode, *na, *nb, *no, coord.alpha,
-                            coord.beta, coord.gamma, normal, dt, false, submesh_ground_model);
                 }
             }
-        }
 
-        if (collision)
-        {
-            intra_collcabrate[i].rate = -20000;
-        }
-        else
-        {
-            intra_collcabrate[i].rate++;
+            if (collision)
+            {
+                intra_collcabrate[i].rate = -20000;
+            }
+            else
+            {
+                intra_collcabrate[i].rate++;
+            }
         }
     }
 }

@@ -370,12 +370,12 @@ void ActorSpawner::InitializeRig()
 
     if (!App::sim_no_collisions->getBool())
     {
-        m_actor->m_inter_point_col_detector = new PointColDetector(m_actor);
+        m_actor->m_inter_point_col_detector = new InterPointColDetector(m_actor);
     }
 
     if (!App::sim_no_self_collisions->getBool())
     {
-        m_actor->m_intra_point_col_detector = new PointColDetector(m_actor);
+        m_actor->m_intra_point_col_detector = new IntraPointColDetector(m_actor);
     }
 
     m_actor->ar_submesh_ground_model = App::GetGameContext()->GetTerrain()->GetCollisions()->defaultgm;

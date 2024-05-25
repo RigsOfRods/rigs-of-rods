@@ -101,6 +101,8 @@ namespace RoR
     struct GuiManagerImpl;
     class  HydraxWater;
     class  InputEngine;
+    class  InterPointColDetector;
+    class  IntraPointColDetector;
     class  IWater;
     class  Landusemap;
     class  LanguageEngine;

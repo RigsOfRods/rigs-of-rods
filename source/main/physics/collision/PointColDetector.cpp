@@ -27,14 +27,17 @@
 using namespace Ogre;
 using namespace RoR;
 
-void PointColDetector::UpdateIntraPoint(bool contactables)
+void IntraPointColDetector::UpdateIntraPoint(bool contactables)
 {
+    // Setup for self-collision detection
+    // ---------------------------------
+
     int contacters_size = contactables ? m_actor->ar_num_contactable_nodes : m_actor->ar_num_contacters;
 
     if (contacters_size != m_object_list_size)
     {
-        m_collision_partners.clear();
-        m_collision_partners.push_back(m_actor->ar_instance_id);
+        collision_partners.clear();
+        collision_partners.push_back(ColActor(m_actor.GetRef()));
         m_object_list_size = contacters_size;
         update_structures_for_contacters(contactables);
     }
@@ -44,16 +47,19 @@ void PointColDetector::UpdateIntraPoint(bool contactables)
     }
 }
 
-void PointColDetector::UpdateInterPoint(bool ignorestate)
+void InterPointColDetector::UpdateInterPoint(bool ignorestate)
 {
+    // Find collision partners (actors with collidable nodes)
+    // ------------------------------------------------------
+
     int contacters_size = 0;
-    std::vector<ActorInstanceID_t> collision_partners;
+    std::vector<ColActor> new_collision_partners;
     for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if (actor != m_actor && (ignorestate || actor->ar_update_physics) &&
                 m_actor->ar_bounding_box.intersects(actor->ar_bounding_box))
         {
-            collision_partners.push_back(actor->ar_instance_id);
+            new_collision_partners.push_back(actor.GetRef());
             bool is_linked = std::find(m_actor->ar_linked_actors.begin(), m_actor->ar_linked_actors.end(), actor) != m_actor->ar_linked_actors.end();
             contacters_size += is_linked ? actor->ar_num_contacters : actor->ar_num_contactable_nodes;
             if (m_actor->ar_nodes[0].Velocity.squaredDistance(actor->ar_nodes[0].Velocity) > 16)
@@ -74,9 +80,9 @@ void PointColDetector::UpdateInterPoint(bool ignorestate)
 
     m_actor->ar_collision_relevant = (contacters_size > 0);
 
-    if (collision_partners != m_collision_partners || contacters_size != m_object_list_size)
+    if (collision_partners != new_collision_partners || contacters_size != m_object_list_size)
     {
-        m_collision_partners = collision_partners;
+        collision_partners = new_collision_partners;
         m_object_list_size = contacters_size;
         update_structures_for_contacters(false);
     }
@@ -94,29 +100,30 @@ void PointColDetector::update_structures_for_contacters(bool ignoreinternal)
     contactable_point_pool.resize(m_object_list_size);
 
     ColPointID_t refi = 0;
-    for (ActorInstanceID_t actorid : m_collision_partners)
+    for (ColActor& partner : collision_partners)
     {
-        const ActorPtr& actor = App::GetGameContext()->GetActorManager()->GetActorById(actorid);
+        partner.point_pool_start = refi;
+        Actor* actor = partner.actor;
 
         bool is_linked = std::find(m_actor->ar_linked_actors.begin(), m_actor->ar_linked_actors.end(), actor) != m_actor->ar_linked_actors.end();
-        bool internal_collision = !ignoreinternal && ((actorid == m_actor->ar_instance_id) || is_linked);
+        bool internal_collision = !ignoreinternal && ((actor == m_actor.GetRef()) || is_linked);
         for (int i = 0; i < actor->ar_num_nodes; i++)
         {
             if (actor->ar_nodes[i].nd_contacter || (!internal_collision && actor->ar_nodes[i].nd_contactable))
             {
-                contactable_point_pool[refi].actorid = actor->ar_instance_id;
                 contactable_point_pool[refi].nodenum = static_cast<NodeNum_t>(i);
                 contactable_point_pool[refi].nodepos = actor->ar_nodes[i].AbsPosition;
                 refi++;
             }
         }
+        partner.point_pool_count = refi - partner.point_pool_start;
     }
 }
 
-void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vector3 &vec3, float enlargeBB)
+bool PointColDetector::QueryCollisionsWithAllPartners(const Vector3 &vec1, const Vector3 &vec2, const Vector3 &vec3, float enlargeBB)
 {
-    // Create a bounding box of the collcab and do a brute force search
-    // ----------------------------------------------------------------
+    // Only check for presence of collision, do not record hits.
+    // ---------------------------------------------------------
     
     Ogre::AxisAlignedBox collcab_box;
     collcab_box.merge(vec1);
@@ -125,14 +132,36 @@ void PointColDetector::query(const Vector3 &vec1, const Vector3 &vec2, const Vec
     collcab_box.setMinimum(collcab_box.getMinimum() - enlargeBB);
     collcab_box.setMaximum(collcab_box.getMaximum() + enlargeBB);
 
-    hit_list.clear();
-    for (ColPointID_t i = 0; i < m_object_list_size; i++)
+    for (const ColActor& partner: collision_partners)
     {
-        if (collcab_box.intersects(contactable_point_pool[i].nodepos))
+        if (QueryCollisionsWithSinglePartner(collcab_box, partner))
         {
-            hit_list.push_back(i);
+            hit_list.clear();
+            return true;
         }
     }
+    return false;
+}
+
+bool PointColDetector::QueryCollisionsWithSinglePartner(const Ogre::AxisAlignedBox collcab_aabb, const ColActor& partner)
+{
+    // Record all hits with the partner
+    // -------------------------------
+
+    ROR_ASSERT(partner);
+    hit_list.clear();
+
+    if (collcab_aabb.intersects(partner.actor->ar_bounding_box))
+    {
+        for (int i = 0; i < partner.point_pool_count; i++)
+        {
+            if (collcab_aabb.intersects(contactable_point_pool[partner.point_pool_start + i].nodepos))
+            {
+                hit_list.push_back(contactable_point_pool[partner.point_pool_start + i].nodenum);
+            }
+        }
+    }
+    return hit_list.size() > 0;
 }
 
 void PointColDetector::refresh_node_positions()
@@ -140,16 +169,13 @@ void PointColDetector::refresh_node_positions()
     // Because the `contactable_point_pool` contains cached node positions, we must update it on each tick.
     // ----------------------------------------------------------------------------------
 
-    ActorInstanceID_t cur_actorid = ACTORINSTANCEID_INVALID;
-    ActorPtr cur_actor = nullptr;
-
-    for (ColPoint& pointid: contactable_point_pool)
+    for (const ColActor& partner: collision_partners)
     {
-        if (pointid.actorid != cur_actorid)
+        Actor* actor = partner.actor;
+        for (int i = 0; i < partner.point_pool_count; i++)
         {
-            cur_actorid = pointid.actorid;
-            cur_actor = App::GetGameContext()->GetActorManager()->GetActorById(cur_actorid);
+            ColPoint& point = contactable_point_pool[partner.point_pool_start + i];
+            point.nodepos = actor->ar_nodes[point.nodenum].AbsPosition;
         }
-        pointid.nodepos = cur_actor->ar_nodes[pointid.nodenum].AbsPosition;
     }
 }
