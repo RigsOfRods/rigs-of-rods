@@ -32,7 +32,6 @@ namespace RoR {
 /// Detects collisions between points (nodes) and triangles (collision cabs).
 /// It has two modes of operation: IntraPoint (actor's self-collision) and InterPoint (collision between actors).
 /// How it operates:
-///  1. Buffering of points: all contactable nodes from all collision partners are buffered into `contactable_point_pool`.
 ///  1. Finding collision partners (actors whose nodes will colide with `m_actor`)
 ///     Done by `update_structures_for_contacters()`, invoked from either `UpdateIntraPoint()` or `UpdateInterPoint()`.
 ///  2. Broadphase collision detection: collcabs of partners are checked against contactable nodes. 
@@ -45,25 +44,17 @@ class PointColDetector
 {
 public:
 
-    /// Buffered contactable node from a collision partner; use ColPointID_t for indexing
-    struct ColPoint
-    {
-        NodeNum_t nodenum = NODENUM_INVALID;
-        Ogre::Vector3 nodepos = Ogre::Vector3::ZERO; // Cached node AbsPosition
-    };
-
     struct ColActor
     {
         ColActor(Actor* _actor): actor(_actor) {};
-        bool operator==(const ColActor& other) const { return actor == other.actor; }
+
         Actor* actor = nullptr;
-        int point_pool_start = -1;
-        int point_pool_count = -1;
+        int contacters_size = 0;
+        bool internal_collision = false;
     };
 
     std::vector<NodeNum_t> hit_list;
     std::vector<ColActor>    collision_partners; //!< Actors whose contactable nodes will collide; IntraPoint: always just owning actor; InterPoint: all colliding actors
-    std::vector<ColPoint> contactable_point_pool;
     PointColDetector(ActorPtr actor): m_actor(actor) {};
     bool QueryCollisionsWithSinglePartner(const Ogre::AxisAlignedBox collcab_aabb, const ColActor& partner); //!< Fills `hit_list`; returns true if there are any collisions
     bool QueryCollisionsWithAllPartners(const Ogre::Vector3& vec1, const Ogre::Vector3& vec2, const Ogre::Vector3& vec3, const float enlargeBB); //!< Only returns true if there are any collisions, doesn't record hits.
@@ -71,10 +62,8 @@ public:
 protected:
 
     ActorPtr               m_actor; //!< The actor whose collcabs will collide
-    int                    m_object_list_size = -1;
 
-    void update_structures_for_contacters(bool ignoreinternal);
-    void refresh_node_positions();
+    void AddCollisionPartner(Actor* actor, int contacters_size, bool ignoreinternal);
 };
 
 class IntraPointColDetector : public PointColDetector

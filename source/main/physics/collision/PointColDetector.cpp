@@ -33,18 +33,8 @@ void IntraPointColDetector::UpdateIntraPoint(bool contactables)
     // ---------------------------------
 
     int contacters_size = contactables ? m_actor->ar_num_contactable_nodes : m_actor->ar_num_contacters;
-
-    if (contacters_size != m_object_list_size)
-    {
-        collision_partners.clear();
-        collision_partners.push_back(ColActor(m_actor.GetRef()));
-        m_object_list_size = contacters_size;
-        update_structures_for_contacters(contactables);
-    }
-    else
-    {
-        refresh_node_positions();
-    }
+    collision_partners.clear();
+    this->AddCollisionPartner(m_actor.GetRef(), contacters_size, contactables);
 }
 
 void InterPointColDetector::UpdateInterPoint(bool ignorestate)
@@ -52,16 +42,17 @@ void InterPointColDetector::UpdateInterPoint(bool ignorestate)
     // Find collision partners (actors with collidable nodes)
     // ------------------------------------------------------
 
-    int contacters_size = 0;
-    std::vector<ColActor> new_collision_partners;
+    int total_contacters_size = 0;
+    collision_partners.clear();
     for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
         if (actor != m_actor && (ignorestate || actor->ar_update_physics) &&
                 m_actor->ar_bounding_box.intersects(actor->ar_bounding_box))
         {
-            new_collision_partners.push_back(actor.GetRef());
             bool is_linked = std::find(m_actor->ar_linked_actors.begin(), m_actor->ar_linked_actors.end(), actor) != m_actor->ar_linked_actors.end();
-            contacters_size += is_linked ? actor->ar_num_contacters : actor->ar_num_contactable_nodes;
+            int contacters_size = is_linked ? actor->ar_num_contacters : actor->ar_num_contactable_nodes;
+            this->AddCollisionPartner(actor.GetRef(), contacters_size, false);
+            total_contacters_size += contacters_size;
             if (m_actor->ar_nodes[0].Velocity.squaredDistance(actor->ar_nodes[0].Velocity) > 16)
             {
                 for (int i = 0; i < m_actor->ar_num_collcabs; i++)
@@ -78,46 +69,19 @@ void InterPointColDetector::UpdateInterPoint(bool ignorestate)
         }
     }
 
-    m_actor->ar_collision_relevant = (contacters_size > 0);
-
-    if (collision_partners != new_collision_partners || contacters_size != m_object_list_size)
-    {
-        collision_partners = new_collision_partners;
-        m_object_list_size = contacters_size;
-        update_structures_for_contacters(false);
-    }
-    else
-    {
-        refresh_node_positions();
-    }
+    m_actor->ar_collision_relevant = (total_contacters_size > 0);
 }
 
-void PointColDetector::update_structures_for_contacters(bool ignoreinternal)
+void PointColDetector::AddCollisionPartner(Actor* actor, int contacters_size, bool ignoreinternal)
 {
-    // Insert all contacters into the list of points to consider for collision.
-    // ------------------------------------------------------------------------
+    // Partner = actor whose nodes will collide with `m_actor`'s collcabs
+    // ------------------------------------------------------------------
 
-    contactable_point_pool.resize(m_object_list_size);
-
-    ColPointID_t refi = 0;
-    for (ColActor& partner : collision_partners)
-    {
-        partner.point_pool_start = refi;
-        Actor* actor = partner.actor;
-
-        bool is_linked = std::find(m_actor->ar_linked_actors.begin(), m_actor->ar_linked_actors.end(), actor) != m_actor->ar_linked_actors.end();
-        bool internal_collision = !ignoreinternal && ((actor == m_actor.GetRef()) || is_linked);
-        for (int i = 0; i < actor->ar_num_nodes; i++)
-        {
-            if (actor->ar_nodes[i].nd_contacter || (!internal_collision && actor->ar_nodes[i].nd_contactable))
-            {
-                contactable_point_pool[refi].nodenum = static_cast<NodeNum_t>(i);
-                contactable_point_pool[refi].nodepos = actor->ar_nodes[i].AbsPosition;
-                refi++;
-            }
-        }
-        partner.point_pool_count = refi - partner.point_pool_start;
-    }
+    ColActor partner(actor);
+    bool is_linked = std::find(m_actor->ar_linked_actors.begin(), m_actor->ar_linked_actors.end(), partner.actor) != m_actor->ar_linked_actors.end();
+    partner.internal_collision = !ignoreinternal && ((partner.actor == m_actor.GetRef()) || is_linked);
+    partner.contacters_size = contacters_size;
+    collision_partners.push_back(partner);
 }
 
 bool PointColDetector::QueryCollisionsWithAllPartners(const Vector3 &vec1, const Vector3 &vec2, const Vector3 &vec3, float enlargeBB)
@@ -153,29 +117,18 @@ bool PointColDetector::QueryCollisionsWithSinglePartner(const Ogre::AxisAlignedB
 
     if (collcab_aabb.intersects(partner.actor->ar_bounding_box))
     {
-        for (int i = 0; i < partner.point_pool_count; i++)
+        for (int i = 0; i < partner.actor->ar_num_nodes; i++)
         {
-            if (collcab_aabb.intersects(contactable_point_pool[partner.point_pool_start + i].nodepos))
+            const node_t& node = partner.actor->ar_nodes[i];
+            if (node.nd_contacter || (!partner.internal_collision && node.nd_contactable))
             {
-                hit_list.push_back(contactable_point_pool[partner.point_pool_start + i].nodenum);
+                if (collcab_aabb.intersects(node.AbsPosition))
+                {
+                    hit_list.push_back((NodeNum_t)i);
+                }
             }
         }
     }
     return hit_list.size() > 0;
 }
 
-void PointColDetector::refresh_node_positions()
-{
-    // Because the `contactable_point_pool` contains cached node positions, we must update it on each tick.
-    // ----------------------------------------------------------------------------------
-
-    for (const ColActor& partner: collision_partners)
-    {
-        Actor* actor = partner.actor;
-        for (int i = 0; i < partner.point_pool_count; i++)
-        {
-            ColPoint& point = contactable_point_pool[partner.point_pool_start + i];
-            point.nodepos = actor->ar_nodes[point.nodenum].AbsPosition;
-        }
-    }
-}
