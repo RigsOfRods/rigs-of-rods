@@ -2464,6 +2464,7 @@ void TopMenubar::RefreshTuningMenu()
 
         tuning_saves.cqy_filter_type = LT_Tuneup;
         tuning_saves.cqy_filter_guid = tuning_actor->getUsedActorEntry()->guid;
+        tuning_saves.cqy_filter_target_filename = tuning_actor->getTruckFileName();
         tuning_saves.cqy_filter_category_id = CID_Tuneups; // Exclude auto-generated entries
         tuning_saves.resetResults();
         App::GetCacheSystem()->Query(tuning_saves);

@@ -47,6 +47,7 @@ TuneupDefPtr TuneupDef::clone()
     ret->author_name        =     this->author_name       ; //std::string           
     ret->author_id          =     this->author_id         ; //int                   
     ret->category_id        =     this->category_id       ; //CacheCategoryId   
+    ret->filename           =     this->filename          ; //std::string
 
     // addonparts
     ret->use_addonparts       =   this->use_addonparts    ;
@@ -619,6 +620,7 @@ void RoR::TuneupUtil::ParseTuneupAttribute(const std::string& line, TuneupDefPtr
     if (attrib == "category_id"     && params.size() == 2) { tuneup_def->category_id = (CacheCategoryId)PARSEINT(params[1]); return; }
     if (attrib == "guid"            && params.size() >= 2) { tuneup_def->guid = params[1]; Ogre::StringUtil::trim(tuneup_def->guid); Ogre::StringUtil::toLowerCase(tuneup_def->guid); return; }
     if (attrib == "name"            && params.size() >= 2) { tuneup_def->name = params[1]; Ogre::StringUtil::trim(tuneup_def->name); return; }
+    if (attrib == "filename"        && params.size() >= 2) { tuneup_def->filename = params[1]; Ogre::StringUtil::trim(tuneup_def->filename); return; }
 
     // Addonparts and extracted data
     if (attrib == "use_addonpart"   && params.size() == 2) { tuneup_def->use_addonparts.insert(params[1]); return; }
@@ -646,6 +648,7 @@ void RoR::TuneupUtil::ExportTuneup(Ogre::DataStreamPtr& stream, TuneupDefPtr& tu
     buf << "\tauthor_id = "   << tuneup->author_id    << "\n";
     buf << "\tcategory_id = " << (int)tuneup->category_id  << "\n";
     buf << "\tguid = "        << tuneup->guid         << "\n";
+    buf << "\tfilename = "    << tuneup->filename     << "\n";
     buf << "\n";
 
     // Addonparts and extracted data:
