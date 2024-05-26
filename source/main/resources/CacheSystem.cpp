@@ -347,6 +347,9 @@ void CacheSystem::ImportEntryFromJson(rapidjson::Value& j_entry, CacheEntryPtr &
     {
         out_entry->addonpart_filenames.insert(j_addonfname.GetString());
     }
+
+    // Tuneup details
+    out_entry->tuneup_associated_filename = j_entry["tuneup_associated_filename"].GetString();
 }
 
 CacheValidity CacheSystem::LoadCacheFileJson()
@@ -628,6 +631,9 @@ void CacheSystem::ExportEntryToJson(rapidjson::Value& j_entries, rapidjson::Docu
         j_addonfnames.PushBack(rapidjson::StringRef(ag.c_str()), j_doc.GetAllocator());
     }
     j_entry.AddMember("addonpart_filenames", j_addonfnames, j_doc.GetAllocator());
+
+    // Tuneup details
+    j_entry.AddMember("tuneup_associated_filename", rapidjson::StringRef(entry->tuneup_associated_filename.c_str()), j_doc.GetAllocator());
 
     // Add entry to list
     j_entries.PushBack(j_entry, j_doc.GetAllocator());
@@ -1248,8 +1254,10 @@ void CacheSystem::FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneu
     entry->description = tuneup_def->description;
     entry->categoryid  = tuneup_def->category_id;
     entry->tuneup_def  = tuneup_def; // Needed to generate preview image
+    entry->tuneup_associated_filename = tuneup_def->filename;
 
     Ogre::StringUtil::toLowerCase(entry->guid);
+    Ogre::StringUtil::toLowerCase(entry->tuneup_associated_filename);
 }
 
 void CacheSystem::LoadAssetPack(CacheEntryPtr& target_entry, Ogre::String const & assetpack_filename)
@@ -1667,6 +1675,9 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
                 project_entry->fext = "tuneup"; // Tell modcache what it is.
                 project_entry->categoryid = CID_Tuneups; // For display in modcache            
                 project_entry->guid = request->cpr_source_entry->guid; // For lookup of tuneups by vehicle GUID.
+                Ogre::StringUtil::toLowerCase(project_entry->guid);
+                project_entry->tuneup_associated_filename = request->cpr_source_entry->fname; // For additional filtering of results (GUID marks a family, not individual mod).
+                Ogre::StringUtil::toLowerCase(project_entry->tuneup_associated_filename);
             }
             else
             {
@@ -1693,6 +1704,7 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
 
             TuneupDefPtr tuneup = request->cpr_source_actor->getWorkingTuneupDef()->clone();
             tuneup->guid = request->cpr_source_entry->guid; // For lookup of tuneups by vehicle GUID.
+            tuneup->filename = request->cpr_source_entry->fname; // For additional filtering of results (GUID marks a family, not individual mod).
             tuneup->name = request->cpr_name;
             tuneup->description = request->cpr_description;
             tuneup->thumbnail = request->cpr_source_entry->filecachename;
@@ -2044,12 +2056,18 @@ size_t CacheSystem::Query(CacheQuery& query)
             }
         }
 
-        // Filter by target filename (currently only `addonpart_filenames`); pass items which have no target filenames listed.
+        // Filter by target filename; pass items which have no target filenames listed.
         if (query.cqy_filter_target_filename != "")
         {
             if (entry->fext == "addonpart" 
                 && entry->addonpart_filenames.size() > 0
                 && entry->addonpart_filenames.count(query.cqy_filter_target_filename) == 0)
+            {
+                continue;
+            }
+            else if (entry->fext == "tuneup"
+                && entry->tuneup_associated_filename != ""
+                && entry->tuneup_associated_filename != query.cqy_filter_target_filename)
             {
                 continue;
             }

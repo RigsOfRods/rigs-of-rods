@@ -95,7 +95,8 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     /// @name General info
     /// @{
     std::string      name;
-    std::string      guid;
+    std::string      guid;        //!< target vehicle GUID
+    std::string      filename;    //!< target vehicle filename
     std::string      thumbnail;
     std::string      description;
     std::string      author_name;
