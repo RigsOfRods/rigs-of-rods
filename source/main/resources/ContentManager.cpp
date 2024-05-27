@@ -260,9 +260,6 @@ void ContentManager::InitModCache(CacheValidity validity)
         App::sys_cache_dir->getStr(), "FileSystem", RGN_CACHE, /*recursive=*/false, /*readOnly=*/false);
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_thumbnails_dir->getStr(), "FileSystem", RGN_REPO, /*recursive=*/false, /*readOnly=*/false);
-    std::string user = App::sys_user_dir->getStr();
-    std::string base = App::sys_process_dir->getStr();
-    std::string objects = PathCombine("resources", "beamobjects.zip");
 
     // Add top-level ZIPs/directories to RGN_CONTENT (non-recursive)
 
@@ -271,13 +268,13 @@ void ContentManager::InitModCache(CacheValidity validity)
         std::string extra_mod_path = App::app_extra_mod_path->getStr();
         ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path           , "FileSystem", RGN_CONTENT);
     }
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "mods")    , "FileSystem", RGN_CONTENT);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "packs")   , "FileSystem", RGN_CONTENT);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "terrains"), "FileSystem", RGN_CONTENT);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "vehicles"), "FileSystem", RGN_CONTENT);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "projects"), "FileSystem", RGN_CONTENT);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, "content") , "FileSystem", RGN_CONTENT);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, objects)   , "Zip"       , RGN_CONTENT);
+    for (const std::string& dirname : App::GetCacheSystem()->GetContentDirs())
+    {
+        ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_user_dir->getStr(), dirname), "FileSystem", RGN_CONTENT);
+    }
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_process_dir->getStr(), "content") , "FileSystem", RGN_CONTENT);
+    std::string objects = PathCombine("resources", "beamobjects.zip");
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_process_dir->getStr(), objects)   , "Zip"       , RGN_CONTENT);
     
     // Create RGN_TEMP in recursive mode to find all subdirectories.
 
@@ -287,12 +284,11 @@ void ContentManager::InitModCache(CacheValidity validity)
         std::string extra_mod_path = App::app_extra_mod_path->getStr();
         ResourceGroupManager::getSingleton().addResourceLocation(extra_mod_path           , "FileSystem", RGN_TEMP, true);
     }
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "mods")    , "FileSystem", RGN_TEMP, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "packs")   , "FileSystem", RGN_TEMP, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "terrains"), "FileSystem", RGN_TEMP, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "vehicles"), "FileSystem", RGN_TEMP, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(user, "projects"), "FileSystem", RGN_TEMP, true);
-    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(base, "content") , "FileSystem", RGN_TEMP, true);
+    for (const std::string& dirname : App::GetCacheSystem()->GetContentDirs())
+    {
+        ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_user_dir->getStr(), dirname), "FileSystem", RGN_TEMP, true);
+    }
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_process_dir->getStr(), "content") , "FileSystem", RGN_TEMP, true);
 
     // Traverse RGN_TEMP and add all subdirectories to RGN_CONTENT.
     // (TBD: why not just make RGN_CONTENT itself recursive? -- ohlidalp, 10/2023)

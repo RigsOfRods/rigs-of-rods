@@ -139,6 +139,13 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("addonpart");
     m_known_extensions.push_back("tuneup");
     m_known_extensions.push_back("assetpack");
+
+    // register the dirs
+    m_content_dirs.push_back("mods");
+    m_content_dirs.push_back("packs");
+    m_content_dirs.push_back("terrains");
+    m_content_dirs.push_back("vehicles");
+    m_content_dirs.push_back("projects");
 }
 
 void CacheSystem::LoadModCache(CacheValidity validity)
@@ -1359,6 +1366,21 @@ void CacheSystem::LoadSupplementaryDocuments(CacheEntryPtr& entry)
     }
 }
 
+bool CacheSystem::IsPathContentDirRoot(const std::string& path) const
+{
+    // Helper for `LoadResource()` because OGRE's 'readOnly' flag, see explanation in `ContentManager::InitModCache()`
+    // --------------------------------------------------------------------------------------------------------------
+
+    for (const std::string& cdir: m_content_dirs)
+    {
+        if (path == PathCombine(App::sys_user_dir->getStr(), cdir))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void CacheSystem::LoadResource(CacheEntryPtr& entry)
 {
     if (!entry)
@@ -1372,7 +1394,10 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
     }
 
     Ogre::String group = CacheSystem::ComposeResourceGroupName(entry);
-    bool readonly = entry->resource_bundle_type == "Zip"; // Make "FileSystem" (directory) bundles writable. Default is read-only.
+
+    // Make "FileSystem" (directory) bundles writable (Default is read-only), except if it's a root directory.
+    // See explanation of `readOnly` OGRE flag in `ContentManager::InitModCache()`.
+    bool readonly = entry->resource_bundle_type == "Zip" || this->IsPathContentDirRoot(entry->resource_bundle_path);
     bool recursive = false;
 
     // Load now.
@@ -2160,3 +2185,4 @@ bool CacheQueryResult::operator<(CacheQueryResult const& other) const
 
     return cqr_score < other.cqr_score;
 }
+
