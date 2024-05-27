@@ -190,12 +190,19 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     {
         for (TObjTree tree : tobj->trees)
         {
-            this->ProcessTree(
-                tree.yaw_from, tree.yaw_to,
-                tree.scale_from, tree.scale_to,
-                tree.color_map, tree.density_map, tree.tree_mesh, tree.collision_mesh,
-                tree.grid_spacing, tree.high_density,
-                tree.min_distance, tree.max_distance, mapsizex, mapsizez);
+            try
+            {
+                this->ProcessTree(
+                    tree.yaw_from, tree.yaw_to,
+                    tree.scale_from, tree.scale_to,
+                    tree.color_map, tree.density_map, tree.tree_mesh, tree.collision_mesh,
+                    tree.grid_spacing, tree.high_density,
+                    tree.min_distance, tree.max_distance, mapsizex, mapsizez);
+            }
+            catch (...)
+            {
+                RoR::HandleGenericException(fmt::format("Error processing 'trees' line (mesh: {}) from TOBJ file {}", tree.tree_mesh, tobj_name));
+            }
         }
     }
 
@@ -204,19 +211,33 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     {
         for (TObjGrass grass : tobj->grass)
         {
-            this->ProcessGrass(
-                grass.sway_speed, grass.sway_length, grass.sway_distrib, grass.density,
-                grass.min_x, grass.min_y, grass.min_h,
-                grass.max_x, grass.max_y, grass.max_h,
-                grass.material_name, grass.color_map_filename, grass.density_map_filename,
-                grass.grow_techniq, grass.technique, grass.range, mapsizex, mapsizez);
+            try
+            {
+                this->ProcessGrass(
+                    grass.sway_speed, grass.sway_length, grass.sway_distrib, grass.density,
+                    grass.min_x, grass.min_y, grass.min_h,
+                    grass.max_x, grass.max_y, grass.max_h,
+                    grass.material_name, grass.color_map_filename, grass.density_map_filename,
+                    grass.grow_techniq, grass.technique, grass.range, mapsizex, mapsizez);
+            }
+            catch (...)
+            {
+                RoR::HandleGenericException(fmt::format("Error processing 'grass' line (material: {}) from TOBJ file {}", grass.material_name, tobj_name));
+            }
         }
     }
 
     // Procedural roads
     for (ProceduralObjectPtr& po : tobj->proc_objects)
     {
-        m_procedural_manager->addObject(po);
+        try
+        {
+            m_procedural_manager->addObject(po);
+        }
+        catch (...)
+        {
+            RoR::HandleGenericException(fmt::format("Error processing procedural road {} from TOBJ file {}", po->name, tobj_name));
+        }
     }
 
     // Vehicles
@@ -249,7 +270,14 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     // Entries
     for (TObjEntry entry : tobj->objects)
     {
-        this->LoadTerrainObject(entry.odef_name, entry.position, entry.rotation, entry.instance_name, entry.type, entry.rendering_distance);
+        try
+        {
+            this->LoadTerrainObject(entry.odef_name, entry.position, entry.rotation, entry.instance_name, entry.type, entry.rendering_distance);
+        }
+        catch (...)
+        {
+            RoR::HandleGenericException(fmt::format("Error processing object line (ODEF: {}) from TOBJ file {}", entry.odef_name, tobj_name));
+        }
     }
 
     if (App::diag_terrn_log_roads->getBool())
