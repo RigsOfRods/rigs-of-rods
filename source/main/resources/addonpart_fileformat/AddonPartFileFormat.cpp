@@ -793,9 +793,9 @@ void AddonPartUtility::RecordAddonpartConflicts(CacheEntryPtr addonpart1, CacheE
     }
 
     // NODE TWEAKS:
-    for (size_t i = 0; i < addonpart1->addonpart_data_only->node_tweaks.size(); i++)
+    for (auto& i_pair: addonpart1->addonpart_data_only->node_tweaks)
     {
-        NodeNum_t suspect = addonpart1->addonpart_data_only->node_tweaks[i].tnt_nodenum;
+        NodeNum_t suspect = i_pair.second.tnt_nodenum;
         TuneupNodeTweak* offender = nullptr;
         if (TuneupUtil::isNodeTweaked(addonpart2->addonpart_data_only, suspect, offender))
         {
@@ -805,9 +805,9 @@ void AddonPartUtility::RecordAddonpartConflicts(CacheEntryPtr addonpart1, CacheE
     }
 
     // WHEEL TWEAKS:
-    for (size_t i = 0; i < addonpart1->addonpart_data_only->wheel_tweaks.size(); i++)
+    for (auto& i_pair: addonpart1->addonpart_data_only->wheel_tweaks)
     {
-        WheelID_t suspect = addonpart1->addonpart_data_only->wheel_tweaks[i].twt_wheel_id;
+        WheelID_t suspect = i_pair.second.twt_wheel_id;
         TuneupWheelTweak* offender = nullptr;
         if (TuneupUtil::isWheelTweaked(addonpart2->addonpart_data_only, suspect, offender))
         {
@@ -817,9 +817,9 @@ void AddonPartUtility::RecordAddonpartConflicts(CacheEntryPtr addonpart1, CacheE
     }
 
     // PROP TWEAKS:
-    for (size_t i = 0; i < addonpart1->addonpart_data_only->prop_tweaks.size(); i++)
+    for (auto& i_pair:addonpart1->addonpart_data_only->prop_tweaks)
     {
-        PropID_t suspect = addonpart1->addonpart_data_only->prop_tweaks[i].tpt_prop_id;
+        PropID_t suspect = i_pair.second.tpt_prop_id;
         TuneupPropTweak* offender = nullptr;
         if (TuneupUtil::isPropTweaked(addonpart2->addonpart_data_only, suspect, offender))
         {
@@ -829,9 +829,9 @@ void AddonPartUtility::RecordAddonpartConflicts(CacheEntryPtr addonpart1, CacheE
     }
 
     // FLEXBODY TWEAKS:
-    for (size_t i = 0; i < addonpart1->addonpart_data_only->flexbody_tweaks.size(); i++)
+    for (auto& i_pair: addonpart1->addonpart_data_only->flexbody_tweaks)
     {
-        FlexbodyID_t suspect = addonpart1->addonpart_data_only->flexbody_tweaks[i].tft_flexbody_id;
+        FlexbodyID_t suspect = i_pair.second.tft_flexbody_id;
         TuneupFlexbodyTweak* offender = nullptr;
         if (TuneupUtil::isFlexbodyTweaked(addonpart2->addonpart_data_only, suspect, offender))
         {
