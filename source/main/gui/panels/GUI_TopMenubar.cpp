@@ -2507,7 +2507,10 @@ void TopMenubar::RefreshTuningMenu()
         {
             for (size_t i2 = i1; i2 < tuning_addonparts.size(); i2++)
             {
-                AddonPartUtility::RecordAddonpartConflicts(tuning_addonparts[i1], tuning_addonparts[i2], tuning_conflicts);
+                if (i1 != i2)
+                {
+                    AddonPartUtility::RecordAddonpartConflicts(tuning_addonparts[i1], tuning_addonparts[i2], tuning_conflicts);
+                }
             }
         }
 
