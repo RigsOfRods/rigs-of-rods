@@ -2394,14 +2394,19 @@ void ActorSpawner::ProcessManagedMaterial(RigDef::ManagedMaterial & def)
     // Create fallback placeholders
     // This is necessary to load meshes with original material names (= unchanged managed mat names)
     // - if not found, OGRE substitutes them with 'BaseWhite' which breaks subsequent processing.
-    if (Ogre::MaterialManager::getSingleton().getByName(def.name, resource_group).isNull())
+    // Note this must be done for all addonparts, too, as any of them can use managed materials defined in the truck file.
+    for (auto& module: m_selected_modules)
     {
-        LOG(fmt::format("[RoR] DBG ActorSpawner::ProcessManagedMaterial(): Creating placeholder for material '{}' in group '{}'", def.name, resource_group));
-        m_managedmat_placeholder_template->clone(def.name, /*changeGroup=*/true, resource_group);
-    }
-    else
-    {
-        LOG(fmt::format("[RoR] DBG ActorSpawner::ProcessManagedMaterial(): Placeholder already exists: '{}' in group '{}'", def.name, resource_group));
+        std::string module_rg = (module->origin_addonpart) ? module->origin_addonpart->resource_group : m_actor->getTruckFileResourceGroup();
+        if (Ogre::MaterialManager::getSingleton().getByName(def.name, module_rg).isNull())
+        {
+            LOG(fmt::format("[RoR] DBG ActorSpawner::ProcessManagedMaterial(): Creating placeholder for material '{}' in group '{}'", def.name, module_rg));
+            m_managedmat_placeholder_template->clone(def.name, /*changeGroup=*/true, module_rg);
+        }
+        else
+        {
+            LOG(fmt::format("[RoR] DBG ActorSpawner::ProcessManagedMaterial(): Placeholder already exists: '{}' in group '{}'", def.name, module_rg));
+        }
     }
 
     std::string custom_name = this->ComposeName(def.name);
