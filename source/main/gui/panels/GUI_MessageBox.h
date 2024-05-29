@@ -54,6 +54,7 @@ struct MessageBoxConfig
     CVar*       mbc_always_ask_conf = nullptr;         //!< If set, displays classic checkbox "[x] Always ask".
     bool*       mbc_close_handle = nullptr;            //!< External close handle - not required for `mbc_allow_close`.
     bool        mbc_allow_close = false;               //!< Show close handle even if `dbc_close_handle` isn't set.
+    float       mbc_content_width = 300.f;             //!< Parameter to `ImGui::SetContentWidth()` - hard limit on content size.
 
     std::vector<MessageBoxButton> mbc_buttons;
 };
