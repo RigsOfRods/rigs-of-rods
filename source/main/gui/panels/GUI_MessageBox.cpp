@@ -56,6 +56,14 @@ void MessageBoxDialog::Show(MessageBoxConfig const& cfg)
     {
         m_close_handle = nullptr;
     }
+
+    std::stringstream ss;
+    ss << "[RoR|MessageBox] Showing a message box\n<MessageBox title> " << cfg.mbc_title << "\n<MessageBox text> " << cfg.mbc_text << "'";
+    for (MessageBoxButton const& button: cfg.mbc_buttons)
+    {
+        ss << "\n<MessageBox button> '" << button.mbb_caption << "' (MsgType: " << MsgTypeToString(button.mbb_mq_message) << ")";
+    }
+    LOG(ss.str());
 }
 
 void MessageBoxDialog::Show(const char* title, const char* text, bool allow_close, const char* button1_text, const char* button2_text)

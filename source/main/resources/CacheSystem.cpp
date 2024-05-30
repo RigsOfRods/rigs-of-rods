@@ -1817,47 +1817,30 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
     case ModifyProjectRequestType::TUNEUP_USE_ADDONPART_SET:
     {   
         request->mpr_target_actor->ensureWorkingTuneupDef();
-        if (request->mpr_target_actor->getWorkingTuneupDef()->use_addonparts.count(request->mpr_subject) == 0)
+        if (request->mpr_target_actor->getWorkingTuneupDef()->use_addonparts.count(request->mpr_subject) != 0)
         {
-            // Re-check conflicts (request may come from 'Browse all' button or script).
-            CacheEntryPtr subject_entry = this->FindEntryByFilename(LT_AddonPart, /*partial=*/false, request->mpr_subject);
-            AddonPartConflictVec conflicts;
-            for (const std::string& use_addonpart: request->mpr_target_actor->getWorkingTuneupDef()->use_addonparts)
-            {
-                CacheEntryPtr use_entry = this->FindEntryByFilename(LT_AddonPart, /*partial=*/false, use_addonpart);
-                AddonPartUtility::RecordAddonpartConflicts(subject_entry, use_entry, conflicts);
-            }
-            if (conflicts.size() == 0)
-            {
-                request->mpr_target_actor->getWorkingTuneupDef()->use_addonparts.insert(request->mpr_subject);
-            }
-            else
-            {
-                GUI::MessageBoxConfig* dialog = new GUI::MessageBoxConfig;
-                dialog->mbc_allow_close = true;
-                dialog->mbc_content_width = 700.f;
-                dialog->mbc_title = fmt::format(_LC("Tuning", "Cannot install addon part, conflicts were detected."), request->mpr_subject); 
-                dialog->mbc_text = fmt::format(_LC("Tuning", "Requested addon part: '{}' (file '{}')."), subject_entry->dname, subject_entry->fname);
-                dialog->mbc_text += "\n";
-                dialog->mbc_text += fmt::format(_LC("Tuning", "Total conflicts: {}."), conflicts.size());
-                dialog->mbc_text += "\n";
-                for (size_t i=0; i < conflicts.size(); i++)
-                {
-                    dialog->mbc_text += "\n";
-                    dialog->mbc_text += fmt::format(_LC("Tuning", "[{}/{}] '{}' (file '{}') conflicts with '{}' #{}."),
-                        i+1, conflicts.size(),
-                        conflicts[i].atc_addonpart2->dname, conflicts[i].atc_addonpart2->fname,
-                        conflicts[i].atc_keyword, conflicts[i].atc_element_id);
-                }
-                App::GetGameContext()->PushMessage(Message(MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED, (void*)dialog));
-            }
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format(_LC("Tuning", "Addon part '{}' is already equipped."), request->mpr_subject));
+            return; // Nothing to do!
+        }
+        
+        CacheEntryPtr subject_entry = this->FindEntryByFilename(LT_AddonPart, /*partial=*/false, request->mpr_subject);
+        if (!subject_entry)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format(_LC("Tuning", "Addon part '{}' was not found in mod cache (probably not installed)."), request->mpr_subject));
+            return; // Nothing to do!
+        }
+
+        if (AddonPartUtility::DoubleCheckForAddonpartConflict(request->mpr_target_actor, subject_entry))
+        {
+            return; // Error message box already shown
         }
         else
         {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
-                fmt::format(_LC("Tuning", "Addon part '{}' is already installed."), request->mpr_subject));
+            request->mpr_target_actor->getWorkingTuneupDef()->use_addonparts.insert(request->mpr_subject);
         }
-        
+
         break;
     }
 

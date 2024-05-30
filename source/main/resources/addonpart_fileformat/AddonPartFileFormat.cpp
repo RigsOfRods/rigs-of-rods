@@ -21,10 +21,13 @@
 
 #include "AddonPartFileFormat.h"
 
+#include "Actor.h"
 #include "Application.h"
 #include "CacheSystem.h"
 #include "Console.h"
+#include "GameContext.h"
 #include "GenericFileFormat.h"
+#include "GUI_MessageBox.h"
 #include "RigDef_Parser.h"
 #include "TuneupFileFormat.h"
 
@@ -867,4 +870,47 @@ void AddonPartUtility::Log(const std::string& text)
     {
         LOG(text);
     }
+}
+
+bool AddonPartUtility::DoubleCheckForAddonpartConflict(ActorPtr target_actor, CacheEntryPtr addonpart_entry)
+{
+    // Re-check conflicts (request may come from 'Browse all' button or script).
+    // -------------------------------------------------------------------------
+            
+    AddonPartConflictVec conflicts;
+    for (const std::string& use_addonpart: target_actor->getWorkingTuneupDef()->use_addonparts)
+    {
+        CacheEntryPtr use_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AddonPart, /*partial=*/false, use_addonpart);
+        AddonPartUtility::RecordAddonpartConflicts(addonpart_entry, use_entry, conflicts);
+    }
+
+    if (conflicts.size() > 0)
+    {
+        // Messagebox text
+        GUI::MessageBoxConfig* dialog = new GUI::MessageBoxConfig;
+        dialog->mbc_content_width = 700.f;
+        dialog->mbc_title = _LC("Tuning", "Cannot install addon part, conflicts were detected.");
+        dialog->mbc_text = fmt::format(_LC("Tuning", "Requested addon part: '{}' (file '{}')."), addonpart_entry->dname, addonpart_entry->fname);
+        dialog->mbc_text += "\n";
+        dialog->mbc_text += fmt::format(_LC("Tuning", "Total conflicts: {}."), conflicts.size());
+        dialog->mbc_text += "\n";
+        for (size_t i=0; i < conflicts.size(); i++)
+        {
+            dialog->mbc_text += "\n";
+            dialog->mbc_text += fmt::format(_LC("Tuning", "[{}/{}] '{}' (file '{}') conflicts with '{}' #{}."),
+                i+1, conflicts.size(),
+                conflicts[i].atc_addonpart2->dname, conflicts[i].atc_addonpart2->fname,
+                conflicts[i].atc_keyword, conflicts[i].atc_element_id);
+        }
+
+        // Messagebox OK button
+        GUI::MessageBoxButton ok_btn;
+        ok_btn.mbb_caption = _LC("Tuning", "OK");
+        ok_btn.mbb_mq_message = MSG_GUI_HIDE_MESSAGE_BOX_REQUESTED;
+        dialog->mbc_buttons.push_back(ok_btn);
+        
+        // Show the messagebox
+        App::GetGameContext()->PushMessage(Message(MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED, (void*)dialog));
+    }
+    return conflicts.size() > 0;
 }
