@@ -66,6 +66,8 @@ public:
 
     static bool CheckForAddonpartConflict(CacheEntryPtr addonpart1, CacheEntryPtr addonpart2, AddonPartConflictVec& conflicts);
 
+    static bool DoubleCheckForAddonpartConflict(ActorPtr target_actor, CacheEntryPtr addonpart_entry);
+
 private:
     // Helpers of `TransformToRigDefModule()`, they expect `m_context` to be in position:
     void ProcessManagedMaterial();
