@@ -463,7 +463,7 @@ void AddonPartUtility::ProcessUnwantedFlare()
     {
         if (!m_tuneup->isFlareProtected((FlareID_t)m_context->getTokFloat(1)))
         {
-            m_tuneup->unwanted_flexbodies.insert((FlareID_t)m_context->getTokFloat(1));
+            m_tuneup->unwanted_flares.insert((FlareID_t)m_context->getTokFloat(1));
             this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': marking flare '{}' as UNWANTED",
                 m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
         }
