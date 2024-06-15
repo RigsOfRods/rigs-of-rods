@@ -519,11 +519,12 @@ FlexBody::FlexBody(
     }
 }
 
-FlexBody::FlexBody(FlexBodyPlaceholder_t ticket, FlexbodyID_t id, const std::string& orig_meshname)
+FlexBody::FlexBody(PlaceholderType p_type, FlexbodyID_t id, const std::string& orig_meshname)
 {
     m_camera_mode = CAMERA_MODE_ALWAYS_HIDDEN;
     m_id = id;
     m_orig_mesh_name = orig_meshname;
+    m_placeholder_type = p_type;
 }
 
 FlexBody::~FlexBody()
@@ -537,6 +538,18 @@ FlexBody::~FlexBody()
     if (m_src_colors  != nullptr) { free(m_src_colors ); }
 
     this->destroyOgreObjects();
+}
+
+/*static*/ const char* FlexBody::PlaceholderTypeToString(PlaceholderType type)
+{
+    switch (type)
+    {
+    case PlaceholderType::NOT_A_PLACEHOLDER: return "NOT_A_PLACEHOLDER";
+    case PlaceholderType::TUNING_REMOVED_PLACEHOLDER: return "TUNING_REMOVED_PLACEHOLDER";
+    case PlaceholderType::FAULTY_FORSET_PLACEHOLDER: return "FAULTY_FORSET_PLACEHOLDER";
+    case PlaceholderType::FAULTY_MESH_PLACEHOLDER: return "FAULTY_MESH_PLACEHOLDER";
+    default: return "";
+    }
 }
 
 void FlexBody::destroyOgreObjects()

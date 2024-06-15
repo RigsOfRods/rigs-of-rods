@@ -1521,7 +1521,7 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
     if (TuneupUtil::isFlexbodyAnyhowRemoved(m_actor->getWorkingTuneupDef(), flexbody_id))
     {
         // Create placeholder
-        m_actor->m_gfx_actor->m_flexbodies.emplace_back(new FlexBody(FlexBody::TUNING_PLACEHOLDER, flexbody_id, def.mesh_name));
+        m_actor->m_gfx_actor->m_flexbodies.emplace_back(new FlexBody(FlexBody::PlaceholderType::TUNING_REMOVED_PLACEHOLDER, flexbody_id, def.mesh_name));
         return;
     }
 
@@ -1541,17 +1541,17 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
 
     if (! nodes_found)
     {
-        this->AddMessage(Message::TYPE_ERROR, "Failed to collect nodes from node-ranges, skipping flexbody: " + def.mesh_name);
+        this->AddMessage(Message::TYPE_ERROR, "Failed to collect nodes from 'forset' at flexbody: " + def.mesh_name);
+        // Create placeholder too keep the order of flexbodies (helps Tuning and diagnostics)
+        m_actor->m_gfx_actor->m_flexbodies.emplace_back(new FlexBody(FlexBody::PlaceholderType::FAULTY_FORSET_PLACEHOLDER, flexbody_id, def.mesh_name));
         return;
     }
-
-
 
     m_actor->GetGfxActor()->UpdateSimDataBuffer(); // fill all current nodes - needed to setup flexing meshes
 
     try
     {
-        auto* flexbody = m_flex_factory.CreateFlexBody(
+        FlexBody* flexbody = m_flex_factory.CreateFlexBody(
             (FlexbodyID_t)m_actor->m_gfx_actor->m_flexbodies.size(),
             this->GetNodeIndexOrThrow(def.reference_node),
             this->GetNodeIndexOrThrow(def.x_axis_node),
@@ -1563,19 +1563,17 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
             TuneupUtil::getTweakedFlexbodyMediaRG(m_actor->getWorkingTuneupDef(), flexbody_id, 0, this->GetCurrentElementMediaRG())
         );
 
-        if (flexbody == nullptr)
-            return; // Error already logged
-
         // Dynamic visibility - same as with props
         flexbody->fb_camera_mode_orig = def.camera_settings.mode;
         flexbody->fb_camera_mode_active = def.camera_settings.mode;
-
         m_actor->m_gfx_actor->m_flexbodies.emplace_back(flexbody);
     }
     catch (Ogre::Exception& e)
     {
-        this->AddMessage(Message::TYPE_ERROR, 
-            "Failed to create flexbody '" + def.mesh_name + "', reason:" + e.getFullDescription());
+        // Ogre::Exception description already logged by OGRE
+        this->AddMessage(Message::TYPE_ERROR, "Failed to create flexbody '" + def.mesh_name + "'");
+        // Create placeholder too keep the order of flexbodies (helps Tuning and diagnostics)
+        m_actor->m_gfx_actor->m_flexbodies.emplace_back(new FlexBody(FlexBody::PlaceholderType::FAULTY_MESH_PLACEHOLDER, flexbody_id, def.mesh_name));
     }
 }
 

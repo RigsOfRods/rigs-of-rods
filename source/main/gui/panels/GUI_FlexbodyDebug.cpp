@@ -77,7 +77,7 @@ void FlexbodyDebug::Draw()
     // Fetch the element (prop or flexbody)
     FlexBody* flexbody = nullptr;
     Prop* prop = nullptr;
-    Ogre::MaterialPtr mat; // Assume one submesh (=> subentity)
+    Ogre::MaterialPtr mat; // Assume one submesh (=> subentity); can be NULL if the flexbody is a placeholder, see `FlexBodyPlaceholder_t`
     NodeNum_t node_ref = NODENUM_INVALID, node_x = NODENUM_INVALID, node_y = NODENUM_INVALID;
     std::string mesh_name;
     if (actor->GetGfxActor()->getProps().size() > 0
@@ -97,7 +97,10 @@ void FlexbodyDebug::Draw()
     else
     {
         flexbody = actor->GetGfxActor()->GetFlexbodies()[m_combo_selection];
-        mat = flexbody->getEntity()->getSubEntity(0)->getMaterial();
+        if (flexbody->getPlaceholderType() == FlexBody::PlaceholderType::NOT_A_PLACEHOLDER)
+        {
+            mat = flexbody->getEntity()->getSubEntity(0)->getMaterial();
+        }
         node_ref = flexbody->getRefNode();
         node_x = flexbody->getXNode();
         node_y = flexbody->getYNode();
@@ -184,8 +187,17 @@ void FlexbodyDebug::AnalyzeFlexbodies()
     {
         for (FlexBody* fb : actor->GetGfxActor()->GetFlexbodies())
         {
-            ImAddItemToComboboxString(m_combo_items,
-                fmt::format("{} ({} verts -> {} nodes)", fb->getOrigMeshName(), fb->getVertexCount(), fb->getForsetNodes().size()));
+            if (fb->getPlaceholderType() == FlexBody::PlaceholderType::NOT_A_PLACEHOLDER)
+            {
+                ImAddItemToComboboxString(m_combo_items, fmt::format("{} ({} verts -> {} nodes)",
+                    fb->getOrigMeshName(), fb->getVertexCount(), fb->getForsetNodes().size()));
+            }
+            else
+            {
+                ImAddItemToComboboxString(m_combo_items, fmt::format("{} ({})",
+                    fb->getOrigMeshName(), FlexBody::PlaceholderTypeToString(fb->getPlaceholderType())));
+                
+            }
             num_combo_items++;
         }
 
