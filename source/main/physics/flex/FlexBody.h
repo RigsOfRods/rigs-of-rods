@@ -59,8 +59,14 @@ class FlexBody
 
 public:
 
-    typedef int FlexBodyPlaceholder_t;
-    static const FlexBodyPlaceholder_t TUNING_PLACEHOLDER = -11;
+    enum class PlaceholderType
+    {
+        NOT_A_PLACEHOLDER,
+        TUNING_REMOVED_PLACEHOLDER,
+        FAULTY_FORSET_PLACEHOLDER,
+        FAULTY_MESH_PLACEHOLDER,
+    };
+    static const char* PlaceholderTypeToString(PlaceholderType type);
 
     /// @name Visibility control (same as prop - see file GfxData.h)
     /// @{
@@ -68,7 +74,7 @@ public:
     CameraMode_t          fb_camera_mode_orig = CAMERA_MODE_ALWAYS_VISIBLE;   //!< Dynamic visibility mode {0 and higher = cinecam index}
     /// @}
 
-    FlexBody(FlexBodyPlaceholder_t, FlexbodyID_t id, const std::string& orig_meshname);
+    FlexBody(PlaceholderType, FlexbodyID_t id, const std::string& orig_meshname);
     ~FlexBody();
 
     void reset();
@@ -97,6 +103,7 @@ public:
     NodeNum_t getYNode() { return m_node_y; }
 
     FlexbodyID_t getID() const { return m_id; }
+    PlaceholderType getPlaceholderType() const { return m_placeholder_type; }
     void destroyOgreObjects();
 
 private:
@@ -107,6 +114,7 @@ private:
     size_t            m_vertex_count = 0;
     Ogre::Vector3     m_flexit_center = Ogre::Vector3::ZERO; //!< Updated per frame
     FlexbodyID_t      m_id = FLEXBODYID_INVALID; // Filled by FlexFactory
+    PlaceholderType   m_placeholder_type = PlaceholderType::NOT_A_PLACEHOLDER;
 
     Ogre::Vector3*    m_dst_pos = nullptr;
     Ogre::Vector3*    m_src_normals = nullptr;
