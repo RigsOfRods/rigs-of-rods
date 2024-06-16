@@ -360,6 +360,11 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
 {
     ActorPtr actor = m_actor_manager.GetActorById(rq.amr_actor);
 
+    if (!actor)
+    {
+        return;
+    }
+
     if (rq.amr_type == ActorModifyRequest::Type::SOFT_RESET)
     {
         actor->SoftReset();
