@@ -627,7 +627,10 @@ void VehicleButtons::DrawActorPhysicsButton(RoR::GfxActor* actorx)
 
     if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(m_actor_physics_icon->getHandle()), ImVec2(24, 24)))
     {
-        // NOTE: Syncing with linked actors is done in `SyncLinkedActors()`
+        for (ActorPtr& actor : actorx->GetActor()->ar_linked_actors)
+        {
+            actor->ar_physics_paused = !actorx->GetActor()->ar_physics_paused;
+        }
         actorx->GetActor()->ar_physics_paused = !actorx->GetActor()->ar_physics_paused;
     }
 
