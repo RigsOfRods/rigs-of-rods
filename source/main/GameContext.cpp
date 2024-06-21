@@ -46,7 +46,6 @@
 #include "TuneupFileFormat.h"
 #include "Utils.h"
 #include "VehicleAI.h"
-#include "GUI_VehicleButtons.h"
 
 using namespace RoR;
 
@@ -1472,20 +1471,10 @@ void GameContext::UpdateCommonInputEvents(float dt)
         App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
     }
 
-    // all commands
-    for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
+    // Apply command buttons in T-screen
+    if (App::GetGuiManager()->VehicleInfoTPanel.GetActiveCommandKey() != COMMANDKEYID_INVALID)
     {
-        int eventID = EV_COMMANDS_01 + (i - 1);
-
-        m_player_actor->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
-
-        for (auto id: App::GetGuiManager()->VehicleButtons.GetCommandEventID())
-        {
-            if (id == eventID)
-            {
-                m_player_actor->ar_command_key[i].playerInputValue = 1.f;
-            }
-        }
+        m_player_actor->ar_command_key[App::GetGuiManager()->VehicleInfoTPanel.GetActiveCommandKey()].playerInputValue = 1.f;
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_FORWARDCOMMANDS))
@@ -1866,7 +1855,8 @@ void GameContext::UpdateTruckInputEvents(float dt)
     }
     else
     {
-        if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN) || App::GetGuiManager()->VehicleButtons.GetHornButtonState())
+        if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN)
+            || App::GetGuiManager()->VehicleInfoTPanel.IsHornButtonActive())
         {
             SOUND_START(m_player_actor, SS_TRIG_HORN);
         }

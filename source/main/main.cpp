@@ -41,7 +41,7 @@
 #include "GUI_MultiplayerSelector.h"
 #include "GUI_MultiplayerClientList.h"
 #include "GUI_RepositorySelector.h"
-#include "GUI_SimActorStats.h"
+#include "GUI_VehicleInfoTPanel.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
 #include "InputEngine.h"
@@ -1713,7 +1713,7 @@ int main(int argc, char *argv[])
                 }
                 if (App::GetGameContext()->GetPlayerActor())
                 {
-                    App::GetGuiManager()->SimActorStats.UpdateStats(dt, App::GetGameContext()->GetPlayerActor());
+                    App::GetGuiManager()->VehicleInfoTPanel.UpdateStats(dt, App::GetGameContext()->GetPlayerActor());
                     if (App::GetGuiManager()->FrictionSettings.IsVisible())
                     {
                         App::GetGuiManager()->FrictionSettings.setActiveCol(App::GetGameContext()->GetPlayerActor()->ar_last_fuzzy_ground_model);

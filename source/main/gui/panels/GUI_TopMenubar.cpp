@@ -340,7 +340,7 @@ void TopMenubar::Draw(float dt)
             {
                 if (ImGui::Button(_LC("TopMenubar", "Show vehicle description")))
                 {
-                    App::GetGuiManager()->VehicleDescription.SetVisible(true);
+                    App::GetGuiManager()->VehicleInfoTPanel.SetVisible(VehicleInfoTPanel::TPANELMODE_OPAQUE, VehicleInfoTPanel::TPANELFOCUS_COMMANDS);
                 }
 
                 if (current_actor->ar_state != ActorState::NETWORKED_OK)
@@ -796,64 +796,6 @@ void TopMenubar::Draw(float dt)
                 ImGui::Text("%s", _LC("TopMenubar", "2 = Wireframe"));
                 ImGui::Text("%s", _LC("TopMenubar", "3 = Points"));
                 ImGui::EndTooltip();
-            }
-
-            if (current_actor != nullptr)
-            {
-                ImGui::Separator();
-
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Live diagnostic views:"));
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", fmt::format(_LC("TopMenubar", "(Toggle with {})"), App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_DEBUG_VIEW)).c_str());
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", fmt::format(_LC("TopMenubar", "(Cycle with {})"), App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_CYCLE_DEBUG_VIEWS)).c_str());
-
-                int debug_view_type = static_cast<int>(DebugViewType::DEBUGVIEW_NONE);
-                if (current_actor != nullptr)
-                {
-                    debug_view_type = static_cast<int>(current_actor->GetGfxActor()->GetDebugView());
-                }
-                ImGui::RadioButton(_LC("TopMenubar", "Normal view"),     &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_NONE));
-                ImGui::RadioButton(_LC("TopMenubar", "Skeleton view"),   &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_SKELETON));
-                ImGui::RadioButton(_LC("TopMenubar", "Node details"),    &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_NODES));
-                ImGui::RadioButton(_LC("TopMenubar", "Beam details"),    &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_BEAMS));
-                if (current_actor->ar_num_wheels > 0)
-                {
-                    ImGui::RadioButton(_LC("TopMenubar", "Wheel details"),   &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_WHEELS));
-                }
-                if (current_actor->ar_num_shocks > 0)
-                {
-                    ImGui::RadioButton(_LC("TopMenubar", "Shock details"),   &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_SHOCKS));
-                }
-                if (current_actor->ar_num_rotators > 0)
-                {
-                    ImGui::RadioButton(_LC("TopMenubar", "Rotator details"), &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_ROTATORS));
-                }
-                if (current_actor->hasSlidenodes())
-                {
-                    ImGui::RadioButton(_LC("TopMenubar", "Slidenode details"), &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_SLIDENODES));
-                }
-                if (current_actor->ar_num_cabs > 0)
-                {
-                    ImGui::RadioButton(_LC("TopMenubar", "Submesh details"), &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_SUBMESH));
-                }
-
-                if ((current_actor != nullptr) && (debug_view_type != static_cast<int>(current_actor->GetGfxActor()->GetDebugView())))
-                {
-                    current_actor->GetGfxActor()->SetDebugView(static_cast<DebugViewType>(debug_view_type));
-                }
-
-                if (debug_view_type >= 1 && debug_view_type <= static_cast<int>(DebugViewType::DEBUGVIEW_BEAMS)) 
-                {
-                    ImGui::Separator();
-                    ImGui::TextColored(GRAY_HINT_TEXT, "%s",     _LC("TopMenubar", "Settings:"));
-                    DrawGCheckbox(App::diag_hide_broken_beams,   _LC("TopMenubar", "Hide broken beams"));
-                    DrawGCheckbox(App::diag_hide_beam_stress,    _LC("TopMenubar", "Hide beam stress"));
-                    DrawGCheckbox(App::diag_hide_wheels,         _LC("TopMenubar", "Hide wheels"));
-                    DrawGCheckbox(App::diag_hide_nodes,          _LC("TopMenubar", "Hide nodes"));
-                    if (debug_view_type >= 2)
-                    {
-                        DrawGCheckbox(App::diag_hide_wheel_info, _LC("TopMenubar", "Hide wheel info"));
-                    }
-                }
             }
 
             m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
