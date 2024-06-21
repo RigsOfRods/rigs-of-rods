@@ -701,6 +701,15 @@ private:
     command_t m_dummykey;
 };
 
+/// UI helper for displaying command control keys to user.
+/// Reconstructing such list on runtime isn't possible, we must build it on spawn.
+struct UniqueCommandKeyPair
+{
+    std::string uckp_description;
+    CommandkeyID_t uckp_key1 = COMMANDKEYID_INVALID;
+    CommandkeyID_t uckp_key2 = COMMANDKEYID_INVALID;
+};
+
 /// @}
 
 // --------------------------------

@@ -3665,6 +3665,31 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
 
     m_actor->m_num_command_beams++;
     m_actor->m_has_command_beams = true;
+
+    // Update the unique pair list
+    bool must_insert_qpair = true;
+    for (UniqueCommandKeyPair& qpair: m_actor->ar_unique_commandkey_pairs)
+    {
+        // seek match on both keys (in any order)
+        if ((def.contract_key == qpair.uckp_key1 && def.extend_key == qpair.uckp_key2)
+            || (def.contract_key == qpair.uckp_key2 && def.extend_key == qpair.uckp_key1))
+        {
+            must_insert_qpair = false;
+            if (def.description != "")
+            {
+                qpair.uckp_description = def.description; // Last description always wins
+            }
+            break;
+        }
+    }
+    if (must_insert_qpair)
+    {
+        UniqueCommandKeyPair qpair;
+        qpair.uckp_key1 = def.contract_key;
+        qpair.uckp_key2 = def.extend_key;
+        qpair.uckp_description = def.description;
+        m_actor->ar_unique_commandkey_pairs.push_back(qpair);
+    }
 }
 
 void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
