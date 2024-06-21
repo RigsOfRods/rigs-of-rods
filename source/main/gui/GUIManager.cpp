@@ -163,15 +163,9 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
 {
     this->DrawCommonGui();
 
-    if (player_gfx_actor && this->SimActorStats.IsVisible())
+    if (player_gfx_actor && !this->SimPerfStats.IsVisible())
     {
-        this->SimActorStats.Draw(player_gfx_actor);
-    }
-
-    if (player_gfx_actor && player_gfx_actor->GetActor()->ar_state == ActorState::LOCAL_SIMULATED && 
-        !this->SimActorStats.IsVisible() && !this->SimPerfStats.IsVisible() && !this->GameMainMenu.IsVisible())
-    {
-        this->VehicleButtons.Draw(player_gfx_actor);
+        this->VehicleInfoTPanel.Draw(player_gfx_actor);
     }
 
     if (!this->ConsoleWindow.IsVisible())
@@ -190,11 +184,6 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
     if (this->FrictionSettings.IsVisible())
     {
         this->FrictionSettings.Draw();
-    }
-
-    if (this->VehicleDescription.IsVisible())
-    {
-        this->VehicleDescription.Draw();
     }
 
     if (this->SimPerfStats.IsVisible())
@@ -489,16 +478,30 @@ void GUIManager::UpdateInputEvents(float dt)
             this->ChatBox.SetVisible(!this->ChatBox.IsVisible());
         }
 
-        // EV_COMMON_TRUCK_INFO - Vehicle status panel
+        // EV_COMMON_TRUCK_INFO - Vehicle info side-panel (aka The T-Screen)
         if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_INFO) && App::GetGameContext()->GetPlayerActor())
         {
-            this->SimActorStats.SetVisible(!this->SimActorStats.IsVisible());
+            if (this->VehicleInfoTPanel.IsVisible(GUI::VehicleInfoTPanel::TPANELFOCUS_STATS))
+            {
+                this->VehicleInfoTPanel.SetVisible(GUI::VehicleInfoTPanel::TPANELMODE_HIDDEN);
+            }
+            else
+            {
+                this->VehicleInfoTPanel.SetVisible(GUI::VehicleInfoTPanel::TPANELMODE_OPAQUE, GUI::VehicleInfoTPanel::TPANELFOCUS_STATS);
+            }
         }
 
-        // EV_COMMON_TRUCK_DESCRIPTION - Vehicle controls and details
+        // EV_COMMON_TRUCK_DESCRIPTION - The T-screen with commands
         if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_TRUCK_DESCRIPTION) && App::GetGameContext()->GetPlayerActor())
         {
-            this->VehicleDescription.SetVisible(!this->VehicleDescription.IsVisible());
+            if (this->VehicleInfoTPanel.IsVisible(GUI::VehicleInfoTPanel::TPANELFOCUS_COMMANDS))
+            {
+                this->VehicleInfoTPanel.SetVisible(GUI::VehicleInfoTPanel::TPANELMODE_HIDDEN);
+            }
+            else
+            {
+                this->VehicleInfoTPanel.SetVisible(GUI::VehicleInfoTPanel::TPANELMODE_OPAQUE, GUI::VehicleInfoTPanel::TPANELFOCUS_COMMANDS);
+            }
         }
 
         // EV_COMMON_TOGGLE_DASHBOARD

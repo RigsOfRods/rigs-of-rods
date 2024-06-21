@@ -403,6 +403,7 @@ enum events
     EV_MODE_BEFORELAST,
     EV_MODE_LAST
 };
+const events EV_INVALID = (events)-1;
 
 struct InputEvent
 {

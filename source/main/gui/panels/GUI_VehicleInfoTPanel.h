@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2019 Petr Ohlidal
+    Copyright 2013-2024 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -19,27 +19,84 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// @author tritonas00
-/// @date   04/2022
+/// @author Petr Ohlidal
+/// @date   10/2019
+///   Based on SimUtils - TruckInfo by Moncef Ben Slimane, 12/2014
+///   Iconified buttons by tritonas00, 2021
 
 #pragma once
 
 #include "ForwardDeclarations.h"
 
-#include <vector>
-#include <Ogre.h>
-
 namespace RoR {
 namespace GUI {
 
-class VehicleButtons
+class VehicleInfoTPanel
 {
 public:
+    enum TPanelMode { TPANELMODE_HIDDEN, TPANELMODE_OPAQUE, TPANELMODE_TRANSLUCENT };
+    enum TPanelFocus { TPANELFOCUS_NONE, TPANELFOCUS_BASICS, TPANELFOCUS_COMMANDS, TPANELFOCUS_STATS, TPANELFOCUS_DIAG };
+
+    void SetVisible(TPanelMode mode, TPanelFocus focus = TPANELFOCUS_NONE);
+    bool IsVisible(TPanelFocus focus = TPANELFOCUS_NONE) const { return m_visibility_mode == TPANELMODE_OPAQUE && (focus == TPANELFOCUS_NONE || focus == m_current_focus); }
+    CommandkeyID_t GetActiveCommandKey() const { return m_active_commandkey; }
+    bool IsHornButtonActive() const { return m_horn_btn_active; }
+
+    void UpdateStats(float dt, ActorPtr actor); //!< Caution: touches live data, must be synced with sim. thread
     void Draw(RoR::GfxActor* actorx);
-    bool GetHornButtonState() { return m_horn; }
-    std::vector<int> GetCommandEventID() { return m_id; }
 
 private:
+    /// @name The T panel itself
+    /// @{
+    TPanelMode m_visibility_mode = TPANELMODE_HIDDEN;
+    TPanelFocus m_requested_focus = TPANELFOCUS_NONE; //!< Requested by `SetVisible()`
+    TPanelFocus m_current_focus = TPANELFOCUS_NONE; //!< Updated based on currently open tab
+    Ogre::Timer m_startupdemo_timer;
+    bool m_startupdemo_init = false;
+    ImVec4 m_panel_translucent_color = ImVec4(0.1f, 0.1f, 0.1f, 0.5f);
+    ImVec4 m_transluc_textdis_color = ImVec4(0.05f, 0.05f, 0.05f, 1.f);
+    /// @}
+
+    /// @name 'Vehicle commands' tab
+    /// @{
+    void DrawVehicleCommandsUI(RoR::GfxActor* actorx);
+    void DrawVehicleCommandHighlights(RoR::GfxActor* actorx);
+    
+    CommandkeyID_t m_active_commandkey = COMMANDKEYID_INVALID;
+    CommandkeyID_t m_hovered_commandkey = COMMANDKEYID_INVALID;
+    std::array<float, 3> m_command_column_calc_width = { 0, 0, 0 };
+    
+    ImVec4 m_cmdbeam_highlight_color = ImVec4(0.733f, 1.f, 0.157f, 0.745f);
+    float m_cmdbeam_highlight_thickness = 15.f;
+    ImVec4 m_command_hovered_text_color = ImVec4(0.1f, 0.1f, 0.1f, 1.f);
+    bool m_helptext_fullsize = false;
+    /// @}
+   
+    /// @name 'Vehicle stats' tab
+    /// @{
+    void DrawVehicleStatsUI(RoR::GfxActor* actorx);
+    float m_stat_health         = 0.f;
+    int   m_stat_broken_beams   = 0;
+    int   m_stat_deformed_beams = 0;
+    float m_stat_beam_stress    = 0.f;
+    float m_stat_mass_Kg        = 0.f;
+    float m_stat_avg_deform     = 0.f;
+    float m_stat_gcur_x         = 0.f;
+    float m_stat_gcur_y         = 0.f;
+    float m_stat_gcur_z         = 0.f;
+    float m_stat_gmax_x         = 0.f;
+    float m_stat_gmax_y         = 0.f;
+    float m_stat_gmax_z         = 0.f;
+    /// @}
+
+    /// @name 'Vehicle diagnostics (skeletonview)' tab
+    /// @{
+    void DrawVehicleDiagUI(RoR::GfxActor* actorx);
+    /// @}
+
+    /// @name 'Vehicle basics (buttons)' tab
+    /// @{
+    void DrawVehicleBasicsUI(RoR::GfxActor* actorx);
     void DrawHeadLightButton(RoR::GfxActor* actorx);
     void DrawLeftBlinkerButton(RoR::GfxActor* actorx);
     void DrawRightBlinkerButton(RoR::GfxActor* actorx);
@@ -50,7 +107,6 @@ private:
     void DrawParkingBrakeButton(RoR::GfxActor* actorx);
     void DrawTractionControlButton(RoR::GfxActor* actorx);
     void DrawAbsButton(RoR::GfxActor* actorx);
-    void DrawPhysicsButton();
     void DrawActorPhysicsButton(RoR::GfxActor* actorx);
     void DrawAxleDiffButton(RoR::GfxActor* actorx);
     void DrawWheelDiffButton(RoR::GfxActor* actorx);
@@ -61,18 +117,12 @@ private:
     void DrawShiftModeButton(RoR::GfxActor* actorx);
     void DrawEngineButton(RoR::GfxActor* actorx);
     void DrawCustomLightButton(RoR::GfxActor* actorx);
-    void DrawCommandButton(RoR::GfxActor* actorx);
     void DrawLockButton(RoR::GfxActor* actorx);
     void DrawSecureButton(RoR::GfxActor* actorx);
     void DrawCruiseControlButton(RoR::GfxActor* actorx);
     void DrawCameraButton();
     void CacheIcons();
-    bool m_horn = false;
-    std::vector<int> m_id;
-    Ogre::Timer m_timer;
-    bool m_init = false;
-
-    // Icon cache
+    bool m_horn_btn_active = false;
     bool m_icons_cached = false;
     Ogre::TexturePtr m_headlight_icon;
     Ogre::TexturePtr m_left_blinker_icon;
@@ -98,7 +148,10 @@ private:
     Ogre::TexturePtr m_lock_icon;
     Ogre::TexturePtr m_secure_icon;
     Ogre::TexturePtr m_cruise_control_icon;
+    /// @}
 };
+
+
 
 } // namespace GUI
 } // namespace RoR

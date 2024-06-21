@@ -134,12 +134,10 @@ set(SOURCE_FILES
         gui/panels/GUI_MultiplayerSelector.{h,cpp}
         gui/panels/GUI_MultiplayerClientList.{h,cpp}
         gui/panels/GUI_NodeBeamUtils.{h,cpp}
-        gui/panels/GUI_SimActorStats.{h,cpp}
+        gui/panels/GUI_VehicleInfoTPanel.{h,cpp}
         gui/panels/GUI_ScriptMonitor.{h,cpp}
         gui/panels/GUI_SimPerfStats.{h,cpp}
         gui/panels/GUI_SurveyMap.{h,cpp}
-        gui/panels/GUI_VehicleDescription.{h,cpp}
-        gui/panels/GUI_VehicleButtons.{h,cpp}
         network/CurlHelpers.{h,cpp}
         network/DiscordRpc.{h,cpp}
         network/Network.{h,cpp}
