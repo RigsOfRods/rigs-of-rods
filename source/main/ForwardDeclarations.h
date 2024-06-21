@@ -67,6 +67,9 @@ namespace RoR
     typedef int ExhaustID_t; //!< Index into `Actor::exhausts`, use `RoR::EXHAUSTID_INVALID` as empty value
     static const ExhaustID_t EXHAUSTID_INVALID = -1;
 
+    typedef int CommandkeyID_t; //!< Index into `Actor::ar_commandkeys` (BEWARE: indexed 1-MAX_COMMANDKEYS, 0 is invalid value, negative subscript of any size is acceptable, see `class CmdKeyArray` ).
+    static const CommandkeyID_t COMMANDKEYID_INVALID = 0;
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;

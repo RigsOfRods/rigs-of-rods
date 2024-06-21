@@ -74,30 +74,19 @@ void VehicleDescription::Draw()
     if (ImGui::CollapsingHeader(_LC("VehicleDescription", "Commands"), ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::Columns(2, /*id=*/nullptr, /*border=*/true);
-        for (int i = 1; i <= MAX_COMMANDS; i += 2) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
+        for (const UniqueCommandKeyPair& qpair: actor->ar_unique_commandkey_pairs)
         {
-            if (actor->ar_command_key[i].description == "hide")
-                continue;
-            if (actor->ar_command_key[i].beams.empty() && actor->ar_command_key[i].rotators.empty())
-                continue;
-
-            int eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", i));
-            Ogre::String keya = RoR::App::GetInputEngine()->getEventCommand(eventID);
-            eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", i + 1));
-            Ogre::String keyb = RoR::App::GetInputEngine()->getEventCommand(eventID);
-
-            // cut off expl
-            if (keya.size() > 6 && keya.substr(0, 5) == "EXPL+")
-                keya = keya.substr(5);
-            if (keyb.size() > 6 && keyb.substr(0, 5) == "EXPL+")
-                keyb = keyb.substr(5);
+            int eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", qpair.uckp_key1));
+            Ogre::String keya = RoR::App::GetInputEngine()->getEventCommandTrimmed(eventID);
+            eventID = RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", qpair.uckp_key2));
+            Ogre::String keyb = RoR::App::GetInputEngine()->getEventCommandTrimmed(eventID);
 
             ImGui::Text("%s/%s", keya.c_str(), keyb.c_str());
             ImGui::NextColumn();
 
-            if (!actor->ar_command_key[i].description.empty())
+            if (qpair.uckp_description != "")
             {
-                ImGui::Text("%s", actor->ar_command_key[i].description.c_str());
+                ImGui::Text("%s", qpair.uckp_description.c_str());
             }
             else
             {

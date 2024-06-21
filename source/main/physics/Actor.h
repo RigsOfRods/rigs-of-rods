@@ -309,6 +309,8 @@ public:
     std::vector<Ogre::AxisAlignedBox>  ar_collision_bounding_boxes; //!< smart bounding boxes, used for determining the state of an actor (every box surrounds only a subset of nodes)
     std::vector<Ogre::AxisAlignedBox>  ar_predicted_coll_bounding_boxes;
     std::map<std::string, Ogre::MaterialPtr>  ar_managed_materials;
+    std::vector<UniqueCommandKeyPair> ar_unique_commandkey_pairs; //!< UI helper for displaying command control keys to user (must be built at spawn).
+
     int               ar_num_contactable_nodes = 0; //!< Total number of nodes which can contact ground or cabs
     int               ar_num_contacters = 0; //!< Total number of nodes which can selfcontact cabs
     wheel_t           ar_wheels[MAX_WHEELS] = {};
