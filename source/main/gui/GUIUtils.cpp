@@ -20,6 +20,7 @@
 #include "GUIUtils.h"
 
 #include "Actor.h"
+#include "Utils.h"
 
 #include "imgui_internal.h" // ImTextCharFromUtf8
 #include <regex>
@@ -352,7 +353,7 @@ Ogre::TexturePtr RoR::FetchIcon(const char* name)
     return Ogre::TexturePtr(); // null
 }
 
-ImDrawList* RoR::GetImDummyFullscreenWindow()
+ImDrawList* RoR::GetImDummyFullscreenWindow(const std::string& name /* = "RoR_TransparentFullscreenWindow"*/)
 {
     ImVec2 screen_size = ImGui::GetIO().DisplaySize;
 
@@ -362,7 +363,7 @@ ImDrawList* RoR::GetImDummyFullscreenWindow()
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(screen_size);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
-    ImGui::Begin("RoR_TransparentFullscreenWindow", NULL, window_flags);
+    ImGui::Begin(name.c_str(), NULL, window_flags);
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
@@ -411,14 +412,40 @@ void RoR::ImDrawEventHighlighted(events input_event)
     {
         col = App::GetGuiManager()->GetTheme().highlight_text_color;
     }
-    std::string text = App::GetInputEngine()->getKeyForCommand(input_event);
+    std::string text = App::GetInputEngine()->getEventCommandTrimmed(input_event);
     const ImVec2 PAD = ImVec2(2.f, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, PAD);
     ImGui::BeginChildFrame(ImGuiID(input_event), ImGui::CalcTextSize(text.c_str()) + PAD*2);
     ImGui::TextColored(col, "%s", text.c_str());
     ImGui::EndChildFrame();
     ImGui::PopStyleVar(); // FramePadding
+}
 
+bool RoR::ImDrawEventHighlightedButton(events input_event, bool* btn_hovered /*=nullptr*/, bool* btn_active /*=nullptr*/)
+{
+    ImVec4 col = ImGui::GetStyle().Colors[ImGuiCol_Text];
+    if (App::GetInputEngine()->getEventValue(input_event))
+    {
+        col = App::GetGuiManager()->GetTheme().highlight_text_color;
+    }
+    std::string text = App::GetInputEngine()->getEventCommandTrimmed(input_event);
+    const ImVec2 PAD = ImVec2(2.f, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, PAD);
+    ImGui::PushStyleColor(ImGuiCol_Text, col);
+    ImGui::PushID(input_event);
+    const bool retval = ImGui::Button(text.c_str());
+    if (btn_hovered != nullptr)
+    {
+        *btn_hovered = ImGui::IsItemHovered();
+    }
+    if (btn_active != nullptr)
+    {
+        *btn_active = ImGui::IsItemActive();
+    }
+    ImGui::PopID(); // input_event
+    ImGui::PopStyleColor(); // Text
+    ImGui::PopStyleVar(); // FramePadding
+    return retval;
 }
 
 void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
@@ -478,5 +505,20 @@ bool RoR::ImButtonHoldToConfirm(const std::string& btn_idstr, const bool smallbu
         active_id = IMGUIID_INVALID;
     }
 
+    return false;
+}
+
+bool RoR::GetScreenPosFromWorldPos(Ogre::Vector3 const& world_pos, ImVec2& out_screen)
+{
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+    World2ScreenConverter world2screen(
+        App::GetCameraManager()->GetCamera()->getViewMatrix(true), App::GetCameraManager()->GetCamera()->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
+    Ogre::Vector3 pos_xyz = world2screen.Convert(world_pos);
+    if (pos_xyz.z < 0.f)
+    {
+        out_screen.x = pos_xyz.x;
+        out_screen.y = pos_xyz.y;
+        return true;
+    }
     return false;
 }
