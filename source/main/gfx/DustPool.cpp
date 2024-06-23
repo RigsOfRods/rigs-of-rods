@@ -26,6 +26,7 @@
 #include "GameContext.h"
 #include "Terrain.h"
 #include "Water.h"
+#include "Console.h"
 
 using namespace Ogre;
 using namespace RoR;
@@ -285,6 +286,15 @@ void DustPool::update()
             col.r = 0.9;
 
             emit->setTimeToLive(vel * 0.04 / 0.1);
+        }
+
+        if (!App::GetGameContext()->GetActorManager()->IsSimulationPaused())
+        {
+            pss[i]->setSpeedFactor(App::GetGameContext()->GetActorManager()->GetSimulationSpeed());
+        }
+        else
+        {
+            pss[i]->setSpeedFactor(0.f);
         }
 
         emit->setColour(col);
