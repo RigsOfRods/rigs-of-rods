@@ -43,7 +43,9 @@ namespace RoR {
 /// @{
 
 /// Softbody object; can be anything from soda can to a space shuttle
-/// Former name: `Beam` (that's why scripting uses `BeamClass`)
+/// Constructed from a truck definition file, see https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/
+/// To spawn in-game, use `MSG_SIM_SPAWN_ACTOR_REQUESTED`, see `GameContext::PushMessage()`, in AngelScript use `game.pushMessage();`
+/// Gameplay states are described by `enum ActorState`. For additional state vars see "Gameplay state" section below.
 class Actor : public RefCountingObject<Actor>
 {
     friend class ActorSpawner;
@@ -132,11 +134,11 @@ public:
     bool              getCustomParticleMode();
     // not exported to scripting:
     void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
-    void              tieToggle(int group=-1);
+    void              tieToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::TIE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
     bool              isTied();
-    void              hookToggle(int group=-1, HookAction mode=HOOK_TOGGLE, NodeNum_t mousenode=NODENUM_INVALID);
+    void              hookToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::HOOK_TOGGLE,NodeNum_t mousenode=NODENUM_INVALID, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
     bool              isLocked();                          //!< Are hooks locked?
-    void              ropeToggle(int group=-1);
+    void              ropeToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::ROPE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
     void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              toggleSlideNodeLock();
     bool              getParkingBrake() { return ar_parking_brake; }
@@ -303,7 +305,6 @@ public:
     std::vector<Ogre::Vector3>     ar_initial_node_positions;
     std::vector<std::pair<float, float>> ar_initial_beam_defaults;
     std::vector<wheeldetacher_t>   ar_wheeldetachers;
-    ActorPtrVec                    ar_linked_actors;              //!< Sim state; other actors linked using 'hooks'
     std::vector<std::vector<int>>  ar_node_to_node_connections;
     std::vector<std::vector<int>>  ar_node_to_beam_connections;
     std::vector<Ogre::AxisAlignedBox>  ar_collision_bounding_boxes; //!< smart bounding boxes, used for determining the state of an actor (every box surrounds only a subset of nodes)
@@ -437,6 +438,7 @@ public:
 
     // Gameplay state
     ActorState        ar_state = ActorState::LOCAL_SIMULATED;
+    ActorPtrVec       ar_linked_actors;            //!< BEWARE: Includes indirect links, see `DetermineLinkedActors()`; Other actors linked using 'hooks/ties/ropes/slidenodes'; use `MSG_SIM_ACTOR_LINKING_REQUESTED`
 
     // Repair state
     Ogre::Vector3     m_rotation_request_center = Ogre::Vector3::ZERO;
@@ -507,9 +509,9 @@ private:
     void              DetermineLinkedActors();
     void              RecalculateNodeMasses(Ogre::Real total); //!< Previously 'calc_masses2()'
     void              calcNodeConnectivityGraph();
-    void              AddInterActorBeam(beam_t* beam, ActorPtr a, ActorPtr b);
-    void              RemoveInterActorBeam(beam_t* beam);
-    void              DisjoinInterActorBeams();            //!< Destroys all inter-actor beams which are connected with this actor
+    void              AddInterActorBeam(beam_t* beam, ActorPtr other, ActorLinkingRequestType type);  //!< Do not call directly - use `MSG_SIM_ACTOR_LINKING_REQUESTED`
+    void              RemoveInterActorBeam(beam_t* beam, ActorLinkingRequestType type);  //!< Do not call directly - use `MSG_SIM_ACTOR_LINKING_REQUESTED`
+    void              DisjoinInterActorBeams();            //!< Helper for `MSG_` handlers, do not invoke by hand.
     void              autoBlinkReset();                    //!< Resets the turn signal when the steering wheel is turned back.
     void              ResetAngle(float rot);
     void              calculateLocalGForces();             //!< Derive the truck local g-forces from the global ones

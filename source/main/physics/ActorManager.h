@@ -109,8 +109,8 @@ public:
 
     std::pair<ActorPtr, float> GetNearestActor(Ogre::Vector3 position);
 
-    // A list of all beams interconnecting two actors
     std::map<beam_t*, std::pair<ActorPtr, ActorPtr>> inter_actor_links;
+    bool AreActorsDirectlyLinked(const ActorPtr& a1, const ActorPtr& a2);
 
     static const ActorPtr ACTORPTR_NULL; // Dummy value to be returned as const reference.
 
