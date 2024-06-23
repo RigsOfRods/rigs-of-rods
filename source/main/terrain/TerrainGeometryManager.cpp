@@ -550,6 +550,13 @@ void TerrainGeometryManager::SetupBlendMaps(OTCPage& page, Ogre::Terrain* terrai
 {
     const int layerCount = terrain->getLayerCount();
     auto layer_def_itor = page.layers.begin();
+
+    if (page.layers.size() < 2)
+    {
+        LOG(fmt::format("[RoR|Terrain] Page {}-{} has no blend layers defined, blendmap will not be set up.", page.pos_x, page.pos_z));
+        return;
+    }
+
     ++layer_def_itor;
     for (int i = 1; i < layerCount; i++)
     {

@@ -1374,7 +1374,7 @@ void GameContext::UpdateCommonInputEvents(float dt)
         //m_player_actor->toggleSlideNodeLock();
         ActorLinkingRequest* slidenode_rq = new ActorLinkingRequest();
         slidenode_rq->alr_type = ActorLinkingRequestType::SLIDENODE_TOGGLE;
-        hook_rq->alr_actor_instance_id = m_player_actor->ar_instance_id;
+        slidenode_rq->alr_actor_instance_id = m_player_actor->ar_instance_id;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, slidenode_rq));
     }
 
