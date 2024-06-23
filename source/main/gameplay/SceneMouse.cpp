@@ -165,11 +165,10 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
             {
                 if (it->hk_hook_node->pos == minnode)
                 {
-                    //grab_truck->hookToggle(it->hk_group, MOUSE_HOOK_TOGGLE, minnode);
+                    //grab_truck->hookToggle(it->hk_group, HOOK_MOUSE_TOGGLE, minnode);
                     ActorLinkingRequest* rq = new ActorLinkingRequest();
-                    rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+                    rq->alr_type = ActorLinkingRequestType::HOOK_MOUSE_TOGGLE;
                     rq->alr_actor_instance_id = grab_truck->ar_instance_id;
-                    rq->alr_hook_action = MOUSE_HOOK_TOGGLE;
                     rq->alr_hook_group = it->hk_group;
                     rq->alr_hook_mousenode = minnode;
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));

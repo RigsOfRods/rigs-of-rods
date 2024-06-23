@@ -65,6 +65,8 @@ void RoR::RegisterScriptEvents(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_EXCEPTION_CAUGHT", SE_GENERIC_EXCEPTION_CAUGHT); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_MODCACHE_ACTIVITY", SE_GENERIC_MODCACHE_ACTIVITY); ROR_ASSERT(result>=0);
 
+    result = engine->RegisterEnumValue("scriptEvents", "SE_GENERIC_TRUCK_LINKING_CHANGED", SE_GENERIC_TRUCK_LINKING_CHANGED); ROR_ASSERT(result>=0);
+
     result = engine->RegisterEnumValue("scriptEvents", "SE_ALL_EVENTS", SE_ALL_EVENTS); ROR_ASSERT(result>=0);
     result = engine->RegisterEnumValue("scriptEvents", "SE_NO_EVENTS", SE_NO_EVENTS); ROR_ASSERT(result>=0);
 

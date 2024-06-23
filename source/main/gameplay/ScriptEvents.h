@@ -61,6 +61,8 @@ enum scriptEvents
     SE_GENERIC_EXCEPTION_CAUGHT        = BITMASK(24), //!< Triggered when C++ exception (usually Ogre::Exception) is thrown; #1 ScriptUnitID, #5 originFuncName, #6 type, #7 message.
     SE_GENERIC_MODCACHE_ACTIVITY       = BITMASK(25), //!< Triggered when status of modcache changes, args: #1 type, #2 entry number, for other args see `RoR::modCacheActivityType`
 
+    SE_GENERIC_TRUCK_LINKING_CHANGED   = BITMASK(26), //!< Triggered when 2 actors become linked or unlinked via ties/hooks/ropes/slidenodes; args: #1 state (1=linked, 0=unlinked), #2 action `ActorLinkingRequestType` #3 master ActorInstanceID_t, #4 slave ActorInstanceID_t
+
     SE_ALL_EVENTS                      = 0xffffffff,
     SE_NO_EVENTS                       = 0
 

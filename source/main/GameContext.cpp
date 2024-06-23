@@ -1367,21 +1367,20 @@ void GameContext::UpdateCommonInputEvents(float dt)
     {
         //m_player_actor->hookToggle(-1, HOOK_TOGGLE, -1);
         ActorLinkingRequest* hook_rq = new ActorLinkingRequest();
-        hook_rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+        hook_rq->alr_type = ActorLinkingRequestType::HOOK_TOGGLE;
         hook_rq->alr_actor_instance_id = m_player_actor->ar_instance_id;
-        hook_rq->alr_hook_action = HOOK_TOGGLE;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, hook_rq));
 
         //m_player_actor->toggleSlideNodeLock();
         ActorLinkingRequest* slidenode_rq = new ActorLinkingRequest();
-        slidenode_rq->alr_type = ActorLinkingRequestType::SLIDENODE_ACTION;
+        slidenode_rq->alr_type = ActorLinkingRequestType::SLIDENODE_TOGGLE;
         hook_rq->alr_actor_instance_id = m_player_actor->ar_instance_id;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, slidenode_rq));
     }
 
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_AUTOLOCK))
     {
-        m_player_actor->hookToggle(-2, HOOK_UNLOCK, -1); //unlock all autolocks
+        m_player_actor->hookToggle(-2, ActorLinkingRequestType::HOOK_UNLOCK, -1); //unlock all autolocks
     }
 
     //strap

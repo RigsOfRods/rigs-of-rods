@@ -61,18 +61,6 @@ enum class ExtCameraMode
     NODE    = 2,
 };
 
-/// @addtogroup Gameplay
-/// @{
-
-enum HookAction
-{
-    HOOK_LOCK=0,
-    HOOK_UNLOCK,
-    HOOK_TOGGLE,
-    MOUSE_HOOK_TOGGLE,
-};
-
-/// @}
 
 /// @addtogroup Physics
 /// @{
@@ -852,10 +840,21 @@ struct ActorModifyRequest
 enum class ActorLinkingRequestType
 {
     INVALID,
-    HOOK_ACTION,
-    TIE_ACTION,
-    ROPE_ACTION,
-    SLIDENODE_ACTION
+    LOAD_SAVEGAME,
+    // hookToggle()
+    HOOK_LOCK,
+    HOOK_UNLOCK,
+    HOOK_TOGGLE,
+    HOOK_MOUSE_TOGGLE,
+    HOOK_RESET,
+    // tieToggle()
+    TIE_TOGGLE,
+    TIE_RESET,
+    // ropeToggle()
+    ROPE_TOGGLE,
+    ROPE_RESET,
+    // toggleSlideNodeLock()
+    SLIDENODE_TOGGLE
 };
 
 /// Estabilishing a physics linkage between 2 actors modifies a global linkage table
@@ -867,7 +866,6 @@ struct ActorLinkingRequest
     ActorLinkingRequestType alr_type = ActorLinkingRequestType::INVALID;
     // hookToggle()
     int alr_hook_group = -1;
-    HookAction alr_hook_action;
     NodeNum_t alr_hook_mousenode = NODENUM_INVALID;
     // tieToggle()
     int alr_tie_group = -1;

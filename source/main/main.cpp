@@ -1142,23 +1142,26 @@ int main(int argc, char *argv[])
                         {
                             switch (request->alr_type)
                             {
-                            case ActorLinkingRequestType::HOOK_ACTION:
-                                actor->hookToggle(request->alr_hook_group, request->alr_hook_action, request->alr_hook_mousenode);
-                                if (request->alr_hook_action == MOUSE_HOOK_TOGGLE)
-                                {
-                                    TRIGGER_EVENT_ASYNC(SE_TRUCK_MOUSE_GRAB, request->alr_actor_instance_id);
-                                }
+                            case ActorLinkingRequestType::HOOK_LOCK:
+                            case ActorLinkingRequestType::HOOK_UNLOCK:
+                            case ActorLinkingRequestType::HOOK_TOGGLE:
+                                actor->hookToggle(request->alr_hook_group, request->alr_type);
                                 break;
 
-                            case ActorLinkingRequestType::TIE_ACTION:
+                            case ActorLinkingRequestType::HOOK_MOUSE_TOGGLE:
+                                actor->hookToggle(request->alr_hook_group, request->alr_type, request->alr_hook_mousenode);
+                                    TRIGGER_EVENT_ASYNC(SE_TRUCK_MOUSE_GRAB, request->alr_actor_instance_id);
+                                break;
+
+                            case ActorLinkingRequestType::TIE_TOGGLE:
                                 actor->tieToggle(request->alr_tie_group);
                                 break;
 
-                            case ActorLinkingRequestType::ROPE_ACTION:
+                            case ActorLinkingRequestType::ROPE_TOGGLE:
                                 actor->ropeToggle(request->alr_rope_group);
                                 break;
 
-                            case ActorLinkingRequestType::SLIDENODE_ACTION:
+                            case ActorLinkingRequestType::SLIDENODE_TOGGLE:
                                 actor->toggleSlideNodeLock();
                                 break;
                             }

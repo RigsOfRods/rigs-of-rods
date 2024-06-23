@@ -685,7 +685,7 @@ void ActorManager::ForwardCommands(ActorPtr source_actor)
                 {
                     //actor->tieToggle();
                     ActorLinkingRequest* rq = new ActorLinkingRequest();
-                    rq->alr_type = ActorLinkingRequestType::TIE_ACTION;
+                    rq->alr_type = ActorLinkingRequestType::TIE_TOGGLE;
                     rq->alr_actor_instance_id = actor->ar_instance_id;
                     rq->alr_tie_group = -1;
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
@@ -695,7 +695,7 @@ void ActorManager::ForwardCommands(ActorPtr source_actor)
                 {
                     //actor->ropeToggle(-1);
                     ActorLinkingRequest* rq = new ActorLinkingRequest();
-                    rq->alr_type = ActorLinkingRequestType::ROPE_ACTION;
+                    rq->alr_type = ActorLinkingRequestType::ROPE_TOGGLE;
                     rq->alr_actor_instance_id = actor->ar_instance_id;
                     rq->alr_rope_group = -1;
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
@@ -719,6 +719,20 @@ void ActorManager::ForwardCommands(ActorPtr source_actor)
             hook.hk_locked_actor->setLightStateMask(source_actor->getLightStateMask());
         }
     }
+}
+
+bool ActorManager::AreActorsDirectlyLinked(const ActorPtr& a1, const ActorPtr& a2)
+{
+    for (auto& entry: inter_actor_links)
+    {
+        auto& actor_pair = entry.second;
+        if ((actor_pair.first == a1 && actor_pair.second == a2) ||
+            (actor_pair.first == a2 && actor_pair.second == a1))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void ActorManager::UpdateSleepingState(ActorPtr player_actor, float dt)
@@ -1070,7 +1084,7 @@ void ActorManager::UpdateActors(ActorPtr player_actor)
         {
             //player_actor->tieToggle();
             ActorLinkingRequest* rq = new ActorLinkingRequest();
-            rq->alr_type = ActorLinkingRequestType::TIE_ACTION;
+            rq->alr_type = ActorLinkingRequestType::TIE_TOGGLE;
             rq->alr_actor_instance_id = player_actor->ar_instance_id;
             rq->alr_tie_group = -1;
             App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
@@ -1081,7 +1095,7 @@ void ActorManager::UpdateActors(ActorPtr player_actor)
         {
             //player_actor->ropeToggle(-1);
             ActorLinkingRequest* rq = new ActorLinkingRequest();
-            rq->alr_type = ActorLinkingRequestType::ROPE_ACTION;
+            rq->alr_type = ActorLinkingRequestType::ROPE_TOGGLE;
             rq->alr_actor_instance_id = player_actor->ar_instance_id;
             rq->alr_rope_group = -1;
             App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));

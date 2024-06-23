@@ -959,7 +959,7 @@ void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_e
             locked_actor < (int)actors.size() &&
             actors[locked_actor] != nullptr)
         {
-            actor->AddInterActorBeam(&actor->ar_beams[i], actor, actors[locked_actor]);
+            actor->AddInterActorBeam(&actor->ar_beams[i], actors[locked_actor], ActorLinkingRequestType::LOAD_SAVEGAME); // OK to be invoked here - RestoreSavedState() - processing MSG_SIM_MODIFY_ACTOR_REQUESTED
         }
     }
 

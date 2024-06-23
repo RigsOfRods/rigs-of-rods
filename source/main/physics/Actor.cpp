@@ -87,9 +87,12 @@ Actor::~Actor()
 
 void Actor::dispose()
 {
+    // Handler for `MSG_SIM_DELETE_ACTOR_REQUESTED` message - should not be invoked otherwise.
+    // --------------------------------------------------------------------------------------
+
     ROR_ASSERT(ar_state != ActorState::DISPOSED);
 
-    this->DisjoinInterActorBeams();
+    this->DisjoinInterActorBeams(); // OK to be invoked here - processing `MSG_SIM_DELETE_ACTOR_REQUESTED`.
     ar_hooks.clear();
     ar_ties.clear();
     ar_node_to_beam_connections.clear();
@@ -824,8 +827,9 @@ float Actor::getTotalMass(bool withLocked)
 
 void Actor::DetermineLinkedActors()
 {
-    // This updates `ar_linked_actors` by searching (iteratively) through global `inter_actor_links` list.
+    // BEWARE: `ar_linked_actors` includes both direct and indirect links!
     // --------------------------------------------------------------------------------------------------
+
     ar_linked_actors.clear();
 
     bool found = true;
@@ -1621,6 +1625,8 @@ void Actor::SyncReset(bool reset_position)
     float cur_rot = getRotation();
     Vector3 cur_position = ar_nodes[0].AbsPosition;
 
+    this->DisjoinInterActorBeams(); // OK to be invoked here - SyncReset() - `processing MSG_SIM_MODIFY_ACTOR_REQUESTED`
+
     for (int i = 0; i < ar_num_nodes; i++)
     {
         ar_nodes[i].AbsPosition = ar_initial_node_positions[i];
@@ -1643,39 +1649,20 @@ void Actor::SyncReset(bool reset_position)
 
     this->applyNodeBeamScales();
 
-    this->DisjoinInterActorBeams();
+    // Extra cleanup for inter-actor beams (until the above `ar_beams` loop is fixed)
 
     for (auto& h : ar_hooks)
     {
-        h.hk_locked = UNLOCKED;
-        h.hk_lock_node = nullptr;
-        h.hk_locked_actor = nullptr;
-        h.hk_beam->p2 = &ar_nodes[0];
-        h.hk_beam->bm_disabled = true;
-        h.hk_beam->bm_inter_actor = false;
-        h.hk_beam->L = (ar_nodes[0].AbsPosition - h.hk_hook_node->AbsPosition).length();
-        this->RemoveInterActorBeam(h.hk_beam);
-    }
-
-    for (auto& r : ar_ropes)
-    {
-        r.rp_locked = UNLOCKED;
-        r.rp_locked_ropable = nullptr;
-        r.rp_locked_actor = nullptr;
-        this->RemoveInterActorBeam(r.rp_beam);
+        h.hk_beam->bm_disabled = true; // should only be active if the hook is locked
     }
 
     for (auto& t : ar_ties)
     {
-        t.ti_tied = false;
-        t.ti_tying = false;
-        t.ti_locked_actor = nullptr;
-        t.ti_locked_ropable = nullptr;
-        t.ti_beam->p2 = &ar_nodes[0];
-        t.ti_beam->bm_disabled = true;
-        t.ti_beam->bm_inter_actor = false;
-        this->RemoveInterActorBeam(t.ti_beam);
+        t.ti_locked_ropable = nullptr; // `tieToggle()` doesn't do this - bug or feature? ~ ohlidalp, 06/2024
+        t.ti_beam->bm_disabled = true; // should only be active if the tie is tied
     }
+
+    // End extra cleanup
 
     for (auto& r : ar_ropables)
     {
@@ -2756,9 +2743,8 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                             //autolock hooktoggle unlock
                             //hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_UNLOCK, NODENUM_INVALID);
                             ActorLinkingRequest* rq = new ActorLinkingRequest();
-                            rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+                            rq->alr_type = ActorLinkingRequestType::HOOK_UNLOCK;
                             rq->alr_actor_instance_id = ar_instance_id;
-                            rq->alr_hook_action = HOOK_UNLOCK;
                             rq->alr_hook_group = ar_beams[i].shock->trigger_cmdlong;
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
                         }
@@ -2770,9 +2756,8 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                             //autolock hooktoggle lock
                             //hookToggle(ar_beams[i].shock->trigger_cmdlong, HOOK_LOCK, NODENUM_INVALID);
                             ActorLinkingRequest* rq = new ActorLinkingRequest();
-                            rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+                            rq->alr_type = ActorLinkingRequestType::HOOK_LOCK;
                             rq->alr_actor_instance_id = ar_instance_id;
-                            rq->alr_hook_action = HOOK_LOCK;
                             rq->alr_hook_group = ar_beams[i].shock->trigger_cmdlong;
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
                         }
@@ -2807,9 +2792,8 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                             //autolock hooktoggle unlock
                             //hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_UNLOCK, NODENUM_INVALID);
                             ActorLinkingRequest* rq = new ActorLinkingRequest();
-                            rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+                            rq->alr_type = ActorLinkingRequestType::HOOK_UNLOCK;
                             rq->alr_actor_instance_id = ar_instance_id;
-                            rq->alr_hook_action = HOOK_UNLOCK;
                             rq->alr_hook_group = ar_beams[i].shock->trigger_cmdshort;
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
                         }
@@ -2821,9 +2805,8 @@ void Actor::CalcTriggers(int i, Real difftoBeamL, bool trigger_hooks)
                             //autolock hooktoggle lock
                             //hookToggle(ar_beams[i].shock->trigger_cmdshort, HOOK_LOCK, NODENUM_INVALID);
                             ActorLinkingRequest* rq = new ActorLinkingRequest();
-                            rq->alr_type = ActorLinkingRequestType::HOOK_ACTION;
+                            rq->alr_type = ActorLinkingRequestType::HOOK_LOCK;
                             rq->alr_actor_instance_id = ar_instance_id;
-                            rq->alr_hook_action = HOOK_LOCK;
                             rq->alr_hook_group = ar_beams[i].shock->trigger_cmdshort;
                             App::GetGameContext()->PushMessage(Message(MSG_SIM_ACTOR_LINKING_REQUESTED, rq));
                         }
@@ -3331,82 +3314,120 @@ void Actor::updateVisual(float dt)
     ar_hydro_elevator_command = autoelevator;
 }
 
-void Actor::AddInterActorBeam(beam_t* beam, ActorPtr a, ActorPtr b)
+void Actor::AddInterActorBeam(beam_t* beam, ActorPtr other, ActorLinkingRequestType type)
 {
-    beam->bm_locked_actor = b;
+    // We can't assert the beam setup here because ropes do it differently (not actually using inter-beams, just exhibiting the same gamelogic).
+    beam->bm_locked_actor = other; // This isn't entirely valid for 'ropes' either, but for compatibility I won't touch it now ~ ohlidalp, 2024
 
     auto pos = std::find(ar_inter_beams.begin(), ar_inter_beams.end(), beam);
+    ROR_ASSERT(pos == ar_inter_beams.end());
     if (pos == ar_inter_beams.end())
     {
         ar_inter_beams.push_back(beam);
     }
 
-    std::pair<ActorPtr, ActorPtr> actor_pair(a, b);
+    const bool linked_before = App::GetGameContext()->GetActorManager()->AreActorsDirectlyLinked(this, other);
+    ROR_ASSERT(App::GetGameContext()->GetActorManager()->inter_actor_links.find(beam) == App::GetGameContext()->GetActorManager()->inter_actor_links.end());
+    std::pair<ActorPtr, ActorPtr> actor_pair(this, other);
     App::GetGameContext()->GetActorManager()->inter_actor_links[beam] = actor_pair;
+    const bool linked_now = App::GetGameContext()->GetActorManager()->AreActorsDirectlyLinked(this, other);
 
-    a->DetermineLinkedActors();
-    for (ActorPtr& actor : a->ar_linked_actors)
-        actor->DetermineLinkedActors();
+    if (linked_before != linked_now)
+    {
+        // Update lists of directly/indirectly linked actors.
+        this->DetermineLinkedActors();
+        for (ActorPtr& actor : this->ar_linked_actors)
+            actor->DetermineLinkedActors();
 
-    b->DetermineLinkedActors();
-    for (ActorPtr& actor : b->ar_linked_actors)
-        actor->DetermineLinkedActors();
+        other->DetermineLinkedActors();
+        for (ActorPtr& actor : other->ar_linked_actors)
+            actor->DetermineLinkedActors();
+
+        // Forward toggled states.
+        for (ActorPtr& actor : this->ar_linked_actors)
+        {
+            actor->ar_physics_paused = this->ar_physics_paused;
+            actor->GetGfxActor()->SetDebugView(this->GetGfxActor()->GetDebugView());
+        }
+
+        // Let scripts know.
+        TRIGGER_EVENT_ASYNC(SE_GENERIC_TRUCK_LINKING_CHANGED, 1, (int)type, this->ar_instance_id, other->ar_instance_id);
+    }
 }
 
-void Actor::RemoveInterActorBeam(beam_t* beam)
+void Actor::RemoveInterActorBeam(beam_t* beam, ActorLinkingRequestType type)
 {
+    ROR_ASSERT(beam->bm_locked_actor);
+    ActorPtr other = beam->bm_locked_actor;
+    beam->bm_locked_actor = nullptr;
+
     auto pos = std::find(ar_inter_beams.begin(), ar_inter_beams.end(), beam);
+    ROR_ASSERT(pos != ar_inter_beams.end());
     if (pos != ar_inter_beams.end())
     {
         ar_inter_beams.erase(pos);
     }
 
+    const bool linked_before = App::GetGameContext()->GetActorManager()->AreActorsDirectlyLinked(this, other);
     auto it = App::GetGameContext()->GetActorManager()->inter_actor_links.find(beam);
+    ROR_ASSERT(it != App::GetGameContext()->GetActorManager()->inter_actor_links.end());
     if (it != App::GetGameContext()->GetActorManager()->inter_actor_links.end())
     {
-        auto actor_pair = it->second;
         App::GetGameContext()->GetActorManager()->inter_actor_links.erase(it);
+    }
+    const bool linked_now = App::GetGameContext()->GetActorManager()->AreActorsDirectlyLinked(this, other);
 
-        actor_pair.first->DetermineLinkedActors();
-        for (ActorPtr& actor : actor_pair.first->ar_linked_actors)
+    if (linked_before != linked_now)
+    {
+        // Update lists of directly/indirectly linked actors.
+        this->DetermineLinkedActors();
+        for (ActorPtr& actor : this->ar_linked_actors)
             actor->DetermineLinkedActors();
 
-        actor_pair.second->DetermineLinkedActors();
-        for (ActorPtr& actor : actor_pair.second->ar_linked_actors)
+        other->DetermineLinkedActors();
+        for (ActorPtr& actor : other->ar_linked_actors)
             actor->DetermineLinkedActors();
+
+        // Reset toggled states.
+        other->ar_physics_paused = false;
+        other->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
+        for (ActorPtr& actor : other->ar_linked_actors)
+        {
+            actor->ar_physics_paused = false;
+            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
+        }
+
+        // Let scripts know.
+        TRIGGER_EVENT_ASYNC(SE_GENERIC_TRUCK_LINKING_CHANGED, 0, (int)type, this->ar_instance_id, other->ar_instance_id);
     }
 }
 
 void Actor::DisjoinInterActorBeams()
 {
-    ar_inter_beams.clear();
-    auto inter_actor_links = &App::GetGameContext()->GetActorManager()->inter_actor_links;
-    for (auto it = inter_actor_links->begin(); it != inter_actor_links->end();)
+    // Helper for `MSG_SIM_MODIFY/DELETE_ACTOR_REQUESTED`, do not invoke otherwise!
+    // Removes all (both ways) inter-actor connections from this actor.
+    // Note the repetitive 'OK to be invoked...' comments are for fulltext search results.
+    // ------------------------------------------------------------------
+
+    // Remove all inter-linking beams which belong to this actor.
+    this->hookToggle(-1, ActorLinkingRequestType::HOOK_RESET); // OK to be invoked here - DisjoinInterActorBeams() - `processing MSG_SIM_MODIFY/DELETE_ACTOR_REQUESTED`
+    this->ropeToggle(-1, ActorLinkingRequestType::ROPE_RESET); // OK to be invoked here - DisjoinInterActorBeams() - `processing MSG_SIM_MODIFY/DELETE_ACTOR_REQUESTED`
+    this->tieToggle(-1, ActorLinkingRequestType::TIE_RESET); // OK to be invoked here - DisjoinInterActorBeams() - `processing MSG_SIM_MODIFY/DELETE_ACTOR_REQUESTED`
+
+    // Remove any possible links from other actors to this actor.
+    for (ActorPtr& other_actor : App::GetGameContext()->GetActorManager()->GetActors())
     {
-        auto actor_pair = it->second;
-        if (this == actor_pair.first.GetRef() || this == actor_pair.second.GetRef())
-        {
-            it->first->bm_locked_actor = nullptr;
-            it->first->bm_inter_actor = false;
-            it->first->bm_disabled = true;
-            inter_actor_links->erase(it++);
+        if (other_actor->ar_state != ActorState::LOCAL_SIMULATED)
+            continue;
 
-            actor_pair.first->DetermineLinkedActors();
-            for (ActorPtr& actor : actor_pair.first->ar_linked_actors)
-                actor->DetermineLinkedActors();
-
-            actor_pair.second->DetermineLinkedActors();
-            for (ActorPtr& actor : actor_pair.second->ar_linked_actors)
-                actor->DetermineLinkedActors();
-        }
-        else
-        {
-            ++it;
-        }
+        // Use the new `unlock_filter` param to only unlock the links to this actor (brute force but safe approach).
+        other_actor->hookToggle(-1, ActorLinkingRequestType::HOOK_RESET, NODENUM_INVALID, /*unlock_filter:*/ar_instance_id); // OK to be invoked here - DisjoinInterActorBeams() - `processing MSG_SIM_MODIFY/DELETE_ACTOR_REQUESTED`
+        other_actor->tieToggle(-1, ActorLinkingRequestType::TIE_RESET, /*unlock_filter:*/ar_instance_id); // OK to be invoked here - DisjoinInterActorBeams() - `processing MSG_SIM_MODIFY/DELETE_ACTOR_REQUESTED`
+        other_actor->ropeToggle(-1, ActorLinkingRequestType::ROPE_RESET, /*unlock_filter:*/ar_instance_id); // OK to be invoked here - DisjoinInterActorBeams() - `processing MSG_SIM_MODIFY/DELETE_ACTOR_REQUESTED`
     }
 }
 
-void Actor::tieToggle(int group)
+void Actor::tieToggle(int group, ActorLinkingRequestType mode, ActorInstanceID_t forceunlock_filter)
 {
     ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
 
@@ -3419,7 +3440,14 @@ void Actor::tieToggle(int group)
         if (group != -1 && (it->ti_group != -1 && it->ti_group != group))
             continue;
 
-        // if tied, untie it. And the other way round
+        // When RESET-ing, filter by the locked actor, if specified.
+        if (mode == ActorLinkingRequestType::TIE_RESET
+            && forceunlock_filter != ACTORINSTANCEID_INVALID && it->ti_locked_actor && it->ti_locked_actor->ar_instance_id != forceunlock_filter)
+        {
+            continue;
+        }
+
+        // if tied, untie it.
         if (it->ti_tied)
         {
             istied = !it->ti_beam->bm_disabled;
@@ -3435,35 +3463,14 @@ void Actor::tieToggle(int group)
             it->ti_beam->bm_disabled = true;
             if (it->ti_locked_actor != this)
             {
-                this->RemoveInterActorBeam(it->ti_beam);
-                // update skeletonview on the untied actors
-                auto linked_actors = it->ti_locked_actor->ar_linked_actors;
-                if (!(std::find(linked_actors.begin(), linked_actors.end(), this) != linked_actors.end()))
-                {
-                    if (this == player_actor.GetRef())
-                    {
-                        it->ti_locked_actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        for (ActorPtr& actor : it->ti_locked_actor->ar_linked_actors)
-                        {
-                            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        }
-                    }
-                    else if (it->ti_locked_actor == player_actor)
-                    {
-                        m_gfx_actor->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        for (ActorPtr& actor : this->ar_linked_actors)
-                        {
-                            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        }
-                    }
-                }
+                this->RemoveInterActorBeam(it->ti_beam, mode); // OK to invoke here - tieToggle() - processing `MSG_SIM_ACTOR_LINKING_REQUESTED`
             }
             it->ti_locked_actor = nullptr;
         }
     }
 
     // iterate over all ties
-    if (!istied)
+    if (!istied && mode == ActorLinkingRequestType::TIE_TOGGLE)
     {
         for (std::vector<tie_t>::iterator it = ar_ties.begin(); it != ar_ties.end(); it++)
         {
@@ -3526,24 +3533,7 @@ void Actor::tieToggle(int group)
                     it->ti_locked_ropable->attached_ties++;
                     if (it->ti_beam->bm_inter_actor)
                     {
-                        AddInterActorBeam(it->ti_beam, this, nearest_actor);
-                        // update skeletonview on the tied actors
-                        if (this == player_actor.GetRef())
-                        {
-                            nearest_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                            for (ActorPtr& actor : nearest_actor->ar_linked_actors)
-                            {
-                                actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                            }
-                        }
-                        else if (nearest_actor == player_actor)
-                        {
-                            m_gfx_actor->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
-                            for (ActorPtr& actor : this->ar_linked_actors)
-                            {
-                                actor->GetGfxActor()->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
-                            }
-                        }
+                        this->AddInterActorBeam(it->ti_beam, nearest_actor, mode); // OK to invoke here - tieToggle() - processing `MSG_SIM_ACTOR_LINKING_REQUESTED`
                     }
                 }
             }
@@ -3554,7 +3544,7 @@ void Actor::tieToggle(int group)
     TRIGGER_EVENT_ASYNC(SE_TRUCK_TIE_TOGGLE, ar_instance_id);
 }
 
-void Actor::ropeToggle(int group)
+void Actor::ropeToggle(int group, ActorLinkingRequestType mode, ActorInstanceID_t forceunlock_filter)
 {
     ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
 
@@ -3565,7 +3555,14 @@ void Actor::ropeToggle(int group)
         if (group != -1 && (it->rp_group != -1 && it->rp_group != group))
             continue;
 
-        if (it->rp_locked == LOCKED || it->rp_locked == PRELOCK)
+        // When RESET-ing, filter by the locked actor, if specified.
+        if (mode == ActorLinkingRequestType::ROPE_RESET
+            && forceunlock_filter != ACTORINSTANCEID_INVALID && it->rp_locked_actor && it->rp_locked_actor->ar_instance_id != forceunlock_filter)
+        {
+            continue;
+        }
+
+        if (it->rp_locked == LOCKED || it->rp_locked == PRELOCK) // Do this for both `ROPE_TOGGLE` and `ROPE_RESET`
         {
             // we unlock ropes
             it->rp_locked = UNLOCKED;
@@ -3574,33 +3571,12 @@ void Actor::ropeToggle(int group)
                 it->rp_locked_ropable->attached_ropes--;
             if (it->rp_locked_actor != this)
             {
-                this->RemoveInterActorBeam(it->rp_beam);
-                // update skeletonview on the unroped actors
-                auto linked_actors = it->rp_locked_actor->ar_linked_actors;
-                if (!(std::find(linked_actors.begin(), linked_actors.end(), this) != linked_actors.end()))
-                {
-                    if (this == player_actor.GetRef())
-                    {
-                        it->rp_locked_actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        for (ActorPtr& actor : it->rp_locked_actor->ar_linked_actors)
-                        {
-                            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        }
-                    }
-                    else if (it->rp_locked_actor == player_actor)
-                    {
-                        m_gfx_actor->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        for (ActorPtr& actor : this->ar_linked_actors)
-                        {
-                            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-                        }
-                    }
-                }
+                this->RemoveInterActorBeam(it->rp_beam, mode); // OK to invoke here - ropeToggle() - processing `MSG_SIM_ACTOR_LINKING_REQUESTED`
             }
             it->rp_locked_actor = nullptr;
             it->rp_locked_ropable = nullptr;
         }
-        else
+        else if (mode == ActorLinkingRequestType::ROPE_TOGGLE) // Do this only for `ROPE_TOGGLE`
         {
             //we lock ropes
             // search new remote ropable to lock to
@@ -3633,84 +3609,77 @@ void Actor::ropeToggle(int group)
             if (nearest_actor)
             {
                 //okay, we have found a rope to tie
-                it->rp_locked_actor = nearest_actor;
                 it->rp_locked = LOCKED;
                 it->rp_locked_ropable = rop;
                 it->rp_locked_ropable->attached_ropes++;
                 if (nearest_actor != this)
                 {
-                    AddInterActorBeam(it->rp_beam, this, nearest_actor);
-                    // update skeletonview on the roped up actors
-                    if (this == player_actor.GetRef())
-                    {
-                        nearest_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                        for (ActorPtr& actor : nearest_actor->ar_linked_actors)
-                        {
-                            actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                        }
-                    }
-                    else if (nearest_actor == player_actor)
-                    {
-                        m_gfx_actor->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
-                        for (ActorPtr& actor : this->ar_linked_actors)
-                        {
-                            actor->GetGfxActor()->SetDebugView(player_actor->GetGfxActor()->GetDebugView());
-                        }
-                    }
+                     this->AddInterActorBeam(it->rp_beam, nearest_actor, mode); // OK to invoke here - ropeToggle() - processing `MSG_SIM_ACTOR_LINKING_REQUESTED`
                 }
             }
         }
     }
 }
 
-void Actor::hookToggle(int group, HookAction mode, NodeNum_t mousenode /*=NODENUM_INVALID*/)
+void Actor::hookToggle(int group, ActorLinkingRequestType mode, NodeNum_t mousenode /*=NODENUM_INVALID*/, ActorInstanceID_t forceunlock_filter)
 {
+    ROR_ASSERT(mode == ActorLinkingRequestType::HOOK_LOCK || mode == ActorLinkingRequestType::HOOK_UNLOCK
+            || mode == ActorLinkingRequestType::HOOK_TOGGLE || mode == ActorLinkingRequestType::HOOK_MOUSE_TOGGLE
+            || mode == ActorLinkingRequestType::HOOK_RESET);
+
     // iterate over all hooks
     for (std::vector<hook_t>::iterator it = ar_hooks.begin(); it != ar_hooks.end(); it++)
     {
-        if (mode == MOUSE_HOOK_TOGGLE && it->hk_hook_node->pos != mousenode)
+        if (mode == ActorLinkingRequestType::HOOK_MOUSE_TOGGLE && it->hk_hook_node->pos != mousenode)
         {
             //skip all other nodes except the one manually toggled by mouse
             continue;
         }
-        if (mode == HOOK_TOGGLE && group == -1)
+        if (mode == ActorLinkingRequestType::HOOK_TOGGLE && group == -1)
         {
             //manually triggerd (EV_COMMON_LOCK). Toggle all hooks groups with group#: -1, 0, 1 ++
             if (it->hk_group <= -2)
                 continue;
         }
-        if (mode == HOOK_LOCK && group == -2)
+        if (mode == ActorLinkingRequestType::HOOK_LOCK && group == -2)
         {
             //automatic lock attempt (cyclic with doupdate). Toggle all hooks groups with group#: -2, -3, -4 --, skip the ones which are not autolock (triggered only)
             if (it->hk_group >= -1 || !it->hk_autolock)
                 continue;
         }
-        if (mode == HOOK_UNLOCK && group == -2)
+        if (mode == ActorLinkingRequestType::HOOK_UNLOCK && group == -2)
         {
             //manual unlock ALL autolock and triggerlock, do not unlock standard hooks (EV_COMMON_AUTOLOCK)
             if (it->hk_group >= -1 || !it->hk_autolock)
                 continue;
         }
-        if ((mode == HOOK_LOCK || mode == HOOK_UNLOCK) && group <= -3)
+        if ((mode == ActorLinkingRequestType::HOOK_LOCK || mode == ActorLinkingRequestType::HOOK_UNLOCK) && group <= -3)
         {
             //trigger beam lock or unlock. Toggle one hook group with group#: group
             if (it->hk_group != group)
                 continue;
         }
-        if ((mode == HOOK_LOCK || mode == HOOK_UNLOCK) && group >= -1)
+        if ((mode == ActorLinkingRequestType::HOOK_LOCK || mode == ActorLinkingRequestType::HOOK_UNLOCK) && group >= -1)
         {
             continue;
         }
-        if (mode == HOOK_LOCK && it->hk_timer > 0.0f)
+        if (mode == ActorLinkingRequestType::HOOK_LOCK && it->hk_timer > 0.0f)
         {
             //check relock delay timer for autolock nodes and skip if not 0
+            continue;
+        }
+
+        // When RESET-ing, filter by the locked actor, if specified.
+        if (mode == ActorLinkingRequestType::HOOK_RESET
+            && forceunlock_filter != ACTORINSTANCEID_INVALID && it->hk_locked_actor && it->hk_locked_actor->ar_instance_id != forceunlock_filter)
+        {
             continue;
         }
 
         ActorPtr prev_locked_actor = it->hk_locked_actor; // memorize current value
 
         // do this only for toggle or lock attempts, skip prelocked or locked nodes for performance
-        if (mode != HOOK_UNLOCK && it->hk_locked == UNLOCKED)
+        if ((mode != ActorLinkingRequestType::HOOK_UNLOCK && mode != ActorLinkingRequestType::HOOK_RESET) && it->hk_locked == UNLOCKED)
         {
             // we lock hooks
             // search new remote ropable to lock to
@@ -3764,17 +3733,17 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t mousenode /*=NODENU
                         it->hk_beam->bm_inter_actor = (it->hk_locked_actor != nullptr);
                         it->hk_beam->L = (it->hk_hook_node->AbsPosition - it->hk_lock_node->AbsPosition).length();
                         it->hk_beam->bm_disabled = false;
-                        this->AddInterActorBeam(it->hk_beam, this, it->hk_locked_actor);
+                        this->AddInterActorBeam(it->hk_beam, it->hk_locked_actor, mode); // OK to invoke here - hookToggle() - processing `MSG_SIM_ACTOR_LINKING_REQUESTED`
                     }
                 }
             }
         }
         // this is a locked or prelocked hook and its not a locking attempt or the locked actor was removed (bm_inter_actor == false)
-        else if ((it->hk_locked == LOCKED || it->hk_locked == PRELOCK) && (mode != HOOK_LOCK || !it->hk_beam->bm_inter_actor))
+        else if ((it->hk_locked == LOCKED || it->hk_locked == PRELOCK) && (mode != ActorLinkingRequestType::HOOK_LOCK || !it->hk_beam->bm_inter_actor))
         {
             // we unlock ropes immediatelly
             it->hk_locked = UNLOCKED;
-            this->RemoveInterActorBeam(it->hk_beam);
+            this->RemoveInterActorBeam(it->hk_beam, mode); // OK to invoke here - hookToggle() - processing `MSG_SIM_ACTOR_LINKING_REQUESTED`
             if (it->hk_group <= -2)
             {
                 it->hk_timer = it->hk_timer_preset; //timer reset for autolock nodes
@@ -3786,27 +3755,6 @@ void Actor::hookToggle(int group, HookAction mode, NodeNum_t mousenode /*=NODENU
             it->hk_beam->bm_inter_actor = false;
             it->hk_beam->L = (ar_nodes[0].AbsPosition - it->hk_hook_node->AbsPosition).length();
             it->hk_beam->bm_disabled = true;
-        }
-
-        // update skeletonview on the (un)hooked actor
-        if (it->hk_locked_actor != prev_locked_actor)
-        {
-            if (it->hk_locked_actor)
-            {
-                it->hk_locked_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                for (ActorPtr& actor : it->hk_locked_actor->ar_linked_actors)
-                {
-                    actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                }
-            }
-            else if (prev_locked_actor != this)
-            {
-                prev_locked_actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                for (ActorPtr& actor : prev_locked_actor->ar_linked_actors)
-                {
-                    actor->GetGfxActor()->SetDebugView(m_gfx_actor->GetDebugView());
-                }
-            }
         }
     }
 }
