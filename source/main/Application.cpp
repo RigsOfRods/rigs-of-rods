@@ -130,7 +130,6 @@ CVar* mp_cyclethru_net_actors;
 CVar* remote_query_url;
 
 // Diagnostic
-CVar* diag_auto_spawner_report;
 CVar* diag_camera;
 CVar* diag_rig_log_node_import;
 CVar* diag_rig_log_node_stats;
