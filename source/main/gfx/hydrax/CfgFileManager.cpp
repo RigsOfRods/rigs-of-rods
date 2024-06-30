@@ -54,9 +54,9 @@ namespace Hydrax
 		}
 
 		// Load main options
+		// RIGS OF RODS NOTE: ShaderMode is determined automatically based on renderer
 		mHydrax->setPosition(_getVector3Value(CfgFile,"Position"));
 		mHydrax->setPlanesError(_getFloatValue(CfgFile,"PlanesError"));
-		mHydrax->setShaderMode(static_cast<MaterialManager::ShaderMode>(_getIntValue(CfgFile, "ShaderMode")));
 		mHydrax->setFullReflectionDistance(_getFloatValue(CfgFile,"FullReflectionDistance"));
 		mHydrax->setGlobalTransparency(_getFloatValue(CfgFile,"GlobalTransparency"));
 		mHydrax->setNormalDistortion(_getFloatValue(CfgFile,"NormalDistortion"));
@@ -93,8 +93,7 @@ namespace Hydrax
 		Data += "#Main options field\n";
 		Data += _getCfgString("Position",               mHydrax->getPosition());
 		Data += _getCfgString("PlanesError",            mHydrax->getPlanesError());
-		Data += "#Shader mode: 0=HLSL, 1=CG, 2=GLSL\n";
-		Data += _getCfgString("ShaderMode",             static_cast<int>(mHydrax->getShaderMode()));
+		// RIGS OF RODS NOTE: ShaderMode is determined automatically based on renderer
 		Data += _getCfgString("FullReflectionDistance", mHydrax->getFullReflectionDistance());
 		Data += _getCfgString("GlobalTransparency",     mHydrax->getGlobalTransparency());
 		Data += _getCfgString("NormalDistortion",       mHydrax->getNormalDistortion());

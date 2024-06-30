@@ -768,12 +768,14 @@ namespace Hydrax
 			    MaterialManager::GPUP_FRAGMENT, MaterialManager::MAT_WATER,
 			    "uFoamRange", Strength);
 
+			/* Foam is not visible underwater
 			if (isComponent(HYDRAX_COMPONENT_UNDERWATER))
 		    {
 		        mMaterialManager->setGpuProgramParameter(
 			        MaterialManager::GPUP_FRAGMENT, MaterialManager::MAT_UNDERWATER,
 			        "uFoamRange", Strength);
 		    }
+			*/
 		}
 
 		mDecalsManager->_setWaterStrength(Strength);
