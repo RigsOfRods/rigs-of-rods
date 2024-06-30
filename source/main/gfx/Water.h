@@ -103,7 +103,7 @@ private:
 
     bool                  m_water_visible;
     float                 m_water_height;
-    float                 m_waves_height;
+    float                 m_waves_height = 0.f;
     float                 m_bottom_height;
     float                 m_max_ampl;
     float                 m_waterplane_mesh_scale;
