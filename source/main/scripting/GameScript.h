@@ -441,6 +441,16 @@ public:
 
     ///@}
 
+    /// @name FreeForces - see `game.pushMessage()`
+    /// @{
+
+    /**
+    * Returns an unused (not reused) ID to use with `MSG_SIM_ADD_FREEFORCE_REQUESTED`; see `game.pushMessage()`.
+    */
+    FreeForceID_t getFreeForceNextId();
+
+    ///@}
+
     /// @name Waypoint AI for Actors; to understand these values, look in TopMenubar UI->VehicleAI tab.
     /// @{
 

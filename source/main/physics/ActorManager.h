@@ -44,16 +44,18 @@ class ActorManager
 {
 public:
 
+    typedef std::vector<FreeForce> FreeForceVec_t;
+
     ActorManager();
     ~ActorManager();
 
-    /// @name Lifetime
+    /// @name Actor lifetime
     /// @{
     ActorPtr       CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr def);
     void           DeleteActorInternal(ActorPtr actor); //!< Do not call directly; use `GameContext::DeleteActor()`
     /// @}
 
-    /// @name Lookup
+    /// @name Actor lookup
     /// @{
     const ActorPtr& GetActorById(ActorInstanceID_t actor_id);
     const ActorPtr& GetActorByNetworkLinks(int source_id, int stream_id); // used by character
@@ -61,6 +63,15 @@ public:
     const ActorPtr& FetchNextVehicleOnList(ActorPtr player, ActorPtr prev_player);
     const ActorPtr& FetchPreviousVehicleOnList(ActorPtr player, ActorPtr prev_player);
     const ActorPtr& FetchRescueVehicle();
+    /// @}
+
+    /// @name Free forces
+    /// @{
+    void           AddFreeForce(FreeForceRequest* rq);
+    void           ModifyFreeForce(FreeForceRequest* rq);
+    void           RemoveFreeForce(FreeForceID_t id);
+    FreeForceVec_t::iterator FindFreeForce(FreeForceID_t id);
+    FreeForceID_t  GetFreeForceNextId() { return m_free_force_next_id++; }
     /// @}
 
     void           UpdateActors(ActorPtr player_actor);
@@ -84,6 +95,7 @@ public:
     void           SetSimulationPaused(bool v)             { m_simulation_paused = v; }
     float          GetTotalTime() const                    { return m_total_sim_time; }
     RoR::CmdKeyInertiaConfig& GetInertiaConfig()           { return m_inertia_config; }
+    
 
     void           CleanUpSimulation(); //!< Call this after simulation loop finishes.
 
@@ -122,6 +134,7 @@ private:
     void           RecursiveActivation(int j, std::vector<bool>& visited);
     void           ForwardCommands(ActorPtr source_actor); //!< Fowards things to trailers
     void           UpdateTruckFeatures(ActorPtr vehicle, float dt);
+    void           CalcFreeForces();                             //!< Apply FreeForces - intentionally as a separate pass over all actors
 
     // Networking
     std::map<int, std::set<int>> m_stream_mismatches; //!< Networking: A set of streams without a corresponding actor in the actor-array for each stream source
@@ -138,6 +151,8 @@ private:
     float               m_simulation_time        = 0.f;   //!< Amount of time the physics simulation is going to be advanced
     bool                m_simulation_paused      = false;
     float               m_total_sim_time         = 0.f;
+    FreeForceVec_t      m_free_forces;                    //!< Global forces added ad-hoc by scripts
+    FreeForceID_t       m_free_force_next_id     = 0;     //!< Unique ID for each FreeForce
 
     // Utils
     std::unique_ptr<ThreadPool> m_sim_thread_pool;

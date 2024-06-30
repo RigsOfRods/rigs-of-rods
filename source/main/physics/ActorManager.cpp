@@ -58,7 +58,7 @@
 using namespace Ogre;
 using namespace RoR;
 
-static ActorInstanceID_t m_actor_counter = 0;
+static ActorInstanceID_t m_actor_counter = 1;
 const ActorPtr ActorManager::ACTORPTR_NULL; // Dummy value to be returned as const reference.
 
 ActorManager::ActorManager()
@@ -905,6 +905,26 @@ void ActorManager::DeleteActorInternal(ActorPtr actor)
     }
 #endif // USE_SOCKETW
 
+    // Unload actor's scripts
+    std::vector<ScriptUnitId_t> unload_list;
+    for (auto& pair : App::GetScriptEngine()->getScriptUnits())
+    {
+        if (pair.second.associatedActor == actor)
+            unload_list.push_back(pair.first);
+    }
+    for (ScriptUnitId_t id : unload_list)
+    {
+        App::GetScriptEngine()->unloadScript(id);
+    }
+
+    // Remove FreeForces referencing this actor
+    m_free_forces.erase(
+        std::remove_if(
+            m_free_forces.begin(),
+            m_free_forces.end(),
+            [actor](FreeForce& item) { return item.ffc_base_actor == actor || item.ffc_target_actor == actor; }),
+        m_free_forces.end());
+
     // Only dispose(), do not `delete`; a script may still hold pointer to the object.
     actor->dispose();
 
@@ -1193,6 +1213,9 @@ void ActorManager::UpdatePhysicsSimulation()
             }
             App::GetThreadPool()->Parallelize(tasks);
         }
+
+        // Apply FreeForces - intentionally as a separate pass over all actors
+        this->CalcFreeForces();
     }
     for (ActorPtr& actor: m_actors)
     {
@@ -1479,3 +1502,159 @@ void ActorManager::UpdateTruckFeatures(ActorPtr vehicle, float dt)
     BITMASK_SET(vehicle->m_lightmask, RoRnet::LIGHTMASK_REVERSE, (vehicle->ar_engine && vehicle->ar_engine->GetGear() < 0));
 }
 
+void ActorManager::CalcFreeForces()
+{
+    for (FreeForce& freeforce: m_free_forces)
+    {
+        // Sanity checks
+        ROR_ASSERT(freeforce.ffc_base_actor != nullptr);
+        ROR_ASSERT(freeforce.ffc_base_actor->ar_state != ActorState::DISPOSED);
+        ROR_ASSERT(freeforce.ffc_base_node != NODENUM_INVALID);
+        ROR_ASSERT(freeforce.ffc_base_node <= freeforce.ffc_base_actor->ar_num_nodes);
+
+        
+        switch (freeforce.ffc_type)
+        {
+            case FreeForceType::CONSTANT:
+                freeforce.ffc_base_actor->ar_nodes[freeforce.ffc_base_node].Forces += freeforce.ffc_force_magnitude * freeforce.ffc_force_const_direction;
+                break;
+            
+            case FreeForceType::TOWARDS_COORDS:
+                {
+                    const Vector3 force_direction = (freeforce.ffc_target_coords - freeforce.ffc_base_actor->ar_nodes[freeforce.ffc_base_node].AbsPosition).normalisedCopy();
+                    freeforce.ffc_base_actor->ar_nodes[freeforce.ffc_base_node].Forces += freeforce.ffc_force_magnitude * force_direction;
+                }
+                break;
+
+            case FreeForceType::TOWARDS_NODE:    
+                {
+                    // Sanity checks
+                    ROR_ASSERT(freeforce.ffc_target_actor != nullptr);
+                    ROR_ASSERT(freeforce.ffc_target_actor->ar_state != ActorState::DISPOSED);
+                    ROR_ASSERT(freeforce.ffc_target_node != NODENUM_INVALID);
+                    ROR_ASSERT(freeforce.ffc_target_node <= freeforce.ffc_target_actor->ar_num_nodes);
+
+                    const Vector3 force_direction = (freeforce.ffc_target_actor->ar_nodes[freeforce.ffc_target_node].AbsPosition - freeforce.ffc_base_actor->ar_nodes[freeforce.ffc_base_node].AbsPosition).normalisedCopy();
+                    freeforce.ffc_base_actor->ar_nodes[freeforce.ffc_base_node].Forces += freeforce.ffc_force_magnitude * force_direction;
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+}
+
+static bool ProcessFreeForce(FreeForceRequest* rq, FreeForce& freeforce)
+{
+    // internal helper for processing add/modify requests, with checks
+    // ---------------------------------------------------------------
+
+    // Unchecked stuff
+    freeforce.ffc_id = (FreeForceID_t)rq->ffr_id;
+    freeforce.ffc_type = (FreeForceType)rq->ffr_type;
+    freeforce.ffc_force_magnitude = (float)rq->ffr_force_magnitude;
+    freeforce.ffc_force_const_direction = rq->ffr_force_const_direction;
+    freeforce.ffc_target_coords = rq->ffr_target_coords;
+
+    // Base actor
+    freeforce.ffc_base_actor = App::GetGameContext()->GetActorManager()->GetActorById(rq->ffr_base_actor);
+    ROR_ASSERT(freeforce.ffc_base_actor != nullptr && freeforce.ffc_base_actor->ar_state != ActorState::DISPOSED);
+    if (!freeforce.ffc_base_actor || freeforce.ffc_base_actor->ar_state == ActorState::DISPOSED)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
+            fmt::format("Cannot add free force with ID {} to actor {}: Base actor not found or disposed", freeforce.ffc_id, rq->ffr_base_actor));
+        return false;
+    }
+
+    // Base node
+    ROR_ASSERT(rq->ffr_base_node >= 0);
+    ROR_ASSERT(rq->ffr_base_node <= NODENUM_MAX);
+    ROR_ASSERT(rq->ffr_base_node <= freeforce.ffc_base_actor->ar_num_nodes);
+    if (rq->ffr_base_node < 0 || rq->ffr_base_node >= NODENUM_MAX || rq->ffr_base_node >= freeforce.ffc_base_actor->ar_num_nodes)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
+            fmt::format("Cannot add free force with ID {} to actor {}: Invalid base node number {}", freeforce.ffc_id, rq->ffr_base_actor, rq->ffr_base_node));
+        return false;
+    }
+    freeforce.ffc_base_node = (NodeNum_t)rq->ffr_base_node;
+
+    if (freeforce.ffc_type == FreeForceType::TOWARDS_NODE)
+    {
+        // Target actor
+        freeforce.ffc_target_actor = App::GetGameContext()->GetActorManager()->GetActorById(rq->ffr_target_actor);
+        ROR_ASSERT(freeforce.ffc_target_actor != nullptr && freeforce.ffc_target_actor->ar_state != ActorState::DISPOSED);
+        if (!freeforce.ffc_target_actor || freeforce.ffc_target_actor->ar_state == ActorState::DISPOSED)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
+                fmt::format("Cannot add free force of type 'TOWARDS_NODE' with ID {} to actor {}: Target actor not found or disposed", freeforce.ffc_id, rq->ffr_target_actor));
+            return false;
+        }
+
+        // Target node
+        ROR_ASSERT(rq->ffr_target_node >= 0);
+        ROR_ASSERT(rq->ffr_target_node <= NODENUM_MAX);
+        ROR_ASSERT(rq->ffr_target_node <= freeforce.ffc_target_actor->ar_num_nodes);
+        if (rq->ffr_target_node < 0 || rq->ffr_target_node >= NODENUM_MAX || rq->ffr_target_node >= freeforce.ffc_target_actor->ar_num_nodes)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
+                fmt::format("Cannot add free force of type 'TOWARDS_NODE' with ID {} to actor {}: Invalid target node number {}", freeforce.ffc_id, rq->ffr_target_actor, rq->ffr_target_node));
+            return false;
+        }
+        freeforce.ffc_target_node = (NodeNum_t)rq->ffr_target_node;
+    }
+
+    return true;
+}
+
+ActorManager::FreeForceVec_t::iterator ActorManager::FindFreeForce(FreeForceID_t id)
+{
+    return std::find_if(m_free_forces.begin(), m_free_forces.end(), [id](FreeForce& item) { return id == item.ffc_id; });
+}
+
+void ActorManager::AddFreeForce(FreeForceRequest* rq)
+{
+    // Make sure ID is unique
+    if (this->FindFreeForce(rq->ffr_id) != m_free_forces.end())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
+            fmt::format("Cannot add free force with ID {}: ID already in use", rq->ffr_id));
+        return;
+    }
+
+    FreeForce freeforce;
+    if (ProcessFreeForce(rq, freeforce))
+    {
+        m_free_forces.push_back(freeforce);
+    }
+}
+
+void ActorManager::ModifyFreeForce(FreeForceRequest* rq)
+{
+    auto it = this->FindFreeForce(rq->ffr_id);
+    if (it == m_free_forces.end())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
+            fmt::format("Cannot modify free force with ID {}: ID not found", rq->ffr_id));
+        return;
+    }
+
+    FreeForce& freeforce = *it;
+    if (ProcessFreeForce(rq, freeforce))
+    {
+        *it = freeforce;
+    }
+}
+
+void ActorManager::RemoveFreeForce(FreeForceID_t id)
+{
+    auto it = this->FindFreeForce(id);
+    if (it == m_free_forces.end())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR, 
+            fmt::format("Cannot remove free force with ID {}: ID not found", id));
+        return;
+    }
+
+    m_free_forces.erase(it);
+}

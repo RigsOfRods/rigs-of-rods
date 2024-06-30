@@ -774,6 +774,50 @@ struct ground_model_t
 };
 
 /// @} // addtogroup Collisions
+
+enum class FreeForceType
+{
+    DUMMY,               //!< No force
+    CONSTANT,            //!< Constant force given by direction and magnitude
+    TOWARDS_COORDS,      //!< Constant force directed towards `ffc_target_coords`
+    TOWARDS_NODE,        //!< Constant force directed towards `ffc_target_node`
+};
+
+/// Global force affecting particular (base) node of particular (base) actor; added ad-hoc by scripts.
+struct FreeForce
+{
+    // Common params:
+    FreeForceID_t        ffc_id = FREEFORCEID_INVALID;
+    FreeForceType        ffc_type = FreeForceType::DUMMY;
+    float                ffc_force_magnitude = 0.f;
+    ActorPtr             ffc_base_actor;
+    NodeNum_t            ffc_base_node = NODENUM_INVALID;
+    // Direction-specific params:
+    Ogre::Vector3        ffc_force_const_direction = Ogre::Vector3::ZERO; //!< Expected to be normalized; only effective with `FreeForceType::CONSTANT`
+    Ogre::Vector3        ffc_target_coords = Ogre::Vector3::ZERO;
+    ActorPtr             ffc_target_actor;
+    NodeNum_t            ffc_target_node = NODENUM_INVALID;
+};
+
+/// Common for ADD and MODIFY requests; tailored for use with AngelScript thru `GameScript::pushMessage()`.
+struct FreeForceRequest
+{
+    // AngelScript `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
+    
+    // common params:
+    int64_t ffr_id = FREEFORCEID_INVALID;
+    int64_t ffr_type = (int64_t)FreeForceType::DUMMY;
+    double ffr_force_magnitude = 0.0;
+    int64_t ffr_base_actor = ACTORINSTANCEID_INVALID;
+    int64_t ffr_base_node = NODENUM_INVALID;
+    // direction-specific params:
+    Ogre::Vector3 ffr_force_const_direction = Ogre::Vector3::ZERO;
+    Ogre::Vector3 ffr_target_coords = Ogre::Vector3::ZERO;
+    int64_t ffr_target_actor = ACTORINSTANCEID_INVALID;
+    int64_t ffr_target_node = NODENUM_INVALID;
+    
+};
+
 /// @} // addtogroup Physics
 
 struct authorinfo_t

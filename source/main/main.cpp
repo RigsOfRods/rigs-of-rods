@@ -1175,6 +1175,14 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_SIM_ADD_FREEFORCE_REQUESTED:
+                {
+                    FreeForceRequest* rq = static_cast<FreeForceRequest*>(m.payload);
+                    App::GetGameContext()->GetActorManager()->AddFreeForce(rq);
+                    delete rq;
+                    break;
+                }
+
                 // -- GUI events ---
 
                 case MSG_GUI_OPEN_MENU_REQUESTED:

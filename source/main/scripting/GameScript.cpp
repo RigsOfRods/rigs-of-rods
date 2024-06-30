@@ -1591,6 +1591,86 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         break;
     }
 
+    case MSG_SIM_ADD_FREEFORCE_REQUESTED:
+    case MSG_SIM_MODIFY_FREEFORCE_REQUESTED:
+    {
+        // `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
+        FreeForceRequest* rq = new FreeForceRequest();
+        if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "id", "int64", rq->ffr_id) &&
+            GetValueFromScriptDict(log_msg, dict, /*required:*/true, "type", "FreeForceType", rq->ffr_type) &&
+            GetValueFromScriptDict(log_msg, dict, /*required:*/true, "force_magnitude", "double", rq->ffr_force_magnitude) &&
+            GetValueFromScriptDict(log_msg, dict, /*required:*/true, "base_actor", "int64", rq->ffr_base_actor) &&
+            GetValueFromScriptDict(log_msg, dict, /*required:*/true, "base_node", "int64", rq->ffr_base_node))
+        {
+            switch (rq->ffr_type)
+            {
+                case (int64_t)FreeForceType::CONSTANT:
+                    if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "force_const_direction", "vector3", rq->ffr_force_const_direction))
+                    {
+                        m.payload = rq;
+                    }
+                    else
+                    {
+                        delete rq;
+                        return false;
+                    }
+                    break;
+
+                case (int64_t)FreeForceType::TOWARDS_COORDS:
+                    if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "target_coords", "vector3", rq->ffr_target_coords))
+                    {
+                        m.payload = rq;
+                    }
+                    else
+                    {
+                        delete rq;
+                        return false;
+                    }
+                    break;
+
+                case (int64_t)FreeForceType::TOWARDS_NODE:
+                    if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "target_actor", "int64", rq->ffr_target_actor) &&
+                        GetValueFromScriptDict(log_msg, dict, /*required:*/true, "target_node", "int64", rq->ffr_target_node))
+                    {
+                        m.payload = rq;
+                    }
+                    else
+                    {
+                        delete rq;
+                        return false;
+                    }
+                    break;
+
+                default:
+                    this->log(fmt::format("{}: ERROR, invalid 'free force type' value '{}'", log_msg, rq->ffr_type));
+                    delete rq;
+                    return false;
+            }
+            m.payload = rq;
+        }
+        else
+        {
+            delete rq;
+            return false;
+        }
+        break;
+    }
+
+    case MSG_SIM_REMOVE_FREEFORCE_REQUESTED:
+    {
+        // `dictionary` converts all primitives to `double` or `int64`, see 'scriptdictionary.cpp', function `Set()`
+        int64_t id = -1;
+        if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "id", "int64", id))
+        {
+            m.payload = new FreeForceID_t(id);
+        }
+        else
+        {
+            return false;
+        }
+        break;
+    }
+
     case MSG_EDI_LOAD_BUNDLE_REQUESTED:        //!< Payload = RoR::CacheEntryPtr* (owner)
     case MSG_EDI_RELOAD_BUNDLE_REQUESTED:      //!< Payload = RoR::CacheEntryPtr* (owner)
     case MSG_EDI_UNLOAD_BUNDLE_REQUESTED:      //!< Payload = RoR::CacheEntryPtr* (owner)
@@ -1628,6 +1708,11 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
 
     App::GetGameContext()->PushMessage(m);
     return true;
+}
+
+FreeForceID_t GameScript::getFreeForceNextId()
+{
+    return App::GetGameContext()->GetActorManager()->GetFreeForceNextId();
 }
 
 // --------------------------------

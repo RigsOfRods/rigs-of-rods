@@ -35,7 +35,7 @@
 namespace RoR
 {
     typedef int ActorInstanceID_t; //!< Unique sequentially generated ID of an actor in session. Use `ActorManager::GetActorById()`
-    static const ActorInstanceID_t ACTORINSTANCEID_INVALID = -1;
+    static const ActorInstanceID_t ACTORINSTANCEID_INVALID = 0;
 
     typedef int ScriptUnitId_t; //!< Unique sequentially generated ID of a loaded and running scriptin session. Use `ScriptEngine::getScriptUnit()`
     static const ScriptUnitId_t SCRIPTUNITID_INVALID = -1;
@@ -51,6 +51,7 @@ namespace RoR
 
     typedef uint16_t NodeNum_t; //!< Node position within `Actor::ar_nodes`; use RoR::NODENUM_INVALID as empty value.
     static const NodeNum_t NODENUM_INVALID = std::numeric_limits<NodeNum_t>::max();
+    static const NodeNum_t NODENUM_MAX = std::numeric_limits<NodeNum_t>::max() - 1;
 
     typedef int WheelID_t; //!< Index to `Actor::ar_wheels`, `use RoR::WHEELID_INVALID` as empty value
     static const WheelID_t WHEELID_INVALID = -1;
@@ -60,6 +61,9 @@ namespace RoR
 
     typedef int FlexbodyID_t; //!< Index to `GfxActor::m_flexbodies`, `use RoR::FLEXBODYID_INVALID` as empty value
     static const FlexbodyID_t FLEXBODYID_INVALID = -1;
+
+    typedef int FreeForceID_t; //!< Unique sequentially generated ID of `FreeForce`; use `ActorManager::GetFreeForceNextId()`.
+    static const FreeForceID_t FREEFORCEID_INVALID = -1;
 
     typedef int FlareID_t; //!< Index into `Actor::ar_flares`, use `RoR::FLAREID_INVALID` as empty value
     static const FlareID_t FLAREID_INVALID = -1;
