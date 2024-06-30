@@ -661,6 +661,7 @@ void TopMenubar::Draw(float dt)
     
                 if (DrawGCombo(App::gfx_water_mode, _LC("TopMenubar", "Mode"), water_mode_combostring.c_str()))
                 {
+                    water_waves_height = 0.f;
                     App::GetGameContext()->GetTerrain()->reInitWater();
                 }
 
@@ -670,9 +671,9 @@ void TopMenubar::Draw(float dt)
                 {
                     if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
                     {
-                        if(ImGui::SliderFloat(_LC("TopMenubar", "Waves height"), &m_waves_height, 0.f, 4.f, ""))
+                        if(ImGui::SliderFloat(_LC("TopMenubar", "Waves height"), &water_waves_height, 0.f, 4.f, ""))
                         {
-                            App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(m_waves_height);
+                            App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(water_waves_height);
                         }
                     }
                 }

@@ -123,6 +123,10 @@ public:
     CacheEntryPtr tuning_hovered_addonpart;
     void RefreshTuningMenu();
 
+    // Water settings menu
+    std::string water_mode_combostring;
+    float       water_waves_height = 0.f;
+
 private:
     bool IsMenuEnabled(TopMenu which);
 
@@ -146,11 +150,9 @@ private:
     bool    m_confirm_remove_all = false;
 
     float   m_daytime = 0.f;
-    float   m_waves_height;
     bool    m_quickload = false;
     std::string m_quicksave_name;
     std::vector<std::string> m_savegame_names;
-    std::string water_mode_combostring;
 };
 
 } // namespace GUI
