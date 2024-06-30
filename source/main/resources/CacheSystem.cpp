@@ -1339,18 +1339,60 @@ bool CacheSystem::CheckResourceLoaded(Ogre::String & filename, Ogre::String& gro
     return false;
 }
 
+static bool CheckAndReplacePathIgnoreCase(const CacheEntryPtr& entry, CVar* dir, const std::string& dir_label, std::string& out_rgname)
+{
+    // Helper for `ComposeResourceGroupName()`
+    // ---------------------------------------
+
+    // Sanity check - assert on Debug, minimize damage on Release
+    ROR_ASSERT(entry->resource_bundle_path != "");
+    if (entry->resource_bundle_path == "")
+    {
+        LOG(fmt::format("[RoR|CacheSystem] CheckAndReplacePathIgnoreCase(): INTERNAL ERROR - entry '{}' has no bundle path!", entry->fname));
+        return false;
+    }
+
+    // Lowercase everything
+    std::string lower_bundlepath = entry->resource_bundle_path;
+    Ogre::StringUtil::toLowerCase(lower_bundlepath);
+
+    std::string lower_dir = dir->getStr();
+    Ogre::StringUtil::toLowerCase(lower_dir);    
+
+    // Look for match and replace
+    if (Ogre::StringUtil::startsWith(lower_bundlepath, lower_dir, /*lowercase:*/true))
+    {
+        // Sanity check; Should be guaranteed by the `startsWith()` check, but just to be sure...
+        ROR_ASSERT(lower_bundlepath.size() > lower_dir.size());
+        if (lower_bundlepath.size() > lower_dir.size())
+        {
+            std::string localpath = entry->resource_bundle_path.substr(lower_dir.length());
+            out_rgname = fmt::format("{{bundle {}:{}}}", dir_label, localpath);
+            return true;
+        }
+    }
+    return false;
+}
+
 std::string CacheSystem::ComposeResourceGroupName(const CacheEntryPtr& entry)
 {
-    // Compose group name as "{bundle <local path>}", 
-    //  where 'local path' means under 'Documenst\My Games\Rigs of Rods'.
-    // -----------------------------------------------------------------
-    std::string name = entry->resource_bundle_path; // Start from full path
-    size_t prefix_pos = name.find_first_not_of(App::sys_user_dir->getStr());
-    if (prefix_pos != std::string::npos)
+    // Compose group name as "{bundle <local path>}", where 'local path' means either:
+    // - under `sys_user_dir` (by default 'Documenst\My Games\Rigs of Rods')
+    // - under `app_extra_mod_path` (empty by default)
+    // - under 'sys_process_dir' (autodetected)
+    // -------------------------------------------------------------------------------
+
+    std::string rg_name;
+    if (CheckAndReplacePathIgnoreCase(entry, App::sys_user_dir, "USER", rg_name) ||
+        CheckAndReplacePathIgnoreCase(entry, App::sys_process_dir, "BIN", rg_name) ||
+        CheckAndReplacePathIgnoreCase(entry, App::app_extra_mod_path, "EXTRA", rg_name))
     {
-        name = name.substr(App::sys_user_dir->getStr().length());
+        return rg_name;
     }
-    return fmt::format("{{bundle {}}}", name);
+    else
+    {
+        return fmt::format("{{bundle FULL:{}}}", entry->resource_bundle_path);
+    }
 }
 
 void CacheSystem::LoadSupplementaryDocuments(CacheEntryPtr& entry)
