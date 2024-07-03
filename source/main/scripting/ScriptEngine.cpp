@@ -947,36 +947,9 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     // Execute the `main()` function in the script.
     // The function must have full access to the game API.
     SLOG(fmt::format("Executing main() in {}", moduleName));
-    m_currently_executing_script_unit = unit_id; // for `Execute()` below.
-    result = context->Execute();
-    m_currently_executing_script_unit = SCRIPTUNITID_INVALID; // Tidy up.
-    if ( result != AngelScript::asEXECUTION_FINISHED )
+    int mainfunc_result = this->executeContextAndHandleErrors(unit_id);
+    if ( mainfunc_result != AngelScript::asEXECUTION_FINISHED )
     {
-        // The execution didn't complete as expected. Determine what happened.
-        if ( result == AngelScript::asEXECUTION_ABORTED )
-        {
-            SLOG("The script was aborted before it could finish. Probably it timed out.");
-        }
-        else if ( result == AngelScript::asEXECUTION_EXCEPTION )
-        {
-            // An exception occurred, let the script writer know what happened so it can be corrected.
-            SLOG("An exception '" + String(context->GetExceptionString()) 
-            + "' occurred. Please correct the code in file '" 
-            + m_script_units[unit_id].scriptName + "' and try again.");
-
-            // Write some information about the script exception
-            AngelScript::asIScriptFunction* func = context->GetExceptionFunction();
-            SLOG("func: " + String(func->GetDeclaration()));
-            SLOG("modl: " + String(func->GetModuleName()));
-            SLOG("sect: " + String(func->GetScriptSectionName()));
-            SLOG("line: " + TOSTRING(context->GetExceptionLineNumber()));
-            SLOG("desc: " + String(context->GetExceptionString()));
-        }
-        else
-        {
-            SLOG("The script ended for some unforeseen reason " + TOSTRING(result));
-        }
-
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
             fmt::format("Could not load script '{}' - error running function `main()`, check AngelScript.log", moduleName));
     }
@@ -985,7 +958,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
         SLOG("The script finished successfully.");
     }
 
-    return 0;
+    return mainfunc_result;
 }
 
 void ScriptEngine::unloadScript(ScriptUnitId_t nid)
