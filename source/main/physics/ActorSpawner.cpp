@@ -5703,7 +5703,7 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
         beamx.rod_target_actor = m_actor;
         beamx.rod_is_visible = false;
 
-        beamx.rod_scenenode = m_actor->m_gfx_actor->m_gfx_beams_parent_scenenode->createChildSceneNode(this->ComposeName("beam", (int)m_actor->m_gfx_actor->m_gfx_beams.size()));
+        beamx.rod_scenenode = m_actor->m_gfx_actor->m_gfx_beams_parent_scenenode->createChildSceneNode(this->ComposeName("beam", beam_index));
         beamx.rod_scenenode->attachObject(entity);
         beamx.rod_scenenode->setVisible(visible, /*cascade:*/ false);
         beamx.rod_scenenode->setScale(beam_defaults->visual_beam_diameter, -1, beam_defaults->visual_beam_diameter);
