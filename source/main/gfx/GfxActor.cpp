@@ -3338,6 +3338,24 @@ void RoR::GfxActor::RemoveBeam(int beam_index)
     {
         if (itor->rod_beam_index == beam_index)
         {
+            // Destroy OGRE objects
+            if (itor->rod_scenenode)
+            {
+                if (itor->rod_scenenode->getAttachedObject(0))
+                {
+                    Ogre::Entity* ent = static_cast<Ogre::Entity*>(itor->rod_scenenode->getAttachedObject(0));
+                    if (ent)
+                    {
+                        ent->detachFromParent();
+                        App::GetGfxScene()->GetSceneManager()->destroyEntity(ent);
+                    }
+                }
+
+                App::GetGfxScene()->GetSceneManager()->destroySceneNode(itor->rod_scenenode);
+                itor->rod_scenenode = nullptr;
+            }
+
+            // Destroy the beam visuals
             m_gfx_beams.erase(itor);
             return;
         }
