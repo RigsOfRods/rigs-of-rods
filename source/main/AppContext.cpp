@@ -267,8 +267,10 @@ bool AppContext::SetUpRendering()
     }
 
     // Load renderer configuration
+    bool autodetect_resolution = false;
     if (!m_ogre_root->restoreConfig())
     {
+        autodetect_resolution = true;
         LOG(fmt::format("[RoR|Startup|Rendering] WARNING - invalid 'ogre.cfg', selecting render plugin manually..."));
 
         const auto render_systems = App::GetAppContext()->GetOgreRoot()->getAvailableRenderers();
@@ -339,6 +341,27 @@ bool AppContext::SetUpRendering()
     
     if(width < 800) width = 800;
     if(height < 600) height = 600;
+
+    if (autodetect_resolution)
+    {
+        for (auto& p_mode_str: ropts["Video Mode"].possibleValues)
+        {
+            Ogre::uint32 p_width, p_height;
+            std::istringstream p_mode (p_mode_str);
+            p_mode >> p_width;
+            p_mode >> token; // 'x' as seperator between width and height
+            p_mode >> p_height;
+            if (p_width >= width && p_height >= height)
+            {
+                width = p_width;
+                height = p_height;
+                m_ogre_root->getRenderSystem()->setConfigOption("Video Mode", p_mode_str);
+            }
+        }
+
+        LOG(fmt::format("[RoR|Startup|Rendering] WARNING - invalid 'ogre.cfg', auto-detected resolution {}x{}", width, height));
+        m_ogre_root->saveConfig();
+    }
 
     // Review render window settings
     std::stringstream miscParams_log;
