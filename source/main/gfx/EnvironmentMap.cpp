@@ -191,7 +191,7 @@ void RoR::GfxEnvmap::SetupEnvMap()
     }
 }
 
-RoR::GfxEnvmap::~GfxEnvmap()
+void RoR::GfxEnvmap::ShutdownEnvMap()
 {
     for (int face = 0; face < NUM_FACES; face++)
     {

@@ -35,10 +35,10 @@ class GfxEnvmap
 public:
 
     GfxEnvmap();
-    ~GfxEnvmap();
 
     void SetupEnvMap();
     void UpdateEnvMap(Ogre::Vector3 center, GfxActor* gfx_actor, bool full = false);
+    void ShutdownEnvMap();
 
 private:
 

@@ -412,11 +412,8 @@ int main(int argc, char *argv[])
                 {
                     try
                     {
-                        if (!App::GetCacheSystem()->IsModCacheLoaded()) // If not already loaded...
-                        {
-                            App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
-                            App::GetContentManager()->InitModCache(CacheValidity::UNKNOWN);
-                        }
+                        App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+                        App::GetContentManager()->InitModCache(CacheValidity::UNKNOWN);
                     }
                     catch (...)
                     {
@@ -887,6 +884,9 @@ int main(int argc, char *argv[])
                     catch (...)
                     {
                         HandleMsgQueueException(m.type);
+                        App::GetGuiManager()->LoadingWindow.SetVisible(false);
+                        App::GetGuiManager()->GameMainMenu.SetVisible(true);
+                        App::GetGuiManager()->ShowMessageBox(_L("Internal error"), _L("Internal error while loading terrain, see RoR.log"));
                     }
                     break;
                 }

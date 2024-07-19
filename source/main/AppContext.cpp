@@ -473,6 +473,7 @@ void AppContext::ReinitRendering()
     m_overlay_system = nullptr;
 
     LOG("[RoR|Rendering] Reinitializing rendering system: destroying scene manager");
+    App::GetGfxScene()->GetEnvMap().ShutdownEnvMap();
     App::GetGfxScene()->Shutdown();
 
     LOG("[RoR|Rendering] Reinitializing rendering system: destroying camera manager");
@@ -498,7 +499,6 @@ void AppContext::ReinitRendering()
     this->SetUpOverlaySystem();
 
     LOG("[RoR|Rendering] Reinitializing rendering system: create manual resources");
-    // BEGIN copypasta
     Ogre::ConfigOptionMap ropts = App::GetAppContext()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
     int resolution = Ogre::StringConverter::parseInt(Ogre::StringUtil::split(ropts["Video Mode"].currentValue, " x ")[0], 1024);
     int fsaa = 2 * (Ogre::StringConverter::parseInt(ropts["FSAA"].currentValue, 0) / 4);
@@ -558,6 +558,8 @@ void AppContext::ReinitRendering()
 
     LOG("[RoR|Rendering] Reinitializing rendering system: setting up menu wallpaper");
     App::GetGuiManager()->SetUpMenuWallpaper();
+
+    App::GetGameContext()->PushMessage(Message(MSG_APP_MODCACHE_LOAD_REQUESTED));
 }
 
 // --------------------------
