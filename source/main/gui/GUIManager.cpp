@@ -107,6 +107,12 @@ void GUIManager::ShutdownMyGUI()
     }
 }
 
+void GUIManager::ShutdownImGui()
+{
+    App::GetGfxScene()->GetSceneManager()->removeRenderQueueListener(&m_imgui);
+    m_imgui.Shutdown();
+}
+
 void GUIManager::ApplyGuiCaptureKeyboard()
 {
     m_gui_kb_capture_requested = m_gui_kb_capture_queued;

@@ -156,6 +156,7 @@ void GameSettings::DrawRenderSystemSettings()
             if (rs->validateConfigOptions().empty())
             {
                 ogre_root->saveConfig();
+                App::GetGameContext()->PushMessage(Message(MSG_APP_REINIT_RENDERER_REQUESTED));
             }
         }
     }

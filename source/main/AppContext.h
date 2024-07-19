@@ -31,6 +31,7 @@
 
 #include <Bites/OgreWindowEventUtilities.h>
 #include <Ogre.h>
+#include <OgreOverlaySystem.h>
 #include <OIS.h>
 
 namespace RoR {
@@ -52,6 +53,7 @@ public:
     void                 SetUpLogging();
     bool                 SetUpResourcesDir();
     bool                 SetUpRendering();
+    void                 SetUpOverlaySystem();
     bool                 SetUpConfigSkeleton();
     bool                 SetUpInput();
     void                 SetUpObsoleteConfMarker();
@@ -60,11 +62,13 @@ public:
     Ogre::RenderWindow*  CreateCustomRenderWindow(std::string const& name, int width, int height);
     void                 CaptureScreenshot();
     void                 ActivateFullscreen(bool val);
+    void                 ReinitRendering();
 
     // Getters
     Ogre::Root*          GetOgreRoot() { return m_ogre_root; }
     Ogre::Viewport*      GetViewport() { return m_viewport; }
     Ogre::RenderWindow*  GetRenderWindow() { return m_render_window; }
+    Ogre::OverlaySystem* GetOverlaySystem() { return m_overlay_system; }
     RoR::ForceFeedback&  GetForceFeedback() { return m_force_feedback; }
     std::thread::id      GetMainThreadID() { return m_mainthread_id; }
 
@@ -97,6 +101,7 @@ private:
     Ogre::Root*          m_ogre_root     = nullptr;
     Ogre::RenderWindow*  m_render_window = nullptr;
     Ogre::Viewport*      m_viewport      = nullptr;
+    Ogre::OverlaySystem* m_overlay_system = nullptr;
     bool                 m_windowed_fix = false; //!< Workaround OGRE glitch when switching from fullscreen.
 
     std::time_t          m_prev_screenshot_time;

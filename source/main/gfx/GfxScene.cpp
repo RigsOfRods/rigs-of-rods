@@ -87,6 +87,15 @@ void GfxScene::Init()
     m_skidmark_conf.LoadDefaultSkidmarkDefs();
 }
 
+void GfxScene::Shutdown()
+{
+    if (m_scene_manager)
+    {
+        App::GetAppContext()->GetOgreRoot()->destroySceneManager(m_scene_manager);
+        m_scene_manager = nullptr;
+    }
+}
+
 void GfxScene::UpdateScene(float dt_sec)
 {
     // Actors - start threaded tasks

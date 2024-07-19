@@ -148,6 +148,7 @@ public:
     void SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager);
 
     void ShutdownMyGUI();
+    void ShutdownImGui();
     void SetMouseCursorVisibility(MouseCursorVisibility visi);
     void UpdateMouseCursorVisibility();
     void SupressCursor(bool do_supress);

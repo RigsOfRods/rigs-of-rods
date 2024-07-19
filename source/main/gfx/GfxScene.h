@@ -46,7 +46,12 @@ class GfxScene
 {
 public:
 
+    /// @name Lifetime
+    /// @{
     void           Init();
+    void           Shutdown();
+    /// @}
+
     void           CreateDustPools();
     DustPool*      GetDustPool(const char* name);
     void           SetParticlesVisible(bool visible);

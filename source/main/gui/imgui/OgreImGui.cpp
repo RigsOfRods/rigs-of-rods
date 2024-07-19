@@ -86,6 +86,12 @@ void OgreImGui::Init()
     m_imgui_overlay->show();
 }
 
+void OgreImGui::Shutdown()
+{
+    m_imgui_overlay->hide();
+    m_imgui_overlay = nullptr;
+}
+
 void OgreImGui::InjectMouseMoved( const OIS::MouseEvent &arg )
 {
 

@@ -30,6 +30,7 @@
 #include "DashBoardManager.h"
 #include "ErrorUtils.h"
 #include "GameContext.h"
+#include "GfxScene.h"
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_MainSelector.h"
@@ -44,6 +45,9 @@
 #ifdef USE_ANGELSCRIPT
 #    include "ScriptEngine.h"
 #endif
+
+#include <Ogre.h>
+#include <OgreOverlaySystem.h>
 
 #ifdef _WIN32
 #   include <windows.h>
@@ -234,7 +238,7 @@ bool AppContext::SetUpRendering()
     std::string log_filepath = PathCombine(App::sys_logs_dir->getStr(), "RoR.log");
     std::string cfg_filepath = PathCombine(App::sys_config_dir->getStr(), "ogre.cfg");
     LOG(fmt::format("[RoR|Startup|Rendering] Creating OGRE renderer Root object, config='{}'", cfg_filepath));
-    m_ogre_root = new Ogre::Root("", cfg_filepath, log_filepath);
+    m_ogre_root = new Ogre::Root("", cfg_filepath, log_filepath);   
 
     // load OGRE plugins manually
 #ifdef _DEBUG
@@ -319,7 +323,7 @@ bool AppContext::SetUpRendering()
     miscParams["gamma"] = ropts["sRGB Gamma Conversion"].currentValue;
     if (!App::diag_allow_window_resize->getBool())
     {
-    miscParams["border"] = "fixed";
+        miscParams["border"] = "fixed";
     }
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
     const auto rd = ropts["Rendering Device"];
@@ -362,6 +366,12 @@ bool AppContext::SetUpRendering()
     m_viewport->setBackgroundColour(Ogre::ColourValue::Black);
 
     return true;
+}
+
+void AppContext::SetUpOverlaySystem()
+{
+    ROR_ASSERT(!m_overlay_system);
+    m_overlay_system = new Ogre::OverlaySystem(); //Overlay init
 }
 
 Ogre::RenderWindow* AppContext::CreateCustomRenderWindow(std::string const& window_name, int width, int height)
@@ -434,6 +444,120 @@ void AppContext::ActivateFullscreen(bool val)
     {
         m_render_window->setFullscreen(val, m_render_window->getWidth(), m_render_window->getHeight());
     }
+}
+
+void AppContext::ReinitRendering()
+{
+    // Inspired by OGRE sample browser: https://github.com/OGRECave/ogre/blob/master/Samples/Browser/include/SampleBrowser.h#L1038C1-L1060C10
+    // which derives from OGRE ApplicationContext: https://github.com/OGRECave/ogre/blob/14dc38b9739cd3345bbb39ef491023a31a808734/Samples/Common/include/SampleContext.h#L220-L233
+    // > the actual reinit logic: https://github.com/OGRECave/ogre/blob/14dc38b9739cd3345bbb39ef491023a31a808734/Samples/Common/include/SampleContext.h#L126-L143
+    // > > teardown phase (identical to full shutdown): https://github.com/OGRECave/ogre/blob/master/Components/Bites/src/OgreApplicationContextBase.cpp#L81
+    // > > relaunch phase (identical to full init): https://github.com/OGRECave/ogre/blob/master/Components/Bites/src/OgreApplicationContextBase.cpp#L59 
+    // =================================================================================================================================================================
+
+    ROR_ASSERT(App::app_state->getEnum<AppState>() == AppState::MAIN_MENU);
+    
+    LOG("[RoR|Rendering] Reinitializing rendering system: destroying sound script manager");
+    App::DestroySoundScriptManager();
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: destroying InputEngine (this destroys OIS)");
+    App::DestroyInputEngine();
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: destroying GUI manager");
+    App::GetGuiManager()->ShutdownMyGUI();
+    App::DestroyGuiManager();
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: destroying Ogre::OverlaySystem");
+    App::GetGfxScene()->GetSceneManager()->removeRenderQueueListener(m_overlay_system);
+    delete m_overlay_system;
+    m_overlay_system = nullptr;
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: destroying scene manager");
+    App::GetGfxScene()->Shutdown();
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: destroying camera manager");
+    App::DestroyCameraManager();
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: removing viewport");
+    m_render_window->removeViewport(m_viewport->getZOrder());
+    m_viewport = nullptr;
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: destroying render window");
+    m_ogre_root->getRenderSystem()->destroyRenderWindow(m_render_window->getName());
+    m_render_window = nullptr;
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: shutting down OGRE");
+    m_ogre_root->shutdown();
+    OGRE_DELETE m_ogre_root;
+    m_ogre_root = nullptr;
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: initializing OGRE");
+    this->SetUpRendering();
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: creating Ogre::OverlaySystem");
+    this->SetUpOverlaySystem();
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: create manual resources");
+    // BEGIN copypasta
+    Ogre::ConfigOptionMap ropts = App::GetAppContext()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
+    int resolution = Ogre::StringConverter::parseInt(Ogre::StringUtil::split(ropts["Video Mode"].currentValue, " x ")[0], 1024);
+    int fsaa = 2 * (Ogre::StringConverter::parseInt(ropts["FSAA"].currentValue, 0) / 4);
+    int res = std::pow(2, std::floor(std::log2(resolution)));
+
+    Ogre::TextureManager::getSingleton().createManual ("EnvironmentTexture",
+        Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_CUBE_MAP, res / 4, res / 4, 0,
+        Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, fsaa);
+    Ogre::TextureManager::getSingleton ().createManual ("Refraction",
+        Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, res / 2, res / 2, 0,
+        Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, fsaa);
+    Ogre::TextureManager::getSingleton ().createManual ("Reflection",
+        Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, res / 2, res / 2, 0,
+        Ogre::PF_R8G8B8, Ogre::TU_RENDERTARGET, 0, false, fsaa);
+
+    if (!App::diag_warning_texture->getBool())
+    {
+        // We overwrite the default warning texture (yellow stripes) with something unobtrusive
+        Ogre::uchar data[3] = {0};
+        Ogre::PixelBox pixels(1, 1, 1, Ogre::PF_BYTE_RGB, &data);
+        Ogre::TextureManager::getSingleton()._getWarningTexture()->getBuffer()->blitFromMemory(pixels);
+    }
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: load resource packs");
+    App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FLAGS);
+    App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::FONTS);
+    App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::ICONS);
+    App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::OGRE_CORE);
+    App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::WALLPAPERS);
+    App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS);
+
+
+#ifndef NOLANG
+    LOG("[RoR|Rendering] Reinitializing rendering system: load translations (LanguageEngine)");
+    App::GetLanguageEngine()->setup();
+#endif // NOLANG
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: setting up ContentManager (also creates soundscript manager)");
+    App::GetContentManager()->InitContentManager(); // Needs OverlaySystem
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: creating Ogre::SceneManager");
+    App::GetGfxScene()->Init(); // Creates OGRE SceneManager, needs content manager
+    App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(m_overlay_system);
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: creating camera manager");
+    App::CreateCameraManager(); // Creates OGRE Camera
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: setting up envmap");
+    App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: creating GUI manager");
+    App::CreateGuiManager(); // Needs scene manager
+    App::GetGuiManager()->GameMainMenu.SetVisible(true);
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: create OIS and InputEngine");
+    App::GetAppContext()->SetUpInput();
+
+    LOG("[RoR|Rendering] Reinitializing rendering system: setting up menu wallpaper");
+    App::GetGuiManager()->SetUpMenuWallpaper();
 }
 
 // --------------------------

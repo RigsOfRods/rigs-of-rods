@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
             return -1; // Error already displayed
         }
 
-        Ogre::OverlaySystem* overlay_system = new Ogre::OverlaySystem(); //Overlay init
+        App::GetAppContext()->SetUpOverlaySystem();
 
         Ogre::ConfigOptionMap ropts = App::GetAppContext()->GetOgreRoot()->getRenderSystem()->getConfigOptions();
         int resolution = Ogre::StringConverter::parseInt(Ogre::StringUtil::split(ropts["Video Mode"].currentValue, " x ")[0], 1024);
@@ -184,11 +184,12 @@ int main(int argc, char *argv[])
 #endif // NOLANG
         App::GetConsole()->regBuiltinCommands(); // Call after localization had been set up
 
-        App::GetContentManager()->InitContentManager();
+        App::GetContentManager()->InitContentManager(); // Needs OverlayManager
 
         // Set up rendering
-        App::CreateGfxScene(); // Creates OGRE SceneManager, needs content manager
-        App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(overlay_system);
+        App::GetGfxScene()->Init(); // Creates OGRE SceneManager, needs content manager
+        
+        App::GetGfxScene()->GetSceneManager()->addRenderQueueListener(App::GetAppContext()->GetOverlaySystem());
         App::CreateCameraManager(); // Creates OGRE Camera
         App::GetGfxScene()->GetEnvMap().SetupEnvMap(); // Needs camera
 
@@ -506,6 +507,23 @@ int main(int argc, char *argv[])
                         App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_THREAD_STATUS,
                             args->arg1, args->arg2ex, args->arg3ex, args->arg4ex, args->arg5ex, args->arg6ex, args->arg7ex);
                         delete args;
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    break;
+                }
+
+                case MSG_APP_REINIT_RENDERER_REQUESTED:
+                {
+                    try
+                    {
+                        // Because this involves reloading all resources, it must be done without terrain/actors loaded.
+                        if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
+                        {
+                            App::GetAppContext()->ReinitRendering();
+                        }
                     }
                     catch (...)
                     {

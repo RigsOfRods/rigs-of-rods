@@ -62,6 +62,9 @@ private:
     std::string m_combo_items_water_mode;
     std::string m_combo_items_extcam_mode;
     std::string m_combo_items_input_grab;
+
+    // Renderer settings
+    bool m_render_settings_changed = false;
 };
 
 } // namespace GUI

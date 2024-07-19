@@ -55,6 +55,7 @@ class OgreImGui: public Ogre::RenderQueueListener
 {
 public:
     void Init();
+    void Shutdown();
 
     // Input-injecting functions
     void InjectMouseMoved( const OIS::MouseEvent &arg );

@@ -325,12 +325,6 @@ void CreateCameraManager()
     g_camera_manager = new CameraManager();
 }
 
-void CreateGfxScene()
-{
-    ROR_ASSERT(!g_gfx_scene.GetSceneManager());
-    g_gfx_scene.Init();
-}
-
 void CreateSoundScriptManager()
 {
 #if USE_OPENAL
@@ -352,6 +346,30 @@ void DestroyOverlayWrapper()
 {
     delete g_overlay_wrapper;
     g_overlay_wrapper = nullptr;
+}
+
+void DestroyCameraManager()
+{
+    delete g_camera_manager;
+    g_camera_manager = nullptr;
+}
+
+void DestroySoundScriptManager()
+{
+    delete g_sound_script_manager;
+    g_sound_script_manager = nullptr;
+}
+
+void DestroyGuiManager()
+{
+    delete g_gui_manager;
+    g_gui_manager = nullptr;
+}
+
+void DestroyInputEngine()
+{
+    delete g_input_engine;
+    g_input_engine = nullptr;
 }
 
 } // namespace App
