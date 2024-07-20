@@ -44,6 +44,7 @@ private:
 
     // GUI state
     bool m_is_visible = false;
+    ImVec2 m_window_size = ImVec2(0, 0);
 
     // Buffers for text input boxes
     Str<1000> m_buf_diag_preset_terrain;
@@ -62,6 +63,10 @@ private:
     std::string m_combo_items_water_mode;
     std::string m_combo_items_extcam_mode;
     std::string m_combo_items_input_grab;
+
+    // Render settings
+    bool m_render_must_restart = false;
+    float m_bump_height = 0.0f;
 };
 
 } // namespace GUI
