@@ -251,6 +251,16 @@ public:
     */
     int deleteScriptVariable(const Ogre::String& arg);
 
+    /**
+    * Retrieves a memory address of a global variable in any script.
+    * @param nid ScriptUnitID, ID of the running script, obtain one from global var `thisScript` or `game.getRunningScripts()`
+    * @param varName Name of the variable. Type must match the reference type.
+    * @param ref Pointer to the variable's memory address; To be registered as variable-type parameter `?&out`
+    * @param refTypeId Type of the reference; To be registered as variable-type parameter `?&out`
+    * @return 0 on success, negative number on error.
+    */
+    int getScriptVariable(ScriptUnitId_t nid, const Ogre::String& varName, void *ref, int refTypeId);
+
     void clearEventCache();
 
     /**

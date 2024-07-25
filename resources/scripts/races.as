@@ -46,7 +46,8 @@ void raceCancelPointHandler(int trigger_type, string inst, string box, int nodei
 
 // This class will handle the race logic for you
 // this class shouldn't be edited!
-class racesManager {
+// marked 'shared' so that other scripts can access the race data using `game.getScriptVariable()`
+shared class racesManager {
 // public properties
 	int raceCount;
 	int currentRace;
@@ -1136,7 +1137,8 @@ class racesManager {
 // This class manages a race (singular!)
 // this class shouldn't be edited!
 // You should only use this directly if the races manager above doesn't suit your needs
-class raceBuilder {
+// marked 'shared' so that other scripts can access the race data using `game.getScriptVariable()`
+shared class raceBuilder {
 	string raceName;
 	double[][][] checkpoints;
 	array<array<string>> objNames;

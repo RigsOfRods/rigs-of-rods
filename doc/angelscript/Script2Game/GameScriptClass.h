@@ -300,6 +300,15 @@ public:
 	 * @param var the declaration of the variable that should be removed, e.g.: "int missionState;"
 	 */
 	int deleteScriptVariable(const string var);
+    
+    /**
+    * Retrieves a memory address of a global variable in any script.
+    * @param nid ScriptUnitID, ID of the running script, obtain one from global var `thisScript` or `game.getRunningScripts()`
+    * @param varName Name of the variable. Type must match the reference type.
+    * @param ref A variable-type parameter - accepts any reference.
+    * @return 0 on success, negative number on error.
+    */
+    int getScriptVariable(ScriptUnitId_t nid, const string&in varName, ?&ref);    
 
 	/**
 	 * Clears the event cache
