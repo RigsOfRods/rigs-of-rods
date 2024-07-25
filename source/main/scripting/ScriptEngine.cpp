@@ -687,6 +687,105 @@ int ScriptEngine::deleteVariable(const String &arg)
     return index;
 }
 
+int ScriptEngine::getVariable(ScriptUnitId_t nid, const Ogre::String& varName, void *ref, int refTypeId)
+{
+    if (!engine || !context)
+    {
+        SLOG("Error in `getVariable()` - engine or context not initialized");
+        return -1;
+    }
+
+    if (!this->scriptUnitExists(nid))
+    {
+        SLOG("Error in `getVariable()` - script unit does not exist");
+        return -2;
+    }
+
+    AngelScript::asIScriptModule *mod = m_script_units[nid].scriptModule;
+    if (!mod)
+    {
+        SLOG("Error in `getVariable()` - script module not initialized");
+        return -3;
+    }
+
+    int index = mod->GetGlobalVarIndexByName(varName.c_str());
+    if (index < 0)
+    {
+        SLOG(fmt::format("Error in `getVariable()` - '{}' not found", varName));
+        return -4;
+    }
+
+    const char* asVarName = nullptr;
+    const char* asNamespace = nullptr;
+    int asTypeId = 0;
+    bool asConst = false;
+    int getResult = mod->GetGlobalVar(index, &asVarName, &asNamespace, &asTypeId, &asConst);
+    if (getResult < 0)
+    {
+        SLOG(fmt::format("Error in `getVariable()` - error while getting type of '{}'", varName));
+        return -5;
+    }
+
+    SLOG(fmt::format("getVariable() - '{}' global var info: name='{}', namespace='{}', typeid={}, const={}",
+        varName, asVarName, asNamespace, asTypeId, asConst));
+
+    // ~~ DEV NOTE: The following code is adopted from AngelScript's add-on 'scriptany.cpp', function `Retrieve()` ~~
+
+	if( refTypeId & asTYPEID_OBJHANDLE )
+	{
+		// Is the handle type compatible with the stored value?
+
+		// A handle can be retrieved if the stored type is a handle of same or compatible type
+		// or if the stored type is an object that implements the interface that the handle refer to.
+		if( (asTypeId & asTYPEID_MASK_OBJECT) )
+		{
+			// Don't allow the retrieval if the stored handle is to a const object but not the wanted handle
+			if( (asTypeId & asTYPEID_HANDLETOCONST) && !(refTypeId & asTYPEID_HANDLETOCONST) )
+            {
+                SLOG(fmt::format("Error in `getVariable()` - '{}' is a handle to `const` object but the requested type is not.", varName));
+				return -6;
+            }
+
+			// RefCastObject will increment the refCount of the returned pointer if successful
+			engine->RefCastObject(mod->GetAddressOfGlobalVar(index), engine->GetTypeInfoById(asTypeId), engine->GetTypeInfoById(refTypeId), reinterpret_cast<void**>(ref));
+			if( *(asPWORD*)ref == 0 )
+            {
+                SLOG(fmt::format("Error in `getVariable()` - '{}': reference-cast from '{}' to '{}' yielded null",
+                    varName, engine->GetTypeDeclaration(asTypeId), engine->GetTypeDeclaration(refTypeId)));
+				return -7;
+            }
+			return 0;
+		}
+	}
+	else if( refTypeId & asTYPEID_MASK_OBJECT )
+	{
+		// Is the object type compatible with the stored value?
+
+		// Copy the object into the given reference
+		if( asTypeId == refTypeId )
+		{
+			engine->AssignScriptObject(ref, mod->GetAddressOfGlobalVar(index), engine->GetTypeInfoById(asTypeId));
+			return 0;
+		}
+	}
+	else
+	{
+		// Is the primitive type _IDENTICAL TO_ the stored value?
+        // NOTE: implicit conversions are not done automatically, we would have to write code for each case separately
+
+		if( asTypeId == refTypeId )
+		{
+			int size = engine->GetSizeOfPrimitiveType(refTypeId);
+			memcpy(ref, mod->GetAddressOfGlobalVar(index), size);
+			return 0;
+		}
+	}
+
+    SLOG(fmt::format("Error in `getVariable()` - '{}' has incompatible type, expected '{}' (typeid {}), got '{}' (typeid {})",
+        varName, engine->GetTypeDeclaration(refTypeId), refTypeId, engine->GetTypeDeclaration(asTypeId), asTypeId));
+	return -8;
+}
+
 asIScriptFunction* ScriptEngine::getFunctionByDeclAndLogCandidates(ScriptUnitId_t nid, GetFuncFlags_t flags, const std::string& funcName, const std::string& fmtFuncDecl)
 {
     std::string decl = fmt::format(fmtFuncDecl, funcName);
@@ -810,7 +909,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     int result=0;
 
     String moduleName = this->composeModuleName(
-        m_script_units[unit_id].scriptName, m_script_units[unit_id].scriptCategory, m_script_units[unit_id].uniqueId);
+        m_script_units[unit_id].scriptName, m_script_units[unit_id].scriptCategory, m_script_units[unit_id].uniqueId);  
 
     // The builder is a helper class that will load the script file,
     // search for #include directives, and load any included files as

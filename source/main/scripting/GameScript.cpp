@@ -971,6 +971,11 @@ int GameScript::deleteScriptVariable(const String& arg)
     return App::GetScriptEngine()->deleteVariable(arg);
 }
 
+int GameScript::getScriptVariable(ScriptUnitId_t nid, const Ogre::String& varName, void *ref, int refTypeId)
+{
+    return App::GetScriptEngine()->getVariable(nid, varName, ref, refTypeId);
+}
+
 int GameScript::sendGameCmd(const String& message)
 {
 #ifdef USE_SOCKETW
