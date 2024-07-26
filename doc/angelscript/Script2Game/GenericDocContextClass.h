@@ -49,8 +49,16 @@ class GenericDocContextClass
     
     // Editing functions:
 
+    void appendTokens(int count); //!< Appends a series of `TokenType::NONE` and sets Pos at the first one added; use `setTok*` functions to fill them.
     bool insertToken(int offset = 0); //!< Inserts `TokenType::NONE`; @return false if offset is beyond EOF
     bool eraseToken(int offset = 0); //!< @return false if offset is beyond EOF
+    
+    void appendTokString(const string&in str);
+    void appendTokFloat(float val);
+    void appendTokBool(bool val);
+    void appendTokKeyword(const string&in str);
+    void appendTokComment(const string&in str);
+    void appendTokLineBreak();    
 
     bool setTokString(int offset, const string&in str);
     bool setTokFloat(int offset, float val);

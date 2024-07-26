@@ -1140,6 +1140,18 @@ int GenericDocContext::countLineArgs()
 // -----------------
 // Editing functions
 
+void GenericDocContext::appendTokens(int count)
+{
+    if (count <= 0)
+        return;
+
+    token_pos = (int)doc->tokens.size();
+    for (int i = 0; i < count; i++)
+    {
+        doc->tokens.push_back({ TokenType::NONE, 0.f });
+    }
+}
+
 bool GenericDocContext::insertToken(int offset)
 {
     if (endOfFile(offset))

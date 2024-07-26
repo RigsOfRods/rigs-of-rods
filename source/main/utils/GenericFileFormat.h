@@ -126,8 +126,16 @@ struct GenericDocContext: public RefCountingObject<GenericDocContext>
 
     // Editing functions:
 
+    void appendTokens(int count); //!< Appends a series of `TokenType::NONE` and sets Pos at the first one added; use `setTok*` functions to fill them.
     bool insertToken(int offset = 0); //!< Inserts `TokenType::NONE`; @return false if offset is beyond EOF
     bool eraseToken(int offset = 0); //!< @return false if offset is beyond EOF
+
+    void appendTokString(const std::string& str) { appendTokens(1); setTokString(0, str); }
+    void appendTokFloat(float val) { appendTokens(1); setTokFloat(0, val); }
+    void appendTokBool(bool val) { appendTokens(1); setTokBool(0, val); }
+    void appendTokKeyword(const std::string& str) { appendTokens(1); setTokKeyword(0, str); }
+    void appendTokComment(const std::string& str) { appendTokens(1); setTokComment(0, str); }
+    void appendTokLineBreak() { appendTokens(1); setTokLineBreak(0); }
 
     bool setTokString(int offset, const std::string& str) { return setStringData(offset, TokenType::STRING, str); }
     bool setTokFloat(int offset, float val) { return setFloatData(offset, TokenType::NUMBER, val); }
