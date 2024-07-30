@@ -2403,7 +2403,7 @@ void RoR::GfxActor::SetBeaconsEnabled(bool beacon_light_is_active)
 }
 
 // Returns a smoothened `cstate`
-float GfxActor::UpdateSmoothShift(PropAnim& anim, float dt, float new_target_cstate)
+float RoR::GfxActor::UpdateSmoothShift(PropAnim& anim, float dt, float new_target_cstate)
 {
     const float delta_cstate = new_target_cstate - anim.shifterTarget;
     if (delta_cstate != 0)
