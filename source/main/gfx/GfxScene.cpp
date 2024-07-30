@@ -89,6 +89,9 @@ void GfxScene::Init()
 
 void GfxScene::UpdateScene(float dt)
 {
+    // NOTE: The `dt` parameter here is simulation time (0 when paused), not real time!
+    // ================================================================================
+
     // Actors - start threaded tasks
     for (GfxActor* gfx_actor: m_live_gfx_actors)
     {
@@ -114,13 +117,14 @@ void GfxScene::UpdateScene(float dt)
     // Particles
     if (App::gfx_particles_mode->getInt() == 1)
     {
+        // Generate particles as needed
         for (GfxActor* gfx_actor: m_all_gfx_actors)
         {
-            if (!m_simbuf.simbuf_sim_paused && !gfx_actor->GetSimDataBuffer().simbuf_physics_paused)
-            {
-                gfx_actor->UpdateParticles(m_simbuf.simbuf_sim_speed * dt);
-            }
+            float dt_actor = (!gfx_actor->GetSimDataBuffer().simbuf_physics_paused) ? dt : 0.f;
+            gfx_actor->UpdateParticles(dt_actor);
         }
+
+        // Update particle movement
         for (auto itor : m_dustpools)
         {
             itor.second->update();
@@ -197,7 +201,7 @@ void GfxScene::UpdateScene(float dt)
     // HUD - network labels (always update)
     for (GfxActor* gfx_actor: m_all_gfx_actors)
     {
-        gfx_actor->UpdateNetLabels(m_simbuf.simbuf_sim_speed * dt);
+        gfx_actor->UpdateNetLabels(dt);
     }
 
     // Player avatars
@@ -209,6 +213,7 @@ void GfxScene::UpdateScene(float dt)
     // Actors - update misc visuals
     for (GfxActor* gfx_actor: m_all_gfx_actors)
     {
+        float dt_actor = (!gfx_actor->GetSimDataBuffer().simbuf_physics_paused) ? dt : 0.f;
         if (gfx_actor->IsActorLive())
         {
             gfx_actor->UpdateRods();
@@ -217,17 +222,18 @@ void GfxScene::UpdateScene(float dt)
             gfx_actor->UpdateAirbrakes();
             gfx_actor->UpdateCParticles();
             gfx_actor->UpdateAeroEngines();
-            gfx_actor->UpdatePropAnimations(dt);
+            gfx_actor->UpdatePropAnimations(dt_actor);
             gfx_actor->UpdateRenderdashRTT();
         }
         // Beacon flares must always be updated
-        gfx_actor->UpdateProps(dt, (gfx_actor == player_gfx_actor));
+        gfx_actor->UpdateProps(dt_actor, (gfx_actor == player_gfx_actor));
         // Blinkers (turn signals) must always be updated
-        gfx_actor->UpdateFlares(dt, (gfx_actor == player_gfx_actor));
+        gfx_actor->UpdateFlares(dt_actor, (gfx_actor == player_gfx_actor));
     }
     if (player_gfx_actor != nullptr)
     {
-        player_gfx_actor->UpdateVideoCameras(dt);
+        float dt_actor = (!player_gfx_actor->GetSimDataBuffer().simbuf_physics_paused) ? dt : 0.f;
+        player_gfx_actor->UpdateVideoCameras(dt_actor);
 
         // The old-style render-to-texture dashboard (based on OGRE overlays)
         if (m_simbuf.simbuf_player_actor->ar_driveable == TRUCK && m_simbuf.simbuf_player_actor->ar_engine != nullptr)
