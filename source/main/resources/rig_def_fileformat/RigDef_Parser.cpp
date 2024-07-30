@@ -2227,9 +2227,8 @@ void Parser::ParseProps()
     prop.rotation.x     = this->GetArgFloat  (6);
     prop.rotation.y     = this->GetArgFloat  (7);
     prop.rotation.z     = this->GetArgFloat  (8);
-    // Attention - arg 9 evaluated twice!
     prop.mesh_name      = this->GetArgStr(9);
-    prop.special        = this->GetArgSpecialProp(9);
+    prop.special        = Parser::IdentifySpecialProp(prop.mesh_name);
 
     if ((prop.special == SpecialProp::BEACON) && (m_num_args >= 14))
     {
@@ -3287,10 +3286,8 @@ BitMask_t Parser::GetArgNodeOptions(int index)
     return ret;
 }
 
-SpecialProp Parser::GetArgSpecialProp(int index)
+SpecialProp Parser::IdentifySpecialProp(const std::string& str)
 {
-    std::string str = this->GetArgStr(index);
-
     if (str.find("leftmirror"  ) != std::string::npos)         { return SpecialProp::MIRROR_LEFT; }
     if (str.find("rightmirror" ) != std::string::npos)         { return SpecialProp::MIRROR_RIGHT; }
     if (str.find("dashboard-rh") != std::string::npos)         { return SpecialProp::DASHBOARD_RIGHT; }

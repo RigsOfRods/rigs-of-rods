@@ -84,6 +84,7 @@ public:
     // Common for truckfiles and addonparts:
     static void     ProcessForsetLine(RigDef::Flexbody& def, const std::string& line, int line_number = -1);
     static Keyword  IdentifyKeyword(const std::string& line);
+    static SpecialProp IdentifySpecialProp(const std::string& str);
 
 private:
 
@@ -226,7 +227,6 @@ private:
     BitMask_t          GetArgShock2Options(int index);
     BitMask_t          GetArgShock3Options(int index);
     BitMask_t          GetArgNodeOptions  (int index);
-    SpecialProp        GetArgSpecialProp  (int index);
     EngineType         GetArgEngineType   (int index);
     ManagedMaterialType GetArgManagedMatType(int index);
 
