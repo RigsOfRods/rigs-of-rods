@@ -305,14 +305,14 @@ void SoundScriptManager::modulate(int actor_id, int mod, float value, int linkTy
     }
 }
 
-void SoundScriptManager::update(float dt_sec)
+void SoundScriptManager::update(float dt)
 {
     if (App::sim_state->getEnum<SimState>() == SimState::RUNNING ||
         App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
     {
         Ogre::SceneNode* cam_node = App::GetCameraManager()->GetCameraNode();
         static Vector3 lastCameraPosition;
-        Vector3 cameraSpeed = (cam_node->getPosition() - lastCameraPosition) / dt_sec;
+        Vector3 cameraSpeed = (cam_node->getPosition() - lastCameraPosition) / dt;
         lastCameraPosition = cam_node->getPosition();
         Ogre::Vector3 upVector = App::GetCameraManager()->GetCameraNode()->getOrientation() * Ogre::Vector3::UNIT_Y;
         // Direction points down -Z by default (adapted from Ogre::Camera)

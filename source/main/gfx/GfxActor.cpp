@@ -419,7 +419,7 @@ void RoR::GfxActor::SetVideoCamState(VideoCamState state)
     m_vidcam_state = state;
 }
 
-void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
+void RoR::GfxActor::UpdateVideoCameras(float dt)
 {
     if (m_vidcam_state != VideoCamState::VCSTATE_ENABLED_ONLINE)
         return;
@@ -539,7 +539,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt_sec)
     }
 }
 
-void RoR::GfxActor::UpdateParticles(float dt_sec)
+void RoR::GfxActor::UpdateParticles(float dt)
 {
     float water_height = 0.f; // Unused if terrain has no water
     if (App::GetGameContext()->GetTerrain()->getWater() != nullptr)
@@ -563,7 +563,7 @@ void RoR::GfxActor::UpdateParticles(float dt_sec)
             // Dripping water?
             if (nfx.nx_wet_time_sec != -1)
             {
-                nfx.nx_wet_time_sec += dt_sec;
+                nfx.nx_wet_time_sec += dt;
                 if (nfx.nx_wet_time_sec > 5.f) // Dries off in 5 sec
                 {
                     nfx.nx_wet_time_sec = -1.f;
@@ -3182,7 +3182,7 @@ bool ShouldEnableLightSource(FlareType type, bool is_player)
     }
 }
 
-void RoR::GfxActor::UpdateFlares(float dt_sec, bool is_player)
+void RoR::GfxActor::UpdateFlares(float dt, bool is_player)
 {
     // Flare states are determined in simulation, this function only applies them to OGRE objects
     // ------------------------------------------------------------------------------------------

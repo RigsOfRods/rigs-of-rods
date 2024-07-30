@@ -69,7 +69,7 @@ protected:
     };
 
     void setMapZoom(float zoom);
-    void setMapZoomRelative(float dt_sec);
+    void setMapZoomRelative(float dt);
     const char* getTypeByDriveable(const ActorPtr& actor);
     const char* getAIType(const ActorPtr& actor);
 

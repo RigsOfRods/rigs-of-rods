@@ -95,8 +95,8 @@ public:
 
     // Visual updates
 
-    void                 UpdateVideoCameras(float dt_sec);
-    void                 UpdateParticles(float dt_sec);
+    void                 UpdateVideoCameras(float dt);
+    void                 UpdateParticles(float dt);
     void                 UpdateRods();
     void                 UpdateWheelVisuals();
     void                 UpdateFlexbodies();
@@ -110,7 +110,7 @@ public:
     void                 UpdateCParticles();
     void                 UpdateAeroEngines();
     void                 UpdateNetLabels(float dt);
-    void                 UpdateFlares(float dt_sec, bool is_player);
+    void                 UpdateFlares(float dt, bool is_player);
     void                 UpdateRenderdashRTT ();
 
     // SimBuffers
