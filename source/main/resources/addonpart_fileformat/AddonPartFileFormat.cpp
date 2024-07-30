@@ -272,6 +272,41 @@ void AddonPartUtility::ProcessProp()
     def.rotation.z = m_context->getTokFloat(8);
 
     def.mesh_name = m_context->getTokString(9);
+    def.special = RigDef::Parser::IdentifySpecialProp(def.mesh_name);
+
+    switch (def.special)
+    {
+    case SpecialProp::BEACON:
+        if (n >= 14)
+        {
+            def.special_prop_beacon.flare_material_name = m_context->getTokString(10);
+            Ogre::StringUtil::trim(def.special_prop_beacon.flare_material_name);
+
+            def.special_prop_beacon.color = Ogre::ColourValue(
+                m_context->getTokFloat(11), m_context->getTokFloat(12), m_context->getTokFloat(13));
+        }
+        break;
+
+    case SpecialProp::DASHBOARD_LEFT:
+    case SpecialProp::DASHBOARD_RIGHT:
+        if (n > 10)
+        {
+            def.special_prop_dashboard.mesh_name = m_context->getTokString(10);
+        }
+        if (n > 13)
+        {
+            def.special_prop_dashboard.offset = Ogre::Vector3(m_context->getTokFloat(11), m_context->getTokFloat(12), m_context->getTokFloat(13));
+            def.special_prop_dashboard._offset_is_set = true;
+        }
+        if (n > 14)
+        {
+            def.special_prop_dashboard.rotation_angle = m_context->getTokFloat(14);
+        }
+        break;
+
+    default:
+        break;
+    }
 
     m_module->props.push_back(def);
 }
