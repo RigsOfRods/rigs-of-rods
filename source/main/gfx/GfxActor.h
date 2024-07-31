@@ -66,6 +66,13 @@ public:
     void                 RegisterCabMesh(Ogre::Entity* ent, Ogre::SceneNode* snode, FlexObj* flexobj);
     void                 SortFlexbodies();
 
+    // Retrieving elements
+
+    std::vector<FlexBody*>& GetFlexbodies() { return m_flexbodies; };
+    std::vector<Prop>&      getProps() { return m_props; }
+    std::vector<CParticle>& getCParticles() { return m_cparticles; }
+    std::vector<Exhaust>&   getExhausts() { return m_exhausts; }
+
     // Visual changes
 
     void                 SetMaterialFlareOn(int flare_index, bool state_on);
@@ -108,6 +115,7 @@ public:
     void                 UpdatePropAnimations(float dt);
     void                 UpdateAirbrakes();
     void                 UpdateCParticles();
+    void                 UpdateExhausts();
     void                 UpdateAeroEngines();
     void                 UpdateNetLabels(float dt);
     void                 UpdateFlares(float dt, bool is_player);
@@ -132,17 +140,15 @@ public:
     void                 CalculateDriverPos(Ogre::Vector3& out_pos, Ogre::Quaternion& out_rot);
     int                  GetActorId() const;
     int                  GetActorState() const;
-    std::vector<FlexBody*>& GetFlexbodies() { return m_flexbodies; };
-    Ogre::MaterialPtr&   GetCabTransMaterial() { return m_cab_mat_visual_trans; }
     VideoCamState        GetVideoCamState() const { return m_vidcam_state; }
     DebugViewType        GetDebugView() const { return m_debug_view; }
     Ogre::String         GetResourceGroup() { return m_custom_resource_group; }
     ActorPtr             GetActor(); // Watch out for multithreading with this!
+    Ogre::MaterialPtr&   GetCabTransMaterial() { return m_cab_mat_visual_trans; }
     Ogre::TexturePtr     GetHelpTex() { return m_help_tex; }
     Ogre::MaterialPtr    GetHelpMat() { return m_help_mat; }
     bool                 HasDriverSeatProp() const { return m_driverseat_prop_index != -1; }
     void                 CalcPropAnimation(PropAnim& anim, float& cstate, int& div, float dt);
-    std::vector<Prop>&   getProps() { return m_props; }
     size_t               getNumVideoCameras() const { return m_videocameras.size(); }
     SurveyMapEntity&     getSurveyMapEntity() { return m_surveymap_entity; }
     WheelSide            getWheelSide(WheelID_t wheel_id) { return (wheel_id >= 0 && (size_t)wheel_id < m_wheels.size()) ? m_wheels[wheel_id].wx_side : WheelSide::INVALID; }
@@ -193,6 +199,8 @@ private:
     DustPool*                   m_particles_ripple = nullptr;
     DustPool*                   m_particles_sparks = nullptr;
     DustPool*                   m_particles_clump = nullptr;
+    std::vector<CParticle>    m_cparticles;
+    std::vector<Exhaust>      m_exhausts;
 
     // Cab mesh ('submesh' in truck fileformat)
     FlexObj*                    m_cab_mesh = nullptr;

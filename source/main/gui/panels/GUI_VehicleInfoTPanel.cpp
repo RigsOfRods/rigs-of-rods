@@ -770,7 +770,7 @@ void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
         }
     }
 
-    const int num_cparticles = actorx->GetActor()->ar_num_custom_particles;
+    const int num_cparticles = (int)actorx->getCParticles().size();
     const size_t num_videocams = actorx->getNumVideoCameras();
     ImGui::TextDisabled("View:");
     if (num_cparticles)

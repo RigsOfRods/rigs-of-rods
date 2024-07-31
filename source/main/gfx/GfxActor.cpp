@@ -283,6 +283,54 @@ RoR::GfxActor::~GfxActor()
             HandleGenericException(WhereFrom(this, "destroying renderdash"), HANDLEGENERICEXCEPTION_LOGFILE);
         }
     }
+
+    // delete exhausts
+    for (std::vector<Exhaust>::iterator it = m_exhausts.begin(); it != m_exhausts.end(); it++)
+    {
+        try
+        {
+            if (it->smokeNode)
+            {
+                it->smokeNode->removeAndDestroyAllChildren();
+                App::GetGfxScene()->GetSceneManager()->destroySceneNode(it->smokeNode);
+            }
+            if (it->smoker)
+            {
+                it->smoker->removeAllAffectors();
+                it->smoker->removeAllEmitters();
+                App::GetGfxScene()->GetSceneManager()->destroyParticleSystem(it->smoker);
+            }
+        }
+        catch (...)
+        {
+            HandleGenericException(fmt::format("GfxActor::~GfxActor(); instanceID:{}, streamID:{}, filename:{}; deleting exhaust {}/{}.",
+                m_actor->ar_instance_id, m_actor->ar_net_stream_id, m_actor->ar_filename, std::distance(m_exhausts.begin(), it), m_exhausts.size()), HANDLEGENERICEXCEPTION_LOGFILE);
+        }
+    }
+
+    // delete custom particles
+    for (int i = 0; i < (int)m_cparticles.size(); i++)
+    {
+        try
+        {
+            if (m_cparticles[i].snode)
+            {
+                m_cparticles[i].snode->removeAndDestroyAllChildren();
+                App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_cparticles[i].snode);
+            }
+            if (m_cparticles[i].psys)
+            {
+                m_cparticles[i].psys->removeAllAffectors();
+                m_cparticles[i].psys->removeAllEmitters();
+                App::GetGfxScene()->GetSceneManager()->destroyParticleSystem(m_cparticles[i].psys);
+            }
+        }
+        catch (...)
+        {
+            HandleGenericException(fmt::format("Actor::dispose(); instanceID:{}, streamID:{}, filename:{}; deleting custom particle {}/{}.",
+                m_actor->ar_instance_id, m_actor->ar_net_stream_id, m_actor->ar_filename, i, m_cparticles.size()), HANDLEGENERICEXCEPTION_LOGFILE);
+        }
+    }
 }
 
 ActorPtr RoR::GfxActor::GetActor()
@@ -1844,6 +1892,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_clutch          = m_actor->ar_engine->GetClutch();
         m_simbuf.simbuf_num_gears       = m_actor->ar_engine->getNumGears();
         m_simbuf.simbuf_engine_max_rpm  = m_actor->ar_engine->getMaxRPM();
+        m_simbuf.simbuf_engine_smoke    = m_actor->ar_engine->GetSmoke();
     }
     if (m_actor->m_num_wheel_diffs > 0)
     {
@@ -1858,6 +1907,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     m_simbuf.simbuf_lightmask = m_actor->m_lightmask;
     m_simbuf.simbuf_smoke_enabled = m_actor->getSmokeEnabled();
     m_simbuf.simbuf_parking_brake = m_actor->ar_parking_brake;
+    m_simbuf.simbuf_cparticles_active = m_actor->ar_cparticles_active;
 
     // Aerial
     m_simbuf.simbuf_hydro_aileron_state = m_actor->ar_hydro_aileron_state;
@@ -1986,19 +2036,45 @@ void RoR::GfxActor::UpdateAirbrakes()
     }
 }
 
-// TODO: Also move the data structure + setup code to GfxActor ~ only_a_ptr, 05/2018
 void RoR::GfxActor::UpdateCParticles()
 {
-    //update custom particle systems
-    for (int i = 0; i < m_actor->ar_num_custom_particles; i++)
+    for (CParticle& cparticle: m_cparticles)
     {
-        Ogre::Vector3 pos = m_simbuf.simbuf_nodes[m_actor->ar_custom_particles[i].emitterNode].AbsPosition;
-        Ogre::Vector3 dir = pos - m_simbuf.simbuf_nodes[m_actor->ar_custom_particles[i].directionNode].AbsPosition;
-        dir = fast_normalise(dir);
-        m_actor->ar_custom_particles[i].snode->setPosition(pos);
-        for (int j = 0; j < m_actor->ar_custom_particles[i].psys->getNumEmitters(); j++)
+        App::GetGfxScene()->AdjustParticleSystemTimeFactor(cparticle.psys);
+        const Ogre::Vector3 pos = m_simbuf.simbuf_nodes[cparticle.emitterNode].AbsPosition;
+        const Ogre::Vector3 dir = fast_normalise(pos - m_simbuf.simbuf_nodes[cparticle.directionNode].AbsPosition);
+        cparticle.snode->setPosition(pos);
+
+        for (unsigned short j = 0; j < cparticle.psys->getNumEmitters(); j++)
         {
-            m_actor->ar_custom_particles[i].psys->getEmitter(j)->setDirection(dir);
+            cparticle.psys->getEmitter(j)->setEnabled(m_simbuf.simbuf_cparticles_active);
+            cparticle.psys->getEmitter(j)->setDirection(dir);
+        }
+    }
+}
+
+void RoR::GfxActor::UpdateExhausts()
+{
+    if (!m_simbuf.simbuf_has_engine)
+        return;
+
+    for (Exhaust& exhaust: m_exhausts)
+    {
+        if (!exhaust.smoker) // This remains `nullptr` if removed via `addonpart_unwanted_exhaust` or Tuning UI.
+            continue;
+
+        App::GetGfxScene()->AdjustParticleSystemTimeFactor(exhaust.smoker);
+        const Ogre::Vector3 pos = m_simbuf.simbuf_nodes[exhaust.emitterNode].AbsPosition;
+        const Ogre::Vector3 dir = pos - m_simbuf.simbuf_nodes[exhaust.directionNode].AbsPosition;
+        exhaust.smokeNode->setPosition(pos);
+
+        const bool active = m_simbuf.simbuf_smoke_enabled && m_simbuf.simbuf_engine_smoke != -1.f;
+        exhaust.smoker->getEmitter(0)->setEnabled(active);
+        if (active) // `setTimeToLive()` assert()s that argument is not negative.
+        {
+            exhaust.smoker->getEmitter(0)->setColour(Ogre::ColourValue(0.0, 0.0, 0.0, 0.02 + m_simbuf.simbuf_engine_smoke * 0.06));
+            exhaust.smoker->getEmitter(0)->setTimeToLive((0.02 + m_simbuf.simbuf_engine_smoke * 0.06) / 0.04);
+            exhaust.smoker->getEmitter(0)->setParticleVelocity(1.0 + m_simbuf.simbuf_engine_smoke * 2.0, 2.0 + m_simbuf.simbuf_engine_smoke * 3.0);
         }
     }
 }

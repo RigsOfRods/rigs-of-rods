@@ -155,6 +155,7 @@ struct ActorSB
     float             simbuf_clutch                   = 0;
     int               simbuf_num_gears                = 0; //!< Gearbox
     float             simbuf_engine_max_rpm           = 0;
+    float             simbuf_engine_smoke             = 0;
 
     // Tyre pressure
     float             simbuf_tyre_pressure            = 0;
@@ -164,6 +165,7 @@ struct ActorSB
     BitMask_t         simbuf_lightmask                = 0;
     bool              simbuf_smoke_enabled            = false;
     bool              simbuf_parking_brake            = false;
+    bool              simbuf_cparticles_active        = false;
 
     // Aerial
     float             simbuf_hydro_aileron_state      = 0;

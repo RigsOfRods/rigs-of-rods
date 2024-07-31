@@ -362,7 +362,6 @@ private:
 
     /// @name Limit checks
     /// @{
-    bool                          CheckParticleLimit(unsigned int count);
     bool                          CheckAxleLimit(unsigned int count);
     bool                          CheckSubmeshLimit(unsigned int count);
     bool                          CheckTexcoordLimit(unsigned int count);

@@ -183,6 +183,7 @@ void TurbojetVisual::UpdateVisuals(RoR::GfxActor* gfx_actor)
     if (m_smoke_particle &&
         gfx_actor->GetSimDataBuffer().simbuf_smoke_enabled)
     {
+        App::GetGfxScene()->AdjustParticleSystemTimeFactor(m_smoke_particle);
         m_smoke_scenenode->setPosition(node_buf[m_node_back].AbsPosition);
         ParticleEmitter* emit = m_smoke_particle->getEmitter(0);
         emit->setDirection(-laxis);

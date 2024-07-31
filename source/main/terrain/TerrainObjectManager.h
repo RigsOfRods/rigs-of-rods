@@ -124,6 +124,12 @@ protected:
         float speedfactor;
     };
 
+    struct ParticleEffectObject
+    {
+        Ogre::ParticleSystem* psys = nullptr;
+        Ogre::SceneNode* node = nullptr;
+    };
+
     struct PredefinedActor
     {
         float px;
@@ -149,9 +155,10 @@ protected:
     RoR::ODefFile* FetchODef(std::string const & odef_name);
     void           ProcessODefCollisionBoxes(StaticObject* obj, ODefFile* odef, const EditorObject& params, bool race_event);
 
-    // Misc functions
+    // Update functions
 
-    bool           UpdateAnimatedObjects(float dt);
+    void           UpdateAnimatedObjects(float dt);
+    void           UpdateParticleEffectObjects();
 
     // Variables
 
@@ -161,6 +168,7 @@ protected:
     std::vector<EditorObject>             m_editor_objects;
     std::vector<PredefinedActor>          m_predefined_actors;
     std::vector<AnimatedObject>           m_animated_objects;
+    std::vector<ParticleEffectObject>     m_particle_effect_objects;
     std::vector<MeshObject*>              m_mesh_objects;
     SurveyMapEntityVec                    m_map_entities;
     Terrain*           terrainManager;
