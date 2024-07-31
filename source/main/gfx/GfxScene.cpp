@@ -221,6 +221,7 @@ void GfxScene::UpdateScene(float dt)
             gfx_actor->UpdateWingMeshes();
             gfx_actor->UpdateAirbrakes();
             gfx_actor->UpdateCParticles();
+            gfx_actor->UpdateExhausts();
             gfx_actor->UpdateAeroEngines();
             gfx_actor->UpdatePropAnimations(dt_actor);
             gfx_actor->UpdateRenderdashRTT();
@@ -403,3 +404,13 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
 #endif // USE_SOCKETW
 }
 
+void GfxScene::AdjustParticleSystemTimeFactor(Ogre::ParticleSystem* psys)
+{
+    float speed_factor = 0.f;
+    if (App::sim_state->getEnum<SimState>() == SimState::RUNNING && !App::GetGameContext()->GetActorManager()->IsSimulationPaused())
+    {
+        speed_factor = m_simbuf.simbuf_sim_speed;
+    }
+
+    psys->setSpeedFactor(speed_factor);
+}

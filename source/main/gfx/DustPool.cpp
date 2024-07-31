@@ -194,15 +194,9 @@ void DustPool::allocRipple(Vector3 pos, Vector3 vel)
 
 void DustPool::update()
 {
-    float speed_factor = 0.f;
-    if (App::sim_state->getEnum<SimState>() == SimState::RUNNING && !App::GetGameContext()->GetActorManager()->IsSimulationPaused())
-    {
-        speed_factor = App::GetGfxScene()->GetSimDataBuffer().simbuf_sim_speed;
-    }
-
     for (int i = 0; i < allocated; i++)
     {
-        pss[i]->setSpeedFactor(speed_factor);
+        App::GetGfxScene()->AdjustParticleSystemTimeFactor(pss[i]);
         ParticleEmitter* emit = pss[i]->getEmitter(0);
         Vector3 ndir = velocities[i];
         Real vel = ndir.length();

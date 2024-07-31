@@ -69,8 +69,11 @@ namespace RoR
     typedef int FlareID_t; //!< Index into `Actor::ar_flares`, use `RoR::FLAREID_INVALID` as empty value
     static const FlareID_t FLAREID_INVALID = -1;
 
-    typedef int ExhaustID_t; //!< Index into `Actor::exhausts`, use `RoR::EXHAUSTID_INVALID` as empty value
+    typedef int ExhaustID_t; //!< Index into `GfxActor::m_exhausts`, use `RoR::EXHAUSTID_INVALID` as empty value
     static const ExhaustID_t EXHAUSTID_INVALID = -1;
+
+    typedef int CParticleID_t; //!< Index into `GfxActor::m_cparticles`, use `RoR::CPARTICLEID_INVALID` as empty value
+    static const CParticleID_t CPARTICLEID_INVALID = -1;
 
     typedef int CommandkeyID_t; //!< Index into `Actor::ar_commandkeys` (BEWARE: indexed 1-MAX_COMMANDKEYS, 0 is invalid value, negative subscript of any size is acceptable, see `class CmdKeyArray` ).
     static const CommandkeyID_t COMMANDKEYID_INVALID = 0;
@@ -187,8 +190,8 @@ namespace RoR
     struct rotator_t;
     struct flare_t;
     struct rope_t;
-    struct exhaust_t;
-    struct cparticle_t;
+    struct Exhaust;
+    struct CParticle;
     struct collision_box_t;
     struct tie_t;
     struct hook_t;
