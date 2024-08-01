@@ -92,7 +92,7 @@ public:
     
 
     void           UpdateInputEvents(float dt);
-    RigDef::DocumentPtr   FetchActorDef(std::string filename, bool predefined_on_terrain = false);
+    RigDef::DocumentPtr   FetchActorDef(RoR::ActorSpawnRequest& rq);
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet);

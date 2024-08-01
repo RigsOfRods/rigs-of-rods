@@ -227,8 +227,7 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         rq.asr_cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, rq.asr_filename);
     }
 
-    RigDef::DocumentPtr def = m_actor_manager.FetchActorDef(
-        rq.asr_filename, rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF);
+    RigDef::DocumentPtr def = m_actor_manager.FetchActorDef(rq);
     if (def == nullptr)
     {
         return nullptr; // Error already reported
