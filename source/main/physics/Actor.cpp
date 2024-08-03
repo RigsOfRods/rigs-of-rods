@@ -1950,7 +1950,15 @@ void Actor::sendStreamSetup()
     reg.status = 0;
     reg.type = 0;
     reg.time = App::GetGameContext()->GetActorManager()->GetNetTime();
-    strncpy(reg.name, ar_filename.c_str(), 128);
+
+    // Send the filename in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
+    std::string bname;
+    std::string bpath;
+    Ogre::StringUtil::splitFilename(m_used_actor_entry->resource_bundle_path, bname, bpath);
+    std::string bq_filename = fmt::format("{}:{}", bname, ar_filename);
+    strncpy(reg.name, bq_filename.c_str(), 128);
+    
+    // Skin and sectionconfig
     if (m_used_skin_entry != nullptr)
     {
         strncpy(reg.skin, m_used_skin_entry->dname.c_str(), 60);
@@ -4413,7 +4421,7 @@ Actor::Actor(
     , ar_instance_id(actor_id)
     , ar_vector_index(vector_index)
     , m_avg_proped_wheel_radius(0.2f)
-    , ar_filename(rq.asr_filename)
+    , ar_filename(rq.asr_cache_entry->fname)
     , m_section_config(rq.asr_config)
     , m_used_actor_entry(rq.asr_cache_entry)
     , m_used_skin_entry(rq.asr_skin_entry)
