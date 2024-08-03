@@ -241,20 +241,14 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     }
 
     // Vehicles
-    for (TObjVehicle veh : tobj->vehicles)
+    for (TObjVehicle const& veh : tobj->vehicles)
     {
         if ((veh.type == TObj::SpecialObject::BOAT) && (terrainManager->getWater() == nullptr))
         {
             continue; // Don't spawn boats if there's no water.
         }
 
-        Ogre::String group;
-        Ogre::String filename(veh.name);
-        if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(filename, group))
-        {
-            LOG(std::string("[RoR|Terrain] Vehicle ") + veh.name + " not found. ignoring.");
-            continue;
-        }
+        // NOTE: The filename may be in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
 
         PredefinedActor p;
         p.px           = veh.position.x;
