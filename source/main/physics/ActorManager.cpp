@@ -376,6 +376,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
             if (reg->type == 0)
             {
                 reg->name[127] = 0;
+                // NOTE: The filename is by default in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
                 std::string filename = SanitizeUtf8CString(reg->name);
 
                 RoRnet::UserInfo info;
@@ -398,7 +399,9 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
 
                     LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
 
-                    if (!App::GetCacheSystem()->CheckResourceLoaded(filename))
+                    CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, filename);
+
+                    if (!actor_entry)
                     {
                         App::GetConsole()->putMessage(
                             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
@@ -416,12 +419,11 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
                             m_stream_time_offsets[reg->origin_sourceid] = offset - 100;
                         }
                         ActorSpawnRequest* rq = new ActorSpawnRequest;
-                        rq->asr_origin = ActorSpawnRequest::Origin::NETWORK;
-                        // TODO: Look up cache entry early (eliminate asr_filename) and fetch skin by name+guid! ~ 03/2019
-                        rq->asr_filename = filename;
+                        rq->asr_origin = ActorSpawnRequest::Origin::NETWORK;                        
+                        rq->asr_cache_entry = actor_entry;
                         if (strnlen(actor_reg->skin, 60) < 60 && actor_reg->skin[0] != '\0')
                         {
-                            rq->asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin);
+                            rq->asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin); // FIXME: fetch skin by name+guid! ~ 03/2019
                         }
                         if (strnlen(actor_reg->sectionconfig, 60) < 60)
                         {
@@ -873,7 +875,7 @@ void ActorManager::CleanUpSimulation() // Called after simulation finishes
 {
     while (m_actors.size() > 0)
     {
-        this->DeleteActorInternal(m_actors.back());
+        this->DeleteActorInternal(m_actors.back()); // OK to invoke here - CleanUpSimulation() - processing `MSG_SIM_UNLOAD_TERRAIN_REQUESTED`
     }
 
     m_total_sim_time = 0.f;
