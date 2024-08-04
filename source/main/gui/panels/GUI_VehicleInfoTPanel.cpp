@@ -38,7 +38,7 @@ using namespace GUI;
 const float HELP_TEXTURE_WIDTH = 512.f;
 const float HELP_TEXTURE_HEIGHT = 128.f;
 const ImVec2 MAX_PREVIEW_SIZE(100.f, 100.f);
-const float MIN_PANEL_WIDTH = 325.f;
+const float MIN_PANEL_WIDTH = 225.f;
 
 void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
 {
@@ -130,7 +130,7 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
     // === DRAW THE WINDOW HEADER - MINI IMAGE (if available) AND VEHICLE NAME ===
 
     ImVec2 name_pos = ImGui::GetCursorPos();
-    ImVec2 content_pos;
+    ImVec2 tabs_pos;
     if (actorx->GetActor()->getUsedActorEntry()->filecachename != "")
     {
         Ogre::TexturePtr preview_tex = Ogre::TextureManager::getSingleton().load(
@@ -145,31 +145,24 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
         }
         // Draw the image
         ImGui::Image(reinterpret_cast<ImTextureID>(preview_tex->getHandle()), size);
-        content_pos = ImGui::GetCursorPos();
+        tabs_pos = ImGui::GetCursorPos();
         // Move name to the right
         name_pos.x += size.x + ImGui::GetStyle().ItemSpacing.x;
+        ImGui::SetCursorPos(name_pos);
     }
     
-    ImGui::SetCursorPos(name_pos);
     RoR::ImTextWrappedColorMarked(actorx->GetActor()->getTruckName());
     ImGui::Dummy(ImVec2(MIN_PANEL_WIDTH, 20));
 
     // === DRAW TAB BAR ===
-
+    
     if (actorx->GetActor()->getUsedActorEntry()->filecachename != "")
     {
-        ImGui::SetCursorPos(ImVec2(name_pos.x, content_pos.y - 21));
+        ImGui::SetCursorPos(tabs_pos);
     }
     ImGui::BeginTabBar("VehicleInfoTPanelTabs", ImGuiTabBarFlags_None);
     if (ImGui::BeginTabItem(_LC("TPanel", "Basics"), nullptr, tabflags_basics))
     {
-        // If the tab bar is drawn next to the image, we need to reset the cursor position
-        if (actorx->GetActor()->getUsedActorEntry()->filecachename != "")
-        {
-            ImGui::SetCursorPos(content_pos);
-            ImGui::Separator();
-        }
-    
         m_current_focus = TPANELFOCUS_BASICS;
         this->DrawVehicleBasicsUI(actorx);
     
@@ -177,13 +170,6 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
     }
     if (ImGui::BeginTabItem(_LC("TPanel", "Stats"), nullptr, tabflags_stats))
     {
-        // If the tab bar is drawn next to the image, we need to reset the cursor position
-        if (actorx->GetActor()->getUsedActorEntry()->filecachename != "")
-        {
-            ImGui::SetCursorPos(content_pos);
-            ImGui::Separator();
-        }
-
         m_current_focus = TPANELFOCUS_STATS;
         this->DrawVehicleStatsUI(actorx);
 
@@ -191,13 +177,6 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
     }
     if (ImGui::BeginTabItem(_LC("TPanel", "Commands"), nullptr, tabflags_commands))
     {
-        // If the tab bar is drawn next to the image, we need to reset the cursor position
-        if (actorx->GetActor()->getUsedActorEntry()->filecachename != "")
-        {
-            ImGui::SetCursorPos(content_pos);
-            ImGui::Separator();
-        }
-
         m_current_focus = TPANELFOCUS_COMMANDS;
         this->DrawVehicleCommandsUI(actorx);
 
@@ -205,13 +184,6 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
     }
     if (ImGui::BeginTabItem(_LC("TPanel", "Diag"), nullptr, tabflags_diag))
     {
-        // If the tab bar is drawn next to the image, we need to reset the cursor position
-        if (actorx->GetActor()->getUsedActorEntry()->filecachename != "")
-        {
-            ImGui::SetCursorPos(content_pos);
-            ImGui::Separator();
-        }        
-
         m_current_focus = TPANELFOCUS_DIAG;
         this->DrawVehicleDiagUI(actorx);
 
@@ -219,12 +191,6 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
     }
 
     ImGui::EndTabBar();
-
-    if (actorx->GetActor()->getUsedActorEntry()->filecachename != "")
-    {
-        ImGui::SetCursorPos(content_pos);
-    }
-    ImGui::Separator();
     
     ImGui::End();
     ImGui::PopStyleColor(2); // WindowBg, TextDisabled
