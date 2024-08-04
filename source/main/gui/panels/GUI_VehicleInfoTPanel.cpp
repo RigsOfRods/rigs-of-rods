@@ -88,7 +88,7 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
 
-    ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, (theme.screen_edge_padding.y + 150)));
+    ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, (theme.screen_edge_padding.y + 110)));
     switch (m_visibility_mode)
     {
         case TPANELMODE_OPAQUE:
