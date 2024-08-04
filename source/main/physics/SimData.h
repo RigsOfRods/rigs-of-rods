@@ -845,7 +845,7 @@ struct ActorSpawnRequest
     };
 
     CacheEntryPtr       asr_cache_entry; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
-    std::string         asr_filename;
+    std::string         asr_filename;    //!< Can be in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
     Ogre::String        asr_config;
     Ogre::Vector3       asr_position = Ogre::Vector3::ZERO;
     Ogre::Quaternion    asr_rotation = Ogre::Quaternion::ZERO;

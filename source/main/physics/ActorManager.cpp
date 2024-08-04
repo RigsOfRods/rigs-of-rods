@@ -376,6 +376,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
             if (reg->type == 0)
             {
                 reg->name[127] = 0;
+                // NOTE: The filename is by default in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
                 std::string filename = SanitizeUtf8CString(reg->name);
 
                 RoRnet::UserInfo info;
@@ -398,7 +399,9 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
 
                     LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
 
-                    if (!App::GetCacheSystem()->CheckResourceLoaded(filename))
+                    CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, filename);
+
+                    if (!actor_entry)
                     {
                         App::GetConsole()->putMessage(
                             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
@@ -416,12 +419,11 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
                             m_stream_time_offsets[reg->origin_sourceid] = offset - 100;
                         }
                         ActorSpawnRequest* rq = new ActorSpawnRequest;
-                        rq->asr_origin = ActorSpawnRequest::Origin::NETWORK;
-                        // TODO: Look up cache entry early (eliminate asr_filename) and fetch skin by name+guid! ~ 03/2019
-                        rq->asr_filename = filename;
+                        rq->asr_origin = ActorSpawnRequest::Origin::NETWORK;                        
+                        rq->asr_cache_entry = actor_entry;
                         if (strnlen(actor_reg->skin, 60) < 60 && actor_reg->skin[0] != '\0')
                         {
-                            rq->asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin);
+                            rq->asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin); // FIXME: fetch skin by name+guid! ~ 03/2019
                         }
                         if (strnlen(actor_reg->sectionconfig, 60) < 60)
                         {
@@ -873,7 +875,7 @@ void ActorManager::CleanUpSimulation() // Called after simulation finishes
 {
     while (m_actors.size() > 0)
     {
-        this->DeleteActorInternal(m_actors.back());
+        this->DeleteActorInternal(m_actors.back()); // OK to invoke here - CleanUpSimulation() - processing `MSG_SIM_UNLOAD_TERRAIN_REQUESTED`
     }
 
     m_total_sim_time = 0.f;
@@ -1254,44 +1256,37 @@ void HandleErrorLoadingTruckfile(std::string filename, std::string exception_msg
     HandleErrorLoadingFile("actor", filename, exception_msg);
 }
 
-RigDef::DocumentPtr ActorManager::FetchActorDef(std::string filename, bool predefined_on_terrain)
+RigDef::DocumentPtr ActorManager::FetchActorDef(RoR::ActorSpawnRequest& rq)
 {
-    // Find the user content
-    CacheEntryPtr cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, filename);
-    if (cache_entry == nullptr)
+    // Check the actor exists in mod cache
+    if (rq.asr_cache_entry == nullptr)
     {
-        HandleErrorLoadingTruckfile(filename, "Truckfile not found in ModCache (probably not installed)");
+        HandleErrorLoadingTruckfile(rq.asr_filename, "Truckfile not found in ModCache (probably not installed)");
         return nullptr;
     }
 
     // If already parsed, re-use
-    if (cache_entry->actor_def != nullptr)
+    if (rq.asr_cache_entry->actor_def != nullptr)
     {
-        return cache_entry->actor_def;
+        return rq.asr_cache_entry->actor_def;
     }
 
     // Load the 'truckfile'
     try
     {
-        Ogre::String resource_filename = filename;
-        Ogre::String resource_groupname;
-        if (!App::GetCacheSystem()->CheckResourceLoaded(resource_filename, resource_groupname)) // Validates the filename and finds resource group
-        {
-            HandleErrorLoadingTruckfile(filename, "Truckfile not found");
-            return nullptr;
-        }
-        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(resource_filename, resource_groupname);
+        App::GetCacheSystem()->LoadResource(rq.asr_cache_entry);
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(rq.asr_cache_entry->fname, rq.asr_cache_entry->resource_group);
 
         if (stream.isNull() || !stream->isReadable())
         {
-            HandleErrorLoadingTruckfile(filename, "Unable to open/read truckfile");
+            HandleErrorLoadingTruckfile(rq.asr_cache_entry->fname, "Unable to open/read truckfile");
             return nullptr;
         }
 
-        RoR::LogFormat("[RoR] Parsing truckfile '%s'", resource_filename.c_str());
+        RoR::LogFormat("[RoR] Parsing truckfile '%s'", rq.asr_cache_entry->fname.c_str());
         RigDef::Parser parser;
         parser.Prepare();
-        parser.ProcessOgreStream(stream.getPointer(), resource_groupname);
+        parser.ProcessOgreStream(stream.getPointer(), rq.asr_cache_entry->resource_group);
         parser.Finalize();
 
         auto def = parser.GetFile();
@@ -1302,15 +1297,15 @@ RigDef::DocumentPtr ActorManager::FetchActorDef(std::string filename, bool prede
         RigDef::Validator validator;
         validator.Setup(def);
 
-        if (predefined_on_terrain)
+        if (rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF)
         {
             // Workaround: Some terrains pre-load truckfiles with special purpose:
             //     "soundloads" = play sound effect at certain spot
             //     "fixes"      = structures of N/B fixed to the ground
             // These files can have no beams. Possible extensions: .load or .fixed
-            std::string file_extension = filename.substr(filename.find_last_of('.'));
+            std::string file_extension = rq.asr_cache_entry->fname.substr(rq.asr_cache_entry->fname.find_last_of('.'));
             Ogre::StringUtil::toLowerCase(file_extension);
-            if ((file_extension == ".load") | (file_extension == ".fixed"))
+            if ((file_extension == ".load") || (file_extension == ".fixed"))
             {
                 validator.SetCheckBeams(false);
             }
@@ -1320,22 +1315,22 @@ RigDef::DocumentPtr ActorManager::FetchActorDef(std::string filename, bool prede
 
         def->hash = Sha1Hash(stream->getAsString());
 
-        cache_entry->actor_def = def;
+        rq.asr_cache_entry->actor_def = def;
         return def;
     }
     catch (Ogre::Exception& oex)
     {
-        HandleErrorLoadingTruckfile(filename, oex.getFullDescription().c_str());
+        HandleErrorLoadingTruckfile(rq.asr_cache_entry->fname, oex.getDescription().c_str());
         return nullptr;
     }
     catch (std::exception& stex)
     {
-        HandleErrorLoadingTruckfile(filename, stex.what());
+        HandleErrorLoadingTruckfile(rq.asr_cache_entry->fname, stex.what());
         return nullptr;
     }
     catch (...)
     {
-        HandleErrorLoadingTruckfile(filename, "<Unknown exception occurred>");
+        HandleErrorLoadingTruckfile(rq.asr_cache_entry->fname, "<Unknown exception occurred>");
         return nullptr;
     }
 }
