@@ -2404,9 +2404,6 @@ void TopMenubar::RefreshAiPresets()
     // Combine external and bundled presets into one JSON doc
     // -------------------------------------------------------
 
-    ai_presets_all.Clear();
-    ai_presets_all.SetArray();
-
     for (rapidjson::Value& bundled_preset: ai_presets_bundled.GetArray())
     {
         rapidjson::Value preset_copy(bundled_preset, ai_presets_all.GetAllocator());
@@ -2418,6 +2415,14 @@ void TopMenubar::RefreshAiPresets()
         rapidjson::Value preset_copy(extern_preset, ai_presets_all.GetAllocator());
         ai_presets_all.PushBack(preset_copy, ai_presets_all.GetAllocator());
     }
+}
+
+void TopMenubar::ResetAiPresets()
+{
+    ai_presets_all.Clear();
+    ai_presets_all.SetArray();
+
+    ai_presets_bundled.SetNull();
 }
 
 void TopMenubar::RefreshTuningMenu()
