@@ -100,6 +100,7 @@ public:
     // AI waypoint presets
     void DownloadAiPresets(); //!< Initiate threaded download of 'extern' waypoints from GitHub repo.
     void RefreshAiPresets();  //!< Refresh the list of presets, used for display. Needs to be called when terrain is loaded.
+    void ResetAiPresets();    //!< Clear the cached presets after a terrain was unloaded.
     rapidjson::Document ai_presets_all; //!< The full list of presets, used for display. Needs to be refreshed when terrain is loaded.
     rapidjson::Document ai_presets_extern; //!< Externally provided presets (GitHub repo or local 'savegames/waypoints.json' file).
     rapidjson::Document ai_presets_bundled; //!< Presets bundled with the terrain, see `[AI Presets]` section in .terrn2 file format.
