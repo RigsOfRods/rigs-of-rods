@@ -223,10 +223,9 @@ namespace RoR
         class  RepositorySelector;
         class  DirectionArrow;
         class  SceneMouse;
-        class  SimActorStats;
         class  SurveyMap;
         class  TopMenubar;
-        class  VehicleButtons;
+        class  VehicleInfoTPanel;
     }
 } // namespace RoR
 
