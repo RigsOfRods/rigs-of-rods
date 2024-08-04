@@ -38,6 +38,11 @@ void GameSettings::Draw()
 {
     const int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
     ImGui::SetNextWindowSize(ImVec2(670.f, 400.f), ImGuiCond_FirstUseEver);
+    if (m_bump_height != 0)
+    {
+        ImGui::SetNextWindowSize(m_window_size + ImVec2(0, m_bump_height));
+        m_bump_height = 0.f;
+    }
     ImGui::SetNextWindowPosCenter(ImGuiCond_Appearing);
     bool keep_open = true;
     ImGui::Begin(_LC("GameSettings", "Game settings"), &keep_open, flags);
@@ -101,6 +106,7 @@ void GameSettings::Draw()
     ImGui::EndTabBar();
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.f);
+    m_window_size = ImGui::GetWindowSize();
 
     ImGui::End();
     if (!keep_open)
@@ -112,6 +118,19 @@ void GameSettings::Draw()
 void GameSettings::DrawRenderSystemSettings()
 {
     ImGui::TextDisabled("%s", _LC("GameSettings", "Render system (changes require a restart)"));
+
+    if (m_render_must_restart)
+    {
+        std::string text = _LC("GameSettings", "You must restart the game to make changes effective.");
+        ImVec2 box_size = ImGui::CalcTextSize(text.c_str()) + ImGui::GetStyle().FramePadding * 2;
+        ImVec2 box_pos = ImGui::GetCursorPos() + ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f - box_size.x * 0.5f, 0.f);
+        ImGui::SetCursorPos(box_pos);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.8f, 0.7f, 0.1f, 1.f));
+        ImGui::BeginChildFrame(ImGuiID(123), box_size);
+        ImGui::TextColored(ImVec4(0.1f, 0.1f, 0.1f, 1.f), text.c_str());
+        ImGui::EndChildFrame();
+        ImGui::PopStyleColor(); // FrameBg
+    }
 
     const auto ogre_root = App::GetAppContext()->GetOgreRoot();
     const auto render_systems = ogre_root->getAvailableRenderers();
@@ -152,10 +171,22 @@ void GameSettings::DrawRenderSystemSettings()
         int option_id = it != co.possibleValues.end() ? std::distance(co.possibleValues.begin(), it) : 0;
         if (ImGui::Combo(co.name.c_str(), &option_id, option_values.c_str()))
         {
-            rs->setConfigOption(co.name, co.possibleValues[option_id]);
-            if (rs->validateConfigOptions().empty())
+            // Check the new value is different from the current one
+            if (co.currentValue != co.possibleValues[option_id])
             {
-                ogre_root->saveConfig();
+                // Set the new value to the render system
+                rs->setConfigOption(co.name, co.possibleValues[option_id]);
+                if (rs->validateConfigOptions().empty())
+                {
+                    ogre_root->saveConfig();
+
+                    // Show the "Must restart game..." box, make the window bigger to accomodate it
+                    if (!m_render_must_restart)
+                    {
+                        m_render_must_restart = true;
+                        m_bump_height = ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().FramePadding.y * 2;
+                    }
+                }
             }
         }
     }
