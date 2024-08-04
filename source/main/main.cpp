@@ -1721,6 +1721,13 @@ int main(int argc, char *argv[])
                 App::GetGfxScene()->BufferSimulationData();
             }
 
+            // Calculate elapsed simulation time (taking simulation speed and pause into account)
+            float dt_sim = 0.f;
+            if (App::sim_state->getEnum<SimState>() == SimState::RUNNING && !App::GetGameContext()->GetActorManager()->IsSimulationPaused())
+            {
+                dt_sim = dt * App::GetGameContext()->GetActorManager()->GetSimulationSpeed();
+            }
+
             // Advance simulation
             if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
             {
@@ -1734,7 +1741,7 @@ int main(int argc, char *argv[])
             }
             else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {
-                App::GetGfxScene()->UpdateScene(dt); // Draws GUI as well
+                App::GetGfxScene()->UpdateScene(dt_sim); // Draws GUI as well
             }
 
             // Render!

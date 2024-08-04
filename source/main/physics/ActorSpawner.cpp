@@ -278,9 +278,6 @@ void ActorSpawner::InitializeRig()
 
     m_actor->ar_minimass.resize(req.num_nodes);
 
-    m_actor->exhausts.clear();
-    memset(m_actor->ar_custom_particles, 0, sizeof(cparticle_t) * MAX_CPARTICLES);
-    m_actor->ar_num_custom_particles = 0;
     memset(m_actor->ar_soundsources, 0, sizeof(soundsource_t) * MAX_SOUNDSCRIPTS_PER_TRUCK);
     m_actor->ar_num_soundsources = 0;
     memset(m_actor->ar_collcabs, 0, sizeof(int) * MAX_CABS);
@@ -1282,8 +1279,8 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
         return;
     }
 
-    const ExhaustID_t exhaust_id = (ExhaustID_t)m_actor->exhausts.size();
-    exhaust_t exhaust;
+    const ExhaustID_t exhaust_id = (ExhaustID_t)m_actor->m_gfx_actor->m_exhausts.size();
+    Exhaust exhaust;
     exhaust.emitterNode   = this->GetNodeIndexOrThrow(def.reference_node);
     exhaust.directionNode = this->GetNodeIndexOrThrow(def.direction_node);
 
@@ -1296,7 +1293,7 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
 
     if (!TuneupUtil::isExhaustAnyhowRemoved(m_actor->getWorkingTuneupDef(), exhaust_id))
     {
-        std::string name = this->ComposeName(template_name.c_str(), (int)m_actor->exhausts.size());
+        std::string name = this->ComposeName(template_name.c_str(), (int)m_actor->m_gfx_actor->m_exhausts.size());
         exhaust.smoker = this->CreateParticleSystem(name, template_name);
         if (exhaust.smoker == nullptr)
         {
@@ -1306,7 +1303,7 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
             return;
         }
 
-        exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("exhaust", (int)m_actor->exhausts.size()));
+        exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("exhaust", (int)m_actor->m_gfx_actor->m_exhausts.size()));
         exhaust.smokeNode->attachObject(exhaust.smoker);
         exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
 
@@ -1314,7 +1311,7 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
         m_actor->m_gfx_actor->SetNodeHot(exhaust.directionNode, true);
     }
 
-    m_actor->exhausts.push_back(exhaust);
+    m_actor->m_gfx_actor->m_exhausts.push_back(exhaust);
 }
 
 std::string ActorSpawner::GetSubmeshGroundmodelName()
@@ -2842,13 +2839,13 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
         return;
     }
 
-    int particle_index = m_actor->ar_num_custom_particles;
-    cparticle_t & particle = m_actor->ar_custom_particles[particle_index];
+    CParticleID_t particle_id = static_cast<CParticleID_t>(m_actor->m_gfx_actor->m_cparticles.size());
+    CParticle particle;
 
     particle.emitterNode = GetNodeIndexOrThrow(def.emitter_node);
     particle.directionNode = GetNodeIndexOrThrow(def.reference_node);
 
-    std::string name = this->ComposeName(def.particle_system_name.c_str(), particle_index);
+    std::string name = this->ComposeName(def.particle_system_name.c_str(), particle_id);
     particle.psys = this->CreateParticleSystem(name, def.particle_system_name);
     if (particle.psys == nullptr)
     {
@@ -2858,18 +2855,17 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
         return;
     }
 
-    particle.snode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("cparticles", m_actor->ar_num_custom_particles));
+    particle.snode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("cparticles", particle_id));
     particle.snode->attachObject(particle.psys);
     particle.snode->setPosition(m_actor->ar_nodes[particle.emitterNode].AbsPosition);
 
     /* Shut down the emitters */
-    particle.active = false; 
     for (unsigned int i = 0; i < particle.psys->getNumEmitters(); i++)
     {
         particle.psys->getEmitter(i)->setEnabled(false);
     }
 
-    ++m_actor->ar_num_custom_particles;
+    m_actor->m_gfx_actor->m_cparticles.push_back(particle);
 }
 
 void ActorSpawner::ProcessRopable(RigDef::Ropable & def)
@@ -6001,12 +5997,13 @@ void ActorSpawner::AddExhaust(
         NodeNum_t direction_node_idx
     )
 {
-    exhaust_t exhaust;
+    const ExhaustID_t exhaust_id = (ExhaustID_t)m_actor->m_gfx_actor->m_exhausts.size();
+    Exhaust exhaust;
     exhaust.emitterNode = emitter_node_idx;
     exhaust.directionNode = direction_node_idx;
 
     exhaust.smoker = App::GetGfxScene()->GetSceneManager()->createParticleSystem(
-        this->ComposeName("exhaust", (int)m_actor->exhausts.size()),
+        this->ComposeName("exhaust", exhaust_id),
         /*quota=*/500, // Default value
         m_custom_resource_group);
 
@@ -6020,14 +6017,14 @@ void ActorSpawner::AddExhaust(
     Ogre::MaterialPtr mat = this->FindOrCreateCustomizedMaterial("tracks/Smoke", m_custom_resource_group);
     exhaust.smoker->setMaterialName(mat->getName(), mat->getGroup());
 
-    exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("exhaust", (int)m_actor->exhausts.size()));
+    exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("exhaust", exhaust_id));
     exhaust.smokeNode->attachObject(exhaust.smoker);
     exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
 
     m_actor->m_gfx_actor->SetNodeHot(exhaust.emitterNode, true);
     m_actor->m_gfx_actor->SetNodeHot(exhaust.directionNode, true);
 
-    m_actor->exhausts.push_back(exhaust);
+    m_actor->m_gfx_actor->m_exhausts.push_back(exhaust);
 }
 
 void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
@@ -6106,18 +6103,6 @@ void ActorSpawner::ProcessGlobals(RigDef::Globals & def)
 /* -------------------------------------------------------------------------- */
 // Limits.
 /* -------------------------------------------------------------------------- */
-
-bool ActorSpawner::CheckParticleLimit(unsigned int count)
-{
-    if ((m_actor->ar_num_custom_particles + count) > MAX_CPARTICLES)
-    {
-        std::stringstream msg;
-        msg << "Particle limit (" << MAX_CPARTICLES << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
 
 bool ActorSpawner::CheckAxleLimit(unsigned int count)
 {

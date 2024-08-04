@@ -634,25 +634,6 @@ struct flare_t
     SimpleInertia inertia; //!< Only 'flares3'
 };
 
-struct exhaust_t
-{
-    NodeNum_t emitterNode   = NODENUM_INVALID;
-    NodeNum_t directionNode = NODENUM_INVALID;
-    Ogre::SceneNode *smokeNode = nullptr;
-    Ogre::ParticleSystem* smoker = nullptr; //!< This remains `nullptr` if removed via `addonpart_unwanted_exhaust` or Tuning UI.
-    std::string particleSystemName; //!< Name in .particle file ~ for display in Tuning UI.
-};
-
-
-struct cparticle_t
-{
-    NodeNum_t emitterNode   = NODENUM_INVALID;
-    NodeNum_t directionNode = NODENUM_INVALID;
-    bool active;
-    Ogre::SceneNode *snode;
-    Ogre::ParticleSystem* psys;
-};
-
 /// User input state for animated props with 'source:event'.
 struct PropAnimKeyState
 {

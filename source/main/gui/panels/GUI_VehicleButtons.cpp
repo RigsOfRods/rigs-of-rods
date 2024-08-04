@@ -810,7 +810,7 @@ void VehicleButtons::DrawTransferCaseGearRatioButton(RoR::GfxActor* actorx)
 
 void VehicleButtons::DrawParticlesButton(RoR::GfxActor* actorx)
 {
-    if (actorx->GetActor()->ar_num_custom_particles == 0)
+    if (actorx->getCParticles().size() == 0)
     {
         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
@@ -829,7 +829,7 @@ void VehicleButtons::DrawParticlesButton(RoR::GfxActor* actorx)
         actorx->GetActor()->toggleCustomParticles();
     }
 
-    if (actorx->GetActor()->ar_num_custom_particles == 0)
+    if (actorx->getCParticles().size() == 0)
     {
         ImGui::PopItemFlag();
         ImGui::PopStyleVar();

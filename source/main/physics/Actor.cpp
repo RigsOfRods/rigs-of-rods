@@ -264,54 +264,6 @@ void Actor::dispose()
     }
     this->ar_flares.clear();
 
-    // delete exhausts
-    for (std::vector<exhaust_t>::iterator it = exhausts.begin(); it != exhausts.end(); it++)
-    {
-        try
-        {
-            if (it->smokeNode)
-            {
-                it->smokeNode->removeAndDestroyAllChildren();
-                App::GetGfxScene()->GetSceneManager()->destroySceneNode(it->smokeNode);
-            }
-            if (it->smoker)
-            {
-                it->smoker->removeAllAffectors();
-                it->smoker->removeAllEmitters();
-                App::GetGfxScene()->GetSceneManager()->destroyParticleSystem(it->smoker);
-            }
-        }
-        catch (...)
-        {
-            HandleGenericException(fmt::format("Actor::dispose(); instanceID:{}, streamID:{}, filename:{}; deleting exhaust {}/{}.",
-                ar_instance_id, ar_net_stream_id, ar_filename, std::distance(exhausts.begin(), it), exhausts.size()), HANDLEGENERICEXCEPTION_LOGFILE);
-        }
-    }
-
-    // delete custom particles
-    for (int i = 0; i < ar_num_custom_particles; i++)
-    {
-        try
-        {
-            if (ar_custom_particles[i].snode)
-            {
-                ar_custom_particles[i].snode->removeAndDestroyAllChildren();
-                App::GetGfxScene()->GetSceneManager()->destroySceneNode(ar_custom_particles[i].snode);
-            }
-            if (ar_custom_particles[i].psys)
-            {
-                ar_custom_particles[i].psys->removeAllAffectors();
-                ar_custom_particles[i].psys->removeAllEmitters();
-                App::GetGfxScene()->GetSceneManager()->destroyParticleSystem(ar_custom_particles[i].psys);
-            }
-        }
-        catch (...)
-        {
-            HandleGenericException(fmt::format("Actor::dispose(); instanceID:{}, streamID:{}, filename:{}; deleting custom particle {}/{}.",
-                ar_instance_id, ar_net_stream_id, ar_filename, i, ar_num_custom_particles), HANDLEGENERICEXCEPTION_LOGFILE);
-        }
-    }
-
     // delete Rails
     for (std::vector<RailGroup*>::iterator it = m_railgroups.begin(); it != m_railgroups.end(); it++)
     {
@@ -688,7 +640,7 @@ void Actor::calcNetwork()
     }
 
     // set particle cannon
-    if (((flagmask & NETMASK_PARTICLE) != 0) != m_custom_particles_enabled)
+    if (((flagmask & NETMASK_PARTICLE) != 0) != ar_cparticles_active)
         toggleCustomParticles();
 
     m_antilockbrake = flagmask & NETMASK_ALB_ACTIVE;
@@ -3176,15 +3128,7 @@ void Actor::toggleCustomParticles()
     if (ar_state == ActorState::DISPOSED)
         return;
 
-    m_custom_particles_enabled = !m_custom_particles_enabled;
-    for (int i = 0; i < ar_num_custom_particles; i++)
-    {
-        ar_custom_particles[i].active = !ar_custom_particles[i].active;
-        for (int j = 0; j < ar_custom_particles[i].psys->getNumEmitters(); j++)
-        {
-            ar_custom_particles[i].psys->getEmitter(j)->setEnabled(ar_custom_particles[i].active);
-        }
-    }
+    ar_cparticles_active = !ar_cparticles_active;
 
     //ScriptEvent - Particle Toggle
     TRIGGER_EVENT_ASYNC(SE_TRUCK_CPARTICLES_TOGGLE, ar_instance_id);
@@ -3226,34 +3170,6 @@ void Actor::updateVisual(float dt)
         }
     }
 #endif //openAL
-
-    // update exhausts
-    // TODO: Move to GfxActor, don't forget dt*m_simulation_speed
-    if (ar_engine && exhausts.size() > 0)
-    {
-        std::vector<exhaust_t>::iterator it;
-        for (it = exhausts.begin(); it != exhausts.end(); it++)
-        {
-            if (!it->smoker)
-                continue;
-            Vector3 dir = ar_nodes[it->emitterNode].AbsPosition - ar_nodes[it->directionNode].AbsPosition;
-            //			dir.normalise();
-            ParticleEmitter* emit = it->smoker->getEmitter(0);
-            it->smokeNode->setPosition(ar_nodes[it->emitterNode].AbsPosition);
-            emit->setDirection(dir);
-            if (!m_disable_smoke && ar_engine->GetSmoke() != -1.0)
-            {
-                emit->setEnabled(true);
-                emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.02 + ar_engine->GetSmoke() * 0.06));
-                emit->setTimeToLive((0.02 + ar_engine->GetSmoke() * 0.06) / 0.04);
-            }
-            else
-            {
-                emit->setEnabled(false);
-            }
-            emit->setParticleVelocity(1.0 + ar_engine->GetSmoke() * 2.0, 2.0 + ar_engine->GetSmoke() * 3.0);
-        }
-    }
 
     // Wings (only physics, graphics are updated in GfxActor)
     float autoaileron = 0;
@@ -4441,7 +4357,7 @@ Actor::Actor(
     , m_water_contact(false)
     , m_water_contact_old(false)
     , m_has_command_beams(false)
-    , m_custom_particles_enabled(false)
+    , ar_cparticles_active(false)
     , m_beam_break_debug_enabled(false)
     , m_beam_deform_debug_enabled(false)
     , m_trigger_debug_enabled(false)
@@ -4550,7 +4466,7 @@ BlinkType Actor::getBlinkType()
 
 bool Actor::getCustomParticleMode()
 {
-    return m_custom_particles_enabled;
+    return ar_cparticles_active;
 }
 
 Ogre::Real Actor::getMinimalCameraRadius()

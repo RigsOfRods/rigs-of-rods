@@ -314,6 +314,23 @@ struct FlareMaterial // materialflares
     Ogre::ColourValue emissive_color;
 };
 
+struct Exhaust
+{
+    NodeNum_t emitterNode   = NODENUM_INVALID;
+    NodeNum_t directionNode = NODENUM_INVALID;
+    Ogre::SceneNode *smokeNode = nullptr;
+    Ogre::ParticleSystem* smoker = nullptr; //!< This remains `nullptr` if removed via `addonpart_unwanted_exhaust` or Tuning UI.
+    std::string particleSystemName; //!< Name in .particle file ~ for display in Tuning UI.
+};
+
+struct CParticle
+{
+    NodeNum_t emitterNode   = NODENUM_INVALID;
+    NodeNum_t directionNode = NODENUM_INVALID;
+    Ogre::SceneNode *snode = nullptr;
+    Ogre::ParticleSystem* psys = nullptr;
+};
+
 /// @} // addtogroup Gfx
 
 } // namespace RoR

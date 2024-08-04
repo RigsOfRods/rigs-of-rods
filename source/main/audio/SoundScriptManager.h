@@ -331,7 +331,7 @@ public:
 
     bool isDisabled() { return disabled; }
 
-    void update(float dt_sec);
+    void update(float dt);
 
     SoundManager* getSoundManager() { return sound_manager; }
 

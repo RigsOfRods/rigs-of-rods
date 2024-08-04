@@ -1888,12 +1888,12 @@ void TopMenubar::Draw(float dt)
                 }
 
                 // Draw exhausts
-                size_t total_exhausts = tuning_actor->exhausts.size();
+                size_t total_exhausts = tuning_actor->GetGfxActor()->getExhausts().size();
                 std::string exhausts_title = fmt::format(_LC("Tuning", "Exhausts ({})"), total_exhausts);
                 if (ImGui::CollapsingHeader(exhausts_title.c_str()))
                 {
                     // Draw all exhausts (those removed by addonparts are also present as placeholders)
-                    for (ExhaustID_t exhaustid = 0; exhaustid < (int)tuning_actor->exhausts.size(); exhaustid++)
+                    for (ExhaustID_t exhaustid = 0; exhaustid < (int)total_exhausts; exhaustid++)
                     {
                         ImGui::PushID(exhaustid);
                         ImGui::AlignTextToFramePadding();
@@ -1902,7 +1902,7 @@ void TopMenubar::Draw(float dt)
 
                         this->DrawTuningForceRemoveControls(
                             exhaustid,
-                            tuning_actor->exhausts[exhaustid].particleSystemName,
+                            tuning_actor->GetGfxActor()->getExhausts()[exhaustid].particleSystemName,
                             tuneup_def && tuneup_def->isExhaustUnwanted(exhaustid),
                             tuneup_def && tuneup_def->isExhaustForceRemoved(exhaustid),
                             ModifyProjectRequestType::TUNEUP_FORCEREMOVE_EXHAUST_SET,
