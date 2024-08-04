@@ -46,9 +46,11 @@ void SimPerfStats::Draw()
 
     const Ogre::RenderTarget::FrameStats& stats = App::GetAppContext()->GetRenderWindow()->getStatistics();
 
-    std::string title = "FPS";
+    std::string title = fmt::format("FPS: {:5.1f}, Batch: {:5}, Tri: {:6}", stats.lastFPS, stats.batchCount, stats.triangleCount);
     ImGui::SetCursorPosX((ImGui::GetWindowSize().x - ImGui::CalcTextSize(title.c_str()).x) * 0.5f);
     ImGui::Text(title.c_str());
+
+    ImGui::Separator();
 
     std::string a = "Current";
     ImGui::SetCursorPosX((histogram_size.x + (3 * ImGui::GetStyle().ItemSpacing.x) + ImGui::GetStyle().FramePadding.x - ImGui::CalcTextSize(a.c_str()).x) * 0.5f);
@@ -76,10 +78,6 @@ void SimPerfStats::Draw()
     ImGui::PlotHistogram("", &stats.worstFPS, 1, 0, this->Convert(stats.worstFPS).c_str(), 0.f, stats.bestFPS, histogram_size);
     ImGui::SameLine();
     ImGui::PlotHistogram("", &stats.bestFPS, 1, 0, this->Convert(stats.bestFPS).c_str(), 0.f, stats.bestFPS, histogram_size);
-
-    ImGui::Separator();
-    ImGui::Text("%s%zu", _LC("SimPerfStats", "Triangle count: "), stats.triangleCount);
-    ImGui::Text("%s%zu", _LC("SimPerfStats", "Batch count: "),    stats.batchCount);
 
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
