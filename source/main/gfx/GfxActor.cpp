@@ -2497,7 +2497,7 @@ void RoR::GfxActor::CalcPropAnimation(PropAnim& anim, float& cstate, int& div, f
         div++;
     }
 
-    //torque - WRITES 
+    //torque
     const bool has_engine = (m_actor->ar_engine!= nullptr);
     if (has_engine && anim.animFlags & PROP_ANIM_FLAG_TORQUE)
     {
@@ -2515,8 +2515,15 @@ void RoR::GfxActor::CalcPropAnimation(PropAnim& anim, float& cstate, int& div, f
         div++;
     }
 
+    if (has_engine && anim.animFlags & PROP_ANIM_FLAG_GEAR)
+    {
+        bool match = static_cast<int>(anim.animOpt3) == m_actor->ar_engine->GetGear();
+        cstate += static_cast<int>(match);
+        div++;
+    }
+
     //shifterseq, to amimate sequentiell shifting
-    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == ShifterPropAnim::SHIFTERSEQ)
+    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == SHIFTERSEQ)
     {
         float shifterseq_cstate = 0;
         // opt1 &opt2 = 0   this is a shifter
@@ -2568,7 +2575,7 @@ void RoR::GfxActor::CalcPropAnimation(PropAnim& anim, float& cstate, int& div, f
     }
 
     //shifterman1, left/right
-    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == ShifterPropAnim::SHIFTERMAN1)
+    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == SHIFTERMAN1)
     {
         float shifterman1_cstate = 0.f;
         int shifter = m_simbuf.simbuf_gear;
@@ -2590,7 +2597,7 @@ void RoR::GfxActor::CalcPropAnimation(PropAnim& anim, float& cstate, int& div, f
     }
 
     //shifterman2, up/down
-    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == ShifterPropAnim::SHIFTERMAN2)
+    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == SHIFTERMAN2)
     {
         float shifterman2_cstate = 0.f;
         int shifter = m_simbuf.simbuf_gear;
@@ -2609,11 +2616,23 @@ void RoR::GfxActor::CalcPropAnimation(PropAnim& anim, float& cstate, int& div, f
     }
 
     //shifterlinear, to amimate cockpit gearselect gauge and autotransmission stick
-    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == ShifterPropAnim::SHIFTERLIN)
+    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == SHIFTERLIN)
     {
         float shifterlin_cstate = 0.f;
         int shifter = m_simbuf.simbuf_gear;
         int numgears = m_simbuf.simbuf_num_gears;
+        shifterlin_cstate -= (shifter + 2.0) / (numgears + 2.0);
+
+        cstate += UpdateSmoothShift(anim, dt, shifterlin_cstate);
+        div++;
+    }
+
+    //autoshifterlin, autotransmission stick with only R/N/D positions
+    if (has_engine && (anim.animFlags & PROP_ANIM_FLAG_SHIFTER) && anim.animOpt3 == AUTOSHIFTERLIN)
+    {
+        float shifterlin_cstate = 0.f;
+        int shifter = std::min(m_simbuf.simbuf_gear, 1); // Clamp forward gears to 1
+        int numgears = 1; // Number of forward gears
         shifterlin_cstate -= (shifter + 2.0) / (numgears + 2.0);
 
         cstate += UpdateSmoothShift(anim, dt, shifterlin_cstate);
