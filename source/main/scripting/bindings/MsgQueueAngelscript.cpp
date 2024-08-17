@@ -62,7 +62,8 @@ void RoR::RegisterMessageQueue(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("MsgType", "MSG_NET_REFRESH_REPOLIST_SUCCESS", MSG_NET_REFRESH_REPOLIST_SUCCESS); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_NET_OPEN_RESOURCE_SUCCESS", MSG_NET_OPEN_RESOURCE_SUCCESS); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_NET_REFRESH_REPOLIST_FAILURE", MSG_NET_REFRESH_REPOLIST_FAILURE); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("MsgType", "MSG_NET_REFRESH_AI_PRESETS", MSG_NET_REFRESH_AI_PRESETS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_NET_FETCH_AI_PRESETS_SUCCESS", MSG_NET_FETCH_AI_PRESETS_SUCCESS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_NET_FETCH_AI_PRESETS_FAILURE", MSG_NET_FETCH_AI_PRESETS_FAILURE); ROR_ASSERT(result >= 0);
     // Simulation
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_PAUSE_REQUESTED", MSG_SIM_PAUSE_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_SIM_UNPAUSE_REQUESTED", MSG_SIM_UNPAUSE_REQUESTED); ROR_ASSERT(result >= 0);

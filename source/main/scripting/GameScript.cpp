@@ -1394,6 +1394,8 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
     case MSG_NET_REFRESH_REPOLIST_SUCCESS:
     case MSG_NET_OPEN_RESOURCE_SUCCESS:
     case MSG_NET_REFRESH_REPOLIST_FAILURE:
+    case MSG_NET_FETCH_AI_PRESETS_SUCCESS:
+    case MSG_NET_FETCH_AI_PRESETS_FAILURE:
         // GUI
     case MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED:
     case MSG_GUI_DOWNLOAD_PROGRESS:

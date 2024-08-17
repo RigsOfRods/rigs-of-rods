@@ -73,8 +73,31 @@ static size_t CurlWriteFunc(void *ptr, size_t size, size_t nmemb, std::string* d
     return size * nmemb;
 }
 
-void GetJson()
+void FetchAiPresetsThreadFunc()
 {
+    // If local file 'savegames/waypoints.json' exists, load it; otherwise download from GitHub.
+    // -----------------------------------------------------------------------------------------
+
+    if (FileExists(PathCombine(App::sys_savegames_dir->getStr(), "waypoints.json")))
+    {
+        try
+        {
+            Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource("waypoints.json", RGN_SAVEGAMES);
+            Message m(MSG_NET_FETCH_AI_PRESETS_SUCCESS);
+            m.description = stream->getAsString();
+            App::GetGameContext()->PushMessage(m);
+        }
+        catch (...)
+        {
+            RoR::HandleGenericException("Top menubar / AI presets");
+            Message m(MSG_NET_FETCH_AI_PRESETS_FAILURE);
+            m.description = "Failed to load local AI presets.";
+            App::GetGameContext()->PushMessage(m);
+        }
+
+        return; // DONE
+    }
+
     std::string url = "https://raw.githubusercontent.com/RigsOfRods-Community/ai-waypoints/main/waypoints.json";
     std::string response_payload;
     long response_code = 0;
@@ -99,10 +122,13 @@ void GetJson()
         Ogre::LogManager::getSingleton().stream()
             << "[RoR|Repository] Failed to download AI presets;"
             << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+        Message m(MSG_NET_FETCH_AI_PRESETS_FAILURE);
+        m.description = "Failed to download AI presets.";
+        App::GetGameContext()->PushMessage(m);
     }
     else
     {
-        Message m(MSG_NET_REFRESH_AI_PRESETS);
+        Message m(MSG_NET_FETCH_AI_PRESETS_SUCCESS);
         m.description = response_payload;
         App::GetGameContext()->PushMessage(m);
     }
@@ -1266,41 +1292,18 @@ void TopMenubar::Draw(float dt)
             ImGui::PopStyleColor();
             ImGui::Separator();
 
-            bool is_open = ImGui::CollapsingHeader(_LC("TopMenubar", "Presets"));
-            if (ImGui::IsItemActivated() && !is_open && ai_presets_all.Empty()) // Rebuild the preset list if blank
+            if (ImGui::CollapsingHeader(_LC("TopMenubar", "Presets")))
             {
-                if (ai_presets_extern.Empty()) // Fetch once
-                {
-                    if (FileExists(PathCombine(App::sys_savegames_dir->getStr(), "waypoints.json")))
-                    {
-                        App::GetContentManager()->LoadAndParseJson("waypoints.json", RGN_SAVEGAMES, ai_presets_extern);
-                        this->RefreshAiPresets();
-                    }
-                    else
-                    {
-                        this->DownloadAiPresets();
-                    }
-                }
-            }
-
-            if (is_open && ai_presets_all.Empty())
-            {
-                float spinner_size = 8.f;
-                ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - spinner_size);
-                LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
-            }
-
-            if (is_open && !ai_presets_all.Empty())
-            {
+                // Draw whatever we already have (i.e. presets bundled with terrain, see '[AI Presets]' in terrn2 format).
                 size_t num_rows = ai_presets_all.GetArray().Size();
-                int count = 0;
+                int display_count = 0;
                 for (size_t i = 0; i < num_rows; i++)
                 {
                     rapidjson::Value& j_row = ai_presets_all[static_cast<rapidjson::SizeType>(i)];
 
                     if (j_row.HasMember("terrain") && App::sim_terrain_name->getStr() == j_row["terrain"].GetString())
                     {
-                        count++;
+                        display_count++;
                         if (ImGui::Button(j_row["preset"].GetString(), ImVec2(250, 0)))
                         {
                             ai_waypoints.clear();
@@ -1329,7 +1332,32 @@ void TopMenubar::Draw(float dt)
                         }
                     }
                 }
-                if (count == 0)
+
+                // Fetch additional presets, or display error if failed
+                if (ai_presets_extern.Empty())
+                {
+                    if (ai_presets_extern_fetching)
+                    {
+                        float spinner_size = 8.f;
+                        ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - spinner_size);
+                        LoadingIndicatorCircle("spinner", spinner_size, theme.value_blue_text_color, theme.value_blue_text_color, 10, 10);
+                    }
+                    else if (ai_presets_extern_error != "")
+                    {
+                        ImGui::TextColored(RED_TEXT, "%s", _LC("TopMenubar", "Failed to fetch external presets."));
+                        if (ImGui::Button(_LC("TopMenubar", "Retry")))
+                        {
+                            this->FetchExternAiPresetsOnBackground(); // Will post `MSG_NET_REFRESH_AI_PRESETS` when done.
+                        }
+                    }
+                    else
+                    {
+                        this->FetchExternAiPresetsOnBackground(); // Will post `MSG_NET_REFRESH_AI_PRESETS` when done.
+                    }
+                }
+
+                // If no presets found, display message
+                if (display_count == 0 && !ai_presets_extern_fetching && ai_presets_extern_error == "")
                 {
                     ImGui::Text("%s", _LC("TopMenubar", "No presets found for this terrain :("));
                     ImGui::Text("%s", _LC("TopMenubar", "Supported terrains:"));
@@ -2391,11 +2419,51 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
     }
 }
 
-void TopMenubar::DownloadAiPresets()
+void TopMenubar::LoadBundledAiPresets(TerrainPtr terrain)
+{
+    // Load 'bundled' AI presets - see section `[AI Presets]` in terrn2 file format
+    // ----------------------------------------------------------------------------
+
+    App::GetGuiManager()->TopMenubar.ai_presets_bundled.SetArray();
+
+    for (const std::string& filename: terrain->GetDef().ai_presets_files)
+    {
+        rapidjson::Document j_doc;
+        if (Ogre::ResourceGroupManager::getSingleton().resourceExists(terrain->getTerrainFileResourceGroup(), filename))
+        {
+            App::GetContentManager()->LoadAndParseJson(filename, terrain->getTerrainFileResourceGroup(), j_doc);
+        }
+        else
+        {
+            LOG(fmt::format("[RoR|Terrain] AI presets file '{}' declared in '{}' not found!", filename, terrain->getTerrainFileName()));
+        }
+
+        // Ensure the format is about right
+        if (!j_doc.IsArray())
+        {
+            LOG(fmt::format("[RoR|Terrain] AI presets file '{}' declared in '{}' has wrong format - the root element is not an array!",
+                    filename, terrain->getTerrainFileName()));
+        }
+        else
+        {
+            // Finally add the presets to the list
+            for (const rapidjson::Value& j_bundled_preset: j_doc.GetArray())
+            {
+                rapidjson::Value preset_copy(j_bundled_preset, App::GetGuiManager()->TopMenubar.ai_presets_bundled.GetAllocator());
+                App::GetGuiManager()->TopMenubar.ai_presets_bundled.PushBack(preset_copy, App::GetGuiManager()->TopMenubar.ai_presets_bundled.GetAllocator());
+            }
+        }
+    }
+
+    App::GetGuiManager()->TopMenubar.RefreshAiPresets();
+}
+
+void TopMenubar::FetchExternAiPresetsOnBackground()
 {
 #if defined(USE_CURL)
-    std::packaged_task<void()> task(GetJson);
+    std::packaged_task<void()> task(FetchAiPresetsThreadFunc);
     std::thread(std::move(task)).detach();
+    ai_presets_extern_fetching = true;
 #endif // defined(USE_CURL)
 }
 
