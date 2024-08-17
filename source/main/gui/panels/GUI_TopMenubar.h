@@ -98,10 +98,13 @@ public:
     int ai_mode_prev = 0;
 
     // AI waypoint presets
-    void DownloadAiPresets(); //!< Initiate threaded download of 'extern' waypoints from GitHub repo.
+    void FetchExternAiPresetsOnBackground(); //!< Initiate threaded (down)load of 'extern' waypoints from GitHub repo.
+    void LoadBundledAiPresets(TerrainPtr terrain); //!< Loads JSON files from `[AI Presets]` section in .terrn2 file format.
     void RefreshAiPresets();  //!< Refresh the list of presets, used for display. Needs to be called when terrain is loaded.
     rapidjson::Document ai_presets_all; //!< The full list of presets, used for display. Needs to be refreshed when terrain is loaded.
     rapidjson::Document ai_presets_extern; //!< Externally provided presets (GitHub repo or local 'savegames/waypoints.json' file).
+    bool                ai_presets_extern_fetching = false; //!< True if the (down)load of 'extern' waypoints is in progress.
+    std::string         ai_presets_extern_error; //!< Error message from the (down)load of 'extern' waypoints.
     rapidjson::Document ai_presets_bundled; //!< Presets bundled with the terrain, see `[AI Presets]` section in .terrn2 file format.
 
     // Tuning menu

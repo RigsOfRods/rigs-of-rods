@@ -749,11 +749,27 @@ int main(int argc, char *argv[])
                     break;
                 }
 
-                case MSG_NET_REFRESH_AI_PRESETS:
+                case MSG_NET_FETCH_AI_PRESETS_SUCCESS:
                 {
                     try
                     {
+                        App::GetGuiManager()->TopMenubar.ai_presets_extern_fetching = false;
                         App::GetGuiManager()->TopMenubar.ai_presets_extern.Parse(m.description.c_str());
+                        App::GetGuiManager()->TopMenubar.RefreshAiPresets();
+                    }
+                    catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    break;
+                }
+
+                case MSG_NET_FETCH_AI_PRESETS_FAILURE:
+                {
+                    try
+                    {
+                        App::GetGuiManager()->TopMenubar.ai_presets_extern_fetching = false;
+                        App::GetGuiManager()->TopMenubar.ai_presets_extern_error = m.description;
                         App::GetGuiManager()->TopMenubar.RefreshAiPresets();
                     }
                     catch (...) 

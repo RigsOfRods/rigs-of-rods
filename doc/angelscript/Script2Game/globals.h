@@ -629,7 +629,8 @@ enum MsgType
     MSG_NET_REFRESH_REPOLIST_SUCCESS,          //!< Background task notification, DO NOT PUSH MANUALLY.
     MSG_NET_OPEN_RESOURCE_SUCCESS,             //!< Background task notification, DO NOT PUSH MANUALLY.
     MSG_NET_REFRESH_REPOLIST_FAILURE,          //!< Background task notification, DO NOT PUSH MANUALLY.
-    MSG_NET_REFRESH_AI_PRESETS,                //!< Request refresh of AI presets menu in top menubar. No params.
+    MSG_NET_FETCH_AI_PRESETS_SUCCESS,          //!< Background task notification, DO NOT PUSH MANUALLY.
+    MSG_NET_FETCH_AI_PRESETS_FAILURE,          //!< Background task notification, DO NOT PUSH MANUALLY.
     // Simulation
     MSG_SIM_PAUSE_REQUESTED,                   //!< Pause game. No params.
     MSG_SIM_UNPAUSE_REQUESTED,                 //!< Unpause game. No params.

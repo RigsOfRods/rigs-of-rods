@@ -73,6 +73,13 @@ namespace RoR {
 /// Global gameplay message loop, see `struct Message` in GameContext.h
 enum MsgType
 {
+    // CHECKLIST for adding new message types:
+    // * Provide name as string constant - see `MsgTypeToString()` in Application.cpp
+    // * Register it with AngelScript - see `RegisterMessageQueue()` in 'scripting/bindings/MsgQueueAngelscript.cpp'
+    // * Allow/Deny pushing from AngelScript - see `pushMessage()` in 'scripting/GameScript.cpp'
+    // * Document the AngelScript usage - see 'doc/angelscript/Script2Game/globals.h'.
+    // * Make it do something useful in 'main.cpp' ;)
+
     MSG_INVALID,
     // Application
     MSG_APP_SHUTDOWN_REQUESTED,
@@ -100,7 +107,8 @@ enum MsgType
     MSG_NET_REFRESH_REPOLIST_SUCCESS,      //!< Payload = GUI::ResourcesCollection* (owner)
     MSG_NET_OPEN_RESOURCE_SUCCESS,         //!< Payload = GUI::ResourcesCollection* (owner)
     MSG_NET_REFRESH_REPOLIST_FAILURE,      //!< Payload = RoR::CurlFailInfo* (owner)
-    MSG_NET_REFRESH_AI_PRESETS,
+    MSG_NET_FETCH_AI_PRESETS_SUCCESS,      //!< Description = JSON string
+    MSG_NET_FETCH_AI_PRESETS_FAILURE,      //!< Description = message
     // Simulation
     MSG_SIM_PAUSE_REQUESTED,
     MSG_SIM_UNPAUSE_REQUESTED,
