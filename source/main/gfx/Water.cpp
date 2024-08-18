@@ -36,21 +36,7 @@ using namespace RoR;
 static const int WAVEREZ = 100;
 
 Water::Water(Ogre::Vector3 terrn_size) :
-    m_map_size(terrn_size),
-    m_max_ampl(0),
-    m_water_visible(true),
-    m_waterplane_mesh_scale(1.0f),
-    m_refract_rtt_viewport(0),
-    m_reflect_rtt_viewport(0),
-    m_bottom_height(0),
-    m_water_height(0),
-    m_waterplane_node(0),
-    m_waterplane_force_update_pos(false),
-    m_frame_counter(0),
-    m_refract_rtt_target(0),
-    m_reflect_rtt_target(0),
-    m_reflect_cam(0),
-    m_refract_cam(0)
+    m_map_size(terrn_size)
 {
     //Ugh.. Why so ugly and hard to read
     m_reflect_listener.scene_mgr = App::GetGfxScene()->GetSceneManager();
