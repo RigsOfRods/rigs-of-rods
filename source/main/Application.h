@@ -85,6 +85,7 @@ enum MsgType
     MSG_APP_LOAD_SCRIPT_REQUESTED,         //!< Payload = RoR::LoadScriptRequest* (owner)
     MSG_APP_UNLOAD_SCRIPT_REQUESTED,       //!< Payload = RoR::ScriptUnitId_t* (owner)
     MSG_APP_SCRIPT_THREAD_STATUS,          //!< Payload = RoR::ScriptEventArgs* (owner)
+    MSG_APP_REINIT_INPUT_REQUESTED,
     // Networking
     MSG_NET_CONNECT_REQUESTED,
     MSG_NET_CONNECT_STARTED,
@@ -525,11 +526,9 @@ void CreateGfxScene();
 void CreateSoundScriptManager();
 void CreateScriptEngine();
 
-// Setters
-void SetCacheSystem          (CacheSystem*       obj);
-
 // Cleanups
 void DestroyOverlayWrapper();
+void DestroyInputEngine();
 
 } // namespace App
 

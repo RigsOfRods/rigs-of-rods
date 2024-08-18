@@ -514,6 +514,23 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_APP_REINIT_INPUT_REQUESTED:
+                {
+                    try
+                    {
+                        LOG(fmt::format("[RoR] !! Reinitializing input engine !!"));
+                        App::DestroyInputEngine();
+                        App::GetAppContext()->SetUpInput();
+                        LOG(fmt::format("[RoR] DONE Reinitializing input engine."));
+                        App::GetGuiManager()->LoadingWindow.SetVisible(false); // Shown by `GUI::GameSettings` when changing 'grab mode'
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    break;
+                }
+
                 // -- Network events --
 
                 case MSG_NET_CONNECT_REQUESTED:
