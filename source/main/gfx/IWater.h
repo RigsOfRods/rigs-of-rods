@@ -22,6 +22,7 @@
 #pragma once
 
 #include "ForwardDeclarations.h"
+#include "ProjectedGrid.h" // HydraX
 #include <Ogre.h>
 
 namespace RoR {
@@ -29,11 +30,12 @@ namespace RoR {
 /// @addtogroup Gfx
 /// @{
 
-class IWater //!< TODO: Mixed gfx+physics (waves) - must be separated ~ only_a_ptr, 02/2018
+class IWater //!< Common to classic water (Water.cpp, `class Water`) and HydraX water (HydraxWater.cpp, `class HydraxWater`)
 {
 public:
     IWater()
     {
+        m_active_water_mode = App::gfx_water_mode->getEnum<GfxWaterMode>();
     }
 
     virtual ~IWater()
@@ -47,17 +49,27 @@ public:
     virtual float          CalcWavesHeight(Ogre::Vector3 pos) = 0;
     virtual Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos) = 0;
     virtual void           SetWaterVisible(bool value) = 0;
-    virtual void           WaterSetSunPosition(Ogre::Vector3) {}
+    virtual void           SetWaterSunPosition(Ogre::Vector3) {}
     virtual bool           IsUnderWater(Ogre::Vector3 pos) = 0;
     virtual void           FrameStepWater(float dt) = 0;
     virtual void           SetReflectionPlaneHeight(float centerheight) {}
     virtual void           UpdateReflectionPlane(float h) {}
     virtual void           WaterPrepareShutdown() {}
     virtual void           UpdateWater() = 0;
+    virtual void           SetWaterColor(Ogre::ColourValue color) {}
+    virtual void           WaterSetSunPositon(Ogre::Vector3 pos) {}
+    GfxWaterMode           GetActiveWaterMode() { return m_active_water_mode; }
 
     // Only used by class Water for SurveyMap texture creation
     virtual void           SetForcedCameraTransform(Ogre::Radian fovy, Ogre::Vector3 pos, Ogre::Quaternion rot) {};
     virtual void           ClearForcedCameraTransform() {};
+
+    // Only for HydraX at the moment, but will be unified
+    virtual Hydrax::Module::ProjectedGrid::Options   GetWaterGridOptions() { return Hydrax::Module::ProjectedGrid::Options(); }
+    virtual void           SetWaterGridOptions(Hydrax::Module::ProjectedGrid::Options options) {};
+
+protected:
+    GfxWaterMode m_active_water_mode; //!< A snapshot of cvar `gfx_water_mode` at the time of water creation - because the cvar can change (i.e. via TopMenubar or scripting, see also `MSG_SIM_REINIT_WATER_REQUESTED`)
 };
 
 /// @} // addtogroup Gfx

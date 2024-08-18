@@ -36,7 +36,7 @@ using namespace Ogre;
 using namespace RoR;
 
 // HydraxWater
-HydraxWater::HydraxWater(float water_height, Ogre::String conf_file):
+HydraxWater::HydraxWater(float water_height, Ogre::TerrainGroup* terrain_grp, Ogre::String conf_file):
     waternoise(0)
     , mHydrax(0)
     , waterHeight(water_height)
@@ -46,6 +46,15 @@ HydraxWater::HydraxWater(float water_height, Ogre::String conf_file):
     App::GetCameraManager()->GetCamera()->setNearClipDistance(0.1f);
 
     InitHydrax();
+
+    //Apply depth technique to the terrain
+    TerrainGroup::TerrainIterator ti = terrain_grp->getTerrainIterator();
+    while (ti.hasMoreElements())
+    {
+        Ogre::Terrain* t = ti.getNext()->instance;
+        MaterialPtr ptr = t->getMaterial();
+        mHydrax->getMaterialManager()->addDepthTechnique(ptr->createTechnique());
+    }
 }
 
 HydraxWater::~HydraxWater()
@@ -143,7 +152,7 @@ Vector3 HydraxWater::CalcWavesVelocity(Vector3 pos)
     return Vector3(0, 0, 0); //TODO
 }
 
-void HydraxWater::WaterSetSunPosition(Ogre::Vector3 pos)
+void HydraxWater::SetWaterSunPosition(Ogre::Vector3 pos)
 {
     if (mHydrax)
         mHydrax->setSunPosition(pos);
@@ -158,3 +167,8 @@ void HydraxWater::FrameStepWater(float dt)
     this->UpdateWater();
 }
 
+void HydraxWater::SetWaterColor(Ogre::ColourValue color)
+{
+    if (mHydrax)
+        mHydrax->setWaterColor(Ogre::Vector3(color.r, color.g, color.b));
+}

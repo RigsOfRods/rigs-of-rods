@@ -164,7 +164,7 @@ void Water::PrepareWater()
     m_water_plane.normal = Vector3::UNIT_Y;
     m_water_plane.d = 0;
 
-    const auto type = App::gfx_water_mode->getEnum<GfxWaterMode>();
+    const auto type = m_active_water_mode;
     const bool full_gfx = type == GfxWaterMode::FULL_HQ || type == GfxWaterMode::FULL_FAST;
 
     if (full_gfx || type == GfxWaterMode::REFLECT)
@@ -340,7 +340,7 @@ void Water::SetWaterVisible(bool value)
 
 void Water::SetReflectionPlaneHeight(float centerheight)
 {
-    const auto type = App::gfx_water_mode->getEnum<GfxWaterMode>();
+    const auto type = m_active_water_mode;
     if (type == GfxWaterMode::FULL_HQ || type == GfxWaterMode::FULL_FAST || type == GfxWaterMode::REFLECT)
     {
         this->UpdateReflectionPlane(centerheight);
@@ -429,7 +429,7 @@ void Water::UpdateWater()
     }
 
     m_frame_counter++;
-    if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::FULL_FAST)
+    if (m_active_water_mode == GfxWaterMode::FULL_FAST)
     {
         if (m_frame_counter % 2 == 1 || m_waterplane_force_update_pos)
         {
@@ -446,7 +446,7 @@ void Water::UpdateWater()
             m_refract_rtt_target->update();
         }
     }
-    else if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::FULL_HQ)
+    else if (m_active_water_mode == GfxWaterMode::FULL_HQ)
     {
         m_reflect_cam->setOrientation(camera_rot);
         m_reflect_cam->setPosition(camera_pos);
@@ -458,7 +458,7 @@ void Water::UpdateWater()
         m_refract_cam->setFOVy(camera_fov);
         m_refract_rtt_target->update();
     }
-    else if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::REFLECT)
+    else if (m_active_water_mode == GfxWaterMode::REFLECT)
     {
         m_reflect_cam->setOrientation(camera_rot);
         m_reflect_cam->setPosition(camera_pos);

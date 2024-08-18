@@ -647,6 +647,7 @@ enum MsgType
     MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED,        //!< Request revealing of hidden networked actor; used internally by top menubar. Params: 'instance_id' (int)
     MSG_SIM_SCRIPT_EVENT_TRIGGERED,            //!< Internal notification about triggering a script event, DO NOT PUSH MANUALLY.
     MSG_SIM_SCRIPT_CALLBACK_QUEUED,            //!< Internal notification about triggering a script event, DO NOT PUSH MANUALLY.
+    MSG_SIM_REINIT_WATER_REQUESTED,            //!< Request restarting water subsystem based on cvar 'gfx_water_mode'. Use with caution.
     // GUI
     MSG_GUI_OPEN_MENU_REQUESTED,
     MSG_GUI_CLOSE_MENU_REQUESTED,

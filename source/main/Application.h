@@ -129,6 +129,7 @@ enum MsgType
     MSG_SIM_ADD_FREEFORCE_REQUESTED,       //!< Payload = RoR::FreeForceRequest* (owner)
     MSG_SIM_MODIFY_FREEFORCE_REQUESTED,    //!< Payload = RoR::FreeForceRequest* (owner)
     MSG_SIM_REMOVE_FREEFORCE_REQUESTED,    //!< Payload = RoR::FreeForceID_t* (owner)
+    MSG_SIM_REINIT_WATER_REQUESTED,
     // GUI
     MSG_GUI_OPEN_MENU_REQUESTED,
     MSG_GUI_CLOSE_MENU_REQUESTED,

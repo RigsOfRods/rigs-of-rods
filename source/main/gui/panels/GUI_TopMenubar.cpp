@@ -662,26 +662,27 @@ void TopMenubar::Draw(float dt)
                 if (DrawGCombo(App::gfx_water_mode, _LC("TopMenubar", "Mode"), water_mode_combostring.c_str()))
                 {
                     water_waves_height = 0.f;
-                    App::GetGameContext()->GetTerrain()->reInitWater();
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_REINIT_WATER_REQUESTED));
                 }
 
                 DrawGCheckbox(App::gfx_water_waves, _LC("TopMenubar", "Waves"));
 
-                if (RoR::App::gfx_water_waves->getBool() && App::GetGameContext()->GetTerrain()->getWater())
+                IWater* iwater = App::GetGameContext()->GetTerrain()->getWater();
+
+                if (iwater 
+                    && iwater->GetActiveWaterMode() != GfxWaterMode::HYDRAX
+                    && iwater->GetActiveWaterMode() != GfxWaterMode::NONE 
+                    && RoR::App::gfx_water_waves->getBool())
                 {
-                    if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
+                    if(ImGui::SliderFloat(_LC("TopMenubar", "Waves height"), &water_waves_height, 0.f, 4.f, ""))
                     {
-                        if(ImGui::SliderFloat(_LC("TopMenubar", "Waves height"), &water_waves_height, 0.f, 4.f, ""))
-                        {
-                            App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(water_waves_height);
-                        }
+                        App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(water_waves_height);
                     }
                 }
-
-                if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
+                
+                if (iwater && iwater->GetActiveWaterMode() == GfxWaterMode::HYDRAX)
                 {
-                    Hydrax::Module::ProjectedGrid* pgrid = static_cast<Hydrax::Module::ProjectedGrid*>(App::GetGameContext()->GetTerrain()->getHydraxManager()->GetHydrax()->getModule());
-                    Hydrax::Module::ProjectedGrid::Options water_pgrid_options = pgrid->getOptions();
+                    Hydrax::Module::ProjectedGrid::Options water_pgrid_options = iwater->GetWaterGridOptions();
 
                     bool changed = false;
                     changed |= ImGui::SliderInt(_LC("TopMenubar", "Grid complexity"), &water_pgrid_options.Complexity, 32, 1024);
@@ -693,7 +694,7 @@ void TopMenubar::Draw(float dt)
                     changed |= ImGui::SliderFloat(_LC("TopMenubar", "Choppy w. strength"), &water_pgrid_options.ChoppyStrength, 1.f, 50.f);
                     if (changed)
                     {
-                        pgrid->setOptions(water_pgrid_options);
+                        iwater->SetWaterGridOptions(water_pgrid_options);
                     }
                 }
 
