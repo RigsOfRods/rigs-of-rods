@@ -499,6 +499,10 @@ void InputEngine::setup()
     {
         ShowCursor(FALSE);
     }
+    else
+    {
+        ShowCursor(TRUE); // To make `MSG_APP_REINIT_INPUT_REQUESTED` work correctly
+    }
 #endif
 
     mInputManager = OIS::InputManager::createInputSystem(pl);

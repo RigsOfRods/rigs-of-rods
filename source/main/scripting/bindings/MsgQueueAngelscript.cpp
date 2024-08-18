@@ -47,6 +47,7 @@ void RoR::RegisterMessageQueue(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("MsgType", "MSG_APP_LOAD_SCRIPT_REQUESTED", MSG_APP_LOAD_SCRIPT_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_APP_UNLOAD_SCRIPT_REQUESTED", MSG_APP_UNLOAD_SCRIPT_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_APP_SCRIPT_THREAD_STATUS", MSG_APP_SCRIPT_THREAD_STATUS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("MsgType", "MSG_APP_REINIT_INPUT_REQUESTED", MSG_APP_REINIT_INPUT_REQUESTED); ROR_ASSERT(result >= 0);
     // Networking
     result = engine->RegisterEnumValue("MsgType", "MSG_NET_CONNECT_REQUESTED", MSG_NET_CONNECT_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_NET_CONNECT_STARTED", MSG_NET_CONNECT_STARTED); ROR_ASSERT(result >= 0);

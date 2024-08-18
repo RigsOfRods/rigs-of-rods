@@ -449,8 +449,16 @@ void GameSettings::DrawControlSettings()
 {
     ImGui::TextDisabled("%s", _LC("GameSettings", "Controller options"));
 
-    DrawGCombo(App::io_input_grab_mode, _LC("GameSettings", "Input grab mode"),
-        m_combo_items_input_grab.c_str());
+    IoInputGrabMode io_input_grab_mode_old = App::io_input_grab_mode->getEnum<IoInputGrabMode>();
+    DrawGCombo(App::io_input_grab_mode, _LC("GameSettings", "Input grab mode"), m_combo_items_input_grab.c_str());
+    if (io_input_grab_mode_old != App::io_input_grab_mode->getEnum<IoInputGrabMode>())
+    {
+        App::GetGameContext()->PushMessage(Message(MSG_APP_REINIT_INPUT_REQUESTED));
+        // This may take a second - display a 'please wait' box
+        App::GetGuiManager()->LoadingWindow.SetProgress(
+            App::GetGuiManager()->LoadingWindow.PERC_HIDE_PROGRESSBAR, 
+            _LC("GameSettings", "Restarting input subsystem, please wait..."), /*render_frame:*/false);
+    }
 
     DrawGFloatSlider(App::io_analog_smoothing,   _LC("GameSettings", "Analog Input Smoothing"),   0.5f, 2.0f);
     DrawGFloatSlider(App::io_analog_sensitivity, _LC("GameSettings", "Analog Input Sensitivity"), 0.5f, 2.0f);

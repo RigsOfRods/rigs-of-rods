@@ -354,6 +354,12 @@ void DestroyOverlayWrapper()
     g_overlay_wrapper = nullptr;
 }
 
+void DestroyInputEngine()
+{
+    delete g_input_engine;
+    g_input_engine = nullptr;
+}
+
 } // namespace App
 
 // ------------------------------------------------------------------------------------------------
@@ -562,6 +568,7 @@ const char* MsgTypeToString(MsgType type)
     case MSG_APP_LOAD_SCRIPT_REQUESTED        : return "MSG_APP_LOAD_SCRIPT_REQUESTED";  
     case MSG_APP_UNLOAD_SCRIPT_REQUESTED      : return "MSG_APP_UNLOAD_SCRIPT_REQUESTED";
     case MSG_APP_SCRIPT_THREAD_STATUS         : return "MSG_APP_SCRIPT_THREAD_STATUS";   
+    case MSG_APP_REINIT_INPUT_REQUESTED       : return "MSG_APP_REINIT_INPUT_REQUESTED";
 
     case MSG_NET_CONNECT_REQUESTED            : return "MSG_NET_CONNECT_REQUESTED";
     case MSG_NET_CONNECT_STARTED              : return "MSG_NET_CONNECT_STARTED";
