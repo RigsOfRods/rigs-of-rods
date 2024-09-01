@@ -661,11 +661,13 @@ void TopMenubar::Draw(float dt)
     
                 if (DrawGCombo(App::gfx_water_mode, _LC("TopMenubar", "Mode"), water_mode_combostring.c_str()))
                 {
-                    water_waves_height = 0.f;
                     App::GetGameContext()->PushMessage(Message(MSG_SIM_REINIT_WATER_REQUESTED));
                 }
 
-                DrawGCheckbox(App::gfx_water_waves, _LC("TopMenubar", "Waves"));
+                if (DrawGCheckbox(App::gfx_water_waves, _LC("TopMenubar", "Waves")))
+                {
+                    App::GetGameContext()->PushMessage(Message(MSG_SIM_REINIT_WATER_REQUESTED));
+                }
 
                 IWater* iwater = App::GetGameContext()->GetTerrain()->getWater();
 
@@ -674,6 +676,7 @@ void TopMenubar::Draw(float dt)
                     && iwater->GetActiveWaterMode() != GfxWaterMode::NONE 
                     && RoR::App::gfx_water_waves->getBool())
                 {
+                    float water_waves_height = iwater->GetWavesHeight();
                     if(ImGui::SliderFloat(_LC("TopMenubar", "Waves height"), &water_waves_height, 0.f, 4.f, ""))
                     {
                         App::GetGameContext()->GetTerrain()->getWater()->SetWavesHeight(water_waves_height);

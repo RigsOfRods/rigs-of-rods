@@ -276,10 +276,20 @@ void Water::PrepareWater()
     }
 
     // Water plane
-    m_waterplane_mesh = MeshManager::getSingleton().createPlane("WaterPlane",
-            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-            m_water_plane,
-            m_map_size.x * m_waterplane_mesh_scale, m_map_size.z * m_waterplane_mesh_scale, WAVEREZ, WAVEREZ, true, 1, 50, 50, Vector3::UNIT_Z, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
+    m_waterplane_mesh = MeshManager::getSingleton().createPlane(
+        "WaterPlane", // name
+        ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, // groupName
+        m_water_plane, // plane (Ogre::Plane)
+        m_map_size.x * m_waterplane_mesh_scale, // width
+        m_map_size.z * m_waterplane_mesh_scale, // height
+        WAVEREZ, // xsegments
+        WAVEREZ, // ysegments
+        true, // normals
+        1, // numTexCoordSets
+        50, // xTile
+        50, // yTile
+        Vector3::UNIT_Z, // upVector
+        HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
     m_waterplane_entity = App::GetGfxScene()->GetSceneManager()->createEntity("plane", "WaterPlane");
 
     // Water plane material
@@ -491,6 +501,11 @@ void Water::SetStaticWaterHeight(float value)
 void Water::SetWavesHeight(float value)
 {
     m_waves_height = value;
+}
+
+float Water::GetWavesHeight()
+{
+    return m_waves_height;
 }
 
 void Water::SetWaterBottomHeight(float value)

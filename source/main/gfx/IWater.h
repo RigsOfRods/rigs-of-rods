@@ -45,7 +45,6 @@ public:
     virtual float          GetStaticWaterHeight() = 0; //!< Returns static water level configured in 'terrn2'
     virtual void           SetStaticWaterHeight(float value) = 0;
     virtual void           SetWaterBottomHeight(float value) {};
-    virtual void           SetWavesHeight(float value) {};
     virtual float          CalcWavesHeight(Ogre::Vector3 pos) = 0;
     virtual Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos) = 0;
     virtual void           SetWaterVisible(bool value) = 0;
@@ -60,7 +59,11 @@ public:
     virtual void           WaterSetSunPositon(Ogre::Vector3 pos) {}
     GfxWaterMode           GetActiveWaterMode() { return m_active_water_mode; }
 
-    // Only used by class Water for SurveyMap texture creation
+    // Only used by classic water (Water.cpp)
+    virtual void           SetWavesHeight(float value) {};
+    virtual float          GetWavesHeight() { return 0.f; };
+
+    // Only used by classic Water for SurveyMap texture creation
     virtual void           SetForcedCameraTransform(Ogre::Radian fovy, Ogre::Vector3 pos, Ogre::Quaternion rot) {};
     virtual void           ClearForcedCameraTransform() {};
 

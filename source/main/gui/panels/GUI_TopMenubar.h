@@ -125,7 +125,6 @@ public:
 
     // Water settings menu
     std::string water_mode_combostring;
-    float       water_waves_height = 0.f;
 
 private:
     bool IsMenuEnabled(TopMenu which);
