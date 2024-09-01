@@ -377,7 +377,10 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
             {
                 reg->name[127] = 0;
                 // NOTE: The filename is by default in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
-                std::string filename = SanitizeUtf8CString(reg->name);
+                std::string filename_maybe_bundlequalified = SanitizeUtf8CString(reg->name);
+                std::string filename;
+                std::string bundlename;
+                SplitBundleQualifiedFilename(filename_maybe_bundlequalified, /*out:*/ bundlename, /*out:*/ filename);
 
                 RoRnet::UserInfo info;
                 if (!App::GetNetwork()->GetUserInfo(reg->origin_sourceid, info))
@@ -399,14 +402,14 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
 
                     LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
 
-                    CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, filename);
+                    CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, filename_maybe_bundlequalified);
 
                     if (!actor_entry)
                     {
                         App::GetConsole()->putMessage(
                             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
                             _L("Mod not installed: ") + filename);
-                        RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", filename.c_str());
+                        RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", filename_maybe_bundlequalified.c_str());
                         AddStreamMismatch(reg->origin_sourceid, reg->origin_streamid);
                         reg->status = -1;
                     }
