@@ -50,6 +50,8 @@ public:
     void           FrameStepWater(float dt) override;
     void           UpdateWater() override;
     void           SetWaterColor(Ogre::ColourValue color) override;
+    Hydrax::Module::ProjectedGrid::Options   GetWaterGridOptions() override;
+    void           SetWaterGridOptions(Hydrax::Module::ProjectedGrid::Options options) override;
 
 protected:
 

@@ -172,3 +172,33 @@ void HydraxWater::SetWaterColor(Ogre::ColourValue color)
     if (mHydrax)
         mHydrax->setWaterColor(Ogre::Vector3(color.r, color.g, color.b));
 }
+
+void HydraxWater::SetWaterGridOptions(Hydrax::Module::ProjectedGrid::Options options)
+{
+    // Assert on Debug, minimize damage on Release
+    Hydrax::Module::Module* module = mHydrax->getModule();
+    ROR_ASSERT(module);
+    if (!module)
+    {
+        LOG("[RoR] ERROR - cannot set hydrax water grid options, hydrax not running correctly.");
+        return;
+    }
+
+    Hydrax::Module::ProjectedGrid* pgrid = static_cast<Hydrax::Module::ProjectedGrid*>(module);
+    pgrid->setOptions(options);
+}
+
+Hydrax::Module::ProjectedGrid::Options HydraxWater::GetWaterGridOptions()
+{
+    // Assert on Debug, minimize damage on Release
+    Hydrax::Module::Module* module = mHydrax->getModule();
+    ROR_ASSERT(module);
+    if (!module)
+    {
+        LOG("[RoR] ERROR - cannot get hydrax water grid options, hydrax not running correctly.");
+        return Hydrax::Module::ProjectedGrid::Options();
+    }
+
+    Hydrax::Module::ProjectedGrid* pgrid = static_cast<Hydrax::Module::ProjectedGrid*>(module);
+    return pgrid->getOptions();
+}
