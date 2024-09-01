@@ -301,7 +301,7 @@ public:
 
     /// @name Lookups
     /// @{
-    CacheEntryPtr         FindEntryByFilename(RoR::LoaderType type, bool partial, const std::string& filename); //!< Returns NULL if none found
+    CacheEntryPtr         FindEntryByFilename(RoR::LoaderType type, bool partial, const std::string& _filename_maybe_bundlequalified); //!< Returns NULL if none found; "Bundle-qualified" format also specifies the ZIP/directory in modcache, i.e. "mybundle.zip:myactor.truck"
     CacheEntryPtr         GetEntryByNumber(int modid);
     CacheEntryPtr         FetchSkinByName(std::string const & skin_name);
     size_t                Query(CacheQuery& query);

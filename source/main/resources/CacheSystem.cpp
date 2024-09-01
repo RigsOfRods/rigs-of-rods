@@ -181,26 +181,15 @@ void CacheSystem::LoadModCache(CacheValidity validity)
     m_loaded = true;
 }
 
-CacheEntryPtr CacheSystem::FindEntryByFilename(LoaderType type, bool partial, const std::string& _filename)
+CacheEntryPtr CacheSystem::FindEntryByFilename(LoaderType type, bool partial, const std::string& _filename_maybe_bundlequalified)
 {
-    // The `_filename` may optionally be in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
+    // "Bundle-qualified" format also specifies the ZIP/directory in modcache, i.e. "mybundle.zip:myactor.truck"
     // Like the filename, the bundle name lookup is case-insensitive.
     // -------------------------------------------------------------------------------------------------
 
     std::string filename;
     std::string bundlename;
-    size_t colon_pos = _filename.find(':');
-    if (colon_pos != std::string::npos)
-    {
-        // The name is in format "mybundle.zip:myactor.truck" - find all bundles with "myactor.truck" and choose the right one.
-        filename = _filename.substr(colon_pos + 1);
-        bundlename = _filename.substr(0, colon_pos);
-    }
-    else
-    {
-        filename = _filename;
-    }
-
+    SplitBundleQualifiedFilename(_filename_maybe_bundlequalified, bundlename, filename);
     StringUtil::toLowerCase(filename);
     StringUtil::toLowerCase(bundlename);
     size_t partial_match_length = std::numeric_limits<size_t>::max();
@@ -250,7 +239,7 @@ CacheEntryPtr CacheSystem::FindEntryByFilename(LoaderType type, bool partial, co
     if (log_candidates.size() > 0)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-            fmt::format(_LC("CacheSystem", "Mod '{}' was not found in cache; candidates ({}) are:"), _filename, log_candidates.size()));
+            fmt::format(_LC("CacheSystem", "Mod '{}' was not found in cache; candidates ({}) are:"), _filename_maybe_bundlequalified, log_candidates.size()));
         for (CacheEntryPtr& entry: log_candidates)
         {
             std::string bundle_name, bundle_path;
