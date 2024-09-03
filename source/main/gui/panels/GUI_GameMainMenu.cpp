@@ -43,6 +43,7 @@ using namespace GUI;
 void GameMainMenu::Draw()
 {
     this->DrawMenuPanel();
+    this->DrawProfileBox();
     if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
     {
         this->DrawVersionBox();
@@ -222,6 +223,42 @@ void GameMainMenu::DrawMenuPanel()
     ImGui::PopStyleVar();
     ImGui::PopStyleColor(3);
     m_kb_enter_index = -1;
+}
+
+void GameMainMenu::DrawProfileBox()
+{
+    ImVec2 image_size = ImVec2(50, 50);
+    ImVec2 button_size = ImVec2(60, 30);
+    ImVec2 display_size = ImGui::GetIO().DisplaySize;
+
+    const float window_height = 15.0f;
+    const float margin = display_size.y / 15.0f;
+
+    ImGui::SetNextWindowPos(ImVec2(margin, margin));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, WINDOW_BG_COLOR);
+    ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar;
+    if (ImGui::Begin(_LC("MainMenu", "Profile box"), nullptr, flags))
+    {
+        ImGui::Image(
+            reinterpret_cast<ImTextureID>(FetchIcon("blank.png")->getHandle()),
+            image_size);
+
+        ImGui::SameLine();
+        if (ImGui::Button("Log in", button_size)) {
+            App::GetGuiManager()->LoginBox.SetVisible(true);
+            this->SetVisible(false);
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("Regster", button_size)) {
+            // TODO open as a link
+        }
+
+        ImGui::End();
+    }
+    ImGui::PopStyleColor(1);
 }
 
 void GameMainMenu::DrawVersionBox()
