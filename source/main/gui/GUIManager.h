@@ -52,6 +52,7 @@
 #include "GUI_TextureToolWindow.h"
 #include "GUI_GameControls.h"
 #include "GUI_TopMenubar.h"
+#include "GUI_LoginBox.h"
 
 // Deps
 #include <Bites/OgreWindowEventUtilities.h>
@@ -135,6 +136,7 @@ public:
     GUI::SurveyMap              SurveyMap;
     GUI::DirectionArrow         DirectionArrow;
     GUI::FlexbodyDebug          FlexbodyDebug;
+    GUI::LoginBox               LoginBox;
     Ogre::Overlay*              MenuWallpaper = nullptr;
 
     // GUI manipulation

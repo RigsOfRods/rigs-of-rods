@@ -104,6 +104,11 @@ enum MsgType
     MSG_NET_DISCONNECT_REQUESTED,
     MSG_NET_USER_DISCONNECT,
     MSG_NET_RECV_ERROR,
+    MSG_NET_USERAUTH_SUCCESS,
+    MSG_NET_USERAUTH_FAILURE,
+    MSG_NET_USERAUTH_TFA_REQUESTED,
+    MSG_NET_USERAUTH_TFA_FAILURE,
+    MSG_NET_USERAUTH_TFA_TRIGGERED,
     MSG_NET_REFRESH_SERVERLIST_SUCCESS,    //!< Payload = GUI::MpServerInfoVec* (owner)
     MSG_NET_REFRESH_SERVERLIST_FAILURE,    //!< Payload = RoR::CurlFailInfo* (owner)
     MSG_NET_REFRESH_REPOLIST_SUCCESS,      //!< Payload = GUI::ResourcesCollection* (owner)
@@ -666,6 +671,7 @@ extern CVar* mp_cyclethru_net_actors; //!< Include remote actors when cycling th
 
 // New remote API
 extern CVar* remote_query_url;
+extern CVar* remote_login_token;
 
 // Diagnostic
 extern CVar* diag_auto_spawner_report;

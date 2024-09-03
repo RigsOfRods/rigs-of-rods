@@ -128,6 +128,7 @@ CVar* mp_cyclethru_net_actors;
 
 // New remote API
 CVar* remote_query_url;
+CVar* remote_login_token;
 
 // Diagnostic
 CVar* diag_auto_spawner_report;

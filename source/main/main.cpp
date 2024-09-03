@@ -700,6 +700,37 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_NET_USERAUTH_SUCCESS:
+                {
+                    // TODO assign cvar login token
+                    break;
+                }
+
+                case MSG_NET_USERAUTH_FAILURE:
+                {
+                    App::GetGuiManager()->LoginBox.ShowError(m.description);
+                    break;
+                }
+
+                case MSG_NET_USERAUTH_TFA_REQUESTED:
+                {
+                    std::vector<std::string>* tfa_providers_ptr = reinterpret_cast<std::vector<std::string>*>(m.payload);
+                    App::GetGuiManager()->LoginBox.NeedsTfa(*tfa_providers_ptr);
+                    break;
+                }
+
+                case MSG_NET_USERAUTH_TFA_FAILURE:
+                {
+                    App::GetGuiManager()->LoginBox.ShowError(m.description);
+                    break;
+                }
+
+                case MSG_NET_USERAUTH_TFA_TRIGGERED:
+                {
+                    App::GetGuiManager()->LoginBox.TfaTriggered();
+                    break;
+                }
+
                 case MSG_NET_REFRESH_SERVERLIST_SUCCESS:
                 {
                     GUI::MpServerInfoVec* data = static_cast<GUI::MpServerInfoVec*>(m.payload);

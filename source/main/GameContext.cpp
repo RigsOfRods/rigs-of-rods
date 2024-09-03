@@ -971,6 +971,10 @@ void GameContext::UpdateGlobalInputEvents()
             {
                 App::GetGuiManager()->RepositorySelector.SetVisible(false);
             }
+            else if (App::GetGuiManager()->LoginBox.IsVisible())
+            {
+                App::GetGuiManager()->LoginBox.SetVisible(false);
+            }
             else
             {
                 this->PushMessage(Message(MSG_APP_SHUTDOWN_REQUESTED));
