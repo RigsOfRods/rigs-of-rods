@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2024-09-08 22:03+0000\n"
+"PO-Revision-Date: 2024-09-09 10:09+0000\n"
 "Last-Translator: Hemy <Hemy49@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/pt/>\n"
@@ -280,12 +280,13 @@ msgid "Please clear the place first"
 msgstr "Por favor limpe o local primeiramente"
 
 #: GameContext.cpp:762
+#, fuzzy
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr ""
+msgstr "A pele '{}' para o ator '{}' não foi encontrada!"
 
 #: GameContext.cpp:1036
 msgid "Enabled hard reset mode"
-msgstr "Modo hard reset ativado"
+msgstr "Modo de reinicialização rígida ativado"
 
 #: GameContext.cpp:1036
 msgid "Enabled soft reset mode"
@@ -296,24 +297,27 @@ msgid "Time set to "
 msgstr "Tempo definido para "
 
 #: GameContext.cpp:1417
+#, fuzzy
 msgid "No rescue truck found!"
-msgstr "Nenhum camião de resgate encontrado!"
+msgstr "Nenhum veículo de resgate encontrado!"
 
 #: GameContext.cpp:1493
+#, fuzzy
 msgid "forwardcommands enabled"
-msgstr "forwardcommands ativado"
+msgstr "\"forwardcommands\" ativado"
 
 #: GameContext.cpp:1497
 msgid "forwardcommands disabled"
-msgstr "forwardcommands Desativado"
+msgstr "\"forwardcommands\" Desativado"
 
 #: GameContext.cpp:1506
+#, fuzzy
 msgid "importcommands enabled"
-msgstr "importcommands Ativado"
+msgstr "\"importcommands\" Ativado"
 
 #: GameContext.cpp:1510
 msgid "importcommands disabled"
-msgstr "importcommands Desativado"
+msgstr "\"importcommands\" Desativado"
 
 #: gameplay/ChatSystem.cpp:56
 msgid " [whispered] "
@@ -369,7 +373,7 @@ msgstr "Rastreamento automático desativado"
 
 #: gui/GUIUtils.cpp:471
 msgid "Hold to confirm"
-msgstr ""
+msgstr "Segure para confirmar"
 
 #: gui/OverlayWrapper.cpp:428
 msgid "Current FPS: "
@@ -428,72 +432,69 @@ msgid "Memory (Ogre): "
 msgstr "Memória (Ogre) "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr "acelerar o .Truck"
+msgstr "Dimensiona o veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr "Obter o nome do caminhão"
+msgstr "Obtém o nome do veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr "Obter o nome do arquivo do caminhão"
+msgstr "Obtém o nome do arquivo do veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr "Obter o nome da seção carregada para um caminhão"
+msgstr "Obtém o nome da seção carregada para um veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr "Obter o tipo do caminhão"
+msgstr "Obtém o tipo do veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "Reiniciar o caminhão"
+msgstr "Reinicia o veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
-msgstr "Alternar o freio de estacionamento"
+msgstr "Alterna o freio de estacionamento"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr "Alternar o controle de tração"
+msgstr "Alterna o controle de tração"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr "Alternar o freio antibloqueio"
+msgstr "Alterna o freio anti-bloqueio"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
 msgctxt "AngelScript"
 msgid "Toggles the beacons"
-msgstr "Alternar a luz indicadora de direção"
+msgstr "Alterna o sinal luminoso"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr "Alternar as partículas personalizadas"
+msgstr "Alterna as partículas personalizadas"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr "Obter a quantidade total de nós do caminhão"
+msgstr "Obtém a quantidade total de nós do veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr "Obter a massa total do caminhão"
+msgstr "Obtém a massa total do veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
