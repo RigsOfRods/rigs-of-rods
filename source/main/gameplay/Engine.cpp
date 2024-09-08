@@ -1398,8 +1398,22 @@ void Engine::UpdateInputEvents(float dt)
     }
 
     // joy clutch
-    float cval = App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH);
-    this->setManualClutch(cval);
+    float clutch = App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH);
+    if (App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_25) ||
+        App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_50))
+    {
+        float clutchModifier = 0.0f;
+        if (App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_25))
+        {
+            clutchModifier += 0.25f;
+        }
+        if (App::GetInputEngine()->getEventValue(EV_TRUCK_MANUAL_CLUTCH_MODIFIER_50))
+        {
+            clutchModifier += 0.50f;
+        }
+        clutch *= clutchModifier;
+    }
+    this->setManualClutch(clutch);
 
     SimGearboxMode shiftmode = this->getAutoMode();
 
