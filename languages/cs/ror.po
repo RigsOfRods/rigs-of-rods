@@ -6,15 +6,15 @@
 # Filip Mašata <F.masata@gmail.com>, 2015
 # Jakub veselý <klubajs@gmail.com>, 2016
 # Petr Ohlidal <nobodysbussiness1@gmail.com>, 2015
-# Petr Ohlídal <petr@ohlidal.cz>, 2021.
+# Petr Ohlídal <petr@ohlidal.cz>, 2021, 2024.
 # Lukáš Zuzaňák <lukas@zuzanak.eu>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2021-11-15 03:49+0000\n"
-"Last-Translator: Lukáš Zuzaňák <lukas@zuzanak.eu>\n"
+"PO-Revision-Date: 2024-09-14 16:09+0000\n"
+"Last-Translator: Petr Ohlídal <petr@ohlidal.cz>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "cs/>\n"
 "Language: cs\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
 "<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
-"X-Generator: Weblate 4.9.1-dev\n"
+"X-Generator: Weblate 5.8-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -99,19 +99,14 @@ msgid "None (fastest)"
 msgstr "Žádné (nejrychlejší)"
 
 #: Application.cpp:401
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Light sources"
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr "Zdroje světla"
+msgstr "žádné zdroje světla"
 
 #: Application.cpp:402
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr "Všechna vozidla, hlavní světla"
+msgstr "pouze aktuální vozidlo, hlavní světla"
 
 #: Application.cpp:403
 #, fuzzy
@@ -130,12 +125,12 @@ msgstr "Všechna vozidla, všechna světla"
 #: Application.cpp:413
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "zakázáno"
 
 #: Application.cpp:414
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "PSSM"
 
 #: Application.cpp:423
 #, fuzzy
@@ -152,16 +147,14 @@ msgid "Caelum (best looking, slower)"
 msgstr "Caelum (nejhezčí, pomalejší)"
 
 #: Application.cpp:425
-#, fuzzy
-#| msgid "Full (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
-msgstr "Plný (nejhezčí, pomalejší)"
+msgstr "SkyX (nejhezčí, pomalejší)"
 
 #: Application.cpp:434
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "žádný"
 
 #: Application.cpp:435
 #, fuzzy
@@ -188,7 +181,7 @@ msgstr "Anisotropie"
 #: Application.cpp:446
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "Žádné"
 
 #: Application.cpp:447
 #, fuzzy
@@ -207,12 +200,12 @@ msgstr "50%"
 #: Application.cpp:449
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "Plné"
 
 #: Application.cpp:458
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "Žádná"
 
 #: Application.cpp:459
 #, fuzzy
@@ -222,12 +215,9 @@ msgid "Basic (fastest)"
 msgstr "Základní (nejrychlejší)"
 
 #: Application.cpp:460
-#, fuzzy
-#| msgctxt "TopMenubar"
-#| msgid "Reflections"
 msgctxt "GfxWaterMode"
 msgid "Reflection"
-msgstr "Odlesky"
+msgstr "Odrazy"
 
 #: Application.cpp:461
 #, fuzzy
@@ -244,21 +234,19 @@ msgid "Reflection + refraction (quality optimized)"
 msgstr "Odraz + lom (optimalizované pro kvalitu)"
 
 #: Application.cpp:463
-#, fuzzy
-#| msgid "Hydrax"
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr "Hydrax"
+msgstr "HydraX"
 
 #: Application.cpp:472
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "Žádná"
 
 #: Application.cpp:473
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "Statická"
 
 #: Application.cpp:474
 msgctxt "GfxExtCamMode"
