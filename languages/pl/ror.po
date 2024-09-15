@@ -6,23 +6,24 @@
 # Karol Bieńkowski <karlossss1996@gmail.com>, 2019
 # Michał Mańk <michal.090506@gmail.com>, 2023.
 # Crystal Hammer <cryham@gmail.com>, 2023.
+# Michał Domaradzki <michu97736@wp.pl>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2023-11-15 12:04+0000\n"
-"Last-Translator: Crystal Hammer <cryham@gmail.com>\n"
+"PO-Revision-Date: 2024-09-15 22:09+0000\n"
+"Last-Translator: Michał Domaradzki <michu97736@wp.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "pl/>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && "
-"(n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
+"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && ("
+"n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
 "n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
-"X-Generator: Weblate 5.2-dev\n"
+"X-Generator: Weblate 5.8-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -261,14 +262,12 @@ msgid "Default skin '{}' for actor '{}' not found!"
 msgstr ""
 
 #: GameContext.cpp:1036
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgid "Enabled hard reset mode"
-msgstr "włącz lub wyłącz tryb powtórek"
+msgstr "Włącz tryb twardego resetu"
 
 #: GameContext.cpp:1036
 msgid "Enabled soft reset mode"
-msgstr ""
+msgstr "Włączono tryb miękkiego resetu"
 
 #: GameContext.cpp:1230
 msgid "Time set to "
@@ -649,7 +648,7 @@ msgstr "Opis: "
 #: gui/panels/GUI_ConsoleView.cpp:252
 msgctxt "Console"
 msgid "Actors"
-msgstr ""
+msgstr "Aktorzy"
 
 #: gui/panels/GUI_ConsoleView.cpp:253
 #, fuzzy
@@ -676,11 +675,9 @@ msgid "Warnings"
 msgstr "Ostrzeżenie"
 
 #: gui/panels/GUI_ConsoleView.cpp:259
-#, fuzzy
-#| msgid "Mirrors"
 msgctxt "Console"
 msgid "Errors"
-msgstr "Lusterka"
+msgstr "Błędy"
 
 #: gui/panels/GUI_ConsoleView.cpp:260
 #, fuzzy
@@ -690,19 +687,14 @@ msgid "Net chat"
 msgstr "przyłącz się do czatu"
 
 #: gui/panels/GUI_ConsoleView.cpp:261 gui/panels/GUI_ConsoleWindow.cpp:55
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "Console"
 msgid "Commands"
-msgstr "Komendy: "
+msgstr "Komendy"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:50
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Controller options"
 msgctxt "Console"
 msgid "Filter options"
-msgstr "Opcje kontrolera"
+msgstr "Opcje filtrowania"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:81
 #, fuzzy
@@ -1211,25 +1203,19 @@ msgid "Network protocol"
 msgstr "Wersja protokołu sieciowego: %s"
 
 #: gui/panels/GUI_GameAbout.cpp:57
-#, fuzzy
-#| msgid "Build time: %s, %s"
 msgctxt "About"
 msgid "Build time"
-msgstr "czas kompilacji: %s, %s"
+msgstr "Czas kompilacji: %s, %s"
 
 #: gui/panels/GUI_GameAbout.cpp:63
-#, fuzzy
-#| msgid "Authors"
 msgctxt "About"
 msgid "Authors"
 msgstr "Autorzy"
 
 #: gui/panels/GUI_GameAbout.cpp:68
-#, fuzzy
-#| msgid "Current power: "
 msgctxt "About"
 msgid "Current Developers"
-msgstr "Aktualna moc: "
+msgstr "Aktualni Deweloperzy"
 
 #: gui/panels/GUI_GameAbout.cpp:73
 #, fuzzy
@@ -1239,16 +1225,14 @@ msgid "Server Contributors"
 msgstr "Moderator serwera"
 
 #: gui/panels/GUI_GameAbout.cpp:81
-#, fuzzy
-#| msgid "Arcade Controls"
 msgctxt "About"
 msgid "Code Contributors"
-msgstr "Sterowanie zręcznościowe"
+msgstr "Autorzy kodu"
 
 #: gui/panels/GUI_GameAbout.cpp:107
 msgctxt "About"
 msgid "Core Content Contributors"
-msgstr ""
+msgstr "Główni Autorzy Treści"
 
 #: gui/panels/GUI_GameAbout.cpp:113
 msgctxt "About"
@@ -1516,11 +1500,9 @@ msgid "Language"
 msgstr "Język"
 
 #: gui/panels/GUI_GameSettings.cpp:209
-#, fuzzy
-#| msgid "user country"
 msgctxt "GameSettings"
 msgid "Country"
-msgstr "kraj użytkownika"
+msgstr "Kraj"
 
 #. Hardcoded; TODO: list available formats.
 #. Screenshot format: Can be png or jpg
@@ -1532,7 +1514,7 @@ msgstr "Format zrzutów ekranu"
 #: gui/panels/GUI_GameSettings.cpp:224
 msgctxt "GameSettings"
 msgid "Extra mod path"
-msgstr ""
+msgstr "Dodatkowa ścieżka modów"
 
 #: gui/panels/GUI_GameSettings.cpp:226
 msgctxt "GameSettings"
@@ -1545,11 +1527,9 @@ msgid "Async physics"
 msgstr "Asynchroniczna fizyka"
 
 #: gui/panels/GUI_GameSettings.cpp:228
-#, fuzzy
-#| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Disable online api"
-msgstr "Wyłącz mapę terenu"
+msgstr "Wyłącz api online"
 
 #: gui/panels/GUI_GameSettings.cpp:230
 #, fuzzy
@@ -1582,7 +1562,7 @@ msgstr "Prędkościomierz imperialny"
 #: gui/panels/GUI_GameSettings.cpp:250
 msgctxt "GameSettings"
 msgid "Engines spawn running"
-msgstr ""
+msgstr "Silniki tworzą się już włączone"
 
 #: gui/panels/GUI_GameSettings.cpp:252
 msgctxt "GameSettings"
@@ -1607,11 +1587,9 @@ msgid "Realistic forward commands"
 msgstr "[przekazuje komendy]"
 
 #: gui/panels/GUI_GameSettings.cpp:261
-#, fuzzy
-#| msgid "Enable waves"
 msgctxt "GameSettings"
 msgid "Enable races"
-msgstr "Włącz fale"
+msgstr "Włącz wyścigi"
 
 #: gui/panels/GUI_GameSettings.cpp:263
 msgctxt "GameSettings"
@@ -1626,7 +1604,7 @@ msgstr "Brak kolizji pomiędzy pojazdami"
 #: gui/panels/GUI_GameSettings.cpp:266
 msgctxt "GameSettings"
 msgid "Discord Rich Presence"
-msgstr ""
+msgstr "Discord Rich Presence"
 
 #: gui/panels/GUI_GameSettings.cpp:268
 msgctxt "GameSettings"
@@ -1764,7 +1742,7 @@ msgstr "Częstość aktualizacji odbić"
 #: gui/panels/GUI_GameSettings.cpp:366
 msgctxt "GameSettings"
 msgid "Render video cameras"
-msgstr ""
+msgstr "Renderuj kamery wideo"
 
 #: gui/panels/GUI_GameSettings.cpp:367
 msgctxt "GameSettings"
@@ -1772,11 +1750,9 @@ msgid "Overview map icons"
 msgstr ""
 
 #: gui/panels/GUI_GameSettings.cpp:370
-#, fuzzy
-#| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Declutter overview map"
-msgstr "Wyłącz mapę terenu"
+msgstr "Uporządkuj mapę terenu"
 
 #: gui/panels/GUI_GameSettings.cpp:372
 msgctxt "GameSettings"
@@ -1873,11 +1849,9 @@ msgid "Debug videocameras"
 msgstr "Debuguj kamery"
 
 #: gui/panels/GUI_GameSettings.cpp:399
-#, fuzzy
-#| msgid "saved texture as "
 msgctxt "GameSettings"
 msgid "Debug textures"
-msgstr "zapisano teksturę jako"
+msgstr "Tekstury debugowania"
 
 #: gui/panels/GUI_GameSettings.cpp:400
 msgctxt "GameSettings"
@@ -4344,11 +4318,11 @@ msgstr "(brak dostępnych informacji o autorze)"
 
 #: main.cpp:365
 msgid "Display mode changed to fullscreen"
-msgstr ""
+msgstr "Tryb wyświetlania zmieniony na pełny ekran"
 
 #: main.cpp:371
 msgid "Display mode changed to windowed"
-msgstr ""
+msgstr "Tryb wyświetlania zmieniony na okienkowy"
 
 #: main.cpp:460
 #, fuzzy
@@ -4384,10 +4358,8 @@ msgid "Could not read savegame file"
 msgstr "Nie można zapisać pliku konfiguracyjnego"
 
 #: main.cpp:688 physics/Savegame.cpp:267
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: Terrain mismatch"
-msgstr "Błąd przy ładowaniu konfiguracji używanych terenów"
+msgstr "Błąd przy ładowaniu sceny: Niezgodność terenu"
 
 #: main.cpp:922
 msgid "Entered terrain editing mode"
@@ -4413,7 +4385,7 @@ msgstr "Wystąpił wyjątek (std::runtime_error)!"
 #: network/Network.cpp:254
 msgctxt "Network"
 msgid "Error receiving data from network"
-msgstr ""
+msgstr "Błąd uzyskania danych z sieci"
 
 #: network/Network.cpp:297
 msgid "disconnected: remote side closed the connection"
@@ -4446,7 +4418,7 @@ msgstr "Nie udało się uruchomić wątku połączenia"
 #: network/Network.cpp:425
 msgctxt "Network"
 msgid "Estabilishing connection..."
-msgstr ""
+msgstr "Uzyskiwanie połączenia..."
 
 #: network/Network.cpp:431
 msgid "Could not create connection"
@@ -4527,7 +4499,7 @@ msgstr "Kończenie..."
 #: network/Network.cpp:798
 msgctxt "NetUserAuth"
 msgid "Admin"
-msgstr ""
+msgstr "Administrator"
 
 #: network/Network.cpp:799
 msgctxt "NetUserAuth"
@@ -4535,8 +4507,6 @@ msgid "Mod"
 msgstr ""
 
 #: network/Network.cpp:800 network/Network.cpp:810
-#, fuzzy
-#| msgid "Boat"
 msgctxt "NetUserAuth"
 msgid "Bot"
 msgstr "Łódź"
@@ -4549,7 +4519,7 @@ msgstr ""
 #: network/Network.cpp:802
 msgctxt "NetUserAuth"
 msgid "Banned"
-msgstr ""
+msgstr "Zbanowany"
 
 #: network/Network.cpp:803 network/Network.cpp:813
 msgctxt "NetUserAuth"
@@ -4702,42 +4672,33 @@ msgid "Cancel"
 msgstr "Anuluj"
 
 #: physics/Savegame.cpp:247
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: File invalid or missing"
-msgstr "Błąd przy ładowaniu konfiguracji używanych terenów"
+msgstr "Błąd przy ładowaniu sceny: Plik nieważny lub brakujący"
 
 #: physics/Savegame.cpp:253
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: File format mismatch"
-msgstr "Błąd przy ładowaniu konfiguracji używanych terenów"
+msgstr "Błąd przy ładowaniu sceny: Niezgodność formatu pliku"
 
 #: physics/Savegame.cpp:273
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while loading scene: Too many vehicles"
-msgstr "Błąd przy ładowaniu konfiguracji używanych terenów"
+msgstr "Błąd przy ładowaniu sceny: Za dużo pojazdów"
 
 #: physics/Savegame.cpp:309
 msgid "Error while loading scene: Missing content (probably not installed)"
 msgstr ""
+"Błąd przy ładowaniu sceny: Brakująca treść (prawdopodobnie nie zainstalowana)"
 
 #: physics/Savegame.cpp:415
 msgid "Scene loaded"
 msgstr ""
 
 #: physics/Savegame.cpp:432
-#, fuzzy
-#| msgid "Error while saving position saved under slot "
 msgid "Error while saving scene: Too many vehicles"
-msgstr "Błąd podczas zapisywania pozycji zapisanej pod slotem "
+msgstr "Błąd przy ładowaniu sceny: Za dużo pojazdów"
 
 #: physics/Savegame.cpp:770
-#, fuzzy
-#| msgid "Error while loading landuse config"
 msgid "Error while saving scene"
-msgstr "Błąd przy ładowaniu konfiguracji używanych terenów"
+msgstr "Błąd zapisywania sceny"
 
 #: physics/Savegame.cpp:777
 msgid "Scene saved"
@@ -5118,7 +5079,7 @@ msgstr "Poziom wody ustawiony na: "
 
 #: system/ConsoleCmd.cpp:126
 msgid "Get elevation of terrain at current position"
-msgstr ""
+msgstr "Zdobądź podniesienie terenu na aktualej pozycji"
 
 #: system/ConsoleCmd.cpp:150
 msgid "Terrain height at position: "
@@ -5194,7 +5155,7 @@ msgstr "quit - opuszcza Rigs of Rods"
 
 #: system/ConsoleCmd.cpp:372
 msgid "help - information on commands (this)"
-msgstr ""
+msgstr "help - informacja o komendach (to)"
 
 #: system/ConsoleCmd.cpp:377
 msgid "Available commands:"
@@ -5421,7 +5382,7 @@ msgstr "KRYTYCZNY BŁĄD"
 
 #: utils/ForceFeedback.cpp:110
 msgid "Disabling force feedback - no controller found"
-msgstr ""
+msgstr "Wyłączanie force feedback - brak kontrolera"
 
 #. Common: generic
 #: utils/InputEngine.cpp:39
