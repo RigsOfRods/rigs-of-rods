@@ -940,9 +940,9 @@ void GameScript::boostCurrentTruck(float factor)
     ActorPtr actor = App::GetGameContext()->GetPlayerActor();
     if (actor && actor->ar_engine)
     {
-        float rpm = actor->ar_engine->GetEngineRpm();
+        float rpm = actor->ar_engine->getRPM();
         rpm += 2000.0f * factor;
-        actor->ar_engine->SetEngineRpm(rpm);
+        actor->ar_engine->setRPM(rpm);
     }
 }
 

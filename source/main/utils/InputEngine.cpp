@@ -172,6 +172,8 @@ InputEvent eventInfo[] = {
     {"TRUCK_AUTOSHIFT_DOWN",          EV_TRUCK_AUTOSHIFT_DOWN,          "Keyboard PGDOWN",              _LC("InputEvent", "shift automatic transmission one gear down")},
     {"TRUCK_AUTOSHIFT_UP",            EV_TRUCK_AUTOSHIFT_UP,            "Keyboard PGUP",                _LC("InputEvent", "shift automatic transmission one gear up")},
     {"TRUCK_MANUAL_CLUTCH",           EV_TRUCK_MANUAL_CLUTCH,           "Keyboard LSHIFT",              _LC("InputEvent", "manual clutch (for manual transmission)")},
+    {"TRUCK_MANUAL_CLUTCH_MODIFIER_25",EV_TRUCK_MANUAL_CLUTCH_MODIFIER_25,"Keyboard ALT+LSHIFT",        _LC("InputEvent", "manual clutch with 25 percent pedal input")},
+    {"TRUCK_MANUAL_CLUTCH_MODIFIER_50",EV_TRUCK_MANUAL_CLUTCH_MODIFIER_50,"Keyboard CTRL+LSHIFT",       _LC("InputEvent", "manual clutch with 50 percent pedal input")},
     {"TRUCK_SHIFT_DOWN",              EV_TRUCK_SHIFT_DOWN,              "Keyboard Z",                   _LC("InputEvent", "shift one gear down in manual transmission mode")},
     {"TRUCK_SHIFT_NEUTRAL",           EV_TRUCK_SHIFT_NEUTRAL,           "Keyboard D",                   _LC("InputEvent", "shift to neutral gear in manual transmission mode")},
     {"TRUCK_SHIFT_UP",                EV_TRUCK_SHIFT_UP,                "Keyboard A",                   _LC("InputEvent", "shift one gear up in manual transmission mode")},

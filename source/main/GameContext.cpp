@@ -316,7 +316,7 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
 
         if (fresh_actor->ar_engine)
         {
-            fresh_actor->ar_engine->SetAutoMode(RoR::SimGearboxMode::AUTO);
+            fresh_actor->ar_engine->setAutoMode(RoR::SimGearboxMode::AUTO);
             fresh_actor->ar_engine->autoShiftSet(EngineSim::DRIVE);
         }
     }

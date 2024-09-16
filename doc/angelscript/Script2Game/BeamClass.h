@@ -169,7 +169,13 @@ public:
 	/**
 	 * Retrieve the waypoint AI object.
 	 */
-	VehicleAiClass getVehicleAI();
+	VehicleAiClass @getVehicleAI();
+    
+
+    /**
+    * Retrieve engine/transmission simulator.
+    */
+    EngineSimClassPtr @getEngineSim();
 	
     //! @}
 	

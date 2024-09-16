@@ -133,6 +133,56 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterEnumValue("ImGuiTabItemFlags", "ImGuiTabItemFlags_NoPushId", ImGuiTabItemFlags_NoPushId); //  // Don't call PushID(tab->ID)/PopID() on BeginTabItem()/EndTabItem()
     
 
+    engine->RegisterEnum("ImGuiCol");
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_Text", ImGuiCol_Text);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TextDisabled", ImGuiCol_TextDisabled);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_WindowBg", ImGuiCol_WindowBg);              // Background of normal windows
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ChildBg", ImGuiCol_ChildBg);               // Background of child windows
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_PopupBg", ImGuiCol_PopupBg);               // Background of popups, menus, tooltips windows
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_Border", ImGuiCol_Border);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_BorderShadow", ImGuiCol_BorderShadow);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_FrameBg", ImGuiCol_FrameBg);               // Background of checkbox, radio button, plot, slider, text input
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_FrameBgHovered", ImGuiCol_FrameBgHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_FrameBgActive", ImGuiCol_FrameBgActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TitleBg", ImGuiCol_TitleBg);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TitleBgActive", ImGuiCol_TitleBgActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TitleBgCollapsed", ImGuiCol_TitleBgCollapsed);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_MenuBarBg", ImGuiCol_MenuBarBg);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ScrollbarBg", ImGuiCol_ScrollbarBg);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ScrollbarGrab", ImGuiCol_ScrollbarGrab);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ScrollbarGrabHovered", ImGuiCol_ScrollbarGrabHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ScrollbarGrabActive", ImGuiCol_ScrollbarGrabActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_CheckMark", ImGuiCol_CheckMark);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_SliderGrab", ImGuiCol_SliderGrab);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_SliderGrabActive", ImGuiCol_SliderGrabActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_Button", ImGuiCol_Button);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ButtonHovered", ImGuiCol_ButtonHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ButtonActive", ImGuiCol_ButtonActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_Header", ImGuiCol_Header);                // Header* colors are used for CollapsingHeader, TreeNode, Selectable, MenuItem
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_HeaderHovered", ImGuiCol_HeaderHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_HeaderActive", ImGuiCol_HeaderActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_Separator", ImGuiCol_Separator);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_SeparatorHovered", ImGuiCol_SeparatorHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_SeparatorActive", ImGuiCol_SeparatorActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ResizeGrip", ImGuiCol_ResizeGrip);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ResizeGripHovered", ImGuiCol_ResizeGripHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ResizeGripActive", ImGuiCol_ResizeGripActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_Tab", ImGuiCol_Tab);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TabHovered", ImGuiCol_TabHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TabActive", ImGuiCol_TabActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TabUnfocused", ImGuiCol_TabUnfocused);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TabUnfocusedActive", ImGuiCol_TabUnfocusedActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_PlotLines", ImGuiCol_PlotLines);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_PlotLinesHovered", ImGuiCol_PlotLinesHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_PlotHistogram", ImGuiCol_PlotHistogram);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_PlotHistogramHovered", ImGuiCol_PlotHistogramHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TextSelectedBg", ImGuiCol_TextSelectedBg);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_DragDropTarget", ImGuiCol_DragDropTarget);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_NavHighlight", ImGuiCol_NavHighlight);          // Gamepad/keyboard: current highlighted item
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_NavWindowingHighlight", ImGuiCol_NavWindowingHighlight); // Highlight window when using CTRL+TAB
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_NavWindowingDimBg", ImGuiCol_NavWindowingDimBg);     // Darken/colorize entire screen behind the CTRL+TAB window list, when active
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ModalWindowDimBg", ImGuiCol_ModalWindowDimBg);      // Darken/colorize entire screen behind a modal window, when one is active
+
     // ImDrawList object (global namespace)
     engine->RegisterObjectType("ImDrawList", sizeof(ImDrawList), asOBJ_REF | asOBJ_NOCOUNT);
     engine->RegisterObjectMethod("ImDrawList", "void AddLine(const vector2&in p1, const vector2&in p2, const color&in col, float thickness = 1.f)", asFUNCTIONPR([](ImDrawList* drawlist, Ogre::Vector2 const& p1, Ogre::Vector2 const& p2, Ogre::ColourValue const& col, float thickness) { drawlist->AddLine(ImVec2(p1.x, p1.y), ImVec2(p2.x, p2.y), ImColor(col.r, col.g, col.b, col.a), thickness); }, (ImDrawList * , Ogre::Vector2 const& , Ogre::Vector2 const& , Ogre::ColourValue const& , float ), void), asCALL_CDECL_OBJFIRST);

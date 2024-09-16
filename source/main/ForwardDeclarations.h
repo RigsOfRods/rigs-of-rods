@@ -195,6 +195,7 @@ namespace RoR
 
     typedef RefCountingObjectPtr<Actor> ActorPtr;
     typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
+    typedef RefCountingObjectPtr<EngineSim> EngineSimPtr;
     typedef RefCountingObjectPtr<LocalStorage> LocalStoragePtr;
     typedef RefCountingObjectPtr<ProceduralPoint> ProceduralPointPtr;
     typedef RefCountingObjectPtr<ProceduralObject> ProceduralObjectPtr;

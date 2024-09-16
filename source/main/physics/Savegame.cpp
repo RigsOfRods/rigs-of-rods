@@ -519,9 +519,9 @@ bool ActorManager::SaveScene(Ogre::String filename)
         // Engine, anti-lock brake, traction control
         if (actor->ar_engine)
         {
-            j_entry.AddMember("engine_gear", actor->ar_engine->GetGear(), j_doc.GetAllocator());
-            j_entry.AddMember("engine_rpm", actor->ar_engine->GetEngineRpm(), j_doc.GetAllocator());
-            j_entry.AddMember("engine_auto_mode", actor->ar_engine->GetAutoMode(), j_doc.GetAllocator());
+            j_entry.AddMember("engine_gear", actor->ar_engine->getGear(), j_doc.GetAllocator());
+            j_entry.AddMember("engine_rpm", actor->ar_engine->getRPM(), j_doc.GetAllocator());
+            j_entry.AddMember("engine_auto_mode", static_cast<int>(actor->ar_engine->getAutoMode()), j_doc.GetAllocator());
             j_entry.AddMember("engine_auto_select", actor->ar_engine->getAutoShift(), j_doc.GetAllocator());
             j_entry.AddMember("engine_is_running", actor->ar_engine->isRunning(), j_doc.GetAllocator());
             j_entry.AddMember("engine_has_contact", actor->ar_engine->hasContact(), j_doc.GetAllocator());
@@ -806,12 +806,12 @@ void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_e
         if (running != actor->ar_engine->isRunning())
         {
             if (running)
-                actor->ar_engine->StartEngine();
+                actor->ar_engine->startEngine();
             else
-                actor->ar_engine->StopEngine();
+                actor->ar_engine->stopEngine();
         }
-        actor->ar_engine->PushNetworkState(rpm, 0.0f, 0.0f, gear, running, contact, automode, autoselect);
-        actor->ar_engine->SetWheelSpin(j_entry["wheel_spin"].GetFloat() * RAD_PER_SEC_TO_RPM);
+        actor->ar_engine->pushNetworkState(rpm, 0.0f, 0.0f, gear, running, contact, automode, autoselect);
+        actor->ar_engine->setWheelSpin(j_entry["wheel_spin"].GetFloat() * RAD_PER_SEC_TO_RPM);
         actor->alb_mode = j_entry["alb_mode"].GetBool();
         actor->tc_mode = j_entry["tc_mode"].GetBool();
         actor->cc_mode = j_entry["cc_mode"].GetBool();

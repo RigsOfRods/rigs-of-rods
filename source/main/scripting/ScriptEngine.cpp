@@ -172,6 +172,7 @@ void ScriptEngine::init()
     RegisterImGuiBindings(engine); // ImGUi::
     RegisterVehicleAi(engine);     // VehicleAIClass, aiEvents, AiValues
     RegisterConsole(engine);       // ConsoleClass, CVarClass, CVarFlags
+    RegisterEngineSim(engine);     // EngineSimClass, enum autoswitch, enum
     RegisterActor(engine);         // BeamClass
     RegisterProceduralRoad(engine);// procedural_point, ProceduralRoadClass, ProceduralObjectClass, ProceduralManagerClass
     RegisterTerrain(engine);       // TerrainClass
