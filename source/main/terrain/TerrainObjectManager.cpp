@@ -770,6 +770,11 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         SceneNode* sn = tenode->createChildSceneNode();
         sn->attachObject(pParticleSys);
         sn->pitch(Degree(90));
+
+        ParticleEffectObject peo;
+        peo.node = sn;
+        peo.psys = pParticleSys;
+        m_particle_effect_objects.push_back(peo);
     }
 
     if (!odef->mat_name.empty())
@@ -959,10 +964,10 @@ bool TerrainObjectManager::LoadTerrainScript(const Ogre::String& filename)
     return result != SCRIPTUNITID_INVALID;
 }
 
-bool TerrainObjectManager::UpdateAnimatedObjects(float dt)
+void TerrainObjectManager::UpdateAnimatedObjects(float dt)
 {
     if (m_animated_objects.size() == 0)
-        return true;
+        return;
 
     std::vector<AnimatedObject>::iterator it;
 
@@ -974,7 +979,17 @@ bool TerrainObjectManager::UpdateAnimatedObjects(float dt)
             it->anim->addTime(time);
         }
     }
-    return true;
+}
+
+void TerrainObjectManager::UpdateParticleEffectObjects()
+{
+    for (ParticleEffectObject& peo : m_particle_effect_objects)
+    {
+        if (peo.psys)
+        {
+            App::GetGfxScene()->AdjustParticleSystemTimeFactor(peo.psys);
+        }
+    }
 }
 
 void TerrainObjectManager::LoadTelepoints()
@@ -1015,6 +1030,7 @@ bool TerrainObjectManager::UpdateTerrainObjects(float dt)
     }
 #endif //USE_PAGED
     this->UpdateAnimatedObjects(dt);
+    this->UpdateParticleEffectObjects();
 
     return true;
 }

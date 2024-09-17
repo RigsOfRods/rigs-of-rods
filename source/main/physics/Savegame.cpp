@@ -543,7 +543,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_entry.AddMember("wheel_speed", actor->ar_wheel_speed, j_doc.GetAllocator());
         j_entry.AddMember("wheel_spin", actor->ar_wheel_spin, j_doc.GetAllocator());
 
-        j_entry.AddMember("custom_particles", actor->m_custom_particles_enabled, j_doc.GetAllocator());
+        j_entry.AddMember("custom_particles", actor->ar_cparticles_active, j_doc.GetAllocator());
 
         // Flares
         j_entry.AddMember("lights", (int)actor->getHeadlightsVisible(), j_doc.GetAllocator());
@@ -829,7 +829,7 @@ void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_e
     actor->ar_wheel_speed = j_entry["wheel_speed"].GetFloat();
     actor->ar_wheel_spin = j_entry["wheel_spin"].GetFloat();
 
-    if (actor->m_custom_particles_enabled != j_entry["custom_particles"].GetBool())
+    if (actor->ar_cparticles_active != j_entry["custom_particles"].GetBool())
     {
         actor->toggleCustomParticles();
     }

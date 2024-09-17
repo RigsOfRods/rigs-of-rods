@@ -289,7 +289,6 @@ public:
     wing_t*              ar_wings = nullptr;
     int                  ar_num_wings = 0;
     std::vector<authorinfo_t> authors;
-    std::vector<exhaust_t>    exhausts;
     std::vector<rope_t>       ar_ropes;
     std::vector<ropable_t>    ar_ropables;
     std::vector<tie_t>        ar_ties;
@@ -316,8 +315,6 @@ public:
     int               ar_num_contacters = 0; //!< Total number of nodes which can selfcontact cabs
     wheel_t           ar_wheels[MAX_WHEELS] = {};
     int               ar_num_wheels = 0;
-    cparticle_t       ar_custom_particles[MAX_CPARTICLES] = {};
-    int               ar_num_custom_particles = 0;
     soundsource_t     ar_soundsources[MAX_SOUNDSCRIPTS_PER_TRUCK] = {};
     int               ar_num_soundsources = 0;
     AeroEngine*       ar_aeroengines[MAX_AEROENGINES] = {};
@@ -476,6 +473,7 @@ public:
     bool ar_toggle_ropes:1;     //!< Sim state
     bool ar_toggle_ties:1;      //!< Sim state
     bool ar_physics_paused:1;   //!< Sim state
+    bool ar_cparticles_active:1;//!< Gfx state
 
 private:
 
@@ -619,7 +617,6 @@ private:
     bool m_water_contact:1;        //!< Scripting state
     bool m_water_contact_old:1;    //!< Scripting state
     bool m_has_command_beams:1;    //!< Physics attr;
-    bool m_custom_particles_enabled:1;      //!< Gfx state
     bool m_preloaded_with_terrain:1;        //!< Spawn context (TODO: remove!)
     bool m_beam_break_debug_enabled:1;  //!< Logging state
     bool m_beam_deform_debug_enabled:1; //!< Logging state
