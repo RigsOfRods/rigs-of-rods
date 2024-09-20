@@ -648,28 +648,42 @@ void TopMenubar::Draw(float dt)
                 ImGui::PushID("water");
                 ImGui::TextDisabled("%s", _LC("TopMenubar", "Water:"));
 
-                if (water_mode_combostring == "")
-                {
-                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::NONE));
-                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::BASIC));
-                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::REFLECT));
-                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::FULL_FAST));
-                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::FULL_HQ));
-                    ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::HYDRAX));
-                    ImTerminateComboboxString(water_mode_combostring);
-                }
-    
-                if (DrawGCombo(App::gfx_water_mode, _LC("TopMenubar", "Mode"), water_mode_combostring.c_str()))
-                {
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_REINIT_WATER_REQUESTED));
-                }
-
-                if (DrawGCheckbox(App::gfx_water_waves, _LC("TopMenubar", "Waves")))
-                {
-                    App::GetGameContext()->PushMessage(Message(MSG_SIM_REINIT_WATER_REQUESTED));
-                }
-
                 IWater* iwater = App::GetGameContext()->GetTerrain()->getWater();
+
+                // I tried making all water modes toggleable, see https://github.com/RigsOfRods/rigs-of-rods/pull/3142
+                //    but I gave up on HydraX, it always looks different when started for 2nd time.
+                // For the time being, only basic water modes are toggleable.
+
+                if (!iwater || (iwater && iwater->GetActiveWaterMode() != GfxWaterMode::HYDRAX))
+                {
+                    // No water or non-HydraX water
+                    if (water_mode_combostring == "")
+                    {
+                        ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::NONE));
+                        ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::BASIC));
+                        ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::REFLECT));
+                        ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::FULL_FAST));
+                        ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::FULL_HQ));
+                        //ImAddItemToComboboxString(water_mode_combostring, ToLocalizedString(GfxWaterMode::HYDRAX)); // FIXME: Glitchy
+                        ImTerminateComboboxString(water_mode_combostring);
+                    }
+    
+                    if (DrawGCombo(App::gfx_water_mode, _LC("TopMenubar", "Mode"), water_mode_combostring.c_str()))
+                    {
+                        App::GetGameContext()->PushMessage(Message(MSG_EDI_REINIT_WATER_REQUESTED));
+                    }
+                    ImGui::TextDisabled("(HydraX only in main menu)");
+                    if (DrawGCheckbox(App::gfx_water_waves, _LC("TopMenubar", "Waves")))
+                    {
+                        App::GetGameContext()->PushMessage(Message(MSG_EDI_REINIT_WATER_REQUESTED));
+                    }
+                }
+                else
+                {
+                    // HydraX water
+                    ImGui::Text("HydraX active");
+                    ImGui::TextDisabled("(change only in main menu)");
+                }                
 
                 if (iwater 
                     && iwater->GetActiveWaterMode() != GfxWaterMode::HYDRAX

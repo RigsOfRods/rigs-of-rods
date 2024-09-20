@@ -129,7 +129,6 @@ enum MsgType
     MSG_SIM_ADD_FREEFORCE_REQUESTED,       //!< Payload = RoR::FreeForceRequest* (owner)
     MSG_SIM_MODIFY_FREEFORCE_REQUESTED,    //!< Payload = RoR::FreeForceRequest* (owner)
     MSG_SIM_REMOVE_FREEFORCE_REQUESTED,    //!< Payload = RoR::FreeForceID_t* (owner)
-    MSG_SIM_REINIT_WATER_REQUESTED,
     // GUI
     MSG_GUI_OPEN_MENU_REQUESTED,
     MSG_GUI_CLOSE_MENU_REQUESTED,
@@ -151,6 +150,7 @@ enum MsgType
     MSG_EDI_CREATE_PROJECT_REQUESTED,      //!< Payload = RoR::CreateProjectRequest* (owner)
     MSG_EDI_MODIFY_PROJECT_REQUESTED,      //!< Payload = RoR::UpdateProjectRequest* (owner)
     MSG_EDI_DELETE_PROJECT_REQUESTED,      //!< Payload = RoR::CacheEntryPtr* (owner)
+    MSG_EDI_REINIT_WATER_REQUESTED,
 };
 
 const char* MsgTypeToString(MsgType type);

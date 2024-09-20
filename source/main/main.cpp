@@ -1253,19 +1253,6 @@ int main(int argc, char *argv[])
                     break;
                 }
 
-                case MSG_SIM_REINIT_WATER_REQUESTED:
-                {
-                    try
-                    {
-                        App::GetGameContext()->GetTerrain()->initWater();
-                    }
-                    catch (...)
-                    {
-                        HandleMsgQueueException(m.type);
-                    }
-                    break;
-                }
-
                 // -- GUI events ---
 
                 case MSG_GUI_OPEN_MENU_REQUESTED:
@@ -1591,6 +1578,19 @@ int main(int argc, char *argv[])
                         HandleMsgQueueException(m.type);
                     }
                     delete entry_ptr;
+                    break;
+                }
+
+                case MSG_EDI_REINIT_WATER_REQUESTED:
+                {
+                    try
+                    {
+                        App::GetGameContext()->GetTerrain()->initWater();
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
                 }
 

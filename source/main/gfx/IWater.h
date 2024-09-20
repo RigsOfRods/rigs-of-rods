@@ -72,7 +72,7 @@ public:
     virtual void           SetWaterGridOptions(Hydrax::Module::ProjectedGrid::Options options) {};
 
 protected:
-    GfxWaterMode m_active_water_mode; //!< A snapshot of cvar `gfx_water_mode` at the time of water creation - because the cvar can change (i.e. via TopMenubar or scripting, see also `MSG_SIM_REINIT_WATER_REQUESTED`)
+    GfxWaterMode m_active_water_mode; //!< A snapshot of cvar `gfx_water_mode` at the time of water creation - because the cvar can change (i.e. via TopMenubar or scripting, see also `MSG_EDI_REINIT_WATER_REQUESTED`)
 };
 
 /// @} // addtogroup Gfx

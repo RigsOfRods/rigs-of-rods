@@ -370,7 +370,7 @@ void RoR::Terrain::fixCompositorClearColor()
 
 void RoR::Terrain::initWater()
 {
-    // Clean up old water (see `MSG_SIM_REINIT_WATER_REQUESTED`)
+    // Clean up old water (see `MSG_EDI_REINIT_WATER_REQUESTED`)
     if (m_water)
     {
         delete m_water;
