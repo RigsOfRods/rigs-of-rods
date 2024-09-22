@@ -4,13 +4,14 @@
 #
 # Translators:
 # Jakub Fabijan <animatorzPolski@gmail.com>, 2021.
+# "Proto Manly (ProtoManly)" <manly2aj@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2021-02-20 07:50+0000\n"
-"Last-Translator: Jakub Fabijan <animatorzPolski@gmail.com>\n"
+"PO-Revision-Date: 2024-09-22 13:40+0000\n"
+"Last-Translator: \"Proto Manly (ProtoManly)\" <manly2aj@gmail.com>\n"
 "Language-Team: Esperanto <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/eo/>\n"
 "Language: eo\n"
@@ -18,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.5\n"
+"X-Generator: Weblate 5.8-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -28,225 +29,212 @@ msgstr "Eraro de komenciĝo"
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
 msgstr ""
+"Sen havebla bildig-sistema kromprogramo. Kontrolu la dosieron plugins.cfg"
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgid "Screenshot Format:"
 msgid "Screenshot: "
-msgstr "Formato de ekranbildo:"
+msgstr "Ekrankopio: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Eraro okazis dum reprenado de la programa dosierujo-indiko"
 
 #: AppContext.cpp:426
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Eraro okazis dum reprenado de la uzanta dosierujo-indiko"
 
 #: AppContext.cpp:477
 msgid "Resources folder not found. Check if correctly installed."
-msgstr ""
+msgstr "Ne trovis la dosierujon de resursoj. Certigu, ke ĝuste instalita."
 
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
-msgstr ""
+msgstr "Misa dosierujo de resursoj. Certigu, ke ĝuste instalita."
 
 #: Application.cpp:387
-#, fuzzy
-#| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
 msgstr "Aŭtomata transmisio"
 
 #: Application.cpp:388
-#, fuzzy
-#| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr "Mana transmisio - aŭtomata kluĉilo"
+msgstr "Mana transmisio kun aŭtomata kluĉilo"
 
 #: Application.cpp:389
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr "Tute mana ŝaftotransmisio kun gamoj"
+msgstr "Tute mana: sinsekva transmisio"
 
 #: Application.cpp:390
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr "Tute mana ŝaftotransmisio kun gamoj"
+msgstr "Tute mana: ŝaftotransmisio"
 
 #: Application.cpp:391
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
-msgstr "Tute mana ŝaftotransmisio kun gamoj"
+msgstr "Tute mana: ŝaftotransmisio kun gamoj"
 
 #: Application.cpp:400
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
-msgstr ""
+msgstr "Nenio (plej rapida)"
 
 #: Application.cpp:401
-#, fuzzy
-#| msgid "Light source effects:"
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr "Efektoj de la lumfonto:"
+msgstr "Sen lumfontoj"
 
 #: Application.cpp:402
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr ""
+msgstr "Nur aktuala veturilo, ĉefaj lumoj"
 
 #: Application.cpp:403
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
-msgstr ""
+msgstr "Ĉiuj veturiloj, ĉefaj lumoj"
 
 #: Application.cpp:404
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
-msgstr ""
+msgstr "Ĉiuj veturiloj, ĉiuj lumoj"
 
 #: Application.cpp:413
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "Malŝaltita"
 
 #: Application.cpp:414
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "PSSM"
 
 #: Application.cpp:423
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
-msgstr ""
+msgstr "Sandstorm (plej rapida)"
 
 #: Application.cpp:424
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
-msgstr ""
+msgstr "Caelum (plej bela, pli malrapida)"
 
 #: Application.cpp:425
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
-msgstr ""
+msgstr "SkyX (plej bela, pli malrapida)"
 
 #: Application.cpp:434
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "Nenio"
 
 #: Application.cpp:435
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
-msgstr ""
+msgstr "Dulineara"
 
 #: Application.cpp:436
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
-msgstr ""
+msgstr "Trilineara"
 
 #: Application.cpp:437
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
-msgstr ""
+msgstr "Neizotropa"
 
 #: Application.cpp:446
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "Nenio"
 
 #: Application.cpp:447
 msgctxt "GfxVegetation"
 msgid "20%"
-msgstr ""
+msgstr "20%"
 
 #: Application.cpp:448
 msgctxt "GfxVegetation"
 msgid "50%"
-msgstr ""
+msgstr "50%"
 
 #: Application.cpp:449
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "Plena"
 
 #: Application.cpp:458
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "Nenio"
 
 #: Application.cpp:459
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
-msgstr ""
+msgstr "Baza (plej rapida)"
 
 #: Application.cpp:460
 msgctxt "GfxWaterMode"
 msgid "Reflection"
-msgstr ""
+msgstr "Reflekto"
 
 #: Application.cpp:461
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
-msgstr ""
+msgstr "Reflekto + refrakto (optimumigita por rapideco)"
 
 #: Application.cpp:462
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
-msgstr ""
+msgstr "Reflekto + refrakto (optimumigita por beleco)"
 
 #: Application.cpp:463
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr ""
+msgstr "HydraX"
 
 #: Application.cpp:472
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "Nenio"
 
 #: Application.cpp:473
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "Statika"
 
 #: Application.cpp:474
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "Ĵetado"
 
 #: Application.cpp:483
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "Nenio"
 
 #: Application.cpp:484
 msgctxt "IoInputGrabMode"
 msgid "All"
-msgstr ""
+msgstr "Ĉiu"
 
 #: Application.cpp:485
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr ""
+msgstr "Dinamike"
 
 #: Application.cpp:494
 msgctxt "SimResetMode"
 msgid "Hard"
-msgstr ""
+msgstr "Malmola"
 
 #: Application.cpp:495
 msgctxt "SimResetMode"
 msgid "Soft"
-msgstr ""
+msgstr "Mola"
 
 #: GameContext.cpp:120
 msgid "Terrain not found: "
@@ -262,45 +250,43 @@ msgstr "Bonvolu unue malplenigi la areon"
 
 #: GameContext.cpp:762
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr ""
+msgstr "Defaŭlta haŭto '{}' por aganto '{}' ne trovita!"
 
 #: GameContext.cpp:1036
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgid "Enabled hard reset mode"
-msgstr "aktivigi aŭ malaktivigi revidomoduson"
+msgstr "Ŝaltigis malvarman reŝargan reĝimon"
 
 #: GameContext.cpp:1036
 msgid "Enabled soft reset mode"
-msgstr ""
+msgstr "Ŝaltigis partan restartan reĝimon"
 
 #: GameContext.cpp:1230
 msgid "Time set to "
-msgstr ""
+msgstr "Tempo agordiĝis je "
 
 #: GameContext.cpp:1417
 msgid "No rescue truck found!"
-msgstr ""
+msgstr "Sen trovita savkamiono!"
 
 #: GameContext.cpp:1493
 msgid "forwardcommands enabled"
-msgstr ""
+msgstr "ŝaltigis forwardcommands"
 
 #: GameContext.cpp:1497
 msgid "forwardcommands disabled"
-msgstr ""
+msgstr "malŝaltigis forwardcommands"
 
 #: GameContext.cpp:1506
 msgid "importcommands enabled"
-msgstr ""
+msgstr "ŝaltigis importcommands"
 
 #: GameContext.cpp:1510
 msgid "importcommands disabled"
-msgstr ""
+msgstr "malŝaltigis importcommands"
 
 #: gameplay/ChatSystem.cpp:56
 msgid " [whispered] "
-msgstr ""
+msgstr " [flustrita] "
 
 #: gameplay/EngineSim.cpp:1463
 msgid "Low range selected"
@@ -316,11 +302,11 @@ msgstr "Alta aro elektita"
 
 #: gameplay/Landusemap.cpp:101
 msgid "Error while loading landuse config"
-msgstr ""
+msgstr "Eraro okazis dum ŝargado de agordaro landuse"
 
 #: gfx/camera/CameraManager.cpp:302
 msgid "FOV: Limit reached"
-msgstr ""
+msgstr "Vidangulo: Atingis limon"
 
 #: gfx/camera/CameraManager.cpp:314
 msgid "FOV: "
@@ -328,31 +314,31 @@ msgstr "FOV: "
 
 #: gfx/camera/CameraManager.cpp:384
 msgid "Free camera"
-msgstr ""
+msgstr "Libera kamerao"
 
 #: gfx/camera/CameraManager.cpp:389
 msgid "Fixed camera"
-msgstr ""
+msgstr "Fiksita kamerao"
 
 #: gfx/camera/CameraManager.cpp:870
 msgid "Limited camera movement enabled"
-msgstr ""
+msgstr "Ŝaltigis limigitan kameraan movadon"
 
 #: gfx/camera/CameraManager.cpp:874
 msgid "Limited camera movement disabled"
-msgstr ""
+msgstr "Malŝaltigis limigitan kameraan movadon"
 
 #: gfx/camera/CameraManager.cpp:1158
 msgid "Auto tracking enabled"
-msgstr ""
+msgstr "Ŝaltigis aŭtomatan spuradon"
 
 #: gfx/camera/CameraManager.cpp:1162
 msgid "Auto tracking disabled"
-msgstr ""
+msgstr "Malŝaltigis aŭtomatan spuradon"
 
 #: gui/GUIUtils.cpp:471
 msgid "Hold to confirm"
-msgstr ""
+msgstr "Tenu por konfirmi"
 
 #: gui/OverlayWrapper.cpp:428
 msgid "Current FPS: "
@@ -376,7 +362,7 @@ msgstr "Nombro da trianguloj: "
 
 #: gui/OverlayWrapper.cpp:459
 msgid "Textures: "
-msgstr ""
+msgstr "Teksturoj: "
 
 #: gui/OverlayWrapper.cpp:461
 msgid "Compositors: "
