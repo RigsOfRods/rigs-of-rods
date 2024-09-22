@@ -64,7 +64,6 @@ private:
     
     CommandkeyID_t m_active_commandkey = COMMANDKEYID_INVALID;
     CommandkeyID_t m_hovered_commandkey = COMMANDKEYID_INVALID;
-    std::array<float, 3> m_command_column_calc_width = { 0, 0, 0 };
     
     ImVec4 m_cmdbeam_highlight_color = ImVec4(0.733f, 1.f, 0.157f, 0.745f);
     float m_cmdbeam_ui_rect_thickness = 3.f;
