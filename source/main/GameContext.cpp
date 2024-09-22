@@ -1471,7 +1471,15 @@ void GameContext::UpdateCommonInputEvents(float dt)
         App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
     }
 
-    // Apply command buttons in T-screen
+    // Commandkeys: process controller input for all commands
+    for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
+    {
+        int eventID = EV_COMMANDS_01 + (i - 1);
+
+        m_player_actor->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
+    }
+
+    // Commandkeys: Apply command buttons in T-screen
     if (App::GetGuiManager()->VehicleInfoTPanel.GetActiveCommandKey() != COMMANDKEYID_INVALID)
     {
         m_player_actor->ar_command_key[App::GetGuiManager()->VehicleInfoTPanel.GetActiveCommandKey()].playerInputValue = 1.f;
