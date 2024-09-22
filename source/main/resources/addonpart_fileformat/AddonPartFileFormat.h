@@ -41,6 +41,13 @@ struct AddonPartConflict //!< Conflict between two addonparts tweaking the same 
     CacheEntryPtr   atc_addonpart2;
     std::string     atc_keyword;
     int             atc_element_id = -1;
+
+    AddonPartConflict(CacheEntryPtr addonpart1, CacheEntryPtr addonpart2, std::string keyword, int element_id):
+        atc_addonpart1(addonpart1),
+        atc_addonpart2(addonpart2),
+        atc_keyword(keyword),
+        atc_element_id(element_id)
+    {}
 };
 
 typedef std::vector<AddonPartConflict> AddonPartConflictVec;
