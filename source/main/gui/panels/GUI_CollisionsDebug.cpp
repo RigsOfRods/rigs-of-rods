@@ -122,7 +122,7 @@ void CollisionsDebug::Draw()
         ImGui::TextColored(color, "%d ", tris);
     }
     ImGui::SetNextItemWidth(WIDTH_DRAWDIST);
-    if (ImGui::InputInt("Debug area extent (around character)", &m_cell_generator_distance_limit));
+    ImGui::InputInt("Debug area extent (around character)", &m_cell_generator_distance_limit);
     ImGui::SameLine();
     ImGui::TextDisabled("(?)");
     if (ImGui::IsItemHovered())
