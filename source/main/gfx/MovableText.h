@@ -81,7 +81,7 @@ public:
     virtual ~MovableText();
 
     // Add to build on Shoggoth:
-    virtual void visitRenderables(Ogre::Renderable::Visitor* visitor, bool debugRenderables = false) {};
+    virtual void visitRenderables(Ogre::Renderable::Visitor*, bool) override {};
 
     // Set settings
     void    setFontName(const Ogre::UTFString &fontName);
@@ -114,7 +114,7 @@ protected:
     // from MovableObject
     void    getWorldTransforms(Ogre::Matrix4 *xform) const;
     Ogre::Real    getBoundingRadius(void) const {return mRadius;};
-    Ogre::Real    getSquaredViewDepth(const Ogre::Camera *cam) const {return 0;};
+    Ogre::Real    getSquaredViewDepth(const Ogre::Camera *) const {return 0;};
     const   Ogre::Quaternion        &getWorldOrientation(void) const;
     const   Ogre::Vector3           &getWorldPosition(void) const;
     const   Ogre::AxisAlignedBox    &getBoundingBox(void) const {return mAABB;};
