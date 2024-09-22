@@ -393,10 +393,10 @@ bool ShaderParticleRenderer::allocateBuffers(size_t iNumParticles)
         pVB = mVertexData->vertexBufferBinding->getBuffer(0);
 
     // prepare vertex buffer
-    if (pVB.isNull() || pVB->getNumVertices() < iNumParticles * 4) {
+    if (!pVB || pVB->getNumVertices() < iNumParticles * 4) {
         assert(iNumParticles * 4 < 65536); // we are using 16bit index buffer
         pVB = Ogre::HardwareBufferManager::getSingleton().createVertexBuffer(mVertexSize, 4 * iNumParticles, Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-        if (pVB.isNull())
+        if (!pVB)
             return false;
 
         mVertexData->vertexBufferBinding->setBinding(0, pVB);
@@ -404,9 +404,9 @@ bool ShaderParticleRenderer::allocateBuffers(size_t iNumParticles)
 
     // prepare index buffer
     Ogre::HardwareIndexBufferSharedPtr pIB = mIndexData->indexBuffer;
-    if (pIB.isNull() || pIB->getNumIndexes() < iNumParticles * 6) {
+    if (!pIB || pIB->getNumIndexes() < iNumParticles * 6) {
         pIB = Ogre::HardwareBufferManager::getSingleton().createIndexBuffer(Ogre::HardwareIndexBuffer::IT_16BIT, iNumParticles * 6, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-        if (pIB.isNull())
+        if (!pIB)
             return false;
 
         mIndexData->indexBuffer = pIB;

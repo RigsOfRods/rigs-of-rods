@@ -34,7 +34,7 @@ namespace Hydrax
 	{
 		for (int k = 0; k < 1; k++)
 		{
-			mTextures[k].setNull();
+			mTextures[k].reset();
 		}
 
 		mTextureNames[0] = "HydraxNormalMap";
@@ -69,7 +69,7 @@ namespace Hydrax
 		for (int k = 0; k < 1; k++)
 		{
 		     Ogre::TextureManager::getSingleton().remove(mTextureNames[k]);
-			 mTextures[k].setNull();
+			 mTextures[k].reset();
 		}
 
 		mCreated = false;

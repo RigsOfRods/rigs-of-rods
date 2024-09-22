@@ -47,10 +47,10 @@ ProceduralRoad::~ProceduralRoad()
         App::GetGfxScene()->GetSceneManager()->destroySceneNode(snode);
         snode = nullptr;
     }
-    if (!msh.isNull())
+    if (msh)
     {
         MeshManager::getSingleton().remove(msh->getName());
-        msh.setNull();
+        msh.reset();
     }
     for (int number : registeredCollTris)
     {

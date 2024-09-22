@@ -670,7 +670,7 @@ void DashBoard::windowResized()
     {
         // texture layers are independent from the screen size, but rather from the layer texture size
         TexturePtr tex = TextureManager::getSingleton().getByName("RTTTexture1");
-        if (!tex.isNull())
+        if (tex)
             mainWidget->setSize(tex->getWidth(), tex->getHeight());
     }
     else

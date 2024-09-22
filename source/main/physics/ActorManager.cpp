@@ -1261,7 +1261,7 @@ RigDef::DocumentPtr ActorManager::FetchActorDef(RoR::ActorSpawnRequest& rq)
         App::GetCacheSystem()->LoadResource(rq.asr_cache_entry);
         Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(rq.asr_cache_entry->fname, rq.asr_cache_entry->resource_group);
 
-        if (stream.isNull() || !stream->isReadable())
+        if (!stream || !stream->isReadable())
         {
             HandleErrorLoadingTruckfile(rq.asr_cache_entry->fname, "Unable to open/read truckfile");
             return nullptr;

@@ -92,7 +92,7 @@ RoR::GfxActor::~GfxActor()
         {
             VideoCamera& vcam = m_videocameras.back();
             Ogre::TextureManager::getSingleton().remove(vcam.vcam_render_tex->getHandle());
-            vcam.vcam_render_tex.setNull();
+            vcam.vcam_render_tex.reset();
             vcam.vcam_render_target = nullptr; // Invalidated with parent texture
             App::GetGfxScene()->GetSceneManager()->destroyCamera(vcam.vcam_ogre_camera);
         }
@@ -420,7 +420,7 @@ void RoR::GfxActor::RegisterCabMaterial(Ogre::MaterialPtr mat, Ogre::MaterialPtr
 
 void RoR::GfxActor::SetCabLightsActive(bool state_on)
 {
-    if (m_cab_mat_template_emissive.isNull()) // Both this and '_plain' are only set when emissive pass is present.
+    if (!m_cab_mat_template_emissive) // Both this and '_plain' are only set when emissive pass is present.
         return;
 
     // NOTE: Updating material in-place like this is probably inefficient,

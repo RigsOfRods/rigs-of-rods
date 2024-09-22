@@ -103,11 +103,11 @@ namespace SkyX { namespace VClouds
 		Ogre::MeshManager::getSingleton().remove(mMesh->getName());
 		mVClouds->getSceneManager()->destroyEntity(mEntity);
 
-		mMesh.setNull();
+		mMesh.reset();
 		mSubMesh = 0;
 		mEntity = 0;
-		mVertexBuffer.setNull();
-		mIndexBuffer.setNull();
+		mVertexBuffer.reset();
+		mIndexBuffer.reset();
 
 		delete [] mVertices;
 

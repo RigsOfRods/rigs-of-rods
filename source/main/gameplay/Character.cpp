@@ -696,7 +696,7 @@ void RoR::GfxCharacter::UpdateCharacterInScene()
         const String materialName = "tracks/" + xc_instance_name;
 
         MaterialPtr mat = MaterialManager::getSingleton().getByName(materialName);
-        if (!mat.isNull() && mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 1 &&
+        if (mat && mat->getNumTechniques() > 0 && mat->getTechnique(0)->getNumPasses() > 1 &&
                 mat->getTechnique(0)->getPass(1)->getNumTextureUnitStates() > 1)
         {
             const auto& state = mat->getTechnique(0)->getPass(1)->getTextureUnitState(1);

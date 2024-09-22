@@ -236,10 +236,10 @@ Vector3 FlexObj::UpdateFlexObj()
 
 FlexObj::~FlexObj()
 {
-    if (!m_mesh.isNull())
+    if (m_mesh)
     {
         Ogre::MeshManager::getSingleton().remove(m_mesh->getHandle());
-        m_mesh.setNull();
+        m_mesh.reset();
     }
 
     if (m_vertices_raw != nullptr) { free (m_vertices_raw); }

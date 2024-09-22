@@ -53,7 +53,7 @@ namespace Hydrax
 		for (int k = 0; k < 6; k++)
 		{
 			mPlanes[k] = static_cast<Ogre::MovablePlane*>(NULL);
-			mTextures[k].setNull();
+			mTextures[k].reset();
 			mRttOptions[k].Name  = RttNames[k];
 			mRttOptions[k].Size_ = Size(0);
 			mRttOptions[k].NumberOfChannels_ = NOC_3;
@@ -129,7 +129,7 @@ namespace Hydrax
 	{
 		Ogre::TexturePtr &Tex = mTextures[Rtt];
 
-		if (!Tex.isNull())
+		if (Tex)
 		{
 		    Ogre::RenderTarget* RT = Tex->getBuffer()->getRenderTarget();
             RT->removeAllListeners();
@@ -138,7 +138,7 @@ namespace Hydrax
 			Ogre::TextureManager::getSingleton().remove(mRttOptions[Rtt].Name);
 			Ogre::MeshManager::getSingleton().remove(mRttOptions[Rtt].Name + "ClipPlane");
 
-			Tex.setNull();
+			Tex.reset();
 			delete mPlanes[Rtt];
 			mPlanes[Rtt] = static_cast<Ogre::MovablePlane*>(NULL);
 		}
@@ -224,7 +224,7 @@ namespace Hydrax
 	{
 		mRttOptions[static_cast<int>(Rtt)].Size_ = S;
 
-		if (!getTexture(Rtt).isNull())
+		if (getTexture(Rtt))
 		{
 			initialize(Rtt);
 
@@ -250,7 +250,8 @@ namespace Hydrax
 		{
 			mRttOptions[static_cast<RttType>(k)].Size_ = S;
 
-			if (!getTexture(static_cast<RttType>(k)).isNull())
+            Ogre::TexturePtr& Tex = mTextures[static_cast<RttType>(k)];
+			if (Tex)
 			{
 				initialize(static_cast<RttType>(k));
 

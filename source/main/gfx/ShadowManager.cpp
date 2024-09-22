@@ -36,7 +36,7 @@ using namespace RoR;
 
 ShadowManager::ShadowManager()
 {
-    PSSM_Shadows.mPSSMSetup.setNull();
+    PSSM_Shadows.mPSSMSetup.reset();
     PSSM_Shadows.mDepthShadows = false;
     PSSM_Shadows.ShadowsTextureNum = 3;
     PSSM_Shadows.Quality = RoR::App::gfx_shadow_quality->getInt(); //0 = Low quality, 1 = mid, 2 = hq, 3 = ultra
@@ -135,7 +135,7 @@ void ShadowManager::processPSSM()
         PSSM_Shadows.lambda = 0.98f;
     }
 
-    if (PSSM_Shadows.mPSSMSetup.isNull())
+    if (!PSSM_Shadows.mPSSMSetup)
     {
         // shadow camera setup
         Ogre::PSSMShadowCameraSetup* pssmSetup = new Ogre::PSSMShadowCameraSetup();

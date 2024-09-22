@@ -157,7 +157,7 @@ int OverlayWrapper::init()
     resizePanel(loadOverlayElement("tracks/pressureo"));
     resizePanel(loadOverlayElement("tracks/pressureneedle"));
     MaterialPtr m = MaterialManager::getSingleton().getByName("tracks/pressureneedle_mat");
-    if (!m.isNull())
+    if (m)
         pressuretexture = m->getTechnique(0)->getPass(0)->getTextureUnitState(0);
     else
         pressuretexture = nullptr;

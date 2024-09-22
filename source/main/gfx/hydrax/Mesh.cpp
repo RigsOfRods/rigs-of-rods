@@ -63,13 +63,13 @@ namespace Hydrax
 		Ogre::MeshManager::getSingleton().remove("HydraxMesh");
 		mHydrax->getSceneManager()->destroyEntity(mEntity);
 
-		mMesh.setNull();
+		mMesh.reset();
 		mSubMesh = 0;
 		mEntity = 0;
 		mNumFaces = 0;
 		mNumVertices = 0;
-		mVertexBuffer.setNull();
-		mIndexBuffer.setNull();
+		mVertexBuffer.reset();
+		mIndexBuffer.reset();
 		mMaterialName = "_NULL_";
 
 		mCreated = false;

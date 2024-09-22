@@ -349,7 +349,7 @@ namespace SkyX
 	{
 		Ogre::TexturePtr tex = Ogre::TextureManager::getSingleton().getByName(n);
 
-		if (!tex.isNull())
+		if (tex)
 		{
 			if (g)
 			{

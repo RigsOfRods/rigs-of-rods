@@ -238,7 +238,7 @@ MaterialPtr TerrainPSSMMaterialGenerator::SM2Profile::generate(const Terrain* te
 {
     // re-use old material if exists
     MaterialPtr mat = terrain->_getMaterial();
-    if (mat.isNull())
+    if (!mat)
     {
         MaterialManager& matMgr = MaterialManager::getSingleton();
 
@@ -246,7 +246,7 @@ MaterialPtr TerrainPSSMMaterialGenerator::SM2Profile::generate(const Terrain* te
         // use the terrain pointer as an ID
         const String& matName = terrain->getMaterialName();
         mat = matMgr.getByName(matName);
-        if (mat.isNull())
+        if (!mat)
         {
             mat = matMgr.create(matName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         }
@@ -287,7 +287,7 @@ MaterialPtr TerrainPSSMMaterialGenerator::SM2Profile::generateForCompositeMap(co
 {
     // re-use old material if exists
     MaterialPtr mat = terrain->_getCompositeMapMaterial();
-    if (mat.isNull())
+    if (!mat)
     {
         MaterialManager& matMgr = MaterialManager::getSingleton();
 
@@ -295,7 +295,7 @@ MaterialPtr TerrainPSSMMaterialGenerator::SM2Profile::generateForCompositeMap(co
         // use the terrain pointer as an ID
         const String& matName = terrain->getMaterialName() + "/comp";
         mat = matMgr.getByName(matName);
-        if (mat.isNull())
+        if (!mat)
         {
             mat = matMgr.create(matName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         }
@@ -734,7 +734,7 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::createVertexProgram(
     HighLevelGpuProgramManager& mgr = HighLevelGpuProgramManager::getSingleton();
     String progName = getVertexProgramName(prof, terrain, tt);
     HighLevelGpuProgramPtr ret = mgr.getByName(progName);
-    if (ret.isNull())
+    if (!ret)
     {
         ret = mgr.createProgram(progName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             "cg", GPT_VERTEX_PROGRAM);
@@ -759,7 +759,7 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperCg::createFragmentProgram(
     String progName = getFragmentProgramName(prof, terrain, tt);
 
     HighLevelGpuProgramPtr ret = mgr.getByName(progName);
-    if (ret.isNull())
+    if (!ret)
     {
         ret = mgr.createProgram(progName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             "cg", GPT_FRAGMENT_PROGRAM);
@@ -1581,7 +1581,7 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperHLSL::createVertexProgram(
     String progName = getVertexProgramName(prof, terrain, tt);
 
     HighLevelGpuProgramPtr ret = mgr.getByName(progName);
-    if (ret.isNull())
+    if (!ret)
     {
         ret = mgr.createProgram(progName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             "hlsl", GPT_VERTEX_PROGRAM);
@@ -1611,7 +1611,7 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperHLSL::createFragmentProgra
     String progName = getFragmentProgramName(prof, terrain, tt);
 
     HighLevelGpuProgramPtr ret = mgr.getByName(progName);
-    if (ret.isNull())
+    if (!ret)
     {
         ret = mgr.createProgram(progName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             "hlsl", GPT_FRAGMENT_PROGRAM);
@@ -1655,7 +1655,7 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperGLSL::createVertexProgram(
     }
 
     HighLevelGpuProgramPtr ret = mgr.getByName(progName);
-    if (ret.isNull())
+    if (!ret)
     {
         ret = mgr.createProgram(progName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             "glsl", GPT_VERTEX_PROGRAM);
@@ -1677,7 +1677,7 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperGLSL::createFragmentProgra
     String progName = getFragmentProgramName(prof, terrain, tt);
 
     HighLevelGpuProgramPtr ret = mgr.getByName(progName);
-    if (ret.isNull())
+    if (!ret)
     {
         ret = mgr.createProgram(progName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             "glsl", GPT_FRAGMENT_PROGRAM);
@@ -1713,7 +1713,7 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperGLSLES::createVertexProgra
     }
 
     HighLevelGpuProgramPtr ret = mgr.getByName(progName);
-    if (ret.isNull())
+    if (!ret)
     {
         ret = mgr.createProgram(progName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             "glsles", GPT_VERTEX_PROGRAM);
@@ -1735,7 +1735,7 @@ TerrainPSSMMaterialGenerator::SM2Profile::ShaderHelperGLSLES::createFragmentProg
     String progName = getFragmentProgramName(prof, terrain, tt);
 
     HighLevelGpuProgramPtr ret = mgr.getByName(progName);
-    if (ret.isNull())
+    if (!ret)
     {
         ret = mgr.createProgram(progName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             "glsles", GPT_FRAGMENT_PROGRAM);

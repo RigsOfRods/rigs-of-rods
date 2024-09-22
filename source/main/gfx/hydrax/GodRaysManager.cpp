@@ -65,7 +65,7 @@ namespace Hydrax
 	{
 		for (int k = 0; k < 2; k++)
 		{
-			mMaterials[k].setNull();
+			mMaterials[k].reset();
 		}
 	}
 
@@ -183,17 +183,17 @@ namespace Hydrax
 
 		for (int k = 0; k < 2; k++)
 		{
-			mMaterials[k].setNull();
+			mMaterials[k].reset();
 		}
 
-		if (!mProjectorRTT.isNull())
+		if (mProjectorRTT)
 		{
 			Ogre::RenderTarget* RT = mProjectorRTT->getBuffer()->getRenderTarget();
             RT->removeAllListeners();
             RT->removeAllViewports();
 
 			Ogre::TextureManager::getSingleton().remove(mProjectorRTT->getName());
-			mProjectorRTT.setNull();
+			mProjectorRTT.reset();
 		}
 
 		mHydrax->getSceneManager()->destroyCamera(mProjectorCamera);
