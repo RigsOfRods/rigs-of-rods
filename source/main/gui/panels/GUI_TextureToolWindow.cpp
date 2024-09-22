@@ -158,7 +158,7 @@ void TextureToolWindow::SaveTexture(std::string texName, bool usePNG)
     try
     {
         TexturePtr tex = TextureManager::getSingleton().getByName(texName);
-        if (tex.isNull())
+        if (!tex)
             return;
 
         Image img;

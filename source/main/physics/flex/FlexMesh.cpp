@@ -233,10 +233,10 @@ FlexMesh::FlexMesh(
 
 FlexMesh::~FlexMesh()
 {
-    if (!m_mesh.isNull())
+    if (m_mesh)
     {
         Ogre::MeshManager::getSingleton().remove(m_mesh->getName());
-        m_mesh.setNull();
+        m_mesh.reset();
     }
 }
 

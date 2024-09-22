@@ -180,7 +180,7 @@ void RoR::Skidmark::PopSegment()
     skid.points.clear();
     skid.faceSizes.clear();
     Ogre::MaterialManager::getSingleton().remove(skid.material->getName());
-    skid.material.setNull();
+    skid.material.reset();
     App::GetGfxScene()->GetSceneManager()->destroyManualObject(skid.obj);
     m_objects.pop();
 }

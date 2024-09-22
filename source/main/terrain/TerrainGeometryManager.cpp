@@ -101,7 +101,7 @@ Ogre::MaterialPtr Terrn2CustomMaterial::Profile::generate(const Ogre::Terrain* t
     const Ogre::String& matName = terrain->getMaterialName();
 
     Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().getByName(matName);
-    if (!mat.isNull()) 
+    if (mat) 
         Ogre::MaterialManager::getSingleton().remove(matName);
 
     Terrn2CustomMaterial* parent = static_cast<Terrn2CustomMaterial*>(this->getParent());
@@ -261,7 +261,7 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
     try
     {
         DataStreamPtr ds_config = ResourceGroupManager::getSingleton().openResource(otc_filename);
-        if (ds_config.isNull() || !ds_config->isReadable())
+        if (!ds_config || !ds_config->isReadable())
         {
             RoR::LogFormat("[RoR|Terrain] Cannot read main *.otc file [%s].", otc_filename.c_str());
             return false;
@@ -289,7 +289,7 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
         try
         {
             DataStreamPtr ds_page = ResourceGroupManager::getSingleton().openResource(page.pageconf_filename);
-            if (ds_page.isNull() || !ds_page->isReadable())
+            if (!ds_page || !ds_page->isReadable())
             {
                 RoR::LogFormat("[RoR|Terrain] Cannot read file [%s].", page.pageconf_filename.c_str());
                 return false;

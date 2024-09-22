@@ -239,7 +239,7 @@ void GUIManager::SetUpMenuWallpaper()
     // Determine image filename
     using namespace Ogre;
     FileInfoListPtr files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.jpg", false);
-    if (files.isNull() || files->empty())
+    if (!files || files->empty())
     {
         files = ResourceGroupManager::getSingleton().findResourceFileInfo("Wallpapers", "*.png", false);
     }

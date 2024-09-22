@@ -77,7 +77,7 @@ void MovableText::setFontName(const UTFString& fontName)
         Ogre::MaterialManager::getSingleton().remove(mName + "Material");
     }
 
-    if (mFontName != fontName || mpMaterial.isNull() || !mpFont)
+    if (mFontName != fontName || !mpMaterial || !mpFont)
     {
         mFontName = fontName;
         mpFont = (Ogre::Font *)FontManager::getSingleton().getResourceByName(mFontName).getPointer();
@@ -86,10 +86,10 @@ void MovableText::setFontName(const UTFString& fontName)
             throw Exception(Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + fontName, "MovableText::setFontName");
 
         mpFont->load();
-        if (!mpMaterial.isNull())
+        if (mpMaterial)
         {
             MaterialManager::getSingletonPtr()->remove(mpMaterial->getName());
-            mpMaterial.setNull();
+            mpMaterial.reset();
         }
 
         mpMaterial = mpFont->getMaterial()->clone(mName + "Material");
@@ -166,7 +166,7 @@ void MovableText::setAdditionalHeight(Real height)
 
 void MovableText::showOnTop(bool show)
 {
-    if (mOnTop != show && !mpMaterial.isNull())
+    if (mOnTop != show && mpMaterial)
     {
         mOnTop = show;
         mpMaterial->setDepthBias(1.0, 1.0);
@@ -178,7 +178,7 @@ void MovableText::showOnTop(bool show)
 void MovableText::_setupGeometry()
 {
     ROR_ASSERT(mpFont);
-    ROR_ASSERT(!mpMaterial.isNull());
+    ROR_ASSERT(mpMaterial);
 
     uint vertexCount = static_cast<uint>(mCaption.size() * 6);
 
@@ -462,7 +462,7 @@ void MovableText::_setupGeometry()
 void MovableText::_updateColors(void)
 {
     ROR_ASSERT(mpFont);
-    ROR_ASSERT(!mpMaterial.isNull());
+    ROR_ASSERT(mpMaterial);
 
     // Convert to system-specific
     RGBA color;
@@ -470,9 +470,16 @@ void MovableText::_updateColors(void)
     HardwareVertexBufferSharedPtr vbuf = mRenderOp.vertexData->vertexBufferBinding->getBuffer(COLOUR_BINDING);
     //RGBA *pDest = static_cast<RGBA*>(vbuf->lock(HardwareBuffer::HBL_NORMAL));
     RGBA* pDest = (RGBA*)malloc(vbuf->getSizeInBytes());
+    ROR_ASSERT(pDest);
+    if (!pDest)
+    {
+        return;
+    }
     RGBA* oDest = pDest;
     for (uint i = 0; i < mRenderOp.vertexData->vertexCount; ++i)
+    {
         *pDest++ = color;
+    }
     //vbuf->unlock();
     vbuf->writeData(0, vbuf->getSizeInBytes(), oDest, true);
     free(oDest);

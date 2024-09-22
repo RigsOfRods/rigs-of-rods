@@ -63,7 +63,7 @@ void WriteToTexture(const String& str, TexturePtr destTexture, Ogre::Box destRec
     FontPtr font = FontManager::getSingleton().getByName(fontname);
 
     // Font not found, let's created it :)
-    if (font.isNull())
+    if (!font)
     {
         font = FontManager::getSingleton().create(fontname, "General");
         font->setType(FT_TRUETYPE);

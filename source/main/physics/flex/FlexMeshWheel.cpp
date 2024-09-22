@@ -181,7 +181,7 @@ FlexMeshWheel::~FlexMeshWheel()
     // Delete tyre mesh
     m_mesh->unload();
     Ogre::MeshManager::getSingleton().remove(m_mesh->getHandle());
-    m_mesh.setNull();
+    m_mesh.reset();
 }
 
 Vector3 FlexMeshWheel::updateVertices()

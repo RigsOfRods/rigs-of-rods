@@ -72,7 +72,7 @@ namespace SkyX { namespace VClouds
 		mVolCloudsMaterial = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName("SkyX_VolClouds"));
 		mVolCloudsLightningMaterial = static_cast<Ogre::MaterialPtr>(Ogre::MaterialManager::getSingleton().getByName("SkyX_VolClouds_Lightning"));
 
-		if (mVolCloudsMaterial.isNull() || mVolCloudsLightningMaterial.isNull())
+		if (!mVolCloudsMaterial || !mVolCloudsLightningMaterial)
 		{
 			SkyXLOG("Error while creating SkyX::VClouds::VClouds, materials are not found");
 			return;
@@ -138,8 +138,8 @@ namespace SkyX { namespace VClouds
 		mCamera = 0;
 		mCamerasData.clear();
 
-		mVolCloudsMaterial.setNull();
-		mVolCloudsLightningMaterial.setNull();
+		mVolCloudsMaterial.reset();
+		mVolCloudsLightningMaterial.reset();
 
 		mCreated = false;
 	}
