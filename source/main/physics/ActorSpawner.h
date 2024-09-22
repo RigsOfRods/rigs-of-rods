@@ -501,6 +501,7 @@ private:
     Ogre::SceneNode*                          m_flexbodies_parent_scenenode = nullptr; //!< this isn't used for moving/hiding things, just helps developers inspect the scene graph.
     Ogre::SceneNode*                          m_flares_parent_scenenode = nullptr; //!< this isn't used for moving/hiding things, just helps developers inspect the scene graph.
     Ogre::SceneNode*                          m_particles_parent_scenenode = nullptr; //!< this isn't used for moving/hiding things, just helps developers inspect the scene graph.
+    Ogre::SceneNode*                          m_vcams_parent_scenenode = nullptr; //!< this isn't used for moving/hiding things, just helps developers inspect the scene graph.
     /// @}
 };
 

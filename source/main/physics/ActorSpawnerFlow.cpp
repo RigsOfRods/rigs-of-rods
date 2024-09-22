@@ -69,6 +69,7 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
     m_flexbodies_parent_scenenode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("Flexbodies"));
     m_props_parent_scenenode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("Props"));
     m_flares_parent_scenenode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("Flares"));
+    m_vcams_parent_scenenode = m_actor_grouping_scenenode->createChildSceneNode(this->ComposeName("VideoCameras"));
 
     m_spawn_position = rq.asr_position;
     m_current_keyword = RigDef::Keyword::INVALID;

@@ -2352,6 +2352,9 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
         flare.light->setType(Ogre::Light::LT_SPOTLIGHT);
         flare.light->setSpotlightRange( Ogre::Degree(35), Ogre::Degree(45) );
         flare.light->setCastShadows(false);
+
+        Ogre::SceneNode* snode = m_flares_parent_scenenode->createChildSceneNode();
+        snode->attachObject(flare.light);
     }
     m_actor->ar_flares.push_back(flare);
 }
@@ -7040,6 +7043,9 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
 
         vcam.vcam_ogre_camera = App::GetGfxScene()->GetSceneManager()->createCamera(vcam.vcam_material->getName() + "_camera");
 
+        Ogre::SceneNode* vcam_snode = m_vcams_parent_scenenode->createChildSceneNode();
+        vcam_snode->attachObject(vcam.vcam_ogre_camera);
+
         if (!App::gfx_window_videocams->getBool())
         {
             vcam.vcam_render_tex = Ogre::TextureManager::getSingleton().createManual(
@@ -7162,6 +7168,9 @@ void ActorSpawner::CreateMirrorPropVideoCam(
         vcam.vcam_ogre_camera->setFOVy(Ogre::Degree(50));
         vcam.vcam_ogre_camera->setAspectRatio(
             (App::GetCameraManager()->GetCamera()->getViewport()->getActualWidth() / App::GetCameraManager()->GetCamera()->getViewport()->getActualHeight()) / 2.0f);
+
+        Ogre::SceneNode* snode = m_vcams_parent_scenenode->createChildSceneNode();
+        snode->attachObject(vcam.vcam_ogre_camera);
 
         // Setup rendering
         vcam.vcam_render_target = vcam.vcam_render_tex->getBuffer()->getRenderTarget();
