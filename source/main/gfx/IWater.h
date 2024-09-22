@@ -42,21 +42,21 @@ public:
 
     virtual float          GetStaticWaterHeight() = 0; //!< Returns static water level configured in 'terrn2'
     virtual void           SetStaticWaterHeight(float value) = 0;
-    virtual void           SetWaterBottomHeight(float value) {};
-    virtual void           SetWavesHeight(float value) {};
+    virtual void           SetWaterBottomHeight(float) {};
+    virtual void           SetWavesHeight(float) {};
     virtual float          CalcWavesHeight(Ogre::Vector3 pos) = 0;
     virtual Ogre::Vector3  CalcWavesVelocity(Ogre::Vector3 pos) = 0;
     virtual void           SetWaterVisible(bool value) = 0;
     virtual void           WaterSetSunPosition(Ogre::Vector3) {}
     virtual bool           IsUnderWater(Ogre::Vector3 pos) = 0;
     virtual void           FrameStepWater(float dt) = 0;
-    virtual void           SetReflectionPlaneHeight(float centerheight) {}
-    virtual void           UpdateReflectionPlane(float h) {}
+    virtual void           SetReflectionPlaneHeight(float) {}
+    virtual void           UpdateReflectionPlane(float) {}
     virtual void           WaterPrepareShutdown() {}
     virtual void           UpdateWater() = 0;
 
     // Only used by class Water for SurveyMap texture creation
-    virtual void           SetForcedCameraTransform(Ogre::Radian fovy, Ogre::Vector3 pos, Ogre::Quaternion rot) {};
+    virtual void           SetForcedCameraTransform(Ogre::Radian /*fovy*/, Ogre::Vector3 /*pos*/, Ogre::Quaternion /*rot*/) {};
     virtual void           ClearForcedCameraTransform() {};
 };
 
