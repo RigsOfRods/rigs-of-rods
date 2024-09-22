@@ -238,6 +238,10 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
 
     if (actorx->GetActor()->ar_unique_commandkey_pairs.size() > 0)
     {
+        bool draw_highlight_after_columns = false; // columns do clipping, we can't draw all at once
+        ImVec2 highlight_after_columns_min = ImVec2(0, 0);
+        ImVec2 highlight_after_columns_max = ImVec2(0, 0);
+
         ImGui::TextDisabled("%s", _LC("VehicleDescription", "Command controls:"));
         ImGui::PushStyleColor(ImGuiCol_Text, m_cmdbeam_highlight_color);
         ImGui::Text("%s", _LC("VehicleDescription", "Hover controls for on-vehicle highlight"));
@@ -247,33 +251,43 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
         ImGui::SetColumnWidth(0, m_command_column_calc_width[0]);
         ImGui::SetColumnWidth(1, m_command_column_calc_width[1]);
         ImGui::SetColumnWidth(2, m_command_column_calc_width[2]);
+        float columns_total_width = m_command_column_calc_width[0] + m_command_column_calc_width[1] + m_command_column_calc_width[2];
         // Reset the values for new calculation
         m_command_column_calc_width[0] = 0.f;
         m_command_column_calc_width[1] = 0.f;
         m_command_column_calc_width[2] = 0.f;
+
         for (const UniqueCommandKeyPair& qpair: actorx->GetActor()->ar_unique_commandkey_pairs)
         {
+            // The line-highlighting: Done manually because ImGui::Selectable blocks buttons under it (or gets blocked by buttons with the 'allow overlap' flag).
+            ImVec2 desc_cursor = ImGui::GetCursorScreenPos();
+            ImVec2 highlight_mouse_min = desc_cursor - ImGui::GetStyle().ItemSpacing/2;
+            ImVec2 highlight_mouse_max = highlight_mouse_min + ImVec2(columns_total_width, ImGui::GetTextLineHeightWithSpacing());
+            
+            if ((ImGui::GetMousePos().x > highlight_mouse_min.x && ImGui::GetMousePos().y > highlight_mouse_min.y) 
+                && (ImGui::GetMousePos().x < highlight_mouse_max.x && ImGui::GetMousePos().y < highlight_mouse_max.y))
+            {
+                draw_highlight_after_columns = true;
+                highlight_after_columns_min = highlight_mouse_min;
+                highlight_after_columns_max = highlight_mouse_max;
+                // This is only for the command-highlight HUD; key1/key2 both point to the same command beams.
+                m_hovered_commandkey = qpair.uckp_key1; 
+            }
+
             // Description comes first
+
             std::string desc = qpair.uckp_description;
             if (qpair.uckp_description == "")
             {
                 desc = _LC("VehicleDescription", "unknown function");
             }
-            bool selected_dummy = false;
-            ImGui::PushStyleColor(ImGuiCol_HeaderHovered, m_cmdbeam_highlight_color);
-            ImVec2 desc_cursor = ImGui::GetCursorScreenPos();
-            ImGui::Selectable(desc.c_str(), &selected_dummy, ImGuiSelectableFlags_SpanAllColumns);
-            ImGui::PopStyleColor(1); // FrameBgHovered
-            if (ImGui::IsItemHovered())
-            {
-                m_hovered_commandkey = qpair.uckp_key1; // key1/key2 both point to the same command beams.
-                // Draw the description text again in the high-contrast color.
-                ImGui::GetWindowDrawList()->AddText(desc_cursor, ImColor(m_command_hovered_text_color), desc.c_str());
-            }
+            ImGui::Text("%s", desc.c_str());
+
             m_command_column_calc_width[0] = std::max(m_command_column_calc_width[0], ImGui::CalcTextSize(desc.c_str()).x);
             ImGui::NextColumn();
 
             // Key 1
+
             const RoR::events event1 = (RoR::events)RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", qpair.uckp_key1));
             bool key1_hovered = false;
             bool key1_active = false;
@@ -290,6 +304,7 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
             ImGui::NextColumn();
 
             // Key 2
+
             const RoR::events event2 = (RoR::events)RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", qpair.uckp_key2));
             bool key2_hovered = false;
             bool key2_active = false;
@@ -306,6 +321,14 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
             ImGui::NextColumn();
         }
         ImGui::Columns(1);
+
+        if (draw_highlight_after_columns)
+        {
+            ImVec4 col = m_cmdbeam_highlight_color;
+            col.w = 0.4f;
+            ImDrawList* draw_list = ImGui::GetWindowDrawList();
+            draw_list->AddRectFilled(highlight_after_columns_min, highlight_after_columns_max, ImColor(col));
+        }
 
         // Fix up the calculated column widths
         m_command_column_calc_width[0] += 10.f;
