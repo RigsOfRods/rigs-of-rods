@@ -464,6 +464,13 @@ void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
     ImGui::PopStyleVar(); // FramePadding
 }
 
+ImVec2 RoR::ImCalcEventHighlightedSize(events input_event)
+{
+    std::string text = App::GetInputEngine()->getEventCommandTrimmed(input_event);
+    const ImVec2 PAD = ImVec2(2.f, 0.f);
+    return ImGui::CalcTextSize(text.c_str()) + PAD*2;
+}
+
 bool RoR::ImButtonHoldToConfirm(const std::string& btn_idstr, const bool smallbutton, const float time_limit)
 {
     if (smallbutton)

@@ -86,6 +86,7 @@ void ImTerminateComboboxString(std::string& target);
 void ImDrawEventHighlighted(events input_event);
 bool ImDrawEventHighlightedButton(events input_event, bool* btn_hovered = nullptr, bool* btn_active = nullptr);
 void ImDrawModifierKeyHighlighted(OIS::KeyCode key);
+ImVec2 ImCalcEventHighlightedSize(events input_event);
 
 // Draws button which must be held for a period to report "clicked" - shows a tooltip with countdown progressbar.
 bool ImButtonHoldToConfirm(const std::string& btn_idstr, const bool smallbutton, const float time_limit);
