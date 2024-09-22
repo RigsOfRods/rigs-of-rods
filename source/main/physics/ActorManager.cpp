@@ -1270,7 +1270,7 @@ RigDef::DocumentPtr ActorManager::FetchActorDef(RoR::ActorSpawnRequest& rq)
         RoR::LogFormat("[RoR] Parsing truckfile '%s'", rq.asr_cache_entry->fname.c_str());
         RigDef::Parser parser;
         parser.Prepare();
-        parser.ProcessOgreStream(stream.getPointer(), rq.asr_cache_entry->resource_group);
+        parser.ProcessOgreStream(stream.get(), rq.asr_cache_entry->resource_group);
         parser.Finalize();
 
         auto def = parser.GetFile();

@@ -80,7 +80,7 @@ void MovableText::setFontName(const UTFString& fontName)
     if (mFontName != fontName || !mpMaterial || !mpFont)
     {
         mFontName = fontName;
-        mpFont = (Ogre::Font *)FontManager::getSingleton().getResourceByName(mFontName).getPointer();
+        mpFont = (Ogre::Font *)FontManager::getSingleton().getResourceByName(mFontName).get();
 
         if (!mpFont)
             throw Exception(Exception::ERR_ITEM_NOT_FOUND, "Could not find font " + fontName, "MovableText::setFontName");

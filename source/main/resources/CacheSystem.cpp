@@ -850,7 +850,7 @@ void CacheSystem::FillTruckDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr 
     /* LOAD AND PARSE THE VEHICLE */
     RigDef::Parser parser;
     parser.Prepare();
-    parser.ProcessOgreStream(stream.getPointer(), group);
+    parser.ProcessOgreStream(stream.get(), group);
     parser.GetSequentialImporter()->Disable();
     parser.Finalize();
 

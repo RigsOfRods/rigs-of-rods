@@ -850,13 +850,13 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             continue;
         String matName = mo->getEntity()->getSubEntity(0)->getMaterialName();
         MaterialPtr m = MaterialManager::getSingleton().getByName(matName);
-        if (m.getPointer() == 0)
+        if (m.get() == 0)
         {
             LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh material not found: "+odefname+" : "+matName);
             continue;
         }
         String texName = m->getTechnique(0)->getPass(0)->getTextureUnitState(0)->getTextureName();
-        Texture* background = (Texture *)TextureManager::getSingleton().getByName(texName).getPointer();
+        Texture* background = (Texture *)TextureManager::getSingleton().getByName(texName).get();
         if (!background)
         {
             LOG("[ODEF] problem with drawTextOnMeshTexture command: mesh texture not found: "+odefname+" : "+texName);
@@ -869,7 +869,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         sprintf(tmpTextName, "TextOnTexture_%d_Texture", textureNumber);
         sprintf(tmpMatName, "TextOnTexture_%d_Material", textureNumber); // Make sure the texture is not WRITE_ONLY, we need to read the buffer to do the blending with the font (get the alpha for example)
         TexturePtr texture = TextureManager::getSingleton().createManual(tmpTextName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, (Ogre::uint)background->getWidth(), (Ogre::uint)background->getHeight(), MIP_UNLIMITED, PF_X8R8G8B8, Ogre::TU_STATIC | Ogre::TU_AUTOMIPMAP);
-        if (texture.getPointer() == 0)
+        if (texture.get() == 0)
         {
             LOG("[ODEF] problem with drawTextOnMeshTexture command: could not create texture: "+odefname+" : "+tmpTextName);
             continue;
@@ -889,7 +889,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         while (*text_pointer!=0) {if (*text_pointer=='_') *text_pointer=' ';text_pointer++;};
 
         String font_name_str(tex_print.font_name);
-        Ogre::Font* font = (Ogre::Font *)FontManager::getSingleton().getByName(font_name_str).getPointer();
+        Ogre::Font* font = (Ogre::Font *)FontManager::getSingleton().getByName(font_name_str).get();
         if (!font)
         {
             LOG("[ODEF] problem with drawTextOnMeshTexture command: font not found: "+odefname+" : "+font_name_str);
