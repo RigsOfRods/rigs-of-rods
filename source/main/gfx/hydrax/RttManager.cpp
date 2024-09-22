@@ -575,8 +575,6 @@ namespace Hydrax
         Ogre::Entity* CurrentEntity;
 		unsigned int k;
 
-        mMaterials.empty();
-
         while (EntityIterator.hasMoreElements())
         {
             CurrentEntity = static_cast<Ogre::Entity*>(EntityIterator.peekNextValue());
@@ -673,8 +671,6 @@ namespace Hydrax
 			mHydrax->getSceneManager()->getMovableObjectIterator("Entity");
         Ogre::Entity* CurrentEntity;
 		unsigned int k;
-
-        mMaterials.empty();
 
         while (EntityIterator.hasMoreElements())
         {

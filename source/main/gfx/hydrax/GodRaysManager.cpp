@@ -872,8 +872,6 @@ namespace Hydrax
 		Ogre::Entity * CurrentEntity = NULL;
 		unsigned int k = 0;
 
-		mMaterials.empty();
-
 		mGodRaysManager->mHydrax->getMesh()->getEntity()->setVisible(false);
 
 		while( EntityIterator.hasMoreElements() )
