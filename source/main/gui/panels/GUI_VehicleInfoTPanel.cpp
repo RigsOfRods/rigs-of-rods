@@ -631,6 +631,7 @@ void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
     }
 
     ImGui::Columns(2, "TPanelMainControls");
+    ImGui::SetColumnWidth(0, 165.f);
 
     ImGui::TextDisabled("Simulation:"); ImGui::NextColumn(); ImGui::NextColumn();
     this->DrawRepairButton(actorx);
