@@ -1420,7 +1420,7 @@ void Collisions::addCollisionMesh(Ogre::String const& srcname, Ogre::String cons
     Vector3* vertices;
     unsigned* indices;
 
-    getMeshInformation(ent->getMesh().getPointer(),vertex_count,vertices,index_count,indices, pos, q, scale);
+    getMeshInformation(ent->getMesh().get(),vertex_count,vertices,index_count,indices, pos, q, scale);
 
     // Generate collision triangles
     int collision_tri_start = (int)m_collision_tris.size();

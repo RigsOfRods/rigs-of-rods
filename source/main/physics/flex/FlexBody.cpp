@@ -210,10 +210,10 @@ FlexBody::FlexBody(
 
     //print mesh information
     //LOG("FLEXBODY Printing modififed mesh informations:");
-    //printMeshInfo(ent->getMesh().getPointer());
+    //printMeshInfo(ent->getMesh().get());
 
     //get the buffers
-    //getMeshInformation(ent->getMesh().getPointer(),m_vertex_count,vertices,index_count,indices, position, orientation, Vector3(1,1,1));
+    //getMeshInformation(ent->getMesh().get(),m_vertex_count,vertices,index_count,indices, position, orientation, Vector3(1,1,1));
 
     //getting vertex counts
     if (preloaded_from_cache == nullptr)
