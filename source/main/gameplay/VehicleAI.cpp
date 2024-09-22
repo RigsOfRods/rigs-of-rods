@@ -243,7 +243,7 @@ void VehicleAI::update(float dt, int doUpdate)
     }
 
     // Find the angle (Radian) of the upcoming turn
-    Ogre:;Vector3 dir1 = current_waypoint - prev_waypoint;
+    Ogre::Vector3 dir1 = current_waypoint - prev_waypoint;
     Ogre::Vector3 dir2 = next_waypoint - current_waypoint;
     float angle_rad = 0;
     float angle_deg = 0;
