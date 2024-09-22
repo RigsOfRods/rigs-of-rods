@@ -1566,7 +1566,7 @@ void ActorSpawner::ProcessFlexbody(RigDef::Flexbody& def)
         flexbody->fb_camera_mode_active = def.camera_settings.mode;
         m_actor->m_gfx_actor->m_flexbodies.emplace_back(flexbody);
     }
-    catch (Ogre::Exception& e)
+    catch (Ogre::Exception&)
     {
         // Ogre::Exception description already logged by OGRE
         this->AddMessage(Message::TYPE_ERROR, "Failed to create flexbody '" + def.mesh_name + "'");
