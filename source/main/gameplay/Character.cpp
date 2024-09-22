@@ -193,8 +193,8 @@ void Character::update(float dt)
             Vector3 base = m_prev_position + Vector3::UNIT_Y * 0.25f;
             for (int i = 1; i < numstep; i++)
             {
-                Vector3 query = base + diff * ((float)i / numstep);
-                if (App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query, false))
+                Vector3 query_ = base + diff * ((float)i / numstep);
+                if (App::GetGameContext()->GetTerrain()->GetCollisions()->collisionCorrect(&query_, false))
                 {
                     m_character_v_speed = std::max(0.0f, m_character_v_speed);
                     position = m_prev_position + diff * ((float)(i - 1) / numstep);

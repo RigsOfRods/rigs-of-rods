@@ -122,30 +122,30 @@ void Sound::stop()
     sound_manager->recomputeSource(source_index, REASON_STOP, 0.0f, NULL);
 }
 
-void Sound::setGain(float gain)
+void Sound::setGain(float gain_)
 {
-    if (gain == this->gain)
+    if (gain_ == this->gain)
         return;
 
-    this->gain = gain;
+    this->gain = gain_;
     sound_manager->recomputeSource(source_index, REASON_GAIN, gain, NULL);
 }
 
-void Sound::setLoop(bool loop)
+void Sound::setLoop(bool loop_)
 {
-    if (loop == this->loop)
+    if (loop_ == this->loop)
         return;
 
-    this->loop = loop;
+    this->loop = loop_;
     sound_manager->recomputeSource(source_index, REASON_LOOP, (loop) ? 1.0f : 0.0f, NULL);
 }
 
-void Sound::setPitch(float pitch)
+void Sound::setPitch(float pitch_)
 {
-    if (pitch == this->pitch)
+    if (pitch_ == this->pitch)
         return;
 
-    this->pitch = pitch;
+    this->pitch = pitch_;
     sound_manager->recomputeSource(source_index, REASON_PTCH, pitch, NULL);
 }
 
