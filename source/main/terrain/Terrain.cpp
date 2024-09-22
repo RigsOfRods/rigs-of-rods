@@ -370,7 +370,8 @@ void RoR::Terrain::fixCompositorClearColor()
                 CompositionTargetPass* ctp = ct->getOutputTargetPass();
                 if (ctp)
                 {
-                    CompositionPass* p = ctp->getPass(0);
+                    ROR_ASSERT(ctp->getPasses().size() > 0);
+                    CompositionPass* p = ctp->getPasses()[0];
                     if (p)
                     {
                         p->setClearColour(Ogre::ColourValue::Black);
