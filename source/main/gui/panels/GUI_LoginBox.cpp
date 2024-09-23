@@ -67,7 +67,6 @@ void PostAuthWithTfa(std::string login, std::string passwd, std::string provider
     j_request_body.SetObject();
     j_request_body.AddMember("login", rapidjson::StringRef(login.c_str()), j_request_body.GetAllocator());
     j_request_body.AddMember("password", rapidjson::StringRef(passwd.c_str()), j_request_body.GetAllocator());
-    j_request_body.AddMember("limit_ip", rapidjson::StringRef("1.1.1.1"), j_request_body.GetAllocator());
     j_request_body.AddMember("tfa_provider", rapidjson::StringRef(provider.c_str()), j_request_body.GetAllocator());
     j_request_body.AddMember("code", rapidjson::StringRef(code.c_str()), j_request_body.GetAllocator());
     rapidjson::StringBuffer buffer;
@@ -76,7 +75,7 @@ void PostAuthWithTfa(std::string login, std::string passwd, std::string provider
     std::string request_body = buffer.GetString();
 
     std::string user_agent = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
-    std::string url = App::remote_query_url->getStr() + "/auth";
+    std::string url = App::remote_query_url->getStr() + "/auth/login";
     std::string response_payload;
     std::string response_header;
     long response_code = 0;
@@ -132,15 +131,14 @@ void PostAuthTriggerTfa(std::string login, std::string passwd, std::string provi
     j_request_body.AddMember("login", rapidjson::StringRef(login.c_str()), j_request_body.GetAllocator());
     j_request_body.AddMember("password", rapidjson::StringRef(passwd.c_str()), j_request_body.GetAllocator());
     j_request_body.AddMember("tfa_provider", rapidjson::StringRef(provider.c_str()), j_request_body.GetAllocator());
-    j_request_body.AddMember("tfa_trigger", rapidjson::StringRef("true"), j_request_body.GetAllocator());
-    j_request_body.AddMember("limit_ip", rapidjson::StringRef("1.1.1.1"), j_request_body.GetAllocator());
+    j_request_body.AddMember("tfa_trigger", true, j_request_body.GetAllocator());  // Assuming tfa_trigger is a bool
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
     j_request_body.Accept(writer);
     std::string request_body = buffer.GetString();
 
     std::string user_agent = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
-    std::string url = App::remote_query_url->getStr() + "/auth";
+    std::string url = App::remote_query_url->getStr() + "/auth/login";
     std::string response_payload;
     std::string response_header;
     long response_code = 0;
@@ -170,8 +168,10 @@ void PostAuthTriggerTfa(std::string login, std::string passwd, std::string provi
     curl_easy_cleanup(curl);
     curl = nullptr;
 
-    if (response_code != 200)
+    if (response_code != 202)
     {
+        Ogre::LogManager::getSingleton().stream()
+            << "[RoR|HTTP|UserAuth] Failed to trigger two-factor; HTTP status code: " << response_code;
         App::GetGameContext()->PushMessage(
             Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "Connection error. Please check your connection and try again."))
         );
@@ -187,14 +187,13 @@ void PostAuth(std::string login, std::string passwd)
     j_request_body.SetObject();
     j_request_body.AddMember("login", rapidjson::StringRef(login.c_str()), j_request_body.GetAllocator());
     j_request_body.AddMember("password", rapidjson::StringRef(passwd.c_str()), j_request_body.GetAllocator());
-    j_request_body.AddMember("limit_ip", rapidjson::StringRef("1.1.1.1"), j_request_body.GetAllocator());
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
     j_request_body.Accept(writer);
     std::string request_body = buffer.GetString();
 
     std::string user_agent = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
-    std::string url = App::remote_query_url->getStr() + "/auth";
+    std::string url = App::remote_query_url->getStr() + "/auth/login";
     std::string response_payload;
     std::string response_header;
     long response_code = 0;
@@ -224,8 +223,27 @@ void PostAuth(std::string login, std::string passwd)
     curl_easy_cleanup(curl);
     curl = nullptr;
 
+    rapidjson::Document j_response_body;
+    j_response_body.Parse(response_payload.c_str());
+
     if (response_code == 400)
     {
+        if (j_response_body["tfa_providers"].IsString())
+        {
+            std::string providers_str = j_response_body["tfa_providers"].GetString();
+            std::vector<std::string>* tfa_providers_ptr = new std::vector<std::string>();
+
+            std::istringstream ss(providers_str);
+            std::string provider;
+            while (std::getline(ss, provider, ','))
+            {
+                tfa_providers_ptr->push_back(provider);
+            }
+
+            App::GetGameContext()->PushMessage(Message(MSG_NET_USERAUTH_TFA_REQUESTED, static_cast<void*>(tfa_providers_ptr)));
+            return;
+        }
+
         App::GetGameContext()->PushMessage(
             Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "You did not sign in correctly or your account is temporarily disabled. Please retry."))
         );
@@ -248,29 +266,15 @@ void PostAuth(std::string login, std::string passwd)
         return;
     }
 
-    rapidjson::Document j_response_body;
-    j_response_body.Parse(response_payload.c_str());
     if (j_response_body.HasParseError() || !j_response_body.IsObject())
     {
         App::GetGameContext()->PushMessage(
-            Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "Received malformed data. Please retry."))
+            Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry."))
         );
         return;
     }
 
-    if (response_code == 202)
-    {
-        std::vector<std::string>* tfa_providers_ptr = new std::vector<std::string>();
-        rapidjson::Value& j_tfa_providers = j_response_body["tfa_providers"];
-        for (auto&& item : j_tfa_providers.GetArray())
-        {
-            tfa_providers_ptr->push_back(item.GetString());
-        }
-        App::GetGameContext()->PushMessage(Message(MSG_NET_USERAUTH_TFA_REQUESTED, static_cast<void*>(tfa_providers_ptr)));
-        return;
-    }
-
-    App::GetGameContext()->PushMessage(Message(MSG_NET_USERAUTH_FAILURE));
+    App::GetGameContext()->PushMessage(Message(MSG_NET_USERAUTH_SUCCESS));
 }
 
 #endif
