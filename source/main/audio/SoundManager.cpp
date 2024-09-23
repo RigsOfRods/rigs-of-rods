@@ -109,7 +109,7 @@ SoundManager::SoundManager()
     }
 
     alDopplerFactor(1.0f);
-    alDopplerVelocity(343.0f);
+    alSpeedOfSound(343.3f);
 
     for (int i = 0; i < MAX_HARDWARE_SOURCES; i++)
     {
