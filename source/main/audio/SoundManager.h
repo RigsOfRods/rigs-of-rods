@@ -62,6 +62,8 @@ public:
 
     bool isDisabled() { return audio_device == 0; }
 
+    float getSpeedOfSound() { return alGetFloat(AL_SPEED_OF_SOUND); }
+
     int getNumHardwareSources() { return hardware_sources_num; }
 
     static const float MAX_DISTANCE;
