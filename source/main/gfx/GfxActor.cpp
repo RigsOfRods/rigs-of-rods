@@ -3338,6 +3338,19 @@ int           RoR::GfxActor::FetchNumBeams      () const                 { retur
 int           RoR::GfxActor::FetchNumNodes      () const                 { return m_actor->ar_num_nodes; }
 int           RoR::GfxActor::FetchNumWheelNodes () const                 { return m_actor->getWheelNodeCount(); }
 
+int RoR::GfxActor::countBeaconProps() const
+{
+    int count = 0;
+    for (const Prop& prop : m_props)
+    {
+        if (prop.pp_beacon_type != 0)
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
 void RoR::GfxActor::SetNodeHot(NodeNum_t nodenum, bool value)
 {
     for (NodeGfx& nfx : m_gfx_nodes)
