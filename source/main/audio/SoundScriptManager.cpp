@@ -310,14 +310,15 @@ void SoundScriptManager::update(float dt_sec)
     if (App::sim_state->getEnum<SimState>() == SimState::RUNNING ||
         App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
     {
-        Ogre::SceneNode* cam_node = App::GetCameraManager()->GetCameraNode();
-        static Vector3 lastCameraPosition;
-        Vector3 cameraSpeed = (cam_node->getPosition() - lastCameraPosition) / dt_sec;
-        lastCameraPosition = cam_node->getPosition();
-        Ogre::Vector3 upVector = App::GetCameraManager()->GetCameraNode()->getOrientation() * Ogre::Vector3::UNIT_Y;
+        Ogre::SceneNode* camera_node = App::GetCameraManager()->GetCameraNode();
+        static Vector3 last_camera_position;
+        Ogre::Vector3 camera_position = camera_node->getPosition();
+        Vector3 camera_velocity = (camera_position - last_camera_position) / dt_sec;
+        last_camera_position = camera_position;
+        Ogre::Vector3 camera_up = camera_node->getOrientation() * Ogre::Vector3::UNIT_Y;
         // Direction points down -Z by default (adapted from Ogre::Camera)
-        Ogre::Vector3 cameraDir = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
-        this->setListener(App::GetCameraManager()->GetCameraNode()->getPosition(), cameraDir, upVector, cameraSpeed);
+        Ogre::Vector3 camera_direction = camera_node->getOrientation() * -Ogre::Vector3::UNIT_Z;
+        this->setListener(camera_position, camera_direction, camera_up, camera_velocity);
     }
 }
 
