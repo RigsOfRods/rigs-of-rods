@@ -135,7 +135,7 @@ SoundManager::~SoundManager()
     LOG("SoundManager destroyed.");
 }
 
-void SoundManager::setCamera(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity)
+void SoundManager::setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity)
 {
     if (!audio_device)
         return;

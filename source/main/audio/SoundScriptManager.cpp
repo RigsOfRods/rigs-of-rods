@@ -317,15 +317,15 @@ void SoundScriptManager::update(float dt_sec)
         Ogre::Vector3 upVector = App::GetCameraManager()->GetCameraNode()->getOrientation() * Ogre::Vector3::UNIT_Y;
         // Direction points down -Z by default (adapted from Ogre::Camera)
         Ogre::Vector3 cameraDir = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
-        this->setCamera(App::GetCameraManager()->GetCameraNode()->getPosition(), cameraDir, upVector, cameraSpeed);
+        this->setListener(App::GetCameraManager()->GetCameraNode()->getPosition(), cameraDir, upVector, cameraSpeed);
     }
 }
 
-void SoundScriptManager::setCamera(Vector3 position, Vector3 direction, Vector3 up, Vector3 velocity)
+void SoundScriptManager::setListener(Vector3 position, Vector3 direction, Vector3 up, Vector3 velocity)
 {
     if (disabled)
         return;
-    sound_manager->setCamera(position, direction, up, velocity);
+    sound_manager->setListener(position, direction, up, velocity);
 }
 
 const StringVector& SoundScriptManager::getScriptPatterns(void) const
