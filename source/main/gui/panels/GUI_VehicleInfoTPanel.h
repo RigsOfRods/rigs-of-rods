@@ -106,7 +106,7 @@ private:
     void DrawRepairButton(RoR::GfxActor* actorx);
     void DrawParkingBrakeButton(RoR::GfxActor* actorx);
     void DrawTractionControlButton(RoR::GfxActor* actorx);
-    void DrawAbsButton(RoR::GfxActor* actorx);
+    void DrawAntiLockBrakeButton(RoR::GfxActor* actorx);
     void DrawActorPhysicsButton(RoR::GfxActor* actorx);
     void DrawAxleDiffButton(RoR::GfxActor* actorx);
     void DrawWheelDiffButton(RoR::GfxActor* actorx);

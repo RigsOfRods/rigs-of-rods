@@ -634,37 +634,69 @@ void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
     ImGui::SetColumnWidth(0, 165.f);
 
     ImGui::TextDisabled("Simulation:"); ImGui::NextColumn(); ImGui::NextColumn();
-    this->DrawRepairButton(actorx);
-    
+    this->DrawRepairButton(actorx);    
     this->DrawActorPhysicsButton(actorx);
 
-    ImGui::TextDisabled("Lights and signals:"); ImGui::NextColumn(); ImGui::NextColumn();
-    this->DrawHeadLightButton(actorx);
-    
-    this->DrawLeftBlinkerButton(actorx);
-    
-    this->DrawRightBlinkerButton(actorx);
-    
-    this->DrawWarnBlinkerButton(actorx);
-    
-    this->DrawBeaconButton(actorx);
-    
-    this->DrawHornButton(actorx);
-
-    ImGui::TextDisabled("Engine:"); ImGui::NextColumn(); ImGui::NextColumn();
-    this->DrawEngineButton(actorx);
-    if (actorx->GetActor()->ar_engine && !actorx->GetActor()->ar_engine->isRunning())
+    int num_headlights = actorx->GetActor()->countFlaresByType(FlareType::HEADLIGHT);
+    int num_taillights = actorx->GetActor()->countFlaresByType(FlareType::TAIL_LIGHT);
+    int num_blinkleft = actorx->GetActor()->countFlaresByType(FlareType::BLINKER_LEFT);
+    int num_blinkright = actorx->GetActor()->countFlaresByType(FlareType::BLINKER_RIGHT);
+    int num_beacons = actorx->countBeaconProps();
+    bool has_horn = actorx->GetActor()->getTruckType() == TRUCK;
+    if (num_headlights || num_taillights || num_blinkleft || num_blinkright || num_beacons || has_horn)
     {
-        DrawSingleBulletRow("Starter", EV_TRUCK_STARTER);
+        ImGui::TextDisabled("Lights and signals:"); ImGui::NextColumn(); ImGui::NextColumn();
+        if (num_headlights || num_taillights)
+        {
+            this->DrawHeadLightButton(actorx);
+        }
+        if (num_blinkleft)
+        {
+            this->DrawLeftBlinkerButton(actorx);
+        }
+        if (num_blinkright)
+        {
+            this->DrawRightBlinkerButton(actorx);
+        }
+        if (num_blinkright || num_blinkleft)
+        {
+            this->DrawWarnBlinkerButton(actorx);
+        }
+        if (num_beacons)
+        {
+            this->DrawBeaconButton(actorx);
+        }
+        if (has_horn)
+        {
+            this->DrawHornButton(actorx);
+        }
     }
-    
-    this->DrawTransferCaseModeButton(actorx);
-    
-    this->DrawTransferCaseGearRatioButton(actorx);
 
-    this->DrawShiftModeButton(actorx);
-    if (actorx->GetActor()->ar_engine)
+    const bool has_engine = actorx->GetActor()->ar_engine != nullptr;
+    const bool engine_running = has_engine && actorx->GetActor()->ar_engine->isRunning();
+    const bool has_transfercase = actorx->GetActor()->getTransferCaseMode() != nullptr;
+    const bool has_4wd = has_transfercase && actorx->GetActor()->getTransferCaseMode()->tr_ax_2 != -1;
+    const bool has_2wd = has_transfercase && actorx->GetActor()->getTransferCaseMode()->tr_2wd;
+    const size_t num_tc_gears = (has_transfercase) ? actorx->GetActor()->getTransferCaseMode()->tr_gear_ratios.size() : 0u;
+    if (has_engine)
     {
+        ImGui::TextDisabled("Engine:"); ImGui::NextColumn(); ImGui::NextColumn();
+        this->DrawEngineButton(actorx);
+        if (engine_running)
+        {
+            DrawSingleBulletRow("Starter", EV_TRUCK_STARTER);
+        }
+        if (has_transfercase && has_4wd && has_2wd)
+        {
+            this->DrawTransferCaseModeButton(actorx);
+        }        
+        if (has_transfercase && num_tc_gears > 1)
+        {
+            this->DrawTransferCaseGearRatioButton(actorx);
+        }
+
+        this->DrawShiftModeButton(actorx);
+
         switch (actorx->GetActor()->ar_engine->GetAutoShiftMode())
         {
         case SimGearboxMode::AUTO:
@@ -687,31 +719,69 @@ void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
         case SimGearboxMode::MANUAL_RANGES:
             break;
         }
-    }
         
-    ImGui::TextDisabled("Traction:");  ImGui::NextColumn(); ImGui::NextColumn();
+    }
+       
+    const int num_axlediffs = actorx->GetActor()->getAxleDiffMode();
+    const int num_wheeldiffs = actorx->GetActor()->getWheelDiffMode();
+    const bool tc_visible = !actorx->GetActor()->tc_nodash;
+    const bool alb_visible = !actorx->GetActor()->alb_nodash;
+    const bool has_parkingbrake = actorx->GetActor()->getTruckType() != NOT_DRIVEABLE && actorx->GetActor()->getTruckType() != BOAT;
+    if (num_axlediffs || num_wheeldiffs || tc_visible || alb_visible || has_parkingbrake || has_engine)
+    {
+        ImGui::TextDisabled("Traction:");  ImGui::NextColumn(); ImGui::NextColumn();
+        if (num_axlediffs)
+        {
+            this->DrawAxleDiffButton(actorx);
+        }
+        if (num_wheeldiffs)
+        {
+            this->DrawWheelDiffButton(actorx);
+        }
+        if (tc_visible)
+        {
+            this->DrawTractionControlButton(actorx);
+        }
+        if (alb_visible)
+        {
+            this->DrawAntiLockBrakeButton(actorx);
+        }
+        if (has_parkingbrake)
+        {
+            this->DrawParkingBrakeButton(actorx);
+        }
+        if (has_engine)
+        {
+            this->DrawCruiseControlButton(actorx);
+        }
+    }
+    
+    const size_t num_locks = actorx->GetActor()->ar_hooks.size();
+    const size_t num_ties = actorx->GetActor()->ar_ties.size();
+    if (num_locks || num_ties)
+    {
+        ImGui::TextDisabled("Connections:");  ImGui::NextColumn(); ImGui::NextColumn();
+        if (num_locks)
+        {
+            this->DrawLockButton(actorx);
+        }
+        if (num_ties)
+        {
+            this->DrawSecureButton(actorx);
+        }
+    }
 
-    this->DrawAxleDiffButton(actorx);
-    
-    this->DrawWheelDiffButton(actorx);
-
-    this->DrawTractionControlButton(actorx);
-    
-    this->DrawAbsButton(actorx);
-    
-    this->DrawParkingBrakeButton(actorx);
-    
-    this->DrawCruiseControlButton(actorx);
-
-    ImGui::TextDisabled("Loading:");  ImGui::NextColumn(); ImGui::NextColumn();
-    this->DrawLockButton(actorx);
-    
-    this->DrawSecureButton(actorx);
-
+    const int num_cparticles = actorx->GetActor()->ar_num_custom_particles;
+    const size_t num_videocams = actorx->getNumVideoCameras();
     ImGui::TextDisabled("View:");  ImGui::NextColumn(); ImGui::NextColumn();
-    this->DrawParticlesButton(actorx);
-    
-    this->DrawMirrorButton(actorx);
+    if (num_cparticles)
+    {
+        this->DrawParticlesButton(actorx);
+    }
+    if (num_videocams)
+    {
+        this->DrawMirrorButton(actorx);
+    }
     
     this->DrawCameraButton();
 
@@ -765,20 +835,6 @@ bool DrawSingleButtonRow(bool active, const Ogre::TexturePtr& icon, const char* 
 
 void VehicleInfoTPanel::DrawHeadLightButton(RoR::GfxActor* actorx)
 {
-    bool has_headlight = false;
-    for (int i = 0; i < actorx->GetActor()->ar_flares.size(); i++)
-    {
-        if (actorx->GetActor()->ar_flares[i].fl_type == FlareType::HEADLIGHT || actorx->GetActor()->ar_flares[i].fl_type == FlareType::TAIL_LIGHT)
-        {
-            has_headlight = true;
-        }
-    }
-
-    if (!has_headlight)
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(actorx->GetActor()->getHeadlightsVisible(), m_headlight_icon, "Head Lights", EV_COMMON_TOGGLE_TRUCK_LOW_BEAMS))
     {
         actorx->GetActor()->toggleHeadlights();
@@ -787,20 +843,6 @@ void VehicleInfoTPanel::DrawHeadLightButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawLeftBlinkerButton(RoR::GfxActor* actorx)
 {
-    bool has_blink = false;
-    for (int i = 0; i < actorx->GetActor()->ar_flares.size(); i++)
-    {
-        if (actorx->GetActor()->ar_flares[i].fl_type == FlareType::BLINKER_LEFT)
-        {
-            has_blink = true;
-        }
-    }
-
-    if (!has_blink)
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(actorx->GetActor()->getBlinkType() == BLINK_LEFT, m_left_blinker_icon, "Left Blinker", EV_TRUCK_BLINK_LEFT))
     {
         actorx->GetActor()->toggleBlinkType(BLINK_LEFT);
@@ -809,20 +851,6 @@ void VehicleInfoTPanel::DrawLeftBlinkerButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawRightBlinkerButton(RoR::GfxActor* actorx)
 {
-    bool has_blink = false;
-    for (int i = 0; i < actorx->GetActor()->ar_flares.size(); i++)
-    {
-        if (actorx->GetActor()->ar_flares[i].fl_type == FlareType::BLINKER_RIGHT)
-        {
-            has_blink = true;
-        }
-    }
-
-    if (!has_blink)
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(actorx->GetActor()->getBlinkType() == BLINK_RIGHT, m_right_blinker_icon, "Right Blinker", EV_TRUCK_BLINK_RIGHT))
     {
         actorx->GetActor()->toggleBlinkType(BLINK_RIGHT);
@@ -831,20 +859,6 @@ void VehicleInfoTPanel::DrawRightBlinkerButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawWarnBlinkerButton(RoR::GfxActor* actorx)
 {
-    bool has_blink = false;
-    for (int i = 0; i < actorx->GetActor()->ar_flares.size(); i++)
-    {
-        if (actorx->GetActor()->ar_flares[i].fl_type == FlareType::BLINKER_LEFT)
-        {
-            has_blink = true;
-        }
-    }
-
-    if (!has_blink)
-    {
-        return;
-    }
-    
     if (DrawSingleButtonRow(actorx->GetActor()->getBlinkType() == BLINK_WARN, m_warning_light_icon, "Warning Lights", EV_TRUCK_BLINK_WARN))
     {
         actorx->GetActor()->toggleBlinkType(BLINK_WARN);
@@ -853,11 +867,6 @@ void VehicleInfoTPanel::DrawWarnBlinkerButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawHornButton(RoR::GfxActor* actorx)
 {
-    if (actorx->GetActor()->getTruckType() != TRUCK)
-    {
-        return;
-    }
-
     if (actorx->GetActor()->ar_is_police) // Police siren
     {
         if (DrawSingleButtonRow(SOUND_GET_STATE(actorx->GetActor()->ar_instance_id, SS_TRIG_HORN), m_horn_icon, "Horn", EV_TRUCK_HORN))
@@ -875,11 +884,6 @@ void VehicleInfoTPanel::DrawHornButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawMirrorButton(RoR::GfxActor* actorx)
 {
-    if (!actorx->hasCamera())
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(actorx->GetVideoCamState() == VideoCamState::VCSTATE_ENABLED_ONLINE, m_mirror_icon, "Mirrors", EV_TRUCK_TOGGLE_VIDEOCAMERA))
     {
         if (actorx->GetVideoCamState() == VideoCamState::VCSTATE_DISABLED)
@@ -906,11 +910,6 @@ void VehicleInfoTPanel::DrawRepairButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawParkingBrakeButton(RoR::GfxActor* actorx)
 {
-    if (actorx->GetActor()->getTruckType() == NOT_DRIVEABLE || actorx->GetActor()->getTruckType() == BOAT)
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(actorx->GetActor()->getParkingBrake(), m_parking_brake_icon, "Parking Brake", EV_TRUCK_PARKING_BRAKE))
     {
         actorx->GetActor()->parkingbrakeToggle();
@@ -919,24 +918,14 @@ void VehicleInfoTPanel::DrawParkingBrakeButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawTractionControlButton(RoR::GfxActor* actorx)
 {
-    if (actorx->GetActor()->tc_nodash)
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(actorx->GetActor()->tc_mode, m_traction_control_icon, "Traction Control", EV_TRUCK_TRACTION_CONTROL))
     {
         actorx->GetActor()->tractioncontrolToggle();
     }
 }
 
-void VehicleInfoTPanel::DrawAbsButton(RoR::GfxActor* actorx)
+void VehicleInfoTPanel::DrawAntiLockBrakeButton(RoR::GfxActor* actorx)
 {
-    if (actorx->GetActor()->alb_nodash)
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(actorx->GetActor()->alb_mode, m_abs_icon, "ABS", EV_TRUCK_ANTILOCK_BRAKE))
     {
         actorx->GetActor()->antilockbrakeToggle();
@@ -953,11 +942,6 @@ void VehicleInfoTPanel::DrawActorPhysicsButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawAxleDiffButton(RoR::GfxActor* actorx)
 {
-    if (actorx->GetActor()->getAxleDiffMode() == 0)
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TOGGLE_INTER_AXLE_DIFF), m_a_icon, "Axle Differential", EV_TRUCK_TOGGLE_INTER_AXLE_DIFF))
     {
         actorx->GetActor()->toggleAxleDiffMode();
@@ -967,11 +951,6 @@ void VehicleInfoTPanel::DrawAxleDiffButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawWheelDiffButton(RoR::GfxActor* actorx)
 {
-    if (actorx->GetActor()->getWheelDiffMode() == 0)
-    {
-        return;
-    }
-    
     if (DrawSingleButtonRow(App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TOGGLE_INTER_WHEEL_DIFF), m_w_icon, "Wheel Differential", EV_TRUCK_TOGGLE_INTER_WHEEL_DIFF))
     {
         actorx->GetActor()->toggleWheelDiffMode();
@@ -981,12 +960,6 @@ void VehicleInfoTPanel::DrawWheelDiffButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawTransferCaseModeButton(RoR::GfxActor* actorx)
 {
-    if (!actorx->GetActor()->ar_engine || !actorx->GetActor()->getTransferCaseMode() ||
-         actorx->GetActor()->getTransferCaseMode()->tr_ax_2 < 0 || !actorx->GetActor()->getTransferCaseMode()->tr_2wd)
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TOGGLE_TCASE_4WD_MODE), m_m_icon, "Transfer Case 4WD", EV_TRUCK_TOGGLE_TCASE_4WD_MODE))
     {
         actorx->GetActor()->toggleTransferCaseMode();
@@ -996,12 +969,6 @@ void VehicleInfoTPanel::DrawTransferCaseModeButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawTransferCaseGearRatioButton(RoR::GfxActor* actorx)
 {
-    if (!actorx->GetActor()->ar_engine || !actorx->GetActor()->getTransferCaseMode() ||
-         actorx->GetActor()->getTransferCaseMode()->tr_gear_ratios.size() < 2)
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(App::GetInputEngine()->getEventBoolValue(EV_TRUCK_TOGGLE_TCASE_GEAR_RATIO), m_g_icon, "Transfer Case Gear Ratio", EV_TRUCK_TOGGLE_TCASE_GEAR_RATIO))
     {
         actorx->GetActor()->toggleTransferCaseGearRatio();
@@ -1011,11 +978,6 @@ void VehicleInfoTPanel::DrawTransferCaseGearRatioButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawParticlesButton(RoR::GfxActor* actorx)
 {
-    if (actorx->GetActor()->ar_num_custom_particles == 0)
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(actorx->GetActor()->getCustomParticleMode(), m_particle_icon, "Particles", EV_COMMON_TOGGLE_CUSTOM_PARTICLES))
     {
         actorx->GetActor()->toggleCustomParticles();
@@ -1024,20 +986,6 @@ void VehicleInfoTPanel::DrawParticlesButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawBeaconButton(RoR::GfxActor* actorx)
 {
-    bool has_beacon = false;
-    for (Prop& prop: actorx->getProps())
-    {
-        if (prop.pp_beacon_type != 0)
-        {
-            has_beacon = true;
-        }
-    }
-
-    if (!has_beacon)
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(actorx->GetActor()->getBeaconMode(), m_beacons_icon, "Beacons", EV_COMMON_TOGGLE_TRUCK_BEACONS))
     {
         actorx->GetActor()->beaconsToggle();
@@ -1046,11 +994,6 @@ void VehicleInfoTPanel::DrawBeaconButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawShiftModeButton(RoR::GfxActor* actorx)
 {
-    if (!actorx->GetActor()->ar_engine)
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(App::GetInputEngine()->getEventBoolValue(EV_TRUCK_SWITCH_SHIFT_MODES), m_shift_icon, "Shift Mode", EV_TRUCK_SWITCH_SHIFT_MODES))
     {
         actorx->GetActor()->ar_engine->ToggleAutoShiftMode();
@@ -1078,11 +1021,6 @@ void VehicleInfoTPanel::DrawShiftModeButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawEngineButton(RoR::GfxActor* actorx)
 {
-    if (!actorx->GetActor()->ar_engine)
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(actorx->GetActor()->ar_engine->isRunning(), m_engine_icon, "Ignition", EV_TRUCK_TOGGLE_CONTACT))
     {
         if (actorx->GetActor()->ar_engine && actorx->GetActor()->ar_engine->isRunning())
@@ -1160,11 +1098,6 @@ void VehicleInfoTPanel::DrawCameraButton()
 
 void VehicleInfoTPanel::DrawLockButton(RoR::GfxActor* actorx)
 {
-    if (actorx->GetActor()->ar_hooks.empty())
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(actorx->GetActor()->isLocked(), m_lock_icon, "Lock", EV_COMMON_LOCK))
     {
         //actorx->GetActor()->hookToggle(-1, HOOK_TOGGLE, -1);
@@ -1183,11 +1116,6 @@ void VehicleInfoTPanel::DrawLockButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawSecureButton(RoR::GfxActor* actorx)
 {
-    if (actorx->GetActor()->ar_ties.empty())
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(actorx->GetActor()->isTied(), m_secure_icon, "Secure", EV_COMMON_SECURE_LOAD))
     {
         //actorx->GetActor()->tieToggle(-1, TIE_TOGGLE, -1);
@@ -1200,11 +1128,6 @@ void VehicleInfoTPanel::DrawSecureButton(RoR::GfxActor* actorx)
 
 void VehicleInfoTPanel::DrawCruiseControlButton(RoR::GfxActor* actorx)
 {
-    if (!actorx->GetActor()->ar_engine)
-    {
-        return;
-    }
-
     if (DrawSingleButtonRow(actorx->GetActor()->cc_mode, m_cruise_control_icon, "Cruise Control", EV_TRUCK_CRUISE_CONTROL))
     {
         actorx->GetActor()->cruisecontrolToggle();
