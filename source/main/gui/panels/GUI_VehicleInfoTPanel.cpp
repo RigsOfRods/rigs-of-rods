@@ -616,9 +616,10 @@ const ImVec2 BUTTONDUMMY_SIZE(18, 1);
 void DrawSingleBulletRow(const char* name, RoR::events ev)
 {
     ImGui::Dummy(BUTTONDUMMY_SIZE); ImGui::SameLine(); ImGui::Bullet(); ImGui::Text("%s", name);
-    ImGui::NextColumn();
+    ImGui::SameLine();
+    const ImVec2 btn_size = ImCalcEventHighlightedSize(ev);
+    ImGui::SetCursorPosX(ImGui::GetWindowContentRegionWidth() - btn_size.x);
     ImDrawEventHighlighted(ev);
-    ImGui::NextColumn();
 }
 
 void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
@@ -630,10 +631,7 @@ void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
         this->CacheIcons();
     }
 
-    ImGui::Columns(2, "TPanelMainControls");
-    ImGui::SetColumnWidth(0, 165.f);
-
-    ImGui::TextDisabled("Simulation:"); ImGui::NextColumn(); ImGui::NextColumn();
+    ImGui::TextDisabled("Simulation:");
     this->DrawRepairButton(actorx);    
     this->DrawActorPhysicsButton(actorx);
 
@@ -645,7 +643,7 @@ void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
     bool has_horn = actorx->GetActor()->getTruckType() == TRUCK;
     if (num_headlights || num_taillights || num_blinkleft || num_blinkright || num_beacons || has_horn)
     {
-        ImGui::TextDisabled("Lights and signals:"); ImGui::NextColumn(); ImGui::NextColumn();
+        ImGui::TextDisabled("Lights and signals:");
         if (num_headlights || num_taillights)
         {
             this->DrawHeadLightButton(actorx);
@@ -680,7 +678,7 @@ void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
     const size_t num_tc_gears = (has_transfercase) ? actorx->GetActor()->getTransferCaseMode()->tr_gear_ratios.size() : 0u;
     if (has_engine)
     {
-        ImGui::TextDisabled("Engine:"); ImGui::NextColumn(); ImGui::NextColumn();
+        ImGui::TextDisabled("Engine:");
         this->DrawEngineButton(actorx);
         if (engine_running)
         {
@@ -729,7 +727,7 @@ void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
     const bool has_parkingbrake = actorx->GetActor()->getTruckType() != NOT_DRIVEABLE && actorx->GetActor()->getTruckType() != BOAT;
     if (num_axlediffs || num_wheeldiffs || tc_visible || alb_visible || has_parkingbrake || has_engine)
     {
-        ImGui::TextDisabled("Traction:");  ImGui::NextColumn(); ImGui::NextColumn();
+        ImGui::TextDisabled("Traction:");
         if (num_axlediffs)
         {
             this->DrawAxleDiffButton(actorx);
@@ -760,7 +758,7 @@ void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
     const size_t num_ties = actorx->GetActor()->ar_ties.size();
     if (num_locks || num_ties)
     {
-        ImGui::TextDisabled("Connections:");  ImGui::NextColumn(); ImGui::NextColumn();
+        ImGui::TextDisabled("Connections:");
         if (num_locks)
         {
             this->DrawLockButton(actorx);
@@ -773,7 +771,7 @@ void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
 
     const int num_cparticles = actorx->GetActor()->ar_num_custom_particles;
     const size_t num_videocams = actorx->getNumVideoCameras();
-    ImGui::TextDisabled("View:");  ImGui::NextColumn(); ImGui::NextColumn();
+    ImGui::TextDisabled("View:");
     if (num_cparticles)
     {
         this->DrawParticlesButton(actorx);
@@ -784,8 +782,6 @@ void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
     }
     
     this->DrawCameraButton();
-
-    ImGui::Columns(1);
 }
 
 void VehicleInfoTPanel::DrawVehicleCommandHighlights(RoR::GfxActor* actorx)
@@ -827,10 +823,10 @@ bool DrawSingleButtonRow(bool active, const Ogre::TexturePtr& icon, const char* 
     ImGui::PopStyleColor();
     
     ImGui::Text("%s", name);
-    ImGui::NextColumn();
-    const bool retval = ImDrawEventHighlightedButton(ev, nullptr, btn_active);
-    ImGui::NextColumn();
-    return retval;
+    ImGui::SameLine();
+    const ImVec2 btn_size = ImCalcEventHighlightedSize(ev);
+    ImGui::SetCursorPosX(ImGui::GetWindowContentRegionWidth() - btn_size.x);
+    return ImDrawEventHighlightedButton(ev, nullptr, btn_active);
 }
 
 void VehicleInfoTPanel::DrawHeadLightButton(RoR::GfxActor* actorx)
