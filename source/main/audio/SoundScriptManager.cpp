@@ -333,6 +333,13 @@ void SoundScriptManager::setListener(Vector3 position, Vector3 direction, Vector
     sound_manager->setListener(position, direction, up, velocity, listener_is_underwater);
 }
 
+void SoundScriptManager::setDopplerFactor(float doppler_factor)
+{
+    if (disabled)
+        return;
+    sound_manager->setDopplerFactor(doppler_factor);
+}
+
 const StringVector& SoundScriptManager::getScriptPatterns(void) const
 {
     return script_patterns;

@@ -98,6 +98,8 @@ void RoR::RegisterMessageQueue(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("MsgType", "MSG_EDI_RELOAD_BUNDLE_REQUESTED", MSG_EDI_RELOAD_BUNDLE_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_EDI_UNLOAD_BUNDLE_REQUESTED", MSG_EDI_UNLOAD_BUNDLE_REQUESTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("MsgType", "MSG_EDI_CREATE_PROJECT_REQUESTED", MSG_EDI_CREATE_PROJECT_REQUESTED); ROR_ASSERT(result >= 0);
+    // Audio
+    result = engine->RegisterEnumValue("MsgType", "MSG_AUD_MODIFY_DOPPLER_FACTOR_REQUESTED", MSG_AUD_MODIFY_DOPPLER_FACTOR_REQUESTED); ROR_ASSERT(result >= 0);
 
     // enum FreeForceType
     result = engine->RegisterEnum("FreeForceType"); ROR_ASSERT(result>=0);

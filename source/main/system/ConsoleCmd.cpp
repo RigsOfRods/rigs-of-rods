@@ -383,6 +383,60 @@ public:
     }
 };
 
+class DopplerFactorCmd: public ConsoleCmd
+{
+public:
+    DopplerFactorCmd(): ConsoleCmd("dopplerfactor", "[<number>]", _L("Get or set doppler factor (1.0 for realistic effect, 0 for disabling).")) {}
+
+    void Run(Ogre::StringVector const& args) override
+    {
+        if (!this->CheckAppState(AppState::SIMULATION))
+            return;
+
+        Str<200> reply;
+        Console::MessageType reply_type;
+        reply << m_name << ": ";
+
+        if (!(args.size() >= 1 && args.size() <= 2))
+        {
+            reply_type = Console::CONSOLE_HELP;
+            reply <<_L("usage: dopplerfactor [doppler factor (float)]");
+        }
+        else
+        {
+            SoundManager* sound_manager = App::GetSoundScriptManager()->getSoundManager();
+            if (sound_manager == nullptr)
+            {
+                reply << _L("unable to get sound manager");
+            }
+            else
+            {
+                if(args.size() == 2)
+                {
+                    float doppler_factor = std::stof(args[1]);
+                    if (doppler_factor < 0.0f)
+                    {
+                        reply << _L("doppler factor must not be negative");
+                    }
+                    else
+                    {
+                        Message m(MSG_AUD_MODIFY_DOPPLER_FACTOR_REQUESTED);
+                        float* doppler_factor_ptr = new float(doppler_factor);
+                        m.payload = static_cast<void*>(doppler_factor_ptr);
+                        App::GetGameContext()->PushMessage(m);
+                        reply << _L("Queued update of doppler factor to: ") << doppler_factor;
+                    }
+                }
+                else
+                {
+                    reply << _L("Doppler Factor is configured as: ") << "CVar (change requires restart): " << App::audio_doppler_factor->getFloat() << ", currently used by OpenAL: " << sound_manager->getDopplerFactor();
+                }
+            }
+        }
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
+    }
+};
+
 class QuitCmd: public ConsoleCmd
 {
 public:
@@ -695,6 +749,7 @@ void Console::regBuiltinCommands()
     cmd = new ClearCmd();                 m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new LoadScriptCmd();            m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new SpeedOfSoundCmd();          m_commands.insert(std::make_pair(cmd->getName(), cmd));
+    cmd = new DopplerFactorCmd();         m_commands.insert(std::make_pair(cmd->getName(), cmd));
     // CVars
     cmd = new SetCmd();                   m_commands.insert(std::make_pair(cmd->getName(), cmd));
     cmd = new SetstringCmd();             m_commands.insert(std::make_pair(cmd->getName(), cmd));

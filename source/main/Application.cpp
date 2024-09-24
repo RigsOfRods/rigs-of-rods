@@ -209,6 +209,7 @@ CVar* io_invert_orbitcam;
 CVar* audio_master_volume;
 CVar* audio_enable_creak;
 CVar* audio_device_name;
+CVar* audio_doppler_factor;
 CVar* audio_menu_music;
 
 // Graphics
@@ -626,6 +627,8 @@ const char* MsgTypeToString(MsgType type)
     case MSG_EDI_CREATE_PROJECT_REQUESTED     : return "MSG_EDI_CREATE_PROJECT_REQUESTED";
     case MSG_EDI_MODIFY_PROJECT_REQUESTED     : return "MSG_EDI_MODIFY_PROJECT_REQUESTED";
     case MSG_EDI_DELETE_PROJECT_REQUESTED     : return "MSG_EDI_DELETE_PROJECT_REQUESTED";
+
+    case MSG_AUD_MODIFY_DOPPLER_FACTOR_REQUESTED : return "MSG_AUD_MODIFY_DOPPLER_FACTOR_REQUESTED";
 
     default: return "";
     }

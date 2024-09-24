@@ -108,7 +108,7 @@ SoundManager::SoundManager()
         alSourcef(hardware_sources[hardware_sources_num], AL_MAX_DISTANCE, MAX_DISTANCE);
     }
 
-    alDopplerFactor(1.0f);
+    alDopplerFactor(App::audio_doppler_factor->getFloat());
     alSpeedOfSound(343.3f);
 
     for (int i = 0; i < MAX_HARDWARE_SOURCES; i++)

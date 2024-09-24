@@ -63,6 +63,8 @@ public:
     bool isDisabled() { return audio_device == 0; }
 
     float getSpeedOfSound() { return alGetFloat(AL_SPEED_OF_SOUND); }
+    float getDopplerFactor() { return alGetFloat(AL_DOPPLER_FACTOR); }
+    void setDopplerFactor(float doppler_factor) { alDopplerFactor(doppler_factor); }
 
     int getNumHardwareSources() { return hardware_sources_num; }
 

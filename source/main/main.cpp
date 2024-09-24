@@ -1581,6 +1581,16 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                // -- Audio events --
+                case MSG_AUD_MODIFY_DOPPLER_FACTOR_REQUESTED:
+                {
+                    float* doppler_factor_ptr = static_cast<float*>(m.payload);
+                    LOG(fmt::format("Changing doppler factor to '{}' (from message bus)", *doppler_factor_ptr));
+                    App::GetSoundScriptManager()->getSoundManager()->setDopplerFactor(*doppler_factor_ptr);
+                    delete doppler_factor_ptr;
+                    break;
+                }
+
                 default:;
                 }
 
