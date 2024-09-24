@@ -24,6 +24,8 @@
 
 #include "Actor.h"
 #include "CameraManager.h"
+#include "GameContext.h"
+#include "IWater.h"
 #include "Sound.h"
 #include "SoundManager.h"
 #include "Utils.h"
@@ -318,15 +320,17 @@ void SoundScriptManager::update(float dt_sec)
         Ogre::Vector3 camera_up = camera_node->getOrientation() * Ogre::Vector3::UNIT_Y;
         // Direction points down -Z by default (adapted from Ogre::Camera)
         Ogre::Vector3 camera_direction = camera_node->getOrientation() * -Ogre::Vector3::UNIT_Z;
-        this->setListener(camera_position, camera_direction, camera_up, camera_velocity);
+        const auto water = App::GetGameContext()->GetTerrain()->getWater();
+        bool camera_is_underwater = (water != nullptr ? water->IsUnderWater(camera_position) : false);
+        this->setListener(camera_position, camera_direction, camera_up, camera_velocity, camera_is_underwater);
     }
 }
 
-void SoundScriptManager::setListener(Vector3 position, Vector3 direction, Vector3 up, Vector3 velocity)
+void SoundScriptManager::setListener(Vector3 position, Vector3 direction, Vector3 up, Vector3 velocity, bool listener_is_underwater)
 {
     if (disabled)
         return;
-    sound_manager->setListener(position, direction, up, velocity);
+    sound_manager->setListener(position, direction, up, velocity, listener_is_underwater);
 }
 
 const StringVector& SoundScriptManager::getScriptPatterns(void) const

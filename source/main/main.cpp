@@ -933,7 +933,7 @@ int main(int argc, char *argv[])
                         App::sim_terrain_name->setStr("");
                         App::sim_terrain_gui_name->setStr("");
                         App::GetOutGauge()->Close();
-                        App::GetSoundScriptManager()->setListener(/*position:*/Ogre::Vector3::ZERO, /*direction:*/Ogre::Vector3::ZERO, /*up:*/Ogre::Vector3::UNIT_Y, /*velocity:*/Ogre::Vector3::ZERO);
+                        App::GetSoundScriptManager()->setListener(/*position:*/Ogre::Vector3::ZERO, /*direction:*/Ogre::Vector3::ZERO, /*up:*/Ogre::Vector3::UNIT_Y, /*velocity:*/Ogre::Vector3::ZERO, /*is underwater:*/ false);
                     }
                     catch (...)
                     {

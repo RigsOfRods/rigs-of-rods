@@ -135,7 +135,7 @@ SoundManager::~SoundManager()
     LOG("SoundManager destroyed.");
 }
 
-void SoundManager::setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity)
+void SoundManager::setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity, bool listener_is_underwater)
 {
     if (!audio_device)
         return;
@@ -155,6 +155,15 @@ void SoundManager::setListener(Ogre::Vector3 position, Ogre::Vector3 direction, 
     alListener3f(AL_POSITION, position.x, position.y, position.z);
     alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z);
     alListenerfv(AL_ORIENTATION, orientation);
+
+    if(!listener_is_underwater)
+    {
+        alSpeedOfSound(343.3f); // assume listener is in air at 20° celsius
+    }
+    else
+    {
+        alSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
+    }
 }
 
 bool compareByAudibility(std::pair<int, float> a, std::pair<int, float> b)

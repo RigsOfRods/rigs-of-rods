@@ -55,7 +55,7 @@ public:
     */
     SoundPtr createSound(Ogre::String filename, Ogre::String resource_group_name = "");
 
-    void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
+    void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity, bool listener_is_underwater);
     void pauseAllSounds();
     void resumeAllSounds();
     void setMasterVolume(float v);
