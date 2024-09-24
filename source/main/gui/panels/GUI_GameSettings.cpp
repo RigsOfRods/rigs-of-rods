@@ -329,9 +329,9 @@ void GameSettings::DrawAudioSettings()
         App::audio_device_name->setStr(audio_devices[device_id]);
     }
 
-    DrawGCheckbox(App::audio_enable_creak,     _LC("GameSettings", "Creak sound"));
-    DrawGCheckbox(App::audio_menu_music,       _LC("GameSettings", "Main menu music"));
-    DrawGFloatSlider(App::audio_master_volume, _LC("GameSettings", "Master volume"), 0, 1);
+    DrawGCheckbox(App::audio_enable_creak,      _LC("GameSettings", "Creak sound"));
+    DrawGCheckbox(App::audio_menu_music,        _LC("GameSettings", "Main menu music"));
+    DrawGFloatSlider(App::audio_master_volume,  _LC("GameSettings", "Master volume"), 0, 1);
 #endif // USE_OPENAL
 }
 
