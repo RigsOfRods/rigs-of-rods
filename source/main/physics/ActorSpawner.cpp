@@ -5903,9 +5903,9 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
 
     /* Positioning */
     Ogre::Vector3 node_position = m_spawn_position + TuneupUtil::getTweakedNodePosition(m_actor->getWorkingTuneupDef(), node.pos, def.position);
-    ROR_ASSERT(!isnan(node_position.x));
-    ROR_ASSERT(!isnan(node_position.y));
-    ROR_ASSERT(!isnan(node_position.z));
+    ROR_ASSERT(!std::isnan(node_position.x));
+    ROR_ASSERT(!std::isnan(node_position.y));
+    ROR_ASSERT(!std::isnan(node_position.z));
     node.AbsPosition = node_position; 
     node.RelPosition = node_position - m_actor->ar_origin;
 
