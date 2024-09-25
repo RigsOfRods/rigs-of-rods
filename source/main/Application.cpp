@@ -208,6 +208,8 @@ CVar* io_invert_orbitcam;
 // Audio
 CVar* audio_master_volume;
 CVar* audio_enable_creak;
+CVar* audio_enable_efx;
+CVar* audio_force_efx_preset;
 CVar* audio_device_name;
 CVar* audio_doppler_factor;
 CVar* audio_menu_music;

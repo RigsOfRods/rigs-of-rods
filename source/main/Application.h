@@ -447,6 +447,8 @@ extern CVar* io_invert_orbitcam;
 // Audio
 extern CVar* audio_master_volume;
 extern CVar* audio_enable_creak;
+extern CVar* audio_enable_efx;
+extern CVar* audio_force_efx_preset;
 extern CVar* audio_device_name;
 extern CVar* audio_doppler_factor;
 extern CVar* audio_menu_music;

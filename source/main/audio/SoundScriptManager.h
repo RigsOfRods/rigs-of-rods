@@ -367,6 +367,7 @@ private:
     // soundLinks, soundItems, actor_ids, triggers
     std::map <int, std::map <int, std::map <int, std::map <int, bool > > > > state_map;
 
+    std::string getReverbPresetAt(Ogre::Vector3 position);
     void setListenerEnvironment(Ogre::Vector3 position);
 
     SoundManager* sound_manager;

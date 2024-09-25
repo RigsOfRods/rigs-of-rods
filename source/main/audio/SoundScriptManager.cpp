@@ -348,6 +348,36 @@ void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
     {
         sound_manager->setSpeedOfSound(343.3f); // assume listener is in air at 20° celsius
     }
+
+    if (App::audio_enable_efx->getBool())
+    {
+        std::string listener_environment;
+
+        if(!App::audio_force_efx_preset->getStr().empty())
+        {
+            listener_environment = App::audio_force_efx_preset->getStr();
+        }
+        else
+        {
+            if(listener_is_underwater)
+            {
+                listener_environment = "EFX_REVERB_PRESET_UNDERWATER";
+            }
+            else
+            {
+                listener_environment = this->getReverbPresetAt(listener_position);
+            }
+            // TODO: Might want to set an in-cockpit effect when appropriate
+        }
+
+        sound_manager->setListenerEnvironment(listener_environment);
+    }
+}
+
+std::string SoundScriptManager::getReverbPresetAt(Ogre::Vector3 position)
+{
+    // TODO: This is a stub
+    return "";
 }
 
 void SoundScriptManager::setDopplerFactor(float doppler_factor)

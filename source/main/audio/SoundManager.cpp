@@ -96,6 +96,57 @@ SoundManager::SoundManager()
     if (alcGetString(audio_device, ALC_DEVICE_SPECIFIER)) LOG("SoundManager: OpenAL device is: " + String(alcGetString(audio_device, ALC_DEVICE_SPECIFIER)));
     if (alcGetString(audio_device, ALC_EXTENSIONS)) LOG("SoundManager: OpenAL ALC extensions are: " + String(alcGetString(audio_device, ALC_EXTENSIONS)));
 
+    // initialize use of OpenAL EFX extensions
+    this->efx_is_available = alcIsExtensionPresent(audio_device, "ALC_EXT_EFX");
+    if (efx_is_available)
+    {
+        LOG("SoundManager: Found OpenAL EFX extension");
+
+        // Get OpenAL function pointers
+        alGenEffects = (LPALGENEFFECTS)alGetProcAddress("alGenEffects");
+        alDeleteEffects = (LPALDELETEEFFECTS)alGetProcAddress("alDeleteEffects");
+        alIsEffect = (LPALISEFFECT)alGetProcAddress("alIsEffect");
+        alEffecti = (LPALEFFECTI)alGetProcAddress("alEffecti");
+        alEffectf = (LPALEFFECTF)alGetProcAddress("alEffectf");
+        alEffectfv = (LPALEFFECTFV)alGetProcAddress("alEffectfv");
+        alGenFilters = (LPALGENFILTERS)alGetProcAddress("alGenFilters");
+        alDeleteFilters = (LPALDELETEFILTERS)alGetProcAddress("alDeleteFilters");
+        alIsFilter = (LPALISFILTER)alGetProcAddress("alIsFilter");
+        alFilteri = (LPALFILTERI)alGetProcAddress("alFilteri");
+        alFilterf = (LPALFILTERF)alGetProcAddress("alFilterf");
+        alGenAuxiliaryEffectSlots = (LPALGENAUXILIARYEFFECTSLOTS)alGetProcAddress("alGenAuxiliaryEffectSlots");
+        alDeleteAuxiliaryEffectSlots = (LPALDELETEAUXILIARYEFFECTSLOTS)alGetProcAddress("alDeleteAuxiliaryEffectSlots");
+        alIsAuxiliaryEffectSlot = (LPALISAUXILIARYEFFECTSLOT)alGetProcAddress("alIsAuxiliaryEffectSlot");
+        alAuxiliaryEffectSloti = (LPALAUXILIARYEFFECTSLOTI)alGetProcAddress("alAuxiliaryEffectSloti");
+        alAuxiliaryEffectSlotf = (LPALAUXILIARYEFFECTSLOTF)alGetProcAddress("alAuxiliaryEffectSlotf");
+        alAuxiliaryEffectSlotfv = (LPALAUXILIARYEFFECTSLOTFV)alGetProcAddress("alAuxiliaryEffectSlotfv");
+
+        if (App::audio_enable_efx->getBool())
+        {
+            // create effect slot for the listener
+            if(!this->alIsAuxiliaryEffectSlot(listener_slot))
+            {
+                alGetError();
+
+                this->alGenAuxiliaryEffectSlots(1, &listener_slot);
+                ALuint e = alGetError();
+
+                if (e != AL_NO_ERROR)
+                {
+                    LOG("SoundManager: alGenAuxiliaryEffectSlots for listener_slot failed: " + e);
+                    listener_slot = AL_EFFECTSLOT_NULL;
+                }
+            }
+
+            this->build_efx_property_map();
+        }
+    }
+    else
+    {
+        LOG("SoundManager: OpenAL EFX extension not found, disabling EFX");
+        App::audio_enable_efx->setVal(false);
+    }
+
     // generate the AL sources
     for (hardware_sources_num = 0; hardware_sources_num < MAX_HARDWARE_SOURCES; hardware_sources_num++)
     {
@@ -106,6 +157,12 @@ SoundManager::SoundManager()
         alSourcef(hardware_sources[hardware_sources_num], AL_REFERENCE_DISTANCE, REFERENCE_DISTANCE);
         alSourcef(hardware_sources[hardware_sources_num], AL_ROLLOFF_FACTOR, ROLLOFF_FACTOR);
         alSourcef(hardware_sources[hardware_sources_num], AL_MAX_DISTANCE, MAX_DISTANCE);
+
+        // connect source to listener slot effect
+        if(App::audio_enable_efx->getBool())
+        {
+            alSource3i(hardware_sources[hardware_sources_num], AL_AUXILIARY_SEND_FILTER, listener_slot, 0, AL_FILTER_NULL);
+        }
     }
 
     alDopplerFactor(App::audio_doppler_factor->getFloat());
@@ -115,6 +172,8 @@ SoundManager::SoundManager()
     {
         hardware_sources_map[i] = -1;
     }
+
+
 }
 
 SoundManager::~SoundManager()
@@ -122,6 +181,18 @@ SoundManager::~SoundManager()
     // delete the sources and buffers
     alDeleteSources(MAX_HARDWARE_SOURCES, hardware_sources);
     alDeleteBuffers(MAX_AUDIO_BUFFERS, audio_buffers);
+
+    if(efx_is_available)
+    {
+        // TODO: alDeleteEffects
+
+        if (alIsAuxiliaryEffectSlot(listener_slot))
+        {
+            alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, AL_EFFECTSLOT_NULL);
+            alDeleteAuxiliaryEffectSlots(1, &listener_slot);
+            listener_slot = AL_EFFECTSLOT_NULL;
+        }
+    }
 
     // destroy the sound context and device
     sound_context = alcGetCurrentContext();
@@ -133,6 +204,49 @@ SoundManager::~SoundManager()
         alcCloseDevice(audio_device);
     }
     LOG("SoundManager destroyed.");
+}
+
+void SoundManager::build_efx_property_map()
+{
+    this->efx_properties_map["EFX_REVERB_PRESET_GENERIC"] = EFX_REVERB_PRESET_GENERIC;
+    this->efx_properties_map["EFX_REVERB_PRESET_CAVE"] = EFX_REVERB_PRESET_CAVE;
+    this->efx_properties_map["EFX_REVERB_PRESET_ARENA"] = EFX_REVERB_PRESET_ARENA;
+    this->efx_properties_map["EFX_REVERB_PRESET_HANGAR"] = EFX_REVERB_PRESET_HANGAR;
+    this->efx_properties_map["EFX_REVERB_PRESET_ALLEY"] = EFX_REVERB_PRESET_ALLEY;
+    this->efx_properties_map["EFX_REVERB_PRESET_FOREST"] = EFX_REVERB_PRESET_FOREST;
+    this->efx_properties_map["EFX_REVERB_PRESET_CITY"] = EFX_REVERB_PRESET_CITY;
+    this->efx_properties_map["EFX_REVERB_PRESET_MOUNTAINS"] = EFX_REVERB_PRESET_MOUNTAINS;
+    this->efx_properties_map["EFX_REVERB_PRESET_QUARRY"] = EFX_REVERB_PRESET_QUARRY;
+    this->efx_properties_map["EFX_REVERB_PRESET_PLAIN"] = EFX_REVERB_PRESET_PLAIN;
+    this->efx_properties_map["EFX_REVERB_PRESET_PARKINGLOT"] = EFX_REVERB_PRESET_PARKINGLOT;
+    this->efx_properties_map["EFX_REVERB_PRESET_UNDERWATER"] = EFX_REVERB_PRESET_UNDERWATER;
+    this->efx_properties_map["EFX_REVERB_PRESET_DRUGGED"] = EFX_REVERB_PRESET_DRUGGED;
+    this->efx_properties_map["EFX_REVERB_PRESET_DIZZY"] = EFX_REVERB_PRESET_DIZZY;
+    this->efx_properties_map["EFX_REVERB_PRESET_CASTLE_COURTYARD"] = EFX_REVERB_PRESET_CASTLE_COURTYARD;
+    this->efx_properties_map["EFX_REVERB_PRESET_FACTORY_HALL"] = EFX_REVERB_PRESET_FACTORY_HALL;
+    this->efx_properties_map["EFX_REVERB_PRESET_SPORT_EMPTYSTADIUM"] = EFX_REVERB_PRESET_SPORT_EMPTYSTADIUM;
+    this->efx_properties_map["EFX_REVERB_PRESET_SPORT_EMPTYSTADIUM"] = EFX_REVERB_PRESET_SPORT_EMPTYSTADIUM;
+    this->efx_properties_map["EFX_REVERB_PRESET_PIPE_LARGE"] = EFX_REVERB_PRESET_PIPE_LARGE;
+    this->efx_properties_map["EFX_REVERB_PRESET_PIPE_LONGTHIN"] = EFX_REVERB_PRESET_PIPE_LONGTHIN;
+    this->efx_properties_map["EFX_REVERB_PRESET_PIPE_RESONANT"] = EFX_REVERB_PRESET_PIPE_RESONANT;
+    this->efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_BACKYARD"] = EFX_REVERB_PRESET_OUTDOORS_BACKYARD;
+    this->efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_ROLLINGPLAINS"] = EFX_REVERB_PRESET_OUTDOORS_ROLLINGPLAINS;
+    this->efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_DEEPCANYON"] = EFX_REVERB_PRESET_OUTDOORS_DEEPCANYON;
+    this->efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_CREEK"] = EFX_REVERB_PRESET_OUTDOORS_CREEK;
+    this->efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_VALLEY"] = EFX_REVERB_PRESET_OUTDOORS_VALLEY;
+    this->efx_properties_map["EFX_REVERB_PRESET_MOOD_HEAVEN"] = EFX_REVERB_PRESET_MOOD_HEAVEN;
+    this->efx_properties_map["EFX_REVERB_PRESET_MOOD_HELL"] = EFX_REVERB_PRESET_MOOD_HELL;
+    this->efx_properties_map["EFX_REVERB_PRESET_MOOD_MEMORY"] = EFX_REVERB_PRESET_MOOD_MEMORY;
+    this->efx_properties_map["EFX_REVERB_PRESET_DRIVING_COMMENTATOR"] = EFX_REVERB_PRESET_DRIVING_COMMENTATOR;
+    this->efx_properties_map["EFX_REVERB_PRESET_DRIVING_PITGARAGE"] = EFX_REVERB_PRESET_DRIVING_PITGARAGE;
+    this->efx_properties_map["EFX_REVERB_PRESET_DRIVING_INCAR_RACER"] = EFX_REVERB_PRESET_DRIVING_INCAR_RACER;
+    this->efx_properties_map["EFX_REVERB_PRESET_DRIVING_INCAR_SPORTS"] = EFX_REVERB_PRESET_DRIVING_INCAR_SPORTS;
+    this->efx_properties_map["EFX_REVERB_PRESET_DRIVING_INCAR_LUXURY"] = EFX_REVERB_PRESET_DRIVING_INCAR_LUXURY;
+    this->efx_properties_map["EFX_REVERB_PRESET_DRIVING_TUNNEL"] = EFX_REVERB_PRESET_DRIVING_TUNNEL;
+    this->efx_properties_map["EFX_REVERB_PRESET_CITY_STREETS"] = EFX_REVERB_PRESET_CITY_STREETS;
+    this->efx_properties_map["EFX_REVERB_PRESET_CITY_SUBWAY"] = EFX_REVERB_PRESET_CITY_SUBWAY;
+    this->efx_properties_map["EFX_REVERB_PRESET_CITY_UNDERPASS"] = EFX_REVERB_PRESET_CITY_UNDERPASS;
+    this->efx_properties_map["EFX_REVERB_PRESET_CITY_ABANDONED"] = EFX_REVERB_PRESET_CITY_ABANDONED;
 }
 
 void SoundManager::setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity)
@@ -155,6 +269,84 @@ void SoundManager::setListener(Ogre::Vector3 position, Ogre::Vector3 direction, 
     alListener3f(AL_POSITION, position.x, position.y, position.z);
     alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z);
     alListenerfv(AL_ORIENTATION, orientation);
+
+    if(App::audio_enable_efx->getBool())
+    {
+        this->updateListenerEnvironment();
+    }
+}
+
+void SoundManager::setListenerEnvironment(std::string listener_efx_preset_name)
+{
+    if(efx_properties_map.find(listener_efx_preset_name) == efx_properties_map.end())
+    {
+        // LOG("SoundManager: EFX preset `" + listener_efx_preset_name + "` is not available");
+        listener_efx_preset_name = ""; // force that no preset is active
+    }
+
+    if(listener_efx_preset_name != this->listener_efx_preset_name)
+    {
+        this->listener_efx_preset_name = listener_efx_preset_name;
+        listener_efx_environment_has_changed = true;
+    }
+    else
+    {
+        listener_efx_environment_has_changed = false;
+    }
+}
+
+void SoundManager::updateListenerEnvironment()
+{
+    if (listener_efx_environment_has_changed)
+    {
+        if (listener_efx_preset_name.empty())
+        {
+            alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, AL_EFFECTSLOT_NULL);
+        }
+        else
+        {
+            // TODO: Reuse already existing effects
+            ALuint effect = this->CreateAlEffect(&this->efx_properties_map[listener_efx_preset_name]);
+            alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, effect);
+        }
+    }
+}
+
+ALuint SoundManager::CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties)
+{
+    ALuint effect = 0;
+    ALenum error;
+
+    alGenEffects(1, &effect);
+    {
+        alEffecti(effect, AL_EFFECT_TYPE, AL_EFFECT_REVERB);
+
+        alEffectf(effect, AL_REVERB_DENSITY, efx_properties->flDensity);
+        alEffectf(effect, AL_REVERB_DIFFUSION, efx_properties->flDiffusion);
+        alEffectf(effect, AL_REVERB_GAIN, efx_properties->flGain);
+        alEffectf(effect, AL_REVERB_GAINHF, efx_properties->flGainHF);
+        alEffectf(effect, AL_REVERB_DECAY_TIME, efx_properties->flDecayTime);
+        alEffectf(effect, AL_REVERB_DECAY_HFRATIO, efx_properties->flDecayHFRatio);
+        alEffectf(effect, AL_REVERB_REFLECTIONS_GAIN, efx_properties->flReflectionsGain);
+        alEffectf(effect, AL_REVERB_REFLECTIONS_DELAY, efx_properties->flReflectionsDelay);
+        alEffectf(effect, AL_REVERB_LATE_REVERB_GAIN, efx_properties->flLateReverbGain);
+        alEffectf(effect, AL_REVERB_LATE_REVERB_DELAY, efx_properties->flLateReverbDelay);
+        alEffectf(effect, AL_REVERB_AIR_ABSORPTION_GAINHF, efx_properties->flAirAbsorptionGainHF);
+        alEffectf(effect, AL_REVERB_ROOM_ROLLOFF_FACTOR, efx_properties->flRoomRolloffFactor);
+        alEffecti(effect, AL_REVERB_DECAY_HFLIMIT, efx_properties->iDecayHFLimit);
+    }
+        /* Check if an error occured, and clean up if so. */
+    error = alGetError();
+    if(error != AL_NO_ERROR)
+    {
+        LOG("ERROR in SoundManager::LoadEffect: Could not create EFX effect:" + error);
+
+        if(alIsEffect(effect))
+            alDeleteEffects(1, &effect);
+        return 0;
+    }
+
+    return effect;
 }
 
 bool compareByAudibility(std::pair<int, float> a, std::pair<int, float> b)

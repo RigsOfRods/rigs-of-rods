@@ -31,9 +31,13 @@
 #ifdef __APPLE__
   #include <OpenAL/al.h>
   #include <OpenAL/alc.h>
+  #include <OpenAL/alext.h>
+  #include <OpenAL/efx-presets.h>
 #else
   #include <AL/al.h>
   #include <AL/alc.h>
+  #include <AL/alext.h>
+  #include <AL/efx-presets.h>
 #endif // __APPLE__
 
 namespace RoR {
@@ -56,6 +60,8 @@ public:
     SoundPtr createSound(Ogre::String filename, Ogre::String resource_group_name = "");
 
     void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
+    void setListenerEnvironment(std::string listener_environment);
+    void updateListenerEnvironment();
     void pauseAllSounds();
     void resumeAllSounds();
     void setMasterVolume(float v);
@@ -66,6 +72,7 @@ public:
     void setSpeedOfSound(float speed_of_sound) { alSpeedOfSound(speed_of_sound); }
     float getDopplerFactor() { return alGetFloat(AL_DOPPLER_FACTOR); }
     void setDopplerFactor(float doppler_factor) { alDopplerFactor(doppler_factor); }
+    std::string getReverbPresetAt(Ogre::Vector3 position);
 
     int getNumHardwareSources() { return hardware_sources_num; }
 
@@ -104,6 +111,33 @@ private:
     Ogre::Vector3 listener_position = Ogre::Vector3::ZERO;
     ALCdevice*    audio_device = nullptr;
     ALCcontext*   sound_context = nullptr;
+
+    // OpenAL EFX stuff
+    bool                                            efx_is_available = false;
+    bool                                            listener_efx_environment_has_changed = true;
+    ALuint                                          listener_slot = 0;
+    std::string                                     listener_efx_preset_name;
+    std::map<std::string, EFXEAXREVERBPROPERTIES>   efx_properties_map;
+    LPALGENEFFECTS                                  alGenEffects = nullptr;
+    LPALDELETEEFFECTS                               alDeleteEffects = nullptr;
+    LPALISEFFECT                                    alIsEffect = nullptr;
+    LPALEFFECTI                                     alEffecti = nullptr;
+    LPALEFFECTF                                     alEffectf = nullptr;
+    LPALEFFECTFV                                    alEffectfv = nullptr;
+    LPALGENFILTERS                                  alGenFilters = nullptr;
+    LPALDELETEFILTERS                               alDeleteFilters = nullptr;
+    LPALISFILTER                                    alIsFilter = nullptr;
+    LPALFILTERI                                     alFilteri = nullptr;
+    LPALFILTERF                                     alFilterf = nullptr;
+    LPALGENAUXILIARYEFFECTSLOTS                     alGenAuxiliaryEffectSlots = nullptr;
+    LPALDELETEAUXILIARYEFFECTSLOTS                  alDeleteAuxiliaryEffectSlots = nullptr;
+    LPALISAUXILIARYEFFECTSLOT                       alIsAuxiliaryEffectSlot = nullptr;
+    LPALAUXILIARYEFFECTSLOTI                        alAuxiliaryEffectSloti = nullptr;
+    LPALAUXILIARYEFFECTSLOTF                        alAuxiliaryEffectSlotf = nullptr;
+    LPALAUXILIARYEFFECTSLOTFV                       alAuxiliaryEffectSlotfv = nullptr;
+
+    ALuint  CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties);
+    void    build_efx_property_map();
 };
 
 /// @}
