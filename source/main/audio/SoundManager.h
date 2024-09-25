@@ -55,7 +55,7 @@ public:
     */
     SoundPtr createSound(Ogre::String filename, Ogre::String resource_group_name = "");
 
-    void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity, bool listener_is_underwater);
+    void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
     void pauseAllSounds();
     void resumeAllSounds();
     void setMasterVolume(float v);
@@ -63,6 +63,7 @@ public:
     bool isDisabled() { return audio_device == 0; }
 
     float getSpeedOfSound() { return alGetFloat(AL_SPEED_OF_SOUND); }
+    void setSpeedOfSound(float speed_of_sound) { alSpeedOfSound(speed_of_sound); }
     float getDopplerFactor() { return alGetFloat(AL_DOPPLER_FACTOR); }
     void setDopplerFactor(float doppler_factor) { alDopplerFactor(doppler_factor); }
 

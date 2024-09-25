@@ -327,7 +327,7 @@ public:
     void setEnabled(bool state);
 
     void setDopplerFactor(float doppler_factor);
-    void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity, bool listener_is_underwater);
+    void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
     void setLoadingBaseSounds(bool value) { loading_base = value; };
 
     bool isDisabled() { return disabled; }
@@ -366,6 +366,8 @@ private:
     // state map
     // soundLinks, soundItems, actor_ids, triggers
     std::map <int, std::map <int, std::map <int, std::map <int, bool > > > > state_map;
+
+    void setListenerEnvironment(Ogre::Vector3 position);
 
     SoundManager* sound_manager;
 };

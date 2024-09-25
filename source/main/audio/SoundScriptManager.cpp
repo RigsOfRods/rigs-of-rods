@@ -320,17 +320,34 @@ void SoundScriptManager::update(float dt_sec)
         Ogre::Vector3 camera_up = camera_node->getOrientation() * Ogre::Vector3::UNIT_Y;
         // Direction points down -Z by default (adapted from Ogre::Camera)
         Ogre::Vector3 camera_direction = camera_node->getOrientation() * -Ogre::Vector3::UNIT_Z;
-        const auto water = App::GetGameContext()->GetTerrain()->getWater();
-        bool camera_is_underwater = (water != nullptr ? water->IsUnderWater(camera_position) : false);
-        this->setListener(camera_position, camera_direction, camera_up, camera_velocity, camera_is_underwater);
+        this->setListener(camera_position, camera_direction, camera_up, camera_velocity);
+        this->setListenerEnvironment(camera_position);
     }
 }
 
-void SoundScriptManager::setListener(Vector3 position, Vector3 direction, Vector3 up, Vector3 velocity, bool listener_is_underwater)
+void SoundScriptManager::setListener(Vector3 position, Vector3 direction, Vector3 up, Vector3 velocity)
 {
     if (disabled)
         return;
-    sound_manager->setListener(position, direction, up, velocity, listener_is_underwater);
+    sound_manager->setListener(position, direction, up, velocity);
+}
+
+void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
+{
+    if (disabled)
+        return;
+
+    const auto water = App::GetGameContext()->GetTerrain()->getWater();
+    bool listener_is_underwater = (water != nullptr ? water->IsUnderWater(listener_position) : false);
+
+    if(listener_is_underwater)
+    {
+        sound_manager->setSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
+    }
+    else
+    {
+        sound_manager->setSpeedOfSound(343.3f); // assume listener is in air at 20° celsius
+    }
 }
 
 void SoundScriptManager::setDopplerFactor(float doppler_factor)
