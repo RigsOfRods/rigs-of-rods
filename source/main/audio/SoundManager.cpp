@@ -139,7 +139,7 @@ void SoundManager::setListener(Ogre::Vector3 position, Ogre::Vector3 direction, 
 {
     if (!audio_device)
         return;
-    camera_position = position;
+    listener_position = position;
     recomputeAllSources();
 
     float orientation[6];
@@ -180,7 +180,7 @@ void SoundManager::recomputeAllSources()
 
 	for (int i=0; i < audio_buffers_in_use_count; i++)
 	{
-		audio_sources[i]->computeAudibility(camera_position);
+		audio_sources[i]->computeAudibility(listener_position);
 		audio_sources_most_audible[i].first = i;
 		audio_sources_most_audible[i].second = audio_sources[i]->audibility;
 	}
@@ -218,7 +218,7 @@ void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vect
 {
     if (!audio_device)
         return;
-    audio_sources[source_index]->computeAudibility(camera_position);
+    audio_sources[source_index]->computeAudibility(listener_position);
 
     if (audio_sources[source_index]->audibility == 0.0f)
     {
