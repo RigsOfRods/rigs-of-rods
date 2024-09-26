@@ -140,9 +140,6 @@ public:
     ActorPtr             GetActor(); // Watch out for multithreading with this!
     Ogre::TexturePtr     GetHelpTex() { return m_help_tex; }
     Ogre::MaterialPtr    GetHelpMat() { return m_help_mat; }
-    int                  FetchNumBeams() const ;
-    int                  FetchNumNodes() const ;
-    int                  FetchNumWheelNodes() const ;
     bool                 HasDriverSeatProp() const { return m_driverseat_prop_index != -1; }
     void                 CalcPropAnimation(PropAnim& anim, float& cstate, int& div, float dt);
     std::vector<Prop>&   getProps() { return m_props; }
