@@ -53,6 +53,7 @@
 #include "GUI_TopMenubar.h"
 #include "GUI_VehicleDescription.h"
 #include "GUI_VehicleButtons.h"
+#include "GUI_LoginBox.h"
 
 // Deps
 #include <Bites/OgreWindowEventUtilities.h>
@@ -126,6 +127,7 @@ public:
     GUI::DirectionArrow         DirectionArrow;
     GUI::VehicleButtons         VehicleButtons;
     GUI::FlexbodyDebug          FlexbodyDebug;
+    GUI::LoginBox               LoginBox;
     Ogre::Overlay*              MenuWallpaper = nullptr;
 
     // GUI manipulation
