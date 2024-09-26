@@ -149,13 +149,13 @@ void Console::cVarSetupBuiltins()
     App::io_discord_rpc          = this->cVarCreate("io_discord_rpc",          "Discord Rich Presence",      CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::io_invert_orbitcam      = this->cVarCreate("io_invert_orbitcam",      "Invert orbit camera",        CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
 
-    App::audio_master_volume     = this->cVarCreate("audio_master_volume",     "Sound Volume",               CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
-    App::audio_enable_creak      = this->cVarCreate("audio_enable_creak",      "Creak Sound",                CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
-    App::audio_device_name       = this->cVarCreate("audio_device_name",       "AudioDevice",                CVAR_ARCHIVE);
-    App::audio_doppler_factor    = this->cVarCreate("audio_doppler_factor",    "Doppler Factor",             CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
-    App::audio_menu_music        = this->cVarCreate("audio_menu_music",        "MainMenuMusic",              CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
-    App::audio_enable_efx        = this->cVarCreate("audio_enable_efx",        "Enable OpenAL EFX",          CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
-    App::audio_force_efx_preset  = this->cVarCreate("audio_force_efx_preset",  "Enforce OpenAL EFX preset",  0,                                "");
+    App::audio_master_volume          = this->cVarCreate("audio_master_volume",             "Sound Volume",               CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
+    App::audio_enable_creak           = this->cVarCreate("audio_enable_creak",              "Creak Sound",                CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::audio_device_name            = this->cVarCreate("audio_device_name",               "AudioDevice",                CVAR_ARCHIVE);
+    App::audio_doppler_factor         = this->cVarCreate("audio_doppler_factor",            "Doppler Factor",             CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
+    App::audio_menu_music             = this->cVarCreate("audio_menu_music",                "MainMenuMusic",              CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::audio_enable_efx             = this->cVarCreate("audio_enable_efx",                "Enable OpenAL EFX",          CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
+    App::audio_force_efx_preset       = this->cVarCreate("audio_force_efx_preset",          "Enforce OpenAL EFX preset",  0,                                "");
 
     App::gfx_flares_mode         = this->cVarCreate("gfx_flares_mode",         "Lights",                     CVAR_ARCHIVE | CVAR_TYPE_INT,     "4"/*(int)GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS*/);
     App::gfx_polygon_mode        = this->cVarCreate("gfx_polygon_mode",        "Polygon mode",                              CVAR_TYPE_INT,     "1"/*(int)Ogre::PM_SOLID*/);
