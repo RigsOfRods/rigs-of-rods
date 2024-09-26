@@ -206,6 +206,8 @@ CVar* io_discord_rpc;
 CVar* io_invert_orbitcam;
               
 // Audio
+CVar* audio_air_absorption_factor;
+CVar* audio_air_absorption_gain_hf;
 CVar* audio_master_volume;
 CVar* audio_enable_creak;
 CVar* audio_enable_efx;

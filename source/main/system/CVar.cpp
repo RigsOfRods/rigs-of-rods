@@ -149,6 +149,8 @@ void Console::cVarSetupBuiltins()
     App::io_discord_rpc          = this->cVarCreate("io_discord_rpc",          "Discord Rich Presence",      CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::io_invert_orbitcam      = this->cVarCreate("io_invert_orbitcam",      "Invert orbit camera",        CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
 
+    App::audio_air_absorption_factor  = this->cVarCreate("audio_air_absorption_factor",     "Air absorption factor",                     CVAR_TYPE_FLOAT,   "1.0");
+    App::audio_air_absorption_gain_hf = this->cVarCreate("audio_air_absorption_gain_hf",    "Air absorption Gain HF",                    CVAR_TYPE_FLOAT,   "0.994");
     App::audio_master_volume          = this->cVarCreate("audio_master_volume",             "Sound Volume",               CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
     App::audio_enable_creak           = this->cVarCreate("audio_enable_creak",              "Creak Sound",                CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::audio_device_name            = this->cVarCreate("audio_device_name",               "AudioDevice",                CVAR_ARCHIVE);

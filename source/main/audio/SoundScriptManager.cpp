@@ -343,10 +343,19 @@ void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
     if(listener_is_underwater)
     {
         sound_manager->setSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
+        /*
+        According to the Francois-Garrison formula for frequency-dependant absorption at 5kHz in water
+        and assuming the Air Absorption Gain HF property of OpenAL is set to the minimum of 0.892,
+        the absorption factor should be ~11.25, which is just slightly above the maximum of 10.0.
+        */
+        App::audio_air_absorption_factor->setVal(10.0f);
+        App::audio_air_absorption_gain_hf->setVal(0.892f);
     }
     else
     {
         sound_manager->setSpeedOfSound(343.3f); // assume listener is in air at 20° celsius
+        App::audio_air_absorption_factor->setVal(1.0f);
+        App::audio_air_absorption_gain_hf->setVal(0.994f);
     }
 
     if (App::audio_enable_efx->getBool())

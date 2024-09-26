@@ -314,6 +314,9 @@ void SoundManager::updateListenerEffectSlot()
                 efx_effect_id_map[listener_efx_preset_name] = this->CreateAlEffect(&this->efx_properties_map[listener_efx_preset_name]);
             }
 
+            // update air absorption gain hf of effect
+            alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_REVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
+
             // update the effect on the listener effect slot
             alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, efx_effect_id_map[listener_efx_preset_name]);
         }
@@ -403,6 +406,15 @@ void SoundManager::recomputeAllSources()
 		}
 	}
 #endif
+
+    if(App::audio_enable_efx->getBool())
+    {
+        for(hardware_sources_num = 0; hardware_sources_num < MAX_HARDWARE_SOURCES; hardware_sources_num++)
+        {
+            // update air absorption factor
+            alSourcef(hardware_sources[hardware_sources_num], AL_AIR_ABSORPTION_FACTOR, App::audio_air_absorption_factor->getFloat());
+        }
+    }
 }
 
 void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vector3* vvec)
