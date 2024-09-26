@@ -325,61 +325,74 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
     }
 }
 
+void DrawStatsLineColored(const char* name, const std::string& value, ImVec4 value_color)
+{
+    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    ImGui::TextColored(theme.value_blue_text_color, "%s", name);
+    // If the value is too long, move it to next line
+    ImVec2 label_size = ImGui::CalcTextSize(name);
+    ImVec2 value_size = ImGui::CalcTextSize(value.c_str());
+    float cursor_x_desired =  - ImGui::CalcTextSize(value.c_str()).x;
+    if (label_size.x + value_size.x + ImGui::GetStyle().ItemSpacing.x < ImGui::GetWindowContentRegionWidth())
+    {
+        ImGui::SameLine();
+    }
+    ImGui::SetCursorPosX(ImGui::GetWindowContentRegionWidth() - value_size.x);    
+    ImGui::TextColored(value_color, "%s", value.c_str());
+}
+
+void DrawStatsLine(const char* name, const std::string& value)
+{
+    DrawStatsLineColored(name, value, ImGui::GetStyle().Colors[ImGuiCol_Text]);
+}
+
+void DrawStatsBullet(const char* name, const std::string& value)
+{
+    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    ImGui::PushStyleColor(ImGuiCol_Text, theme.value_blue_text_color);
+    ImGui::Bullet();
+    ImGui::PopStyleColor(); // Text
+    ImGui::SameLine();
+    DrawStatsLineColored(name, value, ImGui::GetStyle().Colors[ImGuiCol_Text]);
+}
+
 void VehicleInfoTPanel::DrawVehicleStatsUI(RoR::GfxActor* actorx)
 {
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 0));
 
     if (m_stat_health < 1.0f)
     {
         const float value = static_cast<float>( Round((1.0f - m_stat_health) * 100.0f, 2) );
-        ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Vehicle health: "));
-        ImGui::SameLine();
-        ImGui::Text("%.2f%%", value);
+        DrawStatsLine(_LC("SimActorStats", "Vehicle health: "), fmt::format("{:.2f}%", value));
     }
     else if (m_stat_health >= 1.0f) //When this condition is true, it means that health is at 0% which means 100% of destruction.
     {
-        ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Vehicle destruction: "));
-        ImGui::SameLine();
-        ImGui::Text("100%%");
+        DrawStatsLine(_LC("SimActorStats", "Vehicle destruction: "), "100%");
     }
 
-    const int num_beams_i = actorx->FetchNumBeams();
-    const float num_beams_f = static_cast<float>(num_beams_i);
-    ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Beam count: "));
-    ImGui::SameLine();
-    ImGui::Text("%d", num_beams_i);
+    const int num_beams = actorx->GetActor()->ar_num_beams;
+    DrawStatsLine(_LC("SimActorStats", "Beam count: "), fmt::format("{}", num_beams));
 
-    const float broken_pct = static_cast<float>( Round((float)m_stat_broken_beams / num_beams_f, 2) * 100.0f );
-    ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Broken beams count: "));
-    ImGui::SameLine();
-    ImGui::Text("%d (%.0f%%)", m_stat_broken_beams, broken_pct);
+    const float broken_pct = static_cast<float>( Round((float)m_stat_broken_beams / (float)num_beams, 2) * 100.0f );
+    DrawStatsLine(_LC("SimActorStats", "Broken beams count: "), fmt::format("{} ({:.0f}%)", m_stat_broken_beams, broken_pct));
 
-    const float deform_pct = static_cast<float>( Round((float)m_stat_deformed_beams / num_beams_f * 100.0f) );
-    ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Deformed beams count: "));
-    ImGui::SameLine();
-    ImGui::Text("%d (%.0f%%)", m_stat_deformed_beams, deform_pct);
+    const float deform_pct = static_cast<float>( Round((float)m_stat_deformed_beams / (float)num_beams * 100.0f) );
+    DrawStatsLine(_LC("SimActorStats", "Deformed beams count: "), fmt::format("{} ({:.0f}%)", m_stat_deformed_beams, deform_pct));
 
-    const float avg_deform = static_cast<float>( Round((float)m_stat_avg_deform / num_beams_f, 4) * 100.0f );
-    ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Average deformation: "));
-    ImGui::SameLine();
-    ImGui::Text("%.2f", avg_deform);
+    const float avg_deform = static_cast<float>( Round((float)m_stat_avg_deform / (float)num_beams, 4) * 100.0f );
+    DrawStatsLine(_LC("SimActorStats", "Average deformation: "), fmt::format("{:.2f}", avg_deform));
 
-    const float avg_stress = 1.f - (float)m_stat_beam_stress / num_beams_f;
-    ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Average stress: "));
-    ImGui::SameLine();
-    ImGui::Text("%+08.0f", avg_stress);
+    const float avg_stress = 1.f - (float)m_stat_beam_stress / (float)num_beams;
+    DrawStatsLine(_LC("SimActorStats", "Average stress: "), fmt::format("{:+08.0f}", avg_stress));
 
     ImGui::NewLine();
 
-    const int num_nodes = actorx->FetchNumNodes();
-    const int num_wheelnodes = actorx->FetchNumWheelNodes();
-    ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Node count: "));
-    ImGui::SameLine();
-    ImGui::Text("%d (%s%d)", num_nodes, "wheels: ", num_wheelnodes);
+    const int num_nodes = actorx->GetActor()->ar_num_nodes;
+    const int num_wheelnodes = actorx->GetActor()->getWheelNodeCount();
+    DrawStatsLine(_LC("SimActorStats", "Node count: "), fmt::format("{} (wheels: {})", num_nodes, num_wheelnodes));
 
-    ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Total mass: "));
-    ImGui::SameLine();
-    ImGui::Text("%8.2f Kg (%.2f tons)", m_stat_mass_Kg, m_stat_mass_Kg / 1000.0f);
+    DrawStatsLine(_LC("SimActorStats", "Total mass: "), fmt::format("{:8.2f} Kg {:.2f} tons)", m_stat_mass_Kg, m_stat_mass_Kg / 1000.0f));
 
     ImGui::NewLine();
 
@@ -394,32 +407,20 @@ void VehicleInfoTPanel::DrawVehicleStatsUI(RoR::GfxActor* actorx)
         const float cur_rpm       = actorx->GetSimDataBuffer().simbuf_engine_rpm;
         const float wheel_speed   = actorx->GetSimDataBuffer().simbuf_wheel_speed;
 
-        ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Engine RPM: "));
-        ImGui::SameLine();
-        ImVec4 rpm_color = (cur_rpm > max_rpm) ? theme.value_red_text_color : ImGui::GetStyle().Colors[ImGuiCol_Text];
-        ImGui::TextColored(rpm_color, "%.2f / %.2f", cur_rpm, max_rpm);
+        const ImVec4 rpm_color = (cur_rpm > max_rpm) ? theme.value_red_text_color : ImGui::GetStyle().Colors[ImGuiCol_Text];
+        DrawStatsLineColored(_LC("SimActorStats", "Engine RPM: "), fmt::format("{:.2f} / {:.2f}", cur_rpm, max_rpm), rpm_color);
 
-        ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Input shaft RPM: "));
-        ImGui::SameLine();
         const float inputshaft_rpm = Round(std::max(0.0f, actorx->GetSimDataBuffer().simbuf_inputshaft_rpm));
-        ImGui::TextColored(rpm_color, "%.0f", inputshaft_rpm);
+        DrawStatsLineColored(_LC("SimActorStats", "Input shaft RPM: "), fmt::format("{:.0f}", inputshaft_rpm), rpm_color);
 
-        ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Current torque: "));
-        ImGui::SameLine();
-        ImGui::Text("%.0f Nm", Round(torque));
+        DrawStatsLine(_LC("SimActorStats", "Current torque: "), fmt::format("{:.0f} Nm", Round(torque)));
 
         const float currentKw = (((cur_rpm * (torque + ((turbo_psi * 6.8) * torque) / 100) * ( PI / 30)) / 1000));
-        ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Current power: "));
-        ImGui::SameLine();
-        ImGui::Text("%.0fhp (%.0fKw)", static_cast<float>(Round(currentKw *1.34102209)), static_cast<float>(Round(currentKw)));
+        DrawStatsLine(_LC("SimActorStats", "Current power: "), fmt::format("{:.0f}hp ({:.0f}Kw)", Round(currentKw *1.34102209), Round(currentKw)));
 
-        ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Current gear: "));
-        ImGui::SameLine();
-        ImGui::Text("%d", actorx->GetSimDataBuffer().simbuf_gear);
+        DrawStatsLine(_LC("SimActorStats", "Current gear: "), fmt::format("{}", actorx->GetSimDataBuffer().simbuf_gear));
 
-        ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Drive ratio: "));
-        ImGui::SameLine();
-        ImGui::Text("%.2f:1", actorx->GetSimDataBuffer().simbuf_drive_ratio);
+        DrawStatsLine(_LC("SimActorStats", "Drive ratio: "), fmt::format("{:.2f}:1", actorx->GetSimDataBuffer().simbuf_drive_ratio));
 
         float velocityKPH = wheel_speed * 3.6f;
         float velocityMPH = wheel_speed * 2.23693629f;
@@ -436,40 +437,31 @@ void VehicleInfoTPanel::DrawVehicleStatsUI(RoR::GfxActor* actorx)
             carSpeedKPH = carSpeedMPH = 0.0f;
         }
 
-        ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Wheel speed: "));
-        ImGui::SameLine();
-        ImGui::Text("%.0fKm/h (%.0f mph)", Round(velocityKPH), Round(velocityMPH));
+        DrawStatsLine(_LC("SimActorStats", "Wheel speed: "), fmt::format("{:.0f}Km/h ({:.0f} mph)", Round(velocityKPH), Round(velocityMPH)));
 
-        ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Vehicle speed: "));
-        ImGui::SameLine();
-        ImGui::Text("%.0fKm/h (%.0f mph)", Round(carSpeedKPH), Round(carSpeedMPH));
+        DrawStatsLine(_LC("SimActorStats", "Vehicle speed: "), fmt::format("{:.0f}Km/h ({:.0f} mph)", Round(carSpeedKPH), Round(carSpeedMPH)));
     }
     else // Aircraft or boat
     {
         float speedKN = n0_velo_len * 1.94384449f;
-        ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Current speed: "));
-        ImGui::SameLine();
-        ImGui::Text("%.0f kn (%.0f Km/h; %.0f mph)", Round(speedKN), Round(speedKN * 1.852), Round(speedKN * 1.151));
+        DrawStatsLine(_LC("SimActorStats", "Current speed: "), fmt::format("{:.0f} kn ({:.0f} Km/h; {:.0f} mph)", Round(speedKN), Round(speedKN * 1.852), Round(speedKN * 1.151)));
 
         if (actorx->GetSimDataBuffer().simbuf_driveable == AIRPLANE)
         {
             const float altitude = actorx->GetSimNodeBuffer()[0].AbsPosition.y / 30.48 * 100;
-            ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Altitude: "));
-            ImGui::SameLine();
-            ImGui::Text("%.0f feet (%.0f meters)", Round(altitude), Round(altitude * 0.30480));
+            DrawStatsLine(_LC("SimActorStats", "Altitude: "), fmt::format("{:.0f} feet ({:.0f} meters)", Round(altitude), Round(altitude * 0.30480)));
 
             int engine_num = 1; // UI; count from 1
             for (AeroEngineSB& ae: actorx->GetSimDataBuffer().simbuf_aeroengines)
             {
-                ImGui::TextColored(theme.value_blue_text_color, "%s #%d:", _LC("SimActorStats", "Engine "), engine_num);
-                ImGui::SameLine();
-                if (ae.simbuf_ae_type == AeroEngineType::AE_XPROP)
+                std::string label = fmt::format("{} #{}:", _LC("SimActorStats", "Engine "), engine_num);
+                if (ae.simbuf_ae_type == AeroEngineType::AE_XPROP) // Turboprop/pistonprop
                 {
-                    ImGui::Text("%.2f RPM", ae.simbuf_ae_rpm);
+                    DrawStatsLine(label.c_str(), fmt::format("{:.2f} RPM", ae.simbuf_ae_rpm));
                 }
                 else // Turbojet
                 {
-                    ImGui::Text("%.2f", ae.simbuf_ae_rpm);
+                    DrawStatsLine(label.c_str(), fmt::format("{:.2f}", ae.simbuf_ae_rpm));
                 }
                 ++engine_num;
             }
@@ -479,9 +471,8 @@ void VehicleInfoTPanel::DrawVehicleStatsUI(RoR::GfxActor* actorx)
             int engine_num = 1; // UI; count from 1
             for (ScrewpropSB& screw: actorx->GetSimDataBuffer().simbuf_screwprops)
             {
-                ImGui::TextColored(theme.value_blue_text_color, "%s #%d:", _LC("SimActorStats", "Engine "), engine_num);
-                ImGui::SameLine();
-                ImGui::Text("%f%", screw.simbuf_sp_throttle);
+                std::string label = fmt::format("{} #{}:", _LC("SimActorStats", "Engine "), engine_num);
+                DrawStatsLine(label.c_str(), fmt::format("{:.2f}", screw.simbuf_sp_throttle));
                 ++engine_num;
             }
         }
@@ -491,17 +482,16 @@ void VehicleInfoTPanel::DrawVehicleStatsUI(RoR::GfxActor* actorx)
 
     const float speedKPH = actorx->GetSimDataBuffer().simbuf_top_speed * 3.6f;
     const float speedMPH = actorx->GetSimDataBuffer().simbuf_top_speed * 2.23693629f;
-    ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "Top speed: "));
-    ImGui::SameLine();
-    ImGui::Text("%.0f km/h (%.0f mph)", Round(speedKPH), Round(speedMPH));
+    DrawStatsLine(_LC("SimActorStats", "Top speed: "), fmt::format("{:.0f} km/h ({:.0f} mph)", Round(speedKPH), Round(speedMPH)));
 
     ImGui::NewLine();
 
-    ImGui::TextColored(theme.value_blue_text_color,"%s", _LC("SimActorStats", "G-Forces:"));
-    ImGui::Text("Vertical: % 6.2fg  (%1.2fg)", m_stat_gcur_x, m_stat_gmax_x);
-    ImGui::Text("Sagittal: % 6.2fg  (%1.2fg)", m_stat_gcur_y, m_stat_gmax_y);
-    ImGui::Text("Lateral:  % 6.2fg  (%1.2fg)", m_stat_gcur_z, m_stat_gmax_z);
+    DrawStatsLine(_LC("SimActorStats", "G-Forces:"), "");
+    DrawStatsBullet("Vertical:", fmt::format("{: 6.2f}g  ({:1.2f}g)", m_stat_gcur_x, m_stat_gmax_x));
+    DrawStatsBullet("Sagittal:", fmt::format("{: 6.2f}g  ({:1.2f}g)", m_stat_gcur_y, m_stat_gmax_y));
+    DrawStatsBullet("Lateral:", fmt::format("{: 6.2f}g  ({:1.2f}g)", m_stat_gcur_z, m_stat_gmax_z));
 
+    ImGui::PopStyleVar(); // ItemSpacing
 }
 
 void VehicleInfoTPanel::DrawVehicleDiagUI(RoR::GfxActor* actorx)

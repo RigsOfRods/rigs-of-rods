@@ -3334,10 +3334,6 @@ void RoR::GfxActor::UpdateWingMeshes()
     }
 }
 
-int           RoR::GfxActor::FetchNumBeams      () const                 { return m_actor->ar_num_beams; }
-int           RoR::GfxActor::FetchNumNodes      () const                 { return m_actor->ar_num_nodes; }
-int           RoR::GfxActor::FetchNumWheelNodes () const                 { return m_actor->getWheelNodeCount(); }
-
 int RoR::GfxActor::countBeaconProps() const
 {
     int count = 0;
