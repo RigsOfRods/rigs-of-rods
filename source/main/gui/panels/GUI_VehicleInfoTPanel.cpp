@@ -664,7 +664,7 @@ void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
     {
         ImGui::TextDisabled("Engine:");
         this->DrawEngineButton(actorx);
-        if (engine_running)
+        if (!engine_running)
         {
             DrawSingleBulletRow("Starter", EV_TRUCK_STARTER);
         }
