@@ -123,6 +123,33 @@ SoundManager::SoundManager()
 
         if (App::audio_enable_efx->getBool())
         {
+            // allow user to change reverb engines at will
+            switch(efx_reverb_engine_map[App::audio_efx_reverb_engine->getStr()])
+            {
+                case EfxReverbEngine::EAXREVERB: efx_reverb_engine = EfxReverbEngine::EAXREVERB; break;
+                case EfxReverbEngine::REVERB:    efx_reverb_engine = EfxReverbEngine::REVERB; break;
+                default:
+                    efx_reverb_engine = EfxReverbEngine::NONE;
+                    LOG("SoundManager: Reverb engine disabled");
+            }
+
+            if(efx_reverb_engine == EfxReverbEngine::EAXREVERB)
+            {
+                if (alGetEnumValue("AL_EFFECT_EAXREVERB") != 0)
+                {
+                    LOG("SoundManager: OpenAL driver supports AL_EFFECT_EAXREVERB, using it");
+                }
+                else
+                {
+                    LOG("SoundManager: AL_EFFECT_EAXREVERB requested but OpenAL driver does not support it, falling back to standard reverb");
+                    efx_reverb_engine = EfxReverbEngine::REVERB;
+                }
+            }
+            else if(efx_reverb_engine == EfxReverbEngine::REVERB)
+            {
+                LOG("SoundManager: Using OpenAL standard reverb");
+            }
+
             // create effect slot for the listener
             if(!this->alIsAuxiliaryEffectSlot(listener_slot))
             {
@@ -342,7 +369,14 @@ void SoundManager::updateListenerEffectSlot()
             }
 
             // update air absorption gain hf of effect
-            alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_REVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
+            if (efx_reverb_engine == EfxReverbEngine::EAXREVERB)
+            {
+                alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
+            }
+            else if (efx_reverb_engine == EfxReverbEngine::REVERB)
+            {
+                alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_REVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
+            }
 
             // update the effect on the listener effect slot
             alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, efx_effect_id_map[listener_efx_preset_name]);
@@ -356,28 +390,64 @@ ALuint SoundManager::CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties
     ALenum error;
 
     alGenEffects(1, &effect);
-    {
-        alEffecti(effect, AL_EFFECT_TYPE, AL_EFFECT_REVERB);
 
-        alEffectf(effect, AL_REVERB_DENSITY, efx_properties->flDensity);
-        alEffectf(effect, AL_REVERB_DIFFUSION, efx_properties->flDiffusion);
-        alEffectf(effect, AL_REVERB_GAIN, efx_properties->flGain);
-        alEffectf(effect, AL_REVERB_GAINHF, efx_properties->flGainHF);
-        alEffectf(effect, AL_REVERB_DECAY_TIME, efx_properties->flDecayTime);
-        alEffectf(effect, AL_REVERB_DECAY_HFRATIO, efx_properties->flDecayHFRatio);
-        alEffectf(effect, AL_REVERB_REFLECTIONS_GAIN, efx_properties->flReflectionsGain);
-        alEffectf(effect, AL_REVERB_REFLECTIONS_DELAY, efx_properties->flReflectionsDelay);
-        alEffectf(effect, AL_REVERB_LATE_REVERB_GAIN, efx_properties->flLateReverbGain);
-        alEffectf(effect, AL_REVERB_LATE_REVERB_DELAY, efx_properties->flLateReverbDelay);
-        alEffectf(effect, AL_REVERB_AIR_ABSORPTION_GAINHF, efx_properties->flAirAbsorptionGainHF);
-        alEffectf(effect, AL_REVERB_ROOM_ROLLOFF_FACTOR, efx_properties->flRoomRolloffFactor);
-        alEffecti(effect, AL_REVERB_DECAY_HFLIMIT, efx_properties->iDecayHFLimit);
+    switch (efx_reverb_engine)
+    {
+        case EfxReverbEngine::EAXREVERB:
+            alEffecti(effect,  AL_EFFECT_TYPE, AL_EFFECT_EAXREVERB);
+
+            alEffectf( effect,  AL_EAXREVERB_DENSITY,                efx_properties->flDensity);
+            alEffectf( effect,  AL_EAXREVERB_DIFFUSION,              efx_properties->flDiffusion);
+            alEffectf( effect,  AL_EAXREVERB_GAIN,                   efx_properties->flGain);
+            alEffectf( effect,  AL_EAXREVERB_GAINHF,                 efx_properties->flGainHF);
+            alEffectf( effect,  AL_EAXREVERB_GAINLF,                 efx_properties->flGainLF);
+            alEffectf( effect,  AL_EAXREVERB_DECAY_TIME,             efx_properties->flDecayTime);
+            alEffectf( effect,  AL_EAXREVERB_DECAY_HFRATIO,          efx_properties->flDecayHFRatio);
+            alEffectf( effect,  AL_EAXREVERB_DECAY_LFRATIO,          efx_properties->flDecayLFRatio);
+            alEffectf( effect,  AL_EAXREVERB_REFLECTIONS_GAIN,       efx_properties->flReflectionsGain);
+            alEffectf( effect,  AL_EAXREVERB_REFLECTIONS_DELAY,      efx_properties->flReflectionsDelay);
+            alEffectfv(effect,  AL_EAXREVERB_REFLECTIONS_PAN,        efx_properties->flReflectionsPan);
+            alEffectf( effect,  AL_EAXREVERB_LATE_REVERB_GAIN,       efx_properties->flLateReverbGain);
+            alEffectf( effect,  AL_EAXREVERB_LATE_REVERB_DELAY,      efx_properties->flLateReverbDelay);
+            alEffectfv(effect,  AL_EAXREVERB_LATE_REVERB_PAN,        efx_properties->flLateReverbPan);
+            alEffectf( effect,  AL_EAXREVERB_ECHO_TIME,              efx_properties->flEchoTime);
+            alEffectf( effect,  AL_EAXREVERB_ECHO_DEPTH,             efx_properties->flEchoDepth);
+            alEffectf( effect,  AL_EAXREVERB_MODULATION_TIME,        efx_properties->flModulationTime);
+            alEffectf( effect,  AL_EAXREVERB_MODULATION_DEPTH,       efx_properties->flModulationDepth);
+            alEffectf( effect,  AL_EAXREVERB_AIR_ABSORPTION_GAINHF,  efx_properties->flAirAbsorptionGainHF);
+            alEffectf( effect,  AL_EAXREVERB_HFREFERENCE,            efx_properties->flHFReference);
+            alEffectf( effect,  AL_EAXREVERB_LFREFERENCE,            efx_properties->flLFReference);
+            alEffectf( effect,  AL_EAXREVERB_ROOM_ROLLOFF_FACTOR,    efx_properties->flRoomRolloffFactor);
+            alEffecti( effect,  AL_EAXREVERB_DECAY_HFLIMIT,          efx_properties->iDecayHFLimit);
+
+            break;
+        case EfxReverbEngine::REVERB:
+            alEffecti(effect, AL_EFFECT_TYPE, AL_EFFECT_REVERB);
+
+            alEffectf(effect, AL_REVERB_DENSITY,                efx_properties->flDensity);
+            alEffectf(effect, AL_REVERB_DIFFUSION,              efx_properties->flDiffusion);
+            alEffectf(effect, AL_REVERB_GAIN,                   efx_properties->flGain);
+            alEffectf(effect, AL_REVERB_GAINHF,                 efx_properties->flGainHF);
+            alEffectf(effect, AL_REVERB_DECAY_TIME,             efx_properties->flDecayTime);
+            alEffectf(effect, AL_REVERB_DECAY_HFRATIO,          efx_properties->flDecayHFRatio);
+            alEffectf(effect, AL_REVERB_REFLECTIONS_GAIN,       efx_properties->flReflectionsGain);
+            alEffectf(effect, AL_REVERB_REFLECTIONS_DELAY,      efx_properties->flReflectionsDelay);
+            alEffectf(effect, AL_REVERB_LATE_REVERB_GAIN,       efx_properties->flLateReverbGain);
+            alEffectf(effect, AL_REVERB_LATE_REVERB_DELAY,      efx_properties->flLateReverbDelay);
+            alEffectf(effect, AL_REVERB_AIR_ABSORPTION_GAINHF,  efx_properties->flAirAbsorptionGainHF);
+            alEffectf(effect, AL_REVERB_ROOM_ROLLOFF_FACTOR,    efx_properties->flRoomRolloffFactor);
+            alEffecti(effect, AL_REVERB_DECAY_HFLIMIT,          efx_properties->iDecayHFLimit);
+
+            break;
+        case EfxReverbEngine::NONE:
+        default:
+            LOG("SoundManager: No usable reverb engine set, not creating reverb effect");
     }
-        /* Check if an error occured, and clean up if so. */
+
     error = alGetError();
     if(error != AL_NO_ERROR)
     {
-        LOG("ERROR in SoundManager::LoadEffect: Could not create EFX effect:" + error);
+        LOG("SoundManager: Could not create EFX effect:" + error);
 
         if(alIsEffect(effect))
             alDeleteEffects(1, &effect);

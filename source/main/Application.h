@@ -451,6 +451,7 @@ extern CVar* audio_master_volume;
 extern CVar* audio_enable_creak;
 extern CVar* audio_enable_obstruction;
 extern CVar* audio_enable_efx;
+extern CVar* audio_efx_reverb_engine;
 extern CVar* audio_force_efx_preset;
 extern CVar* audio_device_name;
 extern CVar* audio_doppler_factor;

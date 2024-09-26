@@ -212,6 +212,7 @@ CVar* audio_master_volume;
 CVar* audio_enable_creak;
 CVar* audio_enable_obstruction;
 CVar* audio_enable_efx;
+CVar* audio_efx_reverb_engine;
 CVar* audio_force_efx_preset;
 CVar* audio_device_name;
 CVar* audio_doppler_factor;

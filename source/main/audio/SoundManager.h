@@ -119,9 +119,22 @@ private:
     bool                                            listener_efx_environment_has_changed = true;
     ALuint                                          listener_slot = 0;
     ALuint                                          efx_outdoor_obstruction_lowpass_filter_id = 0;
+
+    enum EfxReverbEngine
+    {
+        NONE,
+        REVERB,
+        EAXREVERB
+    };
+    EfxReverbEngine                                 efx_reverb_engine = EfxReverbEngine::NONE;
+
     std::string                                     listener_efx_preset_name;
     std::map<std::string, EFXEAXREVERBPROPERTIES>   efx_properties_map;
     std::map<std::string, ALuint>                   efx_effect_id_map;
+    std::map<std::string, EfxReverbEngine>          efx_reverb_engine_map =
+                                                        {{"EAXREVERB", EfxReverbEngine::EAXREVERB},
+                                                        {"REVERB", EfxReverbEngine::REVERB},
+                                                        {"NONE", EfxReverbEngine::NONE}};
     LPALGENEFFECTS                                  alGenEffects = nullptr;
     LPALDELETEEFFECTS                               alDeleteEffects = nullptr;
     LPALISEFFECT                                    alIsEffect = nullptr;

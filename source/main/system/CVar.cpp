@@ -158,6 +158,7 @@ void Console::cVarSetupBuiltins()
     App::audio_doppler_factor         = this->cVarCreate("audio_doppler_factor",            "Doppler Factor",             CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
     App::audio_menu_music             = this->cVarCreate("audio_menu_music",                "MainMenuMusic",              CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::audio_enable_efx             = this->cVarCreate("audio_enable_efx",                "Enable OpenAL EFX",          CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
+    App::audio_efx_reverb_engine      = this->cVarCreate("audio_efx_reverb_engine",         "OpenAL EFX Reverb Engine",   CVAR_ARCHIVE,                     "EAXREVERB");
     App::audio_force_efx_preset       = this->cVarCreate("audio_force_efx_preset",          "Enforce OpenAL EFX preset",  0,                                "");
 
     App::gfx_flares_mode         = this->cVarCreate("gfx_flares_mode",         "Lights",                     CVAR_ARCHIVE | CVAR_TYPE_INT,     "4"/*(int)GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS*/);
