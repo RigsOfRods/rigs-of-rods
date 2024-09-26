@@ -917,8 +917,6 @@ bool Collisions::permitEvent(Actor* b, CollisionEventFilter filter)
         return b && b->ar_driveable == AIRPLANE;
     case EVENT_BOAT:
         return b && b->ar_driveable == BOAT;
-    case EVENT_DELETE:
-        return !b;
     default:
         return false;
     }
