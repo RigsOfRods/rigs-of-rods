@@ -260,7 +260,7 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
             ImVec2 key1_size = ImCalcEventHighlightedSize(event1);
             ImVec2 key2_size = ImCalcEventHighlightedSize(event2);
             ImVec2 desc_size = ImGui::CalcTextSize(desc.c_str());
-            const bool single_line = ImGui::GetWindowContentRegionWidth() > desc_size.x + key1_size.x + key2_size.x;
+            const bool single_line = ImGui::GetWindowContentRegionMax().x > desc_size.x + key1_size.x + key2_size.x;
             static const float BUMP_HEIGHT = 3.f;
             if (single_line)
             {
@@ -274,8 +274,7 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
             // Key 1
             bool key1_hovered = false;
             bool key1_active = false;
-            float MAGICPAD = 7.f;
-            ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() + MAGICPAD) - key1_size.x - key2_size.x - ImGui::GetStyle().ItemSpacing.x);
+            ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x) - key1_size.x - key2_size.x - ImGui::GetStyle().ItemSpacing.x);
             ImDrawEventHighlightedButton(event1, &key1_hovered, &key1_active);
             if (key1_active)
             {
@@ -288,7 +287,7 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
             ImGui::SameLine();
 
             // Key 2
-            ImGui::SetCursorPosX((ImGui::GetWindowContentRegionWidth() + MAGICPAD) - key2_size.x);
+            ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x) - key2_size.x);
             bool key2_hovered = false;
             bool key2_active = false;
             ImDrawEventHighlightedButton(event2, &key2_hovered, &key2_active);
@@ -337,7 +336,7 @@ void DrawStatsLineColored(const char* name, const std::string& value, ImVec4 val
     {
         ImGui::SameLine();
     }
-    ImGui::SetCursorPosX(ImGui::GetWindowContentRegionWidth() - value_size.x);    
+    ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - value_size.x);    
     ImGui::TextColored(value_color, "%s", value.c_str());
 }
 
@@ -815,7 +814,7 @@ bool DrawSingleButtonRow(bool active, const Ogre::TexturePtr& icon, const char* 
     ImGui::Text("%s", name);
     ImGui::SameLine();
     const ImVec2 btn_size = ImCalcEventHighlightedSize(ev);
-    ImGui::SetCursorPosX(ImGui::GetWindowContentRegionWidth() - btn_size.x);
+    ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - btn_size.x);
     return ImDrawEventHighlightedButton(ev, nullptr, btn_active);
 }
 
