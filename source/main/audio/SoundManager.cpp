@@ -272,7 +272,7 @@ void SoundManager::setListener(Ogre::Vector3 position, Ogre::Vector3 direction, 
 
     if(App::audio_enable_efx->getBool())
     {
-        this->updateListenerEnvironment();
+        this->updateListenerEffectSlot();
     }
 }
 
@@ -295,7 +295,7 @@ void SoundManager::setListenerEnvironment(std::string listener_efx_preset_name)
     }
 }
 
-void SoundManager::updateListenerEnvironment()
+void SoundManager::updateListenerEffectSlot()
 {
     if (listener_efx_environment_has_changed)
     {

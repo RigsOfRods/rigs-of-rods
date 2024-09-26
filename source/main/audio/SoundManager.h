@@ -61,7 +61,6 @@ public:
 
     void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
     void setListenerEnvironment(std::string listener_environment);
-    void updateListenerEnvironment();
     void pauseAllSounds();
     void resumeAllSounds();
     void setMasterVolume(float v);
@@ -138,6 +137,7 @@ private:
 
     ALuint  CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties);
     void    build_efx_property_map();
+    void    updateListenerEffectSlot();
 };
 
 /// @}
