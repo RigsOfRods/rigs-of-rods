@@ -702,13 +702,13 @@ void TopMenubar::Draw(float dt)
                     Hydrax::Module::ProjectedGrid::Options water_pgrid_options = iwater->GetWaterGridOptions();
 
                     bool changed = false;
-                    changed |= ImGui::SliderInt(_LC("TopMenubar", "Grid complexity"), &water_pgrid_options.Complexity, 32, 1024);
-                    changed |= ImGui::SliderFloat(_LC("TopMenubar", "Strength"), &water_pgrid_options.Strength, 1.f, 50.f);
-                    changed |= ImGui::SliderFloat(_LC("TopMenubar", "Elevation"), &water_pgrid_options.Elevation, 1.f, 50.f);
+                    changed |= ImGui::SliderInt(_LC("TopMenubar", "Grid complexity"), &water_pgrid_options.Complexity, 40, 400);
+                    changed |= ImGui::SliderFloat(_LC("TopMenubar", "Strength"), &water_pgrid_options.Strength, 1.f, 15.f);
+                    changed |= ImGui::SliderFloat(_LC("TopMenubar", "Elevation"), &water_pgrid_options.Elevation, 1.f, 15.f);
                     changed |= ImGui::Checkbox(_LC("TopMenubar", "Smooth"), &water_pgrid_options.Smooth);
                     changed |= ImGui::Checkbox(_LC("TopMenubar", "Recalc. geom. each frame"), &water_pgrid_options.ForceRecalculateGeometry);
                     changed |= ImGui::Checkbox(_LC("TopMenubar", "Choppy waves"), &water_pgrid_options.ChoppyWaves);
-                    changed |= ImGui::SliderFloat(_LC("TopMenubar", "Choppy w. strength"), &water_pgrid_options.ChoppyStrength, 1.f, 50.f);
+                    changed |= ImGui::SliderFloat(_LC("TopMenubar", "Choppy w. strength"), &water_pgrid_options.ChoppyStrength, 1.f, 10.f);
                     if (changed)
                     {
                         iwater->SetWaterGridOptions(water_pgrid_options);
