@@ -912,6 +912,7 @@ bool Collisions::permitEvent(Actor* b, CollisionEventFilter filter)
     case EVENT_AVATAR:
         return !b;
     case EVENT_TRUCK:
+    case EVENT_TRUCK_WHEELS: // The wheelnode check must be done separately
         return b && b->ar_driveable == TRUCK;
     case EVENT_AIRPLANE:
         return b && b->ar_driveable == AIRPLANE;

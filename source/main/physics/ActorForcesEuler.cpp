@@ -1626,6 +1626,15 @@ void Actor::CalcNodes()
     }
 }
 
+bool TestNodeEventBoxCollision(const node_t& node, collision_box_t* cbox)
+{
+    // Test eventbox collision and extra 'only wheel nodes' filtering condition
+    // ------------------------------------------------------------------------
+
+    return App::GetGameContext()->GetTerrain()->GetCollisions()->isInside(node.AbsPosition, cbox)
+        && (cbox->event_filter != EVENT_TRUCK_WHEELS || node.nd_tyre_node);
+}
+
 void Actor::CalcEventBoxes()
 {
     // Assumption: node positions and bounding boxes are up to date.
@@ -1650,7 +1659,7 @@ void Actor::CalcEventBoxes()
             if (itor->first == cbox)
             {
                 // Existing record found - check if the node still collides
-                has_collision = App::GetGameContext()->GetTerrain()->GetCollisions()->isInside(ar_nodes[itor->second].AbsPosition, cbox);
+                has_collision = TestNodeEventBoxCollision(ar_nodes[itor->second], cbox);
                 if (!has_collision)
                 {
                     // Erase the collision record
@@ -1672,7 +1681,7 @@ void Actor::CalcEventBoxes()
             // Find if any node collides
             for (NodeNum_t i = 0; i < ar_num_nodes; i++)
             {
-                has_collision = App::GetGameContext()->GetTerrain()->GetCollisions()->isInside(ar_nodes[i].AbsPosition, cbox);
+                has_collision = TestNodeEventBoxCollision(ar_nodes[i], cbox);
                 if (has_collision)
                 {
                     do_callback_exit = false;
