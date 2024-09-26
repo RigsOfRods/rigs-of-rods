@@ -24,6 +24,9 @@
 #pragma once
 
 #include "Application.h"
+#include "Collisions.h"
+#include "GameContext.h"
+#include "Sound.h"
 
 #include <OgreVector3.h>
 #include <OgreString.h>
@@ -98,7 +101,7 @@ private:
     ALuint hardware_sources[MAX_HARDWARE_SOURCES];     // this buffer contains valid AL handles up to m_hardware_sources_num
 
     // audio sources
-    SoundPtr audio_sources[MAX_AUDIO_BUFFERS];
+    SoundPtr audio_sources[MAX_AUDIO_BUFFERS] = { nullptr };
     // helper for calculating the most audible sources
     std::pair<int, float> audio_sources_most_audible[MAX_AUDIO_BUFFERS];
     
@@ -115,6 +118,7 @@ private:
     bool                                            efx_is_available = false;
     bool                                            listener_efx_environment_has_changed = true;
     ALuint                                          listener_slot = 0;
+    ALuint                                          efx_outdoor_obstruction_lowpass_filter_id = 0;
     std::string                                     listener_efx_preset_name;
     std::map<std::string, EFXEAXREVERBPROPERTIES>   efx_properties_map;
     std::map<std::string, ALuint>                   efx_effect_id_map;

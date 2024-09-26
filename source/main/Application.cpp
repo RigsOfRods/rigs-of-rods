@@ -210,6 +210,7 @@ CVar* audio_air_absorption_factor;
 CVar* audio_air_absorption_gain_hf;
 CVar* audio_master_volume;
 CVar* audio_enable_creak;
+CVar* audio_enable_obstruction;
 CVar* audio_enable_efx;
 CVar* audio_force_efx_preset;
 CVar* audio_device_name;

@@ -139,6 +139,28 @@ SoundManager::SoundManager()
             }
 
             this->build_efx_property_map();
+
+            /*
+                Create filter for obstruction
+                Currently we don't check for how much high-frequency content the obstacle
+                lets through. We assume it's a hard surface with significant absorption
+                of high frequencies (which should be true for trucks, buildings and terrain).
+            */
+            alGetError();
+
+            alGenFilters(1, &efx_outdoor_obstruction_lowpass_filter_id);
+            ALuint e = alGetError();
+
+            if (e != AL_NO_ERROR)
+            {
+                efx_outdoor_obstruction_lowpass_filter_id = AL_FILTER_NULL;
+            }
+            else
+            {
+                alFilteri(efx_outdoor_obstruction_lowpass_filter_id, AL_FILTER_TYPE, AL_FILTER_LOWPASS);
+                alFilterf(efx_outdoor_obstruction_lowpass_filter_id, AL_LOWPASS_GAIN, 0.33f);
+                alFilterf(efx_outdoor_obstruction_lowpass_filter_id, AL_LOWPASS_GAINHF, 0.25f);
+            }
         }
     }
     else
@@ -184,6 +206,11 @@ SoundManager::~SoundManager()
 
     if(efx_is_available)
     {
+        if(alIsFilter(efx_outdoor_obstruction_lowpass_filter_id))
+        {
+            alDeleteFilters(1, &efx_outdoor_obstruction_lowpass_filter_id);
+        }
+
         for (auto const& efx_effect_id : efx_effect_id_map)
         {
             alDeleteEffects(1, &efx_effect_id.second);
@@ -413,6 +440,54 @@ void SoundManager::recomputeAllSources()
         {
             // update air absorption factor
             alSourcef(hardware_sources[hardware_sources_num], AL_AIR_ABSORPTION_FACTOR, App::audio_air_absorption_factor->getFloat());
+
+            if(App::audio_enable_obstruction->getBool())
+            {
+                /*
+                    Check whether the source is obstructed and filter and attenuate it accordingly.
+                    Currently, only the change in timbre of the sound is simulated.
+                    TODO: Simulate diffraction path.
+                */
+
+                // find Sound the hardware_source belongs to
+                SoundPtr corresponding_sound = nullptr;
+                for(SoundPtr sound : audio_sources)
+                {
+                    if(sound != nullptr)
+                    {
+                        if (sound->hardware_index == hardware_sources_num)
+                        {
+                            corresponding_sound = sound;
+                            break;
+                        }
+                    }
+                }
+
+                if (corresponding_sound != nullptr)
+                {
+                    Ray direct_path_to_sound = Ray(listener_position, corresponding_sound->getPosition());
+                    std::pair<bool, Ogre::Real> intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(direct_path_to_sound);
+
+                    /*
+                        TODO: Also check if trucks are obstructing the sound.
+                        Trucks shouldn't obstruct their own sound sources since the obstruction is most likely
+                        already contained in the recording.
+                        If the obstacle is the sound source's own truck, we should still check for other obstacles.
+                    */
+
+                    if(intersection.first) // sound is obstructed
+                    {
+                        // Apply obstruction filter to the source
+                        alSourcei(hardware_sources[hardware_sources_num], AL_DIRECT_FILTER, efx_outdoor_obstruction_lowpass_filter_id);
+                    }
+                    else
+                    {
+                        // reset direct filter for the source in case it has been set previously
+                        alSourcei(hardware_sources[hardware_sources_num], AL_DIRECT_FILTER, AL_FILTER_NULL);
+                    }
+                    corresponding_sound = nullptr;
+                }
+            }
         }
     }
 }
