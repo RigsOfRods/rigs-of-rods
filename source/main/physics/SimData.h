@@ -42,15 +42,15 @@
 
 namespace RoR {
 
+/// Specified in terrain object (.ODEF) file, syntax: 'event <type> <filter>'
 enum CollisionEventFilter: short
 {
-    EVENT_NONE = 0,
-    EVENT_ALL,
-    EVENT_AVATAR,
-    EVENT_TRUCK,
-    EVENT_AIRPLANE,
-    EVENT_BOAT,
-    EVENT_DELETE
+    EVENT_NONE = 0,   //!< Invalid value.
+    EVENT_ALL,        //!< (default) ~ Triggered by any node on any vehicle
+    EVENT_AVATAR,     //!< 'avatar' ~ Triggered by the character only
+    EVENT_TRUCK,      //!< 'truck' ~ Triggered by any node of land vehicle (`ActorType::TRUCK`)
+    EVENT_AIRPLANE,   //!< 'airplane' ~ Triggered by any node of airplane (`ActorType::AIRPLANE`)
+    EVENT_BOAT,       //!< 'boat' ~ Triggered by any node of boats (`ActorType::BOAT`)
 };
 
 enum class ExtCameraMode
