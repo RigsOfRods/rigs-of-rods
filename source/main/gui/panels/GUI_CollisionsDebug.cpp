@@ -328,10 +328,30 @@ void CollisionsDebug::DrawCollisionBoxDebugText(collision_box_t const& coll_box)
     eventsource_t const& eventsource = App::GetGameContext()->GetTerrain()->GetCollisions()->getEventSource(coll_box.eventsourcenum);
     const char* type_str = (m_labels_draw_types) ? "EVENTBOX\n" : "";
 
-    this->DrawLabelAtWorldPos(
-        fmt::format("{}event:{}\ninstance:{}\nhandler:{}", type_str,
-            eventsource.es_box_name, eventsource.es_instance_name, eventsource.es_script_handler),
-        this->GetCollBoxWorldPos(coll_box), COLOR_EVENTBOX);
+    std::string label = fmt::format("{}event: {}\ninstance: {}\nhandler: {}", type_str,
+            eventsource.es_box_name, eventsource.es_instance_name, eventsource.es_script_handler);
+
+    switch (coll_box.event_filter)
+    {
+    case CollisionEventFilter::EVENT_AVATAR:
+        label += "\nfilter: avatar";
+        break;
+    case CollisionEventFilter::EVENT_TRUCK:
+        label += "\nfilter: truck";
+        break;
+    case CollisionEventFilter::EVENT_TRUCK_WHEELS:
+        label += "\nfilter: truck_wheels";
+        break;
+    case CollisionEventFilter::EVENT_AIRPLANE:
+        label += "\nfilter: airplane";
+        break;
+    case CollisionEventFilter::EVENT_BOAT:
+        label += "\nfilter: boat";
+        break;
+    default:;
+    }
+
+    this->DrawLabelAtWorldPos(label, this->GetCollBoxWorldPos(coll_box), COLOR_EVENTBOX);
 }
 
 void CollisionsDebug::DrawLabelAtWorldPos(std::string const& caption, Ogre::Vector3 const& world_pos, ImVec4 const& text_color)
