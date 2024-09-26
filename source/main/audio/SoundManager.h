@@ -117,6 +117,7 @@ private:
     ALuint                                          listener_slot = 0;
     std::string                                     listener_efx_preset_name;
     std::map<std::string, EFXEAXREVERBPROPERTIES>   efx_properties_map;
+    std::map<std::string, ALuint>                   efx_effect_id_map;
     LPALGENEFFECTS                                  alGenEffects = nullptr;
     LPALDELETEEFFECTS                               alDeleteEffects = nullptr;
     LPALISEFFECT                                    alIsEffect = nullptr;

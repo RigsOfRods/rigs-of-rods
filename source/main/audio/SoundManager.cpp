@@ -184,7 +184,10 @@ SoundManager::~SoundManager()
 
     if(efx_is_available)
     {
-        // TODO: alDeleteEffects
+        for (auto const& efx_effect_id : efx_effect_id_map)
+        {
+            alDeleteEffects(1, &efx_effect_id.second);
+        }
 
         if (alIsAuxiliaryEffectSlot(listener_slot))
         {
@@ -305,9 +308,14 @@ void SoundManager::updateListenerEffectSlot()
         }
         else
         {
-            // TODO: Reuse already existing effects
-            ALuint effect = this->CreateAlEffect(&this->efx_properties_map[listener_efx_preset_name]);
-            alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, effect);
+            // create new effect if not existing
+            if(!listener_efx_preset_name.empty() && efx_effect_id_map.find(listener_efx_preset_name) == efx_effect_id_map.end())
+            {
+                efx_effect_id_map[listener_efx_preset_name] = this->CreateAlEffect(&this->efx_properties_map[listener_efx_preset_name]);
+            }
+
+            // update the effect on the listener effect slot
+            alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, efx_effect_id_map[listener_efx_preset_name]);
         }
     }
 }
