@@ -245,23 +245,52 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
 
         for (const UniqueCommandKeyPair& qpair: actorx->GetActor()->ar_unique_commandkey_pairs)
         {
-            // Description comes first
-            ImVec2 desc_cursor = ImGui::GetCursorScreenPos();
+            // Calc key-button sizes for right alignment (also to check if they fit on the description line)
+            ImVec2 initial_cursor = ImGui::GetCursorScreenPos();
+            const RoR::events event1 = (RoR::events)RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", qpair.uckp_key1));
+            const RoR::events event2 = (RoR::events)RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", qpair.uckp_key2));
             std::string desc = qpair.uckp_description;
             if (qpair.uckp_description == "")
             {
                 desc = _LC("VehicleDescription", "~unlabeled~");
             }
-            ImGui::Text("%s", desc.c_str());
-
-            // Calc key-button sizes for right alignment (also to check if they fit on the description line)
-            const RoR::events event1 = (RoR::events)RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", qpair.uckp_key1));
-            const RoR::events event2 = (RoR::events)RoR::InputEngine::resolveEventName(fmt::format("COMMANDS_{:02d}", qpair.uckp_key2));
             ImVec2 key1_size = ImCalcEventHighlightedSize(event1);
             ImVec2 key2_size = ImCalcEventHighlightedSize(event2);
             ImVec2 desc_size = ImGui::CalcTextSize(desc.c_str());
             const bool single_line = ImGui::GetWindowContentRegionMax().x > desc_size.x + key1_size.x + key2_size.x;
             static const float BUMP_HEIGHT = 3.f;
+            static const float MOUSEHIGHLIGHT_MAGICPADRIGHT = 4.f;
+
+            // The line-highlighting: Done manually because `ImGui::Selectable()` blocks buttons under it (or gets blocked by buttons with the `_AllowItemOverlap` flag).
+            ImVec2 highlight_mouse_min = initial_cursor - ImGui::GetStyle().ItemSpacing/2;
+            ImVec2 highlight_mouse_max = highlight_mouse_min + ImVec2(ImGui::GetWindowContentRegionWidth()+MOUSEHIGHLIGHT_MAGICPADRIGHT, ImGui::GetTextLineHeightWithSpacing());
+            if (!single_line)
+            {
+                highlight_mouse_max.y += ImGui::GetTextLineHeightWithSpacing() - BUMP_HEIGHT;
+            }
+            
+            if ((ImGui::GetMousePos().x > highlight_mouse_min.x && ImGui::GetMousePos().y > highlight_mouse_min.y) 
+                && (ImGui::GetMousePos().x < highlight_mouse_max.x && ImGui::GetMousePos().y < highlight_mouse_max.y))
+            {
+                // This is only for the command-highlight HUD; key1/key2 both point to the same command beams.
+                m_hovered_commandkey = qpair.uckp_key1; 
+
+                // Draw the highlight
+                ImVec4 col = m_cmdbeam_highlight_color;
+                col.w = 0.55f;
+                ImDrawList* draw_list = ImGui::GetWindowDrawList();
+                draw_list->AddRectFilled(highlight_mouse_min, highlight_mouse_max, ImColor(col));
+
+                // Description comes first - colored for contrast
+                ImGui::TextColored(m_command_hovered_text_color, "%s", desc.c_str());
+            }
+            else
+            {
+                // Description comes first
+                ImGui::Text("%s", desc.c_str());
+            }
+
+
             if (single_line)
             {
                 ImGui::SameLine(); // They fit!
@@ -298,27 +327,6 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
             if (key2_hovered)
             {
                 m_hovered_commandkey = qpair.uckp_key2;
-            }
-
-            // The line-highlighting: Done manually because `ImGui::Selectable()` blocks buttons under it (or gets blocked by buttons with the `_AllowItemOverlap` flag).
-            ImVec2 highlight_mouse_min = desc_cursor - ImGui::GetStyle().ItemSpacing/2;
-            ImVec2 highlight_mouse_max = highlight_mouse_min + ImVec2(ImGui::GetWindowContentRegionWidth(), ImGui::GetTextLineHeightWithSpacing());
-            if (!single_line)
-            {
-                highlight_mouse_max.y += ImGui::GetTextLineHeightWithSpacing() - BUMP_HEIGHT;
-            }
-            
-            if ((ImGui::GetMousePos().x > highlight_mouse_min.x && ImGui::GetMousePos().y > highlight_mouse_min.y) 
-                && (ImGui::GetMousePos().x < highlight_mouse_max.x && ImGui::GetMousePos().y < highlight_mouse_max.y))
-            {
-                // This is only for the command-highlight HUD; key1/key2 both point to the same command beams.
-                m_hovered_commandkey = qpair.uckp_key1; 
-
-                // Draw the highlight
-                ImVec4 col = m_cmdbeam_highlight_color;
-                col.w = 0.4f;
-                ImDrawList* draw_list = ImGui::GetWindowDrawList();
-                draw_list->AddRectFilled(highlight_mouse_min, highlight_mouse_max, ImColor(col));
             }
         }
     }
