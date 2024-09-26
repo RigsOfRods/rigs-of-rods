@@ -355,6 +355,18 @@ void DrawStatsBullet(const char* name, const std::string& value)
     DrawStatsLineColored(name, value, ImGui::GetStyle().Colors[ImGuiCol_Text]);
 }
 
+std::string FormatVelocityBySpeedoPreset(float velocity)
+{
+    if (App::gfx_speedo_imperial->getBool())
+    {
+        return fmt::format("{:.0f} mph", Round(velocity * 2.23693629f));
+    }
+    else
+    {
+        return fmt::format("{:.0f} km/h", Round(velocity * 3.6f));
+    }
+}
+
 void VehicleInfoTPanel::DrawVehicleStatsUI(RoR::GfxActor* actorx)
 {
     GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
@@ -421,29 +433,14 @@ void VehicleInfoTPanel::DrawVehicleStatsUI(RoR::GfxActor* actorx)
 
         DrawStatsLine(_LC("SimActorStats", "Drive ratio: "), fmt::format("{:.2f}:1", actorx->GetSimDataBuffer().simbuf_drive_ratio));
 
-        float velocityKPH = wheel_speed * 3.6f;
-        float velocityMPH = wheel_speed * 2.23693629f;
-        float carSpeedKPH = n0_velo_len * 3.6f;
-        float carSpeedMPH = n0_velo_len * 2.23693629f;
+        DrawStatsLine(_LC("SimActorStats", "Wheel speed: "), FormatVelocityBySpeedoPreset(wheel_speed));
 
-        // apply a deadzone ==> no flickering +/-
-        if (fabs(wheel_speed) < 1.0f)
-        {
-            velocityKPH = velocityMPH = 0.0f;
-        }
-        if (fabs(n0_velo_len) < 1.0f)
-        {
-            carSpeedKPH = carSpeedMPH = 0.0f;
-        }
-
-        DrawStatsLine(_LC("SimActorStats", "Wheel speed: "), fmt::format("{:.0f}Km/h ({:.0f} mph)", Round(velocityKPH), Round(velocityMPH)));
-
-        DrawStatsLine(_LC("SimActorStats", "Vehicle speed: "), fmt::format("{:.0f}Km/h ({:.0f} mph)", Round(carSpeedKPH), Round(carSpeedMPH)));
+        DrawStatsLine(_LC("SimActorStats", "Vehicle speed: "), FormatVelocityBySpeedoPreset(n0_velo_len));
     }
     else // Aircraft or boat
     {
         float speedKN = n0_velo_len * 1.94384449f;
-        DrawStatsLine(_LC("SimActorStats", "Current speed: "), fmt::format("{:.0f} kn ({:.0f} Km/h; {:.0f} mph)", Round(speedKN), Round(speedKN * 1.852), Round(speedKN * 1.151)));
+        DrawStatsLine(_LC("SimActorStats", "Current speed: "), fmt::format("{:.0f} kn ({})", Round(speedKN), FormatVelocityBySpeedoPreset(n0_velo_len)));
 
         if (actorx->GetSimDataBuffer().simbuf_driveable == AIRPLANE)
         {
@@ -479,9 +476,7 @@ void VehicleInfoTPanel::DrawVehicleStatsUI(RoR::GfxActor* actorx)
 
     ImGui::NewLine();
 
-    const float speedKPH = actorx->GetSimDataBuffer().simbuf_top_speed * 3.6f;
-    const float speedMPH = actorx->GetSimDataBuffer().simbuf_top_speed * 2.23693629f;
-    DrawStatsLine(_LC("SimActorStats", "Top speed: "), fmt::format("{:.0f} km/h ({:.0f} mph)", Round(speedKPH), Round(speedMPH)));
+    DrawStatsLine(_LC("SimActorStats", "Top speed: "), FormatVelocityBySpeedoPreset(actorx->GetSimDataBuffer().simbuf_top_speed));
 
     ImGui::NewLine();
 
