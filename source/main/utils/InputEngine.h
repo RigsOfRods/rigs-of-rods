@@ -481,11 +481,12 @@ public:
     /// @{
     void                Capture();
     void                updateKeyBounces(float dt);
-    void                ProcessMouseEvent(const OIS::MouseEvent& arg);
+    void                ProcessMouseMotionEvent(const OIS::MouseEvent& arg);
+    void                ProcessMouseButtonEvent(const OIS::MouseEvent& arg);
     void                ProcessKeyPress(const OIS::KeyEvent& arg);
     void                ProcessKeyRelease(const OIS::KeyEvent& arg);
     void                ProcessJoystickEvent(const OIS::JoyStickEvent& arg);
-    void                resetKeys();
+    void                resetKeysAndMouseButtons();
     void                setEventSimulatedValue(events eventID, float value);
     void                setEventStatusSupressed(events eventID, bool supress);
     /// @}

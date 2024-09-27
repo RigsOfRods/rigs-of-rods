@@ -40,9 +40,9 @@ public:
 
     SceneMouse();
 
-    bool mouseMoved(const OIS::MouseEvent& _arg);
-    bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
-    bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    bool handleMouseMoved();
+    bool handleMousePressed();
+    bool handleMouseReleased();
 
     void InitializeVisuals();
     void UpdateSimulation();

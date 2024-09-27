@@ -602,7 +602,10 @@ void InputEngine::setup()
 
 OIS::MouseState InputEngine::getMouseState()
 {
-    return mMouse->getMouseState();
+    // If you alt+TAB out of the window while any mouse button is down, OIS will not release it until you click in the window again.
+    // See https://github.com/RigsOfRods/rigs-of-rods/issues/2468
+    // To work around, we keep internal button states and pay attention not to get them polluted by OIS.
+    return mouseState;
 }
 
 String InputEngine::getKeyNameForKeyCode(OIS::KeyCode keycode)
@@ -687,18 +690,30 @@ void InputEngine::ProcessKeyRelease(const OIS::KeyEvent& arg)
 }
 
 /* --- Mouse Events ------------------------------------------ */
-void InputEngine::ProcessMouseEvent(const OIS::MouseEvent& arg)
+void InputEngine::ProcessMouseMotionEvent(const OIS::MouseEvent& arg)
 {
-    mouseState = arg.state;
+    // Only pick position info; button info may be dirty, see commentary in `getMouseState()`
+    mouseState.X = arg.state.X;
+    mouseState.Y = arg.state.Y;
+    mouseState.Z = arg.state.Z;
+}
+
+void InputEngine::ProcessMouseButtonEvent(const OIS::MouseEvent& arg)
+{
+    // Only update buttons on event, persistent state may be dirty, see commentary in `getMouseState()`
+    mouseState.buttons = arg.state.buttons;
 }
 
 /* --- Custom Methods ------------------------------------------ */
-void InputEngine::resetKeys()
+void InputEngine::resetKeysAndMouseButtons()
 {
     for (std::map<int, bool>::iterator iter = keyState.begin(); iter != keyState.end(); ++iter)
     {
         iter->second = false;
     }
+
+    // Reset internal button states; see commentary in `getMouseState()`
+    mouseState.buttons = 0;
 }
 
 void InputEngine::setEventSimulatedValue(RoR::events eventID, float value)
@@ -1283,7 +1298,7 @@ void InputEngine::clearEventsByDevice(int deviceID)
 void InputEngine::clearAllEvents()
 {
     events.clear(); // remove all bindings
-    this->resetKeys(); // reset input states
+    this->resetKeysAndMouseButtons(); // reset input states
 }
 
 bool InputEngine::processLine(const char* line, int deviceID)

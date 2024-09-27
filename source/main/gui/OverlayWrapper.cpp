@@ -490,12 +490,15 @@ void OverlayWrapper::updateStats(bool detailed)
     }
 }
 
-bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
+bool OverlayWrapper::handleMouseMoved()
 {
     if (!m_aerial_dashboard.needles_overlay->isVisible())
         return false;
     bool res = false;
-    const OIS::MouseState ms = _arg.state;
+
+    // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
+    //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
+    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
     
     ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
 
@@ -630,14 +633,14 @@ bool OverlayWrapper::mouseMoved(const OIS::MouseEvent& _arg)
     return res;
 }
 
-bool OverlayWrapper::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool OverlayWrapper::handleMousePressed()
 {
-    return mouseMoved(_arg);
+    return handleMouseMoved();
 }
 
-bool OverlayWrapper::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool OverlayWrapper::handleMouseReleased()
 {
-    return mouseMoved(_arg);
+    return handleMouseMoved();
 }
 
 void OverlayWrapper::UpdatePressureOverlay(RoR::GfxActor* ga)

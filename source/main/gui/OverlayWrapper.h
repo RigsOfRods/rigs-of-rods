@@ -129,9 +129,9 @@ public:
     void windowResized();
     void resizeOverlay(LoadedOverlay & overlay);
 
-    bool mouseMoved(const OIS::MouseEvent& _arg);
-    bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
-    bool mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    bool handleMouseMoved();
+    bool handleMousePressed();
+    bool handleMouseReleased();
     
 
     void UpdatePressureOverlay(RoR::GfxActor* ga);

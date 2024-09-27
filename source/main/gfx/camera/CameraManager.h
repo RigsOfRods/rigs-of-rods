@@ -67,11 +67,11 @@ public:
     void NotifyVehicleChanged(ActorPtr new_vehicle);
 
     void CameraBehaviorOrbitReset();
-    bool CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg);
+    bool CameraBehaviorOrbitMouseMoved();
     void CameraBehaviorOrbitUpdate();
 
-    bool mouseMoved(const OIS::MouseEvent& _arg);
-    bool mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    bool handleMouseMoved();
+    bool handleMousePressed();
 
     void ResetAllBehaviors();
     void ReCreateCameraNode(); //!< Needed since we call `Ogre::SceneManager::ClearScene()` after end of sim. session
@@ -89,14 +89,14 @@ protected:
     void ResetCurrentBehavior();
     void DeactivateCurrentBehavior();
     void UpdateCameraBehaviorStatic();
-    bool CameraBehaviorStaticMouseMoved(const OIS::MouseEvent& _arg);
+    bool CameraBehaviorStaticMouseMoved();
     void UpdateCameraBehaviorFree();
     void UpdateCameraBehaviorFixed();
     void UpdateCameraBehaviorVehicle();
     void CameraBehaviorVehicleReset();
-    bool CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id);
+    bool CameraBehaviorVehicleMousePressed();
     void CameraBehaviorVehicleSplineUpdate();
-    bool CameraBehaviorVehicleSplineMouseMoved(const OIS::MouseEvent& _arg);
+    bool CameraBehaviorVehicleSplineMouseMoved();
     void CameraBehaviorVehicleSplineReset();
     void CameraBehaviorVehicleSplineCreateSpline();
     void CameraBehaviorVehicleSplineUpdateSpline();

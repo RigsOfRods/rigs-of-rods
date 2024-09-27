@@ -58,8 +58,8 @@ public:
 
     // Input-injecting functions
     void InjectMouseMoved( const OIS::MouseEvent &arg );
-    void InjectMousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
-    void InjectMouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
+    void SetMouseButtonState(OIS::MouseButtonID id, bool down);
+    void ResetAllMouseButtons();
     void InjectKeyPressed( const OIS::KeyEvent &arg );
     void InjectKeyReleased( const OIS::KeyEvent &arg );
 

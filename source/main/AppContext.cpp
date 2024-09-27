@@ -77,19 +77,15 @@ bool AppContext::mouseMoved(const OIS::MouseEvent& arg) // overrides OIS::MouseL
 {
     App::GetGuiManager()->WakeUpGUI();
     App::GetGuiManager()->GetImGui().InjectMouseMoved(arg);
+    App::GetInputEngine()->ProcessMouseMotionEvent(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
-        bool handled = false;
-        if (App::GetOverlayWrapper())
+        if (!App::GetOverlayWrapper() || !App::GetOverlayWrapper()->handleMouseMoved()) // update the old airplane / autopilot gui
         {
-            handled = App::GetOverlayWrapper()->mouseMoved(arg); // update the old airplane / autopilot gui
-        }
-        if (!handled)
-        {
-            if (!App::GetCameraManager()->mouseMoved(arg))
+            if (!App::GetCameraManager()->handleMouseMoved())
             {
-                App::GetGameContext()->GetSceneMouse().mouseMoved(arg);
+                App::GetGameContext()->GetSceneMouse().handleMouseMoved();
             }
         }
     }
@@ -100,25 +96,19 @@ bool AppContext::mouseMoved(const OIS::MouseEvent& arg) // overrides OIS::MouseL
 bool AppContext::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID _id) // overrides OIS::MouseListener
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().InjectMousePressed(arg, _id);
+    App::GetGuiManager()->GetImGui().SetMouseButtonState(_id, /*down:*/true);
+    App::GetInputEngine()->ProcessMouseButtonEvent(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
-        bool handled = false;
-        if (App::GetOverlayWrapper())
+        if (!App::GetOverlayWrapper() || !App::GetOverlayWrapper()->handleMousePressed()) // update the old airplane / autopilot gui
         {
-            handled = App::GetOverlayWrapper()->mousePressed(arg, _id); // update the old airplane / autopilot gui
+            if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+            {
+                App::GetGameContext()->GetSceneMouse().handleMousePressed();
+                App::GetCameraManager()->handleMousePressed();
+            }
         }
-
-        if (!handled && App::app_state->getEnum<AppState>() == AppState::SIMULATION)
-        {
-            App::GetGameContext()->GetSceneMouse().mousePressed(arg, _id);
-            App::GetCameraManager()->mousePressed(arg, _id);
-        }
-    }
-    else
-    {
-        App::GetInputEngine()->ProcessMouseEvent(arg);
     }
 
     return true;
@@ -127,23 +117,18 @@ bool AppContext::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID _id
 bool AppContext::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID _id) // overrides OIS::MouseListener
 {
     App::GetGuiManager()->WakeUpGUI();
-    App::GetGuiManager()->GetImGui().InjectMouseReleased(arg, _id);
+    App::GetGuiManager()->GetImGui().SetMouseButtonState(_id, /*down:*/false);
+    App::GetInputEngine()->ProcessMouseButtonEvent(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
-        bool handled = false;
-        if (App::GetOverlayWrapper())
+        if (!App::GetOverlayWrapper() || !App::GetOverlayWrapper()->handleMouseReleased()) // update the old airplane / autopilot gui
         {
-            handled = App::GetOverlayWrapper()->mouseReleased(arg, _id); // update the old airplane / autopilot gui
+            if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
+            {
+                App::GetGameContext()->GetSceneMouse().handleMouseReleased();
+            }
         }
-        if (!handled && App::app_state->getEnum<AppState>() == AppState::SIMULATION)
-        {
-            App::GetGameContext()->GetSceneMouse().mouseReleased(arg, _id);
-        }
-    }
-    else
-    {
-        App::GetInputEngine()->ProcessMouseEvent(arg);
     }
 
     return true;
@@ -201,7 +186,15 @@ void AppContext::windowResized(Ogre::RenderWindow* rw)
 
 void AppContext::windowFocusChange(Ogre::RenderWindow* rw)
 {
-    App::GetInputEngine()->resetKeys();
+    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+        fmt::format("Window focus change; isActive={}", rw->isActive()));
+    
+    // If you alt+TAB out of the window while any mouse button is down, OIS will not release it until you click in the window again.
+    // See https://github.com/RigsOfRods/rigs-of-rods/issues/2468
+    // To work around, we reset all internal mouse button states here and pay attention not to get them polluted by OIS again.
+    App::GetGuiManager()->GetImGui().ResetAllMouseButtons();
+    // Same applies to keyboard keys - reset them manually otherwise OIS will hold them 'down' the entire time.
+    App::GetInputEngine()->resetKeysAndMouseButtons();
 }
 
 // --------------------------
@@ -376,6 +369,7 @@ bool AppContext::SetUpRendering()
         "Rigs of Rods version " + Ogre::String (ROR_VERSION_STRING),
         width, height, ropts["Full Screen"].currentValue == "Yes", &miscParams);
     OgreBites::WindowEventUtilities::_addRenderWindow(m_render_window);
+    OgreBites::WindowEventUtilities::addWindowEventListener(m_render_window, this);
 
     this->SetRenderWindowIcon(m_render_window);
     m_render_window->setActive(true);
