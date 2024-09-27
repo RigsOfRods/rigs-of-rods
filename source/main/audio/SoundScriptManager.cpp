@@ -337,36 +337,32 @@ void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
     if (disabled)
         return;
 
-    const auto water = App::GetGameContext()->GetTerrain()->getWater();
-    bool listener_is_underwater = (water != nullptr ? water->IsUnderWater(listener_position) : false);
+    std::string listener_environment;
 
-    if(listener_is_underwater)
+    if (App::audio_engine_controls_environmental_audio->getBool())
     {
-        sound_manager->setSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
-        /*
-        According to the Francois-Garrison formula for frequency-dependant absorption at 5kHz in water
-        and assuming the Air Absorption Gain HF property of OpenAL is set to the minimum of 0.892,
-        the absorption factor should be ~11.25, which is just slightly above the maximum of 10.0.
-        */
-        App::audio_air_absorption_factor->setVal(10.0f);
-        App::audio_air_absorption_gain_hf->setVal(0.892f);
-    }
-    else
-    {
-        sound_manager->setSpeedOfSound(343.3f); // assume listener is in air at 20° celsius
-        App::audio_air_absorption_factor->setVal(1.0f);
-        App::audio_air_absorption_gain_hf->setVal(0.994f);
-    }
+        const auto water = App::GetGameContext()->GetTerrain()->getWater();
+        bool listener_is_underwater = (water != nullptr ? water->IsUnderWater(listener_position) : false);
 
-    if (App::audio_enable_efx->getBool())
-    {
-        std::string listener_environment;
-
-        if(!App::audio_force_efx_preset->getStr().empty())
+        if(listener_is_underwater)
         {
-            listener_environment = App::audio_force_efx_preset->getStr();
+            sound_manager->setSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
+            /*
+            According to the Francois-Garrison formula for frequency-dependant absorption at 5kHz in water
+            and assuming the Air Absorption Gain HF property of OpenAL is set to the minimum of 0.892,
+            the absorption factor should be ~11.25, which is just slightly above the maximum of 10.0.
+            */
+            App::audio_air_absorption_factor->setVal(10.0f);
+            App::audio_air_absorption_gain_hf->setVal(0.892f);
         }
         else
+        {
+            sound_manager->setSpeedOfSound(343.3f); // assume listener is in air at 20° celsius
+            App::audio_air_absorption_factor->setVal(1.0f);
+            App::audio_air_absorption_gain_hf->setVal(0.994f);
+        }
+
+        if (App::audio_enable_efx->getBool())
         {
             if(listener_is_underwater)
             {
@@ -378,7 +374,15 @@ void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
             }
             // TODO: Might want to set an in-cockpit effect when appropriate
         }
+    }
 
+    if (App::audio_enable_efx->getBool())
+    {
+        if (listener_environment.empty())
+        {
+            listener_environment = App::audio_listener_efx_preset->getStr();
+        }
+        // always update the environment in case it was changed via console or script
         sound_manager->setListenerEnvironment(listener_environment);
     }
 }
