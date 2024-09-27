@@ -531,13 +531,17 @@ void CameraManager::ResetAllBehaviors()
     this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_INVALID, nullptr);
 }
 
-bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
+bool CameraManager::handleMouseMoved()
 {
 
     if (App::sim_state->getEnum<SimState>() == SimState::PAUSED)
     {
         return true; // Do nothing when paused
     }
+
+    // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
+    //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
+    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
 
     switch(m_current_behavior)
     {
@@ -546,7 +550,6 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
             return false;
         if (!m_charactercam_is_3rdperson)
         {
-            const OIS::MouseState ms = _arg.state;
             Radian angle = App::GetGameContext()->GetPlayerCharacter()->getRotation();
 
             m_cam_rot_y += Degree(ms.Y.rel * 0.13f);
@@ -562,14 +565,13 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
             return true;
         }
 
-        return CameraManager::CameraBehaviorOrbitMouseMoved(_arg);
+        return CameraManager::CameraBehaviorOrbitMouseMoved();
     }
-    case CAMERA_BEHAVIOR_STATIC:          return CameraBehaviorStaticMouseMoved(_arg);
-    case CAMERA_BEHAVIOR_VEHICLE:         return CameraBehaviorOrbitMouseMoved(_arg);
-    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return this->CameraBehaviorVehicleSplineMouseMoved(_arg);
-    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return CameraBehaviorOrbitMouseMoved(_arg);
+    case CAMERA_BEHAVIOR_STATIC:          return CameraBehaviorStaticMouseMoved();
+    case CAMERA_BEHAVIOR_VEHICLE:         return CameraBehaviorOrbitMouseMoved();
+    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return this->CameraBehaviorVehicleSplineMouseMoved();
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return CameraBehaviorOrbitMouseMoved();
     case CAMERA_BEHAVIOR_FREE: {
-        const OIS::MouseState ms = _arg.state;
 
         App::GetCameraManager()->GetCameraNode()->yaw(Degree(-ms.X.rel * 0.13f), Ogre::Node::TS_WORLD);
         App::GetCameraManager()->GetCameraNode()->pitch(Degree(-ms.Y.rel * 0.13f));
@@ -586,11 +588,13 @@ bool CameraManager::mouseMoved(const OIS::MouseEvent& _arg)
     }
 }
 
-bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool CameraManager::handleMousePressed()
 {
-    const OIS::MouseState ms = _arg.state;
+    // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
+    //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
+    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
 
-    if (ms.buttonDown(OIS::MB_Right) && _id == OIS::MB_Middle)
+    if (ms.buttonDown(OIS::MB_Right) && ms.buttonDown(OIS::MB_Middle))
     {
         ResetCurrentBehavior();
     }
@@ -599,9 +603,9 @@ bool CameraManager::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID
     {
     case CAMERA_BEHAVIOR_CHARACTER:       return false;
     case CAMERA_BEHAVIOR_STATIC:          return false;
-    case CAMERA_BEHAVIOR_VEHICLE:         return this->CameraBehaviorVehicleMousePressed(_arg, _id);
-    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return this->CameraBehaviorVehicleMousePressed(_arg, _id);
-    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return this->CameraBehaviorVehicleMousePressed(_arg, _id);
+    case CAMERA_BEHAVIOR_VEHICLE:         return this->CameraBehaviorVehicleMousePressed();
+    case CAMERA_BEHAVIOR_VEHICLE_SPLINE:  return this->CameraBehaviorVehicleMousePressed();
+    case CAMERA_BEHAVIOR_VEHICLE_CINECAM: return this->CameraBehaviorVehicleMousePressed();
     case CAMERA_BEHAVIOR_FREE:            return false;
     case CAMERA_BEHAVIOR_FIXED:           return false;
     case CAMERA_BEHAVIOR_ISOMETRIC:       return false;
@@ -797,9 +801,11 @@ void CameraManager::UpdateCameraBehaviorStatic()
     App::GetCameraManager()->GetCamera()->setFOVy(Radian(fov));
 }
 
-bool CameraManager::CameraBehaviorStaticMouseMoved(const OIS::MouseEvent& _arg)
+bool CameraManager::CameraBehaviorStaticMouseMoved()
 {
-    const OIS::MouseState ms = _arg.state;
+    // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
+    //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
+    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
 
     if (ms.buttonDown(OIS::MB_Right))
     {
@@ -938,9 +944,11 @@ void CameraManager::CameraBehaviorOrbitUpdate()
     App::GetCameraManager()->GetCameraNode()->lookAt(m_cam_look_at_smooth, Ogre::Node::TS_WORLD);
 }
 
-bool CameraManager::CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg)
+bool CameraManager::CameraBehaviorOrbitMouseMoved()
 {
-    const OIS::MouseState ms = _arg.state;
+    // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
+    //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
+    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
 
     if (ms.buttonDown(OIS::MB_Right))
     {
@@ -1085,9 +1093,11 @@ void CameraManager::CameraBehaviorVehicleReset()
 	m_cam_dist = m_cam_dist_min * 1.5f + 2.0f;
 }
 
-bool CameraManager::CameraBehaviorVehicleMousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool CameraManager::CameraBehaviorVehicleMousePressed()
 {
-	const OIS::MouseState ms = _arg.state;
+    // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
+    //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
+    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
 
 	if ( ms.buttonDown(OIS::MB_Middle) && RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) )
 	{
@@ -1181,9 +1191,11 @@ void CameraManager::CameraBehaviorVehicleSplineUpdate()
     CameraManager::CameraBehaviorOrbitUpdate();
 }
 
-bool CameraManager::CameraBehaviorVehicleSplineMouseMoved(  const OIS::MouseEvent& _arg)
+bool CameraManager::CameraBehaviorVehicleSplineMouseMoved(  )
 {
-    const OIS::MouseState ms = _arg.state;
+    // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
+    //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
+    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
 
     m_cam_ratio = 1.0f / (m_cct_dt * 4.0f);
 
@@ -1233,7 +1245,7 @@ bool CameraManager::CameraBehaviorVehicleSplineMouseMoved(  const OIS::MouseEven
     }
     else
     {
-        return CameraManager::CameraBehaviorOrbitMouseMoved(_arg);
+        return CameraManager::CameraBehaviorOrbitMouseMoved();
     }
 }
 

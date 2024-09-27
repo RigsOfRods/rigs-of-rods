@@ -96,22 +96,23 @@ void OgreImGui::InjectMouseMoved( const OIS::MouseEvent &arg )
     io.MouseWheel = Ogre::Math::Clamp((float)arg.state.Z.rel, -1/3.f, 1/3.f);
 }
 
-void OgreImGui::InjectMousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+void OgreImGui::SetMouseButtonState( OIS::MouseButtonID id, bool down )
 {
     ImGuiIO& io = ImGui::GetIO();
-    if (id<5)
+    if (id >= 0 && id < 5)
     {
-        io.MouseDown[id] = true;
+        io.MouseDown[id] = down;
     }
 }
 
-void OgreImGui::InjectMouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id )
+void OgreImGui::ResetAllMouseButtons()
 {
     ImGuiIO& io = ImGui::GetIO();
-    if (id<5)
-    {
-        io.MouseDown[id] = false;
-    }
+    io.MouseDown[0] = false;
+    io.MouseDown[1] = false;
+    io.MouseDown[2] = false;
+    io.MouseDown[3] = false;
+    io.MouseDown[4] = false;
 }
 
 void OgreImGui::InjectKeyPressed( const OIS::KeyEvent &arg )
