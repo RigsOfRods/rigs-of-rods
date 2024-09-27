@@ -163,7 +163,7 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
 {
     this->DrawCommonGui();
 
-    if (player_gfx_actor)
+    if (player_gfx_actor && !this->GameMainMenu.IsVisible())
     {
         this->VehicleInfoTPanel.Draw(player_gfx_actor);
     }
