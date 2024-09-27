@@ -268,12 +268,12 @@ bool ODefParser::ProcessCurrentLine()
         sscanf(line_str.c_str(), "event %300s %300s", ev_name, ev_type);
         m_ctx.cbox_event_name = ev_name;
 
-             if (!strncmp(ev_type, "avatar",    6)) { m_ctx.cbox_event_filter = EVENT_AVATAR;   }
-        else if (!strncmp(ev_type, "truck",     5)) { m_ctx.cbox_event_filter = EVENT_TRUCK;    }
-        else if (!strncmp(ev_type, "truck_wheels", 12)) { m_ctx.cbox_event_filter = EVENT_TRUCK_WHEELS;    }
-        else if (!strncmp(ev_type, "airplane",  8)) { m_ctx.cbox_event_filter = EVENT_AIRPLANE; }
-        else if (!strncmp(ev_type, "boat",      4)) { m_ctx.cbox_event_filter = EVENT_BOAT;     }
-        else                                        { m_ctx.cbox_event_filter = EVENT_ALL;      }
+             if (!strncmp(ev_type, "avatar",        6)) { m_ctx.cbox_event_filter = EVENT_AVATAR;       }
+        else if (!strncmp(ev_type, "truck_wheels", 12)) { m_ctx.cbox_event_filter = EVENT_TRUCK_WHEELS; }
+        else if (!strncmp(ev_type, "truck",         5)) { m_ctx.cbox_event_filter = EVENT_TRUCK;        }
+        else if (!strncmp(ev_type, "airplane",      8)) { m_ctx.cbox_event_filter = EVENT_AIRPLANE;     }
+        else if (!strncmp(ev_type, "boat",          4)) { m_ctx.cbox_event_filter = EVENT_BOAT;         }
+        else                                            { m_ctx.cbox_event_filter = EVENT_ALL;          }
 
         // hack to avoid fps drops near spawnzones
         if (!strncmp(ev_name, "spawnzone", 9)) { m_ctx.cbox_event_filter = EVENT_AVATAR; }
