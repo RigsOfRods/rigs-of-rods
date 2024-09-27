@@ -37,9 +37,9 @@ void NodeBeamUtils::Draw()
         this->SetVisible(false);
         return;
     }
-
-    const int flags = ImGuiWindowFlags_NoCollapse;
+    ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(600.f, 675.f), ImGuiCond_FirstUseEver);
+    const int flags = ImGuiWindowFlags_NoCollapse;
     bool keep_open = true;
     ImGui::Begin(_LC("NodeBeamUtils", "Node/Beam Utils"), &keep_open, flags);
 

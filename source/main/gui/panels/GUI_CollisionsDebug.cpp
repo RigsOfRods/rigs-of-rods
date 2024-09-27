@@ -43,6 +43,7 @@ void CollisionsDebug::Draw()
 {
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
+    ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize;
     bool keep_open = true;
     ImGui::Begin(_LC("About", "Static collision debug"), &keep_open, win_flags);

@@ -41,6 +41,7 @@ using namespace GUI;
 
 void FrictionSettings::Draw()
 {
+    ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
     ImGuiWindowFlags win_flags = ImGuiWindowFlags_NoCollapse;
     bool keep_open = true;
     ImGui::Begin(_LC("FrictionSettings", "Friction Settings"), &keep_open, win_flags);
