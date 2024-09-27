@@ -642,7 +642,8 @@ void TopMenubar::Draw(float dt)
                 }
             }       
 #endif // USE_CAELUM
-            if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED)
+            if (App::mp_state->getEnum<MpState>() != MpState::CONNECTED
+                && App::GetGameContext()->GetTerrain()->GetDef().has_water)
             {
                 ImGui::Separator();
                 ImGui::PushID("water");
