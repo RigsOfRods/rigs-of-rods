@@ -312,6 +312,8 @@ void SoundManager::setListener(Ogre::Vector3 position, Ogre::Vector3 direction, 
     if (!audio_device)
         return;
     listener_position = position;
+    listener_direction = direction;
+    listener_up = up;
     recomputeAllSources();
 
     float orientation[6];
@@ -367,6 +369,92 @@ void SoundManager::updateListenerEffectSlot()
         else if (efx_reverb_engine == EfxReverbEngine::REVERB)
         {
             alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_REVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
+        }
+
+        // reflection panning
+        if(
+           App::audio_enable_reflection_panning->getBool() &&
+           efx_reverb_engine == EfxReverbEngine::EAXREVERB &&
+           App::app_state->getEnum<AppState>() == AppState::SIMULATION // required to avoid crash when returning to main menu
+          )
+        {
+            /*
+             * Detect surfaces close to the listener and pan and delay early reflections accordingly.
+             * Use ray casting to probe for a collision up to max_distance to each side of the listener.
+             */
+            float max_distance = 2.0f;
+            float reflection_delay = -1.0f;
+            float magnitude;
+
+            Ogre::Vector3 reflection_panning_direction = { 0.0f, 0.0f, 0.0f};
+            Ogre::Vector3 left = listener_position - listener_direction.crossProduct(listener_up).normalisedCopy() * max_distance;
+            Ogre::Vector3 right = listener_position + listener_direction.crossProduct(listener_up).normalisedCopy() * max_distance;
+
+            Ray left_side = Ray(listener_position, left);
+            Ray right_side = Ray(listener_position, right);
+
+            std::pair<bool, Ogre::Real> intersection_left = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(left_side);
+            std::pair<bool, Ogre::Real> intersection_right = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(right_side);
+
+            // there is a nearby surface on both sides
+            if (intersection_left.first && intersection_right.first)
+            {
+                // pan toward the closer object
+                if (intersection_left.second < intersection_right.second)
+                {
+                    reflection_panning_direction = left;
+                    magnitude = intersection_left.second;
+                    reflection_delay = intersection_left.second / getSpeedOfSound();
+                }
+                else
+                {
+                    reflection_panning_direction = right;
+                    magnitude = intersection_right.second;
+                    reflection_delay = intersection_right.second / getSpeedOfSound();
+                }
+                // take the difference in collision distance to determine the magnitude of the panning vector
+                magnitude = Math::Abs(intersection_left.second - intersection_right.second);
+            }
+            else if (intersection_left.first) // there is a nearby surface on the left side
+            {
+                reflection_panning_direction = left;
+                magnitude = intersection_left.second;
+                reflection_delay = intersection_left.second / getSpeedOfSound();
+            }
+            else if (intersection_right.first) // there is a nearby surface on the right side
+            {
+                reflection_panning_direction = right;
+                magnitude = intersection_right.second;
+                reflection_delay = intersection_right.second / getSpeedOfSound();
+            }
+            else // no nearby surface detected
+            {
+                // reset reflection delay to the original value of the preset since there are no nearby surfaces
+                reflection_delay = efx_properties_map[listener_efx_preset_name].flReflectionsDelay;
+            }
+
+            // transform reflection_panning_direction vector to listener-relative EAXREVERB reflection-panning vector
+            // invert z since EAXREVERB panning vectors use a left-handed coordinate system
+            float angle = std::acos(-listener_direction.z);
+
+            if (listener_direction.x < 0)
+            {
+                angle = -angle;
+            }
+
+            Ogre::Vector3 reflection_panning_vector =
+                {(reflection_panning_direction.x * std::cos(-angle)) + (reflection_panning_direction.z * std::sin(-angle)),
+                  0,
+                -(reflection_panning_direction.x * -std::sin(-angle)) + (reflection_panning_direction.z * std::cos(-angle))};
+            reflection_panning_vector *= magnitude;
+
+            float eaxreverb_reflection_panning_vector[3] =
+                { reflection_panning_vector.x,
+                  reflection_panning_vector.y,
+                 -reflection_panning_vector.z };
+
+            alEffectfv(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_PAN, eaxreverb_reflection_panning_vector);
+            alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_DELAY, reflection_delay);
         }
 
         // update the effect on the listener effect slot

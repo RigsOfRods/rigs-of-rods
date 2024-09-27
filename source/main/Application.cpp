@@ -211,6 +211,7 @@ CVar* audio_air_absorption_gain_hf;
 CVar* audio_master_volume;
 CVar* audio_enable_creak;
 CVar* audio_enable_obstruction;
+CVar* audio_enable_reflection_panning;
 CVar* audio_enable_efx;
 CVar* audio_engine_controls_environmental_audio;
 CVar* audio_efx_reverb_engine;

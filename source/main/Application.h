@@ -450,6 +450,7 @@ extern CVar* audio_air_absorption_gain_hf;
 extern CVar* audio_master_volume;
 extern CVar* audio_enable_creak;
 extern CVar* audio_enable_obstruction;
+extern CVar* audio_enable_reflection_panning;
 extern CVar* audio_enable_efx;
 extern CVar* audio_engine_controls_environmental_audio;
 extern CVar* audio_efx_reverb_engine;

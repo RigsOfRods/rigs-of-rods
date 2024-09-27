@@ -110,6 +110,8 @@ private:
     Ogre::String audio_buffer_file_name[MAX_AUDIO_BUFFERS];
 
     Ogre::Vector3 listener_position = Ogre::Vector3::ZERO;
+    Ogre::Vector3 listener_direction = Ogre::Vector3::ZERO;
+    Ogre::Vector3 listener_up = Ogre::Vector3::ZERO;
     ALCdevice*    audio_device = nullptr;
     ALCcontext*   sound_context = nullptr;
 
