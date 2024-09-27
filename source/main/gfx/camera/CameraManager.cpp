@@ -813,19 +813,26 @@ bool CameraManager::CameraBehaviorStaticMouseMoved(const OIS::MouseEvent& _arg)
     return false;
 }
 
-void CameraManager::CameraBehaviorOrbitUpdate()
+void CameraManager::CameraBehaviorOrbitToggleAngle(events ev, Ogre::Degree angle)
 {
-    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_LOOKBACK))
+    if (RoR::App::GetInputEngine()->getEventBoolValueBounce(ev))
     {
-        if (m_cam_rot_x > Degree(0))
+        if (m_cam_rot_x != angle)
         {
-            m_cam_rot_x = Degree(0);
+            m_cam_rot_x = angle;
         }
         else
         {
-            m_cam_rot_x = Degree(180);
+            m_cam_rot_x = Degree(0);
         }
     }
+}
+
+void CameraManager::CameraBehaviorOrbitUpdate()
+{
+    this->CameraBehaviorOrbitToggleAngle(EV_CAMERA_LOOK_BACK, Degree(180));
+    this->CameraBehaviorOrbitToggleAngle(EV_CAMERA_LOOK_LEFT, Degree(270));
+    this->CameraBehaviorOrbitToggleAngle(EV_CAMERA_LOOK_RIGHT, Degree(90));
 
     if (App::io_invert_orbitcam->getBool() && this->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
     {
@@ -940,23 +947,34 @@ void CameraManager::CameraBehaviorOrbitUpdate()
 
 bool CameraManager::CameraBehaviorOrbitMouseMoved(const OIS::MouseEvent& _arg)
 {
-    const OIS::MouseState ms = _arg.state;
+    const Ogre::Vector2 ROT_SPEED(550.f, 330.f);
 
-    if (ms.buttonDown(OIS::MB_Right))
+    if (_arg.state.buttonDown(OIS::MB_Right))
     {
         App::GetGuiManager()->SetMouseCursorVisibility(GUIManager::MouseCursorVisibility::HIDDEN);
+        // Recalculate mouse motion relative to screen size
+        const Ogre::Vector2 mouse_nrel(
+            static_cast<float>(_arg.state.X.rel) / static_cast<float>(_arg.state.width),
+            static_cast<float>(_arg.state.Y.rel) / static_cast<float>(_arg.state.height));
+
+        // Calculate camera rotation
+        m_cam_rot_x += Degree(mouse_nrel.x * ROT_SPEED.x);
+        m_cam_rot_y += Degree(-mouse_nrel.y * ROT_SPEED.y);
+
+        // Calculate camera zoom
         float scale = RoR::App::GetInputEngine()->isKeyDown(OIS::KC_LMENU) ? 0.002f : 0.02f;
+        m_cam_dist += -_arg.state.Z.rel * scale;
+
         if (App::io_invert_orbitcam->getBool() && this->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_VEHICLE_CINECAM)
         {
-            m_cam_rot_x += Degree(ms.X.rel * -0.13f);
-            m_cam_rot_y += Degree(-ms.Y.rel * -0.13f);
+            m_cam_rot_x += Degree(_arg.state.X.rel * -0.13f);
+            m_cam_rot_y += Degree(-_arg.state.Y.rel * -0.13f);
         }
         else
         {
-            m_cam_rot_x += Degree(ms.X.rel * 0.13f);
-            m_cam_rot_y += Degree(-ms.Y.rel * 0.13f);
+            m_cam_rot_x += Degree(_arg.state.X.rel * 0.13f);
+            m_cam_rot_y += Degree(-_arg.state.Y.rel * 0.13f);
         }
-        m_cam_dist += -ms.Z.rel * scale;
         return true;
     }
 

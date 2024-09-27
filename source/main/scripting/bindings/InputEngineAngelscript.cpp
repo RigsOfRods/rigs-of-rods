@@ -108,7 +108,9 @@ void registerEventTypeEnum(asIScriptEngine* engine)
     result = engine->RegisterEnumValue("inputEvents", "EV_CAMERA_DOWN",                    EV_CAMERA_DOWN                ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_CAMERA_FREE_MODE",               EV_CAMERA_FREE_MODE           ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_CAMERA_FREE_MODE_FIX",           EV_CAMERA_FREE_MODE_FIX       ); ROR_ASSERT(result >= 0);
-    result = engine->RegisterEnumValue("inputEvents", "EV_CAMERA_LOOKBACK",                EV_CAMERA_LOOKBACK            ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("inputEvents", "EV_CAMERA_LOOK_BACK",               EV_CAMERA_LOOK_BACK             ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("inputEvents", "EV_CAMERA_LOOK_LEFT",               EV_CAMERA_LOOK_LEFT             ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("inputEvents", "EV_CAMERA_LOOK_RIGHT",              EV_CAMERA_LOOK_RIGHT            ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_CAMERA_RESET",                   EV_CAMERA_RESET               ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_CAMERA_ROTATE_DOWN",             EV_CAMERA_ROTATE_DOWN         ); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("inputEvents", "EV_CAMERA_ROTATE_LEFT",             EV_CAMERA_ROTATE_LEFT         ); ROR_ASSERT(result >= 0);
