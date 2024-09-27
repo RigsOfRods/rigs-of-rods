@@ -342,46 +342,35 @@ void SoundManager::setListenerEnvironment(std::string listener_efx_preset_name)
         listener_efx_preset_name = ""; // force that no preset is active
     }
 
-    if(listener_efx_preset_name != this->listener_efx_preset_name)
-    {
-        this->listener_efx_preset_name = listener_efx_preset_name;
-        listener_efx_environment_has_changed = true;
-    }
-    else
-    {
-        listener_efx_environment_has_changed = false;
-    }
+    this->listener_efx_preset_name = listener_efx_preset_name;
 }
 
 void SoundManager::updateListenerEffectSlot()
 {
-    if (listener_efx_environment_has_changed)
+    if (listener_efx_preset_name.empty())
     {
-        if (listener_efx_preset_name.empty())
+        alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, AL_EFFECTSLOT_NULL);
+    }
+    else
+    {
+        // create new effect if not existing
+        if(!listener_efx_preset_name.empty() && efx_effect_id_map.find(listener_efx_preset_name) == efx_effect_id_map.end())
         {
-            alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, AL_EFFECTSLOT_NULL);
+            efx_effect_id_map[listener_efx_preset_name] = this->CreateAlEffect(&this->efx_properties_map[listener_efx_preset_name]);
         }
-        else
+
+        // update air absorption gain hf of effect
+        if (efx_reverb_engine == EfxReverbEngine::EAXREVERB)
         {
-            // create new effect if not existing
-            if(!listener_efx_preset_name.empty() && efx_effect_id_map.find(listener_efx_preset_name) == efx_effect_id_map.end())
-            {
-                efx_effect_id_map[listener_efx_preset_name] = this->CreateAlEffect(&this->efx_properties_map[listener_efx_preset_name]);
-            }
-
-            // update air absorption gain hf of effect
-            if (efx_reverb_engine == EfxReverbEngine::EAXREVERB)
-            {
-                alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
-            }
-            else if (efx_reverb_engine == EfxReverbEngine::REVERB)
-            {
-                alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_REVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
-            }
-
-            // update the effect on the listener effect slot
-            alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, efx_effect_id_map[listener_efx_preset_name]);
+            alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
         }
+        else if (efx_reverb_engine == EfxReverbEngine::REVERB)
+        {
+            alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_REVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
+        }
+
+        // update the effect on the listener effect slot
+        alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, efx_effect_id_map[listener_efx_preset_name]);
     }
 }
 

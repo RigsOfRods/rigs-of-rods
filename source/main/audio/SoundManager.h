@@ -115,7 +115,6 @@ private:
 
     // OpenAL EFX stuff
     bool                                            efx_is_available = false;
-    bool                                            listener_efx_environment_has_changed = true;
     ALuint                                          listener_slot = 0;
     ALuint                                          efx_outdoor_obstruction_lowpass_filter_id = 0;
 
