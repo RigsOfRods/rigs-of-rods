@@ -165,7 +165,7 @@ SoundManager::SoundManager()
                 }
             }
 
-            this->build_efx_property_map();
+            this->prepopulate_efx_property_map();
 
             /*
                 Create filter for obstruction
@@ -263,7 +263,7 @@ SoundManager::~SoundManager()
     LOG("SoundManager destroyed.");
 }
 
-void SoundManager::build_efx_property_map()
+void SoundManager::prepopulate_efx_property_map()
 {
     this->efx_properties_map["EFX_REVERB_PRESET_GENERIC"] = EFX_REVERB_PRESET_GENERIC;
     this->efx_properties_map["EFX_REVERB_PRESET_CAVE"] = EFX_REVERB_PRESET_CAVE;

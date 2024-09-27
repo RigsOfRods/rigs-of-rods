@@ -153,7 +153,7 @@ private:
     LPALAUXILIARYEFFECTSLOTFV                       alAuxiliaryEffectSlotfv = nullptr;
 
     ALuint  CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties);
-    void    build_efx_property_map();
+    void    prepopulate_efx_property_map();
     void    updateListenerEffectSlot();
 };
 
