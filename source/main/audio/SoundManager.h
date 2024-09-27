@@ -74,7 +74,6 @@ public:
     void setSpeedOfSound(float speed_of_sound) { alSpeedOfSound(speed_of_sound); }
     float getDopplerFactor() { return alGetFloat(AL_DOPPLER_FACTOR); }
     void setDopplerFactor(float doppler_factor) { alDopplerFactor(doppler_factor); }
-    std::string getReverbPresetAt(Ogre::Vector3 position);
 
     int getNumHardwareSources() { return hardware_sources_num; }
 
