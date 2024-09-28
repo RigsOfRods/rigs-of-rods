@@ -415,7 +415,7 @@ void SoundManager::updateListenerEffectSlot()
                     reflection_delay = intersection_right.second / getSpeedOfSound();
                 }
                 // take the difference in collision distance to determine the magnitude of the panning vector
-                magnitude = Math::Abs(intersection_left.second - intersection_right.second);
+                magnitude = 1.0f - Math::Abs(intersection_left.second - intersection_right.second) / max_distance;
                 reflections_gain = std::min(
                     (efx_properties_map[listener_efx_preset_name].flReflectionsGain
                       + reflections_gain_boost_max
