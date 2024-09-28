@@ -703,22 +703,11 @@ void InputEngine::processMouseMotionEvent(const OIS::MouseEvent& arg)
 
 void InputEngine::processMousePressEvent(const OIS::MouseEvent& arg, OIS::MouseButtonID _id)
 {
-    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-        fmt::format("InputEngine: mouse pressed; old state: LMB={}, MMB={}, RMB={}, framesSinceReset={}, lmbDownsSinceReset={}",
-            mouseState.buttonDown(OIS::MB_Left), mouseState.buttonDown(OIS::MB_Middle), mouseState.buttonDown(OIS::MB_Right),
-            m_oisworkaround_frames_since_reset, m_oisworkaround_lmbdowns_since_reset));
-
-    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-        fmt::format("InputEngine: mouse pressed; _arg: LMB={}, MMB={}, RMB={}",
-            arg.state.buttonDown(OIS::MB_Left), arg.state.buttonDown(OIS::MB_Middle), arg.state.buttonDown(OIS::MB_Right)));
-
     // Skip false 'LMB press' event after restoring window focus; see commentary in `resetKeysAndMouseButtons()`.
     if (_id == OIS::MB_Left)
     {
         if (m_oisworkaround_lmbdowns_since_reset == 0 && m_oisworkaround_frames_since_reset < 1)
         {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                "InputEngine: mouse pressed, but it's a fake event, ignoring it.");
             return;
         }
         m_oisworkaround_lmbdowns_since_reset++;
@@ -727,35 +716,13 @@ void InputEngine::processMousePressEvent(const OIS::MouseEvent& arg, OIS::MouseB
     // Only update the one particular button, OIS's persistent state may be dirty, see commentary in `getMouseState()`
     BitMask_t btnmask = 1 << _id;
     BITMASK_SET_1(mouseState.buttons, btnmask);
-    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-        fmt::format("InputEngine: mouse pressed, btn={}", (int)_id));
-
-    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-        fmt::format("InputEngine: mouse pressed; new state: LMB={}, MMB={}, RMB={}",
-            mouseState.buttonDown(OIS::MB_Left), mouseState.buttonDown(OIS::MB_Middle), mouseState.buttonDown(OIS::MB_Right)));
-
-
 }
 
 void InputEngine::processMouseReleaseEvent(const OIS::MouseEvent& arg, OIS::MouseButtonID _id)
 {
-    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-        fmt::format("InputEngine: mouse released; old state: LMB={}, MMB={}, RMB={}",
-            mouseState.buttonDown(OIS::MB_Left), mouseState.buttonDown(OIS::MB_Middle), mouseState.buttonDown(OIS::MB_Right)));
-
-    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-        fmt::format("InputEngine: mouse released; _arg: LMB={}, MMB={}, RMB={}",
-            arg.state.buttonDown(OIS::MB_Left), arg.state.buttonDown(OIS::MB_Middle), arg.state.buttonDown(OIS::MB_Right)));
-
     // Only update the one particular button, OIS's persistent state may be dirty, see commentary in `getMouseState()`
     BitMask_t btnmask = 1 << _id;
     BITMASK_SET_0(mouseState.buttons, btnmask);
-    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-        fmt::format("InputEngine: mouse released, btn={}", (int)_id));
-
-    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-        fmt::format("InputEngine: mouse released; new state: LMB={}, MMB={}, RMB={}",
-            mouseState.buttonDown(OIS::MB_Left), mouseState.buttonDown(OIS::MB_Right), mouseState.buttonDown(OIS::MB_Right)));
 }
 
 /* --- Custom Methods ------------------------------------------ */
