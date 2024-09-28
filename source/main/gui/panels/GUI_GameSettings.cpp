@@ -331,6 +331,13 @@ void GameSettings::DrawAudioSettings()
 
     DrawGCheckbox(App::audio_enable_creak,      _LC("GameSettings", "Creak sound"));
     DrawGCheckbox(App::audio_enable_efx,        _LC("GameSettings", "Enable advanced sound effects via OpenAL EFX"));
+
+    if (App::audio_enable_efx->getBool())
+    {
+        DrawGCheckbox(App::audio_enable_obstruction,        _LC("GameSettings", "Sound obstruction (experimental)"));
+        DrawGCheckbox(App::audio_enable_reflection_panning, _LC("GameSettings", "Early reflections panning (experimental)"));
+    }
+
     DrawGCheckbox(App::audio_menu_music,        _LC("GameSettings", "Main menu music"));
     DrawGFloatSlider(App::audio_master_volume,  _LC("GameSettings", "Master volume"), 0, 1);
     DrawGFloatSlider(App::audio_doppler_factor, _LC("GameSettings", "Doppler factor (requires restart)"), 0, 10);

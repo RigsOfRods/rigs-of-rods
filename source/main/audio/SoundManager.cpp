@@ -141,7 +141,7 @@ SoundManager::SoundManager()
                 }
                 else
                 {
-                    LOG("SoundManager: AL_EFFECT_EAXREVERB requested but OpenAL driver does not support it, falling back to standard reverb");
+                    LOG("SoundManager: AL_EFFECT_EAXREVERB requested but OpenAL driver does not support it, falling back to standard reverb. Advanced features, such as reflection panning, will not be available");
                     efx_reverb_engine = EfxReverbEngine::REVERB;
                 }
             }
