@@ -4761,3 +4761,21 @@ float Actor::getShockVelocity(int shock_number)
     }
     return -1.f;
 }
+
+int Actor::getShockNode1(int shock_number)
+{
+    if (shock_number >= 0 && shock_number < ar_num_shocks)
+    {
+        return ar_beams[ar_shocks[shock_number].beamid].p1->pos;
+    }
+    return -1.f;
+}
+
+int Actor::getShockNode2(int shock_number)
+{
+    if (shock_number >= 0 && shock_number < ar_num_shocks)
+    {
+        return ar_beams[ar_shocks[shock_number].beamid].p2->pos;
+    }
+    return -1.f;
+}
