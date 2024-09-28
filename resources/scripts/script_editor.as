@@ -169,11 +169,33 @@ void eventCallbackEx(scriptEvents ev, // Invoked by the game when a registered e
     }
     else if (ev == SE_ANGELSCRIPT_EXCEPTIONCALLBACK)
     {
+        int nid = arg1;
+        /*game.log("DBG eventCallbackEx(EXCEPTIONCALLBACK): distributing to "+ editorWindow.tabs.length()+ " tabs, NID: " + nid);*/
+    
         for (uint i=0; i<editorWindow.tabs.length(); i++)
         {
             editorWindow.tabs[i].epanel.onEventAngelscriptExceptionCallback(
-                arg1, /*arg3_linenum:*/arg3ex, /*arg5_from:*/arg5ex, /*arg6_msg:*/arg6ex);
+                nid, /*arg3_linenum:*/arg3ex, /*arg5_from:*/arg5ex, /*arg6_msg:*/arg6ex);
         }
+        
+        if (killScriptOnAngelscriptException)
+        {
+            dictionary@ scriptInfo = game.getScriptDetails(nid);
+            game.log("ScriptEditor: Killing script '"+string(scriptInfo['scriptName'])+"' (NID "+nid+") because it triggered an AngelScript exception; you can disable this behavior in top menu 'Tools/Settings'.");
+            game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, { {'id', nid} });
+            
+            for (uint i=0; i<editorWindow.tabs.length(); i++)
+            {
+                if (editorWindow.tabs[i].currentScriptUnitID == nid)
+                {
+                    editorWindow.tabs[i].epanel.onEventAngelscriptExceptionCallback(
+                        nid, /*arg3_linenum:*/0, /*arg5_from:*/"ScriptEditor",
+                        /*arg6_msg:*/"Killing script because it triggered an AngelScript exception; you can disable this behavior in top menu 'Tools/Settings'.");
+                    
+                    editorWindow.tabs[i].currentScriptUnitID = SCRIPTUNITID_INVALID; // Reset the RUN/STOP button, leave everything else as-is.
+                }
+            }            
+        }            
     }    
 }
 
@@ -339,7 +361,7 @@ class ScriptEditorWindow
                         {
                             tabName += fileNameBuf.substr(dotPos);
                         }
-                        game.log("DBG script editor: open file menu: file '"+fileNameBuf+"' is an autosave, loading as '"+tabName+"'");
+                        /*game.log("DBG script editor: open file menu: file '"+fileNameBuf+"' is an autosave, loading as '"+tabName+"'");*/
                     }
                 
                     this.addTab(tabName, game.loadTextResourceAsString(fileNameBuf, RGN_SCRIPTS));
@@ -517,6 +539,18 @@ class ScriptEditorWindow
                 ImGui::Checkbox("Indent on save", /*inout*/autoIndentOnSave);
                 ImGui::Dummy(vector2(5,5));
                 ImGui::Checkbox("Kill script on AS exception", /*inout*/killScriptOnAngelscriptException);
+                
+                /*int nid = this.tabs[this.currentTab].currentScriptUnitID; // ~~~ EPanel debug util ~~~
+                if (nid != SCRIPTUNITID_INVALID)
+                {
+                    ImGui::Separator();
+                    ImGui::TextDisabled("DBG ExceptionPanel");
+                    if (ImGui::Button("Err1")) { this.tabs[this.currentTab].epanel.addExceptionInternal(nid, "Err1"); }
+                    if (ImGui::Button("ErrB")) { this.tabs[this.currentTab].epanel.addExceptionInternal(nid, "ErrB"); }
+                    if (ImGui::Button("Wtf")) { this.tabs[this.currentTab].epanel.addExceptionInternal(nid, "Wtf"); }
+                    if (ImGui::Button("Wat?")) { this.tabs[this.currentTab].epanel.addExceptionInternal(nid, "Wat?"); }
+                }*/
+                
                 ImGui::EndMenu();
             }
             
@@ -652,7 +686,7 @@ class ScriptEditorTab
     string bufferName = "EditorTab"; // Also tab name
     int currentScriptUnitID = SCRIPTUNITID_INVALID;
     bool waitingForManipEvent = false; // When waiting for async result of (UN)LOAD_SCRIPT_REQUESTED
-    ExceptionsPanel epanel;
+    ExceptionsPanel@ epanel;
     float autosaveTimeCounterSec = 0.f;
     int autosaveResult = 0; // 0=no action, 1=success, -1=failure;
     
@@ -663,8 +697,14 @@ class ScriptEditorTab
     bool requestUnFoldAll = false;
     bool requestIndentBuffer = false; // Only for invoking by user manually, not for use while saving!
     bool requestSaveFile = false;
+    bool requestAutoSaveFile = false;
     bool requestRunBuffer = false;
     bool requestStopBuffer = false;
+    
+    ScriptEditorTab()
+    {
+        @epanel = ExceptionsPanel(this);
+    }
 
     void drawStartStopButton()
     {
@@ -1091,7 +1131,9 @@ class ScriptEditorTab
     {
         
         if (epanel.getHeightToReserve() == 0)
+        {
             return; // panel is empty, do not draw
+        }   
             
         // Draw the exceptions panel
         vector2 ePanelSize(
@@ -1150,7 +1192,7 @@ class ScriptEditorTab
     {
         this.bufferMessageIDs.resize(0); // clear all
         this.messages.resize(0); // clear all
-        epanel.enabled = true;
+        this.epanel.clearExceptions();
         
         this.backUpRegionFoldStates();
         this.unFoldAllRegionsInternal(); // OK to call here - we're already handling a request.        
@@ -1170,8 +1212,6 @@ class ScriptEditorTab
         game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, {
             {'id', this.currentScriptUnitID}
         });
-        epanel.clearExceptions();
-        epanel.enabled = false;
         waitingForManipEvent=true;
     }    
     
@@ -1190,28 +1230,29 @@ class ScriptEditorTab
         /*game.log ("DBG '"+this.bufferName+"'.onEventAngelScriptManip(): manipType:"+ manipType+", scriptUnitId:"+ scriptUnitId
             + ", scriptCategory:"+scriptCategory+", scriptName:"+scriptName+"; //this.waitingForManipEvent:"+this.waitingForManipEvent);*/
         
-        if (this.waitingForManipEvent)
-        {        
-            if (manipType == ASMANIP_SCRIPT_LOADED
-                && this.currentScriptUnitID == SCRIPTUNITID_INVALID
-                && this.bufferName == scriptName)
-            {
-                this.currentScriptUnitID = scriptUnitId;
-                waitingForManipEvent = false;
-                // Force registering of exception callback so that the editor can monitor exceptions.
-                game.setRegisteredEventsMask(scriptUnitId,
-                    game.getRegisteredEventsMask(scriptUnitId) | SE_ANGELSCRIPT_EXCEPTIONCALLBACK);
-                /*game.log ("DBG '"+this.bufferName+"'.onEventAngelScriptManip(): Now running with NID="+this.currentScriptUnitID);*/
-            }
-            else if (manipType == ASMANIP_SCRIPT_UNLOADING
-                && this.currentScriptUnitID != SCRIPTUNITID_INVALID
-                && this.bufferName == scriptName)
-            {
-                /*game.log ("DBG '"+this.bufferName+"'.onEventAngelScriptManip(): Stopping, was using NID="+this.currentScriptUnitID);*/
-                this.currentScriptUnitID = SCRIPTUNITID_INVALID;
-                waitingForManipEvent = false;
-            }
+        // Only handle LOADED manip if we're waiting for it
+        if (manipType == ASMANIP_SCRIPT_LOADED
+            && this.currentScriptUnitID == SCRIPTUNITID_INVALID
+            && this.bufferName == scriptName
+            && this.waitingForManipEvent)
+        {
+            this.currentScriptUnitID = scriptUnitId;
+            waitingForManipEvent = false;
+            // Force registering of exception callback so that the editor can monitor exceptions.
+            game.setRegisteredEventsMask(scriptUnitId,
+                game.getRegisteredEventsMask(scriptUnitId) | SE_ANGELSCRIPT_EXCEPTIONCALLBACK);
+            /*game.log ("DBG '"+this.bufferName+"'.onEventAngelScriptManip(): Now running with NID="+this.currentScriptUnitID);*/
         }
+        // Handle UNLOADING manip even if not expected - user may abort script manually via Console/ScriptMonitorUI or it may have crashed and get killed by the editor (see `killScriptOnAngelscriptException`).
+        else if (manipType == ASMANIP_SCRIPT_UNLOADING
+            && this.currentScriptUnitID == scriptUnitId
+            && this.bufferName == scriptName)
+        {
+            /*game.log ("DBG '"+this.bufferName+"'.onEventAngelScriptManip(): Stopping, was using NID="+this.currentScriptUnitID);*/
+            this.currentScriptUnitID = SCRIPTUNITID_INVALID;
+            waitingForManipEvent = false;
+        }
+        
     }
     
     void analyzeLines()
@@ -1693,8 +1734,7 @@ class ScriptEditorTab
         this.autosaveResult = 0;             
         if (this.autosaveTimeCounterSec > autoSaveIntervalSec)
         {
-            bool result = game.createTextResourceFromString(this.buffer, this.bufferName+'_Autosave.as', RGN_SCRIPTS, /*overwrite:*/true);
-            this.autosaveResult = (result)?1:-1;
+            this.requestAutoSaveFile = true;
             this.autosaveTimeCounterSec -= autoSaveIntervalSec; // don't miss a millisecond!
         }
     }
@@ -1744,7 +1784,12 @@ class ScriptEditorTab
         {
             this.saveFileInternal();
             this.requestSaveFile = false;
-        }    
+        }
+        if (this.requestAutoSaveFile)
+        {
+            this.autosaveFileInternal();
+            this.requestAutoSaveFile = false;
+        }        
         if (this.requestRunBuffer)
         {
             this.runBufferInternal();
@@ -1757,9 +1802,8 @@ class ScriptEditorTab
         }
     }
  
-    private void saveFileInternal() // Do not invoke while drawing! use `requestSaveFile`
-    {      
-        game.log ("DBG saveFileInternal");
+    private void saveFileInternal() // Do not invoke while drawing! use `requestSaveFile` 
+    {
         // perform auto-indenting if desired
         if (autoIndentOnSave)
             this.indentBufferInternal(); // OK to call here - we're already handing a request.
@@ -1780,9 +1824,34 @@ class ScriptEditorTab
         this.restoreRegionFoldStates();
     }
     
+    private void autosaveFileInternal() // Do not invoke while drawing! use `requestAutoSaveFile`
+    { 
+        this.backUpRegionFoldStates();
+        this.unFoldAllRegionsInternal(); // OK to call here - we're already handling a request.
+        
+        // Generate filename: ${orig_name}_AUTOSAVE.$(orig_ext)
+        int dotPos = bufferName.findLast(".");
+        string autosaveFilename;
+        if (dotPos > 0)
+        {
+            autosaveFilename = bufferName.substr(0, dotPos) + "_AUTOSAVE" + bufferName.substr(dotPos);
+        }
+        else
+        {
+            autosaveFilename = bufferName + "_AUTOSAVE";
+        }
+        /*game.log ("DBG autosaveFileInternal: autosaveFilename='"+autosaveFilename+"'");*/
+    
+        // Write out the file
+        string strData = this.buffer.substr(0, this.totalChars);        
+        bool savedOk = game.createTextResourceFromString(
+            strData, autosaveFilename, RGN_SCRIPTS, /*overwrite:*/true);
+        this.autosaveResult = savedOk ? 1 : -1;
+        this.restoreRegionFoldStates();
+    }    
+    
     private void indentBufferInternal() // Do not invoke while drawing! use `requestIndentBuffer`
     {
-        game.log("DBG indentBufferInternal");
         this.backUpRegionFoldStates();
         this.unFoldAllRegionsInternal();
     
@@ -1832,7 +1901,6 @@ class ScriptEditorTab
     
     private void unFoldAllRegionsInternal() //  do NOT invoke during drawing! use `requestUnFoldAll`
     {
-        game.log("DBG unFoldAllRegionsInternal()");
         array<string> regionNames = this.workBufferRegions.getKeys();
         for (uint i=0; i < regionNames.length(); i++)
         {
@@ -1915,23 +1983,36 @@ class ScriptEditorTab
     }
 }
 
-
+// Originally global, now instantiated per-tab; some logic was left over.
 class ExceptionsPanel
 {
+    ScriptEditorTab@ parentEditorTab;
     dictionary exception_stats_nid; // NID-> dictionary{ fullDesc -> num occurences }
+    array<int> nids; // Recorded NIDs - since each buffer has it's own panel instance now, there will never be more than 1
     int numLinesDrawn = 0;
     // very important to keep the dict clean after requesting script unload 
     //  - even after notification more exceptions can arrive
-    bool enabled = false;
+    bool ePanelEnabled = true;
+    
+    ExceptionsPanel(ScriptEditorTab@ editorTab)
+    {
+         @parentEditorTab = @editorTab;
+    }
     
     float getHeightToReserve()
     { 
         if (exception_stats_nid.isEmpty()) { return 0; }
-        else { return numLinesDrawn*ImGui::GetTextLineHeight() + 12; }
+        else { return numLinesDrawn*ImGui::GetTextLineHeight() + 15; }
     }
 
     void onEventExceptionCaught(int nid, string arg5_from, string arg6_type, string arg7_msg)
     {
+        if (parentEditorTab.currentScriptUnitID != nid)
+        {
+            /*game.log("DBG onEventExceptionCaught(nid="+nid+") IGNORING; (currentScriptUnitID="+parentEditorTab.currentScriptUnitID+" bufferName="+parentEditorTab.bufferName);*/
+            return;
+        }
+        
         // format: FROM >> MSG (TYPE)
         string desc=arg5_from+' --> '+arg7_msg +' ('+arg6_type+')';
         this.addExceptionInternal(nid, desc);
@@ -1939,21 +2020,20 @@ class ExceptionsPanel
     
     void onEventAngelscriptExceptionCallback(int nid, int arg3_linenum, string arg5_from, string arg6_msg)
     {
+        if (parentEditorTab.currentScriptUnitID != nid)
+        {
+            /*game.log("DBG onEventAngelscriptExceptionCallback(nid="+nid+") IGNORING; (currentScriptUnitID="+parentEditorTab.currentScriptUnitID+" bufferName="+parentEditorTab.bufferName);*/
+            return;
+        }
+        
         // format: FROM >> MSG (line: LINENUM)
         string desc = arg5_from+"() --> "+arg6_msg+" (line: "+arg3_linenum+")";
-        this.addExceptionInternal(nid, desc);
-        
-        if (killScriptOnAngelscriptException)
-        {
-            dictionary@ scriptInfo = game.getScriptDetails(nid);
-            game.log("ScriptEditor: Killing script '"+string(scriptInfo['scriptName'])+"' (NID "+nid+") because it triggered an AngelScript exception; you can disable this behavior in top menu 'Tools/Settings'.");
-            game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, { {'id', nid} });
-        }        
+        this.addExceptionInternal(nid, desc);    
     }
     
     void addExceptionInternal(int nid, string desc)
     {
-        if (!enabled)
+        if (!ePanelEnabled)
             return;
 
         // locate the dictionary for this script (by NID)
@@ -1962,16 +2042,24 @@ class ExceptionsPanel
         {
             exception_stats_nid[''+nid] = dictionary();
             @exception_stats = cast<dictionary@>(exception_stats_nid[''+nid]);
+            this.nids.insertLast(nid);
         }
         exception_stats[desc] = int(exception_stats[desc])+1;
     }
 
     void drawExceptions()
     {
+        // Requests for editing entries - cannot be done while iterating!
+        bool requestClearAll = false;
+        dictionary@ requestClearEntryFromStats;
+        string requestClearEntryKey;
+    
         numLinesDrawn=0;
-        array<int> nids = game.getRunningScripts();
+        int numEntriesDrawn=0;
         for (uint i=0; i<nids.length(); i++)
         {
+            ImGui::PushID(i);
+        
             dictionary@ info = game.getScriptDetails(nids[i]);
             dictionary@ exception_stats = cast<dictionary@>(exception_stats_nid[''+nids[i]]);
 
@@ -1979,29 +2067,78 @@ class ExceptionsPanel
 
             
             ImGui::TextDisabled('NID '+nids[i]+' ');
-            if (@info != null) { ImGui::SameLine(); ImGui::Text(string(info['scriptName']) ); }
+            if (@info != null)
+            {
+                ImGui::SameLine(); ImGui::Text(string(info['scriptName']));
+            }
+            else
+            {
+                ImGui::SameLine(); ImGui::TextDisabled("(NOT RUNNING)");        
+            }
             numLinesDrawn++;
 
             array<string>@tag_keys = exception_stats.getKeys();
             ImGui::SameLine(); ImGui::Text(">>");
             ImGui::SameLine(); ImGui::TextColored(  color(1,0.1, 0.2, 1), tag_keys.length() + ' exception type(s) encountered:');
+            string clearall_btn_text = "Clear all";
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - (ImGui::CalcTextSize(clearall_btn_text).x + 8.f));
+            if (ImGui::SmallButton(clearall_btn_text))
+            {
+                requestClearAll = true;
+            }
             for (uint j=0; j < tag_keys.length(); j++) 
             { 
+                ImGui::PushID(j);
+            
                 string descr = tag_keys[j];
                 int tagcount = int(exception_stats[descr]);
-                ImGui::Bullet(); 
+                if (ImGui::SmallButton("Clear"))
+                {
+                    /*game.log("DBG epanel requested clearing '"+descr+"' - button pressed");*/
+                    requestClearEntryKey = descr;
+                    @requestClearEntryFromStats = @exception_stats;
+                }
                 ImGui::SameLine(); ImGui::TextDisabled('['+tagcount+']');
                 ImGui::SameLine(); ImGui::Text(descr);
+
                 numLinesDrawn++;
+                numEntriesDrawn++;
+                
+                ImGui::PopID(); // j
             } // for (tag_keys)
+            
+            ImGui::PopID(); // i
         } // for (nids)  
+        
+        // Requests for editing entries - cannot be done while iterating!
+        if (requestClearEntryKey != "" && @requestClearEntryFromStats != null)
+        {
+            /*game.log("DBG epanel requested clearing '"+requestClearEntryKey+"' - deleting from dict");*/
+            if (!requestClearEntryFromStats.delete(requestClearEntryKey))
+            {
+                game.log("script_editor INTERNAL ERROR: requested clearing exception '"+requestClearEntryKey+"' failed - not found");
+            }
+            if (numEntriesDrawn == 1)
+            {
+                requestClearAll=true; // We just deleted the only entry -> close panel
+            }
+        }
+        
+        if (requestClearAll)
+        {
+            /*game.log("DBG @@@ handling requestClearAll for buffer='"+parentEditorTab.bufferName+"' !!!");*/
+            this.clearExceptions();
+        }
 
     } // drawExceptions()
 
     void clearExceptions()
     {
-        exception_stats_nid.deleteAll();
-        numLinesDrawn=0;
+        /*game.log("DBG @@@ clearExceptions() called for buffer='"+parentEditorTab.bufferName+"' !!!");*/
+        this.exception_stats_nid.deleteAll();
+        this.numLinesDrawn=0;
+        this.nids = array<int>(); // - since each buffer has it's own panel instance now, there will never be more than 1
     }
 
 } // class ExceptionsPanel
