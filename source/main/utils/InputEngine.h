@@ -481,8 +481,9 @@ public:
     /// @{
     void                Capture();
     void                updateKeyBounces(float dt);
-    void                ProcessMouseMotionEvent(const OIS::MouseEvent& arg);
-    void                ProcessMouseButtonEvent(const OIS::MouseEvent& arg);
+    void                processMouseMotionEvent(const OIS::MouseEvent& arg);
+    void                processMousePressEvent(const OIS::MouseEvent& arg, OIS::MouseButtonID _id);
+    void                processMouseReleaseEvent(const OIS::MouseEvent& arg, OIS::MouseButtonID _id);
     void                ProcessKeyPress(const OIS::KeyEvent& arg);
     void                ProcessKeyRelease(const OIS::KeyEvent& arg);
     void                ProcessJoystickEvent(const OIS::JoyStickEvent& arg);
@@ -608,6 +609,13 @@ protected:
     std::string composeEventCommandString(event_trigger_t const& trig);
 
     event_trigger_t newEvent();
+
+    // OIS WORKAROUND: After a window focus is restored for the 2nd+ time, OIS delivers a fabricated 'LMB pressed' event,
+    //    without ever sending matching 'LMB released', see analysis: https://github.com/RigsOfRods/rigs-of-rods/pull/3184#issuecomment-2380397463
+    // This has a very prominent negative effect, see https://github.com/RigsOfRods/rigs-of-rods/issues/2468
+    // There's no way to recognize the event as fake, we must track number of frames and LMB presses since last reset.
+    size_t m_oisworkaround_frames_since_reset = 0u;
+    size_t m_oisworkaround_lmbdowns_since_reset = 0u;
 };
 
 /// @} // @addtogroup Input
