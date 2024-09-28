@@ -383,6 +383,8 @@ void SoundManager::updateListenerEffectSlot()
              * Use ray casting to probe for a collision up to max_distance to each side of the listener.
              */
             float max_distance = 2.0f;
+            const float reflections_gain_boost_max = 0.316f; // 1 db
+            float reflections_gain;
             float reflection_delay = -1.0f;
             float magnitude;
 
@@ -414,23 +416,39 @@ void SoundManager::updateListenerEffectSlot()
                 }
                 // take the difference in collision distance to determine the magnitude of the panning vector
                 magnitude = Math::Abs(intersection_left.second - intersection_right.second);
+                reflections_gain = std::min(
+                    (efx_properties_map[listener_efx_preset_name].flReflectionsGain
+                      + reflections_gain_boost_max
+                      - (reflections_gain_boost_max * magnitude)),
+                    3.16f);
             }
             else if (intersection_left.first) // there is a nearby surface on the left side
             {
                 reflection_panning_direction = left;
                 magnitude = 1.0f - intersection_left.second / max_distance;
                 reflection_delay = intersection_left.second / getSpeedOfSound();
+                reflections_gain = std::min(
+                    (efx_properties_map[listener_efx_preset_name].flReflectionsGain
+                      + reflections_gain_boost_max
+                      - (reflections_gain_boost_max * magnitude)),
+                    3.16f);
             }
             else if (intersection_right.first) // there is a nearby surface on the right side
             {
                 reflection_panning_direction = right;
                 magnitude = 1.0f - intersection_right.second / max_distance;
                 reflection_delay = intersection_right.second / getSpeedOfSound();
+                reflections_gain = std::min(
+                    (efx_properties_map[listener_efx_preset_name].flReflectionsGain
+                      + reflections_gain_boost_max
+                      - (reflections_gain_boost_max * magnitude)),
+                    3.16f);
             }
             else // no nearby surface detected
             {
-                // reset reflection delay to the original value of the preset since there are no nearby surfaces
+                // reset values to the original of the preset since there are no nearby surfaces
                 reflection_delay = efx_properties_map[listener_efx_preset_name].flReflectionsDelay;
+                reflections_gain = efx_properties_map[listener_efx_preset_name].flReflectionsGain;
             }
 
             // transform reflection_panning_direction vector to listener-relative EAXREVERB reflection-panning vector
@@ -461,6 +479,7 @@ void SoundManager::updateListenerEffectSlot()
 
             alEffectfv(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_PAN, eaxreverb_reflection_panning_vector);
             alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_DELAY, reflection_delay);
+            alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_GAIN, reflections_gain);
         }
 
         // update the effect on the listener effect slot
