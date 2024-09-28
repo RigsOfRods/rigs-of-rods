@@ -77,7 +77,7 @@ bool AppContext::mouseMoved(const OIS::MouseEvent& arg) // overrides OIS::MouseL
 {
     App::GetGuiManager()->WakeUpGUI();
     App::GetGuiManager()->GetImGui().InjectMouseMoved(arg);
-    App::GetInputEngine()->ProcessMouseMotionEvent(arg);
+    App::GetInputEngine()->processMouseMotionEvent(arg);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
@@ -97,7 +97,7 @@ bool AppContext::mousePressed(const OIS::MouseEvent& arg, OIS::MouseButtonID _id
 {
     App::GetGuiManager()->WakeUpGUI();
     App::GetGuiManager()->GetImGui().SetMouseButtonState(_id, /*down:*/true);
-    App::GetInputEngine()->ProcessMouseButtonEvent(arg);
+    App::GetInputEngine()->processMousePressEvent(arg, _id);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
@@ -118,7 +118,7 @@ bool AppContext::mouseReleased(const OIS::MouseEvent& arg, OIS::MouseButtonID _i
 {
     App::GetGuiManager()->WakeUpGUI();
     App::GetGuiManager()->GetImGui().SetMouseButtonState(_id, /*down:*/false);
-    App::GetInputEngine()->ProcessMouseButtonEvent(arg);
+    App::GetInputEngine()->processMouseReleaseEvent(arg, _id);
 
     if (!ImGui::GetIO().WantCaptureMouse) // true if mouse is over any window
     {
@@ -186,8 +186,10 @@ void AppContext::windowResized(Ogre::RenderWindow* rw)
 
 void AppContext::windowFocusChange(Ogre::RenderWindow* rw)
 {
+    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
     App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-        fmt::format("Window focus change; isActive={}", rw->isActive()));
+        fmt::format("Window focus change; isActive={}, LMB={}, MMB={}, RMB={}",
+            rw->isActive(), ms.buttonDown(OIS::MB_Left), ms.buttonDown(OIS::MB_Middle), ms.buttonDown(OIS::MB_Right)));
     
     // If you alt+TAB out of the window while any mouse button is down, OIS will not release it until you click in the window again.
     // See https://github.com/RigsOfRods/rigs-of-rods/issues/2468
