@@ -3,6 +3,10 @@
 /// To run in game, open console (hotkey ~) and say  `loadscript example_game_shockTuning.as`
 /// ---------------------------------------------------------------------------
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
 // #region CONFIG
 
 const int DEFAULT_PLOT_MAX_SAMPLES = 2 * 60; // 2 seconds in wall time (because buffering is done per-FPS, so slowmo=more samples)
@@ -145,7 +149,8 @@ void frameStep(float dt)
     }
     
     // Open window
-    ImGui::Begin("*ALPHA!* Spring tuning", /*open:*/true, /*flags:*/0);
+    ImGui::Begin("*ALPHA!* Spring tuning", closeBtnHandler.windowOpen, /*flags:*/0);
+    closeBtnHandler.draw();
     ImGui::Dummy(vector2(300,1)); // force some minimum width
     ImGui::TextDisabled("::: This script is a stub :::");
     ImGui::TextDisabled("::: Please give feedback to improve it :::");
@@ -236,8 +241,7 @@ void drawSpringSceneHud(BeamClass@ actor, int shockID)
     
     vector2 n1pos = vector2(0,0);
     vector2 n2pos = vector2(0,0);
-    bool inFrontOfCamera = game.getScreenPosFromWorldPos(n1world, /*out:*/ n1pos) 
-    && game.getScreenPosFromWorldPos(n2world, /*out:*/ n2pos);
+    bool inFrontOfCamera = game.getScreenPosFromWorldPos(n1world, /*out:*/ n1pos) && game.getScreenPosFromWorldPos(n2world, /*out:*/ n2pos);
     
     if (!inFrontOfCamera)
     {
@@ -250,7 +254,8 @@ void drawSpringSceneHud(BeamClass@ actor, int shockID)
     ImGui::SetNextWindowPos(pivot + (beamVec * g_shock_buffers[shockID]. scenePlacementBetweenNodes));
     ImGui::SetNextWindowSize(vector2(cfgUiSpringBoxWidth, cfgUiSpringBoxHeight));
     int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
-    if (    ImGui::Begin("shock #"+shockID, true, window_flags))
+    bool boxOpen=true;
+    if (    ImGui::Begin("shock #"+shockID, boxOpen, window_flags))
     {
         ImGui::SetCursorPosY(ImGui::GetCursorPosY()-5);
         ImGui::TextDisabled("Shock #"+shockID);
@@ -265,62 +270,27 @@ void drawSpringSceneHud(BeamClass@ actor, int shockID)
 // shamelessly gutted from 'example_ImGui_nodeHighlight.as' `drawNodeHighlight()`
 void drawSpringHighlight(BeamClass@ actor, int shockID, color beamColor, float beamThickness)
 {
-    
     // determine where the shock is on screen
     vector3 n1world = actor.getNodePosition(actor.getShockNode1(shockID));
     vector3 n2world = actor.getNodePosition(actor.getShockNode2(shockID));
     
     vector2 n1pos = vector2(0,0);
     vector2 n2pos = vector2(0,0);
-    bool inFrontOfCamera = game.getScreenPosFromWorldPos(n1world, /*out:*/ n1pos) 
-    && game.getScreenPosFromWorldPos(n2world, /*out:*/ n2pos);
-    
-    if (!inFrontOfCamera)
-    {
-        return;
-    }    
-    
-    ImDrawList@ drawlist = getDummyFullscreenWindow("nodeHighlights");
-    
-    
-    color col = cfgNodeColor;
-    
+    bool inFrontOfCamera = game.getScreenPosFromWorldPos(n1world, /*out:*/ n1pos) && game.getScreenPosFromWorldPos(n2world, /*out:*/ n2pos);
     
     if (inFrontOfCamera)
     {
         // Draw the nodes
+        ImDrawList@ drawlist = imgui_utils::ImGetDummyFullscreenWindow("nodeHighlights");
         
         //DOC: void ImDrawList::AddCircleFilled(const ImVec2& center, float radius, ImU32 col, int num_segments)
-        drawlist.AddCircleFilled(n1pos, cfgNodeRadius, col, cfgNodeNumSegments);
-        drawlist.AddCircleFilled(n2pos, cfgNodeRadius, col, cfgNodeNumSegments);
+        drawlist.AddCircleFilled(n1pos, cfgNodeRadius, cfgNodeColor, cfgNodeNumSegments);
+        drawlist.AddCircleFilled(n2pos, cfgNodeRadius, cfgNodeColor, cfgNodeNumSegments);
         
-        //   draw the beam
+        // Draw the beam
         drawlist.AddLine(n1pos, n2pos, beamColor, beamThickness);
     }
-    
-    
 }
 
 // #endregion
 
-
-// #region HELPERS
-
-// shamelessly copypasted from 'road_editor.as', line 787
-ImDrawList@ getDummyFullscreenWindow(const string&in name)
-{
-    // Dummy fullscreen window to draw to
-    int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
-    | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
-    ImGui::SetNextWindowPos(vector2(0,0));
-    ImGui::SetNextWindowSize(game.getDisplaySize());
-    ImGui::PushStyleColor(/*ImGuiCol_WindowBg*/2, color(0.f,0.f,0.f,0.f)); // Fully transparent background!
-    ImGui::Begin(name, /*open:*/true, window_flags);
-    ImDrawList@ drawlist = ImGui::GetWindowDrawList();
-    ImGui::End();
-    ImGui::PopStyleColor(1); // WindowBg
-    
-    return drawlist;    
-}
-
-// #endregion

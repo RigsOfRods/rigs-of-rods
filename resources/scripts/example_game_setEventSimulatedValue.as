@@ -1,6 +1,10 @@
 // EXAMPLE - how to use 
 // ===================================================
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
 void drawInputBtn(inputEvents ev, string caption)
 {
   ImGui::Button(caption);
@@ -12,6 +16,17 @@ void drawInputBtn(inputEvents ev, string caption)
 
 // `frameStep()` runs every frame; `dt` is delta time in seconds.
 void frameStep(float dt)
+{
+    if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
+    {
+        closeBtnHandler.draw();
+    
+        drawBody();
+        ImGui::End();
+    }
+}
+
+void drawBody()
 {
     if (@game.getCurrentTruck() == null)
   {

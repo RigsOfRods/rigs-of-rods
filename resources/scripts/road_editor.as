@@ -19,6 +19,7 @@
     ---------------------------------------------------------------------------
 */
 
+#include "imgui_utils.as"
 
 /*
     ---------------------------------------------------------------------------
@@ -503,7 +504,7 @@ class TerrainEditor
         TerrainClass@ terrain = game.getTerrain();
         ProceduralManagerClass@ roads = terrain.getProceduralManager();
         ProceduralObjectClass@ obj = roads.getObject(m_selected_road);
-        ImDrawList@ drawlist = getDummyFullscreenWindow("Road editing gizmos");
+        ImDrawList@ drawlist = imgui_utils::ImGetDummyFullscreenWindow("Road editing gizmos");
         vector2 mouse_pos = game.getMouseScreenPosition();
         vector2 prev_screen_point(0,0);
         bool prev_point_visible = false;
@@ -782,22 +783,6 @@ float fmax(float a, float b)
 int abs(int a)
 {
     return (a < 0) ? -a : a;
-}
-
-ImDrawList@ getDummyFullscreenWindow(const string&in name)
-{
-    // Dummy fullscreen window to draw to
-    int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
-                     | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
-    ImGui::SetNextWindowPos(vector2(0,0));
-    ImGui::SetNextWindowSize(game.getDisplaySize());
-    ImGui::PushStyleColor(/*ImGuiCol_WindowBg*/2, color(0.f,0.f,0.f,0.f)); // Fully transparent background!
-    ImGui::Begin(name, /*open:*/true, window_flags);
-    ImDrawList@ drawlist = ImGui::GetWindowDrawList();
-    ImGui::End();
-    ImGui::PopStyleColor(1); // WindowBg
-
-    return drawlist;    
 }
 
 int getMouseShortestDistance(vector2 mouse, vector2 target)

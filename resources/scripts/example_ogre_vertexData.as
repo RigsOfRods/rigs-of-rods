@@ -2,6 +2,10 @@
 // \brief Demo of `__getVertexPositions()` & `__getVertexTexcoords()` functions.
 // ===================================================
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
 #include "gridviewer_utils.as"
 
 GridViewer gTexcoordsViewer;
@@ -178,15 +182,22 @@ void main()
 
 void frameStep(float dt)
 {
-    if (gErrorStr == "")
+    if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
     {
-        drawGridViews();
+        closeBtnHandler.draw();
+    
+        if (gErrorStr == "")
+        {
+            drawGridViews();
+        }
+        else
+        {
+            ImGui::TextDisabled("E R R O R !!");
+            ImGui::TextColored(color(1, 0.2, 0, 1), gErrorStr);
+        }
+        ImGui::Separator();
+        drawBottomBar();   
+        
+        ImGui::End();
     }
-    else
-    {
-        ImGui::TextDisabled("E R R O R !!");
-        ImGui::TextColored(color(1, 0.2, 0, 1), gErrorStr);
-    }
-    ImGui::Separator();
-    drawBottomBar();   
 }

@@ -2,7 +2,11 @@
 // \brief Demo of `Ogre::HardwarePixelBuffer` bindings
 // ===================================================
 
-#include "gridviewer_utils_BLITDEVEL.as"
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
+#include "gridviewer_utils.as"
 
 GridViewer gDstViewer;
 GridViewer gSrcViewer;
@@ -164,9 +168,16 @@ void frameStep(float dt)
 {
     gIsMouseDown = ImGui::IsMouseDown(1);
     
-    drawTexBlitGridViews();
-    ImGui::Separator();
-    drawBottomBar();   
+    if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
+    {
+        closeBtnHandler.draw();
+        
+        drawTexBlitGridViews();
+        ImGui::Separator();
+        drawBottomBar();   
+        
+        ImGui::End();
+    }    
     
     gWasMouseDown = gIsMouseDown;
 }

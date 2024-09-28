@@ -1,5 +1,20 @@
 
-void frameStep(float dt) { drawExampleTabs(); }
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
+void frameStep(float dt)
+{
+    if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
+    {
+        closeBtnHandler.draw();
+    
+        drawExampleTabs();
+        
+        ImGui::End();
+    }
+
+}
 
 // settings
 bool demotabsReorderable = false;

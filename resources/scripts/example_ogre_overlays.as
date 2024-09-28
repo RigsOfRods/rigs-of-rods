@@ -10,6 +10,10 @@
 //   Prefer always looking up the resource from OGRE - slower but safer.
 // ===================================================
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
 bool ov_fail = false;
 
 bool pa_fail = false;
@@ -51,27 +55,32 @@ void frameStep(float dt)
      pa.setMaterialName("tracks/wheelface", 'OgreAutodetect');
    }
 
-   ImGui::Text("overlays should work; ov_fail:"+ov_fail+", pa_fail:"+pa_fail
-                        +", frames:"+framecounter);
-    framecounter++;
-    if (!pa_fail && @pa != null)
+    if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
     {
+        closeBtnHandler.draw();
+        ImGui::Text("overlays should work; ov_fail:"+ov_fail+", pa_fail:"+pa_fail
+                    +", frames:"+framecounter);
+        framecounter++;
+        if (!pa_fail && @pa != null)
+        {
 
-       ImGui::TextDisabled("The wheel overlay:");
-       if (ImGui::Button("Hide")) { pa.hide(); }
-        ImGui::SameLine();  if (ImGui::Button("Show")) { pa.show(); }
+            ImGui::TextDisabled("The wheel overlay:");
+            if (ImGui::Button("Hide")) { pa.hide(); }
+            ImGui::SameLine();  if (ImGui::Button("Show")) { pa.show(); }
 
-        if (ImGui::Button("Position: Left+")) { pa.setLeft(pa.getLeft()+pos_step); }
-        ImGui::SameLine();  if (ImGui::Button("Position:left-")) { pa.setLeft(pa.getLeft()-pos_step); }
+            if (ImGui::Button("Position: Left+")) { pa.setLeft(pa.getLeft()+pos_step); }
+            ImGui::SameLine();  if (ImGui::Button("Position:left-")) { pa.setLeft(pa.getLeft()-pos_step); }
 
-        if (ImGui::Button("Position: Top+")) { pa.setTop(pa.getTop()+pos_step); }
-        ImGui::SameLine();  if (ImGui::Button("Position:Top-")) { pa.setTop(pa.getTop()-pos_step); }
+            if (ImGui::Button("Position: Top+")) { pa.setTop(pa.getTop()+pos_step); }
+            ImGui::SameLine();  if (ImGui::Button("Position:Top-")) { pa.setTop(pa.getTop()-pos_step); }
 
-        if (ImGui::Button("Width+")) { pa.setWidth(pa.getWidth()+pos_step); }
-        ImGui::SameLine();  if (ImGui::Button("Width-")) { pa.setWidth(pa.getWidth()-pos_step); }
+            if (ImGui::Button("Width+")) { pa.setWidth(pa.getWidth()+pos_step); }
+            ImGui::SameLine();  if (ImGui::Button("Width-")) { pa.setWidth(pa.getWidth()-pos_step); }
 
-        if (ImGui::Button("height+")) { pa.setHeight(pa.getHeight()+pos_step); }
-        ImGui::SameLine();  if (ImGui::Button("height-")) { pa.setHeight(pa.getHeight()-pos_step); }
-        
-     }
+            if (ImGui::Button("height+")) { pa.setHeight(pa.getHeight()+pos_step); }
+            ImGui::SameLine();  if (ImGui::Button("height-")) { pa.setHeight(pa.getHeight()-pos_step); }
+
+        }
+        ImGui::End();
+    }     
 }

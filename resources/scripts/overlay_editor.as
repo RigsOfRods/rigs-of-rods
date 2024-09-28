@@ -42,6 +42,8 @@
 //   .setMaterialName(string name, string resourceGroup)
 // ========================================
 
+#include "imgui_utils.as"
+
 enum CursorMode { 
   OE_CURSORMODE_SELECT, 
   OE_CURSORMODE_ADDELEMENT,
@@ -65,6 +67,8 @@ class OverlayEditor {
   string mNewElementMaterialNameBuf = "tracks/wheelface";
   int mElementCounter = 10;
   string mErrorString;
+    // Window [X] button handler
+    imgui_utils::CloseWindowPrompt closeBtnHandler;  
 
   void updateMouse() {
     if (mCursorMode == OE_CURSORMODE_ADDELEMENT && ImGui::IsMouseClicked(OE_MOUSE_LMB)) {
@@ -102,7 +106,8 @@ class OverlayEditor {
 
   void drawUI()  {
     this.drawUIMouseKnobs();
-    ImGui::Begin("Overlay editor PROTOTYPE", true, 0);
+    ImGui::Begin("Overlay editor PROTOTYPE", closeBtnHandler.windowOpen, 0);
+    closeBtnHandler.draw();
     this.drawUIStatusInfo();
     ImGui::Separator();
     this.drawUIToolbox();
@@ -127,7 +132,7 @@ class OverlayEditor {
 
   protected void drawUIMouseKnobs() {
     if (mCursorMode == OE_CURSORMODE_DRAWINGELEMENT) {
-      ImDrawList@ drawlist = this.getDummyFullscreenWindow("OverlayEditorKnobs");
+      ImDrawList@ drawlist = imgui_utils::ImGetDummyFullscreenWindow("OverlayEditorKnobs");
       drawlist.AddRect(mMouseDragStart, game.getMouseScreenPosition(), color(0.7, 0.8, 0.3, 1), OE_MOUSERECT_ROUNDING, OE_MOUSERECT_THICKNESS);
     }
   }
@@ -306,21 +311,6 @@ class OverlayEditor {
     return elemName;
   }
 
-  private ImDrawList@ getDummyFullscreenWindow(const string&in name)
-  {
-    // Dummy fullscreen window to draw to
-    int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
-                     | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
-    ImGui::SetNextWindowPos(vector2(0,0));
-    ImGui::SetNextWindowSize(game.getDisplaySize());
-    ImGui::PushStyleColor(/*ImGuiCol_WindowBg*/2, color(0.f,0.f,0.f,0.f)); // Fully transparent background!
-    ImGui::Begin(name, /*open:*/true, window_flags);
-    ImDrawList@ drawlist = ImGui::GetWindowDrawList();
-    ImGui::End();
-    ImGui::PopStyleColor(1); // WindowBg
-
-    return drawlist;    
-  }
 }
 
 // %%%%%%%%%%%%%%% TEST %%%%%%%%%%%%%%%%%%

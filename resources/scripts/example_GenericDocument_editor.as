@@ -2,6 +2,10 @@
 // (sorry about the indentation mess, I scribbled this in 'script_editor.as')
 // ===================================================
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
 class RigEditor
 {
  // ---- variables -----
@@ -19,32 +23,35 @@ void drawWindow()
 {
 
     string caption = "RigEditor";
-   if (@m_project_entry != null)
-   {
-       caption += " ("+m_project_entry.fname+")";
-   }
-   int flags = ImGuiWindowFlags_MenuBar;
-    ImGui::Begin(caption, /*open:*/true, flags);
-      if (ImGui::BeginMenuBar())
-     {
-         this.drawDocumentControls(); // <- menubar
-         ImGui::EndMenuBar();
-     }
-    if (@g_displayed_document != null)
-   {
-    vector2 size = ImGui::GetWindowSize() - vector2(25, 200);
-   ImGui::BeginChild("docBody", size);
-   this.drawDocumentBody();
-   ImGui::EndChild();
+    if (@m_project_entry != null)
+    {
+    caption += " ("+m_project_entry.fname+")";
+    }
+    int flags = ImGuiWindowFlags_MenuBar;
+    if (ImGui::Begin(caption, closeBtnHandler.windowOpen, flags))
+    {
+        closeBtnHandler.draw();
+        if (ImGui::BeginMenuBar())
+        {
+            this.drawDocumentControls(); // <- menubar
+            ImGui::EndMenuBar();
+        }
+        if (@g_displayed_document != null)
+        {
+            vector2 size = ImGui::GetWindowSize() - vector2(25, 200);
+            ImGui::BeginChild("docBody", size);
+            this.drawDocumentBody();
+            ImGui::EndChild();
 
-     if ( m_focused_token_pos > -1)
-     {
-        ImGui::Separator();
-        this.drawTokenEditPanel();
-     }
-   }
+            if ( m_focused_token_pos > -1)
+            {
+                ImGui::Separator();
+                this.drawTokenEditPanel();
+            }
+        }
 
-   ImGui::End();
+        ImGui::End();
+    }
 
 }
 

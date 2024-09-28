@@ -1,6 +1,10 @@
 // HTML PARSER PROTOTYPE 3
 // =====================================
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
 // DEFS:
 enum Event { NONE, TEXT, ELEM_OPEN, ELEM_CLOSE, ATTR_NAME, ATTR_VAL }
 array<string> EventNames = { 'NONE', 'TEXT', 'ELEM_OPEN', 'ELEM_CLOSE', 'ATTR_NAME', 'ATTR_VAL' };
@@ -64,6 +68,15 @@ void main()
 
 void frameStep(float dt)
 {
-    ImGui::TextDisabled("Html parser 3");
-    for (uint i=0; i < testEvents.length(); i++) { ImGui::Text('['+i+'] event: '+EventNames[testEvents[i]]+", value: " + testVals[i]); }
+    if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
+    {
+        closeBtnHandler.draw();
+    
+        ImGui::TextDisabled("Html parser 3");
+        for (uint i=0; i < testEvents.length(); i++) { ImGui::Text('['+i+'] event: '+EventNames[testEvents[i]]+", value: " + testVals[i]); }
+            
+        ImGui::End();
+    }
+
+
 }

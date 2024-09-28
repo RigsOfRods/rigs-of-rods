@@ -1,6 +1,10 @@
 /// \title OGRE example - character posing (skeletal animations)
 /// \brief See https://github.com/RigsOfRods/rigs-of-rods/pull/3030#issue-1639679673
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
 PoseDemo poseDemo;
 
 void main()
@@ -10,7 +14,8 @@ void main()
 
 void frameStep(float dt)
 {
-    ImGui::Begin("OGRE example - character posing (skeletal animations)", /*open:*/true, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("OGRE example - character posing (skeletal animations)", closeBtnHandler.windowOpen, ImGuiWindowFlags_AlwaysAutoResize);
+    closeBtnHandler.draw();
     poseDemo.draw();
     ImGui::End();    
 }

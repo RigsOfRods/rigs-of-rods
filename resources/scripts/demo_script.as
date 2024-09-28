@@ -31,6 +31,8 @@
     ---------------------------------------------------------------------------
 */
 
+#include "imgui_utils.as"
+
 /*
     ---------------------------------------------------------------------------
     Global variables
@@ -49,6 +51,7 @@ SoundScriptInstanceClass@ g_playing_soundscript = null;
 SoundClass@ g_playing_sound = null;
 bool g_sound_follows_player = true;
 string g_demofile_data;
+imgui_utils::CloseWindowPrompt g_window_closebtn_handler;
 
 // tab settings
 bool demotabsReorderable = false;
@@ -78,7 +81,8 @@ void main()
 void frameStep(float dt)
 {
     // Open demo window
-    ImGui::Begin("Demo Script", /*open:*/true, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("Demo Script", g_window_closebtn_handler.windowOpen, ImGuiWindowFlags_AlwaysAutoResize);
+    g_window_closebtn_handler.draw();
     
     // show some stats
     ImGui::Text("Total frames: " + g_total_frames);
