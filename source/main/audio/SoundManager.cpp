@@ -403,13 +403,13 @@ void SoundManager::updateListenerEffectSlot()
                 if (intersection_left.second < intersection_right.second)
                 {
                     reflection_panning_direction = left;
-                    magnitude = intersection_left.second;
+                    magnitude = 1.0f - intersection_left.second / max_distance;
                     reflection_delay = intersection_left.second / getSpeedOfSound();
                 }
                 else
                 {
                     reflection_panning_direction = right;
-                    magnitude = intersection_right.second;
+                    magnitude = 1.0f - intersection_right.second / max_distance;
                     reflection_delay = intersection_right.second / getSpeedOfSound();
                 }
                 // take the difference in collision distance to determine the magnitude of the panning vector
@@ -418,13 +418,13 @@ void SoundManager::updateListenerEffectSlot()
             else if (intersection_left.first) // there is a nearby surface on the left side
             {
                 reflection_panning_direction = left;
-                magnitude = intersection_left.second;
+                magnitude = 1.0f - intersection_left.second / max_distance;
                 reflection_delay = intersection_left.second / getSpeedOfSound();
             }
             else if (intersection_right.first) // there is a nearby surface on the right side
             {
                 reflection_panning_direction = right;
-                magnitude = intersection_right.second;
+                magnitude = 1.0f - intersection_right.second / max_distance;
                 reflection_delay = intersection_right.second / getSpeedOfSound();
             }
             else // no nearby surface detected
