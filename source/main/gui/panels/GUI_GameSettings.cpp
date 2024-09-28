@@ -334,8 +334,12 @@ void GameSettings::DrawAudioSettings()
 
     if (App::audio_enable_efx->getBool())
     {
-        DrawGCheckbox(App::audio_enable_obstruction,        _LC("GameSettings", "Sound obstruction (experimental)"));
-        DrawGCheckbox(App::audio_enable_reflection_panning, _LC("GameSettings", "Early reflections panning (experimental)"));
+        DrawGCombo(App::audio_efx_reverb_engine,     _LC("GameSettings", "OpenAL Reverb engine"), m_combo_items_efx_reverb_engine.c_str());
+        DrawGCheckbox(App::audio_enable_obstruction, _LC("GameSettings", "Sound obstruction (experimental)"));
+        if (App::audio_efx_reverb_engine->getEnum<EfxReverbEngine>() == EfxReverbEngine::EAXREVERB)
+        {
+            DrawGCheckbox(App::audio_enable_reflection_panning, _LC("GameSettings", "Early reflections panning (experimental)"));
+        }
     }
 
     DrawGCheckbox(App::audio_menu_music,        _LC("GameSettings", "Main menu music"));
@@ -586,5 +590,13 @@ void GameSettings::SetVisible(bool v)
         ImAddItemToComboboxString(m_combo_items_input_grab, ToLocalizedString(IoInputGrabMode::ALL));
         ImAddItemToComboboxString(m_combo_items_input_grab, ToLocalizedString(IoInputGrabMode::DYNAMIC));
         ImTerminateComboboxString(m_combo_items_input_grab);
+    }
+
+    if (m_combo_items_efx_reverb_engine == "")
+    {
+        ImAddItemToComboboxString(m_combo_items_efx_reverb_engine, ToLocalizedString(EfxReverbEngine::NONE));
+        ImAddItemToComboboxString(m_combo_items_efx_reverb_engine, ToLocalizedString(EfxReverbEngine::REVERB));
+        ImAddItemToComboboxString(m_combo_items_efx_reverb_engine, ToLocalizedString(EfxReverbEngine::EAXREVERB));
+        ImTerminateComboboxString(m_combo_items_efx_reverb_engine);
     }
 }

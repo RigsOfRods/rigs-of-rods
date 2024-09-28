@@ -124,7 +124,7 @@ SoundManager::SoundManager()
         if (App::audio_enable_efx->getBool())
         {
             // allow user to change reverb engines at will
-            switch(efx_reverb_engine_map[App::audio_efx_reverb_engine->getStr()])
+            switch(App::audio_efx_reverb_engine->getEnum<EfxReverbEngine>())
             {
                 case EfxReverbEngine::EAXREVERB: efx_reverb_engine = EfxReverbEngine::EAXREVERB; break;
                 case EfxReverbEngine::REVERB:    efx_reverb_engine = EfxReverbEngine::REVERB; break;
@@ -371,7 +371,7 @@ void SoundManager::updateListenerEffectSlot()
             alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_REVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
         }
 
-        // reflection panning
+        // early reflections panning, delay and strength
         if(
            App::audio_enable_reflection_panning->getBool() &&
            efx_reverb_engine == EfxReverbEngine::EAXREVERB &&

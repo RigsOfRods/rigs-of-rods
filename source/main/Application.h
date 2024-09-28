@@ -266,6 +266,14 @@ enum class GfxSkyMode
 };
 std::string ToLocalizedString(GfxSkyMode e);
 
+enum class EfxReverbEngine
+{
+    NONE,
+    REVERB,
+    EAXREVERB,
+};
+std::string ToLocalizedString(EfxReverbEngine e);
+
 enum class IoInputGrabMode
 {
     NONE,

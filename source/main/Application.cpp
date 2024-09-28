@@ -553,6 +553,17 @@ std::string ToLocalizedString(IoInputGrabMode e)
     }
 }
 
+std::string ToLocalizedString(EfxReverbEngine e)
+{
+    switch (e)
+    {
+    case EfxReverbEngine::NONE:         return _LC("EfxReverbEngine", "None (no reverb, fastest)");
+    case EfxReverbEngine::REVERB:       return _LC("EfxReverbEngine", "REVERB");
+    case EfxReverbEngine::EAXREVERB:    return _LC("EfxReverbEngine", "EAXREVERB (more realistic effects, slower)");
+    default:                            return "";
+    }
+}
+
 std::string ToLocalizedString(SimResetMode e)
 {
     switch (e)

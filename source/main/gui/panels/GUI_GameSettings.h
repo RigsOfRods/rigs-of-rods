@@ -63,6 +63,7 @@ private:
     std::string m_combo_items_water_mode;
     std::string m_combo_items_extcam_mode;
     std::string m_combo_items_input_grab;
+    std::string m_combo_items_efx_reverb_engine;
 
     // Render settings
     bool m_render_must_restart = false;
