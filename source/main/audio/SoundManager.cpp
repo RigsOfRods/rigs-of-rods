@@ -435,6 +435,8 @@ void SoundManager::updateListenerEffectSlot()
 
             // transform reflection_panning_direction vector to listener-relative EAXREVERB reflection-panning vector
             // invert z since EAXREVERB panning vectors use a left-handed coordinate system
+
+            // determine the angle between listener_direction and straight ahead vector (0, 0, 1)
             float angle = std::acos(-listener_direction.z);
 
             if (listener_direction.x < 0)
@@ -442,10 +444,14 @@ void SoundManager::updateListenerEffectSlot()
                 angle = -angle;
             }
 
+            // inversely rotate reflection_panning_vector by the angle
             Ogre::Vector3 reflection_panning_vector =
                 {(reflection_panning_direction.x * std::cos(-angle)) + (reflection_panning_direction.z * std::sin(-angle)),
                   0,
                 -(reflection_panning_direction.x * -std::sin(-angle)) + (reflection_panning_direction.z * std::cos(-angle))};
+
+            // scale panning vector based on the distance to the collision
+            // we assume that surfaces further away cause less focussed reflections
             reflection_panning_vector *= magnitude;
 
             float eaxreverb_reflection_panning_vector[3] =
