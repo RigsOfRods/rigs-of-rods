@@ -1,20 +1,30 @@
 // TEST SCRIPT - angelscript linecallback (tracks executed lines)
 // ===================================================
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
 // GUI (intentionally at the top to have fewer lines in the output):
 void frameStep(float dt)
 {
-    ImGui::TextDisabled("Frames:"+framecounter+", Samples: "+totalSamples+"(per frame :"+linenumsLite.length()+')');
-    ImGui::Text("[Line]  Total");
+    if (ImGui::Begin("Example - line callbacks", closeBtnHandler.windowOpen, 0))
+    {
+        closeBtnHandler.draw();
     
-    for (uint i=0; i<lineHitsAggregatedLite.length(); i++) {
-        float y = ImGui::GetCursorPosY();
-        ImGui::TextDisabled("[ "+formatInt(i+1, "0", 2)+" ]"); 
-        ImGui::SameLine(); ImGui::Text(""+formatInt(lineHitsAggregatedLite[i], '0', 4)); 
-        // manual linebreak, to align with the editor window
-        ImGui::SetCursorPosY(y + ImGui::GetTextLineHeight());
-    }
-    framecounter++;
+        ImGui::TextDisabled("Frames:"+framecounter+", Samples: "+totalSamples+"(per frame :"+linenumsLite.length()+')');
+        ImGui::Text("[Line]  Total");
+        
+        for (uint i=0; i<lineHitsAggregatedLite.length(); i++) {
+            float y = ImGui::GetCursorPosY();
+            ImGui::TextDisabled("[ "+formatInt(i+1, "0", 2)+" ]"); 
+            ImGui::SameLine(); ImGui::Text(""+formatInt(lineHitsAggregatedLite[i], '0', 4)); 
+            // manual linebreak, to align with the editor window
+            ImGui::SetCursorPosY(y + ImGui::GetTextLineHeight());
+        }
+        framecounter++;
+        ImGui::End();
+    }        
 }
 
  //CONTEXT:

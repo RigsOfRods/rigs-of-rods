@@ -4,7 +4,7 @@
 /// Written and auto-indented using script_editor.as!
 // ===================================================
 
-#include "gridviewer_utils.as"
+#include "imgui_utils.as"
 
 class RigEditor
 {
@@ -27,6 +27,7 @@ class RigEditor
     CacheEntryClass@ m_awaiting_load_bundle_entry = null;
     color node_color = color(0.8, 0.9, 0.2, 1.0);
     float node_radius = 1.f;    
+    imgui_utils::CloseWindowPrompt closeBtnHandler; // Window [X] button handler
     
     // ---- functions ----
     
@@ -43,7 +44,8 @@ class RigEditor
             caption += " ("+m_project_entry.fname+")";
         }
         int flags = ImGuiWindowFlags_MenuBar;
-        ImGui::Begin(caption, /*open:*/true, flags);
+        ImGui::Begin(caption, closeBtnHandler.windowOpen, flags);
+        closeBtnHandler.draw();
         
         // Draw menu bar
         

@@ -14,7 +14,9 @@
 // #  Prefer always looking up the resource from OGRE - slower but safer.
 // #=====================================================================
 
+// Window [X] button handler
 #include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
 
 TerrnBatcherUI       tbUI;
 
@@ -25,9 +27,12 @@ void main()
 
 void frameStep(float dt)
 {
-    ImGui::Begin("TERRN BATCHER [ALPHA]", /*open:*/true, ImGuiWindowFlags_AlwaysAutoResize);
-    tbUI.draw();
-    ImGui::End();    
+    if (ImGui::Begin("TERRN BATCHER [ALPHA]", closeBtnHandler.draw(), ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        closeBtnHandler.draw();
+        tbUI.draw();
+        ImGui::End();
+    }
 }
 
 class TerrnBatcherUI // Based on Inspector UI, can pick scenenodes and prepare Schedule for the batching.

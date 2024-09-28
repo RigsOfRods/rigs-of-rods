@@ -9,30 +9,6 @@
 // Global definitions:
 // -------------------
 
-// from <imgui.h>
-const int    ImGuiCol_Text = 0;
-const int    ImGuiCol_TextDisabled = 1;
-const int    ImGuiCol_WindowBg = 2;              // Background of normal windows
-const int    ImGuiCol_ChildBg = 3;               // Background of child windows
-const int    ImGuiCol_PopupBg = 4;               // Background of popups, menus, tooltips windows
-const int    ImGuiCol_Border = 5;
-const int    ImGuiCol_BorderShadow = 6;
-const int    ImGuiCol_FrameBg = 7;               // Background of checkbox, radio button, plot, slider, text input
-const int    ImGuiCol_FrameBgHovered = 8;
-const int    ImGuiCol_FrameBgActive = 9;
-const int    ImGuiCol_TitleBg = 10;
-const int    ImGuiCol_TitleBgActive = 11;
-const int    ImGuiCol_TitleBgCollapsed = 12;
-const int    ImGuiCol_MenuBarBg            = 13;
-const int    ImGuiCol_ScrollbarBg          = 14;
-const int    ImGuiCol_ScrollbarGrab        = 15;
-const int    ImGuiCol_ScrollbarGrabHovered = 16;
-const int    ImGuiCol_ScrollbarGrabActive  = 17;
-const int    ImGuiCol_CheckMark            = 18;
-const int    ImGuiCol_SliderGrab           = 19;
-const int    ImGuiCol_SliderGrabActive     = 20;
-const int    ImGuiCol_Button               = 21;
-const int    ImGuiTabItemFlags_SetSelected = 1 << 1;
 // from <angelscript.h>
 enum asEMsgType
 {
@@ -218,7 +194,9 @@ class ScriptEditorWindow
         array<ScriptEditorTab@> tabs;
         uint currentTab = 0;
         int tabScheduledForRemoval = -1;
-        
+    
+    // GLOBAL CONTEXT
+    imgui_utils::CloseWindowPrompt closeBtnHandler;
     
     // MENU CONTEXT (pre-scanned file lists with extra details)
     ScriptIndexerRecord recentScriptsRecord;
@@ -275,8 +253,10 @@ class ScriptEditorWindow
         this.tabs[this.currentTab].handleRequests(dt);
     
         int flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar;
-        if (ImGui::Begin("Script editor", /*open:*/true, flags))
+        
+        if (ImGui::Begin("Script editor", this.closeBtnHandler.windowOpen, flags))
         {
+            this.closeBtnHandler.draw();
             this.drawMenubar();
             this.drawTabBar();
             
@@ -558,11 +538,11 @@ class ScriptEditorWindow
             if (ImGui::BeginMenu("Docs"))
             {
                 ImGui::TextDisabled("AngelScript:");
-                ImHyperlink('https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script.html', "The script language");
+                imgui_utils::ImHyperlink('https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script.html', "The script language");
                 
                 ImGui::Separator();
                 ImGui::TextDisabled("Rigs of Rods:");
-                ImHyperlink('https://developer.rigsofrods.org/d2/d42/group___script_side_a_p_is.html', "Script-side APIs");
+                imgui_utils::ImHyperlink('https://developer.rigsofrods.org/d2/d42/group___script_side_a_p_is.html', "Script-side APIs");
                 
                 ImGui::EndMenu();
             }
@@ -2246,28 +2226,50 @@ RegionInfo@ findRegion(dictionary@ regionDict, string name) // Helper which chec
 const string TUT_SCRIPT =
 """
 // TUTORIAL SCRIPT - Shows the basics, step by step:
+// How to open UI window and handle [X] close button;
 // how to store data and update/draw them every frame.
 // (also showcases code folding with '#[end]region')
 // ===================================================
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
 // total time in seconds
 float tt = 0.f;
+
+void main()
+{
+    // Uncomment to close window without asking.
+    //closeBtnHandler.cfgCloseImmediatelly = true;
+}
 
 // `frameStep()` runs every frame; `dt` is delta time in seconds.
 void frameStep(float dt)
 {
-    // accumulate time
-    tt += dt;
-    
-    //#region format the output 
-    string ttStr = "Total time: " + formatFloat(tt, "", 5, 2) + "sec";
-    string dtStr = "Delta time: " + formatFloat(dt, "", 7, 4) + "sec";
-    //#endregion
-    
-    //#region render the output
-    // Note this will open an implicit window titled "Debug"
-    ImGui::Text(ttStr);
-    ImGui::Text(dtStr);
-    //#endregion
+    // Begin drawing window
+    if (ImGui::Begin("Tutorial script", closeBtnHandler.windowOpen, 0))
+    {
+        // Draw the "Terminate this script?" prompt on the top.
+        closeBtnHandler.draw();
+        
+        // accumulate time
+        tt += dt;
+        
+        //#region format the output 
+        string ttStr = "Total time: " + formatFloat(tt, "", 5, 2) + "sec";
+        string dtStr = "Delta time: " + formatFloat(dt, "", 7, 4) + "sec";
+        //#endregion
+        
+        //#region render the output
+        // Note this will open an implicit window titled "Debug"
+        ImGui::Text(ttStr);
+        ImGui::SameLine();
+        ImGui::Text(dtStr);
+        //#endregion
+        
+        // End drawing window
+        ImGui::End();
+    }
 }
 """;

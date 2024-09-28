@@ -2,6 +2,10 @@
 // EXAMPLE SCRIPT - `game.fetchUrlAsStringAsync()`
 // ======================================================
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
 // Context:
 string payload = "";
 string statusmsg = "";
@@ -55,24 +59,29 @@ void eventCallbackEx(scriptEvents ev,
 // GUI drawing:
 void frameStep(float dt)
 {
-    ImGui::Text("Running: "+running+"; Done:"+done);
-
-     if (!running && ImGui::Button(url))
+    if (ImGui::Begin("Example script", closeBtnHandler.windowOpen, 0))
     {
-         done = false;
-         running = true;
-         game.fetchUrlAsStringAsync(url, "ABCD");
-    }
-    if (running || done)
-    {
-        ImGui::TextDisabled("stats:");
-         ImGui::Text("statuscount_progress:"+statuscount_progress);
-         ImGui::Text("statuscount_success:"+statuscount_success);
-         ImGui::Text("statuscount_failure:"+statuscount_failure);
-         ImGui::TextDisabled("data:");
-         ImGui::Text("httpcode:"+httpcode);
-         ImGui::Text("statustype:"+statustype);
-         ImGui::Text("statusmsg:"+statusmsg);
+        closeBtnHandler.draw();
+    
+        ImGui::Text("Running: "+running+"; Done:"+done);
 
-    }
+        if (!running && ImGui::Button(url))
+        {
+            done = false;
+            running = true;
+            game.fetchUrlAsStringAsync(url, "ABCD");
+        }
+        if (running || done)
+        {
+            ImGui::TextDisabled("stats:");
+            ImGui::Text("statuscount_progress:"+statuscount_progress);
+            ImGui::Text("statuscount_success:"+statuscount_success);
+            ImGui::Text("statuscount_failure:"+statuscount_failure);
+            ImGui::TextDisabled("data:");
+            ImGui::Text("httpcode:"+httpcode);
+            ImGui::Text("statustype:"+statustype);
+            ImGui::Text("statusmsg:"+statusmsg);
+        }
+        ImGui::End();
+    }    
 }

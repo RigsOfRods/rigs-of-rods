@@ -8,10 +8,26 @@
 // -- `Ogre::Pass.getFragmentProgramParameters()` -> `Ogre::GpuProgramParametersPtr`
 // ===================================================
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
 // We can't reaad from `Ogre::GpuProgramParametersPtr` at the moment :/
 dictionary knownConstantValues;
 
 void frameStep(float dt)
+{
+    if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
+    {
+        closeBtnHandler.draw();
+    
+        drawBody();
+        
+        ImGui::End();
+    }
+}
+
+void drawBody()
 {
     BeamClass@ playerActor = game.getCurrentTruck();
     if (@playerActor == null)

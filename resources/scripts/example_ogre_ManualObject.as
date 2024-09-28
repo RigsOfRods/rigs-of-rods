@@ -2,6 +2,9 @@
 // \brief shows how to make custom mesh and place it to scene
 // ===================================================
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
 
 array<    Ogre::ManualObject@ > gManualObjects;
 Ogre::SceneNode@ gGroupingSceneNode = game.getSceneManager().getRootSceneNode().createChildSceneNode(makeID(""));
@@ -36,18 +39,23 @@ Ogre::ManualObject@ makePlane(string meshName, string matName)
 // `frameStep()` runs every frame; `dt` is delta time in seconds.
 void frameStep(float dt)
 {
-    ImGui::Text("Num manual objects: "+gManualObjects.length());
-    
-    if (ImGui::Button("make plane at character position"))
+    if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
     {
-        string moname = makeID("mo-"+gManualObjects.length());
-        string matname = "sign-autostrasse";
-        Ogre::ManualObject@ mo  = makePlane(moname, matname);
-        Ogre::SceneNode@ snode = gGroupingSceneNode.createChildSceneNode(moname+"-node");
-        snode.attachObject(cast<Ogre::MovableObject@>(mo));
-        snode.setPosition(game.getPersonPosition()+vector3(0,2,0));
-        gManualObjects.insertLast(mo);
+        closeBtnHandler.draw();
+    
+        ImGui::Text("Num manual objects: "+gManualObjects.length());
+        
+        if (ImGui::Button("make plane at character position"))
+        {
+            string moname = makeID("mo-"+gManualObjects.length());
+            string matname = "sign-autostrasse";
+            Ogre::ManualObject@ mo  = makePlane(moname, matname);
+            Ogre::SceneNode@ snode = gGroupingSceneNode.createChildSceneNode(moname+"-node");
+            snode.attachObject(cast<Ogre::MovableObject@>(mo));
+            snode.setPosition(game.getPersonPosition()+vector3(0,2,0));
+            gManualObjects.insertLast(mo);
+        }
+    
+        ImGui::End();
     }
-    
-    
 }
