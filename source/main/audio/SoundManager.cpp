@@ -382,10 +382,10 @@ void SoundManager::updateListenerEffectSlot()
              * Detect surfaces close to the listener and pan and delay early reflections accordingly.
              * Use ray casting to probe for a collision up to max_distance to each side of the listener.
              */
-            float max_distance = 2.0f;
+            const float max_distance = 2.0f;
             const float reflections_gain_boost_max = 0.316f; // 1 db
             float reflections_gain;
-            float reflection_delay = -1.0f;
+            float reflection_delay;
             float magnitude;
 
             Ogre::Vector3 reflection_panning_direction = { 0.0f, 0.0f, 0.0f};
