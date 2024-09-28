@@ -638,7 +638,9 @@ void SoundManager::recomputeAllSources()
 
                 if (corresponding_sound != nullptr)
                 {
-                    Ray direct_path_to_sound = Ray(listener_position, corresponding_sound->getPosition());
+                    // no normalisation due to how the intersectsTris function determines its number of steps
+                    Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - listener_position;
+                    Ray direct_path_to_sound = Ray(listener_position, direction_to_sound);
                     std::pair<bool, Ogre::Real> intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(direct_path_to_sound);
 
                     /*
