@@ -92,6 +92,11 @@ public:
     int               getWheelNodeCount() const;
     float             getWheelSpeed() const { return ar_wheel_speed; }
     void              reset(bool keep_position = false);   //!< call this one to reset a truck from any context
+    float             getShockSpringRate(int shock_number);
+    float             getShockDamping(int shock_number);
+    float             getShockVelocity(int shock_number);
+    int               getShockNode1(int shock_number);
+    int               getShockNode2(int shock_number);
     // not exported to scripting:
     void              resetPosition(Ogre::Vector3 translation, bool setInitPosition); //!< Moves the actor to given world coords.
     void              resetPosition(float px, float pz, bool setInitPosition, float miny); //!< Moves the actor to given world coords.
@@ -112,9 +117,6 @@ public:
     void              updateSlideNodeForces(const Ogre::Real delta_time_sec); //!< calculate and apply Corrective forces
     void              resetSlideNodePositions();           //!< Recalculate SlideNode positions
     void              resetSlideNodes();                   //!< Reset all the SlideNodes
-    float             getShockSpringRate(int shock_number);
-    float             getShockDamping(int shock_number);
-    float             getShockVelocity(int shock_number);
     /// @}
 
     /// @name Physics editing

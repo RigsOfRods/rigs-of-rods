@@ -181,10 +181,6 @@ void ScriptEngine::init()
     RegisterScriptEvents(engine);  // scriptEvents
     RegisterGenericFileFormat(engine); // TokenType, GenericDocumentClass, GenericDocReaderClass
     RegisterCacheSystem(engine);   // LoaderType, CacheEntryClass, CacheSystemClass
-    result = engine->RegisterObjectMethod("BeamClass", "int getShockCount()", AngelScript::asMETHOD(Actor,getShockCount), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "float getShockSpringRate(int)", AngelScript::asMETHOD(Actor,getShockSpringRate), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "float getShockDamping(int)", AngelScript::asMETHOD(Actor,getShockDamping), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
-    result = engine->RegisterObjectMethod("BeamClass", "float getShockVelocity(int)", AngelScript::asMETHOD(Actor,getShockVelocity), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
 
     // now the global instances
     result = engine->RegisterGlobalProperty("GameScriptClass game", &m_game_script); ROR_ASSERT(result>=0);
