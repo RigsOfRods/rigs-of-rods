@@ -324,7 +324,25 @@ class ScriptEditorWindow
                 
                 if (loadRecentFile || loadLocalFile)
                 {
-                    this.addTab(fileNameBuf, game.loadTextResourceAsString(fileNameBuf, RGN_SCRIPTS));
+                    // Recognize auto-saves and load them under the original name. Note '_AUTOSAVE' ~ 9 characters.
+                    string tabName = fileNameBuf;
+                    string baseName = fileNameBuf; // filename without extension
+                    int dotPos = fileNameBuf.findLast(".");
+                    if (dotPos > 0)
+                    {
+                        baseName = fileNameBuf.substr(0, dotPos);
+                    }
+                    if (baseName.length() > 9 && baseName.substr(baseName.length()-9) == "_AUTOSAVE")
+                    {
+                        tabName = baseName.substr(0, baseName.length()-9);
+                        if (dotPos > 0)
+                        {
+                            tabName += fileNameBuf.substr(dotPos);
+                        }
+                        game.log("DBG script editor: open file menu: file '"+fileNameBuf+"' is an autosave, loading as '"+tabName+"'");
+                    }
+                
+                    this.addTab(tabName, game.loadTextResourceAsString(fileNameBuf, RGN_SCRIPTS));
                     this.currentTab = this.tabs.length() - 1; // Focus the new tab
                     this.addRecentScript(fileNameBuf);    
                 }
@@ -361,7 +379,7 @@ class ScriptEditorWindow
                     ImGui::TextColored(color(1,0.1, 0.2, 1), "Error saving file!");
                 
                 ImGui::Separator();
-                this.drawSelectableFileList("Recent scripts", "Select##recent", recentScriptsRecord, /*&inout*/ fileNameBuf);
+                this.drawSelectableFileList("Recent scripts", "Select##recent", recentScriptsRecord, /*&inout*/ saveFileNameBuf);
                 ImGui::Separator();
                 this.drawSelectableFileList("Local scripts", "Select##local", localScriptsRecord, /*&inout*/ saveFileNameBuf);
 
