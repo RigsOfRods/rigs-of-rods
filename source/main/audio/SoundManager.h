@@ -62,6 +62,11 @@ public:
     */
     SoundPtr createSound(Ogre::String filename, Ogre::String resource_group_name = "");
 
+    /** Returns the position vector of the listener
+     * @return listener position vector
+     */
+    Ogre::Vector3 getListenerPosition() const { return listener_position; }
+
     void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
     void setListenerEnvironment(std::string listener_environment);
     void pauseAllSounds();
