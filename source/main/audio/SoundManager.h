@@ -77,6 +77,12 @@ public:
 
     int getNumHardwareSources() { return hardware_sources_num; }
 
+    /**
+    * Returns currently registered EFX presets
+    * @return Map of EFX Preset names to their EFXEAXREVERBPROPERTIES object.
+    */
+    std::map<std::string, EFXEAXREVERBPROPERTIES> getEfxPropertiesMap() const { return efx_properties_map; }
+
     static const float MAX_DISTANCE;
     static const float ROLLOFF_FACTOR;
     static const float REFERENCE_DISTANCE;
