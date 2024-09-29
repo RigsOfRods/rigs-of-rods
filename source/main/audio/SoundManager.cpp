@@ -638,19 +638,30 @@ void SoundManager::recomputeAllSources()
 
                 if (corresponding_sound != nullptr)
                 {
+                    bool obstacle_detected = false;
+                    std::pair<bool, Ogre::Real> intersection;
                     // no normalisation due to how the intersectsTris function determines its number of steps
                     Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - listener_position;
                     Ray direct_path_to_sound = Ray(listener_position, direction_to_sound);
-                    std::pair<bool, Ogre::Real> intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(direct_path_to_sound);
+
+                    // perform line of sight check against terrain
+                    intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound, Ogre::Real(direction_to_sound.length()));
+                    obstacle_detected = intersection.first;
+
+                    if(!obstacle_detected)
+                    {
+                        // perform line of sight check against collision meshes
+                        intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(direct_path_to_sound);
+                        obstacle_detected = intersection.first;
+                    }
 
                     /*
                         TODO: Also check if trucks are obstructing the sound.
                         Trucks shouldn't obstruct their own sound sources since the obstruction is most likely
                         already contained in the recording.
-                        If the obstacle is the sound source's own truck, we should still check for other obstacles.
                     */
 
-                    if(intersection.first) // sound is obstructed
+                    if(obstacle_detected)
                     {
                         // Apply obstruction filter to the source
                         alSourcei(hardware_sources[hardware_sources_num], AL_DIRECT_FILTER, efx_outdoor_obstruction_lowpass_filter_id);
@@ -660,7 +671,6 @@ void SoundManager::recomputeAllSources()
                         // reset direct filter for the source in case it has been set previously
                         alSourcei(hardware_sources[hardware_sources_num], AL_DIRECT_FILTER, AL_FILTER_NULL);
                     }
-                    corresponding_sound = nullptr;
                 }
             }
         }
