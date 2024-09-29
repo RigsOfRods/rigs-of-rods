@@ -364,15 +364,7 @@ void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
 
         if (App::audio_enable_efx->getBool())
         {
-            if(listener_is_underwater)
-            {
-                listener_environment = "EFX_REVERB_PRESET_UNDERWATER";
-            }
-            else
-            {
-                listener_environment = this->getReverbPresetAt(listener_position);
-            }
-            // TODO: Might want to set an in-cockpit effect when appropriate
+            listener_environment = this->getReverbPresetAt(listener_position);
         }
     }
 
@@ -389,7 +381,25 @@ void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
 
 std::string SoundScriptManager::getReverbPresetAt(Ogre::Vector3 position)
 {
-    // TODO: This is a stub
+    Ogre::Vector3 listener_position = sound_manager->getListenerPosition();
+    ActorPtr actor_of_player = App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling();
+
+    if (actor_of_player != nullptr &&
+        actor_of_player->ar_bounding_box.contains(listener_position))
+    {
+        // the player is in a vehicle
+        // there is no reverb preset for trucks, but this seems ok
+        return "EFX_REVERB_PRESET_DRIVING_INCAR_SPORTS";
+    }
+
+    const auto water = App::GetGameContext()->GetTerrain()->getWater();
+    bool listener_is_underwater = (water != nullptr ? water->IsUnderWater(listener_position) : false);
+
+    if(listener_is_underwater)
+    {
+        return "EFX_REVERB_PRESET_UNDERWATER";
+    }
+
     return "";
 }
 
