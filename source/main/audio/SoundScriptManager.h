@@ -334,6 +334,11 @@ public:
 
     void update(float dt_sec);
 
+    /**
+     * @return True if the listener position is below water level. False otherwise.
+     */
+    bool listenerIsUnderwater() const { return listener_is_underwater; }
+
     SoundManager* getSoundManager() { return sound_manager; }
 
 private:
@@ -344,6 +349,7 @@ private:
 
     bool disabled;
     bool loading_base;
+    bool listener_is_underwater;
     float max_distance;
     float reference_distance;
     float rolloff_factor;

@@ -321,6 +321,10 @@ void SoundScriptManager::update(float dt_sec)
         // Direction points down -Z by default (adapted from Ogre::Camera)
         Ogre::Vector3 camera_direction = camera_node->getOrientation() * -Ogre::Vector3::UNIT_Z;
         this->setListener(camera_position, camera_direction, camera_up, camera_velocity);
+
+        const auto water = App::GetGameContext()->GetTerrain()->getWater();
+        this->listener_is_underwater = (water != nullptr ? water->IsUnderWater(this->sound_manager->getListenerPosition()) : false);
+
         this->setListenerEnvironment(camera_position);
     }
 }
@@ -341,10 +345,7 @@ void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
 
     if (App::audio_engine_controls_environmental_audio->getBool())
     {
-        const auto water = App::GetGameContext()->GetTerrain()->getWater();
-        bool listener_is_underwater = (water != nullptr ? water->IsUnderWater(listener_position) : false);
-
-        if(listener_is_underwater)
+        if(this->listenerIsUnderwater())
         {
             sound_manager->setSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
             /*
@@ -392,10 +393,7 @@ std::string SoundScriptManager::getReverbPresetAt(Ogre::Vector3 position)
         return "EFX_REVERB_PRESET_DRIVING_INCAR_SPORTS";
     }
 
-    const auto water = App::GetGameContext()->GetTerrain()->getWater();
-    bool listener_is_underwater = (water != nullptr ? water->IsUnderWater(listener_position) : false);
-
-    if(listener_is_underwater)
+    if(this->listenerIsUnderwater())
     {
         return "EFX_REVERB_PRESET_UNDERWATER";
     }
