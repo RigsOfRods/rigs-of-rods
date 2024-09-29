@@ -179,6 +179,15 @@ public:
 
     std::pair<bool, Ogre::Real> intersectsTris(Ogre::Ray ray);
 
+    /**
+     * Checks whether a Ray intersects the terrain. The accuracy of the results largely depends on the step_size parameter.
+     * @param ray The ray that is checked for an intersection with the terrain.
+     * @param distance_limit No intersection check is performed beyond this distance starting from the ray's origin toward its direction.
+     * @param step_size Defines the interval between points of the ray at which intersection checks will be performed.
+     * @return Pair of whether an intersection was found and the distance to the point of the intersection.
+     */
+    std::pair<bool, Ogre::Real> intersectsTerrain(Ogre::Ray ray, Ogre::Real distance_limit, Ogre::Real step_size = Ogre::Real(0.1));
+
     float getSurfaceHeight(float x, float z);
     float getSurfaceHeightBelow(float x, float z, float height);
     bool collisionCorrect(Ogre::Vector3* refpos, bool envokeScriptCallbacks = true);
