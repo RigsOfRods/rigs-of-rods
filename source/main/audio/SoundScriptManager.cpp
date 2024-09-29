@@ -321,9 +321,20 @@ void SoundScriptManager::update(float dt_sec)
         // Direction points down -Z by default (adapted from Ogre::Camera)
         Ogre::Vector3 camera_direction = camera_node->getOrientation() * -Ogre::Vector3::UNIT_Z;
         this->setListener(camera_position, camera_direction, camera_up, camera_velocity);
+        Ogre::Vector3 listener_position = sound_manager->getListenerPosition();
 
         const auto water = App::GetGameContext()->GetTerrain()->getWater();
-        this->listener_is_underwater = (water != nullptr ? water->IsUnderWater(this->sound_manager->getListenerPosition()) : false);
+        this->listener_is_underwater = (water != nullptr ? water->IsUnderWater(listener_position) : false);
+
+        ActorPtr actor_of_player = App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling();
+        if (actor_of_player != nullptr)
+        {
+            this->listener_is_inside_the_player_coupled_actor = actor_of_player->ar_bounding_box.contains(listener_position);
+        }
+        else
+        {
+            this->listener_is_inside_the_player_coupled_actor = false;
+        }
 
         this->setListenerEnvironment(camera_position);
     }
@@ -382,11 +393,7 @@ void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
 
 std::string SoundScriptManager::getReverbPresetAt(Ogre::Vector3 position)
 {
-    Ogre::Vector3 listener_position = sound_manager->getListenerPosition();
-    ActorPtr actor_of_player = App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling();
-
-    if (actor_of_player != nullptr &&
-        actor_of_player->ar_bounding_box.contains(listener_position))
+    if (this->listener_is_inside_the_player_coupled_actor)
     {
         // the player is in a vehicle
         // there is no reverb preset for trucks, but this seems ok
