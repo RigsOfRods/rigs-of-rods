@@ -638,30 +638,42 @@ void SoundManager::recomputeAllSources()
 
                 if (corresponding_sound != nullptr)
                 {
-                    bool obstacle_detected = false;
-                    std::pair<bool, Ogre::Real> intersection;
-                    // no normalisation due to how the intersectsTris function determines its number of steps
-                    Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - listener_position;
-                    Ray direct_path_to_sound = Ray(listener_position, direction_to_sound);
+                    bool obstruction_filter_has_to_be_applied = false;
 
-                    // perform line of sight check against terrain
-                    intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound, Ogre::Real(direction_to_sound.length()));
-                    obstacle_detected = intersection.first;
-
-                    if(!obstacle_detected)
+                    // always obstruct sounds if the player is in a vehicle
+                    if(App::GetSoundScriptManager()->listenerIsInsideThePlayerCoupledActor())
                     {
-                        // perform line of sight check against collision meshes
-                        intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(direct_path_to_sound);
-                        obstacle_detected = intersection.first;
+                        obstruction_filter_has_to_be_applied = true;
+                    }
+                    else
+                    {
+                        bool obstacle_was_detected = false;
+                        std::pair<bool, Ogre::Real> intersection;
+                        // no normalisation due to how the intersectsTris function determines its number of steps
+                        Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - listener_position;
+                        Ray direct_path_to_sound = Ray(listener_position, direction_to_sound);
+
+                        // perform line of sight check against terrain
+                        intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound, Ogre::Real(direction_to_sound.length()));
+                        obstacle_was_detected = intersection.first;
+
+                        if(!obstacle_was_detected)
+                        {
+                            // perform line of sight check against collision meshes
+                            intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(direct_path_to_sound);
+                            obstacle_was_detected = intersection.first;
+                        }
+
+                        /*
+                            TODO: Also check if trucks are obstructing the sound.
+                            Trucks shouldn't obstruct their own sound sources since the obstruction is most likely
+                            already contained in the recording.
+                        */
+
+                        obstruction_filter_has_to_be_applied = obstacle_was_detected;
                     }
 
-                    /*
-                        TODO: Also check if trucks are obstructing the sound.
-                        Trucks shouldn't obstruct their own sound sources since the obstruction is most likely
-                        already contained in the recording.
-                    */
-
-                    if(obstacle_detected)
+                    if(obstruction_filter_has_to_be_applied)
                     {
                         // Apply obstruction filter to the source
                         alSourcei(hardware_sources[hardware_sources_num], AL_DIRECT_FILTER, efx_outdoor_obstruction_lowpass_filter_id);

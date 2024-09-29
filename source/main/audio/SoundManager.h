@@ -27,6 +27,7 @@
 #include "Collisions.h"
 #include "GameContext.h"
 #include "Sound.h"
+#include "SoundScriptManager.h"
 
 #include <OgreVector3.h>
 #include <OgreString.h>
