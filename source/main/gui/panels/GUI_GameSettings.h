@@ -52,6 +52,7 @@ private:
     Str<1000> m_buf_diag_preset_veh_config;
     Str<1000> m_buf_app_extra_mod_dir;
     Str<1000> m_buf_io_outgauge_ip;
+    Str<1000> m_buf_audio_listener_efx_preset;
 
     // Pre-formatted combobox items
     std::string m_combo_items_gearbox_mode;

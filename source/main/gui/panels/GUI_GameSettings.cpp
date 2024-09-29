@@ -340,6 +340,13 @@ void GameSettings::DrawAudioSettings()
         {
             DrawGCheckbox(App::audio_enable_reflection_panning, _LC("GameSettings", "Early reflections panning (experimental)"));
         }
+
+        DrawGCheckbox(App::audio_engine_controls_environmental_audio, _LC("GameSettings", "Engine exerts automatic control over environmental audio"));
+        if (!App::audio_engine_controls_environmental_audio->getBool())
+        {
+            m_buf_audio_listener_efx_preset = App::audio_listener_efx_preset->getStr();
+            DrawGTextEdit(App::audio_listener_efx_preset, _LC("GameSettings", "EFX Reverb preset to apply by default"),  m_buf_audio_listener_efx_preset);
+        }
     }
 
     DrawGCheckbox(App::audio_menu_music,        _LC("GameSettings", "Main menu music"));
