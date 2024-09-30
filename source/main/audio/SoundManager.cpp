@@ -651,6 +651,11 @@ void SoundManager::updateObstructionFilter(const ALuint hardware_source)
         }
         else
         {
+            /*
+            * Perform various line of sight checks until either a collision was detected
+            * and the filter has to be applied or no obstruction was detected.
+            */
+
             bool obstacle_was_detected = false;
             std::pair<bool, Ogre::Real> intersection;
             // no normalisation due to how the intersectsTris function determines its number of steps
