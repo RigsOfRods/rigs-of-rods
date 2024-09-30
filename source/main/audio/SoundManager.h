@@ -156,6 +156,14 @@ private:
     ALuint  CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties);
     void    prepopulate_efx_property_map();
     void    updateListenerEffectSlot();
+
+    /**
+     *   Applies an obstruction filter to the provided source if certain conditions apply.
+     *   To decide whether the filter should be applied or not, the function performs
+     *   various checks against the environment of the listener.
+     *   @param hardware_souce The index of the hardware source.
+     */
+    void    updateObstructionFilter(const ALuint hardware_source);
 };
 
 /// @}
