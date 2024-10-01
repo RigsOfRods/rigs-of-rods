@@ -181,12 +181,20 @@ void CacheSystem::LoadModCache(CacheValidity validity)
     m_loaded = true;
 }
 
-CacheEntryPtr CacheSystem::FindEntryByFilename(LoaderType type, bool partial, const std::string& _filename)
+CacheEntryPtr CacheSystem::FindEntryByFilename(LoaderType type, bool partial, const std::string& _filename_maybe_bundlequalified)
 {
-    std::string filename = _filename;
+    // "Bundle-qualified" format also specifies the ZIP/directory in modcache, i.e. "mybundle.zip:myactor.truck"
+    // Like the filename, the bundle name lookup is case-insensitive.
+    // -------------------------------------------------------------------------------------------------
+
+    std::string filename;
+    std::string bundlename;
+    SplitBundleQualifiedFilename(_filename_maybe_bundlequalified, bundlename, filename);
     StringUtil::toLowerCase(filename);
+    StringUtil::toLowerCase(bundlename);
     size_t partial_match_length = std::numeric_limits<size_t>::max();
     CacheEntryPtr partial_match = nullptr;
+    std::vector<CacheEntryPtr> log_candidates;
     for (CacheEntryPtr& entry : m_entries)
     {
         if ((type == LT_Terrain) != (entry->fext == "terrn2") ||
@@ -195,18 +203,51 @@ CacheEntryPtr CacheSystem::FindEntryByFilename(LoaderType type, bool partial, co
 
         String fname = entry->fname;
         String fname_without_uid = entry->fname_without_uid;
+        String bname;
+        String _path_placeholder;
+        StringUtil::splitFilename(entry->resource_bundle_path, bname, _path_placeholder);
         StringUtil::toLowerCase(fname);
         StringUtil::toLowerCase(fname_without_uid);
+        StringUtil::toLowerCase(bname);
         if (fname == filename || fname_without_uid == filename)
-            return entry;
-
-        if (partial &&
+        {
+            if (bundlename == "" || bname == bundlename)
+            {
+                return entry;
+            }
+            else
+            {
+                log_candidates.push_back(entry);
+            }
+        }
+        else if (partial &&
             fname.length() < partial_match_length &&
             fname.find(filename) != std::string::npos)
         {
-            partial_match = entry;
-            partial_match_length = fname.length();
+            if (bundlename == "" || bname == bundlename)
+            {
+                partial_match = entry;
+                partial_match_length = fname.length();
+            }
+            else
+            {
+                log_candidates.push_back(entry);
+            }
         }
+    }
+
+    if (log_candidates.size() > 0)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+            fmt::format(_LC("CacheSystem", "Mod '{}' was not found in cache; candidates ({}) are:"), _filename_maybe_bundlequalified, log_candidates.size()));
+        for (CacheEntryPtr& entry: log_candidates)
+        {
+            std::string bundle_name, bundle_path;
+            StringUtil::toLowerCase(bundle_name);
+            Ogre::StringUtil::splitFilename(entry->resource_bundle_path, bundle_name, bundle_path);
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                fmt::format(_LC("CacheSystem", "* {}:{}"), bundle_name, entry->fname));
+        }   
     }
 
     return (partial) ? partial_match : nullptr;
@@ -1297,46 +1338,6 @@ void CacheSystem::LoadAssetPack(CacheEntryPtr& target_entry, Ogre::String const 
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING, 
             fmt::format(_L("Asset pack '{}' (requested by '{}') not found"), assetpack_filename, target_entry->fname));
     }
-}
-
-bool CacheSystem::CheckResourceLoaded(Ogre::String & filename)
-{
-    Ogre::String group = "";
-    return CheckResourceLoaded(filename, group);
-}
-
-bool CacheSystem::CheckResourceLoaded(Ogre::String & filename, Ogre::String& group)
-{
-    try
-    {
-        // check if we already loaded it via ogre ...
-        if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename))
-        {
-            group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
-            return true;
-        }
-
-        for (auto& entry : m_entries)
-        {
-            // case insensitive comparison
-            String fname = entry->fname;
-            String fname_without_uid = entry->fname_without_uid;
-            StringUtil::toLowerCase(fname);
-            StringUtil::toLowerCase(filename);
-            StringUtil::toLowerCase(fname_without_uid);
-            if (fname == filename || fname_without_uid == filename)
-            {
-                // we found the file, load it
-                LoadResource(entry);
-                filename = entry->fname;
-                group = entry->resource_group;
-                return !group.empty() && ResourceGroupManager::getSingleton().resourceExists(group, filename);
-            }
-        }
-    }
-    catch (Ogre::Exception) {} // Already logged by OGRE
-
-    return false;
 }
 
 static bool CheckAndReplacePathIgnoreCase(const CacheEntryPtr& entry, CVar* dir, const std::string& dir_label, std::string& out_rgname)

@@ -108,4 +108,6 @@ std::string PrintMeshInfo(std::string const& title, Ogre::MeshPtr mesh);
 void CvarAddFileToList(CVar* cvar, const std::string& filename);
 void CvarRemoveFileFromList(CVar* cvar, const std::string& filename);
 
+void SplitBundleQualifiedFilename(const std::string& bundleQualifiedFilename, std::string& out_bundleName, std::string& out_filename);
+
 } // namespace RoR

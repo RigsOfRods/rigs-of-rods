@@ -224,3 +224,18 @@ void RoR::CvarRemoveFileFromList(CVar* cvar, const std::string& filename)
 
     cvar->setStr(JoinStrVec(files, ","));
 }
+
+void RoR::SplitBundleQualifiedFilename(const std::string& bundleQualifiedFilename, std::string& out_bundleName, std::string& out_filename)
+{
+    size_t pos = bundleQualifiedFilename.find(':');
+    if (pos != std::string::npos)
+    {
+        out_bundleName = bundleQualifiedFilename.substr(0, pos);
+        out_filename = bundleQualifiedFilename.substr(pos + 1);
+    }
+    else
+    {
+        out_bundleName = "";
+        out_filename = bundleQualifiedFilename;
+    }
+}

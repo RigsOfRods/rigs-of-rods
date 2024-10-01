@@ -303,14 +303,9 @@ bool ActorManager::LoadScene(Ogre::String save_filename)
     std::vector<ActorPtr> x_actors = GetLocalActors();
     for (rapidjson::Value& j_entry: j_doc["actors"].GetArray())
     {
+        // NOTE: The filename is by default in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
         String rigdef_filename = j_entry["filename"].GetString();
-        if (!App::GetCacheSystem()->CheckResourceLoaded(rigdef_filename))
-        {
-            Str<600> msg; msg << _L("Error while loading scene: Missing content (probably not installed)") << " '" << rigdef_filename << "'";
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-            actors.push_back(nullptr);
-            continue;
-        }
+        CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, rigdef_filename);
 
         CacheEntryPtr skin = nullptr;
         if (j_entry.HasMember("skin"))
@@ -483,7 +478,14 @@ bool ActorManager::SaveScene(Ogre::String filename)
     {
         rapidjson::Value j_entry(rapidjson::kObjectType);
 
-        j_entry.AddMember("filename", rapidjson::StringRef(actor->ar_filename.c_str()), j_doc.GetAllocator());
+        // Save the filename in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
+        std::string bname;
+        std::string bpath;
+        Ogre::StringUtil::splitFilename(actor->getUsedActorEntry()->resource_bundle_path, bname, bpath);
+        std::string bq_filename = fmt::format("{}:{}", bname, actor->ar_filename);
+        rapidjson::Value j_bq_filename(bq_filename.c_str(), j_doc.GetAllocator());
+        j_entry.AddMember("filename", j_bq_filename, j_doc.GetAllocator());
+
         rapidjson::Value j_actor_position(rapidjson::kArrayType);
         j_actor_position.PushBack(actor->ar_nodes[0].AbsPosition.x, j_doc.GetAllocator());
         j_actor_position.PushBack(actor->ar_nodes[0].AbsPosition.y, j_doc.GetAllocator());

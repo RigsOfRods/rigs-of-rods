@@ -301,7 +301,7 @@ public:
 
     /// @name Lookups
     /// @{
-    CacheEntryPtr         FindEntryByFilename(RoR::LoaderType type, bool partial, const std::string& filename); //!< Returns NULL if none found
+    CacheEntryPtr         FindEntryByFilename(RoR::LoaderType type, bool partial, const std::string& _filename_maybe_bundlequalified); //!< Returns NULL if none found; "Bundle-qualified" format also specifies the ZIP/directory in modcache, i.e. "mybundle.zip:myactor.truck"
     CacheEntryPtr         GetEntryByNumber(int modid);
     CacheEntryPtr         FetchSkinByName(std::string const & skin_name);
     size_t                Query(CacheQuery& query);
@@ -310,8 +310,6 @@ public:
     /// @name Loading
     /// @{
     void                  LoadResource(CacheEntryPtr& t); //!< Loads the associated resource bundle if not already done.
-    bool                  CheckResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
-    bool                  CheckResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
     void                  ReLoadResource(CacheEntryPtr& t); //!< Forces reloading the associated bundle.
     void                  UnLoadResource(CacheEntryPtr& t); //!< Unloads associated bundle, destroying all spawned actors.
     void                  LoadSupplementaryDocuments(CacheEntryPtr& t); //!< Loads the associated .truck*, .skin and .tuneup files.

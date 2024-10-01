@@ -60,6 +60,7 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
 {
     m_actor = actor;
     m_file = def;
+    m_custom_resource_group = rq.asr_cache_entry->resource_group; // For historical/backwards-compat reasons, the instances live in the same group as the bundle.
 
     // Under OGRE, every scenenode must have globally unique name.
     m_actor_grouping_scenenode = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode(this->ComposeName("Actor"));
@@ -84,9 +85,6 @@ void ActorSpawner::ProcessNewActor(ActorPtr actor, ActorSpawnRequest rq, RigDef:
     {
         m_generate_wing_position_lights = false; // Disable aerial pos. lights for land vehicles.
     }
-
-    // Get resource group name
-    App::GetCacheSystem()->CheckResourceLoaded(m_actor->ar_filename, m_custom_resource_group);
 
     // Create the built-in "renderdash" material for use in meshes.
     // Must be done before 'props' are processed because those traditionally use it.
