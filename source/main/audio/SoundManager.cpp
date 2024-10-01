@@ -673,11 +673,39 @@ void SoundManager::updateObstructionFilter(const ALuint hardware_source)
                 obstacle_was_detected = intersection.first;
             }
 
-            /*
-                TODO: Also check if trucks are obstructing the sound.
-                Trucks shouldn't obstruct their own sound sources since the obstruction is most likely
-                already contained in the recording.
-            */
+            // Check if an actor is obstructing the sound
+            const ActorPtrVec& actors = App::GetGameContext()->GetActorManager()->GetActors();
+            bool soundsource_belongs_to_current_actor = false;
+            for(const ActorPtr actor : actors)
+            {
+                // Trucks shouldn't obstruct their own sound sources since the
+                // obstruction is most likely already contained in the recording.
+                for (int soundsource_index = 0; soundsource_index < actor->ar_num_soundsources; ++soundsource_index)
+                {
+                    const soundsource_t& soundsource = actor->ar_soundsources[soundsource_index];
+                    const int num_sounds = soundsource.ssi->getTemplate()->getNumSounds();
+                    for (int num_sound = 0; num_sound < num_sounds; ++num_sound)
+                    {
+                        if (soundsource.ssi->getSound(num_sound) == corresponding_sound)
+                        {
+                            soundsource_belongs_to_current_actor = true;
+                        }
+                    }
+                    if (soundsource_belongs_to_current_actor) { break; }
+                }
+
+                if (soundsource_belongs_to_current_actor)
+                {
+                    continue;
+                }
+
+                intersection = direct_path_to_sound.intersects(actor->ar_bounding_box);
+                if (intersection.first)
+                {
+                    obstacle_was_detected = true;
+                    break;
+                }
+            }
 
             obstruction_filter_has_to_be_applied = obstacle_was_detected;
         }

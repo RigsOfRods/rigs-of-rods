@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include "Actor.h"
 #include "Application.h"
 #include "Collisions.h"
 #include "GameContext.h"
