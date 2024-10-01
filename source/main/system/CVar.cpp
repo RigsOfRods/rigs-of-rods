@@ -161,7 +161,8 @@ void Console::cVarSetupBuiltins()
     App::audio_enable_efx                          = this->cVarCreate("audio_enable_efx",                          "Enable OpenAL EFX",                 CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::audio_engine_controls_environmental_audio = this->cVarCreate("audio_engine_controls_environmental_audio", "Engine-controlled environm. audio", CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::audio_efx_reverb_engine                   = this->cVarCreate("audio_efx_reverb_engine",                   "OpenAL EFX Reverb Engine",          CVAR_ARCHIVE | CVAR_TYPE_INT,     "2"/*(int)EfxReverbEngine::EAXREVERB*/);
-    App::audio_listener_efx_preset                 = this->cVarCreate("audio_listener_efx_preset",                 "OpenAL listener EFX preset",        CVAR_ARCHIVE);
+    App::audio_default_listener_efx_preset         = this->cVarCreate("audio_default_listener_efx_preset",         "OpenAL default listener EFX preset",CVAR_ARCHIVE);
+    App::audio_force_listener_efx_preset           = this->cVarCreate("audio_force_listener_efx_preset",           "OpenAL forced listener EFX preset", CVAR_ARCHIVE);
 
     App::gfx_flares_mode         = this->cVarCreate("gfx_flares_mode",         "Lights",                     CVAR_ARCHIVE | CVAR_TYPE_INT,     "4"/*(int)GfxFlaresMode::ALL_VEHICLES_ALL_LIGHTS*/);
     App::gfx_polygon_mode        = this->cVarCreate("gfx_polygon_mode",        "Polygon mode",                              CVAR_TYPE_INT,     "1"/*(int)Ogre::PM_SOLID*/);

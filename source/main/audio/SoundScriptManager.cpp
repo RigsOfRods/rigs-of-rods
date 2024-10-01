@@ -382,10 +382,6 @@ void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
 
     if (App::audio_enable_efx->getBool())
     {
-        if (listener_environment.empty())
-        {
-            listener_environment = App::audio_listener_efx_preset->getStr();
-        }
         // always update the environment in case it was changed via console or script
         sound_manager->setListenerEnvironment(listener_environment);
     }
@@ -393,6 +389,11 @@ void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
 
 std::string SoundScriptManager::getReverbPresetAt(Ogre::Vector3 position)
 {
+    if (!App::audio_force_listener_efx_preset->getStr().empty())
+    {
+        return App::audio_force_listener_efx_preset->getStr();
+    }
+
     if (this->listener_is_inside_the_player_coupled_actor)
     {
         // the player is in a vehicle
@@ -405,7 +406,7 @@ std::string SoundScriptManager::getReverbPresetAt(Ogre::Vector3 position)
         return "EFX_REVERB_PRESET_UNDERWATER";
     }
 
-    return "";
+    return App::audio_default_listener_efx_preset->getStr();
 }
 
 void SoundScriptManager::setDopplerFactor(float doppler_factor)
