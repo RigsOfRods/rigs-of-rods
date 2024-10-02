@@ -43,6 +43,11 @@ void NodeBeamUtils::Draw()
     bool keep_open = true;
     ImGui::Begin(_LC("NodeBeamUtils", "Node/Beam Utils"), &keep_open, flags);
 
+    if (actor->getUsedActorEntry()->resource_bundle_type == "Zip")
+    {
+        this->DrawCreateProjectBanner(actor, keep_open);
+    }
+
     ImGui::PushItemWidth(500.f); // Width includes [+/-] buttons
     float ref_mass = actor->ar_initial_total_mass;
     float cur_mass = actor->getTotalMass(false);
@@ -193,4 +198,49 @@ void NodeBeamUtils::SetVisible(bool v)
     {
         m_is_searching = false;
     }
+}
+
+void NodeBeamUtils::DrawCreateProjectBanner(ActorPtr actor, bool& window_open)
+{
+    // Show [[ "read only files - create writeable project?" ]] banner.
+    // If [yes], unpack the project files, unload current actor and show hint box.
+    // ---------------------------------------------------------------------------
+
+    GUIManager::GuiTheme& theme = App::GetGuiManager()->GetTheme();
+
+    // Draw a banner
+    const ImVec2 PAD(3, 3);
+    ImVec2 cursor = ImGui::GetCursorScreenPos();
+    ImVec2 rect_min =  cursor - PAD;
+    ImVec2 rect_max = cursor + PAD + ImVec2(ImGui::GetWindowContentRegionMax().x, ImGui::GetTextLineHeightWithSpacing());
+    ImGui::GetWindowDrawList()->AddRectFilled(rect_min, rect_max, ImColor(theme.tip_panel_bg_color));
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(_LC("NodeBeamUtils", "This mod is read only (ZIP archive)"));
+    ImGui::SameLine();
+    if (ImGui::Button(_LC("NodeBeamUtils", "Create writable project (if not existing)")))
+    {
+        // Unzip the mod
+        RoR::CreateProjectRequest* req = new RoR::CreateProjectRequest();
+        std::string basefname, ext, path;
+        Ogre::StringUtil::splitFullFilename(actor->getUsedActorEntry()->fname_without_uid, basefname, ext, path);
+        req->cpr_name = basefname + "_nbutil." + actor->getUsedActorEntry()->fext;
+        req->cpr_description = "Node/Beam Utils project for " + actor->getUsedActorEntry()->dname;
+        req->cpr_source_entry = actor->getUsedActorEntry();
+        req->cpr_type = RoR::CreateProjectRequestType::DEFAULT;
+        App::GetGameContext()->PushMessage(Message(MSG_EDI_CREATE_PROJECT_REQUESTED, req));
+
+        // Show a message box "please load the project"
+        // - it cannot be loaded automatically because it's not in modcache yet so there's no way to locate it.
+        RoR::GUI::MessageBoxConfig* box = new RoR::GUI::MessageBoxConfig();
+        box->mbc_title = _LC("NodeBeamUtils", "Project created");
+        box->mbc_text = fmt::format(_LC("NodeBeamUtils", "Project created successfully as \n\"{}\"\n\nPlease load it and open the N/B utility again"), req->cpr_name);
+        box->mbc_allow_close = true;
+        App::GetGameContext()->ChainMessage(Message(MSG_GUI_SHOW_MESSAGE_BOX_REQUESTED, box));
+
+        // Unload current actor
+        App::GetGameContext()->ChainMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, new ActorPtr(actor)));
+
+        window_open = false;
+    }
+    ImGui::Dummy(ImVec2(1.f, 6.f));
 }
