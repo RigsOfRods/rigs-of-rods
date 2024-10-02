@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2021 Petr Ohlidal
+    Copyright 2013-2024 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -1045,6 +1045,8 @@ struct ManagedMaterial
     Ogre::String diffuse_map;
     Ogre::String damaged_diffuse_map;
     Ogre::String specular_map;
+
+    static const char* TypeToStr(ManagedMaterialType type);
 };
 
 struct MaterialFlareBinding
@@ -1578,6 +1580,12 @@ struct Document
         std::vector<Wheel>                 wheels;
         std::vector<Wheel2>                wheels2;
         std::vector<Wing>                  wings;
+
+        // Metadata
+        int _hint_nodes12_start_linenumber = -1;
+        int _hint_nodes12_end_linenumber = -1;
+        int _hint_beams_start_linenumber = -1;
+        int _hint_beams_end_linenumber = -1;
     };
 
     Document();
