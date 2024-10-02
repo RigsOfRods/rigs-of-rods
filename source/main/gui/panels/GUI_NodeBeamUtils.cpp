@@ -47,6 +47,20 @@ void NodeBeamUtils::Draw()
     {
         this->DrawCreateProjectBanner(actor, keep_open);
     }
+    else
+    {
+        ImGui::TextDisabled(_LC("NodeBeamUtils", "Project:"));
+        ImGui::SameLine();
+        ImGui::Text("%s", actor->getUsedActorEntry()->dname.c_str());
+        ImGui::SameLine();
+        if (ImGui::SmallButton(_LC("NodeBeamUtils", "Save active")))
+        {
+            RoR::ModifyProjectRequest* req = new RoR::ModifyProjectRequest();
+            req->mpr_type = RoR::ModifyProjectRequestType::ACTOR_UPDATE_DEF_DOCUMENT;
+            req->mpr_target_actor = actor;
+            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+        }
+    }
 
     ImGui::PushItemWidth(500.f); // Width includes [+/-] buttons
     float ref_mass = actor->ar_initial_total_mass;
@@ -221,12 +235,10 @@ void NodeBeamUtils::DrawCreateProjectBanner(ActorPtr actor, bool& window_open)
     {
         // Unzip the mod
         RoR::CreateProjectRequest* req = new RoR::CreateProjectRequest();
-        std::string basefname, ext, path;
-        Ogre::StringUtil::splitFullFilename(actor->getUsedActorEntry()->fname_without_uid, basefname, ext, path);
-        req->cpr_name = basefname + "_nbutil." + actor->getUsedActorEntry()->fext;
+        req->cpr_name = "nbutil_" + actor->getUsedActorEntry()->fname_without_uid;
         req->cpr_description = "Node/Beam Utils project for " + actor->getUsedActorEntry()->dname;
         req->cpr_source_entry = actor->getUsedActorEntry();
-        req->cpr_type = RoR::CreateProjectRequestType::DEFAULT;
+        req->cpr_type = RoR::CreateProjectRequestType::ACTOR_PROJECT;
         App::GetGameContext()->PushMessage(Message(MSG_EDI_CREATE_PROJECT_REQUESTED, req));
 
         // Show a message box "please load the project"

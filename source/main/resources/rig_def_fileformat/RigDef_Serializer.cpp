@@ -54,11 +54,12 @@ void Serializer::Serialize()
     m_stream.precision(m_float_precision); // Permanent
 
     // Write banner
-    m_stream << "; ---------------------------------------------" << endl
-             << "; Rigs of Rods (www.rigsofrods.org)"             << endl
-             << "; See https://docs.rigsofrods.org for reference" << endl
-             << "; ---------------------------------------------" << endl
-             << endl;
+    m_stream
+        << "; ---------------------------------------------------------------------------- ;" << endl
+        << "; Project: Rigs of Rods (http://www.rigsofrods.org)                            ;" << endl
+        << "; File format: https://docs.rigsofrods.org/vehicle-creation/fileformat-truck   ;" << endl
+        << "; ---------------------------------------------------------------------------- ;" << endl
+        << endl;
 
     // Write name
     m_stream << m_rig_def->name << endl << endl;
@@ -446,6 +447,11 @@ void Serializer::ProcessVideocamera(Document::Module* module)
 
 void Serializer::ProcessSetSkeletonSettings(Document::Module* module)
 {
+    if (module->set_skeleton_settings.empty())
+    {
+        return;
+    }
+
     RigDef::SkeletonSettings& def = module->set_skeleton_settings[module->set_skeleton_settings.size() - 1];
     m_stream << "set_skeleton_settings " << def.visibility_range_meters << ", " << def.beam_thickness_meters << "\n\n";
 }
@@ -1489,7 +1495,7 @@ void Serializer::ProcessTractionControl(Document::Module* module)
 void Serializer::ProcessBrakes(Document::Module* module)
 {
     if (module->brakes.size() == 0) { return; }
-    
+
     Brakes& brakes = module->brakes[module->brakes.size() - 1];
 
     m_stream << "brakes\n\t" 

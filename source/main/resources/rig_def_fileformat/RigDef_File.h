@@ -1560,6 +1560,12 @@ struct Document
         std::vector<Wheel>                 wheels;
         std::vector<Wheel2>                wheels2;
         std::vector<Wing>                  wings;
+
+        // Metadata
+        int _hint_nodes12_start_linenumber = -1;
+        int _hint_nodes12_end_linenumber = -1;
+        int _hint_beams_start_linenumber = -1;
+        int _hint_beams_end_linenumber = -1;
     };
 
     Document();

@@ -259,6 +259,8 @@ void ActorSpawner::InitializeRig()
 
     // Allocate memory as needed
     m_actor->ar_beams = new beam_t[req.num_beams];
+    m_actor->ar_beams_invisible.resize(req.num_beams, false);
+
     m_actor->ar_nodes = new node_t[req.num_nodes];
     m_actor->ar_nodes_id = new int[req.num_nodes];
     for (size_t i = 0; i < req.num_nodes; ++i)
@@ -266,6 +268,9 @@ void ActorSpawner::InitializeRig()
         m_actor->ar_nodes_id[i] = -1;
     }
     m_actor->ar_nodes_name = new std::string[req.num_nodes];
+    m_actor->ar_nodes_default_loadweights.resize(req.num_nodes, -1.f);
+    m_actor->ar_nodes_override_loadweights.resize(req.num_nodes, -1.f);
+    m_actor->ar_nodes_options.resize(req.num_nodes, 0);
 
     if (req.num_shocks > 0)
         m_actor->ar_shocks = new shock_t[req.num_shocks];
@@ -5549,6 +5554,7 @@ void ActorSpawner::ProcessBeam(RigDef::Beam & def)
 
     if (BITMASK_IS_0(def.options, RigDef::Beam::OPTION_i_INVISIBLE))
     {
+        m_actor->ar_beams_invisible[beam_index] = true;
         this->CreateBeamVisuals(beam, beam_index, true, def.defaults);
     }
 }
@@ -5923,7 +5929,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         m_actor->ar_minimass[inserted_node.first] = m_state.global_minimass;
     }
 
-    if (def.node_defaults->load_weight >= 0.f) // The >= operator is in orig.
+    if (def.node_defaults->load_weight >= 0.f) // The `>=` operator is intentional (negative value => use default).
     {
         // orig = further override of hardcoded default.
         node.mass = def.node_defaults->load_weight; 
@@ -5932,15 +5938,18 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     }
     else
     {
-        node.mass = 10; // Hardcoded in original (bts_nodes, call to init_node())
+        node.mass = NODE_LOADWEIGHT_DEFAULT;
         node.nd_loaded_mass = false;
     }
+    m_actor->ar_nodes_default_loadweights[inserted_node.first] = def.node_defaults->load_weight;
+    m_actor->ar_nodes_override_loadweights[inserted_node.first] = -1.f;
 
     /* Lockgroup */
     node.nd_lockgroup = (m_file->lockgroup_default_nolock) ? RigDef::Lockgroup::LOCKGROUP_NOLOCK : RigDef::Lockgroup::LOCKGROUP_DEFAULT;
 
     /* Options */
     unsigned int options = def.options | def.node_defaults->options; /* Merge bit flags */
+    m_actor->ar_nodes_options[inserted_node.first] = options;
     if (BITMASK_IS_1(options, RigDef::Node::OPTION_l_LOAD_WEIGHT))
     {
         node.nd_loaded_mass = true;
@@ -5948,6 +5957,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         {
             node.nd_override_mass = true;
             node.mass = def.load_weight_override;
+            m_actor->ar_nodes_override_loadweights[inserted_node.first] = def.load_weight_override;
         }
         else
         {
