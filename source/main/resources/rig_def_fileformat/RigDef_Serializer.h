@@ -30,24 +30,19 @@
 namespace RigDef
 {
 
-/**
-    @class  Serializer
-    @author Petr Ohlidal
-
-    @brief Serializes the RigDef::Document data structure to file.
-*/
+/// @class  Serializer
+/// @author Petr Ohlidal
+///
+/// @brief Serializes the `RigDef::File` data structure to string.
 class Serializer
 {
-
 public:
-
-    Serializer(RigDef::DocumentPtr rig_def, Ogre::String const & file_path);
-
-    virtual ~Serializer();
-
+    Serializer(RigDef::DocumentPtr rig_def);
     void Serialize();
+    std::string GetOutput() const { return m_stream.str(); }
 
-protected:
+private:
+    void SerializeModule(std::shared_ptr<RigDef::Document::Module> m);
 
     void ProcessAuthors(Document::Module* module);
     void ProcessGlobals(Document::Module* module);
@@ -67,7 +62,7 @@ protected:
     void ProcessNodeOptions(unsigned int options);
     
     void ProcessBeams(Document::Module*);
-    void ProcessBeamDefaults(BeamDefaults* beam_defaults, const char* prefix = "");
+    void ProcessBeamDefaults(BeamDefaults* beam_defaults);
     void ProcessBeam(Beam & beam);
 
     void ProcessShocks(Document::Module*);
@@ -156,10 +151,8 @@ protected:
 protected:
 
     void ExportBaseMeshWheel(BaseMeshWheel& def);
-
-    std::ofstream                     m_stream;
-    Ogre::String                      m_file_path;
-    RigDef::DocumentPtr   m_rig_def;
+    std::stringstream                 m_stream;
+    RigDef::DocumentPtr               m_rig_def;
     int                               m_float_precision;
     int                               m_float_width;
     int                               m_bool_width;
