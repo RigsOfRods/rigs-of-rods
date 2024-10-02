@@ -226,7 +226,7 @@ struct CreateProjectRequest
     CacheEntryPtr cpr_source_entry;  //!< The original mod to copy files from.
     ActorPtr cpr_source_actor;       //!< Only for type `SAVE_TUNEUP`
     CreateProjectRequestType cpr_type = CreateProjectRequestType::NONE;     
-    bool cpr_overwrite;
+    bool cpr_overwrite = false;
 };
 
 enum class ModifyProjectRequestType
