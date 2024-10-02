@@ -313,11 +313,12 @@ struct node_t
     bool            nd_has_ground_contact:1; //!< Physics state
     bool            nd_has_mesh_contact:1;   //!< Physics state
     bool            nd_immovable:1;          //!< Attr; User-defined
-    bool            nd_loaded_mass:1;        //!< User defined attr; mass is calculated from 'globals/loaded-mass' rather than 'globals/dry-mass'
+    bool            nd_loaded_mass:1;        //!< User-defined attr; mass is calculated from 'globals/loaded-mass' rather than 'globals/dry-mass' - set by etiher 'set_node_defaults' (loadweight >=0) or 'nodes' (option 'l')
     bool            nd_no_ground_contact:1;  //!< User-defined attr; node ignores contact with ground
     bool            nd_override_mass:1;      //!< User defined attr; mass is user-specified rather than calculated (override the calculation)
     bool            nd_under_water:1;        //!< State; GFX hint
     bool            nd_no_mouse_grab:1;      //!< Attr; User-defined
+    bool            nd_cinecam_node:1;       //!< Attr; User-defined
 
     Ogre::Real      nd_avg_collision_slip;   //!< Physics state; average slip velocity across the last few physics frames
     Ogre::Vector3   nd_last_collision_slip;  //!< Physics state; last collision slip vector

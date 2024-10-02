@@ -30,24 +30,19 @@
 namespace RigDef
 {
 
-/**
-    @class  Serializer
-    @author Petr Ohlidal
-
-    @brief Serializes the RigDef::Document data structure to file.
-*/
+/// @class  Serializer
+/// @author Petr Ohlidal
+///
+/// @brief Serializes the `RigDef::File` data structure to string.
 class Serializer
 {
-
 public:
-
-    Serializer(RigDef::DocumentPtr rig_def, Ogre::String const & file_path);
-
-    virtual ~Serializer();
-
+    Serializer(RigDef::DocumentPtr rig_def);
     void Serialize();
+    std::string GetOutput() const { return m_stream.str(); }
 
-protected:
+private:
+    void SerializeModule(std::shared_ptr<RigDef::Document::Module> m);
 
     void ProcessAuthors(Document::Module* module);
     void ProcessGlobals(Document::Module* module);
@@ -64,10 +59,10 @@ protected:
     void ProcessNodes(Document::Module*);
     void ProcessNode(Node & node);
     void ProcessNodeDefaults(NodeDefaults* node_defaults);
-    void ProcessNodeOptions(unsigned int options);
+    void ProcessDefaultMinimass(DefaultMinimass* default_minimass);
     
     void ProcessBeams(Document::Module*);
-    void ProcessBeamDefaults(BeamDefaults* beam_defaults, const char* prefix = "");
+    void ProcessBeamDefaults(BeamDefaults* beam_defaults);
     void ProcessBeam(Beam & beam);
 
     void ProcessShocks(Document::Module*);
@@ -88,6 +83,8 @@ protected:
     void ProcessRopes(Document::Module* module);
     void ProcessFixes(Document::Module* module);
     void ProcessTies(Document::Module* module);
+
+    void ProcessCameras(Document::Module* module);
 
     // Land vehicle
     void ProcessEngine(Document::Module* module);
@@ -155,18 +152,29 @@ protected:
 
 protected:
 
+    std::string         RigidityNodeToStr(Node::Ref node) { return (node.IsValidAnyState()) ? node.Str() : "9999"; }
+    std::string         NodeOptionsToStr(BitMask_t options);
+
     void ExportBaseMeshWheel(BaseMeshWheel& def);
 
-    std::ofstream                     m_stream;
-    Ogre::String                      m_file_path;
-    RigDef::DocumentPtr   m_rig_def;
-    int                               m_float_precision;
+    // Presets, i.e. `set_[node/beam]_defaults`, `set_default_minimass`
+    void                ResetPresets();
+    void                UpdatePresets(BeamDefaults* beam, NodeDefaults* node, DefaultMinimass* minimass);
+
+    std::stringstream                 m_stream;
+    RigDef::DocumentPtr               m_rig_def;
+    // Settings
     int                               m_float_width;
     int                               m_bool_width;
     int                               m_node_id_width;
     int                               m_command_key_width;
     int                               m_inertia_function_width;
-    
+    std::string                       m_dataline_indentstr = ""; //!< a node or a beam line for example
+    std::string                       m_setdefaults_indentstr = ""; //!< 'set_beam_defaults' for example
+    // State
+    BeamDefaults*     m_current_beam_defaults = nullptr;
+    NodeDefaults*     m_current_node_defaults = nullptr;
+    DefaultMinimass*  m_current_default_minimass = nullptr;
 };
 
 } // namespace RigDef

@@ -145,6 +145,7 @@ set(SOURCE_FILES
         network/RoRnet.h
         physics/Actor.{h,cpp}
         physics/ApproxMath.h
+        physics/ActorExport.cpp
         physics/ActorForcesEuler.cpp
         physics/ActorManager.{h,cpp}
         physics/ActorSlideNode.cpp
