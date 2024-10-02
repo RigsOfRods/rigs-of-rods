@@ -1938,6 +1938,57 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
             /*newPath:*/ PathCombine(project_path, project_entry->fname));
     }
 
+   if (request->cpr_type == CreateProjectRequestType::ACTOR_PROJECT)
+   {
+       // Load the project file to perform fixups (name & category)
+         GenericDocumentPtr doc = new GenericDocument();
+         int flags = GenericDocument::OPTION_ALLOW_NAKED_STRINGS
+                              | GenericDocument::OPTION_ALLOW_SLASH_COMMENTS
+                              | GenericDocument::OPTION_FIRST_LINE_IS_TITLE
+                              | GenericDocument::OPTION_ALLOW_SEPARATOR_COLON
+                              | GenericDocument::OPTION_PARENTHESES_CAPTURE_SPACES;
+           if (!doc->loadFromResource(project_entry->fname, project_entry->resource_group, flags))
+          {
+               App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                   fmt::format(_LC("CacheSystem", "Could not load project file '{}' to perform fixups."),
+                       project_entry->fname));
+               return nullptr;
+          }
+
+       // fixup the document.. 
+
+        GenericDocContextPtr ctx = new GenericDocContext(doc);
+        // >> seek the name
+        while (!ctx->isTokString()) 
+        {
+            ctx->seekNextLine(); 
+        }
+        // >> change the name
+        if (!ctx->endOfFile()) 
+        {
+            ctx->setTokString(0, project_entry->dname);
+        }
+        // >> seek fileinfo 
+        while (!ctx->endOfFile() && (!ctx->isTokKeyword() || ctx->getTokKeyword() != "fileinfo"))
+        {
+            ctx->seekNextLine(); 
+        }
+        // change the fileinfo param #2 categoryid (if found)
+        if (!ctx->endOfFile() && ctx->isTokKeyword() && ctx->getTokKeyword() == "fileinfo" && !ctx->endOfFile(2))
+        {
+            ctx->setTokFloat(2, CID_Projects);
+        }
+
+       // Write back the document (delete first as `saveToResource()` doesnt overwrite)
+       Ogre::ResourceGroupManager::getSingleton().deleteResource(project_entry->fname, project_entry->resource_group);
+       if (!doc->saveToResource(project_entry->fname, project_entry->resource_group))
+       {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format(_LC("CacheSystem", "Could not save fixed-up project file '{}'."),
+                    project_entry->fname));
+            return nullptr;
+       }
+   }
 
     if (project_entry_created)
     {
@@ -1950,6 +2001,9 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
     TRIGGER_EVENT_ASYNC(SE_GENERIC_MODCACHE_ACTIVITY,
         /*ints*/ activity_type, project_entry->number, 0, 0,
         /*strings*/ project_entry->fname, project_entry->fext);
+
+    // Unload the preliminary resource group - force proper load of complete bundle.
+    this->UnLoadResource(project_entry);
 
     return project_entry;
 }
@@ -2139,6 +2193,28 @@ void CacheSystem::ModifyProject(ModifyProjectRequest* request)
         request->mpr_target_actor->removeWorkingTuneupDef();
         ROR_ASSERT(!request->mpr_target_actor->getWorkingTuneupDef());
         break;
+
+    case ModifyProjectRequestType::ACTOR_UPDATE_DEF_DOCUMENT:
+    {
+        const bool actor_ok(request->mpr_target_actor && request->mpr_target_actor->ar_state != ActorState::DISPOSED);
+        if (!actor_ok)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format(_LC("CacheSystem", "Error updating truck file: actor not found or disposed")));
+            return;
+        }
+        RoR::CacheEntryPtr entry = request->mpr_target_actor->getUsedActorEntry();
+        const bool entry_ok(entry && entry->resource_bundle_type == "FileSystem");
+        if (!entry_ok)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format(_LC("CacheSystem", "Error updating truck file: cache entry missing or not a project")));
+            return;
+        }
+        request->mpr_target_actor->propagateNodeBeamChangesToDef();
+        App::GetGameContext()->GetActorManager()->ExportActorDef(entry->actor_def, entry->fname, entry->resource_group);
+        break;
+    }
 
     default:
         break;
