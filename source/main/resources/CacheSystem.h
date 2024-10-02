@@ -198,6 +198,7 @@ enum class CreateProjectRequestType
     NONE,
     DEFAULT,                 //!< Copy files from source mod. Source mod Determines mod file extension.
     SAVE_TUNEUP,             //!< Dumps .tuneup file with `CID_Tuneup` from source actor, will not overwrite existing unless explicitly instructed.
+    ACTOR_PROJECT,           //!< Like DEFAULT but fixes up name + category in the truckfile.
 };
 
 /// Creates subdirectory in 'My Games\Rigs of Rods\projects', pre-populates it with files and adds modcache entry.
@@ -247,6 +248,7 @@ enum class ModifyProjectRequestType
     TUNEUP_FORCED_VCAM_ROLE_RESET,     //!< 'subject_id' is video camera ID.
     PROJECT_LOAD_TUNEUP,               //!< 'subject' is tuneup filename. This overwrites the auto-generated tuneup with the save.
     PROJECT_RESET_TUNEUP,              //!< 'subject' is empty. This resets the auto-generated tuneup to orig. values.
+    ACTOR_UPDATE_DEF_DOCUMENT,         //!< 'subject' is empty; 'target_actor' is the actual subject. Propagates modifications from the live actor to def document.
 };
 
 struct ModifyProjectRequest

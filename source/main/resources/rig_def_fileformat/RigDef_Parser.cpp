@@ -229,6 +229,24 @@ void Parser::ProcessCurrentLine()
             return;
     }
 
+    // Block extent tracking - assumes single 'nodes[2]' and 'beams' block in file.
+    if ((keyword == Keyword::NODES || keyword == Keyword::NODES2) && m_current_module->_hint_nodes12_start_linenumber == -1)
+    {
+        m_current_module->_hint_nodes12_start_linenumber = (int)m_current_line_number;
+    }
+    else if (keyword == Keyword::BEAMS && m_current_module->_hint_beams_start_linenumber == -1)
+    {
+        m_current_module->_hint_beams_start_linenumber = (int)m_current_line_number;
+    }
+    else if (m_current_module->_hint_nodes12_end_linenumber == -1)
+    {
+        m_current_module->_hint_nodes12_start_linenumber = (int)m_current_line_number - 1;
+    }
+    else if (m_current_module->_hint_beams_end_linenumber == -1)
+    {
+        m_current_module->_hint_beams_start_linenumber = (int)m_current_line_number - 1;
+    }
+
     // Parse current block, if any
     m_log_keyword = m_current_block;
     switch (m_current_block)

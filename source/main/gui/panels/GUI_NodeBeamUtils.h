@@ -42,6 +42,7 @@ private:
     const ImVec4 GRAY_HINT_TEXT = ImVec4(0.62f, 0.62f, 0.61f, 1.f);
 
     void DrawCreateProjectBanner(ActorPtr actor, bool& window_open);
+    void DrawMenubar(ActorPtr actor);
 };
 
 } // namespace GUI
