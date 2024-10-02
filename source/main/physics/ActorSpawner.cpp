@@ -259,6 +259,9 @@ void ActorSpawner::InitializeRig()
 
     // Allocate memory as needed
     m_actor->ar_beams = new beam_t[req.num_beams];
+    m_actor->ar_beams_invisible.resize(req.num_beams, false);
+    m_actor->ar_beams_user_defined.resize(req.num_beams, false);
+
     m_actor->ar_nodes = new node_t[req.num_nodes];
     m_actor->ar_nodes_id = new int[req.num_nodes];
     for (size_t i = 0; i < req.num_nodes; ++i)
@@ -267,6 +270,9 @@ void ActorSpawner::InitializeRig()
     }
     m_actor->ar_nodes_name = new std::string[req.num_nodes];
     m_actor->ar_nodes_spawn_offsets = new Ogre::Vector3[req.num_nodes];
+    m_actor->ar_nodes_default_loadweights.resize(req.num_nodes, -1.f);
+    m_actor->ar_nodes_override_loadweights.resize(req.num_nodes, -1.f);
+    m_actor->ar_nodes_options.resize(req.num_nodes, 0);
 
     if (req.num_shocks > 0)
         m_actor->ar_shocks = new shock_t[req.num_shocks];
@@ -5575,6 +5581,7 @@ void ActorSpawner::ProcessBeam(RigDef::Beam & def)
 
     // Beam
     int beam_index = m_actor->ar_num_beams;
+    m_actor->ar_beams_user_defined[beam_index] = true;
     beam_t & beam = AddBeam(*ar_nodes[0], *ar_nodes[1], def.defaults, def.detacher_group);
     beam.bm_type = BEAM_NORMAL;
     beam.k = def.defaults->GetScaledSpringiness();
@@ -5603,6 +5610,10 @@ void ActorSpawner::ProcessBeam(RigDef::Beam & def)
     if (BITMASK_IS_0(def.options, RigDef::Beam::OPTION_i_INVISIBLE))
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.defaults);
+    }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
     }
 }
 
@@ -5979,7 +5990,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         m_actor->ar_minimass[inserted_node.first] = m_state.global_minimass;
     }
 
-    if (def.node_defaults->load_weight >= 0.f) // The >= operator is in orig.
+    if (def.node_defaults->load_weight >= 0.f) // The `>=` operator is intentional (negative value => use default).
     {
         // orig = further override of hardcoded default.
         node.mass = def.node_defaults->load_weight; 
@@ -5988,15 +5999,18 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     }
     else
     {
-        node.mass = 10; // Hardcoded in original (bts_nodes, call to init_node())
+        node.mass = NODE_LOADWEIGHT_DEFAULT;
         node.nd_loaded_mass = false;
     }
+    m_actor->ar_nodes_default_loadweights[inserted_node.first] = def.node_defaults->load_weight;
+    m_actor->ar_nodes_override_loadweights[inserted_node.first] = -1.f;
 
     /* Lockgroup */
     node.nd_lockgroup = (m_file->lockgroup_default_nolock) ? RigDef::Lockgroup::LOCKGROUP_NOLOCK : RigDef::Lockgroup::LOCKGROUP_DEFAULT;
 
     /* Options */
     unsigned int options = def.options | def.node_defaults->options; /* Merge bit flags */
+    m_actor->ar_nodes_options[inserted_node.first] = options;
     if (BITMASK_IS_1(options, RigDef::Node::OPTION_l_LOAD_WEIGHT))
     {
         node.nd_loaded_mass = true;
@@ -6004,6 +6018,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         {
             node.nd_override_mass = true;
             node.mass = def.load_weight_override;
+            m_actor->ar_nodes_override_loadweights[inserted_node.first] = def.load_weight_override;
         }
         else
         {
@@ -6113,6 +6128,7 @@ void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
     node_t & camera_node = GetAndInitFreeNode(node_pos);
     m_actor->ar_nodes_spawn_offsets[camera_node.pos] = def.position;
     camera_node.nd_no_ground_contact = true; // Orig: hardcoded in BTS_CINECAM
+    camera_node.nd_cinecam_node = true;
     camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT; // Node defaults are ignored here.
     AdjustNodeBuoyancy(camera_node, def.node_defaults);
     camera_node.volume_coef   = def.node_defaults->volume;
