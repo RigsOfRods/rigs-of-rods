@@ -516,15 +516,9 @@ void Serializer::ProcessSubmeshGroundmodel(Document::Module* module)
 
 void Serializer::ProcessSubmesh(Document::Module* module)
 {
-    if (module->submeshes.empty())
+    for (RigDef::Submesh & def: module->submeshes)
     {
-        return;
-    }
-    m_stream << "submesh" << endl;
-    auto end_itor = module->submeshes.end();
-    for (auto itor = module->submeshes.begin(); itor != end_itor; ++itor)
-    {
-        RigDef::Submesh & def = *itor;
+        m_stream << "submesh" << endl;
 
         if (def.texcoords.size() > 0)
         {
@@ -562,8 +556,8 @@ void Serializer::ProcessSubmesh(Document::Module* module)
         {
             m_stream << "\n\tbackmesh";
         }
+        m_stream << endl << endl; // Empty line
     }
-    m_stream << endl << endl; // Empty line
 }
 
 inline void PropAnimFlag(std::stringstream& out, int flags, bool& join, unsigned int mask, const char* name, char joiner = '|')
