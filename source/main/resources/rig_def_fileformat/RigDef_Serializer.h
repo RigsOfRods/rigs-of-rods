@@ -60,6 +60,7 @@ private:
     void ProcessNode(Node & node);
     void ProcessNodeDefaults(NodeDefaults* node_defaults);
     void ProcessNodeOptions(unsigned int options);
+    void ProcessDefaultMinimass(DefaultMinimass* default_minimass);
     
     void ProcessBeams(Document::Module*);
     void ProcessBeamDefaults(BeamDefaults* beam_defaults);
@@ -152,18 +153,27 @@ private:
 
 protected:
 
-    std::string RigidityNodeToStr(Node::Ref node) { return (node.IsValidAnyState()) ? node.Str() : "9999"; }
+    std::string         RigidityNodeToStr(Node::Ref node) { return (node.IsValidAnyState()) ? node.Str() : "9999"; }
 
     void ExportBaseMeshWheel(BaseMeshWheel& def);
+
+    // Presets, i.e. `set_[node/beam]_defaults`, `set_default_minimass`
+    void                ResetPresets();
+    void                UpdatePresets(BeamDefaults* beam, NodeDefaults* node, DefaultMinimass* minimass);
+
     std::stringstream                 m_stream;
     RigDef::DocumentPtr               m_rig_def;
+    // Settings
     int                               m_float_precision;
     int                               m_float_width;
     int                               m_bool_width;
     int                               m_node_id_width;
     int                               m_command_key_width;
     int                               m_inertia_function_width;
-    
+    // State
+    BeamDefaults*     m_current_beam_defaults = nullptr;
+    NodeDefaults*     m_current_node_defaults = nullptr;
+    DefaultMinimass*  m_current_default_minimass = nullptr;
 };
 
 } // namespace RigDef
