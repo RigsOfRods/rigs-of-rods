@@ -317,7 +317,19 @@ void SoundManager::update()
 
     if(App::audio_enable_efx->getBool())
     {
-        this->updateListenerEffectSlot();
+        // apply filters to sources when appropriate
+        for(int source_index = 0; source_index < hardware_sources_in_use_count; source_index++)
+        {
+            // update air absorption factor
+            alSourcef(hardware_sources[source_index], AL_AIR_ABSORPTION_FACTOR, App::audio_air_absorption_factor->getFloat());
+
+            if(App::audio_enable_obstruction->getBool())
+            {
+                updateObstructionFilter(hardware_sources[source_index]);
+            }
+        }
+
+        updateListenerEffectSlot();
     }
 }
 
@@ -616,20 +628,6 @@ void SoundManager::recomputeAllSources()
 		}
 	}
 #endif
-
-    if(App::audio_enable_efx->getBool())
-    {
-        for(int source_index = 0; source_index < hardware_sources_in_use_count; source_index++)
-        {
-            // update air absorption factor
-            alSourcef(hardware_sources[source_index], AL_AIR_ABSORPTION_FACTOR, App::audio_air_absorption_factor->getFloat());
-
-            if(App::audio_enable_obstruction->getBool())
-            {
-                updateObstructionFilter(hardware_sources[source_index]);
-            }
-        }
-    }
 }
 
 void SoundManager::updateObstructionFilter(const ALuint hardware_source)
