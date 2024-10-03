@@ -667,17 +667,40 @@ void SoundManager::updateObstructionFilter(const ALuint hardware_source)
             std::pair<bool, Ogre::Real> intersection;
             // no normalisation due to how the intersectsTris function determines its number of steps
             Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - listener_position;
+            Ogre::Real distance_to_sound = direction_to_sound.length();
             Ray direct_path_to_sound = Ray(listener_position, direction_to_sound);
 
             // perform line of sight check against terrain
-            intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound, Ogre::Real(direction_to_sound.length()));
+            intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound, distance_to_sound);
             obstruction_detected = intersection.first;
 
             if(!obstruction_detected)
             {
                 // perform line of sight check against collision meshes
+                // for this to work correctly, the direction vector of the ray must have
+                // the length of the distance from the listener to the sound
                 intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(direct_path_to_sound);
                 obstruction_detected = intersection.first;
+            }
+
+            // do not normalise before intersectsTris() due to how that function works
+            direction_to_sound.normalise();
+            direct_path_to_sound.setDirection(direction_to_sound);
+
+            if(!obstruction_detected)
+            {
+                // perform line of sight check agains collision boxes
+                for (const collision_box_t& collision_box : App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes())
+                {
+                    if (!collision_box.enabled || collision_box.virt) { continue; }
+
+                    intersection = direct_path_to_sound.intersects(Ogre::AxisAlignedBox(collision_box.lo, collision_box.hi));
+                    if (intersection.first && intersection.second <= distance_to_sound)
+                    {
+                        obstruction_detected = true;
+                        break;
+                    }
+                }
             }
 
             if(!obstruction_detected)
