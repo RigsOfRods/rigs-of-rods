@@ -319,6 +319,7 @@ struct node_t
     bool            nd_override_mass:1;      //!< User defined attr; mass is user-specified rather than calculated (override the calculation)
     bool            nd_under_water:1;        //!< State; GFX hint
     bool            nd_no_mouse_grab:1;      //!< Attr; User-defined
+    bool            nd_cinecam_node:1;       //!< Attr; User-defined
 
     Ogre::Real      nd_avg_collision_slip;   //!< Physics state; average slip velocity across the last few physics frames
     Ogre::Vector3   nd_last_collision_slip;  //!< Physics state; last collision slip vector

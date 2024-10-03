@@ -4820,6 +4820,12 @@ void Actor::propagateNodeBeamChangesToDef()
     pivot.y = App::GetGameContext()->GetTerrain()->GetHeightAt(pivot.x, pivot.z);
     for (NodeNum_t i = 0; i < ar_num_nodes; i++)
     {
+        if (ar_nodes[i].nd_rim_node || ar_nodes[i].nd_tyre_node || ar_nodes[i].nd_cinecam_node)
+        {
+            // Skip wheel nodes and cinecam nodes
+            continue;
+        }
+
         // Check if 'set_node_defaults' must be updated.
         float n_loadweight = ar_nodes_default_loadweights[i];
         float n_friction = ar_nodes[i].friction_coef;
@@ -4871,6 +4877,12 @@ void Actor::propagateNodeBeamChangesToDef()
 
     for (int i = 0; i < ar_num_beams; i++)
     {
+        if (!ar_beams_user_defined[i])
+        {
+            // Skip everything not from 'beams' (wheels/cinecam/hooknode/wings/rotators etc...)
+            continue;
+        }
+
         // Check if 'set_beam_defaults' must be updated.
         float b_spring = ar_beams[i].k;
         float b_damp = ar_beams[i].d;

@@ -297,6 +297,7 @@ public:
     int                  ar_num_beams = 0;
     std::vector<std::pair<float, float>> ar_initial_beam_defaults;
     std::vector<bool>    ar_beams_invisible;
+    std::vector<bool>    ar_beams_user_defined; //!< True for 'beams', false for wheels/cinecam/hooknode/wings/rotators etc...
 
     std::vector<beam_t*> ar_inter_beams;       //!< Beams connecting 2 actors
     shock_t*             ar_shocks = nullptr;            //!< Shock absorbers

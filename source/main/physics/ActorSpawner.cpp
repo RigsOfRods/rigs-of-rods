@@ -260,6 +260,7 @@ void ActorSpawner::InitializeRig()
     // Allocate memory as needed
     m_actor->ar_beams = new beam_t[req.num_beams];
     m_actor->ar_beams_invisible.resize(req.num_beams, false);
+    m_actor->ar_beams_user_defined.resize(req.num_beams, false);
 
     m_actor->ar_nodes = new node_t[req.num_nodes];
     m_actor->ar_nodes_id = new int[req.num_nodes];
@@ -5527,6 +5528,7 @@ void ActorSpawner::ProcessBeam(RigDef::Beam & def)
 
     // Beam
     int beam_index = m_actor->ar_num_beams;
+    m_actor->ar_beams_user_defined[beam_index] = true;
     beam_t & beam = AddBeam(*ar_nodes[0], *ar_nodes[1], def.defaults, def.detacher_group);
     beam.bm_type = BEAM_NORMAL;
     beam.k = def.defaults->GetScaledSpringiness();
@@ -6065,6 +6067,7 @@ void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
     Ogre::Vector3 node_pos = m_spawn_position + def.position;
     node_t & camera_node = GetAndInitFreeNode(node_pos);
     camera_node.nd_no_ground_contact = true; // Orig: hardcoded in BTS_CINECAM
+    camera_node.nd_cinecam_node = true;
     camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT; // Node defaults are ignored here.
     AdjustNodeBuoyancy(camera_node, def.node_defaults);
     camera_node.volume_coef   = def.node_defaults->volume;

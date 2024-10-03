@@ -1825,6 +1825,7 @@ CacheEntryPtr CacheSystem::CreateProject(CreateProjectRequest* request)
 
    if (request->cpr_type == CreateProjectRequestType::ACTOR_PROJECT)
    {
+       // Load the project file to perform fixups (name & category)
          GenericDocumentPtr doc = new GenericDocument();
          int flags = GenericDocument::OPTION_ALLOW_NAKED_STRINGS
                               | GenericDocument::OPTION_ALLOW_SLASH_COMMENTS
