@@ -70,18 +70,60 @@ public:
     Ogre::Vector3 getListenerPosition() const { return listener_position; }
 
     void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
+
+    /**
+     * Updates the EFX/EAX reverb preset that is used as a base for updating the listener's effect slot.
+     * @param listener_environment The preset that will be used for the listener environment.
+     * @see updateListenerEffectSlot()
+     */
     void setListenerEnvironment(std::string listener_environment);
+
+    /**
+     * Unlike the name suggests, this sets the listener's gain to 0, essentially muting all sounds.
+     */
     void pauseAllSounds();
+
+    /**
+     * Unlike the name suggests, this sets the listener's gain to the value of the CVar audio_master_volume.
+     */
     void resumeAllSounds();
+
+    /**
+     * Updates both CVar audio_master_volume and the listener's gain to the provided value.
+     * @param v Volume within the range of AL_GAIN.
+     */
     void setMasterVolume(float v);
 
     bool isDisabled() { return audio_device == 0; }
 
+    /**
+     * @return The value of AL_SPEED_OF_SOUND as currently set in OpenAL.
+     */
     float getSpeedOfSound() { return alGetFloat(AL_SPEED_OF_SOUND); }
+
+    /**
+     * Updates the speed of sound in OpenAL with the provided value.
+     * This value should based on RoR units for correct results.
+     * @param speed_of_sound Speed of sound within the range of AL_SPEED_OF_SOUND.
+     */
     void setSpeedOfSound(float speed_of_sound) { alSpeedOfSound(speed_of_sound); }
+
+    /**
+     * @return The value of AL_DOPPLER_FACTOR as currently set in OpenAL.
+     */
     float getDopplerFactor() { return alGetFloat(AL_DOPPLER_FACTOR); }
+
+    /**
+     * Updates the doppler factor in OpenAL with the provided value.
+     * @param doppler_factor Doppler factor within the range of AL_DOPPLER_FACTOR.
+     */
     void setDopplerFactor(float doppler_factor) { alDopplerFactor(doppler_factor); }
 
+    /**
+     * Returns the number of currently used hardware sources. In a typical scenario,
+     * this value changes dynamically.
+     * @return The number of hardware sources currently in use.
+     */
     int getNumHardwareSources() { return hardware_sources_num; }
 
     /**
@@ -98,10 +140,35 @@ public:
 
 private:
     void recomputeAllSources();
+
+    /**
+     * Computes audibility of an audio source and retires it if it is inaudible. Otherwise, it updates
+     * its state (e.g. play/stop) if it is already assigned to a hardware source. If it was not assigned
+     * to a hardware source yet, it will either be assigned to a free slot or replace a less audible
+     * source, if one exists.
+     * @see assign()
+     * @see retire()
+     */
     void recomputeSource(int source_index, int reason, float vfl, Ogre::Vector3 *vvec);
+
+    /**
+     * Returns the AL handle for the hardware source with the provided index.
+     * @param hardware_index Index of the hardware source.
+     * @return The AL handle for the requested hardware source.
+     */
     ALuint getHardwareSource(int hardware_index) { return hardware_sources[hardware_index]; };
 
+    /**
+     * Adds an audio source to hardware source.
+     * @param source_index Index of the audio source.
+     * @param hardware_index Index of the hardware source to which the audio source will be assigned.
+     */
     void assign(int source_index, int hardware_index);
+
+    /**
+     * Stops and the removes an audio source from hardware source.
+     * @param source_index The index of the audio source.
+     */
     void retire(int source_index);
 
     bool loadWAVFile(Ogre::String filename, ALuint buffer, Ogre::String resource_group_name = "");
@@ -116,7 +183,7 @@ private:
     SoundPtr audio_sources[MAX_AUDIO_BUFFERS] = { nullptr };
     // helper for calculating the most audible sources
     std::pair<int, float> audio_sources_most_audible[MAX_AUDIO_BUFFERS];
-    
+
     // audio buffers: Array of AL buffers and filenames
     int          audio_buffers_in_use_count = 0;
     ALuint       audio_buffers[MAX_AUDIO_BUFFERS];
@@ -154,8 +221,24 @@ private:
     LPALAUXILIARYEFFECTSLOTF                        alAuxiliaryEffectSlotf = nullptr;
     LPALAUXILIARYEFFECTSLOTFV                       alAuxiliaryEffectSlotfv = nullptr;
 
+    /**
+     * Creates an OpenAL effect based on the parameters of an efx/eax reverb preset.
+     * @param efx_properties Pointer to a struct holding the parameters of the reverb preset.
+     */
     ALuint  CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties);
+
+    /**
+     * Helper function that fills the efx_properties_map with presets provided by
+     * OpenAL's efx-presets.h header.
+     */
     void    prepopulate_efx_property_map();
+
+    /**
+     * Dynamically adjusts some parameters of the currently active reverb preset based
+     * on the current environment of the listener. It works on the AL effect correspondig
+     * to a reverb preset, i.e. the original preset in efx_properties_map remains unchanged.
+     * Finally, it updates the AL listener's effect slot with the adjusted preset.
+     */
     void    updateListenerEffectSlot();
 
     /**
