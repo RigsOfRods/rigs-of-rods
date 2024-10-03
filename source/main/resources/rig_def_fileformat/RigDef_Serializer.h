@@ -84,6 +84,8 @@ private:
     void ProcessFixes(Document::Module* module);
     void ProcessTies(Document::Module* module);
 
+    void ProcessCameras(Document::Module* module);
+
     // Land vehicle
     void ProcessEngine(Document::Module* module);
     void ProcessEngoption(Document::Module* module);
@@ -149,6 +151,8 @@ private:
     void ProcessScrewprops(Document::Module* module);
 
 protected:
+
+    std::string RigidityNodeToStr(Node::Ref node) { return (node.IsValidAnyState()) ? node.Str() : "9999"; }
 
     void ExportBaseMeshWheel(BaseMeshWheel& def);
     std::stringstream                 m_stream;
