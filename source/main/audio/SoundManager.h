@@ -69,6 +69,19 @@ public:
      */
     Ogre::Vector3 getListenerPosition() const { return listener_position; }
 
+    /**
+     * Does the per-frame update of sounds and listener environment. With the help of other functions it
+     * determines and then submits the current state of the audio world to OpenAL.
+     */
+    void update();
+
+    /**
+      * Sets position and speed of the listener
+      * @param position The position of the listener.
+      * @param direction This direction vector specifies where the front of the listener is pointing to.
+      * @param up This direction vector specifies where the top of the head of the listener is pointing to.
+      * @param velocity The movement speed of the listener in each dimension.
+      */
     void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
 
     /**
@@ -139,6 +152,11 @@ public:
     static const unsigned int MAX_AUDIO_BUFFERS = 8192;
 
 private:
+    /**
+     * Updates the listener's position, orientation and velocity vectors in OpenAL.
+     * @see setListener()
+     */
+    void updateAlListener();
     void recomputeAllSources();
 
     /**
@@ -192,6 +210,7 @@ private:
     Ogre::Vector3 listener_position = Ogre::Vector3::ZERO;
     Ogre::Vector3 listener_direction = Ogre::Vector3::ZERO;
     Ogre::Vector3 listener_up = Ogre::Vector3::ZERO;
+    Ogre::Vector3 listener_velocity = Ogre::Vector3::ZERO;
     ALCdevice*    audio_device = nullptr;
     ALCcontext*   sound_context = nullptr;
 

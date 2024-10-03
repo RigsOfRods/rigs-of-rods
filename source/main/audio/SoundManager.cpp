@@ -307,33 +307,43 @@ void SoundManager::prepopulate_efx_property_map()
     this->efx_properties_map["EFX_REVERB_PRESET_CITY_ABANDONED"] = EFX_REVERB_PRESET_CITY_ABANDONED;
 }
 
-void SoundManager::setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity)
+void SoundManager::update()
 {
     if (!audio_device)
         return;
-    listener_position = position;
-    listener_direction = direction;
-    listener_up = up;
+
     recomputeAllSources();
-
-    float orientation[6];
-    // direction
-    orientation[0] = direction.x;
-    orientation[1] = direction.y;
-    orientation[2] = direction.z;
-    // up
-    orientation[3] = up.x;
-    orientation[4] = up.y;
-    orientation[5] = up.z;
-
-    alListener3f(AL_POSITION, position.x, position.y, position.z);
-    alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z);
-    alListenerfv(AL_ORIENTATION, orientation);
+    updateAlListener();
 
     if(App::audio_enable_efx->getBool())
     {
         this->updateListenerEffectSlot();
     }
+}
+
+void SoundManager::setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity)
+{
+    listener_position = position;
+    listener_direction = direction;
+    listener_up = up;
+    listener_velocity = velocity;
+}
+
+void SoundManager::updateAlListener()
+{
+    float orientation[6];
+    // direction
+    orientation[0] = listener_direction.x;
+    orientation[1] = listener_direction.y;
+    orientation[2] = listener_direction.z;
+    // up
+    orientation[3] = listener_up.x;
+    orientation[4] = listener_up.y;
+    orientation[5] = listener_up.z;
+
+    alListener3f(AL_POSITION, listener_position.x, listener_position.y, listener_position.z);
+    alListener3f(AL_VELOCITY, listener_velocity.x, listener_velocity.y, listener_velocity.z);
+    alListenerfv(AL_ORIENTATION, orientation);
 }
 
 void SoundManager::setListenerEnvironment(std::string listener_efx_preset_name)
