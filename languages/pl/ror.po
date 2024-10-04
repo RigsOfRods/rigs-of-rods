@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2024-09-15 22:09+0000\n"
+"PO-Revision-Date: 2024-10-05 01:15+0000\n"
 "Last-Translator: Michał Domaradzki <michu97736@wp.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "pl/>\n"
@@ -214,7 +214,7 @@ msgstr "Statyczny"
 #: Application.cpp:474
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "Pochylenie"
 
 #: Application.cpp:483
 msgctxt "IoInputGrabMode"
@@ -238,12 +238,12 @@ msgstr "Dynamicznie"
 #: Application.cpp:494
 msgctxt "SimResetMode"
 msgid "Hard"
-msgstr ""
+msgstr "Twardy"
 
 #: Application.cpp:495
 msgctxt "SimResetMode"
 msgid "Soft"
-msgstr ""
+msgstr "Miękki"
 
 #: GameContext.cpp:120
 msgid "Terrain not found: "
@@ -258,12 +258,13 @@ msgid "Please clear the place first"
 msgstr "Proszę najpierw wyczyścić miejsce"
 
 #: GameContext.cpp:762
+#, fuzzy
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr ""
+msgstr "Domyślna skórka '{}' dla aktora '{}' nie znaleziona!"
 
 #: GameContext.cpp:1036
 msgid "Enabled hard reset mode"
-msgstr "Włącz tryb twardego resetu"
+msgstr "Włączono tryb twardego resetu"
 
 #: GameContext.cpp:1036
 msgid "Enabled soft reset mode"
@@ -279,19 +280,19 @@ msgstr "Nie znaleziono pojazdu ratowniczego!"
 
 #: GameContext.cpp:1493
 msgid "forwardcommands enabled"
-msgstr ""
+msgstr "forwardcommands włączone"
 
 #: GameContext.cpp:1497
 msgid "forwardcommands disabled"
-msgstr ""
+msgstr "forwardcommands wyłączone"
 
 #: GameContext.cpp:1506
 msgid "importcommands enabled"
-msgstr ""
+msgstr "importcommands włączone"
 
 #: GameContext.cpp:1510
 msgid "importcommands disabled"
-msgstr ""
+msgstr "importcommands wyłączone"
 
 #: gameplay/ChatSystem.cpp:56
 msgid " [whispered] "
@@ -347,7 +348,7 @@ msgstr "Automatyczne śledzenie wyłączone"
 
 #: gui/GUIUtils.cpp:471
 msgid "Hold to confirm"
-msgstr ""
+msgstr "Przytrzymaj aby potwierdzić"
 
 #: gui/OverlayWrapper.cpp:428
 msgid "Current FPS: "
@@ -422,12 +423,12 @@ msgstr "przywiąż ładunek do ciężarówki"
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "Uzyskuje nazwę pliku ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "Uzyskuje nazwę załadowanej sekcji dla ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
 #, fuzzy
@@ -481,7 +482,7 @@ msgstr "[używa własnych cząsteczek]"
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr ""
+msgstr "Uzyskuje całkowitą ilość węzłów ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
 #, fuzzy
@@ -493,7 +494,7 @@ msgstr "przywiąż ładunek do ciężarówki"
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the wheels of the truck"
-msgstr ""
+msgstr "Uzyskuje całkowitą ilość węzłów kół ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
 #, fuzzy
@@ -505,7 +506,7 @@ msgstr "przywiąż ładunek do ciężarówki"
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
 msgid "Returns true if the brake light is enabled"
-msgstr ""
+msgstr "Zwraca true jeśli światło hamowania jest włączone"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:40
 msgctxt "AngelScript"
@@ -522,17 +523,17 @@ msgstr "włącz lub wyłącz tryb powtórek"
 #: gui/panels/GUI_AngelScriptExamples.cpp:42
 msgctxt "AngelScript"
 msgid "Gets the mode of the beacon"
-msgstr ""
+msgstr "Uzyskuje tryb sygnalizatora"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:43
 msgctxt "AngelScript"
 msgid "Sets the blinking type"
-msgstr ""
+msgstr "Ustawia typ migania"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:44
 msgctxt "AngelScript"
 msgid "Gets the blinking type"
-msgstr ""
+msgstr "Uzyskuje typ migania"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:45
 #, fuzzy
