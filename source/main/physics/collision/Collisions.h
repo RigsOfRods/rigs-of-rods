@@ -176,6 +176,7 @@ public:
     Ogre::Vector3 getPosition(const Ogre::String& inst, const Ogre::String& box);
     Ogre::Quaternion getDirection(const Ogre::String& inst, const Ogre::String& box);
     collision_box_t* getBox(const Ogre::String& inst, const Ogre::String& box);
+    const int GetCellSize() const { return CELL_SIZE; }
 
     std::pair<bool, Ogre::Real> intersectsTris(Ogre::Ray ray);
 
