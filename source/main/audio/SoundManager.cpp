@@ -394,119 +394,108 @@ void SoundManager::updateListenerEffectSlot()
         }
 
         // early reflections panning, delay and strength
-        if(
-           App::audio_enable_reflection_panning->getBool() &&
-           efx_reverb_engine == EfxReverbEngine::EAXREVERB &&
-           App::app_state->getEnum<AppState>() == AppState::SIMULATION // required to avoid crash when returning to main menu
-          )
+        if (
+                App::audio_enable_reflection_panning->getBool() &&
+                efx_reverb_engine == EfxReverbEngine::EAXREVERB &&
+                App::app_state->getEnum<AppState>() == AppState::SIMULATION // required to avoid crash when returning to main menu
+           )
         {
-            /*
-             * Detect surfaces close to the listener and pan and delay early reflections accordingly.
-             * Use ray casting to probe for a collision up to max_distance to each side of the listener.
-             */
-            const float max_distance = 2.0f;
-            const float reflections_gain_boost_max = 0.316f; // 1 db
-            float reflections_gain;
-            float reflection_delay;
-            float magnitude;
+            const std::tuple<Ogre::Vector3, float, float> early_reflections_properties =
+                calculateEarlyReflectionsProperties();
 
-            Ogre::Vector3 reflection_panning_direction = { 0.0f, 0.0f, 0.0f};
-            Ogre::Vector3 left = listener_position - listener_direction.crossProduct(listener_up).normalisedCopy() * max_distance;
-            Ogre::Vector3 right = listener_position + listener_direction.crossProduct(listener_up).normalisedCopy() * max_distance;
+            // convert panning vector to EAXREVERB's LHS
+            const float eaxreverb_early_reflections_pan[3] =
+                {  std::get<0>(early_reflections_properties).x,
+                   0, // TODO
+                  -std::get<0>(early_reflections_properties).z };
 
-            Ray left_side = Ray(listener_position, left);
-            Ray right_side = Ray(listener_position, right);
-
-            std::pair<bool, Ogre::Real> intersection_left = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(left_side);
-            std::pair<bool, Ogre::Real> intersection_right = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(right_side);
-
-            // there is a nearby surface on both sides
-            if (intersection_left.first && intersection_right.first)
-            {
-                // pan toward the closer object
-                if (intersection_left.second < intersection_right.second)
-                {
-                    reflection_panning_direction = left;
-                    magnitude = 1.0f - intersection_left.second / max_distance;
-                    reflection_delay = intersection_left.second / getSpeedOfSound();
-                }
-                else
-                {
-                    reflection_panning_direction = right;
-                    magnitude = 1.0f - intersection_right.second / max_distance;
-                    reflection_delay = intersection_right.second / getSpeedOfSound();
-                }
-                // take the difference in collision distance to determine the magnitude of the panning vector
-                magnitude = 1.0f - Math::Abs(intersection_left.second - intersection_right.second) / max_distance;
-                reflections_gain = std::min(
-                    (efx_properties_map[listener_efx_preset_name].flReflectionsGain
-                      + reflections_gain_boost_max
-                      - (reflections_gain_boost_max * magnitude)),
-                    3.16f);
-            }
-            else if (intersection_left.first) // there is a nearby surface on the left side
-            {
-                reflection_panning_direction = left;
-                magnitude = 1.0f - intersection_left.second / max_distance;
-                reflection_delay = intersection_left.second / getSpeedOfSound();
-                reflections_gain = std::min(
-                    (efx_properties_map[listener_efx_preset_name].flReflectionsGain
-                      + reflections_gain_boost_max
-                      - (reflections_gain_boost_max * magnitude)),
-                    3.16f);
-            }
-            else if (intersection_right.first) // there is a nearby surface on the right side
-            {
-                reflection_panning_direction = right;
-                magnitude = 1.0f - intersection_right.second / max_distance;
-                reflection_delay = intersection_right.second / getSpeedOfSound();
-                reflections_gain = std::min(
-                    (efx_properties_map[listener_efx_preset_name].flReflectionsGain
-                      + reflections_gain_boost_max
-                      - (reflections_gain_boost_max * magnitude)),
-                    3.16f);
-            }
-            else // no nearby surface detected
-            {
-                // reset values to the original of the preset since there are no nearby surfaces
-                reflection_delay = efx_properties_map[listener_efx_preset_name].flReflectionsDelay;
-                reflections_gain = efx_properties_map[listener_efx_preset_name].flReflectionsGain;
-            }
-
-            // transform reflection_panning_direction vector to listener-relative EAXREVERB reflection-panning vector
-            // invert z since EAXREVERB panning vectors use a left-handed coordinate system
-
-            // determine the angle between listener_direction and straight ahead vector (0, 0, 1)
-            float angle = std::acos(-listener_direction.z);
-
-            if (listener_direction.x < 0)
-            {
-                angle = -angle;
-            }
-
-            // inversely rotate reflection_panning_vector by the angle
-            Ogre::Vector3 reflection_panning_vector =
-                {(reflection_panning_direction.x * std::cos(-angle)) + (reflection_panning_direction.z * std::sin(-angle)),
-                  0,
-                -(reflection_panning_direction.x * -std::sin(-angle)) + (reflection_panning_direction.z * std::cos(-angle))};
-
-            // scale panning vector based on the distance to the collision
-            // we assume that surfaces further away cause less focussed reflections
-            reflection_panning_vector *= magnitude;
-
-            float eaxreverb_reflection_panning_vector[3] =
-                { reflection_panning_vector.x,
-                  reflection_panning_vector.y,
-                 -reflection_panning_vector.z };
-
-            alEffectfv(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_PAN, eaxreverb_reflection_panning_vector);
-            alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_DELAY, reflection_delay);
-            alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_GAIN, reflections_gain);
+            alEffectfv(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_PAN, eaxreverb_early_reflections_pan);
+            alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_GAIN, std::get<1>(early_reflections_properties));
+            alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_DELAY, std::get<2>(early_reflections_properties));
         }
 
         // update the effect on the listener effect slot
         alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, efx_effect_id_map[listener_efx_preset_name]);
     }
+}
+
+std::tuple<Ogre::Vector3, float, float> SoundManager::calculateEarlyReflectionsProperties()
+{
+    const float     max_distance = 2.0f;
+    const float     reflections_gain_boost_max = 2.0f; // 6.32 db
+    float           early_reflections_gain;
+    float           early_reflections_delay;
+    float           magnitude = 0;
+    Ogre::Vector3   early_reflections_pan = { 0.0f, 0.0f, 0.0f};
+
+    /*
+     * To detect surfaces around the listener within the vicinity of
+     * max_distance, we cast rays counter-clockwise in a 360° circle
+     * around the listener on a horizontal plane realative to the listener.
+    */
+    bool        nearby_surface_detected = false;
+    const float angle_step_size = 90;
+    float       closest_surface_distance = std::numeric_limits<float>::max();
+
+    for (float angle = 0; angle < 360; angle += angle_step_size)
+    {
+        Ogre::Vector3 raycast_direction = Quaternion(Ogre::Degree(angle), listener_up) * listener_direction;
+        raycast_direction.normalise();
+        // accompany direction vector for how the intersectsTris function works
+        Ray ray = Ray(listener_position, raycast_direction * max_distance * App::GetGameContext()->GetTerrain()->GetCollisions()->GetCellSize());
+        std::pair<bool, Ogre::Real> intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(ray);
+
+        if (intersection.first)
+        {
+            nearby_surface_detected  = true;
+            early_reflections_pan   += raycast_direction * max_distance * intersection.second;
+            closest_surface_distance = std::min(intersection.second, closest_surface_distance);
+        }
+    }
+
+    // TODO vertical raycasts
+
+    if (!nearby_surface_detected)
+    {
+        // reset values to the original values of the preset
+        early_reflections_delay = efx_properties_map[listener_efx_preset_name].flReflectionsDelay;
+        early_reflections_gain  = efx_properties_map[listener_efx_preset_name].flReflectionsGain;
+    }
+    else // at least one nearby surface was detected
+    {
+        // we assume that surfaces further away cause less focussed reflections
+        magnitude               = 1.0f - early_reflections_pan.length() / max_distance;
+
+        // set delay based on distance to the closest surface
+        early_reflections_delay = closest_surface_distance / getSpeedOfSound();
+
+        early_reflections_gain  = std::min(
+            (efx_properties_map[listener_efx_preset_name].flReflectionsGain
+               + reflections_gain_boost_max
+               - (reflections_gain_boost_max * (1.0f - magnitude))),
+             AL_EAXREVERB_MAX_REFLECTIONS_GAIN);
+    }
+
+    // transform the pan vector from being listener-relative to being user-relative
+
+    // determine the rotation of the listener direction from straight-ahead vector
+    // work around Quaternion quirks at around 180° rotation
+    Ogre::Quaternion horizontal_rotation;
+    if (listener_direction.z > 0.0f)
+    {
+        horizontal_rotation = Quaternion(Ogre::Degree(180), listener_up) * listener_direction.getRotationTo(Ogre::Vector3::UNIT_Z);
+    }
+    else
+    {
+        horizontal_rotation =  listener_direction.getRotationTo(Ogre::Vector3::NEGATIVE_UNIT_Z);
+    }
+
+    early_reflections_pan = horizontal_rotation * early_reflections_pan;
+    early_reflections_pan.normalise();
+
+    early_reflections_pan = magnitude * early_reflections_pan;
+
+    return std::make_tuple(early_reflections_pan, early_reflections_gain, early_reflections_delay);
 }
 
 ALuint SoundManager::CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties)

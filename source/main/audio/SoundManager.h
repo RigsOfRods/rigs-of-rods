@@ -261,6 +261,14 @@ private:
     void    updateListenerEffectSlot();
 
     /**
+      * Detects surfaces close to the listener and calculates a user-relative (as opposed to listener-relative)
+      * panning vector for early reflections as well as gain and delay values for early reflections based
+      * on surface distance.
+      * @return A tuple of user-relative panning vector, gain and delay for early reflections
+      */
+    std::tuple<Ogre::Vector3, float, float> calculateEarlyReflectionsProperties();
+
+    /**
      *   Applies an obstruction filter to the provided source if certain conditions apply.
      *   To decide whether the filter should be applied or not, the function performs
      *   various checks against the environment of the listener.
