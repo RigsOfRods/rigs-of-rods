@@ -464,7 +464,7 @@ std::tuple<Ogre::Vector3, float, float> SoundManager::calculateEarlyReflectionsP
     else // at least one nearby surface was detected
     {
         // we assume that surfaces further away cause less focussed reflections
-        magnitude               = 1.0f - early_reflections_pan.length() / max_distance;
+        magnitude               = 1.0f - early_reflections_pan.length() / Ogre::Math::Sqrt(2.0f * Ogre::Math::Pow(max_distance, 2));
 
         // set delay based on distance to the closest surface
         early_reflections_delay = closest_surface_distance / getSpeedOfSound();
