@@ -206,9 +206,19 @@ CVar* io_discord_rpc;
 CVar* io_invert_orbitcam;
               
 // Audio
+CVar* audio_air_absorption_factor;
+CVar* audio_air_absorption_gain_hf;
 CVar* audio_master_volume;
 CVar* audio_enable_creak;
+CVar* audio_enable_obstruction;
+CVar* audio_enable_reflection_panning;
+CVar* audio_enable_efx;
+CVar* audio_engine_controls_environmental_audio;
+CVar* audio_efx_reverb_engine;
+CVar* audio_default_listener_efx_preset;
+CVar* audio_force_listener_efx_preset;
 CVar* audio_device_name;
+CVar* audio_doppler_factor;
 CVar* audio_menu_music;
 
 // Graphics
@@ -544,6 +554,17 @@ std::string ToLocalizedString(IoInputGrabMode e)
     }
 }
 
+std::string ToLocalizedString(EfxReverbEngine e)
+{
+    switch (e)
+    {
+    case EfxReverbEngine::NONE:         return _LC("EfxReverbEngine", "None (no reverb, fastest)");
+    case EfxReverbEngine::REVERB:       return _LC("EfxReverbEngine", "REVERB");
+    case EfxReverbEngine::EAXREVERB:    return _LC("EfxReverbEngine", "EAXREVERB (more realistic effects, slower)");
+    default:                            return "";
+    }
+}
+
 std::string ToLocalizedString(SimResetMode e)
 {
     switch (e)
@@ -626,6 +647,8 @@ const char* MsgTypeToString(MsgType type)
     case MSG_EDI_CREATE_PROJECT_REQUESTED     : return "MSG_EDI_CREATE_PROJECT_REQUESTED";
     case MSG_EDI_MODIFY_PROJECT_REQUESTED     : return "MSG_EDI_MODIFY_PROJECT_REQUESTED";
     case MSG_EDI_DELETE_PROJECT_REQUESTED     : return "MSG_EDI_DELETE_PROJECT_REQUESTED";
+
+    case MSG_AUD_MODIFY_DOPPLER_FACTOR_REQUESTED : return "MSG_AUD_MODIFY_DOPPLER_FACTOR_REQUESTED";
 
     default: return "";
     }

@@ -1704,6 +1704,22 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         }
         break;
     }
+    // Audio
+    case MSG_AUD_MODIFY_DOPPLER_FACTOR_REQUESTED:
+    {
+        float* doppler_factor_ptr = new float();
+        if (GetValueFromScriptDict(log_msg, dict, /*required:*/true, "doppler_factor", "float", doppler_factor_ptr) &&
+            !(*doppler_factor_ptr < 0.0f))
+        {
+            m.payload = static_cast<void*>(doppler_factor_ptr);
+        }
+        else
+        {
+            delete doppler_factor_ptr;
+            return false;
+        }
+        break;
+    }
     
     default:;
     }

@@ -24,6 +24,8 @@
 
 #include "Actor.h"
 #include "CameraManager.h"
+#include "GameContext.h"
+#include "IWater.h"
 #include "Sound.h"
 #include "SoundManager.h"
 #include "Utils.h"
@@ -310,22 +312,109 @@ void SoundScriptManager::update(float dt_sec)
     if (App::sim_state->getEnum<SimState>() == SimState::RUNNING ||
         App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
     {
-        Ogre::SceneNode* cam_node = App::GetCameraManager()->GetCameraNode();
-        static Vector3 lastCameraPosition;
-        Vector3 cameraSpeed = (cam_node->getPosition() - lastCameraPosition) / dt_sec;
-        lastCameraPosition = cam_node->getPosition();
-        Ogre::Vector3 upVector = App::GetCameraManager()->GetCameraNode()->getOrientation() * Ogre::Vector3::UNIT_Y;
+        Ogre::SceneNode* camera_node = App::GetCameraManager()->GetCameraNode();
+        static Vector3 last_camera_position;
+        Ogre::Vector3 camera_position = camera_node->getPosition();
+        Vector3 camera_velocity = (camera_position - last_camera_position) / dt_sec;
+        last_camera_position = camera_position;
+        Ogre::Vector3 camera_up = camera_node->getOrientation() * Ogre::Vector3::UNIT_Y;
         // Direction points down -Z by default (adapted from Ogre::Camera)
-        Ogre::Vector3 cameraDir = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
-        this->setCamera(App::GetCameraManager()->GetCameraNode()->getPosition(), cameraDir, upVector, cameraSpeed);
+        Ogre::Vector3 camera_direction = camera_node->getOrientation() * -Ogre::Vector3::UNIT_Z;
+        this->setListener(camera_position, camera_direction, camera_up, camera_velocity);
+        Ogre::Vector3 listener_position = sound_manager->getListenerPosition();
+
+        const auto water = App::GetGameContext()->GetTerrain()->getWater();
+        this->listener_is_underwater = (water != nullptr ? water->IsUnderWater(listener_position) : false);
+
+        ActorPtr actor_of_player = App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling();
+        if (actor_of_player != nullptr)
+        {
+            this->listener_is_inside_the_player_coupled_actor = actor_of_player->ar_bounding_box.contains(listener_position);
+        }
+        else
+        {
+            this->listener_is_inside_the_player_coupled_actor = false;
+        }
+
+        this->setListenerEnvironment(camera_position);
+        sound_manager->update(dt_sec);
     }
 }
 
-void SoundScriptManager::setCamera(Vector3 position, Vector3 direction, Vector3 up, Vector3 velocity)
+void SoundScriptManager::setListener(Vector3 position, Vector3 direction, Vector3 up, Vector3 velocity)
 {
     if (disabled)
         return;
-    sound_manager->setCamera(position, direction, up, velocity);
+    sound_manager->setListener(position, direction, up, velocity);
+}
+
+void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
+{
+    if (disabled)
+        return;
+
+    std::string listener_environment;
+
+    if (App::audio_engine_controls_environmental_audio->getBool())
+    {
+        if(this->listenerIsUnderwater())
+        {
+            sound_manager->setSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
+            /*
+            According to the Francois-Garrison formula for frequency-dependant absorption at 5kHz in water
+            and assuming the Air Absorption Gain HF property of OpenAL is set to the minimum of 0.892,
+            the absorption factor should be ~11.25, which is just slightly above the maximum of 10.0.
+            */
+            App::audio_air_absorption_factor->setVal(10.0f);
+            App::audio_air_absorption_gain_hf->setVal(0.892f);
+        }
+        else
+        {
+            sound_manager->setSpeedOfSound(343.3f); // assume listener is in air at 20° celsius
+            App::audio_air_absorption_factor->setVal(1.0f);
+            App::audio_air_absorption_gain_hf->setVal(0.994f);
+        }
+
+        if (App::audio_enable_efx->getBool())
+        {
+            listener_environment = this->getReverbPresetAt(listener_position);
+        }
+    }
+
+    if (App::audio_enable_efx->getBool())
+    {
+        // always update the environment in case it was changed via console or script
+        sound_manager->setListenerEnvironment(listener_environment);
+    }
+}
+
+std::string SoundScriptManager::getReverbPresetAt(Ogre::Vector3 position)
+{
+    if (!App::audio_force_listener_efx_preset->getStr().empty())
+    {
+        return App::audio_force_listener_efx_preset->getStr();
+    }
+
+    if (this->listener_is_inside_the_player_coupled_actor)
+    {
+        // the player is in a vehicle
+        // there is no reverb preset for trucks, but this seems ok
+        return "EFX_REVERB_PRESET_DRIVING_INCAR_SPORTS";
+    }
+
+    if(this->listenerIsUnderwater())
+    {
+        return "EFX_REVERB_PRESET_UNDERWATER";
+    }
+
+    return App::audio_default_listener_efx_preset->getStr();
+}
+
+void SoundScriptManager::setDopplerFactor(float doppler_factor)
+{
+    if (disabled)
+        return;
+    sound_manager->setDopplerFactor(doppler_factor);
 }
 
 const StringVector& SoundScriptManager::getScriptPatterns(void) const

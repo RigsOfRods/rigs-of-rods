@@ -326,12 +326,23 @@ public:
 
     void setEnabled(bool state);
 
-    void setCamera(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
+    void setDopplerFactor(float doppler_factor);
+    void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
     void setLoadingBaseSounds(bool value) { loading_base = value; };
 
     bool isDisabled() { return disabled; }
 
     void update(float dt_sec);
+
+    /**
+     * @return True if the listener position is below water level. False otherwise.
+     */
+    bool listenerIsUnderwater() const { return listener_is_underwater; }
+
+    /**
+     * @return True if the listener position is inside the AABB of the actor the player character is coupled to. False otherwise.
+     */
+    bool listenerIsInsideThePlayerCoupledActor() const { return listener_is_inside_the_player_coupled_actor; }
 
     SoundManager* getSoundManager() { return sound_manager; }
 
@@ -343,6 +354,8 @@ private:
 
     bool disabled;
     bool loading_base;
+    bool listener_is_underwater = false;
+    bool listener_is_inside_the_player_coupled_actor = false;
     float max_distance;
     float reference_distance;
     float rolloff_factor;
@@ -365,6 +378,9 @@ private:
     // state map
     // soundLinks, soundItems, actor_ids, triggers
     std::map <int, std::map <int, std::map <int, std::map <int, bool > > > > state_map;
+
+    std::string getReverbPresetAt(Ogre::Vector3 position);
+    void setListenerEnvironment(Ogre::Vector3 position);
 
     SoundManager* sound_manager;
 };
