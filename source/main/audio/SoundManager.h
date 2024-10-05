@@ -72,8 +72,9 @@ public:
     /**
      * Does the per-frame update of sounds and listener environment. With the help of other functions it
      * determines and then submits the current state of the audio world to OpenAL.
+     * @param dt_sec Time since last frame in seconds
      */
-    void update();
+    void update(const float dt_sec);
 
     /**
       * Sets position and speed of the listener
@@ -257,8 +258,9 @@ private:
      * on the current environment of the listener. It works on the AL effect correspondig
      * to a reverb preset, i.e. the original preset in efx_properties_map remains unchanged.
      * Finally, it updates the AL listener's effect slot with the adjusted preset.
+     * @param dt_sec Time since last frame in seconds
      */
-    void    updateListenerEffectSlot();
+    void    updateListenerEffectSlot(const float dt_sec);
 
     /**
       * Detects surfaces close to the listener and calculates a user-relative (as opposed to listener-relative)

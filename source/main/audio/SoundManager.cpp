@@ -307,7 +307,7 @@ void SoundManager::prepopulate_efx_property_map()
     this->efx_properties_map["EFX_REVERB_PRESET_CITY_ABANDONED"] = EFX_REVERB_PRESET_CITY_ABANDONED;
 }
 
-void SoundManager::update()
+void SoundManager::update(const float dt_sec)
 {
     if (!audio_device)
         return;
@@ -329,7 +329,7 @@ void SoundManager::update()
             }
         }
 
-        updateListenerEffectSlot();
+        updateListenerEffectSlot(dt_sec);
     }
 }
 
@@ -369,7 +369,7 @@ void SoundManager::setListenerEnvironment(std::string listener_efx_preset_name)
     this->listener_efx_preset_name = listener_efx_preset_name;
 }
 
-void SoundManager::updateListenerEffectSlot()
+void SoundManager::updateListenerEffectSlot(const float dt_sec)
 {
     if (listener_efx_preset_name.empty())
     {
@@ -400,18 +400,49 @@ void SoundManager::updateListenerEffectSlot()
                 App::app_state->getEnum<AppState>() == AppState::SIMULATION // required to avoid crash when returning to main menu
            )
         {
-            const std::tuple<Ogre::Vector3, float, float> early_reflections_properties =
-                calculateEarlyReflectionsProperties();
+            // smoothly pan from the current properties to the target properties over several timesteps (frames)
+            const float time_to_target = 0.100f; // seconds to reach the target properties from the current properties
+            const float step = dt_sec / time_to_target;
+            static std::tuple<Ogre::Vector3, float, float> target_early_reflections_properties;
+            static std::tuple<Ogre::Vector3, float, float> current_early_reflections_properties =
+                std::make_tuple(Ogre::Vector3(efx_properties_map[listener_efx_preset_name].flReflectionsPan[0],
+                                              efx_properties_map[listener_efx_preset_name].flReflectionsPan[1],
+                                              efx_properties_map[listener_efx_preset_name].flReflectionsPan[2]),
+                                              efx_properties_map[listener_efx_preset_name].flReflectionsGain,
+                                              efx_properties_map[listener_efx_preset_name].flReflectionsDelay);
+
+            target_early_reflections_properties = calculateEarlyReflectionsProperties();
+
+            const Ogre::Vector3 current_early_reflections_pan =
+                std::get<0>(current_early_reflections_properties)
+                  + step * (    std::get<0>(target_early_reflections_properties)
+                              - std::get<0>(current_early_reflections_properties));
+
+            const float current_early_reflections_gain  =
+                std::get<1>(current_early_reflections_properties)
+                  + step * (   std::get<1>(target_early_reflections_properties)
+                             - std::get<1>(current_early_reflections_properties));
+
+            const float current_early_reflections_delay =
+                std::get<2>(current_early_reflections_properties)
+                  + step * (   std::get<2>(target_early_reflections_properties)
+                             - std::get<2>(current_early_reflections_properties));
+
+            current_early_reflections_properties =
+                std::make_tuple(Ogre::Vector3(current_early_reflections_pan.x,
+                                              current_early_reflections_pan.y,
+                                              current_early_reflections_pan.z),
+                                              current_early_reflections_gain,
+                                              current_early_reflections_delay);
 
             // convert panning vector to EAXREVERB's LHS
             const float eaxreverb_early_reflections_pan[3] =
-                {  std::get<0>(early_reflections_properties).x,
+                {  current_early_reflections_pan.x,
                    0, // TODO
-                  -std::get<0>(early_reflections_properties).z };
-
+                  -current_early_reflections_pan.z };
             alEffectfv(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_PAN, eaxreverb_early_reflections_pan);
-            alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_GAIN, std::get<1>(early_reflections_properties));
-            alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_DELAY, std::get<2>(early_reflections_properties));
+            alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_GAIN, std::get<1>(current_early_reflections_properties));
+            alEffectf(efx_effect_id_map[listener_efx_preset_name], AL_EAXREVERB_REFLECTIONS_DELAY, std::get<2>(current_early_reflections_properties));
         }
 
         // update the effect on the listener effect slot

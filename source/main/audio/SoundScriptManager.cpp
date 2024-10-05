@@ -337,7 +337,7 @@ void SoundScriptManager::update(float dt_sec)
         }
 
         this->setListenerEnvironment(camera_position);
-        sound_manager->update();
+        sound_manager->update(dt_sec);
     }
 }
 
