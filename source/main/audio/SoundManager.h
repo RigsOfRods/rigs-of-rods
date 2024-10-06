@@ -243,9 +243,10 @@ private:
 
     /**
      * Creates an OpenAL effect based on the parameters of an efx/eax reverb preset.
-     * @param efx_properties Pointer to a struct holding the parameters of the reverb preset.
+     * @param efx_properties EFXEAXREVERBPROPERTIES object holding the parameters of the reverb preset.
+     * @see `AL/efx-presets.h` from OpenAL
      */
-    ALuint  CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties) const;
+    ALuint  CreateAlEffect(const EFXEAXREVERBPROPERTIES& efx_properties) const;
 
     /**
      * Helper function that fills the efx_properties_map with presets provided by

@@ -380,7 +380,7 @@ void SoundManager::updateListenerEffectSlot(const float dt_sec)
         // create new effect if not existing
         if(!listener_efx_preset_name.empty() && efx_effect_id_map.find(listener_efx_preset_name) == efx_effect_id_map.end())
         {
-            efx_effect_id_map[listener_efx_preset_name] = this->CreateAlEffect(&this->efx_properties_map[listener_efx_preset_name]);
+            efx_effect_id_map[listener_efx_preset_name] = this->CreateAlEffect(efx_properties_map[listener_efx_preset_name]);
         }
 
         // update air absorption gain hf of effect
@@ -529,7 +529,7 @@ std::tuple<Ogre::Vector3, float, float> SoundManager::calculateEarlyReflectionsP
     return std::make_tuple(early_reflections_pan, early_reflections_gain, early_reflections_delay);
 }
 
-ALuint SoundManager::CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties) const
+ALuint SoundManager::CreateAlEffect(const EFXEAXREVERBPROPERTIES& efx_properties) const
 {
     ALuint effect = 0;
     ALenum error;
@@ -540,48 +540,49 @@ ALuint SoundManager::CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties
     {
         case EfxReverbEngine::EAXREVERB:
             alEffecti(effect,  AL_EFFECT_TYPE, AL_EFFECT_EAXREVERB);
+            alEffectf( effect,  AL_EAXREVERB_GAIN,                   efx_properties.flGain);
 
-            alEffectf( effect,  AL_EAXREVERB_DENSITY,                efx_properties->flDensity);
-            alEffectf( effect,  AL_EAXREVERB_DIFFUSION,              efx_properties->flDiffusion);
-            alEffectf( effect,  AL_EAXREVERB_GAIN,                   efx_properties->flGain);
-            alEffectf( effect,  AL_EAXREVERB_GAINHF,                 efx_properties->flGainHF);
-            alEffectf( effect,  AL_EAXREVERB_GAINLF,                 efx_properties->flGainLF);
-            alEffectf( effect,  AL_EAXREVERB_DECAY_TIME,             efx_properties->flDecayTime);
-            alEffectf( effect,  AL_EAXREVERB_DECAY_HFRATIO,          efx_properties->flDecayHFRatio);
-            alEffectf( effect,  AL_EAXREVERB_DECAY_LFRATIO,          efx_properties->flDecayLFRatio);
-            alEffectf( effect,  AL_EAXREVERB_REFLECTIONS_GAIN,       efx_properties->flReflectionsGain);
-            alEffectf( effect,  AL_EAXREVERB_REFLECTIONS_DELAY,      efx_properties->flReflectionsDelay);
-            alEffectfv(effect,  AL_EAXREVERB_REFLECTIONS_PAN,        efx_properties->flReflectionsPan);
-            alEffectf( effect,  AL_EAXREVERB_LATE_REVERB_GAIN,       efx_properties->flLateReverbGain);
-            alEffectf( effect,  AL_EAXREVERB_LATE_REVERB_DELAY,      efx_properties->flLateReverbDelay);
-            alEffectfv(effect,  AL_EAXREVERB_LATE_REVERB_PAN,        efx_properties->flLateReverbPan);
-            alEffectf( effect,  AL_EAXREVERB_ECHO_TIME,              efx_properties->flEchoTime);
-            alEffectf( effect,  AL_EAXREVERB_ECHO_DEPTH,             efx_properties->flEchoDepth);
-            alEffectf( effect,  AL_EAXREVERB_MODULATION_TIME,        efx_properties->flModulationTime);
-            alEffectf( effect,  AL_EAXREVERB_MODULATION_DEPTH,       efx_properties->flModulationDepth);
-            alEffectf( effect,  AL_EAXREVERB_AIR_ABSORPTION_GAINHF,  efx_properties->flAirAbsorptionGainHF);
-            alEffectf( effect,  AL_EAXREVERB_HFREFERENCE,            efx_properties->flHFReference);
-            alEffectf( effect,  AL_EAXREVERB_LFREFERENCE,            efx_properties->flLFReference);
-            alEffectf( effect,  AL_EAXREVERB_ROOM_ROLLOFF_FACTOR,    efx_properties->flRoomRolloffFactor);
-            alEffecti( effect,  AL_EAXREVERB_DECAY_HFLIMIT,          efx_properties->iDecayHFLimit);
+            alEffectf( effect,  AL_EAXREVERB_DENSITY,                efx_properties.flDensity);
+            alEffectf( effect,  AL_EAXREVERB_DIFFUSION,              efx_properties.flDiffusion);
+            alEffectf( effect,  AL_EAXREVERB_GAIN,                   efx_properties.flGain);
+            alEffectf( effect,  AL_EAXREVERB_GAINHF,                 efx_properties.flGainHF);
+            alEffectf( effect,  AL_EAXREVERB_GAINLF,                 efx_properties.flGainLF);
+            alEffectf( effect,  AL_EAXREVERB_DECAY_TIME,             efx_properties.flDecayTime);
+            alEffectf( effect,  AL_EAXREVERB_DECAY_HFRATIO,          efx_properties.flDecayHFRatio);
+            alEffectf( effect,  AL_EAXREVERB_DECAY_LFRATIO,          efx_properties.flDecayLFRatio);
+            alEffectf( effect,  AL_EAXREVERB_REFLECTIONS_GAIN,       efx_properties.flReflectionsGain);
+            alEffectf( effect,  AL_EAXREVERB_REFLECTIONS_DELAY,      efx_properties.flReflectionsDelay);
+            alEffectfv(effect,  AL_EAXREVERB_REFLECTIONS_PAN,        efx_properties.flReflectionsPan);
+            alEffectf( effect,  AL_EAXREVERB_LATE_REVERB_GAIN,       efx_properties.flLateReverbGain);
+            alEffectf( effect,  AL_EAXREVERB_LATE_REVERB_DELAY,      efx_properties.flLateReverbDelay);
+            alEffectfv(effect,  AL_EAXREVERB_LATE_REVERB_PAN,        efx_properties.flLateReverbPan);
+            alEffectf( effect,  AL_EAXREVERB_ECHO_TIME,              efx_properties.flEchoTime);
+            alEffectf( effect,  AL_EAXREVERB_ECHO_DEPTH,             efx_properties.flEchoDepth);
+            alEffectf( effect,  AL_EAXREVERB_MODULATION_TIME,        efx_properties.flModulationTime);
+            alEffectf( effect,  AL_EAXREVERB_MODULATION_DEPTH,       efx_properties.flModulationDepth);
+            alEffectf( effect,  AL_EAXREVERB_AIR_ABSORPTION_GAINHF,  efx_properties.flAirAbsorptionGainHF);
+            alEffectf( effect,  AL_EAXREVERB_HFREFERENCE,            efx_properties.flHFReference);
+            alEffectf( effect,  AL_EAXREVERB_LFREFERENCE,            efx_properties.flLFReference);
+            alEffectf( effect,  AL_EAXREVERB_ROOM_ROLLOFF_FACTOR,    efx_properties.flRoomRolloffFactor);
+            alEffecti( effect,  AL_EAXREVERB_DECAY_HFLIMIT,          efx_properties.iDecayHFLimit);
 
             break;
         case EfxReverbEngine::REVERB:
             alEffecti(effect, AL_EFFECT_TYPE, AL_EFFECT_REVERB);
 
-            alEffectf(effect, AL_REVERB_DENSITY,                efx_properties->flDensity);
-            alEffectf(effect, AL_REVERB_DIFFUSION,              efx_properties->flDiffusion);
-            alEffectf(effect, AL_REVERB_GAIN,                   efx_properties->flGain);
-            alEffectf(effect, AL_REVERB_GAINHF,                 efx_properties->flGainHF);
-            alEffectf(effect, AL_REVERB_DECAY_TIME,             efx_properties->flDecayTime);
-            alEffectf(effect, AL_REVERB_DECAY_HFRATIO,          efx_properties->flDecayHFRatio);
-            alEffectf(effect, AL_REVERB_REFLECTIONS_GAIN,       efx_properties->flReflectionsGain);
-            alEffectf(effect, AL_REVERB_REFLECTIONS_DELAY,      efx_properties->flReflectionsDelay);
-            alEffectf(effect, AL_REVERB_LATE_REVERB_GAIN,       efx_properties->flLateReverbGain);
-            alEffectf(effect, AL_REVERB_LATE_REVERB_DELAY,      efx_properties->flLateReverbDelay);
-            alEffectf(effect, AL_REVERB_AIR_ABSORPTION_GAINHF,  efx_properties->flAirAbsorptionGainHF);
-            alEffectf(effect, AL_REVERB_ROOM_ROLLOFF_FACTOR,    efx_properties->flRoomRolloffFactor);
-            alEffecti(effect, AL_REVERB_DECAY_HFLIMIT,          efx_properties->iDecayHFLimit);
+            alEffectf(effect, AL_REVERB_DENSITY,                efx_properties.flDensity);
+            alEffectf(effect, AL_REVERB_DIFFUSION,              efx_properties.flDiffusion);
+            alEffectf(effect, AL_REVERB_GAIN,                   efx_properties.flGain);
+            alEffectf(effect, AL_REVERB_GAINHF,                 efx_properties.flGainHF);
+            alEffectf(effect, AL_REVERB_DECAY_TIME,             efx_properties.flDecayTime);
+            alEffectf(effect, AL_REVERB_DECAY_HFRATIO,          efx_properties.flDecayHFRatio);
+            alEffectf(effect, AL_REVERB_REFLECTIONS_GAIN,       efx_properties.flReflectionsGain);
+            alEffectf(effect, AL_REVERB_REFLECTIONS_DELAY,      efx_properties.flReflectionsDelay);
+            alEffectf(effect, AL_REVERB_LATE_REVERB_GAIN,       efx_properties.flLateReverbGain);
+            alEffectf(effect, AL_REVERB_LATE_REVERB_DELAY,      efx_properties.flLateReverbDelay);
+            alEffectf(effect, AL_REVERB_AIR_ABSORPTION_GAINHF,  efx_properties.flAirAbsorptionGainHF);
+            alEffectf(effect, AL_REVERB_ROOM_ROLLOFF_FACTOR,    efx_properties.flRoomRolloffFactor);
+            alEffecti(effect, AL_REVERB_DECAY_HFLIMIT,          efx_properties.iDecayHFLimit);
 
             break;
         case EfxReverbEngine::NONE:
