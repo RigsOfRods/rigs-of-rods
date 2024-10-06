@@ -529,7 +529,7 @@ std::tuple<Ogre::Vector3, float, float> SoundManager::calculateEarlyReflectionsP
     return std::make_tuple(early_reflections_pan, early_reflections_gain, early_reflections_delay);
 }
 
-ALuint SoundManager::CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties)
+ALuint SoundManager::CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties) const
 {
     ALuint effect = 0;
     ALenum error;
@@ -650,7 +650,7 @@ void SoundManager::recomputeAllSources()
 #endif
 }
 
-void SoundManager::updateObstructionFilter(const ALuint hardware_source)
+void SoundManager::updateObstructionFilter(const ALuint hardware_source) const
 {
     // TODO: Simulate diffraction path.
 

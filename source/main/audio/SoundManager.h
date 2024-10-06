@@ -113,25 +113,25 @@ public:
     /**
      * @return The value of AL_SPEED_OF_SOUND as currently set in OpenAL.
      */
-    float getSpeedOfSound() { return alGetFloat(AL_SPEED_OF_SOUND); }
+    float getSpeedOfSound() const { return alGetFloat(AL_SPEED_OF_SOUND); }
 
     /**
      * Updates the speed of sound in OpenAL with the provided value.
      * This value should based on RoR units for correct results.
      * @param speed_of_sound Speed of sound within the range of AL_SPEED_OF_SOUND.
      */
-    void setSpeedOfSound(float speed_of_sound) { alSpeedOfSound(speed_of_sound); }
+    void setSpeedOfSound(const float speed_of_sound) const { alSpeedOfSound(speed_of_sound); }
 
     /**
      * @return The value of AL_DOPPLER_FACTOR as currently set in OpenAL.
      */
-    float getDopplerFactor() { return alGetFloat(AL_DOPPLER_FACTOR); }
+    float getDopplerFactor() const { return alGetFloat(AL_DOPPLER_FACTOR); }
 
     /**
      * Updates the doppler factor in OpenAL with the provided value.
      * @param doppler_factor Doppler factor within the range of AL_DOPPLER_FACTOR.
      */
-    void setDopplerFactor(float doppler_factor) { alDopplerFactor(doppler_factor); }
+    void setDopplerFactor(const float doppler_factor) const { alDopplerFactor(doppler_factor); }
 
     /**
      * Returns the number of currently used hardware sources. In a typical scenario,
@@ -245,7 +245,7 @@ private:
      * Creates an OpenAL effect based on the parameters of an efx/eax reverb preset.
      * @param efx_properties Pointer to a struct holding the parameters of the reverb preset.
      */
-    ALuint  CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties);
+    ALuint  CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties) const;
 
     /**
      * Helper function that fills the efx_properties_map with presets provided by
@@ -276,7 +276,7 @@ private:
      *   various checks against the environment of the listener.
      *   @param hardware_souce The index of the hardware source.
      */
-    void    updateObstructionFilter(const ALuint hardware_source);
+    void    updateObstructionFilter(const ALuint hardware_source) const;
 };
 
 /// @}
