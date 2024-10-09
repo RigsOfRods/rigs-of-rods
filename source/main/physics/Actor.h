@@ -478,6 +478,7 @@ public:
     // Realtime node/beam structure editing helpers
     bool                    ar_nb_initialized = false;
     bool                    ar_nb_export_override_all_node_masses = false;
+    bool                    ar_nb_export_reduce_drymass_by_nodemass_overrides = false;
     std::vector<float>      ar_nb_optimum;            //!< Temporary storage of the optimum search result
     std::vector<float>      ar_nb_reference;          //!< Temporary storage of the reference search result
     int                     ar_nb_skip_steps = 0;         //!< Amount of physics steps to be skipped before measuring

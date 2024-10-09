@@ -94,6 +94,9 @@ void Actor::propagateNodeBeamChangesToDef()
     // Prepare 'detacher_group' with builtin values.
     int detacher_group = DEFAULT_DETACHER_GROUP;
 
+    // When converting node from calculated-mass to override-mass, reduce dry mass accordingly.
+    float dry_mass_reduction = 0.0f;
+
     // ~~~ Nodes ~~~
 
     Ogre::Vector3 pivot = this->getRotationCenter();
@@ -136,6 +139,12 @@ void Actor::propagateNodeBeamChangesToDef()
 
         if (ar_nb_export_override_all_node_masses)
         {
+            // When converting node from calculated-mass to override-mass, reduce dry mass accordingly.
+            if (!node._has_load_weight_override)
+            {
+                dry_mass_reduction += ar_nodes[i].mass;
+            }
+
             // Enforce the 'total mass' slider value by overriding masses of all nodes
             node.load_weight_override = ar_nodes[i].mass;
             node._has_load_weight_override = true;
@@ -243,4 +252,8 @@ void Actor::propagateNodeBeamChangesToDef()
         // Submit the cinecam
         m_used_actor_entry->actor_def->root_module->cinecam.push_back(cinecam);
     }
+
+    // ~~~ Globals (update in-place) ~~~
+
+    m_used_actor_entry->actor_def->root_module->globals[0].dry_mass -= dry_mass_reduction;
 }

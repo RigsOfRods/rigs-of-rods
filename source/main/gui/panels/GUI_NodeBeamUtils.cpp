@@ -37,31 +37,25 @@ void NodeBeamUtils::Draw()
         this->SetVisible(false);
         return;
     }
+    const bool is_project = actor->getUsedActorEntry()->resource_bundle_type != "Zip";
+
     ImGui::SetNextWindowPosCenter(ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(600.f, 675.f), ImGuiCond_FirstUseEver);
-    const int flags = ImGuiWindowFlags_NoCollapse;
+    int flags = ImGuiWindowFlags_NoCollapse;
+    if (is_project)
+    {
+        flags |= ImGuiWindowFlags_MenuBar;
+    }
     bool keep_open = true;
     ImGui::Begin(_LC("NodeBeamUtils", "Node/Beam Utils"), &keep_open, flags);
 
-    if (actor->getUsedActorEntry()->resource_bundle_type == "Zip")
+    if (!is_project)
     {
         this->DrawCreateProjectBanner(actor, keep_open);
     }
     else
     {
-        ImGui::TextDisabled(_LC("NodeBeamUtils", "Project:"));
-        ImGui::SameLine();
-        ImGui::Text("%s", actor->getUsedActorEntry()->dname.c_str());
-        ImGui::SameLine();
-        if (ImGui::SmallButton(_LC("NodeBeamUtils", "Save active")))
-        {
-            RoR::ModifyProjectRequest* req = new RoR::ModifyProjectRequest();
-            req->mpr_type = RoR::ModifyProjectRequestType::ACTOR_UPDATE_DEF_DOCUMENT;
-            req->mpr_target_actor = actor;
-            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
-        }
-        ImGui::Checkbox(_LC("NodeBeamUtils", "Override all node masses"), &actor->ar_nb_export_override_all_node_masses);
-        ImGui::Dummy(ImVec2(5, 5));
+        this->DrawMenubar(actor);
     }
 
     ImGui::PushItemWidth(500.f); // Width includes [+/-] buttons
@@ -257,4 +251,34 @@ void NodeBeamUtils::DrawCreateProjectBanner(ActorPtr actor, bool& window_open)
         window_open = false;
     }
     ImGui::Dummy(ImVec2(1.f, 6.f));
+}
+
+void NodeBeamUtils::DrawMenubar(ActorPtr actor)
+{
+    if (ImGui::BeginMenuBar())
+    {
+        ImGui::TextDisabled(_LC("NodeBeamUtils", "Project:"));
+        ImGui::SameLine();
+        ImGui::Text("%s", actor->getUsedActorEntry()->dname.c_str());
+        ImGui::SameLine();
+        if (ImGui::SmallButton(_LC("NodeBeamUtils", "Save active")))
+        {
+            RoR::ModifyProjectRequest* req = new RoR::ModifyProjectRequest();
+            req->mpr_type = RoR::ModifyProjectRequestType::ACTOR_UPDATE_DEF_DOCUMENT;
+            req->mpr_target_actor = actor;
+            App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+        }
+        if (ImGui::BeginMenu(_LC("NodeBeamUtils", "Export options")))
+        {
+            ImGui::Checkbox(_LC("NodeBeamUtils", "Override all node masses"), &actor->ar_nb_export_override_all_node_masses);
+            ImGui::TextDisabled(_LC("NodeBeamUtils", "Gives all nodes the 'l' flag and weight override parameter.\nThis is the only way to propagate the slider setting to the truck file."));
+            ImGui::Separator();
+            ImGui::Checkbox(_LC("NodeBeamUtils", "Reduce dry mass by node mass overrides"), &actor->ar_nb_export_reduce_drymass_by_nodemass_overrides);
+            ImGui::TextDisabled(_LC("NodeBeamUtils", "When converting node from calculated-mass to override-mass, reduce dry mass accordingly."));
+            ImGui::EndMenu();
+        }
+        
+
+        ImGui::EndMenuBar();
+    }
 }
