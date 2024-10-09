@@ -715,8 +715,11 @@ void Actor::calcNetwork()
     m_net_initialized = true;
 }
 
-void Actor::RecalculateNodeMasses(Real total)
+void Actor::recalculateNodeMasses()
 {
+    // Originally `calc_masses2(Real total, bool reCalc)`, where `total` was always the dry mass.
+    // ------------------------------------------------------------------------------------------
+
     //reset
     for (int i = 0; i < ar_num_nodes; i++)
     {
@@ -750,7 +753,7 @@ void Actor::RecalculateNodeMasses(Real total)
     {
         if (ar_beams[i].bm_type != BEAM_VIRTUAL)
         {
-            Real half_mass = ar_beams[i].L * total / len / 2.0f;
+            Real half_mass = ar_beams[i].L * m_dry_mass / len / 2.0f;
             if (!ar_beams[i].p1->nd_tyre_node)
                 ar_beams[i].p1->mass += half_mass;
             if (!ar_beams[i].p2->nd_tyre_node)
@@ -4470,6 +4473,11 @@ void Actor::setMass(float m)
     m_dry_mass = m;
 }
 
+void Actor::setLoadedMass(float m)
+{
+    m_load_mass = m;
+}
+
 bool Actor::getCustomLightVisible(int number)
 {
     if (number < 0 || number >= MAX_CLIGHTS)
@@ -4778,178 +4786,4 @@ int Actor::getShockNode2(int shock_number)
         return ar_beams[ar_shocks[shock_number].beamid].p2->pos;
     }
     return -1.f;
-}
-
-void Actor::propagateNodeBeamChangesToDef()
-{
-    // PROOF OF CONCEPT:
-    // * assumes 'section/end_section' is not used (=only root module exists)
-    // * uses dummy 'set_beam_defaults' and 'detacher_group' for the hookbeams (nodes with 'h' option)
-    // * doesn't separate out 'set_beam_defaults_scale' from 'set_beam_defaults'
-    // * uses only 'set_default_minimass', ignores global 'minimass'
-    // * ignores 'detacher_group' for the hookbeams (nodes with 'h' option)
-    // -------------------------------------------------------------------------
-
-    using namespace RigDef;
-
-    // Purge old data
-    m_used_actor_entry->actor_def->root_module->nodes.clear();
-    m_used_actor_entry->actor_def->root_module->beams.clear();
-
-    // Prepare 'set_node_defaults' with builtin values.
-    auto node_defaults = std::shared_ptr<NodeDefaults>(new NodeDefaults); // comes pre-filled
-    
-    // Prepare 'set_default_minimass' with builtin values.
-    auto default_minimass = std::shared_ptr<DefaultMinimass>(new DefaultMinimass());
-    default_minimass->min_mass_Kg = DEFAULT_MINIMASS;
-
-    // Prepare 'set_beam_defaults' with builtin values.
-    auto beam_defaults = std::shared_ptr<BeamDefaults>(new BeamDefaults);
-    beam_defaults->springiness           = DEFAULT_SPRING;
-    beam_defaults->damping_constant      = DEFAULT_DAMP;
-    beam_defaults->deformation_threshold = BEAM_DEFORM;
-    beam_defaults->breaking_threshold    = BEAM_BREAK;
-    beam_defaults->visual_beam_diameter  = DEFAULT_BEAM_DIAMETER;
-
-    // Prepare 'detacher_group' with builtin values.
-    int detacher_group = DEFAULT_DETACHER_GROUP;
-
-    // ~~~ Nodes ~~~
-
-    Vector3 pivot = this->getRotationCenter();
-    pivot.y = App::GetGameContext()->GetTerrain()->GetHeightAt(pivot.x, pivot.z);
-    for (NodeNum_t i = 0; i < ar_num_nodes; i++)
-    {
-        if (ar_nodes[i].nd_rim_node || ar_nodes[i].nd_tyre_node || ar_nodes[i].nd_cinecam_node)
-        {
-            // Skip wheel nodes and cinecam nodes
-            continue;
-        }
-
-        // Check if 'set_node_defaults' must be updated.
-        float n_loadweight = ar_nodes_default_loadweights[i];
-        float n_friction = ar_nodes[i].friction_coef;
-        float n_volume = ar_nodes[i].volume_coef;
-        float n_surface = ar_nodes[i].surface_coef;
-        if (node_defaults->load_weight != n_loadweight
-            || node_defaults->friction != n_friction
-            || node_defaults->surface != n_surface
-            || node_defaults->volume != n_volume)
-        {
-            node_defaults = std::shared_ptr<NodeDefaults>(new NodeDefaults);
-            node_defaults->load_weight = n_loadweight;
-            node_defaults->friction = n_friction;
-            node_defaults->surface = n_surface;
-            node_defaults->volume = n_volume;
-        }
-
-        // Check if 'set_default_minimass' needs update.
-        if (default_minimass->min_mass_Kg != ar_minimass[i])
-        {
-            default_minimass = std::shared_ptr<DefaultMinimass>(new DefaultMinimass());
-            default_minimass->min_mass_Kg = ar_minimass[i];
-        }
-
-        // Build the node
-        RigDef::Node node;
-        node.node_defaults = node_defaults;
-        node.default_minimass = default_minimass;
-        node.beam_defaults = beam_defaults; // Needed for hookbeams (nodes with 'h' option)
-        node.detacher_group = detacher_group; // Needed for hookbeams (nodes with 'h' option)
-        if (ar_nodes_name[i] != "")
-        {
-            node.id = RigDef::Node::Id(ar_nodes_name[i]);
-        }
-        else
-        {
-            node.id = RigDef::Node::Id(ar_nodes_id[i]);
-        }
-        node.position = ar_initial_node_positions[i] - pivot;
-        node.load_weight_override = ar_nodes_override_loadweights[i];
-        node._has_load_weight_override = (node.load_weight_override >= 0.0f);
-        node.options = ar_nodes_options[i];
-
-        // Submit the node
-        m_used_actor_entry->actor_def->root_module->nodes.push_back(node);
-    }
-
-    // ~~~ Beams ~~~
-
-    for (int i = 0; i < ar_num_beams; i++)
-    {
-        if (!ar_beams_user_defined[i])
-        {
-            // Skip everything not from 'beams' (wheels/cinecam/hooknode/wings/rotators etc...)
-            continue;
-        }
-
-        // Check if 'set_beam_defaults' must be updated.
-        float b_spring = ar_beams[i].k;
-        float b_damp = ar_beams[i].d;
-        float b_deform = ar_beams[i].default_beam_deform;
-        float b_break = ar_beams[i].strength;
-        if (beam_defaults->springiness != b_spring
-            || beam_defaults->damping_constant != b_damp
-            || beam_defaults->deformation_threshold != b_deform
-            || beam_defaults->breaking_threshold != b_break)
-        {
-            beam_defaults = std::shared_ptr<BeamDefaults>(new BeamDefaults);
-            beam_defaults->springiness = b_spring;
-            beam_defaults->damping_constant = b_damp;
-            beam_defaults->deformation_threshold = b_deform;
-            beam_defaults->breaking_threshold = b_break;
-        }
-
-        // Check if 'detacher_group' needs update.
-        if (detacher_group != ar_beams[i].detacher_group)
-        {
-            detacher_group = ar_beams[i].detacher_group;
-        }
-
-        // Build the beam
-        RigDef::Beam beam;
-        beam.defaults = beam_defaults;
-        beam.detacher_group = detacher_group;
-        beam.extension_break_limit = ar_beams[i].longbound;
-        
-        if (ar_beams[i].bounded == SUPPORTBEAM)
-        {
-            beam._has_extension_break_limit = true;
-            beam.options |= RigDef::Beam::OPTION_s_SUPPORT;
-        }
-        else if (ar_beams[i].bounded == ROPE)
-        {
-            beam.options |= RigDef::Beam::OPTION_r_ROPE;
-        }
-        
-        if (ar_beams_invisible[i])
-        {
-            beam.options |= RigDef::Beam::OPTION_i_INVISIBLE;
-        }
-
-        // Build refs to the nodes
-        const BitMask_t nodeflags = RigDef::Node::Ref::REGULAR_STATE_IS_VALID;
-        NodeNum_t n1 = ar_beams[i].p1->pos;
-        if (ar_nodes_name[n1] != "")
-        {
-            beam.nodes[0] = RigDef::Node::Ref(ar_nodes_name[n1], 0, nodeflags, 0);
-        }
-        else
-        {
-            beam.nodes[0] = RigDef::Node::Ref(fmt::format("{}", ar_nodes_id[n1]), ar_nodes_id[n1], nodeflags, 0);
-        }
-        
-        NodeNum_t n2 = ar_beams[i].p2->pos;
-        if (ar_nodes_name[n2] != "")
-        {
-            beam.nodes[1] = RigDef::Node::Ref(ar_nodes_name[n2], 0, nodeflags, 0);
-        }
-        else
-        {
-            beam.nodes[1] = RigDef::Node::Ref(fmt::format("{}", ar_nodes_id[n2]), ar_nodes_id[n2], nodeflags, 0);
-        }
-
-        // Submit the beam
-        m_used_actor_entry->actor_def->root_module->beams.push_back(beam);
-    }
 }

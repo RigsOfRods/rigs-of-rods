@@ -176,7 +176,7 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     actor->UpdateBoundingBoxes();
 
     //compute final mass
-    actor->RecalculateNodeMasses(actor->m_dry_mass);
+    actor->recalculateNodeMasses();
     actor->ar_initial_total_mass = actor->m_total_mass;
     for (int i = 0; i < actor->ar_num_nodes; i++)
     {

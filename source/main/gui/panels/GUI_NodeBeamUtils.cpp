@@ -60,6 +60,8 @@ void NodeBeamUtils::Draw()
             req->mpr_target_actor = actor;
             App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
         }
+        ImGui::Checkbox(_LC("NodeBeamUtils", "Override all node masses"), &actor->ar_nb_export_override_all_node_masses);
+        ImGui::Dummy(ImVec2(5, 5));
     }
 
     ImGui::PushItemWidth(500.f); // Width includes [+/-] buttons
