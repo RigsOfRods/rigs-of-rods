@@ -1538,7 +1538,10 @@ int main(int argc, char *argv[])
                     CreateProjectRequest* request = static_cast<CreateProjectRequest*>(m.payload);
                     try 
                     {
-                        App::GetCacheSystem()->CreateProject(request);
+                        if (!App::GetCacheSystem()->CreateProject(request))
+                        {
+                            failed_m = true;
+                        }
                     }
                     catch (...) 
                     {
