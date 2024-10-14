@@ -715,8 +715,11 @@ void Actor::calcNetwork()
     m_net_initialized = true;
 }
 
-void Actor::RecalculateNodeMasses(Real total)
+void Actor::recalculateNodeMasses()
 {
+    // Originally `calc_masses2(Real total, bool reCalc)`, where `total` was always the dry mass.
+    // ------------------------------------------------------------------------------------------
+
     //reset
     for (int i = 0; i < ar_num_nodes; i++)
     {
@@ -750,7 +753,7 @@ void Actor::RecalculateNodeMasses(Real total)
     {
         if (ar_beams[i].bm_type != BEAM_VIRTUAL)
         {
-            Real half_mass = ar_beams[i].L * total / len / 2.0f;
+            Real half_mass = ar_beams[i].L * m_dry_mass / len / 2.0f;
             if (!ar_beams[i].p1->nd_tyre_node)
                 ar_beams[i].p1->mass += half_mass;
             if (!ar_beams[i].p2->nd_tyre_node)
@@ -1450,14 +1453,14 @@ void Actor::toggleTransferCaseMode()
 
     if (m_transfer_case->tr_4wd_mode)
     {
-        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = true;
-        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = true;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = WheelPropulsion::FORWARD;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = WheelPropulsion::FORWARD;
         m_num_proped_wheels += 2;
     }
     else
     {
-        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = false;
-        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = false;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = WheelPropulsion::FORWARD;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = WheelPropulsion::FORWARD;
         m_num_proped_wheels -= 2;
     }
 }
@@ -4468,6 +4471,11 @@ std::vector<std::string> Actor::getDescription()
 void Actor::setMass(float m)
 {
     m_dry_mass = m;
+}
+
+void Actor::setLoadedMass(float m)
+{
+    m_load_mass = m;
 }
 
 bool Actor::getCustomLightVisible(int number)

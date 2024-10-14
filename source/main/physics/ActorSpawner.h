@@ -279,8 +279,8 @@ private:
         unsigned int reserve_nodes,
         unsigned int reserve_beams,
         float wheel_radius,
-        RigDef::WheelPropulsion propulsion,
-        RigDef::WheelBraking braking,
+        WheelPropulsion propulsion,
+        WheelBraking braking,
         std::shared_ptr<RigDef::NodeDefaults> node_defaults,
         float wheel_mass,
         float wheel_width = -1.f);
@@ -307,7 +307,6 @@ private:
     /// @{
     void                          CalcMemoryRequirements(ActorMemoryRequirements& req, RigDef::Document::Module* module_def);    
     void                          UpdateCollcabContacterNodes();
-    wheel_t::BrakeCombo           TranslateBrakingDef(RigDef::WheelBraking def);
     void                          WashCalculator();
     void                          AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, std::shared_ptr<RigDef::NodeDefaults> defaults); //!< For user-defined nodes
     void                          AdjustNodeBuoyancy(node_t & node, std::shared_ptr<RigDef::NodeDefaults> defaults); //!< For generated nodes

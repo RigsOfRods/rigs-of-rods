@@ -156,6 +156,142 @@ const char* MsgTypeToString(MsgType type);
 
 /// @} // addtogroup MsgQueue
 
+} // namespace RoR
+
+namespace RigDef
+{
+enum class Keyword
+{
+    // IMPORTANT! If you add a value here, you must also modify `RigDef::Regexes::IDENTIFY_KEYWORD`, it relies on numeric values of this enum.
+
+    INVALID = 0,
+
+    ADD_ANIMATION = 1,
+    AIRBRAKES,
+    ANIMATORS,
+    ANTILOCKBRAKES,
+    ASSETPACKS,
+    AUTHOR,
+    AXLES,
+    BACKMESH,
+    BEAMS,
+    BRAKES,
+    CAB,
+    CAMERARAIL,
+    CAMERAS,
+    CINECAM,
+    COLLISIONBOXES,
+    COMMANDS,
+    COMMANDS2,
+    COMMENT,
+    CONTACTERS,
+    CRUISECONTROL,
+    DEFAULT_SKIN,
+    DESCRIPTION,
+    DETACHER_GROUP,
+    DISABLEDEFAULTSOUNDS,
+    ENABLE_ADVANCED_DEFORMATION,
+    END,
+    END_COMMENT,
+    END_DESCRIPTION,
+    END_SECTION,
+    ENGINE,
+    ENGOPTION,
+    ENGTURBO,
+    ENVMAP,
+    EXHAUSTS,
+    EXTCAMERA,
+    FILEFORMATVERSION,
+    FILEINFO,
+    FIXES,
+    FLARES,
+    FLARES2,
+    FLARES3,
+    FLEXBODIES,
+    FLEXBODY_CAMERA_MODE,
+    FLEXBODYWHEELS,
+    FORSET,
+    FORWARDCOMMANDS,
+    FUSEDRAG,
+    GLOBALS,
+    GUID,
+    GUISETTINGS,
+    HELP,
+    HIDEINCHOOSER,
+    HOOKGROUP, // obsolete, ignored
+    HOOKS,
+    HYDROS,
+    IMPORTCOMMANDS,
+    INTERAXLES,
+    LOCKGROUPS,
+    LOCKGROUP_DEFAULT_NOLOCK,
+    MANAGEDMATERIALS,
+    MATERIALFLAREBINDINGS,
+    MESHWHEELS,
+    MESHWHEELS2,
+    MINIMASS,
+    NODECOLLISION, // obsolete
+    NODES,
+    NODES2,
+    PARTICLES,
+    PISTONPROPS,
+    PROP_CAMERA_MODE,
+    PROPS,
+    RAILGROUPS,
+    RESCUER,
+    RIGIDIFIERS, // obsolete
+    ROLLON,
+    ROPABLES,
+    ROPES,
+    ROTATORS,
+    ROTATORS2,
+    SCREWPROPS,
+    SCRIPTS,
+    SECTION,
+    SECTIONCONFIG,
+    SET_BEAM_DEFAULTS,
+    SET_BEAM_DEFAULTS_SCALE,
+    SET_COLLISION_RANGE,
+    SET_DEFAULT_MINIMASS,
+    SET_INERTIA_DEFAULTS,
+    SET_MANAGEDMATERIALS_OPTIONS,
+    SET_NODE_DEFAULTS,
+    SET_SHADOWS,
+    SET_SKELETON_SETTINGS,
+    SHOCKS,
+    SHOCKS2,
+    SHOCKS3,
+    SLIDENODE_CONNECT_INSTANTLY,
+    SLIDENODES,
+    SLOPE_BRAKE,
+    SOUNDSOURCES,
+    SOUNDSOURCES2,
+    SPEEDLIMITER,
+    SUBMESH,
+    SUBMESH_GROUNDMODEL,
+    TEXCOORDS,
+    TIES,
+    TORQUECURVE,
+    TRACTIONCONTROL,
+    TRANSFERCASE,
+    TRIGGERS,
+    TURBOJETS,
+    TURBOPROPS,
+    TURBOPROPS2,
+    VIDEOCAMERA,
+    WHEELDETACHERS,
+    WHEELS,
+    WHEELS2,
+    WINGS
+};
+
+const char* KeywordToString(Keyword keyword);
+
+} // namespace RigDef
+
+namespace RoR
+{
+
 enum class AppState
 {
     BOOTSTRAP,          //!< Initial state
@@ -305,6 +441,74 @@ enum LoaderType //!< Search mode for `ModCache::Query()` & Operation mode for `G
     LT_Tuneup,    // No script alias, invoked manually, ext: tuneup
     LT_AssetPack, // No script alias, invoked manually, ext: assetpack
 };
+
+enum class WheelBraking: int /// Wheels are braked by three mechanisms: A footbrake, a handbrake/parkingbrake, and directional brakes used for skidsteer steering.
+{
+    // DO NOT MODIFY NUMBERS - de/serialized from/to truck definition file, see RigDef_File.h, `struct BaseWheel`
+
+    NONE                 = 0, //!< = no  footbrake, no  handbrake, no  direction control -- wheel is unbraked
+    FOOT_HAND            = 1, //!< = yes footbrake, yes handbrake, no  direction control
+    FOOT_HAND_SKID_LEFT  = 2, //!< = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the left)
+    FOOT_HAND_SKID_RIGHT = 3, //!< = yes footbrake, yes handbrake, yes direction control (braked when vehicle steers to the right)
+    FOOT_ONLY            = 4, //!< = yes footbrake, no  handbrake, no  direction control -- footbrake only, such as with the front wheels of a passenger car
+};
+
+enum class WheelPropulsion: int
+{
+    // DO NOT MODIFY NUMBERS - de/serialized from/to truck definition file, see RigDef_File.h, `struct BaseWheel`
+
+    NONE                 = 0,
+    FORWARD              = 1,
+    BACKWARD             = 2,
+};
+
+/// Used by rig-def/addonpart/tuneup formats to specify wheel rim mesh orientation.
+enum class WheelSide: char
+{
+    // DO NOT MODIFY LETTERS - de/serialized from/to truck definition file, see 'RigDef_File.h' and 'ActorExport.cpp'
+
+    INVALID   = 'n',
+    RIGHT     = 'r',
+    LEFT      = 'l'
+};
+
+enum class FlareType: char
+{
+    // DO NOT MODIFY LETTERS - de/serialized from/to truck definition file, see 'RigDef_File.h' and 'ActorExport.cpp'
+
+    NONE           = 0,
+    // Front lights
+    HEADLIGHT      = 'f',
+    HIGH_BEAM      = 'h',
+    FOG_LIGHT      = 'g',
+    // Rear lighs
+    TAIL_LIGHT     = 't',
+    BRAKE_LIGHT    = 'b',
+    REVERSE_LIGHT  = 'R',
+    // Special lights
+    SIDELIGHT      = 's',
+    BLINKER_LEFT   = 'l',
+    BLINKER_RIGHT  = 'r',
+    USER           = 'u',
+    DASHBOARD      = 'd'
+};
+
+enum class ExtCameraMode
+{
+    // DO NOT MODIFY NUMBERS - de/serialized from/to truck definition file, see RigDef_File.h and 'ActorExport.cpp'
+
+    INVALID = -1,
+    CLASSIC = 0,
+    CINECAM = 1,
+    NODE    = 2,
+};
+
+// Dynamic visibility control (value 0 and higher is cinecam index) - common to 'props' and 'flexbodies'
+// DO NOT MODIFY NUMBERS - de/serialized from/to truck definition file, see RigDef_File.h and 'ActorExport.cpp'
+typedef int CameraMode_t;
+static CameraMode_t CAMERA_MODE_ALWAYS_HIDDEN = -3;
+static CameraMode_t CAMERA_MODE_ALWAYS_VISIBLE = -2;
+static CameraMode_t CAMERA_MODE_3RDPERSON_ONLY = -1;
 
 // ------------------------------------------------------------------------------------------------
 // Global variables
