@@ -1421,14 +1421,14 @@ void Actor::toggleTransferCaseMode()
 
     if (m_transfer_case->tr_4wd_mode)
     {
-        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = true;
-        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = true;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = WheelPropulsion::FORWARD;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = WheelPropulsion::FORWARD;
         m_num_proped_wheels += 2;
     }
     else
     {
-        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = false;
-        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = false;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_1].wh_propulsed = WheelPropulsion::FORWARD;
+        ar_wheels[m_wheel_diffs[m_transfer_case->tr_ax_2]->di_idx_2].wh_propulsed = WheelPropulsion::FORWARD;
         m_num_proped_wheels -= 2;
     }
 }
@@ -1736,11 +1736,23 @@ void Actor::applyNodeBeamScales()
 
     for (int i = 0; i < ar_num_beams; i++)
     {
-        if ((ar_beams[i].p1->nd_tyre_node || ar_beams[i].p1->nd_rim_node) ||
+        // WHEEL-SPECIFIC: assume all wheels have same spring/damp and use wheel [0] as the master record
+        
+        if (ar_beams[i].p1->nd_rim_node && ar_beams[i].p2->nd_rim_node
+            && (ar_wheels[0].wh_arg_keyword == RigDef::Keyword::WHEELS2
+                || ar_wheels[0].wh_arg_keyword == RigDef::Keyword::MESHWHEELS2
+                || ar_wheels[0].wh_arg_keyword == RigDef::Keyword::FLEXBODYWHEELS))
+        {
+            // This wheel type supports separate rim spring/damp.
+            ar_beams[i].k = ar_wheels[0].wh_arg_rim_spring  * ar_nb_wheelrims_scale.first;
+            ar_beams[i].d = ar_wheels[0].wh_arg_rim_damping * ar_nb_wheelrims_scale.second;
+        }
+        else if ((ar_beams[i].p1->nd_tyre_node || ar_beams[i].p1->nd_rim_node) ||
             (ar_beams[i].p2->nd_tyre_node || ar_beams[i].p2->nd_rim_node))
         {
-            ar_beams[i].k = ar_initial_beam_defaults[i].first * ar_nb_wheels_scale.first;
-            ar_beams[i].d = ar_initial_beam_defaults[i].second * ar_nb_wheels_scale.second;
+            // Wheel type is simple or this is tire beam.
+            ar_beams[i].k = ar_wheels[0].wh_arg_simple_spring * ar_nb_wheels_scale.first;
+            ar_beams[i].d = ar_wheels[0].wh_arg_simple_damping * ar_nb_wheels_scale.second;
         }
         else if (ar_beams[i].bounded == SHOCK1 || ar_beams[i].bounded == SHOCK2 || ar_beams[i].bounded == SHOCK3)
         {
