@@ -4327,6 +4327,8 @@ void ActorSpawner::ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def)
 
     m_actor->ar_wheels[wheel_id].wh_arg_keyword = RigDef::Keyword::FLEXBODYWHEELS;
     m_actor->ar_wheels[wheel_id].wh_arg_num_rays = def.num_rays;
+    m_actor->ar_wheels[wheel_id].wh_arg_media1 = def.rim_mesh_name;
+    m_actor->ar_wheels[wheel_id].wh_arg_media2 = def.tyre_mesh_name;
 
     // Beams
     float rim_spring = def.rim_springiness;
@@ -4522,6 +4524,8 @@ void ActorSpawner::ProcessMeshWheel(RigDef::MeshWheel & meshwheel_def)
     m_actor->ar_wheels[wheel_id].wh_arg_simple_spring = meshwheel_def.spring;
     m_actor->ar_wheels[wheel_id].wh_arg_simple_damping = meshwheel_def.damping;
     m_actor->ar_wheels[wheel_id].wh_arg_side = meshwheel_def.side;
+    m_actor->ar_wheels[wheel_id].wh_arg_media1 = meshwheel_def.mesh_name;
+    m_actor->ar_wheels[wheel_id].wh_arg_media2 = meshwheel_def.material_name;
 
     this->BuildWheelBeams(
         meshwheel_def.num_rays,
@@ -4590,6 +4594,8 @@ void ActorSpawner::ProcessMeshWheel2(RigDef::MeshWheel2 & def)
     m_actor->ar_wheels[wheel_id].wh_arg_side = def.side;
     m_actor->ar_wheels[wheel_id].wh_arg_rim_spring =  def.beam_defaults->springiness;
     m_actor->ar_wheels[wheel_id].wh_arg_rim_damping = def.beam_defaults->damping_constant;
+    m_actor->ar_wheels[wheel_id].wh_arg_media1 = def.mesh_name;
+    m_actor->ar_wheels[wheel_id].wh_arg_media2 = def.material_name;
 
     /* --- Beams --- */
     /* Use data from directive 'set_beam_defaults' for the tiretread beams */

@@ -295,6 +295,8 @@ void Actor::propagateNodeBeamChangesToDef()
         case Keyword::WHEELS:
         {
             RigDef::Wheel wheel;
+            wheel.beam_defaults = beam_defaults;
+            wheel.node_defaults = node_defaults;
             // radius
             wheel.radius = ar_wheels[i].wh_radius;
             // rays
@@ -323,6 +325,8 @@ void Actor::propagateNodeBeamChangesToDef()
         case Keyword::WHEELS2:
         {
             RigDef::Wheel2 wheel;
+            wheel.beam_defaults = beam_defaults;
+            wheel.node_defaults = node_defaults;
             // radius
             wheel.rim_radius = ar_wheels[i].wh_rim_radius;
             wheel.tyre_radius = ar_wheels[i].wh_radius;
@@ -354,6 +358,8 @@ void Actor::propagateNodeBeamChangesToDef()
         case Keyword::MESHWHEELS:
         {
             RigDef::MeshWheel wheel;
+            wheel.beam_defaults = beam_defaults;
+            wheel.node_defaults = node_defaults;
             // radius
             wheel.rim_radius = ar_wheels[i].wh_rim_radius;
             wheel.tyre_radius = ar_wheels[i].wh_radius;
@@ -377,6 +383,8 @@ void Actor::propagateNodeBeamChangesToDef()
             wheel.side = ar_wheels[i].wh_arg_side;
             wheel.mesh_name = ar_wheels[i].wh_arg_media1;
             wheel.material_name = ar_wheels[i].wh_arg_media2;
+
+            m_used_actor_entry->actor_def->root_module->meshwheels.push_back(wheel);
             break;
         }
         case Keyword::MESHWHEELS2:
@@ -390,6 +398,7 @@ void Actor::propagateNodeBeamChangesToDef()
 
             RigDef::MeshWheel2 wheel;
             wheel.beam_defaults = beam_defaults;
+            wheel.node_defaults = node_defaults;
             // radius
             wheel.rim_radius = ar_wheels[i].wh_rim_radius;
             wheel.tyre_radius = ar_wheels[i].wh_radius;
@@ -413,6 +422,8 @@ void Actor::propagateNodeBeamChangesToDef()
             wheel.side = ar_wheels[i].wh_arg_side;
             wheel.mesh_name = ar_wheels[i].wh_arg_media1;
             wheel.material_name = ar_wheels[i].wh_arg_media2;
+
+            m_used_actor_entry->actor_def->root_module->meshwheels2.push_back(wheel);
             break;
         }
         case Keyword::FLEXBODYWHEELS:
@@ -425,6 +436,8 @@ void Actor::propagateNodeBeamChangesToDef()
             beam_defaults->breaking_threshold = -1;
 
             RigDef::FlexBodyWheel wheel;
+            wheel.beam_defaults = beam_defaults;
+            wheel.node_defaults = node_defaults;
             // radius
             wheel.rim_radius = ar_wheels[i].wh_rim_radius;
             wheel.tyre_radius = ar_wheels[i].wh_radius;
@@ -448,6 +461,8 @@ void Actor::propagateNodeBeamChangesToDef()
             wheel.side = ar_wheels[i].wh_arg_side;
             wheel.rim_mesh_name = ar_wheels[i].wh_arg_media1;
             wheel.tyre_mesh_name = ar_wheels[i].wh_arg_media2;
+
+            m_used_actor_entry->actor_def->root_module->flexbodywheels.push_back(wheel);
             break;
         }
         default:
