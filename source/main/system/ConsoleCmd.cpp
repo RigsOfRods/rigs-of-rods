@@ -684,6 +684,13 @@ void Console::doCommand(std::string msg)
         msg.erase(msg.begin());
     }
 
+    if (msg[0] == '!')
+    {
+        // Server commands - pass through to multiplayer chat
+        App::GetNetwork()->BroadcastChatMsg(msg.c_str());
+        return;
+    }
+
     Ogre::StringVector args = Ogre::StringUtil::split(msg, " ");
 
     auto found = m_commands.find(args[0]);
