@@ -494,7 +494,8 @@ public:
     float                   ar_nb_mass_scale = 1.f;         //!< Global mass scale (affects all nodes the same way)
     std::pair<float, float> ar_nb_beams_scale;        //!< Scales for springiness & damping of regular beams
     std::pair<float, float> ar_nb_shocks_scale;       //!< Scales for springiness & damping of shock beams
-    std::pair<float, float> ar_nb_wheels_scale;       //!< Scales for springiness & damping of wheel / rim beams
+    std::pair<float, float> ar_nb_wheels_scale;       //!< Scales for springiness & damping of wheel (/ rim) beams
+    std::pair<float, float> ar_nb_wheelrims_scale;       //!< Scales for springiness & damping of rim (tiretread) beams - only applicable to wheels2/meshwheels2/flexbodywheels
     std::pair<float, float> ar_nb_beams_d_interval;   //!< Search interval for springiness & damping of regular beams
     std::pair<float, float> ar_nb_beams_k_interval;   //!< Search interval for springiness & damping of regular beams
     std::pair<float, float> ar_nb_shocks_d_interval;  //!< Search interval for springiness & damping of shock beams
