@@ -51,7 +51,8 @@ enum class TokenType
     LINEBREAK,    // Input: LF (CR is ignored); Output: platform-specific.
     COMMENT,      // Line starting with ; (skipping whitespace). Data: offset in string pool.
     STRING,       // Quoted string. Data: offset in string pool.
-    NUMBER,       // Float.
+    FLOAT,
+    INT,
     BOOL,         // Lowercase 'true'/'false'. Data: 1.0 for true, 0.0 for false.
     KEYWORD,      // Unquoted string at start of line (skipping whitespace). Data: offset in string pool.
 };
@@ -113,12 +114,14 @@ struct GenericDocContext: public RefCountingObject<GenericDocContext>
 
     std::string getTokString(int offset = 0) const { ROR_ASSERT(isTokString(offset)); return getStringData(offset); }
     float getTokFloat(int offset = 0) const { ROR_ASSERT(isTokFloat(offset)); return getFloatData(offset); }
+    int getTokInt(int offset = 0) const { ROR_ASSERT(isTokInt(offset)); return (int)getFloatData(offset); }
     bool getTokBool(int offset = 0) const { ROR_ASSERT(isTokBool(offset)); return getFloatData(offset) == 1.f; }
     std::string getTokKeyword(int offset = 0) const { ROR_ASSERT(isTokKeyword(offset)); return getStringData(offset); }
     std::string getTokComment(int offset = 0) const { ROR_ASSERT(isTokComment(offset)); return getStringData(offset); }
 
     bool isTokString(int offset = 0) const { return tokenType(offset) == TokenType::STRING; }
-    bool isTokFloat(int offset = 0) const { return tokenType(offset) == TokenType::NUMBER; }
+    bool isTokFloat(int offset = 0) const { return tokenType(offset) == TokenType::FLOAT; }
+    bool isTokInt(int offset = 0) const { return tokenType(offset) == TokenType::INT; }
     bool isTokBool(int offset = 0) const { return tokenType(offset) == TokenType::BOOL; }
     bool isTokKeyword(int offset = 0) const { return tokenType(offset) == TokenType::KEYWORD; }
     bool isTokComment(int offset = 0) const { return tokenType(offset) == TokenType::COMMENT; }
@@ -132,13 +135,15 @@ struct GenericDocContext: public RefCountingObject<GenericDocContext>
 
     void appendTokString(const std::string& str) { appendTokens(1); setTokString(0, str); }
     void appendTokFloat(float val) { appendTokens(1); setTokFloat(0, val); }
+    void appendTokInt(int val) { appendTokens(1); setTokInt(0, val); }
     void appendTokBool(bool val) { appendTokens(1); setTokBool(0, val); }
     void appendTokKeyword(const std::string& str) { appendTokens(1); setTokKeyword(0, str); }
     void appendTokComment(const std::string& str) { appendTokens(1); setTokComment(0, str); }
     void appendTokLineBreak() { appendTokens(1); setTokLineBreak(0); }
 
     bool setTokString(int offset, const std::string& str) { return setStringData(offset, TokenType::STRING, str); }
-    bool setTokFloat(int offset, float val) { return setFloatData(offset, TokenType::NUMBER, val); }
+    bool setTokFloat(int offset, float val) { return setFloatData(offset, TokenType::FLOAT, val); }
+    bool setTokInt(int offset, int val) { return setFloatData(offset, TokenType::INT, val); }
     bool setTokBool(int offset, bool val) { return setFloatData(offset, TokenType::BOOL, val); }
     bool setTokKeyword(int offset, const std::string& str) { return setStringData(offset, TokenType::KEYWORD, str); }
     bool setTokComment(int offset, const std::string& str) { return setStringData(offset, TokenType::COMMENT, str); }
