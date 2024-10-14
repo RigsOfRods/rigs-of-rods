@@ -1727,6 +1727,22 @@ void Serializer::ProcessWheels(Document::Module* module)
 
     this->ResetPresets();
     m_stream << "wheels" << endl << endl;
+    m_stream << ";\t"
+        << setw(m_float_width) << "radius, "
+        << setw(m_float_width) << "width, "
+        << setw(3) << "nrays, "
+        << setw(m_node_id_width) << "n1, "
+        << setw(m_node_id_width) << "n2, "
+        << setw(m_node_id_width) << "snode, "
+        << setw(3) << "brk, "
+        << setw(3) << "pwr, "
+        << setw(m_node_id_width) << "arm, "
+        << setw(m_float_width) << "mass, "
+        << setw(m_float_width) << "spring, "
+        << setw(m_float_width) << "damp, "
+        << "facemat, "
+        << "bandmat";
+
     auto end_itor = module->wheels.end();
     for (auto itor = module->wheels.begin(); itor != end_itor; ++itor)
     {
@@ -1763,12 +1779,12 @@ void Serializer::ExportBaseMeshWheel(BaseMeshWheel& def)
     << setw(m_float_width)   << def.rim_radius                    << ", "
     << setw(m_float_width)   << def.width                         << ", "
     << setw(3)               << def.num_rays                      << ", "
-    << setw(m_node_id_width) << def.nodes[0].ToString()           << ", "
-    << setw(m_node_id_width) << def.nodes[1].ToString()           << ", "
-    << setw(m_node_id_width) << def.rigidity_node.ToString()      << ", "
+    << setw(m_node_id_width) << def.nodes[0].Str()           << ", "
+    << setw(m_node_id_width) << def.nodes[1].Str()           << ", "
+    << setw(m_node_id_width) << RigidityNodeToStr(def.rigidity_node) << ", "
     << setw(3)               << (int)def.braking                  << ", "
     << setw(3)               << (int)def.propulsion               << ", "
-    << setw(m_node_id_width) << def.reference_arm_node.ToString() << ", "
+    << setw(m_node_id_width) << def.reference_arm_node.Str() << ", "
     << setw(m_float_width)   << def.mass                          << ", "
     << setw(m_float_width)   << def.spring                        << ", "
     << setw(m_float_width)   << def.damping                       << ", "
