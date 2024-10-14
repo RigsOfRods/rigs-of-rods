@@ -41,10 +41,8 @@
 
 #include "Application.h"
 #include "BitFlags.h"
-#include "GfxData.h"
 #include "RigDef_Node.h"
 #include "SimConstants.h"
-#include "SimData.h"
 
 #include <list>
 #include <memory>
@@ -60,132 +58,6 @@ extern const char* ROOT_MODULE_NAME;
 
 // --------------------------------
 // Enums which only carry value
-
-// IMPORTANT! If you add a value here, you must also modify Regexes::IDENTIFY_KEYWORD, it relies on numeric values of this enum.
-enum class Keyword
-{
-    INVALID = 0,
-
-    ADD_ANIMATION = 1,
-    AIRBRAKES,
-    ANIMATORS,
-    ANTILOCKBRAKES,
-    ASSETPACKS,
-    AUTHOR,
-    AXLES,
-    BACKMESH,
-    BEAMS,
-    BRAKES,
-    CAB,
-    CAMERARAIL,
-    CAMERAS,
-    CINECAM,
-    COLLISIONBOXES,
-    COMMANDS,
-    COMMANDS2,
-    COMMENT,
-    CONTACTERS,
-    CRUISECONTROL,
-    DEFAULT_SKIN,
-    DESCRIPTION,
-    DETACHER_GROUP,
-    DISABLEDEFAULTSOUNDS,
-    ENABLE_ADVANCED_DEFORMATION,
-    END,
-    END_COMMENT,
-    END_DESCRIPTION,
-    END_SECTION,
-    ENGINE,
-    ENGOPTION,
-    ENGTURBO,
-    ENVMAP,
-    EXHAUSTS,
-    EXTCAMERA,
-    FILEFORMATVERSION,
-    FILEINFO,
-    FIXES,
-    FLARES,
-    FLARES2,
-    FLARES3,
-    FLEXBODIES,
-    FLEXBODY_CAMERA_MODE,
-    FLEXBODYWHEELS,
-    FORSET,
-    FORWARDCOMMANDS,
-    FUSEDRAG,
-    GLOBALS,
-    GUID,
-    GUISETTINGS,
-    HELP,
-    HIDEINCHOOSER,
-    HOOKGROUP, // obsolete, ignored
-    HOOKS,
-    HYDROS,
-    IMPORTCOMMANDS,
-    INTERAXLES,
-    LOCKGROUPS,
-    LOCKGROUP_DEFAULT_NOLOCK,
-    MANAGEDMATERIALS,
-    MATERIALFLAREBINDINGS,
-    MESHWHEELS,
-    MESHWHEELS2,
-    MINIMASS,
-    NODECOLLISION, // obsolete
-    NODES,
-    NODES2,
-    PARTICLES,
-    PISTONPROPS,
-    PROP_CAMERA_MODE,
-    PROPS,
-    RAILGROUPS,
-    RESCUER,
-    RIGIDIFIERS, // obsolete
-    ROLLON,
-    ROPABLES,
-    ROPES,
-    ROTATORS,
-    ROTATORS2,
-    SCREWPROPS,
-    SCRIPTS,
-    SECTION,
-    SECTIONCONFIG,
-    SET_BEAM_DEFAULTS,
-    SET_BEAM_DEFAULTS_SCALE,
-    SET_COLLISION_RANGE,
-    SET_DEFAULT_MINIMASS,
-    SET_INERTIA_DEFAULTS,
-    SET_MANAGEDMATERIALS_OPTIONS,
-    SET_NODE_DEFAULTS,
-    SET_SHADOWS,
-    SET_SKELETON_SETTINGS,
-    SHOCKS,
-    SHOCKS2,
-    SHOCKS3,
-    SLIDENODE_CONNECT_INSTANTLY,
-    SLIDENODES,
-    SLOPE_BRAKE,
-    SOUNDSOURCES,
-    SOUNDSOURCES2,
-    SPEEDLIMITER,
-    SUBMESH,
-    SUBMESH_GROUNDMODEL,
-    TEXCOORDS,
-    TIES,
-    TORQUECURVE,
-    TRACTIONCONTROL,
-    TRANSFERCASE,
-    TRIGGERS,
-    TURBOJETS,
-    TURBOPROPS,
-    TURBOPROPS2,
-    VIDEOCAMERA,
-    WHEELDETACHERS,
-    WHEELS,
-    WHEELS2,
-    WINGS
-};
-
-const char* KeywordToString(Keyword keyword);
 
 enum class SpecialProp
 {
@@ -236,22 +108,6 @@ enum class MinimassOption: char
 {
     n_DUMMY                  = 'n',
     l_SKIP_LOADED            = 'l'  //!< Only apply minimum mass to nodes without "L" option.
-};
-
-enum class WheelBraking: int
-{
-    NONE                     = 0,
-    FOOT_HAND                = 1,
-    FOOT_HAND_SKID_LEFT      = 2,
-    FOOT_HAND_SKID_RIGHT     = 3,
-    FOOT_ONLY                = 4,
-};
-
-enum class WheelPropulsion: int
-{
-    NONE                     = 0,
-    FORWARD                  = 1,
-    BACKWARD                 = 2,
 };
 
 enum class WingControlSurface: char
@@ -411,8 +267,8 @@ struct BaseWheel
     unsigned int num_rays = 0u;
     Node::Ref nodes[2];
     Node::Ref rigidity_node;
-    WheelBraking braking = WheelBraking::NONE;
-    WheelPropulsion propulsion = WheelPropulsion::NONE;
+    RoR::WheelBraking braking = RoR::WheelBraking::NONE;
+    RoR::WheelPropulsion propulsion = RoR::WheelPropulsion::NONE;
     Node::Ref reference_arm_node;
     float mass = 0.f;
     std::shared_ptr<NodeDefaults> node_defaults;

@@ -2915,7 +2915,7 @@ Node::Ref Parser::GetArgRigidityNode(int index)
     return Node::Ref(); // Defaults to invalid ref
 }
 
-WheelPropulsion Parser::GetArgPropulsion(int index)
+RoR::WheelPropulsion Parser::GetArgPropulsion(int index)
 {
     int p = this->GetArgInt(index);
     switch (p)
@@ -2932,7 +2932,7 @@ WheelPropulsion Parser::GetArgPropulsion(int index)
     }
 }
 
-WheelBraking Parser::GetArgBraking(int index)
+RoR::WheelBraking Parser::GetArgBraking(int index)
 {
     int b = this->GetArgInt(index);
     switch (b)

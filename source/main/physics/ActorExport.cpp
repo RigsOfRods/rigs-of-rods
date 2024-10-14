@@ -1,4 +1,26 @@
+/*
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2024 Petr Ohlidal
+
+    For more information, see http://www.rigsofrods.org/
+
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
+
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "Actor.h"
+#include "Application.h"
 #include "CacheSystem.h"
 #include "GameContext.h"
 #include "RigDef_File.h"
@@ -10,6 +32,11 @@ using namespace RigDef;
 
 static RigDef::Node::Ref BuildNodeRef(Actor* actor, NodeNum_t n)
 {
+    if (n == NODENUM_INVALID)
+    {
+        return RigDef::Node::Ref();
+    }
+
     const BitMask_t nodeflags = RigDef::Node::Ref::REGULAR_STATE_IS_VALID;
     if (actor->ar_nodes_name[n] != "")
     {
@@ -75,6 +102,11 @@ void Actor::propagateNodeBeamChangesToDef()
     m_used_actor_entry->actor_def->root_module->nodes.clear();
     m_used_actor_entry->actor_def->root_module->beams.clear();
     m_used_actor_entry->actor_def->root_module->cinecam.clear();
+    m_used_actor_entry->actor_def->root_module->wheels.clear();
+    m_used_actor_entry->actor_def->root_module->wheels2.clear();
+    m_used_actor_entry->actor_def->root_module->meshwheels.clear();
+    m_used_actor_entry->actor_def->root_module->meshwheels2.clear();
+    m_used_actor_entry->actor_def->root_module->flexbodywheels.clear();
 
     // Prepare 'set_node_defaults' with builtin values.
     auto node_defaults = std::shared_ptr<NodeDefaults>(new NodeDefaults); // comes pre-filled
@@ -251,6 +283,177 @@ void Actor::propagateNodeBeamChangesToDef()
 
         // Submit the cinecam
         m_used_actor_entry->actor_def->root_module->cinecam.push_back(cinecam);
+    }
+
+    // ~~~ Wheels ~~~
+    for (int i = 0; i < ar_num_wheels; i++)
+    {
+        // PLEASE maintain the same order of arguments as the docs: https://docs.rigsofrods.org/vehicle-creation/fileformat-truck/#vehicle-specific
+
+        switch (ar_wheels[i].wh_arg_keyword)
+        {
+        case Keyword::WHEELS:
+        {
+            RigDef::Wheel wheel;
+            // radius
+            wheel.radius = ar_wheels[i].wh_radius;
+            // rays
+            wheel.num_rays = ar_wheels[i].wh_arg_num_rays;
+            // nodes
+            wheel.nodes[0] = BuildNodeRef(this, ar_wheels[i].wh_axis_node_0->pos);
+            wheel.nodes[1] = BuildNodeRef(this, ar_wheels[i].wh_axis_node_1->pos);
+            wheel.rigidity_node = BuildNodeRef(this, ar_wheels[i].wh_arg_rigidity_node);
+            // braking, propulsion
+            wheel.braking = ar_wheels[i].wh_braking;
+            wheel.propulsion = ar_wheels[i].wh_propulsed;
+            // arm node
+            wheel.reference_arm_node = BuildNodeRef(this, (ar_wheels[i].wh_arm_node ? ar_wheels[i].wh_arm_node->pos : NODENUM_INVALID));
+            // mass
+            wheel.mass = ar_wheels[i].wh_mass;
+            // springiness, damping
+            wheel.springiness = ar_wheels[i].wh_arg_simple_spring;
+            wheel.damping = ar_wheels[i].wh_arg_simple_damping;
+            // materials
+            wheel.face_material_name = ar_wheels[i].wh_arg_media1;
+            wheel.band_material_name = ar_wheels[i].wh_arg_media2;
+
+            m_used_actor_entry->actor_def->root_module->wheels.push_back(wheel);
+            break;
+        }
+        case Keyword::WHEELS2:
+        {
+            RigDef::Wheel2 wheel;
+            // radius
+            wheel.rim_radius = ar_wheels[i].wh_rim_radius;
+            wheel.tyre_radius = ar_wheels[i].wh_radius;
+            // rays
+            wheel.num_rays = ar_wheels[i].wh_arg_num_rays;
+            // nodes
+            wheel.nodes[0] = BuildNodeRef(this, ar_wheels[i].wh_axis_node_0->pos);
+            wheel.nodes[1] = BuildNodeRef(this, ar_wheels[i].wh_axis_node_1->pos);
+            wheel.rigidity_node = BuildNodeRef(this, ar_wheels[i].wh_arg_rigidity_node);
+            // braking, propulsion
+            wheel.braking = ar_wheels[i].wh_braking;
+            wheel.propulsion = ar_wheels[i].wh_propulsed;
+            // arm node
+            wheel.reference_arm_node = BuildNodeRef(this, (ar_wheels[i].wh_arm_node ? ar_wheels[i].wh_arm_node->pos : NODENUM_INVALID));
+            // mass
+            wheel.mass = ar_wheels[i].wh_mass;
+            // springiness, damping
+            wheel.rim_springiness = ar_wheels[i].wh_arg_rim_spring;
+            wheel.rim_damping = ar_wheels[i].wh_arg_rim_damping;
+            wheel.tyre_springiness = ar_wheels[i].wh_arg_simple_spring;
+            wheel.tyre_damping = ar_wheels[i].wh_arg_simple_damping;
+            // materials
+            wheel.face_material_name = ar_wheels[i].wh_arg_media1;
+            wheel.band_material_name = ar_wheels[i].wh_arg_media2;
+
+            m_used_actor_entry->actor_def->root_module->wheels2.push_back(wheel);
+            break;
+        }
+        case Keyword::MESHWHEELS:
+        {
+            RigDef::MeshWheel wheel;
+            // radius
+            wheel.rim_radius = ar_wheels[i].wh_rim_radius;
+            wheel.tyre_radius = ar_wheels[i].wh_radius;
+            // rays
+            wheel.num_rays = ar_wheels[i].wh_arg_num_rays;
+            // nodes
+            wheel.nodes[0] = BuildNodeRef(this, ar_wheels[i].wh_axis_node_0->pos);
+            wheel.nodes[1] = BuildNodeRef(this, ar_wheels[i].wh_axis_node_1->pos);
+            wheel.rigidity_node = BuildNodeRef(this, ar_wheels[i].wh_arg_rigidity_node);
+            // braking, propulsion
+            wheel.braking = ar_wheels[i].wh_braking;
+            wheel.propulsion = ar_wheels[i].wh_propulsed;
+            // arm node
+            wheel.reference_arm_node = BuildNodeRef(this, (ar_wheels[i].wh_arm_node ? ar_wheels[i].wh_arm_node->pos : NODENUM_INVALID));
+            // mass
+            wheel.mass = ar_wheels[i].wh_mass;
+            // springiness, damping
+            wheel.spring = ar_wheels[i].wh_arg_simple_spring;
+            wheel.damping = ar_wheels[i].wh_arg_simple_damping;
+            // media
+            wheel.side = ar_wheels[i].wh_arg_side;
+            wheel.mesh_name = ar_wheels[i].wh_arg_media1;
+            wheel.material_name = ar_wheels[i].wh_arg_media2;
+            break;
+        }
+        case Keyword::MESHWHEELS2:
+        {
+            // Update 'set_beam_defaults' (these define rim params)
+            beam_defaults = std::shared_ptr<BeamDefaults>(new BeamDefaults);
+            beam_defaults->springiness = ar_wheels[i].wh_arg_rim_spring;
+            beam_defaults->damping_constant = ar_wheels[i].wh_arg_rim_damping;
+            beam_defaults->deformation_threshold = -1;
+            beam_defaults->breaking_threshold = -1;
+
+            RigDef::MeshWheel2 wheel;
+            wheel.beam_defaults = beam_defaults;
+            // radius
+            wheel.rim_radius = ar_wheels[i].wh_rim_radius;
+            wheel.tyre_radius = ar_wheels[i].wh_radius;
+            // rays
+            wheel.num_rays = ar_wheels[i].wh_arg_num_rays;
+            // nodes
+            wheel.nodes[0] = BuildNodeRef(this, ar_wheels[i].wh_axis_node_0->pos);
+            wheel.nodes[1] = BuildNodeRef(this, ar_wheels[i].wh_axis_node_1->pos);
+            wheel.rigidity_node = BuildNodeRef(this, ar_wheels[i].wh_arg_rigidity_node);
+            // braking, propulsion
+            wheel.braking = ar_wheels[i].wh_braking;
+            wheel.propulsion = ar_wheels[i].wh_propulsed;
+            // arm node
+            wheel.reference_arm_node = BuildNodeRef(this, (ar_wheels[i].wh_arm_node ? ar_wheels[i].wh_arm_node->pos : NODENUM_INVALID));
+            // mass
+            wheel.mass = ar_wheels[i].wh_mass;
+            // springiness, damping
+            wheel.spring = ar_wheels[i].wh_arg_simple_spring;
+            wheel.damping = ar_wheels[i].wh_arg_simple_damping;
+            // media
+            wheel.side = ar_wheels[i].wh_arg_side;
+            wheel.mesh_name = ar_wheels[i].wh_arg_media1;
+            wheel.material_name = ar_wheels[i].wh_arg_media2;
+            break;
+        }
+        case Keyword::FLEXBODYWHEELS:
+        {
+            // Update 'set_beam_defaults' (these define rim params)
+            beam_defaults = std::shared_ptr<BeamDefaults>(new BeamDefaults);
+            beam_defaults->springiness = ar_wheels[i].wh_arg_rim_spring;
+            beam_defaults->damping_constant = ar_wheels[i].wh_arg_rim_damping;
+            beam_defaults->deformation_threshold = -1;
+            beam_defaults->breaking_threshold = -1;
+
+            RigDef::FlexBodyWheel wheel;
+            // radius
+            wheel.rim_radius = ar_wheels[i].wh_rim_radius;
+            wheel.tyre_radius = ar_wheels[i].wh_radius;
+            // rays
+            wheel.num_rays = ar_wheels[i].wh_arg_num_rays;
+            // nodes
+            wheel.nodes[0] = BuildNodeRef(this, ar_wheels[i].wh_axis_node_0->pos);
+            wheel.nodes[1] = BuildNodeRef(this, ar_wheels[i].wh_axis_node_1->pos);
+            wheel.rigidity_node = BuildNodeRef(this, ar_wheels[i].wh_arg_rigidity_node);
+            // braking, propulsion
+            wheel.braking = ar_wheels[i].wh_braking;
+            wheel.propulsion = ar_wheels[i].wh_propulsed;
+            // arm node
+            wheel.reference_arm_node = BuildNodeRef(this, (ar_wheels[i].wh_arm_node ? ar_wheels[i].wh_arm_node->pos : NODENUM_INVALID));
+            // mass
+            wheel.mass = ar_wheels[i].wh_mass;
+            // springiness, damping
+            wheel.rim_springiness = ar_wheels[i].wh_arg_simple_spring;
+            wheel.rim_damping = ar_wheels[i].wh_arg_simple_damping;
+            // media
+            wheel.side = ar_wheels[i].wh_arg_side;
+            wheel.rim_mesh_name = ar_wheels[i].wh_arg_media1;
+            wheel.tyre_mesh_name = ar_wheels[i].wh_arg_media2;
+            break;
+        }
+        default:
+            ROR_ASSERT(false);
+            break;
+        }
     }
 
     // ~~~ Globals (update in-place) ~~~
