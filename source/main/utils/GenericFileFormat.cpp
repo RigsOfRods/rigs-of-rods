@@ -916,7 +916,14 @@ void DocumentParser::FlushStringishToken(RoR::TokenType type)
 void DocumentParser::FlushNumericToken()
 {
     tok.push_back('\0');
-    doc.tokens.push_back({ TokenType::NUMBER, (float)Ogre::StringConverter::parseReal(tok.data()) });
+    if (partial_tok_type == PartialToken::NUMBER_INTEGER)
+    {
+        doc.tokens.push_back({ TokenType::INT, (float)Ogre::StringConverter::parseInt(tok.data()) });
+    }
+    else
+    {
+        doc.tokens.push_back({ TokenType::FLOAT, (float)Ogre::StringConverter::parseReal(tok.data()) });
+    }
     tok.clear();
     partial_tok_type = PartialToken::NONE;
 }
@@ -1057,9 +1064,16 @@ void GenericDocument::saveToDataStream(Ogre::DataStreamPtr datastream)
             separator = ",";
             break;
 
-        case TokenType::NUMBER:
+        case TokenType::FLOAT:
             datastream->write(separator.data(), separator.size());
             snprintf(buf, BUF_MAX, "%f", tok.data);
+            datastream->write(buf, strlen(buf));
+            separator = ",";
+            break;
+
+        case TokenType::INT:
+            datastream->write(separator.data(), separator.size());
+            snprintf(buf, BUF_MAX, "%d", (int)tok.data);
             datastream->write(buf, strlen(buf));
             separator = ",";
             break;
