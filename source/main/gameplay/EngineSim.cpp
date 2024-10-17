@@ -1455,24 +1455,46 @@ void EngineSim::UpdateInputEvents(float dt)
         // one can select range only if in neutral
         if (shiftmode == SimGearboxMode::MANUAL_RANGES && curgear == 0)
         {
-            //  maybe this should not be here, but should experiment
             if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_LOWRANGE) && curgearrange != 0)
             {
                 this->SetGearRange(0);
                 gear_changed = true;
-                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Low range selected"), "cog.png");
             }
             else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_MIDRANGE) && curgearrange != 1 && this->getNumGearsRanges() > 1)
             {
                 this->SetGearRange(1);
                 gear_changed = true;
-                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Mid range selected"), "cog.png");
             }
             else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_HIGHRANGE) && curgearrange != 2 && this->getNumGearsRanges() > 2)
             {
                 this->SetGearRange(2);
                 gear_changed = true;
-                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("High range selected"), "cog.png");
+            }
+            else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_CYCLE_GEAR_RANGES))
+            {
+                this->SetGearRange((curgearrange + 1) % this->getNumGearsRanges());
+                gear_changed = true;
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                    fmt::format(_L("Range cycled (current: {}/available: {})"),
+                        this->GetGearRange(), this->getNumGearsRanges()), "cog.png");
+            }
+
+            if (gear_changed)
+            {
+                switch (this->GetGearRange())
+                {
+                case 0:
+                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Low range selected"), "cog.png");
+                    break;
+                case 1:
+                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("Mid range selected"), "cog.png");
+                    break;
+                case 2:
+                    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, _L("High range selected"), "cog.png");
+                    break;
+                default:
+                    break;
+                }
             }
         }
         //zaxxon

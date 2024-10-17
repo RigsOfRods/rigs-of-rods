@@ -197,6 +197,7 @@ InputEvent eventInfo[] = {
     {"TRUCK_SHIFT_LOWRANGE",          EV_TRUCK_SHIFT_LOWRANGE,          "",                             _LC("InputEvent", "sets low range (1-6) for H-shaft")},
     {"TRUCK_SHIFT_MIDRANGE",          EV_TRUCK_SHIFT_MIDRANGE,          "",                             _LC("InputEvent", "sets middle range (7-12) for H-shaft")},
     {"TRUCK_SHIFT_HIGHRANGE",         EV_TRUCK_SHIFT_HIGHRANGE,         "",                             _LC("InputEvent", "sets high range (13-18) for H-shaft")},
+    {"TRUCK_CYCLE_GEAR_RANGES",       EV_TRUCK_CYCLE_GEAR_RANGES,       "",                             _LC("InputEvent", "cycle through gear ranges") },
     {"TRUCK_SWITCH_SHIFT_MODES",      EV_TRUCK_SWITCH_SHIFT_MODES,      "Keyboard Q",                   _LC("InputEvent", "toggle between transmission modes")},
 
     // Airplane
