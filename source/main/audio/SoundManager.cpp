@@ -402,7 +402,7 @@ void SoundManager::updateListenerEffectSlot(const float dt_sec)
         {
             // smoothly pan from the current properties to the target properties over several timesteps (frames)
             const float time_to_target = 0.100f; // seconds to reach the target properties from the current properties
-            const float step = dt_sec / time_to_target;
+            const float step = std::min(dt_sec / time_to_target, 1.0f);
             static std::tuple<Ogre::Vector3, float, float> target_early_reflections_properties;
             static std::tuple<Ogre::Vector3, float, float> current_early_reflections_properties =
                 std::make_tuple(Ogre::Vector3(efx_properties_map[listener_efx_preset_name].flReflectionsPan[0],
