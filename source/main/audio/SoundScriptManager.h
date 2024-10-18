@@ -31,6 +31,12 @@
 
 #include <OgreScriptLoader.h>
 
+#ifdef __APPLE__
+  #include <OpenAL/efx-presets.h>
+#else
+  #include <AL/efx-presets.h>
+#endif
+
 #define SOUND_PLAY_ONCE(_ACTOR_, _TRIG_)        App::GetSoundScriptManager()->trigOnce    ( (_ACTOR_), (_TRIG_) )
 #define SOUND_START(_ACTOR_, _TRIG_)            App::GetSoundScriptManager()->trigStart   ( (_ACTOR_), (_TRIG_) )
 #define SOUND_STOP(_ACTOR_, _TRIG_)             App::GetSoundScriptManager()->trigStop    ( (_ACTOR_), (_TRIG_) )
@@ -326,12 +332,23 @@ public:
 
     void setEnabled(bool state);
 
-    void setCamera(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
+    void SetDopplerFactor(float doppler_factor);
+    void SetListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
     void setLoadingBaseSounds(bool value) { loading_base = value; };
 
     bool isDisabled() { return disabled; }
 
     void update(float dt_sec);
+
+    /**
+     * @return True if the listener position is below water level. False otherwise.
+     */
+    bool ListenerIsUnderwater() const { return m_listener_is_underwater; }
+
+    /**
+     * @return True if the listener position is inside the AABB of the actor the player character is coupled to. False otherwise.
+     */
+    bool ListenerIsInsideThePlayerCoupledActor() const { return m_listener_is_inside_the_player_coupled_actor; }
 
     SoundManager* getSoundManager() { return sound_manager; }
 
@@ -343,6 +360,8 @@ private:
 
     bool disabled;
     bool loading_base;
+    bool m_listener_is_underwater = false;
+    bool m_listener_is_inside_the_player_coupled_actor = false;
     float max_distance;
     float reference_distance;
     float rolloff_factor;
@@ -365,6 +384,14 @@ private:
     // state map
     // soundLinks, soundItems, actor_ids, triggers
     std::map <int, std::map <int, std::map <int, std::map <int, bool > > > > state_map;
+
+    /**
+     * Determines which environment in terms of reverb corresponds to the provided position and returns
+     * its properties.
+     * @return Reverb properties for the provided position.
+     */
+    const EFXEAXREVERBPROPERTIES* GetReverbPresetAt(Ogre::Vector3 position) const;
+    void SetListenerEnvironment(Ogre::Vector3 position);
 
     SoundManager* sound_manager;
 };

@@ -933,7 +933,8 @@ int main(int argc, char *argv[])
                         App::sim_terrain_name->setStr("");
                         App::sim_terrain_gui_name->setStr("");
                         App::GetOutGauge()->Close();
-                        App::GetSoundScriptManager()->setCamera(/*position:*/Ogre::Vector3::ZERO, /*direction:*/Ogre::Vector3::ZERO, /*up:*/Ogre::Vector3::UNIT_Y, /*velocity:*/Ogre::Vector3::ZERO);
+                        App::GetSoundScriptManager()->SetListener(/*position:*/Ogre::Vector3::ZERO, /*direction:*/Ogre::Vector3::ZERO, /*up:*/Ogre::Vector3::UNIT_Y, /*velocity:*/Ogre::Vector3::ZERO);
+                        App::GetSoundScriptManager()->getSoundManager()->CleanUp();
                     }
                     catch (...)
                     {
@@ -1578,6 +1579,16 @@ int main(int argc, char *argv[])
                         HandleMsgQueueException(m.type);
                     }
                     delete entry_ptr;
+                    break;
+                }
+
+                // -- Audio events --
+                case MSG_AUD_MODIFY_DOPPLER_FACTOR_REQUESTED:
+                {
+                    float* doppler_factor_ptr = static_cast<float*>(m.payload);
+                    LOG(fmt::format("Changing doppler factor to '{}' (from message bus)", *doppler_factor_ptr));
+                    App::GetSoundScriptManager()->getSoundManager()->SetDopplerFactor(*doppler_factor_ptr);
+                    delete doppler_factor_ptr;
                     break;
                 }
 

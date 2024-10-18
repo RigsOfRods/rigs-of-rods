@@ -668,6 +668,24 @@ std::pair<bool, Ogre::Real> Collisions::intersectsTris(Ogre::Ray ray)
     return std::make_pair(false, 0.0f);
 }
 
+std::pair<bool, Ogre::Real> Collisions::intersectsTerrain(Ogre::Ray ray, const Ogre::Real distance_limit, const Ogre::Real step_size)
+{
+    ray.setDirection(ray.getDirection().normalisedCopy());
+
+    for (Ogre::Real distance = Ogre::Real(0); distance < distance_limit; distance += step_size)
+    {
+        Ogre::Vector3 position = ray.getPoint(distance);
+        Ogre::Real terrain_height = App::GetGameContext()->GetTerrain()->GetHeightAt(position.x, position.z);
+
+        if (terrain_height > position.y)
+        {
+            return std::make_pair(true, distance);
+        }
+    }
+
+    return std::make_pair(false, 0.0f);
+}
+
 float Collisions::getSurfaceHeight(float x, float z)
 {
     return getSurfaceHeightBelow(x, z, std::numeric_limits<float>::max());
