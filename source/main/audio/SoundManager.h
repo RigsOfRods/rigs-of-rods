@@ -72,14 +72,14 @@ public:
     /** Returns the position vector of the listener
      * @return listener position vector
      */
-    Ogre::Vector3 getListenerPosition() const { return listener_position; }
+    Ogre::Vector3 GetListenerPosition() const { return m_listener_position; }
 
     /**
      * Does the per-frame update of sounds and listener environment. With the help of other functions it
      * determines and then submits the current state of the audio world to OpenAL.
      * @param dt_sec Time since last frame in seconds
      */
-    void update(const float dt_sec);
+    void Update(const float dt_sec);
 
     /**
       * Sets position and speed of the listener
@@ -88,14 +88,14 @@ public:
       * @param up This direction vector specifies where the top of the head of the listener is pointing to.
       * @param velocity The movement speed of the listener in each dimension.
       */
-    void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
+    void SetListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
 
     /**
      * Updates the EFX/EAX reverb preset that is used as a base for updating the listener's effect slot.
      * @param listener_environment The preset that will be used for the listener environment.
-     * @see updateListenerEffectSlot()
+     * @see UpdateListenerEffectSlot()
      */
-    void setListenerEnvironment(const EFXEAXREVERBPROPERTIES* listener_efx_reverb_properties);
+    void SetListenerEnvironment(const EFXEAXREVERBPROPERTIES* listener_efx_reverb_properties);
 
     /**
      * Unlike the name suggests, this sets the listener's gain to 0, essentially muting all sounds.
@@ -118,25 +118,25 @@ public:
     /**
      * @return The value of AL_SPEED_OF_SOUND as currently set in OpenAL.
      */
-    float getSpeedOfSound() const { return alGetFloat(AL_SPEED_OF_SOUND); }
+    float GetSpeedOfSound() const { return alGetFloat(AL_SPEED_OF_SOUND); }
 
     /**
      * Updates the speed of sound in OpenAL with the provided value.
      * This value should based on RoR units for correct results.
      * @param speed_of_sound Speed of sound within the range of AL_SPEED_OF_SOUND.
      */
-    void setSpeedOfSound(const float speed_of_sound) const { alSpeedOfSound(speed_of_sound); }
+    void SetSpeedOfSound(const float speed_of_sound) const { alSpeedOfSound(speed_of_sound); }
 
     /**
      * @return The value of AL_DOPPLER_FACTOR as currently set in OpenAL.
      */
-    float getDopplerFactor() const { return alGetFloat(AL_DOPPLER_FACTOR); }
+    float GetDopplerFactor() const { return alGetFloat(AL_DOPPLER_FACTOR); }
 
     /**
      * Updates the doppler factor in OpenAL with the provided value.
      * @param doppler_factor Doppler factor within the range of AL_DOPPLER_FACTOR.
      */
-    void setDopplerFactor(const float doppler_factor) const { alDopplerFactor(doppler_factor); }
+    void SetDopplerFactor(const float doppler_factor) const { alDopplerFactor(doppler_factor); }
 
     /**
      * Returns the number of currently used hardware sources. In a typical scenario,
@@ -149,7 +149,7 @@ public:
     * Returns currently registered EFX presets
     * @return Map of EFX Preset names to their EFXEAXREVERBPROPERTIES object.
     */
-    const std::map<std::string, EFXEAXREVERBPROPERTIES>& getEfxPropertiesMap() const { return efx_properties_map; }
+    const std::map<std::string, EFXEAXREVERBPROPERTIES>& getEfxPropertiesMap() const { return m_efx_properties_map; }
 
     /**
      * Returns a pointer to properties of an EFX preset stored in the EFX properties map.
@@ -168,9 +168,9 @@ public:
 private:
     /**
      * Updates the listener's position, orientation and velocity vectors in OpenAL.
-     * @see setListener()
+     * @see SetListener()
      */
-    void updateAlListener();
+    void UpdateAlListener();
     void recomputeAllSources();
 
     /**
@@ -221,21 +221,21 @@ private:
     ALuint       audio_buffers[MAX_AUDIO_BUFFERS];
     Ogre::String audio_buffer_file_name[MAX_AUDIO_BUFFERS];
 
-    Ogre::Vector3 listener_position = Ogre::Vector3::ZERO;
-    Ogre::Vector3 listener_direction = Ogre::Vector3::ZERO;
-    Ogre::Vector3 listener_up = Ogre::Vector3::ZERO;
-    Ogre::Vector3 listener_velocity = Ogre::Vector3::ZERO;
+    Ogre::Vector3 m_listener_position = Ogre::Vector3::ZERO;
+    Ogre::Vector3 m_listener_direction = Ogre::Vector3::ZERO;
+    Ogre::Vector3 m_listener_up = Ogre::Vector3::ZERO;
+    Ogre::Vector3 m_listener_velocity = Ogre::Vector3::ZERO;
     ALCdevice*    audio_device = nullptr;
     ALCcontext*   sound_context = nullptr;
 
     // OpenAL EFX stuff
-    bool                                            efx_is_available = false;
-    ALuint                                          listener_slot = 0;
-    ALuint                                          efx_outdoor_obstruction_lowpass_filter_id = 0;
-    EfxReverbEngine                                 efx_reverb_engine = EfxReverbEngine::NONE;
-    const EFXEAXREVERBPROPERTIES*                   listener_efx_reverb_properties = nullptr;
-    std::map<std::string, EFXEAXREVERBPROPERTIES>   efx_properties_map;
-    std::map<const EFXEAXREVERBPROPERTIES*, ALuint> efx_effect_id_map;
+    bool                                            m_efx_is_available = false;
+    ALuint                                          m_listener_slot = 0;
+    ALuint                                          m_efx_outdoor_obstruction_lowpass_filter_id = 0;
+    EfxReverbEngine                                 m_efx_reverb_engine = EfxReverbEngine::NONE;
+    const EFXEAXREVERBPROPERTIES*                   m_listener_efx_reverb_properties = nullptr;
+    std::map<std::string, EFXEAXREVERBPROPERTIES>   m_efx_properties_map;
+    std::map<const EFXEAXREVERBPROPERTIES*, ALuint> m_efx_effect_id_map;
     LPALGENEFFECTS                                  alGenEffects = nullptr;
     LPALDELETEEFFECTS                               alDeleteEffects = nullptr;
     LPALISEFFECT                                    alIsEffect = nullptr;
@@ -268,19 +268,19 @@ private:
     void    DeleteAlEffect(const ALuint efx_effect_id) const;
 
     /**
-     * Helper function that fills the efx_properties_map with presets provided by
+     * Helper function that fills the m_efx_properties_map with presets provided by
      * OpenAL's efx-presets.h header.
      */
-    void    prepopulate_efx_property_map();
+    void    PrepopulateEfxPropertiesMap();
 
     /**
      * Dynamically adjusts some parameters of the currently active reverb preset based
      * on the current environment of the listener. It works on the AL effect correspondig
-     * to a reverb preset, i.e. the original preset in efx_properties_map remains unchanged.
+     * to a reverb preset, i.e. the original preset in m_efx_properties_map remains unchanged.
      * Finally, it updates the AL listener's effect slot with the adjusted preset.
      * @param dt_sec Time since last frame in seconds
      */
-    void    updateListenerEffectSlot(const float dt_sec);
+    void    UpdateListenerEffectSlot(const float dt_sec);
 
     /**
       * Detects surfaces close to the listener and calculates a user-relative (as opposed to listener-relative)
@@ -288,7 +288,7 @@ private:
       * on surface distance.
       * @return A tuple of user-relative panning vector, gain and delay for early reflections
       */
-    std::tuple<Ogre::Vector3, float, float> calculateEarlyReflectionsProperties() const;
+    std::tuple<Ogre::Vector3, float, float> ComputeEarlyReflectionsProperties() const;
 
     /**
      *   Applies an obstruction filter to the provided source if certain conditions apply.
@@ -296,7 +296,7 @@ private:
      *   various checks against the environment of the listener.
      *   @param hardware_souce The index of the hardware source.
      */
-    void    updateObstructionFilter(const ALuint hardware_source) const;
+    void    UpdateObstructionFilter(const ALuint hardware_source) const;
 };
 
 /// @}

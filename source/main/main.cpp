@@ -933,7 +933,7 @@ int main(int argc, char *argv[])
                         App::sim_terrain_name->setStr("");
                         App::sim_terrain_gui_name->setStr("");
                         App::GetOutGauge()->Close();
-                        App::GetSoundScriptManager()->setListener(/*position:*/Ogre::Vector3::ZERO, /*direction:*/Ogre::Vector3::ZERO, /*up:*/Ogre::Vector3::UNIT_Y, /*velocity:*/Ogre::Vector3::ZERO);
+                        App::GetSoundScriptManager()->SetListener(/*position:*/Ogre::Vector3::ZERO, /*direction:*/Ogre::Vector3::ZERO, /*up:*/Ogre::Vector3::UNIT_Y, /*velocity:*/Ogre::Vector3::ZERO);
                         App::GetSoundScriptManager()->getSoundManager()->CleanUp();
                     }
                     catch (...)
@@ -1587,7 +1587,7 @@ int main(int argc, char *argv[])
                 {
                     float* doppler_factor_ptr = static_cast<float*>(m.payload);
                     LOG(fmt::format("Changing doppler factor to '{}' (from message bus)", *doppler_factor_ptr));
-                    App::GetSoundScriptManager()->getSoundManager()->setDopplerFactor(*doppler_factor_ptr);
+                    App::GetSoundScriptManager()->getSoundManager()->SetDopplerFactor(*doppler_factor_ptr);
                     delete doppler_factor_ptr;
                     break;
                 }

@@ -320,35 +320,35 @@ void SoundScriptManager::update(float dt_sec)
         Ogre::Vector3 camera_up = camera_node->getOrientation() * Ogre::Vector3::UNIT_Y;
         // Direction points down -Z by default (adapted from Ogre::Camera)
         Ogre::Vector3 camera_direction = camera_node->getOrientation() * -Ogre::Vector3::UNIT_Z;
-        this->setListener(camera_position, camera_direction, camera_up, camera_velocity);
-        Ogre::Vector3 listener_position = sound_manager->getListenerPosition();
+        SetListener(camera_position, camera_direction, camera_up, camera_velocity);
+        Ogre::Vector3 listener_position = sound_manager->GetListenerPosition();
 
         const auto water = App::GetGameContext()->GetTerrain()->getWater();
-        this->listener_is_underwater = (water != nullptr ? water->IsUnderWater(listener_position) : false);
+        m_listener_is_underwater = (water != nullptr ? water->IsUnderWater(listener_position) : false);
 
         ActorPtr actor_of_player = App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling();
         if (actor_of_player != nullptr)
         {
-            this->listener_is_inside_the_player_coupled_actor = actor_of_player->ar_bounding_box.contains(listener_position);
+            m_listener_is_inside_the_player_coupled_actor = actor_of_player->ar_bounding_box.contains(listener_position);
         }
         else
         {
-            this->listener_is_inside_the_player_coupled_actor = false;
+            m_listener_is_inside_the_player_coupled_actor = false;
         }
 
-        this->setListenerEnvironment(camera_position);
-        sound_manager->update(dt_sec);
+        SetListenerEnvironment(camera_position);
+        sound_manager->Update(dt_sec);
     }
 }
 
-void SoundScriptManager::setListener(Vector3 position, Vector3 direction, Vector3 up, Vector3 velocity)
+void SoundScriptManager::SetListener(Vector3 position, Vector3 direction, Vector3 up, Vector3 velocity)
 {
     if (disabled)
         return;
-    sound_manager->setListener(position, direction, up, velocity);
+    sound_manager->SetListener(position, direction, up, velocity);
 }
 
-void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
+void SoundScriptManager::SetListenerEnvironment(Vector3 listener_position)
 {
     if (disabled)
         return;
@@ -357,9 +357,9 @@ void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
 
     if (App::audio_engine_controls_environmental_audio->getBool())
     {
-        if(this->listenerIsUnderwater())
+        if(ListenerIsUnderwater())
         {
-            sound_manager->setSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
+            sound_manager->SetSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
             /*
             According to the Francois-Garrison formula for frequency-dependant absorption at 5kHz in water
             and assuming the Air Absorption Gain HF property of OpenAL is set to the minimum of 0.892,
@@ -370,39 +370,39 @@ void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
         }
         else
         {
-            sound_manager->setSpeedOfSound(343.3f); // assume listener is in air at 20° celsius
+            sound_manager->SetSpeedOfSound(343.3f); // assume listener is in air at 20° celsius
             App::audio_air_absorption_factor->setVal(1.0f);
             App::audio_air_absorption_gain_hf->setVal(0.994f);
         }
 
         if (App::audio_enable_efx->getBool())
         {
-            listener_reverb_properties = this->getReverbPresetAt(listener_position);
+            listener_reverb_properties = GetReverbPresetAt(listener_position);
         }
     }
 
     if (App::audio_enable_efx->getBool())
     {
         // always update the environment in case it was changed via console or script
-        sound_manager->setListenerEnvironment(listener_reverb_properties);
+        sound_manager->SetListenerEnvironment(listener_reverb_properties);
     }
 }
 
-const EFXEAXREVERBPROPERTIES* SoundScriptManager::getReverbPresetAt(const Ogre::Vector3 position) const
+const EFXEAXREVERBPROPERTIES* SoundScriptManager::GetReverbPresetAt(const Ogre::Vector3 position) const
 {
     if (!App::audio_force_listener_efx_preset->getStr().empty())
     {
         return sound_manager->GetEfxProperties(App::audio_force_listener_efx_preset->getStr());
     }
 
-    if (this->listener_is_inside_the_player_coupled_actor)
+    if (m_listener_is_inside_the_player_coupled_actor)
     {
         // the player is in a vehicle
         // there is no reverb preset for trucks, but this seems ok
         return sound_manager->GetEfxProperties("EFX_REVERB_PRESET_DRIVING_INCAR_SPORTS");
     }
 
-    if(this->listenerIsUnderwater())
+    if(m_listener_is_underwater)
     {
         return sound_manager->GetEfxProperties("EFX_REVERB_PRESET_UNDERWATER");
     }
@@ -410,11 +410,11 @@ const EFXEAXREVERBPROPERTIES* SoundScriptManager::getReverbPresetAt(const Ogre::
     return sound_manager->GetEfxProperties(App::audio_default_listener_efx_preset->getStr());
 }
 
-void SoundScriptManager::setDopplerFactor(float doppler_factor)
+void SoundScriptManager::SetDopplerFactor(float doppler_factor)
 {
     if (disabled)
         return;
-    sound_manager->setDopplerFactor(doppler_factor);
+    sound_manager->SetDopplerFactor(doppler_factor);
 }
 
 const StringVector& SoundScriptManager::getScriptPatterns(void) const

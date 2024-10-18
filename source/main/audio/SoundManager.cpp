@@ -97,8 +97,8 @@ SoundManager::SoundManager()
     if (alcGetString(audio_device, ALC_EXTENSIONS)) LOG("SoundManager: OpenAL ALC extensions are: " + String(alcGetString(audio_device, ALC_EXTENSIONS)));
 
     // initialize use of OpenAL EFX extensions
-    this->efx_is_available = alcIsExtensionPresent(audio_device, "ALC_EXT_EFX");
-    if (efx_is_available)
+    m_efx_is_available = alcIsExtensionPresent(audio_device, "ALC_EXT_EFX");
+    if (m_efx_is_available)
     {
         LOG("SoundManager: Found OpenAL EFX extension");
 
@@ -126,14 +126,14 @@ SoundManager::SoundManager()
             // allow user to change reverb engines at will
             switch(App::audio_efx_reverb_engine->getEnum<EfxReverbEngine>())
             {
-                case EfxReverbEngine::EAXREVERB: efx_reverb_engine = EfxReverbEngine::EAXREVERB; break;
-                case EfxReverbEngine::REVERB:    efx_reverb_engine = EfxReverbEngine::REVERB; break;
+                case EfxReverbEngine::EAXREVERB: m_efx_reverb_engine = EfxReverbEngine::EAXREVERB; break;
+                case EfxReverbEngine::REVERB:    m_efx_reverb_engine = EfxReverbEngine::REVERB; break;
                 default:
-                    efx_reverb_engine = EfxReverbEngine::NONE;
+                    m_efx_reverb_engine = EfxReverbEngine::NONE;
                     LOG("SoundManager: Reverb engine disabled");
             }
 
-            if(efx_reverb_engine == EfxReverbEngine::EAXREVERB)
+            if(m_efx_reverb_engine == EfxReverbEngine::EAXREVERB)
             {
                 if (alGetEnumValue("AL_EFFECT_EAXREVERB") != 0)
                 {
@@ -142,30 +142,30 @@ SoundManager::SoundManager()
                 else
                 {
                     LOG("SoundManager: AL_EFFECT_EAXREVERB requested but OpenAL driver does not support it, falling back to standard reverb. Advanced features, such as reflection panning, will not be available");
-                    efx_reverb_engine = EfxReverbEngine::REVERB;
+                    m_efx_reverb_engine = EfxReverbEngine::REVERB;
                 }
             }
-            else if(efx_reverb_engine == EfxReverbEngine::REVERB)
+            else if(m_efx_reverb_engine == EfxReverbEngine::REVERB)
             {
                 LOG("SoundManager: Using OpenAL standard reverb");
             }
 
             // create effect slot for the listener
-            if(!this->alIsAuxiliaryEffectSlot(listener_slot))
+            if(!this->alIsAuxiliaryEffectSlot(m_listener_slot))
             {
                 alGetError();
 
-                this->alGenAuxiliaryEffectSlots(1, &listener_slot);
+                this->alGenAuxiliaryEffectSlots(1, &m_listener_slot);
                 ALuint e = alGetError();
 
                 if (e != AL_NO_ERROR)
                 {
                     LOG("SoundManager: alGenAuxiliaryEffectSlots for listener_slot failed: " + e);
-                    listener_slot = AL_EFFECTSLOT_NULL;
+                    m_listener_slot = AL_EFFECTSLOT_NULL;
                 }
             }
 
-            this->prepopulate_efx_property_map();
+            this->PrepopulateEfxPropertiesMap();
 
             /*
                 Create filter for obstruction
@@ -175,18 +175,18 @@ SoundManager::SoundManager()
             */
             alGetError();
 
-            alGenFilters(1, &efx_outdoor_obstruction_lowpass_filter_id);
+            this->alGenFilters(1, &m_efx_outdoor_obstruction_lowpass_filter_id);
             ALuint e = alGetError();
 
             if (e != AL_NO_ERROR)
             {
-                efx_outdoor_obstruction_lowpass_filter_id = AL_FILTER_NULL;
+                m_efx_outdoor_obstruction_lowpass_filter_id = AL_FILTER_NULL;
             }
             else
             {
-                alFilteri(efx_outdoor_obstruction_lowpass_filter_id, AL_FILTER_TYPE, AL_FILTER_LOWPASS);
-                alFilterf(efx_outdoor_obstruction_lowpass_filter_id, AL_LOWPASS_GAIN, 0.33f);
-                alFilterf(efx_outdoor_obstruction_lowpass_filter_id, AL_LOWPASS_GAINHF, 0.25f);
+                this->alFilteri(m_efx_outdoor_obstruction_lowpass_filter_id, AL_FILTER_TYPE, AL_FILTER_LOWPASS);
+                this->alFilterf(m_efx_outdoor_obstruction_lowpass_filter_id, AL_LOWPASS_GAIN, 0.33f);
+                this->alFilterf(m_efx_outdoor_obstruction_lowpass_filter_id, AL_LOWPASS_GAINHF, 0.25f);
             }
         }
     }
@@ -210,7 +210,7 @@ SoundManager::SoundManager()
         // connect source to listener slot effect
         if(App::audio_enable_efx->getBool())
         {
-            alSource3i(hardware_sources[hardware_sources_num], AL_AUXILIARY_SEND_FILTER, listener_slot, 0, AL_FILTER_NULL);
+            alSource3i(hardware_sources[hardware_sources_num], AL_AUXILIARY_SEND_FILTER, m_listener_slot, 0, AL_FILTER_NULL);
         }
     }
 
@@ -231,18 +231,18 @@ SoundManager::~SoundManager()
     alDeleteSources(MAX_HARDWARE_SOURCES, hardware_sources);
     alDeleteBuffers(MAX_AUDIO_BUFFERS, audio_buffers);
 
-    if(efx_is_available)
+    if(m_efx_is_available)
     {
-        if(alIsFilter(efx_outdoor_obstruction_lowpass_filter_id))
+        if(this->alIsFilter(m_efx_outdoor_obstruction_lowpass_filter_id))
         {
-            alDeleteFilters(1, &efx_outdoor_obstruction_lowpass_filter_id);
+            this->alDeleteFilters(1, &m_efx_outdoor_obstruction_lowpass_filter_id);
         }
 
-        if (alIsAuxiliaryEffectSlot(listener_slot))
+        if (this->alIsAuxiliaryEffectSlot(m_listener_slot))
         {
-            alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, AL_EFFECTSLOT_NULL);
-            alDeleteAuxiliaryEffectSlots(1, &listener_slot);
-            listener_slot = 0;
+            this->alAuxiliaryEffectSloti(m_listener_slot, AL_EFFECTSLOT_EFFECT, AL_EFFECTSLOT_NULL);
+            this->alDeleteAuxiliaryEffectSlots(1, &m_listener_slot);
+            m_listener_slot = 0;
         }
     }
 
@@ -262,27 +262,27 @@ SoundManager::~SoundManager()
 
 void SoundManager::CleanUp()
 {
-    if(efx_is_available)
+    if(m_efx_is_available)
     {
-        listener_efx_reverb_properties = nullptr;
-        if (alIsAuxiliaryEffectSlot(listener_slot))
+        m_listener_efx_reverb_properties = nullptr;
+        if (this->alIsAuxiliaryEffectSlot(m_listener_slot))
         {
-            alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, AL_EFFECTSLOT_NULL);
+            this->alAuxiliaryEffectSloti(m_listener_slot, AL_EFFECTSLOT_EFFECT, AL_EFFECTSLOT_NULL);
         }
 
-        for (const auto& entry : efx_effect_id_map)
+        for (const auto& entry : m_efx_effect_id_map)
         {
-            DeleteAlEffect(entry.second);
-            efx_effect_id_map.erase(entry.first);
+            this->DeleteAlEffect(entry.second);
+            m_efx_effect_id_map.erase(entry.first);
         }
     }
 }
 
 const EFXEAXREVERBPROPERTIES* SoundManager::GetEfxProperties(const std::string& efx_preset_name) const
 {
-    const auto it = efx_properties_map.find(efx_preset_name);
+    const auto it = m_efx_properties_map.find(efx_preset_name);
 
-    if (it != efx_properties_map.end())
+    if (it != m_efx_properties_map.end())
     {
         return &it->second;
     }
@@ -292,57 +292,57 @@ const EFXEAXREVERBPROPERTIES* SoundManager::GetEfxProperties(const std::string& 
     }
 }
 
-void SoundManager::prepopulate_efx_property_map()
+void SoundManager::PrepopulateEfxPropertiesMap()
 {
-    this->efx_properties_map["EFX_REVERB_PRESET_GENERIC"] = EFX_REVERB_PRESET_GENERIC;
-    this->efx_properties_map["EFX_REVERB_PRESET_CAVE"] = EFX_REVERB_PRESET_CAVE;
-    this->efx_properties_map["EFX_REVERB_PRESET_ARENA"] = EFX_REVERB_PRESET_ARENA;
-    this->efx_properties_map["EFX_REVERB_PRESET_HANGAR"] = EFX_REVERB_PRESET_HANGAR;
-    this->efx_properties_map["EFX_REVERB_PRESET_ALLEY"] = EFX_REVERB_PRESET_ALLEY;
-    this->efx_properties_map["EFX_REVERB_PRESET_FOREST"] = EFX_REVERB_PRESET_FOREST;
-    this->efx_properties_map["EFX_REVERB_PRESET_CITY"] = EFX_REVERB_PRESET_CITY;
-    this->efx_properties_map["EFX_REVERB_PRESET_MOUNTAINS"] = EFX_REVERB_PRESET_MOUNTAINS;
-    this->efx_properties_map["EFX_REVERB_PRESET_QUARRY"] = EFX_REVERB_PRESET_QUARRY;
-    this->efx_properties_map["EFX_REVERB_PRESET_PLAIN"] = EFX_REVERB_PRESET_PLAIN;
-    this->efx_properties_map["EFX_REVERB_PRESET_PARKINGLOT"] = EFX_REVERB_PRESET_PARKINGLOT;
-    this->efx_properties_map["EFX_REVERB_PRESET_UNDERWATER"] = EFX_REVERB_PRESET_UNDERWATER;
-    this->efx_properties_map["EFX_REVERB_PRESET_DRUGGED"] = EFX_REVERB_PRESET_DRUGGED;
-    this->efx_properties_map["EFX_REVERB_PRESET_DIZZY"] = EFX_REVERB_PRESET_DIZZY;
-    this->efx_properties_map["EFX_REVERB_PRESET_CASTLE_COURTYARD"] = EFX_REVERB_PRESET_CASTLE_COURTYARD;
-    this->efx_properties_map["EFX_REVERB_PRESET_FACTORY_HALL"] = EFX_REVERB_PRESET_FACTORY_HALL;
-    this->efx_properties_map["EFX_REVERB_PRESET_SPORT_EMPTYSTADIUM"] = EFX_REVERB_PRESET_SPORT_EMPTYSTADIUM;
-    this->efx_properties_map["EFX_REVERB_PRESET_PREFAB_WORKSHOP"] = EFX_REVERB_PRESET_PREFAB_WORKSHOP;
-    this->efx_properties_map["EFX_REVERB_PRESET_PREFAB_CARAVAN"] = EFX_REVERB_PRESET_PREFAB_CARAVAN;
-    this->efx_properties_map["EFX_REVERB_PRESET_PIPE_LARGE"] = EFX_REVERB_PRESET_PIPE_LARGE;
-    this->efx_properties_map["EFX_REVERB_PRESET_PIPE_LONGTHIN"] = EFX_REVERB_PRESET_PIPE_LONGTHIN;
-    this->efx_properties_map["EFX_REVERB_PRESET_PIPE_RESONANT"] = EFX_REVERB_PRESET_PIPE_RESONANT;
-    this->efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_BACKYARD"] = EFX_REVERB_PRESET_OUTDOORS_BACKYARD;
-    this->efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_ROLLINGPLAINS"] = EFX_REVERB_PRESET_OUTDOORS_ROLLINGPLAINS;
-    this->efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_DEEPCANYON"] = EFX_REVERB_PRESET_OUTDOORS_DEEPCANYON;
-    this->efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_CREEK"] = EFX_REVERB_PRESET_OUTDOORS_CREEK;
-    this->efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_VALLEY"] = EFX_REVERB_PRESET_OUTDOORS_VALLEY;
-    this->efx_properties_map["EFX_REVERB_PRESET_MOOD_HEAVEN"] = EFX_REVERB_PRESET_MOOD_HEAVEN;
-    this->efx_properties_map["EFX_REVERB_PRESET_MOOD_HELL"] = EFX_REVERB_PRESET_MOOD_HELL;
-    this->efx_properties_map["EFX_REVERB_PRESET_MOOD_MEMORY"] = EFX_REVERB_PRESET_MOOD_MEMORY;
-    this->efx_properties_map["EFX_REVERB_PRESET_DRIVING_COMMENTATOR"] = EFX_REVERB_PRESET_DRIVING_COMMENTATOR;
-    this->efx_properties_map["EFX_REVERB_PRESET_DRIVING_PITGARAGE"] = EFX_REVERB_PRESET_DRIVING_PITGARAGE;
-    this->efx_properties_map["EFX_REVERB_PRESET_DRIVING_INCAR_RACER"] = EFX_REVERB_PRESET_DRIVING_INCAR_RACER;
-    this->efx_properties_map["EFX_REVERB_PRESET_DRIVING_INCAR_SPORTS"] = EFX_REVERB_PRESET_DRIVING_INCAR_SPORTS;
-    this->efx_properties_map["EFX_REVERB_PRESET_DRIVING_INCAR_LUXURY"] = EFX_REVERB_PRESET_DRIVING_INCAR_LUXURY;
-    this->efx_properties_map["EFX_REVERB_PRESET_DRIVING_TUNNEL"] = EFX_REVERB_PRESET_DRIVING_TUNNEL;
-    this->efx_properties_map["EFX_REVERB_PRESET_CITY_STREETS"] = EFX_REVERB_PRESET_CITY_STREETS;
-    this->efx_properties_map["EFX_REVERB_PRESET_CITY_SUBWAY"] = EFX_REVERB_PRESET_CITY_SUBWAY;
-    this->efx_properties_map["EFX_REVERB_PRESET_CITY_UNDERPASS"] = EFX_REVERB_PRESET_CITY_UNDERPASS;
-    this->efx_properties_map["EFX_REVERB_PRESET_CITY_ABANDONED"] = EFX_REVERB_PRESET_CITY_ABANDONED;
+    m_efx_properties_map["EFX_REVERB_PRESET_GENERIC"] = EFX_REVERB_PRESET_GENERIC;
+    m_efx_properties_map["EFX_REVERB_PRESET_CAVE"] = EFX_REVERB_PRESET_CAVE;
+    m_efx_properties_map["EFX_REVERB_PRESET_ARENA"] = EFX_REVERB_PRESET_ARENA;
+    m_efx_properties_map["EFX_REVERB_PRESET_HANGAR"] = EFX_REVERB_PRESET_HANGAR;
+    m_efx_properties_map["EFX_REVERB_PRESET_ALLEY"] = EFX_REVERB_PRESET_ALLEY;
+    m_efx_properties_map["EFX_REVERB_PRESET_FOREST"] = EFX_REVERB_PRESET_FOREST;
+    m_efx_properties_map["EFX_REVERB_PRESET_CITY"] = EFX_REVERB_PRESET_CITY;
+    m_efx_properties_map["EFX_REVERB_PRESET_MOUNTAINS"] = EFX_REVERB_PRESET_MOUNTAINS;
+    m_efx_properties_map["EFX_REVERB_PRESET_QUARRY"] = EFX_REVERB_PRESET_QUARRY;
+    m_efx_properties_map["EFX_REVERB_PRESET_PLAIN"] = EFX_REVERB_PRESET_PLAIN;
+    m_efx_properties_map["EFX_REVERB_PRESET_PARKINGLOT"] = EFX_REVERB_PRESET_PARKINGLOT;
+    m_efx_properties_map["EFX_REVERB_PRESET_UNDERWATER"] = EFX_REVERB_PRESET_UNDERWATER;
+    m_efx_properties_map["EFX_REVERB_PRESET_DRUGGED"] = EFX_REVERB_PRESET_DRUGGED;
+    m_efx_properties_map["EFX_REVERB_PRESET_DIZZY"] = EFX_REVERB_PRESET_DIZZY;
+    m_efx_properties_map["EFX_REVERB_PRESET_CASTLE_COURTYARD"] = EFX_REVERB_PRESET_CASTLE_COURTYARD;
+    m_efx_properties_map["EFX_REVERB_PRESET_FACTORY_HALL"] = EFX_REVERB_PRESET_FACTORY_HALL;
+    m_efx_properties_map["EFX_REVERB_PRESET_SPORT_EMPTYSTADIUM"] = EFX_REVERB_PRESET_SPORT_EMPTYSTADIUM;
+    m_efx_properties_map["EFX_REVERB_PRESET_PREFAB_WORKSHOP"] = EFX_REVERB_PRESET_PREFAB_WORKSHOP;
+    m_efx_properties_map["EFX_REVERB_PRESET_PREFAB_CARAVAN"] = EFX_REVERB_PRESET_PREFAB_CARAVAN;
+    m_efx_properties_map["EFX_REVERB_PRESET_PIPE_LARGE"] = EFX_REVERB_PRESET_PIPE_LARGE;
+    m_efx_properties_map["EFX_REVERB_PRESET_PIPE_LONGTHIN"] = EFX_REVERB_PRESET_PIPE_LONGTHIN;
+    m_efx_properties_map["EFX_REVERB_PRESET_PIPE_RESONANT"] = EFX_REVERB_PRESET_PIPE_RESONANT;
+    m_efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_BACKYARD"] = EFX_REVERB_PRESET_OUTDOORS_BACKYARD;
+    m_efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_ROLLINGPLAINS"] = EFX_REVERB_PRESET_OUTDOORS_ROLLINGPLAINS;
+    m_efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_DEEPCANYON"] = EFX_REVERB_PRESET_OUTDOORS_DEEPCANYON;
+    m_efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_CREEK"] = EFX_REVERB_PRESET_OUTDOORS_CREEK;
+    m_efx_properties_map["EFX_REVERB_PRESET_OUTDOORS_VALLEY"] = EFX_REVERB_PRESET_OUTDOORS_VALLEY;
+    m_efx_properties_map["EFX_REVERB_PRESET_MOOD_HEAVEN"] = EFX_REVERB_PRESET_MOOD_HEAVEN;
+    m_efx_properties_map["EFX_REVERB_PRESET_MOOD_HELL"] = EFX_REVERB_PRESET_MOOD_HELL;
+    m_efx_properties_map["EFX_REVERB_PRESET_MOOD_MEMORY"] = EFX_REVERB_PRESET_MOOD_MEMORY;
+    m_efx_properties_map["EFX_REVERB_PRESET_DRIVING_COMMENTATOR"] = EFX_REVERB_PRESET_DRIVING_COMMENTATOR;
+    m_efx_properties_map["EFX_REVERB_PRESET_DRIVING_PITGARAGE"] = EFX_REVERB_PRESET_DRIVING_PITGARAGE;
+    m_efx_properties_map["EFX_REVERB_PRESET_DRIVING_INCAR_RACER"] = EFX_REVERB_PRESET_DRIVING_INCAR_RACER;
+    m_efx_properties_map["EFX_REVERB_PRESET_DRIVING_INCAR_SPORTS"] = EFX_REVERB_PRESET_DRIVING_INCAR_SPORTS;
+    m_efx_properties_map["EFX_REVERB_PRESET_DRIVING_INCAR_LUXURY"] = EFX_REVERB_PRESET_DRIVING_INCAR_LUXURY;
+    m_efx_properties_map["EFX_REVERB_PRESET_DRIVING_TUNNEL"] = EFX_REVERB_PRESET_DRIVING_TUNNEL;
+    m_efx_properties_map["EFX_REVERB_PRESET_CITY_STREETS"] = EFX_REVERB_PRESET_CITY_STREETS;
+    m_efx_properties_map["EFX_REVERB_PRESET_CITY_SUBWAY"] = EFX_REVERB_PRESET_CITY_SUBWAY;
+    m_efx_properties_map["EFX_REVERB_PRESET_CITY_UNDERPASS"] = EFX_REVERB_PRESET_CITY_UNDERPASS;
+    m_efx_properties_map["EFX_REVERB_PRESET_CITY_ABANDONED"] = EFX_REVERB_PRESET_CITY_ABANDONED;
 }
 
-void SoundManager::update(const float dt_sec)
+void SoundManager::Update(const float dt_sec)
 {
     if (!audio_device)
         return;
 
     recomputeAllSources();
-    updateAlListener();
+    UpdateAlListener();
 
     if(App::audio_enable_efx->getBool())
     {
@@ -354,79 +354,79 @@ void SoundManager::update(const float dt_sec)
 
             if(App::audio_enable_obstruction->getBool())
             {
-                updateObstructionFilter(hardware_sources[source_index]);
+                this->UpdateObstructionFilter(hardware_sources[source_index]);
             }
         }
 
-        updateListenerEffectSlot(dt_sec);
+        this->UpdateListenerEffectSlot(dt_sec);
     }
 }
 
-void SoundManager::setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity)
+void SoundManager::SetListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity)
 {
-    listener_position = position;
-    listener_direction = direction;
-    listener_up = up;
-    listener_velocity = velocity;
+    m_listener_position = position;
+    m_listener_direction = direction;
+    m_listener_up = up;
+    m_listener_velocity = velocity;
 }
 
-void SoundManager::updateAlListener()
+void SoundManager::UpdateAlListener()
 {
     float orientation[6];
     // direction
-    orientation[0] = listener_direction.x;
-    orientation[1] = listener_direction.y;
-    orientation[2] = listener_direction.z;
+    orientation[0] = m_listener_direction.x;
+    orientation[1] = m_listener_direction.y;
+    orientation[2] = m_listener_direction.z;
     // up
-    orientation[3] = listener_up.x;
-    orientation[4] = listener_up.y;
-    orientation[5] = listener_up.z;
+    orientation[3] = m_listener_up.x;
+    orientation[4] = m_listener_up.y;
+    orientation[5] = m_listener_up.z;
 
-    alListener3f(AL_POSITION, listener_position.x, listener_position.y, listener_position.z);
-    alListener3f(AL_VELOCITY, listener_velocity.x, listener_velocity.y, listener_velocity.z);
+    alListener3f(AL_POSITION, m_listener_position.x, m_listener_position.y, m_listener_position.z);
+    alListener3f(AL_VELOCITY, m_listener_velocity.x, m_listener_velocity.y, m_listener_velocity.z);
     alListenerfv(AL_ORIENTATION, orientation);
 }
 
-void SoundManager::setListenerEnvironment(const EFXEAXREVERBPROPERTIES* listener_reverb_properties)
+void SoundManager::SetListenerEnvironment(const EFXEAXREVERBPROPERTIES* listener_reverb_properties)
 {
-    this->listener_efx_reverb_properties = listener_reverb_properties;
+    m_listener_efx_reverb_properties = listener_reverb_properties;
 }
 
-void SoundManager::updateListenerEffectSlot(const float dt_sec)
+void SoundManager::UpdateListenerEffectSlot(const float dt_sec)
 {
-    if (listener_efx_reverb_properties == nullptr)
+    if (m_listener_efx_reverb_properties == nullptr)
     {
-        alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, AL_EFFECTSLOT_NULL);
+        this->alAuxiliaryEffectSloti(m_listener_slot, AL_EFFECTSLOT_EFFECT, AL_EFFECTSLOT_NULL);
     }
     else
     {
         ALuint efx_effect_id;
 
         // create new effect if not existing
-        if(efx_effect_id_map.find(listener_efx_reverb_properties) == efx_effect_id_map.end())
+        if(m_efx_effect_id_map.find(m_listener_efx_reverb_properties) == m_efx_effect_id_map.end())
         {
-            efx_effect_id = CreateAlEffect(listener_efx_reverb_properties);
-            efx_effect_id_map[listener_efx_reverb_properties] = efx_effect_id;
+            efx_effect_id = this->CreateAlEffect(m_listener_efx_reverb_properties);
+            m_efx_effect_id_map[m_listener_efx_reverb_properties] = efx_effect_id;
         }
         else
         {
-            efx_effect_id = efx_effect_id_map.find(listener_efx_reverb_properties)->second;
+            efx_effect_id = m_efx_effect_id_map.find(m_listener_efx_reverb_properties)->second;
         }
 
         // update air absorption gain hf of effect
-        if (efx_reverb_engine == EfxReverbEngine::EAXREVERB)
+        if (m_efx_reverb_engine == EfxReverbEngine::EAXREVERB)
         {
-            alEffectf(efx_effect_id, AL_EAXREVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
+            this->alEffectf(efx_effect_id, AL_EAXREVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
         }
-        else if (efx_reverb_engine == EfxReverbEngine::REVERB)
+        else if (m_efx_reverb_engine == EfxReverbEngine::REVERB)
         {
-            alEffectf(efx_effect_id, AL_REVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
+            this->alEffectf(efx_effect_id, AL_REVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
         }
 
         // early reflections panning, delay and strength
         if (
                 App::audio_enable_reflection_panning->getBool() &&
-                efx_reverb_engine == EfxReverbEngine::EAXREVERB &&
+                m_efx_reverb_engine == EfxReverbEngine::EAXREVERB &&
                 App::app_state->getEnum<AppState>() == AppState::SIMULATION // required to avoid crash when returning to main menu
            )
         {
@@ -435,13 +435,13 @@ void SoundManager::updateListenerEffectSlot(const float dt_sec)
             const float step = std::min(dt_sec / time_to_target, 1.0f);
             static std::tuple<Ogre::Vector3, float, float> target_early_reflections_properties;
             static std::tuple<Ogre::Vector3, float, float> current_early_reflections_properties =
-                std::make_tuple(Ogre::Vector3(listener_efx_reverb_properties->flReflectionsPan[0],
-                                              listener_efx_reverb_properties->flReflectionsPan[1],
-                                              listener_efx_reverb_properties->flReflectionsPan[2]),
-                                              listener_efx_reverb_properties->flReflectionsGain,
-                                              listener_efx_reverb_properties->flReflectionsDelay);
+                std::make_tuple(Ogre::Vector3(m_listener_efx_reverb_properties->flReflectionsPan[0],
+                                              m_listener_efx_reverb_properties->flReflectionsPan[1],
+                                              m_listener_efx_reverb_properties->flReflectionsPan[2]),
+                                              m_listener_efx_reverb_properties->flReflectionsGain,
+                                              m_listener_efx_reverb_properties->flReflectionsDelay);
 
-            target_early_reflections_properties = calculateEarlyReflectionsProperties();
+            target_early_reflections_properties = this->ComputeEarlyReflectionsProperties();
 
             const Ogre::Vector3 current_early_reflections_pan =
                 std::get<0>(current_early_reflections_properties)
@@ -470,17 +470,17 @@ void SoundManager::updateListenerEffectSlot(const float dt_sec)
                 {  current_early_reflections_pan.x,
                    0, // TODO
                   -current_early_reflections_pan.z };
-            alEffectfv(efx_effect_id, AL_EAXREVERB_REFLECTIONS_PAN, eaxreverb_early_reflections_pan);
-            alEffectf(efx_effect_id, AL_EAXREVERB_REFLECTIONS_GAIN, std::get<1>(current_early_reflections_properties));
-            alEffectf(efx_effect_id, AL_EAXREVERB_REFLECTIONS_DELAY, std::get<2>(current_early_reflections_properties));
+            this->alEffectfv(efx_effect_id, AL_EAXREVERB_REFLECTIONS_PAN, eaxreverb_early_reflections_pan);
+            this->alEffectf(efx_effect_id, AL_EAXREVERB_REFLECTIONS_GAIN, std::get<1>(current_early_reflections_properties));
+            this->alEffectf(efx_effect_id, AL_EAXREVERB_REFLECTIONS_DELAY, std::get<2>(current_early_reflections_properties));
         }
 
         // update the effect on the listener effect slot
-        alAuxiliaryEffectSloti(listener_slot, AL_EFFECTSLOT_EFFECT, efx_effect_id);
+        this->alAuxiliaryEffectSloti(m_listener_slot, AL_EFFECTSLOT_EFFECT, efx_effect_id);
     }
 }
 
-std::tuple<Ogre::Vector3, float, float> SoundManager::calculateEarlyReflectionsProperties() const
+std::tuple<Ogre::Vector3, float, float> SoundManager::ComputeEarlyReflectionsProperties() const
 {
     const float     max_distance = 2.0f;
     const float     reflections_gain_boost_max = 2.0f; // 6.32 db
@@ -500,10 +500,10 @@ std::tuple<Ogre::Vector3, float, float> SoundManager::calculateEarlyReflectionsP
 
     for (float angle = 0; angle < 360; angle += angle_step_size)
     {
-        Ogre::Vector3 raycast_direction = Quaternion(Ogre::Degree(angle), listener_up) * listener_direction;
+        Ogre::Vector3 raycast_direction = Quaternion(Ogre::Degree(angle), m_listener_up) * m_listener_direction;
         raycast_direction.normalise();
         // accompany direction vector for how the intersectsTris function works
-        Ray ray = Ray(listener_position, raycast_direction * max_distance * App::GetGameContext()->GetTerrain()->GetCollisions()->GetCellSize());
+        Ray ray = Ray(m_listener_position, raycast_direction * max_distance * App::GetGameContext()->GetTerrain()->GetCollisions()->GetCellSize());
         std::pair<bool, Ogre::Real> intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(ray);
 
         if (intersection.first)
@@ -519,8 +519,8 @@ std::tuple<Ogre::Vector3, float, float> SoundManager::calculateEarlyReflectionsP
     if (!nearby_surface_detected)
     {
         // reset values to the original values of the preset
-        early_reflections_delay = listener_efx_reverb_properties->flReflectionsDelay;
-        early_reflections_gain  = listener_efx_reverb_properties->flReflectionsGain;
+        early_reflections_delay = m_listener_efx_reverb_properties->flReflectionsDelay;
+        early_reflections_gain  = m_listener_efx_reverb_properties->flReflectionsGain;
     }
     else // at least one nearby surface was detected
     {
@@ -528,10 +528,10 @@ std::tuple<Ogre::Vector3, float, float> SoundManager::calculateEarlyReflectionsP
         magnitude               = 1.0f - early_reflections_pan.length() / Ogre::Math::Sqrt(2.0f * Ogre::Math::Pow(max_distance, 2));
 
         // set delay based on distance to the closest surface
-        early_reflections_delay = closest_surface_distance / getSpeedOfSound();
+        early_reflections_delay = closest_surface_distance / GetSpeedOfSound();
 
         early_reflections_gain  = std::min(
-            (listener_efx_reverb_properties->flReflectionsGain
+            (m_listener_efx_reverb_properties->flReflectionsGain
                + reflections_gain_boost_max
                - (reflections_gain_boost_max * (1.0f - magnitude))),
              AL_EAXREVERB_MAX_REFLECTIONS_GAIN);
@@ -542,13 +542,13 @@ std::tuple<Ogre::Vector3, float, float> SoundManager::calculateEarlyReflectionsP
     // determine the rotation of the listener direction from straight-ahead vector
     // work around Quaternion quirks at around 180° rotation
     Ogre::Quaternion horizontal_rotation;
-    if (listener_direction.z > 0.0f)
+    if (m_listener_direction.z > 0.0f)
     {
-        horizontal_rotation = Quaternion(Ogre::Degree(180), listener_up) * listener_direction.getRotationTo(Ogre::Vector3::UNIT_Z);
+        horizontal_rotation = Quaternion(Ogre::Degree(180), m_listener_up) * m_listener_direction.getRotationTo(Ogre::Vector3::UNIT_Z);
     }
     else
     {
-        horizontal_rotation =  listener_direction.getRotationTo(Ogre::Vector3::NEGATIVE_UNIT_Z);
+        horizontal_rotation =  m_listener_direction.getRotationTo(Ogre::Vector3::NEGATIVE_UNIT_Z);
     }
 
     early_reflections_pan = horizontal_rotation * early_reflections_pan;
@@ -564,55 +564,55 @@ ALuint SoundManager::CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties
     ALuint effect = 0;
     ALenum error;
 
-    alGenEffects(1, &effect);
+    this->alGenEffects(1, &effect);
 
-    switch (efx_reverb_engine)
+    switch (m_efx_reverb_engine)
     {
         case EfxReverbEngine::EAXREVERB:
-            alEffecti(effect,  AL_EFFECT_TYPE, AL_EFFECT_EAXREVERB);
-            alEffectf( effect,  AL_EAXREVERB_GAIN,                   efx_properties->flGain);
+            this->alEffecti(effect,  AL_EFFECT_TYPE, AL_EFFECT_EAXREVERB);
+            this->alEffectf( effect,  AL_EAXREVERB_GAIN,                   efx_properties->flGain);
 
-            alEffectf( effect,  AL_EAXREVERB_DENSITY,                efx_properties->flDensity);
-            alEffectf( effect,  AL_EAXREVERB_DIFFUSION,              efx_properties->flDiffusion);
-            alEffectf( effect,  AL_EAXREVERB_GAIN,                   efx_properties->flGain);
-            alEffectf( effect,  AL_EAXREVERB_GAINHF,                 efx_properties->flGainHF);
-            alEffectf( effect,  AL_EAXREVERB_GAINLF,                 efx_properties->flGainLF);
-            alEffectf( effect,  AL_EAXREVERB_DECAY_TIME,             efx_properties->flDecayTime);
-            alEffectf( effect,  AL_EAXREVERB_DECAY_HFRATIO,          efx_properties->flDecayHFRatio);
-            alEffectf( effect,  AL_EAXREVERB_DECAY_LFRATIO,          efx_properties->flDecayLFRatio);
-            alEffectf( effect,  AL_EAXREVERB_REFLECTIONS_GAIN,       efx_properties->flReflectionsGain);
-            alEffectf( effect,  AL_EAXREVERB_REFLECTIONS_DELAY,      efx_properties->flReflectionsDelay);
-            alEffectfv(effect,  AL_EAXREVERB_REFLECTIONS_PAN,        efx_properties->flReflectionsPan);
-            alEffectf( effect,  AL_EAXREVERB_LATE_REVERB_GAIN,       efx_properties->flLateReverbGain);
-            alEffectf( effect,  AL_EAXREVERB_LATE_REVERB_DELAY,      efx_properties->flLateReverbDelay);
-            alEffectfv(effect,  AL_EAXREVERB_LATE_REVERB_PAN,        efx_properties->flLateReverbPan);
-            alEffectf( effect,  AL_EAXREVERB_ECHO_TIME,              efx_properties->flEchoTime);
-            alEffectf( effect,  AL_EAXREVERB_ECHO_DEPTH,             efx_properties->flEchoDepth);
-            alEffectf( effect,  AL_EAXREVERB_MODULATION_TIME,        efx_properties->flModulationTime);
-            alEffectf( effect,  AL_EAXREVERB_MODULATION_DEPTH,       efx_properties->flModulationDepth);
-            alEffectf( effect,  AL_EAXREVERB_AIR_ABSORPTION_GAINHF,  efx_properties->flAirAbsorptionGainHF);
-            alEffectf( effect,  AL_EAXREVERB_HFREFERENCE,            efx_properties->flHFReference);
-            alEffectf( effect,  AL_EAXREVERB_LFREFERENCE,            efx_properties->flLFReference);
-            alEffectf( effect,  AL_EAXREVERB_ROOM_ROLLOFF_FACTOR,    efx_properties->flRoomRolloffFactor);
-            alEffecti( effect,  AL_EAXREVERB_DECAY_HFLIMIT,          efx_properties->iDecayHFLimit);
+            this->alEffectf( effect,  AL_EAXREVERB_DENSITY,                efx_properties->flDensity);
+            this->alEffectf( effect,  AL_EAXREVERB_DIFFUSION,              efx_properties->flDiffusion);
+            this->alEffectf( effect,  AL_EAXREVERB_GAIN,                   efx_properties->flGain);
+            this->alEffectf( effect,  AL_EAXREVERB_GAINHF,                 efx_properties->flGainHF);
+            this->alEffectf( effect,  AL_EAXREVERB_GAINLF,                 efx_properties->flGainLF);
+            this->alEffectf( effect,  AL_EAXREVERB_DECAY_TIME,             efx_properties->flDecayTime);
+            this->alEffectf( effect,  AL_EAXREVERB_DECAY_HFRATIO,          efx_properties->flDecayHFRatio);
+            this->alEffectf( effect,  AL_EAXREVERB_DECAY_LFRATIO,          efx_properties->flDecayLFRatio);
+            this->alEffectf( effect,  AL_EAXREVERB_REFLECTIONS_GAIN,       efx_properties->flReflectionsGain);
+            this->alEffectf( effect,  AL_EAXREVERB_REFLECTIONS_DELAY,      efx_properties->flReflectionsDelay);
+            this->alEffectfv(effect,  AL_EAXREVERB_REFLECTIONS_PAN,        efx_properties->flReflectionsPan);
+            this->alEffectf( effect,  AL_EAXREVERB_LATE_REVERB_GAIN,       efx_properties->flLateReverbGain);
+            this->alEffectf( effect,  AL_EAXREVERB_LATE_REVERB_DELAY,      efx_properties->flLateReverbDelay);
+            this->alEffectfv(effect,  AL_EAXREVERB_LATE_REVERB_PAN,        efx_properties->flLateReverbPan);
+            this->alEffectf( effect,  AL_EAXREVERB_ECHO_TIME,              efx_properties->flEchoTime);
+            this->alEffectf( effect,  AL_EAXREVERB_ECHO_DEPTH,             efx_properties->flEchoDepth);
+            this->alEffectf( effect,  AL_EAXREVERB_MODULATION_TIME,        efx_properties->flModulationTime);
+            this->alEffectf( effect,  AL_EAXREVERB_MODULATION_DEPTH,       efx_properties->flModulationDepth);
+            this->alEffectf( effect,  AL_EAXREVERB_AIR_ABSORPTION_GAINHF,  efx_properties->flAirAbsorptionGainHF);
+            this->alEffectf( effect,  AL_EAXREVERB_HFREFERENCE,            efx_properties->flHFReference);
+            this->alEffectf( effect,  AL_EAXREVERB_LFREFERENCE,            efx_properties->flLFReference);
+            this->alEffectf( effect,  AL_EAXREVERB_ROOM_ROLLOFF_FACTOR,    efx_properties->flRoomRolloffFactor);
+            this->alEffecti( effect,  AL_EAXREVERB_DECAY_HFLIMIT,          efx_properties->iDecayHFLimit);
 
             break;
         case EfxReverbEngine::REVERB:
-            alEffecti(effect, AL_EFFECT_TYPE, AL_EFFECT_REVERB);
+            this->alEffecti(effect, AL_EFFECT_TYPE, AL_EFFECT_REVERB);
 
-            alEffectf(effect, AL_REVERB_DENSITY,                efx_properties->flDensity);
-            alEffectf(effect, AL_REVERB_DIFFUSION,              efx_properties->flDiffusion);
-            alEffectf(effect, AL_REVERB_GAIN,                   efx_properties->flGain);
-            alEffectf(effect, AL_REVERB_GAINHF,                 efx_properties->flGainHF);
-            alEffectf(effect, AL_REVERB_DECAY_TIME,             efx_properties->flDecayTime);
-            alEffectf(effect, AL_REVERB_DECAY_HFRATIO,          efx_properties->flDecayHFRatio);
-            alEffectf(effect, AL_REVERB_REFLECTIONS_GAIN,       efx_properties->flReflectionsGain);
-            alEffectf(effect, AL_REVERB_REFLECTIONS_DELAY,      efx_properties->flReflectionsDelay);
-            alEffectf(effect, AL_REVERB_LATE_REVERB_GAIN,       efx_properties->flLateReverbGain);
-            alEffectf(effect, AL_REVERB_LATE_REVERB_DELAY,      efx_properties->flLateReverbDelay);
-            alEffectf(effect, AL_REVERB_AIR_ABSORPTION_GAINHF,  efx_properties->flAirAbsorptionGainHF);
-            alEffectf(effect, AL_REVERB_ROOM_ROLLOFF_FACTOR,    efx_properties->flRoomRolloffFactor);
-            alEffecti(effect, AL_REVERB_DECAY_HFLIMIT,          efx_properties->iDecayHFLimit);
+            this->alEffectf(effect, AL_REVERB_DENSITY,                efx_properties->flDensity);
+            this->alEffectf(effect, AL_REVERB_DIFFUSION,              efx_properties->flDiffusion);
+            this->alEffectf(effect, AL_REVERB_GAIN,                   efx_properties->flGain);
+            this->alEffectf(effect, AL_REVERB_GAINHF,                 efx_properties->flGainHF);
+            this->alEffectf(effect, AL_REVERB_DECAY_TIME,             efx_properties->flDecayTime);
+            this->alEffectf(effect, AL_REVERB_DECAY_HFRATIO,          efx_properties->flDecayHFRatio);
+            this->alEffectf(effect, AL_REVERB_REFLECTIONS_GAIN,       efx_properties->flReflectionsGain);
+            this->alEffectf(effect, AL_REVERB_REFLECTIONS_DELAY,      efx_properties->flReflectionsDelay);
+            this->alEffectf(effect, AL_REVERB_LATE_REVERB_GAIN,       efx_properties->flLateReverbGain);
+            this->alEffectf(effect, AL_REVERB_LATE_REVERB_DELAY,      efx_properties->flLateReverbDelay);
+            this->alEffectf(effect, AL_REVERB_AIR_ABSORPTION_GAINHF,  efx_properties->flAirAbsorptionGainHF);
+            this->alEffectf(effect, AL_REVERB_ROOM_ROLLOFF_FACTOR,    efx_properties->flRoomRolloffFactor);
+            this->alEffecti(effect, AL_REVERB_DECAY_HFLIMIT,          efx_properties->iDecayHFLimit);
 
             break;
         case EfxReverbEngine::NONE:
@@ -625,8 +625,8 @@ ALuint SoundManager::CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties
     {
         LOG("SoundManager: Could not create EFX effect:" + error);
 
-        if(alIsEffect(effect))
-            alDeleteEffects(1, &effect);
+        if(this->alIsEffect(effect))
+            this->alDeleteEffects(1, &effect);
         return 0;
     }
 
@@ -638,7 +638,7 @@ void SoundManager::DeleteAlEffect(const ALuint efx_effect_id) const
     ALenum error;
     alGetError();
 
-    alDeleteEffects(1, &efx_effect_id);
+    this->alDeleteEffects(1, &efx_effect_id);
 
     error = alGetError();
     if(error != AL_NO_ERROR)
@@ -661,7 +661,7 @@ void SoundManager::recomputeAllSources()
 
 	for (int i=0; i < audio_buffers_in_use_count; i++)
 	{
-		audio_sources[i]->computeAudibility(listener_position);
+		audio_sources[i]->computeAudibility(m_listener_position);
 		audio_sources_most_audible[i].first = i;
 		audio_sources_most_audible[i].second = audio_sources[i]->audibility;
 	}
@@ -695,7 +695,7 @@ void SoundManager::recomputeAllSources()
 #endif
 }
 
-void SoundManager::updateObstructionFilter(const ALuint hardware_source) const
+void SoundManager::UpdateObstructionFilter(const ALuint hardware_source) const
 {
     // TODO: Simulate diffraction path.
 
@@ -718,7 +718,7 @@ void SoundManager::updateObstructionFilter(const ALuint hardware_source) const
         bool obstruction_detected = false;
 
         // always obstruct sounds if the player is in a vehicle
-        if(App::GetSoundScriptManager()->listenerIsInsideThePlayerCoupledActor())
+        if(App::GetSoundScriptManager()->ListenerIsInsideThePlayerCoupledActor())
         {
             obstruction_detected = true;
         }
@@ -731,9 +731,9 @@ void SoundManager::updateObstructionFilter(const ALuint hardware_source) const
 
             std::pair<bool, Ogre::Real> intersection;
             // no normalisation due to how the intersectsTris function determines its number of steps
-            Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - listener_position;
+            Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - m_listener_position;
             Ogre::Real distance_to_sound = direction_to_sound.length();
-            Ray direct_path_to_sound = Ray(listener_position, direction_to_sound);
+            Ray direct_path_to_sound = Ray(m_listener_position, direction_to_sound);
 
             // perform line of sight check against terrain
             intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound, distance_to_sound);
@@ -809,7 +809,7 @@ void SoundManager::updateObstructionFilter(const ALuint hardware_source) const
         if(obstruction_detected)
         {
             // Apply obstruction filter to the source
-            alSourcei(hardware_source, AL_DIRECT_FILTER, efx_outdoor_obstruction_lowpass_filter_id);
+            alSourcei(hardware_source, AL_DIRECT_FILTER, m_efx_outdoor_obstruction_lowpass_filter_id);
         }
         else
         {
@@ -823,7 +823,7 @@ void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vect
 {
     if (!audio_device)
         return;
-    audio_sources[source_index]->computeAudibility(listener_position);
+    audio_sources[source_index]->computeAudibility(m_listener_position);
 
     if (audio_sources[source_index]->audibility == 0.0f)
     {

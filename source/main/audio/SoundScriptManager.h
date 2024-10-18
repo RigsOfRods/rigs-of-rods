@@ -332,8 +332,8 @@ public:
 
     void setEnabled(bool state);
 
-    void setDopplerFactor(float doppler_factor);
-    void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
+    void SetDopplerFactor(float doppler_factor);
+    void SetListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
     void setLoadingBaseSounds(bool value) { loading_base = value; };
 
     bool isDisabled() { return disabled; }
@@ -343,12 +343,12 @@ public:
     /**
      * @return True if the listener position is below water level. False otherwise.
      */
-    bool listenerIsUnderwater() const { return listener_is_underwater; }
+    bool ListenerIsUnderwater() const { return m_listener_is_underwater; }
 
     /**
      * @return True if the listener position is inside the AABB of the actor the player character is coupled to. False otherwise.
      */
-    bool listenerIsInsideThePlayerCoupledActor() const { return listener_is_inside_the_player_coupled_actor; }
+    bool ListenerIsInsideThePlayerCoupledActor() const { return m_listener_is_inside_the_player_coupled_actor; }
 
     SoundManager* getSoundManager() { return sound_manager; }
 
@@ -360,8 +360,8 @@ private:
 
     bool disabled;
     bool loading_base;
-    bool listener_is_underwater = false;
-    bool listener_is_inside_the_player_coupled_actor = false;
+    bool m_listener_is_underwater = false;
+    bool m_listener_is_inside_the_player_coupled_actor = false;
     float max_distance;
     float reference_distance;
     float rolloff_factor;
@@ -390,8 +390,8 @@ private:
      * its properties.
      * @return Reverb properties for the provided position.
      */
-    const EFXEAXREVERBPROPERTIES* getReverbPresetAt(Ogre::Vector3 position) const;
-    void setListenerEnvironment(Ogre::Vector3 position);
+    const EFXEAXREVERBPROPERTIES* GetReverbPresetAt(Ogre::Vector3 position) const;
+    void SetListenerEnvironment(Ogre::Vector3 position);
 
     SoundManager* sound_manager;
 };

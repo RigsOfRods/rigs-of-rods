@@ -376,7 +376,7 @@ public:
         }
         else
         {
-            reply << _L("Current speed of sound: ") << sound_manager->getSpeedOfSound();
+            reply << _L("Current speed of sound: ") << sound_manager->GetSpeedOfSound();
         }
 
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
@@ -429,7 +429,7 @@ public:
                 }
                 else
                 {
-                    reply << _L("Doppler Factor is configured as: ") << "CVar (change requires restart): " << App::audio_doppler_factor->getFloat() << ", currently used by OpenAL: " << sound_manager->getDopplerFactor();
+                    reply << _L("Doppler Factor is configured as: ") << "CVar (change requires restart): " << App::audio_doppler_factor->getFloat() << ", currently used by OpenAL: " << sound_manager->GetDopplerFactor();
                 }
             }
         }
