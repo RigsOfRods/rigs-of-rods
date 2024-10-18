@@ -353,7 +353,7 @@ void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
     if (disabled)
         return;
 
-    std::string listener_environment;
+    const EFXEAXREVERBPROPERTIES* listener_reverb_properties = nullptr;
 
     if (App::audio_engine_controls_environmental_audio->getBool())
     {
@@ -377,37 +377,37 @@ void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
 
         if (App::audio_enable_efx->getBool())
         {
-            listener_environment = this->getReverbPresetAt(listener_position);
+            listener_reverb_properties = this->getReverbPresetAt(listener_position);
         }
     }
 
     if (App::audio_enable_efx->getBool())
     {
         // always update the environment in case it was changed via console or script
-        sound_manager->setListenerEnvironment(listener_environment);
+        sound_manager->setListenerEnvironment(listener_reverb_properties);
     }
 }
 
-std::string SoundScriptManager::getReverbPresetAt(Ogre::Vector3 position)
+const EFXEAXREVERBPROPERTIES* SoundScriptManager::getReverbPresetAt(const Ogre::Vector3 position) const
 {
     if (!App::audio_force_listener_efx_preset->getStr().empty())
     {
-        return App::audio_force_listener_efx_preset->getStr();
+        return sound_manager->GetEfxProperties(App::audio_force_listener_efx_preset->getStr());
     }
 
     if (this->listener_is_inside_the_player_coupled_actor)
     {
         // the player is in a vehicle
         // there is no reverb preset for trucks, but this seems ok
-        return "EFX_REVERB_PRESET_DRIVING_INCAR_SPORTS";
+        return sound_manager->GetEfxProperties("EFX_REVERB_PRESET_DRIVING_INCAR_SPORTS");
     }
 
     if(this->listenerIsUnderwater())
     {
-        return "EFX_REVERB_PRESET_UNDERWATER";
+        return sound_manager->GetEfxProperties("EFX_REVERB_PRESET_UNDERWATER");
     }
 
-    return App::audio_default_listener_efx_preset->getStr();
+    return sound_manager->GetEfxProperties(App::audio_default_listener_efx_preset->getStr());
 }
 
 void SoundScriptManager::setDopplerFactor(float doppler_factor)

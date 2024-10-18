@@ -59,6 +59,11 @@ public:
     ~SoundManager();
 
     /**
+     * Cleans up various objects that should be reset when returning from a terrain to the main menu.
+     */
+    void     CleanUp();
+
+    /**
     * @param filename WAV file.
     * @param resource_group_name Leave empty to auto-search all groups (classic behavior).
     */
@@ -90,7 +95,7 @@ public:
      * @param listener_environment The preset that will be used for the listener environment.
      * @see updateListenerEffectSlot()
      */
-    void setListenerEnvironment(std::string listener_environment);
+    void setListenerEnvironment(const EFXEAXREVERBPROPERTIES* listener_efx_reverb_properties);
 
     /**
      * Unlike the name suggests, this sets the listener's gain to 0, essentially muting all sounds.
@@ -144,7 +149,15 @@ public:
     * Returns currently registered EFX presets
     * @return Map of EFX Preset names to their EFXEAXREVERBPROPERTIES object.
     */
-    std::map<std::string, EFXEAXREVERBPROPERTIES> getEfxPropertiesMap() const { return efx_properties_map; }
+    const std::map<std::string, EFXEAXREVERBPROPERTIES>& getEfxPropertiesMap() const { return efx_properties_map; }
+
+    /**
+     * Returns a pointer to properties of an EFX preset stored in the EFX properties map.
+     * The presets should not be modified directly so they can serve as a reference.
+     * @param efx_preset_name The name of the preset for which the properties shall be returned.
+     * @return Pointer to properties of a reverb preset if the lookup for the name in the EFX Properties map was positive, nullptr otherwise.
+     */
+    const EFXEAXREVERBPROPERTIES* GetEfxProperties(const std::string& efx_preset_name) const;
 
     static const float MAX_DISTANCE;
     static const float ROLLOFF_FACTOR;
@@ -220,9 +233,9 @@ private:
     ALuint                                          listener_slot = 0;
     ALuint                                          efx_outdoor_obstruction_lowpass_filter_id = 0;
     EfxReverbEngine                                 efx_reverb_engine = EfxReverbEngine::NONE;
-    std::string                                     listener_efx_preset_name;
+    const EFXEAXREVERBPROPERTIES*                   listener_efx_reverb_properties = nullptr;
     std::map<std::string, EFXEAXREVERBPROPERTIES>   efx_properties_map;
-    std::map<std::string, ALuint>                   efx_effect_id_map;
+    std::map<const EFXEAXREVERBPROPERTIES*, ALuint> efx_effect_id_map;
     LPALGENEFFECTS                                  alGenEffects = nullptr;
     LPALDELETEEFFECTS                               alDeleteEffects = nullptr;
     LPALISEFFECT                                    alIsEffect = nullptr;
@@ -246,7 +259,13 @@ private:
      * @param efx_properties EFXEAXREVERBPROPERTIES object holding the parameters of the reverb preset.
      * @see `AL/efx-presets.h` from OpenAL
      */
-    ALuint  CreateAlEffect(const EFXEAXREVERBPROPERTIES& efx_properties) const;
+    ALuint  CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties) const;
+
+    /**
+     * Deletes an OpenAL effect.
+     * @param effect_id ID of the effect targeted for removal.
+     */
+    void    DeleteAlEffect(const ALuint efx_effect_id) const;
 
     /**
      * Helper function that fills the efx_properties_map with presets provided by
@@ -269,7 +288,7 @@ private:
       * on surface distance.
       * @return A tuple of user-relative panning vector, gain and delay for early reflections
       */
-    std::tuple<Ogre::Vector3, float, float> calculateEarlyReflectionsProperties();
+    std::tuple<Ogre::Vector3, float, float> calculateEarlyReflectionsProperties() const;
 
     /**
      *   Applies an obstruction filter to the provided source if certain conditions apply.

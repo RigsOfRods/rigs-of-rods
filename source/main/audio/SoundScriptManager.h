@@ -31,6 +31,12 @@
 
 #include <OgreScriptLoader.h>
 
+#ifdef __APPLE__
+  #include <OpenAL/efx-presets.h>
+#else
+  #include <AL/efx-presets.h>
+#endif
+
 #define SOUND_PLAY_ONCE(_ACTOR_, _TRIG_)        App::GetSoundScriptManager()->trigOnce    ( (_ACTOR_), (_TRIG_) )
 #define SOUND_START(_ACTOR_, _TRIG_)            App::GetSoundScriptManager()->trigStart   ( (_ACTOR_), (_TRIG_) )
 #define SOUND_STOP(_ACTOR_, _TRIG_)             App::GetSoundScriptManager()->trigStop    ( (_ACTOR_), (_TRIG_) )
@@ -379,7 +385,12 @@ private:
     // soundLinks, soundItems, actor_ids, triggers
     std::map <int, std::map <int, std::map <int, std::map <int, bool > > > > state_map;
 
-    std::string getReverbPresetAt(Ogre::Vector3 position);
+    /**
+     * Determines which environment in terms of reverb corresponds to the provided position and returns
+     * its properties.
+     * @return Reverb properties for the provided position.
+     */
+    const EFXEAXREVERBPROPERTIES* getReverbPresetAt(Ogre::Vector3 position) const;
     void setListenerEnvironment(Ogre::Vector3 position);
 
     SoundManager* sound_manager;
