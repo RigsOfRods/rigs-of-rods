@@ -835,7 +835,9 @@ void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vect
             // update the AL settings
             switch (reason)
             {
-            case Sound::REASON_PLAY: alSourcePlay(hw_source);
+            case Sound::REASON_PLAY:
+                this->UpdateObstructionFilter(audio_sources[source_index]->hardware_index);
+                alSourcePlay(hw_source);
                 break;
             case Sound::REASON_STOP: alSourceStop(hw_source);
                 break;
@@ -914,6 +916,7 @@ void SoundManager::assign(int source_index, int hardware_index)
 
     if (audio_source->should_play)
     {
+        this->UpdateObstructionFilter(hardware_index);
         alSourcePlay(hw_source);
     }
 
