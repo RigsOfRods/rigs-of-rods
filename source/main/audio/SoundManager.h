@@ -295,9 +295,9 @@ private:
      *   Applies an obstruction filter to the provided source if certain conditions apply.
      *   To decide whether the filter should be applied or not, the function performs
      *   various checks against the environment of the listener.
-     *   @param hardware_souce The index of the hardware source.
+     *   @param hardware_index The index of the hardware source.
      */
-    void    UpdateObstructionFilter(const ALuint hardware_source) const;
+    void    UpdateObstructionFilter(const int hardware_index) const;
 };
 
 /// @}

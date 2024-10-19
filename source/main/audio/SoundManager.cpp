@@ -349,12 +349,12 @@ void SoundManager::Update(const float dt_sec)
     if(App::audio_enable_efx->getBool())
     {
         // apply filters to sources when appropriate
-        for(int source_index = 0; source_index < hardware_sources_in_use_count; source_index++)
+        for(int hardware_index = 0; hardware_index < hardware_sources_num; hardware_index++)
         {
             // update air absorption factor
-            alSourcef(hardware_sources[source_index], AL_AIR_ABSORPTION_FACTOR, App::audio_air_absorption_factor->getFloat());
+            alSourcef(hardware_sources[hardware_index], AL_AIR_ABSORPTION_FACTOR, App::audio_air_absorption_factor->getFloat());
 
-            this->UpdateObstructionFilter(hardware_sources[source_index]);
+            this->UpdateObstructionFilter(hardware_index);
         }
 
         this->UpdateListenerEffectSlot(dt_sec);
@@ -694,134 +694,120 @@ void SoundManager::recomputeAllSources()
 #endif
 }
 
-void SoundManager::UpdateObstructionFilter(const ALuint hardware_source) const
+void SoundManager::UpdateObstructionFilter(const int hardware_index) const
 {
-    // TODO: Simulate diffraction path.
+    if(hardware_sources_map[hardware_index] == -1) { return; } // no sound assigned to hardware source
 
     if(!App::audio_enable_obstruction->getBool())
     {
         // detach the obstruction filter in case it was attached when the feature was previously enabled
-        alSourcei(hardware_source, AL_DIRECT_FILTER, AL_FILTER_NULL);
+        alSourcei(hardware_sources[hardware_index], AL_DIRECT_FILTER, AL_FILTER_NULL);
         return;
     }
 
-    // find Sound the hardware_source belongs to
-    SoundPtr corresponding_sound = nullptr;
-    for(SoundPtr sound : audio_sources)
+    bool obstruction_detected = false;
+    const SoundPtr& corresponding_sound = audio_sources[hardware_sources_map[hardware_index]];
+
+    // TODO: Simulate diffraction path.
+
+    // always obstruct sounds if the player is in a vehicle
+    if(App::GetSoundScriptManager()->ListenerIsInsideThePlayerCoupledActor())
     {
-        if(sound != nullptr)
+        obstruction_detected = true;
+    }
+    else
+    {
+        /*
+        * Perform various line of sight checks until either a collision was detected
+        * and the filter has to be applied or no obstruction was detected.
+        */
+
+        std::pair<bool, Ogre::Real> intersection;
+        // no normalisation due to how the intersectsTris function determines its number of steps
+        Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - m_listener_position;
+        Ogre::Real distance_to_sound = direction_to_sound.length();
+        Ray direct_path_to_sound = Ray(m_listener_position, direction_to_sound);
+
+        // perform line of sight check against terrain
+        intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound, distance_to_sound);
+        obstruction_detected = intersection.first;
+
+        if(!obstruction_detected)
         {
-            if (sound->getCurrentHardwareIndex() == hardware_source)
+            // perform line of sight check against collision meshes
+            // for this to work correctly, the direction vector of the ray must have
+            // the length of the distance from the listener to the sound
+            intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(direct_path_to_sound);
+            obstruction_detected = intersection.first;
+        }
+
+        // do not normalise before intersectsTris() due to how that function works
+        direction_to_sound.normalise();
+        direct_path_to_sound.setDirection(direction_to_sound);
+
+        if(!obstruction_detected)
+        {
+            // perform line of sight check agains collision boxes
+            for (const collision_box_t& collision_box : App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes())
             {
-                corresponding_sound = sound;
-                break;
+                if (!collision_box.enabled || collision_box.virt) { continue; }
+
+                intersection = direct_path_to_sound.intersects(Ogre::AxisAlignedBox(collision_box.lo, collision_box.hi));
+                if (intersection.first && intersection.second <= distance_to_sound)
+                {
+                    obstruction_detected = true;
+                    break;
+                }
+            }
+        }
+
+        if(!obstruction_detected)
+        {
+            // perform line of sight check against actors
+            const ActorPtrVec& actors = App::GetGameContext()->GetActorManager()->GetActors();
+            bool soundsource_belongs_to_current_actor = false;
+            for(const ActorPtr actor : actors)
+            {
+                // Trucks shouldn't obstruct their own sound sources since the
+                // obstruction is most likely already contained in the recording.
+                for (int soundsource_index = 0; soundsource_index < actor->ar_num_soundsources; ++soundsource_index)
+                {
+                    const soundsource_t& soundsource = actor->ar_soundsources[soundsource_index];
+                    const int num_sounds = soundsource.ssi->getTemplate()->getNumSounds();
+                    for (int num_sound = 0; num_sound < num_sounds; ++num_sound)
+                    {
+                        if (soundsource.ssi->getSound(num_sound) == corresponding_sound)
+                        {
+                            soundsource_belongs_to_current_actor = true;
+                        }
+                    }
+                    if (soundsource_belongs_to_current_actor) { break; }
+                }
+
+                if (soundsource_belongs_to_current_actor)
+                {
+                    continue;
+                }
+
+                intersection = direct_path_to_sound.intersects(actor->ar_bounding_box);
+                obstruction_detected = intersection.first;
+                if (obstruction_detected)
+                {
+                    break;
+                }
             }
         }
     }
 
-    if (corresponding_sound != nullptr)
+    if(obstruction_detected)
     {
-        bool obstruction_detected = false;
-
-        // always obstruct sounds if the player is in a vehicle
-        if(App::GetSoundScriptManager()->ListenerIsInsideThePlayerCoupledActor())
-        {
-            obstruction_detected = true;
-        }
-        else
-        {
-            /*
-            * Perform various line of sight checks until either a collision was detected
-            * and the filter has to be applied or no obstruction was detected.
-            */
-
-            std::pair<bool, Ogre::Real> intersection;
-            // no normalisation due to how the intersectsTris function determines its number of steps
-            Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - m_listener_position;
-            Ogre::Real distance_to_sound = direction_to_sound.length();
-            Ray direct_path_to_sound = Ray(m_listener_position, direction_to_sound);
-
-            // perform line of sight check against terrain
-            intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound, distance_to_sound);
-            obstruction_detected = intersection.first;
-
-            if(!obstruction_detected)
-            {
-                // perform line of sight check against collision meshes
-                // for this to work correctly, the direction vector of the ray must have
-                // the length of the distance from the listener to the sound
-                intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(direct_path_to_sound);
-                obstruction_detected = intersection.first;
-            }
-
-            // do not normalise before intersectsTris() due to how that function works
-            direction_to_sound.normalise();
-            direct_path_to_sound.setDirection(direction_to_sound);
-
-            if(!obstruction_detected)
-            {
-                // perform line of sight check agains collision boxes
-                for (const collision_box_t& collision_box : App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes())
-                {
-                    if (!collision_box.enabled || collision_box.virt) { continue; }
-
-                    intersection = direct_path_to_sound.intersects(Ogre::AxisAlignedBox(collision_box.lo, collision_box.hi));
-                    if (intersection.first && intersection.second <= distance_to_sound)
-                    {
-                        obstruction_detected = true;
-                        break;
-                    }
-                }
-            }
-
-            if(!obstruction_detected)
-            {
-                // perform line of sight check against actors
-                const ActorPtrVec& actors = App::GetGameContext()->GetActorManager()->GetActors();
-                bool soundsource_belongs_to_current_actor = false;
-                for(const ActorPtr actor : actors)
-                {
-                    // Trucks shouldn't obstruct their own sound sources since the
-                    // obstruction is most likely already contained in the recording.
-                    for (int soundsource_index = 0; soundsource_index < actor->ar_num_soundsources; ++soundsource_index)
-                    {
-                        const soundsource_t& soundsource = actor->ar_soundsources[soundsource_index];
-                        const int num_sounds = soundsource.ssi->getTemplate()->getNumSounds();
-                        for (int num_sound = 0; num_sound < num_sounds; ++num_sound)
-                        {
-                            if (soundsource.ssi->getSound(num_sound) == corresponding_sound)
-                            {
-                                soundsource_belongs_to_current_actor = true;
-                            }
-                        }
-                        if (soundsource_belongs_to_current_actor) { break; }
-                    }
-
-                    if (soundsource_belongs_to_current_actor)
-                    {
-                        continue;
-                    }
-
-                    intersection = direct_path_to_sound.intersects(actor->ar_bounding_box);
-                    obstruction_detected = intersection.first;
-                    if (obstruction_detected)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-
-        if(obstruction_detected)
-        {
-            // Apply obstruction filter to the source
-            alSourcei(hardware_source, AL_DIRECT_FILTER, m_efx_outdoor_obstruction_lowpass_filter_id);
-        }
-        else
-        {
-            // reset direct filter for the source in case it has been set previously
-            alSourcei(hardware_source, AL_DIRECT_FILTER, AL_FILTER_NULL);
-        }
+        // Apply obstruction filter to the source
+        alSourcei(hardware_sources[hardware_index], AL_DIRECT_FILTER, m_efx_outdoor_obstruction_lowpass_filter_id);
+    }
+    else
+    {
+        // reset direct filter for the source in case it has been set previously
+        alSourcei(hardware_sources[hardware_index], AL_DIRECT_FILTER, AL_FILTER_NULL);
     }
 }
 
