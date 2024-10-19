@@ -156,11 +156,11 @@ SoundManager::SoundManager()
                 alGetError();
 
                 this->alGenAuxiliaryEffectSlots(1, &m_listener_slot);
-                ALuint e = alGetError();
+                ALuint error = alGetError();
 
-                if (e != AL_NO_ERROR)
+                if (error != AL_NO_ERROR)
                 {
-                    LOG("SoundManager: alGenAuxiliaryEffectSlots for listener_slot failed: " + e);
+                    LOG("SoundManager: alGenAuxiliaryEffectSlots for listener_slot failed: " + TOSTRING(alGetString(error)));
                     m_listener_slot = AL_EFFECTSLOT_NULL;
                 }
             }
@@ -620,7 +620,7 @@ ALuint SoundManager::CreateAlEffect(const EFXEAXREVERBPROPERTIES* efx_properties
     error = alGetError();
     if(error != AL_NO_ERROR)
     {
-        LOG("SoundManager: Could not create EFX effect:" + error);
+        LOG("SoundManager: Could not create EFX effect:" + TOSTRING(alGetString(error)));
 
         if(this->alIsEffect(effect))
             this->alDeleteEffects(1, &effect);
@@ -640,7 +640,7 @@ void SoundManager::DeleteAlEffect(const ALuint efx_effect_id) const
     error = alGetError();
     if(error != AL_NO_ERROR)
     {
-        LOG("SoundManager: Could not delete EFX effect: " + error);
+        LOG("SoundManager: Could not delete EFX effect: " + TOSTRING(alGetString(error)));
     }
 }
 
