@@ -352,10 +352,7 @@ void SoundManager::Update(const float dt_sec)
             // update air absorption factor
             alSourcef(hardware_sources[source_index], AL_AIR_ABSORPTION_FACTOR, App::audio_air_absorption_factor->getFloat());
 
-            if(App::audio_enable_obstruction->getBool())
-            {
-                this->UpdateObstructionFilter(hardware_sources[source_index]);
-            }
+            this->UpdateObstructionFilter(hardware_sources[source_index]);
         }
 
         this->UpdateListenerEffectSlot(dt_sec);
@@ -698,6 +695,13 @@ void SoundManager::recomputeAllSources()
 void SoundManager::UpdateObstructionFilter(const ALuint hardware_source) const
 {
     // TODO: Simulate diffraction path.
+
+    if(!App::audio_enable_obstruction->getBool())
+    {
+        // detach the obstruction filter in case it was attached when the feature was previously enabled
+        alSourcei(hardware_source, AL_DIRECT_FILTER, AL_FILTER_NULL);
+        return;
+    }
 
     // find Sound the hardware_source belongs to
     SoundPtr corresponding_sound = nullptr;
