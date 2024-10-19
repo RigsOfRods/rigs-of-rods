@@ -276,6 +276,8 @@ void SoundManager::CleanUp()
             m_efx_effect_id_map.erase(entry.first);
         }
     }
+
+    // TODO: Delete Sounds and buffers
 }
 
 const EFXEAXREVERBPROPERTIES* SoundManager::GetEfxProperties(const std::string& efx_preset_name) const
@@ -656,26 +658,26 @@ void SoundManager::recomputeAllSources()
 #if 0
 	if (!audio_device) return;
 
-	for (int i=0; i < audio_buffers_in_use_count; i++)
+	for (int i=0; i < m_audio_sources_in_use_count; i++)
 	{
 		audio_sources[i]->computeAudibility(m_listener_position);
 		audio_sources_most_audible[i].first = i;
 		audio_sources_most_audible[i].second = audio_sources[i]->audibility;
 	}
-    // sort first 'num_hardware_sources' sources by audibility
-    // see: https://en.wikipedia.org/wiki/Selection_algorithm
-	if ((audio_buffers_in_use_count - 1) > hardware_sources_num)
+	// sort first 'num_hardware_sources' sources by audibility
+	// see: https://en.wikipedia.org/wiki/Selection_algorithm
+	if ((m_audio_sources_in_use_count - 1) > hardware_sources_num)
 	{
-		std::nth_element(audio_sources_most_audible, audio_sources_most_audible+hardware_sources_num, audio_sources_most_audible + audio_buffers_in_use_count - 1, compareByAudibility);
+		std::nth_element(audio_sources_most_audible, audio_sources_most_audible+hardware_sources_num, audio_sources_most_audible + m_audio_sources_in_use_count - 1, compareByAudibility);
 	}
-    // retire out of range sources first
-	for (int i=0; i < audio_buffers_in_use_count; i++)
+	// retire out of range sources first
+	for (int i=0; i < m_audio_sources_in_use_count; i++)
 	{
 		if (audio_sources[audio_sources_most_audible[i].first]->hardware_index != -1 && (i >= hardware_sources_num || audio_sources_most_audible[i].second == 0))
 			retire(audio_sources_most_audible[i].first);
 	}
-    // assign new sources
-	for (int i=0; i < std::min(audio_buffers_in_use_count, hardware_sources_num); i++)
+	// assign new sources
+	for (int i=0; i < std::min(m_audio_sources_in_use_count, hardware_sources_num); i++)
 	{
 		if (audio_sources[audio_sources_most_audible[i].first]->hardware_index == -1 && audio_sources_most_audible[i].second > 0)
 		{
@@ -1005,11 +1007,12 @@ SoundPtr SoundManager::createSound(String filename, Ogre::String resource_group_
         }
         buffer = audio_buffers[audio_buffers_in_use_count];
         audio_buffer_file_name[audio_buffers_in_use_count] = filename;
+        audio_buffers_in_use_count++;
     }
 
-    audio_sources[audio_buffers_in_use_count] = new Sound(buffer, this, audio_buffers_in_use_count);
+    audio_sources[m_audio_sources_in_use_count] = new Sound(buffer, this, m_audio_sources_in_use_count);
 
-    return audio_sources[audio_buffers_in_use_count++];
+    return audio_sources[m_audio_sources_in_use_count++];
 }
 
 bool SoundManager::loadWAVFile(String filename, ALuint buffer, Ogre::String resource_group_name /*= ""*/)

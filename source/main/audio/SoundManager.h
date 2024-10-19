@@ -212,6 +212,7 @@ private:
     ALuint hardware_sources[MAX_HARDWARE_SOURCES];     // this buffer contains valid AL handles up to m_hardware_sources_num
 
     // audio sources
+    int      m_audio_sources_in_use_count = 0;
     SoundPtr audio_sources[MAX_AUDIO_BUFFERS] = { nullptr };
     // helper for calculating the most audible sources
     std::pair<int, float> audio_sources_most_audible[MAX_AUDIO_BUFFERS];
