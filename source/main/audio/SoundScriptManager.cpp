@@ -397,13 +397,6 @@ const EFXEAXREVERBPROPERTIES* SoundScriptManager::GetReverbPresetAt(const Ogre::
         {
             return sound_manager->GetEfxProperties(App::audio_force_listener_efx_preset->getStr());
         }
-
-        if (m_listener_is_inside_the_player_coupled_actor)
-        {
-            // the player is in a vehicle
-            // there is no reverb preset for trucks, but this seems ok
-            return sound_manager->GetEfxProperties("EFX_REVERB_PRESET_DRIVING_INCAR_SPORTS");
-        }
     }
 
     const auto water = App::GetGameContext()->GetTerrain()->getWater();
