@@ -404,11 +404,13 @@ const EFXEAXREVERBPROPERTIES* SoundScriptManager::GetReverbPresetAt(const Ogre::
             // there is no reverb preset for trucks, but this seems ok
             return sound_manager->GetEfxProperties("EFX_REVERB_PRESET_DRIVING_INCAR_SPORTS");
         }
+    }
 
-        if(m_listener_is_underwater)
-        {
-            return sound_manager->GetEfxProperties("EFX_REVERB_PRESET_UNDERWATER");
-        }
+    const auto water = App::GetGameContext()->GetTerrain()->getWater();
+    bool position_is_underwater = (water != nullptr ? water->IsUnderWater(position) : false);
+    if(position_is_underwater)
+    {
+        return sound_manager->GetEfxProperties("EFX_REVERB_PRESET_UNDERWATER");
     }
 
     // check if position is inside a collision box with a reverb_preset assigned to it
