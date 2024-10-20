@@ -407,6 +407,20 @@ const EFXEAXREVERBPROPERTIES* SoundScriptManager::GetReverbPresetAt(const Ogre::
         return sound_manager->GetEfxProperties("EFX_REVERB_PRESET_UNDERWATER");
     }
 
+    // check if position is inside a collision box with a reverb_preset assigned to it
+    for (const collision_box_t& collision_box : App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes())
+    {
+        if (!collision_box.reverb_preset_name.empty())
+        {
+            const Ogre::AxisAlignedBox collision_box_aab = Ogre::AxisAlignedBox(collision_box.lo, collision_box.hi);
+
+            if(collision_box_aab.contains(position))
+            {
+                return sound_manager->GetEfxProperties(collision_box.reverb_preset_name);
+            }
+        }
+    }
+
     return sound_manager->GetEfxProperties(App::audio_default_listener_efx_preset->getStr());
 }
 
