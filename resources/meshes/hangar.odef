@@ -10,6 +10,7 @@ beginbox
 boxcoords -23.75, -21.75, -0.2, 2.1, -3.07, -0.19
 virtual
 event shopplane avatar
+reverb_preset EFX_REVERB_PRESET_WOODEN_ALCOVE
 endbox
 
 beginbox

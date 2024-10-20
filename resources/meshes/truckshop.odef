@@ -15,6 +15,7 @@ beginbox
 boxcoords -11.5, -2.1, -0.5, 3.0, -9.70, -7.5
 virtual
 event shoptruck avatar
+reverb_preset EFX_REVERB_PRESET_WOODEN_ALCOVE
 endbox
 
 beginbox
