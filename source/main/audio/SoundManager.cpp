@@ -523,26 +523,63 @@ std::tuple<Ogre::Vector3, float, float> SoundManager::ComputeEarlyReflectionsPro
      * To detect surfaces around the listener within the vicinity of
      * max_distance, we cast rays counter-clockwise in a 360° circle
      * around the listener on a horizontal plane realative to the listener.
-    */
+     */
     bool        nearby_surface_detected = false;
     const float angle_step_size = 90;
     float       closest_surface_distance = std::numeric_limits<float>::max();
 
     for (float angle = 0; angle < 360; angle += angle_step_size)
     {
+        float closest_surface_distance_in_this_direction = std::numeric_limits<float>::max();
         Ogre::Vector3 raycast_direction = Quaternion(Ogre::Degree(angle), m_listener_up) * m_listener_direction;
         raycast_direction.normalise();
         // accompany direction vector for how the intersectsTris function works
+
+        // check for nearby collision meshes
         Ray ray = Ray(m_listener_position, raycast_direction * max_distance * App::GetGameContext()->GetTerrain()->GetCollisions()->GetCellSize());
         std::pair<bool, Ogre::Real> intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(ray);
 
         if (intersection.first)
         {
-            nearby_surface_detected  = true;
-            early_reflections_pan   += raycast_direction * max_distance * intersection.second;
-            closest_surface_distance = std::min(intersection.second, closest_surface_distance);
+            closest_surface_distance_in_this_direction = intersection.second * max_distance;
+        }
+
+        ray.setDirection(ray.getDirection().normalisedCopy());
+
+        // check for nearby collision boxes
+        for (const collision_box_t& collision_box : App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes())
+        {
+            if (!collision_box.enabled || collision_box.virt) { continue; }
+            intersection = ray.intersects(Ogre::AxisAlignedBox(collision_box.lo, collision_box.hi));
+            if (intersection.first && intersection.second <= max_distance)
+            {
+                closest_surface_distance_in_this_direction = std::min(closest_surface_distance_in_this_direction, intersection.second);
+            }
+        }
+
+        // check for nearby actors
+        const ActorPtrVec& actors = App::GetGameContext()->GetActorManager()->GetActors();
+        for(const ActorPtr& actor : actors)
+        {
+            // ignore own truck if player is driving one
+            if (actor == App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling()) { continue; }
+
+            intersection = ray.intersects(actor->ar_bounding_box);
+            if (intersection.first && intersection.second <= max_distance)
+            {
+                closest_surface_distance_in_this_direction = std::min(closest_surface_distance_in_this_direction, intersection.second);
+            }
+        }
+
+        closest_surface_distance = std::min(closest_surface_distance, closest_surface_distance_in_this_direction);
+
+        if(closest_surface_distance_in_this_direction <= max_distance)
+        {
+            early_reflections_pan += raycast_direction * (max_distance - closest_surface_distance_in_this_direction);
         }
     }
+
+    nearby_surface_detected = closest_surface_distance <= max_distance;
 
     // TODO vertical raycasts
 
@@ -563,7 +600,7 @@ std::tuple<Ogre::Vector3, float, float> SoundManager::ComputeEarlyReflectionsPro
         early_reflections_gain  = std::min(
             (m_listener_efx_reverb_properties->flReflectionsGain
                + reflections_gain_boost_max
-               - (reflections_gain_boost_max * (1.0f - magnitude))),
+               - (reflections_gain_boost_max * (magnitude))),
              AL_EAXREVERB_MAX_REFLECTIONS_GAIN);
     }
 
