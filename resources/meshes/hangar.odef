@@ -16,6 +16,7 @@ beginbox
 boxcoords  -17, 17, 0, 4.5, -29, 4
 virtual
 event spawnzone
+reverb_preset EFX_REVERB_PRESET_FACTORY_HALL
 direction 0, 90, 0
 endbox
 

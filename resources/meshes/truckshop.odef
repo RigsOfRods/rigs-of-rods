@@ -20,6 +20,7 @@ endbox
 beginbox
 boxcoords -12.0,  12.0, -0.5, 5.5, -7.0, 7.0
 virtual
+reverb_preset EFX_REVERB_PRESET_FACTORY_LARGEROOM
 forcecamera 11.35, 5.06, 6.41
 endbox
 
