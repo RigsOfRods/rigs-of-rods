@@ -2,6 +2,7 @@ import os
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMakeDeps
 from conan.tools.files import copy
+from conan.tools.cmake import CMakeToolchain, CMakeDeps
 
 class RoR(ConanFile):
     name = "Rigs of Rods"
@@ -31,6 +32,7 @@ class RoR(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["DOWNLOAD_DEPS"] = "OFF"
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
