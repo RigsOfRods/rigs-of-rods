@@ -1,7 +1,7 @@
 ####################################################################################################
 # Doxygen Documentation
 ####################################################################################################
-if( BUILD_DOC_DOXYGEN )
+if( ROR_BUILD_DOC_DOXYGEN )
   # The doxygen package is required in order to build documentation
   find_package( Doxygen REQUIRED )
 
