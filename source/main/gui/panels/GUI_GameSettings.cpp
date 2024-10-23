@@ -329,9 +329,30 @@ void GameSettings::DrawAudioSettings()
         App::audio_device_name->setStr(audio_devices[device_id]);
     }
 
-    DrawGCheckbox(App::audio_enable_creak,     _LC("GameSettings", "Creak sound"));
-    DrawGCheckbox(App::audio_menu_music,       _LC("GameSettings", "Main menu music"));
-    DrawGFloatSlider(App::audio_master_volume, _LC("GameSettings", "Master volume"), 0, 1);
+    DrawGCheckbox(App::audio_enable_creak,      _LC("GameSettings", "Creak sound"));
+    DrawGCheckbox(App::audio_enable_efx,        _LC("GameSettings", "Enable advanced sound effects via OpenAL EFX"));
+
+    if (App::audio_enable_efx->getBool())
+    {
+        DrawGCombo(App::audio_efx_reverb_engine,     _LC("GameSettings", "OpenAL Reverb engine"), m_combo_items_efx_reverb_engine.c_str());
+        DrawGCheckbox(App::audio_enable_obstruction, _LC("GameSettings", "Sound obstruction (experimental)"));
+        if (App::audio_efx_reverb_engine->getEnum<EfxReverbEngine>() == EfxReverbEngine::EAXREVERB)
+        {
+            DrawGCheckbox(App::audio_enable_reflection_panning, _LC("GameSettings", "Early reflections panning (experimental)"));
+        }
+
+        DrawGCheckbox(App::audio_engine_controls_environmental_audio, _LC("GameSettings", "Engine exerts automatic control over environmental audio"));
+
+        if(App::audio_engine_controls_environmental_audio)
+        {
+            DrawGTextEdit(App::audio_default_listener_efx_preset, _LC("GameSettings", "Default EFX Reverb Preset"), m_buf_audio_default_listener_efx_preset);
+            DrawGTextEdit(App::audio_force_listener_efx_preset,   _LC("GameSettings", "Force EFX Reverb Preset"),   m_buf_audio_force_listener_efx_preset);
+        }
+    }
+
+    DrawGCheckbox(App::audio_menu_music,        _LC("GameSettings", "Main menu music"));
+    DrawGFloatSlider(App::audio_master_volume,  _LC("GameSettings", "Master volume"), 0, 1);
+    DrawGFloatSlider(App::audio_doppler_factor, _LC("GameSettings", "Doppler factor (requires restart)"), 0, 10);
 #endif // USE_OPENAL
 }
 
@@ -577,5 +598,13 @@ void GameSettings::SetVisible(bool v)
         ImAddItemToComboboxString(m_combo_items_input_grab, ToLocalizedString(IoInputGrabMode::ALL));
         ImAddItemToComboboxString(m_combo_items_input_grab, ToLocalizedString(IoInputGrabMode::DYNAMIC));
         ImTerminateComboboxString(m_combo_items_input_grab);
+    }
+
+    if (m_combo_items_efx_reverb_engine == "")
+    {
+        ImAddItemToComboboxString(m_combo_items_efx_reverb_engine, ToLocalizedString(EfxReverbEngine::NONE));
+        ImAddItemToComboboxString(m_combo_items_efx_reverb_engine, ToLocalizedString(EfxReverbEngine::REVERB));
+        ImAddItemToComboboxString(m_combo_items_efx_reverb_engine, ToLocalizedString(EfxReverbEngine::EAXREVERB));
+        ImTerminateComboboxString(m_combo_items_efx_reverb_engine);
     }
 }

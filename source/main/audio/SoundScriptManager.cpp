@@ -24,6 +24,8 @@
 
 #include "Actor.h"
 #include "CameraManager.h"
+#include "GameContext.h"
+#include "IWater.h"
 #include "Sound.h"
 #include "SoundManager.h"
 #include "Utils.h"
@@ -310,22 +312,129 @@ void SoundScriptManager::update(float dt_sec)
     if (App::sim_state->getEnum<SimState>() == SimState::RUNNING ||
         App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
     {
-        Ogre::SceneNode* cam_node = App::GetCameraManager()->GetCameraNode();
-        static Vector3 lastCameraPosition;
-        Vector3 cameraSpeed = (cam_node->getPosition() - lastCameraPosition) / dt_sec;
-        lastCameraPosition = cam_node->getPosition();
-        Ogre::Vector3 upVector = App::GetCameraManager()->GetCameraNode()->getOrientation() * Ogre::Vector3::UNIT_Y;
+        Ogre::SceneNode* camera_node = App::GetCameraManager()->GetCameraNode();
+        static Vector3 last_camera_position;
+        Ogre::Vector3 camera_position = camera_node->getPosition();
+        Vector3 camera_velocity = (camera_position - last_camera_position) / dt_sec;
+        last_camera_position = camera_position;
+        Ogre::Vector3 camera_up = camera_node->getOrientation() * Ogre::Vector3::UNIT_Y;
         // Direction points down -Z by default (adapted from Ogre::Camera)
-        Ogre::Vector3 cameraDir = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
-        this->setCamera(App::GetCameraManager()->GetCameraNode()->getPosition(), cameraDir, upVector, cameraSpeed);
+        Ogre::Vector3 camera_direction = camera_node->getOrientation() * -Ogre::Vector3::UNIT_Z;
+        SetListener(camera_position, camera_direction, camera_up, camera_velocity);
+        Ogre::Vector3 listener_position = sound_manager->GetListenerPosition();
+
+        const auto water = App::GetGameContext()->GetTerrain()->getWater();
+        m_listener_is_underwater = (water != nullptr ? water->IsUnderWater(listener_position) : false);
+
+        ActorPtr actor_of_player = App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling();
+        if (actor_of_player != nullptr)
+        {
+            m_listener_is_inside_the_player_coupled_actor = actor_of_player->ar_bounding_box.contains(listener_position);
+        }
+        else
+        {
+            m_listener_is_inside_the_player_coupled_actor = false;
+        }
+
+        SetListenerEnvironment(camera_position);
+        sound_manager->Update(dt_sec);
     }
 }
 
-void SoundScriptManager::setCamera(Vector3 position, Vector3 direction, Vector3 up, Vector3 velocity)
+void SoundScriptManager::SetListener(Vector3 position, Vector3 direction, Vector3 up, Vector3 velocity)
 {
     if (disabled)
         return;
-    sound_manager->setCamera(position, direction, up, velocity);
+    sound_manager->SetListener(position, direction, up, velocity);
+}
+
+void SoundScriptManager::SetListenerEnvironment(Vector3 listener_position)
+{
+    if (disabled)
+        return;
+
+    const EFXEAXREVERBPROPERTIES* listener_reverb_properties = nullptr;
+
+    if (App::audio_engine_controls_environmental_audio->getBool())
+    {
+        if(ListenerIsUnderwater())
+        {
+            sound_manager->SetSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
+            /*
+            According to the Francois-Garrison formula for frequency-dependant absorption at 5kHz in water
+            and assuming the Air Absorption Gain HF property of OpenAL is set to the minimum of 0.892,
+            the absorption factor should be ~11.25, which is just slightly above the maximum of 10.0.
+            */
+            App::audio_air_absorption_factor->setVal(10.0f);
+            App::audio_air_absorption_gain_hf->setVal(0.892f);
+        }
+        else
+        {
+            sound_manager->SetSpeedOfSound(343.3f); // assume listener is in air at 20° celsius
+            App::audio_air_absorption_factor->setVal(1.0f);
+            App::audio_air_absorption_gain_hf->setVal(0.994f);
+        }
+
+        if (App::audio_enable_efx->getBool())
+        {
+            listener_reverb_properties = GetReverbPresetAt(listener_position);
+        }
+    }
+
+    if (App::audio_enable_efx->getBool())
+    {
+        // always update the environment in case it was changed via console or script
+        sound_manager->SetListenerEnvironment(listener_reverb_properties);
+    }
+}
+
+const EFXEAXREVERBPROPERTIES* SoundScriptManager::GetReverbPresetAt(const Ogre::Vector3 position) const
+{
+    // for the listener we do additional checks
+    if(position == sound_manager->GetListenerPosition())
+    {
+        if (!App::audio_force_listener_efx_preset->getStr().empty())
+        {
+            return sound_manager->GetEfxProperties(App::audio_force_listener_efx_preset->getStr());
+        }
+    }
+
+    const auto water = App::GetGameContext()->GetTerrain()->getWater();
+    bool position_is_underwater = (water != nullptr ? water->IsUnderWater(position) : false);
+    if(position_is_underwater)
+    {
+        return sound_manager->GetEfxProperties("EFX_REVERB_PRESET_UNDERWATER");
+    }
+
+    // check if position is inside a collision box with a reverb_preset assigned to it
+    for (const collision_box_t& collision_box : App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes())
+    {
+        if (!collision_box.reverb_preset_name.empty())
+        {
+            const Ogre::AxisAlignedBox collision_box_aab = Ogre::AxisAlignedBox(collision_box.lo, collision_box.hi);
+
+            if(collision_box_aab.contains(position))
+            {
+                return sound_manager->GetEfxProperties(collision_box.reverb_preset_name);
+            }
+        }
+    }
+
+    if(position == sound_manager->GetListenerPosition())
+    {
+        return sound_manager->GetEfxProperties(App::audio_default_listener_efx_preset->getStr());
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+void SoundScriptManager::SetDopplerFactor(float doppler_factor)
+{
+    if (disabled)
+        return;
+    sound_manager->SetDopplerFactor(doppler_factor);
 }
 
 const StringVector& SoundScriptManager::getScriptPatterns(void) const

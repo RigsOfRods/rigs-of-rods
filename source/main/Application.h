@@ -150,6 +150,8 @@ enum MsgType
     MSG_EDI_CREATE_PROJECT_REQUESTED,      //!< Payload = RoR::CreateProjectRequest* (owner)
     MSG_EDI_MODIFY_PROJECT_REQUESTED,      //!< Payload = RoR::UpdateProjectRequest* (owner)
     MSG_EDI_DELETE_PROJECT_REQUESTED,      //!< Payload = RoR::CacheEntryPtr* (owner)
+    // Audio
+    MSG_AUD_MODIFY_DOPPLER_FACTOR_REQUESTED, //!< Payload = float*
 };
 
 const char* MsgTypeToString(MsgType type);
@@ -263,6 +265,14 @@ enum class GfxSkyMode
     SKYX,       //!< SkyX (best looking, slower)
 };
 std::string ToLocalizedString(GfxSkyMode e);
+
+enum class EfxReverbEngine
+{
+    NONE,
+    REVERB,
+    EAXREVERB,
+};
+std::string ToLocalizedString(EfxReverbEngine e);
 
 enum class IoInputGrabMode
 {
@@ -443,9 +453,19 @@ extern CVar* io_discord_rpc;
 extern CVar* io_invert_orbitcam;
 
 // Audio
+extern CVar* audio_air_absorption_factor;
+extern CVar* audio_air_absorption_gain_hf;
 extern CVar* audio_master_volume;
 extern CVar* audio_enable_creak;
+extern CVar* audio_enable_obstruction;
+extern CVar* audio_enable_reflection_panning;
+extern CVar* audio_enable_efx;
+extern CVar* audio_engine_controls_environmental_audio;
+extern CVar* audio_efx_reverb_engine;
+extern CVar* audio_default_listener_efx_preset;
+extern CVar* audio_force_listener_efx_preset;
 extern CVar* audio_device_name;
+extern CVar* audio_doppler_factor;
 extern CVar* audio_menu_music;
 
 // Graphics
