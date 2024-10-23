@@ -270,10 +270,10 @@ void SoundManager::CleanUp()
             this->alAuxiliaryEffectSloti(m_listener_slot, AL_EFFECTSLOT_EFFECT, AL_EFFECTSLOT_NULL);
         }
 
-        for (const auto& entry : m_efx_effect_id_map)
+        for (auto it = m_efx_effect_id_map.begin(); it != m_efx_effect_id_map.end();)
         {
-            this->DeleteAlEffect(entry.second);
-            m_efx_effect_id_map.erase(entry.first);
+            this->DeleteAlEffect(it->second);
+            it = m_efx_effect_id_map.erase(it);
         }
     }
 
@@ -425,90 +425,148 @@ void SoundManager::SetListenerEnvironment(const EFXEAXREVERBPROPERTIES* listener
 
 void SoundManager::UpdateListenerEffectSlot(const float dt_sec)
 {
-    if (m_listener_efx_reverb_properties == nullptr)
+    if(m_listener_efx_reverb_properties == nullptr)
     {
-        this->alAuxiliaryEffectSloti(m_listener_slot, AL_EFFECTSLOT_EFFECT, AL_EFFECTSLOT_NULL);
+        this->SmoothlyUpdateAlAuxiliaryEffectSlot(dt_sec, m_listener_slot, nullptr);
+        return;
+    }
+
+    EFXEAXREVERBPROPERTIES current_environmental_properties = *m_listener_efx_reverb_properties;
+
+    current_environmental_properties.flAirAbsorptionGainHF = App::audio_air_absorption_gain_hf->getFloat();
+
+    // early reflections panning, delay and strength
+    if (App::audio_enable_reflection_panning->getBool() && m_efx_reverb_engine == EfxReverbEngine::EAXREVERB)
+    {
+        std::tuple<Ogre::Vector3, float, float> target_early_reflections_properties = this->ComputeEarlyReflectionsProperties();
+
+        // convert panning vector from RHS to EAXREVERB's LHS
+        current_environmental_properties.flReflectionsPan[0] =  std::get<0>(target_early_reflections_properties).x;
+        current_environmental_properties.flReflectionsPan[1] =  0;
+        current_environmental_properties.flReflectionsPan[2] = -std::get<0>(target_early_reflections_properties).z;
+
+        current_environmental_properties.flReflectionsGain   =  std::get<1>(target_early_reflections_properties);
+        current_environmental_properties.flReflectionsDelay  =  std::get<2>(target_early_reflections_properties);
+    }
+
+    this->SmoothlyUpdateAlAuxiliaryEffectSlot(dt_sec, m_listener_slot, &current_environmental_properties);
+}
+
+void SoundManager::SmoothlyUpdateAlAuxiliaryEffectSlot(const float dt_sec, const ALuint slot_id, const EFXEAXREVERBPROPERTIES* target_efx_properties)
+{
+    const float time_to_target = 0.100f; // seconds to reach the target properties from the current properties
+    const float step = std::min(dt_sec / time_to_target, 1.0f);
+    static std::map<ALuint, EFXEAXREVERBPROPERTIES> current_efx_properties_of_slot;
+
+    if (target_efx_properties == nullptr)
+    {
+        this->alAuxiliaryEffectSloti(slot_id, AL_EFFECTSLOT_EFFECT, AL_EFFECTSLOT_NULL);
+        return;
+    }
+
+    const auto it = current_efx_properties_of_slot.find(slot_id);
+    if (it == current_efx_properties_of_slot.end())
+    {
+        // previously unseen effect slot, set a starting point
+        current_efx_properties_of_slot[slot_id] = *target_efx_properties;
+    }
+
+    ALuint efx_effect_id;
+    // create new AL effect if not existing
+    if(m_efx_effect_id_map.find(slot_id) == m_efx_effect_id_map.end())
+    {
+        efx_effect_id = this->CreateAlEffect(target_efx_properties);
+        m_efx_effect_id_map[slot_id] = efx_effect_id;
     }
     else
     {
-        ALuint efx_effect_id;
-
-        // create new effect if not existing
-        if(m_efx_effect_id_map.find(m_listener_efx_reverb_properties) == m_efx_effect_id_map.end())
-        {
-            efx_effect_id = this->CreateAlEffect(m_listener_efx_reverb_properties);
-            m_efx_effect_id_map[m_listener_efx_reverb_properties] = efx_effect_id;
-        }
-        else
-        {
-            efx_effect_id = m_efx_effect_id_map.find(m_listener_efx_reverb_properties)->second;
-        }
-
-        // update air absorption gain hf of effect
-        if (m_efx_reverb_engine == EfxReverbEngine::EAXREVERB)
-        {
-            this->alEffectf(efx_effect_id, AL_EAXREVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
-        }
-        else if (m_efx_reverb_engine == EfxReverbEngine::REVERB)
-        {
-            this->alEffectf(efx_effect_id, AL_REVERB_AIR_ABSORPTION_GAINHF, App::audio_air_absorption_gain_hf->getFloat());
-        }
-
-        // early reflections panning, delay and strength
-        if (
-                App::audio_enable_reflection_panning->getBool() &&
-                m_efx_reverb_engine == EfxReverbEngine::EAXREVERB &&
-                App::app_state->getEnum<AppState>() == AppState::SIMULATION // required to avoid crash when returning to main menu
-           )
-        {
-            // smoothly pan from the current properties to the target properties over several timesteps (frames)
-            const float time_to_target = 0.100f; // seconds to reach the target properties from the current properties
-            const float step = std::min(dt_sec / time_to_target, 1.0f);
-            static std::tuple<Ogre::Vector3, float, float> target_early_reflections_properties;
-            static std::tuple<Ogre::Vector3, float, float> current_early_reflections_properties =
-                std::make_tuple(Ogre::Vector3(m_listener_efx_reverb_properties->flReflectionsPan[0],
-                                              m_listener_efx_reverb_properties->flReflectionsPan[1],
-                                              m_listener_efx_reverb_properties->flReflectionsPan[2]),
-                                              m_listener_efx_reverb_properties->flReflectionsGain,
-                                              m_listener_efx_reverb_properties->flReflectionsDelay);
-
-            target_early_reflections_properties = this->ComputeEarlyReflectionsProperties();
-
-            const Ogre::Vector3 current_early_reflections_pan =
-                std::get<0>(current_early_reflections_properties)
-                  + step * (    std::get<0>(target_early_reflections_properties)
-                              - std::get<0>(current_early_reflections_properties));
-
-            const float current_early_reflections_gain  =
-                std::get<1>(current_early_reflections_properties)
-                  + step * (   std::get<1>(target_early_reflections_properties)
-                             - std::get<1>(current_early_reflections_properties));
-
-            const float current_early_reflections_delay =
-                std::get<2>(current_early_reflections_properties)
-                  + step * (   std::get<2>(target_early_reflections_properties)
-                             - std::get<2>(current_early_reflections_properties));
-
-            current_early_reflections_properties =
-                std::make_tuple(Ogre::Vector3(current_early_reflections_pan.x,
-                                              current_early_reflections_pan.y,
-                                              current_early_reflections_pan.z),
-                                              current_early_reflections_gain,
-                                              current_early_reflections_delay);
-
-            // convert panning vector to EAXREVERB's LHS
-            const float eaxreverb_early_reflections_pan[3] =
-                {  current_early_reflections_pan.x,
-                   0, // TODO
-                  -current_early_reflections_pan.z };
-            this->alEffectfv(efx_effect_id, AL_EAXREVERB_REFLECTIONS_PAN, eaxreverb_early_reflections_pan);
-            this->alEffectf(efx_effect_id, AL_EAXREVERB_REFLECTIONS_GAIN, std::get<1>(current_early_reflections_properties));
-            this->alEffectf(efx_effect_id, AL_EAXREVERB_REFLECTIONS_DELAY, std::get<2>(current_early_reflections_properties));
-        }
-
-        // update the effect on the listener effect slot
-        this->alAuxiliaryEffectSloti(m_listener_slot, AL_EFFECTSLOT_EFFECT, efx_effect_id);
+        efx_effect_id = m_efx_effect_id_map.find(slot_id)->second;
     }
+
+    // compute intermediate step between current and target properties using linear interpolation based on time step
+    current_efx_properties_of_slot[slot_id] =
+    {
+        current_efx_properties_of_slot[slot_id].flDensity                      + step * (target_efx_properties->flDensity             - current_efx_properties_of_slot[slot_id].flDensity),
+        current_efx_properties_of_slot[slot_id].flDiffusion                    + step * (target_efx_properties->flDiffusion           - current_efx_properties_of_slot[slot_id].flDiffusion),
+        current_efx_properties_of_slot[slot_id].flGain                         + step * (target_efx_properties->flGain                - current_efx_properties_of_slot[slot_id].flGain),
+        current_efx_properties_of_slot[slot_id].flGainHF                       + step * (target_efx_properties->flGainHF              - current_efx_properties_of_slot[slot_id].flGainHF),
+        current_efx_properties_of_slot[slot_id].flGainLF                       + step * (target_efx_properties->flGainLF              - current_efx_properties_of_slot[slot_id].flGainLF),
+        current_efx_properties_of_slot[slot_id].flDecayTime                    + step * (target_efx_properties->flDecayTime           - current_efx_properties_of_slot[slot_id].flDecayTime),
+        current_efx_properties_of_slot[slot_id].flDecayHFRatio                 + step * (target_efx_properties->flDecayHFRatio        - current_efx_properties_of_slot[slot_id].flDecayHFRatio),
+        current_efx_properties_of_slot[slot_id].flDecayLFRatio                 + step * (target_efx_properties->flDecayLFRatio        - current_efx_properties_of_slot[slot_id].flDecayLFRatio),
+        current_efx_properties_of_slot[slot_id].flReflectionsGain              + step * (target_efx_properties->flReflectionsGain     - current_efx_properties_of_slot[slot_id].flReflectionsGain),
+        current_efx_properties_of_slot[slot_id].flReflectionsDelay             + step * (target_efx_properties->flReflectionsDelay    - current_efx_properties_of_slot[slot_id].flReflectionsDelay),
+        current_efx_properties_of_slot[slot_id].flReflectionsPan[0]            + step * (target_efx_properties->flReflectionsPan[0]   - current_efx_properties_of_slot[slot_id].flReflectionsPan[0]),
+        current_efx_properties_of_slot[slot_id].flReflectionsPan[1]            + step * (target_efx_properties->flReflectionsPan[1]   - current_efx_properties_of_slot[slot_id].flReflectionsPan[1]),
+        current_efx_properties_of_slot[slot_id].flReflectionsPan[2]            + step * (target_efx_properties->flReflectionsPan[2]   - current_efx_properties_of_slot[slot_id].flReflectionsPan[2]),
+        current_efx_properties_of_slot[slot_id].flLateReverbGain               + step * (target_efx_properties->flLateReverbGain      - current_efx_properties_of_slot[slot_id].flLateReverbGain),
+        current_efx_properties_of_slot[slot_id].flLateReverbDelay              + step * (target_efx_properties->flLateReverbDelay     - current_efx_properties_of_slot[slot_id].flLateReverbDelay),
+        current_efx_properties_of_slot[slot_id].flLateReverbPan[0]             + step * (target_efx_properties->flLateReverbPan[0]    - current_efx_properties_of_slot[slot_id].flLateReverbPan[0]),
+        current_efx_properties_of_slot[slot_id].flLateReverbPan[1]             + step * (target_efx_properties->flLateReverbPan[1]    - current_efx_properties_of_slot[slot_id].flLateReverbPan[1]),
+        current_efx_properties_of_slot[slot_id].flLateReverbPan[2]             + step * (target_efx_properties->flLateReverbPan[2]    - current_efx_properties_of_slot[slot_id].flLateReverbPan[2]),
+        current_efx_properties_of_slot[slot_id].flEchoTime                     + step * (target_efx_properties->flEchoTime            - current_efx_properties_of_slot[slot_id].flEchoTime),
+        current_efx_properties_of_slot[slot_id].flEchoDepth                    + step * (target_efx_properties->flEchoDepth           - current_efx_properties_of_slot[slot_id].flEchoDepth),
+        current_efx_properties_of_slot[slot_id].flModulationTime               + step * (target_efx_properties->flModulationTime      - current_efx_properties_of_slot[slot_id].flModulationTime),
+        current_efx_properties_of_slot[slot_id].flModulationDepth              + step * (target_efx_properties->flModulationDepth     - current_efx_properties_of_slot[slot_id].flModulationDepth),
+        current_efx_properties_of_slot[slot_id].flAirAbsorptionGainHF          + step * (target_efx_properties->flAirAbsorptionGainHF - current_efx_properties_of_slot[slot_id].flAirAbsorptionGainHF),
+        current_efx_properties_of_slot[slot_id].flHFReference                  + step * (target_efx_properties->flHFReference         - current_efx_properties_of_slot[slot_id].flHFReference),
+        current_efx_properties_of_slot[slot_id].flLFReference                  + step * (target_efx_properties->flLFReference         - current_efx_properties_of_slot[slot_id].flLFReference),
+        current_efx_properties_of_slot[slot_id].flRoomRolloffFactor            + step * (target_efx_properties->flRoomRolloffFactor   - current_efx_properties_of_slot[slot_id].flRoomRolloffFactor),
+        static_cast<int>(std::round(current_efx_properties_of_slot[slot_id].iDecayHFLimit + step * (target_efx_properties->iDecayHFLimit - current_efx_properties_of_slot[slot_id].iDecayHFLimit))),
+    };
+
+    // update AL effect to intermediate values
+    switch (m_efx_reverb_engine)
+    {
+        case EfxReverbEngine::EAXREVERB:
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_DENSITY,               current_efx_properties_of_slot[slot_id].flDensity);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_DIFFUSION,             current_efx_properties_of_slot[slot_id].flDiffusion);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_GAIN,                  current_efx_properties_of_slot[slot_id].flGain);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_GAINHF,                current_efx_properties_of_slot[slot_id].flGainHF);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_GAINLF,                current_efx_properties_of_slot[slot_id].flGainLF);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_DECAY_TIME,            current_efx_properties_of_slot[slot_id].flDecayTime);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_DECAY_HFRATIO,         current_efx_properties_of_slot[slot_id].flDecayHFRatio);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_DECAY_LFRATIO,         current_efx_properties_of_slot[slot_id].flDecayLFRatio);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_REFLECTIONS_GAIN,      current_efx_properties_of_slot[slot_id].flReflectionsGain);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_REFLECTIONS_DELAY,     current_efx_properties_of_slot[slot_id].flReflectionsDelay);
+            this->alEffectfv(efx_effect_id, AL_EAXREVERB_REFLECTIONS_PAN,       current_efx_properties_of_slot[slot_id].flReflectionsPan);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_LATE_REVERB_GAIN,      current_efx_properties_of_slot[slot_id].flLateReverbGain);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_LATE_REVERB_DELAY,     current_efx_properties_of_slot[slot_id].flLateReverbDelay);
+            this->alEffectfv(efx_effect_id, AL_EAXREVERB_LATE_REVERB_PAN,       current_efx_properties_of_slot[slot_id].flLateReverbPan);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_ECHO_TIME,             current_efx_properties_of_slot[slot_id].flEchoTime);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_ECHO_DEPTH,            current_efx_properties_of_slot[slot_id].flEchoDepth);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_MODULATION_TIME,       current_efx_properties_of_slot[slot_id].flModulationTime);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_MODULATION_DEPTH,      current_efx_properties_of_slot[slot_id].flModulationDepth);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_AIR_ABSORPTION_GAINHF, current_efx_properties_of_slot[slot_id].flAirAbsorptionGainHF);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_HFREFERENCE,           current_efx_properties_of_slot[slot_id].flHFReference);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_LFREFERENCE,           current_efx_properties_of_slot[slot_id].flLFReference);
+            this->alEffectf( efx_effect_id, AL_EAXREVERB_ROOM_ROLLOFF_FACTOR,   current_efx_properties_of_slot[slot_id].flRoomRolloffFactor);
+            this->alEffecti( efx_effect_id, AL_EAXREVERB_DECAY_HFLIMIT,         current_efx_properties_of_slot[slot_id].iDecayHFLimit);
+            break;
+
+        case EfxReverbEngine::REVERB:
+            this->alEffectf( efx_effect_id, AL_REVERB_DENSITY,               current_efx_properties_of_slot[slot_id].flDensity);
+            this->alEffectf( efx_effect_id, AL_REVERB_DIFFUSION,             current_efx_properties_of_slot[slot_id].flDiffusion);
+            this->alEffectf( efx_effect_id, AL_REVERB_GAIN,                  current_efx_properties_of_slot[slot_id].flGain);
+            this->alEffectf( efx_effect_id, AL_REVERB_GAINHF,                current_efx_properties_of_slot[slot_id].flGainHF);
+            this->alEffectf( efx_effect_id, AL_REVERB_DECAY_TIME,            current_efx_properties_of_slot[slot_id].flDecayTime);
+            this->alEffectf( efx_effect_id, AL_REVERB_DECAY_HFRATIO,         current_efx_properties_of_slot[slot_id].flDecayHFRatio);
+            this->alEffectf( efx_effect_id, AL_REVERB_REFLECTIONS_GAIN,      current_efx_properties_of_slot[slot_id].flReflectionsGain);
+            this->alEffectf( efx_effect_id, AL_REVERB_REFLECTIONS_DELAY,     current_efx_properties_of_slot[slot_id].flReflectionsDelay);
+            this->alEffectf( efx_effect_id, AL_REVERB_LATE_REVERB_GAIN,      current_efx_properties_of_slot[slot_id].flLateReverbGain);
+            this->alEffectf( efx_effect_id, AL_REVERB_LATE_REVERB_DELAY,     current_efx_properties_of_slot[slot_id].flLateReverbDelay);
+            this->alEffectf( efx_effect_id, AL_REVERB_AIR_ABSORPTION_GAINHF, current_efx_properties_of_slot[slot_id].flAirAbsorptionGainHF);
+            this->alEffectf( efx_effect_id, AL_REVERB_ROOM_ROLLOFF_FACTOR,   current_efx_properties_of_slot[slot_id].flRoomRolloffFactor);
+            this->alEffectf( efx_effect_id, AL_REVERB_DECAY_HFLIMIT,         current_efx_properties_of_slot[slot_id].iDecayHFLimit);
+            break;
+
+        case EfxReverbEngine::NONE:
+            this->alAuxiliaryEffectSloti(slot_id, AL_EFFECTSLOT_EFFECT, AL_EFFECTSLOT_NULL);
+            return;
+    }
+
+    // make the slot use the updated AL effect
+    this->alAuxiliaryEffectSloti(slot_id, AL_EFFECTSLOT_EFFECT, efx_effect_id);
 }
 
 std::tuple<Ogre::Vector3, float, float> SoundManager::ComputeEarlyReflectionsProperties() const

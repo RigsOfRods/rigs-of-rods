@@ -236,7 +236,7 @@ private:
     EfxReverbEngine                                 m_efx_reverb_engine = EfxReverbEngine::NONE;
     const EFXEAXREVERBPROPERTIES*                   m_listener_efx_reverb_properties = nullptr;
     std::map<std::string, EFXEAXREVERBPROPERTIES>   m_efx_properties_map;
-    std::map<const EFXEAXREVERBPROPERTIES*, ALuint> m_efx_effect_id_map;
+    std::map<ALuint, ALuint>                        m_efx_effect_id_map;  //<! maps from auxiliary effect slot id to effect id
     LPALGENEFFECTS                                  alGenEffects = nullptr;
     LPALDELETEEFFECTS                               alDeleteEffects = nullptr;
     LPALISEFFECT                                    alIsEffect = nullptr;
@@ -282,6 +282,15 @@ private:
      * @param dt_sec Time since last frame in seconds
      */
     void    UpdateListenerEffectSlot(const float dt_sec);
+
+    /**
+     * This performs a smooth update of the efx properties of an OpenAL Auxiliary Effect slot
+     * using linear interpolation over several timesteps.
+     * @param dt_sec Time since last frame in seconds
+     * @param slot_id ID of the AuxiliaryEffectSlot which should be updated
+     * @param target_efx_properties EFX Reverb properties to update to
+     */
+    void    SmoothlyUpdateAlAuxiliaryEffectSlot(const float dt_sec, const ALuint slot_id, const EFXEAXREVERBPROPERTIES* target_efx_properties);
 
     /**
       * Detects surfaces close to the listener and calculates a user-relative (as opposed to listener-relative)
