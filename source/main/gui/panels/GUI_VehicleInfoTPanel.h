@@ -121,6 +121,7 @@ private:
     void DrawSecureButton(RoR::GfxActor* actorx);
     void DrawCruiseControlButton(RoR::GfxActor* actorx);
     void DrawCameraButton();
+    void DrawCustomLightButtons(RoR::GfxActor* actorx);
     void CacheIcons();
     bool m_horn_btn_active = false;
     bool m_icons_cached = false;
