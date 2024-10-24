@@ -220,13 +220,15 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
         ImGui::SetCursorPosX(MIN_PANEL_WIDTH - (ImGui::CalcTextSize(_LC("VehicleDescription", "Full size")).x + 25.f));
         ImGui::Checkbox(_LC("VehicleDescription", "Full size"), &m_helptext_fullsize);
         
-        ImTextureID im_tex = reinterpret_cast<ImTextureID>(actorx->GetHelpTex()->getHandle());
         if (m_helptext_fullsize)
         {
-            ImGui::Image(im_tex, ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT));
+            m_helptext_fullsize_screenpos = ImGui::GetCursorScreenPos();
+            ImGui::Dummy(ImVec2(MIN_PANEL_WIDTH, HELP_TEXTURE_HEIGHT));
+            this->DrawVehicleHelpTextureFullsize(actorx);
         }
         else
         {
+            ImTextureID im_tex = reinterpret_cast<ImTextureID>(actorx->GetHelpTex()->getHandle());
             ImGui::Image(im_tex, ImVec2(MIN_PANEL_WIDTH, HELP_TEXTURE_HEIGHT));
         }
     }
@@ -597,9 +599,6 @@ void VehicleInfoTPanel::UpdateStats(float dt, ActorPtr actor)
     m_stat_gmax_z = gmax.z;
 }
 
-// --------------------------------
-// class VehicleInfoTPanel
-
 const ImVec2 BUTTON_SIZE(18, 18);
 const ImVec2 BUTTON_OFFSET(0, 3.f);
 const float BUTTON_Y_OFFSET = 0.f;
@@ -660,6 +659,16 @@ void VehicleInfoTPanel::DrawVehicleBasicsUI(RoR::GfxActor* actorx)
         {
             this->DrawHornButton(actorx);
         }
+    }
+
+    int total_customlights = 0;
+    for (int i = 0; i < MAX_CLIGHTS; i++)
+    {
+        total_customlights += actorx->GetActor()->countCustomLights(i);
+    }
+    if (total_customlights > 0)
+    {
+        this->DrawCustomLightButtons(actorx);
     }
 
     const bool has_engine = actorx->GetActor()->ar_engine != nullptr;
@@ -793,6 +802,26 @@ void VehicleInfoTPanel::DrawVehicleCommandHighlights(RoR::GfxActor* actorx)
             draw_list->AddLine(p1_pos, p2_pos, ImColor(m_cmdbeam_highlight_color), m_cmdbeam_highlight_thickness);
         }    
     }
+}
+
+void VehicleInfoTPanel::DrawVehicleHelpTextureFullsize(RoR::GfxActor* actorx)
+{
+    // In order to draw the image on top of the T-panel, the window must be focusable, 
+    // so we can't simply use `GetImDummyFullscreenWindow()`
+    // ===============================================================================
+
+    int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar
+        | ImGuiWindowFlags_NoSavedSettings ;
+    ImGui::SetNextWindowPos(m_helptext_fullsize_screenpos - ImGui::GetStyle().WindowPadding);
+    ImGui::SetNextWindowSize(ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT) + ImGui::GetStyle().WindowPadding);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0)); // Fully transparent background!
+    ImGui::Begin("T-Panel help tex fullsize", NULL, window_flags);
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
+    ImTextureID im_tex = reinterpret_cast<ImTextureID>(actorx->GetHelpTex()->getHandle());
+    drawlist->AddImage(im_tex, m_helptext_fullsize_screenpos,
+        m_helptext_fullsize_screenpos + ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT));
+    ImGui::End();
+    ImGui::PopStyleColor(1); // WindowBg
 }
 
 bool DrawSingleButtonRow(bool active, const Ogre::TexturePtr& icon, const char* name, RoR::events ev, bool* btn_active = nullptr)
@@ -1120,6 +1149,62 @@ void VehicleInfoTPanel::DrawCruiseControlButton(RoR::GfxActor* actorx)
     {
         actorx->GetActor()->cruisecontrolToggle();
     }
+}
+
+void VehicleInfoTPanel::DrawCustomLightButtons(RoR::GfxActor* actorx)
+{
+    // Special element - a hint-only (non-button/highlight) hotkey + 10 inline buttons
+    // ===============================================================================
+
+    ImGui::GetWindowDrawList()->AddImage(reinterpret_cast<ImTextureID>(m_beacons_icon->getHandle()),
+        ImGui::GetCursorScreenPos() - BUTTON_OFFSET, ImGui::GetCursorScreenPos() + BUTTON_SIZE);
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + BUTTON_SIZE.x + 2 * ImGui::GetStyle().ItemSpacing.x);
+
+    ImGui::Text("Custom lights");
+    ImGui::SameLine();
+    const char* hotkey = "CTRL+[1...]";
+    ImVec2 keysize = ImGui::CalcTextSize(hotkey);
+    ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x) - keysize.x - ImGui::GetStyle().ItemSpacing.x);
+    ImGui::Text(hotkey);
+
+    const ImVec2 BTN_PADDING = ImVec2(1, 1);
+    const ImVec2 btn_size = ImGui::CalcTextSize("10") + (BTN_PADDING * 2);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, BTN_PADDING);
+    for (int i = 0; i < MAX_CLIGHTS; i++)
+    {
+        if (actorx->GetActor()->countCustomLights(i) > 0)
+        {
+            ImGui::PushID(i);
+
+            std::string label = std::to_string(i + 1);
+
+            if (actorx->GetActor()->getCustomLightVisible(i))
+            {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
+            }
+            else
+            {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_Button]);
+            }
+
+            if (ImGui::Button(label.c_str(), btn_size))
+            {
+                actorx->GetActor()->setCustomLightVisible(i, !actorx->GetActor()->getCustomLightVisible(i));
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::BeginTooltip();
+                ImGui::TextDisabled("%s", App::GetInputEngine()->getEventCommandTrimmed(EV_TRUCK_LIGHTTOGGLE01 + i).c_str());
+                ImGui::EndTooltip();
+            }
+            ImGui::PopStyleColor(); // Button
+            ImGui::SameLine();
+            ImGui::PopID();
+        }
+    }
+    ImGui::PopStyleVar(); // FramePadding
+
+    ImGui::NewLine();
 }
 
 void VehicleInfoTPanel::CacheIcons()
