@@ -61,6 +61,7 @@ private:
     /// @{
     void DrawVehicleCommandsUI(RoR::GfxActor* actorx);
     void DrawVehicleCommandHighlights(RoR::GfxActor* actorx);
+    void DrawVehicleHelpTextureFullsize(RoR::GfxActor* actorx);
     
     CommandkeyID_t m_active_commandkey = COMMANDKEYID_INVALID;
     CommandkeyID_t m_hovered_commandkey = COMMANDKEYID_INVALID;
@@ -70,6 +71,7 @@ private:
     float m_cmdbeam_highlight_thickness = 15.f;
     ImVec4 m_command_hovered_text_color = ImVec4(0.1f, 0.1f, 0.1f, 1.f);
     bool m_helptext_fullsize = false;
+    ImVec2 m_helptext_fullsize_screenpos; //!< The image is drawn into separate window
     /// @}
    
     /// @name 'Vehicle stats' tab
