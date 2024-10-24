@@ -220,13 +220,15 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
         ImGui::SetCursorPosX(MIN_PANEL_WIDTH - (ImGui::CalcTextSize(_LC("VehicleDescription", "Full size")).x + 25.f));
         ImGui::Checkbox(_LC("VehicleDescription", "Full size"), &m_helptext_fullsize);
         
-        ImTextureID im_tex = reinterpret_cast<ImTextureID>(actorx->GetHelpTex()->getHandle());
         if (m_helptext_fullsize)
         {
-            ImGui::Image(im_tex, ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT));
+            m_helptext_fullsize_screenpos = ImGui::GetCursorScreenPos();
+            ImGui::Dummy(ImVec2(MIN_PANEL_WIDTH, HELP_TEXTURE_HEIGHT));
+            this->DrawVehicleHelpTextureFullsize(actorx);
         }
         else
         {
+            ImTextureID im_tex = reinterpret_cast<ImTextureID>(actorx->GetHelpTex()->getHandle());
             ImGui::Image(im_tex, ImVec2(MIN_PANEL_WIDTH, HELP_TEXTURE_HEIGHT));
         }
     }
@@ -800,6 +802,26 @@ void VehicleInfoTPanel::DrawVehicleCommandHighlights(RoR::GfxActor* actorx)
             draw_list->AddLine(p1_pos, p2_pos, ImColor(m_cmdbeam_highlight_color), m_cmdbeam_highlight_thickness);
         }    
     }
+}
+
+void VehicleInfoTPanel::DrawVehicleHelpTextureFullsize(RoR::GfxActor* actorx)
+{
+    // In order to draw the image on top of the T-panel, the window must be focusable, 
+    // so we can't simply use `GetImDummyFullscreenWindow()`
+    // ===============================================================================
+
+    int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar
+        | ImGuiWindowFlags_NoSavedSettings ;
+    ImGui::SetNextWindowPos(m_helptext_fullsize_screenpos - ImGui::GetStyle().WindowPadding);
+    ImGui::SetNextWindowSize(ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT) + ImGui::GetStyle().WindowPadding);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0)); // Fully transparent background!
+    ImGui::Begin("T-Panel help tex fullsize", NULL, window_flags);
+    ImDrawList* drawlist = ImGui::GetWindowDrawList();
+    ImTextureID im_tex = reinterpret_cast<ImTextureID>(actorx->GetHelpTex()->getHandle());
+    drawlist->AddImage(im_tex, m_helptext_fullsize_screenpos,
+        m_helptext_fullsize_screenpos + ImVec2(HELP_TEXTURE_WIDTH, HELP_TEXTURE_HEIGHT));
+    ImGui::End();
+    ImGui::PopStyleColor(1); // WindowBg
 }
 
 bool DrawSingleButtonRow(bool active, const Ogre::TexturePtr& icon, const char* name, RoR::events ev, bool* btn_active = nullptr)
