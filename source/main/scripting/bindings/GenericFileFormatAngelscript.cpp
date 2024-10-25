@@ -48,7 +48,8 @@ void RoR::RegisterGenericFileFormat(asIScriptEngine* engine)
     engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_LINEBREAK", (int)TokenType::LINEBREAK);
     engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_COMMENT", (int)TokenType::COMMENT);
     engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_STRING", (int)TokenType::STRING);
-    engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_NUMBER", (int)TokenType::NUMBER);
+    engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_FLOAT", (int)TokenType::FLOAT);
+    engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_INT", (int)TokenType::INT);
     engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_BOOL", (int)TokenType::BOOL);
     engine->RegisterEnumValue("TokenType", "TOKEN_TYPE_KEYWORD", (int)TokenType::KEYWORD);
 
@@ -89,12 +90,14 @@ void RoR::RegisterGenericFileFormat(asIScriptEngine* engine)
 
     engine->RegisterObjectMethod("GenericDocContextClass", "string getTokString(int offset = 0)", asMETHOD(GenericDocContext, getTokString), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "float getTokFloat(int offset = 0)", asMETHOD(GenericDocContext, getTokFloat), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocContextClass", "int getTokInt(int offset = 0)", asMETHOD(GenericDocContext, getTokInt), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool getTokBool(int offset = 0)", asMETHOD(GenericDocContext, getTokBool), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "string getTokKeyword(int offset = 0)", asMETHOD(GenericDocContext, getTokKeyword), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "string getTokComment(int offset = 0)", asMETHOD(GenericDocContext, getTokComment), asCALL_THISCALL);
     
     engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokString(int offset = 0)", asMETHOD(GenericDocContext, isTokString), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokFloat(int offset = 0)", asMETHOD(GenericDocContext, isTokFloat), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokInt(int offset = 0)", asMETHOD(GenericDocContext, isTokInt), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokBool(int offset = 0)", asMETHOD(GenericDocContext, isTokBool), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokKeyword(int offset = 0)", asMETHOD(GenericDocContext, isTokKeyword), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokComment(int offset = 0)", asMETHOD(GenericDocContext, isTokComment), asCALL_THISCALL);
@@ -105,6 +108,7 @@ void RoR::RegisterGenericFileFormat(asIScriptEngine* engine)
 
     engine->RegisterObjectMethod("GenericDocContextClass", "bool setTokString(int offset, const string &in)", asMETHOD(GenericDocContext, setTokString), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool setTokFloat(int offset, float)", asMETHOD(GenericDocContext, setTokFloat), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocContextClass", "bool setTokInt(int offset, int)", asMETHOD(GenericDocContext, setTokInt), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool setTokBool(int offset, bool)", asMETHOD(GenericDocContext, setTokBool), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool setTokKeyword(int offset, const string &in)", asMETHOD(GenericDocContext, setTokKeyword), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool setTokComment(int offset, const string &in)", asMETHOD(GenericDocContext, setTokComment), asCALL_THISCALL);

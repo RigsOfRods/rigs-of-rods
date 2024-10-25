@@ -85,6 +85,8 @@ public:
         ImVec2 screen_edge_padding       = ImVec2(10.f, 10.f);
         ImVec2 semitrans_text_bg_padding = ImVec2(4.f, 2.f);
 
+        ImVec4 tip_panel_bg_color        = ImVec4(0.3f, 0.6f, 0.45f, 1.f);
+
         ImFont* default_font = nullptr;
     };
 
