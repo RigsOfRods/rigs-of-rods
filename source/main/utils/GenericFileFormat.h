@@ -115,6 +115,7 @@ struct GenericDocContext: public RefCountingObject<GenericDocContext>
     std::string getTokString(int offset = 0) const { ROR_ASSERT(isTokString(offset)); return getStringData(offset); }
     float getTokFloat(int offset = 0) const { ROR_ASSERT(isTokFloat(offset)); return getFloatData(offset); }
     int getTokInt(int offset = 0) const { ROR_ASSERT(isTokInt(offset)); return (int)getFloatData(offset); }
+    float getTokNumeric(int offset = 0) const { ROR_ASSERT(isTokNumeric(offset)); return getFloatData(offset); }
     bool getTokBool(int offset = 0) const { ROR_ASSERT(isTokBool(offset)); return getFloatData(offset) == 1.f; }
     std::string getTokKeyword(int offset = 0) const { ROR_ASSERT(isTokKeyword(offset)); return getStringData(offset); }
     std::string getTokComment(int offset = 0) const { ROR_ASSERT(isTokComment(offset)); return getStringData(offset); }
@@ -126,6 +127,7 @@ struct GenericDocContext: public RefCountingObject<GenericDocContext>
     bool isTokKeyword(int offset = 0) const { return tokenType(offset) == TokenType::KEYWORD; }
     bool isTokComment(int offset = 0) const { return tokenType(offset) == TokenType::COMMENT; }
     bool isTokLineBreak(int offset = 0) const { return tokenType(offset) == TokenType::LINEBREAK; }
+    bool isTokNumeric(int offset = 0) const { return isTokInt(offset) || isTokFloat(offset); }
 
     // Editing functions:
 
