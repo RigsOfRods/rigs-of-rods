@@ -454,7 +454,7 @@ void SoundManager::UpdateListenerEffectSlot(const float dt_sec)
 
 void SoundManager::SmoothlyUpdateAlAuxiliaryEffectSlot(const float dt_sec, const ALuint slot_id, const EFXEAXREVERBPROPERTIES* target_efx_properties)
 {
-    const float time_to_target = 0.100f; // seconds to reach the target properties from the current properties
+    const float time_to_target = 0.333f; // seconds to reach the target properties from the current properties
     const float step = std::min(dt_sec / time_to_target, 1.0f);
     static std::map<ALuint, EFXEAXREVERBPROPERTIES> current_efx_properties_of_slot;
 
