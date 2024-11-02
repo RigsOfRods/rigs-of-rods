@@ -384,7 +384,7 @@ void SoundManager::Update(const float dt_sec)
         for(int hardware_index = 0; hardware_index < hardware_sources_num; hardware_index++)
         {
             // update air absorption factor
-            alSourcef(hardware_sources[hardware_index], AL_AIR_ABSORPTION_FACTOR, App::audio_air_absorption_factor->getFloat());
+            alSourcef(hardware_sources[hardware_index], AL_AIR_ABSORPTION_FACTOR, m_air_absorption_factor);
 
             this->UpdateObstructionFilter(hardware_index);
         }
@@ -432,8 +432,6 @@ void SoundManager::UpdateListenerEffectSlot(const float dt_sec)
     }
 
     EFXEAXREVERBPROPERTIES current_environmental_properties = *m_listener_efx_reverb_properties;
-
-    current_environmental_properties.flAirAbsorptionGainHF = App::audio_air_absorption_gain_hf->getFloat();
 
     // early reflections panning, delay and strength
     if (App::audio_enable_reflection_panning->getBool() && m_efx_reverb_engine == EfxReverbEngine::EAXREVERB)

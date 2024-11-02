@@ -453,8 +453,6 @@ extern CVar* io_discord_rpc;
 extern CVar* io_invert_orbitcam;
 
 // Audio
-extern CVar* audio_air_absorption_factor;
-extern CVar* audio_air_absorption_gain_hf;
 extern CVar* audio_master_volume;
 extern CVar* audio_enable_creak;
 extern CVar* audio_enable_obstruction;

@@ -139,6 +139,17 @@ public:
     void SetDopplerFactor(const float doppler_factor) const { alDopplerFactor(doppler_factor); }
 
     /**
+     * Sets the air absorptions factor for the direct path of all sounds.
+     * @param air_absorption_factor Air absorption factor within the range of AL_AIR_ABSORPTION_FACTOR.
+     */
+    void SetAirAbsorptionFactor(const float air_absorption_factor) { m_air_absorption_factor = air_absorption_factor; }
+
+    /**
+     * @return current value set for the air absorption factor for the direct path of sounds
+     */
+    float GetAirAbsorptionFactor() const { return m_air_absorption_factor; }
+
+    /**
      * Returns the number of currently used hardware sources. In a typical scenario,
      * this value changes dynamically.
      * @return The number of hardware sources currently in use.
@@ -233,6 +244,7 @@ private:
     bool                                            m_efx_is_available = false;
     ALuint                                          m_listener_slot = 0;
     ALuint                                          m_efx_outdoor_obstruction_lowpass_filter_id = 0;
+    float                                           m_air_absorption_factor = 1.0f;
     EfxReverbEngine                                 m_efx_reverb_engine = EfxReverbEngine::NONE;
     const EFXEAXREVERBPROPERTIES*                   m_listener_efx_reverb_properties = nullptr;
     std::map<std::string, EFXEAXREVERBPROPERTIES>   m_efx_properties_map;
