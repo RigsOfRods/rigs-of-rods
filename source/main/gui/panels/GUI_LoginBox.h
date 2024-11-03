@@ -35,32 +35,50 @@
 namespace RoR {
 namespace GUI {
 
-struct UserLoginToken
-{};
-
 struct UserProfile
 {
-    std::string username;
-    std::string email;
-    std::string avatar_url;
+    std::string         username;
+    std::string         email;
+    Ogre::TexturePtr    avatar;
+};
+
+struct UserAuthToken
+{
+    std::string         login_token;
+    std::string         refresh_token;
 };
 
 const char* const ROUTE_LOGIN = "/login";
+const char* const ROUTE_LOGOUT = "/logout";
+const char* const ROUTE_REFRESH = "/refresh";
 
-class LoginBox {
+class LoginBox:
+    public Ogre::WorkQueue::RequestHandler,
+    public Ogre::WorkQueue::ResponseHandler
+{
 public:
+    const Ogre::uint16                  WORKQUEUE_ROR_USERPROFILE_AVATAR = 1;
+
     LoginBox();
     ~LoginBox();
 
-    void                        SetVisible(bool visible);
-    bool                        IsVisible() const { return m_is_visible; }
-    void                        ShowError(std::string const& msg);
-    void                        ConfirmTfa();
-    void                        TriggerTfa();
-    void                        NeedsTfa(std::vector<std::string> tfa_providers);
-    void                        TfaTriggered();
-    void                        Login();
-    void                        Draw();
+    void                                SetVisible(bool visible);
+    bool                                IsVisible() const { return m_is_visible; }
+    void                                ShowError(std::string const& msg);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    void                                ConfirmTfa();
+    void                                TriggerTfa();
+    void                                NeedsTfa(std::vector<std::string> tfa_providers);
+    void                                TfaTriggered();
+
+    void                                Login();
+    void                                Draw();
+    void                                UpdateUserProfile();
+    void                                UpdateUserAuth(UserAuthToken* data);
+    void                                ValidateOrRefreshToken();
 
 private:
     bool                        m_is_visible = false;
@@ -75,6 +93,10 @@ private:
     std::string                 m_tfa_provider;
     bool                        m_tfa_trigger = false;
     std::string                 m_base_url;
+    bool                        m_logged_in = false; //< Local copy
+    UserAuthToken               m_auth_tokens; //< Local copy
+    UserProfile                 m_user_profile; //< Local copy
+    Ogre::uint16                m_ogre_workqueue_channel = 0;
 };
 
 }

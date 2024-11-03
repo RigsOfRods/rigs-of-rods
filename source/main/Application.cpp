@@ -129,6 +129,8 @@ CVar* mp_cyclethru_net_actors;
 // New remote API
 CVar* remote_query_url;
 CVar* remote_login_token;
+CVar* remote_refresh_token;
+CVar* remote_user_auth_state;
 
 // Diagnostic
 CVar* diag_auto_spawner_report;
@@ -165,6 +167,7 @@ CVar* sys_user_dir;
 CVar* sys_config_dir;
 CVar* sys_cache_dir;
 CVar* sys_thumbnails_dir;
+CVar* sys_avatar_dir;
 CVar* sys_logs_dir;
 CVar* sys_resources_dir;
 CVar* sys_profiler_dir;
