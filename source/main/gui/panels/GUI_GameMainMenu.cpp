@@ -245,15 +245,25 @@ void GameMainMenu::DrawProfileBox()
             reinterpret_cast<ImTextureID>(FetchIcon("blank.png")->getHandle()),
             image_size);
 
-        ImGui::SameLine();
-        if (ImGui::Button("Log in", button_size)) {
-            App::GetGuiManager()->LoginBox.SetVisible(true);
-            this->SetVisible(false);
+        if (App::remote_user_auth_state->getEnum<UserAuthState>() == UserAuthState::AUTHENTICATED)
+        {
+            ImGui::SameLine();
+            if (ImGui::Button("Log out", button_size)) {
+                // TODO open as a link
+            }
         }
+        else
+        {
+            ImGui::SameLine();
+            if (ImGui::Button("Log in", button_size)) {
+                App::GetGuiManager()->LoginBox.SetVisible(true);
+                this->SetVisible(false);
+            }
 
-        ImGui::SameLine();
-        if (ImGui::Button("Regster", button_size)) {
-            // TODO open as a link
+            ImGui::SameLine();
+            if (ImGui::Button("Regster", button_size)) {
+                // TODO open as a link
+            }
         }
 
         ImGui::End();
