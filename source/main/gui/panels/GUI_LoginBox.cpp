@@ -61,7 +61,119 @@ static size_t CurlWriteFunc(void* ptr, size_t size, size_t nmemb, std::string* d
     return size * nmemb;
 }
 
-void PostAuthWithTfa(std::string login, std::string passwd, std::string provider, std::string code)
+void GetUserProfileTask()
+{
+    std::string auth_header = std::string("Authorization: Bearer ") + App::remote_login_token->getStr();
+    std::string user_agent = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
+    std::string url = App::remote_query_url->getStr() + "/users/me";
+    std::string response_payload;
+    std::string response_header;
+    long response_code = 0;
+
+    struct curl_slist* slist;
+    slist = NULL;
+    slist = curl_slist_append(slist, "Accept: application/json");
+    slist = curl_slist_append(slist, "Content-Type: application/json");
+    slist = curl_slist_append(slist, auth_header.c_str());
+
+    CURL* curl = curl_easy_init();
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // todo api url + endpoint
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_payload);
+    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &response_header);
+
+    CURLcode curl_result = curl_easy_perform(curl);
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
+    curl_easy_cleanup(curl);
+    curl = nullptr;
+    slist = NULL;
+
+    rapidjson::Document j_response_body;
+    j_response_body.Parse(response_payload.c_str());
+
+    if (curl_result != CURLE_OK || response_code != 200)
+    {
+        Ogre::LogManager::getSingleton().stream()
+            << "[RoR|UserAuthManager] Failed to fetch user profile, the player will have missing user profile data;"
+            << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+        return;
+    }
+
+    GUI::UserProfile* user_profile_ptr = new GUI::UserProfile();
+
+    // this could be a success, of sorts
+    return;
+}
+
+void ValidateOrRefreshTokenTask(std::string login_token, std::string refresh_token)
+{
+    rapidjson::Document j_request_body;
+    j_request_body.SetObject();
+    j_request_body.AddMember("login_token", rapidjson::StringRef(login_token.c_str()), j_request_body.GetAllocator());
+    j_request_body.AddMember("refresh_token", rapidjson::StringRef(refresh_token.c_str()), j_request_body.GetAllocator());
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    j_request_body.Accept(writer);
+    std::string request_body = buffer.GetString();
+
+    std::string user_agent = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
+    std::string url = App::remote_query_url->getStr() + "/auth/refresh";
+    std::string response_payload;
+    std::string response_header;
+    long response_code = 0;
+
+    struct curl_slist* slist;
+    slist = NULL;
+    slist = curl_slist_append(slist, "Content-Type: application/json");
+
+    CURL* curl = curl_easy_init();
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // todo api url + endpoint
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body.c_str()); // post request body
+#ifdef _WIN32
+    curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif // _WIN32
+    curl_easy_setopt(curl, CURLOPT_POST, 1);
+    curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "gzip");
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, user_agent.c_str());
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteFunc);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_payload);
+    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &response_header);
+
+    CURLcode curl_result = curl_easy_perform(curl);
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
+    curl_easy_cleanup(curl);
+    curl = nullptr;
+
+    rapidjson::Document j_response_body;
+    j_response_body.Parse(response_payload.c_str());
+
+    //if (j_response_body.HasParseError() || !j_response_body.IsObject())
+    //{
+    //    App::GetGameContext()->PushMessage(
+    //        Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry."))
+    //    );
+    //    return;
+    //}
+
+    if (response_code != 200)
+    {
+        Ogre::LogManager::getSingleton().stream()
+            << "[RoR|UserAuthManager] Failed to refresh or validate login token, the player will not be logged in;"
+            << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+        return;
+    }
+
+    GUI::UserAuthToken* auth_tokens_ptr = new GUI::UserAuthToken();
+    auth_tokens_ptr->login_token = j_response_body["login_token"].GetString();
+    auth_tokens_ptr->refresh_token = j_response_body["refresh_token"].GetString();
+
+    App::GetGameContext()->PushMessage(Message(MSG_NET_USERAUTH_RV_SUCCESS, static_cast<void*>(auth_tokens_ptr)));
+}
+
+void UserAuthWithTfaTask(std::string login, std::string passwd, std::string provider, std::string code)
 {
     rapidjson::Document j_request_body;
     j_request_body.SetObject();
@@ -105,6 +217,17 @@ void PostAuthWithTfa(std::string login, std::string passwd, std::string provider
     curl_easy_cleanup(curl);
     curl = nullptr;
 
+    rapidjson::Document j_response_body;
+    j_response_body.Parse(response_payload.c_str());
+
+    if (j_response_body.HasParseError() || !j_response_body.IsObject())
+    {
+        App::GetGameContext()->PushMessage(
+            Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry."))
+        );
+        return;
+    }
+
     if (response_code == 400) // a failure, bad tfa code
     {
         App::GetGameContext()->PushMessage(
@@ -120,8 +243,11 @@ void PostAuthWithTfa(std::string login, std::string passwd, std::string provider
         return;
     }
 
-    // if tfa success, then sso success
-    App::GetGameContext()->PushMessage(Message(MSG_NET_USERAUTH_SUCCESS));
+    GUI::UserAuthToken* auth_tokens_ptr = new GUI::UserAuthToken();
+    auth_tokens_ptr->login_token = j_response_body["login_token"].GetString();
+    auth_tokens_ptr->refresh_token = j_response_body["refresh_token"].GetString();
+
+    App::GetGameContext()->PushMessage(Message(MSG_NET_USERAUTH_SUCCESS, static_cast<void*>(auth_tokens_ptr)));
 }
 
 void PostAuthTriggerTfa(std::string login, std::string passwd, std::string provider)
@@ -226,6 +352,14 @@ void PostAuth(std::string login, std::string passwd)
     rapidjson::Document j_response_body;
     j_response_body.Parse(response_payload.c_str());
 
+    if (j_response_body.HasParseError() || !j_response_body.IsArray())
+    {
+        App::GetGameContext()->PushMessage(
+            Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry."))
+        );
+        return;
+    }
+
     if (response_code == 400)
     {
         if (j_response_body["tfa_providers"].IsString())
@@ -259,36 +393,41 @@ void PostAuth(std::string login, std::string passwd)
     else if (response_code >= 300)
     {
         Ogre::LogManager::getSingleton().stream()
-            << "[RoR|User|Auth] Failed to sign user in; HTTP status code: " << response_code;
+            << "[RoR|UserAuthManager] Failed to log in player, the player will not be logged in; HTTP status code: " << response_code;
         App::GetGameContext()->PushMessage(
             Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "Connection error. Please check your connection and try again."))
         );
         return;
     }
 
-    if (j_response_body.HasParseError() || !j_response_body.IsObject())
-    {
-        App::GetGameContext()->PushMessage(
-            Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry."))
-        );
-        return;
-    }
+    GUI::UserAuthToken* auth_tokens_ptr = new GUI::UserAuthToken();
+    auth_tokens_ptr->login_token = j_response_body["login_token"].GetString();
+    auth_tokens_ptr->refresh_token = j_response_body["refresh_token"].GetString();
 
-    App::GetGameContext()->PushMessage(Message(MSG_NET_USERAUTH_SUCCESS));
+    App::GetGameContext()->PushMessage(Message(MSG_NET_USERAUTH_SUCCESS, static_cast<void*>(auth_tokens_ptr)));
 }
 
 #endif
 
 LoginBox::LoginBox()
     : m_base_url(App::remote_query_url->getStr() + "/auth")
-{}
+{
+    Ogre::WorkQueue* wq = Ogre::Root::getSingleton().getWorkQueue();
+    m_ogre_workqueue_channel = wq->getChannel("RoR/UserAvatars");
+    wq->addRequestHandler(m_ogre_workqueue_channel, this);
+    wq->addResponseHandler(m_ogre_workqueue_channel, this);
+}
 
 LoginBox::~LoginBox()
 {}
 
 void LoginBox::Draw()
 {
-    // TODO do not load if the client is already signed in
+    if (App::remote_user_auth_state->getEnum<UserAuthState>() == UserAuthState::AUTHENTICATED ||
+        App::remote_user_auth_state->getEnum<UserAuthState>() == UserAuthState::INVALID)
+    {
+        this->SetVisible(false);
+    }
 
     GUIManager::GuiTheme const& theme = App::GetGuiManager()->GetTheme();
 
@@ -310,7 +449,6 @@ void LoginBox::Draw()
 
         if (m_needs_tfa)
         {
-            // !! NEEDS REFACTORING !!
             ImGui::BeginTabBar("TfaOptTab");
             if (std::find(m_tfa_providers.begin(), m_tfa_providers.end(), "totp") != m_tfa_providers.end())
             {
@@ -355,7 +493,6 @@ void LoginBox::Draw()
     }
     else
     {
-        // !! REFACTOR THIS !!
         float spinner_size = 27.f;
         ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - spinner_size);
         ImGui::SetCursorPosY((ImGui::GetWindowSize().y / 2.f) - spinner_size);
@@ -390,6 +527,23 @@ void LoginBox::Login()
 #endif
 }
 
+void LoginBox::UpdateUserAuth(UserAuthToken* data)
+{
+    if (data) {
+        m_logged_in = true;
+        m_auth_tokens = *data;
+        App::remote_login_token->setStr(data->login_token);
+        App::remote_refresh_token->setStr(data->refresh_token);
+    }
+}
+
+void LoginBox::UpdateUserProfile()
+{
+#if defined(USE_CURL)
+    std::thread(GetUserProfileTask).detach();
+#endif // defined(USE_CURL)
+}
+
 void LoginBox::ShowError(std::string const& msg)
 {
     m_loading = false;
@@ -413,7 +567,7 @@ void LoginBox::ConfirmTfa()
     std::string passwd(m_passwd);
     std::string tfa_code(m_tfa_code);
 
-    std::packaged_task<void(std::string, std::string, std::string, std::string)> task(PostAuthWithTfa);
+    std::packaged_task<void(std::string, std::string, std::string, std::string)> task(UserAuthWithTfaTask);
     std::thread(std::move(task), login, passwd, m_tfa_provider, tfa_code).detach();
 #endif
 }
@@ -443,6 +597,20 @@ void LoginBox::TfaTriggered()
 {
     //m_tfa_trigger = false;
     m_loading = false;
+}
+
+void LoginBox::ValidateOrRefreshToken()
+{
+#if defined(USE_CURL)
+    m_loading = true;
+
+    std::packaged_task<void(std::string, std::string)> task(ValidateOrRefreshTokenTask);
+    std::thread(
+        std::move(task), 
+        App::remote_login_token->getStr(),
+        App::remote_refresh_token->getStr())
+    .detach();
+#endif
 }
 
 void LoginBox::SetVisible(bool visible)

@@ -265,6 +265,8 @@ void ContentManager::InitModCache(CacheValidity validity)
         App::sys_thumbnails_dir->getStr(), "FileSystem", RGN_THUMBNAILS, /*recursive=*/false, /*readOnly=*/false);
     ResourceGroupManager::getSingleton().addResourceLocation(
         App::sys_repo_attachments_dir->getStr(), "FileSystem", RGN_REPO_ATTACHMENTS, /*recursive=*/false, /*readOnly=*/false);
+    ResourceGroupManager::getSingleton().addResourceLocation(
+        App::sys_avatar_dir->getStr(), "FileSystem", RGN_AVATAR, /*recursive=*/false, /*readOnly=*/false);
 
     // Add top-level ZIPs/directories to RGN_CONTENT (non-recursive)
 

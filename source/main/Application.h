@@ -46,6 +46,7 @@
 #define RGN_CACHE "Cache"
 #define RGN_THUMBNAILS "Thumbnails" // Repository UI - mod previews (one per resource)
 #define RGN_REPO_ATTACHMENTS "RepoAttachments" // Repository UI - images in description text (any number per resource)
+#define RGN_AVATAR "Avatar"
 #define RGN_CONFIG "Config"
 #define RGN_CONTENT "Content"
 #define RGN_SAVEGAMES "Savegames"
@@ -104,8 +105,12 @@ enum MsgType
     MSG_NET_DISCONNECT_REQUESTED,
     MSG_NET_USER_DISCONNECT,
     MSG_NET_RECV_ERROR,
-    MSG_NET_USERAUTH_SUCCESS,
+    MSG_NET_USERAUTH_SUCCESS,              //!< Payload = GUI::UserAuthToken* (owner)
     MSG_NET_USERAUTH_FAILURE,
+    MSG_NET_USERAUTH_RV_REQUESTED,
+    MSG_NET_USERAUTH_RV_FAILURE,
+    MSG_NET_USERAUTH_RV_SUCCESS,
+    MSG_NET_USERAUTH_PROFILE_REQUESTED,
     MSG_NET_USERAUTH_TFA_REQUESTED,
     MSG_NET_USERAUTH_TFA_FAILURE,
     MSG_NET_USERAUTH_TFA_TRIGGERED,
@@ -324,6 +329,14 @@ enum class MpState
     DISABLED,  //!< Not connected for whatever reason.
     CONNECTING,
     CONNECTED,
+};
+
+enum class UserAuthState
+{
+    UNAUTHENTICATED, //!< A state where the user is not verified or failed to verify. Initial state.
+    EXPIRED, //!< Transient state to indicate we're no longer verified.
+    AUTHENTICATED,
+    INVALID, //!< We can't be verified, and we shouldn't retry.
 };
 
 enum class SimState
@@ -672,6 +685,8 @@ extern CVar* mp_cyclethru_net_actors; //!< Include remote actors when cycling th
 // New remote API
 extern CVar* remote_query_url;
 extern CVar* remote_login_token;
+extern CVar* remote_refresh_token;
+extern CVar* remote_user_auth_state;
 
 // Diagnostic
 extern CVar* diag_auto_spawner_report;
@@ -709,6 +724,7 @@ extern CVar* sys_user_dir;
 extern CVar* sys_config_dir;
 extern CVar* sys_cache_dir;
 extern CVar* sys_thumbnails_dir;
+extern CVar* sys_avatar_dir;
 extern CVar* sys_logs_dir;
 extern CVar* sys_resources_dir;
 extern CVar* sys_profiler_dir;
