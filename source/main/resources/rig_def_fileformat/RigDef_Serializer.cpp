@@ -1869,48 +1869,20 @@ void Serializer::ProcessShocks(Document::Module* module)
         return;
     }
 
-    // Group beams by presets
-    std::map< BeamDefaults*, std::vector<Shock*> > shocks_by_preset;
-    auto itor_end = module->shocks.end(); 
-    for (auto itor = module->shocks.begin(); itor != itor_end; ++itor)
-    {
-        Shock & shock = *itor;
-        BeamDefaults* preset = shock.beam_defaults.get();
-
-        // Ensure preset is in map
-        auto found_itor = shocks_by_preset.find(preset);
-        if (found_itor == shocks_by_preset.end())
-        {
-            // Preset not in map, insert it and add shock.
-            std::vector<Shock*> list;
-            list.reserve(100);
-            list.push_back(&shock);
-            shocks_by_preset.insert(std::make_pair(preset, list));
-        }
-        else
-        {
-            // Preset in map, just add shock.
-            found_itor->second.push_back(&shock);
-        }
-    }
-
     // Write shocks to file
     m_stream << "shocks" << endl << endl;
-    auto preset_itor_end = shocks_by_preset.end();
-    for (auto preset_itor = shocks_by_preset.begin(); preset_itor != preset_itor_end; ++preset_itor)
-    {
-        // Write preset
-        BeamDefaults* preset = preset_itor->first;
-        ProcessBeamDefaults(preset);
 
-        // Write shocks
-        auto shock_list = preset_itor->second;
-        auto shock_itor_end = shock_list.end();
-        for (auto shock_itor = shock_list.begin(); shock_itor != shock_itor_end; ++shock_itor)
+    BeamDefaults* prev_defaults = nullptr;
+    for (size_t i = 0; i < module->shocks.size(); i++)
+    {
+        Shock& shock = module->shocks[i];
+        if (prev_defaults != shock.beam_defaults.get())
         {
-            Shock & shock = *(*shock_itor);
-            ProcessShock(shock);
+            ProcessBeamDefaults(shock.beam_defaults.get());
+            prev_defaults = shock.beam_defaults.get();
         }
+
+        this->ProcessShock(shock);
     }
 
     // Empty line
@@ -1924,48 +1896,20 @@ void Serializer::ProcessShocks2(Document::Module* module)
         return;
     }
 
-    // Group beams by presets
-    std::map< BeamDefaults*, std::vector<Shock2*> > shocks_by_preset;
-    auto itor_end = module->shocks2.end(); 
-    for (auto itor = module->shocks2.begin(); itor != itor_end; ++itor)
-    {
-        Shock2 & shock = *itor;
-        BeamDefaults* preset = shock.beam_defaults.get();
-
-        // Ensure preset is in map
-        auto found_itor = shocks_by_preset.find(preset);
-        if (found_itor == shocks_by_preset.end())
-        {
-            // Preset not in map, insert it and add shock.
-            std::vector<Shock2*> list;
-            list.reserve(100);
-            list.push_back(&shock);
-            shocks_by_preset.insert(std::make_pair(preset, list));
-        }
-        else
-        {
-            // Preset in map, just add shock.
-            found_itor->second.push_back(&shock);
-        }
-    }
-
-    // Write shocks to file
+    // Write shocks2 to file
     m_stream << "shocks2" << endl << endl;
-    auto preset_itor_end = shocks_by_preset.end();
-    for (auto preset_itor = shocks_by_preset.begin(); preset_itor != preset_itor_end; ++preset_itor)
-    {
-        // Write preset
-        BeamDefaults* preset = preset_itor->first;
-        ProcessBeamDefaults(preset);
 
-        // Write shocks
-        auto shock_list = preset_itor->second;
-        auto shock_itor_end = shock_list.end();
-        for (auto shock_itor = shock_list.begin(); shock_itor != shock_itor_end; ++shock_itor)
+    BeamDefaults* prev_defaults = nullptr;
+    for (size_t i = 0; i < module->shocks2.size(); i++)
+    {
+        Shock2& shock2 = module->shocks2[i];
+        if (prev_defaults != shock2.beam_defaults.get())
         {
-            Shock2 & shock = *(*shock_itor);
-            ProcessShock2(shock);
+            ProcessBeamDefaults(shock2.beam_defaults.get());
+            prev_defaults = shock2.beam_defaults.get();
         }
+
+        this->ProcessShock2(shock2);
     }
 
     // Empty line
@@ -1979,48 +1923,20 @@ void Serializer::ProcessShocks3(Document::Module* module)
         return;
     }
 
-    // Group beams by presets
-    std::map< BeamDefaults*, std::vector<Shock3*> > shocks_by_preset;
-    auto itor_end = module->shocks3.end(); 
-    for (auto itor = module->shocks3.begin(); itor != itor_end; ++itor)
-    {
-        Shock3 & shock = *itor;
-        BeamDefaults* preset = shock.beam_defaults.get();
-
-        // Ensure preset is in map
-        auto found_itor = shocks_by_preset.find(preset);
-        if (found_itor == shocks_by_preset.end())
-        {
-            // Preset not in map, insert it and add shock.
-            std::vector<Shock3*> list;
-            list.reserve(100);
-            list.push_back(&shock);
-            shocks_by_preset.insert(std::make_pair(preset, list));
-        }
-        else
-        {
-            // Preset in map, just add shock.
-            found_itor->second.push_back(&shock);
-        }
-    }
-
-    // Write shocks to file
+    // Write shocks3 to file
     m_stream << "shocks3" << endl << endl;
-    auto preset_itor_end = shocks_by_preset.end();
-    for (auto preset_itor = shocks_by_preset.begin(); preset_itor != preset_itor_end; ++preset_itor)
-    {
-        // Write preset
-        BeamDefaults* preset = preset_itor->first;
-        ProcessBeamDefaults(preset);
 
-        // Write shocks
-        auto shock_list = preset_itor->second;
-        auto shock_itor_end = shock_list.end();
-        for (auto shock_itor = shock_list.begin(); shock_itor != shock_itor_end; ++shock_itor)
+    BeamDefaults* prev_defaults = nullptr;
+    for (size_t i = 0; i < module->shocks3.size(); i++)
+    {
+        Shock3& shock3 = module->shocks3[i];
+        if (prev_defaults != shock3.beam_defaults.get())
         {
-            Shock3 & shock = *(*shock_itor);
-            ProcessShock3(shock);
+            ProcessBeamDefaults(shock3.beam_defaults.get());
+            prev_defaults = shock3.beam_defaults.get();
         }
+
+        this->ProcessShock3(shock3);
     }
 
     // Empty line

@@ -2955,6 +2955,10 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     {
         this->CreateBeamVisuals(beam, beam_index, false, def.beam_defaults);
     }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
+    }
 
     /* Register tie */
     tie_t tie;
@@ -3418,6 +3422,10 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
     }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
+    }
     // end `add_beam()`
 
     if (m_actor->m_trigger_debug_enabled)
@@ -3713,6 +3721,10 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
     }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
+    }
 
     m_actor->m_num_command_beams++;
     m_actor->m_has_command_beams = true;
@@ -3869,6 +3881,10 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
     }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
+    }
 
     if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_SHORT_LIMIT)) 
     {
@@ -4000,6 +4016,10 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
     }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
+    }
 
     hydrobeam_t hb;
     hb.hb_flags = hydro_flags;
@@ -4070,6 +4090,10 @@ void ActorSpawner::ProcessShock3(RigDef::Shock3 & def)
     if (BITMASK_IS_0(def.options, RigDef::Shock3::OPTION_i_INVISIBLE))
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
     }
 
     shock_t & shock  = GetFreeShock();
@@ -4154,6 +4178,10 @@ void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
     }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
+    }
 
     shock_t & shock  = GetFreeShock();
     shock.flags      = shock_flags;
@@ -4222,6 +4250,10 @@ void ActorSpawner::ProcessShock(RigDef::Shock & def)
     if (BITMASK_IS_0(def.options, RigDef::Shock::OPTION_i_INVISIBLE))
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
     }
 
     beam.shock = & shock;

@@ -95,10 +95,10 @@ enum ActorType //!< Aka 'Driveable'
 /// @addtogroup Physics
 /// @{
 
-enum SpecialBeam: short
+enum SpecialBeam: short //!< aka 'bounded'
 {
     NOSHOCK,        //!< not a shock
-    SHOCK1,         //!< shock1
+    SHOCK1,         //!< either 'shock1' (with flag `BEAM_HYDRO`) or a wheel beam
     SHOCK2,         //!< shock2
     SHOCK3,         //!< shock3
     TRIGGER,        //!< trigger
