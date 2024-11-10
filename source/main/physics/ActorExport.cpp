@@ -48,12 +48,26 @@ static RigDef::Node::Ref BuildNodeRef(Actor* actor, NodeNum_t n)
     }
 }
 
+static bool IsActuallyShockBeam(const beam_t& beam)
+{
+    // Beams with attributes {SHOCK1 && BEAM_NORMAL} are actually wheel beams ~ don't ask.
+    return beam.bm_type == BEAM_HYDRO 
+        && (beam.bounded == SHOCK1 || beam.bounded == SHOCK2 || beam.bounded == SHOCK3);
+}
+
 static void UpdateSetBeamDefaults(std::shared_ptr<BeamDefaults>& beam_defaults, Actor* actor, int i)
 {
     float b_spring = actor->ar_beams[i].k;
     float b_damp = actor->ar_beams[i].d;
     float b_deform = actor->ar_beams[i].default_beam_deform;
     float b_break = actor->ar_beams[i].initial_beam_strength;
+    if (IsActuallyShockBeam(actor->ar_beams[i]))
+    {
+        b_spring = actor->ar_beams[i].shock->sbd_spring;
+        b_damp = actor->ar_beams[i].shock->sbd_damp;
+        b_break = actor->ar_beams[i].shock->sbd_break;
+    }
+
     if (beam_defaults->springiness != b_spring
         || beam_defaults->damping_constant != b_damp
         || beam_defaults->deformation_threshold != b_deform
@@ -107,6 +121,9 @@ void Actor::propagateNodeBeamChangesToDef()
     m_used_actor_entry->actor_def->root_module->meshwheels.clear();
     m_used_actor_entry->actor_def->root_module->meshwheels2.clear();
     m_used_actor_entry->actor_def->root_module->flexbodywheels.clear();
+    m_used_actor_entry->actor_def->root_module->shocks.clear();
+    m_used_actor_entry->actor_def->root_module->shocks2.clear();
+    m_used_actor_entry->actor_def->root_module->shocks3.clear();
 
 
     // Prepare 'set_node_defaults' with builtin values.
@@ -466,6 +483,130 @@ void Actor::propagateNodeBeamChangesToDef()
         }
         default:
             ROR_ASSERT(false);
+            break;
+        }
+    }
+
+    // ~~~ Shocks ~~~
+
+    for (int i = 0; i < ar_num_beams; i++)
+    {
+        const beam_t& beam = ar_beams[i];
+        switch (beam.bounded)
+        {
+        case SpecialBeam::SHOCK1:
+        {
+            if (!IsActuallyShockBeam(beam))
+            {
+                // This is actually a wheel beam - skip it.
+                continue;
+            }
+
+            UpdateSetBeamDefaults(beam_defaults, this, i);
+
+            RigDef::Shock def;
+            def.beam_defaults = beam_defaults;
+            def.nodes[0] = BuildNodeRef(this, beam.p1->pos);
+            def.nodes[1] = BuildNodeRef(this, beam.p2->pos);
+            def.short_bound = beam.shortbound;
+            def.long_bound = beam.longbound;
+            def.precompression = beam.shock->shock_precompression;
+
+            // shock1-specific
+            def.spring_rate = beam.k;
+            def.damping = beam.d;
+
+            // options
+            if (BITMASK_IS_1(beam.shock->flags, SHOCK_FLAG_LACTIVE))
+            {
+                BITMASK_SET_1(def.options, RigDef::Shock::OPTION_L_ACTIVE_LEFT);
+            }
+            if (BITMASK_IS_1(beam.shock->flags, SHOCK_FLAG_RACTIVE))
+            {
+                BITMASK_SET_1(def.options, RigDef::Shock::OPTION_R_ACTIVE_RIGHT);
+            }
+            if (ar_beams_invisible[i])
+            {
+                BITMASK_SET_1(def.options, RigDef::Shock::OPTION_i_INVISIBLE);
+            }
+
+            m_used_actor_entry->actor_def->root_module->shocks.push_back(def);
+            break;
+        }
+
+        case SpecialBeam::SHOCK2:
+        {
+            UpdateSetBeamDefaults(beam_defaults, this, i);
+
+            RigDef::Shock2 def;
+            def.beam_defaults = beam_defaults;
+            def.nodes[0] = BuildNodeRef(this, beam.p1->pos);
+            def.nodes[1] = BuildNodeRef(this, beam.p2->pos);
+            def.short_bound = beam.shortbound;
+            def.long_bound = beam.longbound;
+            def.precompression = beam.shock->shock_precompression;
+
+            // shock2-specific
+            def.beam_defaults->springiness      = beam.shock->sbd_spring;
+            def.beam_defaults->damping_constant = beam.shock->sbd_damp  ;
+            def.spring_in                       = beam.shock->springin  ;
+            def.damp_in                         = beam.shock->dampin    ;
+            def.spring_out                      = beam.shock->springout ;
+            def.damp_out                        = beam.shock->dampout   ;
+            def.progress_factor_spring_in       = beam.shock->sprogin   ;
+            def.progress_factor_damp_in         = beam.shock->dprogin   ;
+            def.progress_factor_spring_out      = beam.shock->sprogout  ;
+            def.progress_factor_damp_out        = beam.shock->dprogout  ;
+
+            // options
+            if (ar_beams_invisible[i])
+            {
+                BITMASK_SET_1(def.options, RigDef::Shock::OPTION_i_INVISIBLE);
+            }
+
+            m_used_actor_entry->actor_def->root_module->shocks2.push_back(def);
+            break;
+        }
+
+        case SpecialBeam::SHOCK3:
+        {
+            UpdateSetBeamDefaults(beam_defaults, this, i);
+
+            RigDef::Shock3 def;
+            def.beam_defaults = beam_defaults;
+            def.nodes[0] = BuildNodeRef(this, beam.p1->pos);
+            def.nodes[1] = BuildNodeRef(this, beam.p2->pos);
+            def.short_bound = beam.shortbound;
+            def.long_bound = beam.longbound;
+            def.precompression = beam.shock->shock_precompression;
+
+            // same as shock2
+            def.beam_defaults->springiness = beam.shock->sbd_spring;
+            def.beam_defaults->damping_constant = beam.shock->sbd_damp;
+            def.spring_in = beam.shock->springin;
+            def.damp_in = beam.shock->dampin;
+            def.spring_out = beam.shock->springout;
+            def.damp_out = beam.shock->dampout;
+
+            // shock3-specific
+            def.split_vel_in  = beam.shock->splitin  ;
+            def.damp_in_slow  = beam.shock->dslowin  ;
+            def.damp_in_fast  = beam.shock->dfastin  ;
+            def.split_vel_out = beam.shock->splitout ;
+            def.damp_out_slow = beam.shock->dslowout ;
+            def.damp_out_fast = beam.shock->dfastout ;
+
+            // options
+            if (ar_beams_invisible[i])
+            {
+                BITMASK_SET_1(def.options, RigDef::Shock::OPTION_i_INVISIBLE);
+            }
+
+            m_used_actor_entry->actor_def->root_module->shocks3.push_back(def);
+            break;
+        }
+
+        default: // Not a shock
             break;
         }
     }
