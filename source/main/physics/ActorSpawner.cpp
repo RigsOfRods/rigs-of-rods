@@ -2984,6 +2984,10 @@ void ActorSpawner::ProcessTie(RigDef::Tie & def)
     {
         this->CreateBeamVisuals(beam, beam_index, false, def.beam_defaults);
     }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
+    }
 
     /* Register tie */
     tie_t tie;
@@ -3447,6 +3451,10 @@ void ActorSpawner::ProcessTrigger(RigDef::Trigger & def)
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
     }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
+    }
     // end `add_beam()`
 
     if (m_actor->m_trigger_debug_enabled)
@@ -3742,6 +3750,10 @@ void ActorSpawner::ProcessCommand(RigDef::Command2 & def)
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
     }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
+    }
 
     m_actor->m_num_command_beams++;
     m_actor->m_has_command_beams = true;
@@ -3898,6 +3910,10 @@ void ActorSpawner::ProcessAnimator(RigDef::Animator & def)
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
     }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
+    }
 
     if (BITMASK_IS_1(def.flags, RigDef::Animator::OPTION_SHORT_LIMIT)) 
     {
@@ -4029,6 +4045,10 @@ void ActorSpawner::ProcessHydro(RigDef::Hydro & def)
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
     }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
+    }
 
     hydrobeam_t hb;
     hb.hb_flags = hydro_flags;
@@ -4100,11 +4120,16 @@ void ActorSpawner::ProcessShock3(RigDef::Shock3 & def)
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
     }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
+    }
 
     shock_t & shock  = GetFreeShock();
     shock.flags      = shock_flags;
     shock.sbd_spring = def.beam_defaults->springiness;
     shock.sbd_damp   = def.beam_defaults->damping_constant;
+    shock.sbd_break  = def.beam_defaults->breaking_threshold;
     shock.springin   = def.spring_in;
     shock.dampin     = def.damp_in;
     shock.springout  = def.spring_out;
@@ -4115,6 +4140,7 @@ void ActorSpawner::ProcessShock3(RigDef::Shock3 & def)
     shock.splitout   = def.split_vel_out;
     shock.dslowout   = def.damp_out_slow;
     shock.dfastout   = def.damp_out_fast;
+    shock.shock_precompression = def.precompression;
 
     beam.shock = & shock;
     shock.beamid = beam_index;
@@ -4183,11 +4209,16 @@ void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
     }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
+    }
 
     shock_t & shock  = GetFreeShock();
     shock.flags      = shock_flags;
     shock.sbd_spring = def.beam_defaults->springiness;
     shock.sbd_damp   = def.beam_defaults->damping_constant;
+    shock.sbd_break  = def.beam_defaults->breaking_threshold;
     shock.springin   = def.spring_in;
     shock.dampin     = def.damp_in;
     shock.springout  = def.spring_out;
@@ -4196,6 +4227,7 @@ void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
     shock.dprogin    = def.progress_factor_damp_in;
     shock.sprogout   = def.progress_factor_spring_out;
     shock.dprogout   = def.progress_factor_damp_out;
+    shock.shock_precompression = def.precompression;
 
     beam.shock = & shock;
     shock.beamid = beam_index;
@@ -4247,10 +4279,16 @@ void ActorSpawner::ProcessShock(RigDef::Shock & def)
     shock.flags      = shock_flags;
     shock.sbd_spring = def.beam_defaults->springiness;
     shock.sbd_damp   = def.beam_defaults->damping_constant;
+    shock.sbd_break  = def.beam_defaults->breaking_threshold;
+    shock.shock_precompression = def.precompression;
 
     if (BITMASK_IS_0(def.options, RigDef::Shock::OPTION_i_INVISIBLE))
     {
         this->CreateBeamVisuals(beam, beam_index, true, def.beam_defaults);
+    }
+    else
+    {
+        m_actor->ar_beams_invisible[beam_index] = true;
     }
 
     beam.shock = & shock;

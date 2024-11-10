@@ -94,10 +94,10 @@ enum ActorType //!< Aka 'Driveable'
 /// @addtogroup Physics
 /// @{
 
-enum SpecialBeam: short
+enum SpecialBeam: short //!< aka 'bounded'
 {
     NOSHOCK,        //!< not a shock
-    SHOCK1,         //!< shock1
+    SHOCK1,         //!< either 'shock1' (with flag `BEAM_HYDRO`) or a wheel beam
     SHOCK2,         //!< shock2
     SHOCK3,         //!< shock3
     TRIGGER,        //!< trigger
@@ -372,6 +372,9 @@ struct shock_t
 
     float sbd_spring;           //!< set beam default for spring
     float sbd_damp;             //!< set beam default for damping
+    float sbd_break;            //!< set beam default for breaking threshold
+
+    float shock_precompression; //!< Only for export
 };
 
 struct collcab_rate_t
