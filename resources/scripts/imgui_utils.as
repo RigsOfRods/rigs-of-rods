@@ -8,7 +8,7 @@
 /// `CloseWindowPrompt` ~ Convenient handler of the [X] close button - draws "Really exit?" prompt and then exits the script.
 // --------------------------------------------------------------------------
 
-// By convention, all includes have suffix _utils and namespace matching filename.
+// By convention, all includes have filename '*_utils' and namespace matching filename.
 namespace imgui_utils
 {
 
@@ -125,7 +125,7 @@ namespace imgui_utils
             {
                 game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, { {'id', thisScript} }); // `thisScript` is global variable set by the game.            
             }
-        }        
+        }      
     }
 } // namespace imgui_utils
 
