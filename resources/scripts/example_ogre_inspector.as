@@ -25,7 +25,7 @@ class OgreInspector
         ImGui::Text("Note that all element names are just simple strings, even if they contain '/'.");
         ImGui::Text("For details see OGRE docs:");
         ImGui::SameLine();
-        ImHyperlink("https://ogrecave.github.io/ogre/api/latest/"); 
+        imgui_utils::ImHyperlink("https://ogrecave.github.io/ogre/api/latest/"); 
         ImGui::Separator();
         
         Ogre::Root@ root = Ogre::Root::getSingleton();

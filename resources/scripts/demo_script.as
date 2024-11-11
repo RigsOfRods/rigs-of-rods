@@ -44,14 +44,19 @@ CVarClass@  g_sys_cache_dir = console.cVarFind("sys_cache_dir");
 CVarClass@  g_sim_state = console.cVarFind("sim_state"); // 0=off, 1=running, 2=paused, 3=terrain editor, see SimState in Application.h
 CVarClass@  g_mp_state = console.cVarFind("mp_state"); // 0=disabled, 1=connecting, 2=connected, see MpState in Application.h
 CVarClass@  g_io_arcade_controls = console.cVarFind("io_arcade_controls"); // bool
-GenericDocumentClass@ g_displayed_document = null;
-string g_displayed_doc_filename;
+
 array<string> g_terrain_tobj_files;
 SoundScriptInstanceClass@ g_playing_soundscript = null;
 SoundClass@ g_playing_sound = null;
 bool g_sound_follows_player = true;
 string g_demofile_data;
-imgui_utils::CloseWindowPrompt g_window_closebtn_handler;
+
+// Main window state
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
+// Document window state
+GenericDocumentClass@ g_displayed_document = null;
+string g_displayed_doc_filename;
 
 // tab settings
 bool demotabsReorderable = false;
@@ -75,14 +80,14 @@ void main()
 
 /*
     ---------------------------------------------------------------------------
-    Script update function - invoked once every rendered frame,
+    Script update function - invoked by the game once every rendered frame,
     with elapsed time (delta time, in seconds) as parameter.
 */
 void frameStep(float dt)
 {
     // Open demo window
-    ImGui::Begin("Demo Script", g_window_closebtn_handler.windowOpen, ImGuiWindowFlags_AlwaysAutoResize);
-    g_window_closebtn_handler.draw();
+    ImGui::Begin("Demo Script", closeBtnHandler.windowOpen, ImGuiWindowFlags_AlwaysAutoResize);
+    closeBtnHandler.draw();
     
     // show some stats
     ImGui::Text("Total frames: " + g_total_frames);
@@ -340,7 +345,8 @@ void drawDocumentWindow()
 {
     ImGui::PushID("document view");
     string caption = "Document view (" + g_displayed_doc_filename + ")";
-    ImGui::Begin(caption, /*open:*/true, /*flags:*/0);
+	bool docWindowOpen = true;
+    ImGui::Begin(caption, docWindowOpen, /*flags:*/0);
 
     GenericDocContextClass reader(g_displayed_document);
     while (!reader.endOfFile())
@@ -387,6 +393,12 @@ void drawDocumentWindow()
     }
     
     ImGui::End();
+	if (!docWindowOpen)
+	{
+		@g_displayed_document = null;
+		g_displayed_doc_filename = "";
+	}
+	
     ImGui::PopID(); //"document view"
 }
 
