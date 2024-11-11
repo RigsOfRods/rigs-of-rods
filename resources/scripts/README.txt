@@ -8,7 +8,7 @@ FOR DEVELOPERS: Visit https://developer.rigsofrods.org/ and click "Script-side A
 Conventions:
 * Scripts named 'example_*.as' are short introductory scripts that perform one thing, usually showing UI with tips and controls. You can run them using 'loadscript'.
 * Scripts named '*_editor.as' are complete tools. You can run them using 'loadscript'.
-* Scripts named '*_utils.as' are includes - running them directly is not possible, 'loadscript' would result in error "there is no main() function".
+* Scripts named '*_utils.as' are includes - running them via 'loadscript' does nothing, they are to be `#include`-d into other scripts.
 
 Special scripts:
 * 'default.as' - fallback terrain script, loaded if modder didn't provide custom script.

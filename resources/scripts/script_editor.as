@@ -202,7 +202,12 @@ class ScriptEditorWindow
     ScriptIndexerRecord recentScriptsRecord;
     ScriptIndexerRecord localScriptsRecord;
     ScriptIndexerRecord exampleScriptsRecord;
-    ScriptIndexerRecord includeScriptsRecord;   
+    ScriptIndexerRecord includeScriptsRecord;
+	
+	ScriptEditorWindow()
+	{
+		closeBtnHandler.cfgPromptText = "Really close script editor? You will lose any unsaved work.";	
+	}
 
     void refreshLocalFileList()
     {
@@ -570,7 +575,7 @@ class ScriptEditorWindow
         for (uint i=0; i<record.fileinfos.length(); i++)
         {
             ImGui::PushID(i);
-            ScriptInfo@ scriptinfo = record.getScriptInfo(i);
+            scriptinfo_utils::ScriptInfo@ scriptinfo = record.getScriptInfo(i);
             string filename = string(record.fileinfos[i]['filename']);
             uint size = uint(record.fileinfos[i]['compressedSize']);
             bool hovered=false;
@@ -2157,11 +2162,11 @@ class ScriptIndexerRecord
         //  analysis is done frame-by-frame in `advanceScriptAnalysis()`
     }
 
-    ScriptInfo@ getScriptInfo(uint index)
+    scriptinfo_utils::ScriptInfo@ getScriptInfo(uint index)
     {
         if (index < fileinfos.length() && fileinfos[index].exists('scriptInfo')) 
         { 
-            return cast<ScriptInfo>(fileinfos[index]['scriptInfo']);
+            return cast<scriptinfo_utils::ScriptInfo>(fileinfos[index]['scriptInfo']);
         }
         return null;
     }
@@ -2182,7 +2187,7 @@ class ScriptIndexerRecord
     {
         string filename = string(fileinfos[index]['filename']);
         string body = game.loadTextResourceAsString(filename, rgname);
-        ScriptInfo@scriptinfo = ExtractScriptInfo(body);
+        scriptinfo_utils::ScriptInfo@ scriptinfo = scriptinfo_utils::ExtractScriptInfo(body);
         /*game.log("DBG analyzeSingleScript("+index+"): File="+filename+'/RgName='+rgname
                 +": title="+scriptinfo.title+", brief="+scriptinfo.brief+", text="+scriptinfo.text);*/
         fileinfos[index]['scriptInfo']  = scriptinfo;
@@ -2226,9 +2231,9 @@ RegionInfo@ findRegion(dictionary@ regionDict, string name) // Helper which chec
 const string TUT_SCRIPT =
 """
 // TUTORIAL SCRIPT - Shows the basics, step by step:
-// How to open UI window and handle [X] close button;
-// how to store data and update/draw them every frame.
-// (also showcases code folding with '#[end]region')
+// * How to open UI window and handle [X] close button.
+// * how to store data and update/draw them every frame.
+// * How to do code folding with '#[end]region'
 // ===================================================
 
 // Window [X] button handler
@@ -2250,7 +2255,7 @@ void frameStep(float dt)
     // Begin drawing window
     if (ImGui::Begin("Tutorial script", closeBtnHandler.windowOpen, 0))
     {
-        // Draw the "Terminate this script?" prompt on the top.
+        // Draw the "Terminate this script?" prompt on the top (if not disabled by config).
         closeBtnHandler.draw();
         
         // accumulate time
@@ -2262,7 +2267,6 @@ void frameStep(float dt)
         //#endregion
         
         //#region render the output
-        // Note this will open an implicit window titled "Debug"
         ImGui::Text(ttStr);
         ImGui::SameLine();
         ImGui::Text(dtStr);
