@@ -104,7 +104,10 @@ public:
     
 
     void           UpdateInputEvents(float dt);
+
+    // Truck file handling
     RigDef::DocumentPtr   FetchActorDef(std::string filename, bool predefined_on_terrain = false);
+    void                  ExportActorDef(RigDef::DocumentPtr def, std::string filename, std::string rg_name);
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet);

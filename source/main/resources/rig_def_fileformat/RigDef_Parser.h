@@ -208,8 +208,8 @@ private:
     float              GetArgFloat        (int index);
     char               GetArgChar         (int index);
     bool               GetArgBool         (int index);
-    WheelPropulsion    GetArgPropulsion   (int index);
-    WheelBraking       GetArgBraking      (int index);
+    RoR::WheelPropulsion GetArgPropulsion (int index);
+    RoR::WheelBraking  GetArgBraking      (int index);
     Node::Ref          GetArgNodeRef      (int index);
     Node::Ref          GetArgRigidityNode (int index);
     Node::Ref          GetArgNullableNode (int index);

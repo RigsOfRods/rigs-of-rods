@@ -263,13 +263,13 @@ void AddonPartUtility::ProcessProp()
     def.x_axis_node    = Node::Ref("", (unsigned int)m_context->getTokFloat(1), importflags, 0);
     def.y_axis_node    = Node::Ref("", (unsigned int)m_context->getTokFloat(2), importflags, 0);
 
-    def.offset.x = m_context->getTokFloat(3);
-    def.offset.y = m_context->getTokFloat(4);
-    def.offset.z = m_context->getTokFloat(5);
+    def.offset.x = m_context->getTokNumeric(3);
+    def.offset.y = m_context->getTokNumeric(4);
+    def.offset.z = m_context->getTokNumeric(5);
 
-    def.rotation.x = m_context->getTokFloat(6);
-    def.rotation.y = m_context->getTokFloat(7);
-    def.rotation.z = m_context->getTokFloat(8);
+    def.rotation.x = m_context->getTokNumeric(6);
+    def.rotation.y = m_context->getTokNumeric(7);
+    def.rotation.z = m_context->getTokNumeric(8);
 
     def.mesh_name = m_context->getTokString(9);
     def.special = RigDef::Parser::IdentifySpecialProp(def.mesh_name);
@@ -324,17 +324,17 @@ void AddonPartUtility::ProcessFlexbody()
     }
 
     int importflags = Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NUMBERED;
-    def.reference_node = Node::Ref("", (unsigned int)m_context->getTokFloat(0), importflags, 0);
-    def.x_axis_node    = Node::Ref("", (unsigned int)m_context->getTokFloat(1), importflags, 0);
-    def.y_axis_node    = Node::Ref("", (unsigned int)m_context->getTokFloat(2), importflags, 0);
+    def.reference_node = Node::Ref("", (unsigned int)m_context->getTokInt(0), importflags, 0);
+    def.x_axis_node    = Node::Ref("", (unsigned int)m_context->getTokInt(1), importflags, 0);
+    def.y_axis_node    = Node::Ref("", (unsigned int)m_context->getTokInt(2), importflags, 0);
 
-    def.offset.x = m_context->getTokFloat(3);
-    def.offset.y = m_context->getTokFloat(4);
-    def.offset.z = m_context->getTokFloat(5);
+    def.offset.x = m_context->getTokNumeric(3);
+    def.offset.y = m_context->getTokNumeric(4);
+    def.offset.z = m_context->getTokNumeric(5);
 
-    def.rotation.x = m_context->getTokFloat(6);
-    def.rotation.y = m_context->getTokFloat(7);
-    def.rotation.z = m_context->getTokFloat(8);
+    def.rotation.x = m_context->getTokNumeric(6);
+    def.rotation.y = m_context->getTokNumeric(7);
+    def.rotation.z = m_context->getTokNumeric(8);
 
     def.mesh_name = m_context->getTokString(9);
 
@@ -376,11 +376,11 @@ void AddonPartUtility::ProcessFlare()
 
     Flare2 def; // We auto-import 'flares' as 'flares2', leaving the `offset.z` at 0.
     int importflags = Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NUMBERED;
-    def.reference_node = Node::Ref("", (unsigned int)m_context->getTokFloat(0), importflags, 0);
-    def.node_axis_x    = Node::Ref("", (unsigned int)m_context->getTokFloat(1), importflags, 0);
-    def.node_axis_y    = Node::Ref("", (unsigned int)m_context->getTokFloat(2), importflags, 0);
-    def.offset.x       = m_context->getTokFloat(3);
-    def.offset.y       = m_context->getTokFloat(4);
+    def.reference_node = Node::Ref("", (unsigned int)m_context->getTokInt(0), importflags, 0);
+    def.node_axis_x    = Node::Ref("", (unsigned int)m_context->getTokInt(1), importflags, 0);
+    def.node_axis_y    = Node::Ref("", (unsigned int)m_context->getTokInt(2), importflags, 0);
+    def.offset.x       = m_context->getTokNumeric(3);
+    def.offset.y       = m_context->getTokNumeric(4);
 
     if (n > 5) def.type = (FlareType)m_context->getTokString(5)[0];
 
@@ -388,14 +388,14 @@ void AddonPartUtility::ProcessFlare()
     {
         switch (def.type)
         {
-            case FlareType::USER:      def.control_number = (int)m_context->getTokFloat(6); break;
+            case FlareType::USER:      def.control_number = m_context->getTokInt(6); break;
             case FlareType::DASHBOARD: def.dashboard_link = m_context->getTokString(6); break;
             default: break;
         }
     }
 
-    if (n > 7) { def.blink_delay_milis = (int)m_context->getTokFloat(7); }
-    if (n > 8) { def.size              = m_context->getTokFloat(8); }
+    if (n > 7) { def.blink_delay_milis = m_context->getTokInt(7); }
+    if (n > 8) { def.size              = m_context->getTokNumeric(8); }
     if (n > 9) { def.material_name     = m_context->getTokString(9); }
 
     m_module->flares2.push_back(def);
@@ -414,12 +414,12 @@ void AddonPartUtility::ProcessFlare2()
 
     Flare2 def;
     int importflags = Node::Ref::REGULAR_STATE_IS_VALID | Node::Ref::REGULAR_STATE_IS_NUMBERED;
-    def.reference_node = Node::Ref("", (unsigned int)m_context->getTokFloat(0), importflags, 0);
-    def.node_axis_x    = Node::Ref("", (unsigned int)m_context->getTokFloat(1), importflags, 0);
-    def.node_axis_y    = Node::Ref("", (unsigned int)m_context->getTokFloat(2), importflags, 0);
-    def.offset.x       = m_context->getTokFloat(3);
-    def.offset.y       = m_context->getTokFloat(4);
-    def.offset.z       = m_context->getTokFloat(5); // <-- Specific to 'flares2' (the only difference)
+    def.reference_node = Node::Ref("", (unsigned int)m_context->getTokInt(0), importflags, 0);
+    def.node_axis_x    = Node::Ref("", (unsigned int)m_context->getTokInt(1), importflags, 0);
+    def.node_axis_y    = Node::Ref("", (unsigned int)m_context->getTokInt(2), importflags, 0);
+    def.offset.x       = m_context->getTokNumeric(3);
+    def.offset.y       = m_context->getTokNumeric(4);
+    def.offset.z       = m_context->getTokNumeric(5); // <-- Specific to 'flares2' (the only difference)
 
     if (n > 6) def.type = (FlareType)m_context->getTokString(6)[0];
 
@@ -427,14 +427,14 @@ void AddonPartUtility::ProcessFlare2()
     {
         switch (def.type)
         {
-            case FlareType::USER:      def.control_number = (int)m_context->getTokFloat(7); break;
+            case FlareType::USER:      def.control_number = m_context->getTokInt(7); break;
             case FlareType::DASHBOARD: def.dashboard_link = m_context->getTokString(7); break;
             default: break;
         }
     }
 
-    if (n > 8) { def.blink_delay_milis = (int)m_context->getTokFloat(8); }
-    if (n > 9) { def.size              = m_context->getTokFloat(9); }
+    if (n > 8) { def.blink_delay_milis = m_context->getTokInt(8); }
+    if (n > 9) { def.size              = m_context->getTokNumeric(9); }
     if (n > 10) { def.material_name     = m_context->getTokString(10); }
 
     m_module->flares2.push_back(def);
@@ -446,13 +446,13 @@ void AddonPartUtility::ProcessUnwantedProp()
 {
     ROR_ASSERT(m_context->getTokKeyword() == "addonpart_unwanted_prop"); // also asserts !EOF and TokenType::KEYWORD
 
-    if (m_context->isTokFloat(1))
+    if (m_context->isTokInt(1))
     {
-        if (!m_tuneup->isPropProtected((PropID_t)m_context->getTokFloat(1)))
+        if (!m_tuneup->isPropProtected((PropID_t)m_context->getTokInt(1)))
         {
             m_tuneup->unwanted_props.insert((PropID_t)m_context->getTokFloat(1));
             this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': marking prop '{}' as UNWANTED",
-                m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
+                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokInt(1)));
         }
         else
         {
@@ -470,13 +470,13 @@ void AddonPartUtility::ProcessUnwantedFlexbody()
 {
     ROR_ASSERT(m_context->getTokKeyword() == "addonpart_unwanted_flexbody"); // also asserts !EOF and TokenType::KEYWORD
 
-    if (m_context->isTokFloat(1))
+    if (m_context->isTokInt(1))
     {
-        if (!m_tuneup->isFlexbodyProtected((FlexbodyID_t)m_context->getTokFloat(1)))
+        if (!m_tuneup->isFlexbodyProtected((FlexbodyID_t)m_context->getTokInt(1)))
         {
             m_tuneup->unwanted_flexbodies.insert((FlexbodyID_t)m_context->getTokFloat(1));
             this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': marking flexbody '{}' as UNWANTED",
-                m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
+                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokInt(1)));
         }
         else
         {
@@ -494,13 +494,13 @@ void AddonPartUtility::ProcessUnwantedFlare()
 {
     ROR_ASSERT(m_context->getTokKeyword() == "addonpart_unwanted_flare"); // also asserts !EOF and TokenType::KEYWORD
 
-    if (m_context->isTokFloat(1))
+    if (m_context->isTokInt(1))
     {
-        if (!m_tuneup->isFlareProtected((FlareID_t)m_context->getTokFloat(1)))
+        if (!m_tuneup->isFlareProtected((FlareID_t)m_context->getTokInt(1)))
         {
             m_tuneup->unwanted_flares.insert((FlareID_t)m_context->getTokFloat(1));
             this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': marking flare '{}' as UNWANTED",
-                m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
+                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokInt(1)));
         }
         else
         {
@@ -518,13 +518,13 @@ void AddonPartUtility::ProcessUnwantedExhaust()
 {
     ROR_ASSERT(m_context->getTokKeyword() == "addonpart_unwanted_exhaust"); // also asserts !EOF and TokenType::KEYWORD
 
-    if (m_context->isTokFloat(1))
+    if (m_context->isTokInt(1))
     {
-        if (!m_tuneup->isExhaustProtected((ExhaustID_t)m_context->getTokFloat(1)))
+        if (!m_tuneup->isExhaustProtected((ExhaustID_t)m_context->getTokInt(1)))
         {
             m_tuneup->unwanted_exhausts.insert((ExhaustID_t)m_context->getTokFloat(1));
             this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': marking exhaust '{}' as UNWANTED",
-                m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
+                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokInt(1)));
         }
         else
         {
@@ -567,9 +567,9 @@ void AddonPartUtility::ProcessTweakWheel()
 {
     ROR_ASSERT(m_context->getTokKeyword() == "addonpart_tweak_wheel"); // also asserts !EOF and TokenType::KEYWORD
 
-    if (m_context->isTokFloat(1) && m_context->isTokString(2))
+    if (m_context->isTokInt(1) && m_context->isTokString(2))
     {
-        const int wheel_id = (int)m_context->getTokFloat(1);
+        const int wheel_id = m_context->getTokInt(1);
         if (!m_tuneup->isWheelProtected(wheel_id))
         {
             if (m_tuneup->wheel_tweaks.find(wheel_id) == m_tuneup->wheel_tweaks.end())
@@ -602,7 +602,7 @@ void AddonPartUtility::ProcessTweakWheel()
         else
         {
             this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping wheel '{}' because it's marked PROTECTED",
-                m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
+                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokInt(1)));
         }
     }
     else
@@ -615,9 +615,9 @@ void AddonPartUtility::ProcessTweakNode()
 {
     ROR_ASSERT(m_context->getTokKeyword() == "addonpart_tweak_node"); // also asserts !EOF and TokenType::KEYWORD
 
-    if (m_context->isTokFloat(1) && m_context->isTokFloat(1) && m_context->isTokFloat(2) && m_context->isTokFloat(3))
+    if (m_context->isTokInt(1) && m_context->isTokNumeric(1) && m_context->isTokNumeric(2) && m_context->isTokNumeric(3))
     {
-        NodeNum_t nodenum = (NodeNum_t)m_context->getTokFloat(1);
+        NodeNum_t nodenum = (NodeNum_t)m_context->getTokInt(1);
         if (!m_tuneup->isNodeProtected(nodenum))
         {
             if (m_tuneup->node_tweaks.find(nodenum) == m_tuneup->node_tweaks.end())
@@ -625,9 +625,9 @@ void AddonPartUtility::ProcessTweakNode()
                 TuneupNodeTweak data;
                 data.tnt_origin = m_addonpart_entry->fname;
                 data.tnt_nodenum = nodenum;
-                data.tnt_pos.x = m_context->getTokFloat(2);
-                data.tnt_pos.y = m_context->getTokFloat(3);
-                data.tnt_pos.z = m_context->getTokFloat(4);
+                data.tnt_pos.x = m_context->getTokNumeric(2);
+                data.tnt_pos.y = m_context->getTokNumeric(3);
+                data.tnt_pos.z = m_context->getTokNumeric(4);
                 m_tuneup->node_tweaks.insert(std::make_pair(nodenum, data));
             
                 this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': Scheduling tweak for node '{}'"
@@ -661,12 +661,12 @@ void AddonPartUtility::ProcessTweakFlexbody()
     ROR_ASSERT(m_context->getTokKeyword() == "addonpart_tweak_flexbody"); // also asserts !EOF and TokenType::KEYWORD
 
     // TBD: add `null` token type to GenericDocument, so these params can be made optional
-    if (m_context->isTokFloat(1) && // ID
-        m_context->isTokFloat(2) && m_context->isTokFloat(3) && m_context->isTokFloat(4) && // offset
-        m_context->isTokFloat(5) && m_context->isTokFloat(6) && m_context->isTokFloat(7) && // rotation
+    if (m_context->isTokInt(1) && // ID
+        m_context->isTokNumeric(2) && m_context->isTokNumeric(3) && m_context->isTokNumeric(4) && // offset
+        m_context->isTokNumeric(5) && m_context->isTokNumeric(6) && m_context->isTokNumeric(7) && // rotation
         m_context->isTokString(8)) // media
     {
-        const int flexbody_id = (int)m_context->getTokFloat(1);
+        const int flexbody_id = m_context->getTokInt(1);
         if (!m_tuneup->isFlexbodyProtected(flexbody_id))
         {
             if (m_tuneup->flexbody_tweaks.find(flexbody_id) == m_tuneup->flexbody_tweaks.end())
@@ -674,12 +674,12 @@ void AddonPartUtility::ProcessTweakFlexbody()
                 TuneupFlexbodyTweak data;
                 data.tft_origin = m_addonpart_entry->fname;
                 data.tft_flexbody_id = flexbody_id;
-                data.tft_offset.x = m_context->getTokFloat(2);
-                data.tft_offset.y = m_context->getTokFloat(3);
-                data.tft_offset.z = m_context->getTokFloat(4);
-                data.tft_rotation.x = m_context->getTokFloat(5);
-                data.tft_rotation.y = m_context->getTokFloat(6);
-                data.tft_rotation.z = m_context->getTokFloat(7);
+                data.tft_offset.x = m_context->getTokNumeric(2);
+                data.tft_offset.y = m_context->getTokNumeric(3);
+                data.tft_offset.z = m_context->getTokNumeric(4);
+                data.tft_rotation.x = m_context->getTokNumeric(5);
+                data.tft_rotation.y = m_context->getTokNumeric(6);
+                data.tft_rotation.z = m_context->getTokNumeric(7);
                 data.tft_media = m_context->getTokString(8);
                 m_tuneup->flexbody_tweaks.insert(std::make_pair(flexbody_id, data));
             
@@ -701,7 +701,7 @@ void AddonPartUtility::ProcessTweakFlexbody()
         else
         {
             this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping flexbody '{}' because it's marked PROTECTED",
-                m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
+                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokInt(1)));
         }
     }
     else
@@ -715,12 +715,12 @@ void AddonPartUtility::ProcessTweakProp()
     ROR_ASSERT(m_context->getTokKeyword() == "addonpart_tweak_prop"); // also asserts !EOF and TokenType::KEYWORD
 
     // TBD: add `null` token type to GenericDocument, so these params can be made optional
-    if (m_context->isTokFloat(1) && // ID
-        m_context->isTokFloat(2) && m_context->isTokFloat(3) && m_context->isTokFloat(4) && // offset
-        m_context->isTokFloat(5) && m_context->isTokFloat(6) && m_context->isTokFloat(7) && // rotation
+    if (m_context->isTokInt(1) && // ID
+        m_context->isTokNumeric(2) && m_context->isTokNumeric(3) && m_context->isTokNumeric(4) && // offset
+        m_context->isTokNumeric(5) && m_context->isTokNumeric(6) && m_context->isTokNumeric(7) && // rotation
         m_context->isTokString(8)) // media
     {
-        const int prop_id = (int)m_context->getTokFloat(1);
+        const int prop_id = m_context->getTokInt(1);
         if (!m_tuneup->isPropProtected(prop_id))
         {
             if (m_tuneup->prop_tweaks.find(prop_id) == m_tuneup->prop_tweaks.end())
@@ -729,12 +729,12 @@ void AddonPartUtility::ProcessTweakProp()
                 data.tpt_origin = m_addonpart_entry->fname;
                 data.tpt_prop_id = prop_id;
                 
-                data.tpt_offset.x = m_context->getTokFloat(2);
-                data.tpt_offset.y = m_context->getTokFloat(3);
-                data.tpt_offset.z = m_context->getTokFloat(4);
-                data.tpt_rotation.x = m_context->getTokFloat(5);
-                data.tpt_rotation.y = m_context->getTokFloat(6);
-                data.tpt_rotation.z = m_context->getTokFloat(7);
+                data.tpt_offset.x = m_context->getTokNumeric(2);
+                data.tpt_offset.y = m_context->getTokNumeric(3);
+                data.tpt_offset.z = m_context->getTokNumeric(4);
+                data.tpt_rotation.x = m_context->getTokNumeric(5);
+                data.tpt_rotation.y = m_context->getTokNumeric(6);
+                data.tpt_rotation.z = m_context->getTokNumeric(7);
                 data.tpt_media[0] = m_context->getTokString(8);
                 if (m_context->isTokString(9)) data.tpt_media[1] = m_context->getTokString(9); // <== Optional Media2 is specific for prop
                 m_tuneup->prop_tweaks.insert(std::make_pair(prop_id, data));
@@ -758,7 +758,7 @@ void AddonPartUtility::ProcessTweakProp()
         else
         {
             this->Log(fmt::format("[RoR|Addonpart] INFO: file '{}', directive '{}': skipping prop '{}' because it's marked PROTECTED",
-                m_addonpart_entry->fname, m_context->getTokKeyword(), (int)m_context->getTokFloat(1)));
+                m_addonpart_entry->fname, m_context->getTokKeyword(), m_context->getTokInt(1)));
         }
     }
     else
