@@ -89,7 +89,7 @@ public:
     Ogre::String resource_group;        //!< Resource group of the loaded bundle. Empty if not loaded yet.
 
     RigDef::DocumentPtr actor_def; //!< Cached actor definition (aka truckfile) after first spawn.
-    std::shared_ptr<RoR::SkinDef> skin_def;  //!< Cached skin info, added on first use or during cache rebuild
+    SkinDocumentPtr skin_def;  //!< Cached skin info, added on first use or during cache rebuild
     RoR::TuneupDefPtr tuneup_def;  //!< Cached tuning info, added on first use or during cache rebuild
     RoR::TuneupDefPtr addonpart_data_only; //!< Cached addonpart data (dummy tuneup), only used for evaluating conflicts, see `AddonPartUtility::RecordAddonpartConflicts()`
     // TBD: Make Terrn2Def a RefcountingObjectPtr<> and cache it here too.
@@ -366,7 +366,7 @@ private:
     /// @{
     void FillTerrainDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
     void FillTruckDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds, Ogre::String fname, Ogre::String group);
-    void FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDef>& skin_def);
+    void FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDocument>& skin_def);
     void FillAddonPartDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds);
     void FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneup_def);
     void FillAssetPackDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds);

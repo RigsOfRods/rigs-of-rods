@@ -55,12 +55,12 @@ void ODefParser::Prepare()
     m_ctx.header_done = false;
     m_ctx.header_scale = Ogre::Vector3::ZERO;
     this->ResetCBoxContext();
-    m_def = std::make_shared<ODefFile>();
+    m_def = std::make_shared<ODefDocument>();
 }
 
-std::shared_ptr<ODefFile> ODefParser::Finalize()
+std::shared_ptr<ODefDocument> ODefParser::Finalize()
 {
-    std::shared_ptr<ODefFile> def = m_def; // Pass ownership
+    std::shared_ptr<ODefDocument> def = m_def; // Pass ownership
     m_def.reset();
     return def;
 }
