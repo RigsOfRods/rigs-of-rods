@@ -66,7 +66,7 @@ void TObjParser::Prepare()
     m_default_rendering_distance = 0.f;
     m_rot_yxz            = false;
     
-    m_def = std::shared_ptr<TObjFile>(new TObjFile());
+    m_def = TObjDocumentPtr(new TObjDocument());
 }
 
 bool TObjParser::ProcessLine(const char* line)
@@ -182,7 +182,7 @@ bool TObjParser::ProcessCurrentLine()
     return true;
 }
 
-std::shared_ptr<TObjFile> TObjParser::Finalize()
+TObjDocumentPtr TObjParser::Finalize()
 {
     // finish the last road
     if (m_road2_num_blocks > 0)
@@ -195,7 +195,7 @@ std::shared_ptr<TObjFile> TObjParser::Finalize()
 
     m_filename = "";
 
-    std::shared_ptr<TObjFile> tmp_def = m_def;
+    TObjDocumentPtr tmp_def = m_def;
     m_def.reset();
     return tmp_def; // Pass ownership
 }

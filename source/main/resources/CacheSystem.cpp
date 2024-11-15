@@ -1176,7 +1176,7 @@ void CacheSystem::GenerateHashFromFilenames()
 
 void CacheSystem::FillTerrainDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds, Ogre::String fname)
 {
-    Terrn2Def def;
+    Terrn2Document def;
     Terrn2Parser parser;
     parser.LoadTerrn2(def, ds);
 
@@ -1195,7 +1195,7 @@ void CacheSystem::FillTerrainDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPt
     entry->version    = def.version;
 }
 
-void CacheSystem::FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDef>& skin_def)
+void CacheSystem::FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDocument>& skin_def)
 {
     if (!skin_def->author_name.empty())
     {

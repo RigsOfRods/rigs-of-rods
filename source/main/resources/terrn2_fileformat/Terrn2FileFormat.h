@@ -45,9 +45,9 @@ struct Terrn2Telepoint //!< Teleport drop location
     std::string   name;
 };
 
-struct Terrn2Def
+struct Terrn2Document
 {
-    Terrn2Def();
+    Terrn2Document();
 
     std::string              name;
     std::string              ogre_ter_conf_filename;
@@ -80,10 +80,10 @@ struct Terrn2Def
 class Terrn2Parser
 {
 public:
-    bool LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds);
+    bool LoadTerrn2(Terrn2Document& def, Ogre::DataStreamPtr &ds);
 
 private:
-    void ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file);
+    void ProcessTeleport(Terrn2Document& def, RoR::ConfigFile* file);
 };
 
 } // namespace RoR

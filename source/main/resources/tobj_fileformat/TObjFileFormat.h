@@ -24,7 +24,7 @@
 /// @author Petr Ohlidal, 11/2016
 
 #include "Collisions.h"
-#include "ProceduralManager.h"
+#include "ForwardDeclarations.h"
 
 #include <Ogre.h>
 
@@ -151,9 +151,9 @@ struct TObjEntry
 };
 
 // -----------------------------------------------------------------------------
-struct TObjFile
+struct TObjDocument
 {
-    TObjFile():
+    TObjDocument():
         grid_position(),
         grid_enabled(false)
     {}
@@ -174,7 +174,7 @@ public:
     void                       Prepare();
     bool                       ProcessLine(const char* line);
     void                       ProcessOgreStream(Ogre::DataStream* stream);
-    std::shared_ptr<TObjFile>  Finalize(); //!< Passes ownership
+    TObjDocumentPtr            Finalize(); //!< Passes ownership
 
 private:
     // Processing:
@@ -192,7 +192,7 @@ private:
     bool                       ParseObjectLine(TObjEntry& object);
     void                       FlushProceduralObject();
 
-    std::shared_ptr<TObjFile>  m_def;
+    TObjDocumentPtr            m_def;
     std::string                m_filename;
     int                        m_line_number;
     const char*                m_cur_line;

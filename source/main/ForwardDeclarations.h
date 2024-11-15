@@ -28,6 +28,7 @@
 #include "RefCountingObjectPtr.h"
 
 #include <limits>
+#include <memory>
 #include <vector>
 
 #pragma once
@@ -132,7 +133,9 @@ namespace RoR
     class  OutGauge;
     class  OverlayWrapper;
     class  Network;
+    struct ODefDocument;
     class  OgreSubsystem;
+    struct OTCDocument;
     struct PlatformUtils;
     class  PointColDetector;
     class  ProceduralManager;
@@ -150,7 +153,7 @@ namespace RoR
     class  ShadowManager;
     class  Skidmark;
     class  SkidmarkConfig;
-    struct SkinDef;
+    struct SkinDocument;
     class  SkinManager;
     class  SkyManager;
     class  SkyXManager;
@@ -166,10 +169,11 @@ namespace RoR
     class  Terrain;
     class  TerrainObjectManager;
     struct Terrn2Author;
-    struct Terrn2Def;
+    struct Terrn2Document;
     class  Terrn2Parser;
     struct Terrn2Telepoint;
     class  ThreadPool;
+    struct TObjDocument;
     class  TorqueCurve;
     struct TuneupDef;
     class  VehicleAI;
@@ -198,6 +202,12 @@ namespace RoR
     struct ground_model_t;
     struct client_t;
     struct authorinfo_t;
+
+    // File formats - see also separate `RigDef` namespace below.
+    typedef std::shared_ptr<ODefDocument> ODefDocumentPtr;
+    typedef std::shared_ptr<OTCDocument> OTCDocumentPtr;
+    typedef std::shared_ptr<SkinDocument> SkinDocumentPtr;
+    typedef std::shared_ptr<TObjDocument> TObjDocumentPtr;
 
     typedef RefCountingObjectPtr<Actor> ActorPtr;
     typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
@@ -243,6 +253,12 @@ namespace RoRnet
     struct ActorStreamRegister;
     struct ServerInfo;
     struct VehicleState;
+}
+
+namespace RigDef
+{
+    struct Document;
+    typedef std::shared_ptr<Document> DocumentPtr;
 }
 
 #ifdef USE_SOCKETW
