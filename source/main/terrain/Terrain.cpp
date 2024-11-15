@@ -50,7 +50,7 @@
 using namespace RoR;
 using namespace Ogre;
 
-RoR::Terrain::Terrain(CacheEntryPtr entry, Terrn2Def def)
+RoR::Terrain::Terrain(CacheEntryPtr entry, Terrn2Document def)
     : m_collisions(0)
     , m_geometry_manager(0)
     , m_object_manager(0)

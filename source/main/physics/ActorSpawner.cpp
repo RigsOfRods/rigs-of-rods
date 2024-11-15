@@ -6591,7 +6591,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(const std::string
         // Query .skin material replacements
         if (m_actor->m_used_skin_entry != nullptr)
         {
-            std::shared_ptr<RoR::SkinDef>& skin_def = m_actor->m_used_skin_entry->skin_def;
+            SkinDocumentPtr& skin_def = m_actor->m_used_skin_entry->skin_def;
 
             auto skin_res = skin_def->replace_materials.find(mat_lookup_name);
             if (skin_res != skin_def->replace_materials.end())
