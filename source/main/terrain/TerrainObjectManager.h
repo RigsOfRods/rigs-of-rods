@@ -146,8 +146,8 @@ protected:
 
     // ODef processing functions
 
-    RoR::ODefFile* FetchODef(std::string const & odef_name);
-    void           ProcessODefCollisionBoxes(StaticObject* obj, ODefFile* odef, const EditorObject& params, bool race_event);
+    RoR::ODefDocument* FetchODef(std::string const & odef_name);
+    void           ProcessODefCollisionBoxes(StaticObject* obj, ODefDocument* odef, const EditorObject& params, bool race_event);
 
     // Misc functions
 
@@ -156,7 +156,7 @@ protected:
     // Variables
 
     std::vector<localizer_t> localizers;
-    std::unordered_map<std::string, std::shared_ptr<RoR::ODefFile>> m_odef_cache;
+    std::unordered_map<std::string, std::shared_ptr<RoR::ODefDocument>> m_odef_cache;
     std::map<std::string, StaticObject>   m_static_objects;
     std::vector<EditorObject>             m_editor_objects;
     std::vector<PredefinedActor>          m_predefined_actors;

@@ -35,7 +35,7 @@ using namespace Ogre;
 
 const std::string   VALUE_NOT_FOUND("@@NotFound!!");
 
-bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
+bool Terrn2Parser::LoadTerrn2(Terrn2Document& def, Ogre::DataStreamPtr &ds)
 {
     RoR::ConfigFile file;
     file.load(ds, "\t:=", true);
@@ -135,7 +135,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
     return true;
 }
 
-void Terrn2Parser::ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file)
+void Terrn2Parser::ProcessTeleport(Terrn2Document& def, RoR::ConfigFile* file)
 {
     def.teleport_map_image = file->getString("NavigationMapImage", "Teleport");
 
@@ -173,7 +173,7 @@ void Terrn2Parser::ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file)
     }
 }
 
-Terrn2Def::Terrn2Def():
+Terrn2Document::Terrn2Document():
     ambient_color(Ogre::ColourValue::Black),
     category_id(-1),
     start_position(Ogre::Vector3::ZERO),
