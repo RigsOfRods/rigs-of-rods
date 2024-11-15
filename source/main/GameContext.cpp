@@ -126,7 +126,7 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
     App::GetCacheSystem()->LoadResource(terrn_entry);
 
     // Load the terrain def file
-    Terrn2Def terrn2;
+    Terrn2Document terrn2;
     std::string const& filename = terrn_entry->fname;
     try
     {

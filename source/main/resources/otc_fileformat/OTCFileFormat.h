@@ -59,9 +59,9 @@ struct OTCPage
 };
 
 /// Rembember OGRE coordinates are {X = right/left, Y = up/down, Z = front/back}
-struct OTCFile
+struct OTCDocument
 {
-    OTCFile();
+    OTCDocument();
 
     std::string        page_filename_format;
     std::string        cache_filename_base;
@@ -97,11 +97,11 @@ public:
 
     bool                      LoadMasterConfig(Ogre::DataStreamPtr &ds, const char* filename);
     bool                      LoadPageConfig(Ogre::DataStreamPtr &ds, OTCPage& page, const char* filename);
-    std::shared_ptr<OTCFile>  GetDefinition() { return m_def; };
+    OTCDocumentPtr  GetDefinition() { return m_def; };
 
 private:
 
-    std::shared_ptr<OTCFile>  m_def;
+    OTCDocumentPtr  m_def;
 };
 
 } // namespace RoR

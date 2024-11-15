@@ -42,7 +42,7 @@ class Terrain : public RefCountingObject<Terrain>
 public:
     static const int UNLIMITED_SIGHTRANGE = 4999;
 
-    Terrain(CacheEntryPtr entry, Terrn2Def def);
+    Terrain(CacheEntryPtr entry, Terrn2Document def);
     virtual ~Terrain() override;
     bool initialize();
     void dispose();
@@ -60,7 +60,7 @@ public:
 
     /// @name Terrain properties
     /// @{
-    Terrn2Def&              GetDef()                      { return m_def; }
+    Terrn2Document&              GetDef()                      { return m_def; }
     Ogre::Vector3           getSpawnPos()                 { return m_def.start_position; }
     float                   getWaterHeight() const        { return m_def.water_height; }
     bool                    isFlat();
@@ -140,7 +140,7 @@ private:
     // Properties
 
     CacheEntryPtr           m_cache_entry;
-    RoR::Terrn2Def          m_def;
+    RoR::Terrn2Document          m_def;
     float                   m_paged_detail_factor;
     int                     m_sight_range;
 

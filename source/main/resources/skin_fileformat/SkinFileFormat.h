@@ -32,9 +32,9 @@
 
 namespace RoR {
 
-struct SkinDef
+struct SkinDocument
 {
-    SkinDef(): author_id(-1) {}
+    SkinDocument(): author_id(-1) {}
 
     std::map<std::string, std::string>  replace_textures;
     std::map<std::string, std::string>  replace_materials;
@@ -50,11 +50,11 @@ class SkinParser
 {
 public:
 
-    static std::vector<std::shared_ptr<RoR::SkinDef>> ParseSkins(Ogre::DataStreamPtr& stream);
+    static std::vector<SkinDocumentPtr> ParseSkins(Ogre::DataStreamPtr& stream);
 
 private:
 
-    static void ParseSkinAttribute(const std::string& line, SkinDef* skin_def);
+    static void ParseSkinAttribute(const std::string& line, SkinDocument* skin_def);
 };
 
 }; // namespace RoR

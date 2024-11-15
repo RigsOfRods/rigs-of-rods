@@ -152,7 +152,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     ROR_ASSERT(this->terrainManager->getCacheEntry());
     ROR_ASSERT(this->terrainManager->getCacheEntry()->resource_group != "");
 
-    std::shared_ptr<TObjFile> tobj;
+    TObjDocumentPtr tobj;
     try
     {
         DataStreamPtr stream_ptr = ResourceGroupManager::getSingleton().openResource(
@@ -526,7 +526,7 @@ void TerrainObjectManager::unloadObject(const String& instancename)
                 [instancename](EditorObject& e) { return e.instance_name == instancename; }), m_editor_objects.end());
 }
 
-ODefFile* TerrainObjectManager::FetchODef(std::string const & odef_name)
+ODefDocument* TerrainObjectManager::FetchODef(std::string const & odef_name)
 {
     // Consult cache first
     auto search_res = m_odef_cache.find(odef_name);
@@ -555,7 +555,7 @@ ODefFile* TerrainObjectManager::FetchODef(std::string const & odef_name)
         ODefParser parser;
         parser.Prepare();
         parser.ProcessOgreStream(ds.get());
-        std::shared_ptr<ODefFile> odef = parser.Finalize();
+        std::shared_ptr<ODefDocument> odef = parser.Finalize();
 
         // Add to cache and return
         m_odef_cache.insert(std::make_pair(odef_name, odef));
@@ -585,7 +585,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     }
 
     const std::string odefname = name + ".odef"; // for logging
-    ODefFile* odef = this->FetchODef(name);
+    ODefDocument* odef = this->FetchODef(name);
     if (odef == nullptr)
     {
         // Only log to console if requested from Console UI or script (debug message to RoR.log is written anyway).
@@ -1029,7 +1029,7 @@ bool TerrainObjectManager::UpdateTerrainObjects(float dt)
     return true;
 }
 
-void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile* odef, const EditorObject& params, bool race_event)
+void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefDocument* odef, const EditorObject& params, bool race_event)
 {
     for (ODefCollisionBox& cbox : odef->collision_boxes)
     {
