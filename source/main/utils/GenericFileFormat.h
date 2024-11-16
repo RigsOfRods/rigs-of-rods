@@ -86,8 +86,6 @@ struct GenericDocument: public RefCountingObject<GenericDocument>
     virtual bool saveToResource(std::string resource_name, std::string resource_group_name);
 };
 
-typedef RefCountingObjectPtr<GenericDocument> GenericDocumentPtr;
-
 struct GenericDocContext: public RefCountingObject<GenericDocContext>
 {
     GenericDocContext(GenericDocumentPtr d) : doc(d)
@@ -158,7 +156,5 @@ struct GenericDocContext: public RefCountingObject<GenericDocContext>
     bool setStringData(int offset, TokenType type, const std::string& data); //!< @return false if offset is beyond EOF
     bool setFloatData(int offset, TokenType type, float data); //!< @return false if offset is beyond EOF
 };
-
-typedef RefCountingObjectPtr<GenericDocContext> GenericDocContextPtr;
 
 } // namespace RoR
