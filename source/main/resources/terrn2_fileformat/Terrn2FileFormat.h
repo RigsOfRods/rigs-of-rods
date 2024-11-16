@@ -80,10 +80,10 @@ struct Terrn2Document
 class Terrn2Parser
 {
 public:
-    bool LoadTerrn2(Terrn2Document& def, Ogre::DataStreamPtr &ds);
+    Terrn2DocumentPtr LoadTerrn2(Ogre::DataStreamPtr &ds);
 
 private:
-    void ProcessTeleport(Terrn2Document& def, RoR::ConfigFile* file);
+    void ProcessTeleport(Terrn2DocumentPtr def, RoR::ConfigFile* file);
 };
 
 } // namespace RoR

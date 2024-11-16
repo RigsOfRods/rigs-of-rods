@@ -43,6 +43,7 @@
 #include "SkyXManager.h"
 #include "SoundScriptManager.h"
 #include "Terrain.h"
+#include "Terrn2FileFormat.h"
 #include "TuneupFileFormat.h"
 #include "Utils.h"
 #include "VehicleAI.h"
@@ -126,14 +127,15 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
     App::GetCacheSystem()->LoadResource(terrn_entry);
 
     // Load the terrain def file
-    Terrn2Document terrn2;
+    Terrn2DocumentPtr terrn2;
     std::string const& filename = terrn_entry->fname;
     try
     {
         Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename);
         LOG(" ===== LOADING TERRAIN " + filename);
         Terrn2Parser parser;
-        if (! parser.LoadTerrn2(terrn2, stream))
+        terrn2 = parser.LoadTerrn2(stream);
+        if (!terrn2)
         {
             return false; // Errors already logged to console
         }
@@ -143,8 +145,9 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
         App::GetGuiManager()->ShowMessageBox(_L("Terrain loading error"), e.getFullDescription().c_str());
         return false;
     }
+    terrn_entry->terrn2_def = terrn2;
 
-    for (std::string const& assetpack_filename: terrn2.assetpack_files)
+    for (std::string const& assetpack_filename: terrn2->assetpack_files)
     {
         App::GetCacheSystem()->LoadAssetPack(terrn_entry, assetpack_filename);
     }

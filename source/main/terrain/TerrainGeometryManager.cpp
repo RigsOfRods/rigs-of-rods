@@ -29,6 +29,7 @@
 #include "GUIManager.h"
 #include "GUI_LoadingWindow.h"
 #include "Terrain.h"
+#include "Terrn2FileFormat.h"
 #include "ShadowManager.h"
 #include "OgreTerrainPSSMMaterialGenerator.h"
 #include "OTCFileFormat.h"
@@ -237,7 +238,7 @@ float TerrainGeometryManager::getHeightAt(float x, float z)
     float ty = (z + mBase - mPos.z) / ((mSize - 1) * -mScale);
 
     if (tx <= 0.0f || ty <= 0.0f || tx >= 1.0f || ty >= 1.0f)
-        return terrainManager->GetDef().water_bottom_height;
+        return terrainManager->GetDef()->water_bottom_height;
     else if (mIsFlat)
         return mMinHeight;
 
@@ -355,7 +356,7 @@ bool TerrainGeometryManager::InitTerrain(std::string otc_filename)
     if (m_was_new_geometry_generated)
     {
         // update the blend maps
-        if (terrainManager->GetDef().custom_material_name.empty())
+        if (terrainManager->GetDef()->custom_material_name.empty())
         {
             for (OTCPage& page : m_spec->pages)
             {
@@ -425,7 +426,7 @@ void TerrainGeometryManager::configureTerrainDefaults()
     }
 
     TerrainGlobalOptions* terrainOptions = TerrainGlobalOptions::getSingletonPtr();
-    std::string const & custom_mat = terrainManager->GetDef().custom_material_name;
+    std::string const & custom_mat = terrainManager->GetDef()->custom_material_name;
     if (!custom_mat.empty())
     {
         terrainOptions->setDefaultMaterialGenerator(

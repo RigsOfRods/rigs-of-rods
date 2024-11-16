@@ -41,6 +41,7 @@
 #include "SoundScriptManager.h"
 #include "TerrainGeometryManager.h"
 #include "Terrain.h"
+#include "Terrn2FileFormat.h"
 #include "TObjFileFormat.h"
 #include "Utils.h"
 #include "WriteTextToTexture.h"
@@ -67,7 +68,7 @@ inline float getTerrainHeight(Real x, Real z, void* unused = 0)
 TerrainObjectManager::TerrainObjectManager(Terrain* terrainManager) :
     terrainManager(terrainManager)
 {
-    m_terrn2_grouping_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode(fmt::format("Terrain: {}", terrainManager->GetDef().name));
+    m_terrn2_grouping_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode(fmt::format("Terrain: {}", terrainManager->GetDef()->name));
 
     m_procedural_manager = new ProceduralManager(m_terrn2_grouping_node->createChildSceneNode("Procedural Roads"));
 }
@@ -988,7 +989,7 @@ void TerrainObjectManager::UpdateParticleEffectObjects()
 
 void TerrainObjectManager::LoadTelepoints()
 {
-    for (Terrn2Telepoint& telepoint: terrainManager->GetDef().telepoints)
+    for (Terrn2Telepoint& telepoint: terrainManager->GetDef()->telepoints)
     {
         m_map_entities.push_back(SurveyMapEntity("telepoint", telepoint.name, "icon_telepoint.dds", /*resource_group:*/"", telepoint.position, Ogre::Radian(0), -1));
     }
