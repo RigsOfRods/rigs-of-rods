@@ -39,6 +39,7 @@
 #include "SkyXManager.h"
 #include "TerrainGeometryManager.h"
 #include "TerrainObjectManager.h"
+#include "Terrn2FileFormat.h"
 #include "Utils.h"
 #include "Water.h"
 
@@ -50,7 +51,7 @@
 using namespace RoR;
 using namespace Ogre;
 
-RoR::Terrain::Terrain(CacheEntryPtr entry, Terrn2Document def)
+RoR::Terrain::Terrain(CacheEntryPtr entry, Terrn2DocumentPtr def)
     : m_collisions(0)
     , m_geometry_manager(0)
     , m_object_manager(0)
@@ -146,7 +147,7 @@ bool RoR::Terrain::initialize()
 {
     auto* loading_window = &App::GetGuiManager()->LoadingWindow;
 
-    this->setGravity(this->m_def.gravity);
+    this->setGravity(this->m_def->gravity);
 
     loading_window->SetProgress(10, _L("Initializing Object Subsystem"));
     this->initObjects(); // *.odef files
@@ -179,7 +180,7 @@ bool RoR::Terrain::initialize()
     this->fixCompositorClearColor();
 
     loading_window->SetProgress(40, _L("Loading Terrain Geometry"));
-    if (!this->m_geometry_manager->InitTerrain(this->m_def.ogre_ter_conf_filename))
+    if (!this->m_geometry_manager->InitTerrain(this->m_def->ogre_ter_conf_filename))
     {
         return false; // Error already reported
     }
@@ -218,15 +219,15 @@ bool RoR::Terrain::initialize()
     LOG(" ===== TERRAIN LOADING DONE " + m_cache_entry->fname);
 
     App::sim_terrain_name->setStr(m_cache_entry->fname);
-    App::sim_terrain_gui_name->setStr(this->m_def.name);
+    App::sim_terrain_gui_name->setStr(this->m_def->name);
 
     return this;
 }
 
 void RoR::Terrain::initCamera()
 {
-    App::GetCameraManager()->GetCamera()->getViewport()->setBackgroundColour(m_def.ambient_color);
-    App::GetCameraManager()->GetCameraNode()->setPosition(m_def.start_position);
+    App::GetCameraManager()->GetCamera()->getViewport()->setBackgroundColour(m_def->ambient_color);
+    App::GetCameraManager()->GetCameraNode()->setPosition(m_def->start_position);
 
     if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
     {
@@ -260,10 +261,10 @@ void RoR::Terrain::initSkySubSystem()
         m_sky_manager = new SkyManager();
 
         // try to load caelum config
-        if (!m_def.caelum_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.caelum_config))
+        if (!m_def->caelum_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def->caelum_config))
         {
             // config provided and existing, use it :)
-            m_sky_manager->LoadCaelumScript(m_def.caelum_config, m_def.caelum_fog_start, m_def.caelum_fog_end);
+            m_sky_manager->LoadCaelumScript(m_def->caelum_config, m_def->caelum_fog_start, m_def->caelum_fog_end);
         }
         else
         {
@@ -277,17 +278,17 @@ void RoR::Terrain::initSkySubSystem()
     if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::SKYX)
     {
          // try to load SkyX config
-         if (!m_def.skyx_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.skyx_config))
-            SkyX_manager = new SkyXManager(m_def.skyx_config);
+         if (!m_def->skyx_config.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def->skyx_config))
+            SkyX_manager = new SkyXManager(m_def->skyx_config);
          else
             SkyX_manager = new SkyXManager("SkyXDefault.skx");
     }
     else
     {
-        if (!m_def.cubemap_config.empty())
+        if (!m_def->cubemap_config.empty())
         {
             // use custom
-            App::GetGfxScene()->GetSceneManager()->setSkyBox(true, m_def.cubemap_config, 100, true);
+            App::GetGfxScene()->GetSceneManager()->setSkyBox(true, m_def->cubemap_config, 100, true);
         }
         else
         {
@@ -319,8 +320,8 @@ void RoR::Terrain::initLight()
         m_main_light->setType(Light::LT_DIRECTIONAL);
         m_main_light->setDirection(Ogre::Vector3(0.785, -0.423, 0.453).normalisedCopy());
 
-        m_main_light->setDiffuseColour(m_def.ambient_color);
-        m_main_light->setSpecularColour(m_def.ambient_color);
+        m_main_light->setDiffuseColour(m_def->ambient_color);
+        m_main_light->setSpecularColour(m_def->ambient_color);
         m_main_light->setCastShadows(true);
         m_main_light->setShadowFarDistance(1000.0f);
         m_main_light->setShadowNearClipDistance(-1);
@@ -332,7 +333,7 @@ void RoR::Terrain::initFog()
     if (m_sight_range >= UNLIMITED_SIGHTRANGE)
         App::GetGfxScene()->GetSceneManager()->setFog(FOG_NONE);
     else
-        App::GetGfxScene()->GetSceneManager()->setFog(FOG_LINEAR, m_def.ambient_color, 0.000f, m_sight_range * 0.65f, m_sight_range*0.9);
+        App::GetGfxScene()->GetSceneManager()->setFog(FOG_LINEAR, m_def->ambient_color, 0.000f, m_sight_range * 0.65f, m_sight_range*0.9);
 }
 
 void RoR::Terrain::initVegetation()
@@ -387,7 +388,7 @@ void RoR::Terrain::initWater()
         return;
 
     // disabled in map config
-    if (!m_def.has_water)
+    if (!m_def->has_water)
     {
         return;
     }
@@ -395,14 +396,14 @@ void RoR::Terrain::initWater()
     if (App::gfx_water_mode->getEnum<GfxWaterMode>() == GfxWaterMode::HYDRAX)
     {
         // try to load hydrax config
-        if (!m_def.hydrax_conf_file.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def.hydrax_conf_file))
+        if (!m_def->hydrax_conf_file.empty() && ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(m_def->hydrax_conf_file))
         {
-            m_hydrax_water = new HydraxWater(m_def.water_height, m_def.hydrax_conf_file);
+            m_hydrax_water = new HydraxWater(m_def->water_height, m_def->hydrax_conf_file);
         }
         else
         {
             // no config provided, fall back to the default one
-            m_hydrax_water = new HydraxWater(m_def.water_height);
+            m_hydrax_water = new HydraxWater(m_def->water_height);
         }
 
         m_water = std::unique_ptr<IWater>(m_hydrax_water);
@@ -419,8 +420,8 @@ void RoR::Terrain::initWater()
     else
     {
         m_water = std::unique_ptr<IWater>(new Water(this->getMaxTerrainSize()));
-        m_water->SetStaticWaterHeight(m_def.water_height);
-        m_water->SetWaterBottomHeight(m_def.water_bottom_height);
+        m_water->SetStaticWaterHeight(m_def->water_height);
+        m_water->SetWaterBottomHeight(m_def->water_bottom_height);
     }
 }
 
@@ -432,7 +433,7 @@ void RoR::Terrain::initShadows()
 
 void RoR::Terrain::loadTerrainObjects()
 {
-    for (std::string tobj_filename : m_def.tobj_files)
+    for (std::string tobj_filename : m_def->tobj_files)
     {
         m_object_manager->LoadTObjFile(tobj_filename);
     }
@@ -440,9 +441,9 @@ void RoR::Terrain::loadTerrainObjects()
 
 void RoR::Terrain::initTerrainCollisions()
 {
-    if (!m_def.traction_map_file.empty())
+    if (!m_def->traction_map_file.empty())
     {
-        m_collisions->setupLandUse(m_def.traction_map_file.c_str());
+        m_collisions->setupLandUse(m_def->traction_map_file.c_str());
     }
 }
 
@@ -454,7 +455,7 @@ void RoR::Terrain::initScripting()
 
     bool loaded = false;
 
-    for (std::string as_filename : m_def.as_files)
+    for (std::string as_filename : m_def->as_files)
     {
         loaded |= this->getObjectManager()->LoadTerrainScript(as_filename);
     }
@@ -572,4 +573,13 @@ SurveyMapEntityVec& RoR::Terrain::getSurveyMapEntities()
     return m_object_manager->m_map_entities;
 }
 
+// Getters that work with shared pointers - to avoid having to `#include` the types to header.
+
+Terrn2DocumentPtr RoR::Terrain::GetDef() { return m_def; }
+std::string   RoR::Terrain::getTerrainName() const { return m_def->name; }
+std::string   RoR::Terrain::getGUID() const { return m_def->guid; }
+int           RoR::Terrain::getCategoryID() const { return m_def->category_id; }
+int           RoR::Terrain::getVersion() const { return m_def->version; }
 CacheEntryPtr RoR::Terrain::getCacheEntry() { return m_cache_entry; }
+Ogre::Vector3 RoR::Terrain::getSpawnPos() { return m_def->start_position; }
+float         RoR::Terrain::getWaterHeight() const { return m_def->water_height; }

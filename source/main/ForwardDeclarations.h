@@ -208,6 +208,7 @@ namespace RoR
     typedef std::shared_ptr<OTCDocument> OTCDocumentPtr;
     typedef std::shared_ptr<SkinDocument> SkinDocumentPtr;
     typedef std::shared_ptr<TObjDocument> TObjDocumentPtr;
+    typedef std::shared_ptr<Terrn2Document> Terrn2DocumentPtr;
 
     typedef RefCountingObjectPtr<Actor> ActorPtr;
     typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
