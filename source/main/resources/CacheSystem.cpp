@@ -1135,11 +1135,10 @@ void CacheSystem::GenerateHashFromFilenames()
 
 void CacheSystem::FillTerrainDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds, Ogre::String fname)
 {
-    Terrn2Document def;
     Terrn2Parser parser;
-    parser.LoadTerrn2(def, ds);
+    Terrn2DocumentPtr def = parser.LoadTerrn2(ds);
 
-    for (Terrn2Author& author : def.authors)
+    for (Terrn2Author& author : def->authors)
     {
         AuthorInfo a;
         a.id = -1;
@@ -1148,10 +1147,10 @@ void CacheSystem::FillTerrainDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPt
         entry->authors.push_back(a);
     }
 
-    entry->dname      = def.name;
-    entry->categoryid = def.category_id;
-    entry->uniqueid   = def.guid;
-    entry->version    = def.version;
+    entry->dname      = def->name;
+    entry->categoryid = def->category_id;
+    entry->uniqueid   = def->guid;
+    entry->version    = def->version;
 }
 
 void CacheSystem::FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDocument>& skin_def)
