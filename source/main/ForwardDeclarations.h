@@ -117,6 +117,8 @@ namespace RoR
     class  GameContext;
     class  GameScript;
     class  GfxActor;
+    struct GenericDocument;
+    struct GenericDocContext;
     struct GfxCharacter;
     class  GfxEnvmap;
     class  GfxScene;
@@ -212,6 +214,8 @@ namespace RoR
 
     typedef RefCountingObjectPtr<Actor> ActorPtr;
     typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
+    typedef RefCountingObjectPtr<GenericDocument> GenericDocumentPtr;
+    typedef RefCountingObjectPtr<GenericDocContext> GenericDocContextPtr;
     typedef RefCountingObjectPtr<LocalStorage> LocalStoragePtr;
     typedef RefCountingObjectPtr<ProceduralPoint> ProceduralPointPtr;
     typedef RefCountingObjectPtr<ProceduralObject> ProceduralObjectPtr;
