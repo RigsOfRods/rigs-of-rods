@@ -43,6 +43,7 @@
 #include "Replay.h"
 #include "SkyManager.h"
 #include "Terrain.h"
+#include "Terrn2FileFormat.h"
 #include "TuneupFileFormat.h"
 #include "Water.h"
 #include "ScriptEngine.h"
@@ -2368,7 +2369,7 @@ void TopMenubar::LoadBundledAiPresets(TerrainPtr terrain)
 
     App::GetGuiManager()->TopMenubar.ai_presets_bundled.SetArray();
 
-    for (const std::string& filename: terrain->GetDef().ai_presets_files)
+    for (const std::string& filename: terrain->GetDef()->ai_presets_files)
     {
         rapidjson::Document j_doc;
         if (Ogre::ResourceGroupManager::getSingleton().resourceExists(terrain->getTerrainFileResourceGroup(), filename))
