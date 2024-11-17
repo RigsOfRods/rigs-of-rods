@@ -63,12 +63,14 @@ public:
         Ogre::SceneNode* node = nullptr;
         bool enable_collisions = true;
         int script_handler = -1;
+        int tobj_cache_id = -1;
     };
 
     TerrainObjectManager(Terrain* terrainManager);
     ~TerrainObjectManager();
 
     std::vector<EditorObject>& GetEditorObjects() { return m_editor_objects; }
+    std::vector<TObjDocumentPtr>& GetTobjCache() { return m_tobj_cache; }
     void           LoadTObjFile(Ogre::String filename);
     bool           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, float rendering_distance = 0, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
     bool           LoadTerrainScript(const Ogre::String& filename);
@@ -164,6 +166,8 @@ protected:
 
     std::vector<localizer_t> localizers;
     std::unordered_map<std::string, std::shared_ptr<RoR::ODefDocument>> m_odef_cache;
+    std::vector<TObjDocumentPtr>          m_tobj_cache;
+    int                                   m_tobj_cache_active_id = -1;
     std::map<std::string, StaticObject>   m_static_objects;
     std::vector<EditorObject>             m_editor_objects;
     std::vector<PredefinedActor>          m_predefined_actors;
