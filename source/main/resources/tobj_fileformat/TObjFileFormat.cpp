@@ -193,6 +193,7 @@ TObjDocumentPtr TObjParser::Finalize()
         this->FlushProceduralObject();
     }
 
+    m_def->document_name = m_filename;
     m_filename = "";
 
     TObjDocumentPtr tmp_def = m_def;
@@ -416,3 +417,139 @@ void TObjParser::FlushProceduralObject()
     m_cur_procedural_obj_start_line = -1;
     m_road2_num_blocks = 0;
 }
+
+const char* TObj::SpecialObjectToString(SpecialObject val)
+{
+    switch (val)
+    {
+    case TObj::SpecialObject::TRUCK                 : return "truck";
+    case TObj::SpecialObject::LOAD                  : return "load";
+    case TObj::SpecialObject::MACHINE               : return "machine";
+    case TObj::SpecialObject::BOAT                  : return "boat";
+    case TObj::SpecialObject::TRUCK2                : return "truck2";
+    case TObj::SpecialObject::GRID                  : return "grid";
+    case TObj::SpecialObject::ROAD                  : return "road";
+    case TObj::SpecialObject::ROAD_BORDER_LEFT      : return "roadborderleft";
+    case TObj::SpecialObject::ROAD_BORDER_RIGHT     : return "roadborderright";
+    case TObj::SpecialObject::ROAD_BORDER_BOTH      : return "roadborderboth";
+    case TObj::SpecialObject::ROAD_BRIDGE_NO_PILLARS: return "roadbridgenopillar";
+    case TObj::SpecialObject::ROAD_BRIDGE           : return "roadbridge";
+    default: "";
+    }
+}
+
+void WriteTObjDelimiter(Ogre::DataStreamPtr& stream, const std::string& title, size_t count)
+{
+    if (count > 0)
+    {
+        std::string line = fmt::format("\n\n//    ~~~~~~~~~~    {} ({})    ~~~~~~~~~~\n\n", title, count);
+        stream->write(line.c_str(), line.length());
+    }
+}
+
+void TObj::WriteToStream(TObjDocumentPtr doc, Ogre::DataStreamPtr stream)
+{
+    // assert on Debug, play safe on Release
+    ROR_ASSERT(doc);
+    ROR_ASSERT(stream);
+    if (!doc || !stream)
+    {
+        return;
+    }
+
+    // 'grid'
+    WriteTObjDelimiter(stream, "grid", (int)doc->grid_enabled);
+    if (doc->grid_enabled)
+    {
+        std::string line = fmt::format("grid {}, {}, {}\n");
+        stream->write(line.c_str(), line.length());
+    }
+
+    // 'trees'
+    WriteTObjDelimiter(stream, "trees", doc->trees.size());
+    for (TObjTree& tree : doc->trees)
+    {
+        std::string line = fmt::format("trees {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {} {} {} {:9f} {}\n",
+            tree.yaw_from, tree.yaw_to,
+            tree.scale_from, tree.scale_to,
+            tree.high_density,
+            tree.min_distance, tree.max_distance,
+            tree.tree_mesh, tree.color_map, tree.density_map,
+            tree.grid_spacing, tree.collision_mesh);
+        stream->write(line.c_str(), line.length());
+    }
+
+    // 'grass2' (incudes 'grass' elements)
+    WriteTObjDelimiter(stream, "grass", doc->grass.size());
+    for (TObjGrass& grass : doc->grass)
+    {
+        std::string line = fmt::format("grass2 {}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {}, {:9f}, {:9f}, {}, {} {} {}\n",
+            grass.range,
+            grass.sway_speed, grass.sway_length, grass.sway_distrib, grass.density,
+            grass.min_x, grass.min_y, grass.max_x, grass.max_y,
+            grass.grow_techniq, grass.min_h, grass.max_h, grass.technique,
+            grass.material_name,
+            grass.color_map_filename,
+            grass.density_map_filename);
+        stream->write(line.c_str(), line.length());
+    }
+
+    // vehicles ('truck', 'truck2', 'boat', 'load', 'machine')
+    WriteTObjDelimiter(stream, "vehicles/loads/machines", doc->vehicles.size());
+    for (TObjVehicle& vehicle : doc->vehicles)
+    {
+        std::string line = fmt::format("{:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {} {}\n",
+            vehicle.position.x, vehicle.position.y, vehicle.position.z,
+            vehicle.rotation.getRoll().valueDegrees(), vehicle.rotation.getYaw().valueDegrees(), vehicle.rotation.getPitch().valueDegrees(),
+            SpecialObjectToString(vehicle.type), (const char*)vehicle.name);
+        stream->write(line.c_str(), line.length());
+    }
+
+    // procedural objects
+    WriteTObjDelimiter(stream, "roads", doc->proc_objects.size());
+    for (ProceduralObjectPtr& procobj : doc->proc_objects)
+    {
+        std::string bline = "begin_procedural_roads\n";
+        stream->write(bline.c_str(), bline.length());
+
+        std::string sline = fmt::format("    smoothing_num_splits {}\n", procobj->smoothing_num_splits);
+        stream->write(sline.c_str(), sline.length());
+
+        for (ProceduralPointPtr& point : procobj->points)
+        {
+            std::string type_str;
+            switch (point->type)
+            {
+            case RoadType::ROAD_AUTOMATIC: type_str = "both"; break; // ??
+            case RoadType::ROAD_FLAT: type_str = "flat"; break;
+            case RoadType::ROAD_LEFT: type_str = "left"; break;
+            case RoadType::ROAD_RIGHT: type_str = "right"; break;
+            case RoadType::ROAD_BOTH: type_str = "both"; break;
+            case RoadType::ROAD_BRIDGE: type_str = (point->pillartype == 1) ? "bridge" : "bridge_no_pillars"; break;
+            case RoadType::ROAD_MONORAIL: type_str = (point->pillartype == 2) ? "monorail" : "monorail2"; break;
+            }
+
+            std::string line = fmt::format(
+                "\t{:13f}, {:13f}, {:13f}, 0, {:13f}, 0, {:13f}, {:13f}, {:13f}, {}\n",
+                point->position.x, point->position.y, point->position.z,
+                point->rotation.getYaw(false).valueDegrees(),
+                point->width, point->bwidth, point->bheight, type_str);
+            stream->write(line.c_str(), line.length());
+        }
+
+        std::string eline = "end_procedural_roads\n";
+        stream->write(eline.c_str(), eline.length());
+    }
+
+    // static objects
+    WriteTObjDelimiter(stream, "static objects", doc->objects.size());
+    for (TObjEntry& entry : doc->objects)
+    {
+        std::string line = fmt::format("{:8.3f}, {:8.3f}, {:8.3f}, {:9f}, {:9f}, {:9f}, {} {} {}\n",
+            entry.position.x, entry.position.y, entry.position.z,
+            entry.rotation.x, entry.rotation.y, entry.rotation.z,
+            entry.odef_name, entry.type, entry.instance_name);
+        stream->write(line.c_str(), line.length());
+    }
+}
+

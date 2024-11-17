@@ -162,15 +162,11 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
         parser.Prepare();
         parser.ProcessOgreStream(stream_ptr.get());
         tobj = parser.Finalize();
+        m_tobj_cache.push_back(tobj);
     }
-    catch (Ogre::Exception& e)
+    catch (...)
     {
-        LOG("[RoR|Terrain] Error reading TObj file: " + tobj_name + "\nMessage" + e.getFullDescription());
-        return;
-    }
-    catch (std::exception& e)
-    {
-        LOG("[RoR|Terrain] Error reading TObj file: " + tobj_name + "\nMessage" + e.what());
+        HandleGenericException(fmt::format("Loading TObj file '{}'", tobj_name), HANDLEGENERICEXCEPTION_CONSOLE);
         return;
     }
 
@@ -267,7 +263,9 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     {
         try
         {
+            m_tobj_cache_active_id = (int)m_tobj_cache.size() - 1;
             this->LoadTerrainObject(entry.odef_name, entry.position, entry.rotation, entry.instance_name, entry.type, entry.rendering_distance);
+            m_tobj_cache_active_id = -1;
         }
         catch (...)
         {
@@ -648,6 +646,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     object.node = tenode;
     object.enable_collisions = enable_collisions;
     object.script_handler = scripthandler;
+    object.tobj_cache_id = m_tobj_cache_active_id;
     m_editor_objects.push_back(object);
 
     if (mo && uniquifyMaterial && !instancename.empty())
@@ -1077,3 +1076,4 @@ Ogre::SceneNode* TerrainObjectManager::getGroupingSceneNode()
     else
         return App::GetGfxScene()->GetSceneManager()->getRootSceneNode();
 }
+
