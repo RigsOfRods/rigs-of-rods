@@ -675,3 +675,4 @@ void ProceduralRoad::createMesh()
 
     free(vertices);
 };
+

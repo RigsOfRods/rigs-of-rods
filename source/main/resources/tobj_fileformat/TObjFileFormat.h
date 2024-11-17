@@ -55,6 +55,10 @@ namespace TObj {
         ROAD_BRIDGE,
     };
 
+    const char* SpecialObjectToString(SpecialObject val);
+
+    void WriteToStream(TObjDocumentPtr doc, Ogre::DataStreamPtr stream);
+
 } // namespace TObj
 
 // -----------------------------------------------------------------------------
@@ -158,6 +162,7 @@ struct TObjDocument
         grid_enabled(false)
     {}
 
+    std::string                   document_name;
     Ogre::Vector3                 grid_position;
     bool                          grid_enabled;
     std::vector<TObjTree>         trees;
