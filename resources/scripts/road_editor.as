@@ -188,6 +188,17 @@ void drawRoadEditPanel()
     ImGui::PopID(); // "road edit box"
 }
 
+void drawRoadTypeRadioBtn(ProceduralPointClass@ point, string&in label, RoadType roadType, int pillarType)
+{
+    bool selected =( point.type == roadType && point.pillar_type == pillarType );
+    
+    if (ImGui::RadioButton(label, selected))
+    {
+        point.type = roadType;
+        point.pillar_type = pillarType;
+    }
+}
+
 void drawPointPropertiesPanel(ProceduralObjectClass@ obj)
 {
     ImGui::PushID("point properties");
@@ -208,52 +219,18 @@ void drawPointPropertiesPanel(ProceduralObjectClass@ obj)
         ImGui::InputFloat("Border height (meters)", point.border_height);
         
         ImGui::Text("Type:");
+        ImGui::SameLine();
+        ImGui::TextDisabled("DBG type:"+point.type+", pillartype:"+point.pillar_type);
         // Types supported by TOBJ format
-        if (ImGui::RadioButton("(automatic)", point.type == ROAD_AUTOMATIC))
-        {
-            point.type = ROAD_AUTOMATIC;
-            point.pillar_type = 0;
-        }
-        if (ImGui::RadioButton("flat (no border)", point.type == ROAD_FLAT))
-        {
-            point.type = ROAD_FLAT;
-            point.pillar_type = 0;
-        }  
-        if (ImGui::RadioButton("left (border on left)", point.type == ROAD_LEFT))
-        {
-            point.type = ROAD_LEFT;
-            point.pillar_type = 0;
-        }   
-        if (ImGui::RadioButton("right (border on right)", point.type == ROAD_RIGHT))
-        {
-            point.type = ROAD_RIGHT;
-            point.pillar_type = 0;
-        }      
-        if (ImGui::RadioButton("both (with borders)", point.type == ROAD_BOTH))
-        {
-            point.type = ROAD_BOTH;
-            point.pillar_type = 0;
-        }    
-        if (ImGui::RadioButton("bridge (with pillars)", point.type == ROAD_BRIDGE && point.pillar_type == 1))
-        {
-            point.type = ROAD_BRIDGE;
-            point.pillar_type = 1;
-        }
-        if (ImGui::RadioButton("bridge_no_pillars", point.type == ROAD_BRIDGE && point.pillar_type == 0))
-        {
-            point.type = ROAD_BRIDGE;
-            point.pillar_type = 0;
-        }
-        if (ImGui::RadioButton("monorail (with pillars)", point.type == ROAD_BRIDGE && point.pillar_type == 2))
-        {
-            point.type = ROAD_MONORAIL;
-            point.pillar_type = 2;
-        }
-        if (ImGui::RadioButton("monorail2 (no pillars)", point.type == ROAD_BRIDGE && point.pillar_type == 0))
-        {
-            point.type = ROAD_MONORAIL;
-            point.pillar_type = 0;
-        } 
+        drawRoadTypeRadioBtn(point, "(automatic)" ,ROAD_AUTOMATIC, 0);
+        drawRoadTypeRadioBtn(point, "flat (no border)",  ROAD_FLAT, 0);
+        drawRoadTypeRadioBtn(point, "left (border on left)",  ROAD_LEFT, 0);
+        drawRoadTypeRadioBtn(point, "right (border on right)", ROAD_RIGHT, 0);
+        drawRoadTypeRadioBtn(point, "both (with borders)", ROAD_BOTH, 0);
+        drawRoadTypeRadioBtn(point, "bridge (with pillars)",  ROAD_BRIDGE , 1);
+        drawRoadTypeRadioBtn(point, "bridge_no_pillars",  ROAD_BRIDGE , 0);
+        drawRoadTypeRadioBtn(point, "monorail (with pillars)", ROAD_MONORAIL , 2);
+        drawRoadTypeRadioBtn(point, "monorail2 (no pillars)", ROAD_MONORAIL , 0);
         // End of types supported by TOBJ format
     }
     else
