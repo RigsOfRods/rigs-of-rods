@@ -236,7 +236,7 @@ void TObjParser::ProcessProceduralLine()
     else if (obj_name == "monorail"         ) { point.type = RoadType::ROAD_MONORAIL;  point.pillartype = 2; }
     else if (obj_name == "monorail2"        ) { point.type = RoadType::ROAD_MONORAIL;  point.pillartype = 0; }
     else if (obj_name == "bridge_no_pillars") { point.type = RoadType::ROAD_BRIDGE;    point.pillartype = 0; }
-    else                                      { point.type = RoadType::ROAD_AUTOMATIC; point.pillartype = 0; }
+    else                                      { point.type = RoadType::ROAD_AUTOMATIC; point.pillartype = 1; }
 
     m_cur_procedural_obj->points.push_back(new ProceduralPoint(point));
 }
@@ -520,7 +520,7 @@ void TObj::WriteToStream(TObjDocumentPtr doc, Ogre::DataStreamPtr stream)
             std::string type_str;
             switch (point->type)
             {
-            case RoadType::ROAD_AUTOMATIC: type_str = "both"; break; // ??
+            case RoadType::ROAD_AUTOMATIC: type_str = "auto"; break;
             case RoadType::ROAD_FLAT: type_str = "flat"; break;
             case RoadType::ROAD_LEFT: type_str = "left"; break;
             case RoadType::ROAD_RIGHT: type_str = "right"; break;
