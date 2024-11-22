@@ -1365,6 +1365,40 @@ bool GameScript::getMousePositionOnTerrain(Ogre::Vector3& out_pos)
     return ray_result.hit;
 }
 
+class ScriptRayQueryListener : public Ogre::RaySceneQueryListener
+{
+public:
+    Ogre::Ray ray;
+    std::vector<Ogre::MovableObject*> results_array;
+
+    bool queryResult(MovableObject* obj, Real distance) override
+    {
+        results_array.push_back(obj);
+        return true; // Continue query
+    }
+
+    bool queryResult(SceneQuery::WorldFragment* fragment, Real distance) override
+    {
+        return true; // Continue query
+    }
+};
+
+CScriptArray* GameScript::getMousePointedMovableObjects()
+{
+    if (!HaveSimTerrain(__FUNCTION__))
+        return nullptr;
+
+    Ogre::Vector2 mouse_npos = App::GetInputEngine()->getMouseNormalizedScreenPos();
+    Ogre::Ray ray = App::GetCameraManager()->GetCamera()->getCameraToViewportRay(mouse_npos.x, mouse_npos.y);
+    Ogre::DefaultRaySceneQuery query(App::GetGfxScene()->GetSceneManager());
+    query.setRay(ray);
+    query.setSortByDistance(true);
+    ScriptRayQueryListener qlis;
+    qlis.ray = ray;
+    query.execute(&qlis);
+    return VectorToScriptArray(qlis.results_array, "Ogre::MovableObject@");
+}
+
 Ogre::SceneManager* GameScript::getSceneManager()
 {
     return App::GetGfxScene()->GetSceneManager();

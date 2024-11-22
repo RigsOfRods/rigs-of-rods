@@ -435,6 +435,11 @@ public:
     */
     bool getMousePositionOnTerrain(vector3 &out);
 
+    /**
+    * Returns `array<Ogre::MovableObjects@>` in no particular order; works using bounding boxes so large/generated meshes like roads get matched all the time.
+    */
+    array<Ogre::MovableObjects@> getMousePointedMovableObjects();
+
     /// @}
 
     /// @name Character

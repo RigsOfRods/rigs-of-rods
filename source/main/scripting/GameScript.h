@@ -362,6 +362,11 @@ public:
     */
     bool getMousePositionOnTerrain(Ogre::Vector3& out_pos);
 
+    /**
+    * Returns `array<Ogre::MovableObjects@>` in no particular order.
+    */
+    AngelScript::CScriptArray* getMousePointedMovableObjects();
+
     TerrainPtr getTerrain();
 
     /// @}
