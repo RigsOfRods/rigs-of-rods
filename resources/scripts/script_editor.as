@@ -387,9 +387,7 @@ class ScriptEditorWindow
                 
                 ImGui::Separator();
                 this.drawSelectableFileList("Recent scripts", "Select##recent", recentScriptsRecord, /*&inout*/ saveFileNameBuf);
-                ImGui::Separator();
                 this.drawSelectableFileList("Local scripts", "Select##local", localScriptsRecord, /*&inout*/ saveFileNameBuf);
-
                 ImGui::EndMenu();                
             }
             else
@@ -566,12 +564,29 @@ class ScriptEditorWindow
         }
     }
     
+	// Creates a child window with dynamic height (but clamped to hardcoded max value).
     private bool drawSelectableFileList(string title, string btnText, ScriptIndexerRecord@ record, string&inout out_selection)
     {
-        bool retval = false;
 
-        ImGui::PushID(title);
+        bool retval = false;
         ImGui::TextDisabled(title+" ("+record.fileinfos.length()+"):");
+		if (record.fileinfos.length() == 0)
+		{
+			return retval; // nothing to draw
+		}
+		
+		// Calc child window size
+		const int MAX_CHILD_HEIGHT = 300;
+		const int CHILD_WIDTH = 600;		
+		int childHeight = record.fileinfos.length() * ImGui::GetTextLineHeightWithSpacing();
+		//ImGui::Text("DBG record.fileinfos.length()=" + record.fileinfos.length() + ", childHeight{not clamped}=" + childHeight);
+		if (childHeight > MAX_CHILD_HEIGHT)
+		{
+			childHeight = MAX_CHILD_HEIGHT;
+		}		
+		
+		// draw the child window
+	    ImGui::BeginChild(title+"-child", vector2(CHILD_WIDTH, childHeight), /*border:*/false, ImGuiWindowFlags_HorizontalScrollbar);	
         for (uint i=0; i<record.fileinfos.length(); i++)
         {
             ImGui::PushID(i);
@@ -615,7 +630,9 @@ class ScriptEditorWindow
             }
             ImGui::PopID(); // i
         }
-        ImGui::PopID(); // title
+		//   Always call a matching EndChild() for each BeginChild() call, regardless of its return value 
+		//[this is due to legacy reason and is inconsistent with most other functions
+		ImGui::EndChild();		
 
          return retval;
     }
