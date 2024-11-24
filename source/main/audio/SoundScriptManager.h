@@ -345,11 +345,6 @@ public:
      */
     bool ListenerIsUnderwater() const { return m_listener_is_underwater; }
 
-    /**
-     * @return True if the listener position is inside the AABB of the actor the player character is coupled to. False otherwise.
-     */
-    bool ListenerIsInsideThePlayerCoupledActor() const { return m_listener_is_inside_the_player_coupled_actor; }
-
     SoundManager* getSoundManager() { return sound_manager; }
 
 private:
@@ -361,7 +356,6 @@ private:
     bool disabled;
     bool loading_base;
     bool m_listener_is_underwater = false;
-    bool m_listener_is_inside_the_player_coupled_actor = false;
     float max_distance;
     float reference_distance;
     float rolloff_factor;

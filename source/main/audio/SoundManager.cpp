@@ -834,91 +834,83 @@ void SoundManager::UpdateObstructionFilter(const int hardware_index) const
 
     // TODO: Simulate diffraction path.
 
-    // always obstruct sounds if the player is in a vehicle
-    if(App::GetSoundScriptManager()->ListenerIsInsideThePlayerCoupledActor())
-    {
-        obstruction_detected = true;
-    }
-    else
-    {
-        /*
-        * Perform various line of sight checks until either a collision was detected
-        * and the filter has to be applied or no obstruction was detected.
-        */
+    /*
+    * Perform various line of sight checks until either a collision was detected
+    * and the filter has to be applied or no obstruction was detected.
+    */
 
-        std::pair<bool, Ogre::Real> intersection;
-        // no normalisation due to how the intersectsTris function determines its number of steps
-        Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - m_listener_position;
-        Ogre::Real distance_to_sound = direction_to_sound.length();
-        Ray direct_path_to_sound = Ray(m_listener_position, direction_to_sound);
+    std::pair<bool, Ogre::Real> intersection;
+    // no normalisation due to how the intersectsTris function determines its number of steps
+    Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - m_listener_position;
+    Ogre::Real distance_to_sound = direction_to_sound.length();
+    Ray direct_path_to_sound = Ray(m_listener_position, direction_to_sound);
 
-        // perform line of sight check against terrain
-        intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound, distance_to_sound);
+    // perform line of sight check against terrain
+    intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound, distance_to_sound);
+    obstruction_detected = intersection.first;
+
+    if(!obstruction_detected)
+    {
+        // perform line of sight check against collision meshes
+        // for this to work correctly, the direction vector of the ray must have
+        // the length of the distance from the listener to the sound
+        intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(direct_path_to_sound);
         obstruction_detected = intersection.first;
+    }
 
-        if(!obstruction_detected)
+    // do not normalise before intersectsTris() due to how that function works
+    direction_to_sound.normalise();
+    direct_path_to_sound.setDirection(direction_to_sound);
+
+    if(!obstruction_detected)
+    {
+        // perform line of sight check agains collision boxes
+        for (const collision_box_t& collision_box : App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes())
         {
-            // perform line of sight check against collision meshes
-            // for this to work correctly, the direction vector of the ray must have
-            // the length of the distance from the listener to the sound
-            intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(direct_path_to_sound);
-            obstruction_detected = intersection.first;
-        }
+            if (!collision_box.enabled || collision_box.virt) { continue; }
 
-        // do not normalise before intersectsTris() due to how that function works
-        direction_to_sound.normalise();
-        direct_path_to_sound.setDirection(direction_to_sound);
-
-        if(!obstruction_detected)
-        {
-            // perform line of sight check agains collision boxes
-            for (const collision_box_t& collision_box : App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes())
+            intersection = direct_path_to_sound.intersects(Ogre::AxisAlignedBox(collision_box.lo, collision_box.hi));
+            if (intersection.first && intersection.second <= distance_to_sound)
             {
-                if (!collision_box.enabled || collision_box.virt) { continue; }
-
-                intersection = direct_path_to_sound.intersects(Ogre::AxisAlignedBox(collision_box.lo, collision_box.hi));
-                if (intersection.first && intersection.second <= distance_to_sound)
-                {
-                    obstruction_detected = true;
-                    break;
-                }
+                obstruction_detected = true;
+                break;
             }
         }
+    }
 
-        if(!obstruction_detected)
+    if(!obstruction_detected)
+    {
+        // perform line of sight check against actors
+        const ActorPtrVec& actors = App::GetGameContext()->GetActorManager()->GetActors();
+        bool soundsource_belongs_to_current_actor = false;
+        for(const ActorPtr actor : actors)
         {
-            // perform line of sight check against actors
-            const ActorPtrVec& actors = App::GetGameContext()->GetActorManager()->GetActors();
-            bool soundsource_belongs_to_current_actor = false;
-            for(const ActorPtr actor : actors)
+            // Trucks shouldn't obstruct their own sound sources since the
+            // obstruction is most likely already contained in the recording.
+            for (int soundsource_index = 0; soundsource_index < actor->ar_num_soundsources; ++soundsource_index)
             {
-                // Trucks shouldn't obstruct their own sound sources since the
-                // obstruction is most likely already contained in the recording.
-                for (int soundsource_index = 0; soundsource_index < actor->ar_num_soundsources; ++soundsource_index)
+                const soundsource_t& soundsource = actor->ar_soundsources[soundsource_index];
+                const int num_sounds = soundsource.ssi->getTemplate()->getNumSounds();
+                for (int num_sound = 0; num_sound < num_sounds; ++num_sound)
                 {
-                    const soundsource_t& soundsource = actor->ar_soundsources[soundsource_index];
-                    const int num_sounds = soundsource.ssi->getTemplate()->getNumSounds();
-                    for (int num_sound = 0; num_sound < num_sounds; ++num_sound)
+                    if (soundsource.ssi->getSound(num_sound) == corresponding_sound)
                     {
-                        if (soundsource.ssi->getSound(num_sound) == corresponding_sound)
-                        {
-                            soundsource_belongs_to_current_actor = true;
-                        }
+                        soundsource_belongs_to_current_actor = true;
                     }
-                    if (soundsource_belongs_to_current_actor) { break; }
                 }
+                if (soundsource_belongs_to_current_actor) { break; }
+            }
 
-                if (soundsource_belongs_to_current_actor)
-                {
-                    continue;
-                }
+            if (soundsource_belongs_to_current_actor)
+            {
+                continue;
+            }
 
-                intersection = direct_path_to_sound.intersects(actor->ar_bounding_box);
-                obstruction_detected = intersection.first;
-                if (obstruction_detected)
-                {
-                    break;
-                }
+            intersection = direct_path_to_sound.intersects(actor->ar_bounding_box);
+            obstruction_detected = intersection.first;
+            if (obstruction_detected)
+            {
+                break;
             }
         }
     }

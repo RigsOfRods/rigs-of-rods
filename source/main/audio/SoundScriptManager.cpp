@@ -326,16 +326,6 @@ void SoundScriptManager::update(float dt_sec)
         const auto water = App::GetGameContext()->GetTerrain()->getWater();
         m_listener_is_underwater = (water != nullptr ? water->IsUnderWater(listener_position) : false);
 
-        ActorPtr actor_of_player = App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling();
-        if (actor_of_player != nullptr)
-        {
-            m_listener_is_inside_the_player_coupled_actor = actor_of_player->ar_bounding_box.contains(listener_position);
-        }
-        else
-        {
-            m_listener_is_inside_the_player_coupled_actor = false;
-        }
-
         SetListenerEnvironment(camera_position);
         sound_manager->Update(dt_sec);
     }
