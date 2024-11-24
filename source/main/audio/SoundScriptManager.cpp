@@ -418,13 +418,6 @@ const EFXEAXREVERBPROPERTIES* SoundScriptManager::GetReverbPresetAt(const Ogre::
     }
 }
 
-void SoundScriptManager::SetDopplerFactor(float doppler_factor)
-{
-    if (disabled)
-        return;
-    sound_manager->SetDopplerFactor(doppler_factor);
-}
-
 const StringVector& SoundScriptManager::getScriptPatterns(void) const
 {
     return script_patterns;

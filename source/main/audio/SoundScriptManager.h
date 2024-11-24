@@ -332,7 +332,6 @@ public:
 
     void setEnabled(bool state);
 
-    void SetDopplerFactor(float doppler_factor);
     void SetListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
     void setLoadingBaseSounds(bool value) { loading_base = value; };
 

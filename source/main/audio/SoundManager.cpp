@@ -375,6 +375,8 @@ void SoundManager::Update(const float dt_sec)
     if (!audio_device)
         return;
 
+    this->SetDopplerFactor(App::audio_doppler_factor->getFloat());
+
     recomputeAllSources();
     UpdateAlListener();
 

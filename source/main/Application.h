@@ -150,8 +150,6 @@ enum MsgType
     MSG_EDI_CREATE_PROJECT_REQUESTED,      //!< Payload = RoR::CreateProjectRequest* (owner)
     MSG_EDI_MODIFY_PROJECT_REQUESTED,      //!< Payload = RoR::UpdateProjectRequest* (owner)
     MSG_EDI_DELETE_PROJECT_REQUESTED,      //!< Payload = RoR::CacheEntryPtr* (owner)
-    // Audio
-    MSG_AUD_MODIFY_DOPPLER_FACTOR_REQUESTED, //!< Payload = float*
 };
 
 const char* MsgTypeToString(MsgType type);

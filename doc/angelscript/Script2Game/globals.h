@@ -664,8 +664,6 @@ enum MsgType
     MSG_EDI_RELOAD_BUNDLE_REQUESTED,           //!< This deletes all actors using that bundle (= ZIP or directory)! Params: 'cache_entry' (CacheEntryClass@)
     MSG_EDI_UNLOAD_BUNDLE_REQUESTED,           //!< This deletes all actors using that bundle (= ZIP or directory)! Params: 'cache_entry' (CacheEntryClass@)
     MSG_EDI_CREATE_PROJECT_REQUESTED,          //!< Creates a subdir under 'projects/', pre-populates it and adds to modcache. Params: 'name' (string), 'ext' (string, optional), 'source_entry' (CacheEntryClass@)
-    // Audio
-    MSG_AUD_MODIFY_DOPPLER_FACTOR_REQUESTED    //!< Request change of doppler factor. Params: 'doppler_factor' (float). doppler_factor must not be negative.NAL
 };
 
 } // namespace Script2Game
