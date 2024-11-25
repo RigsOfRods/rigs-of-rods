@@ -27,7 +27,7 @@ void main()
 
 void frameStep(float dt)
 {
-    if (ImGui::Begin("TERRN BATCHER [ALPHA]", closeBtnHandler.draw(), ImGuiWindowFlags_AlwaysAutoResize))
+    if (ImGui::Begin("TERRN BATCHER [ALPHA]", closeBtnHandler.windowOpen, ImGuiWindowFlags_AlwaysAutoResize))
     {
         closeBtnHandler.draw();
         tbUI.draw();

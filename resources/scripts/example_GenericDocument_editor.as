@@ -25,7 +25,7 @@ void frameStep(float dt)
         if (@actor != null)
         {
             CacheEntryClass@ entry =  modcache.findEntryByFilename(LOADER_TYPE_ALLBEAM, /*partial:*/false, actor.getTruckFileName());
-            if (@entry != null)
+            if (@entry != null && entry.resource_bundle_type == "FileSystem")
             {
                 @projectEntry = @entry;
                 loadDocument();
@@ -111,7 +111,7 @@ void createProjectFromActorAsync(BeamClass@ actor )
     errorString = "Failed to load cache entry!";
     
     // request project to be created from that cache entry
-    string proj_name = "project1";
+    string proj_name = "gd_editor_" + src_entry.fname;
     game.pushMessage(MSG_EDI_CREATE_PROJECT_REQUESTED, {
     {'name', proj_name},
     {'source_entry', src_entry}
