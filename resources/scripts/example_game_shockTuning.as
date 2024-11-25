@@ -217,14 +217,17 @@ void frameStep(float dt)
     // End window
     ImGui::End();
     
-    // Draw the individual shock in-scene windows
-    for (int i = 0; i < actor.getShockCount(); i++)
+    if (@actor != null)
     {
-        SpringData@ shockdata = g_shock_buffers[i];
-        if (shockdata.drawInScene)
+        // Draw the individual shock in-scene windows
+        for (int i = 0; i < actor.getShockCount(); i++)
         {
-            drawSpringHighlight(actor, i, cfgSpringColor, cfgSpringThickness);
-            drawSpringSceneHud(actor, i);
+            SpringData@ shockdata = g_shock_buffers[i];
+            if (shockdata.drawInScene)
+            {
+                drawSpringHighlight(actor, i, cfgSpringColor, cfgSpringThickness);
+                drawSpringSceneHud(actor, i);
+            }
         }
     }
 }

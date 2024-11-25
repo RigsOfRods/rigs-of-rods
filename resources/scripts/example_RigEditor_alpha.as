@@ -53,7 +53,7 @@ void frameStep(float dt)
     if (@actor != null)
     {
         CacheEntryClass@ entry =  modcache.findEntryByFilename(LOADER_TYPE_ALLBEAM, /*partial:*/false, actor.getTruckFileName());
-        if (@entry != null)
+        if (@entry != null && entry.resource_bundle_type == "FileSystem")
         {
             @m_project_entry = @entry;
             loadDocument();
