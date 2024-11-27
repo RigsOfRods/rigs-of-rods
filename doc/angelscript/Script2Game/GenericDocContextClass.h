@@ -46,6 +46,7 @@ class GenericDocContextClass
     bool isTokBool(int offset = 0);
     bool isTokKeyword(int offset = 0);
     bool isTokComment(int offset = 0);
+    bool isTokLineBreak(int offset = 0);
     
     // Editing functions:
 
