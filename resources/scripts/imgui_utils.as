@@ -11,7 +11,7 @@
 // By convention, all includes have filename '*_utils' and namespace matching filename.
 namespace imgui_utils
 {
-
+    
     /// Looks and behaves (mouuse cursor) like a hypertext, but doesn't open URL.
     void ImDummyHyperlink(string caption)
     {
@@ -21,19 +21,19 @@ namespace imgui_utils
         ImGui::Text(caption);
         vector2 textSize = ImGui::CalcTextSize(caption);
         ImGui::GetWindowDrawList().AddLine(
-             cursorBefore+vector2(0,textSize.y), cursorBefore+textSize,  //from-to
-             LINKCOLOR);
+        cursorBefore+vector2(0,textSize.y), cursorBefore+textSize,  //from-to
+        LINKCOLOR);
         if (ImGui::IsItemHovered())
         {
             ImGui::SetMouseCursor(7);//Hand cursor
         }
         ImGui::PopStyleColor(1); //Text
     }
-
+    
     /// Full-featured hypertext with tooltip showing full URL.
     void ImHyperlink(string url, string caption="", bool tooltip=true)
     {
-        if (caption == "") { caption = url; tooltip=false; }
+    if (caption == "") { caption = url; tooltip=false; }
         ImDummyHyperlink(caption);
         if (ImGui::IsItemClicked())
         {
@@ -52,7 +52,7 @@ namespace imgui_utils
     {
         // Dummy fullscreen window to draw to
         int windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
-                         | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
+        | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
         ImGui::SetNextWindowPos(vector2(0,0));
         ImGui::SetNextWindowSize(game.getDisplaySize());
         ImGui::PushStyleColor(ImGuiCol_WindowBg, color(0.f,0.f,0.f,0.f)); // Fully transparent background!
@@ -61,10 +61,10 @@ namespace imgui_utils
         ImDrawList@ drawlist = ImGui::GetWindowDrawList();
         ImGui::End();
         ImGui::PopStyleColor(1); // WindowBg
-
+        
         return drawlist;    
     }    
-
+    
     /// Convenient handler of the [X] close button - draws "Really exit?" prompt and then exits the script.
     class CloseWindowPrompt
     {
@@ -74,15 +74,17 @@ namespace imgui_utils
         string cfgPromptText = "Terminate the script?";
         bool cfgCloseImmediatelly = false;
         vector2 cfgPromptBoxPadding(3, 3);
+        bool cfgTerminateWholeScript = true; // Set to false to use this handler for non-main windows.
         //State:
         bool windowOpen = true;
-
+        bool exitRequested = false;
+        
         void draw() // Works best when drawn as first thing on top of the window.
         {
             // from <imgui.h>
             const int    ImGuiCol_Text = 0;        
-            bool exitRequested = false;
-        
+            
+            
             if (this.windowOpen)
             {
                 return;  // nothing to draw right now
@@ -120,12 +122,18 @@ namespace imgui_utils
                 exitRequested = true;
             }
             
-            // Close the script if requested
-            if (exitRequested)
+            // Close the script if requested (and configured to do so)
+            if (exitRequested && cfgTerminateWholeScript)
             {
-                game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, { {'id', thisScript} }); // `thisScript` is global variable set by the game.            
+        game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, { {'id', thisScript} }); // `thisScript` is global variable set by the game.            
             }
         }      
+        
+        void reset()
+        {
+            windowOpen = true;
+            exitRequested = false;
+        }
     }
 } // namespace imgui_utils
 
