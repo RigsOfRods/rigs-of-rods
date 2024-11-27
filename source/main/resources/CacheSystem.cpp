@@ -1178,6 +1178,12 @@ void CacheSystem::FillTerrainDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPt
 {
     Terrn2Parser parser;
     Terrn2DocumentPtr def = parser.LoadTerrn2(ds);
+    if (!def)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Mod cache entry not populated - could not load terrain {}", ds->getName()));
+        return;
+    }
 
     for (Terrn2Author& author : def->authors)
     {
