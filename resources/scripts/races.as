@@ -1160,6 +1160,10 @@ shared class raceBuilder {
 	bool awaitingRecycling;
 	bool hidden;
 	string raceBuilderVersion;
+	// object names used in `addChpCoordinates()` - for use by terrain editor conversion script
+	string exporterCheckpointObjName;
+	string exporterStartObjName;
+	string exporterFinishObjName;
 	
 	raceBuilder(int id)
 	{
@@ -1232,6 +1236,11 @@ shared class raceBuilder {
 			
 			this.addCheckpoint(startNumber+i, oname, checkpoints_in[i]);
 		}
+		
+		// remember used object names for terrain editor conversion script
+		this.exporterCheckpointObjName = objName_checkpoint;
+		this.exporterStartObjName = objName_start;
+		this.exporterFinishObjName = objName_finish;
 	}
 	
 	int getNextCheckpointNum(int lastCheckpoint)
