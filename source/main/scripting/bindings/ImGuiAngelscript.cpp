@@ -236,8 +236,8 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
   //  engine->RegisterGlobalFunction("bool IsWindowAppearing()", asFUNCTIONPR(ImGui::IsWindowAppearing, (), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetWindowFontScale(float)", asFUNCTIONPR(ImGui::SetWindowFontScale, (float), void), asCALL_CDECL);
 
-    engine->RegisterGlobalFunction("void SetNextWindowPos(vector2)", asFUNCTIONPR([](Vector2 v) { 
-        ImGui::SetNextWindowPos(ImVec2(v.x, v.y)); }, (Vector2), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void SetNextWindowPos(vector2, int=0, vector2=vector2(0,0))", asFUNCTIONPR([](Vector2 v, int flags, Vector2 pivot) { 
+        ImGui::SetNextWindowPos(ImVec2(v.x, v.y), flags, ImVec2(pivot.x, pivot.y)); }, (Vector2, int, Vector2), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetNextWindowSize(vector2)", asFUNCTIONPR([](Vector2 v) { 
         ImGui::SetNextWindowSize(ImVec2(v.x, v.y)); }, (Vector2), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetNextWindowContentSize(vector2)", asFUNCTIONPR([](Vector2 v) { 
