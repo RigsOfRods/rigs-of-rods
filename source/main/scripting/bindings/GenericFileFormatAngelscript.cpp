@@ -98,6 +98,7 @@ void RoR::RegisterGenericFileFormat(asIScriptEngine* engine)
     engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokBool(int offset = 0)", asMETHOD(GenericDocContext, isTokBool), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokKeyword(int offset = 0)", asMETHOD(GenericDocContext, isTokKeyword), asCALL_THISCALL);
     engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokComment(int offset = 0)", asMETHOD(GenericDocContext, isTokComment), asCALL_THISCALL);
+    engine->RegisterObjectMethod("GenericDocContextClass", "bool isTokLineBreak(int offset = 0)", asMETHOD(GenericDocContext, isTokLineBreak), asCALL_THISCALL);
 
     // > Editing functions:
     engine->RegisterObjectMethod("GenericDocContextClass", "void appendTokens(int count)", asMETHOD(GenericDocContext, appendTokens), asCALL_THISCALL);
