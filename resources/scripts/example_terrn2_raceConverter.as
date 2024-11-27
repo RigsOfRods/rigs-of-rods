@@ -1,29 +1,34 @@
 /// \title terrn2 race converter
 /// \brief imports races from scripts and generates race-def files.
-/// new section in terrn2 format: [Races]
+/// uses new section in terrn2 format: [Races]
 /// ^ each line is a tobj-like file with any extension (i.e. *.race) which is loaded by the race system.
 ///
 /// The program flow of this script got a little crazy;
-/// I wanted a fluidly updating UI, performing just one step (1 doc conversion / 1 file write) per frame.
+/// ^ I wanted a fluidly updating UI, performing just one step (1 doc conversion / 1 file write) per frame.
 /// ==================================================
-
-// Window [X] button handler
-#include "imgui_utils.as"
-imgui_utils::CloseWindowPrompt closeBtnHandler;
 
 // The race system
 #include "races.as"
 racesManager races;
 
-enum Stage // in order of processing
+// document viewer+editor
+#include "genericdoc_utils.as"
+genericdoc_utils::GenericDocEditor gdEditor;
+
+// Window [X] button handler
+#include "imgui_utils.as" 
+imgui_utils::CloseWindowPrompt closeBtnHandlerUnique;
+
+enum Stage // in order of processing 
 {
     STAGE_INIT, // detects races
     STAGE_CONVERT, // converts all races to GenericDocument race-defs
+    STAGE_FIXTERRN2, // modify .terrn2 file - add [Races], remove [Scripts]
     STAGE_IDLE, // Waiting for button press
     STAGE_PUSHMSG, // request game to create project
     STAGE_GETPROJECT, // fetch created project from modcache
-    STAGE_GENFILES, // write .race files
-    STAGE_FIXTERRN2, // modify .terrn2 file - add [Races], remove [Scripts]
+    STAGE_WRITERACES,
+    STAGE_WRITETERRN2, 
     STAGE_DONE,
     STAGE_ERROR
 }
@@ -32,21 +37,55 @@ string error = "";
 string projectName = "";
 CacheEntryClass@ projectEntry;
 array<GenericDocumentClass@> convertedRaces;
-array<string> convertedAndSavedRaces;  // filenames (we write the ' .race' file in separate frame so the user sees the correct filename on screen).
-GenericDocumentClass@ g_displayed_document = null;
-string g_displayed_doc_filename;
+array<string> convertedRaceFileNames;
+
 string fileBeingWritten = ""; 
+GenericDocumentClass@ convertedTerrn2;
+int topWrittenRace = -1;
 
+//#region Game Callbacks
 
+void main()
+{
+    // one-time config
+    gdEditor.gdeCloseBtnHandler.cfgCloseImmediatelly=true; 
+}
+
+void frameStep(float dt)
+{
+    // === DRAW UI ===
+    if (    ImGui::Begin("Race import", closeBtnHandlerUnique.windowOpen, /*flags:*/0))
+    {
+        // Draw the "Terminate this script?" prompt on the top (if not disabled by config).
+        closeBtnHandlerUnique.draw();
+        drawUI();
+        ImGui::End();
+    }
+    
+    
+    // === PERFORM IMPORT STEP ===
+    advanceImportOneStep();
+}
+
+//#endregion
+
+//#region UI drawing
 void drawUI()
 {
     // Draw document window
-    if (@g_displayed_document != null)
+    if (@gdEditor.displayedDocument != null)
     {
-        drawDocumentWindow();
+        gdEditor.drawSeparateWindow();
     }
     
     drawDetectedRaces();
+    if (@convertedTerrn2 != null)
+    {
+        if (ImGui::SmallButton("Preview terrn2"))
+        {
+            gdEditor.setDocument(convertedTerrn2, projectName+'.terrn2');
+        }
+    }
     ImGui::Separator();
     switch(stage)
     {
@@ -71,10 +110,16 @@ void drawUI()
             ImGui::Text("Performing MSG_EDI_CREATE_PROJECT_REQUESTED"); 
             break;
         }
-        case STAGE_GENFILES:
+        case STAGE_WRITERACES:
         {
             ImGui::TextDisabled("Writing .race files:");
             ImGui::Text(fileBeingWritten);
+            break;
+        }
+        case STAGE_WRITETERRN2:
+        {
+            ImGui::TextDisabled("OverWriting terrn2 file");
+            ImGui::Text(projectName + ".terrn2");
             break;
         }
         case STAGE_DONE:
@@ -130,8 +175,8 @@ void drawDetectedRaces()
             ImGui::SameLine();
             if (  ImGui::SmallButton("Preview"))
             {
-                g_displayed_doc_filename = race.raceName;
-                @g_displayed_document = @convertedRaces[i] ;
+                gdEditor.setDocument(convertedRaces[i], races.raceList[i].raceName);
+                
             }
         }
         ImGui::PopID(); // i
@@ -139,70 +184,9 @@ void drawDetectedRaces()
     ImGui::PopID(); //"drawDetectedRaces"
 }
 
+//#endregion
 
-void drawDocumentWindow()
-{
-    ImGui::PushID("document view");
-    string caption = "Document view (" + g_displayed_doc_filename + ")";
-    bool documentOpen = true;
-    ImGui::Begin(caption, documentOpen, /*flags:*/0);
-    
-    GenericDocContextClass reader(g_displayed_document);
-    while (!reader.endOfFile())
-    {
-        switch (reader.tokenType())
-        {
-            // These tokens are always at start of line
-            case TOKEN_TYPE_KEYWORD:
-            ImGui::TextColored(color(1.f, 1.f, 0.f, 1.f), reader.getTokKeyword());
-            break;
-            case TOKEN_TYPE_COMMENT:
-            ImGui::TextDisabled(";" + reader.getTokComment());
-            break;
-            
-            // Linebreak is implicit in DearIMGUI, no action needed
-            case TOKEN_TYPE_LINEBREAK:
-            break;
-            
-            // Other tokens come anywhere - delimiting logic is needed
-            default:
-            if (reader.getPos() != 0 && reader.tokenType(-1) != TOKEN_TYPE_LINEBREAK)
-            {
-                ImGui::SameLine();
-                string delimiter = (reader.tokenType(-1) == TOKEN_TYPE_KEYWORD) ? " " : ", ";
-                ImGui::Text(delimiter);
-                ImGui::SameLine();
-            }
-            
-            switch (reader.tokenType())
-            {
-                case TOKEN_TYPE_STRING:
-                ImGui::TextColored(color(0.f, 1.f, 1.f, 1.f), "\"" + reader.getTokString() + "\"");
-                break;
-                case TOKEN_TYPE_NUMBER:
-                ImGui::Text("" + reader.getTokFloat());
-                break;
-                case TOKEN_TYPE_BOOL:
-                ImGui::TextColored(color(1.f, 0.f, 1.f, 1.f), ""+reader.getTokBool());
-                break;
-            }
-        }
-        
-        reader.moveNext();
-    }
-    
-    ImGui::End();
-    
-    // Handle window X button
-    if (!documentOpen)
-    {
-        g_displayed_doc_filename = "";
-        @g_displayed_document = null;
-    }
-    
-    ImGui::PopID(); //"document view"
-}
-
+//#region STAGE_INIT
 void initializeRacesData()
 {
     // find the terrain script
@@ -246,9 +230,30 @@ void initializeRacesData()
     {
         raceBuilder@ race = races.raceList[i];
         convertedRaces.insertLast(null);
-        convertedAndSavedRaces.insertLast("~");  // ~ means "update UI and redner frame first, then do the writing"
+        convertedRaceFileNames.insertLast(""); 
     }
 }
+//#endregion
+
+//#region STAGE_CONVERT
+bool convertNextRace()
+{
+    
+    // seek first unconverted race; convert it; break loop
+    for (uint i=0; i < races.raceList.length(); i++)
+    {
+        if (@convertedRaces[i] == null)
+        {
+            @convertedRaces[i] = convertSingleRace(races.raceList[i]);
+            convertedRaceFileNames[i] = generateRaceFileName(races.raceList[i].raceName);
+            return true;
+        }
+    }
+    
+    return false;            
+}
+
+// HELPERS:
 
 const string BADCHARS="\\/:%* ";
 const string GOODCHAR="_";
@@ -269,133 +274,99 @@ string generateRaceFileName(string raceName)
     return filename;
 }
 
-
-void advanceImportOneStep()
+void appendKeyValuePair( GenericDocContextClass@ ctx, string key, string value)
 {
-    switch (stage)
-    {
-        case STAGE_INIT:
-        {
-            initializeRacesData();
-            stage = STAGE_CONVERT;
-            break;
-        }
-        case STAGE_PUSHMSG:
-        {
-            TerrainClass@ terrain = game.getTerrain();
-            projectName = terrain.getTerrainName() + " [Races] ~"+thisScript;
-            
-            // Fetch terrain's modcache entry
-            CacheEntryClass@ src_entry = modcache.findEntryByFilename(LOADER_TYPE_TERRAIN, /*partial:*/false, terrain.getTerrainFileName());
-            if (@src_entry == null)
-            {
-                error = "Not found in modcache!!";
-                stage = STAGE_ERROR;
-            }
-            
-            // request project to be created from that cache entry
-            game.pushMessage(MSG_EDI_CREATE_PROJECT_REQUESTED, {
-            {'name', projectName},
-            {'source_entry', src_entry}
-            });
-            stage = STAGE_GETPROJECT;
-            break;
-        }      
-        
-        case STAGE_GETPROJECT:
-        {
-            @projectEntry = modcache.findEntryByFilename(LOADER_TYPE_TERRAIN, /*partial:*/false, projectName+'.terrn2');
-            if (@projectEntry != null)
-            {
-                stage = STAGE_GENFILES;
-            }
-            break;
-        }
-        
-        case STAGE_CONVERT:
-        {
-            bool convertedOne = false;
-            for (uint i=0; i < races.raceList.length(); i++)
-            {
-                if (@convertedRaces[i] == null)
-                {
-                    @convertedRaces[i] = convertSingleRace(races.raceList[i]);
-                    convertedOne = true;
-                    break;
-                }
-            }
-            
-            if (!convertedOne)
-            {
-                stage = STAGE_IDLE;
-            }
-            break;
-        }
-        
-        case STAGE_GENFILES:
-        {
-            for (uint i=0; i < races.raceList.length(); i++)
-            {
-                if (convertedAndSavedRaces[i] == "~")
-                {
-                    string filename = generateRaceFileName(races.raceList[i].raceName);
-                    fileBeingWritten = filename;
-                    convertedAndSavedRaces[i] =""; // ready to write file
-                    //                    game.log('DBG GENFILES ['+i+']: fileBeingWritten='+fileBeingWritten);
-                    break;
-                }
-                else if (convertedAndSavedRaces[i] == "")
-                {
-                    // write the ' .race' file in separate frame so the user sees the correct filename on screen.
-                    if (@projectEntry == null)
-                    {
-                        stage=STAGE_ERROR;
-                        error="null project entry while generating files";
-                        break;
-                    }
-                    if (@convertedRaces[i] == null)
-                    {
-                        stage=STAGE_ERROR;
-                        error="null converted race at position ["+i+"]";
-                        break;
-                    }
-                    
-                    convertedRaces[i].saveToResource(fileBeingWritten, projectEntry.resource_group);
-                    convertedAndSavedRaces[i] = fileBeingWritten;
-                    //                    game.log('DBG GENFILES ['+i+']: saved file '+fileBeingWritten);
-                    if (i == races.raceList.length()-1)
-                    {
-                        stage=STAGE_FIXTERRN2;
-                    }
-                    break;
-                }             
-            }
-            break;
-        }
-        
-        case STAGE_FIXTERRN2:
-        {
-            fixupTerrn2Document();
-            stage = STAGE_DONE;
-            break;
-        }
-        
-        default: 
-        break;        
-    }
+    ctx.appendTokKeyword( key);
+    ctx.appendTokString(value);
+    ctx.appendTokLineBreak();
 }
 
+void appendKeyValuePair( GenericDocContextClass@ ctx, string key, int value)
+{
+    ctx.appendTokKeyword( key);
+    ctx.appendTokInt(value);
+    ctx.appendTokLineBreak();
+}
+
+GenericDocumentClass@ convertSingleRace(raceBuilder@ race)
+{
+    GenericDocumentClass doc;
+    GenericDocContextClass ctx(doc);
+    
+    ctx.appendTokComment( " ~~ New 'race-def' format (file extension: .race). ~~");ctx.appendTokLineBreak();
+    ctx.appendTokComment( " Each race file specifies a single race");ctx.appendTokLineBreak();
+    ctx.appendTokComment( " In .terrn2 file, list the race files under new section [Races]");ctx.appendTokLineBreak();
+    ctx.appendTokComment( " Filenames must include extension and end with = (like scripts do)");ctx.appendTokLineBreak();
+    ctx.appendTokComment( " Race system supports alternating paths!");ctx.appendTokLineBreak();
+    ctx.appendTokComment( " Checkpoint format: checkpointNum(1+), altpathNum(1+), x, y, z, rotX, rotY, rotZ, objName(override, optional)");ctx.appendTokLineBreak();
+    ctx.appendTokComment( " By convention, the checkpoint meshes are oriented sideways (facing X axis)");ctx.appendTokLineBreak();
+    ctx.appendTokLineBreak();
+    
+    appendKeyValuePair(ctx, "race_name", race.raceName);
+    appendKeyValuePair(ctx, "race_laps", race.laps);
+    appendKeyValuePair(ctx, "race_checkpoint_object", race.exporterCheckpointObjName);
+    appendKeyValuePair(ctx, "race_start_object", race.exporterStartObjName);
+    appendKeyValuePair(ctx, "race_finish_object", race.exporterFinishObjName);
+    
+    ctx.appendTokLineBreak();
+    
+    ctx.appendTokKeyword( "begin_checkpoints");
+    
+    ctx.appendTokLineBreak();
+    
+    for (uint i=0; i < race.checkpoints.length(); i++)
+    {
+        uint numAltPaths = race.getRealInstanceCount(int(i));
+        for (uint j = 0; j < numAltPaths; j++)
+        {
+            ctx.appendTokInt((i+1)); // checkpointNum (1+)
+            ctx.appendTokInt((j+1)); // altpathNum (1+)
+            const double[] args = race.checkpoints[i][j];
+            ctx.appendTokFloat(args[0]); // pos X
+            ctx.appendTokFloat(args[1]); // pos Y
+            ctx.appendTokFloat(args[2]); // pos Z
+            ctx.appendTokFloat(args[3]); // rot X
+            ctx.appendTokFloat(args[4]); // rot Y
+            ctx.appendTokFloat(args[5]); // rot Z
+            string defaultObjName = (i==0) 
+            ? race.exporterStartObjName 
+            : (i==race.checkpoints.length()-1) ? race.exporterFinishObjName : race.exporterCheckpointObjName;
+            string actualObjName = race.objNames[i][j];
+            if (actualObjName != defaultObjName)
+            {
+                ctx.appendTokString(actualObjName);
+            }
+            ctx.appendTokLineBreak();
+        }       
+    }
+    
+    ctx.appendTokKeyword( "end_checkpoints");
+    ctx.appendTokLineBreak();
+    
+    return doc;
+}
+
+//#endregion
+
+//#region STAGE_FIXTERRN2
 string BRACE="[";
 void fixupTerrn2Document()
 {
-    GenericDocumentClass terrn2;
-    int flags = GENERIC_DOCUMENT_OPTION_ALLOW_NAKED_STRINGS
-    | GENERIC_DOCUMENT_OPTION_ALLOW_SLASH_COMMENTS
-    | GENERIC_DOCUMENT_OPTION_ALLOW_HASH_COMMENTS
-    | GENERIC_DOCUMENT_OPTION_ALLOW_SEPARATOR_EQUALS
-    | GENERIC_DOCUMENT_OPTION_ALLOW_BRACED_KEYWORDS;
-    terrn2.loadFromResource(projectName+".terrn2", projectEntry.resource_group, flags);
-    GenericDocContextClass ctx(terrn2);
+    TerrainClass@ terrain = game.getTerrain();
+    if (@terrain == null)
+    {
+        game.log("fixupTerrn2Document(): no terrain loaded, nothing to do!");
+        return;
+    }
+    @convertedTerrn2 =     GenericDocumentClass();
+    
+    if (!convertedTerrn2.loadFromResource(terrain.getTerrainFileName(), terrain.getTerrainFileResourceGroup(), genericdoc_utils::FLAGSET_TERRN2))
+    {
+        game.log("fixupTerrn2Document(): could not load terrn2 document, nothing to do!");
+        return;
+    }
+    
+    GenericDocContextClass ctx(convertedTerrn2);
     
     // Delete section [Scripts] and all it contains
     bool inSectionScripts = false;
@@ -438,19 +409,115 @@ void fixupTerrn2Document()
     ctx.appendTokLineBreak();
     ctx.appendTokKeyword("[Races]");
     ctx.appendTokLineBreak();
-    for (uint i=0; i < convertedAndSavedRaces.length(); i++)
+    for (uint i=0; i < convertedRaceFileNames.length(); i++)
     {
-        ctx.appendTokKeyword(convertedAndSavedRaces[i]);
+        ctx.appendTokString(convertedRaceFileNames[i]);
         ctx.appendTokLineBreak();
     }
     
-    forceExportINI(terrn2);
+    
+    
+}
+//#endregion
+
+// nothing for STAGE_IDLE
+
+//#region STAGE_PUSHMSG
+void pushMsgRequestCreateProject()
+{
+    TerrainClass@ terrain = game.getTerrain();
+    projectName = terrain.getTerrainName() + " [Races] ~"+thisScript;
+    
+    // Fetch terrain's modcache entry
+    CacheEntryClass@ src_entry = modcache.findEntryByFilename(LOADER_TYPE_TERRAIN, /*partial:*/false, terrain.getTerrainFileName());
+    if (@src_entry == null)
+    {
+        error = "Not found in modcache!!";
+        stage = STAGE_ERROR;
+    }
+    
+    // request project to be created from that cache entry
+    game.pushMessage(MSG_EDI_CREATE_PROJECT_REQUESTED, {
+    {'name', projectName},
+    {'source_entry', src_entry}
+    });
+}
+//#endregion
+
+//#region STAGE_GETPROJECT
+void getProject()
+{
+    @projectEntry = modcache.findEntryByFilename(LOADER_TYPE_TERRAIN, /*partial:*/false, projectName+'.terrn2');
+    if (@projectEntry != null)
+    {
+        stage = STAGE_WRITERACES;
+    }
+    else
+    {
+        stage=STAGE_ERROR;
+        error="Could not load project entry";
+    }
+}
+//#endregion
+
+//#region STAGE_WRITERACES
+void writeNextRace()
+{
+    for (uint i=0; i < races.raceList.length(); i++)
+    {
+        if (int(i) <= topWrittenRace)
+        {
+            continue; // already handled
+        }               
+        
+        if (fileBeingWritten == "")
+        {
+            string filename =  convertedRaceFileNames[i];
+            fileBeingWritten = filename;
+            //                    game.log('DBG WRITERACES ['+i+']: fileBeingWritten='+fileBeingWritten);
+            break;
+        }
+        else
+        {
+            // write the ' .race' file in separate frame so the user sees the correct filename on screen.
+            if (@projectEntry == null)
+            {
+                stage=STAGE_ERROR;
+                error="null project entry while generating files";
+                break;
+            }
+            if (@convertedRaces[i] == null)
+            {
+                stage=STAGE_ERROR;
+                error="null converted race at position ["+i+"]";
+                break;
+            }
+            
+            convertedRaces[i].saveToResource(fileBeingWritten, projectEntry.resource_group);
+            topWrittenRace=int(i);
+            
+            //                    game.log('DBG GENFILES ['+i+']: saved file '+fileBeingWritten);
+            fileBeingWritten = "";
+            if (i == races.raceList.length()-1)
+            {
+                stage=STAGE_WRITETERRN2;
+            }
+            break;
+        }             
+    }
+}
+//#endregion
+
+//#region STAGE_WRITETERRN2
+void writeTerrn2()
+{
+    forceExportINI(convertedTerrn2);
     
     // delete original file (GenericDocument cannot overwrite)
     game.deleteResource(projectName+".terrn2", projectEntry.resource_group);
     
     // write out modified file
-    terrn2.saveToResource(projectName+".terrn2", projectEntry.resource_group);
+    convertedTerrn2.saveToResource(projectName+".terrn2", projectEntry.resource_group);
 }
 
 void forceExportINI(GenericDocumentClass@ doc)
@@ -471,93 +538,75 @@ void forceExportINI(GenericDocumentClass@ doc)
         ctx.moveNext();
     }
 }
+//#endregion
 
-void appendKeyValuePair( GenericDocContextClass@ ctx, string key, string value)
+
+
+
+void advanceImportOneStep()
 {
-    ctx.appendTokKeyword( key);
-    ctx.appendTokString(value);
-    ctx.appendTokLineBreak();
-}
-
-void appendKeyValuePair( GenericDocContextClass@ ctx, string key, int value)
-{
-    ctx.appendTokKeyword( key);
-    ctx.appendTokFloat(value);
-    ctx.appendTokLineBreak();
-}
-
-
-GenericDocumentClass@ convertSingleRace(raceBuilder@ race)
-{
-    GenericDocumentClass doc;
-    GenericDocContextClass ctx(doc);
-    
-    ctx.appendTokComment( " ~~ New 'race-def' format (file extension: .race). ~~");ctx.appendTokLineBreak();
-    ctx.appendTokComment( " Each race file specifies a single race");ctx.appendTokLineBreak();
-    ctx.appendTokComment( " In .terrn2 file, list the race files under new section [Races]");ctx.appendTokLineBreak();
-    ctx.appendTokComment( " Filenames must include extension and end with = (like scripts do)");ctx.appendTokLineBreak();
-    ctx.appendTokComment( " Race system supports alternating paths!");ctx.appendTokLineBreak();
-    ctx.appendTokComment( " Checkpoint format: checkpointNum(1+), altpathNum(1+), x, y, z, rotX, rotY, rotZ, objName(override, optional)");ctx.appendTokLineBreak();
-    ctx.appendTokComment( " By convention, the checkpoint meshes are oriented sideways (facing X axis)");ctx.appendTokLineBreak();
-    ctx.appendTokLineBreak();
-    
-    appendKeyValuePair(ctx, "race_name", race.raceName);
-    appendKeyValuePair(ctx, "race_laps", race.laps);
-    appendKeyValuePair(ctx, "race_checkpoint_object", race.exporterCheckpointObjName);
-    appendKeyValuePair(ctx, "race_start_object", race.exporterStartObjName);
-    appendKeyValuePair(ctx, "race_finish_object", race.exporterFinishObjName);
-    
-    ctx.appendTokLineBreak();
-    
-    ctx.appendTokKeyword( "begin_checkpoints");
-    
-    ctx.appendTokLineBreak();
-    
-    for (uint i=0; i < race.checkpoints.length(); i++)
+    switch (stage)
     {
-        uint numAltPaths = race.getRealInstanceCount(int(i));
-        for (uint j = 0; j < numAltPaths; j++)
+        case STAGE_INIT:
         {
-            ctx.appendTokFloat((i+1)); // checkpointNum (1+)
-            ctx.appendTokFloat((j+1)); // altpathNum (1+)
-            const double[] args = race.checkpoints[i][j];
-            ctx.appendTokFloat(args[0]); // pos X
-            ctx.appendTokFloat(args[1]); // pos Y
-            ctx.appendTokFloat(args[2]); // pos Z
-            ctx.appendTokFloat(args[3]); // rot X
-            ctx.appendTokFloat(args[4]); // rot Y
-            ctx.appendTokFloat(args[5]); // rot Z
-            string defaultObjName = (i==0) 
-            ? race.exporterStartObjName 
-            : (i==race.checkpoints.length()-1) ? race.exporterFinishObjName : race.exporterCheckpointObjName;
-            string actualObjName = race.objNames[i][j];
-            if (actualObjName != defaultObjName)
+            initializeRacesData();
+            stage = STAGE_CONVERT;
+            break;
+        }
+        case STAGE_PUSHMSG:
+        {
+            pushMsgRequestCreateProject();
+            stage = STAGE_GETPROJECT;
+            break;
+        }      
+        
+        case STAGE_GETPROJECT:
+        {
+            getProject();
+            break;
+        }
+        
+        case STAGE_CONVERT:
+        {
+            if (!convertNextRace())
             {
-                ctx.appendTokString(actualObjName);
+                stage = STAGE_FIXTERRN2;
             }
-            ctx.appendTokLineBreak();
-        }       
+            break;
+        }
+        
+        case STAGE_WRITERACES:
+        {
+            
+            writeNextRace();
+            break;
+        }
+        
+        case STAGE_FIXTERRN2:
+        {
+            fixupTerrn2Document();
+            stage = STAGE_IDLE;
+            break;
+        }
+        
+        case STAGE_WRITETERRN2:
+        {
+            writeTerrn2();
+            stage = STAGE_DONE;
+            break;
+        }
+        
+        default: 
+        break;        
     }
-    
-    ctx.appendTokKeyword( "end_checkpoints");
-    ctx.appendTokLineBreak();
-    
-    return doc;
 }
 
-void frameStep(float dt)
-{
-    // === DRAW UI ===
-    if (    ImGui::Begin("Race import", closeBtnHandler.windowOpen, /*flags:*/0))
-    {
-        // Draw the "Terminate this script?" prompt on the top (if not disabled by config).
-        closeBtnHandler.draw();
-        drawUI();
-        ImGui::End();
-    }
-    
-    
-    // === PERFORM IMPORT STEP ===
-    advanceImportOneStep();
-}
+
+
+
+
+
+
+
+
 
