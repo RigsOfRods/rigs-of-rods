@@ -65,6 +65,10 @@ void frameStep(float dt)
     && cvar_sistate.getInt() == 3 // terrain editor mode
     && cvar_mp_state.getInt() == 0) // singleplayer
     {
+		if (editorCam)
+		{
+			updateEditorCam();
+		}
         drawWindow();
         
         TerrainClass@ terrain = game.getTerrain();
@@ -122,6 +126,13 @@ void drawWindow()
             
             ImGui::EndTabItem();
         }
+		
+        if (ImGui::BeginTabItem("Camera"))
+        {
+            drawEditorCamUI();
+            
+            ImGui::EndTabItem();
+        }		
         
         ImGui::EndTabBar();
     }	
@@ -727,6 +738,54 @@ void setSelectedRoad(int road)
         }
     }
 }
+
+//#region EditorCam
+bool editorCam = true;
+vector2 edgeSize = vector2(75, 50);
+vector2 edgeMotion = vector2(0,0);
+vector3 editorCamPos = vector3(0,0,0);
+vector3 editorCamDirection = vector3(0,0,0);
+bool editorCamInit=false;
+float editorCamElevation=175.f; // meters above ground
+float editorCamSpeed = 2.5f;
+void updateEditorCam()
+{
+    if (!editorCamInit)
+    {
+        editorCamPos = game.getPersonPosition();
+        editorCamInit=true;
+    }
+    vector2 m = game.getMouseScreenPosition();
+    vector2 s = game.getDisplaySize();
+    // horizontal
+if (m.x < edgeSize.x) { edgeMotion.x = -1; }   else if (m.x > (s.x - edgeSize.x)) { edgeMotion.x = 1; }   else { edgeMotion.x = 0; }
+    // vertical
+if (m.y < edgeSize.y) {edgeMotion.y = -1;} else if (m.y > (s.y - edgeSize.y)) {edgeMotion.y=1;} else {edgeMotion.y=0;}
+    
+    // apply motion
+    editorCamPos.x += edgeMotion.x*editorCamSpeed;
+    editorCamPos.z += edgeMotion.y*editorCamSpeed;
+    // apply elevation
+    editorCamPos.y = game.getTerrain().getHandle().getHeightAt(editorCamPos.x, editorCamPos.z) + editorCamElevation;
+    //submit
+    game.setCameraPosition(editorCamPos);
+    // set orientation - pitch down 55degrees
+    vector3 X_AXIS(1,0,0);
+    radian pitchdown = degree(-55);
+    game.setCameraOrientation( quaternion( pitchdown, X_AXIS));
+}
+void drawEditorCamUI()
+{
+    ImGui::PushID("editorCamUI");
+    ImGui::Checkbox("EditorCam", editorCam);
+    if (editorCam)
+    {
+        ImGui::Text("edgeMotion: X="+formatFloat(edgeMotion.x, '', 2, 1) + ", Y=" + formatFloat(edgeMotion.y, '', 2, 1));
+        ImGui::SliderFloat("elevation", editorCamElevation, 1, 1000);
+    }
+    ImGui::PopID(); //editorCamUI
+}
+//#endregion
 
 /*
 ---------------------------------------------------------------------------
