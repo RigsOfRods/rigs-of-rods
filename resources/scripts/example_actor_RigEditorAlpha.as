@@ -4,8 +4,19 @@
 /// Written and auto-indented using script_editor.as!
 // ===================================================
 
+// Window [X] button handler
 #include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler; 
+
+// node/beam drawing
 #include "gridviewer_utils.as"
+gridviewer_utils::GridViewer viewer_x;
+gridviewer_utils::GridViewer viewer_y;
+gridviewer_utils:: GridViewer viewer_z; 
+
+// genericDoc editor
+#include "genericdoc_utils.as"
+genericdoc_utils::GenericDocEditor gdEditor;
 
 // ----- config -----
 
@@ -14,19 +25,16 @@ int m_statusbar_height_pixels = 25;
 // ---- variables -----
 
 GenericDocumentClass@ m_displayed_document = null;
-int m_hovered_token_pos = -1;
-int m_focused_token_pos = -1;
+
 string m_error_str;
 string m_project_creation_pending; // name of the truck file which will become available in modcache.
 CacheEntryClass@ m_project_entry;
-gridviewer_utils::GridViewer viewer_x;
-gridviewer_utils::GridViewer viewer_y;
-gridviewer_utils:: GridViewer viewer_z; 
+
 dictionary@ m_modcache_results = null;
 CacheEntryClass@ m_awaiting_load_bundle_entry = null;
 color node_color = color(0.8, 0.9, 0.2, 1.0);
 float node_radius = 1.f;    
-imgui_utils::CloseWindowPrompt closeBtnHandler; // Window [X] button handler
+
 
 // ---- functions ----
 
@@ -112,16 +120,16 @@ void drawWindow()
             {
                 if (@m_displayed_document != null)
                 {            
-                    drawDocumentBody();
+                    
+                    gdEditor.drawDocumentBody();
                 }
             }
             ImGui::EndChild(); // "docBody"
             
-            if ( m_focused_token_pos > -1)
-            {
-                ImGui::Separator();
-                drawTokenEditPanel();
-            }      
+            
+            ImGui::Separator();
+            gdEditor.drawTokenEditPanel();
+            
         }
         ImGui::EndChild(); // "leftPane"
         ImGui::SameLine();
@@ -311,6 +319,7 @@ void loadDocument()
         return;
     }
     @m_displayed_document = doc;
+    gdEditor.setDocument(m_displayed_document);
 }
 
 void loadAndFixupDocument()
@@ -348,114 +357,13 @@ void loadAndFixupDocument()
     if (!ctx.endOfFile(2)) {
         ctx.setTokFloat(2, 8990); // special "Project" category
     }
+    
+    gdEditor.setDocument(m_displayed_document);
 }
 
 // #endregion
 
-// #region Tokenized document drawing
 
-void drawDocumentBody()
-{    
-    ImGui::PushID("docBody");
-    bool hover_found = false;
-    
-    GenericDocContextClass reader(m_displayed_document);
-    while (!reader.endOfFile())
-    {
-        
-        switch (reader.tokenType())
-        {
-            // These tokens are always at start of line
-            case TOKEN_TYPE_KEYWORD: {
-                ImGui::TextColored(tokenColor(reader), reader.getTokKeyword());
-                break;
-            }
-            case TOKEN_TYPE_COMMENT: {
-                ImGui::TextColored(tokenColor(reader), ";" + reader.getTokComment());
-                break;
-            }
-            
-            // Linebreak is implicit in DearIMGUI, no action needed
-            case TOKEN_TYPE_LINEBREAK: {
-                if (reader.getPos() != 0 && reader.tokenType(-1) != TOKEN_TYPE_LINEBREAK)
-                {
-                    ImGui::SameLine();
-                }
-                ImGui::TextColored(tokenColor(reader), "<br>");
-                //  ImGui::SameLine();  ImGui::Text(""); // hack to fix highlight of last token on line.
-                break;
-            }
-            
-            // Other tokens come anywhere - delimiting logic is needed
-            default: {
-                if (reader.getPos() != 0 && reader.tokenType(-1) != TOKEN_TYPE_LINEBREAK)
-                {
-                    ImGui::SameLine();
-                    //    string delimiter = (reader.tokenType(-1) == TOKEN_TYPE_KEYWORD) ? " " : ", ";
-                    //    ImGui::Text(delimiter);
-                    //    ImGui::SameLine();
-                }
-            }
-            
-            switch (reader.tokenType())
-            {
-                case TOKEN_TYPE_STRING: {
-                    ImGui::TextColored(tokenColor(reader), "\"" + reader.getTokString() + "\"");
-                    break;
-                }
-                case TOKEN_TYPE_NUMBER: {
-                    ImGui::TextColored(tokenColor(reader), "" + reader.getTokFloat());
-                    break;
-                }
-                case TOKEN_TYPE_BOOL: {
-                    ImGui::TextColored(tokenColor(reader), ""+reader.getTokBool());
-                    break;
-                }
-            }
-        }
-        
-        if (ImGui::IsItemHovered()) { 
-            m_hovered_token_pos = reader.getPos() ;
-            hover_found = true;
-        }
-        
-        if (ImGui::IsItemClicked(0))
-        {
-            m_focused_token_pos = reader.getPos(); 
-        }
-        
-        reader.moveNext();
-        
-    }
-    
-    if (!hover_found) 
-    {
-        m_hovered_token_pos = -1;
-    }
-    
-    ImGui::PopID(); // "docBody"
-}
-
-void drawTokenEditPanel()
-{
-    GenericDocContextClass reader(m_displayed_document);
-    while (!reader.endOfFile() && (reader.getPos() != uint(m_focused_token_pos)))
-    {
-        reader.moveNext();
-    }
-    
-    if (reader.endOfFile())
-    {
-        ImGui::Text("EOF!!");
-    }
-    else
-    {
-        ImGui::TextDisabled("Token pos: "); ImGui::SameLine(); ImGui::Text("" + reader.getPos());
-        ImGui::TextDisabled("Token type: "); ImGui::SameLine(); ImGui::Text(tokenTypeStr(reader.tokenType()));
-    }
-}
-
-// #endregion
 
 // #region GridViewer node drawing
 
@@ -502,45 +410,7 @@ void drawNodes(gridviewer_utils::GridViewer @viewer)
 
 // #endregion
 
-// #region Token drawing helpers
-string tokenTypeStr(TokenType t)
-{
-    switch (t)
-    {
-        case TOKEN_TYPE_NUMBER: return "Number";
-        case TOKEN_TYPE_STRING: return "String";
-        case TOKEN_TYPE_BOOL:  return "Boolean";
-        case TOKEN_TYPE_COMMENT: return "Comment";
-        case TOKEN_TYPE_LINEBREAK: return "Line break";
-        case TOKEN_TYPE_KEYWORD: return "Keyword";
-    }
-    return "?";
-} 
 
-color tokenColor(GenericDocContextClass@ reader)
-{
-    if (m_focused_token_pos > -1 && reader.getPos() == uint(m_focused_token_pos))
-    {
-        return color(0.9f, 0.1f, 0.1f, 1.f);
-    }
-    
-    if (m_hovered_token_pos > -1 && reader.getPos() == uint(m_hovered_token_pos))
-    {
-        return color(0.1f, 1.f, 0.1f, 1.f);
-    }
-    
-    switch (reader.tokenType())
-    {
-        case TOKEN_TYPE_KEYWORD:        return color(1.f, 1.f, 0.f, 1.f);
-        case TOKEN_TYPE_COMMENT:        return color(0.5f, 0.5f, 0.5f, 1.f);
-        case TOKEN_TYPE_STRING:         return color(0.f, 1.f, 1.f, 1.f);
-        case TOKEN_TYPE_NUMBER:         return color(0.9, 0.9, 0.9, 1.f);
-        case TOKEN_TYPE_BOOL:           return color(1.f, 0.f, 1.f, 1.f);      
-        case TOKEN_TYPE_LINEBREAK:      return color(0.66f, 0.55f, 0.33f, 1.f);
-    }
-    return color(0.9, 0.9, 0.9, 1.f);
-}
-// #endregion
 
 // #region Event handling or polling
 void checkForCreatedProject()
