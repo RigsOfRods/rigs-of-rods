@@ -15,3 +15,4 @@ Special scripts:
 * 'base.as' - an include script for terrain, handles some basic object events.
 * 'races.as' - an include script for terrain, implements waypoint-based driving challenges.
 * 'AI.as' - a backend script for the "Vehicle AI" menu in top menubar. Spawns an AI-driven vehicle, as configured in the menu.
+* 'terrain_project_importer.as' - Launched automatically with terrain-editor mode with a read-only (ZIPped) terrain, provides info and import controls.
