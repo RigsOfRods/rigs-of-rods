@@ -37,8 +37,10 @@ namespace GUI {
 
 struct UserProfile
 {
+    int                 user_id;
     std::string         username;
     std::string         email;
+    std::string         avatar_url;
     Ogre::TexturePtr    avatar;
 };
 
@@ -48,17 +50,9 @@ struct UserAuthToken
     std::string         refresh_token;
 };
 
-const char* const ROUTE_LOGIN = "/login";
-const char* const ROUTE_LOGOUT = "/logout";
-const char* const ROUTE_REFRESH = "/refresh";
-
-class LoginBox:
-    public Ogre::WorkQueue::RequestHandler,
-    public Ogre::WorkQueue::ResponseHandler
+class LoginBox
 {
 public:
-    const Ogre::uint16                  WORKQUEUE_ROR_USERPROFILE_AVATAR = 1;
-
     LoginBox();
     ~LoginBox();
 
@@ -66,19 +60,23 @@ public:
     bool                                IsVisible() const { return m_is_visible; }
     void                                ShowError(std::string const& msg);
 
-    /// <summary>
-    /// 
-    /// </summary>
     void                                ConfirmTfa();
     void                                TriggerTfa();
     void                                NeedsTfa(std::vector<std::string> tfa_providers);
     void                                TfaTriggered();
 
     void                                Login();
+    void                                Logout();
     void                                Draw();
-    void                                UpdateUserProfile();
+    void                                FetchUserProfile();
+    void                                FetchUserProfileAvatar();
+    void                                UpdateUserProfile(UserProfile* data);
     void                                UpdateUserAuth(UserAuthToken* data);
+    void                                UpdateUserProfileAvatar(std::string file);
     void                                ValidateOrRefreshToken();
+
+    UserProfile                         GetUserProfile() { return m_user_profile; }
+    int                                 GetUserAuthStatus() const { return m_logged_in;  }
 
 private:
     bool                        m_is_visible = false;
@@ -96,7 +94,6 @@ private:
     bool                        m_logged_in = false; //< Local copy
     UserAuthToken               m_auth_tokens; //< Local copy
     UserProfile                 m_user_profile; //< Local copy
-    Ogre::uint16                m_ogre_workqueue_channel = 0;
 };
 
 }
