@@ -545,7 +545,9 @@ void writeNextRace()
 //#region STAGE_WRITETERRN2
 void writeTerrn2()
 {
-    forceExportINI(convertedTerrn2);
+	forceSpaceSeparatedNumbers(convertedTerrn2, "AmbientColor");
+	forceSpaceSeparatedNumbers(convertedTerrn2, "StartPosition");
+	forceExportINI(convertedTerrn2);
     
     // delete original file (GenericDocument cannot overwrite)
     game.deleteResource(projectName+".terrn2", projectEntry.resource_group);
@@ -557,6 +559,7 @@ void writeTerrn2()
 void forceExportINI(GenericDocumentClass@ doc)
 {
     // hack to force GenericDocument export INI: pass over all non-braced keywords and append = to them.
+	//^ because I'm lazy to add GENERICDOCUMENT_OPTION_EXPORT_INI_FORMAT or whatever.
     GenericDocContextClass ctx(doc); //reset context
     while (!ctx.endOfFile())
     {
@@ -647,8 +650,7 @@ void advanceImportOneStep()
 void ImSetNextWindowPosCenter(int flags=0)
 {
     vector2 DisplaySize = game.getDisplaySize();
-    ImGui::
-SetNextWindowPos(vector2(DisplaySize.x * 0.5f, DisplaySize.y * 0.5f), flags, vector2(0.5f, 0.5f)); 
+    ImGui::SetNextWindowPos(vector2(DisplaySize.x * 0.5f, DisplaySize.y * 0.5f), flags, vector2(0.5f, 0.5f)); 
 }
 
 
@@ -690,6 +692,47 @@ void updateTerrainNameInDocument()
             {
                 ctx.eraseToken();
             }
+        }
+        ctx.seekNextLine();
+    }
+}
+
+string trimStr(string s)
+{
+    uint start = 0;
+    uint len = s.length();
+    const string SPACE_STR=" ";
+    const uint SPACE_CHAR = SPACE_STR[0];
+    while (s[start] == SPACE_CHAR)
+    {
+        start++;
+        len--;
+    }
+    while(len > 0 && s[len-1] == SPACE_CHAR)
+    {
+        len--;
+    }
+    return s.substr(start, len);
+}
+
+void forceSpaceSeparatedNumbers(GenericDocumentClass@ doc, string keyword)
+{
+    // force space-separated numbers by actually converting them to string
+    // ^ HACK because I'm lazy to add GENERICDOCUMENT_OPTION_EXPORT_USE_SPACES or something...
+    GenericDocContextClass ctx(doc);
+    while (!ctx.endOfFile())
+    {
+        if (ctx.isTokKeyword() && trimStr(ctx.getTokKeyword()) == keyword)
+        {
+            ctx.moveNext();
+            string str = "";
+            while (!ctx.isTokLineBreak())
+            {
+                str += " " + ctx.getTokFloat();
+                ctx.eraseToken();
+            }
+            ctx.insertToken();
+            ctx.setTokString(0, str);
         }
         ctx.seekNextLine();
     }
