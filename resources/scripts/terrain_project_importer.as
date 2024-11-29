@@ -24,7 +24,7 @@ enum Stage // in order of processing
     STAGE_INIT, // detects races
     STAGE_CONVERT, // converts all races to GenericDocument race-defs
     STAGE_FIXTERRN2, // modify .terrn2 file - add [Races], remove [Scripts]
-    STAGE_IDLE, // Waiting for button press
+    STAGE_BUTTON, // Waiting for button press
     STAGE_PUSHMSG, // request game to create project
     STAGE_GETPROJECT, // fetch created project from modcache
     STAGE_WRITERACES,
@@ -42,6 +42,7 @@ array<string> convertedRaceFileNames;
 string fileBeingWritten = ""; 
 GenericDocumentClass@ convertedTerrn2;
 int topWrittenRace = -1;
+bool nameAlreadyExists = false;
 
 //#region Game Callbacks
 
@@ -109,24 +110,11 @@ void drawUI()
     
     switch(stage)
     {
-        case STAGE_IDLE:
+        case STAGE_BUTTON:
         {
-            if (@game.getTerrain() != null   )
-            {
-                ImGui::SetNextItemWidth(375);
-                if (ImGui::InputText("Project name", projectName))
-				{
-					updateTerrainNameInDocument();
-				}
-                
-                if (  ImGui::Button("Import terrain as project & convert races from script to terrn2 [Races]"))
-                {
-                    projectName = generateSafeFileName(projectName); // sanitize user input
-                    stage = STAGE_PUSHMSG;
-                }   
-            }
-            break;       
-        }     
+            drawConvertButton();
+            break;
+        }
         case STAGE_ERROR:
         {
             ImGui::Separator();
@@ -250,9 +238,21 @@ void drawDetectedRaces()
 
 //#endregion
 
-//#region STAGE_INIT
 void initializeRacesData()
 {
+    TerrainClass@ terrain = game.getTerrain();
+    
+    // generate unique name
+    projectName = generateSafeFileName(terrain.getTerrainName() + " [project]");
+    CacheEntryClass@ existingEntry = modcache.findEntryByFilename(LOADER_TYPE_TERRAIN, /*partial:*/false, projectName+'.terrn2');
+    int numExisting = 0;
+    while (@existingEntry != null)
+    {
+        numExisting++;
+        projectName = generateSafeFileName(terrain.getTerrainName() + " [project" + (numExisting+1) + "]");
+        @existingEntry = modcache.findEntryByFilename(LOADER_TYPE_TERRAIN, /*partial:*/false, projectName+'.terrn2');
+    }
+    
     // find the terrain script
     array<int> nids = game.getRunningScripts();
     int terrnScriptNid = -1;
@@ -295,9 +295,6 @@ void initializeRacesData()
         convertedRaces.insertLast(null);
         convertedRaceFileNames.insertLast(""); 
     }
-    
-    TerrainClass@ terrain = game.getTerrain();
-    projectName = generateSafeFileName(terrain.getTerrainName() + " [Races] ~"+thisScript);
 }
 //#endregion
 
@@ -453,7 +450,35 @@ void fixupTerrn2Document()
 }
 //#endregion
 
-// nothing for STAGE_IDLE
+// #region STAGE_BUTTON
+void drawConvertButton()
+{
+    TerrainClass@ terrain = game.getTerrain();
+    if (@terrain == null   )
+    {
+        ImGui::Text("ERROR - No terrain loaded!");
+        return;
+    }
+
+    ImGui::SetNextItemWidth(375);
+    if (ImGui::InputText("Project name", projectName))
+    {
+        projectName = generateSafeFileName(projectName); // convert user input to filename
+        CacheEntryClass@ existingEntry = modcache.findEntryByFilename(LOADER_TYPE_TERRAIN, /*partial:*/false, projectName+'.terrn2');
+        nameAlreadyExists = (@existingEntry != null);
+    }
+
+    if (nameAlreadyExists)
+    {
+        ImGui::TextColored(color(0.6, 0.8, 0.1, 1.0), "Name already exists");
+    }
+    else if (ImGui::Button("Import terrain as project & convert races from script to terrn2 [Races]"))
+    {
+        updateTerrainNameInDocument(); // update terrn2 name from user input
+        stage = STAGE_PUSHMSG;
+    }
+}
+//#endregion
 
 //#region STAGE_PUSHMSG
 void pushMsgRequestCreateProject()
@@ -640,7 +665,7 @@ void advanceImportOneStep()
         case STAGE_FIXTERRN2:
         {
             fixupTerrn2Document();
-            if (stage != STAGE_ERROR) { stage = STAGE_IDLE; }
+            if (stage != STAGE_ERROR) { stage = STAGE_BUTTON; }
             break;
         }
 
