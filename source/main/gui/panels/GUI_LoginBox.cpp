@@ -29,6 +29,7 @@
 #include "GUIManager.h"
 #include "GUIUtils.h"
 #include "AppContext.h"
+#include "PlatformUtils.h"
 #include "Language.h"
 #include "RoRVersion.h"
 
@@ -61,6 +62,102 @@ static size_t CurlWriteFunc(void* ptr, size_t size, size_t nmemb, std::string* d
     return size * nmemb;
 }
 
+static size_t CurlOgreDataStreamWriteFunc(char* data_ptr, size_t _unused, size_t data_length, void* userdata)
+{
+    Ogre::DataStream* ogre_datastream = static_cast<Ogre::DataStream*>(userdata);
+    if (data_length > 0 && ogre_datastream->isWriteable())
+    {
+        return ogre_datastream->write((const void*)data_ptr, data_length);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+void GetUserProfileAvatarTask(int user_id, std::string avatar_url)
+{
+    // The avatar URL may not be of *.rigsofrods.org, as it may also be a gravatar.
+    std::string user_agent = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
+    std::string filename = std::to_string(user_id) + ".png";
+    std::string file = PathCombine(App::sys_avatar_dir->getStr(), filename);
+    long response_code = 0;
+
+    CURL* curl = curl_easy_init();
+    Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().createResource(file, RGN_AVATAR);
+
+    curl_easy_setopt(curl, CURLOPT_URL, avatar_url.c_str());
+    curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+#ifdef _WIN32
+    curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif // _WIN32
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlOgreDataStreamWriteFunc);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, datastream.get());
+
+    CURLcode curl_result = curl_easy_perform(curl);
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
+    if (curl_result != CURLE_OK || response_code != 200)
+    {
+        Ogre::LogManager::getSingleton().stream()
+            << "[RoR|UserAuthManager] Failed to download user avatar, player will have a default avatar"
+            << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+    }
+
+    curl_easy_cleanup(curl);
+    curl = nullptr;
+    // sweep sweep
+    // send back the file saved to the request queue
+    // so wecan update the user icon on the fly
+    App::GetGameContext()->PushMessage(Message(MSG_NET_USERPROFILE_AVATAR_FINISHED, file));
+}
+
+void UserAuthInvalidateTokenTask()
+{
+    std::string auth_header = std::string("Authorization: Bearer ") + App::remote_login_token->getStr();
+    std::string user_agent = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
+    std::string url = App::remote_query_url->getStr() + "/auth/logout";
+    std::string response_payload;
+    std::string response_header;
+    long response_code = 0;
+
+    struct curl_slist* slist;
+    slist = NULL;
+    slist = curl_slist_append(slist, "Accept: application/json");
+    slist = curl_slist_append(slist, "Content-Type: application/json");
+    slist = curl_slist_append(slist, auth_header.c_str());
+
+    CURL* curl = curl_easy_init();
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // todo api url + endpoint
+#ifdef _WIN32
+    curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif // _WIN32
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteFunc);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_payload);
+    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &response_header);
+
+    CURLcode curl_result = curl_easy_perform(curl);
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
+    curl_easy_cleanup(curl);
+    curl = nullptr;
+    slist = NULL;
+
+    rapidjson::Document j_data_doc;
+    j_data_doc.Parse(response_payload.c_str());
+
+    if (curl_result != CURLE_OK || response_code != 200)
+    {
+        Ogre::LogManager::getSingleton().stream()
+            << "[RoR|UserAuthManager] Failed invalidate user tokens, the player's user profile will still be deleted;"
+            << " Error: '" << curl_easy_strerror(curl_result) << "'; HTTP status code: " << response_code;
+        return;
+    }
+
+    // job done
+}
+
 void GetUserProfileTask()
 {
     std::string auth_header = std::string("Authorization: Bearer ") + App::remote_login_token->getStr();
@@ -78,7 +175,11 @@ void GetUserProfileTask()
 
     CURL* curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // todo api url + endpoint
+#ifdef _WIN32
+    curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif // _WIN32
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWriteFunc);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_payload);
     curl_easy_setopt(curl, CURLOPT_HEADERDATA, &response_header);
 
@@ -89,8 +190,8 @@ void GetUserProfileTask()
     curl = nullptr;
     slist = NULL;
 
-    rapidjson::Document j_response_body;
-    j_response_body.Parse(response_payload.c_str());
+    rapidjson::Document j_data_doc;
+    j_data_doc.Parse(response_payload.c_str());
 
     if (curl_result != CURLE_OK || response_code != 200)
     {
@@ -101,9 +202,16 @@ void GetUserProfileTask()
     }
 
     GUI::UserProfile* user_profile_ptr = new GUI::UserProfile();
+    rapidjson::Value& j_response_body = j_data_doc["me"];
+    user_profile_ptr->username = j_response_body["username"].GetString();
+    user_profile_ptr->avatar_url = j_response_body["avatar_urls"]["o"].GetString(); // Consider all sizes, later
+    user_profile_ptr->email = j_response_body["email"].GetString();
+    user_profile_ptr->user_id = j_response_body["user_id"].GetInt();
+    user_profile_ptr->avatar = Ogre::TexturePtr();
 
-    // this could be a success, of sorts
-    return;
+    App::GetGameContext()->PushMessage(
+        Message(MSG_NET_USERPROFILE_FINISHED,
+            static_cast<void*>(user_profile_ptr)));
 }
 
 void ValidateOrRefreshTokenTask(std::string login_token, std::string refresh_token)
@@ -220,13 +328,13 @@ void UserAuthWithTfaTask(std::string login, std::string passwd, std::string prov
     rapidjson::Document j_response_body;
     j_response_body.Parse(response_payload.c_str());
 
-    if (j_response_body.HasParseError() || !j_response_body.IsObject())
-    {
-        App::GetGameContext()->PushMessage(
-            Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry."))
-        );
-        return;
-    }
+    //if (j_response_body.HasParseError() || !j_response_body.IsObject())
+    //{
+    //    App::GetGameContext()->PushMessage(
+    //        Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry."))
+    //    );
+    //    return;
+    //}
 
     if (response_code == 400) // a failure, bad tfa code
     {
@@ -307,7 +415,7 @@ void PostAuthTriggerTfa(std::string login, std::string passwd, std::string provi
     App::GetGameContext()->PushMessage(Message(MSG_NET_USERAUTH_TFA_TRIGGERED));
 }
 
-void PostAuth(std::string login, std::string passwd)
+void UserAuthTask(std::string login, std::string passwd)
 {
     rapidjson::Document j_request_body;
     j_request_body.SetObject();
@@ -352,13 +460,13 @@ void PostAuth(std::string login, std::string passwd)
     rapidjson::Document j_response_body;
     j_response_body.Parse(response_payload.c_str());
 
-    if (j_response_body.HasParseError() || !j_response_body.IsArray())
-    {
-        App::GetGameContext()->PushMessage(
-            Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry."))
-        );
-        return;
-    }
+    //if (j_response_body.HasParseError() || !j_response_body.IsArray())
+    //{
+    //    App::GetGameContext()->PushMessage(
+    //        Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry."))
+    //    );
+    //    return;
+    //}
 
     if (response_code == 400)
     {
@@ -411,12 +519,7 @@ void PostAuth(std::string login, std::string passwd)
 
 LoginBox::LoginBox()
     : m_base_url(App::remote_query_url->getStr() + "/auth")
-{
-    Ogre::WorkQueue* wq = Ogre::Root::getSingleton().getWorkQueue();
-    m_ogre_workqueue_channel = wq->getChannel("RoR/UserAvatars");
-    wq->addRequestHandler(m_ogre_workqueue_channel, this);
-    wq->addResponseHandler(m_ogre_workqueue_channel, this);
-}
+{ }
 
 LoginBox::~LoginBox()
 {}
@@ -522,8 +625,17 @@ void LoginBox::Login()
     std::string login(m_login);
     std::string passwd(m_passwd);
 
-    std::packaged_task<void(std::string, std::string)> task(PostAuth);
+    std::packaged_task<void(std::string, std::string)> task(UserAuthTask);
     std::thread(std::move(task), login, passwd).detach();
+#endif
+}
+
+void LoginBox::Logout()
+{
+#if defined(USE_CURL)
+    std::thread([] {
+        UserAuthInvalidateTokenTask();
+        }).detach();
 #endif
 }
 
@@ -537,17 +649,37 @@ void LoginBox::UpdateUserAuth(UserAuthToken* data)
     }
 }
 
-void LoginBox::UpdateUserProfile()
+void LoginBox::FetchUserProfile()
 {
 #if defined(USE_CURL)
     std::thread(GetUserProfileTask).detach();
 #endif // defined(USE_CURL)
 }
 
+void LoginBox::FetchUserProfileAvatar()
+{
+#if defined(USE_CURL)
+    std::packaged_task<void(int, std::string)> task(GetUserProfileAvatarTask);
+    std::thread(std::move(task), m_user_profile.user_id, m_user_profile.avatar_url).detach();
+#endif // defined(USE_CURL)
+}
+
+void LoginBox::UpdateUserProfile(UserProfile* data)
+{
+    m_user_profile = *data;
+}
+
 void LoginBox::ShowError(std::string const& msg)
 {
     m_loading = false;
     m_errors = msg;
+}
+
+void LoginBox::UpdateUserProfileAvatar(std::string file)
+{
+    // runs on main thread? yes. thread safe? no
+    m_user_profile.avatar = FetchIcon(file.c_str());
+    m_user_profile.avatar->load();
 }
 
 void LoginBox::ConfirmTfa()
@@ -602,7 +734,7 @@ void LoginBox::TfaTriggered()
 void LoginBox::ValidateOrRefreshToken()
 {
 #if defined(USE_CURL)
-    m_loading = true;
+    //m_loading = true;
 
     std::packaged_task<void(std::string, std::string)> task(ValidateOrRefreshTokenTask);
     std::thread(
