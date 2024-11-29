@@ -278,8 +278,7 @@ void initializeRacesData()
     int result = game.getScriptVariable(terrnScriptNid, 'races', races);
     if (result < 0)
     {
-        stage = STAGE_ERROR;
-        error = " game.getScriptVariable() returned "+result;
+        // there are no races (race system not even loaded by the terrain script).
         return;
     }
     
@@ -496,6 +495,13 @@ void getProject()
 //#region STAGE_WRITERACES
 void writeNextRace()
 {
+	if (races.raceList.length() == 0)
+	{
+	    // write terrain anyway because of updated Name=
+		stage=STAGE_WRITETERRN2;
+		return;
+	}
+
     for (uint i=0; i < races.raceList.length(); i++)
     {
         if (int(i) <= topWrittenRace)
