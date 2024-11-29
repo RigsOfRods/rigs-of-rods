@@ -168,9 +168,16 @@ shared class racesManager {
 		game.registerForEvent(SE_ANGELSCRIPT_MANIPULATIONS);
 		
 		// add the eventcallback method if it doesn't exist
-		if(game.scriptFunctionExists("void eventCallback(int, int)")<0)
-			game.addScriptFunction("void eventCallback(int key, int value) { races.eventCallback(key, value); }");
-			
+		// ^ but only if loaded from terrain script, not i.e. terrain_project_importer
+		dictionary@ scriptDetails = game.getScriptDetails(thisScript);
+		if (@scriptDetails != null 
+			&& ScriptCategory(scriptDetails['scriptCategory']) == SCRIPT_CATEGORY_TERRAIN)
+		{
+			if( game.scriptFunctionExists("void eventCallback(int, int)")<0)
+			{
+				game.addScriptFunction("void eventCallback(int key, int value) { races.eventCallback(key, value); }");
+			}
+		}
 		
 		// Load the file containing the race data
 		@this.raceDataFile = LocalStorageClass("raceTimes");
