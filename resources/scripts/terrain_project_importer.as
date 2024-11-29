@@ -567,6 +567,19 @@ void writeTerrn2()
     
     // delete original file (GenericDocument cannot overwrite)
     game.deleteResource(projectName+".terrn2", projectEntry.resource_group);
+	
+	// delete also all other .terrn2 files in the project - typically FPS variants.
+	array<dictionary> terrn2files = game.findResourceFileInfo(projectEntry.resource_group, "*.terrn2");
+	for (uint i=0; i<terrn2files.length(); i++)
+	{
+		game.deleteResource(string(terrn2files[i]['filename']), projectEntry.resource_group);
+	}
+	// while at it, delete also .terrn (no longer supported format, left for reference during converting and testing).
+	array<dictionary> terrn1files = game.findResourceFileInfo(projectEntry.resource_group, "*.terrn");
+	for (uint i=0; i<terrn1files.length(); i++)
+	{
+		game.deleteResource(string(terrn1files[i]['filename']), projectEntry.resource_group);
+	}
     
     // write out modified file
     convertedTerrn2.saveToResource(projectName+".terrn2", projectEntry.resource_group);
