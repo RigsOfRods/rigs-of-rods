@@ -78,14 +78,17 @@ void frameStep(float dt)
     // === PERFORM IMPORT STEP ===
     advanceImportOneStep();
     
-    // == handle close action ==
-    if (closeBtnHandlerUnique.exitRequested)
+    // == handle close conditions ==
+    if (closeBtnHandlerUnique.exitRequested) // window X close button
     {
         //  also exit terrain-editor mode on script close
-    game.pushMessage(MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED, {  });
-game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, {  {'id', thisScript}  }); // `thisScript` is global variable set by the game.    
-        
+		game.pushMessage(MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED, {  });
+		game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, {  {'id', thisScript}  }); // `thisScript` is global variable set by the game.    
     }
+	if (console.cVarGet("sim_state", CVAR_TYPE_INT).getInt() != 3) // game left EDITOR_MODE
+	{
+		game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, {  {'id', thisScript}  }); // `thisScript` is global variable set by the game.    
+	}
     
 }
 
