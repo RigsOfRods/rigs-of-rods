@@ -77,7 +77,6 @@ void Console::cVarSetupBuiltins()
 
     App::remote_query_url        = this->cVarCreate("remote_query_url",        "",                           CVAR_ARCHIVE,                     "https://v2.api.rigsofrods.org");
 
-    App::diag_auto_spawner_report= this->cVarCreate("diag_auto_spawner_report","AutoActorSpawnerReport",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_camera             = this->cVarCreate("diag_camera",             "Camera Debug",               CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_rig_log_node_import= this->cVarCreate("diag_rig_log_node_import","RigImporter_LogAllNodes",    CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::diag_rig_log_node_stats = this->cVarCreate("diag_rig_log_node_stats", "RigImporter_LogNodeStats",   CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
