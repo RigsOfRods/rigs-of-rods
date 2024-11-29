@@ -607,55 +607,52 @@ void advanceImportOneStep()
  }
             break;
         }
+
         case STAGE_PUSHMSG:
         {
             pushMsgRequestCreateProject();
         if (stage != STAGE_ERROR) { stage = STAGE_GETPROJECT;
  }
             break;
-        }      
-        
+        }
+
         case STAGE_GETPROJECT:
         {
             getProject();
             break;
         }
-        
+
         case STAGE_CONVERT:
         {
             if (!convertNextRace())
             {
-            if (stage != STAGE_ERROR) { stage = STAGE_FIXTERRN2;
- }
+                if (stage != STAGE_ERROR) { stage = STAGE_FIXTERRN2; }
             }
             break;
         }
-        
+
         case STAGE_WRITERACES:
         {
-            
             writeNextRace();
             break;
         }
-        
+
         case STAGE_FIXTERRN2:
         {
             fixupTerrn2Document();
-        if (stage != STAGE_ERROR) { stage = STAGE_BUTTON;
- }
+            if (stage != STAGE_ERROR) { stage = STAGE_IDLE; }
             break;
         }
-        
+
         case STAGE_WRITETERRN2:
         {
             writeTerrn2();
-        if (stage != STAGE_ERROR) { stage = STAGE_DONE;
- }
+            if (stage != STAGE_ERROR) { stage = STAGE_DONE; }
             break;
         }
-        
-        default: 
-        break;        
+
+        default:
+        break;
     }
 }
 
