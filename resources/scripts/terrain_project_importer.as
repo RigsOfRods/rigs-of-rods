@@ -589,51 +589,51 @@ void advanceImportOneStep()
             stage = STAGE_CONVERT;
             break;
         }
+
         case STAGE_PUSHMSG:
         {
             pushMsgRequestCreateProject();
             stage = STAGE_GETPROJECT;
             break;
-        }      
-        
+        }
+
         case STAGE_GETPROJECT:
         {
             getProject();
             break;
         }
-        
+
         case STAGE_CONVERT:
         {
             if (!convertNextRace())
             {
-                stage = STAGE_FIXTERRN2;
+                if (stage != STAGE_ERROR) { stage = STAGE_FIXTERRN2; }
             }
             break;
         }
-        
+
         case STAGE_WRITERACES:
         {
-            
             writeNextRace();
             break;
         }
-        
+
         case STAGE_FIXTERRN2:
         {
             fixupTerrn2Document();
-            stage = STAGE_IDLE;
+            if (stage != STAGE_ERROR) { stage = STAGE_IDLE; }
             break;
         }
-        
+
         case STAGE_WRITETERRN2:
         {
             writeTerrn2();
-            stage = STAGE_DONE;
+            if (stage != STAGE_ERROR) { stage = STAGE_DONE; }
             break;
         }
-        
-        default: 
-        break;        
+
+        default:
+        break;
     }
 }
 
