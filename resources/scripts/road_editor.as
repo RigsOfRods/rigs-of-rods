@@ -29,47 +29,35 @@ CVarClass@ cvar_mp_state = console.cVarFind("mp_state"); // 0=disabled, 1=connec
 // Main window
 imgui_utils::CloseWindowPrompt closeBtnHandler;
 
-// Road panel
-int selected_road = 0;
-int selected_point = 0;
-int hovered_point = 0;
-float selected_point_elevation = 0.f;
-float hovered_point_elevation = 0.f;  
-bool selected_point_auto_goto = false;
 
-// Waypoints panel
-int ai_import_first = 0;
-int ai_import_last = 0;
-int ai_import_available = 0;
-bool ai_import_reverse = false;
-int ai_export_first = 0;
-int ai_export_last = 0;
-bool ai_export_reverse = false;
 
-// Mesh generation panel
-float global_extra_point_elevation = 0; // Added to all points
-float global_min_point_elevation = 0.3; // Added to lower points
 
-//    ---------------------------------------------------------------------------
-//    Script setup function - invoked by game once when script is loaded.
+
+
+//#region Game callbacks
+
 void main()
 {
+    //    Script setup function - invoked by game once when script is loaded.
+    //    ---------------------------------------------------------------------------
     log("Road editor loaded! Enter terrain editing mode (hotkey: " + inputs.getEventCommandTrimmed(EV_COMMON_TOGGLE_TERRAIN_EDITOR) + ") to use it.");
 }
 
-//    ---------------------------------------------------------------------------
-//    Script update function - invoked once every rendered frame, with elapsed time (delta time, in seconds) as parameter.
+
 void frameStep(float dt)
 {
+    //    Script update function - invoked once every rendered frame, with elapsed time (delta time, in seconds) as parameter.
+    //    ---------------------------------------------------------------------------
+    
     if (cvar_app_state.getInt() == 2 // simulation
     && cvar_sistate.getInt() == 3 // terrain editor mode
     && cvar_mp_state.getInt() == 0) // singleplayer
     {
-		if (editorCam)
-		{
-			updateEditorCam();
-		}
-        drawWindow();
+        if (editorCam)
+        {
+            updateEditorCam();
+        }
+        drawMainWindow();
         
         TerrainClass@ terrain = game.getTerrain();
         ProceduralManagerClass@ roads = terrain.getProceduralManager();
@@ -86,59 +74,96 @@ void frameStep(float dt)
             }
         }
         visualizeRoad();
-        updateInputEvents();
+        updateMeshRebuildInputEvents();
+        updateEditRoadInputEvents();
     }
 }
 
-//    ---------------------------------------------------------------------------
-//    Editor functions
+//#endregion
 
-void drawWindow()
+//#region Main window
+void drawMainWindow()
 {
-    // Open demo window
-    ImGui::SetNextWindowPos(vector2(25, 120)); // Make space for FPS box.
-    int flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse; 
-    if (!ImGui::Begin("Road editor", closeBtnHandler.windowOpen, flags))
+    int flags = ImGuiWindowFlags_NoCollapse; 
+    if (ImGui::Begin("Road editor", closeBtnHandler.windowOpen, flags))
     {
-        return;
-    }
-    closeBtnHandler.draw();  // draw the "terminate script?" proompt?
-    ImGui::Dummy(vector2(200.f, 1.f)); // force width
-    
-    int barflags = 0;
-    if (ImGui::BeginTabBar("Road editor tabs", barflags))
-    {
-        if (ImGui::BeginTabItem("Roads"))
+        
+        closeBtnHandler.draw();  // draw the "terminate script?" proompt?
+        ImGui::Dummy(vector2(200.f, 1.f)); // force width
+        
+        int barflags = 0;
+        if (ImGui::BeginTabBar("Road editor tabs", barflags))
         {
-            if (ImGui::CollapsingHeader("Road list"))
+            if (ImGui::BeginTabItem("Manage roads"))
             {
                 drawRoadListPanel();
+                ImGui::EndTabItem();
             }
-            ImGui::Separator();
-            drawRoadEditPanel();
             
-            ImGui::EndTabItem();
-        }
+            if (ImGui::BeginTabItem("Edit road"))
+            {
+                drawRoadEditPanel();                
+                ImGui::EndTabItem();
+            }
+            
+            if (ImGui::BeginTabItem("Mesh rebuild"))
+            {
+                
+                drawMeshRebuildPanel();
+                
+                ImGui::EndTabItem();
+            }    
+            
+            if (ImGui::BeginTabItem("AI Waypoints"))
+            {
+                drawAiWaypointsPanel();                
+                ImGui::EndTabItem();
+            }
+            
+            if (ImGui::BeginTabItem("Camera"))
+            {
+                drawEditorCamUI();
+                
+                ImGui::EndTabItem();
+            }		
+            
+            ImGui::EndTabBar();
+        }	
         
-        if (ImGui::BeginTabItem("AI Waypoints"))
+        // End window
+        ImGui::End();
+    }
+}
+//#endregion
+
+//#region Edit road tab
+int selected_point = 0; // use `setSelectedPoint()`
+int hovered_point = 0;
+float selected_point_elevation = 0.f;
+float hovered_point_elevation = 0.f;  
+bool selected_point_auto_goto = false;
+
+void setSelectedPoint(int point)
+{
+    if (point != selected_point)
+    {
+        selected_point = point;
+        if (selected_point_auto_goto)
         {
-            drawAiWaypointsPanel();
+            TerrainClass@ terrain = game.getTerrain();
+            ProceduralManagerClass@ proc_mgr = terrain.getProceduralManager();
+            ProceduralObjectClass@ proc_obj = proc_mgr.getObject(selected_road);
             
-            ImGui::EndTabItem();
+            goToPoint(proc_obj, selected_point);
         }
-		
-        if (ImGui::BeginTabItem("Camera"))
-        {
-            drawEditorCamUI();
-            
-            ImGui::EndTabItem();
-        }		
-        
-        ImGui::EndTabBar();
-    }	
-    
-    // End window
-    ImGui::End();
+    }
+}
+
+void goToPoint(ProceduralObjectClass@ obj, int point_idx)
+{
+    ProceduralPointClass@ point = obj.getPoint(point_idx);
+    game.setPersonPosition(point.position);
+    game.setPersonRotation(point.rotation.getYaw()); // I have no idea if this is correct.
 }
 
 void drawRoadEditPanel()
@@ -191,10 +216,7 @@ void drawRoadEditPanel()
             drawPointPropertiesPanel(obj);
         }              
         
-        if (ImGui::CollapsingHeader("Mesh rebuild"))
-        {
-            drawMeshRebuildPanel(obj);
-        }         
+        
     }
     ImGui::PopID(); // "road edit box"
 }
@@ -252,11 +274,85 @@ void drawPointPropertiesPanel(ProceduralObjectClass@ obj)
     ImGui::PopID(); //"point properties"
 }
 
-void drawMeshRebuildPanel(ProceduralObjectClass@ obj)
+void addPointToCurrentRoad(vector3 pos)
 {
+    ProceduralObjectClass@ obj = game.getTerrain().getHandle().getProceduralManager().getHandle().getObject(selected_road);
+    
+    ProceduralPointClass@ point = ProceduralPointClass();
+    if (obj.getNumPoints() > 0)
+    {
+        ProceduralPointClass@ template = obj.getPoint(selected_point);
+        point.type = template.type;
+        point.pillar_type = template.pillar_type;
+        point.width = template.width;
+        point.border_width = template.border_width;
+        point.border_height = template.border_height;
+    }
+    point.position = pos;            
+    
+    if (obj.getNumPoints() == 0 || selected_point == obj.getNumPoints() - 1)
+    {
+        obj.addPoint(point);
+        selected_point = obj.getNumPoints() - 1;
+    }
+    else
+    {
+        obj.insertPoint(selected_point, point);
+    }
+}  
+
+void deletePointFromCurrentRoad(int pos)
+{
+    ProceduralObjectClass@ obj = game.getTerrain().getHandle().getProceduralManager().getHandle().getObject(selected_road);
+    
+    obj.deletePoint(pos);
+    if (pos >= obj.getNumPoints())
+    {
+        if (obj.getNumPoints() > 0)
+        setSelectedPoint(obj.getNumPoints() - 1);
+        else
+        selected_point = 0;
+    }
+}
+
+void updateEditRoadInputEvents()
+{
+    TerrainClass@ terrain = game.getTerrain();
+    ProceduralManagerClass@ roads = terrain.getProceduralManager();
+    ProceduralObjectClass@ obj = roads.getObject(selected_road);    
+    
+    vector3 mouse_tpos;
+    if (inputs.getEventBoolValue(EV_ROAD_EDITOR_POINT_SET_POS)
+    && game.getMousePositionOnTerrain(mouse_tpos))
+    {
+        // Y is 'up'.
+        ProceduralPointClass@ pp = obj.getPoint(selected_point);
+        //vector3 old_pos = pp.position;
+        vector3 new_pos = mouse_tpos + vector3(0,selected_point_elevation,0);
+        //game.log("Updating road '"+obj.getName()+"', point '"+selected_point+"' position to X:"+new_pos.x+" Y:"+new_pos.y+" Z:"+new_pos.z+" (previously X:"+old_pos.x+" Y:"+old_pos.y+" Z:"+old_pos.z+")");
+        pp.position = new_pos;
+    }
+}
+
+//#endregion
+
+//#region Mesh rebuild tab
+float global_extra_point_elevation = 0; // Added to all points
+float global_min_point_elevation = 0.3; // Added to lower points
+
+void drawMeshRebuildPanel()
+{
+    TerrainClass@ terrain = game.getTerrain();
+    ProceduralManagerClass@ roads = terrain.getProceduralManager();
+    ProceduralObjectClass@ obj = roads.getObject(selected_road);
+    if (@obj == null)
+    {
+        ImGui::Text("No road selected!");
+        return;
+    }
+    
     ImGui::PushID("mesh rebuild");
     
-    ProceduralManagerClass@ roads = game.getTerrain().getHandle().getProceduralManager();
     
     if (obj.getNumPoints() > 0)
     {
@@ -281,6 +377,19 @@ void drawMeshRebuildPanel(ProceduralObjectClass@ obj)
     }
     
     ImGui::PopID(); //"mesh rebuild"
+}
+
+void rebuildMesh(ProceduralObjectClass@ obj)
+{
+    ProceduralManagerClass@ roads = game.getTerrain().getHandle().getProceduralManager();
+    
+    roads.removeObject(obj); // Clears the existing mesh
+    recalculatePointElevations(obj);
+    recalculatePointRotations(obj);
+    roads.addObject(obj); // Generates new mesh
+    // Because we removed and re-added the ProceduralObject from/to the manager,
+    // it got new index, so our selection is invalid. Update it.
+    setSelectedRoad(roads.getNumObjects() - 1);
 }
 
 void recalculatePointElevations(ProceduralObjectClass@ obj)
@@ -337,6 +446,41 @@ void recalculatePointRotations(ProceduralObjectClass@ obj)
     }
 }
 
+void updateMeshRebuildInputEvents()
+{
+    TerrainClass@ terrain = game.getTerrain();
+    ProceduralManagerClass@ roads = terrain.getProceduralManager();
+    ProceduralObjectClass@ obj = roads.getObject(selected_road);    
+    
+    if (inputs.getEventBoolValueBounce(EV_ROAD_EDITOR_REBUILD_MESH))
+    {
+        rebuildMesh(obj);
+    }
+}
+
+//#endregion
+
+//#region Manage roads tab
+int selected_road = 0; // only for reading - use `setSelectedRoad()`
+
+void setSelectedRoad(int road)
+{
+    if (road != selected_road)
+    {
+        selected_road = road;
+        ProceduralObjectClass@ obj = game.getTerrain().getHandle().getProceduralManager().getHandle().getObject(selected_road);
+        // AI export panel
+        ai_export_first = min(ai_export_first, obj.getNumPoints() - 1);
+        ai_export_last = min(ai_export_last, obj.getNumPoints() - 1);
+        // Selected point
+        int new_selected_point = clamp(0, selected_point, obj.getNumPoints());
+        if (selected_point != new_selected_point)
+        {
+            setSelectedPoint(new_selected_point);
+        }
+    }
+}
+
 void drawRoadListPanel()
 {
     // Basic info - num procedural objects and [+] button
@@ -379,10 +523,24 @@ void drawRoadListPanel()
     }
 }
 
+//#endregion
+
+//#region AI Waypoints tab
+int ai_import_first = 0;
+int ai_import_last = 0;
+int ai_import_available = 0;
+bool ai_import_reverse = false;
+int ai_export_first = 0;
+int ai_export_last = 0;
+bool ai_export_reverse = false;
+
 void drawAiWaypointsExportPanel(ProceduralObjectClass@ obj)
 {
+    //Export road points as waypoints to survey map
+    // -----------------------
+    
     ImGui::PushID("ai export");
-    ImGui::Text("Export road points as waypoints to survey map");
+    
     
     if (obj.getNumPoints() > 0)
     {
@@ -427,9 +585,12 @@ void drawAiWaypointsExportPanel(ProceduralObjectClass@ obj)
 
 void drawAiWaypointsImportPanel(ProceduralObjectClass@ obj)
 {
+    //Import road points from AI waypoints in survey map
+    // ---------------------------------------------
+    
     ImGui::PushID("ai import");
     
-    ImGui::Text("Import road points from AI waypoints in survey map");
+    
     array<vector3> waypoints = game.getWaypoints(0);
     
     // Resize range sliders if needed
@@ -485,16 +646,28 @@ void drawAiWaypointsImportPanel(ProceduralObjectClass@ obj)
 void drawAiWaypointsPanel()
 {
     ImGui::PushID("waypoints panel");
-    ImGui::TextDisabled("This tool lets you convert between\nprocedural road points and AI waypoints\n(editable using survey map).");
+    ImGui::TextDisabled("This tool lets you convert between procedural road points and AI waypoints (editable using survey map).");
     TerrainClass@ terrain = game.getTerrain();
     ProceduralManagerClass@ roads = terrain.getProceduralManager();
     if (roads.getNumObjects() > 0)
     {
         ProceduralObjectClass@ obj = roads.getObject(selected_road);
-        ImGui::Separator();
-        drawAiWaypointsExportPanel(obj);
-        ImGui::Separator();
-        drawAiWaypointsImportPanel(obj);
+        int barflags = 0;
+        if (ImGui::BeginTabBar("AI tabs", barflags))
+        {
+            if (ImGui::BeginTabItem("Export road as AI waypoints"))
+            {
+                drawAiWaypointsExportPanel(obj);
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("Import AI waypoints as road"))
+            {
+                drawAiWaypointsImportPanel(obj);
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
+        }
+        
     }
     else
     {
@@ -503,6 +676,56 @@ void drawAiWaypointsPanel()
     
     ImGui::PopID(); // "waypoints panel"
 }
+
+// #endregion
+
+//#region Road gizmos
+
+float cfgGizmoPointRadius = 6.f;
+int cfgGizmoPointNumSegments = 10;
+color cfgGizmoPointHoveredColor = color(1.f, 0.6f, 0.3f, 0.75f);
+color cfgGizmoPointSelectedColor = color(0.9f, 0.2f, 0.3f, 1.f);
+color cfgGizmoPointIdleColor = color(0.9f, 0.1f, 0.1f, 1.f);
+
+bool mouseDragRegistered = false;
+float mouseDragThreshold = 1.f;
+
+void updateGizmoMouseDrag()
+{
+    
+    TerrainClass@ terrain = game.getTerrain();
+    ProceduralManagerClass@ roads = terrain.getProceduralManager();
+    ProceduralObjectClass@ obj = roads.getObject(selected_road);
+    
+    //ImGui::Text("DBG IsMouseDragging()=" + ImGui::IsMouseDragging());
+    //ImGui::Text("DBG mouseDragRegisted: "+ mouseDragRegistered);
+    
+    if (mouseDragRegistered)
+    {
+        if (ImGui::IsMouseDragging(0, mouseDragThreshold))
+        {
+            vector3 mouse_tpos;
+            
+            if ( game.getMousePositionOnTerrain(mouse_tpos))
+            {
+                // Y is 'up'.
+                ProceduralPointClass@ pp = obj.getPoint(selected_point);
+                //vector3 old_pos = pp.position;
+                vector3 new_pos = mouse_tpos + vector3(0,selected_point_elevation,0) ;
+                //game.log("Updating road '"+obj.getName()+"', point '"+selected_point+"' position to X:"+new_pos.x+" Y:"+new_pos.y+" Z:"+new_pos.z+" (previously X:"+old_pos.x+" Y:"+old_pos.y+" Z:"+old_pos.z+")");
+                pp.position = new_pos;
+            }
+        }
+        // drag over?
+        if (ImGui::IsMouseReleased(0))
+        {
+            mouseDragRegistered=false;
+        }
+    }
+    
+}
+
+
 
 void visualizeRoad()
 {
@@ -516,6 +739,8 @@ void visualizeRoad()
     int closest_point = -1;
     int closest_point_distance = INT_MAX;
     
+    updateGizmoMouseDrag();
+    
     for (int i = 0; i < obj.getNumPoints(); i++)
     {
         // Draw this point
@@ -527,17 +752,21 @@ void visualizeRoad()
         if (point_visible)
         {        
             // Draw point
+            
+            
             if (i == selected_point)
             {
-                drawlist.AddCircleFilled(screen_point, 7.f, color(0.9f, 0.5f, 0.2f, 1.f), 12);
-            }
-            else if (i == hovered_point)
-            {
-                drawlist.AddCircle(screen_point, 9.f, color(0.9f, 0.2f, 0.3f, 1.f), 12, 4.f);
+                drawlist.AddCircleFilled(screen_point, cfgGizmoPointRadius, cfgGizmoPointSelectedColor, cfgGizmoPointNumSegments );
             }
             else
             {
-                drawlist.AddCircle(screen_point, 5.f, color(0.9f, 0.1f, 0.1f, 1.f), 12, 2.f);
+                drawlist.AddCircle(screen_point, cfgGizmoPointRadius, cfgGizmoPointIdleColor, cfgGizmoPointNumSegments , 2.f);
+            }
+            
+            // hover is indicated by extra drawings
+            if (i == hovered_point)
+            {
+                drawlist.AddCircle(screen_point, cfgGizmoPointRadius+4.f, cfgGizmoPointHoveredColor, cfgGizmoPointNumSegments , 4.f);
             }
             
             // Draw line from last point if visible
@@ -562,18 +791,6 @@ void visualizeRoad()
                     vector2(terrn_screen_point.x+PAD, terrn_screen_point.y+PAD),
                     color(0.1f, 0.2f, 0.9f, 1.f), 0.f, 0);
                 }
-                else if (i == hovered_point)
-                {
-                    const float PAD = 6.f;
-                    drawlist.AddRect(
-                    vector2(terrn_screen_point.x-PAD, terrn_screen_point.y-PAD),
-                    vector2(terrn_screen_point.x+PAD, terrn_screen_point.y+PAD),
-                    color(0.2f, 0.3f, 0.9f, 1.f), 0.f, 0, 5.f);   
-                    if (ImGui::IsMouseClicked(0))
-                    {
-                        setSelectedPoint(hovered_point);
-                    }                        
-                }
                 else
                 {
                     const float PAD = 3.f;
@@ -581,7 +798,23 @@ void visualizeRoad()
                     vector2(terrn_screen_point.x-PAD, terrn_screen_point.y-PAD),
                     vector2(terrn_screen_point.x+PAD, terrn_screen_point.y+PAD),
                     color(0.1f, 0.2f, 0.9f, 1.f), 0.f, 0, 2.f);                
-                }                 
+                }    
+                
+                // hover is indicated by extra elements
+                if (i == hovered_point)
+                {
+                    const float PAD = 7.f;
+                    drawlist.AddRect(
+                    vector2(terrn_screen_point.x-PAD, terrn_screen_point.y-PAD),
+                    vector2(terrn_screen_point.x+PAD, terrn_screen_point.y+PAD),
+                    color(0.45f, 0.52f, 1.f, 0.75f), 0.f, 0, 5.f);   
+                    if (ImGui::IsMouseClicked(0))
+                    {
+                        setSelectedPoint(hovered_point);
+                        vector3 mousePosOnTerrain;
+                        mouseDragRegistered = game.getMousePositionOnTerrain(/*[out]*/mousePosOnTerrain);
+                    }                        
+                }             
                 
                 // Draw elevation indicator line
                 drawlist.AddLine(screen_point, terrn_screen_point, color(0.2f, 0.3f, 0.7f, 1.f), 3.f);
@@ -619,125 +852,7 @@ void visualizeRoad()
         hovered_point = -1;
     }
 }
-
-void updateInputEvents()
-{
-    TerrainClass@ terrain = game.getTerrain();
-    ProceduralManagerClass@ roads = terrain.getProceduralManager();
-    ProceduralObjectClass@ obj = roads.getObject(selected_road);    
-    
-    vector3 mouse_tpos;
-    if (inputs.getEventBoolValue(EV_ROAD_EDITOR_POINT_SET_POS)
-    && game.getMousePositionOnTerrain(mouse_tpos))
-    {
-        // Y is 'up'.
-        ProceduralPointClass@ pp = obj.getPoint(selected_point);
-        //vector3 old_pos = pp.position;
-        vector3 new_pos = mouse_tpos + vector3(0,selected_point_elevation,0);
-        //game.log("Updating road '"+obj.getName()+"', point '"+selected_point+"' position to X:"+new_pos.x+" Y:"+new_pos.y+" Z:"+new_pos.z+" (previously X:"+old_pos.x+" Y:"+old_pos.y+" Z:"+old_pos.z+")");
-        pp.position = new_pos;
-    }
-    
-    if (inputs.getEventBoolValueBounce(EV_ROAD_EDITOR_REBUILD_MESH))
-    {
-        rebuildMesh(obj);
-    }
-}
-
-void rebuildMesh(ProceduralObjectClass@ obj)
-{
-    ProceduralManagerClass@ roads = game.getTerrain().getHandle().getProceduralManager();
-    
-    roads.removeObject(obj); // Clears the existing mesh
-    recalculatePointElevations(obj);
-    recalculatePointRotations(obj);
-    roads.addObject(obj); // Generates new mesh
-    // Because we removed and re-added the ProceduralObject from/to the manager,
-    // it got new index, so our selection is invalid. Update it.
-    setSelectedRoad(roads.getNumObjects() - 1);
-}
-
-void addPointToCurrentRoad(vector3 pos)
-{
-    ProceduralObjectClass@ obj = game.getTerrain().getHandle().getProceduralManager().getHandle().getObject(selected_road);
-    
-    ProceduralPointClass@ point = ProceduralPointClass();
-    if (obj.getNumPoints() > 0)
-    {
-        ProceduralPointClass@ template = obj.getPoint(selected_point);
-        point.type = template.type;
-        point.pillar_type = template.pillar_type;
-        point.width = template.width;
-        point.border_width = template.border_width;
-        point.border_height = template.border_height;
-    }
-    point.position = pos;            
-    
-    if (obj.getNumPoints() == 0 || selected_point == obj.getNumPoints() - 1)
-    {
-        obj.addPoint(point);
-        selected_point = obj.getNumPoints() - 1;
-    }
-    else
-    {
-        obj.insertPoint(selected_point, point);
-    }
-}  
-
-void deletePointFromCurrentRoad(int pos)
-{
-    ProceduralObjectClass@ obj = game.getTerrain().getHandle().getProceduralManager().getHandle().getObject(selected_road);
-    
-    obj.deletePoint(pos);
-    if (pos >= obj.getNumPoints())
-    {
-        if (obj.getNumPoints() > 0)
-        setSelectedPoint(obj.getNumPoints() - 1);
-        else
-        selected_point = 0;
-    }
-}
-
-void goToPoint(ProceduralObjectClass@ obj, int point_idx)
-{
-    ProceduralPointClass@ point = obj.getPoint(point_idx);
-    game.setPersonPosition(point.position);
-    game.setPersonRotation(point.rotation.getYaw()); // I have no idea if this is correct.
-}
-
-void setSelectedPoint(int point)
-{
-    if (point != selected_point)
-    {
-        selected_point = point;
-        if (selected_point_auto_goto)
-        {
-            TerrainClass@ terrain = game.getTerrain();
-            ProceduralManagerClass@ proc_mgr = terrain.getProceduralManager();
-            ProceduralObjectClass@ proc_obj = proc_mgr.getObject(selected_road);
-            
-            goToPoint(proc_obj, selected_point);
-        }
-    }
-}
-
-void setSelectedRoad(int road)
-{
-    if (road != selected_road)
-    {
-        selected_road = road;
-        ProceduralObjectClass@ obj = game.getTerrain().getHandle().getProceduralManager().getHandle().getObject(selected_road);
-        // AI export panel
-        ai_export_first = min(ai_export_first, obj.getNumPoints() - 1);
-        ai_export_last = min(ai_export_last, obj.getNumPoints() - 1);
-        // Selected point
-        int new_selected_point = clamp(0, selected_point, obj.getNumPoints());
-        if (selected_point != new_selected_point)
-        {
-            setSelectedPoint(new_selected_point);
-        }
-    }
-}
+//#endregion
 
 //#region EditorCam
 bool editorCam = true;
@@ -787,10 +902,8 @@ void drawEditorCamUI()
 }
 //#endregion
 
-/*
----------------------------------------------------------------------------
-Helper functions
-*/
+//#region Helper functions
+
 
 int clamp(int minval, int val, int maxval)
 {
@@ -823,3 +936,5 @@ int getMouseShortestDistance(vector2 mouse, vector2 target)
     int dy = abs(int(mouse.y) - int(target.y));
     return max(dx, dy);
 }
+
+//#endregion
