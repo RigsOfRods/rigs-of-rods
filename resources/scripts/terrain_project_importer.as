@@ -143,27 +143,40 @@ void drawUI()
         case STAGE_WRITERACES:
         {
             ImGui::Separator();
-            ImGui::TextDisabled("Writing .race files:");
+            ImGui::TextDisabled("Writing .race file:");
+			ImGui::SameLine();
             ImGui::Text(fileBeingWritten);
+			
+			// safe progressbar - dont divide by zero
+			int numRaces = int(races.raceList.length());
+			float progress = (numRaces > 0) ? float(topWrittenRace+1/numRaces) : 0.f;
+			ImGui::ProgressBar(progress);
             break;
         }
         case STAGE_WRITETERRN2:
         {
             ImGui::Separator();
-            ImGui::TextDisabled("OverWriting terrn2 file");
+            ImGui::TextDisabled("OverWriting terrn2 file:");
+			ImGui::SameLine();
             ImGui::Text(projectName + ".terrn2");
+			ImGui::SameLine();
+            ImGui::Text(fileBeingWritten);
+			ImGui::ProgressBar(1.f);
             break;
         }
         case STAGE_DONE:
         {
             // Exit script and show regular messagebox
-        game.pushMessage(MSG_SIM_UNLOAD_TERRN_REQUESTED, {});
-		
-    game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, { {'id', thisScript} }); // `thisScript` is global variable set by the game.      
+			//  also exit terrain-editor mode on script close
+			game.pushMessage(MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED, {  });			
+			game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, { {'id', thisScript} }); // `thisScript` is global variable set by the game.      
+			
             game.showMessageBox("Terrain project import complete.", 
-            "You can now return to menu and load the project as an usual terrain - after you activate terrain editing mode again, an editor script will launch automatically", 
-            /*btn1*/true, "OK", /*allowClose=*/false, /*btn2*/ false, "" );
-			game.pushMessage(MSG_GUI_OPEN_MENU_REQUESTED, {}); // this is NOT done automatically after terrain unload
+				"You can now return to menu and load the project as an usual terrain - after you activate terrain editing mode again, an editor script will launch automatically", 
+				/*btn1*/true, "OK", /*allowClose=*/false, /*btn2*/ false, "" );
+			
+			//game.pushMessage(MSG_SIM_UNLOAD_TERRN_REQUESTED, {});
+			//game.pushMessage(MSG_GUI_OPEN_MENU_REQUESTED, {}); // this is NOT done automatically after terrain unload
             break;
         }
         case STAGE_GETPROJECT:
