@@ -94,10 +94,12 @@ void frameStep(float dt)
 //#region UI drawing
 void drawUI()
 {
+    ImGui::Dummy(vector2(360, 1)); // Prevent horizontal jumping when writing terrains.
+
     ImGui::Text("Current terrain is read only. This script can import it as an in-game editable project.");
     ImGui::Text("(find it under '"+console.cVarGet("sys_projects_dir", 0).getStr()+"').");
     ImGui::NewLine();
-    ImGui::TextDisabled("Races can be also edited using mouse and gizmos!");
+    ImGui::TextDisabled("Races could be also edited using mouse and gizmos!");
     ImGui::TextDisabled("To enable this, they must be converted from script code to data files.");
     ImGui::TextDisabled("There is a new section in terrn2 format: [Races], where each file is one race.");
     ImGui::TextDisabled("The race system is already robust and will provide more mission types in the future.");
@@ -155,8 +157,8 @@ void drawUI()
             game.pushMessage(MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED, {  });
             game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, { {'id', thisScript} }); // `thisScript` is global variable set by the game.
 
-            game.showMessageBox("Terrain project import complete.",
-                "You can now return to menu and load the project as an usual terrain - after you activate terrain editing mode again, an editor script will launch automatically",
+            game.showMessageBox("Terrain project import complete.\n\n",
+                "You can now return to menu and load the project as an usual terrain.",
                 /*btn1*/true, "OK", /*allowClose=*/false, /*btn2*/ false, "" );
 
             //game.pushMessage(MSG_SIM_UNLOAD_TERRN_REQUESTED, {});
