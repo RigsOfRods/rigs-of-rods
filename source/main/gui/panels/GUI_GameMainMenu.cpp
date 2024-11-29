@@ -241,15 +241,28 @@ void GameMainMenu::DrawProfileBox()
         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar;
     if (ImGui::Begin(_LC("MainMenu", "Profile box"), nullptr, flags))
     {
-        ImGui::Image(
-            reinterpret_cast<ImTextureID>(FetchIcon("blank.png")->getHandle()),
-            image_size);
 
         if (App::remote_user_auth_state->getEnum<UserAuthState>() == UserAuthState::AUTHENTICATED)
         {
+            const auto& user = App::GetGuiManager()->LoginBox.GetUserProfile();
+
+            if (!user.avatar)
+            {
+                ImGui::Image(
+                    reinterpret_cast<ImTextureID>(FetchIcon("blank.png")->getHandle()),
+                    image_size);
+            }
+            else if (user.avatar)
+            {
+                ImGui::Image(
+                    reinterpret_cast<ImTextureID>(user.avatar->getHandle()),
+                    image_size);
+            }
+
             ImGui::SameLine();
+            ImGui::Text("Hello, %s", user.username.c_str());
             if (ImGui::Button("Log out", button_size)) {
-                // TODO open as a link
+                App::GetGameContext()->PushMessage(Message(MSG_NET_USERAUTH_LOGOUT_REQUESTED));
             }
         }
         else
