@@ -3,8 +3,7 @@
 /// uses new section in terrn2 format: [Races]
 /// ^ each line is a tobj-like file with any extension (i.e. *.race) which is loaded by the race system.
 ///
-/// The program flow of this script got a little crazy,
- see `enum Stage`
+/// The program flow of this script got a little crazy, see `enum Stage`
 /// ^ I wanted a fluidly updating UI, performing just one step (1 doc conversion / 1 file write) per frame.
 /// ==================================================
 
@@ -17,10 +16,10 @@ racesManager races;
 genericdoc_utils::GenericDocEditor gdEditor;
 
 // Window [X] button handler
-#include "imgui_utils.as" 
+#include "imgui_utils.as"
 imgui_utils::CloseWindowPrompt closeBtnHandlerUnique;
 
-enum Stage // in order of processing 
+enum Stage // in order of processing
 {
     STAGE_INIT, // detects races
     STAGE_CONVERT, // converts all races to GenericDocument race-defs
@@ -29,7 +28,7 @@ enum Stage // in order of processing
     STAGE_PUSHMSG, // request game to create project
     STAGE_GETPROJECT, // fetch created project from modcache
     STAGE_WRITERACES,
-    STAGE_WRITETERRN2, 
+    STAGE_WRITETERRN2,
     STAGE_DONE,
     STAGE_ERROR
 }
@@ -40,7 +39,7 @@ CacheEntryClass@ projectEntry;
 array<GenericDocumentClass@> convertedRaces;
 array<string> convertedRaceFileNames;
 
-string fileBeingWritten = ""; 
+string fileBeingWritten = "";
 GenericDocumentClass@ convertedTerrn2;
 int topWrittenRace = -1;
 bool nameAlreadyExists = false;
@@ -50,10 +49,10 @@ bool nameAlreadyExists = false;
 void main()
 {
     // one-time config
-    gdEditor.gdeCloseBtnHandler.cfgCloseImmediatelly=true; 
+    gdEditor.gdeCloseBtnHandler.cfgCloseImmediatelly=true;
     closeBtnHandlerUnique.cfgPromptText = "Cancel project import?";
     // we want to also exit terrain-editor mode on script close, so we must cancel default action and handle it manually.
-    closeBtnHandlerUnique.cfgTerminateWholeScript=false; 
+    closeBtnHandlerUnique.cfgTerminateWholeScript=false;
 }
 
 void frameStep(float dt)
@@ -63,7 +62,7 @@ void frameStep(float dt)
     {
         gdEditor.drawSeparateWindow();
     }
-    
+
     // === DRAW UI ===
     ImSetNextWindowPosCenter();
     int flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse;
@@ -74,25 +73,22 @@ void frameStep(float dt)
         drawUI();
         ImGui::End();
     }
-    
-    
+
     // === PERFORM IMPORT STEP ===
     advanceImportOneStep();
-    
+
     // == handle close conditions ==
     if (closeBtnHandlerUnique.exitRequested) // window X close button
     {
         //  also exit terrain-editor mode on script close
-		game.pushMessage(MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED, {  });
-		game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, {  {'id', thisScript}  }); // `thisScript` is global variable set by the game.    
+        game.pushMessage(MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED, {  });
+        game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, {  {'id', thisScript}  }); // `thisScript` is global variable set by the game.
     }
-	if (console.cVarGet("sim_state", CVAR_TYPE_INT).getInt() != 3) // game left EDITOR_MODE
-	{
-		game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, {  {'id', thisScript}  }); // `thisScript` is global variable set by the game.    
-	}
-    
+    if (console.cVarGet("sim_state", CVAR_TYPE_INT).getInt() != 3) // game left EDITOR_MODE
+    {
+        game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, {  {'id', thisScript}  }); // `thisScript` is global variable set by the game.
+    }
 }
-
 //#endregion
 
 //#region UI drawing
@@ -105,10 +101,10 @@ void drawUI()
     ImGui::TextDisabled("To enable this, they must be converted from script code to data files.");
     ImGui::TextDisabled("There is a new section in terrn2 format: [Races], where each file is one race.");
     ImGui::TextDisabled("The race system is already robust and will provide more mission types in the future.");
-    
+
     drawDetectedRaces();
     ImGui::NewLine();
-    
+
     switch(stage)
     {
         case STAGE_BUTTON:
@@ -125,46 +121,46 @@ void drawUI()
         case STAGE_PUSHMSG:
         {
             ImGui::Separator();
-            ImGui::Text("Performing MSG_EDI_CREATE_PROJECT_REQUESTED"); 
+            ImGui::Text("Performing MSG_EDI_CREATE_PROJECT_REQUESTED");
             break;
         }
         case STAGE_WRITERACES:
         {
             ImGui::Separator();
             ImGui::TextDisabled("Writing .race file:");
-			ImGui::SameLine();
+            ImGui::SameLine();
             ImGui::Text(fileBeingWritten);
-			
-			// safe progressbar - dont divide by zero
-			int numRaces = int(races.raceList.length());
-			float progress = (numRaces > 0) ? float(topWrittenRace+1/numRaces) : 0.f;
-			ImGui::ProgressBar(progress);
+
+            // safe progressbar - dont divide by zero
+            int numRaces = int(races.raceList.length());
+            float progress = (numRaces > 0) ? float(topWrittenRace+1/numRaces) : 0.f;
+            ImGui::ProgressBar(progress);
             break;
         }
         case STAGE_WRITETERRN2:
         {
             ImGui::Separator();
             ImGui::TextDisabled("OverWriting terrn2 file:");
-			ImGui::SameLine();
+            ImGui::SameLine();
             ImGui::Text(projectName + ".terrn2");
-			ImGui::SameLine();
+            ImGui::SameLine();
             ImGui::Text(fileBeingWritten);
-			ImGui::ProgressBar(1.f);
+            ImGui::ProgressBar(1.f);
             break;
         }
         case STAGE_DONE:
         {
             // Exit script and show regular messagebox
-			//  also exit terrain-editor mode on script close
-			game.pushMessage(MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED, {  });			
-			game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, { {'id', thisScript} }); // `thisScript` is global variable set by the game.      
-			
-            game.showMessageBox("Terrain project import complete.", 
-				"You can now return to menu and load the project as an usual terrain - after you activate terrain editing mode again, an editor script will launch automatically", 
-				/*btn1*/true, "OK", /*allowClose=*/false, /*btn2*/ false, "" );
-			
-			//game.pushMessage(MSG_SIM_UNLOAD_TERRN_REQUESTED, {});
-			//game.pushMessage(MSG_GUI_OPEN_MENU_REQUESTED, {}); // this is NOT done automatically after terrain unload
+            //  also exit terrain-editor mode on script close
+            game.pushMessage(MSG_EDI_LEAVE_TERRN_EDITOR_REQUESTED, {  });
+            game.pushMessage(MSG_APP_UNLOAD_SCRIPT_REQUESTED, { {'id', thisScript} }); // `thisScript` is global variable set by the game.
+
+            game.showMessageBox("Terrain project import complete.",
+                "You can now return to menu and load the project as an usual terrain - after you activate terrain editing mode again, an editor script will launch automatically",
+                /*btn1*/true, "OK", /*allowClose=*/false, /*btn2*/ false, "" );
+
+            //game.pushMessage(MSG_SIM_UNLOAD_TERRN_REQUESTED, {});
+            //game.pushMessage(MSG_GUI_OPEN_MENU_REQUESTED, {}); // this is NOT done automatically after terrain unload
             break;
         }
         case STAGE_GETPROJECT:
@@ -180,25 +176,23 @@ void drawUI()
             break;
         }
     }
-    
-    
 }
 
 void drawDetectedRaces()
 {
     ImGui::PushID("drawDetectedRaces");
-    if (@races == null) 
+    if (@races == null)
     {
         ImGui::Text("ERR: races null");
         return;
     }
-    
-    if (@races.raceList == null) 
+
+    if (@races.raceList == null)
     {
         ImGui::Text("ERR raceList null");
         return;
     }
-    
+
     if ( ImGui::CollapsingHeader("Race details (detected " + races.raceList.length() + " races)"))
     {
         for (uint i=0; i < races.raceList.length(); i++)
@@ -220,12 +214,12 @@ void drawDetectedRaces()
                 if (  ImGui::SmallButton("Preview"))
                 {
                     gdEditor.setDocument(convertedRaces[i], races.raceList[i].raceName);
-                    
+
                 }
             }
             ImGui::PopID(); // i
         }
-        
+
         if (@convertedTerrn2 != null)
         {
             if (ImGui::SmallButton("Preview terrn2 with [Races]"))
@@ -242,7 +236,7 @@ void drawDetectedRaces()
 void initializeRacesData()
 {
     TerrainClass@ terrain = game.getTerrain();
-    
+
     // generate unique name
     projectName = generateSafeFileName(terrain.getTerrainName() + " [project]");
     CacheEntryClass@ existingEntry = modcache.findEntryByFilename(LOADER_TYPE_TERRAIN, /*partial:*/false, projectName+'.terrn2');
@@ -253,7 +247,7 @@ void initializeRacesData()
         projectName = generateSafeFileName(terrain.getTerrainName() + " [project" + (numExisting+1) + "]");
         @existingEntry = modcache.findEntryByFilename(LOADER_TYPE_TERRAIN, /*partial:*/false, projectName+'.terrn2');
     }
-    
+
     // find the terrain script
     array<int> nids = game.getRunningScripts();
     int terrnScriptNid = -1;
@@ -267,14 +261,14 @@ void initializeRacesData()
             terrnScriptNid = nid;
         }
     }
-    
+
     if (terrnScriptNid == -1)
     {
         stage = STAGE_ERROR;
         error = "Terrain script not found!";
         return;
     }
-    
+
     //  new API `game.scriptVariableExists()`
     int result = game.scriptVariableExists('races', terrnScriptNid);
     if (result < 0)
@@ -298,19 +292,19 @@ void initializeRacesData()
         // there are no races (race system not even loaded by the terrain script).
         return;
     }
-    
+
     if (@races == null)
     {
         stage = STAGE_ERROR;
         error = " game.getScriptVariable() reported 'OK' but did not fetch the data";
-        return;  
+        return;
     }
-    
+
     for (uint i=0; i < races.raceList.length(); i++)
     {
         raceBuilder@ race = races.raceList[i];
         convertedRaces.insertLast(null);
-        convertedRaceFileNames.insertLast(""); 
+        convertedRaceFileNames.insertLast("");
     }
 }
 //#endregion
@@ -318,7 +312,6 @@ void initializeRacesData()
 //#region STAGE_CONVERT
 bool convertNextRace()
 {
-    
     // seek first unconverted race; convert it; break loop
     for (uint i=0; i < races.raceList.length(); i++)
     {
@@ -329,8 +322,8 @@ bool convertNextRace()
             return true;
         }
     }
-    
-    return false;            
+
+    return false;
 }
 
 void appendKeyValuePair( GenericDocContextClass@ ctx, string key, string value)
@@ -351,7 +344,7 @@ GenericDocumentClass@ convertSingleRace(raceBuilder@ race)
 {
     GenericDocumentClass doc;
     GenericDocContextClass ctx(doc);
-    
+
     ctx.appendTokComment( " ~~ New 'race-def' format (file extension: .race). ~~");ctx.appendTokLineBreak();
     ctx.appendTokComment( " Each race file specifies a single race");ctx.appendTokLineBreak();
     ctx.appendTokComment( " In .terrn2 file, list the race files under new section [Races]");ctx.appendTokLineBreak();
@@ -360,19 +353,19 @@ GenericDocumentClass@ convertSingleRace(raceBuilder@ race)
     ctx.appendTokComment( " Checkpoint format: checkpointNum(1+), altpathNum(1+), x, y, z, rotX, rotY, rotZ, objName(override, optional)");ctx.appendTokLineBreak();
     ctx.appendTokComment( " By convention, the checkpoint meshes are oriented sideways (facing X axis)");ctx.appendTokLineBreak();
     ctx.appendTokLineBreak();
-    
+
     appendKeyValuePair(ctx, "race_name", race.raceName);
     appendKeyValuePair(ctx, "race_laps", race.laps);
     appendKeyValuePair(ctx, "race_checkpoint_object", race.exporterCheckpointObjName);
     appendKeyValuePair(ctx, "race_start_object", race.exporterStartObjName);
     appendKeyValuePair(ctx, "race_finish_object", race.exporterFinishObjName);
-    
+
     ctx.appendTokLineBreak();
-    
+
     ctx.appendTokKeyword( "begin_checkpoints");
-    
+
     ctx.appendTokLineBreak();
-    
+
     for (uint i=0; i < race.checkpoints.length(); i++)
     {
         uint numAltPaths = race.getRealInstanceCount(int(i));
@@ -387,21 +380,19 @@ GenericDocumentClass@ convertSingleRace(raceBuilder@ race)
             ctx.appendTokFloat(args[3]); // rot X
             ctx.appendTokFloat(args[4]); // rot Y
             ctx.appendTokFloat(args[5]); // rot Z
-            string defaultObjName = (i==0) 
-            ? race.exporterStartObjName 
-            : (i==race.checkpoints.length()-1) ? race.exporterFinishObjName : race.exporterCheckpointObjName;
+            string defaultObjName = (i==0) ? race.exporterStartObjName : (i==race.checkpoints.length()-1) ? race.exporterFinishObjName : race.exporterCheckpointObjName;
             string actualObjName = race.objNames[i][j];
             if (actualObjName != defaultObjName)
             {
                 ctx.appendTokString(actualObjName);
             }
             ctx.appendTokLineBreak();
-        }       
+        }
     }
-    
+
     ctx.appendTokKeyword( "end_checkpoints");
     ctx.appendTokLineBreak();
-    
+
     return doc;
 }
 
@@ -417,16 +408,16 @@ void fixupTerrn2Document()
         game.log("fixupTerrn2Document(): no terrain loaded, nothing to do!");
         return;
     }
-    @convertedTerrn2 =     GenericDocumentClass();
-    
+    @convertedTerrn2 = GenericDocumentClass();
+
     if (!convertedTerrn2.loadFromResource(terrain.getTerrainFileName(), terrain.getTerrainFileResourceGroup(), genericdoc_utils::FLAGSET_TERRN2))
     {
         game.log("fixupTerrn2Document(): could not load terrn2 document, nothing to do!");
         return;
     }
-    
+
     GenericDocContextClass ctx(convertedTerrn2);
-    
+
     // Delete section [Scripts] and all it contains
     bool inSectionScripts = false;
     while (!ctx.endOfFile())
@@ -439,10 +430,9 @@ void fixupTerrn2Document()
         // leaving section [Scripts]
         else if (inSectionScripts && ctx.isTokKeyword() && ctx.getTokKeyword()[0]==BRACE[0])
         {
-            
             inSectionScripts=false;
         }
-        
+
         // erase all script info
         if (inSectionScripts)
         {
@@ -451,7 +441,7 @@ void fixupTerrn2Document()
 
         ctx.seekNextLine();
     }
-    
+
     // Append section [Races]
     ctx.appendTokLineBreak();
     ctx.appendTokKeyword("[Races]");
@@ -461,9 +451,8 @@ void fixupTerrn2Document()
         ctx.appendTokString(convertedRaceFileNames[i]);
         ctx.appendTokLineBreak();
     }
-    
+
     updateTerrainNameInDocument();
-    
 }
 //#endregion
 
@@ -501,7 +490,7 @@ void drawConvertButton()
 void pushMsgRequestCreateProject()
 {
     TerrainClass@ terrain = game.getTerrain();
-    
+
     // Fetch terrain's modcache entry
     CacheEntryClass@ src_entry = modcache.findEntryByFilename(LOADER_TYPE_TERRAIN, /*partial:*/false, terrain.getTerrainFileName());
     if (@src_entry == null)
@@ -509,11 +498,11 @@ void pushMsgRequestCreateProject()
         error = "Not found in modcache!!";
         stage = STAGE_ERROR;
     }
-    
+
     // request project to be created from that cache entry
     game.pushMessage(MSG_EDI_CREATE_PROJECT_REQUESTED, {
-    {'name', projectName},
-    {'source_entry', src_entry}
+        {'name', projectName},
+        {'source_entry', src_entry}
     });
 }
 //#endregion
@@ -537,25 +526,24 @@ void getProject()
 //#region STAGE_WRITERACES
 void writeNextRace()
 {
-	if (races.raceList.length() == 0)
-	{
-	    // write terrain anyway because of updated Name=
-		stage=STAGE_WRITETERRN2;
-		return;
-	}
+    if (races.raceList.length() == 0)
+    {
+        // write terrain anyway because of updated Name=
+        stage=STAGE_WRITETERRN2;
+        return;
+    }
 
     for (uint i=0; i < races.raceList.length(); i++)
     {
         if (int(i) <= topWrittenRace)
         {
             continue; // already handled
-        }               
-        
+        }
+
         if (fileBeingWritten == "")
         {
             string filename =  convertedRaceFileNames[i];
             fileBeingWritten = filename;
-            //                    game.log('DBG WRITERACES ['+i+']: fileBeingWritten='+fileBeingWritten);
             break;
         }
         else
@@ -573,18 +561,17 @@ void writeNextRace()
                 error="null converted race at position ["+i+"]";
                 break;
             }
-            
+
             convertedRaces[i].saveToResource(fileBeingWritten, projectEntry.resource_group);
             topWrittenRace=int(i);
-            
-            //                    game.log('DBG GENFILES ['+i+']: saved file '+fileBeingWritten);
+
             fileBeingWritten = "";
             if (i == races.raceList.length()-1)
             {
                 stage=STAGE_WRITETERRN2;
             }
             break;
-        }             
+        }
     }
 }
 //#endregion
@@ -592,26 +579,26 @@ void writeNextRace()
 //#region STAGE_WRITETERRN2
 void writeTerrn2()
 {
-	forceSpaceSeparatedNumbers(convertedTerrn2, "AmbientColor");
-	forceSpaceSeparatedNumbers(convertedTerrn2, "StartPosition");
-	forceExportINI(convertedTerrn2);
-    
+    forceSpaceSeparatedNumbers(convertedTerrn2, "AmbientColor");
+    forceSpaceSeparatedNumbers(convertedTerrn2, "StartPosition");
+    forceExportINI(convertedTerrn2);
+
     // delete original file (GenericDocument cannot overwrite)
     game.deleteResource(projectName+".terrn2", projectEntry.resource_group);
-	
-	// delete also all other .terrn2 files in the project - typically FPS variants.
-	array<dictionary> terrn2files = game.findResourceFileInfo(projectEntry.resource_group, "*.terrn2");
-	for (uint i=0; i<terrn2files.length(); i++)
-	{
-		game.deleteResource(string(terrn2files[i]['filename']), projectEntry.resource_group);
-	}
-	// while at it, delete also .terrn (no longer supported format, left for reference during converting and testing).
-	array<dictionary> terrn1files = game.findResourceFileInfo(projectEntry.resource_group, "*.terrn");
-	for (uint i=0; i<terrn1files.length(); i++)
-	{
-		game.deleteResource(string(terrn1files[i]['filename']), projectEntry.resource_group);
-	}
-    
+
+    // delete also all other .terrn2 files in the project - typically FPS variants.
+    array<dictionary> terrn2files = game.findResourceFileInfo(projectEntry.resource_group, "*.terrn2");
+    for (uint i=0; i<terrn2files.length(); i++)
+    {
+        game.deleteResource(string(terrn2files[i]['filename']), projectEntry.resource_group);
+    }
+    // while at it, delete also .terrn (no longer supported format, left for reference during converting and testing).
+    array<dictionary> terrn1files = game.findResourceFileInfo(projectEntry.resource_group, "*.terrn");
+    for (uint i=0; i<terrn1files.length(); i++)
+    {
+        game.deleteResource(string(terrn1files[i]['filename']), projectEntry.resource_group);
+    }
+
     // write out modified file
     convertedTerrn2.saveToResource(projectName+".terrn2", projectEntry.resource_group);
 }
@@ -619,7 +606,7 @@ void writeTerrn2()
 void forceExportINI(GenericDocumentClass@ doc)
 {
     // hack to force GenericDocument export INI: pass over all non-braced keywords and append = to them.
-	//^ because I'm lazy to add GENERICDOCUMENT_OPTION_EXPORT_INI_FORMAT or whatever.
+    //^ because I'm lazy to add GENERICDOCUMENT_OPTION_EXPORT_INI_FORMAT or whatever.
     GenericDocContextClass ctx(doc); //reset context
     while (!ctx.endOfFile())
     {
@@ -627,7 +614,7 @@ void forceExportINI(GenericDocumentClass@ doc)
         {
             ctx.setTokKeyword(0,ctx.getTokKeyword()+"=");
         }
-        else if (ctx.isTokString() && ctx.isTokLineBreak(-1)) 
+        else if (ctx.isTokString() && ctx.isTokLineBreak(-1))
         {
             // treat strings on line start as keywords (those are keywords that decayed to strings due to some chars like '.')
             ctx.setTokKeyword(0,ctx.getTokString()+"=");
@@ -636,9 +623,6 @@ void forceExportINI(GenericDocumentClass@ doc)
     }
 }
 //#endregion
-
-
-
 
 void advanceImportOneStep()
 {
@@ -702,21 +686,16 @@ void advanceImportOneStep()
 
 //#region HELPERS
 
-// obsoleted from DearIMGUI, but convenient.
-
-void ImSetNextWindowPosCenter(int flags=0)
+void ImSetNextWindowPosCenter(int flags=0) // obsoleted from DearIMGUI, but convenient.
 {
     vector2 DisplaySize = game.getDisplaySize();
-    ImGui::SetNextWindowPos(vector2(DisplaySize.x * 0.5f, DisplaySize.y * 0.5f), flags, vector2(0.5f, 0.5f)); 
+    ImGui::SetNextWindowPos(vector2(DisplaySize.x * 0.5f, DisplaySize.y * 0.5f), flags, vector2(0.5f, 0.5f));
 }
 
-
-
-const string BADCHARS="\\/:%* ";
+const string BADCHARS="\"\\/:%*<>|? "; // https://stackoverflow.com/a/31976060
 const string GOODCHAR="_";
 string generateSafeFileName(string filename)
 {
-    
     for (uint i=0; i<filename.length(); i++)
     {
         for (uint j=0; j < BADCHARS.length(); j++)
@@ -727,22 +706,21 @@ string generateSafeFileName(string filename)
             }
         }
     }
-    
+
     return filename;
 }
 
 void updateTerrainNameInDocument()
 {
     GenericDocContextClass ctx(convertedTerrn2);
-    
 
     while (!ctx.endOfFile())
     {
         if (ctx.isTokKeyword() && ctx.getTokKeyword() == "Name")
         {
-			ctx.moveNext();
+            ctx.moveNext();
             ctx.setTokString(0, projectName);
-            
+
             // if the original name had spaces, the tokenizer would have broken it into several tokens - erase all extra tokens until newline.
             ctx.moveNext();
             while (!ctx.isTokLineBreak())
