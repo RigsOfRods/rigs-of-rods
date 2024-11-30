@@ -578,7 +578,7 @@ class ScriptEditorWindow
         // Calc child window size
         const int MAX_CHILD_HEIGHT = 300;
         const int CHILD_WIDTH = 600;		
-        int childHeight = record.fileinfos.length() * ImGui::GetTextLineHeightWithSpacing();
+        int childHeight = int(record.fileinfos.length() * ImGui::GetTextLineHeightWithSpacing());
     //ImGui::Text("DBG record.fileinfos.length()=" + record.fileinfos.length() + ", childHeight{not clamped}=" + childHeight);
         if (childHeight > MAX_CHILD_HEIGHT)
         {
@@ -1265,12 +1265,14 @@ void analyzeLines()
 
 private void analyzeBuffer() // helper for `analyzeLines()`
 {
-    // [profiling]
+    /*
+	// [profiling]
     Ogre::Timer timer;
     uint totalMicrosecDict = 0; // the `bufferLinesMeta` array of dicts
     uint totalMicrosecCpuDict = 0;
     uint totalMicrosecRegions = 0;
     uint totalMicrosecCpuRegions = 0;
+	*/
     
     this.bufferLinesMeta.resize(0); // clear all
     int startOffset = 0;
@@ -1452,8 +1454,11 @@ string SPECIALCHARS = "{}\n\t \0";
         {
             int endOffset = i;
             
+			/*
+			// [Profiling]
             uint microsecBeforeRegions = timer.getMicroseconds();
             uint microsecCpuBeforeRegions = timer.getMicrosecondsCPU();
+			*/
             
             // Process #region
             if (regionFound)
@@ -1478,14 +1483,16 @@ string SPECIALCHARS = "{}\n\t \0";
                 regionFoundWithName = "";
             }
             
+			/*
+			// [Profiling]
             totalMicrosecRegions += timer.getMicroseconds() - microsecBeforeRegions;
             totalMicrosecCpuRegions += timer.getMicrosecondsCPU() - microsecCpuBeforeRegions;
-            
-            // Finish line
+			// Finish line
             uint microsecBeforeDict = timer.getMicroseconds();
             uint microsecCpuBeforeDict = timer.getMicrosecondsCPU();
+			*/
             
-    this.bufferLinesMeta.insertLast({ {'startOffset', startOffset} });
+			this.bufferLinesMeta.insertLast({ {'startOffset', startOffset} });
             this.bufferLinesMeta[lineIdx]['endOffset'] = endOffset;
             int len = endOffset - startOffset;
             this.bufferLinesMeta[lineIdx]['len'] = len;
@@ -1502,8 +1509,11 @@ string SPECIALCHARS = "{}\n\t \0";
             this.bufferLinesMeta[lineIdx]['autoIndentLevel'] = autoIndentLevelCurrent;
             this.bufferLinesMeta[lineIdx]['actualIndentBlanks'] = actualIndentBlanks;
             
+			/*
+			// [Profiling]
             totalMicrosecDict += timer.getMicroseconds() - microsecBeforeDict;
             totalMicrosecCpuDict += timer.getMicrosecondsCPU() - microsecCpuBeforeDict;
+			*/
         }
         
         if (isCharNul)
@@ -1542,12 +1552,15 @@ string SPECIALCHARS = "{}\n\t \0";
         this.totalChars++;
     }
     
+	/*
     // [profiling]
     uint microsecBeforeMerging = timer.getMicroseconds();
     uint microsecCpuBeforeMerging = timer.getMicrosecondsCPU();
+	*/
     
     this.mergeCollectedFoldingRegionsWithExisting(collectedRegions);
     
+	/*
     // [profiling]
     uint totalMicrosecMerging = timer.getMicroseconds() - microsecBeforeMerging;
     uint totalMicrosecCpuMerging = timer.getMicrosecondsCPU() - microsecCpuBeforeMerging;
@@ -1557,6 +1570,7 @@ string SPECIALCHARS = "{}\n\t \0";
     +" dict "+totalMicrosecDict+"us (CPU "+totalMicrosecCpuDict+"us)"
     +" merging "+totalMicrosecMerging+"us (CPU "+totalMicrosecCpuMerging+"us)"
     );
+	*/
 }
 
 private void mergeCollectedFoldingRegionsWithExisting(dictionary&in collectedRegions) // helper for `analyzeBuffer()`
