@@ -358,9 +358,9 @@ GenericDocumentClass@ convertSingleRace(raceBuilder@ race)
 
     appendKeyValuePair(ctx, "race_name", race.raceName);
     appendKeyValuePair(ctx, "race_laps", race.laps);
-    appendKeyValuePair(ctx, "race_checkpoint_object", race.exporterCheckpointObjName);
-    appendKeyValuePair(ctx, "race_start_object", race.exporterStartObjName);
-    appendKeyValuePair(ctx, "race_finish_object", race.exporterFinishObjName);
+    appendKeyValuePair(ctx, "race_checkpoint_object", race.objNameCheckpoint);
+    appendKeyValuePair(ctx, "race_start_object", race.objNameStart);
+    appendKeyValuePair(ctx, "race_finish_object", race.objNameFinish);
 
     ctx.appendTokLineBreak();
 
@@ -382,7 +382,7 @@ GenericDocumentClass@ convertSingleRace(raceBuilder@ race)
             ctx.appendTokFloat(args[3]); // rot X
             ctx.appendTokFloat(args[4]); // rot Y
             ctx.appendTokFloat(args[5]); // rot Z
-            string defaultObjName = (i==0) ? race.exporterStartObjName : (i==race.checkpoints.length()-1) ? race.exporterFinishObjName : race.exporterCheckpointObjName;
+            string defaultObjName = (i==0) ? race.objNameStart : (i==race.checkpoints.length()-1) ? race.objNameFinish : race.objNameCheckpoint;
             string actualObjName = race.objNames[i][j];
             if (actualObjName != defaultObjName)
             {
