@@ -1,7 +1,9 @@
 /// \file Prototype truck editor, Oct 2023
-/// \brief Showcases truck file editing features
+/// \brief Showcases "gdeditor_utils.as" and "gridviewer_utils.as"
+///
+/// Lets you import ZIPped mod as project (directory under /projects).
+/// Unfinished - no actual editing (to be worked into 'gdeditor_utils.as')
 /// see https://github.com/RigsOfRods/rigs-of-rods/pull/3048
-/// Written and auto-indented using script_editor.as!
 // ===================================================
 
 // Window [X] button handler
