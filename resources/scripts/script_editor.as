@@ -605,8 +605,9 @@ class ScriptEditorWindow
             if (hovered && (@scriptinfo != null))
             {
                 ImGui::BeginTooltip();
-                ImGui::TextDisabled("Title:" + scriptinfo.title); ImGui::Separator();
-                ImGui::Text("Brief:" + scriptinfo.brief);
+                ImGui::TextColored(lineNumberColor, scriptinfo.title);
+                ImGui::Text(scriptinfo.brief);
+                ImGui::Separator();
                 ImGui::TextWrapped(scriptinfo.text); ImGui::Dummy(vector2(300, 1));
                 ImGui::EndTooltip();
             }
@@ -614,19 +615,6 @@ class ScriptEditorWindow
             {
                 out_selection = filename;
                 retval = true;
-            }
-            // Extra line for brief description
-            if (@scriptinfo != null && scriptinfo.title != "")
-            {
-                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + scriptInfoIndentWidth);
-                ImGui::TextColored(lineNumberColor, scriptinfo.title);
-                hovered = hovered || ImGui::IsItemHovered();
-                if (scriptinfo.brief != "")
-                {
-                    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + scriptInfoIndentWidth);
-                    ImGui::TextDisabled(scriptinfo.brief);
-                    hovered = hovered || ImGui::IsItemHovered();
-                }
             }
             ImGui::PopID(); // i
         }
@@ -2274,7 +2262,7 @@ string trimLeft(string s)
 RegionInfo@ findRegion(dictionary@ regionDict, string name) // Helper which checks first (not inserting NULL entry)
 {
     if (regionDict.exists(name))
-        return cast<RegionInfo>(regionDict[name]);
+        return cast<RegionInfo>(regionDict[name]); 
     else
         return null;
 }
