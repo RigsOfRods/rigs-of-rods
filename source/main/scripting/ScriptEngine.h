@@ -203,6 +203,12 @@ public:
     int deleteVariable(const Ogre::String& arg);
 
     /**
+    * Retrieves a global variable from any running script
+    * @returns 0 on success, negative number on error.
+    */
+    int getVariable(ScriptUnitId_t nid, const Ogre::String& varName, void *ref, int typeID);
+
+    /**
     * Finds a function by full declaration, and if not found, finds candidates by name and logs them to Angelscript.log
     * @return Angelscript function on success, null on error.
     */

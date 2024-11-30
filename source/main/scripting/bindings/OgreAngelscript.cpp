@@ -1548,6 +1548,7 @@ void registerOgreEntity(AngelScript::asIScriptEngine* engine)
     int r;
     r = engine->SetDefaultNamespace("Ogre"); ROR_ASSERT(r >= 0);
 
+    r = engine->RegisterObjectMethod("Entity", "void setMaterialName(const string &in name, const string &in rg = \"OgreAutodetect\")", asMETHOD(Entity, setMaterialName), asCALL_THISCALL);  ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Entity", "AnimationState @getAnimationState(const string &in) const", asMETHOD(Entity, getAnimationState), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Entity", "AnimationStateSet @getAllAnimationStates()", asMETHOD(Entity, getAllAnimationStates), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("Entity", "void setDisplaySkeleton(bool)", asMETHOD(Entity, setDisplaySkeleton), asCALL_THISCALL); ROR_ASSERT(r >= 0);

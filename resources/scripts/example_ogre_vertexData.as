@@ -8,8 +8,8 @@ imgui_utils::CloseWindowPrompt closeBtnHandler;
 
 #include "gridviewer_utils.as"
 
-GridViewer gTexcoordsViewer;
-GridViewer gVertsViewer;
+gridviewer_utils::GridViewer gTexcoordsViewer;
+gridviewer_utils::GridViewer gVertsViewer;
 Ogre::MeshPtr gMesh;
 Ogre::TexturePtr gTex;
 array<vector3>@ gVertPositions = null;
@@ -29,7 +29,37 @@ bool gShowRawTexcoords=false;
 float fmax(float a, float b) { return a>b?a:b; }
 float fmin(float a, float b) { return a<b?a:b; }
 
+// ================= entry points ===================
 
+void main()
+{
+    game.log("Experimental vertex position/texcoord display UI");
+    setupTool();
+}
+
+void frameStep(float dt)
+{
+    if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
+    {
+        closeBtnHandler.draw();
+        
+        if (gErrorStr == "")
+        {
+            drawGridViews();
+        }
+        else
+        {
+            ImGui::TextDisabled("E R R O R !!");
+            ImGui::TextColored(color(1, 0.2, 0, 1), gErrorStr);
+        }
+        ImGui::Separator();
+        drawBottomBar();   
+        
+        ImGui::End();
+    }
+}
+
+// ============= internals ===============
 
 void setupTool()
 {
@@ -172,32 +202,4 @@ void drawBottomBar()
     
 }
 
-// ================= entry points ===================
 
-void main()
-{
-    game.log("Experimental vertex position/texcoord display UI");
-    setupTool();
-}
-
-void frameStep(float dt)
-{
-    if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
-    {
-        closeBtnHandler.draw();
-    
-        if (gErrorStr == "")
-        {
-            drawGridViews();
-        }
-        else
-        {
-            ImGui::TextDisabled("E R R O R !!");
-            ImGui::TextColored(color(1, 0.2, 0, 1), gErrorStr);
-        }
-        ImGui::Separator();
-        drawBottomBar();   
-        
-        ImGui::End();
-    }
-}

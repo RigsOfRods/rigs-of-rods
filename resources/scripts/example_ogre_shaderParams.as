@@ -1,5 +1,6 @@
 /// \title Shader parameters demo
 /// \brief Adjust constant shader parameters - DEMO uses sky material.
+///FIXME = this was created for Tritonas00's sky shader which was later reverted, won't work in plain master.
 // ===================================================
 
 // Window [X] button handler
@@ -20,26 +21,40 @@ void frameStep(float dt)
     {
         closeBtnHandler.draw();
         
-        if (ImGui::SliderFloat("Sun size", /*[inout]*/ sun_size, 0.1f, 3.0f))
+        if (sky_material.isNull())
         {
-            
-            sky_params.setNamedConstant("sun_size", sun_size);
+            ImGui::Text("ERROR - could not retrieve sky material");
             
         }
-        if (ImGui::SliderFloat("Cloud density", /*[inout]*/ cloud_density, -0.3f, 0.3f))
+        if (sky_params.isNull())
         {
-            
-            sky_params.setNamedConstant("cloud_density", cloud_density);
-            
+            ImGui::Text("ERROR - could not retrieve sky shader params");
+            ImGui::TextDisabled("FIXME: this example was created for Tritonas00's sky shader which was later reverted.");
         }
-        if (ImGui::SliderFloat("Sky lightness", /*[inout]*/ sky_light, 0.0f, 0.9f))
+        else
         {
             
-            sky_params.setNamedConstant("sky_light", sky_light);
-            //TBD  game.getSceneManager().setAmbientLight(Ogre::ColourValue(sky_light, sky_light, sky_light));
-            
-        }      
-    
+            if (ImGui::SliderFloat("Sun size", /*[inout]*/ sun_size, 0.1f, 3.0f))
+            {
+                
+                sky_params.setNamedConstant("sun_size", sun_size);
+                
+            }
+            if (ImGui::SliderFloat("Cloud density", /*[inout]*/ cloud_density, -0.3f, 0.3f))
+            {
+                
+                sky_params.setNamedConstant("cloud_density", cloud_density);
+                
+            }
+            if (ImGui::SliderFloat("Sky lightness", /*[inout]*/ sky_light, 0.0f, 0.9f))
+            {
+                
+                sky_params.setNamedConstant("sky_light", sky_light);
+                //TBD  game.getSceneManager().setAmbientLight(Ogre::ColourValue(sky_light, sky_light, sky_light));
+                
+            }    
+        }  
+        
         ImGui::End();
     }    
 }

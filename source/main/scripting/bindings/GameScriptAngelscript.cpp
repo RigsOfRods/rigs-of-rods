@@ -40,7 +40,7 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("ScriptCategory", "SCRIPT_CATEGORY_CUSTOM", static_cast<int>(ScriptCategory::CUSTOM)); ROR_ASSERT(result >= 0);
 
     // class GameScript
-    result = engine->RegisterObjectType("GameScriptClass", sizeof(GameScript), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectType("GameScriptClass", sizeof(GameScript), asOBJ_REF | asOBJ_NOCOUNT); ROR_ASSERT(result >= 0);
     
     // PLEASE maintain the same order as in GameScript.h!
 
@@ -88,6 +88,7 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "int deleteScriptFunction(const string &in)", asMETHOD(GameScript, deleteScriptFunction), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int addScriptVariable(const string &in)", asMETHOD(GameScript, addScriptVariable), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int deleteScriptVariable(const string &in)", asMETHOD(GameScript, deleteScriptVariable), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "int getScriptVariable(int, const string &in, ?&out)", asMETHOD(GameScript, getScriptVariable), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void clearEventCache()", asMETHOD(GameScript, clearEventCache), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int sendGameCmd(const string &in)", asMETHOD(GameScript, sendGameCmd), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "array<int>@ getRunningScripts()", asMETHOD(GameScript, getRunningScripts), asCALL_THISCALL); ROR_ASSERT(result >= 0);
@@ -109,6 +110,7 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "void destroyObject(const string &in)", asMETHOD(GameScript, destroyObject), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "bool getMousePositionOnTerrain(vector3 &out)", AngelScript::asMETHOD(GameScript, getMousePositionOnTerrain), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "TerrainClassPtr@ getTerrain()", AngelScript::asMETHOD(GameScript,getTerrain), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "array<Ogre::MovableObject@>@ getMousePointedMovableObjects()", AngelScript::asMETHOD(GameScript, getMousePointedMovableObjects), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // > Character
     result = engine->RegisterObjectMethod("GameScriptClass", "vector3 getPersonPosition()", asMETHOD(GameScript, getPersonPosition), asCALL_THISCALL); ROR_ASSERT(result >= 0);
@@ -149,7 +151,6 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "int getAIMode()", AngelScript::asMETHOD(GameScript, getAIMode), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "VehicleAIClassPtr @getCurrentTruckAI()", asMETHOD(GameScript, getCurrentTruckAI), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "VehicleAIClassPtr @getTruckAIByNum(int)", asMETHOD(GameScript, getTruckAIByNum), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    // AI: set
     result = engine->RegisterObjectMethod("GameScriptClass", "void setAIVehicleCount(int count)", AngelScript::asMETHOD(GameScript, setAIVehicleCount), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setAIVehicleDistance(int dist)", AngelScript::asMETHOD(GameScript, setAIVehicleDistance), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setAIVehiclePositionScheme(int scheme)", AngelScript::asMETHOD(GameScript, setAIVehiclePositionScheme), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
@@ -163,13 +164,13 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     // > Camera
     result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraPosition(vector3 &in)", asMETHOD(GameScript, setCameraPosition), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraDirection(vector3 &in)", asMETHOD(GameScript, setCameraDirection), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraOrientation(vector3 &in)", asMETHOD(GameScript, setCameraOrientation), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraOrientation(quaternion &in)", asMETHOD(GameScript, setCameraOrientation), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraRoll(float)", asMETHOD(GameScript, setCameraRoll), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraYaw(float)", asMETHOD(GameScript, setCameraYaw), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraPitch(float)", asMETHOD(GameScript, setCameraPitch), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "vector3 getCameraPosition()", asMETHOD(GameScript, getCameraPosition), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "vector3 getCameraDirection()", asMETHOD(GameScript, getCameraDirection), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("GameScriptClass", "vector3 getCameraOrientation()", asMETHOD(GameScript, getCameraOrientation), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "quaternion getCameraOrientation()", asMETHOD(GameScript, getCameraOrientation), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void cameraLookAt(vector3 &in)", asMETHOD(GameScript, cameraLookAt), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // > Race system

@@ -31,6 +31,7 @@
 #include "OgreImGui.h"
 #include "Terrain.h"
 #include "TerrainObjectManager.h"
+#include "TObjFileFormat.h"
 #include "PlatformUtils.h"
 
 using namespace RoR;
@@ -251,69 +252,58 @@ void TerrainEditor::UpdateInputEvents(float dt)
 
 void TerrainEditor::WriteOutputFile()
 {
-    const char* filename = "editor_out.log";
-    std::string editor_logpath = PathCombine(App::sys_logs_dir->getStr(), filename);
-    try
+    TerrainPtr terrain = App::GetGameContext()->GetTerrain();
+
+    // Assert on Debug, minimize harm on Release
+    ROR_ASSERT(terrain);
+    if (!terrain)
     {
-        Ogre::DataStreamPtr stream
-            = Ogre::ResourceGroupManager::getSingleton().createResource(
-                editor_logpath, RGN_CONFIG, /*overwrite=*/true);
-
-        for (auto object : App::GetGameContext()->GetTerrain()->getObjectManager()->GetEditorObjects())
-        {
-            SceneNode* sn = object.node;
-            if (sn != nullptr)
-            {
-                String pos = StringUtil::format("%8.3f, %8.3f, %8.3f"   , object.position.x, object.position.y, object.position.z);
-                String rot = StringUtil::format("% 6.1f, % 6.1f, % 6.1f", object.rotation.x, object.rotation.y, object.rotation.z);
-
-                String line = pos + ", " + rot + ", " + object.name + "\n";
-                stream->write(line.c_str(), line.length());
-            }
-        }
-        
-        // Export procedural roads
-        int num_roads = App::GetGameContext()->GetTerrain()->getProceduralManager()->getNumObjects();
-        for (int i = 0; i < num_roads; i++)
-        {
-            ProceduralObjectPtr obj = App::GetGameContext()->GetTerrain()->getProceduralManager()->getObject(i);
-            int num_points = obj->getNumPoints();
-            if (num_points > 0)
-            {
-                stream->write("\nbegin_procedural_roads\n", 24);
-                std::string smoothing_line = fmt::format("\tsmoothing_num_splits {}\n", obj->smoothing_num_splits);
-                stream->write(smoothing_line.c_str(), smoothing_line.length());
-                for (int j = 0; j < num_points; j++)
-                {
-                    ProceduralPointPtr point = obj->getPoint(j);
-                    std::string type_str;
-                    switch (point->type)
-                    {
-                    case RoadType::ROAD_AUTOMATIC: type_str = "both"; break; // ??
-                    case RoadType::ROAD_FLAT: type_str = "flat"; break;
-                    case RoadType::ROAD_LEFT: type_str = "left"; break;
-                    case RoadType::ROAD_RIGHT: type_str = "right"; break;
-                    case RoadType::ROAD_BOTH: type_str = "both"; break;
-                    case RoadType::ROAD_BRIDGE: type_str = (point->pillartype == 1) ? "bridge" : "bridge_no_pillars"; break;
-                    case RoadType::ROAD_MONORAIL: type_str = (point->pillartype == 2) ? "monorail" : "monorail2"; break;
-                    }
-
-                    std::string line = fmt::format(
-                        "\t{:13f}, {:13f}, {:13f}, 0, {:13f}, 0, {:13f}, {:13f}, {:13f}, {}\n",
-                        point->position.x, point->position.y, point->position.z,
-                        point->rotation.getYaw().valueDegrees(),
-                        point->width, point->bwidth, point->bheight, type_str);
-                    stream->write(line.c_str(), line.length());
-                }
-                stream->write("end_procedural_roads\n", 21);
-            }
-        }
+        return;
     }
-    catch (std::exception& e)
+
+    // If not a project (unzipped), do nothing
+    if (terrain->getCacheEntry()->resource_bundle_type != "FileSystem")
     {
-        RoR::LogFormat("[RoR|MapEditor]"
-                        "Error saving file '%s' (resource group '%s'), message: '%s'",
-                        filename, RGN_CONFIG, e.what());
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Cannot export terrain editor changes - terrain is not a project"));
+        return;
+    }
+
+    // Loop over TOBJ files in cache, update editable elements and serialize.
+    for (size_t i = 0; i < terrain->getObjectManager()->GetTobjCache().size(); i++)
+    {
+        // Dump original elements and rebuild them from live data.
+        TObjDocumentPtr tobj = terrain->getObjectManager()->GetTobjCache()[i];
+        tobj->objects.clear();
+        for (TerrainObjectManager::EditorObject& src : terrain->getObjectManager()->GetEditorObjects())
+        {
+            if (src.tobj_cache_id == i)
+            {
+                TObjEntry dst;
+                strncpy(dst.odef_name, src.name.c_str(), TObj::STR_LEN);
+                strncpy(dst.instance_name, src.instance_name.c_str(), TObj::STR_LEN);
+                strncpy(dst.type, src.type.c_str(), TObj::STR_LEN);
+                // TBD: reconstruct 'set_default_rendering_distance'.
+                dst.position = src.position;
+                dst.rotation = src.rotation;
+
+                tobj->objects.push_back(dst);
+            }
+        }
+
+        try
+        {
+            Ogre::DataStreamPtr stream
+                = Ogre::ResourceGroupManager::getSingleton().createResource(
+                    tobj->document_name, terrain->getTerrainFileResourceGroup(), /*overwrite=*/true);
+            TObj::WriteToStream(tobj, stream);
+        }
+        catch (...)
+        {
+            RoR::HandleGenericException(
+                fmt::format("Error saving file '{}' to resource group '{}'",
+                    tobj->document_name, terrain->getTerrainFileResourceGroup()), HANDLEGENERICEXCEPTION_CONSOLE);
+        }
     }
 }
 
