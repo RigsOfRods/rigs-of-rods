@@ -31,12 +31,6 @@
 
 #include <OgreScriptLoader.h>
 
-#ifdef __APPLE__
-  #include <OpenAL/efx-presets.h>
-#else
-  #include <AL/efx-presets.h>
-#endif
-
 #define SOUND_PLAY_ONCE(_ACTOR_, _TRIG_)        App::GetSoundScriptManager()->trigOnce    ( (_ACTOR_), (_TRIG_) )
 #define SOUND_START(_ACTOR_, _TRIG_)            App::GetSoundScriptManager()->trigStart   ( (_ACTOR_), (_TRIG_) )
 #define SOUND_STOP(_ACTOR_, _TRIG_)             App::GetSoundScriptManager()->trigStop    ( (_ACTOR_), (_TRIG_) )

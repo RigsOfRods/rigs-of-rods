@@ -24,7 +24,6 @@
 
 #include "Actor.h"
 #include "CameraManager.h"
-#include "GameContext.h"
 #include "Sound.h"
 #include "SoundManager.h"
 #include "Utils.h"
@@ -321,7 +320,6 @@ void SoundScriptManager::update(float dt_sec)
         Ogre::Vector3 camera_direction = camera_node->getOrientation() * -Ogre::Vector3::UNIT_Z;
 
         SetListener(camera_position, camera_direction, camera_up, camera_velocity);
-        SetListenerEnvironment(camera_position);
 
         sound_manager->Update(dt_sec);
     }
@@ -332,44 +330,6 @@ void SoundScriptManager::SetListener(Vector3 position, Vector3 direction, Vector
     if (disabled)
         return;
     sound_manager->SetListener(position, direction, up, velocity);
-}
-
-void SoundScriptManager::SetListenerEnvironment(Vector3 listener_position)
-{
-    if (disabled)
-        return;
-
-    const EFXEAXREVERBPROPERTIES* listener_reverb_properties = nullptr;
-
-    if (App::audio_engine_controls_environmental_audio->getBool())
-    {
-        if (sound_manager->ListenerIsUnderwater())
-        {
-            sound_manager->SetSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
-            /*
-             * According to the Francois-Garrison formula for frequency-dependant absorption at 5kHz in seawater,
-             * the absorption should be 0.334 db/km. OpenAL multiplies the Air Absorption Factor with an internal
-             * value of 0.05dB/m, so we need a factor of 0.00668f.
-             */
-            sound_manager->SetAirAbsorptionFactor(0.00668f);
-        }
-        else
-        {
-            sound_manager->SetSpeedOfSound(343.3f); // assume listener is in air at 20° celsius
-            sound_manager->SetAirAbsorptionFactor(1.0f);
-        }
-
-        if (App::audio_enable_efx->getBool())
-        {
-            listener_reverb_properties = sound_manager->GetReverbPresetAt(listener_position);
-        }
-    }
-
-    if (App::audio_enable_efx->getBool())
-    {
-        // always update the environment in case it was changed via console or script
-        sound_manager->SetListenerEnvironment(listener_reverb_properties);
-    }
 }
 
 const StringVector& SoundScriptManager::getScriptPatterns(void) const

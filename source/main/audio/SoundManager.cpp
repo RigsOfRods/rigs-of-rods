@@ -381,8 +381,9 @@ void SoundManager::Update(const float dt_sec)
     const auto water = App::GetGameContext()->GetTerrain()->getWater();
     m_listener_is_underwater = (water != nullptr ? water->IsUnderWater(m_listener_position) : false);
 
-    recomputeAllSources();
-    UpdateAlListener();
+    this->recomputeAllSources();
+    this->UpdateAlListener();
+    this->UpdateListenerEnvironment();
 
     if(App::audio_enable_efx->getBool())
     {
@@ -405,6 +406,35 @@ void SoundManager::SetListener(Ogre::Vector3 position, Ogre::Vector3 direction, 
     m_listener_direction = direction;
     m_listener_up = up;
     m_listener_velocity = velocity;
+}
+
+void SoundManager::UpdateListenerEnvironment()
+{
+    const EFXEAXREVERBPROPERTIES* listener_reverb_properties = nullptr;
+
+    if (App::audio_engine_controls_environmental_audio->getBool())
+    {
+        if (this->ListenerIsUnderwater())
+        {
+            this->SetSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
+            /*
+             * According to the Francois-Garrison formula for frequency-dependant absorption at 5kHz in seawater,
+             * the absorption should be 0.334 db/km. OpenAL multiplies the Air Absorption Factor with an internal
+             * value of 0.05dB/m, so we need a factor of 0.00668f.
+             */
+            this->SetAirAbsorptionFactor(0.00668f);
+        }
+        else
+        {
+            this->SetSpeedOfSound(343.3f); // assume listener is in air at 20° celsius
+            this->SetAirAbsorptionFactor(1.0f);
+        }
+
+        if (App::audio_enable_efx->getBool())
+        {
+            m_listener_efx_reverb_properties = this->GetReverbPresetAt(m_listener_position);
+        }
+    }
 }
 
 void SoundManager::UpdateAlListener()
@@ -464,11 +494,6 @@ const EFXEAXREVERBPROPERTIES* SoundManager::GetReverbPresetAt(const Ogre::Vector
     {
         return nullptr;
     }
-}
-
-void SoundManager::SetListenerEnvironment(const EFXEAXREVERBPROPERTIES* listener_reverb_properties)
-{
-    m_listener_efx_reverb_properties = listener_reverb_properties;
 }
 
 void SoundManager::UpdateListenerEffectSlot(const float dt_sec)

@@ -96,13 +96,6 @@ public:
     void SetListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
 
     /**
-     * Updates the EFX/EAX reverb preset that is used as a base for updating the listener's effect slot.
-     * @param listener_environment The preset that will be used for the listener environment.
-     * @see UpdateListenerEffectSlot()
-     */
-    void SetListenerEnvironment(const EFXEAXREVERBPROPERTIES* listener_efx_reverb_properties);
-
-    /**
      * Unlike the name suggests, this sets the listener's gain to 0, essentially muting all sounds.
      */
     void pauseAllSounds();
@@ -194,6 +187,12 @@ private:
      * @see SetListener()
      */
     void UpdateAlListener();
+
+    /**
+     * Determines several properties of the environment of the listener and updates OpenAL to use them.
+     */
+    void UpdateListenerEnvironment();
+
     void recomputeAllSources();
 
     /**
