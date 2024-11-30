@@ -75,6 +75,11 @@ public:
     Ogre::Vector3 GetListenerPosition() const { return m_listener_position; }
 
     /**
+     * @return True if the listener position is below water level. False otherwise.
+     */
+    bool ListenerIsUnderwater() const { return m_listener_is_underwater; }
+
+    /**
      * Does the per-frame update of sounds and listener environment. With the help of other functions it
      * determines and then submits the current state of the audio world to OpenAL.
      * @param dt_sec Time since last frame in seconds
@@ -233,10 +238,12 @@ private:
     ALuint       audio_buffers[MAX_AUDIO_BUFFERS];
     Ogre::String audio_buffer_file_name[MAX_AUDIO_BUFFERS];
 
+    bool          m_listener_is_underwater = false;
     Ogre::Vector3 m_listener_position = Ogre::Vector3::ZERO;
     Ogre::Vector3 m_listener_direction = Ogre::Vector3::ZERO;
     Ogre::Vector3 m_listener_up = Ogre::Vector3::ZERO;
     Ogre::Vector3 m_listener_velocity = Ogre::Vector3::ZERO;
+
     ALCdevice*    audio_device = nullptr;
     ALCcontext*   sound_context = nullptr;
 

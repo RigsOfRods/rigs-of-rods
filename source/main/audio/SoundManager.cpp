@@ -24,6 +24,7 @@
 #include "SoundManager.h"
 
 #include "Application.h"
+#include "IWater.h"
 #include "Sound.h"
 
 #include <OgreResourceGroupManager.h>
@@ -376,6 +377,9 @@ void SoundManager::Update(const float dt_sec)
         return;
 
     this->SetDopplerFactor(App::audio_doppler_factor->getFloat());
+
+    const auto water = App::GetGameContext()->GetTerrain()->getWater();
+    m_listener_is_underwater = (water != nullptr ? water->IsUnderWater(m_listener_position) : false);
 
     recomputeAllSources();
     UpdateAlListener();

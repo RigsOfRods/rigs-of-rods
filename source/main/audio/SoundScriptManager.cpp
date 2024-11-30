@@ -320,13 +320,10 @@ void SoundScriptManager::update(float dt_sec)
         Ogre::Vector3 camera_up = camera_node->getOrientation() * Ogre::Vector3::UNIT_Y;
         // Direction points down -Z by default (adapted from Ogre::Camera)
         Ogre::Vector3 camera_direction = camera_node->getOrientation() * -Ogre::Vector3::UNIT_Z;
+
         SetListener(camera_position, camera_direction, camera_up, camera_velocity);
-        Ogre::Vector3 listener_position = sound_manager->GetListenerPosition();
-
-        const auto water = App::GetGameContext()->GetTerrain()->getWater();
-        m_listener_is_underwater = (water != nullptr ? water->IsUnderWater(listener_position) : false);
-
         SetListenerEnvironment(camera_position);
+
         sound_manager->Update(dt_sec);
     }
 }
@@ -347,7 +344,7 @@ void SoundScriptManager::SetListenerEnvironment(Vector3 listener_position)
 
     if (App::audio_engine_controls_environmental_audio->getBool())
     {
-        if (ListenerIsUnderwater())
+        if (sound_manager->ListenerIsUnderwater())
         {
             sound_manager->SetSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
             /*
