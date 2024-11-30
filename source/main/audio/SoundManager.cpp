@@ -424,6 +424,48 @@ void SoundManager::UpdateAlListener()
     alListenerfv(AL_ORIENTATION, orientation);
 }
 
+const EFXEAXREVERBPROPERTIES* SoundManager::GetReverbPresetAt(const Ogre::Vector3 position) const
+{
+    // for the listener we do additional checks
+    if (position == m_listener_position)
+    {
+        if (!App::audio_force_listener_efx_preset->getStr().empty())
+        {
+            return this->GetEfxProperties(App::audio_force_listener_efx_preset->getStr());
+        }
+    }
+
+    const auto water = App::GetGameContext()->GetTerrain()->getWater();
+    bool position_is_underwater = (water != nullptr ? water->IsUnderWater(position) : false);
+    if (position_is_underwater)
+    {
+        return this->GetEfxProperties("EFX_REVERB_PRESET_UNDERWATER");
+    }
+
+    // check if position is inside a collision box with a reverb_preset assigned to it
+    for (const collision_box_t& collision_box : App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes())
+    {
+        if (!collision_box.reverb_preset_name.empty())
+        {
+            const Ogre::AxisAlignedBox collision_box_aab = Ogre::AxisAlignedBox(collision_box.lo, collision_box.hi);
+
+            if (collision_box_aab.contains(position))
+            {
+                return this->GetEfxProperties(collision_box.reverb_preset_name);
+            }
+        }
+    }
+
+    if (position == m_listener_position)
+    {
+        return this->GetEfxProperties(App::audio_default_listener_efx_preset->getStr());
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
 void SoundManager::SetListenerEnvironment(const EFXEAXREVERBPROPERTIES* listener_reverb_properties)
 {
     m_listener_efx_reverb_properties = listener_reverb_properties;

@@ -372,12 +372,6 @@ private:
     // soundLinks, soundItems, actor_ids, triggers
     std::map <int, std::map <int, std::map <int, std::map <int, bool > > > > state_map;
 
-    /**
-     * Determines which environment in terms of reverb corresponds to the provided position and returns
-     * its properties.
-     * @return Reverb properties for the provided position.
-     */
-    const EFXEAXREVERBPROPERTIES* GetReverbPresetAt(Ogre::Vector3 position) const;
     void SetListenerEnvironment(Ogre::Vector3 position);
 
     SoundManager* sound_manager;

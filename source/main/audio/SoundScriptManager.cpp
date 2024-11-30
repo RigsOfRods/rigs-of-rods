@@ -25,7 +25,6 @@
 #include "Actor.h"
 #include "CameraManager.h"
 #include "GameContext.h"
-#include "IWater.h"
 #include "Sound.h"
 #include "SoundManager.h"
 #include "Utils.h"
@@ -362,7 +361,7 @@ void SoundScriptManager::SetListenerEnvironment(Vector3 listener_position)
 
         if (App::audio_enable_efx->getBool())
         {
-            listener_reverb_properties = GetReverbPresetAt(listener_position);
+            listener_reverb_properties = sound_manager->GetReverbPresetAt(listener_position);
         }
     }
 
@@ -370,48 +369,6 @@ void SoundScriptManager::SetListenerEnvironment(Vector3 listener_position)
     {
         // always update the environment in case it was changed via console or script
         sound_manager->SetListenerEnvironment(listener_reverb_properties);
-    }
-}
-
-const EFXEAXREVERBPROPERTIES* SoundScriptManager::GetReverbPresetAt(const Ogre::Vector3 position) const
-{
-    // for the listener we do additional checks
-    if (position == sound_manager->GetListenerPosition())
-    {
-        if (!App::audio_force_listener_efx_preset->getStr().empty())
-        {
-            return sound_manager->GetEfxProperties(App::audio_force_listener_efx_preset->getStr());
-        }
-    }
-
-    const auto water = App::GetGameContext()->GetTerrain()->getWater();
-    bool position_is_underwater = (water != nullptr ? water->IsUnderWater(position) : false);
-    if (position_is_underwater)
-    {
-        return sound_manager->GetEfxProperties("EFX_REVERB_PRESET_UNDERWATER");
-    }
-
-    // check if position is inside a collision box with a reverb_preset assigned to it
-    for (const collision_box_t& collision_box : App::GetGameContext()->GetTerrain()->GetCollisions()->getCollisionBoxes())
-    {
-        if (!collision_box.reverb_preset_name.empty())
-        {
-            const Ogre::AxisAlignedBox collision_box_aab = Ogre::AxisAlignedBox(collision_box.lo, collision_box.hi);
-
-            if (collision_box_aab.contains(position))
-            {
-                return sound_manager->GetEfxProperties(collision_box.reverb_preset_name);
-            }
-        }
-    }
-
-    if (position == sound_manager->GetListenerPosition())
-    {
-        return sound_manager->GetEfxProperties(App::audio_default_listener_efx_preset->getStr());
-    }
-    else
-    {
-        return nullptr;
     }
 }
 

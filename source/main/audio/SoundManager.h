@@ -175,6 +175,13 @@ public:
      */
     const EFXEAXREVERBPROPERTIES* GetEfxProperties(const std::string& efx_preset_name) const;
 
+    /**
+     * Determines which reverb preset corresponds to the provided position and returns its properties.
+     * @param position Position for which the reverb preset of the encompassing environment will be returned.
+     * @return Reverb properties for the provided position.
+     */
+    const EFXEAXREVERBPROPERTIES* GetReverbPresetAt(Ogre::Vector3 position) const;
+
     static const float MAX_DISTANCE;
     static const float ROLLOFF_FACTOR;
     static const float REFERENCE_DISTANCE;
