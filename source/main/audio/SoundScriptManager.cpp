@@ -347,7 +347,7 @@ void SoundScriptManager::SetListenerEnvironment(Vector3 listener_position)
 
     if (App::audio_engine_controls_environmental_audio->getBool())
     {
-        if(ListenerIsUnderwater())
+        if (ListenerIsUnderwater())
         {
             sound_manager->SetSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
             /*
@@ -379,7 +379,7 @@ void SoundScriptManager::SetListenerEnvironment(Vector3 listener_position)
 const EFXEAXREVERBPROPERTIES* SoundScriptManager::GetReverbPresetAt(const Ogre::Vector3 position) const
 {
     // for the listener we do additional checks
-    if(position == sound_manager->GetListenerPosition())
+    if (position == sound_manager->GetListenerPosition())
     {
         if (!App::audio_force_listener_efx_preset->getStr().empty())
         {
@@ -389,7 +389,7 @@ const EFXEAXREVERBPROPERTIES* SoundScriptManager::GetReverbPresetAt(const Ogre::
 
     const auto water = App::GetGameContext()->GetTerrain()->getWater();
     bool position_is_underwater = (water != nullptr ? water->IsUnderWater(position) : false);
-    if(position_is_underwater)
+    if (position_is_underwater)
     {
         return sound_manager->GetEfxProperties("EFX_REVERB_PRESET_UNDERWATER");
     }
@@ -401,14 +401,14 @@ const EFXEAXREVERBPROPERTIES* SoundScriptManager::GetReverbPresetAt(const Ogre::
         {
             const Ogre::AxisAlignedBox collision_box_aab = Ogre::AxisAlignedBox(collision_box.lo, collision_box.hi);
 
-            if(collision_box_aab.contains(position))
+            if (collision_box_aab.contains(position))
             {
                 return sound_manager->GetEfxProperties(collision_box.reverb_preset_name);
             }
         }
     }
 
-    if(position == sound_manager->GetListenerPosition())
+    if (position == sound_manager->GetListenerPosition())
     {
         return sound_manager->GetEfxProperties(App::audio_default_listener_efx_preset->getStr());
     }
