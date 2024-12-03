@@ -947,7 +947,7 @@ bool TerrainObjectManager::LoadTerrainScript(const Ogre::String& filename)
     ROR_ASSERT(!m_angelscript_grouping_node);
 
     m_angelscript_grouping_node = m_terrn2_grouping_node->createChildSceneNode(filename);
-    ScriptUnitId_t result = App::GetScriptEngine()->loadScript(filename);
+    ScriptUnitID_t result = App::GetScriptEngine()->loadScript(filename);
     m_angelscript_grouping_node = nullptr;
     
     return result != SCRIPTUNITID_INVALID;

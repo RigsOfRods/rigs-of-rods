@@ -37,8 +37,8 @@ namespace RoR
     typedef int ActorInstanceID_t; //!< Unique sequentially generated ID of an actor in session. Use `ActorManager::GetActorById()`
     static const ActorInstanceID_t ACTORINSTANCEID_INVALID = 0;
 
-    typedef int ScriptUnitId_t; //!< Unique sequentially generated ID of a loaded and running scriptin session. Use `ScriptEngine::getScriptUnit()`
-    static const ScriptUnitId_t SCRIPTUNITID_INVALID = -1;
+    typedef int ScriptUnitID_t; //!< Unique sequentially generated ID of a loaded and running scriptin session. Use `ScriptEngine::getScriptUnit()`
+    static const ScriptUnitID_t SCRIPTUNITID_INVALID = -1;
 
     typedef int PointidID_t; //!< index to `PointColDetector::hit_pointid_list`, use `RoR::POINTIDID_INVALID` as empty value.
     static const PointidID_t POINTIDID_INVALID = -1;

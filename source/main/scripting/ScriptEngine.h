@@ -71,7 +71,7 @@ struct ScriptUnit
     ScriptUnit();
     ~ScriptUnit();
 
-    ScriptUnitId_t uniqueId = SCRIPTUNITID_INVALID;
+    ScriptUnitID_t uniqueId = SCRIPTUNITID_INVALID;
     ScriptCategory scriptCategory = ScriptCategory::INVALID;
     unsigned int eventMask = 0; //!< filter mask for script events
     AngelScript::asIScriptModule* scriptModule = nullptr;
@@ -85,7 +85,7 @@ struct ScriptUnit
     Ogre::String scriptBuffer;
 };
 
-typedef std::map<ScriptUnitId_t, ScriptUnit> ScriptUnitMap;
+typedef std::map<ScriptUnitID_t, ScriptUnit> ScriptUnitMap;
 
 struct LoadScriptRequest
 {
@@ -133,14 +133,14 @@ public:
      * @param buffer String with full script body; if empty, a file will be loaded as usual.
      * @return Unique ID of the script unit (because one script file can be loaded multiple times).
      */
-    ScriptUnitId_t loadScript(Ogre::String scriptname, ScriptCategory category = ScriptCategory::TERRAIN,
+    ScriptUnitID_t loadScript(Ogre::String scriptname, ScriptCategory category = ScriptCategory::TERRAIN,
         ActorPtr associatedActor = nullptr, std::string buffer = "");
 
     /**
      * Unloads a script
      * @param unique_id The script unit ID as returned by `loadScript()`
      */
-    void unloadScript(ScriptUnitId_t unique_id);
+    void unloadScript(ScriptUnitID_t unique_id);
 
     /**
      * Calls the script's framestep function to be able to use timed things inside the script
@@ -206,13 +206,13 @@ public:
     * Retrieves a global variable from any running script
     * @returns 0 on success, negative number on error.
     */
-    int getVariable(ScriptUnitId_t nid, const Ogre::String& varName, void *ref, int typeID);
+    int getVariable(ScriptUnitID_t nid, const Ogre::String& varName, void *ref, int typeID);
 
     /**
     * Finds a function by full declaration, and if not found, finds candidates by name and logs them to Angelscript.log
     * @return Angelscript function on success, null on error.
     */
-    AngelScript::asIScriptFunction* getFunctionByDeclAndLogCandidates(ScriptUnitId_t nid, GetFuncFlags_t flags, const std::string& funcName, const std::string& fmtFuncDecl);
+    AngelScript::asIScriptFunction* getFunctionByDeclAndLogCandidates(ScriptUnitID_t nid, GetFuncFlags_t flags, const std::string& funcName, const std::string& fmtFuncDecl);
 
     int fireEvent(std::string instanceName, float intensity);
 
@@ -234,10 +234,10 @@ public:
     inline void SLOG(const char* msg) { this->scriptLog->logMessage(msg); } //!< Replacement of macro
     inline void SLOG(std::string msg) { this->scriptLog->logMessage(msg); } //!< Replacement of macro
 
-    bool scriptUnitExists(ScriptUnitId_t unique_id);
-    ScriptUnit& getScriptUnit(ScriptUnitId_t unique_id);
-    ScriptUnitId_t getTerrainScriptUnit() const { return m_terrain_script_unit; } //!< @return SCRIPTUNITID_INVALID if none exists.
-    ScriptUnitId_t getCurrentlyExecutingScriptUnit() const { return m_currently_executing_script_unit; } //!< @return SCRIPTUNITID_INVALID if none is executing right now.
+    bool scriptUnitExists(ScriptUnitID_t unique_id);
+    ScriptUnit& getScriptUnit(ScriptUnitID_t unique_id);
+    ScriptUnitID_t getTerrainScriptUnit() const { return m_terrain_script_unit; } //!< @return SCRIPTUNITID_INVALID if none exists.
+    ScriptUnitID_t getCurrentlyExecutingScriptUnit() const { return m_currently_executing_script_unit; } //!< @return SCRIPTUNITID_INVALID if none is executing right now.
     ScriptUnitMap const& getScriptUnits() const { return m_script_units; }
 
 protected:
@@ -253,7 +253,7 @@ protected:
     /**
     * Packs name + important info to one string, for logging and reporting purposes.
     */
-    Ogre::String composeModuleName(Ogre::String const& scriptName, ScriptCategory origin, ScriptUnitId_t id);
+    Ogre::String composeModuleName(Ogre::String const& scriptName, ScriptCategory origin, ScriptUnitID_t id);
 
     /**
     * Helper for `loadScript()`, does the actual building without worry about unit management.
@@ -265,13 +265,13 @@ protected:
     * Helper for executing any script function/snippet; does `asIScriptContext::Prepare()` and reports any error.
     * @return true on success, false on error.
     */
-    bool prepareContextAndHandleErrors(ScriptUnitId_t nid, int asFunctionID);
+    bool prepareContextAndHandleErrors(ScriptUnitID_t nid, int asFunctionID);
 
     /**
     * Helper for executing any script function/snippet; registers Line/Exception callbacks (on demand) and set currently executed NID; The `asIScriptContext::Prepare()` and setting args must be already done.
     * @return 0 on success, anything else on error.
     */
-    int executeContextAndHandleErrors(ScriptUnitId_t nid);
+    int executeContextAndHandleErrors(ScriptUnitID_t nid);
 
     /// @}
 
@@ -302,8 +302,8 @@ protected:
     Ogre::Log*      scriptLog;
     GameScript      m_game_script;
     ScriptUnitMap   m_script_units;
-    ScriptUnitId_t  m_terrain_script_unit = SCRIPTUNITID_INVALID;
-    ScriptUnitId_t  m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
+    ScriptUnitID_t  m_terrain_script_unit = SCRIPTUNITID_INVALID;
+    ScriptUnitID_t  m_currently_executing_script_unit = SCRIPTUNITID_INVALID;
     scriptEvents    m_currently_executing_event_trigger = SE_NO_EVENTS;
     bool            m_events_enabled = true; //!< Hack to enable fast shutdown without cleanup
 

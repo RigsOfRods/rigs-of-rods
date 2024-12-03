@@ -902,13 +902,13 @@ void ActorManager::DeleteActorInternal(ActorPtr actor)
 #endif // USE_SOCKETW
 
     // Unload actor's scripts
-    std::vector<ScriptUnitId_t> unload_list;
+    std::vector<ScriptUnitID_t> unload_list;
     for (auto& pair : App::GetScriptEngine()->getScriptUnits())
     {
         if (pair.second.associatedActor == actor)
             unload_list.push_back(pair.first);
     }
-    for (ScriptUnitId_t id : unload_list)
+    for (ScriptUnitID_t id : unload_list)
     {
         App::GetScriptEngine()->unloadScript(id);
     }

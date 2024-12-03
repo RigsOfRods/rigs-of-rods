@@ -286,7 +286,7 @@ void GameScript::registerForEvent(int eventValue)
 {
     if (App::GetScriptEngine())
     {
-        ScriptUnitId_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+        ScriptUnitID_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
         if (unit_id != SCRIPTUNITID_INVALID)
         {
             App::GetScriptEngine()->getScriptUnit(unit_id).eventMask |= eventValue;
@@ -298,7 +298,7 @@ void GameScript::unRegisterEvent(int eventValue)
 {
     if (App::GetScriptEngine())
     {
-        ScriptUnitId_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+        ScriptUnitID_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
         if (unit_id != SCRIPTUNITID_INVALID)
         {
             App::GetScriptEngine()->getScriptUnit(unit_id).eventMask &= ~eventValue;
@@ -306,7 +306,7 @@ void GameScript::unRegisterEvent(int eventValue)
     }
 }
 
-BitMask_t GameScript::getRegisteredEventsMask(ScriptUnitId_t nid)
+BitMask_t GameScript::getRegisteredEventsMask(ScriptUnitID_t nid)
 {
     if (App::GetScriptEngine()->scriptUnitExists(nid))
         return App::GetScriptEngine()->getScriptUnit(nid).eventMask;
@@ -314,7 +314,7 @@ BitMask_t GameScript::getRegisteredEventsMask(ScriptUnitId_t nid)
         return BitMask_t(0);
 }
 
-void GameScript::setRegisteredEventsMask(ScriptUnitId_t nid, BitMask_t eventMask)
+void GameScript::setRegisteredEventsMask(ScriptUnitID_t nid, BitMask_t eventMask)
 {
     if (App::GetScriptEngine()->scriptUnitExists(nid))
         App::GetScriptEngine()->getScriptUnit(nid).eventMask = eventMask;
@@ -808,7 +808,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     if (App::app_disable_online_api->getBool())
         return 0;
 
-    ScriptUnitId_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+    ScriptUnitID_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
     if (unit_id == SCRIPTUNITID_INVALID)
         return 2;
 
@@ -971,7 +971,7 @@ int GameScript::deleteScriptVariable(const String& arg)
     return App::GetScriptEngine()->deleteVariable(arg);
 }
 
-int GameScript::getScriptVariable(ScriptUnitId_t nid, const Ogre::String& varName, void *ref, int refTypeId)
+int GameScript::getScriptVariable(ScriptUnitID_t nid, const Ogre::String& varName, void *ref, int refTypeId)
 {
     return App::GetScriptEngine()->getVariable(nid, varName, ref, refTypeId);
 }
@@ -991,7 +991,7 @@ int GameScript::sendGameCmd(const String& message)
 
 AngelScript::CScriptArray* GameScript::getRunningScripts()
 {
-    std::vector<ScriptUnitId_t> ids;
+    std::vector<ScriptUnitID_t> ids;
     for (auto& pair: App::GetScriptEngine()->getScriptUnits())
         ids.push_back(pair.first);
 
@@ -999,7 +999,7 @@ AngelScript::CScriptArray* GameScript::getRunningScripts()
 }
 
 
-AngelScript::CScriptDictionary* GameScript::getScriptDetails(ScriptUnitId_t nid)
+AngelScript::CScriptDictionary* GameScript::getScriptDetails(ScriptUnitID_t nid)
 {
     if (!App::GetScriptEngine()->scriptUnitExists(nid))
         return nullptr;
@@ -1482,7 +1482,7 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         {
             return false;
         }
-        m.payload = new ScriptUnitId_t(static_cast<ScriptUnitId_t>(id));
+        m.payload = new ScriptUnitID_t(static_cast<ScriptUnitID_t>(id));
         break;
     }
 

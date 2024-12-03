@@ -274,7 +274,7 @@ void ScriptEngine::forwardExceptionAsScriptEvent(const std::string& from)
     catch (...) { TRIGGER_EVENT_ASYNC(SE_GENERIC_EXCEPTION_CAUGHT, m_currently_executing_script_unit,0,0,0, from); }
 }
 
-int ScriptEngine::executeContextAndHandleErrors(ScriptUnitId_t nid)
+int ScriptEngine::executeContextAndHandleErrors(ScriptUnitID_t nid)
 {
     // Helper for executing any script function/snippet;
     // * sets LineCallback (on demand - when script registers for SE_ANGELSCRIPT_LINECALLBACK event)
@@ -361,7 +361,7 @@ int ScriptEngine::executeContextAndHandleErrors(ScriptUnitId_t nid)
     return result;
 }
 
-bool ScriptEngine::prepareContextAndHandleErrors(ScriptUnitId_t nid, int asFunctionID)
+bool ScriptEngine::prepareContextAndHandleErrors(ScriptUnitID_t nid, int asFunctionID)
 {
     asIScriptFunction* scriptFunc = this->engine->GetFunctionById(asFunctionID);
     if (!scriptFunc)
@@ -397,7 +397,7 @@ void ScriptEngine::framestep(Real dt)
 
     for (auto& pair: m_script_units)
     {
-        ScriptUnitId_t nid = pair.first;
+        ScriptUnitID_t nid = pair.first;
         if (m_script_units[nid].frameStepFunctionPtr)
         {
             // Set the function pointer and arguments
@@ -417,7 +417,7 @@ int ScriptEngine::fireEvent(std::string instanceName, float intensity)
 
     for (auto& pair: m_script_units)
     {
-        ScriptUnitId_t id = pair.first;
+        ScriptUnitID_t id = pair.first;
         AngelScript::asIScriptFunction* func = m_script_units[id].scriptModule->GetFunctionByDecl(
             "void fireEvent(string, float)"); // TODO: this shouldn't be hard coded --neorej16
 
@@ -451,7 +451,7 @@ void ScriptEngine::envokeCallback(int _functionId, eventsource_t *source, NodeNu
 
     for (auto& pair: m_script_units)
     {
-        ScriptUnitId_t id = pair.first;
+        ScriptUnitID_t id = pair.first;
         int functionId = _functionId;
         if (functionId <= 0 && (m_script_units[id].defaultEventCallbackFunctionPtr != nullptr))
         {
@@ -687,7 +687,7 @@ int ScriptEngine::deleteVariable(const String &arg)
     return index;
 }
 
-int ScriptEngine::getVariable(ScriptUnitId_t nid, const Ogre::String& varName, void *ref, int refTypeId)
+int ScriptEngine::getVariable(ScriptUnitID_t nid, const Ogre::String& varName, void *ref, int refTypeId)
 {
     if (!engine || !context)
     {
@@ -786,7 +786,7 @@ int ScriptEngine::getVariable(ScriptUnitId_t nid, const Ogre::String& varName, v
 	return -8;
 }
 
-asIScriptFunction* ScriptEngine::getFunctionByDeclAndLogCandidates(ScriptUnitId_t nid, GetFuncFlags_t flags, const std::string& funcName, const std::string& fmtFuncDecl)
+asIScriptFunction* ScriptEngine::getFunctionByDeclAndLogCandidates(ScriptUnitID_t nid, GetFuncFlags_t flags, const std::string& funcName, const std::string& fmtFuncDecl)
 {
     std::string decl = fmt::format(fmtFuncDecl, funcName);
     asIScriptFunction* retval = m_script_units[nid].scriptModule->GetFunctionByDecl(decl.c_str());
@@ -814,7 +814,7 @@ void ScriptEngine::triggerEvent(scriptEvents eventnum, int arg1, int arg2ex, int
 
     for (auto& pair: m_script_units)
     {
-        ScriptUnitId_t id = pair.first;
+        ScriptUnitID_t id = pair.first;
         asIScriptFunction* callback = m_script_units[id].eventCallbackExFunctionPtr;
         if (!callback)
             callback = m_script_units[id].eventCallbackFunctionPtr;
@@ -850,12 +850,12 @@ void ScriptEngine::triggerEvent(scriptEvents eventnum, int arg1, int arg2ex, int
     }
 }
 
-String ScriptEngine::composeModuleName(String const& scriptName, ScriptCategory origin, ScriptUnitId_t id)
+String ScriptEngine::composeModuleName(String const& scriptName, ScriptCategory origin, ScriptUnitID_t id)
 {
     return fmt::format("{}(category:{},unique ID:{})", scriptName, ScriptCategoryToString(origin), id);
 }
 
-ScriptUnitId_t ScriptEngine::loadScript(
+ScriptUnitID_t ScriptEngine::loadScript(
     String scriptName, ScriptCategory category/* = ScriptCategory::TERRAIN*/,
     ActorPtr associatedActor /*= nullptr*/, std::string buffer /* =""*/)
 {
@@ -864,9 +864,9 @@ ScriptUnitId_t ScriptEngine::loadScript(
     // A script unit is how Rigs of Rods organizes scripts from various sources.
     // Because the script is executed during loading, it's wrapping unit must
     // be created early, and removed if setup fails.
-    static ScriptUnitId_t id_counter = 0;
+    static ScriptUnitID_t id_counter = 0;
 
-    ScriptUnitId_t unit_id = id_counter++;
+    ScriptUnitID_t unit_id = id_counter++;
     auto itor_pair = m_script_units.insert(std::make_pair(unit_id, ScriptUnit()));
     m_script_units[unit_id].uniqueId = unit_id;
     m_script_units[unit_id].scriptName = scriptName;
@@ -1060,7 +1060,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     return mainfunc_result;
 }
 
-void ScriptEngine::unloadScript(ScriptUnitId_t nid)
+void ScriptEngine::unloadScript(ScriptUnitID_t nid)
 {
     if (this->scriptUnitExists(nid))
     {
@@ -1090,13 +1090,13 @@ void ScriptEngine::setForwardScriptLogToConsole(bool doForward)
     }
 }
 
-bool ScriptEngine::scriptUnitExists(ScriptUnitId_t nid)
+bool ScriptEngine::scriptUnitExists(ScriptUnitID_t nid)
 {
     return nid != SCRIPTUNITID_INVALID 
         && m_script_units.find(nid) != m_script_units.end();
 }
 
-ScriptUnit& ScriptEngine::getScriptUnit(ScriptUnitId_t nid)
+ScriptUnit& ScriptEngine::getScriptUnit(ScriptUnitID_t nid)
 {
     ROR_ASSERT(this->scriptUnitExists(nid));
     return m_script_units[nid];
