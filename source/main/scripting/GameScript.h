@@ -207,14 +207,14 @@ public:
     * Gets event mask for a specific running script. Intended for diagnostic and monitoring purposes.
     * @param nid ScriptUnitID, obtain one from global var `thisScript` or callback parameters.
     */
-    BitMask_t getRegisteredEventsMask(ScriptUnitId_t nid);
+    BitMask_t getRegisteredEventsMask(ScriptUnitID_t nid);
 
     /**
      * Overwrites event mask for a specific running script. Intended for debugging tools - use with caution.
      * @param nid ScriptUnitID, obtain one from global var `thisScript` or callback parameters.
      * @param eventMask \see enum scriptEvents
      */
-    void setRegisteredEventsMask(ScriptUnitId_t nid, BitMask_t eventMask);
+    void setRegisteredEventsMask(ScriptUnitID_t nid, BitMask_t eventMask);
 
     /**
      * Adds a global function to the script
@@ -259,7 +259,7 @@ public:
     * @param refTypeId Type of the reference; To be registered as variable-type parameter `?&out`
     * @return 0 on success, negative number on error.
     */
-    int getScriptVariable(ScriptUnitId_t nid, const Ogre::String& varName, void *ref, int refTypeId);
+    int getScriptVariable(ScriptUnitID_t nid, const Ogre::String& varName, void *ref, int refTypeId);
 
     void clearEventCache();
 
@@ -281,7 +281,7 @@ public:
     *   * "eventMask" (int64)
     *   * "scriptBuffer" (string)
     */
-    AngelScript::CScriptDictionary* getScriptDetails(ScriptUnitId_t nid);
+    AngelScript::CScriptDictionary* getScriptDetails(ScriptUnitID_t nid);
 
     /// @}
 

@@ -49,7 +49,7 @@ void ScriptMonitor::Draw()
     StringVector autoload = StringUtil::split(App::app_custom_scripts->getStr(), ",");
     for (auto& pair : App::GetScriptEngine()->getScriptUnits())
     {
-        ScriptUnitId_t id = pair.first;
+        ScriptUnitID_t id = pair.first;
         ImGui::PushID(id);
 
         ScriptUnit const& unit = pair.second;
@@ -74,7 +74,7 @@ void ScriptMonitor::Draw()
         {
             if (ImGui::Button(_LC("ScriptMonitor", "Reload")))
             {
-                App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitId_t(id)));
+                App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitID_t(id)));
                 LoadScriptRequest* req = new LoadScriptRequest();
                 req->lsr_category = unit.scriptCategory;
                 req->lsr_filename = unit.scriptName;
@@ -83,7 +83,7 @@ void ScriptMonitor::Draw()
             ImGui::SameLine();
             if (ImGui::Button(_LC("ScriptMonitor", "Stop")))
             {
-                App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitId_t(id)));
+                App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitID_t(id)));
             }
 
             ImGui::SameLine();
@@ -100,7 +100,7 @@ void ScriptMonitor::Draw()
         default:;
         }
 
-        ImGui::PopID(); // ScriptUnitId_t id
+        ImGui::PopID(); // ScriptUnitID_t id
     }
 
     if (App::app_recent_scripts->getStr() != "")

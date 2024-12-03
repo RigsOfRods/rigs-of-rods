@@ -412,7 +412,7 @@ public:
         }
         else
         {
-            ScriptUnitId_t id = App::GetScriptEngine()->loadScript(args[1], ScriptCategory::CUSTOM);
+            ScriptUnitID_t id = App::GetScriptEngine()->loadScript(args[1], ScriptCategory::CUSTOM);
             if (id == SCRIPTUNITID_INVALID)
             {
                 reply_type = Console::CONSOLE_SYSTEM_ERROR;
