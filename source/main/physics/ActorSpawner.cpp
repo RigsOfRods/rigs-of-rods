@@ -2358,6 +2358,41 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     m_actor->ar_flares.push_back(flare);
 }
 
+void ActorSpawner::ProcessFlaregroupNoImport(RigDef::FlaregroupNoImport& def)
+{
+    LOG(fmt::format("[RoR|ActorSpawner] processing FlaregroupNoImport ({} {})", (char)def.type, def.control_number));
+    switch (def.type)
+    {
+    case FlareType::HEADLIGHT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_HEADLIGHT); break;
+    case FlareType::HIGH_BEAM: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_HIGHBEAMS); break;
+    case FlareType::FOG_LIGHT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_FOGLIGHTS); break;
+    case FlareType::SIDELIGHT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_SIDELIGHTS); break;
+    case FlareType::TAIL_LIGHT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_HEADLIGHT); break;
+    case FlareType::BRAKE_LIGHT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_BRAKES); break;
+    case FlareType::REVERSE_LIGHT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_REVERSE); break;
+    case FlareType::BLINKER_LEFT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_BLINK_LEFT); break;
+    case FlareType::BLINKER_RIGHT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_BLINK_RIGHT); break;
+    //case FlareType::DASHBOARD: ~ Not subject to syncing between linked actors.
+    case FlareType::USER:
+        switch (def.control_number - 1)
+        {
+        case 0: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM1); break;
+        case 1: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM2); break;
+        case 2: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM3); break;
+        case 3: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM4); break;
+        case 4: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM5); break;
+        case 5: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM6); break;
+        case 6: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM7); break;
+        case 7: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM8); break;
+        case 8: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM9); break;
+        case 9: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM10);break;
+        default: break;
+        }
+        break;
+    default: break;
+    }
+}
+
 Ogre::MaterialPtr ActorSpawner::InstantiateManagedMaterial(const Ogre::String& rg_name, Ogre::String const & source_name, Ogre::String const & clone_name)
 {
     Ogre::MaterialPtr src_mat = Ogre::MaterialManager::getSingleton().getByName(source_name, rg_name);

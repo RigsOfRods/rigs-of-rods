@@ -712,7 +712,7 @@ void ActorManager::ForwardCommands(ActorPtr source_actor)
             }
 
             // forward lights
-            hook.hk_locked_actor->setLightStateMask(source_actor->getLightStateMask());
+            hook.hk_locked_actor->importLightStateMask(source_actor->getLightStateMask());
         }
     }
 }
