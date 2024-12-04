@@ -141,6 +141,7 @@ private:
     void ParseFixes();
     void ParseFlaresUnified();
     void ParseFlares3();
+    void ParseFlaregroupsNoImport();
     void ParseFlexbody();
     void ParseFlexBodyWheel();
     void ParseFusedrag();
