@@ -256,6 +256,7 @@ void Parser::ProcessCurrentLine()
         case Keyword::FLARES:
         case Keyword::FLARES2:              this->ParseFlaresUnified();           return;
         case Keyword::FLARES3:              this->ParseFlares3();                 return;
+        case Keyword::FLAREGROUPS_NO_IMPORT:this->ParseFlaregroupsNoImport();     return;
         case Keyword::FLEXBODIES:           this->ParseFlexbody();                return;
         case Keyword::FLEXBODYWHEELS:       this->ParseFlexBodyWheel();           return;
         case Keyword::FUSEDRAG:             this->ParseFusedrag();                return;
@@ -2062,6 +2063,31 @@ void Parser::ParseDirectiveSetDefaultMinimass()
 
     m_set_default_minimass = std::shared_ptr<DefaultMinimass>(new DefaultMinimass());
     m_set_default_minimass->min_mass_Kg = this->GetArgFloat(1);
+}
+
+void Parser::ParseFlaregroupsNoImport()
+{
+    // ;flare_groups_no_import
+    // ;   <flaretype> <controlnumber 1-10>
+    if (!this->CheckNumArguments(1)) { return; }
+
+    FlaregroupNoImport fni;
+    fni.type = this->GetArgFlareType(0);
+    if (m_num_args > 1)
+    {
+        fni.control_number = this->GetArgInt(1);
+        if (fni.control_number < 1)
+        {
+            this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, fmt::format("flaregroup_no_import: parameter <control_number> must be 1-10; got {}, clamping to 1", fni.control_number));
+        }
+        if (fni.control_number > 10)
+        {
+            this->LogMessage(Console::CONSOLE_SYSTEM_WARNING, fmt::format("flaregroup_no_import: parameter <control_number> must be 1-10; got {}, clamping to 10", fni.control_number));
+        }
+    }
+
+    LOG(fmt::format("[RoR|RigDef::Parser] parsed FlaregroupNoImport ({} {})", (char)fni.type, fni.control_number));
+    m_current_module->flaregroups_no_import.push_back(fni);
 }
 
 void Parser::ParseDirectiveSetInertiaDefaults()

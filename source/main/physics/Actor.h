@@ -182,6 +182,7 @@ public:
     void              toggleHeadlights();
     BitMask_t         getLightStateMask() const { return m_lightmask; }
     void              setLightStateMask(BitMask_t lightmask); //!< Does all the necessary toggling.
+    void              importLightStateMask(BitMask_t lightmask); //!< Only for linked (locked/tied) actors forwarding flare states; see 'flaregroups_no_import' in .truck format.
     bool              getSideLightsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_SIDELIGHTS; }
     void              setSideLightsVisible(bool val) { BITMASK_SET(m_lightmask, RoRnet::LIGHTMASK_SIDELIGHTS, val); }
     bool              getHeadlightsVisible() const { return m_lightmask & RoRnet::LIGHTMASK_HEADLIGHT; }
@@ -614,6 +615,7 @@ private:
     /// @{
     GfxFlaresMode     m_flares_mode = GfxFlaresMode::NONE;       //!< Snapshot of cvar 'gfx_flares_mode' on spawn.
     BitMask_t         m_lightmask = 0;                           //!< RoRnet::Lightmask
+    BitMask_t         m_flaregroups_no_import = 0;               //!< RoRnet::Lightmask
     bool              m_blinker_autoreset = false;               //!< When true, we're steering and blinker will turn off automatically.
     bool              m_blinker_left_lit = false;                //!< Blinking state of left turn signal
     bool              m_blinker_right_lit = false;               //!< Blinking state of right turn signal

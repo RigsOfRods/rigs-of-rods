@@ -3176,6 +3176,16 @@ void Actor::setLightStateMask(BitMask_t lightmask)
     m_lightmask = lightmask;
 }
 
+void Actor::importLightStateMask(BitMask_t lightmask)
+{
+    // Override incoming '0' bits where "no import" is set.
+    BITMASK_SET_1(lightmask, m_lightmask & m_flaregroups_no_import);
+    // Override incoming '1' bits where "no import" is set.
+    BITMASK_SET_0(lightmask, ~m_lightmask & m_flaregroups_no_import);
+
+    this->setLightStateMask(lightmask);
+}
+
 void Actor::toggleCustomParticles()
 {
     if (ar_state == ActorState::DISPOSED)
