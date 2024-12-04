@@ -214,6 +214,7 @@ const char * KeywordToString(Keyword keyword)
         case Keyword::FLARES:               return "flares";
         case Keyword::FLARES2:              return "flares2";
         case Keyword::FLARES3:              return "flares3";
+        case Keyword::FLAREGROUPS_NO_IMPORT:return "flaregroups_no_import";
         case Keyword::FLEXBODIES:           return "flexbodies";
         case Keyword::FLEXBODY_CAMERA_MODE: return "flexbody_camera_mode";
         case Keyword::FLEXBODYWHEELS:       return "flexbodywheels";

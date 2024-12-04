@@ -107,6 +107,7 @@ enum class Keyword
     FLARES,
     FLARES2,
     FLARES3,
+    FLAREGROUPS_NO_IMPORT,
     FLEXBODIES,
     FLEXBODY_CAMERA_MODE,
     FLEXBODYWHEELS,
@@ -892,6 +893,12 @@ struct Flare3: public Flare2
     std::shared_ptr<Inertia> inertia_defaults;
 };
 
+struct FlaregroupNoImport
+{
+    RoR::FlareType type = RoR::FlareType::NONE;
+    int control_number = -1; //!< Only 'u' type flares.
+};
+
 struct Flexbody
 {
     Node::Ref reference_node;
@@ -1510,6 +1517,7 @@ struct Document
         std::vector<Fileinfo>              fileinfo;
         std::vector<Flare2>                flares2; // 'flares' are auto-imported as 'flares2' (only 1 extra argument)
         std::vector<Flare3>                flares3;
+        std::vector<FlaregroupNoImport>    flaregroups_no_import;
         std::vector<Flexbody>              flexbodies;
         std::vector<FlexBodyWheel>         flexbodywheels;
         std::vector<Fusedrag>              fusedrag;
