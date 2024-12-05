@@ -39,6 +39,7 @@ namespace RoR
 
     typedef int ScriptUnitID_t; //!< Unique sequentially generated ID of a loaded and running scriptin session. Use `ScriptEngine::getScriptUnit()`
     static const ScriptUnitID_t SCRIPTUNITID_INVALID = -1;
+    static const ScriptUnitID_t SCRIPTUNITID_DEFAULT = -2; //!< The script defined in .terrn2 [Scripts], or 'default.as' ~ classic behavior.
 
     typedef int PointidID_t; //!< index to `PointColDetector::hit_pointid_list`, use `RoR::POINTIDID_INVALID` as empty value.
     static const PointidID_t POINTIDID_INVALID = -1;
@@ -73,6 +74,8 @@ namespace RoR
 
     typedef int CommandkeyID_t; //!< Index into `Actor::ar_commandkeys` (BEWARE: indexed 1-MAX_COMMANDKEYS, 0 is invalid value, negative subscript of any size is acceptable, see `class CmdKeyArray` ).
     static const CommandkeyID_t COMMANDKEYID_INVALID = 0;
+
+    typedef int ScriptRetCode_t; //!< see enum `RoR::ScriptRetCode` - combines AngelScript codes and RoR internal codes.
 
     class  Actor;
     class  ActorManager;

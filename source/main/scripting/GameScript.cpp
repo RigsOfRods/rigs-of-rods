@@ -946,34 +946,39 @@ void GameScript::boostCurrentTruck(float factor)
     }
 }
 
-int GameScript::addScriptFunction(const String& arg)
+int GameScript::addScriptFunction(const String& arg, ScriptUnitID_t nid)
 {
-    return App::GetScriptEngine()->addFunction(arg);
+    return App::GetScriptEngine()->addFunction(arg, nid);
 }
 
-int GameScript::scriptFunctionExists(const String& arg)
+int GameScript::scriptFunctionExists(const String& arg, ScriptUnitID_t nid)
 {
-    return App::GetScriptEngine()->functionExists(arg);
+    return App::GetScriptEngine()->functionExists(arg, nid);
 }
 
-int GameScript::deleteScriptFunction(const String& arg)
+int GameScript::deleteScriptFunction(const String& arg, ScriptUnitID_t nid)
 {
-    return App::GetScriptEngine()->deleteFunction(arg);
+    return App::GetScriptEngine()->deleteFunction(arg, nid);
 }
 
-int GameScript::addScriptVariable(const String& arg)
+int GameScript::addScriptVariable(const String& arg, ScriptUnitID_t nid)
 {
-    return App::GetScriptEngine()->addVariable(arg);
+    return App::GetScriptEngine()->addVariable(arg, nid);
 }
 
-int GameScript::deleteScriptVariable(const String& arg)
+int GameScript::scriptVariableExists(const String& arg, ScriptUnitID_t nid)
 {
-    return App::GetScriptEngine()->deleteVariable(arg);
+    return App::GetScriptEngine()->variableExists(arg, nid);
 }
 
-int GameScript::getScriptVariable(ScriptUnitID_t nid, const Ogre::String& varName, void *ref, int refTypeId)
+int GameScript::deleteScriptVariable(const String& arg, ScriptUnitID_t nid)
 {
-    return App::GetScriptEngine()->getVariable(nid, varName, ref, refTypeId);
+    return App::GetScriptEngine()->deleteVariable(arg, nid);
+}
+
+int GameScript::getScriptVariable(const Ogre::String& varName, void *ref, int refTypeId, ScriptUnitID_t nid)
+{
+    return App::GetScriptEngine()->getVariable(varName, ref, refTypeId, nid);
 }
 
 int GameScript::sendGameCmd(const String& message)

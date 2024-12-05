@@ -221,35 +221,42 @@ public:
      * (Wrapper for ScriptEngine::addFunction)
      * @param arg A declaration for the function.
     */
-    int addScriptFunction(const Ogre::String& arg);
+    ScriptRetCode_t addScriptFunction(const Ogre::String& arg, ScriptUnitID_t nid);
 
     /**
      * Checks if a global function exists in the script
      * (Wrapper for ScriptEngine::functionExists)
      * @param arg A declaration for the function.
     */
-    int scriptFunctionExists(const Ogre::String& arg);
+    ScriptRetCode_t scriptFunctionExists(const Ogre::String& arg, ScriptUnitID_t nid);
 
     /**
      * Deletes a global function from the script
      * (Wrapper for ScriptEngine::deleteFunction)
      * @param arg A declaration for the function.
     */
-    int deleteScriptFunction(const Ogre::String& arg);
+    ScriptRetCode_t deleteScriptFunction(const Ogre::String& arg, ScriptUnitID_t nid);
 
     /**
      * Adds a global variable to the script
      * (Wrapper for ScriptEngine::addVariable)
      * @param arg A declaration for the variable.
     */
-    int addScriptVariable(const Ogre::String& arg);
+    ScriptRetCode_t addScriptVariable(const Ogre::String& arg, ScriptUnitID_t nid);
+
+    /**
+     * Adds a global variable to the script
+     * (Wrapper for ScriptEngine::variableExists)
+     * @param arg A declaration for the variable.
+    */
+    ScriptRetCode_t scriptVariableExists(const Ogre::String& arg, ScriptUnitID_t nid);
 
     /**
      * Deletes a global variable from the script
      * (Wrapper for ScriptEngine::deleteVariable)
      * @param arg A declaration for the variable.
     */
-    int deleteScriptVariable(const Ogre::String& arg);
+    ScriptRetCode_t deleteScriptVariable(const Ogre::String& arg, ScriptUnitID_t nid);
 
     /**
     * Retrieves a memory address of a global variable in any script.
@@ -259,7 +266,7 @@ public:
     * @param refTypeId Type of the reference; To be registered as variable-type parameter `?&out`
     * @return 0 on success, negative number on error.
     */
-    int getScriptVariable(ScriptUnitID_t nid, const Ogre::String& varName, void *ref, int refTypeId);
+    ScriptRetCode_t getScriptVariable(const Ogre::String& varName, void *ref, int refTypeId, ScriptUnitID_t nid);
 
     void clearEventCache();
 
