@@ -24,7 +24,7 @@ enum Stage // in order of processing
     STAGE_INIT, // detects races
     STAGE_CONVERT, // converts all races to GenericDocument race-defs
     STAGE_FIXTERRN2, // modify .terrn2 file - add [Races], remove [Scripts]
-    STAGE_IDLE, // Waiting for button press
+    STAGE_BUTTON, // Waiting for button press
     STAGE_PUSHMSG, // request game to create project
     STAGE_GETPROJECT, // fetch created project from modcache
     STAGE_WRITERACES,
@@ -89,9 +89,9 @@ void drawUI()
     ImGui::Separator();
     switch(stage)
     {
-        case STAGE_IDLE:
+        case STAGE_BUTTON:
         {
-            if (@game.getTerrain() != null   && stage == STAGE_IDLE )
+            if (@game.getTerrain() != null   && stage == STAGE_BUTTON )
             {
                 if (  ImGui::Button("Convert races from script to terrn2 [Races]"))
                 {
@@ -210,8 +210,24 @@ void initializeRacesData()
         return;
     }
     
+    //  new API `game.scriptVariableExists()`
+    int result = game.scriptVariableExists('races', terrnScriptNid);
+    if (result < 0)
+    {
+        stage = STAGE_ERROR;
+        if (result == SCRIPTRETCODE_AS_NO_GLOBAL_VAR)
+        {
+            error = "Nothing to do ~ this terrain has no races (race system isn't loaded).";
+        }
+        else
+        {
+            error = " game.scriptVariableExists() returned "+result;
+        }
+        return;
+    }
+    
     // moment of truth - retrieve the races using new API `game.getScriptVariable()`
-    int result = game.getScriptVariable(terrnScriptNid, 'races', races);
+    result = game.getScriptVariable('races', races, terrnScriptNid);
     if (result < 0)
     {
         stage = STAGE_ERROR;
@@ -550,13 +566,13 @@ void advanceImportOneStep()
         case STAGE_INIT:
         {
             initializeRacesData();
-            stage = STAGE_CONVERT;
+        if (stage != STAGE_ERROR) { stage = STAGE_CONVERT; }
             break;
         }
         case STAGE_PUSHMSG:
         {
             pushMsgRequestCreateProject();
-            stage = STAGE_GETPROJECT;
+        if (stage != STAGE_ERROR) { stage = STAGE_GETPROJECT; }
             break;
         }      
         
@@ -570,7 +586,7 @@ void advanceImportOneStep()
         {
             if (!convertNextRace())
             {
-                stage = STAGE_FIXTERRN2;
+            if (stage != STAGE_ERROR) { stage = STAGE_FIXTERRN2; }
             }
             break;
         }
@@ -585,14 +601,14 @@ void advanceImportOneStep()
         case STAGE_FIXTERRN2:
         {
             fixupTerrn2Document();
-            stage = STAGE_IDLE;
+        if (stage != STAGE_ERROR) { stage = STAGE_BUTTON; }
             break;
         }
         
         case STAGE_WRITETERRN2:
         {
             writeTerrn2();
-            stage = STAGE_DONE;
+        if (stage != STAGE_ERROR) { stage = STAGE_DONE; }
             break;
         }
         
