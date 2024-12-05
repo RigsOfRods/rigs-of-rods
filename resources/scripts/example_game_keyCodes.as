@@ -7,7 +7,7 @@ imgui_utils::CloseWindowPrompt closeBtnHandler;
 
 string keyEventLog;  // keys pressed history
 string keyEventSeparator;
-int HISTORY_LEN = 100;
+uint HISTORY_LEN = 100;
 
 void frameStep(float dt)
 {
