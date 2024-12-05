@@ -112,6 +112,60 @@ const GetFuncFlags_t GETFUNCFLAG_SILENT = BITMASK(2); //!< Never logs
 const std::string GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT = "void {}(int, string, string, int)";
 const std::string GETFUNC_DEFAULTEVENTCALLBACK_NAME = "defaultEventCallback";
 
+/// Common return codes for script manipulation funcs (add/get/delete | funcs/variables)
+enum ScriptRetCode
+{
+    // Generic success - 0 by common convention.
+    SCRIPTRETCODE_SUCCESS = AngelScript::asSUCCESS, // = AngelScript::0
+
+    // AngelScript technical codes
+    SCRIPTRETCODE_AS_ERROR = AngelScript::asERROR, // = AngelScript::-1 etc...
+    SCRIPTRETCODE_AS_CONTEXT_ACTIVE = AngelScript::asCONTEXT_ACTIVE,
+    SCRIPTRETCODE_AS_CONTEXT_NOT_FINISHED = AngelScript::asCONTEXT_NOT_FINISHED,
+    SCRIPTRETCODE_AS_CONTEXT_NOT_PREPARED = AngelScript::asCONTEXT_NOT_PREPARED,
+    SCRIPTRETCODE_AS_INVALID_ARG = AngelScript::asINVALID_ARG,
+    SCRIPTRETCODE_AS_NO_FUNCTION = AngelScript::asNO_FUNCTION,
+    SCRIPTRETCODE_AS_NOT_SUPPORTED = AngelScript::asNOT_SUPPORTED,
+    SCRIPTRETCODE_AS_INVALID_NAME = AngelScript::asINVALID_NAME,
+    SCRIPTRETCODE_AS_NAME_TAKEN = AngelScript::asNAME_TAKEN,
+    SCRIPTRETCODE_AS_INVALID_DECLARATION = AngelScript::asINVALID_DECLARATION,
+    SCRIPTRETCODE_AS_INVALID_OBJECT = AngelScript::asINVALID_OBJECT,
+    SCRIPTRETCODE_AS_INVALID_TYPE = AngelScript::asINVALID_TYPE,
+    SCRIPTRETCODE_AS_ALREADY_REGISTERED = AngelScript::asALREADY_REGISTERED,
+    SCRIPTRETCODE_AS_MULTIPLE_FUNCTIONS = AngelScript::asMULTIPLE_FUNCTIONS,
+    SCRIPTRETCODE_AS_NO_MODULE = AngelScript::asNO_MODULE,
+    SCRIPTRETCODE_AS_NO_GLOBAL_VAR = AngelScript::asNO_GLOBAL_VAR,
+    SCRIPTRETCODE_AS_INVALID_CONFIGURATION = AngelScript::asINVALID_CONFIGURATION,
+    SCRIPTRETCODE_AS_INVALID_INTERFACE = AngelScript::asINVALID_INTERFACE,
+    SCRIPTRETCODE_AS_CANT_BIND_ALL_FUNCTIONS = AngelScript::asCANT_BIND_ALL_FUNCTIONS,
+    SCRIPTRETCODE_AS_LOWER_ARRAY_DIMENSION_NOT_REGISTERED = AngelScript::asLOWER_ARRAY_DIMENSION_NOT_REGISTERED,
+    SCRIPTRETCODE_AS_WRONG_CONFIG_GROUP = AngelScript::asWRONG_CONFIG_GROUP,
+    SCRIPTRETCODE_AS_CONFIG_GROUP_IS_IN_USE = AngelScript::asCONFIG_GROUP_IS_IN_USE,
+    SCRIPTRETCODE_AS_ILLEGAL_BEHAVIOUR_FOR_TYPE = AngelScript::asILLEGAL_BEHAVIOUR_FOR_TYPE,
+    SCRIPTRETCODE_AS_WRONG_CALLING_CONV = AngelScript::asWRONG_CALLING_CONV,
+    SCRIPTRETCODE_AS_BUILD_IN_PROGRESS = AngelScript::asBUILD_IN_PROGRESS,
+    SCRIPTRETCODE_AS_INIT_GLOBAL_VARS_FAILED = AngelScript::asINIT_GLOBAL_VARS_FAILED,
+    SCRIPTRETCODE_AS_OUT_OF_MEMORY = AngelScript::asOUT_OF_MEMORY,
+    SCRIPTRETCODE_AS_MODULE_IS_IN_USE = AngelScript::asMODULE_IS_IN_USE,
+
+    // RoR ScriptEngine return codes
+    //      Following is analysis of former state (most but not all funcs returned 0 on success)
+    //       ~ executeString() [script: not exported] - used to return 0 on success, 1 on internal error and negative number otherwise.
+    //       ~ addFunction() [script: `game.addScriptFunction()`] - used to return 0 on success, 1 on internal error and negative number otherwise.
+    //       ~ functionExists() [script: `game.scriptFunctionExists()`] - used to return function ID (always >0) on success, negative number on error.
+    //       ~ deleteFunction() [script: `game.deleteScriptFunction()`] - used to return function ID (always >0) on success, negative number on error.
+    //       ~ addVariable() [script: `game.addScriptVariable()` ] - used to return 0 on success, 1 on internal error and negative number otherwise.
+    //       ~ variableExists() [script: `game.scriptVariableExists()`] - newly added, returns 0 on success  and negative number otherwise.
+    //       ~ deleteVariable() [script: `game.deleteScriptVariable()` ] - used to return 0 on success, 1 on internal error and negative number otherwise.
+    //       ~ getVariable() [script: `game.getScriptVariable()` ] - recently added, returns 0 on success  and negative number otherwise.
+    SCRIPTRETCODE_UNSPECIFIED_ERROR = -1001,
+    SCRIPTRETCODE_ENGINE_NOT_CREATED = -1002,
+    SCRIPTRETCODE_CONTEXT_NOT_CREATED = -1003,
+    SCRIPTRETCODE_SCRIPTUNIT_NOT_EXISTS = -1004, // The scpecified ScriptUnitID_t was invalid
+    SCRIPTRETCODE_SCRIPTUNIT_NO_MODULE = -1005,
+    SCRIPTRETCODE_FUNCTION_NOT_EXISTS = -1006,
+};
+
 /**
  *  @brief This class represents the angelscript scripting interface. It can load and execute scripts.
  *  @authors Thomas Fischer (thomas{AT}rigsofrods{DOT}com)
@@ -162,7 +216,7 @@ public:
      * executes a string (useful for the console)
      * @param command string to execute
      */
-    int executeString(Ogre::String command);
+    ScriptRetCode_t executeString(Ogre::String command);
 
     /**
      * Queues a string for execution.
@@ -175,38 +229,44 @@ public:
     /**
      * Adds a global function to the script
      * @param arg A declaration for the function.
+     * @param nid The script unit ID to act upon - by default the terrain script.
     */
-    int addFunction(const Ogre::String& arg);
+    ScriptRetCode_t addFunction(const Ogre::String& arg, const ScriptUnitID_t nid = SCRIPTUNITID_DEFAULT);
 
     /**
      * Checks if a global function exists
      * @param arg A declaration for the function.
     */
-    int functionExists(const Ogre::String& arg);
+    ScriptRetCode_t functionExists(const Ogre::String& arg, const ScriptUnitID_t nid = SCRIPTUNITID_DEFAULT);
 
     /**
      * Deletes a global function from the script
      * @param arg A declaration for the function.
     */
-    int deleteFunction(const Ogre::String& arg);
+    ScriptRetCode_t deleteFunction(const Ogre::String& arg, const ScriptUnitID_t nid = SCRIPTUNITID_DEFAULT);
 
     /**
      * Adds a global variable to the script
      * @param arg A declaration for the variable.
     */
-    int addVariable(const Ogre::String& arg);
+    ScriptRetCode_t addVariable(const Ogre::String& arg, const ScriptUnitID_t nid = SCRIPTUNITID_DEFAULT);
+
+    /**
+     * Adds a global variable to the script
+     * @param arg A declaration for the variable.
+    */
+    ScriptRetCode_t variableExists(const Ogre::String& arg, const ScriptUnitID_t nid = SCRIPTUNITID_DEFAULT);
 
     /**
      * Deletes a global variable from the script
      * @param arg A declaration for the variable.
     */
-    int deleteVariable(const Ogre::String& arg);
+    ScriptRetCode_t deleteVariable(const Ogre::String& arg, const ScriptUnitID_t nid = SCRIPTUNITID_DEFAULT);
 
     /**
     * Retrieves a global variable from any running script
-    * @returns 0 on success, negative number on error.
     */
-    int getVariable(ScriptUnitID_t nid, const Ogre::String& varName, void *ref, int typeID);
+    ScriptRetCode_t getVariable(const Ogre::String& varName, void *ref, int typeID, ScriptUnitID_t nid = SCRIPTUNITID_DEFAULT);
 
     /**
     * Finds a function by full declaration, and if not found, finds candidates by name and logs them to Angelscript.log
@@ -272,6 +332,12 @@ protected:
     * @return 0 on success, anything else on error.
     */
     int executeContextAndHandleErrors(ScriptUnitID_t nid);
+
+    /**
+    * Helper for all manipulations with functions/variables; ensures the script unit exists and is fully set up.
+    * @return see `RoR::ScriptRetCode` ~ 0 on success, negative number on error.
+    */
+    ScriptRetCode_t validateScriptModule(const ScriptUnitID_t nid, AngelScript::asIScriptModule*& out_mod);
 
     /// @}
 

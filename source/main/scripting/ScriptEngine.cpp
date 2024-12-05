@@ -381,6 +381,24 @@ bool ScriptEngine::prepareContextAndHandleErrors(ScriptUnitID_t nid, int asFunct
     return true;
 }
 
+ScriptRetCode_t ScriptEngine::validateScriptModule(ScriptUnitID_t nid, asIScriptModule*& out_mod)
+{
+    if (!engine)
+        return SCRIPTRETCODE_ENGINE_NOT_CREATED;
+
+    if (!context)
+        return SCRIPTRETCODE_CONTEXT_NOT_CREATED;
+
+    if (!this->scriptUnitExists(nid))
+        return SCRIPTRETCODE_SCRIPTUNIT_NOT_EXISTS;
+
+    out_mod = this->getScriptUnit(nid).scriptModule;
+    if (!out_mod)
+        return SCRIPTRETCODE_SCRIPTUNIT_NO_MODULE;
+
+    return SCRIPTRETCODE_SUCCESS;
+}
+
 void ScriptEngine::framestep(Real dt)
 {
     // Check if we need to execute any strings
@@ -480,239 +498,191 @@ void ScriptEngine::queueStringForExecution(const String command)
     stringExecutionQueue.push(command);
 }
 
-int ScriptEngine::executeString(String command)
+ScriptRetCode_t ScriptEngine::executeString(String command)
 {
-    if (!engine || !context)
-        return 1;
-
+    int result = 0;
+    AngelScript::asIScriptModule* mod = nullptr;
     // Only works with terrain script module (classic behavior)
-    if (m_terrain_script_unit == SCRIPTUNITID_INVALID)
-        return 1;
-
-    AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
-    int result = ExecuteString(engine, command.c_str(), mod, context);
-    if (result < 0)
+    result = this->validateScriptModule(m_terrain_script_unit, /*[out]*/ mod);
+    if (result == 0)
     {
-        SLOG("error " + TOSTRING(result) + " while executing string: " + command + ".");
+        result = ExecuteString(engine, command.c_str(), mod, context);
+        if (result < 0)
+        {
+            SLOG(fmt::format("Error {} while executing string `{}`", result, command));
+        }
     }
     return result;
 }
 
-int ScriptEngine::addFunction(const String &arg)
+ScriptRetCode_t ScriptEngine::addFunction(const String &arg, const ScriptUnitID_t nid /*= SCRIPTUNITID_DEFAULT*/)
 {
-    if (!engine || !context)
-        return 1;
-
-    if (!context)
-        
-
-    // Only works with terrain script module (classic behavior)
-    if (m_terrain_script_unit == SCRIPTUNITID_INVALID)
-        return 1;
-
-    AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
-
-    AngelScript::asIScriptFunction *func = 0;
-    int r = mod->CompileFunction("addfunc", arg.c_str(), 0, AngelScript::asCOMP_ADD_TO_MODULE, &func);
-    
-    if ( r < 0 )
+    int result = 0;
+    AngelScript::asIScriptModule* mod = nullptr;
+    result = this->validateScriptModule(nid, /*[out]*/ mod);
+    if (result == 0)
     {
-        char tmp[512] = "";
-        snprintf(tmp, 512, "An error occurred while trying to add a function ('%s') to script module '%s'.", arg.c_str(), mod->GetName());
-        SLOG(tmp);
-    }
-    else
-    {
-        // successfully added function; Check if we added a "special" function
+        AngelScript::asIScriptFunction* func = nullptr;
+        result = mod->CompileFunction("addfunc", arg.c_str(), 0, AngelScript::asCOMP_ADD_TO_MODULE, &func);
+        if (result == 0)
+        {
+            // successfully added function; Check if we added a "special" function
 
-        if (func == mod->GetFunctionByDecl("void frameStep(float)"))
-        {
-            if (m_script_units[m_terrain_script_unit].frameStepFunctionPtr == nullptr)
-                m_script_units[m_terrain_script_unit].frameStepFunctionPtr = func;
-        }
-        else if (func == mod->GetFunctionByDecl("void eventCallback(int, int)"))
-        {
-            if (m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr == nullptr)
-                m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr = func;
-        }
-        else if (func == mod->GetFunctionByDecl("void eventCallbackEx(scriptEvents,   int, int, int, int,   string, string, string, string)"))
-        {
-            if (m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr == nullptr)
-                m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr = func;
-        }
-        // THIS IS OBSOLETE - Use `eventCallbackEx()` and `SE_EVENTBOX_ENTER` instead. See commentary in `envokeCallback()`
-        else if (func == this->getFunctionByDeclAndLogCandidates(
+            if (func == mod->GetFunctionByDecl("void frameStep(float)"))
+            {
+                if (m_script_units[m_terrain_script_unit].frameStepFunctionPtr == nullptr)
+                    m_script_units[m_terrain_script_unit].frameStepFunctionPtr = func;
+            }
+            else if (func == mod->GetFunctionByDecl("void eventCallback(int, int)"))
+            {
+                if (m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr == nullptr)
+                    m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr = func;
+            }
+            else if (func == mod->GetFunctionByDecl("void eventCallbackEx(scriptEvents,   int, int, int, int,   string, string, string, string)"))
+            {
+                if (m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr == nullptr)
+                    m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr = func;
+            }
+            // THIS IS OBSOLETE - Use `eventCallbackEx()` and `SE_EVENTBOX_ENTER` instead. See commentary in `envokeCallback()`
+            else if (func == this->getFunctionByDeclAndLogCandidates(
                 m_terrain_script_unit, GETFUNCFLAG_OPTIONAL,
                 GETFUNC_DEFAULTEVENTCALLBACK_NAME, GETFUNC_DEFAULTEVENTCALLBACK_SIGFMT))
+            {
+                if (m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr == nullptr)
+                    m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr = func;
+            }
+        }
+        else
         {
-            if (m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr == nullptr)
-                m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr = func;
+            SLOG(fmt::format("Error {} adding function `{}` to script module '{}'", result, arg, mod->GetName()));
+        }
+        // We must release the function object
+        if (func)
+            func->Release();
+    }
+
+    return result;
+}
+
+ScriptRetCode_t ScriptEngine::functionExists(const String& arg, const ScriptUnitID_t nid /*= SCRIPTUNITID_DEFAULT*/)
+{
+    int result = 0;
+    AngelScript::asIScriptModule* mod = nullptr;
+    result = this->validateScriptModule(nid, /*[out]*/ mod);
+    if (result == 0)
+    {
+        if (mod->GetFunctionByDecl(arg.c_str()) != nullptr)
+            result = SCRIPTRETCODE_FUNCTION_NOT_EXISTS;
+    }
+    return result;
+}
+
+ScriptRetCode_t ScriptEngine::deleteFunction(const String &arg, const ScriptUnitID_t nid /*= SCRIPTUNITID_DEFAULT*/)
+{
+    int result = 0;
+    AngelScript::asIScriptModule* mod = nullptr;
+    result = this->validateScriptModule(nid, /*[out]*/ mod);
+    if (result == 0)
+    {
+        AngelScript::asIScriptFunction* func = mod->GetFunctionByDecl(arg.c_str());
+        if (func != nullptr)
+        {
+            // Warning: The function is not destroyed immediately, only when no more references point to it.
+            result = mod->RemoveFunction(func);
+            if (result != 0)
+            {
+                SLOG(fmt::format("Error {} removing function `{}` from module '{}' - continuing anyway (compatibility).", result, arg, mod->GetName()));
+            }
+
+            // Since functions can be recursive, we'll call the garbage
+            // collector to make sure the object is really freed
+            engine->GarbageCollect();
+
+            // Check if we removed a "special" function
+
+            if (m_script_units[m_terrain_script_unit].frameStepFunctionPtr == func)
+                m_script_units[m_terrain_script_unit].frameStepFunctionPtr = nullptr;
+
+            if (m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr == func)
+                m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr = nullptr;
+
+            if (m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr == func)
+                m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr = nullptr;
+
+            if (m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr == func)
+                m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr = nullptr;
+        }
+        else
+        {
+            SLOG(fmt::format("Could not remove function `{}` from module '{}' - not found.", arg, mod->GetName()));
         }
     }
-
-    // We must release the function object
-    if ( func )
-        func->Release();
-
-    return r;
+    return result;
 }
 
-int ScriptEngine::functionExists(const String &arg)
+ScriptRetCode_t ScriptEngine::addVariable(const String &arg, const ScriptUnitID_t nid /*= SCRIPTUNITID_DEFAULT*/)
 {
-    if (!engine || !context) // WTF? If the scripting engine failed to start, how would it invoke this function?
-        return -1; // ... OK, I guess the author wanted the fn. to be usable both within script and C++, but IMO that's bad design (generally good, but bad for a game.. bad for RoR), really ~ only_a_ptr, 09/2017
-
-    // Only works with terrain script module (classic behavior)
-    if (m_terrain_script_unit == SCRIPTUNITID_INVALID)
-        return -1;
-
-    AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
-
-    if (mod == 0)
+    int result = 0;
+    AngelScript::asIScriptModule* mod = nullptr;
+    result = this->validateScriptModule(nid, /*[out]*/ mod);
+    if (result == 0)
     {
-        return AngelScript::asNO_FUNCTION; // Nope, it's an internal error, not a "function not found" case ~ only_a_ptr, 09/2017
+        result = mod->CompileGlobalVar("addvar", arg.c_str(), 0);
+        if (result < 0)
+        {
+            SLOG(fmt::format("Error {} while adding variable `{}` to module '{}'", result, arg, mod->GetName()));
+        }
     }
-    else
-    {
-        AngelScript::asIScriptFunction* fn = mod->GetFunctionByDecl(arg.c_str());
-        if (fn != nullptr)
-            return fn->GetId();
-        else
-            return AngelScript::asNO_FUNCTION;
-    }
+    return result;
 }
 
-int ScriptEngine::deleteFunction(const String &arg)
+ScriptRetCode_t ScriptEngine::variableExists(const String& arg, const ScriptUnitID_t nid /*= SCRIPTUNITID_DEFAULT*/)
 {
-    if (!engine || !context)
-        return AngelScript::asERROR;
-
-    // Only works with terrain script module (classic behavior)
-    if (m_terrain_script_unit == SCRIPTUNITID_INVALID)
-        return -1;
-
-    AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
-
-    if ( mod->GetFunctionCount() == 0 )
+    int result = 0;
+    AngelScript::asIScriptModule* mod = nullptr;
+    result = this->validateScriptModule(nid, /*[out]*/ mod);
+    if (result == 0)
     {
-        char tmp[512] = "";
-        sprintf(tmp, "An error occurred while trying to remove a function ('%s') from script module '%s': No functions have been added (and consequently: the function does not exist).", arg.c_str(), mod->GetName());
-        SLOG(tmp);
-        return AngelScript::asNO_FUNCTION;
+        result = mod->GetGlobalVarIndexByName(arg.c_str());
+        if (result >= 0)
+        {
+            result = 0;
+        }
     }
-
-    AngelScript::asIScriptFunction* func = mod->GetFunctionByDecl(arg.c_str());
-    if (func != nullptr)
-    {
-        // Warning: The function is not destroyed immediately, only when no more references point to it.
-        mod->RemoveFunction(func);
-
-        // Since functions can be recursive, we'll call the garbage
-        // collector to make sure the object is really freed
-        engine->GarbageCollect();
-
-        // Check if we removed a "special" function
-
-        if ( m_script_units[m_terrain_script_unit].frameStepFunctionPtr == func )
-            m_script_units[m_terrain_script_unit].frameStepFunctionPtr = nullptr;
-
-        if ( m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr == func )
-            m_script_units[m_terrain_script_unit].eventCallbackFunctionPtr = nullptr;
-
-        if (m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr == func)
-            m_script_units[m_terrain_script_unit].eventCallbackExFunctionPtr = nullptr;
-
-        if ( m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr == func )
-            m_script_units[m_terrain_script_unit].defaultEventCallbackFunctionPtr = nullptr;
-
-        return func->GetId();
-    }
-    else
-    {
-        char tmp[512] = "";
-        sprintf(tmp, "An error occurred while trying to remove a function ('%s') from script module '%s'.", arg.c_str(), mod->GetName());
-        SLOG(tmp);
-        return AngelScript::asERROR;
-    }
+    return result;
 }
 
-int ScriptEngine::addVariable(const String &arg)
+ScriptRetCode_t ScriptEngine::deleteVariable(const String &arg, const ScriptUnitID_t nid /*= SCRIPTUNITID_DEFAULT*/)
 {
-    if (!engine || !context) return 1;
-    // Only works with terrain script module (classic behavior)
-    if (m_terrain_script_unit == SCRIPTUNITID_INVALID)
-        return 1;
-
-    AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
-
-    int r = mod->CompileGlobalVar("addvar", arg.c_str(), 0);
-    if ( r < 0 )
+    int result = 0;
+    AngelScript::asIScriptModule* mod = nullptr;
+    result = this->validateScriptModule(nid, /*[out]*/ mod);
+    if (result == 0)
     {
-        char tmp[512] = "";
-        sprintf(tmp, "An error occurred while trying to add a variable ('%s') to script module '%s'.", arg.c_str(), mod->GetName());
-        SLOG(tmp);
+        result = mod->GetGlobalVarIndexByName(arg.c_str());
+        if (result >= 0)
+        {
+            result = mod->RemoveGlobalVar(result);
+        }
     }
-
-    return r;
+    if (result < 0)
+    {
+        SLOG(fmt::format("Error {} while removing variable `{}` from module '{}'", result, arg, mod->GetName()));
+    }
+    return result;
 }
 
-int ScriptEngine::deleteVariable(const String &arg)
+ScriptRetCode_t ScriptEngine::getVariable(const Ogre::String& varName, void *ref, int refTypeId, const ScriptUnitID_t nid /*= SCRIPTUNITID_DEFAULT*/)
 {
-    if (!engine || !context) return 1;
-    // Only works with terrain script module (classic behavior)
-    if (m_terrain_script_unit == SCRIPTUNITID_INVALID)
-        return 1;
-    AngelScript::asIScriptModule *mod = m_script_units[m_terrain_script_unit].scriptModule;
-
-    if ( mod == 0 || mod->GetGlobalVarCount() == 0 )
-    {
-        char tmp[512] = "";
-        sprintf(tmp, "An error occurred while trying to remove a variable ('%s') from script module '%s': No variables have been added (and consequently: the variable does not exist).", arg.c_str(), mod->GetName());
-        SLOG(tmp);
-        return AngelScript::asNO_GLOBAL_VAR;
-    }
-
-    int index = mod->GetGlobalVarIndexByName(arg.c_str());
-    if ( index >= 0 )
-    {
-        index = mod->RemoveGlobalVar(index);
-    }
-    else
-    {
-        char tmp[512] = "";
-        sprintf(tmp, "An error occurred while trying to remove a variable ('%s') from script module '%s'.", arg.c_str(), mod->GetName());
-        SLOG(tmp);
-    }
-
-    return index;
-}
-
-int ScriptEngine::getVariable(ScriptUnitID_t nid, const Ogre::String& varName, void *ref, int refTypeId)
-{
-    if (!engine || !context)
-    {
-        SLOG("Error in `getVariable()` - engine or context not initialized");
-        return -1;
-    }
-
-    if (!this->scriptUnitExists(nid))
-    {
-        SLOG("Error in `getVariable()` - script unit does not exist");
-        return -2;
-    }
-
-    AngelScript::asIScriptModule *mod = m_script_units[nid].scriptModule;
-    if (!mod)
-    {
-        SLOG("Error in `getVariable()` - script module not initialized");
-        return -3;
-    }
+    AngelScript::asIScriptModule* mod = nullptr;
+    int modResult = this->validateScriptModule(nid, /*[out]*/ mod);
+    if (modResult < 0)
+        return modResult;
 
     int index = mod->GetGlobalVarIndexByName(varName.c_str());
     if (index < 0)
     {
-        SLOG(fmt::format("Error in `getVariable()` - '{}' not found", varName));
-        return -4;
+        return index;
     }
 
     const char* asVarName = nullptr;
@@ -722,8 +692,7 @@ int ScriptEngine::getVariable(ScriptUnitID_t nid, const Ogre::String& varName, v
     int getResult = mod->GetGlobalVar(index, &asVarName, &asNamespace, &asTypeId, &asConst);
     if (getResult < 0)
     {
-        SLOG(fmt::format("Error in `getVariable()` - error while getting type of '{}'", varName));
-        return -5;
+        return getResult;
     }
 
     SLOG(fmt::format("getVariable() - '{}' global var info: name='{}', namespace='{}', typeid={}, const={}",
@@ -731,59 +700,59 @@ int ScriptEngine::getVariable(ScriptUnitID_t nid, const Ogre::String& varName, v
 
     // ~~ DEV NOTE: The following code is adopted from AngelScript's add-on 'scriptany.cpp', function `Retrieve()` ~~
 
-	if( refTypeId & asTYPEID_OBJHANDLE )
-	{
-		// Is the handle type compatible with the stored value?
+    if( refTypeId & asTYPEID_OBJHANDLE )
+    {
+        // Is the handle type compatible with the stored value?
 
-		// A handle can be retrieved if the stored type is a handle of same or compatible type
-		// or if the stored type is an object that implements the interface that the handle refer to.
-		if( (asTypeId & asTYPEID_MASK_OBJECT) )
-		{
-			// Don't allow the retrieval if the stored handle is to a const object but not the wanted handle
-			if( (asTypeId & asTYPEID_HANDLETOCONST) && !(refTypeId & asTYPEID_HANDLETOCONST) )
+        // A handle can be retrieved if the stored type is a handle of same or compatible type
+        // or if the stored type is an object that implements the interface that the handle refer to.
+        if( (asTypeId & asTYPEID_MASK_OBJECT) )
+        {
+            // Don't allow the retrieval if the stored handle is to a const object but not the wanted handle
+            if( (asTypeId & asTYPEID_HANDLETOCONST) && !(refTypeId & asTYPEID_HANDLETOCONST) )
             {
                 SLOG(fmt::format("Error in `getVariable()` - '{}' is a handle to `const` object but the requested type is not.", varName));
-				return -6;
+                return SCRIPTRETCODE_UNSPECIFIED_ERROR;
             }
 
-			// RefCastObject will increment the refCount of the returned pointer if successful
-			engine->RefCastObject(mod->GetAddressOfGlobalVar(index), engine->GetTypeInfoById(asTypeId), engine->GetTypeInfoById(refTypeId), reinterpret_cast<void**>(ref));
-			if( *(asPWORD*)ref == 0 )
+            // RefCastObject will increment the refCount of the returned pointer if successful
+            engine->RefCastObject(mod->GetAddressOfGlobalVar(index), engine->GetTypeInfoById(asTypeId), engine->GetTypeInfoById(refTypeId), reinterpret_cast<void**>(ref));
+            if( *(asPWORD*)ref == 0 )
             {
                 SLOG(fmt::format("Error in `getVariable()` - '{}': reference-cast from '{}' to '{}' yielded null",
                     varName, engine->GetTypeDeclaration(asTypeId), engine->GetTypeDeclaration(refTypeId)));
-				return -7;
+                return SCRIPTRETCODE_UNSPECIFIED_ERROR;
             }
-			return 0;
-		}
-	}
-	else if( refTypeId & asTYPEID_MASK_OBJECT )
-	{
-		// Is the object type compatible with the stored value?
+            return 0;
+        }
+    }
+    else if( refTypeId & asTYPEID_MASK_OBJECT )
+    {
+        // Is the object type compatible with the stored value?
 
-		// Copy the object into the given reference
-		if( asTypeId == refTypeId )
-		{
-			engine->AssignScriptObject(ref, mod->GetAddressOfGlobalVar(index), engine->GetTypeInfoById(asTypeId));
-			return 0;
-		}
-	}
-	else
-	{
-		// Is the primitive type _IDENTICAL TO_ the stored value?
+        // Copy the object into the given reference
+        if( asTypeId == refTypeId )
+        {
+            engine->AssignScriptObject(ref, mod->GetAddressOfGlobalVar(index), engine->GetTypeInfoById(asTypeId));
+            return 0;
+        }
+    }
+    else
+    {
+        // Is the primitive type _IDENTICAL TO_ the stored value?
         // NOTE: implicit conversions are not done automatically, we would have to write code for each case separately
 
-		if( asTypeId == refTypeId )
-		{
-			int size = engine->GetSizeOfPrimitiveType(refTypeId);
-			memcpy(ref, mod->GetAddressOfGlobalVar(index), size);
-			return 0;
-		}
-	}
+        if( asTypeId == refTypeId )
+        {
+            int size = engine->GetSizeOfPrimitiveType(refTypeId);
+            memcpy(ref, mod->GetAddressOfGlobalVar(index), size);
+            return 0;
+        }
+    }
 
     SLOG(fmt::format("Error in `getVariable()` - '{}' has incompatible type, expected '{}' (typeid {}), got '{}' (typeid {})",
         varName, engine->GetTypeDeclaration(refTypeId), refTypeId, engine->GetTypeDeclaration(asTypeId), asTypeId));
-	return -8;
+    return SCRIPTRETCODE_UNSPECIFIED_ERROR;
 }
 
 asIScriptFunction* ScriptEngine::getFunctionByDeclAndLogCandidates(ScriptUnitID_t nid, GetFuncFlags_t flags, const std::string& funcName, const std::string& fmtFuncDecl)

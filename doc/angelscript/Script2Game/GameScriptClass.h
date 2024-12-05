@@ -274,41 +274,59 @@ public:
 	/**
 	 * Adds a global function to the script.
 	 * @param func the function to be added, e.g.: "void func() { log('works'); }"
+     * @param nid ScriptUnitID to act upon, or -2 to fallback to the terrain script (defined in .terrn2 [Scripts], or 'default.as')
+     * @return 0 on success, negative number on error.
 	 */
-	int addScriptFunction(const string func);
+	ScriptRetCode addScriptFunction(const string func, ScriptUnitId_t nid = -2);
 	
 	/**
 	 * Checks if a global function exists
 	 * @param func the declaration of the function that should be checked for existance, e.g.: "void func()"
+     * @param nid ScriptUnitID to act upon, or -2 to fallback to the terrain script (defined in .terrn2 [Scripts], or 'default.as')
+     * @return 0 on success, negative number on error.
 	 */
-	int scriptFunctionExists(const string func);
+	ScriptRetCode scriptFunctionExists(const string func, ScriptUnitId_t nid = -2);
 	
 	/**
 	 * Removes a global function from the script.
 	 * @param func the declaration of the function that should be removed, e.g.: "void func()"
+     * @param nid ScriptUnitID to act upon, or -2 to fallback to the terrain script (defined in .terrn2 [Scripts], or 'default.as')
+     * @return 0 on success, negative number on error.
 	 */
-	int deleteScriptFunction(const string func);
+	ScriptRetCode deleteScriptFunction(const string func, ScriptUnitId_t nid = -2);
 	
 	/**
 	 * Adds a global variable to the script.
 	 * @param var the declaration of the variable that should be added, e.g.: "int missionState;"
+     * @param nid ScriptUnitID to act upon, or -2 to fallback to the terrain script (defined in .terrn2 [Scripts], or 'default.as')
+     * @return 0 on success, negative number on error.
 	 */
-	int addScriptVariable(const string var);
+	ScriptRetCode addScriptVariable(const string var, ScriptUnitId_t nid = -2);
+    
+	/**
+	 * Checks if a global variable exists in the script.
+	 * @param var the declaration of the variable that should be removed, e.g.: "int missionState;"
+     * @param nid ScriptUnitID to act upon, or -2 to fallback to the terrain script (defined in .terrn2 [Scripts], or 'default.as')
+     * @return 0 on success, negative number on error.
+	 */
+	ScriptRetCode scriptVariableExists(const string var, ScriptUnitId_t nid = -2);    
 	
 	/**
 	 * Removes a global variable from the script.
 	 * @param var the declaration of the variable that should be removed, e.g.: "int missionState;"
+     * @param nid ScriptUnitID to act upon, or -2 to fallback to the terrain script (defined in .terrn2 [Scripts], or 'default.as')
+     * @return 0 on success, negative number on error.
 	 */
-	int deleteScriptVariable(const string var);
+	ScriptRetCode deleteScriptVariable(const string var, ScriptUnitId_t nid = -2);
     
     /**
-    * Retrieves a memory address of a global variable in any script.
-    * @param nid ScriptUnitID, ID of the running script, obtain one from global var `thisScript` or `game.getRunningScripts()`
-    * @param varName Name of the variable. Type must match the reference type.
-    * @param ref A variable-type parameter - accepts any reference.
-    * @return 0 on success, negative number on error.
-    */
-    int getScriptVariable(ScriptUnitId_t nid, const string&in varName, ?&ref);    
+     * Retrieves a memory address of a global variable in any script.
+     * @param nid ScriptUnitID to act upon, or -2 to fallback to the terrain script (defined in .terrn2 [Scripts], or 'default.as')
+     * @param varName Name of the variable. Type must match the reference type.
+     * @param ref A variable-type parameter - accepts any reference.
+     * @return 0 on success, negative number on error.
+     */
+    ScriptRetCode getScriptVariable(const string&in varName, ?&ref, ScriptUnitId_t nid = -2);    
 
 	/**
 	 * Clears the event cache
