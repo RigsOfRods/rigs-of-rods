@@ -13,7 +13,7 @@
 // Global vars - config
 string cfgTerrnFilename = "simple2.terrn2";
 string cfgVehicleFilename = "b6b0UID-semi.truck";
-int cfgNumSpawns = 3;
+uint cfgNumSpawns = 3;
 int cfgStopAfterNumDeletes = 1; // Optional, Use -1 to disable; this seems to reproduce a dangling pointer crash in SoundScriptManager.
 
 // Global vars - test step tracking
@@ -54,7 +54,7 @@ void main()
 
  
     
-    game.log("Automated test is running...");
+    game.log("Automated test script: enters preconfigured terrain ("+cfgTerrnFilename+") and keeps loading/unloading preconfigured vehicle ("+cfgTerrnFilename+")");
 }
 
 void eventCallbackEx(scriptEvents ev,   int arg1, int arg2ex, int arg3ex, int arg4ex,   string arg5ex, string arg6ex, string arg7ex, string arg8ex)
@@ -81,8 +81,9 @@ void frameStep(float dt)
     switch (gStep)
     {
         case 0:
-            testLogStep("Waiting for the game to fully load...");
+            testLogStep("Waiting for main menu (to load preconfigured terrain "+cfgTerrnFilename+")...");
             // this isn't really needed now since `frameStep()` updates are halted during bootstrap, but let's pretend we do async rendering :)
+            // UPDATE: since this became an example it's useful to let users return to main menu.
             if (gCvarAppState.getInt() == 1)
             {
                 gStep++;
@@ -150,7 +151,7 @@ void frameStep(float dt)
             
         case 8:
             testLogStep("Removing AI vehicles");
-            for (int i = 0; i < gVehicleIDs.length(); i++)
+            for (uint i = 0; i < gVehicleIDs.length(); i++)
             {
                 game.pushMessage(MSG_SIM_DELETE_ACTOR_REQUESTED, { {'instance_id', gVehicleIDs[i]} });
                 gTotalDeletes++;
