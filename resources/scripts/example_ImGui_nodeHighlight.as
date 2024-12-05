@@ -27,7 +27,7 @@ void frameStep(float dt)
     if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
     {
         closeBtnHandler.draw();
-
+        
         ImGui::TextDisabled("::: NODE HIGHLIGHT DEMO:::");
         ImGui::Separator();
         BeamClass@ actor = game.getCurrentTruck();
@@ -55,7 +55,7 @@ void frameStep(float dt)
                 drawConfigUI();
             }
         }
-            
+        
         ImGui::End();
     }    
 }
@@ -178,6 +178,7 @@ void drawNodeHighlights(BeamClass@ actor)
     int mouseClosestNodeID = -1;
     
     int mouseClosestNodeDist = 999999;
+    nodeSelectedStates.resize(actor.getNodeCount());
     
     ImDrawList@ drawlist = imgui_utils::ImGetDummyFullscreenWindow("nodeHighlights");
     for (int i = 0; i < actor.getNodeCount(); i++)
