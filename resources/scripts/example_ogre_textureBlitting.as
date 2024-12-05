@@ -8,8 +8,8 @@ imgui_utils::CloseWindowPrompt closeBtnHandler;
 
 #include "gridviewer_utils.as"
 
-GridViewer gDstViewer;
-GridViewer gSrcViewer;
+gridviewer_utils::GridViewer gDstViewer;
+gridviewer_utils::GridViewer gSrcViewer;
 Ogre::Image gSrcImg;
 Ogre::TexturePtr gSrcTex; // only for display, not blitting ATM
 Ogre::TexturePtr gDstTex;
@@ -58,7 +58,7 @@ void setupTexBlitTool()
     pixbuf = gDstTex.getBuffer(/*cubemap face index:*/0, /*mipmap:*/0);  
 }
 
-void drawTexGridViewer(GridViewer@ aThisViewer, vector2 aViewerSize, Ogre::TexturePtr&in imgTex, bool&inout aDrawingBox, box&inout aThisBox)
+void drawTexGridViewer(gridviewer_utils::GridViewer@ aThisViewer, vector2 aViewerSize, Ogre::TexturePtr&in imgTex, bool&inout aDrawingBox, box&inout aThisBox)
 {
     // Common for DST and SRC viewers
     // ------------------------------
@@ -112,8 +112,9 @@ void drawTexBlitGridViews()
 {
     vector2 windowSize = ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin();    
     float spaceUnderViewer = 99;
-    vector2 panelSize = vector2(windowSize.x / 2, windowSize.y - (gBottomBarHeight));
-    vector2 viewerSize = vector2(windowSize.x / 2, windowSize.y - (gBottomBarHeight+spaceUnderViewer));
+    float topCommentsHeight = 50;
+    vector2 panelSize = vector2(windowSize.x / 2, windowSize.y - (gBottomBarHeight + topCommentsHeight));
+    vector2 viewerSize = vector2(windowSize.x / 2, windowSize.y - (gBottomBarHeight+spaceUnderViewer+ topCommentsHeight));
     
     if (ImGui::BeginChild("leftPane",panelSize))
     {    
@@ -168,9 +169,12 @@ void frameStep(float dt)
 {
     gIsMouseDown = ImGui::IsMouseDown(1);
     
-    if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
+    if (ImGui::Begin("Example of painting image over texture (aka 'blitting')", closeBtnHandler.windowOpen, 0))
     {
         closeBtnHandler.draw();
+        ImGui::TextDisabled("Select a region in the left panel (using click-and-drag with right mouse button) and press [Blit!] to paint the image from the right panel.");
+        ImGui::TextDisabled("NOTE: this only paints to the highest LOD(level of detail) of the texture - to see the effect, you must zoom very close to the character.");
+        ImGui::TextDisabled("KNOWN BUG - under OpenGL on Win10, the texture in left panel may not be visible!");
         
         drawTexBlitGridViews();
         ImGui::Separator();
