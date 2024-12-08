@@ -398,7 +398,7 @@ int Collisions::hash_find(int cell_x, int cell_z)
     return static_cast<int>(pos);
 }
 
-int Collisions::addCollisionBox(bool rotating, bool virt, Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String &eventname, const Ogre::String &instancename, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc /* = Vector3::UNIT_SCALE */, Ogre::Vector3 dr /* = Vector3::ZERO */, CollisionEventFilter event_filter /* = EVENT_ALL */, int scripthandler /* = -1 */)
+int Collisions::addCollisionBox(bool rotating, bool virt, Vector3 pos, Ogre::Vector3 rot, Ogre::Vector3 l, Ogre::Vector3 h, Ogre::Vector3 sr, const Ogre::String &eventname, const Ogre::String &instancename, const Ogre::String& reverb_preset_name, bool forcecam, Ogre::Vector3 campos, Ogre::Vector3 sc /* = Vector3::UNIT_SCALE */, Ogre::Vector3 dr /* = Vector3::ZERO */, CollisionEventFilter event_filter /* = EVENT_ALL */, int scripthandler /* = -1 */)
 {
     Quaternion rotation  = Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z);
     Quaternion direction = Quaternion(Degree(dr.x), Vector3::UNIT_X) * Quaternion(Degree(dr.y), Vector3::UNIT_Y) * Quaternion(Degree(dr.z), Vector3::UNIT_Z);
@@ -426,6 +426,12 @@ int Collisions::addCollisionBox(bool rotating, bool virt, Vector3 pos, Ogre::Vec
     if (forcecam)
     {
         coll_box.campos = coll_box.center + rotation * campos;
+    }
+
+    // audio stuff
+    if (!reverb_preset_name.empty())
+    {
+        coll_box.reverb_preset_name = reverb_preset_name;
     }
 
     // first, self-rotate
@@ -662,6 +668,24 @@ std::pair<bool, Ogre::Real> Collisions::intersectsTris(Ogre::Ray ray)
                     return result;
                 }
             }
+        }
+    }
+
+    return std::make_pair(false, 0.0f);
+}
+
+std::pair<bool, Ogre::Real> Collisions::intersectsTerrain(Ogre::Ray ray, const Ogre::Real distance_limit, const Ogre::Real step_size)
+{
+    ray.setDirection(ray.getDirection().normalisedCopy());
+
+    for (Ogre::Real distance = Ogre::Real(0); distance < distance_limit; distance += step_size)
+    {
+        Ogre::Vector3 position = ray.getPoint(distance);
+        Ogre::Real terrain_height = App::GetGameContext()->GetTerrain()->GetHeightAt(position.x, position.z);
+
+        if (terrain_height > position.y)
+        {
+            return std::make_pair(true, distance);
         }
     }
 
