@@ -3,20 +3,22 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# Ricky Tigg <ricky.tigg@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: Finnish (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/fi/)\n"
+"PO-Revision-Date: 2024-12-09 23:00+0000\n"
+"Last-Translator: Ricky Tigg <ricky.tigg@gmail.com>\n"
+"Language-Team: Finnish <https://hosted.weblate.org/projects/rigs-of-rods/"
+"game/fi/>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.9-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -28,18 +30,16 @@ msgid "No render system plugin available. Check your plugins.cfg"
 msgstr ""
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgid "Screenshot Format:"
 msgid "Screenshot: "
-msgstr "Kuvakaappauksen formaatti:"
+msgstr "Kuvakaappaus: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Virhe haettaessa ohjelmahakemistopolkua"
 
 #: AppContext.cpp:426
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Virhe haettaessa käyttäjän hakemistopolkua"
 
 #: AppContext.cpp:477
 msgid "Resources folder not found. Check if correctly installed."
@@ -47,35 +47,27 @@ msgstr "Resurssikansiota ei löydetty. Tarkista onko asennettu oikein."
 
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
-msgstr ""
+msgstr "Viallinen resurssikansio. Tarkista, onko asennettu oikein."
 
 #: Application.cpp:387
-#, fuzzy
-#| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
 msgstr "Automaattivaihteisto"
 
 #: Application.cpp:388
-#, fuzzy
-#| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr "Manuaalinen vaihteisto - automaattinen kytkin"
+msgstr "Manuaalinen vaihto automaattisella kytkimellä"
 
 #: Application.cpp:389
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr "Täysmanuaali: sekventaalivaihteisto"
+msgstr "Täysin manuaalinen: peräkkäinen vaihto"
 
 #: Application.cpp:390
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr "Täysmanuaali: sekventaalivaihteisto"
+msgstr "Täysin manuaalinen: sauvavaihto"
 
 #: Application.cpp:391
 #, fuzzy
