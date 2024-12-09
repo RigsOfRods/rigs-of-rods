@@ -108,8 +108,8 @@ SoundManager::SoundManager()
         alSourcef(hardware_sources[hardware_sources_num], AL_MAX_DISTANCE, MAX_DISTANCE);
     }
 
-    alDopplerFactor(1.0f);
-    alDopplerVelocity(343.0f);
+    alDopplerFactor(App::audio_doppler_factor->getFloat());
+    alSpeedOfSound(343.3f);
 
     for (int i = 0; i < MAX_HARDWARE_SOURCES; i++)
     {
@@ -135,11 +135,11 @@ SoundManager::~SoundManager()
     LOG("SoundManager destroyed.");
 }
 
-void SoundManager::setCamera(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity)
+void SoundManager::setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity)
 {
     if (!audio_device)
         return;
-    camera_position = position;
+    listener_position = position;
     recomputeAllSources();
 
     float orientation[6];
@@ -171,7 +171,7 @@ void SoundManager::recomputeAllSources()
 
 	for (int i=0; i < audio_buffers_in_use_count; i++)
 	{
-		audio_sources[i]->computeAudibility(camera_position);
+		audio_sources[i]->computeAudibility(listener_position);
 		audio_sources_most_audible[i].first = i;
 		audio_sources_most_audible[i].second = audio_sources[i]->audibility;
 	}
@@ -209,7 +209,7 @@ void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vect
 {
     if (!audio_device)
         return;
-    audio_sources[source_index]->computeAudibility(camera_position);
+    audio_sources[source_index]->computeAudibility(listener_position);
 
     if (audio_sources[source_index]->audibility == 0.0f)
     {
