@@ -49,6 +49,7 @@ vector3 dirValue = vector3(0,0,0);
 vector3 resetDir() { return vector3(0,0,0); }
 
 
+
 funcdef vector3 VEC3GETTER(void);
 funcdef void VEC3SETTER(vector3&in);
 
@@ -86,12 +87,28 @@ vector3 editorCamDirection = vector3(0,0,0);
 bool editorCamInit=false;
 float editorCamElevation=175.f; // meters above ground
 float editorCamSpeed = 2.5f;
+float editorCamInitZTravelMeters = 150; // compensate for difference between "look at character" and "set pitchdown camera orientation"
+// transition from person cam to editor cam.
+bool editorCamComingUp = false;
+float editorCamComingUpDurationSec = 1.f;
+float editorCamComingUpElapsedSec = 0.f;
+vector3 camPosBeforeEditorCam = vector3(0,0,0);
+// set orientation - pitch down 55degrees
+const vector3 X_AXIS(1,0,0);
+const radian PITCHDOWN = degree(-55);
+quaternion editorCamOrientation( PITCHDOWN, X_AXIS);
+
+// END transition to editor cam
 void updateEditorCam()
 {
     if (!editorCamInit)
     {
         editorCamPos = game.getPersonPosition();
-        editorCamInit=true;
+        
+        camPosBeforeEditorCam = game.getCameraPosition();
+        
+        editorCamComingUp = true;
+        editorCamComingUpElapsedSec=0.f;
     }
     vector2 m = game.getMouseScreenPosition();
     vector2 s = game.getDisplaySize();
@@ -105,12 +122,22 @@ if (m.y < edgeSize.y) {edgeMotion.y = -1;} else if (m.y > (s.y - edgeSize.y)) {e
     editorCamPos.z += edgeMotion.y*editorCamSpeed;
     // apply elevation
     editorCamPos.y = game.getTerrain().getHandle().getHeightAt(editorCamPos.x, editorCamPos.z) + editorCamElevation;
-    //submit
-    game.setCameraPosition(editorCamPos);
-    // set orientation - pitch down 55degrees
-    vector3 X_AXIS(1,0,0);
-    radian pitchdown = degree(-55);
-    game.setCameraOrientation( quaternion( pitchdown, X_AXIS));
+    
+    
+    if (!editorCamInit)
+    {
+        editorCamInit=true;
+        editorCamPos.z += editorCamInitZTravelMeters;
+        
+        
+    }
+    else 
+    {
+        //submit
+        game.setCameraPosition(editorCamPos);
+        game.setCameraOrientation(editorCamOrientation);
+        
+    }
 }
 void drawEditorCamUI()
 {
@@ -121,13 +148,45 @@ void drawEditorCamUI()
         ImGui::Text("edgeMotion: X="+formatFloat(edgeMotion.x, '', 2, 1) + ", Y=" + formatFloat(edgeMotion.y, '', 2, 1));
         ImGui::SliderFloat("elevation", editorCamElevation, 1, 1000);
     }
+    else
+    {
+        editorCamInit=false;
+        editorCamComingUpElapsedSec=0.f;
+    }
     ImGui::PopID(); //editorCamUI
+}
+// 2024-12-10: added 'editorCamComingUp' animation - smooth transition from person cam to editor cam.
+float flerp(float start, float end, float pct) {return start +  ((end - start) * pct); }
+void updateEditorCamComingUp(float dt)
+{
+    float progressPct = editorCamComingUpElapsedSec / editorCamComingUpDurationSec;
+    ImGui::Text("ComingUp: "+progressPct+" %");
+    
+    float camPosX = flerp(camPosBeforeEditorCam.x, editorCamPos.x, progressPct);
+    float camPosY = flerp(camPosBeforeEditorCam.y, editorCamPos.y, progressPct);
+    float camPosZ = flerp(camPosBeforeEditorCam.z, editorCamPos.z, progressPct);
+    vector3 camPos (camPosX, camPosY, camPosZ);
+    
+    //submit
+    game.setCameraPosition(camPos);
+    game.setCameraOrientation(editorCamOrientation);
+    //game.setCameraOrientation(quaternion());
+    
+    // update timer
+    editorCamComingUpElapsedSec += dt;
+    if (editorCamComingUpElapsedSec > editorCamComingUpDurationSec)
+    {
+        editorCamComingUp=false;
+        editorCamComingUpElapsedSec=0.f;
+    }
 }
 //#endregion
 
 // `frameStep()` runs every frame; `dt` is delta time in seconds.
 void frameStep(float dt)
 {
+    
+    
     // Begin drawing window
     if (ImGui::Begin("Camera control test", closeBtnHandler.windowOpen, 0))
     {
@@ -156,8 +215,17 @@ void frameStep(float dt)
         drawEditorCamUI();
         if (editorCam)
         {
-            updateEditorCam();
+            if (editorCamComingUp)
+            {
+                updateEditorCamComingUp(dt);
+            }
+            else
+            {
+                updateEditorCam();
+            }
         }
+        
+        
         //#endregion
         
         // End drawing window
