@@ -118,8 +118,7 @@ void ProceduralManager::updateObject(ProceduralObjectPtr po)
         this->deleteObject(po);
 
     po->road = new ProceduralRoad();
-    // In diagnostic mode, disable collisions (speeds up terrain loading)
-    po->road->setCollisionEnabled(!App::diag_terrn_log_roads->getBool());
+    po->road->setCollisionEnabled(po->collision_enabled);
 
     Ogre::SimpleSpline spline;
     if (po->smoothing_num_splits > 0)

@@ -118,6 +118,8 @@ void RoR::RegisterProceduralRoad(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "ProceduralRoadClassPtr @getRoad()", asMETHOD(ProceduralObject, getRoad), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "int get_smoothing_num_splits() property", asFUNCTIONPR([](ProceduralObject* self) { return self->smoothing_num_splits; },(ProceduralObject*),int ), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralObjectClass", "void set_smoothing_num_splits(int) property", asFUNCTIONPR([](ProceduralObject* self, int n) { self->smoothing_num_splits = n; }, (ProceduralObject*, int), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "bool get_collision_enabled() property", asFUNCTIONPR([](ProceduralObject* self) { return self->collision_enabled; }, (ProceduralObject*), bool), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralObjectClass", "void set_collision_enabled(bool) property", asFUNCTIONPR([](ProceduralObject* self, bool n) { self->collision_enabled = n; }, (ProceduralObject*, bool), void), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result >= 0);
 
     // class ProceduralManager (ref)
     ProceduralManager::RegisterRefCountingObject(engine, "ProceduralManagerClass");
