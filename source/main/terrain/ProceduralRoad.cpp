@@ -58,7 +58,7 @@ ProceduralRoad::~ProceduralRoad()
     }
 }
 
-void ProceduralRoad::finish(Ogre::SceneNode* snode)
+void ProceduralRoad::finish(Ogre::SceneNode* groupingSceneNode)
 {
     Vector3 pts[8];
     computePoints(pts, lastpos, lastrot, lasttype, lastwidth, lastbwidth, lastbheight);
@@ -70,6 +70,7 @@ void ProceduralRoad::finish(Ogre::SceneNode* snode)
     String entity_name = String("RoadSystem_Instance-").append(StringConverter::toString(mid));
     String mesh_name = String("RoadSystem-").append(StringConverter::toString(mid));
     Entity* ec = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name, mesh_name);
+    snode = groupingSceneNode->createChildSceneNode();
     snode->attachObject(ec);
 
     if (collision)
