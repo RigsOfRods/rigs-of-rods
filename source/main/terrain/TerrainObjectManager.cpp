@@ -41,6 +41,7 @@
 #include "SoundScriptManager.h"
 #include "TerrainGeometryManager.h"
 #include "Terrain.h"
+#include "Terrn2FileFormat.h"
 #include "TObjFileFormat.h"
 #include "Utils.h"
 #include "WriteTextToTexture.h"
@@ -67,7 +68,7 @@ inline float getTerrainHeight(Real x, Real z, void* unused = 0)
 TerrainObjectManager::TerrainObjectManager(Terrain* terrainManager) :
     terrainManager(terrainManager)
 {
-    m_terrn2_grouping_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode(fmt::format("Terrain: {}", terrainManager->GetDef().name));
+    m_terrn2_grouping_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode(fmt::format("Terrain: {}", terrainManager->GetDef()->name));
 
     m_procedural_manager = new ProceduralManager(m_terrn2_grouping_node->createChildSceneNode("Procedural Roads"));
 }
@@ -152,7 +153,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     ROR_ASSERT(this->terrainManager->getCacheEntry());
     ROR_ASSERT(this->terrainManager->getCacheEntry()->resource_group != "");
 
-    std::shared_ptr<TObjFile> tobj;
+    TObjDocumentPtr tobj;
     try
     {
         DataStreamPtr stream_ptr = ResourceGroupManager::getSingleton().openResource(
@@ -161,15 +162,11 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
         parser.Prepare();
         parser.ProcessOgreStream(stream_ptr.get());
         tobj = parser.Finalize();
+        m_tobj_cache.push_back(tobj);
     }
-    catch (Ogre::Exception& e)
+    catch (...)
     {
-        LOG("[RoR|Terrain] Error reading TObj file: " + tobj_name + "\nMessage" + e.getFullDescription());
-        return;
-    }
-    catch (std::exception& e)
-    {
-        LOG("[RoR|Terrain] Error reading TObj file: " + tobj_name + "\nMessage" + e.what());
+        HandleGenericException(fmt::format("Loading TObj file '{}'", tobj_name), HANDLEGENERICEXCEPTION_CONSOLE);
         return;
     }
 
@@ -266,7 +263,9 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     {
         try
         {
+            m_tobj_cache_active_id = (int)m_tobj_cache.size() - 1;
             this->LoadTerrainObject(entry.odef_name, entry.position, entry.rotation, entry.instance_name, entry.type, entry.rendering_distance);
+            m_tobj_cache_active_id = -1;
         }
         catch (...)
         {
@@ -526,7 +525,7 @@ void TerrainObjectManager::unloadObject(const String& instancename)
                 [instancename](EditorObject& e) { return e.instance_name == instancename; }), m_editor_objects.end());
 }
 
-ODefFile* TerrainObjectManager::FetchODef(std::string const & odef_name)
+ODefDocument* TerrainObjectManager::FetchODef(std::string const & odef_name)
 {
     // Consult cache first
     auto search_res = m_odef_cache.find(odef_name);
@@ -555,7 +554,7 @@ ODefFile* TerrainObjectManager::FetchODef(std::string const & odef_name)
         ODefParser parser;
         parser.Prepare();
         parser.ProcessOgreStream(ds.get());
-        std::shared_ptr<ODefFile> odef = parser.Finalize();
+        std::shared_ptr<ODefDocument> odef = parser.Finalize();
 
         // Add to cache and return
         m_odef_cache.insert(std::make_pair(odef_name, odef));
@@ -585,7 +584,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     }
 
     const std::string odefname = name + ".odef"; // for logging
-    ODefFile* odef = this->FetchODef(name);
+    ODefDocument* odef = this->FetchODef(name);
     if (odef == nullptr)
     {
         // Only log to console if requested from Console UI or script (debug message to RoR.log is written anyway).
@@ -647,6 +646,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     object.node = tenode;
     object.enable_collisions = enable_collisions;
     object.script_handler = scripthandler;
+    object.tobj_cache_id = m_tobj_cache_active_id;
     m_editor_objects.push_back(object);
 
     if (mo && uniquifyMaterial && !instancename.empty())
@@ -663,11 +663,11 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
     for (LocalizerType type : odef->localizers)
     {
-        localizer_t loc;
+        Localizer loc;
         loc.position = Vector3(pos.x, pos.y, pos.z);
         loc.rotation = rotation;
         loc.type = type;
-        localizers.push_back(loc);
+        m_localizers.push_back(loc);
     }
 
     if (odef->mode_standard)
@@ -973,7 +973,7 @@ bool TerrainObjectManager::UpdateAnimatedObjects(float dt)
 
 void TerrainObjectManager::LoadTelepoints()
 {
-    for (Terrn2Telepoint& telepoint: terrainManager->GetDef().telepoints)
+    for (Terrn2Telepoint& telepoint: terrainManager->GetDef()->telepoints)
     {
         m_map_entities.push_back(SurveyMapEntity("telepoint", telepoint.name, "icon_telepoint.dds", /*resource_group:*/"", telepoint.position, Ogre::Radian(0), -1));
     }
@@ -1013,7 +1013,7 @@ bool TerrainObjectManager::UpdateTerrainObjects(float dt)
     return true;
 }
 
-void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile* odef, const EditorObject& params, bool race_event)
+void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefDocument* odef, const EditorObject& params, bool race_event)
 {
     for (ODefCollisionBox& cbox : odef->collision_boxes)
     {
@@ -1060,3 +1060,4 @@ Ogre::SceneNode* TerrainObjectManager::getGroupingSceneNode()
     else
         return App::GetGfxScene()->GetSceneManager()->getRootSceneNode();
 }
+

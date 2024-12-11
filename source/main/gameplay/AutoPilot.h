@@ -73,7 +73,7 @@ public:
 
     void gpws_update(float spawnheight);
 
-    void UpdateIls(std::vector<RoR::TerrainObjectManager::localizer_t> localizers);
+    void UpdateIls();
     float GetVerticalApproachDeviation() { return m_ils_angle_vdev; }
     float GetHorizontalApproachDeviation() { return m_ils_angle_hdev; }
     bool IsIlsAvailable() { return m_horizontal_locator_available && m_vertical_locator_available; }
