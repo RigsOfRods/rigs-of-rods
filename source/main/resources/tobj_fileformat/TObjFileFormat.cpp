@@ -156,7 +156,15 @@ bool TObjParser::ProcessCurrentLine()
         }
         return true;
     }
-    
+    if (strncmp("collision_enabled", m_cur_line_trimmed, 17) == 0)
+    {
+        if (m_in_procedural_road)
+        {
+            const char* value = m_cur_line_trimmed + 17; // C pointer arithmetic
+            m_cur_procedural_obj->collision_enabled = Ogre::StringConverter::parseBool(value, false);
+        }
+        return true;
+    }
 
     // ** Process entries (ODEF or special objects)
 
@@ -518,6 +526,9 @@ void TObj::WriteToStream(TObjDocumentPtr doc, Ogre::DataStreamPtr stream)
 
         std::string sline = fmt::format("    smoothing_num_splits {}\n", procobj->smoothing_num_splits);
         stream->write(sline.c_str(), sline.length());
+
+        std::string cline = fmt::format("    collision_enabled {}\n", procobj->collision_enabled);
+        stream->write(cline.c_str(), cline.length());
 
         for (ProceduralPointPtr& point : procobj->points)
         {
