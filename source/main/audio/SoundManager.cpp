@@ -726,7 +726,7 @@ std::tuple<Ogre::Vector3, float, float> SoundManager::ComputeEarlyReflectionsPro
         magnitude               = 1.0f - early_reflections_pan.length() / Ogre::Math::Sqrt(2.0f * Ogre::Math::Pow(max_distance, 2));
 
         // set delay based on distance to the closest surface
-        early_reflections_delay = closest_surface_distance / GetSpeedOfSound();
+        early_reflections_delay = closest_surface_distance / this->GetSpeedOfSound();
 
         early_reflections_gain  = std::min(
             (m_listener_efx_reverb_properties->flReflectionsGain
