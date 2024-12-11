@@ -74,6 +74,7 @@ struct ProceduralObject: public RefCountingObject<ProceduralObject>
     std::vector<ProceduralPointPtr> points;
     ProceduralRoadPtr road;
     int smoothing_num_splits = 0; // 0=off
+    bool collision_enabled = true; //!< Generate collision triangles?
 };
 
 class ProceduralManager: public RefCountingObject<ProceduralManager>
