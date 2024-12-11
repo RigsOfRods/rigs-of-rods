@@ -119,7 +119,7 @@ bool TObjParser::ProcessCurrentLine()
         const int result = sscanf(m_cur_line, "set_default_rendering_distance %f", &m_default_rendering_distance);
         if (result != 1)
         {
-            LOG(fmt::format("too few parameters on line: '{}'", m_cur_line));
+            LOG(fmt::format("too few parameters on line: '{}' ({}, line {})", m_cur_line, m_filename, m_line_number));
         }
         return true;
     }
@@ -148,7 +148,11 @@ bool TObjParser::ProcessCurrentLine()
     {
         if (m_in_procedural_road)
         {
-            sscanf(m_cur_line_trimmed, "smoothing_num_splits %d", &m_cur_procedural_obj->smoothing_num_splits);
+            int result = sscanf(m_cur_line_trimmed, "smoothing_num_splits %d", &m_cur_procedural_obj->smoothing_num_splits);
+            if (result != 1)
+            {
+                LOG(fmt::format("[RoR|TObj] not enough parameters at line '{}' ({}, line {})", m_cur_line, m_filename, m_line_number));
+            }
         }
         return true;
     }
