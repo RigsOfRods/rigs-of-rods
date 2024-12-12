@@ -58,7 +58,9 @@ public:
         }
         if (nw_refcount == 0)
         {
-            delete this; // commit suicide! This is legit in C++, but you must completely 100% positively read https://isocpp.org/wiki/faq/freestore-mgmt#delete-this
+            // commit suicide! This is legit in C++, but you must completely 100% positively read https://isocpp.org/wiki/faq/freestore-mgmt#delete-this
+            // to correctly invoke destructor, we must cast to wrapped type!
+            delete static_cast<T*>(this);
         }
     }
 
