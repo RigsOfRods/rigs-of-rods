@@ -363,7 +363,19 @@ void drawMeshRebuildPanel()
         ImGui::InputFloat("Common extra point elevation (meters)", global_extra_point_elevation);            
         
         ImGui::SetNextItemWidth(120.f);
-        ImGui::InputInt("Num smoothing splits (0=off)", obj.smoothing_num_splits);
+        
+    // create temporary varible because `smoothing_num_splits` is a property {get;set;}
+        int objSmoothingNumSplits = obj.smoothing_num_splits;
+        if (ImGui::InputInt("Num smoothing splits (0=off)", objSmoothingNumSplits))
+        {
+            obj.smoothing_num_splits = objSmoothingNumSplits;
+        }
+    // create temporary varible because `collision_enabled` is a property {get;set;}
+        bool objCollisionEnabled = obj.collision_enabled;
+        if(ImGui::Checkbox("Collision enabled", objCollisionEnabled))
+        {
+            obj.collision_enabled = objCollisionEnabled;
+        }
         
         // NOTE: hotkey is processed in `updateInputEvents()` to be independent of the UI
         if (ImGui::Button("Rebuild road mesh (hotkey: '" + inputs.getEventCommandTrimmed(EV_ROAD_EDITOR_REBUILD_MESH) + "')"))
@@ -383,13 +395,9 @@ void rebuildMesh(ProceduralObjectClass@ obj)
 {
     ProceduralManagerClass@ roads = game.getTerrain().getHandle().getProceduralManager();
     
-    roads.removeObject(obj); // Clears the existing mesh
     recalculatePointElevations(obj);
     recalculatePointRotations(obj);
-    roads.addObject(obj); // Generates new mesh
-    // Because we removed and re-added the ProceduralObject from/to the manager,
-    // it got new index, so our selection is invalid. Update it.
-    setSelectedRoad(roads.getNumObjects() - 1);
+    roads.rebuildObjectMesh(obj);
 }
 
 void recalculatePointElevations(ProceduralObjectClass@ obj)

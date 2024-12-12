@@ -87,12 +87,12 @@ void ProceduralManager::removeAllObjects()
 {
     for (ProceduralObjectPtr obj : pObjects)
     {
-        this->deleteObject(obj);
+        this->deleteObjectMesh(obj);
     }
     pObjects.clear(); // delete (unreference) all objects.
 }
 
-void ProceduralManager::deleteObject(ProceduralObjectPtr po)
+void ProceduralManager::deleteObjectMesh(ProceduralObjectPtr po)
 {
     if (po->road)
     {
@@ -112,10 +112,10 @@ void ProceduralManager::removeObject(ProceduralObjectPtr po)
     }
 }
 
-void ProceduralManager::updateObject(ProceduralObjectPtr po)
+void ProceduralManager::rebuildObjectMesh(ProceduralObjectPtr po)
 {
     if (po->road)
-        this->deleteObject(po);
+        this->deleteObjectMesh(po);
 
     po->road = new ProceduralRoad();
     po->road->setCollisionEnabled(po->collision_enabled);
@@ -172,7 +172,7 @@ void ProceduralManager::updateObject(ProceduralObjectPtr po)
 
 void ProceduralManager::addObject(ProceduralObjectPtr po)
 {
-    updateObject(po);
+    rebuildObjectMesh(po);
     pObjects.push_back(po);
 }
 
