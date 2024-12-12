@@ -97,11 +97,13 @@ public:
 
     void removeAllObjects();
 
-private:
     /// Rebuilds the road mesh
-    void updateObject(ProceduralObjectPtr po);
+    void rebuildObjectMesh(ProceduralObjectPtr po);
+
     /// Deletes the road mesh
-    void deleteObject(ProceduralObjectPtr po);
+    void deleteObjectMesh(ProceduralObjectPtr po);
+
+private:
 
     std::vector<ProceduralObjectPtr> pObjects;
     Ogre::SceneNode* pGroupingSceneNode = nullptr;

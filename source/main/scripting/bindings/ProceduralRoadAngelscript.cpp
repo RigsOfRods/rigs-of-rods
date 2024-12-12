@@ -128,4 +128,6 @@ void RoR::RegisterProceduralRoad(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("ProceduralManagerClass", "void removeObject(ProceduralObjectClassPtr@)", asMETHOD(ProceduralManager, removeObject), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralManagerClass", "int getNumObjects()", asMETHOD(RoR::ProceduralManager, getNumObjects), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("ProceduralManagerClass", "ProceduralObjectClassPtr @getObject(int pos)", asMETHOD(ProceduralManager, getObject), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralManagerClass", "void rebuildObjectMesh(ProceduralObjectClassPtr@)", asMETHOD(ProceduralManager, rebuildObjectMesh), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("ProceduralManagerClass", "void deleteObjectMesh(ProceduralObjectClassPtr@)", asMETHOD(ProceduralManager, deleteObjectMesh), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 }

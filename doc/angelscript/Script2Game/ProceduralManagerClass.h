@@ -3,11 +3,11 @@ namespace Script2Game {
 
 /** \addtogroup ScriptSideAPIs
  *  @{
- */    
+ */
 
 /** \addtogroup Script2Game
  *  @{
- */    
+ */
 
 /**
  * @brief Binding of RoR::ProceduralManager; generates dynamic roads for terrain.
@@ -29,6 +29,16 @@ public:
     int getNumObjects();
 
     ProceduralObjectClass@ getObject(int pos);
+
+    /**
+    * Only (re)generates the road mesh in-place.
+    */
+    void rebuildObjectMesh(ProceduralObjectClassPtr@)
+
+    /**
+    * Only destroys the mesh but leaves the object in internal list.
+    */
+    void deleteObjectMesh(ProceduralObjectClassPtr@)
 };
 
 /// @}    //addtogroup Script2Game
