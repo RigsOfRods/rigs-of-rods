@@ -336,6 +336,7 @@ void GameSettings::DrawAudioSettings()
     {
         DrawGCombo(App::audio_efx_reverb_engine,     _LC("GameSettings", "OpenAL Reverb engine"), m_combo_items_efx_reverb_engine.c_str());
         DrawGCheckbox(App::audio_enable_obstruction, _LC("GameSettings", "Sound obstruction"));
+        DrawGCheckbox(App::audio_enable_occlusion,   _LC("GameSettings", "Sound occlusion"));
         if (App::audio_efx_reverb_engine->getEnum<EfxReverbEngine>() == EfxReverbEngine::EAXREVERB)
         {
             DrawGCheckbox(App::audio_enable_reflection_panning, _LC("GameSettings", "Early reflections panning (experimental)"));

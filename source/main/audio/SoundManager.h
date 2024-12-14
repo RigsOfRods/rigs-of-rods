@@ -257,6 +257,8 @@ private:
     bool                                            m_efx_is_available = false;
     ALuint                                          m_listener_slot = 0;
     ALuint                                          m_efx_outdoor_obstruction_lowpass_filter_id = 0;
+    ALuint                                          m_efx_occlusion_wet_path_send_id = 0;
+    ALuint                                          m_efx_occlusion_wet_path_lowpass_filter_id = 0;
     float                                           m_air_absorption_factor = 1.0f;
     EfxReverbEngine                                 m_efx_reverb_engine = EfxReverbEngine::NONE;
     const EFXEAXREVERBPROPERTIES*                   m_listener_efx_reverb_properties = nullptr;
@@ -330,8 +332,20 @@ private:
      *   To decide whether the filter should be applied or not, the function performs
      *   various checks against the environment of the listener.
      *   @param hardware_index The index of the hardware source.
+     *   @return True if an obstruction was detected, false otherwise.
      */
-    void    UpdateObstructionFilter(const int hardware_index) const;
+    bool    UpdateObstructionFilter(const int hardware_index) const;
+
+    /**
+     *   Applies an occlusion filter to the provided source if certain conditions apply.
+     *   To decide whether the filter should be applied or not, the function checks
+     *   whether the reverb preset of the sound differs from that provided as a parameter.
+     *   @param hardware_index The index of the hardware source.
+     *   @param effect_slot_id The id of the AL effect slot that will be used as a send target
+     *   @param reference_efx_reverb_properties The reverb preset that the reverb preset of the sound location is compared against
+     *   @return True if occlusion was detected, false otherwise.
+     */
+    bool    UpdateOcclusionFilter(const int hardware_index, const ALuint effect_slot_id, const EFXEAXREVERBPROPERTIES* reference_efx_reverb_properties) const;
 };
 
 /// @}
