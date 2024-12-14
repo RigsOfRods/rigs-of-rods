@@ -486,9 +486,9 @@ const EFXEAXREVERBPROPERTIES* SoundManager::GetReverbPresetAt(const Ogre::Vector
         }
     }
 
-    if (position == m_listener_position)
+    if (!App::audio_default_efx_preset->getStr().empty())
     {
-        return this->GetEfxProperties(App::audio_default_listener_efx_preset->getStr());
+        return this->GetEfxProperties(App::audio_default_efx_preset->getStr());
     }
     else
     {

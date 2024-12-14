@@ -213,7 +213,7 @@ CVar* audio_enable_reflection_panning;
 CVar* audio_enable_efx;
 CVar* audio_engine_controls_environmental_audio;
 CVar* audio_efx_reverb_engine;
-CVar* audio_default_listener_efx_preset;
+CVar* audio_default_efx_preset;
 CVar* audio_force_listener_efx_preset;
 CVar* audio_device_name;
 CVar* audio_doppler_factor;

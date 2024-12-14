@@ -345,7 +345,7 @@ void GameSettings::DrawAudioSettings()
 
         if (App::audio_engine_controls_environmental_audio)
         {
-            DrawGTextEdit(App::audio_default_listener_efx_preset, _LC("GameSettings", "Default EFX Reverb Preset"), m_buf_audio_default_listener_efx_preset);
+            DrawGTextEdit(App::audio_default_efx_preset,          _LC("GameSettings", "Default EFX Reverb Preset"), m_buf_audio_default_efx_preset);
             DrawGTextEdit(App::audio_force_listener_efx_preset,   _LC("GameSettings", "Force EFX Reverb Preset"),   m_buf_audio_force_listener_efx_preset);
         }
     }
