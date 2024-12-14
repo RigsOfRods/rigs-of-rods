@@ -914,10 +914,8 @@ void SoundManager::UpdateObstructionFilter(const int hardware_index) const
     */
 
     std::pair<bool, Ogre::Real> intersection;
-    // no normalisation due to how the intersectsTris function determines its number of steps
-    Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - m_listener_position;
-    Ogre::Real distance_to_sound = direction_to_sound.length();
-    Ray direct_path_to_sound = Ray(m_listener_position, direction_to_sound);
+    const Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - m_listener_position;
+    const Ogre::Ray direct_path_to_sound = Ray(m_listener_position, direction_to_sound);
 
     // perform line of sight check against terrain
     intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound);
@@ -932,10 +930,6 @@ void SoundManager::UpdateObstructionFilter(const int hardware_index) const
         obstruction_detected = intersection.first;
     }
 
-    // do not normalise before intersectsTris() due to how that function works
-    direction_to_sound.normalise();
-    direct_path_to_sound.setDirection(direction_to_sound);
-
     if(!obstruction_detected)
     {
         // perform line of sight check agains collision boxes
@@ -944,9 +938,9 @@ void SoundManager::UpdateObstructionFilter(const int hardware_index) const
             if (!collision_box.enabled || collision_box.virt) { continue; }
 
             intersection = direct_path_to_sound.intersects(Ogre::AxisAlignedBox(collision_box.lo, collision_box.hi));
-            if (intersection.first && intersection.second <= distance_to_sound)
+            obstruction_detected = intersection.first && intersection.second <= 1.0f;
+            if (obstruction_detected)
             {
-                obstruction_detected = true;
                 break;
             }
         }
@@ -981,7 +975,7 @@ void SoundManager::UpdateObstructionFilter(const int hardware_index) const
             }
 
             intersection = direct_path_to_sound.intersects(actor->ar_bounding_box);
-            obstruction_detected = intersection.first;
+            obstruction_detected = intersection.first && intersection.second <= 1.0f;
             if (obstruction_detected)
             {
                 break;
