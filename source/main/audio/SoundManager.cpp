@@ -920,7 +920,7 @@ void SoundManager::UpdateObstructionFilter(const int hardware_index) const
     Ray direct_path_to_sound = Ray(m_listener_position, direction_to_sound);
 
     // perform line of sight check against terrain
-    intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound, distance_to_sound);
+    intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound);
     obstruction_detected = intersection.first;
 
     if(!obstruction_detected)
