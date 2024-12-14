@@ -278,12 +278,19 @@ bool ODefParser::ProcessCurrentLine()
         // hack to avoid fps drops near spawnzones
         if (!strncmp(ev_name, "spawnzone", 9)) { m_ctx.cbox_event_filter = EVENT_AVATAR; }
     }
+    else if (StartsWith(line_str, "reverb_preset"))
+    {
+        char tmp[200] = "";
+        sscanf(line_str.c_str(), "reverb_preset %199s", tmp);
+        m_ctx.cbox_reverb_preset_name = tmp;
+    }
     else if (line_str == "endbox")
     {
         m_def->collision_boxes.emplace_back(
             m_ctx.cbox_aabb_min, m_ctx.cbox_aabb_max,
             m_ctx.cbox_rotation, m_ctx.cbox_cam_pos,
             m_ctx.cbox_direction, m_ctx.header_scale,
+            m_ctx.cbox_reverb_preset_name,
             m_ctx.cbox_event_name, m_ctx.cbox_event_filter,
             m_ctx.cbox_is_rotating, m_ctx.cbox_is_virtual, m_ctx.cbox_force_cam);
     }
@@ -309,6 +316,7 @@ void ODefParser::ResetCBoxContext()
     m_ctx.cbox_event_filter = EVENT_NONE;
     m_ctx.cbox_event_name.clear();
     m_ctx.cbox_mesh_name.clear();
+    m_ctx.cbox_reverb_preset_name.clear();
     m_ctx.cbox_groundmodel_name = "concrete";
 }
 
