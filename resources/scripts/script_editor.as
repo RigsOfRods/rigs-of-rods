@@ -476,6 +476,7 @@ class ScriptEditorWindow
             // 'FOLDING' menu
             if (ImGui::BeginMenu("Folding"))
             {
+                ImGui::PushID("folding menu");
             if (ImGui::Button("Fold all")) { this.tabs[this.currentTab].requestFoldAll=true; }
             if (ImGui::Button("UnFold all")) { this.tabs[this.currentTab].requestUnFoldAll=true; }
 
@@ -503,6 +504,38 @@ class ScriptEditorWindow
                         }
                     }
                 }
+                
+                if (this.tabs[this.currentTab].debugFolding)
+                {
+                ImGui::Separator();
+                ImGui::TextDisabled("Debug:");
+                ImGui::SameLine();
+                }
+                
+                ImGui::Checkbox("Debug folding", this.tabs[this.currentTab].debugFolding);
+                if (this.tabs[this.currentTab].debugFolding)
+                {
+                ImGui::Text("DBG regionNames.length:" + regionNames.length());
+                for (uint i = 0; i< regionNames.length(); i++)
+                {
+                    ImGui::Bullet(); ImGui::SameLine();
+                    RegionInfo@ regionInfo = findRegion(this.tabs[this.currentTab].workBufferRegions, regionNames[i]);
+                    if (@regionInfo != null)
+                    {
+                         ImGui::Text("'"+regionNames[i]+"' (len: "+regionNames[i].length()+") ~ isFolded: "+regionInfo.isFolded+", isOrphan:"+regionInfo.isOrphan);
+                        ImGui::Text("   ~ DBG regionInfo.regionLineCount: "+regionInfo.regionLineCount); // To handle jumps in line numbering
+                        ImGui::Text("   ~ DBG regionInfo.regionBodyStartOffset: "+regionInfo.regionBodyStartOffset); // To swap regions in and out from work buffer.
+                        ImGui::Text("   ~ DBG regionInfo.regionBodyNumChars: "+regionInfo.regionBodyNumChars); // ditto
+                        ImGui::Text("   ~ DBG regionInfo.regionStartsAtLineIndex: "+regionInfo.regionStartsAtLineIndex);
+                    }
+                    else
+                    {
+                        ImGui::Text(""+regionNames[i]+" ~ ERR null regioninfo");
+                    }
+                }    
+}                
+
+                ImGui::PopID(); // "folding menu"
                 ImGui::EndMenu();
             }
 
@@ -679,6 +712,7 @@ class ScriptEditorTab
     ExceptionsPanel@ epanel;
     float autosaveTimeCounterSec = 0.f;
     int autosaveResult = 0; // 0=no action, 1=success, -1=failure;
+    bool debugFolding = false;
 
     // REQUEST 'QUEUE'
     string requestFoldRegion;
@@ -1452,7 +1486,7 @@ string SPECIALCHARS = "{}\n\t \0";
             if (regionFound)
             {
                 regionFoundAtLineIdx = lineIdx;
-                regionFoundWithName = trimLeft(this.buffer.substr(regionTitleStart, endOffset - regionTitleStart));
+                regionFoundWithName = trimRight(trimLeft(this.buffer.substr(regionTitleStart, endOffset - regionTitleStart)));
                 regionBodyStartOffset = endOffset+1;
                 //game.log("DBG analyzeBuffer(): regionFound: withName="+regionFoundWithName+" atLineIdx="+regionFoundAtLineIdx+" bodyStartOffset="+regionBodyStartOffset);
             }
@@ -1579,18 +1613,45 @@ private void mergeCollectedFoldingRegionsWithExisting(dictionary&in collectedReg
             collectedRegions.delete(collectedRegionNames[i]);
         }
     }
-
-    // Find regions that were deleted/changed
+    
+    // Find regions that were deleted
     array<string> oldRegionNames = this.workBufferRegions.getKeys();
+    array<string> renamedRegionsOldName;
+    array<string> renamedRegionsNewName;
     for (uint i = 0; i< oldRegionNames.length(); i++)
     {
         bool isGone = !collectedRegions.exists(oldRegionNames[i]);
         RegionInfo@ oldRegionInfo = findRegion(this.workBufferRegions, oldRegionNames[i]);
+        if (isGone)
+        {
+            // check if renamed (compare line number)
+            array<string>@ newRegionNames = collectedRegions.getKeys();
+            for (uint j = 0; j < newRegionNames.length(); j++)
+            {
+                RegionInfo@ newRegionInfo = findRegion(collectedRegions, newRegionNames[j]);
+                if (oldRegionInfo.regionStartsAtLineIndex == newRegionInfo.regionStartsAtLineIndex)
+                {
+                    game.log ("DBG mergeCollectedFoldingRegionsWithExisting(): region '" + oldRegionNames[i] + "' was renamed to '"+newRegionNames[j]+"'");
+                    isGone = false;
+                    renamedRegionsOldName.insertLast(oldRegionNames[i]);
+                    renamedRegionsNewName.insertLast(newRegionNames[j]);
+                }
+            }
+        }
+        
         if (isGone && oldRegionInfo.isFolded)
         {
             //game.log ("DBG mergeCollectedFoldingRegionsWithExisting(): region '" + oldRegionNames[i] + "' has gone orphan.");
             oldRegionInfo.isOrphan = true;
         }
+    }
+    
+    // Resolve renamed regions
+    for (uint i = 0; i < renamedRegionsOldName.length(); i++)
+    {
+        this.workBufferRegions.delete(renamedRegionsOldName[i]);
+        RegionInfo@ newRegionInfo = findRegion(collectedRegions, renamedRegionsNewName[i]);
+        this.workBufferRegions.set(renamedRegionsNewName[i], newRegionInfo);
     }
 
     // Find regions that were (re)created
@@ -2296,7 +2357,16 @@ bool isChar(uint c, string s)
 
 bool isCharBlank(uint c)
 {
-    return isChar(c, " ") || isChar(c, "\t");
+    // because I'm not sure whether "\n" generates 'LF' or 'CRLF' under Windows, I'm using explicit ASCII codes
+    switch (c)
+    {
+        case 32: // space
+        case 9: // TAB = horizontal tab
+        case 10: // LF = line feed
+        case 13: // CR = carriage return
+            return true;
+    }
+    return false; // to silence "not all paths return a value" warning (using `default:` in switch doesn't cut it).
 }
 
 string trimLeft(string s)
@@ -2305,6 +2375,16 @@ string trimLeft(string s)
     {
         if (!isCharBlank(s[i]))
 			return s.substr(i, s.length() - i);
+    }
+    return "";
+}
+
+string trimRight(string s)
+{
+    for (uint i = s.length()-1; i > 0 ; i--)
+    {
+        if (!isCharBlank(s[i]))
+			return s.substr(0, i+1);
     }
     return "";
 }
