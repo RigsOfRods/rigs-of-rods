@@ -964,18 +964,11 @@ bool SoundManager::UpdateObstructionFilter(const int hardware_index) const
     const Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - m_listener_position;
     const Ogre::Ray direct_path_to_sound = Ray(m_listener_position, direction_to_sound);
 
-    // perform line of sight check against terrain
-    intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound);
+    // perform line of sight check against collision meshes
+    // for this to work correctly, the direction vector of the ray must have
+    // the length of the distance from the listener to the sound
+    intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(direct_path_to_sound);
     obstruction_detected = intersection.first;
-
-    if (!obstruction_detected)
-    {
-        // perform line of sight check against collision meshes
-        // for this to work correctly, the direction vector of the ray must have
-        // the length of the distance from the listener to the sound
-        intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTris(direct_path_to_sound);
-        obstruction_detected = intersection.first;
-    }
 
     if (!obstruction_detected)
     {
@@ -1028,6 +1021,13 @@ bool SoundManager::UpdateObstructionFilter(const int hardware_index) const
                 break;
             }
         }
+    }
+
+    if (!obstruction_detected)
+    {
+        // perform line of sight check against terrain
+        intersection = App::GetGameContext()->GetTerrain()->GetCollisions()->intersectsTerrain(direct_path_to_sound);
+        obstruction_detected = intersection.first;
     }
 
     if (obstruction_detected)
