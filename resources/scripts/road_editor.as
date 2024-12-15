@@ -239,8 +239,15 @@ void drawPointPropertiesPanel(ProceduralObjectClass@ obj)
     {
         ProceduralPointClass@ point = obj.getPoint(selected_point);
         
+        ImGui::TextDisabled("Location:");
         ImGui::SetNextItemWidth(130.f);
         ImGui::InputFloat("Elevation (meters)", point.position.y);
+        ImGui::SetNextItemWidth(130.f);
+        ImGui::InputFloat("Horizonal X (meters)", point.position.x);
+        ImGui::SetNextItemWidth(130.f);
+        ImGui::InputFloat("Horizontal Z (meters)", point.position.z);
+        
+        ImGui::TextDisabled("Parameters:");
         
         ImGui::SetNextItemWidth(100.f);
         ImGui::InputFloat("Width (meters)", point.width);   
