@@ -286,6 +286,7 @@ void TerrainEditor::WriteOutputFile()
                 // TBD: reconstruct 'set_default_rendering_distance'.
                 dst.position = src.position;
                 dst.rotation = src.rotation;
+                dst.comments = src.tobj_comments;
 
                 tobj->objects.push_back(dst);
             }

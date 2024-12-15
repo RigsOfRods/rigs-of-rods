@@ -43,7 +43,8 @@ struct ProceduralPoint: public RefCountingObject<ProceduralPoint>
         width(orig.width),
         bwidth(orig.bwidth),
         bheight(orig.bheight),
-        pillartype(orig.pillartype) {}
+        pillartype(orig.pillartype),
+        comments(orig.comments){}
 
     virtual ~ProceduralPoint() override {};
 
@@ -54,6 +55,7 @@ struct ProceduralPoint: public RefCountingObject<ProceduralPoint>
     float bwidth = 0.f;
     float bheight = 0.f;
     int pillartype = 0;
+    std::string comments; //!< Comment line(s) preceding the point-line in the .TOBJ file.
 };
 
 struct ProceduralObject: public RefCountingObject<ProceduralObject>
