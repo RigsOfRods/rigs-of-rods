@@ -264,8 +264,13 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
         try
         {
             m_tobj_cache_active_id = (int)m_tobj_cache.size() - 1;
+            size_t num_editor_objects = m_editor_objects.size();
             this->LoadTerrainObject(entry.odef_name, entry.position, entry.rotation, entry.instance_name, entry.type, entry.rendering_distance);
             m_tobj_cache_active_id = -1;
+            if (m_editor_objects.size() > num_editor_objects)
+            {
+                m_editor_objects.back().tobj_comments = entry.comments;
+            }
         }
         catch (...)
         {

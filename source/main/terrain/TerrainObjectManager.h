@@ -73,6 +73,7 @@ public:
         bool enable_collisions = true;
         int script_handler = -1;
         int tobj_cache_id = -1;
+        std::string tobj_comments;
     };
 
     TerrainObjectManager(Terrain* terrainManager);

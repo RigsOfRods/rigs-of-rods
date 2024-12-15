@@ -72,15 +72,29 @@ void TObjParser::Prepare()
 bool TObjParser::ProcessLine(const char* line)
 {
     bool result = true;
-    if ((line != nullptr) && (line[0] != 0) && (line[0] != '/') && (line[0] != ';'))
+    if ((line != nullptr) && (line[0] != 0))
     {
-        m_cur_line = line; // No trimming by design.
-        m_cur_line_trimmed = line;
-        while (m_cur_line_trimmed[0] == ' ' || m_cur_line_trimmed[0] == '\t')
+        bool is_comment = (line[0] == '/') || (line[0] == ';');
+        if (is_comment)
         {
-            m_cur_line_trimmed++;
+            int text_start = 1;
+            while (line[text_start] == '/')
+            {
+                text_start++;
+            }
+            m_preceding_line_comments += std::string(line + text_start) + "\n";
         }
-        result = this->ProcessCurrentLine();
+        else
+        {
+            m_cur_line = line; // No trimming by design.
+            m_cur_line_trimmed = line;
+            while (m_cur_line_trimmed[0] == ' ' || m_cur_line_trimmed[0] == '\t')
+            {
+                m_cur_line_trimmed++;
+            }
+            result = this->ProcessCurrentLine();
+            m_preceding_line_comments = "";
+        }
     }
     m_line_number++;
     return result;
@@ -250,6 +264,9 @@ void TObjParser::ProcessProceduralLine()
     else if (obj_name == "bridge_no_pillars") { point.type = RoadType::ROAD_BRIDGE;    point.pillartype = 0; }
     else                                      { point.type = RoadType::ROAD_AUTOMATIC; point.pillartype = 1; }
 
+    // Attach comments
+    point.comments = m_preceding_line_comments;
+
     m_cur_procedural_obj->points.push_back(new ProceduralPoint(point));
 }
 
@@ -364,6 +381,9 @@ void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 c
     pp.type       = (special == TObj::SpecialObject::ROAD) ? RoadType::ROAD_FLAT : RoadType::ROAD_AUTOMATIC;
     pp.width      = 8;
 
+    // Attach comments
+    pp.comments = m_preceding_line_comments;
+
     m_cur_procedural_obj->points.push_back(new ProceduralPoint(pp));
     if (m_cur_procedural_obj_start_line == -1)
     {
@@ -417,6 +437,10 @@ bool TObjParser::ParseObjectLine(TObjEntry& object)
 
     object = TObjEntry(pos, rot, odef.ToCStr(), special, type, name);
     object.rendering_distance = m_default_rendering_distance;
+
+    // Attach comments
+    object.comments = m_preceding_line_comments;
+
     return true;
 }
 
@@ -510,6 +534,16 @@ void TObj::WriteToStream(TObjDocumentPtr doc, Ogre::DataStreamPtr stream)
     WriteTObjDelimiter(stream, "vehicles/loads/machines", doc->vehicles.size());
     for (TObjVehicle& vehicle : doc->vehicles)
     {
+        // Handle preceding comments
+        if (vehicle.comments != "")
+        {
+            for (Ogre::String& commenttext : Ogre::StringUtil::split(vehicle.comments, "\n"))
+            {
+                std::string commentline = fmt::format("// {}\n", commenttext);
+                stream->write(commentline.c_str(), commentline.length());
+            }
+        }
+
         std::string line = fmt::format("{:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {} {}\n",
             vehicle.position.x, vehicle.position.y, vehicle.position.z,
             vehicle.rotation.getRoll().valueDegrees(), vehicle.rotation.getYaw().valueDegrees(), vehicle.rotation.getPitch().valueDegrees(),
@@ -544,6 +578,16 @@ void TObj::WriteToStream(TObjDocumentPtr doc, Ogre::DataStreamPtr stream)
             case RoadType::ROAD_MONORAIL: type_str = (point->pillartype == 2) ? "monorail" : "monorail2"; break;
             }
 
+            // Handle preceding comments
+            if (point->comments != "")
+            {
+                for (Ogre::String& commenttext : Ogre::StringUtil::split(point->comments, "\n"))
+                {
+                    std::string commentline = fmt::format("// {}\n", commenttext);
+                    stream->write(commentline.c_str(), commentline.length());
+                }
+            }
+
             std::string line = fmt::format(
                 "\t{:13f}, {:13f}, {:13f}, 0, {:13f}, 0, {:13f}, {:13f}, {:13f}, {}\n",
                 point->position.x, point->position.y, point->position.z,
@@ -560,6 +604,16 @@ void TObj::WriteToStream(TObjDocumentPtr doc, Ogre::DataStreamPtr stream)
     WriteTObjDelimiter(stream, "static objects", doc->objects.size());
     for (TObjEntry& entry : doc->objects)
     {
+        // Handle preceding comments
+        if (entry.comments != "")
+        {
+            for (Ogre::String& commenttext : Ogre::StringUtil::split(entry.comments, "\n"))
+            {
+                std::string commentline = fmt::format("// {}\n", commenttext);
+                stream->write(commentline.c_str(), commentline.length());
+            }
+        }
+
         std::string line = fmt::format("{:8.3f}, {:8.3f}, {:8.3f}, {:9f}, {:9f}, {:9f}, {} {} {}\n",
             entry.position.x, entry.position.y, entry.position.z,
             entry.rotation.x, entry.rotation.y, entry.rotation.z,
