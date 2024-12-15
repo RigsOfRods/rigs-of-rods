@@ -977,7 +977,16 @@ bool SoundManager::UpdateObstructionFilter(const int hardware_index) const
         {
             if (!collision_box.enabled || collision_box.virt) { continue; }
 
-            intersection = direct_path_to_sound.intersects(Ogre::AxisAlignedBox(collision_box.lo, collision_box.hi));
+            Ogre::AxisAlignedBox collision_box_aab = Ogre::AxisAlignedBox(collision_box.lo, collision_box.hi);
+
+            // Skip cases where the obstruction filter detection becomes unstable
+            if (   collision_box_aab.contains(corresponding_sound->getPosition())
+                || collision_box_aab.distance(corresponding_sound->getPosition()) < 0.1f)
+            {
+                continue;
+            }
+
+            intersection = direct_path_to_sound.intersects(collision_box_aab);
             obstruction_detected = intersection.first && intersection.second <= 1.0f;
             if (obstruction_detected)
             {
