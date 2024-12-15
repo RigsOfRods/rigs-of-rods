@@ -1940,34 +1940,84 @@ private void unFoldAllRegionsInternal() //  do NOT invoke during drawing! use `r
 private void foldRegionInternal(string regionName)  // do NOT invoke during drawing! use `foldRegionRequested`
 {
     RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionName);
-    /*
+    
+    /*// DEBUG //
     game.log("DBG foldRegionInternal() regionName='"+regionName+"', regionInfo:"+(@regionInfo == null ? "null" :
     "NumChars:"+regionInfo.regionBodyNumChars+", isFolded:"+regionInfo.isFolded+", regionBodyStartOffset:"+regionInfo.regionBodyStartOffset+", regionBodyNumChars:"+regionInfo.regionBodyNumChars));
-    */
-    if (@regionInfo != null && !regionInfo.isFolded) // sanity check - this means `#endregion` isn't available
+    // END DEBUG //*/
+    
+    if (@regionInfo == null) // sanity check - this means `#endregion` isn't available
     {
-        regionInfo.foldedOffText = this.buffer.substr(regionInfo.regionBodyStartOffset, regionInfo.regionBodyNumChars);
-        this.buffer.erase(regionInfo.regionBodyStartOffset, regionInfo.regionBodyNumChars);
-        regionInfo.isFolded = true;
-        this.analyzeLines();
-        this.analyzeMessages(); // Determine which errors are in folded region, for correct drawing
+        game.log("ERROR|script_editor.as|`foldRegionInternal()` ~ regionInfo null or region already folded - this means `#endregion` isn't available");
+        return;
     }
+    
+    if (regionInfo.isFolded)
+    {
+        return ; // nothing to do
+    }
+    
+    //DEBUG//: Investigating a C++ exception triggered by bad `substr` args 
+    if (regionInfo.regionBodyStartOffset < 0
+        ||regionInfo.regionBodyStartOffset >= int(this.buffer.length()))
+    {
+        game.log("ERROR|script_editor.as|`foldRegionInternal()` ~ regionName='"+regionName
+            +"'  ~ invalid `regionInfo.regionBodyStartOffset` ("+regionInfo.regionBodyStartOffset+"), buffer length="+this.buffer.length());
+        return;
+    }
+    else if (regionInfo.regionBodyStartOffset + regionInfo.regionBodyNumChars >= int(this.buffer.length()))
+    {
+        game.log("ERROR|script_editor.as|`foldRegionInternal()` ~ regionName='"+regionName
+            +"'  ~ invalid `regionInfo.regionBodyNumChars` ("+regionInfo.regionBodyNumChars
+            +"), remaining buffer length="+(int(this.buffer.length())+regionInfo.regionBodyStartOffset));
+        return;
+    }
+    // END DEBUG //
+    
+    regionInfo.foldedOffText = this.buffer.substr(regionInfo.regionBodyStartOffset, regionInfo.regionBodyNumChars);
+    this.buffer.erase(regionInfo.regionBodyStartOffset, regionInfo.regionBodyNumChars);
+    regionInfo.isFolded = true;
+    this.analyzeLines();
+    this.analyzeMessages(); // Determine which errors are in folded region, for correct drawing
+
 }
 
 private void unFoldRegionInternal(string regionName) //  do NOT invoke during drawing! use `unFoldRegionRequested`
 {
     RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionName);
-    /*game.log("DBG unFoldRegionInternal() regionName='"+regionName+"', regionInfo:"+(@regionInfo == null ? "null" :
+    
+    /*// DEBUG //
+    game.log("DBG unFoldRegionInternal() regionName='"+regionName+"', regionInfo:"+(@regionInfo == null ? "null" :
     "NumChars:"+regionInfo.regionBodyNumChars+", isFolded:"+regionInfo.isFolded+", regionBodyStartOffset:"+regionInfo.regionBodyStartOffset+", regionBodyNumChars:"+regionInfo.regionBodyNumChars));
-    */
-    if (@regionInfo != null && regionInfo.isFolded) // sanity check - this means `#endregion` isn't available
+    // END DEBUG //*/
+    
+    if (!regionInfo.isFolded)
     {
-        this.buffer.insert(regionInfo.regionBodyStartOffset, regionInfo.foldedOffText);
-        regionInfo.foldedOffText = "";
-        regionInfo.isFolded = false;
-        this.analyzeLines();
-        this.analyzeMessages(); // Determine which errors are in folded region, for correct drawing
+        return; // nothing to do
     }
+    
+    if (@regionInfo == null) // sanity check - this means `#endregion` isn't available
+    {
+        game.log("ERROR|script_editor.as|`unFoldRegionInternal()` ~ regionName='"+regionName
+            +"' ~ regionInfo null - this means `#endregion` isn't available");
+        return;
+    }
+    
+    // DEBUG // Investigating a C++ exception triggered by bad `string::insert` args 
+    if (regionInfo.regionBodyStartOffset < 0
+        ||regionInfo.regionBodyStartOffset >= int(this.buffer.length()))
+    {
+        game.log("ERROR|script_editor.as|`unFoldRegionInternal()` ~ regionName='"+regionName
+            +"'  ~ invalid `regionInfo.regionBodyStartOffset` ("+regionInfo.regionBodyStartOffset+"), buffer length="+this.buffer.length());
+        return;
+    }
+    // END DEBUG //
+    
+    this.buffer.insert(regionInfo.regionBodyStartOffset, regionInfo.foldedOffText);
+    regionInfo.foldedOffText = "";
+    regionInfo.isFolded = false;
+    this.analyzeLines();
+    this.analyzeMessages(); // Determine which errors are in folded region, for correct drawing
 }
 
 private void backUpRegionFoldStates()
