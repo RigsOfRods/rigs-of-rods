@@ -420,23 +420,7 @@ void SoundManager::Update(const float dt_sec)
             // update air absorption factor
             alSourcef(hardware_sources[hardware_index], AL_AIR_ABSORPTION_FACTOR, m_air_absorption_factor);
 
-            bool obstruction_detected = this->UpdateObstructionFilter(hardware_index);
-
-            /*
-             * If an obstruction was detected, also check for occlusions.
-             * The current implementation ignores the case of exclusion since
-             * it compares the reverb environments of the source and listener.
-             * This would not be enough to reliably detect exclusion in outdoor environments.
-             */
-            if (obstruction_detected)
-            {
-                this->UpdateOcclusionFilter(hardware_index, m_listener_slot, m_listener_efx_reverb_properties);
-            }
-            else
-            {
-                // disable occlusion filter just in case it was previously active
-                alSource3i(hardware_sources[hardware_index], AL_AUXILIARY_SEND_FILTER, m_listener_slot, m_efx_occlusion_wet_path_send_id, AL_FILTER_NULL);
-            }
+            this->UpdateSourceFilters(hardware_index);
         }
 
         this->UpdateListenerEffectSlot(dt_sec);
@@ -935,6 +919,26 @@ void SoundManager::recomputeAllSources()
 #endif
 }
 
+void SoundManager::UpdateSourceFilters(const int hardware_index) const
+{
+    bool source_is_obstructed = this->UpdateObstructionFilter(hardware_index);
+    /*
+     * If an obstruction was detected, also check for occlusions.
+     * The current implementation ignores the case of exclusion since
+     * it compares the reverb environments of the source and listener.
+     * This would not be enough to reliably detect exclusion in outdoor environments.
+     */
+    if (source_is_obstructed)
+    {
+        this->UpdateOcclusionFilter(hardware_index, m_listener_slot, m_listener_efx_reverb_properties);
+    }
+    else
+    {
+        // disable occlusion filter just in case it was previously active
+        alSource3i(hardware_sources[hardware_index], AL_AUXILIARY_SEND_FILTER, m_listener_slot, m_efx_occlusion_wet_path_send_id, AL_FILTER_NULL);
+    }
+}
+
 bool SoundManager::UpdateObstructionFilter(const int hardware_index) const
 {
     if (hardware_sources_map[hardware_index] == -1) { return false; } // no sound assigned to hardware source
@@ -1091,8 +1095,7 @@ void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vect
             switch (reason)
             {
             case Sound::REASON_PLAY:
-                this->UpdateObstructionFilter(audio_sources[source_index]->hardware_index);
-                this->UpdateOcclusionFilter  (audio_sources[source_index]->hardware_index, m_listener_slot, m_listener_efx_reverb_properties);
+                this->UpdateSourceFilters(audio_sources[source_index]->hardware_index);
                 alSourcePlay(hw_source);
                 break;
             case Sound::REASON_STOP: alSourceStop(hw_source);
@@ -1172,8 +1175,7 @@ void SoundManager::assign(int source_index, int hardware_index)
 
     if (audio_source->should_play)
     {
-        this->UpdateObstructionFilter(hardware_index);
-        this->UpdateOcclusionFilter  (hardware_index, m_listener_slot, m_listener_efx_reverb_properties);
+        this->UpdateSourceFilters(audio_sources[source_index]->hardware_index);
         alSourcePlay(hw_source);
     }
 

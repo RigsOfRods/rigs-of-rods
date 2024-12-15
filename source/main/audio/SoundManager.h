@@ -328,6 +328,12 @@ private:
     std::tuple<Ogre::Vector3, float, float> ComputeEarlyReflectionsProperties() const;
 
     /**
+     *   Helper function to call several other functions to update source filters.
+     *   @param hardware_index The index of the hardware source.
+     */
+    void    UpdateSourceFilters(const int hardware_index) const;
+
+    /**
      *   Applies an obstruction filter to the provided source if certain conditions apply.
      *   To decide whether the filter should be applied or not, the function performs
      *   various checks against the environment of the listener.
