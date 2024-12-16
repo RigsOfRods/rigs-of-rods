@@ -269,7 +269,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
             m_tobj_cache_active_id = -1;
             if (m_editor_objects.size() > num_editor_objects)
             {
-                m_editor_objects.back().tobj_comments = entry.comments;
+                m_editor_objects.back()->tobj_comments = entry.comments;
             }
         }
         catch (...)
@@ -527,7 +527,7 @@ void TerrainObjectManager::unloadObject(const String& instancename)
     obj.enabled = false;
 
     m_editor_objects.erase(std::remove_if(m_editor_objects.begin(), m_editor_objects.end(),
-                [instancename](EditorObject& e) { return e.instance_name == instancename; }), m_editor_objects.end());
+                [instancename](TerrainEditorObjectPtr& e) { return e->instance_name == instancename; }), m_editor_objects.end());
 }
 
 ODefDocument* TerrainObjectManager::FetchODef(std::string const & odef_name)
@@ -640,18 +640,18 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     obj->sceneNode = tenode;
     obj->collTris.clear();
 
-    EditorObject object;
-    object.name = name;
-    object.instance_name = instancename;
-    object.type = type;
-    object.position = pos;
-    object.rotation = rot;
-    object.initial_position = pos;
-    object.initial_rotation = rot;
-    object.node = tenode;
-    object.enable_collisions = enable_collisions;
-    object.script_handler = scripthandler;
-    object.tobj_cache_id = m_tobj_cache_active_id;
+    TerrainEditorObjectPtr object = new TerrainEditorObject();
+    object->name = name;
+    object->instance_name = instancename;
+    object->type = type;
+    object->position = pos;
+    object->rotation = rot;
+    object->initial_position = pos;
+    object->initial_rotation = rot;
+    object->node = tenode;
+    object->enable_collisions = enable_collisions;
+    object->script_handler = scripthandler;
+    object->tobj_cache_id = m_tobj_cache_active_id;
     m_editor_objects.push_back(object);
 
     if (mo && uniquifyMaterial && !instancename.empty())
@@ -697,29 +697,29 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         terrainManager->GetCollisions()->loadGroundModelsConfigFile(gmodel_file);
     }
 
-    bool race_event = !object.instance_name.compare(0, 10, "checkpoint") ||
-                        !object.instance_name.compare(0,  4, "race");
+    bool race_event = !object->instance_name.compare(0, 10, "checkpoint") ||
+                        !object->instance_name.compare(0,  4, "race");
 
     if (race_event)
     {
         String type = "checkpoint";
-        auto res = StringUtil::split(object.instance_name, "|");
-        if ((res.size() == 4 && res[2] == "0") || !object.instance_name.compare(0, 4, "race"))
+        auto res = StringUtil::split(object->instance_name, "|");
+        if ((res.size() == 4 && res[2] == "0") || !object->instance_name.compare(0, 4, "race"))
         {
             type = "racestart";
         }
         int race_id = res.size() > 1 ? StringConverter::parseInt(res[1], -1) : -1;
-        m_map_entities.push_back(SurveyMapEntity(type, /*caption:*/type, fmt::format("icon_{}.dds", type), /*resource_group:*/"", object.position, Ogre::Radian(0), race_id));
+        m_map_entities.push_back(SurveyMapEntity(type, /*caption:*/type, fmt::format("icon_{}.dds", type), /*resource_group:*/"", object->position, Ogre::Radian(0), race_id));
     }
-    else if (!object.type.empty())
+    else if (!object->type.empty())
     {
         String caption = "";
-        if (object.type == "station" || object.type == "hotel" || object.type == "village" ||
-                object.type == "observatory" || object.type == "farm" || object.type == "ship" || object.type == "sign")
+        if (object->type == "station" || object->type == "hotel" || object->type == "village" ||
+                object->type == "observatory" || object->type == "farm" || object->type == "ship" || object->type == "sign")
         {
-            caption = object.instance_name + " " + object.type;
+            caption = object->instance_name + " " + object->type;
         }
-        m_map_entities.push_back(SurveyMapEntity(object.type, caption, fmt::format("icon_{}.dds", object.type), /*resource_group:*/"", object.position, Ogre::Radian(0), -1));
+        m_map_entities.push_back(SurveyMapEntity(object->type, caption, fmt::format("icon_{}.dds", object->type), /*resource_group:*/"", object->position, Ogre::Radian(0), -1));
     }
 
     this->ProcessODefCollisionBoxes(obj, odef, object, race_event);
@@ -1034,11 +1034,11 @@ bool TerrainObjectManager::UpdateTerrainObjects(float dt)
     return true;
 }
 
-void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefDocument* odef, const EditorObject& params, bool race_event)
+void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefDocument* odef, const TerrainEditorObjectPtr& params, bool race_event)
 {
     for (ODefCollisionBox& cbox : odef->collision_boxes)
     {
-        if (params.enable_collisions && (App::sim_races_enabled->getBool() || !race_event))
+        if (params->enable_collisions && (App::sim_races_enabled->getBool() || !race_event))
         {
             // Validate AABB (minimum corners must be less or equal to maximum corners)
             if (cbox.aabb_min.x > cbox.aabb_max.x || cbox.aabb_min.y > cbox.aabb_max.y || cbox.aabb_min.z > cbox.aabb_max.z)
@@ -1057,10 +1057,10 @@ void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefDocu
             }
 
             int boxnum = terrainManager->GetCollisions()->addCollisionBox(
-                cbox.is_rotating, cbox.is_virtual, params.position, params.rotation,
+                cbox.is_rotating, cbox.is_virtual, params->position, params->rotation,
                 cbox.aabb_min, cbox.aabb_max, cbox.box_rot, cbox.event_name,
-                params.instance_name, cbox.force_cam_pos, cbox.cam_pos,
-                cbox.scale, cbox.direction, cbox.event_filter, params.script_handler);
+                params->instance_name, cbox.force_cam_pos, cbox.cam_pos,
+                cbox.scale, cbox.direction, cbox.event_filter, params->script_handler);
 
             obj->collBoxes.push_back(boxnum);
         }

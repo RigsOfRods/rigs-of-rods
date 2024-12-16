@@ -55,31 +55,15 @@ struct Localizer
 };
 typedef std::vector<Localizer> LocalizerVec;
 
-class TerrainObjectManager
+class TerrainObjectManager: public RefCountingObject<TerrainObjectManager>
 {
     friend class Terrain;
 public:
 
-    struct EditorObject
-    {
-        Ogre::String name;
-        Ogre::String instance_name;
-        Ogre::String type;
-        Ogre::Vector3 position = Ogre::Vector3::ZERO;
-        Ogre::Vector3 rotation = Ogre::Vector3::ZERO;
-        Ogre::Vector3 initial_position = Ogre::Vector3::ZERO;
-        Ogre::Vector3 initial_rotation = Ogre::Vector3::ZERO;
-        Ogre::SceneNode* node = nullptr;
-        bool enable_collisions = true;
-        int script_handler = -1;
-        int tobj_cache_id = -1;
-        std::string tobj_comments;
-    };
-
     TerrainObjectManager(Terrain* terrainManager);
     ~TerrainObjectManager();
 
-    std::vector<EditorObject>& GetEditorObjects() { return m_editor_objects; }
+    TerrainEditorObjectPtrVec& GetEditorObjects() { return m_editor_objects; }
     std::vector<TObjDocumentPtr>& GetTobjCache() { return m_tobj_cache; }
     void           LoadTObjFile(Ogre::String filename);
     bool           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, float rendering_distance = 0, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
@@ -148,7 +132,7 @@ protected:
     // ODef processing functions
 
     RoR::ODefDocument* FetchODef(std::string const & odef_name);
-    void           ProcessODefCollisionBoxes(StaticObject* obj, ODefDocument* odef, const EditorObject& params, bool race_event);
+    void           ProcessODefCollisionBoxes(StaticObject* obj, ODefDocument* odef, const TerrainEditorObjectPtr& params, bool race_event);
 
     // Update functions
 
@@ -162,7 +146,7 @@ protected:
     std::vector<TObjDocumentPtr>          m_tobj_cache;
     int                                   m_tobj_cache_active_id = -1;
     std::map<std::string, StaticObject>   m_static_objects;
-    std::vector<EditorObject>             m_editor_objects;
+    TerrainEditorObjectPtrVec             m_editor_objects;
     std::vector<PredefinedActor>          m_predefined_actors;
     std::vector<AnimatedObject>           m_animated_objects;
     std::vector<ParticleEffectObject>     m_particle_effect_objects;

@@ -52,7 +52,7 @@ void TerrainEditor::UpdateInputEvents(float dt)
         Vector3 direction = terrain_editor_mouse_ray.getDirection();
         for (int i = 0; i < (int)object_list.size(); i++)
         {
-            Real ray_object_distance = direction.crossProduct(object_list[i].node->getPosition() - origin).length();
+            Real ray_object_distance = direction.crossProduct(object_list[i]->node->getPosition() - origin).length();
             if (ray_object_distance < min_dist)
             {
                 min_dist = ray_object_distance;
@@ -63,7 +63,7 @@ void TerrainEditor::UpdateInputEvents(float dt)
     }
     if (m_object_index != -1)
     {
-        m_last_object_name = object_list[m_object_index].name;
+        m_last_object_name = object_list[m_object_index]->name;
     }
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_OR_EXIT_TRUCK))
     {
@@ -76,7 +76,7 @@ void TerrainEditor::UpdateInputEvents(float dt)
             float min_dist = std::numeric_limits<float>::max();
             for (int i = 0; i < (int)object_list.size(); i++)
             {
-                float dist = ref_pos.squaredDistance(object_list[i].node->getPosition());
+                float dist = ref_pos.squaredDistance(object_list[i]->node->getPosition());
                 if (dist < min_dist)
                 {
                     m_object_index = i;
@@ -151,29 +151,20 @@ void TerrainEditor::UpdateInputEvents(float dt)
     }
     if (m_object_index != -1 && update)
     {
-        String ssmsg = _L("Selected object: [") + TOSTRING(m_object_index) + "/" + TOSTRING(object_list.size()) + "] (" + object_list[m_object_index].name + ")";
+        String ssmsg = _L("Selected object: [") + TOSTRING(m_object_index) + "/" + TOSTRING(object_list.size()) + "] (" + object_list[m_object_index]->name + ")";
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "information.png");
         if (m_object_tracking)
         {
-            App::GetGameContext()->GetPlayerCharacter()->setPosition(object_list[m_object_index].node->getPosition());
+            App::GetGameContext()->GetPlayerCharacter()->setPosition(object_list[m_object_index]->node->getPosition());
         }
     }
     if (m_object_index != -1 && App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_TRUCK))
     {
-        SceneNode* sn = object_list[m_object_index].node;
-
-        object_list[m_object_index].position = object_list[m_object_index].initial_position;
-        sn->setPosition(object_list[m_object_index].position);
-
-        object_list[m_object_index].rotation = object_list[m_object_index].initial_rotation;
-        Vector3 rot = object_list[m_object_index].rotation;
-        sn->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
-        sn->pitch(Degree(-90));
+        object_list[m_object_index]->setPosition(object_list[m_object_index]->initial_position);
+        object_list[m_object_index]->setRotation(object_list[m_object_index]->initial_rotation);
     }
     if (m_object_index != -1 && App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
     {
-        SceneNode* sn = object_list[m_object_index].node;
-
         Vector3 translation = Vector3::ZERO;
         float rotation = 0.0f;
 
@@ -216,27 +207,26 @@ void TerrainEditor::UpdateInputEvents(float dt)
             scale *= App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) ? 3.0f : 1.0f;
             scale *= App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
 
-            object_list[m_object_index].position += translation * scale * dt;
-            sn->setPosition(object_list[m_object_index].position);
+            Ogre::Vector3 new_position = object_list[m_object_index]->getPosition();
+            new_position += translation * scale * dt;
+            object_list[m_object_index]->setPosition(new_position);
 
-            object_list[m_object_index].rotation[m_rotation_axis] += rotation * scale * dt;
-            Vector3 rot = object_list[m_object_index].rotation;
-            sn->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
-            sn->pitch(Degree(-90));
+            Ogre::Vector3 new_rotation = object_list[m_object_index]->getRotation();
+            new_rotation[m_rotation_axis] += rotation * scale * dt;
+            object_list[m_object_index]->setRotation(new_rotation);
 
             if (m_object_tracking)
             {
-                App::GetGameContext()->GetPlayerCharacter()->setPosition(sn->getPosition());
+                App::GetGameContext()->GetPlayerCharacter()->setPosition(new_position);
             }
         }
-        else if (m_object_tracking && App::GetGameContext()->GetPlayerCharacter()->getPosition() != sn->getPosition())
+        else if (m_object_tracking && App::GetGameContext()->GetPlayerCharacter()->getPosition() != object_list[m_object_index]->getPosition())
         {
-            object_list[m_object_index].position = App::GetGameContext()->GetPlayerCharacter()->getPosition();
-            sn->setPosition(App::GetGameContext()->GetPlayerCharacter()->getPosition());
+            object_list[m_object_index]->setPosition(App::GetGameContext()->GetPlayerCharacter()->getPosition());
         }
         if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK))
         {
-            App::GetGameContext()->GetTerrain()->getObjectManager()->unloadObject(object_list[m_object_index].instance_name);
+            App::GetGameContext()->GetTerrain()->getObjectManager()->unloadObject(object_list[m_object_index]->instance_name);
         }
     }
     else
@@ -275,18 +265,18 @@ void TerrainEditor::WriteOutputFile()
         // Dump original elements and rebuild them from live data.
         TObjDocumentPtr tobj = terrain->getObjectManager()->GetTobjCache()[i];
         tobj->objects.clear();
-        for (TerrainObjectManager::EditorObject& src : terrain->getObjectManager()->GetEditorObjects())
+        for (TerrainEditorObjectPtr& src : terrain->getObjectManager()->GetEditorObjects())
         {
-            if (src.tobj_cache_id == i)
+            if (src->tobj_cache_id == i)
             {
                 TObjEntry dst;
-                strncpy(dst.odef_name, src.name.c_str(), TObj::STR_LEN);
-                strncpy(dst.instance_name, src.instance_name.c_str(), TObj::STR_LEN);
-                strncpy(dst.type, src.type.c_str(), TObj::STR_LEN);
+                strncpy(dst.odef_name, src->name.c_str(), TObj::STR_LEN);
+                strncpy(dst.instance_name, src->instance_name.c_str(), TObj::STR_LEN);
+                strncpy(dst.type, src->type.c_str(), TObj::STR_LEN);
                 // TBD: reconstruct 'set_default_rendering_distance'.
-                dst.position = src.position;
-                dst.rotation = src.rotation;
-                dst.comments = src.tobj_comments;
+                dst.position = src->position;
+                dst.rotation = src->rotation;
+                dst.comments = src->tobj_comments;
 
                 tobj->objects.push_back(dst);
             }
@@ -311,4 +301,30 @@ void TerrainEditor::WriteOutputFile()
 void TerrainEditor::ClearSelection()
 {
     m_object_index = -1;
+}
+
+// -------------------
+// TerrainEditorObject
+
+Ogre::Vector3 const& TerrainEditorObject::getPosition()
+{
+    return position;
+}
+
+Ogre::Vector3 const& TerrainEditorObject::getRotation()
+{
+    return rotation;
+}
+
+void TerrainEditorObject::setPosition(Ogre::Vector3 const& pos)
+{
+    position = pos;
+    node->setPosition(pos);
+}
+
+void TerrainEditorObject::setRotation(Ogre::Vector3 const& rot)
+{
+    rotation = rot;
+    node->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
+    node->pitch(Degree(-90));
 }
