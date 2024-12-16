@@ -21,12 +21,37 @@
 
 #pragma once
 
+#include "RefCountingObject.h"
+
 #include <string>
 
 namespace RoR {
 
 /// @addtogroup Terrain
 /// @{
+
+/// Represents an instance of static terrain object (.ODEF file format)
+class TerrainEditorObject : public RefCountingObject<TerrainEditorObject>
+{
+public:
+    Ogre::String name;
+    Ogre::String instance_name;
+    Ogre::String type;
+    Ogre::Vector3 position = Ogre::Vector3::ZERO;
+    Ogre::Vector3 rotation = Ogre::Vector3::ZERO;
+    Ogre::Vector3 initial_position = Ogre::Vector3::ZERO;
+    Ogre::Vector3 initial_rotation = Ogre::Vector3::ZERO;
+    Ogre::SceneNode* node = nullptr;
+    bool enable_collisions = true;
+    int script_handler = -1;
+    int tobj_cache_id = -1;
+    std::string tobj_comments;
+
+    Ogre::Vector3 const& getPosition();
+    Ogre::Vector3 const& getRotation();
+    void setPosition(Ogre::Vector3 const& pos);
+    void setRotation(Ogre::Vector3 const& rot);
+};
 
 /// Minimalist editor mode; orig. code by Ulteq/2016
 /// * Enter/Exit from/to simulation by Ctrl+Y (see EV_COMMON_TOGGLE_TERRAIN_EDITOR)
