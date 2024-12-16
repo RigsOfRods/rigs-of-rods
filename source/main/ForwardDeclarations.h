@@ -166,6 +166,7 @@ namespace RoR
     class  TerrainEditor;
     class  TerrainGeometryManager;
     class  Terrain;
+    class  TerrainEditorObject;
     class  TerrainObjectManager;
     struct Terrn2Author;
     struct Terrn2Document;
@@ -222,10 +223,12 @@ namespace RoR
     typedef RefCountingObjectPtr<SoundScriptInstance> SoundScriptInstancePtr;
     typedef RefCountingObjectPtr<SoundScriptTemplate> SoundScriptTemplatePtr;
     typedef RefCountingObjectPtr<Terrain> TerrainPtr;
+    typedef RefCountingObjectPtr<TerrainEditorObject> TerrainEditorObjectPtr;
     typedef RefCountingObjectPtr<TuneupDef> TuneupDefPtr;
     typedef RefCountingObjectPtr<VehicleAI> VehicleAIPtr;
 
     typedef std::vector<ActorPtr> ActorPtrVec;
+    typedef std::vector<TerrainEditorObjectPtr> TerrainEditorObjectPtrVec;
 
     namespace GUI
     {
