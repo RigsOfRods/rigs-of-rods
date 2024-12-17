@@ -373,6 +373,11 @@ public:
     void destroyObject(const Ogre::String& instanceName);
 
     /**
+    * Returns `array<TerrainEditorObjectClassPtr@>` with all static objects on map (from any source).
+    */
+    AngelScript::CScriptArray* getEditorObjects();
+
+    /**
     * Calculates mouse cursor position on terrain.
     * @param out_pos Calculated position, in meters.
     * @return true if mouse points to the terrain and output coordinates are valid.
