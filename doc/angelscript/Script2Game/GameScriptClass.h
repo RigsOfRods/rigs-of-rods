@@ -456,6 +456,12 @@ public:
 	void destroyObject(const string instanceName);
     
     /**
+    * Returns all static objects on map (from any source).
+    */
+    array<TerrainEditorObjectClassPtr@>@ getEditorObjects();
+
+    
+    /**
     * Calculates mouse cursor position on terrain.
     * @param out_pos Calculated position, in meters.
     * @return true if mouse points to the terrain and output coordinates are valid.

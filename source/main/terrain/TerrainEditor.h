@@ -34,9 +34,10 @@ namespace RoR {
 class TerrainEditorObject : public RefCountingObject<TerrainEditorObject>
 {
 public:
-    Ogre::String name;
-    Ogre::String instance_name;
-    Ogre::String type;
+    // Variables are not accessible from AngelScript
+    std::string name;
+    std::string instance_name;
+    std::string type;
     Ogre::Vector3 position = Ogre::Vector3::ZERO;
     Ogre::Vector3 rotation = Ogre::Vector3::ZERO;
     Ogre::Vector3 initial_position = Ogre::Vector3::ZERO;
@@ -47,6 +48,10 @@ public:
     int tobj_cache_id = -1;
     std::string tobj_comments;
 
+    // Functions are exported to AngelScript
+    std::string const& getName();
+    std::string const& getInstanceName();
+    std::string const& getType();
     Ogre::Vector3 const& getPosition();
     Ogre::Vector3 const& getRotation();
     void setPosition(Ogre::Vector3 const& pos);

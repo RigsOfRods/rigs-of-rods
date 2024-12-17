@@ -54,4 +54,19 @@ void RoR::RegisterTerrain(asIScriptEngine* engine)
     
     // > Subsystems
     result = engine->RegisterObjectMethod("TerrainClass", "ProceduralManagerClassPtr @getProceduralManager()", asMETHOD(RoR::Terrain, getProceduralManager), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+
+
+    TerrainEditorObject::RegisterRefCountingObject(engine, "TerrainEditorObjectClass");
+    TerrainEditorObjectPtr::RegisterRefCountingObjectPtr(engine, "TerrainEditorObjectClassPtr", "TerrainEditorObjectClass");
+
+    result = engine->RegisterObjectMethod("TerrainEditorObjectClass", "const vector3& getPosition()", asMETHOD(RoR::TerrainEditorObject, getPosition), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TerrainEditorObjectClass", "const vector3& getRotation()", asMETHOD(RoR::TerrainEditorObject, getRotation), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+
+    result = engine->RegisterObjectMethod("TerrainEditorObjectClass", "void setPosition(const vector3&in)", asMETHOD(RoR::TerrainEditorObject, setPosition), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TerrainEditorObjectClass", "void setRotation(const vector3&in)", asMETHOD(RoR::TerrainEditorObject, setRotation), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+
+    result = engine->RegisterObjectMethod("TerrainEditorObjectClass", "const string& getName()", asMETHOD(RoR::TerrainEditorObject, getName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TerrainEditorObjectClass", "const string& getInstanceName()", asMETHOD(RoR::TerrainEditorObject, getInstanceName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TerrainEditorObjectClass", "const string& getType()", asMETHOD(RoR::TerrainEditorObject, getType), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+
 }
