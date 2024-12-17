@@ -328,3 +328,18 @@ void TerrainEditorObject::setRotation(Ogre::Vector3 const& rot)
     node->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
     node->pitch(Degree(-90));
 }
+
+std::string const& TerrainEditorObject::getName()
+{
+    return name;
+}
+
+std::string const& TerrainEditorObject::getInstanceName()
+{
+    return instance_name;
+}
+
+std::string const& TerrainEditorObject::getType()
+{
+    return type;
+}
