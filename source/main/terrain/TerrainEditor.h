@@ -47,6 +47,8 @@ public:
     int script_handler = -1;
     int tobj_cache_id = -1;
     std::string tobj_comments;
+    std::vector<int> static_collision_boxes;
+    std::vector<int> static_collision_tris;
 
     // Functions are exported to AngelScript
     std::string const& getName();
@@ -69,13 +71,13 @@ public:
     void UpdateInputEvents(float dt);
     void WriteOutputFile();
     void ClearSelection();
-    int GetSelectedObjectIndex() const { return m_object_index; }
+    TerrainEditorObjectID_t GetSelectedObjectID() const { return m_object_index; }
 
 private:
     bool                m_object_tracking = true;
     int                 m_rotation_axis = 1;        //!< 0=X, 1=Y, 2=Z
     std::string         m_last_object_name;
-    int                 m_object_index = -1;
+    TerrainEditorObjectID_t m_object_index = TERRAINEDITOROBJECTID_INVALID;
 };
 
 /// @} // addtogroup Terrain
