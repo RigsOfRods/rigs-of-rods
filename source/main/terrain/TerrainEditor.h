@@ -69,6 +69,7 @@ public:
     void UpdateInputEvents(float dt);
     void WriteOutputFile();
     void ClearSelection();
+    int GetSelectedObjectIndex() const { return m_object_index; }
 
 private:
     bool                m_object_tracking = true;
