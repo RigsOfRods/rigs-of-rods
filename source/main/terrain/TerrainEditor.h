@@ -21,12 +21,44 @@
 
 #pragma once
 
+#include "RefCountingObject.h"
+
 #include <string>
 
 namespace RoR {
 
 /// @addtogroup Terrain
 /// @{
+
+/// Represents an instance of static terrain object (.ODEF file format)
+class TerrainEditorObject : public RefCountingObject<TerrainEditorObject>
+{
+public:
+    // Variables are not accessible from AngelScript
+    std::string name;
+    std::string instance_name;
+    std::string type;
+    Ogre::Vector3 position = Ogre::Vector3::ZERO;
+    Ogre::Vector3 rotation = Ogre::Vector3::ZERO;
+    Ogre::Vector3 initial_position = Ogre::Vector3::ZERO;
+    Ogre::Vector3 initial_rotation = Ogre::Vector3::ZERO;
+    Ogre::SceneNode* node = nullptr;
+    bool enable_collisions = true;
+    int script_handler = -1;
+    int tobj_cache_id = -1;
+    std::string tobj_comments;
+    std::vector<int> static_collision_boxes;
+    std::vector<int> static_collision_tris;
+
+    // Functions are exported to AngelScript
+    std::string const& getName();
+    std::string const& getInstanceName();
+    std::string const& getType();
+    Ogre::Vector3 const& getPosition();
+    Ogre::Vector3 const& getRotation();
+    void setPosition(Ogre::Vector3 const& pos);
+    void setRotation(Ogre::Vector3 const& rot);
+};
 
 /// Minimalist editor mode; orig. code by Ulteq/2016
 /// * Enter/Exit from/to simulation by Ctrl+Y (see EV_COMMON_TOGGLE_TERRAIN_EDITOR)
@@ -39,12 +71,13 @@ public:
     void UpdateInputEvents(float dt);
     void WriteOutputFile();
     void ClearSelection();
+    TerrainEditorObjectID_t GetSelectedObjectID() const { return m_object_index; }
 
 private:
     bool                m_object_tracking = true;
     int                 m_rotation_axis = 1;        //!< 0=X, 1=Y, 2=Z
     std::string         m_last_object_name;
-    int                 m_object_index = -1;
+    TerrainEditorObjectID_t m_object_index = TERRAINEDITOROBJECTID_INVALID;
 };
 
 /// @} // addtogroup Terrain

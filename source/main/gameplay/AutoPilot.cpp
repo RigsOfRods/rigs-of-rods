@@ -360,7 +360,7 @@ void Autopilot::gpws_update(float spawnheight)
 #endif //OPENAL
 }
 
-void Autopilot::UpdateIls(std::vector<TerrainObjectManager::localizer_t> localizers)
+void Autopilot::UpdateIls()
 {
     if (!ref_l || !ref_r)
         return;
@@ -370,7 +370,9 @@ void Autopilot::UpdateIls(std::vector<TerrainObjectManager::localizer_t> localiz
     float closest_vdist = -1;
     float closest_vangle = -90;
     m_ils_runway_heading = 0;
-    for (std::vector<TerrainObjectManager::localizer_t>::size_type i = 0; i < localizers.size(); i++)
+
+    LocalizerVec& localizers = App::GetGameContext()->GetTerrain()->getObjectManager()->GetLocalizers();
+    for (size_t i = 0; i < localizers.size(); i++)
     {
         Plane hplane = Plane(Vector3::UNIT_Y, 0);
         Vector3 plocd = hplane.projectVector(localizers[i].rotation * Vector3::UNIT_Z);
