@@ -425,7 +425,7 @@ void GameScript::destroyObject(const String& instanceName)
 
     if (App::GetGameContext()->GetTerrain()->getObjectManager())
     {
-        App::GetGameContext()->GetTerrain()->getObjectManager()->unloadObject(instanceName);
+        App::GetGameContext()->GetTerrain()->getObjectManager()->destroyObject(instanceName);
     }
 }
 
@@ -436,7 +436,7 @@ void GameScript::moveObjectVisuals(const String& instanceName, const Vector3& po
 
     if (App::GetGameContext()->GetTerrain()->getObjectManager())
     {
-        App::GetGameContext()->GetTerrain()->getObjectManager()->MoveObjectVisuals(instanceName, pos);
+        App::GetGameContext()->GetTerrain()->getObjectManager()->moveObjectVisuals(instanceName, pos);
     }
 }
 
