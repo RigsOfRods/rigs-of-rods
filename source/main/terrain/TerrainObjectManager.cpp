@@ -484,50 +484,54 @@ void TerrainObjectManager::ProcessGrass(
 #endif //USE_PAGED
 }
 
-void TerrainObjectManager::MoveObjectVisuals(const String& instancename, const Ogre::Vector3& pos)
+void TerrainObjectManager::moveObjectVisuals(const String& instancename, const Ogre::Vector3& pos)
 {
-    if (m_static_objects.find(instancename) == m_static_objects.end())
+    // Obsolete function kept for backwards-compatibility; does the same as `TerrainEditorObject::setPosition()`
+    // -------------------------------------------------------------------------------------------------------
+
+    TerrainEditorObjectID_t id = FindEditorObjectByInstanceName(instancename);
+    if (id == TERRAINEDITOROBJECTID_INVALID)
     {
-        LOG(instancename+ " not found!");
+        LOG(fmt::format("[RoR] `moveObjectVisuals()`: instance name '{}' not found!", instancename));
         return;
     }
 
-    StaticObject obj = m_static_objects[instancename];
-
-    if (!obj.enabled)
-        return;
-
-    obj.sceneNode->setPosition(pos);
+    m_editor_objects[id]->setPosition(pos);
 }
 
-void TerrainObjectManager::unloadObject(const String& instancename)
+void TerrainObjectManager::destroyObject(const String& instancename)
 {
-    if (m_static_objects.find(instancename) == m_static_objects.end())
+    TerrainEditorObjectID_t id = FindEditorObjectByInstanceName(instancename);
+    if (id == -1)
     {
-        LOG("unable to unload object: " + instancename);
+        LOG(fmt::format("[RoR] `destroyObject()`: instance name '{}' not found!", instancename));
         return;
     }
 
-    StaticObject obj = m_static_objects[instancename];
-
-    if (!obj.enabled)
-        return;
-
-    for (auto tri : obj.collTris)
+    for (int tri : m_editor_objects[id]->static_collision_tris)
     {
         terrainManager->GetCollisions()->removeCollisionTri(tri);
     }
-    for (auto box : obj.collBoxes)
+    for (int box : m_editor_objects[id]->static_collision_boxes)
     {
         terrainManager->GetCollisions()->removeCollisionBox(box);
     }
 
-    obj.sceneNode->detachAllObjects();
-    obj.sceneNode->setVisible(false);
-    obj.enabled = false;
+    // Destroy the scene node and everything attached to it.
+    for (Ogre::MovableObject* mova : m_editor_objects[id]->node->getAttachedObjects())
+    {
+        App::GetGfxScene()->GetSceneManager()->destroyMovableObject(mova);
+    }
+    App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_editor_objects[id]->node);
 
-    m_editor_objects.erase(std::remove_if(m_editor_objects.begin(), m_editor_objects.end(),
-                [instancename](TerrainEditorObjectPtr& e) { return e->instance_name == instancename; }), m_editor_objects.end());
+    // Release the object from editor, if active.
+    if (id == App::GetGameContext()->GetTerrain()->GetTerrainEditor()->GetSelectedObjectID())
+    {
+        App::GetGameContext()->GetTerrain()->GetTerrainEditor()->ClearSelection();
+    }
+
+    // Forget the object ever existed.
+    m_editor_objects.erase(m_editor_objects.begin() + id);
 }
 
 ODefDocument* TerrainObjectManager::FetchODef(std::string const & odef_name)
@@ -633,13 +637,6 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     tenode->pitch(Degree(-90));
     tenode->setVisible(true);
 
-    // register in map
-    StaticObject* obj = &m_static_objects[instancename];
-    obj->instanceName = instancename;
-    obj->enabled = true;
-    obj->sceneNode = tenode;
-    obj->collTris.clear();
-
     TerrainEditorObjectPtr object = new TerrainEditorObject();
     object->name = name;
     object->instance_name = instancename;
@@ -722,7 +719,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         m_map_entities.push_back(SurveyMapEntity(object->type, caption, fmt::format("icon_{}.dds", object->type), /*resource_group:*/"", object->position, Ogre::Radian(0), -1));
     }
 
-    this->ProcessODefCollisionBoxes(obj, odef, object, race_event);
+    this->ProcessODefCollisionBoxes(object, odef, object, race_event);
 
     for (ODefCollisionMesh& cmesh : odef->collision_meshes)
     {
@@ -736,7 +733,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         terrainManager->GetCollisions()->addCollisionMesh(
             odefname,
             cmesh.mesh_name, pos, tenode->getOrientation(),
-            cmesh.scale, gm, &(obj->collTris));
+            cmesh.scale, gm, &(object->static_collision_tris));
     }
 
     for (ODefParticleSys& psys : odef->particle_systems)
@@ -761,7 +758,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             pAff = pParticleSys->getAffector(i);
             if (pAff->getType() == "ExtinguishableFire")
             {
-                ((ExtinguishableFireAffector*)pAff)->setInstanceName(obj->instanceName);
+                ((ExtinguishableFireAffector*)pAff)->setInstanceName(object->instance_name);
             }
         }
 #endif // USE_ANGELSCRIPT
@@ -1034,7 +1031,7 @@ bool TerrainObjectManager::UpdateTerrainObjects(float dt)
     return true;
 }
 
-void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefDocument* odef, const TerrainEditorObjectPtr& params, bool race_event)
+void TerrainObjectManager::ProcessODefCollisionBoxes(TerrainEditorObjectPtr obj, ODefDocument* odef, const TerrainEditorObjectPtr& params, bool race_event)
 {
     for (ODefCollisionBox& cbox : odef->collision_boxes)
     {
@@ -1062,7 +1059,7 @@ void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefDocu
                 params->instance_name, cbox.force_cam_pos, cbox.cam_pos,
                 cbox.scale, cbox.direction, cbox.event_filter, params->script_handler);
 
-            obj->collBoxes.push_back(boxnum);
+            obj->static_collision_boxes.push_back(boxnum);
         }
     }
 }
@@ -1080,5 +1077,20 @@ Ogre::SceneNode* TerrainObjectManager::getGroupingSceneNode()
         return m_terrn2_grouping_node;
     else
         return App::GetGfxScene()->GetSceneManager()->getRootSceneNode();
+}
+
+TerrainEditorObjectID_t TerrainObjectManager::FindEditorObjectByInstanceName(std::string const& needle_instance_name)
+{
+    // Is this the right 'ModernC++' approach? :/
+    auto itor = std::find_if(m_editor_objects.begin(), m_editor_objects.end(),
+        [needle_instance_name](TerrainEditorObjectPtr& obj) { return obj->instance_name == needle_instance_name; });
+    if (itor != m_editor_objects.end())
+    {
+        return static_cast<int>(std::distance(m_editor_objects.begin(), itor));
+    }
+    else
+    {
+        return TERRAINEDITOROBJECTID_INVALID;
+    }
 }
 

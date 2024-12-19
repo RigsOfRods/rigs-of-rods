@@ -226,7 +226,7 @@ void TerrainEditor::UpdateInputEvents(float dt)
         }
         if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK))
         {
-            App::GetGameContext()->GetTerrain()->getObjectManager()->unloadObject(object_list[m_object_index]->instance_name);
+            App::GetGameContext()->GetTerrain()->getObjectManager()->destroyObject(object_list[m_object_index]->instance_name);
         }
     }
     else

@@ -81,6 +81,9 @@ namespace RoR
 
     typedef int ScriptRetCode_t; //!< see enum `RoR::ScriptRetCode` - combines AngelScript codes and RoR internal codes.
 
+    typedef int TerrainEditorObjectID_t; //!< Offset into `RoR::TerrainObjectManager::m_editor_objects`, use `RoR::TERRAINEDITOROBJECTID_INVALID` as empty value.
+    static const TerrainEditorObjectID_t TERRAINEDITOROBJECTID_INVALID = -1;
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;
