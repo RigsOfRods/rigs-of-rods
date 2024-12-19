@@ -68,8 +68,8 @@ public:
     void           LoadTObjFile(Ogre::String filename);
     bool           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, float rendering_distance = 0, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
     bool           LoadTerrainScript(const Ogre::String& filename);
-    void           MoveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
-    void           unloadObject(const Ogre::String& instancename);
+    void           moveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
+    void           destroyObject(const Ogre::String& instancename);
     void           LoadTelepoints();
     void           LoadPredefinedActors();
     bool           HasPredefinedActors() { return !m_predefined_actors.empty(); };
@@ -120,24 +120,19 @@ protected:
         bool freePosition;
     };
 
-    struct StaticObject
-    {
-        Ogre::SceneNode* sceneNode;
-        Ogre::String instanceName;
-        bool enabled;
-        std::vector<int> collBoxes;
-        std::vector<int> collTris;
-    };
-
     // ODef processing functions
 
     RoR::ODefDocument* FetchODef(std::string const & odef_name);
-    void           ProcessODefCollisionBoxes(StaticObject* obj, ODefDocument* odef, const TerrainEditorObjectPtr& params, bool race_event);
-
+    void           ProcessODefCollisionBoxes(TerrainEditorObjectPtr obj, ODefDocument* odef, const TerrainEditorObjectPtr& params, bool race_event);
+    
     // Update functions
 
     void           UpdateAnimatedObjects(float dt);
     void           UpdateParticleEffectObjects();
+
+    // Helpers
+
+    TerrainEditorObjectID_t FindEditorObjectByInstanceName(std::string const& instance_name); //!< Returns offset to `m_editor_objects` or -1 if not found.
 
     // Variables
 
@@ -145,7 +140,6 @@ protected:
     std::unordered_map<std::string, std::shared_ptr<RoR::ODefDocument>> m_odef_cache;
     std::vector<TObjDocumentPtr>          m_tobj_cache;
     int                                   m_tobj_cache_active_id = -1;
-    std::map<std::string, StaticObject>   m_static_objects;
     TerrainEditorObjectPtrVec             m_editor_objects;
     std::vector<PredefinedActor>          m_predefined_actors;
     std::vector<AnimatedObject>           m_animated_objects;
