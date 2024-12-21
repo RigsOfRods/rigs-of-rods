@@ -26,6 +26,7 @@
 #include "AeroEngine.h"
 #include "Application.h"
 #include "IWater.h"
+#include "ScrewProp.h"
 #include "Sound.h"
 
 #include <OgreResourceGroupManager.h>
@@ -1096,8 +1097,7 @@ void SoundManager::UpdateDirectedSounds() const
 
         for (const ActorPtr& actor : actors)
         {
-            NodeNum_t   sound_node = 0;
-            bool        sound_belongs_to_current_actor = false;
+            NodeNum_t sound_node = RoR::NODENUM_INVALID;
 
             // check if the sound corresponding to this hardware source belongs to the actor
             for (int soundsource_index = 0; soundsource_index < actor->ar_num_soundsources; ++soundsource_index)
@@ -1109,15 +1109,18 @@ void SoundManager::UpdateDirectedSounds() const
                     if (soundsource.ssi->getSound(num_sound) == corresponding_sound)
                     {
                         sound_node = soundsource.nodenum;
+                        break;
                     }
                 }
-                if (sound_node > 0) { break; }
             }
 
-            // if the sound does not belong to a node of the current actor, there is no need for further checks
-            if (sound_node == 0) { continue; }
+            if (   sound_node == RoR::NODENUM_INVALID // if the sound does not belong to a node of the current actor, there is no need for further checks
+                || sound_node == 0)                   // node 0 might have several default (and undirected) sounds assigned, so skip it
+            {
+                continue;
+            }
 
-            // Check if the sound corresponding to the hardware source is attached to an exhaust node of the actor
+            // Update directivity if the sound corresponding to the hardware source is attached to an exhaust node of the actor
             const std::vector<exhaust_t>& exhausts = actor->exhausts;
             for (const exhaust_t& exhaust : exhausts)
             {
@@ -1139,58 +1142,91 @@ void SoundManager::UpdateDirectedSounds() const
                 }
             }
 
-            // Check if the sound corresponding to the hardware source is attached to an AeroEngine
-            for (int engine_num = 0; engine_num < actor->ar_num_aeroengines; ++engine_num)
+            switch(actor->getTruckType())
             {
-                const auto& aero_engine = actor->ar_aeroengines[engine_num];
-
-                if (aero_engine->getType() == AeroEngineType::AE_XPROP)
-                {
-                    if (   sound_node == aero_engine->getNoderef()
-                        || sound_node == aero_engine->GetBackNode())
+                case ActorType::AIRPLANE:
+                    // Update directivity if the sound corresponding to the hardware source is attached to an AeroEngine
+                    for (int engine_num = 0; engine_num < actor->ar_num_aeroengines; ++engine_num)
                     {
-                        const Ogre::Vector3 aero_engine_ref_node  = actor->getNodePosition(aero_engine->getNoderef());
-                        const Ogre::Vector3 aero_engine_back_node = actor->getNodePosition(aero_engine->GetBackNode());
+                        const auto& aero_engine = actor->ar_aeroengines[engine_num];
 
-                        this->UpdateConeProperties(
-                            hardware_sources[hardware_index],
-                            aero_engine_ref_node - aero_engine_back_node,
-                            170.0f,
-                            270.0f,
-                            0.85f,
-                            0.70f);
+                        switch(aero_engine->getType())
+                        {
+                            case AeroEngineType::AE_XPROP:
+                                if (   sound_node == aero_engine->getNoderef()
+                                    || sound_node == aero_engine->GetBackNode())
+                                {
+                                    const Ogre::Vector3 aero_engine_ref_node  = actor->getNodePosition(aero_engine->getNoderef());
+                                    const Ogre::Vector3 aero_engine_back_node = actor->getNodePosition(aero_engine->GetBackNode());
 
-                        break;
+                                    this->UpdateConeProperties(
+                                        hardware_sources[hardware_index],
+                                        aero_engine_ref_node - aero_engine_back_node,
+                                        170.0f,
+                                        270.0f,
+                                        0.85f,
+                                        0.70f);
+                                }
+
+                                break;
+
+                            case AeroEngineType::AE_TURBOJET:
+                                /*
+                                * Since turbojets currently have no high-pitched noise sounds
+                                * for the air intake, we currently assume all sounds are
+                                * directed rearwards of the engine.
+                                * Should air intake noises be added, a front-directed cone should
+                                * be set for them with significant high-frequency dropoff outside.
+                                */
+
+                                if (   sound_node == aero_engine->getNoderef()
+                                    || sound_node == aero_engine->GetFrontNode())
+                                {
+                                    const Ogre::Vector3 aero_engine_ref_node   = actor->getNodePosition(aero_engine->getNoderef());
+                                    const Ogre::Vector3 aero_engine_front_node = actor->getNodePosition(aero_engine->GetFrontNode());
+
+                                this->UpdateConeProperties(
+                                    hardware_sources[hardware_index],
+                                    aero_engine_ref_node - aero_engine_front_node,
+                                    60.0f,
+                                    240.0f,
+                                    0.60f,
+                                    0.60f);
+                                }
+
+                                break;
+
+                            default: continue;
+                        }
                     }
-                }
-                else if (aero_engine->getType() == AeroEngineType::AE_TURBOJET)
-                {
-                    /*
-                     * Since turbojets currently have no high-pitched noise sounds
-                     * for the air intake, we currently assume all sounds are
-                     * directed rearwards of the engine.
-                     * Should air intake noises be added, a front-directed cone should
-                     * be set for them with significant high-frequency dropoff outside.
-                     */
-
-                    if (   sound_node == aero_engine->getNoderef()
-                        || sound_node == aero_engine->GetFrontNode())
-                    {
-                        const Ogre::Vector3 aero_engine_ref_node   = actor->getNodePosition(aero_engine->getNoderef());
-                        const Ogre::Vector3 aero_engine_front_node = actor->getNodePosition(aero_engine->GetFrontNode());
-
-                    this->UpdateConeProperties(
-                        hardware_sources[hardware_index],
-                        aero_engine_ref_node - aero_engine_front_node,
-                        60.0f,
-                        240.0f,
-                        0.60f,
-                        0.60f);
-                    }
-
                     break;
-                }
-                else { continue; }
+
+                case ActorType::BOAT:
+                    // Update directivity if the sound corresponding to the hardware source is attached to a Screwprop
+                    for (int screwprop_num = 0; screwprop_num < actor->ar_num_screwprops; ++screwprop_num)
+                    {
+                        const auto& screwprop = actor->ar_screwprops[screwprop_num];
+
+                        if (   sound_node == screwprop->GetRefNode()
+                            || sound_node == screwprop->GetBackNode())
+                        {
+                            const Ogre::Vector3 screwprop_ref_node  = actor->getNodePosition(screwprop->GetRefNode());
+                            const Ogre::Vector3 screwprop_back_node = actor->getNodePosition(screwprop->GetBackNode());
+
+                            this->UpdateConeProperties(
+                                hardware_sources[hardware_index],
+                                screwprop_ref_node - screwprop_back_node,
+                                70.0f,
+                                170.0f,
+                                0.80f,
+                                0.70f);
+
+                            break;
+                        }
+                    }
+                    break;
+
+                default: continue;
             }
         }
     }
