@@ -91,6 +91,8 @@ public:
     float getThrottle();
     float getpropwash() { return m_propwash; };
     int getNoderef() { return m_node_back; };
+    NodeNum_t   GetFrontNode() const override { return m_node_front; };
+    NodeNum_t   GetBackNode()  const override { return m_node_back; };
     AeroEngineType getType() { return AeroEngineType::AE_TURBOJET; };
 
     // AeroEngine visuals
