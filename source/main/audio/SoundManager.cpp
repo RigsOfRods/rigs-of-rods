@@ -928,7 +928,10 @@ void SoundManager::recomputeAllSources()
 
 void SoundManager::UpdateSourceFilters(const int hardware_index) const
 {
-    bool source_is_obstructed = this->UpdateObstructionFilter(hardware_index);
+    bool source_is_obstructed = this->IsHardwareSourceObstructed(hardware_index);
+
+    this->UpdateObstructionFilter(hardware_index, source_is_obstructed);
+
     /*
      * If an obstruction was detected, also check for occlusions.
      * The current implementation ignores the case of exclusion since
@@ -946,30 +949,21 @@ void SoundManager::UpdateSourceFilters(const int hardware_index) const
     }
 }
 
-bool SoundManager::UpdateObstructionFilter(const int hardware_index) const
+bool SoundManager::IsHardwareSourceObstructed(const int hardware_index) const
 {
     if (hardware_sources_map[hardware_index] == -1) { return false; } // no sound assigned to hardware source
 
-    if (!App::audio_enable_obstruction->getBool())
-    {
-        // detach the obstruction filter in case it was attached when the feature was previously enabled
-        alSourcei(hardware_sources[hardware_index], AL_DIRECT_FILTER, AL_FILTER_NULL);
-        return false;
-    }
-
-    bool obstruction_detected = false;
     const SoundPtr& corresponding_sound = audio_sources[hardware_sources_map[hardware_index]];
-
-    // TODO: Simulate diffraction path.
+    bool  obstruction_detected          = false;
 
     /*
-    * Perform various line of sight checks until either a collision was detected
-    * and the filter has to be applied or no obstruction was detected.
-    */
+     * Perform various line of sight checks until either a collision was detected
+     * and the filter has to be applied or no obstruction was detected.
+     */
 
     std::pair<bool, Ogre::Real> intersection;
-    const Ogre::Vector3 direction_to_sound = corresponding_sound->getPosition() - m_listener_position;
-    const Ogre::Ray direct_path_to_sound = Ray(m_listener_position, direction_to_sound);
+    const Ogre::Vector3 direction_to_sound   = corresponding_sound->getPosition() - m_listener_position;
+    const Ogre::Ray     direct_path_to_sound = Ray(m_listener_position, direction_to_sound);
 
     // perform line of sight check against collision meshes
     // for this to work correctly, the direction vector of the ray must have
@@ -1046,18 +1040,20 @@ bool SoundManager::UpdateObstructionFilter(const int hardware_index) const
         obstruction_detected = intersection.first;
     }
 
-    if (obstruction_detected)
+    return obstruction_detected;
+}
+
+void SoundManager::UpdateObstructionFilter(const int hardware_index, const bool enable_obstruction_filter) const
+{
+    if (!App::audio_enable_obstruction->getBool() || !enable_obstruction_filter)
     {
+        // detach the obstruction filter in case it was attached when the feature was previously enabled
+        alSourcei(hardware_sources[hardware_index], AL_DIRECT_FILTER, AL_FILTER_NULL);
+    }
+    else {
         // Apply obstruction filter to the source
         alSourcei(hardware_sources[hardware_index], AL_DIRECT_FILTER, m_efx_outdoor_obstruction_lowpass_filter_id);
     }
-    else
-    {
-        // reset direct filter for the source in case it has been set previously
-        alSourcei(hardware_sources[hardware_index], AL_DIRECT_FILTER, AL_FILTER_NULL);
-    }
-
-    return obstruction_detected;
 }
 
 bool SoundManager::UpdateOcclusionFilter(const int hardware_index, const ALuint effect_slot_id, const EFXEAXREVERBPROPERTIES* reference_efx_reverb_properties) const

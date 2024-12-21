@@ -334,13 +334,19 @@ private:
     void    UpdateSourceFilters(const int hardware_index) const;
 
     /**
-     *   Applies an obstruction filter to the provided source if certain conditions apply.
-     *   To decide whether the filter should be applied or not, the function performs
-     *   various checks against the environment of the listener.
+     *   Performs various checks against the environment of the listener to determine
+     *   whether the sound belonging to a hardware source is obstructed or not.
      *   @param hardware_index The index of the hardware source.
-     *   @return True if an obstruction was detected, false otherwise.
+     *   @return True if the sound is obstructed from the listener's point of view, false otherwise.
      */
-    bool    UpdateObstructionFilter(const int hardware_index) const;
+    bool    IsHardwareSourceObstructed(const int hardware_index) const;
+
+    /**
+     *   Applies an obstruction filter to the provided hardware source.
+     *   @param hardware_index The index of the hardware source.
+     *   @param enable_obstruction_filter Whether the obstruction filter should be enabled for the hardware source or not.
+     */
+    void    UpdateObstructionFilter(const int hardware_index, const bool enable_obstruction_filter) const;
 
     /**
      *   Applies an occlusion filter to the provided source if certain conditions apply.
