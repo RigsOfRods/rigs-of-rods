@@ -953,8 +953,19 @@ bool SoundManager::IsHardwareSourceObstructed(const int hardware_index) const
 {
     if (hardware_sources_map[hardware_index] == -1) { return false; } // no sound assigned to hardware source
 
-    const SoundPtr& corresponding_sound = audio_sources[hardware_sources_map[hardware_index]];
-    bool  obstruction_detected          = false;
+    /*
+     * There is no simple way to know whether a truck has a closed cabin or not; hence
+     * provide an option to always force obstruction if the player is inside a vehicle.
+     */
+    if
+    (
+           App::audio_force_obstruction_inside_vehicles->getBool()
+        && App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling() != nullptr
+        && App::GetGameContext()->GetPlayerCharacter()->GetActorCoupling()->ar_bounding_box.contains(m_listener_position)
+    )
+    {
+        return true;
+    }
 
     /*
      * Perform various line of sight checks until either a collision was detected
@@ -962,8 +973,10 @@ bool SoundManager::IsHardwareSourceObstructed(const int hardware_index) const
      */
 
     std::pair<bool, Ogre::Real> intersection;
-    const Ogre::Vector3 direction_to_sound   = corresponding_sound->getPosition() - m_listener_position;
-    const Ogre::Ray     direct_path_to_sound = Ray(m_listener_position, direction_to_sound);
+    const SoundPtr&             corresponding_sound  = audio_sources[hardware_sources_map[hardware_index]];
+    const Ogre::Vector3         direction_to_sound   = corresponding_sound->getPosition() - m_listener_position;
+    const Ogre::Ray             direct_path_to_sound = Ray(m_listener_position, direction_to_sound);
+    bool                        obstruction_detected = false;
 
     // perform line of sight check against collision meshes
     // for this to work correctly, the direction vector of the ray must have

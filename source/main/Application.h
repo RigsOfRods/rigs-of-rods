@@ -454,6 +454,7 @@ extern CVar* io_invert_orbitcam;
 extern CVar* audio_master_volume;
 extern CVar* audio_enable_creak;
 extern CVar* audio_enable_obstruction;
+extern CVar* audio_force_obstruction_inside_vehicles;
 extern CVar* audio_enable_occlusion;
 extern CVar* audio_enable_directed_sounds;
 extern CVar* audio_enable_reflection_panning;

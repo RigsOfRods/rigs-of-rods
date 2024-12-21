@@ -336,6 +336,10 @@ void GameSettings::DrawAudioSettings()
     {
         DrawGCombo(App::audio_efx_reverb_engine,         _LC("GameSettings", "OpenAL Reverb engine"), m_combo_items_efx_reverb_engine.c_str());
         DrawGCheckbox(App::audio_enable_obstruction,     _LC("GameSettings", "Sound obstruction"));
+        if (App::audio_enable_obstruction->getBool())
+        {
+            DrawGCheckbox(App::audio_force_obstruction_inside_vehicles, _LC("GameSettings", "Force obstruction inside vehicles"));
+        }
         DrawGCheckbox(App::audio_enable_occlusion,       _LC("GameSettings", "Sound occlusion"));
         DrawGCheckbox(App::audio_enable_directed_sounds, _LC("GameSettings", "Directed sounds (exhausts etc.)"));
         if (App::audio_efx_reverb_engine->getEnum<EfxReverbEngine>() == EfxReverbEngine::EAXREVERB)
