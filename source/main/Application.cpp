@@ -210,6 +210,7 @@ CVar* audio_master_volume;
 CVar* audio_enable_creak;
 CVar* audio_enable_obstruction;
 CVar* audio_enable_occlusion;
+CVar* audio_enable_directed_sounds;
 CVar* audio_enable_reflection_panning;
 CVar* audio_enable_efx;
 CVar* audio_engine_controls_environmental_audio;

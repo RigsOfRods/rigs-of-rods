@@ -23,6 +23,7 @@
 
 #include "SoundManager.h"
 
+#include "AeroEngine.h"
 #include "Application.h"
 #include "IWater.h"
 #include "Sound.h"
@@ -424,6 +425,11 @@ void SoundManager::Update(const float dt_sec)
         }
 
         this->UpdateListenerEffectSlot(dt_sec);
+    }
+
+    if (App::audio_enable_directed_sounds->getBool())
+    {
+        this->UpdateDirectedSounds();
     }
 }
 
@@ -1077,6 +1083,138 @@ bool SoundManager::UpdateOcclusionFilter(const int hardware_index, const ALuint 
     }
 
     return occlusion_detected;
+}
+
+void SoundManager::UpdateDirectedSounds() const
+{
+    for (int hardware_index = 0; hardware_index < hardware_sources_num; hardware_index++)
+    {
+        if (hardware_sources_map[hardware_index] == -1) { continue;; } // no sound assigned to hardware source at this index
+
+        const SoundPtr&     corresponding_sound = audio_sources[hardware_sources_map[hardware_index]];
+        const ActorPtrVec&  actors              = App::GetGameContext()->GetActorManager()->GetActors();
+
+        for (const ActorPtr& actor : actors)
+        {
+            NodeNum_t   sound_node = 0;
+            bool        sound_belongs_to_current_actor = false;
+
+            // check if the sound corresponding to this hardware source belongs to the actor
+            for (int soundsource_index = 0; soundsource_index < actor->ar_num_soundsources; ++soundsource_index)
+            {
+                const soundsource_t& soundsource = actor->ar_soundsources[soundsource_index];
+                const int num_sounds = soundsource.ssi->getTemplate()->getNumSounds();
+                for (int num_sound = 0; num_sound < num_sounds; ++num_sound)
+                {
+                    if (soundsource.ssi->getSound(num_sound) == corresponding_sound)
+                    {
+                        sound_node = soundsource.nodenum;
+                    }
+                }
+                if (sound_node > 0) { break; }
+            }
+
+            // if the sound does not belong to a node of the current actor, there is no need for further checks
+            if (sound_node == 0) { continue; }
+
+            // Check if the sound corresponding to the hardware source is attached to an exhaust node of the actor
+            const std::vector<exhaust_t>& exhausts = actor->exhausts;
+            for (const exhaust_t& exhaust : exhausts)
+            {
+                if (   sound_node == exhaust.emitterNode
+                    || sound_node == exhaust.directionNode)
+                {
+                    const Ogre::Vector3 emitter_node_pos   = actor->getNodePosition(exhaust.emitterNode);
+                    const Ogre::Vector3 direction_node_pos = actor->getNodePosition(exhaust.directionNode);
+
+                    this->UpdateConeProperties(
+                        hardware_sources[hardware_index],
+                        emitter_node_pos - direction_node_pos,
+                        60.0f,
+                        170.0f,
+                        0.85f,
+                        0.80f);
+
+                    break;
+                }
+            }
+
+            // Check if the sound corresponding to the hardware source is attached to an AeroEngine
+            for (int engine_num = 0; engine_num < actor->ar_num_aeroengines; ++engine_num)
+            {
+                const auto& aero_engine = actor->ar_aeroengines[engine_num];
+
+                if (aero_engine->getType() == AeroEngineType::AE_XPROP)
+                {
+                    if (   sound_node == aero_engine->getNoderef()
+                        || sound_node == aero_engine->GetBackNode())
+                    {
+                        const Ogre::Vector3 aero_engine_ref_node  = actor->getNodePosition(aero_engine->getNoderef());
+                        const Ogre::Vector3 aero_engine_back_node = actor->getNodePosition(aero_engine->GetBackNode());
+
+                        this->UpdateConeProperties(
+                            hardware_sources[hardware_index],
+                            aero_engine_ref_node - aero_engine_back_node,
+                            170.0f,
+                            270.0f,
+                            0.85f,
+                            0.70f);
+
+                        break;
+                    }
+                }
+                else if (aero_engine->getType() == AeroEngineType::AE_TURBOJET)
+                {
+                    /*
+                     * Since turbojets currently have no high-pitched noise sounds
+                     * for the air intake, we currently assume all sounds are
+                     * directed rearwards of the engine.
+                     * Should air intake noises be added, a front-directed cone should
+                     * be set for them with significant high-frequency dropoff outside.
+                     */
+
+                    if (   sound_node == aero_engine->getNoderef()
+                        || sound_node == aero_engine->GetFrontNode())
+                    {
+                        const Ogre::Vector3 aero_engine_ref_node   = actor->getNodePosition(aero_engine->getNoderef());
+                        const Ogre::Vector3 aero_engine_front_node = actor->getNodePosition(aero_engine->GetFrontNode());
+
+                    this->UpdateConeProperties(
+                        hardware_sources[hardware_index],
+                        aero_engine_ref_node - aero_engine_front_node,
+                        60.0f,
+                        240.0f,
+                        0.60f,
+                        0.60f);
+                    }
+
+                    break;
+                }
+                else { continue; }
+            }
+        }
+    }
+}
+
+void SoundManager::UpdateConeProperties(
+        const ALuint            source,
+        const Ogre::Vector3&    cone_direction,
+        const float             cone_inner_angle,
+        const float             cone_outer_angle,
+        const float             cone_outer_gain,
+        const float             cone_outer_gain_hf
+    ) const
+{
+    alSource3f(source, AL_DIRECTION, cone_direction.x, cone_direction.y, cone_direction.z);
+
+    alSourcef (source, AL_CONE_INNER_ANGLE, cone_inner_angle);
+    alSourcef (source, AL_CONE_OUTER_ANGLE, cone_outer_angle);
+    alSourcef (source, AL_CONE_OUTER_GAIN,  cone_outer_gain);
+
+    if (App::audio_enable_efx->getBool())
+    {
+        alSourcef(source, AL_CONE_OUTER_GAINHF, cone_outer_gain_hf);
+    }
 }
 
 void SoundManager::recomputeSource(int source_index, int reason, float vfl, Vector3* vvec)

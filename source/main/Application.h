@@ -455,6 +455,7 @@ extern CVar* audio_master_volume;
 extern CVar* audio_enable_creak;
 extern CVar* audio_enable_obstruction;
 extern CVar* audio_enable_occlusion;
+extern CVar* audio_enable_directed_sounds;
 extern CVar* audio_enable_reflection_panning;
 extern CVar* audio_enable_efx;
 extern CVar* audio_engine_controls_environmental_audio;

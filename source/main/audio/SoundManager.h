@@ -352,6 +352,29 @@ private:
      *   @return True if occlusion was detected, false otherwise.
      */
     bool    UpdateOcclusionFilter(const int hardware_index, const ALuint effect_slot_id, const EFXEAXREVERBPROPERTIES* reference_efx_reverb_properties) const;
+
+    /**
+     *   Updates AL Cones for sources of directed sound emissions (exhausts, turboprops and turbojets).
+     */
+    void    UpdateDirectedSounds() const;
+
+    /**
+     *    Updates the Cone properties for the hardware source.
+     *    @param source The AL source of which the cone properties will be modified.
+     *    @param cone_direction The direction the cone will face.
+     *    @param cone_inner_angle Angle for the inner zone.
+     *    @param cone_outer_angle Angle that marks the border between transitional and outside zone of the cone
+     *    @param cone_outer_gain Gain for the outside zone.
+     *    @param cone_outer_gain_hf High-frequency gain for the outside zone.
+     */
+    void    UpdateConeProperties(
+                const ALuint          source,
+                const Ogre::Vector3&  cone_direction,
+                const float           cone_inner_angle,
+                const float           cone_outer_angle,
+                const float           cone_outer_gain,
+                const float           cone_outer_gain_hf
+            ) const;
 };
 
 /// @}

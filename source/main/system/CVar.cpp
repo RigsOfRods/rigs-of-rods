@@ -153,6 +153,7 @@ void Console::cVarSetupBuiltins()
     App::audio_enable_creak                        = this->cVarCreate("audio_enable_creak",                        "Creak Sound",                       CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::audio_enable_obstruction                  = this->cVarCreate("audio_enable_obstruction",                  "Obstruction of sounds",             CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::audio_enable_occlusion                    = this->cVarCreate("audio_enable_occlusion",                    "Occlusion of sounds",               CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
+    App::audio_enable_directed_sounds              = this->cVarCreate("audio_enable_directed_sounds",              "Directed sounds",                   CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::audio_enable_reflection_panning           = this->cVarCreate("audio_enable_reflection_panning",           "Pan reflections",                   CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::audio_device_name                         = this->cVarCreate("audio_device_name",                         "AudioDevice",                       CVAR_ARCHIVE);
     App::audio_doppler_factor                      = this->cVarCreate("audio_doppler_factor",                      "Doppler Factor",                    CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
