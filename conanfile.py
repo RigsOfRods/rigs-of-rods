@@ -7,6 +7,9 @@ class RoR(ConanFile):
     name = "Rigs of Rods"
     settings = "os", "compiler", "build_type", "arch"
 
+    def layout(self):
+        self.folders.generators = os.path.join(self.folders.build, "generators")
+
     def requirements(self):
         self.requires("angelscript/2.35.1")
         self.requires("discord-rpc/3.4.0@anotherfoxguy/stable")
@@ -42,6 +45,6 @@ class RoR(ConanFile):
                 self.cp_data(f)
 
     def cp_data(self, src):
-        bindir = os.path.join(self.build_folder, "libs")
+        bindir = os.path.join(self.build_folder, "bin")
         copy(self, "*.dll", src, bindir, False)
         copy(self, "*.so*", src, bindir, False)

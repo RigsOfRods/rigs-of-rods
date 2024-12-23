@@ -510,8 +510,6 @@ fast_copy("${CMAKE_SOURCE_DIR}/resources/managed_materials" "${RUNTIME_OUTPUT_DI
 fast_copy("${CMAKE_SOURCE_DIR}/resources/fonts" "${RUNTIME_OUTPUT_DIRECTORY}/languages")
 fast_copy("${CMAKE_SOURCE_DIR}/languages" "${RUNTIME_OUTPUT_DIRECTORY}/languages")
 
-file(COPY "${CMAKE_BINARY_DIR}/conan/libs/" DESTINATION "${CMAKE_BINARY_DIR}/bin/")
-
 
 #  Install targets
 # -----------------------
