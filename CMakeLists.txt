@@ -1,4 +1,16 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.24)
+
+option(USE_CONAN "Use Conan to automatically manage dependencies" ON)
+if(USE_CONAN)
+    if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan_provider.cmake")
+        file(DOWNLOAD "https://cdn.statically.io/gh/conan-io/cmake-conan/c22bbf0af0b73d5f0def24a9cdf4ce503ae79e5d/conan_provider.cmake"
+                    "${CMAKE_BINARY_DIR}/conan_provider.cmake"
+                    EXPECTED_HASH SHA256=796E17C1240D7B2167388B9F68411208084A641ED25DF172D64D80EF92F8DA7A
+                    TLS_VERIFY ON)
+    endif()
+    list(APPEND CMAKE_PROJECT_TOP_LEVEL_INCLUDES ${CMAKE_BINARY_DIR}/conan_provider.cmake)
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/cmake/find-modules)
 
 cmake_policy(SET CMP0127 OLD)
