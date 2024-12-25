@@ -8,6 +8,7 @@ endmesh
 beginbox
 boxcoords -25, -17, 0, 3, -11, 11
 virtual
+reverb_preset EFX_REVERB_PRESET_WOODEN_MEDIUMROOM
 event shopboat avatar
 endbox
 
