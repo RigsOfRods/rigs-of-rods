@@ -107,7 +107,7 @@ private:
     RigDef::ManagedMaterialsOptions m_managedmaterials_options;
     // ResolveUnwantedAndTweakedElements() state:
     TuneupDefPtr m_tuneup;
-    bool m_silent_mode;
+    bool m_silent_mode = false; //!< To block logging during conflict resolution (which works by generating dummy tuneups - would confuse user)
 };
 
 }; // namespace RoR

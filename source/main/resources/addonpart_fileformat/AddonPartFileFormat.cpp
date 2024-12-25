@@ -37,6 +37,7 @@ using namespace RoR;
 using namespace RigDef;
 
 AddonPartUtility::AddonPartUtility(bool silent_mode)
+    :m_silent_mode(silent_mode)
 {
     // Inits `RefCountingObjectPtr<>` (CacheEntryPtr, GenericDocumentPtr) - shouldn't be in header.
 }
