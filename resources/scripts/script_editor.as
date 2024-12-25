@@ -476,6 +476,7 @@ class ScriptEditorWindow
             // 'FOLDING' menu
             if (ImGui::BeginMenu("Folding"))
             {
+                ImGui::PushID("folding menu");
             if (ImGui::Button("Fold all")) { this.tabs[this.currentTab].requestFoldAll=true; }
             if (ImGui::Button("UnFold all")) { this.tabs[this.currentTab].requestUnFoldAll=true; }
 
@@ -503,6 +504,38 @@ class ScriptEditorWindow
                         }
                     }
                 }
+                
+                if (this.tabs[this.currentTab].debugFolding)
+                {
+                ImGui::Separator();
+                ImGui::TextDisabled("Debug:");
+                ImGui::SameLine();
+                }
+                
+                ImGui::Checkbox("Debug folding", this.tabs[this.currentTab].debugFolding);
+                if (this.tabs[this.currentTab].debugFolding)
+                {
+                ImGui::Text("DBG regionNames.length:" + regionNames.length());
+                for (uint i = 0; i< regionNames.length(); i++)
+                {
+                    ImGui::Bullet(); ImGui::SameLine();
+                    RegionInfo@ regionInfo = findRegion(this.tabs[this.currentTab].workBufferRegions, regionNames[i]);
+                    if (@regionInfo != null)
+                    {
+                         ImGui::Text("'"+regionNames[i]+"' (len: "+regionNames[i].length()+") ~ isFolded: "+regionInfo.isFolded+", isOrphan:"+regionInfo.isOrphan);
+                        ImGui::Text("   ~ DBG regionInfo.regionLineCount: "+regionInfo.regionLineCount); // To handle jumps in line numbering
+                        ImGui::Text("   ~ DBG regionInfo.regionBodyStartOffset: "+regionInfo.regionBodyStartOffset); // To swap regions in and out from work buffer.
+                        ImGui::Text("   ~ DBG regionInfo.regionBodyNumChars: "+regionInfo.regionBodyNumChars); // ditto
+                        ImGui::Text("   ~ DBG regionInfo.regionStartsAtLineIndex: "+regionInfo.regionStartsAtLineIndex);
+                    }
+                    else
+                    {
+                        ImGui::Text(""+regionNames[i]+" ~ ERR null regioninfo");
+                    }
+                }    
+}                
+
+                ImGui::PopID(); // "folding menu"
                 ImGui::EndMenu();
             }
 
@@ -679,6 +712,7 @@ class ScriptEditorTab
     ExceptionsPanel@ epanel;
     float autosaveTimeCounterSec = 0.f;
     int autosaveResult = 0; // 0=no action, 1=success, -1=failure;
+    bool debugFolding = false;
 
     // REQUEST 'QUEUE'
     string requestFoldRegion;
@@ -1452,7 +1486,7 @@ string SPECIALCHARS = "{}\n\t \0";
             if (regionFound)
             {
                 regionFoundAtLineIdx = lineIdx;
-                regionFoundWithName = trimLeft(this.buffer.substr(regionTitleStart, endOffset - regionTitleStart));
+                regionFoundWithName = trimRight(trimLeft(this.buffer.substr(regionTitleStart, endOffset - regionTitleStart)));
                 regionBodyStartOffset = endOffset+1;
                 //game.log("DBG analyzeBuffer(): regionFound: withName="+regionFoundWithName+" atLineIdx="+regionFoundAtLineIdx+" bodyStartOffset="+regionBodyStartOffset);
             }
@@ -1579,18 +1613,45 @@ private void mergeCollectedFoldingRegionsWithExisting(dictionary&in collectedReg
             collectedRegions.delete(collectedRegionNames[i]);
         }
     }
-
-    // Find regions that were deleted/changed
+    
+    // Find regions that were deleted
     array<string> oldRegionNames = this.workBufferRegions.getKeys();
+    array<string> renamedRegionsOldName;
+    array<string> renamedRegionsNewName;
     for (uint i = 0; i< oldRegionNames.length(); i++)
     {
         bool isGone = !collectedRegions.exists(oldRegionNames[i]);
         RegionInfo@ oldRegionInfo = findRegion(this.workBufferRegions, oldRegionNames[i]);
+        if (isGone)
+        {
+            // check if renamed (compare line number)
+            array<string>@ newRegionNames = collectedRegions.getKeys();
+            for (uint j = 0; j < newRegionNames.length(); j++)
+            {
+                RegionInfo@ newRegionInfo = findRegion(collectedRegions, newRegionNames[j]);
+                if (oldRegionInfo.regionStartsAtLineIndex == newRegionInfo.regionStartsAtLineIndex)
+                {
+                    game.log ("DBG mergeCollectedFoldingRegionsWithExisting(): region '" + oldRegionNames[i] + "' was renamed to '"+newRegionNames[j]+"'");
+                    isGone = false;
+                    renamedRegionsOldName.insertLast(oldRegionNames[i]);
+                    renamedRegionsNewName.insertLast(newRegionNames[j]);
+                }
+            }
+        }
+        
         if (isGone && oldRegionInfo.isFolded)
         {
             //game.log ("DBG mergeCollectedFoldingRegionsWithExisting(): region '" + oldRegionNames[i] + "' has gone orphan.");
             oldRegionInfo.isOrphan = true;
         }
+    }
+    
+    // Resolve renamed regions
+    for (uint i = 0; i < renamedRegionsOldName.length(); i++)
+    {
+        this.workBufferRegions.delete(renamedRegionsOldName[i]);
+        RegionInfo@ newRegionInfo = findRegion(collectedRegions, renamedRegionsNewName[i]);
+        this.workBufferRegions.set(renamedRegionsNewName[i], newRegionInfo);
     }
 
     // Find regions that were (re)created
@@ -1940,34 +2001,84 @@ private void unFoldAllRegionsInternal() //  do NOT invoke during drawing! use `r
 private void foldRegionInternal(string regionName)  // do NOT invoke during drawing! use `foldRegionRequested`
 {
     RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionName);
-    /*
+    
+    /*// DEBUG //
     game.log("DBG foldRegionInternal() regionName='"+regionName+"', regionInfo:"+(@regionInfo == null ? "null" :
     "NumChars:"+regionInfo.regionBodyNumChars+", isFolded:"+regionInfo.isFolded+", regionBodyStartOffset:"+regionInfo.regionBodyStartOffset+", regionBodyNumChars:"+regionInfo.regionBodyNumChars));
-    */
-    if (@regionInfo != null && !regionInfo.isFolded) // sanity check - this means `#endregion` isn't available
+    // END DEBUG //*/
+    
+    if (@regionInfo == null) // sanity check - this means `#endregion` isn't available
     {
-        regionInfo.foldedOffText = this.buffer.substr(regionInfo.regionBodyStartOffset, regionInfo.regionBodyNumChars);
-        this.buffer.erase(regionInfo.regionBodyStartOffset, regionInfo.regionBodyNumChars);
-        regionInfo.isFolded = true;
-        this.analyzeLines();
-        this.analyzeMessages(); // Determine which errors are in folded region, for correct drawing
+        game.log("ERROR|script_editor.as|`foldRegionInternal()` ~ regionInfo null or region already folded - this means `#endregion` isn't available");
+        return;
     }
+    
+    if (regionInfo.isFolded)
+    {
+        return ; // nothing to do
+    }
+    
+    //DEBUG//: Investigating a C++ exception triggered by bad `substr` args 
+    if (regionInfo.regionBodyStartOffset < 0
+        ||regionInfo.regionBodyStartOffset >= int(this.buffer.length()))
+    {
+        game.log("ERROR|script_editor.as|`foldRegionInternal()` ~ regionName='"+regionName
+            +"'  ~ invalid `regionInfo.regionBodyStartOffset` ("+regionInfo.regionBodyStartOffset+"), buffer length="+this.buffer.length());
+        return;
+    }
+    else if (regionInfo.regionBodyStartOffset + regionInfo.regionBodyNumChars >= int(this.buffer.length()))
+    {
+        game.log("ERROR|script_editor.as|`foldRegionInternal()` ~ regionName='"+regionName
+            +"'  ~ invalid `regionInfo.regionBodyNumChars` ("+regionInfo.regionBodyNumChars
+            +"), remaining buffer length="+(int(this.buffer.length())+regionInfo.regionBodyStartOffset));
+        return;
+    }
+    // END DEBUG //
+    
+    regionInfo.foldedOffText = this.buffer.substr(regionInfo.regionBodyStartOffset, regionInfo.regionBodyNumChars);
+    this.buffer.erase(regionInfo.regionBodyStartOffset, regionInfo.regionBodyNumChars);
+    regionInfo.isFolded = true;
+    this.analyzeLines();
+    this.analyzeMessages(); // Determine which errors are in folded region, for correct drawing
+
 }
 
 private void unFoldRegionInternal(string regionName) //  do NOT invoke during drawing! use `unFoldRegionRequested`
 {
     RegionInfo@ regionInfo = findRegion(this.workBufferRegions, regionName);
-    /*game.log("DBG unFoldRegionInternal() regionName='"+regionName+"', regionInfo:"+(@regionInfo == null ? "null" :
+    
+    /*// DEBUG //
+    game.log("DBG unFoldRegionInternal() regionName='"+regionName+"', regionInfo:"+(@regionInfo == null ? "null" :
     "NumChars:"+regionInfo.regionBodyNumChars+", isFolded:"+regionInfo.isFolded+", regionBodyStartOffset:"+regionInfo.regionBodyStartOffset+", regionBodyNumChars:"+regionInfo.regionBodyNumChars));
-    */
-    if (@regionInfo != null && regionInfo.isFolded) // sanity check - this means `#endregion` isn't available
+    // END DEBUG //*/
+    
+    if (!regionInfo.isFolded)
     {
-        this.buffer.insert(regionInfo.regionBodyStartOffset, regionInfo.foldedOffText);
-        regionInfo.foldedOffText = "";
-        regionInfo.isFolded = false;
-        this.analyzeLines();
-        this.analyzeMessages(); // Determine which errors are in folded region, for correct drawing
+        return; // nothing to do
     }
+    
+    if (@regionInfo == null) // sanity check - this means `#endregion` isn't available
+    {
+        game.log("ERROR|script_editor.as|`unFoldRegionInternal()` ~ regionName='"+regionName
+            +"' ~ regionInfo null - this means `#endregion` isn't available");
+        return;
+    }
+    
+    // DEBUG // Investigating a C++ exception triggered by bad `string::insert` args 
+    if (regionInfo.regionBodyStartOffset < 0
+        ||regionInfo.regionBodyStartOffset >= int(this.buffer.length()))
+    {
+        game.log("ERROR|script_editor.as|`unFoldRegionInternal()` ~ regionName='"+regionName
+            +"'  ~ invalid `regionInfo.regionBodyStartOffset` ("+regionInfo.regionBodyStartOffset+"), buffer length="+this.buffer.length());
+        return;
+    }
+    // END DEBUG //
+    
+    this.buffer.insert(regionInfo.regionBodyStartOffset, regionInfo.foldedOffText);
+    regionInfo.foldedOffText = "";
+    regionInfo.isFolded = false;
+    this.analyzeLines();
+    this.analyzeMessages(); // Determine which errors are in folded region, for correct drawing
 }
 
 private void backUpRegionFoldStates()
@@ -2246,7 +2357,16 @@ bool isChar(uint c, string s)
 
 bool isCharBlank(uint c)
 {
-    return isChar(c, " ") || isChar(c, "\t");
+    // because I'm not sure whether "\n" generates 'LF' or 'CRLF' under Windows, I'm using explicit ASCII codes
+    switch (c)
+    {
+        case 32: // space
+        case 9: // TAB = horizontal tab
+        case 10: // LF = line feed
+        case 13: // CR = carriage return
+            return true;
+    }
+    return false; // to silence "not all paths return a value" warning (using `default:` in switch doesn't cut it).
 }
 
 string trimLeft(string s)
@@ -2255,6 +2375,16 @@ string trimLeft(string s)
     {
         if (!isCharBlank(s[i]))
 			return s.substr(i, s.length() - i);
+    }
+    return "";
+}
+
+string trimRight(string s)
+{
+    for (uint i = s.length()-1; i > 0 ; i--)
+    {
+        if (!isCharBlank(s[i]))
+			return s.substr(0, i+1);
     }
     return "";
 }

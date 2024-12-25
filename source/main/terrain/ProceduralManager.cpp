@@ -87,12 +87,12 @@ void ProceduralManager::removeAllObjects()
 {
     for (ProceduralObjectPtr obj : pObjects)
     {
-        this->deleteObject(obj);
+        this->deleteObjectMesh(obj);
     }
     pObjects.clear(); // delete (unreference) all objects.
 }
 
-void ProceduralManager::deleteObject(ProceduralObjectPtr po)
+void ProceduralManager::deleteObjectMesh(ProceduralObjectPtr po)
 {
     if (po->road)
     {
@@ -112,14 +112,13 @@ void ProceduralManager::removeObject(ProceduralObjectPtr po)
     }
 }
 
-void ProceduralManager::updateObject(ProceduralObjectPtr po)
+void ProceduralManager::rebuildObjectMesh(ProceduralObjectPtr po)
 {
     if (po->road)
-        this->deleteObject(po);
+        this->deleteObjectMesh(po);
 
     po->road = new ProceduralRoad();
-    // In diagnostic mode, disable collisions (speeds up terrain loading)
-    po->road->setCollisionEnabled(!App::diag_terrn_log_roads->getBool());
+    po->road->setCollisionEnabled(po->collision_enabled);
 
     Ogre::SimpleSpline spline;
     if (po->smoothing_num_splits > 0)
@@ -173,7 +172,7 @@ void ProceduralManager::updateObject(ProceduralObjectPtr po)
 
 void ProceduralManager::addObject(ProceduralObjectPtr po)
 {
-    updateObject(po);
+    rebuildObjectMesh(po);
     pObjects.push_back(po);
 }
 

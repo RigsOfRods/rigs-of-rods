@@ -20,6 +20,7 @@
 */
 
 #include "GameScript.h"
+#include "ScriptUtils.h"
 
 #ifdef USE_CURL
 #   include <curl/curl.h>
@@ -393,6 +394,30 @@ void GameScript::removeVehicle(const String& event_source_instance_name, const S
     }
 }
 
+AngelScript::CScriptArray* GameScript::getEditorObjects()
+{
+    if (!this->HaveSimTerrain(__FUNCTION__))
+        return nullptr;
+
+    if (!App::GetGameContext()->GetTerrain()->getObjectManager())
+        return nullptr;
+
+    // Adopted from `VectorToScriptArray()` in file 'ScriptUtils.h'
+    std::string arraydecl = fmt::format("array<{}>", "TerrainEditorObjectClass@");
+    AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl(arraydecl.c_str());
+    TerrainEditorObjectPtrVec& vec = App::GetGameContext()->GetTerrain()->getObjectManager()->GetEditorObjects();    AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo, vec.size());
+
+    for (AngelScript::asUINT i = 0; i < arr->GetSize(); i++)
+    {
+        // Set the value of each element
+        TerrainEditorObject* ref = vec[i].GetRef();
+        arr->SetValue(i, &ref);
+    }
+
+    return arr;
+
+}
+
 void GameScript::destroyObject(const String& instanceName)
 {
     if (!this->HaveSimTerrain(__FUNCTION__))
@@ -400,7 +425,7 @@ void GameScript::destroyObject(const String& instanceName)
 
     if (App::GetGameContext()->GetTerrain()->getObjectManager())
     {
-        App::GetGameContext()->GetTerrain()->getObjectManager()->unloadObject(instanceName);
+        App::GetGameContext()->GetTerrain()->getObjectManager()->destroyObject(instanceName);
     }
 }
 
@@ -411,7 +436,7 @@ void GameScript::moveObjectVisuals(const String& instanceName, const Vector3& po
 
     if (App::GetGameContext()->GetTerrain()->getObjectManager())
     {
-        App::GetGameContext()->GetTerrain()->getObjectManager()->MoveObjectVisuals(instanceName, pos);
+        App::GetGameContext()->GetTerrain()->getObjectManager()->moveObjectVisuals(instanceName, pos);
     }
 }
 

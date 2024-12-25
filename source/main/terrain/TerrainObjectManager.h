@@ -40,40 +40,36 @@
 
 #include <map>
 #include <unordered_map>
+#include <vector>
 
 namespace RoR {
 
 /// @addtogroup Terrain
 /// @{
 
-class TerrainObjectManager
+struct Localizer
+{
+    LocalizerType type;
+    Ogre::Vector3 position;
+    Ogre::Quaternion rotation;
+};
+typedef std::vector<Localizer> LocalizerVec;
+
+class TerrainObjectManager: public RefCountingObject<TerrainObjectManager>
 {
     friend class Terrain;
 public:
 
-    struct EditorObject
-    {
-        Ogre::String name;
-        Ogre::String instance_name;
-        Ogre::String type;
-        Ogre::Vector3 position = Ogre::Vector3::ZERO;
-        Ogre::Vector3 rotation = Ogre::Vector3::ZERO;
-        Ogre::Vector3 initial_position = Ogre::Vector3::ZERO;
-        Ogre::Vector3 initial_rotation = Ogre::Vector3::ZERO;
-        Ogre::SceneNode* node = nullptr;
-        bool enable_collisions = true;
-        int script_handler = -1;
-    };
-
     TerrainObjectManager(Terrain* terrainManager);
     ~TerrainObjectManager();
 
-    std::vector<EditorObject>& GetEditorObjects() { return m_editor_objects; }
+    TerrainEditorObjectPtrVec& GetEditorObjects() { return m_editor_objects; }
+    std::vector<TObjDocumentPtr>& GetTobjCache() { return m_tobj_cache; }
     void           LoadTObjFile(Ogre::String filename);
     bool           LoadTerrainObject(const Ogre::String& name, const Ogre::Vector3& pos, const Ogre::Vector3& rot, const Ogre::String& instancename, const Ogre::String& type, float rendering_distance = 0, bool enable_collisions = true, int scripthandler = -1, bool uniquifyMaterial = false);
     bool           LoadTerrainScript(const Ogre::String& filename);
-    void           MoveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
-    void           unloadObject(const Ogre::String& instancename);
+    void           moveObjectVisuals(const Ogre::String& instancename, const Ogre::Vector3& pos);
+    void           destroyObject(const Ogre::String& instancename);
     void           LoadTelepoints();
     void           LoadPredefinedActors();
     bool           HasPredefinedActors() { return !m_predefined_actors.empty(); };
@@ -92,24 +88,7 @@ public:
         char* grassmat, char* colorMapFilename, char* densityMapFilename,
         int growtechnique, int techn, int range, int mapsizex, int mapsizez);
 
-    struct localizer_t
-    {
-        LocalizerType type;
-        Ogre::Vector3 position;
-        Ogre::Quaternion rotation;
-    };
-
-    struct object_t
-    {
-        Ogre::String name;
-        Ogre::Vector3 position;
-        Ogre::Vector3 rotation;
-        Ogre::Vector3 initial_position;
-        Ogre::Vector3 initial_rotation;
-        Ogre::SceneNode* node;
-    };
-
-    std::vector<localizer_t> GetLocalizers() { return localizers; }
+    LocalizerVec& GetLocalizers() { return m_localizers; }
 
     ProceduralManagerPtr& getProceduralManager() { return m_procedural_manager; }
     Ogre::SceneNode* getGroupingSceneNode();
@@ -135,30 +114,23 @@ protected:
         bool freePosition;
     };
 
-    struct StaticObject
-    {
-        Ogre::SceneNode* sceneNode;
-        Ogre::String instanceName;
-        bool enabled;
-        std::vector<int> collBoxes;
-        std::vector<int> collTris;
-    };
-
     // ODef processing functions
 
-    RoR::ODefFile* FetchODef(std::string const & odef_name);
-    void           ProcessODefCollisionBoxes(StaticObject* obj, ODefFile* odef, const EditorObject& params, bool race_event);
+    RoR::ODefDocument* FetchODef(std::string const & odef_name);
+    void           ProcessODefCollisionBoxes(TerrainEditorObjectPtr obj, ODefDocument* odef, const TerrainEditorObjectPtr& params, bool race_event);
 
     // Misc functions
 
     bool           UpdateAnimatedObjects(float dt);
+    TerrainEditorObjectID_t FindEditorObjectByInstanceName(std::string const& instance_name); //!< Returns offset to `m_editor_objects` or -1 if not found.
 
     // Variables
 
-    std::vector<localizer_t> localizers;
-    std::unordered_map<std::string, std::shared_ptr<RoR::ODefFile>> m_odef_cache;
-    std::map<std::string, StaticObject>   m_static_objects;
-    std::vector<EditorObject>             m_editor_objects;
+    LocalizerVec                          m_localizers;
+    std::unordered_map<std::string, std::shared_ptr<RoR::ODefDocument>> m_odef_cache;
+    std::vector<TObjDocumentPtr>          m_tobj_cache;
+    int                                   m_tobj_cache_active_id = -1;
+    TerrainEditorObjectPtrVec             m_editor_objects;
     std::vector<PredefinedActor>          m_predefined_actors;
     std::vector<AnimatedObject>           m_animated_objects;
     std::vector<MeshObject*>              m_mesh_objects;

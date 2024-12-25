@@ -27,7 +27,6 @@
 #include "RefCountingObject.h"
 #include "SurveyMapEntity.h"
 #include "TerrainEditor.h"
-#include "Terrn2FileFormat.h"
 
 #include <OgreVector3.h>
 #include <string>
@@ -42,27 +41,27 @@ class Terrain : public RefCountingObject<Terrain>
 public:
     static const int UNLIMITED_SIGHTRANGE = 4999;
 
-    Terrain(CacheEntryPtr entry, Terrn2Def def);
+    Terrain(CacheEntryPtr entry, Terrn2DocumentPtr def);
     virtual ~Terrain() override;
     bool initialize();
     void dispose();
 
     /// @name Terrain info
     /// @{
-    std::string             getTerrainName() const        { return m_def.name; }
+    std::string             getTerrainName() const;
     std::string             getTerrainFileName();
     std::string             getTerrainFileResourceGroup();
-    std::string             getGUID() const               { return m_def.guid; }
-    int                     getCategoryID() const         { return m_def.category_id; }
-    int                     getVersion() const            { return m_def.version; }
+    std::string             getGUID() const;
+    int                     getCategoryID() const;
+    int                     getVersion() const;
     CacheEntryPtr           getCacheEntry();
     /// @}
 
     /// @name Terrain properties
     /// @{
-    Terrn2Def&              GetDef()                      { return m_def; }
-    Ogre::Vector3           getSpawnPos()                 { return m_def.start_position; }
-    float                   getWaterHeight() const        { return m_def.water_height; }
+    Terrn2DocumentPtr       GetDef();
+    Ogre::Vector3           getSpawnPos();
+    float                   getWaterHeight() const;
     bool                    isFlat();
     float                   getPagedDetailFactor() const  { return m_paged_detail_factor; }
     void                    addSurveyMapEntity(const std::string& type, const std::string& filename, const std::string& resource_group, const std::string& caption, const Ogre::Vector3& pos, float angle, int id);
@@ -140,7 +139,7 @@ private:
     // Properties
 
     CacheEntryPtr           m_cache_entry;
-    RoR::Terrn2Def          m_def;
+    Terrn2DocumentPtr       m_def;
     float                   m_paged_detail_factor;
     int                     m_sight_range;
 

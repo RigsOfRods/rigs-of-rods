@@ -31,10 +31,10 @@
 #include <OgreSubEntity.h>
 #include <OgreTechnique.h>
 
-std::vector<std::shared_ptr<RoR::SkinDef>> RoR::SkinParser::ParseSkins(Ogre::DataStreamPtr& stream)
+std::vector<RoR::SkinDocumentPtr> RoR::SkinParser::ParseSkins(Ogre::DataStreamPtr& stream)
 {
-    std::vector<std::shared_ptr<RoR::SkinDef>> result;
-    std::unique_ptr<RoR::SkinDef> curr_skin;
+    std::vector<SkinDocumentPtr> result;
+    std::unique_ptr<RoR::SkinDocument> curr_skin;
     try
     {
         while(!stream->eof())
@@ -51,7 +51,7 @@ std::vector<std::shared_ptr<RoR::SkinDef>> RoR::SkinParser::ParseSkins(Ogre::Dat
             {
                 // No current skin -- So first valid data should be skin name
                 Ogre::StringUtil::trim(line);
-                curr_skin = std::unique_ptr<SkinDef>(new SkinDef);
+                curr_skin = std::unique_ptr<SkinDocument>(new SkinDocument);
                 curr_skin->name = line;
                 stream->skipLine("{");
             }
@@ -60,7 +60,7 @@ std::vector<std::shared_ptr<RoR::SkinDef>> RoR::SkinParser::ParseSkins(Ogre::Dat
                 // Already in skin
                 if (line == "}")
                 {
-                    result.push_back(std::shared_ptr<SkinDef>(curr_skin.release())); // Finished
+                    result.push_back(std::shared_ptr<SkinDocument>(curr_skin.release())); // Finished
                 }
                 else
                 {
@@ -75,7 +75,7 @@ std::vector<std::shared_ptr<RoR::SkinDef>> RoR::SkinParser::ParseSkins(Ogre::Dat
                 Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
                 fmt::format("Skin '{}' in file '{}' not properly closed with '}}'",
                     curr_skin->name, stream->getName()));
-            result.push_back(std::shared_ptr<SkinDef>(curr_skin.release())); // Submit anyway
+            result.push_back(std::shared_ptr<SkinDocument>(curr_skin.release())); // Submit anyway
         }
     }
     catch (Ogre::Exception& e)
@@ -88,7 +88,7 @@ std::vector<std::shared_ptr<RoR::SkinDef>> RoR::SkinParser::ParseSkins(Ogre::Dat
     return result;
 }
 
-void RoR::SkinParser::ParseSkinAttribute(const std::string& line, SkinDef* skin_def) // static
+void RoR::SkinParser::ParseSkinAttribute(const std::string& line, SkinDocument* skin_def) // static
 {
     Ogre::StringVector params = Ogre::StringUtil::split(line, "\t=,;\n");
     for (unsigned int i=0; i < params.size(); i++)

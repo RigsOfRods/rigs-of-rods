@@ -205,7 +205,7 @@ void ScriptEngine::msgCallback(const AngelScript::asSMessageInfo *msg)
     sprintf(tmp, "%s (%d, %d): %s = %s", msg->section, msg->row, msg->col, type, msg->message);
     SLOG(tmp);
 
-    this->triggerEvent(SE_ANGELSCRIPT_MSGCALLBACK,
+    TRIGGER_EVENT_ASYNC(SE_ANGELSCRIPT_MSGCALLBACK,
         m_currently_executing_script_unit, msg->type, msg->row, msg->col, // ints
         msg->section, msg->message); // strings
 }
