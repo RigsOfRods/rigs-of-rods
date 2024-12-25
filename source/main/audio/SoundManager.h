@@ -55,12 +55,17 @@ public:
     */
     SoundPtr createSound(Ogre::String filename, Ogre::String resource_group_name = "");
 
-    void setCamera(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
+    void setListener(Ogre::Vector3 position, Ogre::Vector3 direction, Ogre::Vector3 up, Ogre::Vector3 velocity);
     void pauseAllSounds();
     void resumeAllSounds();
     void setMasterVolume(float v);
 
     bool isDisabled() { return audio_device == 0; }
+
+    float getSpeedOfSound() { return alGetFloat(AL_SPEED_OF_SOUND); }
+    void setSpeedOfSound(float speed_of_sound) { alSpeedOfSound(speed_of_sound); }
+    float getDopplerFactor() { return alGetFloat(AL_DOPPLER_FACTOR); }
+    void setDopplerFactor(float doppler_factor) { alDopplerFactor(doppler_factor); }
 
     int getNumHardwareSources() { return hardware_sources_num; }
 
@@ -96,7 +101,7 @@ private:
     ALuint       audio_buffers[MAX_AUDIO_BUFFERS];
     Ogre::String audio_buffer_file_name[MAX_AUDIO_BUFFERS];
 
-    Ogre::Vector3 camera_position = Ogre::Vector3::ZERO;
+    Ogre::Vector3 listener_position = Ogre::Vector3::ZERO;
     ALCdevice*    audio_device = nullptr;
     ALCcontext*   sound_context = nullptr;
 };

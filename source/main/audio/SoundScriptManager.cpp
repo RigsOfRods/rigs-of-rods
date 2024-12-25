@@ -24,6 +24,8 @@
 
 #include "Actor.h"
 #include "CameraManager.h"
+#include "GameContext.h"
+#include "IWater.h"
 #include "Sound.h"
 #include "SoundManager.h"
 #include "Utils.h"
@@ -310,22 +312,49 @@ void SoundScriptManager::update(float dt_sec)
     if (App::sim_state->getEnum<SimState>() == SimState::RUNNING ||
         App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
     {
-        Ogre::SceneNode* cam_node = App::GetCameraManager()->GetCameraNode();
-        static Vector3 lastCameraPosition;
-        Vector3 cameraSpeed = (cam_node->getPosition() - lastCameraPosition) / dt_sec;
-        lastCameraPosition = cam_node->getPosition();
-        Ogre::Vector3 upVector = App::GetCameraManager()->GetCameraNode()->getOrientation() * Ogre::Vector3::UNIT_Y;
+        Ogre::SceneNode* camera_node = App::GetCameraManager()->GetCameraNode();
+        static Vector3 last_camera_position;
+        Ogre::Vector3 camera_position = camera_node->getPosition();
+        Vector3 camera_velocity = (camera_position - last_camera_position) / dt_sec;
+        last_camera_position = camera_position;
+        Ogre::Vector3 camera_up = camera_node->getOrientation() * Ogre::Vector3::UNIT_Y;
         // Direction points down -Z by default (adapted from Ogre::Camera)
-        Ogre::Vector3 cameraDir = App::GetCameraManager()->GetCameraNode()->getOrientation() * -Ogre::Vector3::UNIT_Z;
-        this->setCamera(App::GetCameraManager()->GetCameraNode()->getPosition(), cameraDir, upVector, cameraSpeed);
+        Ogre::Vector3 camera_direction = camera_node->getOrientation() * -Ogre::Vector3::UNIT_Z;
+        this->setListener(camera_position, camera_direction, camera_up, camera_velocity);
+        this->setListenerEnvironment(camera_position);
     }
 }
 
-void SoundScriptManager::setCamera(Vector3 position, Vector3 direction, Vector3 up, Vector3 velocity)
+void SoundScriptManager::setListener(Vector3 position, Vector3 direction, Vector3 up, Vector3 velocity)
 {
     if (disabled)
         return;
-    sound_manager->setCamera(position, direction, up, velocity);
+    sound_manager->setListener(position, direction, up, velocity);
+}
+
+void SoundScriptManager::setListenerEnvironment(Vector3 listener_position)
+{
+    if (disabled)
+        return;
+
+    const auto water = App::GetGameContext()->GetTerrain()->getWater();
+    bool listener_is_underwater = (water != nullptr ? water->IsUnderWater(listener_position) : false);
+
+    if(listener_is_underwater)
+    {
+        sound_manager->setSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
+    }
+    else
+    {
+        sound_manager->setSpeedOfSound(343.3f); // assume listener is in air at 20° celsius
+    }
+}
+
+void SoundScriptManager::setDopplerFactor(float doppler_factor)
+{
+    if (disabled)
+        return;
+    sound_manager->setDopplerFactor(doppler_factor);
 }
 
 const StringVector& SoundScriptManager::getScriptPatterns(void) const
