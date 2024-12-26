@@ -1528,9 +1528,11 @@ namespace Hydrax
             {
                 FP_Parameters->setNamedConstant("uCaustics", 0);
             }
-			Ogre::TextureUnitState *TUS_Caustics = DM_Technique0_Pass0->createTextureUnitState("Caustics.bmp");
-			TUS_Caustics->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
-			TUS_Caustics->setAnimatedTextureName("Caustics.bmp", 32, 1.5);
+            Ogre::TextureUnitState* TUS_Caustics = DM_Technique0_Pass0->createTextureUnitState("Caustics.bmp");
+            TUS_Caustics->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
+            // To account for variable sim. time, we must update animation manually.
+            TUS_Caustics->setAnimatedTextureName("Caustics.bmp", 32);
+            mCausticsAnimTexVec.push_back(TUS_Caustics);
 		}
 
 		DepthMaterial->setReceiveShadows(false);
@@ -1538,6 +1540,31 @@ namespace Hydrax
 
 		return true;
 	}
+
+    const float CAUSTICS_FRAME_DURATION = 1.5f / 32.f; // 1.5sec is the original hardcoded total duration.
+    const unsigned int CAUSTICS_NUM_FRAMES = 32;
+
+    void MaterialManager::updateAnimatedTextures(float dt)
+    {
+        mCausticsAnimCurrentFrameElapsedTime += dt;
+        while (mCausticsAnimCurrentFrameElapsedTime > CAUSTICS_FRAME_DURATION)
+        {
+            // advance anim frame
+            mCausticsAnimCurrentFrame++;
+            if (mCausticsAnimCurrentFrame >= CAUSTICS_NUM_FRAMES)
+            {
+                mCausticsAnimCurrentFrame = 0;
+            }
+            // update time
+            mCausticsAnimCurrentFrameElapsedTime -= CAUSTICS_FRAME_DURATION;
+        }
+
+        // Update frame on registered anims
+        for (Ogre::TextureUnitState* tus : mCausticsAnimTexVec)
+        {
+            tus->setCurrentFrame(mCausticsAnimCurrentFrame);
+        }
+    }
 
 	bool MaterialManager::_createDepthTextureGPUPrograms(const HydraxComponent &Components, const Options &Options, const Ogre::String& AlphaChannel)
 	{
@@ -3409,10 +3436,12 @@ namespace Hydrax
             {
                 FP_Parameters->setNamedConstant("uCaustics", 0);
             }
-			Ogre::TextureUnitState *TUS_Caustics = DM_Technique_Pass0->createTextureUnitState("Caustics.bmp");
-			TUS_Caustics->setName("Caustics");
-			TUS_Caustics->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
-			TUS_Caustics->setAnimatedTextureName("Caustics.bmp", 32, 1.5);
+            Ogre::TextureUnitState* TUS_Caustics = DM_Technique_Pass0->createTextureUnitState("Caustics.bmp");
+            TUS_Caustics->setName("Caustics");
+            TUS_Caustics->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
+            // To account for variable sim. time, we must update animation manually.
+            TUS_Caustics->setAnimatedTextureName("Caustics.bmp", 32);
+            mCausticsAnimTexVec.push_back(TUS_Caustics);
 		}
 
 		if (AutoUpdate)
@@ -3472,7 +3501,9 @@ namespace Hydrax
 			Ogre::TextureUnitState *TUS_Caustics = DM_Technique_Pass0->createTextureUnitState("Caustics.bmp");
 			TUS_Caustics->setName("Caustics");
 			TUS_Caustics->setTextureAddressingMode(Ogre::TextureUnitState::TAM_WRAP);
-			TUS_Caustics->setAnimatedTextureName("Caustics.bmp", 32, 1.5);
+            // To account for variable sim. time, we must update animation manually.
+			TUS_Caustics->setAnimatedTextureName("Caustics.bmp", 32);
+            mCausticsAnimTexVec.push_back(TUS_Caustics);
 		}
 
         if(mOptions.SM == SM_GLSL)

@@ -311,6 +311,10 @@ namespace Hydrax
 		 */
 		void setGpuProgramParameter(const GpuProgram &GpuP, const MaterialType &MType, const Ogre::String &Name, const Ogre::Vector3 &Value);
 
+        /** Animated textures must be updated manually to account for variable simulation time.
+        */
+        void updateAnimatedTextures(float dt);
+
 	private:
 		/** Is component in the given list?
 		    @param List Components list
@@ -373,6 +377,11 @@ namespace Hydrax
 		UnderwaterCompositorListener mUnderwaterCompositorListener;
 		/// Hydrax main pointer
 		Hydrax *mHydrax;
+        /// Caustics animated texture, for manual updating.
+        std::vector<Ogre::TextureUnitState*> mCausticsAnimTexVec;
+        unsigned int mCausticsAnimCurrentFrame = 0;
+        /// Time spent on current animation frame, cumulative.
+        float mCausticsAnimCurrentFrameElapsedTime = 0.f;
 	};
 };
 
