@@ -47,44 +47,5 @@ Please refer to https://github.com/RigsOfRods/rigs-of-rods/wiki
 
 ### Core options
 
-The Rigs of Rods build system allows to have on-demand fallback on Conan.
-This means that if your (Linux) distribution doesn't ship a compatible version of a dependency you can use conan to install the missing dependency without having to install everything with conan.
-
-`ROR_FORCE_SYSTEM_DEPENDENCIES`
-Values: `[ON, OFF]`
-
-* If this has been set to ON cmake will throw an error instead of falling pack to conan.
-
-`ROR_LIB_PREFERENCE`
-Values: `[SYSTEM, CONAN]`
-
-* This will set the preferred method of obtaining dependencies.
-See the explanation below for meaning the values.
-
 `ROR_DEPENDENCY_DIR`
-
 This is used to set the path to the folder built by https://github.com/RigsOfRods/ror-dependencies
-
-#### **Explanation of the dependencies options values**
-
-* `SYSTEM` This means that cmake will first search for the dependency on the system, if it can't find it will add it to the list of conan packages to install.
-* `CONAN` This means that cmake will add the dependency to the list of conan packages to install.
-* `OFF` This means that the dependency will not be searched for nor be installed with conan.
-
-### Dependencies options
-
-| Name | Values |
-|------|--------|
-| `ROR_USE_OGRE` | `SYSTEM`, `CONAN` |
-| `ROR_USE_OPENAL` | `SYSTEM`, `CONAN` |
-| `ROR_USE_OIS` | `SYSTEM`, `CONAN` |
-| `ROR_USE_MYGUI` | `SYSTEM`, `CONAN` |
-| `ROR_USE_SOCKETW` | `SYSTEM`, `CONAN`, `OFF` |
-| `ROR_USE_ANGELSCRIPT` | `SYSTEM`, `CONAN`, `OFF` |
-| `ROR_USE_CURL` | `SYSTEM`, `CONAN`, `OFF` |
-| `ROR_USE_CAELUM` | `SYSTEM`, `CONAN`, `OFF` |
-| `ROR_USE_PAGEDGEOMETRY` | `SYSTEM`, `CONAN`, `OFF` |
-| `ROR_USE_FMT` | `SYSTEM`, `CONAN` |
-| `ROR_USE_DISCORD_RPC` | `SYSTEM`, `CONAN`, `OFF` |
-| `ROR_USE_RAPIDJSON` | `SYSTEM`, `CONAN` |
-| `ROR_USE_OPENSSL` | `SYSTEM`, `CONAN`, `OFF` |
