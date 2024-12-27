@@ -60,3 +60,9 @@ float RaceSystem::GetRaceTime() const
 {
     return App::GetGameContext()->GetActorManager()->GetTotalTime() - m_race_start_time;
 }
+
+void RaceSystem::ResetRaceUI()
+{
+    this->StopRaceTimer();
+    this->UpdateDirectionArrow(nullptr, Ogre::Vector3::ZERO); // hide arrow
+}
