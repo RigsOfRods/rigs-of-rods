@@ -72,7 +72,7 @@ public:
     void           destroyObject(const Ogre::String& instancename);
     void           LoadTelepoints();
     void           LoadPredefinedActors();
-    bool           HasPredefinedActors() { return !m_predefined_actors.empty(); };
+    bool           HasPredefinedActors() { return m_has_predefined_actors; };
     bool           UpdateTerrainObjects(float dt);
 
     void ProcessTree(
@@ -87,6 +87,8 @@ public:
         float minx, float miny, float minH, float maxx, float maxy, float maxH,
         char* grassmat, char* colorMapFilename, char* densityMapFilename,
         int growtechnique, int techn, int range, int mapsizex, int mapsizez);
+
+    void ProcessPredefinedActor(int tobj_cache_id, const std::string& name, const Ogre::Vector3 position, const Ogre::Vector3 rotation, const TObjSpecialObject type);
 
     LocalizerVec& GetLocalizers() { return m_localizers; }
 
@@ -107,17 +109,6 @@ protected:
     {
         Ogre::ParticleSystem* psys = nullptr;
         Ogre::SceneNode* node = nullptr;
-    };
-
-    struct PredefinedActor
-    {
-        float px;
-        float py;
-        float pz;
-        Ogre::Quaternion rotation;
-        std::string name;
-        bool ismachine;
-        bool freePosition;
     };
 
     // ODef processing functions
@@ -141,7 +132,7 @@ protected:
     std::vector<TObjDocumentPtr>          m_tobj_cache;
     int                                   m_tobj_cache_active_id = -1;
     TerrainEditorObjectPtrVec             m_editor_objects;
-    std::vector<PredefinedActor>          m_predefined_actors;
+    bool                                  m_has_predefined_actors;
     std::vector<AnimatedObject>           m_animated_objects;
     std::vector<ParticleEffectObject>     m_particle_effect_objects;
     std::vector<MeshObject*>              m_mesh_objects;

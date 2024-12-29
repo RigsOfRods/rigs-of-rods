@@ -30,7 +30,7 @@ using namespace Ogre;
 // --------------------------------
 // TObjEntry
 
-TObjEntry::TObjEntry(Ogre::Vector3 pos, Ogre::Vector3 rot, const char* odef, TObj::SpecialObject spc, const char* ty, const char* nam):
+TObjEntry::TObjEntry(Ogre::Vector3 pos, Ogre::Vector3 rot, const char* odef, TObjSpecialObject spc, const char* ty, const char* nam):
     position(pos),
     rotation(rot),
     special(spc)
@@ -42,14 +42,14 @@ TObjEntry::TObjEntry(Ogre::Vector3 pos, Ogre::Vector3 rot, const char* odef, TOb
 
 bool TObjEntry::IsRoad() const
 {
-    return (special >= TObj::SpecialObject::ROAD) && (special <= TObj::SpecialObject::ROAD_BRIDGE);
+    return (special >= TObjSpecialObject::ROAD) && (special <= TObjSpecialObject::ROAD_BRIDGE);
 }
 
 bool TObjEntry::IsActor() const
 {
-    return (special == TObj::SpecialObject::TRUCK)   || (special == TObj::SpecialObject::LOAD) ||
-           (special == TObj::SpecialObject::MACHINE) || (special == TObj::SpecialObject::BOAT) ||
-           (special == TObj::SpecialObject::TRUCK2);
+    return (special == TObjSpecialObject::TRUCK)   || (special == TObjSpecialObject::LOAD) ||
+           (special == TObjSpecialObject::MACHINE) || (special == TObjSpecialObject::BOAT) ||
+           (special == TObjSpecialObject::TRUCK2);
 }
 
 // --------------------------------
@@ -214,12 +214,13 @@ TObjDocumentPtr TObjParser::Finalize()
     if (m_road2_num_blocks > 0)
     {
         Vector3 pp_pos = m_road2_last_pos + m_road2_last_rot * Vector3(10.0f, 0.0f, 0.9f);
-        this->ImportProceduralPoint(pp_pos, m_road2_last_rot, TObj::SpecialObject::ROAD);
+        this->ImportProceduralPoint(pp_pos, m_road2_last_rot, TObjSpecialObject::ROAD);
 
         this->FlushProceduralObject();
     }
 
     m_def->document_name = m_filename;
+    m_def->rot_yxz = m_rot_yxz;
     m_filename = "";
 
     TObjDocumentPtr tmp_def = m_def;
@@ -252,7 +253,7 @@ void TObjParser::ProcessProceduralLine()
         &rot.x, &rot.y, &rot.z,
         &point.width, &point.bwidth, &point.bheight, obj_name.GetBuffer());
 
-    point.rotation = this->CalcRotation(rot);
+    point.rotation = this->CalcRotation(rot, m_rot_yxz);
 
          if (obj_name == "flat"             ) { point.type = RoadType::ROAD_FLAT;  }
     else if (obj_name == "left"             ) { point.type = RoadType::ROAD_LEFT;  }
@@ -334,7 +335,8 @@ void TObjParser::ProcessActorObject(const TObjEntry& object)
 {
     TObjVehicle v;
     v.position = object.position;
-    v.rotation = this->CalcRotation(object.rotation);
+    v.tobj_rotation = object.rotation;
+    v.rotation = this->CalcRotation(object.rotation, m_rot_yxz);
     v.type = object.special;
     strcpy(v.name, object.type);
 
@@ -350,7 +352,7 @@ void TObjParser::ProcessRoadObject(const TObjEntry& object)
         // break the road
         if (m_road2_num_blocks > 0)
         {
-            Vector3 pp_pos = m_road2_last_pos + this->CalcRotation(m_road2_last_rot) * Vector3(10.0f, 0.0f, 0.9f);
+            Vector3 pp_pos = m_road2_last_pos + this->CalcRotation(m_road2_last_rot, m_rot_yxz) * Vector3(10.0f, 0.0f, 0.9f);
             this->ImportProceduralPoint(pp_pos, m_road2_last_rot, object.special);
             this->FlushProceduralObject();
         }
@@ -370,15 +372,15 @@ void TObjParser::ProcessRoadObject(const TObjEntry& object)
 // --------------------------------
 // Helpers
 
-void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObj::SpecialObject special)
+void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObjSpecialObject special)
 {
     ProceduralPoint pp;
     pp.bheight    = 0.2;
     pp.bwidth     = 1.4;
-    pp.pillartype = (int)(special != TObj::SpecialObject::ROAD_BRIDGE_NO_PILLARS);
+    pp.pillartype = (int)(special != TObjSpecialObject::ROAD_BRIDGE_NO_PILLARS);
     pp.position   = pos;
-    pp.rotation   = this->CalcRotation(rot);
-    pp.type       = (special == TObj::SpecialObject::ROAD) ? RoadType::ROAD_FLAT : RoadType::ROAD_AUTOMATIC;
+    pp.rotation   = CalcRotation(rot, m_rot_yxz);
+    pp.type       = (special == TObjSpecialObject::ROAD) ? RoadType::ROAD_FLAT : RoadType::ROAD_AUTOMATIC;
     pp.width      = 8;
 
     // Attach comments
@@ -391,9 +393,9 @@ void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 c
     }
 }
 
-Ogre::Quaternion TObjParser::CalcRotation(Ogre::Vector3 const& rot) const
+Ogre::Quaternion TObjParser::CalcRotation(Ogre::Vector3 const& rot, bool rot_yxz)
 {
-    if (m_rot_yxz)
+    if (rot_yxz)
     {
         return Quaternion(Degree(rot.y), Vector3::UNIT_Y) *  // y global
                Quaternion(Degree(rot.x), Vector3::UNIT_X) *  // x local
@@ -421,19 +423,19 @@ bool TObjParser::ParseObjectLine(TObjEntry& object)
         return false;
     }
 
-    TObj::SpecialObject special = TObj::SpecialObject::NONE;
-         if (odef == "truck"             ) { special = TObj::SpecialObject::TRUCK                 ; }
-    else if (odef == "load"              ) { special = TObj::SpecialObject::LOAD                  ; }
-    else if (odef == "machine"           ) { special = TObj::SpecialObject::MACHINE               ; }
-    else if (odef == "boat"              ) { special = TObj::SpecialObject::BOAT                  ; }
-    else if (odef == "truck2"            ) { special = TObj::SpecialObject::TRUCK2                ; }
-    else if (odef == "grid"              ) { special = TObj::SpecialObject::GRID                  ; }
-    else if (odef == "road"              ) { special = TObj::SpecialObject::ROAD                  ; }
-    else if (odef == "roadborderleft"    ) { special = TObj::SpecialObject::ROAD_BORDER_LEFT      ; }
-    else if (odef == "roadborderright"   ) { special = TObj::SpecialObject::ROAD_BORDER_RIGHT     ; }
-    else if (odef == "roadborderboth"    ) { special = TObj::SpecialObject::ROAD_BORDER_BOTH      ; }
-    else if (odef == "roadbridgenopillar") { special = TObj::SpecialObject::ROAD_BRIDGE_NO_PILLARS; }
-    else if (odef == "roadbridge"        ) { special = TObj::SpecialObject::ROAD_BRIDGE           ; }
+    TObjSpecialObject special = TObjSpecialObject::NONE;
+         if (odef == "truck"             ) { special = TObjSpecialObject::TRUCK                 ; }
+    else if (odef == "load"              ) { special = TObjSpecialObject::LOAD                  ; }
+    else if (odef == "machine"           ) { special = TObjSpecialObject::MACHINE               ; }
+    else if (odef == "boat"              ) { special = TObjSpecialObject::BOAT                  ; }
+    else if (odef == "truck2"            ) { special = TObjSpecialObject::TRUCK2                ; }
+    else if (odef == "grid"              ) { special = TObjSpecialObject::GRID                  ; }
+    else if (odef == "road"              ) { special = TObjSpecialObject::ROAD                  ; }
+    else if (odef == "roadborderleft"    ) { special = TObjSpecialObject::ROAD_BORDER_LEFT      ; }
+    else if (odef == "roadborderright"   ) { special = TObjSpecialObject::ROAD_BORDER_RIGHT     ; }
+    else if (odef == "roadborderboth"    ) { special = TObjSpecialObject::ROAD_BORDER_BOTH      ; }
+    else if (odef == "roadbridgenopillar") { special = TObjSpecialObject::ROAD_BRIDGE_NO_PILLARS; }
+    else if (odef == "roadbridge"        ) { special = TObjSpecialObject::ROAD_BRIDGE           ; }
 
     // If no instance name given, generate one, so that scripts can use `game.destroyObject(instanceName)` even for pre-placed objects.
     // Don't use spaces because TOBJ parser doesn't support "" yet (game tries to strip the 'auto^' instancenames on save, but someone could export via custom script).
@@ -441,7 +443,7 @@ bool TObjParser::ParseObjectLine(TObjEntry& object)
     {
         instance_name << "auto^" << m_filename << "(line:" << m_line_number << ")";
         // Also set 'type' arg to non-empty (same reason).
-        if (special == TObj::SpecialObject::NONE)
+        if (special == TObjSpecialObject::NONE)
         {
             type << "-";
         }
@@ -464,26 +466,6 @@ void TObjParser::FlushProceduralObject()
     m_cur_procedural_obj = new ProceduralObject();
     m_cur_procedural_obj_start_line = -1;
     m_road2_num_blocks = 0;
-}
-
-const char* TObj::SpecialObjectToString(SpecialObject val)
-{
-    switch (val)
-    {
-    case TObj::SpecialObject::TRUCK                 : return "truck";
-    case TObj::SpecialObject::LOAD                  : return "load";
-    case TObj::SpecialObject::MACHINE               : return "machine";
-    case TObj::SpecialObject::BOAT                  : return "boat";
-    case TObj::SpecialObject::TRUCK2                : return "truck2";
-    case TObj::SpecialObject::GRID                  : return "grid";
-    case TObj::SpecialObject::ROAD                  : return "road";
-    case TObj::SpecialObject::ROAD_BORDER_LEFT      : return "roadborderleft";
-    case TObj::SpecialObject::ROAD_BORDER_RIGHT     : return "roadborderright";
-    case TObj::SpecialObject::ROAD_BORDER_BOTH      : return "roadborderboth";
-    case TObj::SpecialObject::ROAD_BRIDGE_NO_PILLARS: return "roadbridgenopillar";
-    case TObj::SpecialObject::ROAD_BRIDGE           : return "roadbridge";
-    default: "";
-    }
 }
 
 void WriteTObjDelimiter(Ogre::DataStreamPtr& stream, const std::string& title, size_t count)
@@ -558,8 +540,8 @@ void TObj::WriteToStream(TObjDocumentPtr doc, Ogre::DataStreamPtr stream)
 
         std::string line = fmt::format("{:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {} {}\n",
             vehicle.position.x, vehicle.position.y, vehicle.position.z,
-            vehicle.rotation.getRoll().valueDegrees(), vehicle.rotation.getYaw().valueDegrees(), vehicle.rotation.getPitch().valueDegrees(),
-            SpecialObjectToString(vehicle.type), (const char*)vehicle.name);
+            vehicle.tobj_rotation.x, vehicle.tobj_rotation.y, vehicle.tobj_rotation.z,
+            TObjSpecialObjectToString(vehicle.type), (const char*)vehicle.name);
         stream->write(line.c_str(), line.length());
     }
 
