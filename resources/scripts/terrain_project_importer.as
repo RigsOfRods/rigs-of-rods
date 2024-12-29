@@ -351,7 +351,7 @@ GenericDocumentClass@ convertSingleRace(raceBuilder@ race)
     ctx.appendTokComment( " Each race file specifies a single race");ctx.appendTokLineBreak();
     ctx.appendTokComment( " In .terrn2 file, list the race files under new section [Races]");ctx.appendTokLineBreak();
     ctx.appendTokComment( " Filenames must include extension and end with = (like scripts do)");ctx.appendTokLineBreak();
-    ctx.appendTokComment( " Race system supports alternating paths!");ctx.appendTokLineBreak();
+    ctx.appendTokComment( " Race system supports branching/joining paths!");ctx.appendTokLineBreak();
     ctx.appendTokComment( " Checkpoint format: checkpointNum(1+), altpathNum(1+), x, y, z, rotX, rotY, rotZ, objName(override, optional)");ctx.appendTokLineBreak();
     ctx.appendTokComment( " By convention, the checkpoint meshes are oriented sideways (facing X axis)");ctx.appendTokLineBreak();
     ctx.appendTokLineBreak();
@@ -633,16 +633,20 @@ void advanceImportOneStep()
         case STAGE_INIT:
         {
             initializeRacesData();
-        if (stage != STAGE_ERROR) { stage = STAGE_CONVERT;
- }
+            if (stage != STAGE_ERROR)
+            {
+                stage = STAGE_CONVERT;
+            }
             break;
         }
 
         case STAGE_PUSHMSG:
         {
             pushMsgRequestCreateProject();
-        if (stage != STAGE_ERROR) { stage = STAGE_GETPROJECT;
- }
+            if (stage != STAGE_ERROR)
+            {
+                stage = STAGE_GETPROJECT;
+            }
             break;
         }
 
@@ -670,14 +674,20 @@ void advanceImportOneStep()
         case STAGE_FIXTERRN2:
         {
             fixupTerrn2Document();
-            if (stage != STAGE_ERROR) { stage = STAGE_BUTTON; }
+            if (stage != STAGE_ERROR)
+            {
+                stage = STAGE_BUTTON;
+            }
             break;
         }
 
         case STAGE_WRITETERRN2:
         {
             writeTerrn2();
-            if (stage != STAGE_ERROR) { stage = STAGE_DONE; }
+            if (stage != STAGE_ERROR)
+            {
+                stage = STAGE_DONE;
+            }
             break;
         }
 
