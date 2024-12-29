@@ -695,7 +695,7 @@ ScriptRetCode_t ScriptEngine::getVariable(const Ogre::String& varName, void *ref
         return getResult;
     }
 
-    SLOG(fmt::format("getVariable() - '{}' global var info: name='{}', namespace='{}', typeid={}, const={}",
+    LOG(fmt::format("[RoR|Scripting] getScriptVariable() - '{}' global var info: name='{}', namespace='{}', typeid={}, const={}",
         varName, asVarName, asNamespace, asTypeId, asConst));
 
     // ~~ DEV NOTE: The following code is adopted from AngelScript's add-on 'scriptany.cpp', function `Retrieve()` ~~
@@ -711,7 +711,7 @@ ScriptRetCode_t ScriptEngine::getVariable(const Ogre::String& varName, void *ref
             // Don't allow the retrieval if the stored handle is to a const object but not the wanted handle
             if( (asTypeId & asTYPEID_HANDLETOCONST) && !(refTypeId & asTYPEID_HANDLETOCONST) )
             {
-                SLOG(fmt::format("Error in `getVariable()` - '{}' is a handle to `const` object but the requested type is not.", varName));
+                SLOG(fmt::format("Error in `getScriptVariable()` - '{}' is a handle to `const` object but the requested type is not.", varName));
                 return SCRIPTRETCODE_UNSPECIFIED_ERROR;
             }
 
@@ -719,7 +719,7 @@ ScriptRetCode_t ScriptEngine::getVariable(const Ogre::String& varName, void *ref
             engine->RefCastObject(mod->GetAddressOfGlobalVar(index), engine->GetTypeInfoById(asTypeId), engine->GetTypeInfoById(refTypeId), reinterpret_cast<void**>(ref));
             if( *(asPWORD*)ref == 0 )
             {
-                SLOG(fmt::format("Error in `getVariable()` - '{}': reference-cast from '{}' to '{}' yielded null",
+                SLOG(fmt::format("Error in `getScriptVariable()` - '{}': reference-cast from '{}' to '{}' yielded null",
                     varName, engine->GetTypeDeclaration(asTypeId), engine->GetTypeDeclaration(refTypeId)));
                 return SCRIPTRETCODE_UNSPECIFIED_ERROR;
             }
@@ -750,7 +750,7 @@ ScriptRetCode_t ScriptEngine::getVariable(const Ogre::String& varName, void *ref
         }
     }
 
-    SLOG(fmt::format("Error in `getVariable()` - '{}' has incompatible type, expected '{}' (typeid {}), got '{}' (typeid {})",
+    SLOG(fmt::format("Error in `getScriptVariable()` - '{}' has incompatible type, expected '{}' (typeid {}), got '{}' (typeid {})",
         varName, engine->GetTypeDeclaration(refTypeId), refTypeId, engine->GetTypeDeclaration(asTypeId), asTypeId));
     return SCRIPTRETCODE_UNSPECIFIED_ERROR;
 }
