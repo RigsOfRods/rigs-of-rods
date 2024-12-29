@@ -1402,20 +1402,11 @@ int main(int argc, char *argv[])
                             App::sim_state->setVal((int)SimState::EDITOR_MODE);
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                                                           _L("Entered terrain editing mode"));
-                            if (App::GetGameContext()->GetTerrain()->getCacheEntry()->resource_bundle_type == "Zip")
-                            {
-                                // This is a read-only (ZIPped) terrain; launch importer script.
-                                RoR::LoadScriptRequest* rq = new LoadScriptRequest();
-                                rq->lsr_filename = "terrain_project_importer.as";
-                                rq->lsr_category = ScriptCategory::CUSTOM;
-                                App::GetGameContext()->PushMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, rq));
-                            }
-                            else
-                            {
-                                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                    fmt::format(_L("Press {} or middle mouse click to select an object"),
-                                        App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_OR_EXIT_TRUCK)), "lightbulb.png");
-                            }
+
+                            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                                fmt::format(_L("Press {} or middle mouse click to select an object"),
+                                    App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_OR_EXIT_TRUCK)), "lightbulb.png");
+                            
                         }
                     }
                     catch (...) 
