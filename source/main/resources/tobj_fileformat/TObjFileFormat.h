@@ -37,26 +37,6 @@ namespace TObj {
     const int STR_LEN = 300;
     const int LINE_BUF_LEN = 4000;
 
-    enum class SpecialObject
-    {
-        NONE,
-        TRUCK,
-        LOAD,
-        MACHINE,
-        BOAT,
-        TRUCK2,
-        GRID,
-        // Road types
-        ROAD,
-        ROAD_BORDER_LEFT,
-        ROAD_BORDER_RIGHT,
-        ROAD_BORDER_BOTH,
-        ROAD_BRIDGE_NO_PILLARS,
-        ROAD_BRIDGE,
-    };
-
-    const char* SpecialObjectToString(SpecialObject val);
-
     void WriteToStream(TObjDocumentPtr doc, Ogre::DataStreamPtr stream);
 
 } // namespace TObj
@@ -130,8 +110,9 @@ struct TObjVehicle
 {
     Ogre::Vector3       position;
     Ogre::Quaternion    rotation;
+    Ogre::Vector3       tobj_rotation; //!< Original rotation specified in .TOBJ file.
     char                name[TObj::STR_LEN];
-    TObj::SpecialObject type;
+    TObjSpecialObject type;
     std::string         comments; //!< Comment line(s) preceding the vehicle-line in the .TOBJ file.
 };
 
@@ -141,14 +122,14 @@ struct TObjEntry
     TObjEntry() {};
     TObjEntry(
         Ogre::Vector3 pos, Ogre::Vector3 rot, const char* instance_name,
-        TObj::SpecialObject special, const char* type, const char* name);
+        TObjSpecialObject special, const char* type, const char* name);
 
     bool IsActor() const;
     bool IsRoad() const;
 
     Ogre::Vector3        position                     = Ogre::Vector3::ZERO;
     Ogre::Vector3        rotation                     = Ogre::Vector3::ZERO;
-    TObj::SpecialObject  special                      = TObj::SpecialObject::NONE;
+    TObjSpecialObject  special                      = TObjSpecialObject::NONE;
     char                 type[TObj::STR_LEN]          = {};
     char                 instance_name[TObj::STR_LEN] = {};
     char                 odef_name[TObj::STR_LEN]     = {};
@@ -167,6 +148,7 @@ struct TObjDocument
     std::string                   document_name;
     Ogre::Vector3                 grid_position;
     bool                          grid_enabled;
+    bool                          rot_yxz;
     std::vector<TObjTree>         trees;
     std::vector<TObjGrass>        grass;
     std::vector<TObjVehicle>      vehicles;
@@ -183,6 +165,8 @@ public:
     void                       ProcessOgreStream(Ogre::DataStream* stream);
     TObjDocumentPtr            Finalize(); //!< Passes ownership
 
+    static Ogre::Quaternion    CalcRotation(Ogre::Vector3 const& rot, bool rot_yxz);
+
 private:
     // Processing:
     bool                       ProcessCurrentLine();
@@ -194,8 +178,7 @@ private:
     void                       ProcessRoadObject(const TObjEntry& object);
 
     // Helpers:
-    void                       ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObj::SpecialObject special);
-    Ogre::Quaternion           CalcRotation(Ogre::Vector3 const& rot) const;
+    void                       ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObjSpecialObject special);
     bool                       ParseObjectLine(TObjEntry& object);
     void                       FlushProceduralObject();
 

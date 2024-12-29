@@ -240,22 +240,8 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     // Vehicles
     for (TObjVehicle const& veh : tobj->vehicles)
     {
-        if ((veh.type == TObj::SpecialObject::BOAT) && (terrainManager->getWater() == nullptr))
-        {
-            continue; // Don't spawn boats if there's no water.
-        }
-
-        // NOTE: The filename may be in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
-
-        PredefinedActor p;
-        p.px           = veh.position.x;
-        p.py           = veh.position.y;
-        p.pz           = veh.position.z;
-        p.freePosition = (veh.type == TObj::SpecialObject::TRUCK2);
-        p.ismachine    = (veh.type == TObj::SpecialObject::MACHINE);
-        p.rotation     = veh.rotation;
-        p.name         = veh.name;
-        m_predefined_actors.push_back(p);
+        int tobj_cache_id = (int)m_tobj_cache.size() - 1;
+        this->ProcessPredefinedActor(tobj_cache_id, veh.name, veh.position, veh.tobj_rotation, veh.type);
     }
 
     // Entries
@@ -482,6 +468,22 @@ void TerrainObjectManager::ProcessGrass(
         LOG("error loading grass!");
     }
 #endif //USE_PAGED
+}
+
+void TerrainObjectManager::ProcessPredefinedActor(int tobj_cache_id, const std::string& name, const Ogre::Vector3 position, const Ogre::Vector3 rotation, const TObjSpecialObject type)
+{
+    // Transform TOBJ actor records to EditorObject-s (to be spawned later, if conditions are met).
+    // NOTE: The filename may be in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
+    // -----------------------------------------------------------------------------------------
+    
+    TerrainEditorObjectPtr dst = new TerrainEditorObject();
+    dst->position = position;
+    dst->rotation = rotation;
+    dst->special_object_type = type;
+    dst->name = name;
+    dst->tobj_cache_id = tobj_cache_id;
+    m_editor_objects.push_back(dst);
+    m_has_predefined_actors = true;
 }
 
 void TerrainObjectManager::moveObjectVisuals(const String& instancename, const Ogre::Vector3& pos)
@@ -1004,15 +1006,37 @@ void TerrainObjectManager::LoadPredefinedActors()
         return;
     }
 
-    for (unsigned int i = 0; i < m_predefined_actors.size(); i++)
+    for (TerrainEditorObjectPtr object : m_editor_objects)
     {
+        if (object->special_object_type == TObjSpecialObject::NONE)
+        {
+            continue; // Skip static objects
+        }
+
+        if ((object->special_object_type == TObjSpecialObject::BOAT) && (terrainManager->getWater() == nullptr))
+        {
+            continue; // Don't spawn boats if there's no water.
+        }
+
+        // We need the 'rot_yxz' flag - look up the TOBJ document in cache
+        bool rot_yxz = false;
+        if (object->tobj_cache_id == -1 || object->tobj_cache_id >= (int)m_tobj_cache.size())
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("Assuming no 'rot_yxz' when spawning preselected actor '{}' - TOBJ document not found", object->name));
+        }
+        else
+        {
+            rot_yxz = m_tobj_cache[object->tobj_cache_id]->rot_yxz;
+        }
+
         ActorSpawnRequest* rq = new ActorSpawnRequest;
-        rq->asr_position      = Vector3(m_predefined_actors[i].px, m_predefined_actors[i].py, m_predefined_actors[i].pz);
-        rq->asr_filename      = m_predefined_actors[i].name;
-        rq->asr_rotation      = m_predefined_actors[i].rotation;
-        rq->asr_origin        = ActorSpawnRequest::Origin::TERRN_DEF;
-        rq->asr_free_position = m_predefined_actors[i].freePosition;
-        rq->asr_terrn_machine = m_predefined_actors[i].ismachine;
+        rq->asr_position = object->position;
+        rq->asr_filename = object->name;
+        rq->asr_rotation = TObjParser::CalcRotation(object->rotation, rot_yxz);
+        rq->asr_origin = ActorSpawnRequest::Origin::TERRN_DEF;
+        rq->asr_free_position = (object->special_object_type == TObjSpecialObject::TRUCK2);
+        rq->asr_terrn_machine = (object->special_object_type == TObjSpecialObject::MACHINE);
         App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
     }
 }

@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "Application.h"
 #include "RefCountingObject.h"
 
 #include <string>
@@ -49,15 +50,18 @@ public:
     std::string tobj_comments;
     std::vector<int> static_collision_boxes;
     std::vector<int> static_collision_tris;
+    TObjSpecialObject special_object_type = TObjSpecialObject::NONE;
 
     // Functions are exported to AngelScript
-    std::string const& getName();
-    std::string const& getInstanceName();
-    std::string const& getType();
     Ogre::Vector3 const& getPosition();
     Ogre::Vector3 const& getRotation();
     void setPosition(Ogre::Vector3 const& pos);
     void setRotation(Ogre::Vector3 const& rot);
+    std::string const& getName();
+    std::string const& getInstanceName();
+    std::string const& getType();
+    TObjSpecialObject getSpecialObjectType();
+    void setSpecialObjectType(TObjSpecialObject type);
 };
 
 /// Minimalist editor mode; orig. code by Ulteq/2016
