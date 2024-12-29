@@ -57,7 +57,7 @@ public:
     const int     TUNING_SUBJECTID_USE_NAME = -2;
 
     enum class TopMenu { TOPMENU_NONE, TOPMENU_SIM, TOPMENU_ACTORS, TOPMENU_SAVEGAMES, TOPMENU_SETTINGS, TOPMENU_TOOLS, TOPMENU_AI, TOPMENU_TUNING };
-    enum class StateBox { STATEBOX_NONE, STATEBOX_REPLAY, STATEBOX_RACE, STATEBOX_LIVE_REPAIR, STATEBOX_QUICK_REPAIR };
+    enum class StateBox { STATEBOX_NONE, STATEBOX_REPLAY, STATEBOX_RACE, STATEBOX_LIVE_REPAIR, STATEBOX_QUICK_REPAIR, STATEBOX_IMPORT_TERRAIN };
 
     TopMenubar();
     ~TopMenubar();
@@ -147,6 +147,7 @@ private:
     float   m_daytime = 0.f;
     float   m_waves_height;
     bool    m_quickload = false;
+    bool    m_terrn_import_started = false;
     std::string m_quicksave_name;
     std::vector<std::string> m_savegame_names;
 };
