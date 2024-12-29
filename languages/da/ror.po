@@ -3,51 +3,51 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# moloer kolm <samerxoxe86@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: Danish (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/da/)\n"
+"PO-Revision-Date: 2024-12-30 10:53+0000\n"
+"Last-Translator: moloer kolm <samerxoxe86@gmail.com>\n"
+"Language-Team: Danish <https://hosted.weblate.org/projects/rigs-of-rods/game/"
+"da/>\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.10-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
 msgid "Startup error"
-msgstr "Opstarts fejl"
+msgstr "Opstartsfejl"
 
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
-msgstr ""
+msgstr "Ingen renderingssystem-plugin tilgængelig. Kontrollér din plugins.cfg"
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgid "Screenshot Format:"
 msgid "Screenshot: "
-msgstr "Skærmbillede format:"
+msgstr "Skærmbillede: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Fejl under hentning af programmets bibliotekssti"
 
 #: AppContext.cpp:426
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Fejl under hentning af brugerens bibliotekssti"
 
 #: AppContext.cpp:477
 msgid "Resources folder not found. Check if correctly installed."
-msgstr ""
+msgstr "Ressource mappe ikke fundet. Kontrollér om den er korrekt installeret"
 
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
-msgstr ""
+msgstr "Defekt ressourcemappe. Kontrollér om den er korrekt installeret"
 
 #: Application.cpp:387
 #, fuzzy
@@ -64,261 +64,251 @@ msgid "Manual shift with auto clutch"
 msgstr "Manuel gearskift - automatisk kobling"
 
 #: Application.cpp:389
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr "Fuld manuelt gearskifte: gearstang med split"
+msgstr "Fuldt manuel: sekventiel gearskift"
 
 #: Application.cpp:390
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr "Fuld manuelt gearskifte: gearstang med split"
+msgstr "Fuldt manuel: gearstang"
 
 #: Application.cpp:391
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
-msgstr "Fuld manuelt gearskifte: gearstang med split"
+msgstr "Fuldt manuel: gearstang med gearområder"
 
 #: Application.cpp:400
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
-msgstr ""
+msgstr "Ingen (hurtigst)"
 
 #: Application.cpp:401
-#, fuzzy
-#| msgid "Light source effects:"
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr "Lys kilder effekter"
+msgstr "Ingen lyskilder"
 
 #: Application.cpp:402
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr ""
+msgstr "Kun nuværende køretøj, hovedlygter"
 
 #: Application.cpp:403
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
-msgstr ""
+msgstr "Alle køretøjer, hoved lys"
 
 #: Application.cpp:404
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
-msgstr ""
+msgstr "Alle køretøjer, alle lys"
 
 #: Application.cpp:413
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "Deaktiveret"
 
 #: Application.cpp:414
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "PSSM"
 
 #: Application.cpp:423
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
-msgstr ""
+msgstr "Sandstorm (hurtigst)"
 
 #: Application.cpp:424
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
-msgstr ""
+msgstr "Caelum (bedst udseende, langsommere)"
 
 #: Application.cpp:425
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
-msgstr ""
+msgstr "SkyX (bedst udseende, langsommere)"
 
 #: Application.cpp:434
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "Ingen"
 
 #: Application.cpp:435
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
-msgstr ""
+msgstr "Bilineær interpolation"
 
 #: Application.cpp:436
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
-msgstr ""
+msgstr "Trilineær interpolation"
 
 #: Application.cpp:437
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
-msgstr ""
+msgstr "Anisotropisk filtrering"
 
 #: Application.cpp:446
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "Ingen"
 
 #: Application.cpp:447
 msgctxt "GfxVegetation"
 msgid "20%"
-msgstr ""
+msgstr "20%"
 
 #: Application.cpp:448
 msgctxt "GfxVegetation"
 msgid "50%"
-msgstr ""
+msgstr "50%"
 
 #: Application.cpp:449
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "Fuld"
 
 #: Application.cpp:458
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "Ingen"
 
 #: Application.cpp:459
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
-msgstr ""
+msgstr "Grundlæggende (hurtigst)"
 
 #: Application.cpp:460
 msgctxt "GfxWaterMode"
 msgid "Reflection"
-msgstr ""
+msgstr "Afspejling"
 
 #: Application.cpp:461
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
-msgstr ""
+msgstr "Refleksion + refraktion (hastighedsoptimeret)"
 
 #: Application.cpp:462
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
-msgstr ""
+msgstr "Refleksion + refraktion (kvalitetsoptimeret)"
 
 #: Application.cpp:463
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr ""
+msgstr "HydraX"
 
 #: Application.cpp:472
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "Ingen"
 
 #: Application.cpp:473
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "Statisk"
 
 #: Application.cpp:474
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "Hældning"
 
 #: Application.cpp:483
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "Ingen"
 
 #: Application.cpp:484
 msgctxt "IoInputGrabMode"
 msgid "All"
-msgstr ""
+msgstr "alle"
 
 #: Application.cpp:485
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr ""
+msgstr "Dynamisk"
 
 #: Application.cpp:494
 msgctxt "SimResetMode"
 msgid "Hard"
-msgstr ""
+msgstr "Hård"
 
 #: Application.cpp:495
 msgctxt "SimResetMode"
 msgid "Soft"
-msgstr ""
+msgstr "Blød"
 
 #: GameContext.cpp:120
 msgid "Terrain not found: "
-msgstr "Bane ikke fundet: "
+msgstr "Terræn ikke fundet: "
 
 #: GameContext.cpp:122 GameContext.cpp:144
 msgid "Terrain loading error"
-msgstr "Bane indlæsnings fejl"
+msgstr "Fejl ved læsning af terræn"
 
 #: GameContext.cpp:658
 msgid "Please clear the place first"
-msgstr "Ryd området ført"
+msgstr "Ryd venligst stedet først"
 
 #: GameContext.cpp:762
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr ""
+msgstr "Standard skin '{}' for skuespiller '{}' blev ikke fundet!"
 
 #: GameContext.cpp:1036
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgid "Enabled hard reset mode"
-msgstr "Aktiver replay mode"
+msgstr "Aktiveret hård nulstillingstilstand"
 
 #: GameContext.cpp:1036
 msgid "Enabled soft reset mode"
-msgstr ""
+msgstr "Aktiveret blød nulstillingstilstand"
 
 #: GameContext.cpp:1230
 msgid "Time set to "
-msgstr ""
+msgstr "Tid indstillet til "
 
 #: GameContext.cpp:1417
 msgid "No rescue truck found!"
-msgstr ""
+msgstr "Ingen redningsvogn fundet!"
 
 #: GameContext.cpp:1493
 msgid "forwardcommands enabled"
-msgstr ""
+msgstr "fremadrettede kommandoer aktiveret"
 
 #: GameContext.cpp:1497
 msgid "forwardcommands disabled"
-msgstr ""
+msgstr "fremadrettede kommandoer deaktiveret"
 
 #: GameContext.cpp:1506
 msgid "importcommands enabled"
-msgstr ""
+msgstr "importkommandoer aktiveret"
 
 #: GameContext.cpp:1510
 msgid "importcommands disabled"
-msgstr ""
+msgstr "importkommandoer deaktiveret"
 
 #: gameplay/ChatSystem.cpp:56
 msgid " [whispered] "
-msgstr ""
+msgstr " [hviskede] "
 
 #: gameplay/EngineSim.cpp:1463
 msgid "Low range selected"
-msgstr "Lav område valgt"
+msgstr "Lavt rækkevidde valgt"
 
 #: gameplay/EngineSim.cpp:1469
 msgid "Mid range selected"
-msgstr "Mellem område valgt"
+msgstr "Mellem rækkevidde valgt"
 
 #: gameplay/EngineSim.cpp:1475
 msgid "High range selected"
-msgstr "Højt område valgt"
+msgstr "Høj rækkevidde valgt"
 
 #: gameplay/Landusemap.cpp:101
 msgid "Error while loading landuse config"
-msgstr ""
+msgstr "Fejl under indlæsning af landbrugskonfiguration"
 
 #: gfx/camera/CameraManager.cpp:302
 msgid "FOV: Limit reached"
-msgstr ""
+msgstr "FOV: Grænsen er nået"
 
 #: gfx/camera/CameraManager.cpp:314
 msgid "FOV: "
@@ -326,39 +316,39 @@ msgstr "FOV: "
 
 #: gfx/camera/CameraManager.cpp:384
 msgid "Free camera"
-msgstr ""
+msgstr "Frit kamera"
 
 #: gfx/camera/CameraManager.cpp:389
 msgid "Fixed camera"
-msgstr ""
+msgstr "Fastmonteret kamera"
 
 #: gfx/camera/CameraManager.cpp:870
 msgid "Limited camera movement enabled"
-msgstr ""
+msgstr "Begrænset kamerabevægelse aktiveret"
 
 #: gfx/camera/CameraManager.cpp:874
 msgid "Limited camera movement disabled"
-msgstr ""
+msgstr "Begrænset kamerabevægelse deaktiveret"
 
 #: gfx/camera/CameraManager.cpp:1158
 msgid "Auto tracking enabled"
-msgstr ""
+msgstr "Automatisk sporing aktiveret"
 
 #: gfx/camera/CameraManager.cpp:1162
 msgid "Auto tracking disabled"
-msgstr ""
+msgstr "Automatisk sporing deaktiveret"
 
 #: gui/GUIUtils.cpp:471
 msgid "Hold to confirm"
-msgstr ""
+msgstr "Hold nede for at bekræfte"
 
 #: gui/OverlayWrapper.cpp:428
 msgid "Current FPS: "
-msgstr "Current FPS: "
+msgstr "Nuværende FPS: "
 
 #: gui/OverlayWrapper.cpp:429
 msgid "Average FPS: "
-msgstr "Gennemsits FPS: "
+msgstr "Gennemsnitlig FPS: "
 
 #: gui/OverlayWrapper.cpp:430
 msgid "Best FPS: "
@@ -370,138 +360,118 @@ msgstr "Værste FPS: "
 
 #: gui/OverlayWrapper.cpp:432
 msgid "Triangle Count: "
-msgstr "Trekants tal "
+msgstr "Antal trekanter: "
 
 #: gui/OverlayWrapper.cpp:459
 msgid "Textures: "
-msgstr ""
+msgstr "Teksturer: "
 
 #: gui/OverlayWrapper.cpp:461
 msgid "Compositors: "
-msgstr ""
+msgstr "Komponister: "
 
 #: gui/OverlayWrapper.cpp:463
 msgid "Fonts: "
-msgstr ""
+msgstr "Skrifttyper: "
 
 #: gui/OverlayWrapper.cpp:465
 msgid "GPU Program: "
-msgstr ""
+msgstr "GPU-program: "
 
 #: gui/OverlayWrapper.cpp:467
 msgid "HL GPU Program: "
-msgstr ""
+msgstr "HL GPU-programmet: "
 
 #: gui/OverlayWrapper.cpp:469 gui/OverlayWrapper.cpp:475
 msgid "Materials: "
-msgstr ""
+msgstr "Materialer: "
 
 #: gui/OverlayWrapper.cpp:471
 msgid "Meshes: "
-msgstr ""
+msgstr "Meshes: "
 
 #: gui/OverlayWrapper.cpp:473
 msgid "Skeletons: "
-msgstr ""
+msgstr "Skeletter: "
 
 #: gui/OverlayWrapper.cpp:482
 msgid "Memory (Ogre): "
-msgstr ""
+msgstr "Hukommelse (Ogre): "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr "accelerer lastbilen"
+msgstr "Skalerer lastbilen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr "bind en last fast til lastbilen"
+msgstr "Henter navnet på lastbilen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "Henter navnet på lastbilfilen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "Henter navnet på den indlæste sektion for en lastbil"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr "bind en last fast til lastbilen"
+msgstr "Henter typen af lastbilen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "accelerer lastbilen"
+msgstr "Nulstiller lastbilen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
-#, fuzzy
-#| msgid "toggle parking brake"
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
-msgstr "Træk håndbremsen"
+msgstr "Tilkobler parkeringsbremsen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr "tænd/sluk lastbilens roterblink"
+msgstr "Tilkobler Tracktion kontrollen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
-#, fuzzy
-#| msgid "toggle parking brake"
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr "Træk håndbremsen"
+msgstr "Tilkobler de blokeringsfri bremser/Anti -lock bremser"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "AngelScript"
 msgid "Toggles the beacons"
-msgstr "tænd/sluk lastbilens roterblink"
+msgstr "Tilkobler lastbilens rotorblinkene"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr ""
+msgstr "Tilkobler de brugerdefinerede partikle"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr ""
+msgstr "Henter lastbilens samlede antal knudepunkter"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr "bind en last fast til lastbilen"
+msgstr "Henter lastbilens samlede masse"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the wheels of the truck"
-msgstr ""
+msgstr "Henter det samlede antal knudepunkter for lastbilens hjul"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Sets the mass of the truck"
-msgstr "bind en last fast til lastbilen"
+msgstr "Indstiller lastbilens vægt"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
@@ -627,11 +597,9 @@ msgid "Logfile echo"
 msgstr ""
 
 #: gui/panels/GUI_ConsoleView.cpp:251
-#, fuzzy
-#| msgid "Description: "
 msgctxt "Console"
 msgid "Scripting"
-msgstr "Forklaring: "
+msgstr "Scripting"
 
 #: gui/panels/GUI_ConsoleView.cpp:252
 msgctxt "Console"
@@ -697,11 +665,9 @@ msgstr "Forklaring: "
 
 #. reset to auto-fit
 #: gui/panels/GUI_ConsoleWindow.cpp:96
-#, fuzzy
-#| msgid "Description: "
 msgctxt "Console"
 msgid "Script Monitor"
-msgstr "Forklaring: "
+msgstr "Script Monitor"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:114
 #, fuzzy
@@ -1707,37 +1673,37 @@ msgstr ""
 #: gui/panels/GUI_GameSettings.cpp:428
 msgctxt "GameSettings"
 msgid "Invert orbit camera"
-msgstr ""
+msgstr "Omvendt kredsløbskamera"
 
 #: gui/panels/GUI_GameSettings.cpp:430
 msgctxt "GameSettings"
 msgid "Enable ForceFeedback"
-msgstr ""
+msgstr "Aktivér ForceFeedback"
 
 #: gui/panels/GUI_GameSettings.cpp:434
 msgctxt "GameSettings"
 msgid "FFB camera gain"
-msgstr ""
+msgstr "FFB-kameraets forstærkning"
 
 #: gui/panels/GUI_GameSettings.cpp:435
 msgctxt "GameSettings"
 msgid "FFB center gain"
-msgstr ""
+msgstr "FFB centerforstærkning"
 
 #: gui/panels/GUI_GameSettings.cpp:436
 msgctxt "GameSettings"
 msgid "FFB master gain"
-msgstr ""
+msgstr "FFB master forstærkning"
 
 #: gui/panels/GUI_GameSettings.cpp:437
 msgctxt "GameSettings"
 msgid "FFB stress gain"
-msgstr ""
+msgstr "FFB-stressforøgelse"
 
 #: gui/panels/GUI_GameSettings.cpp:441
 msgctxt "GameSettings"
 msgid "Enable OutGauge protocol"
-msgstr ""
+msgstr "Aktivér OutGauge-protokollen"
 
 #: gui/panels/GUI_GameSettings.cpp:444
 msgctxt "GameSettings"
@@ -1780,11 +1746,9 @@ msgid "Author(s): "
 msgstr ""
 
 #: gui/panels/GUI_MainSelector.cpp:305
-#, fuzzy
-#| msgid "Vegetation:"
 msgctxt "MainSelector"
 msgid "Version: "
-msgstr "Planter:"
+msgstr "Version: "
 
 #: gui/panels/GUI_MainSelector.cpp:308
 #, fuzzy
@@ -1835,11 +1799,9 @@ msgid "SoundSources: "
 msgstr ""
 
 #: gui/panels/GUI_MainSelector.cpp:332
-#, fuzzy
-#| msgid "Commands: "
 msgctxt "MainSelector"
 msgid "Commands: "
-msgstr "Kommando"
+msgstr "Kommandoer: "
 
 #: gui/panels/GUI_MainSelector.cpp:333
 msgctxt "MainSelector"
@@ -1873,7 +1835,7 @@ msgstr ""
 #| msgid "Warning"
 msgctxt "MainSelector"
 msgid "Wings: "
-msgstr "Advarsel"
+msgstr "Advarsel "
 
 #: gui/panels/GUI_MainSelector.cpp:341
 msgctxt "MainSelector"
@@ -1891,11 +1853,9 @@ msgid "Yes"
 msgstr ""
 
 #: gui/panels/GUI_MainSelector.cpp:347
-#, fuzzy
-#| msgid "Default Skin"
 msgctxt "MainSelector"
 msgid "Default skin: "
-msgstr "Normalt skin"
+msgstr "Standard-skin: "
 
 #: gui/panels/GUI_MainSelector.cpp:351
 #, fuzzy
@@ -1985,11 +1945,9 @@ msgid "[zip archive]"
 msgstr ""
 
 #: gui/panels/GUI_MainSelector.cpp:377
-#, fuzzy
-#| msgid "loading new directory: "
 msgctxt "MainSelector"
 msgid "[unpacked in directory]"
-msgstr "Loader ny mappe: "
+msgstr "[udpakket i bibliotek]"
 
 #: gui/panels/GUI_MainSelector.cpp:381
 msgctxt "MainSelector"
@@ -2042,11 +2000,9 @@ msgid "user uid"
 msgstr ""
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:158
-#, fuzzy
-#| msgid "Language:"
 msgctxt "MultiplayerClientList"
 msgid "user language: "
-msgstr "Sprog"
+msgstr "brugerens sprog: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:162
 msgctxt "MultiplayerClientList"
@@ -2268,11 +2224,9 @@ msgid "Shocks:"
 msgstr ""
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:76
-#, fuzzy
-#| msgid "Wheels: "
 msgctxt "NodeBeamUtils"
 msgid "Wheels:"
-msgstr "Hjul "
+msgstr "Hjul:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:87
 #, fuzzy
@@ -2409,11 +2363,9 @@ msgid "Rating"
 msgstr ""
 
 #: gui/panels/GUI_RepositorySelector.cpp:517
-#, fuzzy
-#| msgid "Triangle Count: "
 msgctxt "RepositorySelector"
 msgid "Rating Count"
-msgstr "Trekants tal "
+msgstr "Antal vurderinger"
 
 #: gui/panels/GUI_RepositorySelector.cpp:529
 msgctxt "RepositorySelector"
@@ -2461,11 +2413,9 @@ msgid "Category:"
 msgstr ""
 
 #: gui/panels/GUI_RepositorySelector.cpp:600
-#, fuzzy
-#| msgid "Description: "
 msgctxt "RepositorySelector"
 msgid "Description:"
-msgstr "Forklaring: "
+msgstr "Beskrivelse:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:606
 msgctxt "RepositorySelector"
@@ -2473,11 +2423,9 @@ msgid "Downloads:"
 msgstr ""
 
 #: gui/panels/GUI_RepositorySelector.cpp:612
-#, fuzzy
-#| msgid "Triangle Count: "
 msgctxt "RepositorySelector"
 msgid "View Count:"
-msgstr "Trekants tal "
+msgstr "Antal visninger:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:618
 msgctxt "RepositorySelector"
@@ -2485,11 +2433,9 @@ msgid "Rating:"
 msgstr ""
 
 #: gui/panels/GUI_RepositorySelector.cpp:624
-#, fuzzy
-#| msgid "Triangle Count: "
 msgctxt "RepositorySelector"
 msgid "Rating Count:"
-msgstr "Trekants tal "
+msgstr "Antal vurderinger:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:630
 msgctxt "RepositorySelector"
@@ -2553,11 +2499,9 @@ msgstr ""
 
 #: gui/panels/GUI_RepositorySelector.cpp:797
 #: gui/panels/GUI_RepositorySelector.cpp:1026
-#, fuzzy
-#| msgid "Vegetation:"
 msgctxt "RepositorySelector"
 msgid "Version"
-msgstr "Planter:"
+msgstr "Version"
 
 #. Authors, rating count, last update, download count, description
 #: gui/panels/GUI_RepositorySelector.cpp:911
@@ -2566,11 +2510,9 @@ msgid "Authors"
 msgstr ""
 
 #: gui/panels/GUI_RepositorySelector.cpp:932
-#, fuzzy
-#| msgid "Description: "
 msgctxt "RepositorySelector"
 msgid "Description"
-msgstr "Forklaring: "
+msgstr "Beskrivelse"
 
 #: gui/panels/GUI_RepositorySelector.cpp:1033
 msgctxt "RepositorySelector"
@@ -2838,11 +2780,9 @@ msgid "Simulation"
 msgstr "Konfigurations fejl"
 
 #: gui/panels/GUI_TopMenubar.cpp:139
-#, fuzzy
-#| msgid "Vehicle Type: "
 msgctxt "TopMenubar"
 msgid "Vehicles"
-msgstr "Køretøjs type: "
+msgstr "Køretøjer"
 
 #: gui/panels/GUI_TopMenubar.cpp:140
 msgctxt "TopMenubar"
@@ -2860,11 +2800,9 @@ msgid "Tools"
 msgstr ""
 
 #: gui/panels/GUI_TopMenubar.cpp:143
-#, fuzzy
-#| msgid "Vehicle Type: "
 msgctxt "TopMenubar"
 msgid "Vehicle AI"
-msgstr "Køretøjs type: "
+msgstr "AI til køretøjer"
 
 #: gui/panels/GUI_TopMenubar.cpp:144
 msgctxt "TopMenubar"
@@ -3042,11 +2980,9 @@ msgstr ""
 
 #: gui/panels/GUI_TopMenubar.cpp:567 gui/panels/GUI_TopMenubar.cpp:577
 #: gui/panels/GUI_TopMenubar.cpp:585
-#, fuzzy
-#| msgid "FOV: "
 msgctxt "TopMenubar"
 msgid "FOV"
-msgstr "FOV: "
+msgstr "FOV"
 
 #: gui/panels/GUI_TopMenubar.cpp:568
 msgctxt "TopMenubar"
@@ -3197,11 +3133,9 @@ msgid "Visual marker of VideoCameras direction"
 msgstr ""
 
 #: gui/panels/GUI_TopMenubar.cpp:759
-#, fuzzy
-#| msgid "Vehicle Type: "
 msgctxt "TopMenubar"
 msgid "Visual options:"
-msgstr "Køretøjs type: "
+msgstr "Visual options:"
 
 #: gui/panels/GUI_TopMenubar.cpp:760
 msgctxt "TopMenubar"
@@ -3325,11 +3259,9 @@ msgid "General options:"
 msgstr ""
 
 #: gui/panels/GUI_TopMenubar.cpp:860
-#, fuzzy
-#| msgid "Vehicle Type: "
 msgctxt "TopMenubar"
 msgid "Vehicle count"
-msgstr "Køretøjs type: "
+msgstr "Antal køretøjer"
 
 #: gui/panels/GUI_TopMenubar.cpp:864
 msgctxt "TopMenubar"
@@ -3374,11 +3306,9 @@ msgid "How many times to loop the path"
 msgstr ""
 
 #: gui/panels/GUI_TopMenubar.cpp:974
-#, fuzzy
-#| msgid "Vehicle Type: "
 msgctxt "TopMenubar"
 msgid "Vehicle options:"
-msgstr "Køretøjs type: "
+msgstr "Køretøjets muligheder:"
 
 #: gui/panels/GUI_TopMenubar.cpp:1083
 msgctxt "TopMenubar"
@@ -3587,18 +3517,14 @@ msgid "Props ({})"
 msgstr ""
 
 #: gui/panels/GUI_TopMenubar.cpp:1685
-#, fuzzy
-#| msgid "Nodes: "
 msgctxt "Tuning"
 msgid "Flexbodies ({})"
-msgstr "Noder: "
+msgstr "Fleksible kroppe ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1716
-#, fuzzy
-#| msgid "Wheels: "
 msgctxt "TopMenubar"
 msgid "Wheels ({})"
-msgstr "Hjul "
+msgstr "Hjul ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1939
 msgctxt "TopMenubar"
@@ -3781,11 +3707,9 @@ msgid "Commands"
 msgstr "Kommando"
 
 #: gui/panels/GUI_VehicleDescription.cpp:66
-#, fuzzy
-#| msgid "Description: "
 msgctxt "VehicleDescription"
 msgid "Description"
-msgstr "Forklaring: "
+msgstr "Beskrivelse"
 
 #: gui/panels/GUI_VehicleDescription.cpp:74
 #, fuzzy
@@ -3805,11 +3729,9 @@ msgid "Authors"
 msgstr ""
 
 #: gui/panels/GUI_VehicleDescription.cpp:120
-#, fuzzy
-#| msgid "no author information available"
 msgctxt "VehicleDescription"
 msgid "(no author information available) "
-msgstr "Ingen forfatter information tilgængelig"
+msgstr "(ingen oplysninger om forfatter tilgængelig) "
 
 #: main.cpp:365
 msgid "Display mode changed to fullscreen"
@@ -4225,7 +4147,7 @@ msgstr ""
 
 #: resources/CacheSystem.cpp:1054
 msgid "Loading zips in group "
-msgstr "Henter zip-filer i gruppe "
+msgstr "Indlæser zip-filer i gruppe "
 
 #: resources/CacheSystem.cpp:1251
 msgid "Failed to load asset pack '{}' (requested by '{}'): {}"
@@ -4603,10 +4525,8 @@ msgid "- use Arrow Up/Down Keys in the InputBox to reuse old messages"
 msgstr ""
 
 #: system/ConsoleCmd.cpp:399
-#, fuzzy
-#| msgid "Description: "
 msgid "Runs an AngelScript file"
-msgstr "Forklaring: "
+msgstr "Kører en AngelScript-fil"
 
 #: system/ConsoleCmd.cpp:419
 msgid ""
@@ -6335,14 +6255,12 @@ msgstr "Kommando 48"
 #| msgid "Command 4"
 msgctxt "InputEvent"
 msgid "Command 49"
-msgstr "Kommando 4"
+msgstr "Kommando 49"
 
 #: utils/InputEngine.cpp:290
-#, fuzzy
-#| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 50"
-msgstr "Kommando 5"
+msgstr "Kommando 50"
 
 #: utils/InputEngine.cpp:291
 #, fuzzy
@@ -6569,61 +6487,45 @@ msgid "Command 82"
 msgstr "Kommando 8"
 
 #: utils/InputEngine.cpp:323
-#, fuzzy
-#| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 83"
-msgstr "Kommando 8"
+msgstr "Kommando 83"
 
 #: utils/InputEngine.cpp:324
-#, fuzzy
-#| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 84"
-msgstr "Kommando 8"
+msgstr "Kommando 84"
 
 #. Character
 #: utils/InputEngine.cpp:327
-#, fuzzy
-#| msgid "step backwards with the character"
 msgctxt "InputEvent"
 msgid "step backwards with the character"
-msgstr "Træd tilbage med karakteren"
+msgstr "Træd bagud med karakteren"
 
 #: utils/InputEngine.cpp:328
-#, fuzzy
-#| msgid "step forward with the character"
 msgctxt "InputEvent"
 msgid "step forward with the character"
-msgstr "træd frem med karkateren"
+msgstr "træd fremad med karakteren"
 
 #: utils/InputEngine.cpp:329
-#, fuzzy
-#| msgid "let the character jump"
 msgctxt "InputEvent"
 msgid "let the character jump"
-msgstr "Lad karkateren hoppe"
+msgstr "Lad karakteren hoppe"
 
 #: utils/InputEngine.cpp:330
-#, fuzzy
-#| msgid "rotate character left"
 msgctxt "InputEvent"
 msgid "rotate character left"
-msgstr "roter karakter til venstre"
+msgstr "Drej karakteren til venstre"
 
 #: utils/InputEngine.cpp:331
-#, fuzzy
-#| msgid "rotate character right"
 msgctxt "InputEvent"
 msgid "rotate character right"
-msgstr "Roter karakter til højre"
+msgstr "Drej karakteren til højre"
 
 #: utils/InputEngine.cpp:332
-#, fuzzy
-#| msgid "let the character run"
 msgctxt "InputEvent"
 msgid "let the character run"
-msgstr "Lader karakteren løbe"
+msgstr "Lad karakteren løbe"
 
 #: utils/InputEngine.cpp:333
 #, fuzzy
@@ -6732,11 +6634,9 @@ msgid "zoom camera out faster"
 msgstr "Zoom kamera hurtigere ud"
 
 #: utils/InputEngine.cpp:350
-#, fuzzy
-#| msgid "fix the camera to a position"
 msgctxt "InputEvent"
 msgid "fix the camera to a position"
-msgstr "Fikser kameraet til en position"
+msgstr "Lås kameraet på en position"
 
 #: utils/InputEngine.cpp:351
 #, fuzzy
