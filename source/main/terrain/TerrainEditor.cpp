@@ -265,20 +265,34 @@ void TerrainEditor::WriteOutputFile()
         // Dump original elements and rebuild them from live data.
         TObjDocumentPtr tobj = terrain->getObjectManager()->GetTobjCache()[i];
         tobj->objects.clear();
+        tobj->vehicles.clear();
         for (TerrainEditorObjectPtr& src : terrain->getObjectManager()->GetEditorObjects())
         {
             if (src->tobj_cache_id == i)
             {
-                TObjEntry dst;
-                strncpy(dst.odef_name, src->name.c_str(), TObj::STR_LEN);
-                strncpy(dst.instance_name, src->instance_name.c_str(), TObj::STR_LEN);
-                strncpy(dst.type, src->type.c_str(), TObj::STR_LEN);
-                // TBD: reconstruct 'set_default_rendering_distance'.
-                dst.position = src->position;
-                dst.rotation = src->rotation;
-                dst.comments = src->tobj_comments;
+                if (src->special_object_type == TObjSpecialObject::NONE)
+                {
+                    TObjEntry dst;
+                    strncpy(dst.odef_name, src->name.c_str(), TObj::STR_LEN);
+                    strncpy(dst.instance_name, src->instance_name.c_str(), TObj::STR_LEN);
+                    strncpy(dst.type, src->type.c_str(), TObj::STR_LEN);
+                    // TBD: reconstruct 'set_default_rendering_distance'.
+                    dst.position = src->position;
+                    dst.rotation = src->rotation;
+                    dst.comments = src->tobj_comments;
 
-                tobj->objects.push_back(dst);
+                    tobj->objects.push_back(dst);
+                }
+                else
+                {
+                    TObjVehicle dst;
+                    strncpy(dst.name, src->name.c_str(), TObj::STR_LEN);
+                    dst.position = src->position;
+                    dst.tobj_rotation = src->rotation;
+                    dst.type = src->special_object_type;
+
+                    tobj->vehicles.push_back(dst);
+                }
             }
         }
 
@@ -342,4 +356,14 @@ std::string const& TerrainEditorObject::getInstanceName()
 std::string const& TerrainEditorObject::getType()
 {
     return type;
+}
+
+TObjSpecialObject TerrainEditorObject::getSpecialObjectType()
+{
+    return special_object_type;
+}
+
+void TerrainEditorObject::setSpecialObjectType(TObjSpecialObject type)
+{
+    special_object_type = type;
 }

@@ -631,4 +631,24 @@ const char* MsgTypeToString(MsgType type)
     }
 }
 
+const char* TObjSpecialObjectToString(TObjSpecialObject val)
+{
+    switch (val)
+    {
+    case TObjSpecialObject::TRUCK: return "truck";
+    case TObjSpecialObject::LOAD: return "load";
+    case TObjSpecialObject::MACHINE: return "machine";
+    case TObjSpecialObject::BOAT: return "boat";
+    case TObjSpecialObject::TRUCK2: return "truck2";
+    case TObjSpecialObject::GRID: return "grid";
+    case TObjSpecialObject::ROAD: return "road";
+    case TObjSpecialObject::ROAD_BORDER_LEFT: return "roadborderleft";
+    case TObjSpecialObject::ROAD_BORDER_RIGHT: return "roadborderright";
+    case TObjSpecialObject::ROAD_BORDER_BOTH: return "roadborderboth";
+    case TObjSpecialObject::ROAD_BRIDGE_NO_PILLARS: return "roadbridgenopillar";
+    case TObjSpecialObject::ROAD_BRIDGE: return "roadbridge";
+    default: return "";
+    }
+}
+
 } // namespace RoR

@@ -306,6 +306,28 @@ enum LoaderType //!< Search mode for `ModCache::Query()` & Operation mode for `G
     LT_AssetPack, // No script alias, invoked manually, ext: assetpack
 };
 
+enum class TObjSpecialObject
+{
+    // Exported to AngelScript:
+    NONE,
+    TRUCK,
+    LOAD,
+    MACHINE,
+    BOAT,
+    TRUCK2, //!< Free position (not auto-adjusted to fit terrain or water surface)
+
+    // Not exported to AngelScript:
+    GRID,
+    // Road types
+    ROAD,
+    ROAD_BORDER_LEFT,
+    ROAD_BORDER_RIGHT,
+    ROAD_BORDER_BOTH,
+    ROAD_BRIDGE_NO_PILLARS,
+    ROAD_BRIDGE,
+};
+const char* TObjSpecialObjectToString(TObjSpecialObject val);
+
 // ------------------------------------------------------------------------------------------------
 // Global variables
 // ------------------------------------------------------------------------------------------------
