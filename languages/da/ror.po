@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2024-12-30 10:53+0000\n"
+"PO-Revision-Date: 2024-12-30 12:15+0000\n"
 "Last-Translator: moloer kolm <samerxoxe86@gmail.com>\n"
 "Language-Team: Danish <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "da/>\n"
@@ -657,11 +657,9 @@ msgid "Filter options"
 msgstr ""
 
 #: gui/panels/GUI_ConsoleWindow.cpp:81
-#, fuzzy
-#| msgid "Description: "
 msgctxt "Console"
 msgid "AngelScript"
-msgstr "Forklaring: "
+msgstr "AngelScript"
 
 #. reset to auto-fit
 #: gui/panels/GUI_ConsoleWindow.cpp:96
@@ -3484,11 +3482,9 @@ msgid "Cancel"
 msgstr "Annuller"
 
 #: gui/panels/GUI_TopMenubar.cpp:1541
-#, fuzzy
-#| msgid "Save and Play"
 msgctxt "Tuning"
 msgid "Save as..."
-msgstr "Gem og Spil"
+msgstr "Gem som"
 
 #: gui/panels/GUI_TopMenubar.cpp:1551 gui/panels/GUI_TopMenubar.cpp:1755
 #: gui/panels/GUI_TopMenubar.cpp:2365
@@ -4692,10 +4688,8 @@ msgstr ""
 
 #. sync load since we want everything in place when we start
 #: terrain/TerrainGeometryManager.cpp:328
-#, fuzzy
-#| msgid "Loading Terrain"
 msgid "Loading terrain pages ..."
-msgstr "Loader terræn"
+msgstr "indlæser terræn sider"
 
 #: terrain/TerrainGeometryManager.cpp:375
 msgid "Saving all terrain pages ..."
@@ -5725,18 +5719,14 @@ msgid "pull the elevator down in an aircraft."
 msgstr "Træk højderor ned på et fly."
 
 #: utils/InputEngine.cpp:206
-#, fuzzy
-#| msgid "pull the elevator up in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator up in an aircraft."
-msgstr "træk højderoret op på flyet"
+msgstr "Træk elevatoren op i flyet"
 
 #: utils/InputEngine.cpp:207
-#, fuzzy
-#| msgid "full flaps in an aircraft."
 msgctxt "InputEvent"
 msgid "full flaps in an aircraft."
-msgstr "Fuld flaps i et fly"
+msgstr "Fuldt flaps i et fly"
 
 #: utils/InputEngine.cpp:208
 #, fuzzy
