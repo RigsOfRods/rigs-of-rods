@@ -2913,12 +2913,6 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
     particle.snode->attachObject(particle.psys);
     particle.snode->setPosition(m_actor->ar_nodes[particle.emitterNode].AbsPosition);
 
-    /* Shut down the emitters */
-    for (unsigned int i = 0; i < particle.psys->getNumEmitters(); i++)
-    {
-        particle.psys->getEmitter(i)->setEnabled(false);
-    }
-
     m_actor->m_gfx_actor->m_cparticles.push_back(particle);
 }
 
@@ -7277,6 +7271,13 @@ Ogre::ParticleSystem* ActorSpawner::CreateParticleSystem(std::string const & nam
        name, Ogre::ParticleSystemFactory::FACTORY_TYPE_NAME, &params);
     Ogre::ParticleSystem* psys = static_cast<Ogre::ParticleSystem*>(obj);
     psys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
+
+    // Shut down the emitters
+    for (size_t i = 0; i < psys->getNumEmitters(); i++)
+    {
+        psys->getEmitter(i)->setEnabled(false);
+    }
+
     return psys;
 }
 
