@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2024-12-30 12:15+0000\n"
+"PO-Revision-Date: 2024-12-31 01:00+0000\n"
 "Last-Translator: moloer kolm <samerxoxe86@gmail.com>\n"
 "Language-Team: Danish <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "da/>\n"
@@ -638,11 +638,9 @@ msgid "Errors"
 msgstr "Spejle"
 
 #: gui/panels/GUI_ConsoleView.cpp:260
-#, fuzzy
-#| msgid "enter the chat"
 msgctxt "Console"
 msgid "Net chat"
-msgstr "Gå ind i chat"
+msgstr "Net chat"
 
 #: gui/panels/GUI_ConsoleView.cpp:261 gui/panels/GUI_ConsoleWindow.cpp:55
 #, fuzzy
@@ -6665,18 +6663,14 @@ msgid "decrease day-time a lot faster"
 msgstr "sænk tidspunkt på dagen meget hurtigere"
 
 #: utils/InputEngine.cpp:358
-#, fuzzy
-#| msgid "increase day-time"
 msgctxt "InputEvent"
 msgid "increase day-time"
-msgstr "øg tidspunkt på dagen"
+msgstr "Forlæng dagtimerne"
 
 #: utils/InputEngine.cpp:359
-#, fuzzy
-#| msgid "increase day-time a lot faster"
 msgctxt "InputEvent"
 msgid "increase day-time a lot faster"
-msgstr "Øg tidspunkt på dagen meget hurtigere"
+msgstr "Gør dagtiden meget hurtigere"
 
 #. Grass
 #: utils/InputEngine.cpp:362
