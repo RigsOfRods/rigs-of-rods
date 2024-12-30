@@ -7,13 +7,14 @@
 # Michał Mańk <michal.090506@gmail.com>, 2023.
 # Crystal Hammer <cryham@gmail.com>, 2023.
 # Michał Domaradzki <michu97736@wp.pl>, 2024.
+# 987 <antoniosawickips4@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2024-10-05 01:15+0000\n"
-"Last-Translator: Michał Domaradzki <michu97736@wp.pl>\n"
+"PO-Revision-Date: 2024-12-30 10:53+0000\n"
+"Last-Translator: 987 <antoniosawickips4@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "pl/>\n"
 "Language: pl\n"
@@ -23,7 +24,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && ("
 "n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
 "n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
-"X-Generator: Weblate 5.8-dev\n"
+"X-Generator: Weblate 5.10-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -407,18 +408,14 @@ msgid "Memory (Ogre): "
 msgstr "Pamięć (Ogre): "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr "przyśpiesz pojazd"
+msgstr "Zeskaluj pojazd"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr "przywiąż ładunek do ciężarówki"
+msgstr "Bierze imię ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
@@ -431,25 +428,19 @@ msgid "Gets the name of the loaded section for a truck"
 msgstr "Uzyskuje nazwę załadowanej sekcji dla ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr "przywiąż ładunek do ciężarówki"
+msgstr "Bierze typ ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "przyśpiesz pojazd"
+msgstr "Zresetuj pojazd"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
-#, fuzzy
-#| msgid "toggle parking brake"
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
-msgstr "wł./wył. hamulec postojowy"
+msgstr "wł./wył. hamulec ręczny"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
 #, fuzzy
@@ -473,11 +464,9 @@ msgid "Toggles the beacons"
 msgstr "wł./wył. światła ostrzegawcze"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
-#, fuzzy
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr "[używa własnych cząsteczek]"
+msgstr "Włącza własne cząsteczki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
@@ -485,11 +474,9 @@ msgid "Gets the total amount of nodes of the truck"
 msgstr "Uzyskuje całkowitą ilość węzłów ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr "przywiąż ładunek do ciężarówki"
+msgstr "Bierze całkowitą masę ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
@@ -497,11 +484,9 @@ msgid "Gets the total amount of nodes of the wheels of the truck"
 msgstr "Uzyskuje całkowitą ilość węzłów kół ciężarówki"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Sets the mass of the truck"
-msgstr "przywiąż ładunek do ciężarówki"
+msgstr "Nadaje masę ciężarówce"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
