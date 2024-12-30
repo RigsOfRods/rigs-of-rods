@@ -3,20 +3,22 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# moloer kolm <samerxoxe86@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2018-12-15 12:09+0000\n"
-"Last-Translator: Hiradur\n"
-"Language-Team: Swedish (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/sv/)\n"
+"PO-Revision-Date: 2024-12-30 12:16+0000\n"
+"Last-Translator: moloer kolm <samerxoxe86@gmail.com>\n"
+"Language-Team: Swedish <https://hosted.weblate.org/projects/rigs-of-rods/"
+"game/sv/>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.10-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -24,22 +26,23 @@ msgid "Startup error"
 msgstr "Uppstartsfel"
 
 #: AppContext.cpp:270
+#, fuzzy
 msgid "No render system plugin available. Check your plugins.cfg"
-msgstr ""
+msgstr "Ingen renderingssystem-plugin tilgængelig. Kontrollér din plugins.cfg"
 
 #: AppContext.cpp:378
-#, fuzzy
-#| msgid "Screenshot Format:"
 msgid "Screenshot: "
-msgstr "Skärmdumpsformat:"
+msgstr "Skärmdumpsformat: "
 
 #: AppContext.cpp:408
+#, fuzzy
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "Fejl under hentning af programmets bibliotekssti"
 
 #: AppContext.cpp:426
+#, fuzzy
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "Fejl under hentning af brugerens bibliotekssti"
 
 #: AppContext.cpp:477
 msgid "Resources folder not found. Check if correctly installed."
@@ -47,241 +50,207 @@ msgstr ""
 "Resursmapp inte funnen. Vänligen kontrollera att den är korrekt installerad."
 
 #: AppContext.cpp:491 AppContext.cpp:502
+#, fuzzy
 msgid "Faulty resource folder. Check if correctly installed."
-msgstr ""
+msgstr "Defekt ressourcemappe. Kontrollér om den er korrekt installeret"
 
 #: Application.cpp:387
-#, fuzzy
-#| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
 msgstr "Automatisk växling"
 
 #: Application.cpp:388
-#, fuzzy
-#| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
 msgstr "Manuell växel - Automatisk koppling"
 
 #: Application.cpp:389
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
 msgstr "Helt manuell: Sekventiell växling"
 
 #: Application.cpp:390
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
 msgstr "Helt manuell: Sekventiell växling"
 
 #: Application.cpp:391
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
 msgstr "Helt manuellt: växling med växelspak med rangerväxling"
 
 #: Application.cpp:400
-#, fuzzy
-#| msgid "None (fastest)"
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
 msgstr "Ingen (snabbast)"
 
 #: Application.cpp:401
-#, fuzzy
-#| msgid "No light sources"
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
 msgstr "Inga ljuskällor"
 
 #: Application.cpp:402
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
 msgstr "Alla fordon, huvud lysen"
 
 #: Application.cpp:403
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
 msgstr "Alla fordon, huvud lysen"
 
 #: Application.cpp:404
-#, fuzzy
-#| msgid "All vehicles, all lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
 msgstr "Alla fordon, all belysning"
 
 #: Application.cpp:413
+#, fuzzy
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "Deaktiveret"
 
 #: Application.cpp:414
+#, fuzzy
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "PSSM"
 
 #: Application.cpp:423
-#, fuzzy
-#| msgid "Sandstorm (fastest)"
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
 msgstr "sandstorm (snabbast)"
 
 #: Application.cpp:424
-#, fuzzy
-#| msgid "Caelum (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
 msgstr "Caelum (ser bäst ut, långsammare)"
 
 #: Application.cpp:425
-#, fuzzy
-#| msgid "Full (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
 msgstr "Allt (Ser bäst ut, långsammare)"
 
 #: Application.cpp:434
+#, fuzzy
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "Ingen"
 
 #: Application.cpp:435
-#, fuzzy
-#| msgid "Bilinear"
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
 msgstr "Bilinjär"
 
 #: Application.cpp:436
-#, fuzzy
-#| msgid "Trilinear"
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
 msgstr "Trilinear"
 
 #: Application.cpp:437
-#, fuzzy
-#| msgid "Drag anisotropy"
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
 msgstr "Dra anisotropy"
 
 #: Application.cpp:446
+#, fuzzy
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "Ingen"
 
 #: Application.cpp:447
-#, fuzzy
-#| msgid "20%"
 msgctxt "GfxVegetation"
 msgid "20%"
 msgstr "20%"
 
 #: Application.cpp:448
-#, fuzzy
-#| msgid "50%"
 msgctxt "GfxVegetation"
 msgid "50%"
 msgstr "50%"
 
 #: Application.cpp:449
+#, fuzzy
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "Fuld"
 
 #: Application.cpp:458
+#, fuzzy
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "Ingen"
 
 #: Application.cpp:459
-#, fuzzy
-#| msgid "Basic (fastest)"
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
 msgstr "Basic (snabbaste)"
 
 #: Application.cpp:460
-#, fuzzy
-#| msgid "Reflection"
 msgctxt "GfxWaterMode"
 msgid "Reflection"
 msgstr "Reflektion"
 
 #: Application.cpp:461
-#, fuzzy
-#| msgid "Reflection + refraction (speed optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
 msgstr "Reflektion + refraktion (hastighetsoptimering)"
 
 #: Application.cpp:462
-#, fuzzy
-#| msgid "Reflection + refraction (quality optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
 msgstr "Reflektion + refraktion (kvalité optimerad)"
 
 #: Application.cpp:463
+#, fuzzy
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr ""
+msgstr "HydraX"
 
 #: Application.cpp:472
+#, fuzzy
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "Ingen"
 
 #: Application.cpp:473
+#, fuzzy
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "Statisk"
 
 #: Application.cpp:474
+#, fuzzy
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "Hældning"
 
 #: Application.cpp:483
+#, fuzzy
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "Ingen"
 
 #: Application.cpp:484
-#, fuzzy
-#| msgid "All"
 msgctxt "IoInputGrabMode"
 msgid "All"
 msgstr "Alla"
 
 #: Application.cpp:485
-#, fuzzy
-#| msgid "Dynamically"
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
 msgstr "Dynamiskt"
 
 #: Application.cpp:494
+#, fuzzy
 msgctxt "SimResetMode"
 msgid "Hard"
-msgstr ""
+msgstr "Hård"
 
 #: Application.cpp:495
+#, fuzzy
 msgctxt "SimResetMode"
 msgid "Soft"
-msgstr ""
+msgstr "Blød"
 
 #: GameContext.cpp:120
 msgid "Terrain not found: "
@@ -296,18 +265,18 @@ msgid "Please clear the place first"
 msgstr "Var god röj undan platsen först"
 
 #: GameContext.cpp:762
+#, fuzzy
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr ""
+msgstr "Standard skin '{}' for skuespiller '{}' blev ikke fundet!"
 
 #: GameContext.cpp:1036
-#, fuzzy
-#| msgid "enable or disable replay mode"
 msgid "Enabled hard reset mode"
 msgstr "Aktivera eller inaktivera återvisningsläget"
 
 #: GameContext.cpp:1036
+#, fuzzy
 msgid "Enabled soft reset mode"
-msgstr ""
+msgstr "Aktiveret blød nulstillingstilstand"
 
 #: GameContext.cpp:1230
 msgid "Time set to "
@@ -318,20 +287,24 @@ msgid "No rescue truck found!"
 msgstr "Ingen räddningsbil funnen!"
 
 #: GameContext.cpp:1493
+#, fuzzy
 msgid "forwardcommands enabled"
-msgstr ""
+msgstr "fremadrettede kommandoer aktiveret"
 
 #: GameContext.cpp:1497
+#, fuzzy
 msgid "forwardcommands disabled"
-msgstr ""
+msgstr "fremadrettede kommandoer deaktiveret"
 
 #: GameContext.cpp:1506
+#, fuzzy
 msgid "importcommands enabled"
-msgstr ""
+msgstr "importkommandoer aktiveret"
 
 #: GameContext.cpp:1510
+#, fuzzy
 msgid "importcommands disabled"
-msgstr ""
+msgstr "importkommandoer deaktiveret"
 
 #: gameplay/ChatSystem.cpp:56
 msgid " [whispered] "
@@ -354,40 +327,48 @@ msgid "Error while loading landuse config"
 msgstr "Fel vid laddning av landuse konfiguration"
 
 #: gfx/camera/CameraManager.cpp:302
+#, fuzzy
 msgid "FOV: Limit reached"
-msgstr ""
+msgstr "FOV: Grænsen er nået"
 
 #: gfx/camera/CameraManager.cpp:314
 msgid "FOV: "
 msgstr "Synfält: "
 
 #: gfx/camera/CameraManager.cpp:384
+#, fuzzy
 msgid "Free camera"
-msgstr ""
+msgstr "Frit kamera"
 
 #: gfx/camera/CameraManager.cpp:389
+#, fuzzy
 msgid "Fixed camera"
-msgstr ""
+msgstr "Fastmonteret kamera"
 
 #: gfx/camera/CameraManager.cpp:870
+#, fuzzy
 msgid "Limited camera movement enabled"
-msgstr ""
+msgstr "Begrænset kamerabevægelse aktiveret"
 
 #: gfx/camera/CameraManager.cpp:874
+#, fuzzy
 msgid "Limited camera movement disabled"
-msgstr ""
+msgstr "Begrænset kamerabevægelse deaktiveret"
 
 #: gfx/camera/CameraManager.cpp:1158
+#, fuzzy
 msgid "Auto tracking enabled"
-msgstr ""
+msgstr "Automatisk sporing aktiveret"
 
 #: gfx/camera/CameraManager.cpp:1162
+#, fuzzy
 msgid "Auto tracking disabled"
-msgstr ""
+msgstr "Automatisk sporing deaktiveret"
 
 #: gui/GUIUtils.cpp:471
+#, fuzzy
 msgid "Hold to confirm"
-msgstr ""
+msgstr "Hold nede for at bekræfte"
 
 #: gui/OverlayWrapper.cpp:428
 msgid "Current FPS: "
@@ -446,101 +427,87 @@ msgid "Memory (Ogre): "
 msgstr "Minne (ogre): "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Scales the truck"
 msgstr "accelerera lastbilen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
 msgstr "surra en last till lastbilen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
+#, fuzzy
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "Henter navnet på lastbilfilen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
+#, fuzzy
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "Henter navnet på den indlæste sektion for en lastbil"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
-#, fuzzy
-#| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
 msgstr "surra en last till lastbilen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
-#, fuzzy
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Resets the truck"
 msgstr "accelerera lastbilen"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
-#, fuzzy
-#| msgid "toggle parking brake"
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
 msgstr "parkeringsbroms"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
-#, fuzzy
-#| msgid "toggle traction control"
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
 msgstr "Växla tractionkontroll"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
-#, fuzzy
-#| msgid "toggle antilock brake"
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
 msgstr "växla antilås bromsar"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
-#, fuzzy
-#| msgid "toggle truck beacons"
 msgctxt "AngelScript"
 msgid "Toggles the beacons"
 msgstr "aktivera varningsljus"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
-#, fuzzy
-#| msgid "[uses custom particles]"
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
 msgstr "[använder custom partiklar]"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
+#, fuzzy
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr ""
+msgstr "Henter lastbilens samlede antal knudepunkter"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
 #, fuzzy
 #| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr "surra en last till lastbilen"
+msgstr "Henter lastbilens samlede masse"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
+#, fuzzy
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the wheels of the truck"
-msgstr ""
+msgstr "Henter det samlede antal knudepunkter for lastbilens hjul"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
 #, fuzzy
 #| msgid "tie a load to the truck"
 msgctxt "AngelScript"
 msgid "Sets the mass of the truck"
-msgstr "surra en last till lastbilen"
+msgstr "Indstiller lastbilens vægt"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
@@ -557,7 +524,7 @@ msgstr ""
 #| msgid "enable or disable replay mode"
 msgctxt "AngelScript"
 msgid "Enables or disables the custom light"
-msgstr "Aktivera eller inaktivera återvisningsläget"
+msgstr "Aktiver replay mode"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:42
 msgctxt "AngelScript"
@@ -630,7 +597,7 @@ msgstr "spara den nuvarande landskapet till en mesh fil"
 #| msgid "reset the camera position"
 msgctxt "AngelScript"
 msgid "Gets the node position"
-msgstr "återställ kamerapositionen"
+msgstr "reset kamera position"
 
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
@@ -648,13 +615,13 @@ msgstr ""
 "POT-Creation-Date: 2021-12-05 16:27+0100\n"
 "PO-Revision-Date: 2018-12-15 12:09+0000\n"
 "Last-Translator: Hiradur\n"
-"Language-Team: Swedish (http://www.transifex.com/rigsofrods/rigs-of-rods/"
-"language/sv/)\n"
-"Language: sv\n"
+"Language-Team: Danish (http://www.transifex.com/rigsofrods/rigs-of-rods/"
+"language/da/)\n"
+"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);"
 
 #: gui/panels/GUI_CollisionsDebug.cpp:48
 #, fuzzy
@@ -678,7 +645,7 @@ msgstr ""
 #| msgid "Description: "
 msgctxt "Console"
 msgid "Scripting"
-msgstr "Beskrivning: "
+msgstr "Scripting"
 
 #: gui/panels/GUI_ConsoleView.cpp:252
 msgctxt "Console"
@@ -690,7 +657,7 @@ msgstr ""
 #| msgid "Loading Terrain"
 msgctxt "Console"
 msgid "Terrain"
-msgstr "Laddar Terräng"
+msgstr "Loader terræn"
 
 #: gui/panels/GUI_ConsoleView.cpp:256
 msgctxt "Console"
@@ -707,28 +674,28 @@ msgstr ""
 #| msgid "Warning"
 msgctxt "Console"
 msgid "Warnings"
-msgstr "Varning"
+msgstr "Advarsel"
 
 #: gui/panels/GUI_ConsoleView.cpp:259
 #, fuzzy
 #| msgid "Mirrors"
 msgctxt "Console"
 msgid "Errors"
-msgstr "Speglar"
+msgstr "Spejle"
 
 #: gui/panels/GUI_ConsoleView.cpp:260
 #, fuzzy
 #| msgid "enter the chat"
 msgctxt "Console"
 msgid "Net chat"
-msgstr "äntra chatten"
+msgstr "Gå ind i chat"
 
 #: gui/panels/GUI_ConsoleView.cpp:261 gui/panels/GUI_ConsoleWindow.cpp:55
 #, fuzzy
 #| msgid "Commands: "
 msgctxt "Console"
 msgid "Commands"
-msgstr "Kommandon:"
+msgstr "Kommando"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:50
 #, fuzzy
@@ -742,7 +709,7 @@ msgstr "Cockpit alternativ:"
 #| msgid "Description: "
 msgctxt "Console"
 msgid "AngelScript"
-msgstr "Beskrivning: "
+msgstr "Forklaring:"
 
 #. reset to auto-fit
 #: gui/panels/GUI_ConsoleWindow.cpp:96
@@ -750,7 +717,7 @@ msgstr "Beskrivning: "
 #| msgid "Description: "
 msgctxt "Console"
 msgid "Script Monitor"
-msgstr "Beskrivning: "
+msgstr "Script Monitor"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:114
 #, fuzzy
@@ -1344,7 +1311,7 @@ msgstr "Kontroller"
 #| msgid "Save as PNG"
 msgctxt "GameControls"
 msgid "Save changes"
-msgstr "Spara som PNG"
+msgstr "Gem og Spil"
 
 #: gui/panels/GUI_GameControls.cpp:121
 msgctxt "GameControls"
@@ -1371,7 +1338,7 @@ msgstr "OK"
 #| msgid "Cancel"
 msgctxt "GameSettings"
 msgid "Cancel"
-msgstr "Ångra"
+msgstr "Annuller"
 
 #: gui/panels/GUI_GameControls.cpp:290
 msgctxt "GameSettings"
@@ -1431,7 +1398,7 @@ msgstr ""
 #| msgid "exit the game"
 msgctxt "MainMenu"
 msgid "Exit game"
-msgstr "avsluta spelet"
+msgstr "gå ud af spillet"
 
 #: gui/panels/GUI_GameMainMenu.cpp:230 gui/panels/GUI_GameMainMenu.cpp:258
 #, fuzzy
@@ -1475,9 +1442,10 @@ msgstr ""
 
 #. Combobox for selecting the Render System
 #: gui/panels/GUI_GameSettings.cpp:51 gui/panels/GUI_GameSettings.cpp:128
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Render System"
-msgstr "Render System"
+msgstr "Render system"
 
 #: gui/panels/GUI_GameSettings.cpp:58
 msgctxt "GameSettings"
@@ -1489,9 +1457,10 @@ msgstr ""
 #| msgid "Gameplay"
 msgctxt "GameSettings"
 msgid "Gameplay"
-msgstr "Gameplay"
+msgstr "Replay mode"
 
 #: gui/panels/GUI_GameSettings.cpp:72
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Graphics"
 msgstr "Grafik"
@@ -1502,6 +1471,7 @@ msgid "Audio"
 msgstr ""
 
 #: gui/panels/GUI_GameSettings.cpp:86
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Controls"
 msgstr "Kontroller"
@@ -1560,14 +1530,14 @@ msgstr ""
 #| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Disable online api"
-msgstr "Inaktivera översiktskarta"
+msgstr "Slå oversigts-kort fra"
 
 #: gui/panels/GUI_GameSettings.cpp:230
 #, fuzzy
 #| msgid "Updates"
 msgctxt "GameSettings"
 msgid "Update cache"
-msgstr "Uppdateringar"
+msgstr "Opdateringer"
 
 #: gui/panels/GUI_GameSettings.cpp:240
 msgctxt "GameSettings"
@@ -1622,7 +1592,7 @@ msgstr "[framåt kommandon]"
 #| msgid "Enable waves"
 msgctxt "GameSettings"
 msgid "Enable races"
-msgstr "Tillåt vågor"
+msgstr "Slå bølger til"
 
 #: gui/panels/GUI_GameSettings.cpp:263
 msgctxt "GameSettings"
@@ -1696,7 +1666,7 @@ msgstr ""
 #| msgid "No light sources"
 msgctxt "GameSettings"
 msgid "Light sources"
-msgstr "Inga ljuskällor"
+msgstr "Lys kilder effekter"
 
 #: gui/panels/GUI_GameSettings.cpp:314
 msgctxt "GameSettings"
@@ -1784,7 +1754,7 @@ msgstr ""
 #| msgid "Disable Overview Map"
 msgctxt "GameSettings"
 msgid "Declutter overview map"
-msgstr "Inaktivera översiktskarta"
+msgstr "Slå oversigts-kort fra"
 
 #: gui/panels/GUI_GameSettings.cpp:372
 msgctxt "GameSettings"
@@ -1801,7 +1771,7 @@ msgstr ""
 #| msgid "rotate camera right"
 msgctxt "GameSettings"
 msgid "Static camera height (meters)"
-msgstr "rotera kameran åt höger"
+msgstr "roter kamera til højre"
 
 #: gui/panels/GUI_GameSettings.cpp:379
 msgctxt "GameSettings"
@@ -1932,7 +1902,7 @@ msgstr ""
 #| msgid "Regen cache"
 msgctxt "GameSettings"
 msgid "Rebuild cache"
-msgstr "Regenerera cache"
+msgstr "Regen cache"
 
 #: gui/panels/GUI_GameSettings.cpp:418
 msgctxt "GameSettings"
@@ -1965,39 +1935,46 @@ msgid "Use arcade controls"
 msgstr ""
 
 #: gui/panels/GUI_GameSettings.cpp:428
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Invert orbit camera"
-msgstr ""
+msgstr "Omvendt kredsløbskamera"
 
 #: gui/panels/GUI_GameSettings.cpp:430
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Enable ForceFeedback"
-msgstr ""
+msgstr "Aktivér ForceFeedback"
 
 #: gui/panels/GUI_GameSettings.cpp:434
+#, fuzzy
 msgctxt "GameSettings"
 msgid "FFB camera gain"
-msgstr ""
+msgstr "FFB-kameraets forstærkning"
 
 #: gui/panels/GUI_GameSettings.cpp:435
+#, fuzzy
 msgctxt "GameSettings"
 msgid "FFB center gain"
-msgstr ""
+msgstr "FFB centerforstærkning"
 
 #: gui/panels/GUI_GameSettings.cpp:436
+#, fuzzy
 msgctxt "GameSettings"
 msgid "FFB master gain"
-msgstr ""
+msgstr "FFB master forstærkning"
 
 #: gui/panels/GUI_GameSettings.cpp:437
+#, fuzzy
 msgctxt "GameSettings"
 msgid "FFB stress gain"
-msgstr ""
+msgstr "FFB-stressforøgelse"
 
 #: gui/panels/GUI_GameSettings.cpp:441
+#, fuzzy
 msgctxt "GameSettings"
 msgid "Enable OutGauge protocol"
-msgstr ""
+msgstr "Aktivér OutGauge-protokollen"
 
 #: gui/panels/GUI_GameSettings.cpp:444
 msgctxt "GameSettings"
@@ -2055,21 +2032,21 @@ msgstr "Version: "
 #| msgid "Wheels: "
 msgctxt "MainSelector"
 msgid "Wheels: "
-msgstr "Hjul: "
+msgstr "Hjul "
 
 #: gui/panels/GUI_MainSelector.cpp:314
 #, fuzzy
 #| msgid "Mass: "
 msgctxt "MainSelector"
 msgid "Mass: "
-msgstr "Massa: "
+msgstr "Masse: "
 
 #: gui/panels/GUI_MainSelector.cpp:323
 #, fuzzy
 #| msgid "Load Mass: "
 msgctxt "MainSelector"
 msgid "Load Mass: "
-msgstr "Lastvikt:"
+msgstr "Masse: "
 
 #: gui/panels/GUI_MainSelector.cpp:327
 #, fuzzy
@@ -2111,7 +2088,7 @@ msgstr "Ljudkällor: "
 #| msgid "Commands: "
 msgctxt "MainSelector"
 msgid "Commands: "
-msgstr "Kommandon:"
+msgstr "Kommandoer: "
 
 #: gui/panels/GUI_MainSelector.cpp:333
 #, fuzzy
@@ -2139,7 +2116,7 @@ msgstr "Flares: "
 #| msgid "Flexbodies: "
 msgctxt "MainSelector"
 msgid "Flexbodies: "
-msgstr "Flexkroppar: "
+msgstr "Noder: "
 
 #: gui/panels/GUI_MainSelector.cpp:337
 #, fuzzy
@@ -2153,7 +2130,7 @@ msgstr "Props: "
 #| msgid "Wings: "
 msgctxt "MainSelector"
 msgid "Wings: "
-msgstr "Vingar: "
+msgstr "Advarsel "
 
 #: gui/panels/GUI_MainSelector.cpp:341
 #, fuzzy
@@ -2179,21 +2156,21 @@ msgstr ""
 #| msgid "Default Skin"
 msgctxt "MainSelector"
 msgid "Default skin: "
-msgstr "Default Skin/Original Skin"
+msgstr "Standard-skin: "
 
 #: gui/panels/GUI_MainSelector.cpp:351
 #, fuzzy
 #| msgid "Torque: "
 msgctxt "MainSelector"
 msgid "Torque: "
-msgstr "Vridmoment: "
+msgstr "Moment "
 
 #: gui/panels/GUI_MainSelector.cpp:352
 #, fuzzy
 #| msgid "Transmission Gear Count: "
 msgctxt "MainSelector"
 msgid "Transmission Gear Count: "
-msgstr "Antal växlar: "
+msgstr "Trekants tal "
 
 #: gui/panels/GUI_MainSelector.cpp:355
 #, fuzzy
@@ -2242,7 +2219,7 @@ msgstr "Datum och Tid installerad:"
 #| msgid "Vehicle Type: "
 msgctxt "MainSelector"
 msgid "Vehicle Type: "
-msgstr "Typ av fordon: "
+msgstr "Køretøjs type: "
 
 #: gui/panels/GUI_MainSelector.cpp:369
 #, fuzzy
@@ -2299,7 +2276,7 @@ msgstr "[zip arkiv]"
 #| msgid "[unpacked in directory]"
 msgctxt "MainSelector"
 msgid "[unpacked in directory]"
-msgstr "[ej packat i mappen]"
+msgstr "[udpakket i bibliotek]"
 
 #: gui/panels/GUI_MainSelector.cpp:381
 #, fuzzy
@@ -2325,7 +2302,7 @@ msgstr ""
 #| msgid "Configuration error"
 msgctxt "MainSelector"
 msgid "Configuration"
-msgstr "Konfigurations error"
+msgstr "Konfigurations fejl"
 
 #: gui/panels/GUI_MainSelector.cpp:411
 #, fuzzy
@@ -2339,7 +2316,7 @@ msgstr "OK"
 #| msgid "Cancel"
 msgctxt "MainSelector"
 msgid "Cancel"
-msgstr "Ångra"
+msgstr "Annuller"
 
 #: gui/panels/GUI_MessageBox.cpp:110
 msgctxt "MessageBox"
@@ -2364,7 +2341,7 @@ msgstr ""
 #| msgid "user language: "
 msgctxt "MultiplayerClientList"
 msgid "user language: "
-msgstr "användarens språk: "
+msgstr "brugerens sprog: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:162
 #, fuzzy
@@ -2392,7 +2369,7 @@ msgstr "lastbils laddningsskick"
 #| msgid "Truck loading errors"
 msgctxt "MultiplayerClientList"
 msgid "Truck loading errors"
-msgstr "Lastbilsladdnings fel"
+msgstr "Bane indlæsnings fejl"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:198
 #, fuzzy
@@ -2420,7 +2397,7 @@ msgstr "Lastbilens laddningstillstånd"
 #| msgid "Remote Truck loading errors"
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loading errors"
-msgstr "Fel vid laddning av avlägsen lastbil"
+msgstr "Bane indlæsnings fejl"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:213
 #, fuzzy
@@ -2492,7 +2469,7 @@ msgstr ""
 #| msgid "enter the chat"
 msgctxt "MultiplayerSelector"
 msgid "Auto hide chat"
-msgstr "äntra chatten"
+msgstr "Gå ind i chat"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:193
 msgctxt "MultiplayerSelector"
@@ -2569,7 +2546,7 @@ msgstr ""
 #| msgid "Loading Terrain"
 msgctxt "MultiplayerSelector"
 msgid "Terrain"
-msgstr "Laddar Terräng"
+msgstr "Loader terræn"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:279
 msgctxt "MultiplayerSelector"
@@ -2626,14 +2603,14 @@ msgstr "Stötdämpare: "
 #| msgid "Wheels: "
 msgctxt "NodeBeamUtils"
 msgid "Wheels:"
-msgstr "Hjul: "
+msgstr "Hjul:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:87
 #, fuzzy
 #| msgid "Restore Defaults"
 msgctxt "NodeBeamUtils"
 msgid "Reset to default settings"
-msgstr "Återställ"
+msgstr "Genskab oprindelige indstillinger"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:96
 msgctxt "NodeBeamUtils"
@@ -2773,7 +2750,7 @@ msgstr ""
 #| msgid "Triangle Count: "
 msgctxt "RepositorySelector"
 msgid "Rating Count"
-msgstr "Antal trianglar "
+msgstr "Antal vurderinger"
 
 #: gui/panels/GUI_RepositorySelector.cpp:529
 msgctxt "RepositorySelector"
@@ -2825,7 +2802,7 @@ msgstr ""
 #| msgid "Description: "
 msgctxt "RepositorySelector"
 msgid "Description:"
-msgstr "Beskrivning: "
+msgstr "Beskrivelse:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:606
 msgctxt "RepositorySelector"
@@ -2837,7 +2814,7 @@ msgstr ""
 #| msgid "Triangle Count: "
 msgctxt "RepositorySelector"
 msgid "View Count:"
-msgstr "Antal trianglar "
+msgstr "Antal visninger:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:618
 #, fuzzy
@@ -2851,7 +2828,7 @@ msgstr "Vätskeinställningar"
 #| msgid "Triangle Count: "
 msgctxt "RepositorySelector"
 msgid "Rating Count:"
-msgstr "Antal trianglar "
+msgstr "Antal vurderinger:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:630
 msgctxt "RepositorySelector"
@@ -2868,7 +2845,7 @@ msgstr ""
 #| msgid "Version: "
 msgctxt "RepositorySelector"
 msgid "Version:"
-msgstr "Version: "
+msgstr "Planter:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:650
 #, fuzzy
@@ -2901,7 +2878,7 @@ msgstr "Filnamn: "
 #| msgid "Updates"
 msgctxt "RepositorySelector"
 msgid "Update"
-msgstr "Uppdateringar"
+msgstr "Opdateringer"
 
 #: gui/panels/GUI_RepositorySelector.cpp:745
 msgctxt "RepositorySelector"
@@ -2925,7 +2902,7 @@ msgstr ""
 #| msgid "Version: "
 msgctxt "RepositorySelector"
 msgid "Version"
-msgstr "Version: "
+msgstr "Version"
 
 #. Authors, rating count, last update, download count, description
 #: gui/panels/GUI_RepositorySelector.cpp:911
@@ -2940,7 +2917,7 @@ msgstr "Grundare: "
 #| msgid "Description: "
 msgctxt "RepositorySelector"
 msgid "Description"
-msgstr "Beskrivning: "
+msgstr "Beskrivelse"
 
 #: gui/panels/GUI_RepositorySelector.cpp:1033
 msgctxt "RepositorySelector"
@@ -2999,7 +2976,7 @@ msgstr ""
 #| msgid "Loading Terrain"
 msgctxt "ScriptMonitor"
 msgid "(terrain)"
-msgstr "Laddar Terräng"
+msgstr "Loader terræn"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:75
 msgctxt "ScriptMonitor"
@@ -3038,14 +3015,14 @@ msgstr ""
 #| msgid "Vehicle Type: "
 msgctxt "SimActorStats"
 msgid "Vehicle health: "
-msgstr "Typ av fordon: "
+msgstr "Køretøjs type: "
 
 #: gui/panels/GUI_SimActorStats.cpp:59
 #, fuzzy
 #| msgid "Vehicle position: "
 msgctxt "SimActorStats"
 msgid "Vehicle destruction: "
-msgstr "Fordon position: "
+msgstr "Køretøjs type: "
 
 #: gui/panels/GUI_SimActorStats.cpp:66
 #, fuzzy
@@ -3076,14 +3053,14 @@ msgstr "SpelarInformation"
 #| msgid "Average FPS: "
 msgctxt "SimActorStats"
 msgid "Average stress: "
-msgstr "Genomsnittlig FPS: "
+msgstr "Gennemsits FPS: "
 
 #: gui/panels/GUI_SimActorStats.cpp:94
 #, fuzzy
 #| msgid " user country: "
 msgctxt "SimActorStats"
 msgid "Node count: "
-msgstr "användare land:"
+msgstr "Noder: "
 
 #: gui/panels/GUI_SimActorStats.cpp:98
 #, fuzzy
@@ -3109,21 +3086,21 @@ msgstr ""
 #| msgid "Current FPS: "
 msgctxt "SimActorStats"
 msgid "Current torque: "
-msgstr "Nuvarande FPS: "
+msgstr "Current FPS: "
 
 #: gui/panels/GUI_SimActorStats.cpp:130
 #, fuzzy
 #| msgid "Current FPS: "
 msgctxt "SimActorStats"
 msgid "Current power: "
-msgstr "Nuvarande FPS: "
+msgstr "Current FPS: "
 
 #: gui/panels/GUI_SimActorStats.cpp:134
 #, fuzzy
 #| msgid "Current FPS: "
 msgctxt "SimActorStats"
 msgid "Current gear: "
-msgstr "Nuvarande FPS: "
+msgstr "Current FPS: "
 
 #: gui/panels/GUI_SimActorStats.cpp:138
 msgctxt "SimActorStats"
@@ -3135,21 +3112,21 @@ msgstr ""
 #| msgid "Wheels: "
 msgctxt "SimActorStats"
 msgid "Wheel speed: "
-msgstr "Hjul: "
+msgstr "Hjul "
 
 #: gui/panels/GUI_SimActorStats.cpp:161
 #, fuzzy
 #| msgid "Vehicle Type: "
 msgctxt "SimActorStats"
 msgid "Vehicle speed: "
-msgstr "Typ av fordon: "
+msgstr "Køretøjs type: "
 
 #: gui/panels/GUI_SimActorStats.cpp:168
 #, fuzzy
 #| msgid "Current FPS: "
 msgctxt "SimActorStats"
 msgid "Current speed: "
-msgstr "Nuvarande FPS: "
+msgstr "Current FPS: "
 
 #: gui/panels/GUI_SimActorStats.cpp:175
 msgctxt "SimActorStats"
@@ -3180,7 +3157,7 @@ msgstr ""
 #| msgid "Triangle Count: "
 msgctxt "SimPerfStats"
 msgid "Triangle count: "
-msgstr "Antal trianglar "
+msgstr "Trekants tal "
 
 #: gui/panels/GUI_SimPerfStats.cpp:82
 msgctxt "SimPerfStats"
@@ -3192,7 +3169,7 @@ msgstr ""
 #| msgid "Texture Tool"
 msgctxt "TextureToolWindow"
 msgid "Texture Tool"
-msgstr "Textur verktyg"
+msgstr "Texture filtrering"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:51
 #, fuzzy
@@ -3206,7 +3183,7 @@ msgstr "Dynamiskt"
 #| msgid "Save as PNG"
 msgctxt "TextureToolWindow"
 msgid "Save as PNG"
-msgstr "Spara som PNG"
+msgstr "Gem og Spil"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:140
 #, fuzzy
@@ -3227,14 +3204,14 @@ msgstr "sparade texturen som "
 #| msgid "Configuration error"
 msgctxt "TopMenubar"
 msgid "Simulation"
-msgstr "Konfigurations error"
+msgstr "Konfigurations fejl"
 
 #: gui/panels/GUI_TopMenubar.cpp:139
 #, fuzzy
 #| msgid "Vehicle Type: "
 msgctxt "TopMenubar"
 msgid "Vehicles"
-msgstr "Typ av fordon: "
+msgstr "Køretøjer"
 
 #: gui/panels/GUI_TopMenubar.cpp:140
 #, fuzzy
@@ -3260,7 +3237,7 @@ msgstr ""
 #| msgid "Vehicle Type: "
 msgctxt "TopMenubar"
 msgid "Vehicle AI"
-msgstr "Typ av fordon: "
+msgstr "AI til køretøjer"
 
 #: gui/panels/GUI_TopMenubar.cpp:144
 msgctxt "TopMenubar"
@@ -3348,7 +3325,7 @@ msgstr ""
 #| msgid "Only current vehicle, main lights"
 msgctxt "TopMenubar"
 msgid "Reload current terrain"
-msgstr "Endast nuvarande fordon, huvudlyse"
+msgstr "slet nuværende lastbil"
 
 #: gui/panels/GUI_TopMenubar.cpp:412
 msgctxt "TopMenubar"
@@ -3464,7 +3441,7 @@ msgstr ""
 #| msgid "FOV: "
 msgctxt "TopMenubar"
 msgid "FOV"
-msgstr "Synfält: "
+msgstr "FOV"
 
 #: gui/panels/GUI_TopMenubar.cpp:568
 msgctxt "TopMenubar"
@@ -3518,7 +3495,7 @@ msgstr ""
 #| msgid "Debug Collision Meshes"
 msgctxt "TopMenubar"
 msgid "Collisions"
-msgstr "Felsök kollisionsmeshes"
+msgstr "Fejlfind kollitions meshes"
 
 #: gui/panels/GUI_TopMenubar.cpp:638
 msgctxt "TopMenubar"
@@ -3542,21 +3519,21 @@ msgstr "Friktions Inställningar"
 #| msgid "show / hide the console"
 msgctxt "TopMenubar"
 msgid "Show console"
-msgstr "visa/dölj konsolen"
+msgstr "Vis / skjul konsolen"
 
 #: gui/panels/GUI_TopMenubar.cpp:667
 #, fuzzy
 #| msgid "Texture Tool"
 msgctxt "TopMenubar"
 msgid "Texture tool"
-msgstr "Textur verktyg"
+msgstr "Texture filtrering"
 
 #: gui/panels/GUI_TopMenubar.cpp:673
 #, fuzzy
 #| msgid "Debug Collision Meshes"
 msgctxt "TopMenubar"
 msgid "Collisions debug"
-msgstr "Felsök kollisionsmeshes"
+msgstr "Fejlfind kollitions meshes"
 
 #: gui/panels/GUI_TopMenubar.cpp:681
 msgctxt "TopMenubar"
@@ -3629,7 +3606,7 @@ msgstr ""
 #| msgid "Vehicle position: "
 msgctxt "TopMenubar"
 msgid "Visual options:"
-msgstr "Fordon position: "
+msgstr "Visual options:"
 
 #: gui/panels/GUI_TopMenubar.cpp:760
 msgctxt "TopMenubar"
@@ -3765,7 +3742,7 @@ msgstr "Cockpit alternativ:"
 #| msgid "Vehicle Type: "
 msgctxt "TopMenubar"
 msgid "Vehicle count"
-msgstr "Typ av fordon: "
+msgstr "Antal køretøjer"
 
 #: gui/panels/GUI_TopMenubar.cpp:864
 #, fuzzy
@@ -3816,7 +3793,7 @@ msgstr ""
 #| msgid "Vehicle position: "
 msgctxt "TopMenubar"
 msgid "Vehicle options:"
-msgstr "Fordon position: "
+msgstr "Køretøjets muligheder:"
 
 #: gui/panels/GUI_TopMenubar.cpp:1083
 msgctxt "TopMenubar"
@@ -3995,14 +3972,14 @@ msgstr ""
 #| msgid "Cancel"
 msgctxt "Tuning"
 msgid "Cancel"
-msgstr "Ångra"
+msgstr "Annuller"
 
 #: gui/panels/GUI_TopMenubar.cpp:1541
 #, fuzzy
 #| msgid "Save as PNG"
 msgctxt "Tuning"
 msgid "Save as..."
-msgstr "Spara som PNG"
+msgstr "Gem og Spil"
 
 #: gui/panels/GUI_TopMenubar.cpp:1551 gui/panels/GUI_TopMenubar.cpp:1755
 #: gui/panels/GUI_TopMenubar.cpp:2365
@@ -4037,14 +4014,14 @@ msgstr "Props: "
 #| msgid "Flexbodies: "
 msgctxt "Tuning"
 msgid "Flexbodies ({})"
-msgstr "Flexkroppar: "
+msgstr "Fleksible kroppe ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1716
 #, fuzzy
 #| msgid "Wheels: "
 msgctxt "TopMenubar"
 msgid "Wheels ({})"
-msgstr "Hjul: "
+msgstr "Hjul ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1939
 msgctxt "TopMenubar"
@@ -4071,7 +4048,7 @@ msgstr ""
 #| msgid "Gameplay"
 msgctxt "TopMenubar"
 msgid "Replay"
-msgstr "Gameplay"
+msgstr "Replay mode"
 
 #: gui/panels/GUI_TopMenubar.cpp:2034
 msgctxt "TopMenubar"
@@ -4103,7 +4080,7 @@ msgstr ""
 #| msgid "show / hide the console"
 msgctxt "LiveRepair"
 msgid "Show controls"
-msgstr "visa/dölj konsolen"
+msgstr "Vis / skjul konsolen"
 
 #: gui/panels/GUI_TopMenubar.cpp:2179
 msgctxt "LiveRepair"
@@ -4152,14 +4129,14 @@ msgstr "Rotatorer: "
 #| msgid "steer left"
 msgctxt "LiveRepair"
 msgid "Rot. left"
-msgstr "styr vänster"
+msgstr "Styr til venstre"
 
 #: gui/panels/GUI_TopMenubar.cpp:2198
 #, fuzzy
 #| msgid "steer right"
 msgctxt "LiveRepair"
 msgid "Rot. right"
-msgstr "styr höger"
+msgstr "Styr til højre"
 
 #: gui/panels/GUI_TopMenubar.cpp:2201
 msgctxt "LiveRepair"
@@ -4187,14 +4164,14 @@ msgstr ""
 #| msgid "toggle cruise control"
 msgctxt "LiveRepair"
 msgid "Reset mode"
-msgstr "Växla farthållare"
+msgstr "skift mellem gearskifte typer"
 
 #: gui/panels/GUI_TopMenubar.cpp:2216
 #, fuzzy
 #| msgid "toggle cruise control"
 msgctxt "LiveRepair"
 msgid "Switch reset mode"
-msgstr "Växla farthållare"
+msgstr "skift mellem gearskifte typer"
 
 #: gui/panels/GUI_TopMenubar.cpp:2309
 msgctxt "Tuning"
@@ -4226,21 +4203,21 @@ msgstr ""
 #| msgid "Commands: "
 msgctxt "VehicleButtons"
 msgid "Commands"
-msgstr "Kommandon:"
+msgstr "Kommando"
 
 #: gui/panels/GUI_VehicleDescription.cpp:66
 #, fuzzy
 #| msgid "Description: "
 msgctxt "VehicleDescription"
 msgid "Description"
-msgstr "Beskrivning: "
+msgstr "Beskrivelse"
 
 #: gui/panels/GUI_VehicleDescription.cpp:74
 #, fuzzy
 #| msgid "Commands: "
 msgctxt "VehicleDescription"
 msgid "Commands"
-msgstr "Kommandon:"
+msgstr "Kommando"
 
 #: gui/panels/GUI_VehicleDescription.cpp:104
 #, fuzzy
@@ -4261,7 +4238,7 @@ msgstr "Grundare: "
 #| msgid "no author information available"
 msgctxt "VehicleDescription"
 msgid "(no author information available) "
-msgstr "Ingen skaparinformation tillgänglig."
+msgstr "(ingen oplysninger om forfatter tilgængelig) "
 
 #: main.cpp:365
 msgid "Display mode changed to fullscreen"
@@ -4300,7 +4277,7 @@ msgstr "Tryck %ls för att chatta"
 #, fuzzy
 #| msgid "Could not write config file"
 msgid "Could not read savegame file"
-msgstr "Kunde inte skriva konfigurations filen"
+msgstr "Kunne ikke skrive konfigurations filen"
 
 #: main.cpp:688 physics/Savegame.cpp:267
 #, fuzzy
@@ -4342,13 +4319,13 @@ msgstr "bortkopplad: andra sidan stängde ner sin anslutning"
 #, fuzzy
 #| msgid " left the game"
 msgid "left the game"
-msgstr " lämnade spelet"
+msgstr "gå ud af spillet"
 
 #: network/Network.cpp:347
 #, fuzzy
 #| msgid " joined the game"
 msgid "joined the game"
-msgstr " kom in i spelet"
+msgstr "gå ud af spillet"
 
 #. Mark connect thread as started
 #: network/Network.cpp:401
@@ -4455,7 +4432,7 @@ msgstr ""
 #| msgid "Boat"
 msgctxt "NetUserAuth"
 msgid "Bot"
-msgstr "Båt"
+msgstr "Båd"
 
 #: network/Network.cpp:801
 msgctxt "NetUserAuth"
@@ -4615,7 +4592,7 @@ msgstr "Lastare"
 #| msgid "Cancel"
 msgctxt "QuickloadDialog"
 msgid "Cancel"
-msgstr "Ångra"
+msgstr "Annuller"
 
 #: physics/Savegame.cpp:247
 #, fuzzy
@@ -4653,7 +4630,7 @@ msgstr "Fel vid sparning av position på plats "
 #, fuzzy
 #| msgid "Error while loading landuse config"
 msgid "Error while saving scene"
-msgstr "Fel vid laddning av landuse konfiguration"
+msgstr "Fejl under forsøg på at hente bruger mellemrums sti"
 
 #: physics/Savegame.cpp:777
 msgid "Scene saved"
@@ -4676,35 +4653,35 @@ msgstr ""
 #| msgid "Non-Driveable"
 msgctxt "MainSelector"
 msgid "Non-Driveable"
-msgstr "Ej körbar"
+msgstr "Ikke kørbar"
 
 #: resources/CacheSystem.cpp:514
 #, fuzzy
 #| msgid "Truck"
 msgctxt "MainSelector"
 msgid "Truck"
-msgstr "Fordon"
+msgstr "Lastbil"
 
 #: resources/CacheSystem.cpp:515
 #, fuzzy
 #| msgid "Airplane"
 msgctxt "MainSelector"
 msgid "Airplane"
-msgstr "Flygplan"
+msgstr "Fly"
 
 #: resources/CacheSystem.cpp:516
 #, fuzzy
 #| msgid "Boat"
 msgctxt "MainSelector"
 msgid "Boat"
-msgstr "Båt"
+msgstr "Båd"
 
 #: resources/CacheSystem.cpp:517
 #, fuzzy
 #| msgid "Machine"
 msgctxt "MainSelector"
 msgid "Machine"
-msgstr "Maskin"
+msgstr "Maskine"
 
 #: resources/CacheSystem.cpp:518
 msgctxt "MainSelector"
@@ -4712,8 +4689,9 @@ msgid "A.I."
 msgstr ""
 
 #: resources/CacheSystem.cpp:1054
+#, fuzzy
 msgid "Loading zips in group "
-msgstr "Laddar zippar i grupp "
+msgstr "Indlæser zip-filer i gruppe "
 
 #: resources/CacheSystem.cpp:1251
 msgid "Failed to load asset pack '{}' (requested by '{}'): {}"
@@ -4862,7 +4840,7 @@ msgstr "ladda om lastbil"
 #| msgid "Boat"
 msgctxt "ModCategory"
 msgid "Boats"
-msgstr "Båt"
+msgstr "Båd"
 
 #: resources/CacheSystem.h:398
 msgctxt "ModCategory"
@@ -4890,7 +4868,7 @@ msgstr ""
 #| msgid "Loading Terrain"
 msgctxt "ModCategory"
 msgid "Addon Terrains"
-msgstr "Laddar Terräng"
+msgstr "Loader terræn"
 
 #: resources/CacheSystem.h:407
 msgctxt "ModCategory"
@@ -4913,7 +4891,7 @@ msgstr ""
 #| msgid "Loading Terrain"
 msgctxt "ModCategory"
 msgid "Night Terrains"
-msgstr "Laddar Terräng"
+msgstr "Loader terræn"
 
 #: resources/CacheSystem.h:415
 msgctxt "ModCategory"
@@ -5100,7 +5078,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Description: "
 msgid "Runs an AngelScript file"
-msgstr "Beskrivning: "
+msgstr "Kører en AngelScript-fil"
 
 #: system/ConsoleCmd.cpp:419
 msgid ""
@@ -5234,7 +5212,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Loading Terrain"
 msgid "Loading Terrain Actors"
-msgstr "Laddar Terräng"
+msgstr "Loader terræn"
 
 #: terrain/TerrainEditor.cpp:126 terrain/TerrainEditor.cpp:129
 msgid "ry"
@@ -5269,7 +5247,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Loading Terrain"
 msgid "Loading terrain pages ..."
-msgstr "Laddar Terräng"
+msgstr "Loader terræn"
 
 #: terrain/TerrainGeometryManager.cpp:375
 msgid "Saving all terrain pages ..."
@@ -5279,7 +5257,7 @@ msgstr ""
 #, fuzzy
 #| msgid "Could not write config file"
 msgid "Could not load file '{}'"
-msgstr "Kunde inte skriva konfigurations filen"
+msgstr "Kunne ikke skrive konfigurations filen"
 
 #: terrain/TerrainObjectManager.cpp:583
 msgid "Could not load mesh '{}' (used by object '{}')"
@@ -5307,21 +5285,21 @@ msgstr ""
 #| msgid "accelerate the truck"
 msgctxt "InputEvent"
 msgid "accelerate the simulation"
-msgstr "accelerera lastbilen"
+msgstr "accelerer lastbilen"
 
 #: utils/InputEngine.cpp:40
 #, fuzzy
 #| msgid "accelerate the truck"
 msgctxt "InputEvent"
 msgid "decelerate the simulation"
-msgstr "accelerera lastbilen"
+msgstr "accelerer lastbilen"
 
 #: utils/InputEngine.cpp:41
 #, fuzzy
 #| msgid "reset the camera position"
 msgctxt "InputEvent"
 msgid "reset the simulation pace"
-msgstr "återställ kamerapositionen"
+msgstr "reset kamera position"
 
 #: utils/InputEngine.cpp:42
 #, fuzzy
@@ -5341,7 +5319,7 @@ msgstr ""
 #| msgid "exit the game"
 msgctxt "InputEvent"
 msgid "exit the game"
-msgstr "avsluta spelet"
+msgstr "gå ud af spillet"
 
 #: utils/InputEngine.cpp:44
 msgctxt "InputEvent"
@@ -5358,7 +5336,7 @@ msgstr ""
 #| msgid "take a screenshot"
 msgctxt "InputEvent"
 msgid "take a screenshot"
-msgstr "ta en skärmdump"
+msgstr "tag et skærmbillede"
 
 #: utils/InputEngine.cpp:47
 #, fuzzy
@@ -5372,35 +5350,35 @@ msgstr "ta ett stort screenshot (3 gånger större än skärmen)"
 #| msgid "debug purpose - dont use"
 msgctxt "InputEvent"
 msgid "debug purpose - dont use"
-msgstr "felsökningssyfte - använd inte"
+msgstr "Fejlfindings brug - brug ikke"
 
 #: utils/InputEngine.cpp:49
 #, fuzzy
 #| msgid "enable or disable replay mode"
 msgctxt "InputEvent"
 msgid "enable or disable physics"
-msgstr "Aktivera eller inaktivera återvisningsläget"
+msgstr "Aktiver replay mode"
 
 #: utils/InputEngine.cpp:50
 #, fuzzy
 #| msgid "decreases the current FOV value"
 msgctxt "InputEvent"
 msgid "decreases the current FOV value"
-msgstr "minskar den nuvarande FOV värde"
+msgstr "mindsk nuværende FOV værdi"
 
 #: utils/InputEngine.cpp:51
 #, fuzzy
 #| msgid "increase the current FOV value"
 msgctxt "InputEvent"
 msgid "increase the current FOV value"
-msgstr "öka den nuvarande FOV värde"
+msgstr "Øg nuværende FOV værdi"
 
 #: utils/InputEngine.cpp:52
 #, fuzzy
 #| msgid "increase the current FOV value"
 msgctxt "InputEvent"
 msgid "reset the FOV value"
-msgstr "öka den nuvarande FOV värde"
+msgstr "Øg nuværende FOV værdi"
 
 #: utils/InputEngine.cpp:53
 #, fuzzy
@@ -5414,14 +5392,14 @@ msgstr "spara den nuvarande landskapet till en mesh fil"
 #| msgid "toggle traction control"
 msgctxt "InputEvent"
 msgid "toggle terrain editor"
-msgstr "Växla tractionkontroll"
+msgstr "tænd/sluk tænding"
 
 #: utils/InputEngine.cpp:55
 #, fuzzy
 #| msgid "toggle between windowed and fullscreen mode"
 msgctxt "InputEvent"
 msgid "toggle between windowed and fullscreen mode"
-msgstr "växla mellan fönster- och fullskärmsläge"
+msgstr "Skift mellem fuld skærm og vindues-visning"
 
 #. Comon: actor interaction
 #: utils/InputEngine.cpp:58
@@ -5429,35 +5407,35 @@ msgstr "växla mellan fönster- och fullskärmsläge"
 #| msgid "enter or exit a truck"
 msgctxt "InputEvent"
 msgid "enter or exit a truck"
-msgstr "Gå in eller ut ur en lastbil"
+msgstr "Stig ind eller ud af lastbil"
 
 #: utils/InputEngine.cpp:59
 #, fuzzy
 #| msgid "enter or exit a truck"
 msgctxt "InputEvent"
 msgid "enter next truck"
-msgstr "Gå in eller ut ur en lastbil"
+msgstr "Stig ind eller ud af lastbil"
 
 #: utils/InputEngine.cpp:60
 #, fuzzy
 #| msgid "enter or exit a truck"
 msgctxt "InputEvent"
 msgid "enter previous truck"
-msgstr "Gå in eller ut ur en lastbil"
+msgstr "Stig ind eller ud af lastbil"
 
 #: utils/InputEngine.cpp:61
 #, fuzzy
 #| msgid "delete current truck"
 msgctxt "InputEvent"
 msgid "remove current truck"
-msgstr "radera nuvarande lastbil"
+msgstr "slet nuværende lastbil"
 
 #: utils/InputEngine.cpp:62
 #, fuzzy
 #| msgid "delete current truck"
 msgctxt "InputEvent"
 msgid "delete current truck"
-msgstr "radera nuvarande lastbil"
+msgstr "slet nuværende lastbil"
 
 #: utils/InputEngine.cpp:63
 #, fuzzy
@@ -5478,21 +5456,21 @@ msgstr " tog ett nytt fordon: "
 #| msgid "decrease tire pressure (note: only very few trucks support this)"
 msgctxt "InputEvent"
 msgid "decrease tire pressure (note: only very few trucks support this)"
-msgstr "Minska däcktryck (Notera: endast några få lastbilar använder detta)"
+msgstr "Sænk dæktrykket (OBS: kun meget få lastbiler understøtter dette)"
 
 #: utils/InputEngine.cpp:66
 #, fuzzy
 #| msgid "increase tire pressure (note: only very few trucks support this)"
 msgctxt "InputEvent"
 msgid "increase tire pressure (note: only very few trucks support this)"
-msgstr "öka tire tryck (observera: endast ett fåtal lastbilar stödja detta)"
+msgstr "øg dæktryk (OBS: kun meget få lastbiler understøtter dette)"
 
 #: utils/InputEngine.cpp:67
 #, fuzzy
 #| msgid "connect hook node to a node in close proximity"
 msgctxt "InputEvent"
 msgid "connect hook node to a node in close proximity"
-msgstr "koppla kroknod till en närliggande nod"
+msgstr "forbind krog noden med en node tæt på"
 
 #: utils/InputEngine.cpp:68
 #, fuzzy
@@ -5506,7 +5484,7 @@ msgstr "öppna autolås krok node"
 #| msgid "connect a rope to a node in close proximity"
 msgctxt "InputEvent"
 msgid "connect a rope to a node in close proximity"
-msgstr "anslut ett rep till en punkt i närheten"
+msgstr "forbind krog noden med en node tæt på"
 
 #: utils/InputEngine.cpp:70
 #, fuzzy
@@ -5520,112 +5498,112 @@ msgstr "reparera lastbil"
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle truck interactive repair mode"
-msgstr "aktivera varningsljus"
+msgstr "tænd/sluk lastbilens roterblink"
 
 #: utils/InputEngine.cpp:72
 #, fuzzy
 #| msgid "teleport to rescue truck"
 msgctxt "InputEvent"
 msgid "teleport to rescue truck"
-msgstr "teleportera till bärgningsbilen"
+msgstr "teleporter til bjærningsvognen"
 
 #: utils/InputEngine.cpp:73
 #, fuzzy
 #| msgid "reset truck to original starting position"
 msgctxt "InputEvent"
 msgid "reset truck to original starting position"
-msgstr "återställ lastbilen till ursprunglig position"
+msgstr "reset lastbilen til original start position"
 
 #: utils/InputEngine.cpp:74
 #, fuzzy
 #| msgid "toggle cruise control"
 msgctxt "InputEvent"
 msgid "toggle reset mode"
-msgstr "Växla farthållare"
+msgstr "skift mellem gearskifte typer"
 
 #: utils/InputEngine.cpp:75
 #, fuzzy
 #| msgid "tie a load to the truck"
 msgctxt "InputEvent"
 msgid "tie a load to the truck"
-msgstr "surra en last till lastbilen"
+msgstr "bind en last fast til lastbilen"
 
 #: utils/InputEngine.cpp:76
 #, fuzzy
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle truck beacons"
-msgstr "aktivera varningsljus"
+msgstr "tænd/sluk lastbilens roterblink"
 
 #: utils/InputEngine.cpp:77
 #, fuzzy
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle truck low beams"
-msgstr "aktivera varningsljus"
+msgstr "tænd/sluk lastbilens roterblink"
 
 #: utils/InputEngine.cpp:78
 #, fuzzy
 #| msgid "toggle between transmission modes"
 msgctxt "InputEvent"
 msgid "cycle between light modes"
-msgstr "växla mellan transmissonslägen"
+msgstr "skift mellem gearskifte typer"
 
 #: utils/InputEngine.cpp:79
 #, fuzzy
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle truck high beams"
-msgstr "aktivera varningsljus"
+msgstr "tænd/sluk lastbilens roterblink"
 
 #: utils/InputEngine.cpp:80
 #, fuzzy
 #| msgid "toggle truck front lights"
 msgctxt "InputEvent"
 msgid "toggle truck fog lights"
-msgstr "växla lastbilsframljus"
+msgstr "Tænd lastbilens forlygter"
 
 #: utils/InputEngine.cpp:81
 #, fuzzy
 #| msgid "toggle particle cannon"
 msgctxt "InputEvent"
 msgid "toggle particle cannon"
-msgstr "partikelkanon"
+msgstr "tænd/sluk partikel kanon"
 
 #: utils/InputEngine.cpp:82
 #, fuzzy
 #| msgid "enable or disable replay mode"
 msgctxt "InputEvent"
 msgid "enable or disable replay mode"
-msgstr "Aktivera eller inaktivera återvisningsläget"
+msgstr "Aktiver replay mode"
 
 #: utils/InputEngine.cpp:83
 #, fuzzy
 #| msgid "more replay forward"
 msgctxt "InputEvent"
 msgid "more replay forward"
-msgstr "mer replay framåt"
+msgstr "hurtigere frem replay"
 
 #: utils/InputEngine.cpp:84
 #, fuzzy
 #| msgid "more replay backward"
 msgctxt "InputEvent"
 msgid "more replay backward"
-msgstr "mer replay bakåt"
+msgstr "hurtigere baglæns replay"
 
 #: utils/InputEngine.cpp:85
 #, fuzzy
 #| msgid "move replay fast forward"
 msgctxt "InputEvent"
 msgid "move replay fast forward"
-msgstr "flytta replay snabbspolning framåt"
+msgstr "spol frem i replay"
 
 #: utils/InputEngine.cpp:86
 #, fuzzy
 #| msgid "move replay fast backward"
 msgctxt "InputEvent"
 msgid "move replay fast backward"
-msgstr "gå upp snabbt bakåt"
+msgstr "Kør replay hurtigt baglæns"
 
 #. Common: UI
 #: utils/InputEngine.cpp:89
@@ -5633,14 +5611,14 @@ msgstr "gå upp snabbt bakåt"
 #| msgid "show / hide the console"
 msgctxt "InputEvent"
 msgid "show / hide the console"
-msgstr "visa/dölj konsolen"
+msgstr "Vis / skjul konsolen"
 
 #: utils/InputEngine.cpp:90
 #, fuzzy
 #| msgid "enter the chat"
 msgctxt "InputEvent"
 msgid "enter the chat"
-msgstr "äntra chatten"
+msgstr "Gå ind i chat"
 
 #: utils/InputEngine.cpp:91
 #, fuzzy
@@ -5654,14 +5632,14 @@ msgstr "skicka den inskrivna texten"
 #| msgid "hide all GUI elements"
 msgctxt "InputEvent"
 msgid "hide all GUI elements"
-msgstr "dölja alla GUI element"
+msgstr "Gem alle GUI elementer"
 
 #: utils/InputEngine.cpp:93
 #, fuzzy
 #| msgid "display or hide net chat"
 msgctxt "InputEvent"
 msgid "display or hide the dashboard overlay"
-msgstr "visa eller dölj chatt"
+msgstr "vis eller skjul net chat"
 
 #: utils/InputEngine.cpp:94
 msgctxt "InputEvent"
@@ -5678,35 +5656,35 @@ msgstr ""
 #| msgid "toggle truck HUD"
 msgctxt "InputEvent"
 msgid "toggle truck HUD"
-msgstr "växla lastbil HUD"
+msgstr "slå lastbilens HUD til/fra"
 
 #: utils/InputEngine.cpp:97
 #, fuzzy
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle truck description"
-msgstr "aktivera varningsljus"
+msgstr "tænd/sluk lastbilens roterblink"
 
 #: utils/InputEngine.cpp:98
 #, fuzzy
 #| msgid "display or hide net chat"
 msgctxt "InputEvent"
 msgid "display or hide net chat"
-msgstr "visa eller dölj chatt"
+msgstr "vis eller skjul net chat"
 
 #: utils/InputEngine.cpp:99
 #, fuzzy
 #| msgid "toggle between net chat display modes"
 msgctxt "InputEvent"
 msgid "toggle between net chat display modes"
-msgstr "växla mellan netto chatta visningslägen"
+msgstr "Skift mellem net chat visnings muligheder"
 
 #: utils/InputEngine.cpp:100
 #, fuzzy
 #| msgid "toggle Ogre statistics (FPS etc.)"
 msgctxt "InputEvent"
 msgid "toggle Ogre statistics (FPS etc.)"
-msgstr "visa Ogre-statistik (FPS etc.)"
+msgstr "vis Ogre statistik (FPS osv.)"
 
 #. Common: savegames
 #: utils/InputEngine.cpp:103
@@ -5855,7 +5833,7 @@ msgstr "laddad position från plats "
 #| msgid "accelerate the truck"
 msgctxt "InputEvent"
 msgid "accelerate the truck"
-msgstr "accelerera lastbilen"
+msgstr "accelerer lastbilen"
 
 #: utils/InputEngine.cpp:127
 msgctxt "InputEvent"
@@ -5872,28 +5850,28 @@ msgstr ""
 #| msgid "toggle left direction indicator (blinker)"
 msgctxt "InputEvent"
 msgid "toggle left direction indicator (blinker)"
-msgstr "slå av/på vänster blinkers"
+msgstr "aktiver venstre retnings indikator (blinklys)"
 
 #: utils/InputEngine.cpp:130
 #, fuzzy
 #| msgid "toggle right direction indicator (blinker)"
 msgctxt "InputEvent"
 msgid "toggle right direction indicator (blinker)"
-msgstr "slå av/på höger blinkers"
+msgstr "Brug højre indikator (blinklys)"
 
 #: utils/InputEngine.cpp:131
 #, fuzzy
 #| msgid "toggle all direction indicators"
 msgctxt "InputEvent"
 msgid "toggle all direction indicators"
-msgstr "växla alla körriktningsvisare"
+msgstr "Haveriblink"
 
 #: utils/InputEngine.cpp:132
 #, fuzzy
 #| msgid "brake"
 msgctxt "InputEvent"
 msgid "brake"
-msgstr "broms"
+msgstr "bremse"
 
 #: utils/InputEngine.cpp:133
 msgctxt "InputEvent"
@@ -5910,98 +5888,98 @@ msgstr ""
 #| msgid "truck horn"
 msgctxt "InputEvent"
 msgid "truck horn"
-msgstr "lastbilstuta"
+msgstr "Lastbil horn"
 
 #: utils/InputEngine.cpp:136
 #, fuzzy
 #| msgid "toggle custom light 1"
 msgctxt "InputEvent"
 msgid "toggle custom light 1"
-msgstr "växla specialljus 1"
+msgstr "tænd/sluk special lys 1"
 
 #: utils/InputEngine.cpp:137
 #, fuzzy
 #| msgid "toggle custom light 2"
 msgctxt "InputEvent"
 msgid "toggle custom light 2"
-msgstr "växla specialljus 2"
+msgstr "tænd/sluk special lys 2"
 
 #: utils/InputEngine.cpp:138
 #, fuzzy
 #| msgid "toggle custom light 3"
 msgctxt "InputEvent"
 msgid "toggle custom light 3"
-msgstr "växla specialljus 3"
+msgstr "tænd/sluk special lys 3"
 
 #: utils/InputEngine.cpp:139
 #, fuzzy
 #| msgid "toggle custom light 4"
 msgctxt "InputEvent"
 msgid "toggle custom light 4"
-msgstr "växla specialljus 4"
+msgstr "tænd/sluk special lys 4"
 
 #: utils/InputEngine.cpp:140
 #, fuzzy
 #| msgid "toggle custom light 5"
 msgctxt "InputEvent"
 msgid "toggle custom light 5"
-msgstr "växla specialljus 5"
+msgstr "tænd/sluk special lys 5"
 
 #: utils/InputEngine.cpp:141
 #, fuzzy
 #| msgid "toggle custom light 6"
 msgctxt "InputEvent"
 msgid "toggle custom light 6"
-msgstr "växla specialljus 6"
+msgstr "tænd/sluk special lys 6"
 
 #: utils/InputEngine.cpp:142
 #, fuzzy
 #| msgid "toggle custom light 7"
 msgctxt "InputEvent"
 msgid "toggle custom light 7"
-msgstr "växla specialljus 7"
+msgstr "tænd/sluk special lys 7"
 
 #: utils/InputEngine.cpp:143
 #, fuzzy
 #| msgid "toggle custom light 8"
 msgctxt "InputEvent"
 msgid "toggle custom light 8"
-msgstr "växla specialljus 8"
+msgstr "tænd/sluk speciel lys 8"
 
 #: utils/InputEngine.cpp:144
 #, fuzzy
 #| msgid "toggle custom light 9"
 msgctxt "InputEvent"
 msgid "toggle custom light 9"
-msgstr "växla specialljus 9"
+msgstr "tænd/sluk speciel lys 9"
 
 #: utils/InputEngine.cpp:145
 #, fuzzy
 #| msgid "toggle custom light 10"
 msgctxt "InputEvent"
 msgid "toggle custom light 10"
-msgstr "växla specialljus 10"
+msgstr "tænd/sluk speciel lys 10"
 
 #: utils/InputEngine.cpp:146
 #, fuzzy
 #| msgid "toggle parking brake"
 msgctxt "InputEvent"
 msgid "toggle parking brake"
-msgstr "parkeringsbroms"
+msgstr "Træk håndbremsen"
 
 #: utils/InputEngine.cpp:147
 #, fuzzy
 #| msgid "toggle parking brake"
 msgctxt "InputEvent"
 msgid "toggle trailer parking brake"
-msgstr "parkeringsbroms"
+msgstr "Træk håndbremsen"
 
 #: utils/InputEngine.cpp:148
 #, fuzzy
 #| msgid "toggle antilock brake"
 msgctxt "InputEvent"
 msgid "toggle antilock brake"
-msgstr "växla antilås bromsar"
+msgstr "Træk håndbremsen"
 
 #: utils/InputEngine.cpp:149
 #, fuzzy
@@ -6015,14 +5993,14 @@ msgstr "växla antilås bromsar"
 #| msgid "toggle traction control"
 msgctxt "InputEvent"
 msgid "toggle traction control"
-msgstr "Växla tractionkontroll"
+msgstr "tænd/sluk lastbilens roterblink"
 
 #: utils/InputEngine.cpp:151
 #, fuzzy
 #| msgid "toggle cruise control"
 msgctxt "InputEvent"
 msgid "toggle cruise control"
-msgstr "Växla farthållare"
+msgstr "tænd/sluk partikel kanon"
 
 #: utils/InputEngine.cpp:152
 #, fuzzy
@@ -6050,14 +6028,14 @@ msgstr "minska målhastigheten / rpm"
 #| msgid "hold to start the engine"
 msgctxt "InputEvent"
 msgid "hold to start the engine"
-msgstr "tryck in för att starta motorn"
+msgstr "Hold for at starte motor"
 
 #: utils/InputEngine.cpp:156 utils/InputEngine.cpp:215
 #, fuzzy
 #| msgid "steer left"
 msgctxt "InputEvent"
 msgid "steer left"
-msgstr "styr vänster"
+msgstr "Styr til venstre"
 
 #. Airplane
 #: utils/InputEngine.cpp:157 utils/InputEngine.cpp:203
@@ -6066,35 +6044,35 @@ msgstr "styr vänster"
 #| msgid "steer right"
 msgctxt "InputEvent"
 msgid "steer right"
-msgstr "styr höger"
+msgstr "Styr til højre"
 
 #: utils/InputEngine.cpp:158
 #, fuzzy
 #| msgid "toggle ignition"
 msgctxt "InputEvent"
 msgid "toggle ignition"
-msgstr "tändning av/på"
+msgstr "tænd/sluk tænding"
 
 #: utils/InputEngine.cpp:159
 #, fuzzy
 #| msgid "[forwards commands]"
 msgctxt "InputEvent"
 msgid "toggle forwardcommands"
-msgstr "[framåt kommandon]"
+msgstr "tænd/sluk lastbilens roterblink"
 
 #: utils/InputEngine.cpp:160
 #, fuzzy
 #| msgid "[imports commands]"
 msgctxt "InputEvent"
 msgid "toggle importcommands"
-msgstr "[importerade kommandon]"
+msgstr "tænd/sluk lastbilens roterblink"
 
 #: utils/InputEngine.cpp:161
 #, fuzzy
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle physics"
-msgstr "aktivera varningsljus"
+msgstr "tænd/sluk lastbilens roterblink"
 
 #: utils/InputEngine.cpp:162
 msgctxt "InputEvent"
@@ -6111,42 +6089,42 @@ msgstr ""
 #| msgid "toggle cruise control"
 msgctxt "InputEvent"
 msgid "toggle transfer case mode"
-msgstr "Växla farthållare"
+msgstr "skift mellem gearskifte typer"
 
 #: utils/InputEngine.cpp:165
 #, fuzzy
 #| msgid "toggle parking brake"
 msgctxt "InputEvent"
 msgid "toggle transfer case gear ratio"
-msgstr "parkeringsbroms"
+msgstr "Træk håndbremsen"
 
 #: utils/InputEngine.cpp:166
 #, fuzzy
 #| msgid "move left mirror to the left"
 msgctxt "InputEvent"
 msgid "move left mirror to the left"
-msgstr "flytta vänster spegel till vänster"
+msgstr "flyt venstre spejl til venstre"
 
 #: utils/InputEngine.cpp:167
 #, fuzzy
 #| msgid "move left mirror to the right"
 msgctxt "InputEvent"
 msgid "move left mirror to the right"
-msgstr "flytta vänster spegel till höger"
+msgstr "Flyt venstre spejl til højre"
 
 #: utils/InputEngine.cpp:168
 #, fuzzy
 #| msgid "more right mirror to the left"
 msgctxt "InputEvent"
 msgid "more right mirror to the left"
-msgstr "mer rätt spegel till vänster"
+msgstr "Mere højre spejl til venstre"
 
 #: utils/InputEngine.cpp:169
 #, fuzzy
 #| msgid "move right mirror to the right"
 msgctxt "InputEvent"
 msgid "move right mirror to the right"
-msgstr "flytta höger spegel till höger"
+msgstr "flyt højre spejl til højre"
 
 #. Truck: transmission
 #: utils/InputEngine.cpp:172
@@ -6154,280 +6132,280 @@ msgstr "flytta höger spegel till höger"
 #| msgid "shift automatic transmission one gear down"
 msgctxt "InputEvent"
 msgid "shift automatic transmission one gear down"
-msgstr "automatväxlingsläge växla ner en växel"
+msgstr "Skift automatik gearkasse et gear ned"
 
 #: utils/InputEngine.cpp:173
 #, fuzzy
 #| msgid "shift automatic transmission one gear up"
 msgctxt "InputEvent"
 msgid "shift automatic transmission one gear up"
-msgstr "automatväxlingsläge växla upp en växel"
+msgstr "skift automat gear et gear op"
 
 #: utils/InputEngine.cpp:174
 #, fuzzy
 #| msgid "manual clutch (for manual transmission)"
 msgctxt "InputEvent"
 msgid "manual clutch (for manual transmission)"
-msgstr "manuell koppling (för manuell transmission)"
+msgstr "manuel kobling (til manuel gearskifte)"
 
 #: utils/InputEngine.cpp:175
 #, fuzzy
 #| msgid "shift one gear down in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift one gear down in manual transmission mode"
-msgstr "växla ner en växel i manuellt växelläge"
+msgstr "skift et gear ned i manuel gearskift"
 
 #: utils/InputEngine.cpp:176
 #, fuzzy
 #| msgid "shift to neutral gear in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift to neutral gear in manual transmission mode"
-msgstr "växla till friläge i manuellt växelläge"
+msgstr "Skift til neutral gear i manuel gearskifte"
 
 #: utils/InputEngine.cpp:177
 #, fuzzy
 #| msgid "shift one gear up in manual transmission mode"
 msgctxt "InputEvent"
 msgid "shift one gear up in manual transmission mode"
-msgstr "växla upp en växel i manuellt växelläge"
+msgstr "Skift et gear op i manuelt gearskifte"
 
 #: utils/InputEngine.cpp:178
 #, fuzzy
 #| msgid "shift directly to reverse gear"
 msgctxt "InputEvent"
 msgid "shift directly to reverse gear"
-msgstr "växla direkt till backväxeln"
+msgstr "skift direkte til bakgear"
 
 #: utils/InputEngine.cpp:179
 #, fuzzy
 #| msgid "shift directly to first gear"
 msgctxt "InputEvent"
 msgid "shift directly to first gear"
-msgstr "växla direkt till 1a växeln"
+msgstr "Skift direkte i første gear"
 
 #: utils/InputEngine.cpp:180
 #, fuzzy
 #| msgid "shift directly to second gear"
 msgctxt "InputEvent"
 msgid "shift directly to second gear"
-msgstr "växla direkt till 2a växeln"
+msgstr "Skift direkte til andet gear"
 
 #: utils/InputEngine.cpp:181
 #, fuzzy
 #| msgid "shift directly to third gear"
 msgctxt "InputEvent"
 msgid "shift directly to third gear"
-msgstr "växla direkt till 3e växeln"
+msgstr "Skift direkte til tredje gear"
 
 #: utils/InputEngine.cpp:182
 #, fuzzy
 #| msgid "shift directly to fourth gear"
 msgctxt "InputEvent"
 msgid "shift directly to fourth gear"
-msgstr "växla direkt till 4e växeln"
+msgstr "skift direkte i fjerde gear"
 
 #: utils/InputEngine.cpp:183
 #, fuzzy
 #| msgid "shift directly to 5th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 5th gear"
-msgstr "växla direkt till 5e växeln"
+msgstr "skift direkte til femte gear"
 
 #: utils/InputEngine.cpp:184
 #, fuzzy
 #| msgid "shift directly to 6th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 6th gear"
-msgstr "växla direkt till 6e växeln"
+msgstr "skift direkte i sjette gear"
 
 #: utils/InputEngine.cpp:185
 #, fuzzy
 #| msgid "shift directly to 7th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 7th gear"
-msgstr "växla direkt till 7e växeln"
+msgstr "skift direkte i syvende gear"
 
 #: utils/InputEngine.cpp:186
 #, fuzzy
 #| msgid "shift directly to 8th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 8th gear"
-msgstr "växla direkt till 8e växeln"
+msgstr "Skift direkte i ottende gear"
 
 #: utils/InputEngine.cpp:187
 #, fuzzy
 #| msgid "shift directly to 9th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 9th gear"
-msgstr "växla direkt till 9e växeln"
+msgstr "skift direkte i niende gear"
 
 #: utils/InputEngine.cpp:188
 #, fuzzy
 #| msgid "shift directly to 10th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 10th gear"
-msgstr "växla direkt till 10e växeln"
+msgstr "skift direkte i tiende gear"
 
 #: utils/InputEngine.cpp:189
 #, fuzzy
 #| msgid "shift directly to 11th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 11th gear"
-msgstr "växla direkt till 11e växeln"
+msgstr "skift direkte i 11. gear"
 
 #: utils/InputEngine.cpp:190
 #, fuzzy
 #| msgid "shift directly to 12th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 12th gear"
-msgstr "växla direkt till 12e växeln"
+msgstr "skift direkte til tolvte gear"
 
 #: utils/InputEngine.cpp:191
 #, fuzzy
 #| msgid "shift directly to 13th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 13th gear"
-msgstr "växla direkt till 13e växeln"
+msgstr "skift direkte i trettende gear"
 
 #: utils/InputEngine.cpp:192
 #, fuzzy
 #| msgid "shift directly to 14th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 14th gear"
-msgstr "växla direkt till 14e växeln"
+msgstr "skift direkte i fjortende gear"
 
 #: utils/InputEngine.cpp:193
 #, fuzzy
 #| msgid "shift directly to 15th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 15th gear"
-msgstr "växla direkt till 15e växeln"
+msgstr "skift direkte i femtende gear"
 
 #: utils/InputEngine.cpp:194
 #, fuzzy
 #| msgid "shift directly to 16th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 16th gear"
-msgstr "växla direkt till 16e växeln"
+msgstr "Skift direkte til sekstende gear"
 
 #: utils/InputEngine.cpp:195
 #, fuzzy
 #| msgid "shift directly to 17th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 17th gear"
-msgstr "växla direkt till 17e växeln"
+msgstr "skift direkte i syttende gear"
 
 #: utils/InputEngine.cpp:196
 #, fuzzy
 #| msgid "shift directly to 18th gear"
 msgctxt "InputEvent"
 msgid "shift directly to 18th gear"
-msgstr "växla direkt till 18e växeln"
+msgstr "skift direkte til attende gear"
 
 #: utils/InputEngine.cpp:197
 #, fuzzy
 #| msgid "sets low range (1-6) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets low range (1-6) for H-shaft"
-msgstr "väljer låg-gruppen (1-6) för H-spak"
+msgstr "sætter lavt område (1-6) for H-skift"
 
 #: utils/InputEngine.cpp:198
 #, fuzzy
 #| msgid "sets middle range (7-12) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets middle range (7-12) for H-shaft"
-msgstr "väljer mellangruppen (7-12) för H-spak"
+msgstr "Indstiller midter området (7-12) for H-skift"
 
 #: utils/InputEngine.cpp:199
 #, fuzzy
 #| msgid "sets high range (13-18) for H-shaft"
 msgctxt "InputEvent"
 msgid "sets high range (13-18) for H-shaft"
-msgstr "väljer hög-gruppen (13-18) för H-spak"
+msgstr "sætter højt område (13-18) for H-skift"
 
 #: utils/InputEngine.cpp:200
 #, fuzzy
 #| msgid "toggle between transmission modes"
 msgctxt "InputEvent"
 msgid "toggle between transmission modes"
-msgstr "växla mellan transmissonslägen"
+msgstr "skift mellem gearskifte typer"
 
 #: utils/InputEngine.cpp:204
 #, fuzzy
 #| msgid "normal brake for an aircraft"
 msgctxt "InputEvent"
 msgid "normal brake for an aircraft"
-msgstr "normal broms för ett flygplan"
+msgstr "Normal bremse for et fly"
 
 #: utils/InputEngine.cpp:205
 #, fuzzy
 #| msgid "pull the elevator down in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator down in an aircraft."
-msgstr "vinkla ner höjdrodret i ett flygplan."
+msgstr "Træk højderor ned på et fly."
 
 #: utils/InputEngine.cpp:206
 #, fuzzy
 #| msgid "pull the elevator up in an aircraft."
 msgctxt "InputEvent"
 msgid "pull the elevator up in an aircraft."
-msgstr "vinkla upp höjdrodret i ett flygplan."
+msgstr "træk højderoret op på flyet"
 
 #: utils/InputEngine.cpp:207
 #, fuzzy
 #| msgid "full flaps in an aircraft."
 msgctxt "InputEvent"
 msgid "full flaps in an aircraft."
-msgstr "full klaff i ett flygplan."
+msgstr "Fuld flaps i et fly"
 
 #: utils/InputEngine.cpp:208
 #, fuzzy
 #| msgid "one step less flaps."
 msgctxt "InputEvent"
 msgid "one step less flaps."
-msgstr "ett steg mindre klaffar."
+msgstr "et trin mindre flaps."
 
 #: utils/InputEngine.cpp:209
 #, fuzzy
 #| msgid "one step more flaps."
 msgctxt "InputEvent"
 msgid "one step more flaps."
-msgstr "ett steg mer klaffar."
+msgstr "Et trin mere flaps."
 
 #: utils/InputEngine.cpp:210
 #, fuzzy
 #| msgid "no flaps."
 msgctxt "InputEvent"
 msgid "no flaps."
-msgstr "inga klaffar."
+msgstr "ingen flaps."
 
 #: utils/InputEngine.cpp:211
 #, fuzzy
 #| msgid "airplane parking brake."
 msgctxt "InputEvent"
 msgid "airplane parking brake."
-msgstr "flygplans parkeringsbroms"
+msgstr "Fly parkerings bremse."
 
 #: utils/InputEngine.cpp:212
 #, fuzzy
 #| msgid "reverse the turboprops"
 msgctxt "InputEvent"
 msgid "reverse the turboprops"
-msgstr "backa turbopropparna"
+msgstr "slå bak med turboprops"
 
 #: utils/InputEngine.cpp:213
 #, fuzzy
 #| msgid "rudder left"
 msgctxt "InputEvent"
 msgid "rudder left"
-msgstr "roder vänster"
+msgstr "ror til venstre"
 
 #: utils/InputEngine.cpp:214
 #, fuzzy
 #| msgid "rudder right"
 msgctxt "InputEvent"
 msgid "rudder right"
-msgstr "roder höger"
+msgstr "ror til højre"
 
 #: utils/InputEngine.cpp:217 utils/InputEngine.cpp:236
 #, fuzzy
@@ -6445,70 +6423,70 @@ msgstr ""
 #| msgid "decreases the airplane thrust"
 msgctxt "InputEvent"
 msgid "decreases the airplane thrust"
-msgstr "minskar flygplan dragkraft"
+msgstr "formindsk flyets kraft"
 
 #: utils/InputEngine.cpp:219
 #, fuzzy
 #| msgid "full thrust"
 msgctxt "InputEvent"
 msgid "full thrust"
-msgstr "full dragkraft"
+msgstr "Fuld kraft"
 
 #: utils/InputEngine.cpp:220 utils/InputEngine.cpp:231
 #, fuzzy
 #| msgid "no thrust"
 msgctxt "InputEvent"
 msgid "no thrust"
-msgstr "ingen dragkraft"
+msgstr "ingen kraft"
 
 #: utils/InputEngine.cpp:221
 #, fuzzy
 #| msgid "increase the airplane thrust"
 msgctxt "InputEvent"
 msgid "increase the airplane thrust"
-msgstr "öka flygplan dragkraft"
+msgstr "Øg flyets trykkraft"
 
 #: utils/InputEngine.cpp:222
 #, fuzzy
 #| msgid "switch all engines on / off"
 msgctxt "InputEvent"
 msgid "switch all engines on / off"
-msgstr "sätt på / av alla motorer"
+msgstr "Tænd / sluk alle motorer"
 
 #: utils/InputEngine.cpp:223
 #, fuzzy
 #| msgid "no airbrakes"
 msgctxt "InputEvent"
 msgid "no airbrakes"
-msgstr "inga luftbromsar"
+msgstr "ingen luftbremse"
 
 #: utils/InputEngine.cpp:224
 #, fuzzy
 #| msgid "full airbrakes"
 msgctxt "InputEvent"
 msgid "full airbrakes"
-msgstr "full luftbroms"
+msgstr "Fuld luftbremse"
 
 #: utils/InputEngine.cpp:225
 #, fuzzy
 #| msgid "less airbrakes"
 msgctxt "InputEvent"
 msgid "less airbrakes"
-msgstr "mindre luftbroms"
+msgstr "mindre luftbremse"
 
 #: utils/InputEngine.cpp:226
 #, fuzzy
 #| msgid "more airbrakes"
 msgctxt "InputEvent"
 msgid "more airbrakes"
-msgstr "Mer Luftbroms"
+msgstr "flere luftbremser"
 
 #: utils/InputEngine.cpp:227
 #, fuzzy
 #| msgid "airplane throttle"
 msgctxt "InputEvent"
 msgid "airplane throttle"
-msgstr "flygplans gasreglge"
+msgstr "fly gasgivning"
 
 #. Boat
 #: utils/InputEngine.cpp:230
@@ -6516,49 +6494,49 @@ msgstr "flygplans gasreglge"
 #| msgid "center the rudder"
 msgctxt "InputEvent"
 msgid "center the rudder"
-msgstr "centrera rodret"
+msgstr "centrer ror"
 
 #: utils/InputEngine.cpp:232
 #, fuzzy
 #| msgid "steer left a step"
 msgctxt "InputEvent"
 msgid "steer left a step"
-msgstr "styr vänster ett steg"
+msgstr "styr et skridt til venstre"
 
 #: utils/InputEngine.cpp:233
 #, fuzzy
 #| msgid "steer left (analog value!)"
 msgctxt "InputEvent"
 msgid "steer left (analog value!)"
-msgstr "styr vänster (analogt värde!)"
+msgstr "styr venstre (analog værdi!)"
 
 #: utils/InputEngine.cpp:234
 #, fuzzy
 #| msgid "steer right a step"
 msgctxt "InputEvent"
 msgid "steer right a step"
-msgstr "styr höger ett steg"
+msgstr "styr et skridt til højre"
 
 #: utils/InputEngine.cpp:235
 #, fuzzy
 #| msgid "steer right (analog value!)"
 msgctxt "InputEvent"
 msgid "steer right (analog value!)"
-msgstr "styr höger (analogt värde!)"
+msgstr "styr til højre (analig værdi!)"
 
 #: utils/InputEngine.cpp:237
 #, fuzzy
 #| msgid "decrease throttle"
 msgctxt "InputEvent"
 msgid "decrease throttle"
-msgstr "minska gaspådrag"
+msgstr "formindsk gas"
 
 #: utils/InputEngine.cpp:238
 #, fuzzy
 #| msgid "increase throttle"
 msgctxt "InputEvent"
 msgid "increase throttle"
-msgstr "öka gas"
+msgstr "giv gas"
 
 #. Commands
 #: utils/InputEngine.cpp:241
@@ -6685,7 +6663,7 @@ msgstr "Kommando 17"
 #| msgid "Command 18"
 msgctxt "InputEvent"
 msgid "Command 18"
-msgstr "Kommando 18"
+msgstr "kommando 18"
 
 #: utils/InputEngine.cpp:259
 #, fuzzy
@@ -6748,7 +6726,7 @@ msgstr "Kommando 26"
 #| msgid "Command 27"
 msgctxt "InputEvent"
 msgid "Command 27"
-msgstr "Kommando 27"
+msgstr "kommando 27"
 
 #: utils/InputEngine.cpp:268
 #, fuzzy
@@ -6790,7 +6768,7 @@ msgstr "Kommando 32"
 #| msgid "Command 33"
 msgctxt "InputEvent"
 msgid "Command 33"
-msgstr "Kommando 33"
+msgstr "kommando 33"
 
 #: utils/InputEngine.cpp:274
 #, fuzzy
@@ -6902,14 +6880,14 @@ msgstr "Kommando 48"
 #| msgid "Command 4"
 msgctxt "InputEvent"
 msgid "Command 49"
-msgstr "Kommando 4"
+msgstr "Kommando 49"
 
 #: utils/InputEngine.cpp:290
 #, fuzzy
 #| msgid "Command 5"
 msgctxt "InputEvent"
 msgid "Command 50"
-msgstr "Kommando 5"
+msgstr "Kommando 50"
 
 #: utils/InputEngine.cpp:291
 #, fuzzy
@@ -7140,14 +7118,14 @@ msgstr "Kommando 8"
 #| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 83"
-msgstr "Kommando 8"
+msgstr "Kommando 83"
 
 #: utils/InputEngine.cpp:324
 #, fuzzy
 #| msgid "Command 8"
 msgctxt "InputEvent"
 msgid "Command 84"
-msgstr "Kommando 8"
+msgstr "Kommando 84"
 
 #. Character
 #: utils/InputEngine.cpp:327
@@ -7155,70 +7133,70 @@ msgstr "Kommando 8"
 #| msgid "step backwards with the character"
 msgctxt "InputEvent"
 msgid "step backwards with the character"
-msgstr "kliv bakåt med karaktären"
+msgstr "Træd bagud med karakteren"
 
 #: utils/InputEngine.cpp:328
 #, fuzzy
 #| msgid "step forward with the character"
 msgctxt "InputEvent"
 msgid "step forward with the character"
-msgstr "kliv framåt med karaktären"
+msgstr "træd fremad med karakteren"
 
 #: utils/InputEngine.cpp:329
 #, fuzzy
 #| msgid "let the character jump"
 msgctxt "InputEvent"
 msgid "let the character jump"
-msgstr "låt personen hoppa"
+msgstr "Lad karakteren hoppe"
 
 #: utils/InputEngine.cpp:330
 #, fuzzy
 #| msgid "rotate character left"
 msgctxt "InputEvent"
 msgid "rotate character left"
-msgstr "rotera karaktären åt vänster"
+msgstr "Drej karakteren til venstre"
 
 #: utils/InputEngine.cpp:331
 #, fuzzy
 #| msgid "rotate character right"
 msgctxt "InputEvent"
 msgid "rotate character right"
-msgstr "rotera karaktären åt höger"
+msgstr "Drej karakteren til højre"
 
 #: utils/InputEngine.cpp:332
 #, fuzzy
 #| msgid "let the character run"
 msgctxt "InputEvent"
 msgid "let the character run"
-msgstr "låt personen springa"
+msgstr "Lad karakteren løbe"
 
 #: utils/InputEngine.cpp:333
 #, fuzzy
 #| msgid "sidestep to the left"
 msgctxt "InputEvent"
 msgid "sidestep to the left"
-msgstr "sidsteg åt vänster"
+msgstr "træd til venstre"
 
 #: utils/InputEngine.cpp:334
 #, fuzzy
 #| msgid "sidestep to the right"
 msgctxt "InputEvent"
 msgid "sidestep to the right"
-msgstr "sidsteg åt höger"
+msgstr "træd et skridt til højre"
 
 #: utils/InputEngine.cpp:335
 #, fuzzy
 #| msgid "rotate view up"
 msgctxt "InputEvent"
 msgid "rotate view up"
-msgstr "rotera vy uppåt"
+msgstr "Roter syn op"
 
 #: utils/InputEngine.cpp:336
 #, fuzzy
 #| msgid "rotate view down"
 msgctxt "InputEvent"
 msgid "rotate view down"
-msgstr "rotera vy neråt"
+msgstr "Roter syn ned"
 
 #. Camera
 #: utils/InputEngine.cpp:339
@@ -7226,105 +7204,105 @@ msgstr "rotera vy neråt"
 #| msgid "change camera mode"
 msgctxt "InputEvent"
 msgid "change camera mode"
-msgstr "byt kameraläge"
+msgstr "Skift kamera"
 
 #: utils/InputEngine.cpp:340
 #, fuzzy
 #| msgid "look back (toggles between normal and lookback)"
 msgctxt "InputEvent"
 msgid "look back (toggles between normal and lookback)"
-msgstr "blicka tillbaka (växlar mellan normal och lookback)"
+msgstr "kig bagud (skifter mellem alm. og tilbageblik)"
 
 #: utils/InputEngine.cpp:341
 #, fuzzy
 #| msgid "reset the camera position"
 msgctxt "InputEvent"
 msgid "reset the camera position"
-msgstr "återställ kamerapositionen"
+msgstr "reset kamera position"
 
 #: utils/InputEngine.cpp:342
 #, fuzzy
 #| msgid "rotate camera down"
 msgctxt "InputEvent"
 msgid "rotate camera down"
-msgstr "rotera kameran neråt"
+msgstr "roter kamera ned"
 
 #: utils/InputEngine.cpp:343
 #, fuzzy
 #| msgid "rotate camera left"
 msgctxt "InputEvent"
 msgid "rotate camera left"
-msgstr "rotera kameran åt vänster"
+msgstr "roter kamera til venstre"
 
 #: utils/InputEngine.cpp:344
 #, fuzzy
 #| msgid "rotate camera right"
 msgctxt "InputEvent"
 msgid "rotate camera right"
-msgstr "rotera kameran åt höger"
+msgstr "roter kamera til højre"
 
 #: utils/InputEngine.cpp:345
 #, fuzzy
 #| msgid "rotate camera up"
 msgctxt "InputEvent"
 msgid "rotate camera up"
-msgstr "rotera kamera uppåt"
+msgstr "Roter kamera op"
 
 #: utils/InputEngine.cpp:346
 #, fuzzy
 #| msgid "zoom camera in"
 msgctxt "InputEvent"
 msgid "zoom camera in"
-msgstr "zooma in kameran"
+msgstr "Zoom ind"
 
 #: utils/InputEngine.cpp:347
 #, fuzzy
 #| msgid "zoom camera in faster"
 msgctxt "InputEvent"
 msgid "zoom camera in faster"
-msgstr "zooma in kameran snabbare"
+msgstr "zoom kamera ind hurtigere"
 
 #: utils/InputEngine.cpp:348
 #, fuzzy
 #| msgid "zoom camera out"
 msgctxt "InputEvent"
 msgid "zoom camera out"
-msgstr "zooma ut kameran"
+msgstr "zoom kamera ud"
 
 #: utils/InputEngine.cpp:349
 #, fuzzy
 #| msgid "zoom camera out faster"
 msgctxt "InputEvent"
 msgid "zoom camera out faster"
-msgstr "zooma ut kameran snabbare"
+msgstr "Zoom kamera hurtigere ud"
 
 #: utils/InputEngine.cpp:350
 #, fuzzy
 #| msgid "fix the camera to a position"
 msgctxt "InputEvent"
 msgid "fix the camera to a position"
-msgstr "fast kameran till en position"
+msgstr "Lås kameraet på en position"
 
 #: utils/InputEngine.cpp:351
 #, fuzzy
 #| msgid "enable / disable free camera mode"
 msgctxt "InputEvent"
 msgid "enable / disable free camera mode"
-msgstr "aktivera eller inaktivera fria kameraläge"
+msgstr "aktiver / deaktiver frit kamera mode"
 
 #: utils/InputEngine.cpp:352
 #, fuzzy
 #| msgid "rotate camera up"
 msgctxt "InputEvent"
 msgid "move camera up"
-msgstr "rotera kamera uppåt"
+msgstr "Roter kamera op"
 
 #: utils/InputEngine.cpp:353
 #, fuzzy
 #| msgid "rotate camera down"
 msgctxt "InputEvent"
 msgid "move camera down"
-msgstr "rotera kameran neråt"
+msgstr "roter kamera ned"
 
 #. Sky
 #: utils/InputEngine.cpp:356
@@ -7332,28 +7310,28 @@ msgstr "rotera kameran neråt"
 #| msgid "decrease day-time"
 msgctxt "InputEvent"
 msgid "decrease day-time"
-msgstr "Minskningen dag temne"
+msgstr "sænk tidspunkt på dagen"
 
 #: utils/InputEngine.cpp:357
 #, fuzzy
 #| msgid "decrease day-time a lot faster"
 msgctxt "InputEvent"
 msgid "decrease day-time a lot faster"
-msgstr "minskningen dag Temne en mycket snabbare"
+msgstr "sænk tidspunkt på dagen meget hurtigere"
 
 #: utils/InputEngine.cpp:358
 #, fuzzy
 #| msgid "increase day-time"
 msgctxt "InputEvent"
 msgid "increase day-time"
-msgstr "ökningen dag temne"
+msgstr "øg tidspunkt på dagen"
 
 #: utils/InputEngine.cpp:359
 #, fuzzy
 #| msgid "increase day-time a lot faster"
 msgctxt "InputEvent"
 msgid "increase day-time a lot faster"
-msgstr "ökningen dag Temne en mycket snabbare"
+msgstr "Øg tidspunkt på dagen meget hurtigere"
 
 #. Grass
 #: utils/InputEngine.cpp:362
@@ -7361,35 +7339,35 @@ msgstr "ökningen dag Temne en mycket snabbare"
 #| msgid "EXPERIMENTAL: remove some grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove some grass"
-msgstr "EXPERIMENTELLT: ta bort lite gräs"
+msgstr "EKSPERIMENTEL: fjern noget af græsset"
 
 #: utils/InputEngine.cpp:363
 #, fuzzy
 #| msgid "EXPERIMENTAL: add some grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: add some grass"
-msgstr "FÖRSÖKS: tillsätt lite gräs"
+msgstr "EKSPERIMENTEL: tilføj græs"
 
 #: utils/InputEngine.cpp:364
 #, fuzzy
 #| msgid "EXPERIMENTAL: set maximum amount of grass"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: set maximum amount of grass"
-msgstr "FÖRSÖKS: ange maximibeloppet för gräs"
+msgstr "EKSPERIMENTEL: sæt maksimal mængde græs"
 
 #: utils/InputEngine.cpp:365
 #, fuzzy
 #| msgid "EXPERIMENTAL: remove grass completely"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove grass completely"
-msgstr "FÖRSÖKS: ta bort gräset helt"
+msgstr "EKSPERIMENTAL: fjern græs fuldstændigt"
 
 #: utils/InputEngine.cpp:366
 #, fuzzy
 #| msgid "EXPERIMENTAL: save changes to the grass density image"
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: save changes to the grass density image"
-msgstr "FÖRSÖKS: Spara ändringar gräset densitet bild"
+msgstr "EKSPERIMENTAL: gem ændringer i græs tætheds billedet"
 
 #. Survey map
 #: utils/InputEngine.cpp:369
@@ -7397,35 +7375,35 @@ msgstr "FÖRSÖKS: Spara ändringar gräset densitet bild"
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle map icons"
-msgstr "aktivera varningsljus"
+msgstr "tænd/sluk lastbilens roterblink"
 
 #: utils/InputEngine.cpp:370
 #, fuzzy
 #| msgid "toggle truck beacons"
 msgctxt "InputEvent"
 msgid "toggle map"
-msgstr "aktivera varningsljus"
+msgstr "tænd/sluk lastbilens roterblink"
 
 #: utils/InputEngine.cpp:371
 #, fuzzy
 #| msgid "change camera mode"
 msgctxt "InputEvent"
 msgid "cycle map modes"
-msgstr "byt kameraläge"
+msgstr "Skift kamera"
 
 #: utils/InputEngine.cpp:372
 #, fuzzy
 #| msgid "zoom in"
 msgctxt "InputEvent"
 msgid "zoom in"
-msgstr "zooma in"
+msgstr "Zoom ind"
 
 #: utils/InputEngine.cpp:373
 #, fuzzy
 #| msgid "zoom camera out"
 msgctxt "InputEvent"
 msgid "zoom out"
-msgstr "zooma ut kameran"
+msgstr "zoom kamera ud"
 
 #. Menu
 #: utils/InputEngine.cpp:376
@@ -7433,35 +7411,35 @@ msgstr "zooma ut kameran"
 #| msgid "select next element in current category"
 msgctxt "InputEvent"
 msgid "select next element in current category"
-msgstr "välj nästa element i nuvarande katgori"
+msgstr "vælg næste element i nuværende kategori"
 
 #: utils/InputEngine.cpp:377
 #, fuzzy
 #| msgid "select previous category"
 msgctxt "InputEvent"
 msgid "select previous category"
-msgstr "välj föregående kategori"
+msgstr "vælg foregående kategori"
 
 #: utils/InputEngine.cpp:378
 #, fuzzy
 #| msgid "select next category"
 msgctxt "InputEvent"
 msgid "select next category"
-msgstr "välj nästa kategori"
+msgstr "vælg næste kategori"
 
 #: utils/InputEngine.cpp:379
 #, fuzzy
 #| msgid "select focussed item and close menu"
 msgctxt "InputEvent"
 msgid "select focussed item and close menu"
-msgstr "välj fokuserat objektet och stänga menyn"
+msgstr "vælg fokuserede objekt og luk menu"
 
 #: utils/InputEngine.cpp:380
 #, fuzzy
 #| msgid "select previous element in current category"
 msgctxt "InputEvent"
 msgid "select previous element in current category"
-msgstr "välj föregående element i nuvarande kategori"
+msgstr "Vælg foregående element i nuværende kategori"
 
 #. Truck editing
 #: utils/InputEngine.cpp:383
@@ -7469,7 +7447,7 @@ msgstr "välj föregående element i nuvarande kategori"
 #| msgid "reload truck"
 msgctxt "InputEvent"
 msgid "reload truck"
-msgstr "ladda om lastbil"
+msgstr "bind en last fast til lastbilen"
 
 #. Road editing
 #: utils/InputEngine.cpp:386
@@ -7487,7 +7465,7 @@ msgstr ""
 #| msgid "reset truck to original starting position"
 msgctxt "InputEvent"
 msgid "set road point position"
-msgstr "återställ lastbilen till ursprunglig position"
+msgstr "reset lastbilen til original start position"
 
 #: utils/InputEngine.cpp:389
 msgctxt "InputEvent"
