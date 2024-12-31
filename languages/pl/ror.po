@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2024-12-30 10:53+0000\n"
+"PO-Revision-Date: 2024-12-31 21:00+0000\n"
 "Last-Translator: 987 <antoniosawickips4@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "pl/>\n"
@@ -557,28 +557,22 @@ msgstr "usuń aktualny pojazd"
 #: gui/panels/GUI_AngelScriptExamples.cpp:51
 msgctxt "AngelScript"
 msgid "Gets the G-forces that this truck is currently experiencing"
-msgstr ""
+msgstr "Bierze siły grawitacji, jakie odczuwa ciężarówka"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:52
-#, fuzzy
-#| msgid "save the currently loaded terrain to a mesh file"
 msgctxt "AngelScript"
 msgid "Gets the current rotation of the vehicle"
-msgstr "zapisuje aktualnie załadowany teren do pliku mesh"
+msgstr "Bierze aktualny obrót pojazdu"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:53
-#, fuzzy
-#| msgid "pos - outputs the current position"
 msgctxt "AngelScript"
 msgid "Gets the current position of the vehicle"
-msgstr "pos - przedstawia aktualną pozycję"
+msgstr "Bierze aktualną pozycję pojazdu"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:54
-#, fuzzy
-#| msgid "reset the camera position"
 msgctxt "AngelScript"
 msgid "Gets the node position"
-msgstr "resetuj pozycję kamery"
+msgstr "Bierze pozycję węzła"
 
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
@@ -651,14 +645,12 @@ msgstr ""
 #: gui/panels/GUI_ConsoleView.cpp:257
 msgctxt "Console"
 msgid "Notices"
-msgstr ""
+msgstr "Uwagi"
 
 #: gui/panels/GUI_ConsoleView.cpp:258
-#, fuzzy
-#| msgid "Warning"
 msgctxt "Console"
 msgid "Warnings"
-msgstr "Ostrzeżenie"
+msgstr "Ostrzeżenia"
 
 #: gui/panels/GUI_ConsoleView.cpp:259
 msgctxt "Console"
@@ -707,12 +699,12 @@ msgstr "Komenda 1"
 #: gui/panels/GUI_FlexbodyDebug.cpp:44
 msgctxt "FlexbodyDebug"
 msgid "Flexbody/Prop debug"
-msgstr ""
+msgstr "Debug flexbody/przedmiotu"
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:49
 msgctxt "FlexbodyDebug"
 msgid "You are on foot."
-msgstr ""
+msgstr "Jesteś pieszo."
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:57
 msgctxt "FlexbodyDebug"
@@ -722,7 +714,7 @@ msgstr ""
 #: gui/panels/GUI_FlexbodyDebug.cpp:62
 msgctxt "FlexbodyDebug"
 msgid "Select element"
-msgstr ""
+msgstr "Wybierz element"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
 #, fuzzy
@@ -1168,11 +1160,9 @@ msgstr ""
 "łatwiej się wydostać (to zależy również od prędkości adhezji)."
 
 #: gui/panels/GUI_GameAbout.cpp:47
-#, fuzzy
-#| msgid "quit - exit Rigs of Rods"
 msgctxt "About"
 msgid "About Rigs of Rods"
-msgstr "quit - opuszcza Rigs of Rods"
+msgstr "O Rigs of Rods"
 
 #: gui/panels/GUI_GameAbout.cpp:49
 #, fuzzy
@@ -1228,7 +1218,7 @@ msgstr ""
 #: gui/panels/GUI_GameAbout.cpp:117
 msgctxt "About"
 msgid "Testers"
-msgstr ""
+msgstr "Testerzy"
 
 #: gui/panels/GUI_GameAbout.cpp:121
 msgctxt "About"
@@ -1312,7 +1302,7 @@ msgstr ""
 #: gui/panels/GUI_GameControls.cpp:235
 msgctxt "GameSettings"
 msgid "EventType"
-msgstr ""
+msgstr "Typ wydarzenia"
 
 #. Buttons
 #: gui/panels/GUI_GameControls.cpp:280
