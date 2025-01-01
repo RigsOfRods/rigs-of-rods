@@ -7,13 +7,13 @@
 # Michał Mańk <michal.090506@gmail.com>, 2023.
 # Crystal Hammer <cryham@gmail.com>, 2023.
 # Michał Domaradzki <michu97736@wp.pl>, 2024.
-# 987 <antoniosawickips4@gmail.com>, 2024.
+# 987 <antoniosawickips4@gmail.com>, 2024, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2024-12-31 21:00+0000\n"
+"PO-Revision-Date: 2025-01-02 05:00+0000\n"
 "Last-Translator: 987 <antoniosawickips4@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "pl/>\n"
@@ -1129,22 +1129,11 @@ msgid "Drag anisotropy:"
 msgstr "Anizotropowość oporu ruchu:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:99
-#, fuzzy
-#| msgid "Drag anisotropy"
 msgctxt "FrictionSettings"
 msgid "Drag anisotropy"
 msgstr "Anizotropowość oporu ruchu"
 
 #: gui/panels/GUI_FrictionSettings.cpp:99
-#, fuzzy
-#| msgid ""
-#| "This parameter is for making it easier(cheating) to get out from mud. To "
-#| "get stuck in real mud isn't fun at all, so this makes the mud push up. "
-#| "Ranges in this parameter are from 0 to 1 . If you set it at 1 then you'll "
-#| "get real mud. For values from 0 to 1, the behavior goes from real mud to "
-#| "easy mud depending on this parameter and the value of Adhesion velocity. "
-#| "For velocity 0 real mud it is. For velocity >= adhesion velocity easy mud "
-#| "it is."
 msgctxt "FrictionSettings"
 msgid ""
 "This parameter is for making it easier(cheating) to get out from mud. To get "
@@ -1165,23 +1154,19 @@ msgid "About Rigs of Rods"
 msgstr "O Rigs of Rods"
 
 #: gui/panels/GUI_GameAbout.cpp:49
-#, fuzzy
-#| msgid "Version"
 msgctxt "About"
 msgid "Version"
 msgstr "Wersja"
 
 #: gui/panels/GUI_GameAbout.cpp:53
-#, fuzzy
-#| msgid "Network Protocol version: %s"
 msgctxt "About"
 msgid "Network protocol"
-msgstr "Wersja protokołu sieciowego: %s"
+msgstr "Protokół sieciowy"
 
 #: gui/panels/GUI_GameAbout.cpp:57
 msgctxt "About"
 msgid "Build time"
-msgstr "Czas kompilacji: %s, %s"
+msgstr "Czas kompilacji"
 
 #: gui/panels/GUI_GameAbout.cpp:63
 msgctxt "About"
@@ -1194,26 +1179,24 @@ msgid "Current Developers"
 msgstr "Aktualni Deweloperzy"
 
 #: gui/panels/GUI_GameAbout.cpp:73
-#, fuzzy
-#| msgid "Server Moderator"
 msgctxt "About"
 msgid "Server Contributors"
-msgstr "Moderator serwera"
+msgstr "Wkładcy serwera"
 
 #: gui/panels/GUI_GameAbout.cpp:81
 msgctxt "About"
 msgid "Code Contributors"
-msgstr "Autorzy kodu"
+msgstr "Wkładcy kodu"
 
 #: gui/panels/GUI_GameAbout.cpp:107
 msgctxt "About"
 msgid "Core Content Contributors"
-msgstr "Główni Autorzy Treści"
+msgstr "Główni Wkładcy Treści"
 
 #: gui/panels/GUI_GameAbout.cpp:113
 msgctxt "About"
 msgid "Mod Contributors"
-msgstr ""
+msgstr "Wkładcy modów"
 
 #: gui/panels/GUI_GameAbout.cpp:117
 msgctxt "About"
@@ -1223,29 +1206,27 @@ msgstr "Testerzy"
 #: gui/panels/GUI_GameAbout.cpp:121
 msgctxt "About"
 msgid "Used Libs"
-msgstr ""
+msgstr "Użyte biblioteki"
 
 #: gui/panels/GUI_GameChatBox.cpp:81
-#, fuzzy
-#| msgid "Only current vehicle, main lights"
 msgctxt "ChatBox"
 msgid "Press {} to spawn a vehicle"
-msgstr "Tylko obecny pojazd, główne światła"
+msgstr "Naciśnij {} żeby przywołać pojazd"
 
 #: gui/panels/GUI_GameChatBox.cpp:143
 msgctxt "ChatBox"
 msgid "Chat history (use mouse wheel to scroll)"
-msgstr ""
+msgstr "Historia czatu (użyj kółka myszki by przewijać)"
 
 #: gui/panels/GUI_GameChatBox.cpp:144
 msgctxt "ChatBox"
 msgid "Message"
-msgstr ""
+msgstr "Wiadomość"
 
 #: gui/panels/GUI_GameChatBox.cpp:192
 msgctxt "ChatBox"
 msgid "Whisper message not sent, unknown username: {}"
-msgstr ""
+msgstr "Wiadomość szeptem nie wysłana, nieznana nazwa: {}"
 
 #: gui/panels/GUI_GameChatBox.cpp:199
 #, fuzzy
@@ -1322,32 +1303,27 @@ msgstr "Anuluj"
 #: gui/panels/GUI_GameControls.cpp:290
 msgctxt "GameSettings"
 msgid "Delete"
-msgstr ""
+msgstr "Usuń"
 
 #: gui/panels/GUI_GameMainMenu.cpp:115
 msgctxt "MainMenu"
 msgid "Single player"
-msgstr ""
+msgstr "Singleplayer"
 
 #: gui/panels/GUI_GameMainMenu.cpp:125 gui/panels/GUI_GameMainMenu.cpp:134
 msgctxt "MainMenu"
 msgid "Resume game"
-msgstr ""
+msgstr "Wznów grę"
 
 #: gui/panels/GUI_GameMainMenu.cpp:143
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Debug collisions"
 msgctxt "MainMenu"
 msgid "Multiplayer"
-msgstr "Debuguj kolizje"
+msgstr "Multiplayer"
 
 #: gui/panels/GUI_GameMainMenu.cpp:149
-#, fuzzy
-#| msgid "Compositors: "
 msgctxt "MainMenu"
 msgid "Repository"
-msgstr "Kompozytory:"
+msgstr "Repozytorium"
 
 #: gui/panels/GUI_GameMainMenu.cpp:155
 #, fuzzy
@@ -1372,50 +1348,39 @@ msgstr "Około"
 
 #: gui/panels/GUI_GameMainMenu.cpp:181
 msgid "Return to menu"
-msgstr ""
+msgstr "Wróć do menu"
 
 #: gui/panels/GUI_GameMainMenu.cpp:192
-#, fuzzy
-#| msgid "exit the game"
 msgctxt "MainMenu"
 msgid "Exit game"
-msgstr "wyjdź z gry"
+msgstr "Wyjdź z gry"
 
 #: gui/panels/GUI_GameMainMenu.cpp:230 gui/panels/GUI_GameMainMenu.cpp:258
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Game settings"
 msgctxt "MainMenu"
 msgid "Game version"
-msgstr "Ustawienia gry"
+msgstr "Wersja gry"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:231 gui/panels/GUI_GameMainMenu.cpp:259
-#, fuzzy
-#| msgid "Network Protocol version: %s"
 msgctxt "MainMenu"
 msgid "Net. protocol"
-msgstr "Wersja protokołu sieciowego: %s"
+msgstr "Prot. sieciowy"
 
 #: gui/panels/GUI_GameMainMenu.cpp:244
-#, fuzzy
-#| msgid "Version: "
 msgctxt "MainMenu"
 msgid "Version box"
-msgstr "Wersja: "
+msgstr "Box wersji"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:260
-#, fuzzy
-#| msgid "Cache cleared"
 msgctxt "MainMenu"
 msgid "Cache updated"
-msgstr "Cache wyczyszczone "
+msgstr "Cache zaktualizowane"
 
 #: gui/panels/GUI_GameMainMenu.cpp:273
 msgctxt "MainMenu"
 msgid "Notice box"
-msgstr ""
+msgstr "Box uwag"
 
 #: gui/panels/GUI_GameSettings.cpp:43
 msgctxt "GameSettings"
@@ -1434,11 +1399,9 @@ msgid "General"
 msgstr "Ogólne"
 
 #: gui/panels/GUI_GameSettings.cpp:65
-#, fuzzy
-#| msgid "Gameplay"
 msgctxt "GameSettings"
 msgid "Gameplay"
-msgstr "Ogólne"
+msgstr "Rozgrywka"
 
 #: gui/panels/GUI_GameSettings.cpp:72
 msgctxt "GameSettings"
@@ -1463,7 +1426,7 @@ msgstr "Diagnostyka"
 #: gui/panels/GUI_GameSettings.cpp:114
 msgctxt "GameSettings"
 msgid "Render system (changes require a restart)"
-msgstr ""
+msgstr "System renderowania (zmiany wymagają restartu)"
 
 #: gui/panels/GUI_GameSettings.cpp:166
 msgctxt "GameSettings"
@@ -1508,11 +1471,9 @@ msgid "Disable online api"
 msgstr "Wyłącz api online"
 
 #: gui/panels/GUI_GameSettings.cpp:230
-#, fuzzy
-#| msgid "Updates"
 msgctxt "GameSettings"
 msgid "Update cache"
-msgstr "Aktualizacje"
+msgstr "Zaktualizuj cache"
 
 #: gui/panels/GUI_GameSettings.cpp:240
 msgctxt "GameSettings"
@@ -1538,7 +1499,7 @@ msgstr "Prędkościomierz imperialny"
 #: gui/panels/GUI_GameSettings.cpp:250
 msgctxt "GameSettings"
 msgid "Engines spawn running"
-msgstr "Silniki tworzą się już włączone"
+msgstr "Silniki generują się włączone"
 
 #: gui/panels/GUI_GameSettings.cpp:252
 msgctxt "GameSettings"
