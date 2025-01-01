@@ -3289,6 +3289,7 @@ void Actor::AddInterActorBeam(beam_t* beam, ActorPtr other, ActorLinkingRequestT
 void Actor::RemoveInterActorBeam(beam_t* beam, ActorLinkingRequestType type)
 {
     ROR_ASSERT(beam->bm_locked_actor);
+    ROR_ASSERT(beam->bm_locked_actor->ar_state != ActorState::DISPOSED);
     ActorPtr other = beam->bm_locked_actor;
     beam->bm_locked_actor = nullptr;
 
@@ -3315,17 +3316,22 @@ void Actor::RemoveInterActorBeam(beam_t* beam, ActorLinkingRequestType type)
         for (ActorPtr& actor : this->ar_linked_actors)
             actor->DetermineLinkedActors();
 
-        other->DetermineLinkedActors();
-        for (ActorPtr& actor : other->ar_linked_actors)
-            actor->DetermineLinkedActors();
-
-        // Reset toggled states.
-        other->ar_physics_paused = false;
-        other->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-        for (ActorPtr& actor : other->ar_linked_actors)
+        // This should never fail (a disposing actor should disconnect everything first)
+        // but there seems to be a bug at the moment.
+        if (other->ar_state != ActorState::DISPOSED)
         {
-            actor->ar_physics_paused = false;
-            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
+            other->DetermineLinkedActors();
+            for (ActorPtr& actor : other->ar_linked_actors)
+                actor->DetermineLinkedActors();
+
+            // Reset toggled states.
+            other->ar_physics_paused = false;
+            other->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
+            for (ActorPtr& actor : other->ar_linked_actors)
+            {
+                actor->ar_physics_paused = false;
+                actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
+            }
         }
 
         // Let scripts know.
