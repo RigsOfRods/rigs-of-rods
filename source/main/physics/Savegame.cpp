@@ -40,6 +40,7 @@
 #include "SkyManager.h"
 #include "Terrain.h"
 #include "TuneupFileFormat.h"
+#include "Utils.h"
 
 #include <rapidjson/rapidjson.h>
 #include <fstream>
@@ -304,8 +305,11 @@ bool ActorManager::LoadScene(Ogre::String save_filename)
     for (rapidjson::Value& j_entry: j_doc["actors"].GetArray())
     {
         // NOTE: The filename is by default in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
-        String rigdef_filename = j_entry["filename"].GetString();
-        CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, rigdef_filename);
+        String rigdef_filename_maybe_bundle_qualified = j_entry["filename"].GetString();
+        std::string filename;
+        std::string bundlename;
+        SplitBundleQualifiedFilename(rigdef_filename_maybe_bundle_qualified, bundlename, filename);
+        CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, rigdef_filename_maybe_bundle_qualified);
 
         CacheEntryPtr skin = nullptr;
         if (j_entry.HasMember("skin"))
@@ -330,9 +334,9 @@ bool ActorManager::LoadScene(Ogre::String save_filename)
         int index = static_cast<int>(actors.size());
         if (index < x_actors.size())
         {
-            if (j_entry["filename"].GetString() != x_actors[index]->ar_filename ||
-                    (skin != nullptr && skin->dname != x_actors[index]->m_used_skin_entry->dname) ||
-                    section_config != x_actors[index]->getSectionConfig())
+            if (filename != x_actors[index]->ar_filename ||
+                (skin != nullptr && skin->dname != x_actors[index]->m_used_skin_entry->dname) ||
+                section_config != x_actors[index]->getSectionConfig())
             {
                 if (x_actors[index] == player_actor)
                 {
