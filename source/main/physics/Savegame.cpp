@@ -352,21 +352,19 @@ bool ActorManager::LoadScene(Ogre::String save_filename)
             }
         }
 
-        if (actor == nullptr)
+        // If a 'preloaded' actor isn't loaded at this point, it means it's not installed.
+        if (actor == nullptr && !j_entry["preloaded_with_terrain"].GetBool())
         {
-            bool preloaded = j_entry["preloaded_with_terrain"].GetBool();
-
             ActorSpawnRequest* rq = new ActorSpawnRequest;
-            rq->asr_filename      = rigdef_filename;
+            rq->asr_filename      = rigdef_filename_maybe_bundle_qualified;
             rq->asr_position.x    = j_entry["position"][0].GetFloat();
-            rq->asr_position.y    = preloaded ? j_entry["position"][1].GetFloat() : j_entry["min_height"].GetFloat();
+            rq->asr_position.y    = j_entry["min_height"].GetFloat();
             rq->asr_position.z    = j_entry["position"][2].GetFloat();
             rq->asr_rotation      = Quaternion(Degree(270) - Radian(j_entry["rotation"].GetFloat()), Vector3::UNIT_Y);
             rq->asr_skin_entry    = skin;
             rq->asr_working_tuneup = working_tuneup;
             rq->asr_config        = section_config;
-            rq->asr_origin        = preloaded ? ActorSpawnRequest::Origin::TERRN_DEF : ActorSpawnRequest::Origin::SAVEGAME;
-            rq->asr_free_position = preloaded;
+            rq->asr_origin        = ActorSpawnRequest::Origin::SAVEGAME;
             // Copy saved state
             rq->asr_saved_state = std::shared_ptr<rapidjson::Document>(new rapidjson::Document());
             rq->asr_saved_state->CopyFrom(j_entry, rq->asr_saved_state->GetAllocator());
