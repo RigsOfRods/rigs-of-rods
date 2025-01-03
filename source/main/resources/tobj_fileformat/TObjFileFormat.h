@@ -24,7 +24,7 @@
 /// @author Petr Ohlidal, 11/2016
 
 #include "Collisions.h"
-#include "ProceduralManager.h"
+#include "ForwardDeclarations.h"
 
 #include <Ogre.h>
 
@@ -37,23 +37,7 @@ namespace TObj {
     const int STR_LEN = 300;
     const int LINE_BUF_LEN = 4000;
 
-    enum class SpecialObject
-    {
-        NONE,
-        TRUCK,
-        LOAD,
-        MACHINE,
-        BOAT,
-        TRUCK2,
-        GRID,
-        // Road types
-        ROAD,
-        ROAD_BORDER_LEFT,
-        ROAD_BORDER_RIGHT,
-        ROAD_BORDER_BOTH,
-        ROAD_BRIDGE_NO_PILLARS,
-        ROAD_BRIDGE,
-    };
+    void WriteToStream(TObjDocumentPtr doc, Ogre::DataStreamPtr stream);
 
 } // namespace TObj
 
@@ -126,8 +110,10 @@ struct TObjVehicle
 {
     Ogre::Vector3       position;
     Ogre::Quaternion    rotation;
+    Ogre::Vector3       tobj_rotation; //!< Original rotation specified in .TOBJ file.
     char                name[TObj::STR_LEN];
-    TObj::SpecialObject type;
+    TObjSpecialObject type;
+    std::string         comments; //!< Comment line(s) preceding the vehicle-line in the .TOBJ file.
 };
 
 // -----------------------------------------------------------------------------
@@ -136,30 +122,33 @@ struct TObjEntry
     TObjEntry() {};
     TObjEntry(
         Ogre::Vector3 pos, Ogre::Vector3 rot, const char* instance_name,
-        TObj::SpecialObject special, const char* type, const char* name);
+        TObjSpecialObject special, const char* type, const char* name);
 
     bool IsActor() const;
     bool IsRoad() const;
 
     Ogre::Vector3        position                     = Ogre::Vector3::ZERO;
     Ogre::Vector3        rotation                     = Ogre::Vector3::ZERO;
-    TObj::SpecialObject  special                      = TObj::SpecialObject::NONE;
+    TObjSpecialObject  special                      = TObjSpecialObject::NONE;
     char                 type[TObj::STR_LEN]          = {};
     char                 instance_name[TObj::STR_LEN] = {};
     char                 odef_name[TObj::STR_LEN]     = {};
     float                rendering_distance           = 0.f; // 0 means 'always rendered', see https://ogrecave.github.io/ogre/api/1.11/class_ogre_1_1_movable_object.html#afe1f2a1009e3f14f36e1bcc9b1b9557e
+    std::string          comments; //!< Comment line(s) preceding the object-line in the .TOBJ file.
 };
 
 // -----------------------------------------------------------------------------
-struct TObjFile
+struct TObjDocument
 {
-    TObjFile():
+    TObjDocument():
         grid_position(),
         grid_enabled(false)
     {}
 
+    std::string                   document_name;
     Ogre::Vector3                 grid_position;
     bool                          grid_enabled;
+    bool                          rot_yxz;
     std::vector<TObjTree>         trees;
     std::vector<TObjGrass>        grass;
     std::vector<TObjVehicle>      vehicles;
@@ -174,7 +163,9 @@ public:
     void                       Prepare();
     bool                       ProcessLine(const char* line);
     void                       ProcessOgreStream(Ogre::DataStream* stream);
-    std::shared_ptr<TObjFile>  Finalize(); //!< Passes ownership
+    TObjDocumentPtr            Finalize(); //!< Passes ownership
+
+    static Ogre::Quaternion    CalcRotation(Ogre::Vector3 const& rot, bool rot_yxz);
 
 private:
     // Processing:
@@ -187,17 +178,17 @@ private:
     void                       ProcessRoadObject(const TObjEntry& object);
 
     // Helpers:
-    void                       ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObj::SpecialObject special);
-    Ogre::Quaternion           CalcRotation(Ogre::Vector3 const& rot) const;
+    void                       ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObjSpecialObject special);
     bool                       ParseObjectLine(TObjEntry& object);
     void                       FlushProceduralObject();
 
-    std::shared_ptr<TObjFile>  m_def;
+    TObjDocumentPtr            m_def;
     std::string                m_filename;
     int                        m_line_number;
     const char*                m_cur_line;
     const char*                m_cur_line_trimmed;
     float                      m_default_rendering_distance;
+    std::string                m_preceding_line_comments;
 
     // Procedural roads
     bool                       m_in_procedural_road;

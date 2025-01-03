@@ -28,6 +28,7 @@
 #include "RefCountingObjectPtr.h"
 
 #include <limits>
+#include <memory>
 #include <vector>
 
 #pragma once
@@ -80,6 +81,9 @@ namespace RoR
 
     typedef int ScriptRetCode_t; //!< see enum `RoR::ScriptRetCode` - combines AngelScript codes and RoR internal codes.
 
+    typedef int TerrainEditorObjectID_t; //!< Offset into `RoR::TerrainObjectManager::m_editor_objects`, use `RoR::TERRAINEDITOROBJECTID_INVALID` as empty value.
+    static const TerrainEditorObjectID_t TERRAINEDITOROBJECTID_INVALID = -1;
+
     class  Actor;
     class  ActorManager;
     class  ActorSpawner;
@@ -116,6 +120,8 @@ namespace RoR
     class  GameContext;
     class  GameScript;
     class  GfxActor;
+    struct GenericDocument;
+    struct GenericDocContext;
     struct GfxCharacter;
     class  GfxEnvmap;
     class  GfxScene;
@@ -132,7 +138,9 @@ namespace RoR
     class  OutGauge;
     class  OverlayWrapper;
     class  Network;
+    struct ODefDocument;
     class  OgreSubsystem;
+    struct OTCDocument;
     struct PlatformUtils;
     class  PointColDetector;
     class  ProceduralManager;
@@ -150,7 +158,7 @@ namespace RoR
     class  ShadowManager;
     class  Skidmark;
     class  SkidmarkConfig;
-    struct SkinDef;
+    struct SkinDocument;
     class  SkinManager;
     class  SkyManager;
     class  SkyXManager;
@@ -164,12 +172,14 @@ namespace RoR
     class  TerrainEditor;
     class  TerrainGeometryManager;
     class  Terrain;
+    class  TerrainEditorObject;
     class  TerrainObjectManager;
     struct Terrn2Author;
-    struct Terrn2Def;
+    struct Terrn2Document;
     class  Terrn2Parser;
     struct Terrn2Telepoint;
     class  ThreadPool;
+    struct TObjDocument;
     class  TorqueCurve;
     struct TuneupDef;
     class  VehicleAI;
@@ -199,8 +209,17 @@ namespace RoR
     struct client_t;
     struct authorinfo_t;
 
+    // File formats - see also separate `RigDef` namespace below.
+    typedef std::shared_ptr<ODefDocument> ODefDocumentPtr;
+    typedef std::shared_ptr<OTCDocument> OTCDocumentPtr;
+    typedef std::shared_ptr<SkinDocument> SkinDocumentPtr;
+    typedef std::shared_ptr<TObjDocument> TObjDocumentPtr;
+    typedef std::shared_ptr<Terrn2Document> Terrn2DocumentPtr;
+
     typedef RefCountingObjectPtr<Actor> ActorPtr;
     typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
+    typedef RefCountingObjectPtr<GenericDocument> GenericDocumentPtr;
+    typedef RefCountingObjectPtr<GenericDocContext> GenericDocContextPtr;
     typedef RefCountingObjectPtr<LocalStorage> LocalStoragePtr;
     typedef RefCountingObjectPtr<ProceduralPoint> ProceduralPointPtr;
     typedef RefCountingObjectPtr<ProceduralObject> ProceduralObjectPtr;
@@ -210,10 +229,12 @@ namespace RoR
     typedef RefCountingObjectPtr<SoundScriptInstance> SoundScriptInstancePtr;
     typedef RefCountingObjectPtr<SoundScriptTemplate> SoundScriptTemplatePtr;
     typedef RefCountingObjectPtr<Terrain> TerrainPtr;
+    typedef RefCountingObjectPtr<TerrainEditorObject> TerrainEditorObjectPtr;
     typedef RefCountingObjectPtr<TuneupDef> TuneupDefPtr;
     typedef RefCountingObjectPtr<VehicleAI> VehicleAIPtr;
 
     typedef std::vector<ActorPtr> ActorPtrVec;
+    typedef std::vector<TerrainEditorObjectPtr> TerrainEditorObjectPtrVec;
 
     namespace GUI
     {
@@ -243,6 +264,12 @@ namespace RoRnet
     struct ActorStreamRegister;
     struct ServerInfo;
     struct VehicleState;
+}
+
+namespace RigDef
+{
+    struct Document;
+    typedef std::shared_ptr<Document> DocumentPtr;
 }
 
 #ifdef USE_SOCKETW

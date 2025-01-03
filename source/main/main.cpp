@@ -934,6 +934,7 @@ int main(int argc, char *argv[])
                         App::sim_terrain_gui_name->setStr("");
                         App::GetOutGauge()->Close();
                         App::GetSoundScriptManager()->setCamera(/*position:*/Ogre::Vector3::ZERO, /*direction:*/Ogre::Vector3::ZERO, /*up:*/Ogre::Vector3::UNIT_Y, /*velocity:*/Ogre::Vector3::ZERO);
+                        App::GetGameContext()->GetRaceSystem().ResetRaceUI();
                     }
                     catch (...)
                     {
@@ -1401,9 +1402,11 @@ int main(int argc, char *argv[])
                             App::sim_state->setVal((int)SimState::EDITOR_MODE);
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                                                           _L("Entered terrain editing mode"));
+
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                                          fmt::format(_L("Press {} or middle mouse click to select an object"),
-                                       App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_OR_EXIT_TRUCK)), "lightbulb.png");
+                                fmt::format(_L("Press {} or middle mouse click to select an object"),
+                                    App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_OR_EXIT_TRUCK)), "lightbulb.png");
+                            
                         }
                     }
                     catch (...) 

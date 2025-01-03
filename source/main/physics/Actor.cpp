@@ -3192,7 +3192,7 @@ void Actor::updateVisual(float dt)
     float autoelevator = 0;
     if (ar_autopilot)
     {
-        ar_autopilot->UpdateIls(App::GetGameContext()->GetTerrain()->getObjectManager()->GetLocalizers());
+        ar_autopilot->UpdateIls();
         autoaileron = ar_autopilot->getAilerons();
         autorudder = ar_autopilot->getRudder();
         autoelevator = ar_autopilot->getElevator();

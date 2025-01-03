@@ -43,7 +43,8 @@ struct ProceduralPoint: public RefCountingObject<ProceduralPoint>
         width(orig.width),
         bwidth(orig.bwidth),
         bheight(orig.bheight),
-        pillartype(orig.pillartype) {}
+        pillartype(orig.pillartype),
+        comments(orig.comments){}
 
     virtual ~ProceduralPoint() override {};
 
@@ -54,6 +55,7 @@ struct ProceduralPoint: public RefCountingObject<ProceduralPoint>
     float bwidth = 0.f;
     float bheight = 0.f;
     int pillartype = 0;
+    std::string comments; //!< Comment line(s) preceding the point-line in the .TOBJ file.
 };
 
 struct ProceduralObject: public RefCountingObject<ProceduralObject>
@@ -74,6 +76,7 @@ struct ProceduralObject: public RefCountingObject<ProceduralObject>
     std::vector<ProceduralPointPtr> points;
     ProceduralRoadPtr road;
     int smoothing_num_splits = 0; // 0=off
+    bool collision_enabled = true; //!< Generate collision triangles?
 };
 
 class ProceduralManager: public RefCountingObject<ProceduralManager>
@@ -96,11 +99,13 @@ public:
 
     void removeAllObjects();
 
-private:
     /// Rebuilds the road mesh
-    void updateObject(ProceduralObjectPtr po);
+    void rebuildObjectMesh(ProceduralObjectPtr po);
+
     /// Deletes the road mesh
-    void deleteObject(ProceduralObjectPtr po);
+    void deleteObjectMesh(ProceduralObjectPtr po);
+
+private:
 
     std::vector<ProceduralObjectPtr> pObjects;
     Ogre::SceneNode* pGroupingSceneNode = nullptr;
