@@ -529,7 +529,7 @@ void TerrainObjectManager::destroyObject(const String& instancename)
     // Release the object from editor, if active.
     if (id == App::GetGameContext()->GetTerrain()->GetTerrainEditor()->GetSelectedObjectID())
     {
-        App::GetGameContext()->GetTerrain()->GetTerrainEditor()->ClearSelection();
+        App::GetGameContext()->GetTerrain()->GetTerrainEditor()->ClearSelectedObject();
     }
 
     // Forget the object ever existed.
@@ -998,6 +998,53 @@ void TerrainObjectManager::LoadTelepoints()
     }
 }
 
+
+void TerrainObjectManager::SpawnSinglePredefinedActor(TerrainEditorObjectPtr const& object)
+{
+    // For terrain editor to work, all preloaded actors must be spawned.
+    // Most will spawn with terrain, however, some may be excluded for reasons.
+    // -----------------------------------------------------------------------
+
+    // We need the 'rot_yxz' flag - look up the TOBJ document in cache
+    bool rot_yxz = false;
+    if (object->tobj_cache_id == -1 || object->tobj_cache_id >= (int)m_tobj_cache.size())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Assuming no 'rot_yxz' when spawning preselected actor '{}' - TOBJ document not found", object->getName()));
+    }
+    else
+    {
+        rot_yxz = m_tobj_cache[object->tobj_cache_id]->rot_yxz;
+    }
+
+    // Check if already spawned.
+    if (object->actor_instance_id == ACTORINSTANCEID_INVALID)
+    {
+        // Not spawned yet - assign custom ID so that Terrain Editor can reset and move the actor.
+        object->actor_instance_id = App::GetGameContext()->GetActorManager()->GetActorNextInstanceId();
+    }
+    else
+    {
+        // Spawned before; check if still existing and respawn if not.
+        const ActorPtr& actor = App::GetGameContext()->GetActorManager()->GetActorById(
+            object->actor_instance_id);
+        if (actor != ActorManager::ACTORPTR_NULL)
+        {
+            return; // We're done.
+        }
+    }
+
+    ActorSpawnRequest* rq = new ActorSpawnRequest;
+    rq->asr_instance_id = object->actor_instance_id;
+    rq->asr_position = object->position;
+    rq->asr_filename = object->name;
+    rq->asr_rotation = TObjParser::CalcRotation(object->rotation, rot_yxz);
+    rq->asr_origin = ActorSpawnRequest::Origin::TERRN_DEF;
+    rq->asr_free_position = (object->special_object_type == TObjSpecialObject::TRUCK2);
+    rq->asr_terrn_machine = (object->special_object_type == TObjSpecialObject::MACHINE);
+    App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+}
+
 void TerrainObjectManager::LoadPredefinedActors()
 {
     // in netmode, don't load other actors!
@@ -1018,26 +1065,7 @@ void TerrainObjectManager::LoadPredefinedActors()
             continue; // Don't spawn boats if there's no water.
         }
 
-        // We need the 'rot_yxz' flag - look up the TOBJ document in cache
-        bool rot_yxz = false;
-        if (object->tobj_cache_id == -1 || object->tobj_cache_id >= (int)m_tobj_cache.size())
-        {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING,
-                fmt::format("Assuming no 'rot_yxz' when spawning preselected actor '{}' - TOBJ document not found", object->name));
-        }
-        else
-        {
-            rot_yxz = m_tobj_cache[object->tobj_cache_id]->rot_yxz;
-        }
-
-        ActorSpawnRequest* rq = new ActorSpawnRequest;
-        rq->asr_position = object->position;
-        rq->asr_filename = object->name;
-        rq->asr_rotation = TObjParser::CalcRotation(object->rotation, rot_yxz);
-        rq->asr_origin = ActorSpawnRequest::Origin::TERRN_DEF;
-        rq->asr_free_position = (object->special_object_type == TObjSpecialObject::TRUCK2);
-        rq->asr_terrn_machine = (object->special_object_type == TObjSpecialObject::MACHINE);
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+        this->SpawnSinglePredefinedActor(object);
     }
 }
 

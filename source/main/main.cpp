@@ -1423,7 +1423,7 @@ int main(int argc, char *argv[])
                         if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
                         {
                             App::GetGameContext()->GetTerrain()->GetTerrainEditor()->WriteOutputFile();
-                            App::GetGameContext()->GetTerrain()->GetTerrainEditor()->ClearSelection();
+                            App::GetGameContext()->GetTerrain()->GetTerrainEditor()->ClearSelectedObject();
                             App::sim_state->setVal((int)SimState::RUNNING);
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                                                           _L("Left terrain editing mode"));

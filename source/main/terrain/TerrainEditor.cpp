@@ -22,6 +22,7 @@
 #include "TerrainEditor.h"
 
 #include "AppContext.h"
+#include "Actor.h"
 #include "CameraManager.h"
 #include "Console.h"
 #include "ContentManager.h"
@@ -37,10 +38,11 @@
 using namespace RoR;
 using namespace Ogre;
 
+const TerrainEditorObjectPtr TerrainEditor::TERRAINEDITOROBJECTPTR_NULL; // Dummy value to be returned as const reference.
+
 void TerrainEditor::UpdateInputEvents(float dt)
 {
     auto& object_list = App::GetGameContext()->GetTerrain()->getObjectManager()->GetEditorObjects();
-    bool update = false;
 
     if (ImGui::IsMouseClicked(2)) // Middle button
     {
@@ -56,18 +58,17 @@ void TerrainEditor::UpdateInputEvents(float dt)
             if (ray_object_distance < min_dist)
             {
                 min_dist = ray_object_distance;
-                update = (m_object_index != i);
-                m_object_index = i;
+                this->SetSelectedObjectByID(i);
             }
         }
     }
-    if (m_object_index != -1)
+    if (m_selected_object_id != -1)
     {
-        m_last_object_name = object_list[m_object_index]->name;
+        m_last_object_name = object_list[m_selected_object_id]->name;
     }
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_OR_EXIT_TRUCK))
     {
-        if (m_object_index == -1)
+        if (m_selected_object_id == -1)
         {
             // Select nearest object
             Vector3 ref_pos = App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_FREE 
@@ -79,15 +80,14 @@ void TerrainEditor::UpdateInputEvents(float dt)
                 float dist = ref_pos.squaredDistance(object_list[i]->node->getPosition());
                 if (dist < min_dist)
                 {
-                    m_object_index = i;
+                    this->SetSelectedObjectByID(i);
                     min_dist = dist;
-                    update = true;
                 }
             }
         }
         else
         {
-            m_object_index = -1;
+            m_selected_object_id = -1;
         }
     }
     else if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESPAWN_LAST_TRUCK) &&
@@ -110,16 +110,16 @@ void TerrainEditor::UpdateInputEvents(float dt)
     {
         if (object_list.size() > 0)
         {
-            m_object_index = (m_object_index + 1 + (int)object_list.size()) % object_list.size();
-            update = true;
+            TerrainEditorObjectID_t i = (m_selected_object_id + 1 + (int)object_list.size()) % object_list.size();
+            this->SetSelectedObjectByID(i);
         }
     }
     else if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_ENTER_PREVIOUS_TRUCK, 0.25f))
     {
         if (object_list.size() > 0)
         {
-            m_object_index = (m_object_index - 1 + (int)object_list.size()) % object_list.size();
-            update = true;
+            TerrainEditorObjectID_t i = (m_selected_object_id - 1 + (int)object_list.size()) % object_list.size();
+            this->SetSelectedObjectByID(i);
         }
     }
     if (App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESCUE_TRUCK))
@@ -149,21 +149,12 @@ void TerrainEditor::UpdateInputEvents(float dt)
         UTFString ssmsg = m_object_tracking ? _L("Enabled object tracking") : _L("Disabled object tracking");
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "information.png");
     }
-    if (m_object_index != -1 && update)
+    if (m_selected_object_id != -1 && App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_TRUCK))
     {
-        String ssmsg = _L("Selected object: [") + TOSTRING(m_object_index) + "/" + TOSTRING(object_list.size()) + "] (" + object_list[m_object_index]->name + ")";
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "information.png");
-        if (m_object_tracking)
-        {
-            App::GetGameContext()->GetPlayerCharacter()->setPosition(object_list[m_object_index]->node->getPosition());
-        }
+        object_list[m_selected_object_id]->setPosition(object_list[m_selected_object_id]->initial_position);
+        object_list[m_selected_object_id]->setRotation(object_list[m_selected_object_id]->initial_rotation);
     }
-    if (m_object_index != -1 && App::GetInputEngine()->getEventBoolValueBounce(EV_COMMON_RESET_TRUCK))
-    {
-        object_list[m_object_index]->setPosition(object_list[m_object_index]->initial_position);
-        object_list[m_object_index]->setRotation(object_list[m_object_index]->initial_rotation);
-    }
-    if (m_object_index != -1 && App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
+    if (m_selected_object_id != -1 && App::GetCameraManager()->GetCurrentBehavior() != CameraManager::CAMERA_BEHAVIOR_FREE)
     {
         Vector3 translation = Vector3::ZERO;
         float rotation = 0.0f;
@@ -207,26 +198,26 @@ void TerrainEditor::UpdateInputEvents(float dt)
             scale *= App::GetInputEngine()->isKeyDown(OIS::KC_LSHIFT) ? 3.0f : 1.0f;
             scale *= App::GetInputEngine()->isKeyDown(OIS::KC_LCONTROL) ? 10.0f : 1.0f;
 
-            Ogre::Vector3 new_position = object_list[m_object_index]->getPosition();
+            Ogre::Vector3 new_position = object_list[m_selected_object_id]->getPosition();
             new_position += translation * scale * dt;
-            object_list[m_object_index]->setPosition(new_position);
+            object_list[m_selected_object_id]->setPosition(new_position);
 
-            Ogre::Vector3 new_rotation = object_list[m_object_index]->getRotation();
+            Ogre::Vector3 new_rotation = object_list[m_selected_object_id]->getRotation();
             new_rotation[m_rotation_axis] += rotation * scale * dt;
-            object_list[m_object_index]->setRotation(new_rotation);
+            object_list[m_selected_object_id]->setRotation(new_rotation);
 
             if (m_object_tracking)
             {
                 App::GetGameContext()->GetPlayerCharacter()->setPosition(new_position);
             }
         }
-        else if (m_object_tracking && App::GetGameContext()->GetPlayerCharacter()->getPosition() != object_list[m_object_index]->getPosition())
+        else if (m_object_tracking && App::GetGameContext()->GetPlayerCharacter()->getPosition() != object_list[m_selected_object_id]->getPosition())
         {
-            object_list[m_object_index]->setPosition(App::GetGameContext()->GetPlayerCharacter()->getPosition());
+            object_list[m_selected_object_id]->setPosition(App::GetGameContext()->GetPlayerCharacter()->getPosition());
         }
         if (App::GetInputEngine()->getEventBoolValue(EV_COMMON_REMOVE_CURRENT_TRUCK))
         {
-            App::GetGameContext()->GetTerrain()->getObjectManager()->destroyObject(object_list[m_object_index]->instance_name);
+            App::GetGameContext()->GetTerrain()->getObjectManager()->destroyObject(object_list[m_selected_object_id]->instance_name);
         }
     }
     else
@@ -312,9 +303,66 @@ void TerrainEditor::WriteOutputFile()
     }
 }
 
-void TerrainEditor::ClearSelection()
+void TerrainEditor::ClearSelectedObject()
 {
-    m_object_index = -1;
+    this->SetSelectedObjectByID(TERRAINEDITOROBJECTID_INVALID);
+}
+
+void TerrainEditor::SetSelectedObjectByID(TerrainEditorObjectID_t id)
+{
+    // Do nothing if already selected.
+    if (id == m_selected_object_id)
+    {
+        return;
+    }
+
+    m_selected_object_id = id;
+
+    if (id == TERRAINEDITOROBJECTID_INVALID)
+    {
+        return; // Nothing more to do.
+    }
+
+    // Notify user
+    auto& object_list = App::GetGameContext()->GetTerrain()->getObjectManager()->GetEditorObjects();
+    String ssmsg = _L("Selected object: [") + TOSTRING(m_selected_object_id) + "/" + TOSTRING(object_list.size()) + "] (" + object_list[m_selected_object_id]->name + ")";
+    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg, "information.png");
+    if (m_object_tracking)
+    {
+        App::GetGameContext()->GetPlayerCharacter()->setPosition(object_list[m_selected_object_id]->getPosition());
+    }
+
+    // If setting special object, make sure the actor instance exists, otherwise spawn it again.
+    const TerrainEditorObjectPtr object = this->FetchSelectedObject();
+    ROR_ASSERT(object != TERRAINEDITOROBJECTPTR_NULL);
+    if (object != TERRAINEDITOROBJECTPTR_NULL && object->special_object_type != TObjSpecialObject::NONE)
+    {
+        App::GetGameContext()->GetTerrain()->getObjectManager()->SpawnSinglePredefinedActor(object);
+    }
+}
+
+TerrainEditorObjectID_t TerrainEditor::GetSelectedObjectID() const
+{ 
+    return m_selected_object_id; 
+}
+
+const TerrainEditorObjectPtr& TerrainEditor::FetchSelectedObject()
+{
+    if (m_selected_object_id == TERRAINEDITOROBJECTID_INVALID)
+    {
+        return TERRAINEDITOROBJECTPTR_NULL;
+    }
+
+    auto& object_list = App::GetGameContext()->GetTerrain()->getObjectManager()->GetEditorObjects();
+    ROR_ASSERT(m_selected_object_id < (int)object_list.size());
+    if (m_selected_object_id >= (int)object_list.size())
+    {
+        LOG(fmt::format("[RoR|TerrainEditor] INTERNAL ERROR - `m_selected_object_id` '{}' >= `(int)object_list.size()` '{}'",
+            m_selected_object_id, (int)object_list.size()));
+        return TERRAINEDITOROBJECTPTR_NULL;
+    }
+
+    return object_list[m_selected_object_id];
 }
 
 // -------------------
@@ -333,14 +381,53 @@ Ogre::Vector3 const& TerrainEditorObject::getRotation()
 void TerrainEditorObject::setPosition(Ogre::Vector3 const& pos)
 {
     position = pos;
-    node->setPosition(pos);
+    if (node)
+    {
+        node->setPosition(pos);
+    }
+    else if (special_object_type != TObjSpecialObject::NONE)
+    {
+        ROR_ASSERT(actor_instance_id != ACTORINSTANCEID_INVALID);
+        const ActorPtr& actor = App::GetGameContext()->GetActorManager()->GetActorById(actor_instance_id);
+        ROR_ASSERT(actor != ActorManager::ACTORPTR_NULL);
+        if (actor != ActorManager::ACTORPTR_NULL)
+        {
+            actor->requestTranslation(pos - actor->getPosition());
+
+            ActorModifyRequest* req = new ActorModifyRequest();
+            req->amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
+            req->amr_actor = actor->ar_instance_id;
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)req));
+        }
+    }
 }
 
 void TerrainEditorObject::setRotation(Ogre::Vector3 const& rot)
 {
     rotation = rot;
-    node->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
-    node->pitch(Degree(-90));
+    if (node)
+    {
+        node->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
+        node->pitch(Degree(-90));
+    }
+    else if (special_object_type != TObjSpecialObject::NONE)
+    {
+        ROR_ASSERT(actor_instance_id != ACTORINSTANCEID_INVALID);
+        const ActorPtr& actor = App::GetGameContext()->GetActorManager()->GetActorById(actor_instance_id);
+        ROR_ASSERT(actor != ActorManager::ACTORPTR_NULL);
+        if (actor != ActorManager::ACTORPTR_NULL)
+        {
+            // TBD: only yaw can be requested at the moment.
+            // FIXME: the rot_xyz flag is currently ignored
+            Quaternion orientation = TObjParser::CalcRotation(rot, /*rot_xyz:*/false);
+            actor->requestRotation(orientation.getYaw(/*reprojectAxis:*/false).valueRadians() - actor->getRotation(), actor->getPosition());
+
+            ActorModifyRequest* req = new ActorModifyRequest();
+            req->amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
+            req->amr_actor = actor->ar_instance_id;
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)req));
+        }
+    }
 }
 
 std::string const& TerrainEditorObject::getName()
@@ -366,4 +453,14 @@ TObjSpecialObject TerrainEditorObject::getSpecialObjectType()
 void TerrainEditorObject::setSpecialObjectType(TObjSpecialObject type)
 {
     special_object_type = type;
+}
+
+ActorInstanceID_t TerrainEditorObject::getActorInstanceId()
+{
+    return actor_instance_id;
+}
+
+void TerrainEditorObject::setActorInstanceId(ActorInstanceID_t instance_id)
+{
+    actor_instance_id = instance_id;
 }

@@ -564,6 +564,11 @@ public:
 	 * Number of trucks with flag
 	 */
 	int getNumTrucksByFlag(int flag);
+    
+    /**
+    * Returns an unused (not reused) ID to use with `MSG_SIM_SPAWN_ACTOR_REQUESTED`; see `game.pushMessage()`.
+    */    
+    int getActorNextInstanceId();
 	
     ///@}    
     

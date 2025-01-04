@@ -1548,6 +1548,9 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
                 return false;
             }
 
+            // Set instance ID if specified
+            GetValueFromScriptDict(log_msg, dict, /*required:*/false, "instance_id", "int", rq->asr_instance_id);
+
             // Set sectionconfig
             GetValueFromScriptDict(log_msg, dict, /*required:*/false, "config", "string", rq->asr_config);
             // Make sure config exists
@@ -1784,6 +1787,11 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
 FreeForceID_t GameScript::getFreeForceNextId()
 {
     return App::GetGameContext()->GetActorManager()->GetFreeForceNextId();
+}
+
+ActorInstanceID_t GameScript::getActorNextInstanceId()
+{
+    return App::GetGameContext()->GetActorManager()->GetActorNextInstanceId();
 }
 
 // --------------------------------

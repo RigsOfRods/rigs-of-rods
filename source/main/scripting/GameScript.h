@@ -466,6 +466,11 @@ public:
 
     int getNumTrucksByFlag(int flag);
 
+    /**
+    * Returns an unused (not reused) ID to use with `MSG_SIM_SPAWN_ACTOR_REQUESTED`; see `game.pushMessage()`.
+    */
+    ActorInstanceID_t getActorNextInstanceId();
+
     ///@}
 
     /// @name FreeForces - see `game.pushMessage()`

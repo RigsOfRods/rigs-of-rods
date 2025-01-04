@@ -81,7 +81,10 @@ void RoR::RegisterTerrain(asIScriptEngine* engine)
     result = engine->RegisterObjectMethod("TerrainEditorObjectClass", "const string& getInstanceName()", asMETHOD(RoR::TerrainEditorObject, getInstanceName), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("TerrainEditorObjectClass", "const string& getType()", asMETHOD(RoR::TerrainEditorObject, getType), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     
+    // ~ only for preloaded actors:
     result = engine->RegisterObjectMethod("TerrainEditorObjectClass", "const SpecialObjectType getSpecialObjectType()", asMETHOD(RoR::TerrainEditorObject, getSpecialObjectType), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("TerrainEditorObjectClass", "void setSpecialObjectType(SpecialObjectType)", asMETHOD(RoR::TerrainEditorObject, setSpecialObjectType), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TerrainEditorObjectClass", "const int getActorInstanceId()", asMETHOD(RoR::TerrainEditorObject, getActorInstanceId), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("TerrainEditorObjectClass", "void setActorInstanceId(int)", asMETHOD(RoR::TerrainEditorObject, setActorInstanceId), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
 }
