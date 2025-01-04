@@ -50,7 +50,9 @@ public:
     std::string tobj_comments;
     std::vector<int> static_collision_boxes;
     std::vector<int> static_collision_tris;
+    // ~ only for preloaded actors:
     TObjSpecialObject special_object_type = TObjSpecialObject::NONE;
+    ActorInstanceID_t actor_instance_id = ACTORINSTANCEID_INVALID;
 
     // Functions are exported to AngelScript
     Ogre::Vector3 const& getPosition();
@@ -61,27 +63,37 @@ public:
     std::string const& getInstanceName();
     std::string const& getType();
     TObjSpecialObject getSpecialObjectType();
+    // ~ only for preloaded actors:
     void setSpecialObjectType(TObjSpecialObject type);
+    ActorInstanceID_t getActorInstanceId();
+    void setActorInstanceId(ActorInstanceID_t instance_id);
 };
 
 /// Minimalist editor mode; orig. code by Ulteq/2016
 /// * Enter/Exit from/to simulation by Ctrl+Y (see EV_COMMON_TOGGLE_TERRAIN_EDITOR)
 /// * Select object by middle mouse button or Enter key (closest to avatar)
 /// * Rotate/move selected object with keys
+/// * Select/edit also preloaded actors - this resets the actor (added 2024 by Petr Ohlidal)
 /// Upon exit, file 'editor_out.cfg' is written to ROR_HOME/config (see RGN_CONFIG)
 class TerrainEditor
 {
 public:
     void UpdateInputEvents(float dt);
     void WriteOutputFile();
-    void ClearSelection();
-    TerrainEditorObjectID_t GetSelectedObjectID() const { return m_object_index; }
+    void ClearSelectedObject();
+    void SetSelectedObjectByID(TerrainEditorObjectID_t id);
+    TerrainEditorObjectID_t GetSelectedObjectID() const;
+    const TerrainEditorObjectPtr& FetchSelectedObject();
+
+    static const TerrainEditorObjectPtr TERRAINEDITOROBJECTPTR_NULL; // Dummy value to be returned as const reference.
 
 private:
     bool                m_object_tracking = true;
     int                 m_rotation_axis = 1;        //!< 0=X, 1=Y, 2=Z
     std::string         m_last_object_name;
-    TerrainEditorObjectID_t m_object_index = TERRAINEDITOROBJECTID_INVALID;
+
+    // Use Get/Set/Clear`SelectedObject()` functions.
+    TerrainEditorObjectID_t m_selected_object_id = TERRAINEDITOROBJECTID_INVALID;
 };
 
 /// @} // addtogroup Terrain

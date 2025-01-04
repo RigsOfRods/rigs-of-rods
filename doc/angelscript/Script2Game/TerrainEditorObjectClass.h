@@ -22,6 +22,18 @@ public:
     const vector3 & getRotation();
     void setPosition(const vector3&in pos);
     void setRotation(const vector3&in rot);
+    
+    /// @name only for preloaded actors:
+    /// @{
+    
+    const SpecialObjectType getSpecialObjectType();
+    void setSpecialObjectType(SpecialObjectType);
+
+    const int getActorInstanceId();
+    void setActorInstanceId(int);
+    
+    /// @}
+    
 };
 
 /// @}    //addtogroup Script2Game

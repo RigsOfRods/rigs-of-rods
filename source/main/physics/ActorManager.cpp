@@ -58,7 +58,6 @@
 using namespace Ogre;
 using namespace RoR;
 
-static ActorInstanceID_t m_actor_counter = 1;
 const ActorPtr ActorManager::ACTORPTR_NULL; // Dummy value to be returned as const reference.
 
 ActorManager::ActorManager()
@@ -78,7 +77,11 @@ ActorManager::~ActorManager()
 
 ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr def)
 {
-    ActorPtr actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
+    if (rq.asr_instance_id == ACTORINSTANCEID_INVALID)
+    {
+        rq.asr_instance_id = this->GetActorNextInstanceId();
+    }
+    ActorPtr actor = new Actor(rq.asr_instance_id, static_cast<int>(m_actors.size()), def, rq);
 
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {

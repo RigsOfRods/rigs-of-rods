@@ -638,7 +638,7 @@ enum MsgType
     MSG_SIM_LOAD_TERRN_REQUESTED,              //!< Request loading terrain. Param 'filename' (string)
     MSG_SIM_LOAD_SAVEGAME_REQUESTED,           //!< Request loading saved game. Param 'filename' (string)
     MSG_SIM_UNLOAD_TERRN_REQUESTED,            //!< Request returning to main menu. No params.
-    MSG_SIM_SPAWN_ACTOR_REQUESTED,             //!< Request spawning an actor. Params: 'filename' (string), 'position' (vector3), 'rotation' (quaternion) 'config' (string, optional), 'skin' (string, optional), 'enter' (bool, optional, default true), , 'free_position' (bool, default false)
+    MSG_SIM_SPAWN_ACTOR_REQUESTED,             //!< Request spawning an actor. Params: 'filename' (string), 'position' (vector3), 'rotation' (quaternion), 'instance_id' (int, optional), 'config' (string, optional), 'skin' (string, optional), 'enter' (bool, optional, default true), , 'free_position' (bool, default false)
     MSG_SIM_MODIFY_ACTOR_REQUESTED,            //!< Request change of actor. Params: 'type' (enum ActorModifyRequestType)
     MSG_SIM_DELETE_ACTOR_REQUESTED,            //!< Request actor removal. Params: 'instance_id' (int)
     MSG_SIM_SEAT_PLAYER_REQUESTED,             //!< Put player character in a vehicle. Params: 'instance_id' (int), use -1 to get out of vehicle.
