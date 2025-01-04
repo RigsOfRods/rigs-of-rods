@@ -510,6 +510,11 @@ fast_copy("${CMAKE_SOURCE_DIR}/resources/managed_materials" "${RUNTIME_OUTPUT_DI
 fast_copy("${CMAKE_SOURCE_DIR}/resources/fonts" "${RUNTIME_OUTPUT_DIRECTORY}/languages")
 fast_copy("${CMAKE_SOURCE_DIR}/languages" "${RUNTIME_OUTPUT_DIRECTORY}/languages")
 
+# TODO: Run fixup_bundle instead
+if (IS_DIRECTORY "${CMAKE_BINARY_DIR}/conan/bin")
+    file(COPY "${CMAKE_BINARY_DIR}/conan/bin/" DESTINATION "${CMAKE_BINARY_DIR}/bin/")
+endif ()
+
 
 #  Install targets
 # -----------------------
