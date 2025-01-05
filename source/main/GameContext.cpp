@@ -415,6 +415,15 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
         // Load our actor again, but only after all actors are deleted.
         this->ChainMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));
     }
+    else if (rq.amr_type == ActorModifyRequest::Type::SOFT_RESPAWN)
+    {
+        actor->softRespawn(rq.amr_softrespawn_pos);
+    }
+    else if (rq.amr_type == ActorModifyRequest::Type::REFRESH_VISUALS)
+    {
+        actor->GetGfxActor()->UpdateSimDataBuffer();
+        App::GetGfxScene()->ForceUpdateSingleGfxActor(actor->GetGfxActor());
+    }
 }
 
 void GameContext::DeleteActor(ActorPtr actor)

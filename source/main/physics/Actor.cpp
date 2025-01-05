@@ -1289,6 +1289,22 @@ void Actor::resetPosition(Ogre::Vector3 translation, bool setInitPosition)
     calculateAveragePosition();
 }
 
+void Actor::softRespawn(Ogre::Vector3 spawnpos)
+{
+    // Perform a hard reset (detach any linked actors etc...)
+    this->SyncReset(/*reset_position:*/ false);
+
+    // Move the actor to position
+    ar_origin = spawnpos;
+    for (NodeNum_t i = 0; i < ar_num_nodes; i++)
+    {
+        ar_nodes[i].AbsPosition = spawnpos + ar_nodes_spawn_offsets[i];
+        ar_nodes[i].RelPosition = ar_nodes_spawn_offsets[i];
+        ar_nodes[i].Forces = Ogre::Vector3::ZERO;
+        ar_nodes[i].Velocity = Ogre::Vector3::ZERO;
+    }
+}
+
 void Actor::mouseMove(NodeNum_t node, Vector3 pos, float force)
 {
     m_mouse_grab_node = node;

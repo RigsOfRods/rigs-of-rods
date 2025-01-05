@@ -395,9 +395,17 @@ void TerrainEditorObject::setPosition(Ogre::Vector3 const& pos)
             actor->requestTranslation(pos - actor->getPosition());
 
             ActorModifyRequest* req = new ActorModifyRequest();
-            req->amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
+            req->amr_type = ActorModifyRequest::Type::SOFT_RESPAWN;
             req->amr_actor = actor->ar_instance_id;
+            req->amr_softrespawn_pos = pos;
             App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)req));
+            req = nullptr;
+
+            ActorModifyRequest* fxreq = new ActorModifyRequest();
+            fxreq->amr_type = ActorModifyRequest::Type::REFRESH_VISUALS;
+            fxreq->amr_actor = actor->ar_instance_id;
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)fxreq));
+            fxreq = nullptr;
         }
     }
 }

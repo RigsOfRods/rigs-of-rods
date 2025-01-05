@@ -329,6 +329,27 @@ void GfxScene::RemoveGfxActor(RoR::GfxActor* remove_me)
     }
 }
 
+void GfxScene::ForceUpdateSingleGfxActor(RoR::GfxActor* gfx_actor)
+{
+    // Do the work `UpdateScene()` would, but for a single actor.
+    // Needed for i.e. terrain editor mode.
+    // ------------------------------------------------------
+
+    // Start threaded stuff
+    gfx_actor->UpdateFlexbodies(); // Push flexbody tasks to threadpool
+    gfx_actor->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
+
+    // Do sync stuff
+    gfx_actor->UpdateRods();
+    gfx_actor->UpdateCabMesh();
+    gfx_actor->UpdateWingMeshes();
+    gfx_actor->UpdateAirbrakes();
+
+    // Finish threaded stuff
+    gfx_actor->FinishWheelUpdates();
+    gfx_actor->FinishFlexbodyTasks();
+}
+
 void GfxScene::RegisterGfxCharacter(RoR::GfxCharacter* gfx_character)
 {
     m_all_gfx_characters.push_back(gfx_character);

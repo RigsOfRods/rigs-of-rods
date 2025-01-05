@@ -59,6 +59,7 @@ public:
     void           ClearScene();
     void           RegisterGfxActor(RoR::GfxActor* gfx_actor);
     void           RemoveGfxActor(RoR::GfxActor* gfx_actor);
+    void           ForceUpdateSingleGfxActor(RoR::GfxActor* gfx_actor);
     void           RegisterGfxCharacter(RoR::GfxCharacter* gfx_character);
     void           RemoveGfxCharacter(RoR::GfxCharacter* gfx_character);
     void           BufferSimulationData(); //!< Run this when simulation is halted
