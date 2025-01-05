@@ -266,6 +266,7 @@ void ActorSpawner::InitializeRig()
         m_actor->ar_nodes_id[i] = -1;
     }
     m_actor->ar_nodes_name = new std::string[req.num_nodes];
+    m_actor->ar_nodes_spawn_offsets = new Ogre::Vector3[req.num_nodes];
 
     if (req.num_shocks > 0)
         m_actor->ar_shocks = new shock_t[req.num_shocks];
@@ -4743,6 +4744,7 @@ void ActorSpawner::BuildWheelObjectAndNodes(
     {
         /* Outer ring */
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + ray_vector;
+        Ogre::Vector3 ray_spawnpoint = m_actor->ar_nodes_spawn_offsets[axis_node_1->pos] + ray_vector;
         ray_vector = ray_rotator * ray_vector;
 
         node_t & outer_node = GetFreeNode();
@@ -4753,9 +4755,11 @@ void ActorSpawner::BuildWheelObjectAndNodes(
         AdjustNodeBuoyancy(outer_node, node_defaults);
 
         m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(outer_node.pos));
+        m_actor->ar_nodes_spawn_offsets[outer_node.pos] = ray_spawnpoint;
 
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + ray_vector;
+        ray_spawnpoint = m_actor->ar_nodes_spawn_offsets[axis_node_2->pos] + ray_vector;
         ray_vector = ray_rotator * ray_vector;
 
         node_t & inner_node = GetFreeNode();
@@ -4766,6 +4770,7 @@ void ActorSpawner::BuildWheelObjectAndNodes(
         AdjustNodeBuoyancy(inner_node, node_defaults);
 
         m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(inner_node.pos));
+        m_actor->ar_nodes_spawn_offsets[inner_node.pos] = ray_spawnpoint;
 
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -5927,7 +5932,10 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     node.pos = inserted_node.first; /* Node index */
 
     /* Positioning */
-    Ogre::Vector3 node_position = m_spawn_position + TuneupUtil::getTweakedNodePosition(m_actor->getWorkingTuneupDef(), node.pos, def.position);
+    const Ogre::Vector3 spawn_offset = TuneupUtil::getTweakedNodePosition(m_actor->getWorkingTuneupDef(), node.pos, def.position);
+    m_actor->ar_nodes_spawn_offsets[inserted_node.first] = spawn_offset;
+
+    Ogre::Vector3 node_position = m_spawn_position + spawn_offset;
     ROR_ASSERT(!std::isnan(node_position.x));
     ROR_ASSERT(!std::isnan(node_position.y));
     ROR_ASSERT(!std::isnan(node_position.z));
@@ -6080,6 +6088,7 @@ void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
     // Node
     Ogre::Vector3 node_pos = m_spawn_position + def.position;
     node_t & camera_node = GetAndInitFreeNode(node_pos);
+    m_actor->ar_nodes_spawn_offsets[camera_node.pos] = def.position;
     camera_node.nd_no_ground_contact = true; // Orig: hardcoded in BTS_CINECAM
     camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT; // Node defaults are ignored here.
     AdjustNodeBuoyancy(camera_node, def.node_defaults);

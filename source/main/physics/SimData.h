@@ -860,9 +860,11 @@ struct ActorModifyRequest
         RELOAD,               //!< Full reload from filesystem, requested by user
         RESET_ON_INIT_POS,
         RESET_ON_SPOT,
+        SOFT_RESPAWN, //!< Like hard reset, but positions the actor like spawn process does - using the relative positions from rig-def file (respecting Tuning system tweaks).
         SOFT_RESET,
         RESTORE_SAVED,
         WAKE_UP,
+        REFRESH_VISUALS //!< Forces a synchronous update of visuals from any context - i.e. from terrain editor mode or with sleeping/physicspaused actor.
     };
 
     ActorInstanceID_t   amr_actor = ACTORINSTANCEID_INVALID;// not ActorPtr because it's not thread-safe
@@ -871,6 +873,7 @@ struct ActorModifyRequest
                         amr_saved_state;
     CacheEntryPtr       amr_addonpart; //!< Primary method of specifying cache entry.
     std::string         amr_addonpart_fname; //!< Fallback method in case CacheEntry doesn't exist anymore - that means mod was uninstalled in the meantime. Used by REMOVE_ADDONPART_AND_RELOAD.
+    Ogre::Vector3       amr_softrespawn_pos; //!< Position to use with `SOFT_RESPAWN`.
 };
 
 enum class ActorLinkingRequestType
