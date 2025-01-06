@@ -43,13 +43,14 @@ public:
     Ogre::Vector3 rotation = Ogre::Vector3::ZERO;
     Ogre::Vector3 initial_position = Ogre::Vector3::ZERO;
     Ogre::Vector3 initial_rotation = Ogre::Vector3::ZERO;
-    Ogre::SceneNode* node = nullptr;
-    bool enable_collisions = true;
-    int script_handler = -1;
     int tobj_cache_id = -1;
     std::string tobj_comments;
+    // ~ only for static objects:
+    Ogre::SceneNode* static_object_node = nullptr;
     std::vector<int> static_collision_boxes;
     std::vector<int> static_collision_tris;
+    bool enable_collisions = true;
+    int script_handler = -1;
     // ~ only for preloaded actors:
     TObjSpecialObject special_object_type = TObjSpecialObject::NONE;
     ActorInstanceID_t actor_instance_id = ACTORINSTANCEID_INVALID;
@@ -62,8 +63,8 @@ public:
     std::string const& getName();
     std::string const& getInstanceName();
     std::string const& getType();
-    TObjSpecialObject getSpecialObjectType();
     // ~ only for preloaded actors:
+    TObjSpecialObject getSpecialObjectType();
     void setSpecialObjectType(TObjSpecialObject type);
     ActorInstanceID_t getActorInstanceId();
     void setActorInstanceId(ActorInstanceID_t instance_id);
@@ -74,7 +75,7 @@ public:
 /// * Select object by middle mouse button or Enter key (closest to avatar)
 /// * Rotate/move selected object with keys
 /// * Select/edit also preloaded actors - this resets the actor (added 2024 by Petr Ohlidal)
-/// Upon exit, file 'editor_out.cfg' is written to ROR_HOME/config (see RGN_CONFIG)
+/// Upon exit, the original *.tobj files are updated in place (only if terrain is unzipped in directory)
 class TerrainEditor
 {
 public:

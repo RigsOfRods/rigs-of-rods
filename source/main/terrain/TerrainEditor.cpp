@@ -54,7 +54,7 @@ void TerrainEditor::UpdateInputEvents(float dt)
         Vector3 direction = terrain_editor_mouse_ray.getDirection();
         for (int i = 0; i < (int)object_list.size(); i++)
         {
-            Real ray_object_distance = direction.crossProduct(object_list[i]->node->getPosition() - origin).length();
+            Real ray_object_distance = direction.crossProduct(object_list[i]->getPosition() - origin).length();
             if (ray_object_distance < min_dist)
             {
                 min_dist = ray_object_distance;
@@ -77,7 +77,7 @@ void TerrainEditor::UpdateInputEvents(float dt)
             float min_dist = std::numeric_limits<float>::max();
             for (int i = 0; i < (int)object_list.size(); i++)
             {
-                float dist = ref_pos.squaredDistance(object_list[i]->node->getPosition());
+                float dist = ref_pos.squaredDistance(object_list[i]->getPosition());
                 if (dist < min_dist)
                 {
                     this->SetSelectedObjectByID(i);
@@ -406,9 +406,9 @@ void TerrainEditorObjectRefreshActorVisual(TerrainEditorObjectPtr obj)
 void TerrainEditorObject::setPosition(Ogre::Vector3 const& pos)
 {
     position = pos;
-    if (node)
+    if (static_object_node)
     {
-        node->setPosition(pos);
+        static_object_node->setPosition(pos);
     }
     else if (special_object_type != TObjSpecialObject::NONE)
     {
@@ -419,10 +419,10 @@ void TerrainEditorObject::setPosition(Ogre::Vector3 const& pos)
 void TerrainEditorObject::setRotation(Ogre::Vector3 const& rot)
 {
     rotation = rot;
-    if (node)
+    if (static_object_node)
     {
-        node->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
-        node->pitch(Degree(-90));
+        static_object_node->setOrientation(Quaternion(Degree(rot.x), Vector3::UNIT_X) * Quaternion(Degree(rot.y), Vector3::UNIT_Y) * Quaternion(Degree(rot.z), Vector3::UNIT_Z));
+        static_object_node->pitch(Degree(-90));
     }
     else if (special_object_type != TObjSpecialObject::NONE)
     {
