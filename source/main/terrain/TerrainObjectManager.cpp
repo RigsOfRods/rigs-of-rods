@@ -510,21 +510,40 @@ void TerrainObjectManager::destroyObject(const String& instancename)
         return;
     }
 
-    for (int tri : m_editor_objects[id]->static_collision_tris)
-    {
-        terrainManager->GetCollisions()->removeCollisionTri(tri);
-    }
-    for (int box : m_editor_objects[id]->static_collision_boxes)
-    {
-        terrainManager->GetCollisions()->removeCollisionBox(box);
-    }
+    TerrainEditorObjectPtr object = m_editor_objects[id];
 
-    // Destroy the scene node and everything attached to it.
-    for (Ogre::MovableObject* mova : m_editor_objects[id]->node->getAttachedObjects())
+    if (object->getSpecialObjectType() != TObjSpecialObject::NONE)
     {
-        App::GetGfxScene()->GetSceneManager()->destroyMovableObject(mova);
+        // Preloaded actor: despawn it.
+        ROR_ASSERT(!object->static_object_node);
+        ROR_ASSERT(!object->static_collision_tris.size());
+        ROR_ASSERT(!object->static_collision_boxes.size());
+        ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(object->actor_instance_id);
+        if (actor)
+        {
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, new ActorPtr(actor)));
+        }
     }
-    App::GetGfxScene()->GetSceneManager()->destroySceneNode(m_editor_objects[id]->node);
+    else
+    {
+        // Static object: Destroy the scene node and everything attached to it.
+        ROR_ASSERT(object->static_object_node);
+        for (Ogre::MovableObject* mova : object->static_object_node->getAttachedObjects())
+        {
+            App::GetGfxScene()->GetSceneManager()->destroyMovableObject(mova);
+        }
+        App::GetGfxScene()->GetSceneManager()->destroySceneNode(object->static_object_node);
+
+        // Undo static collisions
+        for (int tri : object->static_collision_tris)
+        {
+            terrainManager->GetCollisions()->removeCollisionTri(tri);
+        }
+        for (int box : object->static_collision_boxes)
+        {
+            terrainManager->GetCollisions()->removeCollisionBox(box);
+        }
+    }
 
     // Release the object from editor, if active.
     if (id == App::GetGameContext()->GetTerrain()->GetTerrainEditor()->GetSelectedObjectID())
@@ -647,7 +666,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     object->rotation = rot;
     object->initial_position = pos;
     object->initial_rotation = rot;
-    object->node = tenode;
+    object->static_object_node = tenode;
     object->enable_collisions = enable_collisions;
     object->script_handler = scripthandler;
     object->tobj_cache_id = m_tobj_cache_active_id;
