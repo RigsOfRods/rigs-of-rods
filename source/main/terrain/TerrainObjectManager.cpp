@@ -998,6 +998,21 @@ void TerrainObjectManager::LoadTelepoints()
     }
 }
 
+bool TerrainObjectManager::GetEditorObjectFlagRotYXZ(TerrainEditorObjectPtr const& object)
+{
+    // We need the 'rot_yxz' flag - look up the TOBJ document in cache
+    if (object->tobj_cache_id == -1 || object->tobj_cache_id >= (int)m_tobj_cache.size())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Assuming no 'rot_yxz' when spawning preselected actor '{}' - TOBJ document not found", object->getName()));
+        return false;
+    }
+    else
+    {
+        return m_tobj_cache[object->tobj_cache_id]->rot_yxz;
+    }
+}
+
 
 void TerrainObjectManager::SpawnSinglePredefinedActor(TerrainEditorObjectPtr const& object)
 {
@@ -1005,17 +1020,7 @@ void TerrainObjectManager::SpawnSinglePredefinedActor(TerrainEditorObjectPtr con
     // Most will spawn with terrain, however, some may be excluded for reasons.
     // -----------------------------------------------------------------------
 
-    // We need the 'rot_yxz' flag - look up the TOBJ document in cache
-    bool rot_yxz = false;
-    if (object->tobj_cache_id == -1 || object->tobj_cache_id >= (int)m_tobj_cache.size())
-    {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING,
-            fmt::format("Assuming no 'rot_yxz' when spawning preselected actor '{}' - TOBJ document not found", object->getName()));
-    }
-    else
-    {
-        rot_yxz = m_tobj_cache[object->tobj_cache_id]->rot_yxz;
-    }
+    const bool rot_yxz = GetEditorObjectFlagRotYXZ(object);
 
     // Check if already spawned.
     if (object->actor_instance_id == ACTORINSTANCEID_INVALID)

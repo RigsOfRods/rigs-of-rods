@@ -1289,7 +1289,7 @@ void Actor::resetPosition(Ogre::Vector3 translation, bool setInitPosition)
     calculateAveragePosition();
 }
 
-void Actor::softRespawn(Ogre::Vector3 spawnpos)
+void Actor::softRespawn(Ogre::Vector3 spawnpos, Ogre::Quaternion spawnrot)
 {
     // Perform a hard reset (detach any linked actors etc...)
     this->SyncReset(/*reset_position:*/ false);
@@ -1303,6 +1303,14 @@ void Actor::softRespawn(Ogre::Vector3 spawnpos)
         ar_nodes[i].Forces = Ogre::Vector3::ZERO;
         ar_nodes[i].Velocity = Ogre::Vector3::ZERO;
     }
+
+    // Apply spawn position & spawn rotation
+    // (code taken as-is from `ActorManager::CreateNewActor()`)
+    for (NodeNum_t i = 0; i < ar_num_nodes; i++)
+    {
+        ar_nodes[i].AbsPosition = spawnpos + spawnrot * (ar_nodes[i].AbsPosition - spawnpos);
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
+    };
 }
 
 void Actor::mouseMove(NodeNum_t node, Vector3 pos, float force)
