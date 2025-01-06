@@ -100,7 +100,7 @@ public:
     // not exported to scripting:
     void              resetPosition(Ogre::Vector3 translation, bool setInitPosition); //!< Moves the actor to given world coords (pivot point is node 0).
     void              resetPosition(float px, float pz, bool setInitPosition, float miny); //!< Moves the actor to given world coords (pivot point is node 0).
-    void              softRespawn(Ogre::Vector3 spawnpos); //!< Use `MSG_SIM_MODIFY_ACTOR_REQUESTED` with type `SOFT_RESPAWN`; Resets the actor to given position as if spawned there (pivot point is `spawnpos`).
+    void              softRespawn(Ogre::Vector3 spawnpos, Ogre::Quaternion spawnrot); //!< Use `MSG_SIM_MODIFY_ACTOR_REQUESTED` with type `SOFT_RESPAWN`; Resets the actor to given position as if spawned there (pivot point is `spawnpos`).
     void              requestRotation(float rotation, Ogre::Vector3 center) { m_rotation_request += rotation; m_rotation_request_center = center; };
     void              requestAngleSnap(int division) { m_anglesnap_request = division; };
     void              requestTranslation(Ogre::Vector3 translation) { m_translation_request += translation; };

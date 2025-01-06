@@ -417,7 +417,7 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
     }
     else if (rq.amr_type == ActorModifyRequest::Type::SOFT_RESPAWN)
     {
-        actor->softRespawn(rq.amr_softrespawn_pos);
+        actor->softRespawn(rq.amr_softrespawn_position, rq.amr_softrespawn_rotation);
     }
     else if (rq.amr_type == ActorModifyRequest::Type::REFRESH_VISUALS)
     {

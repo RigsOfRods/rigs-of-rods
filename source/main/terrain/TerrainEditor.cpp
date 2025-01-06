@@ -378,6 +378,31 @@ Ogre::Vector3 const& TerrainEditorObject::getRotation()
     return rotation;
 }
 
+void TerrainEditorObjectRefreshActorVisual(TerrainEditorObjectPtr obj)
+{
+    ROR_ASSERT(obj->actor_instance_id != ACTORINSTANCEID_INVALID);
+    const ActorPtr& actor = App::GetGameContext()->GetActorManager()->GetActorById(obj->actor_instance_id);
+    ROR_ASSERT(actor != ActorManager::ACTORPTR_NULL);
+    if (actor != ActorManager::ACTORPTR_NULL)
+    {
+        const bool rot_yxz = App::GetGameContext()->GetTerrain()->getObjectManager()->GetEditorObjectFlagRotYXZ(obj);
+
+        ActorModifyRequest* req = new ActorModifyRequest();
+        req->amr_type = ActorModifyRequest::Type::SOFT_RESPAWN;
+        req->amr_actor = actor->ar_instance_id;
+        req->amr_softrespawn_position = obj->position;
+        req->amr_softrespawn_rotation = TObjParser::CalcRotation(obj->rotation, rot_yxz);
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)req));
+        req = nullptr;
+
+        ActorModifyRequest* fxreq = new ActorModifyRequest();
+        fxreq->amr_type = ActorModifyRequest::Type::REFRESH_VISUALS;
+        fxreq->amr_actor = actor->ar_instance_id;
+        App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)fxreq));
+        fxreq = nullptr;
+    }
+}
+
 void TerrainEditorObject::setPosition(Ogre::Vector3 const& pos)
 {
     position = pos;
@@ -387,26 +412,7 @@ void TerrainEditorObject::setPosition(Ogre::Vector3 const& pos)
     }
     else if (special_object_type != TObjSpecialObject::NONE)
     {
-        ROR_ASSERT(actor_instance_id != ACTORINSTANCEID_INVALID);
-        const ActorPtr& actor = App::GetGameContext()->GetActorManager()->GetActorById(actor_instance_id);
-        ROR_ASSERT(actor != ActorManager::ACTORPTR_NULL);
-        if (actor != ActorManager::ACTORPTR_NULL)
-        {
-            actor->requestTranslation(pos - actor->getPosition());
-
-            ActorModifyRequest* req = new ActorModifyRequest();
-            req->amr_type = ActorModifyRequest::Type::SOFT_RESPAWN;
-            req->amr_actor = actor->ar_instance_id;
-            req->amr_softrespawn_pos = pos;
-            App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)req));
-            req = nullptr;
-
-            ActorModifyRequest* fxreq = new ActorModifyRequest();
-            fxreq->amr_type = ActorModifyRequest::Type::REFRESH_VISUALS;
-            fxreq->amr_actor = actor->ar_instance_id;
-            App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)fxreq));
-            fxreq = nullptr;
-        }
+        TerrainEditorObjectRefreshActorVisual(this);
     }
 }
 
@@ -420,21 +426,7 @@ void TerrainEditorObject::setRotation(Ogre::Vector3 const& rot)
     }
     else if (special_object_type != TObjSpecialObject::NONE)
     {
-        ROR_ASSERT(actor_instance_id != ACTORINSTANCEID_INVALID);
-        const ActorPtr& actor = App::GetGameContext()->GetActorManager()->GetActorById(actor_instance_id);
-        ROR_ASSERT(actor != ActorManager::ACTORPTR_NULL);
-        if (actor != ActorManager::ACTORPTR_NULL)
-        {
-            // TBD: only yaw can be requested at the moment.
-            // FIXME: the rot_xyz flag is currently ignored
-            Quaternion orientation = TObjParser::CalcRotation(rot, /*rot_xyz:*/false);
-            actor->requestRotation(orientation.getYaw(/*reprojectAxis:*/false).valueRadians() - actor->getRotation(), actor->getPosition());
-
-            ActorModifyRequest* req = new ActorModifyRequest();
-            req->amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
-            req->amr_actor = actor->ar_instance_id;
-            App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)req));
-        }
+        TerrainEditorObjectRefreshActorVisual(this);
     }
 }
 

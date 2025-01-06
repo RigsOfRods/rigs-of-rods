@@ -873,7 +873,8 @@ struct ActorModifyRequest
                         amr_saved_state;
     CacheEntryPtr       amr_addonpart; //!< Primary method of specifying cache entry.
     std::string         amr_addonpart_fname; //!< Fallback method in case CacheEntry doesn't exist anymore - that means mod was uninstalled in the meantime. Used by REMOVE_ADDONPART_AND_RELOAD.
-    Ogre::Vector3       amr_softrespawn_pos; //!< Position to use with `SOFT_RESPAWN`.
+    Ogre::Vector3       amr_softrespawn_position; //!< Position to use with `SOFT_RESPAWN`.
+    Ogre::Quaternion    amr_softrespawn_rotation; //!< Rotation to use with `SOFT_RESPAWN`; use `TObjParser::CalcRotation()` to calculate quaternion from XYZ like in TOBJ file.
 };
 
 enum class ActorLinkingRequestType

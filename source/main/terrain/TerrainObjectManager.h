@@ -72,6 +72,7 @@ public:
     void           destroyObject(const Ogre::String& instancename);
     void           LoadTelepoints();
     void           SpawnSinglePredefinedActor(TerrainEditorObjectPtr const& object);
+    bool           GetEditorObjectFlagRotYXZ(TerrainEditorObjectPtr const& object);
     void           LoadPredefinedActors();
     bool           HasPredefinedActors() { return m_has_predefined_actors; };
     bool           UpdateTerrainObjects(float dt);
