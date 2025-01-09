@@ -55,22 +55,22 @@ namespace App {
 // Object instances
 static AppContext           g_app_context;
 static CacheSystem          g_cache_system;
-static CameraManager*       g_camera_manager;
+static CameraManager*       g_camera_manager = nullptr;
 static Console              g_console;
 static ContentManager       g_content_manager;
 static DiscordRpc           g_discord_rpc;
 static GameContext          g_game_context;
 static GfxScene             g_gfx_scene;
-static GUIManager*          g_gui_manager;
-static InputEngine*         g_input_engine;
+static GUIManager*          g_gui_manager = nullptr;
+static InputEngine*         g_input_engine = nullptr;
 static LanguageEngine       g_language_engine;
-static MumbleIntegration*   g_mumble;
-static OverlayWrapper*      g_overlay_wrapper;
+static MumbleIntegration*   g_mumble = nullptr;
+static OverlayWrapper*      g_overlay_wrapper = nullptr;
 static OutGauge             g_out_gauge;
-static ScriptEngine*        g_script_engine;
-static SoundScriptManager*  g_sound_script_manager;
-static Terrain*             g_sim_terrain;
-static ThreadPool*          g_thread_pool;
+static ScriptEngine*        g_script_engine = nullptr;
+static SoundScriptManager*  g_sound_script_manager = nullptr;
+static Terrain*             g_sim_terrain = nullptr;
+static ThreadPool*          g_thread_pool = nullptr;
 #if USE_SOCKETW
     static Network          g_network;
 #endif
