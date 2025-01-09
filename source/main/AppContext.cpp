@@ -174,7 +174,10 @@ bool AppContext::povMoved(const OIS::JoyStickEvent& arg, int)       { App::GetIn
 void AppContext::windowResized(Ogre::RenderWindow* rw)
 {
     App::GetInputEngine()->windowResized(rw); // Update mouse area
-    App::GetOverlayWrapper()->windowResized();
+    if (App::GetOverlayWrapper())
+    {
+        App::GetOverlayWrapper()->windowResized();
+    }
     if (App::sim_state->getEnum<AppState>() == RoR::AppState::SIMULATION)
     {
         for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
