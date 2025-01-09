@@ -524,6 +524,7 @@ extern CVar* gfx_flexbody_cache;
 extern CVar* gfx_reduce_shadows;
 extern CVar* gfx_enable_rtshaders;
 extern CVar* gfx_alt_actor_materials;
+extern CVar* gfx_auto_lod;
 
 // Flexbodies
 extern CVar* flexbody_defrag_enabled;
