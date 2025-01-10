@@ -302,7 +302,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
         float wheel_slip = fabs(ar_wheels[i].wh_speed - relspeed) / std::max(1.0f, curspeed);
 
         // traction control
-        if (tc_mode && fabs(ar_wheels[i].wh_torque) > 0.0f && fabs(ar_wheels[i].wh_speed) > curspeed && wheel_slip > 0.25f)
+        if (tc_mode && fabs(ar_wheels[i].wh_torque) > 0.0f && fabs(ar_wheels[i].wh_speed) > curspeed && wheel_slip > tc_wheelslip_constant)
         {
             if (tc_pulse_state)
             {

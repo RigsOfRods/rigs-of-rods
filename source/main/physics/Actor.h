@@ -125,6 +125,8 @@ public:
     // PLEASE maintain the same order as in 'scripting/bindings/ActorAngelscript.cpp' and 'doc/angelscript/.../BeamClass.h'
     void              scaleTruck(float value);
     void              setMass(float m);
+    void              setSimAttribute(ActorSimAttr attr, float val); //!< HAZARDOUS - values may not be checked; Pay attention to 'safe values' at each attribute description.
+    float             getSimAttribute(ActorSimAttr attr);
     // not exported to scripting:
     void              applyNodeBeamScales();               //!< For GUI::NodeBeamUtils
     void              searchBeamDefaults();                //!< Searches for more stable beam defaults
@@ -353,13 +355,6 @@ public:
     bool              alb_nodash = false;         //!< Anti-lock brake attribute: Hide the dashboard indicator?
     bool              alb_notoggle = false;       //!< Anti-lock brake attribute: Disable in-game toggle?
     float             alb_timer = 0.f;          //!< Anti-lock brake state;
-    float             tc_ratio = 0.f;           //!< Traction control attribute: Regulating force
-    bool              tc_mode = false;            //!< Traction control state; Enabled? {1/0}
-    float             tc_pulse_time = 0.f;      //!< Traction control attribute;
-    bool              tc_pulse_state = 0.f;     //!< Traction control state;
-    bool              tc_nodash = false;          //!< Traction control attribute; Hide the dashboard indicator?
-    bool              tc_notoggle = false;        //!< Traction control attribute; Disable in-game toggle?
-    float             tc_timer = 0.f;           //!< Traction control state;
     float             ar_anim_shift_timer = 0.f;//!< For 'animator' with flag 'shifter'
     bool              cc_mode = false;            //!< Cruise Control
     bool              cc_can_brake = false;       //!< Cruise Control
@@ -436,6 +431,16 @@ public:
     ground_model_t*   ar_last_fuzzy_ground_model = nullptr;     //!< GUI state
     CollisionBoxPtrVec m_potential_eventboxes;
     std::vector<std::pair<collision_box_t*, NodeNum_t>> m_active_eventboxes;
+
+    // TractionControl
+    float             tc_ratio = 0.f;                   //!< Regulating force
+    bool              tc_mode = false;                  //!< Enabled?
+    float             tc_pulse_time = 0.f;
+    bool              tc_pulse_state = 0.f;
+    bool              tc_nodash = false;                //!< Hide the dashboard indicator?
+    bool              tc_notoggle = false;              //!< Disable in-game toggle?
+    float             tc_timer = 0.f;
+    float             tc_wheelslip_constant = 0.25f;    //!< use `ACTORSIMATTR_TC_WHEELSLIP_CONSTANT`
 
     // Guisettings
     bool              ar_guisettings_use_engine_max_rpm = false;
