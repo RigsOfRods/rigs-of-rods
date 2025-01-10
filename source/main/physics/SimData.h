@@ -913,4 +913,18 @@ struct ActorLinkingRequest
     int alr_rope_group = -1;
 };
 
+///  Parameter to `Actor::setSimAttribute()` and `Actor::getSimAttribute()`; allows advanced users to tweak physics internals via script.
+///  Each value represents a variable, either directly in `Actor` or a subsystem, i.e. `EngineSim`.
+///  PAY ATTENTION to the 'safe value' limits below - those may not be checked when setting attribute values!
+enum ActorSimAttr
+{
+    ACTORSIMATTR_NONE,
+
+    // TractionControl
+    ACTORSIMATTR_TC_RATIO, //!< Regulating force, safe values: <1 - 20>
+    ACTORSIMATTR_TC_PULSE_TIME, //!< Pulse duration in seconds, safe values <0.00005 - 1>
+    ACTORSIMATTR_TC_WHEELSLIP_CONSTANT //!< Minimum wheel slip threshold, safe value = 0.25
+};
+const char* ActorSimAttrToString(ActorSimAttr attr);
+
 } // namespace RoR

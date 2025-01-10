@@ -122,6 +122,14 @@ public:
 	 * Sets the mass of the truck.
 	 */
 	void setMass(float m);
+    
+    /**
+     * Allows advanced users to set physics settings directly, including some not accessible from rig-def file format.
+     * HAZARDOUS - values may not be checked; Pay attention to 'safe values' at each attribute description.
+     */
+    void setSimAttribute(ActorSimAttr attr, float val);
+    
+    float getSimAttribute(ActorSimAttr attr);  
 	
     //! @}
 	

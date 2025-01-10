@@ -103,3 +103,17 @@ ActorModifyRequest::~ActorModifyRequest()
 {
     // Destructs `CacheEntryPtr` which is a `RefCountingObjectPtr<>` so it doesn't compile without `#include "TuneupFileFormat.h"` and thus should not be in header.
 }
+
+const char* RoR::ActorSimAttrToString(ActorSimAttr attr)
+{
+    switch (attr)
+    {
+    case ACTORSIMATTR_NONE: return "NONE";
+
+    // TractionControl
+    case ACTORSIMATTR_TC_RATIO: return "TC_RATIO";
+    case ACTORSIMATTR_TC_PULSE_TIME: return "TC_PULSE_TIME";
+    case ACTORSIMATTR_TC_WHEELSLIP_CONSTANT: return "TC_WHEELSLIP_CONSTANT";
+    default: "";
+    }
+}

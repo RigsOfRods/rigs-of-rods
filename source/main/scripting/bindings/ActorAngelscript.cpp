@@ -79,6 +79,13 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_RESTORE_SAVED", (int)ActorModifyRequest::Type::RESTORE_SAVED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_WAKE_UP", (int)ActorModifyRequest::Type::WAKE_UP); ROR_ASSERT(result >= 0);
 
+    // enum ActorSimAttr
+    result = engine->RegisterEnum("ActorSimAttr"); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_NONE", (int)ACTORSIMATTR_NONE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_TC_RATIO", (int)ACTORSIMATTR_TC_RATIO); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_TC_PULSE_TIME", (int)ACTORSIMATTR_TC_PULSE_TIME); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_TC_WHEELSLIP_CONSTANT", (int)ACTORSIMATTR_TC_WHEELSLIP_CONSTANT); ROR_ASSERT(result >= 0);
+
     // class Actor (historically Beam)
     Actor::RegisterRefCountingObject(engine, "BeamClass");
     ActorPtr::RegisterRefCountingObjectPtr(engine, "BeamClassPtr", "BeamClass");
@@ -110,6 +117,8 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     // - physics editing (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "void scaleTruck(float)", asMETHOD(Actor,scaleTruck), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setMass(float)", asMETHOD(Actor,setMass), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setSimAttribute(ActorSimAttr, float)", asMETHOD(Actor, setSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getSimAttribute(ActorSimAttr)", asMETHOD(Actor, getSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // - user interaction (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "void parkingbrakeToggle()", asMETHOD(Actor,parkingbrakeToggle), asCALL_THISCALL); ROR_ASSERT(result>=0);

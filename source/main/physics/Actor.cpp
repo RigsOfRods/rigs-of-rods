@@ -4740,3 +4740,29 @@ int Actor::getShockNode2(int shock_number)
     }
     return -1.f;
 }
+
+void Actor::setSimAttribute(ActorSimAttr attr, float val)
+{
+    LOG(fmt::format("[RoR|Actor] setSimAttribute: '{}' = {}", ActorSimAttrToString(attr), val));
+
+    // PLEASE maintain the same order as in `enum ActorSimAttr`
+    switch (attr)
+    {
+    case ACTORSIMATTR_TC_RATIO: tc_ratio = val; return;
+    case ACTORSIMATTR_TC_PULSE_TIME: tc_pulse_time = val; return;
+    case ACTORSIMATTR_TC_WHEELSLIP_CONSTANT: tc_wheelslip_constant = val; return;
+    default: return;
+    }
+}
+
+float Actor::getSimAttribute(ActorSimAttr attr)
+{
+    // PLEASE maintain the same order as in `enum ActorSimAttr`
+    switch (attr)
+    {
+    case ACTORSIMATTR_TC_RATIO: return tc_ratio;
+    case ACTORSIMATTR_TC_PULSE_TIME: return tc_pulse_time;
+    case ACTORSIMATTR_TC_WHEELSLIP_CONSTANT: return tc_wheelslip_constant;
+    default: return 0.f;
+    }
+}
