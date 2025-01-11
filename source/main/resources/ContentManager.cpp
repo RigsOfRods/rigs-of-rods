@@ -56,6 +56,7 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include <sstream>
+#include <OgreMeshLodGenerator.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -243,6 +244,8 @@ void ContentManager::InitContentManager()
 #ifdef USE_OPENAL
     App::GetSoundScriptManager()->setLoadingBaseSounds(false);
 #endif // USE_OPENAL
+
+    new Ogre::MeshLodGenerator();
 }
 
 void ContentManager::InitModCache(CacheValidity validity)
