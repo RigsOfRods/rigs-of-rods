@@ -10,8 +10,7 @@
 [![Build game](https://github.com/RigsOfRods/rigs-of-rods/workflows/Build%20game/badge.svg)](https://github.com/RigsOfRods/rigs-of-rods/actions?query=workflow%3A%22Build+game%22)
 
 
-Rigs of Rods is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics. The soft-body physics system is based on mass-spring-damper theory.  
-For a simple overview of the features Rigs of Rods provides please refer to [doc/Things you can do in Rigs of Rods.pdf](doc/Things%20you%20can%20do%20in%20Rigs%20of%20Rods.pdf)  
+_Rigs of Rods_ is a free/libre soft-body physics simulator mainly targeted at simulating vehicle physics in real-time. The soft-body physics system is based on [mass-spring-damper theory](https://en.wikipedia.org/wiki/Mass-spring-damper_model).
 
 #### Trailer:
 
@@ -21,41 +20,120 @@ For a simple overview of the features Rigs of Rods provides please refer to [doc
 * Windows
 * Linux
 
-## Further documentation
-* Website: https://www.rigsofrods.org/
-* Documentation: http://docs.rigsofrods.org/
-* Developer Wiki: https://github.com/RigsOfRods/rigs-of-rods/wiki
-* Forum: https://forum.rigsofrods.org/
-* Mod Repository: https://forum.rigsofrods.org/resources/
-* Github: https://github.com/RigsOfRods/rigs-of-rods
-* Discord: https://discord.gg/rigsofrods
-* [doc/](doc/)
-* Translation interface: https://hosted.weblate.org/projects/rigs-of-rods/
+## Feature Overview
+* real-time soft-body physics simulation, enabling:
+  * realistic terrain-interaction of vehicles
+  * realistic deformation and crashes
+  * realistic interaction between vehicles and loads
+  * realistic simulation of:
+    * wheeled-vehicles, such as
+      * cars
+      * trucks
+      * monster trucks
+      * busses
+      * [ground effect vehicles](https://en.wikipedia.org/wiki/Ground_effect_(cars))
+    * tracked vehicles (experimental)
+    * 2-wheeled vehicles (experimental)
+    * boats
+    * submarines (experimental)
+    * trains
+    * airplanes
+    * helicopters
+    * loads
+    * prototypical, experimental, and fictional vehicles
+* ability to enter and exit vehicles and walk around freely
+* ability to spawn and use several vehicles of any type within the same session on the same map
+* ingame content browser for community-created content and mods
+* multiplayer support with client-server architecture and dedicated servers
+  * ingame server-browser
+  * dedicated servers can both be used to host online as well as LAN games
+* ingame terrain-editor
+* scripting support for modding via [AngelScript](https://angelcode.com/angelscript/)
+* self-driving AI
+  * easily create your own waypoints for AI to follow ingame
+* continuous day and night cycle with realistic positioning and movement of celestial objects depending on time of day
+* dynamic lighting with shadows
+* vehicle modding (exchange vehicle parts with ingame tools)
+* racing on race tracks with online leaderboards
+
+
+### Gameplay
+Rigs of Rods is not intended for any particular use case. Due to its diverse feature set, the large amount of community-created content and the living community, Rigs of Rods should be seen as a sandbox offering a plethora of possibilities.
+
+Some examples include:
+* roleplaying
+* (school) bus driving
+* cargo lifting and transportation
+* driving and operating heavy equipment and utility vehicles, such as
+  * cranes
+  * forklifts
+  * boom lifts
+  * scissor lifts
+  * trailers
+  * road trains
+* flying
+* train driving
+* monster truck events
+* crash simulations
+* racing
+* vehicle modding and tuning
+* testing of experimental and fictional vehicles
+* drifting
+* rock trawling
+* mudding
+* experimenting, messing around, and having fun with physics
+
+To get a better understanding of what you can do in Rigs of Rods, see
+
+* [Things you can do in Rigs of Rods](doc/Things%20you%20can%20do%20in%20Rigs%20of%20Rods.pdf)
+* [Rigs of Rods 2010 promo](https://www.youtube.com/watch?v=3A6OHnAD_Pc)
+* [Rigs of Rods 2015 trailer](http://www.youtube.com/watch?v=bRbQ4OaljWs)
+* [Rigs of Rods 2022.12 release trailer](https://www.youtube.com/watch?v=OagiMx2zwTA)
+
+## Further references
+* [Official Website](https://www.rigsofrods.org/)
+* [Official documentation](http://docs.rigsofrods.org/)
+* [Official forum](https://forum.rigsofrods.org/)
+* [Discord](https://discord.gg/rigsofrods)
+* [Content Repository](https://forum.rigsofrods.org/resources/)
+* [Source code repository](https://github.com/RigsOfRods/rigs-of-rods)
+* [Developer Wiki](https://github.com/RigsOfRods/rigs-of-rods/wiki)
+* [More documentation](doc/)
+* [Translation interface](https://hosted.weblate.org/projects/rigs-of-rods/)
 
 
 ## Paths
-$bin  - compiled binaries  
-$res  - resources/assets for the game  
-$user - user-created mods, configuration files, logs, screenshots  
+This section describes where the directories that are most important to end-users are located on each supported operating system. Inside this Readme, these directories are referenced by name prefixed with `$`.
 
-Windows:  
-$bin   = source\bin  
-$res   = source\bin\resources  
-$user  = Documents\My Games\Rigs of Rods   
+### Legend
+```
+$bin  - location of the compiled binaries
+$res  - location of the resources/assets for the game
+$user - location of user-created mods, configuration files, logs, screenshots
+```
 
-Linux:  
-$bin    = source/bin  
-$res    = source/bin/resources  
-$user   = ~/.rigsofrods
+### Windows
+```
+$bin   = source\bin
+$res   = source\bin\resources
+$user  = Documents\My Games\Rigs of Rods
+```
 
+### Linux
+```
+$bin    = source/bin
+$res    = source/bin/resources
+$user   = ${HOME}/.rigsofrods
+```
 
 ## Controls
 Available commands depend on the vehicle you are in. For a graphical overview refer to [doc/keysheet.pdf](doc/keysheet.pdf)  
 For an indepth view refer to [this Documentation page](https://docs.rigsofrods.org/gameplay/controls-config/) or ``` $user/config/input.map ```  
-Please note that certain vehicles come with their own specific commands not represented in the above sources. In this case see the vehicle's documentation or go to Menu -> Simulation -> Show vehicle description.  
-Rigs is Rods can also be played with Gamepads, Joysticks, Wheels and other controllers, including support for Force Feedback.
 
-##### Basic controls:  
+Please note that certain vehicles come with their own specific commands not represented in the above sources. In this case see the vehicle's documentation or go to the `Ingame Top Bar Menu` -> `Simulation` -> `Show vehicle description`.  
+Rigs of Rods can also be played with Gamepads, Joysticks, Wheels and other controllers. Rigs of Rods supports Force Feedback.
+
+### Basic controls:
 
 | key                            | effect                                               |
 |--------------------------------|------------------------------------------------------|
@@ -73,12 +151,12 @@ Rigs is Rods can also be played with Gamepads, Joysticks, Wheels and other contr
 | CTRL+HOME                      | aircrafts: start engine                              |
 | Page Up/Down                   | aircrafts: increase/decrease throttle                |
 | F1/F2                          | helicopters: lift up/down                            |
-| Print Screen                   | create screenshot in $user/screenshots folder        |
+| Print Screen                   | create screenshot in `$user/screenshots` folder      |
 
 
 ## Content/Mods
-Rigs of Rods only comes with a very small selection of vehicles and terrains. For the best experience download some mods from the [Rigs of Rods Mod Repository](https://forum.rigsofrods.org/resources/). The [Showroom Subforum](https://forum.rigsofrods.org/#repository.11) may contain additional content not found in the Mod Repository.  
-If you want to get going quickly have a look at the content packs which can be found in the Mod Repository as well.
+Rigs of Rods only comes with a very small selection of vehicles and terrains. For the best experience download some mods from the [Rigs of Rods Mod Repository](https://forum.rigsofrods.org/resources/). For convenience, use the ingame content browser for downloading. It can be found in the main menu when clicking on the `Repository` button. The [Showrooms subforum](https://forum.rigsofrods.org/#showrooms.11) may contain additional content not found in the Mod Repository.  
+If you want to get going quickly, have a look at the content packs. These can be found on the webpage of the [Mod Repository](https://forum.rigsofrods.org/resources/categories/content-packs.10/).
 
 
 ## Configuration files
@@ -89,24 +167,24 @@ If you want to get going quickly have a look at the content packs which can be f
 
 ## Command-line options
 
-* -map \<mapname\>
-    * loads map \<mapname\> on startup. Example:
+* `-map <mapname>`
+    * loads map `<mapname>` on startup. Example:
         * ``` RoR.exe -map aspen ```
-    * note: do not add .terrn2 file format extension
-* -truck \<truckfile\>
+    * note: do not add `.terrn2` file format extension
+* `-truck <truckfile>`
     * loads a truck on startup. Example:
         * ``` RoR.exe -map oahu -truck semi.truck ```
         * ``` RoR.exe -map oahu -truck an-12.airplane ```
-* -enter
-    * enter selected truck by -truck option on startup
-* -setup
-    * displays OGRE3D settings dialog instead of loading settings from ogre.cfg
-* -help
+* `-enter`
+    * enter truck provided with `-truck` option on startup
+* `-setup`
+    * displays OGRE3D settings dialog instead of loading settings from `ogre.cfg`
+* `-help`
     * displays help for command line arguments
 
 
 ## Compiling
-For instructions refer to [BUILDING.md](BUILDING.md)
+For instructions refer to [BUILDING.md](BUILDING.md). Also see the [Developer Wiki](https://github.com/RigsOfRods/rigs-of-rods/wiki).
 
 
 ## License of Rigs of Rods
