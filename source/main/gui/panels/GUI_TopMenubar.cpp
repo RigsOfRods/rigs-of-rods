@@ -569,9 +569,13 @@ void TopMenubar::Draw(float dt)
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin(_LC("TopMenubar", "Settings menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
+            // AUDIO SETTINGS
+            ImGui::Separator();
             ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Audio:"));
             DrawGFloatSlider(App::audio_master_volume, _LC("TopMenubar", "Volume"), 0, 1);
+
+            // RENDER SETTINGS
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Frames per second:"));
             if (App::gfx_envmap_enabled->getBool())
@@ -580,6 +584,7 @@ void TopMenubar::Draw(float dt)
             }
             DrawGIntSlider(App::gfx_fps_limit, _LC("TopMenubar", "Game"), 0, 240);
 
+            // SIM SETTINGS
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Simulation:"));
             float slowmotion = std::min(App::GetGameContext()->GetActorManager()->GetSimulationSpeed(), 1.0f);
@@ -592,6 +597,8 @@ void TopMenubar::Draw(float dt)
             {
                 App::GetGameContext()->GetActorManager()->SetSimulationSpeed(timelapse);
             }
+
+            // CAMERA SETTINGS
             if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
             {
                 ImGui::Separator();
@@ -624,6 +631,8 @@ void TopMenubar::Draw(float dt)
                     DrawGCheckbox(App::gfx_fixed_cam_tracking, _LC("TopMenubar", "Tracking"));
                 }
             }
+
+            // SKY SETTINGS
 #ifdef USE_CAELUM
             if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
             {
@@ -642,6 +651,8 @@ void TopMenubar::Draw(float dt)
                 }
             }       
 #endif // USE_CAELUM
+
+            // WATER SETTINGS
             if (RoR::App::gfx_water_waves->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED && App::GetGameContext()->GetTerrain()->getWater())
             {
                 if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
@@ -656,12 +667,15 @@ void TopMenubar::Draw(float dt)
                 }
             }    
             
+            // VEHICLE CONTROL SETTINGS
             if (current_actor != nullptr)
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Vehicle control options:"));
                 DrawGCheckbox(App::io_hydro_coupling, _LC("TopMenubar", "Keyboard steering speed coupling"));
             }
+
+            // MULTIPLAYER SETTINGS
             if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {
                 ImGui::Separator();

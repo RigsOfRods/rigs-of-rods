@@ -37,10 +37,14 @@ private:
     void DrawRenderSystemSettings();
     void DrawGeneralSettings();
     void DrawGameplaySettings();
+    void DrawUiSettings();
     void DrawGraphicsSettings();
     void DrawAudioSettings();
     void DrawControlSettings();
     void DrawDiagSettings();
+
+    // Helpers
+    void DrawUiPresetCombo();
 
     // GUI state
     bool m_is_visible = false;
@@ -63,6 +67,7 @@ private:
     std::string m_combo_items_water_mode;
     std::string m_combo_items_extcam_mode;
     std::string m_combo_items_input_grab;
+    std::string m_cached_uipreset_combo_string;
 
     // Render settings
     bool m_render_must_restart = false;

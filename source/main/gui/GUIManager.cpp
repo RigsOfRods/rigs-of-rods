@@ -47,7 +47,19 @@
 
 #define RESOURCE_FILENAME "MyGUI_Core.xml"
 
-namespace RoR {
+using namespace RoR;
+
+/// Global list of UI Presets, selectable via Settings menu in TopMenubar
+UiPresetEntry RoR::UiPresets[] =
+{
+    // Cvar name                      | NOVICE, REGULAR, EXPERT, MINIMALLIST
+    { "gfx_surveymap_icons",          {"true",  "true",  "true",  "false"} },
+    { "gfx_declutter_map",            {"false", "true",  "false", "true"} },
+    { "ui_show_live_repair_controls", {"true",  "false", "false", "false"} },
+
+    // List closure
+    { nullptr, {} }
+};
 
 GUIManager::GUIManager()
 {
@@ -126,6 +138,19 @@ bool GUIManager::AreStaticMenusAllowed() //!< i.e. top menubar / vehicle UI butt
             !this->FlexbodyDebug.IsHovered());
 }
 
+void GUIManager::ApplyUiPreset() //!< reads cvar 'ui_preset'
+{
+    const int preset = App::ui_preset->getInt();
+    int i = 0;
+    while (UiPresets[i].uip_cvar != nullptr)
+    {
+        App::GetConsole()->cVarSet(
+            UiPresets[i].uip_cvar,
+            UiPresets[i].uip_values[preset]);
+        i++;
+    }
+}
+
 void GUIManager::DrawSimulationGui(float dt)
 {
     if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
@@ -170,7 +195,7 @@ void GUIManager::DrawSimGuiBuffered(GfxActor* player_gfx_actor)
 
     if (!this->ConsoleWindow.IsVisible())
     {
-        if (!m_hide_gui)
+        if (!App::ui_hide_gui->getBool())
         {
             this->ChatBox.Draw(); // Messages must be always visible
         }
@@ -253,7 +278,7 @@ void GUIManager::SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manage
 
 void GUIManager::SetGuiHidden(bool hidden)
 {
-    m_hide_gui = hidden;
+    App::ui_hide_gui->setVal(hidden);
     App::GetOverlayWrapper()->showDashboardOverlays(!hidden, App::GetGameContext()->GetPlayerActor());
     if (hidden)
     {
@@ -365,7 +390,7 @@ void GUIManager::SetupImGui()
 
 void GUIManager::DrawCommonGui()
 {
-    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !m_hide_gui && !this->SurveyMap.IsVisible())
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && !App::ui_hide_gui->getBool() && !this->SurveyMap.IsVisible())
     {
         this->MpClientList.Draw();
     }
@@ -532,5 +557,3 @@ void GUIManager::UpdateInputEvents(float dt)
         }
     }
 }
-
-} // namespace RoR
