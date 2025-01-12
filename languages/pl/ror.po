@@ -8,13 +8,14 @@
 # Crystal Hammer <cryham@gmail.com>, 2023.
 # Michał Domaradzki <michu97736@wp.pl>, 2024.
 # 987 <antoniosawickips4@gmail.com>, 2024, 2025.
+# Jan Michalski <jmichalski030@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2025-01-02 05:00+0000\n"
-"Last-Translator: 987 <antoniosawickips4@gmail.com>\n"
+"PO-Revision-Date: 2025-01-13 00:00+0000\n"
+"Last-Translator: Jan Michalski <jmichalski030@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "pl/>\n"
 "Language: pl\n"
@@ -7526,32 +7527,32 @@ msgstr "(Proszę naciśnij klawisz)"
 #: utils/InputEngine.cpp:2198
 msgctxt "ModifierKey"
 msgid "Left Alt"
-msgstr ""
+msgstr "Lewy Alt"
 
 #: utils/InputEngine.cpp:2199
 msgctxt "ModifierKey"
 msgid "Left Shift"
-msgstr ""
+msgstr "Lewy Shift"
 
 #: utils/InputEngine.cpp:2200
 msgctxt "ModifierKey"
 msgid "Left Ctrl"
-msgstr ""
+msgstr "Lewy Ctrl"
 
 #: utils/InputEngine.cpp:2202
 msgctxt "ModifierKey"
 msgid "Right Alt"
-msgstr ""
+msgstr "Prawy Alt"
 
 #: utils/InputEngine.cpp:2203
 msgctxt "ModifierKey"
 msgid "Right Shift"
-msgstr ""
+msgstr "Prawy Shift"
 
 #: utils/InputEngine.cpp:2204
 msgctxt "ModifierKey"
 msgid "Right Ctrl"
-msgstr ""
+msgstr "Prawy Ctrl"
 
 #~ msgctxt "GameSettings"
 #~ msgid "Debug collisions"
