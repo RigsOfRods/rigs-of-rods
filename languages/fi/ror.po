@@ -3,13 +3,13 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
-# Ricky Tigg <ricky.tigg@gmail.com>, 2024.
+# Ricky Tigg <ricky.tigg@gmail.com>, 2024, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2024-12-09 23:00+0000\n"
+"PO-Revision-Date: 2025-01-14 23:00+0000\n"
 "Last-Translator: Ricky Tigg <ricky.tigg@gmail.com>\n"
 "Language-Team: Finnish <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/fi/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.9-dev\n"
+"X-Generator: Weblate 5.10-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -3258,11 +3258,9 @@ msgstr ""
 
 #. TODO: Display hotkeys on the right side of the menu (with different text color)
 #: gui/panels/GUI_TopMenubar.cpp:299
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgctxt "TopMenubar"
 msgid "Get new vehicle"
-msgstr " loit uuden ajoneuvon "
+msgstr "Hanki uusi ajoneuvo"
 
 #: gui/panels/GUI_TopMenubar.cpp:310
 #, fuzzy
@@ -3296,11 +3294,9 @@ msgid "Reload last spawned vehicle"
 msgstr "Vain nykyinen ajoneuvo, päävalot"
 
 #: gui/panels/GUI_TopMenubar.cpp:349
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgctxt "TopMenubar"
 msgid "Remove last spawned vehicle"
-msgstr " loit uuden ajoneuvon "
+msgstr "Poista viimeksi syntynyt ajoneuvo"
 
 #: gui/panels/GUI_TopMenubar.cpp:358
 msgctxt "TopMenubar"
@@ -3752,11 +3748,9 @@ msgid "Vehicle count"
 msgstr "Ajoneuvon tyyppi: "
 
 #: gui/panels/GUI_TopMenubar.cpp:864
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgctxt "TopMenubar"
 msgid "Number of vehicles"
-msgstr " loit uuden ajoneuvon "
+msgstr "Ajoneuvojen lukumäärä"
 
 #: gui/panels/GUI_TopMenubar.cpp:886
 msgctxt "TopMenubar"
@@ -4323,16 +4317,12 @@ msgid "disconnected: remote side closed the connection"
 msgstr "Yhteys katkaistu: Etätietokone sulki yhteyden"
 
 #: network/Network.cpp:315
-#, fuzzy
-#| msgid " left the game"
 msgid "left the game"
-msgstr " lähti pelistä"
+msgstr "lähti pelistä"
 
 #: network/Network.cpp:347
-#, fuzzy
-#| msgid " joined the game"
 msgid "joined the game"
-msgstr " liittyi peliin"
+msgstr "liittyi peliin"
 
 #. Mark connect thread as started
 #: network/Network.cpp:401
@@ -4488,10 +4478,8 @@ msgid "Banned user"
 msgstr "rankattu käyttäjä"
 
 #: physics/Actor.cpp:443
-#, fuzzy
-#| msgid "No content installed"
 msgid " content mismatch: "
-msgstr "Ei sisältöä asennettuna"
+msgstr " Sisältö ei täsmää: "
 
 #: physics/Actor.cpp:1319
 msgid "No inter-axle differential installed on current vehicle!"
@@ -4522,10 +4510,8 @@ msgid "Network error!"
 msgstr "Virhe tapahtunut nettipelissä !"
 
 #: physics/ActorManager.cpp:395
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgid "spawned a new vehicle: "
-msgstr " loit uuden ajoneuvon "
+msgstr "synnytti uuden ajoneuvon: "
 
 #: physics/ActorManager.cpp:405
 #, fuzzy
@@ -5454,11 +5440,9 @@ msgid "respawn last truck"
 msgstr "hinausauto"
 
 #: utils/InputEngine.cpp:64
-#, fuzzy
-#| msgid " spawned a new vehicle: "
 msgctxt "InputEvent"
 msgid "get new vehicle"
-msgstr " loit uuden ajoneuvon "
+msgstr "hanki uusi ajoneuvo"
 
 #: utils/InputEngine.cpp:65
 #, fuzzy
