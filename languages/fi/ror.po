@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2025-01-14 23:00+0000\n"
+"PO-Revision-Date: 2025-01-17 23:00+0000\n"
 "Last-Translator: Ricky Tigg <ricky.tigg@gmail.com>\n"
 "Language-Team: Finnish <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/fi/>\n"
@@ -1210,11 +1210,9 @@ msgid "Version"
 msgstr "Versio:"
 
 #: gui/panels/GUI_GameAbout.cpp:53
-#, fuzzy
-#| msgid "Network error!"
 msgctxt "About"
 msgid "Network protocol"
-msgstr "Virhe tapahtunut nettipelissä !"
+msgstr "Verkkoprotokolla"
 
 #: gui/panels/GUI_GameAbout.cpp:57
 msgctxt "About"
@@ -1426,11 +1424,9 @@ msgstr "Versio:"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:231 gui/panels/GUI_GameMainMenu.cpp:259
-#, fuzzy
-#| msgid "Network error!"
 msgctxt "MainMenu"
 msgid "Net. protocol"
-msgstr "Virhe tapahtunut nettipelissä !"
+msgstr "Net.-protokollaa"
 
 #: gui/panels/GUI_GameMainMenu.cpp:244
 #, fuzzy
@@ -5998,25 +5994,19 @@ msgid "toggle cruise control"
 msgstr "kytke vakionopeuden säädin"
 
 #: utils/InputEngine.cpp:152
-#, fuzzy
-#| msgid "match target speed / rpm with current truck speed / rpm"
 msgctxt "InputEvent"
 msgid "match target speed / rpm with current truck speed / rpm"
-msgstr "sovita yhteen haluttu nopeus  rpm tämänhetkelliseen nopeuteen  rpm"
+msgstr "sovita tavoitenopeus / kpm nykyiseen kuorma-auton nopeuteen / kpm"
 
 #: utils/InputEngine.cpp:153
-#, fuzzy
-#| msgid "increase target speed / rpm"
 msgctxt "InputEvent"
 msgid "increase target speed / rpm"
-msgstr "lisää kohde nopeutta  rpm"
+msgstr "lisää tavoitenopeutta / kpm"
 
 #: utils/InputEngine.cpp:154
-#, fuzzy
-#| msgid "decrease target speed / rpm"
 msgctxt "InputEvent"
 msgid "decrease target speed / rpm"
-msgstr "vähennä tavoitenopeutta  rpm"
+msgstr "vähennä tavoitenopeutta / kpm"
 
 #: utils/InputEngine.cpp:155
 #, fuzzy
@@ -6130,11 +6120,9 @@ msgid "shift automatic transmission one gear down"
 msgstr "vaihda automaattisessa vaihteistossa yksi vaihde alaspäin"
 
 #: utils/InputEngine.cpp:173
-#, fuzzy
-#| msgid "shift automatic transmission one gear up"
 msgctxt "InputEvent"
 msgid "shift automatic transmission one gear up"
-msgstr "vaihda automaattisessa vaihteistossa yksi vaihde  ylöspäin"
+msgstr "vaihda automaattisessa vaihteistossa yksi vaihde ylöspäin"
 
 #: utils/InputEngine.cpp:174
 #, fuzzy
