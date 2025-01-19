@@ -344,7 +344,7 @@ void GameSettings::DrawUiSettings()
     ImGui::Separator();
 
     DrawGCheckbox(App::gfx_speedo_digital, _LC("GameSettings", "Digital speedometer"));
-    DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial speedometer"));
+    DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial units"));
 
     DrawGCheckbox(App::ui_show_live_repair_controls, _LC("GameSettings", "Show controls in live repair box"));
     
