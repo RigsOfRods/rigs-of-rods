@@ -85,8 +85,10 @@ void MpClientList::Draw()
     const RoRnet::UserInfo& local_user = m_users[0]; // See `UpdateClients()`
     for (RoRnet::UserInfo const& user: m_users)
     {
+        ImGui::PushID(user.uniqueid);
+        const ImVec2 hover_tl = ImGui::GetCursorScreenPos();
+
         // Icon sizes: flag(16x11), auth(16x16), up(16x16), down(16x16)
-        bool hovered = false;
         Ogre::TexturePtr flag_tex;
         Ogre::TexturePtr auth_tex;
         Ogre::TexturePtr down_tex;
@@ -114,15 +116,15 @@ void MpClientList::Draw()
             }
         }
         // Always invoke to keep usernames aligned
-        hovered |= this->DrawIcon(down_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
-        hovered |= this->DrawIcon(up_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
+        this->DrawIcon(down_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
+        this->DrawIcon(up_tex, ImVec2(8.f, ImGui::GetTextLineHeight()));
 
         // Auth icon
              if (user.authstatus & RoRnet::AUTH_ADMIN ) { auth_tex = m_icon_flag_red;   }
         else if (user.authstatus & RoRnet::AUTH_MOD   ) { auth_tex = m_icon_flag_blue;  }
         else if (user.authstatus & RoRnet::AUTH_RANKED) { auth_tex = m_icon_flag_green; }
 
-        hovered |= this->DrawIcon(auth_tex, ImVec2(14.f, ImGui::GetTextLineHeight()));
+        this->DrawIcon(auth_tex, ImVec2(14.f, ImGui::GetTextLineHeight()));
 
         // Country flag
         StringVector parts = StringUtil::split(user.language, "_");
@@ -130,14 +132,19 @@ void MpClientList::Draw()
         {
             StringUtil::toLowerCase(parts[1]);
             flag_tex = FetchIcon((parts[1] + ".png").c_str());
-            hovered |= this->DrawIcon(flag_tex, ImVec2(16.f, ImGui::GetTextLineHeight()));
+            this->DrawIcon(flag_tex, ImVec2(16.f, ImGui::GetTextLineHeight()));
         }
 
         // Player name
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetStyle().ItemSpacing.x); // Some extra padding
         ColourValue col = App::GetNetwork()->GetPlayerColor(user.colournum);
         ImGui::TextColored(ImVec4(col.r, col.g, col.b, col.a), "%s", user.username);
-        hovered |= ImGui::IsItemHovered();
+        const ImVec2 hover_br = hover_tl + ImVec2(content_width, ImGui::GetTextLineHeight());
+        const bool hovered
+             = hover_br.x > ImGui::GetIO().MousePos.x
+            && hover_br.y > ImGui::GetIO().MousePos.y
+            && ImGui::GetIO().MousePos.x > hover_tl.x
+            && ImGui::GetIO().MousePos.y > hover_tl.y;
 
         // Tooltip
         if (hovered)
@@ -218,6 +225,7 @@ void MpClientList::Draw()
 
             ImGui::EndTooltip();
         }
+        ImGui::PopID(); // user.uniqueid
     }
 
     if (App::GetNetwork()->GetNetQuality() != 0)
@@ -234,21 +242,18 @@ void MpClientList::Draw()
 #endif // USE_SOCKETW
 }
 
-bool MpClientList::DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box)
+void MpClientList::DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box)
 {
     ImVec2 orig_pos = ImGui::GetCursorPos();
-    bool hovered = false;
     if (tex)
     {
    // TODO: moving the cursor somehow deforms the image
    //     ImGui::SetCursorPosX(orig_pos.x + (reference_box.x - tex->getWidth()) / 2.f);
    //     ImGui::SetCursorPosY(orig_pos.y + (reference_box.y - tex->getHeight()) / 2.f);
         ImGui::Image(reinterpret_cast<ImTextureID>(tex->getHandle()), ImVec2(16, 16));
-        hovered = ImGui::IsItemHovered();
     }
     ImGui::SetCursorPosX(orig_pos.x + reference_box.x + ImGui::GetStyle().ItemSpacing.x);
     ImGui::SetCursorPosY(orig_pos.y);
-    return hovered;
 }
 
 void MpClientList::CacheIcons()
