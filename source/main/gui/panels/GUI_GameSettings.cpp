@@ -274,7 +274,7 @@ void GameSettings::DrawGameplaySettings()
         m_combo_items_gearbox_mode.c_str());
 
     DrawGCheckbox(App::gfx_speedo_digital, _LC("GameSettings", "Digital speedometer"));
-    DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial speedometer"));
+    DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial units"));
 
     //DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
 
