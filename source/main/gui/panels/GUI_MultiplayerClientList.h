@@ -42,7 +42,7 @@ public:
     void UpdateClients();
 
 private:
-    bool DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box); // Returns true if hovered
+    void DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box);
     void CacheIcons();
 
     std::vector<RoRnet::UserInfo> m_users; // only updated on demand to reduce mutex locking and vector allocating overhead.
