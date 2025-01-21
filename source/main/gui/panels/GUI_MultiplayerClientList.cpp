@@ -45,8 +45,29 @@ using namespace Ogre;
 void MpClientList::UpdateClients()
 {
 #if USE_SOCKETW
+    // vectorpos may change, so we must look up ID again.
+    int peeropts_menu_active_user_uid = -1;
+    if (m_peeropts_menu_active_user_vectorpos != -1)
+    {
+        peeropts_menu_active_user_uid = (int)m_users[m_peeropts_menu_active_user_vectorpos].uniqueid;
+    }
+    m_peeropts_menu_active_user_vectorpos = -1;
+
+    // Update the user data
     m_users = App::GetNetwork()->GetUserInfos();
     m_users.insert(m_users.begin(), App::GetNetwork()->GetLocalUserData());
+
+    m_users_peeropts = App::GetNetwork()->GetAllUsersPeerOpts();
+    m_users_peeropts.insert(m_users_peeropts.begin(), BitMask_t(0));
+
+    // Restore the vectorpos
+    for (int i = 0; i < (int)m_users.size(); i++)
+    {
+        if ((int)m_users[i].uniqueid == peeropts_menu_active_user_uid)
+        {
+            m_peeropts_menu_active_user_vectorpos = i;
+        }
+    }
 #endif // USE_SOCKETW
 }
 
@@ -65,7 +86,7 @@ void MpClientList::Draw()
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
-    const float content_width = 200.f;
+    const float content_width = 225.f;
     ImGui::SetNextWindowContentWidth(content_width);
     ImGui::SetNextWindowPos(ImVec2(
         ImGui::GetIO().DisplaySize.x - (content_width + (2*ImGui::GetStyle().WindowPadding.x) + theme.screen_edge_padding.x),
@@ -83,10 +104,26 @@ void MpClientList::Draw()
     ImGui::Begin("Peers", nullptr, flags);
 
     const RoRnet::UserInfo& local_user = m_users[0]; // See `UpdateClients()`
+    int vectorpos = 0;
     for (RoRnet::UserInfo const& user: m_users)
     {
         ImGui::PushID(user.uniqueid);
         const ImVec2 hover_tl = ImGui::GetCursorScreenPos();
+
+        // PeerOptions popup menu
+        if (ImGui::Button(" < "))
+        {
+            if (m_peeropts_menu_active_user_vectorpos == vectorpos)
+            {
+                m_peeropts_menu_active_user_vectorpos = -1; // hide menu
+            }
+            else
+            {
+                m_peeropts_menu_active_user_vectorpos = vectorpos; // show menu
+                m_peeropts_menu_corner_tl = hover_tl - ImVec2(PEEROPTS_MENU_WIDTH + 15, 0);
+            }
+        }
+        ImGui::SameLine();
 
         // Icon sizes: flag(16x11), auth(16x16), up(16x16), down(16x16)
         Ogre::TexturePtr flag_tex;
@@ -140,10 +177,11 @@ void MpClientList::Draw()
         ColourValue col = App::GetNetwork()->GetPlayerColor(user.colournum);
         ImGui::TextColored(ImVec4(col.r, col.g, col.b, col.a), "%s", user.username);
         const ImVec2 hover_br = hover_tl + ImVec2(content_width, ImGui::GetTextLineHeight());
+        const float HOVER_TL_SHIFTX = 20.f; // leave the [<] button (PeerOptions submenu) out of the hover check.
         const bool hovered
              = hover_br.x > ImGui::GetIO().MousePos.x
             && hover_br.y > ImGui::GetIO().MousePos.y
-            && ImGui::GetIO().MousePos.x > hover_tl.x
+            && ImGui::GetIO().MousePos.x > (hover_tl.x + HOVER_TL_SHIFTX)
             && ImGui::GetIO().MousePos.y > hover_tl.y;
 
         // Tooltip
@@ -226,6 +264,7 @@ void MpClientList::Draw()
             ImGui::EndTooltip();
         }
         ImGui::PopID(); // user.uniqueid
+        vectorpos++;
     }
 
     if (App::GetNetwork()->GetNetQuality() != 0)
@@ -239,7 +278,60 @@ void MpClientList::Draw()
 
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
+
+    this->DrawPeerOptionsMenu();
 #endif // USE_SOCKETW
+}
+
+void MpClientList::DrawPeerOptCheckbox(const BitMask_t flag, const std::string& label)
+{
+    int uid = (int)m_users[m_peeropts_menu_active_user_vectorpos].uniqueid;
+    bool flagval = m_users_peeropts[m_peeropts_menu_active_user_vectorpos] & flag;
+
+    if (ImGui::Checkbox(label.c_str(), &flagval))
+    {
+        MsgType peeropt_msg = flagval ? MSG_NET_ADD_PEEROPTIONS_REQUESTED : MSG_NET_REMOVE_PEEROPTIONS_REQUESTED;
+        App::GetGameContext()->PushMessage(Message(peeropt_msg, new PeerOptionsRequest{ uid, flag }));
+        App::GetGameContext()->ChainMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
+    }
+}
+
+void MpClientList::DrawPeerOptionsMenu()
+{
+    if (m_peeropts_menu_active_user_vectorpos == -1)
+        return; // Menu not visible
+
+    // Sanity check
+    const bool vectorpos_sane = (m_peeropts_menu_active_user_vectorpos >= 0
+        && m_peeropts_menu_active_user_vectorpos < (int)m_users_peeropts.size());
+    ROR_ASSERT(vectorpos_sane);
+    if (!vectorpos_sane)
+        return; // Minimize damage
+
+    // Draw UI
+    ImGui::SetNextWindowPos(m_peeropts_menu_corner_tl);
+    const int flags = ImGuiWindowFlags_NoDecoration;
+    if (ImGui::Begin("PeerOptions", nullptr, flags))
+    {
+        ImGui::TextDisabled("%s", _LC("MultiplayerClientList", "Peer options"));
+        ImGui::Separator();
+        this->DrawPeerOptCheckbox(RoRnet::PEEROPT_MUTE_CHAT, _LC("MultiplayerClientList", "Mute chat"));
+        this->DrawPeerOptCheckbox(RoRnet::PEEROPT_MUTE_ACTORS, _LC("MultiplayerClientList", "Mute actors"));
+        this->DrawPeerOptCheckbox(RoRnet::PEEROPT_HIDE_ACTORS, _LC("MultiplayerClientList", "Hide actors"));
+        m_peeropts_menu_corner_br = ImGui::GetCursorScreenPos();
+
+        ImGui::End();
+    }
+
+    // Check hover and hide
+    const ImVec2 hoverbox_tl = m_peeropts_menu_corner_tl - ImVec2(PEEROPTS_HOVER_PAD, PEEROPTS_HOVER_PAD);
+    const ImVec2 hoverbox_br = m_peeropts_menu_corner_br + ImVec2(PEEROPTS_HOVER_PAD, PEEROPTS_HOVER_PAD);
+    const ImVec2 mousepos = ImGui::GetIO().MousePos;
+    if (mousepos.x < hoverbox_tl.x || mousepos.x > hoverbox_br.x
+        || mousepos.y < hoverbox_tl.y || mousepos.y > hoverbox_br.y)
+    {
+        m_peeropts_menu_active_user_vectorpos = -1;
+    }
 }
 
 void MpClientList::DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box)

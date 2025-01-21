@@ -840,6 +840,7 @@ struct ActorSpawnRequest
     int                 asr_debugview = 0; //(int)DebugViewType::DEBUGVIEW_NONE;
     Ogre::UTFString     asr_net_username;
     int                 asr_net_color = 0;
+    BitMask_t           asr_net_peeropts = BitMask_t(0); //!< `RoRnet::PeerOptions` to be applied after spawn.
     int                 net_source_id = 0;
     int                 net_stream_id = 0;
     bool                asr_free_position = false;   //!< Disables the automatic spawn position adjustment

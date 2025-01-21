@@ -110,6 +110,8 @@ enum MsgType
     MSG_NET_REFRESH_REPOLIST_FAILURE,      //!< Payload = RoR::CurlFailInfo* (owner)
     MSG_NET_FETCH_AI_PRESETS_SUCCESS,      //!< Description = JSON string
     MSG_NET_FETCH_AI_PRESETS_FAILURE,      //!< Description = message
+    MSG_NET_ADD_PEEROPTIONS_REQUESTED,     //!< Payload = RoR::PeerOptionsRequest* (owner)
+    MSG_NET_REMOVE_PEEROPTIONS_REQUESTED,  //!< Payload = RoR::PeerOptionsRequest* (owner)
     // Simulation
     MSG_SIM_PAUSE_REQUESTED,
     MSG_SIM_UNPAUSE_REQUESTED,
@@ -123,6 +125,8 @@ enum MsgType
     MSG_SIM_TELEPORT_PLAYER_REQUESTED,     //!< Payload = Ogre::Vector3* (owner)
     MSG_SIM_HIDE_NET_ACTOR_REQUESTED,      //!< Payload = ActorPtr* (owner)
     MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED,    //!< Payload = ActorPtr* (owner)
+    MSG_SIM_MUTE_NET_ACTOR_REQUESTED,      //!< Payload = ActorPtr* (owner)
+    MSG_SIM_UNMUTE_NET_ACTOR_REQUESTED,    //!< Payload = ActorPtr* (owner)
     MSG_SIM_SCRIPT_EVENT_TRIGGERED,        //!< Payload = RoR::ScriptEventArgs* (owner)
     MSG_SIM_SCRIPT_CALLBACK_QUEUED,        //!< Payload = RoR::ScriptCallbackArgs* (owner)
     MSG_SIM_ACTOR_LINKING_REQUESTED,       //!< Payload = RoR::ActorLinkingRequest* (owner)

@@ -101,6 +101,13 @@ struct NetRecvPacket
 
 // ------------------------ End of network messages --------------------------
 
+/// Payload of `MSG_NET_{ADD/REMOVE}_PEEROPTIONS_REQUESTED`.
+struct PeerOptionsRequest
+{
+    int por_uid; //!< RoRnet unique user ID.
+    BitMask_t por_peeropts; //!< See `RoRnet::PeerOptions`.
+};
+
 class Network
 {
 public:
@@ -122,11 +129,15 @@ public:
     Ogre::UTFString      GetUsername();
     RoRnet::UserInfo     GetLocalUserData();
     std::vector<RoRnet::UserInfo> GetUserInfos();
+    std::vector<BitMask_t> GetAllUsersPeerOpts();
     bool                 GetUserInfo(int uid, RoRnet::UserInfo &result);
+    bool                 GetUserPeerOpts(int uid, BitMask_t& result);
     bool                 GetDisconnectedUserInfo(int uid, RoRnet::UserInfo &result);
     bool                 GetAnyUserInfo(int uid, RoRnet::UserInfo &result); //!< Also considers local client
     bool                 FindUserInfo(std::string const& username, RoRnet::UserInfo &result);
     Ogre::ColourValue    GetPlayerColor(int color_num);
+    void                 AddPeerOptions(PeerOptionsRequest* rq);
+    void                 RemovePeerOptions(PeerOptionsRequest* rq);
 
     void                 BroadcastChatMsg(const char* msg);
     void                 WhisperChatMsg(RoRnet::UserInfo const& user, const char* msg);
@@ -154,6 +165,7 @@ private:
     RoRnet::ServerInfo   m_server_settings;
     RoRnet::UserInfo     m_userdata;
     std::vector<RoRnet::UserInfo> m_users;
+    std::vector<BitMask_t> m_users_peeropts;  //!< See `RoRnet::PeerOptions`.
     std::vector<RoRnet::UserInfo> m_disconnected_users;
 
     Ogre::UTFString      m_username; // Shadows GVar 'mp_player_name' for multithreaded access.

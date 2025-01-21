@@ -796,6 +796,86 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_NET_ADD_PEEROPTIONS_REQUESTED:
+                {
+                    PeerOptionsRequest* request = static_cast<PeerOptionsRequest*>(m.payload);
+                    try
+                    {
+                        // Record the options for future incoming traffic.
+                        App::GetNetwork()->AddPeerOptions(request);
+
+                        // MUTE existing actors if needed
+                        if (BITMASK_IS_1(request->por_peeropts, RoRnet::PEEROPT_MUTE_ACTORS))
+                        {
+                            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+                            {
+                                if (actor->ar_net_source_id == request->por_uid)
+                                {
+                                    App::GetGameContext()->PushMessage(Message(MSG_SIM_MUTE_NET_ACTOR_REQUESTED, new ActorPtr(actor)));
+                                }
+                            }
+                        }
+
+                        // HIDE existing actors if needed
+                        if (BITMASK_IS_1(request->por_peeropts, RoRnet::PEEROPT_HIDE_ACTORS))
+                        {
+                            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+                            {
+                                if (actor->ar_net_source_id == request->por_uid)
+                                {
+                                    App::GetGameContext()->PushMessage(Message(MSG_SIM_HIDE_NET_ACTOR_REQUESTED, new ActorPtr(actor)));
+                                }
+                            }
+                        }
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete request;
+                    break;
+                }
+
+                case MSG_NET_REMOVE_PEEROPTIONS_REQUESTED:
+                {
+                    PeerOptionsRequest* request = static_cast<PeerOptionsRequest*>(m.payload);
+                    try
+                    {
+                        // Record the options for future incoming traffic.
+                        App::GetNetwork()->RemovePeerOptions(request);
+
+                        // un-MUTE existing actors if needed
+                        if (BITMASK_IS_1(request->por_peeropts, RoRnet::PEEROPT_MUTE_ACTORS))
+                        {
+                            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+                            {
+                                if (actor->ar_net_source_id == request->por_uid)
+                                {
+                                    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNMUTE_NET_ACTOR_REQUESTED, new ActorPtr(actor)));
+                                }
+                            }
+                        }
+
+                        // un-HIDE existing actors if needed
+                        if (BITMASK_IS_1(request->por_peeropts, RoRnet::PEEROPT_HIDE_ACTORS))
+                        {
+                            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+                            {
+                                if (actor->ar_net_source_id == request->por_uid)
+                                {
+                                    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED, new ActorPtr(actor)));
+                                }
+                            }
+                        }
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete request;
+                    break;
+                }
+
                 // -- Gameplay events --
 
                 case MSG_SIM_PAUSE_REQUESTED:
@@ -821,7 +901,10 @@ int main(int argc, char *argv[])
                     {
                         for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
                         {
-                            actor->unmuteAllSounds();
+                            if (!actor->ar_muted_by_peeropt)
+                            {
+                                actor->unmuteAllSounds();
+                            }
                         }
                         App::sim_state->setVal((int)SimState::RUNNING);
                     }
@@ -1125,6 +1208,50 @@ int main(int argc, char *argv[])
                         }
                     }
                     catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete actor_ptr;
+                    break;
+                }
+
+                case MSG_SIM_MUTE_NET_ACTOR_REQUESTED:
+                {
+                    ActorPtr* actor_ptr = static_cast<ActorPtr*>(m.payload);
+                    try
+                    {
+                        ROR_ASSERT(actor_ptr);
+                        if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) &&
+                            ((*actor_ptr)->ar_state == ActorState::NETWORKED_OK))
+                        {
+                            ActorPtr actor = *actor_ptr;
+                            actor->ar_muted_by_peeropt = true;
+                            actor->muteAllSounds();
+                        }
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete actor_ptr;
+                    break;
+                }
+
+                case MSG_SIM_UNMUTE_NET_ACTOR_REQUESTED:
+                {
+                    ActorPtr* actor_ptr = static_cast<ActorPtr*>(m.payload);
+                    try
+                    {
+                        ROR_ASSERT(actor_ptr);
+                        if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) &&
+                            ((*actor_ptr)->ar_state == ActorState::NETWORKED_OK))
+                        {
+                            ActorPtr actor = *actor_ptr;
+                            actor->ar_muted_by_peeropt = false;
+                            actor->unmuteAllSounds();
+                        }
+                    }
+                    catch (...)
                     {
                         HandleMsgQueueException(m.type);
                     }
