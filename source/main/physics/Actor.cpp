@@ -4393,7 +4393,6 @@ Actor::Actor(
     , ar_import_commands(false)
     , ar_toggle_ropes(false)
     , ar_toggle_ties(false)
-    , ar_physics_paused(false)
 
     // Private bit flags
     , m_hud_features_ok(false)

@@ -449,7 +449,10 @@ public:
 
     // Gameplay state
     ActorState        ar_state = ActorState::LOCAL_SIMULATED;
-    ActorPtrVec       ar_linked_actors;            //!< BEWARE: Includes indirect links, see `DetermineLinkedActors()`; Other actors linked using 'hooks/ties/ropes/slidenodes'; use `MSG_SIM_ACTOR_LINKING_REQUESTED`
+    ActorPtrVec       ar_linked_actors;                 //!< BEWARE: Includes indirect links, see `DetermineLinkedActors()`; Other actors linked using 'hooks/ties/ropes/slidenodes'; use `MSG_SIM_ACTOR_LINKING_REQUESTED`
+    bool              m_ongoing_reset = false;          //!< Hack to prevent position/rotation creep during interactive truck reset (aka LiveRepair).
+    bool              ar_physics_paused = false;        //!< Actor physics individually paused by user.
+    bool              ar_muted_by_peeropt = false;      //!< Muted by user in multiplayer (see `RoRnet::PEEROPT_MUTE_ACTORS`).
 
     // Repair state
     Ogre::Vector3     m_rotation_request_center = Ogre::Vector3::ZERO;
@@ -486,7 +489,6 @@ public:
     bool ar_import_commands:1;  //!< Sim state
     bool ar_toggle_ropes:1;     //!< Sim state
     bool ar_toggle_ties:1;      //!< Sim state
-    bool ar_physics_paused:1;   //!< Sim state
     bool ar_cparticles_active:1;//!< Gfx state
 
 private:
@@ -597,7 +599,6 @@ private:
     Skidmark*         m_skid_trails[MAX_WHEELS*2] = {};
     bool              m_antilockbrake = false;         //!< GUI state
     bool              m_tractioncontrol = false;       //!< GUI state
-    bool              m_ongoing_reset = false;         //!< Hack to prevent position/rotation creep during interactive truck reset
     bool              m_has_axles_section = false;     //!< Temporary (legacy parsing helper) until central diffs are implemented
     TyrePressure      m_tyre_pressure;
     std::vector<std::string>  m_description;

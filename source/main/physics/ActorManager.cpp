@@ -377,7 +377,9 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
                 SplitBundleQualifiedFilename(filename_maybe_bundlequalified, /*out:*/ bundlename, /*out:*/ filename);
 
                 RoRnet::UserInfo info;
-                if (!App::GetNetwork()->GetUserInfo(reg->origin_sourceid, info))
+                BitMask_t peeropts = BitMask_t(0);
+                if (!App::GetNetwork()->GetUserInfo(reg->origin_sourceid, info)
+                    || !App::GetNetwork()->GetUserPeerOpts(reg->origin_sourceid, peeropts))
                 {
                     RoR::LogFormat("[RoR] Invalid STREAM_REGISTER, user id %d does not exist", reg->origin_sourceid);
                     reg->status = -1;
@@ -416,7 +418,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
                             m_stream_time_offsets[reg->origin_sourceid] = offset - 100;
                         }
                         ActorSpawnRequest* rq = new ActorSpawnRequest;
-                        rq->asr_origin = ActorSpawnRequest::Origin::NETWORK;                        
+                        rq->asr_origin = ActorSpawnRequest::Origin::NETWORK;
                         rq->asr_cache_entry = actor_entry;
                         if (strnlen(actor_reg->skin, 60) < 60 && actor_reg->skin[0] != '\0')
                         {
@@ -428,6 +430,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
                         }
                         rq->asr_net_username = tryConvertUTF(info.username);
                         rq->asr_net_color    = info.colournum;
+                        rq->asr_net_peeropts = peeropts;
                         rq->net_source_id    = reg->origin_sourceid;
                         rq->net_stream_id    = reg->origin_streamid;
 
@@ -833,22 +836,6 @@ void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst,
         rq->amr_actor = actor->ar_instance_id;
         rq->amr_type = ActorModifyRequest::Type::RESET_ON_SPOT;
         App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
-    }
-}
-
-void ActorManager::MuteAllActors()
-{
-    for (ActorPtr& actor: m_actors)
-    {
-        actor->muteAllSounds();
-    }
-}
-
-void ActorManager::UnmuteAllActors()
-{
-    for (ActorPtr& actor: m_actors)
-    {
-        actor->unmuteAllSounds();
     }
 }
 

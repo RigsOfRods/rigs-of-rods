@@ -123,6 +123,14 @@ enum Lightmask
     LIGHTMASK_BLINK_WARN  = BITMASK(20), //!< warn blinker on
 };
 
+// Flags used only locally on client to filter and control incoming traffic.
+enum PeerOptions
+{
+    PEEROPT_MUTE_CHAT     = BITMASK(1), //!< CHAT and PRIVCHAT messages will not be allowed through.
+    PEEROPT_MUTE_ACTORS   = BITMASK(2), //!< Spawn actors muted and immediatelly mute existing actors.
+    PEEROPT_HIDE_ACTORS   = BITMASK(3), //!< Spawn actors hidden and immediatelly hide existing actors.
+};
+
 // -------------------------------- structs -----------------------------------
 // Only use datatypes with defined binary sizes (avoid bool, int, wchar_t...)
 // Prefer alignment to 4 or 2 bytes (put int32/float/etc. fields on top)

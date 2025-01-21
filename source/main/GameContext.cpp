@@ -325,6 +325,15 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
     {
         fresh_actor->ar_net_source_id = rq.net_source_id;
         fresh_actor->ar_net_stream_id = rq.net_stream_id;
+
+        if (BITMASK_IS_1(rq.asr_net_peeropts, RoRnet::PEEROPT_MUTE_ACTORS))
+        {
+            this->PushMessage(Message(MSG_SIM_MUTE_NET_ACTOR_REQUESTED, new ActorPtr(fresh_actor)));
+        }
+        if (BITMASK_IS_1(rq.asr_net_peeropts, RoRnet::PEEROPT_HIDE_ACTORS))
+        {
+            this->PushMessage(Message(MSG_SIM_HIDE_NET_ACTOR_REQUESTED, new ActorPtr(fresh_actor)));
+        }
     }
     else if (rq.asr_origin == ActorSpawnRequest::Origin::SAVEGAME)
     {

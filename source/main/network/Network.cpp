@@ -317,6 +317,11 @@ void Network::RecvThread()
                     App::GetGameContext()->PushMessage(Message(MSG_GUI_MP_CLIENTS_REFRESH));
                     LOG_THREAD(text);
 
+                    // Erase matching peer options
+                    int peeropt_offset = (int)std::distance(m_users.begin(), user);
+                    auto peeropt_itor = m_users_peeropts.begin() + peeropt_offset;
+                    m_users_peeropts.erase(peeropt_itor);
+
                     m_disconnected_users.push_back(*user); // Copy
                     m_users.erase(user);
                 }
@@ -353,6 +358,7 @@ void Network::RecvThread()
                     // Lock and update userlist
                     std::lock_guard<std::mutex> lock(m_users_mutex);
                     m_users.push_back(user_info);
+                    m_users_peeropts.push_back(BitMask_t(0));
                 } // End of lock scope
             }
             continue;
@@ -706,6 +712,12 @@ std::vector<RoRnet::UserInfo> Network::GetUserInfos()
     return m_users;
 }
 
+std::vector<BitMask_t> Network::GetAllUsersPeerOpts()
+{
+    std::lock_guard<std::mutex> lock(m_users_mutex);
+    return m_users_peeropts;
+}
+
 bool Network::GetUserInfo(int uid, RoRnet::UserInfo &result)
 {
     std::lock_guard<std::mutex> lock(m_users_mutex);
@@ -714,6 +726,20 @@ bool Network::GetUserInfo(int uid, RoRnet::UserInfo &result)
         if ((int)user.uniqueid == uid)
         {
             result = user;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Network::GetUserPeerOpts(int uid, BitMask_t& result)
+{
+    std::lock_guard<std::mutex> lock(m_users_mutex);
+    for (size_t i = 0; i < m_users.size(); i++)
+    {
+        if (static_cast<int>(m_users[i].uniqueid) == uid)
+        {
+            result = m_users_peeropts[i];
             return true;
         }
     }
@@ -768,6 +794,41 @@ bool Network::FindUserInfo(std::string const& username, RoRnet::UserInfo &result
         }
     }
     return false;
+}
+
+
+void Network::AddPeerOptions(PeerOptionsRequest* rq)
+{
+    std::lock_guard<std::mutex> lock(m_users_mutex);
+
+    const bool peeropts_sane = m_users.size() == m_users_peeropts.size();
+    ROR_ASSERT(peeropts_sane);
+    if (!peeropts_sane) return;
+
+    for (size_t i = 0; i < m_users.size(); i++)
+    {
+        if (static_cast<int>(m_users[i].uniqueid) == rq->por_uid)
+        {
+            BITMASK_SET_1(m_users_peeropts[i], rq->por_peeropts);
+        }
+    }
+}
+
+void Network::RemovePeerOptions(PeerOptionsRequest* rq)
+{
+    std::lock_guard<std::mutex> lock(m_users_mutex);
+
+    const bool peeropts_sane = m_users.size() == m_users_peeropts.size();
+    ROR_ASSERT(peeropts_sane);
+    if (!peeropts_sane) return;
+
+    for (size_t i = 0; i < m_users.size(); i++)
+    {
+        if (static_cast<int>(m_users[i].uniqueid) == rq->por_uid)
+        {
+            BITMASK_SET_0(m_users_peeropts[i], rq->por_peeropts);
+        }
+    }
 }
 
 void Network::BroadcastChatMsg(const char* msg)
