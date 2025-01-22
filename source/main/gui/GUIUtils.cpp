@@ -332,13 +332,15 @@ void RoR::DrawGTextEdit(CVar* cvar, const char* label, Str<1000>& buf)
     }
 }
 
-void RoR::DrawGCombo(CVar* cvar, const char* label, const char* values)
+bool RoR::DrawGCombo(CVar* cvar, const char* label, const char* values)
 {
     int selection = cvar->getInt();
     if (ImGui::Combo(label, &selection, values))
     {
         cvar->setVal(selection);
+        return true;
     }
+    return false;
 }
 
 Ogre::TexturePtr RoR::FetchIcon(const char* name)

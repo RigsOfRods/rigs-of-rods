@@ -616,13 +616,12 @@ void GameSettings::SetVisible(bool v)
 void GameSettings::DrawUiPresetCombo()
 {
     ImGui::PushID("uiPreset");
-    
 
-    DrawGCombo(App::ui_preset, _LC("TopMenubar", "UI Preset"), m_cached_uipreset_combo_string.c_str());
-    if (ImGui::IsItemEdited())
+    if (DrawGCombo(App::ui_preset, _LC("TopMenubar", "UI Preset"), m_cached_uipreset_combo_string.c_str()))
     {
         App::GetGuiManager()->ApplyUiPreset();
     }
+
     if (ImGui::IsItemHovered())
     {
         ImGui::BeginTooltip();
