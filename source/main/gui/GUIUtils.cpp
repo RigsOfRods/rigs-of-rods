@@ -517,6 +517,28 @@ bool RoR::ImButtonHoldToConfirm(const std::string& btn_idstr, const bool smallbu
     return false;
 }
 
+bool RoR::ImMoveTextInputCursorToEnd(const char* label)
+{
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    const ImGuiID id = window->GetID(label);
+    ImGuiContext& g = *GImGui;
+
+    // NB: we are only allowed to access 'edit_state' if we are the active widget.
+    ImGuiInputTextState* state = NULL;
+    if (g.InputTextState.ID != id)
+    {
+        return false;
+    }
+
+    state = &g.InputTextState;
+    // based on `ImGuiInputTextState::CursorClamp()`
+    state->Stb.cursor = state->CurLenW;
+    state->Stb.select_start = 0;
+    state->Stb.select_end = 0;
+
+    return true;
+}
+
 bool RoR::GetScreenPosFromWorldPos(Ogre::Vector3 const& world_pos, ImVec2& out_screen)
 {
     ImVec2 screen_size = ImGui::GetIO().DisplaySize;

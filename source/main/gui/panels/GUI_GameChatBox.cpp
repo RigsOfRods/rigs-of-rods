@@ -26,6 +26,7 @@
 #include "ChatSystem.h"
 #include "Console.h"
 #include "GUIManager.h"
+#include "GUIUtils.h"
 #include "Language.h"
 #include "InputEngine.h"
 
@@ -148,8 +149,12 @@ void GameChatBox::Draw()
             ImGui::SetKeyboardFocusHere();
             m_kb_focused = true;
         }
+        if (m_scheduled_move_textcursor_to_end && ImMoveTextInputCursorToEnd("##chatbox"))
+        {
+            m_scheduled_move_textcursor_to_end = false;
+        }
         const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
-        if (ImGui::InputText("", m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
+        if (ImGui::InputText("##chatbox", m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
         {
             if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {

@@ -111,7 +111,11 @@ void MpClientList::Draw()
         const ImVec2 hover_tl = ImGui::GetCursorScreenPos();
 
         // PeerOptions popup menu
-        if (ImGui::Button(" < "))
+        if (user.uniqueid == local_user.uniqueid)
+        {
+            ImGui::Dummy(ImVec2(ImGui::CalcTextSize(" < ").x + ImGui::GetStyle().FramePadding.x*2 , ImGui::GetTextLineHeight()));
+        }
+        else if (ImGui::Button(" < "))
         {
             if (m_peeropts_menu_active_user_vectorpos == vectorpos)
             {
@@ -296,6 +300,15 @@ void MpClientList::DrawPeerOptCheckbox(const BitMask_t flag, const std::string& 
     }
 }
 
+void RoR::GUI::MpClientList::DrawServerCommandBtn(const std::string& cmdfmt, const std::string& label)
+{
+    std::string chatmsg = fmt::format(cmdfmt, m_users[m_peeropts_menu_active_user_vectorpos].uniqueid);
+    if (ImGui::Button(label.c_str()))
+    {
+        App::GetGameContext()->PushMessage(Message(MSG_GUI_SHOW_CHATBOX_REQUESTED, chatmsg));
+    }
+}
+
 void MpClientList::DrawPeerOptionsMenu()
 {
     if (m_peeropts_menu_active_user_vectorpos == -1)
@@ -313,11 +326,19 @@ void MpClientList::DrawPeerOptionsMenu()
     const int flags = ImGuiWindowFlags_NoDecoration;
     if (ImGui::Begin("PeerOptions", nullptr, flags))
     {
-        ImGui::TextDisabled("%s", _LC("MultiplayerClientList", "Peer options"));
-        ImGui::Separator();
+        ImGui::TextDisabled("%s", _LC("MultiplayerClientList", "Local actions"));
         this->DrawPeerOptCheckbox(RoRnet::PEEROPT_MUTE_CHAT, _LC("MultiplayerClientList", "Mute chat"));
         this->DrawPeerOptCheckbox(RoRnet::PEEROPT_MUTE_ACTORS, _LC("MultiplayerClientList", "Mute actors"));
         this->DrawPeerOptCheckbox(RoRnet::PEEROPT_HIDE_ACTORS, _LC("MultiplayerClientList", "Hide actors"));
+        ImGui::Separator();
+        ImGui::TextDisabled("%s", _LC("MultiplayerClientList", "Server commands"));
+        this->DrawServerCommandBtn("!report {} Please enter reason: ", _LC("MultiplayerClientList", "Report"));
+        const int32_t authstatus = m_users[0].authstatus; // User[0] is the local user
+        if (BITMASK_IS_1(authstatus, RoRnet::AUTH_ADMIN) || BITMASK_IS_1(authstatus, RoRnet::AUTH_MOD))
+        {
+            this->DrawServerCommandBtn("!kick {}", _LC("MultiplayerClientList", "Kick"));
+            this->DrawServerCommandBtn("!ban {}", _LC("MultiplayerClientList", "Ban"));
+        }
         m_peeropts_menu_corner_br = ImGui::GetCursorScreenPos();
 
         ImGui::End();
