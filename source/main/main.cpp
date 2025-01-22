@@ -1515,6 +1515,23 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_GUI_SHOW_CHATBOX_REQUESTED:
+                {
+                    try
+                    {
+                        App::GetGuiManager()->ChatBox.SetVisible(true);
+                        if (m.description != "")
+                        {
+                            App::GetGuiManager()->ChatBox.AssignBuffer(m.description);
+                        }
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    break;
+                }
+
                 // -- Editing events --
 
                 case MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED:

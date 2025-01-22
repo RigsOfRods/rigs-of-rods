@@ -144,6 +144,7 @@ enum MsgType
     MSG_GUI_DOWNLOAD_PROGRESS,
     MSG_GUI_DOWNLOAD_FINISHED,
     MSG_GUI_REFRESH_TUNING_MENU_REQUESTED,
+    MSG_GUI_SHOW_CHATBOX_REQUESTED,        //!< Description = message or server command to pre-fill in the chatbox (deleting whatever was there previously)
     // Editing
     MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  //!< Payload = RoR::ground_model_t* (weak)
     MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,

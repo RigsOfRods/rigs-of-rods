@@ -51,8 +51,9 @@ private:
     // Peer options menu - opened by [<] button, closes when mouse cursor leaves.
     void DrawPeerOptionsMenu();
     void DrawPeerOptCheckbox(const BitMask_t flag, const std::string& label);
-    const int PEEROPTS_MENU_WIDTH = 125;
-    const int PEEROPTS_HOVER_PAD = 150;
+    void DrawServerCommandBtn(const std::string& cmdfmt, const std::string& label);
+    const int PEEROPTS_MENU_WIDTH = 150;
+    const int PEEROPTS_HOVER_PAD = 170;
     int m_peeropts_menu_active_user_vectorpos = -1;
     ImVec2 m_peeropts_menu_corner_tl = ImVec2(0, 0);
     ImVec2 m_peeropts_menu_corner_br = ImVec2(0, 0);

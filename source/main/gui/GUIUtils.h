@@ -91,4 +91,7 @@ ImVec2 ImCalcEventHighlightedSize(events input_event);
 // Draws button which must be held for a period to report "clicked" - shows a tooltip with countdown progressbar.
 bool ImButtonHoldToConfirm(const std::string& btn_idstr, const bool smallbutton, const float time_limit);
 
+// Returns true if succeeded (needs the text box to have focus).
+bool ImMoveTextInputCursorToEnd(const char* label);
+
 } // namespace RoR
