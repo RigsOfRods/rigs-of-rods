@@ -804,6 +804,12 @@ int main(int argc, char *argv[])
                         // Record the options for future incoming traffic.
                         App::GetNetwork()->AddPeerOptions(request);
 
+                        // On MUTE_CHAT also purge old messages
+                        if (BITMASK_IS_1(request->por_peeropts, RoRnet::PEEROPT_MUTE_CHAT))
+                        {
+                            App::GetConsole()->purgeNetChatMessagesByUser(request->por_uid);
+                        }
+
                         // MUTE existing actors if needed
                         if (BITMASK_IS_1(request->por_peeropts, RoRnet::PEEROPT_MUTE_ACTORS))
                         {

@@ -55,6 +55,12 @@ void Console::forwardLogMessage(MessageArea area, std::string const& message, Og
     }
 }
 
+void Console::purgeNetChatMessagesByUser(int user_id)
+{
+    std::lock_guard<std::mutex> lock(m_messages_mutex); // Scoped lock
+    m_messages.erase(std::remove_if(m_messages.begin(), m_messages.end(), [user_id](const Console::Message& msg) { return msg.cm_net_userid == user_id; }), m_messages.end());
+}
+
 void Console::handleMessage(MessageArea area, MessageType type, std::string const& msg, int net_userid/* = 0*/, std::string icon)
 {
     if (net_userid < 0) // 0=server, positive=clients, negative=invalid
