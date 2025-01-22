@@ -70,7 +70,7 @@ void DrawGFloatBox(CVar* cvar, const char* label);
 
 void DrawGTextEdit(CVar* cvar, const char* label, Str<1000>& buf);
 
-void DrawGCombo(CVar* cvar, const char* label, const char* values);
+bool DrawGCombo(CVar* cvar, const char* label, const char* values);
 
 Ogre::TexturePtr FetchIcon(const char* name);
 
