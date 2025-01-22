@@ -1504,7 +1504,14 @@ int main(int argc, char *argv[])
 
                 case MSG_GUI_REFRESH_TUNING_MENU_REQUESTED:
                 {
-                    App::GetGuiManager()->TopMenubar.RefreshTuningMenu();
+                    try
+                    {
+                        App::GetGuiManager()->TopMenubar.RefreshTuningMenu();
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
                 }
 
