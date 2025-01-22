@@ -96,6 +96,7 @@ public:
     void putNetMessage(int user_id, MessageType type, const char* text);
     void forwardLogMessage(MessageArea area, std::string const& msg, Ogre::LogMessageLevel lml);
     unsigned long queryMessageTimer() { return m_msg_timer.getMilliseconds(); }
+    void purgeNetChatMessagesByUser(int user_id);
 
     // ----------------------------
     // Commands (defined in ConsoleCmd.cpp):
