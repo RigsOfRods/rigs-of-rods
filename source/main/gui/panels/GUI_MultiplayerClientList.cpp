@@ -115,7 +115,7 @@ void MpClientList::Draw()
         {
             ImGui::Dummy(ImVec2(ImGui::CalcTextSize(" < ").x + ImGui::GetStyle().FramePadding.x*2 , ImGui::GetTextLineHeight()));
         }
-        else if (ImGui::Button(" < "))
+        else if (ImGui::SmallButton(" < "))
         {
             if (m_peeropts_menu_active_user_vectorpos == vectorpos)
             {
@@ -124,7 +124,7 @@ void MpClientList::Draw()
             else
             {
                 m_peeropts_menu_active_user_vectorpos = vectorpos; // show menu
-                m_peeropts_menu_corner_tl = hover_tl - ImVec2(PEEROPTS_MENU_WIDTH + 15, 0);
+                m_peeropts_menu_corner_tl = hover_tl - ImVec2(PEEROPTS_MENU_CONTENT_WIDTH + ImGui::GetStyle().WindowPadding.x*3 + PEEROPTS_MENU_MARGIN, 0);
             }
         }
         ImGui::SameLine();
@@ -323,6 +323,7 @@ void MpClientList::DrawPeerOptionsMenu()
 
     // Draw UI
     ImGui::SetNextWindowPos(m_peeropts_menu_corner_tl);
+    ImGui::SetNextWindowContentWidth(PEEROPTS_MENU_CONTENT_WIDTH);
     const int flags = ImGuiWindowFlags_NoDecoration;
     if (ImGui::Begin("PeerOptions", nullptr, flags))
     {
@@ -339,14 +340,14 @@ void MpClientList::DrawPeerOptionsMenu()
             this->DrawServerCommandBtn("!kick {}", _LC("MultiplayerClientList", "Kick"));
             this->DrawServerCommandBtn("!ban {}", _LC("MultiplayerClientList", "Ban"));
         }
-        m_peeropts_menu_corner_br = ImGui::GetCursorScreenPos();
+        m_peeropts_menu_corner_br = m_peeropts_menu_corner_tl + ImGui::GetWindowContentRegionMax();
 
         ImGui::End();
     }
 
     // Check hover and hide
-    const ImVec2 hoverbox_tl = m_peeropts_menu_corner_tl - ImVec2(PEEROPTS_HOVER_PAD, PEEROPTS_HOVER_PAD);
-    const ImVec2 hoverbox_br = m_peeropts_menu_corner_br + ImVec2(PEEROPTS_HOVER_PAD, PEEROPTS_HOVER_PAD);
+    const ImVec2 hoverbox_tl = m_peeropts_menu_corner_tl - ImVec2(PEEROPTS_HOVER_MARGIN, PEEROPTS_HOVER_MARGIN);
+    const ImVec2 hoverbox_br = m_peeropts_menu_corner_br + ImVec2(PEEROPTS_HOVER_MARGIN, PEEROPTS_HOVER_MARGIN);
     const ImVec2 mousepos = ImGui::GetIO().MousePos;
     if (mousepos.x < hoverbox_tl.x || mousepos.x > hoverbox_br.x
         || mousepos.y < hoverbox_tl.y || mousepos.y > hoverbox_br.y)
