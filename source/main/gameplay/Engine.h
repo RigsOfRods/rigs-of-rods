@@ -41,6 +41,7 @@ namespace RoR {
 class Engine : public RefCountingObject<Engine>
 {
     friend class ActorSpawner;
+    friend class Actor; // For `get/setSimAttribute()`
 
 public:
 

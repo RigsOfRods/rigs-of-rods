@@ -4743,9 +4743,47 @@ void Actor::setSimAttribute(ActorSimAttr attr, float val)
     // PLEASE maintain the same order as in `enum ActorSimAttr`
     switch (attr)
     {
+        // TractionControl
     case ACTORSIMATTR_TC_RATIO: tc_ratio = val; return;
     case ACTORSIMATTR_TC_PULSE_TIME: tc_pulse_time = val; return;
     case ACTORSIMATTR_TC_WHEELSLIP_CONSTANT: tc_wheelslip_constant = val; return;
+
+        // Engine
+    case ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM:     if (ar_engine) { ar_engine->m_engine_min_rpm = val; } return;
+    case ACTORSIMATTR_ENGINE_SHIFTUP_RPM:       if (ar_engine) { ar_engine->m_engine_max_rpm = val; } return;
+    case ACTORSIMATTR_ENGINE_TORQUE:            if (ar_engine) { ar_engine->m_engine_torque = val; } return;
+    case ACTORSIMATTR_ENGINE_DIFF_RATIO:        if (ar_engine) { ar_engine->m_diff_ratio = val; } return;
+    case ACTORSIMATTR_ENGINE_GEAR_RATIOS_ARRAY: return;
+
+        // Engoption
+    case ACTORSIMATTR_ENGOPTION_ENGINE_INERTIA:   if (ar_engine) { ar_engine->m_engine_inertia = val; } return;
+    case ACTORSIMATTR_ENGOPTION_ENGINE_TYPE:      if (ar_engine) { ar_engine->m_engine_type = (char)val; } return;
+    case ACTORSIMATTR_ENGOPTION_CLUTCH_FORCE:     if (ar_engine) { ar_engine->m_clutch_force = val; } return;
+    case ACTORSIMATTR_ENGOPTION_SHIFT_TIME:       if (ar_engine) { ar_engine->m_shift_time = val; } return;
+    case ACTORSIMATTR_ENGOPTION_CLUTCH_TIME:      if (ar_engine) { ar_engine->m_clutch_time = val; } return;
+    case ACTORSIMATTR_ENGOPTION_POST_SHIFT_TIME:  if (ar_engine) { ar_engine->m_post_shift_time = val; } return;
+    case ACTORSIMATTR_ENGOPTION_STALL_RPM:        if (ar_engine) { ar_engine->m_engine_stall_rpm = val; } return;
+    case ACTORSIMATTR_ENGOPTION_IDLE_RPM:         if (ar_engine) { ar_engine->m_engine_idle_rpm = val; } return;
+    case ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE: if (ar_engine) { ar_engine->m_max_idle_mixture = val; } return;
+    case ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE: if (ar_engine) { ar_engine->m_min_idle_mixture = val; } return;
+    case ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE:   if (ar_engine) { ar_engine->m_braking_torque = val; } return;
+
+        // Engturbo2 (actually 'engturbo' with type=2) 
+    case ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR:      if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_inertia_factor = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_NUM_TURBOS:          if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_num_turbos = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_MAX_RPM:             if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_max_turbo_rpm = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_ENGINE_RPM_OP:       if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_engine_rpm_operation = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_BOV_ENABLED:         if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_has_bov = (bool)val; } return;
+    case ACTORSIMATTR_ENGTURBO2_BOV_MIN_PSI:         if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_min_bov_psi = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_ENABLED:   if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_has_wastegate = (bool)val; } return;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_MAX_PSI:   if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_min_wastegate_psi = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_N: if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_wg_threshold_n = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_P: if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_wg_threshold_p = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_ENABLED:     if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_has_antilag = (bool)val; } return;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE:      if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_rand_chance = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM:     if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_min_rpm = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER:       if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_power_factor = val; } return;
+
     default: return;
     }
 }
@@ -4755,9 +4793,47 @@ float Actor::getSimAttribute(ActorSimAttr attr)
     // PLEASE maintain the same order as in `enum ActorSimAttr`
     switch (attr)
     {
+        // TractionControl
     case ACTORSIMATTR_TC_RATIO: return tc_ratio;
     case ACTORSIMATTR_TC_PULSE_TIME: return tc_pulse_time;
     case ACTORSIMATTR_TC_WHEELSLIP_CONSTANT: return tc_wheelslip_constant;
+
+        // Engine
+    case ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM:     if (ar_engine) { return ar_engine->m_engine_min_rpm; } return 0.f;
+    case ACTORSIMATTR_ENGINE_SHIFTUP_RPM:       if (ar_engine) { return ar_engine->m_engine_max_rpm; } return 0.f;
+    case ACTORSIMATTR_ENGINE_TORQUE:            if (ar_engine) { return ar_engine->m_engine_torque; } return 0.f;
+    case ACTORSIMATTR_ENGINE_DIFF_RATIO:        if (ar_engine) { return ar_engine->m_diff_ratio; } return 0.f;
+    case ACTORSIMATTR_ENGINE_GEAR_RATIOS_ARRAY: return 0.f;
+
+        // Engoption
+    case ACTORSIMATTR_ENGOPTION_ENGINE_INERTIA:   if (ar_engine) { return ar_engine->m_engine_inertia; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_ENGINE_TYPE:      if (ar_engine) { return (float)ar_engine->m_engine_type; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_CLUTCH_FORCE:     if (ar_engine) { return ar_engine->m_clutch_force; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_SHIFT_TIME:       if (ar_engine) { return ar_engine->m_shift_time; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_CLUTCH_TIME:      if (ar_engine) { return ar_engine->m_clutch_time; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_POST_SHIFT_TIME:  if (ar_engine) { return ar_engine->m_post_shift_time; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_STALL_RPM:        if (ar_engine) { return ar_engine->m_engine_stall_rpm; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_IDLE_RPM:         if (ar_engine) { return ar_engine->m_engine_idle_rpm; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE: if (ar_engine) { return ar_engine->m_max_idle_mixture; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE: if (ar_engine) { return ar_engine->m_min_idle_mixture; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE:   if (ar_engine) { return ar_engine->m_braking_torque; } return 0.f;
+
+        // Engturbo2 (actually 'engturbo' with type=2) 
+    case ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR:        if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_turbo_inertia_factor; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_NUM_TURBOS:            if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_num_turbos; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_MAX_RPM:               if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_max_turbo_rpm; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_ENGINE_RPM_OP:         if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_turbo_engine_rpm_operation; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_BOV_ENABLED:           if (ar_engine && ar_engine->m_turbo_ver == 2) { return (float)ar_engine->m_turbo_has_bov; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_BOV_MIN_PSI:           if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_min_bov_psi; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_ENABLED:     if (ar_engine && ar_engine->m_turbo_ver == 2) { return (float)ar_engine->m_turbo_has_wastegate; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_MAX_PSI:     if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_min_wastegate_psi; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_N: if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_turbo_wg_threshold_n; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_P: if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_turbo_wg_threshold_p; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_ENABLED:       if (ar_engine && ar_engine->m_turbo_ver == 2) { return (float)ar_engine->m_turbo_has_antilag; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE:        if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_antilag_rand_chance; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM:       if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_antilag_min_rpm; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER:         if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_antilag_power_factor; } return 0.f;
+
     default: return 0.f;
     }
 }
