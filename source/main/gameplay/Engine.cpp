@@ -495,7 +495,7 @@ void Engine::UpdateEngine(float dt, int doUpdate)
         float force_threshold = 1.5f * std::max(m_engine_torque, getEnginePower()) * std::abs(m_gear_ratios[2]);
         float gearboxspinner = m_cur_engine_rpm / m_gear_ratios[m_cur_gear + 1];
         m_cur_clutch_torque = (gearboxspinner - m_cur_wheel_revolutions) * m_cur_clutch * m_clutch_force;
-        m_cur_clutch_torque = Math::Clamp(m_cur_clutch_torque, -force_threshold, +force_threshold);
+        m_cur_clutch_torque = Math::Clamp(m_cur_clutch_torque, -force_threshold, +force_threshold); 
         m_cur_clutch_torque *= 1.0f - approx_exp(-std::abs(gearboxspinner - m_cur_wheel_revolutions));
     }
     else
@@ -953,6 +953,18 @@ void Engine::setTCaseRatio(float ratio)
     }
 }
 
+float Engine::getGearRatio(int pos)
+{
+    // Pos: -1=reverse, 0 = neutral, 1 = 1st gear, 2 = 2nd gear, etc.
+    // --------------------------------------------------------------
+
+    if (pos < -1 || pos > m_num_gears)
+        return 0.f;
+
+    // Strip off the DiffRatio and TCaseRatio from the internal gear ratio
+    return (m_gear_ratios[pos + 1] / m_tcase_ratio) / m_diff_ratio;
+}
+
 // for hydros acceleration
 float Engine::getCrankFactor()
 {
@@ -965,16 +977,6 @@ float Engine::getCrankFactor()
     float crankfactor = 5.0f * rpmRatio;
 
     return crankfactor;
-}
-
-void Engine::setClutch(float clutch)
-{
-    m_cur_clutch = clutch;
-}
-
-float Engine::getClutch()
-{
-    return m_cur_clutch;
 }
 
 void Engine::toggleContact()
@@ -1039,7 +1041,7 @@ int Engine::getGear()
 }
 
 // low level gear changing
-void Engine::SetGear(int v)
+void Engine::setGear(int v)
 {
     m_cur_gear = v;
 }
@@ -1049,7 +1051,7 @@ int Engine::getGearRange()
     return m_cur_gear_range;
 }
 
-void Engine::SetGearRange(int v)
+void Engine::setGearRange(int v)
 {
     m_cur_gear_range = v;
 }
@@ -1335,7 +1337,7 @@ void Engine::UpdateInputEvents(float dt)
                 }
                 else
                 {
-                    this->SetGear(-1);
+                    this->setGear(-1);
                 }
             }
             else if (velocity > -1.0f && brake < 0.5f && accl > 0.5f && this->getGear() < 0)
@@ -1347,7 +1349,7 @@ void Engine::UpdateInputEvents(float dt)
                 }
                 else
                 {
-                    this->SetGear(1);
+                    this->setGear(1);
                 }
             }
         }
@@ -1452,22 +1454,22 @@ void Engine::UpdateInputEvents(float dt)
         {
             if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_LOWRANGE) && curgearrange != 0)
             {
-                this->SetGearRange(0);
+                this->setGearRange(0);
                 gear_changed = true;
             }
             else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_MIDRANGE) && curgearrange != 1 && this->getNumGearsRanges() > 1)
             {
-                this->SetGearRange(1);
+                this->setGearRange(1);
                 gear_changed = true;
             }
             else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_SHIFT_HIGHRANGE) && curgearrange != 2 && this->getNumGearsRanges() > 2)
             {
-                this->SetGearRange(2);
+                this->setGearRange(2);
                 gear_changed = true;
             }
             else if (App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_CYCLE_GEAR_RANGES))
             {
-                this->SetGearRange((curgearrange + 1) % this->getNumGearsRanges());
+                this->setGearRange((curgearrange + 1) % this->getNumGearsRanges());
                 gear_changed = true;
                 App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                     fmt::format(_L("Range cycled (current: {}/available: {})"),
