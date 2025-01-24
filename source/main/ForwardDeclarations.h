@@ -218,6 +218,7 @@ namespace RoR
 
     typedef RefCountingObjectPtr<Actor> ActorPtr;
     typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
+    typedef RefCountingObjectPtr<Engine> EnginePtr;
     typedef RefCountingObjectPtr<GenericDocument> GenericDocumentPtr;
     typedef RefCountingObjectPtr<GenericDocContext> GenericDocContextPtr;
     typedef RefCountingObjectPtr<LocalStorage> LocalStoragePtr;
