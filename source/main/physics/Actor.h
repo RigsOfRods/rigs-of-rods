@@ -371,7 +371,7 @@ public:
     ActorInstanceID_t ar_instance_id = ACTORINSTANCEID_INVALID;              //!< Static attr; session-unique ID
     unsigned int      ar_vector_index = 0;             //!< Sim attr; actor element index in std::vector<m_actors>
     ActorType         ar_driveable = NOT_DRIVEABLE;                //!< Sim attr; marks vehicle type and features
-    EngineSim*        ar_engine = nullptr;
+    Engine*        ar_engine = nullptr;
     NodeNum_t         ar_cinecam_node[MAX_CAMERAS] = {NODENUM_INVALID}; //!< Sim attr; Cine-camera node indexes
     int               ar_num_cinecams = 0;             //!< Sim attr;
     Autopilot*        ar_autopilot = nullptr;

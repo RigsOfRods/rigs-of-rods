@@ -25,7 +25,7 @@
 #include "Actor.h"
 #include "ActorManager.h"
 #include "DashBoardManager.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "RoRVersion.h"
 
 #include <Ogre.h>

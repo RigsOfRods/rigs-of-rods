@@ -33,7 +33,7 @@
 #include "Collisions.h"
 #include "DashBoardManager.h"
 #include "DynamicCollisions.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
@@ -1067,7 +1067,7 @@ void ActorManager::UpdateActors(ActorPtr player_actor)
             }
             if (actor->ar_state == ActorState::LOCAL_SLEEPING)
             {
-                actor->ar_engine->UpdateEngineSim(dt, 1);
+                actor->ar_engine->UpdateEngine(dt, 1);
             }
             actor->ar_engine->UpdateEngineAudio();
         }
@@ -1442,19 +1442,19 @@ void ActorManager::UpdateTruckFeatures(ActorPtr vehicle, float dt)
         return;
 #endif // USE_ANGELSCRIPT
 
-    EngineSim* engine = vehicle->ar_engine;
+    Engine* engine = vehicle->ar_engine;
 
     if (engine && engine->hasContact() &&
         engine->GetAutoShiftMode() == SimGearboxMode::AUTO &&
-        engine->getAutoShift() != EngineSim::NEUTRAL)
+        engine->getAutoShift() != Engine::NEUTRAL)
     {
         Ogre::Vector3 dirDiff = vehicle->getDirection();
         Ogre::Degree pitchAngle = Ogre::Radian(asin(dirDiff.dotProduct(Ogre::Vector3::UNIT_Y)));
 
         if (std::abs(pitchAngle.valueDegrees()) > 2.0f)
         {
-            if (engine->getAutoShift() > EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed < +0.02f && pitchAngle.valueDegrees() > 0.0f ||
-                engine->getAutoShift() < EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed > -0.02f && pitchAngle.valueDegrees() < 0.0f)
+            if (engine->getAutoShift() > Engine::NEUTRAL && vehicle->ar_avg_wheel_speed < +0.02f && pitchAngle.valueDegrees() > 0.0f ||
+                engine->getAutoShift() < Engine::NEUTRAL && vehicle->ar_avg_wheel_speed > -0.02f && pitchAngle.valueDegrees() < 0.0f)
             {
                 // anti roll back in SimGearboxMode::AUTO (DRIVE, TWO, ONE) mode
                 // anti roll forth in SimGearboxMode::AUTO (REAR) mode

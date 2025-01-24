@@ -45,7 +45,7 @@
 #include "Collisions.h"
 #include "DashBoardManager.h"
 #include "Differentials.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "FlexAirfoil.h"
 #include "FlexBody.h"
 #include "FlexMesh.h"
@@ -5449,8 +5449,8 @@ void ActorSpawner::ProcessEngine(RigDef::Engine & def)
     /* Process it */
     m_actor->ar_driveable = TRUCK;
 
-    /* Process gear list to EngineSim-compatible format */
-    /* TODO: Move this to EngineSim::EngineSim() */
+    /* Process gear list to Engine-compatible format */
+    /* TODO: Move this to Engine::Engine() */
     std::vector<float> gears_compat;
     gears_compat.reserve(2 + def.gear_ratios.size());
     gears_compat.push_back(def.reverse_gear_ratio);
@@ -5461,7 +5461,7 @@ void ActorSpawner::ProcessEngine(RigDef::Engine & def)
         gears_compat.push_back(*itor);
     }
 
-    m_actor->ar_engine = new EngineSim(
+    m_actor->ar_engine = new Engine(
         def.shift_down_rpm,
         def.shift_up_rpm,
         def.torque,

@@ -32,14 +32,14 @@ namespace RoR {
 /// @{
 
 /// A land vehicle engine + transmission
-class EngineSim
+class Engine
 {
     friend class ActorSpawner;
 
 public:
 
-    EngineSim(float min_rpm, float max_rpm, float torque, std::vector<float> gears, float dratio, ActorPtr actor);
-    ~EngineSim();
+    Engine(float min_rpm, float max_rpm, float torque, std::vector<float> gears, float dratio, ActorPtr actor);
+    ~Engine();
 
     /// Sets current engine state;
     /// @param gear Current gear {-1 = reverse, 0 = neutral, 1...21 = forward}
@@ -118,7 +118,7 @@ public:
     void           shift(int val);             //!< Changes gear by a relative offset. Plays sounds.
     void           shiftTo(int val);           //!< Changes gear to given value. Plays sounds.
     void           updateShifts();             //!< Changes gears. Plays sounds.
-    void           UpdateEngineSim(float dt, int doUpdate);
+    void           UpdateEngine(float dt, int doUpdate);
     void           UpdateEngineAudio();
     void           UpdateInputEvents(float dt);
 
@@ -210,7 +210,7 @@ private:
     int            m_shift_val;
 
     // Auto transmission
-    int            m_auto_mode; //!< Transmission mode (@see enum EngineSim::shiftmodes)
+    int            m_auto_mode; //!< Transmission mode (@see enum Engine::shiftmodes)
     autoswitch     m_autoselect;
     float          m_auto_cur_acc;
     float          m_full_rpm_range;

@@ -27,7 +27,7 @@
 #include "Collisions.h"
 #include "DashBoardManager.h"
 #include "DustPool.h" // General particle gfx
-#include "EngineSim.h"
+#include "Engine.h"
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"

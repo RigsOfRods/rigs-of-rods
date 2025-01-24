@@ -30,7 +30,7 @@
 #include "Collisions.h"
 #include "Console.h"
 #include "Differentials.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "FlexAirfoil.h"
 #include "GameContext.h"
 #include "Replay.h"
@@ -1084,7 +1084,7 @@ void Actor::CalcTruckEngine(bool doUpdate)
 {
     if (ar_engine)
     {
-        ar_engine->UpdateEngineSim(PHYSICS_DT, doUpdate);
+        ar_engine->UpdateEngine(PHYSICS_DT, doUpdate);
     }
 }
 

@@ -26,7 +26,7 @@
 
 #include "Actor.h"
 #include "Console.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "GameContext.h"
 #include "AeroEngine.h"
 #include "ScrewProp.h"

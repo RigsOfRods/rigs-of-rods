@@ -17,7 +17,7 @@ set(SOURCE_FILES
         gameplay/CharacterFactory.{h,cpp}
         gameplay/ChatSystem.{h,cpp}
         gameplay/CruiseControl.cpp
-        gameplay/EngineSim.{h,cpp}
+        gameplay/Engine.{h,cpp}
         gameplay/Landusemap.{h,cpp}
         gameplay/RaceSystem.{h,cpp}
         gameplay/RepairMode.{h,cpp}
