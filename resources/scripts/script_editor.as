@@ -1489,6 +1489,7 @@ string SPECIALCHARS = "{}\n\t \0";
                 regionFoundWithName = trimRight(trimLeft(this.buffer.substr(regionTitleStart, endOffset - regionTitleStart)));
                 regionBodyStartOffset = endOffset+1;
                 //game.log("DBG analyzeBuffer(): regionFound: withName="+regionFoundWithName+" atLineIdx="+regionFoundAtLineIdx+" bodyStartOffset="+regionBodyStartOffset);
+                //game.log("DBG ^ startOffset="+startOffset+", regionTitleStart="+regionTitleStart+", endOffset="+endOffset);
             }
 
             // Process #endregion
@@ -2381,12 +2382,15 @@ string trimLeft(string s)
 
 string trimRight(string s)
 {
+    if (s.length() == 0)
+        return s;
+        
     for (uint i = s.length()-1; i > 0 ; i--)
     {
         if (!isCharBlank(s[i]))
 			return s.substr(0, i+1);
     }
-    return "";
+    return s;
 }
 
 RegionInfo@ findRegion(dictionary@ regionDict, string name) // Helper which checks first (not inserting NULL entry)
