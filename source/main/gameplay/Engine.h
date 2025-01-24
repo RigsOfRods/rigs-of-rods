@@ -2,7 +2,7 @@
     This source file is part of Rigs of Rods
     Copyright 2005-2012 Pierre-Michel Ricordel
     Copyright 2007-2012 Thomas Fischer
-    Copyright 2013-2020 Petr Ohlidal
+    Copyright 2013-2023 Petr Ohlidal
 
     For more information, see http://www.rigsofrods.org/
 
@@ -21,6 +21,8 @@
 
 #pragma once
 
+/// @file
+
 #include "Application.h"
 
 namespace RoR {
@@ -38,7 +40,7 @@ class Engine
 
 public:
 
-    Engine(float min_rpm, float max_rpm, float torque, std::vector<float> gears, float dratio, ActorPtr actor);
+    Engine(float min_rpm, float max_rpm, float torque, float reverse_gear, float neutral_gear, std::vector<float> gears, float dratio, ActorPtr actor);
     ~Engine();
 
     /// Sets current engine state;
@@ -63,6 +65,13 @@ public:
     /// @param nturbos Number of turbos
     /// @param additionalTorque Torque that will be added to the engine at max turbo rpm
     void SetTurboOptions(int type, float tinertiaFactor, int nturbos, float param1, float param2, float param3, float param4, float param5, float param6, float param7, float param8, float param9, float param10, float param11);
+
+    // Config getters
+    int            getNumGears() const { return m_num_gears; };
+    float          getMaxRPM() const { return m_engine_max_rpm; };
+    float          getMinRPM() const { return m_engine_min_rpm; };
+    float          getIdleRPM() const { return m_engine_idle_rpm; };
+    float          getDiffRatio() const { return m_diff_ratio; }
 
     void           SetAcceleration(float val);
     void           SetAutoMode(RoR::SimGearboxMode mode);
@@ -93,10 +102,9 @@ public:
     bool           isRunning() const        { return m_engine_is_running; };
     int            GetAutoMode() const      { return static_cast<int>(m_auto_mode); };
     char           GetEngineType() const    { return m_engine_type; };
-    float          getIdleRPM() const       { return m_engine_idle_rpm; };
-    float          getMaxRPM() const        { return m_engine_max_rpm; };
-    float          getMinRPM() const        { return m_engine_min_rpm; };
-    int            getNumGears() const      { return static_cast<int>(m_gear_ratios.size() - 2); };
+    
+
+    
     int            getNumGearsRanges() const{ return getNumGears() / 6 + 1; };
     TorqueCurve*   getTorqueCurve()         { return m_torque_curve; };
     float          GetEngineRpm() const     { return m_cur_engine_rpm; }
@@ -161,8 +169,8 @@ private:
     float          m_cur_wheel_revolutions; //!< Gears; measured wheel revolutions
     int            m_cur_gear;              //!< Gears; Current gear {-1 = reverse, 0 = neutral, 1...21 = forward} 
     int            m_cur_gear_range;        //!< Gears
-    int            m_num_gears;             //!< Gears
-    std::vector<float> m_gear_ratios;       //!< Gears
+    int            m_num_gears;             //!< Num. forward gears
+    std::vector<float> m_gear_ratios;       //!< [R|N|1|...] ('engine' attrs #5,#6,#7...)
 
     // Clutch
     float          m_clutch_force;          //!< Clutch attribute
@@ -181,17 +189,17 @@ private:
     float          m_cur_acc;               //!< Engine
     float          m_cur_engine_rpm;        //!< Engine
     float          m_cur_engine_torque;     //!< Engine
-    float          m_diff_ratio;            //!< Engine
+    float          m_diff_ratio;            //!< Global gear ratio ('engine' attr #4) 
     float          m_tcase_ratio;           //!< Engine
-    float          m_engine_torque;         //!< Engine attribute
+    float          m_engine_torque;         //!< Torque in N/m ('engine' attr #3) 
     float          m_hydropump_state;       //!< Engine
     float          m_min_idle_mixture;      //!< Engine attribute
     float          m_max_idle_mixture;      //!< Engine attribute
     float          m_engine_inertia;        //!< Engine attribute
-    float          m_engine_max_rpm;        //!< Engine attribute
-    float          m_engine_min_rpm;        //!< Engine attribute
-    float          m_engine_idle_rpm;       //!< Engine attribute
-    float          m_engine_stall_rpm;      //!< Engine attribute
+    float          m_engine_max_rpm;        //!< Shift up RPM ('engine' attr #2)
+    float          m_engine_min_rpm;        //!< Shift down RPM ('engine' attr #1)
+    float          m_engine_idle_rpm;       //!< ('engine' attr #1, adjusted)
+    float          m_engine_stall_rpm;      //!< 'engoption' attr 
     bool           m_engine_is_priming;     //!< Engine
     TorqueCurve*   m_torque_curve;
     float          m_air_pressure;
