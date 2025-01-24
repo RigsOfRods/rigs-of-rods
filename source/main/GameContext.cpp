@@ -28,7 +28,7 @@
 #include "Collisions.h"
 #include "Console.h"
 #include "DashBoardManager.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
 #include "GUI_FrictionSettings.h"
@@ -318,7 +318,7 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         if (fresh_actor->ar_engine)
         {
             fresh_actor->ar_engine->SetAutoMode(RoR::SimGearboxMode::AUTO);
-            fresh_actor->ar_engine->autoShiftSet(EngineSim::DRIVE);
+            fresh_actor->ar_engine->autoShiftSet(Engine::DRIVE);
         }
     }
     else if (rq.asr_origin == ActorSpawnRequest::Origin::NETWORK)

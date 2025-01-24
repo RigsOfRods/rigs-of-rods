@@ -107,7 +107,7 @@ namespace RoR
     class  DashBoardManager;
     class  DustPool;
     class  DiscordRpc;
-    class  EngineSim;
+    class  Engine;
     class  Flexable;
     class  FlexAirfoil;
     class  FlexBody;

@@ -25,7 +25,7 @@
 #include "Actor.h"
 #include "SimData.h"
 #include "Language.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "GameContext.h"
 #include "GfxActor.h"
 #include "GUIManager.h"

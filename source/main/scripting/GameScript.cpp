@@ -44,7 +44,7 @@
 #include "Collisions.h"
 #include "Console.h"
 #include "CurlHelpers.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"

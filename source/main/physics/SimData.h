@@ -915,7 +915,7 @@ struct ActorLinkingRequest
 };
 
 ///  Parameter to `Actor::setSimAttribute()` and `Actor::getSimAttribute()`; allows advanced users to tweak physics internals via script.
-///  Each value represents a variable, either directly in `Actor` or a subsystem, i.e. `EngineSim`.
+///  Each value represents a variable, either directly in `Actor` or a subsystem, i.e. `Engine`.
 ///  PAY ATTENTION to the 'safe value' limits below - those may not be checked when setting attribute values!
 enum ActorSimAttr
 {

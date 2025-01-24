@@ -21,7 +21,7 @@
 
 #include "Actor.h"
 
-#include "EngineSim.h"
+#include "Engine.h"
 #include "InputEngine.h"
 
 #include <Ogre.h>

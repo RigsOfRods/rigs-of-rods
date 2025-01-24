@@ -28,7 +28,7 @@
 #include "CacheSystem.h"
 #include "ContentManager.h"
 #include "Console.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "GameContext.h"
 #include "GUIManager.h"
 #include "GUI_MessageBox.h"
