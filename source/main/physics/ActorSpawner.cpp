@@ -5446,30 +5446,22 @@ void ActorSpawner::ProcessEngoption(RigDef::Engoption & def)
 
 void ActorSpawner::ProcessEngine(RigDef::Engine & def)
 {
-    /* Process it */
+    /* This is a land vehicle */
     m_actor->ar_driveable = TRUCK;
 
-    /* Process gear list to Engine-compatible format */
-    /* TODO: Move this to Engine::Engine() */
-    std::vector<float> gears_compat;
-    gears_compat.reserve(2 + def.gear_ratios.size());
-    gears_compat.push_back(def.reverse_gear_ratio);
-    gears_compat.push_back(def.neutral_gear_ratio);
-    std::vector<float>::iterator itor = def.gear_ratios.begin();
-    for (; itor < def.gear_ratios.end(); itor++)
-    {
-        gears_compat.push_back(*itor);
-    }
-
+    /* Process it */
     m_actor->ar_engine = new Engine(
         def.shift_down_rpm,
         def.shift_up_rpm,
         def.torque,
-        gears_compat,
+        def.reverse_gear_ratio,
+        def.neutral_gear_ratio,
+        def.gear_ratios,
         def.global_gear_ratio,
         m_actor
     );
 
+    /* Apply game configuration */
     m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
 };
 
