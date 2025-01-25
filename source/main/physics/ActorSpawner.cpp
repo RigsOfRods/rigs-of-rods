@@ -6844,7 +6844,7 @@ void ActorSpawner::FinalizeGfxSetup()
             {
                 if (App::gfx_speedo_imperial->getBool())
                 {
-                    if (m_actor->ar_engine->getMaxRPM() > 3500)
+                    if (m_actor->ar_engine->getShiftUpRPM() > 3500)
                     {
                         m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_mph.layout", false); //7000 rpm tachometer thanks to Klink
                         m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_mph.layout", true);
@@ -6857,7 +6857,7 @@ void ActorSpawner::FinalizeGfxSetup()
                 }
                 else
                 {
-                    if (m_actor->ar_engine->getMaxRPM() > 3500)
+                    if (m_actor->ar_engine->getShiftUpRPM() > 3500)
                     {
                         m_actor->ar_dashboard->loadDashBoard("default_dashboard7000.layout", false); //7000 rpm tachometer thanks to Klink
                         m_actor->ar_dashboard->loadDashBoard("default_dashboard7000.layout", true);
@@ -6873,7 +6873,7 @@ void ActorSpawner::FinalizeGfxSetup()
             {
                 if (App::gfx_speedo_imperial->getBool())
                 {
-                    if (m_actor->ar_engine->getMaxRPM() > 3500)
+                    if (m_actor->ar_engine->getShiftUpRPM() > 3500)
                     {
                         m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_analog_mph.layout", false); //7000 rpm tachometer thanks to Klink
                         m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_analog_mph.layout", true);
@@ -6886,7 +6886,7 @@ void ActorSpawner::FinalizeGfxSetup()
                 }
                 else
                 {
-                    if (m_actor->ar_engine->getMaxRPM() > 3500)
+                    if (m_actor->ar_engine->getShiftUpRPM() > 3500)
                     {
                         m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_analog.layout", false); //7000 rpm tachometer thanks to Klink
                         m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_analog.layout", true);

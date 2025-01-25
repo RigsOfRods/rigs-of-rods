@@ -1891,7 +1891,7 @@ void RoR::GfxActor::UpdateSimDataBuffer()
         m_simbuf.simbuf_drive_ratio     = m_actor->ar_engine->getDriveRatio();
         m_simbuf.simbuf_clutch          = m_actor->ar_engine->getClutch();
         m_simbuf.simbuf_num_gears       = m_actor->ar_engine->getNumGears();
-        m_simbuf.simbuf_engine_max_rpm  = m_actor->ar_engine->getMaxRPM();
+        m_simbuf.simbuf_engine_max_rpm  = m_actor->ar_engine->getShiftUpRPM();
         m_simbuf.simbuf_engine_smoke    = m_actor->ar_engine->getSmoke();
     }
     if (m_actor->m_num_wheel_diffs > 0)

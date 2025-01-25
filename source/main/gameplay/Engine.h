@@ -54,8 +54,8 @@ public:
     
     /// @name Definition; keyword 'engine'
     /// @{
-    float          getMinRPM() const { return m_engine_min_rpm; } //!< Shift down RPM ('engine' attr #1)
-    float          getMaxRPM() const { return m_engine_max_rpm; } //!< Shift up RPM ('engine' attr #2)
+    float          getShiftDownRPM() const { return m_engine_shiftup_rpm; } //!< Shift down RPM ('engine' attr #1)
+    float          getShiftUpRPM() const { return m_engine_max_rpm; } //!< Shift up RPM ('engine' attr #2)
     float          getEngineTorque() const { return m_engine_torque; } //!< Torque in N/m ('engine' attr #3)
     float          getDiffRatio() const { return m_diff_ratio; } //!< Global gear ratio ('engine' attr #4)
     float          getGearRatio(int pos); //!< -1=R, 0=N, 1... ('engine' attrs #5[R],#6[N],#7[1]...)
@@ -218,7 +218,7 @@ private:
     float          m_max_idle_mixture;      //!< Maximum throttle to maintain the idle RPM ('engoption' attr #9)
     float          m_engine_inertia;        //!< ('engoption' attr #1)
     float          m_engine_max_rpm;        //!< Shift up RPM ('engine' attr #2)
-    float          m_engine_min_rpm;        //!< Shift down RPM ('engine' attr #1)
+    float          m_engine_shiftup_rpm;        //!< Shift down RPM ('engine' attr #1)
     float          m_engine_idle_rpm;       //!< ('engoption' attr #8)
     float          m_engine_stall_rpm;      //!< ('engoption' attr #7)
     bool           m_engine_is_priming;     //!< Engine

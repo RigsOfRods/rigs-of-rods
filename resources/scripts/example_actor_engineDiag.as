@@ -1,25 +1,20 @@
-/// \title Engine + Clutch diag script
+/// \title Engine tweak + Clutch diag script
 /// \brief Shows config params and state of engine simulation
+/// \author ohlidalp 2024-2025, see https://github.com/RigsOfRods/rigs-of-rods/pull/3177
 
 // Window [X] button handler
 #include "imgui_utils.as"
 imgui_utils::CloseWindowPrompt closeBtnHandler;
 
-// #region FrameStep - clutch calc
+// #region Plots
 
 vector2 cfgPlotSize(0.f, 45.f); // 0=autoresize
-bool cfgUseGlobalGearForThresholdCalc = false; // by default 1st gear is used, which may be a bug.
 
 // assume 60FPS = circa 3 sec
 const int MAX_SAMPLES = 3*60;
 array<float> clutchBuf(MAX_SAMPLES, 0.f);
 array<float> rpmBuf(MAX_SAMPLES, 0.f);
 array<float> clutchTorqueBuf(MAX_SAMPLES, 0.f);
-array<float> calcGearboxSpinnerBuf(MAX_SAMPLES, 0.f);
-array<float> calcClutchTorqueBuf(MAX_SAMPLES, 0.f);
-array<float> calcForceThresholdBuf(MAX_SAMPLES, 0.f);
-array<float> calcClutchTorqueClampedBuf(MAX_SAMPLES, 0.f);
-array<float> calcClutchTorqueFinalBuf(MAX_SAMPLES, 0.f);
 
 void updateFloatBuf(array<float>@ buf, float f)
 {
@@ -34,21 +29,6 @@ void updateEnginePlotBuffers(EngineClass@ engine)
     updateFloatBuf(rpmBuf, engine.getRPM());
     updateFloatBuf(clutchTorqueBuf, engine.getTorque());
     
-    // Replicating the clutch torque calculation
-    float gearboxspinner = engine.getRPM() / engine.getGearRatio(engine.getGear());
-    updateFloatBuf(calcGearboxSpinnerBuf, gearboxspinner);
-    
-    float clutchTorque = (gearboxspinner - engine.getWheelSpin()) * engine.getClutch() * engine.getClutchForce();
-    updateFloatBuf(calcClutchTorqueBuf, clutchTorque);
-    
-    float forceThreshold = 1.5f * fmax(engine.getTorque(), engine.getEnginePower()) * fabs(engine.getGearRatio(cfgUseGlobalGearForThresholdCalc ? 0 : 1)); // gear 1=BUG? should probably be 0=global
-    updateFloatBuf(calcForceThresholdBuf, forceThreshold);
-    
-    float clutchTorqueClamped = fclamp(clutchTorque, -forceThreshold, forceThreshold);
-    updateFloatBuf(calcClutchTorqueClampedBuf, clutchTorqueClamped);
-    
-    float clutchTorqueFinal = clutchTorqueClamped * (1.f - fexp(-fabs(gearboxspinner - engine.getWheelSpin())));
-    updateFloatBuf(calcClutchTorqueFinalBuf, clutchTorqueFinal);
 }
 
 // #endregion
@@ -157,10 +137,10 @@ void drawEngineAttributesTab(BeamClass@ actor, EngineClass@ engine)
     
     ImGui::Columns(2);
     
-    drawTableRow("getMinRPM", engine.getMinRPM());
+    drawTableRow("getShiftDownRPM", engine.getShiftDownRPM());
     drawAttrInputRow(actor, ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM, "SHIFTDOWN_RPM");
     ImGui::Separator();
-    drawTableRow("getMaxRPM", engine.getMaxRPM());
+    drawTableRow("getShiftUpRPM", engine.getShiftUpRPM());
     drawAttrInputRow(actor, ACTORSIMATTR_ENGINE_SHIFTUP_RPM, "SHIFTUP_RPM");
     ImGui::Separator();
     drawTableRow("getEngineTorque", engine.getEngineTorque());
@@ -243,9 +223,10 @@ void drawSimulationStateTab(EngineClass@ engine)
     drawTableRow("getAcc", engine.getAcc());
     drawTableRowPlot("getClutch (0.0 - 1.0)", clutchBuf, 0.f, 1.f);
     drawTableRow("getCrankFactor", engine.getCrankFactor());
-    drawTableRowPlot("getRPM (min - max)", rpmBuf, engine.getMinRPM(), engine.getMaxRPM());
+    drawTableRowPlot("getRPM (0 - 10000)", rpmBuf, 0.f, 10000.f);
     drawTableRow("getSmoke", engine.getSmoke());
-    drawTableRowPlot("getTorque (0 - clutchforce)", clutchTorqueBuf, 0.f, engine.getClutchForce());
+    float clutchTorquePlotMax = engine.getEngineTorque() * engine.getGearRatio(1) * 2.5f; // magic
+    drawTableRowPlot("getTorque (0 - "+clutchTorquePlotMax+")", clutchTorqueBuf, 0.f, clutchTorquePlotMax);
     drawTableRow("getTurboPSI", engine.getTurboPSI());
     drawTableRow("getAutoMode", engine.getAutoMode());//SimGearboxMode 
     drawTableRow("getGear", engine.getGear());
@@ -266,35 +247,6 @@ void drawSimulationStateTab(EngineClass@ engine)
 }
 // #endregion
 
-// #region Main window - clutch calc tab
-
-void drawClutchCalcTab(EngineClass@ engine)
-{
-    
-    ImGui::TextDisabled('// Replicating the clutch torque calculation');
-    ImGui::SameLine();
-    ImGui::Checkbox("cfgUseGlobalGearForThresholdCalc (visual only)", cfgUseGlobalGearForThresholdCalc);
-    ImGui::Separator();
-    
-    ImGui::TextDisabled('float gearboxspinner = engine.getRPM() / engine.getGearRatio(engine.getGear());');
-    float topGearRPM = engine.getMaxRPM() * engine.getGearRatio(engine.getNumGears() - 1);
-    plotFloatBuf(calcGearboxSpinnerBuf, 0.f, topGearRPM*0.5f); 
-    
-    ImGui::TextDisabled('float clutchTorque = (gearboxspinner - engine.getWheelSpin()) * engine.getClutch() * engine.getClutchForce();');
-    plotFloatBuf(calcClutchTorqueBuf, 0.f, 1000000);
-    
-    ImGui::TextDisabled('float forceThreshold = 1.5f * fmax(engine.getTorque(), engine.getEnginePower()) * fabs(engine.getGearRatio(1)) // BUG? should probably be 0=global ');
-    plotFloatBuf(calcForceThresholdBuf, 0.f, 10*engine.getMaxRPM() * engine.getGearRatio(engine.getNumGears() - 1));
-    
-    ImGui::TextDisabled('float clutchTorqueClamped = fclamp(clutchTorque, -forceThreshold, forceThreshold);');
-    plotFloatBuf(calcClutchTorqueClampedBuf, 100.f, topGearRPM*10); 
-    
-    ImGui::TextDisabled('float clutchTorqueFinal = clutchTorqueClamped * (1.f - fexp(-fabs(gearboxspinner - engine.getWheelSpin())));');
-    plotFloatBuf(calcClutchTorqueFinalBuf, 100.f, topGearRPM*10);
-}
-
-// #endregion
-
 // #region Main window
 void drawEngineDiagUI(BeamClass@ actor, EngineClass@ engine)
 {
@@ -303,27 +255,22 @@ void drawEngineDiagUI(BeamClass@ actor, EngineClass@ engine)
         if (ImGui::BeginTabItem('engine args'))
         {
             drawEngineAttributesTab(actor, engine);
-            ImGui::EndTabItem();
+                        ImGui::EndTabItem();
         }
         
         
         if (ImGui::BeginTabItem("engoption args"))
         {
             drawEngoptionAttributesTab(actor, engine);
-            ImGui::EndTabItem();
+                        ImGui::EndTabItem();
         }
         
         if (ImGui::BeginTabItem('state'))
-        {
-            drawSimulationStateTab(engine);
+        {            drawSimulationStateTab(engine);
+            
             ImGui::EndTabItem();
         }
         
-        if (ImGui::BeginTabItem("calc"))
-        {
-            drawClutchCalcTab(engine);
-            ImGui::EndTabItem();
-        }
         ImGui::EndTabBar();
     }
 }
