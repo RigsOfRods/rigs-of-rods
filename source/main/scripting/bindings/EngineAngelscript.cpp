@@ -52,8 +52,8 @@ void RoR::RegisterEngine(asIScriptEngine* engine)
     EnginePtr::RegisterRefCountingObjectPtr(engine, "EngineClassPtr", "EngineClass");
 
     //  > Definition, Keyword 'engine'
-    r = engine->RegisterObjectMethod("EngineClass", "float getMinRPM() const", asMETHOD(Engine, getMinRPM), asCALL_THISCALL); ROR_ASSERT(r >= 0);
-    r = engine->RegisterObjectMethod("EngineClass", "float getMaxRPM() const", asMETHOD(Engine, getMaxRPM), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("EngineClass", "float getShiftDownRPM() const", asMETHOD(Engine, getShiftDownRPM), asCALL_THISCALL); ROR_ASSERT(r >= 0);
+    r = engine->RegisterObjectMethod("EngineClass", "float getShiftUpRPM() const", asMETHOD(Engine, getShiftUpRPM), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("EngineClass", "float getEngineTorque() const", asMETHOD(Engine, getEngineTorque), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("EngineClass", "float getDiffRatio() const", asMETHOD(Engine, getDiffRatio), asCALL_THISCALL); ROR_ASSERT(r >= 0);
     r = engine->RegisterObjectMethod("EngineClass", "float getGearRatio(int) const", asMETHODPR(Engine, getGearRatio, (int), float), asCALL_THISCALL); ROR_ASSERT(r >= 0);

@@ -29,8 +29,8 @@ public:
 
     /// @name Definition; keyword 'engine'
     /// @{
-    float          getMinRPM() const; //!< Shift down RPM ('engine' attr #1)
-    float          getMaxRPM() const; //!< Shift up RPM ('engine' attr #2)
+    float          getShiftDownRPM() const; //!< Shift down RPM ('engine' attr #1)
+    float          getShiftUpRPM() const; //!< Shift up RPM ('engine' attr #2)
     float          getEngineTorque() const; //!< Torque in N/m ('engine' attr #3)
     float          getDiffRatio() const; //!< Global gear ratio ('engine' attr #4)
     float          getGearRatio(int pos); //!< -1=R, 0=N, 1... ('engine' attrs #5[R],#6[N],#7[1]...)

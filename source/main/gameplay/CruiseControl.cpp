@@ -72,7 +72,7 @@ void Actor::UpdateCruiseControl(float dt)
     else if (ar_engine->getGear() == 0) // out of gear
     {
         // Try to maintain the target rpm
-        float speed_range = (ar_engine->getMaxRPM() - ar_engine->getMinRPM()) / 50.0f;
+        float speed_range = (ar_engine->getShiftUpRPM() - ar_engine->getShiftDownRPM()) / 50.0f;
         acc += ar_engine->getEngineInertia() * (cc_target_rpm - ar_engine->getRPM()) / speed_range;
     }
 
@@ -105,7 +105,7 @@ void Actor::UpdateCruiseControl(float dt)
         else if (ar_engine->getGear() == 0) // out of gear
         {
             cc_target_rpm *= pow(2.0f, dt / 5.0f);
-            cc_target_rpm = std::min(cc_target_rpm, ar_engine->getMaxRPM());
+            cc_target_rpm = std::min(cc_target_rpm, ar_engine->getShiftUpRPM());
         }
     }
     if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_DECL))
@@ -118,7 +118,7 @@ void Actor::UpdateCruiseControl(float dt)
         else if (ar_engine->getGear() == 0) // out of gear
         {
             cc_target_rpm *= pow(0.5f, dt / 5.0f);
-            cc_target_rpm = std::max(ar_engine->getMinRPM(), cc_target_rpm);
+            cc_target_rpm = std::max(ar_engine->getShiftDownRPM(), cc_target_rpm);
         }
     }
     if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_CRUISE_CONTROL_READJUST))

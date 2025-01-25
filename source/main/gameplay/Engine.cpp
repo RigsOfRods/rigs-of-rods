@@ -64,7 +64,7 @@ Engine::Engine(float _min_rpm, float _max_rpm, float torque, float reverse_gear,
     , m_max_idle_mixture(0.1f)
     , m_engine_max_rpm(std::abs(_max_rpm))
     , m_min_idle_mixture(0.0f)
-    , m_engine_min_rpm(std::abs(_min_rpm))
+    , m_engine_shiftup_rpm(std::abs(_min_rpm))
     , m_num_gears((int)forward_gears.size())
     , m_post_shift_time(0.2f)
     , m_post_shift_clock(0.0f)
@@ -101,7 +101,7 @@ Engine::Engine(float _min_rpm, float _max_rpm, float torque, float reverse_gear,
     , m_antilag_min_rpm(3000)
     , m_antilag_power_factor(170)
 {
-    m_full_rpm_range = (m_engine_max_rpm - m_engine_min_rpm);
+    m_full_rpm_range = (m_engine_max_rpm - m_engine_shiftup_rpm);
     m_one_third_rpm_range = m_full_rpm_range / 3.0f;
     m_half_rpm_range = m_full_rpm_range / 2.0f;
 
@@ -578,25 +578,25 @@ void Engine::UpdateEngine(float dt, int doUpdate)
         }
 
         // auto clutch
-        float declutchRPM = m_engine_min_rpm * 0.75f + m_engine_stall_rpm * 0.25f;
+        float declutchRPM = m_engine_shiftup_rpm * 0.75f + m_engine_stall_rpm * 0.25f;
         if (m_cur_gear == 0 || m_cur_engine_rpm < declutchRPM)
         {
             m_cur_clutch = 0.0f;
         }
-        else if (m_cur_engine_rpm < m_engine_min_rpm && m_engine_min_rpm > declutchRPM)
+        else if (m_cur_engine_rpm < m_engine_shiftup_rpm && m_engine_shiftup_rpm > declutchRPM)
         {
-            float clutch = (m_cur_engine_rpm - declutchRPM) / (m_engine_min_rpm - declutchRPM);
+            float clutch = (m_cur_engine_rpm - declutchRPM) / (m_engine_shiftup_rpm - declutchRPM);
             m_cur_clutch = std::min(clutch * clutch, m_cur_clutch);
         }
-        else if (!m_shift_val && m_cur_engine_rpm > m_engine_min_rpm && m_cur_clutch < 1.0f)
+        else if (!m_shift_val && m_cur_engine_rpm > m_engine_shiftup_rpm && m_cur_clutch < 1.0f)
         {
             float threshold = 1.5f * getEnginePower(m_cur_engine_rpm) * std::abs(m_gear_ratios[2]);
             float gearboxspinner = m_cur_engine_rpm / m_gear_ratios[m_cur_gear + 1];
             float clutchTorque = (gearboxspinner - m_cur_wheel_revolutions) * m_clutch_force;
             float reTorque = Math::Clamp(clutchTorque, -threshold, +threshold) / m_gear_ratios[m_cur_gear + 1];
 
-            float range = (m_engine_max_rpm - m_engine_min_rpm) * 0.4f * sqrt(std::max(0.2f, acc));
-            float powerRatio = std::min((m_cur_engine_rpm - m_engine_min_rpm) / range, 1.0f);
+            float range = (m_engine_max_rpm - m_engine_shiftup_rpm) * 0.4f * sqrt(std::max(0.2f, acc));
+            float powerRatio = std::min((m_cur_engine_rpm - m_engine_shiftup_rpm) / range, 1.0f);
             float engineTorque = getEnginePower() * std::min(m_cur_acc, 0.9f) * powerRatio;
 
             float torqueDiff = std::min(engineTorque, std::abs(reTorque));
@@ -634,7 +634,7 @@ void Engine::UpdateEngine(float dt, int doUpdate)
                     shift(1);
                 }
             }
-            else if (m_cur_gear > 1 && m_ref_wheel_revolutions * m_gear_ratios[m_cur_gear] < m_engine_max_rpm && (m_cur_engine_rpm < m_engine_min_rpm || (m_cur_engine_rpm < m_engine_min_rpm + m_shift_behaviour * m_half_rpm_range / 2.0f &&
+            else if (m_cur_gear > 1 && m_ref_wheel_revolutions * m_gear_ratios[m_cur_gear] < m_engine_max_rpm && (m_cur_engine_rpm < m_engine_shiftup_rpm || (m_cur_engine_rpm < m_engine_shiftup_rpm + m_shift_behaviour * m_half_rpm_range / 2.0f &&
                 getEnginePower(m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear]) > getEnginePower(m_cur_wheel_revolutions * m_gear_ratios[m_cur_gear + 1]))))
             {
                 shift(-1);
@@ -693,18 +693,18 @@ void Engine::UpdateEngine(float dt, int doUpdate)
                     newGear--;
                 }
             }
-            else if (avgAcc50 > 0.6f && acc < 0.8f && acc > avgAcc50 + 0.1f && m_cur_engine_rpm < m_engine_min_rpm + m_half_rpm_range)
+            else if (avgAcc50 > 0.6f && acc < 0.8f && acc > avgAcc50 + 0.1f && m_cur_engine_rpm < m_engine_shiftup_rpm + m_half_rpm_range)
             {
-                if (newGear > 1 && m_cur_wheel_revolutions * m_gear_ratios[newGear] < m_engine_min_rpm + m_half_rpm_range &&
+                if (newGear > 1 && m_cur_wheel_revolutions * m_gear_ratios[newGear] < m_engine_shiftup_rpm + m_half_rpm_range &&
                     getEnginePower(m_cur_wheel_revolutions * m_gear_ratios[newGear]) * m_gear_ratios[newGear] >
                     getEnginePower(m_cur_wheel_revolutions * m_gear_ratios[newGear + 1]) * m_gear_ratios[newGear + 1])
                 {
                     newGear--;
                 }
             }
-            else if (avgAcc50 > 0.4f && acc < 0.8f && acc > avgAcc50 + 0.1f && m_cur_engine_rpm < m_engine_min_rpm + m_half_rpm_range)
+            else if (avgAcc50 > 0.4f && acc < 0.8f && acc > avgAcc50 + 0.1f && m_cur_engine_rpm < m_engine_shiftup_rpm + m_half_rpm_range)
             {
-                if (newGear > 1 && m_cur_wheel_revolutions * m_gear_ratios[newGear] < m_engine_min_rpm + m_one_third_rpm_range &&
+                if (newGear > 1 && m_cur_wheel_revolutions * m_gear_ratios[newGear] < m_engine_shiftup_rpm + m_one_third_rpm_range &&
                     getEnginePower(m_cur_wheel_revolutions * m_gear_ratios[newGear]) * m_gear_ratios[newGear] >
                     getEnginePower(m_cur_wheel_revolutions * m_gear_ratios[newGear + 1]) * m_gear_ratios[newGear + 1])
                 {
@@ -714,23 +714,23 @@ void Engine::UpdateEngine(float dt, int doUpdate)
             else if (m_cur_gear < (m_autoselect == TWO ? std::min(2, m_num_gears) : m_num_gears) &&
                 avgBrake200 < 0.2f && acc < std::min(avgAcc200 + 0.1f, 1.0f) && m_cur_engine_rpm > avgRPM200 - m_full_rpm_range / 20.0f)
             {
-                if (avgAcc200 < 0.6f && avgAcc200 > 0.4f && m_cur_engine_rpm > m_engine_min_rpm + m_one_third_rpm_range && m_cur_engine_rpm < m_engine_max_rpm - m_one_third_rpm_range)
+                if (avgAcc200 < 0.6f && avgAcc200 > 0.4f && m_cur_engine_rpm > m_engine_shiftup_rpm + m_one_third_rpm_range && m_cur_engine_rpm < m_engine_max_rpm - m_one_third_rpm_range)
                 {
-                    if (m_cur_wheel_revolutions * m_gear_ratios[newGear + 2] > m_engine_min_rpm + m_one_third_rpm_range)
+                    if (m_cur_wheel_revolutions * m_gear_ratios[newGear + 2] > m_engine_shiftup_rpm + m_one_third_rpm_range)
                     {
                         newGear++;
                     }
                 }
-                else if (avgAcc200 < 0.4f && avgAcc200 > 0.2f && m_cur_engine_rpm > m_engine_min_rpm + m_one_third_rpm_range)
+                else if (avgAcc200 < 0.4f && avgAcc200 > 0.2f && m_cur_engine_rpm > m_engine_shiftup_rpm + m_one_third_rpm_range)
                 {
-                    if (m_cur_wheel_revolutions * m_gear_ratios[newGear + 2] > m_engine_min_rpm + m_one_third_rpm_range / 2.0f)
+                    if (m_cur_wheel_revolutions * m_gear_ratios[newGear + 2] > m_engine_shiftup_rpm + m_one_third_rpm_range / 2.0f)
                     {
                         newGear++;
                     }
                 }
-                else if (avgAcc200 < 0.2f && m_cur_engine_rpm > m_engine_min_rpm + m_one_third_rpm_range / 2.0f && m_cur_engine_rpm < m_engine_min_rpm + m_half_rpm_range)
+                else if (avgAcc200 < 0.2f && m_cur_engine_rpm > m_engine_shiftup_rpm + m_one_third_rpm_range / 2.0f && m_cur_engine_rpm < m_engine_shiftup_rpm + m_half_rpm_range)
                 {
-                    if (m_cur_wheel_revolutions * m_gear_ratios[newGear + 2] > m_engine_min_rpm + m_one_third_rpm_range / 2.0f)
+                    if (m_cur_wheel_revolutions * m_gear_ratios[newGear + 2] > m_engine_shiftup_rpm + m_one_third_rpm_range / 2.0f)
                     {
                         newGear++;
                     }
