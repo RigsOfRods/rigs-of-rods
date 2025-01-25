@@ -103,26 +103,77 @@ void plotFloatBuf(array<float>@ buf, float rangeMin, float rangeMax)
     ImGui::Text(formatFloat(val, "", 0, 3));     
 }
 
+// Attributes can be edited realtime (on every keystroke) or using the [Focus] button.
+// Focused editing means all other inputs are disabled and [Apply/Reset] buttons must be used.
+ActorSimAttr gFocusedEditingAttr = ACTORSIMATTR_NONE;
+float gFocusedEditingValue = 0.f;
+float cfgAttrInputboxWidth = 125.f;
+color cfgAttrUnfocusedBgColor = color(0.14, 0.14, 0.14, 1.0);
 void drawAttrInputRow(BeamClass@ actor, ActorSimAttr attr, string label)
 {
+    ImGui::PushID(label);
     ImGui::TextDisabled(label);
     ImGui::NextColumn();
-    float val = actor.getSimAttribute(attr);
-    if (ImGui::InputFloat("##"+label, val))
+    if (gFocusedEditingAttr == ACTORSIMATTR_NONE)
     {
-        actor.setSimAttribute(attr, val);
+        // Focused editing inactive - draw [Focus] button
+        float val = actor.getSimAttribute(attr);
+        ImGui::SetNextItemWidth(cfgAttrInputboxWidth);
+        if (ImGui::InputFloat("", val))
+        {
+            actor.setSimAttribute(attr, val);
+        }
+        ImGui::SameLine();
+        if (ImGui::SmallButton("Focus"))
+        {
+            gFocusedEditingAttr = attr;
+            gFocusedEditingValue = val;
+        }
+    }
+    else if (gFocusedEditingAttr == attr)
+    {
+        // This attr is focused - draw [Apply/Reset] buttons
+        ImGui::SetNextItemWidth(cfgAttrInputboxWidth);
+        ImGui::InputFloat("##"+label, gFocusedEditingValue);
+        ImGui::SameLine();
+        if (ImGui::Button("Apply"))
+        {
+            actor.setSimAttribute(attr, gFocusedEditingValue);
+            gFocusedEditingAttr = ACTORSIMATTR_NONE;
+            gFocusedEditingValue = 0.f;
+        }
+        ImGui::SameLine();
+        if (ImGui::SmallButton("Reset"))
+        {
+            gFocusedEditingAttr = ACTORSIMATTR_NONE;
+            gFocusedEditingValue = 0.f;
+        }        
+    }
+    else
+    {
+        // Some other attr is focused - just draw a label padded to size of inputbox.
+        string valStr = "" + actor.getSimAttribute(attr);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, cfgAttrUnfocusedBgColor);
+        ImGui::BeginChildFrame(uint(attr), vector2(cfgAttrInputboxWidth, ImGui::GetTextLineHeight()) + 3 * 2);
+        ImGui::Text(valStr);
+        ImGui::EndChildFrame(); // Must be called either way - inconsistent with other End*** funcs.
+        ImGui::PopStyleColor(); // FrameBg
     }
     ImGui::NextColumn();
+    ImGui::PopID(); // label
 }
 
 void drawAttributesCommonHelp()
 {
-    if (ImGui::CollapsingHeader("How to read attributes:"))
+    if (ImGui::CollapsingHeader("How to read and edit attributes:"))
     {
         ImGui::TextDisabled("Each value is displayed twice (for debugging) from different sources:");
         ImGui::TextDisabled("1. the 'get***' value is what EngineClass object reports via `get***()` functions.");
         ImGui::TextDisabled("2. the UPPERCASE value is what ActorClass object reports via `getSimAttribute()` function.");
         ImGui::TextDisabled("There are exceptions, a few values have multiple EngineClass getters or lack Attribute handle");
+        ImGui::Dummy(vector2(10,10));
+        ImGui::TextDisabled("Attributes can be edited realtime (on every keystroke) or using the [Focus] button.");
+        ImGui::TextDisabled("Focused editing means all other inputs are disabled and [Apply/Reset] buttons must be used.");
         ImGui::Separator();
         ImGui::Separator();
     }
