@@ -307,6 +307,14 @@ struct Inertia
     Ogre::String stop_function;
 };
 
+struct DocComment //!< Represents a comment (line starting with ';' or '//') that can be anywhere in the file.
+{
+    std::string comment_text; //!< May contain multiple lines separated by '\n' - MUST contain leading ';' or '//' at each line!
+    // The item following after the comment.
+    RigDef::Keyword commented_keyword = RigDef::Keyword::INVALID;
+    int commented_datapos = -1; //!< Position in the data vector for the given keyword.
+};
+
 // --------------------------------
 // Rig definition data for individual elements
 
@@ -1440,6 +1448,7 @@ struct Document
         int _hint_nodes12_end_linenumber = -1;
         int _hint_beams_start_linenumber = -1;
         int _hint_beams_end_linenumber = -1;
+        std::vector<DocComment> _comments;
     };
 
     Document();

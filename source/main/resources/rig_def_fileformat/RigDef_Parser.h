@@ -202,6 +202,7 @@ private:
     bool             CheckNumArguments(int num_required_args);
     void             BeginBlock(RigDef::Keyword keyword);
     void             ProcessChangeModuleLine(Keyword keyword);
+    void             FlushPendingDocComment(size_t vectorlen, RigDef::Keyword keyword);
 
     std::string        GetArgStr          (int index);
     int                GetArgInt          (int index);
@@ -270,15 +271,16 @@ private:
     std::shared_ptr<Document::Module>        m_root_module;
     std::shared_ptr<Document::Module>        m_current_module;
 
-    unsigned int                         m_current_line_number;
-    char                                 m_current_line[LINE_BUFFER_LENGTH];
-    Token                                m_args[LINE_MAX_ARGS];    //!< Tokens of current line.
-    int                                  m_num_args;               //!< Number of tokens on current line.
+    unsigned int                         m_current_line_number = 0;
+    char                                 m_current_line[LINE_BUFFER_LENGTH] = {};
+    Token                                m_args[LINE_MAX_ARGS] = {};    //!< Tokens of current line.
+    int                                  m_num_args = 0;               //!< Number of tokens on current line.
     Keyword                              m_current_block = Keyword::INVALID;
     Keyword                              m_log_keyword = Keyword::INVALID;
-    bool                                 m_any_named_node_defined; //!< Parser state.
+    bool                                 m_any_named_node_defined = false; //!< Parser state.
     std::shared_ptr<Submesh>             m_current_submesh;        //!< Parser state.
     std::shared_ptr<CameraRail>          m_current_camera_rail;    //!< Parser state.
+    DocComment                           m_pending_doc_comment;    //!< To be linked with the following element.
 
     SequentialImporter                   m_sequential_importer;
 
