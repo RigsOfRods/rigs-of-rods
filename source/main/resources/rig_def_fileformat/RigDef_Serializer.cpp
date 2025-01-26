@@ -180,6 +180,8 @@ void Serializer::ProcessPistonprops(Document::Module* module)
     auto end_itor = module->pistonprops.end();
     for (auto itor = module->pistonprops.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::PISTONPROPS, std::distance(module->pistonprops.begin(), itor));
+
         auto & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.reference_node.Str()
@@ -206,6 +208,8 @@ void Serializer::ProcessTurbojets(Document::Module* module)
     auto end_itor = module->turbojets.end();
     for (auto itor = module->turbojets.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::TURBOJETS, std::distance(module->turbojets.begin(), itor));
+
         auto & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.front_node.Str()
@@ -231,6 +235,8 @@ void Serializer::ProcessScrewprops(Document::Module* module)
     auto end_itor = module->screwprops.end();
     for (auto itor = module->screwprops.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::SCREWPROPS, std::distance(module->screwprops.begin(), itor));
+
         auto & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.prop_node.Str()
@@ -273,6 +279,8 @@ void Serializer::ProcessTurboprops(Document::Module* module)
     auto end_itor = module->turboprops2.end();
     for (auto itor = module->turboprops2.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::TURBOPROPS, std::distance(module->turboprops2.begin(), itor));
+
         RigDef::Turboprop2 & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.reference_node.Str()
@@ -297,6 +305,8 @@ void Serializer::ProcessAirbrakes(Document::Module* module)
     auto end_itor = module->airbrakes.end();
     for (auto itor = module->airbrakes.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::AIRBRAKES, std::distance(module->airbrakes.begin(), itor));
+
         RigDef::Airbrake & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.reference_node.Str()
@@ -328,6 +338,8 @@ void Serializer::ProcessWings(Document::Module* module)
     auto end_itor = module->wings.end();
     for (auto itor = module->wings.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::WINGS, std::distance(module->wings.begin(), itor));
+
         RigDef::Wing & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.nodes[0].Str()
@@ -366,6 +378,8 @@ void Serializer::ProcessSoundsources(Document::Module* module)
     auto end_itor = module->soundsources.end();
     for (auto itor = module->soundsources.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::SOUNDSOURCES, std::distance(module->soundsources.begin(), itor));
+
         RigDef::SoundSource & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.node.Str() << ", " << def.sound_script_name;
@@ -383,6 +397,8 @@ void Serializer::ProcessSoundsources2(Document::Module* module)
     auto end_itor = module->soundsources2.end();
     for (auto itor = module->soundsources2.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::SOUNDSOURCES2, std::distance(module->soundsources2.begin(), itor));
+
         RigDef::SoundSource2 & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.node.Str() 
@@ -427,6 +443,8 @@ void Serializer::ProcessVideocamera(Document::Module* module)
     auto end_itor = module->videocameras.end();
     for (auto itor = module->videocameras.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::VIDEOCAMERA, std::distance(module->videocameras.begin(), itor));
+
         RigDef::VideoCamera & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.reference_node.Str()
@@ -491,6 +509,8 @@ void Serializer::ProcessExhausts(Document::Module* module)
     auto end_itor = module->exhausts.end();
     for (auto itor = module->exhausts.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::EXHAUSTS, std::distance(module->exhausts.begin(), itor));
+
         RigDef::Exhaust & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.reference_node.Str()
@@ -643,6 +663,8 @@ void Serializer::ProcessFlexbodies(Document::Module* module)
     auto end_itor = module->flexbodies.end();
     for (auto itor = module->flexbodies.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::FLEXBODIES, std::distance(module->flexbodies.begin(), itor));
+
         RigDef::Flexbody* def = &*itor;
 
         // Prop-like line
@@ -692,6 +714,8 @@ void Serializer::ProcessPropsAndAnimations(Document::Module* module)
     auto end_itor = module->props.end();
     for (auto itor = module->props.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::PROPS, std::distance(module->props.begin(), itor));
+
         RigDef::Prop & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.reference_node.Str()
@@ -763,6 +787,8 @@ void Serializer::ProcessFlares2(Document::Module* module)
     auto end_itor = module->flares2.end();
     for (auto itor = module->flares2.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::FLARES2, std::distance(module->flares2.begin(), itor));
+
         RigDef::Flare2 & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.reference_node.Str()
@@ -842,6 +868,8 @@ void Serializer::ProcessCollisionBoxes(Document::Module* module)
     auto end_itor = module->collisionboxes.end();
     for (auto itor = module->collisionboxes.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::COLLISIONBOXES, std::distance(module->collisionboxes.begin(), itor));
+
         RigDef::CollisionBox & def = *itor;
 
         auto nodes_end = def.nodes.end();
@@ -866,6 +894,8 @@ void Serializer::ProcessAxles(Document::Module* module)
     auto end_itor = module->axles.end();
     for (auto itor = module->axles.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::AXLES, std::distance(module->axles.begin(), itor));
+
         RigDef::Axle & def = *itor;
 
         m_stream << "\n\t"
@@ -895,6 +925,8 @@ void Serializer::ProcessInterAxles(Document::Module* module)
     auto end_itor = module->interaxles.end();
     for (auto itor = module->interaxles.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::INTERAXLES, std::distance(module->interaxles.begin(), itor));
+
         RigDef::InterAxle & def = *itor;
 
         m_stream << "\n\t"
@@ -994,6 +1026,8 @@ void Serializer::ProcessParticles(Document::Module* module)
     auto end_itor = module->particles.end();
     for (auto itor = module->particles.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::PARTICLES, std::distance(module->particles.begin(), itor));
+
         RigDef::Particle & def = *itor;
 
         m_stream << "\n\t" 
@@ -1014,6 +1048,8 @@ void Serializer::ProcessRopables(Document::Module* module)
     auto end_itor = module->ropables.end();
     for (auto itor = module->ropables.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::ROPABLES, std::distance(module->ropables.begin(), itor));
+
         RigDef::Ropable & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.node.Str()
@@ -1033,6 +1069,8 @@ void Serializer::ProcessTies(Document::Module* module)
     auto end_itor = module->ties.end();
     for (auto itor = module->ties.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::TIES, std::distance(module->ties.begin(), itor));
+
         RigDef::Tie & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.root_node.Str()
@@ -1075,6 +1113,8 @@ void Serializer::ProcessRopes(Document::Module* module)
     BeamDefaults* beam_defaults = nullptr;
     for (auto itor = module->ropes.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::ROPES, std::distance(module->ropes.begin(), itor));
+
         RigDef::Rope & def = *itor;
 
         if (first || (def.beam_defaults.get() != beam_defaults))
@@ -1104,6 +1144,8 @@ void Serializer::ProcessRailGroups(Document::Module* module)
     auto end_itor = module->railgroups.end();
     for (auto itor = module->railgroups.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::RAILGROUPS, std::distance(module->railgroups.begin(), itor));
+
         RigDef::RailGroup & def = *itor;
 
         m_stream << "\n\t" << def.id;
@@ -1130,6 +1172,8 @@ void Serializer::ProcessSlideNodes(Document::Module* module)
     auto end_itor = module->slidenodes.end();
     for (auto itor = module->slidenodes.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::SLIDENODES, std::distance(module->slidenodes.begin(), itor));
+
         RigDef::SlideNode & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.slide_node.Str();
@@ -1179,6 +1223,8 @@ void Serializer::ProcessHooks(Document::Module* module)
     auto end_itor = module->hooks.end();
     for (auto itor = module->hooks.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::HOOKS, std::distance(module->hooks.begin(), itor));
+
         RigDef::Hook & def = *itor;
 
         m_stream << "\n\t" << setw(m_node_id_width) << def.node.Str();
@@ -1213,6 +1259,8 @@ void Serializer::ProcessLockgroups(Document::Module* module)
     auto end_itor = module->lockgroups.end();
     for (auto itor = module->lockgroups.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::LOCKGROUPS, std::distance(module->lockgroups.begin(), itor));
+
         RigDef::Lockgroup & def = *itor;
 
         m_stream << "\n\t" << def.number;
@@ -1235,6 +1283,8 @@ void Serializer::ProcessTriggers(Document::Module* module)
     auto end_itor = module->triggers.end();
     for (auto itor = module->triggers.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::TRIGGERS, std::distance(module->triggers.begin(), itor));
+
         RigDef::Trigger & def = *itor;
 
         m_stream << "\n\t"
@@ -1293,6 +1343,8 @@ void Serializer::ProcessAnimators(Document::Module* module)
     auto end_itor = module->animators.end();
     for (auto itor = module->animators.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::ANIMATORS, std::distance(module->animators.begin(), itor));
+
         RigDef::Animator & def = *itor;
 
         m_stream << m_dataline_indentstr
@@ -1370,6 +1422,8 @@ void Serializer::ProcessRotators(Document::Module* module)
     auto end_itor = module->rotators.end();
     for (auto itor = module->rotators.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::ROTATORS, std::distance(module->rotators.begin(), itor));
+
         Rotator & def = *itor;
 
         // Axis nodes
@@ -1424,8 +1478,12 @@ void Serializer::ProcessRotators2(Document::Module* module)
 
     // Write data
     m_stream << "rotators2" << endl << endl;
-    for (RigDef::Rotator2& def: module->rotators2)
+    auto end_itor = module->rotators2.end();
+    for (auto itor = module->rotators2.begin(); itor != end_itor; ++itor)
     {
+        this->ExportDocComment(module, Keyword::ROTATORS, std::distance(module->rotators2.begin(), itor));
+
+        Rotator2& def = *itor;
         // Axis nodes
         m_stream
              << setw(m_node_id_width)<< def.axis_nodes[0].Str() << ", "
@@ -1479,6 +1537,7 @@ void Serializer::ProcessFlexBodyWheels(Document::Module* module)
     {
         this->UpdatePresets(itor->beam_defaults.get(), itor->node_defaults.get(), nullptr);
 
+        this->ExportDocComment(module, Keyword::FLEXBODYWHEELS, std::distance(module->flexbodywheels.begin(), itor));
         m_stream << m_dataline_indentstr
             << setw(m_float_width)   << itor->tyre_radius                   << ", "
             << setw(m_float_width)   << itor->rim_radius                    << ", "
@@ -1650,6 +1709,7 @@ void Serializer::ProcessWheels2(Document::Module* module)
     {
         this->UpdatePresets(itor->beam_defaults.get(), itor->node_defaults.get(), nullptr);
 
+        this->ExportDocComment(module, Keyword::WHEELS2, std::distance(module->wheels2.begin(), itor));
         m_stream << m_dataline_indentstr
             << setw(m_float_width)   << itor->tyre_radius                   << ", "
             << setw(m_float_width)   << itor->rim_radius                    << ", "
@@ -1705,6 +1765,7 @@ void Serializer::ProcessWheels(Document::Module* module)
     {
         this->UpdatePresets(itor->beam_defaults.get(), itor->node_defaults.get(), nullptr);
 
+        this->ExportDocComment(module, Keyword::WHEELS, std::distance(module->wheels.begin(), itor));
         m_stream << m_dataline_indentstr
             << setw(m_float_width)   << itor->radius                        << ", "
             << setw(m_float_width)   << itor->width                         << ", "
@@ -1813,6 +1874,7 @@ void Serializer::ProcessCinecam(Document::Module* module)
 
     for (auto itor = module->cinecam.begin(); itor != module->cinecam.end(); ++itor)
     {
+        this->ExportDocComment(module, Keyword::CINECAM, std::distance(module->cinecam.begin(), itor));
         m_stream << m_dataline_indentstr
             << setw(m_float_width) << itor->position.x << ", "
             << setw(m_float_width) << itor->position.y << ", "
@@ -1854,7 +1916,7 @@ void Serializer::ProcessBeams(Document::Module* module)
             ProcessBeamDefaults(beam.defaults.get());
             prev_defaults = beam.defaults.get();
         }
-
+        this->ExportDocComment(module, Keyword::BEAMS, i);
         this->ProcessBeam(beam);
     }
 
@@ -1881,7 +1943,7 @@ void Serializer::ProcessShocks(Document::Module* module)
             ProcessBeamDefaults(shock.beam_defaults.get());
             prev_defaults = shock.beam_defaults.get();
         }
-
+        this->ExportDocComment(module, Keyword::SHOCKS, i);
         this->ProcessShock(shock);
     }
 
@@ -1908,7 +1970,7 @@ void Serializer::ProcessShocks2(Document::Module* module)
             ProcessBeamDefaults(shock2.beam_defaults.get());
             prev_defaults = shock2.beam_defaults.get();
         }
-
+        this->ExportDocComment(module, Keyword::SHOCKS2, i);
         this->ProcessShock2(shock2);
     }
 
@@ -1935,7 +1997,7 @@ void Serializer::ProcessShocks3(Document::Module* module)
             ProcessBeamDefaults(shock3.beam_defaults.get());
             prev_defaults = shock3.beam_defaults.get();
         }
-
+        this->ExportDocComment(module, Keyword::SHOCKS3, i);
         this->ProcessShock3(shock3);
     }
 
@@ -1963,7 +2025,7 @@ void Serializer::ProcessHydros(Document::Module* module)
             ProcessBeamDefaults(hydro.beam_defaults.get());
             prev_defaults = hydro.beam_defaults.get();
         }
-
+        this->ExportDocComment(module, Keyword::HYDROS, i);
         this->ProcessHydro(hydro);
     }
 
@@ -1990,7 +2052,7 @@ void Serializer::ProcessCommands2(Document::Module* module)
             ProcessBeamDefaults(command.beam_defaults.get());
             prev_defaults = command.beam_defaults.get();
         }
-
+        this->ExportDocComment(module, Keyword::COMMANDS2, i);
         this->ProcessCommand2(command);
     }
 
@@ -2306,7 +2368,7 @@ void Serializer::ProcessNodes(Document::Module* module)
             this->ProcessDefaultMinimass(dminimass);
             prev_dminimass = dminimass;
         }
-
+        this->ExportDocComment(module, Keyword::NODES, i);
         this->ProcessNode(node);
     }
 
@@ -2337,6 +2399,7 @@ void Serializer::ProcessNodes(Document::Module* module)
                 prev_dminimass = dminimass;
             }
 
+            this->ExportDocComment(module, Keyword::NODES2, i);
             this->ProcessNode(node);
         }
     }
@@ -2543,6 +2606,17 @@ void Serializer::UpdatePresets(BeamDefaults* beam_defaults, NodeDefaults* node_d
     {
         m_current_default_minimass = default_minimass;
         this->ProcessDefaultMinimass(default_minimass);
+    }
+}
+
+void Serializer::ExportDocComment(Document::Module* module, RigDef::Keyword keyword, ptrdiff_t vectorpos)
+{
+    auto itor = std::find_if(module->_comments.begin(), module->_comments.end(),
+        [keyword, vectorpos](const RigDef::DocComment& dc) { return dc.commented_keyword == keyword && dc.commented_datapos == (int)vectorpos; });
+
+    if (itor != module->_comments.end())
+    {
+        m_stream << itor->comment_text;
     }
 }
 
