@@ -156,6 +156,7 @@ protected:
     std::string         NodeOptionsToStr(BitMask_t options);
 
     void ExportBaseMeshWheel(BaseMeshWheel& def);
+    void ExportDocComment(Document::Module* module, RigDef::Keyword keyword, ptrdiff_t vectorpos);
 
     // Presets, i.e. `set_[node/beam]_defaults`, `set_default_minimass`
     void                ResetPresets();
