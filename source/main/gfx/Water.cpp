@@ -624,10 +624,9 @@ void Water::UpdateReflectionPlane(float h)
 
 void Water::FrameStepWater(float dt)
 {
-    if (dt)
-    {
-        this->UpdateWater();
-    }
+    // Update even if game paused to account for camera movement (important for reflections).
+    // --------------------------------------------------------------------------------------
+    this->UpdateWater();
 }
 
 void Water::SetForcedCameraTransform(Ogre::Radian fovy, Ogre::Vector3 pos, Ogre::Quaternion rot)
