@@ -108,6 +108,7 @@ private:
     float                 m_max_ampl = 0.f;
     float                 m_waterplane_mesh_scale = 1.f;
     int                   m_frame_counter = 0;
+    float                 m_sim_time_counter = 0.f; //!< Elapsed simulation time in seconds.
     Ogre::Vector3         m_map_size = Ogre::Vector3::ZERO;
     Ogre::Plane           m_water_plane;
     Ogre::MeshPtr         m_waterplane_mesh;
