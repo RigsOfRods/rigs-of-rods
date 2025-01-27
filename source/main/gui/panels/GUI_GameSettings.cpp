@@ -410,7 +410,7 @@ void GameSettings::DrawGraphicsSettings()
     DrawGIntCheck(App::gfx_particles_mode,   _LC("GameSettings", "Enable particle gfx"));
     DrawGIntCheck(App::gfx_skidmarks_mode,   _LC("GameSettings", "Enable skidmarks"));
 
-    DrawGCheckbox(App::gfx_auto_lod,      _LC("GameSettings", "Enable OGRE's automatic mesh LOD generator (Increases loading times)"));
+    DrawGCheckbox(App::gfx_auto_lod,      _LC("GameSettings", "Enable automatic mesh LOD generator (Increases loading times)"));
 
     DrawGCheckbox(App::gfx_envmap_enabled,   _LC("GameSettings", "Realtime reflections"));
     if (App::gfx_envmap_enabled->getBool())
