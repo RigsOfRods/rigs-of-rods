@@ -418,6 +418,8 @@ bool Network::StartConnecting()
 
 void Network::StopConnecting()
 {
+    App::mp_state->setVal((int)MpState::DISABLED);
+
     if (m_connect_thread.joinable())
         m_connect_thread.join(); // Clean up
 }
