@@ -511,8 +511,6 @@ float Water::CalcWavesHeight(Vector3 pos)
         return m_water_height;
     }
 
-    const float time_sec = (float)(App::GetAppContext()->GetOgreRoot()->getTimer()->getMilliseconds() * 0.001);
-
     // uh, some upper limit?!
     if (pos.y > m_water_height + m_max_ampl)
         return m_water_height;
@@ -528,7 +526,7 @@ float Water::CalcWavesHeight(Vector3 pos)
         float amp = std::min(m_wavetrain_defs[i].amplitude * waveheight, m_wavetrain_defs[i].maxheight);
         // now the main thing:
         // calculate the sinus with the values of the config file and add it to the result
-        result += amp * sin(Math::TWO_PI * ((time_sec * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength));
+        result += amp * sin(Math::TWO_PI * ((m_sim_time_counter * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength));
     }
     // return the summed up waves
     return result;
@@ -613,6 +611,7 @@ void Water::FrameStepWater(float dt)
     // Update even if game paused to account for camera movement (important for reflections).
     // --------------------------------------------------------------------------------------
     this->UpdateWater();
+    m_sim_time_counter += dt;
 }
 
 void Water::SetForcedCameraTransform(Ogre::Radian fovy, Ogre::Vector3 pos, Ogre::Quaternion rot)
