@@ -106,6 +106,20 @@ struct AeroDashOverlay
 
     float thrust_track_top;
     float thrust_track_height;
+
+    /// @name Mouse-hover highlighting and dragging
+    /// @{
+    void SetupHoverableElements();
+    bool IsElementHoverable(Ogre::OverlayElement* element) const;
+    void SetHoveredElement(Ogre::OverlayElement* element);
+    Ogre::OverlayElement* GetHoveredElement() const { return m_hovered_element; }
+
+    bool mouse_drag_in_progress = false;
+    std::vector<Ogre::OverlayElement*> hoverable_elements;
+    /// @}
+
+private:
+    Ogre::OverlayElement* m_hovered_element = nullptr;
 };
 
 class OverlayWrapper
