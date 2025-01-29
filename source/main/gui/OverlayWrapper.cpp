@@ -356,13 +356,11 @@ void OverlayWrapper::showPressureOverlay(bool show)
         {
             m_truck_pressure_overlay->show();
             m_truck_pressure_needle_overlay->show();
-            BITMASK_SET_1(m_visible_overlays, VisibleOverlays::TRUCK_TIRE_PRESSURE_OVERLAY);
         }
         else
         {
             m_truck_pressure_overlay->hide();
             m_truck_pressure_needle_overlay->hide();
-            BITMASK_SET_0(m_visible_overlays, VisibleOverlays::TRUCK_TIRE_PRESSURE_OVERLAY);
         }
     }
 }
@@ -953,13 +951,11 @@ void OverlayWrapper::UpdateMarineHUD(ActorPtr vehicle)
 void OverlayWrapper::ShowRacingOverlay()
 {
     m_racing_overlay->show();
-    BITMASK_SET_1(m_visible_overlays, VisibleOverlays::RACING);
 }
 
 void OverlayWrapper::HideRacingOverlay()
 {
     m_racing_overlay->hide();
-    BITMASK_SET_0(m_visible_overlays, VisibleOverlays::RACING);
 }
 
 void OverlayWrapper::UpdateRacingGui(RoR::GfxScene* gs)
