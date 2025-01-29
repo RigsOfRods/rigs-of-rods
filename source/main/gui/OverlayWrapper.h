@@ -148,15 +148,6 @@ public:
 
 protected:
 
-    /// RoR needs to temporarily hide all overlays when player enters editor. 
-    /// However, OGRE only provides per-overlay show() and hide() functionality.
-    /// Thus, an external state must be kept to restore overlays after exiting the editor.
-    struct VisibleOverlays
-    {
-        static const int RACING                       = BITMASK(4);
-        static const int TRUCK_TIRE_PRESSURE_OVERLAY  = BITMASK(5);
-    };
-
     int init();
     void resizePanel(Ogre::OverlayElement *oe);
     void reposPanel(Ogre::OverlayElement *oe);
@@ -175,8 +166,6 @@ protected:
     // -------------------------------------------------------------
     // Overlays
     // -------------------------------------------------------------
-
-    unsigned int  m_visible_overlays = 0;
 
     Ogre::Overlay *m_truck_pressure_overlay = nullptr;
     Ogre::Overlay *m_truck_pressure_needle_overlay = nullptr;
