@@ -338,6 +338,7 @@ int OverlayWrapper::init()
     bestlaptime = (TextAreaOverlayElement*)loadOverlayElement("tracks/Racing/BestLapTime");
 
     g_is_scaled = true;
+    m_aerial_dashboard.SetupHoverableElements();
 
     return 0;
 }
@@ -488,7 +489,7 @@ void OverlayWrapper::updateStats(bool detailed)
     }
 }
 
-bool OverlayWrapper::handleMouseMoved()
+bool OverlayWrapper::handleMousePressed()
 {
     if (!m_aerial_dashboard.needles_overlay->isVisible())
         return false;
@@ -503,33 +504,22 @@ bool OverlayWrapper::handleMouseMoved()
     if (!player_actor)
         return res;
 
-    float mouseX = ms.X.abs / (float)ms.width;
-    float mouseY = ms.Y.abs / (float)ms.height;
-
-    // TODO: fix: when the window is scaled, the findElementAt doesn not seem to pick up the correct element :-\
-
     if (player_actor->ar_driveable == AIRPLANE && ms.buttonDown(OIS::MB_Left))
     {
         const int num_engines = std::min(4, player_actor->ar_num_aeroengines);
 
-        OverlayElement* element = m_aerial_dashboard.needles_overlay->findElementAt(mouseX, mouseY);
+        OverlayElement* element = m_aerial_dashboard.GetHoveredElement();
         if (element)
         {
             res = true;
-            float thr_value = 1.0f - ((mouseY - thrtop - throffset) / thrheight);
             for (int i = 0; i < num_engines; ++i)
             {
                 if (element == m_aerial_dashboard.engines[i].thr_element)
                 {
-                    player_actor->ar_aeroengines[i]->setThrottle(thr_value);
+                    m_aerial_dashboard.mouse_drag_in_progress = true;
                 }
             }
-        }
 
-        element = m_aerial_dashboard.dash_overlay->findElementAt(mouseX, mouseY);
-        if (element)
-        {
-            res = true;
             for (int i = 0; i < num_engines; ++i)
             {
                 if (element == m_aerial_dashboard.engines[i].engstart_element)
@@ -631,14 +621,68 @@ bool OverlayWrapper::handleMouseMoved()
     return res;
 }
 
-bool OverlayWrapper::handleMousePressed()
+bool OverlayWrapper::handleMouseMoved()
 {
-    return handleMouseMoved();
+    ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
+    if (!player_actor || !m_aerial_dashboard.needles_overlay->isVisible())
+        return false;
+
+    const Ogre::Vector2 mousepos = App::GetInputEngine()->getMouseNormalizedScreenPos();
+
+    // Update mouse drag if ongoing
+    if (m_aerial_dashboard.mouse_drag_in_progress)
+    {
+        const int num_engines = std::min(4, player_actor->ar_num_aeroengines);
+        float thr_value = 1.0f - ((mousepos.y - thrtop - throffset) / thrheight);
+        for (int i = 0; i < num_engines; ++i)
+        {
+            if (m_aerial_dashboard.GetHoveredElement() == m_aerial_dashboard.engines[i].thr_element)
+            {
+                player_actor->ar_aeroengines[i]->setThrottle(thr_value);
+            }
+        }
+        return true;
+    }
+
+    // Just detect mouse hover
+    bool found = false;
+    Ogre::OverlayElement* needles_element = m_aerial_dashboard.needles_overlay->findElementAt(mousepos.x, mousepos.y);
+    if (needles_element && m_aerial_dashboard.IsElementHoverable(needles_element))
+    {
+        m_aerial_dashboard.SetHoveredElement(needles_element);
+        found = true;
+    }
+    
+    if (!found)
+    {
+        Ogre::OverlayElement* dash_element = m_aerial_dashboard.dash_overlay->findElementAt(mousepos.x, mousepos.y);
+        if (dash_element && m_aerial_dashboard.IsElementHoverable(dash_element))
+        {
+            m_aerial_dashboard.SetHoveredElement(dash_element);
+            found = true;
+        }
+    }
+
+    if (!found)
+    {
+        m_aerial_dashboard.SetHoveredElement(nullptr);
+    }
+
+    return false;
 }
 
 bool OverlayWrapper::handleMouseReleased()
 {
-    return handleMouseMoved();
+    // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
+    //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
+    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
+
+    if (!ms.buttonDown(OIS::MB_Left))
+    {
+        m_aerial_dashboard.mouse_drag_in_progress = false;
+    }
+
+    return false;
 }
 
 void OverlayWrapper::UpdatePressureOverlay(RoR::GfxActor* ga)
@@ -1082,3 +1126,51 @@ void AeroTrimOverlay::DisplayFormat(const char* fmt, ...)
 
     display->setCaption(buffer);
 }
+
+bool AeroDashOverlay::IsElementHoverable(Ogre::OverlayElement* element) const
+{
+    auto itor = std::find_if(hoverable_elements.begin(), hoverable_elements.end(),
+        [element](Ogre::OverlayElement* e) { return e == element; });
+    return itor != hoverable_elements.end();
+}
+
+void AeroDashOverlay::SetHoveredElement(Ogre::OverlayElement* element)
+{
+    // Use texture blending to 'highlight' the hovered element
+    // doc: https://ogrecave.github.io/ogre/api/13/_material-_scripts.html#autotoc_md169
+    // -------------------------------------------------------
+
+    if (m_hovered_element)
+    {
+        // reset to defaults
+        m_hovered_element->getMaterial()->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setColourOperationEx(
+            Ogre::LBX_MODULATE, Ogre::LBS_TEXTURE, Ogre::LBS_CURRENT);
+    }
+    m_hovered_element = element;
+    if (m_hovered_element)
+    {
+        // set blend mode to 'add' with a custom colour
+        m_hovered_element->getMaterial()->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setColourOperationEx(
+            Ogre::LBX_ADD, Ogre::LBS_TEXTURE, Ogre::LBS_MANUAL, Ogre::ColourValue::White, ColourValue(0.32, 0.3, 0.25));
+    }
+}
+
+void AeroDashOverlay::SetupHoverableElements()
+{
+    // Aerial dashboard: setup materials for mouse-hover highlighting - give unique instance to each
+    // -------------------------------------------------------------------------------------------
+
+    // Throttles
+    Ogre::MaterialPtr thr_mat = engines[0].thr_element->getMaterial();
+    engines[0].thr_element->setMaterial(thr_mat->clone("tracks/thrust1_hoverable"));
+    engines[1].thr_element->setMaterial(thr_mat->clone("tracks/thrust2_hoverable"));
+    engines[2].thr_element->setMaterial(thr_mat->clone("tracks/thrust3_hoverable"));
+    engines[3].thr_element->setMaterial(thr_mat->clone("tracks/thrust4_hoverable"));
+    hoverable_elements.push_back(engines[0].thr_element);
+    hoverable_elements.push_back(engines[1].thr_element);
+    hoverable_elements.push_back(engines[2].thr_element);
+    hoverable_elements.push_back(engines[3].thr_element);
+
+
+}
+
