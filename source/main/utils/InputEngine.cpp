@@ -609,6 +609,10 @@ OIS::MouseState InputEngine::getMouseState()
     // See commentary in `resetKeysAndMouseButtons()`
     // To work around, we keep internal button states and pay attention not to get them polluted by OIS.
     // -----------------------------------------------------------------------------------------------------
+
+    mouseState.width = (int)App::GetAppContext()->GetRenderWindow()->getWidth();
+    mouseState.height = (int)App::GetAppContext()->GetRenderWindow()->getHeight();
+
     return mouseState;
 }
 
