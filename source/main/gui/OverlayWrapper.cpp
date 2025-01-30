@@ -190,14 +190,14 @@ int OverlayWrapper::init()
     m_aerial_dashboard.thrust_track_top = thrtop;
     m_aerial_dashboard.thrust_track_height = thrheight;
 
-    m_aerial_dashboard.engines[0].engfire_element = loadOverlayElement("tracks/engfire1");
-    m_aerial_dashboard.engines[1].engfire_element = loadOverlayElement("tracks/engfire2");
-    m_aerial_dashboard.engines[2].engfire_element = loadOverlayElement("tracks/engfire3");
-    m_aerial_dashboard.engines[3].engfire_element = loadOverlayElement("tracks/engfire4");
-    m_aerial_dashboard.engines[0].engstart_element = loadOverlayElement("tracks/engstart1");
-    m_aerial_dashboard.engines[1].engstart_element = loadOverlayElement("tracks/engstart2");
-    m_aerial_dashboard.engines[2].engstart_element = loadOverlayElement("tracks/engstart3");
-    m_aerial_dashboard.engines[3].engstart_element = loadOverlayElement("tracks/engstart4");
+    m_aerial_dashboard.engines[0].Setup("tracks/engfire1", "tracks/thrust1");
+    m_aerial_dashboard.engines[1].Setup("tracks/engfire2", "tracks/thrust2");
+    m_aerial_dashboard.engines[2].Setup("tracks/engfire3", "tracks/thrust3");
+    m_aerial_dashboard.engines[3].Setup("tracks/engfire4", "tracks/thrust4");
+    m_aerial_dashboard.engstarts[0].Setup("tracks/engstart1", "tracks/engstart-on", "tracks/engstart-off");
+    m_aerial_dashboard.engstarts[1].Setup("tracks/engstart2", "tracks/engstart-on", "tracks/engstart-off");
+    m_aerial_dashboard.engstarts[2].Setup("tracks/engstart3", "tracks/engstart-on", "tracks/engstart-off");
+    m_aerial_dashboard.engstarts[3].Setup("tracks/engstart4", "tracks/engstart-on", "tracks/engstart-off");
     resizePanel(loadOverlayElement("tracks/airrpm1"));
     resizePanel(loadOverlayElement("tracks/airrpm2"));
     resizePanel(loadOverlayElement("tracks/airrpm3"));
@@ -338,7 +338,7 @@ int OverlayWrapper::init()
     bestlaptime = (TextAreaOverlayElement*)loadOverlayElement("tracks/Racing/BestLapTime");
 
     g_is_scaled = true;
-    m_aerial_dashboard.SetupHoverableElements();
+    m_aerial_dashboard.SetupMouseHovers();
 
     return 0;
 }
@@ -491,24 +491,21 @@ void OverlayWrapper::updateStats(bool detailed)
 
 bool OverlayWrapper::handleMousePressed()
 {
-    if (!m_aerial_dashboard.needles_overlay->isVisible())
+    ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
+    if (!player_actor
+        || !m_aerial_dashboard.needles_overlay->isVisible()
+        || !m_aerial_dashboard.hovered_widget)
         return false;
-    bool res = false;
 
     // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
     //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
     const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
-    
-    ActorPtr player_actor = App::GetGameContext()->GetPlayerActor();
-
-    if (!player_actor)
-        return res;
-
+    bool res = false;
     if (player_actor->ar_driveable == AIRPLANE && ms.buttonDown(OIS::MB_Left))
     {
         const int num_engines = std::min(4, player_actor->ar_num_aeroengines);
 
-        OverlayElement* element = m_aerial_dashboard.GetHoveredElement();
+        OverlayElement* element = m_aerial_dashboard.hovered_widget->GetHoveredElement();
         if (element)
         {
             res = true;
@@ -522,11 +519,12 @@ bool OverlayWrapper::handleMousePressed()
 
             for (int i = 0; i < num_engines; ++i)
             {
-                if (element == m_aerial_dashboard.engines[i].engstart_element)
+                if (element == m_aerial_dashboard.engstarts[i].element)
                 {
                     player_actor->ar_aeroengines[i]->flipStart();
                 }
             }
+
             if (player_actor->ar_autopilot && mTimeUntilNextToggle <= 0)
             {
                 //heading group
@@ -636,7 +634,7 @@ bool OverlayWrapper::handleMouseMoved()
         float thr_value = 1.0f - ((mousepos.y - thrtop - throffset) / thrheight);
         for (int i = 0; i < num_engines; ++i)
         {
-            if (m_aerial_dashboard.GetHoveredElement() == m_aerial_dashboard.engines[i].thr_element)
+            if (m_aerial_dashboard.hovered_widget == &m_aerial_dashboard.engines[i])
             {
                 player_actor->ar_aeroengines[i]->setThrottle(thr_value);
             }
@@ -645,28 +643,7 @@ bool OverlayWrapper::handleMouseMoved()
     }
 
     // Just detect mouse hover
-    bool found = false;
-    Ogre::OverlayElement* needles_element = m_aerial_dashboard.needles_overlay->findElementAt(mousepos.x, mousepos.y);
-    if (needles_element && m_aerial_dashboard.IsElementHoverable(needles_element))
-    {
-        m_aerial_dashboard.SetHoveredElement(needles_element);
-        found = true;
-    }
-    
-    if (!found)
-    {
-        Ogre::OverlayElement* dash_element = m_aerial_dashboard.dash_overlay->findElementAt(mousepos.x, mousepos.y);
-        if (dash_element && m_aerial_dashboard.IsElementHoverable(dash_element))
-        {
-            m_aerial_dashboard.SetHoveredElement(dash_element);
-            found = true;
-        }
-    }
-
-    if (!found)
-    {
-        m_aerial_dashboard.SetHoveredElement(nullptr);
-    }
+    m_aerial_dashboard.UpdateMouseHovers();
 
     return false;
 }
@@ -1086,36 +1063,130 @@ void AeroDashOverlay::SetIgnition(int engine, bool visible, bool ignited)
 {
     if (visible)
     {
-        engines[engine].engstart_element->show();
-        engines[engine].engstart_element->setMaterialName(
-            ignited ? "tracks/engstart-on" : "tracks/engstart-off");
+        engstarts[engine].element->show();
+        engstarts[engine].SetActive(ignited);
     }
     else
     {
-        engines[engine].engstart_element->hide();
+        engstarts[engine].element->hide();
     }
 }
 
-void AeroSwitchOverlay::SetActive(bool value)
+// -----------------
+// AeroEngineOverlay
+
+void AeroEngineWidget::Setup(std::string const& engfire_elemname, std::string const& thr_elemname)
+{
+    // Because highlighting works on per-material basis, we must clone the material for each element
+    engfire_element = Ogre::OverlayManager::getSingleton().getOverlayElement(engfire_elemname);
+    thr_element = Ogre::OverlayManager::getSingleton().getOverlayElement(thr_elemname);
+    thr_element->setMaterial(thr_element->getMaterial()->clone(thr_element->getMaterial()->getName() + "@" + thr_elemname));
+}
+
+bool AeroEngineWidget::UpdateMouseHover()
+{
+    const Ogre::Vector2 mouse_pos = App::GetInputEngine()->getMouseNormalizedScreenPos();
+    bool retval = false;
+    if (retval = thr_element->contains(mouse_pos.x, mouse_pos.y))
+    {
+        AeroDashOverlay::SetMaterialHighlighted(thr_element->getMaterial(), true);
+    }
+    else
+    {
+        AeroDashOverlay::SetMaterialHighlighted(thr_element->getMaterial(), false);
+    }
+    return retval;
+}
+
+Ogre::OverlayElement* AeroEngineWidget::GetHoveredElement() const
+{
+    return thr_element;
+}
+
+// ---------------
+// AeroSwitchOverlay
+
+void AeroSwitchWidget::SetActive(bool value)
 {
     element->setMaterial(value ? on_material : off_material);
 }
 
-void AeroSwitchOverlay::Setup(std::string const & elem_name, std::string const & mat_on, std::string const & mat_off)
+void AeroSwitchWidget::Setup(std::string const & elem_name, std::string const & mat_on, std::string const & mat_off)
 {
+    // Because highlighting works on per-material basis, we must clone the material for each element
     element = Ogre::OverlayManager::getSingleton().getOverlayElement(elem_name);
-    on_material = Ogre::MaterialManager::getSingleton().getByName(mat_on);
-    off_material = Ogre::MaterialManager::getSingleton().getByName(mat_off);
+    on_material = Ogre::MaterialManager::getSingleton().getByName(mat_on)->clone(elem_name + "@" + mat_on);
+    off_material = Ogre::MaterialManager::getSingleton().getByName(mat_off)->clone(elem_name + "@" + mat_off);
 }
 
-void AeroTrimOverlay::Setup(std::string const & up, std::string const & dn, std::string const & disp)
+bool AeroSwitchWidget::UpdateMouseHover()
 {
+    // Element's current material switches dynamically based on game state, we must always sync both variants.
+    const Ogre::Vector2 mouse_pos = App::GetInputEngine()->getMouseNormalizedScreenPos();
+    bool retval = false;
+    if (retval = element->contains(mouse_pos.x, mouse_pos.y))
+    {
+        AeroDashOverlay::SetMaterialHighlighted(on_material, true);
+        AeroDashOverlay::SetMaterialHighlighted(off_material, true);
+    }
+    else
+    {
+        AeroDashOverlay::SetMaterialHighlighted(on_material, false);
+        AeroDashOverlay::SetMaterialHighlighted(off_material, false);
+    }
+    return retval;
+}
+
+Ogre::OverlayElement* AeroSwitchWidget::GetHoveredElement() const
+{
+    return element;
+}
+
+// ---------------
+// AeroTrimOverlay
+
+void AeroTrimWidget::Setup(std::string const & up, std::string const & dn, std::string const & disp)
+{
+    // Because highlighting works on per-material basis, we must clone the material for each element
     display = Ogre::OverlayManager::getSingleton().getOverlayElement(disp);
     up_button = Ogre::OverlayManager::getSingleton().getOverlayElement(up);
+    up_button->setMaterial(up_button->getMaterial()->clone(up + "$" + disp));
     dn_button = Ogre::OverlayManager::getSingleton().getOverlayElement(dn);
+    dn_button->setMaterial(dn_button->getMaterial()->clone(dn + "$" + disp));
 }
 
-void AeroTrimOverlay::DisplayFormat(const char* fmt, ...)
+bool AeroTrimWidget::UpdateMouseHover()
+{
+    const Ogre::Vector2 mouse_pos = App::GetInputEngine()->getMouseNormalizedScreenPos();
+
+    bool retval = false;
+    if (retval = up_button->contains(mouse_pos.x, mouse_pos.y))
+    {
+        hovered_button = up_button;
+        AeroDashOverlay::SetMaterialHighlighted(up_button->getMaterial(), true);
+        AeroDashOverlay::SetMaterialHighlighted(dn_button->getMaterial(), false);
+    }
+    else if (retval = dn_button->contains(mouse_pos.x, mouse_pos.y))
+    {
+        hovered_button = dn_button;
+        AeroDashOverlay::SetMaterialHighlighted(up_button->getMaterial(), false);
+        AeroDashOverlay::SetMaterialHighlighted(dn_button->getMaterial(), true);
+    }
+    else
+    {
+        hovered_button = nullptr;
+        AeroDashOverlay::SetMaterialHighlighted(up_button->getMaterial(), false);
+        AeroDashOverlay::SetMaterialHighlighted(dn_button->getMaterial(), false);
+    }
+    return retval;
+}
+
+Ogre::OverlayElement* AeroTrimWidget::GetHoveredElement() const
+{
+    return hovered_button;
+}
+
+void AeroTrimWidget::DisplayFormat(const char* fmt, ...)
 {
     char buffer[500] = {};
 
@@ -1127,50 +1198,68 @@ void AeroTrimOverlay::DisplayFormat(const char* fmt, ...)
     display->setCaption(buffer);
 }
 
-bool AeroDashOverlay::IsElementHoverable(Ogre::OverlayElement* element) const
-{
-    auto itor = std::find_if(hoverable_elements.begin(), hoverable_elements.end(),
-        [element](Ogre::OverlayElement* e) { return e == element; });
-    return itor != hoverable_elements.end();
-}
+// ---------------------
+// AeroDashOverlay
 
-void AeroDashOverlay::SetHoveredElement(Ogre::OverlayElement* element)
+void AeroDashOverlay::SetMaterialHighlighted(Ogre::MaterialPtr mat, bool val)
 {
     // Use texture blending to 'highlight' the hovered element
     // doc: https://ogrecave.github.io/ogre/api/13/_material-_scripts.html#autotoc_md169
     // -------------------------------------------------------
 
-    if (m_hovered_element)
+    if (!val)
     {
         // reset to defaults
-        m_hovered_element->getMaterial()->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setColourOperationEx(
+        mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setColourOperationEx(
             Ogre::LBX_MODULATE, Ogre::LBS_TEXTURE, Ogre::LBS_CURRENT);
     }
-    m_hovered_element = element;
-    if (m_hovered_element)
+    else
     {
         // set blend mode to 'add' with a custom colour
-        m_hovered_element->getMaterial()->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setColourOperationEx(
+        mat->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setColourOperationEx(
             Ogre::LBX_ADD, Ogre::LBS_TEXTURE, Ogre::LBS_MANUAL, Ogre::ColourValue::White, ColourValue(0.32, 0.3, 0.25));
     }
 }
 
-void AeroDashOverlay::SetupHoverableElements()
+void AeroDashOverlay::SetupMouseHovers()
 {
-    // Aerial dashboard: setup materials for mouse-hover highlighting - give unique instance to each
-    // -------------------------------------------------------------------------------------------
-
     // Throttles
-    Ogre::MaterialPtr thr_mat = engines[0].thr_element->getMaterial();
-    engines[0].thr_element->setMaterial(thr_mat->clone("tracks/thrust1_hoverable"));
-    engines[1].thr_element->setMaterial(thr_mat->clone("tracks/thrust2_hoverable"));
-    engines[2].thr_element->setMaterial(thr_mat->clone("tracks/thrust3_hoverable"));
-    engines[3].thr_element->setMaterial(thr_mat->clone("tracks/thrust4_hoverable"));
-    hoverable_elements.push_back(engines[0].thr_element);
-    hoverable_elements.push_back(engines[1].thr_element);
-    hoverable_elements.push_back(engines[2].thr_element);
-    hoverable_elements.push_back(engines[3].thr_element);
+    aero_widgets.push_back(&engines[0]);
+    aero_widgets.push_back(&engines[1]);
+    aero_widgets.push_back(&engines[2]);
+    aero_widgets.push_back(&engines[3]);
 
+    // Engine start switches
+    aero_widgets.push_back(&engstarts[0]);
+    aero_widgets.push_back(&engstarts[1]);
+    aero_widgets.push_back(&engstarts[2]);
+    aero_widgets.push_back(&engstarts[3]);
 
+    // Switches
+    aero_widgets.push_back(&hdg  );
+    aero_widgets.push_back(&wlv  );
+    aero_widgets.push_back(&nav  );
+    aero_widgets.push_back(&alt  );
+    aero_widgets.push_back(&vs   );
+    aero_widgets.push_back(&ias  );
+    aero_widgets.push_back(&gpws );
+    aero_widgets.push_back(&brks );
+
+    // Trims
+    aero_widgets.push_back(&hdg_trim);
+    aero_widgets.push_back(&alt_trim);
+    aero_widgets.push_back(&vs_trim);
+    aero_widgets.push_back(&ias_trim);
+}
+
+void AeroDashOverlay::UpdateMouseHovers()
+{
+    for (auto elem : aero_widgets)
+    {
+        if (elem->UpdateMouseHover())
+        {
+            hovered_widget = elem;
+        }
+    }
 }
 

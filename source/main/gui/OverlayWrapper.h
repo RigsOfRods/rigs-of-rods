@@ -34,33 +34,49 @@
 
 namespace RoR {
 
-struct AeroEngineOverlay
+/// All this complexity just to have a nifty mouse-hover highlighting for the dashboard elements (well, proper throttle sliders also).
+struct AeroInteractiveWidget
 {
+    virtual ~AeroInteractiveWidget() = default;
+    virtual bool UpdateMouseHover() = 0;
+    virtual Ogre::OverlayElement* GetHoveredElement() const = 0;
+};
+
+struct AeroEngineWidget : public AeroInteractiveWidget
+{
+    void Setup(std::string const& engfire_elemname, std::string const& thr_elemname);
+    bool UpdateMouseHover() override;
+    Ogre::OverlayElement* GetHoveredElement() const override;
+
     Ogre::OverlayElement *thr_element;
     Ogre::OverlayElement *engfire_element;
-    Ogre::OverlayElement *engstart_element;
     Ogre::TextureUnitState *rpm_texture;
     Ogre::TextureUnitState *pitch_texture;
     Ogre::TextureUnitState *torque_texture;
 };
 
-struct AeroSwitchOverlay
+struct AeroSwitchWidget: public AeroInteractiveWidget
 {
     void Setup(std::string const & elem_name, std::string const & mat_on, std::string const & mat_off);
     void SetActive(bool value);
+    bool UpdateMouseHover() override;
+    Ogre::OverlayElement* GetHoveredElement() const override;
 
     Ogre::OverlayElement *element;
     Ogre::MaterialPtr on_material;
     Ogre::MaterialPtr off_material;
 };
 
-struct AeroTrimOverlay
+struct AeroTrimWidget : public AeroInteractiveWidget
 {
     void Setup(std::string const & up, std::string const & dn, std::string const & disp);
     void DisplayFormat(const char* fmt, ...);
+    bool UpdateMouseHover() override;
+    Ogre::OverlayElement* GetHoveredElement() const override;
 
     Ogre::OverlayElement *up_button;
     Ogre::OverlayElement *dn_button;
+    Ogre::OverlayElement* hovered_button = nullptr;
     Ogre::OverlayElement *display;
 };
 
@@ -73,7 +89,8 @@ struct AeroDashOverlay
     void SetEngineTorque(int engine, float pcent);
     void SetIgnition(int engine, bool visible, bool ignited);
 
-    AeroEngineOverlay engines[4];
+    AeroEngineWidget engines[4];
+    AeroSwitchWidget engstarts[4];
 
     Ogre::Overlay *dash_overlay;
     Ogre::Overlay *needles_overlay;
@@ -90,36 +107,32 @@ struct AeroDashOverlay
     Ogre::TextureUnitState *aoatexture;
     Ogre::TextAreaOverlayElement* alt_value_textarea;
 
-    AeroSwitchOverlay hdg;
-    AeroSwitchOverlay wlv;
-    AeroSwitchOverlay nav;
-    AeroSwitchOverlay alt;
-    AeroSwitchOverlay vs;
-    AeroSwitchOverlay ias;
-    AeroSwitchOverlay gpws;
-    AeroSwitchOverlay brks;
+    AeroSwitchWidget hdg;
+    AeroSwitchWidget wlv;
+    AeroSwitchWidget nav;
+    AeroSwitchWidget alt;
+    AeroSwitchWidget vs;
+    AeroSwitchWidget ias;
+    AeroSwitchWidget gpws;
+    AeroSwitchWidget brks;
 
-    AeroTrimOverlay hdg_trim;
-    AeroTrimOverlay alt_trim;
-    AeroTrimOverlay vs_trim;
-    AeroTrimOverlay ias_trim;
+    AeroTrimWidget hdg_trim;
+    AeroTrimWidget alt_trim;
+    AeroTrimWidget vs_trim;
+    AeroTrimWidget ias_trim;
 
     float thrust_track_top;
     float thrust_track_height;
 
     /// @name Mouse-hover highlighting and dragging
     /// @{
-    void SetupHoverableElements();
-    bool IsElementHoverable(Ogre::OverlayElement* element) const;
-    void SetHoveredElement(Ogre::OverlayElement* element);
-    Ogre::OverlayElement* GetHoveredElement() const { return m_hovered_element; }
-
     bool mouse_drag_in_progress = false;
-    std::vector<Ogre::OverlayElement*> hoverable_elements;
+    std::vector<AeroInteractiveWidget*> aero_widgets;
+    AeroInteractiveWidget* hovered_widget = nullptr;
+    void SetupMouseHovers();
+    void UpdateMouseHovers();
+    static void SetMaterialHighlighted(Ogre::MaterialPtr, bool value);
     /// @}
-
-private:
-    Ogre::OverlayElement* m_hovered_element = nullptr;
 };
 
 class OverlayWrapper
