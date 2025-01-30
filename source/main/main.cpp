@@ -1954,6 +1954,8 @@ int main(int argc, char *argv[])
 
             App::GetGuiManager()->ApplyGuiCaptureKeyboard();
 
+            App::GetGuiManager()->UpdateMouseCursorVisibility();
+
         } // End of main rendering/input loop
 
 #ifndef _DEBUG
