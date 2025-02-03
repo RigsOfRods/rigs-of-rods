@@ -21,6 +21,7 @@
 
 #include "Application.h"
 #include "Console.h"
+#include "CVar.h"
 
 #include <Ogre.h>
 
@@ -141,6 +142,7 @@ void Console::cVarSetupBuiltins()
     App::io_input_grab_mode      = this->cVarCreate("io_input_grab_mode",      "Input Grab",                 CVAR_ARCHIVE | CVAR_TYPE_INT,     "1"/*(int)IoInputGrabMode::ALL*/);
     App::io_arcade_controls      = this->cVarCreate("io_arcade_controls",      "ArcadeControls",             CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::io_hydro_coupling       = this->cVarCreate("io_hydro_coupling",  "Keyboard Steering Speed Coupling",CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
+    App::io_hydro_sensivity      = this->cVarCreate("io_hydro_sensivity", "Keyboard Steering Sensitivity",   CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
     App::io_outgauge_mode        = this->cVarCreate("io_outgauge_mode",        "OutGauge Mode",              CVAR_ARCHIVE | CVAR_TYPE_INT);    // 0 = disabled, 1 = enabled
     App::io_outgauge_ip          = this->cVarCreate("io_outgauge_ip",          "OutGauge IP",                CVAR_ARCHIVE,                     "192.168.1.100");
     App::io_outgauge_port        = this->cVarCreate("io_outgauge_port",        "OutGauge Port",              CVAR_ARCHIVE | CVAR_TYPE_INT,      "1337");

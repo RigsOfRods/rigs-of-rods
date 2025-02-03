@@ -673,6 +673,12 @@ void TopMenubar::Draw(float dt)
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Vehicle control options:"));
                 DrawGCheckbox(App::io_hydro_coupling, _LC("TopMenubar", "Keyboard steering speed coupling"));
+                DrawGFloatSlider(App::io_hydro_sensivity, _LC("TopMenubar", "Sensitivity"), 0.3, 5);
+                ImGui::SameLine();
+                if (ImGui::SmallButton("Reset"))
+                {
+                    App::io_hydro_sensivity->setVal(1.f);
+                }
             }
 
             // MULTIPLAYER SETTINGS
