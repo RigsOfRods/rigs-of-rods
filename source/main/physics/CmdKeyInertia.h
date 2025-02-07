@@ -50,13 +50,19 @@ public:
     float CalcCmdKeyDelay(float cmd_input, float dt);
     int SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, float start_delay, float stop_delay, std::string start_function, std::string stop_function);
     void ResetCmdKeyDelay();
+    float GetStartDelay() const { return m_start_delay; }
+    float GetStopDelay() const { return m_stop_delay; }
+    const std::string& GetStartFunction() const { return m_start_function; }
+    const std::string& GetStopFunction() const { return m_stop_function; }
 
 protected:
     float               m_last_output;
     float               m_start_delay;
     float               m_stop_delay;
     float               m_time;
+    std::string         m_start_function;
     Ogre::SimpleSpline* m_start_spline;
+    std::string         m_stop_function;
     Ogre::SimpleSpline* m_stop_spline;
 
     float CalculateCmdOutput(float time, Ogre::SimpleSpline* spline);
