@@ -100,6 +100,27 @@ static void UpdateSetNodeDefaults(std::shared_ptr<NodeDefaults>& node_defaults, 
     }
 }
 
+static void UpdateSetInertiaDefaults(std::shared_ptr<Inertia>& inertia_defaults, Actor* actor, CmdKeyInertia& cmdkey_inertia)
+{
+    const float start_delay = cmdkey_inertia.GetStartDelay();
+    const float stop_delay = cmdkey_inertia.GetStopDelay();
+    const std::string startfn = cmdkey_inertia.GetStartFunction();
+    const std::string stopfn = cmdkey_inertia.GetStopFunction();
+
+    if (inertia_defaults->start_delay_factor != start_delay
+        || inertia_defaults->stop_delay_factor != stop_delay
+        || inertia_defaults->start_function != startfn
+        || inertia_defaults->stop_function != stopfn
+        )
+    {
+        inertia_defaults = std::shared_ptr<Inertia>(new Inertia);
+        inertia_defaults->start_delay_factor = start_delay;
+        inertia_defaults->stop_delay_factor = stop_delay;
+        inertia_defaults->start_function = startfn;
+        inertia_defaults->stop_function = stopfn;
+    }
+}
+
 void Actor::propagateNodeBeamChangesToDef()
 {
     // PROOF OF CONCEPT:
@@ -124,7 +145,7 @@ void Actor::propagateNodeBeamChangesToDef()
     m_used_actor_entry->actor_def->root_module->shocks.clear();
     m_used_actor_entry->actor_def->root_module->shocks2.clear();
     m_used_actor_entry->actor_def->root_module->shocks3.clear();
-
+    m_used_actor_entry->actor_def->root_module->hydros.clear();
 
     // Prepare 'set_node_defaults' with builtin values.
     auto node_defaults = std::shared_ptr<NodeDefaults>(new NodeDefaults); // comes pre-filled
@@ -140,6 +161,9 @@ void Actor::propagateNodeBeamChangesToDef()
     beam_defaults->deformation_threshold = BEAM_DEFORM;
     beam_defaults->breaking_threshold    = BEAM_BREAK;
     beam_defaults->visual_beam_diameter  = DEFAULT_BEAM_DIAMETER;
+
+    // Prepare 'set_inertia_defaults' with builtin values.
+    auto inertia_defaults = std::shared_ptr<Inertia>(new Inertia);
 
     // Prepare 'detacher_group' with builtin values.
     int detacher_group = DEFAULT_DETACHER_GROUP;
@@ -609,6 +633,75 @@ void Actor::propagateNodeBeamChangesToDef()
         default: // Not a shock
             break;
         }
+    }
+
+    // ~~~ Hydros ~~~
+    for (hydrobeam_t& hydrobeam: ar_hydros)
+    {
+        int i = hydrobeam.hb_beam_index;
+        const beam_t& beam = ar_beams[i];
+        if (beam.bm_type != BEAM_HYDRO)
+        {
+            continue; // Should never happen.
+        }
+
+        UpdateSetBeamDefaults(beam_defaults, this, i);
+        UpdateSetInertiaDefaults(inertia_defaults, this, hydrobeam.hb_inertia);
+
+        RigDef::Hydro def;
+        def.beam_defaults = beam_defaults;
+        def.inertia_defaults = inertia_defaults;
+        def.nodes[0] = BuildNodeRef(this, beam.p1->pos);
+        def.nodes[1] = BuildNodeRef(this, beam.p2->pos);
+        def.lenghtening_factor = hydrobeam.hb_speed;
+
+        // HEADS UP: hydro options have quirks:
+        // * 'n' is not 'dummy' like elsewhere, but activates steering wheel input (n = normal)
+        // * 'i' makes beam invisible, but (!) also activates 'n' when first in the list. This is an old bug preserved for compatibility.
+        // * 'j' makes beam invisible without any side effects (unique to hydros)
+        // The exporter never uses 'i', just 'j' and 'n'.
+
+        // individual options
+        if (ar_beams_invisible[i])
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_j_INVISIBLE);
+        }
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_SPEED))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED);
+        }
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_ELEVATOR))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_e_INPUT_ELEVATOR);
+        }
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_RUDDER))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_r_INPUT_RUDDER);
+        }
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_AILERON))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_a_INPUT_AILERON);
+        }
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_DIR))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_n_INPUT_NORMAL);
+        }
+
+        // combined options
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_ELEVATOR))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR);
+        }
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_RUDDER))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER);
+        }
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_REV_ELEVATOR | HYDRO_FLAG_RUDDER))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER);
+        }
+
+        m_used_actor_entry->actor_def->root_module->hydros.push_back(def);
     }
 
     // ~~~ Globals (update in-place) ~~~

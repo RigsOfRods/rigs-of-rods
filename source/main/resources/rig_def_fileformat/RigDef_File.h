@@ -294,7 +294,7 @@ struct BaseWheel2: public BaseWheel // common to 'wheels2' and 'flexbodywheels'
     float tyre_damping = 0.f;
 };
 
-struct Inertia // Common base for DefaultInertia and Command2Inertia
+struct Inertia
 {
     Inertia():
         start_delay_factor(0),
