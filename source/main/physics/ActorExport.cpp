@@ -594,6 +594,62 @@ void Actor::propagateNodeBeamChangesToDef()
         }
     }
 
+    // ~~~ Hydros ~~~
+    for (hydrobeam_t& hydrobeam: ar_hydros)
+    {
+        int i = hydrobeam.hb_beam_index;
+        const beam_t& beam = ar_beams[i];
+        if (beam.bm_type != BEAM_HYDRO)
+        {
+            continue;
+        }
+
+        UpdateSetBeamDefaults(beam_defaults, this, i);
+
+        RigDef::Hydro def;
+        def.beam_defaults = beam_defaults;
+        def.nodes[0] = BuildNodeRef(this, beam.p1->pos);
+        def.nodes[1] = BuildNodeRef(this, beam.p2->pos);
+
+        // individual options
+        if (ar_beams_invisible[i])
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_j_INVISIBLE);
+        }
+        if (BITMASK_IS_1(hydrobeam.hb_anim_flags, HYDRO_FLAG_SPEED))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED);
+        }
+        if (BITMASK_IS_1(hydrobeam.hb_anim_flags, HYDRO_FLAG_ELEVATOR))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_e_INPUT_ELEVATOR);
+        }
+        if (BITMASK_IS_1(hydrobeam.hb_anim_flags, HYDRO_FLAG_RUDDER))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_r_INPUT_RUDDER);
+        }
+        if (BITMASK_IS_1(hydrobeam.hb_anim_flags, HYDRO_FLAG_AILERON))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_a_INPUT_AILERON);
+        }
+
+        // combined options
+        if (BITMASK_IS_1(hydrobeam.hb_anim_flags, HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_ELEVATOR))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR);
+        }
+        if (BITMASK_IS_1(hydrobeam.hb_anim_flags, HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_RUDDER))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER);
+        }
+        if (BITMASK_IS_1(hydrobeam.hb_anim_flags, HYDRO_FLAG_REV_ELEVATOR | HYDRO_FLAG_RUDDER))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER);
+        }
+
+        m_used_actor_entry->actor_def->root_module->hydros.push_back(def);
+    }
+
     // ~~~ Globals (update in-place) ~~~
 
     m_used_actor_entry->actor_def->root_module->globals[0].dry_mass -= dry_mass_reduction;
