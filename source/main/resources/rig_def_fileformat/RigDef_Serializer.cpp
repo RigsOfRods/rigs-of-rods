@@ -1994,52 +1994,24 @@ void Serializer::ProcessHydros(Document::Module* module)
         return;
     }
 
-    // Group by presets
-    std::map< BeamDefaults*, std::vector<Hydro*> > grouped_by_preset;
-    auto itor_end = module->hydros.end(); 
-    for (auto itor = module->hydros.begin(); itor != itor_end; ++itor)
-    {
-        Hydro & hydro = *itor;
-        BeamDefaults* preset = hydro.beam_defaults.get();
-
-        // Ensure preset is in map
-        auto found_itor = grouped_by_preset.find(preset);
-        if (found_itor == grouped_by_preset.end())
-        {
-            // Preset not in map, insert it and add hydro.
-            std::vector<Hydro*> list;
-            list.reserve(100);
-            list.push_back(&hydro);
-            grouped_by_preset.insert(std::make_pair(preset, list));
-        }
-        else
-        {
-            // Preset in map, just add hydro.
-            found_itor->second.push_back(&hydro);
-        }
-    }
-
     // Write hydros to file
     m_stream << "hydros" << endl << endl;
-    auto preset_itor_end = grouped_by_preset.end();
-    for (auto preset_itor = grouped_by_preset.begin(); preset_itor != preset_itor_end; ++preset_itor)
-    {
-        // Write preset
-        BeamDefaults* preset = preset_itor->first;
-        ProcessBeamDefaults(preset);
 
-        // Write hydros
-        auto hydro_list = preset_itor->second;
-        auto hydro_itor_end = hydro_list.end();
-        for (auto hydro_itor = hydro_list.begin(); hydro_itor != hydro_itor_end; ++hydro_itor)
+    BeamDefaults* prev_defaults = nullptr;
+    for (size_t i = 0; i < module->hydros.size(); i++)
+    {
+        Hydro& hydro = module->hydros[i];
+        if (prev_defaults != hydro.beam_defaults.get())
         {
-            Hydro & hydro = *(*hydro_itor);
-            ProcessHydro(hydro);
+            ProcessBeamDefaults(hydro.beam_defaults.get());
+            prev_defaults = hydro.beam_defaults.get();
         }
+
+        this->ProcessHydro(hydro);
     }
 
     // Empty line
-    m_stream << endl << endl;
+    m_stream << endl;
 }
 
 void Serializer::ProcessCommands2(Document::Module* module)
@@ -2134,18 +2106,21 @@ void Serializer::ProcessHydro(Hydro & def)
     if (BITMASK_IS_1(def.options, Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER )) m_stream << (char)HydroOption::h_INPUT_InvELEVATOR_RUDDER ;
     if (BITMASK_IS_1(def.options, Hydro::OPTION_n_INPUT_NORMAL             )) m_stream << (char)HydroOption::n_INPUT_NORMAL;
     if (def.options == 0) m_stream << (char)HydroOption::n_INPUT_NORMAL;
-    m_stream << ", ";
 
     // Inertia
     Inertia & inertia = def.inertia;
-    m_stream << std::setw(m_float_width) << inertia.start_delay_factor  << ", ";
-    m_stream << std::setw(m_float_width) << inertia.stop_delay_factor;
-    if (!inertia.start_function.empty())
+    if (inertia.start_delay_factor != 0 && inertia.stop_delay_factor != 0)
     {
-        m_stream << ", " << std::setw(m_inertia_function_width) << inertia.start_function;
-        if (!inertia.stop_function.empty())
+        m_stream << ", ";
+        m_stream << std::setw(m_float_width) << inertia.start_delay_factor << ", ";
+        m_stream << std::setw(m_float_width) << inertia.stop_delay_factor;
+        if (!inertia.start_function.empty())
         {
-            m_stream << ", " << std::setw(m_inertia_function_width) << inertia.stop_function;
+            m_stream << ", " << std::setw(m_inertia_function_width) << inertia.start_function;
+            if (!inertia.stop_function.empty())
+            {
+                m_stream << ", " << std::setw(m_inertia_function_width) << inertia.stop_function;
+            }
         }
     }
     m_stream << endl;
