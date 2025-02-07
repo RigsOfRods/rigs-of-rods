@@ -566,14 +566,14 @@ struct command_t
     RoR::CmdKeyInertia command_inertia;
 };
 
-struct hydrobeam_t
+struct hydrobeam_t //!< beams updating length based on simulation variables, generally known as actuators.
 {
-    uint16_t hb_beam_index; //!< Index to Actor::ar_beams array
-    float    hb_ref_length; //!< Idle length in meters
-    float    hb_speed;      //!< Rate of change
-    int      hb_flags;
-    int      hb_anim_flags; //!< Animators (beams updating length based on simulation variables)
-    float    hb_anim_param; //!< Animators (beams updating length based on simulation variables)
+    uint16_t  hb_beam_index{0}; //!< Index to Actor::ar_beams array
+    float     hb_ref_length{0}; //!< Idle length in meters
+    float     hb_speed{0};      //!< Rate of change
+    BitMask_t hb_flags{0};      //!< Only for 'hydros'
+    BitMask_t hb_anim_flags{0}; //!< Only for 'animators' 
+    float     hb_anim_param{0}; //!< Only for 'animators'
     RoR::CmdKeyInertia  hb_inertia;
 };
 
