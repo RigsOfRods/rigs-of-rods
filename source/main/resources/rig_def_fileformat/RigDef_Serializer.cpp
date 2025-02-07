@@ -1951,52 +1951,24 @@ void Serializer::ProcessHydros(Document::Module* module)
         return;
     }
 
-    // Group by presets
-    std::map< BeamDefaults*, std::vector<Hydro*> > grouped_by_preset;
-    auto itor_end = module->hydros.end(); 
-    for (auto itor = module->hydros.begin(); itor != itor_end; ++itor)
-    {
-        Hydro & hydro = *itor;
-        BeamDefaults* preset = hydro.beam_defaults.get();
-
-        // Ensure preset is in map
-        auto found_itor = grouped_by_preset.find(preset);
-        if (found_itor == grouped_by_preset.end())
-        {
-            // Preset not in map, insert it and add hydro.
-            std::vector<Hydro*> list;
-            list.reserve(100);
-            list.push_back(&hydro);
-            grouped_by_preset.insert(std::make_pair(preset, list));
-        }
-        else
-        {
-            // Preset in map, just add hydro.
-            found_itor->second.push_back(&hydro);
-        }
-    }
-
     // Write hydros to file
     m_stream << "hydros" << endl << endl;
-    auto preset_itor_end = grouped_by_preset.end();
-    for (auto preset_itor = grouped_by_preset.begin(); preset_itor != preset_itor_end; ++preset_itor)
-    {
-        // Write preset
-        BeamDefaults* preset = preset_itor->first;
-        ProcessBeamDefaults(preset);
 
-        // Write hydros
-        auto hydro_list = preset_itor->second;
-        auto hydro_itor_end = hydro_list.end();
-        for (auto hydro_itor = hydro_list.begin(); hydro_itor != hydro_itor_end; ++hydro_itor)
+    BeamDefaults* prev_defaults = nullptr;
+    for (size_t i = 0; i < module->hydros.size(); i++)
+    {
+        Hydro& hydro = module->hydros[i];
+        if (prev_defaults != hydro.beam_defaults.get())
         {
-            Hydro & hydro = *(*hydro_itor);
-            ProcessHydro(hydro);
+            ProcessBeamDefaults(hydro.beam_defaults.get());
+            prev_defaults = hydro.beam_defaults.get();
         }
+
+        this->ProcessHydro(hydro);
     }
 
     // Empty line
-    m_stream << endl << endl;
+    m_stream << endl;
 }
 
 void Serializer::ProcessCommands2(Document::Module* module)
