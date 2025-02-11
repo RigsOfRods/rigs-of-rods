@@ -20,6 +20,7 @@
 */
 
 /// @file   GUI_LoginBox.h
+/// @brief  Header file for the LoginBox GUI component.
 /// @author Rafael Galvan, 2024
 
 #pragma once
@@ -37,17 +38,17 @@ namespace GUI {
 
 struct UserProfile
 {
-    int                 user_id;
-    std::string         username;
-    std::string         email;
-    std::string         avatar_url;
-    Ogre::TexturePtr    avatar;
+    int                         user_id;
+    std::string                 username;
+    std::string                 email;
+    std::string                 avatar_url;
+    Ogre::TexturePtr            avatar;
 };
 
 struct UserAuthToken
 {
-    std::string         login_token;
-    std::string         refresh_token;
+    std::string                 login_token;
+    std::string                 refresh_token;
 };
 
 class LoginBox
@@ -56,27 +57,27 @@ public:
     LoginBox();
     ~LoginBox();
 
-    void                                SetVisible(bool visible);
-    bool                                IsVisible() const { return m_is_visible; }
-    void                                ShowError(std::string const& msg);
+    void                        SetVisible(bool visible);
+    bool                        IsVisible() const { return m_is_visible; }
+    void                        ShowError(std::string const& msg);
 
-    void                                ConfirmTfa();
-    void                                TriggerTfa();
-    void                                NeedsTfa(std::vector<std::string> tfa_providers);
-    void                                TfaTriggered();
+    void                        ConfirmTfa();
+    void                        TriggerTfa();
+    void                        NeedsTfa(std::vector<std::string> tfa_providers);
+    void                        TfaTriggered();
 
-    void                                Login();
-    void                                Logout();
-    void                                Draw();
-    void                                FetchUserProfile();
-    void                                FetchUserProfileAvatar();
-    void                                UpdateUserProfile(UserProfile* data);
-    void                                UpdateUserAuth(UserAuthToken* data);
-    void                                UpdateUserProfileAvatar(std::string file);
-    void                                ValidateOrRefreshToken();
+    void                        Login();
+    void                        Logout();
+    void                        Draw();
+    void                        FetchUserProfile();
+    void                        FetchUserProfileAvatar();
+    void                        UpdateUserProfile(UserProfile* data);
+    void                        UpdateUserAuth(UserAuthToken* data);
+    void                        UpdateUserProfileAvatar(std::string file);
+    void                        ValidateOrRefreshToken();
 
-    UserProfile                         GetUserProfile() { return m_user_profile; }
-    int                                 GetUserAuthStatus() const { return m_logged_in;  }
+    UserProfile                 GetUserProfile() { return m_user_profile; }
+    int                         GetUserAuthStatus() const { return m_logged_in;  }
 
 private:
     bool                        m_is_visible = false;

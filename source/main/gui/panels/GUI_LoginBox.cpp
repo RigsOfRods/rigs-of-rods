@@ -106,9 +106,6 @@ void GetUserProfileAvatarTask(int user_id, std::string avatar_url)
 
     curl_easy_cleanup(curl);
     curl = nullptr;
-    // sweep sweep
-    // send back the file saved to the request queue
-    // so wecan update the user icon on the fly
     App::GetGameContext()->PushMessage(Message(MSG_NET_USERPROFILE_AVATAR_FINISHED, file));
 }
 
@@ -128,7 +125,7 @@ void UserAuthInvalidateTokenTask()
     slist = curl_slist_append(slist, auth_header.c_str());
 
     CURL* curl = curl_easy_init();
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // todo api url + endpoint
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 #ifdef _WIN32
     curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
 #endif // _WIN32
@@ -174,7 +171,7 @@ void GetUserProfileTask()
     slist = curl_slist_append(slist, auth_header.c_str());
 
     CURL* curl = curl_easy_init();
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // todo api url + endpoint
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 #ifdef _WIN32
     curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
 #endif // _WIN32
@@ -204,7 +201,7 @@ void GetUserProfileTask()
     GUI::UserProfile* user_profile_ptr = new GUI::UserProfile();
     rapidjson::Value& j_response_body = j_data_doc["me"];
     user_profile_ptr->username = j_response_body["username"].GetString();
-    user_profile_ptr->avatar_url = j_response_body["avatar_urls"]["o"].GetString(); // Consider all sizes, later
+    user_profile_ptr->avatar_url = j_response_body["avatar_urls"]["o"].GetString(); 
     user_profile_ptr->email = j_response_body["email"].GetString();
     user_profile_ptr->user_id = j_response_body["user_id"].GetInt();
     user_profile_ptr->avatar = Ogre::TexturePtr();
@@ -236,8 +233,8 @@ void ValidateOrRefreshTokenTask(std::string login_token, std::string refresh_tok
     slist = curl_slist_append(slist, "Content-Type: application/json");
 
     CURL* curl = curl_easy_init();
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str()); // todo api url + endpoint
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body.c_str()); // post request body
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body.c_str());
 #ifdef _WIN32
     curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
 #endif // _WIN32
@@ -258,13 +255,15 @@ void ValidateOrRefreshTokenTask(std::string login_token, std::string refresh_tok
     rapidjson::Document j_response_body;
     j_response_body.Parse(response_payload.c_str());
 
-    //if (j_response_body.HasParseError() || !j_response_body.IsObject())
-    //{
-    //    App::GetGameContext()->PushMessage(
-    //        Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry."))
-    //    );
-    //    return;
-    //}
+    if (j_response_body.HasParseError())
+    {
+        Ogre::LogManager::getSingleton().stream()
+            << "[RoR|UserAuthManager] Failed to parse JSON response body; the player will not be logged in in;"
+            << " Error: '" << j_response_body.GetParseError();
+        App::GetGameContext()->PushMessage(
+            Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry.")));
+        return;
+    }
 
     if (response_code != 200)
     {
@@ -328,13 +327,15 @@ void UserAuthWithTfaTask(std::string login, std::string passwd, std::string prov
     rapidjson::Document j_response_body;
     j_response_body.Parse(response_payload.c_str());
 
-    //if (j_response_body.HasParseError() || !j_response_body.IsObject())
-    //{
-    //    App::GetGameContext()->PushMessage(
-    //        Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry."))
-    //    );
-    //    return;
-    //}
+    if (j_response_body.HasParseError())
+    {
+        Ogre::LogManager::getSingleton().stream()
+            << "[RoR|UserAuthManager] Failed to parse JSON response body; the player will not be logged in in;"
+            << " Error: '" << j_response_body.GetParseError();
+        App::GetGameContext()->PushMessage(
+            Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry.")));
+        return;
+    }
 
     if (response_code == 400) // a failure, bad tfa code
     {
@@ -460,13 +461,15 @@ void UserAuthTask(std::string login, std::string passwd)
     rapidjson::Document j_response_body;
     j_response_body.Parse(response_payload.c_str());
 
-    //if (j_response_body.HasParseError() || !j_response_body.IsArray())
-    //{
-    //    App::GetGameContext()->PushMessage(
-    //        Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry."))
-    //    );
-    //    return;
-    //}
+    if (j_response_body.HasParseError())
+    {
+        Ogre::LogManager::getSingleton().stream()
+            << "[RoR|UserAuthManager] Failed to parse JSON response body; the player will not be logged in in;"
+            << " Error: '" << j_response_body.GetParseError();
+        App::GetGameContext()->PushMessage(
+            Message(MSG_NET_USERAUTH_FAILURE, _LC("Login", "There was an unexpected server error. Please retry.")));
+        return;
+    }
 
     if (response_code == 400)
     {
@@ -518,8 +521,7 @@ void UserAuthTask(std::string login, std::string passwd)
 #endif
 
 LoginBox::LoginBox()
-    : m_base_url(App::remote_query_url->getStr() + "/auth")
-{ }
+{}
 
 LoginBox::~LoginBox()
 {}
@@ -677,7 +679,6 @@ void LoginBox::ShowError(std::string const& msg)
 
 void LoginBox::UpdateUserProfileAvatar(std::string file)
 {
-    // runs on main thread? yes. thread safe? no
     m_user_profile.avatar = FetchIcon(file.c_str());
     m_user_profile.avatar->load();
 }
