@@ -270,13 +270,16 @@ void MainSelector::Draw()
                         sd_entry.sde_entry->filecachename, Ogre::RGN_DEFAULT);
                 if (preview_tex)
                 {
-                    // Scale the image
+                    // Scale the image (for dashboards only shrink but don't enlarge so players see actual in-game size).
                     ImVec2 max_size = (ImGui::GetWindowSize() * PREVIEW_SIZE_RATIO);
                     ImVec2 size(preview_tex->getWidth(), preview_tex->getHeight());
-                    size *= max_size.x / size.x; // Fit size along X
-                    if (size.y > max_size.y) // Reduce size along Y if needed
+                    if (m_loader_type != LT_DashBoard || size.x > max_size.x)
                     {
-                        size *= max_size.y / size.y;
+                        size *= max_size.x / size.x; // Fit size along X
+                        if (size.y > max_size.y) // Reduce size along Y if needed
+                        {
+                            size *= max_size.y / size.y;
+                        }
                     }
                     // Draw the image
                     ImGui::SetCursorPos((cursor_pos + ImGui::GetWindowSize()) - size);
@@ -468,6 +471,10 @@ void MainSelector::UpdateDisplayLists()
     query.cqy_search_method = m_search_method;
     query.cqy_search_string = m_search_string;
     query.cqy_filter_guid = m_filter_guid;
+    if (m_loader_type == LT_DashBoard) // HACK for dashboards
+    {
+        query.cqy_filter_category_id = App::GetGuiManager()->GameSettings.default_dash_being_selected;
+    }
 
     App::GetCacheSystem()->Query(query);
 
@@ -626,6 +633,25 @@ void MainSelector::Apply()
         App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
     {
         App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, sd_entry.sde_entry->fname));
+        this->Close();
+    }
+    else if (m_loader_type == LT_DashBoard &&
+        App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
+    {
+        switch (App::GetGuiManager()->GameSettings.default_dash_being_selected)
+        {
+        case CID_DashboardsTruck:
+            App::ui_default_truck_dash->setStr(sd_entry.sde_entry->fname);
+            break;
+        case CID_DashboardsBoat:
+            App::ui_default_boat_dash->setStr(sd_entry.sde_entry->fname);
+            break;
+        default:
+            LOG(fmt::format("[RoR|GameSettings] INTERNAL ERROR - Unrecognized dashboard type being selected ({})!",
+                (int)App::GetGuiManager()->GameSettings.default_dash_being_selected));
+            break;
+        }
+        App::GetGuiManager()->GameSettings.default_dash_being_selected = CID_None;
         this->Close();
     }
     else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)

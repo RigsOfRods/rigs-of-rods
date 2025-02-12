@@ -362,7 +362,7 @@ void ActorSpawner::InitializeRig()
     m_actor->tc_ratio = 1.f;
     m_actor->tc_timer = 0.f;
 
-    m_actor->ar_dashboard = new DashBoardManager();
+    m_actor->ar_dashboard = new DashBoardManager(m_actor);
 
     /* Collisions */
 
@@ -6826,87 +6826,32 @@ void ActorSpawner::FinalizeGfxSetup()
         {
             if (gs.key == "dashboard")
             {
-                m_actor->ar_dashboard->loadDashBoard(gs.value, false);
+                m_actor->ar_dashboard->loadDashBoard(gs.value, LOADDASHBOARD_SCREEN_HUD);
             }
             else if (gs.key == "texturedashboard")
             {
-                m_actor->ar_dashboard->loadDashBoard(gs.value, true);
+                m_actor->ar_dashboard->loadDashBoard(gs.value, LOADDASHBOARD_RTT_TEXTURE);
             }
         }
     }
 
     // If none specified, load default dashboard layouts
-    if (!m_actor->ar_dashboard->WasDashboardLoaded())
+    BitMask_t defaultdash_flags = 0;
+    BITMASK_SET_1(defaultdash_flags, m_actor->ar_dashboard->wasDashboardHudLoaded() ? 0 : LOADDASHBOARD_SCREEN_HUD);
+    BITMASK_SET_1(defaultdash_flags, m_actor->ar_dashboard->wasDashboardRttLoaded() ? 0 : LOADDASHBOARD_RTT_TEXTURE);
+    switch (m_actor->ar_driveable)
     {
-        if (m_actor->ar_driveable == TRUCK) // load default for a truck
-        {
-            if (App::gfx_speedo_digital->getBool())
-            {
-                if (App::gfx_speedo_imperial->getBool())
-                {
-                    if (m_actor->ar_engine->getShiftUpRPM() > 3500)
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_mph.layout", false); //7000 rpm tachometer thanks to Klink
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_mph.layout", true);
-                    }
-                    else
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500_mph.layout", false);
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500_mph.layout", true);
-                    }
-                }
-                else
-                {
-                    if (m_actor->ar_engine->getShiftUpRPM() > 3500)
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000.layout", false); //7000 rpm tachometer thanks to Klink
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000.layout", true);
-                    }
-                    else
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500.layout", false);
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500.layout", true);
-                    }
-                }
-            }
-            else // Analog speedometer
-            {
-                if (App::gfx_speedo_imperial->getBool())
-                {
-                    if (m_actor->ar_engine->getShiftUpRPM() > 3500)
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_analog_mph.layout", false); //7000 rpm tachometer thanks to Klink
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_analog_mph.layout", true);
-                    }
-                    else
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500_analog_mph.layout", false);
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500_analog_mph.layout", true);
-                    }
-                }
-                else
-                {
-                    if (m_actor->ar_engine->getShiftUpRPM() > 3500)
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_analog.layout", false); //7000 rpm tachometer thanks to Klink
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_analog.layout", true);
-                    }
-                    else
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500_analog.layout", false);
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500_analog.layout", true);
-                    }
-                }
-            }
-        }
-        else if (m_actor->ar_driveable == BOAT)
-        {
-            m_actor->ar_dashboard->loadDashBoard("default_dashboard_boat.layout", false);
-            m_actor->ar_dashboard->loadDashBoard("default_dashboard_boat.layout", true);
-        }
+    case TRUCK:
+        m_actor->ar_dashboard->loadDashBoard(App::ui_default_truck_dash->getStr(), defaultdash_flags);
+        m_actor->ar_dashboard->setVisible(false);
+        break;
+    case BOAT:
+        m_actor->ar_dashboard->loadDashBoard(App::ui_default_boat_dash->getStr(), defaultdash_flags);
+        m_actor->ar_dashboard->setVisible(false);
+        break;
+    default:
+        break;
     }
-
-    m_actor->ar_dashboard->setVisible(false);
 
     if (!m_help_material_name.empty())
     {

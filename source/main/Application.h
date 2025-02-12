@@ -321,6 +321,26 @@ enum LoaderType //!< Search mode for `ModCache::Query()` & Operation mode for `G
     LT_AddonPart, // No script alias, invoked manually, ext: addonpart
     LT_Tuneup,    // No script alias, invoked manually, ext: tuneup
     LT_AssetPack, // No script alias, invoked manually, ext: assetpack
+    LT_DashBoard, // No script alias, invoked manually, ext: dashboard
+};
+
+enum CacheCategoryId
+{
+    CID_None = 0,
+
+    CID_DashboardsGeneric = 200,
+    CID_DashboardsTruck = 201,
+    CID_DashboardsBoat = 202,
+
+    CID_Projects = 8000, //!< For truck files under 'projects/' directory, to allow listing from editors.
+    CID_Tuneups = 8001, //!< For unsorted tuneup files.
+
+    CID_Max = 9000, //!< SPECIAL VALUE - Maximum allowed to be present in any mod files.
+    CID_Unsorted = 9990,
+    CID_All = 9991,
+    CID_Fresh = 9992,
+    CID_Hidden = 9993,
+    CID_SearchResults = 9994,
 };
 
 enum class TObjSpecialObject
@@ -518,7 +538,6 @@ extern CVar* gfx_fov_internal_default;
 extern CVar* gfx_static_cam_fov_exp;
 extern CVar* gfx_fixed_cam_tracking;
 extern CVar* gfx_fps_limit;
-extern CVar* gfx_speedo_digital;
 extern CVar* gfx_speedo_imperial;
 extern CVar* gfx_flexbody_cache;
 extern CVar* gfx_reduce_shadows;
@@ -538,8 +557,10 @@ extern CVar* flexbody_defrag_invert_lookup;
 // GUI
 extern CVar* ui_show_live_repair_controls; //!< bool
 extern CVar* ui_show_vehicle_buttons;
-extern CVar* ui_preset; //!< enum `RoR::UiPreset`
-extern CVar* ui_hide_gui; //!< bool; The 'hide GUI' hotkey state
+extern CVar* ui_preset;                    //!< enum `RoR::UiPreset`
+extern CVar* ui_hide_gui;                  //!< bool; The 'hide GUI' hotkey state
+extern CVar* ui_default_truck_dash;        //!< string; name of the '.dashboard' file in modcache.
+extern CVar* ui_default_boat_dash;         //!< string; name of the '.dashboard' file in modcache.
 
 // ------------------------------------------------------------------------------------------------
 // Global objects
