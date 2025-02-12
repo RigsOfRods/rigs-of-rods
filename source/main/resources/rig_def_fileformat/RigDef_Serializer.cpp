@@ -2125,18 +2125,21 @@ void Serializer::ProcessHydro(Hydro & def)
     if (BITMASK_IS_1(def.options, Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER )) m_stream << (char)HydroOption::h_INPUT_InvELEVATOR_RUDDER ;
     if (BITMASK_IS_1(def.options, Hydro::OPTION_n_INPUT_NORMAL             )) m_stream << (char)HydroOption::n_INPUT_NORMAL;
     if (def.options == 0) m_stream << (char)HydroOption::n_INPUT_NORMAL;
-    m_stream << ", ";
 
     // Inertia
     Inertia & inertia = def.inertia;
-    m_stream << std::setw(m_float_width) << inertia.start_delay_factor  << ", ";
-    m_stream << std::setw(m_float_width) << inertia.stop_delay_factor;
-    if (!inertia.start_function.empty())
+    if (inertia.start_delay_factor != 0 && inertia.stop_delay_factor != 0)
     {
-        m_stream << ", " << std::setw(m_inertia_function_width) << inertia.start_function;
-        if (!inertia.stop_function.empty())
+        m_stream << ", ";
+        m_stream << std::setw(m_float_width) << inertia.start_delay_factor << ", ";
+        m_stream << std::setw(m_float_width) << inertia.stop_delay_factor;
+        if (!inertia.start_function.empty())
         {
-            m_stream << ", " << std::setw(m_inertia_function_width) << inertia.stop_function;
+            m_stream << ", " << std::setw(m_inertia_function_width) << inertia.start_function;
+            if (!inertia.stop_function.empty())
+            {
+                m_stream << ", " << std::setw(m_inertia_function_width) << inertia.stop_function;
+            }
         }
     }
     m_stream << endl;

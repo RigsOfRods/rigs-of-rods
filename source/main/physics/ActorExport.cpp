@@ -86,6 +86,27 @@ static void UpdateSetNodeDefaults(std::shared_ptr<NodeDefaults>& node_defaults, 
     }
 }
 
+static void UpdateSetInertiaDefaults(std::shared_ptr<Inertia>& inertia_defaults, Actor* actor, CmdKeyInertia& cmdkey_inertia)
+{
+    const float start_delay = cmdkey_inertia.GetStartDelay();
+    const float stop_delay = cmdkey_inertia.GetStopDelay();
+    const std::string startfn = cmdkey_inertia.GetStartFunction();
+    const std::string stopfn = cmdkey_inertia.GetStopFunction();
+
+    if (inertia_defaults->start_delay_factor != start_delay
+        || inertia_defaults->stop_delay_factor != stop_delay
+        || inertia_defaults->start_function != startfn
+        || inertia_defaults->stop_function != stopfn
+        )
+    {
+        inertia_defaults = std::shared_ptr<Inertia>(new Inertia);
+        inertia_defaults->start_delay_factor = start_delay;
+        inertia_defaults->stop_delay_factor = stop_delay;
+        inertia_defaults->start_function = startfn;
+        inertia_defaults->stop_function = stopfn;
+    }
+}
+
 void Actor::propagateNodeBeamChangesToDef()
 {
     // PROOF OF CONCEPT:
@@ -110,7 +131,7 @@ void Actor::propagateNodeBeamChangesToDef()
     m_used_actor_entry->actor_def->root_module->shocks.clear();
     m_used_actor_entry->actor_def->root_module->shocks2.clear();
     m_used_actor_entry->actor_def->root_module->shocks3.clear();
-
+    m_used_actor_entry->actor_def->root_module->hydros.clear();
 
     // Prepare 'set_node_defaults' with builtin values.
     auto node_defaults = std::shared_ptr<NodeDefaults>(new NodeDefaults); // comes pre-filled
@@ -126,6 +147,9 @@ void Actor::propagateNodeBeamChangesToDef()
     beam_defaults->deformation_threshold = BEAM_DEFORM;
     beam_defaults->breaking_threshold    = BEAM_BREAK;
     beam_defaults->visual_beam_diameter  = DEFAULT_BEAM_DIAMETER;
+
+    // Prepare 'set_inertia_defaults' with builtin values.
+    auto inertia_defaults = std::shared_ptr<Inertia>(new Inertia);
 
     // Prepare 'detacher_group' with builtin values.
     int detacher_group = DEFAULT_DETACHER_GROUP;
@@ -601,15 +625,18 @@ void Actor::propagateNodeBeamChangesToDef()
         const beam_t& beam = ar_beams[i];
         if (beam.bm_type != BEAM_HYDRO)
         {
-            continue;
+            continue; // Should never happen.
         }
 
         UpdateSetBeamDefaults(beam_defaults, this, i);
+        UpdateSetInertiaDefaults(inertia_defaults, this, hydrobeam.hb_inertia);
 
         RigDef::Hydro def;
         def.beam_defaults = beam_defaults;
+        def.inertia_defaults = inertia_defaults;
         def.nodes[0] = BuildNodeRef(this, beam.p1->pos);
         def.nodes[1] = BuildNodeRef(this, beam.p2->pos);
+        def.lenghtening_factor = hydrobeam.hb_speed;
 
         // individual options
         if (ar_beams_invisible[i])
