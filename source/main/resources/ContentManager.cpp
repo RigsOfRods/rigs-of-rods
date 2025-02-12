@@ -278,6 +278,8 @@ void ContentManager::InitModCache(CacheValidity validity)
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_process_dir->getStr(), "content") , "FileSystem", RGN_CONTENT);
     std::string objects = PathCombine("resources", "beamobjects.zip");
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_process_dir->getStr(), objects)   , "Zip"       , RGN_CONTENT);
+    std::string dashboards = PathCombine("resources", "dashboards.zip"); // To find 'default.dashboard' mod
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_process_dir->getStr(), dashboards), "Zip", RGN_CONTENT);
     
     // Create RGN_TEMP in recursive mode to find all subdirectories.
 

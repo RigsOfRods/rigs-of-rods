@@ -33,6 +33,8 @@ public:
     bool IsVisible() const { return m_is_visible; }
     void SetVisible(bool v);
 
+    CacheCategoryId default_dash_being_selected = CID_None;
+
 private:
     void DrawRenderSystemSettings();
     void DrawGeneralSettings();
@@ -43,8 +45,12 @@ private:
     void DrawControlSettings();
     void DrawDiagSettings();
 
-    // Helpers
+    // UI settings
+    const float UI_SELECTOR_WIDTH = 275.0f;
     void DrawUiPresetCombo();
+    void DrawUiDefaultDashboard(CacheEntryPtr& entry, CVar* cvar, CacheCategoryId category_id, const std::string& label);
+    CacheEntryPtr m_ui_known_dash_truck;
+    CacheEntryPtr m_ui_known_dash_boat;
 
     // GUI state
     bool m_is_visible = false;

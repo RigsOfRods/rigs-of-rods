@@ -139,6 +139,7 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("addonpart");
     m_known_extensions.push_back("tuneup");
     m_known_extensions.push_back("assetpack");
+    m_known_extensions.push_back("dashboard");
 
     // register the dirs
     m_content_dirs.push_back("mods");
@@ -198,6 +199,7 @@ CacheEntryPtr CacheSystem::FindEntryByFilename(LoaderType type, bool partial, co
     for (CacheEntryPtr& entry : m_entries)
     {
         if ((type == LT_Terrain) != (entry->fext == "terrn2") ||
+            (type == LT_DashBoard) != (entry->fext == "dashboard") ||
             (type == LT_AllBeam && entry->fext == "skin"))
             continue;
 
@@ -793,6 +795,12 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
             FillAssetPackDetailInfo(entry, ds);
             new_entries.push_back(entry);
         }
+        else if (ext == "dashboard")
+        {
+            CacheEntryPtr entry = new CacheEntry();
+            FillDashboardDetailInfo(entry, ds);
+            new_entries.push_back(entry);
+        }
         else
         {
             CacheEntryPtr entry = new CacheEntry();
@@ -1283,6 +1291,43 @@ void CacheSystem::FillAssetPackDetailInfo(CacheEntryPtr &entry, Ogre::DataStream
 
         ctx->seekNextLine();
     }
+}
+
+void CacheSystem::FillDashboardDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds)
+{
+    GenericDocumentPtr doc = new GenericDocument();
+    BitMask_t options = GenericDocument::OPTION_ALLOW_SLASH_COMMENTS;
+    doc->loadFromDataStream(ds, options);
+
+    GenericDocContextPtr ctx = new GenericDocContext(doc);
+    while (!ctx->endOfFile())
+    {
+        if (ctx->isTokKeyword() && ctx->getTokKeyword() == "dashboard_name" && ctx->isTokString(1))
+        {
+            entry->dname = ctx->getTokString(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "dashboard_description" && ctx->isTokString(1))
+        {
+            entry->description = ctx->getTokString(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "dashboard_category" && ctx->isTokInt(1))
+        {
+            entry->categoryid = ctx->getTokInt(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "dashboard_author")
+        {
+            int n = ctx->countLineArgs();
+            AuthorInfo author;
+            if (n > 1) { author.type = ctx->getTokString(1); }
+            if (n > 2) { author.id = ctx->getTokInt(2); }
+            if (n > 3) { author.name = ctx->getTokString(3); }
+            if (n > 4) { author.email = ctx->getTokString(4); }
+            entry->authors.push_back(author);
+        }
+
+        ctx->seekNextLine();
+    }
+
 }
 
 void CacheSystem::FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneup_def)
@@ -2140,6 +2185,8 @@ size_t CacheSystem::Query(CacheQuery& query)
             add = (query.cqy_filter_type == LT_Tuneup);
         else if (entry->fext == "assetpack")
             add = (query.cqy_filter_type == LT_AssetPack);
+        else if (entry->fext == "dashboard")
+            add = (query.cqy_filter_type == LT_DashBoard);
         else if (entry->fext == "truck")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck);
         else if (entry->fext == "car")

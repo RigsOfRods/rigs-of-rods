@@ -376,7 +376,7 @@ void OverlayWrapper::showDashboardOverlays(bool show, ActorPtr actor)
     m_dashboard_visible = show;
 
     // check if we use the new style dashboards
-    if (actor && actor->ar_dashboard && actor->ar_dashboard->WasDashboardLoaded())
+    if (actor && actor->ar_dashboard && actor->ar_dashboard->wasDashboardHudLoaded())
     {
         actor->ar_dashboard->setVisible(show);
         return;

@@ -144,21 +144,6 @@ public:
 
 typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
 
-enum CacheCategoryId
-{
-    CID_None          = 0,
-
-    CID_Projects      = 8000, //!< For truck files under 'projects/' directory, to allow listing from editors.
-    CID_Tuneups       = 8001, //!< For unsorted tuneup files.
-
-    CID_Max           = 9000, //!< SPECIAL VALUE - Maximum allowed to be present in any mod files.
-    CID_Unsorted      = 9990,
-    CID_All           = 9991,
-    CID_Fresh         = 9992,
-    CID_Hidden        = 9993,
-    CID_SearchResults = 9994,
-};
-
 struct CacheQueryResult
 {
     CacheQueryResult(CacheEntryPtr entry, size_t score);
@@ -370,6 +355,7 @@ private:
     void FillAddonPartDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds);
     void FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneup_def);
     void FillAssetPackDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds);
+    void FillDashboardDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds);
     /// @}
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
@@ -428,6 +414,11 @@ private:
             {859, _LC("ModCategory", "Container")},
 
             {875, _LC("ModCategory", "Submarine")},
+
+            // dashboards
+            {200, _LC("ModCategory", "Dashboards - Generic")},
+            {201, _LC("ModCategory", "Dashboards - Truck")},
+            {202, _LC("ModCategory", "Dashboards - Boat")},
 
             // note: these categories are NOT in the repository:
             {5000, _LC("ModCategory", "Official Terrains")},

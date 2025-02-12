@@ -184,7 +184,6 @@ void Console::cVarSetupBuiltins()
     App::gfx_static_cam_fov_exp  = this->cVarCreate("gfx_static_cam_fov_exp",  "",                           CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "1.0");
     App::gfx_fixed_cam_tracking  = this->cVarCreate("gfx_fixed_cam_tracking",  "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::gfx_fps_limit           = this->cVarCreate("gfx_fps_limit",           "FPS-Limiter",                CVAR_ARCHIVE | CVAR_TYPE_INT,     "0");
-    App::gfx_speedo_digital      = this->cVarCreate("gfx_speedo_digital",      "DigitalSpeedo",              CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::gfx_speedo_imperial     = this->cVarCreate("gfx_speedo_imperial",     "gfx_speedo_imperial",        CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::gfx_flexbody_cache      = this->cVarCreate("gfx_flexbody_cache",      "Flexbody_UseCache",          CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::gfx_reduce_shadows      = this->cVarCreate("gfx_reduce_shadows",      "Shadow optimizations",       CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
@@ -204,6 +203,8 @@ void Console::cVarSetupBuiltins()
     App::ui_show_vehicle_buttons           = this->cVarCreate("ui_show_vehicle_buttons", "Show vehicle buttons menu", CVAR_ARCHIVE | CVAR_TYPE_BOOL, "true");
     App::ui_preset                         = this->cVarCreate("ui_preset",                         "", CVAR_ARCHIVE | CVAR_TYPE_INT, "0"/*(int)UiPreset::NOVICE*/);
     App::ui_hide_gui                       = this->cVarCreate("ui_hide_gui",                       "", CVAR_TYPE_BOOL, "false");
+    App::ui_default_truck_dash             = this->cVarCreate("ui_default_truck_dash",             "", CVAR_ARCHIVE, "default_truck_digital.dashboard");
+    App::ui_default_boat_dash              = this->cVarCreate("ui_default_boat_dash",              "", CVAR_ARCHIVE, "default_boat.dashboard");
 }
 
 CVar* Console::cVarCreate(std::string const& name, std::string const& long_name,

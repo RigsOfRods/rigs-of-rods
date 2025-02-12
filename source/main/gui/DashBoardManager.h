@@ -201,11 +201,18 @@ enum DashData
     DD_MAX
 };
 
+enum LoadDashBoardFlags
+{
+    LOADDASHBOARD_SCREEN_HUD = BITMASK(1), //!< Will be drawn to screen. Unless STACKABLE, it prevents the default dashboard from loading.
+    LOADDASHBOARD_RTT_TEXTURE = BITMASK(2), //!< Will be drawn to texture. Unless STACKABLE, it prevents the default dashboard from loading.
+    LOADDASHBOARD_STACKABLE = BITMASK(3) //!< Allows loading multiple dashboards at once (by default there's only one for screen and one for RTT).
+};
+
 // this class is NOT intended to be thread safe - performance is required
 class DashBoardManager
 {
 public:
-    DashBoardManager(void);
+    DashBoardManager(ActorPtr actor);
     ~DashBoardManager(void);
 
     // Getter / Setter
@@ -228,21 +235,27 @@ public:
     int getLinkIDForName(Ogre::String& str);
     std::string getLinkNameForID(DashData id);
 
-    int loadDashBoard(Ogre::String filename, bool textureLayer);
+    void loadDashBoard(const std::string& filename, BitMask_t flags);
 
     void update(float dt);
     void updateFeatures();
 
-    bool WasDashboardLoaded() const { return (m_dashboards.size() > 0); };
+    bool wasDashboardHudLoaded() const { return m_hud_loaded; };
+    bool wasDashboardRttLoaded() const { return m_rtt_loaded; };
 
     void setVisible(bool visibility);
     void setVisible3d(bool visibility);
     bool getVisible() { return visible; };
     void windowResized();
 protected:
+    std::string determineLayoutFromDashboardMod(CacheEntryPtr& entry, std::string const& basename);
+    std::string determineTruckLayoutFromDashboardMod(Ogre::FileInfoListPtr& filelist);
     bool visible = false;
     dashData_t data[DD_MAX];
     std::vector<DashBoard*> m_dashboards;
+    bool m_hud_loaded = false;
+    bool m_rtt_loaded = false;
+    ActorPtr m_actor;
 };
 
 class DashBoard

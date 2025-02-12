@@ -242,7 +242,6 @@ CVar* gfx_fov_internal_default;
 CVar* gfx_static_cam_fov_exp;
 CVar* gfx_fixed_cam_tracking;
 CVar* gfx_fps_limit;
-CVar* gfx_speedo_digital;
 CVar* gfx_speedo_imperial;
 CVar* gfx_flexbody_cache;
 CVar* gfx_reduce_shadows;
@@ -264,6 +263,8 @@ CVar* ui_show_live_repair_controls;
 CVar* ui_show_vehicle_buttons;
 CVar* ui_preset;
 CVar* ui_hide_gui;
+CVar* ui_default_truck_dash;
+CVar* ui_default_boat_dash;
 
 // Instance access
 AppContext*            GetAppContext         () { return &g_app_context; };

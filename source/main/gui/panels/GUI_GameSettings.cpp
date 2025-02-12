@@ -341,9 +341,9 @@ void GameSettings::DrawUiSettings()
 
     this->DrawUiPresetCombo();
 
-    ImGui::Separator();
+    this->DrawUiDefaultDashboard(m_ui_known_dash_truck, App::ui_default_truck_dash, CID_DashboardsTruck, _LC("GameSettings", "Default truck dashboard"));
+    this->DrawUiDefaultDashboard(m_ui_known_dash_boat, App::ui_default_boat_dash, CID_DashboardsBoat, _LC("GameSettings", "Default boat dashboard"));
 
-    DrawGCheckbox(App::gfx_speedo_digital, _LC("GameSettings", "Digital speedometer"));
     DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial units"));
 
     DrawGCheckbox(App::ui_show_live_repair_controls, _LC("GameSettings", "Show controls in live repair box"));
@@ -614,6 +614,7 @@ void GameSettings::DrawUiPresetCombo()
 {
     ImGui::PushID("uiPreset");
 
+    ImGui::SetNextItemWidth(UI_SELECTOR_WIDTH);
     if (DrawGCombo(App::ui_preset, _LC("TopMenubar", "UI Preset"), m_cached_uipreset_combo_string.c_str()))
     {
         App::GetGuiManager()->ApplyUiPreset();
@@ -667,4 +668,23 @@ void GameSettings::DrawUiPresetCombo()
     }
 
     ImGui::PopID(); //"uiPreset"
+}
+
+void GameSettings::DrawUiDefaultDashboard(CacheEntryPtr& entry, CVar* cvar, CacheCategoryId category_id, const std::string& label)
+{
+    if (!entry || entry->fname != cvar->getStr())
+    {
+        entry = App::GetCacheSystem()->FindEntryByFilename(LT_DashBoard, /* partial: */false, cvar->getStr());
+    }
+
+    ImGui::AlignTextToFramePadding();
+    std::string caption = fmt::format("{}##truck_dash", entry ? entry->dname : cvar->getStr());
+    if (ImGui::Button(caption.c_str(), ImVec2(UI_SELECTOR_WIDTH, 0.f)))
+    {
+        default_dash_being_selected = category_id;
+        LoaderType* payload = new LoaderType(LoaderType::LT_DashBoard);
+        App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_SELECTOR_REQUESTED, (void*)payload));
+    }
+    ImGui::SameLine();
+    ImGui::Text("%s", label.c_str());
 }

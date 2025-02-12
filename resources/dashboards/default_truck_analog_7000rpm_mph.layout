@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="ImageBox" skin="ImageBox" position="0 114 1024 795" align="Strech" layer="Back" name="_Main">
+        <Widget type="ImageBox" skin="ImageBox" position="745 683 26 101" align="Right Bottom" layer="Back" name="autoGearImage">
+            <Property key="ImageTexture" value="autogears.png"/>
+            <UserString key="link" value="engine_autogear_string"/>
+        </Widget>
+        <Widget type="ImageBox" skin="ImageBox" position="770 544 250 250" align="Right Bottom" layer="Back" name="SpeedoGauge">
+            <Property key="ImageTexture" value="speedo130_analog_mph.png"/>
+            <UserString key="link" value="speedo_mph"/>
+            <Widget type="ImageBox" skin="ImageBox" position="101 42 49 49" name="lightsParkingBrake">
+                <Property key="ImageTexture" value="pbrake_v2-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="link" value="parkingbrake"/>
+                <UserString key="texture" value="pbrake_v2"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="108 76 35 35" name="lightsBattery">
+                <Property key="ImageTexture" value="batt_v2-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="texture" value="batt_v2"/>
+                <UserString key="link" value="engine_battery"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="68 75 31 40" name="turn_signal_left">
+                <Property key="ImageTexture" value="turn_signal_left-off.png"/>
+                <UserString key="link" value="signal_turnleft"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="texture" value="turn_signal_left"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="153 75 31 40" name="turn_signal_right">
+                <Property key="ImageTexture" value="turn_signal_right-off.png"/>
+                <UserString key="link" value="signal_turnright"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="texture" value="turn_signal_right"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="56 108 35 35" name="lightsSidelights">
+                <Property key="ImageTexture" value="sidelights-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="link" value="sidelights"/>
+                <UserString key="texture" value="sidelights"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="63 137 35 35" name="lightsHeadlights">
+                <Property key="ImageTexture" value="headlights-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="link" value="headlights"/>
+                <UserString key="texture" value="headlights"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="51 182 35 35" name="cruiseControl">
+                <Property key="ImageTexture" value="cruisecontrol-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="link" value="cruisecontrol_active"/>
+                <UserString key="texture" value="cruisecontrol"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="156 107 35 35" name="ign">
+                <Property key="ImageTexture" value="ign_v2-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="texture" value="ign_v2"/>
+                <UserString key="link" value="engine_ignition"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="154 144 25 25" name="lightsClutch">
+                <Property key="ImageTexture" value="clutch_v2-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="link" value="engine_clutch_warning"/>
+                <UserString key="texture" value="clutch_v2"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="166 187 25 25" name="lightsPressure">
+                <Property key="ImageTexture" value="lopress_v2-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="texture" value="lopress_v2"/>
+                <UserString key="link" value="low_pressure"/>
+            </Widget>
+        </Widget>
+        <Widget type="ImageBox" skin="ImageBox" position="557 610 180 180" align="Right Bottom" layer="Back" name="RPMGauge">
+            <Property key="ImageTexture" value="rpm_gauge_8000.png"/>
+            <UserString key="link" value="rpm"/>
+            <Widget type="ImageBox" skin="ImageBox" position="89 44 35 35" name="lightsHighbeams">
+                <Property key="ImageTexture" value="highbeams-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="link" value="highbeams"/>
+                <UserString key="texture" value="highbeams"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="57 44 35 35" name="lightsFogFront">
+                <Property key="ImageTexture" value="foglights_front-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="link" value="foglights"/>
+                <UserString key="texture" value="foglights_front"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="45 74 28 28" name="lightsTies">
+                <Property key="ImageTexture" value="locked_v2-0.png"/>
+                <UserString key="texture" value="locked_v2"/>
+                <UserString key="link" value="ties_mode"/>
+                <UserString key="anim" value="series"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="110 77 25 25" name="lightsLocked">
+                <Property key="ImageTexture" value="secured_v2-off.png"/>
+                <UserString key="anim" value="lamp"/>
+                <UserString key="texture" value="secured_v2"/>
+                <UserString key="link" value="locked"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="96 118 25 25" name="antilockbrakeLight">
+                <Property key="ImageTexture" value="antilockbrake_v2-0.png"/>
+                <UserString key="anim" value="series"/>
+                <UserString key="link" value="antilockbrake_mode"/>
+                <UserString key="texture" value="antilockbrake_v2"/>
+            </Widget>
+            <Widget type="ImageBox" skin="ImageBox" position="59 118 25 25" name="tractionControlLight">
+                <Property key="ImageTexture" value="tractioncontrol-0.png"/>
+                <UserString key="anim" value="series"/>
+                <UserString key="link" value="tractioncontrol_mode"/>
+                <UserString key="texture" value="tractioncontrol"/>
+            </Widget>
+            <Widget type="TextBox" skin="TextBox" position="67 140 46 26" name="textGear">
+                <Property key="Caption" value="1/12"/>
+                <Property key="FontHeight" value="18"/>
+                <Property key="TextColour" value="1 1 1"/>
+                <Property key="TextAlign" value="Center"/>
+                <Property key="FontName" value="DefaultDashFont"/>
+                <UserString key="anim" value="textstring"/>
+                <UserString key="link" value="engine_gear_string"/>
+            </Widget>
+        </Widget>
+        <Widget type="ImageBox" skin="ImageBox" position="848 693 90 90" align="Right Bottom" layer="Back" name="TurboGauge">
+            <Property key="ImageTexture" value="turbo_v3.png"/>
+            <UserString key="link" value="engine_turbo"/>
+            <Widget type="ImageBox" skin="RotatingSkin" position="2 2 86 86">
+                <Property key="ImageTexture" value="redneedle_v2.png"/>
+                <UserString key="link" value="engine_turbo"/>
+                <UserString key="anim" value="rotate"/>
+                <UserString key="vmax" value="100"/>
+                <UserString key="vmin" value="0"/>
+                <UserString key="max" value="130.5"/>
+                <UserString key="min" value="-130.5"/>
+                <Widget type="ImageBox" skin="ImageBox" position="36 36 14 14">
+                    <Property key="ImageTexture" value="needle_prt2.png"/>
+                </Widget>
+            </Widget>
+        </Widget>
+        <Widget type="ImageBox" skin="RotatingSkin" position="770 544 250 250" align="Right Bottom" style="Overlapped" layer="Middle" name="SpeedoNeedle">
+            <Property key="ImageTexture" value="redneedle_v2.png"/>
+            <UserString key="anim" value="rotate"/>
+            <UserString key="vmin" value="0"/>
+            <UserString key="link" value="speedo_mph"/>
+            <UserString key="vmax" value="130"/>
+            <UserString key="max" value="130"/>
+            <UserString key="min" value="-130"/>
+            <Widget type="ImageBox" skin="ImageBox" position="109 109 32 32">
+                <Property key="ImageTexture" value="needle_prt2.png"/>
+            </Widget>
+        </Widget>
+        <Widget type="ImageBox" skin="RotatingSkin" position="560 613 174 174" align="Right Bottom" style="Overlapped" layer="Middle" name="RPMNeedle">
+            <Property key="ImageTexture" value="redneedle_v2.png"/>
+            <UserString key="anim" value="rotate"/>
+            <UserString key="vmin" value="0"/>
+            <UserString key="link" value="rpm"/>
+            <UserString key="vmax" value="8000"/>
+            <UserString key="max" value="130"/>
+            <UserString key="min" value="-130"/>
+            <Widget type="ImageBox" skin="ImageBox" position="76 76 21 21">
+                <Property key="ImageTexture" value="needle_prt2.png"/>
+            </Widget>
+        </Widget>
+        <Widget type="TextBox" skin="TextBox" position="747 682 22 101" align="Right Bottom" layer="Main" name="textAutoGear">
+            <Property key="Caption" value="R\nN\nD\n1\n2"/>
+            <Property key="FontName" value="DefaultDashFont"/>
+            <Property key="TextAlign" value="Center"/>
+            <Property key="FontHeight" value="18"/>
+            <UserString key="anim" value="textstring"/>
+            <UserString key="link" value="engine_autogear_string"/>
+        </Widget>
+        <Widget type="ImageBox" skin="ImageBox" position="458 612 100 90" align="Right Bottom" name="roll">
+            <Property key="ImageTexture" value="anglo_v.png"/>
+            <Property key="Alpha" value="1"/>
+            <UserString key="link" value="roll"/>
+            <Widget type="ImageBox" skin="RotatingSkin" position="0 12 100 100" name="rollNeedle">
+                <Property key="ImageTexture" value="redneedle_v2.png"/>
+                <UserString key="link" value="roll"/>
+                <UserString key="anim" value="rotate"/>
+                <UserString key="min" value="-36"/>
+                <UserString key="vmin" value="22"/>
+                <UserString key="vmax" value="-22"/>
+                <UserString key="max" value="36"/>
+                <Widget type="ImageBox" skin="ImageBox" position="42 42 16 16">
+                    <Property key="ImageTexture" value="needle_prt2.png"/>
+                </Widget>
+            </Widget>
+        </Widget>
+        <Widget type="ImageBox" skin="ImageBox" position="458 702 100 90" align="Right Bottom" name="pitch">
+            <Property key="ImageTexture" value="anglo_h.png"/>
+            <Property key="Alpha" value="1"/>
+            <UserString key="link" value="pitch"/>
+            <Widget type="ImageBox" skin="RotatingSkin" position="0 12 100 100" name="pitchNeedle">
+                <Property key="ImageTexture" value="redneedle_v2.png"/>
+                <UserString key="link" value="pitch"/>
+                <UserString key="vmax" value="-45"/>
+                <UserString key="vmin" value="45"/>
+                <UserString key="max" value="36"/>
+                <UserString key="min" value="-36"/>
+                <UserString key="anim" value="rotate"/>
+                <Widget type="ImageBox" skin="ImageBox" position="42 42 16 16">
+                    <Property key="ImageTexture" value="needle_prt2.png"/>
+                </Widget>
+            </Widget>
+        </Widget>
+    </Widget>
+</MyGUI>
