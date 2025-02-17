@@ -1080,7 +1080,14 @@ void AeroEngineWidget::Setup(std::string const& engfire_elemname, std::string co
     // Because highlighting works on per-material basis, we must clone the material for each element
     engfire_element = Ogre::OverlayManager::getSingleton().getOverlayElement(engfire_elemname);
     thr_element = Ogre::OverlayManager::getSingleton().getOverlayElement(thr_elemname);
-    thr_element->setMaterial(thr_element->getMaterial()->clone(thr_element->getMaterial()->getName() + "@" + thr_elemname));
+    thr_material = thr_element->getMaterial()->clone(thr_element->getMaterial()->getName() + "@" + thr_elemname);
+    thr_element->setMaterial(thr_material);
+}
+
+AeroEngineWidget::~AeroEngineWidget()
+{
+    // Remove cloned materials
+    Ogre::MaterialManager::getSingleton().remove(thr_material);
 }
 
 bool AeroEngineWidget::UpdateMouseHover()
@@ -1119,6 +1126,13 @@ void AeroSwitchWidget::Setup(std::string const & elem_name, std::string const & 
     off_material = Ogre::MaterialManager::getSingleton().getByName(mat_off)->clone(elem_name + "@" + mat_off);
 }
 
+AeroSwitchWidget::~AeroSwitchWidget()
+{
+    // Remove cloned materials
+    Ogre::MaterialManager::getSingleton().remove(on_material);
+    Ogre::MaterialManager::getSingleton().remove(off_material);
+}
+
 bool AeroSwitchWidget::UpdateMouseHover()
 {
     // Element's current material switches dynamically based on game state, we must always sync both variants.
@@ -1150,9 +1164,18 @@ void AeroTrimWidget::Setup(std::string const & up, std::string const & dn, std::
     // Because highlighting works on per-material basis, we must clone the material for each element
     display = Ogre::OverlayManager::getSingleton().getOverlayElement(disp);
     up_button = Ogre::OverlayManager::getSingleton().getOverlayElement(up);
-    up_button->setMaterial(up_button->getMaterial()->clone(up + "$" + disp));
+    up_material = up_button->getMaterial()->clone(up + "$" + disp);
+    up_button->setMaterial(up_material);
     dn_button = Ogre::OverlayManager::getSingleton().getOverlayElement(dn);
-    dn_button->setMaterial(dn_button->getMaterial()->clone(dn + "$" + disp));
+    down_material = dn_button->getMaterial()->clone(dn + "$" + disp);
+    dn_button->setMaterial(down_material);
+}
+
+AeroTrimWidget::~AeroTrimWidget()
+{
+    // Remove cloned materials
+    Ogre::MaterialManager::getSingleton().remove(up_material);
+    Ogre::MaterialManager::getSingleton().remove(down_material);
 }
 
 bool AeroTrimWidget::UpdateMouseHover()

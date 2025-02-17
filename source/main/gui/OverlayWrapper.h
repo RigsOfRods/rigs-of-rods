@@ -44,11 +44,13 @@ struct AeroInteractiveWidget
 
 struct AeroEngineWidget : public AeroInteractiveWidget
 {
+    ~AeroEngineWidget();
     void Setup(std::string const& engfire_elemname, std::string const& thr_elemname);
     bool UpdateMouseHover() override;
     Ogre::OverlayElement* GetHoveredElement() const override;
 
     Ogre::OverlayElement *thr_element;
+    Ogre::MaterialPtr thr_material;
     Ogre::OverlayElement *engfire_element;
     Ogre::TextureUnitState *rpm_texture;
     Ogre::TextureUnitState *pitch_texture;
@@ -57,6 +59,7 @@ struct AeroEngineWidget : public AeroInteractiveWidget
 
 struct AeroSwitchWidget: public AeroInteractiveWidget
 {
+    ~AeroSwitchWidget();
     void Setup(std::string const & elem_name, std::string const & mat_on, std::string const & mat_off);
     void SetActive(bool value);
     bool UpdateMouseHover() override;
@@ -69,6 +72,7 @@ struct AeroSwitchWidget: public AeroInteractiveWidget
 
 struct AeroTrimWidget : public AeroInteractiveWidget
 {
+    ~AeroTrimWidget();
     void Setup(std::string const & up, std::string const & dn, std::string const & disp);
     void DisplayFormat(const char* fmt, ...);
     bool UpdateMouseHover() override;
@@ -78,6 +82,8 @@ struct AeroTrimWidget : public AeroInteractiveWidget
     Ogre::OverlayElement *dn_button;
     Ogre::OverlayElement* hovered_button = nullptr;
     Ogre::OverlayElement *display;
+    Ogre::MaterialPtr up_material;
+    Ogre::MaterialPtr down_material;
 };
 
 struct AeroDashOverlay
