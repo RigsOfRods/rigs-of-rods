@@ -72,7 +72,7 @@ void Console::cVarSetupBuiltins()
     App::mp_server_password      = this->cVarCreate("mp_server_password",      "Server password",            CVAR_ARCHIVE | CVAR_NO_LOG);
     App::mp_player_name          = this->cVarCreate("mp_player_name",          "Nickname",                   CVAR_ARCHIVE,                     "Player");
     App::mp_player_token         = this->cVarCreate("mp_player_token",         "User Token",                 CVAR_ARCHIVE | CVAR_NO_LOG);
-    App::mp_api_url              = this->cVarCreate("mp_api_url",              "Online API URL",             CVAR_ARCHIVE,                     "http://api.rigsofrods.org");
+    App::mp_api_url              = this->cVarCreate("mp_api_url",              "Online API URL",             CVAR_ARCHIVE,                     "http://api.rigsofrods.org"); /* @deprecated Replaced by remote_query_url */
     App::mp_cyclethru_net_actors = this->cVarCreate("mp_cyclethru_net_actors", "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
 
     App::remote_query_url        = this->cVarCreate("remote_query_url",        "Remote API query URL",       CVAR_ARCHIVE,                     "https://v2.api.rigsofrods.org");

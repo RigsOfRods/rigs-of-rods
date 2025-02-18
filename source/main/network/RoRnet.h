@@ -190,7 +190,7 @@ struct UserInfo
     char     clientversion[25];    //!< a version number of the client. For example 1 for RoR 0.35
     char     clientGUID[40];       //!< the clients GUID
     char     sessiontype[10];      //!< the requested session type. For example "normal", "bot", "rcon"
-    char     sessiontoken[128];    //!< the session token to verify the client
+    char     sessiontoken[300];    //!< the session token to verify the client
 };
 
 struct VehicleState                  //!< Formerly `oob_t`

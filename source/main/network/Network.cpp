@@ -415,7 +415,7 @@ bool Network::StartConnecting()
     m_token     = App::mp_player_token->getStr();
     m_net_host  = App::mp_server_host->getStr();
     m_net_port  = App::mp_server_port->getInt();
-    m_authtoken = App::remote_login_token->getInt();
+    m_authtoken = App::remote_login_token->getStr();
     m_password  = App::mp_server_password->getStr();
 
     try
@@ -477,18 +477,19 @@ bool Network::ConnectThread()
     std::string response_payload;
     long response_code = 0;
 
-    struct curl_slist* request_headers;
-    request_headers = curl_slist_append(request_headers, auth_header.c_str());
+    struct curl_slist* slist;
+    slist = NULL;
+    slist = curl_slist_append(slist, auth_header.c_str());
 
     curl_easy_setopt(curl, CURLOPT_URL,             url.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS,      request_body.c_str());
     curl_easy_setopt(curl, CURLOPT_IPRESOLVE,       CURL_IPRESOLVE_V4);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,   CurlWriteFunc);
 #ifdef _WIN32
     curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS,     CURLSSLOPT_NATIVE_CA);
 #endif // _WIN32
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER,      slist);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,   CurlWriteFunc);
     curl_easy_setopt(curl, CURLOPT_POST,            1);
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER,      request_headers);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA,       &response_payload);
 
     CURLcode curl_result = curl_easy_perform(curl);
@@ -496,14 +497,14 @@ bool Network::ConnectThread()
 
     if (curl_result != CURLE_OK || response_code != 200)
     {
-        LOGSTREAM << "[RoR|Networking] Failed to request session authorization heads (Error : "
-            << curl_easy_strerror(curl_result) <<", HTTP status code: "<< response_code <<")";
+        RoR::LogFormat("[RoR|Networking] Failed to request session authorization (Error : %s), HTTP status code: %d",
+            curl_easy_strerror(curl_result), response_code);
         PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Failed to request session authorization data..."));
     }
 
     curl_easy_cleanup(curl);
     curl = nullptr;
-    request_headers = NULL;
+    slist = NULL;
 
     // We should only get back a single plaintext string ...
     m_sessiontoken = response_payload;
@@ -582,9 +583,9 @@ bool Network::ConnectThread()
     strncpy(c.username, m_username.substr(0, RORNET_MAX_USERNAME_LEN).c_str(), RORNET_MAX_USERNAME_LEN);
     strncpy(c.serverpassword, Sha1Hash(m_password).c_str(), size_t(40));
     strncpy(c.usertoken, Sha1Hash(m_token).c_str(), size_t(40));
+    strncpy(c.sessiontoken, m_sessiontoken.c_str(), size_t(300));
     strncpy(c.clientversion, ROR_VERSION_STRING, strnlen(ROR_VERSION_STRING, 25));
     strncpy(c.clientname, "RoR", 10);
-    strncpy(c.sessiontoken, m_sessiontoken.c_str(), m_sessiontoken.length());
     std::string language = App::app_language->getStr().substr(0, 2);
     std::string country = App::app_country->getStr().substr(0, 2);
     strncpy(c.language, (language + std::string("_") + country).c_str(), 5);
