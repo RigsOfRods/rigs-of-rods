@@ -72,7 +72,8 @@ struct GenericDocument: public RefCountingObject<GenericDocument>
     static const BitMask_t OPTION_PARENTHESES_CAPTURE_SPACES = BITMASK(5); //!< If non-empty NAKED string encounters '(', following spaces will be captured until matching ')' is found.
     static const BitMask_t OPTION_ALLOW_BRACED_KEYWORDS = BITMASK(6); //!< Allow INI-like '[keyword]' tokens.
     static const BitMask_t OPTION_ALLOW_SEPARATOR_EQUALS = BITMASK(7); //!< Allow '=' as separator between tokens.
-    static const BitMask_t OPTION_ALLOW_HASH_COMMENTS = BITMASK(8); //!< Allow comments starting with `#`. 
+    static const BitMask_t OPTION_ALLOW_HASH_COMMENTS = BITMASK(8); //!< Allow comments starting with `#`.
+    static const BitMask_t OPTION_NAKEDSTR_USCORES_TO_SPACES = BITMASK(9); //!< Only for OPTION_ALLOW_NAKED_STRINGS: Replace underscores with spaces in naked strings (classic behavior of the truck format).
 
     virtual ~GenericDocument() {};
 

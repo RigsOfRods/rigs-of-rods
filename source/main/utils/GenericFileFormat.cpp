@@ -408,6 +408,17 @@ void DocumentParser::UpdateString(const char c)
         line_pos++;
         break;
 
+    case '_':
+        if (partial_tok_type == PartialToken::STRING_NAKED
+            && options & GenericDocument::OPTION_NAKEDSTR_USCORES_TO_SPACES)
+        {
+            tok.push_back(' ');
+        }
+        else
+        {
+            tok.push_back(c);
+        }
+
     default:
         tok.push_back(c);
         line_pos++;
