@@ -356,6 +356,7 @@ private:
     void FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneup_def);
     void FillAssetPackDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds);
     void FillDashboardDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds);
+    void FillGadgetDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds);
     /// @}
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
@@ -419,6 +420,11 @@ private:
             {200, _LC("ModCategory", "Dashboards - Generic")},
             {201, _LC("ModCategory", "Dashboards - Truck")},
             {202, _LC("ModCategory", "Dashboards - Boat")},
+
+            // gadgets
+            {CID_GadgetsGeneric, _LC("ModCategory", "Gadgets - Generic")},
+            {CID_GadgetsActor, _LC("ModCategory", "Gadgets - Actor")},
+            {CID_GadgetsTerrain, _LC("ModCategory", "Gadgets - Terrain")},
 
             // note: these categories are NOT in the repository:
             {5000, _LC("ModCategory", "Official Terrains")},

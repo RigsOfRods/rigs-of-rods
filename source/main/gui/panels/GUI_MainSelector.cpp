@@ -31,6 +31,7 @@
 #include "GUI_LoadingWindow.h"
 #include "InputEngine.h"
 #include "Language.h"
+#include "ScriptEngine.h"
 #include "Utils.h"
 
 #include <MyGUI.h>
@@ -629,7 +630,15 @@ void MainSelector::Apply()
     ROR_ASSERT(m_selected_entry > -1); // Programmer error
     DisplayEntry& sd_entry = m_display_entries[m_selected_entry];
 
-    if (m_loader_type == LT_Terrain &&
+    if (m_loader_type == LT_Gadget)
+    {
+        auto request = new LoadScriptRequest();
+        request->lsr_filename = sd_entry.sde_entry->fname;
+        request->lsr_category = ScriptCategory::GADGET;
+        App::GetGameContext()->PushMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, request));
+        this->Close();
+    }
+    else if (m_loader_type == LT_Terrain &&
         App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
     {
         App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, sd_entry.sde_entry->fname));

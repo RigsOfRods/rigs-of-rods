@@ -826,7 +826,7 @@ String ScriptEngine::composeModuleName(String const& scriptName, ScriptCategory 
 }
 
 ScriptUnitID_t ScriptEngine::loadScript(
-    String scriptName, ScriptCategory category/* = ScriptCategory::TERRAIN*/,
+    String scriptOrGadgetFileName, ScriptCategory category/* = ScriptCategory::TERRAIN*/,
     ActorPtr associatedActor /*= nullptr*/, std::string buffer /* =""*/)
 {
     // This function creates a new script unit, tries to set it up and removes it if setup fails.
@@ -836,12 +836,41 @@ ScriptUnitID_t ScriptEngine::loadScript(
     // be created early, and removed if setup fails.
     static ScriptUnitID_t id_counter = 0;
 
+    std::string basename, ext, scriptName;
+    Ogre::StringUtil::splitBaseFilename(scriptOrGadgetFileName, basename, ext);
+    CacheEntryPtr originatingGadget;
+    if (ext == "gadget")
+    {
+        originatingGadget = App::GetCacheSystem()->FindEntryByFilename(LT_Gadget, /* partial: */false, scriptOrGadgetFileName);
+        if (!originatingGadget)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("Could not load script '{}' - gadget not found.", scriptOrGadgetFileName));
+            return SCRIPTUNITID_INVALID;
+        }
+        App::GetCacheSystem()->LoadResource(originatingGadget);
+        scriptName = fmt::format("{}.as", basename);
+        // Ensure a .gadget file is always loaded as `GADGET`, even if requested as `CUSTOM`
+        category = ScriptCategory::GADGET;
+    }
+    else if (ext == "as")
+    {
+        scriptName = scriptOrGadgetFileName;
+    }
+    else
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not load script '{}' - unknown file extension.", scriptOrGadgetFileName));
+        return SCRIPTUNITID_INVALID;
+    }
+
     ScriptUnitID_t unit_id = id_counter++;
     auto itor_pair = m_script_units.insert(std::make_pair(unit_id, ScriptUnit()));
     m_script_units[unit_id].uniqueId = unit_id;
     m_script_units[unit_id].scriptName = scriptName;
     m_script_units[unit_id].scriptCategory = category;
     m_script_units[unit_id].scriptBuffer = buffer;
+    m_script_units[unit_id].originatingGadget = originatingGadget;
     if (category == ScriptCategory::TERRAIN)
     {
         m_terrain_script_unit = unit_id;
@@ -858,6 +887,10 @@ ScriptUnitID_t ScriptEngine::loadScript(
     if (category == ScriptCategory::CUSTOM && buffer == "")
     {
         CvarAddFileToList(App::app_recent_scripts, scriptName);
+    }
+    else if (category == ScriptCategory::GADGET && originatingGadget)
+    {
+        CvarAddFileToList(App::app_recent_scripts, originatingGadget->fname);
     }
 
     // If setup failed, remove the unit.
@@ -879,7 +912,7 @@ int ScriptEngine::setupScriptUnit(int unit_id)
     int result=0;
 
     String moduleName = this->composeModuleName(
-        m_script_units[unit_id].scriptName, m_script_units[unit_id].scriptCategory, m_script_units[unit_id].uniqueId);  
+        m_script_units[unit_id].scriptName, m_script_units[unit_id].scriptCategory, m_script_units[unit_id].uniqueId);
 
     // The builder is a helper class that will load the script file,
     // search for #include directives, and load any included files as
