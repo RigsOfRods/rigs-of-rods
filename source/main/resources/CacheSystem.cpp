@@ -140,6 +140,7 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("tuneup");
     m_known_extensions.push_back("assetpack");
     m_known_extensions.push_back("dashboard");
+    m_known_extensions.push_back("gadget");
 
     // register the dirs
     m_content_dirs.push_back("mods");
@@ -801,6 +802,12 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
             FillDashboardDetailInfo(entry, ds);
             new_entries.push_back(entry);
         }
+        else if (ext == "gadget")
+        {
+            CacheEntryPtr entry = new CacheEntry();
+            FillGadgetDetailInfo(entry, ds);
+            new_entries.push_back(entry);
+        }
         else
         {
             CacheEntryPtr entry = new CacheEntry();
@@ -1330,6 +1337,46 @@ void CacheSystem::FillDashboardDetailInfo(CacheEntryPtr& entry, Ogre::DataStream
 
 }
 
+void CacheSystem::FillGadgetDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds)
+{
+    GenericDocumentPtr doc = new GenericDocument();
+    BitMask_t options 
+        = GenericDocument::OPTION_ALLOW_SLASH_COMMENTS 
+        | GenericDocument::OPTION_ALLOW_NAKED_STRINGS
+        | GenericDocument::OPTION_NAKEDSTR_USCORES_TO_SPACES;
+    doc->loadFromDataStream(ds, options);
+
+    GenericDocContextPtr ctx = new GenericDocContext(doc);
+    while (!ctx->endOfFile())
+    {
+        if (ctx->isTokKeyword() && ctx->getTokKeyword() == "gadget_name" && ctx->isTokString(1))
+        {
+            entry->dname = ctx->getTokString(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "gadget_description" && ctx->isTokString(1))
+        {
+            entry->description = ctx->getTokString(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "gadget_category" && ctx->isTokInt(1))
+        {
+            entry->categoryid = ctx->getTokInt(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "gadget_author")
+        {
+            int n = ctx->countLineArgs();
+            AuthorInfo author;
+            if (n > 1) { author.type = ctx->getTokString(1); }
+            if (n > 2) { author.id = ctx->getTokInt(2); }
+            if (n > 3) { author.name = ctx->getTokString(3); }
+            if (n > 4) { author.email = ctx->getTokString(4); }
+            entry->authors.push_back(author);
+        }
+
+        ctx->seekNextLine();
+    }
+
+}
+
 void CacheSystem::FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneup_def)
 {
     if (!tuneup_def->author_name.empty())
@@ -1527,6 +1574,16 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
             ResourceGroupManager::getSingleton().addResourceLocation(
                 entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
             App::GetContentManager()->InitManagedMaterials(group);
+        }
+        else if (entry->fext == "gadget")
+        {
+            // This is a .gadget bundle - use `inGlobalPool=false` to prevent resource name conflicts.
+            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
+            ResourceGroupManager::getSingleton().addResourceLocation(
+                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
+            App::GetContentManager()->InitManagedMaterials(group);
+            // Allow using builtin include scripts
+            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS, group);
         }
         else
         {
@@ -2187,6 +2244,8 @@ size_t CacheSystem::Query(CacheQuery& query)
             add = (query.cqy_filter_type == LT_AssetPack);
         else if (entry->fext == "dashboard")
             add = (query.cqy_filter_type == LT_DashBoard);
+        else if (entry->fext == "gadget")
+            add = (query.cqy_filter_type == LT_Gadget);
         else if (entry->fext == "truck")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck);
         else if (entry->fext == "car")

@@ -60,7 +60,8 @@ enum class ScriptCategory
     INVALID,
     ACTOR,   //!< Defined in truck file under 'scripts', contains global variable `BeamClass@ thisActor`.
     TERRAIN, //!< Defined in terrn2 file under '[Scripts]', receives terrain eventbox notifications.
-    CUSTOM   //!< Loaded by user via either: A) ingame console 'loadscript'; B) RoR.cfg 'app_custom_scripts'; C) commandline '-runscript'.
+    GADGET,  //!< Associated with a .gadget mod file, launched via UI or any method given below for CUSTOM scripts (use .gadget suffix - game will fix up category to `GADGET`).
+    CUSTOM   //!< Loaded by user via either: A) ingame console 'loadscript'; B) RoR.cfg 'app_custom_scripts'; C) commandline '-runscript'; If used with .gadget file, game will fix up category to `GADGET`.
 };
 
 const char* ScriptCategoryToString(ScriptCategory c);
@@ -80,7 +81,8 @@ struct ScriptUnit
     AngelScript::asIScriptFunction* eventCallbackExFunctionPtr = nullptr; //!< script function pointer to the event callback function
     AngelScript::asIScriptFunction* defaultEventCallbackFunctionPtr = nullptr; //!< script function pointer for spawner events
     ActorPtr associatedActor; //!< For ScriptCategory::ACTOR
-    Ogre::String scriptName;
+    CacheEntryPtr originatingGadget; //!< For ScriptCategory::GADGET ~ determines resource group
+    Ogre::String scriptName; //!< Name of the '.as' file exclusively.
     Ogre::String scriptHash;
     Ogre::String scriptBuffer;
 };
@@ -89,7 +91,7 @@ typedef std::map<ScriptUnitID_t, ScriptUnit> ScriptUnitMap;
 
 struct LoadScriptRequest
 {
-    std::string lsr_filename; //!< Load from resource (file). If buffer is supplied, use this as display name only.
+    std::string lsr_filename; //!< Load from resource ('.as' file or '.gadget' file); If buffer is supplied, use this as display name only.
     std::string lsr_buffer; //!< Load from memory buffer.
     ScriptCategory lsr_category = ScriptCategory::TERRAIN;
     ActorInstanceID_t lsr_associated_actor = ACTORINSTANCEID_INVALID; //!< For ScriptCategory::ACTOR
@@ -181,13 +183,13 @@ public:
 
     /**
      * Loads a script
-     * @param scriptname filename to load; if buffer is supplied, this is only a display name.
+     * @param filename '.as' file or '.gadget' file to load; if buffer is supplied, this is only a display name.
      * @param category How to treat the script?
      * @param associatedActor Only for category ACTOR
      * @param buffer String with full script body; if empty, a file will be loaded as usual.
      * @return Unique ID of the script unit (because one script file can be loaded multiple times).
      */
-    ScriptUnitID_t loadScript(Ogre::String scriptname, ScriptCategory category = ScriptCategory::TERRAIN,
+    ScriptUnitID_t loadScript(Ogre::String filename, ScriptCategory category = ScriptCategory::TERRAIN,
         ActorPtr associatedActor = nullptr, std::string buffer = "");
 
     /**

@@ -322,6 +322,7 @@ enum LoaderType //!< Search mode for `ModCache::Query()` & Operation mode for `G
     LT_Tuneup,    // No script alias, invoked manually, ext: tuneup
     LT_AssetPack, // No script alias, invoked manually, ext: assetpack
     LT_DashBoard, // No script alias, invoked manually, ext: dashboard
+    LT_Gadget,    // No script alias, invoked manually, ext: gadget
 };
 
 enum CacheCategoryId
@@ -331,6 +332,10 @@ enum CacheCategoryId
     CID_DashboardsGeneric = 200,
     CID_DashboardsTruck = 201,
     CID_DashboardsBoat = 202,
+
+    CID_GadgetsGeneric = 300,
+    CID_GadgetsActor = 301,
+    CID_GadgetsTerrain = 302,
 
     CID_Projects = 8000, //!< For truck files under 'projects/' directory, to allow listing from editors.
     CID_Tuneups = 8001, //!< For unsorted tuneup files.

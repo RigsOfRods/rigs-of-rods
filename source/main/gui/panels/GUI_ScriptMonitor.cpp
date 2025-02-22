@@ -58,7 +58,14 @@ void ScriptMonitor::Draw()
         ImGui::TextDisabled("%d", id);
         ImGui::NextColumn();
         ImGui::AlignTextToFramePadding();
-        ImGui::Text("%s", unit.scriptName.c_str());
+        if (unit.scriptCategory == ScriptCategory::GADGET && unit.originatingGadget)
+        {
+            ImGui::Text("%s", unit.originatingGadget->fname.c_str());
+        }
+        else
+        {
+            ImGui::Text("%s", unit.scriptName.c_str());
+        }
         ImGui::NextColumn();
         switch (unit.scriptCategory)
         {
@@ -71,13 +78,20 @@ void ScriptMonitor::Draw()
             break;
 
         case ScriptCategory::CUSTOM:
+        case ScriptCategory::GADGET:
         {
+            std::string filename = unit.scriptName;
+            if (unit.scriptCategory == ScriptCategory::GADGET && unit.originatingGadget)
+            {
+                filename = unit.originatingGadget->fname;
+            }
+
             if (ImGui::Button(_LC("ScriptMonitor", "Reload")))
             {
                 App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitID_t(id)));
                 LoadScriptRequest* req = new LoadScriptRequest();
                 req->lsr_category = unit.scriptCategory;
-                req->lsr_filename = unit.scriptName;
+                req->lsr_filename = filename;
                 App::GetGameContext()->ChainMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, req));
             }
             ImGui::SameLine();
@@ -87,13 +101,13 @@ void ScriptMonitor::Draw()
             }
 
             ImGui::SameLine();
-            bool autoload_set = std::find(autoload.begin(), autoload.end(), unit.scriptName) != autoload.end();
+            bool autoload_set = std::find(autoload.begin(), autoload.end(), filename) != autoload.end();
             if (ImGui::Checkbox(_LC("ScriptMonitor", "Autoload"), &autoload_set))
             {
                 if (autoload_set)
-                    CvarAddFileToList(App::app_custom_scripts, unit.scriptName);
+                    CvarAddFileToList(App::app_custom_scripts, filename);
                 else
-                    CvarRemoveFileFromList(App::app_custom_scripts, unit.scriptName);
+                    CvarRemoveFileFromList(App::app_custom_scripts, filename);
             }
             break;
         }

@@ -235,7 +235,11 @@ int main(int argc, char *argv[])
             for (Ogre::String const& scriptname: script_names)
             {
                 LOG(fmt::format("Loading startup script '{}' (from command line)", scriptname));
-                App::GetScriptEngine()->loadScript(scriptname, ScriptCategory::CUSTOM);
+                // We cannot call `loadScript()` directly because modcache isn't up yet - gadgets cannot be resolved
+                LoadScriptRequest* req = new LoadScriptRequest();
+                req->lsr_category = ScriptCategory::CUSTOM;
+                req->lsr_filename = scriptname;
+                App::GetGameContext()->PushMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, req));
                 // errors are logged by OGRE & AngelScript
             }
         }
@@ -245,7 +249,11 @@ int main(int argc, char *argv[])
             for (Ogre::String const& scriptname: script_names)
             {
                 LOG(fmt::format("Loading startup script '{}' (from config file)", scriptname));
-                App::GetScriptEngine()->loadScript(scriptname, ScriptCategory::CUSTOM);
+                // We cannot call `loadScript()` directly because modcache isn't up yet - gadgets cannot be resolved
+                LoadScriptRequest* req = new LoadScriptRequest();
+                req->lsr_category = ScriptCategory::CUSTOM;
+                req->lsr_filename = scriptname;
+                App::GetGameContext()->PushMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, req));
                 // errors are logged by OGRE & AngelScript
             }
         }
