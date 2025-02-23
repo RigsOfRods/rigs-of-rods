@@ -447,67 +447,67 @@ bool Network::ConnectThread()
 #if defined(USE_CURL)
     if (App::remote_user_auth_state->getEnum<UserAuthState>() == UserAuthState::AUTHENTICATED)
     {
-    RoR::LogFormat("[RoR|Networking] Requesting session authorization data from the API ...");
+        RoR::LogFormat("[RoR|Networking] Requesting session authorization data from the API ...");
 
-    CURL* curl = curl_easy_init();
+        CURL* curl = curl_easy_init();
 
-    PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Requesting session authorization data..."));
+        PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Requesting session authorization data..."));
 
-    // To get a good understanding of how this works, you can take a look at ...
-    // https://minecraft.wiki/w/Mojang_API#Verify_login_session_on_client
-    // It's a bit silly, but fool proof nonetheless.
+        // To get a good understanding of how this works, you can take a look at ...
+        // https://minecraft.wiki/w/Mojang_API#Verify_login_session_on_client
+        // It's a bit silly, but fool proof nonetheless.
 
-    // We hit the authorization server with a few claims to identify who we are ...
-    // This includes the authorization token itself, the client unique identifier,
-    // the server host and port that we're going to connect to, and the player
-    // unique identifier.
+        // We hit the authorization server with a few claims to identify who we are ...
+        // This includes the authorization token itself, the client unique identifier,
+        // the server host and port that we're going to connect to, and the player
+        // unique identifier.
 
-    rapidjson::Document j_request_body;
-    j_request_body.SetObject();
-    j_request_body.AddMember("host", rapidjson::StringRef(m_net_host.c_str()), j_request_body.GetAllocator());
-    j_request_body.AddMember("port", m_net_port, j_request_body.GetAllocator());
-    rapidjson::StringBuffer buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    j_request_body.Accept(writer);
+        rapidjson::Document j_request_body;
+        j_request_body.SetObject();
+        j_request_body.AddMember("host", rapidjson::StringRef(m_net_host.c_str()), j_request_body.GetAllocator());
+        j_request_body.AddMember("port", m_net_port, j_request_body.GetAllocator());
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        j_request_body.Accept(writer);
 
-    std::string request_body = buffer.GetString();
-    std::string auth_header  = std::string("Authorization: Bearer ") + m_authtoken;
-    std::string user_agent   = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
-    std::string url          = App::remote_query_url->getStr() + "/auth/sessions/join";
-    std::string response_payload;
-    long response_code = 0;
+        std::string request_body = buffer.GetString();
+        std::string auth_header  = std::string("Authorization: Bearer ") + m_authtoken;
+        std::string user_agent   = fmt::format("{}/{}", "Rigs of Rods Client", ROR_VERSION_STRING);
+        std::string url          = App::remote_query_url->getStr() + "/auth/sessions/join";
+        std::string response_payload;
+        long response_code = 0;
 
-    struct curl_slist* slist;
-    slist = NULL;
-    slist = curl_slist_append(slist, auth_header.c_str());
+        struct curl_slist* slist;
+        slist = NULL;
+        slist = curl_slist_append(slist, auth_header.c_str());
 
-    curl_easy_setopt(curl, CURLOPT_URL,             url.c_str());
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS,      request_body.c_str());
-    curl_easy_setopt(curl, CURLOPT_IPRESOLVE,       CURL_IPRESOLVE_V4);
+        curl_easy_setopt(curl, CURLOPT_URL,             url.c_str());
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS,      request_body.c_str());
+        curl_easy_setopt(curl, CURLOPT_IPRESOLVE,       CURL_IPRESOLVE_V4);
 #ifdef _WIN32
-    curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS,     CURLSSLOPT_NATIVE_CA);
+        curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS,     CURLSSLOPT_NATIVE_CA);
 #endif // _WIN32
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER,      slist);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,   CurlWriteFunc);
-    curl_easy_setopt(curl, CURLOPT_POST,            1);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA,       &response_payload);
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER,      slist);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,   CurlWriteFunc);
+        curl_easy_setopt(curl, CURLOPT_POST,            1);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA,       &response_payload);
 
-    CURLcode curl_result = curl_easy_perform(curl);
-    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+        CURLcode curl_result = curl_easy_perform(curl);
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
 
-    if (curl_result != CURLE_OK || response_code != 200)
-    {
-        RoR::LogFormat("[RoR|Networking] Failed to request session authorization (Error : %s), HTTP status code: %d",
-            curl_easy_strerror(curl_result), response_code);
-        PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Failed to request session authorization data..."));
-    }
+        if (curl_result != CURLE_OK || response_code != 200)
+        {
+            RoR::LogFormat("[RoR|Networking] Failed to request session authorization (Error : %s), HTTP status code: %d",
+                curl_easy_strerror(curl_result), response_code);
+            PushNetMessage(MSG_NET_CONNECT_PROGRESS, _LC("Network", "Failed to request session authorization data..."));
+        }
 
-    curl_easy_cleanup(curl);
-    curl = nullptr;
-    slist = NULL;
+        curl_easy_cleanup(curl);
+        curl = nullptr;
+        slist = NULL;
 
-    // We should only get back a single plaintext string ...
-    m_sessiontoken = response_payload;
+        // We should only get back a single plaintext string ...
+        m_sessiontoken = response_payload;
     }
 #endif
 
