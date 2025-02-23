@@ -473,7 +473,7 @@ void UserAuthTask(std::string login, std::string passwd)
 
     if (response_code == 400)
     {
-        if (j_response_body["tfa_providers"].IsString())
+        if (j_response_body.HasMember("tfa_providers") && j_response_body["tfa_providers"].IsString())
         {
             std::string providers_str = j_response_body["tfa_providers"].GetString();
             std::vector<std::string>* tfa_providers_ptr = new std::vector<std::string>();
