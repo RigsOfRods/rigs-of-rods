@@ -454,13 +454,20 @@ bool ActorManager::SaveScene(Ogre::String filename)
 
     j_doc.AddMember("physics_paused", App::GetGameContext()->GetActorManager()->IsSimulationPaused(), j_doc.GetAllocator());
 
-    // Character
+    // Character (might not exist if a network error occured and we get here even if disconnecting from multiplayer, which shouldn't happen)
+    Ogre::Vector3 character_pos = Ogre::Vector3::ZERO;
+    Ogre::Radian character_rot = Ogre::Radian(0);
+    if (App::GetGameContext()->GetPlayerCharacter())
+    {
+        character_pos = App::GetGameContext()->GetPlayerCharacter()->getPosition();
+        character_rot = App::GetGameContext()->GetPlayerCharacter()->getRotation();
+    }
     rapidjson::Value j_player_position(rapidjson::kArrayType);
-    j_player_position.PushBack(App::GetGameContext()->GetPlayerCharacter()->getPosition().x, j_doc.GetAllocator());
-    j_player_position.PushBack(App::GetGameContext()->GetPlayerCharacter()->getPosition().y, j_doc.GetAllocator());
-    j_player_position.PushBack(App::GetGameContext()->GetPlayerCharacter()->getPosition().z, j_doc.GetAllocator());
+    j_player_position.PushBack(character_pos.x, j_doc.GetAllocator());
+    j_player_position.PushBack(character_pos.y, j_doc.GetAllocator());
+    j_player_position.PushBack(character_pos.z, j_doc.GetAllocator());
     j_doc.AddMember("player_position", j_player_position, j_doc.GetAllocator());
-    j_doc.AddMember("player_rotation", App::GetGameContext()->GetPlayerCharacter()->getRotation().valueRadians(), j_doc.GetAllocator());
+    j_doc.AddMember("player_rotation", character_rot.valueRadians(), j_doc.GetAllocator());
 
     std::map<int, int> vector_index_lookup;
     for (ActorPtr& actor : m_actors)
