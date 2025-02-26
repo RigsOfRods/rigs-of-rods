@@ -1355,7 +1355,14 @@ void CacheSystem::FillGadgetDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr
         }
         else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "gadget_description" && ctx->isTokString(1))
         {
-            entry->description = ctx->getTokString(1);
+            if (entry->description == "")
+            {
+                entry->description = ctx->getTokString(1);
+            }
+            else
+            {
+                entry->description += "\n" + ctx->getTokString(1);
+            }
         }
         else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "gadget_category" && ctx->isTokInt(1))
         {
