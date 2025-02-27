@@ -7,543 +7,547 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2025-02-27 13:02+0000\n"
+"Last-Translator: தமிழ்நேரம் <anishprabu.t@gmail.com>\n"
+"Language-Team: Tamil <https://hosted.weblate.org/projects/rigs-of-rods/game/"
+"ta/>\n"
 "Language: ta\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.10.2-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
 msgid "Startup error"
-msgstr ""
+msgstr "தொடக்க பிழை"
 
 #: AppContext.cpp:270
 msgid "No render system plugin available. Check your plugins.cfg"
 msgstr ""
+"வழங்குதல் சிச்டம் சொருகி எதுவும் கிடைக்கவில்லை. உங்கள் செருகுநிரல்களை சரிபார்க்கவும்"
 
 #: AppContext.cpp:378
 msgid "Screenshot: "
-msgstr ""
+msgstr "திரை சாட்: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
-msgstr ""
+msgstr "நிரல் அடைவு பாதையை மீட்டெடுக்கும் போது பிழை"
 
 #: AppContext.cpp:426
 msgid "Error while retrieving user directory path"
-msgstr ""
+msgstr "பயனர் அடைவு பாதையை மீட்டெடுக்கும் போது பிழை"
 
 #: AppContext.cpp:477
 msgid "Resources folder not found. Check if correctly installed."
-msgstr ""
+msgstr "வள கோப்புறை காணப்படவில்லை. சரியாக நிறுவப்பட்டிருந்தால் சரிபார்க்கவும்."
 
 #: AppContext.cpp:491 AppContext.cpp:502
 msgid "Faulty resource folder. Check if correctly installed."
-msgstr ""
+msgstr "தவறான வள கோப்புறை. சரியாக நிறுவப்பட்டிருந்தால் சரிபார்க்கவும்."
 
 #: Application.cpp:387
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
-msgstr ""
+msgstr "தானியங்கி மாற்றம்"
 
 #: Application.cpp:388
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr ""
+msgstr "ஆட்டோ கிளட்சுடன் கையேடு மாற்றம்"
 
 #: Application.cpp:389
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr ""
+msgstr "முழு கையேடு: தொடர்ச்சியான மாற்றம்"
 
 #: Application.cpp:390
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr ""
+msgstr "முழு கையேடு: ச்டிக் சிப்ட்"
 
 #: Application.cpp:391
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
-msgstr ""
+msgstr "முழு கையேடு: வரம்புகளுடன் குச்சி மாற்றம்"
 
 #: Application.cpp:400
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
-msgstr ""
+msgstr "எதுவுமில்லை (வேகமான)"
 
 #: Application.cpp:401
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr ""
+msgstr "ஒளி மூலங்கள் இல்லை"
 
 #: Application.cpp:402
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr ""
+msgstr "தற்போதைய வண்டி, முதன்மையான விளக்குகள் மட்டுமே"
 
 #: Application.cpp:403
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
-msgstr ""
+msgstr "அனைத்து வாகனங்களும், முதன்மையான விளக்குகள்"
 
 #: Application.cpp:404
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, all lights"
-msgstr ""
+msgstr "அனைத்து வாகனங்களும், அனைத்து விளக்குகளும்"
 
 #: Application.cpp:413
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "முடக்கப்பட்டது"
 
 #: Application.cpp:414
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "Pssm"
 
 #: Application.cpp:423
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
-msgstr ""
+msgstr "மணல் புயல் (வேகமான)"
 
 #: Application.cpp:424
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
-msgstr ""
+msgstr "கலம் (சிறந்த தோற்றம், மெதுவாக)"
 
 #: Application.cpp:425
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
-msgstr ""
+msgstr "ச்கைக்ச் (சிறந்த தோற்றம், மெதுவாக)"
 
 #: Application.cpp:434
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "எதுவுமில்லை"
 
 #: Application.cpp:435
 msgctxt "GfxTexFilter"
 msgid "Bilinear"
-msgstr ""
+msgstr "பிலினியர்"
 
 #: Application.cpp:436
 msgctxt "GfxTexFilter"
 msgid "Trilinear"
-msgstr ""
+msgstr "Trilinear"
 
 #: Application.cpp:437
 msgctxt "GfxTexFilter"
 msgid "Anisotropic"
-msgstr ""
+msgstr "அனிசோட்ரோபிக்"
 
 #: Application.cpp:446
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "எதுவுமில்லை"
 
 #: Application.cpp:447
 msgctxt "GfxVegetation"
 msgid "20%"
-msgstr ""
+msgstr "20%"
 
 #: Application.cpp:448
 msgctxt "GfxVegetation"
 msgid "50%"
-msgstr ""
+msgstr "50%"
 
 #: Application.cpp:449
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "முழு"
 
 #: Application.cpp:458
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "எதுவுமில்லை"
 
 #: Application.cpp:459
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
-msgstr ""
+msgstr "அடிப்படை (வேகமான)"
 
 #: Application.cpp:460
 msgctxt "GfxWaterMode"
 msgid "Reflection"
-msgstr ""
+msgstr "பிரதிபலிப்பு"
 
 #: Application.cpp:461
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
-msgstr ""
+msgstr "பிரதிபலிப்பு + ஒளிவிலகல் (வேகம் உகந்ததாக)"
 
 #: Application.cpp:462
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
-msgstr ""
+msgstr "பிரதிபலிப்பு + ஒளிவிலகல் (தரம் உகந்ததாக)"
 
 #: Application.cpp:463
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr ""
+msgstr "ஐட்ராக்ச்"
 
 #: Application.cpp:472
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "எதுவுமில்லை"
 
 #: Application.cpp:473
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "நிலையான"
 
 #: Application.cpp:474
 msgctxt "GfxExtCamMode"
 msgid "Pitching"
-msgstr ""
+msgstr "பிட்ச்"
 
 #: Application.cpp:483
 msgctxt "IoInputGrabMode"
 msgid "None"
-msgstr ""
+msgstr "எதுவுமில்லை"
 
 #: Application.cpp:484
 msgctxt "IoInputGrabMode"
 msgid "All"
-msgstr ""
+msgstr "அனைத்தும்"
 
 #: Application.cpp:485
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr ""
+msgstr "மாறும்"
 
 #: Application.cpp:494
 msgctxt "SimResetMode"
 msgid "Hard"
-msgstr ""
+msgstr "கடினமானது"
 
 #: Application.cpp:495
 msgctxt "SimResetMode"
 msgid "Soft"
-msgstr ""
+msgstr "மென்மையான"
 
 #: GameContext.cpp:120
 msgid "Terrain not found: "
-msgstr ""
+msgstr "நிலப்பரப்பு காணப்படவில்லை: "
 
 #: GameContext.cpp:122 GameContext.cpp:144
 msgid "Terrain loading error"
-msgstr ""
+msgstr "நிலப்பரப்பு ஏற்றுதல் பிழை"
 
 #: GameContext.cpp:658
 msgid "Please clear the place first"
-msgstr ""
+msgstr "முதலில் அந்த இடத்தை அழிக்கவும்"
 
 #: GameContext.cpp:762
 #, c++-format
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr ""
+msgstr "நடிகருக்கு இயல்புநிலை தோல் '}' {} 'கிடைக்கவில்லை!"
 
 #: GameContext.cpp:1036
 msgid "Enabled hard reset mode"
-msgstr ""
+msgstr "கடின மீட்டமைப்பு பயன்முறையை இயக்கியது"
 
 #: GameContext.cpp:1036
 msgid "Enabled soft reset mode"
-msgstr ""
+msgstr "மென்மையான மீட்டமைப்பு பயன்முறையை இயக்கியது"
 
 #: GameContext.cpp:1230
 msgid "Time set to "
-msgstr ""
+msgstr "நேரம் அமைக்கப்பட்டுள்ளது "
 
 #: GameContext.cpp:1417
 msgid "No rescue truck found!"
-msgstr ""
+msgstr "மீட்பு டிரக் எதுவும் கிடைக்கவில்லை!"
 
 #: GameContext.cpp:1493
 msgid "forwardcommands enabled"
-msgstr ""
+msgstr "ஃபார்வர்ட் கமாண்டுகள் இயக்கப்பட்டன"
 
 #: GameContext.cpp:1497
 msgid "forwardcommands disabled"
-msgstr ""
+msgstr "ஃபார்வர்ட் கமாண்டுகள் முடக்கப்பட்டன"
 
 #: GameContext.cpp:1506
 msgid "importcommands enabled"
-msgstr ""
+msgstr "இறக்குமதி கமாண்டுகள் இயக்கப்பட்டன"
 
 #: GameContext.cpp:1510
 msgid "importcommands disabled"
-msgstr ""
+msgstr "இறக்குமதி முட்கள் முடக்கப்பட்டன"
 
 #: gameplay/ChatSystem.cpp:56
 msgid " [whispered] "
-msgstr ""
+msgstr " [கிசுகிசுக்கப்பட்டது] "
 
 #: gameplay/EngineSim.cpp:1463
 msgid "Low range selected"
-msgstr ""
+msgstr "குறைந்த வீச்சு தேர்ந்தெடுக்கப்பட்டது"
 
 #: gameplay/EngineSim.cpp:1469
 msgid "Mid range selected"
-msgstr ""
+msgstr "மிட் ரேஞ்ச் தேர்ந்தெடுக்கப்பட்டது"
 
 #: gameplay/EngineSim.cpp:1475
 msgid "High range selected"
-msgstr ""
+msgstr "உயர் வீச்சு தேர்ந்தெடுக்கப்பட்டது"
 
 #: gameplay/Landusemap.cpp:101
 msgid "Error while loading landuse config"
-msgstr ""
+msgstr "லேண்டச் கட்டமைப்பை ஏற்றும்போது பிழை"
 
 #: gfx/camera/CameraManager.cpp:302
 msgid "FOV: Limit reached"
-msgstr ""
+msgstr "FOV: வரம்பு எட்டப்பட்டது"
 
 #: gfx/camera/CameraManager.cpp:314
 msgid "FOV: "
-msgstr ""
+msgstr "FOV: "
 
 #: gfx/camera/CameraManager.cpp:384
 msgid "Free camera"
-msgstr ""
+msgstr "இலவச கேமரா"
 
 #: gfx/camera/CameraManager.cpp:389
 msgid "Fixed camera"
-msgstr ""
+msgstr "நிலையான கேமரா"
 
 #: gfx/camera/CameraManager.cpp:870
 msgid "Limited camera movement enabled"
-msgstr ""
+msgstr "வரையறுக்கப்பட்ட கேமரா இயக்கம் இயக்கப்பட்டது"
 
 #: gfx/camera/CameraManager.cpp:874
 msgid "Limited camera movement disabled"
-msgstr ""
+msgstr "வரையறுக்கப்பட்ட கேமரா இயக்கம் முடக்கப்பட்டது"
 
 #: gfx/camera/CameraManager.cpp:1158
 msgid "Auto tracking enabled"
-msgstr ""
+msgstr "ஆட்டோ கண்காணிப்பு இயக்கப்பட்டது"
 
 #: gfx/camera/CameraManager.cpp:1162
 msgid "Auto tracking disabled"
-msgstr ""
+msgstr "ஆட்டோ கண்காணிப்பு முடக்கப்பட்டது"
 
 #: gui/GUIUtils.cpp:471
 msgid "Hold to confirm"
-msgstr ""
+msgstr "உறுதிப்படுத்த பிடி"
 
 #: gui/OverlayWrapper.cpp:428
 msgid "Current FPS: "
-msgstr ""
+msgstr "தற்போதைய FPS: "
 
 #: gui/OverlayWrapper.cpp:429
 msgid "Average FPS: "
-msgstr ""
+msgstr "சராசரி FPS: "
 
 #: gui/OverlayWrapper.cpp:430
 msgid "Best FPS: "
-msgstr ""
+msgstr "சிறந்த FPS: "
 
 #: gui/OverlayWrapper.cpp:431
 msgid "Worst FPS: "
-msgstr ""
+msgstr "மோசமான FPS: "
 
 #: gui/OverlayWrapper.cpp:432
 msgid "Triangle Count: "
-msgstr ""
+msgstr "முக்கோண எண்ணிக்கை: "
 
 #: gui/OverlayWrapper.cpp:459
 msgid "Textures: "
-msgstr ""
+msgstr "கட்டமைப்புகள்: "
 
 #: gui/OverlayWrapper.cpp:461
 msgid "Compositors: "
-msgstr ""
+msgstr "இசையமைப்பாளர்கள்: "
 
 #: gui/OverlayWrapper.cpp:463
 msgid "Fonts: "
-msgstr ""
+msgstr "எழுத்துருக்கள்: "
 
 #: gui/OverlayWrapper.cpp:465
 msgid "GPU Program: "
-msgstr ""
+msgstr "சி.பீ.யூ திட்டம்: "
 
 #: gui/OverlayWrapper.cpp:467
 msgid "HL GPU Program: "
-msgstr ""
+msgstr "எச்.எல் சி.பீ.யூ திட்டம்: "
 
 #: gui/OverlayWrapper.cpp:469 gui/OverlayWrapper.cpp:475
 msgid "Materials: "
-msgstr ""
+msgstr "பொருட்கள்: "
 
 #: gui/OverlayWrapper.cpp:471
 msgid "Meshes: "
-msgstr ""
+msgstr "மெச்கள்: "
 
 #: gui/OverlayWrapper.cpp:473
 msgid "Skeletons: "
-msgstr ""
+msgstr "எலும்புக்கூடுகள்: "
 
 #: gui/OverlayWrapper.cpp:482
 msgid "Memory (Ogre): "
-msgstr ""
+msgstr "நினைவகம் (ஓக்ரே): "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr ""
+msgstr "டிரக்கை அளவிடுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr ""
+msgstr "டிரக்கின் பெயரைப் பெறுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr ""
+msgstr "டிரக் கோப்பின் பெயரைப் பெறுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr ""
+msgstr "ஒரு டிரக்குக்கு ஏற்றப்பட்ட பிரிவின் பெயரைப் பெறுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr ""
+msgstr "டிரக்கின் வகையைப் பெறுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr ""
+msgstr "டிரக்கை மீட்டமைக்கிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
-msgstr ""
+msgstr "பார்க்கிங் பிரேக்கை மாற்றுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr ""
+msgstr "இழுவைக் கட்டுப்பாட்டை மாற்றுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr ""
+msgstr "எதிர்ப்பு பூட்டு பிரேக்குகளை மாற்றுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
 msgctxt "AngelScript"
 msgid "Toggles the beacons"
-msgstr ""
+msgstr "பீக்கான்களை மாற்றுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr ""
+msgstr "தனிப்பயன் துகள்களை மாற்றுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr ""
+msgstr "டிரக்கின் மொத்த முனைகளின் அளவு கிடைக்கிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr ""
+msgstr "டிரக்கின் மொத்த வெகுசனத்தைப் பெறுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the wheels of the truck"
-msgstr ""
+msgstr "டிரக்கின் சக்கரங்களின் மொத்த முனைகளின் அளவு கிடைக்கிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:38
 msgctxt "AngelScript"
 msgid "Sets the mass of the truck"
-msgstr ""
+msgstr "டிரக்கின் வெகுசனத்தை அமைக்கிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:39
 msgctxt "AngelScript"
 msgid "Returns true if the brake light is enabled"
-msgstr ""
+msgstr "பிரேக் லைட் இயக்கப்பட்டிருந்தால் உண்மை"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:40
 msgctxt "AngelScript"
 msgid "Returns true if the custom light with the number is enabled"
-msgstr ""
+msgstr "எண்ணுடன் தனிப்பயன் ஒளி இயக்கப்பட்டிருந்தால் உண்மையை அளிக்கிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:41
 msgctxt "AngelScript"
 msgid "Enables or disables the custom light"
-msgstr ""
+msgstr "தனிப்பயன் ஒளியை செயல்படுத்துகிறது அல்லது முடக்குகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:42
 msgctxt "AngelScript"
 msgid "Gets the mode of the beacon"
-msgstr ""
+msgstr "பெக்கனின் பயன்முறையைப் பெறுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:43
 msgctxt "AngelScript"
 msgid "Sets the blinking type"
-msgstr ""
+msgstr "ஒளிரும் வகையை அமைக்கிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:44
 msgctxt "AngelScript"
 msgid "Gets the blinking type"
-msgstr ""
+msgstr "ஒளிரும் வகையைப் பெறுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:45
 msgctxt "AngelScript"
 msgid "Gets the custom particles mode"
-msgstr ""
+msgstr "தனிப்பயன் துகள்கள் மோட் கிடைக்கும்"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:46
 msgctxt "AngelScript"
 msgid "Returns true if the reverse lights are enabled"
-msgstr ""
+msgstr "தலைகீழ் விளக்குகள் இயக்கப்பட்டால் உண்மை"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:47
 msgctxt "AngelScript"
 msgid "Returns the angle in which the truck is heading"
-msgstr ""
+msgstr "டிரக் செல்லும் கோணத்தை வழங்குகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:48
 msgctxt "AngelScript"
 msgid "Returns true if a hook of this truck is locked"
-msgstr ""
+msgstr "இந்த டிரக்கின் கொக்கி பூட்டப்பட்டால் உண்மை"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:49
 msgctxt "AngelScript"
 msgid "Gets the current wheel speed of the vehicle"
-msgstr ""
+msgstr "வாகனத்தின் தற்போதைய சக்கர வேகத்தைப் பெறுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:50
 msgctxt "AngelScript"
 msgid "Gets the current speed of the vehicle"
-msgstr ""
+msgstr "வாகனத்தின் தற்போதைய வேகத்தைப் பெறுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:51
 msgctxt "AngelScript"
 msgid "Gets the G-forces that this truck is currently experiencing"
-msgstr ""
+msgstr "இந்த டிரக் தற்போது அனுபவித்து வரும் சி-படைகளைப் பெறுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:52
 msgctxt "AngelScript"
 msgid "Gets the current rotation of the vehicle"
-msgstr ""
+msgstr "வாகனத்தின் தற்போதைய சுழற்சியைப் பெறுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:53
 msgctxt "AngelScript"
 msgid "Gets the current position of the vehicle"
-msgstr ""
+msgstr "வாகனத்தின் தற்போதைய நிலையைப் பெறுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:54
 msgctxt "AngelScript"
 msgid "Gets the node position"
-msgstr ""
+msgstr "முனை நிலையைப் பெறுகிறது"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:65
 msgctxt "Console"
@@ -553,133 +557,133 @@ msgstr ""
 #: gui/panels/GUI_CollisionsDebug.cpp:48
 msgctxt "About"
 msgid "Static collision debug"
-msgstr ""
+msgstr "நிலையான மோதல் பிழைத்திருத்தம்"
 
 #: gui/panels/GUI_ConsoleView.cpp:249
 msgctxt "Console"
 msgid "By area:"
-msgstr ""
+msgstr "பகுதி:"
 
 #: gui/panels/GUI_ConsoleView.cpp:250
 msgctxt "Console"
 msgid "Logfile echo"
-msgstr ""
+msgstr "லாக்ஃபைல் எக்கோ"
 
 #: gui/panels/GUI_ConsoleView.cpp:251
 msgctxt "Console"
 msgid "Scripting"
-msgstr ""
+msgstr "ச்கிரிப்டிங்"
 
 #: gui/panels/GUI_ConsoleView.cpp:252
 msgctxt "Console"
 msgid "Actors"
-msgstr ""
+msgstr "நடிகர்கள்"
 
 #: gui/panels/GUI_ConsoleView.cpp:253
 msgctxt "Console"
 msgid "Terrain"
-msgstr ""
+msgstr "பரப்புக்கூறு"
 
 #: gui/panels/GUI_ConsoleView.cpp:256
 msgctxt "Console"
 msgid "By level:"
-msgstr ""
+msgstr "நிலை:"
 
 #: gui/panels/GUI_ConsoleView.cpp:257
 msgctxt "Console"
 msgid "Notices"
-msgstr ""
+msgstr "அறிவிப்புகள்"
 
 #: gui/panels/GUI_ConsoleView.cpp:258
 msgctxt "Console"
 msgid "Warnings"
-msgstr ""
+msgstr "எச்சரிக்கைகள்"
 
 #: gui/panels/GUI_ConsoleView.cpp:259
 msgctxt "Console"
 msgid "Errors"
-msgstr ""
+msgstr "பிழைகள்"
 
 #: gui/panels/GUI_ConsoleView.cpp:260
 msgctxt "Console"
 msgid "Net chat"
-msgstr ""
+msgstr "நிகர அரட்டை"
 
 #: gui/panels/GUI_ConsoleView.cpp:261 gui/panels/GUI_ConsoleWindow.cpp:55
 msgctxt "Console"
 msgid "Commands"
-msgstr ""
+msgstr "கட்டளைகள்"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:50
 msgctxt "Console"
 msgid "Filter options"
-msgstr ""
+msgstr "வடிகட்டி விருப்பங்கள்"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:81
 msgctxt "Console"
 msgid "AngelScript"
-msgstr ""
+msgstr "ஏஞ்சல்கைஉரை"
 
 #. reset to auto-fit
 #: gui/panels/GUI_ConsoleWindow.cpp:96
 msgctxt "Console"
 msgid "Script Monitor"
-msgstr ""
+msgstr "ச்கிரிப்ட் மானிட்டர்"
 
 #: gui/panels/GUI_ConsoleWindow.cpp:114
 msgctxt "Console"
 msgid "Command"
-msgstr ""
+msgstr "கட்டளை"
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:44
 msgctxt "FlexbodyDebug"
 msgid "Flexbody/Prop debug"
-msgstr ""
+msgstr "ஃப்ளெக்ச் பாடி/ப்ராப் பிழைத்திருத்தம்"
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:49
 msgctxt "FlexbodyDebug"
 msgid "You are on foot."
-msgstr ""
+msgstr "நீங்கள் காலில் இருக்கிறீர்கள்."
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:57
 msgctxt "FlexbodyDebug"
 msgid "This vehicle has no flexbodies or props."
-msgstr ""
+msgstr "இந்த வாகனத்தில் நெகிழ்வு அல்லது முட்டுகள் இல்லை."
 
 #: gui/panels/GUI_FlexbodyDebug.cpp:62
 msgctxt "FlexbodyDebug"
 msgid "Select element"
-msgstr ""
+msgstr "உறுப்பு தேர்ந்தெடுக்கவும்"
 
 #: gui/panels/GUI_FrictionSettings.cpp:46
 msgctxt "FrictionSettings"
 msgid "Friction Settings"
-msgstr ""
+msgstr "உராய்வு அமைப்புகள்"
 
 #: gui/panels/GUI_FrictionSettings.cpp:48
 msgctxt "FrictionSettings"
 msgid "Current active Ground: "
-msgstr ""
+msgstr "தற்போதைய செயலில் மைதானம்: "
 
 #: gui/panels/GUI_FrictionSettings.cpp:55
 msgctxt "FrictionSettings"
 msgid "selected Ground Type:"
-msgstr ""
+msgstr "தேர்ந்தெடுக்கப்பட்ட தரை வகை:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:61
 msgctxt "FrictionSettings"
 msgid "Solid ground settings"
-msgstr ""
+msgstr "திட தரை அமைப்புகள்"
 
 #: gui/panels/GUI_FrictionSettings.cpp:63
 msgctxt "FrictionSettings"
 msgid "Solid ground level:"
-msgstr ""
+msgstr "திடமான தரை நிலை:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:64
 msgctxt "FrictionSettings"
 msgid "Solid ground level"
-msgstr ""
+msgstr "திடமான தரை நிலை"
 
 #: gui/panels/GUI_FrictionSettings.cpp:64
 msgctxt "FrictionSettings"
@@ -688,16 +692,20 @@ msgid "With this you can define how deep the solid ground is. If it is 0 "
 "of fluid on top of solid ground. If it is 100 then the solid ground "
 "will be way deep (100m), with fluid on top."
 msgstr ""
+"இதன் மூலம் திடமான மைதானம் எவ்வளவு ஆழமானது என்பதை நீங்கள் வரையறுக்கலாம். அது 0 ஆக "
+"இருந்தால், மேற்பரப்பு திடமாக இருக்கும். இது 0.1 ஆக இருந்தால், நீங்கள் திட நிலத்தின் மேல் "
+"10 செ.மீ திரவத்தை வைத்திருப்பீர்கள். இது 100 ஆக இருந்தால், திடமான தரை ஆழமாக (100 மீ) "
+"இருக்கும், மேலே திரவம் இருக்கும்."
 
 #: gui/panels/GUI_FrictionSettings.cpp:66
 msgctxt "FrictionSettings"
 msgid "Strength:"
-msgstr ""
+msgstr "வலிமை:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:67
 msgctxt "FrictionSettings"
 msgid "Strength"
-msgstr ""
+msgstr "வலிமை"
 
 #: gui/panels/GUI_FrictionSettings.cpp:67
 msgctxt "FrictionSettings"
@@ -706,16 +714,19 @@ msgid "This parameter raises or diminishes surface friction in a generic "
 "friction. Start with having this to 1.0 and after tuning the rest of "
 "the surface variables, come back and play with this."
 msgstr ""
+"இந்த அளவுரு மேற்பரப்பு உராய்வை பொதுவான வழியில் உயர்த்துகிறது அல்லது குறைக்கிறது. "
+"உராய்வின் விரைவான அளவுத்திருத்தங்களைச் செய்ய இது இங்கே உள்ளது. இதை 1.0 ஆகத் தொடங்கவும், "
+"மீதமுள்ள மேற்பரப்பு மாறிகள் டியூன் செய்த பிறகு, திரும்பி வந்து இதனுடன் விளையாடுங்கள்."
 
 #: gui/panels/GUI_FrictionSettings.cpp:69
 msgctxt "FrictionSettings"
 msgid "Static friction coef:"
-msgstr ""
+msgstr "நிலையான உராய்வு கோஃப்:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:70
 msgctxt "FrictionSettings"
 msgid "Static friction coef"
-msgstr ""
+msgstr "நிலையான உராய்வு கோஃப்"
 
 #: gui/panels/GUI_FrictionSettings.cpp:70
 msgctxt "FrictionSettings"
@@ -726,16 +737,21 @@ msgid "Static friction keeps you in the same place when you are stopped on "
 "values for this and the rest of surface friction variables in the "
 "net, and then to fine tune via strength."
 msgstr ""
+"நீங்கள் ஒரு மலையில் நிறுத்தப்படும்போது நிலையான உராய்வு உங்களை அதே இடத்தில் வைத்திருக்கிறது"
+". உண்மையான உலகில் இந்த உராய்வு எப்போதும் மாறும் உராய்வு (நெகிழ் உராய்வு) விட பெரியது. "
+"0.5 உடன் தொடங்கி அங்கிருந்து வேலை செய்யுங்கள். இதற்கான சில சோதனை ரீதியாக சரிபார்க்கப்பட்ட "
+"மதிப்புகளையும், வலையில் உள்ள மேற்பரப்பு உராய்வு மாறிகள் மீதமுள்ள சில மதிப்புகளையும் "
+"கண்டுபிடிக்க முயற்சிப்பது நல்லது, பின்னர் வலிமையின் மூலம் நன்றாக இருக்கும்."
 
 #: gui/panels/GUI_FrictionSettings.cpp:72
 msgctxt "FrictionSettings"
 msgid "Adhesion velocity:"
-msgstr ""
+msgstr "ஒட்டுதல் வேகம்:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:73
 msgctxt "FrictionSettings"
 msgid "Adhesion velocity"
-msgstr ""
+msgstr "ஒட்டுதல் விரைவு"
 
 #: gui/panels/GUI_FrictionSettings.cpp:73
 msgctxt "FrictionSettings"
@@ -744,16 +760,20 @@ msgid "Below this value static friction laws apply, above it dynamic "
 "0.1-0.4 . This velocity threshold is also used by fluid dynamics so "
 "you should always define it. NEVER set it to 0."
 msgstr ""
+"இந்த மதிப்புக்கு கீழே நிலையான உராய்வு சட்டங்கள் பொருந்தும், அதற்கு மேலே மாறும் உராய்வு "
+"சட்டங்கள் பொருந்தும். மதிப்பு 0.1-0.4 வரம்பில் சிறியதாக இருக்க வேண்டும். இந்த திசைவேக "
+"வாசல் திரவ இயக்கவியல் மூலம் பயன்படுத்தப்படுகிறது, எனவே நீங்கள் எப்போதும் அதை வரையறுக்க "
+"வேண்டும். அதை ஒருபோதும் 0 ஆக அமைக்க வேண்டாம்."
 
 #: gui/panels/GUI_FrictionSettings.cpp:75
 msgctxt "FrictionSettings"
 msgid "Dynamic friction coef:"
-msgstr ""
+msgstr "மாறும் உராய்வு கோஃப்:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:76
 msgctxt "FrictionSettings"
 msgid "Dynamic friction coef"
-msgstr ""
+msgstr "மாறும் உராய்வு கோஃப்"
 
 #: gui/panels/GUI_FrictionSettings.cpp:76
 msgctxt "FrictionSettings"
@@ -761,16 +781,19 @@ msgid "Or sliding friction coef. It should be smaller than static friction "
 "coef. This parameter defines how much friction you'll have when "
 "sliding. Try to find some values for it from the net."
 msgstr ""
+"அல்லது நெகிழ் உராய்வு கோஃப். இது நிலையான உராய்வு கோஃப்பை விட சிறியதாக இருக்க வேண்டும்"
+". இந்த அளவுரு சறுக்கும்போது உங்களுக்கு எவ்வளவு உராய்வு இருக்கும் என்பதை வரையறுக்கிறது. "
+"அதற்கான சில மதிப்புகளை வலையிலிருந்து கண்டுபிடிக்க முயற்சிக்கவும்."
 
 #: gui/panels/GUI_FrictionSettings.cpp:78
 msgctxt "FrictionSettings"
 msgid "Hydrodynamic friction coef:"
-msgstr ""
+msgstr "ஐட்ரோடினமிக் உராய்வு கோஃப்:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:79
 msgctxt "FrictionSettings"
 msgid "Hydrodynamic friction coef"
-msgstr ""
+msgstr "ஐட்ரோடினமிக் உராய்வு கோஃப்"
 
 #: gui/panels/GUI_FrictionSettings.cpp:79
 msgctxt "FrictionSettings"
@@ -781,16 +804,21 @@ msgid "This friction defines the added friction that you'll feel from a "
 "decide that you'll simulate the film of fluid with the more complex "
 "fluid physics below, then just set this to 0."
 msgstr ""
+"இந்த உராய்வு கூடுதல் உராய்வை வரையறுக்கிறது, அது ஒரு மேற்பரப்பில் இருந்து ஒரு சிறிய "
+"படத்தைக் கொண்டிருக்கும். இது கீழே உள்ள அனைத்து திரவ இயற்பியல்களிலும் தேவையற்றது, ஆனால் இது"
+" இங்கே உள்ளது, இதனால் வலையிலிருந்து சோதனை ரீதியாக சரிபார்க்கப்பட்ட மதிப்புகள் "
+"பயன்படுத்தக்கூடியவை. கீழே உள்ள மிகவும் சிக்கலான திரவ இயற்பியலுடன் திரவத்தின் படத்தை "
+"உருவகப்படுத்துவீர்கள் என்று நீங்கள் முடிவு செய்தால், இதை 0 ஆக அமைக்கவும்."
 
 #: gui/panels/GUI_FrictionSettings.cpp:81
 msgctxt "FrictionSettings"
 msgid "Stribeck velocity:"
-msgstr ""
+msgstr "ச்ட்ரிபெக் வேகம்:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:82
 msgctxt "FrictionSettings"
 msgid "Stribeck velocity"
-msgstr ""
+msgstr "ச்ட்ரைபெக் விரைவு"
 
 #: gui/panels/GUI_FrictionSettings.cpp:82
 msgctxt "FrictionSettings"
@@ -799,36 +827,39 @@ msgid "You'll either find stribeck velocity in the net, or the inverse (1/"
 "the shape of the dynamic friction curve. Lets leave it at that. Just "
 "find some nice values for it from the net."
 msgstr ""
+"நீங்கள் வலையில் ச்ட்ரைபெக் வேகத்தைக் காண்பீர்கள், அல்லது 'ச்ட்ரிபெக் கோஃப்' என்று விவரிக்கப்பட்டுள்"
+"ள தலைகீழ் (1/ச்ட்ரிபெக் வேகம்). இது மாறும் உராய்வு வளைவின் வடிவத்தை வரையறுக்கிறது. அதை "
+"விட்டுவிடலாம். அதற்கான சில நல்ல மதிப்புகளை வலையிலிருந்து கண்டுபிடிக்கவும்."
 
 #: gui/panels/GUI_FrictionSettings.cpp:84
 msgctxt "FrictionSettings"
 msgid "alpha:"
-msgstr ""
+msgstr "ஆல்பா:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:85
 msgctxt "FrictionSettings"
 msgid "Alpha"
-msgstr ""
+msgstr "அகர"
 
 #: gui/panels/GUI_FrictionSettings.cpp:85
 msgctxt "FrictionSettings"
 msgid "Its usual value is 2. But you can try others."
-msgstr ""
+msgstr "அதன் வழக்கமான மதிப்பு 2. ஆனால் நீங்கள் மற்றவர்களை முயற்சி செய்யலாம்."
 
 #: gui/panels/GUI_FrictionSettings.cpp:87
 msgctxt "FrictionSettings"
 msgid "Fluid Settings"
-msgstr ""
+msgstr "திரவ அமைப்புகள்"
 
 #: gui/panels/GUI_FrictionSettings.cpp:89
 msgctxt "FrictionSettings"
 msgid "Flow behavior index:"
-msgstr ""
+msgstr "ஓட்ட நடத்தை அட்டவணை:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:90
 msgctxt "FrictionSettings"
 msgid "Flow behavior index"
-msgstr ""
+msgstr "ஓட்ட நடத்தை அட்டவணை"
 
 #: gui/panels/GUI_FrictionSettings.cpp:90
 msgctxt "FrictionSettings"
@@ -840,32 +871,39 @@ msgid "If it is 1.0 then the fluid will behave like water. The lower you "
 "velocity, the bigger the resistance of the fluid (try to hit sand "
 "hard it'll feel like stone)."
 msgstr ""
+"அது 1.0 ஆக இருந்தால், திரவம் தண்ணீரைப் போல செயல்படும். 1.0 இலிருந்து நீங்கள் பெறும் போது, "
+"திரவம் மண்ணைப் போன்றது, அதாவது சிறிய வேகங்களுக்கு திரவம் இயக்கத்தை எதிர்க்கும் மற்றும் பெரி"
+"ய வேகங்களுக்கு திரவம் அவ்வளவு எதிர்க்காது. 1.0 இலிருந்து நீங்கள் பெறுவது மணல் போன்றது "
+"திரவம் நடந்து கொள்ளும். பெரிய விரைவு, திரவத்தின் பெரிய எதிர்ப்பு (மணலை கடினமாக அடிக்க "
+"முயற்சி செய்யுங்கள் அது கல் போல உணரும்)."
 
 #: gui/panels/GUI_FrictionSettings.cpp:92
 msgctxt "FrictionSettings"
 msgid "Flow consistency:"
-msgstr ""
+msgstr "ஓட்டம் நிலைத்தன்மை:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:93
 msgctxt "FrictionSettings"
 msgid "Flow consistency"
-msgstr ""
+msgstr "ஓட்டம் நிலைத்தன்மை"
 
 #: gui/panels/GUI_FrictionSettings.cpp:93
 msgctxt "FrictionSettings"
 msgid "Think of it as default fluid resistance. Behavior index above "
 "changes it at real time. Useful values in practice are quite large."
 msgstr ""
+"இயல்புநிலை திரவ எதிர்ப்பு என்று நினைத்துப் பாருங்கள். மேலே உள்ள நடத்தை அட்டவணை அதை "
+"உண்மையான நேரத்தில் மாற்றுகிறது. நடைமுறையில் பயனுள்ள மதிப்புகள் மிகப் பெரியவை."
 
 #: gui/panels/GUI_FrictionSettings.cpp:95
 msgctxt "FrictionSettings"
 msgid "Fluid density:"
-msgstr ""
+msgstr "திரவ அடர்த்தி:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:96
 msgctxt "FrictionSettings"
 msgid "Fluid density"
-msgstr ""
+msgstr "திரவ அடர்த்தி"
 
 #: gui/panels/GUI_FrictionSettings.cpp:96
 msgctxt "FrictionSettings"
@@ -879,16 +917,24 @@ msgid "In mud (or sand) the resistance of the fluid described by the "
 "behave like you are in water. For fluids with behavior index <1 "
 "it'll behave like you are in mud."
 msgstr ""
+"மண்ணில் (அல்லது மணல்) மேலே உள்ள அளவுருக்களால் விவரிக்கப்பட்ட திரவத்தின் எதிர்ப்பு உங்களைத் "
+"தடுக்கும், எனவே உங்களை மூழ்கவிடாமல் தடுக்கும். ஆனால் தண்ணீர் போன்ற பொருட்களுக்கு இது உங்களை "
+"மூழ்கடிப்பதைத் தடுக்கும் இழுவை அல்ல. அதன் மிதப்பு. குறைந்த இழுவை (எதிர்ப்பு) மூலம் "
+"திரவங்களை உருவகப்படுத்த விரும்பும் போது உங்களை மூழ்கடிக்காமல் இருக்க இந்த அளவுரு இங்கே "
+"உள்ளது. மண் அல்லது மணல் போன்ற திரவங்களுக்கு நீங்கள் அதை 0 இல் வைக்கலாம், ஆனால் அதை சில "
+"குறைந்தபட்ச மதிப்பில் வைத்திருப்பது நல்லது. நடத்தை குறியீட்டைக் கொண்ட திரவங்களுக்கு> = 1 "
+"நீங்கள் தண்ணீரில் இருப்பதைப் போல இது செயல்படும். நடத்தை குறியீட்டைக் கொண்ட திரவங்களுக்கு <1 "
+"இது நீங்கள் சேற்றில் இருப்பதைப் போல நடந்து கொள்ளும்."
 
 #: gui/panels/GUI_FrictionSettings.cpp:98
 msgctxt "FrictionSettings"
 msgid "Drag anisotropy:"
-msgstr ""
+msgstr "அனிசோட்ரோபியை இழுக்கவும்:"
 
 #: gui/panels/GUI_FrictionSettings.cpp:99
 msgctxt "FrictionSettings"
 msgid "Drag anisotropy"
-msgstr ""
+msgstr "அனிசோட்ரோபியை இழுக்கவும்"
 
 #: gui/panels/GUI_FrictionSettings.cpp:99
 msgctxt "FrictionSettings"
@@ -900,93 +946,99 @@ msgid "This parameter is for making it easier(cheating) to get out from "
 "and the value of Adhesion velocity. For velocity 0 real mud it is. "
 "For velocity >= adhesion velocity easy mud it is."
 msgstr ""
+"இந்த அளவுரு சேற்றில் இருந்து வெளியேறுவதை எளிதாக்குகிறது (மோசடி). உண்மையான சேற்றில் "
+"சிக்கிக்கொள்வது வேடிக்கையாக இல்லை, எனவே இது சேற்றை உயர்த்துகிறது. இந்த அளவுருவில் உள்ள "
+"வரம்புகள் 0 முதல் 1 வரை இருக்கும். நீங்கள் அதை 1 இல் அமைத்தால் உண்மையான மண் கிடைக்கும். 0 "
+"முதல் 1 வரையிலான மதிப்புகளுக்கு, நடத்தை இந்த அளவுரு மற்றும் ஒட்டுதல் வேகத்தின் மதிப்பைப் "
+"பொறுத்து உண்மையான சேற்றிலிருந்து எளிதான சேற்றுக்கு செல்கிறது. விரைவு 0 உண்மையான மண் "
+"அது. வேகம்> = ஒட்டுதல் விரைவு எளிதான மண்."
 
 #: gui/panels/GUI_GameAbout.cpp:47
 msgctxt "About"
 msgid "About Rigs of Rods"
-msgstr ""
+msgstr "தண்டுகளின் ரிக் பற்றி"
 
 #: gui/panels/GUI_GameAbout.cpp:49
 msgctxt "About"
 msgid "Version"
-msgstr ""
+msgstr "பதிப்பு"
 
 #: gui/panels/GUI_GameAbout.cpp:53
 msgctxt "About"
 msgid "Network protocol"
-msgstr ""
+msgstr "பிணைய நெறிமுறை"
 
 #: gui/panels/GUI_GameAbout.cpp:57
 msgctxt "About"
 msgid "Build time"
-msgstr ""
+msgstr "நேரத்தை உருவாக்குங்கள்"
 
 #: gui/panels/GUI_GameAbout.cpp:63
 msgctxt "About"
 msgid "Authors"
-msgstr ""
+msgstr "ஆசிரியர்கள்"
 
 #: gui/panels/GUI_GameAbout.cpp:68
 msgctxt "About"
 msgid "Current Developers"
-msgstr ""
+msgstr "தற்போதைய உருவாக்குபவர்கள்"
 
 #: gui/panels/GUI_GameAbout.cpp:73
 msgctxt "About"
 msgid "Server Contributors"
-msgstr ""
+msgstr "சேவையக பங்களிப்பாளர்கள்"
 
 #: gui/panels/GUI_GameAbout.cpp:81
 msgctxt "About"
 msgid "Code Contributors"
-msgstr ""
+msgstr "குறியீடு பங்களிப்பாளர்கள்"
 
 #: gui/panels/GUI_GameAbout.cpp:107
 msgctxt "About"
 msgid "Core Content Contributors"
-msgstr ""
+msgstr "முக்கிய உள்ளடக்க பங்களிப்பாளர்கள்"
 
 #: gui/panels/GUI_GameAbout.cpp:113
 msgctxt "About"
 msgid "Mod Contributors"
-msgstr ""
+msgstr "மோட் பங்களிப்பாளர்கள்"
 
 #: gui/panels/GUI_GameAbout.cpp:117
 msgctxt "About"
 msgid "Testers"
-msgstr ""
+msgstr "சோதனையாளர்கள்"
 
 #: gui/panels/GUI_GameAbout.cpp:121
 msgctxt "About"
 msgid "Used Libs"
-msgstr ""
+msgstr "பயன்படுத்திய லிப்ச்"
 
 #: gui/panels/GUI_GameChatBox.cpp:81
 #, c++-format
 msgctxt "ChatBox"
 msgid "Press {} to spawn a vehicle"
-msgstr ""
+msgstr "ஒரு வாகனத்தை உருவாக்க {} ஐ அழுத்தவும்"
 
 #: gui/panels/GUI_GameChatBox.cpp:143
 msgctxt "ChatBox"
 msgid "Chat history (use mouse wheel to scroll)"
-msgstr ""
+msgstr "அரட்டை வரலாறு (உருட்ட சுட்டி சக்கரத்தைப் பயன்படுத்தவும்)"
 
 #: gui/panels/GUI_GameChatBox.cpp:144
 msgctxt "ChatBox"
 msgid "Message"
-msgstr ""
+msgstr "செய்தி"
 
 #: gui/panels/GUI_GameChatBox.cpp:192
 #, c++-format
 msgctxt "ChatBox"
 msgid "Whisper message not sent, unknown username: {}"
-msgstr ""
+msgstr "கிசுகிசு செய்தி அனுப்பப்படவில்லை, அறியப்படாத பயனர்பெயர்: {}"
 
 #: gui/panels/GUI_GameChatBox.cpp:199
 msgctxt "ChatBox"
 msgid "usage: /whisper username message"
-msgstr ""
+msgstr "பயன்பாடு: /கிசுகிசு பயனர்பெயர் செய்தி"
 
 #: gui/panels/GUI_GameControls.cpp:65
 msgctxt "GameControls"
