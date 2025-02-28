@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2025-02-27 13:02+0000\n"
+"PO-Revision-Date: 2025-03-01 02:01+0000\n"
 "Last-Translator: தமிழ்நேரம் <anishprabu.t@gmail.com>\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "ta/>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10.2-dev\n"
+"X-Generator: Weblate 5.10.3-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -1043,3226 +1043,3246 @@ msgstr "பயன்பாடு: /கிசுகிசு பயனர்ப�
 #: gui/panels/GUI_GameControls.cpp:65
 msgctxt "GameControls"
 msgid "Press a new key"
-msgstr ""
+msgstr "புதிய விசையை அழுத்தவும்"
 
 #: gui/panels/GUI_GameControls.cpp:74
 msgctxt "GameControls"
 msgid "EXPL"
-msgstr ""
+msgstr "விவரம்"
 
 #: gui/panels/GUI_GameControls.cpp:83
 msgctxt "GameControls"
 msgid "With EXPL tag, only exactly matching key combos will be triggered.\n"
 "Without it, partial matches will trigger, too."
 msgstr ""
+"EXP TAG உடன், சரியாக பொருந்தக்கூடிய விசை காம்போக்கள் மட்டுமே தூண்டப்படும்.\n"
+" இது இல்லாமல், பகுதி போட்டிகளும் தூண்டப்படும்."
 
 #: gui/panels/GUI_GameControls.cpp:87
 msgctxt "GameControls"
 msgid "Example: Pressing CTRL+F1 will trigger COMMANDS_03 and COMMANDS_01\n"
 "but not COMMANDS_02 which has EXPL tag."
 msgstr ""
+"எடுத்துக்காட்டு: CTRL+F1 ஐ அழுத்தினால் கட்டளைகள்_03 மற்றும் கட்டளைகள்_01\n"
+" ஆனால் commands_02 அல்ல, இது EXPL TAG ஐக் கொண்டுள்ளது."
 
 #: gui/panels/GUI_GameControls.cpp:108
 msgctxt "GameControls"
 msgid "Game Controls"
-msgstr ""
+msgstr "விளையாட்டு கட்டுப்பாடுகள்"
 
 #: gui/panels/GUI_GameControls.cpp:116
 msgctxt "GameControls"
 msgid "Save changes"
-msgstr ""
+msgstr "மாற்றங்களைச் சேமிக்கவும்"
 
 #: gui/panels/GUI_GameControls.cpp:121
 msgctxt "GameControls"
 msgid "Reset changes"
-msgstr ""
+msgstr "மாற்றங்களை மீட்டமை"
 
 #. Device type selector
 #. - General BeginCombo() API, you have full control over your selection data and display type.
 #: gui/panels/GUI_GameControls.cpp:235
 msgctxt "GameSettings"
 msgid "EventType"
-msgstr ""
+msgstr "நிகழ்வு"
 
 #. Buttons
 #: gui/panels/GUI_GameControls.cpp:280
 msgctxt "GameSettings"
 msgid "OK"
-msgstr ""
+msgstr "சரி"
 
 #: gui/panels/GUI_GameControls.cpp:285
 msgctxt "GameSettings"
 msgid "Cancel"
-msgstr ""
+msgstr "ரத்துசெய்"
 
 #: gui/panels/GUI_GameControls.cpp:290
 msgctxt "GameSettings"
 msgid "Delete"
-msgstr ""
+msgstr "நீக்கு"
 
 #: gui/panels/GUI_GameMainMenu.cpp:115
 msgctxt "MainMenu"
 msgid "Single player"
-msgstr ""
+msgstr "ஒற்றை வீரர்"
 
 #: gui/panels/GUI_GameMainMenu.cpp:125 gui/panels/GUI_GameMainMenu.cpp:134
 msgctxt "MainMenu"
 msgid "Resume game"
-msgstr ""
+msgstr "விளையாட்டை மீண்டும் தொடங்குங்கள்"
 
 #: gui/panels/GUI_GameMainMenu.cpp:143
 msgctxt "MainMenu"
 msgid "Multiplayer"
-msgstr ""
+msgstr "மல்டிபிளேயர்"
 
 #: gui/panels/GUI_GameMainMenu.cpp:149
 msgctxt "MainMenu"
 msgid "Repository"
-msgstr ""
+msgstr "களஞ்சியம்"
 
 #: gui/panels/GUI_GameMainMenu.cpp:155
 msgctxt "MainMenu"
 msgid "Settings"
-msgstr ""
+msgstr "அமைப்புகள்"
 
 #: gui/panels/GUI_GameMainMenu.cpp:161 gui/panels/GUI_GameMainMenu.cpp:175
 msgctxt "MainMenu"
 msgid "Controls"
-msgstr ""
+msgstr "கட்டுப்பாடுகள்"
 
 #: gui/panels/GUI_GameMainMenu.cpp:167
 msgctxt "MainMenu"
 msgid "About"
-msgstr ""
+msgstr "பற்றி"
 
 #: gui/panels/GUI_GameMainMenu.cpp:181
 msgid "Return to menu"
-msgstr ""
+msgstr "மெனுவுக்கு திரும்பவும்"
 
 #: gui/panels/GUI_GameMainMenu.cpp:192
 msgctxt "MainMenu"
 msgid "Exit game"
-msgstr ""
+msgstr "வெளியேறும் விளையாட்டு"
 
 #: gui/panels/GUI_GameMainMenu.cpp:230 gui/panels/GUI_GameMainMenu.cpp:258
 msgctxt "MainMenu"
 msgid "Game version"
-msgstr ""
+msgstr "விளையாட்டு பதிப்பு"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:231 gui/panels/GUI_GameMainMenu.cpp:259
 msgctxt "MainMenu"
 msgid "Net. protocol"
-msgstr ""
+msgstr "நிகர. நெறிமுறை"
 
 #: gui/panels/GUI_GameMainMenu.cpp:244
 msgctxt "MainMenu"
 msgid "Version box"
-msgstr ""
+msgstr "பதிப்பு பெட்டி"
 
 #. needed to align with VersionBox
 #: gui/panels/GUI_GameMainMenu.cpp:260
 msgctxt "MainMenu"
 msgid "Cache updated"
-msgstr ""
+msgstr "கேச் புதுப்பிக்கப்பட்டது"
 
 #: gui/panels/GUI_GameMainMenu.cpp:273
 msgctxt "MainMenu"
 msgid "Notice box"
-msgstr ""
+msgstr "அறிவிப்பு பெட்டி"
 
 #: gui/panels/GUI_GameSettings.cpp:43
 msgctxt "GameSettings"
 msgid "Game settings"
-msgstr ""
+msgstr "விளையாட்டு அமைப்புகள்"
 
 #. Combobox for selecting the Render System
 #: gui/panels/GUI_GameSettings.cpp:51 gui/panels/GUI_GameSettings.cpp:128
 msgctxt "GameSettings"
 msgid "Render System"
-msgstr ""
+msgstr "அமைப்பு வழங்கவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:58
 msgctxt "GameSettings"
 msgid "General"
-msgstr ""
+msgstr "பொது"
 
 #: gui/panels/GUI_GameSettings.cpp:65
 msgctxt "GameSettings"
 msgid "Gameplay"
-msgstr ""
+msgstr "விளையாட்டு"
 
 #: gui/panels/GUI_GameSettings.cpp:72
 msgctxt "GameSettings"
 msgid "Graphics"
-msgstr ""
+msgstr "கிராபிக்ச்"
 
 #: gui/panels/GUI_GameSettings.cpp:79
 msgctxt "GameSettings"
 msgid "Audio"
-msgstr ""
+msgstr "ஆடியோ"
 
 #: gui/panels/GUI_GameSettings.cpp:86
 msgctxt "GameSettings"
 msgid "Controls"
-msgstr ""
+msgstr "கட்டுப்பாடுகள்"
 
 #: gui/panels/GUI_GameSettings.cpp:93
 msgctxt "GameSettings"
 msgid "Diagnostic"
-msgstr ""
+msgstr "கண்டறியும்"
 
 #: gui/panels/GUI_GameSettings.cpp:114
 msgctxt "GameSettings"
 msgid "Render system (changes require a restart)"
-msgstr ""
+msgstr "வழங்குதல் சிச்டம் (மாற்றங்களுக்கு மறுதொடக்கம் தேவை)"
 
 #: gui/panels/GUI_GameSettings.cpp:166
 msgctxt "GameSettings"
 msgid "Application settings"
-msgstr ""
+msgstr "பயன்பாட்டு அமைப்புகள்"
 
 #: gui/panels/GUI_GameSettings.cpp:178
 msgctxt "GameSettings"
 msgid "Language"
-msgstr ""
+msgstr "மொழி"
 
 #: gui/panels/GUI_GameSettings.cpp:209
 msgctxt "GameSettings"
 msgid "Country"
-msgstr ""
+msgstr "நாடு"
 
 #. Hardcoded; TODO: list available formats.
 #. Screenshot format: Can be png or jpg
 #: gui/panels/GUI_GameSettings.cpp:218
 msgctxt "GameSettings"
 msgid "Screenshot format"
-msgstr ""
+msgstr "திரைக்காட்சி வடிவம்"
 
 #: gui/panels/GUI_GameSettings.cpp:224
 msgctxt "GameSettings"
 msgid "Extra mod path"
-msgstr ""
+msgstr "கூடுதல் மோட் பாதை"
 
 #: gui/panels/GUI_GameSettings.cpp:226
 msgctxt "GameSettings"
 msgid "Skip main menu"
-msgstr ""
+msgstr "முதன்மையான மெனுவைத் தவிர்க்கவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:227
 msgctxt "GameSettings"
 msgid "Async physics"
-msgstr ""
+msgstr "ஒத்திசைவு இயற்பியல்"
 
 #: gui/panels/GUI_GameSettings.cpp:228
 msgctxt "GameSettings"
 msgid "Disable online api"
-msgstr ""
+msgstr "நிகழ்நிலை பநிஇ ஐ முடக்கு"
 
 #: gui/panels/GUI_GameSettings.cpp:230
 msgctxt "GameSettings"
 msgid "Update cache"
-msgstr ""
+msgstr "கேச் புதுப்பிக்கவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:240
 msgctxt "GameSettings"
 msgid "Simulation settings"
-msgstr ""
+msgstr "உருவகப்படுத்துதல் அமைப்புகள்"
 
 #: gui/panels/GUI_GameSettings.cpp:242
 msgctxt "GameSettings"
 msgid "Gearbox mode"
-msgstr ""
+msgstr "கியர்பாக்ச் பயன்முறை"
 
 #: gui/panels/GUI_GameSettings.cpp:245
 msgctxt "GameSettings"
 msgid "Digital speedometer"
-msgstr ""
+msgstr "டிசிட்டல் ச்பீடோமீட்டர்"
 
 #: gui/panels/GUI_GameSettings.cpp:246
 msgctxt "GameSettings"
 msgid "Imperial speedometer"
-msgstr ""
+msgstr "இம்பீரியல் ச்பீடோமீட்டர்"
 
 #. DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
 #: gui/panels/GUI_GameSettings.cpp:250
 msgctxt "GameSettings"
 msgid "Engines spawn running"
-msgstr ""
+msgstr "என்சின்கள் இயங்கும்"
 
 #: gui/panels/GUI_GameSettings.cpp:252
 msgctxt "GameSettings"
 msgid "Replay mode"
-msgstr ""
+msgstr "மறுதொடக்கம் பயன்முறை"
 
 #: gui/panels/GUI_GameSettings.cpp:255
 msgctxt "GameSettings"
 msgid "Replay length"
-msgstr ""
+msgstr "மறுதொடக்கம் நீளம்"
 
 #: gui/panels/GUI_GameSettings.cpp:256
 msgctxt "GameSettings"
 msgid "Replay stepping"
-msgstr ""
+msgstr "மறுபதிப்பு படி"
 
 #: gui/panels/GUI_GameSettings.cpp:259
 msgctxt "GameSettings"
 msgid "Realistic forward commands"
-msgstr ""
+msgstr "யதார்த்தமான முன்னோக்கி கட்டளைகள்"
 
 #: gui/panels/GUI_GameSettings.cpp:261
 msgctxt "GameSettings"
 msgid "Enable races"
-msgstr ""
+msgstr "பந்தயங்களை இயக்கவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:263
 msgctxt "GameSettings"
 msgid "No intra truck collisions"
-msgstr ""
+msgstr "இன்ட்ரா டிரக் மோதல்கள் இல்லை"
 
 #: gui/panels/GUI_GameSettings.cpp:264
 msgctxt "GameSettings"
 msgid "No inter truck collisions"
-msgstr ""
+msgstr "டிரக் மோதல்கள் இல்லை"
 
 #: gui/panels/GUI_GameSettings.cpp:266
 msgctxt "GameSettings"
 msgid "Discord Rich Presence"
-msgstr ""
+msgstr "முரண்பாடு பணக்கார இருப்பு"
 
 #: gui/panels/GUI_GameSettings.cpp:268
 msgctxt "GameSettings"
 msgid "Show confirm. UI dialog for quickload"
-msgstr ""
+msgstr "உறுதிப்படுத்தவும். குவிக்லோடிற்கான இடைமுகம் உரையாடல்"
 
 #: gui/panels/GUI_GameSettings.cpp:270
 msgctxt "GameSettings"
 msgid "Show controls in live repair box"
-msgstr ""
+msgstr "நேரடி பழுதுபார்க்கும் பெட்டியில் கட்டுப்பாடுகளைக் காட்டு"
 
 #: gui/panels/GUI_GameSettings.cpp:272
 msgctxt "GameSettings"
 msgid "Show vehicle buttons menu"
-msgstr ""
+msgstr "வாகன பொத்தான்கள் மெனுவைக் காட்டு"
 
 #: gui/panels/GUI_GameSettings.cpp:274
 msgctxt "GameSettings"
 msgid "Enable vehicle tuning"
-msgstr ""
+msgstr "வாகன ட்யூனிங்கை இயக்கவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:280
 msgctxt "GameSettings"
 msgid "Audio settings"
-msgstr ""
+msgstr "ஆடியோ அமைப்புகள்"
 
 #: gui/panels/GUI_GameSettings.cpp:296
 msgctxt "GameSettings"
 msgid "Audio device"
-msgstr ""
+msgstr "ஆடியோ சாதனம்"
 
 #: gui/panels/GUI_GameSettings.cpp:301
 msgctxt "GameSettings"
 msgid "Creak sound"
-msgstr ""
+msgstr "கிரீக் ஒலி"
 
 #: gui/panels/GUI_GameSettings.cpp:302
 msgctxt "GameSettings"
 msgid "Main menu music"
-msgstr ""
+msgstr "முதன்மை பட்டியல் இசை"
 
 #: gui/panels/GUI_GameSettings.cpp:303
 msgctxt "GameSettings"
 msgid "Master volume"
-msgstr ""
+msgstr "முதன்மை தொகுதி"
 
 #: gui/panels/GUI_GameSettings.cpp:309
 msgctxt "GameSettings"
 msgid "Video settings"
-msgstr ""
+msgstr "வீடியோ அமைப்புகள்"
 
 #: gui/panels/GUI_GameSettings.cpp:311
 msgctxt "GameSettings"
 msgid "Light sources"
-msgstr ""
+msgstr "ஒளி மூலங்கள்"
 
 #: gui/panels/GUI_GameSettings.cpp:314
 msgctxt "GameSettings"
 msgid "Shadow type (requires restart)"
-msgstr ""
+msgstr "நிழல் வகை (மறுதொடக்கம் தேவை)"
 
 #: gui/panels/GUI_GameSettings.cpp:319
 msgctxt "GameSettings"
 msgid "Shadow optimizations"
-msgstr ""
+msgstr "நிழல் மேம்படுத்தல்கள்"
 
 #: gui/panels/GUI_GameSettings.cpp:322
 msgctxt "GameSettings"
 msgid "Shadow quality"
-msgstr ""
+msgstr "நிழல் தகுதி"
 
 #: gui/panels/GUI_GameSettings.cpp:326
 msgctxt "GameSettings"
 msgid "Sky gfx"
-msgstr ""
+msgstr "ச்கை சி.எஃப்.எக்ச்"
 
 #: gui/panels/GUI_GameSettings.cpp:331
 msgctxt "GameSettings"
 msgid "Sight range (meters)"
-msgstr ""
+msgstr "பார்வை வரம்பு (மீட்டர்)"
 
 #: gui/panels/GUI_GameSettings.cpp:334
 msgctxt "GameSettings"
 msgid "Texture filtering"
-msgstr ""
+msgstr "அமைப்பு வடிகட்டுதல்"
 
 #: gui/panels/GUI_GameSettings.cpp:341
 msgctxt "GameSettings"
 msgid "Anisotropy"
-msgstr ""
+msgstr "அனிசோட்ரோபி"
 
 #: gui/panels/GUI_GameSettings.cpp:347
 msgctxt "GameSettings"
 msgid "Vegetation density"
-msgstr ""
+msgstr "தாவர அடர்த்தி"
 
 #: gui/panels/GUI_GameSettings.cpp:350
 msgctxt "GameSettings"
 msgid "Water gfx"
-msgstr ""
+msgstr "நீர் சி.எஃப்.எக்ச்"
 
 #: gui/panels/GUI_GameSettings.cpp:353
 msgctxt "GameSettings"
 msgid "FPS limit"
-msgstr ""
+msgstr "FPS வரம்பு"
 
 #: gui/panels/GUI_GameSettings.cpp:355
 msgctxt "GameSettings"
 msgid "Enable particle gfx"
-msgstr ""
+msgstr "துகள் GFX ஐ இயக்கவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:356
 msgctxt "GameSettings"
 msgid "Enable skidmarks"
-msgstr ""
+msgstr "ச்கிட்மார்க்சை இயக்கவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:358
 msgctxt "GameSettings"
 msgid "Realtime reflections"
-msgstr ""
+msgstr "நிகழ்நேர பிரதிபலிப்புகள்"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_GameSettings.cpp:362
 msgctxt "GameSettings"
 msgid "Realtime refl. update rate"
-msgstr ""
+msgstr "நிகழ்நேர பிரதிபலிப்பு. புதுப்பிப்பு வீதம்"
 
 #: gui/panels/GUI_GameSettings.cpp:366
 msgctxt "GameSettings"
 msgid "Render video cameras"
-msgstr ""
+msgstr "வீடியோ கேமராக்களை வழங்கவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:367
 msgctxt "GameSettings"
 msgid "Overview map icons"
-msgstr ""
+msgstr "கண்ணோட்டம் வரைபட சின்னங்கள்"
 
 #: gui/panels/GUI_GameSettings.cpp:370
 msgctxt "GameSettings"
 msgid "Declutter overview map"
-msgstr ""
+msgstr "டெலட்டர் கண்ணோட்டம் வரைபடம்"
 
 #: gui/panels/GUI_GameSettings.cpp:372
 msgctxt "GameSettings"
 msgid "Waves on water"
-msgstr ""
+msgstr "தண்ணீரில் அலைகள்"
 
 #: gui/panels/GUI_GameSettings.cpp:373
 msgctxt "GameSettings"
 msgid "Use alternate vehicle materials"
-msgstr ""
+msgstr "மாற்று வாகன பொருட்களைப் பயன்படுத்தவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:378
 msgctxt "GameSettings"
 msgid "Static camera height (meters)"
-msgstr ""
+msgstr "நிலையான கேமரா உயரம் (மீட்டர்)"
 
 #: gui/panels/GUI_GameSettings.cpp:379
 msgctxt "GameSettings"
 msgid "Exterior field of view"
-msgstr ""
+msgstr "வெளிப்புற பார்வை புலம்"
 
 #: gui/panels/GUI_GameSettings.cpp:380
 msgctxt "GameSettings"
 msgid "Interior field of view"
-msgstr ""
+msgstr "உள்துறை பார்வை புலம்"
 
 #: gui/panels/GUI_GameSettings.cpp:385
 msgctxt "GameSettings"
 msgid "Diagnostic options"
-msgstr ""
+msgstr "கண்டறியும் விருப்பங்கள்"
 
 #: gui/panels/GUI_GameSettings.cpp:386
 msgctxt "GameSettings"
 msgid "These settings are for advanced users only, you should only change "
 "these if you know what you're doing"
 msgstr ""
+"இந்த அமைப்புகள் மேம்பட்ட பயனர்களுக்கு மட்டுமே, நீங்கள் என்ன செய்கிறீர்கள் என்று உங்களுக்குத் "
+"தெரிந்தால் மட்டுமே இவற்றை மாற்ற வேண்டும்"
 
 #: gui/panels/GUI_GameSettings.cpp:388
 msgctxt "GameSettings"
 msgid "Preselected terrain"
-msgstr ""
+msgstr "முன்னரே தேர்ந்தெடுக்கப்பட்ட நிலப்பரப்பு"
 
 #: gui/panels/GUI_GameSettings.cpp:389
 msgctxt "GameSettings"
 msgid "Preselected vehicle"
-msgstr ""
+msgstr "முன்னரே தேர்ந்தெடுக்கப்பட்ட வண்டி"
 
 #: gui/panels/GUI_GameSettings.cpp:390
 msgctxt "GameSettings"
 msgid "Presel. veh. config"
-msgstr ""
+msgstr "ப்ரெசெல். வண்டி. கட்டமைப்பு"
 
 #: gui/panels/GUI_GameSettings.cpp:391
 msgctxt "GameSettings"
 msgid "Enter preselected vehicle"
-msgstr ""
+msgstr "முன்னரே தேர்ந்தெடுக்கப்பட்ட வாகனத்தை உள்ளிடவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:392
 msgctxt "GameSettings"
 msgid "Auto actor spawner report"
-msgstr ""
+msgstr "ஆட்டோ நடிகர் ச்பானர் அறிக்கை"
 
 #: gui/panels/GUI_GameSettings.cpp:393
 msgctxt "GameSettings"
 msgid "Log node import (spawn)"
-msgstr ""
+msgstr "பதிவு முனை இறக்குமதி (ச்பான்)"
 
 #: gui/panels/GUI_GameSettings.cpp:394
 msgctxt "GameSettings"
 msgid "Log node stats (spawn)"
-msgstr ""
+msgstr "பதிவு முனை புள்ளிவிவரங்கள் (ச்பான்)"
 
 #: gui/panels/GUI_GameSettings.cpp:395
 msgctxt "GameSettings"
 msgid "Debug camera (rails)"
-msgstr ""
+msgstr "பிழைத்திருத்த கேமரா (தண்டவாளங்கள்)"
 
 #: gui/panels/GUI_GameSettings.cpp:396
 msgctxt "GameSettings"
 msgid "Debug actor mass"
-msgstr ""
+msgstr "பிழைத்திருத்த நடிகர் மாச்"
 
 #: gui/panels/GUI_GameSettings.cpp:397
 msgctxt "GameSettings"
 msgid "Debug realtime reflections"
-msgstr ""
+msgstr "நிகழ்நேர பிரதிபலிப்புகளை பிழைத்திருத்த"
 
 #: gui/panels/GUI_GameSettings.cpp:398
 msgctxt "GameSettings"
 msgid "Debug videocameras"
-msgstr ""
+msgstr "வீடியோ கோமராக்களை பிழைத்திருத்தவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:399
 msgctxt "GameSettings"
 msgid "Debug textures"
-msgstr ""
+msgstr "பிழைத்திருத்த அமைப்புகள்"
 
 #: gui/panels/GUI_GameSettings.cpp:400
 msgctxt "GameSettings"
 msgid "Hide broken beams"
-msgstr ""
+msgstr "உடைந்த விட்டங்களை மறைக்கவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:401
 msgctxt "GameSettings"
 msgid "Hide wheel info"
-msgstr ""
+msgstr "சக்கர தகவலை மறைக்கவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:402
 msgctxt "GameSettings"
 msgid "Hide wheels"
-msgstr ""
+msgstr "சக்கரங்களை மறைக்கவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:403
 msgctxt "GameSettings"
 msgid "Hide nodes"
-msgstr ""
+msgstr "முனைகளை மறைக்கவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:404
 msgctxt "GameSettings"
 msgid "Echo log to console"
-msgstr ""
+msgstr "கன்சோலுக்கு எதிரொலி பதிவு"
 
 #: gui/panels/GUI_GameSettings.cpp:405
 msgctxt "GameSettings"
 msgid "Log beam breaking"
-msgstr ""
+msgstr "பதிவு கற்றை உடைத்தல்"
 
 #: gui/panels/GUI_GameSettings.cpp:406
 msgctxt "GameSettings"
 msgid "Log beam deforming"
-msgstr ""
+msgstr "பதிவு கற்றை சிதைவு"
 
 #: gui/panels/GUI_GameSettings.cpp:407
 msgctxt "GameSettings"
 msgid "Log beam triggers"
-msgstr ""
+msgstr "பதிவு பீம் தூண்டுகிறது"
 
 #: gui/panels/GUI_GameSettings.cpp:408
 msgctxt "GameSettings"
 msgid "Rebuild cache"
-msgstr ""
+msgstr "தற்காலிக சேமிப்பை மீண்டும் உருவாக்குங்கள்"
 
 #: gui/panels/GUI_GameSettings.cpp:418
 msgctxt "GameSettings"
 msgid "Controller options"
-msgstr ""
+msgstr "கட்டுப்பாட்டு விருப்பங்கள்"
 
 #: gui/panels/GUI_GameSettings.cpp:420
 msgctxt "GameSettings"
 msgid "Input grab mode"
-msgstr ""
+msgstr "உள்ளீட்டு கிராப் பயன்முறை"
 
 #: gui/panels/GUI_GameSettings.cpp:423
 msgctxt "GameSettings"
 msgid "Analog Input Smoothing"
-msgstr ""
+msgstr "அனலாக் உள்ளீடு மென்மையாக்குதல்"
 
 #: gui/panels/GUI_GameSettings.cpp:424
 msgctxt "GameSettings"
 msgid "Analog Input Sensitivity"
-msgstr ""
+msgstr "அனலாக் உள்ளீட்டு உணர்திறன்"
 
 #: gui/panels/GUI_GameSettings.cpp:425
 msgctxt "GameSettings"
 msgid "Blinker Lock Range"
-msgstr ""
+msgstr "ஒளிரும் பூட்டு வரம்பு"
 
 #: gui/panels/GUI_GameSettings.cpp:427
 msgctxt "GameSettings"
 msgid "Use arcade controls"
-msgstr ""
+msgstr "ஆர்கேட் கட்டுப்பாடுகளைப் பயன்படுத்தவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:428
 msgctxt "GameSettings"
 msgid "Invert orbit camera"
-msgstr ""
+msgstr "ஆர்பிட் கேமராவை தலைகீழ்"
 
 #: gui/panels/GUI_GameSettings.cpp:430
 msgctxt "GameSettings"
 msgid "Enable ForceFeedback"
-msgstr ""
+msgstr "படை பின்னூட்டத்தை இயக்கவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:434
 msgctxt "GameSettings"
 msgid "FFB camera gain"
-msgstr ""
+msgstr "FFB கேமரா ஆதாயம்"
 
 #: gui/panels/GUI_GameSettings.cpp:435
 msgctxt "GameSettings"
 msgid "FFB center gain"
-msgstr ""
+msgstr "FFB மைய ஆதாயம்"
 
 #: gui/panels/GUI_GameSettings.cpp:436
 msgctxt "GameSettings"
 msgid "FFB master gain"
-msgstr ""
+msgstr "FFB மாச்டர் ஆதாயம்"
 
 #: gui/panels/GUI_GameSettings.cpp:437
 msgctxt "GameSettings"
 msgid "FFB stress gain"
-msgstr ""
+msgstr "FFB அழுத்த ஆதாயம்"
 
 #: gui/panels/GUI_GameSettings.cpp:441
 msgctxt "GameSettings"
 msgid "Enable OutGauge protocol"
-msgstr ""
+msgstr "Outgauge நெறிமுறையை இயக்கவும்"
 
 #: gui/panels/GUI_GameSettings.cpp:444
 msgctxt "GameSettings"
 msgid "OutGauge IP"
-msgstr ""
+msgstr "Outgauge ip"
 
 #: gui/panels/GUI_GameSettings.cpp:446
 msgctxt "GameSettings"
 msgid "OutGauge port"
-msgstr ""
+msgstr "வெளிச்செல்லும் துறைமுகம்"
 
 #: gui/panels/GUI_GameSettings.cpp:447
 msgctxt "GameSettings"
 msgid "OutGauge ID"
-msgstr ""
+msgstr "Outgauge ஐடி"
 
 #: gui/panels/GUI_GameSettings.cpp:448
 msgctxt "GameSettings"
 msgid "OutGauge delay"
-msgstr ""
+msgstr "அவுட் கேச் நேரந்தவறுகை"
 
 #: gui/panels/GUI_LoadingWindow.cpp:76
 msgctxt "LoadingWindow"
 msgid "Joining"
-msgstr ""
+msgstr "இணைத்தல்"
 
 #: gui/panels/GUI_LoadingWindow.cpp:99
 msgctxt "LoadingWindow"
 msgid "Please wait"
-msgstr ""
+msgstr "தயவுசெய்து காத்திருங்கள்"
 
 #: gui/panels/GUI_MainSelector.cpp:95
 msgctxt "MainSelector"
 msgid "Loader"
-msgstr ""
+msgstr "ஏற்றி"
 
 #: gui/panels/GUI_MainSelector.cpp:301
 msgctxt "MainSelector"
 msgid "Author(s): "
-msgstr ""
+msgstr "ஆசிரியர் (கள்): "
 
 #: gui/panels/GUI_MainSelector.cpp:305
 msgctxt "MainSelector"
 msgid "Version: "
-msgstr ""
+msgstr "பதிப்பு: "
 
 #: gui/panels/GUI_MainSelector.cpp:308
 msgctxt "MainSelector"
 msgid "Wheels: "
-msgstr ""
+msgstr "சக்கரங்கள்: "
 
 #: gui/panels/GUI_MainSelector.cpp:314
 msgctxt "MainSelector"
 msgid "Mass: "
-msgstr ""
+msgstr "நிறை: "
 
 #: gui/panels/GUI_MainSelector.cpp:323
 msgctxt "MainSelector"
 msgid "Load Mass: "
-msgstr ""
+msgstr "சுமை நிறை: "
 
 #: gui/panels/GUI_MainSelector.cpp:327
 msgctxt "MainSelector"
 msgid "Nodes: "
-msgstr ""
+msgstr "முனைகள்: "
 
 #: gui/panels/GUI_MainSelector.cpp:328
 msgctxt "MainSelector"
 msgid "Beams: "
-msgstr ""
+msgstr "விட்டங்கள்: "
 
 #: gui/panels/GUI_MainSelector.cpp:329
 msgctxt "MainSelector"
 msgid "Shocks: "
-msgstr ""
+msgstr "அதிர்ச்சிகள்: "
 
 #: gui/panels/GUI_MainSelector.cpp:330
 msgctxt "MainSelector"
 msgid "Hydros: "
-msgstr ""
+msgstr "ஐட்ரோ: "
 
 #: gui/panels/GUI_MainSelector.cpp:331
 msgctxt "MainSelector"
 msgid "SoundSources: "
-msgstr ""
+msgstr "ஒலிகள்: "
 
 #: gui/panels/GUI_MainSelector.cpp:332
 msgctxt "MainSelector"
 msgid "Commands: "
-msgstr ""
+msgstr "கட்டளைகள்: "
 
 #: gui/panels/GUI_MainSelector.cpp:333
 msgctxt "MainSelector"
 msgid "Rotators: "
-msgstr ""
+msgstr "ரோட்டேட்டர்கள்: "
 
 #: gui/panels/GUI_MainSelector.cpp:334
 msgctxt "MainSelector"
 msgid "Exhausts: "
-msgstr ""
+msgstr "வெளியேற்றங்கள்: "
 
 #: gui/panels/GUI_MainSelector.cpp:335
 msgctxt "MainSelector"
 msgid "Flares: "
-msgstr ""
+msgstr "எரிப்பு: "
 
 #: gui/panels/GUI_MainSelector.cpp:336
 msgctxt "MainSelector"
 msgid "Flexbodies: "
-msgstr ""
+msgstr "நெகிழ்வுத்தன்மை: "
 
 #: gui/panels/GUI_MainSelector.cpp:337
 msgctxt "MainSelector"
 msgid "Props: "
-msgstr ""
+msgstr "முட்டுகள்: "
 
 #: gui/panels/GUI_MainSelector.cpp:338
 msgctxt "MainSelector"
 msgid "Wings: "
-msgstr ""
+msgstr "சிறகுகள்: "
 
 #: gui/panels/GUI_MainSelector.cpp:341
 msgctxt "MainSelector"
 msgid "Using Submeshs: "
-msgstr ""
+msgstr "சப்மெச்களைப் பயன்படுத்துதல்: "
 
 #: gui/panels/GUI_MainSelector.cpp:343
 msgctxt "MainSelector"
 msgid "No"
-msgstr ""
+msgstr "இல்லை"
 
 #: gui/panels/GUI_MainSelector.cpp:343
 msgctxt "MainSelector"
 msgid "Yes"
-msgstr ""
+msgstr "ஆம்"
 
 #: gui/panels/GUI_MainSelector.cpp:347
 msgctxt "MainSelector"
 msgid "Default skin: "
-msgstr ""
+msgstr "இயல்புநிலை தோல்: "
 
 #: gui/panels/GUI_MainSelector.cpp:351
 msgctxt "MainSelector"
 msgid "Torque: "
-msgstr ""
+msgstr "முறுக்கு: "
 
 #: gui/panels/GUI_MainSelector.cpp:352
 msgctxt "MainSelector"
 msgid "Transmission Gear Count: "
-msgstr ""
+msgstr "டிரான்ச்மிசன் கியர் எண்ணிக்கை: "
 
 #: gui/panels/GUI_MainSelector.cpp:355
 msgctxt "MainSelector"
 msgid "Engine RPM: "
-msgstr ""
+msgstr "என்சின் ஆர்.பி.எம்: "
 
 #: gui/panels/GUI_MainSelector.cpp:359
 msgctxt "MainSelector"
 msgid "Unique ID: "
-msgstr ""
+msgstr "தனித்துவமான ஐடி: "
 
 #: gui/panels/GUI_MainSelector.cpp:360
 msgctxt "MainSelector"
 msgid "GUID: "
-msgstr ""
+msgstr "வழிகாட்டுதல்: "
 
 #: gui/panels/GUI_MainSelector.cpp:361
 msgctxt "MainSelector"
 msgid "Times used: "
-msgstr ""
+msgstr "பயன்படுத்தப்பட்ட நேரங்கள்: "
 
 #: gui/panels/GUI_MainSelector.cpp:362
 msgctxt "MainSelector"
 msgid "Date and Time modified: "
-msgstr ""
+msgstr "தேதி மற்றும் நேரம் மாற்றியமைக்கப்பட்டது: "
 
 #: gui/panels/GUI_MainSelector.cpp:363
 msgctxt "MainSelector"
 msgid "Date and Time installed: "
-msgstr ""
+msgstr "தேதி மற்றும் நேரம் நிறுவப்பட்டுள்ளது: "
 
 #: gui/panels/GUI_MainSelector.cpp:366
 msgctxt "MainSelector"
 msgid "Vehicle Type: "
-msgstr ""
+msgstr "வாகன வகை: "
 
 #: gui/panels/GUI_MainSelector.cpp:369
 msgctxt "MainSelector"
 msgid "[forwards commands]"
-msgstr ""
+msgstr "[முன்னோக்கி கட்டளைகள்]"
 
 #: gui/panels/GUI_MainSelector.cpp:370
 msgctxt "MainSelector"
 msgid "[imports commands]"
-msgstr ""
+msgstr "[இறக்குமதி கட்டளைகள்]"
 
 #: gui/panels/GUI_MainSelector.cpp:371
 msgctxt "MainSelector"
 msgid "[is rescuer]"
-msgstr ""
+msgstr "[மீட்கப்பட்டவர்]"
 
 #: gui/panels/GUI_MainSelector.cpp:372
 msgctxt "MainSelector"
 msgid "[uses custom particles]"
-msgstr ""
+msgstr "[தனிப்பயன் துகள்களைப் பயன்படுத்துகிறது]"
 
 #: gui/panels/GUI_MainSelector.cpp:373
 msgctxt "MainSelector"
 msgid "[has fixes]"
-msgstr ""
+msgstr "[திருத்தங்கள் உள்ளன]"
 
 #. Engine type 't' (truck) is the default, do not display it
 #: gui/panels/GUI_MainSelector.cpp:375
 msgctxt "MainSelector"
 msgid "[car engine]"
-msgstr ""
+msgstr "[கார் எஞ்சின்]"
 
 #: gui/panels/GUI_MainSelector.cpp:376
 msgctxt "MainSelector"
 msgid "[zip archive]"
-msgstr ""
+msgstr "[சிப் காப்பகம்]"
 
 #: gui/panels/GUI_MainSelector.cpp:377
 msgctxt "MainSelector"
 msgid "[unpacked in directory]"
-msgstr ""
+msgstr "[கோப்பகத்தில் திறக்கப்படவில்லை]"
 
 #: gui/panels/GUI_MainSelector.cpp:381
 msgctxt "MainSelector"
 msgid "Source: "
-msgstr ""
+msgstr "ஆதாரம்: "
 
 #: gui/panels/GUI_MainSelector.cpp:388
 msgctxt "MainSelector"
 msgid "Filename: "
-msgstr ""
+msgstr "கோப்பு பெயர்: "
 
 #: gui/panels/GUI_MainSelector.cpp:394
 msgctxt "MainSelector"
 msgid "Show details"
-msgstr ""
+msgstr "விவரங்களைக் காட்டு"
 
 #: gui/panels/GUI_MainSelector.cpp:405
 msgctxt "MainSelector"
 msgid "Configuration"
-msgstr ""
+msgstr "உள்ளமைவு"
 
 #: gui/panels/GUI_MainSelector.cpp:411
 msgctxt "MainSelector"
 msgid "OK"
-msgstr ""
+msgstr "சரி"
 
 #: gui/panels/GUI_MainSelector.cpp:418
 msgctxt "MainSelector"
 msgid "Cancel"
-msgstr ""
+msgstr "ரத்துசெய்"
 
 #: gui/panels/GUI_MessageBox.cpp:110
 msgctxt "MessageBox"
 msgid "Always ask"
-msgstr ""
+msgstr "எப்போதும் கேளுங்கள்"
 
 #. TextDisabled() are captions, Text() are values
 #: gui/panels/GUI_MultiplayerClientList.cpp:149
 msgctxt "MultiplayerClientList"
 msgid "user name"
-msgstr ""
+msgstr "பயனர் பெயர்"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:154
 msgctxt "MultiplayerClientList"
 msgid "user uid"
-msgstr ""
+msgstr "பயனர் uid"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:158
 msgctxt "MultiplayerClientList"
 msgid "user language: "
-msgstr ""
+msgstr "பயனர் மொழி: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:162
 msgctxt "MultiplayerClientList"
 msgid "user country: "
-msgstr ""
+msgstr "பயனர் நாடு: "
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:173
 msgctxt "MultiplayerClientList"
 msgid "user authentication level"
-msgstr ""
+msgstr "பயனர் அங்கீகார நிலை"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:188
 msgctxt "MultiplayerClientList"
 msgid "truck loading state"
-msgstr ""
+msgstr "டிரக் ஏற்றுதல் நிலை"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:197
 msgctxt "MultiplayerClientList"
 msgid "Truck loading errors"
-msgstr ""
+msgstr "டிரக் ஏற்றுதல் பிழைகள்"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:198
 msgctxt "MultiplayerClientList"
 msgid "Truck loaded correctly, no errors"
-msgstr ""
+msgstr "டிரக் சரியாக ஏற்றப்பட்டது, பிழைகள் இல்லை"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:199
 msgctxt "MultiplayerClientList"
 msgid "no truck loaded"
-msgstr ""
+msgstr "டிரக் ஏற்றப்படவில்லை"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:203
 msgctxt "MultiplayerClientList"
 msgid "remote truck loading state"
-msgstr ""
+msgstr "தொலை டிரக் ஏற்றுதல் நிலை"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:212
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loading errors"
-msgstr ""
+msgstr "தொலை டிரக் ஏற்றுதல் பிழைகள்"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:213
 msgctxt "MultiplayerClientList"
 msgid "Remote Truck loaded correctly, no errors"
-msgstr ""
+msgstr "தொலை டிரக் சரியாக ஏற்றப்பட்டது, பிழைகள் இல்லை"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:214
 msgctxt "MultiplayerClientList"
 msgid "No Trucks loaded"
-msgstr ""
+msgstr "லாரிகள் ஏற்றப்படவில்லை"
 
 #: gui/panels/GUI_MultiplayerClientList.cpp:229
 msgctxt "MultiplayerClientList"
 msgid "Slow  Network  Download"
-msgstr ""
+msgstr "மெதுவாக பிணைய பதிவிறக்க"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:86
 msgctxt "MultiplayerSelector"
 msgid "Error connecting to server :("
-msgstr ""
+msgstr "சேவையகத்துடன் இணைப்பதில் பிழை :("
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:102
 msgctxt "MultiplayerSelector"
 msgid "Server returned invalid data :("
-msgstr ""
+msgstr "சேவையகம் தவறான தரவு :("
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:121
 msgctxt "MultiplayerSelector"
 msgid "No"
-msgstr ""
+msgstr "இல்லை"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:121
 msgctxt "MultiplayerSelector"
 msgid "Yes"
-msgstr ""
+msgstr "ஆம்"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:158
 msgctxt "MultiplayerSelector"
 msgid "Online (click to refresh)"
-msgstr ""
+msgstr "ஆன்லைனில் (புதுப்பிக்க சொடுக்கு செய்க)"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:167
 msgctxt "MultiplayerSelector"
 msgid "Direct IP"
-msgstr ""
+msgstr "நேரடி ஐபி"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:172
 msgctxt "MultiplayerSelector"
 msgid "Settings"
-msgstr ""
+msgstr "அமைப்புகள்"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:191
 msgctxt "MultiplayerSelector"
 msgid "Auto connect"
-msgstr ""
+msgstr "ஆட்டோ இணைப்பு"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:192
 msgctxt "MultiplayerSelector"
 msgid "Auto hide chat"
-msgstr ""
+msgstr "தானாக மறை அரட்டை"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:193
 msgctxt "MultiplayerSelector"
 msgid "Hide net labels"
-msgstr ""
+msgstr "நிகர லேபிள்களை மறைக்கவும்"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:194
 msgctxt "MultiplayerSelector"
 msgid "Hide own net label"
-msgstr ""
+msgstr "சொந்த நிகர லேபிளை மறைக்கவும்"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:195
 msgctxt "MultiplayerSelector"
 msgid "Multiplayer collisions"
-msgstr ""
+msgstr "மல்டிபிளேயர் மோதல்கள்"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:196
 msgctxt "MultiplayerSelector"
 msgid "Include remote actors when cycling via hotkeys"
-msgstr ""
+msgstr "ஆட்கீச் வழியாக சைக்கிள் ஓட்டும்போது தொலை நடிகர்களைச் சேர்க்கவும்"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:203
 msgctxt "MultiplayerSelector"
 msgid "Player nickname"
-msgstr ""
+msgstr "பிளேயர் புனைப்பெயர்"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:204
 msgctxt "MultiplayerSelector"
 msgid "Default server password"
-msgstr ""
+msgstr "இயல்புநிலை சேவையக கடவுச்சொல்"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:209
 msgctxt "MultiplayerSelector"
 msgid "User token"
-msgstr ""
+msgstr "பயனர் கிள்ளாக்கு"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:220
 msgctxt "MultiplayerSelector"
 msgid "Server host"
-msgstr ""
+msgstr "சேவையக புரவலன்"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:221
 msgctxt "MultiplayerSelector"
 msgid "Server port"
-msgstr ""
+msgstr "சேவையக துறைமுகம்"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:222
 #: gui/panels/GUI_MultiplayerSelector.cpp:344
 msgctxt "MultiplayerSelector"
 msgid "Server password"
-msgstr ""
+msgstr "சேவையக கடவுச்சொல்"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:226
 #: gui/panels/GUI_MultiplayerSelector.cpp:332
 msgctxt "MultiplayerSelector"
 msgid "Join"
-msgstr ""
+msgstr "சேர"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:277
 msgctxt "MultiplayerSelector"
 msgid "Name"
-msgstr ""
+msgstr "பெயர்"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:278
 msgctxt "MultiplayerSelector"
 msgid "Terrain"
-msgstr ""
+msgstr "பரப்புக்கூறு"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:279
 msgctxt "MultiplayerSelector"
 msgid "Users"
-msgstr ""
+msgstr "பயனர்கள்"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:280
 msgctxt "MultiplayerSelector"
 msgid "Version"
-msgstr ""
+msgstr "பதிப்பு"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:281
 msgctxt "MultiplayerSelector"
 msgid "Host/Port"
-msgstr ""
+msgstr "ஓச்ட்/போர்ட்"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:415
 #, c++-format
 msgid "HTTP code: {}"
-msgstr ""
+msgstr "Http குறியீடு: {}"
 
 #: gui/panels/GUI_MultiplayerSelector.cpp:425
 msgctxt "MultiplayerSelector"
 msgid "There are no available servers :/"
-msgstr ""
+msgstr "கிடைக்கக்கூடிய சேவையகங்கள் எதுவும் இல்லை:/"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:44
 msgctxt "NodeBeamUtils"
 msgid "Node/Beam Utils"
-msgstr ""
+msgstr "முனை/பீம் பயன்பாடுகள்"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:49
 msgctxt "NodeBeamUtils"
 msgid "Total mass"
-msgstr ""
+msgstr "மொத்த நிறை"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:56
 msgctxt "NodeBeamUtils"
 msgid "Beams:"
-msgstr ""
+msgstr "விட்டங்கள்:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:66
 msgctxt "NodeBeamUtils"
 msgid "Shocks:"
-msgstr ""
+msgstr "அதிர்ச்சிகள்:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:76
 msgctxt "NodeBeamUtils"
 msgid "Wheels:"
-msgstr ""
+msgstr "சக்கரங்கள்:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:87
 msgctxt "NodeBeamUtils"
 msgid "Reset to default settings"
-msgstr ""
+msgstr "இயல்புநிலை அமைப்புகளுக்கு மீட்டமைக்கவும்"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:96
 msgctxt "NodeBeamUtils"
 msgid "Update initial node positions"
-msgstr ""
+msgstr "ஆரம்ப முனை நிலைகளைப் புதுப்பிக்கவும்"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_NodeBeamUtils.cpp:103
 msgctxt "NodeBeamUtils"
 msgid "Physics steps:"
-msgstr ""
+msgstr "இயற்பியல் படிகள்:"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:110
 msgctxt "NodeBeamUtils"
 msgid "Beams (spring & damping search interval):"
-msgstr ""
+msgstr "விட்டங்கள் (வசந்தம் மற்றும் தணிக்கும் தேடல் இடைவெளி):"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:118
 msgctxt "NodeBeamUtils"
 msgid "Shocks (spring & damping search interval):"
-msgstr ""
+msgstr "அதிர்ச்சிகள் (வசந்தம் மற்றும் தணிக்கும் தேடல் இடைவெளி):"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:126
 msgctxt "NodeBeamUtils"
 msgid "Wheels (spring & damping search interval):"
-msgstr ""
+msgstr "சக்கரங்கள் (வசந்தம் & தணிக்கும் தேடல் இடைவெளி):"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
 msgid "Continue searching"
-msgstr ""
+msgstr "தேடுவதைத் தொடரவும்"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
 msgid "Start searching"
-msgstr ""
+msgstr "தேடத் தொடங்குங்கள்"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:137
 msgctxt "NodeBeamUtils"
 msgid "Stop searching"
-msgstr ""
+msgstr "தேடுவதை நிறுத்துங்கள்"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:147
 msgctxt "NodeBeamUtils"
 msgid "Reset search"
-msgstr ""
+msgstr "தேடலை மீட்டமை"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:156
 msgctxt "NodeBeamUtils"
 msgid "Search results"
-msgstr ""
+msgstr "தேடல் முடிவுகள்"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:158
 msgctxt "NodeBeamUtils"
 msgid "Reference"
-msgstr ""
+msgstr "குறிப்பு"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:160
 msgctxt "NodeBeamUtils"
 msgid "Optimum"
-msgstr ""
+msgstr "உகந்த"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:163 gui/panels/GUI_NodeBeamUtils.cpp:167
 msgctxt "NodeBeamUtils"
 msgid "Movement"
-msgstr ""
+msgstr "இயக்கம்"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:164 gui/panels/GUI_NodeBeamUtils.cpp:168
 msgctxt "NodeBeamUtils"
 msgid "Stress"
-msgstr ""
+msgstr "தகைவு"
 
 #: gui/panels/GUI_NodeBeamUtils.cpp:165 gui/panels/GUI_NodeBeamUtils.cpp:169
 msgctxt "NodeBeamUtils"
 msgid "Yitter"
-msgstr ""
+msgstr "Yitter"
 
 #: gui/panels/GUI_RepositorySelector.cpp:201
 msgctxt "RepositorySelector"
 msgid "Could not connect to server. Please check your connection."
-msgstr ""
+msgstr "சேவையகத்துடன் இணைக்க முடியவில்லை. உங்கள் இணைப்பை சரிபார்க்கவும்."
 
 #: gui/panels/GUI_RepositorySelector.cpp:217
 msgctxt "RepositorySelector"
 msgid "Received malformed data. Please try again."
-msgstr ""
+msgstr "தவறான தரவு பெறப்பட்டது. மீண்டும் முயற்சிக்கவும்."
 
 #: gui/panels/GUI_RepositorySelector.cpp:400
 msgctxt "RepositorySelector"
 msgid "Rigs of Rods Repository"
-msgstr ""
+msgstr "தண்டுகள் களஞ்சியத்தின் ரிக்"
 
 #: gui/panels/GUI_RepositorySelector.cpp:490
 msgctxt "RepositorySelector"
 msgid "Sort"
-msgstr ""
+msgstr "வரிசைப்படுத்து"
 
 #: gui/panels/GUI_RepositorySelector.cpp:492
 #: gui/panels/GUI_RepositorySelector.cpp:799
 #: gui/panels/GUI_RepositorySelector.cpp:921
 msgctxt "RepositorySelector"
 msgid "Last Update"
-msgstr ""
+msgstr "கடைசி புதுப்பிப்பு"
 
 #: gui/panels/GUI_RepositorySelector.cpp:497
 msgctxt "RepositorySelector"
 msgid "Date Added"
-msgstr ""
+msgstr "தேதி சேர்க்கப்பட்டது"
 
 #: gui/panels/GUI_RepositorySelector.cpp:502
 #: gui/panels/GUI_RepositorySelector.cpp:795
 msgctxt "RepositorySelector"
 msgid "Title"
-msgstr ""
+msgstr "தலைப்பு"
 
 #: gui/panels/GUI_RepositorySelector.cpp:507
 #: gui/panels/GUI_RepositorySelector.cpp:801
 #: gui/panels/GUI_RepositorySelector.cpp:927
 msgctxt "RepositorySelector"
 msgid "Downloads"
-msgstr ""
+msgstr "பதிவிறக்கங்கள்"
 
 #: gui/panels/GUI_RepositorySelector.cpp:512
 #: gui/panels/GUI_RepositorySelector.cpp:803
 msgctxt "RepositorySelector"
 msgid "Rating"
-msgstr ""
+msgstr "செயல்வரம்பு"
 
 #: gui/panels/GUI_RepositorySelector.cpp:517
 msgctxt "RepositorySelector"
 msgid "Rating Count"
-msgstr ""
+msgstr "மதிப்பீட்டு எண்ணிக்கை"
 
 #: gui/panels/GUI_RepositorySelector.cpp:529
 msgctxt "RepositorySelector"
 msgid "View"
-msgstr ""
+msgstr "பார்வை"
 
 #: gui/panels/GUI_RepositorySelector.cpp:531
 msgctxt "RepositorySelector"
 msgid "List"
-msgstr ""
+msgstr "பட்டியல்"
 
 #: gui/panels/GUI_RepositorySelector.cpp:535
 msgctxt "RepositorySelector"
 msgid "Compact"
-msgstr ""
+msgstr "கச்சிதமான"
 
 #: gui/panels/GUI_RepositorySelector.cpp:539
 msgctxt "RepositorySelector"
 msgid "Basic"
-msgstr ""
+msgstr "அடிப்படை"
 
 #: gui/panels/GUI_RepositorySelector.cpp:551
 msgctxt "RepositorySelector"
 msgid "Search Title, Author"
-msgstr ""
+msgstr "தேடல் தலைப்பு, ஆசிரியர்"
 
 #: gui/panels/GUI_RepositorySelector.cpp:571
 msgctxt "RepositorySelector"
 msgid "Details:"
-msgstr ""
+msgstr "விவரங்கள்:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:574
 msgctxt "RepositorySelector"
 msgid "Title:"
-msgstr ""
+msgstr "தலைப்பு:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:580
 msgctxt "RepositorySelector"
 msgid "Resource ID:"
-msgstr ""
+msgstr "வள ஐடி:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:586
 msgctxt "RepositorySelector"
 msgid "Category:"
-msgstr ""
+msgstr "வகை:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:600
 msgctxt "RepositorySelector"
 msgid "Description:"
-msgstr ""
+msgstr "விளக்கம்:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:606
 msgctxt "RepositorySelector"
 msgid "Downloads:"
-msgstr ""
+msgstr "பதிவிறக்கங்கள்:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:612
 msgctxt "RepositorySelector"
 msgid "View Count:"
-msgstr ""
+msgstr "எண்ணிக்கை காண்க:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:618
 msgctxt "RepositorySelector"
 msgid "Rating:"
-msgstr ""
+msgstr "மதிப்பீடு:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:624
 msgctxt "RepositorySelector"
 msgid "Rating Count:"
-msgstr ""
+msgstr "மதிப்பீட்டு எண்ணிக்கை:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:630
 msgctxt "RepositorySelector"
 msgid "Date Added:"
-msgstr ""
+msgstr "தேதி சேர்க்கப்பட்டது:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:637
 msgctxt "RepositorySelector"
 msgid "Last Update:"
-msgstr ""
+msgstr "கடைசி புதுப்பிப்பு:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:644
 msgctxt "RepositorySelector"
 msgid "Version:"
-msgstr ""
+msgstr "பதிப்பு:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:650
 msgctxt "RepositorySelector"
 msgid "Authors:"
-msgstr ""
+msgstr "ஆசிரியர்கள்:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:656
 msgctxt "RepositorySelector"
 msgid "View URL:"
-msgstr ""
+msgstr "முகவரி ஐக் காண்க:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:663
 msgctxt "RepositorySelector"
 msgid "Files:"
-msgstr ""
+msgstr "கோப்புகள்:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:692
 msgctxt "RepositorySelector"
 msgid "Filename:"
-msgstr ""
+msgstr "கோப்பு பெயர்:"
 
 #: gui/panels/GUI_RepositorySelector.cpp:741
 msgctxt "RepositorySelector"
 msgid "Update"
-msgstr ""
+msgstr "புதுப்பிப்பு"
 
 #: gui/panels/GUI_RepositorySelector.cpp:745
 msgctxt "RepositorySelector"
 msgid "Reinstall"
-msgstr ""
+msgstr "மீண்டும் நிறுவவும்"
 
 #: gui/panels/GUI_RepositorySelector.cpp:749
 msgctxt "RepositorySelector"
 msgid "Install"
-msgstr ""
+msgstr "நிறுவவும்"
 
 #: gui/panels/GUI_RepositorySelector.cpp:759
 #: gui/panels/GUI_RepositorySelector.cpp:769
 msgctxt "RepositorySelector"
 msgid "Remove"
-msgstr ""
+msgstr "அகற்று"
 
 #: gui/panels/GUI_RepositorySelector.cpp:797
 #: gui/panels/GUI_RepositorySelector.cpp:1026
 msgctxt "RepositorySelector"
 msgid "Version"
-msgstr ""
+msgstr "பதிப்பு"
 
 #. Authors, rating count, last update, download count, description
 #: gui/panels/GUI_RepositorySelector.cpp:911
 msgctxt "RepositorySelector"
 msgid "Authors"
-msgstr ""
+msgstr "ஆசிரியர்கள்"
 
 #: gui/panels/GUI_RepositorySelector.cpp:932
 msgctxt "RepositorySelector"
 msgid "Description"
-msgstr ""
+msgstr "விவரம்"
 
 #: gui/panels/GUI_RepositorySelector.cpp:1033
 msgctxt "RepositorySelector"
 msgid "Downloaded"
-msgstr ""
+msgstr "பதிவிறக்கம்"
 
 #: gui/panels/GUI_RepositorySelector.cpp:1033
 msgctxt "RepositorySelector"
 msgid "times"
-msgstr ""
+msgstr "பெருக்கல்"
 
 #: gui/panels/GUI_RepositorySelector.cpp:1177
 msgctxt "RepositorySelector"
 msgid "Sorry, the repository isn't available. Try again later."
-msgstr ""
+msgstr "மன்னிக்கவும், களஞ்சியம் கிடைக்கவில்லை. பின்னர் மீண்டும் முயற்சிக்கவும்."
 
 #: gui/panels/GUI_RepositorySelector.cpp:1193
 msgctxt "RepositorySelector"
 msgid "No files available :("
-msgstr ""
+msgstr "கோப்புகள் எதுவும் கிடைக்கவில்லை :("
 
 #: gui/panels/GUI_RepositorySelector.cpp:1235
 #, c++-format
 msgid "HTTP response code: {}"
-msgstr ""
+msgstr "HTTP மறுமொழி குறியீடு: {}"
 
 #. Header
 #: gui/panels/GUI_ScriptMonitor.cpp:41
 msgctxt "ScriptMonitor"
 msgid "ID"
-msgstr ""
+msgstr "ஐடி"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:43
 msgctxt "ScriptMonitor"
 msgid "File name"
-msgstr ""
+msgstr "கோப்பு பெயர்"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:45
 msgctxt "ScriptMonitor"
 msgid "Options"
-msgstr ""
+msgstr "விருப்பங்கள்"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:47
 msgctxt "ScriptMonitor"
 msgid "Active"
-msgstr ""
+msgstr "செயலில்"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:66
 msgctxt "ScriptMonitor"
 msgid "actor"
-msgstr ""
+msgstr "நடிகர்"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:70
 msgctxt "ScriptMonitor"
 msgid "(terrain)"
-msgstr ""
+msgstr "(நிலப்பரப்பு)"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:75
 msgctxt "ScriptMonitor"
 msgid "Reload"
-msgstr ""
+msgstr "ஏற்றவும்"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:84
 msgctxt "ScriptMonitor"
 msgid "Stop"
-msgstr ""
+msgstr "நிறுத்து"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:91
 msgctxt "ScriptMonitor"
 msgid "Autoload"
-msgstr ""
+msgstr "ஆட்டோலோட்"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:127
 msgctxt "ScriptMonitor"
 msgid "Recent"
-msgstr ""
+msgstr "அண்மைக் கால"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:139
 msgctxt "ScriptMonitor"
 msgid "Load"
-msgstr ""
+msgstr "சுமை"
 
 #: gui/panels/GUI_ScriptMonitor.cpp:147 gui/panels/GUI_ScriptMonitor.cpp:150
 msgctxt "ScriptMonitor"
 msgid "Remove"
-msgstr ""
+msgstr "அகற்று"
 
 #: gui/panels/GUI_SimActorStats.cpp:53
 msgctxt "SimActorStats"
 msgid "Vehicle health: "
-msgstr ""
+msgstr "வாகன ஆரோக்கியம்: "
 
 #: gui/panels/GUI_SimActorStats.cpp:59
 msgctxt "SimActorStats"
 msgid "Vehicle destruction: "
-msgstr ""
+msgstr "வாகன அழிவு: "
 
 #: gui/panels/GUI_SimActorStats.cpp:66
 msgctxt "SimActorStats"
 msgid "Beam count: "
-msgstr ""
+msgstr "பீம் எண்ணிக்கை: "
 
 #: gui/panels/GUI_SimActorStats.cpp:71
 msgctxt "SimActorStats"
 msgid "Broken beams count: "
-msgstr ""
+msgstr "உடைந்த விட்டங்கள் எண்ணிக்கை: "
 
 #: gui/panels/GUI_SimActorStats.cpp:76
 msgctxt "SimActorStats"
 msgid "Deformed beams count: "
-msgstr ""
+msgstr "சிதைந்த விட்டங்கள் எண்ணிக்கை: "
 
 #: gui/panels/GUI_SimActorStats.cpp:81
 msgctxt "SimActorStats"
 msgid "Average deformation: "
-msgstr ""
+msgstr "சராசரி சிதைவு: "
 
 #: gui/panels/GUI_SimActorStats.cpp:86
 msgctxt "SimActorStats"
 msgid "Average stress: "
-msgstr ""
+msgstr "சராசரி மன அழுத்தம்: "
 
 #: gui/panels/GUI_SimActorStats.cpp:94
 msgctxt "SimActorStats"
 msgid "Node count: "
-msgstr ""
+msgstr "முனை எண்ணிக்கை: "
 
 #: gui/panels/GUI_SimActorStats.cpp:98
 msgctxt "SimActorStats"
 msgid "Total mass: "
-msgstr ""
+msgstr "மொத்த நிறை: "
 
 #: gui/panels/GUI_SimActorStats.cpp:115
 msgctxt "SimActorStats"
 msgid "Engine RPM: "
-msgstr ""
+msgstr "என்சின் ஆர்.பி.எம்: "
 
 #: gui/panels/GUI_SimActorStats.cpp:120
 msgctxt "SimActorStats"
 msgid "Input shaft RPM: "
-msgstr ""
+msgstr "உள்ளீட்டு தண்டு RPM: "
 
 #: gui/panels/GUI_SimActorStats.cpp:125
 msgctxt "SimActorStats"
 msgid "Current torque: "
-msgstr ""
+msgstr "தற்போதைய முறுக்கு: "
 
 #: gui/panels/GUI_SimActorStats.cpp:130
 msgctxt "SimActorStats"
 msgid "Current power: "
-msgstr ""
+msgstr "தற்போதைய சக்தி: "
 
 #: gui/panels/GUI_SimActorStats.cpp:134
 msgctxt "SimActorStats"
 msgid "Current gear: "
-msgstr ""
+msgstr "தற்போதைய கியர்: "
 
 #: gui/panels/GUI_SimActorStats.cpp:138
 msgctxt "SimActorStats"
 msgid "Drive ratio: "
-msgstr ""
+msgstr "இயக்கி விகிதம்: "
 
 #: gui/panels/GUI_SimActorStats.cpp:157
 msgctxt "SimActorStats"
 msgid "Wheel speed: "
-msgstr ""
+msgstr "சக்கர வேகம்: "
 
 #: gui/panels/GUI_SimActorStats.cpp:161
 msgctxt "SimActorStats"
 msgid "Vehicle speed: "
-msgstr ""
+msgstr "வாகன வேகம்: "
 
 #: gui/panels/GUI_SimActorStats.cpp:168
 msgctxt "SimActorStats"
 msgid "Current speed: "
-msgstr ""
+msgstr "தற்போதைய வேகம்: "
 
 #: gui/panels/GUI_SimActorStats.cpp:175
 msgctxt "SimActorStats"
 msgid "Altitude: "
-msgstr ""
+msgstr "உயர்வு: "
 
 #: gui/panels/GUI_SimActorStats.cpp:182 gui/panels/GUI_SimActorStats.cpp:200
 msgctxt "SimActorStats"
 msgid "Engine "
-msgstr ""
+msgstr "இயந்திரம் "
 
 #: gui/panels/GUI_SimActorStats.cpp:212
 msgctxt "SimActorStats"
 msgid "Top speed: "
-msgstr ""
+msgstr "அதிக வேகம்: "
 
 #: gui/panels/GUI_SimActorStats.cpp:218
 msgctxt "SimActorStats"
 msgid "G-Forces:"
-msgstr ""
+msgstr "சி-படைகள்:"
 
 #: gui/panels/GUI_SimPerfStats.cpp:81
 msgctxt "SimPerfStats"
 msgid "Triangle count: "
-msgstr ""
+msgstr "முக்கோண எண்ணிக்கை: "
 
 #: gui/panels/GUI_SimPerfStats.cpp:82
 msgctxt "SimPerfStats"
 msgid "Batch count: "
-msgstr ""
+msgstr "தொகுதி எண்ணிக்கை: "
 
 #: gui/panels/GUI_TextureToolWindow.cpp:42
 msgctxt "TextureToolWindow"
 msgid "Texture Tool"
-msgstr ""
+msgstr "அமைப்பு கருவி"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:51
 msgctxt "TextureToolWindow"
 msgid "Dynamic only"
-msgstr ""
+msgstr "மாறும் மட்டும்"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:135
 msgctxt "TextureToolWindow"
 msgid "Save as PNG"
-msgstr ""
+msgstr "Png என சேமிக்கவும்"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:140
 msgctxt "TextureToolWindow"
 msgid "Save Raw"
-msgstr ""
+msgstr "பச்சையாக சேமிக்கவும்"
 
 #: gui/panels/GUI_TextureToolWindow.cpp:174
 msgctxt "TextureToolWindow"
 msgid "saved texture as "
-msgstr ""
+msgstr "என சேமித்த அமைப்பு "
 
 #: gui/panels/GUI_TopMenubar.cpp:138
 msgctxt "TopMenubar"
 msgid "Simulation"
-msgstr ""
+msgstr "பாவனை"
 
 #: gui/panels/GUI_TopMenubar.cpp:139
 msgctxt "TopMenubar"
 msgid "Vehicles"
-msgstr ""
+msgstr "வாகனங்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:140
 msgctxt "TopMenubar"
 msgid "Saves"
-msgstr ""
+msgstr "சேமிக்கிறது"
 
 #: gui/panels/GUI_TopMenubar.cpp:141
 msgctxt "TopMenubar"
 msgid "Settings"
-msgstr ""
+msgstr "அமைப்புகள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:142
 msgctxt "TopMenubar"
 msgid "Tools"
-msgstr ""
+msgstr "கருவிகள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:143
 msgctxt "TopMenubar"
 msgid "Vehicle AI"
-msgstr ""
+msgstr "உங்களிடம் உள்ள வண்டி"
 
 #: gui/panels/GUI_TopMenubar.cpp:144
 msgctxt "TopMenubar"
 msgid "Tuning"
-msgstr ""
+msgstr "டியூனிங்"
 
 #: gui/panels/GUI_TopMenubar.cpp:295
 msgctxt "TopMenubar"
 msgid "Sim menu"
-msgstr ""
+msgstr "சிம் பட்டியல்"
 
 #. TODO: Display hotkeys on the right side of the menu (with different text color)
 #: gui/panels/GUI_TopMenubar.cpp:299
 msgctxt "TopMenubar"
 msgid "Get new vehicle"
-msgstr ""
+msgstr "புதிய வண்டி கிடைக்கும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:310
 msgctxt "TopMenubar"
 msgid "Show vehicle description"
-msgstr ""
+msgstr "வாகன விளக்கத்தைக் காட்டு"
 
 #: gui/panels/GUI_TopMenubar.cpp:317
 msgctxt "TopMenubar"
 msgid "Reload current vehicle"
-msgstr ""
+msgstr "தற்போதைய வாகனத்தை மீண்டும் ஏற்றவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:325
 msgctxt "TopMenubar"
 msgid "Remove current vehicle"
-msgstr ""
+msgstr "தற்போதைய வாகனத்தை அகற்று"
 
 #: gui/panels/GUI_TopMenubar.cpp:333
 msgctxt "TopMenubar"
 msgid "Activate last spawned vehicle"
-msgstr ""
+msgstr "கடைசியாக ச்பாட் செய்யப்பட்ட வாகனத்தை செயல்படுத்தவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:341
 msgctxt "TopMenubar"
 msgid "Reload last spawned vehicle"
-msgstr ""
+msgstr "கடைசியாக ச்பாட் செய்யப்பட்ட வாகனத்தை மீண்டும் ஏற்றவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:349
 msgctxt "TopMenubar"
 msgid "Remove last spawned vehicle"
-msgstr ""
+msgstr "கடைசியாக உருவான வாகனத்தை அகற்றவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:358
 msgctxt "TopMenubar"
 msgid "Remove all vehicles"
-msgstr ""
+msgstr "அனைத்து வாகனங்களையும் அகற்றவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:365
 msgctxt "TopMenubar"
 msgid " [!] Confirm removal"
-msgstr ""
+msgstr " [!] நீக்குதலை உறுதிப்படுத்தவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:380
 msgctxt "TopMenubar"
 msgid "Activate all vehicles"
-msgstr ""
+msgstr "அனைத்து வாகனங்களையும் செயல்படுத்தவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:386
 msgctxt "TopMenubar"
 msgid "Activated vehicles never sleep"
-msgstr ""
+msgstr "செயல்படுத்தப்பட்ட வாகனங்கள் ஒருபோதும் தூங்காது"
 
 #: gui/panels/GUI_TopMenubar.cpp:391
 msgctxt "TopMenubar"
 msgid "Send all vehicles to sleep"
-msgstr ""
+msgstr "அனைத்து வாகனங்களையும் தூங்க அனுப்புங்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:399
 msgctxt "TopMenubar"
 msgid "Reload current terrain"
-msgstr ""
+msgstr "தற்போதைய நிலப்பரப்பை மீண்டும் ஏற்றவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:412
 msgctxt "TopMenubar"
 msgid "Back to menu"
-msgstr ""
+msgstr "மெனுவுக்குத் திரும்பு"
 
 #: gui/panels/GUI_TopMenubar.cpp:422
 msgctxt "TopMenubar"
 msgid "Exit"
-msgstr ""
+msgstr "வெளியேறு"
 
 #: gui/panels/GUI_TopMenubar.cpp:439
 msgctxt "TopMenubar"
 msgid "Actors menu"
-msgstr ""
+msgstr "நடிகர்கள் பட்டியல்"
 
 #: gui/panels/GUI_TopMenubar.cpp:470
 msgctxt "TopMenubar"
 msgid "Savegames"
-msgstr ""
+msgstr "சேமி கேம்ச்"
 
 #: gui/panels/GUI_TopMenubar.cpp:472
 msgctxt "TopMenubar"
 msgid "Quicksave"
-msgstr ""
+msgstr "விரைவாக"
 
 #: gui/panels/GUI_TopMenubar.cpp:482
 msgctxt "TopMenubar"
 msgid "Quickload"
-msgstr ""
+msgstr "குயிக்லோட்"
 
 #: gui/panels/GUI_TopMenubar.cpp:493
 msgctxt "TopMenubar"
 msgid "(Save with CTRL+ALT+1..5)"
-msgstr ""
+msgstr "(Ctrl+Alt+1..5 உடன் சேமிக்கவும்)"
 
 #: gui/panels/GUI_TopMenubar.cpp:496
 msgctxt "TopMenubar"
 msgid "Empty Slot"
-msgstr ""
+msgstr "வெற்று ச்லாட்"
 
 #: gui/panels/GUI_TopMenubar.cpp:510
 msgctxt "TopMenubar"
 msgid "(Load with ALT+1..5)"
-msgstr ""
+msgstr "(Alt+1..5 உடன் ஏற்றவும்)"
 
 #: gui/panels/GUI_TopMenubar.cpp:538
 msgctxt "TopMenubar"
 msgid "Settings menu"
-msgstr ""
+msgstr "அமைப்புகள் பட்டியல்"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_TopMenubar.cpp:541
 msgctxt "TopMenubar"
 msgid "Audio:"
-msgstr ""
+msgstr "ஆடியோ:"
 
 #: gui/panels/GUI_TopMenubar.cpp:542
 msgctxt "TopMenubar"
 msgid "Volume"
-msgstr ""
+msgstr "தொகுதி"
 
 #: gui/panels/GUI_TopMenubar.cpp:544
 msgctxt "TopMenubar"
 msgid "Frames per second:"
-msgstr ""
+msgstr "நொடிக்கு பிரேம்கள்:"
 
 #: gui/panels/GUI_TopMenubar.cpp:547
 msgctxt "TopMenubar"
 msgid "Reflections"
-msgstr ""
+msgstr "பிரதிபலிப்புகள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:549
 msgctxt "TopMenubar"
 msgid "Game"
-msgstr ""
+msgstr "விளையாட்டு"
 
 #: gui/panels/GUI_TopMenubar.cpp:552
 msgctxt "TopMenubar"
 msgid "Simulation:"
-msgstr ""
+msgstr "உருவகப்படுத்துதல்:"
 
 #: gui/panels/GUI_TopMenubar.cpp:554
 msgctxt "TopMenubar"
 msgid "Slow motion"
-msgstr ""
+msgstr "மெதுவான இயக்கம்"
 
 #: gui/panels/GUI_TopMenubar.cpp:559
 msgctxt "TopMenubar"
 msgid "Time lapse"
-msgstr ""
+msgstr "நேரம் குறைவு"
 
 #: gui/panels/GUI_TopMenubar.cpp:566 gui/panels/GUI_TopMenubar.cpp:573
 msgctxt "TopMenubar"
 msgid "Camera:"
-msgstr ""
+msgstr "கேமரா:"
 
 #: gui/panels/GUI_TopMenubar.cpp:567 gui/panels/GUI_TopMenubar.cpp:577
 #: gui/panels/GUI_TopMenubar.cpp:585
 msgctxt "TopMenubar"
 msgid "FOV"
-msgstr ""
+msgstr "Fov"
 
 #: gui/panels/GUI_TopMenubar.cpp:568
 msgctxt "TopMenubar"
 msgid "Height"
-msgstr ""
+msgstr "உயரம்"
 
 #: gui/panels/GUI_TopMenubar.cpp:592
 msgctxt "TopMenubar"
 msgid "Tracking"
-msgstr ""
+msgstr "கண்காணிப்பு"
 
 #: gui/panels/GUI_TopMenubar.cpp:599
 msgctxt "TopMenubar"
 msgid "Time of day:"
-msgstr ""
+msgstr "நாள் நேரம்:"
 
 #: gui/panels/GUI_TopMenubar.cpp:606
 msgctxt "TopMenubar"
 msgid "Cycle"
-msgstr ""
+msgstr "சுழற்சி"
 
 #: gui/panels/GUI_TopMenubar.cpp:609 gui/panels/GUI_TopMenubar.cpp:1106
 msgctxt "TopMenubar"
 msgid "Speed"
-msgstr ""
+msgstr "வேகம்"
 
 #: gui/panels/GUI_TopMenubar.cpp:618
 msgctxt "TopMenubar"
 msgid "Waves Height:"
-msgstr ""
+msgstr "அலைகள் உயரம்:"
 
 #: gui/panels/GUI_TopMenubar.cpp:630
 msgctxt "TopMenubar"
 msgid "Vehicle control options:"
-msgstr ""
+msgstr "வாகன கட்டுப்பாட்டு விருப்பங்கள்:"
 
 #: gui/panels/GUI_TopMenubar.cpp:631
 msgctxt "TopMenubar"
 msgid "Keyboard steering speed coupling"
-msgstr ""
+msgstr "விசைப்பலகை திசைமாற்றி வேக இணைப்பு"
 
 #: gui/panels/GUI_TopMenubar.cpp:636
 msgctxt "TopMenubar"
 msgid "Multiplayer:"
-msgstr ""
+msgstr "மல்டிபிளேயர்:"
 
 #: gui/panels/GUI_TopMenubar.cpp:637
 msgctxt "TopMenubar"
 msgid "Collisions"
-msgstr ""
+msgstr "மோதல்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:638
 msgctxt "TopMenubar"
 msgid "Hide labels"
-msgstr ""
+msgstr "லேபிள்களை மறைக்கவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:653
 msgctxt "TopMenubar"
 msgid "Tools menu"
-msgstr ""
+msgstr "கருவிகள் பட்டியல்"
 
 #: gui/panels/GUI_TopMenubar.cpp:655
 msgctxt "TopMenubar"
 msgid "Friction settings"
-msgstr ""
+msgstr "உராய்வு அமைப்புகள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:661
 msgctxt "TopMenubar"
 msgid "Show console"
-msgstr ""
+msgstr "கன்சோலைக் காட்டு"
 
 #: gui/panels/GUI_TopMenubar.cpp:667
 msgctxt "TopMenubar"
 msgid "Texture tool"
-msgstr ""
+msgstr "அமைப்பு கருவி"
 
 #: gui/panels/GUI_TopMenubar.cpp:673
 msgctxt "TopMenubar"
 msgid "Collisions debug"
-msgstr ""
+msgstr "மோதல்கள் பிழைத்திருத்தம்"
 
 #: gui/panels/GUI_TopMenubar.cpp:681
 msgctxt "TopMenubar"
 msgid "Node / Beam utility"
-msgstr ""
+msgstr "முனை / பீம் பயன்பாடு"
 
 #: gui/panels/GUI_TopMenubar.cpp:687
 msgctxt "TopMenubar"
 msgid "FlexBody debug"
-msgstr ""
+msgstr "ஃப்ளெக்ச் பாடி பிழைத்திருத்தம்"
 
 #: gui/panels/GUI_TopMenubar.cpp:695
 msgctxt "TopMenubar"
 msgid "Pre-spawn diag. options:"
-msgstr ""
+msgstr "முன்-ச்பான் டயக். விருப்பங்கள்:"
 
 #: gui/panels/GUI_TopMenubar.cpp:698
 msgctxt "TopMenubar"
 msgid "Node mass recalc. logging"
-msgstr ""
+msgstr "முனை மாச் ரீகால். பதிவு"
 
 #: gui/panels/GUI_TopMenubar.cpp:705
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime - mass recalculation"
-msgstr ""
+msgstr "இயக்க நேரத்தில் கூடுதல் பதிவு - வெகுசன மறுசீரமைப்பு"
 
 #: gui/panels/GUI_TopMenubar.cpp:710
 msgctxt "TopMenubar"
 msgid "Beam break logging"
-msgstr ""
+msgstr "பீம் பிரேக் லாக்கிங்"
 
 #: gui/panels/GUI_TopMenubar.cpp:717 gui/panels/GUI_TopMenubar.cpp:729
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime"
-msgstr ""
+msgstr "இயக்க நேரத்தில் கூடுதல் பதிவு"
 
 #: gui/panels/GUI_TopMenubar.cpp:722
 msgctxt "TopMenubar"
 msgid "Beam deform. logging"
-msgstr ""
+msgstr "பீம் சிதைவு. பதிவு"
 
 #: gui/panels/GUI_TopMenubar.cpp:734
 msgctxt "TopMenubar"
 msgid "Trigger logging"
-msgstr ""
+msgstr "தூண்டுதல் பதிவு"
 
 #: gui/panels/GUI_TopMenubar.cpp:741
 msgctxt "TopMenubar"
 msgid "Extra logging on runtime - trigger beams activity"
-msgstr ""
+msgstr "இயக்க நேரத்தில் கூடுதல் பதிவு - தூண்டுதல் பீம்களின் செயல்பாடு"
 
 #: gui/panels/GUI_TopMenubar.cpp:746
 msgctxt "TopMenubar"
 msgid "VideoCamera direction marker"
-msgstr ""
+msgstr "வீடியோ கேமெரா டைரக்சன் மார்க்கர்"
 
 #: gui/panels/GUI_TopMenubar.cpp:753
 msgctxt "TopMenubar"
 msgid "Visual marker of VideoCameras direction"
-msgstr ""
+msgstr "வீடியோ கேமேராச் திசையின் காட்சி மார்க்கர்"
 
 #: gui/panels/GUI_TopMenubar.cpp:759
 msgctxt "TopMenubar"
 msgid "Visual options:"
-msgstr ""
+msgstr "காட்சி விருப்பங்கள்:"
 
 #: gui/panels/GUI_TopMenubar.cpp:760
 msgctxt "TopMenubar"
 msgid "Polygon mode"
-msgstr ""
+msgstr "பலகோண முறை"
 
 #: gui/panels/GUI_TopMenubar.cpp:764
 msgctxt "TopMenubar"
 msgid "1 = Solid"
-msgstr ""
+msgstr "1 = திட"
 
 #: gui/panels/GUI_TopMenubar.cpp:765
 msgctxt "TopMenubar"
 msgid "2 = Wireframe"
-msgstr ""
+msgstr "2 = வயர்ஃப்ரேம்"
 
 #: gui/panels/GUI_TopMenubar.cpp:766
 msgctxt "TopMenubar"
 msgid "3 = Points"
-msgstr ""
+msgstr "3 = புள்ளிகள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:774
 msgctxt "TopMenubar"
 msgid "Live diagnostic views:"
-msgstr ""
+msgstr "நேரடி கண்டறியும் காட்சிகள்:"
 
 #: gui/panels/GUI_TopMenubar.cpp:775
 #, c++-format
 msgctxt "TopMenubar"
 msgid "(Toggle with {})"
-msgstr ""
+msgstr "({} உடன் மாற்றவும்)"
 
 #: gui/panels/GUI_TopMenubar.cpp:776
 #, c++-format
 msgctxt "TopMenubar"
 msgid "(Cycle with {})"
-msgstr ""
+msgstr "(}} உடன் சுழற்சி)"
 
 #: gui/panels/GUI_TopMenubar.cpp:783
 msgctxt "TopMenubar"
 msgid "Normal view"
-msgstr ""
+msgstr "சாதாரண பார்வை"
 
 #: gui/panels/GUI_TopMenubar.cpp:784
 msgctxt "TopMenubar"
 msgid "Skeleton view"
-msgstr ""
+msgstr "எலும்புக்கூடு பார்வை"
 
 #: gui/panels/GUI_TopMenubar.cpp:785
 msgctxt "TopMenubar"
 msgid "Node details"
-msgstr ""
+msgstr "முனை விவரங்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:786
 msgctxt "TopMenubar"
 msgid "Beam details"
-msgstr ""
+msgstr "பீம் விவரங்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:789
 msgctxt "TopMenubar"
 msgid "Wheel details"
-msgstr ""
+msgstr "சக்கர விவரங்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:793
 msgctxt "TopMenubar"
 msgid "Shock details"
-msgstr ""
+msgstr "அதிர்ச்சி விவரங்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:797
 msgctxt "TopMenubar"
 msgid "Rotator details"
-msgstr ""
+msgstr "ரோட்டேட்டர் விவரங்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:801
 msgctxt "TopMenubar"
 msgid "Slidenode details"
-msgstr ""
+msgstr "ச்லைடெனோட் விவரங்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:805
 msgctxt "TopMenubar"
 msgid "Submesh details"
-msgstr ""
+msgstr "சப்யூச் விவரங்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:816
 msgctxt "TopMenubar"
 msgid "Settings:"
-msgstr ""
+msgstr "அமைப்புகள்:"
 
 #: gui/panels/GUI_TopMenubar.cpp:817
 msgctxt "TopMenubar"
 msgid "Hide broken beams"
-msgstr ""
+msgstr "உடைந்த விட்டங்களை மறைக்கவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:818
 msgctxt "TopMenubar"
 msgid "Hide beam stress"
-msgstr ""
+msgstr "பீம் அழுத்தத்தை மறைக்கவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:819
 msgctxt "TopMenubar"
 msgid "Hide wheels"
-msgstr ""
+msgstr "சக்கரங்களை மறைக்கவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:820
 msgctxt "TopMenubar"
 msgid "Hide nodes"
-msgstr ""
+msgstr "முனைகளை மறைக்கவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:823
 msgctxt "TopMenubar"
 msgid "Hide wheel info"
-msgstr ""
+msgstr "சக்கர தகவலை மறைக்கவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:840
 msgctxt "TopMenubar"
 msgid "AI menu"
-msgstr ""
+msgstr "AI பட்டியல்"
 
 #. Width includes [+/-] buttons
 #: gui/panels/GUI_TopMenubar.cpp:848
 msgctxt "TopMenubar"
 msgid "General options:"
-msgstr ""
+msgstr "பொது விருப்பங்கள்:"
 
 #: gui/panels/GUI_TopMenubar.cpp:860
 msgctxt "TopMenubar"
 msgid "Vehicle count"
-msgstr ""
+msgstr "வாகன எண்ணிக்கை"
 
 #: gui/panels/GUI_TopMenubar.cpp:864
 msgctxt "TopMenubar"
 msgid "Number of vehicles"
-msgstr ""
+msgstr "வாகனங்களின் எண்ணிக்கை"
 
 #: gui/panels/GUI_TopMenubar.cpp:886
 msgctxt "TopMenubar"
 msgid "Distance"
-msgstr ""
+msgstr "தூரம்"
 
 #: gui/panels/GUI_TopMenubar.cpp:890
 msgctxt "TopMenubar"
 msgid "Following distance in meters"
-msgstr ""
+msgstr "மீட்டரில் தூரம்"
 
 #: gui/panels/GUI_TopMenubar.cpp:931
 msgctxt "TopMenubar"
 msgid "Positioning scheme"
-msgstr ""
+msgstr "பொருத்துதல் திட்டம்"
 
 #: gui/panels/GUI_TopMenubar.cpp:933
 msgctxt "TopMenubar"
 msgid "Behind: Set vehicle behind vehicle, in line"
-msgstr ""
+msgstr "பின்னால்: வாகனத்தின் பின்னால் வாகனத்தை வரிசையில் அமைக்கவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:934
 msgctxt "TopMenubar"
 msgid "Parallel: Set vehicles in parallel, useful for certain scenarios "
 "like drag races"
 msgstr ""
+"இணையாக: வாகனங்களை இணையாக அமைக்கவும், இழுவை பந்தயங்கள் போன்ற சில காட்சிகளுக்கு பயனுள்ளதா"
+"க இருக்கும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:953
 msgctxt "TopMenubar"
 msgid "Repeat times"
-msgstr ""
+msgstr "நேரங்களை மீண்டும் செய்யவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:957
 msgctxt "TopMenubar"
 msgid "How many times to loop the path"
-msgstr ""
+msgstr "பாதையை வளைய எத்தனை முறை"
 
 #: gui/panels/GUI_TopMenubar.cpp:974
 msgctxt "TopMenubar"
 msgid "Vehicle options:"
-msgstr ""
+msgstr "வாகன விருப்பங்கள்:"
 
 #: gui/panels/GUI_TopMenubar.cpp:1083
 msgctxt "TopMenubar"
 msgid "Land vehicle driving mode"
-msgstr ""
+msgstr "நில வண்டி ஓட்டுநர் முறை"
 
 #: gui/panels/GUI_TopMenubar.cpp:1085
 msgctxt "TopMenubar"
 msgid "Normal: Modify speed according to turns, other vehicles and character"
 msgstr ""
+"இயல்பானது: திருப்பங்கள், பிற வாகனங்கள் மற்றும் தன்மைக்கு ஏற்ப வேகத்தை மாற்றவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1086
 msgctxt "TopMenubar"
 msgid "Race: Always keep defined speed"
-msgstr ""
+msgstr "இனம்: எப்போதும் வரையறுக்கப்பட்ட வேகத்தை வைத்திருங்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1087
 msgctxt "TopMenubar"
 msgid "Drag Race: Two vehicles performing a drag race"
-msgstr ""
+msgstr "இழுவை பந்தயம்: இழுவை பந்தயத்தை செய்யும் இரண்டு வாகனங்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1088
 msgctxt "TopMenubar"
 msgid "Crash: Two vehicles driving in opposite direction"
-msgstr ""
+msgstr "விபத்து: எதிர் திசையில் இரண்டு வாகனங்கள் ஓட்டுகின்றன"
 
 #: gui/panels/GUI_TopMenubar.cpp:1089
 msgctxt "TopMenubar"
 msgid "Chase: Follow character and player vehicle"
-msgstr ""
+msgstr "துரத்தல்: எழுத்து மற்றும் பிளேயர் வாகனத்தைப் பின்பற்றுங்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1110
 msgctxt "TopMenubar"
 msgid "Speed in km/h for land vehicles or knots/s for boats"
 msgstr ""
+"நில வாகனங்களுக்கு கிமீ/மணி வேகத்தில் விரைவு அல்லது படகுகளுக்கு முடிச்சுகள்/வி"
 
 #: gui/panels/GUI_TopMenubar.cpp:1117
 msgctxt "TopMenubar"
 msgid "Altitude"
-msgstr ""
+msgstr "குத்துயரம்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1121
 msgctxt "TopMenubar"
 msgid "Airplane maximum altitude in feet"
-msgstr ""
+msgstr "விமானத்தில் அதிகபட்ச உயரம்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1138 gui/panels/GUI_TopMenubar.cpp:1156
 msgctxt "TopMenubar"
 msgid "Land vehicles, boats and airplanes"
-msgstr ""
+msgstr "நில வாகனங்கள், படகுகள் மற்றும் விமானங்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1175
 msgctxt "TopMenubar"
 msgid "Start"
-msgstr ""
+msgstr "தொடங்கு"
 
 #: gui/panels/GUI_TopMenubar.cpp:1199
 #, c++-format
 msgctxt "TopMenubar"
 msgid "Select a preset, record or open survey map ({}) to set waypoints."
 msgstr ""
+"வழித்தடங்களை அமைக்க முன்னமைக்கப்பட்ட, பதிவு அல்லது திறந்த கணக்கெடுப்பு வரைபடத்தைத் "
+"தேர்ந்தெடுக்கவும் ({})."
 
 #: gui/panels/GUI_TopMenubar.cpp:1216
 msgctxt "TopMenubar"
 msgid "Stop"
-msgstr ""
+msgstr "நிறுத்து"
 
 #: gui/panels/GUI_TopMenubar.cpp:1264
 msgctxt "TopMenubar"
 msgid "Presets"
-msgstr ""
+msgstr "முன்னமைவுகள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1325
 msgctxt "TopMenubar"
 msgid "No presets found for this terrain :("
-msgstr ""
+msgstr "இந்த நிலப்பரப்புக்கு முன்னமைவுகள் எதுவும் கிடைக்கவில்லை :("
 
 #: gui/panels/GUI_TopMenubar.cpp:1326
 msgctxt "TopMenubar"
 msgid "Supported terrains:"
-msgstr ""
+msgstr "ஆதரிக்கப்பட்ட நிலப்பரப்புகள்:"
 
 #: gui/panels/GUI_TopMenubar.cpp:1347
 msgctxt "TopMenubar"
 msgid "Waypoints"
-msgstr ""
+msgstr "வழிப்பாதைகள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1351
 msgctxt "TopMenubar"
 msgid "No waypoints defined."
-msgstr ""
+msgstr "வழித்தடங்கள் வரையறுக்கப்படவில்லை."
 
 #: gui/panels/GUI_TopMenubar.cpp:1355
 msgctxt "TopMenubar"
 msgid "Export"
-msgstr ""
+msgstr "ஏற்றுமதி"
 
 #: gui/panels/GUI_TopMenubar.cpp:1382
 #, c++-format
 msgctxt "TopMenubar"
 msgid "{} waypoints exported to RoR.log"
-msgstr ""
+msgstr "Ror ror.log க்கு ஏற்றுமதி செய்யப்படும் வழித்தடங்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1413
 msgctxt "TopMenubar"
 msgid "speed"
-msgstr ""
+msgstr "வேகம்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1417
 msgctxt "TopMenubar"
 msgid "Set waypoint speed in km/h for land vehicles"
-msgstr ""
+msgstr "நில வாகனங்களுக்கு கிமீ/மணிநேரத்தில் வே பாயிண்ட் வேகத்தை அமைக்கவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1419
 msgctxt "TopMenubar"
 msgid "Value -1: Ignore, vehicle will use default speed"
-msgstr ""
+msgstr "மதிப்பு -1: புறக்கணிக்கவும், வண்டி இயல்புநிலை வேகத்தைப் பயன்படுத்தும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1420
 msgctxt "TopMenubar"
 msgid "Value >= 5: Override default speed"
-msgstr ""
+msgstr "மதிப்பு> = 5: இயல்புநிலை வேகத்தை மேலெழுதவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1443
 msgctxt "TopMenubar"
 msgid "Tuning menu"
-msgstr ""
+msgstr "ட்யூனிங் பட்டியல்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1449
 msgctxt "Tuning"
 msgid "You are on foot."
-msgstr ""
+msgstr "நீங்கள் காலில் இருக்கிறீர்கள்."
 
 #: gui/panels/GUI_TopMenubar.cpp:1450
 msgctxt "Tuning"
 msgid "Enter a vehicle to tune it."
-msgstr ""
+msgstr "அதை இசைக்க ஒரு வாகனத்தை உள்ளிடவும்."
 
 #. SAVED TUNEUPS
 #: gui/panels/GUI_TopMenubar.cpp:1459
 #, c++-format
 msgctxt "Tuning"
 msgid "Saved tuneups ({})"
-msgstr ""
+msgstr "சேமித்த டியூன்அப்கள் ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1485
 msgctxt "Tuning"
 msgid "Delete"
-msgstr ""
+msgstr "நீக்கு"
 
 #: gui/panels/GUI_TopMenubar.cpp:1505
 msgctxt "Tuning"
 msgid "Working tuneup"
-msgstr ""
+msgstr "வேலை செய்யும் டியூன்அப்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1508
 msgctxt "Tuning"
 msgid "Name"
-msgstr ""
+msgstr "பெயர்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1510
 msgctxt "Tuning"
 msgid "Save"
-msgstr ""
+msgstr "சேமி"
 
 #: gui/panels/GUI_TopMenubar.cpp:1521
 msgctxt "Tuning"
 msgid "Overwrite"
-msgstr ""
+msgstr "மேலெழுதும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1526 gui/panels/GUI_TopMenubar.cpp:1532
 msgctxt "Tuning"
 msgid "Cancel"
-msgstr ""
+msgstr "ரத்துசெய்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1541
 msgctxt "Tuning"
 msgid "Save as..."
-msgstr ""
+msgstr "சேமி ..."
 
 #: gui/panels/GUI_TopMenubar.cpp:1551 gui/panels/GUI_TopMenubar.cpp:1755
 #: gui/panels/GUI_TopMenubar.cpp:2365
 msgctxt "Tuning"
 msgid "Reset"
-msgstr ""
+msgstr "மீட்டமை"
 
 #: gui/panels/GUI_TopMenubar.cpp:1572
 #, c++-format
 msgctxt "TopMenubar"
 msgid "Addon parts ({})"
-msgstr ""
+msgstr "துணை பாகங்கள் ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1594
 msgctxt "Tuning"
 msgid "Reload"
-msgstr ""
+msgstr "ஏற்றவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:1617
 msgctxt "Tuning"
 msgid "Browse all parts"
-msgstr ""
+msgstr "அனைத்து பகுதிகளையும் உலாவுக"
 
 #: gui/panels/GUI_TopMenubar.cpp:1627
 #, c++-format
 msgctxt "Tuning"
 msgid "Props ({})"
-msgstr ""
+msgstr "முட்டுகள் ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1685
 #, c++-format
 msgctxt "Tuning"
 msgid "Flexbodies ({})"
-msgstr ""
+msgstr "நெகிழ்வு ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1716
 #, c++-format
 msgctxt "TopMenubar"
 msgid "Wheels ({})"
-msgstr ""
+msgstr "சக்கரங்கள் ({})"
 
 #: gui/panels/GUI_TopMenubar.cpp:1939
 msgctxt "TopMenubar"
 msgid "None spawned yet"
-msgstr ""
+msgstr "இதுவரை எதுவும் இல்லை"
 
 #: gui/panels/GUI_TopMenubar.cpp:1940
 msgctxt "TopMenubar"
 msgid "Use [Simulation] menu"
-msgstr ""
+msgstr "[உருவகப்படுத்துதல்] மெனுவைப் பயன்படுத்தவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:2012
 #, c++-format
 msgctxt "TopMenubar"
 msgid "All physics paused, press {} to resume"
 msgstr ""
+"அனைத்து இயற்பியல்களும் இடைநிறுத்தப்பட்டு, மீண்டும் தொடங்க {} ஐ அழுத்தவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:2021
 #, c++-format
 msgctxt "TopMenubar"
 msgid "Vehicle physics paused, press {} to resume"
-msgstr ""
+msgstr "வாகன இயற்பியல் இடைநிறுத்தப்பட்டு, மீண்டும் தொடங்க {} ஐ அழுத்தவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:2030
 msgctxt "TopMenubar"
 msgid "Replay"
-msgstr ""
+msgstr "மீண்டும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:2034
 #, c++-format
 msgctxt "TopMenubar"
 msgid "Live repair mode, hit '{}' to stop"
-msgstr ""
+msgstr "நேரடி பழுதுபார்க்கும் பயன்முறையில், நிறுத்த '{}' ஐ அழுத்தவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:2043
 #, c++-format
 msgctxt "TopMenubar"
 msgid "Quick repair ('{}' for Live repair)"
-msgstr ""
+msgstr "விரைவான பழுது (நேரடி பழுதுபார்க்க '{}')"
 
 #: gui/panels/GUI_TopMenubar.cpp:2071
 msgctxt "DirectionArrow"
 msgid "meter"
-msgstr ""
+msgstr "அளவி"
 
 #: gui/panels/GUI_TopMenubar.cpp:2090
 #, c++-format
 msgctxt "TopMenubar"
 msgid "Terrain editing mode, press {} to save and exit"
-msgstr ""
+msgstr "நிலப்பரப்பு திருத்துதல் பயன்முறை, சேமித்து வெளியேற {} ஐ அழுத்தவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:2139
 msgctxt "TopMenubar"
 msgid "Time"
-msgstr ""
+msgstr "நேரம்"
 
 #: gui/panels/GUI_TopMenubar.cpp:2169
 msgctxt "LiveRepair"
 msgid "Show controls"
-msgstr ""
+msgstr "கட்டுப்பாடுகளைக் காட்டு"
 
 #: gui/panels/GUI_TopMenubar.cpp:2179
 msgctxt "LiveRepair"
 msgid "Movement"
-msgstr ""
+msgstr "இயக்கம்"
 
 #: gui/panels/GUI_TopMenubar.cpp:2183
 msgctxt "LiveRepair"
 msgid "Forward"
-msgstr ""
+msgstr "முன்னோக்கி"
 
 #: gui/panels/GUI_TopMenubar.cpp:2184
 msgctxt "LiveRepair"
 msgid "Backward"
-msgstr ""
+msgstr "பின்னோக்கு"
 
 #: gui/panels/GUI_TopMenubar.cpp:2186
 msgctxt "LiveRepair"
 msgid "Left"
-msgstr ""
+msgstr "இடது"
 
 #: gui/panels/GUI_TopMenubar.cpp:2187
 msgctxt "LiveRepair"
 msgid "Right"
-msgstr ""
+msgstr "வலது"
 
 #: gui/panels/GUI_TopMenubar.cpp:2189
 msgctxt "LiveRepair"
 msgid "Up"
-msgstr ""
+msgstr "மேலே"
 
 #: gui/panels/GUI_TopMenubar.cpp:2190
 msgctxt "LiveRepair"
 msgid "Down"
-msgstr ""
+msgstr "கீழே"
 
 #: gui/panels/GUI_TopMenubar.cpp:2193
 msgctxt "LiveRepair"
 msgid "Rotation"
-msgstr ""
+msgstr "சுழற்சி"
 
 #: gui/panels/GUI_TopMenubar.cpp:2197
 msgctxt "LiveRepair"
 msgid "Rot. left"
-msgstr ""
+msgstr "அழுகல். இடது"
 
 #: gui/panels/GUI_TopMenubar.cpp:2198
 msgctxt "LiveRepair"
 msgid "Rot. right"
-msgstr ""
+msgstr "அழுகல். சரி"
 
 #: gui/panels/GUI_TopMenubar.cpp:2201
 msgctxt "LiveRepair"
 msgid "Modifiers"
-msgstr ""
+msgstr "மாற்றியமைப்பாளர்கள்"
 
 #: gui/panels/GUI_TopMenubar.cpp:2207
 msgctxt "LiveRepair"
 msgid "Slow step"
-msgstr ""
+msgstr "மெதுவான படி"
 
 #. Left alt
 #: gui/panels/GUI_TopMenubar.cpp:2208
 msgctxt "LiveRepair"
 msgid "Fast step"
-msgstr ""
+msgstr "வேகமான படி"
 
 #: gui/panels/GUI_TopMenubar.cpp:2209
 msgctxt "LiveRepair"
 msgid "10x step"
-msgstr ""
+msgstr "10x படி"
 
 #: gui/panels/GUI_TopMenubar.cpp:2213
 msgctxt "LiveRepair"
 msgid "Reset mode"
-msgstr ""
+msgstr "பயன்முறையை மீட்டமை"
 
 #: gui/panels/GUI_TopMenubar.cpp:2216
 msgctxt "LiveRepair"
 msgid "Switch reset mode"
-msgstr ""
+msgstr "மீட்டமைக்கும் பயன்முறையை மாற்றவும்"
 
 #: gui/panels/GUI_TopMenubar.cpp:2309
 msgctxt "Tuning"
 msgid "Protected"
-msgstr ""
+msgstr "பாதுகாக்கப்பட்ட"
 
 #: gui/panels/GUI_VehicleButtons.cpp:64
 msgctxt "VehicleButtons"
 msgid "Hover the mouse on the left to see controls"
-msgstr ""
+msgstr "கட்டுப்பாடுகளைக் காண இடதுபுறத்தில் சுட்டியை வட்டமிடுங்கள்"
 
 #. Align with the buttons
 #: gui/panels/GUI_VehicleButtons.cpp:82
 msgctxt "VehicleButtons"
 msgid "Main Controls"
-msgstr ""
+msgstr "முக்கிய கட்டுப்பாடுகள்"
 
 #. Align with the buttons
 #: gui/panels/GUI_VehicleButtons.cpp:129
 msgctxt "VehicleButtons"
 msgid "Custom Lights"
-msgstr ""
+msgstr "தனிப்பயன் விளக்குகள்"
 
 #. Align with the buttons
 #: gui/panels/GUI_VehicleButtons.cpp:135
 msgctxt "VehicleButtons"
 msgid "Commands"
-msgstr ""
+msgstr "கட்டளைகள்"
 
 #: gui/panels/GUI_VehicleDescription.cpp:66
 msgctxt "VehicleDescription"
 msgid "Description"
-msgstr ""
+msgstr "விவரம்"
 
 #: gui/panels/GUI_VehicleDescription.cpp:74
 msgctxt "VehicleDescription"
 msgid "Commands"
-msgstr ""
+msgstr "கட்டளைகள்"
 
 #: gui/panels/GUI_VehicleDescription.cpp:104
 msgctxt "VehicleDescription"
 msgid "unknown function"
-msgstr ""
+msgstr "தெரியாத செயல்பாடு"
 
 #: gui/panels/GUI_VehicleDescription.cpp:111
 msgctxt "VehicleDescription"
 msgid "Authors"
-msgstr ""
+msgstr "ஆசிரியர்கள்"
 
 #: gui/panels/GUI_VehicleDescription.cpp:120
 msgctxt "VehicleDescription"
 msgid "(no author information available) "
-msgstr ""
+msgstr "(எழுத்தாளர் செய்தி எதுவும் கிடைக்கவில்லை) "
 
 #: main.cpp:365
 msgid "Display mode changed to fullscreen"
-msgstr ""
+msgstr "காட்சி பயன்முறை முழுத் திரையில் மாற்றப்பட்டது"
 
 #: main.cpp:371
 msgid "Display mode changed to windowed"
-msgstr ""
+msgstr "காட்சி பயன்முறை சாளரமாக மாற்றப்பட்டது"
 
 #: main.cpp:460
 msgctxt "Network"
 msgid "Network disconnected"
-msgstr ""
+msgstr "பிணையம் துண்டிக்கப்பட்டது"
 
 #: main.cpp:468
 msgid "Network fatal error: "
-msgstr ""
+msgstr "பிணையம் அபாயகரமான பிழை: "
 
 #: main.cpp:519
 msgctxt "Network"
 msgid "Multiplayer: connection failed"
-msgstr ""
+msgstr "மல்டிபிளேயர்: இணைப்பு தோல்வியடைந்தது"
 
 #: main.cpp:587
 msgid "Loading resources"
-msgstr ""
+msgstr "வளங்களை ஏற்றுகிறது"
 
 #: main.cpp:619
 #, c++-format
 msgctxt "ChatBox"
 msgid "Press {} to start chatting"
-msgstr ""
+msgstr "அரட்டையடிக்கத் தொடங்க {} ஐ அழுத்தவும்"
 
 #: main.cpp:675
 msgid "Could not read savegame file"
-msgstr ""
+msgstr "SaveGame கோப்பைப் படிக்க முடியவில்லை"
 
 #: main.cpp:688 physics/Savegame.cpp:267
 msgid "Error while loading scene: Terrain mismatch"
-msgstr ""
+msgstr "காட்சியை ஏற்றும்போது பிழை: நிலப்பரப்பு பொருந்தாதது"
 
 #: main.cpp:922
 msgid "Entered terrain editing mode"
-msgstr ""
+msgstr "நிலப்பரப்பு திருத்துதல் பயன்முறையில் நுழைந்தது"
 
 #: main.cpp:924
 #, c++-format
 msgid "Press {} or middle mouse click to select an object"
-msgstr ""
+msgstr "{} அல்லது நடுத்தர சுட்டி ஒரு பொருளைத் தேர்ந்தெடுக்க சொடுக்கு செய்க"
 
 #: main.cpp:936
 msgid "Left terrain editing mode"
-msgstr ""
+msgstr "இடது நிலப்பரப்பு திருத்துதல் பயன்முறை"
 
 #: main.cpp:1259
 msgid "An exception has occured!"
-msgstr ""
+msgstr "ஒரு விதிவிலக்கு ஏற்பட்டுள்ளது!"
 
 #: main.cpp:1264
 msgid "An exception (std::runtime_error) has occured!"
-msgstr ""
+msgstr "ஒரு விதிவிலக்கு (std :: runtime_error) நிகழ்ந்தது!"
 
 #. Atomic; instruct sender thread to stop
 #: network/Network.cpp:254
 msgctxt "Network"
 msgid "Error receiving data from network"
-msgstr ""
+msgstr "நெட்வொர்க்கிலிருந்து தரவைப் பெறுவதில் பிழை"
 
 #: network/Network.cpp:297
 msgid "disconnected: remote side closed the connection"
-msgstr ""
+msgstr "துண்டிக்கப்பட்டது: ரிமோட் சைட் இணைப்பை மூடியது"
 
 #: network/Network.cpp:315
 msgid "left the game"
-msgstr ""
+msgstr "விளையாட்டை விட்டு வெளியேறினார்"
 
 #: network/Network.cpp:347
 msgid "joined the game"
-msgstr ""
+msgstr "விளையாட்டில் சேர்ந்தார்"
 
 #. Mark connect thread as started
 #: network/Network.cpp:401
 msgctxt "Network"
 msgid "Starting..."
-msgstr ""
+msgstr "தொடங்குகிறது ..."
 
 #: network/Network.cpp:407
 msgid "Failed to launch connection thread"
-msgstr ""
+msgstr "இணைப்பு நூலைத் தொடங்கத் தவறிவிட்டது"
 
 #: network/Network.cpp:425
 msgctxt "Network"
 msgid "Estabilishing connection..."
-msgstr ""
+msgstr "இணைப்பை நிறுவுதல் ..."
 
 #: network/Network.cpp:431
 msgid "Could not create connection"
-msgstr ""
+msgstr "இணைப்பை உருவாக்க முடியவில்லை"
 
 #: network/Network.cpp:435
 msgctxt "Network"
 msgid "Getting server info..."
-msgstr ""
+msgstr "சேவையக தகவலைப் பெறுதல் ..."
 
 #: network/Network.cpp:438
 msgid "Establishing network session: error sending hello"
-msgstr ""
+msgstr "பிணையம் அமர்வை நிறுவுதல்: அலோ அனுப்புவதில் பிழை"
 
 #: network/Network.cpp:448
 msgid "Establishing network session: error getting server version"
-msgstr ""
+msgstr "பிணைய அமர்வை நிறுவுதல்: சேவையக பதிப்பைப் பெறுவதில் பிழை"
 
 #: network/Network.cpp:455 network/Network.cpp:479
 #, c-format
 msgid "Establishing network session: wrong server version, you are using "
 "version '%s' and the server is using '%s'"
 msgstr ""
+"பிணையம் அமர்வை நிறுவுதல்: தவறான சேவையக பதிப்பு, நீங்கள் '%s' பதிப்பைப் பயன்படுத்துகிறீர்கள்"
+" மற்றும் சேவையகம் '%s' ஐப் பயன்படுத்துகிறது"
 
 #: network/Network.cpp:464
 msgid "server uses a different protocol version"
-msgstr ""
+msgstr "சேவையகம் வேறு நெறிமுறை பதிப்பைப் பயன்படுத்துகிறது"
 
 #: network/Network.cpp:469
 msgid "Establishing network session: error getting server hello"
-msgstr ""
+msgstr "பிணைய அமர்வை நிறுவுதல்: சேவையகத்தைப் பெறுவதில் பிழை வணக்கம்"
 
 #: network/Network.cpp:485
 msgctxt "Network"
 msgid "Authorizing..."
-msgstr ""
+msgstr "ஏற்பு ..."
 
 #: network/Network.cpp:506
 msgid "Establishing network session: error sending user info"
-msgstr ""
+msgstr "பிணைய அமர்வை நிறுவுதல்: பயனர் தகவலை அனுப்புவதில் பிழை"
 
 #: network/Network.cpp:513
 msgid "Establishing network session: error getting server authorization"
-msgstr ""
+msgstr "பிணைய அமர்வை நிறுவுதல்: சேவையக அங்கீகாரத்தைப் பெறுவதில் பிழை"
 
 #: network/Network.cpp:519
 msgid "Establishing network session: sorry, server has too many players"
 msgstr ""
+"பிணையம் அமர்வை நிறுவுதல்: மன்னிக்கவும், சேவையகத்தில் அதிகமான வீரர்கள் உள்ளனர்"
 
 #. Do NOT `disconnect()` the m_socket in this case - causes SocketW to terminate RoR.
 #: network/Network.cpp:525
 msgid "Establishing network session: sorry, you are banned!"
 msgstr ""
+"பிணையம் அமர்வை நிறுவுதல்: மன்னிக்கவும், நீங்கள் தடைசெய்யப்பட்டுள்ளீர்கள்!"
 
 #: network/Network.cpp:530
 msgid "Establishing network session: sorry, wrong password!"
-msgstr ""
+msgstr "பிணையம் அமர்வை நிறுவுதல்: மன்னிக்கவும், தவறான கடவுச்சொல்!"
 
 #: network/Network.cpp:535
 msgid "Establishing network session: sorry, wrong protocol version!"
-msgstr ""
+msgstr "பிணையம் அமர்வை நிறுவுதல்: மன்னிக்கவும், தவறான நெறிமுறை பதிப்பு!"
 
 #: network/Network.cpp:541
 msgid "Establishing network session: sorry, unknown server response"
-msgstr ""
+msgstr "பிணையம் அமர்வை நிறுவுதல்: மன்னிக்கவும், அறியப்படாத சேவையக பதில்"
 
 #: network/Network.cpp:545
 msgctxt "Network"
 msgid "Finishing..."
-msgstr ""
+msgstr "முடித்தல் ..."
 
 #: network/Network.cpp:798
 msgctxt "NetUserAuth"
 msgid "Admin"
-msgstr ""
+msgstr "நிர்வாகி"
 
 #: network/Network.cpp:799
 msgctxt "NetUserAuth"
 msgid "Mod"
-msgstr ""
+msgstr "மோட்"
 
 #: network/Network.cpp:800 network/Network.cpp:810
 msgctxt "NetUserAuth"
 msgid "Bot"
-msgstr ""
+msgstr "போட்"
 
 #: network/Network.cpp:801
 msgctxt "NetUserAuth"
 msgid "Ranked"
-msgstr ""
+msgstr "தரவரிசை"
 
 #: network/Network.cpp:802
 msgctxt "NetUserAuth"
 msgid "Banned"
-msgstr ""
+msgstr "தடைசெய்யப்பட்டது"
 
 #: network/Network.cpp:803 network/Network.cpp:813
 msgctxt "NetUserAuth"
 msgid "Guest"
-msgstr ""
+msgstr "விருந்தினர்"
 
 #: network/Network.cpp:808
 msgctxt "NetUserAuth"
 msgid "Server Administrator"
-msgstr ""
+msgstr "சேவையக நிர்வாகி"
 
 #: network/Network.cpp:809
 msgctxt "NetUserAuth"
 msgid "Server Moderator"
-msgstr ""
+msgstr "சேவையக மதிப்பீட்டாளர்"
 
 #: network/Network.cpp:811
 msgctxt "NetUserAuth"
 msgid "Ranked user"
-msgstr ""
+msgstr "தரவரிசை பயனர்"
 
 #: network/Network.cpp:812
 msgctxt "NetUserAuth"
 msgid "Banned user"
-msgstr ""
+msgstr "தடைசெய்யப்பட்ட பயனர்"
 
 #: physics/Actor.cpp:443
 msgid " content mismatch: "
-msgstr ""
+msgstr " உள்ளடக்க பொருந்தாத தன்மை: "
 
 #: physics/Actor.cpp:1319
 msgid "No inter-axle differential installed on current vehicle!"
-msgstr ""
+msgstr "தற்போதைய வாகனத்தில் இடை-அச்சு வேறுபாடு நிறுவப்படவில்லை!"
 
 #: physics/Actor.cpp:1333 physics/Actor.cpp:1359
 msgid "Axle "
-msgstr ""
+msgstr "அச்சு "
 
 #: physics/Actor.cpp:1347
 msgid "No inter-wheel differential installed on current vehicle!"
-msgstr ""
+msgstr "தற்போதைய வாகனத்தில் இடை-சக்கர வேறுபாடு நிறுவப்படவில்லை!"
 
 #: physics/Actor.cpp:1373
 msgid "Transfercase switched to: "
-msgstr ""
+msgstr "இதற்கு மாற்றவும்: "
 
 #: physics/Actor.cpp:1378
 msgid "No transfercase installed on current vehicle!"
-msgstr ""
+msgstr "தற்போதைய வாகனத்தில் டிரான்ச்ஃபோர்கேச் நிறுவப்படவில்லை!"
 
 #: physics/Actor.cpp:1945
 msgid "Actor is too big to be sent over the net."
-msgstr ""
+msgstr "நடிகர் வலையில் அனுப்ப முடியாத அளவுக்கு பெரியவர்."
 
 #: physics/Actor.cpp:1945
 msgid "Network error!"
-msgstr ""
+msgstr "பிணைய பிழை!"
 
 #: physics/ActorManager.cpp:395
 msgid "spawned a new vehicle: "
-msgstr ""
+msgstr "ஒரு புதிய வண்டி உருவாக்கப்பட்டது: "
 
 #: physics/ActorManager.cpp:405
 msgid "Mod not installed: "
-msgstr ""
+msgstr "மோட் நிறுவப்படவில்லை: "
 
 #: physics/ActorManager.cpp:1382 physics/ActorManager.cpp:1391
 #: physics/ActorManager.cpp:1409
 msgid "New simulation speed: "
-msgstr ""
+msgstr "புதிய உருவகப்படுத்துதல் வேகம்: "
 
 #: physics/ActorManager.cpp:1403
 msgid "Simulation speed reset."
-msgstr ""
+msgstr "உருவகப்படுத்துதல் விரைவு மீட்டமைப்பு."
 
 #: physics/ActorManager.cpp:1429
 msgid "Physics paused"
-msgstr ""
+msgstr "இயற்பியல் இடைநிறுத்தப்பட்டது"
 
 #: physics/ActorManager.cpp:1434
 msgid "Physics unpaused"
-msgstr ""
+msgstr "இயற்பியல் காரணமின்றி"
 
 #: physics/ActorSpawner.cpp:134
 #, c++-format
 msgid "Could not load addon part '{}' (file '{}')"
-msgstr ""
+msgstr "துணை பகுதியை '{}' (கோப்பு '{}') ஏற்ற முடியவில்லை"
 
 #: physics/ActorSpawner.cpp:139
 #, c++-format
 msgid "Requested addon part '{}' is not installed"
-msgstr ""
+msgstr "கோரப்பட்ட துணை பகுதி '{}' நிறுவப்படவில்லை"
 
 #: physics/Differentials.cpp:52 physics/Differentials.cpp:60
 msgid "invalid"
-msgstr ""
+msgstr "செல்லுபடியாகாத"
 
 #: physics/Differentials.cpp:56
 msgid "Split"
-msgstr ""
+msgstr "பிளவு"
 
 #: physics/Differentials.cpp:57
 msgid "Open"
-msgstr ""
+msgstr "திற"
 
 #: physics/Differentials.cpp:58
 msgid "Viscous"
-msgstr ""
+msgstr "பிசுபிசுப்பு"
 
 #: physics/Differentials.cpp:59
 msgid "Locked"
-msgstr ""
+msgstr "பூட்டப்பட்டுள்ளது"
 
 #: physics/Savegame.cpp:205
 msgctxt "QuickloadDialog"
 msgid "Load game?"
-msgstr ""
+msgstr "விளையாட்டை ஏற்றவா?"
 
 #: physics/Savegame.cpp:206
 msgctxt "QuickloadDialog"
 msgid "You will lose all unsaved progress!"
-msgstr ""
+msgstr "சேமிக்கப்படாத அனைத்து முன்னேற்றங்களையும் நீங்கள் இழப்பீர்கள்!"
 
 #: physics/Savegame.cpp:210
 msgctxt "QuickloadDialog"
 msgid "Load"
-msgstr ""
+msgstr "சுமை"
 
 #: physics/Savegame.cpp:216
 msgctxt "QuickloadDialog"
 msgid "Cancel"
-msgstr ""
+msgstr "ரத்துசெய்"
 
 #: physics/Savegame.cpp:247
 msgid "Error while loading scene: File invalid or missing"
-msgstr ""
+msgstr "காட்சியை ஏற்றும்போது பிழை: கோப்பு தவறானது அல்லது காணவில்லை"
 
 #: physics/Savegame.cpp:253
 msgid "Error while loading scene: File format mismatch"
-msgstr ""
+msgstr "காட்சியை ஏற்றும்போது பிழை: கோப்பு வடிவம் பொருந்தாதது"
 
 #: physics/Savegame.cpp:273
 msgid "Error while loading scene: Too many vehicles"
-msgstr ""
+msgstr "காட்சியை ஏற்றும்போது பிழை: அதிகமான வாகனங்கள்"
 
 #: physics/Savegame.cpp:309
 msgid "Error while loading scene: Missing content (probably not installed)"
 msgstr ""
+"காட்சியை ஏற்றும்போது பிழை: உள்ளடக்கத்தைக் காணவில்லை (அநேகமாக நிறுவப்படவில்லை)"
 
 #: physics/Savegame.cpp:415
 msgid "Scene loaded"
-msgstr ""
+msgstr "காட்சி ஏற்றப்பட்டது"
 
 #: physics/Savegame.cpp:432
 msgid "Error while saving scene: Too many vehicles"
-msgstr ""
+msgstr "காட்சியைச் சேமிக்கும் போது பிழை: அதிகமான வாகனங்கள்"
 
 #: physics/Savegame.cpp:770
 msgid "Error while saving scene"
-msgstr ""
+msgstr "காட்சியைச் சேமிக்கும்போது பிழை"
 
 #: physics/Savegame.cpp:777
 msgid "Scene saved"
-msgstr ""
+msgstr "காட்சி சேமிக்கப்பட்டது"
 
 #: physics/collision/Collisions.cpp:199
 msgid "Configuration error"
-msgstr ""
+msgstr "உள்ளமைவு பிழை"
 
 #: physics/collision/Collisions.cpp:199
 msgid "Your ground configuration is too old, please copy skeleton/config/"
 "ground_models.cfg to My Documents/Rigs of Rods/config"
 msgstr ""
+"உங்கள் தரை உள்ளமைவு மிகவும் பழையது, தயவுசெய்து எலும்புக்கூடு/கட்டமைப்பு/தரை_மாடல்ச்."
 
 #: resources/CacheSystem.cpp:513
 msgctxt "MainSelector"
 msgid "Non-Driveable"
-msgstr ""
+msgstr "கடத்தப்படாதது"
 
 #: resources/CacheSystem.cpp:514
 msgctxt "MainSelector"
 msgid "Truck"
-msgstr ""
+msgstr "டிரக்"
 
 #: resources/CacheSystem.cpp:515
 msgctxt "MainSelector"
 msgid "Airplane"
-msgstr ""
+msgstr "வானூர்தி"
 
 #: resources/CacheSystem.cpp:516
 msgctxt "MainSelector"
 msgid "Boat"
-msgstr ""
+msgstr "படகு"
 
 #: resources/CacheSystem.cpp:517
 msgctxt "MainSelector"
 msgid "Machine"
-msgstr ""
+msgstr "இயந்திரம்"
 
 #: resources/CacheSystem.cpp:518
 msgctxt "MainSelector"
 msgid "A.I."
-msgstr ""
+msgstr "ஏ.ஐ."
 
 #: resources/CacheSystem.cpp:1054
 msgid "Loading zips in group "
-msgstr ""
+msgstr "குழுவில் சிப்சை ஏற்றுகிறது "
 
 #: resources/CacheSystem.cpp:1251
 #, c++-format
 msgid "Failed to load asset pack '{}' (requested by '{}'): {}"
-msgstr ""
+msgstr "சொத்து பேக்கை '{}' ஏற்றுவதில் தோல்வி ('{}' எனக் கோரப்பட்டது): {}"
 
 #: resources/CacheSystem.cpp:1257
 #, c++-format
 msgid "Asset pack '{}' (requested by '{}') not found"
-msgstr ""
+msgstr "சொத்து பேக் '{}' ('{}' கோரப்பட்டது) காணப்படவில்லை"
 
 #: resources/CacheSystem.cpp:1576
 #, c++-format
 msgctxt "CacheSystem"
 msgid "Cannot create project '{}' - no source mod specified!"
-msgstr ""
+msgstr "திட்டத்தை உருவாக்க முடியாது '{}' - எந்த மூல மோட் குறிப்பிடப்படவில்லை!"
 
 #: resources/CacheSystem.cpp:1588
 #, c++-format
 msgctxt "CacheSystem"
 msgid "Project directory '{}' already exists!"
-msgstr ""
+msgstr "திட்ட அடைவு '{}' ஏற்கனவே உள்ளது!"
 
 #: resources/CacheSystem.cpp:1595
 #, c++-format
 msgctxt "CacheSystem"
 msgid "Project directory '{}' could not be created!"
-msgstr ""
+msgstr "திட்ட அடைவு '{}' உருவாக்க முடியவில்லை!"
 
 #: resources/CacheSystem.cpp:1708
 #, c++-format
 msgctxt "CacheSystem"
 msgid "Could not copy file '{}' to project '{}', message: {}."
-msgstr ""
+msgstr "'{}' என்ற கோப்பை '{}' என்ற கோப்பை நகலெடுக்க முடியவில்லை, செய்தி: {}."
 
 #: resources/CacheSystem.cpp:1740
 #, c++-format
 msgctxt "CacheSystem"
 msgid "Unexpected error creating project '{}', message: {}"
-msgstr ""
+msgstr "திட்டத்தை உருவாக்கும் எதிர்பாராத பிழை '{}', செய்தி: {}"
 
 #: resources/CacheSystem.cpp:1832
 #, c++-format
 msgctxt "CacheSystem"
 msgid "Error loading tuneup: file '{}', not found in mod cache"
-msgstr ""
+msgstr "டியூன்அப்பை ஏற்றுவதில் பிழை: '{}' கோப்பு, மோட் கேச்சில் காணப்படவில்லை"
 
 #: resources/CacheSystem.cpp:1889
 #, c++-format
 msgctxt "CacheSystem"
 msgid "Problem deleting project '{}' - could not delete file '{}'"
-msgstr ""
+msgstr "திட்டத்தை நீக்குவதில் சிக்கல் '{}' - கோப்பை நீக்க முடியவில்லை '{}'"
 
 #: resources/CacheSystem.cpp:1899
 #, c++-format
 msgctxt "CacheSystem"
 msgid "Problem deleting project '{}' - could not delete directory '{}'"
-msgstr ""
+msgstr "திட்டத்தை நீக்குவதில் சிக்கல் '{}' - கோப்பகத்தை நீக்க முடியவில்லை '{}'"
 
 #: resources/CacheSystem.cpp:1912
 #, c++-format
 msgctxt "CacheSystem"
 msgid "Unexpected error deleting project '{}'"
-msgstr ""
+msgstr "எதிர்பாராத பிழை திட்டத்தை நீக்குதல் '{}'"
 
 #. these are the category numbers from the repository. do not modify them!
 #. vehicles
 #: resources/CacheSystem.h:375
 msgctxt "ModCategory"
 msgid "Other Land Vehicles"
-msgstr ""
+msgstr "பிற நில வாகனங்கள்"
 
 #: resources/CacheSystem.h:377
 msgctxt "ModCategory"
 msgid "Street Cars"
-msgstr ""
+msgstr "தெரு கார்கள்"
 
 #: resources/CacheSystem.h:378
 msgctxt "ModCategory"
 msgid "Light Racing Cars"
-msgstr ""
+msgstr "ஒளி பந்தய கார்கள்"
 
 #: resources/CacheSystem.h:379
 msgctxt "ModCategory"
 msgid "Offroad Cars"
-msgstr ""
+msgstr "ஆஃப்ரோட் கார்கள்"
 
 #: resources/CacheSystem.h:380
 msgctxt "ModCategory"
 msgid "Fantasy Cars"
-msgstr ""
+msgstr "பேண்டசி கார்கள்"
 
 #: resources/CacheSystem.h:381
 msgctxt "ModCategory"
 msgid "Bikes"
-msgstr ""
+msgstr "பைக்குகள்"
 
 #: resources/CacheSystem.h:382
 msgctxt "ModCategory"
 msgid "Crawlers"
-msgstr ""
+msgstr "கிராலர்கள்"
 
 #: resources/CacheSystem.h:384
 msgctxt "ModCategory"
 msgid "Towercranes"
-msgstr ""
+msgstr "டவர் கிரேன்ச்"
 
 #: resources/CacheSystem.h:385
 msgctxt "ModCategory"
 msgid "Mobile Cranes"
-msgstr ""
+msgstr "மொபைல் கிரேன்கள்"
 
 #: resources/CacheSystem.h:386
 msgctxt "ModCategory"
 msgid "Other cranes"
-msgstr ""
+msgstr "பிற கிரேன்கள்"
 
 #: resources/CacheSystem.h:388
 msgctxt "ModCategory"
 msgid "Buses"
-msgstr ""
+msgstr "பேருந்துகள்"
 
 #: resources/CacheSystem.h:389
 msgctxt "ModCategory"
 msgid "Tractors"
-msgstr ""
+msgstr "டிராக்டர்கள்"
 
 #: resources/CacheSystem.h:390
 msgctxt "ModCategory"
 msgid "Forklifts"
-msgstr ""
+msgstr "ஃபோர்க்லிஃப்ட்ச்"
 
 #: resources/CacheSystem.h:391
 msgctxt "ModCategory"
 msgid "Fantasy Trucks"
-msgstr ""
+msgstr "பேண்டசி லாரிகள்"
 
 #: resources/CacheSystem.h:392
 msgctxt "ModCategory"
 msgid "Transport Trucks"
-msgstr ""
+msgstr "போக்குவரத்து லாரிகள்"
 
 #: resources/CacheSystem.h:393
 msgctxt "ModCategory"
 msgid "Racing Trucks"
-msgstr ""
+msgstr "பந்தய லாரிகள்"
 
 #: resources/CacheSystem.h:394
 msgctxt "ModCategory"
 msgid "Offroad Trucks"
-msgstr ""
+msgstr "ஆஃப்ரோட் லாரிகள்"
 
 #: resources/CacheSystem.h:396
 msgctxt "ModCategory"
 msgid "Boats"
-msgstr ""
+msgstr "படகுகள்"
 
 #: resources/CacheSystem.h:398
 msgctxt "ModCategory"
 msgid "Helicopters"
-msgstr ""
+msgstr "எலிகாப்டர்கள்"
 
 #: resources/CacheSystem.h:399
 msgctxt "ModCategory"
 msgid "Aircraft"
-msgstr ""
+msgstr "வானூர்தி"
 
 #: resources/CacheSystem.h:401
 msgctxt "ModCategory"
 msgid "Trailers"
-msgstr ""
+msgstr "டிரெய்லர்கள்"
 
 #: resources/CacheSystem.h:402
 msgctxt "ModCategory"
 msgid "Other Loads"
-msgstr ""
+msgstr "பிற சுமைகள்"
 
 #. terrains
 #: resources/CacheSystem.h:405
 msgctxt "ModCategory"
 msgid "Addon Terrains"
-msgstr ""
+msgstr "Addon நிலப்பரப்புகள்"
 
 #: resources/CacheSystem.h:407
 msgctxt "ModCategory"
 msgid "Container"
-msgstr ""
+msgstr "சரக்குப் பெட்டகம்"
 
 #: resources/CacheSystem.h:409
 msgctxt "ModCategory"
 msgid "Submarine"
-msgstr ""
+msgstr "நீர்மூழ்கிக் கப்பல்"
 
 #. note: these categories are NOT in the repository:
 #: resources/CacheSystem.h:412
 msgctxt "ModCategory"
 msgid "Official Terrains"
-msgstr ""
+msgstr "உத்தியோகபூர்வ நிலப்பரப்புகள்"
 
 #: resources/CacheSystem.h:413
 msgctxt "ModCategory"
 msgid "Night Terrains"
-msgstr ""
+msgstr "இரவு நிலப்பரப்புகள்"
 
 #: resources/CacheSystem.h:415
 msgctxt "ModCategory"
 msgid "Projects"
-msgstr ""
+msgstr "திட்டங்கள்"
 
 #: resources/CacheSystem.h:416
 msgctxt "ModCategory"
 msgid "Tuneups"
-msgstr ""
+msgstr "டியூன்அப்ச்"
 
 #. do not use category numbers above 9000!
 #: resources/CacheSystem.h:419
 msgctxt "ModCategory"
 msgid "Unsorted"
-msgstr ""
+msgstr "வரிசைப்படுத்தப்படாதது"
 
 #: resources/CacheSystem.h:420
 msgctxt "ModCategory"
 msgid "All"
-msgstr ""
+msgstr "அனைத்தும்"
 
 #: resources/CacheSystem.h:421
 msgctxt "ModCategory"
 msgid "Fresh"
-msgstr ""
+msgstr "புதியது"
 
 #: resources/CacheSystem.h:422
 msgctxt "ModCategory"
 msgid "Hidden"
-msgstr ""
+msgstr "மறைக்கப்பட்ட"
 
 #: scripting/GameScript.cpp:875
 msgid "using Online API..."
-msgstr ""
+msgstr "நிகழ்நிலை பநிஇ ஐப் பயன்படுத்துதல் ..."
 
 #: scripting/GameScript.cpp:911
 msgid "Cannot use Online API in this build (CURL not available)"
 msgstr ""
+"இந்த கட்டமைப்பில் நிகழ்நிலை பநிஇ ஐப் பயன்படுத்த முடியாது (சுருட்டை கிடைக்கவில்லை)"
 
 #: system/AppCommandLine.cpp:165
 msgid "Command Line Arguments"
-msgstr ""
+msgstr "கட்டளை வரி வாதங்கள்"
 
 #: system/AppCommandLine.cpp:166
 msgid "--help (this)\n"
@@ -4280,305 +4300,327 @@ msgid "--help (this)\n"
 "For example: RoR.exe -map simple2 -pos '518 0 518' -rot 45 -truck "
 "semi.truck -enter"
 msgstr ""
+"-உதவி (இது)\n"
+" -map <pac> (தொடக்கத்தில் வரைபடத்தை ஏற்றுகிறது)\n"
+" -pos <vect> (ச்பான் நிலையை மீறுகிறது)\n"
+" -rot <float> (ச்பான் சுழற்சியை மீறுகிறது)\n"
+" -பிரக் <டிரக்> (தொடக்கத்தில் டிரக்கை ஏற்றுகிறது)\n"
+" -truckconfig <ctical>\n"
+" -இண்டர் (பிளேயர் தேர்ந்தெடுக்கப்பட்ட டிரக்கில் நுழைகிறார்)\n"
+" முந்தைய ஆட்டோசேவை -ரெச்யூம் ஏற்றுகிறது\n"
+" -செக் கேச் கேச் புதுப்பிப்பை கட்டாயப்படுத்துகிறது\n"
+" பதிப்பு பதிப்பு தகவலைக் காட்டுகிறது\n"
+" -சோயின்சர்வர் = <server>: <port> (மல்டிபிளேயர் சேவையகத்தில் சேரவும்)\n"
+" -ununscript <filename> (சுமை ச்கிரிப்ட், மீண்டும் மீண்டும் செய்ய முடியும்)\n"
+" எடுத்துக்காட்டாக: ror.exe -map simmen2 -pos '518 0 518' -rot 45 -truck "
+"semi.truck -enter"
 
 #: system/AppCommandLine.cpp:183
 msgid "Version Information"
-msgstr ""
+msgstr "பதிப்பு செய்தி"
 
 #: system/ConsoleCmd.cpp:62
 msgid "Get or set terrain gravity. Constants: earth/moon/mars/jupiter."
 msgstr ""
+"நிலப்பரப்பு ஈர்ப்பைப் பெறுங்கள் அல்லது அமைக்கவும். மாறிலிகள்: பூமி/சந்திரன்/செவ்வாய்/வியாழன்."
 
 #: system/ConsoleCmd.cpp:72
 msgid "Current gravity is: "
-msgstr ""
+msgstr "தற்போதைய ஈர்ப்பு: "
 
 #: system/ConsoleCmd.cpp:82
 msgid "Gravity set to: "
-msgstr ""
+msgstr "ஈர்ப்பு விசையை அமைக்கவும்: "
 
 #: system/ConsoleCmd.cpp:92
 msgid "Get or set water level."
-msgstr ""
+msgstr "நீர் மட்டத்தைப் பெறுங்கள் அல்லது அமைக்கவும்."
 
 #: system/ConsoleCmd.cpp:105
 msgid "This terrain does not have water."
-msgstr ""
+msgstr "இந்த நிலப்பரப்பில் தண்ணீர் இல்லை."
 
 #: system/ConsoleCmd.cpp:117
 msgid "Water level set to: "
-msgstr ""
+msgstr "நீர் நிலை அமைக்கப்பட்டுள்ளது: "
 
 #: system/ConsoleCmd.cpp:126
 msgid "Get elevation of terrain at current position"
-msgstr ""
+msgstr "தற்போதைய நிலையில் நிலப்பரப்பின் உயரத்தைப் பெறுங்கள்"
 
 #: system/ConsoleCmd.cpp:150
 msgid "Terrain height at position: "
-msgstr ""
+msgstr "நிலையில் நிலப்பரப்பு உயரம்: "
 
 #: system/ConsoleCmd.cpp:160
 msgid "spawnobject  - spawn a object at the player position"
-msgstr ""
+msgstr "ச்பானோப்செக்ட் - பிளேயர் நிலையில் ஒரு பொருளை உருவாக்குகிறது"
 
 #: system/ConsoleCmd.cpp:179 system/ConsoleCmd.cpp:411
 msgid "Missing parameter: "
-msgstr ""
+msgstr "காணாமல் போன அளவுரு: "
 
 #: system/ConsoleCmd.cpp:187 terrain/TerrainEditor.cpp:101
 msgid "Spawned object at position: "
-msgstr ""
+msgstr "நிலையில் உருவான பொருள்: "
 
 #: system/ConsoleCmd.cpp:192
 msgid "Could not spawn object"
-msgstr ""
+msgstr "பொருளை உருவாக்க முடியவில்லை"
 
 #: system/ConsoleCmd.cpp:208
 msgid "log - toggles log output on the console"
-msgstr ""
+msgstr "பதிவு - கன்சோலில் பதிவு வெளியீட்டை மாற்றுகிறது"
 
 #: system/ConsoleCmd.cpp:229
 msgid "ver - shows the Rigs of Rods version"
-msgstr ""
+msgstr "ver - தண்டுகள் பதிப்பின் ரிக்குகளைக் காட்டுகிறது"
 
 #: system/ConsoleCmd.cpp:248
 msgid "pos - outputs the current position"
-msgstr ""
+msgstr "POS - தற்போதைய நிலையை வெளியிடுகிறது"
 
 #: system/ConsoleCmd.cpp:263
 msgid "Character position: "
-msgstr ""
+msgstr "எழுத்து நிலை: "
 
 #: system/ConsoleCmd.cpp:268
 msgid "Vehicle position: "
-msgstr ""
+msgstr "வாகன நிலை: "
 
 #: system/ConsoleCmd.cpp:278
 msgid "goto <x> <y> <z> - jumps to the mentioned position"
-msgstr ""
+msgstr "Goto <x> <y> <z> - குறிப்பிடப்பட்ட நிலைக்கு குதிக்கிறது"
 
 #: system/ConsoleCmd.cpp:292
 msgid "usage: goto x y z"
-msgstr ""
+msgstr "பயன்பாடு: கோட்டோ ஃச் ஒய் சட்"
 
 #: system/ConsoleCmd.cpp:303
 msgid "Character position set to: "
-msgstr ""
+msgstr "எழுத்துக்குறி நிலை இதற்கு அமைக்கப்பட்டுள்ளது: "
 
 #: system/ConsoleCmd.cpp:309
 msgid "Vehicle position set to: "
-msgstr ""
+msgstr "வாகன நிலை இச் இதற்கு அமைக்கப்பட்டுள்ளது: "
 
 #: system/ConsoleCmd.cpp:321
 msgid "Run AngelScript code snippet"
-msgstr ""
+msgstr "ஏஞ்சல்ச்கிரிப்ட் குறியீடு துணுக்கை இயக்கவும்"
 
 #: system/ConsoleCmd.cpp:352 system/ConsoleCmd.cpp:429
 msgid "Scripting disabled in this build"
-msgstr ""
+msgstr "இந்த கட்டமைப்பில் ச்கிரிப்டிங் முடக்கப்பட்டுள்ளது"
 
 #: system/ConsoleCmd.cpp:361
 msgid "quit - exit Rigs of Rods"
-msgstr ""
+msgstr "வெளியேறு - தண்டுகளின் வெளியேறுதல்"
 
 #: system/ConsoleCmd.cpp:372
 msgid "help - information on commands (this)"
-msgstr ""
+msgstr "உதவி - கட்டளைகள் பற்றிய செய்தி (இது)"
 
 #: system/ConsoleCmd.cpp:377
 msgid "Available commands:"
-msgstr ""
+msgstr "கிடைக்கும் கட்டளைகள்:"
 
 #: system/ConsoleCmd.cpp:390
 msgid "Tips:"
-msgstr ""
+msgstr "உதவிக்குறிப்புகள்:"
 
 #: system/ConsoleCmd.cpp:392
 msgid "- use Arrow Up/Down Keys in the InputBox to reuse old messages"
 msgstr ""
+"- பழைய செய்திகளை மீண்டும் பயன்படுத்த உள்ளீட்டு பெட்டியில் அம்பு அப்/டவுன் விசைகளைப் "
+"பயன்படுத்தவும்"
 
 #: system/ConsoleCmd.cpp:399
 msgid "Runs an AngelScript file"
-msgstr ""
+msgstr "ஏஞ்சல்ச்கிரிப்ட் கோப்பை இயக்குகிறது"
 
 #: system/ConsoleCmd.cpp:419
 msgid "Failed to load script. See 'Angelscript.log' or use console command "
 "`log` and retry."
 msgstr ""
+"ச்கிரிப்டை ஏற்றுவதில் தோல்வி. 'Angelscript.log' ஐப் பார்க்கவும் அல்லது கன்சோல் கட்டளை "
+"`உள்நுழைவு` ஐப் பயன்படுத்தவும்."
 
 #: system/ConsoleCmd.cpp:424
 #, c++-format
 msgid "Script '{}' running with ID '{}'"
-msgstr ""
+msgstr "ச்கிரிப்ட் '{}' ஐடியுடன் இயங்குகிறது '{}'"
 
 #: system/ConsoleCmd.cpp:442
 msgid "Print cvars with one of <expr> in name"
-msgstr ""
+msgstr "CVAR களை <expr> பெயரில் அச்சிடுக"
 
 #: system/ConsoleCmd.cpp:481
 msgid "Get or set value of existing CVar"
-msgstr ""
+msgstr "இருக்கும் சி.வி.ஏ.ஆர் மதிப்பைப் பெறுங்கள் அல்லது அமைக்கவும்"
 
 #: system/ConsoleCmd.cpp:509
 msgid "No such CVar: "
-msgstr ""
+msgstr "அத்தகைய சி.வி.ஏ.ஆர் இல்லை: "
 
 #: system/ConsoleCmd.cpp:571
 msgid "Set or create string CVar"
-msgstr ""
+msgstr "சரம் CVAR ஐ அமைக்கவும் அல்லது உருவாக்கவும்"
 
 #: system/ConsoleCmd.cpp:577
 msgid "Set or create boolean CVar"
-msgstr ""
+msgstr "பூலியன் சி.வி.ஆரை அமைக்கவும் அல்லது உருவாக்கவும்"
 
 #: system/ConsoleCmd.cpp:583
 msgid "Set or create integer CVar"
-msgstr ""
+msgstr "முழு எண் CVAR ஐ அமைக்கவும் அல்லது உருவாக்கவும்"
 
 #: system/ConsoleCmd.cpp:589
 msgid "Set or create real-number CVar"
-msgstr ""
+msgstr "உண்மையான எண் CVAR ஐ அமைக்கவும் அல்லது உருவாக்கவும்"
 
 #: system/ConsoleCmd.cpp:595
 msgid "Clear console history. Types: all/info/net/chat/terrn/actor/script"
 msgstr ""
+"தெளிவான கன்சோல் வரலாறு. வகைகள்: அனைத்தும்/தகவல்/நிகர/அரட்டை/டெர்ன்/நடிகர்/ச்கிரிப்ட்"
 
 #: system/ConsoleCmd.cpp:632
 #, c++-format
 msgid "No such message type: {}"
-msgstr ""
+msgstr "அத்தகைய செய்தி வகை இல்லை: {}"
 
 #: system/ConsoleCmd.cpp:683
 msgid "Using slashes before commands are deprecated, you can now type "
 "command without any slashes"
 msgstr ""
+"கட்டளைகள் நீக்கப்படுவதற்கு முன்பு ச்லாச்களைப் பயன்படுத்துதல், இப்போது நீங்கள் எந்த ச்லாச்களும் "
+"இல்லாமல் கட்டளையைத் தட்டச்சு செய்யலாம்"
 
 #: system/ConsoleCmd.cpp:706
 msgid "unknown command: "
-msgstr ""
+msgstr "தெரியாத கட்டளை: "
 
 #: system/ConsoleCmd.cpp:722
 msgid "Only allowed when simulation is running"
-msgstr ""
+msgstr "உருவகப்படுத்துதல் இயங்கும் போது மட்டுமே அனுமதிக்கப்படுகிறது"
 
 #: system/ConsoleCmd.cpp:726
 msgid "Not allowed in current app state"
-msgstr ""
+msgstr "தற்போதைய பயன்பாட்டு நிலையில் அனுமதிக்கப்படவில்லை"
 
 #: terrain/Terrain.cpp:150
 msgid "Initializing Shadow Subsystem"
-msgstr ""
+msgstr "நிழல் துணை அமைப்பைத் தொடங்குதல்"
 
 #: terrain/Terrain.cpp:153
 msgid "Initializing Geometry Subsystem"
-msgstr ""
+msgstr "வடிவியல் துணை அமைப்பைத் தொடங்குதல்"
 
 #: terrain/Terrain.cpp:156
 msgid "Initializing Object Subsystem"
-msgstr ""
+msgstr "பொருள் துணை அமைப்பைத் தொடங்குதல்"
 
 #. *.odef files
 #: terrain/Terrain.cpp:159
 msgid "Initializing Camera Subsystem"
-msgstr ""
+msgstr "கேமரா துணை அமைப்பைத் தொடங்குதல்"
 
 #. sky, must come after camera due to m_sight_range
 #: terrain/Terrain.cpp:163
 msgid "Initializing Sky Subsystem"
-msgstr ""
+msgstr "ச்கை துணை அமைப்பைத் தொடங்குதல்"
 
 #: terrain/Terrain.cpp:166
 msgid "Initializing Light Subsystem"
-msgstr ""
+msgstr "ஒளி துணை அமைப்பைத் தொடங்குதல்"
 
 #: terrain/Terrain.cpp:171
 msgid "Initializing Fog Subsystem"
-msgstr ""
+msgstr "மூடுபனி துணை அமைப்பைத் தொடங்குதல்"
 
 #: terrain/Terrain.cpp:175
 msgid "Initializing Vegetation Subsystem"
-msgstr ""
+msgstr "தாவர துணை அமைப்பைத் தொடங்குதல்"
 
 #: terrain/Terrain.cpp:180
 msgid "Loading Terrain Geometry"
-msgstr ""
+msgstr "நிலப்பரப்பு வடிவவியலை ஏற்றுகிறது"
 
 #: terrain/Terrain.cpp:186
 msgid "Initializing Collision Subsystem"
-msgstr ""
+msgstr "மோதல் துணை அமைப்பைத் தொடங்குதல்"
 
 #: terrain/Terrain.cpp:189
 msgid "Initializing Script Subsystem"
-msgstr ""
+msgstr "ச்கிரிப்ட் துணை அமைப்பைத் தொடங்குதல்"
 
 #: terrain/Terrain.cpp:192
 msgid "Initializing Water Subsystem"
-msgstr ""
+msgstr "நீர் துணை அமைப்பைத் தொடங்குதல்"
 
 #: terrain/Terrain.cpp:195
 msgid "Loading Terrain Objects"
-msgstr ""
+msgstr "நிலப்பரப்பு பொருள்களை ஏற்றுகிறது"
 
 #: terrain/Terrain.cpp:201
 msgid "Initializing terrain light properties"
-msgstr ""
+msgstr "நிலப்பரப்பு ஒளி பண்புகளைத் தொடங்குதல்"
 
 #. *.terrn2 file feature
 #. Particle effects
 #: terrain/Terrain.cpp:209
 msgid "Initializing Overview Map Subsystem"
-msgstr ""
+msgstr "கண்ணோட்டம் வரைபட துணை அமைப்பைத் தொடங்குதல்"
 
 #: terrain/Terrain.cpp:213
 msgid "Loading Terrain Actors"
-msgstr ""
+msgstr "நிலப்பரப்பு நடிகர்களை ஏற்றுகிறது"
 
 #: terrain/TerrainEditor.cpp:126 terrain/TerrainEditor.cpp:129
 msgid "ry"
-msgstr ""
+msgstr "ரை"
 
 #: terrain/TerrainEditor.cpp:134
 msgid "rz"
-msgstr ""
+msgstr "rz"
 
 #: terrain/TerrainEditor.cpp:139
 msgid "rx"
-msgstr ""
+msgstr "ஆர்.எக்ச்"
 
 #: terrain/TerrainEditor.cpp:142
 msgid "Rotating: "
-msgstr ""
+msgstr "சுழலும்: "
 
 #: terrain/TerrainEditor.cpp:148
 msgid "Disabled object tracking"
-msgstr ""
+msgstr "முடக்கப்பட்ட பொருள் கண்காணிப்பு"
 
 #: terrain/TerrainEditor.cpp:148
 msgid "Enabled object tracking"
-msgstr ""
+msgstr "இயக்கப்பட்ட பொருள் கண்காணிப்பு"
 
 #: terrain/TerrainEditor.cpp:153
 msgid "Selected object: ["
-msgstr ""
+msgstr "தேர்ந்தெடுக்கப்பட்ட பொருள்: ["
 
 #. sync load since we want everything in place when we start
 #: terrain/TerrainGeometryManager.cpp:328
 msgid "Loading terrain pages ..."
-msgstr ""
+msgstr "நிலப்பரப்பு பக்கங்களை ஏற்றுகிறது ..."
 
 #: terrain/TerrainGeometryManager.cpp:375
 msgid "Saving all terrain pages ..."
-msgstr ""
+msgstr "அனைத்து நிலப்பரப்பு பக்கங்களையும் சேமிக்கிறது ..."
 
 #: terrain/TerrainObjectManager.cpp:558
 #, c++-format
 msgid "Could not load file '{}'"
-msgstr ""
+msgstr "'{}' கோப்பை ஏற்ற முடியவில்லை"
 
 #: terrain/TerrainObjectManager.cpp:583
 #, c++-format
 msgid "Could not load mesh '{}' (used by object '{}')"
-msgstr ""
+msgstr "கண்ணி '{}' (பொருளால் பயன்படுத்தப்படுகிறது '{}') ஏற்ற முடியவில்லை)"
 
 #: utils/ErrorUtils.cpp:45
 msgid "An internal error occured in Rigs of Rods.\n"
@@ -4586,803 +4628,811 @@ msgid "An internal error occured in Rigs of Rods.\n"
 "Technical details below: \n"
 "\n"
 msgstr ""
+"தண்டுகளின் ரிக்சில் உள் பிழை ஏற்பட்டது.\n"
+"\n"
+" கீழே உள்ள தொழில்நுட்ப விவரங்கள்: \n"
+"\n"
 
 #: utils/ErrorUtils.cpp:46
 msgid "FATAL ERROR"
-msgstr ""
+msgstr "அபாயகரமான பிழை"
 
 #: utils/ForceFeedback.cpp:110
 msgid "Disabling force feedback - no controller found"
-msgstr ""
+msgstr "படை பின்னூட்டத்தை முடக்குதல் - எந்த கட்டுப்படுத்தியும் கிடைக்கவில்லை"
 
 #. Common: generic
 #: utils/InputEngine.cpp:39
 msgctxt "InputEvent"
 msgid "accelerate the simulation"
-msgstr ""
+msgstr "உருவகப்படுத்துதலை விரைவுபடுத்துங்கள்"
 
 #: utils/InputEngine.cpp:40
 msgctxt "InputEvent"
 msgid "decelerate the simulation"
-msgstr ""
+msgstr "உருவகப்படுத்துதலைக் குறைக்கிறது"
 
 #: utils/InputEngine.cpp:41
 msgctxt "InputEvent"
 msgid "reset the simulation pace"
-msgstr ""
+msgstr "உருவகப்படுத்துதல் வேகத்தை மீட்டமைக்கவும்"
 
 #: utils/InputEngine.cpp:42
 msgctxt "InputEvent"
 msgid "write current position to log (you can open the logfile and reuse "
 "the position)"
 msgstr ""
+"பதிவு செய்ய தற்போதைய நிலையை எழுதுங்கள் (நீங்கள் பதிவைத் திறந்து நிலையை மீண்டும் "
+"பயன்படுத்தலாம்)"
 
 #: utils/InputEngine.cpp:43
 msgctxt "InputEvent"
 msgid "exit the game"
-msgstr ""
+msgstr "விளையாட்டிலிருந்து வெளியேறவும்"
 
 #: utils/InputEngine.cpp:44
 msgctxt "InputEvent"
 msgid "quickload scene"
-msgstr ""
+msgstr "குவிக்லோட் காட்சி"
 
 #: utils/InputEngine.cpp:45
 msgctxt "InputEvent"
 msgid "quicksave scene"
-msgstr ""
+msgstr "குவிக்சேவ் காட்சி"
 
 #: utils/InputEngine.cpp:46
 msgctxt "InputEvent"
 msgid "take a screenshot"
-msgstr ""
+msgstr "திரை காட்சி எடுத்துக் கொள்ளுங்கள்"
 
 #: utils/InputEngine.cpp:47
 msgctxt "InputEvent"
 msgid "take a big screenshot (3 times the screen size)"
-msgstr ""
+msgstr "ஒரு பெரிய திரை சாட்டை எடுத்துக் கொள்ளுங்கள் (திரை அளவு 3 மடங்கு)"
 
 #: utils/InputEngine.cpp:48
 msgctxt "InputEvent"
 msgid "debug purpose - dont use"
-msgstr ""
+msgstr "பிழைத்திருத்த நோக்கம் - பயன்படுத்த வேண்டாம்"
 
 #: utils/InputEngine.cpp:49
 msgctxt "InputEvent"
 msgid "enable or disable physics"
-msgstr ""
+msgstr "இயற்பியலை இயக்கவும் அல்லது முடக்கவும்"
 
 #: utils/InputEngine.cpp:50
 msgctxt "InputEvent"
 msgid "decreases the current FOV value"
-msgstr ""
+msgstr "தற்போதைய FOV மதிப்பைக் குறைக்கிறது"
 
 #: utils/InputEngine.cpp:51
 msgctxt "InputEvent"
 msgid "increase the current FOV value"
-msgstr ""
+msgstr "தற்போதைய FOV மதிப்பை அதிகரிக்கவும்"
 
 #: utils/InputEngine.cpp:52
 msgctxt "InputEvent"
 msgid "reset the FOV value"
-msgstr ""
+msgstr "FOV மதிப்பை மீட்டமைக்கவும்"
 
 #: utils/InputEngine.cpp:53
 msgctxt "InputEvent"
 msgid "save the currently loaded terrain to a mesh file"
-msgstr ""
+msgstr "தற்போது ஏற்றப்பட்ட நிலப்பரப்பை கண்ணி கோப்பில் சேமிக்கவும்"
 
 #: utils/InputEngine.cpp:54
 msgctxt "InputEvent"
 msgid "toggle terrain editor"
-msgstr ""
+msgstr "நிலப்பரப்பு எடிட்டரை மாற்றவும்"
 
 #: utils/InputEngine.cpp:55
 msgctxt "InputEvent"
 msgid "toggle between windowed and fullscreen mode"
-msgstr ""
+msgstr "சாளர மற்றும் முழுத்திரை பயன்முறைக்கு இடையில் மாற்றவும்"
 
 #. Comon: actor interaction
 #: utils/InputEngine.cpp:58
 msgctxt "InputEvent"
 msgid "enter or exit a truck"
-msgstr ""
+msgstr "ஒரு டிரக்கை உள்ளிடவும் அல்லது வெளியேறவும்"
 
 #: utils/InputEngine.cpp:59
 msgctxt "InputEvent"
 msgid "enter next truck"
-msgstr ""
+msgstr "அடுத்த டிரக்கை உள்ளிடவும்"
 
 #: utils/InputEngine.cpp:60
 msgctxt "InputEvent"
 msgid "enter previous truck"
-msgstr ""
+msgstr "முந்தைய டிரக்கை உள்ளிடவும்"
 
 #: utils/InputEngine.cpp:61
 msgctxt "InputEvent"
 msgid "remove current truck"
-msgstr ""
+msgstr "தற்போதைய டிரக்கை அகற்று"
 
 #: utils/InputEngine.cpp:62
 msgctxt "InputEvent"
 msgid "delete current truck"
-msgstr ""
+msgstr "தற்போதைய டிரக்கை நீக்கு"
 
 #: utils/InputEngine.cpp:63
 msgctxt "InputEvent"
 msgid "respawn last truck"
-msgstr ""
+msgstr "ரெச்பான் கடைசி டிரக்"
 
 #: utils/InputEngine.cpp:64
 msgctxt "InputEvent"
 msgid "get new vehicle"
-msgstr ""
+msgstr "புதிய வண்டி கிடைக்கும்"
 
 #: utils/InputEngine.cpp:65
 msgctxt "InputEvent"
 msgid "decrease tire pressure (note: only very few trucks support this)"
 msgstr ""
+"டயர் அழுத்தத்தைக் குறைக்கவும் (குறிப்பு: மிகக் குறைவான லாரிகள் மட்டுமே இதை ஆதரிக்கின்றன)"
 
 #: utils/InputEngine.cpp:66
 msgctxt "InputEvent"
 msgid "increase tire pressure (note: only very few trucks support this)"
 msgstr ""
+"டயர் அழுத்தத்தை அதிகரிக்கவும் (குறிப்பு: மிகக் குறைவான லாரிகள் மட்டுமே இதை ஆதரிக்கின்றன)"
 
 #: utils/InputEngine.cpp:67
 msgctxt "InputEvent"
 msgid "connect hook node to a node in close proximity"
-msgstr ""
+msgstr "கொக்கி முனையை ஒரு முனைக்கு அருகிலேயே இணைக்கவும்"
 
 #: utils/InputEngine.cpp:68
 msgctxt "InputEvent"
 msgid "unlock autolock hook node"
-msgstr ""
+msgstr "ஆட்டோலாக் ஊக் முனையைத் திறக்கவும்"
 
 #: utils/InputEngine.cpp:69
 msgctxt "InputEvent"
 msgid "connect a rope to a node in close proximity"
-msgstr ""
+msgstr "ஒரு கயிற்றை ஒரு முனைக்கு அருகிலேயே இணைக்கவும்"
 
 #: utils/InputEngine.cpp:70
 msgctxt "InputEvent"
 msgid "repair truck"
-msgstr ""
+msgstr "டிரக் பழுதுபார்க்கும்"
 
 #: utils/InputEngine.cpp:71
 msgctxt "InputEvent"
 msgid "toggle truck interactive repair mode"
-msgstr ""
+msgstr "டிரக் ஊடாடும் பழுதுபார்க்கும் பயன்முறையை மாற்றவும்"
 
 #: utils/InputEngine.cpp:72
 msgctxt "InputEvent"
 msgid "teleport to rescue truck"
-msgstr ""
+msgstr "மீட்பு டிரக்குக்கு டெலிபோர்ட்"
 
 #: utils/InputEngine.cpp:73
 msgctxt "InputEvent"
 msgid "reset truck to original starting position"
-msgstr ""
+msgstr "அசல் தொடக்க நிலைக்கு டிரக்கை மீட்டமைக்கவும்"
 
 #: utils/InputEngine.cpp:74
 msgctxt "InputEvent"
 msgid "toggle reset mode"
-msgstr ""
+msgstr "மீட்டமைப்பு பயன்முறையை மாற்றவும்"
 
 #: utils/InputEngine.cpp:75
 msgctxt "InputEvent"
 msgid "tie a load to the truck"
-msgstr ""
+msgstr "டிரக்கில் ஒரு சுமை கட்டவும்"
 
 #: utils/InputEngine.cpp:76
 msgctxt "InputEvent"
 msgid "toggle truck beacons"
-msgstr ""
+msgstr "டிரக் பீக்கான்களை மாற்றவும்"
 
 #: utils/InputEngine.cpp:77
 msgctxt "InputEvent"
 msgid "toggle truck low beams"
-msgstr ""
+msgstr "டிரக் குறைந்த விட்டங்களை மாற்றவும்"
 
 #: utils/InputEngine.cpp:78
 msgctxt "InputEvent"
 msgid "cycle between light modes"
-msgstr ""
+msgstr "ஒளி முறைகளுக்கு இடையில் சுழற்சி"
 
 #: utils/InputEngine.cpp:79
 msgctxt "InputEvent"
 msgid "toggle truck high beams"
-msgstr ""
+msgstr "டிரக் உயர் விட்டங்களை மாற்றவும்"
 
 #: utils/InputEngine.cpp:80
 msgctxt "InputEvent"
 msgid "toggle truck fog lights"
-msgstr ""
+msgstr "டிரக் மூடுபனி விளக்குகளை மாற்றவும்"
 
 #: utils/InputEngine.cpp:81
 msgctxt "InputEvent"
 msgid "toggle particle cannon"
-msgstr ""
+msgstr "துகள் பீரங்கியை மாற்றவும்"
 
 #: utils/InputEngine.cpp:82
 msgctxt "InputEvent"
 msgid "enable or disable replay mode"
-msgstr ""
+msgstr "ரீப்ளே பயன்முறையை இயக்கவும் அல்லது முடக்கவும்"
 
 #: utils/InputEngine.cpp:83
 msgctxt "InputEvent"
 msgid "more replay forward"
-msgstr ""
+msgstr "மேலும் மறுபதிப்பு முன்னோக்கி"
 
 #: utils/InputEngine.cpp:84
 msgctxt "InputEvent"
 msgid "more replay backward"
-msgstr ""
+msgstr "மேலும் பின்னோக்கி மீண்டும் இயக்கவும்"
 
 #: utils/InputEngine.cpp:85
 msgctxt "InputEvent"
 msgid "move replay fast forward"
-msgstr ""
+msgstr "ரீப்ளே வேகமாக முன்னோக்கி நகர்த்தவும்"
 
 #: utils/InputEngine.cpp:86
 msgctxt "InputEvent"
 msgid "move replay fast backward"
-msgstr ""
+msgstr "ரீப்ளே வேகமாக பின்னோக்கி நகர்த்தவும்"
 
 #. Common: UI
 #: utils/InputEngine.cpp:89
 msgctxt "InputEvent"
 msgid "show / hide the console"
-msgstr ""
+msgstr "கன்சோலைக் காட்டவும் / மறைக்கவும்"
 
 #: utils/InputEngine.cpp:90
 msgctxt "InputEvent"
 msgid "enter the chat"
-msgstr ""
+msgstr "அரட்டையை உள்ளிடவும்"
 
 #: utils/InputEngine.cpp:91
 msgctxt "InputEvent"
 msgid "sends the entered text"
-msgstr ""
+msgstr "உள்ளிட்ட உரையை அனுப்புகிறது"
 
 #: utils/InputEngine.cpp:92
 msgctxt "InputEvent"
 msgid "hide all GUI elements"
-msgstr ""
+msgstr "அனைத்து GUI கூறுகளையும் மறைக்கவும்"
 
 #: utils/InputEngine.cpp:93
 msgctxt "InputEvent"
 msgid "display or hide the dashboard overlay"
-msgstr ""
+msgstr "காட்சி or மறை the முகப்புப்பெட்டி overlay"
 
 #: utils/InputEngine.cpp:94
 msgctxt "InputEvent"
 msgid "toggle debug view"
-msgstr ""
+msgstr "பிழைத்திருத்தக் காட்சியை மாற்றவும்"
 
 #: utils/InputEngine.cpp:95
 msgctxt "InputEvent"
 msgid "cycle debug views"
-msgstr ""
+msgstr "சுழற்சி பிழைத்திருத்த காட்சிகள்"
 
 #: utils/InputEngine.cpp:96
 msgctxt "InputEvent"
 msgid "toggle truck HUD"
-msgstr ""
+msgstr "டிரக் அட் மாற்று"
 
 #: utils/InputEngine.cpp:97
 msgctxt "InputEvent"
 msgid "toggle truck description"
-msgstr ""
+msgstr "டிரக் விளக்கத்தை மாற்றவும்"
 
 #: utils/InputEngine.cpp:98
 msgctxt "InputEvent"
 msgid "display or hide net chat"
-msgstr ""
+msgstr "நிகர அரட்டையைக் காண்பி அல்லது மறைக்கவும்"
 
 #: utils/InputEngine.cpp:99
 msgctxt "InputEvent"
 msgid "toggle between net chat display modes"
-msgstr ""
+msgstr "நிகர அரட்டை காட்சி முறைகளுக்கு இடையில் மாற்றவும்"
 
 #: utils/InputEngine.cpp:100
 msgctxt "InputEvent"
 msgid "toggle Ogre statistics (FPS etc.)"
-msgstr ""
+msgstr "OGRE புள்ளிவிவரங்களை மாற்றவும் (FPS போன்றவை)"
 
 #. Common: savegames
 #: utils/InputEngine.cpp:103
 msgctxt "InputEvent"
 msgid "save scene in slot 01"
-msgstr ""
+msgstr "ச்லாட் 01 இல் காட்சியை சேமிக்கவும்"
 
 #: utils/InputEngine.cpp:104
 msgctxt "InputEvent"
 msgid "save scene in slot 02"
-msgstr ""
+msgstr "சேமி scene in slot 02"
 
 #: utils/InputEngine.cpp:105
 msgctxt "InputEvent"
 msgid "save scene in slot 03"
-msgstr ""
+msgstr "சேமி scene in slot 03"
 
 #: utils/InputEngine.cpp:106
 msgctxt "InputEvent"
 msgid "save scene in slot 04"
-msgstr ""
+msgstr "ச்லாட் 04 இல் காட்சியை சேமிக்கவும்"
 
 #: utils/InputEngine.cpp:107
 msgctxt "InputEvent"
 msgid "save scene in slot 05"
-msgstr ""
+msgstr "ச்லாட் 05 இல் காட்சியை சேமிக்கவும்"
 
 #: utils/InputEngine.cpp:108
 msgctxt "InputEvent"
 msgid "save scene in slot 06"
-msgstr ""
+msgstr "ச்லாட் 06 இல் காட்சியை சேமிக்கவும்"
 
 #: utils/InputEngine.cpp:109
 msgctxt "InputEvent"
 msgid "save scene in slot 07"
-msgstr ""
+msgstr "ச்லாட் 07 இல் காட்சியை சேமிக்கவும்"
 
 #: utils/InputEngine.cpp:110
 msgctxt "InputEvent"
 msgid "save scene in slot 08"
-msgstr ""
+msgstr "ச்லாட் 08 இல் காட்சியை சேமிக்கவும்"
 
 #: utils/InputEngine.cpp:111
 msgctxt "InputEvent"
 msgid "save scene in slot 09"
-msgstr ""
+msgstr "ச்லாட் 09 இல் காட்சியை சேமிக்கவும்"
 
 #: utils/InputEngine.cpp:112
 msgctxt "InputEvent"
 msgid "save scene in slot 10"
-msgstr ""
+msgstr "ச்லாட் 10 இல் காட்சியை சேமிக்கவும்"
 
 #: utils/InputEngine.cpp:114
 msgctxt "InputEvent"
 msgid "load scene from slot 01"
-msgstr ""
+msgstr "ச்லாட் 01 இலிருந்து காட்சியை ஏற்றவும்"
 
 #: utils/InputEngine.cpp:115
 msgctxt "InputEvent"
 msgid "load scene from slot 02"
-msgstr ""
+msgstr "ச்லாட் 02 இலிருந்து காட்சியை ஏற்றவும்"
 
 #: utils/InputEngine.cpp:116
 msgctxt "InputEvent"
 msgid "load scene from slot 03"
-msgstr ""
+msgstr "ச்லாட் 03 இலிருந்து காட்சியை ஏற்றவும்"
 
 #: utils/InputEngine.cpp:117
 msgctxt "InputEvent"
 msgid "load scene from slot 04"
-msgstr ""
+msgstr "ச்லாட் 04 இலிருந்து காட்சியை ஏற்றவும்"
 
 #: utils/InputEngine.cpp:118
 msgctxt "InputEvent"
 msgid "load scene from slot 05"
-msgstr ""
+msgstr "ச்லாட் 05 இலிருந்து காட்சியை ஏற்றவும்"
 
 #: utils/InputEngine.cpp:119
 msgctxt "InputEvent"
 msgid "load scene from slot 06"
-msgstr ""
+msgstr "ச்லாட் 06 இலிருந்து காட்சியை ஏற்றவும்"
 
 #: utils/InputEngine.cpp:120
 msgctxt "InputEvent"
 msgid "load scene from slot 07"
-msgstr ""
+msgstr "ச்லாட் 07 இலிருந்து காட்சியை ஏற்றவும்"
 
 #: utils/InputEngine.cpp:121
 msgctxt "InputEvent"
 msgid "load scene from slot 08"
-msgstr ""
+msgstr "ச்லாட் 08 இலிருந்து காட்சியை ஏற்றவும்"
 
 #: utils/InputEngine.cpp:122
 msgctxt "InputEvent"
 msgid "load scene from slot 09"
-msgstr ""
+msgstr "ச்லாட் 09 இலிருந்து காட்சியை ஏற்றவும்"
 
 #: utils/InputEngine.cpp:123
 msgctxt "InputEvent"
 msgid "load scene from slot 10"
-msgstr ""
+msgstr "ச்லாட் 10 இலிருந்து காட்சியை ஏற்றவும்"
 
 #. Truck: generic
 #: utils/InputEngine.cpp:126
 msgctxt "InputEvent"
 msgid "accelerate the truck"
-msgstr ""
+msgstr "டிரக்கை துரிதப்படுத்துங்கள்"
 
 #: utils/InputEngine.cpp:127
 msgctxt "InputEvent"
 msgid "accelerate with 25 percent pedal input"
-msgstr ""
+msgstr "25 சதவீத மிதி உள்ளீட்டைக் கொண்டு துரிதப்படுத்துங்கள்"
 
 #: utils/InputEngine.cpp:128
 msgctxt "InputEvent"
 msgid "accelerate with 50 percent pedal input"
-msgstr ""
+msgstr "50 சதவீத மிதி உள்ளீட்டைக் கொண்டு துரிதப்படுத்துங்கள்"
 
 #: utils/InputEngine.cpp:129
 msgctxt "InputEvent"
 msgid "toggle left direction indicator (blinker)"
-msgstr ""
+msgstr "இடது திசை காட்டி (பிளிங்கர்)"
 
 #: utils/InputEngine.cpp:130
 msgctxt "InputEvent"
 msgid "toggle right direction indicator (blinker)"
-msgstr ""
+msgstr "சரியான திசை காட்டி (பிளிங்கர்)"
 
 #: utils/InputEngine.cpp:131
 msgctxt "InputEvent"
 msgid "toggle all direction indicators"
-msgstr ""
+msgstr "அனைத்து திசை குறிகாட்டிகளையும் மாற்றவும்"
 
 #: utils/InputEngine.cpp:132
 msgctxt "InputEvent"
 msgid "brake"
-msgstr ""
+msgstr "நிறுத்தி"
 
 #: utils/InputEngine.cpp:133
 msgctxt "InputEvent"
 msgid "brake with 25 percent pedal input"
-msgstr ""
+msgstr "25 சதவீத மிதி உள்ளீட்டைக் கொண்டு பிரேக்"
 
 #: utils/InputEngine.cpp:134
 msgctxt "InputEvent"
 msgid "brake with 50 percent pedal input"
-msgstr ""
+msgstr "50 சதவீத மிதி உள்ளீட்டைக் கொண்டு பிரேக்"
 
 #: utils/InputEngine.cpp:135
 msgctxt "InputEvent"
 msgid "truck horn"
-msgstr ""
+msgstr "டிரக் கொம்பு"
 
 #: utils/InputEngine.cpp:136
 msgctxt "InputEvent"
 msgid "toggle custom light 1"
-msgstr ""
+msgstr "தனிப்பயன் ஒளி 1 ஐ மாற்றவும்"
 
 #: utils/InputEngine.cpp:137
 msgctxt "InputEvent"
 msgid "toggle custom light 2"
-msgstr ""
+msgstr "தனிப்பயன் ஒளி 2 ஐ மாற்றவும்"
 
 #: utils/InputEngine.cpp:138
 msgctxt "InputEvent"
 msgid "toggle custom light 3"
-msgstr ""
+msgstr "தனிப்பயன் ஒளி 3 ஐ மாற்றவும்"
 
 #: utils/InputEngine.cpp:139
 msgctxt "InputEvent"
 msgid "toggle custom light 4"
-msgstr ""
+msgstr "தனிப்பயன் ஒளி 4 ஐ மாற்றவும்"
 
 #: utils/InputEngine.cpp:140
 msgctxt "InputEvent"
 msgid "toggle custom light 5"
-msgstr ""
+msgstr "தனிப்பயன் ஒளி 5 ஐ மாற்றவும்"
 
 #: utils/InputEngine.cpp:141
 msgctxt "InputEvent"
 msgid "toggle custom light 6"
-msgstr ""
+msgstr "தனிப்பயன் ஒளி 6 ஐ மாற்றவும்"
 
 #: utils/InputEngine.cpp:142
 msgctxt "InputEvent"
 msgid "toggle custom light 7"
-msgstr ""
+msgstr "தனிப்பயன் ஒளி 7 ஐ மாற்றவும்"
 
 #: utils/InputEngine.cpp:143
 msgctxt "InputEvent"
 msgid "toggle custom light 8"
-msgstr ""
+msgstr "தனிப்பயன் ஒளி 8 ஐ மாற்றவும்"
 
 #: utils/InputEngine.cpp:144
 msgctxt "InputEvent"
 msgid "toggle custom light 9"
-msgstr ""
+msgstr "தனிப்பயன் ஒளி 9 ஐ மாற்றவும்"
 
 #: utils/InputEngine.cpp:145
 msgctxt "InputEvent"
 msgid "toggle custom light 10"
-msgstr ""
+msgstr "தனிப்பயன் ஒளி 10 ஐ மாற்றவும்"
 
 #: utils/InputEngine.cpp:146
 msgctxt "InputEvent"
 msgid "toggle parking brake"
-msgstr ""
+msgstr "பார்க்கிங் பிரேக்கை மாற்றவும்"
 
 #: utils/InputEngine.cpp:147
 msgctxt "InputEvent"
 msgid "toggle trailer parking brake"
-msgstr ""
+msgstr "டிரெய்லர் பார்க்கிங் பிரேக்கை மாற்றவும்"
 
 #: utils/InputEngine.cpp:148
 msgctxt "InputEvent"
 msgid "toggle antilock brake"
-msgstr ""
+msgstr "ஆன்டிலாக் பிரேக்கை மாற்றவும்"
 
 #: utils/InputEngine.cpp:149
 msgctxt "InputEvent"
 msgid "toggle videocamera"
-msgstr ""
+msgstr "வீடியோ கேமெராவை மாற்றவும்"
 
 #: utils/InputEngine.cpp:150
 msgctxt "InputEvent"
 msgid "toggle traction control"
-msgstr ""
+msgstr "இழுவைக் கட்டுப்பாட்டை மாற்றவும்"
 
 #: utils/InputEngine.cpp:151
 msgctxt "InputEvent"
 msgid "toggle cruise control"
-msgstr ""
+msgstr "பயணக் கட்டுப்பாட்டை மாற்றவும்"
 
 #: utils/InputEngine.cpp:152
 msgctxt "InputEvent"
 msgid "match target speed / rpm with current truck speed / rpm"
-msgstr ""
+msgstr "தற்போதைய டிரக் விரைவு / ஆர்.பி.எம் உடன் இலக்கு விரைவு / ஆர்.பி.எம்"
 
 #: utils/InputEngine.cpp:153
 msgctxt "InputEvent"
 msgid "increase target speed / rpm"
-msgstr ""
+msgstr "இலக்கு விரைவு / ஆர்.பி.எம்"
 
 #: utils/InputEngine.cpp:154
 msgctxt "InputEvent"
 msgid "decrease target speed / rpm"
-msgstr ""
+msgstr "இலக்கு விரைவு / ஆர்.பி.எம்"
 
 #: utils/InputEngine.cpp:155
 msgctxt "InputEvent"
 msgid "hold to start the engine"
-msgstr ""
+msgstr "இயந்திரத்தைத் தொடங்க"
 
 #: utils/InputEngine.cpp:156 utils/InputEngine.cpp:215
 msgctxt "InputEvent"
 msgid "steer left"
-msgstr ""
+msgstr "இடது"
 
 #. Airplane
 #: utils/InputEngine.cpp:157 utils/InputEngine.cpp:203
 #: utils/InputEngine.cpp:216
 msgctxt "InputEvent"
 msgid "steer right"
-msgstr ""
+msgstr "வலதுபுறம் செல்லுங்கள்"
 
 #: utils/InputEngine.cpp:158
 msgctxt "InputEvent"
 msgid "toggle ignition"
-msgstr ""
+msgstr "பற்றவைப்பை மாற்றவும்"
 
 #: utils/InputEngine.cpp:159
 msgctxt "InputEvent"
 msgid "toggle forwardcommands"
-msgstr ""
+msgstr "முன்னோக்கி காம்பாண்டுகளை மாற்றவும்"
 
 #: utils/InputEngine.cpp:160
 msgctxt "InputEvent"
 msgid "toggle importcommands"
-msgstr ""
+msgstr "இறக்குமதி காம்பாண்டுகளை மாற்றவும்"
 
 #: utils/InputEngine.cpp:161
 msgctxt "InputEvent"
 msgid "toggle physics"
-msgstr ""
+msgstr "இயற்பியலை மாற்றவும்"
 
 #: utils/InputEngine.cpp:162
 msgctxt "InputEvent"
 msgid "cycle between available inter axle differential modes"
-msgstr ""
+msgstr "கிடைக்கக்கூடிய இடை அச்சு வேறுபாடு முறைகளுக்கு இடையில் சுழற்சி"
 
 #: utils/InputEngine.cpp:163
 msgctxt "InputEvent"
 msgid "cycle between available inter wheel differential modes"
-msgstr ""
+msgstr "கிடைக்கக்கூடிய இடை சக்கர வேறுபாடு முறைகளுக்கு இடையில் சுழற்சி"
 
 #: utils/InputEngine.cpp:164
 msgctxt "InputEvent"
 msgid "toggle transfer case mode"
-msgstr ""
+msgstr "பரிமாற்ற வழக்கு பயன்முறையை மாற்றவும்"
 
 #: utils/InputEngine.cpp:165
 msgctxt "InputEvent"
 msgid "toggle transfer case gear ratio"
-msgstr ""
+msgstr "பரிமாற்ற வழக்கு கியர் விகிதத்தை மாற்றவும்"
 
 #: utils/InputEngine.cpp:166
 msgctxt "InputEvent"
 msgid "move left mirror to the left"
-msgstr ""
+msgstr "இடது கண்ணாடியை இடதுபுறமாக நகர்த்தவும்"
 
 #: utils/InputEngine.cpp:167
 msgctxt "InputEvent"
 msgid "move left mirror to the right"
-msgstr ""
+msgstr "இடது கண்ணாடியை வலதுபுறமாக நகர்த்தவும்"
 
 #: utils/InputEngine.cpp:168
 msgctxt "InputEvent"
 msgid "more right mirror to the left"
-msgstr ""
+msgstr "மேலும் வலது கண்ணாடி இடதுபுறம்"
 
 #: utils/InputEngine.cpp:169
 msgctxt "InputEvent"
 msgid "move right mirror to the right"
-msgstr ""
+msgstr "வலது கண்ணாடியை வலதுபுறம் நகர்த்தவும்"
 
 #. Truck: transmission
 #: utils/InputEngine.cpp:172
 msgctxt "InputEvent"
 msgid "shift automatic transmission one gear down"
-msgstr ""
+msgstr "தானியங்கி டிரான்ச்மிசனை ஒரு கியர் கீழே மாற்றவும்"
 
 #: utils/InputEngine.cpp:173
 msgctxt "InputEvent"
 msgid "shift automatic transmission one gear up"
-msgstr ""
+msgstr "தானியங்கி டிரான்ச்மிசனை ஒரு கியர் அப் மாற்றவும்"
 
 #: utils/InputEngine.cpp:174
 msgctxt "InputEvent"
 msgid "manual clutch (for manual transmission)"
-msgstr ""
+msgstr "கையேடு கிளட்ச் (கையேடு பரிமாற்றத்திற்கு)"
 
 #: utils/InputEngine.cpp:175
 msgctxt "InputEvent"
 msgid "shift one gear down in manual transmission mode"
-msgstr ""
+msgstr "கையேடு பரிமாற்ற பயன்முறையில் ஒரு கியரை கீழே மாற்றவும்"
 
 #: utils/InputEngine.cpp:176
 msgctxt "InputEvent"
 msgid "shift to neutral gear in manual transmission mode"
-msgstr ""
+msgstr "கையேடு டிரான்ச்மிசன் பயன்முறையில் நடுநிலை கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:177
 msgctxt "InputEvent"
 msgid "shift one gear up in manual transmission mode"
-msgstr ""
+msgstr "கையேடு பரிமாற்ற பயன்முறையில் ஒரு கியரை மாற்றவும்"
 
 #: utils/InputEngine.cpp:178
 msgctxt "InputEvent"
 msgid "shift directly to reverse gear"
-msgstr ""
+msgstr "தலைகீழ் கியருக்கு நேரடியாக மாற்றவும்"
 
 #: utils/InputEngine.cpp:179
 msgctxt "InputEvent"
 msgid "shift directly to first gear"
-msgstr ""
+msgstr "முதல் கியருக்கு நேரடியாக மாற்றவும்"
 
 #: utils/InputEngine.cpp:180
 msgctxt "InputEvent"
 msgid "shift directly to second gear"
-msgstr ""
+msgstr "நேரடியாக இரண்டாவது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:181
 msgctxt "InputEvent"
 msgid "shift directly to third gear"
-msgstr ""
+msgstr "நேரடியாக மூன்றாவது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:182
 msgctxt "InputEvent"
 msgid "shift directly to fourth gear"
-msgstr ""
+msgstr "நேரடியாக நான்காவது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:183
 msgctxt "InputEvent"
 msgid "shift directly to 5th gear"
-msgstr ""
+msgstr "நேரடியாக 5 வது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:184
 msgctxt "InputEvent"
 msgid "shift directly to 6th gear"
-msgstr ""
+msgstr "நேரடியாக 6 வது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:185
 msgctxt "InputEvent"
 msgid "shift directly to 7th gear"
-msgstr ""
+msgstr "நேரடியாக 7 வது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:186
 msgctxt "InputEvent"
 msgid "shift directly to 8th gear"
-msgstr ""
+msgstr "நேரடியாக 8 வது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:187
 msgctxt "InputEvent"
 msgid "shift directly to 9th gear"
-msgstr ""
+msgstr "நேரடியாக 9 வது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:188
 msgctxt "InputEvent"
 msgid "shift directly to 10th gear"
-msgstr ""
+msgstr "நேரடியாக 10 வது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:189
 msgctxt "InputEvent"
 msgid "shift directly to 11th gear"
-msgstr ""
+msgstr "நேரடியாக 11 வது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:190
 msgctxt "InputEvent"
 msgid "shift directly to 12th gear"
-msgstr ""
+msgstr "நேரடியாக 12 வது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:191
 msgctxt "InputEvent"
 msgid "shift directly to 13th gear"
-msgstr ""
+msgstr "நேரடியாக 13 வது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:192
 msgctxt "InputEvent"
 msgid "shift directly to 14th gear"
-msgstr ""
+msgstr "நேரடியாக 14 வது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:193
 msgctxt "InputEvent"
 msgid "shift directly to 15th gear"
-msgstr ""
+msgstr "நேரடியாக 15 வது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:194
 msgctxt "InputEvent"
 msgid "shift directly to 16th gear"
-msgstr ""
+msgstr "நேரடியாக 16 வது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:195
 msgctxt "InputEvent"
 msgid "shift directly to 17th gear"
-msgstr ""
+msgstr "நேரடியாக 17 வது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:196
 msgctxt "InputEvent"
 msgid "shift directly to 18th gear"
-msgstr ""
+msgstr "நேரடியாக 18 வது கியருக்கு மாற்றவும்"
 
 #: utils/InputEngine.cpp:197
 msgctxt "InputEvent"
 msgid "sets low range (1-6) for H-shaft"
-msgstr ""
+msgstr "எச்-சாஃப்ட்டுக்கு குறைந்த வரம்பை (1-6) அமைக்கிறது"
 
 #: utils/InputEngine.cpp:198
 msgctxt "InputEvent"
 msgid "sets middle range (7-12) for H-shaft"
-msgstr ""
+msgstr "எச்-சாஃப்ட்டுக்கு நடுத்தர வரம்பை (7-12) அமைக்கிறது"
 
 #: utils/InputEngine.cpp:199
 msgctxt "InputEvent"
 msgid "sets high range (13-18) for H-shaft"
-msgstr ""
+msgstr "எச்-சாஃப்ட்டுக்கு உயர் வரம்பை (13-18) அமைக்கிறது"
 
 #: utils/InputEngine.cpp:200
 msgctxt "InputEvent"
 msgid "toggle between transmission modes"
-msgstr ""
+msgstr "பரிமாற்ற முறைகளுக்கு இடையில் மாற்றவும்"
 
 #: utils/InputEngine.cpp:204
 msgctxt "InputEvent"
 msgid "normal brake for an aircraft"
-msgstr ""
+msgstr "ஒரு விமானத்திற்கு சாதாரண பிரேக்"
 
 #: utils/InputEngine.cpp:205
 msgctxt "InputEvent"
 msgid "pull the elevator down in an aircraft."
-msgstr ""
+msgstr "ஒரு விமானத்தில் லிஃப்ட் கீழே இழுக்கவும்."
 
 #: utils/InputEngine.cpp:206
 msgctxt "InputEvent"
 msgid "pull the elevator up in an aircraft."
-msgstr ""
+msgstr "ஒரு விமானத்தில் லிஃப்ட் மேலே இழுக்கவும்."
 
 #: utils/InputEngine.cpp:207
 msgctxt "InputEvent"
 msgid "full flaps in an aircraft."
-msgstr ""
+msgstr "ஒரு விமானத்தில் முழு மடிப்புகள்."
 
 #: utils/InputEngine.cpp:208
 msgctxt "InputEvent"
 msgid "one step less flaps."
-msgstr ""
+msgstr "ஒரு படி குறைவான மடல்."
 
 #: utils/InputEngine.cpp:209
 msgctxt "InputEvent"
