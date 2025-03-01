@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2025-03-01 02:01+0000\n"
+"PO-Revision-Date: 2025-03-01 23:18+0000\n"
 "Last-Translator: தமிழ்நேரம் <anishprabu.t@gmail.com>\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/rigs-of-rods/game/"
 "ta/>\n"
@@ -4581,7 +4581,7 @@ msgstr "ரை"
 
 #: terrain/TerrainEditor.cpp:134
 msgid "rz"
-msgstr "rz"
+msgstr "RZ"
 
 #: terrain/TerrainEditor.cpp:139
 msgid "rx"
@@ -5437,834 +5437,836 @@ msgstr "ஒரு படி குறைவான மடல்."
 #: utils/InputEngine.cpp:209
 msgctxt "InputEvent"
 msgid "one step more flaps."
-msgstr ""
+msgstr "ஒரு படி இன்னும் மடிப்புகள்."
 
 #: utils/InputEngine.cpp:210
 msgctxt "InputEvent"
 msgid "no flaps."
-msgstr ""
+msgstr "மடிப்புகள் இல்லை."
 
 #: utils/InputEngine.cpp:211
 msgctxt "InputEvent"
 msgid "airplane parking brake."
-msgstr ""
+msgstr "விமான பார்க்கிங் பிரேக்."
 
 #: utils/InputEngine.cpp:212
 msgctxt "InputEvent"
 msgid "reverse the turboprops"
-msgstr ""
+msgstr "டர்போபிராப்சை மாற்றியமைக்கவும்"
 
 #: utils/InputEngine.cpp:213
 msgctxt "InputEvent"
 msgid "rudder left"
-msgstr ""
+msgstr "சுக்கான் இடது"
 
 #: utils/InputEngine.cpp:214
 msgctxt "InputEvent"
 msgid "rudder right"
-msgstr ""
+msgstr "சுக்கான் சரி"
 
 #: utils/InputEngine.cpp:217 utils/InputEngine.cpp:236
 msgctxt "InputEvent"
 msgid "throttle axis. Only use this if you have fitting hardware :) (i.e. a "
 "Slider)"
 msgstr ""
+"த்ரோட்டில் அச்சு. உங்களிடம் பொருத்தமான வன்பொருள் இருந்தால் மட்டுமே இதைப் பயன்படுத்தவும் :) "
+"(அதாவது ஒரு ச்லைடர்)"
 
 #: utils/InputEngine.cpp:218
 msgctxt "InputEvent"
 msgid "decreases the airplane thrust"
-msgstr ""
+msgstr "விமான உந்துதல் குறைகிறது"
 
 #: utils/InputEngine.cpp:219
 msgctxt "InputEvent"
 msgid "full thrust"
-msgstr ""
+msgstr "முழு உந்துதல்"
 
 #: utils/InputEngine.cpp:220 utils/InputEngine.cpp:231
 msgctxt "InputEvent"
 msgid "no thrust"
-msgstr ""
+msgstr "உந்துதல் இல்லை"
 
 #: utils/InputEngine.cpp:221
 msgctxt "InputEvent"
 msgid "increase the airplane thrust"
-msgstr ""
+msgstr "விமான உந்துதலை அதிகரிக்கவும்"
 
 #: utils/InputEngine.cpp:222
 msgctxt "InputEvent"
 msgid "switch all engines on / off"
-msgstr ""
+msgstr "எல்லா இயந்திரங்களையும் ஆன் / ஆஃப் செய்யுங்கள்"
 
 #: utils/InputEngine.cpp:223
 msgctxt "InputEvent"
 msgid "no airbrakes"
-msgstr ""
+msgstr "ஏர்பிரேக்குகள் இல்லை"
 
 #: utils/InputEngine.cpp:224
 msgctxt "InputEvent"
 msgid "full airbrakes"
-msgstr ""
+msgstr "முழு ஏர்பிரேக்குகள்"
 
 #: utils/InputEngine.cpp:225
 msgctxt "InputEvent"
 msgid "less airbrakes"
-msgstr ""
+msgstr "குறைவான ஏர்பிரேக்குகள்"
 
 #: utils/InputEngine.cpp:226
 msgctxt "InputEvent"
 msgid "more airbrakes"
-msgstr ""
+msgstr "மேலும் ஏர்பிரேக்குகள்"
 
 #: utils/InputEngine.cpp:227
 msgctxt "InputEvent"
 msgid "airplane throttle"
-msgstr ""
+msgstr "விமானத் தூண்டுதல்"
 
 #. Boat
 #: utils/InputEngine.cpp:230
 msgctxt "InputEvent"
 msgid "center the rudder"
-msgstr ""
+msgstr "சுக்கான் மையமாக"
 
 #: utils/InputEngine.cpp:232
 msgctxt "InputEvent"
 msgid "steer left a step"
-msgstr ""
+msgstr "ச்டியர் ஒரு படி விட்டுவிட்டார்"
 
 #: utils/InputEngine.cpp:233
 msgctxt "InputEvent"
 msgid "steer left (analog value!)"
-msgstr ""
+msgstr "ச்டீயர் இடது (அனலாக் மதிப்பு!)"
 
 #: utils/InputEngine.cpp:234
 msgctxt "InputEvent"
 msgid "steer right a step"
-msgstr ""
+msgstr "ஒரு படி சரி"
 
 #: utils/InputEngine.cpp:235
 msgctxt "InputEvent"
 msgid "steer right (analog value!)"
-msgstr ""
+msgstr "வலதுபுறம் (அனலாக் மதிப்பு!)"
 
 #: utils/InputEngine.cpp:237
 msgctxt "InputEvent"
 msgid "decrease throttle"
-msgstr ""
+msgstr "த்ரோட்டில் குறைக்கவும்"
 
 #: utils/InputEngine.cpp:238
 msgctxt "InputEvent"
 msgid "increase throttle"
-msgstr ""
+msgstr "தூண்டுதலை அதிகரிக்கவும்"
 
 #. Commands
 #: utils/InputEngine.cpp:241
 msgctxt "InputEvent"
 msgid "Command 1"
-msgstr ""
+msgstr "கட்டளை 1"
 
 #: utils/InputEngine.cpp:242
 msgctxt "InputEvent"
 msgid "Command 2"
-msgstr ""
+msgstr "கட்டளை 2"
 
 #: utils/InputEngine.cpp:243
 msgctxt "InputEvent"
 msgid "Command 3"
-msgstr ""
+msgstr "கட்டளை 3"
 
 #: utils/InputEngine.cpp:244
 msgctxt "InputEvent"
 msgid "Command 4"
-msgstr ""
+msgstr "கட்டளை 4"
 
 #: utils/InputEngine.cpp:245
 msgctxt "InputEvent"
 msgid "Command 5"
-msgstr ""
+msgstr "கட்டளை 5"
 
 #: utils/InputEngine.cpp:246
 msgctxt "InputEvent"
 msgid "Command 6"
-msgstr ""
+msgstr "கட்டளை 6"
 
 #: utils/InputEngine.cpp:247
 msgctxt "InputEvent"
 msgid "Command 7"
-msgstr ""
+msgstr "கட்டளை 7"
 
 #: utils/InputEngine.cpp:248
 msgctxt "InputEvent"
 msgid "Command 8"
-msgstr ""
+msgstr "கட்டளை 8"
 
 #: utils/InputEngine.cpp:249
 msgctxt "InputEvent"
 msgid "Command 9"
-msgstr ""
+msgstr "கட்டளை 9"
 
 #: utils/InputEngine.cpp:250
 msgctxt "InputEvent"
 msgid "Command 10"
-msgstr ""
+msgstr "கட்டளை 10"
 
 #: utils/InputEngine.cpp:251
 msgctxt "InputEvent"
 msgid "Command 11"
-msgstr ""
+msgstr "கட்டளை 11"
 
 #: utils/InputEngine.cpp:252
 msgctxt "InputEvent"
 msgid "Command 12"
-msgstr ""
+msgstr "கட்டளை 12"
 
 #: utils/InputEngine.cpp:253
 msgctxt "InputEvent"
 msgid "Command 13"
-msgstr ""
+msgstr "கட்டளை 13"
 
 #: utils/InputEngine.cpp:254
 msgctxt "InputEvent"
 msgid "Command 14"
-msgstr ""
+msgstr "கட்டளை 14"
 
 #: utils/InputEngine.cpp:255
 msgctxt "InputEvent"
 msgid "Command 15"
-msgstr ""
+msgstr "கட்டளை 15"
 
 #: utils/InputEngine.cpp:256
 msgctxt "InputEvent"
 msgid "Command 16"
-msgstr ""
+msgstr "கட்டளை 16"
 
 #: utils/InputEngine.cpp:257
 msgctxt "InputEvent"
 msgid "Command 17"
-msgstr ""
+msgstr "கட்டளை 17"
 
 #: utils/InputEngine.cpp:258
 msgctxt "InputEvent"
 msgid "Command 18"
-msgstr ""
+msgstr "கட்டளை 18"
 
 #: utils/InputEngine.cpp:259
 msgctxt "InputEvent"
 msgid "Command 19"
-msgstr ""
+msgstr "கட்டளை 19"
 
 #: utils/InputEngine.cpp:260
 msgctxt "InputEvent"
 msgid "Command 20"
-msgstr ""
+msgstr "கட்டளை 20"
 
 #: utils/InputEngine.cpp:261
 msgctxt "InputEvent"
 msgid "Command 21"
-msgstr ""
+msgstr "கட்டளை 21"
 
 #: utils/InputEngine.cpp:262
 msgctxt "InputEvent"
 msgid "Command 22"
-msgstr ""
+msgstr "கட்டளை 22"
 
 #: utils/InputEngine.cpp:263
 msgctxt "InputEvent"
 msgid "Command 23"
-msgstr ""
+msgstr "கட்டளை 23"
 
 #: utils/InputEngine.cpp:264
 msgctxt "InputEvent"
 msgid "Command 24"
-msgstr ""
+msgstr "கட்டளை 24"
 
 #: utils/InputEngine.cpp:265
 msgctxt "InputEvent"
 msgid "Command 25"
-msgstr ""
+msgstr "கட்டளை 25"
 
 #: utils/InputEngine.cpp:266
 msgctxt "InputEvent"
 msgid "Command 26"
-msgstr ""
+msgstr "கட்டளை 26"
 
 #: utils/InputEngine.cpp:267
 msgctxt "InputEvent"
 msgid "Command 27"
-msgstr ""
+msgstr "கட்டளை 27"
 
 #: utils/InputEngine.cpp:268
 msgctxt "InputEvent"
 msgid "Command 28"
-msgstr ""
+msgstr "கட்டளை 28"
 
 #: utils/InputEngine.cpp:269
 msgctxt "InputEvent"
 msgid "Command 29"
-msgstr ""
+msgstr "கட்டளை 29"
 
 #: utils/InputEngine.cpp:270
 msgctxt "InputEvent"
 msgid "Command 30"
-msgstr ""
+msgstr "கட்டளை 30"
 
 #: utils/InputEngine.cpp:271
 msgctxt "InputEvent"
 msgid "Command 31"
-msgstr ""
+msgstr "கட்டளை 31"
 
 #: utils/InputEngine.cpp:272
 msgctxt "InputEvent"
 msgid "Command 32"
-msgstr ""
+msgstr "கட்டளை 32"
 
 #: utils/InputEngine.cpp:273
 msgctxt "InputEvent"
 msgid "Command 33"
-msgstr ""
+msgstr "கட்டளை 33"
 
 #: utils/InputEngine.cpp:274
 msgctxt "InputEvent"
 msgid "Command 34"
-msgstr ""
+msgstr "கட்டளை 34"
 
 #: utils/InputEngine.cpp:275
 msgctxt "InputEvent"
 msgid "Command 35"
-msgstr ""
+msgstr "கட்டளை 35"
 
 #: utils/InputEngine.cpp:276
 msgctxt "InputEvent"
 msgid "Command 36"
-msgstr ""
+msgstr "கட்டளை 36"
 
 #: utils/InputEngine.cpp:277
 msgctxt "InputEvent"
 msgid "Command 37"
-msgstr ""
+msgstr "கட்டளை 37"
 
 #: utils/InputEngine.cpp:278
 msgctxt "InputEvent"
 msgid "Command 38"
-msgstr ""
+msgstr "கட்டளை 38"
 
 #: utils/InputEngine.cpp:279
 msgctxt "InputEvent"
 msgid "Command 39"
-msgstr ""
+msgstr "கட்டளை 39"
 
 #: utils/InputEngine.cpp:280
 msgctxt "InputEvent"
 msgid "Command 40"
-msgstr ""
+msgstr "கட்டளை 40"
 
 #: utils/InputEngine.cpp:281
 msgctxt "InputEvent"
 msgid "Command 41"
-msgstr ""
+msgstr "கட்டளை 41"
 
 #: utils/InputEngine.cpp:282
 msgctxt "InputEvent"
 msgid "Command 42"
-msgstr ""
+msgstr "கட்டளை 42"
 
 #: utils/InputEngine.cpp:283
 msgctxt "InputEvent"
 msgid "Command 43"
-msgstr ""
+msgstr "கட்டளை 43"
 
 #: utils/InputEngine.cpp:284
 msgctxt "InputEvent"
 msgid "Command 44"
-msgstr ""
+msgstr "கட்டளை 44"
 
 #: utils/InputEngine.cpp:285
 msgctxt "InputEvent"
 msgid "Command 45"
-msgstr ""
+msgstr "கட்டளை 45"
 
 #: utils/InputEngine.cpp:286
 msgctxt "InputEvent"
 msgid "Command 46"
-msgstr ""
+msgstr "கட்டளை 46"
 
 #: utils/InputEngine.cpp:287
 msgctxt "InputEvent"
 msgid "Command 47"
-msgstr ""
+msgstr "கட்டளை 47"
 
 #: utils/InputEngine.cpp:288
 msgctxt "InputEvent"
 msgid "Command 48"
-msgstr ""
+msgstr "கட்டளை 48"
 
 #: utils/InputEngine.cpp:289
 msgctxt "InputEvent"
 msgid "Command 49"
-msgstr ""
+msgstr "கட்டளை 49"
 
 #: utils/InputEngine.cpp:290
 msgctxt "InputEvent"
 msgid "Command 50"
-msgstr ""
+msgstr "கட்டளை 50"
 
 #: utils/InputEngine.cpp:291
 msgctxt "InputEvent"
 msgid "Command 51"
-msgstr ""
+msgstr "கட்டளை 51"
 
 #: utils/InputEngine.cpp:292
 msgctxt "InputEvent"
 msgid "Command 52"
-msgstr ""
+msgstr "கட்டளை 52"
 
 #: utils/InputEngine.cpp:293
 msgctxt "InputEvent"
 msgid "Command 53"
-msgstr ""
+msgstr "கட்டளை 53"
 
 #: utils/InputEngine.cpp:294
 msgctxt "InputEvent"
 msgid "Command 54"
-msgstr ""
+msgstr "கட்டளை 54"
 
 #: utils/InputEngine.cpp:295
 msgctxt "InputEvent"
 msgid "Command 55"
-msgstr ""
+msgstr "கட்டளை 55"
 
 #: utils/InputEngine.cpp:296
 msgctxt "InputEvent"
 msgid "Command 56"
-msgstr ""
+msgstr "கட்டளை 56"
 
 #: utils/InputEngine.cpp:297
 msgctxt "InputEvent"
 msgid "Command 57"
-msgstr ""
+msgstr "கட்டளை 57"
 
 #: utils/InputEngine.cpp:298
 msgctxt "InputEvent"
 msgid "Command 58"
-msgstr ""
+msgstr "கட்டளை 58"
 
 #: utils/InputEngine.cpp:299
 msgctxt "InputEvent"
 msgid "Command 59"
-msgstr ""
+msgstr "கட்டளை 59"
 
 #: utils/InputEngine.cpp:300
 msgctxt "InputEvent"
 msgid "Command 60"
-msgstr ""
+msgstr "கட்டளை 60"
 
 #: utils/InputEngine.cpp:301
 msgctxt "InputEvent"
 msgid "Command 61"
-msgstr ""
+msgstr "கட்டளை 61"
 
 #: utils/InputEngine.cpp:302
 msgctxt "InputEvent"
 msgid "Command 62"
-msgstr ""
+msgstr "கட்டளை 62"
 
 #: utils/InputEngine.cpp:303
 msgctxt "InputEvent"
 msgid "Command 63"
-msgstr ""
+msgstr "கட்டளை 63"
 
 #: utils/InputEngine.cpp:304
 msgctxt "InputEvent"
 msgid "Command 64"
-msgstr ""
+msgstr "கட்டளை 64"
 
 #: utils/InputEngine.cpp:305
 msgctxt "InputEvent"
 msgid "Command 65"
-msgstr ""
+msgstr "கட்டளை 65"
 
 #: utils/InputEngine.cpp:306
 msgctxt "InputEvent"
 msgid "Command 66"
-msgstr ""
+msgstr "கட்டளை 66"
 
 #: utils/InputEngine.cpp:307
 msgctxt "InputEvent"
 msgid "Command 67"
-msgstr ""
+msgstr "கட்டளை 67"
 
 #: utils/InputEngine.cpp:308
 msgctxt "InputEvent"
 msgid "Command 68"
-msgstr ""
+msgstr "கட்டளை 68"
 
 #: utils/InputEngine.cpp:309
 msgctxt "InputEvent"
 msgid "Command 69"
-msgstr ""
+msgstr "கட்டளை 69"
 
 #: utils/InputEngine.cpp:310
 msgctxt "InputEvent"
 msgid "Command 70"
-msgstr ""
+msgstr "கட்டளை 70"
 
 #: utils/InputEngine.cpp:311
 msgctxt "InputEvent"
 msgid "Command 71"
-msgstr ""
+msgstr "கட்டளை 71"
 
 #: utils/InputEngine.cpp:312
 msgctxt "InputEvent"
 msgid "Command 72"
-msgstr ""
+msgstr "கட்டளை 72"
 
 #: utils/InputEngine.cpp:313
 msgctxt "InputEvent"
 msgid "Command 73"
-msgstr ""
+msgstr "கட்டளை 73"
 
 #: utils/InputEngine.cpp:314
 msgctxt "InputEvent"
 msgid "Command 74"
-msgstr ""
+msgstr "கட்டளை 74"
 
 #: utils/InputEngine.cpp:315
 msgctxt "InputEvent"
 msgid "Command 75"
-msgstr ""
+msgstr "கட்டளை 75"
 
 #: utils/InputEngine.cpp:316
 msgctxt "InputEvent"
 msgid "Command 76"
-msgstr ""
+msgstr "கட்டளை 76"
 
 #: utils/InputEngine.cpp:317
 msgctxt "InputEvent"
 msgid "Command 77"
-msgstr ""
+msgstr "கட்டளை 77"
 
 #: utils/InputEngine.cpp:318
 msgctxt "InputEvent"
 msgid "Command 78"
-msgstr ""
+msgstr "கட்டளை 78"
 
 #: utils/InputEngine.cpp:319
 msgctxt "InputEvent"
 msgid "Command 79"
-msgstr ""
+msgstr "கட்டளை 79"
 
 #: utils/InputEngine.cpp:320
 msgctxt "InputEvent"
 msgid "Command 80"
-msgstr ""
+msgstr "கட்டளை 80"
 
 #: utils/InputEngine.cpp:321
 msgctxt "InputEvent"
 msgid "Command 81"
-msgstr ""
+msgstr "கட்டளை 81"
 
 #: utils/InputEngine.cpp:322
 msgctxt "InputEvent"
 msgid "Command 82"
-msgstr ""
+msgstr "கட்டளை 82"
 
 #: utils/InputEngine.cpp:323
 msgctxt "InputEvent"
 msgid "Command 83"
-msgstr ""
+msgstr "கட்டளை 83"
 
 #: utils/InputEngine.cpp:324
 msgctxt "InputEvent"
 msgid "Command 84"
-msgstr ""
+msgstr "கட்டளை 84"
 
 #. Character
 #: utils/InputEngine.cpp:327
 msgctxt "InputEvent"
 msgid "step backwards with the character"
-msgstr ""
+msgstr "கதாபாத்திரத்துடன் பின்னோக்கி செல்லுங்கள்"
 
 #: utils/InputEngine.cpp:328
 msgctxt "InputEvent"
 msgid "step forward with the character"
-msgstr ""
+msgstr "கதாபாத்திரத்துடன் முன்னேறவும்"
 
 #: utils/InputEngine.cpp:329
 msgctxt "InputEvent"
 msgid "let the character jump"
-msgstr ""
+msgstr "எழுத்து குதிக்கட்டும்"
 
 #: utils/InputEngine.cpp:330
 msgctxt "InputEvent"
 msgid "rotate character left"
-msgstr ""
+msgstr "எழுத்து இடதுபுறம் சுழலும்"
 
 #: utils/InputEngine.cpp:331
 msgctxt "InputEvent"
 msgid "rotate character right"
-msgstr ""
+msgstr "எழுத்துக்குறி சரியாக சுழற்றுங்கள்"
 
 #: utils/InputEngine.cpp:332
 msgctxt "InputEvent"
 msgid "let the character run"
-msgstr ""
+msgstr "கதாபாத்திரம் இயங்கட்டும்"
 
 #: utils/InputEngine.cpp:333
 msgctxt "InputEvent"
 msgid "sidestep to the left"
-msgstr ""
+msgstr "இடதுபுறத்தில் பக்கவாட்டு"
 
 #: utils/InputEngine.cpp:334
 msgctxt "InputEvent"
 msgid "sidestep to the right"
-msgstr ""
+msgstr "வலதுபுறம் பக்கவாட்டு"
 
 #: utils/InputEngine.cpp:335
 msgctxt "InputEvent"
 msgid "rotate view up"
-msgstr ""
+msgstr "பார்வையை சுழற்றுங்கள்"
 
 #: utils/InputEngine.cpp:336
 msgctxt "InputEvent"
 msgid "rotate view down"
-msgstr ""
+msgstr "பார்வையை சுழற்றுங்கள்"
 
 #. Camera
 #: utils/InputEngine.cpp:339
 msgctxt "InputEvent"
 msgid "change camera mode"
-msgstr ""
+msgstr "கேமரா பயன்முறையை மாற்றவும்"
 
 #: utils/InputEngine.cpp:340
 msgctxt "InputEvent"
 msgid "look back (toggles between normal and lookback)"
-msgstr ""
+msgstr "திரும்பிப் பாருங்கள் (இயல்பான மற்றும் தோற்றத்திற்கு இடையில் மாற்றங்கள்)"
 
 #: utils/InputEngine.cpp:341
 msgctxt "InputEvent"
 msgid "reset the camera position"
-msgstr ""
+msgstr "கேமரா நிலையை மீட்டமைக்கவும்"
 
 #: utils/InputEngine.cpp:342
 msgctxt "InputEvent"
 msgid "rotate camera down"
-msgstr ""
+msgstr "கேமராவை சுழற்றுங்கள்"
 
 #: utils/InputEngine.cpp:343
 msgctxt "InputEvent"
 msgid "rotate camera left"
-msgstr ""
+msgstr "கேமராவை சுழற்றுங்கள்"
 
 #: utils/InputEngine.cpp:344
 msgctxt "InputEvent"
 msgid "rotate camera right"
-msgstr ""
+msgstr "கேமராவை சரியாக சுழற்றுங்கள்"
 
 #: utils/InputEngine.cpp:345
 msgctxt "InputEvent"
 msgid "rotate camera up"
-msgstr ""
+msgstr "கேமராவை சுழற்றுங்கள்"
 
 #: utils/InputEngine.cpp:346
 msgctxt "InputEvent"
 msgid "zoom camera in"
-msgstr ""
+msgstr "பெரிதாக்க கேமரா"
 
 #: utils/InputEngine.cpp:347
 msgctxt "InputEvent"
 msgid "zoom camera in faster"
-msgstr ""
+msgstr "வேகமாக பெரிதாக்கவும்"
 
 #: utils/InputEngine.cpp:348
 msgctxt "InputEvent"
 msgid "zoom camera out"
-msgstr ""
+msgstr "பெரிதாக்க கேமரா அவுட்"
 
 #: utils/InputEngine.cpp:349
 msgctxt "InputEvent"
 msgid "zoom camera out faster"
-msgstr ""
+msgstr "கேமராவை வேகமாக பெரிதாக்கவும்"
 
 #: utils/InputEngine.cpp:350
 msgctxt "InputEvent"
 msgid "fix the camera to a position"
-msgstr ""
+msgstr "கேமராவை ஒரு நிலைக்கு சரிசெய்யவும்"
 
 #: utils/InputEngine.cpp:351
 msgctxt "InputEvent"
 msgid "enable / disable free camera mode"
-msgstr ""
+msgstr "இலவச கேமரா பயன்முறையை இயக்கவும் / முடக்கவும்"
 
 #: utils/InputEngine.cpp:352
 msgctxt "InputEvent"
 msgid "move camera up"
-msgstr ""
+msgstr "கேமராவை நகர்த்தவும்"
 
 #: utils/InputEngine.cpp:353
 msgctxt "InputEvent"
 msgid "move camera down"
-msgstr ""
+msgstr "கேமராவை கீழே நகர்த்தவும்"
 
 #. Sky
 #: utils/InputEngine.cpp:356
 msgctxt "InputEvent"
 msgid "decrease day-time"
-msgstr ""
+msgstr "பகல் நேரத்தைக் குறைக்கவும்"
 
 #: utils/InputEngine.cpp:357
 msgctxt "InputEvent"
 msgid "decrease day-time a lot faster"
-msgstr ""
+msgstr "பகல் நேரத்தை மிக வேகமாக குறைக்கவும்"
 
 #: utils/InputEngine.cpp:358
 msgctxt "InputEvent"
 msgid "increase day-time"
-msgstr ""
+msgstr "பகல் நேரத்தை அதிகரிக்கவும்"
 
 #: utils/InputEngine.cpp:359
 msgctxt "InputEvent"
 msgid "increase day-time a lot faster"
-msgstr ""
+msgstr "பகல்நேரத்தை மிக வேகமாக அதிகரிக்கவும்"
 
 #. Grass
 #: utils/InputEngine.cpp:362
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove some grass"
-msgstr ""
+msgstr "சோதனை: சில புல் அகற்றவும்"
 
 #: utils/InputEngine.cpp:363
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: add some grass"
-msgstr ""
+msgstr "சோதனை: சிறிது புல் சேர்க்கவும்"
 
 #: utils/InputEngine.cpp:364
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: set maximum amount of grass"
-msgstr ""
+msgstr "சோதனை: அதிகபட்ச அளவு புல் அமைக்கவும்"
 
 #: utils/InputEngine.cpp:365
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: remove grass completely"
-msgstr ""
+msgstr "சோதனை: புல்லை முழுவதுமாக அகற்றவும்"
 
 #: utils/InputEngine.cpp:366
 msgctxt "InputEvent"
 msgid "EXPERIMENTAL: save changes to the grass density image"
-msgstr ""
+msgstr "சோதனை: புல் அடர்த்தி படத்தில் மாற்றங்களைச் சேமிக்கவும்"
 
 #. Survey map
 #: utils/InputEngine.cpp:369
 msgctxt "InputEvent"
 msgid "toggle map icons"
-msgstr ""
+msgstr "வரைபட சின்னங்களை மாற்றவும்"
 
 #: utils/InputEngine.cpp:370
 msgctxt "InputEvent"
 msgid "toggle map"
-msgstr ""
+msgstr "வரைபடத்தை மாற்றவும்"
 
 #: utils/InputEngine.cpp:371
 msgctxt "InputEvent"
 msgid "cycle map modes"
-msgstr ""
+msgstr "சுழற்சி வரைபட முறைகள்"
 
 #: utils/InputEngine.cpp:372
 msgctxt "InputEvent"
 msgid "zoom in"
-msgstr ""
+msgstr "பெரிதாக்கு"
 
 #: utils/InputEngine.cpp:373
 msgctxt "InputEvent"
 msgid "zoom out"
-msgstr ""
+msgstr "சிறிதாக்கு"
 
 #. Menu
 #: utils/InputEngine.cpp:376
 msgctxt "InputEvent"
 msgid "select next element in current category"
-msgstr ""
+msgstr "தற்போதைய பிரிவில் அடுத்த உறுப்பைத் தேர்ந்தெடுக்கவும்"
 
 #: utils/InputEngine.cpp:377
 msgctxt "InputEvent"
 msgid "select previous category"
-msgstr ""
+msgstr "முந்தைய வகையைத் தேர்ந்தெடுக்கவும்"
 
 #: utils/InputEngine.cpp:378
 msgctxt "InputEvent"
 msgid "select next category"
-msgstr ""
+msgstr "அடுத்த வகையைத் தேர்ந்தெடுக்கவும்"
 
 #: utils/InputEngine.cpp:379
 msgctxt "InputEvent"
 msgid "select focussed item and close menu"
-msgstr ""
+msgstr "கவனம் செலுத்திய உருப்படி என்பதைத் தேர்ந்தெடுத்து மெனுவை மூடு"
 
 #: utils/InputEngine.cpp:380
 msgctxt "InputEvent"
 msgid "select previous element in current category"
-msgstr ""
+msgstr "தற்போதைய பிரிவில் முந்தைய உறுப்பைத் தேர்ந்தெடுக்கவும்"
 
 #. Truck editing
 #: utils/InputEngine.cpp:383
 msgctxt "InputEvent"
 msgid "reload truck"
-msgstr ""
+msgstr "டிரக் மீண்டும் ஏற்றவும்"
 
 #. Road editing
 #: utils/InputEngine.cpp:386
 msgctxt "InputEvent"
 msgid "insert road point"
-msgstr ""
+msgstr "சாலை புள்ளியைச் செருகவும்"
 
 #: utils/InputEngine.cpp:387
 msgctxt "InputEvent"
 msgid "go to road point"
-msgstr ""
+msgstr "ரோட் பாயிண்டிற்குச் செல்லுங்கள்"
 
 #: utils/InputEngine.cpp:388
 msgctxt "InputEvent"
 msgid "set road point position"
-msgstr ""
+msgstr "சாலை புள்ளி நிலையை அமைக்கவும்"
 
 #: utils/InputEngine.cpp:389
 msgctxt "InputEvent"
 msgid "delete road point"
-msgstr ""
+msgstr "சாலை புள்ளியை நீக்கு"
 
 #: utils/InputEngine.cpp:390
 msgctxt "InputEvent"
 msgid "regenerate road mesh"
-msgstr ""
+msgstr "சாலை கண்ணி மீளுருவாக்கம்"
 
 #: utils/InputEngine.cpp:1742
 msgid "(Please press a key)"
-msgstr ""
+msgstr "(தயவுசெய்து ஒரு விசையை அழுத்தவும்)"
 
 #: utils/InputEngine.cpp:2198
 msgctxt "ModifierKey"
 msgid "Left Alt"
-msgstr ""
+msgstr "இடது ஆல்ட்"
 
 #: utils/InputEngine.cpp:2199
 msgctxt "ModifierKey"
 msgid "Left Shift"
-msgstr ""
+msgstr "இடது மாற்றம்"
 
 #: utils/InputEngine.cpp:2200
 msgctxt "ModifierKey"
 msgid "Left Ctrl"
-msgstr ""
+msgstr "இடது கட்டுப்பாடு"
 
 #: utils/InputEngine.cpp:2202
 msgctxt "ModifierKey"
 msgid "Right Alt"
-msgstr ""
+msgstr "வலது ஆல்ட்"
 
 #: utils/InputEngine.cpp:2203
 msgctxt "ModifierKey"
 msgid "Right Shift"
-msgstr ""
+msgstr "சரியான மாற்றம்"
 
 #: utils/InputEngine.cpp:2204
 msgctxt "ModifierKey"
 msgid "Right Ctrl"
-msgstr ""
+msgstr "வலது சி.டி.ஆர்.எல்"
