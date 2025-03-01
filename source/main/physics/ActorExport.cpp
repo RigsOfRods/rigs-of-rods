@@ -48,10 +48,22 @@ static RigDef::Node::Ref BuildNodeRef(Actor* actor, NodeNum_t n)
     }
 }
 
+static bool IsActuallyShockBeam(const beam_t& beam)
+{
+    // Beams with attributes {SHOCK1 && BEAM_NORMAL} are actually wheel beams ~ don't ask.
+    return beam.bm_type == BEAM_HYDRO 
+        && (beam.bounded == SHOCK1 || beam.bounded == SHOCK2 || beam.bounded == SHOCK3);
+}
+
 static void UpdateSetBeamDefaults(std::shared_ptr<BeamDefaults>& beam_defaults, Actor* actor, int i)
 {
     float b_spring = actor->ar_beams[i].k;
     float b_damp = actor->ar_beams[i].d;
+    if (IsActuallyShockBeam(actor->ar_beams[i]))
+    {
+        b_spring = actor->ar_beams[i].shock->sbd_spring;
+        b_damp = actor->ar_beams[i].shock->sbd_damp;
+    }
     float b_deform = actor->ar_beams[i].default_beam_deform;
     float b_break = actor->ar_beams[i].initial_beam_strength;
     if (beam_defaults->springiness != b_spring
@@ -506,7 +518,7 @@ void Actor::propagateNodeBeamChangesToDef()
         {
         case SpecialBeam::SHOCK1:
         {
-            if (beam.bm_type != BEAM_HYDRO)
+            if (!IsActuallyShockBeam(beam))
             {
                 // This is actually a wheel beam - skip it.
                 continue;
