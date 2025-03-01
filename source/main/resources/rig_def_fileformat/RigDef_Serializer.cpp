@@ -2287,10 +2287,10 @@ void Serializer::ProcessBeamDefaults(BeamDefaults* beam_defaults)
     {
         m_stream << fmt::format("{}set_beam_defaults {}, {}, {}, {}, {}, {}, {}\n",
             m_setdefaults_indentstr,
-            beam_defaults->springiness,
-            beam_defaults->damping_constant,
-            beam_defaults->deformation_threshold,
-            beam_defaults->breaking_threshold,
+            (beam_defaults->springiness == DEFAULT_SPRING) ? -1.f : beam_defaults->springiness,
+            (beam_defaults->damping_constant == DEFAULT_DAMP) ? -1.f : beam_defaults->damping_constant,
+            (beam_defaults->deformation_threshold == BEAM_DEFORM) ? -1.f : beam_defaults->deformation_threshold,
+            (beam_defaults->breaking_threshold == BEAM_BREAK) ? -1.f : beam_defaults->breaking_threshold,
             beam_defaults->visual_beam_diameter,
             beam_defaults->beam_material_name,
             beam_defaults->plastic_deform_coef);

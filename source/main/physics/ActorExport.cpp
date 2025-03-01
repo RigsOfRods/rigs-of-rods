@@ -59,13 +59,15 @@ static void UpdateSetBeamDefaults(std::shared_ptr<BeamDefaults>& beam_defaults, 
 {
     float b_spring = actor->ar_beams[i].k;
     float b_damp = actor->ar_beams[i].d;
+    float b_deform = actor->ar_beams[i].default_beam_deform;
+    float b_break = actor->ar_beams[i].initial_beam_strength;
     if (IsActuallyShockBeam(actor->ar_beams[i]))
     {
         b_spring = actor->ar_beams[i].shock->sbd_spring;
         b_damp = actor->ar_beams[i].shock->sbd_damp;
+        b_break = actor->ar_beams[i].shock->sbd_break;
     }
-    float b_deform = actor->ar_beams[i].default_beam_deform;
-    float b_break = actor->ar_beams[i].initial_beam_strength;
+
     if (beam_defaults->springiness != b_spring
         || beam_defaults->damping_constant != b_damp
         || beam_defaults->deformation_threshold != b_deform

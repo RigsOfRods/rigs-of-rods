@@ -373,6 +373,7 @@ struct shock_t
 
     float sbd_spring;           //!< set beam default for spring
     float sbd_damp;             //!< set beam default for damping
+    float sbd_break;            //!< set beam default for breaking threshold
 };
 
 struct collcab_rate_t

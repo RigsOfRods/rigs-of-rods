@@ -4100,6 +4100,7 @@ void ActorSpawner::ProcessShock3(RigDef::Shock3 & def)
     shock.flags      = shock_flags;
     shock.sbd_spring = def.beam_defaults->springiness;
     shock.sbd_damp   = def.beam_defaults->damping_constant;
+    shock.sbd_break  = def.beam_defaults->breaking_threshold;
     shock.springin   = def.spring_in;
     shock.dampin     = def.damp_in;
     shock.springout  = def.spring_out;
@@ -4187,6 +4188,7 @@ void ActorSpawner::ProcessShock2(RigDef::Shock2 & def)
     shock.flags      = shock_flags;
     shock.sbd_spring = def.beam_defaults->springiness;
     shock.sbd_damp   = def.beam_defaults->damping_constant;
+    shock.sbd_break  = def.beam_defaults->breaking_threshold;
     shock.springin   = def.spring_in;
     shock.dampin     = def.damp_in;
     shock.springout  = def.spring_out;
@@ -4246,6 +4248,7 @@ void ActorSpawner::ProcessShock(RigDef::Shock & def)
     shock.flags      = shock_flags;
     shock.sbd_spring = def.beam_defaults->springiness;
     shock.sbd_damp   = def.beam_defaults->damping_constant;
+    shock.sbd_break  = def.beam_defaults->breaking_threshold;
 
     if (BITMASK_IS_0(def.options, RigDef::Shock::OPTION_i_INVISIBLE))
     {
