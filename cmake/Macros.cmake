@@ -155,12 +155,11 @@ macro(lift_var)
     endforeach ()
 endmacro()
 
-macro(dl_contentpack url name hash)
+macro(dl_contentpack url name)
     set(cname "CP_${name}")
     FetchContent_Declare(
             ${cname}
             URL ${url}
-            URL_MD5 ${hash}
             DOWNLOAD_EXTRACT_TIMESTAMP TRUE
             SOURCE_DIR "${CMAKE_BINARY_DIR}/ContentPack/${name}"
     )
