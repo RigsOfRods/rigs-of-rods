@@ -449,6 +449,11 @@ void GUIManager::DrawMainMenuGui()
     {
         this->RepositorySelector.Draw();
     }
+
+    if (this->LoginBox.IsVisible())
+    {
+        this->LoginBox.Draw();
+    }
 }
 
 void GUIManager::ShowMessageBox(const char* title, const char* text, bool allow_close, const char* btn1_text, const char* btn2_text)
