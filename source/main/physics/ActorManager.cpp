@@ -1361,7 +1361,7 @@ void ActorManager::UpdateInputEvents(float dt)
             {
                 m_last_simulation_speed = simulation_speed;
                 this->SetSimulationSpeed(1.0f);
-                UTFString ssmsg = _L("Simulation speed reset.");
+                std::string ssmsg = _L("Simulation speed reset.");
                 App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE, ssmsg);
             }
             else if (m_last_simulation_speed != 1.0f)
