@@ -26,6 +26,7 @@
 */
 
 #include "ErrorUtils.h"
+#include "Utils.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #include <windows.h>
@@ -38,21 +39,23 @@
 #include "Language.h"
 #endif
 
+#include <string>
+
 using namespace Ogre;
 
-int ErrorUtils::ShowError(Ogre::UTFString title, Ogre::UTFString err)
+int ErrorUtils::ShowError(const std::string& title, const std::string& err)
 {
-    LOG(fmt::format("[RoR|ErrorPopupDialog] {}: {}", title.asUTF8(), err.asUTF8()));
-    Ogre::UTFString infoText = _L("An internal error occured in Rigs of Rods.\n\nTechnical details below: \n\n");
+    LOG(fmt::format("[RoR|ErrorPopupDialog] {}: {}", title, err));
+    std::string infoText = _L("An internal error occured in Rigs of Rods.\n\nTechnical details below: \n\n");
     return ErrorUtils::ShowMsgBox(_L("FATAL ERROR"), infoText + err, 0);
 }
 
-int ErrorUtils::ShowInfo(Ogre::UTFString title, Ogre::UTFString err)
+int ErrorUtils::ShowInfo(const std::string& title, const std::string& err)
 {
     return ErrorUtils::ShowMsgBox(title, err, 1);
 }
 
-int ErrorUtils::ShowMsgBox(Ogre::UTFString title, Ogre::UTFString err, int type)
+int ErrorUtils::ShowMsgBox(const std::string& title, const std::string& err, int type)
 {
     // we might call the ErrorUtils::ShowMsgBox without having ogre created yet!
     //LOG("message box: " + title + ": " + err);
@@ -60,11 +63,13 @@ int ErrorUtils::ShowMsgBox(Ogre::UTFString title, Ogre::UTFString err, int type)
     int mtype = MB_ICONERROR;
     if (type == 1)
         mtype = MB_ICONINFORMATION;
-    MessageBoxW(NULL, err.asWStr_c_str(), title.asWStr_c_str(), MB_OK | mtype | MB_TOPMOST);
+    std::wstring title_w = RoR::Utf8ToWideChar(title);
+    std::wstring err_w = RoR::Utf8ToWideChar(err);
+    MessageBoxW(NULL, err_w.c_str(), title_w.c_str(), MB_OK | mtype | MB_TOPMOST);
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-	printf("\n\n%s: %s\n\n", title.asUTF8_c_str(), err.asUTF8_c_str());
+	printf("\n\n%s: %s\n\n", title.c_str(), err.c_str());
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-	printf("\n\n%s: %s\n\n", title.asUTF8_c_str(), err.asUTF8_c_str());
+	printf("\n\n%s: %s\n\n", title.c_str(), err.c_str());
     //CFOptionFlags flgs;
     //CFUserNotificationDisplayAlert(0, kCFUserNotificationStopAlertLevel, NULL, NULL, NULL, T("A network error occured"), T("Bad server port."), NULL, NULL, NULL, &flgs);
 #endif

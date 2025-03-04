@@ -27,13 +27,9 @@
 
 #include "Application.h"
 
-#include <OgreUTFString.h>
-
 // three configurations currently supported:
 // #define NOLANG            = no language translations at all, removes any special parsing tags
 // #define USE_MOFILEREADER  = windows gettext replacement
-
-# define U(str) Ogre::UTFString(L##str)
 
 // using mofilereader as gettext replacement
 #include <moFileReader.hpp>
