@@ -1685,7 +1685,7 @@ void Parser::ParseVideoCamera()
     videocamera.texture_height       = this->GetArgInt         (13);
     videocamera.min_clip_distance    = this->GetArgFloat       (14);
     videocamera.max_clip_distance    = this->GetArgFloat       (15);
-    videocamera.camera_role          = this->GetArgInt         (16);
+    videocamera.camera_role          = this->GetArgVideoCamRole(16);
     videocamera.camera_mode          = this->GetArgInt         (17);
     videocamera.material_name        = this->GetArgStr         (18);
 
@@ -3365,6 +3365,22 @@ ManagedMaterialType Parser::GetArgManagedMatType(int index)
     this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
         fmt::format("Not a valid ManagedMaterialType: '{}'", str));
     return ManagedMaterialType::INVALID;
+}
+
+VideoCamRole Parser::GetArgVideoCamRole(int index)
+{
+    int role = this->GetArgInt(index);
+    switch (role)
+    {
+    case VCAM_ROLE_VIDEOCAM: return VCAM_ROLE_VIDEOCAM;
+    case VCAM_ROLE_TRACKING_VIDEOCAM: return VCAM_ROLE_TRACKING_VIDEOCAM;
+    case VCAM_ROLE_MIRROR: return VCAM_ROLE_MIRROR;
+    case VCAM_ROLE_MIRROR_NOFLIP: return VCAM_ROLE_MIRROR_NOFLIP;
+    default:
+        this->LogMessage(Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Invalid value of 'camera role' ({}), videocamera will not work", role));
+        return VCAM_ROLE_INVALID;
+    }
 }
 
 int Parser::TokenizeCurrentLine()

@@ -1423,22 +1423,20 @@ struct Turboprop2 // Section TURBOPROPS, TURBOPROPS2
 
 struct VideoCamera
 {
-    VideoCamera();
-
     Node::Ref reference_node;
     Node::Ref left_node;
     Node::Ref bottom_node;
     Node::Ref alt_reference_node;
     Node::Ref alt_orientation_node;
-    Ogre::Vector3 offset;
-    Ogre::Vector3 rotation;
-    float field_of_view;
-    unsigned int texture_width;
-    unsigned int texture_height;
-    float min_clip_distance;
-    float max_clip_distance;
-    int camera_role;
-    int camera_mode;
+    Ogre::Vector3 offset = Ogre::Vector3::ZERO;
+    Ogre::Vector3 rotation = Ogre::Vector3::ZERO;
+    float field_of_view = 0.f;
+    unsigned int texture_width = 0u;
+    unsigned int texture_height = 0u;
+    float min_clip_distance = 0.f;
+    float max_clip_distance = 0.f;
+    RoR::VideoCamRole camera_role = RoR::VCAM_ROLE_INVALID;
+    int camera_mode = 0;
     Ogre::String material_name;
     Ogre::String camera_name;
 };

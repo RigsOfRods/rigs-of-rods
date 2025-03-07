@@ -6981,20 +6981,17 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
     {
         RoR::VideoCamera vcam;
 
+        vcam.vcam_role = def->camera_role;
+        if (vcam.vcam_role == VCAM_ROLE_INVALID)
+        {
+            this->AddMessage(Message::TYPE_ERROR, "VideoCamera (mat: " + def->material_name + ") has invalid 'role': " + TOSTRING(def->camera_role));
+            return;
+        }
+
         vcam.vcam_material = this->FindOrCreateCustomizedMaterial(def->material_name, m_custom_resource_group);
         if (vcam.vcam_material.isNull())
         {
             this->AddMessage(Message::TYPE_ERROR, "Failed to create VideoCamera with material: " + def->material_name);
-            return;
-        }
-
-        switch (def->camera_role)
-        {
-        case -1: vcam.vcam_type = VCTYPE_VIDEOCAM;          break;
-        case  0: vcam.vcam_type = VCTYPE_TRACKING_VIDEOCAM; break;
-        case  1: vcam.vcam_type = VCTYPE_MIRROR;            break;
-        default:
-            this->AddMessage(Message::TYPE_ERROR, "VideoCamera (mat: " + def->material_name + ") has invalid 'role': " + TOSTRING(def->camera_role));
             return;
         }
 
@@ -7004,7 +7001,11 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         vcam.vcam_pos_offset  = def->offset;
 
         //rotate camera picture 180 degrees, skip for mirrors
-        float rotation_z = (def->camera_role != 1) ? def->rotation.z + 180 : def->rotation.z;
+        float rotation_z = def->rotation.z + 180;
+        if (def->camera_role == VCAM_ROLE_MIRROR || def->camera_role == VCAM_ROLE_MIRROR_NOFLIP)
+        {
+            rotation_z += 180.0f;
+        }
         vcam.vcam_rotation
             = Ogre::Quaternion(Ogre::Degree(rotation_z), Ogre::Vector3::UNIT_Z)
             * Ogre::Quaternion(Ogre::Degree(def->rotation.y), Ogre::Vector3::UNIT_Y)
@@ -7024,11 +7025,10 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         if (def->alt_orientation_node.IsValidAnyState())
         {
             // This is a tracker camera
-            vcam.vcam_type = VCTYPE_TRACKING_VIDEOCAM;
+            vcam.vcam_role = VCAM_ROLE_TRACKING_VIDEOCAM;
             vcam.vcam_node_lookat = this->GetNodeIndexOrThrow(def->alt_orientation_node);
         }
 
-        // TODO: Eliminate gEnv
         vcam.vcam_ogre_camera = App::GetGfxScene()->GetSceneManager()->createCamera(vcam.vcam_material->getName() + "_camera");
 
         if (!App::gfx_window_videocams->getBool())
@@ -7075,7 +7075,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
             vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(vcam.vcam_render_tex->getName());
 
             // this is a mirror, flip the image left<>right to have a mirror and not a cameraimage
-            if (def->camera_role == 1)
+            if (def->camera_role == VCAM_ROLE_MIRROR)
                 vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureUScale(-1);
         }
 
@@ -7123,11 +7123,11 @@ void ActorSpawner::CreateMirrorPropVideoCam(
         switch (type)
         {
         case CustomMaterial::MirrorPropType::MPROP_LEFT:
-            vcam.vcam_type = VCTYPE_MIRROR_PROP_LEFT;
+            vcam.vcam_role = VCAM_ROLE_MIRROR_PROP_LEFT;
             break;
 
         case CustomMaterial::MirrorPropType::MPROP_RIGHT:
-            vcam.vcam_type = VCTYPE_MIRROR_PROP_RIGHT;
+            vcam.vcam_role = VCAM_ROLE_MIRROR_PROP_RIGHT;
             break;
 
         default:
