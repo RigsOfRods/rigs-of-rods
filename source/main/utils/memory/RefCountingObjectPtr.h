@@ -43,8 +43,8 @@ public:
     bool operator!=(const T* o) const { return m_ref != o; }
 
     // Compare nullptr
-    bool operator==(const nullptr_t) const { return m_ref == nullptr; }
-    bool operator!=(const nullptr_t) const { return m_ref != nullptr; }
+    bool operator==(const std::nullptr_t) const { return m_ref == nullptr; }
+    bool operator!=(const std::nullptr_t) const { return m_ref != nullptr; }
 
     // Get the reference
     T *GetRef() { return m_ref; } // To be invoked from C++ only!!
