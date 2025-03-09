@@ -73,6 +73,15 @@ TuneupDefPtr TuneupDef::clone()
     ret->protected_nodes = this->protected_nodes;
     ret->node_tweaks = this->node_tweaks;
     
+    // flares
+    ret->protected_flares = this->protected_flares;
+
+    // exhausts
+    ret->protected_exhausts = this->protected_exhausts;
+
+    // managed materials
+    ret->protected_managedmats = this->protected_managedmats;
+
     return ret;
 }
 
@@ -102,6 +111,14 @@ void TuneupDef::reset()
     this->protected_nodes.clear();
     this->node_tweaks.clear();
     
+    // flares
+    this->protected_flares.clear();
+
+    // exhausts
+    this->protected_exhausts.clear();
+
+    // managed materials
+    this->protected_managedmats.clear();
 }
 
 bool TuneupDef::isWheelSideForced(WheelID_t wheelid, WheelSide& out_val) const
