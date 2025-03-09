@@ -9,7 +9,9 @@ CPackSourceConfig.cmake
 CMakeTmp
 build_x86
 build_x64
+build_clang
 dependencies/
+Dependencies_Linux/
 bin/RoR
 bin/RoRConfig
 bin/libangelscript_addons.a
@@ -35,3 +37,8 @@ tools/l10n/ror\.pot
 CMakeUserPresets.json
 tools/l10n/TMP.pot
 redist/
+tmp
+Stamp
+Source
+*.tar.gz
+*.zip
