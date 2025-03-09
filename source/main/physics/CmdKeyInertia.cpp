@@ -98,12 +98,14 @@ int RoR::CmdKeyInertia::SetCmdKeyDelay(RoR::CmdKeyInertiaConfig& cfg, float star
         RoR::LogFormat("[RoR|Inertia] Warning: Stop Delay '%f', should be >0, using 0", start_delay);
 
     // if we don't find the spline, we use the "constant" one
+    m_start_function = start_function;
     Ogre::SimpleSpline* start_spline = cfg.GetSplineByName(start_function);
     if (start_spline != nullptr)
         m_start_spline = start_spline;
     else
         RoR::LogFormat("[RoR|Inertia] Start Function '%s' not found", start_function.c_str());
 
+    m_stop_function = stop_function;
     Ogre::SimpleSpline* stop_spline = cfg.GetSplineByName(stop_function);
     if (stop_spline != nullptr)
         m_stop_spline = stop_spline;
