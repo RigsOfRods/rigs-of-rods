@@ -79,6 +79,9 @@ namespace RoR
     typedef int CommandkeyID_t; //!< Index into `Actor::ar_commandkeys` (BEWARE: indexed 1-MAX_COMMANDKEYS, 0 is invalid value, negative subscript of any size is acceptable, see `class CmdKeyArray` ).
     static const CommandkeyID_t COMMANDKEYID_INVALID = 0;
 
+    typedef int VideoCameraID_t; //!< Index into `GfxActor::m_videocameras`, use `RoR::VIDEOCAMERAID_INVALID` as empty value
+    static const VideoCameraID_t VIDEOCAMERAID_INVALID = -1;
+
     typedef int ScriptRetCode_t; //!< see enum `RoR::ScriptRetCode` - combines AngelScript codes and RoR internal codes.
 
     typedef int TerrainEditorObjectID_t; //!< Offset into `RoR::TerrainObjectManager::m_editor_objects`, use `RoR::TERRAINEDITOROBJECTID_INVALID` as empty value.

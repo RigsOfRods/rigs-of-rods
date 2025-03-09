@@ -223,7 +223,7 @@ enum class ModifyProjectRequestType
     TUNEUP_FORCEREMOVE_PROP_RESET,     //!< 'subject_id' is prop ID.
     TUNEUP_FORCEREMOVE_FLEXBODY_SET,   //!< 'subject_id' is flexbody ID.
     TUNEUP_FORCEREMOVE_FLEXBODY_RESET, //!< 'subject_id' is flexbody ID.
-    TUNEUP_FORCED_WHEEL_SIDE_SET,      //!< 'subject_id' is wheel ID, 'value_int' is RoR::WheelSide
+    TUNEUP_FORCED_WHEEL_SIDE_SET,      //!< 'subject_id' is wheel ID, 'value_int' is `RoR::WheelSide`
     TUNEUP_FORCED_WHEEL_SIDE_RESET,    //!< 'subject_id' is wheel ID.
     TUNEUP_FORCEREMOVE_FLARE_SET,      //!< 'subject_id' is flare ID.
     TUNEUP_FORCEREMOVE_FLARE_RESET,    //!< 'subject_id' is flare ID.
@@ -243,6 +243,8 @@ enum class ModifyProjectRequestType
     TUNEUP_PROTECTED_EXHAUST_RESET,    //!< 'subject_id' is exhaust ID.
     TUNEUP_PROTECTED_MANAGEDMAT_SET,   //!< 'subject' is managed material name.
     TUNEUP_PROTECTED_MANAGEDMAT_RESET, //!< 'subject' is managed material name.
+    TUNEUP_FORCED_VCAM_ROLE_SET,       //!< 'subject_id' is video camera ID, 'value_int' is `RoR::VideoCamRole`
+    TUNEUP_FORCED_VCAM_ROLE_RESET,     //!< 'subject_id' is video camera ID.
     PROJECT_LOAD_TUNEUP,               //!< 'subject' is tuneup filename. This overwrites the auto-generated tuneup with the save.
     PROJECT_RESET_TUNEUP,              //!< 'subject' is empty. This resets the auto-generated tuneup to orig. values.
 };
