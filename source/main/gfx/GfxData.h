@@ -220,7 +220,8 @@ struct Prop
 /// either in-scene texture or external window.
 struct VideoCamera
 {
-    VideoCamRole         vcam_role           = VCAM_ROLE_INVALID;
+    VideoCamRole         vcam_role           = VCAM_ROLE_INVALID; //!< Active role assigned at spawn (i.e. TRACKING if tracking node was set)
+    VideoCamRole         vcam_role_orig      = VCAM_ROLE_INVALID; //!< User-defined role from rig-def file, may be different from final active role.
     NodeNum_t            vcam_node_center    = NODENUM_INVALID;
     NodeNum_t            vcam_node_dir_y     = NODENUM_INVALID;
     NodeNum_t            vcam_node_dir_z     = NODENUM_INVALID;
@@ -228,6 +229,7 @@ struct VideoCamera
     NodeNum_t            vcam_node_lookat    = NODENUM_INVALID; //!< Only for VCAM_ROLE_TRACK_CAM
     Ogre::Quaternion     vcam_rotation;
     Ogre::Vector3        vcam_pos_offset     = Ogre::Vector3::ZERO;
+    std::string          vcam_mat_name_orig;                        //!< For display in Tuning UI: Original material name from rig-def file, without per-actor stamping
     Ogre::MaterialPtr    vcam_material;
     std::string          vcam_off_tex_name;                         //!< Used when videocamera is offline
     Ogre::Camera*        vcam_ogre_camera    = nullptr;
