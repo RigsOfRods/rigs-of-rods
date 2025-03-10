@@ -151,18 +151,6 @@ TractionControl::TractionControl():
     attr_no_toggle(false)
 {}
 
-VideoCamera::VideoCamera():
-    offset(Ogre::Vector3::ZERO),
-    rotation(Ogre::Vector3::ZERO),
-    field_of_view(0),
-    texture_width(0),
-    texture_height(0),
-    min_clip_distance(0),
-    max_clip_distance(0),
-    camera_role(0),
-    camera_mode(0)
-{}
-
 void Animation::AddMotorSource(unsigned int source, unsigned int motor)
 {
     Animation::MotorSource motor_source;

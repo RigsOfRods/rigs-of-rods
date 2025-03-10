@@ -72,7 +72,19 @@ TuneupDefPtr TuneupDef::clone()
     // nodes
     ret->protected_nodes = this->protected_nodes;
     ret->node_tweaks = this->node_tweaks;
-    
+
+    // video cameras
+    ret->force_video_cam_roles = this->force_video_cam_roles;
+
+    // flares
+    ret->protected_flares = this->protected_flares;
+
+    // exhausts
+    ret->protected_exhausts = this->protected_exhausts;
+
+    // managed materials
+    ret->protected_managedmats = this->protected_managedmats;
+
     return ret;
 }
 
@@ -101,13 +113,38 @@ void TuneupDef::reset()
     // nodes
     this->protected_nodes.clear();
     this->node_tweaks.clear();
-    
+
+    // video cameras
+    this->force_video_cam_roles.clear();
+
+    // flares
+    this->protected_flares.clear();
+
+    // exhausts
+    this->protected_exhausts.clear();
+
+    // managed materials
+    this->protected_managedmats.clear();
 }
 
 bool TuneupDef::isWheelSideForced(WheelID_t wheelid, WheelSide& out_val) const
 {
     auto itor = force_wheel_sides.find(wheelid);
     if (itor != force_wheel_sides.end())
+    {
+        out_val = itor->second;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool TuneupDef::isVideoCameraRoleForced(VideoCameraID_t camera_id, VideoCamRole& out_val) const
+{
+    auto itor = force_video_cam_roles.find(camera_id);
+    if (itor != force_video_cam_roles.end())
     {
         out_val = itor->second;
         return true;
@@ -211,6 +248,22 @@ WheelSide RoR::TuneupUtil::getTweakedWheelSide(TuneupDefPtr& tuneup_def, WheelID
                 return tweak->twt_side;
             }
         }
+    }
+
+    return orig_val;
+}
+
+VideoCamRole RoR::TuneupUtil::getTweakedVideoCameraRole(TuneupDefPtr& tuneup_def, VideoCameraID_t camera_id, VideoCamRole orig_val)
+{
+    if (tuneup_def)
+    {
+        VideoCamRole forced_role = VCAM_ROLE_INVALID;
+        if (tuneup_def->isVideoCameraRoleForced(camera_id, forced_role))
+        {
+            return forced_role;
+        }
+
+        // STUB: actual tweaking isn't implemented yet
     }
 
     return orig_val;

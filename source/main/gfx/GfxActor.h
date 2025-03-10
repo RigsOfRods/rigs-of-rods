@@ -72,6 +72,7 @@ public:
     std::vector<Prop>&      getProps() { return m_props; }
     std::vector<CParticle>& getCParticles() { return m_cparticles; }
     std::vector<Exhaust>&   getExhausts() { return m_exhausts; }
+    std::vector<VideoCamera>& getVideoCameras() { return m_videocameras; }
 
     // Visual changes
 
@@ -149,7 +150,6 @@ public:
     Ogre::MaterialPtr    GetHelpMat() { return m_help_mat; }
     bool                 HasDriverSeatProp() const { return m_driverseat_prop_index != -1; }
     void                 CalcPropAnimation(PropAnim& anim, float& cstate, int& div, float dt);
-    size_t               getNumVideoCameras() const { return m_videocameras.size(); }
     SurveyMapEntity&     getSurveyMapEntity() { return m_surveymap_entity; }
     WheelSide            getWheelSide(WheelID_t wheel_id) { return (wheel_id >= 0 && (size_t)wheel_id < m_wheels.size()) ? m_wheels[wheel_id].wx_side : WheelSide::INVALID; }
     std::string          getWheelRimMeshName(WheelID_t wheel_id) { return (wheel_id >= 0 && (size_t)wheel_id < m_wheels.size()) ? m_wheels[wheel_id].wx_rim_mesh_name : ""; }
@@ -191,6 +191,8 @@ private:
     std::vector<VideoCamera>    m_videocameras;
     std::vector<FlareMaterial>  m_flare_materials;
     RoR::Renderdash*            m_renderdash = nullptr;
+    std::vector<CParticle>      m_cparticles;
+    std::vector<Exhaust>        m_exhausts;
     
     // Particles
     DustPool*                   m_particles_drip = nullptr;
@@ -199,8 +201,6 @@ private:
     DustPool*                   m_particles_ripple = nullptr;
     DustPool*                   m_particles_sparks = nullptr;
     DustPool*                   m_particles_clump = nullptr;
-    std::vector<CParticle>    m_cparticles;
-    std::vector<Exhaust>      m_exhausts;
 
     // Cab mesh ('submesh' in truck fileformat)
     FlexObj*                    m_cab_mesh = nullptr;

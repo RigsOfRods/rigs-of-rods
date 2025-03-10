@@ -125,6 +125,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     std::set<PropID_t>                            force_remove_props;      //!< UI overrides
     std::set<FlexbodyID_t>                        force_remove_flexbodies; //!< UI overrides
     std::map<WheelID_t, WheelSide>                force_wheel_sides;       //!< UI overrides
+    std::map<VideoCameraID_t, VideoCamRole>       force_video_cam_roles;   //!< UI overrides
     std::set<FlareID_t>                           force_remove_flares;     //!< User unticked an UI checkbox in Tuning menu, section Flares.
     std::set<ExhaustID_t>                         force_remove_exhausts;   //!< User unticked an UI checkbox in Tuning menu, section Exhausts.
     std::set<std::string>                         force_remove_managedmats;//!< User unticked an UI checkbox in Tuning menu, section Managed Materials.
@@ -172,6 +173,7 @@ struct TuneupDef: public RefCountingObject<TuneupDef>
     bool         isFlareForceRemoved(FlareID_t flareid) { return force_remove_flares.find(flareid) != force_remove_flares.end(); }
     bool         isExhaustForceRemoved(ExhaustID_t exhaustid) { return force_remove_exhausts.find(exhaustid) != force_remove_exhausts.end(); }
     bool         isManagedMatForceRemoved(const std::string& matname) { return force_remove_managedmats.find(matname) != force_remove_managedmats.end(); }
+    bool         isVideoCameraRoleForced(VideoCameraID_t camera_id, VideoCamRole& out_val) const;
     /// @}
 };
 
@@ -240,6 +242,11 @@ public:
     static std::string        getTweakedManagedMatMedia(TuneupDefPtr& tuneup_def, const std::string& matname, int media_idx, const std::string& orig_val);
     static std::string        getTweakedManagedMatMediaRG(TuneupDefPtr& tuneup_def, const std::string& matname, int media_idx, const std::string& orig_val);
     static bool               isManagedMatTweaked(TuneupDefPtr& tuneup_def, const std::string& matname, TuneupManagedMatTweak*& out_tweak);
+    /// @}
+
+    /// @name VideoCamera helpers
+    /// @{
+    static VideoCamRole       getTweakedVideoCameraRole(TuneupDefPtr& tuneup_def, VideoCameraID_t camera_id, VideoCamRole orig_val);
     /// @}
 
 private:

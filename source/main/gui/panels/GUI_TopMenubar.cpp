@@ -1939,6 +1939,88 @@ void TopMenubar::Draw(float dt)
                         ImGui::PopID(); // material_name.c_str()
                     }
                 }
+
+                // Draw videocameras
+                size_t total_videocameras = tuning_actor->GetGfxActor()->getVideoCameras().size();
+                std::string videocameras_title = fmt::format(_LC("Tuning", "Videocameras ({})"), total_videocameras);
+                if (ImGui::CollapsingHeader(videocameras_title.c_str()))
+                {
+                    // Draw all videocameras (those removed by addonparts are also present as placeholders)
+                    for (VideoCameraID_t videocameraid = 0; videocameraid < (int)total_videocameras; videocameraid++)
+                    {
+                        ImGui::PushID(videocameraid);
+                        ImGui::AlignTextToFramePadding();
+
+                        this->DrawTuningBoxedSubjectIdInline(videocameraid);
+
+                        VideoCamRole current_role_def = tuning_actor->GetGfxActor()->getVideoCameras()[videocameraid].vcam_role_orig;
+                        if (current_role_def != VCAM_ROLE_MIRROR && current_role_def != VCAM_ROLE_MIRROR_NOFLIP)
+                        {
+                            // Tuning menu is limited to only switch MIRROR/MIRROR_NOFLIP, so not-mirrors can be ignored.
+                            ImGui::TextDisabled("(Not a mirror)");
+                        }
+                        else
+                        {
+                            // Draw RTT material name
+                            ImGui::SameLine();
+                            ImGui::Dummy(ImVec2(3, 3));
+                            ImGui::SameLine();
+                            ImGui::Text("%s", tuning_actor->GetGfxActor()->getVideoCameras()[videocameraid].vcam_mat_name_orig.c_str());
+
+                            // Setup the 'forced' state orange styling
+
+                            VideoCamRole forced_role_def = VCAM_ROLE_INVALID;
+                            if (tuneup_def && tuneup_def->isVideoCameraRoleForced(videocameraid, /*[out]*/forced_role_def))
+                            {
+                                ImGui::PushStyleColor(ImGuiCol_Border, ORANGE_TEXT);
+                                ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
+                            }
+
+                            // Draw the 'flipped' checkbox
+                            ImGui::SameLine();
+                            const bool current_flipped = current_role_def == VCAM_ROLE_MIRROR;
+                            bool requested_flipped = current_flipped;
+                            ImGui::Checkbox("Flipped", &requested_flipped);
+
+                            // Draw reset button and reset the orange styling
+
+                            bool resetPressed = false;
+                            if (tuneup_def && tuneup_def->isVideoCameraRoleForced(videocameraid, /*[out]*/forced_role_def))
+                            {
+                                ImGui::SameLine();
+                                ImGui::SameLine();
+                                ImGui::PushStyleColor(ImGuiCol_Text, GRAY_HINT_TEXT);
+                                resetPressed = ImGui::SmallButton(_LC("Tuning", "Reset"));
+                                ImGui::PopStyleColor(); //ImGuiCol_Text, GRAY_HINT_TEXT
+                                ImGui::PopStyleVar(); //ImGuiStyleVar_FrameBorderSize, 1.f
+                                ImGui::PopStyleColor(); //ImGuiCol_Border, ORANGE_TEXT
+                            }
+
+                            // modify project if needed
+                            if (current_flipped != requested_flipped)
+                            {
+                                const VideoCamRole desired_role = (requested_flipped) ? VCAM_ROLE_MIRROR : VCAM_ROLE_MIRROR_NOFLIP;
+
+                                ModifyProjectRequest* req = new ModifyProjectRequest();
+                                req->mpr_type = ModifyProjectRequestType::TUNEUP_FORCED_VCAM_ROLE_SET;
+                                req->mpr_subject_id = videocameraid;
+                                req->mpr_value_int = (int)desired_role;
+                                req->mpr_target_actor = tuning_actor;
+                                App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+                            }
+                            else if (resetPressed)
+                            {
+                                ModifyProjectRequest* req = new ModifyProjectRequest();
+                                req->mpr_type = ModifyProjectRequestType::TUNEUP_FORCED_VCAM_ROLE_RESET;
+                                req->mpr_subject_id = videocameraid;
+                                req->mpr_target_actor = tuning_actor;
+                                App::GetGameContext()->PushMessage(Message(MSG_EDI_MODIFY_PROJECT_REQUESTED, req));
+                            }
+                        }
+
+                        ImGui::PopID(); // videocameraid
+                    }
+                }
             }
 
             m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
