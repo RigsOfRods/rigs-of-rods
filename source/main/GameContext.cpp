@@ -1155,11 +1155,19 @@ void GameContext::UpdateSimInputEvents(float dt)
             }
         }
 
+        ActorPtr actor_to_reset_inputs;
+
         // Evaluate
         if (nearest_actor != nullptr &&
             nearest_actor->ar_import_commands &&
             min_squared_distance < (nearest_actor->getMinCameraRadius()*nearest_actor->getMinCameraRadius()))
         {
+            if (nearest_actor != m_actor_remotely_receiving_commands)
+            {
+                actor_to_reset_inputs = m_actor_remotely_receiving_commands;
+            }
+            m_actor_remotely_receiving_commands = nearest_actor;
+
             // get commands
             for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
             {
@@ -1175,6 +1183,22 @@ void GameContext::UpdateSimInputEvents(float dt)
                 }
 
                 nearest_actor->ar_command_key[i].playerInputValue = eventVal;
+            }
+        }
+        else
+        {
+            if (m_actor_remotely_receiving_commands)
+            {
+                actor_to_reset_inputs = m_actor_remotely_receiving_commands;
+            }
+            m_actor_remotely_receiving_commands = nullptr;
+        }
+
+        if (actor_to_reset_inputs)
+        {
+            for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
+            {
+                actor_to_reset_inputs->ar_command_key[i].playerInputValue = 0.f;
             }
         }
     }
