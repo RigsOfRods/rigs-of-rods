@@ -28,7 +28,7 @@
 #include "Collisions.h"
 #include "Console.h"
 #include "DashBoardManager.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
 #include "GUI_FrictionSettings.h"
@@ -43,10 +43,10 @@
 #include "SkyXManager.h"
 #include "SoundScriptManager.h"
 #include "Terrain.h"
+#include "Terrn2FileFormat.h"
 #include "TuneupFileFormat.h"
 #include "Utils.h"
 #include "VehicleAI.h"
-#include "GUI_VehicleButtons.h"
 
 using namespace RoR;
 
@@ -127,14 +127,15 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
     App::GetCacheSystem()->LoadResource(terrn_entry);
 
     // Load the terrain def file
-    Terrn2Def terrn2;
+    Terrn2DocumentPtr terrn2;
     std::string const& filename = terrn_entry->fname;
     try
     {
         Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(filename);
         LOG(" ===== LOADING TERRAIN " + filename);
         Terrn2Parser parser;
-        if (! parser.LoadTerrn2(terrn2, stream))
+        terrn2 = parser.LoadTerrn2(stream);
+        if (!terrn2)
         {
             return false; // Errors already logged to console
         }
@@ -144,8 +145,9 @@ bool GameContext::LoadTerrain(std::string const& filename_part)
         App::GetGuiManager()->ShowMessageBox(_L("Terrain loading error"), e.getFullDescription().c_str());
         return false;
     }
+    terrn_entry->terrn2_def = terrn2;
 
-    for (std::string const& assetpack_filename: terrn2.assetpack_files)
+    for (std::string const& assetpack_filename: terrn2->assetpack_files)
     {
         App::GetCacheSystem()->LoadAssetPack(terrn_entry, assetpack_filename);
     }
@@ -227,8 +229,7 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
         rq.asr_cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, rq.asr_filename);
     }
 
-    RigDef::DocumentPtr def = m_actor_manager.FetchActorDef(
-        rq.asr_filename, rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF);
+    RigDef::DocumentPtr def = m_actor_manager.FetchActorDef(rq);
     if (def == nullptr)
     {
         return nullptr; // Error already reported
@@ -316,14 +317,23 @@ ActorPtr GameContext::SpawnActor(ActorSpawnRequest& rq)
 
         if (fresh_actor->ar_engine)
         {
-            fresh_actor->ar_engine->SetAutoMode(RoR::SimGearboxMode::AUTO);
-            fresh_actor->ar_engine->autoShiftSet(EngineSim::DRIVE);
+            fresh_actor->ar_engine->setAutoMode(RoR::SimGearboxMode::AUTO);
+            fresh_actor->ar_engine->autoShiftSet(Engine::DRIVE);
         }
     }
     else if (rq.asr_origin == ActorSpawnRequest::Origin::NETWORK)
     {
         fresh_actor->ar_net_source_id = rq.net_source_id;
         fresh_actor->ar_net_stream_id = rq.net_stream_id;
+
+        if (BITMASK_IS_1(rq.asr_net_peeropts, RoRnet::PEEROPT_MUTE_ACTORS))
+        {
+            this->PushMessage(Message(MSG_SIM_MUTE_NET_ACTOR_REQUESTED, new ActorPtr(fresh_actor)));
+        }
+        if (BITMASK_IS_1(rq.asr_net_peeropts, RoRnet::PEEROPT_HIDE_ACTORS))
+        {
+            this->PushMessage(Message(MSG_SIM_HIDE_NET_ACTOR_REQUESTED, new ActorPtr(fresh_actor)));
+        }
     }
     else if (rq.asr_origin == ActorSpawnRequest::Origin::SAVEGAME)
     {
@@ -413,6 +423,15 @@ void GameContext::ModifyActor(ActorModifyRequest& rq)
 
         // Load our actor again, but only after all actors are deleted.
         this->ChainMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)srq));
+    }
+    else if (rq.amr_type == ActorModifyRequest::Type::SOFT_RESPAWN)
+    {
+        actor->softRespawn(rq.amr_softrespawn_position, rq.amr_softrespawn_rotation);
+    }
+    else if (rq.amr_type == ActorModifyRequest::Type::REFRESH_VISUALS)
+    {
+        actor->GetGfxActor()->UpdateSimDataBuffer();
+        App::GetGfxScene()->ForceUpdateSingleGfxActor(actor->GetGfxActor());
     }
 }
 
@@ -1472,20 +1491,18 @@ void GameContext::UpdateCommonInputEvents(float dt)
         App::GetGameContext()->PushMessage(Message(MSG_SIM_MODIFY_ACTOR_REQUESTED, (void*)rq));
     }
 
-    // all commands
+    // Commandkeys: process controller input for all commands
     for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
     {
         int eventID = EV_COMMANDS_01 + (i - 1);
 
         m_player_actor->ar_command_key[i].playerInputValue = RoR::App::GetInputEngine()->getEventValue(eventID);
+    }
 
-        for (auto id: App::GetGuiManager()->VehicleButtons.GetCommandEventID())
-        {
-            if (id == eventID)
-            {
-                m_player_actor->ar_command_key[i].playerInputValue = 1.f;
-            }
-        }
+    // Commandkeys: Apply command buttons in T-screen
+    if (App::GetGuiManager()->VehicleInfoTPanel.GetActiveCommandKey() != COMMANDKEYID_INVALID)
+    {
+        m_player_actor->ar_command_key[App::GetGuiManager()->VehicleInfoTPanel.GetActiveCommandKey()].playerInputValue = 1.f;
     }
 
     if (RoR::App::GetInputEngine()->getEventBoolValueBounce(EV_TRUCK_TOGGLE_FORWARDCOMMANDS))
@@ -1866,7 +1883,8 @@ void GameContext::UpdateTruckInputEvents(float dt)
     }
     else
     {
-        if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN) || App::GetGuiManager()->VehicleButtons.GetHornButtonState())
+        if (App::GetInputEngine()->getEventBoolValue(EV_TRUCK_HORN)
+            || App::GetGuiManager()->VehicleInfoTPanel.IsHornButtonActive())
         {
             SOUND_START(m_player_actor, SS_TRIG_HORN);
         }

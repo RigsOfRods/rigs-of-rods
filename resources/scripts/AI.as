@@ -11,9 +11,14 @@ void main()
 
     for (int x = 0; x < game.getAIVehicleCount(); x++)
     {
-        array<vector3> waypoints = game.getWaypoints(x);
-
         string spawn_vehiclename = game.getAIVehicleName(x);
+        array<vector3> waypoints = game.getWaypoints(x);
+        if (waypoints.length() == 0)
+        {
+            game.log("Vehicle AI: No waypoints defined for vehicle '"+spawn_vehiclename+"' ("+(x+1)+"/"+game.getAIVehicleCount()+"), skipping it...");
+            continue; // Skip this vehicle
+        }        
+
         vector3 spawn_pos = vector3(waypoints[0].x + translation_x, waypoints[0].y, waypoints[0].z + translation_z);
         string spawn_sectionconfig = game.getAIVehicleSectionConfig(x);
         string spawn_skin = game.getAIVehicleSkin(x);

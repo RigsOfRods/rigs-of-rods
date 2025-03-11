@@ -20,6 +20,7 @@
 */
 
 #include "GameScript.h"
+#include "ScriptUtils.h"
 
 #ifdef USE_CURL
 #   include <curl/curl.h>
@@ -43,7 +44,7 @@
 #include "Collisions.h"
 #include "Console.h"
 #include "CurlHelpers.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
@@ -286,7 +287,7 @@ void GameScript::registerForEvent(int eventValue)
 {
     if (App::GetScriptEngine())
     {
-        ScriptUnitId_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+        ScriptUnitID_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
         if (unit_id != SCRIPTUNITID_INVALID)
         {
             App::GetScriptEngine()->getScriptUnit(unit_id).eventMask |= eventValue;
@@ -298,7 +299,7 @@ void GameScript::unRegisterEvent(int eventValue)
 {
     if (App::GetScriptEngine())
     {
-        ScriptUnitId_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+        ScriptUnitID_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
         if (unit_id != SCRIPTUNITID_INVALID)
         {
             App::GetScriptEngine()->getScriptUnit(unit_id).eventMask &= ~eventValue;
@@ -306,7 +307,7 @@ void GameScript::unRegisterEvent(int eventValue)
     }
 }
 
-BitMask_t GameScript::getRegisteredEventsMask(ScriptUnitId_t nid)
+BitMask_t GameScript::getRegisteredEventsMask(ScriptUnitID_t nid)
 {
     if (App::GetScriptEngine()->scriptUnitExists(nid))
         return App::GetScriptEngine()->getScriptUnit(nid).eventMask;
@@ -314,7 +315,7 @@ BitMask_t GameScript::getRegisteredEventsMask(ScriptUnitId_t nid)
         return BitMask_t(0);
 }
 
-void GameScript::setRegisteredEventsMask(ScriptUnitId_t nid, BitMask_t eventMask)
+void GameScript::setRegisteredEventsMask(ScriptUnitID_t nid, BitMask_t eventMask)
 {
     if (App::GetScriptEngine()->scriptUnitExists(nid))
         App::GetScriptEngine()->getScriptUnit(nid).eventMask = eventMask;
@@ -393,6 +394,30 @@ void GameScript::removeVehicle(const String& event_source_instance_name, const S
     }
 }
 
+AngelScript::CScriptArray* GameScript::getEditorObjects()
+{
+    if (!this->HaveSimTerrain(__FUNCTION__))
+        return nullptr;
+
+    if (!App::GetGameContext()->GetTerrain()->getObjectManager())
+        return nullptr;
+
+    // Adopted from `VectorToScriptArray()` in file 'ScriptUtils.h'
+    std::string arraydecl = fmt::format("array<{}>", "TerrainEditorObjectClass@");
+    AngelScript::asITypeInfo* typeinfo = App::GetScriptEngine()->getEngine()->GetTypeInfoByDecl(arraydecl.c_str());
+    TerrainEditorObjectPtrVec& vec = App::GetGameContext()->GetTerrain()->getObjectManager()->GetEditorObjects();    AngelScript::CScriptArray* arr = AngelScript::CScriptArray::Create(typeinfo, vec.size());
+
+    for (AngelScript::asUINT i = 0; i < arr->GetSize(); i++)
+    {
+        // Set the value of each element
+        TerrainEditorObject* ref = vec[i].GetRef();
+        arr->SetValue(i, &ref);
+    }
+
+    return arr;
+
+}
+
 void GameScript::destroyObject(const String& instanceName)
 {
     if (!this->HaveSimTerrain(__FUNCTION__))
@@ -400,7 +425,7 @@ void GameScript::destroyObject(const String& instanceName)
 
     if (App::GetGameContext()->GetTerrain()->getObjectManager())
     {
-        App::GetGameContext()->GetTerrain()->getObjectManager()->unloadObject(instanceName);
+        App::GetGameContext()->GetTerrain()->getObjectManager()->destroyObject(instanceName);
     }
 }
 
@@ -411,7 +436,7 @@ void GameScript::moveObjectVisuals(const String& instanceName, const Vector3& po
 
     if (App::GetGameContext()->GetTerrain()->getObjectManager())
     {
-        App::GetGameContext()->GetTerrain()->getObjectManager()->MoveObjectVisuals(instanceName, pos);
+        App::GetGameContext()->GetTerrain()->getObjectManager()->moveObjectVisuals(instanceName, pos);
     }
 }
 
@@ -808,7 +833,7 @@ int GameScript::useOnlineAPI(const String& apiquery, const AngelScript::CScriptD
     if (App::app_disable_online_api->getBool())
         return 0;
 
-    ScriptUnitId_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
+    ScriptUnitID_t unit_id = App::GetScriptEngine()->getCurrentlyExecutingScriptUnit();
     if (unit_id == SCRIPTUNITID_INVALID)
         return 2;
 
@@ -940,35 +965,45 @@ void GameScript::boostCurrentTruck(float factor)
     ActorPtr actor = App::GetGameContext()->GetPlayerActor();
     if (actor && actor->ar_engine)
     {
-        float rpm = actor->ar_engine->GetEngineRpm();
+        float rpm = actor->ar_engine->getRPM();
         rpm += 2000.0f * factor;
-        actor->ar_engine->SetEngineRpm(rpm);
+        actor->ar_engine->setRPM(rpm);
     }
 }
 
-int GameScript::addScriptFunction(const String& arg)
+int GameScript::addScriptFunction(const String& arg, ScriptUnitID_t nid)
 {
-    return App::GetScriptEngine()->addFunction(arg);
+    return App::GetScriptEngine()->addFunction(arg, nid);
 }
 
-int GameScript::scriptFunctionExists(const String& arg)
+int GameScript::scriptFunctionExists(const String& arg, ScriptUnitID_t nid)
 {
-    return App::GetScriptEngine()->functionExists(arg);
+    return App::GetScriptEngine()->functionExists(arg, nid);
 }
 
-int GameScript::deleteScriptFunction(const String& arg)
+int GameScript::deleteScriptFunction(const String& arg, ScriptUnitID_t nid)
 {
-    return App::GetScriptEngine()->deleteFunction(arg);
+    return App::GetScriptEngine()->deleteFunction(arg, nid);
 }
 
-int GameScript::addScriptVariable(const String& arg)
+int GameScript::addScriptVariable(const String& arg, ScriptUnitID_t nid)
 {
-    return App::GetScriptEngine()->addVariable(arg);
+    return App::GetScriptEngine()->addVariable(arg, nid);
 }
 
-int GameScript::deleteScriptVariable(const String& arg)
+int GameScript::scriptVariableExists(const String& arg, ScriptUnitID_t nid)
 {
-    return App::GetScriptEngine()->deleteVariable(arg);
+    return App::GetScriptEngine()->variableExists(arg, nid);
+}
+
+int GameScript::deleteScriptVariable(const String& arg, ScriptUnitID_t nid)
+{
+    return App::GetScriptEngine()->deleteVariable(arg, nid);
+}
+
+int GameScript::getScriptVariable(const Ogre::String& varName, void *ref, int refTypeId, ScriptUnitID_t nid)
+{
+    return App::GetScriptEngine()->getVariable(varName, ref, refTypeId, nid);
 }
 
 int GameScript::sendGameCmd(const String& message)
@@ -986,7 +1021,7 @@ int GameScript::sendGameCmd(const String& message)
 
 AngelScript::CScriptArray* GameScript::getRunningScripts()
 {
-    std::vector<ScriptUnitId_t> ids;
+    std::vector<ScriptUnitID_t> ids;
     for (auto& pair: App::GetScriptEngine()->getScriptUnits())
         ids.push_back(pair.first);
 
@@ -994,7 +1029,7 @@ AngelScript::CScriptArray* GameScript::getRunningScripts()
 }
 
 
-AngelScript::CScriptDictionary* GameScript::getScriptDetails(ScriptUnitId_t nid)
+AngelScript::CScriptDictionary* GameScript::getScriptDetails(ScriptUnitID_t nid)
 {
     if (!App::GetScriptEngine()->scriptUnitExists(nid))
         return nullptr;
@@ -1365,6 +1400,40 @@ bool GameScript::getMousePositionOnTerrain(Ogre::Vector3& out_pos)
     return ray_result.hit;
 }
 
+class ScriptRayQueryListener : public Ogre::RaySceneQueryListener
+{
+public:
+    Ogre::Ray ray;
+    std::vector<Ogre::MovableObject*> results_array;
+
+    bool queryResult(MovableObject* obj, Real distance) override
+    {
+        results_array.push_back(obj);
+        return true; // Continue query
+    }
+
+    bool queryResult(SceneQuery::WorldFragment* fragment, Real distance) override
+    {
+        return true; // Continue query
+    }
+};
+
+CScriptArray* GameScript::getMousePointedMovableObjects()
+{
+    if (!HaveSimTerrain(__FUNCTION__))
+        return nullptr;
+
+    Ogre::Vector2 mouse_npos = App::GetInputEngine()->getMouseNormalizedScreenPos();
+    Ogre::Ray ray = App::GetCameraManager()->GetCamera()->getCameraToViewportRay(mouse_npos.x, mouse_npos.y);
+    Ogre::DefaultRaySceneQuery query(App::GetGfxScene()->GetSceneManager());
+    query.setRay(ray);
+    query.setSortByDistance(true);
+    ScriptRayQueryListener qlis;
+    qlis.ray = ray;
+    query.execute(&qlis);
+    return VectorToScriptArray(qlis.results_array, "Ogre::MovableObject@");
+}
+
 Ogre::SceneManager* GameScript::getSceneManager()
 {
     return App::GetGfxScene()->GetSceneManager();
@@ -1443,7 +1512,7 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         {
             return false;
         }
-        m.payload = new ScriptUnitId_t(static_cast<ScriptUnitId_t>(id));
+        m.payload = new ScriptUnitID_t(static_cast<ScriptUnitID_t>(id));
         break;
     }
 
@@ -1478,6 +1547,9 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
                 delete rq;
                 return false;
             }
+
+            // Set instance ID if specified
+            GetValueFromScriptDict(log_msg, dict, /*required:*/false, "instance_id", "int", rq->asr_instance_id);
 
             // Set sectionconfig
             GetValueFromScriptDict(log_msg, dict, /*required:*/false, "config", "string", rq->asr_config);
@@ -1715,6 +1787,11 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
 FreeForceID_t GameScript::getFreeForceNextId()
 {
     return App::GetGameContext()->GetActorManager()->GetFreeForceNextId();
+}
+
+ActorInstanceID_t GameScript::getActorNextInstanceId()
+{
+    return App::GetGameContext()->GetActorManager()->GetActorNextInstanceId();
 }
 
 // --------------------------------

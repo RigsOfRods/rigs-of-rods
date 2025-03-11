@@ -35,47 +35,49 @@ using namespace Ogre;
 
 const std::string   VALUE_NOT_FOUND("@@NotFound!!");
 
-bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
+Terrn2DocumentPtr Terrn2Parser::LoadTerrn2(Ogre::DataStreamPtr &ds)
 {
     RoR::ConfigFile file;
     file.load(ds, "\t:=", true);
     file.setLoggingInfo(ds->getName(), Console::CONSOLE_MSGTYPE_TERRN);
 
+    Terrn2DocumentPtr def = std::make_shared<Terrn2Document>();
+
     // read in the settings
-    def.name = file.getString("Name", "General");
-    if (def.name.empty())
+    def->name = file.getString("Name", "General");
+    if (def->name.empty())
     {
         Str<500> msg; msg << "Error in file '" << ds->getName() << "': Terrain name is empty";
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-        return false;
+        return nullptr;
     }
 
-    def.ogre_ter_conf_filename = file.getString("GeometryConfig", "General");
+    def->ogre_ter_conf_filename = file.getString("GeometryConfig", "General");
     // otc = ogre terrain config
-    if (!def.ogre_ter_conf_filename.empty() && def.ogre_ter_conf_filename.find(".otc") == String::npos)
+    if (!def->ogre_ter_conf_filename.empty() && def->ogre_ter_conf_filename.find(".otc") == String::npos)
     {
         Str<500> msg; msg << "Error in file '" << ds->getName() << "': Invalid geometry config file; only '.otc' is supported";
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-        return false;
+        return nullptr;
     }
 
-    def.ambient_color        = file.getColourValue("AmbientColor",     "General", ColourValue::White);
-    def.category_id          = file.getInt        ("CategoryID",       "General", 129);
-    def.guid                 = file.getString     ("GUID",             "General");
-    def.version              = file.getInt        ("Version",          "General", 1);
-    def.gravity              = file.getFloat      ("Gravity",          "General", -9.81);
-    def.caelum_config        = file.getString     ("CaelumConfigFile", "General");
-    def.cubemap_config       = file.getString     ("SandStormCubeMap", "General");
-    def.caelum_fog_start     = file.getInt        ("CaelumFogStart",   "General", -1);
-    def.caelum_fog_end       = file.getInt        ("CaelumFogEnd",     "General", -1);
-    def.has_water            = file.getBool       ("Water",            "General", false);
-    def.hydrax_conf_file     = file.getString     ("HydraxConfigFile", "General");
-    def.skyx_config          = file.getString     ("SkyXConfigFile",   "General");
-    def.traction_map_file    = file.getString     ("TractionMap",      "General");
-    def.water_height         = file.getFloat      ("WaterLine",        "General");
-    def.water_bottom_height  = file.getFloat      ("WaterBottomLine",  "General");
-    def.custom_material_name = file.getString     ("CustomMaterial",   "General");
-    def.start_position       = file.getVector3    ("StartPosition",    "General", Vector3(512.0f, 0.0f, 512.0f));
+    def->ambient_color        = file.getColourValue("AmbientColor",     "General", ColourValue::White);
+    def->category_id          = file.getInt        ("CategoryID",       "General", 129);
+    def->guid                 = file.getString     ("GUID",             "General");
+    def->version              = file.getInt        ("Version",          "General", 1);
+    def->gravity              = file.getFloat      ("Gravity",          "General", -9.81);
+    def->caelum_config        = file.getString     ("CaelumConfigFile", "General");
+    def->cubemap_config       = file.getString     ("SandStormCubeMap", "General");
+    def->caelum_fog_start     = file.getInt        ("CaelumFogStart",   "General", -1);
+    def->caelum_fog_end       = file.getInt        ("CaelumFogEnd",     "General", -1);
+    def->has_water            = file.getBool       ("Water",            "General", false);
+    def->hydrax_conf_file     = file.getString     ("HydraxConfigFile", "General");
+    def->skyx_config          = file.getString     ("SkyXConfigFile",   "General");
+    def->traction_map_file    = file.getString     ("TractionMap",      "General");
+    def->water_height         = file.getFloat      ("WaterLine",        "General");
+    def->water_bottom_height  = file.getFloat      ("WaterBottomLine",  "General");
+    def->custom_material_name = file.getString     ("CustomMaterial",   "General");
+    def->start_position       = file.getVector3    ("StartPosition",    "General", Vector3(512.0f, 0.0f, 512.0f));
 
     if (file.HasSection("Authors"))
     {
@@ -89,7 +91,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
                 Terrn2Author author;
                 author.type = type;
                 author.name = name;
-                def.authors.push_back(author);
+                def->authors.push_back(author);
             }
         }
     }
@@ -99,7 +101,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
         for (auto& tobj: file.getSettings("Objects"))
         {
             Ogre::String tobj_filename = SanitizeUtf8String(tobj.first);
-            def.tobj_files.push_back(TrimStr(tobj_filename));
+            def->tobj_files.push_back(TrimStr(tobj_filename));
         }
     }
 
@@ -108,7 +110,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
         for (auto& script: file.getSettings("Scripts"))
         {
             Ogre::String as_filename = SanitizeUtf8String(script.first);
-            def.as_files.push_back(TrimStr(as_filename));
+            def->as_files.push_back(TrimStr(as_filename));
         }
     }
 
@@ -117,7 +119,7 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
         for (auto& assetpack: file.getSettings("AssetPacks"))
         {
             Ogre::String assetpack_filename = SanitizeUtf8String(assetpack.first);
-            def.assetpack_files.push_back(TrimStr(assetpack_filename));
+            def->assetpack_files.push_back(TrimStr(assetpack_filename));
         }
     }
 
@@ -126,18 +128,18 @@ bool Terrn2Parser::LoadTerrn2(Terrn2Def& def, Ogre::DataStreamPtr &ds)
         for (auto& presets: file.getSettings("AI Presets"))
         {
             Ogre::String presets_filename = SanitizeUtf8String(presets.first);
-            def.ai_presets_files.push_back(TrimStr(presets_filename));
+            def->ai_presets_files.push_back(TrimStr(presets_filename));
         }
     }
 
     this->ProcessTeleport(def, &file);
 
-    return true;
+    return def;
 }
 
-void Terrn2Parser::ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file)
+void Terrn2Parser::ProcessTeleport(Terrn2DocumentPtr def, RoR::ConfigFile* file)
 {
-    def.teleport_map_image = file->getString("NavigationMapImage", "Teleport");
+    def->teleport_map_image = file->getString("NavigationMapImage", "Teleport");
 
     unsigned int telepoint_number = 1;
     for (;;)
@@ -166,14 +168,14 @@ void Terrn2Parser::ProcessTeleport(Terrn2Def& def, RoR::ConfigFile* file)
         else
         {
             t_point.name  = file->getString(key_name, "Teleport"); // Optional field
-            def.telepoints.push_back(t_point); // Persist the entry
+            def->telepoints.push_back(t_point); // Persist the entry
         }
 
         ++telepoint_number;
     }
 }
 
-Terrn2Def::Terrn2Def():
+Terrn2Document::Terrn2Document():
     ambient_color(Ogre::ColourValue::Black),
     category_id(-1),
     start_position(Ogre::Vector3::ZERO),

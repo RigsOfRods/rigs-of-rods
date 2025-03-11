@@ -1,9 +1,25 @@
 // EXAMPLE - querying key states and events
 // ===================================================
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
 string keyEventLog;  // keys pressed history
 string keyEventSeparator;
-int HISTORY_LEN = 100;
+uint HISTORY_LEN = 100;
+
+void frameStep(float dt)
+{
+    if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
+    {
+        closeBtnHandler.draw();
+    
+        drawBody();
+        
+        ImGui::End();
+    }
+}
 
 void showKeyState(keyCodes kc, string desc)
 {
@@ -19,7 +35,7 @@ void showKeyState(keyCodes kc, string desc)
   }
 }
 
-void frameStep(float dt)
+void drawBody()
 {
     ImGui::TextDisabled("===[   K E Y   S T A T E S :   ]===");
     

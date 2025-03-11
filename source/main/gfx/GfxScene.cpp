@@ -87,8 +87,11 @@ void GfxScene::Init()
     m_skidmark_conf.LoadDefaultSkidmarkDefs();
 }
 
-void GfxScene::UpdateScene(float dt_sec)
+void GfxScene::UpdateScene(float dt)
 {
+    // NOTE: The `dt` parameter here is simulation time (0 when paused), not real time!
+    // ================================================================================
+
     // Actors - start threaded tasks
     for (GfxActor* gfx_actor: m_live_gfx_actors)
     {
@@ -114,13 +117,14 @@ void GfxScene::UpdateScene(float dt_sec)
     // Particles
     if (App::gfx_particles_mode->getInt() == 1)
     {
+        // Generate particles as needed
         for (GfxActor* gfx_actor: m_all_gfx_actors)
         {
-            if (!m_simbuf.simbuf_sim_paused && !gfx_actor->GetSimDataBuffer().simbuf_physics_paused)
-            {
-                gfx_actor->UpdateParticles(m_simbuf.simbuf_sim_speed * dt_sec);
-            }
+            float dt_actor = (!gfx_actor->GetSimDataBuffer().simbuf_physics_paused) ? dt : 0.f;
+            gfx_actor->UpdateParticles(dt_actor);
         }
+
+        // Update particle movement
         for (auto itor : m_dustpools)
         {
             itor.second->update();
@@ -136,7 +140,7 @@ void GfxScene::UpdateScene(float dt_sec)
     }
 
     // Terrain - animated meshes and paged geometry
-    App::GetGameContext()->GetTerrain()->getObjectManager()->UpdateTerrainObjects(dt_sec);
+    App::GetGameContext()->GetTerrain()->getObjectManager()->UpdateTerrainObjects(dt);
 
     // Terrain - lightmap; TODO: ported as-is from Terrain::update(), is it needed? ~ only_a_ptr, 05/2018
     App::GetGameContext()->GetTerrain()->getGeometryManager()->UpdateMainLightPosition(); // TODO: Is this necessary? I'm leaving it here just in case ~ only_a_ptr, 04/2017
@@ -153,7 +157,7 @@ void GfxScene::UpdateScene(float dt_sec)
         {
             water->SetReflectionPlaneHeight(water->GetStaticWaterHeight());
         }
-        water->FrameStepWater(dt_sec);
+        water->FrameStepWater(dt);
     }
 
     // Terrain - sky
@@ -168,7 +172,7 @@ void GfxScene::UpdateScene(float dt_sec)
     SkyXManager* skyx_man = App::GetGameContext()->GetTerrain()->getSkyXManager();
     if (skyx_man != nullptr)
     {
-       skyx_man->update(dt_sec); // Light update
+       skyx_man->update(dt); // Light update
     }
 
     // GUI - race
@@ -197,7 +201,7 @@ void GfxScene::UpdateScene(float dt_sec)
     // HUD - network labels (always update)
     for (GfxActor* gfx_actor: m_all_gfx_actors)
     {
-        gfx_actor->UpdateNetLabels(m_simbuf.simbuf_sim_speed * dt_sec);
+        gfx_actor->UpdateNetLabels(dt);
     }
 
     // Player avatars
@@ -209,6 +213,7 @@ void GfxScene::UpdateScene(float dt_sec)
     // Actors - update misc visuals
     for (GfxActor* gfx_actor: m_all_gfx_actors)
     {
+        float dt_actor = (!gfx_actor->GetSimDataBuffer().simbuf_physics_paused) ? dt : 0.f;
         if (gfx_actor->IsActorLive())
         {
             gfx_actor->UpdateRods();
@@ -216,18 +221,20 @@ void GfxScene::UpdateScene(float dt_sec)
             gfx_actor->UpdateWingMeshes();
             gfx_actor->UpdateAirbrakes();
             gfx_actor->UpdateCParticles();
+            gfx_actor->UpdateExhausts();
             gfx_actor->UpdateAeroEngines();
-            gfx_actor->UpdatePropAnimations(dt_sec);
+            gfx_actor->UpdatePropAnimations(dt_actor);
             gfx_actor->UpdateRenderdashRTT();
         }
         // Beacon flares must always be updated
-        gfx_actor->UpdateProps(dt_sec, (gfx_actor == player_gfx_actor));
+        gfx_actor->UpdateProps(dt_actor, (gfx_actor == player_gfx_actor));
         // Blinkers (turn signals) must always be updated
-        gfx_actor->UpdateFlares(dt_sec, (gfx_actor == player_gfx_actor));
+        gfx_actor->UpdateFlares(dt_actor, (gfx_actor == player_gfx_actor));
     }
     if (player_gfx_actor != nullptr)
     {
-        player_gfx_actor->UpdateVideoCameras(dt_sec);
+        float dt_actor = (!player_gfx_actor->GetSimDataBuffer().simbuf_physics_paused) ? dt : 0.f;
+        player_gfx_actor->UpdateVideoCameras(dt_actor);
 
         // The old-style render-to-texture dashboard (based on OGRE overlays)
         if (m_simbuf.simbuf_player_actor->ar_driveable == TRUCK && m_simbuf.simbuf_player_actor->ar_engine != nullptr)
@@ -322,6 +329,27 @@ void GfxScene::RemoveGfxActor(RoR::GfxActor* remove_me)
     }
 }
 
+void GfxScene::ForceUpdateSingleGfxActor(RoR::GfxActor* gfx_actor)
+{
+    // Do the work `UpdateScene()` would, but for a single actor.
+    // Needed for i.e. terrain editor mode.
+    // ------------------------------------------------------
+
+    // Start threaded stuff
+    gfx_actor->UpdateFlexbodies(); // Push flexbody tasks to threadpool
+    gfx_actor->UpdateWheelVisuals(); // Push flexwheel tasks to threadpool
+
+    // Do sync stuff
+    gfx_actor->UpdateRods();
+    gfx_actor->UpdateCabMesh();
+    gfx_actor->UpdateWingMeshes();
+    gfx_actor->UpdateAirbrakes();
+
+    // Finish threaded stuff
+    gfx_actor->FinishWheelUpdates();
+    gfx_actor->FinishFlexbodyTasks();
+}
+
 void GfxScene::RegisterGfxCharacter(RoR::GfxCharacter* gfx_character)
 {
     m_all_gfx_characters.push_back(gfx_character);
@@ -397,3 +425,13 @@ void GfxScene::DrawNetLabel(Ogre::Vector3 scene_pos, float cam_dist, std::string
 #endif // USE_SOCKETW
 }
 
+void GfxScene::AdjustParticleSystemTimeFactor(Ogre::ParticleSystem* psys)
+{
+    float speed_factor = 0.f;
+    if (App::sim_state->getEnum<SimState>() == SimState::RUNNING && !App::GetGameContext()->GetActorManager()->IsSimulationPaused())
+    {
+        speed_factor = m_simbuf.simbuf_sim_speed;
+    }
+
+    psys->setSpeedFactor(speed_factor);
+}

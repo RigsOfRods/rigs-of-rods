@@ -70,11 +70,13 @@ void DrawGFloatBox(CVar* cvar, const char* label);
 
 void DrawGTextEdit(CVar* cvar, const char* label, Str<1000>& buf);
 
-void DrawGCombo(CVar* cvar, const char* label, const char* values);
+bool DrawGCombo(CVar* cvar, const char* label, const char* values);
 
 Ogre::TexturePtr FetchIcon(const char* name);
 
-ImDrawList* GetImDummyFullscreenWindow();
+// Fullscreen drawing helpers
+ImDrawList* GetImDummyFullscreenWindow(const std::string& name = "RoR_TransparentFullscreenWindow");
+bool GetScreenPosFromWorldPos(Ogre::Vector3 const& world_pos, ImVec2& out_screen);
 
 // Helpers for coposing combobox item strings.
 void ImAddItemToComboboxString(std::string& target, std::string const& item);
@@ -82,9 +84,14 @@ void ImTerminateComboboxString(std::string& target);
 
 // Input engine helpers
 void ImDrawEventHighlighted(events input_event);
+bool ImDrawEventHighlightedButton(events input_event, bool* btn_hovered = nullptr, bool* btn_active = nullptr);
 void ImDrawModifierKeyHighlighted(OIS::KeyCode key);
+ImVec2 ImCalcEventHighlightedSize(events input_event);
 
 // Draws button which must be held for a period to report "clicked" - shows a tooltip with countdown progressbar.
 bool ImButtonHoldToConfirm(const std::string& btn_idstr, const bool smallbutton, const float time_limit);
+
+// Returns true if succeeded (needs the text box to have focus).
+bool ImMoveTextInputCursorToEnd(const char* label);
 
 } // namespace RoR

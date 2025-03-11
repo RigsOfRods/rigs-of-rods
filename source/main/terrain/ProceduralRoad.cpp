@@ -58,7 +58,7 @@ ProceduralRoad::~ProceduralRoad()
     }
 }
 
-void ProceduralRoad::finish(Ogre::SceneNode* snode)
+void ProceduralRoad::finish(Ogre::SceneNode* groupingSceneNode)
 {
     Vector3 pts[8];
     computePoints(pts, lastpos, lastrot, lasttype, lastwidth, lastbwidth, lastbheight);
@@ -70,12 +70,16 @@ void ProceduralRoad::finish(Ogre::SceneNode* snode)
     String entity_name = String("RoadSystem_Instance-").append(StringConverter::toString(mid));
     String mesh_name = String("RoadSystem-").append(StringConverter::toString(mid));
     Entity* ec = App::GetGfxScene()->GetSceneManager()->createEntity(entity_name, mesh_name);
+    snode = groupingSceneNode->createChildSceneNode();
     snode->attachObject(ec);
 
-    App::GetGameContext()->GetTerrain()->GetCollisions()->registerCollisionMesh(
-        "RoadSystem", mesh_name, 
-        ec->getBoundingBox().getCenter(), ec->getMesh()->getBounds(),
-        /*groundmodel:*/nullptr, registeredCollTris[0], (int)registeredCollTris.size());
+    if (collision)
+    {
+        App::GetGameContext()->GetTerrain()->GetCollisions()->registerCollisionMesh(
+            "RoadSystem", mesh_name,
+            ec->getBoundingBox().getCenter(), ec->getMesh()->getBounds(),
+            /*groundmodel:*/nullptr, registeredCollTris[0], (int)registeredCollTris.size());
+    }
 }
 
 void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, RoadType type, float width, float bwidth, float bheight, int pillartype)
@@ -675,3 +679,4 @@ void ProceduralRoad::createMesh()
 
     free(vertices);
 };
+

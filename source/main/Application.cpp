@@ -55,22 +55,22 @@ namespace App {
 // Object instances
 static AppContext           g_app_context;
 static CacheSystem          g_cache_system;
-static CameraManager*       g_camera_manager;
+static CameraManager*       g_camera_manager = nullptr;
 static Console              g_console;
 static ContentManager       g_content_manager;
 static DiscordRpc           g_discord_rpc;
 static GameContext          g_game_context;
 static GfxScene             g_gfx_scene;
-static GUIManager*          g_gui_manager;
-static InputEngine*         g_input_engine;
+static GUIManager*          g_gui_manager = nullptr;
+static InputEngine*         g_input_engine = nullptr;
 static LanguageEngine       g_language_engine;
-static MumbleIntegration*   g_mumble;
-static OverlayWrapper*      g_overlay_wrapper;
+static MumbleIntegration*   g_mumble = nullptr;
+static OverlayWrapper*      g_overlay_wrapper = nullptr;
 static OutGauge             g_out_gauge;
-static ScriptEngine*        g_script_engine;
-static SoundScriptManager*  g_sound_script_manager;
-static Terrain*             g_sim_terrain;
-static ThreadPool*          g_thread_pool;
+static ScriptEngine*        g_script_engine = nullptr;
+static SoundScriptManager*  g_sound_script_manager = nullptr;
+static Terrain*             g_sim_terrain = nullptr;
+static ThreadPool*          g_thread_pool = nullptr;
 #if USE_SOCKETW
     static Network          g_network;
 #endif
@@ -253,12 +253,12 @@ CVar* gfx_fov_internal_default;
 CVar* gfx_static_cam_fov_exp;
 CVar* gfx_fixed_cam_tracking;
 CVar* gfx_fps_limit;
-CVar* gfx_speedo_digital;
 CVar* gfx_speedo_imperial;
 CVar* gfx_flexbody_cache;
 CVar* gfx_reduce_shadows;
 CVar* gfx_enable_rtshaders;
 CVar* gfx_alt_actor_materials;
+CVar* gfx_auto_lod;
 
 // Flexbodies
 CVar* flexbody_defrag_enabled;
@@ -272,6 +272,10 @@ CVar* flexbody_defrag_invert_lookup;
 // GUI
 CVar* ui_show_live_repair_controls;
 CVar* ui_show_vehicle_buttons;
+CVar* ui_preset;
+CVar* ui_hide_gui;
+CVar* ui_default_truck_dash;
+CVar* ui_default_boat_dash;
 
 // Instance access
 AppContext*            GetAppContext         () { return &g_app_context; };
@@ -576,6 +580,18 @@ std::string ToLocalizedString(SimResetMode e)
     }
 }
 
+std::string ToLocalizedString(UiPreset e)
+{
+    switch (e)
+    {
+    case UiPreset::NOVICE:      return _LC("UiPreset", "Novice");
+    case UiPreset::REGULAR:     return _LC("UiPreset", "Regular");
+    case UiPreset::EXPERT:      return _LC("UiPreset", "Expert");
+    case UiPreset::MINIMALLIST: return _LC("UiPreset", "Minimallist");
+    default:                     return "";
+    }
+}
+
 const char* MsgTypeToString(MsgType type)
 {
     switch (type)
@@ -608,6 +624,8 @@ const char* MsgTypeToString(MsgType type)
     case MSG_NET_REFRESH_REPOLIST_FAILURE     : return "MSG_NET_REFRESH_REPOLIST_FAILURE";
     case MSG_NET_FETCH_AI_PRESETS_SUCCESS     : return "MSG_NET_FETCH_AI_PRESETS_SUCCESS";
     case MSG_NET_FETCH_AI_PRESETS_FAILURE     : return "MSG_NET_FETCH_AI_PRESETS_FAILURE";
+    case MSG_NET_ADD_PEEROPTIONS_REQUESTED    : return "MSG_NET_ADD_PEEROPTIONS_REQUESTED";
+    case MSG_NET_REMOVE_PEEROPTIONS_REQUESTED : return "MSG_NET_REMOVE_PEEROPTIONS_REQUESTED";
 
     case MSG_SIM_PAUSE_REQUESTED              : return "MSG_SIM_PAUSE_REQUESTED";
     case MSG_SIM_UNPAUSE_REQUESTED            : return "MSG_SIM_UNPAUSE_REQUESTED";
@@ -621,6 +639,8 @@ const char* MsgTypeToString(MsgType type)
     case MSG_SIM_TELEPORT_PLAYER_REQUESTED    : return "MSG_SIM_TELEPORT_PLAYER_REQUESTED";
     case MSG_SIM_HIDE_NET_ACTOR_REQUESTED     : return "MSG_SIM_HIDE_NET_ACTOR_REQUESTED";
     case MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED   : return "MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED";
+    case MSG_SIM_MUTE_NET_ACTOR_REQUESTED     : return "MSG_SIM_MUTE_NET_ACTOR_REQUESTED";
+    case MSG_SIM_UNMUTE_NET_ACTOR_REQUESTED   : return "MSG_SIM_UNMUTE_NET_ACTOR_REQUESTED";
     case MSG_SIM_SCRIPT_EVENT_TRIGGERED       : return "MSG_SIM_SCRIPT_EVENT_TRIGGERED";
     case MSG_SIM_SCRIPT_CALLBACK_QUEUED       : return "MSG_SIM_SCRIPT_CALLBACK_QUEUED";
     case MSG_SIM_ACTOR_LINKING_REQUESTED      : return "MSG_SIM_ACTOR_LINKING_REQUESTED";
@@ -649,6 +669,26 @@ const char* MsgTypeToString(MsgType type)
     case MSG_EDI_MODIFY_PROJECT_REQUESTED     : return "MSG_EDI_MODIFY_PROJECT_REQUESTED";
     case MSG_EDI_DELETE_PROJECT_REQUESTED     : return "MSG_EDI_DELETE_PROJECT_REQUESTED";
 
+    default: return "";
+    }
+}
+
+const char* TObjSpecialObjectToString(TObjSpecialObject val)
+{
+    switch (val)
+    {
+    case TObjSpecialObject::TRUCK: return "truck";
+    case TObjSpecialObject::LOAD: return "load";
+    case TObjSpecialObject::MACHINE: return "machine";
+    case TObjSpecialObject::BOAT: return "boat";
+    case TObjSpecialObject::TRUCK2: return "truck2";
+    case TObjSpecialObject::GRID: return "grid";
+    case TObjSpecialObject::ROAD: return "road";
+    case TObjSpecialObject::ROAD_BORDER_LEFT: return "roadborderleft";
+    case TObjSpecialObject::ROAD_BORDER_RIGHT: return "roadborderright";
+    case TObjSpecialObject::ROAD_BORDER_BOTH: return "roadborderboth";
+    case TObjSpecialObject::ROAD_BRIDGE_NO_PILLARS: return "roadbridgenopillar";
+    case TObjSpecialObject::ROAD_BRIDGE: return "roadbridge";
     default: return "";
     }
 }

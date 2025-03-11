@@ -33,14 +33,24 @@ public:
     bool IsVisible() const { return m_is_visible; }
     void SetVisible(bool v);
 
+    CacheCategoryId default_dash_being_selected = CID_None;
+
 private:
     void DrawRenderSystemSettings();
     void DrawGeneralSettings();
     void DrawGameplaySettings();
+    void DrawUiSettings();
     void DrawGraphicsSettings();
     void DrawAudioSettings();
     void DrawControlSettings();
     void DrawDiagSettings();
+
+    // UI settings
+    const float UI_SELECTOR_WIDTH = 275.0f;
+    void DrawUiPresetCombo();
+    void DrawUiDefaultDashboard(CacheEntryPtr& entry, CVar* cvar, CacheCategoryId category_id, const std::string& label);
+    CacheEntryPtr m_ui_known_dash_truck;
+    CacheEntryPtr m_ui_known_dash_boat;
 
     // GUI state
     bool m_is_visible = false;
@@ -66,6 +76,7 @@ private:
     std::string m_combo_items_extcam_mode;
     std::string m_combo_items_input_grab;
     std::string m_combo_items_efx_reverb_engine;
+    std::string m_cached_uipreset_combo_string;
 
     // Render settings
     bool m_render_must_restart = false;

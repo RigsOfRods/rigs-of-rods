@@ -292,6 +292,7 @@ namespace Hydrax
 	{
 		if (mCreated && mModule && mVisible)
 		{
+            mMaterialManager->updateAnimatedTextures(timeSinceLastFrame);
             mModule->update(timeSinceLastFrame);
 		    mDecalsManager->update();
 			_checkUnderwater(timeSinceLastFrame);

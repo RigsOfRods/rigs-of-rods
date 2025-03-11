@@ -39,8 +39,46 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("ScriptCategory", "SCRIPT_CATEGORY_TERRAIN", static_cast<int>(ScriptCategory::TERRAIN)); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ScriptCategory", "SCRIPT_CATEGORY_CUSTOM", static_cast<int>(ScriptCategory::CUSTOM)); ROR_ASSERT(result >= 0);
 
+    // `enum ScriptRetCode` ~ Common return codes for script manipulation funcs (add/get/delete | funcs/variables)
+    result = engine->RegisterEnum("ScriptRetCode"); ROR_ASSERT(result >= 0);
+
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_ERROR", SCRIPTRETCODE_AS_ERROR ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_CONTEXT_ACTIVE", SCRIPTRETCODE_AS_CONTEXT_ACTIVE ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_CONTEXT_NOT_FINISHED", SCRIPTRETCODE_AS_CONTEXT_NOT_FINISHED ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_CONTEXT_NOT_PREPARED", SCRIPTRETCODE_AS_CONTEXT_NOT_PREPARED ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_INVALID_ARG", SCRIPTRETCODE_AS_INVALID_ARG ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_NO_FUNCTION", SCRIPTRETCODE_AS_NO_FUNCTION ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_NOT_SUPPORTED", SCRIPTRETCODE_AS_NOT_SUPPORTED ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_INVALID_NAME", SCRIPTRETCODE_AS_INVALID_NAME ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_NAME_TAKEN", SCRIPTRETCODE_AS_NAME_TAKEN ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_INVALID_DECLARATION", SCRIPTRETCODE_AS_INVALID_DECLARATION ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_INVALID_OBJECT", SCRIPTRETCODE_AS_INVALID_OBJECT ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_INVALID_TYPE", SCRIPTRETCODE_AS_INVALID_TYPE ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_ALREADY_REGISTERED", SCRIPTRETCODE_AS_ALREADY_REGISTERED ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_MULTIPLE_FUNCTIONS", SCRIPTRETCODE_AS_MULTIPLE_FUNCTIONS ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_NO_MODULE", SCRIPTRETCODE_AS_NO_MODULE ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_NO_GLOBAL_VAR", SCRIPTRETCODE_AS_NO_GLOBAL_VAR ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_INVALID_CONFIGURATION", SCRIPTRETCODE_AS_INVALID_CONFIGURATION ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_INVALID_INTERFACE", SCRIPTRETCODE_AS_INVALID_INTERFACE ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_CANT_BIND_ALL_FUNCTIONS", SCRIPTRETCODE_AS_CANT_BIND_ALL_FUNCTIONS ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_LOWER_ARRAY_DIMENSION_NOT_REGISTERED", SCRIPTRETCODE_AS_LOWER_ARRAY_DIMENSION_NOT_REGISTERED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_WRONG_CONFIG_GROUP", SCRIPTRETCODE_AS_WRONG_CONFIG_GROUP ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_CONFIG_GROUP_IS_IN_USE", SCRIPTRETCODE_AS_CONFIG_GROUP_IS_IN_USE ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_ILLEGAL_BEHAVIOUR_FOR_TYPE", SCRIPTRETCODE_AS_ILLEGAL_BEHAVIOUR_FOR_TYPE ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_WRONG_CALLING_CONV", SCRIPTRETCODE_AS_WRONG_CALLING_CONV ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_BUILD_IN_PROGRESS", SCRIPTRETCODE_AS_BUILD_IN_PROGRESS ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_INIT_GLOBAL_VARS_FAILED", SCRIPTRETCODE_AS_INIT_GLOBAL_VARS_FAILED ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_OUT_OF_MEMORY", SCRIPTRETCODE_AS_OUT_OF_MEMORY ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_AS_MODULE_IS_IN_USE", SCRIPTRETCODE_AS_MODULE_IS_IN_USE ); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_UNSPECIFIED_ERROR", SCRIPTRETCODE_UNSPECIFIED_ERROR); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_ENGINE_NOT_CREATED", SCRIPTRETCODE_ENGINE_NOT_CREATED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_CONTEXT_NOT_CREATED", SCRIPTRETCODE_CONTEXT_NOT_CREATED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_SCRIPTUNIT_NOT_EXISTS", SCRIPTRETCODE_SCRIPTUNIT_NOT_EXISTS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_SCRIPTUNIT_NO_MODULE", SCRIPTRETCODE_SCRIPTUNIT_NO_MODULE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ScriptRetCode", "SCRIPTRETCODE_FUNCTION_NOT_EXISTS", SCRIPTRETCODE_FUNCTION_NOT_EXISTS); ROR_ASSERT(result >= 0);
+
     // class GameScript
-    result = engine->RegisterObjectType("GameScriptClass", sizeof(GameScript), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectType("GameScriptClass", sizeof(GameScript), asOBJ_REF | asOBJ_NOCOUNT); ROR_ASSERT(result >= 0);
     
     // PLEASE maintain the same order as in GameScript.h!
 
@@ -83,11 +121,13 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "void unRegisterEvent(int)", asMETHOD(GameScript, unRegisterEvent), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int getRegisteredEventsMask(int)", asMETHOD(GameScript, getRegisteredEventsMask), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setRegisteredEventsMask(int, int)", asMETHOD(GameScript, setRegisteredEventsMask), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("GameScriptClass", "int addScriptFunction(const string &in)", asMETHOD(GameScript, addScriptFunction), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("GameScriptClass", "int scriptFunctionExists(const string &in)", asMETHOD(GameScript, scriptFunctionExists), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("GameScriptClass", "int deleteScriptFunction(const string &in)", asMETHOD(GameScript, deleteScriptFunction), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("GameScriptClass", "int addScriptVariable(const string &in)", asMETHOD(GameScript, addScriptVariable), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("GameScriptClass", "int deleteScriptVariable(const string &in)", asMETHOD(GameScript, deleteScriptVariable), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "ScriptRetCode addScriptFunction(const string &in, int = -2)", asMETHOD(GameScript, addScriptFunction), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "ScriptRetCode scriptFunctionExists(const string &in, int = -2)", asMETHOD(GameScript, scriptFunctionExists), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "ScriptRetCode deleteScriptFunction(const string &in, int = -2)", asMETHOD(GameScript, deleteScriptFunction), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "ScriptRetCode addScriptVariable(const string &in, int = -2)", asMETHOD(GameScript, addScriptVariable), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "ScriptRetCode scriptVariableExists(const string &in, int = -2)", asMETHOD(GameScript, scriptVariableExists), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "ScriptRetCode deleteScriptVariable(const string &in, int = -2)", asMETHOD(GameScript, deleteScriptVariable), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "ScriptRetCode getScriptVariable(const string &in, ?&out, int = -2)", asMETHOD(GameScript, getScriptVariable), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void clearEventCache()", asMETHOD(GameScript, clearEventCache), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int sendGameCmd(const string &in)", asMETHOD(GameScript, sendGameCmd), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "array<int>@ getRunningScripts()", asMETHOD(GameScript, getRunningScripts), asCALL_THISCALL); ROR_ASSERT(result >= 0);
@@ -107,8 +147,10 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "void spawnObject(const string &in, const string &in, vector3 &in, vector3 &in, const string &in, bool)", asMETHOD(GameScript, spawnObject), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void moveObjectVisuals(const string &in, vector3 &in)", asMETHOD(GameScript, moveObjectVisuals), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void destroyObject(const string &in)", asMETHOD(GameScript, destroyObject), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "array<TerrainEditorObjectClassPtr@>@ getEditorObjects()", asMETHOD(GameScript, getEditorObjects), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "bool getMousePositionOnTerrain(vector3 &out)", AngelScript::asMETHOD(GameScript, getMousePositionOnTerrain), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "TerrainClassPtr@ getTerrain()", AngelScript::asMETHOD(GameScript,getTerrain), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "array<Ogre::MovableObject@>@ getMousePointedMovableObjects()", AngelScript::asMETHOD(GameScript, getMousePointedMovableObjects), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // > Character
     result = engine->RegisterObjectMethod("GameScriptClass", "vector3 getPersonPosition()", asMETHOD(GameScript, getPersonPosition), asCALL_THISCALL); ROR_ASSERT(result >= 0);
@@ -129,6 +171,7 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "void repairVehicle(const string &in, const string &in, bool)", asMETHOD(GameScript, repairVehicle), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void removeVehicle(const string &in, const string &in)", asMETHOD(GameScript, removeVehicle), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "int getNumTrucksByFlag(int)", asMETHOD(GameScript, getNumTrucksByFlag), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "int getActorNextInstanceId()", asMETHOD(GameScript, getActorNextInstanceId), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // > FreeForces
     result = engine->RegisterObjectMethod("GameScriptClass", "int getFreeForceNextId()", asMETHOD(GameScript, getFreeForceNextId), asCALL_THISCALL); ROR_ASSERT(result >= 0);
@@ -149,7 +192,6 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("GameScriptClass", "int getAIMode()", AngelScript::asMETHOD(GameScript, getAIMode), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "VehicleAIClassPtr @getCurrentTruckAI()", asMETHOD(GameScript, getCurrentTruckAI), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "VehicleAIClassPtr @getTruckAIByNum(int)", asMETHOD(GameScript, getTruckAIByNum), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    // AI: set
     result = engine->RegisterObjectMethod("GameScriptClass", "void setAIVehicleCount(int count)", AngelScript::asMETHOD(GameScript, setAIVehicleCount), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setAIVehicleDistance(int dist)", AngelScript::asMETHOD(GameScript, setAIVehicleDistance), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setAIVehiclePositionScheme(int scheme)", AngelScript::asMETHOD(GameScript, setAIVehiclePositionScheme), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
@@ -163,13 +205,13 @@ void RoR::RegisterGameScript(asIScriptEngine *engine)
     // > Camera
     result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraPosition(vector3 &in)", asMETHOD(GameScript, setCameraPosition), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraDirection(vector3 &in)", asMETHOD(GameScript, setCameraDirection), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraOrientation(vector3 &in)", asMETHOD(GameScript, setCameraOrientation), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraOrientation(quaternion &in)", asMETHOD(GameScript, setCameraOrientation), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraRoll(float)", asMETHOD(GameScript, setCameraRoll), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraYaw(float)", asMETHOD(GameScript, setCameraYaw), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void setCameraPitch(float)", asMETHOD(GameScript, setCameraPitch), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "vector3 getCameraPosition()", asMETHOD(GameScript, getCameraPosition), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "vector3 getCameraDirection()", asMETHOD(GameScript, getCameraDirection), asCALL_THISCALL); ROR_ASSERT(result >= 0);
-    result = engine->RegisterObjectMethod("GameScriptClass", "vector3 getCameraOrientation()", asMETHOD(GameScript, getCameraOrientation), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("GameScriptClass", "quaternion getCameraOrientation()", asMETHOD(GameScript, getCameraOrientation), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("GameScriptClass", "void cameraLookAt(vector3 &in)", asMETHOD(GameScript, cameraLookAt), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // > Race system

@@ -106,6 +106,57 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoDecoration", ImGuiWindowFlags_NoDecoration);
     engine->RegisterEnumValue("ImGuiWindowFlags", "ImGuiWindowFlags_NoInputs", ImGuiWindowFlags_NoInputs);
 
+    // Enumeration for PushStyleColor() / PopStyleColor()
+    engine->RegisterEnum("ImGuiCol");
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_Text"                    , ImGuiCol_Text);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TextDisabled"            , ImGuiCol_TextDisabled);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_WindowBg"                , ImGuiCol_WindowBg);              
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ChildBg"                 , ImGuiCol_ChildBg);               
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_PopupBg"                 , ImGuiCol_PopupBg);               
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_Border"                  , ImGuiCol_Border);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_BorderShadow"            , ImGuiCol_BorderShadow);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_FrameBg"                 , ImGuiCol_FrameBg);               
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_FrameBgHovered"          , ImGuiCol_FrameBgHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_FrameBgActive"           , ImGuiCol_FrameBgActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TitleBg"                 , ImGuiCol_TitleBg);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TitleBgActive"           , ImGuiCol_TitleBgActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TitleBgCollapsed"        , ImGuiCol_TitleBgCollapsed);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_MenuBarBg"               , ImGuiCol_MenuBarBg);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ScrollbarBg"             , ImGuiCol_ScrollbarBg);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ScrollbarGrab"           , ImGuiCol_ScrollbarGrab);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ScrollbarGrabHovered"    , ImGuiCol_ScrollbarGrabHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ScrollbarGrabActive"     , ImGuiCol_ScrollbarGrabActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_CheckMark"               , ImGuiCol_CheckMark);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_SliderGrab"              , ImGuiCol_SliderGrab);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_SliderGrabActive"        , ImGuiCol_SliderGrabActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_Button"                  , ImGuiCol_Button);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ButtonHovered"           , ImGuiCol_ButtonHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ButtonActive"            , ImGuiCol_ButtonActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_Header"                  , ImGuiCol_Header);                
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_HeaderHovered"           , ImGuiCol_HeaderHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_HeaderActive"            , ImGuiCol_HeaderActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_Separator"               , ImGuiCol_Separator);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_SeparatorHovered"        , ImGuiCol_SeparatorHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_SeparatorActive"         , ImGuiCol_SeparatorActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ResizeGrip"              , ImGuiCol_ResizeGrip);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ResizeGripHovered"       , ImGuiCol_ResizeGripHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ResizeGripActive"        , ImGuiCol_ResizeGripActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_Tab"                     , ImGuiCol_Tab);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TabHovered"              , ImGuiCol_TabHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TabActive"               , ImGuiCol_TabActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TabUnfocused"            , ImGuiCol_TabUnfocused);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TabUnfocusedActive"      , ImGuiCol_TabUnfocusedActive);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_PlotLines"               , ImGuiCol_PlotLines);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_PlotLinesHovered"        , ImGuiCol_PlotLinesHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_PlotHistogram"           , ImGuiCol_PlotHistogram);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_PlotHistogramHovered"    , ImGuiCol_PlotHistogramHovered);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_TextSelectedBg"          , ImGuiCol_TextSelectedBg);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_DragDropTarget"          , ImGuiCol_DragDropTarget);
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_NavHighlight"            , ImGuiCol_NavHighlight);          
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_NavWindowingHighlight"   , ImGuiCol_NavWindowingHighlight); 
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_NavWindowingDimBg"       , ImGuiCol_NavWindowingDimBg);     
+    engine->RegisterEnumValue("ImGuiCol", "ImGuiCol_ModalWindowDimBg"        , ImGuiCol_ModalWindowDimBg);      
+
     engine->RegisterEnum("ImGuiCond");
     engine->RegisterEnumValue("ImGuiCond", "ImGuiCond_Always", ImGuiCond_Always);
     engine->RegisterEnumValue("ImGuiCond", "ImGuiCond_Once", ImGuiCond_Once); // Set the variable once per runtime session (only the first call with succeed)
@@ -148,7 +199,7 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
     engine->SetDefaultNamespace("ImGui");
     
     // > Windows
-    engine->RegisterGlobalFunction("bool Begin(const string&in, bool, int=0)", asFUNCTIONPR([](const string& name, bool opened, int flags) { return ImGui::Begin(name.c_str(), &opened, flags); }, (const string&, bool, int), bool), asCALL_CDECL);
+    engine->RegisterGlobalFunction("bool Begin(const string&in, bool&inout, int=0)", asFUNCTIONPR([](const string& name, bool& opened, int flags) { return ImGui::Begin(name.c_str(), &opened, flags); }, (const string&, bool&, int), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("void End()", asFUNCTIONPR(ImGui::End, (), void), asCALL_CDECL);
 
     // > Child windows
@@ -185,8 +236,8 @@ void RoR::RegisterImGuiBindings(AngelScript::asIScriptEngine* engine)
   //  engine->RegisterGlobalFunction("bool IsWindowAppearing()", asFUNCTIONPR(ImGui::IsWindowAppearing, (), bool), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetWindowFontScale(float)", asFUNCTIONPR(ImGui::SetWindowFontScale, (float), void), asCALL_CDECL);
 
-    engine->RegisterGlobalFunction("void SetNextWindowPos(vector2)", asFUNCTIONPR([](Vector2 v) { 
-        ImGui::SetNextWindowPos(ImVec2(v.x, v.y)); }, (Vector2), void), asCALL_CDECL);
+    engine->RegisterGlobalFunction("void SetNextWindowPos(vector2, int=0, vector2=vector2(0,0))", asFUNCTIONPR([](Vector2 v, int flags, Vector2 pivot) { 
+        ImGui::SetNextWindowPos(ImVec2(v.x, v.y), flags, ImVec2(pivot.x, pivot.y)); }, (Vector2, int, Vector2), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetNextWindowSize(vector2)", asFUNCTIONPR([](Vector2 v) { 
         ImGui::SetNextWindowSize(ImVec2(v.x, v.y)); }, (Vector2), void), asCALL_CDECL);
     engine->RegisterGlobalFunction("void SetNextWindowContentSize(vector2)", asFUNCTIONPR([](Vector2 v) { 

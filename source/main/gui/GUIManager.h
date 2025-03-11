@@ -26,6 +26,7 @@
 
 #include "OgreImGui.h"
 #include "Application.h"
+#include "CVar.h"
 #include "GUI_MessageBox.h"
 
 // GUI panels
@@ -45,14 +46,12 @@
 #include "GUI_MainSelector.h"
 #include "GUI_NodeBeamUtils.h"
 #include "GUI_DirectionArrow.h"
-#include "GUI_SimActorStats.h"
+#include "GUI_VehicleInfoTPanel.h"
 #include "GUI_SimPerfStats.h"
 #include "GUI_SurveyMap.h"
 #include "GUI_TextureToolWindow.h"
 #include "GUI_GameControls.h"
 #include "GUI_TopMenubar.h"
-#include "GUI_VehicleDescription.h"
-#include "GUI_VehicleButtons.h"
 
 // Deps
 #include <Bites/OgreWindowEventUtilities.h>
@@ -61,7 +60,17 @@
 #include <MyGUI_UString.h>
 #include <OgreOverlay.h>
 
+#include <string>
+
 namespace RoR {
+
+struct UiPresetEntry
+{
+    const char* uip_cvar;
+    std::string uip_values[(int)UiPreset::Count];
+};
+
+extern UiPresetEntry UiPresets[];
 
 class GUIManager
 {
@@ -106,13 +115,12 @@ public:
     GUI::GameMainMenu           GameMainMenu;
     GUI::GameAbout              GameAbout;
     GUI::GameSettings           GameSettings;
-    GUI::SimActorStats          SimActorStats;
+    GUI::VehicleInfoTPanel      VehicleInfoTPanel;
     GUI::SimPerfStats           SimPerfStats;
     GUI::MessageBoxDialog       MessageBoxDialog;
     GUI::MultiplayerSelector    MultiplayerSelector;
     GUI::MainSelector           MainSelector;
     GUI::GameChatBox            ChatBox;
-    GUI::VehicleDescription     VehicleDescription;
     GUI::MpClientList           MpClientList;
     GUI::FrictionSettings       FrictionSettings;
     GUI::TextureToolWindow      TextureToolWindow;
@@ -124,7 +132,6 @@ public:
     GUI::ConsoleWindow          ConsoleWindow;
     GUI::SurveyMap              SurveyMap;
     GUI::DirectionArrow         DirectionArrow;
-    GUI::VehicleButtons         VehicleButtons;
     GUI::FlexbodyDebug          FlexbodyDebug;
     Ogre::Overlay*              MenuWallpaper = nullptr;
 
@@ -135,6 +142,7 @@ public:
     bool IsGuiCaptureKeyboardRequested() const { return m_gui_kb_capture_requested; }
     void ApplyGuiCaptureKeyboard(); //!< Call after rendered frame to apply queued value
     bool AreStaticMenusAllowed(); //!< i.e. top menubar / vehicle UI buttons
+    void ApplyUiPreset(); //!< reads cvar 'ui_preset'
 
     void NewImGuiFrame(float dt);
     void DrawMainMenuGui();
@@ -143,7 +151,7 @@ public:
     void DrawCommonGui();
 
     void SetGuiHidden(bool visible);
-    bool IsGuiHidden() const { return m_hide_gui; }
+    bool IsGuiHidden() const { return App::ui_hide_gui->getBool(); }
 
     void SetSceneManagerForGuiRendering(Ogre::SceneManager* scene_manager);
 
@@ -168,7 +176,6 @@ private:
 
     MyGUI::Gui*          m_mygui                    = nullptr;
     MyGUI::OgrePlatform* m_mygui_platform           = nullptr;
-    bool                 m_hide_gui                 = false;
     OgreImGui            m_imgui;
     GuiTheme             m_theme;
     bool                 m_gui_kb_capture_queued    = false; //!< Resets and accumulates every frame

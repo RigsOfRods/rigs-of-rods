@@ -172,6 +172,8 @@ InputEvent eventInfo[] = {
     {"TRUCK_AUTOSHIFT_DOWN",          EV_TRUCK_AUTOSHIFT_DOWN,          "Keyboard PGDOWN",              _LC("InputEvent", "shift automatic transmission one gear down")},
     {"TRUCK_AUTOSHIFT_UP",            EV_TRUCK_AUTOSHIFT_UP,            "Keyboard PGUP",                _LC("InputEvent", "shift automatic transmission one gear up")},
     {"TRUCK_MANUAL_CLUTCH",           EV_TRUCK_MANUAL_CLUTCH,           "Keyboard LSHIFT",              _LC("InputEvent", "manual clutch (for manual transmission)")},
+    {"TRUCK_MANUAL_CLUTCH_MODIFIER_25",EV_TRUCK_MANUAL_CLUTCH_MODIFIER_25,"Keyboard ALT+LSHIFT",        _LC("InputEvent", "manual clutch with 25 percent pedal input")},
+    {"TRUCK_MANUAL_CLUTCH_MODIFIER_50",EV_TRUCK_MANUAL_CLUTCH_MODIFIER_50,"Keyboard CTRL+LSHIFT",       _LC("InputEvent", "manual clutch with 50 percent pedal input")},
     {"TRUCK_SHIFT_DOWN",              EV_TRUCK_SHIFT_DOWN,              "Keyboard Z",                   _LC("InputEvent", "shift one gear down in manual transmission mode")},
     {"TRUCK_SHIFT_NEUTRAL",           EV_TRUCK_SHIFT_NEUTRAL,           "Keyboard D",                   _LC("InputEvent", "shift to neutral gear in manual transmission mode")},
     {"TRUCK_SHIFT_UP",                EV_TRUCK_SHIFT_UP,                "Keyboard A",                   _LC("InputEvent", "shift one gear up in manual transmission mode")},
@@ -197,6 +199,7 @@ InputEvent eventInfo[] = {
     {"TRUCK_SHIFT_LOWRANGE",          EV_TRUCK_SHIFT_LOWRANGE,          "",                             _LC("InputEvent", "sets low range (1-6) for H-shaft")},
     {"TRUCK_SHIFT_MIDRANGE",          EV_TRUCK_SHIFT_MIDRANGE,          "",                             _LC("InputEvent", "sets middle range (7-12) for H-shaft")},
     {"TRUCK_SHIFT_HIGHRANGE",         EV_TRUCK_SHIFT_HIGHRANGE,         "",                             _LC("InputEvent", "sets high range (13-18) for H-shaft")},
+    {"TRUCK_CYCLE_GEAR_RANGES",       EV_TRUCK_CYCLE_GEAR_RANGES,       "",                             _LC("InputEvent", "cycle through gear ranges") },
     {"TRUCK_SWITCH_SHIFT_MODES",      EV_TRUCK_SWITCH_SHIFT_MODES,      "Keyboard Q",                   _LC("InputEvent", "toggle between transmission modes")},
 
     // Airplane
@@ -602,7 +605,15 @@ void InputEngine::setup()
 
 OIS::MouseState InputEngine::getMouseState()
 {
-    return mMouse->getMouseState();
+    // When window regains focus, OIS sends a fake LMB-down event, which is never followed by a LMB-up event.
+    // See commentary in `resetKeysAndMouseButtons()`
+    // To work around, we keep internal button states and pay attention not to get them polluted by OIS.
+    // -----------------------------------------------------------------------------------------------------
+
+    mouseState.width = (int)App::GetAppContext()->GetRenderWindow()->getWidth();
+    mouseState.height = (int)App::GetAppContext()->GetRenderWindow()->getHeight();
+
+    return mouseState;
 }
 
 String InputEngine::getKeyNameForKeyCode(OIS::KeyCode keycode)
@@ -633,6 +644,8 @@ void InputEngine::Capture()
             mJoy[i]->capture();
         }
     }
+
+    m_oisworkaround_frames_since_reset++;
 }
 
 void InputEngine::windowResized(Ogre::RenderWindow* rw)
@@ -687,18 +700,55 @@ void InputEngine::ProcessKeyRelease(const OIS::KeyEvent& arg)
 }
 
 /* --- Mouse Events ------------------------------------------ */
-void InputEngine::ProcessMouseEvent(const OIS::MouseEvent& arg)
+void InputEngine::processMouseMotionEvent(const OIS::MouseEvent& arg)
 {
-    mouseState = arg.state;
+    // Only pick position info; button info may be dirty, see commentary in `getMouseState()`
+    mouseState.X = arg.state.X;
+    mouseState.Y = arg.state.Y;
+    mouseState.Z = arg.state.Z;
+}
+
+void InputEngine::processMousePressEvent(const OIS::MouseEvent& arg, OIS::MouseButtonID _id)
+{
+    // Skip false 'LMB press' event after restoring window focus; see commentary in `resetKeysAndMouseButtons()`.
+    if (_id == OIS::MB_Left)
+    {
+        if (m_oisworkaround_lmbdowns_since_reset == 0 && m_oisworkaround_frames_since_reset < 1)
+        {
+            return;
+        }
+        m_oisworkaround_lmbdowns_since_reset++;
+    }
+
+    // Only update the one particular button, OIS's persistent state may be dirty, see commentary in `getMouseState()`
+    BitMask_t btnmask = 1 << _id;
+    BITMASK_SET_1(mouseState.buttons, btnmask);
+}
+
+void InputEngine::processMouseReleaseEvent(const OIS::MouseEvent& arg, OIS::MouseButtonID _id)
+{
+    // Only update the one particular button, OIS's persistent state may be dirty, see commentary in `getMouseState()`
+    BitMask_t btnmask = 1 << _id;
+    BITMASK_SET_0(mouseState.buttons, btnmask);
 }
 
 /* --- Custom Methods ------------------------------------------ */
-void InputEngine::resetKeys()
+void InputEngine::resetKeysAndMouseButtons()
 {
     for (std::map<int, bool>::iterator iter = keyState.begin(); iter != keyState.end(); ++iter)
     {
         iter->second = false;
     }
+
+    // OIS WORKAROUND: After a window focus is restored for the 2nd+ time, OIS delivers a fabricated 'LMB pressed' event,
+    //    without ever sending matching 'LMB released', see analysis: https://github.com/RigsOfRods/rigs-of-rods/pull/3184#issuecomment-2380397463
+    // This has a very prominent negative effect, see https://github.com/RigsOfRods/rigs-of-rods/issues/2468
+    // There's no way to recognize the event as fake, we must track number of frames and LMB presses since last reset.
+    m_oisworkaround_frames_since_reset = 0u;
+    m_oisworkaround_lmbdowns_since_reset = 0u;
+
+    // Reset internal button states; see commentary in `getMouseState()`
+    mouseState.buttons = 0;
 }
 
 void InputEngine::setEventSimulatedValue(RoR::events eventID, float value)
@@ -1283,7 +1333,7 @@ void InputEngine::clearEventsByDevice(int deviceID)
 void InputEngine::clearAllEvents()
 {
     events.clear(); // remove all bindings
-    this->resetKeys(); // reset input states
+    this->resetKeysAndMouseButtons(); // reset input states
 }
 
 bool InputEngine::processLine(const char* line, int deviceID)

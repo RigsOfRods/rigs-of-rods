@@ -47,14 +47,19 @@ class GfxScene
 public:
 
     void           Init();
+
+    // Particles:
     void           CreateDustPools();
     DustPool*      GetDustPool(const char* name);
+    void           AdjustParticleSystemTimeFactor(Ogre::ParticleSystem* psys);
+
     void           SetParticlesVisible(bool visible);
     void           DrawNetLabel(Ogre::Vector3 pos, float cam_dist, std::string const& nick, int colornum);
-    void           UpdateScene(float dt_sec);
+    void           UpdateScene(float dt);
     void           ClearScene();
     void           RegisterGfxActor(RoR::GfxActor* gfx_actor);
     void           RemoveGfxActor(RoR::GfxActor* gfx_actor);
+    void           ForceUpdateSingleGfxActor(RoR::GfxActor* gfx_actor);
     void           RegisterGfxCharacter(RoR::GfxCharacter* gfx_character);
     void           RemoveGfxCharacter(RoR::GfxCharacter* gfx_character);
     void           BufferSimulationData(); //!< Run this when simulation is halted

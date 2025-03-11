@@ -117,9 +117,9 @@ struct ODefPointLight
     Ogre::ColourValue  color = Ogre::ColourValue::Black;
 };
 
-struct ODefFile
+struct ODefDocument
 {
-    struct ODefFileHeader
+    struct ODefDocumentHeader
     {
         std::string   mesh_name;
         Ogre::Vector3 scale;
@@ -148,7 +148,7 @@ public:
     void                       Prepare();
     bool                       ProcessLine(const char* line);
     void                       ProcessOgreStream(Ogre::DataStream* stream);
-    std::shared_ptr<ODefFile>  Finalize(); //!< Passes ownership
+    std::shared_ptr<ODefDocument>  Finalize(); //!< Passes ownership
 
 private:
     bool                       ProcessCurrentLine();
@@ -175,7 +175,7 @@ private:
         Ogre::Vector3        cbox_aabb_max;
     }                          m_ctx; //!< Parser context
 
-    std::shared_ptr<ODefFile>  m_def;
+    std::shared_ptr<ODefDocument>  m_def;
     int                        m_line_number;
     const char*                m_cur_line;
 };

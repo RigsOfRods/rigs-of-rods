@@ -30,9 +30,9 @@ namespace RoRnet {
 #define RORNET_MAX_PEERS            64     //!< maximum clients connected at the same time
 #define RORNET_MAX_MESSAGE_LENGTH   8192   //!< maximum size of a RoR message. 8192 bytes = 8 kibibytes
 #define RORNET_LAN_BROADCAST_PORT   13000  //!< port used to send the broadcast announcement in LAN mode
-#define RORNET_MAX_USERNAME_LEN     40     //!< port used to send the broadcast announcement in LAN mode
+#define RORNET_MAX_USERNAME_LEN     40     //!< bytes.
 
-#define RORNET_VERSION              "RoRnet_2.44"
+#define RORNET_VERSION              "RoRnet_2.45"
 
 enum MessageType
 {
@@ -123,6 +123,14 @@ enum Lightmask
     LIGHTMASK_BLINK_WARN  = BITMASK(20), //!< warn blinker on
 };
 
+// Flags used only locally on client to filter and control incoming traffic.
+enum PeerOptions
+{
+    PEEROPT_MUTE_CHAT     = BITMASK(1), //!< CHAT and PRIVCHAT messages will not be allowed through.
+    PEEROPT_MUTE_ACTORS   = BITMASK(2), //!< Spawn actors muted and immediatelly mute existing actors.
+    PEEROPT_HIDE_ACTORS   = BITMASK(3), //!< Spawn actors hidden and immediatelly hide existing actors.
+};
+
 // -------------------------------- structs -----------------------------------
 // Only use datatypes with defined binary sizes (avoid bool, int, wchar_t...)
 // Prefer alignment to 4 or 2 bytes (put int32/float/etc. fields on top)
@@ -139,21 +147,23 @@ struct Header                      //!< Common header for every packet
 
 struct StreamRegister              //!< Sent from the client to server and vice versa, to broadcast a new stream
 {
-    int32_t type;                  //!< stream type
+    int32_t type;                  //!< 0 = Actor, 1 = Character, 3 = ChatSystem
     int32_t status;                //!< initial stream status
     int32_t origin_sourceid;       //!< origin sourceid
     int32_t origin_streamid;       //!< origin streamid
-    char    name[128];             //!< the actor filename
+    char    name[128];             //!< file name
     char    data[128];             //!< data used for stream setup
 };
 
-struct ActorStreamRegister
+struct ActorStreamRegister         //!< Must preserve mem. layout of RoRnet::StreamRegister
 {
-    int32_t type;                  //!< stream type
+    // RoRnet::StreamRegister: Common
+    int32_t type;                  //!< 0
     int32_t status;                //!< initial stream status
     int32_t origin_sourceid;       //!< origin sourceid
     int32_t origin_streamid;       //!< origin streamid
-    char    name[128];             //!< filename
+    char    name[128];             //!< truck file name
+    // RoRnet::StreamRegister: Data buffer (128B)
     int32_t bufferSize;            //!< initial stream status
     int32_t time;                  //!< initial time stamp
     char    skin[60];              //!< skin

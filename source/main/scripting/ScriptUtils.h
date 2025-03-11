@@ -24,6 +24,7 @@
 #ifdef USE_ANGELSCRIPT
 
 #include <angelscript.h>
+#include "ScriptEngine.h"
 #include "scriptdictionary/scriptdictionary.h"
 #include "scriptarray/scriptarray.h"
 #include "scriptbuilder/scriptbuilder.h"

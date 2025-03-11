@@ -101,42 +101,43 @@ private:
     bool           IsCameraUnderWater();
     void           PrepareWater();
 
-    bool                  m_water_visible;
-    float                 m_water_height;
-    float                 m_waves_height;
-    float                 m_bottom_height;
-    float                 m_max_ampl;
-    float                 m_waterplane_mesh_scale;
-    int                   m_frame_counter;
-    Ogre::Vector3         m_map_size;
+    bool                  m_water_visible = true;
+    float                 m_water_height = 0.f;
+    float                 m_waves_height = 0.f;
+    float                 m_bottom_height = 0.f;
+    float                 m_max_ampl = 0.f;
+    float                 m_waterplane_mesh_scale = 1.f;
+    int                   m_frame_counter = 0;
+    float                 m_sim_time_counter = 0.f; //!< Elapsed simulation time in seconds.
+    Ogre::Vector3         m_map_size = Ogre::Vector3::ZERO;
     Ogre::Plane           m_water_plane;
     Ogre::MeshPtr         m_waterplane_mesh;
-    Ogre::Entity*         m_waterplane_entity;
-    Ogre::SceneNode*      m_waterplane_node;
+    Ogre::Entity*         m_waterplane_entity = nullptr;
+    Ogre::SceneNode*      m_waterplane_node = nullptr;
     Ogre::HardwareVertexBufferSharedPtr  m_waterplane_vert_buf;
-    float*                m_waterplane_vert_buf_local;
-    bool                  m_waterplane_force_update_pos;
+    float*                m_waterplane_vert_buf_local = nullptr;
+    bool                  m_waterplane_force_update_pos = false;
     Ogre::Plane           m_reflect_plane;
     Ogre::Plane           m_refract_plane;
     ReflectionListener    m_reflect_listener;
     RefractionListener    m_refract_listener;
-    Ogre::Camera*         m_reflect_cam;
-    Ogre::Camera*         m_refract_cam;
-    Ogre::RenderTexture*  m_refract_rtt_target;
-    Ogre::RenderTexture*  m_reflect_rtt_target;
+    Ogre::Camera*         m_reflect_cam = nullptr;
+    Ogre::Camera*         m_refract_cam = nullptr;
+    Ogre::RenderTexture*  m_refract_rtt_target = nullptr;
+    Ogre::RenderTexture*  m_reflect_rtt_target = nullptr;
     Ogre::TexturePtr      m_refract_rtt_texture;
     Ogre::TexturePtr      m_reflect_rtt_texture;
-    Ogre::Viewport*       m_refract_rtt_viewport;
-    Ogre::Viewport*       m_reflect_rtt_viewport;
-    Ogre::SceneNode*      m_bottomplane_node;
+    Ogre::Viewport*       m_refract_rtt_viewport = nullptr;
+    Ogre::Viewport*       m_reflect_rtt_viewport = nullptr;
+    Ogre::SceneNode*      m_bottomplane_node = nullptr;
     Ogre::Plane           m_bottom_plane;
     std::vector<WaveTrain>  m_wavetrain_defs;
 
     // Forced camera transforms, used by UpdateWater()
-    bool                  m_cam_forced;
-    Ogre::Radian          m_cam_forced_fovy;
-    Ogre::Vector3         m_cam_forced_position;
-    Ogre::Quaternion      m_cam_forced_orientation;
+    bool                  m_cam_forced = false;
+    Ogre::Radian          m_cam_forced_fovy = Ogre::Radian(0.f);
+    Ogre::Vector3         m_cam_forced_position = Ogre::Vector3::ZERO;
+    Ogre::Quaternion      m_cam_forced_orientation = Ogre::Quaternion::IDENTITY;
 };
 
 /// @} // addtogroup Gfx

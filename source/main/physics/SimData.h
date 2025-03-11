@@ -42,15 +42,16 @@
 
 namespace RoR {
 
+/// Specified in terrain object (.ODEF) file, syntax: 'event <type> <filter>'
 enum CollisionEventFilter: short
 {
-    EVENT_NONE = 0,
-    EVENT_ALL,
-    EVENT_AVATAR,
-    EVENT_TRUCK,
-    EVENT_AIRPLANE,
-    EVENT_BOAT,
-    EVENT_DELETE
+    EVENT_NONE = 0,          //!< Invalid value.
+    EVENT_ALL,               //!< (default) ~ Triggered by any node on any vehicle
+    EVENT_AVATAR,            //!< 'avatar' ~ Triggered by the character only
+    EVENT_TRUCK,             //!< 'truck' ~ Triggered by any node of land vehicle (`ActorType::TRUCK`)
+    EVENT_TRUCK_WHEELS,      //!< 'truck_wheels' ~ Triggered only by wheel nodes of land vehicle (`ActorType::TRUCK`)
+    EVENT_AIRPLANE,          //!< 'airplane' ~ Triggered by any node of airplane (`ActorType::AIRPLANE`)
+    EVENT_BOAT,              //!< 'boat' ~ Triggered by any node of boats (`ActorType::BOAT`)
 };
 
 enum class ExtCameraMode
@@ -306,8 +307,8 @@ struct node_t
 
     // Bit flags
     bool            nd_cab_node:1;           //!< Attr; This node is part of collision triangle
-    bool            nd_rim_node:1;           //!< Attr; This node is part of a rim
-    bool            nd_tyre_node:1;          //!< Attr; This node is part of a tyre
+    bool            nd_rim_node:1;           //!< Attr; This node is part of a rim (only wheel types with separate rim nodes)
+    bool            nd_tyre_node:1;          //!< Attr; This node is part of a tyre (note some wheel types don't use rim nodes at all)
     bool            nd_contacter:1;          //!< Attr; User-defined
     bool            nd_contactable:1;        //!< Attr; This node will be treated as contacter on inter truck collisions
     bool            nd_has_ground_contact:1; //!< Physics state
@@ -634,25 +635,6 @@ struct flare_t
     SimpleInertia inertia; //!< Only 'flares3'
 };
 
-struct exhaust_t
-{
-    NodeNum_t emitterNode   = NODENUM_INVALID;
-    NodeNum_t directionNode = NODENUM_INVALID;
-    Ogre::SceneNode *smokeNode = nullptr;
-    Ogre::ParticleSystem* smoker = nullptr; //!< This remains `nullptr` if removed via `addonpart_unwanted_exhaust` or Tuning UI.
-    std::string particleSystemName; //!< Name in .particle file ~ for display in Tuning UI.
-};
-
-
-struct cparticle_t
-{
-    NodeNum_t emitterNode   = NODENUM_INVALID;
-    NodeNum_t directionNode = NODENUM_INVALID;
-    bool active;
-    Ogre::SceneNode *snode;
-    Ogre::ParticleSystem* psys;
-};
-
 /// User input state for animated props with 'source:event'.
 struct PropAnimKeyState
 {
@@ -845,8 +827,9 @@ struct ActorSpawnRequest
         AI            //!< Script controlled
     };
 
+    ActorInstanceID_t   asr_instance_id = ACTORINSTANCEID_INVALID; //!< Optional; see `ActorManager::GetActorNextInstanceID()`;
     CacheEntryPtr       asr_cache_entry; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
-    std::string         asr_filename;
+    std::string         asr_filename;    //!< Can be in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
     Ogre::String        asr_config;
     Ogre::Vector3       asr_position = Ogre::Vector3::ZERO;
     Ogre::Quaternion    asr_rotation = Ogre::Quaternion::ZERO;
@@ -858,6 +841,7 @@ struct ActorSpawnRequest
     int                 asr_debugview = 0; //(int)DebugViewType::DEBUGVIEW_NONE;
     Ogre::UTFString     asr_net_username;
     int                 asr_net_color = 0;
+    BitMask_t           asr_net_peeropts = BitMask_t(0); //!< `RoRnet::PeerOptions` to be applied after spawn.
     int                 net_source_id = 0;
     int                 net_stream_id = 0;
     bool                asr_free_position = false;   //!< Disables the automatic spawn position adjustment
@@ -878,9 +862,11 @@ struct ActorModifyRequest
         RELOAD,               //!< Full reload from filesystem, requested by user
         RESET_ON_INIT_POS,
         RESET_ON_SPOT,
+        SOFT_RESPAWN, //!< Like hard reset, but positions the actor like spawn process does - using the relative positions from rig-def file (respecting Tuning system tweaks).
         SOFT_RESET,
         RESTORE_SAVED,
         WAKE_UP,
+        REFRESH_VISUALS //!< Forces a synchronous update of visuals from any context - i.e. from terrain editor mode or with sleeping/physicspaused actor.
     };
 
     ActorInstanceID_t   amr_actor = ACTORINSTANCEID_INVALID;// not ActorPtr because it's not thread-safe
@@ -889,6 +875,8 @@ struct ActorModifyRequest
                         amr_saved_state;
     CacheEntryPtr       amr_addonpart; //!< Primary method of specifying cache entry.
     std::string         amr_addonpart_fname; //!< Fallback method in case CacheEntry doesn't exist anymore - that means mod was uninstalled in the meantime. Used by REMOVE_ADDONPART_AND_RELOAD.
+    Ogre::Vector3       amr_softrespawn_position; //!< Position to use with `SOFT_RESPAWN`.
+    Ogre::Quaternion    amr_softrespawn_rotation; //!< Rotation to use with `SOFT_RESPAWN`; use `TObjParser::CalcRotation()` to calculate quaternion from XYZ like in TOBJ file.
 };
 
 enum class ActorLinkingRequestType
@@ -926,5 +914,56 @@ struct ActorLinkingRequest
     // ropeToggle()
     int alr_rope_group = -1;
 };
+
+///  Parameter to `Actor::setSimAttribute()` and `Actor::getSimAttribute()`; allows advanced users to tweak physics internals via script.
+///  Each value represents a variable, either directly in `Actor` or a subsystem, i.e. `Engine`.
+///  PAY ATTENTION to the 'safe value' limits below - those may not be checked when setting attribute values!
+enum ActorSimAttr
+{
+    ACTORSIMATTR_NONE,
+
+    // TractionControl
+    ACTORSIMATTR_TC_RATIO, //!< Regulating force, safe values: <1 - 20>
+    ACTORSIMATTR_TC_PULSE_TIME, //!< Pulse duration in seconds, safe values <0.00005 - 1>
+    ACTORSIMATTR_TC_WHEELSLIP_CONSTANT, //!< Minimum wheel slip threshold, safe value = 0.25
+
+    // Engine
+    ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM, //!< Automatic transmission - Param #1 of 'engine'
+    ACTORSIMATTR_ENGINE_SHIFTUP_RPM, //!< Automatic transmission - Param #2 of 'engine'
+    ACTORSIMATTR_ENGINE_TORQUE, //!< Engine torque in newton-meters (N/m) - Param #3 of 'engine'
+    ACTORSIMATTR_ENGINE_DIFF_RATIO, //!< Differential ratio (aka global gear ratio) - Param #4 of 'engine'
+    ACTORSIMATTR_ENGINE_GEAR_RATIOS_ARRAY, //!< Gearbox - Format: "<reverse_gear> <neutral_gear> <forward_gear 1> [<forward gear 2>]..."; Param #5 and onwards of 'engine'.
+
+    // Engoption
+    ACTORSIMATTR_ENGOPTION_ENGINE_INERTIA, //!< - Param #1 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_ENGINE_TYPE, //!< - Param #2 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_CLUTCH_FORCE, //!< - Param #3 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_SHIFT_TIME, //!< - Param #4 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_CLUTCH_TIME, //!< - Param #5 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_POST_SHIFT_TIME, //!< Time (in seconds) until full torque is transferred - Param #6 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_STALL_RPM, //!< RPM where engine stalls - Param #7 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_IDLE_RPM, //!< Target idle RPM - Param #8 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE, //!< Max throttle to maintain idle RPM - Param #9 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE, //!< Min throttle to maintain idle RPM - Param #10 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE, //!< How much engine brakes on zero throttle - Param #11 of 'engoption'
+
+    // Engturbo2 (actually 'engturbo' with Param #1 [type] set to "2" - the recommended variant)
+    ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR, //!< Time to spool up - Param #2 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_NUM_TURBOS, //!< Number of turbos - Param #3 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_MAX_RPM, //!< MaxPSI * 10000 ~ calculated from Param #4 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_ENGINE_RPM_OP, //!< Engine RPM threshold for turbo to operate - Param #5 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_BOV_ENABLED, //!< Blow-off valve - Param #6 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_BOV_MIN_PSI, //!< Blow-off valve PSI threshold - Param #7 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_WASTEGATE_ENABLED, //!<  - Param #8 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_WASTEGATE_MAX_PSI, //!<  - Param #9 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_N, //!< 1 - WgThreshold ~ calculated from  Param #10 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_P, //!< 1 + WgThreshold ~ calculated from  Param #10 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_ANTILAG_ENABLED, //!<  - Param #11 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE, //!<  - Param #12 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM, //!<  - Param #13 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER, //!<  - Param #14 of 'engturbo2'
+
+};
+const char* ActorSimAttrToString(ActorSimAttr attr);
 
 } // namespace RoR

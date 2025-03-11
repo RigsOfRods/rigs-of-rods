@@ -207,49 +207,66 @@ public:
     * Gets event mask for a specific running script. Intended for diagnostic and monitoring purposes.
     * @param nid ScriptUnitID, obtain one from global var `thisScript` or callback parameters.
     */
-    BitMask_t getRegisteredEventsMask(ScriptUnitId_t nid);
+    BitMask_t getRegisteredEventsMask(ScriptUnitID_t nid);
 
     /**
      * Overwrites event mask for a specific running script. Intended for debugging tools - use with caution.
      * @param nid ScriptUnitID, obtain one from global var `thisScript` or callback parameters.
      * @param eventMask \see enum scriptEvents
      */
-    void setRegisteredEventsMask(ScriptUnitId_t nid, BitMask_t eventMask);
+    void setRegisteredEventsMask(ScriptUnitID_t nid, BitMask_t eventMask);
 
     /**
      * Adds a global function to the script
      * (Wrapper for ScriptEngine::addFunction)
      * @param arg A declaration for the function.
     */
-    int addScriptFunction(const Ogre::String& arg);
+    ScriptRetCode_t addScriptFunction(const Ogre::String& arg, ScriptUnitID_t nid);
 
     /**
      * Checks if a global function exists in the script
      * (Wrapper for ScriptEngine::functionExists)
      * @param arg A declaration for the function.
     */
-    int scriptFunctionExists(const Ogre::String& arg);
+    ScriptRetCode_t scriptFunctionExists(const Ogre::String& arg, ScriptUnitID_t nid);
 
     /**
      * Deletes a global function from the script
      * (Wrapper for ScriptEngine::deleteFunction)
      * @param arg A declaration for the function.
     */
-    int deleteScriptFunction(const Ogre::String& arg);
+    ScriptRetCode_t deleteScriptFunction(const Ogre::String& arg, ScriptUnitID_t nid);
 
     /**
      * Adds a global variable to the script
      * (Wrapper for ScriptEngine::addVariable)
      * @param arg A declaration for the variable.
     */
-    int addScriptVariable(const Ogre::String& arg);
+    ScriptRetCode_t addScriptVariable(const Ogre::String& arg, ScriptUnitID_t nid);
+
+    /**
+     * Adds a global variable to the script
+     * (Wrapper for ScriptEngine::variableExists)
+     * @param arg A declaration for the variable.
+    */
+    ScriptRetCode_t scriptVariableExists(const Ogre::String& arg, ScriptUnitID_t nid);
 
     /**
      * Deletes a global variable from the script
      * (Wrapper for ScriptEngine::deleteVariable)
      * @param arg A declaration for the variable.
     */
-    int deleteScriptVariable(const Ogre::String& arg);
+    ScriptRetCode_t deleteScriptVariable(const Ogre::String& arg, ScriptUnitID_t nid);
+
+    /**
+    * Retrieves a memory address of a global variable in any script.
+    * @param nid ScriptUnitID, ID of the running script, obtain one from global var `thisScript` or `game.getRunningScripts()`
+    * @param varName Name of the variable. Type must match the reference type.
+    * @param ref Pointer to the variable's memory address; To be registered as variable-type parameter `?&out`
+    * @param refTypeId Type of the reference; To be registered as variable-type parameter `?&out`
+    * @return 0 on success, negative number on error.
+    */
+    ScriptRetCode_t getScriptVariable(const Ogre::String& varName, void *ref, int refTypeId, ScriptUnitID_t nid);
 
     void clearEventCache();
 
@@ -271,7 +288,7 @@ public:
     *   * "eventMask" (int64)
     *   * "scriptBuffer" (string)
     */
-    AngelScript::CScriptDictionary* getScriptDetails(ScriptUnitId_t nid);
+    AngelScript::CScriptDictionary* getScriptDetails(ScriptUnitID_t nid);
 
     /// @}
 
@@ -356,11 +373,21 @@ public:
     void destroyObject(const Ogre::String& instanceName);
 
     /**
+    * Returns `array<TerrainEditorObjectClassPtr@>` with all static objects on map (from any source).
+    */
+    AngelScript::CScriptArray* getEditorObjects();
+
+    /**
     * Calculates mouse cursor position on terrain.
     * @param out_pos Calculated position, in meters.
     * @return true if mouse points to the terrain and output coordinates are valid.
     */
     bool getMousePositionOnTerrain(Ogre::Vector3& out_pos);
+
+    /**
+    * Returns `array<Ogre::MovableObjects@>` in no particular order.
+    */
+    AngelScript::CScriptArray* getMousePointedMovableObjects();
 
     TerrainPtr getTerrain();
 
@@ -438,6 +465,11 @@ public:
     void removeVehicle(const Ogre::String& instance, const Ogre::String& box);
 
     int getNumTrucksByFlag(int flag);
+
+    /**
+    * Returns an unused (not reused) ID to use with `MSG_SIM_SPAWN_ACTOR_REQUESTED`; see `game.pushMessage()`.
+    */
+    ActorInstanceID_t getActorNextInstanceId();
 
     ///@}
 

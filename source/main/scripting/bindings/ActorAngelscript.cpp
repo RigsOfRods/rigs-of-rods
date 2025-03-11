@@ -79,6 +79,47 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_RESTORE_SAVED", (int)ActorModifyRequest::Type::RESTORE_SAVED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("ActorModifyRequestType", "ACTOR_MODIFY_REQUEST_WAKE_UP", (int)ActorModifyRequest::Type::WAKE_UP); ROR_ASSERT(result >= 0);
 
+    // enum ActorSimAttr
+    result = engine->RegisterEnum("ActorSimAttr"); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_NONE", (int)ACTORSIMATTR_NONE); ROR_ASSERT(result >= 0);
+        // ... TractionControl
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_TC_RATIO", (int)ACTORSIMATTR_TC_RATIO); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_TC_PULSE_TIME", (int)ACTORSIMATTR_TC_PULSE_TIME); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_TC_WHEELSLIP_CONSTANT", (int)ACTORSIMATTR_TC_WHEELSLIP_CONSTANT); ROR_ASSERT(result >= 0);
+        // ... Engine
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM", (int)ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGINE_SHIFTUP_RPM", (int)ACTORSIMATTR_ENGINE_SHIFTUP_RPM); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGINE_TORQUE", (int)ACTORSIMATTR_ENGINE_TORQUE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGINE_DIFF_RATIO", (int)ACTORSIMATTR_ENGINE_DIFF_RATIO); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGINE_GEAR_RATIOS_ARRAY", (int)ACTORSIMATTR_ENGINE_GEAR_RATIOS_ARRAY); ROR_ASSERT(result >= 0);
+        // ... Engoption 
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_ENGINE_INERTIA", (int)ACTORSIMATTR_ENGOPTION_ENGINE_INERTIA); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_ENGINE_TYPE", (int)ACTORSIMATTR_ENGOPTION_ENGINE_TYPE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_CLUTCH_FORCE", (int)ACTORSIMATTR_ENGOPTION_CLUTCH_FORCE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_SHIFT_TIME", (int)ACTORSIMATTR_ENGOPTION_SHIFT_TIME); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_CLUTCH_TIME", (int)ACTORSIMATTR_ENGOPTION_CLUTCH_TIME); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_POST_SHIFT_TIME", (int)ACTORSIMATTR_ENGOPTION_POST_SHIFT_TIME); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_STALL_RPM", (int)ACTORSIMATTR_ENGOPTION_STALL_RPM); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_IDLE_RPM", (int)ACTORSIMATTR_ENGOPTION_IDLE_RPM); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE", (int)ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE", (int)ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE", (int)ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE); ROR_ASSERT(result >= 0);
+        // ... Engturbo2 (actually'engturbo'withtype=2)
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR", (int)ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_NUM_TURBOS", (int)ACTORSIMATTR_ENGTURBO2_NUM_TURBOS); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_MAX_RPM", (int)ACTORSIMATTR_ENGTURBO2_MAX_RPM); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_ENGINE_RPM_OP", (int)ACTORSIMATTR_ENGTURBO2_ENGINE_RPM_OP); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_BOV_ENABLED", (int)ACTORSIMATTR_ENGTURBO2_BOV_ENABLED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_BOV_MIN_PSI", (int)ACTORSIMATTR_ENGTURBO2_BOV_MIN_PSI); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_WASTEGATE_ENABLED", (int)ACTORSIMATTR_ENGTURBO2_WASTEGATE_ENABLED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_WASTEGATE_MAX_PSI", (int)ACTORSIMATTR_ENGTURBO2_WASTEGATE_MAX_PSI); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_N", (int)ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_N); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_P", (int)ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_P); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_ANTILAG_ENABLED", (int)ACTORSIMATTR_ENGTURBO2_ANTILAG_ENABLED); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE", (int)ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM", (int)ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("ActorSimAttr", "ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER", (int)ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER); ROR_ASSERT(result >= 0);
+
     // class Actor (historically Beam)
     Actor::RegisterRefCountingObject(engine, "BeamClass");
     ActorPtr::RegisterRefCountingObjectPtr(engine, "BeamClassPtr", "BeamClass");
@@ -100,10 +141,18 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     result = engine->RegisterObjectMethod("BeamClass", "int getWheelNodeCount()", asMETHOD(Actor,getWheelNodeCount), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "float getWheelSpeed()", asMETHOD(Actor,getWheelSpeed), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void reset(bool)", asMETHOD(Actor,reset), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getShockCount()", AngelScript::asMETHOD(Actor,getShockCount), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getShockSpringRate(int)", AngelScript::asMETHOD(Actor,getShockSpringRate), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getShockDamping(int)", AngelScript::asMETHOD(Actor,getShockDamping), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getShockVelocity(int)", AngelScript::asMETHOD(Actor,getShockVelocity), AngelScript::asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getShockNode1(int)", AngelScript::asMETHOD(Actor, getShockNode1), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "int getShockNode2(int)", AngelScript::asMETHOD(Actor, getShockNode2), AngelScript::asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // - physics editing (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "void scaleTruck(float)", asMETHOD(Actor,scaleTruck), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "void setMass(float)", asMETHOD(Actor,setMass), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "void setSimAttribute(ActorSimAttr, float)", asMETHOD(Actor, setSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);
+    result = engine->RegisterObjectMethod("BeamClass", "float getSimAttribute(ActorSimAttr)", asMETHOD(Actor, getSimAttribute), asCALL_THISCALL); ROR_ASSERT(result >= 0);
 
     // - user interaction (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "void parkingbrakeToggle()", asMETHOD(Actor,parkingbrakeToggle), asCALL_THISCALL); ROR_ASSERT(result>=0);
@@ -115,6 +164,7 @@ void RoR::RegisterActor(asIScriptEngine *engine)
     
     // - subsystems (PLEASE maintain the same order as 'Actor.h' and 'doc/angelscript/.../BeamClass.h')
     result = engine->RegisterObjectMethod("BeamClass", "VehicleAIClassPtr @getVehicleAI()", asMETHOD(Actor,getVehicleAI), asCALL_THISCALL); ROR_ASSERT(result>=0);
+    result = engine->RegisterObjectMethod("BeamClass", "EngineClassPtr @getEngine()", asMETHOD(Actor, getEngine), asCALL_THISCALL); ROR_ASSERT(result >= 0);
     result = engine->RegisterObjectMethod("BeamClass", "Ogre::MaterialPtr getManagedMaterialInstance(const string &in)", asMETHOD(Actor,getManagedMaterialInstance), asCALL_THISCALL); ROR_ASSERT(result>=0);
     result = engine->RegisterObjectMethod("BeamClass", "array<string>@ getManagedMaterialNames()", asFUNCTIONPR([](Actor* self) -> CScriptArray*{
         return RoR::VectorToScriptArray(self->getManagedMaterialNames(), "string"); }, (Actor*), CScriptArray*), asCALL_CDECL_OBJFIRST); ROR_ASSERT(result>=0);

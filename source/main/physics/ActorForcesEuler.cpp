@@ -30,7 +30,7 @@
 #include "Collisions.h"
 #include "Console.h"
 #include "Differentials.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "FlexAirfoil.h"
 #include "GameContext.h"
 #include "Replay.h"
@@ -164,7 +164,7 @@ void Actor::CalcDifferentials()
 {
     if (ar_engine && m_num_proped_wheels > 0)
     {
-        float torque = ar_engine->GetTorque() / m_num_proped_wheels;
+        float torque = ar_engine->getTorque() / m_num_proped_wheels;
         if (m_has_axles_section)
         {
             torque *= 2.0f; // Required to stay backwards compatible
@@ -302,7 +302,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
         float wheel_slip = fabs(ar_wheels[i].wh_speed - relspeed) / std::max(1.0f, curspeed);
 
         // traction control
-        if (tc_mode && fabs(ar_wheels[i].wh_torque) > 0.0f && fabs(ar_wheels[i].wh_speed) > curspeed && wheel_slip > 0.25f)
+        if (tc_mode && fabs(ar_wheels[i].wh_torque) > 0.0f && fabs(ar_wheels[i].wh_speed) > curspeed && wheel_slip > tc_wheelslip_constant)
         {
             if (tc_pulse_state)
             {
@@ -458,7 +458,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
 
     if (ar_engine)
     {
-        ar_engine->SetWheelSpin(ar_wheel_spin * RAD_PER_SEC_TO_RPM); // Update the driveshaft speed
+        ar_engine->setWheelSpin(ar_wheel_spin * RAD_PER_SEC_TO_RPM); // Update the driveshaft speed
     }
 
     if (doUpdate)
@@ -744,14 +744,14 @@ void Actor::CalcCommands(bool doUpdate)
 
         // hydraulics ready?
         if (ar_engine)
-            ar_engine_hydraulics_ready = ar_engine->GetEngineRpm() > ar_engine->getIdleRPM() * 0.95f;
+            ar_engine_hydraulics_ready = ar_engine->getRPM() > ar_engine->getIdleRPM() * 0.95f;
         else
             ar_engine_hydraulics_ready = true;
 
         // crankfactor
         float crankfactor = 1.0f;
         if (ar_engine)
-            crankfactor = ar_engine->GetCrankFactor();
+            crankfactor = ar_engine->getCrankFactor();
 
         // speed up machines
         if (ar_driveable == MACHINE)
@@ -985,8 +985,8 @@ void Actor::CalcCommands(bool doUpdate)
 
         if (ar_engine)
         {
-            ar_engine->SetHydroPumpWork(work);
-            ar_engine->SetEnginePriming(requested);
+            ar_engine->setHydroPump(work);
+            ar_engine->setPrime(requested);
         }
 
         if (doUpdate && this == App::GetGameContext()->GetPlayerActor().GetRef())
@@ -1084,7 +1084,7 @@ void Actor::CalcTruckEngine(bool doUpdate)
 {
     if (ar_engine)
     {
-        ar_engine->UpdateEngineSim(PHYSICS_DT, doUpdate);
+        ar_engine->UpdateEngine(PHYSICS_DT, doUpdate);
     }
 }
 
@@ -1618,12 +1618,21 @@ void Actor::CalcNodes()
                 // engine stall
                 if (i == ar_cinecam_node[0] && ar_engine)
                 {
-                    ar_engine->StopEngine();
+                    ar_engine->stopEngine();
                 }
             }
             ar_nodes[i].nd_under_water = is_under_water;
         }
     }
+}
+
+bool TestNodeEventBoxCollision(const node_t& node, collision_box_t* cbox)
+{
+    // Test eventbox collision and extra 'only wheel nodes' filtering condition
+    // ------------------------------------------------------------------------
+
+    return App::GetGameContext()->GetTerrain()->GetCollisions()->isInside(node.AbsPosition, cbox)
+        && (cbox->event_filter != EVENT_TRUCK_WHEELS || node.nd_tyre_node);
 }
 
 void Actor::CalcEventBoxes()
@@ -1650,7 +1659,7 @@ void Actor::CalcEventBoxes()
             if (itor->first == cbox)
             {
                 // Existing record found - check if the node still collides
-                has_collision = App::GetGameContext()->GetTerrain()->GetCollisions()->isInside(ar_nodes[itor->second].AbsPosition, cbox);
+                has_collision = TestNodeEventBoxCollision(ar_nodes[itor->second], cbox);
                 if (!has_collision)
                 {
                     // Erase the collision record
@@ -1672,7 +1681,7 @@ void Actor::CalcEventBoxes()
             // Find if any node collides
             for (NodeNum_t i = 0; i < ar_num_nodes; i++)
             {
-                has_collision = App::GetGameContext()->GetTerrain()->GetCollisions()->isInside(ar_nodes[i].AbsPosition, cbox);
+                has_collision = TestNodeEventBoxCollision(ar_nodes[i], cbox);
                 if (has_collision)
                 {
                     do_callback_exit = false;

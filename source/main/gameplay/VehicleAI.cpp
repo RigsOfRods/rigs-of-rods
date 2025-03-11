@@ -26,7 +26,7 @@
 
 #include "Actor.h"
 #include "Console.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "GameContext.h"
 #include "AeroEngine.h"
 #include "ScrewProp.h"
@@ -348,7 +348,7 @@ void VehicleAI::update(float dt, int doUpdate)
     {
         // Start engine if not running
         if (!beam->ar_engine->isRunning())
-            beam->ar_engine->StartEngine();
+            beam->ar_engine->startEngine();
 
         beam->ar_parking_brake = false;
         float kmh_wheel_speed = beam->getWheelSpeed() * 3.6;

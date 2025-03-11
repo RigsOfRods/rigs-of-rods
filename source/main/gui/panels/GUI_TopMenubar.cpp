@@ -43,6 +43,7 @@
 #include "Replay.h"
 #include "SkyManager.h"
 #include "Terrain.h"
+#include "Terrn2FileFormat.h"
 #include "TuneupFileFormat.h"
 #include "Water.h"
 #include "ScriptEngine.h"
@@ -340,7 +341,7 @@ void TopMenubar::Draw(float dt)
             {
                 if (ImGui::Button(_LC("TopMenubar", "Show vehicle description")))
                 {
-                    App::GetGuiManager()->VehicleDescription.SetVisible(true);
+                    App::GetGuiManager()->VehicleInfoTPanel.SetVisible(VehicleInfoTPanel::TPANELMODE_OPAQUE, VehicleInfoTPanel::TPANELFOCUS_COMMANDS);
                 }
 
                 if (current_actor->ar_state != ActorState::NETWORKED_OK)
@@ -568,6 +569,8 @@ void TopMenubar::Draw(float dt)
         ImGui::SetNextWindowPos(menu_pos);
         if (ImGui::Begin(_LC("TopMenubar", "Settings menu"), nullptr, static_cast<ImGuiWindowFlags_>(flags)))
         {
+            // AUDIO SETTINGS
+            ImGui::Separator();
             ImGui::PushItemWidth(125.f); // Width includes [+/-] buttons
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Audio:"));
             DrawGFloatSlider(App::audio_master_volume, _LC("TopMenubar", "Volume"), 0, 1);
@@ -576,6 +579,7 @@ void TopMenubar::Draw(float dt)
             buf_audio_force_listener_efx_preset.Assign(App::audio_force_listener_efx_preset->getStr().c_str());
             DrawGTextEdit(App::audio_force_listener_efx_preset, _LC("TopMenubar", "Force Listener EFX Preset"), buf_audio_force_listener_efx_preset);
 
+            // RENDER SETTINGS
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Frames per second:"));
             if (App::gfx_envmap_enabled->getBool())
@@ -584,6 +588,7 @@ void TopMenubar::Draw(float dt)
             }
             DrawGIntSlider(App::gfx_fps_limit, _LC("TopMenubar", "Game"), 0, 240);
 
+            // SIM SETTINGS
             ImGui::Separator();
             ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Simulation:"));
             float slowmotion = std::min(App::GetGameContext()->GetActorManager()->GetSimulationSpeed(), 1.0f);
@@ -596,6 +601,8 @@ void TopMenubar::Draw(float dt)
             {
                 App::GetGameContext()->GetActorManager()->SetSimulationSpeed(timelapse);
             }
+
+            // CAMERA SETTINGS
             if (App::GetCameraManager()->GetCurrentBehavior() == CameraManager::CAMERA_BEHAVIOR_STATIC)
             {
                 ImGui::Separator();
@@ -628,6 +635,8 @@ void TopMenubar::Draw(float dt)
                     DrawGCheckbox(App::gfx_fixed_cam_tracking, _LC("TopMenubar", "Tracking"));
                 }
             }
+
+            // SKY SETTINGS
 #ifdef USE_CAELUM
             if (App::gfx_sky_mode->getEnum<GfxSkyMode>() == GfxSkyMode::CAELUM)
             {
@@ -646,6 +655,8 @@ void TopMenubar::Draw(float dt)
                 }
             }       
 #endif // USE_CAELUM
+
+            // WATER SETTINGS
             if (RoR::App::gfx_water_waves->getBool() && App::mp_state->getEnum<MpState>() != MpState::CONNECTED && App::GetGameContext()->GetTerrain()->getWater())
             {
                 if (App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::HYDRAX && App::gfx_water_mode->getEnum<GfxWaterMode>() != GfxWaterMode::NONE)
@@ -660,12 +671,15 @@ void TopMenubar::Draw(float dt)
                 }
             }    
             
+            // VEHICLE CONTROL SETTINGS
             if (current_actor != nullptr)
             {
                 ImGui::Separator();
                 ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar",  "Vehicle control options:"));
                 DrawGCheckbox(App::io_hydro_coupling, _LC("TopMenubar", "Keyboard steering speed coupling"));
             }
+
+            // MULTIPLAYER SETTINGS
             if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {
                 ImGui::Separator();
@@ -725,6 +739,12 @@ void TopMenubar::Draw(float dt)
                     App::GetGuiManager()->FlexbodyDebug.SetVisible(true);
                     m_open_menu = TopMenu::TOPMENU_NONE;
                 }
+            }
+
+            if (ImGui::Button(_LC("TopMenubar", "Browse gadgets ...")))
+            {
+                App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_SELECTOR_REQUESTED, new LoaderType(LT_Gadget)));
+                m_open_menu = TopMenu::TOPMENU_NONE;
             }
 
             ImGui::Separator();
@@ -801,64 +821,6 @@ void TopMenubar::Draw(float dt)
                 ImGui::Text("%s", _LC("TopMenubar", "2 = Wireframe"));
                 ImGui::Text("%s", _LC("TopMenubar", "3 = Points"));
                 ImGui::EndTooltip();
-            }
-
-            if (current_actor != nullptr)
-            {
-                ImGui::Separator();
-
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("TopMenubar", "Live diagnostic views:"));
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", fmt::format(_LC("TopMenubar", "(Toggle with {})"), App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_DEBUG_VIEW)).c_str());
-                ImGui::TextColored(GRAY_HINT_TEXT, "%s", fmt::format(_LC("TopMenubar", "(Cycle with {})"), App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_CYCLE_DEBUG_VIEWS)).c_str());
-
-                int debug_view_type = static_cast<int>(DebugViewType::DEBUGVIEW_NONE);
-                if (current_actor != nullptr)
-                {
-                    debug_view_type = static_cast<int>(current_actor->GetGfxActor()->GetDebugView());
-                }
-                ImGui::RadioButton(_LC("TopMenubar", "Normal view"),     &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_NONE));
-                ImGui::RadioButton(_LC("TopMenubar", "Skeleton view"),   &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_SKELETON));
-                ImGui::RadioButton(_LC("TopMenubar", "Node details"),    &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_NODES));
-                ImGui::RadioButton(_LC("TopMenubar", "Beam details"),    &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_BEAMS));
-                if (current_actor->ar_num_wheels > 0)
-                {
-                    ImGui::RadioButton(_LC("TopMenubar", "Wheel details"),   &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_WHEELS));
-                }
-                if (current_actor->ar_num_shocks > 0)
-                {
-                    ImGui::RadioButton(_LC("TopMenubar", "Shock details"),   &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_SHOCKS));
-                }
-                if (current_actor->ar_num_rotators > 0)
-                {
-                    ImGui::RadioButton(_LC("TopMenubar", "Rotator details"), &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_ROTATORS));
-                }
-                if (current_actor->hasSlidenodes())
-                {
-                    ImGui::RadioButton(_LC("TopMenubar", "Slidenode details"), &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_SLIDENODES));
-                }
-                if (current_actor->ar_num_cabs > 0)
-                {
-                    ImGui::RadioButton(_LC("TopMenubar", "Submesh details"), &debug_view_type,  static_cast<int>(DebugViewType::DEBUGVIEW_SUBMESH));
-                }
-
-                if ((current_actor != nullptr) && (debug_view_type != static_cast<int>(current_actor->GetGfxActor()->GetDebugView())))
-                {
-                    current_actor->GetGfxActor()->SetDebugView(static_cast<DebugViewType>(debug_view_type));
-                }
-
-                if (debug_view_type >= 1 && debug_view_type <= static_cast<int>(DebugViewType::DEBUGVIEW_BEAMS)) 
-                {
-                    ImGui::Separator();
-                    ImGui::TextColored(GRAY_HINT_TEXT, "%s",     _LC("TopMenubar", "Settings:"));
-                    DrawGCheckbox(App::diag_hide_broken_beams,   _LC("TopMenubar", "Hide broken beams"));
-                    DrawGCheckbox(App::diag_hide_beam_stress,    _LC("TopMenubar", "Hide beam stress"));
-                    DrawGCheckbox(App::diag_hide_wheels,         _LC("TopMenubar", "Hide wheels"));
-                    DrawGCheckbox(App::diag_hide_nodes,          _LC("TopMenubar", "Hide nodes"));
-                    if (debug_view_type >= 2)
-                    {
-                        DrawGCheckbox(App::diag_hide_wheel_info, _LC("TopMenubar", "Hide wheel info"));
-                    }
-                }
             }
 
             m_open_menu_hoverbox_min = menu_pos - MENU_HOVERBOX_PADDING;
@@ -1921,12 +1883,12 @@ void TopMenubar::Draw(float dt)
                 }
 
                 // Draw exhausts
-                size_t total_exhausts = tuning_actor->exhausts.size();
+                size_t total_exhausts = tuning_actor->GetGfxActor()->getExhausts().size();
                 std::string exhausts_title = fmt::format(_LC("Tuning", "Exhausts ({})"), total_exhausts);
                 if (ImGui::CollapsingHeader(exhausts_title.c_str()))
                 {
                     // Draw all exhausts (those removed by addonparts are also present as placeholders)
-                    for (ExhaustID_t exhaustid = 0; exhaustid < (int)tuning_actor->exhausts.size(); exhaustid++)
+                    for (ExhaustID_t exhaustid = 0; exhaustid < (int)total_exhausts; exhaustid++)
                     {
                         ImGui::PushID(exhaustid);
                         ImGui::AlignTextToFramePadding();
@@ -1935,7 +1897,7 @@ void TopMenubar::Draw(float dt)
 
                         this->DrawTuningForceRemoveControls(
                             exhaustid,
-                            tuning_actor->exhausts[exhaustid].particleSystemName,
+                            tuning_actor->GetGfxActor()->getExhausts()[exhaustid].particleSystemName,
                             tuneup_def && tuneup_def->isExhaustUnwanted(exhaustid),
                             tuneup_def && tuneup_def->isExhaustForceRemoved(exhaustid),
                             ModifyProjectRequestType::TUNEUP_FORCEREMOVE_EXHAUST_SET,
@@ -2282,9 +2244,20 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
     else if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
     {
         special_color = GREEN_TEXT;
-        special_text = fmt::format(_LC("TopMenubar", "Terrain editing mode, press {} to save and exit"),
-                                   App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
-        content_width = ImGui::CalcTextSize(special_text.c_str()).x;
+        if (App::GetGameContext()->GetTerrain()->getCacheEntry()->resource_bundle_type == "Zip")
+        {
+            // This is a read-only (ZIPped) terrain; offer the importer script.
+            special_text = fmt::format(_LC("TopMenubar", "Terrain editing mode, press {} to exit"),
+                App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
+            content_width = ImGui::CalcTextSize(special_text.c_str()).x + 25.f;
+            m_state_box = StateBox::STATEBOX_IMPORT_TERRAIN;
+        }
+        else
+        {
+            special_text = fmt::format(_LC("TopMenubar", "Terrain editing mode, press {} to save and exit"),
+                App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_TOGGLE_TERRAIN_EDITOR));
+            content_width = ImGui::CalcTextSize(special_text.c_str()).x;
+        }
     }
 
     // Draw box if needed
@@ -2412,6 +2385,29 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
                 }
                 ImGui::PopStyleVar(); // ItemSpacing
             }
+            else if (m_state_box == StateBox::STATEBOX_IMPORT_TERRAIN)
+            {
+                ImGui::Separator();
+                // notice text
+                std::string lbl_readonly = _LC("TopMenubar", "This terrain is read only.");
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX()
+                    + (ImGui::GetWindowContentRegionWidth() / 2 - ImGui::CalcTextSize(lbl_readonly.c_str()).x/2));
+                ImGui::TextDisabled("%s", lbl_readonly.c_str());
+                // import button
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2, 0.2, 0.2, 1.0));
+                std::string btn_import = _LC("TopMenubar", "Import as editable project.");
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX()
+                    + ((ImGui::GetWindowContentRegionWidth() / 2 - ImGui::CalcTextSize(btn_import.c_str()).x / 2) - ImGui::GetStyle().FramePadding.x));
+                if (!m_terrn_import_started && ImGui::Button(btn_import.c_str()))
+                {
+                    RoR::LoadScriptRequest* rq = new LoadScriptRequest();
+                    rq->lsr_filename = "terrain_project_importer.as";
+                    rq->lsr_category = ScriptCategory::CUSTOM;
+                    App::GetGameContext()->PushMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, rq));
+                    m_terrn_import_started = true;
+                }
+                ImGui::PopStyleColor(); // ImGuiCol_Button
+            }
             const ImVec2 PAD = ImVec2(5, 5); // To bridge top menubar hoverbox and statebox hoverbox
             m_state_box_hoverbox_min = box_pos - PAD;
             m_state_box_hoverbox_max.x = box_pos.x + ImGui::GetWindowWidth();
@@ -2422,6 +2418,11 @@ void TopMenubar::DrawSpecialStateBox(float top_offset)
         }
         ImGui::PopStyleColor(1); // WindowBg
     }
+
+    if (App::sim_state->getEnum<SimState>() != SimState::EDITOR_MODE)
+    {
+        m_terrn_import_started = false;
+    }
 }
 
 void TopMenubar::LoadBundledAiPresets(TerrainPtr terrain)
@@ -2431,7 +2432,7 @@ void TopMenubar::LoadBundledAiPresets(TerrainPtr terrain)
 
     App::GetGuiManager()->TopMenubar.ai_presets_bundled.SetArray();
 
-    for (const std::string& filename: terrain->GetDef().ai_presets_files)
+    for (const std::string& filename: terrain->GetDef()->ai_presets_files)
     {
         rapidjson::Document j_doc;
         if (Ogre::ResourceGroupManager::getSingleton().resourceExists(terrain->getTerrainFileResourceGroup(), filename))

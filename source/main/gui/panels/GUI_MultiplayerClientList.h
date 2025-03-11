@@ -42,10 +42,22 @@ public:
     void UpdateClients();
 
 private:
-    bool DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box); // Returns true if hovered
+    void DrawIcon(Ogre::TexturePtr tex, ImVec2 reference_box);
     void CacheIcons();
 
-    std::vector<RoRnet::UserInfo> m_users; // only updated on demand to reduce mutex locking and vector allocating overhead.
+    std::vector<RoRnet::UserInfo> m_users; // only updated on demand to reduce mutex locking and vector allocating overhead; see `MSG_GUI_MP_CLIENTS_REFRESH`.
+    std::vector <BitMask_t> m_users_peeropts; // updated along with `m_users`, see `MSG_GUI_MP_CLIENTS_REFRESH`.
+
+    // Peer options menu - opened by [<] button, closes when mouse cursor leaves.
+    void DrawPeerOptionsMenu();
+    void DrawPeerOptCheckbox(const BitMask_t flag, const std::string& label);
+    void DrawServerCommandBtn(const std::string& cmdfmt, const std::string& label);
+    const int PEEROPTS_MENU_CONTENT_WIDTH = 150;
+    const int PEEROPTS_MENU_MARGIN = 10;
+    const int PEEROPTS_HOVER_MARGIN = 100;
+    int m_peeropts_menu_active_user_vectorpos = -1;
+    ImVec2 m_peeropts_menu_corner_tl = ImVec2(0, 0);
+    ImVec2 m_peeropts_menu_corner_br = ImVec2(0, 0);
 
     // Icon cache
     bool             m_icons_cached = false;

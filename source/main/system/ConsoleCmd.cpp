@@ -440,7 +440,7 @@ public:
         }
         else
         {
-            ScriptUnitId_t id = App::GetScriptEngine()->loadScript(args[1], ScriptCategory::CUSTOM);
+            ScriptUnitID_t id = App::GetScriptEngine()->loadScript(args[1], ScriptCategory::CUSTOM);
             if (id == SCRIPTUNITID_INVALID)
             {
                 reply_type = Console::CONSOLE_SYSTEM_ERROR;
@@ -711,6 +711,13 @@ void Console::doCommand(std::string msg)
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_HELP, 
             _L("Using slashes before commands are deprecated, you can now type command without any slashes"));
         msg.erase(msg.begin());
+    }
+
+    if (msg[0] == '!')
+    {
+        // Server commands - pass through to multiplayer chat
+        App::GetNetwork()->BroadcastChatMsg(msg.c_str());
+        return;
     }
 
     Ogre::StringVector args = Ogre::StringUtil::split(msg, " ");

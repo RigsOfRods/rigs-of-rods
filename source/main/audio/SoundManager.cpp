@@ -400,7 +400,7 @@ void SoundManager::PrepopulateEfxPropertiesMap()
     m_efx_properties_map["EFX_REVERB_PRESET_CITY_ABANDONED"]            = EFX_REVERB_PRESET_CITY_ABANDONED;
 }
 
-void SoundManager::Update(const float dt_sec)
+void SoundManager::Update(const float dt)
 {
     if (!audio_device)
         return;
@@ -425,7 +425,7 @@ void SoundManager::Update(const float dt_sec)
             this->UpdateSourceFilters(hardware_index);
         }
 
-        this->UpdateListenerEffectSlot(dt_sec);
+        this->UpdateListenerEffectSlot(dt);
     }
 
     if (App::audio_enable_directed_sounds->getBool())
@@ -453,7 +453,7 @@ void SoundManager::UpdateListenerEnvironment()
             this->SetSpeedOfSound(1522.0f); // assume listener is in sea water (i.e. salt water)
             /*
              * According to the Francois-Garrison formula for frequency-dependant absorption at 5kHz in seawater,
-             * the absorption should be 0.334 db/km. OpenAL multiplies the Air Absorption Factor with an internal
+             * the absorption should be 0.334 dB/km. OpenAL multiplies the Air Absorption Factor with an internal
              * value of 0.05dB/m, so we need a factor of 0.00668f.
              */
             this->SetAirAbsorptionFactor(0.00668f);
@@ -530,11 +530,11 @@ const EFXEAXREVERBPROPERTIES* SoundManager::GetReverbPresetAt(const Ogre::Vector
     }
 }
 
-void SoundManager::UpdateListenerEffectSlot(const float dt_sec)
+void SoundManager::UpdateListenerEffectSlot(const float dt)
 {
     if (m_listener_efx_reverb_properties == nullptr)
     {
-        this->SmoothlyUpdateAlAuxiliaryEffectSlot(dt_sec, m_listener_slot, nullptr);
+        this->SmoothlyUpdateAlAuxiliaryEffectSlot(dt, m_listener_slot, nullptr);
         return;
     }
 
@@ -554,14 +554,14 @@ void SoundManager::UpdateListenerEffectSlot(const float dt_sec)
         current_environmental_properties.flReflectionsDelay  =  std::get<2>(target_early_reflections_properties);
     }
 
-    this->SmoothlyUpdateAlAuxiliaryEffectSlot(dt_sec, m_listener_slot, &current_environmental_properties);
+    this->SmoothlyUpdateAlAuxiliaryEffectSlot(dt, m_listener_slot, &current_environmental_properties);
 }
 
-void SoundManager::SmoothlyUpdateAlAuxiliaryEffectSlot(const float dt_sec, const ALuint slot_id, const EFXEAXREVERBPROPERTIES* target_efx_properties)
+void SoundManager::SmoothlyUpdateAlAuxiliaryEffectSlot(const float dt, const ALuint slot_id, const EFXEAXREVERBPROPERTIES* target_efx_properties)
 {
     const float time_to_target = 0.333f; // seconds to reach the target properties from the current properties
     // ensure to not exceed limits of reverb parameters if timestep is too large
-    const float step = std::min(dt_sec / time_to_target, 0.5f);
+    const float step = std::min(dt / time_to_target, 0.5f);
     static std::map<ALuint, EFXEAXREVERBPROPERTIES> current_efx_properties_of_slot;
 
     if (target_efx_properties == nullptr)
@@ -678,7 +678,7 @@ void SoundManager::SmoothlyUpdateAlAuxiliaryEffectSlot(const float dt_sec, const
 std::tuple<Ogre::Vector3, float, float> SoundManager::ComputeEarlyReflectionsProperties() const
 {
     const float     max_distance = 2.0f;
-    const float     reflections_gain_boost_max = 2.0f; // 6.32 db
+    const float     reflections_gain_boost_max = 2.0f; // 6.32 dB
     float           early_reflections_gain;
     float           early_reflections_delay;
     float           magnitude = 0;
@@ -1130,8 +1130,8 @@ void SoundManager::UpdateDirectedSounds() const
             }
 
             // Update directivity if the sound corresponding to the hardware source is attached to an exhaust node of the actor
-            const std::vector<exhaust_t>& exhausts = actor->exhausts;
-            for (const exhaust_t& exhaust : exhausts)
+            const std::vector<Exhaust>& exhausts = actor->GetGfxActor()->getExhausts();
+            for (const Exhaust& exhaust : exhausts)
             {
                 if (   sound_node == exhaust.emitterNode
                     || sound_node == exhaust.directionNode)

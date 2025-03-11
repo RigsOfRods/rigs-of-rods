@@ -32,7 +32,7 @@
 #include <OgreException.h>
 
 RoR::OTCParser::OTCParser() :
-    m_def(std::make_shared<RoR::OTCFile>())
+    m_def(std::make_shared<RoR::OTCDocument>())
 {
 }
 
@@ -174,7 +174,7 @@ bool RoR::OTCParser::LoadPageConfig(Ogre::DataStreamPtr &ds, RoR::OTCPage& page,
     return true;
 }
 
-RoR::OTCFile::OTCFile():
+RoR::OTCDocument::OTCDocument():
     world_size_x(0), world_size_y(0), world_size_z(0), world_size(0),
     page_size(0), pages_max_x(0), pages_max_z(0),
     origin_pos(Ogre::Vector3::ZERO),

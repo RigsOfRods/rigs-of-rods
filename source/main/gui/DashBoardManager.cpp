@@ -25,7 +25,11 @@
 
 #include "DashBoardManager.h"
 
+#include "Actor.h"
 #include "Application.h"
+#include "CacheSystem.h"
+#include "Console.h"
+#include "GenericFileFormat.h"
 #include "Utils.h"
 
 using namespace Ogre;
@@ -33,7 +37,7 @@ using namespace RoR;
 
 #define INITDATA(key, type, name) data[key] = dashData_t(type, name)
 
-DashBoardManager::DashBoardManager(void) : visible(true)
+DashBoardManager::DashBoardManager(ActorPtr actor) : visible(true), m_actor(actor)
 {
 
     // init data
@@ -170,15 +174,239 @@ std::string DashBoardManager::getLinkNameForID(DashData id)
     }
 }
 
-int DashBoardManager::loadDashBoard(Ogre::String filename, bool textureLayer)
+// Helper funcs and structs for `determineLayoutFromDashboardMod()` below.
+
+static int DashRPM(const std::string& input)
 {
+    std::regex rpm_regex(R"((\d+)rpm)");
+    std::smatch match;
+    if (std::regex_search(input, match, rpm_regex)) {
+        std::string rpm = match[1];
+        return std::atoi(rpm.c_str());
+    }
+    return -1; // Return -1 if no match is found
+}
 
-    DashBoard* d = new DashBoard(this, filename, textureLayer);
-    d->setVisible(true);
+static char DashXPH(const std::string& input) {
+    std::regex xph_regex(R"(([km])ph)");
+    std::smatch match;
+    if (std::regex_search(input, match, xph_regex)) {
+        return match[1].str()[0];
+    }
+    return '\0'; // Return null character if no match is found
+}
 
-    m_dashboards.push_back(d);
+static std::string DashBestRPM(float redlineRPM, const std::string& input1, const std::string& input2)
+{
+    const float rpmdiff1 = (float)DashRPM(input1) - redlineRPM;
+    const float rpmdiff2 = (float)DashRPM(input2) - redlineRPM;
 
-    return 0;
+    if (rpmdiff1 < 0) return input2;
+    else if (rpmdiff2 < 0) return input1;
+    else if (rpmdiff1 < rpmdiff2) return input1;
+    else return input2;
+}
+
+static std::string DashBestXPH(char desiredX, const std::string& input1, const std::string& input2)
+{
+    const char x1 = DashXPH(input1);
+    const char x2 = DashXPH(input2);
+
+    if (x1 == desiredX) return input1;
+    else if (x2 == desiredX) return input2;
+    else return input1;
+}
+
+struct DashCandidateLayout
+{
+    std::string filename;
+    int rpm;
+    char xph;
+
+    DashCandidateLayout(const std::string& filename)
+    {
+        this->filename = filename;
+        this->rpm = DashRPM(filename);
+        this->xph = DashXPH(filename);
+    }
+};
+
+std::string DashBoardManager::determineLayoutFromDashboardMod(CacheEntryPtr& entry, std::string const& basename)
+{
+    App::GetCacheSystem()->LoadResource(entry);
+    Ogre::FileInfoListPtr filelist
+        = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(entry->resource_group, fmt::format("{}*.layout", basename));
+
+    if (filelist->empty())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("{}: No layout files found in dashboard '{}'", m_actor->ar_design_name, basename));
+        return "";
+    }
+
+    // Boat dashboards are separate from trucks and have no tags to evaluate.
+    if (m_actor->ar_driveable == BOAT)
+    {
+        return filelist->begin()->filename;
+    }
+
+    if (m_actor->ar_driveable == TRUCK)
+    {
+        return this->determineTruckLayoutFromDashboardMod(filelist);
+    }
+
+    return "";
+}
+
+std::string DashBoardManager::determineTruckLayoutFromDashboardMod(Ogre::FileInfoListPtr& filelist)
+{
+    // Algorithm:
+    // A. Consider only layouts with matching Xph tag, find best RPM match (see below).
+    // B. If no match found, consider also layouts without Xph tag, find best RPM match (see below).
+    // 
+    // Best RPM matching:
+    // 1. Consider just layouts with Xrpm tag, find one with with smallest RPM overshoot.
+    // 2. If all undershoot, take one with least undershoot and log a warning
+    // 3. If there's no layout with Xrpm tag, Consider layouts without Xrpm tag, pick random .
+    // ---------------------------------------------------------------------------------------
+
+    const int redlineRPM = (int)m_actor->ar_engine->getShiftUpRPM();
+    const char desiredX = App::gfx_speedo_imperial->getBool() ? 'm' : 'k';
+    std::vector<DashCandidateLayout> candidates;
+
+    for (Ogre::FileInfo& fileinfo : *filelist)
+    {
+        candidates.emplace_back(fileinfo.filename);
+    }
+
+    // A. Consider only layouts with matching Xph tag, find best RPM match (see above).
+    float least_overshoot = std::numeric_limits<float>::max(); DashCandidateLayout* overshoot_candidate = nullptr;
+    float least_undershoot = std::numeric_limits<float>::min(); DashCandidateLayout* undershoot_candidate = nullptr;
+    for (auto& candidate : candidates)
+    {
+        if (candidate.xph == desiredX)
+        {
+            float rpm_diff = (float)candidate.rpm - redlineRPM;
+            if (rpm_diff < 0 && rpm_diff < least_undershoot)
+            {
+                least_undershoot = rpm_diff;
+                undershoot_candidate = &candidate;
+            }
+            else if (rpm_diff >= 0 && rpm_diff < least_overshoot)
+            {
+                least_overshoot = rpm_diff;
+                overshoot_candidate = &candidate;
+            }
+        }
+    }
+
+    if (overshoot_candidate)
+    {
+        return overshoot_candidate->filename;
+    }
+    else if (undershoot_candidate)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("{}: No ideal dashboard found, using one with least RPM undershoot", m_actor->ar_design_name));
+        return undershoot_candidate->filename;
+    }
+
+    // B. If no match found, consider also layouts without Xph tag, find best RPM match (see above).
+    App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+        fmt::format("{}: Selected dashboard has no '{}ph' layouts, ignoring setting", m_actor->ar_design_name, desiredX));
+    least_overshoot = std::numeric_limits<float>::max(); overshoot_candidate = nullptr;
+    least_undershoot = std::numeric_limits<float>::min(); undershoot_candidate = nullptr;
+    for (auto& candidate : candidates)
+    {
+        float rpm_diff = (float)candidate.rpm - redlineRPM;
+        if (rpm_diff < 0 && rpm_diff < least_undershoot)
+        {
+            least_undershoot = rpm_diff;
+            undershoot_candidate = &candidate;
+        }
+        else if (rpm_diff >= 0 && rpm_diff < least_overshoot)
+        {
+            least_overshoot = rpm_diff;
+            overshoot_candidate = &candidate;
+        }
+    }
+
+    if (overshoot_candidate)
+    {
+        return overshoot_candidate->filename;
+    }
+    else if (undershoot_candidate)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("{}: No ideal dashboard found, using one with least RPM undershoot", m_actor->ar_design_name));
+        return undershoot_candidate->filename;
+    }
+
+    return filelist->begin()->filename; // If all else failed, just pick random.
+}
+
+void DashBoardManager::loadDashBoard(std::string const& filename, BitMask_t flags)
+{
+    // filename may be either '.layout' file (classic approach) or a new '.dashboard' mod.
+    // ----------------------------------------------------------------------------------
+
+    if (BITMASK_IS_0(flags, LOADDASHBOARD_SCREEN_HUD | LOADDASHBOARD_RTT_TEXTURE))
+        return; // Nothing to do.
+
+    std::string basename, ext, layoutfname;
+    Ogre::StringUtil::splitBaseFilename(filename, basename, ext);
+    if (ext == "dashboard")
+    {
+        CacheEntryPtr entry = App::GetCacheSystem()->FindEntryByFilename(LT_DashBoard, /*partial=*/false, filename);
+        if (!entry)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("DashboardManager: Could not find dashboard file '{}'", filename));
+            return;
+        }
+        App::GetCacheSystem()->LoadResource(entry);
+        layoutfname = this->determineLayoutFromDashboardMod(entry, basename);
+        // load dash fonts
+        Ogre::FileInfoListPtr filelist
+            = Ogre::ResourceGroupManager::getSingleton().findResourceFileInfo(entry->resource_group, fmt::format("{}*.resource", basename));
+        for (Ogre::FileInfo& fileinfo : *filelist)
+        {
+            MyGUI::ResourceManager::getInstance().load(fileinfo.filename);
+        }
+    }
+    else
+    {
+        layoutfname = filename;
+    }
+
+    if (layoutfname == "")
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("{}: Cannot load dashboard '{}' - no applicable layout file found", m_actor->ar_design_name, filename));
+        return;
+    }
+
+    if (BITMASK_IS_1(flags, LOADDASHBOARD_RTT_TEXTURE))
+    {
+        DashBoard* d = new DashBoard(this, layoutfname, /* textureLayer: */true);
+        d->setVisible(true);
+        m_dashboards.push_back(d);
+        if (BITMASK_IS_0(flags, LOADDASHBOARD_STACKABLE))
+        {
+            m_rtt_loaded = true;
+        }
+    }
+
+    if (BITMASK_IS_1(flags, LOADDASHBOARD_SCREEN_HUD))
+    {
+        DashBoard* d = new DashBoard(this, layoutfname, /* textureLayer: */false);
+        d->setVisible(true);
+        m_dashboards.push_back(d);
+        if (BITMASK_IS_0(flags, LOADDASHBOARD_STACKABLE))
+        {
+            m_hud_loaded = true;
+        }
+    }
 }
 
 void DashBoardManager::update(float dt)

@@ -175,6 +175,7 @@ void Turboprop::updateVisuals(RoR::GfxActor* gfx_m_actor)
     //smoke
     if (smokeNode)
     {
+        App::GetGfxScene()->AdjustParticleSystemTimeFactor(smokePS);
         smokeNode->setPosition(node_buf[nodeback].AbsPosition);
         ParticleEmitter* emit = smokePS->getEmitter(0);
         Vector3 dir = node_buf[nodeback].AbsPosition - node_buf[noderef].AbsPosition;

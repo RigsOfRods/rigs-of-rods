@@ -20,6 +20,7 @@
 #include "GUIUtils.h"
 
 #include "Actor.h"
+#include "Utils.h"
 
 #include "imgui_internal.h" // ImTextCharFromUtf8
 #include <regex>
@@ -331,13 +332,15 @@ void RoR::DrawGTextEdit(CVar* cvar, const char* label, Str<1000>& buf)
     }
 }
 
-void RoR::DrawGCombo(CVar* cvar, const char* label, const char* values)
+bool RoR::DrawGCombo(CVar* cvar, const char* label, const char* values)
 {
     int selection = cvar->getInt();
     if (ImGui::Combo(label, &selection, values))
     {
         cvar->setVal(selection);
+        return true;
     }
+    return false;
 }
 
 Ogre::TexturePtr RoR::FetchIcon(const char* name)
@@ -352,7 +355,7 @@ Ogre::TexturePtr RoR::FetchIcon(const char* name)
     return Ogre::TexturePtr(); // null
 }
 
-ImDrawList* RoR::GetImDummyFullscreenWindow()
+ImDrawList* RoR::GetImDummyFullscreenWindow(const std::string& name /* = "RoR_TransparentFullscreenWindow"*/)
 {
     ImVec2 screen_size = ImGui::GetIO().DisplaySize;
 
@@ -362,7 +365,7 @@ ImDrawList* RoR::GetImDummyFullscreenWindow()
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(screen_size);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0)); // Fully transparent background!
-    ImGui::Begin("RoR_TransparentFullscreenWindow", NULL, window_flags);
+    ImGui::Begin(name.c_str(), NULL, window_flags);
     ImDrawList* drawlist = ImGui::GetWindowDrawList();
     ImGui::End();
     ImGui::PopStyleColor(1); // WindowBg
@@ -411,14 +414,40 @@ void RoR::ImDrawEventHighlighted(events input_event)
     {
         col = App::GetGuiManager()->GetTheme().highlight_text_color;
     }
-    std::string text = App::GetInputEngine()->getKeyForCommand(input_event);
+    std::string text = App::GetInputEngine()->getEventCommandTrimmed(input_event);
     const ImVec2 PAD = ImVec2(2.f, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, PAD);
     ImGui::BeginChildFrame(ImGuiID(input_event), ImGui::CalcTextSize(text.c_str()) + PAD*2);
     ImGui::TextColored(col, "%s", text.c_str());
     ImGui::EndChildFrame();
     ImGui::PopStyleVar(); // FramePadding
+}
 
+bool RoR::ImDrawEventHighlightedButton(events input_event, bool* btn_hovered /*=nullptr*/, bool* btn_active /*=nullptr*/)
+{
+    ImVec4 col = ImGui::GetStyle().Colors[ImGuiCol_Text];
+    if (App::GetInputEngine()->getEventValue(input_event))
+    {
+        col = App::GetGuiManager()->GetTheme().highlight_text_color;
+    }
+    std::string text = App::GetInputEngine()->getEventCommandTrimmed(input_event);
+    const ImVec2 PAD = ImVec2(2.f, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, PAD);
+    ImGui::PushStyleColor(ImGuiCol_Text, col);
+    ImGui::PushID(input_event);
+    const bool retval = ImGui::Button(text.c_str());
+    if (btn_hovered != nullptr)
+    {
+        *btn_hovered = ImGui::IsItemHovered();
+    }
+    if (btn_active != nullptr)
+    {
+        *btn_active = ImGui::IsItemActive();
+    }
+    ImGui::PopID(); // input_event
+    ImGui::PopStyleColor(); // Text
+    ImGui::PopStyleVar(); // FramePadding
+    return retval;
 }
 
 void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
@@ -435,6 +464,13 @@ void RoR::ImDrawModifierKeyHighlighted(OIS::KeyCode key)
     ImGui::TextColored(col, "%s", text.c_str());
     ImGui::EndChildFrame();
     ImGui::PopStyleVar(); // FramePadding
+}
+
+ImVec2 RoR::ImCalcEventHighlightedSize(events input_event)
+{
+    std::string text = App::GetInputEngine()->getEventCommandTrimmed(input_event);
+    const ImVec2 PAD = ImVec2(2.f, 0.f);
+    return ImGui::CalcTextSize(text.c_str()) + PAD*2;
 }
 
 bool RoR::ImButtonHoldToConfirm(const std::string& btn_idstr, const bool smallbutton, const float time_limit)
@@ -478,5 +514,42 @@ bool RoR::ImButtonHoldToConfirm(const std::string& btn_idstr, const bool smallbu
         active_id = IMGUIID_INVALID;
     }
 
+    return false;
+}
+
+bool RoR::ImMoveTextInputCursorToEnd(const char* label)
+{
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    const ImGuiID id = window->GetID(label);
+    ImGuiContext& g = *GImGui;
+
+    // NB: we are only allowed to access 'edit_state' if we are the active widget.
+    ImGuiInputTextState* state = NULL;
+    if (g.InputTextState.ID != id)
+    {
+        return false;
+    }
+
+    state = &g.InputTextState;
+    // based on `ImGuiInputTextState::CursorClamp()`
+    state->Stb.cursor = state->CurLenW;
+    state->Stb.select_start = 0;
+    state->Stb.select_end = 0;
+
+    return true;
+}
+
+bool RoR::GetScreenPosFromWorldPos(Ogre::Vector3 const& world_pos, ImVec2& out_screen)
+{
+    ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+    World2ScreenConverter world2screen(
+        App::GetCameraManager()->GetCamera()->getViewMatrix(true), App::GetCameraManager()->GetCamera()->getProjectionMatrix(), Ogre::Vector2(screen_size.x, screen_size.y));
+    Ogre::Vector3 pos_xyz = world2screen.Convert(world_pos);
+    if (pos_xyz.z < 0.f)
+    {
+        out_screen.x = pos_xyz.x;
+        out_screen.y = pos_xyz.y;
+        return true;
+    }
     return false;
 }

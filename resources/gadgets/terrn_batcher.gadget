@@ -1,0 +1,18 @@
+; This is a .gadget mod - basically a script wrapped as a modcache entry.
+; The .gadget file must be present (even if empty) to get recognized.
+; The script must have same base filename, i.e. 'foo.gadget' -> 'foo.as'
+; Any extra include scripts or other resources can be bundled.
+; -----------------------------------------------------------------------
+
+; Name to display in Selector UI.
+gadget_name "TerrnBatcher (alpha)"
+
+; Authors (Syntax: <credit>, <forumID>, <name>, [<email>]) - multiple authors can be given.
+gadget_author "base script" 351 ohlidalp
+
+; Description to display in Selector UI - use repeatedly for multiline description (note the Loader UI only displays top 3 lines).
+gadget_description "Tool to merge static meshes & materials for FPS boost."
+gadget_description "PROTOTYPE: displays UI, implements selection but not the batching yet."
+
+; Category for Selector UI (300 = Generic gadgets, 301 = Actor gadgets, 302 = Terrain gadgets).
+gadget_category 302

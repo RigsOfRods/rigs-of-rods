@@ -28,6 +28,7 @@
 #include "RefCountingObjectPtr.h"
 
 #include <limits>
+#include <memory>
 #include <vector>
 
 #pragma once
@@ -37,8 +38,9 @@ namespace RoR
     typedef int ActorInstanceID_t; //!< Unique sequentially generated ID of an actor in session. Use `ActorManager::GetActorById()`
     static const ActorInstanceID_t ACTORINSTANCEID_INVALID = 0;
 
-    typedef int ScriptUnitId_t; //!< Unique sequentially generated ID of a loaded and running scriptin session. Use `ScriptEngine::getScriptUnit()`
-    static const ScriptUnitId_t SCRIPTUNITID_INVALID = -1;
+    typedef int ScriptUnitID_t; //!< Unique sequentially generated ID of a loaded and running scriptin session. Use `ScriptEngine::getScriptUnit()`
+    static const ScriptUnitID_t SCRIPTUNITID_INVALID = -1;
+    static const ScriptUnitID_t SCRIPTUNITID_DEFAULT = -2; //!< The script defined in .terrn2 [Scripts], or 'default.as' ~ classic behavior.
 
     typedef int PointidID_t; //!< index to `PointColDetector::hit_pointid_list`, use `RoR::POINTIDID_INVALID` as empty value.
     static const PointidID_t POINTIDID_INVALID = -1;
@@ -68,11 +70,19 @@ namespace RoR
     typedef int FlareID_t; //!< Index into `Actor::ar_flares`, use `RoR::FLAREID_INVALID` as empty value
     static const FlareID_t FLAREID_INVALID = -1;
 
-    typedef int ExhaustID_t; //!< Index into `Actor::exhausts`, use `RoR::EXHAUSTID_INVALID` as empty value
+    typedef int ExhaustID_t; //!< Index into `GfxActor::m_exhausts`, use `RoR::EXHAUSTID_INVALID` as empty value
     static const ExhaustID_t EXHAUSTID_INVALID = -1;
+
+    typedef int CParticleID_t; //!< Index into `GfxActor::m_cparticles`, use `RoR::CPARTICLEID_INVALID` as empty value
+    static const CParticleID_t CPARTICLEID_INVALID = -1;
 
     typedef int CommandkeyID_t; //!< Index into `Actor::ar_commandkeys` (BEWARE: indexed 1-MAX_COMMANDKEYS, 0 is invalid value, negative subscript of any size is acceptable, see `class CmdKeyArray` ).
     static const CommandkeyID_t COMMANDKEYID_INVALID = 0;
+
+    typedef int ScriptRetCode_t; //!< see enum `RoR::ScriptRetCode` - combines AngelScript codes and RoR internal codes.
+
+    typedef int TerrainEditorObjectID_t; //!< Offset into `RoR::TerrainObjectManager::m_editor_objects`, use `RoR::TERRAINEDITOROBJECTID_INVALID` as empty value.
+    static const TerrainEditorObjectID_t TERRAINEDITOROBJECTID_INVALID = -1;
 
     class  Actor;
     class  ActorManager;
@@ -97,7 +107,7 @@ namespace RoR
     class  DashBoardManager;
     class  DustPool;
     class  DiscordRpc;
-    class  EngineSim;
+    class  Engine;
     class  Flexable;
     class  FlexAirfoil;
     class  FlexBody;
@@ -110,6 +120,8 @@ namespace RoR
     class  GameContext;
     class  GameScript;
     class  GfxActor;
+    struct GenericDocument;
+    struct GenericDocContext;
     struct GfxCharacter;
     class  GfxEnvmap;
     class  GfxScene;
@@ -126,7 +138,9 @@ namespace RoR
     class  OutGauge;
     class  OverlayWrapper;
     class  Network;
+    struct ODefDocument;
     class  OgreSubsystem;
+    struct OTCDocument;
     struct PlatformUtils;
     class  PointColDetector;
     class  ProceduralManager;
@@ -144,7 +158,7 @@ namespace RoR
     class  ShadowManager;
     class  Skidmark;
     class  SkidmarkConfig;
-    struct SkinDef;
+    struct SkinDocument;
     class  SkinManager;
     class  SkyManager;
     class  SkyXManager;
@@ -158,12 +172,14 @@ namespace RoR
     class  TerrainEditor;
     class  TerrainGeometryManager;
     class  Terrain;
+    class  TerrainEditorObject;
     class  TerrainObjectManager;
     struct Terrn2Author;
-    struct Terrn2Def;
+    struct Terrn2Document;
     class  Terrn2Parser;
     struct Terrn2Telepoint;
     class  ThreadPool;
+    struct TObjDocument;
     class  TorqueCurve;
     struct TuneupDef;
     class  VehicleAI;
@@ -184,8 +200,8 @@ namespace RoR
     struct rotator_t;
     struct flare_t;
     struct rope_t;
-    struct exhaust_t;
-    struct cparticle_t;
+    struct Exhaust;
+    struct CParticle;
     struct collision_box_t;
     struct tie_t;
     struct hook_t;
@@ -193,8 +209,18 @@ namespace RoR
     struct client_t;
     struct authorinfo_t;
 
+    // File formats - see also separate `RigDef` namespace below.
+    typedef std::shared_ptr<ODefDocument> ODefDocumentPtr;
+    typedef std::shared_ptr<OTCDocument> OTCDocumentPtr;
+    typedef std::shared_ptr<SkinDocument> SkinDocumentPtr;
+    typedef std::shared_ptr<TObjDocument> TObjDocumentPtr;
+    typedef std::shared_ptr<Terrn2Document> Terrn2DocumentPtr;
+
     typedef RefCountingObjectPtr<Actor> ActorPtr;
     typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
+    typedef RefCountingObjectPtr<Engine> EnginePtr;
+    typedef RefCountingObjectPtr<GenericDocument> GenericDocumentPtr;
+    typedef RefCountingObjectPtr<GenericDocContext> GenericDocContextPtr;
     typedef RefCountingObjectPtr<LocalStorage> LocalStoragePtr;
     typedef RefCountingObjectPtr<ProceduralPoint> ProceduralPointPtr;
     typedef RefCountingObjectPtr<ProceduralObject> ProceduralObjectPtr;
@@ -204,10 +230,12 @@ namespace RoR
     typedef RefCountingObjectPtr<SoundScriptInstance> SoundScriptInstancePtr;
     typedef RefCountingObjectPtr<SoundScriptTemplate> SoundScriptTemplatePtr;
     typedef RefCountingObjectPtr<Terrain> TerrainPtr;
+    typedef RefCountingObjectPtr<TerrainEditorObject> TerrainEditorObjectPtr;
     typedef RefCountingObjectPtr<TuneupDef> TuneupDefPtr;
     typedef RefCountingObjectPtr<VehicleAI> VehicleAIPtr;
 
     typedef std::vector<ActorPtr> ActorPtrVec;
+    typedef std::vector<TerrainEditorObjectPtr> TerrainEditorObjectPtrVec;
 
     namespace GUI
     {
@@ -223,10 +251,9 @@ namespace RoR
         class  RepositorySelector;
         class  DirectionArrow;
         class  SceneMouse;
-        class  SimActorStats;
         class  SurveyMap;
         class  TopMenubar;
-        class  VehicleButtons;
+        class  VehicleInfoTPanel;
     }
 } // namespace RoR
 
@@ -238,6 +265,12 @@ namespace RoRnet
     struct ActorStreamRegister;
     struct ServerInfo;
     struct VehicleState;
+}
+
+namespace RigDef
+{
+    struct Document;
+    typedef std::shared_ptr<Document> DocumentPtr;
 }
 
 #ifdef USE_SOCKETW

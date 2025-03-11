@@ -408,6 +408,17 @@ void DocumentParser::UpdateString(const char c)
         line_pos++;
         break;
 
+    case '_':
+        if (partial_tok_type == PartialToken::STRING_NAKED
+            && options & GenericDocument::OPTION_NAKEDSTR_USCORES_TO_SPACES)
+        {
+            tok.push_back(' ');
+        }
+        else
+        {
+            tok.push_back(c);
+        }
+
     default:
         tok.push_back(c);
         line_pos++;
@@ -916,7 +927,14 @@ void DocumentParser::FlushStringishToken(RoR::TokenType type)
 void DocumentParser::FlushNumericToken()
 {
     tok.push_back('\0');
-    doc.tokens.push_back({ TokenType::NUMBER, (float)Ogre::StringConverter::parseReal(tok.data()) });
+    if (partial_tok_type == PartialToken::NUMBER_INTEGER)
+    {
+        doc.tokens.push_back({ TokenType::INT, (float)Ogre::StringConverter::parseInt(tok.data()) });
+    }
+    else
+    {
+        doc.tokens.push_back({ TokenType::FLOAT, (float)Ogre::StringConverter::parseReal(tok.data()) });
+    }
     tok.clear();
     partial_tok_type = PartialToken::NONE;
 }
@@ -1057,9 +1075,16 @@ void GenericDocument::saveToDataStream(Ogre::DataStreamPtr datastream)
             separator = ",";
             break;
 
-        case TokenType::NUMBER:
+        case TokenType::FLOAT:
             datastream->write(separator.data(), separator.size());
             snprintf(buf, BUF_MAX, "%f", tok.data);
+            datastream->write(buf, strlen(buf));
+            separator = ",";
+            break;
+
+        case TokenType::INT:
+            datastream->write(separator.data(), separator.size());
+            snprintf(buf, BUF_MAX, "%d", (int)tok.data);
             datastream->write(buf, strlen(buf));
             separator = ",";
             break;
@@ -1119,9 +1144,10 @@ bool GenericDocContext::seekNextLine()
     {
         this->moveNext();
     }
+    this->moveNext();
 
     // Skip comments and empty lines
-    while (!this->endOfFile() && !this->isTokString() && !this->isTokFloat() && !this->isTokBool() && !this->isTokKeyword())
+    while (!this->endOfFile() && (this->isTokComment(0) || this->isTokLineBreak(0)))
     {
         this->moveNext();
     }
@@ -1139,6 +1165,18 @@ int GenericDocContext::countLineArgs()
 
 // -----------------
 // Editing functions
+
+void GenericDocContext::appendTokens(int count)
+{
+    if (count <= 0)
+        return;
+
+    token_pos = (int)doc->tokens.size();
+    for (int i = 0; i < count; i++)
+    {
+        doc->tokens.push_back({ TokenType::NONE, 0.f });
+    }
+}
 
 bool GenericDocContext::insertToken(int offset)
 {

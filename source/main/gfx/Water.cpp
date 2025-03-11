@@ -36,21 +36,7 @@ using namespace RoR;
 static const int WAVEREZ = 100;
 
 Water::Water(Ogre::Vector3 terrn_size) :
-    m_map_size(terrn_size),
-    m_max_ampl(0),
-    m_water_visible(true),
-    m_waterplane_mesh_scale(1.0f),
-    m_refract_rtt_viewport(0),
-    m_reflect_rtt_viewport(0),
-    m_bottom_height(0),
-    m_water_height(0),
-    m_waterplane_node(0),
-    m_waterplane_force_update_pos(false),
-    m_frame_counter(0),
-    m_refract_rtt_target(0),
-    m_reflect_rtt_target(0),
-    m_reflect_cam(0),
-    m_refract_cam(0)
+    m_map_size(terrn_size)
 {
     //Ugh.. Why so ugly and hard to read
     m_reflect_listener.scene_mgr = App::GetGfxScene()->GetSceneManager();
@@ -525,8 +511,6 @@ float Water::CalcWavesHeight(Vector3 pos)
         return m_water_height;
     }
 
-    const float time_sec = (float)(App::GetAppContext()->GetOgreRoot()->getTimer()->getMilliseconds() * 0.001);
-
     // uh, some upper limit?!
     if (pos.y > m_water_height + m_max_ampl)
         return m_water_height;
@@ -542,7 +526,7 @@ float Water::CalcWavesHeight(Vector3 pos)
         float amp = std::min(m_wavetrain_defs[i].amplitude * waveheight, m_wavetrain_defs[i].maxheight);
         // now the main thing:
         // calculate the sinus with the values of the config file and add it to the result
-        result += amp * sin(Math::TWO_PI * ((time_sec * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength));
+        result += amp * sin(Math::TWO_PI * ((m_sim_time_counter * m_wavetrain_defs[i].wavespeed + m_wavetrain_defs[i].dir_sin * pos.x + m_wavetrain_defs[i].dir_cos * pos.z) / m_wavetrain_defs[i].wavelength));
     }
     // return the summed up waves
     return result;
@@ -624,10 +608,10 @@ void Water::UpdateReflectionPlane(float h)
 
 void Water::FrameStepWater(float dt)
 {
-    if (dt)
-    {
-        this->UpdateWater();
-    }
+    // Update even if game paused to account for camera movement (important for reflections).
+    // --------------------------------------------------------------------------------------
+    this->UpdateWater();
+    m_sim_time_counter += dt;
 }
 
 void Water::SetForcedCameraTransform(Ogre::Radian fovy, Ogre::Vector3 pos, Ogre::Quaternion rot)

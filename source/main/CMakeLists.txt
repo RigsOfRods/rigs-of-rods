@@ -17,7 +17,7 @@ set(SOURCE_FILES
         gameplay/CharacterFactory.{h,cpp}
         gameplay/ChatSystem.{h,cpp}
         gameplay/CruiseControl.cpp
-        gameplay/EngineSim.{h,cpp}
+        gameplay/Engine.{h,cpp}
         gameplay/Landusemap.{h,cpp}
         gameplay/RaceSystem.{h,cpp}
         gameplay/RepairMode.{h,cpp}
@@ -134,12 +134,10 @@ set(SOURCE_FILES
         gui/panels/GUI_MultiplayerSelector.{h,cpp}
         gui/panels/GUI_MultiplayerClientList.{h,cpp}
         gui/panels/GUI_NodeBeamUtils.{h,cpp}
-        gui/panels/GUI_SimActorStats.{h,cpp}
+        gui/panels/GUI_VehicleInfoTPanel.{h,cpp}
         gui/panels/GUI_ScriptMonitor.{h,cpp}
         gui/panels/GUI_SimPerfStats.{h,cpp}
         gui/panels/GUI_SurveyMap.{h,cpp}
-        gui/panels/GUI_VehicleDescription.{h,cpp}
-        gui/panels/GUI_VehicleButtons.{h,cpp}
         network/CurlHelpers.{h,cpp}
         network/DiscordRpc.{h,cpp}
         network/Network.{h,cpp}
@@ -237,6 +235,7 @@ if (ROR_USE_ANGELSCRIPT)
             scripting/bindings/ActorAngelscript.cpp
             scripting/bindings/CacheSystemAngelscript.cpp
             scripting/bindings/ConsoleAngelscript.cpp
+            scripting/bindings/EngineAngelscript.cpp
             scripting/bindings/GameScriptAngelscript.cpp
             scripting/bindings/GenericFileFormatAngelscript.cpp
             scripting/bindings/ImGuiAngelscript.cpp
@@ -511,6 +510,11 @@ endif ()
 fast_copy("${CMAKE_SOURCE_DIR}/resources/managed_materials" "${RUNTIME_OUTPUT_DIRECTORY}/resources/managed_materials")
 fast_copy("${CMAKE_SOURCE_DIR}/resources/fonts" "${RUNTIME_OUTPUT_DIRECTORY}/languages")
 fast_copy("${CMAKE_SOURCE_DIR}/languages" "${RUNTIME_OUTPUT_DIRECTORY}/languages")
+
+# TODO: Run fixup_bundle instead
+if (IS_DIRECTORY "${CMAKE_BINARY_DIR}/conan/bin")
+    file(COPY "${CMAKE_BINARY_DIR}/conan/bin/" DESTINATION "${CMAKE_BINARY_DIR}/bin/")
+endif ()
 
 
 #  Install targets

@@ -139,6 +139,8 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("addonpart");
     m_known_extensions.push_back("tuneup");
     m_known_extensions.push_back("assetpack");
+    m_known_extensions.push_back("dashboard");
+    m_known_extensions.push_back("gadget");
 
     // register the dirs
     m_content_dirs.push_back("mods");
@@ -181,32 +183,74 @@ void CacheSystem::LoadModCache(CacheValidity validity)
     m_loaded = true;
 }
 
-CacheEntryPtr CacheSystem::FindEntryByFilename(LoaderType type, bool partial, const std::string& _filename)
+CacheEntryPtr CacheSystem::FindEntryByFilename(LoaderType type, bool partial, const std::string& _filename_maybe_bundlequalified)
 {
-    std::string filename = _filename;
+    // "Bundle-qualified" format also specifies the ZIP/directory in modcache, i.e. "mybundle.zip:myactor.truck"
+    // Like the filename, the bundle name lookup is case-insensitive.
+    // -------------------------------------------------------------------------------------------------
+
+    std::string filename;
+    std::string bundlename;
+    SplitBundleQualifiedFilename(_filename_maybe_bundlequalified, bundlename, filename);
     StringUtil::toLowerCase(filename);
+    StringUtil::toLowerCase(bundlename);
     size_t partial_match_length = std::numeric_limits<size_t>::max();
     CacheEntryPtr partial_match = nullptr;
+    std::vector<CacheEntryPtr> log_candidates;
     for (CacheEntryPtr& entry : m_entries)
     {
         if ((type == LT_Terrain) != (entry->fext == "terrn2") ||
+            (type == LT_DashBoard) != (entry->fext == "dashboard") ||
             (type == LT_AllBeam && entry->fext == "skin"))
             continue;
 
         String fname = entry->fname;
         String fname_without_uid = entry->fname_without_uid;
+        String bname;
+        String _path_placeholder;
+        StringUtil::splitFilename(entry->resource_bundle_path, bname, _path_placeholder);
         StringUtil::toLowerCase(fname);
         StringUtil::toLowerCase(fname_without_uid);
+        StringUtil::toLowerCase(bname);
         if (fname == filename || fname_without_uid == filename)
-            return entry;
-
-        if (partial &&
+        {
+            if (bundlename == "" || bname == bundlename)
+            {
+                return entry;
+            }
+            else
+            {
+                log_candidates.push_back(entry);
+            }
+        }
+        else if (partial &&
             fname.length() < partial_match_length &&
             fname.find(filename) != std::string::npos)
         {
-            partial_match = entry;
-            partial_match_length = fname.length();
+            if (bundlename == "" || bname == bundlename)
+            {
+                partial_match = entry;
+                partial_match_length = fname.length();
+            }
+            else
+            {
+                log_candidates.push_back(entry);
+            }
         }
+    }
+
+    if (log_candidates.size() > 0)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+            fmt::format(_LC("CacheSystem", "Mod '{}' was not found in cache; candidates ({}) are:"), _filename_maybe_bundlequalified, log_candidates.size()));
+        for (CacheEntryPtr& entry: log_candidates)
+        {
+            std::string bundle_name, bundle_path;
+            StringUtil::toLowerCase(bundle_name);
+            Ogre::StringUtil::splitFilename(entry->resource_bundle_path, bundle_name, bundle_path);
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
+                fmt::format(_LC("CacheSystem", "* {}:{}"), bundle_name, entry->fname));
+        }   
     }
 
     return (partial) ? partial_match : nullptr;
@@ -752,6 +796,18 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
             FillAssetPackDetailInfo(entry, ds);
             new_entries.push_back(entry);
         }
+        else if (ext == "dashboard")
+        {
+            CacheEntryPtr entry = new CacheEntry();
+            FillDashboardDetailInfo(entry, ds);
+            new_entries.push_back(entry);
+        }
+        else if (ext == "gadget")
+        {
+            CacheEntryPtr entry = new CacheEntry();
+            FillGadgetDetailInfo(entry, ds);
+            new_entries.push_back(entry);
+        }
         else
         {
             CacheEntryPtr entry = new CacheEntry();
@@ -1135,11 +1191,16 @@ void CacheSystem::GenerateHashFromFilenames()
 
 void CacheSystem::FillTerrainDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds, Ogre::String fname)
 {
-    Terrn2Def def;
     Terrn2Parser parser;
-    parser.LoadTerrn2(def, ds);
+    Terrn2DocumentPtr def = parser.LoadTerrn2(ds);
+    if (!def)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Mod cache entry not populated - could not load terrain {}", ds->getName()));
+        return;
+    }
 
-    for (Terrn2Author& author : def.authors)
+    for (Terrn2Author& author : def->authors)
     {
         AuthorInfo a;
         a.id = -1;
@@ -1148,13 +1209,13 @@ void CacheSystem::FillTerrainDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPt
         entry->authors.push_back(a);
     }
 
-    entry->dname      = def.name;
-    entry->categoryid = def.category_id;
-    entry->uniqueid   = def.guid;
-    entry->version    = def.version;
+    entry->dname      = def->name;
+    entry->categoryid = def->category_id;
+    entry->uniqueid   = def->guid;
+    entry->version    = def->version;
 }
 
-void CacheSystem::FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDef>& skin_def)
+void CacheSystem::FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDocument>& skin_def)
 {
     if (!skin_def->author_name.empty())
     {
@@ -1239,6 +1300,90 @@ void CacheSystem::FillAssetPackDetailInfo(CacheEntryPtr &entry, Ogre::DataStream
     }
 }
 
+void CacheSystem::FillDashboardDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds)
+{
+    GenericDocumentPtr doc = new GenericDocument();
+    BitMask_t options = GenericDocument::OPTION_ALLOW_SLASH_COMMENTS;
+    doc->loadFromDataStream(ds, options);
+
+    GenericDocContextPtr ctx = new GenericDocContext(doc);
+    while (!ctx->endOfFile())
+    {
+        if (ctx->isTokKeyword() && ctx->getTokKeyword() == "dashboard_name" && ctx->isTokString(1))
+        {
+            entry->dname = ctx->getTokString(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "dashboard_description" && ctx->isTokString(1))
+        {
+            entry->description = ctx->getTokString(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "dashboard_category" && ctx->isTokInt(1))
+        {
+            entry->categoryid = ctx->getTokInt(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "dashboard_author")
+        {
+            int n = ctx->countLineArgs();
+            AuthorInfo author;
+            if (n > 1) { author.type = ctx->getTokString(1); }
+            if (n > 2) { author.id = ctx->getTokInt(2); }
+            if (n > 3) { author.name = ctx->getTokString(3); }
+            if (n > 4) { author.email = ctx->getTokString(4); }
+            entry->authors.push_back(author);
+        }
+
+        ctx->seekNextLine();
+    }
+
+}
+
+void CacheSystem::FillGadgetDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds)
+{
+    GenericDocumentPtr doc = new GenericDocument();
+    BitMask_t options 
+        = GenericDocument::OPTION_ALLOW_SLASH_COMMENTS 
+        | GenericDocument::OPTION_ALLOW_NAKED_STRINGS
+        | GenericDocument::OPTION_NAKEDSTR_USCORES_TO_SPACES;
+    doc->loadFromDataStream(ds, options);
+
+    GenericDocContextPtr ctx = new GenericDocContext(doc);
+    while (!ctx->endOfFile())
+    {
+        if (ctx->isTokKeyword() && ctx->getTokKeyword() == "gadget_name" && ctx->isTokString(1))
+        {
+            entry->dname = ctx->getTokString(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "gadget_description" && ctx->isTokString(1))
+        {
+            if (entry->description == "")
+            {
+                entry->description = ctx->getTokString(1);
+            }
+            else
+            {
+                entry->description += "\n" + ctx->getTokString(1);
+            }
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "gadget_category" && ctx->isTokInt(1))
+        {
+            entry->categoryid = ctx->getTokInt(1);
+        }
+        else if (ctx->isTokKeyword() && ctx->getTokKeyword() == "gadget_author")
+        {
+            int n = ctx->countLineArgs();
+            AuthorInfo author;
+            if (n > 1) { author.type = ctx->getTokString(1); }
+            if (n > 2) { author.id = ctx->getTokInt(2); }
+            if (n > 3) { author.name = ctx->getTokString(3); }
+            if (n > 4) { author.email = ctx->getTokString(4); }
+            entry->authors.push_back(author);
+        }
+
+        ctx->seekNextLine();
+    }
+
+}
+
 void CacheSystem::FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneup_def)
 {
     if (!tuneup_def->author_name.empty())
@@ -1297,46 +1442,6 @@ void CacheSystem::LoadAssetPack(CacheEntryPtr& target_entry, Ogre::String const 
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING, 
             fmt::format(_L("Asset pack '{}' (requested by '{}') not found"), assetpack_filename, target_entry->fname));
     }
-}
-
-bool CacheSystem::CheckResourceLoaded(Ogre::String & filename)
-{
-    Ogre::String group = "";
-    return CheckResourceLoaded(filename, group);
-}
-
-bool CacheSystem::CheckResourceLoaded(Ogre::String & filename, Ogre::String& group)
-{
-    try
-    {
-        // check if we already loaded it via ogre ...
-        if (ResourceGroupManager::getSingleton().resourceExistsInAnyGroup(filename))
-        {
-            group = ResourceGroupManager::getSingleton().findGroupContainingResource(filename);
-            return true;
-        }
-
-        for (auto& entry : m_entries)
-        {
-            // case insensitive comparison
-            String fname = entry->fname;
-            String fname_without_uid = entry->fname_without_uid;
-            StringUtil::toLowerCase(fname);
-            StringUtil::toLowerCase(filename);
-            StringUtil::toLowerCase(fname_without_uid);
-            if (fname == filename || fname_without_uid == filename)
-            {
-                // we found the file, load it
-                LoadResource(entry);
-                filename = entry->fname;
-                group = entry->resource_group;
-                return !group.empty() && ResourceGroupManager::getSingleton().resourceExists(group, filename);
-            }
-        }
-    }
-    catch (Ogre::Exception) {} // Already logged by OGRE
-
-    return false;
 }
 
 static bool CheckAndReplacePathIgnoreCase(const CacheEntryPtr& entry, CVar* dir, const std::string& dir_label, std::string& out_rgname)
@@ -1476,6 +1581,16 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
             ResourceGroupManager::getSingleton().addResourceLocation(
                 entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
             App::GetContentManager()->InitManagedMaterials(group);
+        }
+        else if (entry->fext == "gadget")
+        {
+            // This is a .gadget bundle - use `inGlobalPool=false` to prevent resource name conflicts.
+            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
+            ResourceGroupManager::getSingleton().addResourceLocation(
+                entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
+            App::GetContentManager()->InitManagedMaterials(group);
+            // Allow using builtin include scripts
+            App::GetContentManager()->AddResourcePack(ContentManager::ResourcePack::SCRIPTS, group);
         }
         else
         {
@@ -2134,6 +2249,10 @@ size_t CacheSystem::Query(CacheQuery& query)
             add = (query.cqy_filter_type == LT_Tuneup);
         else if (entry->fext == "assetpack")
             add = (query.cqy_filter_type == LT_AssetPack);
+        else if (entry->fext == "dashboard")
+            add = (query.cqy_filter_type == LT_DashBoard);
+        else if (entry->fext == "gadget")
+            add = (query.cqy_filter_type == LT_Gadget);
         else if (entry->fext == "truck")
             add = (query.cqy_filter_type == LT_AllBeam || query.cqy_filter_type == LT_Vehicle || query.cqy_filter_type == LT_Truck);
         else if (entry->fext == "car")

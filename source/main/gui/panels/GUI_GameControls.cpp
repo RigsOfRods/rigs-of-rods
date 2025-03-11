@@ -55,7 +55,7 @@ void GameControls::Draw()
                 m_active_buffer = keys_pressed;
             }
             this->ApplyChanges();
-            App::GetInputEngine()->resetKeys(); // Do not leak the pressed keys to gameplay.
+            App::GetInputEngine()->resetKeysAndMouseButtons(); // Do not leak the pressed keys to gameplay.
         }
         else
         {

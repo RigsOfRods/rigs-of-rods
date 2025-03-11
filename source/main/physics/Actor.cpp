@@ -35,7 +35,7 @@
 #include "DashBoardManager.h"
 #include "Differentials.h"
 #include "DynamicCollisions.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "ErrorUtils.h"
 #include "FlexAirfoil.h"
 #include "FlexBody.h"
@@ -69,6 +69,7 @@
 #include "VehicleAI.h"
 #include "Water.h"
 #include <fmt/format.h>
+#include "half/half.hpp"
 
 #include <sstream>
 #include <iomanip>
@@ -123,12 +124,6 @@ void Actor::dispose()
     ar_num_soundsources = 0;
 #endif // USE_OPENAL
 
-    if (ar_engine != nullptr)
-    {
-        delete ar_engine;
-        ar_engine = nullptr;
-    }
-
     if (ar_autopilot != nullptr)
     {
         delete ar_autopilot;
@@ -143,6 +138,7 @@ void Actor::dispose()
         delete m_replay_handler;
     m_replay_handler = nullptr;
 
+    ar_engine = nullptr; // RefCountingObjectPtr<> will handle the cleanup.
     ar_vehicle_ai = nullptr; // RefCountingObjectPtr<> will handle the cleanup.
 
     // remove all scene nodes
@@ -263,54 +259,6 @@ void Actor::dispose()
         }
     }
     this->ar_flares.clear();
-
-    // delete exhausts
-    for (std::vector<exhaust_t>::iterator it = exhausts.begin(); it != exhausts.end(); it++)
-    {
-        try
-        {
-            if (it->smokeNode)
-            {
-                it->smokeNode->removeAndDestroyAllChildren();
-                App::GetGfxScene()->GetSceneManager()->destroySceneNode(it->smokeNode);
-            }
-            if (it->smoker)
-            {
-                it->smoker->removeAllAffectors();
-                it->smoker->removeAllEmitters();
-                App::GetGfxScene()->GetSceneManager()->destroyParticleSystem(it->smoker);
-            }
-        }
-        catch (...)
-        {
-            HandleGenericException(fmt::format("Actor::dispose(); instanceID:{}, streamID:{}, filename:{}; deleting exhaust {}/{}.",
-                ar_instance_id, ar_net_stream_id, ar_filename, std::distance(exhausts.begin(), it), exhausts.size()), HANDLEGENERICEXCEPTION_LOGFILE);
-        }
-    }
-
-    // delete custom particles
-    for (int i = 0; i < ar_num_custom_particles; i++)
-    {
-        try
-        {
-            if (ar_custom_particles[i].snode)
-            {
-                ar_custom_particles[i].snode->removeAndDestroyAllChildren();
-                App::GetGfxScene()->GetSceneManager()->destroySceneNode(ar_custom_particles[i].snode);
-            }
-            if (ar_custom_particles[i].psys)
-            {
-                ar_custom_particles[i].psys->removeAllAffectors();
-                ar_custom_particles[i].psys->removeAllEmitters();
-                App::GetGfxScene()->GetSceneManager()->destroyParticleSystem(ar_custom_particles[i].psys);
-            }
-        }
-        catch (...)
-        {
-            HandleGenericException(fmt::format("Actor::dispose(); instanceID:{}, streamID:{}, filename:{}; deleting custom particle {}/{}.",
-                ar_instance_id, ar_net_stream_id, ar_filename, i, ar_num_custom_particles), HANDLEGENERICEXCEPTION_LOGFILE);
-        }
-    }
 
     // delete Rails
     for (std::vector<RailGroup*>::iterator it = m_railgroups.begin(); it != m_railgroups.end(); it++)
@@ -564,8 +512,8 @@ void Actor::calcNetwork()
         App::GetGameContext()->GetActorManager()->UpdateNetTimeOffset(ar_net_source_id, +1);
     }
 
-    short* sp1 = (short*)(netb1 + sizeof(float) * 3);
-    short* sp2 = (short*)(netb2 + sizeof(float) * 3);
+    half_float::half* halfb1 = reinterpret_cast<half_float::half*>(netb1 + sizeof(float) * 3);
+    half_float::half* halfb2 = reinterpret_cast<half_float::half*>(netb2 + sizeof(float) * 3);
     Vector3 p1ref = Vector3::ZERO;
     Vector3 p2ref = Vector3::ZERO;
     Vector3 p1 = Vector3::ZERO;
@@ -588,18 +536,14 @@ void Actor::calcNetwork()
         }
         else
         {
-            // all other nodes are compressed:
-            // short int compared to previous node
-            p1.x = (float)(sp1[(i - 1) * 3 + 0]) / m_net_node_compression;
-            p1.y = (float)(sp1[(i - 1) * 3 + 1]) / m_net_node_compression;
-            p1.z = (float)(sp1[(i - 1) * 3 + 2]) / m_net_node_compression;
-            p1 = p1 + p1ref;
+            // all other nodes are compressed as half-floats (2 bytes)
+            const int bufpos = (i - 1) * 3;
+            const Vector3 p1rel(halfb1[bufpos + 0], halfb1[bufpos + 1], halfb1[bufpos + 2]);
+            const Vector3 p2rel(halfb2[bufpos + 0], halfb2[bufpos + 1], halfb2[bufpos + 2]);
 
-            p2.x = (float)(sp2[(i - 1) * 3 + 0]) / m_net_node_compression;
-            p2.y = (float)(sp2[(i - 1) * 3 + 1]) / m_net_node_compression;
-            p2.z = (float)(sp2[(i - 1) * 3 + 2]) / m_net_node_compression;
-            p2 = p2 + p2ref;
-        }
+            p1 = p1ref + p1rel;
+            p2 = p2ref + p2rel;
+        }        
 
         // linear interpolation
         ar_nodes[i].AbsPosition = p1 + tratio * (p2 - p1);
@@ -684,11 +628,11 @@ void Actor::calcNetwork()
         bool contact = ((flagmask & NETMASK_ENGINE_CONT) != 0);
         bool running = ((flagmask & NETMASK_ENGINE_RUN) != 0);
 
-        ar_engine->PushNetworkState(engspeed, engforce, engclutch, gear, running, contact, automode);
+        ar_engine->pushNetworkState(engspeed, engforce, engclutch, gear, running, contact, automode);
     }
 
     // set particle cannon
-    if (((flagmask & NETMASK_PARTICLE) != 0) != m_custom_particles_enabled)
+    if (((flagmask & NETMASK_PARTICLE) != 0) != ar_cparticles_active)
         toggleCustomParticles();
 
     m_antilockbrake = flagmask & NETMASK_ALB_ACTIVE;
@@ -1340,6 +1284,30 @@ void Actor::resetPosition(Ogre::Vector3 translation, bool setInitPosition)
     calculateAveragePosition();
 }
 
+void Actor::softRespawn(Ogre::Vector3 spawnpos, Ogre::Quaternion spawnrot)
+{
+    // Perform a hard reset (detach any linked actors etc...)
+    this->SyncReset(/*reset_position:*/ false);
+
+    // Move the actor to position
+    ar_origin = spawnpos;
+    for (NodeNum_t i = 0; i < ar_num_nodes; i++)
+    {
+        ar_nodes[i].AbsPosition = spawnpos + ar_nodes_spawn_offsets[i];
+        ar_nodes[i].RelPosition = ar_nodes_spawn_offsets[i];
+        ar_nodes[i].Forces = Ogre::Vector3::ZERO;
+        ar_nodes[i].Velocity = Ogre::Vector3::ZERO;
+    }
+
+    // Apply spawn position & spawn rotation
+    // (code taken as-is from `ActorManager::CreateNewActor()`)
+    for (NodeNum_t i = 0; i < ar_num_nodes; i++)
+    {
+        ar_nodes[i].AbsPosition = spawnpos + spawnrot * (ar_nodes[i].AbsPosition - spawnpos);
+        ar_nodes[i].RelPosition = ar_nodes[i].AbsPosition - ar_origin;
+    };
+}
+
 void Actor::mouseMove(NodeNum_t node, Vector3 pos, float force)
 {
     m_mouse_grab_node = node;
@@ -1472,7 +1440,7 @@ void Actor::toggleTransferCaseGearRatio()
         auto gear_ratios = &m_transfer_case->tr_gear_ratios;
         std::rotate(gear_ratios->begin(), gear_ratios->begin() + 1, gear_ratios->end());
 
-        ar_engine->SetTCaseRatio(m_transfer_case->tr_gear_ratios[0]);
+        ar_engine->setTCaseRatio(m_transfer_case->tr_gear_ratios[0]);
     }
 }
 
@@ -1682,9 +1650,9 @@ void Actor::SyncReset(bool reset_position)
     {
         if (App::sim_spawn_running->getBool())
         {
-            ar_engine->StartEngine();
+            ar_engine->startEngine();
         }
-        ar_engine->SetWheelSpin(0.0f);
+        ar_engine->setWheelSpin(0.0f);
     }
 
     int num_axle_diffs = (m_transfer_case && m_transfer_case->tr_4wd_mode) ? m_num_axle_diffs + 1 : m_num_axle_diffs;
@@ -1950,7 +1918,15 @@ void Actor::sendStreamSetup()
     reg.status = 0;
     reg.type = 0;
     reg.time = App::GetGameContext()->GetActorManager()->GetNetTime();
-    strncpy(reg.name, ar_filename.c_str(), 128);
+
+    // Send the filename in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
+    std::string bname;
+    std::string bpath;
+    Ogre::StringUtil::splitFilename(m_used_actor_entry->resource_bundle_path, bname, bpath);
+    std::string bq_filename = fmt::format("{}:{}", bname, ar_filename);
+    strncpy(reg.name, bq_filename.c_str(), 128);
+    
+    // Skin and sectionconfig
     if (m_used_skin_entry != nullptr)
     {
         strncpy(reg.skin, m_used_skin_entry->dname.c_str(), 60);
@@ -1981,7 +1957,7 @@ void Actor::sendStreamData()
         exit(126);
     }
 
-    char send_buffer[8192] = {0};
+    char send_buffer[RORNET_MAX_MESSAGE_LENGTH] = {0};
 
     unsigned int packet_len = 0;
 
@@ -1995,17 +1971,17 @@ void Actor::sendStreamData()
         send_oob->time = App::GetGameContext()->GetActorManager()->GetNetTime();
         if (ar_engine)
         {
-            send_oob->engine_speed = ar_engine->GetEngineRpm();
-            send_oob->engine_force = ar_engine->GetAcceleration();
-            send_oob->engine_clutch = ar_engine->GetClutch();
-            send_oob->engine_gear = ar_engine->GetGear();
+            send_oob->engine_speed = ar_engine->getRPM();
+            send_oob->engine_force = ar_engine->getAcc();
+            send_oob->engine_clutch = ar_engine->getClutch();
+            send_oob->engine_gear = ar_engine->getGear();
 
             if (ar_engine->hasContact())
                 send_oob->flagmask += NETMASK_ENGINE_CONT;
             if (ar_engine->isRunning())
                 send_oob->flagmask += NETMASK_ENGINE_RUN;
 
-            switch (ar_engine->GetAutoShiftMode())
+            switch (ar_engine->getAutoMode())
             {
             case RoR::SimGearboxMode::AUTO: send_oob->flagmask += NETMASK_ENGINE_MODE_AUTOMATIC;
                 break;
@@ -2066,16 +2042,16 @@ void Actor::sendStreamData()
 
         ptr += sizeof(float) * 3;// plus 3 floats from above
 
-        // then copy the other nodes into a compressed short format
-        short* sbuf = (short*)ptr;
+        // then copy the other nodes into a compressed half_float format
+        half_float::half* sbuf = (half_float::half*)ptr;
         for (i = 1; i < m_net_first_wheel_node; i++)
         {
-            Vector3 relpos = ar_nodes[i].AbsPosition - refpos;
-            sbuf[(i - 1) * 3 + 0] = (short int)(relpos.x * m_net_node_compression);
-            sbuf[(i - 1) * 3 + 1] = (short int)(relpos.y * m_net_node_compression);
-            sbuf[(i - 1) * 3 + 2] = (short int)(relpos.z * m_net_node_compression);
+            Ogre::Vector3 relpos = ar_nodes[i].AbsPosition - ar_nodes[0].AbsPosition;
+            sbuf[(i-1) * 3 + 0] = static_cast<half_float::half>(relpos.x);
+            sbuf[(i-1) * 3 + 1] = static_cast<half_float::half>(relpos.y);
+            sbuf[(i-1) * 3 + 2] = static_cast<half_float::half>(relpos.z);
 
-            ptr += sizeof(short int) * 3; // increase pointer
+            ptr += sizeof(half_float::half) * 3; // increase pointer
         }
 
         // then to the wheels
@@ -2166,7 +2142,7 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
     // torque
     if (ar_engine && hydrobeam.hb_anim_flags & ANIM_FLAG_TORQUE)
     {
-        float torque = ar_engine->GetCrankFactor();
+        float torque = ar_engine->getCrankFactor();
         if (torque <= 0.0f)
             torque = 0.0f;
         if (torque >= ar_anim_previous_crank)
@@ -2184,7 +2160,7 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
     if (ar_engine && (hydrobeam.hb_anim_flags & ANIM_FLAG_SHIFTER) && hydrobeam.hb_anim_param == 3.0f)
     {
 
-        int shifter = ar_engine->GetGear();
+        int shifter = ar_engine->getGear();
         if (shifter > m_previous_gear)
         {
             cstate = 1.0f;
@@ -2218,7 +2194,7 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
     // shifterman1, left/right
     if (ar_engine && (hydrobeam.hb_anim_flags & ANIM_FLAG_SHIFTER) && hydrobeam.hb_anim_param == 1.0f)
     {
-        int shifter = ar_engine->GetGear();
+        int shifter = ar_engine->getGear();
         if (!shifter)
         {
             cstate = -0.5f;
@@ -2237,7 +2213,7 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
     // shifterman2, up/down
     if (ar_engine && (hydrobeam.hb_anim_flags & ANIM_FLAG_SHIFTER) && hydrobeam.hb_anim_param == 2.0f)
     {
-        int shifter = ar_engine->GetGear();
+        int shifter = ar_engine->getGear();
         cstate = 0.5f;
         if (shifter < 0)
         {
@@ -2253,7 +2229,7 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
     // shifterlinear, to amimate cockpit gearselect gauge and autotransmission stick
     if (ar_engine && (hydrobeam.hb_anim_flags & ANIM_FLAG_SHIFTER) && hydrobeam.hb_anim_param == 4.0f)
     {
-        int shifter = ar_engine->GetGear();
+        int shifter = ar_engine->getGear();
         int numgears = ar_engine->getNumGears();
         cstate -= (shifter + 2.0) / (numgears + 2.0);
         div++;
@@ -2278,7 +2254,7 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
     // engine tacho ( scales with maxrpm, default is 3500 )
     if (ar_engine && hydrobeam.hb_anim_flags & ANIM_FLAG_TACHO)
     {
-        float tacho = ar_engine->GetEngineRpm() / ar_engine->getMaxRPM();
+        float tacho = ar_engine->getRPM() / ar_engine->getShiftUpRPM();
         cstate -= tacho;
         div++;
     }
@@ -2286,7 +2262,7 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
     // turbo
     if (ar_engine && hydrobeam.hb_anim_flags & ANIM_FLAG_TURBO)
     {
-        float turbo = ar_engine->GetTurboPsi() * 3.34;
+        float turbo = ar_engine->getTurboPSI() * 3.34;
         cstate -= turbo / 67.0f;
         div++;
     }
@@ -2301,7 +2277,7 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
     // accelerator
     if (ar_engine && hydrobeam.hb_anim_flags & ANIM_FLAG_ACCEL)
     {
-        float accel = ar_engine->GetAcceleration();
+        float accel = ar_engine->getAcc();
         cstate -= accel + 0.06f;
         //( small correction, get acc is nver smaller then 0.06.
         div++;
@@ -2310,7 +2286,7 @@ void Actor::CalcAnimators(hydrobeam_t const& hydrobeam, float &cstate, int &div)
     // clutch
     if (ar_engine && hydrobeam.hb_anim_flags & ANIM_FLAG_CLUTCH)
     {
-        float clutch = ar_engine->GetClutch();
+        float clutch = ar_engine->getClutch();
         cstate -= fabs(1.0f - clutch);
         div++;
     }
@@ -3171,20 +3147,22 @@ void Actor::setLightStateMask(BitMask_t lightmask)
     m_lightmask = lightmask;
 }
 
+void Actor::importLightStateMask(BitMask_t lightmask)
+{
+    // Override incoming '0' bits where "no import" is set.
+    BITMASK_SET_1(lightmask, m_lightmask & m_flaregroups_no_import);
+    // Override incoming '1' bits where "no import" is set.
+    BITMASK_SET_0(lightmask, ~m_lightmask & m_flaregroups_no_import);
+
+    this->setLightStateMask(lightmask);
+}
+
 void Actor::toggleCustomParticles()
 {
     if (ar_state == ActorState::DISPOSED)
         return;
 
-    m_custom_particles_enabled = !m_custom_particles_enabled;
-    for (int i = 0; i < ar_num_custom_particles; i++)
-    {
-        ar_custom_particles[i].active = !ar_custom_particles[i].active;
-        for (int j = 0; j < ar_custom_particles[i].psys->getNumEmitters(); j++)
-        {
-            ar_custom_particles[i].psys->getEmitter(j)->setEnabled(ar_custom_particles[i].active);
-        }
-    }
+    ar_cparticles_active = !ar_cparticles_active;
 
     //ScriptEvent - Particle Toggle
     TRIGGER_EVENT_ASYNC(SE_TRUCK_CPARTICLES_TOGGLE, ar_instance_id);
@@ -3227,41 +3205,13 @@ void Actor::updateVisual(float dt)
     }
 #endif //openAL
 
-    // update exhausts
-    // TODO: Move to GfxActor, don't forget dt*m_simulation_speed
-    if (ar_engine && exhausts.size() > 0)
-    {
-        std::vector<exhaust_t>::iterator it;
-        for (it = exhausts.begin(); it != exhausts.end(); it++)
-        {
-            if (!it->smoker)
-                continue;
-            Vector3 dir = ar_nodes[it->emitterNode].AbsPosition - ar_nodes[it->directionNode].AbsPosition;
-            //			dir.normalise();
-            ParticleEmitter* emit = it->smoker->getEmitter(0);
-            it->smokeNode->setPosition(ar_nodes[it->emitterNode].AbsPosition);
-            emit->setDirection(dir);
-            if (!m_disable_smoke && ar_engine->GetSmoke() != -1.0)
-            {
-                emit->setEnabled(true);
-                emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.02 + ar_engine->GetSmoke() * 0.06));
-                emit->setTimeToLive((0.02 + ar_engine->GetSmoke() * 0.06) / 0.04);
-            }
-            else
-            {
-                emit->setEnabled(false);
-            }
-            emit->setParticleVelocity(1.0 + ar_engine->GetSmoke() * 2.0, 2.0 + ar_engine->GetSmoke() * 3.0);
-        }
-    }
-
     // Wings (only physics, graphics are updated in GfxActor)
     float autoaileron = 0;
     float autorudder = 0;
     float autoelevator = 0;
     if (ar_autopilot)
     {
-        ar_autopilot->UpdateIls(App::GetGameContext()->GetTerrain()->getObjectManager()->GetLocalizers());
+        ar_autopilot->UpdateIls();
         autoaileron = ar_autopilot->getAilerons();
         autorudder = ar_autopilot->getRudder();
         autoelevator = ar_autopilot->getElevator();
@@ -3358,6 +3308,7 @@ void Actor::AddInterActorBeam(beam_t* beam, ActorPtr other, ActorLinkingRequestT
 void Actor::RemoveInterActorBeam(beam_t* beam, ActorLinkingRequestType type)
 {
     ROR_ASSERT(beam->bm_locked_actor);
+    ROR_ASSERT(beam->bm_locked_actor->ar_state != ActorState::DISPOSED);
     ActorPtr other = beam->bm_locked_actor;
     beam->bm_locked_actor = nullptr;
 
@@ -3384,17 +3335,22 @@ void Actor::RemoveInterActorBeam(beam_t* beam, ActorLinkingRequestType type)
         for (ActorPtr& actor : this->ar_linked_actors)
             actor->DetermineLinkedActors();
 
-        other->DetermineLinkedActors();
-        for (ActorPtr& actor : other->ar_linked_actors)
-            actor->DetermineLinkedActors();
-
-        // Reset toggled states.
-        other->ar_physics_paused = false;
-        other->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
-        for (ActorPtr& actor : other->ar_linked_actors)
+        // This should never fail (a disposing actor should disconnect everything first)
+        // but there seems to be a bug at the moment.
+        if (other->ar_state != ActorState::DISPOSED)
         {
-            actor->ar_physics_paused = false;
-            actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
+            other->DetermineLinkedActors();
+            for (ActorPtr& actor : other->ar_linked_actors)
+                actor->DetermineLinkedActors();
+
+            // Reset toggled states.
+            other->ar_physics_paused = false;
+            other->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
+            for (ActorPtr& actor : other->ar_linked_actors)
+            {
+                actor->ar_physics_paused = false;
+                actor->GetGfxActor()->SetDebugView(DebugViewType::DEBUGVIEW_NONE);
+            }
         }
 
         // Let scripts know.
@@ -3894,7 +3850,7 @@ void Actor::updateDashBoards(float dt)
     if (ar_engine)
     {
         // gears first
-        int gear = ar_engine->GetGear();
+        int gear = ar_engine->getGear();
         ar_dashboard->setInt(DD_ENGINE_GEAR, gear);
 
         int numGears = (int)ar_engine->getNumGears();
@@ -3914,13 +3870,13 @@ void Actor::updateDashBoards(float dt)
 
         // R N D 2 1 String
         int cg = ar_engine->getAutoShift();
-        if (cg != EngineSim::MANUALMODE)
+        if (cg != Engine::MANUALMODE)
         {
-            str = ((cg == EngineSim::REAR) ? "#ffffff" : "#868686") + String("R\n");
-            str += ((cg == EngineSim::NEUTRAL) ? "#ff0012" : "#8a000a") + String("N\n");
-            str += ((cg == EngineSim::DRIVE) ? "#12ff00" : "#248c00") + String("D\n");
-            str += ((cg == EngineSim::TWO) ? "#ffffff" : "#868686") + String("2\n");
-            str += ((cg == EngineSim::ONE) ? "#ffffff" : "#868686") + String("1");
+            str = ((cg == Engine::REAR) ? "#ffffff" : "#868686") + String("R\n");
+            str += ((cg == Engine::NEUTRAL) ? "#ff0012" : "#8a000a") + String("N\n");
+            str += ((cg == Engine::DRIVE) ? "#12ff00" : "#248c00") + String("D\n");
+            str += ((cg == Engine::TWO) ? "#ffffff" : "#868686") + String("2\n");
+            str += ((cg == Engine::ONE) ? "#ffffff" : "#868686") + String("1");
         }
         else
         {
@@ -3934,19 +3890,19 @@ void Actor::updateDashBoards(float dt)
         ar_dashboard->setInt(DD_ENGINE_AUTO_GEAR, autoGear);
 
         // clutch
-        float clutch = ar_engine->GetClutch();
+        float clutch = ar_engine->getClutch();
         ar_dashboard->setFloat(DD_ENGINE_CLUTCH, clutch);
 
         // accelerator
-        float acc = ar_engine->GetAcceleration();
+        float acc = ar_engine->getAcc();
         ar_dashboard->setFloat(DD_ACCELERATOR, acc);
 
         // RPM
-        float rpm = ar_engine->GetEngineRpm();
+        float rpm = ar_engine->getRPM();
         ar_dashboard->setFloat(DD_ENGINE_RPM, rpm);
 
         // turbo
-        float turbo = ar_engine->GetTurboPsi() * 3.34f; // MAGIC :/
+        float turbo = ar_engine->getTurboPSI() * 3.34f; // MAGIC :/
         ar_dashboard->setFloat(DD_ENGINE_TURBO, turbo);
 
         // ignition
@@ -3958,7 +3914,7 @@ void Actor::updateDashBoards(float dt)
         ar_dashboard->setBool(DD_ENGINE_BATTERY, batt);
 
         // clutch warning
-        bool cw = (fabs(ar_engine->GetTorque()) >= ar_engine->GetClutchForce() * 10.0f);
+        bool cw = (fabs(ar_engine->getTorque()) >= ar_engine->getClutchForce() * 10.0f);
         ar_dashboard->setBool(DD_ENGINE_CLUTCH_WARNING, cw);
     }
 
@@ -4166,8 +4122,8 @@ void Actor::updateDashBoards(float dt)
 
         if (hasEngine)
         {
-            hasturbo = ar_engine->HasTurbo();
-            autogearVisible = (ar_engine->getAutoShift() != EngineSim::MANUALMODE);
+            hasturbo = ar_engine->hasTurbo();
+            autogearVisible = (ar_engine->getAutoShift() != Engine::MANUALMODE);
         }
 
         ar_dashboard->setEnabled(DD_ENGINE_TURBO, hasturbo);
@@ -4355,23 +4311,23 @@ void Actor::calculateLocalGForces()
 void Actor::engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue)
 {
     // engineNumber tells us which engine
-    EngineSim* e = ar_engine; // placeholder: actors do not have multiple engines yet
+    EnginePtr e = ar_engine; // placeholder: actors do not have multiple engines yet
 
     switch (type)
     {
     case TRG_ENGINE_CLUTCH:
         if (e)
-            e->SetClutch(triggerValue);
+            e->setClutch(triggerValue);
         break;
     case TRG_ENGINE_BRAKE:
         ar_brake = triggerValue;
         break;
     case TRG_ENGINE_ACC:
         if (e)
-            e->SetAcceleration(triggerValue);
+            e->setAcc(triggerValue);
         break;
     case TRG_ENGINE_RPM:
-        // TODO: Implement setTargetRPM in the EngineSim.cpp
+        // TODO: Implement setTargetRPM in the Engine.cpp
         break;
     case TRG_ENGINE_SHIFTUP:
         if (e)
@@ -4413,7 +4369,7 @@ Actor::Actor(
     , ar_instance_id(actor_id)
     , ar_vector_index(vector_index)
     , m_avg_proped_wheel_radius(0.2f)
-    , ar_filename(rq.asr_filename)
+    , ar_filename(rq.asr_cache_entry->fname)
     , m_section_config(rq.asr_config)
     , m_used_actor_entry(rq.asr_cache_entry)
     , m_used_skin_entry(rq.asr_skin_entry)
@@ -4432,7 +4388,6 @@ Actor::Actor(
     , ar_import_commands(false)
     , ar_toggle_ropes(false)
     , ar_toggle_ties(false)
-    , ar_physics_paused(false)
 
     // Private bit flags
     , m_hud_features_ok(false)
@@ -4441,7 +4396,7 @@ Actor::Actor(
     , m_water_contact(false)
     , m_water_contact_old(false)
     , m_has_command_beams(false)
-    , m_custom_particles_enabled(false)
+    , ar_cparticles_active(false)
     , m_beam_break_debug_enabled(false)
     , m_beam_deform_debug_enabled(false)
     , m_trigger_debug_enabled(false)
@@ -4550,7 +4505,7 @@ BlinkType Actor::getBlinkType()
 
 bool Actor::getCustomParticleMode()
 {
-    return m_custom_particles_enabled;
+    return ar_cparticles_active;
 }
 
 Ogre::Real Actor::getMinimalCameraRadius()
@@ -4733,4 +4688,151 @@ void Actor::ensureWorkingTuneupDef()
 void Actor::removeWorkingTuneupDef()
 {
     m_working_tuneup_def = nullptr;
+}
+
+float Actor::getShockSpringRate(int shock_number)
+{
+    if (shock_number >= 0 && shock_number < ar_num_shocks)
+    {
+        return ar_beams[ar_shocks[shock_number].beamid].debug_k;
+    }
+    return -1.f;
+}
+
+float Actor::getShockDamping(int shock_number)
+{
+    if (shock_number >= 0 && shock_number < ar_num_shocks)
+    {
+        return ar_beams[ar_shocks[shock_number].beamid].debug_d;
+    }
+    return -1.f;
+}
+
+float Actor::getShockVelocity(int shock_number)
+{
+    if (shock_number >= 0 && shock_number < ar_num_shocks)
+    {
+        return ar_beams[ar_shocks[shock_number].beamid].debug_v;
+    }
+    return -1.f;
+}
+
+int Actor::getShockNode1(int shock_number)
+{
+    if (shock_number >= 0 && shock_number < ar_num_shocks)
+    {
+        return ar_beams[ar_shocks[shock_number].beamid].p1->pos;
+    }
+    return -1.f;
+}
+
+int Actor::getShockNode2(int shock_number)
+{
+    if (shock_number >= 0 && shock_number < ar_num_shocks)
+    {
+        return ar_beams[ar_shocks[shock_number].beamid].p2->pos;
+    }
+    return -1.f;
+}
+
+void Actor::setSimAttribute(ActorSimAttr attr, float val)
+{
+    LOG(fmt::format("[RoR|Actor] setSimAttribute: '{}' = {}", ActorSimAttrToString(attr), val));
+
+    // PLEASE maintain the same order as in `enum ActorSimAttr`
+    switch (attr)
+    {
+        // TractionControl
+    case ACTORSIMATTR_TC_RATIO: tc_ratio = val; return;
+    case ACTORSIMATTR_TC_PULSE_TIME: tc_pulse_time = val; return;
+    case ACTORSIMATTR_TC_WHEELSLIP_CONSTANT: tc_wheelslip_constant = val; return;
+
+        // Engine
+    case ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM:     if (ar_engine) { ar_engine->m_engine_shiftup_rpm = val; } return;
+    case ACTORSIMATTR_ENGINE_SHIFTUP_RPM:       if (ar_engine) { ar_engine->m_engine_max_rpm = val; } return;
+    case ACTORSIMATTR_ENGINE_TORQUE:            if (ar_engine) { ar_engine->m_engine_torque = val; } return;
+    case ACTORSIMATTR_ENGINE_DIFF_RATIO:        if (ar_engine) { ar_engine->m_diff_ratio = val; } return;
+    case ACTORSIMATTR_ENGINE_GEAR_RATIOS_ARRAY: return;
+
+        // Engoption
+    case ACTORSIMATTR_ENGOPTION_ENGINE_INERTIA:   if (ar_engine) { ar_engine->m_engine_inertia = val; } return;
+    case ACTORSIMATTR_ENGOPTION_ENGINE_TYPE:      if (ar_engine) { ar_engine->m_engine_type = (char)val; } return;
+    case ACTORSIMATTR_ENGOPTION_CLUTCH_FORCE:     if (ar_engine) { ar_engine->m_clutch_force = val; } return;
+    case ACTORSIMATTR_ENGOPTION_SHIFT_TIME:       if (ar_engine) { ar_engine->m_shift_time = val; } return;
+    case ACTORSIMATTR_ENGOPTION_CLUTCH_TIME:      if (ar_engine) { ar_engine->m_clutch_time = val; } return;
+    case ACTORSIMATTR_ENGOPTION_POST_SHIFT_TIME:  if (ar_engine) { ar_engine->m_post_shift_time = val; } return;
+    case ACTORSIMATTR_ENGOPTION_STALL_RPM:        if (ar_engine) { ar_engine->m_engine_stall_rpm = val; } return;
+    case ACTORSIMATTR_ENGOPTION_IDLE_RPM:         if (ar_engine) { ar_engine->m_engine_idle_rpm = val; } return;
+    case ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE: if (ar_engine) { ar_engine->m_max_idle_mixture = val; } return;
+    case ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE: if (ar_engine) { ar_engine->m_min_idle_mixture = val; } return;
+    case ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE:   if (ar_engine) { ar_engine->m_braking_torque = val; } return;
+
+        // Engturbo2 (actually 'engturbo' with type=2) 
+    case ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR:      if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_inertia_factor = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_NUM_TURBOS:          if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_num_turbos = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_MAX_RPM:             if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_max_turbo_rpm = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_ENGINE_RPM_OP:       if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_engine_rpm_operation = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_BOV_ENABLED:         if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_has_bov = (bool)val; } return;
+    case ACTORSIMATTR_ENGTURBO2_BOV_MIN_PSI:         if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_min_bov_psi = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_ENABLED:   if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_has_wastegate = (bool)val; } return;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_MAX_PSI:   if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_min_wastegate_psi = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_N: if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_wg_threshold_n = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_P: if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_wg_threshold_p = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_ENABLED:     if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_turbo_has_antilag = (bool)val; } return;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE:      if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_rand_chance = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM:     if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_min_rpm = val; } return;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER:       if (ar_engine && ar_engine->m_turbo_ver == 2) { ar_engine->m_antilag_power_factor = val; } return;
+
+    default: return;
+    }
+}
+
+float Actor::getSimAttribute(ActorSimAttr attr)
+{
+    // PLEASE maintain the same order as in `enum ActorSimAttr`
+    switch (attr)
+    {
+        // TractionControl
+    case ACTORSIMATTR_TC_RATIO: return tc_ratio;
+    case ACTORSIMATTR_TC_PULSE_TIME: return tc_pulse_time;
+    case ACTORSIMATTR_TC_WHEELSLIP_CONSTANT: return tc_wheelslip_constant;
+
+        // Engine
+    case ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM:     if (ar_engine) { return ar_engine->m_engine_shiftup_rpm; } return 0.f;
+    case ACTORSIMATTR_ENGINE_SHIFTUP_RPM:       if (ar_engine) { return ar_engine->m_engine_max_rpm; } return 0.f;
+    case ACTORSIMATTR_ENGINE_TORQUE:            if (ar_engine) { return ar_engine->m_engine_torque; } return 0.f;
+    case ACTORSIMATTR_ENGINE_DIFF_RATIO:        if (ar_engine) { return ar_engine->m_diff_ratio; } return 0.f;
+    case ACTORSIMATTR_ENGINE_GEAR_RATIOS_ARRAY: return 0.f;
+
+        // Engoption
+    case ACTORSIMATTR_ENGOPTION_ENGINE_INERTIA:   if (ar_engine) { return ar_engine->m_engine_inertia; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_ENGINE_TYPE:      if (ar_engine) { return (float)ar_engine->m_engine_type; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_CLUTCH_FORCE:     if (ar_engine) { return ar_engine->m_clutch_force; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_SHIFT_TIME:       if (ar_engine) { return ar_engine->m_shift_time; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_CLUTCH_TIME:      if (ar_engine) { return ar_engine->m_clutch_time; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_POST_SHIFT_TIME:  if (ar_engine) { return ar_engine->m_post_shift_time; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_STALL_RPM:        if (ar_engine) { return ar_engine->m_engine_stall_rpm; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_IDLE_RPM:         if (ar_engine) { return ar_engine->m_engine_idle_rpm; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE: if (ar_engine) { return ar_engine->m_max_idle_mixture; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE: if (ar_engine) { return ar_engine->m_min_idle_mixture; } return 0.f;
+    case ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE:   if (ar_engine) { return ar_engine->m_braking_torque; } return 0.f;
+
+        // Engturbo2 (actually 'engturbo' with type=2) 
+    case ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR:        if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_turbo_inertia_factor; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_NUM_TURBOS:            if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_num_turbos; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_MAX_RPM:               if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_max_turbo_rpm; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_ENGINE_RPM_OP:         if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_turbo_engine_rpm_operation; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_BOV_ENABLED:           if (ar_engine && ar_engine->m_turbo_ver == 2) { return (float)ar_engine->m_turbo_has_bov; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_BOV_MIN_PSI:           if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_min_bov_psi; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_ENABLED:     if (ar_engine && ar_engine->m_turbo_ver == 2) { return (float)ar_engine->m_turbo_has_wastegate; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_MAX_PSI:     if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_min_wastegate_psi; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_N: if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_turbo_wg_threshold_n; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_P: if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_turbo_wg_threshold_p; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_ENABLED:       if (ar_engine && ar_engine->m_turbo_ver == 2) { return (float)ar_engine->m_turbo_has_antilag; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE:        if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_antilag_rand_chance; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM:       if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_antilag_min_rpm; } return 0.f;
+    case ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER:         if (ar_engine && ar_engine->m_turbo_ver == 2) { return ar_engine->m_antilag_power_factor; } return 0.f;
+
+    default: return 0.f;
+    }
 }

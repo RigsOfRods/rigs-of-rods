@@ -1,4 +1,6 @@
+// Window [X] button handler
 #include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
 
 void main()
 {
@@ -9,7 +11,8 @@ OgreInspector inspector;
 
 void frameStep(float dt)
 {
-    ImGui::Begin("OGRE scene inspector example", /*open:*/true, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("OGRE scene inspector example", closeBtnHandler.windowOpen, ImGuiWindowFlags_AlwaysAutoResize);
+    closeBtnHandler.draw();
     inspector.draw();
     ImGui::End();    
 }
@@ -22,7 +25,7 @@ class OgreInspector
         ImGui::Text("Note that all element names are just simple strings, even if they contain '/'.");
         ImGui::Text("For details see OGRE docs:");
         ImGui::SameLine();
-        ImHyperlink("https://ogrecave.github.io/ogre/api/latest/"); 
+        imgui_utils::ImHyperlink("https://ogrecave.github.io/ogre/api/latest/"); 
         ImGui::Separator();
         
         Ogre::Root@ root = Ogre::Root::getSingleton();

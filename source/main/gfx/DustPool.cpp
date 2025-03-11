@@ -24,6 +24,7 @@
 
 #include "Application.h"
 #include "GameContext.h"
+#include "GfxScene.h"
 #include "Terrain.h"
 #include "Water.h"
 
@@ -195,6 +196,7 @@ void DustPool::update()
 {
     for (int i = 0; i < allocated; i++)
     {
+        App::GetGfxScene()->AdjustParticleSystemTimeFactor(pss[i]);
         ParticleEmitter* emit = pss[i]->getEmitter(0);
         Vector3 ndir = velocities[i];
         Real vel = ndir.length();

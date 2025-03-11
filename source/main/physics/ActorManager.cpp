@@ -33,7 +33,7 @@
 #include "Collisions.h"
 #include "DashBoardManager.h"
 #include "DynamicCollisions.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "GameContext.h"
 #include "GfxScene.h"
 #include "GUIManager.h"
@@ -58,7 +58,6 @@
 using namespace Ogre;
 using namespace RoR;
 
-static ActorInstanceID_t m_actor_counter = 1;
 const ActorPtr ActorManager::ACTORPTR_NULL; // Dummy value to be returned as const reference.
 
 ActorManager::ActorManager()
@@ -78,7 +77,11 @@ ActorManager::~ActorManager()
 
 ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr def)
 {
-    ActorPtr actor = new Actor(m_actor_counter++, static_cast<int>(m_actors.size()), def, rq);
+    if (rq.asr_instance_id == ACTORINSTANCEID_INVALID)
+    {
+        rq.asr_instance_id = this->GetActorNextInstanceId();
+    }
+    ActorPtr actor = new Actor(rq.asr_instance_id, static_cast<int>(m_actors.size()), def, rq);
 
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED && rq.asr_origin != ActorSpawnRequest::Origin::NETWORK)
     {
@@ -106,15 +109,6 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
 
     actor->UpdateBoundingBoxes(); // (records the unrotated dimensions for 'veh_aab_size')
 
-    if (App::mp_state->getEnum<MpState>() == RoR::MpState::CONNECTED)
-    {
-        // Calculate optimal node position compression (for network transfer)
-        Vector3 aabb_size = actor->ar_bounding_box.getSize();
-        float max_dimension = std::max(1.0f, aabb_size.x);
-        max_dimension = std::max(max_dimension, aabb_size.y);
-        max_dimension = std::max(max_dimension, aabb_size.z);
-        actor->m_net_node_compression = std::numeric_limits<short int>::max() / std::ceil(max_dimension * 1.5f);
-    }
     // Apply spawn position & spawn rotation
     for (int i = 0; i < actor->ar_num_nodes; i++)
     {
@@ -274,9 +268,9 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
     if (actor->ar_engine)
     {
         if (!actor->m_preloaded_with_terrain && App::sim_spawn_running->getBool())
-            actor->ar_engine->StartEngine();
+            actor->ar_engine->startEngine();
         else
-            actor->ar_engine->OffStart();
+            actor->ar_engine->offStart();
     }
     // pressurize tires
     if (actor->getTyrePressure().IsEnabled())
@@ -309,7 +303,7 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
             actor->ar_state = ActorState::NETWORKED_OK;
             if (actor->ar_engine)
             {
-                actor->ar_engine->StartEngine();
+                actor->ar_engine->startEngine();
             }
         }
 
@@ -376,10 +370,16 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
             if (reg->type == 0)
             {
                 reg->name[127] = 0;
-                std::string filename = SanitizeUtf8CString(reg->name);
+                // NOTE: The filename is by default in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
+                std::string filename_maybe_bundlequalified = SanitizeUtf8CString(reg->name);
+                std::string filename;
+                std::string bundlename;
+                SplitBundleQualifiedFilename(filename_maybe_bundlequalified, /*out:*/ bundlename, /*out:*/ filename);
 
                 RoRnet::UserInfo info;
-                if (!App::GetNetwork()->GetUserInfo(reg->origin_sourceid, info))
+                BitMask_t peeropts = BitMask_t(0);
+                if (!App::GetNetwork()->GetUserInfo(reg->origin_sourceid, info)
+                    || !App::GetNetwork()->GetUserPeerOpts(reg->origin_sourceid, peeropts))
                 {
                     RoR::LogFormat("[RoR] Invalid STREAM_REGISTER, user id %d does not exist", reg->origin_sourceid);
                     reg->status = -1;
@@ -398,12 +398,14 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
 
                     LOG("[RoR] Creating remote actor for " + TOSTRING(reg->origin_sourceid) + ":" + TOSTRING(reg->origin_streamid));
 
-                    if (!App::GetCacheSystem()->CheckResourceLoaded(filename))
+                    CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, filename_maybe_bundlequalified);
+
+                    if (!actor_entry)
                     {
                         App::GetConsole()->putMessage(
                             Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
                             _L("Mod not installed: ") + filename);
-                        RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", filename.c_str());
+                        RoR::LogFormat("[RoR] Cannot create remote actor (not installed), filename: '%s'", filename_maybe_bundlequalified.c_str());
                         AddStreamMismatch(reg->origin_sourceid, reg->origin_streamid);
                         reg->status = -1;
                     }
@@ -417,11 +419,10 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
                         }
                         ActorSpawnRequest* rq = new ActorSpawnRequest;
                         rq->asr_origin = ActorSpawnRequest::Origin::NETWORK;
-                        // TODO: Look up cache entry early (eliminate asr_filename) and fetch skin by name+guid! ~ 03/2019
-                        rq->asr_filename = filename;
+                        rq->asr_cache_entry = actor_entry;
                         if (strnlen(actor_reg->skin, 60) < 60 && actor_reg->skin[0] != '\0')
                         {
-                            rq->asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin);
+                            rq->asr_skin_entry = App::GetCacheSystem()->FetchSkinByName(actor_reg->skin); // FIXME: fetch skin by name+guid! ~ 03/2019
                         }
                         if (strnlen(actor_reg->sectionconfig, 60) < 60)
                         {
@@ -429,6 +430,7 @@ void ActorManager::HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet_
                         }
                         rq->asr_net_username = tryConvertUTF(info.username);
                         rq->asr_net_color    = info.colournum;
+                        rq->asr_net_peeropts = peeropts;
                         rq->net_source_id    = reg->origin_sourceid;
                         rq->net_stream_id    = reg->origin_streamid;
 
@@ -716,7 +718,7 @@ void ActorManager::ForwardCommands(ActorPtr source_actor)
             }
 
             // forward lights
-            hook.hk_locked_actor->setLightStateMask(source_actor->getLightStateMask());
+            hook.hk_locked_actor->importLightStateMask(source_actor->getLightStateMask());
         }
     }
 }
@@ -837,22 +839,6 @@ void ActorManager::RepairActor(Collisions* collisions, const Ogre::String& inst,
     }
 }
 
-void ActorManager::MuteAllActors()
-{
-    for (ActorPtr& actor: m_actors)
-    {
-        actor->muteAllSounds();
-    }
-}
-
-void ActorManager::UnmuteAllActors()
-{
-    for (ActorPtr& actor: m_actors)
-    {
-        actor->unmuteAllSounds();
-    }
-}
-
 std::pair<ActorPtr, float> ActorManager::GetNearestActor(Vector3 position)
 {
     ActorPtr nearest_actor = nullptr;
@@ -873,7 +859,7 @@ void ActorManager::CleanUpSimulation() // Called after simulation finishes
 {
     while (m_actors.size() > 0)
     {
-        this->DeleteActorInternal(m_actors.back());
+        this->DeleteActorInternal(m_actors.back()); // OK to invoke here - CleanUpSimulation() - processing `MSG_SIM_UNLOAD_TERRAIN_REQUESTED`
     }
 
     m_total_sim_time = 0.f;
@@ -906,13 +892,13 @@ void ActorManager::DeleteActorInternal(ActorPtr actor)
 #endif // USE_SOCKETW
 
     // Unload actor's scripts
-    std::vector<ScriptUnitId_t> unload_list;
+    std::vector<ScriptUnitID_t> unload_list;
     for (auto& pair : App::GetScriptEngine()->getScriptUnits())
     {
         if (pair.second.associatedActor == actor)
             unload_list.push_back(pair.first);
     }
-    for (ScriptUnitId_t id : unload_list)
+    for (ScriptUnitID_t id : unload_list)
     {
         App::GetScriptEngine()->unloadScript(id);
     }
@@ -1068,7 +1054,7 @@ void ActorManager::UpdateActors(ActorPtr player_actor)
             }
             if (actor->ar_state == ActorState::LOCAL_SLEEPING)
             {
-                actor->ar_engine->UpdateEngineSim(dt, 1);
+                actor->ar_engine->UpdateEngine(dt, 1);
             }
             actor->ar_engine->UpdateEngineAudio();
         }
@@ -1254,44 +1240,37 @@ void HandleErrorLoadingTruckfile(std::string filename, std::string exception_msg
     HandleErrorLoadingFile("actor", filename, exception_msg);
 }
 
-RigDef::DocumentPtr ActorManager::FetchActorDef(std::string filename, bool predefined_on_terrain)
+RigDef::DocumentPtr ActorManager::FetchActorDef(RoR::ActorSpawnRequest& rq)
 {
-    // Find the user content
-    CacheEntryPtr cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial=*/false, filename);
-    if (cache_entry == nullptr)
+    // Check the actor exists in mod cache
+    if (rq.asr_cache_entry == nullptr)
     {
-        HandleErrorLoadingTruckfile(filename, "Truckfile not found in ModCache (probably not installed)");
+        HandleErrorLoadingTruckfile(rq.asr_filename, "Truckfile not found in ModCache (probably not installed)");
         return nullptr;
     }
 
     // If already parsed, re-use
-    if (cache_entry->actor_def != nullptr)
+    if (rq.asr_cache_entry->actor_def != nullptr)
     {
-        return cache_entry->actor_def;
+        return rq.asr_cache_entry->actor_def;
     }
 
     // Load the 'truckfile'
     try
     {
-        Ogre::String resource_filename = filename;
-        Ogre::String resource_groupname;
-        if (!App::GetCacheSystem()->CheckResourceLoaded(resource_filename, resource_groupname)) // Validates the filename and finds resource group
-        {
-            HandleErrorLoadingTruckfile(filename, "Truckfile not found");
-            return nullptr;
-        }
-        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(resource_filename, resource_groupname);
+        App::GetCacheSystem()->LoadResource(rq.asr_cache_entry);
+        Ogre::DataStreamPtr stream = Ogre::ResourceGroupManager::getSingleton().openResource(rq.asr_cache_entry->fname, rq.asr_cache_entry->resource_group);
 
         if (stream.isNull() || !stream->isReadable())
         {
-            HandleErrorLoadingTruckfile(filename, "Unable to open/read truckfile");
+            HandleErrorLoadingTruckfile(rq.asr_cache_entry->fname, "Unable to open/read truckfile");
             return nullptr;
         }
 
-        RoR::LogFormat("[RoR] Parsing truckfile '%s'", resource_filename.c_str());
+        RoR::LogFormat("[RoR] Parsing truckfile '%s'", rq.asr_cache_entry->fname.c_str());
         RigDef::Parser parser;
         parser.Prepare();
-        parser.ProcessOgreStream(stream.getPointer(), resource_groupname);
+        parser.ProcessOgreStream(stream.getPointer(), rq.asr_cache_entry->resource_group);
         parser.Finalize();
 
         auto def = parser.GetFile();
@@ -1302,15 +1281,15 @@ RigDef::DocumentPtr ActorManager::FetchActorDef(std::string filename, bool prede
         RigDef::Validator validator;
         validator.Setup(def);
 
-        if (predefined_on_terrain)
+        if (rq.asr_origin == ActorSpawnRequest::Origin::TERRN_DEF)
         {
             // Workaround: Some terrains pre-load truckfiles with special purpose:
             //     "soundloads" = play sound effect at certain spot
             //     "fixes"      = structures of N/B fixed to the ground
             // These files can have no beams. Possible extensions: .load or .fixed
-            std::string file_extension = filename.substr(filename.find_last_of('.'));
+            std::string file_extension = rq.asr_cache_entry->fname.substr(rq.asr_cache_entry->fname.find_last_of('.'));
             Ogre::StringUtil::toLowerCase(file_extension);
-            if ((file_extension == ".load") | (file_extension == ".fixed"))
+            if ((file_extension == ".load") || (file_extension == ".fixed"))
             {
                 validator.SetCheckBeams(false);
             }
@@ -1320,22 +1299,22 @@ RigDef::DocumentPtr ActorManager::FetchActorDef(std::string filename, bool prede
 
         def->hash = Sha1Hash(stream->getAsString());
 
-        cache_entry->actor_def = def;
+        rq.asr_cache_entry->actor_def = def;
         return def;
     }
     catch (Ogre::Exception& oex)
     {
-        HandleErrorLoadingTruckfile(filename, oex.getFullDescription().c_str());
+        HandleErrorLoadingTruckfile(rq.asr_cache_entry->fname, oex.getDescription().c_str());
         return nullptr;
     }
     catch (std::exception& stex)
     {
-        HandleErrorLoadingTruckfile(filename, stex.what());
+        HandleErrorLoadingTruckfile(rq.asr_cache_entry->fname, stex.what());
         return nullptr;
     }
     catch (...)
     {
-        HandleErrorLoadingTruckfile(filename, "<Unknown exception occurred>");
+        HandleErrorLoadingTruckfile(rq.asr_cache_entry->fname, "<Unknown exception occurred>");
         return nullptr;
     }
 }
@@ -1450,25 +1429,25 @@ void ActorManager::UpdateTruckFeatures(ActorPtr vehicle, float dt)
         return;
 #endif // USE_ANGELSCRIPT
 
-    EngineSim* engine = vehicle->ar_engine;
+    EnginePtr engine = vehicle->ar_engine;
 
     if (engine && engine->hasContact() &&
-        engine->GetAutoShiftMode() == SimGearboxMode::AUTO &&
-        engine->getAutoShift() != EngineSim::NEUTRAL)
+        engine->getAutoMode() == SimGearboxMode::AUTO &&
+        engine->getAutoShift() != Engine::NEUTRAL)
     {
         Ogre::Vector3 dirDiff = vehicle->getDirection();
         Ogre::Degree pitchAngle = Ogre::Radian(asin(dirDiff.dotProduct(Ogre::Vector3::UNIT_Y)));
 
         if (std::abs(pitchAngle.valueDegrees()) > 2.0f)
         {
-            if (engine->getAutoShift() > EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed < +0.02f && pitchAngle.valueDegrees() > 0.0f ||
-                engine->getAutoShift() < EngineSim::NEUTRAL && vehicle->ar_avg_wheel_speed > -0.02f && pitchAngle.valueDegrees() < 0.0f)
+            if (engine->getAutoShift() > Engine::NEUTRAL && vehicle->ar_avg_wheel_speed < +0.02f && pitchAngle.valueDegrees() > 0.0f ||
+                engine->getAutoShift() < Engine::NEUTRAL && vehicle->ar_avg_wheel_speed > -0.02f && pitchAngle.valueDegrees() < 0.0f)
             {
                 // anti roll back in SimGearboxMode::AUTO (DRIVE, TWO, ONE) mode
                 // anti roll forth in SimGearboxMode::AUTO (REAR) mode
                 float g = std::abs(App::GetGameContext()->GetTerrain()->getGravity());
                 float downhill_force = std::abs(sin(pitchAngle.valueRadians()) * vehicle->getTotalMass()) * g;
-                float engine_force = std::abs(engine->GetTorque()) / vehicle->getAvgPropedWheelRadius();
+                float engine_force = std::abs(engine->getTorque()) / vehicle->getAvgPropedWheelRadius();
                 float ratio = std::max(0.0f, 1.0f - (engine_force / downhill_force));
                 if (vehicle->ar_avg_wheel_speed * pitchAngle.valueDegrees() > 0.0f)
                 {
@@ -1477,7 +1456,7 @@ void ActorManager::UpdateTruckFeatures(ActorPtr vehicle, float dt)
                 vehicle->ar_brake = sqrt(ratio);
             }
         }
-        else if (vehicle->ar_brake == 0.0f && !vehicle->ar_parking_brake && engine->GetTorque() == 0.0f)
+        else if (vehicle->ar_brake == 0.0f && !vehicle->ar_parking_brake && engine->getTorque() == 0.0f)
         {
             float ratio = std::max(0.0f, 0.2f - std::abs(vehicle->ar_avg_wheel_speed)) / 0.2f;
             vehicle->ar_brake = ratio;
@@ -1491,15 +1470,15 @@ void ActorManager::UpdateTruckFeatures(ActorPtr vehicle, float dt)
     if (vehicle->sl_enabled)
     {
         // check speed limit
-        if (engine && engine->GetGear() != 0)
+        if (engine && engine->getGear() != 0)
         {
             float accl = (vehicle->sl_speed_limit - std::abs(vehicle->ar_wheel_speed / 1.02f)) * 2.0f;
-            engine->SetAcceleration(Ogre::Math::Clamp(accl, 0.0f, engine->GetAcceleration()));
+            engine->setAcc(Ogre::Math::Clamp(accl, 0.0f, engine->getAcc()));
         }
     }
 
     BITMASK_SET(vehicle->m_lightmask, RoRnet::LIGHTMASK_BRAKES, (vehicle->ar_brake > 0.01f && !vehicle->ar_parking_brake));
-    BITMASK_SET(vehicle->m_lightmask, RoRnet::LIGHTMASK_REVERSE, (vehicle->ar_engine && vehicle->ar_engine->GetGear() < 0));
+    BITMASK_SET(vehicle->m_lightmask, RoRnet::LIGHTMASK_REVERSE, (vehicle->ar_engine && vehicle->ar_engine->getGear() < 0));
 }
 
 void ActorManager::CalcFreeForces()

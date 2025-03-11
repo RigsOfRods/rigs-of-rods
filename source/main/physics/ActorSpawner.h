@@ -173,6 +173,7 @@ private:
     void ProcessFixedNode(RigDef::Node::Ref node_ref); // 'fixes'
     void ProcessFlare2(RigDef::Flare2 & def);
     void ProcessFlare3(RigDef::Flare3 & def);
+    void ProcessFlaregroupNoImport(RigDef::FlaregroupNoImport & def);
     void ProcessFlexbody(RigDef::Flexbody& def);
     void ProcessFlexBodyWheel(RigDef::FlexBodyWheel & def);
     void ProcessFusedrag(RigDef::Fusedrag & def);
@@ -361,7 +362,6 @@ private:
 
     /// @name Limit checks
     /// @{
-    bool                          CheckParticleLimit(unsigned int count);
     bool                          CheckAxleLimit(unsigned int count);
     bool                          CheckSubmeshLimit(unsigned int count);
     bool                          CheckTexcoordLimit(unsigned int count);

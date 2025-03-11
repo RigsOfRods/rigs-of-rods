@@ -51,7 +51,8 @@ enum class TokenType
     LINEBREAK,    // Input: LF (CR is ignored); Output: platform-specific.
     COMMENT,      // Line starting with ; (skipping whitespace). Data: offset in string pool.
     STRING,       // Quoted string. Data: offset in string pool.
-    NUMBER,       // Float.
+    FLOAT,
+    INT,
     BOOL,         // Lowercase 'true'/'false'. Data: 1.0 for true, 0.0 for false.
     KEYWORD,      // Unquoted string at start of line (skipping whitespace). Data: offset in string pool.
 };
@@ -71,7 +72,8 @@ struct GenericDocument: public RefCountingObject<GenericDocument>
     static const BitMask_t OPTION_PARENTHESES_CAPTURE_SPACES = BITMASK(5); //!< If non-empty NAKED string encounters '(', following spaces will be captured until matching ')' is found.
     static const BitMask_t OPTION_ALLOW_BRACED_KEYWORDS = BITMASK(6); //!< Allow INI-like '[keyword]' tokens.
     static const BitMask_t OPTION_ALLOW_SEPARATOR_EQUALS = BITMASK(7); //!< Allow '=' as separator between tokens.
-    static const BitMask_t OPTION_ALLOW_HASH_COMMENTS = BITMASK(8); //!< Allow comments starting with `#`. 
+    static const BitMask_t OPTION_ALLOW_HASH_COMMENTS = BITMASK(8); //!< Allow comments starting with `#`.
+    static const BitMask_t OPTION_NAKEDSTR_USCORES_TO_SPACES = BITMASK(9); //!< Only for OPTION_ALLOW_NAKED_STRINGS: Replace underscores with spaces in naked strings (classic behavior of the truck format).
 
     virtual ~GenericDocument() {};
 
@@ -84,8 +86,6 @@ struct GenericDocument: public RefCountingObject<GenericDocument>
     virtual bool loadFromResource(std::string resource_name, std::string resource_group_name, BitMask_t options = 0);
     virtual bool saveToResource(std::string resource_name, std::string resource_group_name);
 };
-
-typedef RefCountingObjectPtr<GenericDocument> GenericDocumentPtr;
 
 struct GenericDocContext: public RefCountingObject<GenericDocContext>
 {
@@ -113,24 +113,38 @@ struct GenericDocContext: public RefCountingObject<GenericDocContext>
 
     std::string getTokString(int offset = 0) const { ROR_ASSERT(isTokString(offset)); return getStringData(offset); }
     float getTokFloat(int offset = 0) const { ROR_ASSERT(isTokFloat(offset)); return getFloatData(offset); }
+    int getTokInt(int offset = 0) const { ROR_ASSERT(isTokInt(offset)); return (int)getFloatData(offset); }
+    float getTokNumeric(int offset = 0) const { ROR_ASSERT(isTokNumeric(offset)); return getFloatData(offset); }
     bool getTokBool(int offset = 0) const { ROR_ASSERT(isTokBool(offset)); return getFloatData(offset) == 1.f; }
     std::string getTokKeyword(int offset = 0) const { ROR_ASSERT(isTokKeyword(offset)); return getStringData(offset); }
     std::string getTokComment(int offset = 0) const { ROR_ASSERT(isTokComment(offset)); return getStringData(offset); }
 
     bool isTokString(int offset = 0) const { return tokenType(offset) == TokenType::STRING; }
-    bool isTokFloat(int offset = 0) const { return tokenType(offset) == TokenType::NUMBER; }
+    bool isTokFloat(int offset = 0) const { return tokenType(offset) == TokenType::FLOAT; }
+    bool isTokInt(int offset = 0) const { return tokenType(offset) == TokenType::INT; }
     bool isTokBool(int offset = 0) const { return tokenType(offset) == TokenType::BOOL; }
     bool isTokKeyword(int offset = 0) const { return tokenType(offset) == TokenType::KEYWORD; }
     bool isTokComment(int offset = 0) const { return tokenType(offset) == TokenType::COMMENT; }
     bool isTokLineBreak(int offset = 0) const { return tokenType(offset) == TokenType::LINEBREAK; }
+    bool isTokNumeric(int offset = 0) const { return isTokInt(offset) || isTokFloat(offset); }
 
     // Editing functions:
 
+    void appendTokens(int count); //!< Appends a series of `TokenType::NONE` and sets Pos at the first one added; use `setTok*` functions to fill them.
     bool insertToken(int offset = 0); //!< Inserts `TokenType::NONE`; @return false if offset is beyond EOF
     bool eraseToken(int offset = 0); //!< @return false if offset is beyond EOF
 
+    void appendTokString(const std::string& str) { appendTokens(1); setTokString(0, str); }
+    void appendTokFloat(float val) { appendTokens(1); setTokFloat(0, val); }
+    void appendTokInt(int val) { appendTokens(1); setTokInt(0, val); }
+    void appendTokBool(bool val) { appendTokens(1); setTokBool(0, val); }
+    void appendTokKeyword(const std::string& str) { appendTokens(1); setTokKeyword(0, str); }
+    void appendTokComment(const std::string& str) { appendTokens(1); setTokComment(0, str); }
+    void appendTokLineBreak() { appendTokens(1); setTokLineBreak(0); }
+
     bool setTokString(int offset, const std::string& str) { return setStringData(offset, TokenType::STRING, str); }
-    bool setTokFloat(int offset, float val) { return setFloatData(offset, TokenType::NUMBER, val); }
+    bool setTokFloat(int offset, float val) { return setFloatData(offset, TokenType::FLOAT, val); }
+    bool setTokInt(int offset, int val) { return setFloatData(offset, TokenType::INT, val); }
     bool setTokBool(int offset, bool val) { return setFloatData(offset, TokenType::BOOL, val); }
     bool setTokKeyword(int offset, const std::string& str) { return setStringData(offset, TokenType::KEYWORD, str); }
     bool setTokComment(int offset, const std::string& str) { return setStringData(offset, TokenType::COMMENT, str); }
@@ -143,7 +157,5 @@ struct GenericDocContext: public RefCountingObject<GenericDocContext>
     bool setStringData(int offset, TokenType type, const std::string& data); //!< @return false if offset is beyond EOF
     bool setFloatData(int offset, TokenType type, float data); //!< @return false if offset is beyond EOF
 };
-
-typedef RefCountingObjectPtr<GenericDocContext> GenericDocContextPtr;
 
 } // namespace RoR

@@ -324,6 +324,8 @@ enum events
     EV_TRUCK_LIGHTTOGGLE09,       //!< toggle custom light 9
     EV_TRUCK_LIGHTTOGGLE10,       //!< toggle custom light 10
     EV_TRUCK_MANUAL_CLUTCH,       //!< manual clutch (for manual transmission)
+    EV_TRUCK_MANUAL_CLUTCH_MODIFIER_25,//!< manual clutch with 25 percent pedal input
+    EV_TRUCK_MANUAL_CLUTCH_MODIFIER_50,//!< manual clutch with 50 percent pedal input
     EV_TRUCK_PARKING_BRAKE,       //!< toggle parking brake
     EV_TRUCK_TRAILER_PARKING_BRAKE, //!< toggle trailer parking brake
     EV_TRUCK_RIGHT_MIRROR_LEFT,
@@ -351,6 +353,7 @@ enum events
     EV_TRUCK_SHIFT_HIGHRANGE,     //!< select high range (13-18) for H-shaft
     EV_TRUCK_SHIFT_LOWRANGE,      //!< select low range (1-6) for H-shaft
     EV_TRUCK_SHIFT_MIDRANGE,      //!< select middle range (7-12) for H-shaft
+    EV_TRUCK_CYCLE_GEAR_RANGES,   //!< cycle through the ranges
     EV_TRUCK_SHIFT_NEUTRAL,       //!< shift to neutral gear in manual transmission mode
     EV_TRUCK_SHIFT_UP,            //!< shift one gear up in manual transmission mode
     EV_TRUCK_STARTER,             //!< hold to start the engine
@@ -403,6 +406,7 @@ enum events
     EV_MODE_BEFORELAST,
     EV_MODE_LAST
 };
+const events EV_INVALID = (events)-1;
 
 struct InputEvent
 {
@@ -480,11 +484,13 @@ public:
     /// @{
     void                Capture();
     void                updateKeyBounces(float dt);
-    void                ProcessMouseEvent(const OIS::MouseEvent& arg);
+    void                processMouseMotionEvent(const OIS::MouseEvent& arg);
+    void                processMousePressEvent(const OIS::MouseEvent& arg, OIS::MouseButtonID _id);
+    void                processMouseReleaseEvent(const OIS::MouseEvent& arg, OIS::MouseButtonID _id);
     void                ProcessKeyPress(const OIS::KeyEvent& arg);
     void                ProcessKeyRelease(const OIS::KeyEvent& arg);
     void                ProcessJoystickEvent(const OIS::JoyStickEvent& arg);
-    void                resetKeys();
+    void                resetKeysAndMouseButtons();
     void                setEventSimulatedValue(events eventID, float value);
     void                setEventStatusSupressed(events eventID, bool supress);
     /// @}
@@ -606,6 +612,13 @@ protected:
     std::string composeEventCommandString(event_trigger_t const& trig);
 
     event_trigger_t newEvent();
+
+    // OIS WORKAROUND: After a window focus is restored for the 2nd+ time, OIS delivers a fabricated 'LMB pressed' event,
+    //    without ever sending matching 'LMB released', see analysis: https://github.com/RigsOfRods/rigs-of-rods/pull/3184#issuecomment-2380397463
+    // This has a very prominent negative effect, see https://github.com/RigsOfRods/rigs-of-rods/issues/2468
+    // There's no way to recognize the event as fake, we must track number of frames and LMB presses since last reset.
+    size_t m_oisworkaround_frames_since_reset = 0u;
+    size_t m_oisworkaround_lmbdowns_since_reset = 0u;
 };
 
 /// @} // @addtogroup Input

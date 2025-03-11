@@ -41,6 +41,7 @@
 #include "SoundScriptManager.h"
 #include "TerrainGeometryManager.h"
 #include "Terrain.h"
+#include "Terrn2FileFormat.h"
 #include "TObjFileFormat.h"
 #include "Utils.h"
 #include "WriteTextToTexture.h"
@@ -67,7 +68,7 @@ inline float getTerrainHeight(Real x, Real z, void* unused = 0)
 TerrainObjectManager::TerrainObjectManager(Terrain* terrainManager) :
     terrainManager(terrainManager)
 {
-    m_terrn2_grouping_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode(fmt::format("Terrain: {}", terrainManager->GetDef().name));
+    m_terrn2_grouping_node = App::GetGfxScene()->GetSceneManager()->getRootSceneNode()->createChildSceneNode(fmt::format("Terrain: {}", terrainManager->GetDef()->name));
 
     m_procedural_manager = new ProceduralManager(m_terrn2_grouping_node->createChildSceneNode("Procedural Roads"));
 }
@@ -152,7 +153,7 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     ROR_ASSERT(this->terrainManager->getCacheEntry());
     ROR_ASSERT(this->terrainManager->getCacheEntry()->resource_group != "");
 
-    std::shared_ptr<TObjFile> tobj;
+    TObjDocumentPtr tobj;
     try
     {
         DataStreamPtr stream_ptr = ResourceGroupManager::getSingleton().openResource(
@@ -161,15 +162,11 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
         parser.Prepare();
         parser.ProcessOgreStream(stream_ptr.get());
         tobj = parser.Finalize();
+        m_tobj_cache.push_back(tobj);
     }
-    catch (Ogre::Exception& e)
+    catch (...)
     {
-        LOG("[RoR|Terrain] Error reading TObj file: " + tobj_name + "\nMessage" + e.getFullDescription());
-        return;
-    }
-    catch (std::exception& e)
-    {
-        LOG("[RoR|Terrain] Error reading TObj file: " + tobj_name + "\nMessage" + e.what());
+        HandleGenericException(fmt::format("Loading TObj file '{}'", tobj_name), HANDLEGENERICEXCEPTION_CONSOLE);
         return;
     }
 
@@ -241,30 +238,10 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     }
 
     // Vehicles
-    for (TObjVehicle veh : tobj->vehicles)
+    for (TObjVehicle const& veh : tobj->vehicles)
     {
-        if ((veh.type == TObj::SpecialObject::BOAT) && (terrainManager->getWater() == nullptr))
-        {
-            continue; // Don't spawn boats if there's no water.
-        }
-
-        Ogre::String group;
-        Ogre::String filename(veh.name);
-        if (!RoR::App::GetCacheSystem()->CheckResourceLoaded(filename, group))
-        {
-            LOG(std::string("[RoR|Terrain] Vehicle ") + veh.name + " not found. ignoring.");
-            continue;
-        }
-
-        PredefinedActor p;
-        p.px           = veh.position.x;
-        p.py           = veh.position.y;
-        p.pz           = veh.position.z;
-        p.freePosition = (veh.type == TObj::SpecialObject::TRUCK2);
-        p.ismachine    = (veh.type == TObj::SpecialObject::MACHINE);
-        p.rotation     = veh.rotation;
-        p.name         = veh.name;
-        m_predefined_actors.push_back(p);
+        int tobj_cache_id = (int)m_tobj_cache.size() - 1;
+        this->ProcessPredefinedActor(tobj_cache_id, veh.name, veh.position, veh.tobj_rotation, veh.type);
     }
 
     // Entries
@@ -272,7 +249,14 @@ void TerrainObjectManager::LoadTObjFile(Ogre::String tobj_name)
     {
         try
         {
+            m_tobj_cache_active_id = (int)m_tobj_cache.size() - 1;
+            size_t num_editor_objects = m_editor_objects.size();
             this->LoadTerrainObject(entry.odef_name, entry.position, entry.rotation, entry.instance_name, entry.type, entry.rendering_distance);
+            m_tobj_cache_active_id = -1;
+            if (m_editor_objects.size() > num_editor_objects)
+            {
+                m_editor_objects.back()->tobj_comments = entry.comments;
+            }
         }
         catch (...)
         {
@@ -486,53 +470,92 @@ void TerrainObjectManager::ProcessGrass(
 #endif //USE_PAGED
 }
 
-void TerrainObjectManager::MoveObjectVisuals(const String& instancename, const Ogre::Vector3& pos)
+void TerrainObjectManager::ProcessPredefinedActor(int tobj_cache_id, const std::string& name, const Ogre::Vector3 position, const Ogre::Vector3 rotation, const TObjSpecialObject type)
 {
-    if (m_static_objects.find(instancename) == m_static_objects.end())
-    {
-        LOG(instancename+ " not found!");
-        return;
-    }
-
-    StaticObject obj = m_static_objects[instancename];
-
-    if (!obj.enabled)
-        return;
-
-    obj.sceneNode->setPosition(pos);
+    // Transform TOBJ actor records to EditorObject-s (to be spawned later, if conditions are met).
+    // NOTE: The filename may be in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
+    // -----------------------------------------------------------------------------------------
+    
+    TerrainEditorObjectPtr dst = new TerrainEditorObject();
+    dst->position = position;
+    dst->rotation = rotation;
+    dst->special_object_type = type;
+    dst->name = name;
+    dst->tobj_cache_id = tobj_cache_id;
+    m_editor_objects.push_back(dst);
+    m_has_predefined_actors = true;
 }
 
-void TerrainObjectManager::unloadObject(const String& instancename)
+void TerrainObjectManager::moveObjectVisuals(const String& instancename, const Ogre::Vector3& pos)
 {
-    if (m_static_objects.find(instancename) == m_static_objects.end())
+    // Obsolete function kept for backwards-compatibility; does the same as `TerrainEditorObject::setPosition()`
+    // -------------------------------------------------------------------------------------------------------
+
+    TerrainEditorObjectID_t id = FindEditorObjectByInstanceName(instancename);
+    if (id == TERRAINEDITOROBJECTID_INVALID)
     {
-        LOG("unable to unload object: " + instancename);
+        LOG(fmt::format("[RoR] `moveObjectVisuals()`: instance name '{}' not found!", instancename));
         return;
     }
 
-    StaticObject obj = m_static_objects[instancename];
-
-    if (!obj.enabled)
-        return;
-
-    for (auto tri : obj.collTris)
-    {
-        terrainManager->GetCollisions()->removeCollisionTri(tri);
-    }
-    for (auto box : obj.collBoxes)
-    {
-        terrainManager->GetCollisions()->removeCollisionBox(box);
-    }
-
-    obj.sceneNode->detachAllObjects();
-    obj.sceneNode->setVisible(false);
-    obj.enabled = false;
-
-    m_editor_objects.erase(std::remove_if(m_editor_objects.begin(), m_editor_objects.end(),
-                [instancename](EditorObject& e) { return e.instance_name == instancename; }), m_editor_objects.end());
+    m_editor_objects[id]->setPosition(pos);
 }
 
-ODefFile* TerrainObjectManager::FetchODef(std::string const & odef_name)
+void TerrainObjectManager::destroyObject(const String& instancename)
+{
+    TerrainEditorObjectID_t id = FindEditorObjectByInstanceName(instancename);
+    if (id == -1)
+    {
+        LOG(fmt::format("[RoR] `destroyObject()`: instance name '{}' not found!", instancename));
+        return;
+    }
+
+    TerrainEditorObjectPtr object = m_editor_objects[id];
+
+    if (object->getSpecialObjectType() != TObjSpecialObject::NONE)
+    {
+        // Preloaded actor: despawn it.
+        ROR_ASSERT(!object->static_object_node);
+        ROR_ASSERT(!object->static_collision_tris.size());
+        ROR_ASSERT(!object->static_collision_boxes.size());
+        ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(object->actor_instance_id);
+        if (actor)
+        {
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_DELETE_ACTOR_REQUESTED, new ActorPtr(actor)));
+        }
+    }
+    else
+    {
+        // Static object: Destroy the scene node and everything attached to it.
+        ROR_ASSERT(object->static_object_node);
+        for (Ogre::MovableObject* mova : object->static_object_node->getAttachedObjects())
+        {
+            App::GetGfxScene()->GetSceneManager()->destroyMovableObject(mova);
+        }
+        App::GetGfxScene()->GetSceneManager()->destroySceneNode(object->static_object_node);
+
+        // Undo static collisions
+        for (int tri : object->static_collision_tris)
+        {
+            terrainManager->GetCollisions()->removeCollisionTri(tri);
+        }
+        for (int box : object->static_collision_boxes)
+        {
+            terrainManager->GetCollisions()->removeCollisionBox(box);
+        }
+    }
+
+    // Release the object from editor, if active.
+    if (id == App::GetGameContext()->GetTerrain()->GetTerrainEditor()->GetSelectedObjectID())
+    {
+        App::GetGameContext()->GetTerrain()->GetTerrainEditor()->ClearSelectedObject();
+    }
+
+    // Forget the object ever existed.
+    m_editor_objects.erase(m_editor_objects.begin() + id);
+}
+
+ODefDocument* TerrainObjectManager::FetchODef(std::string const & odef_name)
 {
     // Consult cache first
     auto search_res = m_odef_cache.find(odef_name);
@@ -561,7 +584,7 @@ ODefFile* TerrainObjectManager::FetchODef(std::string const & odef_name)
         ODefParser parser;
         parser.Prepare();
         parser.ProcessOgreStream(ds.get());
-        std::shared_ptr<ODefFile> odef = parser.Finalize();
+        std::shared_ptr<ODefDocument> odef = parser.Finalize();
 
         // Add to cache and return
         m_odef_cache.insert(std::make_pair(odef_name, odef));
@@ -591,7 +614,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     }
 
     const std::string odefname = name + ".odef"; // for logging
-    ODefFile* odef = this->FetchODef(name);
+    ODefDocument* odef = this->FetchODef(name);
     if (odef == nullptr)
     {
         // Only log to console if requested from Console UI or script (debug message to RoR.log is written anyway).
@@ -635,24 +658,18 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
     tenode->pitch(Degree(-90));
     tenode->setVisible(true);
 
-    // register in map
-    StaticObject* obj = &m_static_objects[instancename];
-    obj->instanceName = instancename;
-    obj->enabled = true;
-    obj->sceneNode = tenode;
-    obj->collTris.clear();
-
-    EditorObject object;
-    object.name = name;
-    object.instance_name = instancename;
-    object.type = type;
-    object.position = pos;
-    object.rotation = rot;
-    object.initial_position = pos;
-    object.initial_rotation = rot;
-    object.node = tenode;
-    object.enable_collisions = enable_collisions;
-    object.script_handler = scripthandler;
+    TerrainEditorObjectPtr object = new TerrainEditorObject();
+    object->name = name;
+    object->instance_name = instancename;
+    object->type = type;
+    object->position = pos;
+    object->rotation = rot;
+    object->initial_position = pos;
+    object->initial_rotation = rot;
+    object->static_object_node = tenode;
+    object->enable_collisions = enable_collisions;
+    object->script_handler = scripthandler;
+    object->tobj_cache_id = m_tobj_cache_active_id;
     m_editor_objects.push_back(object);
 
     if (mo && uniquifyMaterial && !instancename.empty())
@@ -669,11 +686,11 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
 
     for (LocalizerType type : odef->localizers)
     {
-        localizer_t loc;
+        Localizer loc;
         loc.position = Vector3(pos.x, pos.y, pos.z);
         loc.rotation = rotation;
         loc.type = type;
-        localizers.push_back(loc);
+        m_localizers.push_back(loc);
     }
 
     if (odef->mode_standard)
@@ -698,32 +715,32 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         terrainManager->GetCollisions()->loadGroundModelsConfigFile(gmodel_file);
     }
 
-    bool race_event = !object.instance_name.compare(0, 10, "checkpoint") ||
-                        !object.instance_name.compare(0,  4, "race");
+    bool race_event = !object->instance_name.compare(0, 10, "checkpoint") ||
+                        !object->instance_name.compare(0,  4, "race");
 
     if (race_event)
     {
         String type = "checkpoint";
-        auto res = StringUtil::split(object.instance_name, "|");
-        if ((res.size() == 4 && res[2] == "0") || !object.instance_name.compare(0, 4, "race"))
+        auto res = StringUtil::split(object->instance_name, "|");
+        if ((res.size() == 4 && res[2] == "0") || !object->instance_name.compare(0, 4, "race"))
         {
             type = "racestart";
         }
         int race_id = res.size() > 1 ? StringConverter::parseInt(res[1], -1) : -1;
-        m_map_entities.push_back(SurveyMapEntity(type, /*caption:*/type, fmt::format("icon_{}.dds", type), /*resource_group:*/"", object.position, Ogre::Radian(0), race_id));
+        m_map_entities.push_back(SurveyMapEntity(type, /*caption:*/type, fmt::format("icon_{}.dds", type), /*resource_group:*/"", object->position, Ogre::Radian(0), race_id));
     }
-    else if (!object.type.empty())
+    else if (!object->type.empty())
     {
         String caption = "";
-        if (object.type == "station" || object.type == "hotel" || object.type == "village" ||
-                object.type == "observatory" || object.type == "farm" || object.type == "ship" || object.type == "sign")
+        if (object->type == "station" || object->type == "hotel" || object->type == "village" ||
+                object->type == "observatory" || object->type == "farm" || object->type == "ship" || object->type == "sign")
         {
-            caption = object.instance_name + " " + object.type;
+            caption = object->instance_name + " " + object->type;
         }
-        m_map_entities.push_back(SurveyMapEntity(object.type, caption, fmt::format("icon_{}.dds", object.type), /*resource_group:*/"", object.position, Ogre::Radian(0), -1));
+        m_map_entities.push_back(SurveyMapEntity(object->type, caption, fmt::format("icon_{}.dds", object->type), /*resource_group:*/"", object->position, Ogre::Radian(0), -1));
     }
 
-    this->ProcessODefCollisionBoxes(obj, odef, object, race_event);
+    this->ProcessODefCollisionBoxes(object, odef, object, race_event);
 
     for (ODefCollisionMesh& cmesh : odef->collision_meshes)
     {
@@ -737,7 +754,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         terrainManager->GetCollisions()->addCollisionMesh(
             odefname,
             cmesh.mesh_name, pos, tenode->getOrientation(),
-            cmesh.scale, gm, &(obj->collTris));
+            cmesh.scale, gm, &(object->static_collision_tris));
     }
 
     for (ODefParticleSys& psys : odef->particle_systems)
@@ -762,7 +779,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
             pAff = pParticleSys->getAffector(i);
             if (pAff->getType() == "ExtinguishableFire")
             {
-                ((ExtinguishableFireAffector*)pAff)->setInstanceName(obj->instanceName);
+                ((ExtinguishableFireAffector*)pAff)->setInstanceName(object->instance_name);
             }
         }
 #endif // USE_ANGELSCRIPT
@@ -770,6 +787,11 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         SceneNode* sn = tenode->createChildSceneNode();
         sn->attachObject(pParticleSys);
         sn->pitch(Degree(90));
+
+        ParticleEffectObject peo;
+        peo.node = sn;
+        peo.psys = pParticleSys;
+        m_particle_effect_objects.push_back(peo);
     }
 
     if (!odef->mat_name.empty())
@@ -953,16 +975,16 @@ bool TerrainObjectManager::LoadTerrainScript(const Ogre::String& filename)
     ROR_ASSERT(!m_angelscript_grouping_node);
 
     m_angelscript_grouping_node = m_terrn2_grouping_node->createChildSceneNode(filename);
-    ScriptUnitId_t result = App::GetScriptEngine()->loadScript(filename);
+    ScriptUnitID_t result = App::GetScriptEngine()->loadScript(filename);
     m_angelscript_grouping_node = nullptr;
     
     return result != SCRIPTUNITID_INVALID;
 }
 
-bool TerrainObjectManager::UpdateAnimatedObjects(float dt)
+void TerrainObjectManager::UpdateAnimatedObjects(float dt)
 {
     if (m_animated_objects.size() == 0)
-        return true;
+        return;
 
     std::vector<AnimatedObject>::iterator it;
 
@@ -974,15 +996,77 @@ bool TerrainObjectManager::UpdateAnimatedObjects(float dt)
             it->anim->addTime(time);
         }
     }
-    return true;
+}
+
+void TerrainObjectManager::UpdateParticleEffectObjects()
+{
+    for (ParticleEffectObject& peo : m_particle_effect_objects)
+    {
+        if (peo.psys)
+        {
+            App::GetGfxScene()->AdjustParticleSystemTimeFactor(peo.psys);
+        }
+    }
 }
 
 void TerrainObjectManager::LoadTelepoints()
 {
-    for (Terrn2Telepoint& telepoint: terrainManager->GetDef().telepoints)
+    for (Terrn2Telepoint& telepoint: terrainManager->GetDef()->telepoints)
     {
         m_map_entities.push_back(SurveyMapEntity("telepoint", telepoint.name, "icon_telepoint.dds", /*resource_group:*/"", telepoint.position, Ogre::Radian(0), -1));
     }
+}
+
+bool TerrainObjectManager::GetEditorObjectFlagRotYXZ(TerrainEditorObjectPtr const& object)
+{
+    // We need the 'rot_yxz' flag - look up the TOBJ document in cache
+    if (object->tobj_cache_id == -1 || object->tobj_cache_id >= (int)m_tobj_cache.size())
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_TERRN, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Assuming no 'rot_yxz' when spawning preselected actor '{}' - TOBJ document not found", object->getName()));
+        return false;
+    }
+    else
+    {
+        return m_tobj_cache[object->tobj_cache_id]->rot_yxz;
+    }
+}
+
+
+void TerrainObjectManager::SpawnSinglePredefinedActor(TerrainEditorObjectPtr const& object)
+{
+    // For terrain editor to work, all preloaded actors must be spawned.
+    // Most will spawn with terrain, however, some may be excluded for reasons.
+    // -----------------------------------------------------------------------
+
+    const bool rot_yxz = GetEditorObjectFlagRotYXZ(object);
+
+    // Check if already spawned.
+    if (object->actor_instance_id == ACTORINSTANCEID_INVALID)
+    {
+        // Not spawned yet - assign custom ID so that Terrain Editor can reset and move the actor.
+        object->actor_instance_id = App::GetGameContext()->GetActorManager()->GetActorNextInstanceId();
+    }
+    else
+    {
+        // Spawned before; check if still existing and respawn if not.
+        const ActorPtr& actor = App::GetGameContext()->GetActorManager()->GetActorById(
+            object->actor_instance_id);
+        if (actor != ActorManager::ACTORPTR_NULL)
+        {
+            return; // We're done.
+        }
+    }
+
+    ActorSpawnRequest* rq = new ActorSpawnRequest;
+    rq->asr_instance_id = object->actor_instance_id;
+    rq->asr_position = object->position;
+    rq->asr_filename = object->name;
+    rq->asr_rotation = TObjParser::CalcRotation(object->rotation, rot_yxz);
+    rq->asr_origin = ActorSpawnRequest::Origin::TERRN_DEF;
+    rq->asr_free_position = (object->special_object_type == TObjSpecialObject::TRUCK2);
+    rq->asr_terrn_machine = (object->special_object_type == TObjSpecialObject::MACHINE);
+    App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
 }
 
 void TerrainObjectManager::LoadPredefinedActors()
@@ -993,16 +1077,19 @@ void TerrainObjectManager::LoadPredefinedActors()
         return;
     }
 
-    for (unsigned int i = 0; i < m_predefined_actors.size(); i++)
+    for (TerrainEditorObjectPtr object : m_editor_objects)
     {
-        ActorSpawnRequest* rq = new ActorSpawnRequest;
-        rq->asr_position      = Vector3(m_predefined_actors[i].px, m_predefined_actors[i].py, m_predefined_actors[i].pz);
-        rq->asr_filename      = m_predefined_actors[i].name;
-        rq->asr_rotation      = m_predefined_actors[i].rotation;
-        rq->asr_origin        = ActorSpawnRequest::Origin::TERRN_DEF;
-        rq->asr_free_position = m_predefined_actors[i].freePosition;
-        rq->asr_terrn_machine = m_predefined_actors[i].ismachine;
-        App::GetGameContext()->PushMessage(Message(MSG_SIM_SPAWN_ACTOR_REQUESTED, (void*)rq));
+        if (object->special_object_type == TObjSpecialObject::NONE)
+        {
+            continue; // Skip static objects
+        }
+
+        if ((object->special_object_type == TObjSpecialObject::BOAT) && (terrainManager->getWater() == nullptr))
+        {
+            continue; // Don't spawn boats if there's no water.
+        }
+
+        this->SpawnSinglePredefinedActor(object);
     }
 }
 
@@ -1015,15 +1102,16 @@ bool TerrainObjectManager::UpdateTerrainObjects(float dt)
     }
 #endif //USE_PAGED
     this->UpdateAnimatedObjects(dt);
+    this->UpdateParticleEffectObjects();
 
     return true;
 }
 
-void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile* odef, const EditorObject& params, bool race_event)
+void TerrainObjectManager::ProcessODefCollisionBoxes(TerrainEditorObjectPtr obj, ODefDocument* odef, const TerrainEditorObjectPtr& params, bool race_event)
 {
     for (ODefCollisionBox& cbox : odef->collision_boxes)
     {
-        if (params.enable_collisions && (App::sim_races_enabled->getBool() || !race_event))
+        if (params->enable_collisions && (App::sim_races_enabled->getBool() || !race_event))
         {
             // Validate AABB (minimum corners must be less or equal to maximum corners)
             if (cbox.aabb_min.x > cbox.aabb_max.x || cbox.aabb_min.y > cbox.aabb_max.y || cbox.aabb_min.z > cbox.aabb_max.z)
@@ -1042,13 +1130,13 @@ void TerrainObjectManager::ProcessODefCollisionBoxes(StaticObject* obj, ODefFile
             }
 
             int boxnum = terrainManager->GetCollisions()->addCollisionBox(
-                cbox.is_rotating, cbox.is_virtual, params.position, params.rotation,
+                cbox.is_rotating, cbox.is_virtual, params->position, params->rotation,
                 cbox.aabb_min, cbox.aabb_max, cbox.box_rot, cbox.event_name,
-                params.instance_name, cbox.reverb_preset_name, cbox.force_cam_pos,
+                params->instance_name, cbox.reverb_preset_name, cbox.force_cam_pos,
                 cbox.cam_pos, cbox.scale, cbox.direction, cbox.event_filter,
-                params.script_handler);
+                params->script_handler);
 
-            obj->collBoxes.push_back(boxnum);
+            obj->static_collision_boxes.push_back(boxnum);
         }
     }
 }
@@ -1067,3 +1155,19 @@ Ogre::SceneNode* TerrainObjectManager::getGroupingSceneNode()
     else
         return App::GetGfxScene()->GetSceneManager()->getRootSceneNode();
 }
+
+TerrainEditorObjectID_t TerrainObjectManager::FindEditorObjectByInstanceName(std::string const& needle_instance_name)
+{
+    // Is this the right 'ModernC++' approach? :/
+    auto itor = std::find_if(m_editor_objects.begin(), m_editor_objects.end(),
+        [needle_instance_name](TerrainEditorObjectPtr& obj) { return obj->instance_name == needle_instance_name; });
+    if (itor != m_editor_objects.end())
+    {
+        return static_cast<int>(std::distance(m_editor_objects.begin(), itor));
+    }
+    else
+    {
+        return TERRAINEDITOROBJECTID_INVALID;
+    }
+}
+

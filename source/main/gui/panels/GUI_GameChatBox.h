@@ -47,6 +47,7 @@ public:
 
     void Draw();
     ConsoleView& GetConsoleView() { return m_console_view; }
+    void AssignBuffer(const std::string& buffer) { m_msg_buffer = buffer; m_scheduled_move_textcursor_to_end = true; }
 
 private:
     void SubmitMessage(); //!< Flush the user input box
@@ -57,6 +58,7 @@ private:
     ConsoleView               m_console_view;
     bool                      initialized = true;
     bool                      init_scroll = false;
+    bool                      m_scheduled_move_textcursor_to_end = false;
 };
 
 } // namespace GUI

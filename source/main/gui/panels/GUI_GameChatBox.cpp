@@ -26,6 +26,7 @@
 #include "ChatSystem.h"
 #include "Console.h"
 #include "GUIManager.h"
+#include "GUIUtils.h"
 #include "Language.h"
 #include "InputEngine.h"
 
@@ -63,17 +64,14 @@ void GameChatBox::Draw()
         msg_pos.y -= chat_size.y;
         msg_size.y -= 6.f; // prevents partially bottom chat messages
     }
+    else
+    {
+        msg_flags |= ImGuiWindowFlags_NoInputs;
+    }
     ImGui::SetNextWindowPos(msg_pos);
     ImGui::SetNextWindowSize(msg_size);
 
-    if (m_is_visible)
-    {
-        ImGui::Begin("ChatMessages", nullptr, msg_flags);
-    }
-    else
-    {
-        ImGui::Begin("ChatMessages", nullptr, msg_flags | ImGuiWindowFlags_NoInputs);
-    }
+    ImGui::Begin("ChatMessages", nullptr, msg_flags);
 
     if (initialized)
     {
@@ -127,6 +125,10 @@ void GameChatBox::Draw()
     // Draw chat box
     ImGuiWindowFlags chat_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+    if (!m_is_visible)
+    {
+        chat_flags |= ImGuiWindowFlags_NoInputs;
+    }
 
     ImGui::SetNextWindowSize(chat_size);
     ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, ImGui::GetIO().DisplaySize.y - (chat_size.y + theme.screen_edge_padding.y)));
@@ -148,8 +150,12 @@ void GameChatBox::Draw()
             ImGui::SetKeyboardFocusHere();
             m_kb_focused = true;
         }
+        if (m_scheduled_move_textcursor_to_end && ImMoveTextInputCursorToEnd("##chatbox"))
+        {
+            m_scheduled_move_textcursor_to_end = false;
+        }
         const ImGuiInputTextFlags cmd_flags = ImGuiInputTextFlags_EnterReturnsTrue;
-        if (ImGui::InputText("", m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
+        if (ImGui::InputText("##chatbox", m_msg_buffer.GetBuffer(), m_msg_buffer.GetCapacity(), cmd_flags))
         {
             if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
             {

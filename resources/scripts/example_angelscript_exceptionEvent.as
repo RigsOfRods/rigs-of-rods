@@ -2,9 +2,13 @@
 // based on Overlays code because those throw a lot.
 // ===================================================
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
 dictionary exception_stats; // fullDesc -> num occurences
 
-//SETUP
+// SETUP
 void main() { game.registerForEvent(SE_GENERIC_EXCEPTION_CAUGHT); }
 
 // EVENT HANDLING
@@ -22,27 +26,33 @@ void eventCallbackEx(scriptEvents ev,
 
 void frameStep(float dt)
 {
-   Ogre::Overlay@ ov;
+    Ogre::Overlay@ ov;
     Ogre::OverlayElement@ pa;
 
-      // CAUTION: attempt to create the same overlay again will throw an exception, 
-     @ ov =  Ogre::OverlayManager::getSingleton().create("ov");
+    // CAUTION: attempt to create the same overlay again will throw an exception, 
+    @ ov =  Ogre::OverlayManager::getSingleton().create("ov");
 
-      // CAUTION: getOverlayElement() will throw exception if not found, 
-      @pa = Ogre::OverlayManager::getSingleton().getOverlayElement("pa"); 
+    // CAUTION: getOverlayElement() will throw exception if not found, 
+    @pa = Ogre::OverlayManager::getSingleton().getOverlayElement("pa"); 
 
-       // CAUTION: using the same name twice will throw an exception,
-       @ pa = Ogre::OverlayManager::getSingleton().createOverlayElement("Panel", "pa"); 
+    // CAUTION: using the same name twice will throw an exception,
+    @ pa = Ogre::OverlayManager::getSingleton().createOverlayElement("Panel", "pa"); 
 
-// ---- the exceptions ----
-     array<string>@tag_keys = exception_stats.getKeys();
-      ImGui::Text("total exception types:"+tag_keys.length());
-     for (uint i=0; i < tag_keys.length(); i++) 
-    { 
-          int tagcount = int(exception_stats[tag_keys[i]]);
-           ImGui::Bullet(); 
-           ImGui::SameLine(); ImGui::TextDisabled('['+tagcount+']');
-           ImGui::SameLine(); ImGui::Text(tag_keys[i]+": "+tagcount);
-     }
-// ------ END exceptions ----
+    // ---- the exceptions ----
+    if (ImGui::Begin("Exception events", closeBtnHandler.windowOpen, 0))
+    {
+        closeBtnHandler.draw();
+        
+        array<string>@tag_keys = exception_stats.getKeys();
+        ImGui::Text("total exception types:"+tag_keys.length());
+        for (uint i=0; i < tag_keys.length(); i++) 
+        { 
+            int tagcount = int(exception_stats[tag_keys[i]]);
+            ImGui::Bullet(); 
+            ImGui::SameLine(); ImGui::TextDisabled('['+tagcount+']');
+            ImGui::SameLine(); ImGui::Text(tag_keys[i]+": "+tagcount);
+        }
+        ImGui::End();
+    }
+    // ------ END exceptions ----
 }

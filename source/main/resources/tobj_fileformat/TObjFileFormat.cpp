@@ -30,7 +30,7 @@ using namespace Ogre;
 // --------------------------------
 // TObjEntry
 
-TObjEntry::TObjEntry(Ogre::Vector3 pos, Ogre::Vector3 rot, const char* odef, TObj::SpecialObject spc, const char* ty, const char* nam):
+TObjEntry::TObjEntry(Ogre::Vector3 pos, Ogre::Vector3 rot, const char* odef, TObjSpecialObject spc, const char* ty, const char* nam):
     position(pos),
     rotation(rot),
     special(spc)
@@ -42,14 +42,14 @@ TObjEntry::TObjEntry(Ogre::Vector3 pos, Ogre::Vector3 rot, const char* odef, TOb
 
 bool TObjEntry::IsRoad() const
 {
-    return (special >= TObj::SpecialObject::ROAD) && (special <= TObj::SpecialObject::ROAD_BRIDGE);
+    return (special >= TObjSpecialObject::ROAD) && (special <= TObjSpecialObject::ROAD_BRIDGE);
 }
 
 bool TObjEntry::IsActor() const
 {
-    return (special == TObj::SpecialObject::TRUCK)   || (special == TObj::SpecialObject::LOAD) ||
-           (special == TObj::SpecialObject::MACHINE) || (special == TObj::SpecialObject::BOAT) ||
-           (special == TObj::SpecialObject::TRUCK2);
+    return (special == TObjSpecialObject::TRUCK)   || (special == TObjSpecialObject::LOAD) ||
+           (special == TObjSpecialObject::MACHINE) || (special == TObjSpecialObject::BOAT) ||
+           (special == TObjSpecialObject::TRUCK2);
 }
 
 // --------------------------------
@@ -66,21 +66,35 @@ void TObjParser::Prepare()
     m_default_rendering_distance = 0.f;
     m_rot_yxz            = false;
     
-    m_def = std::shared_ptr<TObjFile>(new TObjFile());
+    m_def = TObjDocumentPtr(new TObjDocument());
 }
 
 bool TObjParser::ProcessLine(const char* line)
 {
     bool result = true;
-    if ((line != nullptr) && (line[0] != 0) && (line[0] != '/') && (line[0] != ';'))
+    if ((line != nullptr) && (line[0] != 0))
     {
-        m_cur_line = line; // No trimming by design.
-        m_cur_line_trimmed = line;
-        while (m_cur_line_trimmed[0] == ' ' || m_cur_line_trimmed[0] == '\t')
+        bool is_comment = (line[0] == '/') || (line[0] == ';');
+        if (is_comment)
         {
-            m_cur_line_trimmed++;
+            int text_start = 1;
+            while (line[text_start] == '/')
+            {
+                text_start++;
+            }
+            m_preceding_line_comments += std::string(line + text_start) + "\n";
         }
-        result = this->ProcessCurrentLine();
+        else
+        {
+            m_cur_line = line; // No trimming by design.
+            m_cur_line_trimmed = line;
+            while (m_cur_line_trimmed[0] == ' ' || m_cur_line_trimmed[0] == '\t')
+            {
+                m_cur_line_trimmed++;
+            }
+            result = this->ProcessCurrentLine();
+            m_preceding_line_comments = "";
+        }
     }
     m_line_number++;
     return result;
@@ -119,7 +133,7 @@ bool TObjParser::ProcessCurrentLine()
         const int result = sscanf(m_cur_line, "set_default_rendering_distance %f", &m_default_rendering_distance);
         if (result != 1)
         {
-            LOG(fmt::format("too few parameters on line: '{}'", m_cur_line));
+            LOG(fmt::format("too few parameters on line: '{}' ({}, line {})", m_cur_line, m_filename, m_line_number));
         }
         return true;
     }
@@ -148,11 +162,23 @@ bool TObjParser::ProcessCurrentLine()
     {
         if (m_in_procedural_road)
         {
-            sscanf(m_cur_line_trimmed, "smoothing_num_splits %d", &m_cur_procedural_obj->smoothing_num_splits);
+            int result = sscanf(m_cur_line_trimmed, "smoothing_num_splits %d", &m_cur_procedural_obj->smoothing_num_splits);
+            if (result != 1)
+            {
+                LOG(fmt::format("[RoR|TObj] not enough parameters at line '{}' ({}, line {})", m_cur_line, m_filename, m_line_number));
+            }
         }
         return true;
     }
-    
+    if (strncmp("collision_enabled", m_cur_line_trimmed, 17) == 0)
+    {
+        if (m_in_procedural_road)
+        {
+            const char* value = m_cur_line_trimmed + 17; // C pointer arithmetic
+            m_cur_procedural_obj->collision_enabled = Ogre::StringConverter::parseBool(value, false);
+        }
+        return true;
+    }
 
     // ** Process entries (ODEF or special objects)
 
@@ -182,20 +208,22 @@ bool TObjParser::ProcessCurrentLine()
     return true;
 }
 
-std::shared_ptr<TObjFile> TObjParser::Finalize()
+TObjDocumentPtr TObjParser::Finalize()
 {
     // finish the last road
     if (m_road2_num_blocks > 0)
     {
         Vector3 pp_pos = m_road2_last_pos + m_road2_last_rot * Vector3(10.0f, 0.0f, 0.9f);
-        this->ImportProceduralPoint(pp_pos, m_road2_last_rot, TObj::SpecialObject::ROAD);
+        this->ImportProceduralPoint(pp_pos, m_road2_last_rot, TObjSpecialObject::ROAD);
 
         this->FlushProceduralObject();
     }
 
+    m_def->document_name = m_filename;
+    m_def->rot_yxz = m_rot_yxz;
     m_filename = "";
 
-    std::shared_ptr<TObjFile> tmp_def = m_def;
+    TObjDocumentPtr tmp_def = m_def;
     m_def.reset();
     return tmp_def; // Pass ownership
 }
@@ -225,7 +253,7 @@ void TObjParser::ProcessProceduralLine()
         &rot.x, &rot.y, &rot.z,
         &point.width, &point.bwidth, &point.bheight, obj_name.GetBuffer());
 
-    point.rotation = this->CalcRotation(rot);
+    point.rotation = this->CalcRotation(rot, m_rot_yxz);
 
          if (obj_name == "flat"             ) { point.type = RoadType::ROAD_FLAT;  }
     else if (obj_name == "left"             ) { point.type = RoadType::ROAD_LEFT;  }
@@ -235,7 +263,10 @@ void TObjParser::ProcessProceduralLine()
     else if (obj_name == "monorail"         ) { point.type = RoadType::ROAD_MONORAIL;  point.pillartype = 2; }
     else if (obj_name == "monorail2"        ) { point.type = RoadType::ROAD_MONORAIL;  point.pillartype = 0; }
     else if (obj_name == "bridge_no_pillars") { point.type = RoadType::ROAD_BRIDGE;    point.pillartype = 0; }
-    else                                      { point.type = RoadType::ROAD_AUTOMATIC; point.pillartype = 0; }
+    else                                      { point.type = RoadType::ROAD_AUTOMATIC; point.pillartype = 1; }
+
+    // Attach comments
+    point.comments = m_preceding_line_comments;
 
     m_cur_procedural_obj->points.push_back(new ProceduralPoint(point));
 }
@@ -304,7 +335,8 @@ void TObjParser::ProcessActorObject(const TObjEntry& object)
 {
     TObjVehicle v;
     v.position = object.position;
-    v.rotation = this->CalcRotation(object.rotation);
+    v.tobj_rotation = object.rotation;
+    v.rotation = this->CalcRotation(object.rotation, m_rot_yxz);
     v.type = object.special;
     strcpy(v.name, object.type);
 
@@ -320,7 +352,7 @@ void TObjParser::ProcessRoadObject(const TObjEntry& object)
         // break the road
         if (m_road2_num_blocks > 0)
         {
-            Vector3 pp_pos = m_road2_last_pos + this->CalcRotation(m_road2_last_rot) * Vector3(10.0f, 0.0f, 0.9f);
+            Vector3 pp_pos = m_road2_last_pos + this->CalcRotation(m_road2_last_rot, m_rot_yxz) * Vector3(10.0f, 0.0f, 0.9f);
             this->ImportProceduralPoint(pp_pos, m_road2_last_rot, object.special);
             this->FlushProceduralObject();
         }
@@ -340,16 +372,19 @@ void TObjParser::ProcessRoadObject(const TObjEntry& object)
 // --------------------------------
 // Helpers
 
-void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObj::SpecialObject special)
+void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 const& rot, TObjSpecialObject special)
 {
     ProceduralPoint pp;
     pp.bheight    = 0.2;
     pp.bwidth     = 1.4;
-    pp.pillartype = (int)(special != TObj::SpecialObject::ROAD_BRIDGE_NO_PILLARS);
+    pp.pillartype = (int)(special != TObjSpecialObject::ROAD_BRIDGE_NO_PILLARS);
     pp.position   = pos;
-    pp.rotation   = this->CalcRotation(rot);
-    pp.type       = (special == TObj::SpecialObject::ROAD) ? RoadType::ROAD_FLAT : RoadType::ROAD_AUTOMATIC;
+    pp.rotation   = CalcRotation(rot, m_rot_yxz);
+    pp.type       = (special == TObjSpecialObject::ROAD) ? RoadType::ROAD_FLAT : RoadType::ROAD_AUTOMATIC;
     pp.width      = 8;
+
+    // Attach comments
+    pp.comments = m_preceding_line_comments;
 
     m_cur_procedural_obj->points.push_back(new ProceduralPoint(pp));
     if (m_cur_procedural_obj_start_line == -1)
@@ -358,9 +393,9 @@ void TObjParser::ImportProceduralPoint(Ogre::Vector3 const& pos, Ogre::Vector3 c
     }
 }
 
-Ogre::Quaternion TObjParser::CalcRotation(Ogre::Vector3 const& rot) const
+Ogre::Quaternion TObjParser::CalcRotation(Ogre::Vector3 const& rot, bool rot_yxz)
 {
-    if (m_rot_yxz)
+    if (rot_yxz)
     {
         return Quaternion(Degree(rot.y), Vector3::UNIT_Y) *  // y global
                Quaternion(Degree(rot.x), Vector3::UNIT_X) *  // x local
@@ -376,34 +411,50 @@ Ogre::Quaternion TObjParser::CalcRotation(Ogre::Vector3 const& rot) const
 
 bool TObjParser::ParseObjectLine(TObjEntry& object)
 {
-    Str<300> odef("generic");
-    char type[100] = {};
-    char name[100] = {};
+    Str<TObj::STR_LEN> odef("generic");
+    Str<TObj::STR_LEN> type("");
+    Str<TObj::STR_LEN> instance_name("");
     Ogre::Vector3 pos(Ogre::Vector3::ZERO);
     Ogre::Vector3 rot(Ogre::Vector3::ZERO);
     int r = sscanf(m_cur_line, "%f, %f, %f, %f, %f, %f, %s %s %s",
-        &pos.x, &pos.y, &pos.z, &rot.x, &rot.y, &rot.z, odef.GetBuffer(), type, name);
+        &pos.x, &pos.y, &pos.z, &rot.x, &rot.y, &rot.z, odef.GetBuffer(), type.GetBuffer(), instance_name.GetBuffer());
     if (r < 6)
     {
         return false;
     }
 
-    TObj::SpecialObject special = TObj::SpecialObject::NONE;
-         if (odef == "truck"             ) { special = TObj::SpecialObject::TRUCK                 ; }
-    else if (odef == "load"              ) { special = TObj::SpecialObject::LOAD                  ; }
-    else if (odef == "machine"           ) { special = TObj::SpecialObject::MACHINE               ; }
-    else if (odef == "boat"              ) { special = TObj::SpecialObject::BOAT                  ; }
-    else if (odef == "truck2"            ) { special = TObj::SpecialObject::TRUCK2                ; }
-    else if (odef == "grid"              ) { special = TObj::SpecialObject::GRID                  ; }
-    else if (odef == "road"              ) { special = TObj::SpecialObject::ROAD                  ; }
-    else if (odef == "roadborderleft"    ) { special = TObj::SpecialObject::ROAD_BORDER_LEFT      ; }
-    else if (odef == "roadborderright"   ) { special = TObj::SpecialObject::ROAD_BORDER_RIGHT     ; }
-    else if (odef == "roadborderboth"    ) { special = TObj::SpecialObject::ROAD_BORDER_BOTH      ; }
-    else if (odef == "roadbridgenopillar") { special = TObj::SpecialObject::ROAD_BRIDGE_NO_PILLARS; }
-    else if (odef == "roadbridge"        ) { special = TObj::SpecialObject::ROAD_BRIDGE           ; }
+    TObjSpecialObject special = TObjSpecialObject::NONE;
+         if (odef == "truck"             ) { special = TObjSpecialObject::TRUCK                 ; }
+    else if (odef == "load"              ) { special = TObjSpecialObject::LOAD                  ; }
+    else if (odef == "machine"           ) { special = TObjSpecialObject::MACHINE               ; }
+    else if (odef == "boat"              ) { special = TObjSpecialObject::BOAT                  ; }
+    else if (odef == "truck2"            ) { special = TObjSpecialObject::TRUCK2                ; }
+    else if (odef == "grid"              ) { special = TObjSpecialObject::GRID                  ; }
+    else if (odef == "road"              ) { special = TObjSpecialObject::ROAD                  ; }
+    else if (odef == "roadborderleft"    ) { special = TObjSpecialObject::ROAD_BORDER_LEFT      ; }
+    else if (odef == "roadborderright"   ) { special = TObjSpecialObject::ROAD_BORDER_RIGHT     ; }
+    else if (odef == "roadborderboth"    ) { special = TObjSpecialObject::ROAD_BORDER_BOTH      ; }
+    else if (odef == "roadbridgenopillar") { special = TObjSpecialObject::ROAD_BRIDGE_NO_PILLARS; }
+    else if (odef == "roadbridge"        ) { special = TObjSpecialObject::ROAD_BRIDGE           ; }
 
-    object = TObjEntry(pos, rot, odef.ToCStr(), special, type, name);
+    // If no instance name given, generate one, so that scripts can use `game.destroyObject(instanceName)` even for pre-placed objects.
+    // Don't use spaces because TOBJ parser doesn't support "" yet (game tries to strip the 'auto^' instancenames on save, but someone could export via custom script).
+    if (instance_name == "")
+    {
+        instance_name << "auto^" << m_filename << "(line:" << m_line_number << ")";
+        // Also set 'type' arg to non-empty (same reason).
+        if (special == TObjSpecialObject::NONE)
+        {
+            type << "-";
+        }
+    }
+
+    object = TObjEntry(pos, rot, odef.ToCStr(), special, type, instance_name);
     object.rendering_distance = m_default_rendering_distance;
+
+    // Attach comments
+    object.comments = m_preceding_line_comments;
+
     return true;
 }
 
@@ -416,3 +467,159 @@ void TObjParser::FlushProceduralObject()
     m_cur_procedural_obj_start_line = -1;
     m_road2_num_blocks = 0;
 }
+
+void WriteTObjDelimiter(Ogre::DataStreamPtr& stream, const std::string& title, size_t count)
+{
+    if (count > 0)
+    {
+        std::string line = fmt::format("\n\n//    ~~~~~~~~~~    {} ({})    ~~~~~~~~~~\n\n", title, count);
+        stream->write(line.c_str(), line.length());
+    }
+}
+
+void TObj::WriteToStream(TObjDocumentPtr doc, Ogre::DataStreamPtr stream)
+{
+    // assert on Debug, play safe on Release
+    ROR_ASSERT(doc);
+    ROR_ASSERT(stream);
+    if (!doc || !stream)
+    {
+        return;
+    }
+
+    // 'grid'
+    WriteTObjDelimiter(stream, "grid", (int)doc->grid_enabled);
+    if (doc->grid_enabled)
+    {
+        std::string line = fmt::format("grid {}, {}, {}\n");
+        stream->write(line.c_str(), line.length());
+    }
+
+    // 'trees'
+    WriteTObjDelimiter(stream, "trees", doc->trees.size());
+    for (TObjTree& tree : doc->trees)
+    {
+        std::string line = fmt::format("trees {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {} {} {} {:9f} {}\n",
+            tree.yaw_from, tree.yaw_to,
+            tree.scale_from, tree.scale_to,
+            tree.high_density,
+            tree.min_distance, tree.max_distance,
+            tree.tree_mesh, tree.color_map, tree.density_map,
+            tree.grid_spacing, tree.collision_mesh);
+        stream->write(line.c_str(), line.length());
+    }
+
+    // 'grass2' (incudes 'grass' elements)
+    WriteTObjDelimiter(stream, "grass", doc->grass.size());
+    for (TObjGrass& grass : doc->grass)
+    {
+        std::string line = fmt::format("grass2 {}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {}, {:9f}, {:9f}, {}, {} {} {}\n",
+            grass.range,
+            grass.sway_speed, grass.sway_length, grass.sway_distrib, grass.density,
+            grass.min_x, grass.min_y, grass.max_x, grass.max_y,
+            grass.grow_techniq, grass.min_h, grass.max_h, grass.technique,
+            grass.material_name,
+            grass.color_map_filename,
+            grass.density_map_filename);
+        stream->write(line.c_str(), line.length());
+    }
+
+    // vehicles ('truck', 'truck2', 'boat', 'load', 'machine')
+    WriteTObjDelimiter(stream, "vehicles/loads/machines", doc->vehicles.size());
+    for (TObjVehicle& vehicle : doc->vehicles)
+    {
+        // Handle preceding comments
+        if (vehicle.comments != "")
+        {
+            for (Ogre::String& commenttext : Ogre::StringUtil::split(vehicle.comments, "\n"))
+            {
+                std::string commentline = fmt::format("// {}\n", commenttext);
+                stream->write(commentline.c_str(), commentline.length());
+            }
+        }
+
+        std::string line = fmt::format("{:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {:9f}, {} {}\n",
+            vehicle.position.x, vehicle.position.y, vehicle.position.z,
+            vehicle.tobj_rotation.x, vehicle.tobj_rotation.y, vehicle.tobj_rotation.z,
+            TObjSpecialObjectToString(vehicle.type), (const char*)vehicle.name);
+        stream->write(line.c_str(), line.length());
+    }
+
+    // procedural objects
+    WriteTObjDelimiter(stream, "roads", doc->proc_objects.size());
+    for (ProceduralObjectPtr& procobj : doc->proc_objects)
+    {
+        std::string bline = "begin_procedural_roads\n";
+        stream->write(bline.c_str(), bline.length());
+
+        std::string sline = fmt::format("    smoothing_num_splits {}\n", procobj->smoothing_num_splits);
+        stream->write(sline.c_str(), sline.length());
+
+        std::string cline = fmt::format("    collision_enabled {}\n", procobj->collision_enabled);
+        stream->write(cline.c_str(), cline.length());
+
+        for (ProceduralPointPtr& point : procobj->points)
+        {
+            std::string type_str;
+            switch (point->type)
+            {
+            case RoadType::ROAD_AUTOMATIC: type_str = "auto"; break;
+            case RoadType::ROAD_FLAT: type_str = "flat"; break;
+            case RoadType::ROAD_LEFT: type_str = "left"; break;
+            case RoadType::ROAD_RIGHT: type_str = "right"; break;
+            case RoadType::ROAD_BOTH: type_str = "both"; break;
+            case RoadType::ROAD_BRIDGE: type_str = (point->pillartype == 1) ? "bridge" : "bridge_no_pillars"; break;
+            case RoadType::ROAD_MONORAIL: type_str = (point->pillartype == 2) ? "monorail" : "monorail2"; break;
+            }
+
+            // Handle preceding comments
+            if (point->comments != "")
+            {
+                for (Ogre::String& commenttext : Ogre::StringUtil::split(point->comments, "\n"))
+                {
+                    std::string commentline = fmt::format("// {}\n", commenttext);
+                    stream->write(commentline.c_str(), commentline.length());
+                }
+            }
+
+            std::string line = fmt::format(
+                "\t{:13f}, {:13f}, {:13f}, 0, {:13f}, 0, {:13f}, {:13f}, {:13f}, {}\n",
+                point->position.x, point->position.y, point->position.z,
+                point->rotation.getYaw(false).valueDegrees(),
+                point->width, point->bwidth, point->bheight, type_str);
+            stream->write(line.c_str(), line.length());
+        }
+
+        std::string eline = "end_procedural_roads\n";
+        stream->write(eline.c_str(), eline.length());
+    }
+
+    // static objects
+    WriteTObjDelimiter(stream, "static objects", doc->objects.size());
+    for (TObjEntry& entry : doc->objects)
+    {
+        // Handle preceding comments
+        if (entry.comments != "")
+        {
+            for (Ogre::String& commenttext : Ogre::StringUtil::split(entry.comments, "\n"))
+            {
+                std::string commentline = fmt::format("// {}\n", commenttext);
+                stream->write(commentline.c_str(), commentline.length());
+            }
+        }
+
+        // Don't save autogenerated instance names
+        std::string valid_instance_name;
+        if (strncmp(entry.instance_name, "auto^", 5) != 0)
+        {
+            valid_instance_name = entry.instance_name;
+        }
+
+        std::string line = fmt::format("{:8.3f}, {:8.3f}, {:8.3f}, {:9f}, {:9f}, {:9f}, {} {} {}\n",
+            entry.position.x, entry.position.y, entry.position.z,
+            entry.rotation.x, entry.rotation.y, entry.rotation.z,
+            entry.odef_name, entry.type, valid_instance_name);
+        stream->write(line.c_str(), line.length());
+    }
+}
+

@@ -8,6 +8,10 @@
 /// * HELPERS - funcs
 /// ===================================================
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
+
 //#region GAME CALLBACKS:
 
 // `main()` runs once when script is loaded.
@@ -20,33 +24,40 @@ void main()
 //  `frameStep()` runs every frame; `dt` is delta time in seconds.
 void frameStep(float dt)
 {
-    ImGui::TextDisabled("::: NODE HIGHLIGHT DEMO:::");
-    ImGui::Separator();
-    BeamClass@ actor = game.getCurrentTruck();
-    if (@actor == null) 
+    if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
     {
-        ImGui::Text("you are on foot");
-    }
-    else
-    {
-        ImGui::Text("Driving '"+actor.getTruckName()+"' with total "+actor.getNodeCount()+" nodes ("+actor.getWheelNodeCount()+" wheel nodes)");
+        closeBtnHandler.draw();
         
-        drawNodeHighlights(actor);
-        
-        // Left mouse button click = flip the selection state of the
-        if (mouseHoveredNodeID != -1 && ImGui::IsMouseClicked(0))
+        ImGui::TextDisabled("::: NODE HIGHLIGHT DEMO:::");
+        ImGui::Separator();
+        BeamClass@ actor = game.getCurrentTruck();
+        if (@actor == null) 
         {
-            nodeSelectedStates[mouseHoveredNodeID] = !nodeSelectedStates[mouseHoveredNodeID];
+            ImGui::Text("you are on foot");
+        }
+        else
+        {
+            ImGui::Text("Driving '"+actor.getTruckName()+"' with total "+actor.getNodeCount()+" nodes ("+actor.getWheelNodeCount()+" wheel nodes)");
+            
+            drawNodeHighlights(actor);
+            
+            // Left mouse button click = flip the selection state of the
+            if (mouseHoveredNodeID != -1 && ImGui::IsMouseClicked(0))
+            {
+                nodeSelectedStates[mouseHoveredNodeID] = !nodeSelectedStates[mouseHoveredNodeID];
+            }
+            
+            
+            drawNodeSelectionUI();
+            
+            if (ImGui::CollapsingHeader("Config"))
+            {
+                drawConfigUI();
+            }
         }
         
-        
-        drawNodeSelectionUI();
-        
-        if (ImGui::CollapsingHeader("Config"))
-        {
-            drawConfigUI();
-        }
-    }
+        ImGui::End();
+    }    
 }
 
 // Handles events registered using `game.registerForEvent()`
@@ -167,8 +178,9 @@ void drawNodeHighlights(BeamClass@ actor)
     int mouseClosestNodeID = -1;
     
     int mouseClosestNodeDist = 999999;
+    nodeSelectedStates.resize(actor.getNodeCount());
     
-    ImDrawList@ drawlist = getDummyFullscreenWindow("nodeHighlights");
+    ImDrawList@ drawlist = imgui_utils::ImGetDummyFullscreenWindow("nodeHighlights");
     for (int i = 0; i < actor.getNodeCount(); i++)
     {
         vector3 posWorld = actor.getNodePosition(i);
@@ -228,23 +240,6 @@ void drawNodeHighlights(BeamClass@ actor)
 // #endregion
 
 // #region HELPERS
-
-// shamelessly copypasted from 'road_editor.as', line 787
-ImDrawList@ getDummyFullscreenWindow(const string&in name)
-{
-    // Dummy fullscreen window to draw to
-    int window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar| ImGuiWindowFlags_NoInputs 
-    | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus;
-    ImGui::SetNextWindowPos(vector2(0,0));
-    ImGui::SetNextWindowSize(game.getDisplaySize());
-    ImGui::PushStyleColor(/*ImGuiCol_WindowBg*/2, color(0.f,0.f,0.f,0.f)); // Fully transparent background!
-    ImGui::Begin(name, /*open:*/true, window_flags);
-    ImDrawList@ drawlist = ImGui::GetWindowDrawList();
-    ImGui::End();
-    ImGui::PopStyleColor(1); // WindowBg
-    
-    return drawlist;    
-}
 
 // shamelessly copypasted from 'road_editor.as', line 803
 int getMouseShortestDistance(vector2 mouse, vector2 target)

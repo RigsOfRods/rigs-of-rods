@@ -56,6 +56,7 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include <sstream>
+#include <OgreMeshLodGenerator.h>
 
 using namespace Ogre;
 using namespace RoR;
@@ -243,6 +244,8 @@ void ContentManager::InitContentManager()
 #ifdef USE_OPENAL
     App::GetSoundScriptManager()->setLoadingBaseSounds(false);
 #endif // USE_OPENAL
+
+    new Ogre::MeshLodGenerator();
 }
 
 void ContentManager::InitModCache(CacheValidity validity)
@@ -275,6 +278,10 @@ void ContentManager::InitModCache(CacheValidity validity)
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_process_dir->getStr(), "content") , "FileSystem", RGN_CONTENT);
     std::string objects = PathCombine("resources", "beamobjects.zip");
     ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_process_dir->getStr(), objects)   , "Zip"       , RGN_CONTENT);
+    std::string dashboards = PathCombine("resources", "dashboards.zip");
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_process_dir->getStr(), dashboards), "Zip", RGN_CONTENT);
+    std::string gadgets = PathCombine("resources", "gadgets.zip");
+    ResourceGroupManager::getSingleton().addResourceLocation(PathCombine(App::sys_process_dir->getStr(), gadgets), "Zip", RGN_CONTENT);
     
     // Create RGN_TEMP in recursive mode to find all subdirectories.
 

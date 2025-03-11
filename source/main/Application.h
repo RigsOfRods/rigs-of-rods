@@ -110,6 +110,8 @@ enum MsgType
     MSG_NET_REFRESH_REPOLIST_FAILURE,      //!< Payload = RoR::CurlFailInfo* (owner)
     MSG_NET_FETCH_AI_PRESETS_SUCCESS,      //!< Description = JSON string
     MSG_NET_FETCH_AI_PRESETS_FAILURE,      //!< Description = message
+    MSG_NET_ADD_PEEROPTIONS_REQUESTED,     //!< Payload = RoR::PeerOptionsRequest* (owner)
+    MSG_NET_REMOVE_PEEROPTIONS_REQUESTED,  //!< Payload = RoR::PeerOptionsRequest* (owner)
     // Simulation
     MSG_SIM_PAUSE_REQUESTED,
     MSG_SIM_UNPAUSE_REQUESTED,
@@ -123,6 +125,8 @@ enum MsgType
     MSG_SIM_TELEPORT_PLAYER_REQUESTED,     //!< Payload = Ogre::Vector3* (owner)
     MSG_SIM_HIDE_NET_ACTOR_REQUESTED,      //!< Payload = ActorPtr* (owner)
     MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED,    //!< Payload = ActorPtr* (owner)
+    MSG_SIM_MUTE_NET_ACTOR_REQUESTED,      //!< Payload = ActorPtr* (owner)
+    MSG_SIM_UNMUTE_NET_ACTOR_REQUESTED,    //!< Payload = ActorPtr* (owner)
     MSG_SIM_SCRIPT_EVENT_TRIGGERED,        //!< Payload = RoR::ScriptEventArgs* (owner)
     MSG_SIM_SCRIPT_CALLBACK_QUEUED,        //!< Payload = RoR::ScriptCallbackArgs* (owner)
     MSG_SIM_ACTOR_LINKING_REQUESTED,       //!< Payload = RoR::ActorLinkingRequest* (owner)
@@ -140,6 +144,7 @@ enum MsgType
     MSG_GUI_DOWNLOAD_PROGRESS,
     MSG_GUI_DOWNLOAD_FINISHED,
     MSG_GUI_REFRESH_TUNING_MENU_REQUESTED,
+    MSG_GUI_SHOW_CHATBOX_REQUESTED,        //!< Description = message or server command to pre-fill in the chatbox (deleting whatever was there previously)
     // Editing
     MSG_EDI_MODIFY_GROUNDMODEL_REQUESTED,  //!< Payload = RoR::ground_model_t* (weak)
     MSG_EDI_ENTER_TERRN_EDITOR_REQUESTED,
@@ -287,6 +292,18 @@ enum class SimResetMode
 };
 std::string ToLocalizedString(SimResetMode e);
 
+/// See `UiPresets[]` list in GUIManager.cpp (declared extern in GUIManager.h)
+// Do NOT change numbers - used for indexing `RoR::UiPresetEntry::uip_values`
+enum class UiPreset
+{
+    NOVICE,
+    REGULAR,
+    EXPERT,
+    MINIMALLIST,
+    Count
+};
+std::string ToLocalizedString(UiPreset e);
+
 enum VisibilityMasks
 {
     DEPTHMAP_ENABLED  = BITMASK(1),
@@ -312,7 +329,54 @@ enum LoaderType //!< Search mode for `ModCache::Query()` & Operation mode for `G
     LT_AddonPart, // No script alias, invoked manually, ext: addonpart
     LT_Tuneup,    // No script alias, invoked manually, ext: tuneup
     LT_AssetPack, // No script alias, invoked manually, ext: assetpack
+    LT_DashBoard, // No script alias, invoked manually, ext: dashboard
+    LT_Gadget,    // No script alias, invoked manually, ext: gadget
 };
+
+enum CacheCategoryId
+{
+    CID_None = 0,
+
+    CID_DashboardsGeneric = 200,
+    CID_DashboardsTruck = 201,
+    CID_DashboardsBoat = 202,
+
+    CID_GadgetsGeneric = 300,
+    CID_GadgetsActor = 301,
+    CID_GadgetsTerrain = 302,
+
+    CID_Projects = 8000, //!< For truck files under 'projects/' directory, to allow listing from editors.
+    CID_Tuneups = 8001, //!< For unsorted tuneup files.
+
+    CID_Max = 9000, //!< SPECIAL VALUE - Maximum allowed to be present in any mod files.
+    CID_Unsorted = 9990,
+    CID_All = 9991,
+    CID_Fresh = 9992,
+    CID_Hidden = 9993,
+    CID_SearchResults = 9994,
+};
+
+enum class TObjSpecialObject
+{
+    // Exported to AngelScript:
+    NONE,
+    TRUCK,
+    LOAD,
+    MACHINE,
+    BOAT,
+    TRUCK2, //!< Free position (not auto-adjusted to fit terrain or water surface)
+
+    // Not exported to AngelScript:
+    GRID,
+    // Road types
+    ROAD,
+    ROAD_BORDER_LEFT,
+    ROAD_BORDER_RIGHT,
+    ROAD_BORDER_BOTH,
+    ROAD_BRIDGE_NO_PILLARS,
+    ROAD_BRIDGE,
+};
+const char* TObjSpecialObjectToString(TObjSpecialObject val);
 
 // ------------------------------------------------------------------------------------------------
 // Global variables
@@ -498,12 +562,12 @@ extern CVar* gfx_fov_internal_default;
 extern CVar* gfx_static_cam_fov_exp;
 extern CVar* gfx_fixed_cam_tracking;
 extern CVar* gfx_fps_limit;
-extern CVar* gfx_speedo_digital;
 extern CVar* gfx_speedo_imperial;
 extern CVar* gfx_flexbody_cache;
 extern CVar* gfx_reduce_shadows;
 extern CVar* gfx_enable_rtshaders;
 extern CVar* gfx_alt_actor_materials;
+extern CVar* gfx_auto_lod;
 
 // Flexbodies
 extern CVar* flexbody_defrag_enabled;
@@ -515,8 +579,12 @@ extern CVar* flexbody_defrag_reorder_texcoords;
 extern CVar* flexbody_defrag_invert_lookup;
 
 // GUI
-extern CVar* ui_show_live_repair_controls;
+extern CVar* ui_show_live_repair_controls; //!< bool
 extern CVar* ui_show_vehicle_buttons;
+extern CVar* ui_preset;                    //!< enum `RoR::UiPreset`
+extern CVar* ui_hide_gui;                  //!< bool; The 'hide GUI' hotkey state
+extern CVar* ui_default_truck_dash;        //!< string; name of the '.dashboard' file in modcache.
+extern CVar* ui_default_boat_dash;         //!< string; name of the '.dashboard' file in modcache.
 
 // ------------------------------------------------------------------------------------------------
 // Global objects

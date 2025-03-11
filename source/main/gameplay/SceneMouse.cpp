@@ -111,11 +111,13 @@ void SceneMouse::reset()
     mouseGrabState = 0;
 }
 
-bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
+bool SceneMouse::handleMouseMoved()
 {
-    const OIS::MouseState ms = _arg.state;
+    // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
+    //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
+    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
 
-    // experimental mouse hack
+
     if (ms.buttonDown(OIS::MB_Left) && mouseGrabState == 0)
     {
         lastMouseY = ms.Y.abs;
@@ -176,7 +178,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
             }
         }
     }
-    else if (ms.buttonDown(OIS::MB_Left) && mouseGrabState == 1)
+    else if (App::GetInputEngine()->getMouseState().buttonDown(OIS::MB_Left) && mouseGrabState == 1)
     {
         // force applying and so forth happens in update()
         lastMouseY = ms.Y.abs;
@@ -184,7 +186,7 @@ bool SceneMouse::mouseMoved(const OIS::MouseEvent& _arg)
         // not fixed
         return false;
     }
-    else if (!ms.buttonDown(OIS::MB_Left) && mouseGrabState == 1)
+    else if (!App::GetInputEngine()->getMouseState().buttonDown(OIS::MB_Left) && mouseGrabState == 1)
     {
         releaseMousePick();
         // not fixed
@@ -224,11 +226,13 @@ void SceneMouse::UpdateVisuals()
     }
 }
 
-bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool SceneMouse::handleMousePressed()
 {
     if (App::sim_state->getEnum<SimState>() == SimState::PAUSED) { return true; } // Do nothing when paused
 
-    const OIS::MouseState ms = _arg.state;
+    // IMPORTANT: get mouse button state from InputEngine, not from OIS directly
+    //  - that state may be dirty, see commentary in `InputEngine::getMouseState()`
+    const OIS::MouseState ms = App::GetInputEngine()->getMouseState();
 
     if (ms.buttonDown(OIS::MB_Middle))
     {
@@ -300,7 +304,7 @@ bool SceneMouse::mousePressed(const OIS::MouseEvent& _arg, OIS::MouseButtonID _i
     return true;
 }
 
-bool SceneMouse::mouseReleased(const OIS::MouseEvent& _arg, OIS::MouseButtonID _id)
+bool SceneMouse::handleMouseReleased()
 {
     if (App::sim_state->getEnum<SimState>() == SimState::PAUSED) { return true; } // Do nothing when paused
 

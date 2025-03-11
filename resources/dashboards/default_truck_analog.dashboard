@@ -1,0 +1,20 @@
+; A dashboard mod MUST contain a '.dashboard' file, even if just empty.
+; Recognized parameters:
+; * dashboard_name <string>
+; * dashboard_description <string>
+; * dashboard_author <string: credit> <int: forum ID> <string: name> <string: email>
+; * dashboard_category <int: 200=Generic, 201=Truck, 202=Boat>
+;
+; Custom fonts are supported via .resource files (XML, same syntax as MyGui_FontsDash.xml in 'dashboards.zip').
+;
+; All layout+resource files must start the same as the .dashboard file.
+; For example: foo.dashboard -> foo_dashboard.layout, foo_dashboard.resource
+; Optional layout filename tags:
+; * '_Nrpm' ~ N is the redline RPM
+; * '_Xph' ~ X is units (k=Kilometers | m=Miles)
+; ----------------------------------------------------------------------------------
+
+dashboard_name "Default - Truck analog"
+dashboard_description "Default dashboard with analog speedometer"
+dashboard_author "7000 RPM tacho" -1 "Klink"
+dashboard_category   201

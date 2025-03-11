@@ -63,6 +63,7 @@ public:
     const ActorPtr& FetchNextVehicleOnList(ActorPtr player, ActorPtr prev_player);
     const ActorPtr& FetchPreviousVehicleOnList(ActorPtr player, ActorPtr prev_player);
     const ActorPtr& FetchRescueVehicle();
+    ActorInstanceID_t GetActorNextInstanceId() { return m_actor_next_instance_id++; } //!< Script proxy: `game.getActorNextInstanceId()`
     /// @}
 
     /// @name Free forces
@@ -71,7 +72,7 @@ public:
     void           ModifyFreeForce(FreeForceRequest* rq);
     void           RemoveFreeForce(FreeForceID_t id);
     FreeForceVec_t::iterator FindFreeForce(FreeForceID_t id);
-    FreeForceID_t  GetFreeForceNextId() { return m_free_force_next_id++; }
+    FreeForceID_t  GetFreeForceNextId() { return m_free_force_next_id++; } //!< Script proxy: `game.getFreeForceNextId()`
     /// @}
 
     void           UpdateActors(ActorPtr player_actor);
@@ -85,8 +86,6 @@ public:
     void           AddStreamMismatch(int sourceid, int streamid) { m_stream_mismatches[sourceid].insert(streamid); };
     int            CheckNetworkStreamsOk(int sourceid);
     int            CheckNetRemoteStreamsOk(int sourceid);
-    void           MuteAllActors();
-    void           UnmuteAllActors();
     void           SetTrucksForcedAwake(bool forced)       { m_forced_awake = forced; };
     bool           AreTrucksForcedAwake() const            { return m_forced_awake; }
     void           SetSimulationSpeed(float speed)         { m_simulation_speed = std::max(0.0f, speed); };
@@ -104,7 +103,7 @@ public:
     
 
     void           UpdateInputEvents(float dt);
-    RigDef::DocumentPtr   FetchActorDef(std::string filename, bool predefined_on_terrain = false);
+    RigDef::DocumentPtr   FetchActorDef(RoR::ActorSpawnRequest& rq);
 
 #ifdef USE_SOCKETW
     void           HandleActorStreamData(std::vector<RoR::NetRecvPacket> packet);
@@ -142,7 +141,8 @@ private:
     Ogre::Timer         m_net_timer;
 
     // Physics
-    ActorPtrVec         m_actors;
+    ActorPtrVec         m_actors;                         //!< Use `MSG_SIM_{SPAWN/DELETE}_ACTOR_REQUESTED`
+    ActorInstanceID_t   m_actor_next_instance_id          = 1;     //!< Unique sequential ID for each Actor
     bool                m_forced_awake           = false; //!< disables sleep counters
     int                 m_physics_steps          = 0;
     float               m_dt_remainder           = 0.f;   //!< Keeps track of the rounding error in the time step calculation

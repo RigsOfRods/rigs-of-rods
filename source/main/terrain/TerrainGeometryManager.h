@@ -69,7 +69,7 @@ private:
     void SetupLayers(RoR::OTCPage& page, Ogre::Terrain *terrain);
     Ogre::DataStreamPtr getPageConfig(int x, int z);
 
-    std::shared_ptr<RoR::OTCFile> m_spec;
+    std::shared_ptr<RoR::OTCDocument> m_spec;
     RoR::Terrain*      terrainManager;
     Ogre::TerrainGroup*  m_ogre_terrain_group;
     bool                 m_was_new_geometry_generated;

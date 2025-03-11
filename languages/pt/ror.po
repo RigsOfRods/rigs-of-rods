@@ -9,13 +9,14 @@
 # ssantos <ssantos@web.de>, 2021.
 # Joaquin Gomez <joa97@hotmail.com.ar>, 2021.
 # JonnathanRiquelmo <jonnathan.riquelmo@gmail.com>, 2022.
+# Hemy <Hemy49@users.noreply.hosted.weblate.org>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Rigs of Rods\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-02-24 13:04+0100\n"
-"PO-Revision-Date: 2022-03-18 15:59+0000\n"
-"Last-Translator: JonnathanRiquelmo <jonnathan.riquelmo@gmail.com>\n"
+"PO-Revision-Date: 2024-09-09 10:09+0000\n"
+"Last-Translator: Hemy <Hemy49@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/rigs-of-rods/"
 "game/pt/>\n"
 "Language: pt\n"
@@ -23,7 +24,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.12-dev\n"
+"X-Generator: Weblate 5.8-dev\n"
 
 #: AppContext.cpp:259 AppContext.cpp:270 AppContext.cpp:408 AppContext.cpp:426
 #: AppContext.cpp:477 AppContext.cpp:491 AppContext.cpp:502
@@ -38,7 +39,7 @@ msgstr ""
 
 #: AppContext.cpp:378
 msgid "Screenshot: "
-msgstr "Foto da tela: "
+msgstr "Captura de tela: "
 
 #: AppContext.cpp:408
 msgid "Error while retrieving program directory path"
@@ -59,68 +60,49 @@ msgstr ""
 "Pasta de recursos com defeito. Verifique se está instalado corretamente."
 
 #: Application.cpp:387
-#, fuzzy
-#| msgid "Automatic shift"
 msgctxt "SimGearboxMode"
 msgid "Automatic shift"
-msgstr "Marcha/câmbio automático"
+msgstr "Câmbio automático"
 
 #: Application.cpp:388
-#, fuzzy
-#| msgid "Manual shift - Auto clutch"
 msgctxt "SimGearboxMode"
 msgid "Manual shift with auto clutch"
-msgstr "Marcha manual - embreagem automática"
+msgstr "Câmbio manual com embreagem automática"
 
 #: Application.cpp:389
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: sequential shift"
-msgstr "Totalmente Manual: sequencial"
+msgstr "Totalmente Manual: câmbio sequencial"
 
 #: Application.cpp:390
-#, fuzzy
-#| msgid "Fully Manual: sequential shift"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift"
-msgstr "Totalmente Manual: sequencial"
+msgstr "Totalmente Manual: câmbio manual"
 
 #: Application.cpp:391
-#, fuzzy
-#| msgid "Fully Manual: stick shift with ranges"
 msgctxt "SimGearboxMode"
 msgid "Fully manual: stick shift with ranges"
-msgstr "marcha totalmente Manual:turnos do usuario com intervalos"
+msgstr "Totalmente manual: câmbio manual com alcances"
 
 #: Application.cpp:400
-#, fuzzy
-#| msgid "None (fastest)"
 msgctxt "GfxFlaresMode"
 msgid "None (fastest)"
 msgstr "Nenhum (o mais rápido)"
 
 #: Application.cpp:401
-#, fuzzy
-#| msgctxt "GameSettings"
-#| msgid "Light sources"
 msgctxt "GfxFlaresMode"
 msgid "No light sources"
-msgstr "Recurso de Luz"
+msgstr "Sem fontes de luz"
 
 #: Application.cpp:402
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "Only current vehicle, main lights"
-msgstr "Todos os veículos, as luzes principais"
+msgstr "Apenas o veículo atual, luzes principais"
 
 #: Application.cpp:403
-#, fuzzy
-#| msgid "All vehicles, main lights"
 msgctxt "GfxFlaresMode"
 msgid "All vehicles, main lights"
-msgstr "Todos os veículos, as luzes principais"
+msgstr "Todos os veículos, luzes principais"
 
 #: Application.cpp:404
 #, fuzzy
@@ -132,38 +114,32 @@ msgstr "Todos os veículos, todas as luzes"
 #: Application.cpp:413
 msgctxt "GfxShadowType"
 msgid "Disabled"
-msgstr ""
+msgstr "Desabilitado"
 
 #: Application.cpp:414
 msgctxt "GfxShadowType"
 msgid "PSSM"
-msgstr ""
+msgstr "MSDP (mapas de sombra em divisão paralela)"
 
 #: Application.cpp:423
-#, fuzzy
-#| msgid "Sandstorm (fastest)"
 msgctxt "GfxSkyMode"
 msgid "Sandstorm (fastest)"
-msgstr "Tempestade de areia(o mais rápido)"
+msgstr "Tempestade de areia (mais rápido)"
 
 #: Application.cpp:424
-#, fuzzy
-#| msgid "Caelum (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "Caelum (best looking, slower)"
-msgstr "Caelum (melhor aspeto, mais lento)"
+msgstr "Céu (melhor visual, mais lento)"
 
 #: Application.cpp:425
-#, fuzzy
-#| msgid "Full (best looking, slower)"
 msgctxt "GfxSkyMode"
 msgid "SkyX (best looking, slower)"
-msgstr "Completo (melhor aspecto, mais lento)"
+msgstr "SkyX (melhor visual, mais lento)"
 
 #: Application.cpp:434
 msgctxt "GfxTexFilter"
 msgid "None"
-msgstr ""
+msgstr "Nulo"
 
 #: Application.cpp:435
 #, fuzzy
@@ -190,7 +166,7 @@ msgstr "Anisotropia"
 #: Application.cpp:446
 msgctxt "GfxVegetation"
 msgid "None"
-msgstr ""
+msgstr "Nenhuma"
 
 #: Application.cpp:447
 #, fuzzy
@@ -207,21 +183,21 @@ msgid "50%"
 msgstr "50%"
 
 #: Application.cpp:449
+#, fuzzy
 msgctxt "GfxVegetation"
 msgid "Full"
-msgstr ""
+msgstr "Cheia"
 
 #: Application.cpp:458
+#, fuzzy
 msgctxt "GfxWaterMode"
 msgid "None"
-msgstr ""
+msgstr "Nenhuma"
 
 #: Application.cpp:459
-#, fuzzy
-#| msgid "Basic (fastest)"
 msgctxt "GfxWaterMode"
 msgid "Basic (fastest)"
-msgstr "Básico (o mais rápido)"
+msgstr "Básico (mais rápido)"
 
 #: Application.cpp:460
 #, fuzzy
@@ -232,33 +208,31 @@ msgid "Reflection"
 msgstr "Reflexos"
 
 #: Application.cpp:461
-#, fuzzy
-#| msgid "Reflection + refraction (speed optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (speed optimized)"
-msgstr "Reflexão + refração (velocidade otimizada)"
+msgstr "Reflexos + refração (velocidade otimizada)"
 
 #: Application.cpp:462
-#, fuzzy
-#| msgid "Reflection + refraction (quality optimized)"
 msgctxt "GfxWaterMode"
 msgid "Reflection + refraction (quality optimized)"
-msgstr "Reflexão + refração (qualidade otimizada)"
+msgstr "Reflexos + refração (qualidade otimizada)"
 
 #: Application.cpp:463
+#, fuzzy
 msgctxt "GfxWaterMode"
 msgid "HydraX"
-msgstr ""
+msgstr "HydraX"
 
 #: Application.cpp:472
+#, fuzzy
 msgctxt "GfxExtCamMode"
 msgid "None"
-msgstr ""
+msgstr "Nenhum"
 
 #: Application.cpp:473
 msgctxt "GfxExtCamMode"
 msgid "Static"
-msgstr ""
+msgstr "Estático"
 
 #: Application.cpp:474
 msgctxt "GfxExtCamMode"
@@ -271,30 +245,26 @@ msgid "None"
 msgstr ""
 
 #: Application.cpp:484
-#, fuzzy
-#| msgctxt "ModCategory"
-#| msgid "All"
 msgctxt "IoInputGrabMode"
 msgid "All"
 msgstr "Todos"
 
 #: Application.cpp:485
-#, fuzzy
-#| msgctxt "TextureToolWindow"
-#| msgid "Dynamic only"
 msgctxt "IoInputGrabMode"
 msgid "Dynamic"
-msgstr "Somente Dinamica"
+msgstr "Dinâmico"
 
 #: Application.cpp:494
+#, fuzzy
 msgctxt "SimResetMode"
 msgid "Hard"
-msgstr ""
+msgstr "Reset rígido"
 
 #: Application.cpp:495
+#, fuzzy
 msgctxt "SimResetMode"
 msgid "Soft"
-msgstr ""
+msgstr "Reset suave"
 
 #: GameContext.cpp:120
 msgid "Terrain not found: "
@@ -305,16 +275,18 @@ msgid "Terrain loading error"
 msgstr "Erro no carregamento do terreno"
 
 #: GameContext.cpp:658
+#, fuzzy
 msgid "Please clear the place first"
-msgstr "Por favor limpe o local Primeiro"
+msgstr "Por favor limpe o local primeiramente"
 
 #: GameContext.cpp:762
+#, fuzzy
 msgid "Default skin '{}' for actor '{}' not found!"
-msgstr ""
+msgstr "A pele '{}' para o ator '{}' não foi encontrada!"
 
 #: GameContext.cpp:1036
 msgid "Enabled hard reset mode"
-msgstr "Modo hard reset ativado"
+msgstr "Modo de reinicialização rígida ativado"
 
 #: GameContext.cpp:1036
 msgid "Enabled soft reset mode"
@@ -325,24 +297,27 @@ msgid "Time set to "
 msgstr "Tempo definido para "
 
 #: GameContext.cpp:1417
+#, fuzzy
 msgid "No rescue truck found!"
-msgstr "Nenhum camião de resgate encontrado!"
+msgstr "Nenhum veículo de resgate encontrado!"
 
 #: GameContext.cpp:1493
+#, fuzzy
 msgid "forwardcommands enabled"
-msgstr "forwardcommands ativado"
+msgstr "\"forwardcommands\" ativado"
 
 #: GameContext.cpp:1497
 msgid "forwardcommands disabled"
-msgstr "forwardcommands Desativado"
+msgstr "\"forwardcommands\" Desativado"
 
 #: GameContext.cpp:1506
+#, fuzzy
 msgid "importcommands enabled"
-msgstr "importcommands Ativado"
+msgstr "\"importcommands\" Ativado"
 
 #: GameContext.cpp:1510
 msgid "importcommands disabled"
-msgstr "importcommands Desativado"
+msgstr "\"importcommands\" Desativado"
 
 #: gameplay/ChatSystem.cpp:56
 msgid " [whispered] "
@@ -398,7 +373,7 @@ msgstr "Rastreamento automático desativado"
 
 #: gui/GUIUtils.cpp:471
 msgid "Hold to confirm"
-msgstr ""
+msgstr "Segure para confirmar"
 
 #: gui/OverlayWrapper.cpp:428
 msgid "Current FPS: "
@@ -457,72 +432,69 @@ msgid "Memory (Ogre): "
 msgstr "Memória (Ogre) "
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:24
-#, fuzzy
-#| msgctxt "InputEvent"
-#| msgid "accelerate the truck"
 msgctxt "AngelScript"
 msgid "Scales the truck"
-msgstr "acelerar o .Truck"
+msgstr "Dimensiona o veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:25
 msgctxt "AngelScript"
 msgid "Gets the name of the truck"
-msgstr "Obter o nome do caminhão"
+msgstr "Obtém o nome do veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:26
 msgctxt "AngelScript"
 msgid "Gets the name of the truck file"
-msgstr "Obter o nome do arquivo do caminhão"
+msgstr "Obtém o nome do arquivo do veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:27
 msgctxt "AngelScript"
 msgid "Gets the name of the loaded section for a truck"
-msgstr "Obter o nome da seção carregada para um caminhão"
+msgstr "Obtém o nome da seção carregada para um veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:28
 msgctxt "AngelScript"
 msgid "Gets the type of the truck"
-msgstr "Obter o tipo do caminhão"
+msgstr "Obtém o tipo do veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:29
 msgctxt "AngelScript"
 msgid "Resets the truck"
-msgstr "Reiniciar o caminhão"
+msgstr "Reinicia o veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:30
 msgctxt "AngelScript"
 msgid "Toggles the parking brake"
-msgstr "Alternar o freio de estacionamento"
+msgstr "Alterna o freio de estacionamento"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:31
 msgctxt "AngelScript"
 msgid "Toggles the tracktion control"
-msgstr "Alternar o controle de tração"
+msgstr "Alterna o controle de tração"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:32
 msgctxt "AngelScript"
 msgid "Toggles the anti-lock brakes"
-msgstr "Alternar o freio antibloqueio"
+msgstr "Alterna o freio anti-bloqueio"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:33
 msgctxt "AngelScript"
 msgid "Toggles the beacons"
-msgstr "Alternar a luz indicadora de direção"
+msgstr "Alterna o sinal luminoso"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:34
 msgctxt "AngelScript"
 msgid "Toggles the custom particles"
-msgstr "Alternar as partículas personalizadas"
+msgstr "Alterna as partículas personalizadas"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:35
 msgctxt "AngelScript"
 msgid "Gets the total amount of nodes of the truck"
-msgstr "Obter a quantidade total de nós do caminhão"
+msgstr "Obtém a quantidade total de nós do veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:36
 msgctxt "AngelScript"
 msgid "Gets the total mass of the truck"
-msgstr "Obter a massa total do caminhão"
+msgstr "Obtém a massa total do veículo"
 
 #: gui/panels/GUI_AngelScriptExamples.cpp:37
 msgctxt "AngelScript"

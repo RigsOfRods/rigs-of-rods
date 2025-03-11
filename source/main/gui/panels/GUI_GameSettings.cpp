@@ -74,6 +74,13 @@ void GameSettings::Draw()
         ImGui::EndChild();
         ImGui::EndTabItem();
     }
+    if (ImGui::BeginTabItem(_LC("GameSettings", "UI")))
+    {
+        ImGui::BeginChild("Settings-UI-scroll", ImVec2(0.f, child_height), false);
+        this->DrawUiSettings();
+        ImGui::EndChild();
+        ImGui::EndTabItem();
+    }
     if (ImGui::BeginTabItem(_LC("GameSettings", "Graphics")))
     {
         ImGui::BeginChild("Settings-Graphics-scroll", ImVec2(0.f, child_height), false);
@@ -273,9 +280,6 @@ void GameSettings::DrawGameplaySettings()
     DrawGCombo(App::sim_gearbox_mode, _LC("GameSettings", "Gearbox mode"),
         m_combo_items_gearbox_mode.c_str());
 
-    DrawGCheckbox(App::gfx_speedo_digital, _LC("GameSettings", "Digital speedometer"));
-    DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial speedometer"));
-
     //DrawGCheckbox(App::gfx_flexbody_cache,     "Enable flexbody cache");
 
     DrawGCheckbox(App::sim_spawn_running, _LC("GameSettings", "Engines spawn running"));
@@ -297,10 +301,6 @@ void GameSettings::DrawGameplaySettings()
     DrawGCheckbox(App::io_discord_rpc, _LC("GameSettings", "Discord Rich Presence"));
 
     DrawGCheckbox(App::sim_quickload_dialog, _LC("GameSettings", "Show confirm. UI dialog for quickload"));
-
-    DrawGCheckbox(App::ui_show_live_repair_controls, _LC("GameSettings", "Show controls in live repair box"));
-
-    DrawGCheckbox(App::ui_show_vehicle_buttons, _LC("GameSettings", "Show vehicle buttons menu"));
 
     DrawGCheckbox(App::sim_tuning_enabled, _LC("GameSettings", "Enable vehicle tuning"));
 }
@@ -362,6 +362,30 @@ void GameSettings::DrawAudioSettings()
 #endif // USE_OPENAL
 }
 
+void GameSettings::DrawUiSettings()
+{
+    ImGui::TextDisabled("%s", _LC("GameSettings", "UI settings"));
+
+    this->DrawUiPresetCombo();
+
+    this->DrawUiDefaultDashboard(m_ui_known_dash_truck, App::ui_default_truck_dash, CID_DashboardsTruck, _LC("GameSettings", "Default truck dashboard"));
+    this->DrawUiDefaultDashboard(m_ui_known_dash_boat, App::ui_default_boat_dash, CID_DashboardsBoat, _LC("GameSettings", "Default boat dashboard"));
+
+    DrawGCheckbox(App::gfx_speedo_imperial, _LC("GameSettings", "Imperial units"));
+
+    DrawGCheckbox(App::ui_show_live_repair_controls, _LC("GameSettings", "Show controls in live repair box"));
+    
+    DrawGCheckbox(App::ui_show_vehicle_buttons, _LC("GameSettings", "Show vehicle buttons menu"));
+
+
+    DrawGCheckbox(App::gfx_surveymap_icons,  _LC("GameSettings", "Overview map icons"));
+    if (App::gfx_surveymap_icons->getBool())
+    {
+        DrawGCheckbox(App::gfx_declutter_map,  _LC("GameSettings", "Declutter overview map"));
+    }
+
+}
+
 void GameSettings::DrawGraphicsSettings()
 {
     ImGui::TextDisabled("%s", _LC("GameSettings", "Video settings"));
@@ -413,6 +437,8 @@ void GameSettings::DrawGraphicsSettings()
     DrawGIntCheck(App::gfx_particles_mode,   _LC("GameSettings", "Enable particle gfx"));
     DrawGIntCheck(App::gfx_skidmarks_mode,   _LC("GameSettings", "Enable skidmarks"));
 
+    DrawGCheckbox(App::gfx_auto_lod,      _LC("GameSettings", "Enable automatic mesh LOD generator (Increases loading times)"));
+
     DrawGCheckbox(App::gfx_envmap_enabled,   _LC("GameSettings", "Realtime reflections"));
     if (App::gfx_envmap_enabled->getBool())
     {
@@ -422,11 +448,6 @@ void GameSettings::DrawGraphicsSettings()
     }
 
     DrawGCheckbox(App::gfx_enable_videocams, _LC("GameSettings", "Render video cameras"));
-    DrawGCheckbox(App::gfx_surveymap_icons,  _LC("GameSettings", "Overview map icons"));
-    if (App::gfx_surveymap_icons->getBool())
-    {
-        DrawGCheckbox(App::gfx_declutter_map,  _LC("GameSettings", "Declutter overview map"));
-    }
     DrawGCheckbox(App::gfx_water_waves,      _LC("GameSettings", "Waves on water"));
     DrawGCheckbox(App::gfx_alt_actor_materials,      _LC("GameSettings", "Use alternate vehicle materials"));
 
@@ -613,4 +634,92 @@ void GameSettings::SetVisible(bool v)
         ImAddItemToComboboxString(m_combo_items_efx_reverb_engine, ToLocalizedString(EfxReverbEngine::EAXREVERB));
         ImTerminateComboboxString(m_combo_items_efx_reverb_engine);
     }
+
+    if (m_cached_uipreset_combo_string == "")
+    {
+        ImAddItemToComboboxString(m_cached_uipreset_combo_string, ToLocalizedString(UiPreset::NOVICE));
+        ImAddItemToComboboxString(m_cached_uipreset_combo_string, ToLocalizedString(UiPreset::REGULAR));
+        ImAddItemToComboboxString(m_cached_uipreset_combo_string, ToLocalizedString(UiPreset::EXPERT));
+        ImAddItemToComboboxString(m_cached_uipreset_combo_string, ToLocalizedString(UiPreset::MINIMALLIST));
+        ImTerminateComboboxString(m_cached_uipreset_combo_string);
+    }
+}
+
+void GameSettings::DrawUiPresetCombo()
+{
+    ImGui::PushID("uiPreset");
+
+    ImGui::SetNextItemWidth(UI_SELECTOR_WIDTH);
+    if (DrawGCombo(App::ui_preset, _LC("TopMenubar", "UI Preset"), m_cached_uipreset_combo_string.c_str()))
+    {
+        App::GetGuiManager()->ApplyUiPreset();
+    }
+
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        const float COLLUMNWIDTH_NAME = 175.f;
+        const float COLLUMNWIDTH_VALUE = 60.f;
+        // Hack to make space for the table (doesn't autoresize)
+        ImGui::Dummy(ImVec2(COLLUMNWIDTH_NAME + COLLUMNWIDTH_VALUE*((int)UiPreset::Count), 1.f));
+
+        // UiPresets table
+        ImGui::Columns((int)UiPreset::Count + 1);
+        ImGui::SetColumnWidth(0, COLLUMNWIDTH_NAME);
+        for (int i = 0; i < (int)UiPreset::Count; i++)
+        {
+            ImGui::SetColumnWidth(i+1, COLLUMNWIDTH_VALUE);
+        }
+
+        // table header
+        ImGui::TextDisabled("%s", "Setting");
+        ImGui::NextColumn();
+        for (int i = 0; i < (int)UiPreset::Count; i++)
+        {
+            ImGui::TextDisabled("%s", ToLocalizedString((UiPreset)i).c_str());
+            ImGui::NextColumn();
+        }
+
+        // table body
+        ImGui::Separator();
+
+        int presetId = 0;
+        while (UiPresets[presetId].uip_cvar != nullptr)
+        {
+            ImGui::Text("%s", UiPresets[presetId].uip_cvar);
+            ImGui::NextColumn();
+            for (int i = 0; i < (int)UiPreset::Count; i++)
+            {
+                ImGui::Text("%s", UiPresets[presetId].uip_values[i].c_str());
+                ImGui::NextColumn();
+            }
+
+            presetId++;
+        }
+
+        // end table
+        ImGui::Columns(1);
+        ImGui::EndTooltip();
+    }
+
+    ImGui::PopID(); //"uiPreset"
+}
+
+void GameSettings::DrawUiDefaultDashboard(CacheEntryPtr& entry, CVar* cvar, CacheCategoryId category_id, const std::string& label)
+{
+    if (!entry || entry->fname != cvar->getStr())
+    {
+        entry = App::GetCacheSystem()->FindEntryByFilename(LT_DashBoard, /* partial: */false, cvar->getStr());
+    }
+
+    ImGui::AlignTextToFramePadding();
+    std::string caption = fmt::format("{}##truck_dash", entry ? entry->dname : cvar->getStr());
+    if (ImGui::Button(caption.c_str(), ImVec2(UI_SELECTOR_WIDTH, 0.f)))
+    {
+        default_dash_being_selected = category_id;
+        LoaderType* payload = new LoaderType(LoaderType::LT_DashBoard);
+        App::GetGameContext()->PushMessage(Message(MSG_GUI_OPEN_SELECTOR_REQUESTED, (void*)payload));
+    }
+    ImGui::SameLine();
+    ImGui::Text("%s", label.c_str());
 }

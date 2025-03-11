@@ -638,7 +638,7 @@ enum MsgType
     MSG_SIM_LOAD_TERRN_REQUESTED,              //!< Request loading terrain. Param 'filename' (string)
     MSG_SIM_LOAD_SAVEGAME_REQUESTED,           //!< Request loading saved game. Param 'filename' (string)
     MSG_SIM_UNLOAD_TERRN_REQUESTED,            //!< Request returning to main menu. No params.
-    MSG_SIM_SPAWN_ACTOR_REQUESTED,             //!< Request spawning an actor. Params: 'filename' (string), 'position' (vector3), 'rotation' (quaternion) 'config' (string, optional), 'skin' (string, optional), 'enter' (bool, optional, default true), , 'free_position' (bool, default false)
+    MSG_SIM_SPAWN_ACTOR_REQUESTED,             //!< Request spawning an actor. Params: 'filename' (string), 'position' (vector3), 'rotation' (quaternion), 'instance_id' (int, optional), 'config' (string, optional), 'skin' (string, optional), 'enter' (bool, optional, default true), , 'free_position' (bool, default false)
     MSG_SIM_MODIFY_ACTOR_REQUESTED,            //!< Request change of actor. Params: 'type' (enum ActorModifyRequestType)
     MSG_SIM_DELETE_ACTOR_REQUESTED,            //!< Request actor removal. Params: 'instance_id' (int)
     MSG_SIM_SEAT_PLAYER_REQUESTED,             //!< Put player character in a vehicle. Params: 'instance_id' (int), use -1 to get out of vehicle.
@@ -664,6 +664,100 @@ enum MsgType
     MSG_EDI_RELOAD_BUNDLE_REQUESTED,           //!< This deletes all actors using that bundle (= ZIP or directory)! Params: 'cache_entry' (CacheEntryClass@)
     MSG_EDI_UNLOAD_BUNDLE_REQUESTED,           //!< This deletes all actors using that bundle (= ZIP or directory)! Params: 'cache_entry' (CacheEntryClass@)
     MSG_EDI_CREATE_PROJECT_REQUESTED,          //!< Creates a subdir under 'projects/', pre-populates it and adds to modcache. Params: 'name' (string), 'ext' (string, optional), 'source_entry' (CacheEntryClass@)
+};
+
+/// Binding of `RoR::ScriptRetCode`; Common return codes for script manipulation funcs (add/get/delete | funcs/variables)
+enum ScriptRetCode
+{
+    
+    SCRIPTRETCODE_SUCCESS = AngelScript::asSUCCESS, //!< Generic success - 0 by common convention.
+
+    // AngelScript technical codes
+    SCRIPTRETCODE_AS_ERROR = AngelScript::asERROR,
+    SCRIPTRETCODE_AS_CONTEXT_ACTIVE = AngelScript::asCONTEXT_ACTIVE,
+    SCRIPTRETCODE_AS_CONTEXT_NOT_FINISHED = AngelScript::asCONTEXT_NOT_FINISHED,
+    SCRIPTRETCODE_AS_CONTEXT_NOT_PREPARED = AngelScript::asCONTEXT_NOT_PREPARED,
+    SCRIPTRETCODE_AS_INVALID_ARG = AngelScript::asINVALID_ARG,
+    SCRIPTRETCODE_AS_NO_FUNCTION = AngelScript::asNO_FUNCTION,
+    SCRIPTRETCODE_AS_NOT_SUPPORTED = AngelScript::asNOT_SUPPORTED,
+    SCRIPTRETCODE_AS_INVALID_NAME = AngelScript::asINVALID_NAME,
+    SCRIPTRETCODE_AS_NAME_TAKEN = AngelScript::asNAME_TAKEN,
+    SCRIPTRETCODE_AS_INVALID_DECLARATION = AngelScript::asINVALID_DECLARATION,
+    SCRIPTRETCODE_AS_INVALID_OBJECT = AngelScript::asINVALID_OBJECT,
+    SCRIPTRETCODE_AS_INVALID_TYPE = AngelScript::asINVALID_TYPE,
+    SCRIPTRETCODE_AS_ALREADY_REGISTERED = AngelScript::asALREADY_REGISTERED,
+    SCRIPTRETCODE_AS_MULTIPLE_FUNCTIONS = AngelScript::asMULTIPLE_FUNCTIONS,
+    SCRIPTRETCODE_AS_NO_MODULE = AngelScript::asNO_MODULE,
+    SCRIPTRETCODE_AS_NO_GLOBAL_VAR = AngelScript::asNO_GLOBAL_VAR,
+    SCRIPTRETCODE_AS_INVALID_CONFIGURATION = AngelScript::asINVALID_CONFIGURATION,
+    SCRIPTRETCODE_AS_INVALID_INTERFACE = AngelScript::asINVALID_INTERFACE,
+    SCRIPTRETCODE_AS_CANT_BIND_ALL_FUNCTIONS = AngelScript::asCANT_BIND_ALL_FUNCTIONS,
+    SCRIPTRETCODE_AS_LOWER_ARRAY_DIMENSION_NOT_REGISTERED = AngelScript::asLOWER_ARRAY_DIMENSION_NOT_REGISTERED,
+    SCRIPTRETCODE_AS_WRONG_CONFIG_GROUP = AngelScript::asWRONG_CONFIG_GROUP,
+    SCRIPTRETCODE_AS_CONFIG_GROUP_IS_IN_USE = AngelScript::asCONFIG_GROUP_IS_IN_USE,
+    SCRIPTRETCODE_AS_ILLEGAL_BEHAVIOUR_FOR_TYPE = AngelScript::asILLEGAL_BEHAVIOUR_FOR_TYPE,
+    SCRIPTRETCODE_AS_WRONG_CALLING_CONV = AngelScript::asWRONG_CALLING_CONV,
+    SCRIPTRETCODE_AS_BUILD_IN_PROGRESS = AngelScript::asBUILD_IN_PROGRESS,
+    SCRIPTRETCODE_AS_INIT_GLOBAL_VARS_FAILED = AngelScript::asINIT_GLOBAL_VARS_FAILED,
+    SCRIPTRETCODE_AS_OUT_OF_MEMORY = AngelScript::asOUT_OF_MEMORY,
+    SCRIPTRETCODE_AS_MODULE_IS_IN_USE = AngelScript::asMODULE_IS_IN_USE,
+
+    // RoR ScriptEngine return codes
+    SCRIPTRETCODE_UNSPECIFIED_ERROR = -1001,
+    SCRIPTRETCODE_ENGINE_NOT_CREATED = -1002,
+    SCRIPTRETCODE_CONTEXT_NOT_CREATED = -1003,
+    SCRIPTRETCODE_SCRIPTUNIT_NOT_EXISTS = -1004,
+    SCRIPTRETCODE_SCRIPTUNIT_NO_MODULE = -1005,
+    SCRIPTRETCODE_FUNCTION_NOT_EXISTS = -1006,
+};
+
+///  Parameter to `Actor::setSimAttribute()` and `Actor::getSimAttribute()`; allows advanced users to tweak physics internals via script.
+///  Each value represents a variable, either directly in `Actor` or a subsystem, i.e. `EngineSim`.
+///  PAY ATTENTION to the 'safe value' limits below - those may not be checked when setting attribute values!
+enum ActorSimAttr
+{
+    ACTORSIMATTR_NONE,
+
+    // TractionControl
+    ACTORSIMATTR_TC_RATIO, //!< Regulating force, safe values: <1 - 20>
+    ACTORSIMATTR_TC_PULSE_TIME, //!< Pulse duration in seconds, safe values <0.005 - 1>
+    ACTORSIMATTR_TC_WHEELSLIP_CONSTANT //!< Minimum wheel slip threshold, safe value = 0.25
+    
+    // Engine
+    ACTORSIMATTR_ENGINE_SHIFTDOWN_RPM, //!< Automatic transmission - Param #1 of 'engine'
+    ACTORSIMATTR_ENGINE_SHIFTUP_RPM, //!< Automatic transmission - Param #2 of 'engine'
+    ACTORSIMATTR_ENGINE_TORQUE, //!< Engine torque in newton-meters (N/m) - Param #3 of 'engine'
+    ACTORSIMATTR_ENGINE_DIFF_RATIO, //!< Differential ratio (aka global gear ratio) - Param #4 of 'engine'
+    ACTORSIMATTR_ENGINE_GEAR_RATIOS_ARRAY, //!< Gearbox - Format: "<reverse_gear> <neutral_gear> <forward_gear 1> [<forward gear 2>]..."; Param #5 and onwards of 'engine'.
+
+    // Engoption
+    ACTORSIMATTR_ENGOPTION_ENGINE_INERTIA, //!< - Param #1 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_ENGINE_TYPE, //!< - Param #2 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_CLUTCH_FORCE, //!< - Param #3 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_SHIFT_TIME, //!< - Param #4 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_CLUTCH_TIME, //!< - Param #5 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_POST_SHIFT_TIME, //!< Time (in seconds) until full torque is transferred - Param #6 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_STALL_RPM, //!< RPM where engine stalls - Param #7 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_IDLE_RPM, //!< Target idle RPM - Param #8 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_MAX_IDLE_MIXTURE, //!< Max throttle to maintain idle RPM - Param #9 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_MIN_IDLE_MIXTURE, //!< Min throttle to maintain idle RPM - Param #10 of 'engoption'
+    ACTORSIMATTR_ENGOPTION_BRAKING_TORQUE, //!< How much engine brakes on zero throttle - Param #11 of 'engoption'
+
+    // Engturbo2 (actually 'engturbo' with Param #1 [type] set to "2" - the recommended variant)
+    ACTORSIMATTR_ENGTURBO2_INERTIA_FACTOR, //!< Time to spool up - Param #2 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_NUM_TURBOS, //!< Number of turbos - Param #3 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_MAX_RPM, //!< MaxPSI * 10000 ~ calculated from Param #4 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_ENGINE_RPM_OP, //!< Engine RPM threshold for turbo to operate - Param #5 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_BOV_ENABLED, //!< Blow-off valve - Param #6 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_BOV_MIN_PSI, //!< Blow-off valve PSI threshold - Param #7 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_WASTEGATE_ENABLED, //!<  - Param #8 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_WASTEGATE_MAX_PSI, //!<  - Param #9 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_N, //!< 1 - WgThreshold ~ calculated from  Param #10 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_WASTEGATE_THRESHOLD_P, //!< 1 + WgThreshold ~ calculated from  Param #10 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_ANTILAG_ENABLED, //!<  - Param #11 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_ANTILAG_CHANCE, //!<  - Param #12 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_ANTILAG_MIN_RPM, //!<  - Param #13 of 'engturbo2'
+    ACTORSIMATTR_ENGTURBO2_ANTILAG_POWER, //!<  - Param #14 of 'engturbo2'    
 };
 
 } // namespace Script2Game

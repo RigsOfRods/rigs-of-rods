@@ -2,6 +2,9 @@
 // \brief shows how to make custom mesh along the ground
 // ===================================================
 
+// Window [X] button handler
+#include "imgui_utils.as"
+imgui_utils::CloseWindowPrompt closeBtnHandler;
 
 array<    Ogre::ManualObject@ > gManualObjects;
 Ogre::SceneNode@ gGroupingSceneNode = game.getSceneManager().getRootSceneNode().createChildSceneNode(makeID(""));
@@ -72,33 +75,36 @@ Ogre::ManualObject@ makeGrass(string meshName, string matName)
 // `frameStep()` runs every frame; `dt` is delta time in seconds.
 void frameStep(float dt)
 {
-    ImGui::TextDisabled("MESHED CONCRETE EXAMPLE");
-    ImGui::TextDisabled("Generates one-layer mesh along ground");
-    ImGui::TextDisabled("Remember, XZ are horizontal, Y is up.");
-    
-    ImGui::Separator();    
-    
-    ImGui::Text("Num manual objects: "+gManualObjects.length());
-    
-    
-    ImGui::InputInt("Num tiles X", gNumTilesX);
-    ImGui::InputInt("Num tiles Z", gNumTilesZ);
-    ImGui::InputFloat("Tile size X", gTileSizeX);
-    ImGui::InputFloat("Tile size Z", gTileSizeZ);
-    ImGui::InputFloat("Height bias (m)", gHeightBias);
-    ImGui::Checkbox("Debug logging", gDebugLog);
-    
-    if (ImGui::Button("add mesh"))
+    if (ImGui::Begin("Example", closeBtnHandler.windowOpen, 0))
     {
-        string moname = makeID("mo-"+gManualObjects.length());
-        string matname = "taxiwayconcrete";
-        Ogre::ManualObject@ mo  =   makeGrass(moname, matname);
-        Ogre::SceneNode@ snode = gGroupingSceneNode.createChildSceneNode(moname+"-node");
-        snode.attachObject(cast<Ogre::MovableObject@>(mo));
-        // unlike the ManualObject example, we don't position the node - verts are already in world position.
-        gManualObjects.insertLast(mo);
+        closeBtnHandler.draw();
+    
+        ImGui::TextDisabled("MESHED CONCRETE EXAMPLE");
+        ImGui::TextDisabled("Generates one-layer mesh along ground");
+        ImGui::TextDisabled("Remember, XZ are horizontal, Y is up.");
+        
+        ImGui::Separator();    
+        
+        ImGui::Text("Num manual objects: "+gManualObjects.length());        
+        
+        ImGui::InputInt("Num tiles X", gNumTilesX);
+        ImGui::InputInt("Num tiles Z", gNumTilesZ);
+        ImGui::InputFloat("Tile size X", gTileSizeX);
+        ImGui::InputFloat("Tile size Z", gTileSizeZ);
+        ImGui::InputFloat("Height bias (m)", gHeightBias);
+        ImGui::Checkbox("Debug logging", gDebugLog);
+        
+        if (ImGui::Button("add mesh"))
+        {
+            string moname = makeID("mo-"+gManualObjects.length());
+            string matname = "taxiwayconcrete";
+            Ogre::ManualObject@ mo  =   makeGrass(moname, matname);
+            Ogre::SceneNode@ snode = gGroupingSceneNode.createChildSceneNode(moname+"-node");
+            snode.attachObject(cast<Ogre::MovableObject@>(mo));
+            // unlike the ManualObject example, we don't position the node - verts are already in world position.
+            gManualObjects.insertLast(mo);
+        }
+
+        ImGui::End();
     }
-    
-    
-    
 }

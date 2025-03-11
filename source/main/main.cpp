@@ -41,7 +41,7 @@
 #include "GUI_MultiplayerSelector.h"
 #include "GUI_MultiplayerClientList.h"
 #include "GUI_RepositorySelector.h"
-#include "GUI_SimActorStats.h"
+#include "GUI_VehicleInfoTPanel.h"
 #include "GUIManager.h"
 #include "GUIUtils.h"
 #include "InputEngine.h"
@@ -235,7 +235,11 @@ int main(int argc, char *argv[])
             for (Ogre::String const& scriptname: script_names)
             {
                 LOG(fmt::format("Loading startup script '{}' (from command line)", scriptname));
-                App::GetScriptEngine()->loadScript(scriptname, ScriptCategory::CUSTOM);
+                // We cannot call `loadScript()` directly because modcache isn't up yet - gadgets cannot be resolved
+                LoadScriptRequest* req = new LoadScriptRequest();
+                req->lsr_category = ScriptCategory::CUSTOM;
+                req->lsr_filename = scriptname;
+                App::GetGameContext()->PushMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, req));
                 // errors are logged by OGRE & AngelScript
             }
         }
@@ -245,7 +249,11 @@ int main(int argc, char *argv[])
             for (Ogre::String const& scriptname: script_names)
             {
                 LOG(fmt::format("Loading startup script '{}' (from config file)", scriptname));
-                App::GetScriptEngine()->loadScript(scriptname, ScriptCategory::CUSTOM);
+                // We cannot call `loadScript()` directly because modcache isn't up yet - gadgets cannot be resolved
+                LoadScriptRequest* req = new LoadScriptRequest();
+                req->lsr_category = ScriptCategory::CUSTOM;
+                req->lsr_filename = scriptname;
+                App::GetGameContext()->PushMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, req));
                 // errors are logged by OGRE & AngelScript
             }
         }
@@ -466,7 +474,7 @@ int main(int argc, char *argv[])
                     try
                     {
                         ActorPtr actor = App::GetGameContext()->GetActorManager()->GetActorById(request->lsr_associated_actor);
-                        ScriptUnitId_t nid = App::GetScriptEngine()->loadScript(request->lsr_filename, request->lsr_category, actor, request->lsr_buffer);
+                        ScriptUnitID_t nid = App::GetScriptEngine()->loadScript(request->lsr_filename, request->lsr_category, actor, request->lsr_buffer);
                         // we want to notify any running scripts that we might change something (prevent cheating)
                         App::GetScriptEngine()->triggerEvent(SE_ANGELSCRIPT_MANIPULATIONS,
                             ASMANIP_SCRIPT_LOADED, nid, (int)request->lsr_category, 0, request->lsr_filename);
@@ -481,7 +489,7 @@ int main(int argc, char *argv[])
 
                 case MSG_APP_UNLOAD_SCRIPT_REQUESTED:
                 {
-                    ScriptUnitId_t* id = static_cast<ScriptUnitId_t*>(m.payload);
+                    ScriptUnitID_t* id = static_cast<ScriptUnitID_t*>(m.payload);
                     try
                     {
                         ScriptUnit& unit = App::GetScriptEngine()->getScriptUnit(*id);
@@ -796,6 +804,92 @@ int main(int argc, char *argv[])
                     break;
                 }
 
+                case MSG_NET_ADD_PEEROPTIONS_REQUESTED:
+                {
+                    PeerOptionsRequest* request = static_cast<PeerOptionsRequest*>(m.payload);
+                    try
+                    {
+                        // Record the options for future incoming traffic.
+                        App::GetNetwork()->AddPeerOptions(request);
+
+                        // On MUTE_CHAT also purge old messages
+                        if (BITMASK_IS_1(request->por_peeropts, RoRnet::PEEROPT_MUTE_CHAT))
+                        {
+                            App::GetConsole()->purgeNetChatMessagesByUser(request->por_uid);
+                        }
+
+                        // MUTE existing actors if needed
+                        if (BITMASK_IS_1(request->por_peeropts, RoRnet::PEEROPT_MUTE_ACTORS))
+                        {
+                            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+                            {
+                                if (actor->ar_net_source_id == request->por_uid)
+                                {
+                                    App::GetGameContext()->PushMessage(Message(MSG_SIM_MUTE_NET_ACTOR_REQUESTED, new ActorPtr(actor)));
+                                }
+                            }
+                        }
+
+                        // HIDE existing actors if needed
+                        if (BITMASK_IS_1(request->por_peeropts, RoRnet::PEEROPT_HIDE_ACTORS))
+                        {
+                            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+                            {
+                                if (actor->ar_net_source_id == request->por_uid)
+                                {
+                                    App::GetGameContext()->PushMessage(Message(MSG_SIM_HIDE_NET_ACTOR_REQUESTED, new ActorPtr(actor)));
+                                }
+                            }
+                        }
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete request;
+                    break;
+                }
+
+                case MSG_NET_REMOVE_PEEROPTIONS_REQUESTED:
+                {
+                    PeerOptionsRequest* request = static_cast<PeerOptionsRequest*>(m.payload);
+                    try
+                    {
+                        // Record the options for future incoming traffic.
+                        App::GetNetwork()->RemovePeerOptions(request);
+
+                        // un-MUTE existing actors if needed
+                        if (BITMASK_IS_1(request->por_peeropts, RoRnet::PEEROPT_MUTE_ACTORS))
+                        {
+                            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+                            {
+                                if (actor->ar_net_source_id == request->por_uid)
+                                {
+                                    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNMUTE_NET_ACTOR_REQUESTED, new ActorPtr(actor)));
+                                }
+                            }
+                        }
+
+                        // un-HIDE existing actors if needed
+                        if (BITMASK_IS_1(request->por_peeropts, RoRnet::PEEROPT_HIDE_ACTORS))
+                        {
+                            for (ActorPtr& actor : App::GetGameContext()->GetActorManager()->GetActors())
+                            {
+                                if (actor->ar_net_source_id == request->por_uid)
+                                {
+                                    App::GetGameContext()->PushMessage(Message(MSG_SIM_UNHIDE_NET_ACTOR_REQUESTED, new ActorPtr(actor)));
+                                }
+                            }
+                        }
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete request;
+                    break;
+                }
+
                 // -- Gameplay events --
 
                 case MSG_SIM_PAUSE_REQUESTED:
@@ -821,7 +915,10 @@ int main(int argc, char *argv[])
                     {
                         for (ActorPtr& actor: App::GetGameContext()->GetActorManager()->GetActors())
                         {
-                            actor->unmuteAllSounds();
+                            if (!actor->ar_muted_by_peeropt)
+                            {
+                                actor->unmuteAllSounds();
+                            }
                         }
                         App::sim_state->setVal((int)SimState::RUNNING);
                     }
@@ -935,6 +1032,7 @@ int main(int argc, char *argv[])
                         App::GetOutGauge()->Close();
                         App::GetSoundScriptManager()->SetListener(/*position:*/Ogre::Vector3::ZERO, /*direction:*/Ogre::Vector3::ZERO, /*up:*/Ogre::Vector3::UNIT_Y, /*velocity:*/Ogre::Vector3::ZERO);
                         App::GetSoundScriptManager()->getSoundManager()->CleanUp();
+                        App::GetGameContext()->GetRaceSystem().ResetRaceUI();
                     }
                     catch (...)
                     {
@@ -1125,6 +1223,50 @@ int main(int argc, char *argv[])
                         }
                     }
                     catch (...) 
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete actor_ptr;
+                    break;
+                }
+
+                case MSG_SIM_MUTE_NET_ACTOR_REQUESTED:
+                {
+                    ActorPtr* actor_ptr = static_cast<ActorPtr*>(m.payload);
+                    try
+                    {
+                        ROR_ASSERT(actor_ptr);
+                        if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) &&
+                            ((*actor_ptr)->ar_state == ActorState::NETWORKED_OK))
+                        {
+                            ActorPtr actor = *actor_ptr;
+                            actor->ar_muted_by_peeropt = true;
+                            actor->muteAllSounds();
+                        }
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    delete actor_ptr;
+                    break;
+                }
+
+                case MSG_SIM_UNMUTE_NET_ACTOR_REQUESTED:
+                {
+                    ActorPtr* actor_ptr = static_cast<ActorPtr*>(m.payload);
+                    try
+                    {
+                        ROR_ASSERT(actor_ptr);
+                        if ((App::mp_state->getEnum<MpState>() == MpState::CONNECTED) &&
+                            ((*actor_ptr)->ar_state == ActorState::NETWORKED_OK))
+                        {
+                            ActorPtr actor = *actor_ptr;
+                            actor->ar_muted_by_peeropt = false;
+                            actor->unmuteAllSounds();
+                        }
+                    }
+                    catch (...)
                     {
                         HandleMsgQueueException(m.type);
                     }
@@ -1371,7 +1513,31 @@ int main(int argc, char *argv[])
 
                 case MSG_GUI_REFRESH_TUNING_MENU_REQUESTED:
                 {
-                    App::GetGuiManager()->TopMenubar.RefreshTuningMenu();
+                    try
+                    {
+                        App::GetGuiManager()->TopMenubar.RefreshTuningMenu();
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
+                    break;
+                }
+
+                case MSG_GUI_SHOW_CHATBOX_REQUESTED:
+                {
+                    try
+                    {
+                        App::GetGuiManager()->ChatBox.SetVisible(true);
+                        if (m.description != "")
+                        {
+                            App::GetGuiManager()->ChatBox.AssignBuffer(m.description);
+                        }
+                    }
+                    catch (...)
+                    {
+                        HandleMsgQueueException(m.type);
+                    }
                     break;
                 }
 
@@ -1402,9 +1568,11 @@ int main(int argc, char *argv[])
                             App::sim_state->setVal((int)SimState::EDITOR_MODE);
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                                                           _L("Entered terrain editing mode"));
+
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
-                                                          fmt::format(_L("Press {} or middle mouse click to select an object"),
-                                       App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_OR_EXIT_TRUCK)), "lightbulb.png");
+                                fmt::format(_L("Press {} or middle mouse click to select an object"),
+                                    App::GetInputEngine()->getEventCommandTrimmed(EV_COMMON_ENTER_OR_EXIT_TRUCK)), "lightbulb.png");
+                            
                         }
                     }
                     catch (...) 
@@ -1421,7 +1589,7 @@ int main(int argc, char *argv[])
                         if (App::sim_state->getEnum<SimState>() == SimState::EDITOR_MODE)
                         {
                             App::GetGameContext()->GetTerrain()->GetTerrainEditor()->WriteOutputFile();
-                            App::GetGameContext()->GetTerrain()->GetTerrainEditor()->ClearSelection();
+                            App::GetGameContext()->GetTerrain()->GetTerrainEditor()->ClearSelectedObject();
                             App::sim_state->setVal((int)SimState::RUNNING);
                             App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_NOTICE,
                                                           _L("Left terrain editing mode"));
@@ -1714,7 +1882,7 @@ int main(int argc, char *argv[])
                 }
                 if (App::GetGameContext()->GetPlayerActor())
                 {
-                    App::GetGuiManager()->SimActorStats.UpdateStats(dt, App::GetGameContext()->GetPlayerActor());
+                    App::GetGuiManager()->VehicleInfoTPanel.UpdateStats(dt, App::GetGameContext()->GetPlayerActor());
                     if (App::GetGuiManager()->FrictionSettings.IsVisible())
                     {
                         App::GetGuiManager()->FrictionSettings.setActiveCol(App::GetGameContext()->GetPlayerActor()->ar_last_fuzzy_ground_model);
@@ -1755,6 +1923,13 @@ int main(int argc, char *argv[])
                 App::GetGfxScene()->BufferSimulationData();
             }
 
+            // Calculate elapsed simulation time (taking simulation speed and pause into account)
+            float dt_sim = 0.f;
+            if (App::sim_state->getEnum<SimState>() == SimState::RUNNING && !App::GetGameContext()->GetActorManager()->IsSimulationPaused())
+            {
+                dt_sim = dt * App::GetGameContext()->GetActorManager()->GetSimulationSpeed();
+            }
+
             // Advance simulation
             if (App::sim_state->getEnum<SimState>() == SimState::RUNNING)
             {
@@ -1768,7 +1943,7 @@ int main(int argc, char *argv[])
             }
             else if (App::app_state->getEnum<AppState>() == AppState::SIMULATION)
             {
-                App::GetGfxScene()->UpdateScene(dt); // Draws GUI as well
+                App::GetGfxScene()->UpdateScene(dt_sim); // Draws GUI as well
             }
 
             // Render!
@@ -1787,6 +1962,8 @@ int main(int argc, char *argv[])
             } // Render block
 
             App::GetGuiManager()->ApplyGuiCaptureKeyboard();
+
+            App::GetGuiManager()->UpdateMouseCursorVisibility();
 
         } // End of main rendering/input loop
 

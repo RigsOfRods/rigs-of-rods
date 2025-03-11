@@ -49,7 +49,7 @@ void ScriptMonitor::Draw()
     StringVector autoload = StringUtil::split(App::app_custom_scripts->getStr(), ",");
     for (auto& pair : App::GetScriptEngine()->getScriptUnits())
     {
-        ScriptUnitId_t id = pair.first;
+        ScriptUnitID_t id = pair.first;
         ImGui::PushID(id);
 
         ScriptUnit const& unit = pair.second;
@@ -58,7 +58,14 @@ void ScriptMonitor::Draw()
         ImGui::TextDisabled("%d", id);
         ImGui::NextColumn();
         ImGui::AlignTextToFramePadding();
-        ImGui::Text("%s", unit.scriptName.c_str());
+        if (unit.scriptCategory == ScriptCategory::GADGET && unit.originatingGadget)
+        {
+            ImGui::Text("%s", unit.originatingGadget->fname.c_str());
+        }
+        else
+        {
+            ImGui::Text("%s", unit.scriptName.c_str());
+        }
         ImGui::NextColumn();
         switch (unit.scriptCategory)
         {
@@ -71,36 +78,43 @@ void ScriptMonitor::Draw()
             break;
 
         case ScriptCategory::CUSTOM:
+        case ScriptCategory::GADGET:
         {
+            std::string filename = unit.scriptName;
+            if (unit.scriptCategory == ScriptCategory::GADGET && unit.originatingGadget)
+            {
+                filename = unit.originatingGadget->fname;
+            }
+
             if (ImGui::Button(_LC("ScriptMonitor", "Reload")))
             {
-                App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitId_t(id)));
+                App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitID_t(id)));
                 LoadScriptRequest* req = new LoadScriptRequest();
                 req->lsr_category = unit.scriptCategory;
-                req->lsr_filename = unit.scriptName;
+                req->lsr_filename = filename;
                 App::GetGameContext()->ChainMessage(Message(MSG_APP_LOAD_SCRIPT_REQUESTED, req));
             }
             ImGui::SameLine();
             if (ImGui::Button(_LC("ScriptMonitor", "Stop")))
             {
-                App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitId_t(id)));
+                App::GetGameContext()->PushMessage(Message(MSG_APP_UNLOAD_SCRIPT_REQUESTED, new ScriptUnitID_t(id)));
             }
 
             ImGui::SameLine();
-            bool autoload_set = std::find(autoload.begin(), autoload.end(), unit.scriptName) != autoload.end();
+            bool autoload_set = std::find(autoload.begin(), autoload.end(), filename) != autoload.end();
             if (ImGui::Checkbox(_LC("ScriptMonitor", "Autoload"), &autoload_set))
             {
                 if (autoload_set)
-                    CvarAddFileToList(App::app_custom_scripts, unit.scriptName);
+                    CvarAddFileToList(App::app_custom_scripts, filename);
                 else
-                    CvarRemoveFileFromList(App::app_custom_scripts, unit.scriptName);
+                    CvarRemoveFileFromList(App::app_custom_scripts, filename);
             }
             break;
         }
         default:;
         }
 
-        ImGui::PopID(); // ScriptUnitId_t id
+        ImGui::PopID(); // ScriptUnitID_t id
     }
 
     if (App::app_recent_scripts->getStr() != "")

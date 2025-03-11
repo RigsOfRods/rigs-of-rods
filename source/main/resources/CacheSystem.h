@@ -88,11 +88,11 @@ public:
 
     Ogre::String resource_group;        //!< Resource group of the loaded bundle. Empty if not loaded yet.
 
-    RigDef::DocumentPtr actor_def; //!< Cached actor definition (aka truckfile) after first spawn.
-    std::shared_ptr<RoR::SkinDef> skin_def;  //!< Cached skin info, added on first use or during cache rebuild
-    RoR::TuneupDefPtr tuneup_def;  //!< Cached tuning info, added on first use or during cache rebuild
-    RoR::TuneupDefPtr addonpart_data_only; //!< Cached addonpart data (dummy tuneup), only used for evaluating conflicts, see `AddonPartUtility::RecordAddonpartConflicts()`
-    // TBD: Make Terrn2Def a RefcountingObjectPtr<> and cache it here too.
+    RigDef::DocumentPtr actor_def;      //!< Cached actor definition (aka truckfile) after first spawn.
+    SkinDocumentPtr skin_def;           //!< Cached skin info, added on first use or during cache rebuild
+    TuneupDefPtr tuneup_def;            //!< Cached tuning info, added on first use or during cache rebuild
+    TuneupDefPtr addonpart_data_only;   //!< Cached addonpart data (dummy tuneup), only used for evaluating conflicts, see `AddonPartUtility::RecordAddonpartConflicts()`
+    Terrn2DocumentPtr terrn2_def;       //!< Cached terrain definition document.
 
     // following all ADDONPART detail information:
     std::set<std::string> addonpart_guids; //!< GUIDs of all vehicles this addonpart is used with.
@@ -143,21 +143,6 @@ public:
 };
 
 typedef RefCountingObjectPtr<CacheEntry> CacheEntryPtr;
-
-enum CacheCategoryId
-{
-    CID_None          = 0,
-
-    CID_Projects      = 8000, //!< For truck files under 'projects/' directory, to allow listing from editors.
-    CID_Tuneups       = 8001, //!< For unsorted tuneup files.
-
-    CID_Max           = 9000, //!< SPECIAL VALUE - Maximum allowed to be present in any mod files.
-    CID_Unsorted      = 9990,
-    CID_All           = 9991,
-    CID_Fresh         = 9992,
-    CID_Hidden        = 9993,
-    CID_SearchResults = 9994,
-};
 
 struct CacheQueryResult
 {
@@ -301,7 +286,7 @@ public:
 
     /// @name Lookups
     /// @{
-    CacheEntryPtr         FindEntryByFilename(RoR::LoaderType type, bool partial, const std::string& filename); //!< Returns NULL if none found
+    CacheEntryPtr         FindEntryByFilename(RoR::LoaderType type, bool partial, const std::string& _filename_maybe_bundlequalified); //!< Returns NULL if none found; "Bundle-qualified" format also specifies the ZIP/directory in modcache, i.e. "mybundle.zip:myactor.truck"
     CacheEntryPtr         GetEntryByNumber(int modid);
     CacheEntryPtr         FetchSkinByName(std::string const & skin_name);
     size_t                Query(CacheQuery& query);
@@ -310,8 +295,6 @@ public:
     /// @name Loading
     /// @{
     void                  LoadResource(CacheEntryPtr& t); //!< Loads the associated resource bundle if not already done.
-    bool                  CheckResourceLoaded(Ogre::String &in_out_filename); //!< Finds + loads the associated resource bundle if not already done.
-    bool                  CheckResourceLoaded(Ogre::String &in_out_filename, Ogre::String &out_group); //!< Finds given resource, outputs group name. Also loads the associated resource bundle if not already done.
     void                  ReLoadResource(CacheEntryPtr& t); //!< Forces reloading the associated bundle.
     void                  UnLoadResource(CacheEntryPtr& t); //!< Unloads associated bundle, destroying all spawned actors.
     void                  LoadSupplementaryDocuments(CacheEntryPtr& t); //!< Loads the associated .truck*, .skin and .tuneup files.
@@ -368,10 +351,12 @@ private:
     /// @{
     void FillTerrainDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds, Ogre::String fname);
     void FillTruckDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds, Ogre::String fname, Ogre::String group);
-    void FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDef>& skin_def);
+    void FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDocument>& skin_def);
     void FillAddonPartDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds);
     void FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneup_def);
     void FillAssetPackDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds);
+    void FillDashboardDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds);
+    void FillGadgetDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr ds);
     /// @}
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content
@@ -430,6 +415,16 @@ private:
             {859, _LC("ModCategory", "Container")},
 
             {875, _LC("ModCategory", "Submarine")},
+
+            // dashboards
+            {200, _LC("ModCategory", "Dashboards - Generic")},
+            {201, _LC("ModCategory", "Dashboards - Truck")},
+            {202, _LC("ModCategory", "Dashboards - Boat")},
+
+            // gadgets
+            {CID_GadgetsGeneric, _LC("ModCategory", "Gadgets - Generic")},
+            {CID_GadgetsActor, _LC("ModCategory", "Gadgets - Actor")},
+            {CID_GadgetsTerrain, _LC("ModCategory", "Gadgets - Terrain")},
 
             // note: these categories are NOT in the repository:
             {5000, _LC("ModCategory", "Official Terrains")},

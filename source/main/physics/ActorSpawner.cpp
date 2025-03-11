@@ -45,7 +45,7 @@
 #include "Collisions.h"
 #include "DashBoardManager.h"
 #include "Differentials.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "FlexAirfoil.h"
 #include "FlexBody.h"
 #include "FlexMesh.h"
@@ -266,6 +266,7 @@ void ActorSpawner::InitializeRig()
         m_actor->ar_nodes_id[i] = -1;
     }
     m_actor->ar_nodes_name = new std::string[req.num_nodes];
+    m_actor->ar_nodes_spawn_offsets = new Ogre::Vector3[req.num_nodes];
 
     if (req.num_shocks > 0)
         m_actor->ar_shocks = new shock_t[req.num_shocks];
@@ -278,9 +279,6 @@ void ActorSpawner::InitializeRig()
 
     m_actor->ar_minimass.resize(req.num_nodes);
 
-    m_actor->exhausts.clear();
-    memset(m_actor->ar_custom_particles, 0, sizeof(cparticle_t) * MAX_CPARTICLES);
-    m_actor->ar_num_custom_particles = 0;
     memset(m_actor->ar_soundsources, 0, sizeof(soundsource_t) * MAX_SOUNDSCRIPTS_PER_TRUCK);
     m_actor->ar_num_soundsources = 0;
     memset(m_actor->ar_collcabs, 0, sizeof(int) * MAX_CABS);
@@ -364,7 +362,7 @@ void ActorSpawner::InitializeRig()
     m_actor->tc_ratio = 1.f;
     m_actor->tc_timer = 0.f;
 
-    m_actor->ar_dashboard = new DashBoardManager();
+    m_actor->ar_dashboard = new DashBoardManager(m_actor);
 
     /* Collisions */
 
@@ -423,7 +421,7 @@ void ActorSpawner::FinalizeRig()
         }
 
         //Gearbox
-        m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
+        m_actor->ar_engine->setAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
     }
     
     // Sanitize trigger_cmdshort and trigger_cmdlong
@@ -1282,8 +1280,8 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
         return;
     }
 
-    const ExhaustID_t exhaust_id = (ExhaustID_t)m_actor->exhausts.size();
-    exhaust_t exhaust;
+    const ExhaustID_t exhaust_id = (ExhaustID_t)m_actor->m_gfx_actor->m_exhausts.size();
+    Exhaust exhaust;
     exhaust.emitterNode   = this->GetNodeIndexOrThrow(def.reference_node);
     exhaust.directionNode = this->GetNodeIndexOrThrow(def.direction_node);
 
@@ -1296,7 +1294,7 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
 
     if (!TuneupUtil::isExhaustAnyhowRemoved(m_actor->getWorkingTuneupDef(), exhaust_id))
     {
-        std::string name = this->ComposeName(template_name.c_str(), (int)m_actor->exhausts.size());
+        std::string name = this->ComposeName(template_name.c_str(), (int)m_actor->m_gfx_actor->m_exhausts.size());
         exhaust.smoker = this->CreateParticleSystem(name, template_name);
         if (exhaust.smoker == nullptr)
         {
@@ -1306,7 +1304,7 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
             return;
         }
 
-        exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("exhaust", (int)m_actor->exhausts.size()));
+        exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("exhaust", (int)m_actor->m_gfx_actor->m_exhausts.size()));
         exhaust.smokeNode->attachObject(exhaust.smoker);
         exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
 
@@ -1314,7 +1312,7 @@ void ActorSpawner::ProcessExhaust(RigDef::Exhaust & def)
         m_actor->m_gfx_actor->SetNodeHot(exhaust.directionNode, true);
     }
 
-    m_actor->exhausts.push_back(exhaust);
+    m_actor->m_gfx_actor->m_exhausts.push_back(exhaust);
 }
 
 std::string ActorSpawner::GetSubmeshGroundmodelName()
@@ -2358,6 +2356,41 @@ void ActorSpawner::ProcessFlare2(RigDef::Flare2 & def)
     m_actor->ar_flares.push_back(flare);
 }
 
+void ActorSpawner::ProcessFlaregroupNoImport(RigDef::FlaregroupNoImport& def)
+{
+    LOG(fmt::format("[RoR|ActorSpawner] processing FlaregroupNoImport ({} {})", (char)def.type, def.control_number));
+    switch (def.type)
+    {
+    case FlareType::HEADLIGHT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_HEADLIGHT); break;
+    case FlareType::HIGH_BEAM: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_HIGHBEAMS); break;
+    case FlareType::FOG_LIGHT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_FOGLIGHTS); break;
+    case FlareType::SIDELIGHT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_SIDELIGHTS); break;
+    case FlareType::TAIL_LIGHT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_HEADLIGHT); break;
+    case FlareType::BRAKE_LIGHT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_BRAKES); break;
+    case FlareType::REVERSE_LIGHT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_REVERSE); break;
+    case FlareType::BLINKER_LEFT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_BLINK_LEFT); break;
+    case FlareType::BLINKER_RIGHT: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_BLINK_RIGHT); break;
+    //case FlareType::DASHBOARD: ~ Not subject to syncing between linked actors.
+    case FlareType::USER:
+        switch (def.control_number - 1)
+        {
+        case 0: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM1); break;
+        case 1: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM2); break;
+        case 2: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM3); break;
+        case 3: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM4); break;
+        case 4: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM5); break;
+        case 5: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM6); break;
+        case 6: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM7); break;
+        case 7: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM8); break;
+        case 8: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM9); break;
+        case 9: BITMASK_SET_1(m_actor->m_flaregroups_no_import, RoRnet::LIGHTMASK_CUSTOM10);break;
+        default: break;
+        }
+        break;
+    default: break;
+    }
+}
+
 Ogre::MaterialPtr ActorSpawner::InstantiateManagedMaterial(const Ogre::String& rg_name, Ogre::String const & source_name, Ogre::String const & clone_name)
 {
     Ogre::MaterialPtr src_mat = Ogre::MaterialManager::getSingleton().getByName(source_name, rg_name);
@@ -2861,13 +2894,13 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
         return;
     }
 
-    int particle_index = m_actor->ar_num_custom_particles;
-    cparticle_t & particle = m_actor->ar_custom_particles[particle_index];
+    CParticleID_t particle_id = static_cast<CParticleID_t>(m_actor->m_gfx_actor->m_cparticles.size());
+    CParticle particle;
 
     particle.emitterNode = GetNodeIndexOrThrow(def.emitter_node);
     particle.directionNode = GetNodeIndexOrThrow(def.reference_node);
 
-    std::string name = this->ComposeName(def.particle_system_name.c_str(), particle_index);
+    std::string name = this->ComposeName(def.particle_system_name.c_str(), particle_id);
     particle.psys = this->CreateParticleSystem(name, def.particle_system_name);
     if (particle.psys == nullptr)
     {
@@ -2877,18 +2910,11 @@ void ActorSpawner::ProcessParticle(RigDef::Particle & def)
         return;
     }
 
-    particle.snode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("cparticles", m_actor->ar_num_custom_particles));
+    particle.snode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("cparticles", particle_id));
     particle.snode->attachObject(particle.psys);
     particle.snode->setPosition(m_actor->ar_nodes[particle.emitterNode].AbsPosition);
 
-    /* Shut down the emitters */
-    particle.active = false; 
-    for (unsigned int i = 0; i < particle.psys->getNumEmitters(); i++)
-    {
-        particle.psys->getEmitter(i)->setEnabled(false);
-    }
-
-    ++m_actor->ar_num_custom_particles;
+    m_actor->m_gfx_actor->m_cparticles.push_back(particle);
 }
 
 void ActorSpawner::ProcessRopable(RigDef::Ropable & def)
@@ -4718,6 +4744,7 @@ void ActorSpawner::BuildWheelObjectAndNodes(
     {
         /* Outer ring */
         Ogre::Vector3 ray_point = axis_node_1->RelPosition + ray_vector;
+        Ogre::Vector3 ray_spawnpoint = m_actor->ar_nodes_spawn_offsets[axis_node_1->pos] + ray_vector;
         ray_vector = ray_rotator * ray_vector;
 
         node_t & outer_node = GetFreeNode();
@@ -4728,9 +4755,11 @@ void ActorSpawner::BuildWheelObjectAndNodes(
         AdjustNodeBuoyancy(outer_node, node_defaults);
 
         m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(outer_node.pos));
+        m_actor->ar_nodes_spawn_offsets[outer_node.pos] = ray_spawnpoint;
 
         /* Inner ring */
         ray_point = axis_node_2->RelPosition + ray_vector;
+        ray_spawnpoint = m_actor->ar_nodes_spawn_offsets[axis_node_2->pos] + ray_vector;
         ray_vector = ray_rotator * ray_vector;
 
         node_t & inner_node = GetFreeNode();
@@ -4741,6 +4770,7 @@ void ActorSpawner::BuildWheelObjectAndNodes(
         AdjustNodeBuoyancy(inner_node, node_defaults);
 
         m_actor->m_gfx_actor->m_gfx_nodes.push_back(NodeGfx(inner_node.pos));
+        m_actor->ar_nodes_spawn_offsets[inner_node.pos] = ray_spawnpoint;
 
         /* Wheel object */
         wheel.wh_nodes[i * 2] = & outer_node;
@@ -5416,31 +5446,23 @@ void ActorSpawner::ProcessEngoption(RigDef::Engoption & def)
 
 void ActorSpawner::ProcessEngine(RigDef::Engine & def)
 {
-    /* Process it */
+    /* This is a land vehicle */
     m_actor->ar_driveable = TRUCK;
 
-    /* Process gear list to EngineSim-compatible format */
-    /* TODO: Move this to EngineSim::EngineSim() */
-    std::vector<float> gears_compat;
-    gears_compat.reserve(2 + def.gear_ratios.size());
-    gears_compat.push_back(def.reverse_gear_ratio);
-    gears_compat.push_back(def.neutral_gear_ratio);
-    std::vector<float>::iterator itor = def.gear_ratios.begin();
-    for (; itor < def.gear_ratios.end(); itor++)
-    {
-        gears_compat.push_back(*itor);
-    }
-
-    m_actor->ar_engine = new EngineSim(
+    /* Process it */
+    m_actor->ar_engine = new Engine(
         def.shift_down_rpm,
         def.shift_up_rpm,
         def.torque,
-        gears_compat,
+        def.reverse_gear_ratio,
+        def.neutral_gear_ratio,
+        def.gear_ratios,
         def.global_gear_ratio,
         m_actor
     );
 
-    m_actor->ar_engine->SetAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
+    /* Apply game configuration */
+    m_actor->ar_engine->setAutoMode(App::sim_gearbox_mode->getEnum<SimGearboxMode>());
 };
 
 void ActorSpawner::ProcessHelp(RigDef::Help & def)
@@ -5902,7 +5924,10 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
     node.pos = inserted_node.first; /* Node index */
 
     /* Positioning */
-    Ogre::Vector3 node_position = m_spawn_position + TuneupUtil::getTweakedNodePosition(m_actor->getWorkingTuneupDef(), node.pos, def.position);
+    const Ogre::Vector3 spawn_offset = TuneupUtil::getTweakedNodePosition(m_actor->getWorkingTuneupDef(), node.pos, def.position);
+    m_actor->ar_nodes_spawn_offsets[inserted_node.first] = spawn_offset;
+
+    Ogre::Vector3 node_position = m_spawn_position + spawn_offset;
     ROR_ASSERT(!std::isnan(node_position.x));
     ROR_ASSERT(!std::isnan(node_position.y));
     ROR_ASSERT(!std::isnan(node_position.z));
@@ -6020,12 +6045,13 @@ void ActorSpawner::AddExhaust(
         NodeNum_t direction_node_idx
     )
 {
-    exhaust_t exhaust;
+    const ExhaustID_t exhaust_id = (ExhaustID_t)m_actor->m_gfx_actor->m_exhausts.size();
+    Exhaust exhaust;
     exhaust.emitterNode = emitter_node_idx;
     exhaust.directionNode = direction_node_idx;
 
     exhaust.smoker = App::GetGfxScene()->GetSceneManager()->createParticleSystem(
-        this->ComposeName("exhaust", (int)m_actor->exhausts.size()),
+        this->ComposeName("exhaust", exhaust_id),
         /*quota=*/500, // Default value
         m_custom_resource_group);
 
@@ -6039,14 +6065,14 @@ void ActorSpawner::AddExhaust(
     Ogre::MaterialPtr mat = this->FindOrCreateCustomizedMaterial("tracks/Smoke", m_custom_resource_group);
     exhaust.smoker->setMaterialName(mat->getName(), mat->getGroup());
 
-    exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("exhaust", (int)m_actor->exhausts.size()));
+    exhaust.smokeNode = m_particles_parent_scenenode->createChildSceneNode(this->ComposeName("exhaust", exhaust_id));
     exhaust.smokeNode->attachObject(exhaust.smoker);
     exhaust.smokeNode->setPosition(m_actor->ar_nodes[exhaust.emitterNode].AbsPosition);
 
     m_actor->m_gfx_actor->SetNodeHot(exhaust.emitterNode, true);
     m_actor->m_gfx_actor->SetNodeHot(exhaust.directionNode, true);
 
-    m_actor->exhausts.push_back(exhaust);
+    m_actor->m_gfx_actor->m_exhausts.push_back(exhaust);
 }
 
 void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
@@ -6054,6 +6080,7 @@ void ActorSpawner::ProcessCinecam(RigDef::Cinecam & def)
     // Node
     Ogre::Vector3 node_pos = m_spawn_position + def.position;
     node_t & camera_node = GetAndInitFreeNode(node_pos);
+    m_actor->ar_nodes_spawn_offsets[camera_node.pos] = def.position;
     camera_node.nd_no_ground_contact = true; // Orig: hardcoded in BTS_CINECAM
     camera_node.friction_coef = NODE_FRICTION_COEF_DEFAULT; // Node defaults are ignored here.
     AdjustNodeBuoyancy(camera_node, def.node_defaults);
@@ -6125,18 +6152,6 @@ void ActorSpawner::ProcessGlobals(RigDef::Globals & def)
 /* -------------------------------------------------------------------------- */
 // Limits.
 /* -------------------------------------------------------------------------- */
-
-bool ActorSpawner::CheckParticleLimit(unsigned int count)
-{
-    if ((m_actor->ar_num_custom_particles + count) > MAX_CPARTICLES)
-    {
-        std::stringstream msg;
-        msg << "Particle limit (" << MAX_CPARTICLES << ") exceeded";
-        AddMessage(Message::TYPE_ERROR, msg.str());
-        return false;
-    }
-    return true;
-}
 
 bool ActorSpawner::CheckAxleLimit(unsigned int count)
 {
@@ -6316,7 +6331,7 @@ void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
         }
         if (vehicle->ar_engine->m_engine_type == 'c')
             AddSoundSourceInstance(vehicle, "tracks/default_car", ar_exhaust_pos_node);
-        if (vehicle->ar_engine->HasTurbo())
+        if (vehicle->ar_engine->hasTurbo())
         {
             if (vehicle->ar_engine->m_turbo_inertia_factor >= 3)
                 AddSoundSourceInstance(vehicle, "tracks/default_turbo_big", ar_exhaust_pos_node);
@@ -6577,7 +6592,7 @@ Ogre::MaterialPtr ActorSpawner::FindOrCreateCustomizedMaterial(const std::string
         // Query .skin material replacements
         if (m_actor->m_used_skin_entry != nullptr)
         {
-            std::shared_ptr<RoR::SkinDef>& skin_def = m_actor->m_used_skin_entry->skin_def;
+            SkinDocumentPtr& skin_def = m_actor->m_used_skin_entry->skin_def;
 
             auto skin_res = skin_def->replace_materials.find(mat_lookup_name);
             if (skin_res != skin_def->replace_materials.end())
@@ -6811,87 +6826,32 @@ void ActorSpawner::FinalizeGfxSetup()
         {
             if (gs.key == "dashboard")
             {
-                m_actor->ar_dashboard->loadDashBoard(gs.value, false);
+                m_actor->ar_dashboard->loadDashBoard(gs.value, LOADDASHBOARD_SCREEN_HUD);
             }
             else if (gs.key == "texturedashboard")
             {
-                m_actor->ar_dashboard->loadDashBoard(gs.value, true);
+                m_actor->ar_dashboard->loadDashBoard(gs.value, LOADDASHBOARD_RTT_TEXTURE);
             }
         }
     }
 
     // If none specified, load default dashboard layouts
-    if (!m_actor->ar_dashboard->WasDashboardLoaded())
+    BitMask_t defaultdash_flags = 0;
+    BITMASK_SET_1(defaultdash_flags, m_actor->ar_dashboard->wasDashboardHudLoaded() ? 0 : LOADDASHBOARD_SCREEN_HUD);
+    BITMASK_SET_1(defaultdash_flags, m_actor->ar_dashboard->wasDashboardRttLoaded() ? 0 : LOADDASHBOARD_RTT_TEXTURE);
+    switch (m_actor->ar_driveable)
     {
-        if (m_actor->ar_driveable == TRUCK) // load default for a truck
-        {
-            if (App::gfx_speedo_digital->getBool())
-            {
-                if (App::gfx_speedo_imperial->getBool())
-                {
-                    if (m_actor->ar_engine->getMaxRPM() > 3500)
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_mph.layout", false); //7000 rpm tachometer thanks to Klink
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_mph.layout", true);
-                    }
-                    else
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500_mph.layout", false);
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500_mph.layout", true);
-                    }
-                }
-                else
-                {
-                    if (m_actor->ar_engine->getMaxRPM() > 3500)
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000.layout", false); //7000 rpm tachometer thanks to Klink
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000.layout", true);
-                    }
-                    else
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500.layout", false);
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500.layout", true);
-                    }
-                }
-            }
-            else // Analog speedometer
-            {
-                if (App::gfx_speedo_imperial->getBool())
-                {
-                    if (m_actor->ar_engine->getMaxRPM() > 3500)
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_analog_mph.layout", false); //7000 rpm tachometer thanks to Klink
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_analog_mph.layout", true);
-                    }
-                    else
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500_analog_mph.layout", false);
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500_analog_mph.layout", true);
-                    }
-                }
-                else
-                {
-                    if (m_actor->ar_engine->getMaxRPM() > 3500)
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_analog.layout", false); //7000 rpm tachometer thanks to Klink
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard7000_analog.layout", true);
-                    }
-                    else
-                    {
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500_analog.layout", false);
-                        m_actor->ar_dashboard->loadDashBoard("default_dashboard3500_analog.layout", true);
-                    }
-                }
-            }
-        }
-        else if (m_actor->ar_driveable == BOAT)
-        {
-            m_actor->ar_dashboard->loadDashBoard("default_dashboard_boat.layout", false);
-            m_actor->ar_dashboard->loadDashBoard("default_dashboard_boat.layout", true);
-        }
+    case TRUCK:
+        m_actor->ar_dashboard->loadDashBoard(App::ui_default_truck_dash->getStr(), defaultdash_flags);
+        m_actor->ar_dashboard->setVisible(false);
+        break;
+    case BOAT:
+        m_actor->ar_dashboard->loadDashBoard(App::ui_default_boat_dash->getStr(), defaultdash_flags);
+        m_actor->ar_dashboard->setVisible(false);
+        break;
+    default:
+        break;
     }
-
-    m_actor->ar_dashboard->setVisible(false);
 
     if (!m_help_material_name.empty())
     {
@@ -7257,6 +7217,13 @@ Ogre::ParticleSystem* ActorSpawner::CreateParticleSystem(std::string const & nam
        name, Ogre::ParticleSystemFactory::FACTORY_TYPE_NAME, &params);
     Ogre::ParticleSystem* psys = static_cast<Ogre::ParticleSystem*>(obj);
     psys->setVisibilityFlags(DEPTHMAP_DISABLED); // disable particles in depthmap
+
+    // Shut down the emitters
+    for (size_t i = 0; i < psys->getNumEmitters(); i++)
+    {
+        psys->getEmitter(i)->setEnabled(false);
+    }
+
     return psys;
 }
 

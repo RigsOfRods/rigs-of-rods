@@ -28,7 +28,7 @@
 #include "CacheSystem.h"
 #include "ContentManager.h"
 #include "Console.h"
-#include "EngineSim.h"
+#include "Engine.h"
 #include "GameContext.h"
 #include "GUIManager.h"
 #include "GUI_MessageBox.h"
@@ -40,6 +40,7 @@
 #include "SkyManager.h"
 #include "Terrain.h"
 #include "TuneupFileFormat.h"
+#include "Utils.h"
 
 #include <rapidjson/rapidjson.h>
 #include <fstream>
@@ -303,14 +304,12 @@ bool ActorManager::LoadScene(Ogre::String save_filename)
     std::vector<ActorPtr> x_actors = GetLocalActors();
     for (rapidjson::Value& j_entry: j_doc["actors"].GetArray())
     {
-        String rigdef_filename = j_entry["filename"].GetString();
-        if (!App::GetCacheSystem()->CheckResourceLoaded(rigdef_filename))
-        {
-            Str<600> msg; msg << _L("Error while loading scene: Missing content (probably not installed)") << " '" << rigdef_filename << "'";
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_ERROR, msg.ToCStr());
-            actors.push_back(nullptr);
-            continue;
-        }
+        // NOTE: The filename is by default in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
+        String rigdef_filename_maybe_bundle_qualified = j_entry["filename"].GetString();
+        std::string filename;
+        std::string bundlename;
+        SplitBundleQualifiedFilename(rigdef_filename_maybe_bundle_qualified, bundlename, filename);
+        CacheEntryPtr actor_entry = App::GetCacheSystem()->FindEntryByFilename(LT_AllBeam, /*partial:*/false, rigdef_filename_maybe_bundle_qualified);
 
         CacheEntryPtr skin = nullptr;
         if (j_entry.HasMember("skin"))
@@ -335,9 +334,9 @@ bool ActorManager::LoadScene(Ogre::String save_filename)
         int index = static_cast<int>(actors.size());
         if (index < x_actors.size())
         {
-            if (j_entry["filename"].GetString() != x_actors[index]->ar_filename ||
-                    (skin != nullptr && skin->dname != x_actors[index]->m_used_skin_entry->dname) ||
-                    section_config != x_actors[index]->getSectionConfig())
+            if (filename != x_actors[index]->ar_filename ||
+                (skin != nullptr && skin->dname != x_actors[index]->m_used_skin_entry->dname) ||
+                section_config != x_actors[index]->getSectionConfig())
             {
                 if (x_actors[index] == player_actor)
                 {
@@ -357,21 +356,19 @@ bool ActorManager::LoadScene(Ogre::String save_filename)
             }
         }
 
-        if (actor == nullptr)
+        // If a 'preloaded' actor isn't loaded at this point, it means it's not installed.
+        if (actor == nullptr && !j_entry["preloaded_with_terrain"].GetBool())
         {
-            bool preloaded = j_entry["preloaded_with_terrain"].GetBool();
-
             ActorSpawnRequest* rq = new ActorSpawnRequest;
-            rq->asr_filename      = rigdef_filename;
+            rq->asr_filename      = rigdef_filename_maybe_bundle_qualified;
             rq->asr_position.x    = j_entry["position"][0].GetFloat();
-            rq->asr_position.y    = preloaded ? j_entry["position"][1].GetFloat() : j_entry["min_height"].GetFloat();
+            rq->asr_position.y    = j_entry["min_height"].GetFloat();
             rq->asr_position.z    = j_entry["position"][2].GetFloat();
             rq->asr_rotation      = Quaternion(Degree(270) - Radian(j_entry["rotation"].GetFloat()), Vector3::UNIT_Y);
             rq->asr_skin_entry    = skin;
             rq->asr_working_tuneup = working_tuneup;
             rq->asr_config        = section_config;
-            rq->asr_origin        = preloaded ? ActorSpawnRequest::Origin::TERRN_DEF : ActorSpawnRequest::Origin::SAVEGAME;
-            rq->asr_free_position = preloaded;
+            rq->asr_origin        = ActorSpawnRequest::Origin::SAVEGAME;
             // Copy saved state
             rq->asr_saved_state = std::shared_ptr<rapidjson::Document>(new rapidjson::Document());
             rq->asr_saved_state->CopyFrom(j_entry, rq->asr_saved_state->GetAllocator());
@@ -483,7 +480,14 @@ bool ActorManager::SaveScene(Ogre::String filename)
     {
         rapidjson::Value j_entry(rapidjson::kObjectType);
 
-        j_entry.AddMember("filename", rapidjson::StringRef(actor->ar_filename.c_str()), j_doc.GetAllocator());
+        // Save the filename in "Bundle-qualified" format, i.e. "mybundle.zip:myactor.truck"
+        std::string bname;
+        std::string bpath;
+        Ogre::StringUtil::splitFilename(actor->getUsedActorEntry()->resource_bundle_path, bname, bpath);
+        std::string bq_filename = fmt::format("{}:{}", bname, actor->ar_filename);
+        rapidjson::Value j_bq_filename(bq_filename.c_str(), j_doc.GetAllocator());
+        j_entry.AddMember("filename", j_bq_filename, j_doc.GetAllocator());
+
         rapidjson::Value j_actor_position(rapidjson::kArrayType);
         j_actor_position.PushBack(actor->ar_nodes[0].AbsPosition.x, j_doc.GetAllocator());
         j_actor_position.PushBack(actor->ar_nodes[0].AbsPosition.y, j_doc.GetAllocator());
@@ -519,9 +523,9 @@ bool ActorManager::SaveScene(Ogre::String filename)
         // Engine, anti-lock brake, traction control
         if (actor->ar_engine)
         {
-            j_entry.AddMember("engine_gear", actor->ar_engine->GetGear(), j_doc.GetAllocator());
-            j_entry.AddMember("engine_rpm", actor->ar_engine->GetEngineRpm(), j_doc.GetAllocator());
-            j_entry.AddMember("engine_auto_mode", actor->ar_engine->GetAutoMode(), j_doc.GetAllocator());
+            j_entry.AddMember("engine_gear", actor->ar_engine->getGear(), j_doc.GetAllocator());
+            j_entry.AddMember("engine_rpm", actor->ar_engine->getRPM(), j_doc.GetAllocator());
+            j_entry.AddMember("engine_auto_mode", static_cast<int>(actor->ar_engine->getAutoMode()), j_doc.GetAllocator());
             j_entry.AddMember("engine_auto_select", actor->ar_engine->getAutoShift(), j_doc.GetAllocator());
             j_entry.AddMember("engine_is_running", actor->ar_engine->isRunning(), j_doc.GetAllocator());
             j_entry.AddMember("engine_has_contact", actor->ar_engine->hasContact(), j_doc.GetAllocator());
@@ -543,7 +547,7 @@ bool ActorManager::SaveScene(Ogre::String filename)
         j_entry.AddMember("wheel_speed", actor->ar_wheel_speed, j_doc.GetAllocator());
         j_entry.AddMember("wheel_spin", actor->ar_wheel_spin, j_doc.GetAllocator());
 
-        j_entry.AddMember("custom_particles", actor->m_custom_particles_enabled, j_doc.GetAllocator());
+        j_entry.AddMember("custom_particles", actor->ar_cparticles_active, j_doc.GetAllocator());
 
         // Flares
         j_entry.AddMember("lights", (int)actor->getHeadlightsVisible(), j_doc.GetAllocator());
@@ -806,12 +810,12 @@ void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_e
         if (running != actor->ar_engine->isRunning())
         {
             if (running)
-                actor->ar_engine->StartEngine();
+                actor->ar_engine->startEngine();
             else
-                actor->ar_engine->StopEngine();
+                actor->ar_engine->stopEngine();
         }
-        actor->ar_engine->PushNetworkState(rpm, 0.0f, 0.0f, gear, running, contact, automode, autoselect);
-        actor->ar_engine->SetWheelSpin(j_entry["wheel_spin"].GetFloat() * RAD_PER_SEC_TO_RPM);
+        actor->ar_engine->pushNetworkState(rpm, 0.0f, 0.0f, gear, running, contact, automode, autoselect);
+        actor->ar_engine->setWheelSpin(j_entry["wheel_spin"].GetFloat() * RAD_PER_SEC_TO_RPM);
         actor->alb_mode = j_entry["alb_mode"].GetBool();
         actor->tc_mode = j_entry["tc_mode"].GetBool();
         actor->cc_mode = j_entry["cc_mode"].GetBool();
@@ -829,7 +833,7 @@ void ActorManager::RestoreSavedState(ActorPtr actor, rapidjson::Value const& j_e
     actor->ar_wheel_speed = j_entry["wheel_speed"].GetFloat();
     actor->ar_wheel_spin = j_entry["wheel_spin"].GetFloat();
 
-    if (actor->m_custom_particles_enabled != j_entry["custom_particles"].GetBool())
+    if (actor->ar_cparticles_active != j_entry["custom_particles"].GetBool())
     {
         actor->toggleCustomParticles();
     }
