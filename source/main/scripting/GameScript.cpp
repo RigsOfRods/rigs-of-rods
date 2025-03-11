@@ -283,6 +283,12 @@ int GameScript::getCurrentTruckNumber()
     return (actor != nullptr) ? actor->ar_instance_id : -1;
 }
 
+ActorPtr GameScript::getTruckRemotelyReceivingCommands()
+{
+    return App::GetGameContext()->GetActorRemotelyReceivingCommands();
+
+}
+
 void GameScript::registerForEvent(int eventValue)
 {
     if (App::GetScriptEngine())
