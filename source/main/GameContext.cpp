@@ -1139,6 +1139,7 @@ void GameContext::UpdateSimInputEvents(float dt)
     }
 
     // forward commands from character
+    ActorPtr actor_to_reset_commandkeys;
     if (!m_player_actor)
     {
         // Find nearest actor
@@ -1155,8 +1156,6 @@ void GameContext::UpdateSimInputEvents(float dt)
             }
         }
 
-        ActorPtr actor_to_reset_inputs;
-
         // Evaluate
         if (nearest_actor != nullptr &&
             nearest_actor->ar_import_commands &&
@@ -1164,7 +1163,7 @@ void GameContext::UpdateSimInputEvents(float dt)
         {
             if (nearest_actor != m_actor_remotely_receiving_commands)
             {
-                actor_to_reset_inputs = m_actor_remotely_receiving_commands;
+                actor_to_reset_commandkeys = m_actor_remotely_receiving_commands;
             }
             m_actor_remotely_receiving_commands = nearest_actor;
 
@@ -1189,18 +1188,26 @@ void GameContext::UpdateSimInputEvents(float dt)
         {
             if (m_actor_remotely_receiving_commands)
             {
-                actor_to_reset_inputs = m_actor_remotely_receiving_commands;
+                // Just left the vicinity of the actor, but still on foot
+                actor_to_reset_commandkeys = m_actor_remotely_receiving_commands;
+                m_actor_remotely_receiving_commands = nullptr;
             }
-            m_actor_remotely_receiving_commands = nullptr;
         }
+    }
+    else if (m_actor_remotely_receiving_commands)
+    {
+        // Just left the vicinity of the actor by entering vehicle
+        actor_to_reset_commandkeys = m_actor_remotely_receiving_commands;
+        m_actor_remotely_receiving_commands = nullptr;
+    }
 
-        if (actor_to_reset_inputs)
+    if (actor_to_reset_commandkeys)
+    {
+        for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
         {
-            for (int i = 1; i <= MAX_COMMANDS; i++) // BEWARE: commandkeys are indexed 1-MAX_COMMANDS!
-            {
-                actor_to_reset_inputs->ar_command_key[i].playerInputValue = 0.f;
-            }
+            actor_to_reset_commandkeys->ar_command_key[i].playerInputValue = 0.f;
         }
+        actor_to_reset_commandkeys = nullptr;
     }
 
     // AI waypoint recording
