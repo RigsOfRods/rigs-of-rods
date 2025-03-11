@@ -467,6 +467,12 @@ public:
     int getNumTrucksByFlag(int flag);
 
     /**
+    * Actors with 'importcommands' flag will remotely respond to command keys
+    * when the player is close enough (works both on foot and in vehicles).
+    */
+    ActorPtr getTruckRemotelyReceivingCommands();
+
+    /**
     * Returns an unused (not reused) ID to use with `MSG_SIM_SPAWN_ACTOR_REQUESTED`; see `game.pushMessage()`.
     */
     ActorInstanceID_t getActorNextInstanceId();

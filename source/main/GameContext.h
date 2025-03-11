@@ -134,6 +134,7 @@ public:
     const ActorPtr&     GetPlayerActor() { return m_player_actor; }
     const ActorPtr&     GetPrevPlayerActor() { return m_prev_player_actor; }
     const ActorPtr&     GetLastSpawnedActor() { return m_last_spawned_actor; } //!< Last actor spawned by user and still alive.
+    const ActorPtr&     GetActorRemotelyReceivingCommands() { return m_actor_remotely_receiving_commands; }
     void                SetPrevPlayerActor(ActorPtr actor);
     void                ChangePlayerActor(ActorPtr actor);
 
