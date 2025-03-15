@@ -6982,12 +6982,10 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         auto videocameraid = (VideoCameraID_t)m_actor->m_gfx_actor->m_videocameras.size();
         RoR::VideoCamera vcam;
 
-        const VideoCamRole tweaked_role = TuneupUtil::getTweakedVideoCameraRole(m_actor->getWorkingTuneupDef(), videocameraid, def->camera_role);
-        vcam.vcam_role_orig = tweaked_role;
-        vcam.vcam_role = vcam.vcam_role_orig;
+        vcam.vcam_role = TuneupUtil::getTweakedVideoCameraRole(m_actor->getWorkingTuneupDef(), videocameraid, def->camera_role);
         if (vcam.vcam_role == VCAM_ROLE_INVALID)
         {
-            this->AddMessage(Message::TYPE_ERROR, fmt::format("Skipping VideoCamera (mat: {}) with invalid 'role' ({})", def->material_name, (int)vcam.vcam_role_orig));
+            this->AddMessage(Message::TYPE_ERROR, fmt::format("Skipping VideoCamera (mat: {}) with invalid 'role' ({})", def->material_name, (int)vcam.vcam_role));
             return;
         }
 
@@ -7006,7 +7004,8 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
 
         //rotate camera picture 180 degrees, skip for mirrors
         float rotation_z = def->rotation.z + 180;
-        if (tweaked_role == VCAM_ROLE_MIRROR || tweaked_role == VCAM_ROLE_MIRROR_NOFLIP)
+        if (vcam.vcam_role == VCAM_ROLE_MIRROR || vcam.vcam_role == VCAM_ROLE_MIRROR_NOFLIP
+            || vcam.vcam_role == VCAM_ROLE_TRACKING_MIRROR || vcam.vcam_role == VCAM_ROLE_TRACKING_MIRROR_NOFLIP)
         {
             rotation_z += 180.0f;
         }
@@ -7029,7 +7028,13 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
         if (def->alt_orientation_node.IsValidAnyState())
         {
             // This is a tracker camera
-            vcam.vcam_role = VCAM_ROLE_TRACKING_VIDEOCAM;
+            switch (vcam.vcam_role)
+            {
+            case VCAM_ROLE_MIRROR: vcam.vcam_role = VCAM_ROLE_TRACKING_MIRROR; break;
+            case VCAM_ROLE_MIRROR_NOFLIP: vcam.vcam_role = VCAM_ROLE_TRACKING_MIRROR_NOFLIP; break;
+            case VCAM_ROLE_VIDEOCAM: vcam.vcam_role = VCAM_ROLE_TRACKING_VIDEOCAM; break;
+            default: break; // Assume the TRACKING_* role is already set by the tuning system.
+            }
             vcam.vcam_node_lookat = this->GetNodeIndexOrThrow(def->alt_orientation_node);
         }
 
@@ -7079,7 +7084,7 @@ void ActorSpawner::CreateVideoCamera(RigDef::VideoCamera* def)
             vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureName(vcam.vcam_render_tex->getName());
 
             // this is a mirror, flip the image left<>right to have a mirror and not a cameraimage
-            if (tweaked_role == VCAM_ROLE_MIRROR)
+            if (vcam.vcam_role == VCAM_ROLE_MIRROR || vcam.vcam_role == VCAM_ROLE_TRACKING_MIRROR)
                 vcam.vcam_material->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTextureUScale(-1);
         }
 

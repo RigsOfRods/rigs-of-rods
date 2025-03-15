@@ -545,7 +545,7 @@ void RoR::GfxActor::UpdateVideoCameras(float dt)
         frustumUP.normalise();
         vidcam.vcam_ogre_camera->setFixedYawAxis(true, frustumUP);
 
-        if (vidcam.vcam_role == VCAM_ROLE_MIRROR)
+        if (vidcam.vcam_role == VCAM_ROLE_MIRROR || vidcam.vcam_role == VCAM_ROLE_MIRROR_NOFLIP)
         {
             //rotate the normal of the mirror by user rotation setting so it reflects correct
             normal = vidcam.vcam_rotation * normal;
@@ -562,7 +562,8 @@ void RoR::GfxActor::UpdateVideoCameras(float dt)
             Ogre::Quaternion rot = Ogre::Quaternion(-refx, -refy, -normal);
             vidcam.vcam_ogre_camera->setOrientation(rot * vidcam.vcam_rotation); // rotate the camera orientation towards the calculated cam direction plus user rotation
         }
-        else if (vidcam.vcam_role == VCAM_ROLE_TRACKING_VIDEOCAM)
+        else if (vidcam.vcam_role == VCAM_ROLE_TRACKING_VIDEOCAM 
+            || vidcam.vcam_role == VCAM_ROLE_TRACKING_MIRROR || vidcam.vcam_role == VCAM_ROLE_TRACKING_MIRROR_NOFLIP)
         {
             normal = m_simbuf.simbuf_nodes[vidcam.vcam_node_lookat].AbsPosition - pos;
             normal.normalise();
