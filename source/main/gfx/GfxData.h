@@ -220,8 +220,7 @@ struct Prop
 /// either in-scene texture or external window.
 struct VideoCamera
 {
-    VideoCamRole         vcam_role           = VCAM_ROLE_INVALID; //!< Active role assigned at spawn (i.e. TRACKING if tracking node was set)
-    VideoCamRole         vcam_role_orig      = VCAM_ROLE_INVALID; //!< User-defined role from rig-def file, may be different from final active role.
+    VideoCamRole         vcam_role           = VCAM_ROLE_INVALID;
     NodeNum_t            vcam_node_center    = NODENUM_INVALID;
     NodeNum_t            vcam_node_dir_y     = NODENUM_INVALID;
     NodeNum_t            vcam_node_dir_z     = NODENUM_INVALID;
