@@ -45,6 +45,10 @@ public:
     void reset();
     void toggleReverse();
 
+    NodeNum_t   GetRefNode()   const { return noderef; };
+    NodeNum_t   GetBackNode()  const { return nodeback; };
+    NodeNum_t   GetUpNode()    const { return nodeup; };
+
 private:
 
     DustPool *splashp, *ripplep;

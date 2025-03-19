@@ -1776,7 +1776,7 @@ bool GameScript::pushMessage(MsgType type, AngelScript::CScriptDictionary* dict)
         }
         break;
     }
-    
+
     default:;
     }
 
