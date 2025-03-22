@@ -76,6 +76,9 @@ namespace RoR
     typedef int CParticleID_t; //!< Index into `GfxActor::m_cparticles`, use `RoR::CPARTICLEID_INVALID` as empty value
     static const CParticleID_t CPARTICLEID_INVALID = -1;
 
+    typedef int CineCameraID_t; //!< Index into `Actor::ar_cinecam_node` and `Actor::ar_camera_node_*` arrays; use `RoR::CINECAMERAID_INVALID` as empty value
+    static const CineCameraID_t CINECAMERAID_INVALID = -1;
+
     typedef int CommandkeyID_t; //!< Index into `Actor::ar_commandkeys` (BEWARE: indexed 1-MAX_COMMANDKEYS, 0 is invalid value, negative subscript of any size is acceptable, see `class CmdKeyArray` ).
     static const CommandkeyID_t COMMANDKEYID_INVALID = 0;
 

@@ -75,7 +75,7 @@ void Actor::CalcForceFeedback(bool doUpdate)
             m_force_sensors.Reset();
         }
 
-        if (ar_current_cinecam != -1)
+        if (ar_current_cinecam != CINECAMERAID_INVALID)
         {
             m_force_sensors.accu_body_forces += ar_nodes[ar_camera_node_pos[ar_current_cinecam]].Forces;
         }
