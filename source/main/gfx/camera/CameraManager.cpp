@@ -253,22 +253,31 @@ void CameraManager::UpdateInputEvents(float dt) // Called every frame
     m_cct_rot_scale    = Degree(TRANS_SPEED * dt);
     m_cct_trans_scale  = ROTATE_SPEED * dt;
 
-    if ( m_current_behavior < CAMERA_BEHAVIOR_END && App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE) )
+    // Handle forced cinecam
+    if (m_cct_player_actor && m_cct_player_actor->ar_forced_cinecam != CINECAMERAID_INVALID)
     {
-        if ( (m_current_behavior == CAMERA_BEHAVIOR_INVALID) || this->EvaluateSwitchBehavior() )
+        this->switchBehavior(CAMERA_BEHAVIOR_VEHICLE_CINECAM);
+        m_cct_player_actor->ar_current_cinecam = m_cct_player_actor->ar_forced_cinecam;
+    }
+    else
+    {
+        if (m_current_behavior < CAMERA_BEHAVIOR_END && App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_CHANGE))
         {
-            this->switchToNextBehavior();
+            if ((m_current_behavior == CAMERA_BEHAVIOR_INVALID) || this->EvaluateSwitchBehavior())
+            {
+                this->switchToNextBehavior();
+            }
         }
-    }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX))
-    {
-        this->ToggleCameraBehavior(CAMERA_BEHAVIOR_FIXED);
-    }
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE_FIX))
+        {
+            this->ToggleCameraBehavior(CAMERA_BEHAVIOR_FIXED);
+        }
 
-    if (App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE))
-    {
-        this->ToggleCameraBehavior(CAMERA_BEHAVIOR_FREE);
+        if (App::GetInputEngine()->getEventBoolValueBounce(EV_CAMERA_FREE_MODE))
+        {
+            this->ToggleCameraBehavior(CAMERA_BEHAVIOR_FREE);
+        }
     }
 
     if (m_current_behavior != CAMERA_BEHAVIOR_INVALID)
