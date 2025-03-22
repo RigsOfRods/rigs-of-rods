@@ -591,7 +591,7 @@ inline void PropAnimFlag(std::stringstream& out, int flags, bool& join, unsigned
 
 void Serializer::ProcessDirectiveAddAnimation(RigDef::Animation & anim)
 {
-    m_stream << "\n\tadd_animation " 
+    m_stream << "\tadd_animation " 
         << setw(m_float_width) << anim.ratio       << ", "
         << setw(m_float_width) << anim.lower_limit << ", "
         << setw(m_float_width) << anim.upper_limit << ", "
@@ -651,6 +651,7 @@ void Serializer::ProcessDirectiveAddAnimation(RigDef::Animation & anim)
     {
         m_stream << ", event: " << anim.event_name;
     }
+    m_stream << endl;
 }
 
 void Serializer::ProcessFlexbodies(Document::Module* module)
@@ -718,7 +719,7 @@ void Serializer::ProcessPropsAndAnimations(Document::Module* module)
 
         RigDef::Prop & def = *itor;
 
-        m_stream << "\n\t" << setw(m_node_id_width) << def.reference_node.Str()
+        m_stream << "\t" << setw(m_node_id_width) << def.reference_node.Str()
             << ", " << setw(m_node_id_width) << def.x_axis_node.Str()
             << ", " << setw(m_node_id_width) << def.y_axis_node.Str()
             << ", " << setw(m_float_width) << def.offset.x
@@ -751,6 +752,8 @@ void Serializer::ProcessPropsAndAnimations(Document::Module* module)
             }
         }
 
+        m_stream << endl;
+
         // Animations
         auto anim_end = def.animations.end();
         for (auto anim_itor = def.animations.begin(); anim_itor != anim_end; ++anim_itor)
@@ -758,7 +761,7 @@ void Serializer::ProcessPropsAndAnimations(Document::Module* module)
             ProcessDirectiveAddAnimation(*anim_itor);
         }
     }
-    m_stream << endl << endl; // Empty line
+    m_stream << endl; // Empty line
 }
 
 void Serializer::ProcessMaterialFlareBindings(Document::Module* module)
