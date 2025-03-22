@@ -508,6 +508,23 @@ void DashBoard::updateFeatures()
     }
 }
 
+const float DASH_SMOOTHING = 0.02;
+
+float DashBoard::getSmoothNumeric(int controlID)
+{
+    if (manager->getDataType(controls[controlID].linkID) != DC_FLOAT)
+    {
+        return manager->getNumeric(controls[controlID].linkID); // Only smoothen FLOAT inputs
+    }
+    else
+    {
+        const float curVal = manager->getNumeric(controls[controlID].linkID);
+        const float val = controls[controlID].lastVal * (1 - DASH_SMOOTHING) + curVal * DASH_SMOOTHING;
+        controls[controlID].lastVal = curVal;
+        return val;
+    }
+}
+
 void DashBoard::update(float dt)
 {
     // walk all controls and animate them
@@ -517,14 +534,9 @@ void DashBoard::update(float dt)
         if (controls[i].animationType == ANIM_ROTATE)
         {
             // get the value
-            float val = manager->getNumeric(controls[i].linkID);
+            const float val = this->getSmoothNumeric(i);
             // calculate the angle
             float angle = (val - controls[i].vmin) * (controls[i].wmax - controls[i].wmin) / (controls[i].vmax - controls[i].vmin) + controls[i].wmin;
-
-            if (fabs(val - controls[i].last) < 0.02f)
-                continue;
-
-            controls[i].last = val;
 
             // enforce limits
             if (angle < controls[i].wmin)
@@ -570,23 +582,15 @@ void DashBoard::update(float dt)
         }
         else if (controls[i].animationType == ANIM_SERIES)
         {
-            float val = manager->getNumeric(controls[i].linkID);
+            const float val = this->getSmoothNumeric(i);
 
             String fn = String(controls[i].texture) + String("-") + TOSTRING((int)val) + String(".png");
-
-            if (fabs(val - controls[i].last) < 0.2f)
-                continue;
-            controls[i].last = val;
 
             controls[i].img->setImageTexture(fn);
         }
         else if (controls[i].animationType == ANIM_SCALE)
         {
-            float val = manager->getNumeric(controls[i].linkID);
-
-            if (fabs(val - controls[i].last) < 0.2f)
-                continue;
-            controls[i].last = val;
+            const float val = this->getSmoothNumeric(i);
 
             float scale = (val - controls[i].vmin) * (controls[i].wmax - controls[i].wmin) / (controls[i].vmax - controls[i].vmin) + controls[i].wmin;
             if (controls[i].direction == DIRECTION_UP)
@@ -612,11 +616,7 @@ void DashBoard::update(float dt)
         }
         else if (controls[i].animationType == ANIM_TRANSLATE)
         {
-            float val = manager->getNumeric(controls[i].linkID);
-
-            if (fabs(val - controls[i].last) < 0.2f)
-                continue;
-            controls[i].last = val;
+            const float val = this->getSmoothNumeric(i);
 
             float translation = (val - controls[i].vmin) * (controls[i].wmax - controls[i].wmin) / (controls[i].vmax - controls[i].vmin) + controls[i].wmin;
             if (controls[i].direction == DIRECTION_UP)
@@ -630,11 +630,7 @@ void DashBoard::update(float dt)
         }
         else if (controls[i].animationType == ANIM_TEXTFORMAT)
         {
-            float val = manager->getNumeric(controls[i].linkID);
-
-            if (fabs(val - controls[i].last) < 0.2f)
-                continue;
-            controls[i].last = val;
+            const float val = this->getSmoothNumeric(i);
 
             MyGUI::UString s;
             if (strlen(controls[i].format) == 0)
@@ -730,7 +726,6 @@ void DashBoard::loadLayoutRecursive(MyGUI::WidgetPtr w)
         ctrl.widget = w;
         ctrl.initialSize = w->getSize();
         ctrl.initialPosition = w->getPosition();
-        ctrl.last = 1337.1337f; // force update
         ctrl.lastState = false;
 
         // establish the link
