@@ -652,38 +652,48 @@ void Actor::propagateNodeBeamChangesToDef()
         def.nodes[1] = BuildNodeRef(this, beam.p2->pos);
         def.lenghtening_factor = hydrobeam.hb_speed;
 
+        // HEADS UP: hydro options have quirks:
+        // * 'n' is not 'dummy' like elsewhere, but activates steering wheel input (n = normal)
+        // * 'i' makes beam invisible, but (!) also activates 'n' when first in the list. This is an old bug preserved for compatibility.
+        // * 'j' makes beam invisible without any side effects (unique to hydros)
+        // The exporter never uses 'i', just 'j' and 'n'.
+
         // individual options
         if (ar_beams_invisible[i])
         {
             BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_j_INVISIBLE);
         }
-        if (BITMASK_IS_1(hydrobeam.hb_anim_flags, HYDRO_FLAG_SPEED))
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_SPEED))
         {
             BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_s_DISABLE_ON_HIGH_SPEED);
         }
-        if (BITMASK_IS_1(hydrobeam.hb_anim_flags, HYDRO_FLAG_ELEVATOR))
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_ELEVATOR))
         {
             BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_e_INPUT_ELEVATOR);
         }
-        if (BITMASK_IS_1(hydrobeam.hb_anim_flags, HYDRO_FLAG_RUDDER))
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_RUDDER))
         {
             BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_r_INPUT_RUDDER);
         }
-        if (BITMASK_IS_1(hydrobeam.hb_anim_flags, HYDRO_FLAG_AILERON))
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_AILERON))
         {
             BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_a_INPUT_AILERON);
         }
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_DIR))
+        {
+            BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_n_INPUT_NORMAL);
+        }
 
         // combined options
-        if (BITMASK_IS_1(hydrobeam.hb_anim_flags, HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_ELEVATOR))
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_ELEVATOR))
         {
             BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_v_INPUT_InvAILERON_ELEVATOR);
         }
-        if (BITMASK_IS_1(hydrobeam.hb_anim_flags, HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_RUDDER))
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_REV_AILERON | HYDRO_FLAG_RUDDER))
         {
             BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_y_INPUT_InvAILERON_RUDDER);
         }
-        if (BITMASK_IS_1(hydrobeam.hb_anim_flags, HYDRO_FLAG_REV_ELEVATOR | HYDRO_FLAG_RUDDER))
+        if (BITMASK_IS_1(hydrobeam.hb_flags, HYDRO_FLAG_REV_ELEVATOR | HYDRO_FLAG_RUDDER))
         {
             BITMASK_SET_1(def.options, RigDef::Hydro::OPTION_h_INPUT_InvELEVATOR_RUDDER);
         }
