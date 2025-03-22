@@ -4836,3 +4836,21 @@ float Actor::getSimAttribute(ActorSimAttr attr)
     default: return 0.f;
     }
 }
+
+void Actor::setForcedCinecam(CineCameraID_t cinecam_id, BitMask_t flags)
+{
+    ar_forced_cinecam = cinecam_id;
+    ar_forced_cinecam_flags = flags;
+}
+
+void Actor::clearForcedCinecam()
+{
+    this->setForcedCinecam(CINECAMERAID_INVALID, 0);
+}
+
+bool Actor::getForcedCinecam(CineCameraID_t& cinecam_id, BitMask_t& flags)
+{
+    cinecam_id = ar_forced_cinecam;
+    flags = ar_forced_cinecam_flags;
+    return (ar_forced_cinecam != CINECAMERAID_INVALID);
+}

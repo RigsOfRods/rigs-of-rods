@@ -142,12 +142,16 @@ public:
     void              antilockbrakeToggle();
     void              toggleCustomParticles();
     bool              getCustomParticleMode();
+    bool              isLocked();                          //!< Are hooks locked?
+    void              setForcedCinecam(CineCameraID_t cinecam_id, BitMask_t flags);
+    void              clearForcedCinecam();
+    bool              getForcedCinecam(CineCameraID_t& cinecam_id, BitMask_t& flags);
+    int               getNumCinecams() { return ar_num_cinecams; }
     // not exported to scripting:
     void              mouseMove(NodeNum_t node, Ogre::Vector3 pos, float force);
     void              tieToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::TIE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
     bool              isTied();
     void              hookToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::HOOK_TOGGLE,NodeNum_t mousenode=NODENUM_INVALID, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
-    bool              isLocked();                          //!< Are hooks locked?
     void              ropeToggle(int group=-1, ActorLinkingRequestType mode=ActorLinkingRequestType::ROPE_TOGGLE, ActorInstanceID_t forceunlock_filter=ACTORINSTANCEID_INVALID);
     void              engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue);
     void              toggleSlideNodeLock();
@@ -436,9 +440,10 @@ public:
     // * 'camera#' specifies a reference frame for the cinecam by referencing 3 preexisting nodes: ref, x, y.
     // NOTE camera#0 is special - serves a general orientation frame for the whole actor. Cinecam#0 isn't required to exist, but camera#0 is.
     CineCameraID_t    ar_current_cinecam = CINECAMERAID_INVALID; //!< Sim state; index of current CineCam (`CINECAMERAID_INVALID` if using 3rd-person camera)
-    CineCameraID_t    ar_forced_cinecam = CINECAMERAID_INVALID; //!< Sim state; index of CineCam forced by script (`CINECAMERAID_INVALID` if not forced)
     NodeNum_t         ar_custom_camera_node = NODENUM_INVALID; //!< Sim state; custom tracking node for 3rd-person camera
     PerVehicleCameraContext ar_camera_context;
+    CineCameraID_t    ar_forced_cinecam = CINECAMERAID_INVALID; //!< Sim state; index of CineCam forced by script (`CINECAMERAID_INVALID` if not forced)
+    BitMask_t         ar_forced_cinecam_flags = 0; //!< Sim state; flags for forced CineCam supplied by script
 
     // TractionControl
     float             tc_ratio = 0.f;                   //!< Regulating force

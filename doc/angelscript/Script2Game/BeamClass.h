@@ -167,6 +167,32 @@ public:
 	 */
 	bool isLocked();      
     
+    /**
+    * Sets a forced cinecam for this actor; This disables camera hotkeys.
+    * @param cinecamId Cinecams are numbered from 0, use `getNumCinecams()`; -1 means no cinecam.
+    * @param flags Flags are reserved for future use.
+    */
+    void setForcedCinecam(int cinecamId, int flags);
+    
+    /**
+    * Resets the effect of `setForcedCinecam()`;
+    */
+    void clearForcedCinecam();
+    
+    /**
+    * Reports the values submitted by `setForcedCinecam()`;
+    * @param cinecamId Cinecams are numbered from 0, use `getNumCinecams()`; -1 means no cinecam.
+    * @param flags Flags are reserved for future use.
+    * @return True if a forced camera was set, False if not.
+    */ 
+    bool getForcedCinecam(int& inout, int& inout);
+    
+    /**
+    * Reports number of installed cinecams.
+    */
+    int getNumCinecams() const;
+    
+    
     //! @}
     
     /// @name Subsystems
