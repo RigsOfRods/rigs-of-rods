@@ -404,7 +404,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
             this->CameraBehaviorVehicleSplineReset();
             this->CameraBehaviorVehicleSplineCreateSpline();
         }
-        m_cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_SPLINE;
+        m_cct_player_actor->ar_camera_context.behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_SPLINE;
         break;
 
     case CAMERA_BEHAVIOR_VEHICLE_CINECAM:
@@ -431,7 +431,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
         m_cct_player_actor->ar_current_cinecam = std::max(0, m_cct_player_actor->ar_current_cinecam);
         m_cct_player_actor->NotifyActorCameraChanged();
 
-        m_cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM;
+        m_cct_player_actor->ar_camera_context.behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_CINECAM;
         break;
 
     case CAMERA_BEHAVIOR_VEHICLE:
@@ -444,7 +444,7 @@ void CameraManager::ActivateNewBehavior(CameraBehaviors new_behavior, bool reset
         {
             this->ResetCurrentBehavior();
         }
-        m_cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON;
+        m_cct_player_actor->ar_camera_context.behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON;
         break;
 
     case CAMERA_BEHAVIOR_CHARACTER:
@@ -493,14 +493,14 @@ void CameraManager::switchBehavior(CameraBehaviors new_behavior)
 
     if (m_cct_player_actor != nullptr)
     {
-        m_cct_player_actor->GetCameraContext()->behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_EXTERNAL;
+        m_cct_player_actor->ar_camera_context.behavior = RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_EXTERNAL;
         if (!App::GetGuiManager()->IsGuiHidden())
         {
             RoR::App::GetOverlayWrapper()->showDashboardOverlays(true, m_cct_player_actor);
         }
         if (m_current_behavior == CAMERA_BEHAVIOR_VEHICLE_CINECAM)
         {
-            m_cct_player_actor->ar_current_cinecam = -1;
+            m_cct_player_actor->ar_current_cinecam = CINECAMERAID_INVALID;
         }
     }
 
@@ -649,7 +649,7 @@ void CameraManager::NotifyVehicleChanged(ActorPtr new_vehicle)
             this->m_current_behavior != CAMERA_BEHAVIOR_FREE)
     {
         // Change camera
-        switch (new_vehicle->GetCameraContext()->behavior)
+        switch (new_vehicle->ar_camera_context.behavior)
         {
         case RoR::PerVehicleCameraContext::CAMCTX_BEHAVIOR_VEHICLE_3rdPERSON:
             this->SwitchBehaviorOnVehicleChange(CAMERA_BEHAVIOR_VEHICLE, new_vehicle);
