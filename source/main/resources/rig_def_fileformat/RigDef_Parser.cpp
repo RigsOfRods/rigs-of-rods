@@ -3270,6 +3270,7 @@ BitMask_t Parser::GetArgCabOptions(int index)
     {
         switch (c)
         {
+            case (char)CabOption::n_DUMMY: break;
             case (char)CabOption::c_CONTACT:              ret |= Cab::OPTION_c_CONTACT             ; break;
             case (char)CabOption::b_BUOYANT:              ret |= Cab::OPTION_b_BUOYANT             ; break;
             case (char)CabOption::p_10xTOUGHER:           ret |= Cab::OPTION_p_10xTOUGHER          ; break;
