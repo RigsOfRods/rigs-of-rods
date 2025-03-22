@@ -143,6 +143,7 @@ enum class TieOption: char
 
 enum class CabOption: char
 {
+    n_DUMMY                  = 'n',
     c_CONTACT                = 'c',
     b_BUOYANT                = 'b',
     p_10xTOUGHER             = 'p',
