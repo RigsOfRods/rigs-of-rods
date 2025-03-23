@@ -174,16 +174,3 @@ void Terrn2Parser::ProcessTeleport(Terrn2DocumentPtr def, RoR::ConfigFile* file)
         ++telepoint_number;
     }
 }
-
-Terrn2Document::Terrn2Document():
-    ambient_color(Ogre::ColourValue::Black),
-    category_id(-1),
-    start_position(Ogre::Vector3::ZERO),
-    version(1),
-    gravity(DEFAULT_GRAVITY),
-    water_height       (0),
-    water_bottom_height(0),
-    caelum_fog_start   (0),
-    caelum_fog_end     (0),
-    has_water(false)
-{}

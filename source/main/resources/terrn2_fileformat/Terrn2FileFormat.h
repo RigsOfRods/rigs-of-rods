@@ -23,6 +23,7 @@
 /// @author Petr Ohlidal, 11/2016
 
 #include "ForwardDeclarations.h"
+#include "SimConstants.h"
 
 #include <string>
 #include <list>
@@ -47,18 +48,16 @@ struct Terrn2Telepoint //!< Teleport drop location
 
 struct Terrn2Document
 {
-    Terrn2Document();
-
     std::string              name;
     std::string              ogre_ter_conf_filename;
-    Ogre::ColourValue        ambient_color;
-    int                      category_id;
-    Ogre::Vector3            start_position;
+    Ogre::ColourValue        ambient_color = Ogre::ColourValue::White;
+    int                      category_id = -1;
+    Ogre::Vector3            start_position = Ogre::Vector3::ZERO;
     std::string              guid;
-    int                      version;
-    float                    gravity;
-    float                    water_height;
-    float                    water_bottom_height;
+    int                      version = 1;
+    float                    gravity = DEFAULT_GRAVITY;
+    float                    water_height = 0.f;
+    float                    water_bottom_height = 0.f;
     std::list<Terrn2Author>  authors;
     std::list<std::string>   tobj_files;
     std::list<std::string>   as_files;
@@ -66,10 +65,10 @@ struct Terrn2Document
     std::list<std::string>   ai_presets_files;
     std::list<Terrn2Telepoint> telepoints;
     std::string              caelum_config;
-    int                      caelum_fog_start;
-    int                      caelum_fog_end;
+    int                      caelum_fog_start = 0;
+    int                      caelum_fog_end = 0;
     std::string              cubemap_config;
-    bool                     has_water;
+    bool                     has_water = false;
     std::string              hydrax_conf_file;
     std::string              skyx_config;
     std::string              traction_map_file;
