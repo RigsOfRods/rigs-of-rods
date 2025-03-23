@@ -4310,32 +4310,31 @@ void Actor::calculateLocalGForces()
 
 void Actor::engineTriggerHelper(int engineNumber, EngineTriggerType type, float triggerValue)
 {
-    // engineNumber tells us which engine
-    EnginePtr e = ar_engine; // placeholder: actors do not have multiple engines yet
+    // engineNumber = placeholder: actors do not have multiple engines yet
 
     switch (type)
     {
     case TRG_ENGINE_CLUTCH:
-        if (e)
-            e->setClutch(triggerValue);
+        if (ar_engine)
+            ar_engine->setClutch(triggerValue);
         break;
     case TRG_ENGINE_BRAKE:
         ar_brake = triggerValue;
         break;
     case TRG_ENGINE_ACC:
-        if (e)
-            e->setAcc(triggerValue);
+        if (ar_engine)
+            ar_engine->setAcc(triggerValue);
         break;
     case TRG_ENGINE_RPM:
         // TODO: Implement setTargetRPM in the Engine.cpp
         break;
     case TRG_ENGINE_SHIFTUP:
-        if (e)
-            e->shift(1);
+        if (ar_engine)
+            ar_engine->shift(1);
         break;
     case TRG_ENGINE_SHIFTDOWN:
-        if (e)
-            e->shift(-1);
+        if (ar_engine)
+            ar_engine->shift(-1);
         break;
     default:
         break;
