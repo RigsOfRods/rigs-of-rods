@@ -371,7 +371,7 @@ private:
 
     /// @name Visual setup
     /// @{
-    void                          CreateBeamVisuals(beam_t const& beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override="");
+    void                          CreateBeamVisuals(beam_t& beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override="");
     void                          CreateWheelSkidmarks(WheelID_t wheel_index);
     void                          FinalizeGfxSetup();
     Ogre::MaterialPtr             FindOrCreateCustomizedMaterial(const std::string& mat_lookup_name, const std::string& mat_lookup_rg);
