@@ -44,6 +44,7 @@
 #include "Renderdash.h" // classic 'renderdash' material
 #include "RoRnet.h"
 #include "ActorSpawner.h"
+#include "ScrewProp.h"
 #include "SlideNode.h"
 #include "SkyManager.h"
 #include "SoundScriptManager.h"
@@ -1919,6 +1920,14 @@ void RoR::GfxActor::UpdateSimDataBuffer()
     if (m_actor->ar_num_wings > 4)
     {
         m_simbuf.simbuf_wing4_aoa = m_actor->ar_wings[4].fa->aoa;
+    }
+
+    // Elements: screwprops
+    m_simbuf.simbuf_screwprops.resize(m_actor->ar_num_screwprops);
+    for (int i = 0; i < m_actor->ar_num_screwprops; ++i)
+    {
+        m_simbuf.simbuf_screwprops[i].simbuf_sp_rudder = m_actor->ar_screwprops[i]->getRudder();
+        m_simbuf.simbuf_screwprops[i].simbuf_sp_throttle = m_actor->ar_screwprops[i]->getThrottle();
     }
 
     // Autopilot
