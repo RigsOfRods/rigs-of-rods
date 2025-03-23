@@ -92,8 +92,8 @@ void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, RoadType type, float 
         //define type
         Vector3 leftv = pos + rot * Vector3(0, 0, bwidth + width / 2.0);
         Vector3 rightv = pos + rot * Vector3(0, 0, -bwidth - width / 2.0);
-        float dleft = leftv.y - RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(leftv.x, leftv.z);
-        float dright = rightv.y - RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(rightv.x, rightv.z);
+        float dleft = leftv.y - RoR::App::GetGameContext()->GetTerrain()->getHeightAt(leftv.x, leftv.z);
+        float dright = rightv.y - RoR::App::GetGameContext()->GetTerrain()->getHeightAt(rightv.x, rightv.z);
         if (dleft < bheight + 0.1 && dright < bheight + 0.1)
             type = RoadType::ROAD_FLAT;
         if (dleft < bheight + 0.1 && dright >= bheight + 0.1 && dright < 4.0)
@@ -171,9 +171,9 @@ void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, RoadType type, float 
             Vector3 rightv = pos + rot * Vector3(0, 0, -bwidth - width / 2.0);
             Vector3 middle = lpts[0] - ((lpts[0] + (pts[1] - lpts[0]) / 2) -
                 (lpts[7] + (pts[6] - lpts[7]) / 2)) * 0.5;
-            float heightleft = RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(leftv.x, leftv.z);
-            float heightright = RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(rightv.x, rightv.z);
-            float heightmiddle = RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(middle.x, middle.z);
+            float heightleft = RoR::App::GetGameContext()->GetTerrain()->getHeightAt(leftv.x, leftv.z);
+            float heightright = RoR::App::GetGameContext()->GetTerrain()->getHeightAt(rightv.x, rightv.z);
+            float heightmiddle = RoR::App::GetGameContext()->GetTerrain()->getHeightAt(middle.x, middle.z);
 
             bool builtpillars = true;
 
@@ -202,7 +202,7 @@ void ProceduralRoad::addBlock(Vector3 pos, Quaternion rot, RoadType type, float 
 
             middle = lpts[0] - ((lpts[0] + (pts[1] - lpts[0]) / 2) -
                 (lpts[7] + (pts[6] - lpts[7]) / 2)) * sidefactor;
-            float len = middle.y - RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(middle.x, middle.z) + 5;
+            float len = middle.y - RoR::App::GetGameContext()->GetTerrain()->getHeightAt(middle.x, middle.z) + 5;
             float width2 = len / 30;
 
             if (pillartype == 2 && len > 20)
@@ -349,7 +349,7 @@ void ProceduralRoad::computePoints(Vector3* pts, Vector3 pos, Quaternion rot, Ro
 
 inline Vector3 ProceduralRoad::baseOf(Vector3 p)
 {
-    float y = RoR::App::GetGameContext()->GetTerrain()->GetHeightAt(p.x, p.z) - 0.01;
+    float y = RoR::App::GetGameContext()->GetTerrain()->getHeightAt(p.x, p.z) - 0.01;
 
     if (y > p.y)
     {

@@ -51,13 +51,13 @@ static const float         ROTATE_SPEED = 100.f;
 
 bool intersectsTerrain(Vector3 a, Vector3 b) // internal helper
 {
-    b.y = std::max(b.y, App::GetGameContext()->GetTerrain()->GetHeightAt(b.x, b.z) + 1.0f);
+    b.y = std::max(b.y, App::GetGameContext()->GetTerrain()->getHeightAt(b.x, b.z) + 1.0f);
 
     int steps = std::max(3.0f, a.distance(b) * 2.0f);
     for (int i = 1; i < steps; i++)
     {
         Vector3 pos = a + (b - a) * (float)i / steps;
-        float h = App::GetGameContext()->GetTerrain()->GetHeightAt(pos.x, pos.z);
+        float h = App::GetGameContext()->GetTerrain()->getHeightAt(pos.x, pos.z);
         if (h > pos.y)
         {
             return true;
@@ -779,7 +779,7 @@ void CameraManager::UpdateCameraBehaviorStatic()
                     pos += (velocity + velocity.crossProduct(Vector3::UNIT_Y) * rnd) * dist;
                 }
                 pos.y = std::max(pos.y, water_height);
-                pos.y = std::max(pos.y, App::GetGameContext()->GetTerrain()->GetHeightAt(pos.x, pos.z));
+                pos.y = std::max(pos.y, App::GetGameContext()->GetTerrain()->getHeightAt(pos.x, pos.z));
                 pos.y += desired_offset * (i < 7 ? 1.0f : frand());
                 if (!intersectsTerrain(pos, lookAt, lookAtPrediction, interval))
                 {
@@ -909,7 +909,7 @@ void CameraManager::CameraBehaviorOrbitUpdate()
 
     if (m_cam_limit_movement)
     {
-        float h = App::GetGameContext()->GetTerrain()->GetHeightAt(desiredPosition.x, desiredPosition.z) + 1.0f;
+        float h = App::GetGameContext()->GetTerrain()->getHeightAt(desiredPosition.x, desiredPosition.z) + 1.0f;
 
         desiredPosition.y = std::max(h, desiredPosition.y);
     }

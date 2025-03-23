@@ -226,7 +226,7 @@ float GameScript::getGroundHeight(Vector3& v)
 {
     float result = -1.0f;
     if (App::GetGameContext()->GetTerrain())
-        result = App::GetGameContext()->GetTerrain()->GetHeightAt(v.x, v.z);
+        result = App::GetGameContext()->GetTerrain()->getHeightAt(v.x, v.z);
     return result;
 }
 

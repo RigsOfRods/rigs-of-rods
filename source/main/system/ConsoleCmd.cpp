@@ -149,7 +149,7 @@ public:
         }
         reply << _L("Terrain height at position: ")
               << "x: " << pos.x << " z: " << pos.z << " = "
-              <<  App::GetGameContext()->GetTerrain()->GetHeightAt(pos.x, pos.z);
+              <<  App::GetGameContext()->GetTerrain()->getHeightAt(pos.x, pos.z);
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, reply_type, reply.ToCStr());
     }
 };

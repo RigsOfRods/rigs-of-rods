@@ -501,7 +501,7 @@ Ogre::Vector3 RoR::Terrain::getMaxTerrainSize()
     return m_geometry_manager->getMaxTerrainSize();
 }
 
-float RoR::Terrain::GetHeightAt(float x, float z)
+float RoR::Terrain::getHeightAt(float x, float z)
 {
     return m_geometry_manager->getHeightAt(x, z);
 }
