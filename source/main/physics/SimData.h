@@ -333,6 +333,7 @@ struct beam_t
 
     float           initial_beam_strength = 0.f; //!< for reset
     float           default_beam_deform = 0.f;   //!< for reset
+    float           default_beam_diameter = 0.f; //!< for export only
 
     float           debug_k = 0.f;               //!< debug shock spring_rate
     float           debug_d = 0.f;               //!< debug shock damping

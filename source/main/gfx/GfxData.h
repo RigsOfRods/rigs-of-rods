@@ -257,7 +257,7 @@ struct BeamGfx
     // We don't keep pointer to the Ogre::Entity - we rely on the SceneNode keeping it attached all the time.
     Ogre::SceneNode* rod_scenenode       = nullptr;
     uint16_t         rod_beam_index      = 0;
-    uint16_t         rod_diameter_mm     = 0;                    //!< Diameter in millimeters
+    float            rod_diameter        = 0.f;                    //!< meters
 
     NodeNum_t        rod_node1           = NODENUM_INVALID;  //!< Node index - may change during simulation!
     NodeNum_t        rod_node2           = NODENUM_INVALID;  //!< Node index - may change during simulation!

@@ -5814,7 +5814,7 @@ void ActorSpawner::SetBeamDeformationThreshold(beam_t & beam, std::shared_ptr<Ri
     beam.maxnegstress       = -(deformation_threshold);
 }
 
-void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override)
+void ActorSpawner::CreateBeamVisuals(beam_t & beam, int beam_index, bool visible, std::shared_ptr<RigDef::BeamDefaults> const& beam_defaults, std::string material_override)
 {
     std::string material_name = material_override;
     if (material_name.empty())
@@ -5850,7 +5850,8 @@ void ActorSpawner::CreateBeamVisuals(beam_t const & beam, int beam_index, bool v
         entity->setMaterialName(material_name);
 
         BeamGfx beamx;
-        beamx.rod_diameter_mm = uint16_t(beam_defaults->visual_beam_diameter * 1000.f);
+        beamx.rod_diameter = beam_defaults->visual_beam_diameter;
+        beam.default_beam_diameter = beam_defaults->visual_beam_diameter; // Hack for ActorExport.cpp
         beamx.rod_beam_index = static_cast<uint16_t>(beam_index);
         beamx.rod_node1 = beam.p1->pos;
         beamx.rod_node2 = beam.p2->pos;
