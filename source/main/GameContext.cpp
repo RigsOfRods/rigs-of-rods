@@ -841,14 +841,18 @@ void GameContext::CreatePlayerCharacter()
 {
     m_character_factory.CreateLocalCharacter();
 
-    // Adjust character position
+    // Adjust character position and rotation
     Ogre::Vector3 spawn_pos = m_terrain->getSpawnPos();
-    float spawn_rot = 0.0f;
+    Ogre::Degree spawn_rot(0.f);
 
-    // Classic behavior, retained for compatibility.
-    // Required for maps like N-Labs or F1 Track.
-    if (!m_terrain->HasPredefinedActors())
+    if (m_terrain->GetDef()->start_rotation_specified)
     {
+        spawn_rot = m_terrain->GetDef()->start_rotation;
+    }
+    else if (!m_terrain->HasPredefinedActors())
+    {
+        // Classic behavior, retained for compatibility.
+        // Required for maps like N-Labs or F1 Track.
         spawn_rot = 180.0f;
     }
 
@@ -867,19 +871,19 @@ void GameContext::CreatePlayerCharacter()
     // Preset rotation - commandline has precedence
     if (App::cli_preset_spawn_rot->getStr() != "")
     {
-        spawn_rot = Ogre::StringConverter::parseReal(App::cli_preset_spawn_rot->getStr(), spawn_rot);
+        spawn_rot = Ogre::StringConverter::parseReal(App::cli_preset_spawn_rot->getStr(), spawn_rot.valueDegrees());
         App::cli_preset_spawn_rot->setStr("");
     }
     else if (App::diag_preset_spawn_rot->getStr() != "")
     {
-        spawn_rot = Ogre::StringConverter::parseReal(App::diag_preset_spawn_rot->getStr(), spawn_rot);
+        spawn_rot = Ogre::StringConverter::parseReal(App::diag_preset_spawn_rot->getStr(), spawn_rot.valueDegrees());
         App::diag_preset_spawn_rot->setStr("");
     }
 
     spawn_pos.y = m_terrain->GetCollisions()->getSurfaceHeightBelow(spawn_pos.x, spawn_pos.z, spawn_pos.y + 1.8f);
 
     this->GetPlayerCharacter()->setPosition(spawn_pos);
-    this->GetPlayerCharacter()->setRotation(Ogre::Degree(spawn_rot));
+    this->GetPlayerCharacter()->setRotation(spawn_rot);
 
     App::GetCameraManager()->GetCameraNode()->setPosition(this->GetPlayerCharacter()->getPosition());
 

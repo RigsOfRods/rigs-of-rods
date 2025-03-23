@@ -573,13 +573,18 @@ SurveyMapEntityVec& RoR::Terrain::getSurveyMapEntities()
     return m_object_manager->m_map_entities;
 }
 
-// Getters that work with shared pointers - to avoid having to `#include` the types to header.
-
 Terrn2DocumentPtr RoR::Terrain::GetDef() { return m_def; }
+
 std::string   RoR::Terrain::getTerrainName() const { return m_def->name; }
+
 std::string   RoR::Terrain::getGUID() const { return m_def->guid; }
-int           RoR::Terrain::getCategoryID() const { return m_def->category_id; }
+
 int           RoR::Terrain::getVersion() const { return m_def->version; }
+
 CacheEntryPtr RoR::Terrain::getCacheEntry() { return m_cache_entry; }
+
 Ogre::Vector3 RoR::Terrain::getSpawnPos() { return m_def->start_position; }
+
+Ogre::Degree RoR::Terrain::getSpawnRot() { return m_def->start_rotation; }
+
 float         RoR::Terrain::getWaterHeight() const { return m_def->water_height; }
