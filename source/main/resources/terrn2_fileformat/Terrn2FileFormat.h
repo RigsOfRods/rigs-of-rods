@@ -53,6 +53,8 @@ struct Terrn2Document
     Ogre::ColourValue        ambient_color = Ogre::ColourValue::White;
     int                      category_id = -1;
     Ogre::Vector3            start_position = Ogre::Vector3::ZERO;
+    Ogre::Degree             start_rotation = Ogre::Degree(0.f);
+    bool                     start_rotation_specified = false;
     std::string              guid;
     int                      version = 1;
     float                    gravity = DEFAULT_GRAVITY;

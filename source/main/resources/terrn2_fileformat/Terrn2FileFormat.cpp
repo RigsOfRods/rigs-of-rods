@@ -79,6 +79,9 @@ Terrn2DocumentPtr Terrn2Parser::LoadTerrn2(Ogre::DataStreamPtr &ds)
     def->custom_material_name = file.getString     ("CustomMaterial",   "General");
     def->start_position       = file.getVector3    ("StartPosition",    "General", Vector3(512.0f, 0.0f, 512.0f));
 
+    def->start_rotation_specified = file.HasSetting("General", "StartRotation");
+    def->start_rotation = Ogre::Degree(file.getFloat("StartRotation", "General"));
+
     if (file.HasSection("Authors"))
     {
         for (auto& author: file.getSettings("Authors"))

@@ -167,12 +167,13 @@ void ScriptEngine::init()
     result = engine->RegisterGlobalFunction("void print(const string &in)", AngelScript::asFUNCTION(logString), AngelScript::asCALL_CDECL); ROR_ASSERT( result >= 0 );
 
     RegisterOgreObjects(engine);   // vector2/3, degree, radian, quaternion, color
+    RegisterCacheSystem(engine);   // LoaderType, CacheEntryClass, CacheSystemClass
     RegisterLocalStorage(engine);  // LocalStorage
     RegisterInputEngine(engine);   // InputEngineClass, inputEvents
     RegisterImGuiBindings(engine); // ImGUi::
     RegisterVehicleAi(engine);     // VehicleAIClass, aiEvents, AiValues
     RegisterConsole(engine);       // ConsoleClass, CVarClass, CVarFlags
-    RegisterEngine(engine);     // EngineClass, enum autoswitch, enum
+    RegisterEngine(engine);        // EngineClass, enum autoswitch, enum
     RegisterActor(engine);         // BeamClass
     RegisterProceduralRoad(engine);// procedural_point, ProceduralRoadClass, ProceduralObjectClass, ProceduralManagerClass
     RegisterTerrain(engine);       // TerrainClass
@@ -181,7 +182,6 @@ void ScriptEngine::init()
     RegisterGameScript(engine);    // GameScriptClass
     RegisterScriptEvents(engine);  // scriptEvents
     RegisterGenericFileFormat(engine); // TokenType, GenericDocumentClass, GenericDocReaderClass
-    RegisterCacheSystem(engine);   // LoaderType, CacheEntryClass, CacheSystemClass
 
     // now the global instances
     result = engine->RegisterGlobalProperty("GameScriptClass game", &m_game_script); ROR_ASSERT(result>=0);

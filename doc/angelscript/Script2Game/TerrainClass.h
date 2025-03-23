@@ -44,26 +44,35 @@ public:
      */
     int getVersion();    
     
-    /// @}
-
-    /// @name Landscape
-    /// @{    
-
-    /**
-     * @return true if specified as flat (no heightmap).
-     */
-    bool isFlat();
-
+    CacheEntryPtr@ getCacheEntry();
+    
     /// @}
 
     /// @name Gameplay
     /// @{
+        
+    /**
+     * @return true if specified as flat (no heightmap).
+     */
+    bool isFlat();   
+
+    float getHeightAt(float x, float z);
  
     /**
-     * @return Player spawn position when entering game.
+     * @return Player spawn position when entering game (defined in .terrn2 file).
      */
     vector3 getSpawnPos();
     
+    /**
+     * @return Player spawn rotation when entering game (defined in .terrn2 file).
+     */
+    degree getSpawnRot();    
+    
+    /// @}
+
+    /// @name Subsystems
+    /// @{   
+
     /**
     * Adds an icon with description to survey map (minimap).
     * @param type informational, optional
@@ -81,11 +90,6 @@ public:
     * @param id The race ID of the icon (>=0), or -1 if not a race icon. You can use larger negative numbers for custom IDs.
     */
     void delSurveyMapEntities(int id);
-    
-    /// @}
-
-    /// @name Subsystems
-    /// @{    
     
     ProceduralManagerClass @getProceduralManager();
     
