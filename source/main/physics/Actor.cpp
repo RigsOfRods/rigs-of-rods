@@ -1221,7 +1221,7 @@ void Actor::resetPosition(float px, float pz, bool setInitPosition, float miny)
     {
         if (ar_nodes[i].nd_no_ground_contact)
             continue;
-        float terrainHeight = App::GetGameContext()->GetTerrain()->GetHeightAt(ar_nodes[i].AbsPosition.x, ar_nodes[i].AbsPosition.z);
+        float terrainHeight = App::GetGameContext()->GetTerrain()->getHeightAt(ar_nodes[i].AbsPosition.x, ar_nodes[i].AbsPosition.z);
         vertical_offset += std::max(0.0f, terrainHeight - (ar_nodes[i].AbsPosition.y + vertical_offset));
     }
     for (int i = 0; i < ar_num_nodes; i++)

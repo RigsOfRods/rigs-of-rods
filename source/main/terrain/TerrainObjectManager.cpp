@@ -62,7 +62,7 @@ using namespace Forests;
 //workaround for pagedgeometry
 inline float getTerrainHeight(Real x, Real z, void* unused = 0)
 {
-    return App::GetGameContext()->GetTerrain()->GetHeightAt(x, z);
+    return App::GetGameContext()->GetTerrain()->getHeightAt(x, z);
 }
 
 TerrainObjectManager::TerrainObjectManager(Terrain* terrainManager) :
@@ -352,7 +352,7 @@ void TerrainObjectManager::ProcessTree(
                 treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
                 if (strlen(treeCollmesh))
                 {
-                    pos.y = terrainManager->GetHeightAt(pos.x, pos.z);
+                    pos.y = terrainManager->getHeightAt(pos.x, pos.z);
                     scale *= 0.1f;
                     terrainManager->GetCollisions()->addCollisionMesh(curTree->getName(), String(treeCollmesh), pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
                 }
@@ -386,7 +386,7 @@ void TerrainObjectManager::ProcessTree(
                     treeLoader->addTree(curTree, pos, Degree(yaw), (Ogre::Real)scale);
                     if (strlen(treeCollmesh))
                     {
-                        pos.y = terrainManager->GetHeightAt(pos.x, pos.z);
+                        pos.y = terrainManager->getHeightAt(pos.x, pos.z);
                         terrainManager->GetCollisions()->addCollisionMesh(treemesh, String(treeCollmesh),pos, Quaternion(Degree(yaw), Vector3::UNIT_Y), Vector3(scale, scale, scale));
                     }
                 }

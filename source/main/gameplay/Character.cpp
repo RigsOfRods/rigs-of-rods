@@ -207,7 +207,7 @@ void Character::update(float dt)
         m_prev_position = position;
 
         // ground contact
-        float pheight = App::GetGameContext()->GetTerrain()->GetHeightAt(position.x, position.z);
+        float pheight = App::GetGameContext()->GetTerrain()->getHeightAt(position.x, position.z);
 
         if (position.y < pheight)
         {

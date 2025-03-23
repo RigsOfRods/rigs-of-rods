@@ -62,7 +62,7 @@ public:
     /// @name Gameplay
     /// @{
     bool                    isFlat();
-    float                   GetHeightAt(float x, float z);
+    float                   getHeightAt(float x, float z);
     Ogre::Vector3           getSpawnPos();
     Ogre::Degree            getSpawnRot();
     /// @}
