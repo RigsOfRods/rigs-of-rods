@@ -1448,6 +1448,10 @@ void CacheSystem::LoadSupplementaryDocuments(CacheEntryPtr& entry)
     {
         this->LoadAssociatedTuneupDef(entry);
     }
+    else if (entry->fext == "character")
+    {
+        this->LoadAssociatedCharacterDef(entry);
+    }
 }
 
 bool CacheSystem::IsPathContentDirRoot(const std::string& path) const
@@ -1649,14 +1653,15 @@ void CacheSystem::LoadAssociatedSkinDef(CacheEntryPtr& cache_entry)
 
         if (cache_entry->skin_def == nullptr)
         {
-            RoR::LogFormat("Definition of skin '%s' was not found in file '%s'",
+            RoR::LogFormat("[RoR] Definition of skin '%s' was not found in file '%s'",
                cache_entry->dname.c_str(), cache_entry->fname.c_str());
         }
     }
-    catch (Ogre::Exception& oex)
+    catch (Ogre::Exception& eeh)
     {
-        RoR::LogFormat("[RoR] Error loading skin file '%s', message: %s",
-            cache_entry->fname.c_str(), oex.getFullDescription().c_str());
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format(_LC("CacheSystem", "Could not load skin '{}', message: {}"),
+                cache_entry->fname, eeh.getDescription()));
     }
 }
 
@@ -1698,14 +1703,43 @@ void CacheSystem::LoadAssociatedTuneupDef(CacheEntryPtr& cache_entry)
 
         if (cache_entry->tuneup_def == nullptr)
         {
-            RoR::LogFormat("Definition of tuneup '%s' was not found in file '%s'",
+            RoR::LogFormat("[RoR] Definition of tuneup '%s' was not found in file '%s'",
                cache_entry->dname.c_str(), cache_entry->fname.c_str());
         }
     }
-    catch (Ogre::Exception& oex)
+    catch (Ogre::Exception& eeh)
     {
-        RoR::LogFormat("[RoR] Error loading tuneup file '%s', message: %s",
-            cache_entry->fname.c_str(), oex.getFullDescription().c_str());
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format(_LC("CacheSystem", "Could not load tuneup '{}', message: {}"),
+                cache_entry->fname, eeh.getDescription()));
+    }
+}
+
+void CacheSystem::LoadAssociatedCharacterDef(CacheEntryPtr& cache_entry)
+{
+    if (!cache_entry)
+        return;
+
+    ROR_ASSERT(cache_entry->resource_group != ""); // Must be already loaded
+
+    if (cache_entry->character_def) // If already parsed, re-use
+    {
+        return;
+    }
+
+    try
+    {
+        App::GetCacheSystem()->LoadResource(cache_entry); // Load if not already
+
+        Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().openResource(cache_entry->fname, cache_entry->resource_group);
+        CharacterParser character_parser;
+        cache_entry->character_def = character_parser.ProcessOgreStream(datastream);
+    }
+    catch (Ogre::Exception& eeh)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format(_LC("CacheSystem", "Could not load character '{}', message: {}"),
+                cache_entry->fname, eeh.getDescription()));
     }
 }
 

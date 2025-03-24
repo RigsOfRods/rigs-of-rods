@@ -36,30 +36,11 @@ CharacterFactory::CharacterFactory()
 {
 }
 
-CharacterDocumentPtr CharacterFactory::FetchCharacterDef(CacheEntryPtr cache_entry)
-{
-    if (!cache_entry->character_def)
-    {
-        try
-        {
-            Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().openResource(cache_entry->fname, cache_entry->resource_group);
-            CharacterParser character_parser;
-            cache_entry->character_def = character_parser.ProcessOgreStream(datastream);
-        }
-        catch (Ogre::Exception& eeh)
-        {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-                fmt::format("Could not load character, message: {}", eeh.getFullDescription()));
-        }
-    }
-
-    return cache_entry->character_def;
-}
-
 Character* CharacterFactory::CreateLocalCharacter()
 {
     int colourNum = -1;
     Ogre::UTFString playerName = "";
+    // Singleplayer character presets
     std::string characterFile = App::sim_player_character->getStr();
     std::string characterSkinfile = App::sim_player_character_skin->getStr();
 
@@ -69,6 +50,7 @@ Character* CharacterFactory::CreateLocalCharacter()
         RoRnet::UserInfo info = App::GetNetwork()->GetLocalUserData();
         colourNum = info.colournum;
         playerName = tryConvertUTF(info.username);
+        // Multiplayer character presets
         characterFile = info.character_file;
         characterSkinfile = info.character_skinfile;
     }
@@ -86,40 +68,48 @@ Character* CharacterFactory::CreateLocalCharacter()
 
             cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, App::sim_player_character->getStr());
         }
-
-        if (!cache_entry)
-        {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-                fmt::format("Could not find character '{}' in mod cache.", App::sim_player_character->getStr()));
-            return nullptr;
-        }
     }
-
-    CacheEntryPtr skin_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Skin, /*partial:*/false, characterSkinfile);
-    
-    if (skin_entry)
+    if (cache_entry)
     {
         // Make sure it exists
-        App::GetCacheSystem()->LoadResource(skin_entry);
-        if (skin_entry->skin_def == nullptr)
+        App::GetCacheSystem()->LoadResource(cache_entry);
+        if (!cache_entry->character_def)
         {
-            skin_entry = nullptr; // Error already logged
+            return nullptr; // Error already reported
         }
+        // The loaded document is now pinned to the CacheEntry
     }
     else
     {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
-            fmt::format("Could not find character skin '{}' in mod cache, continuing without it.", characterSkinfile));
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not find character '{}' in mod cache.", App::sim_player_character->getStr()));
+        return nullptr;
     }
 
-
-    CharacterDocumentPtr document = this->FetchCharacterDef(cache_entry);
-    if (!document)
+    CacheEntryPtr skin_entry = nullptr;
+    if (characterSkinfile != "")
     {
-        return nullptr; // Error already reported
+        skin_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Skin, /*partial:*/false, characterSkinfile);
+    
+        if (skin_entry)
+        {
+            // Make sure it exists
+            App::GetCacheSystem()->LoadResource(skin_entry);
+            if (skin_entry->skin_def == nullptr)
+            {
+                skin_entry = nullptr; // Error already logged
+            }
+        }
+        else
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("Could not find character skin '{}' in mod cache, continuing without it.", characterSkinfile));
+        }
     }
 
-    m_local_character = std::unique_ptr<Character>(new Character(cache_entry, skin_entry, document, -1, 0, playerName, colourNum, false));
+    
+
+    m_local_character = std::unique_ptr<Character>(new Character(cache_entry, skin_entry, -1, 0, playerName, colourNum, false));
     App::GetGfxScene()->RegisterGfxCharacter(m_local_character.get());
     return m_local_character.get();
 }
@@ -139,37 +129,50 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
     CacheEntryPtr cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, info.character_file);
     if (!cache_entry)
     {
+        // If this was a custom mod, retry with the builtin
+        if (std::string(info.character_file) != DEFAULT_CHARACTER_FILE)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("Could not create custom character character for {} - character '{}' not found in mod cache, falling back to '{}'", info_str, info.character_file, DEFAULT_CHARACTER_FILE));
+
+            cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, DEFAULT_CHARACTER_FILE);
+        }
+
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
             fmt::format("Could not create character for {} - character '{}' not found in mod cache.", info_str, info.character_file));
         return;
     }
 
-    CacheEntryPtr skin_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Skin, /*partial:*/false, info.character_skinfile);
-    if (skin_entry)
+    CacheEntryPtr skin_entry = nullptr;
+    if (std::string(info.character_skinfile) != "")
     {
-        // Make sure it exists
-        App::GetCacheSystem()->LoadResource(skin_entry);
-        if (skin_entry->skin_def == nullptr)
+        skin_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Skin, /*partial:*/false, info.character_skinfile);
+        if (skin_entry)
         {
-            skin_entry = nullptr; // Error already logged
+            // Make sure it exists
+            App::GetCacheSystem()->LoadResource(skin_entry);
+            if (skin_entry->skin_def == nullptr)
+            {
+                skin_entry = nullptr; // Error already logged
+            }
+        }
+        else
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+                fmt::format("Could not skin character for {} - skin '{}' not found in mod cache.", info_str, info.character_skinfile));
         }
     }
-    else
-    {
-        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
-            fmt::format("Could not skin character for {} - skin '{}' not found in mod cache.", info_str, info.character_skinfile));
-        return;
-    }
 
-    CharacterDocumentPtr document = this->FetchCharacterDef(cache_entry);
-    if (!document)
+    // Make sure it exists
+    App::GetCacheSystem()->LoadResource(cache_entry);
+    if (!cache_entry->character_def)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
             fmt::format("Could not create character for {} - cannot load file '{}'.", info_str, cache_entry->fname));
         return;
     }
 
-    Character* ch = new Character(cache_entry, skin_entry, document, sourceid, streamid, name, colour, true);
+    Character* ch = new Character(cache_entry, skin_entry, sourceid, streamid, name, colour, true);
     App::GetGfxScene()->RegisterGfxCharacter(ch);
     m_remote_characters.push_back(std::unique_ptr<Character>(ch));
 #endif // USE_SOCKETW

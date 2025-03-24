@@ -279,7 +279,7 @@ struct ModifyProjectRequest
 /// MOTIVATION:
 ///    RoR users usually have A LOT of content installed. Traversing it all on every game startup would be a pain.
 /// HOW IT WORKS:
-///    For each recognized resource type (vehicle, terrain, skin...) an instance of 'CacheEntry' is created.
+///    For each recognized resource type (vehicle, terrain, character, skin...) an instance of 'CacheEntry' is created.
 ///       These entries are persisted in file CACHE_FILE (see above)
 ///    Associated media live in a "resource bundle" (ZIP archive or subdirectory) in content directory (ROR_HOME/mods) and subdirectories.
 ///       If multiple CacheEntries share a bundle, the bundle is loaded only once. Each bundle has dedicated OGRE resource group.
@@ -362,6 +362,7 @@ private:
     /// @{
     void LoadAssociatedSkinDef(CacheEntryPtr& cache_entry); //!< Loads+parses the .skin file and updates all related CacheEntries
     void LoadAssociatedTuneupDef(CacheEntryPtr& cache_entry); //!< Loads+parses the .tuneup file and updates all related CacheEntries
+    void LoadAssociatedCharacterDef(CacheEntryPtr& cache_entry); //!< Loads+parses the .character file and updates all related CacheEntries
     /// @}
 
     /// @name Cache update helpers
