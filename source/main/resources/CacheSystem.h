@@ -27,6 +27,7 @@
 #pragma once
 
 #include "Application.h"
+#include "CharacterFileFormat.h"
 #include "Language.h"
 #include "RefCountingObject.h"
 #include "RefCountingObjectPtr.h"
@@ -91,6 +92,7 @@ public:
     RigDef::DocumentPtr actor_def;      //!< Cached actor definition (aka truckfile) after first spawn.
     SkinDocumentPtr skin_def;           //!< Cached skin info, added on first use or during cache rebuild
     TuneupDefPtr tuneup_def;            //!< Cached tuning info, added on first use or during cache rebuild
+    CharacterDocumentPtr character_def; //!< Cached character definition
     TuneupDefPtr addonpart_data_only;   //!< Cached addonpart data (dummy tuneup), only used for evaluating conflicts, see `AddonPartUtility::RecordAddonpartConflicts()`
     Terrn2DocumentPtr terrn2_def;       //!< Cached terrain definition document.
 
@@ -370,6 +372,7 @@ private:
     void FillAddonPartDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds);
     void FillTuneupDetailInfo(CacheEntryPtr &entry, TuneupDefPtr& tuneup_def);
     void FillAssetPackDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds);
+    void FillCharacterDetailInfo(CacheEntryPtr &entry, Ogre::DataStreamPtr ds);
     /// @}
 
     void GenerateHashFromFilenames();         //!< For quick detection of added/removed content

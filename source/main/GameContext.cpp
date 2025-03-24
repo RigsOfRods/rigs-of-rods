@@ -828,9 +828,16 @@ void GameContext::SetPrevPlayerActor(ActorPtr actor) { m_prev_player_actor = act
 // --------------------------------
 // Characters
 
-void GameContext::CreatePlayerCharacter()
+bool GameContext::CreatePlayerCharacter()
 {
     m_character_factory.CreateLocalCharacter();
+
+    if (!this->GetPlayerCharacter())
+    {
+        App::GetGuiManager()->ShowMessageBox(_L("Terrain loading error"),
+            "Failed to create player character, see console or 'RoR.log' for more info.");
+        return false;
+    }
 
     // Adjust character position
     Ogre::Vector3 spawn_pos = m_terrain->getSpawnPos();
@@ -879,6 +886,8 @@ void GameContext::CreatePlayerCharacter()
     {
         App::GetCameraManager()->UpdateInputEvents(0.02f);
     }
+
+    return true;
 }
 
 Character* GameContext::GetPlayerCharacter() // Convenience ~ counterpart of `GetPlayerActor()`

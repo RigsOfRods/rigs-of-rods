@@ -287,6 +287,7 @@ enum VisibilityMasks
 enum LoaderType //!< Search mode for `ModCache::Query()` & Operation mode for `GUI::MainSelector`
 {
     LT_None,
+    LT_Character, // No script alias, invoked from Settings UI.
     LT_Terrain,   // Invocable from GUI; No script alias, used in main menu
     LT_Vehicle,   // Script "vehicle",   ext: truck car
     LT_Truck,     // Script "truck",     ext: truck car
@@ -366,6 +367,7 @@ extern CVar* sim_soft_reset_mode;
 extern CVar* sim_quickload_dialog;
 extern CVar* sim_live_repair_interval; //!< Hold EV_COMMON_REPAIR_TRUCK to enter LiveRepair mode. 0 or negative interval disables.
 extern CVar* sim_tuning_enabled;
+extern CVar* sim_player_character;
 
 // Multiplayer
 extern CVar* mp_state;

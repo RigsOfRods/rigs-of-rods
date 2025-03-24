@@ -110,6 +110,7 @@ CVar* sim_soft_reset_mode;
 CVar* sim_quickload_dialog;
 CVar* sim_live_repair_interval;
 CVar* sim_tuning_enabled;
+CVar* sim_player_character;
 
 // Multiplayer
 CVar* mp_state;

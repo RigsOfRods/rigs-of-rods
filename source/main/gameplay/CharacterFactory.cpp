@@ -23,7 +23,9 @@
 
 #include "Actor.h"
 #include "Application.h"
+#include "CacheSystem.h"
 #include "Character.h"
+#include "Console.h"
 #include "GfxScene.h"
 #include "Utils.h"
 
@@ -31,6 +33,26 @@ using namespace RoR;
 
 CharacterFactory::CharacterFactory()
 {
+}
+
+CharacterDocumentPtr CharacterFactory::FetchCharacterDef(CacheEntryPtr cache_entry)
+{
+    if (!cache_entry->character_def)
+    {
+        try
+        {
+            Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().openResource(cache_entry->fname, cache_entry->resource_group);
+            CharacterParser character_parser;
+            cache_entry->character_def = character_parser.ProcessOgreStream(datastream);
+        }
+        catch (Ogre::Exception& eeh)
+        {
+            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+                fmt::format("Could not load character, message: {}", eeh.getFullDescription()));
+        }
+    }
+
+    return cache_entry->character_def;
 }
 
 Character* CharacterFactory::CreateLocalCharacter()
@@ -47,7 +69,21 @@ Character* CharacterFactory::CreateLocalCharacter()
     }
 #endif // USE_SOCKETW
 
-    m_local_character = std::unique_ptr<Character>(new Character(m_character_defs[0], -1, 0, playerName, colourNum, false));
+    CacheEntryPtr cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, App::sim_player_character->getStr());
+    if (!cache_entry)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not find character '{}' in mod cache.", App::sim_player_character->getStr()));
+        return nullptr;
+    }
+
+    CharacterDocumentPtr document = this->FetchCharacterDef(cache_entry);
+    if (!document)
+    {
+        return nullptr; // Error already reported
+    }
+
+    m_local_character = std::unique_ptr<Character>(new Character(document, -1, 0, playerName, colourNum, false));
     App::GetGfxScene()->RegisterGfxCharacter(m_local_character.get());
     return m_local_character.get();
 }
@@ -60,9 +96,29 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
     int colour = info.colournum;
     Ogre::UTFString name = tryConvertUTF(info.username);
 
-    LOG(" new character for " + TOSTRING(sourceid) + ":" + TOSTRING(streamid) + ", colour: " + TOSTRING(colour));
+    std::string info_str = fmt::format("player '{}' ({}:{}), colour: {}", info.clientname, sourceid, streamid, colour);
 
-    Character* ch = new Character(m_character_defs[0], sourceid, streamid, name, colour, true);
+    LOG(" new character for " + info_str);
+
+    std::string filename = App::sim_player_character->getStr(); // TBD: transmit and use the actual character used by the player
+
+    CacheEntryPtr cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, filename);
+    if (!cache_entry)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not create character for {} - character '{}' not found in mod cache.", info_str, filename));
+        return;
+    }
+
+    CharacterDocumentPtr document = this->FetchCharacterDef(cache_entry);
+    if (!document)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
+            fmt::format("Could not create character for {} - cannot load file '{}'.", info_str, cache_entry->fname));
+        return;
+    }
+
+    Character* ch = new Character(document, sourceid, streamid, name, colour, true);
     App::GetGfxScene()->RegisterGfxCharacter(ch);
     m_remote_characters.push_back(std::unique_ptr<Character>(ch));
 #endif // USE_SOCKETW

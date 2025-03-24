@@ -28,27 +28,27 @@
 #include "Actor.h"
 #include "AddonPartFileFormat.h"
 #include "Application.h"
-#include "SimData.h"
+#include "CharacterFileFormat.h"
 #include "ContentManager.h"
 #include "ErrorUtils.h"
+#include "GfxActor.h"
+#include "GfxScene.h"
 #include "GUI_LoadingWindow.h"
 #include "GUI_GameMainMenu.h"
 #include "GUIManager.h"
 #include "GenericFileFormat.h"
-#include "GfxActor.h"
-#include "GfxScene.h"
 #include "Language.h"
 #include "PlatformUtils.h"
 #include "RigDef_Parser.h"
 #include "ScriptEngine.h"
+#include "SimData.h"
 #include "SkinFileFormat.h"
 #include "Terrain.h"
 #include "Terrn2FileFormat.h"
 #include "TuneupFileFormat.h"
 #include "Utils.h"
 
-#include <OgreException.h>
-#include <OgreFileSystem.h>
+#include <Ogre.h>
 #include <OgreFileSystemLayer.h>
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
@@ -137,6 +137,7 @@ CacheSystem::CacheSystem()
     m_known_extensions.push_back("train");
     m_known_extensions.push_back("skin");
     m_known_extensions.push_back("addonpart");
+    m_known_extensions.push_back("character");
     m_known_extensions.push_back("tuneup");
     m_known_extensions.push_back("assetpack");
 
@@ -761,6 +762,12 @@ void CacheSystem::AddFile(String group, Ogre::FileInfo f, String ext)
             FillTerrainDetailInfo(entry, ds, f.filename);
             new_entries.push_back(entry);
         }
+        else if (ext == "character")
+        {
+            CacheEntryPtr entry = new CacheEntry();
+            FillCharacterDetailInfo(entry, ds);
+            new_entries.push_back(entry);
+        }
         else if (ext == "skin")
         {
             auto new_skins = RoR::SkinParser::ParseSkins(ds);
@@ -1200,6 +1207,15 @@ void CacheSystem::FillTerrainDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPt
     entry->version    = def->version;
 }
 
+
+void CacheSystem::FillCharacterDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr datastream)
+{
+    CharacterParser parser;
+    CharacterDocumentPtr doc = parser.ProcessOgreStream(datastream);
+    
+    entry->dname = doc->character_name;
+}
+
 void CacheSystem::FillSkinDetailInfo(CacheEntryPtr &entry, std::shared_ptr<SkinDocument>& skin_def)
 {
     if (!skin_def->author_name.empty())
@@ -1465,6 +1481,13 @@ void CacheSystem::LoadResource(CacheEntryPtr& entry)
             ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/true);
             ResourceGroupManager::getSingleton().addResourceLocation(
                 entry->resource_bundle_path, entry->resource_bundle_type, group, recursive, readonly);
+        }
+        else if (entry->fext == "character")
+        {
+            // This is a character mod bundle - use `inGlobalPool=false` to prevent resource name conflicts.
+            // See bottom 'note' at https://ogrecave.github.io/ogre/api/latest/_resource-_management.html#Resource-Groups
+            ResourceGroupManager::getSingleton().createResourceGroup(group, /*inGlobalPool=*/false);
+            ResourceGroupManager::getSingleton().addResourceLocation(entry->resource_bundle_path, entry->resource_bundle_type, group);
         }
         else if (entry->fext == "skin")
         {
@@ -2132,10 +2155,12 @@ size_t CacheSystem::Query(CacheQuery& query)
         bool add = false;
         if (entry->fext == "terrn2")
             add = (query.cqy_filter_type == LT_Terrain);
-        if (entry->fext == "skin")
+        else if (entry->fext == "skin")
             add = (query.cqy_filter_type == LT_Skin);
         else if (entry->fext == "addonpart")
             add = (query.cqy_filter_type == LT_AddonPart);
+        else if (entry->fext == "character")
+            add = (query.cqy_filter_type == LT_Character);
         else if (entry->fext == "tuneup")
             add = (query.cqy_filter_type == LT_Tuneup);
         else if (entry->fext == "assetpack")

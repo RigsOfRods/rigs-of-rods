@@ -46,14 +46,12 @@ public:
     void DeleteAllCharacters();
     void UndoRemoteActorCoupling(ActorPtr actor);
     void Update(float dt);
-    void DefineCharacter(CharacterDocumentPtr doc) { m_character_defs.push_back(doc); }
+    CharacterDocumentPtr FetchCharacterDef(CacheEntryPtr cache_entry);
 #ifdef USE_SOCKETW
     void handleStreamData(std::vector<RoR::NetRecvPacket> packet);
 #endif // USE_SOCKETW
 
 private:
-
-    std::vector<CharacterDocumentPtr>            m_character_defs;
 
     std::unique_ptr<Character>              m_local_character;
     std::vector<std::unique_ptr<Character>> m_remote_characters;
