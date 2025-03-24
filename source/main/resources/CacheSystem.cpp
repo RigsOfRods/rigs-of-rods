@@ -1729,8 +1729,6 @@ void CacheSystem::LoadAssociatedCharacterDef(CacheEntryPtr& cache_entry)
 
     try
     {
-        App::GetCacheSystem()->LoadResource(cache_entry); // Load if not already
-
         Ogre::DataStreamPtr datastream = Ogre::ResourceGroupManager::getSingleton().openResource(cache_entry->fname, cache_entry->resource_group);
         CharacterParser character_parser;
         cache_entry->character_def = character_parser.ProcessOgreStream(datastream);
