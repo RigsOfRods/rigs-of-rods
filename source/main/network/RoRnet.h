@@ -31,8 +31,9 @@ namespace RoRnet {
 #define RORNET_MAX_MESSAGE_LENGTH   8192   //!< maximum size of a RoR message. 8192 bytes = 8 kibibytes
 #define RORNET_LAN_BROADCAST_PORT   13000  //!< port used to send the broadcast announcement in LAN mode
 #define RORNET_MAX_USERNAME_LEN     40
-#define RORNET_MAX_CHARACTER_FILE_LEN 40
-#define RORNET_MAX_CHARACTER_SKINFILE_LEN 40
+#define RORNET_MAX_CHARACTER_FILE_LEN 60
+#define RORNET_MAX_CHARACTER_SKIN_LEN 60
+
 
 #define RORNET_VERSION              "RoRnet_2.45"
 
@@ -237,7 +238,7 @@ struct UserInfo
     char     clientGUID[40];       //!< the clients GUID
     char     sessiontype[10];      //!< the requested session type. For example "normal", "bot", "rcon"
     char     character_file[RORNET_MAX_CHARACTER_FILE_LEN]; //!< Filename of the chosen character
-    char     character_skinfile[RORNET_MAX_CHARACTER_SKINFILE_LEN]; //!< Skin filename of the chosen character
+    char     character_skin[RORNET_MAX_CHARACTER_SKIN_LEN]; //!< Skin name for the chosen character
 };
 
 struct VehicleState                  //!< Formerly `oob_t`

@@ -57,6 +57,8 @@ private:
 
     void createRemoteInstance(int sourceid, int streamid);
     void removeStreamSource(int sourceid);
+
+    CacheEntryPtr fetchCharacterSkin(const std::string& skinName, const std::string& errLogPlayer);
 };
 
 /// @} // addtogroup Character

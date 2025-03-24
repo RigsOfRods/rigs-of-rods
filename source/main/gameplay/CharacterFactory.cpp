@@ -42,7 +42,7 @@ Character* CharacterFactory::CreateLocalCharacter()
     Ogre::UTFString playerName = "";
     // Singleplayer character presets
     std::string characterFile = App::sim_player_character->getStr();
-    std::string characterSkinfile = App::sim_player_character_skin->getStr();
+    std::string characterSkin = App::sim_player_character_skin->getStr();
 
 #ifdef USE_SOCKETW
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
@@ -52,7 +52,7 @@ Character* CharacterFactory::CreateLocalCharacter()
         playerName = tryConvertUTF(info.username);
         // Multiplayer character presets
         characterFile = info.character_file;
-        characterSkinfile = info.character_skinfile;
+        characterSkin = info.character_skin;
     }
 #endif // USE_SOCKETW
 
@@ -86,29 +86,7 @@ Character* CharacterFactory::CreateLocalCharacter()
         return nullptr;
     }
 
-    CacheEntryPtr skin_entry = nullptr;
-    if (characterSkinfile != "")
-    {
-        skin_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Skin, /*partial:*/false, characterSkinfile);
-    
-        if (skin_entry)
-        {
-            // Make sure it exists
-            App::GetCacheSystem()->LoadResource(skin_entry);
-            if (skin_entry->skin_def == nullptr)
-            {
-                skin_entry = nullptr; // Error already logged
-            }
-        }
-        else
-        {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
-                fmt::format("Could not find character skin '{}' in mod cache, continuing without it.", characterSkinfile));
-        }
-    }
-
-    
-
+    CacheEntryPtr skin_entry = this->fetchCharacterSkin(characterSkin, _L("local player"));
     m_local_character = std::unique_ptr<Character>(new Character(cache_entry, skin_entry, -1, 0, playerName, colourNum, false));
     App::GetGfxScene()->RegisterGfxCharacter(m_local_character.get());
     return m_local_character.get();
@@ -143,26 +121,6 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
         return;
     }
 
-    CacheEntryPtr skin_entry = nullptr;
-    if (std::string(info.character_skinfile) != "")
-    {
-        skin_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Skin, /*partial:*/false, info.character_skinfile);
-        if (skin_entry)
-        {
-            // Make sure it exists
-            App::GetCacheSystem()->LoadResource(skin_entry);
-            if (skin_entry->skin_def == nullptr)
-            {
-                skin_entry = nullptr; // Error already logged
-            }
-        }
-        else
-        {
-            App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
-                fmt::format("Could not skin character for {} - skin '{}' not found in mod cache.", info_str, info.character_skinfile));
-        }
-    }
-
     // Make sure it exists
     App::GetCacheSystem()->LoadResource(cache_entry);
     if (!cache_entry->character_def)
@@ -172,6 +130,7 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
         return;
     }
 
+    CacheEntryPtr skin_entry = this->fetchCharacterSkin(info.character_skin, info_str);
     Character* ch = new Character(cache_entry, skin_entry, sourceid, streamid, name, colour, true);
     App::GetGfxScene()->RegisterGfxCharacter(ch);
     m_remote_characters.push_back(std::unique_ptr<Character>(ch));
@@ -249,3 +208,33 @@ void CharacterFactory::handleStreamData(std::vector<RoR::NetRecvPacket> packet_b
     }
 }
 #endif // USE_SOCKETW
+
+CacheEntryPtr CharacterFactory::fetchCharacterSkin(const std::string& skinName, const std::string& errLogPlayer)
+{
+    if (skinName == "")
+        return nullptr;
+
+    CacheQuery skinQuery;
+    skinQuery.cqy_filter_type = LT_Skin;
+    skinQuery.cqy_search_method = CacheSearchMethod::NAME_FULL;
+    skinQuery.cqy_search_string = skinName;
+    if (App::GetCacheSystem()->Query(skinQuery) == 0)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Skin '{}' requested by player player '{}' is not installed, continuing without it.",
+            skinName, errLogPlayer));
+        return nullptr;
+    }
+
+    CacheEntryPtr& entry = skinQuery.cqy_results[0].cqr_entry;
+    App::GetCacheSystem()->LoadResource(entry);
+    if (!entry->skin_def)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Could not load character skin '{}' for player '{}', continuing without it.",
+            skinName, errLogPlayer));
+        return nullptr;
+    }
+
+    return entry;
+}
