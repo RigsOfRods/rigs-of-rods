@@ -729,7 +729,7 @@ bool TerrainObjectManager::LoadTerrainObject(const Ogre::String& name, const Ogr
         int race_id = res.size() > 1 ? StringConverter::parseInt(res[1], -1) : -1;
         m_map_entities.push_back(SurveyMapEntity(type, /*caption:*/type, fmt::format("icon_{}.dds", type), /*resource_group:*/"", object->position, Ogre::Radian(0), race_id));
     }
-    else if (!object->type.empty())
+    else if (object->type != "" && object->type != "-")
     {
         String caption = "";
         if (object->type == "station" || object->type == "hotel" || object->type == "village" ||

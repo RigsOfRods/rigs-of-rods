@@ -38,7 +38,7 @@ public:
     // Variables are not accessible from AngelScript
     std::string name;
     std::string instance_name;
-    std::string type;
+    std::string type; //!< Accepts "-" as placeholder, otherwise a surveymap icon is registered.
     Ogre::Vector3 position = Ogre::Vector3::ZERO;
     Ogre::Vector3 rotation = Ogre::Vector3::ZERO;
     Ogre::Vector3 initial_position = Ogre::Vector3::ZERO;
