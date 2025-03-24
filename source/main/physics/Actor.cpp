@@ -4736,7 +4736,16 @@ int Actor::getShockNode2(int shock_number)
 
 void Actor::setSimAttribute(ActorSimAttr attr, float val)
 {
+    if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            "Cannot change simulation attributes in multiplayer mode.");
+        return;
+    }
+
     LOG(fmt::format("[RoR|Actor] setSimAttribute: '{}' = {}", ActorSimAttrToString(attr), val));
+
+    TRIGGER_EVENT_ASYNC(SE_ANGELSCRIPT_MANIPULATIONS, ASMANIP_ACTORSIMATTR_SET, attr, 0, 0, ActorSimAttrToString(attr), fmt::format("{}", val));
 
     // PLEASE maintain the same order as in `enum ActorSimAttr`
     switch (attr)
