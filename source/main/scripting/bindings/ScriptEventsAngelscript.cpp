@@ -76,6 +76,7 @@ void RoR::RegisterScriptEvents(asIScriptEngine *engine)
     result = engine->RegisterEnumValue("angelScriptManipulationType", "ASMANIP_CONSOLE_SNIPPET_EXECUTED", ASMANIP_CONSOLE_SNIPPET_EXECUTED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("angelScriptManipulationType", "ASMANIP_SCRIPT_LOADED", ASMANIP_SCRIPT_LOADED); ROR_ASSERT(result >= 0);
     result = engine->RegisterEnumValue("angelScriptManipulationType", "ASMANIP_SCRIPT_UNLOADING", ASMANIP_SCRIPT_UNLOADING); ROR_ASSERT(result >= 0);
+    result = engine->RegisterEnumValue("angelScriptManipulationType", "ASMANIP_ACTORSIMATTR_SET", ASMANIP_ACTORSIMATTR_SET); ROR_ASSERT(result >= 0);
 
     // enum angelScriptThreadStatus
     result = engine->RegisterEnum("angelScriptThreadStatus"); ROR_ASSERT(result>=0);
