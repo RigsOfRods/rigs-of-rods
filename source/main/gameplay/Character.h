@@ -59,7 +59,7 @@ public:
     static const char* SituationFlagToString(BitMask_t single_situation_flag);
     static BitMask_t SituationFlagFromString(std::string const& single_situation_flag_str);
 
-    Character(CacheEntryPtr cacheEntry, CharacterDocumentPtr def, int source = -1, unsigned int streamid = 0, Ogre::UTFString playerName = "", int color_number = 0, bool is_remote = true);
+    Character(CacheEntryPtr cacheEntry, CacheEntryPtr skinEntry, CharacterDocumentPtr def, int source = -1, unsigned int streamid = 0, Ogre::UTFString playerName = "", int color_number = 0, bool is_remote = true);
     ~Character();
 
     // get info
@@ -94,6 +94,7 @@ private:
     // attributes
     CharacterDocumentPtr  m_character_def;
     CacheEntryPtr      m_cache_entry;
+    CacheEntryPtr      m_used_skin_entry = nullptr;
     std::string      m_instance_name;
 
     // transforms

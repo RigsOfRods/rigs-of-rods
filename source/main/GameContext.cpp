@@ -694,9 +694,14 @@ void GameContext::OnLoaderGuiCancel()
 
 void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntryPtr entry, std::string sectionconfig)
 {
-    bool spawn_now = false;
+    bool selection_finished = false;
     switch (type)
     {
+    case LT_Terrain:
+        m_current_selection.asr_cache_entry = entry;
+        selection_finished = true;
+        break;
+
     case LT_AddonPart:
         if (m_player_actor)
         {
@@ -721,7 +726,7 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntryPtr entry, std::st
                 App::GetGuiManager()->TopMenubar.ai_skin2 = entry->dname;
             }
         }
-        spawn_now = true;
+        selection_finished = true;
         break;
 
     case LT_Vehicle:
@@ -734,6 +739,8 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntryPtr entry, std::st
     case LT_Load:
     case LT_Extension:
     case LT_AllBeam:
+    case LT_Character:
+    case LT_CharacterMP:
         m_current_selection.asr_cache_entry = entry;
         m_current_selection.asr_config = sectionconfig;
         if (App::GetGuiManager()->TopMenubar.ai_select)
@@ -746,7 +753,7 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntryPtr entry, std::st
         }
         m_current_selection.asr_origin = ActorSpawnRequest::Origin::USER;
         // Look for extra skins
-        if (!entry->guid.empty())
+        if (entry->guid != "")
         {
             CacheQuery skin_query;
             skin_query.cqy_filter_guid = entry->guid;
@@ -764,7 +771,7 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntryPtr entry, std::st
                 if (!default_skin_entry)
                 {
                     App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_ACTOR, Console::CONSOLE_SYSTEM_WARNING,
-                        fmt::format(_L("Default skin '{}' for actor '{}' not found!"), entry->default_skin, entry->dname));
+                        fmt::format(_L("Default skin '{}' for cache entry '{}' not found!"), entry->default_skin, entry->dname));
                 }
                 if (default_skin_entry && num_skins == 1)
                 {
@@ -784,19 +791,57 @@ void GameContext::OnLoaderGuiApply(LoaderType type, CacheEntryPtr entry, std::st
             }
             else
             {
-                spawn_now = true;
+                selection_finished = true;
             }
         }
         else
         {
-            spawn_now = true;
+            selection_finished = true;
         }
         break;
 
     default:;
     }
 
-    if (spawn_now)
+    if (selection_finished && m_current_selection.asr_cache_entry->fext == "terrn2")
+    {
+        if (App::app_state->getEnum<AppState>() == AppState::MAIN_MENU)
+        {
+            App::GetGameContext()->PushMessage(Message(MSG_SIM_LOAD_TERRN_REQUESTED, m_current_selection.asr_cache_entry->fname));
+        }
+    }
+    else if (selection_finished && m_current_selection.asr_cache_entry->fext == "character")
+    {
+        switch (type)
+        {
+        case LT_Character: // Invoked by Settings UI button
+            App::sim_player_character->setStr(m_current_selection.asr_cache_entry->fname);
+            if (m_current_selection.asr_skin_entry)
+            {
+                App::sim_player_character_skin->setStr(m_current_selection.asr_skin_entry->fname);
+            }
+            else
+            {
+                App::sim_player_character_skin->setStr("");
+            }
+            break;
+
+        case LT_CharacterMP: // Invoked by MultiplayerSelector UI button
+            App::mp_override_character->setStr(m_current_selection.asr_cache_entry->fname);
+            if (m_current_selection.asr_skin_entry)
+            {
+                App::mp_override_character_skin->setStr(m_current_selection.asr_skin_entry->fname);
+            }
+            else
+            {
+                App::mp_override_character_skin->setStr("");
+            }
+            break;
+
+        default:; // uhh, what?
+        }
+    }
+    else if (selection_finished)
     {
         if (App::GetGuiManager()->TopMenubar.ai_select)
         {

@@ -34,6 +34,7 @@
 #include "InputEngine.h"
 #include "MovableText.h"
 #include "Network.h"
+#include "SkinFileFormat.h"
 #include "Terrain.h"
 #include "Utils.h"
 #include "Water.h"
@@ -45,6 +46,10 @@ GfxCharacter::GfxCharacter(Character* character)
     : xc_character(character)
     , xc_instance_name(character->m_instance_name)
 {
+    // Use the modcache bundle (ZIP) resource group.
+    // This is equivalent to what `Actor`s do.
+    xc_custom_resource_group = character->m_cache_entry->resource_group;
+
     Entity* entity = App::GetGfxScene()->GetSceneManager()->createEntity(
         /*entityName:*/ xc_instance_name + "_mesh",
         /*meshName:*/ xc_character->m_character_def->mesh_name,
@@ -61,21 +66,16 @@ GfxCharacter::GfxCharacter(Character* character)
     xc_scenenode->setScale(xc_character->m_character_def->mesh_scale);
     xc_scenenode->setVisible(false);
 
-    // setup colour
-    std::string sharedMatName;
-    if (xc_character->m_character_def->material_override != "")
+    // setup colour and resolve skins (SkinZips)
+    //  The mesh (for example Sinbad the Ogre) may use multiple materials
+    //  which means having multiple submeshes in Mesh and subentities in Entity
+    //  (each submesh/subentity can have only 1 material)
+    for (Ogre::SubEntity* subent: entity->getSubEntities())
     {
-        sharedMatName = xc_character->m_character_def->material_override;
+        const std::string sharedMatName = subent->getSubMesh()->getMaterialName();
+        Ogre::MaterialPtr ownMat = this->FindOrCreateCustomizedMaterial(sharedMatName);
+        subent->setMaterial(ownMat);
     }
-    else
-    {
-        sharedMatName = entity->getMesh()->getSubMesh(0)->getMaterialName();
-    }
-    MaterialPtr sharedMat = MaterialManager::getSingleton().getByName(
-        /*name:*/ sharedMatName,
-        /*groupName:*/ character->m_cache_entry->resource_group);
-    MaterialPtr ownMat = sharedMat->clone(sharedMatName + "@" + xc_instance_name);
-    entity->setMaterial(ownMat);
 
     // setup animation blend
     switch (character->getCharacterDocument()->force_animblend)
@@ -364,4 +364,94 @@ void GfxCharacter::EnableAnim(Ogre::AnimationState* as, float time)
     as->setEnabled(true);
     as->setWeight(1);
     as->setTimePosition(time); // addTime() ?
+}
+
+
+Ogre::MaterialPtr GfxCharacter::FindOrCreateCustomizedMaterial(const std::string& mat_lookup_name)
+{
+    // Spawn helper which resolves skins (SkinZips) and returns unique material
+    // Derived from `ActorSpawner::FindOrCreateCustomizedMaterial()`
+    // ------------------------------------------------------------------------
+
+    // Query .skin material replacements
+    if (xc_character->m_used_skin_entry != nullptr)
+    {
+        SkinDocumentPtr skin_def = xc_character->m_used_skin_entry->skin_def;
+
+        auto skin_res = skin_def->replace_materials.find(mat_lookup_name);
+        if (skin_res != skin_def->replace_materials.end())
+        {
+            // Material substitution found - check if the material exists.
+            Ogre::MaterialPtr skin_mat = Ogre::MaterialManager::getSingleton().getByName(
+                skin_res->second, xc_character->m_used_skin_entry->resource_group);
+            if (!skin_mat.isNull())
+            {
+                // Material exists - clone and return right away - texture substitutions aren't done in this case.
+                std::string name_buf = fmt::format("{}@{}", skin_mat->getName(), xc_character->m_instance_name);
+                return skin_mat->clone(name_buf, /*changeGroup=*/true, xc_custom_resource_group);
+            }
+            else
+            {
+                // Material doesn't exist - log warning and continue.
+                std::stringstream buf;
+                buf << "Character: Material '" << skin_res->second << "' from skin '" << xc_character->m_used_skin_entry->dname
+                    << "' not found (filename: '" << xc_character->m_used_skin_entry->fname 
+                    << "', resource group: '"<< xc_character->m_used_skin_entry->resource_group
+                    <<"')! Ignoring it...";
+                App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING, buf.str());
+            }
+        }
+    }
+
+    // Skinzip material replacement not found - clone the input material
+    MaterialPtr sharedMat = MaterialManager::getSingleton().getByName(
+        /*name:*/ mat_lookup_name,
+        /*groupName:*/ xc_character->m_cache_entry->resource_group);
+    std::string name_buf = fmt::format("{}@{}", mat_lookup_name, xc_character->m_instance_name);
+    MaterialPtr ownMat = sharedMat->clone(name_buf, /*changeGroup=*/true, xc_custom_resource_group);
+
+    // Finally, query .skin texture replacements
+    if (xc_character->m_used_skin_entry != nullptr)
+    {
+        for (auto& technique: ownMat->getTechniques())
+        {
+            for (auto& pass: technique->getPasses())
+            {
+                for (auto& tex_unit: pass->getTextureUnitStates())
+                {
+                    const size_t num_frames = tex_unit->getNumFrames();
+                    for (size_t i = 0; i < num_frames; ++i)
+                    {
+                        const auto end = xc_character->m_used_skin_entry->skin_def->replace_textures.end();
+                        const auto query = xc_character->m_used_skin_entry->skin_def->replace_textures.find(tex_unit->getFrameTextureName((unsigned int)i));
+                        if (query != end)
+                        {
+                            // Skin has replacement for this texture
+                            if (xc_character->m_used_skin_entry->resource_group != xc_custom_resource_group) // The skin comes from a SkinZip bundle (different resource group)
+                            {
+                                Ogre::TexturePtr tex = Ogre::TextureManager::getSingleton().getByName(
+                                    query->second, xc_character->m_used_skin_entry->resource_group);
+                                if (tex.isNull())
+                                {
+                                    // `Ogre::TextureManager` doesn't automatically register all images in resource groups,
+                                    // it waits for `Ogre::Resource`s to be created explicitly.
+                                    // Normally this is done by `Ogre::MaterialManager` when loading a material.
+                                    // In this case we must do it manually
+                                    tex = Ogre::TextureManager::getSingleton().create(
+                                        query->second, xc_character->m_used_skin_entry->resource_group);
+                                }
+                                tex_unit->_setTexturePtr(tex, i);
+                            }
+                            else // The skin lives in the character bundle (same resource group)
+                            {
+                                tex_unit->setFrameTextureName(query->second, (unsigned int)i);
+                            }
+                        }
+                    } // texture unit frames
+                } // texture unit states
+            } // passes
+        } // techniques
+    }
+
+    return ownMat;
 }

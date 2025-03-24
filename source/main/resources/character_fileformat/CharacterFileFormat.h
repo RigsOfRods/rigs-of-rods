@@ -92,7 +92,7 @@ struct CharacterDocument
     std::string character_name;
     std::string character_description;
     std::string mesh_name;
-    std::string material_override; //!< Optional; overrides the material name in the mesh file.
+    std::string character_guid; // deal with it
     Ogre::Vector3 mesh_scale = Ogre::Vector3(1, 1, 1);
     std::vector<CharacterActionDef> actions;
     std::vector<BoneBlendMaskDef> bone_blend_masks;

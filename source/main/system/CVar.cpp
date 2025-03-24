@@ -61,6 +61,7 @@ void Console::cVarSetupBuiltins()
     App::sim_live_repair_interval = this->cVarCreate("sim_live_repair_interval", "",                         CVAR_ARCHIVE | CVAR_TYPE_FLOAT,   "2.f");
     App::sim_tuning_enabled      = this->cVarCreate("sim_tuning_enabled",      "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "true");
     App::sim_player_character    = this->cVarCreate("sim_player_character",    "",                           CVAR_ARCHIVE,                     "default.character");
+    App::sim_player_character_skin=this->cVarCreate("sim_player_character_skin","",                          CVAR_ARCHIVE,                     "");
 
     App::mp_state                = this->cVarCreate("mp_state",                "",                                          CVAR_TYPE_INT,     "0"/*(int)MpState::DISABLED*/);
     App::mp_join_on_startup      = this->cVarCreate("mp_join_on_startup",      "Auto connect",               CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
@@ -76,7 +77,7 @@ void Console::cVarSetupBuiltins()
     App::mp_api_url              = this->cVarCreate("mp_api_url",              "Online API URL",             CVAR_ARCHIVE,                     "http://api.rigsofrods.org");
     App::mp_cyclethru_net_actors = this->cVarCreate("mp_cyclethru_net_actors", "",                           CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");
     App::mp_override_character   = this->cVarCreate("mp_override_character",   "",                           CVAR_ARCHIVE,                     "");
-
+    App::mp_override_character_skin=this->cVarCreate("mp_override_character_skin","",                        CVAR_ARCHIVE,                     "");
     App::remote_query_url        = this->cVarCreate("remote_query_url",        "",                           CVAR_ARCHIVE,                     "https://v2.api.rigsofrods.org");
 
     App::diag_auto_spawner_report= this->cVarCreate("diag_auto_spawner_report","AutoActorSpawnerReport",     CVAR_ARCHIVE | CVAR_TYPE_BOOL,    "false");

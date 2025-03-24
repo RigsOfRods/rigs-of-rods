@@ -48,12 +48,17 @@ struct GfxCharacter
     void            EvaluateActionDef(CharacterActionDef const& def, float dt);
     void            SetupBoneBlendMask(BoneBlendMaskDef const& mask_def);
 
+    // Spawn helper which resolves skins (SkinZips)
+    // Derived from `ActorSpawner::FindOrCreateCustomizedMaterial()`
+    Ogre::MaterialPtr FindOrCreateCustomizedMaterial(const std::string& mat_lookup_name);
+
     Ogre::SceneNode*          xc_scenenode;
     CharacterSB               xc_simbuf;
     CharacterSB               xc_simbuf_prev;
     Character*                xc_character;
     std::string               xc_instance_name;
     SurveyMapEntity           xc_surveymap_entity;
+    std::string               xc_custom_resource_group;
 };
 
 /// @} // addtogroup Gfx

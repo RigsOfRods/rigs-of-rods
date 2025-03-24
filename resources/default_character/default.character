@@ -21,6 +21,9 @@
 ; Name displayed in the Selector UI - required
 character_name "Default character"
 
+; required for skinning - use https://guidgenerator.com for your mods.
+character_guid "baef1af5-2854-48c3-af05-5087da2d773b"
+
 ; Name of the mesh file - required.
 mesh_name "character.mesh"
 

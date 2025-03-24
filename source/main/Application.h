@@ -371,6 +371,7 @@ extern CVar* sim_quickload_dialog;
 extern CVar* sim_live_repair_interval; //!< Hold EV_COMMON_REPAIR_TRUCK to enter LiveRepair mode. 0 or negative interval disables.
 extern CVar* sim_tuning_enabled;
 extern CVar* sim_player_character;
+extern CVar* sim_player_character_skin;
 
 // Multiplayer
 extern CVar* mp_state;
@@ -387,6 +388,7 @@ extern CVar* mp_player_token;
 extern CVar* mp_api_url;
 extern CVar* mp_cyclethru_net_actors; //!< Include remote actors when cycling through with CTRL + [ and CTRL + ]
 extern CVar* mp_override_character; // If empty, use `sim_default_character`
+extern CVar* mp_override_character_skin;
 
 // New remote API
 extern CVar* remote_query_url;

@@ -111,6 +111,7 @@ CVar* sim_quickload_dialog;
 CVar* sim_live_repair_interval;
 CVar* sim_tuning_enabled;
 CVar* sim_player_character;
+CVar* sim_player_character_skin;
 
 // Multiplayer
 CVar* mp_state;
@@ -127,6 +128,7 @@ CVar* mp_player_token;
 CVar* mp_api_url;
 CVar* mp_cyclethru_net_actors;
 CVar* mp_override_character;
+CVar* mp_override_character_skin;
 
 // New remote API
 CVar* remote_query_url;

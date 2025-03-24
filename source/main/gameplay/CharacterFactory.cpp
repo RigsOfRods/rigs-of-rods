@@ -61,6 +61,7 @@ Character* CharacterFactory::CreateLocalCharacter()
     int colourNum = -1;
     Ogre::UTFString playerName = "";
     std::string characterFile = App::sim_player_character->getStr();
+    std::string characterSkinfile = App::sim_player_character_skin->getStr();
 
 #ifdef USE_SOCKETW
     if (App::mp_state->getEnum<MpState>() == MpState::CONNECTED)
@@ -68,7 +69,8 @@ Character* CharacterFactory::CreateLocalCharacter()
         RoRnet::UserInfo info = App::GetNetwork()->GetLocalUserData();
         colourNum = info.colournum;
         playerName = tryConvertUTF(info.username);
-        characterFile = info.characterfile;
+        characterFile = info.character_file;
+        characterSkinfile = info.character_skinfile;
     }
 #endif // USE_SOCKETW
 
@@ -93,7 +95,23 @@ Character* CharacterFactory::CreateLocalCharacter()
         }
     }
 
-    App::GetCacheSystem()->LoadResource(cache_entry);
+    CacheEntryPtr skin_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Skin, /*partial:*/false, characterSkinfile);
+    
+    if (skin_entry)
+    {
+        // Make sure it exists
+        App::GetCacheSystem()->LoadResource(skin_entry);
+        if (skin_entry->skin_def == nullptr)
+        {
+            skin_entry = nullptr; // Error already logged
+        }
+    }
+    else
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Could not find character skin '{}' in mod cache, continuing without it.", characterSkinfile));
+    }
+
 
     CharacterDocumentPtr document = this->FetchCharacterDef(cache_entry);
     if (!document)
@@ -101,7 +119,7 @@ Character* CharacterFactory::CreateLocalCharacter()
         return nullptr; // Error already reported
     }
 
-    m_local_character = std::unique_ptr<Character>(new Character(cache_entry, document, -1, 0, playerName, colourNum, false));
+    m_local_character = std::unique_ptr<Character>(new Character(cache_entry, skin_entry, document, -1, 0, playerName, colourNum, false));
     App::GetGfxScene()->RegisterGfxCharacter(m_local_character.get());
     return m_local_character.get();
 }
@@ -118,11 +136,28 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
 
     LOG(" new character for " + info_str);
 
-    CacheEntryPtr cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, info.characterfile);
+    CacheEntryPtr cache_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Character, /*partial:*/false, info.character_file);
     if (!cache_entry)
     {
         App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_ERROR,
-            fmt::format("Could not create character for {} - character '{}' not found in mod cache.", info_str, info.characterfile));
+            fmt::format("Could not create character for {} - character '{}' not found in mod cache.", info_str, info.character_file));
+        return;
+    }
+
+    CacheEntryPtr skin_entry = App::GetCacheSystem()->FindEntryByFilename(LT_Skin, /*partial:*/false, info.character_skinfile);
+    if (skin_entry)
+    {
+        // Make sure it exists
+        App::GetCacheSystem()->LoadResource(skin_entry);
+        if (skin_entry->skin_def == nullptr)
+        {
+            skin_entry = nullptr; // Error already logged
+        }
+    }
+    else
+    {
+        App::GetConsole()->putMessage(Console::CONSOLE_MSGTYPE_INFO, Console::CONSOLE_SYSTEM_WARNING,
+            fmt::format("Could not skin character for {} - skin '{}' not found in mod cache.", info_str, info.character_skinfile));
         return;
     }
 
@@ -134,7 +169,7 @@ void CharacterFactory::createRemoteInstance(int sourceid, int streamid)
         return;
     }
 
-    Character* ch = new Character(cache_entry, document, sourceid, streamid, name, colour, true);
+    Character* ch = new Character(cache_entry, skin_entry, document, sourceid, streamid, name, colour, true);
     App::GetGfxScene()->RegisterGfxCharacter(ch);
     m_remote_characters.push_back(std::unique_ptr<Character>(ch));
 #endif // USE_SOCKETW

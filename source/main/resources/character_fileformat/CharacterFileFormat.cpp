@@ -137,9 +137,9 @@ void CharacterParser::ProcessCurrentLine()
         {
             m_def->mesh_name = GetParam(1);
         }
-        else if (StartsWith(m_cur_line, "material_override"))
+        else if (StartsWith(m_cur_line, "character_guid"))
         {
-            m_def->material_override = GetParam(1);
+            m_def->character_guid = GetParam(1);
         }
         else if (StartsWith(m_cur_line, "mesh_scale"))
         {

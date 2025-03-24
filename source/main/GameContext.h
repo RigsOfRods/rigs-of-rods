@@ -198,7 +198,7 @@ private:
     CacheEntryPtr       m_last_skin_selection;
     CacheEntryPtr       m_last_tuneup_selection;
     Ogre::String        m_last_section_config;
-    ActorSpawnRequest   m_current_selection;                //!< Context of the loader UI
+    ActorSpawnRequest   m_current_selection;                //!< Context of the loader UI (may also be Character!)
     CacheEntryPtr       m_dummy_cache_selection;
 
     // Characters (simplified physics and netcode)
