@@ -1342,8 +1342,7 @@ void CacheSystem::FillGadgetDetailInfo(CacheEntryPtr& entry, Ogre::DataStreamPtr
     GenericDocumentPtr doc = new GenericDocument();
     BitMask_t options 
         = GenericDocument::OPTION_ALLOW_SLASH_COMMENTS 
-        | GenericDocument::OPTION_ALLOW_NAKED_STRINGS
-        | GenericDocument::OPTION_NAKEDSTR_USCORES_TO_SPACES;
+        | GenericDocument::OPTION_ALLOW_NAKED_STRINGS;
     doc->loadFromDataStream(ds, options);
 
     GenericDocContextPtr ctx = new GenericDocContext(doc);
