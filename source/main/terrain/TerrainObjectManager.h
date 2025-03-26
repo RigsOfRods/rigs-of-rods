@@ -134,12 +134,12 @@ protected:
     std::vector<TObjDocumentPtr>          m_tobj_cache;
     int                                   m_tobj_cache_active_id = -1;
     TerrainEditorObjectPtrVec             m_editor_objects;
-    bool                                  m_has_predefined_actors;
+    bool                                  m_has_predefined_actors = false;
     std::vector<AnimatedObject>           m_animated_objects;
     std::vector<ParticleEffectObject>     m_particle_effect_objects;
     std::vector<MeshObject*>              m_mesh_objects;
     SurveyMapEntityVec                    m_map_entities;
-    Terrain*           terrainManager;
+    Terrain*                  terrainManager = nullptr;
     ProceduralManagerPtr      m_procedural_manager;
     int                       m_entity_counter = 0;
     Ogre::SceneNode*          m_terrn2_grouping_node = nullptr; //!< For a readable scene graph (via inspector script)
