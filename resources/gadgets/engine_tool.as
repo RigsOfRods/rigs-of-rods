@@ -34,6 +34,7 @@ void updateEnginePlotBuffers(EngineClass@ engine)
 // #endregion
 
 // #region frameStep
+CVarClass@  g_mp_state = console.cVarFind("mp_state"); // 0=disabled, 1=connecting, 2=connected, see MpState in Application.h
 void frameStep(float dt)
 {
     
@@ -41,6 +42,11 @@ void frameStep(float dt)
     {
         // Draw the "Terminate this script?" prompt on the top (if not disabled by config).
         closeBtnHandler.draw();
+        
+        if (g_mp_state.getInt() == 2)
+        {
+            ImGui::Text("* * * This tool does not work in multiplayer! * * *");
+        }
         
         // force minimum width
         ImGui::Dummy(vector2(250, 1));
