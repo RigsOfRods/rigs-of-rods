@@ -1,0 +1,26 @@
+
+-- hlsl --
+
+cgc -profile hlslv -entry main_nicemetal_vp nicemetal_mm.cg >> mm_nicemetal_vert.hlsl
+cgc -profile hlslf -entry main_nicemetal_fp nicemetal_mm.cg >> mm_nicemetal_frag.hlsl
+cgc -profile hlslf -entry main_nicemetal_transp_fp nicemetal_mm.cg >> mm_nicemetal_transp_frag.hlsl
+cgc -profile hlslf -entry main_nicemetal_fp_nodmg nicemetal_mm.cg >> mm_nicemetal_nodmg_frag.hlsl
+cgc -profile hlslf -entry main_nicemetal_transp_fp_nodmg nicemetal_mm.cg >> mm_nicemetal_transp_nodmg_frag.hlsl
+cgc -profile hlslv -entry reflect_nicemetal_vp nicemetal_mm.cg >> mm_reflect_nicemetal_vert.hlsl
+cgc -profile hlslf -entry reflect_nicemetal_fp nicemetal_mm.cg >> mm_reflect_nicemetal_frag.hlsl
+cgc -profile hlslf -entry reflect_nicemetal_nocolor_fp nicemetal_mm.cg >> mm_reflect_nicemetal_nocolor_frag.hlsl
+cgc -profile hlslf -entry main_simplemetal_fp nicemetal_mm.cg >> mm_simplemetal_frag.hlsl
+cgc -profile hlslf -entry main_simplemetal_transp_fp nicemetal_mm.cg >> mm_simplemetal_transp_frag.hlsl
+
+-- glsl --
+
+cgc -profile glslv -entry main_nicemetal_vp nicemetal_mm.cg >> mm_nicemetal_vert.glsl
+cgc -profile glslf -entry main_nicemetal_fp nicemetal_mm.cg >> mm_nicemetal_frag.glsl
+cgc -profile glslf -entry main_nicemetal_transp_fp nicemetal_mm.cg >> mm_nicemetal_transp_frag.glsl
+cgc -profile glslf -entry main_nicemetal_fp_nodmg nicemetal_mm.cg >> mm_nicemetal_nodmg_frag.glsl
+cgc -profile glslf -entry main_nicemetal_transp_fp_nodmg nicemetal_mm.cg >> mm_nicemetal_transp_nodmg_frag.glsl
+cgc -profile glslv -entry reflect_nicemetal_vp nicemetal_mm.cg >> mm_reflect_nicemetal_vert.glsl
+cgc -profile glslf -entry reflect_nicemetal_fp nicemetal_mm.cg >> mm_reflect_nicemetal_frag.glsl
+cgc -profile glslf -entry reflect_nicemetal_nocolor_fp nicemetal_mm.cg >> mm_reflect_nicemetal_nocolor_frag.glsl
+cgc -profile glslf -entry main_simplemetal_fp nicemetal_mm.cg >> mm_simplemetal_frag.glsl
+cgc -profile glslf -entry main_simplemetal_transp_fp nicemetal_mm.cg >> mm_simplemetal_transp_frag.glsl
