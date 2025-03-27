@@ -39,6 +39,5 @@ tools/l10n/TMP.pot
 redist/
 tmp
 Stamp
-Source
 *.tar.gz
 *.zip
