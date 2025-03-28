@@ -1,6 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
-  ]
+    "config:base"
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["conan"],
+      "registryUrls": [
+        "https://center2.conan.io",
+        "https://git.anotherfoxguy.com/api/packages/rorbot/conan"
+      ]
+    }
+  ],
+  "conan": {
+    "enabled": true
+  }
 }
