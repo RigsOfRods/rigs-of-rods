@@ -55,6 +55,7 @@ private:
     bool m_startupdemo_init = false;
     ImVec4 m_panel_translucent_color = ImVec4(0.1f, 0.1f, 0.1f, 0.5f);
     ImVec4 m_transluc_textdis_color = ImVec4(0.64f, 0.64f, 0.63f, 1.f);
+    float GetPanelWidth();
     /// @}
 
     /// @name 'Vehicle commands' tab

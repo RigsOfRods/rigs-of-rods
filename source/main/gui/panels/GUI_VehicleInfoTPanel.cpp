@@ -41,6 +41,11 @@ const float HELP_TEXTURE_HEIGHT_FULL = 128.f;
 const ImVec2 MAX_PREVIEW_SIZE(100.f, 100.f);
 const float MIN_PANEL_WIDTH = 230.f;
 
+float VehicleInfoTPanel::GetPanelWidth()
+{
+    return m_helptext_fullsize ? std::max(MIN_PANEL_WIDTH, HELP_TEXTURE_WIDTH) : MIN_PANEL_WIDTH;
+}
+
 void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
 {
     // === DETERMINE VISIBILITY ===
@@ -90,7 +95,16 @@ void VehicleInfoTPanel::Draw(RoR::GfxActor* actorx)
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
 
     ImGui::SetNextWindowPos(ImVec2(theme.screen_edge_padding.x, (theme.screen_edge_padding.y + 110)));
-    ImGui::SetNextWindowContentWidth(MIN_PANEL_WIDTH);
+
+    if (m_current_focus == TPANELFOCUS_COMMANDS)
+    {
+      ImGui::SetNextWindowContentWidth(this->GetPanelWidth());
+    }
+    else
+    {
+      ImGui::SetNextWindowContentWidth(MIN_PANEL_WIDTH);
+    }
+
     switch (m_visibility_mode)
     {
         case TPANELMODE_OPAQUE:
@@ -218,7 +232,7 @@ void VehicleInfoTPanel::DrawVehicleCommandsUI(RoR::GfxActor* actorx)
     {
         ImGui::TextDisabled("%s", _LC("VehicleDescription", "Help image:"));
         ImGui::SameLine();
-        ImGui::SetCursorPosX(MIN_PANEL_WIDTH - (ImGui::CalcTextSize(_LC("VehicleDescription", "Full size")).x + 25.f));
+        ImGui::SetCursorPosX(this->GetPanelWidth() - (ImGui::CalcTextSize(_LC("VehicleDescription", "Full size")).x + 25.f));
         ImGui::Checkbox(_LC("VehicleDescription", "Full size"), &m_helptext_fullsize);
         
         if (m_helptext_fullsize)
