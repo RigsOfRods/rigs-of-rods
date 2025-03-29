@@ -171,7 +171,10 @@ ActorPtr ActorManager::CreateNewActor(ActorSpawnRequest rq, RigDef::DocumentPtr 
 
     //compute final mass
     actor->recalculateNodeMasses();
-    actor->ar_initial_total_mass = actor->m_total_mass;
+    actor->ar_initial_total_mass = actor->ar_total_mass;
+    actor->ar_original_dry_mass = actor->ar_dry_mass;
+    actor->ar_original_load_mass = actor->ar_load_mass;
+    actor->ar_orig_minimass = actor->ar_minimass;
     for (int i = 0; i < actor->ar_num_nodes; i++)
     {
         actor->ar_initial_node_masses[i] = actor->ar_nodes[i].mass;

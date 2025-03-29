@@ -301,7 +301,7 @@ void ActorSpawner::InitializeRig()
     m_actor->m_odometer_total = 0;
     m_actor->m_odometer_user  = 0;
 
-    m_actor->m_masscount=0;
+    m_actor->ar_masscount=0;
     m_actor->m_disable_smoke = App::gfx_particles_mode->getInt() == 0;
     m_actor->m_beam_break_debug_enabled  = App::diag_log_beam_break->getBool();
     m_actor->m_beam_deform_debug_enabled = App::diag_log_beam_deform->getBool();
@@ -4876,12 +4876,12 @@ void ActorSpawner::BuildWheelObjectAndNodes(
 void ActorSpawner::AdjustNodeBuoyancy(node_t & node, RigDef::Node & node_def, std::shared_ptr<RigDef::NodeDefaults> defaults)
 {
     unsigned int options = (defaults->options | node_def.options); // Merge flags
-    node.buoyancy = BITMASK_IS_1(options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_actor->m_dry_mass/15.f;
+    node.buoyancy = BITMASK_IS_1(options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_actor->ar_dry_mass/15.f;
 }
 
 void ActorSpawner::AdjustNodeBuoyancy(node_t & node, std::shared_ptr<RigDef::NodeDefaults> defaults)
 {
-    node.buoyancy = BITMASK_IS_1(defaults->options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_actor->m_dry_mass/15.f;
+    node.buoyancy = BITMASK_IS_1(defaults->options, RigDef::Node::OPTION_b_EXTRA_BUOYANCY) ? 10000.f : m_actor->ar_dry_mass/15.f;
 }
 
 void ActorSpawner::BuildWheelBeams(
@@ -6094,7 +6094,7 @@ void ActorSpawner::ProcessNode(RigDef::Node & def)
         }
         else
         {
-            m_actor->m_masscount++;
+            m_actor->ar_masscount++;
         }
     }
     if (BITMASK_IS_1(options, RigDef::Node::OPTION_h_HOOK_POINT))
@@ -6246,8 +6246,8 @@ void ActorSpawner::InitNode(
 
 void ActorSpawner::ProcessGlobals(RigDef::Globals & def)
 {
-    m_actor->m_dry_mass = def.dry_mass;
-    m_actor->m_load_mass = def.cargo_mass;
+    m_actor->ar_dry_mass = def.dry_mass;
+    m_actor->ar_load_mass = def.cargo_mass;
 
     // NOTE: Don't do any material pre-processing here; it'll be done on actual entities (via `SetupNewEntity()`).
     if (! def.material_name.empty())
@@ -6506,7 +6506,7 @@ void ActorSpawner::SetupDefaultSoundSources(ActorPtr const& vehicle)
     //boat engine
     if (vehicle->ar_driveable==BOAT)
     {
-        if (vehicle->m_total_mass>50000.0)
+        if (vehicle->ar_total_mass>50000.0)
             AddSoundSourceInstance(vehicle, "tracks/default_marine_large", ar_exhaust_pos_node);
         else
             AddSoundSourceInstance(vehicle, "tracks/default_marine_small", ar_exhaust_pos_node);

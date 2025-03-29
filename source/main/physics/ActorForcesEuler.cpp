@@ -449,7 +449,7 @@ void Actor::CalcWheels(bool doUpdate, int num_steps)
             cforce *= (0.5f * ar_wheels[i].wh_torque / rlen) * (1.0f - ((offset * 2.0f) / rlen)); // linear modulation
             ar_wheels[i].wh_arm_node->Forces -= cforce;
             ar_wheels[i].wh_near_attach_node->Forces += cforce;
-            ar_wheels[i].debug_scaled_cforce += cforce / m_total_mass / (float)num_steps;
+            ar_wheels[i].debug_scaled_cforce += cforce / ar_total_mass / (float)num_steps;
         }
 
         ar_wheels[i].wh_last_torque = ar_wheels[i].wh_torque;
