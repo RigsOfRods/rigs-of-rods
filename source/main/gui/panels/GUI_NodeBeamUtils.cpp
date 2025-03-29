@@ -58,16 +58,40 @@ void NodeBeamUtils::Draw()
         this->DrawMenubar(actor);
     }
 
-    ImGui::PushItemWidth(500.f); // Width includes [+/-] buttons
-    float ref_mass = actor->ar_initial_total_mass;
-    float cur_mass = actor->getTotalMass(false);
-    if (ImGui::SliderFloat(_LC("NodeBeamUtils", "Total mass"), &cur_mass, ref_mass * 0.5f, ref_mass * 2.0f, "%.2f kg"))
+    if (ImGui::BeginTabBar("NodeBeamUtilsTabBar", ImGuiTabBarFlags_None))
     {
-        actor->ar_nb_mass_scale = cur_mass / ref_mass;
-        actor->ar_nb_initialized = false;
-        actor->applyNodeBeamScales();
+        if (ImGui::BeginTabItem(_LC("NodeBeamUtils", "Mass")))
+        {
+            this->DrawMassTab(actor);
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem(_LC("NodeBeamUtils", "Node/Beam")))
+        {
+            this->DrawNodeBeamTab(actor);
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
     }
-    ImGui::Separator();
+
+    if (m_is_searching)
+    {
+        actor->searchBeamDefaults();
+    }
+
+    m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
+    App::GetGuiManager()->RequestGuiCaptureKeyboard(m_is_hovered);
+
+    ImGui::End();
+    if (!keep_open)
+    {
+        this->SetVisible(false);
+    }
+}
+
+void NodeBeamUtils::DrawNodeBeamTab(ActorPtr actor)
+{
+    ImGui::PushItemWidth(500.f); // Width includes [+/-] buttons
+
     ImGui::TextColored(GRAY_HINT_TEXT, _LC("NodeBeamUtils", "Beams:"));
     if (ImGui::SliderFloat("Spring##Beams", &actor->ar_nb_beams_scale.first, 0.1f, 10.0f, "%.5f"))
     {
@@ -88,13 +112,13 @@ void NodeBeamUtils::Draw()
         actor->applyNodeBeamScales();
     }
     ImGui::Separator();
-    
+
     ImGui::TextColored(GRAY_HINT_TEXT, _LC("NodeBeamUtils", "Wheels:"));
     const float WBASE_WIDTH = 125.f;
     const float WSCALE_WIDTH = 225.f;
     const float WLABEL_GAP = 20.f;
     // WHEEL-SPECIFIC: assume all wheels have same spring/damp and use wheel [0] as the master record
-    
+
     // wheel spring
     ImGui::SetNextItemWidth(WBASE_WIDTH);
     if (ImGui::InputFloat("Base##wheels-spring", &actor->ar_wheels[0].wh_arg_simple_spring))
@@ -125,16 +149,15 @@ void NodeBeamUtils::Draw()
     }
     ImGui::SameLine();
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + WLABEL_GAP);
-    ImGui::Text("Damping (%.2f)", actor->ar_nb_wheels_scale.second* actor->ar_wheels[0].wh_arg_simple_damping);
-    
+    ImGui::Text("Damping (%.2f)", actor->ar_nb_wheels_scale.second * actor->ar_wheels[0].wh_arg_simple_damping);
+
     ImGui::Separator();
     ImGui::Spacing();
     if (ImGui::Button(_LC("NodeBeamUtils", "Reset to default settings"), ImVec2(280.f, 25.f)))
     {
-        actor->ar_nb_mass_scale = 1.0f;
-        actor->ar_nb_beams_scale = {1.0f, 1.0f};
-        actor->ar_nb_shocks_scale = {1.0f, 1.0f};
-        actor->ar_nb_wheels_scale = {1.0f, 1.0f};
+        actor->ar_nb_beams_scale = { 1.0f, 1.0f };
+        actor->ar_nb_shocks_scale = { 1.0f, 1.0f };
+        actor->ar_nb_wheels_scale = { 1.0f, 1.0f };
         actor->SyncReset(true);
     }
     ImGui::SameLine();
@@ -145,42 +168,42 @@ void NodeBeamUtils::Draw()
     ImGui::PopItemWidth();
 
     ImGui::PushItemWidth(235.f); // Width includes [+/-] buttons
-    ImGui::TextColored(GRAY_HINT_TEXT,"%s", _LC("NodeBeamUtils", "Physics steps:"));
-    ImGui::SliderInt("Skip##BeamsInt",         &actor->ar_nb_skip_steps, 0, 2000);
+    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("NodeBeamUtils", "Physics steps:"));
+    ImGui::SliderInt("Skip##BeamsInt", &actor->ar_nb_skip_steps, 0, 2000);
     ImGui::SameLine();
-    ImGui::SliderInt("Measure##BeamsInt",      &actor->ar_nb_measure_steps, 2, 6000);
+    ImGui::SliderInt("Measure##BeamsInt", &actor->ar_nb_measure_steps, 2, 6000);
     ImGui::PopItemWidth();
     ImGui::PushItemWidth(138.f); // Width includes [+/-] buttons
     ImGui::Separator();
-    ImGui::TextColored(GRAY_HINT_TEXT,"%s", _LC("NodeBeamUtils", "Beams (spring & damping search interval):"));
-    ImGui::SliderFloat("##BSL", &actor->ar_nb_beams_k_interval.first,   0.1f, actor->ar_nb_beams_k_interval.second);
+    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("NodeBeamUtils", "Beams (spring & damping search interval):"));
+    ImGui::SliderFloat("##BSL", &actor->ar_nb_beams_k_interval.first, 0.1f, actor->ar_nb_beams_k_interval.second);
     ImGui::SameLine();
-    ImGui::SliderFloat("##BSU", &actor->ar_nb_beams_k_interval.second,  actor->ar_nb_beams_k_interval.first, 10.0f);
+    ImGui::SliderFloat("##BSU", &actor->ar_nb_beams_k_interval.second, actor->ar_nb_beams_k_interval.first, 10.0f);
     ImGui::SameLine();
-    ImGui::SliderFloat("##BDL", &actor->ar_nb_beams_d_interval.first,   0.1f, actor->ar_nb_beams_d_interval.second);
+    ImGui::SliderFloat("##BDL", &actor->ar_nb_beams_d_interval.first, 0.1f, actor->ar_nb_beams_d_interval.second);
     ImGui::SameLine();
-    ImGui::SliderFloat("##BDU", &actor->ar_nb_beams_d_interval.second,  actor->ar_nb_beams_d_interval.first, 10.0f);
-    ImGui::TextColored(GRAY_HINT_TEXT,"%s", _LC("NodeBeamUtils", "Shocks (spring & damping search interval):"));
-    ImGui::SliderFloat("##SSL", &actor->ar_nb_shocks_k_interval.first,  0.1f, actor->ar_nb_shocks_k_interval.second);
+    ImGui::SliderFloat("##BDU", &actor->ar_nb_beams_d_interval.second, actor->ar_nb_beams_d_interval.first, 10.0f);
+    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("NodeBeamUtils", "Shocks (spring & damping search interval):"));
+    ImGui::SliderFloat("##SSL", &actor->ar_nb_shocks_k_interval.first, 0.1f, actor->ar_nb_shocks_k_interval.second);
     ImGui::SameLine();
     ImGui::SliderFloat("##SSU", &actor->ar_nb_shocks_k_interval.second, actor->ar_nb_shocks_k_interval.first, 10.0f);
     ImGui::SameLine();
-    ImGui::SliderFloat("##SDL", &actor->ar_nb_shocks_d_interval.first,  0.1f, actor->ar_nb_shocks_d_interval.second);
+    ImGui::SliderFloat("##SDL", &actor->ar_nb_shocks_d_interval.first, 0.1f, actor->ar_nb_shocks_d_interval.second);
     ImGui::SameLine();
     ImGui::SliderFloat("##SDU", &actor->ar_nb_shocks_d_interval.second, actor->ar_nb_shocks_d_interval.first, 10.0f);
-    ImGui::TextColored(GRAY_HINT_TEXT,"%s", _LC("NodeBeamUtils", "Wheels (spring & damping search interval):"));
-    ImGui::SliderFloat("##WSL", &actor->ar_nb_wheels_k_interval.first,  0.1f, actor->ar_nb_wheels_k_interval.second);
+    ImGui::TextColored(GRAY_HINT_TEXT, "%s", _LC("NodeBeamUtils", "Wheels (spring & damping search interval):"));
+    ImGui::SliderFloat("##WSL", &actor->ar_nb_wheels_k_interval.first, 0.1f, actor->ar_nb_wheels_k_interval.second);
     ImGui::SameLine();
     ImGui::SliderFloat("##WSU", &actor->ar_nb_wheels_k_interval.second, actor->ar_nb_wheels_k_interval.first, 10.0f);
     ImGui::SameLine();
-    ImGui::SliderFloat("##WDL", &actor->ar_nb_wheels_d_interval.first,  0.1f, actor->ar_nb_wheels_d_interval.second);
+    ImGui::SliderFloat("##WDL", &actor->ar_nb_wheels_d_interval.first, 0.1f, actor->ar_nb_wheels_d_interval.second);
     ImGui::SameLine();
     ImGui::SliderFloat("##WDU", &actor->ar_nb_wheels_d_interval.second, actor->ar_nb_wheels_d_interval.first, 10.0f);
     ImGui::PopItemWidth();
     ImGui::Separator();
     ImGui::Spacing();
     if (ImGui::Button(m_is_searching ? _LC("NodeBeamUtils", "Stop searching") : actor->ar_nb_initialized ? _LC("NodeBeamUtils", "Continue searching") : _LC("NodeBeamUtils", "Start searching"),
-                      ImVec2(280.f, 25.f)))
+        ImVec2(280.f, 25.f)))
     {
         m_is_searching = !m_is_searching;
         if (!m_is_searching)
@@ -205,28 +228,14 @@ void NodeBeamUtils::Draw()
         ImGui::Text("%s", _LC("NodeBeamUtils", "Optimum"));
         ImGui::NextColumn();
         ImGui::Separator();
-        ImGui::Text("%s: %f (%f)", _LC("NodeBeamUtils", "Movement"),   actor->ar_nb_reference[5] / actor->ar_num_nodes, actor->ar_nb_reference[4]);
+        ImGui::Text("%s: %f (%f)", _LC("NodeBeamUtils", "Movement"), actor->ar_nb_reference[5] / actor->ar_num_nodes, actor->ar_nb_reference[4]);
         ImGui::Text("%s: %.2f (%.2f)", _LC("NodeBeamUtils", "Stress"), actor->ar_nb_reference[1] / actor->ar_num_beams, actor->ar_nb_reference[0]);
-        ImGui::Text("%s:   %f (%f)", _LC("NodeBeamUtils", "Yitter"),   actor->ar_nb_reference[3] / actor->ar_num_beams, actor->ar_nb_reference[2]);
+        ImGui::Text("%s:   %f (%f)", _LC("NodeBeamUtils", "Yitter"), actor->ar_nb_reference[3] / actor->ar_num_beams, actor->ar_nb_reference[2]);
         ImGui::NextColumn();
-        ImGui::Text("%s: %f (%f)", _LC("NodeBeamUtils", "Movement"),   actor->ar_nb_optimum[5] / actor->ar_num_nodes, actor->ar_nb_optimum[4]);
+        ImGui::Text("%s: %f (%f)", _LC("NodeBeamUtils", "Movement"), actor->ar_nb_optimum[5] / actor->ar_num_nodes, actor->ar_nb_optimum[4]);
         ImGui::Text("%s: %.2f (%.2f)", _LC("NodeBeamUtils", "Stress"), actor->ar_nb_optimum[1] / actor->ar_num_beams, actor->ar_nb_optimum[0]);
-        ImGui::Text("%s:   %f (%f)", _LC("NodeBeamUtils", "Yitter"),   actor->ar_nb_optimum[3] / actor->ar_num_beams, actor->ar_nb_optimum[2]);
+        ImGui::Text("%s:   %f (%f)", _LC("NodeBeamUtils", "Yitter"), actor->ar_nb_optimum[3] / actor->ar_num_beams, actor->ar_nb_optimum[2]);
         ImGui::Columns(1);
-    }
-
-    if (m_is_searching)
-    {
-        actor->searchBeamDefaults();
-    }
-
-    m_is_hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
-    App::GetGuiManager()->RequestGuiCaptureKeyboard(m_is_hovered);
-
-    ImGui::End();
-    if (!keep_open)
-    {
-        this->SetVisible(false);
     }
 }
 
@@ -311,4 +320,56 @@ void NodeBeamUtils::DrawMenubar(ActorPtr actor)
 
         ImGui::EndMenuBar();
     }
+}
+
+void NodeBeamUtils::DrawMassTab(ActorPtr actor)
+{
+    ImGui::TextDisabled(_LC("NodeBeamUtils", "User-defined values:"));
+    if (ImGui::SliderFloat(_LC("NodeBeamUtils", "Dry mass"), &actor->ar_dry_mass,
+        actor->ar_original_dry_mass * 0.4f, actor->ar_original_dry_mass * 1.6f, "%.2f Kg"))
+    {
+        actor->recalculateNodeMasses();
+    }
+    ImGui::SameLine();
+    if (ImGui::SmallButton(_LC("NodeBeamUtils", "Reset")))
+    {
+        actor->ar_dry_mass = actor->ar_original_dry_mass;
+        actor->recalculateNodeMasses();
+    }
+
+    if (ImGui::SliderFloat(_LC("NodeBeamUtils", "Load mass"), &actor->ar_load_mass,
+        actor->ar_original_load_mass * 0.4f, actor->ar_original_load_mass * 1.6f, "%.2f Kg"))
+    {
+        actor->recalculateNodeMasses();
+    }
+    ImGui::SameLine();
+    if (ImGui::SmallButton(_LC("NodeBeamUtils", "Reset")))
+    {
+        actor->ar_load_mass = actor->ar_original_load_mass;
+        actor->recalculateNodeMasses();
+    }
+
+    if (ImGui::SliderFloat(_LC("NodeBeamUtils", "Minimum node mass scale"), &actor->ar_nb_minimass_scale, 0.4, 1.6))
+    {
+        for (int i = 0; i < actor->ar_num_nodes; i++)
+        {
+            actor->ar_minimass[i] = actor->ar_nb_minimass_scale * actor->ar_orig_minimass[i];
+        }
+        actor->recalculateNodeMasses();
+    }
+    ImGui::SameLine();
+    if (ImGui::SmallButton(_LC("NodeBeamUtils", "Reset")))
+    {
+        for (int i = 0; i < actor->ar_num_nodes; i++)
+        {
+            actor->ar_minimass[i] = actor->ar_orig_minimass[i];
+        }
+        actor->ar_nb_minimass_scale = 1.0f;
+        actor->recalculateNodeMasses();
+    }
+    ImGui::Separator();
+    ImGui::TextDisabled(_LC("NodeBeamUtils", "Calculated values:"));
+    ImGui::Text("%s: %f", _LC("NodeBeamUtils", "Total mass"), actor->ar_total_mass);
+    ImGui::Text("%s: %d", _LC("NodeBeamUtils", "Total nodes"), actor->ar_num_nodes);
+    ImGui::Text("%s: %d", _LC("NodeBeamUtils", "Loaded nodes"), actor->ar_masscount);
 }

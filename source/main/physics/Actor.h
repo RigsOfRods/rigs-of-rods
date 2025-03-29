@@ -289,11 +289,13 @@ public:
 
     /// @name Mass
     /// @{
-    float             m_dry_mass = 0.f;              //!< User-defined; from 'globals' arg#1 - default for all nodes
-    float             m_load_mass = 0.f;             //!< User-defined; from 'globals' arg#2 - only applies to nodes with 'l' flag
-    int               m_masscount = 0;               //!< Calculated; Number of nodes loaded with l option
-    float             m_total_mass = 0.f;            //!< Calculated; total mass in Kg
-    float             ar_initial_total_mass = 0.f;   //!< Calculated; total mass in Kg (snapshot at spawn)
+    float             ar_dry_mass = 0.f;              //!< User-defined (editable via NBUtil); from 'globals' arg#1 - default for all nodes
+    float             ar_original_dry_mass = 0.f;     //!< Un-edited value from 'globals' arg#1
+    float             ar_load_mass = 0.f;             //!< User-defined (editable via NBUtil); from 'globals' arg#2 - only applies to nodes with 'l' flag
+    float             ar_original_load_mass = 0.f;    //!< Un-edited value from 'globals' arg#2
+    int               ar_masscount = 0;               //!< Calculated; Number of nodes loaded with l option
+    float             ar_total_mass = 0.f;            //!< Calculated; total mass in Kg
+    float             ar_initial_total_mass = 0.f;    //!< Calculated; total mass in Kg (snapshot at spawn)
     /// @}
 
     // Node data (split to layers)
@@ -304,7 +306,8 @@ public:
     std::vector<float>   ar_nodes_override_loadweights;          //!< 'nodes': 'l' flag and number.
     Ogre::Vector3*       ar_nodes_spawn_offsets = nullptr;       //!< Relative positions (incl. Tuning system tweaks) from the definition file, for spawn-like resetting (i.e. with terrain editor on preloaded actor).
     std::vector<BitMask_t> ar_nodes_options;                     //!< merged options from 'nodes' and 'set_node_defaults'
-    std::vector<float>   ar_minimass;                            //!< minimum node mass in Kg
+    std::vector<float>   ar_minimass;                            //!< minimum node mass in Kg - can be scaled in-game via NBUtil
+    std::vector<float>   ar_orig_minimass;                       //!< minimum node mass in Kg - original unscaled values
     std::vector<float>   ar_initial_node_masses;
     std::vector<Ogre::Vector3> ar_initial_node_positions;        //!< Absolute world positions, for resetting to pristine state.
 
@@ -502,7 +505,7 @@ public:
     std::vector<float>      ar_nb_reference;          //!< Temporary storage of the reference search result
     int                     ar_nb_skip_steps = 0;         //!< Amount of physics steps to be skipped before measuring
     int                     ar_nb_measure_steps = 500;      //!< Amount of physics steps to be measured
-    float                   ar_nb_mass_scale = 1.f;         //!< Global mass scale (affects all nodes the same way)
+    float                   ar_nb_minimass_scale = 1.f; //!< scale of 'set_default_minimass' (affects all nodes the same way)
     std::pair<float, float> ar_nb_beams_scale;        //!< Scales for springiness & damping of regular beams
     std::pair<float, float> ar_nb_shocks_scale;       //!< Scales for springiness & damping of shock beams
     std::pair<float, float> ar_nb_wheels_scale;       //!< Scales for springiness & damping of wheel / rim beams
