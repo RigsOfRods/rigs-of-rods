@@ -208,7 +208,18 @@ CVar* io_invert_orbitcam;
 // Audio
 CVar* audio_master_volume;
 CVar* audio_enable_creak;
+CVar* audio_enable_obstruction;
+CVar* audio_enable_occlusion;
+CVar* audio_enable_directed_sounds;
+CVar* audio_enable_reflection_panning;
+CVar* audio_enable_efx;
+CVar* audio_engine_controls_environmental_audio;
+CVar* audio_efx_reverb_engine;
+CVar* audio_default_efx_preset;
+CVar* audio_force_listener_efx_preset;
+CVar* audio_force_obstruction_inside_vehicles;
 CVar* audio_device_name;
+CVar* audio_doppler_factor;
 CVar* audio_menu_music;
 
 // Graphics
@@ -545,6 +556,17 @@ std::string ToLocalizedString(IoInputGrabMode e)
     case IoInputGrabMode::ALL:       return _LC("IoInputGrabMode", "All");
     case IoInputGrabMode::DYNAMIC:   return _LC("IoInputGrabMode", "Dynamic");
     default:                         return "";
+    }
+}
+
+std::string ToLocalizedString(EfxReverbEngine e)
+{
+    switch (e)
+    {
+    case EfxReverbEngine::NONE:         return _LC("EfxReverbEngine", "None (no reverb, fastest)");
+    case EfxReverbEngine::REVERB:       return _LC("EfxReverbEngine", "REVERB");
+    case EfxReverbEngine::EAXREVERB:    return _LC("EfxReverbEngine", "EAXREVERB (more realistic effects, slower)");
+    default:                            return "";
     }
 }
 
