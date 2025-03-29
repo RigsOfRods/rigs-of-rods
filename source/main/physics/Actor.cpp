@@ -675,7 +675,7 @@ void Actor::recalculateNodeMasses()
             }
             else if (!ar_nodes[i].nd_override_mass)
             {
-                ar_nodes[i].mass = m_load_mass / (float)m_masscount;
+                ar_nodes[i].mass = ar_load_mass / (float)ar_masscount;
             }
         }
     }
@@ -697,7 +697,7 @@ void Actor::recalculateNodeMasses()
     {
         if (ar_beams[i].bm_type != BEAM_VIRTUAL)
         {
-            Real half_mass = ar_beams[i].L * m_dry_mass / len / 2.0f;
+            Real half_mass = ar_beams[i].L * ar_dry_mass / len / 2.0f;
             if (!ar_beams[i].p1->nd_tyre_node)
                 ar_beams[i].p1->mass += half_mass;
             if (!ar_beams[i].p2->nd_tyre_node)
@@ -734,7 +734,7 @@ void Actor::recalculateNodeMasses()
         }
     }
 
-    m_total_mass = 0;
+    ar_total_mass = 0;
     for (int i = 0; i < ar_num_nodes; i++)
     {
         if (App::diag_truck_mass->getBool())
@@ -745,13 +745,13 @@ void Actor::recalculateNodeMasses()
                 if (ar_nodes[i].nd_override_mass)
                     msg += " (overriden by node mass)";
                 else
-                    msg += " (normal load node: " + TOSTRING(m_load_mass) + " kg / " + TOSTRING(m_masscount) + " nodes)";
+                    msg += " (normal load node: " + TOSTRING(ar_load_mass) + " kg / " + TOSTRING(ar_masscount) + " nodes)";
             }
             LOG(msg);
         }
-        m_total_mass += ar_nodes[i].mass;
+        ar_total_mass += ar_nodes[i].mass;
     }
-    LOG("TOTAL VEHICLE MASS: " + TOSTRING((int)m_total_mass) +" kg");
+    LOG("TOTAL VEHICLE MASS: " + TOSTRING((int)ar_total_mass) +" kg");
 }
 
 float Actor::getTotalMass(bool withLocked)
@@ -760,13 +760,13 @@ float Actor::getTotalMass(bool withLocked)
         return 0.f;
 
     if (!withLocked)
-        return m_total_mass; // already computed in RecalculateNodeMasses
+        return ar_total_mass; // already computed in RecalculateNodeMasses
 
-    float mass = m_total_mass;
+    float mass = ar_total_mass;
 
     for (ActorPtr& actor : ar_linked_actors)
     {
-        mass += actor->m_total_mass;
+        mass += actor->ar_total_mass;
     }
 
     return mass;
@@ -1314,7 +1314,7 @@ void Actor::softRespawn(Ogre::Vector3 spawnpos, Ogre::Quaternion spawnrot)
 void Actor::mouseMove(NodeNum_t node, Vector3 pos, float force)
 {
     m_mouse_grab_node = node;
-    m_mouse_grab_move_force = force * std::pow(m_total_mass / 3000.0f, 0.75f);
+    m_mouse_grab_move_force = force * std::pow(ar_total_mass / 3000.0f, 0.75f);
     m_mouse_grab_pos = pos;
 }
 
@@ -1727,13 +1727,6 @@ void Actor::SyncReset(bool reset_position)
 
 void Actor::applyNodeBeamScales()
 {
-    for (int i = 0; i < ar_num_nodes; i++)
-    {
-        ar_nodes[i].mass = ar_initial_node_masses[i] * ar_nb_mass_scale;
-    }
-
-    m_total_mass = ar_initial_total_mass * ar_nb_mass_scale;
-
     for (int i = 0; i < ar_num_beams; i++)
     {
         if ((ar_beams[i].p1->nd_tyre_node || ar_beams[i].p1->nd_rim_node) ||
@@ -4424,12 +4417,12 @@ std::vector<std::string> Actor::getDescription()
 
 void Actor::setMass(float m)
 {
-    m_dry_mass = m;
+    ar_dry_mass = m;
 }
 
 void Actor::setLoadedMass(float m)
 {
-    m_load_mass = m;
+    ar_load_mass = m;
 }
 
 bool Actor::getCustomLightVisible(int number)
